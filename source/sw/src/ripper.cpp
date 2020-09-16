@@ -27,16 +27,14 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
 #include "tags.h"
 #include "ai.h"
 #include "pal.h"
-#include "actor.h"
 #include "sprite.h"
-#include "track.h"
+#include "misc.h"
 
 BEGIN_SW_NS
 
@@ -891,7 +889,7 @@ PickJumpSpeed(short SpriteNum, int pix_height)
     u->jump_speed = -600;
     u->jump_grav = 8;
 
-    while (TRUE)
+    while (true)
     {
         if (GetJumpHeight(u->jump_speed, u->jump_grav) > pix_height + 20)
             break;
@@ -919,7 +917,7 @@ PickJumpMaxSpeed(short SpriteNum, short max_speed)
 
     zh = SPRITEp_TOS(sp);
 
-    while (TRUE)
+    while (true)
     {
         if (zh - Z(GetJumpHeight(u->jump_speed, u->jump_grav)) - Z(16) > u->hiz)
             break;
@@ -947,7 +945,7 @@ InitRipperHang(short SpriteNum)
 
     hitdata_t hitinfo = { { 0, 0, 0 }, -2, 0, -2 };
 
-    SWBOOL Found = FALSE;
+    bool Found = false;
     short dang, tang;
 
     for (dang = 0; dang < 2048; dang += 128)
@@ -971,7 +969,7 @@ InitRipperHang(short SpriteNum)
             continue;
         }
 
-        Found = TRUE;
+        Found = true;
         sp->ang = tang;
         break;
     }
@@ -1091,7 +1089,6 @@ DoRipperBeginJumpAttack(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     SPRITEp psp = User[SpriteNum]->tgt_sp;
-    int CanSeePlayer(short SpriteNum);
     short tang;
 
     tang = getangle(psp->x - sp->x, psp->y - sp->y);
@@ -1167,11 +1164,11 @@ DoRipperQuickJump(short SpriteNum)
             NewStateGroup(SpriteNum, sg_RipperJumpAttack);
             // move past the first state
             u->Tics = 30;
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 

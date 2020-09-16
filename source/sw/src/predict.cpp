@@ -29,7 +29,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define QUIET
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -37,8 +36,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-SWBOOL PredictionOn = TRUE;
-SWBOOL Prediction = FALSE;
+bool PredictionOn = true;
+bool Prediction = false;
 PLAYER PredictPlayer;
 USER PredictUser;
 PLAYERp ppp = &PredictPlayer;
@@ -46,21 +45,16 @@ PLAYERp ppp = &PredictPlayer;
 typedef struct
 {
     int x,y,z;
-    fix16_t q16horiz, q16ang;
+    fixed_t q16horiz, q16ang;
     short filler;
 } PREDICT, *PREDICTp;
 
-PREDICT Predict[MOVEFIFOSIZ];
+PREDICT Predict[/*MOVEFIFOSIZ*/256];
 int predictmovefifoplc;
 
 void DoPlayerSectorUpdatePreMove(PLAYERp);
 void DoPlayerSectorUpdatePostMove(PLAYERp);
 
-#define PREDICT_DEBUG 0
-
-#if PREDICT_DEBUG
-void (*pred_last_func)(PLAYERp) = NULL;
-#endif
 
 void
 InitPrediction(PLAYERp pp)
@@ -68,54 +62,15 @@ InitPrediction(PLAYERp pp)
     if (!PredictionOn)
         return;
 
-#if PREDICT_DEBUG
-    pred_last_func = pp->DoPlayerAction;
-#endif
-
     // make a copy of player struct and sprite
     *ppp = *pp;
     PredictUser = *User[pp->PlayerSprite];
 }
 
-#if PREDICT_DEBUG
-PredictDebug(PLAYERp ppp)
-{
-    static FILE *fout = NULL;
-    static char pred_sym_name[80];
-
-    if (SymCountCode == 0)
-        LoadSymTable("swcode.sym", &SymTableCode, &SymCountCode);
-
-    if (SymCountCode <= 0)
-        return;
-
-    if (!fout)
-    {
-        if ((fout = fopen("dbgpred.txt", "wb")) == NULL)
-            return;
-    }
-
-    if (ppp->DoPlayerAction != pred_last_func)
-    {
-        extern uint32_t MoveThingsCount;
-        SYM_TABLEp st_ptr;
-        uint32_t unrelocated_offset;
-        uint32_t offset_from_symbol;
-
-        unrelocated_offset = SymCodePtrToOffset((void *)ppp->DoPlayerAction);
-        st_ptr = SearchSymTableByOffset(SymTableCode, SymCountCode, unrelocated_offset, &offset_from_symbol);
-        ASSERT(st_ptr);
-        strcpy(pred_sym_name, st_ptr->Name);
-
-        fprintf(fout, "%s, %d\n", pred_sym_name, MoveThingsCount);
-    }
-}
-#endif
-
-
 void
 DoPrediction(PLAYERp ppp)
 {
+#if 0
     USERp u;
     SPRITE spr;
     int bakrandomseed;
@@ -129,23 +84,8 @@ DoPrediction(PLAYERp ppp)
 
     // get rid of input bits so it doesn't go into other code branches that would
     // get it out of sync
-    RESET(ppp->input.bits,
-          BIT(SK_SHOOT)|BIT(SK_OPERATE)|BIT(SK_INV_LEFT)|BIT(SK_INV_RIGHT)|
-          BIT(SK_INV_USE)|BIT(SK_HIDE_WEAPON)|
-          BIT(SK_AUTO_AIM)|
-          BIT(SK_CENTER_VIEW)|
-          SK_WEAPON_MASK|
-          SK_INV_HOTKEY_MASK
-          );
-
-    SET(ppp->KeyPressFlags,
-        BIT(SK_SHOOT)|BIT(SK_OPERATE)|BIT(SK_INV_LEFT)|BIT(SK_INV_RIGHT)|
-        BIT(SK_INV_USE)|BIT(SK_HIDE_WEAPON)|
-        BIT(SK_AUTO_AIM)|
-        BIT(SK_CENTER_VIEW)|
-        SK_WEAPON_MASK|
-        SK_INV_HOTKEY_MASK
-        );
+    ppp->input.actions &= ~(SB_WEAPONMASK_BITS|SB_ITEMUSE_BITS|SB_INVNEXT|SB_INVPREV|SB_INVUSE|SB_HOLSTER|SB_CENTERVIEW|SB_FIRE|SB_OPEN);;
+    ppp->KeyPressBits |= (SB_WEAPONMASK_BITS|SB_ITEMUSE_BITS|SB_INVNEXT|SB_INVPREV|SB_INVUSE|SB_HOLSTER|SB_CENTERVIEW|SB_FIRE|SB_OPEN);
 
     // back up things so they won't get stepped on
     bakrandomseed = randomseed;
@@ -161,16 +101,12 @@ DoPrediction(PLAYERp ppp)
     ppp->oposz = ppp->posz;
     ppp->oq16horiz = ppp->q16horiz;
 
-#if PREDICT_DEBUG
-    PredictDebug(ppp);
-#endif
-
     // go through the player MOVEMENT code only
-    Prediction = TRUE;
+    Prediction = true;
     DoPlayerSectorUpdatePreMove(ppp);
     (*ppp->DoPlayerAction)(ppp);
     DoPlayerSectorUpdatePostMove(ppp);
-    Prediction = FALSE;
+    Prediction = false;
 
     // restore things
     User[ppp->PlayerSprite] = u;
@@ -183,11 +119,13 @@ DoPrediction(PLAYERp ppp)
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].z = ppp->posz;
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].q16horiz = ppp->q16horiz;
     predictmovefifoplc++;
+#endif
 }
 
 void
 CorrectPrediction(int actualfifoplc)
 {
+#if 0
     PREDICTp predict = &Predict[actualfifoplc & (MOVEFIFOSIZ-1)];
 
     if (!PredictionOn)
@@ -207,7 +145,7 @@ CorrectPrediction(int actualfifoplc)
         return;
     }
 
-//    //DSPRINTF(ds,"PREDICT ERROR: %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", fix16_to_int(predict->q16ang),  fix16_to_int(Player[myconnectindex].q16ang), predict->x,    Player[myconnectindex].posx, predict->y,    Player[myconnectindex].posy, predict->z,    Player[myconnectindex].posz,  fix16_to_int(predict->q16horiz),fix16_to_int(Player[myconnectindex].q16horiz));
+//    //DSPRINTF(ds,"PREDICT ERROR: %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", FixedToInt(predict->q16ang),  FixedToInt(Player[myconnectindex].q16ang), predict->x,    Player[myconnectindex].posx, predict->y,    Player[myconnectindex].posy, predict->z,    Player[myconnectindex].posz,  FixedToInt(predict->q16horiz),FixedToInt(Player[myconnectindex].q16horiz));
 //    MONO_PRINT(ds);
 
     InitPrediction(&Player[myconnectindex]);
@@ -218,6 +156,7 @@ CorrectPrediction(int actualfifoplc)
     {
         DoPrediction(ppp);
     }
+#endif
 }
 
 END_SW_NS

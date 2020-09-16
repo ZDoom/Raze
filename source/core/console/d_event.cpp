@@ -39,6 +39,10 @@
 #include "d_gui.h"
 #include "inputstate.h"
 #include "menu.h"
+#include "gamestate.h"
+#include "gamecontrol.h"
+#include "uiinput.h"
+#include "automap.h"
 
 //==========================================================================
 //
@@ -49,6 +53,13 @@
 
 bool G_Responder (event_t *ev)
 {
+	if (CT_Responder(ev))
+		return true;					// chat ate the event
+	if (Cheat_Responder(ev))
+		return true;
+
+	if (gamestate == GS_LEVEL && automapMode != am_off && AM_Responder(ev, false)) return true;
+	
 	switch (ev->type)
 	{
 	case EV_KeyDown:
@@ -69,13 +80,12 @@ bool G_Responder (event_t *ev)
 #endif
 	}
 
-
+	// This won't work as expected with Build's overlay automap.
 #if 0
 	// [RH] If the view is active, give the automap a chance at
 	// the events *last* so that any bound keys get precedence.
-	// An option for later. Currently the automap is insufficiently separated from the game loop
-	if (gamestate == GS_LEVEL && viewactive && primaryLevel->automap)
-		return primaryLevel->automap->Responder (ev, true);
+	if (gamestate == GS_LEVEL && automapMode == am_overlay)
+		return AM_Responder (ev, true);
 #endif
 
 	return (ev->type == EV_KeyDown ||

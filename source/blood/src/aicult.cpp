@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
-#include "aicult.h"
+#include "aistate.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
@@ -39,8 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
-#include "trig.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 
@@ -105,8 +104,8 @@ static void TommySeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    int dx = Cos(pSprite->ang) >> 16;
-    int dy = Sin(pSprite->ang) >> 16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     int dz = gDudeSlope[nXSprite];
     dx += Random3((5-gGameOptions.nDifficulty)*1000);
     dy += Random3((5-gGameOptions.nDifficulty)*1000);
@@ -122,8 +121,8 @@ static void TeslaSeqCallback(int, int nXSprite)
     spritetype *pSprite = &sprite[nSprite];
     if (Chance(dword_138BB0[gGameOptions.nDifficulty]))
     {
-        int dx = Cos(pSprite->ang) >> 16;
-        int dy = Sin(pSprite->ang) >> 16;
+        int dx = CosScale16(pSprite->ang);
+        int dy = SinScale16(pSprite->ang);
         int dz = gDudeSlope[nXSprite];
         dx += Random3((5-gGameOptions.nDifficulty)*1000);
         dy += Random3((5-gGameOptions.nDifficulty)*1000);
@@ -138,8 +137,8 @@ static void ShotSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    int dx = Cos(pSprite->ang) >> 16;
-    int dy = Sin(pSprite->ang) >> 16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     int dz = gDudeSlope[nXSprite];
     dx += Random2((5-gGameOptions.nDifficulty)*1000-500);
     dy += Random2((5-gGameOptions.nDifficulty)*1000-500);

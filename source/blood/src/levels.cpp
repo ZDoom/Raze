@@ -27,20 +27,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "common_game.h"
 
-#include "asound.h"
 #include "blood.h"
-#include "config.h"
-#include "credits.h"
+#include "globals.h"
 #include "endgame.h"
 #include "inifile.h"
 #include "levels.h"
 #include "loadsave.h"
 #include "messages.h"
-#include "network.h"
-#include "screen.h"
 #include "seq.h"
 #include "sound.h"
-#include "sfx.h"
 #include "view.h"
 #include "eventq.h"
 #include "menu.h"
@@ -50,20 +45,16 @@ BEGIN_BLD_NS
 GAMEOPTIONS gGameOptions;
 
 GAMEOPTIONS gSingleGameOptions = {
-    0, 2, 0, 0, "", 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
+    0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
 };
 
 EPISODEINFO gEpisodeInfo[kMaxEpisodes+1];
 
 int gSkill = 2;
 int gEpisodeCount;
-int gNextLevel;
-bool gGameStarted;
-
-int gLevelTime;
+int gNextLevel; // fixme: let this contain a full level number.
 
 char BloodIniFile[BMAX_PATH] = "BLOOD.INI";
-char BloodIniPre[BMAX_PATH];
 bool bINIOverride = false;
 IniFile *BloodINI;
 
@@ -73,9 +64,7 @@ void levelInitINI(const char *pzIni)
 	if (!fileSystem.FileExists(pzIni))
         ThrowError("Initialization: %s does not exist", pzIni);
     BloodINI = new IniFile(pzIni);
-    Bstrncpy(BloodIniFile, pzIni, BMAX_PATH);
-    Bstrncpy(BloodIniPre, pzIni, BMAX_PATH);
-    ChangeExtension(BloodIniPre, "");
+    strncpy(BloodIniFile, pzIni, BMAX_PATH);
 }
 
 
@@ -83,35 +72,6 @@ void levelOverrideINI(const char *pzIni)
 {
     bINIOverride = true;
     strcpy(BloodIniFile, pzIni);
-}
-
-void levelPlayIntroScene(int nEpisode)
-{
-    gGameOptions.uGameFlags &= ~4;
-    Mus_SetPaused(true);
-    sndKillAllSounds();
-    sfxKillAllSounds();
-    ambKillAll();
-    seqKillAll();
-    EPISODEINFO *pEpisode = &gEpisodeInfo[nEpisode];
-    credPlaySmk(pEpisode->at8f08, pEpisode->at9030, pEpisode->at9028);
-    viewResizeView(gViewSize);
-    credReset();
-    Mus_SetPaused(false);
-}
-
-void levelPlayEndScene(int nEpisode)
-{
-    gGameOptions.uGameFlags &= ~8;
-    Mus_Stop();
-    sndKillAllSounds();
-    sfxKillAllSounds();
-    ambKillAll();
-    seqKillAll();
-    EPISODEINFO *pEpisode = &gEpisodeInfo[nEpisode];
-    credPlaySmk(pEpisode->at8f98, pEpisode->at90c0, pEpisode->at902c);
-    viewResizeView(gViewSize);
-    credReset();
 }
 
 void levelClearSecrets(void)
@@ -143,61 +103,6 @@ void CheckKeyAbend(const char *pzSection, const char *pzKey)
         ThrowError("Key %s expected in section [%s] of BLOOD.INI", pzKey, pzSection);
 }
 
-MapRecord * levelGetInfoPtr(int nEpisode, int nLevel)
-{
-    dassert(nEpisode >= 0 && nEpisode < gEpisodeCount);
-    EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[nEpisode];
-    dassert(nLevel >= 0 && nLevel < pEpisodeInfo->nLevels);
-    return &pEpisodeInfo->levels[nLevel];
-}
-
-const char * levelGetFilename(int nEpisode, int nLevel)
-{
-    dassert(nEpisode >= 0 && nEpisode < gEpisodeCount);
-    EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[nEpisode];
-    dassert(nLevel >= 0 && nLevel < pEpisodeInfo->nLevels);
-    return pEpisodeInfo->levels[nLevel].labelName;
-}
-
-const char * levelGetMessage(int nMessage)
-{
-    int nEpisode = gGameOptions.nEpisode;
-    int nLevel = gGameOptions.nLevel;
-    dassert(nMessage < kMaxMessages);
-    const char *pMessage = gEpisodeInfo[nEpisode].levels[nLevel].GetMessage(nMessage);
-    if (*pMessage == 0)
-        return NULL;
-    return pMessage;
-}
-
-const char * levelGetTitle(void)
-{
-    int nEpisode = gGameOptions.nEpisode;
-    int nLevel = gGameOptions.nLevel;
-    const char *pTitle = gEpisodeInfo[nEpisode].levels[nLevel].DisplayName();
-    if (*pTitle == 0)
-        return NULL;
-    return pTitle;
-}
-
-const char * levelGetAuthor(void)
-{
-    int nEpisode = gGameOptions.nEpisode;
-    int nLevel = gGameOptions.nLevel;
-    const char *pAuthor = gEpisodeInfo[nEpisode].levels[nLevel].author;
-    if (*pAuthor == 0)
-        return NULL;
-    return pAuthor;
-}
-
-void levelSetupOptions(int nEpisode, int nLevel)
-{
-    gGameOptions.nEpisode = nEpisode;
-    gGameOptions.nLevel = nLevel;
-    strcpy(gGameOptions.zLevelName, gEpisodeInfo[nEpisode].levels[nLevel].labelName);
-    gGameOptions.uMapCRC = dbReadMapCRC(gGameOptions.zLevelName);
-    gGameOptions.nTrackNumber = gEpisodeInfo[nEpisode].levels[nLevel].cdSongId;
-}
 
 void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSection, int epinum, int mapnum)
 {
@@ -206,23 +111,29 @@ void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSectio
     pLevelInfo->author = pIni->GetKeyString(pzSection, "Author", "");
     pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", ""); DefaultExtension(pLevelInfo->music, ".mid");
     pLevelInfo->cdSongId = pIni->GetKeyInt(pzSection, "Track", -1);
-    pLevelInfo->nextLevel = pIni->GetKeyInt(pzSection, "EndingA", -1); //if (pLevelInfo->nextLevel >= 0) pLevelInfo->nextLevel +epinum * kMaxLevels;
-    pLevelInfo->nextSecret = pIni->GetKeyInt(pzSection, "EndingB", -1); //if (pLevelInfo->nextSecret >= 0) pLevelInfo->nextSecret + epinum * kMaxLevels;
+    pLevelInfo->nextLevel = pIni->GetKeyInt(pzSection, "EndingA", -1);
+    pLevelInfo->nextSecret = pIni->GetKeyInt(pzSection, "EndingB", -1);
     pLevelInfo->fog = pIni->GetKeyInt(pzSection, "Fog", -0);
     pLevelInfo->weather = pIni->GetKeyInt(pzSection, "Weather", -0);
-    pLevelInfo->messageStart = 1024 + ((epinum * kMaxLevels) + mapnum) * kMaxMessages;
     for (int i = 0; i < kMaxMessages; i++)
     {
         sprintf(buffer, "Message%d", i+1);
-        quoteMgr.InitializeQuote(pLevelInfo->messageStart + i, pIni->GetKeyString(pzSection, buffer, ""), true);
+		auto msg = pIni->GetKeyString(pzSection, buffer, "");
+		pLevelInfo->AddMessage(i, msg);
     }
+}
+
+static const char* DefFile(void)
+{
+    // The command line parser stores this in the CON field.
+    return userConfig.DefaultCon.IsNotEmpty() ? userConfig.DefaultCon.GetChars() : "blood.ini";
 }
 
 void levelLoadDefaults(void)
 {
     char buffer[64];
     char buffer2[16];
-    levelInitINI(G_ConFile());	// This doubles for the INI in the global code.
+    levelInitINI(DefFile());
     memset(gEpisodeInfo, 0, sizeof(gEpisodeInfo));
     quoteMgr.InitializeQuote(MUS_INTRO, "PESTIS.MID");
     int i;
@@ -234,33 +145,33 @@ void levelLoadDefaults(void)
         EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[i];
 		auto ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
 		gVolumeNames[i] = ep_str; // only keep one table for the names. Todo: Consolidate this across games.
-        strncpy(pEpisodeInfo->at8f08, BloodINI->GetKeyString(buffer, "CutSceneA", ""), BMAX_PATH);
+        strncpy(pEpisodeInfo->cutsceneAName, BloodINI->GetKeyString(buffer, "CutSceneA", ""), BMAX_PATH);
         pEpisodeInfo->at9028 = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
         if (pEpisodeInfo->at9028 == 0)
-            strncpy(pEpisodeInfo->at9030, BloodINI->GetKeyString(buffer, "CutWavA", ""), BMAX_PATH);
+            strncpy(pEpisodeInfo->cutsceneASound, BloodINI->GetKeyString(buffer, "CutWavA", ""), BMAX_PATH);
         else
-            pEpisodeInfo->at9030[0] = 0;
-        strncpy(pEpisodeInfo->at8f98, BloodINI->GetKeyString(buffer, "CutSceneB", ""), BMAX_PATH);
+            pEpisodeInfo->cutsceneASound[0] = 0;
+        strncpy(pEpisodeInfo->cutsceneBName, BloodINI->GetKeyString(buffer, "CutSceneB", ""), BMAX_PATH);
         pEpisodeInfo->at902c = BloodINI->GetKeyInt(buffer, "CutWavB", -1);
         if (pEpisodeInfo->at902c == 0)
-            strncpy(pEpisodeInfo->at90c0, BloodINI->GetKeyString(buffer, "CutWavB", ""), BMAX_PATH);
+            strncpy(pEpisodeInfo->cutsceneBSound, BloodINI->GetKeyString(buffer, "CutWavB", ""), BMAX_PATH);
         else
-            pEpisodeInfo->at90c0[0] = 0;
+            pEpisodeInfo->cutsceneBSound[0] = 0;
 
         pEpisodeInfo->bloodbath = BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0);
         pEpisodeInfo->cutALevel = BloodINI->GetKeyInt(buffer, "CutSceneALevel", 0);
         if (pEpisodeInfo->cutALevel > 0)
             pEpisodeInfo->cutALevel--;
-        pEpisodeInfo->levels = mapList + i * kMaxLevels;
         int j;
         for (j = 0; j < kMaxLevels; j++)
         {
-            auto pLevelInfo = &pEpisodeInfo->levels[j];
             sprintf(buffer2, "Map%d", j+1);
             if (!BloodINI->KeyExists(buffer, buffer2))
                 break;
+            auto pLevelInfo = AllocateMap();
             const char *pMap = BloodINI->GetKeyString(buffer, buffer2, NULL);
             CheckSectionAbend(pMap);
+			pLevelInfo->levelNumber = levelnum(i, j);
             pLevelInfo->labelName = pMap;
             pLevelInfo->fileName.Format("%s.map", pMap);
             levelLoadMapInfo(BloodINI, pLevelInfo, pMap, i, j);
@@ -270,43 +181,13 @@ void levelLoadDefaults(void)
     gEpisodeCount = i;
 }
 
-void levelAddUserMap(const char *pzMap)
-{
-    char buffer[BMAX_PATH];
-    strncpy(buffer, pzMap, BMAX_PATH);
-    ChangeExtension(buffer, ".DEF");
-
-    IniFile UserINI(buffer);
-    int nEpisode = ClipRange(UserINI.GetKeyInt(NULL, "Episode", 0), 0, 5);
-    EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[nEpisode];
-    int nLevel = ClipRange(UserINI.GetKeyInt(NULL, "Level", pEpisodeInfo->nLevels), 0, 15);
-    if (nLevel >= pEpisodeInfo->nLevels)
-    {
-        if (pEpisodeInfo->nLevels == 0)
-        {
-            gEpisodeCount++;
-			gVolumeNames[nEpisode].Format("Episode %d", nEpisode+1);
-        }
-        nLevel = pEpisodeInfo->nLevels++;
-    }
-    auto pLevelInfo = &pEpisodeInfo->levels[nLevel];
-    ChangeExtension(buffer, "");
-    pLevelInfo->name = buffer;
-    levelLoadMapInfo(&UserINI, pLevelInfo, NULL, nEpisode, nLevel);
-    gGameOptions.nEpisode = nEpisode;
-    gGameOptions.nLevel = nLevel;
-    gGameOptions.uMapCRC = dbReadMapCRC(pLevelInfo->name);
-    strcpy(gGameOptions.zLevelName, pLevelInfo->name);
-}
-
-void levelGetNextLevels(int nEpisode, int nLevel, int *pnEndingA, int *pnEndingB)
+void levelGetNextLevels(int *pnEndingA, int *pnEndingB)
 {
     dassert(pnEndingA != NULL && pnEndingB != NULL);
-    auto pLevelInfo = &gEpisodeInfo[nEpisode].levels[nLevel];
-    int nEndingA = pLevelInfo->nextLevel;
+    int nEndingA = currentLevel->nextLevel;
     if (nEndingA >= 0)
         nEndingA--;
-    int nEndingB = pLevelInfo->nextSecret;
+    int nEndingB = currentLevel->nextSecret;
     if (nEndingB >= 0)
         nEndingB--;
     *pnEndingA = nEndingA;
@@ -316,18 +197,18 @@ void levelGetNextLevels(int nEpisode, int nLevel, int *pnEndingA, int *pnEndingB
 void levelEndLevel(int arg)
 {
     int nEndingA, nEndingB;
-    EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[gGameOptions.nEpisode];
-    gGameOptions.uGameFlags |= 1;
-    levelGetNextLevels(gGameOptions.nEpisode, gGameOptions.nLevel, &nEndingA, &nEndingB);
+    auto episode = volfromlevelnum(currentLevel->levelNumber);
+    EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[episode];
+    gGameOptions.uGameFlags |= GF_AdvanceLevel;
+    levelGetNextLevels(&nEndingA, &nEndingB);
     switch (arg)
     {
     case 0:
         if (nEndingA == -1)
         {
-            if (pEpisodeInfo->at8f98[0])
-                gGameOptions.uGameFlags |= 8;
-            gGameOptions.nLevel = 0;
-            gGameOptions.uGameFlags |= 2;
+            if (pEpisodeInfo->cutsceneBName[0])
+                gGameOptions.uGameFlags |= GF_PlayCutscene;
+            gGameOptions.uGameFlags |= GF_EndGame;
         }
         else
             gNextLevel = nEndingA;
@@ -335,17 +216,15 @@ void levelEndLevel(int arg)
     case 1:
         if (nEndingB == -1)
         {
-            if (gGameOptions.nEpisode + 1 < gEpisodeCount)
+            if (episode + 1 < gEpisodeCount)
             {
-                if (pEpisodeInfo->at8f98[0])
-                    gGameOptions.uGameFlags |= 8;
-                gGameOptions.nLevel = 0;
-                gGameOptions.uGameFlags |= 2;
+                if (pEpisodeInfo->cutsceneBName[0])
+                    gGameOptions.uGameFlags |= GF_PlayCutscene;
+                gGameOptions.uGameFlags |= GF_EndGame;
             }
             else
             {
-                gGameOptions.nLevel = 0;
-                gGameOptions.uGameFlags |= 1;
+                gGameOptions.uGameFlags |= GF_AdvanceLevel;
             }
         }
         else
@@ -354,45 +233,21 @@ void levelEndLevel(int arg)
     }
 }
 
-void levelRestart(void)
-{
-    levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
-    gStartNewGame = true;
-}
-
-int levelGetMusicIdx(const char *str)
-{
-    int32_t lev, ep;
-    signed char b1, b2;
-
-    int numMatches = sscanf(str, "%c%d%c%d", &b1, &ep, &b2, &lev);
-
-    if (numMatches != 4 || Btoupper(b1) != 'E' || Btoupper(b2) != 'L')
-        return -1;
-
-    if ((unsigned)--lev >= kMaxLevels || (unsigned)--ep >= kMaxEpisodes)
-        return -2;
-
-    return (ep * kMaxLevels) + lev;
-}
-
-bool levelTryPlayMusic(int nEpisode, int nLevel, bool bSetLevelSong)
+void levelTryPlayMusic()
 {
     FString buffer;
-    if (mus_redbook && gEpisodeInfo[nEpisode].levels[nLevel].cdSongId > 0)
-        buffer.Format("blood%02i.ogg", gEpisodeInfo[nEpisode].levels[nLevel].cdSongId);
+    if (mus_redbook && currentLevel->cdSongId > 0)
+        buffer.Format("blood%02i.ogg", currentLevel->cdSongId);
     else
     {
-        buffer = gEpisodeInfo[nEpisode].levels[nLevel].music;
+        buffer = currentLevel->music;
+		if (Mus_Play(currentLevel->labelName, buffer, true)) return;
         DefaultExtension(buffer, ".mid");
     }
-    return !!Mus_Play(gEpisodeInfo[nEpisode].levels[nLevel].labelName, buffer, true);
-}
-
-void levelTryPlayMusicOrNothing(int nEpisode, int nLevel)
-{
-    if (!levelTryPlayMusic(nEpisode, nLevel, true))
+    if (!Mus_Play(currentLevel->labelName, buffer, true))
+    {
         Mus_Play("", "", true);
+    }
 }
 
 class LevelsLoadSave : public LoadSave
@@ -408,14 +263,12 @@ void LevelsLoadSave::Load(void)
 {
     Read(&gNextLevel, sizeof(gNextLevel));
     Read(&gGameOptions, sizeof(gGameOptions));
-    Read(&gGameStarted, sizeof(gGameStarted));
 }
 
 void LevelsLoadSave::Save(void)
 {
     Write(&gNextLevel, sizeof(gNextLevel));
     Write(&gGameOptions, sizeof(gGameOptions));
-    Write(&gGameStarted, sizeof(gGameStarted));
 }
 
 void LevelsLoadSaveConstruct(void)

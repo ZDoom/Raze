@@ -9,14 +9,12 @@
 #define engine_c_
 
 #include "gl_load.h"
-#include "baselayer.h"
 #include "build.h"
+#include "automap.h"
 
 #include "imagehelpers.h"
-#include "common.h"
 #include "compat.h"
 #include "engine_priv.h"
-#include "osd.h"
 #include "palette.h"
 #include "pragmas.h"
 #include "scriptfile.h"
@@ -28,6 +26,9 @@
 #include "menu.h"
 #include "version.h"
 #include "earcut.hpp"
+#include "gamestate.h"
+#include "inputstate.h"
+#include "printf.h"
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
@@ -37,36 +38,10 @@
 #include "gl_renderer.h"
 #endif
 
-//////////
-// Compilation switches for optional/extended engine features
-
-#if !defined(__arm__) && !defined(GEKKO)
-# define HIGH_PRECISION_SPRITE
-#endif
-
-#if !defined EDUKE32_TOUCH_DEVICES && !defined GEKKO && !defined __OPENDINGUX__
-// Handle absolute z difference of floor/ceiling to camera >= 1<<24.
-// Also: higher precision view-relative x and y for drawvox().
-# define CLASSIC_Z_DIFF_64
-#endif
-
-#define MULTI_COLUMN_VLINE
 
 int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
 
-// Handle nonpow2-ysize walls the old way?
-static FORCE_INLINE int32_t oldnonpow2(void)
-{
-#if !defined CLASSIC_NONPOW2_YSIZE_WALLS
-    return 1;
-#else
-    return (g_loadedMapVersion < 10);
-#endif
-}
-
-bool playing_rr;
-bool playing_blood;
 int32_t rendmode=0;
 int32_t glrendmode = REND_POLYMOST;
 int32_t r_rortexture = 0;
@@ -85,7 +60,6 @@ int16_t pskybits_override = -1;
 // This was on the cache but is permanently allocated, so put it into something static. This needs some rethinking anyway
 static TArray<TArray<uint8_t>> voxelmemory;
 
-void (*loadvoxel_replace)(int32_t voxindex) = NULL;
 int16_t tiletovox[MAXTILES];
 #ifdef USE_OPENGL
 char *voxfilenames[MAXVOXELS];
@@ -95,22 +69,12 @@ char g_haveVoxels;
 
 int32_t novoxmips = 1;
 
-//These variables need to be copied into BUILD
-#define MAXXSIZ 256
-#define MAXYSIZ 256
-#define MAXZSIZ 255
-
 int32_t voxscale[MAXVOXELS];
 
 static int32_t beforedrawrooms = 1;
 
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
-// r_usenewaspect is the cvar, newaspect_enable to trigger the new behaviour in the code
-CVAR(Bool, r_usenewaspect, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
-int32_t newaspect_enable=0;
-
-int32_t r_fpgrouscan = 1;
 int32_t globalflags;
 
 static int8_t tempbuf[MAXWALLS];
@@ -134,7 +98,35 @@ int32_t showheightindicators=1;
 int32_t circlewall=-1;
 
 int16_t editstatus = 0;
-static fix16_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
+static fixed_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
+
+static FString printcoords(void)
+{
+    FString str;
+
+    str.Format(
+        "pos.x: %d\n"
+        "pos.y: %d\n"
+        "pos.z: %d\n"
+        "ang  : %d\n"
+        "horiz: %d\n",
+        globalposx, globalposy,
+        globalposz, globalang, 
+        FixedToInt(global100horiz)
+    );
+
+    return str;
+}
+
+CCMD(printcoords)
+{
+    Printf("%s", printcoords().GetChars());
+}
+
+ADD_STAT(printcoords)
+{
+    return printcoords();
+}
 
 int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade) = NULL;
 
@@ -162,920 +154,13 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
     }
 
     i = ((i << 15) / j) << 15;
-    //i = tabledivide64((i << 15), j) << 15;
 
     *closest = { (int32_t)(w.x + ((d.x * i) >> 30)), (int32_t)(w.y + ((d.y * i) >> 30)) };
 }
 
-
-void faketimerhandler()
-{
-}
-
-
-
-#if !defined YAX_ENABLE
-# warning Non-TROR builds are supported only for debugging. Expect savegame breakage etc...
-#endif
-
-#ifdef YAX_ENABLE
-// all references to floor/ceiling bunchnums should be through the
-// get/set functions!
-
-int32_t g_nodraw = 0;
-int32_t scansector_retfast = 0;
-int32_t scansector_collectsprites = 1;
-int32_t yax_globalcf = -1, yax_nomaskpass=0, yax_nomaskdidit;  // engine internal
-int32_t r_tror_nomaskpass = 1;  // cvar
-int32_t yax_globallev = YAX_MAXDRAWS;
-int32_t yax_globalbunch = -1;
-int32_t yax_polymostclearzbuffer = 1;
-
-// duplicated tsprites
-//  [i]:
-//   i==MAXDRAWS: base level
-//   i<MAXDRAWS: MAXDRAWS-i-1 is level towards ceiling
-//   i>MAXDRAWS: i-MAXDRAWS-1 is level towards floor
-static int16_t yax_spritesortcnt[1 + 2*YAX_MAXDRAWS];
-static uint16_t yax_tsprite[1 + 2*YAX_MAXDRAWS][MAXSPRITESONSCREEN];
-static uint8_t yax_tsprfrombunch[1 + 2*YAX_MAXDRAWS][MAXSPRITESONSCREEN];
-
-// drawn sectors
-uint8_t yax_gotsector[(MAXSECTORS+7)>>3];  // engine internal
-
-# if !defined NEW_MAP_FORMAT
-// Game-time YAX data structures, V7-V9 map formats.
-int16_t yax_bunchnum[MAXSECTORS][2];
-int16_t yax_nextwall[MAXWALLS][2];
-
-static FORCE_INLINE int32_t yax_islockededge(int32_t line, int32_t cf)
-{
-    return !!(wall[line].cstat&(YAX_NEXTWALLBIT(cf)));
-}
-
-#define YAX_PTRBUNCHNUM(Ptr, Sect, Cf) (*(&Ptr[Sect].ceilingxpanning + 8*Cf))
-#define YAX_BUNCHNUM(Sect, Cf) YAX_PTRBUNCHNUM(sector, Sect, Cf)
-
-//// bunch getters/setters
-int16_t yax_getbunch(int16_t i, int16_t cf)
-{
-    if (editstatus==0)
-        return yax_bunchnum[i][cf];
-
-    return (*(&sector[i].ceilingstat + cf) & YAX_BIT) ? YAX_BUNCHNUM(i, cf) : -1;
-}
-# endif
-
-// bunchnum: -1: also clear yax-nextwalls (forward and reverse)
-//           -2: don't clear reverse yax-nextwalls
-//           -3: don't clear either forward or reverse yax-nextwalls
-void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
-{
-    if (editstatus==0)
-    {
-        yax_bunchnum[i][cf] = bunchnum;
-        return;
-    }
-
-    if (bunchnum < 0)
-    {
-        if (bunchnum > -3)
-        {
-            // TODO: for in-game too?
-            for (bssize_t ynw, j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
-            {
-                ynw = yax_getnextwall(j, cf);
-                if (ynw >= 0)
-                {
-                    if (bunchnum > -2)
-                        yax_setnextwall(ynw, !cf, -1);
-                    yax_setnextwall(j, cf, -1);
-                }
-            }
-        }
-
-        *(&sector[i].ceilingstat + cf) &= ~YAX_BIT;
-        // NOTE: Don't reset xpanning-as-index, since we can be called from
-        // e.g. Mapster32's "Inner loop made into new sector" functionality.
-        return;
-    }
-
-    *(&sector[i].ceilingstat + cf) |= YAX_BIT;
-    YAX_BUNCHNUM(i, cf) = bunchnum;
-}
-
-void yax_setbunches(int16_t i, int16_t cb, int16_t fb)
-{
-    yax_setbunch(i, YAX_CEILING, cb);
-    yax_setbunch(i, YAX_FLOOR, fb);
-}
-
-# if !defined NEW_MAP_FORMAT
-//// nextwall getters/setters
-int16_t yax_getnextwall(int16_t wal, int16_t cf)
-{
-    if (editstatus==0)
-        return yax_nextwall[wal][cf];
-
-    return yax_islockededge(wal, cf) ? YAX_NEXTWALL(wal, cf) : -1;
-}
-
-// unchecked!
-void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
-{
-    if (editstatus==0)
-    {
-        yax_nextwall[wal][cf] = thenextwall;
-        return;
-    }
-
-    if (thenextwall >= 0)
-    {
-        wall[wal].cstat |= YAX_NEXTWALLBIT(cf);
-        YAX_NEXTWALL(wal, cf) = thenextwall;
-    }
-    else
-    {
-        wall[wal].cstat &= ~YAX_NEXTWALLBIT(cf);
-        YAX_NEXTWALL(wal, cf) = YAX_NEXTWALLDEFAULT(cf);
-    }
-}
-# endif
-
-// make one step in the vertical direction, and if the wall we arrive at
-// is red, return its nextsector.
-int16_t yax_vnextsec(int16_t line, int16_t cf)
-{
-    int16_t const ynw = yax_getnextwall(line, cf);
-    return (ynw < 0) ? -1 : wall[ynw].nextsector;
-}
-
-
-//// in-struct --> array transfer (only resetstat==0); list construction
-// resetstat:  0: reset and read data from structs and construct linked lists etc.
-//             1: only reset
-//             2: read data from game-time arrays and construct linked lists etc.
-void yax_update(int32_t resetstat)
-{
-    int32_t i;
-#if !defined NEW_MAP_FORMAT
-    int32_t j;
-    const int32_t oeditstatus=editstatus;
-#endif
-    int16_t cb, fb;
-
-    if (resetstat != 2)
-        numyaxbunches = 0;
-
-    for (i=0; i<MAXSECTORS; i++)
-    {
-#if !defined NEW_MAP_FORMAT
-        if (resetstat != 2 || i>=numsectors)
-            yax_bunchnum[i][0] = yax_bunchnum[i][1] = -1;
-#endif
-        nextsectbunch[0][i] = nextsectbunch[1][i] = -1;
-    }
-    for (i=0; i<YAX_MAXBUNCHES; i++)
-        headsectbunch[0][i] = headsectbunch[1][i] = -1;
-#if !defined NEW_MAP_FORMAT
-    for (i=0; i<MAXWALLS; i++)
-        if (resetstat != 2 || i>=numwalls)
-            yax_nextwall[i][0] = yax_nextwall[i][1] = -1;
-#endif
-
-    if (resetstat==1)
-        return;
-
-    // Constuct singly linked list of sectors-of-bunch.
-
-#if !defined NEW_MAP_FORMAT
-    // Read bunchnums directly from the sector struct in yax_[gs]etbunch{es}!
-    editstatus = (resetstat==0);
-    // NOTE: Use oeditstatus to check for in-gamedness from here on!
-#endif
-
-    if (resetstat==0)
-    {
-        // make bunchnums consecutive
-        uint8_t *const havebunch = (uint8_t *)tempbuf;
-        uint8_t *const bunchmap = havebunch + ((YAX_MAXBUNCHES+7)>>3);
-        int32_t dasub = 0;
-
-        Bmemset(havebunch, 0, (YAX_MAXBUNCHES+7)>>3);
-        for (i=0; i<numsectors; i++)
-        {
-            yax_getbunches(i, &cb, &fb);
-            if (cb>=0)
-                havebunch[cb>>3] |= pow2char[cb&7];
-            if (fb>=0)
-                havebunch[fb>>3] |= pow2char[fb&7];
-        }
-
-        for (i=0; i<YAX_MAXBUNCHES; i++)
-        {
-            if ((havebunch[i>>3]&pow2char[i&7])==0)
-            {
-                bunchmap[i] = 255;
-                dasub++;
-                continue;
-            }
-
-            bunchmap[i] = i-dasub;
-        }
-
-        for (i=0; i<numsectors; i++)
-        {
-            yax_getbunches(i, &cb, &fb);
-            if (cb>=0)
-                yax_setbunch(i, YAX_CEILING, bunchmap[cb]);
-            if (fb>=0)
-                yax_setbunch(i, YAX_FLOOR, bunchmap[fb]);
-        }
-    }
-
-    // In-struct --> array transfer (resetstat==0 and !defined NEW_MAP_FORMAT)
-    // and list construction.
-    for (i=numsectors-1; i>=0; i--)
-    {
-        yax_getbunches(i, &cb, &fb);
-#if !defined NEW_MAP_FORMAT
-        if (resetstat==0)
-        {
-            yax_bunchnum[i][0] = cb;
-            yax_bunchnum[i][1] = fb;
-        }
-#endif
-
-        if (cb >= 0)
-        {
-#if !defined NEW_MAP_FORMAT
-            if (resetstat==0)
-                for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
-                {
-                    if (yax_islockededge(j,YAX_CEILING))
-                    {
-                        yax_nextwall[j][0] = YAX_NEXTWALL(j,0);
-                        if (oeditstatus==0)
-                            YAX_NEXTWALL(j,0) = 0;  // reset lotag!
-                    }
-                }
-#endif
-            if (headsectbunch[0][cb] == -1)
-            {
-                headsectbunch[0][cb] = i;
-                // not duplicated in floors, since every extended ceiling
-                // must have a corresponding floor:
-                if (resetstat==0)
-                    numyaxbunches++;
-            }
-            else
-            {
-                int32_t tmpsect = headsectbunch[0][cb];
-                headsectbunch[0][cb] = i;
-                nextsectbunch[0][i] = tmpsect;
-            }
-        }
-
-        if (fb >= 0)
-        {
-#if !defined NEW_MAP_FORMAT
-            if (resetstat==0)
-                for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
-                {
-                    if (yax_islockededge(j,YAX_FLOOR))
-                    {
-                        yax_nextwall[j][1] = YAX_NEXTWALL(j,1);
-                        if (oeditstatus==0)
-                            YAX_NEXTWALL(j,1) = -1;  // reset extra!
-                    }
-                }
-#endif
-            if (headsectbunch[1][fb] == -1)
-                headsectbunch[1][fb] = i;
-            else
-            {
-                int32_t tmpsect = headsectbunch[1][fb];
-                headsectbunch[1][fb] = i;
-                nextsectbunch[1][i] = tmpsect;
-            }
-        }
-    }
-
-#if !defined NEW_MAP_FORMAT
-    editstatus = oeditstatus;
-#else
-    mapversion = get_mapversion();
-#endif
-}
-
-int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf)
-{
-    int16_t bunchnum = yax_getbunch(sectnum, cf);
-
-    if (bunchnum < 0)
-        return -1;
-
-    for (bssize_t SECTORS_OF_BUNCH(bunchnum, !cf, i))
-        if (inside(x, y, i)==1)
-            return i;
-
-    return -1;
-}
-
-// indexed as a list:
-static int16_t bunches[2][YAX_MAXBUNCHES];
-// indexed with bunchnums directly:
-static int16_t bunchsec[YAX_MAXBUNCHES], bunchdist[YAX_MAXBUNCHES];
-
-uint8_t haveymost[(YAX_MAXBUNCHES+7)>>3];
-
-static inline int32_t yax_walldist(int32_t w)
-{
-    vec2_t closest;
-    getclosestpointonwall_internal({ globalposx, globalposy }, w, &closest);
-    return klabs(closest.x-globalposx) + klabs(closest.y-globalposy);
-}
-
-// calculate distances to bunches and best start-drawing sectors
-static void yax_scanbunches(int32_t bbeg, int32_t numhere, const uint8_t *lastgotsector)
-{
-    int32_t bnchcnt, bunchnum, j, k;
-    int32_t startwall, endwall;
-
-    UNREFERENCED_PARAMETER(lastgotsector);
-
-    scansector_retfast = 1;
-    scansector_collectsprites = 0;
-
-    for (bnchcnt=bbeg; bnchcnt<bbeg+numhere; bnchcnt++)
-    {
-        int32_t walldist, bestsec=-1;
-        int32_t bestwalldist=INT32_MAX, bestbestdist=INT32_MAX;
-
-        bunchnum = bunches[yax_globalcf][bnchcnt];
-
-        for (SECTORS_OF_BUNCH(bunchnum,!yax_globalcf, k))
-        {
-            int32_t checkthisec = 0;
-
-            if (inside(globalposx, globalposy, k)==1)
-            {
-                bestsec = k;
-                bestbestdist = 0;
-                break;
-            }
-
-            startwall = sector[k].wallptr;
-            endwall = startwall+sector[k].wallnum;
-
-            for (j=startwall; j<endwall; j++)
-            {
-/*
-                if ((w=yax_getnextwall(j,!yax_globalcf))>=0)
-                    if ((ns=wall[w].nextsector)>=0)
-                        if ((lastgotsector[ns>>3]&pow2char[ns&7])==0)
-                            continue;
-*/
-                walldist = yax_walldist(j);
-                if (walldist < bestwalldist)
-                {
-                    checkthisec = 1;
-                    bestwalldist = walldist;
-                }
-            }
-
-            if (checkthisec)
-            {
-                numscans = numbunches = 0;
-
-                polymost_scansector(k);
-
-                if (numbunches > 0)
-                {
-                    bestsec = k;
-                    bestbestdist = bestwalldist;
-                }
-            }
-        }
-
-        bunchsec[bunchnum] = bestsec;
-        bunchdist[bunchnum] = bestbestdist;
-    }
-
-    scansector_collectsprites = 1;
-    scansector_retfast = 0;
-}
-
-static int yax_cmpbunches(const void *b1, const void *b2)
-{
-    return (bunchdist[B_UNBUF16(b2)] - bunchdist[B_UNBUF16(b1)]);
-}
-
-
-void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
-{
-    // for polymer, this is called before polymer_drawrooms() with restore==0
-    // and after polymer_drawmasks() with restore==1
-
-    int32_t i, dastat;
-    static int16_t opicnum[2][MAXSECTORS];
-
-    for (SECTORS_OF_BUNCH(bunchnum, cf, i))
-    {
-        dastat = (SECTORFLD(i,stat, cf)&(128+256));
-
-        // only consider non-masked ceilings/floors
-        if (dastat==0 || (restore==1 && opicnum[cf][i]&0x8000))
-        {
-            if (!restore)
-            {
-                opicnum[cf][i] = SECTORFLD(i,picnum, cf);
-                if (editstatus && showinvisibility)
-                    SECTORFLD(i,picnum, cf) = MAXTILES-1;
-                else //if ((dastat&(128+256))==0)
-                    SECTORFLD(i,picnum, cf) = playing_blood ? MAXTILES-2 : 13; //FOF;
-            }
-            else
-            {
-                SECTORFLD(i,picnum, cf) = opicnum[cf][i];
-            }
-        }
-    }
-}
-
-static void yax_copytsprites()
-{
-    int32_t i, spritenum, gotthrough, sectnum;
-    int32_t sortcnt = yax_spritesortcnt[yax_globallev];
-    uspriteptr_t spr;
-
-    for (i=0; i<sortcnt; i++)
-    {
-        spritenum = yax_tsprite[yax_globallev][i];
-
-        gotthrough = spritenum&(MAXSPRITES|(MAXSPRITES<<1));
-
-        spritenum &= MAXSPRITES-1;
-        spr = (uspriteptr_t)&sprite[spritenum];
-        sectnum = spr->sectnum;
-
-        if (gotthrough == (MAXSPRITES|(MAXSPRITES<<1)))
-        {
-            if (yax_globalbunch != yax_tsprfrombunch[yax_globallev][i])
-                continue;
-        }
-        else
-        {
-            int32_t cf = -1;
-
-            if (gotthrough == MAXSPRITES)
-                cf = YAX_CEILING;  // sprite got here through the ceiling of lower sector
-            else if (gotthrough == (MAXSPRITES<<1))
-                cf = YAX_FLOOR;  // sprite got here through the floor of upper sector
-
-            if (cf != -1)
-            {
-                if ((yax_globallev-YAX_MAXDRAWS)*(-1 + 2*cf) > 0)
-                    if (yax_getbunch(sectnum, cf) != yax_globalbunch)
-                        continue;
-
-                sectnum = yax_getneighborsect(spr->x, spr->y, sectnum, cf);
-                if (sectnum < 0)
-                    continue;
-            }
-        }
-
-        if (spritesortcnt >= maxspritesonscreen)
-            break;
-
-        tspriteptr_t tsp = renderAddTSpriteFromSprite(spritenum);
-        tsp->sectnum = sectnum;  // potentially tweak sectnum!
-    }
-}
-
-
-void yax_preparedrawrooms(void)
-{
-    if (videoGetRenderMode() == REND_POLYMER || numyaxbunches==0)
-        return;
-
-    g_nodraw = 1;
-    memset(yax_spritesortcnt, 0, sizeof(yax_spritesortcnt));
-    memset(haveymost, 0, (numyaxbunches+7)>>3);
-
-}
-
-void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_t),
-                   int16_t sectnum, int32_t didmirror, int32_t smoothr)
-{
-    static uint8_t havebunch[(YAX_MAXBUNCHES+7)>>3];
-
-    const fix16_t horiz = global100horiz;
-
-    int32_t i, j, k, lev, cf, nmp;
-    int32_t bnchcnt, bnchnum[2] = {0,0}, maxlev[2];
-    int16_t ourbunch[2] = {-1,-1}, osectnum=sectnum;
-    int32_t bnchbeg[YAX_MAXDRAWS][2], bnchend[YAX_MAXDRAWS][2];
-    int32_t bbeg, numhere;
-
-    // original (1st-draw) and accumulated ('per-level') gotsector bitmaps
-    static uint8_t ogotsector[(MAXSECTORS+7)>>3], lgotsector[(MAXSECTORS+7)>>3];
-#ifdef YAX_DEBUG
-    uint64_t t;
-#endif
-
-    if (videoGetRenderMode() == REND_POLYMER || numyaxbunches==0)
-    {
-        return;
-    }
-
-    // if we're here, there was just a drawrooms() call with g_nodraw=1
-
-    Bmemcpy(ogotsector, gotsector, (numsectors+7)>>3);
-
-    if (sectnum >= 0)
-        yax_getbunches(sectnum, &ourbunch[0], &ourbunch[1]);
-    Bmemset(&havebunch, 0, (numyaxbunches+7)>>3);
-
-    // first scan all bunches above, then all below...
-    for (cf=0; cf<2; cf++)
-    {
-        yax_globalcf = cf;
-
-        if (cf==1)
-        {
-            sectnum = osectnum;
-            Bmemcpy(gotsector, ogotsector, (numsectors+7)>>3);
-        }
-
-        for (lev=0; /*lev<YAX_MAXDRAWS*/; lev++)
-        {
-            yax_globallev = YAX_MAXDRAWS + (-1 + 2*cf)*(lev+1);
-
-            bbeg = bnchbeg[lev][cf] = bnchend[lev][cf] = bnchnum[cf];
-            numhere = 0;
-
-            for (i=0; i<numsectors; i++)
-            {
-                if (!(gotsector[i>>3]&pow2char[i&7]))
-                    continue;
-
-                j = yax_getbunch(i, cf);
-                if (j >= 0 && !(havebunch[j>>3]&pow2char[j&7]))
-                {
-                    if ((SECTORFLD(i,stat, cf)&2) ||
-                            (cf==0 && globalposz >= sector[i].ceilingz) ||
-                            (cf==1 && globalposz <= sector[i].floorz))
-                    {
-                        havebunch[j>>3] |= pow2char[j&7];
-                        bunches[cf][bnchnum[cf]++] = j;
-                        bnchend[lev][cf]++;
-                        numhere++;
-                    }
-                }
-            }
-
-            if (numhere > 0)
-            {
-                // found bunches -- need to fake-draw
-
-                yax_scanbunches(bbeg, numhere, (uint8_t *)gotsector);
-
-                qsort(&bunches[cf][bbeg], numhere, sizeof(int16_t), &yax_cmpbunches);
-
-                if (numhere > 1 && lev != YAX_MAXDRAWS-1)
-                    Bmemset(lgotsector, 0, sizeof(lgotsector));
-
-                for (bnchcnt=bbeg; bnchcnt < bbeg+numhere; bnchcnt++)
-                {
-                    j = bunches[cf][bnchcnt];  // the actual bunchnum...
-                    yax_globalbunch = j;
-#ifdef YAX_DEBUG
-                    t=timerGetTicksU64();
-#endif
-                    k = bunchsec[j];
-
-                    if (k < 0)
-                    {
-                        yaxprintf("%s, l %d: skipped bunch %d\n", cf?"v":"^", lev, j);
-                        continue;
-                    }
-
-                    if (lev != YAX_MAXDRAWS-1)
-                    {
-#ifdef YAX_DEBUG
-                        int32_t odsprcnt = yax_spritesortcnt[yax_globallev];
-#endif
-                        // +MAXSECTORS: force
-                        renderDrawRoomsQ16(globalposx,globalposy,globalposz,qglobalang,horiz,k+MAXSECTORS);
-                        if (numhere > 1)
-                            for (i=0; i<(numsectors+7)>>3; i++)
-                                lgotsector[i] |= gotsector[i];
-
-                        yaxdebug("l%d: faked (bn %2d) sec %4d,%3d dspr, ob=[%2d,%2d], sn=%4d, %.3f ms",
-                                 yax_globallev-YAX_MAXDRAWS, j, k, yax_spritesortcnt[yax_globallev]-odsprcnt,
-                                 ourbunch[0],ourbunch[1],sectnum,
-                                 (double)(1000*(timerGetTicksU64()-t))/u64tickspersec);
-                    }
-
-                    if (ourbunch[cf]==j)
-                    {
-                        ourbunch[cf] = yax_getbunch(k, cf);
-                        sectnum = k;
-                    }
-                }
-
-                if (numhere > 1 && lev != YAX_MAXDRAWS-1)
-                    Bmemcpy(gotsector, lgotsector, (numsectors+7)>>3);
-            }
-
-            if (numhere==0 || lev==YAX_MAXDRAWS-1)
-            {
-                // no new bunches or max level reached
-                maxlev[cf] = lev - (numhere==0);
-                break;
-            }
-        }
-    }
-
-//    yax_globalcf = -1;
-
-    // now comes the real drawing!
-    g_nodraw = 0;
-    scansector_collectsprites = 0;
-
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
-    {
-		GLInterface.ClearScreen(0, true);
-		yax_polymostclearzbuffer = 0;
-    }
-#endif
-
-    for (cf=0; cf<2; cf++)
-    {
-        yax_globalcf = cf;
-
-        for (lev=maxlev[cf]; lev>=0; lev--)
-        {
-            yax_globallev = YAX_MAXDRAWS + (-1 + 2*cf)*(lev+1);
-            scansector_collectsprites = (lev == YAX_MAXDRAWS-1);
-
-            for (bnchcnt=bnchbeg[lev][cf]; bnchcnt<bnchend[lev][cf]; bnchcnt++)
-            {
-                j = bunches[cf][bnchcnt];  // the actual bunchnum...
-                k = bunchsec[j];  // best start-drawing sector
-                yax_globalbunch = j;
-#ifdef YAX_DEBUG
-                t=timerGetTicksU64();
-#endif
-                yax_tweakpicnums(j, cf, 0);
-                if (k < 0)
-                    continue;
-
-                yax_nomaskdidit = 0;
-                for (nmp=r_tror_nomaskpass; nmp>=0; nmp--)
-                {
-                    yax_nomaskpass = nmp;
-                    renderDrawRoomsQ16(globalposx,globalposy,globalposz,qglobalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
-
-                    if (nmp==1)
-                    {
-                        yaxdebug("nm1 l%d: DRAWN (bn %2d) sec %4d,          %.3f ms",
-                                 yax_globallev-YAX_MAXDRAWS, j, k,
-                                 (double)(1000*(timerGetTicksU64()-t))/u64tickspersec);
-
-                        if (!yax_nomaskdidit)
-                        {
-                            yax_nomaskpass = 0;
-                            break;  // no need to draw the same stuff twice
-                        }
-                        Bmemcpy(yax_gotsector, gotsector, (numsectors+7)>>3);
-                    }
-                }
-
-                if (!scansector_collectsprites)
-                    spritesortcnt = 0;
-                yax_copytsprites();
-                yaxdebug("nm0 l%d: DRAWN (bn %2d) sec %4d,%3d tspr, %.3f ms",
-                         yax_globallev-YAX_MAXDRAWS, j, k, spritesortcnt,
-                         (double)(1000*(timerGetTicksU64()-t))/u64tickspersec);
-
-                SpriteAnimFunc(globalposx, globalposy, globalposz, globalang, smoothr);
-                renderDrawMasks();
-            }
-
-            if (lev < maxlev[cf])
-                for (bnchcnt=bnchbeg[lev+1][cf]; bnchcnt<bnchend[lev+1][cf]; bnchcnt++)
-                    yax_tweakpicnums(bunches[cf][bnchcnt], cf, 1);  // restore picnums
-        }
-    }
-
-#ifdef YAX_DEBUG
-    t=timerGetTicksU64();
-#endif
-    yax_globalcf = -1;
-    yax_globalbunch = -1;
-    yax_globallev = YAX_MAXDRAWS;
-    scansector_collectsprites = 0;
-
-    // draw base level
-    renderDrawRoomsQ16(globalposx,globalposy,globalposz,qglobalang,horiz,
-              osectnum + MAXSECTORS*didmirror);
-//    if (scansector_collectsprites)
-//        spritesortcnt = 0;
-    yax_copytsprites();
-    yaxdebug("DRAWN base level sec %d,%3d tspr, %.3f ms", osectnum,
-             spritesortcnt, (double)(1000*(timerGetTicksU64()-t))/u64tickspersec);
-    scansector_collectsprites = 1;
-
-    for (cf=0; cf<2; cf++)
-        if (maxlev[cf] >= 0)
-            for (bnchcnt=bnchbeg[0][cf]; bnchcnt<bnchend[0][cf]; bnchcnt++)
-                yax_tweakpicnums(bunches[cf][bnchcnt], cf, 1);  // restore picnums
-
-#ifdef ENGINE_SCREENSHOT_DEBUG
-    engine_screenshot = 0;
-#endif
-
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
-        yax_polymostclearzbuffer = 1;
-#endif
-}
-
-#endif  // defined YAX_ENABLE
-
-
-//
-// setslope
-//
-void setslope(int32_t sectnum, int32_t cf, int16_t slope)
-{
-    if (slope==0)
-    {
-        SECTORFLD(sectnum,stat, cf) &= ~2;
-        SECTORFLD(sectnum,heinum, cf) = 0;
-    }
-    else
-    {
-        SECTORFLD(sectnum,stat, cf) |= 2;
-        SECTORFLD(sectnum,heinum, cf) = slope;
-    }
-}
-
-#define WALLS_ARE_CONSISTENT(k) ((wall[k].x == x2 && wall[k].y == y2)   \
-                                 && ((wall[wall[k].point2]).x == x1 && (wall[wall[k].point2]).y == y1))
-
-static int32_t getscore(int32_t w1c, int32_t w1f, int32_t w2c, int32_t w2f)
-{
-    if (w1c > w1f)
-        swaplong(&w1c, &w1f);
-    if (w2c > w2f)
-        swaplong(&w2c, &w2f);
-
-    // now: c <= f for each "wall-vline"
-
-    int32_t maxceil = max(w1c, w2c);
-    int32_t minflor = min(w1f, w2f);
-
-    return minflor-maxceil;
-}
-
-const int16_t *chsecptr_onextwall = NULL;
-
-int32_t checksectorpointer(int16_t i, int16_t sectnum)
-{
-    int32_t startsec, endsec;
-    int32_t j, k, startwall, endwall, x1, y1, x2, y2, numnewwalls=0;
-    int32_t bestnextwall=-1, bestnextsec=-1, bestwallscore=INT32_MIN;
-    int32_t cz[4], fz[4], tmp[2], tmpscore=0;
-#ifdef YAX_ENABLE
-    int16_t cb[2], fb[2];
-#endif
-
-    x1 = wall[i].x;
-    y1 = wall[i].y;
-    x2 = (wall[wall[i].point2]).x;
-    y2 = (wall[wall[i].point2]).y;
-
-    k = wall[i].nextwall;
-    if (k >= 0)          //Check for early exit
-    {
-        if (WALLS_ARE_CONSISTENT(k))
-            return 0;
-
-        wall[k].nextwall = wall[k].nextsector = -1;
-    }
-
-    if ((unsigned)wall[i].nextsector < (unsigned)numsectors && wall[i].nextwall < 0)
-    {
-        // if we have a nextsector but no nextwall, take this as a hint
-        // to search only the walls of that sector
-        startsec = wall[i].nextsector;
-        endsec = startsec+1;
-    }
-    else
-    {
-        startsec = 0;
-        endsec = numsectors;
-    }
-
-    wall[i].nextsector = wall[i].nextwall = -1;
-
-    if (chsecptr_onextwall && (k=chsecptr_onextwall[i])>=0 && wall[k].nextwall<0)
-    {
-        // old next wall found
-        if (WALLS_ARE_CONSISTENT(k))
-        {
-            j = sectorofwall(k);
-
-            wall[i].nextsector = j;
-            wall[i].nextwall = k;
-            wall[k].nextsector = sectnum;
-            wall[k].nextwall = i;
-
-            return 1;
-        }
-    }
-
-    for (j=startsec; j<endsec; j++)
-    {
-        if (j == sectnum)
-            continue;
-
-        startwall = sector[j].wallptr;
-        endwall = startwall + sector[j].wallnum;
-        for (k=startwall; k<endwall; k++)
-        {
-            if (!WALLS_ARE_CONSISTENT(k))
-                continue;
-
-            // Don't create link if the other side is connected to another wall.
-            // The nextwall relation should be definitely one-to-one at all times!
-            if (wall[k].nextwall>=0 && wall[k].nextwall != i)
-                continue;
-#ifdef YAX_ENABLE
-            yax_getbunches(sectnum, &cb[0], &fb[0]);
-            yax_getbunches(j, &cb[1], &fb[1]);
-
-            if ((cb[0]>=0 && cb[0]==cb[1]) || (fb[0]>=0 && fb[0]==fb[1]))
-            {
-                tmpscore = INT32_MAX;
-            }
-            else
-#endif
-            {
-                getzsofslope(sectnum, x1,y1, &cz[0],&fz[0]);
-                getzsofslope(sectnum, x2,y2, &cz[1],&fz[1]);
-                getzsofslope(j, x1,y1, &cz[2],&fz[2]);
-                getzsofslope(j, x2,y2, &cz[3],&fz[3]);
-
-                tmp[0] = getscore(cz[0],fz[0], cz[2],fz[2]);
-                tmp[1] = getscore(cz[1],fz[1], cz[3],fz[3]);
-
-                if ((tmp[0]^tmp[1]) >= 0)
-                    tmpscore = tmp[0]+tmp[1];
-                else
-                    tmpscore = max(tmp[0], tmp[1]);
-            }
-
-            if (bestnextwall == -1 || tmpscore > bestwallscore)
-            {
-                bestwallscore = tmpscore;
-                bestnextwall = k;
-                bestnextsec = j;
-            }
-
-            numnewwalls++;
-        }
-    }
-
-    // sectnum -2 means dry run
-    if (bestnextwall >= 0 && sectnum!=-2)
-#ifdef YAX_ENABLE
-        // for walls with TROR neighbors, be conservative in case if score <=0
-        // (meaning that no wall area is mutually visible) -- it could be that
-        // another sector is a better candidate later on
-        if ((yax_getnextwall(i, 0)<0 && yax_getnextwall(i, 1)<0) || bestwallscore>0)
-#endif
-        {
-//    Printf("w%d new nw=%d (score %d)\n", i, bestnextwall, bestwallscore)
-            wall[i].nextsector = bestnextsec;
-            wall[i].nextwall = bestnextwall;
-            wall[bestnextwall].nextsector = sectnum;
-            wall[bestnextwall].nextwall = i;
-        }
-
-    return numnewwalls;
-}
-
-#undef WALLS_ARE_CONSISTENT
-
 int32_t xb1[MAXWALLSB];  // Polymost uses this as a temp array
-static int32_t yb1[MAXWALLSB], xb2[MAXWALLSB], yb2[MAXWALLSB];
+static int32_t xb2[MAXWALLSB];
 int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
-static int32_t rx2[MAXWALLSB], ry2[MAXWALLSB];
 int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
 
 int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
@@ -1087,21 +172,15 @@ int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
 float fxdimen = -1.f;
 int32_t ydimen;
 
-static int32_t nrx1[8], nry1[8], nrx2[8], nry2[8]; // JBF 20031206: Thanks Ken
-
 int32_t rxi[8], ryi[8];
-static int32_t rzi[8], rxi2[8], ryi2[8], rzi2[8];
-static int32_t xsi[8], ysi[8];
 
 int32_t globalposx, globalposy, globalposz, globalhoriz;
-fix16_t qglobalhoriz;
+fixed_t qglobalhoriz;
 float fglobalposx, fglobalposy, fglobalposz;
 int16_t globalang, globalcursectnum;
-fix16_t qglobalang;
+fixed_t qglobalang;
 int32_t globalpal, cosglobalang, singlobalang;
 int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
-static int32_t globaluclip, globaldclip;
-//char globparaceilclip, globparaflorclip;
 
 int32_t xyaspect;
 int32_t viewingrangerecip;
@@ -1110,25 +189,16 @@ static char globalxshift, globalyshift;
 static int32_t globalxpanning, globalypanning;
 int32_t globalshade, globalorientation;
 int16_t globalpicnum;
-static int16_t globalshiftval;
-#ifdef HIGH_PRECISION_SPRITE
-static int64_t globalzd;
-#else
-static int32_t globalzd;
-#endif
-static int32_t globalyscale;
-static int32_t globalxspan, globalyspan, globalispow2=1;  // true if texture has power-of-two x and y size
-static intptr_t globalbufplc;
+
 
 static int32_t globaly1, globalx2;
 
 int16_t sectorborder[256];
-int32_t ydim16, qsetmode = 0;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 
 int32_t halfxdim16, midydim16;
 
-EDUKE32_STATIC_ASSERT(MAXWALLSB < INT16_MAX);
+static_assert(MAXWALLSB < INT16_MAX);
 int16_t numscans, numbunches;
 static int16_t numhits;
 
@@ -1151,12 +221,6 @@ static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
 #define MAXSETVIEW 4
 
 
-#ifdef GAMENAME
-char apptitle[256] = GAMENAME;
-#else
-char apptitle[256] = "Build Engine";
-#endif
-
 //
 // Internal Engine Functions
 //
@@ -1166,152 +230,15 @@ char apptitle[256] = "Build Engine";
 int32_t renderAddTsprite(int16_t z, int16_t sectnum)
 {
     auto const spr = (uspriteptr_t)&sprite[z];
-#ifdef YAX_ENABLE
-    if (g_nodraw==0)
-    {
-        if (numyaxbunches==0)
-        {
-#endif
-            if (spritesortcnt >= maxspritesonscreen)
-                return 1;
+    if (spritesortcnt >= maxspritesonscreen)
+        return 1;
 
-            renderAddTSpriteFromSprite(z);
+    renderAddTSpriteFromSprite(z);
 
-#ifdef YAX_ENABLE
-        }
-    }
-    else
-        if (yax_nomaskpass==0)
-    {
-        int16_t *sortcnt = &yax_spritesortcnt[yax_globallev];
-
-        if (*sortcnt >= maxspritesonscreen)
-            return 1;
-
-        yax_tsprite[yax_globallev][*sortcnt] = z;
-        if (yax_globalbunch >= 0)
-        {
-            yax_tsprite[yax_globallev][*sortcnt] |= (MAXSPRITES|(MAXSPRITES<<1));
-            yax_tsprfrombunch[yax_globallev][*sortcnt] = yax_globalbunch;
-        }
-        (*sortcnt)++;
-
-        // now check whether the tsprite needs duplication into another level
-        if ((spr->cstat&48)==32)
-            return 0;
-
-        int16_t cb, fb;
-
-        yax_getbunches(sectnum, &cb, &fb);
-        if (cb < 0 && fb < 0)
-            return 0;
-
-        int32_t spheight;
-        int16_t spzofs = spriteheightofs(z, &spheight, 1);
-
-        // TODO: get*zofslope?
-        if (cb>=0 && spr->z+spzofs-spheight < sector[sectnum].ceilingz)
-        {
-            sortcnt = &yax_spritesortcnt[yax_globallev-1];
-            if (*sortcnt < maxspritesonscreen)
-            {
-                yax_tsprite[yax_globallev-1][*sortcnt] = z|MAXSPRITES;
-                (*sortcnt)++;
-            }
-        }
-        if (fb>=0 && spr->z+spzofs > sector[sectnum].floorz)
-        {
-            sortcnt = &yax_spritesortcnt[yax_globallev+1];
-            if (*sortcnt < maxspritesonscreen)
-            {
-                yax_tsprite[yax_globallev+1][*sortcnt] = z|(MAXSPRITES<<1);
-                (*sortcnt)++;
-            }
-        }
-    }
-#endif
 
     return 0;
 }
 
-static FORCE_INLINE vec2_t get_rel_coords(int32_t const x, int32_t const y)
-{
-    return { dmulscale6(y, cosglobalang, -x, singlobalang),
-             dmulscale6(x, cosviewingrangeglobalang, y, sinviewingrangeglobalang) };
-}
-
-// Note: the returned y coordinates are not actually screen coordinates, but
-// potentially clipped player-relative y coordinates.
-static int get_screen_coords(const vec2_t &p1, const vec2_t &p2,
-                             int32_t *sx1ptr, int32_t *sy1ptr,
-                             int32_t *sx2ptr, int32_t *sy2ptr)
-{
-    int32_t sx1, sy1, sx2, sy2;
-
-    // First point.
-
-    if (p1.x >= -p1.y)
-    {
-        if (p1.x > p1.y || p1.y == 0)
-            return 0;
-
-        sx1 = halfxdimen + scale(p1.x, halfxdimen, p1.y)
-            + (p1.x >= 0);  // Fix for SIGNED divide
-        if (sx1 >= xdimen)
-            sx1 = xdimen-1;
-
-        sy1 = p1.y;
-    }
-    else
-    {
-        if (p2.x < -p2.y)
-            return 0;
-
-        sx1 = 0;
-
-        int32_t tempint = (p1.x + p1.y) - (p2.x + p2.y);
-        if (tempint == 0)
-            return 0;
-        sy1 = p1.y + scale(p2.y-p1.y, p1.x+p1.y, tempint);
-    }
-
-    if (sy1 < 256)
-        return 0;
-
-    // Second point.
-
-    if (p2.x <= p2.y)
-    {
-        if (p2.x < -p2.y || p2.y == 0)
-            return 0;
-
-        sx2 = halfxdimen + scale(p2.x,halfxdimen,p2.y) - 1
-            + (p2.x >= 0);  // Fix for SIGNED divide
-        if (sx2 >= xdimen)
-            sx2 = xdimen-1;
-
-        sy2 = p2.y;
-    }
-    else
-    {
-        if (p1.x > p1.y)
-            return 0;
-
-        sx2 = xdimen-1;
-
-        int32_t const tempint = (p1.y - p1.x) + (p2.x - p2.y);
-
-        sy2 = p1.y + scale(p2.y-p1.y, p1.y-p1.x, tempint);
-    }
-
-    if (sy2 < 256 || sx1 > sx2)
-        return 0;
-
-    *sx1ptr = sx1; *sy1ptr = sy1;
-    *sx2ptr = sx2; *sy2ptr = sy2;
-
-    return 1;
-}
 
 //
 // wallfront (internal)
@@ -1348,48 +275,6 @@ int32_t wallfront(int32_t l1, int32_t l2)
 }
 
 //
-// spritewallfront (internal)
-//
-static inline int32_t spritewallfront(tspritetype const * const s, int32_t w)
-{
-    auto const wal = (uwallptr_t)&wall[w];
-    auto const wal2 = (uwallptr_t)&wall[wal->point2];
-    const vec2_t v = { wal->x, wal->y };
-
-    return dmulscale32(wal2->x - v.x, s->y - v.y, -(s->x - v.x), wal2->y - v.y) >= 0;
-}
-
-//
-// bunchfront (internal)
-//
-static inline int32_t bunchfront(int32_t b1, int32_t b2)
-{
-    int b1f = bunchfirst[b1];
-    int const x1b1 = xb1[b1f];
-    int const x2b2 = xb2[bunchlast[b2]] + 1;
-
-    if (x1b1 >= x2b2)
-        return -1;
-
-    int b2f = bunchfirst[b2];
-    int const x1b2 = xb1[b2f];
-    int const x2b1 = xb2[bunchlast[b1]] + 1;
-
-    if (x1b2 >= x2b1)
-        return -1;
-
-    if (x1b1 >= x1b2)
-    {
-        for (; xb2[b2f] < x1b1; b2f = bunchp2[b2f]) { }
-        return wallfront(b1f, b2f);
-    }
-
-    for (; xb2[b1f] < x1b2; b1f = bunchp2[b1f]) { }
-    return wallfront(b1f, b2f);
-}
-
-
-//
 // animateoffs (internal)
 //
 int32_t (*animateoffs_replace)(int const tilenum, int fakevar) = NULL;
@@ -1405,7 +290,7 @@ int32_t animateoffs(int const tilenum, int fakevar)
     if (animnum <= 0)
         return 0;
 
-    int const i = (int) totalclocklock >> (picanm[tilenum].sf & PICANM_ANIMSPEED_MASK);
+    int const i = (int) I_GetBuildTime() >> (picanm[tilenum].sf & PICANM_ANIMSPEED_MASK);
     int offs = 0;
 
     switch (picanm[tilenum].sf & PICANM_ANIMTYPE_MASK)
@@ -1506,7 +391,7 @@ static inline void initksqrt(void)
         temp = root*root-num;
         while (klabs(int32_t(temp-2*root+1)) < klabs(temp))
         {
-            temp += -(2*root)+1;
+            temp += 1-int(2*root);
             root--;
         }
         while (klabs(int32_t(temp+2*root+1)) < klabs(temp))
@@ -1540,13 +425,13 @@ static void dosetaspect(void)
         oviewingrange = viewingrange;
 
         xinc = mulscale32(viewingrange*2560,xdimenrecip);
-        x = (5120<<16)-mulscale1(xinc,xdimen);
+        x = IntToFixed(5120)-mulscale1(xinc,xdimen);
 
         for (i=0; i<xdimen; i++)
         {
-            j = (x&65535); k = (x>>16); x += xinc;
+            j = (x&65535); k = FixedToInt(x); x += xinc;
 
-            if (k < 0 || k >= (int32_t)ARRAY_SIZE(qradarang)-1)
+            if (k < 0 || k >= (int32_t)countof(qradarang)-1)
             {
                 no_radarang2 = 1;
                 break;
@@ -1587,7 +472,7 @@ static int32_t engineLoadTables(void)
             radarang[1279-i] = -radarang[i];
 
         for (i=0; i<5120; i++)
-            qradarang[i] = fix16_from_float(atanf(((float)(5120-i)-0.5f) * (1.f/1280.f)) * (-64.f * (1.f/BANG2RAD)));
+            qradarang[i] = FloatToFixed(atanf(((float)(5120-i)-0.5f) * (1.f/1280.f)) * (-64.f * (1.f/BANG2RAD)));
         for (i=0; i<5120; i++)
             qradarang[10239-i] = -qradarang[i];
 
@@ -1703,7 +588,7 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 
     if (newspritenum >= 0)
     {
-        Bassert((unsigned)sectnum < MAXSECTORS);
+        assert((unsigned)sectnum < MAXSECTORS);
 
         do_insertsprite_at_headofsect(newspritenum, sectnum);
         Numsprites++;
@@ -1717,11 +602,13 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 // deletesprite
 //
 int32_t (*deletesprite_replace)(int16_t spritenum) = NULL;
+void polymost_deletesprite(int num);
 int32_t deletesprite(int16_t spritenum)
 {
+    polymost_deletesprite(spritenum);
     if (deletesprite_replace)
         return deletesprite_replace(spritenum);
-    Bassert((sprite[spritenum].statnum == MAXSTATUS)
+    assert((sprite[spritenum].statnum == MAXSTATUS)
             == (sprite[spritenum].sectnum == MAXSECTORS));
 
     if (sprite[spritenum].statnum == MAXSTATUS)
@@ -1841,7 +728,7 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
 
             t = rayDotLineEndDiff;
         }
-        t = tabledivide64(t << 24L, rayLengthSquared);
+        t = (t << 24) / rayLengthSquared;
 
         *intersectionX = originX + mulscale24(ray.x, t);
         *intersectionY = originY + mulscale24(ray.y, t);
@@ -1869,7 +756,7 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
         return 0;
     }
 
-    int64_t t = tabledivide64(((int64_t) originDiffCrossLineVec) << 24L, rayCrossLineVec);
+    int64_t t = (int64_t(originDiffCrossLineVec) << 24) / rayCrossLineVec;
     // For sake of completeness/readability, alternative to the above approach for an early out & avoidance of an extra division:
 
     *intersectionX = originX + mulscale24(ray.x, t);
@@ -1882,7 +769,7 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
 //
 // rintersect (internal)
 //
-// returns: -1 if didn't intersect, coefficient (x3--x4 fraction)<<16 else
+// returns: -1 if didn't intersect, coefficient IntToFixed(x3--x4 fraction) else
 int32_t rintersect_old(int32_t x1, int32_t y1, int32_t z1,
                    int32_t vx, int32_t vy, int32_t vz,
                    int32_t x3, int32_t y3, int32_t x4, int32_t y4,
@@ -1942,14 +829,14 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     else if (bot < 0 && (topt > 0 || topu > 0 || topu <= bot))
         return -1;
 
-    int64_t t = (topt<<16) / bot;
-    *intx = x1 + ((vx*t)>>16);
-    *inty = y1 + ((vy*t)>>16);
-    *intz = z1 + ((vz*t)>>16);
+    int64_t t = (topt << 16) / bot;
+    *intx = x1 + ((vx*t) >> 16);
+    *inty = y1 + ((vy*t) >> 16);
+    *intz = z1 + ((vz*t) >> 16);
 
-    t = (topu<<16) / bot;
+    t = (topu << 16) / bot;
 
-    Bassert((unsigned)t < 65536);
+    assert((unsigned)t < 65536);
 
     return t;
 }
@@ -1966,60 +853,77 @@ int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy,
 
 psky_t * tileSetupSky(int32_t const tilenum)
 {
-    for (bssize_t i = 0; i < pskynummultis; i++)
-        if (multipskytile[i] == tilenum)
-            return &multipsky[i];
+    for (auto& sky : multipskies)
+        if (tilenum == sky.tilenum)
+        {
+            sky.combinedtile = -1;  // invalidate the old content
+            return &sky;
+        }
 
-    int32_t const newPskyID = pskynummultis++;
-    multipsky = (psky_t *)Xrealloc(multipsky, pskynummultis * sizeof(psky_t));
-    multipskytile = (int32_t *)Xrealloc(multipskytile, pskynummultis * sizeof(int32_t));
-
-    psky_t * const newPsky = &multipsky[newPskyID];
-    Bmemset(newPsky, 0, sizeof(psky_t));
-    multipskytile[newPskyID] = tilenum;
-    newPsky->yscale = 65536;
-
-    return newPsky;
+    multipskies.Reserve(1);
+    multipskies.Last() = {};
+    multipskies.Last().tilenum = tilenum;
+    multipskies.Last().combinedtile = -1;
+    multipskies.Last().yscale = 65536;
+    return &multipskies.Last();
 }
+
+psky_t * defineSky(int32_t const tilenum, int horiz, int lognumtiles, const uint16_t *tileofs, int yoff)
+{
+    auto sky = tileSetupSky(tilenum);
+    sky->horizfrac = horiz;
+    sky->lognumtiles = lognumtiles;
+    sky->yoffs = yoff;
+    memcpy(sky->tileofs, tileofs, 2 << lognumtiles);
+    return sky;
+}
+
+// Get properties of parallaxed sky to draw.
+// Returns: pointer to tile offset array. Sets-by-pointer the other three.
+const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, int32_t* dapyoffs, int32_t* daptileyscale)
+{
+    psky_t const* const psky = getpskyidx(picnum);
+
+    if (dapskybits)
+        *dapskybits = (pskybits_override == -1 ? psky->lognumtiles : pskybits_override);
+    if (dapyscale)
+        *dapyscale = (parallaxyscale_override == 0 ? psky->horizfrac : parallaxyscale_override);
+    if (dapyoffs)
+        *dapyoffs = psky->yoffs + parallaxyoffs_override;
+    if (daptileyscale)
+        *daptileyscale = psky->yscale;
+
+    return psky->tileofs;
+}
+
+
 
 //
 // preinitengine
 //
 static int32_t preinitcalled = 0;
 
-#if !defined DEBUG_MAIN_ARRAYS
 static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];
 static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
-static sectortype sector_s[MAXSECTORS + M32_FIXME_SECTORS];
-static walltype wall_s[MAXWALLS + M32_FIXME_WALLS];
-#ifndef NEW_MAP_FORMAT
+static sectortype sector_s[MAXSECTORS];
+static walltype wall_s[MAXWALLS];
 static wallext_t wallext_s[MAXWALLS];
-#endif
 static spritetype sprite_s[MAXSPRITES];
 static tspritetype tsprite_s[MAXSPRITESONSCREEN];
-#endif
 
 int32_t enginePreInit(void)
 {
 	polymost_initosdfuncs();
-    initdivtables();
 
-#if !defined DEBUG_MAIN_ARRAYS
     sector = sector_s;
     wall = wall_s;
-# ifndef NEW_MAP_FORMAT
     wallext = wallext_s;
-# endif
     sprite = sprite_s;
     tsprite = tsprite_s;
     spriteext = spriteext_s;
     spritesmooth = spritesmooth_s;
-#endif
 
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    engineInitClipMaps();
-#endif
     preinitcalled = 1;
     return 0;
 }
@@ -2045,9 +949,6 @@ int32_t engineInit(void)
 
     xyaspect = -1;
 
-    rotatesprite_y_offset = 0;
-    rotatesprite_yxaspect = 65536;
-
     showinvisibility = 0;
 
 	voxelmemory.Reset();
@@ -2061,7 +962,6 @@ int32_t engineInit(void)
 
     searchit = 0; searchstat = -1;
 
-    totalclock = 0;
     g_visibility = 512;
     parallaxvisibility = 512;
 
@@ -2085,27 +985,6 @@ int32_t engineInit(void)
 }
 
 //
-// E_PostInit
-//
-int32_t enginePostInit(void)
-{
-    if (!(paletteloaded & PALETTE_MAIN))
-        I_FatalError("No palette found.");
-#if 0
-    if (!(paletteloaded & PALETTE_SHADE))
-        I_FatalError("No shade table found.");
-    if (!(paletteloaded & PALETTE_TRANSLUC))
-        I_FatalError("No translucency table found.");
-#endif
-
-    V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
-    lookups.postLoadTables();
-    TileFiles.SetupReverseTileMap();
-    TileFiles.PostLoadSetup();
-    return 0;
-}
-
-//
 // uninitengine
 //
 
@@ -2118,18 +997,6 @@ void engineUnInit(void)
 # endif
 
 	TileFiles.CloseAll();
-
-    for (bssize_t i = 0; i < num_usermaphacks; i++)
-    {
-        Xfree(usermaphacks[i].mhkfile);
-        Xfree(usermaphacks[i].title);
-    }
-    DO_FREE_AND_NULL(usermaphacks);
-    num_usermaphacks = 0;
-
-    DO_FREE_AND_NULL(multipsky);
-    DO_FREE_AND_NULL(multipskytile);
-    pskynummultis = 0;
 }
 
 
@@ -2188,12 +1055,12 @@ void initspritelists(void)
 }
 
 
-void set_globalang(fix16_t const ang)
+void set_globalang(fixed_t const ang)
 {
-    globalang = fix16_to_int(ang)&2047;
+    globalang = FixedToInt(ang)&2047;
     qglobalang = ang & 0x7FFFFFF;
 
-    float const f_ang = fix16_to_float(ang);
+    float const f_ang = FixedToFloat(ang);
     float const f_ang_radians = f_ang * M_PI * (1.f/1024.f);
 
     float const fcosang = cosf(f_ang_radians) * 16384.f;
@@ -2214,12 +1081,13 @@ void set_globalang(fix16_t const ang)
 //
 // drawrooms
 //
+EXTERN_CVAR(Int, gl_fogmode)
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
-                           fix16_t daang, fix16_t dahoriz, int16_t dacursectnum)
+                           fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
 {
     int32_t i;
 
-    beforedrawrooms = 0;
+    if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.
 
     set_globalpos(daposx, daposy, daposz);
     set_globalang(daang);
@@ -2228,28 +1096,17 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     // xdimenscale is scale(xdimen,yxaspect,320);
     // normalization by viewingrange so that center-of-aim doesn't depend on it
-    qglobalhoriz = mulscale16(dahoriz-F16(100), divscale16(xdimenscale, viewingrange))+fix16_from_int(ydimen>>1);
-    globalhoriz = fix16_to_int(qglobalhoriz);
-
-    globaluclip = (0-globalhoriz)*xdimscale;
-    globaldclip = (ydimen-globalhoriz)*xdimscale;
+    qglobalhoriz = mulscale16(dahoriz-IntToFixed(100), divscale16(xdimenscale, viewingrange))+IntToFixed(ydimen>>1);
+    globalhoriz = FixedToInt(qglobalhoriz);
 
     globalcursectnum = dacursectnum;
-    totalclocklock = totalclock;
 
     if ((xyaspect != oxyaspect) || (xdimen != oxdimen) || (viewingrange != oviewingrange))
         dosetaspect();
 
-    Bmemset(gotsector, 0, sizeof(gotsector));
+    memset(gotsector, 0, sizeof(gotsector));
 
-    if (videoGetRenderMode() != REND_CLASSIC
-#ifdef YAX_ENABLE
-        || yax_globallev==YAX_MAXDRAWS
-#endif
-        )
-    {
-        i = xdimen-1;
-    }
+    i = xdimen-1;
 
     for (int i = 0; i < numwalls; ++i)
     {
@@ -2263,7 +1120,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 				auto owner = w.picnum + animateoffs(w.picnum, 16384);
 
 				tile.newtile = TileFiles.tileCreateRotated(owner);
-                Bassert(tile.newtile != -1);
+                assert(tile.newtile != -1);
 
                 RotTile(tile.newtile).owner = w.picnum+animateoffs(w.picnum,16384);
 
@@ -2331,73 +1188,6 @@ int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum)
     return (((a2 + (2048 - a1)) & 2047) <= 1024);
 }
 
-#if 0
-// returns the intersection point between two lines
-_point2d        intersection(_equation eq1, _equation eq2)
-{
-    _point2d    ret;
-    float       det;
-
-    det = (float)(1) / (eq1.a*eq2.b - eq2.a*eq1.b);
-    ret.x = ((eq1.b*eq2.c - eq2.b*eq1.c) * det);
-    ret.y = ((eq2.a*eq1.c - eq1.a*eq2.c) * det);
-
-    return ret;
-}
-
-// check if a point that's on the line is within the segment boundaries
-int32_t             pointonmask(_point2d point, _maskleaf* wall)
-{
-    if ((min(wall->p1.x, wall->p2.x) <= point.x) && (point.x <= max(wall->p1.x, wall->p2.x)) && (min(wall->p1.y, wall->p2.y) <= point.y) && (point.y <= max(wall->p1.y, wall->p2.y)))
-        return 1;
-    return 0;
-}
-
-// returns 1 if wall2 is hidden by wall1
-int32_t             wallobstructswall(_maskleaf* wall1, _maskleaf* wall2)
-{
-    _point2d    cross;
-
-    cross = intersection(wall2->p1eq, wall1->maskeq);
-    if (pointonmask(cross, wall1))
-        return 1;
-
-    cross = intersection(wall2->p2eq, wall1->maskeq);
-    if (pointonmask(cross, wall1))
-        return 1;
-
-    cross = intersection(wall1->p1eq, wall2->maskeq);
-    if (pointonmask(cross, wall2))
-        return 1;
-
-    cross = intersection(wall1->p2eq, wall2->maskeq);
-    if (pointonmask(cross, wall2))
-        return 1;
-
-    return 0;
-}
-
-// recursive mask drawing function
-static inline void    drawmaskleaf(_maskleaf* wall)
-{
-    int32_t i;
-
-    wall->drawing = 1;
-    i = 0;
-    while (wall->branch[i] != NULL)
-    {
-        if (wall->branch[i]->drawing == 0)
-        {
-            //Printf("Drawing parent of %i : mask %i\n", wall->index, wall->branch[i]->index);
-            drawmaskleaf(wall->branch[i]);
-        }
-        i++;
-    }
-
-    //Printf("Drawing mask %i\n", wall->index);
-    drawmaskwall(wall->index);
-}
-#endif
 
 static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, const vec2f_t *p2)
 {
@@ -2406,14 +1196,6 @@ static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, c
     return (sign1 * sign2) > 0.f;
 }
 
-// x1, y1: in/out
-// rest x/y: out
-
-
-
-#ifdef DEBUG_MASK_DRAWING
-int32_t g_maskDrawMode = 0;
-#endif
 
 static inline int comparetsprites(int const k, int const l)
 {
@@ -2456,9 +1238,9 @@ static void sortsprites(int const start, int const end)
             for (bssize_t l=i; l>=start; l-=gap)
             {
                 if (spritesxyz[l].y <= spritesxyz[l+gap].y) break;
-                swapptr(&tspriteptr[l],&tspriteptr[l+gap]);
-                swaplong(&spritesxyz[l].x,&spritesxyz[l+gap].x);
-                swaplong(&spritesxyz[l].y,&spritesxyz[l+gap].y);
+                std::swap(tspriteptr[l],tspriteptr[l+gap]);
+                std::swap(spritesxyz[l].x,spritesxyz[l+gap].x);
+                std::swap(spritesxyz[l].y,spritesxyz[l+gap].y);
             }
 
     ys = spritesxyz[start].y; i = start;
@@ -2498,7 +1280,7 @@ static void sortsprites(int const start, int const end)
                 for (bssize_t l=i; l<k; l++)
                     if (comparetsprites(k, l) < 0)
                     {
-                        swapptr(&tspriteptr[k],&tspriteptr[l]);
+                        std::swap(tspriteptr[k], tspriteptr[l]);
                         vec3_t tv3 = spritesxyz[k];
                         spritesxyz[k] = spritesxyz[l];
                         spritesxyz[l] = tv3;
@@ -2877,22 +1659,6 @@ void FillPolygon(int* rx1, int* ry1, int* xb1, int32_t npoints, int picnum, int 
     twod->AddPoly(tileGetTexture(picnum), points.Data(), points.Size(), indices.data(), indices.size(), translation, pe, rs, clipx1, clipy1, clipx2, clipy2);
 }
 
-void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p)
-{
-    twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, p);
-}
-
-void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
-{
-    drawlinergb(x1, y1, x2, y2, PalEntry(p.r, p.g, p.b));
-}
-
-void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col)
-{
-    drawlinergb(x1, y1, x2, y2, GPalette.BaseColors[GPalette.Remap[col]]);
-}
-
-
 //==========================================================================
 //
 //
@@ -2902,242 +1668,6 @@ void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col)
 
 #include "build.h"
 #include "../src/engine_priv.h"
-
-//sx,sy       center of sprite; screen coords*65536
-//z           zoom*65536. > is zoomed in
-//a           angle (0 is default)
-//dastat&1    1:translucence
-//dastat&2    1:auto-scale mode (use 320*200 coordinates)
-//dastat&4    1:y-flip
-//dastat&8    1:don't clip to startumost/startdmost
-//dastat&16   1:force point passed to be top-left corner, 0:Editart center
-//dastat&32   1:reverse translucence
-//dastat&64   1:non-masked, 0:masked
-//dastat&128  1:draw all pages (permanent - no longer used)
-//cx1,...     clip window (actual screen coords)
-
-//==========================================================================
-//
-// INTERNAL helper function for classic/polymost dorotatesprite
-//  sxptr, sxptr, z: in/out
-//  ret_yxaspect, ret_xyaspect: out
-//
-//==========================================================================
-
-static int32_t dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, int32_t dastat, int32_t cx1_plus_cx2, int32_t cy1_plus_cy2)
-{
-    if ((dastat & RS_AUTO) == 0)
-    {
-        if (!(dastat & RS_STRETCH) && 4 * ydim <= 3 * xdim)
-        {
-            return (10 << 16) / 12;
-        }
-        else
-        {
-            return xyaspect;
-        }
-    }
-    else
-    {
-        // dastat&2: Auto window size scaling
-        const int32_t oxdim = xdim;
-        const int32_t oydim = ydim;
-        int32_t xdim = oxdim;  // SHADOWS global
-        int32_t ydim = oydim;
-
-        int32_t zoomsc, sx = *sxptr, sy = *syptr;
-        int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
-
-        sy += rotatesprite_y_offset;
-
-        if (!(dastat & RS_STRETCH) && 4 * ydim <= 3 * xdim)
-        {
-            if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
-                sx += NEGATE_ON_CONDITION(scale(120 << 16, xdim, ydim) - (160 << 16), !(dastat & RS_ALIGN_R));
-
-            if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
-                ydim = scale(xdim, 3, 4);
-            else
-                xdim = scale(ydim, 4, 3);
-
-            ouryxaspect = (12 << 16) / 10;
-            ourxyaspect = (10 << 16) / 12;
-        }
-
-        ouryxaspect = mulscale16(ouryxaspect, rotatesprite_yxaspect);
-        ourxyaspect = divscale16(ourxyaspect, rotatesprite_yxaspect);
-
-        // screen center to s[xy], 320<<16 coords.
-        const int32_t normxofs = sx - (320 << 15), normyofs = sy - (200 << 15);
-
-        // nasty hacks go here
-        if (!(dastat & RS_NOCLIP))
-        {
-            const int32_t twice_midcx = cx1_plus_cx2 + 2;
-
-            // screen x center to sx1, scaled to viewport
-            const int32_t scaledxofs = scale(normxofs, scale(xdimen, xdim, oxdim), 320);
-
-            sx = ((twice_midcx) << 15) + scaledxofs;
-
-            zoomsc = xdimenscale;   //= scale(xdimen,yxaspect,320);
-            zoomsc = mulscale16(zoomsc, rotatesprite_yxaspect);
-
-            if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
-                zoomsc = scale(zoomsc, ydim, oydim);
-
-            sy = ((cy1_plus_cy2 + 2) << 15) + mulscale16(normyofs, zoomsc);
-        }
-        else
-        {
-            //If not clipping to startmosts, & auto-scaling on, as a
-            //hard-coded bonus, scale to full screen instead
-
-            sx = (xdim << 15) + 32768 + scale(normxofs, xdim, 320);
-
-            zoomsc = scale(xdim, ouryxaspect, 320);
-            sy = (ydim << 15) + 32768 + mulscale16(normyofs, zoomsc);
-
-            if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
-                sy += (oydim - ydim) << 15;
-            else
-                sx += (oxdim - xdim) << 15;
-
-            if (dastat & RS_CENTERORIGIN)
-                sx += oxdim << 15;
-        }
-
-        *sxptr = sx;
-        *syptr = sy;
-        *z = mulscale16(*z, zoomsc);
-
-        return ourxyaspect;
-    }
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-    int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-    int32_t clipx1, int32_t clipy1, int32_t clipx2, int32_t clipy2, FGameTexture* pic, int basepal)
-{
-    F2DDrawer::RenderCommand dg = {};
-    int method = 0;
-
-    dg.mType = F2DDrawer::DrawTypeTriangles;
-    if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth() - 1 || clipy2 < screen->GetHeight() - 1)
-    {
-        dg.mScissor[0] = clipx1;
-        dg.mScissor[1] = clipy1;
-        dg.mScissor[2] = clipx2 + 1;
-        dg.mScissor[3] = clipy2 + 1;
-        dg.mFlags |= F2DDrawer::DTF_Scissor;
-    }
-
-    if (!(dastat & RS_NOMASK))
-    {
-        if (dastat & RS_TRANS1)
-            method |= (dastat & RS_TRANS2) ? DAMETH_TRANS2 : DAMETH_TRANS1;
-        else
-            method |= DAMETH_MASK;
-
-        dg.mRenderStyle = GetRenderStyle(dablend, (dastat & RS_TRANS2) ? 1 : 0);
-    }
-    else
-    {
-        dg.mRenderStyle = LegacyRenderStyles[STYLE_Normal];
-    }
-
-    dg.mTexture = pic ? pic : tileGetTexture(picnum);
-    if (!dg.mTexture || !dg.mTexture->isValid()) return; // empty tile.
-
-    // todo: check for hires replacements.
-
-    // The weapon drawer needs to use the global base palette.
-    if (twod == &twodpsp) dg.mTranslationId = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
-    else if (basepal == 0 && dapalnum == 0 && pic) dg.mTranslationId = 0;
-    else dg.mTranslationId = TRANSLATION(Translation_Remap + basepal, dapalnum);
-
-    dg.mVertCount = 4;
-    dg.mVertIndex = (int)twod->mVertices.Reserve(4);
-    auto ptr = &twod->mVertices[dg.mVertIndex];
-    float drawpoly_alpha = daalpha * (1.0f / 255.0f);
-    float alpha = GetAlphaFromBlend(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
-    PalEntry p;
-
-    if (!hw_useindexedcolortextures)
-    {
-        int light = clamp(scale((numshades - dashade), 255, numshades), 0, 255);
-        p = PalEntry((uint8_t)(alpha * 255), light, light, light);
-    }
-    else
-    {
-        p = PalEntry((uint8_t)(alpha * 255), 255, 255, 255);
-        dg.mLightLevel = clamp(dashade, 0, numshades);
-    }
-
-
-    vec2_t const siz = { (int)dg.mTexture->GetDisplayWidth(), (int)dg.mTexture->GetDisplayHeight() };
-    vec2_16_t ofs = { 0, 0 };
-
-    if (!(dastat & RS_TOPLEFT))
-    {
-        if (!pic && !(dastat & RS_CENTER))
-        {
-            ofs = { int16_t(tileLeftOffset(picnum) + (siz.x >> 1)),
-                    int16_t(tileTopOffset(picnum) + (siz.y >> 1)) };
-        }
-        else
-        {
-            ofs = { int16_t((siz.x >> 1)),
-                    int16_t((siz.y >> 1)) };
-        }
-    }
-
-    if (dastat & RS_YFLIP)
-        ofs.y = siz.y - ofs.y;
-
-    int32_t aspectcorrect = dorotspr_handle_bit2(&sx, &sy, &z, dastat, clipx1 + clipx2, clipy1 + clipy2);
-
-    int32_t cosang = mulscale14(sintable[(a + 512) & 2047], z);
-    int32_t cosang2 = cosang;
-    int32_t sinang = mulscale14(sintable[a & 2047], z);
-    int32_t sinang2 = sinang;
-
-    if ((dastat & RS_AUTO) || (!(dastat & RS_NOCLIP)))  // Don't aspect unscaled perms
-    {
-        cosang2 = mulscale16(cosang2, aspectcorrect);
-        sinang2 = mulscale16(sinang2, aspectcorrect);
-    }
-
-    int cx0 = sx - ofs.x * cosang2 + ofs.y * sinang2;
-    int cy0 = sy - ofs.x * sinang - ofs.y * cosang;
-
-    int cx1 = cx0 + siz.x * cosang2;
-    int cy1 = cy0 + siz.x * sinang;
-
-    int cx3 = cx0 - siz.y * sinang2;
-    int cy3 = cy0 + siz.y * cosang;
-
-    int cx2 = cx1 + cx3 - cx0;
-    int cy2 = cy1 + cy3 - cy0;
-
-    float y = (dastat & RS_YFLIP) ? 1.f : 0.f;
-
-    ptr->Set(cx0 / 65536.f, cy0 / 65536.f, 0.f, 0.f, y, p); ptr++;
-    ptr->Set(cx1 / 65536.f, cy1 / 65536.f, 0.f, 1.f, y, p); ptr++;
-    ptr->Set(cx2 / 65536.f, cy2 / 65536.f, 0.f, 1.f, 1.f - y, p); ptr++;
-    ptr->Set(cx3 / 65536.f, cy3 / 65536.f, 0.f, 0.f, 1.f - y, p); ptr++;
-    dg.mIndexIndex = twod->mIndices.Size();
-    dg.mIndexCount += 6;
-    twod->AddIndices(dg.mVertIndex, 6, 0, 1, 2, 0, 2, 3);
-    twod->AddCommand(&dg);
-
-}
 
 
 //
@@ -3175,9 +1705,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     renderSetAspect(65536, divscale16((320*5)/8, 200));
 
-    beforedrawrooms = 0;
-
-    Bmemset(gotsector, 0, sizeof(gotsector));
+    memset(gotsector, 0, sizeof(gotsector));
 
     vec2_t const c1 = { (windowxy1.x<<12), (windowxy1.y<<12) };
     vec2_t const c2 = { ((windowxy2.x+1)<<12)-1, ((windowxy2.y+1)<<12)-1 };
@@ -3196,10 +1724,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     for (s=0,sec=(usectorptr_t)&sector[s]; s<numsectors; s++,sec++)
         if (gFullMap || show2dsector[s])
         {
-#ifdef YAX_ENABLE
-            if (yax_getbunch(s, YAX_FLOOR) >= 0 && (sector[s].floorstat&(256+128))==0)
-                continue;
-#endif
             int32_t npoints = 0; i = 0;
             int32_t startwall = sec->wallptr;
             j = startwall; l = 0;
@@ -3310,7 +1834,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             for (j=i; j>=0; j-=gap)
             {
                 if (sprite[tsprite[j].owner].z <= sprite[tsprite[j+gap].owner].z) break;
-                swapshort(&tsprite[j].owner,&tsprite[j+gap].owner);
+                std::swap(tsprite[j].owner, tsprite[j+gap].owner);
             }
 
     for (s=sortnum-1; s>=0; s--)
@@ -3373,17 +1897,17 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             //relative alignment stuff
             ox = v2.x-v1.x; oy = v2.y-v1.y;
-            i = ox*ox+oy*oy; if (i == 0) continue; i = tabledivide32_noinline(65536*16384, i);
+            i = ox*ox+oy*oy; if (i == 0) continue; i = 65536*16384 / i;
             globalx1 = mulscale10(dmulscale10(ox,bakgvect.x,oy,bakgvect.y),i);
             globaly1 = mulscale10(dmulscale10(ox,bakgvect.y,-oy,bakgvect.x),i);
             ox = v1.y-v4.y; oy = v4.x-v1.x;
-            i = ox*ox+oy*oy; if (i == 0) continue; i = tabledivide32_noinline(65536*16384, i);
+            i = ox*ox+oy*oy; if (i == 0) continue; i = 65536 * 16384 / i;
             globalx2 = mulscale10(dmulscale10(ox,bakgvect.x,oy,bakgvect.y),i);
             globaly2 = mulscale10(dmulscale10(ox,bakgvect.y,-oy,bakgvect.x),i);
 
             ox = widthBits(globalpicnum); 
             oy = heightBits(globalpicnum);
-            if (pow2long[ox] != xspan)
+            if ((1 << ox) != xspan)
             {
                 ox++;
                 globalx1 = mulscale(globalx1,xspan,ox);
@@ -3406,10 +1930,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
         }
     }
 
-    if (r_usenewaspect)
+
         renderSetAspect(oviewingrange, oyxaspect);
-    else
-        renderSetAspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 //////////////////// LOADING AND SAVING ROUTINES ////////////////////
@@ -3421,16 +1943,11 @@ static FORCE_INLINE int32_t have_maptext(void)
 
 static void enginePrepareLoadBoard(FileReader & fr, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
-    initspritelists();
+    memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
+    memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES + MAXUNIQHUDID));
 
-    show2dsector.Zero();
-    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
-    Bmemset(show2dwall, 0, sizeof(show2dwall));
-#ifdef USE_STRUCT_TRACKERS
-    Bmemset(sectorchanged, 0, sizeof(sectorchanged));
-    Bmemset(spritechanged, 0, sizeof(spritechanged));
-    Bmemset(wallchanged, 0, sizeof(wallchanged));
-#endif
+    initspritelists();
+    ClearAutomap();
 
 #ifdef USE_OPENGL
     Polymost_prepare_loadboard();
@@ -3446,7 +1963,7 @@ static void enginePrepareLoadBoard(FileReader & fr, vec3_t *dapos, int16_t *daan
     }
 }
 
-static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum, int16_t numsprites, char myflags)
+static int32_t engineFinishLoadBoard(const char *filename, const vec3_t *dapos, int16_t *dacursectnum, int16_t numsprites, char myflags)
 {
     int32_t i, realnumsprites=numsprites, numremoved;
 
@@ -3459,11 +1976,7 @@ static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum,
         int32_t removeit = 0;
 
         if ((sprite[i].cstat & 48) == 48)
-		{
-			// If I understand this correctly, both of these essentially do the same thing...
-            if (!playing_rr) sprite[i].cstat &= ~48;
-            else sprite[i].cstat |= 32768;
-		}
+            sprite[i].cstat &= ~48;
 
         if (sprite[i].statnum == MAXSTATUS)
         {
@@ -3497,34 +2010,20 @@ static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum,
 
     numremoved = (numsprites-realnumsprites);
     numsprites = realnumsprites;
-    Bassert(numsprites == Numsprites);
+    assert(numsprites == Numsprites);
 
     //Must be after loading sectors, etc!
     updatesector(dapos->x, dapos->y, dacursectnum);
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    if (!quickloadboard)
-#endif
     {
-        Bmemset(spriteext, 0, sizeof(spriteext_t)*MAXSPRITES);
-#ifndef NEW_MAP_FORMAT
-        Bmemset(wallext, 0, sizeof(wallext_t)*MAXWALLS);
-#endif
-
-#ifdef USE_OPENGL
-        Bmemset(spritesmooth, 0, sizeof(spritesmooth_t)*(MAXSPRITES+MAXUNIQHUDID));
-
-# ifdef POLYMER
-        if (videoGetRenderMode() == REND_POLYMER)
-        {
-            if ((myflags&4)==0)
-                polymer_loadboard();
-        }
-# endif
-#endif
+        memset(spriteext, 0, sizeof(spriteext_t)*MAXSPRITES);
+        memset(wallext, 0, sizeof(wallext_t)*MAXWALLS);
+        memset(spritesmooth, 0, sizeof(spritesmooth_t)*(MAXSPRITES+MAXUNIQHUDID));
     }
 
     guniqhudid = 0;
+
+    G_LoadMapHack(filename);
 
     return numremoved;
 }
@@ -3538,7 +2037,7 @@ static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum,
 
 static void remove_sprite(int32_t i)
 {
-    Bmemset(&sprite[i], 0, sizeof(spritetype));
+    memset(&sprite[i], 0, sizeof(spritetype));
     sprite[i].statnum = MAXSTATUS;
     sprite[i].sectnum = MAXSECTORS;
 }
@@ -3593,6 +2092,7 @@ int32_t(*loadboard_replace)(const char *filename, char flags, vec3_t *dapos, int
 //       <= -4: map-text error
 int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
+    inputState.ClearAllInput();
     if (loadboard_replace)
         return loadboard_replace(filename, flags, dapos, daang, dacursectnum);
     int32_t i;
@@ -3613,21 +2113,9 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
     {
         int32_t ok = 0;
 
-#ifdef NEW_MAP_FORMAT
-        // Check for map-text first.
-        if (!Bmemcmp(&mapversion, "--ED", 4))
-        {
-            mapversion = 10;
-            ok = 1;
-        }
-        else
-#endif
         {
             // Not map-text. We expect a little-endian version int now.
             mapversion = B_LITTLE32(mapversion);
-#ifdef YAX_ENABLE
-            ok |= (mapversion==9);
-#endif
 #if MAXSECTORS==MAXSECTORSV8
             // v8 engine
             ok |= (mapversion==8);
@@ -3707,11 +2195,8 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
     fr.Read( sprite, sizeof(spritetype)*numsprites);
 
     fr.Seek(0, FileReader::SeekSet);
-    int32_t boardsize = fr.GetLength();
-    uint8_t *fullboard = (uint8_t*)Xmalloc(boardsize);
-    fr.Read( fullboard, boardsize);
-    md4once(fullboard, boardsize, g_loadedMapHack.md4);
-    Xfree(fullboard);
+    auto buffer = fr.Read();
+    md4once(buffer.Data(), buffer.Size(), g_loadedMapHack.md4);
 
     // Done reading file.
 
@@ -3746,27 +2231,14 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
 
     // Back up the map version of the *loaded* map. Must be before yax_update().
     g_loadedMapVersion = mapversion;
-#ifdef YAX_ENABLE
-    yax_update(mapversion<9);
-#endif
 
     if ((myflags&8)==0)
     {
-#if 0	// No, no! This is absolutely unacceptable. I won't support mods that require this kind of access.
-        char fn[BMAX_PATH];
-
-        Bstrcpy(fn, filename);
-        append_ext_UNSAFE(fn, ".cfg");
-
-        OSD_Exec(fn);
-#endif
         // Per-map ART
         artSetupMapArt(filename);
     }
 
-    // Printf("Loaded map \"%s\" (md4sum: %08x%08x%08x%08x)\n", filename, B_BIG32(*((int32_t*)&md4out[0])), B_BIG32(*((int32_t*)&md4out[4])), B_BIG32(*((int32_t*)&md4out[8])), B_BIG32(*((int32_t*)&md4out[12])));
-
-    return engineFinishLoadBoard(dapos, dacursectnum, numsprites, myflags);
+    return engineFinishLoadBoard(filename, dapos, dacursectnum, numsprites, myflags);
 }
 
 
@@ -3954,12 +2426,10 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 
     g_loadedMapVersion = mapversion;
 
-    return engineFinishLoadBoard(dapos, dacursectnum, numsprites, 0);
+    return engineFinishLoadBoard(filename, dapos, dacursectnum, numsprites, 0);
 }
 
 
-
-#define YSAVES ((xdim*MAXSPRITES)>>7)
 
 //
 // setgamemode
@@ -3974,14 +2444,8 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     daupscaledxdim = max(320, daupscaledxdim);
     daupscaledydim = max(200, daupscaledydim);
 
-    if (in3dmode() && 
-        (xres == daupscaledxdim) && (yres == daupscaledydim) && (bpp == dabpp))
-        return 0;
-
-    Bstrcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
+    strcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
            "  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
-
-    j = bpp;
 
     rendmode = REND_POLYMOST;
 
@@ -4006,55 +2470,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
-    qsetmode = 200;
     return 0;
-}
-
-void DrawFullscreenBlends();
-
-//
-// nextpage
-//
-void videoNextPage(void)
-{
-	static bool recursion;
-
-	if (!recursion)
-	{
-		// This protection is needed because the menu can call scripts from inside its drawers and the scripts can call the busy-looping Screen_Play script event
-		// which calls videoNextPage for page flipping again. In this loop the UI drawers may not get called again.
-		// Ideally this stuff should be moved out of videoNextPage so that all those busy loops won't call UI overlays at all.
-		recursion = true;
-		M_Drawer();
-		FStat::PrintStat(twod);
-		C_DrawConsole();
-		recursion = false;
-	}
-
-    // Handle the final 2D overlays.
-    DrawFullscreenBlends();
-    DrawRateStuff();
-
-    if (in3dmode())
-    {
- 		g_beforeSwapTime = timerGetHiTicks();
-
-		videoShowFrame(0);
-    }
-
-#ifdef USE_OPENGL
-    omdtims = mdtims;
-    mdtims = timerGetTicks();
-
-    for (native_t i = 0; i < MAXSPRITES + MAXUNIQHUDID; ++i)
-        if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
-            spriteext[i].mdanimtims += mdtims - omdtims;
-#endif
-
-    beforedrawrooms = 1;
-    numframes++;
-    twod->SetSize(screen->GetWidth(), screen->GetHeight());
-    twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 }
 
 //
@@ -4081,7 +2497,6 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
 
 		voxelmemory.Reserve(1);
 		voxelmemory.Last() = fil.Read(dasiz);
-		voxoff[voxindex][i] = (intptr_t)voxelmemory.Last().Data();
 
         lengcnt += dasiz+4;
         if (lengcnt >= lengtot-768)
@@ -4120,11 +2535,6 @@ void vox_undefine(int32_t const tile)
     DO_FREE_AND_NULL(voxfilenames[voxindex]);
 #endif
 
-    for (ssize_t j = 0; j < MAXVOXMIPS; ++j)
-    {
-        // CACHE1D_FREE
-        voxoff[voxindex][j] = 0;
-    }
     voxscale[voxindex] = 65536;
     voxrotate[voxindex>>3] &= ~pow2char[voxindex&7];
     tiletovox[tile] = -1;
@@ -4273,7 +2683,7 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
     return -1;
 }
 
-int32_t __fastcall getangle(int32_t xvect, int32_t yvect)
+int32_t getangle(int32_t xvect, int32_t yvect)
 {
     int32_t rv;
 
@@ -4294,23 +2704,23 @@ int32_t __fastcall getangle(int32_t xvect, int32_t yvect)
     return rv;
 }
 
-fix16_t __fastcall gethiq16angle(int32_t xvect, int32_t yvect)
+fixed_t gethiq16angle(int32_t xvect, int32_t yvect)
 {
-    fix16_t rv;
+    fixed_t rv;
 
     if ((xvect | yvect) == 0)
         rv = 0;
     else if (xvect == 0)
-        rv = fix16_from_int(512 + ((yvect < 0) << 10));
+        rv = IntToFixed(512 + ((yvect < 0) << 10));
     else if (yvect == 0)
-        rv = fix16_from_int(((xvect < 0) << 10));
+        rv = IntToFixed(((xvect < 0) << 10));
     else if (xvect == yvect)
-        rv = fix16_from_int(256 + ((xvect < 0) << 10));
+        rv = IntToFixed(256 + ((xvect < 0) << 10));
     else if (xvect == -yvect)
-        rv = fix16_from_int(768 + ((xvect > 0) << 10));
+        rv = IntToFixed(768 + ((xvect > 0) << 10));
     else if (klabs(xvect) > klabs(yvect))
-        rv = ((qradarang[5120 + scale(1280, yvect, xvect)] >> 6) + fix16_from_int(((xvect < 0) << 10))) & 0x7FFFFFF;
-    else rv = ((qradarang[5120 - scale(1280, xvect, yvect)] >> 6) + fix16_from_int(512 + ((yvect < 0) << 10))) & 0x7FFFFFF;
+        rv = ((qradarang[5120 + scale(1280, yvect, xvect)] >> 6) + IntToFixed(((xvect < 0) << 10))) & 0x7FFFFFF;
+    else rv = ((qradarang[5120 - scale(1280, xvect, yvect)] >> 6) + IntToFixed(512 + ((yvect < 0) << 10))) & 0x7FFFFFF;
 
     return rv;
 }
@@ -4476,28 +2886,10 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
     const int32_t x21 = x2-x1, y21 = y2-y1, z21 = z2-z1;
 
     static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-#ifdef YAX_ENABLE
-    int16_t pendingsectnum;
-    vec3_t pendingvec;
-
-    // Negative sectnums can happen, for example if the player is using noclip.
-    // MAXSECTORS can happen from C-CON, e.g. canseespr with a sprite not in
-    // the game world.
-    if ((unsigned)sect1 >= MAXSECTORS || (unsigned)sect2 >= MAXSECTORS)
-        return 0;
-
-    Bmemset(&pendingvec, 0, sizeof(vec3_t));  // compiler-happy
-#endif
-    Bmemset(sectbitmap, 0, sizeof(sectbitmap));
-#ifdef YAX_ENABLE
-restart_grand:
-#endif
+    memset(sectbitmap, 0, sizeof(sectbitmap));
     if (x1 == x2 && y1 == y2)
         return (sect1 == sect2);
 
-#ifdef YAX_ENABLE
-    pendingsectnum = -1;
-#endif
     sectbitmap[sect1>>3] |= pow2char[sect1&7];
     clipsectorlist[0] = sect1; danum = 1;
 
@@ -4507,14 +2899,6 @@ restart_grand:
         auto const sec = (usectorptr_t)&sector[dasectnum];
         uwallptr_t wal;
         bssize_t cnt;
-#ifdef YAX_ENABLE
-        int32_t cfz1[2], cfz2[2];  // both wrt dasectnum
-        int16_t bn[2];
-
-        yax_getbunches(dasectnum, &bn[0], &bn[1]);
-        getzsofslope(dasectnum, x1,y1, &cfz1[0], &cfz1[1]);
-        getzsofslope(dasectnum, x2,y2, &cfz2[0], &cfz2[1]);
-#endif
         for (cnt=sec->wallnum,wal=(uwallptr_t)&wall[sec->wallptr]; cnt>0; cnt--,wal++)
         {
             auto const wal2 = (uwallptr_t)&wall[wal->point2];
@@ -4530,49 +2914,11 @@ restart_grand:
             t = y31*x34-x31*y34;
             if ((unsigned)t >= (unsigned)bot)
             {
-#ifdef YAX_ENABLE
-                if (t >= bot)
-                {
-                    int32_t cf, frac, ns;
-                    for (cf=0; cf<2; cf++)
-                    {
-                        if ((cf==0 && bn[0]>=0 && z1 > cfz1[0] && cfz2[0] > z2) ||
-                            (cf==1 && bn[1]>=0 && z1 < cfz1[1] && cfz2[1] < z2))
-                        {
-                            if ((cfz1[cf]-cfz2[cf])-(z1-z2)==0)
-                                continue;
-                            frac = divscale24(z1-cfz1[cf], (z1-z2)-(cfz1[cf]-cfz2[cf]));
-
-                            if ((unsigned)frac >= (1<<24))
-                                continue;
-
-                            x = x1 + mulscale24(x21,frac);
-                            y = y1 + mulscale24(y21,frac);
-
-                            ns = yax_getneighborsect(x, y, dasectnum, cf);
-                            if (ns < 0)
-                                continue;
-
-                            if (!(sectbitmap[ns>>3] & pow2char[ns&7]) && pendingsectnum==-1)
-                            {
-                                sectbitmap[ns>>3] |= pow2char[ns&7];
-                                pendingsectnum = ns;
-                                pendingvec.x = x;
-                                pendingvec.y = y;
-                                pendingvec.z = z1 + mulscale24(z21,frac);
-                            }
-                        }
-                    }
-                }
-#endif
                 continue;
             }
 
             nexts = wal->nextsector;
 
-#ifdef YAX_ENABLE
-            if (bn[0]<0 && bn[1]<0)
-#endif
                 if (nexts < 0 || wal->cstat&32)
                     return 0;
 
@@ -4585,44 +2931,13 @@ restart_grand:
 
             if (z <= cfz[0] || z >= cfz[1])
             {
-#ifdef YAX_ENABLE
-                int32_t cf, frac;
-
-                // XXX: Is this any good?
-                for (cf=0; cf<2; cf++)
-                    if ((cf==0 && bn[0]>=0 && z <= cfz[0] && z1 >= cfz1[0]) ||
-                        (cf==1 && bn[1]>=0 && z >= cfz[1] && z1 <= cfz1[1]))
-                    {
-                        if ((cfz1[cf]-cfz[cf])-(z1-z)==0)
-                            continue;
-
-                        frac = divscale24(z1-cfz1[cf], (z1-z)-(cfz1[cf]-cfz[cf]));
-                        t = mulscale24(t, frac);
-
-                        if ((unsigned)t < (1<<24))
-                        {
-                            x = x1 + mulscale24(x21,t);
-                            y = y1 + mulscale24(y21,t);
-
-                            nexts = yax_getneighborsect(x, y, dasectnum, cf);
-                            if (nexts >= 0)
-                                goto add_nextsector;
-                        }
-                    }
-
-#endif
                 return 0;
             }
 
-#ifdef YAX_ENABLE
-            if (nexts < 0 || (wal->cstat&32))
-                return 0;
-#endif
             getzsofslope(nexts, x,y, &cfz[0],&cfz[1]);
             if (z <= cfz[0] || z >= cfz[1])
                 return 0;
 
-add_nextsector:
             if (!(sectbitmap[nexts>>3] & pow2char[nexts&7]))
             {
                 sectbitmap[nexts>>3] |= pow2char[nexts&7];
@@ -4630,16 +2945,6 @@ add_nextsector:
             }
         }
 
-#ifdef YAX_ENABLE
-        if (pendingsectnum>=0)
-        {
-            sect1 = pendingsectnum;
-            x1 = pendingvec.x;
-            y1 = pendingvec.y;
-            z1 = pendingvec.z;
-            goto restart_grand;
-        }
-#endif
     }
 
     if (sectbitmap[sect2>>3] & pow2char[sect2&7])
@@ -4762,7 +3067,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
     uint8_t *const walbitmap = (uint8_t *)tempbuf;
 
     if ((flags&1)==0)
-        Bmemset(walbitmap, 0, (numwalls+7)>>3);
+        memset(walbitmap, 0, (numwalls+7)>>3);
     yaxwalls[numyaxwalls++] = pointhighlight;
 
     for (i=0; i<numyaxwalls; i++)
@@ -4775,20 +3080,9 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
 
         while (1)
         {
-            int32_t j, tmpcf;
-
             wall[w].x = dax;
             wall[w].y = day;
             walbitmap[w>>3] |= pow2char[w&7];
-
-            for (YAX_ITER_WALLS(w, j, tmpcf))
-            {
-                if ((walbitmap[j>>3]&pow2char[j&7])==0)
-                {
-                    walbitmap[j>>3] |= pow2char[j&7];
-                    yaxwalls[numyaxwalls++] = j;
-                }
-            }
 
             if (!clockwise)  //search points CCW
             {
@@ -4863,7 +3157,7 @@ int32_t lastwall(int16_t point)
  * NOTE: The redundant bound checks are expected to be optimized away in the
  * inlined code. */
 
-static FORCE_INLINE CONSTEXPR int inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
+static inline int inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
 {
     return (sectnum>=0 && !bitmap_test(excludesectbitmap, sectnum) && inside_p(x, y, sectnum));
 }
@@ -4928,7 +3222,7 @@ int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out /*=
 int findwallbetweensectors(int sect1, int sect2)
 {
     if (sector[sect1].wallnum > sector[sect2].wallnum)
-        swaplong(&sect1, &sect2);
+        std::swap(sect1, sect2);
 
     auto const sec  = (usectorptr_t)&sector[sect1];
     int const  last = sec->wallptr + sec->wallnum;
@@ -5015,6 +3309,7 @@ void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectn
 //      as starting sector and the 'initial' z check is skipped
 //      (not initial anymore because it follows the sector updating due to TROR)
 
+// NOTE: This comes from Duke, therefore it's GPL!
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum)
 {
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
@@ -5033,21 +3328,6 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
             int32_t cz, fz;
             getzsofslope(*sectnum, x, y, &cz, &fz);
 
-#ifdef YAX_ENABLE
-            if (z < cz)
-            {
-                int const next = yax_getneighborsect(x, y, *sectnum, YAX_CEILING);
-                if (next >= 0 && z >= getceilzofslope(next, x, y))
-                    SET_AND_RETURN(*sectnum, next);
-            }
-
-            if (z > fz)
-            {
-                int const next = yax_getneighborsect(x, y, *sectnum, YAX_FLOOR);
-                if (next >= 0 && z <= getflorzofslope(next, x, y))
-                    SET_AND_RETURN(*sectnum, next);
-            }
-#endif
             if (nofirstzcheck || (z >= cz && z <= fz))
                 if (inside_p(x, y, *sectnum))
                     return;
@@ -5135,21 +3415,6 @@ void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, in
         int32_t cz, fz;
         getzsofslope(correctedsectnum, x, y, &cz, &fz);
 
-#ifdef YAX_ENABLE
-        if (z < cz)
-        {
-            int const next = yax_getneighborsect(x, y, correctedsectnum, YAX_CEILING);
-            if (next >= 0 && z >= getceilzofslope(next, x, y))
-                SET_AND_RETURN(*sectnum, next);
-        }
-
-        if (z > fz)
-        {
-            int const next = yax_getneighborsect(x, y, correctedsectnum, YAX_FLOOR);
-            if (next >= 0 && z <= getflorzofslope(next, x, y))
-                SET_AND_RETURN(*sectnum, next);
-        }
-#endif
         if ((nofirstzcheck || (z >= cz && z <= fz)) && inside_p(x, y, *sectnum))
             return;
 
@@ -5193,30 +3458,20 @@ void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * con
     p2->y = dmulscale14(p.y, dacos, p.x, dasin) + pivot.y;
 }
 
-int32_t setaspect_new_use_dimen = 0;
-
 void videoSetCorrectedAspect()
 {
-    if (r_usenewaspect && newaspect_enable && videoGetRenderMode() != REND_POLYMER)
-    {
         // In DOS the game world is displayed with an aspect of 1.28 instead 1.333,
         // meaning we have to stretch it by a factor of 1.25 instead of 1.2
         // to get perfect squares
         int32_t yx = (65536 * 5) / 4;
         int32_t vr, y, x;
 
-        const int32_t xd = setaspect_new_use_dimen ? xdimen : xdim;
-        const int32_t yd = setaspect_new_use_dimen ? ydimen : ydim;
-
-        x = xd;
-        y = yd;
+        x = xdim;
+        y = ydim;
 
         vr = divscale16(x*3, y*4);
 
         renderSetAspect(vr, yx);
-    }
-    else
-        renderSetAspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 //
@@ -5262,57 +3517,8 @@ void renderSetAspect(int32_t daxrange, int32_t daaspect)
 
 
 #include "v_2ddrawer.h"
-//
-// rotatesprite
-//
-void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                   int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FGameTexture *tex, int basepal)
-{
-    if (!tex && (unsigned)picnum >= MAXTILES)
-        return;
-
-    if ((cx1 > cx2) || (cy1 > cy2)) return;
-    if (z <= 16) return;
-
-    if (r_rotatespritenowidescreen)
-    {
-        dastat |= RS_STRETCH;
-        dastat &= ~RS_ALIGN_MASK;
-    }
-
-    if (!tex)
-    {
-        tileUpdatePicnum(&picnum, (int16_t)0xc000);
-        if ((tileWidth(picnum) <= 0) || (tileHeight(picnum) <= 0)) return;
-#if 0
-        if (hw_models && tile2model[picnum].hudmem[(dastat & 4) >> 2])
-        {
-            polymost_dorotatespritemodel(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, guniqhudid);
-            return;
-        }
-#endif
-    }
-
-    // We must store all calls in the 2D drawer so that the backend can operate on a clean 3D view.
-    twod_rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2, tex, basepal);
-
-    // RS_PERM code was removed because the current backend supports only one page that needs to be redrawn each frame in which case the perm list was skipped anyway.
-}
 
 
-
-void videoInit()
-{
-    lookups.postLoadLookups();
-    V_Init2();
-    videoSetGameMode(vid_fullscreen, SCREENWIDTH, SCREENHEIGHT, 32, 1);
-
-    Polymost_Startup();
-    GLInterface.Init(SCREENHEIGHT);
-    GLInterface.InitGLState(4, 4/*glmultisample*/);
-    screen->SetTextureFilterMode();
-}
 
 //
 // clearview
@@ -5385,8 +3591,8 @@ void renderRestoreTarget()
 //
 // preparemirror
 //
-void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, fix16_t dahoriz, int16_t dawall,
-                         int32_t *tposx, int32_t *tposy, fix16_t *tang)
+void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
+                         int32_t *tposx, int32_t *tposy, fixed_t *tang)
 {
     const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
     const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
@@ -5399,14 +3605,11 @@ void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, f
 
     *tposx = (x<<1) + scale(dx,i,j) - dax;
     *tposy = (y<<1) + scale(dy,i,j) - day;
-    *tang  = (fix16_from_int(getangle(dx, dy) << 1) - daang) & 0x7FFFFFF;
+    *tang  = (IntToFixed(getangle(dx, dy) << 1) - daang) & 0x7FFFFFF;
 
     inpreparemirror = 1;
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
-        polymost_prepareMirror(dax, day, daz, daang, dahoriz, dawall);
-#endif
+    polymost_prepareMirror(dax, day, daz, daang, dahoriz, dawall);
 }
 
 
@@ -5441,20 +3644,12 @@ static int32_t sectorofwall_internal(int16_t wallNum)
 
 int32_t sectorofwall(int16_t wallNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
-        return -1;
-
-    native_t const w = wall[wallNum].nextwall;
-
-    return ((unsigned)w < MAXWALLS) ? wall[w].nextsector : sectorofwall_internal(wallNum);
-}
-
-int32_t sectorofwall_noquick(int16_t wallNum)
-{
-    if (EDUKE32_PREDICT_FALSE((unsigned) wallNum >= (unsigned) numwalls))
-        return -1;
-
-    return sectorofwall_internal(wallNum);
+	if ((unsigned)wallNum < (unsigned)numwalls)
+	{
+		native_t const w = wall[wallNum].nextwall;
+		return ((unsigned)w < MAXWALLS) ? wall[w].nextsector : sectorofwall_internal(wallNum);
+	}
+	return -1;
 }
 
 
@@ -5519,70 +3714,6 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz,
         *florz += scale(sec->floorheinum,j>>shift,i)<<shift;
 }
 
-#ifdef YAX_ENABLE
-void yax_getzsofslope(int sectNum, int playerX, int playerY, int32_t *pCeilZ, int32_t *pFloorZ)
-{
-    int didCeiling = 0;
-    int didFloor   = 0;
-    int testSector = 0;
-
-    if ((sector[sectNum].ceilingstat & 512) == 0)
-    {
-        testSector = yax_getneighborsect(playerX, playerY, sectNum, YAX_CEILING);
-
-        if (testSector >= 0)
-        {
-ceiling:
-            *pCeilZ    = getcorrectceilzofslope(testSector, playerX, playerY);
-            didCeiling = 1;
-        }
-    }
-
-    if ((sector[sectNum].floorstat & 512) == 0)
-    {
-        testSector = yax_getneighborsect(playerX, playerY, sectNum, YAX_FLOOR);
-
-        if (testSector >= 0)
-        {
-floor:
-            *pFloorZ = getcorrectflorzofslope(testSector, playerX, playerY);
-            didFloor = 1;
-        }
-    }
-
-    testSector = sectNum;
-
-    if (!didCeiling)
-        goto ceiling;
-    else if (!didFloor)
-        goto floor;
-}
-
-int32_t yax_getceilzofslope(int const sectnum, vec2_t const vect)
-{
-    if ((sector[sectnum].ceilingstat&512)==0)
-    {
-        int const nsect = yax_getneighborsect(vect.x, vect.y, sectnum, YAX_CEILING);
-        if (nsect >= 0)
-            return getcorrectceilzofslope(nsect, vect.x, vect.y);
-    }
-
-    return getcorrectceilzofslope(sectnum, vect.x, vect.y);
-}
-
-int32_t yax_getflorzofslope(int const sectnum, vec2_t const vect)
-{
-    if ((sector[sectnum].floorstat&512)==0)
-    {
-        int const nsect = yax_getneighborsect(vect.x, vect.y, sectnum, YAX_FLOOR);
-        if (nsect >= 0)
-            return getcorrectflorzofslope(nsect, vect.x, vect.y);
-    }
-
-    return getcorrectflorzofslope(sectnum, vect.x, vect.y);
-}
-#endif
-
 //
 // alignceilslope
 //
@@ -5625,143 +3756,6 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 }
 
 
-//
-// loopnumofsector
-//
-int32_t loopnumofsector(int16_t sectnum, int16_t wallnum)
-{
-    int32_t numloops = 0;
-    const int32_t startwall = sector[sectnum].wallptr;
-    const int32_t endwall = startwall + sector[sectnum].wallnum;
-
-    for (bssize_t i=startwall; i<endwall; i++)
-    {
-        if (i == wallnum)
-            return numloops;
-
-        if (wall[i].point2 < i)
-            numloops++;
-    }
-
-    return -1;
-}
-
-
-//
-// setfirstwall
-//
-void setfirstwall(int16_t sectnum, int16_t newfirstwall)
-{
-    int32_t i, j, numwallsofloop;
-    int32_t dagoalloop;
-    uwalltype *tmpwall;
-
-    const int32_t startwall = sector[sectnum].wallptr;
-    const int32_t danumwalls = sector[sectnum].wallnum;
-    const int32_t endwall = startwall+danumwalls;
-
-    if (newfirstwall < startwall || newfirstwall >= startwall+danumwalls)
-        return;
-
-    tmpwall = (uwalltype *)Xmalloc(danumwalls * sizeof(walltype));
-
-    Bmemcpy(tmpwall, &wall[startwall], danumwalls*sizeof(walltype));
-
-    numwallsofloop = 0;
-    i = newfirstwall;
-    do
-    {
-        numwallsofloop++;
-        i = wall[i].point2;
-    }
-    while (i != newfirstwall);
-
-    //Put correct loop at beginning
-    dagoalloop = loopnumofsector(sectnum,newfirstwall);
-    if (dagoalloop > 0)
-    {
-        j = 0;
-        while (loopnumofsector(sectnum,j+startwall) != dagoalloop)
-            j++;
-
-        for (i=0; i<danumwalls; i++)
-        {
-            int32_t k = i+j;
-            if (k >= danumwalls) k -= danumwalls;
-            Bmemcpy(&wall[startwall+i], &tmpwall[k], sizeof(walltype));
-
-            wall[startwall+i].point2 += danumwalls-startwall-j;
-            if (wall[startwall+i].point2 >= danumwalls)
-                wall[startwall+i].point2 -= danumwalls;
-            wall[startwall+i].point2 += startwall;
-        }
-
-        newfirstwall += danumwalls-j;
-        if (newfirstwall >= startwall+danumwalls)
-            newfirstwall -= danumwalls;
-    }
-
-    for (i=0; i<numwallsofloop; i++)
-        Bmemcpy(&tmpwall[i], &wall[i+startwall], sizeof(walltype));
-    for (i=0; i<numwallsofloop; i++)
-    {
-        int32_t k = i+newfirstwall-startwall;
-        if (k >= numwallsofloop) k -= numwallsofloop;
-        Bmemcpy(&wall[startwall+i], &tmpwall[k], sizeof(walltype));
-
-        wall[startwall+i].point2 += numwallsofloop-newfirstwall;
-        if (wall[startwall+i].point2 >= numwallsofloop)
-            wall[startwall+i].point2 -= numwallsofloop;
-        wall[startwall+i].point2 += startwall;
-    }
-
-    for (i=startwall; i<endwall; i++)
-        if (wall[i].nextwall >= 0)
-            wall[wall[i].nextwall].nextwall = i;
-
-#ifdef YAX_ENABLE
-    int16_t cb, fb;
-    yax_getbunches(sectnum, &cb, &fb);
-
-    if (cb>=0 || fb>=0)
-    {
-        for (i=startwall; i<endwall; i++)
-        {
-            j = yax_getnextwall(i, YAX_CEILING);
-            if (j >= 0)
-                yax_setnextwall(j, YAX_FLOOR, i);
-
-            j = yax_getnextwall(i, YAX_FLOOR);
-            if (j >= 0)
-                yax_setnextwall(j, YAX_CEILING, i);
-        }
-    }
-#endif
-
-    Xfree(tmpwall);
-}
-
-
-
-//
-// setrendermode
-//
-int32_t videoSetRenderMode(int32_t renderer)
-{
-    UNREFERENCED_PARAMETER(renderer);
-
-#ifdef USE_OPENGL
-
-    renderer = REND_POLYMOST;
-
-    rendmode = renderer;
-    if (videoGetRenderMode() >= REND_POLYMOST)
-        glrendmode = rendmode;
-
-#endif
-
-    return 0;
-}
 
 //
 // setrollangle
@@ -5772,3 +3766,4 @@ void renderSetRollAngle(float rolla)
     gtang = rolla * (fPI * (1.f/1024.f));
 }
 #endif
+

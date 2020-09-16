@@ -31,15 +31,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
-#include "aicerber.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
-#include "trig.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 
@@ -80,8 +78,8 @@ static void BiteSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -116,8 +114,8 @@ static void BurnSeqCallback(int, int nXSprite)
     int z = height; // ???
     TARGETTRACK tt1 = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
     Aim aim;
-    aim.dx = Cos(pSprite->ang)>>16;
-    aim.dy = Sin(pSprite->ang)>>16;
+    aim.dx = CosScale16(pSprite->ang);
+    aim.dy = SinScale16(pSprite->ang);
     aim.dz = gDudeSlope[nXSprite];
     int nClosest = 0x7fffffff;
     for (short nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
@@ -160,8 +158,8 @@ static void BurnSeqCallback(int, int nXSprite)
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
                 {
                     nClosest = nDist2;
-                    aim.dx = Cos(nAngle)>>16;
-                    aim.dy = Sin(nAngle)>>16;
+                    aim.dx = CosScale16(nAngle);
+                    aim.dy = SinScale16(nAngle);
                     aim.dz = divscale(tz, nDist, 10);
                 }
                 else
@@ -199,8 +197,8 @@ static void BurnSeqCallback2(int, int nXSprite)
     TARGETTRACK tt1 = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
     Aim aim;
     int ax, ay, az;
-    aim.dx = ax = Cos(pSprite->ang)>>16;
-    aim.dy = ay = Sin(pSprite->ang)>>16;
+    aim.dx = ax = CosScale16(pSprite->ang);
+    aim.dy = ay = SinScale16(pSprite->ang);
     aim.dz = gDudeSlope[nXSprite];
     az = 0;
     int nClosest = 0x7fffffff;
@@ -246,8 +244,8 @@ static void BurnSeqCallback2(int, int nXSprite)
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
                 {
                     nClosest = nDist2;
-                    aim.dx = Cos(nAngle)>>16;
-                    aim.dy = Sin(nAngle)>>16;
+                    aim.dx = CosScale16(nAngle);
+                    aim.dy = SinScale16(nAngle);
                     aim.dz = divscale(tz, nDist, 10);
                 }
                 else
@@ -281,9 +279,9 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-    if (pDudeExtraE->at8 && pDudeExtraE->at4 < 10)
-        pDudeExtraE->at4++;
-    else if (pDudeExtraE->at4 >= 10 && pDudeExtraE->at8)
+    if (pDudeExtraE->at8 && pDudeExtraE->Kills < 10)
+        pDudeExtraE->Kills++;
+    else if (pDudeExtraE->Kills >= 10 && pDudeExtraE->at8)
     {
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
@@ -315,13 +313,13 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                pDudeExtraE->at0 = 0;
+                pDudeExtraE->TotalKills = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
                 aiActivateDude(pSprite, pXSprite);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                pDudeExtraE->at0 = 0;
+                pDudeExtraE->TotalKills = 0;
                 aiSetTarget(pXSprite, x, y, z);
                 aiActivateDude(pSprite, pXSprite);
             }

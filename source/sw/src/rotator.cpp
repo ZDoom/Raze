@@ -28,20 +28,19 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "names2.h"
 #include "panel.h"
-#include "game.h"
+#include "misc.h"
 #include "network.h"
 #include "tags.h"
 #include "sector.h"
-#include "text.h"
 #include "interp.h"
 #include "sprite.h"
 #include "quotemgr.h"
 
 BEGIN_SW_NS
 
-short DoRotatorMatch(PLAYERp pp, short match, SWBOOL);
-SWBOOL TestRotatorMatchActive(short match);
-void InterpSectorSprites(short sectnum, SWBOOL state);
+short DoRotatorMatch(PLAYERp pp, short match, bool);
+bool TestRotatorMatchActive(short match);
+void InterpSectorSprites(short sectnum, bool state);
 void DoMatchEverything(PLAYERp pp, short match, short state);
 void DoRotatorSetInterp(short SpriteNum);
 void DoRotatorStopInterp(short SpriteNum);
@@ -74,12 +73,12 @@ void ReverseRotator(short SpriteNum)
     r->vel = -r->vel;
 }
 
-SWBOOL
+bool
 RotatorSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL found = FALSE;
+    bool found = false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -87,7 +86,7 @@ RotatorSwitch(short match, short setting)
 
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
-            found = TRUE;
+            found = true;
             AnimateSwitch(sp, setting);
         }
     }
@@ -143,7 +142,7 @@ short DoRotatorOperate(PLAYERp pp, short sectnum)
         if (TestRotatorMatchActive(match))
             return -1;
         else
-            return DoRotatorMatch(pp, match, TRUE);
+            return DoRotatorMatch(pp, match, true);
     }
 
     return -1;
@@ -152,7 +151,7 @@ short DoRotatorOperate(PLAYERp pp, short sectnum)
 // called from switches and triggers
 // returns first vator found
 short
-DoRotatorMatch(PLAYERp pp, short match, SWBOOL manual)
+DoRotatorMatch(PLAYERp pp, short match, bool manual)
 {
     USERp fu;
     SPRITEp fsp;
@@ -172,7 +171,7 @@ DoRotatorMatch(PLAYERp pp, short match, SWBOOL manual)
             fu = User[i];
 
             // single play only vator
-            // SWBOOL 8 must be set for message to display
+            // bool 8 must be set for message to display
             if (TEST_BOOL4(fsp) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
                 if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp, GStrings("TXT_SPONLY"));
@@ -231,7 +230,7 @@ DoRotatorMatch(PLAYERp pp, short match, SWBOOL manual)
 }
 
 
-SWBOOL
+bool
 TestRotatorMatchActive(short match)
 {
     USERp fu;
@@ -252,11 +251,11 @@ TestRotatorMatchActive(short match)
                 continue;
 
             if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
-                return TRUE;
+                return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -316,7 +315,7 @@ int DoRotatorMove(short SpriteNum)
     int i, nexti;
     vec2_t nxy;
     int dist,closest;
-    SWBOOL kill = FALSE;
+    bool kill = false;
 
     r = u->rotator;
 
@@ -387,7 +386,7 @@ int DoRotatorMove(short SpriteNum)
         }
 
         if (TEST_BOOL2(sp))
-            kill = TRUE;
+            kill = true;
     }
 
     closest = 99999;

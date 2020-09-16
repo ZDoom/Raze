@@ -20,7 +20,7 @@ vec4 ProcessTexel()
 	float z;
 	if (((uPalLightLevels >> 8)  & 0xff) == 2)
 	{
-		z = distance(pixelpos.xyz, uCameraPos.xyz);
+		z = distance(pixelpos.xyz, uCameraPos.xyz)*0.7;
 	}
 	else 
 	{
@@ -40,7 +40,8 @@ vec4 ProcessTexel()
 
 	float visibility = max(uGlobVis * uLightFactor * z - ((u_flags & RF_ShadeInterpolate) != 0.0? 0.5 : 0.0), 0.0);
 	float numShades = float(uPalLightLevels & 255);
-	float shade = clamp((uLightLevel + visibility), 0.0, numShades - 1.0);
+	float shade = (1.0 - uLightLevel) * (numShades);
+	shade = clamp((shade + visibility), 0.0, numShades - 1.0);
 	
 	int palindex = int(color.r * 255.0 + 0.1); // The 0.1 is for roundoff error compensation.
 	int shadeindex = int(floor(shade));

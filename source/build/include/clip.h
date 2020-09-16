@@ -14,55 +14,6 @@
 #define MAXCLIPSECTORS 512
 #define MAXCLIPNUM 2048
 #define CLIPCURBHEIGHT (1<<8)
-#ifdef HAVE_CLIPSHAPE_FEATURE
-
-#define CM_MAX 256  // must be a power of 2
-
-// sectoidx bits
-#undef CM_NONE
-#define CM_NONE (CM_MAX<<1)
-#define CM_SOME (CM_NONE-1)
-#define CM_OUTER (CM_MAX)   // sector surrounds clipping sector
-
-// sprite -> sector tag mappings
-#define CM_XREPEAT floorpal
-#define CM_YREPEAT floorxpanning
-#define CM_XOFFSET ceilingshade
-#define CM_YOFFSET floorshade
-#define CM_CSTAT hitag
-#define CM_ANG extra
-#define CM_FLOORZ(Sec) (*(int32_t *)&sector[Sec].ceilingxpanning)  // ceilingxpanning,ceilingypanning,floorpicnum
-#define CM_CEILINGZ(Sec) (*(int32_t *)&sector[Sec].visibility)  // visibility,fogpal,lotag
-
-// backup of original normalized coordinates
-#define CM_WALL_X(Wal) (*(int32_t *)&wall[Wal].picnum)  // picnum, overpicnum
-#define CM_WALL_Y(Wal) (*(int32_t *)&wall[Wal].lotag)  // lotag, hitag
-
-// don't rotate when applying clipping, for models with rotational symmetry
-#define CM_NOROT(Spri) (sprite[Spri].cstat&2)
-#define CM_NOROTS(Sect) (sector[Sect].CM_CSTAT&2)
-
-extern vec2_t hitscangoal;
-
-typedef struct
-{
-    int16_t qbeg, qend;  // indices into sectq
-    int16_t picnum, next;
-    int32_t maxdist;
-} clipinfo_t;
-
-typedef struct
-{
-    int16_t numsectors, numwalls;
-    usectorptr_t sector;
-    uwallptr_t wall;
-} mapinfo_t;
-
-extern int32_t quickloadboard;
-extern void engineInitClipMaps();
-extern void engineSetClipMap(mapinfo_t *bak, mapinfo_t *newmap);
-
-#endif // HAVE_CLIPSHAPE_FEATURE
 typedef struct
 {
     int32_t x1, y1, x2, y2;
@@ -71,15 +22,42 @@ typedef struct
 extern int16_t clipsectorlist[MAXCLIPSECTORS];
 
 int clipinsidebox(vec2_t *vect, int wallnum, int walldist);
+inline int clipinsidebox(int x, int y, int wall, int dist)
+{
+    vec2_t v = { x, y };
+    return clipinsidebox(&v, wall, dist);
+}
 int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist);
 
 extern int32_t clipmoveboxtracenum;
 
 int32_t clipmove(vec3_t *const pos, int16_t *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
                  int32_t const flordist, uint32_t const cliptype) ATTRIBUTE((nonnull(1, 2)));
+
+inline int clipmove(int* x, int* y, int* z, short* sect, int xv, int yv, int wal, int ceil, int flor, int ct)
+{
+    vec3_t xyz = { *x,*y,*z };
+    int retval = clipmove(&xyz, sect, xv, yv, wal, ceil, flor, ct);
+    *x = xyz.x;
+    *y = xyz.y;
+    *z = xyz.z;
+    return retval;
+}
+
 int32_t clipmovex(vec3_t *const pos, int16_t *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
                   int32_t const flordist, uint32_t const cliptype, uint8_t const noslidep) ATTRIBUTE((nonnull(1, 2)));
 int pushmove(vec3_t *const vect, int16_t *const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
                  uint32_t const cliptype, bool clear = true) ATTRIBUTE((nonnull(1, 2)));
+
+inline int pushmove(int* x, int* y, int* z, int16_t* const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
+    uint32_t const cliptype, bool clear = true)
+{
+    vec3_t v = { *x,*y,*z };
+    auto r = pushmove(&v, sectnum, walldist, ceildist, flordist, cliptype, clear);
+    *x = v.x;
+    *y = v.y;
+    *z = v.z;
+    return r;
+}
 
 #endif

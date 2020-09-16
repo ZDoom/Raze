@@ -16,23 +16,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "save.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include "init.h"
+#include "build.h"
 #include "raze_music.h"
-//#include <fcntl.h>
-//#include <sys/stat.h>
-//#include <io.h>
 #include "engine.h"
 #include "exhumed.h"
 #include "mmulti.h"
 #include "savegamehelp.h"
 #include "sound.h"
+#include "mapinfo.h"
 
 BEGIN_PS_NS
 
-extern int MenuExitCondition;
 void SaveTextureState();
 void LoadTextureState();
 
@@ -42,7 +38,6 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
 {
     for (auto sgh : sghelpers) sgh->Save();
     SaveTextureState();
-    FinishSavegameWrite();
     return 1; // CHECKME
 }
 
@@ -54,7 +49,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     FinishSavegameRead();
 
     // reset the sky in case it hasn't been done yet.
-    psky_t* pSky = tileSetupSky(0);
+    psky_t* pSky = tileSetupSky(DEFAULTPSKY);
     pSky->tileofs[0] = 0;
     pSky->tileofs[1] = 0;
     pSky->tileofs[2] = 0;
@@ -65,10 +60,8 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     pSky->yscale = 65536;
     parallaxtype = 2;
     g_visibility = 2048;
-    ototalclock = totalclock;
-    MenuExitCondition = 6;
 
-    if (levelnum > 15)
+    if (currentLevel->levelNumber > 15)
     {
         nSwitchSound = 35;
         nStoneSound = 23;
@@ -106,6 +99,7 @@ SavegameHelper::SavegameHelper(const char* name, ...)
 void SavegameHelper::Load()
 {
     auto fr = ReadSavegameChunk(Name);
+    if (!fr.isOpen()) return;
     for (auto& entry : Elements)
     {
         auto read = fr.Read(entry.first, entry.second);

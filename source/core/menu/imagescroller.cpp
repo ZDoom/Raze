@@ -39,7 +39,6 @@
 #include "d_event.h"
 #include "menu.h"
 #include "v_draw.h"
-#include "baselayer.h"
 #include "gamecontrol.h"
 #include "build.h"
 #include "zstring.h"
@@ -71,7 +70,7 @@ void ImageScreen::Drawer()
 		else tileindex = *tileindexp;
 		if (!gi->DrawSpecialScreen(origin, tileindex)) // allows the front end to do custom handling for a given image.
 		{
-			rotatesprite_fs(int(origin.X * 65536) + (160 << 16), int(origin.Y * 65536) + (100 << 16), 65536L, 0, tileindex, 0, 0, 10 + 64);
+			DrawTexture(twod, tileGetTexture(tileindex), origin.X, origin.Y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		}
 	}
 	else if (mDesc->type > 0)
@@ -95,10 +94,16 @@ void DImageScrollerMenu::Init(DMenu* parent, FImageScrollerDescriptor* desc)
 
 	mCurrent = newImageScreen(&mDesc->mItems[0]);
 	mCurrent->canAnimate = canAnimate;
+	isAnimated = true;
 }
 
 bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 {
+	if (mDesc->mItems.Size() <= 1)
+	{
+		if (mkey == MKEY_Enter) mkey = MKEY_Back;
+		else if (mkey == MKEY_Right || mkey == MKEY_Left) return true;
+	}
 	switch (mkey)
 	{
 	case MKEY_Back:
@@ -119,7 +124,7 @@ bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 				delete mCurrent;
 			}
 			mCurrent = next;
-			//gi->MenuSound(GameInterface::ChooseSound);
+			gi->MenuSound(ChooseSound);
 		}
 		return true;
 
@@ -127,7 +132,9 @@ bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 	case MKEY_Enter:
 		if (pageTransition.previous == nullptr)
 		{
+			int oldindex = index;
 			if (++index >= (int)mDesc->mItems.Size()) index = 0;
+
 			auto next = newImageScreen(&mDesc->mItems[index]);
 			next->canAnimate = canAnimate;
 			if (!pageTransition.StartTransition(mCurrent, next, MA_Advance))
@@ -135,7 +142,7 @@ bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 				delete mCurrent;
 			}
 			mCurrent = next;
-			//gi->MenuSound(GameInterface::ChooseSound);
+			gi->MenuSound(ChooseSound);
 		}
 		return true;
 

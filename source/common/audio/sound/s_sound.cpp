@@ -588,6 +588,7 @@ FSoundChan *SoundEngine::StartSound(int type, const void *source,
 		chan->Priority = basepriority;
 		chan->DistanceScale = float(attenuation);
 		chan->SourceType = type;
+		chan->UserData = 0;
 		if (type == SOURCE_Unattached)
 		{
 			chan->Point[0] = pt->X; chan->Point[1] = pt->Y; chan->Point[2] = pt->Z;
@@ -1065,6 +1066,16 @@ int SoundEngine::GetSoundPlayingInfo (int sourcetype, const void *source, int so
 			if (chan->OrgID == sound_id && (sourcetype == SOURCE_Any ||
 				(chan->SourceType == sourcetype &&
 				chan->Source == source)))
+			{
+				count++;
+			}
+		}
+	}
+	else
+	{
+		for (FSoundChan* chan = Channels; chan != NULL; chan = chan->NextChan)
+		{
+			if ((sourcetype == SOURCE_Any || (chan->SourceType == sourcetype &&	chan->Source == source)))
 			{
 				count++;
 			}
@@ -1668,4 +1679,3 @@ void S_SoundReset()
 	soundEngine->Reset();
 	S_RestartMusic();
 }
-

@@ -50,15 +50,14 @@
 #include "gamecontrol.h"
 #include "pragmas.h"
 #include "build.h"
-#include "baselayer.h"
 #include "statistics.h"
 #include "m_joy.h"
 #include "raze_sound.h"
 #include "texturemanager.h"
 #include "v_video.h"
+#include "gamestate.h"
 
-void RegisterDukeMenus();
-void RegisterRedneckMenus();
+void RegisterDuke3dMenus();
 void RegisterBloodMenus();
 void RegisterSWMenus();
 void RegisterPSMenus();
@@ -68,7 +67,6 @@ void RegisterJoystickMenus();
 void UpdateJoystickMenu(IJoystickConfig* joy);
 bool help_disabled, credits_disabled;
 int g_currentMenu;	// accessible by CON scripts - contains the current menu's script ID if defined or INT_MAX if none given.
-int DrawBackground;
 TArray<DMenu*> toDelete;
 
 //
@@ -86,7 +84,6 @@ CVAR(Int, m_show_backbutton, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 TArray<MenuClassDescriptor*> menuClasses(TArray<MenuClassDescriptor*>::ENoInit(0));
 
 DMenu *CurrentMenu;
-int DMenu::MenuTime;
 bool DMenu::InMenu;
 
 FNewGameStartup NewGameStartupInfo;
@@ -114,7 +111,7 @@ bool MenuTransition::StartTransition(DMenu *from, DMenu *to, MenuTransitionType 
 	}
 	else
 	{
-		start  = (int32_t) totalclock;
+		start  = I_GetTimeNS() * (120. / 1'000'000'000.);
 		length = 30;
 		dir = animtype == MA_Advance? 1 : -1;
 		previous = from;
@@ -125,10 +122,11 @@ bool MenuTransition::StartTransition(DMenu *from, DMenu *to, MenuTransitionType 
 
 bool MenuTransition::Draw()
 {
-	if (totalclock < start + length)
+	double now = I_GetTimeNS() * (120. / 1'000'000'000);
+	if (now < start + length)
 	{
 		double factor = 120 * xdim / ydim;
-		double phase = ((int32_t) totalclock - start) / double(length) * M_PI + M_PI/2;
+		double phase = (now - start) / double(length) * M_PI + M_PI/2;
 		
 		previous->origin.X = factor * dir * (sin(phase) - 1.);
 		current->origin.X = factor * dir * (sin(phase) + 1.);
@@ -206,10 +204,11 @@ bool DMenu::MenuEvent (int mkey, bool fromcontroller)
 	{
 	case MKEY_Back:
 	{
-		if (scriptID != 0)
+		//if (scriptID != 0)
 		{
 			M_MenuSound(CurrentMenu->mParentMenu? BackSound : CloseSound);
 			Close();
+			if (!CurrentMenu && gamestate == GS_MENUSCREEN) C_FullConsole();
 			return true;
 		}
 	}
@@ -376,7 +375,7 @@ void M_StartControlPanel (bool makeSound)
 	}
 	GSnd->SetSfxPaused(true, PAUSESFX_MENU);
 	gi->MenuOpened();
-	if (makeSound) gi->MenuSound(ActivateSound);
+	if (makeSound) M_MenuSound(ActivateSound);
 
 	inputState.ClearAllInput();
 	for (int i = 0; i < NUM_MKEYS; ++i)
@@ -392,7 +391,6 @@ void M_StartControlPanel (bool makeSound)
 
 	BackbuttonTime = 0;
 	BackbuttonAlpha = 0;
-	DrawBackground = -1;
 }
 
 void Menu_Open(int playerid)
@@ -416,8 +414,6 @@ void M_ActivateMenu(DMenu *menu)
 		transition.StartTransition(CurrentMenu, menu, MA_Advance);
 	}
 	CurrentMenu = menu;
-	DMenu::MenuTime = -1;
-	M_Ticker();	// This needs to be called once here to make sure that the menu actually has ticked before it gets drawn for the first time.
 }
 
 //=============================================================================
@@ -434,46 +430,19 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	NewGameStartupInfo.Episode = NewGameStartupInfo.Skill = 0;
 	menu = NAME_Startgame;
 #endif
-		if (DrawBackground == -1)
-	{
-		if (menu == NAME_Mainmenu) DrawBackground = 1;
-		else DrawBackground = 0;
-	}
 	// some menus need some special treatment (needs to be adjusted for the various frontends.
 	switch (caller.GetIndex())
 	{
 	case NAME_Episodemenu:
-	case NAME_HuntMenu:
 	case NAME_TargetMenu:
 		// sent from the episode menu
 		NewGameStartupInfo.Episode = param;
 		NewGameStartupInfo.Level = 0;
-		NewGameStartupInfo.CustomLevel1 = NewGameStartupInfo.CustomLevel2 = -1;
 		NewGameStartupInfo.Skill = gDefaultSkill;
 		break;
 
 	case NAME_WeaponMenu:
 		NewGameStartupInfo.Skill = param;
-		break;
-
-	case NAME_CustomGameMenu:
-		NewGameStartupInfo.CustomLevel1 = param;
-		NewGameStartupInfo.CustomLevel2 = -1;
-		NewGameStartupInfo.Episode = 0;	// Set start to E1L1 so that even if the script fails to set the starting level it is set to something valid.
-		NewGameStartupInfo.Level = 0;
-		NewGameStartupInfo.Skill = gDefaultSkill;
-		gi->CustomMenuSelection(param, -1);
-		break;
-
-	case NAME_CustomSubMenu1:
-	case NAME_CustomSubMenu2:
-	case NAME_CustomSubMenu3:
-	case NAME_CustomSubMenu4:
-	case NAME_CustomSubMenu5:
-	case NAME_CustomSubMenu6:
-	case NAME_CustomSubMenu7:
-		NewGameStartupInfo.CustomLevel2 = param;
-		gi->CustomMenuSelection(NewGameStartupInfo.CustomLevel1, param);
 		break;
 
 	case NAME_Skillmenu:
@@ -667,12 +636,10 @@ bool M_DoResponder (event_t *ev)
 	int mkey = NUM_MKEYS;
 	bool fromcontroller = true;
 
-	/*
 	if (chatmodeon)
 	{
 		return false;
 	}
-	*/
 
 	if (CurrentMenu != NULL && menuactive != MENU_Off) 
 	{
@@ -826,8 +793,12 @@ bool M_DoResponder (event_t *ev)
 			// Pop-up menu?
 			if (ev->data1 == KEY_ESCAPE) // Should we let the games handle Escape for special actions, like backing out of cameras?
 			{
-				M_StartControlPanel(true);
-				M_SetMenu(NAME_IngameMenu, -1);
+				if (gamestate != GS_STARTUP && gamestate != GS_INTRO)
+				{
+					M_StartControlPanel(true);
+					M_SetMenu(gi->CanSave()? NAME_IngameMenu : NAME_Mainmenu, -1);
+					if (gamestate == GS_FULLCONSOLE) gamestate = GS_MENUSCREEN;
+				}
 				return true;
 			}
 			return false;
@@ -870,11 +841,8 @@ bool M_Responder(event_t* ev)
 
 void M_Ticker (void) 
 {
-	DMenu::MenuTime++;
-	if (DMenu::MenuTime & 3) return;
 	if (CurrentMenu != NULL && menuactive != MENU_Off) 
 	{
-		if (DMenu::MenuTime != 0) D_ProcessEvents();	// The main loop is blocked when the menu is open and cannot dispatch the events.
 		if (transition.previous) transition.previous->Ticker();
 		if (CurrentMenu == nullptr) return; // In case one of the sub-screens has closed the menu.
 		CurrentMenu->Ticker();
@@ -915,7 +883,7 @@ void M_Drawer (void)
 
 	if (CurrentMenu != NULL && menuactive != MENU_Off)
 	{
-		if (CurrentMenu->DimAllowed() && fade && !DrawBackground) twod->AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
+		if (CurrentMenu->DimAllowed() && fade && gamestate != GS_MENUSCREEN) twod->AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
 
 		bool going = false;
 		if (transition.previous)
@@ -932,7 +900,6 @@ void M_Drawer (void)
 		{
 			assert(CurrentMenu);
 			CurrentMenu->origin = { 0,0 };
-			// else if (DrawBackground) Menu_DrawBackground(origin);
 			CurrentMenu->Drawer();
 		}
 	}
@@ -966,15 +933,11 @@ void M_ClearMenus (bool final)
 	CurrentMenu = nullptr;
 	menuactive = MENU_Off;
 	M_UnpauseSound();
+	inputState.ClearAllInput();
 	if (!final)
 	{
 		gi->MenuClosed();
 	}
-}
-
-void Menu_Close(int playerid)
-{
-	M_ClearMenus();
 }
 
 bool M_Active()
@@ -1017,15 +980,13 @@ void M_PreviousMenu()
 
 void M_Init (void) 
 {
-	RegisterDukeMenus();
-	RegisterRedneckMenus();
+	RegisterDuke3dMenus();
 	RegisterBloodMenus();
 	RegisterSWMenus();
 	RegisterPSMenus();
 	RegisterLoadsaveMenus();
 	RegisterOptionMenus();
 	RegisterJoystickMenus();
-	timerSetCallback(M_Ticker);
 	M_ParseMenuDefs();
 	UpdateJoystickMenu(nullptr);
 }
@@ -1040,6 +1001,16 @@ void M_Init (void)
 void M_EnableMenu (bool on) 
 {
 	MenuEnabled = on;
+}
+
+
+bool M_IsAnimated()
+{
+	if (ConsoleState == c_down) return false;
+	if (!CurrentMenu) return false;
+	if (CurrentMenu->IsAnimated()) return true;
+	if(transition.previous) return true;
+	return false;
 }
 
 
@@ -1090,14 +1061,7 @@ CCMD(reset2saved)
 CCMD(menu_main)
 {
 	M_StartControlPanel(true);
-	M_SetMenu(NAME_Mainmenu, -1);
-}
-
-CCMD(openmainmenu)
-{
-	//gi->ClearSoundLocks();
-	M_StartControlPanel(true);
-	M_SetMenu(NAME_IngameMenu);
+	M_SetMenu(gi->CanSave() ? NAME_IngameMenu : NAME_Mainmenu, -1);
 }
 
 CCMD(openhelpmenu)

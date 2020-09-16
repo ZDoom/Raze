@@ -16,21 +16,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
+#include "mmulti.h"
 #include "compat.h"
-#include "baselayer.h"
 #include "build.h"
 #include "engine.h"
 #include "exhumed.h"
 #include "sound.h"
-#include "init.h"
-#include "object.h"
+#include "aistuff.h"
 #include "player.h"
-#include "random.h"
-#include "snake.h"
-#include "trigdat.h"
 #include "sequence.h"
-#include "cd.h"
 #include "raze_sound.h"
+#include "mapinfo.h"
 
 BEGIN_PS_NS
 
@@ -285,6 +281,7 @@ void BendAmbientSound(void)
 
 void PlayLocalSound(short nSound, short nRate, bool unattached, EChanFlags cflags)
 {
+    if (!SoundEnabled()) return;
     if (nSound < 0 || nSound >= kMaxSounds || !soundEngine->isValidSoundId(nSound + 1))
     {
         Printf("PlayLocalSound: Invalid sound nSound == %i, nRate == %i\n", nSound, nRate);
@@ -345,6 +342,7 @@ int nSwirlyFrames;
 
 void StartSwirly(int nActiveSound)
 {
+    if (!SoundEnabled()) return;
     auto &swirly = swirlysources[nActiveSound];
 
     short nPitch = nNextFreq - RandomSize(9);
@@ -401,6 +399,7 @@ void UpdateSwirlies()
 
 void SoundBigEntrance(void)
 {
+    if (!SoundEnabled()) return;
     StopAllSounds();
     for (int i = 0; i < 4; i++)
     {
@@ -451,7 +450,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         else if (type == SOURCE_Swirly)
         {
             int which = *(int*)source;
-            float phase = ((int)totalclock << (4 + which)) * (M_PI / 1024);
+            float phase = (leveltime << (6 + which)) * (M_PI / 1024);
             pos->X = fcampos.X + 256 * cos(phase);
             pos->Z = fcampos.Z + 256 * sin(phase);
         }
@@ -491,7 +490,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 //
 //==========================================================================
 
-void UpdateSounds()
+void GameInterface::UpdateSounds()
 {
     if (nFreeze)
         return;
@@ -526,7 +525,6 @@ void UpdateSounds()
 
 
     soundEngine->SetListener(listener);
-    soundEngine->UpdateSounds((int)totalclock);
     soundEngine->EnumerateChannels([](FSoundChan* chan)
         {
             if (!(chan->ChanFlags & (CHANF_UI|CHANF_FORGETTABLE)))
@@ -550,16 +548,20 @@ void UpdateSounds()
 int soundx, soundy, soundz;
 short soundsect;
 
-void PlayFX2(unsigned short nSound, short nSprite)
+void PlayFX2(unsigned short nSound, short nSprite, int sectf)
 {
+    if (!SoundEnabled()) return;
     if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
     {
         Printf("PlayFX2: Invalid sound nSound == %i, nSprite == %i\n", nSound, nSprite);
         return;
     }
 
+    bool fullvol = false, hiprio = false;
     if (nSprite >= 0)
     {
+        fullvol = (nSprite & 0x2000) != 0;
+        hiprio = (nSprite & 0x4000) != 0;
         nSprite &= 0xfff;
         soundx = sprite[nSprite].x;
         soundy = sprite[nSprite].y;
@@ -567,6 +569,15 @@ void PlayFX2(unsigned short nSound, short nSprite)
     }
 
     int nVolume = 255;
+
+    bool allowMultiple = (nSound & 0x2000) != 0;
+    bool forcePlay = (nSound & 0x1000) != 0;
+    bool midprio = (nSound & 0x4000) != 0;
+
+    int prio = 0;
+    if (forcePlay || midprio) prio = 1000;
+    else if (nSprite != -1 && hiprio) prio = 2000;
+
     short v10 = (nSound&0xe00)>>9;
     nSound &= 0x1ff;
 
@@ -575,16 +586,57 @@ void PlayFX2(unsigned short nSound, short nSprite)
 
     GetSpriteSoundPitch(&nVolume, &nPitch);
 
+    vec3_t v = { soundx, soundy, soundz };
+    FVector3 vv = GetSoundPos(&v);
+
+    // Check if this sound is allowed to play or if it must stop some other sound.
+    if (!forcePlay)
+    {
+        bool res = soundEngine->EnumerateChannels([=](FSoundChan* chan)
+            {
+                if (chan->SourceType == SOURCE_Actor && nSprite != -1)
+                {
+                    if (prio >= chan->UserData)
+                    {
+                        if (chan->SoundID == nSound + 1)
+                        {
+                            if (!allowMultiple && &sprite[nSprite] == chan->Source)
+                                return 1;
+                        }
+                        else if (&sprite[nSprite] == chan->Source)
+                        {
+                            soundEngine->StopChannel(chan);
+                            return -1;
+                        }
+                    }
+
+                }
+                else if (chan->SourceType == SOURCE_Unattached && nSprite == -1)
+                {
+                    if (chan->SoundID == nSound + 1)
+                    {
+                        if (vv.X == chan->Point[0] && vv.Y == chan->Point[1] && vv.Z == chan->Point[2])
+                            return 1;
+                    }
+
+                }
+                return 0;
+            });
+        if (res) return;
+    }
+    FSoundChan* chan = nullptr;
     if (nSprite >= 0)
     {
-        if (soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[nSprite], CHAN_BODY, nSound + 1)) return;
-        soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f, ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
+        chan = soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f,fullvol? 0.5 : ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
     }
     else
     {
-        vec3_t v = { soundx, soundy, soundz };
-        FVector3 vv = GetSoundPos(&v);
-        soundEngine->StartSound(SOURCE_Unattached, nullptr, &vv, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f, ATTN_NONE, nullptr, (11025 + nPitch) / 11025.f);
+        chan = soundEngine->StartSound(SOURCE_Unattached, nullptr, &vv, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f, ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
+    }
+    if (chan)
+    {
+        if (sectf) chan->UserData = 2000;
+        else chan->UserData = prio;
     }
 
     // Nuke: added nSprite >= 0 check
@@ -604,7 +656,7 @@ void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector)
     soundy = y;
     soundz = z;
     soundsect = nSector&0x3fff;
-    PlayFX2(ax, -1);
+    PlayFX2(ax, -1, nSector & 0x4000);
 }
 
 //==========================================================================
@@ -615,11 +667,12 @@ void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector)
 
 void CheckAmbience(short nSector)
 {
+    if (!SoundEnabled()) return;
     if (SectSound[nSector] != -1)
     {
         short nSector2 = SectSoundSect[nSector];
         walltype* pWall = &wall[sector[nSector2].wallptr];
-        if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, &amb, -1))
+        if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, &amb, 0))
         {
             vec3_t v = { pWall->x, pWall->y, sector[nSector2].floorz };
             amb = GetSoundPos(&v);
@@ -661,13 +714,13 @@ void CheckAmbience(short nSector)
 
 void UpdateCreepySounds()
 {
-    if (levelnum == 20 || nFreeze)
+    if (currentLevel->levelNumber == 20 || nFreeze || !SoundEnabled())
         return;
     spritetype* pSprite = &sprite[PlayerList[nLocalPlayer].nSprite];
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {
-        if (nCreaturesLeft > 0 && !(SectFlag[nPlayerViewSect[nLocalPlayer]] & 0x2000))
+        if (nCreaturesKilled < nCreaturesTotal && !(SectFlag[nPlayerViewSect[nLocalPlayer]] & 0x2000))
         {
             int vsi = seq_GetFrameSound(SeqOffsets[kSeqCreepy], totalmoves % SeqSize[SeqOffsets[kSeqCreepy]]);
             if (vsi >= 0 && (vsi & 0x1ff) < kMaxSounds)
@@ -730,11 +783,6 @@ void StopAllSounds(void)
 void PlayTitleSound(void)
 {
     PlayLocalSound(StaticSound[kSoundItemSpecial], 0, false, CHANF_UI);
-}
-
-void PlayLogoSound(void)
-{
-    PlayLocalSound(StaticSound[kSoundJonLaugh2], 7000, false, CHANF_UI);
 }
 
 void PlayGameOverSound(void)

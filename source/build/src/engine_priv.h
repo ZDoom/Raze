@@ -19,10 +19,6 @@
 // FIXME: doesn't work with mirrors.
 //#define ENGINE_CLEAR_SCREEN
 
-#ifdef YAX_ENABLE
-# define YAX_MAXDRAWS 8
-#endif
-
     extern intptr_t asm1, asm2;
     extern int32_t globalx1, globaly2;
 
@@ -92,7 +88,7 @@ extern tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
 extern int32_t globalposx, globalposy, globalposz, globalhoriz;
-extern fix16_t qglobalhoriz, qglobalang;
+extern fixed_t qglobalhoriz, qglobalang;
 extern float fglobalposx, fglobalposy, fglobalposz;
 extern int16_t globalang, globalcursectnum;
 extern int32_t globalpal, cosglobalang, singlobalang;
@@ -113,7 +109,6 @@ extern int16_t searchbottomwall, searchisbottom;
 extern char inpreparemirror;
 
 extern int16_t sectorborder[256];
-extern int32_t qsetmode;
 extern int32_t hitallsprites;
 
 extern int32_t xb1[MAXWALLSB];
@@ -126,7 +121,7 @@ extern int32_t rxi[8], ryi[8];
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
 int32_t wallfront(int32_t l1, int32_t l2);
 
-void set_globalang(fix16_t const ang);
+void set_globalang(fixed_t const ang);
 
 int32_t animateoffs(int tilenum, int fakevar);
 
@@ -154,27 +149,6 @@ static FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(da
 extern void polymost_scansector(int32_t sectnum);
 #endif
 int32_t renderAddTsprite(int16_t z, int16_t sectnum);
-#ifdef YAX_ENABLE
-extern int32_t g_nodraw, scansector_retfast, scansector_collectsprites;
-extern int32_t yax_globallev, yax_globalbunch;
-extern int32_t yax_globalcf, yax_nomaskpass, yax_nomaskdidit;
-extern uint8_t haveymost[(YAX_MAXBUNCHES+7)>>3];
-extern uint8_t yax_gotsector[(MAXSECTORS+7)>>3];
-extern int32_t yax_polymostclearzbuffer;
-
-static FORCE_INLINE int32_t yax_isislandwall(int32_t line, int32_t cf) { return (yax_vnextsec(line, cf) >= 0); }
-#endif
-
-#ifdef YAX_DEBUG
-extern char m32_debugstr[64][128];
-extern int32_t m32_numdebuglines;
-# define yaxdebug(fmt, ...)  do { if (m32_numdebuglines<64) snprintf(m32_debugstr[m32_numdebuglines++], 128, fmt, ##__VA_ARGS__); } while (0)
-# define yaxprintf(fmt, ...) do { Printf(fmt, ##__VA_ARGS__); } while (0)
-#else
-# define yaxdebug(fmt, ...)
-# define yaxprintf(fmt, ...)
-#endif
-
 
 
 static FORCE_INLINE void setgotpic(int32_t tilenume)
@@ -185,21 +159,7 @@ static FORCE_INLINE void setgotpic(int32_t tilenume)
 
 // Get properties of parallaxed sky to draw.
 // Returns: pointer to tile offset array. Sets-by-pointer the other three.
-static FORCE_INLINE const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t *dapskybits, int32_t *dapyoffs, int32_t *daptileyscale)
-{
-    psky_t const * const psky = &multipsky[getpskyidx(picnum)];
-
-    if (dapskybits)
-        *dapskybits = (pskybits_override == -1 ? psky->lognumtiles : pskybits_override);
-    if (dapyscale)
-        *dapyscale = (parallaxyscale_override == 0 ? psky->horizfrac : parallaxyscale_override);
-    if (dapyoffs)
-        *dapyoffs = psky->yoffs + parallaxyoffs_override;
-    if (daptileyscale)
-        *daptileyscale = psky->yscale;
-
-    return psky->tileofs;
-}
+const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, int32_t* dapyoffs, int32_t* daptileyscale);
 
 static FORCE_INLINE void set_globalpos(int32_t const x, int32_t const y, int32_t const z)
 {

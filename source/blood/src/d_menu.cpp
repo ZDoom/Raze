@@ -25,22 +25,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "compat.h"
-#include "common_game.h"
-#include "blood.h"
-#include "config.h"
-#include "gamemenu.h"
-#include "globals.h"
-#include "inifile.h"
-#include "levels.h"
-#include "qav.h"
-#include "resource.h"
-#include "view.h"
-#include "demo.h"
-#include "network.h"
 #include "mmulti.h"
 #include "c_bind.h"
 #include "menu.h"
-#include "sfx.h"
+#include "gamestate.h"
+
+#include "blood.h"
+#include "globals.h"
+#include "qav.h"
+#include "view.h"
+#include "sound.h"
+#include "v_video.h"
 
 bool ShowOptionMenu();
 
@@ -78,7 +73,7 @@ CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widesc
 			data->y = m_nY;
 			data->Preload();
 			at2c = data->at10;
-			lastTick = (int)totalclock;
+			lastTick = I_GetBuildTime();
 		}
 	}
 }
@@ -91,25 +86,18 @@ void CGameMenuItemQAV::Draw(void)
 	if (raw.Size() > 0)
 	{
 		auto data = (QAV*)raw.Data();
-		ClockTicks backFC = gFrameClock;
-		gFrameClock = totalclock;
-		int nTicks = (int)totalclock - lastTick;
-		lastTick = (int)totalclock;
+		int backFC = gFrameClock;
+		int currentclock = I_GetBuildTime();
+		gFrameClock = currentclock;
+		int nTicks = currentclock - lastTick;
+		lastTick = currentclock;
 		at2c -= nTicks;
 		if (at2c <= 0 || at2c > data->at10)
 		{
 			at2c = data->at10;
 		}
 		data->Play(data->at10 - at2c - nTicks, data->at10 - at2c, -1, NULL);
-		int wx1, wy1, wx2, wy2;
-		wx1 = windowxy1.x;
-		wy1 = windowxy1.y;
-		wx2 = windowxy2.x;
-		wy2 = windowxy2.y;
-		windowxy1.x = 0;
-		windowxy1.y = 0;
-		windowxy2.x = xdim - 1;
-		windowxy2.y = ydim - 1;
+
 		if (bWideScreen)
 		{
 			int xdim43 = scale(ydim, 4, 3);
@@ -117,18 +105,14 @@ void CGameMenuItemQAV::Draw(void)
 			int backX = data->x;
 			for (int i = 0; i < nCount; i++)
 			{
-				data->Draw(data->at10 - at2c, 10 + kQavOrientationLeft, 0, 0);
+				data->Draw(data->at10 - at2c, 10 + kQavOrientationLeft, 0, 0, false);
 				data->x += 320;
 			}
 			data->x = backX;
 		}
 		else
-			data->Draw(data->at10 - at2c, 10, 0, 0);
+			data->Draw(data->at10 - at2c, 10, 0, 0, false);
 
-		windowxy1.x = wx1;
-		windowxy1.y = wy1;
-		windowxy2.x = wx2;
-		windowxy2.y = wy2;
 		gFrameClock = backFC;
 	}
 }
@@ -173,7 +157,9 @@ protected:
 
 	void PostDraw()
 	{
-		itemBloodQAV->Draw();
+		// For narrow screens this would be mispositioned so skip drawing it there.
+		double ratio = screen->GetWidth() / double(screen->GetHeight());
+		if (ratio > 1.32) itemBloodQAV->Draw();
 	}
 
 };
@@ -222,20 +208,19 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 	if (!text) return;
 	int shade = (state != NIT_InactiveState) ? 32 : 48;
 	int pal = (state != NIT_InactiveState) ? 5 : 5;
-	if (state == NIT_SelectedState)	shade = 32 - ((int)totalclock & 63);
-	int width, height;
-	int gamefont = fontnum == NIT_BigFont ? 1 : fontnum == NIT_SmallFont ? 2 : 3;
-
-	int x = int(xpos);
-	int y = int(ypos);
-	viewGetFontInfo(gamefont, text, &width, &height);
+	if (state == NIT_SelectedState)	shade = 32 - (I_GetBuildTime() & 63);
+	auto gamefont = fontnum == NIT_BigFont ? BigFont : fontnum == NIT_SmallFont ? SmallFont : SmallFont2;
 
 	if (flags & LMF_Centered)
 	{
-		x -= width / 2;
+		int width = gamefont->StringWidth(text);
+		xpos -= width / 2;
 	}
+	DrawText(twod, gamefont, CR_UNDEFINED, xpos+1, ypos+1, text, DTA_Color, 0xff000000, //DTA_Alpha, 0.5,
+			 DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 
-	viewDrawText(gamefont, text, x, y, shade, pal, 0, true);
+	DrawText(twod, gamefont, CR_UNDEFINED, xpos, ypos, text, DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Color, shadeToLight(shade),
+			 DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 }
 
 
@@ -251,20 +236,14 @@ void GameInterface::MenuClosed()
 
 bool GameInterface::CanSave()
 {
-	return (gGameStarted && gPlayer[myconnectindex].pXSprite->health != 0);
+	return (gamestate == GS_LEVEL && gPlayer[myconnectindex].pXSprite->health != 0);
 }
 
 void GameInterface::StartGame(FNewGameStartup& gs)
 {
 	sfxKillAllSounds();
-	gGameOptions.nDifficulty = gs.Skill;
-	gGameOptions.nEpisode = gs.Episode;
-	gSkill = gs.Skill;
-	gGameOptions.nLevel = gs.Level;
-	if (gDemo.at1)
-		gDemo.StopPlayback();
-	gStartNewGame = true;
-	gCheatMgr.sub_5BCF4();
+	auto map = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
+	DeferedStartGame(map, gs.Skill);
 }
 
 FSavegameInfo GameInterface::GetSaveSig()
@@ -272,30 +251,36 @@ FSavegameInfo GameInterface::GetSaveSig()
 	return { SAVESIG_BLD, MINSAVEVER_BLD, SAVEVER_BLD };
 }
 
+// This also gets used by the summary and the loading screen
+void DrawMenuCaption(const char* text)
+{
+	double scalex = 1.; // Expand the box if the text is longer
+	int width = BigFont->StringWidth(text);
+	int boxwidth = tileWidth(2038);
+	if (boxwidth - 10 < width) scalex = double(width) / (boxwidth - 10);
+	
+	DrawTexture(twod, tileGetTexture(2038, true), 160, 20, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex, TAG_DONE);
+	DrawText(twod, BigFont, CR_UNDEFINED, 160 - width/2, 20 - tileHeight(4193) / 2, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
+}
+
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
-	int height;
-	// font #1, tile #2038.
-	viewGetFontInfo(1, NULL, NULL, &height);
-	rotatesprite(int(origin.X * 65536) + (320 << 15), 20 << 16, 65536, 0, 2038, -128, 0, 78, 0, 0, xdim - 1, ydim - 1);
-	viewDrawText(1, text, 160, 20 - height / 2, -128, 0, 1, false);
+	Blood::DrawMenuCaption(text);
 }
 
 void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
 {
 	if (text)
 	{
-		int width, height = 0;
-		viewGetFontInfo(0, "T", &width, &height);
+		int height = SmallFont->GetHeight();
 
 		auto lines = FString(text).Split("\n");
 		int y = 100 - (height * lines.Size() / 2);
 		for (auto& l : lines)
 		{
-			int lheight = 0;
-			viewGetFontInfo(0, l, &width, &lheight);
+			int width = SmallFont->StringWidth(l);
 			int x = 160 - width / 2;
-			viewDrawText(0, l, x, y, 0, 0, 0, false);
+			DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, l, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 			y += height;
 		}
 	}
@@ -303,13 +288,8 @@ void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* t
 
 void GameInterface::QuitToTitle()
 {
-	if (gGameOptions.nGameType == 0 || numplayers == 1)
-	{
-		gQuitGame = true;
-		gRestartGame = true;
-	}
-	else
-		gQuitRequest = 2;
+	Mus_Stop();
+	gameaction = ga_mainmenu;
 }
 
 END_BLD_NS

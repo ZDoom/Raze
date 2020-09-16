@@ -5,17 +5,8 @@
 #undef SECTORTYPE
 #undef SPRITETYPE
 
-#ifdef UNTRACKED_STRUCTS__
-
 #define StructTracker(tracker, type) type
-#define StructName(name) u ## name
-
-#else
-
-#define StructTracker Tracker
 #define StructName(name) name
-
-#endif
 
 //ceilingstat/floorstat:
 //   bit 0: 1 = parallaxing, 0 = not                                 "P"
@@ -124,6 +115,7 @@ enum
     CSTAT_SPRITE_ONE_SIDED = 1u<<6u,
     CSTAT_SPRITE_YCENTER = 1u<<7u,
     CSTAT_SPRITE_BLOCK_HITSCAN = 1u<<8u,
+    CSTAT_SPRITE_BLOCK_ALL = CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_BLOCK,
     CSTAT_SPRITE_TRANSLUCENT_INVERT = 1u<<9u,
 
     CSTAT_SPRITE_RESERVED1 = 1u<<10u, // used by Duke 3D (Polymost)

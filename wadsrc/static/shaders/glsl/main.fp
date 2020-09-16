@@ -298,6 +298,7 @@ float R_DoomColormap(float light, float z)
 //===========================================================================
 float R_DoomLightingEquation(float light)
 {
+#ifndef PALETTE_EMULATION
 	// z is the depth in view space, positive going into the screen
 	float z;
 	if (((uPalLightLevels >> 8)  & 0xff) == 2)
@@ -326,6 +327,9 @@ float R_DoomLightingEquation(float light)
 
 	// Result is the normalized colormap index (0 bright .. 1 dark)
 	return clamp(colormap, 0.0, 31.0) / 32.0;
+#else
+	return 0.0;	// with palette emulation we do not want real lighting.
+#endif
 }
 
 //===========================================================================
@@ -773,7 +777,7 @@ void main()
 			frag = frag * ProcessLight(material, vColor);
 		frag.rgb = frag.rgb + uFogColor.rgb;
 	}
-	FragColor = frag;
+	FragColor = vec4(frag.rgb * uDynLightColor.a, frag.a);	// apply a global fade factor.
 #ifdef GBUFFER_PASS
 	FragFog = vec4(AmbientOcclusionColor(), 1.0);
 	FragNormal = vec4(vEyeNormal.xyz * 0.5 + 0.5, 1.0);

@@ -24,19 +24,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 extern short bSubTitles;
-extern short nViewTop;
-extern short bClip;
-extern short nViewBottom;
-extern short nViewRight;
-extern short nViewLeft;
 extern short besttarget;
 extern short bCamera;
 
 void InitView();
-void SetView1();
-void RefreshBackground();
-void DrawView(int smoothRatio, bool sceneonly = false);
-void MySetView(int x1, int y1, int x2, int y2);
+void DrawStatusBar();
+void DrawView(double smoothRatio, bool sceneonly = false);
 void ResetView();
 void NoClip();
 void Clip();
@@ -47,7 +40,7 @@ void viewDoInterpolations(int smoothRatio);
 void viewUpdateInterpolations(void);
 void viewRestoreInterpolations(void);
 
-extern fix16_t nDestVertPan[];
+extern fixed_t nDestVertPan[];
 extern short dVertPan[];
 extern short nQuake[];
 extern int nCamerax;

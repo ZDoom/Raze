@@ -35,6 +35,45 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+static void *ResReadLine(char *buffer, unsigned int nBytes, void **pRes)
+{
+    unsigned int i;
+    char ch;
+    if (!pRes || !*pRes || *((char*)*pRes) == 0)
+        return NULL;
+    for (i = 0; i < nBytes; i++)
+    {
+        ch = *((char*)*pRes);
+        if(ch == 0 || ch == '\n')
+            break;
+        buffer[i] = ch;
+        *pRes = ((char*)*pRes)+1;
+    }
+    if (*((char*)*pRes) == '\n' && i < nBytes)
+    {
+        ch = *((char*)*pRes);
+        buffer[i] = ch;
+        *pRes = ((char*)*pRes)+1;
+        i++;
+    }
+    else
+    {
+        while (true)
+        {
+            ch = *((char*)*pRes);
+            if (ch == 0 || ch == '\n')
+                break;
+            *pRes = ((char*)*pRes)+1;
+        }
+        if (*((char*)*pRes) == '\n')
+            *pRes = ((char*)*pRes)+1;
+    }
+    if (i < nBytes)
+        buffer[i] = 0;
+    return *pRes;
+}
+
+
 
 IniFile::IniFile(const char *fileName)
 {
@@ -139,72 +178,6 @@ void IniFile::Load()
     }
     else
         curNode->next = &head;
-#if 0
-    if (fp)
-    {
-        while (fgets(buffer, sizeof(buffer), fp) != NULL)
-        {
-            char *ch = strchr(buffer, '\n');
-            if (ch != NULL) {
-                ch[0] = '\0';
-            }
-
-            // do the same for carriage return?
-            ch = strchr(buffer, '\r');
-            if (ch != NULL) {
-                ch[0] = '\0';
-            }
-
-            char *pBuffer = buffer;
-
-            // remove whitespace from buffer
-            while (isspace(*pBuffer)) {
-                pBuffer++;
-            }
-
-            curNode->next = (FNODE*)malloc(strlen(pBuffer) + sizeof(FNODE));
-            dassert(curNode->next != NULL);
-
-            anotherNode = curNode;
-            curNode = curNode->next;
-
-
-            strcpy(curNode->name, pBuffer);
-
-            /*
-                check for:
-                ; - comment line. continue and grab a new line  (59)
-                [ - start of section marker                     (91)
-                ] - end of section marker                       (93)
-                = - key and value seperator                     (61)
-            */
-
-            switch (*pBuffer)
-            {
-            case 0:
-            case ';': // comment line
-                break;
-            case '[':
-                if (!strchr(pBuffer, ']'))
-                {
-                    free(curNode);
-                    curNode = anotherNode;
-                }
-                break;
-            default:
-
-                if (strchr(pBuffer, '=') <= pBuffer) {
-                    free(curNode);
-                    curNode = anotherNode;
-                }
-                break;
-            }
-        }
-        fclose(fp);
-    }
-
-    curNode->next = &head;
-#endif
 }
 
 void IniFile::Save(void)
@@ -235,7 +208,7 @@ bool IniFile::FindSection(const char *section)
             curNode = curNode->next;
             if (curNode == &head)
                 return false;
-        } while(Bstrcasecmp(curNode->name, buffer) != 0);
+        } while(stricmp(curNode->name, buffer) != 0);
     }
     return true;
 }

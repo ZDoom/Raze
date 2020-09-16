@@ -32,63 +32,46 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "player.h"
 #include "qav.h"
-#include "resource.h"
 
 BEGIN_BLD_NS
 
-void CChoke::sub_83ff0(int a1, void(*a2)(PLAYER*))
+void CChoke::init(int a1, void(*a2)(PLAYER*))
 {
-    at0 = NULL;
+    TotalKills = NULL;
     at1c = a2;
-    if (!at4 && a1 != -1)
+    if (!at8 && a1 != -1)
     {
-        at4 = gSysRes.Lookup(a1, "QAV");
-        if (!at4)
+        at8 = getQAV(a1);
+        if (!at8)
             ThrowError("Could not load QAV %d\n", a1);
-        at8 = (QAV*)gSysRes.Lock(at4);
         at8->nSprite = -1;
         at8->x = at14;
         at8->y = at18;
-        at8->Preload();
-        sub_84218();
+        //at8->Preload();
+		atc = at8->at10;
+		at10 = 0;
     }
 }
 
-void CChoke::sub_84110(int x, int y)
+void CChoke::animateChoke(int x, int y, int smoothratio)
 {
-    if (!at4)
+    if (!at8)
         return;
-    ClockTicks v4 = gFrameClock;
-    gFrameClock = totalclock;
+	int myclock = gFrameClock +  mulscale16(4, smoothratio);
     at8->x = x;
     at8->y = y;
-    int vd = (int)totalclock-at10;
-    at10 = (int)totalclock;
+    int vd = myclock-at10;
+    at10 = myclock;
     atc -= vd;
     if (atc <= 0 || atc > at8->at10)
         atc = at8->at10;
     int vdi = at8->at10-atc;
     at8->Play(vdi-vd, vdi, -1, NULL);
-    int vb = windowxy1.x;
-    int v10 = windowxy1.y;
-    int vc = windowxy2.x;
-    int v8 = windowxy2.y;
-    windowxy1.x = windowxy1.y = 0;
-    windowxy2.x = xdim-1;
-    windowxy2.y = ydim-1;
-    at8->Draw(vdi, 10, 0, 0);
-    windowxy1.x = vb;
-    windowxy1.y = v10;
-    windowxy2.x = vc;
-    windowxy2.y = v8;
-    gFrameClock = v4;
+	// This originally overlaid the HUD but that simply doesn't work right with the HUD being a genuine overlay.
+	// It also never adjusted for a reduced 3D view
+    at8->Draw(vdi, 10, 0, 0, true);
 }
 
-void CChoke::sub_84218()
-{
-    atc = at8->at10;
-    at10 = (int)totalclock;
-}
 
 void sub_84230(PLAYER *pPlayer)
 {

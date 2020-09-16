@@ -18,19 +18,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "engine.h"
 #include "exhumed.h"
-#include "snake.h"
+#include "aistuff.h"
 #include "status.h"
 #include "player.h"
-#include "runlist.h"
 #include "sequence.h"
-#include "bullet.h"
 #include "ps_input.h"
-#include "anims.h"
-#include "lighting.h"
 #include "sound.h"
-#include "move.h"
-#include "trigdat.h"
-#include "gun.h"
 #include <string.h>
 #include <assert.h>
 
@@ -95,9 +88,6 @@ void DestroySnake(int nSnake)
     if (nSnake == nSnakeCam)
     {
         nSnakeCam = -1;
-        if (!bFullScreen) {
-            RefreshStatus();
-        }
     }
 }
 
@@ -155,7 +145,18 @@ int BuildSnake(short nPlayer, short zVal)
     hitsect = hitData.sect;
     hitsprite = hitData.sprite;
 
-    int nSqrt = ksqrt(((hity - y) * (hity - y)) + ((hitx - x) * (hitx - x)));
+    uint32_t xDiff = klabs(hitx - x);
+    uint32_t yDiff = klabs(hity - y);
+
+    uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+
+    if (sqrtNum > INT_MAX)
+    {
+        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
+        sqrtNum = INT_MAX;
+    }
+
+    int nSqrt = ksqrt(sqrtNum);
 
     if (nSqrt < (sintable[512] >> 4))
     {
@@ -306,7 +307,7 @@ int FindSnakeEnemy(short nSnake)
     return nEnemy;
 }
 
-void FuncSnake(int a, int UNUSED(nDamage), int nRun)
+void FuncSnake(int a, int, int nRun)
 {
     int nMessage = a & kMessageMask;
 

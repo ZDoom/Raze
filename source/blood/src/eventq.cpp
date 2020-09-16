@@ -493,7 +493,7 @@ void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command) {
     evn.index = nIndex;
     evn.type = nType;
     evn.cmd = command;
-    eventQ.PQueue->Insert((int)gFrameClock+nDelta, evn);
+    eventQ.PQueue->Insert(gFrameClock+nDelta, evn);
 }
 
 void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback) {
@@ -502,7 +502,7 @@ void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback) {
     evn.type = nType;
     evn.cmd = kCmdCallback;
     evn.funcID = callback;
-    eventQ.PQueue->Insert((int)gFrameClock+nDelta, evn);
+    eventQ.PQueue->Insert(gFrameClock+nDelta, evn);
 }
 
 void evProcess(unsigned int nTime)

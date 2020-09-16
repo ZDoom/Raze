@@ -28,14 +28,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "compat.h"
 #include "build.h"
 
-
-#include "keys.h"
-
 #include "names2.h"
 #include "mytypes.h"
-#include "gamedefs.h"
-#include "config.h"
-
 
 #include "panel.h"
 #include "game.h"
@@ -43,16 +37,17 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ai.h"
 #include "network.h"
 
-#include "cache.h"
-#include "text.h"
+#include "misc.h"
+#include "misc.h"
 #include "rts.h"
 #include "menus.h"
-#include "config.h"
 #include "menu.h"
 #include "raze_music.h"
 #include "raze_sound.h"
 #include "filesystem.h"
 #include "serializer.h"
+#include "gamecontrol.h"
+#include "gamestate.h"
 
 BEGIN_SW_NS
 
@@ -286,9 +281,8 @@ void InitAmbient(int num, SPRITEp sp)
 void StartAmbientSound(void)
 {
     short i, nexti;
-    extern SWBOOL InMenuLevel;
-
-    if (InMenuLevel || !SoundEnabled()) return; // Don't restart ambience if no level is active! Will crash game.
+    
+    if (gamestate != GS_LEVEL || !SoundEnabled()) return; // Don't restart ambience if no level is active! Will crash game.
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_AMBIENT], i, nexti)
     {
@@ -310,7 +304,7 @@ static void RestartAmbient(AmbientSound* amb)
     int pitch = 0;
     if (vp.pitch_hi <= vp.pitch_lo) pitch = vp.pitch_lo;
     else pitch = vp.pitch_lo + (STD_RANDOM_RANGE(vp.pitch_hi - vp.pitch_lo));
-    amb->curIndex = (int)totalclock;
+    amb->curIndex = PlayClock;
 
     if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, amb, CHAN_BODY, amb->vocIndex))
         soundEngine->StartSound(SOURCE_Ambient, amb, nullptr, CHAN_BODY, EChanFlags::FromInt(amb->ChanFlags), amb->vocIndex, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
@@ -349,7 +343,7 @@ static int RandomizeAmbientSpecials(int handle)
 
 static void DoTimedSound(AmbientSound* amb)
 {
-    if ((int)totalclock >=  amb->curIndex + amb->maxIndex)
+    if (PlayClock >= amb->curIndex + amb->maxIndex)
     {
         if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, amb, CHAN_BODY))
         {
@@ -591,12 +585,12 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 //
 //==========================================================================
 
-void DoUpdateSounds(void)
+void GameInterface::UpdateSounds(void)
 {
     PLAYERp pp = Player + screenpeek;
     SoundListener listener;
 
-    listener.angle = -fix16_to_float(pp->q16ang) * pi::pi() / 1024; // Build uses a period of 2048.
+    listener.angle = -FixedToFloat(pp->q16ang) * pi::pi() / 1024; // Build uses a period of 2048.
     listener.velocity.Zero();
     listener.position = GetSoundPos((vec3_t*)&pp->posx);
     listener.underwater = false;
@@ -610,7 +604,6 @@ void DoUpdateSounds(void)
     soundEngine->SetListener(listener);
 
     UpdateAmbients();
-    soundEngine->UpdateSounds((int)totalclock);
 }
 
 //==========================================================================
@@ -626,7 +619,7 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
 
     SPRITEp sps = sp;
     // Weed out parental lock sounds if PLock is active
-    if (adult_lockout || Global_PLock)
+    if (adult_lockout)
     {
         for (unsigned i = 0; i < sizeof(PLocked_Sounds); i++)
         {
@@ -939,9 +932,7 @@ int PlayerYellVocs[] =
 //
 //==========================================================================
 
-extern short Level;
-
-SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track, bool isThemeTrack) //(nullptr, nullptr, -1, false) starts the normal level music.
+bool PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track, bool isThemeTrack) //(nullptr, nullptr, -1, false) starts the normal level music.
 {
     // Play  CD audio if enabled.
     if (cdaudio_track >= 0 && (mus_redbook || *song_file_name == 0))

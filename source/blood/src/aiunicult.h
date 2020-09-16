@@ -23,11 +23,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 #include "nnexts.h"
-#ifdef NOONE_EXTENSIONS
 #include "ai.h"
 #include "eventq.h"
 
+
 BEGIN_BLD_NS
+#ifdef NOONE_EXTENSIONS
 #define kGenDudeDefaultSeq 11520
 #define kGenDudeMaxSlaves 7
 #define kGenDudeTransformStatus -222

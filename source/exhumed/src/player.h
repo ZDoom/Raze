@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-void PlayerInterruptKeys();
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle);
 void SetSavePoint(int nPlayer, int x, int y, int z, short nSector, short nAngle);
 void InitPlayer();
@@ -44,7 +43,7 @@ extern int nLocalPlayer;
 
 extern int lPlayerXVel;
 extern int lPlayerYVel;
-extern fix16_t nPlayerDAng;
+extern fixed_t nPlayerDAng;
 
 struct Player
 {
@@ -53,7 +52,6 @@ struct Player
     short nAction;
     short nSprite;
     short bIsMummified;
-    short someNetVal;
     short invincibility;
     short nAir;
     short nSeq;
@@ -72,8 +70,8 @@ struct Player
     short field_3C;
     short nRun;
 
-    fix16_t q16angle;
-    fix16_t q16horiz;
+    fixed_t q16angle;
+    fixed_t q16horiz;
     vec3_t opos;
 };
 
@@ -107,7 +105,7 @@ extern short nPlayerClip[];
 
 extern short obobangle, bobangle;
 
-extern int totalvel[];
+extern int ototalvel[], totalvel[];
 extern int16_t eyelevel[], oeyelevel[];
 
 extern short nNetStartSprite[kMaxPlayers];

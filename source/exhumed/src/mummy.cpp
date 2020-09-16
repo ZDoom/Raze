@@ -16,16 +16,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "mummy.h"
+#include "aistuff.h"
 #include "sequence.h"
-#include "move.h"
-#include "map.h"
 #include "sound.h"
 #include "exhumed.h"
-#include "random.h"
-#include "trigdat.h"
-#include "bullet.h"
-#include "items.h"
 #include <assert.h>
 #include "engine.h"
 
@@ -128,7 +122,7 @@ int BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
 
     MummyList[nMummy].H = runlist_AddRunRec(NewRun, nMummy | 0xE0000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return (nMummy | 0xE0000);
 }
@@ -404,7 +398,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                             {
                                 // FIXME CHECKME - nBullet & 0xFFFF can be -1. Original code doesn't handle this??
 
-                                SetBulletEnemy(nBullet >> 16, nTarget); // isolate the bullet number (shift off the sprite index)
+                                SetBulletEnemy(FixedToInt(nBullet), nTarget); // isolate the bullet number (shift off the sprite index)
                                 sprite[nBullet & 0xFFFF].pal = 5;
                             }
                         }
@@ -438,7 +432,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                         MummyList[nMummy].nHealth = 300;
                         MummyList[nMummy].nTarget = -1;
 
-                        nCreaturesLeft++;
+                        nCreaturesTotal++;
                     }
                     return;
                 }
@@ -499,7 +493,7 @@ void FuncMummy(int a, int nDamage, int nRun)
             {
                 MummyList[nMummy].nHealth = 0;
                 sprite[nSprite].cstat &= 0xFEFE;
-                nCreaturesLeft--;
+                nCreaturesKilled++;
 
                 DropMagic(nSprite);
 

@@ -29,21 +29,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "common_game.h"
 #include "globals.h"
-#include "resource.h"
 
 BEGIN_BLD_NS
 
 bool bVanilla = false;
-ClockTicks gFrameClock;
-ClockTicks gFrameTicks;
-int gFrame;
-//int volatile gGameClock;
-int gFrameRate;
-
-Resource& gSysRes = fileSystem;
+int gFrameClock;
+int gFrameCount;
 
 static const char *_module;
 static int _line;
+
+int32_t gTurnSpeed = 92;
+int32_t gDetail = 4;
+bool gNoClip;
+bool gInfiniteAmmo;
+int32_t gDeliriumBlur = 1;
+bool gFogMode = false;
+
+//////////
+int gWeaponsV10x;
+/////////
+
 
 void _SetErrorLoc(const char *pzFile, int nLine)
 {

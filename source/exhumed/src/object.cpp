@@ -17,22 +17,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "engine.h"
-#include "object.h"
+#include "aistuff.h"
 #include "exhumed.h"
-#include "move.h"
-#include "random.h"
 #include "view.h"
 #include "sound.h"
-#include "init.h"
-#include "runlist.h"
 #include "names.h"
 #include "sequence.h"
-#include "lighting.h"
-#include "anims.h"
-#include "items.h"
 #include "player.h"
-#include "trigdat.h"
-#include "bullet.h"
+#include "mapinfo.h"
 #include <string.h>
 #include <assert.h>
 
@@ -567,7 +559,7 @@ void StartElevSound(short nSprite, int nVal)
     D3PlayFX(StaticSound[nSound], nSprite);
 }
 
-void FuncElev(int a, int UNUSED(b), int nRun)
+void FuncElev(int a, int, int nRun)
 {
     short nElev = RunData[nRun].nVal;
     assert(nElev >= 0 && nElev < kMaxElevs);
@@ -823,7 +815,7 @@ int BuildWallFace(short nChannel, short nWall, int nCount, ...)
     return WallFaceCount | 0x70000;
 }
 
-void FuncWallFace(int a, int UNUSED(b), int nRun)
+void FuncWallFace(int a, int, int nRun)
 {
     int nWallFace = RunData[nRun].nVal;
     assert(nWallFace >= 0 && nWallFace < kMaxWallFace);
@@ -980,7 +972,7 @@ int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int n
     return nSlide | 0x80000;
 }
 
-void FuncSlide(int a, int UNUSED(b), int nRun)
+void FuncSlide(int a, int, int nRun)
 {
     int nSlide = RunData[nRun].nVal;
     assert(nSlide >= 0 && nSlide < kMaxSlides);
@@ -1227,7 +1219,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     }
 }
 
-void FuncTrap(int a, int UNUSED(b), int nRun)
+void FuncTrap(int a, int, int nRun)
 {
     short nTrap = RunData[nRun].nVal;
     short nSprite = sTrap[nTrap].nSprite;
@@ -1416,7 +1408,7 @@ int BuildSpark(int nSprite, int nVal)
     return var_14;
 }
 
-void FuncSpark(int a, int UNUSED(b), int nRun)
+void FuncSpark(int a, int, int nRun)
 {
     int nSprite = RunData[nRun].nVal;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
@@ -1500,7 +1492,7 @@ void DimLights()
 void DoFinale()
 {
     static int dword_96788 = 0;
-    static int dword_1542FC = 0;
+    static int nextstage = 0;
 
     if (!lFinaleStart)
         return;
@@ -1537,22 +1529,22 @@ void DoFinale()
                 {
                     StopLocalSound();
                     PlayLocalSound(StaticSound[kSound76], 0);
-                    dword_1542FC = (int)totalclock + 120;
+                    nextstage = leveltime*4 + 120;
                     nFinaleStage++;
                 }
             }
             else if (nFinaleStage <= 2)
             {
-                if ((int)totalclock >= dword_1542FC)
+                if (leveltime*4 >= nextstage)
                 {
                     PlayLocalSound(StaticSound[kSound77], 0);
                     nFinaleStage++;
-                    dword_1542FC = (int)totalclock + 360;
+                    nextstage = leveltime*4 + 360;
                 }
             }
-            else if (nFinaleStage == 3 && (int)totalclock >= dword_1542FC)
+            else if (nFinaleStage == 3 && leveltime*4 >= nextstage)
             {
-                FinishLevel();
+                LevelFinished();
             }
         }
         else
@@ -1714,7 +1706,7 @@ void ExplodeEnergyBlock(int nSprite)
     else
     {
         nFinaleSpr = nSprite;
-        lFinaleStart = (int)totalclock;
+        lFinaleStart = leveltime*4;
 
         if (!lFinaleStart) {
             lFinaleStart = lFinaleStart + 1;
@@ -2108,7 +2100,7 @@ FUNCOBJECT_GOTO:
                     }
                 }
 
-                if (levelnum <= 20 || nStat != kStatExplodeTrigger)
+                if (currentLevel->levelNumber <= 20 || nStat != kStatExplodeTrigger)
                 {
                     runlist_SubRunRec(sprite[nSprite].owner);
                     runlist_SubRunRec(ObjectList[nObject].field_4);
@@ -2563,7 +2555,7 @@ void PostProcess()
         }
     }
 
-    if (levelnew != kMap20)
+    if (currentLevel->levelNumber != kMap20)
     {
         // esi is i
         for (i = 0; i < numsectors; i++)
@@ -2714,3 +2706,4 @@ static SavegameHelper sgh("objects",
     nullptr);
 
 END_PS_NS
+

@@ -35,14 +35,12 @@
 #include "m_crc32.h"
 #include "i_specialpaths.h"
 #include "i_system.h"
-#include "compat.h"
 #include "gameconfigfile.h"
 #include "cmdlib.h"
 #include "utf8.h"
 #include "sc_man.h"
 #include "resourcefile.h"
 #include "printf.h"
-#include "common.h"
 #include "version.h"
 #include "gamecontrol.h"
 #include "m_argv.h"
@@ -400,6 +398,7 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 	FlagMap.Insert("GAMEFLAG_SW", GAMEFLAG_SW);
 	FlagMap.Insert("GAMEFLAG_POWERSLAVE", GAMEFLAG_POWERSLAVE);
 	FlagMap.Insert("GAMEFLAG_EXHUMED", GAMEFLAG_EXHUMED);
+	FlagMap.Insert("GAMEFLAG_DUKEDC", GAMEFLAG_DUKEDC);
 
 	FScanner sc;
 	auto mem = fr.Read();
@@ -925,53 +924,6 @@ const char* G_DefFile(void)
 }
 
 
-//==========================================================================
-//
-// Fallback in case nothing got defined.
-// Also used by 'includedefault' which forces this to be statically defined
-//
-//==========================================================================
-
-const char* G_DefaultConFile(void)
-{
-	if (g_gameType & GAMEFLAG_BLOOD)
-		return "blood.ini";	// Blood doesn't have CON files but the common code treats its INI files the same, so return that here.
-
-	if (g_gameType & GAMEFLAG_WW2GI)
-	{
-		if (fileSystem.FindFile("ww2gi.con") >= 0) return "ww2gi.con";
-	}
-
-	if (g_gameType & (GAMEFLAG_SW|GAMEFLAG_PSEXHUMED))
-		return nullptr;	// Exhumed and SW have no scripts of any kind.
-
-	if (g_gameType & GAMEFLAG_NAM)
-	{
-		if (fileSystem.FindFile("nam.con") >= 0) return "nam.con";
-		if (fileSystem.FindFile("napalm.con") >= 0) return "napalm.con";
-	}
-
-	if (g_gameType & GAMEFLAG_NAPALM)
-	{
-		if (fileSystem.FindFile("napalm.con") >= 0) return "napalm.con";
-		if (fileSystem.FindFile("nam.con") >= 0) return "nam.con";
-	}
-
-	if (g_gameType & GAMEFLAG_DUKE)
-	{
-		if (fileSystem.FindFile("eduke.con") >= 0) return "eduke.con";	// No, we're not EDUKE, but several mods expect this to work.
-	}
-
-	// the other games only use game.con.
-	return "game.con";
-}
-
-const char* G_ConFile(void)
-{
-	return userConfig.DefaultCon.IsNotEmpty() ? userConfig.DefaultCon.GetChars() : G_DefaultConFile();
-}
-
-
 #if 0
 // Should this be added to the game data collector?
 bool AddINIFile(const char* pzFile, bool bForce = false)
@@ -1001,10 +953,10 @@ bool AddINIFile(const char* pzFile, bool bForce = false)
 		pINIIter = pINIIter->pNext = new INICHAIN;
 	pINIIter->pNext = NULL;
 	pINIIter->pDescription = NULL;
-	Bstrncpy(pINIIter->zName, pzFile, BMAX_PATH);
-	for (int i = 0; i < ARRAY_SSIZE(gINIDescription); i++)
+	strncpy(pINIIter->zName, pzFile, BMAX_PATH);
+	for (int i = 0; i < countof(gINIDescription); i++)
 	{
-		if (!Bstrncasecmp(pINIIter->zName, gINIDescription[i].pzFilename, BMAX_PATH))
+		if (!strnicmp(pINIIter->zName, gINIDescription[i].pzFilename, BMAX_PATH))
 		{
 			pINIIter->pDescription = &gINIDescription[i];
 			break;
@@ -1032,7 +984,7 @@ void ScanINIFiles(void)
 	pINISelected = pINIChain;
 	for (auto pIter = pINIChain; pIter; pIter = pIter->pNext)
 	{
-		if (!Bstrncasecmp(BloodIniFile, pIter->zName, BMAX_PATH))
+		if (!strnicmp(BloodIniFile, pIter->zName, BMAX_PATH))
 		{
 			pINISelected = pIter;
 			break;

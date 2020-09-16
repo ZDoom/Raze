@@ -66,6 +66,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "startupinfo.h"
 #include "mapinfo.h"
 #include "menustate.h"
+#include "screenjob.h"
+#include "statusbar.h"
+#include "uiinput.h"
+#include "d_net.h"
+#include "automap.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -88,42 +93,40 @@ CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 }
 
 // The last remains of sdlayer.cpp
-double g_beforeSwapTime;
 GameInterface* gi;
 int myconnectindex, numplayers;
 int connecthead, connectpoint2[MAXMULTIPLAYERS];
-int32_t xres = -1, yres = -1, bpp = 0;
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
+int lastTic;
 
+extern bool pauseext;
 
-MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
-MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
-MapRecord* lastLevel;		// Same here, for the last level.
-MapRecord userMapRecord;	// stand-in for the user map.
+cycle_t thinktime, actortime, gameupdatetime, drawtime;
 
 gamestate_t gamestate = GS_STARTUP;
+gameaction_t gameaction = ga_nothing;
+// gameaction state
+MapRecord* g_nextmap;
+int g_nextskill;
+
 
 FILE* hashfile;
 
 FStartupInfo GameStartupInfo;
 FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
-void C_CON_SetAliases();
 InputState inputState;
-void SetClipshapes();
 int ShowStartupWindow(TArray<GrpEntry> &);
 FString GetGameFronUserFiles();
 void InitFileSystem(TArray<GrpEntry>&);
 void I_SetWindowTitle(const char* caption);
-void InitENet();
-void ShutdownENet();
 void S_ParseSndInfo();
 void I_DetectOS(void);
 void LoadScripts();
+void MainLoop();
 
 
-bool AppActive;
-int chatmodeon;	// needed by the common console code.
+bool AppActive = true;
 
 FString currentGame;
 FString LumpFilter;
@@ -159,6 +162,7 @@ static StringtableCallbacks stblcb =
 	StrTable_GetGender
 };
 
+extern int chatmodeon;
 
 bool System_WantGuiCapture()
 {
@@ -177,7 +181,7 @@ bool System_WantGuiCapture()
 
 bool System_WantLeftButton()
 {
-	return false;// (gamestate == GS_DEMOSCREEN || gamestate == GS_TITLELEVEL);
+	return false;// (gamestate == GS_MENUSCREEN || gamestate == GS_TITLELEVEL);
 }
 
 bool System_NetGame()
@@ -263,15 +267,6 @@ void UserConfig::ProcessOptions()
 		Printf("Build-format config files not supported and will be ignored\n");
 	}
 
-#if 0 // MP disabled pending evaluation
-	auto v = Args->CheckValue("-port");
-	if (v) netPort = strtol(v, nullptr, 0);
-
-	netServerMode = Args->CheckParm("-server");
-	netServerAddress = Args->CheckValue("-connect");
-	netPassword = Args->CheckValue("-password");
-#endif
-
 	auto v = Args->CheckValue("-addon");
 	if (v)
 	{
@@ -355,7 +350,7 @@ void UserConfig::ProcessOptions()
 	Args->CollectFiles("-name", names, ".---");	// this shouldn't collect any file names at all so use a nonsense extension
 	CommandName = Args->CheckValue("-name");
 
-	static const char* nomos[] = { "-nomonsters", "-nodudes", nullptr };
+	static const char* nomos[] = { "-nomonsters", "-nodudes", "-nocreatures", nullptr };
 	Args->CollectFiles("-nomonsters", nomos, ".---");	// this shouldn't collect any file names at all so use a nonsense extension
 	nomonsters = Args->CheckParm("-nomonsters");
 
@@ -409,21 +404,42 @@ void UserConfig::ProcessOptions()
 		C_DoCommand("stat coord");
 	}
 
-
 }
 
-
 //==========================================================================
 //
 //
 //
 //==========================================================================
 
-namespace Duke
+void CheckUserMap()
 {
-	::GameInterface* CreateInterface();
+	if (userConfig.CommandMap.IsEmpty()) return;
+	FString startupMap = userConfig.CommandMap;
+	if (startupMap.IndexOfAny("/\\") < 0) startupMap.Insert(0, "/");
+	DefaultExtension(startupMap, ".map");
+	startupMap.Substitute("\\", "/");
+	NormalizeFileName(startupMap);
+
+	if (fileSystem.FileExists(startupMap))
+	{
+		Printf("Using level: \"%s\".\n", startupMap.GetChars());
+	}
+	else
+	{
+		Printf("Level \"%s\" not found.\n", startupMap.GetChars());
+		startupMap = "";
+	}
+	userConfig.CommandMap = startupMap;
 }
-namespace Redneck
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+namespace Duke3d
 {
 	::GameInterface* CreateInterface();
 }
@@ -440,47 +456,27 @@ namespace Powerslave
 	::GameInterface* CreateInterface();
 }
 
-CVAR(Bool, duke_compatibility_15, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+extern int MinFPSRate; // this is a bit messy.
 
 void CheckFrontend(int flags)
 {
-	bool duke_compat = duke_compatibility_15;
-	// This point is too early to have cmdline CVAR checkers working so it must be with a switch.
-	auto c = Args->CheckValue("-duke_compatibility_15");
-	if (c)
-	{
-		if (strtol(c, nullptr, 0)) duke_compatibility_15 = true;
-		else duke_compatibility_15 = false;
-	}
 	if (flags & GAMEFLAG_BLOOD)
 	{
 		gi = Blood::CreateInterface();
 	}
-	else if (flags & GAMEFLAG_RRALL)
-	{
-		gi = Redneck::CreateInterface();
-	}
 	else if (flags & GAMEFLAG_SW)
 	{
+		MinFPSRate = 40;
 		gi = ShadowWarrior::CreateInterface();
 	}
 	else if (flags & GAMEFLAG_PSEXHUMED)
 	{
 		gi = Powerslave::CreateInterface();
 	}
-	else if ((flags & GAMEFLAG_FURY) || GameStartupInfo.modern > 0)
-	{
-		gi = Duke::CreateInterface();
-	}
-	else if (GameStartupInfo.modern < 0)
-	{
-		gi = Redneck::CreateInterface();
-	}
 	else
 	{
-		gi = *duke_compatibility_15 ? Redneck::CreateInterface() : Duke::CreateInterface();
+		gi = Duke3d::CreateInterface();
 	}
-
 }
 
 void I_StartupJoysticks();
@@ -522,6 +518,7 @@ int GameMain()
 		I_ShowFatalError(err.what());
 		r = -1;
 	}
+	DeleteScreenJob();
 	M_ClearMenus(true);
 	if (gi)
 	{
@@ -547,7 +544,6 @@ int GameMain()
 		delete gi;
 		gi = nullptr;
 	}
-	InitENet();
 	DeleteStartupScreen();
 	PClass::StaticShutdown();
 	if (Args) delete Args;
@@ -740,6 +736,83 @@ static TArray<GrpEntry> SetupGame()
 
 //==========================================================================
 //
+// reads a Duke Nukem World Tour translation file.
+//
+//==========================================================================
+
+static void LoadLanguageWT(int lumpnum, TArray<uint8_t>& buffer, const char* langid)
+{
+	uint32_t activeMap;
+	FScanner sc;
+
+	if (stricmp(langid, "default") == 0) activeMap = FStringTable::default_table;
+	else activeMap = MAKE_ID(tolower(langid[0]), tolower(langid[1]), tolower(langid[2]), 0);
+
+	// Notes about the text files:
+	// The English text has a few lines where a period follows a quoted string, they are skipped over by the first check in the loop.
+	// The Russian text file contains a line starting with two quotation marks. 
+	// Unfortunately we need to get across that because important stuff comes afterward.
+	// The Japanese text also has a fatal error, but it comes after all the texts we actually need so it is easier to handle by just aborting the parse.
+
+	if (!stricmp(langid, "ru"))
+	{
+		for (unsigned i = 1; i < buffer.Size(); i++)
+		{
+			if (buffer[i] == '"' && buffer[i - 1] == '"')
+			{
+				buffer.Delete(i);
+				break;
+			}
+		}
+	}
+
+	sc.OpenMem(fileSystem.GetFileFullName(lumpnum), buffer);
+	while (sc.GetString())
+	{
+
+		if (sc.String[0] != '#') sc.MustGetString();// there's a few fucked up texts in the files.
+		if (sc.String[0] != '#') return;
+		FName strName(sc.String);
+		sc.MustGetString();
+		GStrings.InsertString(lumpnum, activeMap, strName, sc.String);
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void InitLanguages()
+{
+	GStrings.LoadStrings(language);
+	if (g_gameType & GAMEFLAG_DUKE)	// these are for World Tour but at this point we do not know yet, do just look for them anyway
+	{
+		static const struct wt_lang
+		{
+			const char* filename;
+			const char* langid;
+		} langfiles[] = {
+			{ "locale/english/strings.txt", "default" },
+			{ "locale/brazilian/brazilian.txt", "pt" },
+			{ "locale/french/french.txt", "fr" },
+			{ "locale/german/german.txt", "de" },
+			{ "locale/italian/italian.txt", "it" },
+			{ "locale/japanese/japanese.txt", "jp" },
+			{ "locale/russian/russian.txt", "ru" },
+			{ "locale/spanish/spanish.txt", "es" } };
+
+		for (const auto& li : langfiles)
+		{
+			auto buffer = fileSystem.LoadFile(li.filename, 1);
+			if (buffer.Size() > 0) LoadLanguageWT(fileSystem.FindFile(li.filename), buffer, li.langid);
+		}
+	}
+}
+
+//==========================================================================
+//
 //
 //
 //==========================================================================
@@ -760,10 +833,8 @@ int RunGame()
 		execLogfile(logfile);
 	}
 	I_DetectOS();
-	SetClipshapes();
 	userConfig.ProcessOptions();
 	G_LoadConfig();
-	ShutdownENet();
 	auto usedgroups = SetupGame();
 
 
@@ -774,26 +845,23 @@ int RunGame()
 	if (g_gameType & GAMEFLAG_BLOOD)
 	{
 		mus_redbook.SetGenericRepDefault(false, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
-		hud_size.SetGenericRepDefault(6, CVAR_Int);
-		hud_size_max = 7;
+		am_showlabel.SetGenericRepDefault(true, CVAR_Bool);
 	}
 	if (g_gameType & GAMEFLAG_SW)
 	{
-		hud_size.SetGenericRepDefault(8, CVAR_Int);
-		hud_size_max = 9;
 		cl_weaponswitch.SetGenericRepDefault(1, CVAR_Int);
 		if (cl_weaponswitch > 1) cl_weaponswitch = 1;
 	}
-	if (g_gameType & GAMEFLAG_PSEXHUMED)
+	if (g_gameType & (GAMEFLAG_BLOOD|GAMEFLAG_RR))
 	{
-		hud_size.SetGenericRepDefault(7, CVAR_Int);
-		hud_size_max = 8;
+		am_nameontop.SetGenericRepDefault(true, CVAR_Bool);	// Blood and RR show the map name on the top of the screen by default.
 	}
 
 	G_ReadConfig(currentGame);
 
 	V_InitFontColors();
-	GStrings.LoadStrings(language);
+	InitLanguages();
+
 
 	CheckCPUID(&CPU);
 	CalculateCPUSpeed();
@@ -829,34 +897,119 @@ int RunGame()
 	{
 		playername = userConfig.CommandName;
 	}
+	GameTicRate = 30;
+	CheckUserMap();
 	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
 	TexMan.Init([]() {}, [](BuildInfo &) {});
 	V_InitFonts();
 	TileFiles.Init();
-	C_CON_SetAliases();
 	sfx_empty = fileSystem.FindFile("engine/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
 	I_InitSound();
 	Mus_InitMusic();
-	timerSetCallback(Mus_UpdateMusic);
 	S_ParseSndInfo();
 	InitStatistics();
 	LoadScripts();
-	M_Init();
 	SetDefaultStrings();
-	if (g_gameType & (GAMEFLAG_RR)) InitRREndMap();	// this needs to be done better later
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
 
 	if (enginePreInit())
 	{
-		I_FatalError("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
+		I_FatalError("There was a problem initializing the Build engine: %s\n", engineerrstr);
 	}
 
 	auto exec = C_ParseCmdLineParams(nullptr);
 	if (exec) exec->ExecCommands();
 
-	gamestate = GS_LEVEL;
-	return gi->app_main();
+	SetupGameButtons();
+	gi->app_init();
+	M_Init();
+	if (!(paletteloaded & PALETTE_MAIN))
+		I_FatalError("No palette found.");
+
+	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
+	lookups.postLoadTables();
+	TileFiles.PostLoadSetup();
+	videoInit();
+
+	D_CheckNetGame();
+	MainLoop();
+	return 0; // this is never reached. MainLoop only exits via exception.
+}
+
+//---------------------------------------------------------------------------
+//
+// The one and only main loop in the entire engine. Yay!
+//
+//---------------------------------------------------------------------------
+
+
+void TickSubsystems()
+{
+	// run these on an independent timer until we got something working for the games.
+	static const uint64_t tickInterval = 1'000'000'000 / 30;
+	static uint64_t nexttick = 0;
+
+	auto nowtick = I_nsTime();
+	if (nexttick == 0) nexttick = nowtick;
+	int cnt = 0;
+	while (nexttick <= nowtick && cnt < 5)
+	{
+		nexttick += tickInterval;
+		C_Ticker();
+		M_Ticker();
+		C_RunDelayedCommands();
+		cnt++;
+	}
+	// If this took too long the engine was most likely suspended so recalibrate the timer.
+	// Perfect precision is not needed here.
+	if (cnt == 5) nexttick = nowtick + tickInterval;
+}
+
+void updatePauseStatus()
+{
+	// This must go through the network in multiplayer games.
+	if (M_Active() || System_WantGuiCapture())
+	{
+		paused = 1;
+	}
+	else if (!M_Active() || !System_WantGuiCapture())
+	{
+		if (!pausedWithKey)
+		{
+			paused = 0;
+		}
+
+		if (sendPause)
+		{
+			sendPause = false;
+			paused = pausedWithKey ? 0 : 2;
+			pausedWithKey = !!paused;
+		}
+	}
+
+	paused ? S_PauseSound(!pausedWithKey, !paused) : S_ResumeSound(paused);
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void PolymostProcessVoxels(void);
+
+void videoInit()
+{
+	lookups.postLoadLookups();
+	V_Init2();
+	videoSetGameMode(vid_fullscreen, screen->GetWidth(), screen->GetHeight(), 32, 1);
+
+	PolymostProcessVoxels();
+	GLInterface.Init(screen->GetWidth());
+	screen->BeginFrame();
+	screen->SetTextureFilterMode();
+	setViewport(hud_size);
 }
 
 void G_FatalEngineError(void)
@@ -891,8 +1044,9 @@ void CONFIG_ReadCombatMacros()
 		for (auto s : CombatMacros)
 		{
 			sc.MustGetToken(TK_StringConst);
-			if (strlen(*s) == 0)
-				*s = sc.String;
+			UCVarValue val;
+			val.String = sc.String;
+			s->SetGenericRepDefault(val, CVAR_String);
 		}
 	}
 	catch (const CRecoverableError &)
@@ -906,36 +1060,6 @@ void CONFIG_ReadCombatMacros()
 // 
 //
 //==========================================================================
-
-static FString CONFIG_GetMD4EntryName(uint8_t const* const md4)
-{
-	return FStringf("MD4_%08x%08x%08x%08x",
-		B_BIG32(B_UNBUF32(&md4[0])), B_BIG32(B_UNBUF32(&md4[4])),
-		B_BIG32(B_UNBUF32(&md4[8])), B_BIG32(B_UNBUF32(&md4[12])));
-}
-
-int32_t CONFIG_GetMapBestTime(char const* const mapname, uint8_t const* const mapmd4)
-{
-
-	auto m = CONFIG_GetMD4EntryName(mapmd4);
-	if (GameConfig->SetSection("MapTimes"))
-	{
-		auto s = GameConfig->GetValueForKey(m);
-		if (s) return (int)strtoull(s, nullptr, 0);
-	}
-	return -1;
-}
-
-int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm)
-{
-	FStringf t("%d", tm);
-	auto m = CONFIG_GetMD4EntryName(mapmd4);
-	if (GameConfig->SetSection("MapTimes"))
-	{
-		GameConfig->SetValueForKey(m, t);
-	}
-	return 0;
-}
 
 
 CCMD(snd_reset)
@@ -1016,18 +1140,17 @@ void S_SetSoundPaused(int state)
 			}
 		}
 	}
+#if 0
+	if (!netgame
+#if 0 //def _DEBUG
+		&& !demoplayback
+#endif
+		)
+	{
+		pauseext = !state;
+	}
+#endif
 }
-
-int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int realgameticspersec)
-{
-	const double TICRATE = 120.;
-
-	double elapsedTime = (totalclk - ototalclk).toScale16F();
-	double elapsedFrames = elapsedTime * (1. / TICRATE);
-	double ratio = (elapsedFrames * realgameticspersec);
-	return clamp(xs_RoundToInt(ratio * 65536), 0, 65536);
-}
-
 
 FString G_GetDemoPath()
 {
@@ -1061,7 +1184,7 @@ CCMD (togglemsg)
 			const char *statestr = argv.argc() <= 2? "*" : argv[2];
 			if (*statestr == '*')
 			{
-				gi->PrintMessage(PRINT_MEDIUM, "\"%s\" = \"%s\"\n", var->GetName(), val.Bool ? "true" : "false");
+				Printf(PRINT_MEDIUM|PRINT_NOTIFY, "\"%s\" = \"%s\"\n", var->GetName(), val.Bool ? "true" : "false");
 			}
 			else
 			{
@@ -1072,50 +1195,254 @@ CCMD (togglemsg)
 					// Positive means Off/On, negative means On/Off
 					int quote = state > 0? state + val.Bool : -(state + val.Bool);
 					auto text = quoteMgr.GetQuote(quote);
-					if (text) gi->PrintMessage(PRINT_MEDIUM, "%s\n", text);
+					if (text) Printf(PRINT_MEDIUM|PRINT_NOTIFY, "%s\n", text);
 				}
 			}
 		}
 	}
 }
 
-// Just a placeholder for now.
-bool CheckCheatmode(bool printmsg)
-{
-	return false;
-}
-
-void updatePauseStatus()
-{
-	bool GUICapture = System_WantGuiCapture();
-    if (M_Active() || GUICapture)
-    {
-        paused = 1;
-    }
-    else if ((!M_Active() || !GUICapture) && !pausedWithKey)
-    {
-        paused = 0;
-    }
-
-    if (inputState.GetKeyStatus(sc_Pause))
-    {
-        inputState.ClearKeyStatus(sc_Pause);
-        paused = !paused;
-
-        if (paused)
-        {
-            S_PauseSound(!paused, !paused);
-        }
-        else
-        {
-            S_ResumeSound(paused);
-        }
-
-        pausedWithKey = paused;
-    }
-}
-
 bool OkForLocalization(FTextureID texnum, const char* substitute)
 {
 	return false;
 }
+
+
+// Mainly a dummy.
+CCMD(taunt)
+{
+	if (argv.argc() > 2)
+	{
+		int taunt = atoi(argv[1]);
+		int mode = atoi(argv[2]);
+		
+		// In a ZDoom-style protocol this should be sent:
+		// Net_WriteByte(DEM_TAUNT);
+		// Net_WriteByte(taunt);
+		// Net_WriteByte(mode);
+		if (mode == 1)
+		{
+			// todo:
+			//gi->PlayTaunt(taunt);
+			// Duke:
+			// startrts(taunt, 1)
+			// Blood:
+			// sndStartSample(4400 + taunt, 128, 1, 0);
+			// SW:
+			// PlaySoundRTS(taunt);
+			// Exhumed does not implement RTS, should be like Duke
+			//
+		}
+		Printf(PRINT_NOTIFY, "%s", **CombatMacros[taunt - 1]);
+
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::FreeLevelData()
+{
+	// Make sure that there is no more level to toy around with.
+	initspritelists();
+	numsectors = numwalls = 0;
+	currentLevel = nullptr;
+}
+
+//---------------------------------------------------------------------------
+//
+// Load crosshair definitions
+//
+//---------------------------------------------------------------------------
+
+FGameTexture* CrosshairImage;
+int CrosshairNum;
+
+CVAR(Int, crosshair, 0, CVAR_ARCHIVE)
+CVAR(Color, crosshaircolor, 0xff0000, CVAR_ARCHIVE);
+CVAR(Int, crosshairhealth, 2, CVAR_ARCHIVE);
+
+void ST_LoadCrosshair(int num, bool alwaysload)
+{
+	char name[16];
+
+	if (!alwaysload && CrosshairNum == num && CrosshairImage != NULL)
+	{ // No change.
+		return;
+	}
+
+	if (num == 0)
+	{
+		CrosshairNum = 0;
+		CrosshairImage = NULL;
+		return;
+	}
+	if (num < 0)
+	{
+		num = -num;
+	}
+
+	mysnprintf(name, countof(name), "XHAIRB%d", num);
+	FTextureID texid = TexMan.CheckForTexture(name, ETextureType::MiscPatch, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ShortNameOnly);
+	if (!texid.isValid())
+	{
+		mysnprintf(name, countof(name), "XHAIRB1");
+		texid = TexMan.CheckForTexture(name, ETextureType::MiscPatch, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ShortNameOnly);
+		if (!texid.isValid())
+		{
+			texid = TexMan.CheckForTexture("XHAIRS1", ETextureType::MiscPatch, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ShortNameOnly);
+		}
+	}
+	CrosshairNum = num;
+	CrosshairImage = TexMan.GetGameTexture(texid);
+}
+
+//---------------------------------------------------------------------------
+//
+// DrawCrosshair
+//
+//---------------------------------------------------------------------------
+
+void DrawGenericCrosshair(int num, int phealth, double xdelta)
+{
+	uint32_t color;
+	double size;
+	int w, h;
+
+	ST_LoadCrosshair(num, false);
+
+	// Don't draw the crosshair if there is none
+	if (CrosshairImage == NULL)
+	{
+		return;
+	}
+
+	float crosshairscale = cl_crosshairscale * 0.005;
+	if (crosshairscale > 0.0f)
+	{
+		size = twod->GetHeight() * crosshairscale / 200.;
+	}
+	else
+	{
+		size = 1.;
+	}
+
+	w = int(CrosshairImage->GetDisplayWidth() * size);
+	h = int(CrosshairImage->GetDisplayHeight() * size);
+
+	if (crosshairhealth == 1) 
+	{
+		// "Standard" crosshair health (green-red)
+		int health = phealth;
+
+		if (health >= 85)
+		{
+			color = 0x00ff00;
+		}
+		else
+		{
+			int red, green;
+			health -= 25;
+			if (health < 0)
+			{
+				health = 0;
+			}
+			if (health < 30)
+			{
+				red = 255;
+				green = health * 255 / 30;
+			}
+			else
+			{
+				red = (60 - health) * 255 / 30;
+				green = 255;
+			}
+			color = (red << 16) | (green << 8);
+		}
+	}
+	else if (crosshairhealth == 2)
+	{
+		// "Enhanced" crosshair health (blue-green-yellow-red)
+		int health = clamp(phealth, 0, 200);
+		float rr, gg, bb;
+
+		float saturation = health < 150 ? 1.f : 1.f - (health - 150) / 100.f;
+
+		HSVtoRGB(&rr, &gg, &bb, health * 1.2f, saturation, 1);
+		int red = int(rr * 255);
+		int green = int(gg * 255);
+		int blue = int(bb * 255);
+
+		color = (red << 16) | (green << 8) | blue;
+	}
+	else
+	{
+		color = crosshaircolor;
+	}
+
+	DrawTexture(twod, CrosshairImage,
+		(windowxy1.x + windowxy2.x) / 2 + xdelta * (windowxy2.y - windowxy1.y) / 240.,
+		(windowxy1.y + windowxy2.y) / 2,
+		DTA_DestWidth, w,
+		DTA_DestHeight, h,
+		DTA_AlphaChannel, true,
+		DTA_FillColor, color & 0xFFFFFF,
+		TAG_DONE);
+}
+
+
+void DrawCrosshair(int deftile, int health, double xdelta, double scale, PalEntry color)
+{
+	int type = -1;
+	if (automapMode == am_off && cl_crosshair)
+	{
+		if (deftile < MAXTILES && crosshair == 0)
+		{
+			auto tile = tileGetTexture(deftile);
+			if (tile)
+			{
+				double crosshair_scale = cl_crosshairscale * .01 * scale;
+				DrawTexture(twod, tile, 160 + xdelta, 100, DTA_Color, color,
+					DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
+					DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
+
+				return;
+			}
+		}
+		DrawGenericCrosshair(crosshair == 0 ? 2 : *crosshair, health, xdelta);
+	}
+}
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void LoadDefinitions()
+{
+	loaddefinitionsfile("engine/engine.def");	// Internal stuff that is required.
+
+	const char* defsfile = G_DefFile();
+
+	cycle_t deftimer;
+	deftimer.Reset();
+	deftimer.Clock();
+	if (!loaddefinitionsfile(defsfile, true))
+	{
+		deftimer.Unclock();
+		Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %.3f ms.\n", defsfile, deftimer.TimeMS());
+	}
+	userConfig.AddDefs.reset();
+
+	// load the widescreen replacements last so that they do not clobber the CRC for the original items so that mod-side replacement are picked up.
+	if (fileSystem.FindFile("engine/widescreen.def") >= 0 && !Args->CheckParm("-nowidescreen"))
+	{
+		loaddefinitionsfile("engine/widescreen.def");
+	}
+
+
+}
+

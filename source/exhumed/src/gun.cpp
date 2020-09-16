@@ -16,32 +16,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "gun.h"
+#include "aistuff.h"
 #include "engine.h"
-#include "init.h"
 #include "player.h"
 #include "exhumed.h"
 #include "view.h"
-#include "move.h"
 #include "status.h"
-#include "bubbles.h"
-#include "typedefs.h"
 #include "sound.h"
-#include "ra.h"
-#include "snake.h"
-#include "grenade.h"
-#include "lighting.h"
-#include "light.h"
 #include "ps_input.h"
-#include "util.h"
-#include "anims.h"
-#include "runlist.h"
-#include "bullet.h"
-#include "trigdat.h"
-#include "object.h"
 #include <string.h>
 #include <assert.h>
 #include "v_2ddrawer.h"
+#include "sequence.h"
 
 BEGIN_PS_NS
 
@@ -58,17 +44,17 @@ struct Weapon
 */
 
 Weapon WeaponInfo[] = {
-    { kSeqSword,   { 0, 1, 3,  7, -1,  2,  4, 5, 6, 8, 9, 10 }, 0, 0, 0, kTrue },
-    { kSeqPistol,  { 0, 3, 2,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  1, 0, 1, kFalse },
-    { kSeqM60,     { 0, 5, 6, 16, -1, 21,  0, 0, 0, 0, 0, 0 },  2, 0, 1, kFalse },
-    { kSeqFlamer,  { 0, 2, 5,  5,  6,  1,  0, 0, 0, 0, 0, 0 },  3, 4, 1, kFalse },
-    { kSeqGrenade, { 0, 2, 3,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  4, 0, 1, kTrue },
-    { kSeqCobra,   { 0, 1, 2,  2, -1,  4,  0, 0, 0, 0, 0, 0 },  5, 0, 1, kTrue },
-    { kSeqRavolt,  { 0, 1, 2,  3, -1,  4,  0, 0, 0, 0, 0, 0 },  6, 0, 1, kTrue },
-    { kSeqRothands,{ 0, 1, 2, -1, -1, -1,  0, 0, 0, 0, 0, 0 },  7, 0, 0, kTrue },
-    { kSeqDead,    { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, kFalse },
-    { kSeqDeadEx,  { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, kFalse },
-    { kSeqDeadBrn, { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, kFalse }
+    { kSeqSword,   { 0, 1, 3,  7, -1,  2,  4, 5, 6, 8, 9, 10 }, 0, 0, 0, true },
+    { kSeqPistol,  { 0, 3, 2,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  1, 0, 1, false },
+    { kSeqM60,     { 0, 5, 6, 16, -1, 21,  0, 0, 0, 0, 0, 0 },  2, 0, 1, false },
+    { kSeqFlamer,  { 0, 2, 5,  5,  6,  1,  0, 0, 0, 0, 0, 0 },  3, 4, 1, false },
+    { kSeqGrenade, { 0, 2, 3,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  4, 0, 1, true },
+    { kSeqCobra,   { 0, 1, 2,  2, -1,  4,  0, 0, 0, 0, 0, 0 },  5, 0, 1, true },
+    { kSeqRavolt,  { 0, 1, 2,  3, -1,  4,  0, 0, 0, 0, 0, 0 },  6, 0, 1, true },
+    { kSeqRothands,{ 0, 1, 2, -1, -1, -1,  0, 0, 0, 0, 0, 0 },  7, 0, 0, true },
+    { kSeqDead,    { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false },
+    { kSeqDeadEx,  { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false },
+    { kSeqDeadBrn, { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false }
 };
 
 short nTemperature[kMaxPlayers];
@@ -146,9 +132,9 @@ void SetNewWeapon(short nPlayer, short nWeapon)
     if (nWeapon == kWeaponMummified)
     {
         PlayerList[nPlayer].field_3C = PlayerList[nPlayer].nCurrentWeapon;
-        PlayerList[nPlayer].bIsFiring = kFalse;
+        PlayerList[nPlayer].bIsFiring = false;
         PlayerList[nPlayer].field_3A = 5;
-        SetPlayerMummified(nPlayer, kTrue);
+        SetPlayerMummified(nPlayer, true);
 
         PlayerList[nPlayer].field_3FOUR = 0;
     }
@@ -236,20 +222,20 @@ void SelectNewWeapon(short nPlayer)
     if (nWeapon < 0)
         nWeapon = kWeaponSword;
 
-    PlayerList[nPlayer].bIsFiring = kFalse;
+    PlayerList[nPlayer].bIsFiring = false;
 
     SetNewWeapon(nPlayer, nWeapon);
 }
 
 void StopFiringWeapon(short nPlayer)
 {
-    PlayerList[nPlayer].bIsFiring = kFalse;
+    PlayerList[nPlayer].bIsFiring = false;
 }
 
 void FireWeapon(short nPlayer)
 {
     if (!PlayerList[nPlayer].bIsFiring) {
-        PlayerList[nPlayer].bIsFiring = kTrue;
+        PlayerList[nPlayer].bIsFiring = true;
     }
 }
 
@@ -282,11 +268,11 @@ uint8_t WeaponCanFire(short nPlayer)
         short nAmmoType = WeaponInfo[nWeapon].nAmmoType;
 
         if (WeaponInfo[nWeapon].d <= PlayerList[nPlayer].nAmmo[nAmmoType]) {
-            return kTrue;
+            return true;
         }
     }
 
-    return kFalse;
+    return false;
 }
 
 // UNUSED
@@ -318,7 +304,18 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
 
     int ecx = sintable[150] >> 3;
 
-    if (ksqrt((hitX - *x) * (hitX - *x) + (hitY - *y) * (hitY - *y)) >= ecx)
+    uint32_t xDiff = klabs(hitX - *x);
+    uint32_t yDiff = klabs(hitY - *y);
+
+    uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+
+    if (sqrtNum > INT_MAX)
+    {
+        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
+        sqrtNum = INT_MAX;
+    }
+
+    if (ksqrt(sqrtNum) >= ecx)
         return 0;
 
     *x = hitX;
@@ -469,7 +466,7 @@ void MoveWeapons(short nPlayer)
                             PlayerList[nPlayer].field_3A = 3;
                             PlayerList[nPlayer].field_3FOUR = 0;
 
-                            nPistolClip[nPlayer] = Min(6, PlayerList[nPlayer].nAmmo[kWeaponPistol]);
+                            nPistolClip[nPlayer] = std::min<int>(6, PlayerList[nPlayer].nAmmo[kWeaponPistol]);
                             break;
                         }
                         else if (nWeapon == kWeaponGrenade)
@@ -492,7 +489,7 @@ void MoveWeapons(short nPlayer)
 
                             nWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
-                            SetPlayerMummified(nPlayer, kFalse);
+                            SetPlayerMummified(nPlayer, false);
                             break;
                         }
                         else
@@ -742,7 +739,7 @@ loc_flag:
                 // loc_27266:
                 case kWeaponSword:
                 {
-                    nHeight += (92 - fix16_to_int(sPlayerInput[nPlayer].horizon)) << 6;
+                    nHeight += (92 - FixedToInt(sPlayerInput[nPlayer].horizon)) << 6;
 
                     theZ += nHeight;
 
@@ -847,10 +844,10 @@ loc_flag:
                 }
                 case kWeaponPistol:
                 {
-                    int var_50 = (fix16_to_int(sPlayerInput[nPlayer].horizon) - 92) << 2;
+                    int var_50 = (FixedToInt(sPlayerInput[nPlayer].horizon) - 92) << 2;
                     nHeight -= var_50;
 
-                    if (sPlayerInput[nPlayer].nTarget >= 0)
+                    if (sPlayerInput[nPlayer].nTarget >= 0 && cl_autoaim)
                     {
                                                 assert(sprite[sPlayerInput[nPlayer].nTarget].sectnum < kMaxSectors);
                         var_50 = sPlayerInput[nPlayer].nTarget + 10000;
@@ -862,7 +859,7 @@ loc_flag:
 
                 case kWeaponGrenade:
                 {
-                    ThrowGrenade(nPlayer, ebp, ebx, nHeight - 2560, fix16_to_int(sPlayerInput[nPlayer].horizon) - 92);
+                    ThrowGrenade(nPlayer, ebp, ebx, nHeight - 2560, FixedToInt(sPlayerInput[nPlayer].horizon) - 92);
                     break;
                 }
                 case kWeaponStaff:
@@ -927,7 +924,7 @@ loc_flag:
     }
 }
 
-void DrawWeapons(int smooth)
+void DrawWeapons(double smooth)
 {
     if (bCamera) {
         return;
@@ -937,7 +934,7 @@ void DrawWeapons(int smooth)
     if (nWeapon < -1) {
         return;
     }
-    PspTwoDSetter set;
+    PspTwoDSetter set; // this is the last one.
 
     short var_34 = PlayerList[nLocalPlayer].field_3A;
 
@@ -961,21 +958,22 @@ void DrawWeapons(int smooth)
 
     nPal = RemapPLU(nPal);
 
-    int nVal = totalvel[nLocalPlayer] >> 1;
+    double xOffset = 0, yOffset = 0;
 
-    // CHECKME - not & 0x7FF?
-    int nBobAngle = angle_interpolate16(obobangle, bobangle, smooth);
-    int	yOffset = (nVal * (sintable[nBobAngle & 0x3FF] >> 8)) >> 9;
-
-    int xOffset = 0;
-
-    if (var_34 == 1)
+    if (cl_weaponsway)
     {
-        xOffset = ((Sin(nBobAngle + 512) >> 8) * nVal) >> 8;
+        // CHECKME - not & 0x7FF?
+        double nBobAngle = obobangle + fmulscale16(((bobangle + 1024 - obobangle) & 2047) - 1024, smooth);
+        double nVal = (ototalvel[nLocalPlayer] + fmulscale16(totalvel[nLocalPlayer] - ototalvel[nLocalPlayer], smooth)) / 2.;
+        yOffset = (nVal * (calcSinTableValue(fmod(nBobAngle, 1024)) / 256.)) / 512.;
+
+        if (var_34 == 1)
+        {
+            xOffset = ((FSin(nBobAngle + 512) / 256.) * nVal) / 256.;
+        }
     }
     else
     {
-        xOffset = 0;
         obobangle = bobangle = 512;
     }
 

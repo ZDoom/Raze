@@ -37,6 +37,17 @@
 #include "build.h"
 #include "gamecvars.h"
 #include "v_video.h"
+#include "statusbar.h"
+#include"packet.h"
+#include "gamecontrol.h"
+#include "gamestruct.h"
+
+static int WeaponToSend = 0;
+ESyncBits ActionsToSend = 0;
+static int dpad_lock = 0;
+bool sendPause;
+
+static double lastCheck;
 
 //==========================================================================
 //
@@ -44,37 +55,24 @@
 //
 //==========================================================================
 
-void InputState::GetMouseDelta(ControlInfo * info)
+void InputState::GetMouseDelta(ControlInfo * hidInput)
 {
-    vec2f_t input, finput;
-
-	input = g_mousePos;
+    vec2f_t finput = g_mousePos;
 	g_mousePos = {};
 
-    if (in_mousesmoothing)
-    {
-        static vec2f_t last;
-        finput = { (input.x + last.x) * 0.5f, (input.y + last.y) * 0.5f };
-        last = input;
-    }
-    else
-    {
-    	finput = { input.x, input.y };
-    }
-
-    info->mousex = finput.x * (16.f / 32.f) * in_mousesensitivity * in_mousescalex / 3.f;
-    info->mousey = finput.y * (16.f / 64.f) * in_mousesensitivity * in_mousescaley;
+    hidInput->mousex = finput.x * (16.f / 32.f) * in_mousesensitivity * in_mousescalex / 3.f;
+    hidInput->mousey = finput.y * (16.f / 64.f) * in_mousesensitivity * in_mousescaley;
 
 	// todo: Use these when the mouse is used for moving instead of turning.
-	//info->mousex = int(finput.x * (4.f) * in_mousesensitivity * in_mouseside);
-	//info->mousey = int(finput.y * (4.f) * in_mousesensitivity * in_mouseforward);
+	//hidInput->mousex = int(finput.x * (4.f) * in_mousesensitivity * in_mouseside);
+	//hidInput->mousey = int(finput.y * (4.f) * in_mousesensitivity * in_mouseforward);
 
 	if (in_mousebias)
 	{
-		if (fabs(info->mousex) > fabs(info->mousey))
-			info->mousey /= in_mousebias;
+		if (fabs(hidInput->mousex) > fabs(hidInput->mousey))
+			hidInput->mousey /= in_mousebias;
 		else
-			info->mousex /= in_mousebias;
+			hidInput->mousex /= in_mousebias;
 	}
 
 }
@@ -85,37 +83,54 @@ void InputState::GetMouseDelta(ControlInfo * info)
 //
 //==========================================================================
 
-void InputState::keySetState(int32_t key, int32_t state)
-{
-	KeyStatus[key] = (uint8_t)state;
-
-	if (state)
-	{
-		g_keyFIFO[g_keyFIFOend] = key;
-		g_keyFIFO[(g_keyFIFOend + 1) & (KEYFIFOSIZ - 1)] = state;
-		g_keyFIFOend = ((g_keyFIFOend + 2) & (KEYFIFOSIZ - 1));
-	}
-}
-
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
+static int exclKeys[] = { KEY_VOLUMEDOWN, KEY_VOLUMEUP };
 
 void InputState::AddEvent(const event_t *ev)
 {
 	if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
 	{
-		keySetState(ev->data1, ev->type == EV_KeyDown);
-		if (ev->data2 && ev->type == EV_KeyDown)
+		int key = ev->data1;
+		bool state = ev->type == EV_KeyDown;
+		bool ignore = false;
+		KeyStatus[key] = (uint8_t)state;
+
+		// Check if key is to be excluded from setting AnyKeyStatus.
+		for (int i = 0; i < 2; i++)
 		{
-			g_keyAsciiFIFO[g_keyAsciiEnd] = (char16_t)ev->data2;
-			g_keyAsciiEnd = ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1));
+			if (exclKeys[i] == key)
+			{
+				ignore = true;
+				break;
+			}
 		}
+		if (key > KEY_LASTJOYBUTTON && key < KEY_PAD_LTHUMB_RIGHT)
+		{
+			ignore = true;
+		}
+
+		if (state && !ignore)
+			AnyKeyStatus = true;
 	}
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void InputState::ClearAllInput()
+{
+	memset(KeyStatus, 0, sizeof(KeyStatus));
+	AnyKeyStatus = false;
+	ActionsToSend = 0;
+	WeaponToSend = 0;
+	dpad_lock = 0;
+	lastCheck = 0;
+	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
+	gi->clearlocalinputstate();		// also clear game local input state.
+}
+
 
 //==========================================================================
 //
@@ -145,32 +160,8 @@ int32_t handleevents(void)
 	if (setsizeneeded)
 	{
 		videoSetGameMode(vid_fullscreen, SCREENWIDTH, SCREENHEIGHT, 32, 1);
-		if (gi) gi->UpdateScreenSize();
+		setViewport(hud_size);
 		setsizeneeded = false;
-	}
-
-	timerUpdateClock();
-
-	// The mouse wheel is not a real key so in order to be "pressed" it may only be cleared at the end of the tic (or the start of the next.)
-	if (inputState.GetKeyStatus(KEY_MWHEELUP))
-	{
-		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELUP };
-		D_PostEvent(&ev);
-	}
-	if (inputState.GetKeyStatus(KEY_MWHEELDOWN))
-	{
-		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELDOWN };
-		D_PostEvent(&ev);
-	}
-	if (inputState.GetKeyStatus(KEY_MWHEELLEFT))
-	{
-		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELLEFT };
-		D_PostEvent(&ev);
-	}
-	if (inputState.GetKeyStatus(KEY_MWHEELRIGHT))
-	{
-		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELRIGHT };
-		D_PostEvent(&ev);
 	}
 
 	I_StartFrame();
@@ -184,11 +175,11 @@ int32_t handleevents(void)
 //
 //==========================================================================
 
-void CONTROL_GetInput(ControlInfo* info)
+ControlInfo CONTROL_GetInput()
 {
-	memset(info, 0, sizeof(ControlInfo));
+	ControlInfo hidInput {};
 
-	inputState.GetMouseDelta(info);
+	inputState.GetMouseDelta(&hidInput);
 
 	if (use_joystick)
 	{
@@ -197,9 +188,237 @@ void CONTROL_GetInput(ControlInfo* info)
 
 		I_GetAxes(joyaxes);
 
-		info->dyaw += -joyaxes[JOYAXIS_Yaw] * 45.f;
-		info->dx += -joyaxes[JOYAXIS_Side] * 0.75f;
-		info->dz += -joyaxes[JOYAXIS_Forward] * 0.75f;
-		info->dpitch += -joyaxes[JOYAXIS_Pitch] * 22.5f;
+		hidInput.dyaw += -joyaxes[JOYAXIS_Yaw] * 45.f;
+		hidInput.dx += -joyaxes[JOYAXIS_Side] * 0.75f;
+		hidInput.dz += -joyaxes[JOYAXIS_Forward] * 0.75f;
+		hidInput.dpitch += -joyaxes[JOYAXIS_Pitch] * 22.5f;
+	}
+
+	return hidInput;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void SetupGameButtons()
+{
+	static const char* actions[] = {
+		"Move_Forward",
+		"Move_Backward",
+		"Turn_Left",
+		"Turn_Right",
+		"Strafe",
+		"Fire",
+		"Open",
+		"Run",
+		"Alt_Fire",
+		"Jump",
+		"Crouch",
+		"Look_Up",
+		"Look_Down",
+		"Look_Left",
+		"Look_Right",
+		"Strafe_Left",
+		"Strafe_Right",
+		"Aim_Up",
+		"Aim_Down",
+		"Shrink_Screen",
+		"Enlarge_Screen",
+		"Mouse_Aiming",
+		"Dpad_Select",
+		"Dpad_Aiming",
+		"Toggle_Crouch",
+		"Quick_Kick",
+		"AM_PanLeft",
+		"AM_PanRight",
+		"AM_PanUp",
+		"AM_PanDown",
+
+	};
+	buttonMap.SetButtons(actions, NUM_ACTIONS);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+CCMD(slot)
+{
+	// The max differs between games so we have to handle this here.
+	int max = (g_gameType & GAMEFLAG_PSEXHUMED) || (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE)) == (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE) ? 7 : (g_gameType & GAMEFLAG_BLOOD) ? 12 : 10;
+	if (argv.argc() != 2)
+	{
+		Printf("slot <weaponslot>: select a weapon from the given slot (1-%d)", max);
+	}
+
+	auto slot = atoi(argv[1]);
+	if (slot >= 1 && slot <= max)
+	{
+		WeaponToSend = slot;
 	}
 }
+
+CCMD(weapprev)
+{
+	WeaponToSend = WeaponSel_Prev;
+}
+
+CCMD(weapnext)
+{
+	WeaponToSend = WeaponSel_Next;
+}
+
+CCMD(weapalt)
+{
+	WeaponToSend = WeaponSel_Alt;	// Only used by SW - should also be made usable by Blood ans Duke which put multiple weapons in the same slot.
+}
+
+CCMD(useitem)
+{
+	int max = (g_gameType & GAMEFLAG_PSEXHUMED)? 6 : (g_gameType & GAMEFLAG_SW)? 7 : (g_gameType & GAMEFLAG_BLOOD) ? 4 : 5;
+	if (argv.argc() != 2)
+	{
+		Printf("useitem <itemnum>: activates an inventory item (1-%d)", max);
+	}
+
+	auto slot = atoi(argv[1]);
+	if (slot >= 1 && slot <= max)
+	{
+		ActionsToSend |= ESyncBits::FromInt(SB_ITEM_BIT_1 << (slot - 1));
+	}
+}
+
+CCMD(invprev)
+{
+	ActionsToSend |= SB_INVPREV;
+}
+
+CCMD(invnext)
+{
+	ActionsToSend |= SB_INVNEXT;
+}
+
+CCMD(invuse)
+{
+	ActionsToSend |= SB_INVUSE;
+}
+
+CCMD(centerview)
+{
+	ActionsToSend |= SB_CENTERVIEW;
+}
+
+CCMD(turnaround)
+{
+	ActionsToSend |= SB_TURNAROUND;
+}
+
+CCMD(holsterweapon)
+{
+	ActionsToSend |= SB_HOLSTER;
+}
+
+CCMD(backoff)
+{
+	ActionsToSend |= SB_ESCAPE;
+}
+
+CCMD(pause)
+{
+	sendPause = true;
+}
+
+
+
+void ApplyGlobalInput(InputPacket& input, ControlInfo* const hidInput)
+{
+	if (WeaponToSend != 0) input.setNewWeapon(WeaponToSend);
+	WeaponToSend = 0;
+	if (hidInput && buttonMap.ButtonDown(gamefunc_Dpad_Select))
+	{
+		// These buttons should not autorepeat. The game handlers are not really equipped for that.
+		if (hidInput->dz > 0 && !(dpad_lock & 1)) { dpad_lock |= 1;  input.setNewWeapon(WeaponSel_Prev); }
+		else dpad_lock &= ~1;
+		if (hidInput->dz < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  input.setNewWeapon(WeaponSel_Next); }
+		else dpad_lock &= ~2;
+		if ((hidInput->dx < 0 || hidInput->dyaw < 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  input.actions |= SB_INVPREV; }
+		else dpad_lock &= ~4;
+		if ((hidInput->dx > 0 || hidInput->dyaw > 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  input.actions |= SB_INVNEXT; }
+		else dpad_lock &= ~8;
+
+		// This eats the controller input for regular use
+		hidInput->dx = 0;
+		hidInput->dz = 0;
+		hidInput->dyaw = 0;
+	}
+	else dpad_lock = 0;
+
+	input.actions |= ActionsToSend;
+	ActionsToSend = 0;
+
+	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->dz > 0)) 
+		input.actions |= SB_AIM_UP;
+
+	if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->dz < 0))) 
+		input.actions |= SB_AIM_DOWN;
+
+	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
+		hidInput->dz = 0;
+
+	if (buttonMap.ButtonDown(gamefunc_Jump))
+		input.actions |= SB_JUMP;
+
+	if (buttonMap.ButtonDown(gamefunc_Crouch))
+		input.actions |= SB_CROUCH;
+
+	if (buttonMap.ButtonDown(gamefunc_Fire))
+		input.actions |= SB_FIRE;
+
+	if (buttonMap.ButtonDown(gamefunc_Alt_Fire))
+		input.actions |= SB_ALTFIRE;
+
+	if (buttonMap.ButtonDown(gamefunc_Open))
+	{
+		if (g_gameType & GAMEFLAG_BLOOD) buttonMap.ClearButton(gamefunc_Open);
+		input.actions |= SB_OPEN;
+	}
+	if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run)))
+		input.actions |= SB_RUN;
+
+	if (!in_mousemode && !buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) 
+		input.actions |= SB_AIMMODE;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Up)) 
+		input.actions |= SB_LOOK_UP;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Down)) 
+		input.actions |= SB_LOOK_DOWN;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Left)) 
+		input.actions |= SB_LOOK_LEFT;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Right)) 
+		input.actions |= SB_LOOK_RIGHT;
+
+}
+
+double InputScale()
+{
+	if (!cl_syncinput)
+	{
+		double now = I_msTimeF();
+		double elapsedInputTicks = lastCheck > 0 ? min(now - lastCheck, 1000.0 / GameTicRate) : 1;
+		lastCheck = now;
+		return elapsedInputTicks * GameTicRate / 1000.0;
+	}
+	else
+	{
+		return 1;
+	}
+}
+

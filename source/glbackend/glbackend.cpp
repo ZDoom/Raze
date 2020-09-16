@@ -38,7 +38,6 @@
 #include "textures.h"
 #include "palette.h"
 #include "gamecontrol.h"
-#include "baselayer.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
 #include "flatvertices.h"
@@ -49,6 +48,7 @@
 #include "hw_viewpointbuffer.h"
 #include "hw_renderstate.h"
 #include "hw_cvars.h"
+#include "gamestruct.h"
 
 CVAR(Bool, gl_texture, true, 0)
 
@@ -56,6 +56,7 @@ F2DDrawer twodpsp;
 static int BufferLock = 0;
 
 TArray<VSMatrix> matrixArray;
+void Draw2D(F2DDrawer* drawer, FRenderState& state);
 
 FileReader GetResource(const char* fn)
 {
@@ -93,13 +94,6 @@ void GLInstance::Init(int ydim)
 {
 	FMaterial::SetLayerCallback(setpalettelayer);
 	new(&renderState) PolymostRenderState;	// reset to defaults.
-}
-
-void GLInstance::InitGLState(int fogmode, int multisample)
-{
-	// This is a bad place to call this but without deconstructing the entire render loops in all front ends there is no way to have a well defined spot for this stuff.
-	// Before doing that the backend needs to work in some fashion, so we have to make sure everything is set up when the first render call is performed.
-	screen->BeginFrame();	
 }
 
 void GLInstance::Deinit()
@@ -172,7 +166,6 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		state.EnableTexture(gl_texture);
 		state.SetMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
 	}
-	/* todo: bind indexed textures */
 
 	state.SetColor(Color[0], Color[1], Color[2], Color[3]);
 	if (StateFlags != oldState.Flags)
@@ -235,12 +228,14 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		oldState.DepthFunc = DepthFunc;
 	}
 	// Disable brightmaps if non-black fog is used.
-	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f)
+	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f && (GLInterface.useMapFog || FogColor))
 	{
-		state.EnableFog(FogColor.isBlack() && !(Flags & RF_MapFog) ? 1 : -1);
+		state.EnableFog(1);
 	}
 	else state.EnableFog(0);
-	state.SetFog((Flags & RF_MapFog) ? PalEntry(0x999999) : FogColor, 21.f);	// Fixme: The real density still needs to be implemented. 21 is a reasonable default only.
+
+	state.SetFog((GLInterface.useMapFog) ? PalEntry(0x999999) : FogColor, 350.f);	// Fixme: The real density still needs to be implemented. 350 is a reasonable default only.
+
 	state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(Shade, 255, numshades) : 255);
 	state.SetLightParms(VisFactor, ShadeDiv / (numshades - 2));
 	state.SetTextureMode(TextureMode);
@@ -322,6 +317,7 @@ void WriteSavePic(FileWriter* file, int width, int height)
 
 	// Switch to render buffers dimensioned for the savepic
 	screen->SetSaveBuffers(true);
+
 	screen->ImageTransitionScene(true);
 
 	RenderState.SetVertexBuffer(screen->mVertexData);
@@ -338,7 +334,17 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	ydim = height;
 	videoSetViewableArea(0, 0, width - 1, height - 1);
 	renderSetAspect(65536, 65536);
+	screen->SetSceneRenderTarget(false);
+	RenderState.SetPassType(NORMAL_PASS);
+	RenderState.EnableDrawBuffers(1, true);
+
+	screen->SetViewportRects(&bounds);
 	bool didit = gi->GenerateSavePic();
+
+	float Brightness = 8.f / (r_scenebrightness + 8.f);
+	screen->PostProcessScene(false, 0, Brightness, []() {
+		Draw2D(&twodpsp, *screen->RenderState()); // draws the weapon sprites
+		});
 
 	xdim = oldx;
 	ydim = oldy;
@@ -418,12 +424,42 @@ void renderFinishScene()
 //==========================================================================
 CVAR(Bool, vid_fps, false, 0)
 
+
+static FString statFPS()
+{
+	static int32_t frameCount;
+	static double lastFrameTime;
+	static double cumulativeFrameDelay;
+	static double lastFPS;
+
+	FString output;
+
+	double frameTime = I_msTimeF();
+	double frameDelay = frameTime - lastFrameTime;
+	cumulativeFrameDelay += frameDelay;
+
+	frameCount++;
+	if (frameDelay >= 0)
+	{
+		output.AppendFormat("%5.1f fps (%.1f ms)\n", lastFPS, frameDelay);
+
+		if (cumulativeFrameDelay >= 1000.0)
+		{
+			lastFPS = 1000. * frameCount / cumulativeFrameDelay;
+			frameCount = 0;
+			cumulativeFrameDelay = 0.0;
+		}
+	}
+	lastFrameTime = frameTime;
+	return output;
+}
+
 void DrawRateStuff()
 {
 	// Draws frame time and cumulative fps
 	if (vid_fps)
 	{
-		FString fpsbuff = gi->statFPS();
+		FString fpsbuff = statFPS();
 
 		int textScale = active_con_scale(twod);
 		int rate_x = screen->GetWidth() / textScale - NewConsoleFont->StringWidth(&fpsbuff[0]);
@@ -439,8 +475,6 @@ void DrawRateStuff()
 int32_t r_scenebrightness = 0;
 
 
-
-void Draw2D(F2DDrawer* drawer, FRenderState& state);
 
 void videoShowFrame(int32_t w)
 {
@@ -459,12 +493,86 @@ void videoShowFrame(int32_t w)
 		});
 	screen->Update();
 	screen->mVertexData->Reset();
-	// After finishing the frame, reset everything for the next frame. This needs to be done better.
-	screen->BeginFrame();
-	bool useSSAO = (gl_ssao != 0);
-	screen->SetSceneRenderTarget(useSSAO);
-	twodpsp.Clear();
-	twod->Clear();
+	videoSetBrightness(0);	// immediately reset this after rendering so that the value doesn't stick around in the backend.
+
+							// After finishing the frame, reset everything for the next frame. This needs to be done better.
+	if (!w)
+	{
+		screen->BeginFrame();
+		bool useSSAO = (gl_ssao != 0);
+		screen->SetSceneRenderTarget(useSSAO);
+		twodpsp.Clear();
+		twod->Clear();
+	}
 }
 
+TMap<int64_t, bool> cachemap;
+
+void markTileForPrecache(int tilenum, int palnum)
+{
+	int i, j;
+	if ((picanm[tilenum].sf & PICANM_ANIMTYPE_MASK) == PICANM_ANIMTYPE_BACK)
+	{
+		i = tilenum - picanm[tilenum].num;
+		j = tilenum;
+	}
+	else
+	{
+		i = tilenum;
+		j = tilenum + picanm[tilenum].num;
+	}
+
+	for (; i <= j; i++)
+	{
+		int64_t val = i + (int64_t(palnum) << 32);
+		cachemap.Insert(val, true);
+	}
+}
+
+void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
+
+void precacheMarkedTiles()
+{
+	decltype(cachemap)::Iterator it(cachemap);
+	decltype(cachemap)::Pair* pair;
+	while (it.NextPair(pair))
+	{
+		int dapicnum = pair->Key & 0x7fffffff;
+		int dapalnum = pair->Key >> 32;
+		polymost_precache(dapicnum, dapalnum, 0);
+	}
+}
+
+void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dashade, int dapalnum, int dastat, double alpha)
+{
+	double dz = z / 65536.;
+	alpha *= (dastat & RS_TRANS1)? glblend[0].def[!!(dastat & RS_TRANS2)].alpha : 1.;
+	TexturePick pick;
+	int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
+
+	if (picanm[picnum].sf & PICANM_ANIMTYPE_MASK)
+		picnum += animateoffs(picnum, 0);
+
+	if (!PickTexture(picnum, nullptr, palid, pick)) return;
+
+	DrawTexture(&twodpsp, pick.texture, sx, sy,
+		DTA_ScaleX, dz, DTA_ScaleY, dz,
+		DTA_Color, shadeToLight(dashade),
+		DTA_TranslationIndex, pick.translation,
+		DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y,
+		DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1,
+		DTA_FullscreenScale, (dastat & RS_STRETCH)? FSMode_ScaleToScreen: FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+		DTA_CenterOffsetRel, !(dastat & (RS_TOPLEFT | RS_CENTER)),
+		DTA_TopLeft, !!(dastat & RS_TOPLEFT),
+		DTA_CenterOffset, !!(dastat & RS_CENTER),
+		DTA_FlipX, !!(dastat & RS_XFLIPHUD),
+		DTA_FlipY, !!(dastat & RS_YFLIPHUD),
+		DTA_Pin, (dastat & RS_ALIGN_R) ? 1 : (dastat & RS_ALIGN_L) ? -1 : 0,
+		DTA_Rotate, a * (-360./2048),
+		DTA_FlipOffsets, !(dastat & (/*RS_TOPLEFT |*/ RS_CENTER)),
+		DTA_Alpha, alpha,
+		DTA_Indexed, false,// !!(pick.translation & 0x80000000),
+		// todo: pass pick.tintFlags and pick.tintColor
+		TAG_DONE);
+}
 

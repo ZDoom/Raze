@@ -34,8 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "gameutil.h"
 #include "globals.h"
-#include "tile.h"
-#include "trig.h"
 
 BEGIN_BLD_NS
 
@@ -143,18 +141,6 @@ bool FindSector(int nX, int nY, int *nSector)
         }
     }
     return 0;
-}
-
-void CalcFrameRate(void)
-{
-    static int ticks[64];
-    static int index;
-    if (ticks[index] != gFrameClock)
-    {
-        gFrameRate = (120*64)/((int)gFrameClock-ticks[index]);
-        ticks[index] = (int)gFrameClock;
-    }
-    index = (index+1) & 63;
 }
 
 bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, int nDist)
@@ -507,11 +493,11 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 int check1 = ((y1 - pOther->y)*dx - (x1 - pOther->x)*dy) / ksqrt(dx*dx+dy*dy);
                 dassert(width > 0);
                 int width2 = scale(check1, tileWidth(nPicnum), width);
-                int nOffset = tileTopOffset(nPicnum);
+                int nOffset = tileLeftOffset(nPicnum);
                 width2 += nOffset + tileWidth(nPicnum) / 2;
                 if (width2 >= 0 && width2 < tileWidth(nPicnum))
                 {
-                    auto pData = tileLoadTile(nPicnum);
+                    auto pData = tilePtr(nPicnum);
                     if (pData[width2*tileHeight(nPicnum)+height2] != TRANSPARENT_INDEX)
                         return 3;
                 }
@@ -583,7 +569,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
             nHOffset = pWall->xpanning + ((nHOffset*pWall->xrepeat) << 3) / nLength;
             nHOffset %= nSizX;
             nOffset %= nSizY;
-            auto pData = tileLoadTile(nPicnum);
+            auto pData = tilePtr(nPicnum);
             int nPixel;
             nPixel = nHOffset*nSizY + nOffset;
 

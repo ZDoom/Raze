@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
-#include "aispid.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
@@ -40,8 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
-#include "trig.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 
@@ -92,8 +90,8 @@ static void SpidBiteSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     dx += Random2(2000);
     dy += Random2(2000);
     int dz = Random2(2000);
@@ -142,8 +140,8 @@ static void SpidJumpSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     dx += Random2(200);
     dy += Random2(200);
     int dz = Random2(200);
@@ -156,9 +154,9 @@ static void SpidJumpSeqCallback(int, int nXSprite)
             case kDudeSpiderBrown:
             case kDudeSpiderRed:
             case kDudeSpiderBlack:
-                xvel[nSprite] = dx << 16;
-                yvel[nSprite] = dy << 16;
-                zvel[nSprite] = dz << 16;
+                xvel[nSprite] = IntToFixed(dx);
+                yvel[nSprite] = IntToFixed(dy);
+                zvel[nSprite] = IntToFixed(dz);
                 break;
         }
     }
@@ -180,7 +178,7 @@ static void sub_71370(int, int nXSprite)
     int nDist = approxDist(dx, dy);
     
     spritetype *pSpawn = NULL;
-    if (IsPlayerSprite(pTarget) && pDudeExtraE->at4 < 10) {
+    if (IsPlayerSprite(pTarget) && pDudeExtraE->Kills < 10) {
         
         if (nDist < 0x1a00 && nDist > 0x1400 && klabs(pSprite->ang-nAngle) < pDudeInfo->periphery)
             pSpawn = actSpawnDude(pSprite, kDudeSpiderRed, pSprite->clipdist, 0);
@@ -190,9 +188,9 @@ static void sub_71370(int, int nXSprite)
             pSpawn = actSpawnDude(pSprite, kDudeSpiderBrown, pSprite->clipdist, 0);
         
         if (pSpawn) {
-            pDudeExtraE->at4++;
+            pDudeExtraE->Kills++;
             pSpawn->owner = nSprite;
-            gKillMgr.sub_263E0(1);
+            gKillMgr.AddNewKill(1);
         }
     }
 

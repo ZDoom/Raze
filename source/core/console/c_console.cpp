@@ -55,7 +55,6 @@
 #include "inputstate.h"
 #include "i_time.h"
 #include "gamecvars.h"
-#include "baselayer.h"
 #include "i_system.h"
 #include "s_soundinternal.h"
 #include "engineerrors.h"
@@ -63,6 +62,8 @@
 #include "v_video.h"
 #include "v_draw.h"
 #include "g_input.h"
+#include "menu.h"
+#include "raze_music.h"
 
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8
@@ -87,12 +88,10 @@ static bool TabbedList;		// True if tab list was shown
 CVAR(Bool, con_notablist, false, CVAR_ARCHIVE)
 
 
-static FGameTexture* conback;
+static FGameTexture *conback;
 static uint32_t conshade;
 static bool conline;
 
-extern int		gametic;
-extern bool		automapactive;	// in AM_map.c
 extern bool		advancedemo;
 
 extern FBaseCVar *CVars;
@@ -106,6 +105,12 @@ int			ConBottom, ConScroll, RowAdjust;
 uint64_t	CursorTicker;
 constate_e	ConsoleState = c_up;
 
+double NotifyFontScale = 1;
+
+void C_SetNotifyFontScale(double scale)
+{
+	NotifyFontScale = scale;
+}
 
 static int TopLine, InsertLine;
 
@@ -130,11 +135,15 @@ static char *work = NULL;
 static int worklen = 0;
 
 CVAR(Float, con_notifytime, 3.f, CVAR_ARCHIVE)
-CVAR(Bool, con_centernotify, false, CVAR_ARCHIVE)
-CUSTOM_CVAR(Int, con_scaletext, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)		// Scale notify text at high resolutions?
+CUSTOM_CVAR(Float, con_notifyscale, 1, CVAR_ARCHIVE)
 {
-	if (self < 0) self = 0;
+	if (self < 0.36f) self = 0.36f;
+	if (self > 1) self = 1;
 }
+
+CVAR(Bool, con_centernotify, false, CVAR_ARCHIVE)
+CVAR(Bool, con_notify_advanced, false, CVAR_ARCHIVE)
+CVAR(Bool, con_pulsetext, false, CVAR_ARCHIVE)
 
 CUSTOM_CVAR(Int, con_scale, 0, CVAR_ARCHIVE)
 {
@@ -155,7 +164,7 @@ CVAR(Int, developer, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 EXTERN_CVAR(Int, uiscale);
 
 
-bool generic_ui = true;
+CVAR(Bool, generic_ui, false, CVAR_ARCHIVE)
 
 
 struct History
@@ -527,6 +536,7 @@ public:
 	void Clear() { Text.Clear(); }
 	void Tick();
 	void Draw();
+	void DrawNative();
 
 private:
 	TArray<FNotifyText> Text;
@@ -542,7 +552,7 @@ CUSTOM_CVAR(Int, con_notifylines, NUMNOTIFIES, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 }
 
 
-int PrintColors[PRINTLEVELS+2] = { CR_RED, CR_GOLD, CR_GRAY, CR_GREEN, CR_GREEN, CR_GOLD };
+int PrintColors[PRINTLEVELS+2] = { CR_UNTRANSLATED, CR_GOLD, CR_GRAY, CR_GREEN, CR_GREEN, CR_UNTRANSLATED };
 
 static void setmsgcolor (int index, int color);
 
@@ -551,37 +561,37 @@ FILE *Logfile = NULL;
 
 FIntCVar msglevel ("msg", 0, CVAR_ARCHIVE);
 
-CUSTOM_CVAR (Int, msg0color, 6, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msg0color, CR_UNTRANSLATED, CVAR_ARCHIVE)
 {
 	setmsgcolor (0, self);
 }
 
-CUSTOM_CVAR (Int, msg1color, 5, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msg1color, CR_GOLD, CVAR_ARCHIVE)
 {
 	setmsgcolor (1, self);
 }
 
-CUSTOM_CVAR (Int, msg2color, 2, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msg2color, CR_GRAY, CVAR_ARCHIVE)
 {
 	setmsgcolor (2, self);
 }
 
-CUSTOM_CVAR (Int, msg3color, 3, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msg3color, CR_GREEN, CVAR_ARCHIVE)
 {
 	setmsgcolor (3, self);
 }
 
-CUSTOM_CVAR (Int, msg4color, 3, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msg4color, CR_GREEN, CVAR_ARCHIVE)
 {
 	setmsgcolor (4, self);
 }
 
-CUSTOM_CVAR (Int, msgmidcolor, 5, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msgmidcolor, CR_UNTRANSLATED, CVAR_ARCHIVE)
 {
 	setmsgcolor (PRINTLEVELS, self);
 }
 
-CUSTOM_CVAR (Int, msgmidcolor2, 4, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msgmidcolor2, CR_BROWN, CVAR_ARCHIVE)
 {
 	setmsgcolor (PRINTLEVELS+1, self);
 }
@@ -626,8 +636,6 @@ void C_InitConsole (int width, int height, bool ingame)
 	ConCols = ConWidth / cwidth;
 
 	if (conbuffer == NULL) conbuffer = new FConsoleBuffer;
-
-	timerSetCallback(C_Ticker);
 }
 
 //==========================================================================
@@ -777,17 +785,21 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 	TArray<FBrokenLines> lines;
 	int width;
 
-	if (hud_messages != 2 ||
+	if (hud_messages == 0 ||
+		screen == nullptr ||
 		source.IsEmpty() ||
-		//gamestate == GS_FULLCONSOLE ||
-		//gamestate == GS_DEMOSCREEN ||
+		gamestate == GS_FULLCONSOLE ||
+		gamestate == GS_MENUSCREEN ||
 		con_notifylines == 0)
 		return;
 
-	width = screen->GetWidth() / active_con_scaletext(twod, generic_ui);
+	auto screenratio = ActiveRatio(screen->GetWidth(), screen->GetHeight());
 
-	FFont *font = generic_ui ? NewSmallFont : AlternativeSmallFont;
+	FFont* font = generic_ui ? NewSmallFont : SmallFont ? SmallFont : AlternativeSmallFont;
 	if (font == nullptr) return;	// Without an initialized font we cannot handle the message (this is for those which come here before the font system is ready.)
+	double fontscale = (generic_ui? 0.7 : NotifyFontScale) * con_notifyscale;
+
+	width = int(320 * (screenratio / 1.333) / fontscale);
 
 	if (AddType == APPENDLINE && Text.Size() > 0 && Text[Text.Size() - 1].PrintLevel == printlevel)
 	{
@@ -906,9 +918,12 @@ int PrintString (int iprintlevel, const char *outline)
 			I_PrintStr(outline);
 
 			conbuffer->AddText(printlevel, outline);
-			if (vidactive && (iprintlevel & PRINT_NOTIFY))
+			if (!(iprintlevel & PRINT_NONOTIFY))
 			{
-				NotifyStrings.AddString(printlevel, outline);
+				if (vidactive && ((iprintlevel & PRINT_NOTIFY) || con_notify_advanced))
+				{
+					NotifyStrings.AddString(printlevel, outline);
+				}
 			}
 		}
 		if (Logfile != nullptr && !(iprintlevel & PRINT_NOLOG))
@@ -918,6 +933,11 @@ int PrintString (int iprintlevel, const char *outline)
 		return count;
 	}
 	return 0;	// Don't waste time on calculating this if nothing at all was printed...
+}
+
+void C_ClearMessages()
+{
+	NotifyStrings.Clear();
 }
 
 int VPrintf (int printlevel, const char *format, va_list parms)
@@ -976,9 +996,9 @@ void C_FlushDisplay ()
 
 void C_AdjustBottom ()
 {
-	/*if (gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP)
-		ConBottom = screen->GetHeight();
-	else*/ if (ConBottom > twod->GetHeight() / 2 || ConsoleState == c_down)
+	if (gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP)
+		ConBottom = twod->GetHeight();
+	else if (ConBottom > twod->GetHeight() / 2 || ConsoleState == c_down)
 		ConBottom = twod->GetHeight() / 2;
 }
 
@@ -992,11 +1012,6 @@ void C_NewModeAdjust ()
 int consoletic = 0;
 void C_Ticker()
 {
-	// The engine timer ticks at 120 fps which is 4x too fast for this.
-	static int delay = 0;
-	if (++delay < 4) return;
-	delay = 0;
-
 	static int lasttic = 0;
 	consoletic++;
 
@@ -1015,7 +1030,6 @@ void C_Ticker()
 			ConBottom += (consoletic - lasttic) * (twod->GetHeight() * 2 / 25);
 			if (ConBottom >= twod->GetHeight() / 2)
 			{
-				GSnd->SetSfxPaused(true, PAUSESFX_CONSOLE);
 				ConBottom = twod->GetHeight() / 2;
 				ConsoleState = c_down;
 			}
@@ -1025,7 +1039,6 @@ void C_Ticker()
 			ConBottom -= (consoletic - lasttic) * (twod->GetHeight() * 2 / 25);
 			if (ConBottom <= 0)
 			{
-				GSnd->SetSfxPaused(false, PAUSESFX_CONSOLE);
 				ConsoleState = c_up;
 				ConBottom = 0;
 			}
@@ -1034,10 +1047,6 @@ void C_Ticker()
 
 	lasttic = consoletic;
 	NotifyStrings.Tick();
-	if (ConsoleState == c_down)
-	{
-		D_ProcessEvents();
-	}
 }
 
 void FNotifyBuffer::Tick()
@@ -1066,26 +1075,96 @@ void FNotifyBuffer::Tick()
 	if (i > 0)
 	{
 		Text.Delete(0, i);
-		FFont* font = generic_ui ? NewSmallFont : AlternativeSmallFont;
-		Top += font->GetHeight();
+		FFont* font = generic_ui ? NewSmallFont : SmallFont ? SmallFont : AlternativeSmallFont;
+		Top += font->GetHeight() / NotifyFontScale;
+	}
+}
+
+void FNotifyBuffer::DrawNative()
+{
+	// Native display is:
+	// * centered at the top and pulsing for Duke
+	// * centered shifted down and not pulsing for  Shadow Warrior
+	// * top left for Exhumed
+	// * 4 lines with the tiny font for Blood. (same mechanic as the regular one, just a different font and scale.)
+
+	bool center = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RR | GAMEFLAG_SW);
+	bool pulse = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RR);
+	unsigned topline = g_gameType & GAMEFLAG_BLOOD ? 0 : Text.Size() - 1;
+
+	FFont* font = g_gameType & GAMEFLAG_BLOOD ? SmallFont2 : SmallFont;
+
+	int line = (g_gameType & GAMEFLAG_BLOOD)? Top : (g_gameType & GAMEFLAG_SW) ? 40 : font->GetDisplacement();
+	bool canskip = (g_gameType & GAMEFLAG_BLOOD);
+	double scale = 1 / (NotifyFontScale * con_notifyscale);
+	int lineadv = font->GetHeight() / NotifyFontScale;
+
+	for (unsigned i = topline; i < Text.Size(); ++i)
+	{
+		FNotifyText& notify = Text[i];
+
+		if (notify.TimeOut == 0)
+			continue;
+
+		int j = notify.TimeOut - notify.Ticker;
+		if (j > 0)
+		{
+			double alpha = g_gameType & GAMEFLAG_BLOOD? ((j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1) : 1;
+			if (pulse)
+			{
+				alpha *= 0.7 + 0.3 * sin(I_msTime() / 100.);
+			}
+
+			if (!center)
+			{
+				DrawText(twod, font, CR_UNTRANSLATED, 0, line, notify.Text,
+					DTA_FullscreenScale, FSMode_ScaleToHeight,
+					DTA_VirtualWidthF, 320 * scale, DTA_VirtualHeightF, 200 * scale, DTA_KeepRatio, true,
+					DTA_Alpha, alpha, TAG_DONE);
+			}
+			else
+			{
+				DrawText(twod, font, CR_UNTRANSLATED, 160 * scale - font->StringWidth(notify.Text) / 2, line, notify.Text,
+					DTA_FullscreenScale, FSMode_ScaleToHeight,
+					DTA_VirtualWidthF, 320 * scale, DTA_VirtualHeightF, 200 * scale,
+					DTA_Alpha, alpha, TAG_DONE);
+			}
+			line += lineadv;
+			canskip = false;
+		}
+		else
+		{
+			notify.TimeOut = 0;
+		}
+	}
+	if (canskip)
+	{
+		Top = TopGoal;
 	}
 }
 
 void FNotifyBuffer::Draw()
 {
+	if (gamestate == GS_FULLCONSOLE || gamestate == GS_MENUSCREEN)
+		return;
+
+	if (!con_notify_advanced)
+	{
+		DrawNative();
+		return;
+	}
+
 	bool center = (con_centernotify != 0.f);
-	int line, lineadv, color, j;
-	bool canskip;
-	
-	//if (gamestate == GS_FULLCONSOLE || gamestate == GS_DEMOSCREEN/* || menuactive != MENU_Off*/)
-		//return;
+	int color;
+	bool canskip = true;
 
-	FFont* font = generic_ui ? NewSmallFont : AlternativeSmallFont;
 
-	line = Top + font->GetDisplacement();
-	canskip = true;
+	FFont* font = generic_ui ? NewSmallFont : SmallFont? SmallFont : AlternativeSmallFont;
+	double nfscale = (generic_ui? 0.7 : NotifyFontScale);
+	double scale = 1 / ( * con_notifyscale);
 
-	lineadv = font->GetHeight ();
+	int line = Top + font->GetDisplacement() / nfscale;
+	int lineadv = font->GetHeight () / nfscale;
 
 	for (unsigned i = 0; i < Text.Size(); ++ i)
 	{
@@ -1094,30 +1173,33 @@ void FNotifyBuffer::Draw()
 		if (notify.TimeOut == 0)
 			continue;
 
-		j = notify.TimeOut - notify.Ticker;
+		int j = notify.TimeOut - notify.Ticker;
 		if (j > 0)
 		{
 			double alpha = (j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1;
+			if (con_pulsetext)
+			{
+				alpha *= 0.7 + 0.3 * sin(I_msTime() / 100.);
+			}
 
 			if (notify.PrintLevel >= PRINTLEVELS)
 				color = CR_UNTRANSLATED;
 			else
 				color = PrintColors[notify.PrintLevel];
 
-			int scale = active_con_scaletext(twod, generic_ui);
 			if (!center)
-				DrawText(twod, font, color, 0, line, notify.Text,
-					DTA_VirtualWidth, twod->GetWidth() / scale,
-					DTA_VirtualHeight, twod->GetHeight() / scale,
+				DrawText(twod, font, color, 0, line * NotifyFontScale, notify.Text,
+					DTA_FullscreenScale, FSMode_ScaleToHeight,
+					DTA_VirtualWidthF, 320. * scale,
+					DTA_VirtualHeightF, 200. * scale,
 					DTA_KeepRatio, true,
 					DTA_Alpha, alpha, TAG_DONE);
 			else
-				DrawText(twod, font, color, (twod->GetWidth() -
-					font->StringWidth (notify.Text) * scale) / 2 / scale,
+				DrawText(twod, font, color, 160 * scale - font->StringWidth (notify.Text) / 2.,
 					line, notify.Text,
-					DTA_VirtualWidth, twod->GetWidth() / scale,
-					DTA_VirtualHeight, twod->GetHeight() / scale,
-					DTA_KeepRatio, true,
+					DTA_FullscreenScale, FSMode_ScaleToHeight,
+					DTA_VirtualWidthF, 320. * scale,
+					DTA_VirtualHeightF, 200. * scale,
 					DTA_Alpha, alpha, TAG_DONE);
 			line += lineadv;
 			canskip = false;
@@ -1154,7 +1236,7 @@ void C_DrawConsole ()
 
 	oldbottom = ConBottom;
 
-	if (ConsoleState == c_up)
+	if (ConsoleState == c_up && gamestate != GS_INTRO && gamestate != GS_INTERMISSION)
 	{
 		NotifyStrings.Draw();
 		return;
@@ -1205,12 +1287,10 @@ void C_DrawConsole ()
 
 	}
 
-#if 0
 	if (menuactive != MENU_Off)
 	{
 		return;
 	}
-#endif
 
 	if (lines > 0)
 	{
@@ -1265,15 +1345,16 @@ void C_DrawConsole ()
 	}
 }
 
-#if 0
 void C_FullConsole ()
 {
+	/*
 	if (hud_toggled)
 		D_ToggleHud();
 	if (demoplayback)
 		G_CheckDemoStatus ();
 	D_QuitNetGame ();
 	advancedemo = false;
+	*/
 	ConsoleState = c_down;
 	HistPos = NULL;
 	TabbedLast = false;
@@ -1281,29 +1362,24 @@ void C_FullConsole ()
 	if (gamestate != GS_STARTUP)
 	{
 		gamestate = GS_FULLCONSOLE;
-		primaryLevel->Music = "";
-		S_Start ();
-		S_StopMusic(true);
-		P_FreeLevelData ();
+		Mus_Stop();
 	}
-	else
-	{
-		C_AdjustBottom ();
-	}
+	C_AdjustBottom ();
 }
-#endif
 
 
 void C_ToggleConsole ()
 {
-	/*
-	if (gamestate == GS_DEMOSCREEN || demoplayback)
+	if (gamestate == GS_INTRO) // blocked
 	{
-		gameaction = ga_fullconsole;
+		return;
 	}
-	else if (!chatmodeon && (ConsoleState == c_up || ConsoleState == c_rising) && menuactive == MENU_Off)*/
-
-	if (ConsoleState == c_up || ConsoleState == c_rising)// && menuactive == MENU_Off)
+	if (gamestate == GS_MENUSCREEN)
+	{
+		gamestate = GS_FULLCONSOLE;
+		C_FullConsole();
+	}
+	else if (!chatmodeon && (ConsoleState == c_up || ConsoleState == c_rising) && menuactive == MENU_Off)
 	{
 		ConsoleState = c_falling;
 		HistPos = NULL;
@@ -1311,7 +1387,7 @@ void C_ToggleConsole ()
 		TabbedList = false;
 	
 	}
-	else //if (gamestate != GS_FULLCONSOLE && gamestate != GS_STARTUP)
+	else if (gamestate != GS_FULLCONSOLE && gamestate != GS_STARTUP)
 	{
 		ConsoleState = c_rising;
 		C_FlushDisplay ();
@@ -1385,7 +1461,7 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 			if (ev->data3 & (GKM_SHIFT|GKM_CTRL))
 			{ // Scroll console buffer up one page
 				RowAdjust += (screen->GetHeight()-4)/active_con_scale(twod) /
-					((/*gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP*/false) ? CurrentConsoleFont->GetHeight() : CurrentConsoleFont->GetHeight()*2) - 3;
+					((gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP) ? CurrentConsoleFont->GetHeight() : CurrentConsoleFont->GetHeight()*2) - 3;
 			}
 			else if (RowAdjust < conbuffer->GetFormattedLineCount())
 			{ // Scroll console buffer up
@@ -1408,7 +1484,7 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 			if (ev->data3 & (GKM_SHIFT|GKM_CTRL))
 			{ // Scroll console buffer down one page
 				const int scrollamt = (screen->GetHeight()-4)/active_con_scale(twod) /
-					((/*gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP*/false) ? CurrentConsoleFont->GetHeight() : CurrentConsoleFont->GetHeight()*2) - 3;
+					((gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP) ? CurrentConsoleFont->GetHeight() : CurrentConsoleFont->GetHeight()*2) - 3;
 				if (RowAdjust < scrollamt)
 				{
 					RowAdjust = 0;
@@ -1610,6 +1686,7 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 			}
 			else if (gamestate == GS_FULLCONSOLE)
 			{
+				gamestate = GS_MENUSCREEN;
 				C_DoCommand ("menu_main");
 			}
 			else
@@ -1718,8 +1795,8 @@ bool C_Responder (event_t *ev)
 {
 	if (ev->type != EV_GUI_Event ||
 		ConsoleState == c_up ||
-		ConsoleState == c_rising /*||
-		menuactive != MENU_Off*/)
+		ConsoleState == c_rising ||
+		menuactive != MENU_Off)
 	{
 		return false;
 	}

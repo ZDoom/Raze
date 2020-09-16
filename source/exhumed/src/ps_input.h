@@ -20,14 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define __input_h__
 
 #include "compat.h"
+#include "packet.h"
 
 BEGIN_PS_NS
 
 enum {
-    kButtonJump = 0x1,
-    kButtonOpen = 0x4,
-    kButtonFire = 0x8,
-    kButtonCrouch = 0x10,
     kButtonCheatGuns = 0x20,
     kButtonCheatGodMode = 0x40,
     kButtonCheatKeys = 0x80,
@@ -35,35 +32,37 @@ enum {
 };
 
 // 32 bytes
-struct PlayerInput // TODO consider adjusting this for demo compatibility
+struct PlayerInput
 {
     int xVel;
     int yVel;
-    // short nAngle;
-    fix16_t nAngle;
     uint16_t buttons;
     short nTarget;
-    // uint8_t horizon;
-    fix16_t horizon;
+    fixed_t horizon;
     int8_t nItem;
-    int h;
-    char i;
-    char field_15[11];
+    ESyncBits actions;
+
+    int getNewWeapon() const
+    {
+        return (actions & SB_WEAPONMASK_BITS).GetValue();
+    }
+
+    void SetNewWeapon(int weap)
+    {
+        actions = (actions & ~SB_WEAPONMASK_BITS) | (ESyncBits::FromInt(weap) & SB_WEAPONMASK_BITS);
+    }
+
 };
 
 void InitInput();
-void WaitNoKey(int nSecs, void (*pFunc) (void));
-int WaitAnyKey(int nSecs);
-
-void UpdateInputs();
 
 void ClearSpaceBar(short nPlayer);
 
-void GetLocalInput();
+int GetLocalInput();
 
 extern PlayerInput sPlayerInput[];
-extern PlayerInput localInput;
-extern int nNetMoves;
+extern InputPacket localInput;
+extern int lLocalCodes;
 
 END_PS_NS
 

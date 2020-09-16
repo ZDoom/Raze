@@ -1,0 +1,45 @@
+
+// tiles by James Manning
+
+// HUD Status Bar
+tilefromtexture 2434 { file "tiles/2434.png" ifcrc -1698954665 }
+
+// HUD Shuriken Throw (Unused?)
+//tilefromtexture 2046 { file "tiles/2046.png" xoffset -85 yoffset 38 ifcrc -2025892347 }
+
+// HUD Sword
+tilefromtexture 2080 { file "tiles/2080.png" xoffset 35 yoffset 103 ifcrc 588195572 }
+tilefromtexture 2081 { file "tiles/2081.png" xoffset -65 yoffset 118 ifcrc -1773144915 }
+tilefromtexture 2082 { file "tiles/2082.png" xoffset 70 yoffset 126 ifcrc -976013921 }
+
+// HUD Shuriken Throw
+tilefromtexture 2133 { file "tiles/2133.png" xoffset 13 yoffset 38 ifcrc 1759716568 }
+tilefromtexture 2134 { file "tiles/2134.png" xoffset -33 yoffset 56 ifcrc -1878779262 }
+tilefromtexture 2135 { file "tiles/2133.png" xoffset -90 yoffset 56 ifcrc 2021528298 }
+tilefromtexture 2136 { file "tiles/2133.png" xoffset -64 yoffset 32 ifcrc -1379300447 }
+tilefromtexture 2137 { file "tiles/2133.png" xoffset -50 yoffset -2 ifcrc 1227019987 }
+
+// HUD Dart Throw
+tilefromtexture 2513 { file "tiles/2133.png" xoffset 13 yoffset 38 ifcrc 1759716568 }
+tilefromtexture 2514 { file "tiles/2134.png" xoffset -33 yoffset 56 ifcrc -1878779262 }
+tilefromtexture 2515 { file "tiles/2133.png" xoffset -90 yoffset 56 ifcrc 2021528298 }
+tilefromtexture 2516 { file "tiles/2133.png" xoffset -64 yoffset 32 ifcrc -1379300447 }
+tilefromtexture 2517 { file "tiles/2133.png" xoffset -50 yoffset -2 ifcrc 1227019987 }
+
+// HUD Riot Gun
+tilefromtexture 2211 { file "tiles/2211.png" xoffset -75 yoffset 35 ifcrc 29495256 }
+tilefromtexture 2212 { file "tiles/2212.png" xoffset -75 yoffset 35 ifcrc 1320214016 }
+tilefromtexture 2213 { file "tiles/2213.png" xoffset -75 yoffset 35 ifcrc 400661392 }
+tilefromtexture 2214 { file "tiles/2214.png" xoffset -75 yoffset 42 ifcrc -1117995248 }
+tilefromtexture 2215 { file "tiles/2215.png" xoffset -75 yoffset 43 ifcrc 182046386 }
+tilefromtexture 2216 { file "tiles/2216.png" xoffset -75 yoffset 33 ifcrc 924737505 }
+
+// HUD Riot Gun (continued)
+tilefromtexture 2225 { file "tiles/2225.png" xoffset -75 yoffset 32 ifcrc 137328741 }
+tilefromtexture 2226 { file "tiles/2226.png" xoffset -75 yoffset 32 ifcrc -1053651831 }
+tilefromtexture 2227 { file "tiles/2227.png" xoffset -75 yoffset 32 ifcrc -1130791281 }
+
+// HUD Sword (Bloody)
+tilefromtexture 4090 { file "tiles/4090.png" xoffset 36 yoffset 107 ifcrc 1870938187 }
+tilefromtexture 4091 { file "tiles/4091.png" xoffset -66 yoffset 117 ifcrc 1700580893 }
+tilefromtexture 4092 { file "tiles/4092.png" xoffset 69 yoffset 126 ifcrc 1756935404 }

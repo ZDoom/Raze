@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
-#include "aihand.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
@@ -39,8 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
-#include "trig.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 

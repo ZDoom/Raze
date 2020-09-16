@@ -39,7 +39,6 @@
 #include "d_event.h"
 #include "menu.h"
 #include "v_draw.h"
-#include "baselayer.h"
 #include "gamecontrol.h"
 #include "build.h"
 #include "v_video.h"
@@ -274,7 +273,7 @@ void DListMenu::PreDraw()
 		gi->DrawMenuCaption(origin, GStrings.localize(mDesc->mCaption));
 	}
 }
-
+	
 void DListMenu::Drawer ()
 {
 	PreDraw();
@@ -318,20 +317,7 @@ bool FListMenuItem::Selectable()
 
 void FListMenuItem::DrawSelector(int xofs, int yofs, FGameTexture *tex)
 {
-	if (!tex)
-	{
-		if ((DMenu::MenuTime%8) < 6)
-		{
-			DrawText(twod, ConFont, OptionSettings.mFontColorSelection,
-				(mXpos + xofs - 160) * CleanXfac + screen->GetWidth() / 2,
-				(mYpos + yofs - 100) * CleanYfac + screen->GetHeight() / 2,
-				"\xd",
-				DTA_CellX, 8 * CleanXfac,
-				DTA_CellY, 8 * CleanYfac,
-				TAG_DONE);
-		}
-	}
-	else
+	if (tex)
 	{
 		DrawTexture (twod, tex, mXpos + xofs, mYpos + yofs, DTA_Clean, true, TAG_DONE);
 	}
@@ -554,14 +540,10 @@ FListMenuItemText::FListMenuItemText(int x, int y, int height, int hotkey, const
 : FListMenuItemSelectable(x, y, height, child, param)
 {
 	mText = text;
-	/*
 	mFont = font;
 	mColor = color;
 	mColorSelected = color2;
-	*/
 	mFont = NewSmallFont;
-	mColor = CR_RED;
-	mColorSelected = CR_GOLD;
 	mHotkey = hotkey;
 }
 
@@ -571,10 +553,10 @@ FListMenuItemText::~FListMenuItemText()
 
 void FListMenuItemText::Drawer(DListMenu* menu, const DVector2& origin, bool selected)
 {
-	const char *text = mText;
+	const char *text = GStrings(mText);
 	if (mText.Len())
 	{
-		DrawText(twod, mFont, selected ? mColorSelected : mColor, mXpos, mYpos, text, DTA_Clean, true, TAG_DONE);
+		DrawText(twod, mFont, selected ? mColorSelected : mColor, mXpos - mFont->StringWidth(text)/2, mYpos, text, DTA_Clean, true, TAG_DONE);
 	}
 }
 

@@ -26,13 +26,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "compat.h"
 #include "common_game.h"
+#include "zstring.h"
 #include "m_crc32.h"
 #include "md4.h"
+#include "automap.h"
 
 //#include "actor.h"
 #include "globals.h"
 #include "db.h"
-#include "iob.h"
 #include "eventq.h"
 #include "nnexts.h"
 
@@ -49,9 +50,6 @@ SPRITEHIT gSpriteHit[kMaxXSprites];
 
 int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 
-#ifdef POLYMER
-PolymerLight_t gPolymerLight[kMaxSprites];
-#endif
 
 char qsprite_filler[kMaxSprites], qsector_filler[kMaxSectors];
 
@@ -65,27 +63,6 @@ void dbCrypt(char *pPtr, int nLength, int nKey)
         nKey++;
     }
 }
-
-#ifdef POLYMER
-
-void DeleteLight(int32_t s)
-{
-    if (gPolymerLight[s].lightId >= 0)
-        polymer_deletelight(gPolymerLight[s].lightId);
-    gPolymerLight[s].lightId = -1;
-    gPolymerLight[s].lightptr = NULL;
-}
-
-
-void G_Polymer_UnInit(void)
-{
-    int32_t i;
-
-    for (i = 0; i < kMaxSprites; i++)
-        DeleteLight(i);
-}
-#endif
-
 
 void InsertSpriteSect(int nSprite, int nSector)
 {
@@ -217,10 +194,6 @@ int InsertSprite(int nSector, int nStat)
     pSprite->index = nSprite;
     xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
 
-#ifdef POLYMER
-    gPolymerLight[nSprite].lightId = -1;
-#endif
-
     Numsprites++;
 
     return nSprite;
@@ -233,10 +206,6 @@ int qinsertsprite(short nSector, short nStat) // Replace
 
 int DeleteSprite(int nSprite)
 {
-#ifdef POLYMER
-    if (gPolymerLight[nSprite].lightptr != NULL && videoGetRenderMode() == REND_POLYMER)
-        DeleteLight(nSprite);
-#endif
     if (sprite[nSprite].extra > 0)
     {
         dbDeleteXSprite(sprite[nSprite].extra);
@@ -586,47 +555,36 @@ unsigned int dbReadMapCRC(const char *pPath)
     byte_1A76C7 = 0;
     byte_1A76C8 = 0;
 
-	DICTNODE* pNode;
-    pNode = gSysRes.Lookup(pPath, "MAP");
-    if (!pNode)
-    {
-        char name2[BMAX_PATH];
-        Bstrncpy(name2, pPath, BMAX_PATH);
-        ChangeExtension(name2, "");
-        pNode = gSysRes.Lookup(name2, "MAP");
-    }
+    FString mapname = pPath;
+    DefaultExtension(mapname, ".map");
+    auto fr = fileSystem.OpenFileReader(mapname);
 
-    if (!pNode)
+    if (!fr.isOpen())
     {
         Printf("Error opening map file %s", pPath);
         return -1;
     }
-    char *pData = (char*)gSysRes.Lock(pNode);
 
-    int nSize = pNode->Size();
     MAPSIGNATURE header;
-    IOBuffer(nSize, pData).Read(&header, 6);
-#if B_BIG_ENDIAN == 1
-    header.version = B_LITTLE16(header.version);
-#endif
+    fr.Read(&header, 6);
     if (memcmp(header.signature, "BLM\x1a", 4))
     {
-        ThrowError("Map file corrupted");
+        I_Error("%s: Map file corrupted.", mapname.GetChars());
     }
-    if ((header.version & 0xff00) == 0x600)
+    int ver = LittleShort(header.version);
+    if ((ver & 0xff00) == 0x600)
     {
     }
-    else if ((header.version & 0xff00) == 0x700)
+    else if ((ver & 0xff00) == 0x700)
     {
         byte_1A76C8 = 1;
     }
     else
     {
-        ThrowError("Map file is wrong version");
+        I_Error("%s: Map file is wrong version.", mapname.GetChars());
     }
-    unsigned int nCRC = *(unsigned int*)(pData+nSize-4);
-    gSysRes.Unlock(pNode);
-    return nCRC;
+    fr.Seek(-4, FileReader::SeekEnd);
+    return fr.ReadInt32();
 }
 
 int gMapRev, gSongId, gSkyCount;
@@ -637,9 +595,7 @@ const int nXWallSize = 24;
 
 int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC) {
     int16_t tpskyoff[256];
-    show2dsector.Zero();
-    memset(show2dwall, 0, sizeof(show2dwall));
-    memset(show2dsprite, 0, sizeof(show2dsprite));
+    ClearAutomap();
     #ifdef NOONE_EXTENSIONS
     gModernMap = false;
     #endif
@@ -648,38 +604,24 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     Polymost_prepare_loadboard();
 #endif
 
-	DICTNODE* pNode;
+    FString mapname = pPath;
+    DefaultExtension(mapname, ".map");
+    auto fr = fileSystem.OpenFileReader(mapname);
 
-    pNode = gSysRes.Lookup(pPath, "MAP");
-    if (!pNode)
+    if (!fr.isOpen())
     {
-        char name2[BMAX_PATH];
-        Bstrncpy(name2, pPath, BMAX_PATH);
-        ChangeExtension(name2, "");
-        pNode = gSysRes.Lookup(name2, "MAP");
-    }
-
-    if (!pNode)
-    {
-        Printf("Error opening map file %s", pPath);
+        Printf("Error opening map file %s", mapname.GetChars());
         return -1;
     }
-    char *pData = (char*)gSysRes.Lock(pNode);
-    int nSize = pNode->Size();
     MAPSIGNATURE header;
-    IOBuffer IOBuffer1 = IOBuffer(nSize, pData);
-    IOBuffer1.Read(&header, 6);
-#if B_BIG_ENDIAN == 1
-    header.version = B_LITTLE16(header.version);
-#endif
+    fr.Read(&header, 6);
     if (memcmp(header.signature, "BLM\x1a", 4))
     {
-        Printf("Map file corrupted");
-        gSysRes.Unlock(pNode);
+        Printf("%s: Map file corrupted", mapname.GetChars());
         return -1;
     }
     byte_1A76C8 = 0;
-    if ((header.version & 0xff00) == 0x700) {
+    if ((LittleShort(header.version) & 0xff00) == 0x700) {
         byte_1A76C8 = 1;
         
         #ifdef NOONE_EXTENSIONS
@@ -690,42 +632,35 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         #endif
 
     } else {
-        Printf("Map file is wrong version");
-        gSysRes.Unlock(pNode);
+        Printf("%s: Map file is wrong version", mapname.GetChars());
         return -1;
     }
 
     MAPHEADER mapHeader;
-    IOBuffer1.Read(&mapHeader,37/* sizeof(mapHeader)*/);
+    fr.Read(&mapHeader,37/* sizeof(mapHeader)*/);
     if (mapHeader.at16 != 0 && mapHeader.at16 != 0x7474614d && mapHeader.at16 != 0x4d617474) {
         dbCrypt((char*)&mapHeader, sizeof(mapHeader), 0x7474614d);
         byte_1A76C7 = 1;
     }
 
-#if B_BIG_ENDIAN == 1
-    mapHeader.at0 = B_LITTLE32(mapHeader.at0);
-    mapHeader.at4 = B_LITTLE32(mapHeader.at4);
-    mapHeader.at8 = B_LITTLE32(mapHeader.at8);
-    mapHeader.atc = B_LITTLE16(mapHeader.atc);
-    mapHeader.ate = B_LITTLE16(mapHeader.ate);
-    mapHeader.at10 = B_LITTLE16(mapHeader.at10);
-    mapHeader.at12 = B_LITTLE32(mapHeader.at12);
-    mapHeader.at16 = B_LITTLE32(mapHeader.at16);
-    mapHeader.at1b = B_LITTLE32(mapHeader.at1b);
-    mapHeader.at1f = B_LITTLE16(mapHeader.at1f);
-    mapHeader.at21 = B_LITTLE16(mapHeader.at21);
-    mapHeader.at23 = B_LITTLE16(mapHeader.at23);
-#endif
+    mapHeader.TotalKills = LittleLong(mapHeader.TotalKills);
+    mapHeader.Kills = LittleLong(mapHeader.Kills);
+    mapHeader.at8 = LittleLong(mapHeader.at8);
+    mapHeader.atc = LittleShort(mapHeader.atc);
+    mapHeader.ate = LittleShort(mapHeader.ate);
+    mapHeader.at10 = LittleShort(mapHeader.at10);
+    mapHeader.at12 = LittleLong(mapHeader.at12);
+    mapHeader.at16 = LittleLong(mapHeader.at16);
+    mapHeader.at1b = LittleLong(mapHeader.at1b);
+    mapHeader.at1f = LittleShort(mapHeader.at1f);
+    mapHeader.at21 = LittleShort(mapHeader.at21);
+    mapHeader.at23 = LittleShort(mapHeader.at23);
 
-    psky_t *pSky = tileSetupSky(0);
-    pSky->horizfrac = 65536;
-
-    *pX = mapHeader.at0;
-    *pY = mapHeader.at4;
+    *pX = mapHeader.TotalKills;
+    *pY = mapHeader.Kills;
     *pZ = mapHeader.at8;
     *pAngle = mapHeader.atc;
     *pSector = mapHeader.ate;
-    pSky->lognumtiles = mapHeader.at10;
     gVisibility = g_visibility = mapHeader.at12;
     gSongId = mapHeader.at16;
     if (byte_1A76C8)
@@ -740,15 +675,13 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         }
         else
         {
-            Printf("Corrupted Map file");
-            gSysRes.Unlock(pNode);
+            Printf("%s: Corrupted Map file", mapname.GetChars());
             return -1;
         }
     }
     else if (mapHeader.at16)
     {
-        Printf("Corrupted Map file");
-        gSysRes.Unlock(pNode);
+        Printf("%s: Corrupted Map file", mapname.GetChars());
         return -1;
     }
     parallaxtype = mapHeader.at1a;
@@ -758,51 +691,54 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     dbInit();
     if (byte_1A76C8)
     {
-        IOBuffer1.Read(&byte_19AE44, 128);
+        fr.Read(&byte_19AE44, 128);
         dbCrypt((char*)&byte_19AE44, 128, numwalls);
-#if B_BIG_ENDIAN == 1
-        byte_19AE44.at40 = B_LITTLE32(byte_19AE44.at40);
-        byte_19AE44.at44 = B_LITTLE32(byte_19AE44.at44);
-        byte_19AE44.at48 = B_LITTLE32(byte_19AE44.at48);
-#endif
+
+        byte_19AE44.at40 = LittleLong(byte_19AE44.at40);
+        byte_19AE44.at44 = LittleLong(byte_19AE44.at44);
+        byte_19AE44.at48 = LittleLong(byte_19AE44.at48);
     }
     else
     {
         memset(&byte_19AE44, 0, 128);
     }
-    gSkyCount = 1<<pSky->lognumtiles;
-    IOBuffer1.Read(tpskyoff, gSkyCount*sizeof(tpskyoff[0]));
+    gSkyCount = 1<< mapHeader.at10;
+    fr.Read(tpskyoff, gSkyCount*sizeof(tpskyoff[0]));
     if (byte_1A76C8)
     {
         dbCrypt((char*)tpskyoff, gSkyCount*sizeof(tpskyoff[0]), gSkyCount*2);
     }
+
+    psky_t* pSky = tileSetupSky(DEFAULTPSKY);
+    pSky->horizfrac = 65536;
+    pSky->lognumtiles = mapHeader.at10;
     for (int i = 0; i < ClipHigh(gSkyCount, MAXPSKYTILES); i++)
     {
-        pSky->tileofs[i] = B_LITTLE16(tpskyoff[i]);
+        pSky->tileofs[i] = LittleShort(tpskyoff[i]);
     }
+
     for (int i = 0; i < numsectors; i++)
     {
         sectortype *pSector = &sector[i];
-        IOBuffer1.Read(pSector, sizeof(sectortype));
+        fr.Read(pSector, sizeof(sectortype));
         if (byte_1A76C8)
         {
             dbCrypt((char*)pSector, sizeof(sectortype), gMapRev*sizeof(sectortype));
         }
-#if B_BIG_ENDIAN == 1
-        pSector->wallptr = B_LITTLE16(pSector->wallptr);
-        pSector->wallnum = B_LITTLE16(pSector->wallnum);
-        pSector->ceilingz = B_LITTLE32(pSector->ceilingz);
-        pSector->floorz = B_LITTLE32(pSector->floorz);
-        pSector->ceilingstat = B_LITTLE16(pSector->ceilingstat);
-        pSector->floorstat = B_LITTLE16(pSector->floorstat);
-        pSector->ceilingpicnum = B_LITTLE16(pSector->ceilingpicnum);
-        pSector->ceilingheinum = B_LITTLE16(pSector->ceilingheinum);
-        pSector->floorpicnum = B_LITTLE16(pSector->floorpicnum);
-        pSector->floorheinum = B_LITTLE16(pSector->floorheinum);
-        pSector->type = B_LITTLE16(pSector->type);
-        pSector->hitag = B_LITTLE16(pSector->hitag);
-        pSector->extra = B_LITTLE16(pSector->extra);
-#endif
+        pSector->wallptr = LittleShort(pSector->wallptr);
+        pSector->wallnum = LittleShort(pSector->wallnum);
+        pSector->ceilingz = LittleLong(pSector->ceilingz);
+        pSector->floorz = LittleLong(pSector->floorz);
+        pSector->ceilingstat = LittleShort(pSector->ceilingstat);
+        pSector->floorstat = LittleShort(pSector->floorstat);
+        pSector->ceilingpicnum = LittleShort(pSector->ceilingpicnum);
+        pSector->ceilingheinum = LittleShort(pSector->ceilingheinum);
+        pSector->floorpicnum = LittleShort(pSector->floorpicnum);
+        pSector->floorheinum = LittleShort(pSector->floorheinum);
+        pSector->type = LittleShort(pSector->type);
+        pSector->hitag = LittleShort(pSector->hitag);
+        pSector->extra = LittleShort(pSector->extra);
+
         qsector_filler[i] = pSector->fogpal;
         pSector->fogpal = 0;
         if (sector[i].extra > 0)
@@ -821,7 +757,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
                 nCount = byte_19AE44.at48;
             }
             dassert(nCount <= nXSectorSize);
-            IOBuffer1.Read(pBuffer, nCount);
+            fr.Read(pBuffer, nCount);
             BitReader bitReader(pBuffer, nCount);
             pXSector->reference = bitReader.readSigned(14);
             pXSector->state = bitReader.readUnsigned(1);
@@ -901,31 +837,29 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSector->bobCeiling = bitReader.readUnsigned(1);
             pXSector->bobRotate = bitReader.readUnsigned(1);
             xsector[sector[i].extra].reference = i;
-            xsector[sector[i].extra].busy = xsector[sector[i].extra].state<<16;
+            xsector[sector[i].extra].busy = IntToFixed(xsector[sector[i].extra].state);
 
         }
     }
     for (int i = 0; i < numwalls; i++)
     {
         walltype *pWall = &wall[i];
-        IOBuffer1.Read(pWall, sizeof(walltype));
+        fr.Read(pWall, sizeof(walltype));
         if (byte_1A76C8)
         {
             dbCrypt((char*)pWall, sizeof(walltype), (gMapRev*sizeof(sectortype)) | 0x7474614d);
         }
-#if B_BIG_ENDIAN == 1
-        pWall->x = B_LITTLE32(pWall->x);
-        pWall->y = B_LITTLE32(pWall->y);
-        pWall->point2 = B_LITTLE16(pWall->point2);
-        pWall->nextwall = B_LITTLE16(pWall->nextwall);
-        pWall->nextsector = B_LITTLE16(pWall->nextsector);
-        pWall->cstat = B_LITTLE16(pWall->cstat);
-        pWall->picnum = B_LITTLE16(pWall->picnum);
-        pWall->overpicnum = B_LITTLE16(pWall->overpicnum);
-        pWall->type = B_LITTLE16(pWall->type);
-        pWall->hitag = B_LITTLE16(pWall->hitag);
-        pWall->extra = B_LITTLE16(pWall->extra);
-#endif
+        pWall->x = LittleLong(pWall->x);
+        pWall->y = LittleLong(pWall->y);
+        pWall->point2 = LittleShort(pWall->point2);
+        pWall->nextwall = LittleShort(pWall->nextwall);
+        pWall->nextsector = LittleShort(pWall->nextsector);
+        pWall->cstat = LittleShort(pWall->cstat);
+        pWall->picnum = LittleShort(pWall->picnum);
+        pWall->overpicnum = LittleShort(pWall->overpicnum);
+        pWall->type = LittleShort(pWall->type);
+        pWall->hitag = LittleShort(pWall->hitag);
+        pWall->extra = LittleShort(pWall->extra);
         if (wall[i].extra > 0)
         {
             char pBuffer[nXWallSize];
@@ -942,7 +876,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
                 nCount = byte_19AE44.at44;
             }
             dassert(nCount <= nXWallSize);
-            IOBuffer1.Read(pBuffer, nCount);
+            fr.Read(pBuffer, nCount);
             BitReader bitReader(pBuffer, nCount);
             pXWall->reference = bitReader.readSigned(14);
             pXWall->state = bitReader.readUnsigned(1);
@@ -976,7 +910,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXWall->unused3 = bitReader.readUnsigned(4);
             pXWall->unused4 = bitReader.readUnsigned(32);
             xwall[wall[i].extra].reference = i;
-            xwall[wall[i].extra].busy = xwall[wall[i].extra].state << 16;
+            xwall[wall[i].extra].busy = IntToFixed(xwall[wall[i].extra].state);
 
         }
     }
@@ -985,28 +919,28 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     {
         RemoveSpriteStat(i);
         spritetype *pSprite = &sprite[i];
-        IOBuffer1.Read(pSprite, sizeof(spritetype));
+        fr.Read(pSprite, sizeof(spritetype));
         if (byte_1A76C8)
         {
             dbCrypt((char*)pSprite, sizeof(spritetype), (gMapRev*sizeof(spritetype)) | 0x7474614d);
         }
-#if B_BIG_ENDIAN == 1
-        pSprite->x = B_LITTLE32(pSprite->x);
-        pSprite->y = B_LITTLE32(pSprite->y);
-        pSprite->z = B_LITTLE32(pSprite->z);
-        pSprite->cstat = B_LITTLE16(pSprite->cstat);
-        pSprite->picnum = B_LITTLE16(pSprite->picnum);
-        pSprite->sectnum = B_LITTLE16(pSprite->sectnum);
-        pSprite->statnum = B_LITTLE16(pSprite->statnum);
-        pSprite->ang = B_LITTLE16(pSprite->ang);
-        pSprite->owner = B_LITTLE16(pSprite->owner);
-        pSprite->index = B_LITTLE16(pSprite->index);
-        pSprite->yvel = B_LITTLE16(pSprite->yvel);
-        pSprite->inittype = B_LITTLE16(pSprite->inittype);
-        pSprite->type = B_LITTLE16(pSprite->type);
-        pSprite->flags = B_LITTLE16(pSprite->hitag);
-        pSprite->extra = B_LITTLE16(pSprite->extra);
-#endif
+
+        pSprite->x = LittleLong(pSprite->x);
+        pSprite->y = LittleLong(pSprite->y);
+        pSprite->z = LittleLong(pSprite->z);
+        pSprite->cstat = LittleShort(pSprite->cstat);
+        pSprite->picnum = LittleShort(pSprite->picnum);
+        pSprite->sectnum = LittleShort(pSprite->sectnum);
+        pSprite->statnum = LittleShort(pSprite->statnum);
+        pSprite->ang = LittleShort(pSprite->ang);
+        pSprite->owner = LittleShort(pSprite->owner);
+        pSprite->index = LittleShort(pSprite->index);
+        pSprite->yvel = LittleShort(pSprite->yvel);
+        pSprite->inittype = LittleShort(pSprite->inittype);
+        pSprite->type = LittleShort(pSprite->type);
+        pSprite->flags = LittleShort(pSprite->hitag);
+        pSprite->extra = LittleShort(pSprite->extra);
+
         InsertSpriteSect(i, sprite[i].sectnum);
         InsertSpriteStat(i, sprite[i].statnum);
         Numsprites++;
@@ -1029,7 +963,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
                 nCount = byte_19AE44.at40;
             }
             dassert(nCount <= nXSpriteSize);
-            IOBuffer1.Read(pBuffer, nCount);
+            fr.Read(pBuffer, nCount);
             BitReader bitReader(pBuffer, nCount);
             pXSprite->reference = bitReader.readSigned(14);
             pXSprite->state = bitReader.readUnsigned(1);
@@ -1093,7 +1027,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSprite->aiState = NULL;
             bitReader.skipBits(32);
             xsprite[sprite[i].extra].reference = i;
-            xsprite[sprite[i].extra].busy = xsprite[sprite[i].extra].state << 16;
+            xsprite[sprite[i].extra].busy = IntToFixed(xsprite[sprite[i].extra].state);
             if (!byte_1A76C8) {
                 xsprite[sprite[i].extra].lT |= xsprite[sprite[i].extra].lB;
             }
@@ -1110,21 +1044,20 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             sprite[i].cstat &= ~0x30;
         }
     }
-    unsigned int nCRC;
-    IOBuffer1.Read(&nCRC, 4);
-#if B_BIG_ENDIAN == 1
-    nCRC = B_LITTLE32(nCRC);
-#endif
-    md4once((unsigned char*)pData, nSize, g_loadedMapHack.md4);
-    if (Bcrc32(pData, nSize-4, 0) != nCRC)
+    unsigned int nCRC =  fr.ReadUInt32();
+
+    fr.Seek(0, FileReader::SeekSet);
+    auto buffer = fr.Read();
+    md4once(buffer.Data(), buffer.Size(), g_loadedMapHack.md4);
+    G_LoadMapHack(mapname);
+
+    if (CalcCRC32(buffer.Data(), buffer.Size() -4) != nCRC)
     {
-        Printf("Map File does not match CRC");
-        gSysRes.Unlock(pNode);
+        Printf("%s: Map File does not match CRC", mapname.GetChars());
         return -1;
     }
     if (pCRC)
         *pCRC = nCRC;
-    gSysRes.Unlock(pNode);
     PropagateMarkerReferences();
     if (byte_1A76C8)
     {
@@ -1138,22 +1071,15 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         }
         else
         {
-            Printf("Corrupted Map file");
-            gSysRes.Unlock(pNode);
+            Printf("%s: Corrupted Map file", mapname.GetChars());
             return -1;
         }
     }
     else if (gSongId != 0)
     {
-        Printf("Corrupted Map file");
-        gSysRes.Unlock(pNode);
+        Printf("%s: Corrupted Map file", mapname.GetChars());
         return -1;
     }
-
-#ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-        polymer_loadboard();
-#endif
 
     if ((header.version & 0xff00) == 0x600)
     {
@@ -1202,10 +1128,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             
         }
     }
-
-#ifdef YAX_ENABLE
-    yax_update((header.version & 0xff00) > 0x700 ? 0 : 1);
-#endif
 
     g_loadedMapVersion = 7;
 

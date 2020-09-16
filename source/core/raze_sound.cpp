@@ -71,7 +71,8 @@ void FX_SetReverb(int strength)
 	{
 		// todo: optimize environments. The original "reverb" was garbage and not usable as reference.
 		if (strength < 64) strength = 0x1400;
-		else if (strength < 192) strength = 0x1503;
+		else if (strength < 180) strength = 0x1503;
+		else if (strength < 220) strength = 0x1502;
 		else strength = 0x1900;
 		LastReverb = strength;
 		ForcedEnvironment = S_FindEnvironment(strength);
@@ -173,6 +174,7 @@ static FSerializer& Serialize(FSerializer& arc, const char* key, FSoundChan& cha
 			("rolloffmin", chan.Rolloff.MinDistance)
 			("rolloffmax", chan.Rolloff.MaxDistance)
 			("limitrange", chan.LimitRange)
+			("userdata", chan.UserData)
 			.Array("point", chan.Point, 3);
 
 		int SourceIndex = 0;
@@ -241,8 +243,8 @@ void S_SerializeSounds(FSerializer& arc)
 			}
 			arc.EndArray();
 		}
-		// totalclock runs on 120 fps, we need to allow a small delay here.
-		soundEngine->SetRestartTime((int)totalclock + 6);
+		// Add a small delay so that eviction only runs once the game is up and runnnig.
+		soundEngine->SetRestartTime(I_GetTime() + 2);
 	}
 	GSnd->Sync(false);
 	GSnd->UpdateSounds();

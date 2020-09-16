@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
-#include "aitchern.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
@@ -40,8 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
-#include "trig.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 
@@ -100,8 +98,8 @@ static void sub_71BD4(int, int nXSprite)
     int z = height;
     TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x100000 };
     Aim aim;
-    aim.dx = Cos(pSprite->ang)>>16;
-    aim.dy = Sin(pSprite->ang)>>16;
+    aim.dx = CosScale16(pSprite->ang);
+    aim.dy = SinScale16(pSprite->ang);
     aim.dz = gDudeSlope[nXSprite];
     int nClosest = 0x7fffffff;
     for (short nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
@@ -144,8 +142,8 @@ static void sub_71BD4(int, int nXSprite)
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
                 {
                     nClosest = nDist2;
-                    aim.dx = Cos(nAngle)>>16;
-                    aim.dy = Sin(nAngle)>>16;
+                    aim.dx = CosScale16(nAngle);
+                    aim.dy = SinScale16(nAngle);
                     aim.dz = divscale(tz, nDist, 10);
                 }
                 else
@@ -170,8 +168,8 @@ static void sub_720AC(int, int nXSprite)
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pSprite->yrepeat*pDudeInfo->eyeHeight;
     int ax, ay, az;
-    ax = Cos(pSprite->ang)>>16;
-    ay = Sin(pSprite->ang)>>16;
+    ax = CosScale16(pSprite->ang);
+    ay = SinScale16(pSprite->ang);
     int x = pSprite->x;
     int y = pSprite->y;
     int z = height;
@@ -222,8 +220,8 @@ static void sub_720AC(int, int nXSprite)
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
                 {
                     nClosest = nDist2;
-                    aim.dx = Cos(nAngle)>>16;
-                    aim.dy = Sin(nAngle)>>16;
+                    aim.dx = CosScale16(nAngle);
+                    aim.dy = SinScale16(nAngle);
                     aim.dz = divscale(tz, nDist, 10);
                 }
                 else
@@ -250,9 +248,9 @@ static void sub_725A4(spritetype *pSprite, XSPRITE *pXSprite)
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u2;
-    if (pDudeExtraE->at4 && pDudeExtraE->at0 < 10)
-        pDudeExtraE->at0++;
-    else if (pDudeExtraE->at0 >= 10 && pDudeExtraE->at4)
+    if (pDudeExtraE->Kills && pDudeExtraE->TotalKills < 10)
+        pDudeExtraE->TotalKills++;
+    else if (pDudeExtraE->TotalKills >= 10 && pDudeExtraE->Kills)
     {
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
@@ -281,13 +279,13 @@ static void sub_725A4(spritetype *pSprite, XSPRITE *pXSprite)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                pDudeExtraE->at0 = 0;
+                pDudeExtraE->TotalKills = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
                 aiActivateDude(pSprite, pXSprite);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                pDudeExtraE->at0 = 0;
+                pDudeExtraE->TotalKills = 0;
                 aiSetTarget(pXSprite, x, y, z);
                 aiActivateDude(pSprite, pXSprite);
             }

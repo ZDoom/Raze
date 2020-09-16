@@ -30,16 +30,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
-#include "jnames.h"
 #include "panel.h"
 #include "game.h"
 #include "tags.h"
 #include "sector.h"
 #include "player.h"
 #include "sprite.h"
-#include "reserve.h"
 #include "jsector.h"
 #include "jtags.h"
 #include "lists.h"
@@ -56,14 +53,14 @@ MIRRORTYPE mirror[MAXMIRRORS];
 
 short mirrorcnt; //, floormirrorcnt;
 //short floormirrorsector[MAXMIRRORS];
-SWBOOL mirrorinview;
+bool mirrorinview;
 uint32_t oscilationclock;
 
 // Voxel stuff
-//SWBOOL bVoxelsOn = TRUE;                  // Turn voxels on by default
-SWBOOL bSpinBobVoxels = FALSE;            // Do twizzly stuff to voxels, but
+//bool bVoxelsOn = true;                  // Turn voxels on by default
+bool bSpinBobVoxels = false;            // Do twizzly stuff to voxels, but
 // not by default
-SWBOOL bAutoSize = TRUE;                  // Autosizing on/off
+bool bAutoSize = true;                  // Autosizing on/off
 
 //extern int chainnumpages;
 extern AMB_INFO ambarray[];
@@ -279,19 +276,6 @@ JS_SpriteSetup(void)
             SET(wall[i].extra, WALLFX_DONT_STICK);
             break;
         }
-
-#if 0
-        short sndnum;
-        if ((sndnum = CheckTileSound(picnum)) != -1)
-        {
-            SpawnWallSound(sndnum, i);
-        }
-        picnum = wall[i].overpicnum;
-        if ((sndnum = CheckTileSound(picnum)) != -1)
-        {
-            SpawnWallSound(sndnum, i);
-        }
-#endif
     }
 }
 
@@ -304,19 +288,19 @@ void JS_InitMirrors(void)
     short startwall, endwall;
     int i, j, s;
     short SpriteNum = 0, NextSprite;
-    SWBOOL Found_Cam = FALSE;
+    bool Found_Cam = false;
 
 
     // Set all the mirror struct values to -1
     memset(mirror, 0xFF, sizeof(mirror));
 
-    mirrorinview = FALSE;               // Initially set global mirror flag
+    mirrorinview = false;               // Initially set global mirror flag
     // to no mirrors seen
 
     // Scan wall tags for mirrors
     mirrorcnt = 0;
 	tileDelete(MIRROR);
-	oscilationclock = ototalclock;
+	oscilationclock = I_GetBuildTime();
 
     for (i = 0; i < MAXMIRRORS; i++)
     {
@@ -324,7 +308,7 @@ void JS_InitMirrors(void)
         mirror[i].campic = -1;
         mirror[i].camsprite = -1;
         mirror[i].camera = -1;
-        mirror[i].ismagic = FALSE;
+        mirror[i].ismagic = false;
     }
 
     for (i = 0; i < numwalls; i++)
@@ -349,13 +333,13 @@ void JS_InitMirrors(void)
                 mirror[mirrorcnt].mirrorwall = i;
                 mirror[mirrorcnt].mirrorsector = s;
                 mirror[mirrorcnt].numspawnspots = 0;
-                mirror[mirrorcnt].ismagic = FALSE;
+                mirror[mirrorcnt].ismagic = false;
                 do if (wall[i].lotag == TAG_WALL_MAGIC_MIRROR)
                 {
                     short ii, nextii;
                     SPRITEp sp;
 
-                    Found_Cam = FALSE;
+                    Found_Cam = false;
                     TRAVERSE_SPRITE_STAT(headspritestat[STAT_ST1], ii, nextii)
                     {
                         sp = &sprite[ii];
@@ -366,7 +350,7 @@ void JS_InitMirrors(void)
                             // Set up camera varialbes
                             SP_TAG5(sp) = sp->ang;      // Set current angle to
                             // sprite angle
-                            Found_Cam = TRUE;
+                            Found_Cam = true;
                         }
                     }
 
@@ -383,7 +367,7 @@ void JS_InitMirrors(void)
                             // Set up camera varialbes
                             SP_TAG5(sp) = sp->ang;      // Set current angle to
                             // sprite angle
-                            Found_Cam = TRUE;
+                            Found_Cam = true;
                         }
                     }
 
@@ -394,9 +378,9 @@ void JS_InitMirrors(void)
                         break;
                     }
 
-                    mirror[mirrorcnt].ismagic = TRUE;
+                    mirror[mirrorcnt].ismagic = true;
 
-                    Found_Cam = FALSE;
+                    Found_Cam = false;
                     if (TEST_BOOL1(&sprite[mirror[mirrorcnt].camera]))
                     {
                         TRAVERSE_SPRITE_STAT(headspritestat[0], SpriteNum, NextSprite)
@@ -411,7 +395,7 @@ void JS_InitMirrors(void)
                                 // JBF: commenting out this line results in the screen in $BULLET being visible
 								tileDelete(mirror[mirrorcnt].campic);
 
-                                Found_Cam = TRUE;
+                                Found_Cam = true;
                             }
                         }
 
@@ -473,7 +457,7 @@ void JS_InitMirrors(void)
 //  Draw a 3d screen to a specific tile
 /////////////////////////////////////////////////////
 void drawroomstotile(int daposx, int daposy, int daposz,
-                     fix16_t daq16ang, fix16_t daq16horiz, short dacursectnum, short tilenume)
+                     fixed_t daq16ang, fixed_t daq16horiz, short dacursectnum, short tilenume)
 {
 	TileFiles.MakeCanvas(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
@@ -483,7 +467,7 @@ void drawroomstotile(int daposx, int daposy, int daposz,
     screen->RenderTextureView(canvas, [=](IntRect& rect)
         {
             renderDrawRoomsQ16(daposx, daposy, daposz, daq16ang, daq16horiz, dacursectnum);
-            analyzesprites(daposx, daposy, daposz, FALSE);
+            analyzesprites(daposx, daposy, daposz, false);
             renderDrawMasks();
         });
 
@@ -498,7 +482,7 @@ JS_ProcessEchoSpot()
     int j,dist;
     PLAYERp pp = Player+screenpeek;
     int16_t reverb;
-    SWBOOL reverb_set = FALSE;
+    bool reverb_set = false;
 
     // Process echo sprites
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_ECHO], i, nexti)
@@ -519,7 +503,7 @@ JS_ProcessEchoSpot()
             if (reverb < 100) reverb = 100;
 
             COVER_SetReverb(reverb);
-            reverb_set = TRUE;
+            reverb_set = true;
         }
     }
     if (!TEST(pp->Flags, PF_DIVING) && !reverb_set && pp->Reverb <= 0)
@@ -533,6 +517,7 @@ JS_ProcessEchoSpot()
 #define MAXCAMDIST 8000
 
 int camloopcnt = 0;                    // Timer to cycle through player
+int lastcamclock;
 // views
 short camplayerview = 1;                // Don't show yourself!
 
@@ -546,9 +531,10 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
     int tposx, tposy; // Camera
     int* longptr;
 
-    SWBOOL bIsWallMirror = FALSE;
+    bool bIsWallMirror = false;
+    int camclock = I_GetBuildTime();
 
-    camloopcnt += (int32_t) (totalclock - ototalclock);
+    camloopcnt += camclock - lastcamclock;
     if (camloopcnt > (60 * 5))          // 5 seconds per player view
     {
         camloopcnt = 0;
@@ -556,12 +542,13 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
         if (camplayerview >= numplayers)
             camplayerview = 1;
     }
+    lastcamclock = camclock;
 
     // WARNING!  Assuming (MIRRORLABEL&31) = 0 and MAXMIRRORS = 64 <-- JBF: wrong
     longptr = (int*)&gotpic[MIRRORLABEL >> 3];
     if (longptr && (longptr[0] || longptr[1]))
     {
-        uint32_t oscilation_delta = ototalclock - oscilationclock;
+        uint32_t oscilation_delta = camclock - oscilationclock;
         oscilation_delta -= oscilation_delta % 4;
         oscilationclock += oscilation_delta;
         oscilation_delta *= 2;
@@ -573,7 +560,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
             if (TEST_GOTPIC(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && TEST_GOTPIC(mirror[cnt].campic)))
             {
                 // Do not change any global state here!
-                bIsWallMirror = (TEST_GOTPIC(cnt + MIRRORLABEL));
+                bIsWallMirror = !!(TEST_GOTPIC(cnt + MIRRORLABEL));
                 dist = 0x7fffffff;
 
                 if (bIsWallMirror)
@@ -637,7 +624,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
 
 
                 // Is it a TV cam or a teleporter that shows destination?
-                // TRUE = It's a TV cam
+                // true = It's a TV cam
                 mirror[cnt].mstate = m_normal;
                 if (TEST_BOOL1(sp))
                     mirror[cnt].mstate = m_viewon;
@@ -647,7 +634,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                 // you are outside of it!
                 if (mirror[cnt].mstate == m_viewon)
                 {
-                    SWBOOL DoCam = FALSE;
+                    bool DoCam = false;
 
                     if (mirror[cnt].campic == -1)
                     {
@@ -709,7 +696,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                     // If player is dead still then update at MoveSkip4
                     // rate.
                     if (pp->posx == pp->oposx && pp->posy == pp->oposy && pp->posz == pp->oposz)
-                        DoCam = TRUE;
+                        DoCam = true;
 
 
                     // Set up the tile for drawing
@@ -726,7 +713,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                             }
                             else
                             {
-                                drawroomstotile(sp->x, sp->y, sp->z, fix16_from_int(SP_TAG5(sp)), fix16_from_int(camhoriz), sp->sectnum, mirror[cnt].campic);
+                                drawroomstotile(sp->x, sp->y, sp->z, IntToFixed(SP_TAG5(sp)), IntToFixed(camhoriz), sp->sectnum, mirror[cnt].campic);
                             }
                         }
                     }
@@ -736,17 +723,17 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
     }
 }
 
-void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16_t tpq16horiz)
+void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed_t tpq16horiz)
 {
     int j, cnt;
     int dist;
     int tposx, tposy; // Camera
     int *longptr;
-    fix16_t tang;
+    fixed_t tang;
 
 //    int tx, ty, tz, tpang;             // Interpolate so mirror doesn't
     // drift!
-    SWBOOL bIsWallMirror = FALSE;
+    bool bIsWallMirror = false;
 
     // WARNING!  Assuming (MIRRORLABEL&31) = 0 and MAXMIRRORS = 64 <-- JBF: wrong
     longptr = (int *)&gotpic[MIRRORLABEL >> 3];
@@ -756,10 +743,10 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
             //if (TEST_GOTPIC(cnt + MIRRORLABEL) || TEST_GOTPIC(cnt + CAMSPRITE))
             if (TEST_GOTPIC(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && TEST_GOTPIC(mirror[cnt].campic)))
             {
-                bIsWallMirror = FALSE;
+                bIsWallMirror = false;
                 if (TEST_GOTPIC(cnt + MIRRORLABEL))
                 {
-                    bIsWallMirror = TRUE;
+                    bIsWallMirror = true;
                     RESET_GOTPIC(cnt + MIRRORLABEL);
                 }
                 //else if (TEST_GOTPIC(cnt + CAMSPRITE))
@@ -769,7 +756,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
                     RESET_GOTPIC(mirror[cnt].campic);
                 }
 
-                mirrorinview = TRUE;
+                mirrorinview = true;
 
 //                tx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
 //                ty = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
@@ -798,12 +785,6 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
                         dist = j;
                 }
 
-
-
-//              //DSPRINTF(ds,"mirror.tics == %ul", mirror[i].tics);
-//              MONO_PRINT(ds);
-
-
                 if (mirror[cnt].ismagic)
                 {
                     SPRITEp sp=NULL;
@@ -817,14 +798,6 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
                     sp = &sprite[mirror[cnt].camera];
 
                     ASSERT(sp);
-
-                    // char tvisibility;
-                    // tvisibility = g_visibility;
-//                  g_visibility <<= 1;       // Make mirror darker
-
-                    // Make TV cam style mirror seem to shimmer
-//                  if (mirror[cnt].ismagic && STD_RANDOM_P2(256) > 128)
-//                      g_visibility -= STD_RANDOM_P2(128);
 
                     // Calculate the angle of the mirror wall
                     w = mirror[cnt].mirrorwall;
@@ -855,7 +828,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
 
 
                     // Is it a TV cam or a teleporter that shows destination?
-                    // TRUE = It's a TV cam
+                    // true = It's a TV cam
                     mirror[cnt].mstate = m_normal;
                     if (TEST_BOOL1(sp))
                         mirror[cnt].mstate = m_viewon;
@@ -872,7 +845,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
                         if (mirror[cnt].campic != -1)
 							tileDelete(mirror[cnt].campic);
                         renderDrawRoomsQ16(dx, dy, dz, tpq16ang, tpq16horiz, sp->sectnum + MAXSECTORS);
-                        analyzesprites(dx, dy, dz, FALSE);
+                        analyzesprites(dx, dy, dz, false);
                         renderDrawMasks();
                     }
                 }
@@ -890,7 +863,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
 
                     renderDrawRoomsQ16(tposx, tposy, tz, (tang), tpq16horiz, mirror[cnt].mirrorsector + MAXSECTORS);
 
-                    analyzesprites(tposx, tposy, tz, TRUE);
+                    analyzesprites(tposx, tposy, tz, true);
                     renderDrawMasks();
 
                     renderCompleteMirror();   // Reverse screen x-wise in this
@@ -903,12 +876,11 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
 
                 // renderDrawRoomsQ16(tx, ty, tz, tpq16ang, tpq16horiz, pp->cursectnum);
                 // Clean up anything that the camera view might have done
-                SetFragBar(pp);
 				tileDelete(MIRROR);
                 wall[mirror[cnt].mirrorwall].overpicnum = MIRRORLABEL + cnt;
             }
             else
-                mirrorinview = FALSE;
+                mirrorinview = false;
     }
 }
 
@@ -1125,7 +1097,6 @@ void
 InsertOrgTile(OrgTileP tp, OrgTileListP thelist)
 {
     ASSERT(tp);
-    ASSERT(ValidPtr(tp));
 
     // if list is empty, insert at front
     if (EMPTY(thelist))
@@ -1159,7 +1130,6 @@ void
 KillOrgTile(OrgTileP tp)
 {
     ASSERT(tp);
-    ASSERT(ValidPtr(tp));
 
     REMOVE(tp);
 

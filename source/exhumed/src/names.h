@@ -676,7 +676,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kTile654 654
 #define kTile655 655
 #define kTile656 656
-#define kTile657 657
+#define kTileStatusBar 657
 #define kTile658 658
 #define kTile659 659
 #define kTile660 660

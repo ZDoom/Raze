@@ -246,8 +246,8 @@ struct MAPSIGNATURE {
 };
 
 struct MAPHEADER  {
-    int at0; // x
-    int at4; // y
+    int TotalKills; // x
+    int Kills; // y
     int at8; // z
     short atc; // ang
     short ate; // sect
@@ -262,7 +262,7 @@ struct MAPHEADER  {
 };
 
 struct MAPHEADER2 {
-    char at0[64];
+    char TotalKills[64];
     int at40; // xsprite size
     int at44; // xwall size
     int at48; // xsector size
@@ -300,19 +300,8 @@ extern unsigned short nextXSprite[kMaxXSprites];
 extern unsigned short nextXWall[kMaxXWalls];
 extern unsigned short nextXSector[kMaxXSectors];
 
-#ifdef YAX_ENABLE
-static inline bool yax_hasnextwall(int nWall)
-{
-    return yax_getnextwall(nWall, YAX_CEILING) >= 0 || yax_getnextwall(nWall, YAX_FLOOR) >= 0;
-}
-#endif
-
 static inline int GetWallType(int nWall)
 {
-#ifdef YAX_ENABLE
-    if (yax_hasnextwall(nWall))
-        return 0;
-#endif
     return wall[nWall].type;
 }
 

@@ -8,11 +8,23 @@
 #include "tarray.h"
 #include "name.h"
 #include "memarena.h"
+#include "stats.h"
+#include "i_time.h"
+#include "palentry.h"
 
 extern FString currentGame;
 extern FString LumpFilter;
 class FArgs;
 extern bool GUICapture;
+extern bool AppActive;
+extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
+extern bool r_NoInterpolate;
+
+struct MapRecord;
+struct FSaveGameNode;
+extern MapRecord* g_nextmap;
+extern int g_nextskill;
+extern FSaveGameNode* g_savenode;
 
 extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
@@ -42,9 +54,14 @@ void CONFIG_SetGameControllerDefaultsClear();
 extern FStringCVar* const CombatMacros[];
 void CONFIG_ReadCombatMacros();
 
-int32_t CONFIG_GetMapBestTime(char const* const mapname, uint8_t const* const mapmd4);
-int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm);
 int GameMain();
+int GetAutomapZoom(int gZoom);
+
+void DrawCrosshair(int deftile, int health, double xdelta, double scale, PalEntry color = 0xffffffff);
+void updatePauseStatus();
+void DeferedStartGame(MapRecord* map, int skill);
+void ChangeLevel(MapRecord* map, int skill);
+void CompleteLevel(MapRecord* map);
 
 struct UserConfig
 {
@@ -68,11 +85,6 @@ struct UserConfig
 	bool nologo = false;
 	int setupstate = -1;
 
-	int netPort = 0;			// g_netPort = Batoi(argv[i + 1]);
-	int netServerMode = -1;		// g_networkMode = NET_SERVER;	g_noSetup = g_noLogo = TRUE;
-	FString netServerAddress;	// Net_Connect(argv[i + 1]); g_noSetup = g_noLogo = TRUE;
-	FString netPassword;		// Bstrncpyz(g_netPassword, argv[i + 1], sizeof(g_netPassword));
-
 	void ProcessOptions();
 };
 
@@ -82,7 +94,7 @@ extern int nomusic;
 extern bool nosound;
 inline bool MusicEnabled()
 {
-	return !nomusic;
+	return mus_enabled && !nomusic;
 }
 
 inline bool SoundEnabled()
@@ -100,18 +112,22 @@ enum
 	GAMEFLAG_ADDON      = 0x00000010,
 	GAMEFLAG_SHAREWARE  = 0x00000020,
 	GAMEFLAG_DUKEBETA   = 0x00000060, // includes 0x20 since it's a shareware beta
-	GAMEFLAG_FURY       = 0x00000080,
+	GAMEFLAG_PLUTOPAK	= 0x00000080,
 	GAMEFLAG_RR         = 0x00000100,
 	GAMEFLAG_RRRA       = 0x00000200,
-	GAMEFLAG_DEER		= 0x00000400,
-	GAMEFLAG_RRALL		= GAMEFLAG_RR | GAMEFLAG_RRRA | GAMEFLAG_DEER,
+	GAMEFLAG_RRALL		= GAMEFLAG_RR | GAMEFLAG_RRRA,
 	GAMEFLAG_BLOOD      = 0x00000800,
 	GAMEFLAG_SW			= 0x00001000,
 	GAMEFLAG_POWERSLAVE	= 0x00002000,
 	GAMEFLAG_EXHUMED	= 0x00004000,
 	GAMEFLAG_PSEXHUMED  = GAMEFLAG_POWERSLAVE | GAMEFLAG_EXHUMED,	// the two games really are the same, except for the name and the publisher.
-	GAMEFLAG_STANDALONE = 0x00008000,
-	GAMEFLAGMASK        = 0x00007FFF, // flags allowed from grpinfo
+	GAMEFLAG_WORLDTOUR = 0x00008000,
+	GAMEFLAG_DUKEDC = 0x00010000,
+	GAMEFLAGMASK        = 0x0000FFFF, // flags allowed from grpinfo
+
+	// We still need these for the parsers.
+	GAMEFLAG_FURY = 0,
+	GAMEFLAG_DEER = 0,
 
 };
 
@@ -145,8 +161,43 @@ struct GrpEntry
 extern int g_gameType;
 const char* G_DefaultDefFile(void);
 const char* G_DefFile(void);
-const char* G_DefaultConFile(void);
-const char* G_ConFile(void);
+void LoadDefinitions();
+
+// game check shortcuts
+inline bool isNam()
+{
+	return g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM);
+}
+
+inline bool isNamWW2GI()
+{
+	return g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM |GAMEFLAG_WW2GI);
+}
+
+inline bool isWW2GI()
+{
+	return g_gameType & (GAMEFLAG_WW2GI);
+}
+
+inline bool isRR()
+{
+	return g_gameType & (GAMEFLAG_RRALL);
+}
+
+inline bool isRRRA()
+{
+	return g_gameType & (GAMEFLAG_RRRA);
+}
+
+inline bool isWorldTour()
+{
+	return g_gameType & GAMEFLAG_WORLDTOUR;
+}
+
+inline bool isPlutoPak()
+{
+	return g_gameType & GAMEFLAG_PLUTOPAK;
+}
 
 TArray<GrpEntry> GrpScan();
 void S_PauseSound(bool notmusic, bool notsfx);
@@ -154,7 +205,10 @@ void S_ResumeSound(bool notsfx);
 void S_SetSoundPaused(int state);
 
 void G_FatalEngineError(void);
-int CalcSmoothRatio(const ClockTicks& totalclk, const ClockTicks& ototalclk, int realgameticspersec);
+enum
+{
+	MaxSmoothRatio = FRACUNIT
+};
 
 FString G_GetDemoPath();
 
@@ -164,5 +218,9 @@ enum
 	PAUSESFX_CONSOLE = 2
 };
 
-void updatePauseStatus();
 extern int paused;
+extern int chatmodeon;
+
+extern bool sendPause;
+extern int lastTic;
+

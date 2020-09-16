@@ -19,120 +19,114 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "names.h"
-#include "movie.h"
-#include "light.h"
 #include <cstdio>
 #include <cstring>
-#include "baselayer.h"
-#include "typedefs.h"
 #include "c_bind.h"
 #include "sound.h"
 #include "v_2ddrawer.h"
 #include "animtexture.h"
+#include "s_music.h"
+#include "screenjob.h"
+#include "v_draw.h"
 
 BEGIN_PS_NS
 
-enum {
-    kFramePalette = 0,
-    kFrameSound,
-    kFrameImage,
-    kFrameDone
-};
 
-#define kSampleRate     22050
-#define kSampleSize     2205
-
-uint8_t bankbuf[kSampleRate];
-uint32_t bankptr = 0;
-uint32_t banktail = 0;
-
-uint32_t lSoundBytesRead = 0;
-uint32_t lSoundBytesUsed = 0;
-
-uint8_t lh[32] = { 0 };
-
-static uint8_t* CurFrame = NULL;
-
-bool bServedSample = false;
-palette_t moviepal[256];
-
-int ReadFrame(FileReader &fp, uint8_t *palette)
+class LMFPlayer
 {
-    static int nFrame = 0;
-    Printf("Reading frame %d...\n", nFrame);
-    nFrame++;
-
-    uint8_t nType;
-    uint8_t var_1C;
-    int nSize;
-    uint16_t yOffset;
-    uint8_t xOffset;
-    uint8_t nPixels;
-
-    while (1)
+    enum
     {
-        if (fp.Read(&nType, sizeof(nType)) == 0) {
-            return 0;
-        }
+        kFramePalette = 0,
+        kFrameSound,
+        kFrameImage,
+        kFrameDone
+    };
 
-		fp.Read(&nSize, sizeof(nSize));
+    enum
+    {
+        kSampleRate = 22050,
+        kSampleSize = 2205,
+        numAudioBlocks = 20
+    };
 
-        nType--;
-        if (nType > 3) {
-            continue;
-        }
+    struct AudioData
+    {
+        int16_t samples[kSampleSize * numAudioBlocks]; // must be a multiple of the stream buffer size
+        int nWrite;
+        int nRead;
+    };
 
-        switch (nType)
+    uint8_t palette[768];
+    uint8_t CurFrame[64000];
+
+    SoundStream* stream = nullptr;
+    AudioData audio{};
+    AnimTextures animtex;
+
+    int nFrame = 0;
+
+public:
+    int ReadFrame(FileReader& fp)
+    {
+        nFrame++;
+
+        uint8_t nType;
+        uint8_t var_1C;
+        int nSize;
+        uint16_t yOffset;
+        uint8_t xOffset;
+        uint8_t nPixels;
+
+        while (1)
         {
+            if (fp.Read(&nType, sizeof(nType)) == 0)
+            {
+                return 0;
+            }
+
+            fp.Read(&nSize, sizeof(nSize));
+
+            nType--;
+            if (nType > 3)
+            {
+                continue;
+            }
+
+            switch (nType)
+            {
             case kFramePalette:
             {
                 fp.Read(palette, 768);
                 fp.Read(&var_1C, sizeof(var_1C));
 
-                for (unsigned i = 0; i < 768;i++)
+                for (unsigned i = 0; i < 768; i++)
                     palette[i] <<= 2;
 
-                memset(CurFrame, overscanindex, 4); //sizeof(CurFrame));
+                memset(CurFrame, 0, 4); //sizeof(CurFrame));
                 continue;
             }
             case kFrameSound:
             {
-                Printf("Reading sound block size %d...\n", nSize);
-
-                if (lSoundBytesRead - lSoundBytesUsed >= kSampleRate)
+                auto sfxx = soundEngine->GetSounds();
+                auto buffer = fp.Read(nSize);
+                assert(buffer.Size() == kSampleSize);
+                auto wbuffer = audio.samples + audio.nWrite * kSampleSize;
+                for (int i = 0; i < 2205; i++)
                 {
-                    //DebugOut("ReadFrame() - Sound buffer full\n");
-                    fp.Seek(nSize, FileReader::SeekCur);
+                    wbuffer[i] = (buffer[i] - 128) << 8;
                 }
-                else
-                {
-                    //mutex_lock(&mutex);
-
-                    int nRead = fp.Read((char*)bankbuf + bankptr, nSize);
-
-                    lSoundBytesRead += nRead;
-                    bankptr += nSize;
-
-                    assert(nSize == nRead);
-                    assert(bankptr <= kSampleRate);
-
-                    if (bankptr >= kSampleRate) {
-                        bankptr -= kSampleRate; // loop back to start
-                    }
-
-                    //mutex_unlock(&mutex);
-                }
-
+                audio.nWrite++;
+                if (audio.nWrite >= numAudioBlocks) audio.nWrite = 0;
                 continue;
             }
             case kFrameImage:
             {
-                //Printf("Reading image block size %d...\n", nSize);
-                if (nSize == 0) {
+                if (nSize == 0)
+                {
                     continue;
                 }
 
-                uint8_t *pFrame = CurFrame;
+                uint8_t* pFrame = CurFrame;
 
                 int nRead = fp.Read(&yOffset, sizeof(yOffset));
                 nSize -= nRead;
@@ -154,6 +148,7 @@ int ReadFrame(FileReader &fp, uint8_t *palette)
                         nSize -= nRead;
                     }
                 }
+                animtex.SetFrame(palette, CurFrame);
 
                 break;
             }
@@ -162,118 +157,135 @@ int ReadFrame(FileReader &fp, uint8_t *palette)
                 return 1;
                 break;
             }
+            }
         }
     }
-}
 
-static void ServeSample(const char** ptr, uint32_t* length)
-{
-    //mutex_lock(&mutex);
 
-    *ptr = (char*)bankbuf + banktail;
-    *length = kSampleSize;
-
-    banktail += kSampleSize;
-    if (banktail >= kSampleRate) {
-        banktail -= kSampleRate; // rotate back to start
+    static bool StreamCallbackFunc(SoundStream* stream, void* buff, int len, void* userdata)
+    {
+        LMFPlayer* pId = (LMFPlayer*)userdata;
+        memcpy(buff, &pId->audio.samples[pId->audio.nRead], len);
+        pId->audio.nRead += len / 2;
+        if (pId->audio.nRead >= countof(pId->audio.samples)) pId->audio.nRead = 0;
+        return true;
     }
 
-    lSoundBytesUsed += kSampleSize;
-    bServedSample = true;
+    void Open(FileReader& fp)
+    {
 
-    //mutex_unlock(&mutex);
-}
+        uint8_t header[32];
+        fp.Read(header, sizeof(header));
+        audio.nWrite = 5; // play 5 blocks (i.e. half a second) of silence to get ahead of the stream. For this video it isn't necessary to sync it perfectly.
 
-void PlayMovie(const char* fileName)
+        // start audio playback
+        stream = S_CreateCustomStream(kSampleSize * 2, kSampleRate, 1, StreamCallbackFunc, this); // size must be doubled here or dropouts can be heard.
+        animtex.SetSize(AnimTexture::Paletted, 200, 320);
+    }
+
+    void Close()
+    {
+        S_StopCustomStream(stream);
+    }
+
+    AnimTextures& animTex()
+    {
+        return animtex;
+    }
+};
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DLmfPlayer : public DScreenJob
 {
-    uint8_t palette[768];
-    TArray<uint8_t> f(64000, true);
-    CurFrame = f.Data();
+    LMFPlayer decoder;
+    double angle = 1536;
+    double z = 0;
+    uint64_t nextclock = 0, lastclock = 0;
+    FileReader fp;
 
-    int bDoFade = kTrue;
-    int hFx = -1;
-	auto fp = fileSystem.OpenFileReader(fileName);
-	if (!fp.isOpen())
-	{
-		Printf("Unable to open %s\n", fileName);
-		return;
-	}
+public:
 
-    fp.Read(lh, sizeof(lh));
+    DLmfPlayer(FileReader& fr)
+    {
+        decoder.Open(fr);
+        lastclock = 0;
+        nextclock = 0;
+        fp = std::move(fr);
+    }
 
-    // sound stuff
-    bankptr = 0;
-    banktail = 0;
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
 
+    int Frame(uint64_t clock, bool skiprequest) override
+    {
+        if (clock >= nextclock)
+        {
+            nextclock += 100'000'000;
+            if (decoder.ReadFrame(fp) == 0)
+            {
+                return 0;
+            }
+        }
+
+        double duration = (clock - lastclock) * double(120. / 8'000'000'000);
+        if (z < 65536) { // Zoom - normal zoom is 65536.
+            z += 2048 * duration;
+        }
+        if (z > 65536) z = 65536;
+        if (angle != 0) {
+            angle += 16. * duration;
+            if (angle >= 2048) {
+                angle = 0;
+            }
+        }
+
+        {
+            twod->ClearScreen();
+            DrawTexture(twod, decoder.animTex().GetFrame(), 160, 100, DTA_FullscreenScale, FSMode_Fit320x200,
+                DTA_CenterOffset, true, DTA_FlipY, true, DTA_ScaleX, z / 65536., DTA_ScaleY, z / 65536., DTA_Rotate, (-angle - 512) * (360. / 2048.), TAG_DONE);
+        }
+        
+        lastclock = clock;
+        return skiprequest ? -1 : 1;
+    }
+
+    void OnDestroy() override
+    {
+        decoder.Close();
+        fp.Close();
+    }
+};
+
+
+
+DScreenJob* PlayMovie(const char* fileName)
+{
     // clear keys
     inputState.ClearAllInput();
 
-    if (bDoFade) {
-        StartFadeIn();
-    }
-
-    int angle = 1536;
-    int z = 0;
-
-    AnimTextures animtex;
-    animtex.SetSize(AnimTexture::Paletted, 200, 320);
-
-    // Read a frame in first
-    if (ReadFrame(fp, palette))
+    auto fp = fileSystem.OpenFileReader(fileName);
+    if (!fp.isOpen())
     {
-        // start audio playback (fixme)
-#if 0
-        hFx = FX_StartDemandFeedPlayback(ServeSample, kSampleRate, 0, snd_fxvolume, snd_fxvolume, snd_fxvolume, FX_MUSIC_PRIORITY, fix16_one, -1);
-#else
-        hFx = -1;
-#endif
-
-        int fn = 0;
-        while (!inputState.keyBufferWaiting())
-        {
-            HandleAsync();
-
-            // audio is king for sync - if the backend doesn't need any more samples yet, 
-            // don't process any more movie file data.
-            if (!bServedSample && hFx > 0) {
-                continue;
-            }
-
-            bServedSample = false;
-
-            if (z < 65536) { // Zoom - normal zoom is 65536.
-                z += 2048;
-            }
-            if (angle != 0) {
-                angle += 16;
-                if (angle == 2048) {
-                    angle = 0;
-                }
-            }
-
-            // I have no idea why this needs double buffering now.
-            fn ^= 1;
-            animtex.SetFrame(palette, CurFrame);
-            rotatesprite(160 << 16, 100 << 16, z, angle+512, -1, 0, 1, RS_AUTO | RS_YFLIP, 0, 0, xdim - 1, ydim - 1, animtex.GetFrame());
-
-            if (bDoFade) {
-                bDoFade = DoFadeIn();
-            }
-
-            videoNextPage();
-
-            if (ReadFrame(fp, palette) == 0) {
-                break;
-            }
-        }
+        return Create<DScreenJob>();
     }
-
-    if (hFx > 0) {
-        //FX_StopSound(hFx);
+    char buffer[4];
+    fp.Read(buffer, 4);
+    if (memcmp(buffer, "LMF ", 4))
+    {
+        fp.Close();
+        // Allpw replacement with more modern formats.
+        return PlayVideo(fileName);
     }
-
-    if (inputState.keyBufferWaiting()) {
-        inputState.keyGetChar();
-    }
+    fp.Seek(0, FileReader::SeekSet);
+    return Create<DLmfPlayer>(fp);
 }
+
 END_PS_NS

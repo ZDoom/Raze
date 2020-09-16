@@ -26,26 +26,24 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
 #include "tags.h"
 #include "ai.h"
-#include "quake.h"
-#include "actor.h"
-#include "track.h"
+#include "misc.h"
 #include "weapon.h"
 #include "sector.h"
 #include "gamecontrol.h"
 #include "mapinfo.h"
+#include "v_draw.h"
 
 BEGIN_SW_NS
 
 extern uint8_t playTrack;
-SWBOOL serpwasseen = FALSE;
-SWBOOL sumowasseen = FALSE;
-SWBOOL zillawasseen = FALSE;
+bool serpwasseen = false;
+bool sumowasseen = false;
+bool zillawasseen = false;
 
 short BossSpriteNum[3] = {-1,-1,-1};
 
@@ -818,24 +816,24 @@ BossHealthMeter(void)
     PLAYERp pp = Player + myconnectindex;
     short color=0,i=0,nexti,metertics,meterunit;
     int y;
-    extern SWBOOL NoMeters;
+    extern bool NoMeters;
     short health;
-    SWBOOL bosswasseen;
-    static SWBOOL triedplay = FALSE;
+    bool bosswasseen;
+    static bool triedplay = false;
 
     if (NoMeters) return;
 
-    if (Level != 20 && Level != 4 && Level != 11 && Level != 5) return;
+    if (currentLevel->levelNumber != 20 && currentLevel->levelNumber != 4 && currentLevel->levelNumber != 11 && currentLevel->levelNumber != 5) return;
 
     // Don't draw bar for other players
     if (pp != Player+myconnectindex)
         return;
 
     // all enemys
-    if ((Level == 20 && (BossSpriteNum[0] == -1 || BossSpriteNum[1] == -1 || BossSpriteNum[2] == -1)) ||
-        (Level == 4 && BossSpriteNum[0] == -1) ||
-        (Level == 5 && BossSpriteNum[0] == -1) ||
-        (Level == 11 && BossSpriteNum[1] == -1))
+    if ((currentLevel->levelNumber == 20 && (BossSpriteNum[0] == -1 || BossSpriteNum[1] == -1 || BossSpriteNum[2] == -1)) ||
+        (currentLevel->levelNumber == 4 && BossSpriteNum[0] == -1) ||
+        (currentLevel->levelNumber == 5 && BossSpriteNum[0] == -1) ||
+        (currentLevel->levelNumber == 11 && BossSpriteNum[1] == -1))
     {
         TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
         {
@@ -859,10 +857,10 @@ BossHealthMeter(void)
 
     // Frank, good optimization for other levels, but it broke level 20. :(
     // I kept this but had to add a fix.
-    bosswasseen = serpwasseen|sumowasseen|zillawasseen;
+    bosswasseen = serpwasseen || sumowasseen || zillawasseen;
 
     // Only show the meter when you can see the boss
-    if ((Level == 20 && (!serpwasseen || !sumowasseen || !zillawasseen)) || !bosswasseen)
+    if ((currentLevel->levelNumber == 20 && (!serpwasseen || !sumowasseen || !zillawasseen)) || !bosswasseen)
     {
         for (i=0; i<3; i++)
         {
@@ -875,7 +873,7 @@ BossHealthMeter(void)
                 {
                     if (i == 0 && !serpwasseen)
                     {
-                        serpwasseen = TRUE;
+                        serpwasseen = true;
                         if (!SW_SHAREWARE)
                         {
                             PlaySong(nullptr, ThemeSongs[2], ThemeTrack[2], true);
@@ -883,7 +881,7 @@ BossHealthMeter(void)
                     }
                     else if (i == 1 && !sumowasseen)
                     {
-                        sumowasseen = TRUE;
+                        sumowasseen = true;
                         if (!SW_SHAREWARE)
                         {
                             PlaySong(nullptr, ThemeSongs[3], ThemeTrack[3], true);
@@ -891,7 +889,7 @@ BossHealthMeter(void)
                     }
                     else if (i == 2 && !zillawasseen)
                     {
-                        zillawasseen = TRUE;
+                        zillawasseen = true;
                         if (!SW_SHAREWARE)
                         {
                             PlaySong(nullptr, ThemeSongs[4], ThemeTrack[4], true);
@@ -955,7 +953,6 @@ BossHealthMeter(void)
 
         if (metertics <= 0)
         {
-            SetRedrawScreen(pp);
             continue;
         }
 
@@ -964,7 +961,7 @@ BossHealthMeter(void)
         else
             y = 30;
 
-        if (Level == 20 && numplayers >= 2)
+        if (currentLevel->levelNumber == 20 && numplayers >= 2)
         {
             if (u->ID == SUMO_RUN_R0 && sumowasseen) y += 10;
             else if (u->ID == ZILLA_RUN_R0 && zillawasseen) y += 20;
@@ -977,11 +974,11 @@ BossHealthMeter(void)
         else
             color = 22;
 
-        rotatesprite((73+12)<<16,y<<16,65536L,0,5407,1,1,
-                     (ROTATE_SPRITE_SCREEN_CLIP),0,0,xdim-1,ydim-1);
+        DrawTexture(twod, tileGetTexture(5407, true), 85, y, DTA_FullscreenScale, FSMode_Fit320x200,
+            DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, 1), TAG_DONE);
 
-        rotatesprite((100+47)<<16,y<<16,65536L,0,5406-metertics,1,color,
-                     (ROTATE_SPRITE_SCREEN_CLIP),0,0,xdim-1,ydim-1);
+        DrawTexture(twod, tileGetTexture(5406 - metertics, true), 147, y, DTA_FullscreenScale, FSMode_Fit320x200,
+            DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, color), TAG_DONE);
     }
 
 }

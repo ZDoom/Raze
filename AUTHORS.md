@@ -1,14 +1,11 @@
 ### Raze programming:
-  * Christoph Oelckers
+  * Christoph Oelckers, Mitchell Richters
 
 ### Raze special thanks:
-  * Rachael, dpJudas, Enjay, Nash
+  * sinisterseed, Rachael, dpJudas, Enjay, Nash
   
-### EDuke32 engine & game programming:
-  * TerminX
-  * Hendricks266
-  * pogokeen
-  * Plagman
+### EDuke32 engine:
+  * TerminX, Hendricks266, pogokeen, Plagman
   * Helixhorned
   
 ### JFDuke3D by:
@@ -18,24 +15,28 @@
   * Ken Silverman
   
 ### NBlood programming:
-  * Nuke.YKT
-  * NoOne
-  * sirlemonhead
+  * Nuke.YKT, NoOne, sirlemonhead
   
-### Widescreen tiles & NBlood logo:
+### Blood Widescreen tiles
   * Maxi Clouds
   
 ### NBlood special thanks:
   * NY00123, MetHy, Striker, oasiz, Mblackwell, Zombie, Marphy Black, SAmik37, meleemario
 
 ### NBlood contributors:
-
   * alexey-lysiuk, CommonLoon102, Jan200101
 
+### VoidSW programming
+  * Hendricks266, NY00123, TerminX
+
 ### PCExhumed programming:
-  * sirlemonhead
-  * Nuke.YKT
-  * NY00123
+  * sirlemonhead, Nuke.YKT, NY00123
 
 ### PCExhumed special thanks:
   * Hendricks266, JonoF, NY00123, MetHy, oasiz, Daedolon, NoOne, phredreeke, Lobotomy Software
+
+### Exhumed BigFont
+  * Dynamo
+
+## BuildGDX
+ * M210

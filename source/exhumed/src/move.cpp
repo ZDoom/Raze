@@ -18,29 +18,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "engine.h"
 #include "exhumed.h"
-#include "move.h"
-#include "init.h"
-#include "lighting.h"
-#include "bubbles.h"
-#include "object.h"
+#include "aistuff.h"
 #include "player.h"
 #include "view.h"
 #include "status.h"
-#include "runlist.h"
-#include "items.h"
 #include "sound.h"
-#include "trigdat.h"
-#include "anims.h"
-#include "random.h"
-#include "bullet.h"
+#include "mapinfo.h"
 #include <string.h>
 #include <assert.h>
-#ifndef __WATCOMC__
-//#include <cmath>
-#else
-#include <stdlib.h>
-//#include <math.h>
-#endif
+
 
 BEGIN_PS_NS
 
@@ -174,6 +160,9 @@ signed int lsqrt(int a1)
 
 void MoveThings()
 {
+    thinktime.Reset();
+    thinktime.Clock();
+
     UndoFlashes();
     DoLights();
 
@@ -185,8 +174,11 @@ void MoveThings()
     }
     else
     {
+        actortime.Reset();
+        actortime.Clock();
         runlist_ExecObjects();
         runlist_CleanRunRecs();
+        actortime.Unclock();
     }
 
     MoveStatus();
@@ -195,7 +187,7 @@ void MoveThings()
     DoMovingSects();
     DoRegenerates();
 
-    if (levelnum == kMap20)
+    if (currentLevel->levelNumber == kMap20)
     {
         DoFinale();
         if (lCountDown < 1800 && nDronePitch < 2400 && !lFinaleStart)
@@ -204,11 +196,12 @@ void MoveThings()
             BendAmbientSound();
         }
     }
+
+    thinktime.Unclock();
 }
 
 void ResetMoveFifo()
 {
-    localclock = (int)totalclock;
     movefifoend = 0;
     movefifopos = 0;
 }
@@ -319,7 +312,7 @@ int BelowNear(short nSprite)
         overridesect = nSector;
         sprite[nSprite].zvel = 0;
 
-        bTouchFloor = kTrue;
+        bTouchFloor = true;
 
         return var_24;
     }
@@ -329,7 +322,7 @@ int BelowNear(short nSprite)
     }
 }
 
-int movespritez(short nSprite, int z, int height, int UNUSED(flordist), int clipdist)
+int movespritez(short nSprite, int z, int height, int, int clipdist)
 {
     spritetype* pSprite = &sprite[nSprite];
     short nSector = pSprite->sectnum;
@@ -409,7 +402,7 @@ int movespritez(short nSprite, int z, int height, int UNUSED(flordist), int clip
     {
         if (z > 0)
         {
-            bTouchFloor = kTrue;
+            bTouchFloor = true;
 
             if ((lohit & 0xC000) == 0xC000)
             {
@@ -507,10 +500,10 @@ int GetSpriteHeight(int nSprite)
     return tilesiz[sprite[nSprite].picnum].y * sprite[nSprite].yrepeat * 4;
 }
 
-int movesprite(short nSprite, int dx, int dy, int dz, int UNUSED(ceildist), int flordist, unsigned int clipmask)
+int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigned int clipmask)
 {
     spritetype *pSprite = &sprite[nSprite];
-    bTouchFloor = kFalse;
+    bTouchFloor = false;
 
     int x = pSprite->x;
     int y = pSprite->y;
@@ -692,7 +685,18 @@ int PlotCourseToSprite(int nSprite1, int nSprite2)
 
     sprite[nSprite1].ang = GetMyAngle(x, y);
 
-    return ksqrt(y * y + x * x);
+    uint32_t x2 = klabs(x);
+    uint32_t y2 = klabs(y);
+
+    uint32_t diff = x2 * x2 + y2 * y2;
+
+    if (diff > INT_MAX)
+    {
+        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
+        diff = INT_MAX;
+    }
+
+    return ksqrt(diff);
 }
 
 int FindPlayer(int nSprite, int nDistance)
@@ -843,10 +847,18 @@ void CreatePushBlock(int nSector)
 
     for (i = 0; i < nWalls; i++)
     {
-        int x = xAvg - wall[startwall + i].x;
-        int y = yAvg - wall[startwall + i].y;
+        uint32_t xDiff = klabs(xAvg - wall[startwall + i].x);
+        uint32_t yDiff = klabs(yAvg - wall[startwall + i].y);
 
-        int nSqrt = ksqrt(x * x + y * y);
+        uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+
+        if (sqrtNum > INT_MAX)
+        {
+            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
+            sqrtNum = INT_MAX;
+        }
+
+        int nSqrt = ksqrt(sqrtNum);
         if (nSqrt > var_28) {
             var_28 = nSqrt;
         }
@@ -1108,10 +1120,18 @@ void SetQuake(short nSprite, int nVal)
     {
         int nPlayerSprite = PlayerList[i].nSprite;
 
-        int xDiff = sprite[nPlayerSprite].x - x;
-        int yDiff = sprite[nPlayerSprite].y - y;
+        uint32_t xDiff = klabs((int32_t)((sprite[nPlayerSprite].x - x) >> 8));
+        uint32_t yDiff = klabs((int32_t)((sprite[nPlayerSprite].y - y) >> 8));
 
-        int nSqrt = ksqrt((xDiff >> 8)* (xDiff >> 8) + (yDiff >> 8)* (yDiff >> 8));
+        uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+
+        if (sqrtNum > INT_MAX)
+        {
+            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
+            sqrtNum = INT_MAX;
+        }
+
+        int nSqrt = ksqrt(sqrtNum);
 
         int eax = nVal;
 
@@ -1160,12 +1180,20 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
     {
         int nHeight = tilesiz[sprite[nSprite2].picnum].y * sprite[nSprite2].yrepeat * 2;
 
-        int xDiff = sprite[nSprite2].x - sprite[nSprite].x;
-        int yDiff = sprite[nSprite2].y - sprite[nSprite].y;
+        int nMyAngle = GetMyAngle(sprite[nSprite2].x - sprite[nSprite].x, sprite[nSprite2].y - sprite[nSprite].y);
 
-        int nMyAngle = GetMyAngle(xDiff, yDiff);
+        uint32_t xDiff = klabs(sprite[nSprite2].x - sprite[nSprite].x);
+        uint32_t yDiff = klabs(sprite[nSprite2].y - sprite[nSprite].y);
 
-        int nSqrt = ksqrt(xDiff * xDiff + yDiff * yDiff);
+        uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+
+        if (sqrtNum > INT_MAX)
+        {
+            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
+            sqrtNum = INT_MAX;
+        }
+
+        int nSqrt = ksqrt(sqrtNum);
 
         int var_18 = GetMyAngle(nSqrt, ((sprite[nSprite2].z - nHeight) - sprite[nSprite].z) >> 8);
 
@@ -1209,7 +1237,15 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
     int xshift = x >> 8;
     int yshift = y >> 8;
 
-    int z = Sin(sprite[nSprite].zvel) * ksqrt((xshift * xshift) + (yshift * yshift));
+    uint32_t sqrtNum = xshift * xshift + yshift * yshift;
+
+    if (sqrtNum > INT_MAX)
+    {
+        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
+        sqrtNum = INT_MAX;
+    }
+
+    int z = Sin(sprite[nSprite].zvel) * ksqrt(sqrtNum);
 
     return movesprite(nSprite, x >> 2, y >> 2, (z >> 13) + (Sin(ecx) >> 5), 0, 0, nClipType);
 }

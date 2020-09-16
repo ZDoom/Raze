@@ -124,10 +124,13 @@ extern short nFlameHeight;
 extern short nPilotLightFrame;
 extern short nPilotLightCount;
 
-extern short laststatustile;
+extern short ChunkYpos[];
+extern short ChunkXpos[];
+extern short ChunkPict[];
+extern short ChunkFlag[];
+extern short FrameSize[];
+extern short FrameBase[];
 
-extern int laststatusx;
-extern int laststatusy;
 
 void seq_LoadSequences();
 int seq_GetFrameSound(int val, int edx);
@@ -136,11 +139,11 @@ int seq_GetSeqPicnum2(short nSeq, short nFrame);
 int seq_GetSeqPicnum(short nSeq, short edx, short ebx);
 void seq_DrawStatusSequence(short nSequence, uint16_t edx, short ebx);
 
-int seq_DrawGunSequence(int nSeqOffset, short dx, int xOffs, int yOffs, int nShade, int nPal);
+int seq_DrawGunSequence(int nSeqOffset, short dx, double xOffs, double yOffs, int nShade, int nPal);
 short seq_GetFrameFlag(short val, short nFrame);
 int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx);
 int seq_PlotArrowSequence(short nSprite, short nSeq, int nVal);
-void seq_DrawPilotLightSeq(int xOffset, int yOffset);
+void seq_DrawPilotLightSeq(double xOffset, double yOffset);
 
 END_PS_NS
 

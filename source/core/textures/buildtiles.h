@@ -1,9 +1,10 @@
 #pragma once
 
+#include <limits.h>
 #include "textures.h"
 #include "image.h"
 #include "i_time.h"
-#include "compat.h"
+#include "intvec.h"
 
 // picanm[].sf:
 // |bit(1<<7)
@@ -50,7 +51,7 @@ enum class ReplacementType : int
 // accordingly.
 struct picanm_t 
 {
-	uint8_t num;  // animate number
+	uint16_t num;  // animate number
 	uint8_t sf;  // anim. speed and flags
 	uint8_t extra;
 
@@ -70,7 +71,7 @@ struct rottile_t
 struct HightileReplacement
 {
 	FGameTexture* faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
-	vec2f_t scale;
+	FVector2 scale;
 	float alphacut, specpower, specfactor;
 	uint16_t palnum, flags;
 };
@@ -218,7 +219,7 @@ public:
 
 	void Reload()
 	{
-		buffer = std::move(Base->GetPalettedPixels(0));
+		buffer = Base->GetPalettedPixels(0);
 	}
 };
 
@@ -299,6 +300,15 @@ struct BuildTiles
 		CloseAll();
 	}
 
+	void SetBackup()
+	{
+		for (auto& td : tiledata)
+		{
+			td.backup = td.texture;
+			td.picanmbackup = td.picanm;
+		}
+	}
+
 	void CloseAll();
 
 	void AddTile(int tilenum, FGameTexture* tex, bool permap = false);
@@ -334,6 +344,15 @@ struct BuildTiles
 		}
 
 	}
+
+	void setAnim(int tile, int type, int speed, int frames)
+	{
+		auto& anm = tiledata[tile].picanm;
+		anm.sf &= ~(PICANM_ANIMTYPE_MASK | PICANM_ANIMSPEED_MASK);
+		anm.sf |= clamp(speed, 0, 15) | (type << PICANM_ANIMTYPE_SHIFT);
+		anm.num = frames;
+	}
+
 	FGameTexture* ValidateCustomTile(int tilenum, ReplacementType type);
 	int32_t artLoadFiles(const char* filename);
 	uint8_t* tileMakeWritable(int num);
@@ -364,7 +383,6 @@ void tileRemoveReplacement(int tile);
 bool tileLoad(int tileNum);
 void    artClearMapArt(void);
 void    artSetupMapArt(const char* filename);
-void tileSetAnim(int tile, const picanm_t& anm);
 int tileSetHightileReplacement(int picnum, int palnum, const char *filen, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
 int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags );
 int tileDeleteReplacement(int picnum, int palnum);
@@ -383,7 +401,7 @@ inline const uint8_t* tilePtr(int num)
 	{
 		auto tex = TileFiles.tiledata[num].texture;
 		if (!tex || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return nullptr;
-		TileFiles.tiledata[num].rawCache.data = std::move(tex->GetTexture()->Get8BitPixels(false));
+		TileFiles.tiledata[num].rawCache.data = tex->GetTexture()->Get8BitPixels(false);
 	}
 	TileFiles.tiledata[num].rawCache.lastUseTime = I_nsTime();
 	return TileFiles.tiledata[num].rawCache.data.Data();
@@ -476,15 +494,47 @@ inline rottile_t& RotTile(int tile)
 }
 
 
-inline void tileInvalidate(int tilenume, int32_t, int32_t)
-{
-	TileFiles.InvalidateTile(tilenume);
-}
+int32_t animateoffs(int const tilenum, int fakevar);
 
-inline FGameTexture* tileGetTexture(int tile)
+inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 {
 	assert(tile < MAXTILES);
+	if (animate)
+	{
+		if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
+			tile += animateoffs(tile, 0);
+
+	}
 	return TileFiles.tiledata[tile].texture;
 }
 
 bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick);
+
+
+bool ValidateTileRange(const char* cmd, int& begin, int& end, FScriptPosition pos, bool allowswap = true);
+bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos);
+
+
+struct TileImport
+{
+	FString fn;
+	int tile = -1;
+	int alphacut = 128, flags = 0;
+	int haveextra = 0;
+	int xoffset = INT_MAX, yoffset = INT_MAX;
+	int istexture = 0, extra = INT_MAX;
+	int64_t crc32 = INT64_MAX;
+	int sizex = INT_MAX, sizey;
+	// Blood extensions
+	int surface = INT_MAX, vox = INT_MAX, shade = INT_MAX;
+
+};
+
+void processTileImport(const char* cmd, FScriptPosition& pos, TileImport& imp);
+
+struct SetAnim
+{
+	int tile1, tile2, speed, type;
+};
+
+void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp);

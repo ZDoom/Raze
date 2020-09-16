@@ -71,12 +71,12 @@ extern ATTRIBUTE DefaultAttrib;
 
 // AI.C functions
 void DebugMoveHit(short SpriteNum);
-SWBOOL ActorMoveHitReact(short SpriteNum);
-SWBOOL ActorFlaming(short SpriteNum);
+bool ActorMoveHitReact(short SpriteNum);
+bool ActorFlaming(short SpriteNum);
 void DoActorSetSpeed(short SpriteNum,uint8_t speed);
 short ChooseActionNumber(short decision[]);
 int DoActorNoise(ANIMATORp Action,short SpriteNum);
-int CanSeePlayer(short SpriteNum);
+bool CanSeePlayer(short SpriteNum);
 int CanHitPlayer(short SpriteNum);
 int DoActorPickClosePlayer(short SpriteNum);
 int CloseRangeDist(SPRITEp sp1,SPRITEp sp2);

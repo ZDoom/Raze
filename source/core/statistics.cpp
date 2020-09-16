@@ -44,11 +44,12 @@
 #include "stats.h"
 #include "c_cvars.h"
 #include "sc_man.h"
-#include "baselayer.h"
 #include "serializer.h"
 #include "gstrings.h"
 #include "version.h"
 #include "engineerrors.h"
+#include "gamestruct.h"
+#include "printf.h"
 
 CVAR(Int, savestatistics, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(String, statfile, GAMENAMELOWERCASE "stat.txt", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)

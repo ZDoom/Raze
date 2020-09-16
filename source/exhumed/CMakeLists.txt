@@ -1,14 +1,16 @@
 
 set( PCH_SOURCES
-	src/aistuff.cpp
+	src/2d.cpp
 	src/anims.cpp
 	src/anubis.cpp
 	src/bubbles.cpp
 	src/bullet.cpp
 	src/cd.cpp
+	src/cheats.cpp
 	src/enginesubs.cpp
 	src/exhumed.cpp
 	src/fish.cpp
+	src/gameloop.cpp
 	src/grenade.cpp
 	src/gun.cpp
 	src/init.cpp
@@ -20,33 +22,29 @@ set( PCH_SOURCES
 	src/lion.cpp
 	src/map.cpp
 	src/menu.cpp
-	src/mono.cpp
 	src/move.cpp
 	src/movie.cpp
 	src/mummy.cpp
-	src/network.cpp
 	src/object.cpp
 	src/osdcmds.cpp
 	src/player.cpp
 	src/queen.cpp
 	src/ra.cpp
+	src/ramses.cpp
 	src/random.cpp
 	src/rat.cpp
-	src/record.cpp
 	src/rex.cpp
 	src/roach.cpp
 	src/runlist.cpp
 	src/save.cpp
 	src/scorp.cpp
 	src/sequence.cpp
-	src/serial.cpp
 	src/set.cpp
 	src/snake.cpp
 	src/sound.cpp
 	src/spider.cpp
 	src/status.cpp
 	src/switch.cpp
-	src/timer.cpp
 	src/trigdat.cpp
 	src/view.cpp
 	src/wasp.cpp

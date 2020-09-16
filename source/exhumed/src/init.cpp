@@ -16,34 +16,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
+#include "automap.h"
 #include "compat.h"
-#include "init.h"
-#include "runlist.h"
-#include "switch.h"
-#include "object.h"
 #include "aistuff.h"
 #include "player.h"
-#include "mummy.h"
-#include "move.h"
-#include "ra.h"
 #include "view.h"
-#include "runlist.h"
 #include "engine.h"
 #include "sound.h"
 #include "exhumed.h"
-#include "items.h"
-#include "light.h"
-#include "map.h"
-#include "menu.h"
-#include "lighting.h"
-#include "anims.h"
 #include "ps_input.h"
-#include "util.h"
 #include "mapinfo.h"
 #include "gamecontrol.h"
 #include "v_video.h"
+#include "status.h"
 #include <stdio.h>
 #include <string.h>
+#include "statusbar.h"
 
 BEGIN_PS_NS
 
@@ -51,9 +39,6 @@ enum
 {
     kTagRamses = 61,
 };
-
-void uploadCinemaPalettes();
-ClockTicks ototalclock = 0;
 
 int initx, inity, initz;
 short inita, initsect;
@@ -76,23 +61,33 @@ short SectSpeed[kMaxSectors]     = { 0 };
 int   SectBelow[kMaxSectors]     = { 0 };
 
 
-uint8_t bIsVersion6 = kTrue;
+uint8_t bIsVersion6 = true;
 
 
 
 
 uint8_t LoadLevel(int nMap)
 {
+    if (nMap == kMap20)
+    {
+        lCountDown = 81000;
+        nAlarmTicks = 30;
+        nRedTicks = 0;
+        nClockVal = 0;
+        nEnergyTowers = 0;
+    }
+
     initspritelists();
 
-    currentLevel = &mapList[nMap];
 
     // init stuff
     {
         StopAllSounds();
-        nCreaturesLeft = 0;
+        nCreaturesKilled = 0;
+        nCreaturesTotal = 0;
         nFreeze = 0;
         nSpiritSprite = -1;
+        leveltime = 0;
 
         InitLion();
         InitRexs();
@@ -108,7 +103,7 @@ uint8_t LoadLevel(int nMap)
         InitSnakes();
         InitFishes();
         InitLights();
-        InitMap();
+        ClearAutomap();
         InitBubbles();
         InitObjects();
         InitLava();
@@ -142,7 +137,7 @@ uint8_t LoadLevel(int nMap)
     }
 
     if (nMap < 0) {
-        return kFalse;
+        return false;
     }
 
     vec3_t startPos;
@@ -153,10 +148,6 @@ uint8_t LoadLevel(int nMap)
     inity = startPos.y;
     initz = startPos.z;
 
-#ifdef YAX_ENABLE
-    yax_update(1);
-#endif
-
     int i;
 
     for (i = 0; i < kMaxPlayers; i++)
@@ -164,7 +155,7 @@ uint8_t LoadLevel(int nMap)
         PlayerList[i].nSprite = -1;
     }
 
-    psky_t* pSky = tileSetupSky(0);
+    psky_t* pSky = tileSetupSky(DEFAULTPSKY);
 
     pSky->tileofs[0] = 0;
     pSky->tileofs[1] = 0;
@@ -180,53 +171,60 @@ uint8_t LoadLevel(int nMap)
     precache();
 
     LoadObjects();
-
-    levelnum = nMap;
-
-    return kTrue;
+    return true;
 }
 
-void ResetEngine()
+void InitLevel(int level) // todo: use a map record
 {
-    SetOverscan(BASEPAL);
-
-    EraseScreen(-1);
-
-    resettiming();
-
-    totalclock  = 0;
-    ototalclock = totalclock;
-    localclock  = (int)totalclock;
-
-    numframes = 0;
-}
-
-void InstallEngine()
-{
-    // initgroupfile("stuff.dat");
-	TileFiles.LoadArtSet("tiles%03d.art");
-
-	// TEMP
-
-    //nScreenWidth *= 2;
-    //nScreenHeight *= 2;
-    bHiRes = kTrue;
-    // TEMP
-
-    if (engineInit())
-    {
-        G_FatalEngineError();
+    StopCD();
+    currentLevel = FindMapByLevelNum(level);
+    if (!LoadLevel(level)) {
+        I_Error("Can't load level %d...\n", level);
     }
-    uploadCinemaPalettes();
-    LoadPaletteLookups();
-    videoInit();
 
-    enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
+    for (int i = 0; i < nTotalPlayers; i++)
+    {
+        SetSavePoint(i, initx, inity, initz, initsect, inita);
+        RestartPlayer(i);
+        InitPlayerKeys(i);
+    }
+    EndLevel = 0;
+    lastfps = 0;
+    InitStatus();
+    ResetView();
+    ResetEngine();
+    totalmoves = 0;
+    GrabPalette();
+    ResetMoveFifo();
+    nPlayerDAng = 0;
+    lPlayerXVel = 0;
+    lPlayerYVel = 0;
+    movefifopos = movefifoend;
+
+    RefreshStatus();
+
+    int nTrack = level;
+    if (nTrack != 0) nTrack--;
+
+    playCDtrack((nTrack % 8) + 11, true);
+	setLevelStarted(currentLevel);
 }
 
-void RemoveEngine()
+void InitNewGame()
 {
-    engineUnInit();
+    bCamera = false;
+    nCinemaSeen = 0;
+    PlayerCount = 0;
+
+    for (int i = 0; i < nTotalPlayers; i++)
+    {
+        int nPlayer = GrabPlayer();
+        if (nPlayer < 0) {
+            I_Error("Can't create local player\n");
+        }
+
+        InitPlayerInventory(nPlayer);
+    }
 }
 
 void SetBelow(short nCurSector, short nBelowSector)
@@ -493,7 +491,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
 
     int v6 = nLotag % 1000;
 
-    if (!bNoCreatures || v6 < 100 || v6 > 118)
+    if (!userConfig.nomonsters || v6 < 100 || v6 > 118)
     {
         if (v6 > 999) {
             mydeletesprite(nSprite);
@@ -514,7 +512,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 118: // Anubis with drum
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -524,7 +522,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 117:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -554,7 +552,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 111:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -564,7 +562,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 108:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -574,7 +572,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 107:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -584,7 +582,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 106:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -594,7 +592,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 105:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -604,7 +602,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 104:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -614,7 +612,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 103:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -624,7 +622,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 102:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -634,7 +632,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 101:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -644,7 +642,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 100:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -862,7 +860,6 @@ void LoadObjects()
     InitSwitch();
     InitElev();
     InitWallFace();
-    InitTimeSlot();
     InitSectFlag();
 
     for (int nSector = 0; nSector < numsectors; nSector++)
@@ -915,16 +912,6 @@ void LoadObjects()
     nCameraz = initz;
 }
 
-int myloadconfig()
-{
-
-    return 1;
-}
-
-int mysaveconfig()
-{
-    return 1;
-}
 
 static SavegameHelper sgh("init",
     SV(initx),

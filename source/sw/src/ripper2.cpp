@@ -26,16 +26,14 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
 #include "tags.h"
 #include "ai.h"
 #include "pal.h"
-#include "actor.h"
 #include "sprite.h"
-#include "track.h"
+#include "misc.h"
 
 BEGIN_SW_NS
 
@@ -947,7 +945,7 @@ InitRipper2Hang(short SpriteNum)
 
     hitdata_t hitinfo = { { 0, 0, 0 }, -2, 0, -2 };
 
-    SWBOOL Found = FALSE;
+    bool Found = false;
     short dang, tang;
 
     for (dang = 0; dang < 2048; dang += 128)
@@ -970,7 +968,7 @@ InitRipper2Hang(short SpriteNum)
             continue;
         }
 
-        Found = TRUE;
+        Found = true;
         sp->ang = tang;
         break;
     }
@@ -1098,7 +1096,6 @@ DoRipper2BeginJumpAttack(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     SPRITEp psp = User[SpriteNum]->tgt_sp;
-    int CanSeePlayer(short SpriteNum);
     short tang;
 
     tang = getangle(psp->x - sp->x, psp->y - sp->y);
@@ -1181,11 +1178,11 @@ DoRipper2QuickJump(short SpriteNum)
             NewStateGroup(SpriteNum, sg_Ripper2JumpAttack);
             // move past the first state
             u->Tics = 30;
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 

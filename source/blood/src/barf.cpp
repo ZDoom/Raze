@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "common_game.h"
-#include "resource.h"
 #include "misc.h"
 #include "globals.h"
 #include "sound.h"
@@ -36,8 +35,6 @@ BEGIN_BLD_NS
 // I don't think we still need these.
 #define DICT_LOAD 0
 #define DICT_LOCK 0
-
-static Resource gBarfRes;
 
 #define kMaxCmdLineDefines  5
 #define kMaxDefines         1000
@@ -121,7 +118,7 @@ const int kTagCount = sizeof(tags) / sizeof(tag_t);
 
 int qsort_compar(const void *a, const void *b)
 {
-    return Bstrcasecmp((const char*)a, (const char*)b);
+    return stricmp((const char*)a, (const char*)b);
 }
 
 void SortTags()
@@ -138,6 +135,52 @@ void AddCmdDefine(char *text, int value)
 
     nCmdDefines++;
 }
+
+static void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType)
+{
+    int const nLength = strlen(pzPath);
+    const char *pDirectory = pzPath+nLength;
+    const char *pDot = NULL;
+    for (int i = nLength-1; i >= 0; i--)
+    {
+        if (pzPath[i] == '/' || pzPath[i] == '\\')
+        {
+            strncpy(pzDirectory, pzPath, i);
+            pzDirectory[i] = 0;
+            if (!pDot)
+            {
+                strcpy(pzFile, pzPath+i+1);
+                strcpy(pzType, "");
+            }
+            else
+            {
+                strncpy(pzFile, pzPath+i+1, pDot-(pzPath+i+1));
+                pzFile[pDot-(pzPath+i+1)] = 0;
+                strcpy(pzType, pDot+1);
+            }
+           
+            return;
+        }
+        else if (pzPath[i] == '.')
+        {
+            pDot = pzPath+i;
+        }
+    }
+    strcpy(pzDirectory, "/");
+    if (!pDot)
+    {
+        strcpy(pzFile, pzPath);
+        strcpy(pzType, "");
+    }
+    else
+    {
+        strncpy(pzFile, pzPath, pDot-pzPath);
+        pzFile[pDot-pzPath] = 0;
+        strcpy(pzType, pDot+1);
+    }
+}
+
+
 
 // 174 bytes
 struct RFS
@@ -409,7 +452,7 @@ uint8_t RFS::GetNextTag()
                     }
 
                     // eax = strnicmp(tags[i]._value, scriptBuffer, ebp);
-                    eax = Bstrncasecmp(scriptBuffer, tags[i]._value, ebp);
+                    eax = strnicmp(scriptBuffer, tags[i]._value, ebp);
 
                     //if (eax >= 0) {
                     if (eax == 0) {
@@ -642,7 +685,7 @@ void ParseScript(int lumpnum)
                     // check if this was defined via command prompt arguments
                     for (int i = 0; i < nCmdDefines; i++)
                     {
-                        if (Bstrcasecmp(gCmdDefines[i]._text, char256_1) == 0) { // string is equivalent
+                        if (stricmp(gCmdDefines[i]._text, char256_1) == 0) { // string is equivalent
                             bGotDefine = true;
                             break;
                         }

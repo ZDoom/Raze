@@ -27,22 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "mmulti.h"
 #include "common_game.h"
-#include "config.h"
 #include "ai.h"
-#include "asound.h"
 #include "blood.h"
-#include "demo.h"
 #include "globals.h"
 #include "db.h"
 #include "messages.h"
-#include "gamemenu.h"
-#include "network.h"
 #include "loadsave.h"
-#include "resource.h"
-#include "screen.h"
 #include "sectorfx.h"
 #include "seq.h"
-#include "sfx.h"
 #include "sound.h"
 #include "i_specialpaths.h"
 #include "view.h"
@@ -50,26 +42,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegamehelp.h"
 #include "raze_music.h"
 #include "mapinfo.h"
+#include "gamestate.h"
+#include "d_net.h"
 
-#include "aibat.h"
-#include "aibeast.h"
-#include "aiboneel.h"
-#include "aiburn.h"
-#include "aicaleb.h"
-#include "aicerber.h"
-#include "aicult.h"
-#include "aigarg.h"
-#include "aighost.h"
-#include "aigilbst.h"
-#include "aihand.h"
-#include "aihound.h"
-#include "aiinnoc.h"
-#include "aipod.h"
-#include "airat.h"
-#include "aispid.h"
-#include "aitchern.h"
-#include "aizomba.h"
-#include "aizombf.h"
+#include "aistate.h"
 #include "aiunicult.h"
 
 
@@ -500,15 +476,11 @@ void LoadSave::Write(void *pData, int nSize)
 
 bool GameInterface::LoadGame(FSaveGameNode* node)
 {
-    bool demoWasPlayed = gDemo.at1;
-    if (gDemo.at1)
-        gDemo.Close();
-
     sndKillAllSounds();
     sfxKillAllSounds();
     ambKillAll();
     seqKillAll();
-    if (!gGameStarted)
+    if (gamestate != GS_LEVEL)
     {
         memset(xsprite, 0, sizeof(xsprite));
     }
@@ -529,48 +501,13 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     if (!bVanilla && !gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
         sfxSetReverb(0);
     ambInit();
-    memset(myMinLag, 0, sizeof(myMinLag));
-    otherMinLag = 0;
-    myMaxLag = 0;
-    gNetFifoClock = 0;
-    gNetFifoTail = 0;
-    memset(gNetFifoHead, 0, sizeof(gNetFifoHead));
-    gPredictTail = 0;
-    gNetFifoMasterTail = 0;
-    memset(gFifoInput, 0, sizeof(gFifoInput));
-    memset(gChecksum, 0, sizeof(gChecksum));
-    memset(gCheckFifo, 0, sizeof(gCheckFifo));
-    memset(gCheckHead, 0, sizeof(gCheckHead));
-    gSendCheckTail = 0;
-    gCheckTail = 0;
-    gBufferJitter = 0;
-    bOutOfSync = 0;
     for (int i = 0; i < gNetPlayers; i++)
         playerSetRace(&gPlayer[i], gPlayer[i].lifeMode);
-    if (VanillaMode())
-        viewSetMessage("");
-    else
-        gGameMessageMgr.Clear();
-    viewSetErrorMessage("");
-    if (!gGameStarted)
-    {
-        netWaitForEveryone(0);
-        memset(gPlayerReady, 0, sizeof(gPlayerReady));
-    }
-    gFrameTicks = 0;
-    gFrame = 0;
-    gFrameRate = 0;
-    totalclock = 0;
+	viewSetErrorMessage("");
+    Net_ClearFifo();
     paused = 0;
-    gGameStarted = 1;
     bVanilla = false;
     
-
-#ifdef USE_STRUCT_TRACKERS
-    Bmemset(sectorchanged, 0, sizeof(sectorchanged));
-    Bmemset(spritechanged, 0, sizeof(spritechanged));
-    Bmemset(wallchanged, 0, sizeof(wallchanged));
-#endif
 
 #ifdef USE_OPENGL
     Polymost_prepare_loadboard();
@@ -592,8 +529,10 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
 
 	Mus_ResumeSaved();
 
-    netBroadcastPlayerInfo(myconnectindex);
-	return true;
+    PROFILE* pProfile = &gProfile[myconnectindex];
+    strcpy(pProfile->name, playername);
+    pProfile->skill = gSkill;
+    return true;
 }
 
 bool GameInterface::SaveGame(FSaveGameNode* node)
@@ -620,7 +559,7 @@ bool GameInterface::SaveGame(FSaveGameNode* node)
 	}
 	LoadSave::hSFile = NULL;
 
-	return FinishSavegameWrite();
+	return 1;
 }
 
 class MyLoadSave : public LoadSave
@@ -632,7 +571,7 @@ public:
 
 void MyLoadSave::Load(void)
 {
-    psky_t *pSky = tileSetupSky(0);
+    psky_t *pSky = tileSetupSky(DEFAULTPSKY);
     int id;
     Read(&id, sizeof(id));
     if (id != 0x5653424e/*'VSBN'*/)
@@ -656,12 +595,7 @@ void MyLoadSave::Load(void)
     Read(gotpic, sizeof(gotpic));
     Read(gotsector, sizeof(gotsector));
     Read(&gFrameClock, sizeof(gFrameClock));
-    Read(&gFrameTicks, sizeof(gFrameTicks));
-    Read(&gFrame, sizeof(gFrame));
-    ClockTicks nGameClock;
-    Read(&totalclock, sizeof(totalclock));
-    totalclock = nGameClock;
-    Read(&gLevelTime, sizeof(gLevelTime));
+    Read(&gFrameCount, sizeof(gFrameCount));
     Read(&paused, sizeof(paused));
     Read(baseWall, sizeof(baseWall[0])*numwalls);
     Read(baseSprite, sizeof(baseSprite[0])*nNumSprites);
@@ -711,14 +645,15 @@ void MyLoadSave::Load(void)
     Read(&gMapRev, sizeof(gMapRev));
     Read(&gSongId, sizeof(gSkyCount));
     Read(&gFogMode, sizeof(gFogMode));
+    Read(&gViewAngle, sizeof(gViewAngle));
+    Read(&gViewLook, sizeof(gViewLook));
 #ifdef NOONE_EXTENSIONS
     Read(&gModernMap, sizeof(gModernMap));
 #endif
-    psky_t skyInfo;
-    Read(&skyInfo, sizeof(skyInfo));
-
-    *tileSetupSky(0) = skyInfo;
-    gCheatMgr.sub_5BCF4();
+    psky_t *skyInfo = tileSetupSky(DEFAULTPSKY);
+    Read(skyInfo, sizeof(*skyInfo));
+    skyInfo->combinedtile = -1;
+    cheatReset();
 
 }
 
@@ -750,11 +685,7 @@ void MyLoadSave::Save(void)
     Write(gotpic, sizeof(gotpic));
     Write(gotsector, sizeof(gotsector));
     Write(&gFrameClock, sizeof(gFrameClock));
-    Write(&gFrameTicks, sizeof(gFrameTicks));
-    Write(&gFrame, sizeof(gFrame));
-    ClockTicks nGameClock = totalclock;
-    Write(&nGameClock, sizeof(nGameClock));
-    Write(&gLevelTime, sizeof(gLevelTime));
+    Write(&gFrameCount, sizeof(gFrameCount));
     Write(&paused, sizeof(paused));
     Write(baseWall, sizeof(baseWall[0])*numwalls);
     Write(baseSprite, sizeof(baseSprite[0])*nNumSprites);
@@ -802,19 +733,13 @@ void MyLoadSave::Save(void)
     Write(&gMapRev, sizeof(gMapRev));
     Write(&gSongId, sizeof(gSkyCount));
     Write(&gFogMode, sizeof(gFogMode));
+    Write(&gViewAngle, sizeof(gViewAngle));
+    Write(&gViewLook, sizeof(gViewLook));
 #ifdef NOONE_EXTENSIONS
     Write(&gModernMap, sizeof(gModernMap));
 #endif
-    psky_t skyInfo = *tileSetupSky(0);
-    Write(&skyInfo, sizeof(skyInfo));
-}
-
-void LoadSavedInfo(void)
-{
-}
-
-void UpdateSavedInfo(int nSlot)
-{
+    psky_t *skyInfo = tileSetupSky(DEFAULTPSKY);
+    Write(skyInfo, sizeof(*skyInfo));
 }
 
 static MyLoadSave *myLoadSave;

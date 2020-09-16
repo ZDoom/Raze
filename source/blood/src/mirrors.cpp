@@ -30,9 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameutil.h"
 #include "loadsave.h"
 #include "player.h"
-#include "trig.h"
 #include "view.h"
-#include "warp.h"
 
 BEGIN_BLD_NS
 
@@ -40,8 +38,8 @@ int mirrorcnt, mirrorsector, mirrorwall[4];
 
 typedef struct
 {
-    int at0;
-    int at4;
+    int TotalKills;
+    int Kills;
     int at8;
     int atc;
     int at10;
@@ -50,42 +48,11 @@ typedef struct
 
 MIRROR mirror[16];
 
-#ifdef POLYMER
-void PolymerRORCallback(int16_t sectnum, int16_t wallnum, int8_t rorstat, int16_t* msectnum, int32_t* gx, int32_t* gy, int32_t* gz)
-{
-    UNREFERENCED_PARAMETER(wallnum);
-    int nMirror;
-    switch (rorstat)
-    {
-    case 1:
-        nMirror = sector[sectnum].ceilingpicnum-4080;
-        *msectnum = mirror[nMirror].at4;
-        *gx += mirror[nMirror].at8;
-        *gy += mirror[nMirror].atc;
-        *gz += mirror[nMirror].at10;
-        break;
-    case 2:
-        nMirror = sector[sectnum].floorpicnum-4080;
-        *msectnum = mirror[nMirror].at4;
-        *gx += mirror[nMirror].at8;
-        *gy += mirror[nMirror].atc;
-        *gz += mirror[nMirror].at10;
-        break;
-    }
-}
-#endif
-
 void InitMirrors(void)
 {
-
-#ifdef USE_OPENGL
     r_rortexture = 4080;
     r_rortexturerange = 16;
-#ifdef  POLYMER
-    polymer_setrorcallback(PolymerRORCallback);
-#endif //  POLYMER
 
-#endif
     mirrorcnt = 0;
     tileDelete(504);
     
@@ -104,7 +71,7 @@ void InitMirrors(void)
             {
                 wall[i].overpicnum = nTile;
                 mirror[mirrorcnt].at14 = i;
-                mirror[mirrorcnt].at0 = 0;
+                mirror[mirrorcnt].TotalKills = 0;
                 wall[i].cstat |= 32;
                 int tmp = xwall[wall[i].extra].data;
                 int j;
@@ -118,7 +85,7 @@ void InitMirrors(void)
                             continue;
                         wall[i].hitag = j;
                         wall[j].hitag = i;
-                        mirror[mirrorcnt].at4 = j;
+                        mirror[mirrorcnt].Kills = j;
                         break;
                     }
                 }
@@ -130,10 +97,10 @@ void InitMirrors(void)
         }
         if (wall[i].picnum == 504)
         {
-            mirror[mirrorcnt].at4 = i;
+            mirror[mirrorcnt].Kills = i;
             mirror[mirrorcnt].at14 = i;
             wall[i].picnum = nTile;
-            mirror[mirrorcnt].at0 = 0;
+            mirror[mirrorcnt].TotalKills = 0;
             wall[i].cstat |= 32;
             mirrorcnt++;
             continue;
@@ -153,20 +120,20 @@ void InitMirrors(void)
             int j = sprite[nLink2].sectnum;
             if (sector[j].ceilingpicnum != 504)
                 ThrowError("Lower link sector %d doesn't have mirror picnum\n", j);
-            mirror[mirrorcnt].at0 = 2;
+            mirror[mirrorcnt].TotalKills = 2;
             mirror[mirrorcnt].at8 = sprite[nLink2].x-sprite[nLink].x;
             mirror[mirrorcnt].atc = sprite[nLink2].y-sprite[nLink].y;
             mirror[mirrorcnt].at10 = sprite[nLink2].z-sprite[nLink].z;
             mirror[mirrorcnt].at14 = i;
-            mirror[mirrorcnt].at4 = j;
+            mirror[mirrorcnt].Kills = j;
             sector[i].floorpicnum = 4080+mirrorcnt;
             mirrorcnt++;
-            mirror[mirrorcnt].at0 = 1;
+            mirror[mirrorcnt].TotalKills = 1;
             mirror[mirrorcnt].at8 = sprite[nLink].x-sprite[nLink2].x;
             mirror[mirrorcnt].atc = sprite[nLink].y-sprite[nLink2].y;
             mirror[mirrorcnt].at10 = sprite[nLink].z-sprite[nLink2].z;
             mirror[mirrorcnt].at14 = j;
-            mirror[mirrorcnt].at4 = i;
+            mirror[mirrorcnt].Kills = i;
             sector[j].ceilingpicnum = 4080+mirrorcnt;
             mirrorcnt++;
         }
@@ -200,7 +167,7 @@ void sub_5571C(char mode)
         int nTile = 4080+i;
         if (TestBitString(gotpic, nTile))
         {
-            switch (mirror[i].at0)
+            switch (mirror[i].TotalKills)
             {
                 case 1:
                     if (mode)
@@ -233,9 +200,9 @@ void sub_557C4(int x, int y, int interpolation)
         int nTile = 4080+i;
         if (TestBitString(gotpic, nTile))
         {
-            if (mirror[i].at0 == 1 || mirror[i].at0 == 2)
+            if (mirror[i].TotalKills == 1 || mirror[i].TotalKills == 2)
             {
-                int nSector = mirror[i].at4;
+                int nSector = mirror[i].Kills;
                 int nSector2 = mirror[i].at14;
                 for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
                 {
@@ -249,7 +216,7 @@ void sub_557C4(int x, int y, int interpolation)
                     if (pSprite->statnum == kStatDude && (top < zCeil || bottom > zFloor))
                     {
                         int j = i;
-                        if (mirror[i].at0 == 2)
+                        if (mirror[i].TotalKills == 2)
                             j++;
                         else
                             j--;
@@ -328,7 +295,7 @@ void sub_557C4(int x, int y, int interpolation)
     }
 }
 
-void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int viewPlayer)
+void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int viewPlayer)
 {
     if (videoGetRenderMode() == REND_POLYMER)
         return;
@@ -338,11 +305,11 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
         if (TestBitString(gotpic, nTile))
         {
             ClearBitString(gotpic, nTile);
-            switch (mirror[i].at0)
+            switch (mirror[i].TotalKills)
             {
             case 0:
             {
-                int nWall = mirror[i].at4;
+                int nWall = mirror[i].Kills;
                 int nSector = sectorofwall(nWall);
                 walltype *pWall = &wall[nWall];
                 int nNextWall = pWall->nextwall;
@@ -372,14 +339,8 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
                 {
                     renderPrepareMirror(x,y,z,a,horiz,nWall,&cx,&cy,&ca);
                 }
-#ifdef POLYMER
-                if (videoGetRenderMode() == REND_POLYMER)
-                    polymer_setanimatesprites(viewProcessSprites, cx, cy, z, fix16_to_int(ca), smooth);
-#endif
-                yax_preparedrawrooms();
                 int32_t didmirror = renderDrawRoomsQ16(cx, cy, z, ca,horiz,mirrorsector|MAXSECTORS);
-                yax_drawrooms(viewProcessSprites, mirrorsector, didmirror, smooth);
-                viewProcessSprites(cx,cy,z,fix16_to_int(ca),smooth);
+                viewProcessSprites(cx,cy,z,FixedToInt(ca),smooth);
                 renderDrawMasks();
                 if (GetWallType(nWall) != kWallStack)
                     renderCompleteMirror();
@@ -391,10 +352,7 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
             }
             case 1:
             {
-#ifdef USE_OPENGL
-                r_rorphase = 1;
-#endif
-                int nSector = mirror[i].at4;
+                int nSector = mirror[i].Kills;
                 int bakCstat;
                 if (viewPlayer >= 0)
                 {
@@ -408,14 +366,8 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
                         gPlayer[viewPlayer].pSprite->cstat |= 514;
                     }
                 }
-#ifdef POLYMER
-                if (videoGetRenderMode() == REND_POLYMER)
-                    polymer_setanimatesprites(viewProcessSprites, x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, fix16_to_int(a), smooth);
-#endif
-                yax_preparedrawrooms();
                 renderDrawRoomsQ16(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, a, horiz, nSector|MAXSECTORS);
-                yax_drawrooms(viewProcessSprites, nSector, 0, smooth);
-                viewProcessSprites(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, fix16_to_int(a), smooth);
+                viewProcessSprites(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, FixedToInt(a), smooth);
                 short fstat = sector[nSector].floorstat;
                 sector[nSector].floorstat |= 1;
                 renderDrawMasks();
@@ -426,17 +378,11 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
                 {
                     gPlayer[viewPlayer].pSprite->cstat = bakCstat;
                 }
-#ifdef USE_OPENGL
-                r_rorphase = 0;
-#endif
                 return;
             }
             case 2:
             {
-#ifdef USE_OPENGL
-                r_rorphase = 1;
-#endif
-                int nSector = mirror[i].at4;
+                int nSector = mirror[i].Kills;
                 int bakCstat;
                 if (viewPlayer >= 0)
                 {
@@ -450,14 +396,10 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
                         gPlayer[viewPlayer].pSprite->cstat |= 514;
                     }
                 }
-#ifdef POLYMER
-                if (videoGetRenderMode() == REND_POLYMER)
-                    polymer_setanimatesprites(viewProcessSprites, x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, fix16_to_int(a), smooth);
-#endif
                 yax_preparedrawrooms();
                 renderDrawRoomsQ16(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, a, horiz, nSector|MAXSECTORS);
                 yax_drawrooms(viewProcessSprites, nSector, 0, smooth);
-                viewProcessSprites(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, fix16_to_int(a), smooth);
+                viewProcessSprites(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, FixedToInt(a), smooth);
                 short cstat = sector[nSector].ceilingstat;
                 sector[nSector].ceilingstat |= 1;
                 renderDrawMasks();
@@ -468,9 +410,7 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
                 {
                     gPlayer[viewPlayer].pSprite->cstat = bakCstat;
                 }
-#ifdef USE_OPENGL
-                r_rorphase = 0;
-#endif
+
                 return;
             }
             }
@@ -491,9 +431,6 @@ void MirrorLoadSave::Load(void)
 #ifdef USE_OPENGL
     r_rortexture = 4080;
     r_rortexturerange = 16;
-#ifdef  POLYMER
-    polymer_setrorcallback(PolymerRORCallback);
-#endif //  POLYMER
 
 #endif
     Read(&mirrorcnt,sizeof(mirrorcnt));

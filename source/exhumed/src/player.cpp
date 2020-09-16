@@ -18,33 +18,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "compat.h"
 #include "player.h"
-#include "runlist.h"
+#include "aistuff.h"
 #include "exhumed.h"
 #include "names.h"
-#include "gun.h"
-#include "items.h"
 #include "engine.h"
-#include "move.h"
 #include "sequence.h"
-#include "lighting.h"
 #include "view.h"
-#include "bubbles.h"
-#include "random.h"
-#include "ra.h"
 #include "ps_input.h"
-#include "light.h"
 #include "status.h"
 #include "sound.h"
-#include "init.h"
-#include "move.h"
-#include "trigdat.h"
-#include "anims.h"
-#include "grenade.h"
-#include "menu.h"
-#include "cd.h"
-#include "map.h"
 #include "sound.h"
 #include "buildtiles.h"
+#include "gstrings.h"
+#include "gamestate.h"
+#include "mapinfo.h"
+#include "automap.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -60,13 +49,12 @@ struct PlayerSave
     short nAngle;
 };
 
-fix16_t lPlayerXVel = 0;
-fix16_t lPlayerYVel = 0;
-fix16_t nPlayerDAng = 0;
+int lPlayerXVel = 0;
+int lPlayerYVel = 0;
+fixed_t nPlayerDAng = 0;
 short obobangle = 0, bobangle  = 0;
 short bPlayerPan = 0;
 short bLockPan  = 0;
-bool g_MyAimMode;
 
 static actionSeq ActionSeq[] = {
     {18,  0}, {0,   0}, {9,   0}, {27,  0}, {63,  0},
@@ -125,6 +113,7 @@ short nPlayerDouble[kMaxPlayers];
 short nPlayerViewSect[kMaxPlayers];
 short nPlayerFloorSprite[kMaxPlayers];
 PlayerSave sPlayerSave[kMaxPlayers];
+int ototalvel[kMaxPlayers] = { 0 };
 int totalvel[kMaxPlayers] = { 0 };
 int16_t eyelevel[kMaxPlayers], oeyelevel[kMaxPlayers];
 short nNetStartSprite[kMaxPlayers] = { 0 };
@@ -141,225 +130,6 @@ short PlayerCount;
 
 short nNetStartSprites;
 short nCurStartSprite;
-
-/*
-typedef struct
-{
-fixed     dx;
-fixed     dy;
-fixed     dz;
-fixed     dyaw;
-fixed     dpitch;
-fixed     droll;
-} ControlInfo;
-*/
-
-void PlayerInterruptKeys()
-{
-    ControlInfo info;
-	memset(&info, 0, sizeof(ControlInfo)); // this is done within CONTROL_GetInput() anyway
-    CONTROL_GetInput(&info);
-
-    static double lastInputTicks;
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
-
-    lastInputTicks = currentHiTicks;
-
-    auto scaleAdjustmentToInterval = [=](double x) { return x * (120 / 4) / (1000.0 / elapsedInputTicks); };
-
-    if (paused)
-        return;
-
-	D_ProcessEvents();
-
-    localInput = {};
-    PlayerInput input {};
-
-    if (PlayerList[nLocalPlayer].nHealth == 0)
-    {
-        lPlayerYVel = 0;
-        lPlayerXVel = 0;
-        nPlayerDAng = 0;
-        return;
-    }
-
-    // JBF: Run key behaviour is selectable
-    int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    int const turnAmount = playerRunning ? 12 : 8;
-    int const keyMove    = playerRunning ? 12 : 6;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe))
-    {
-        input.xVel -= info.mousex * 4.f;
-        input.xVel -= info.dyaw * keyMove;
-    }
-    else
-    {
-        input.nAngle = fix16_sadd(input.nAngle, fix16_from_float(info.mousex));
-        input.nAngle = fix16_sadd(input.nAngle, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
-    }
-
-    g_MyAimMode = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
-    if (g_MyAimMode)
-        input.horizon = fix16_sadd(input.horizon, fix16_from_float(info.mousey));
-    else
-        input.yVel -= info.mousey * 8.f;
-
-    if (!in_mouseflip) input.horizon = -input.horizon;
-
-    input.horizon = fix16_ssub(input.horizon, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch)));
-    input.xVel -= info.dx * keyMove;
-    input.yVel -= info.dz * keyMove;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe))
-    {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-            input.xVel -= -keyMove;
-
-        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-            input.xVel -= keyMove;
-    }
-    else
-    {
-        static int turn = 0;
-        static int counter = 0;
-        // normal, non strafing movement
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-        {
-            turn -= 2;
-
-            if (turn < -turnAmount)
-                turn = -turnAmount;
-        }
-        else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-        {
-            turn += 2;
-
-            if (turn > turnAmount)
-                turn = turnAmount;
-        }
-
-        if (turn < 0)
-        {
-            turn++;
-            if (turn > 0)
-                turn = 0;
-        }
-
-        if (turn > 0)
-        {
-            turn--;
-            if (turn < 0)
-                turn = 0;
-        }
-
-        //if ((counter++) % 4 == 0) // what was this for???
-            input.nAngle = fix16_sadd(input.nAngle, fix16_from_dbl(scaleAdjustmentToInterval(turn * 2)));
-
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-        input.xVel += keyMove;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-        input.xVel += -keyMove;
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-        input.yVel += keyMove;
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-        input.yVel += -keyMove;
-
-    localInput.yVel   = clamp(localInput.yVel + input.yVel, -12, 12);
-    localInput.xVel   = clamp(localInput.xVel + input.xVel, -12, 12);
-
-    localInput.nAngle                 = fix16_sadd(localInput.nAngle, input.nAngle);
-    PlayerList[nLocalPlayer].q16angle = fix16_sadd(PlayerList[nLocalPlayer].q16angle, input.nAngle) & 0x7FFFFFF;
-
-    // A horiz diff of 128 equal 45 degrees,
-    // so we convert horiz to 1024 angle units
-
-    float const horizAngle = clamp(atan2f(PlayerList[nLocalPlayer].q16horiz - fix16_from_int(92), fix16_from_int(128)) * (512.f / fPI) + fix16_to_float(input.horizon), -255.f, 255.f);
-    PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92) + Blrintf(fix16_from_int(128) * tanf(horizAngle * (fPI / 512.f)));
-
-    // Look/aim up/down functions.
-    if (buttonMap.ButtonDown(gamefunc_Look_Up) || buttonMap.ButtonDown(gamefunc_Aim_Up))
-    {
-        bLockPan = kFalse;
-        if (PlayerList[nLocalPlayer].q16horiz < fix16_from_int(180)) {
-            PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
-        }
-
-        bPlayerPan = kTrue;
-        nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
-    }
-    else if (buttonMap.ButtonDown(gamefunc_Look_Down) || buttonMap.ButtonDown(gamefunc_Aim_Down))
-    {
-        bLockPan = kFalse;
-        if (PlayerList[nLocalPlayer].q16horiz > fix16_from_int(4)) {
-            PlayerList[nLocalPlayer].q16horiz = fix16_ssub(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
-        }
-
-        bPlayerPan = kTrue;
-        nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
-    }
-    else if (buttonMap.ButtonDown(gamefunc_Center_View))
-    {
-        bLockPan = kFalse;
-        bPlayerPan = kFalse;
-        PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
-        nDestVertPan[nLocalPlayer] = fix16_from_int(92);
-    }
-
-    // loc_1C048:
-    if (totalvel[nLocalPlayer] > 20) {
-        bPlayerPan = kFalse;
-    }
-
-    if (g_MyAimMode)
-        bLockPan = kTrue;
-
-    // loc_1C05E
-    fix16_t ecx = nDestVertPan[nLocalPlayer] - PlayerList[nLocalPlayer].q16horiz;
-
-    if (g_MyAimMode)
-    {
-        ecx = 0;
-    }
-
-    if (ecx)
-    {
-        if (ecx / 4 == 0)
-        {
-            if (ecx >= 0) {
-                ecx = 1;
-            }
-            else
-            {
-                ecx = -1;
-            }
-        }
-        else
-        {
-            ecx /= 4;
-
-            if (ecx > fix16_from_int(4))
-            {
-                ecx = fix16_from_int(4);
-            }
-            else if (ecx < -fix16_from_int(4))
-            {
-                ecx = -fix16_from_int(4);
-            }
-        }
-
-        PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, ecx);
-    }
-
-    PlayerList[nLocalPlayer].q16horiz = fix16_clamp(PlayerList[nLocalPlayer].q16horiz, fix16_from_int(0), fix16_from_int(184));
-}
 
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle)
 {
@@ -413,7 +183,7 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
 
                         if (diff > INT_MAX)
                         {
-                            Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+                            Printf("%s %d: overflow\n", __func__, __LINE__);
                             diff = INT_MAX; 
                         }
 
@@ -472,7 +242,7 @@ void InitPlayerInventory(short nPlayer)
     PlayerList[nPlayer].nCurrentWeapon = 0;
 
     if (nPlayer == nLocalPlayer) {
-        nMapMode = 0;
+        automapMode = am_off;
     }
 
     nPlayerScore[nPlayer] = 0;
@@ -542,8 +312,8 @@ void RestartPlayer(short nPlayer)
         sprite[nSprite].y = sprite[nNStartSprite].y;
         sprite[nSprite].z = sprite[nNStartSprite].z;
         mychangespritesect(nSprite, sprite[nNStartSprite].sectnum);
-        PlayerList[nPlayer].q16angle = fix16_from_int(sprite[nNStartSprite].ang&kAngleMask);
-        sprite[nSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
+        PlayerList[nPlayer].q16angle = IntToFixed(sprite[nNStartSprite].ang&kAngleMask);
+        sprite[nSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
 
         floorspr = insertsprite(sprite[nSprite].sectnum, 0);
         assert(floorspr >= 0 && floorspr < kMaxSprites);
@@ -561,8 +331,8 @@ void RestartPlayer(short nPlayer)
         sprite[nSprite].x = sPlayerSave[nPlayer].x;
         sprite[nSprite].y = sPlayerSave[nPlayer].y;
         sprite[nSprite].z = sector[sPlayerSave[nPlayer].nSector].floorz;
-        PlayerList[nPlayer].q16angle = fix16_from_int(sPlayerSave[nPlayer].nAngle&kAngleMask);
-        sprite[nSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
+        PlayerList[nPlayer].q16angle = IntToFixed(sPlayerSave[nPlayer].nAngle&kAngleMask);
+        sprite[nSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
 
         floorspr = -1;
     }
@@ -614,7 +384,7 @@ void RestartPlayer(short nPlayer)
 
     PlayerList[nPlayer].field_2 = 0;
     PlayerList[nPlayer].nSprite = nSprite;
-    PlayerList[nPlayer].bIsMummified = kFalse;
+    PlayerList[nPlayer].bIsMummified = false;
 
     if (PlayerList[nPlayer].invincibility >= 0) {
         PlayerList[nPlayer].invincibility = 0;
@@ -648,7 +418,7 @@ void RestartPlayer(short nPlayer)
     PlayerList[nPlayer].nAir = 100;
     airpages = 0;
 
-    if (levelnum <= kMap20)
+    if (currentLevel->levelNumber <= kMap20)
     {
         RestoreMinAmmo(nPlayer);
     }
@@ -667,8 +437,8 @@ void RestartPlayer(short nPlayer)
     nYDamage[nPlayer] = 0;
     nXDamage[nPlayer] = 0;
 
-    PlayerList[nPlayer].q16horiz = F16(92);
-    nDestVertPan[nPlayer] = F16(92);
+    PlayerList[nPlayer].q16horiz = IntToFixed(92);
+    nDestVertPan[nPlayer] = IntToFixed(92);
     nBreathTimer[nPlayer] = 90;
 
     nTauntTimer[nPlayer] = RandomSize(3) + 3;
@@ -697,7 +467,7 @@ void RestartPlayer(short nPlayer)
     sprintf(playerNames[nPlayer], "JOE%d", nPlayer);
     namelen[nPlayer] = strlen(playerNames[nPlayer]);
 
-    totalvel[nPlayer] = 0;
+    ototalvel[nPlayer] = totalvel[nPlayer] = 0;
 
     memset(&sPlayerInput[nPlayer], 0, sizeof(PlayerInput));
     sPlayerInput[nPlayer].nItem = -1;
@@ -769,7 +539,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].q16horiz = F16(92);
+    PlayerList[nPlayer].q16horiz = IntToFixed(92);
     oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
     nPlayerInvisible[nPlayer] = 0;
     dVertPan[nPlayer] = 15;
@@ -809,7 +579,7 @@ void StartDeathSeq(int nPlayer, int nVal)
             BuildStatusAnim((3 * (nLives - 1)) + 7, 0);
         }
 
-        if (levelnum > 0) { // if not on the training level
+        if (currentLevel->levelNumber > 0) { // if not on the training level
             nPlayerLives[nPlayer]--;
         }
 
@@ -818,7 +588,7 @@ void StartDeathSeq(int nPlayer, int nVal)
         }
     }
 
-    totalvel[nPlayer] = 0;
+    ototalvel[nPlayer] = totalvel[nPlayer] = 0;
 
     if (nPlayer == nLocalPlayer) {
         RefreshStatus();
@@ -923,16 +693,25 @@ void DoKenTest()
     }
 }
 
+static void pickupMessage(int no)
+{
+    no = nItemText[no];
+    if (no != -1)
+    {
+        FStringf label("TXT_EX_PICKUP%d", no + 1);
+        auto str = GStrings[label];
+        if (str) Printf(PRINT_NOTIFY, "%s\n", str);
+    }
+}
+
 void FuncPlayer(int a, int nDamage, int nRun)
 {
     int var_48 = 0;
     int var_40;
+	bool mplevel = currentLevel->levelNumber > 20;
 
     short nPlayer = RunData[nRun].nVal;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
-
-    if (PlayerList[nPlayer].someNetVal == -1)
-        return;
 
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
 
@@ -1159,7 +938,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
             }
 
             // loc_1A494:
-            sprite[nPlayerSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
+            sprite[nPlayerSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
 
             // sprite[nPlayerSprite].zvel is modified within Gravity()
             short zVel = sprite[nPlayerSprite].zvel;
@@ -1254,10 +1033,10 @@ void FuncPlayer(int a, int nDamage, int nRun)
             {
                 if (nTotalPlayers <= 1)
                 {
-                    PlayerList[nPlayer].q16angle = fix16_from_int(GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask);
-                    sprite[nPlayerSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
+                    PlayerList[nPlayer].q16angle = IntToFixed(GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask);
+                    sprite[nPlayerSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
 
-                    PlayerList[nPlayer].q16horiz = F16(92);
+                    PlayerList[nPlayer].q16horiz = IntToFixed(92);
 
                     lPlayerXVel = 0;
                     lPlayerYVel = 0;
@@ -1275,21 +1054,21 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         StopLocalSound();
                         InitSpiritHead();
 
-                        nDestVertPan[nPlayer] = F16(92);
+                        nDestVertPan[nPlayer] = IntToFixed(92);
 
-                        if (levelnum == 11)
+                        if (currentLevel->levelNumber == 11)
                         {
-                            nDestVertPan[nPlayer] += F16(46);
+                            nDestVertPan[nPlayer] += IntToFixed(46);
                         }
                         else
                         {
-                            nDestVertPan[nPlayer] += F16(11);
+                            nDestVertPan[nPlayer] += IntToFixed(11);
                         }
                     }
                 }
                 else
                 {
-                    FinishLevel();
+                    LevelFinished();
                 }
 
                 return;
@@ -1312,7 +1091,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         }
 
                         if (zVelB > 512 && !bLockPan) {
-                            nDestVertPan[nPlayer] = F16(92);
+                            nDestVertPan[nPlayer] = IntToFixed(92);
                         }
                     }
 
@@ -1413,14 +1192,14 @@ void FuncPlayer(int a, int nDamage, int nRun)
 loc_1AB8E:
             if (!bPlayerPan && !bLockPan)
             {
-                fix16_t nPanVal = fix16_from_int(spr_z - sprite[nPlayerSprite].z) / 32 + F16(92);
+                fixed_t nPanVal = IntToFixed(spr_z - sprite[nPlayerSprite].z) / 32 + IntToFixed(92);
 
-                if (nPanVal < F16(0)) {
-                    nPanVal = F16(0);
+                if (nPanVal < 0) {
+                    nPanVal = 0;
                 }
-                else if (nPanVal > F16(183))
+                else if (nPanVal > IntToFixed(183))
                 {
-                    nPanVal = F16(183);
+                    nPanVal = IntToFixed(183);
                 }
 
                 nDestVertPan[nPlayer] = nPanVal;
@@ -1429,7 +1208,16 @@ loc_1AB8E:
             playerX -= sprite[nPlayerSprite].x;
             playerY -= sprite[nPlayerSprite].y;
 
-            totalvel[nPlayer] = ksqrt((playerY * playerY) + (playerX * playerX));
+            uint32_t sqrtNum = playerX * playerX + playerY * playerY;
+
+            if (sqrtNum > INT_MAX)
+            {
+                DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
+                sqrtNum = INT_MAX;
+            }
+
+            ototalvel[nPlayer] = totalvel[nPlayer];
+            totalvel[nPlayer] = ksqrt(sqrtNum);
 
             int nViewSect = sprite[nPlayerSprite].sectnum;
 
@@ -1494,44 +1282,10 @@ loc_1AB8E:
             int var_5C = SectFlag[nViewSect] & kSectUnderwater;
 
             uint16_t buttons = sPlayerInput[nPlayer].buttons;
-
-            if (buttons & kButtonCheatGodMode) // LOBODEITY cheat
+            auto actions = sPlayerInput[nPlayer].actions;
+            if (actions & SB_OPEN)
             {
-                char strDeity[96]; // TODO - reduce in size?
-
-                const char *strDMode = NULL;
-
-                if (PlayerList[nPlayer].invincibility >= 0)
-                {
-                    PlayerList[nPlayer].invincibility = -1;
-                    strDMode = "ON";
-                }
-                else
-                {
-                    PlayerList[nPlayer].invincibility = 0;
-                    strDMode = "OFF";
-                }
-
-                sPlayerInput[nPlayer].buttons &= 0xBF;
-
-                sprintf(strDeity, "Deity mode %s for player", strDMode);
-                StatusMessage(150, strDeity);
-            }
-            else if (buttons & kButtonCheatGuns) // LOBOCOP cheat
-            {
-                FillWeapons(nPlayer);
-                StatusMessage(150, "All weapons loaded for player");
-            }
-            else if (buttons & kButtonCheatKeys) // LOBOPICK cheat
-            {
-                PlayerList[nPlayer].keys = 0xFFFF;
-                StatusMessage(150, "All keys loaded for player");
-                RefreshStatus();
-            }
-            else if (buttons & kButtonCheatItems) // LOBOSWAG cheat
-            {
-                FillItems(nPlayer);
-                StatusMessage(150, "All items loaded for player");
+                int a = 0;
             }
 
             // loc_1AEF5:
@@ -1732,7 +1486,7 @@ do_default:
                                 // loc_1B3C7
 
                                 // CHECKME - is order of evaluation correct?
-                                if (levelnum <= 20 || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
+                                if (!mplevel || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
                                 {
                                     DestroyItemAnim(nValB);
                                     mydeletesprite(nValB);
@@ -1747,7 +1501,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -1812,7 +1566,7 @@ do_default_b:
                                         {
                                             if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                             {
-                                                StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                                pickupMessage(var_70);
                                             }
 
                                             TintPalette(var_44*4, var_8C*4, 0);
@@ -1903,7 +1657,7 @@ do_default_b:
                                         {
                                             if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                             {
-                                                StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                                pickupMessage(var_70);
                                             }
 
                                             TintPalette(var_44*4, var_8C*4, 0);
@@ -1977,7 +1731,7 @@ do_default_b:
                                         {
                                             if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                             {
-                                                StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                                pickupMessage(var_70);
                                             }
 
                                             TintPalette(var_44*4, var_8C*4, 0);
@@ -2051,7 +1805,7 @@ do_default_b:
                                         {
                                             if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                             {
-                                                StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                                pickupMessage(var_70);
                                             }
 
                                             TintPalette(var_44*4, var_8C*4, 0);
@@ -2188,7 +1942,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2222,7 +1976,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -2250,7 +2004,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2284,7 +2038,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -2312,7 +2066,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2346,7 +2100,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -2374,7 +2128,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2408,7 +2162,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -2436,7 +2190,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2470,7 +2224,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -2498,7 +2252,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2532,7 +2286,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -2713,11 +2467,9 @@ do_default_b:
 
                             case 54: // Golden Sarcophagus (End Level)
                             {
-                                if (!bInDemo) {
-                                    FinishLevel();
-                                }
-                                else {
-                                    //inputState.keySetState(32, 1); // Huh, what?
+                                if (!bInDemo) 
+                                {
+                                    LevelFinished();
                                 }
 
                                 DestroyItemAnim(nValB);
@@ -2752,7 +2504,7 @@ do_default_b:
 
                 if (!PlayerList[nPlayer].bIsMummified)
                 {
-                    if (buttons & kButtonOpen)
+                    if (actions & SB_OPEN)
                     {
                         ClearSpaceBar(nPlayer);
 
@@ -2768,7 +2520,7 @@ do_default_b:
                     }
 
                     // was int var_38 = buttons & 0x8
-                    if (buttons & kButtonFire)
+                    if (actions & SB_FIRE)
                     {
                         FireWeapon(nPlayer);
                     }
@@ -2785,7 +2537,7 @@ do_default_b:
                     }
 
                     // Jumping
-                    if (buttons & kButtonJump)
+                    if (actions & SB_JUMP)
                     {
                         if (bUnderwater)
                         {
@@ -2803,7 +2555,7 @@ do_default_b:
 
                         // goto loc_1BE70:
                     }
-                    else if (buttons & kButtonCrouch)
+                    else if (actions & SB_CROUCH)
                     {
                         if (bUnderwater)
                         {
@@ -2864,7 +2616,7 @@ loc_1BD2E:
                             }
                         }
                         // loc_1BE30
-                        if (buttons & kButtonFire) // was var_38
+                        if (actions & SB_FIRE) // was var_38
                         {
                             if (bUnderwater)
                             {
@@ -2882,7 +2634,7 @@ loc_1BD2E:
 
                     // loc_1BE70:
                     // Handle player pressing number keys to change weapon
-                    uint8_t var_90 = (buttons >> 13) & 0xF;
+                    uint8_t var_90 = sPlayerInput[nPlayer].getNewWeapon();
 
                     if (var_90)
                     {
@@ -2896,7 +2648,7 @@ loc_1BD2E:
                 }
                 else // player is mummified
                 {
-                    if (buttons & kButtonFire)
+                    if (actions & SB_FIRE)
                     {
                         FireWeapon(nPlayer);
                     }
@@ -2925,7 +2677,7 @@ loc_1BD2E:
             else // else, player's health is less than 0
             {
                 // loc_1C0E9
-                if (buttons & kButtonOpen)
+                if (actions & SB_OPEN)
                 {
                     ClearSpaceBar(nPlayer);
 
@@ -2957,18 +2709,8 @@ loc_1BD2E:
                         }
                         else
                         {
-                            if (CDplaying()) {
-                                fadecdaudio();
-                            }
-
-                            if (levelnum == 20) {
-                                DoFailedFinalScene();
-                            }
-                            else {
-                                DoGameOverScene();
-                            }
-
-                            levelnew = 100;
+                            DoGameOverScene(mplevel);
+                            return;
                         }
                     }
                 }
@@ -3049,19 +2791,19 @@ loc_1BD2E:
                 }
                 else
                 {
-                    if (PlayerList[nPlayer].q16horiz < fix16_from_int(92))
+                    if (PlayerList[nPlayer].q16horiz < IntToFixed(92))
                     {
-                        PlayerList[nPlayer].q16horiz = fix16_from_int(91);
+                        PlayerList[nPlayer].q16horiz = IntToFixed(91);
                         eyelevel[nPlayer] -= (dVertPan[nPlayer] << 8);
                     }
                     else
                     {
-                        PlayerList[nPlayer].q16horiz = fix16_sadd(PlayerList[nPlayer].q16horiz, fix16_from_int(dVertPan[nPlayer]));
-                        if (PlayerList[nPlayer].q16horiz >= fix16_from_int(200))
+                        PlayerList[nPlayer].q16horiz += IntToFixed(dVertPan[nPlayer]);
+                        if (PlayerList[nPlayer].q16horiz >= IntToFixed(200))
                         {
-                            PlayerList[nPlayer].q16horiz = fix16_from_int(199);
+                            PlayerList[nPlayer].q16horiz = IntToFixed(199);
                         }
-                        else if (PlayerList[nPlayer].q16horiz <= fix16_from_int(92))
+                        else if (PlayerList[nPlayer].q16horiz <= IntToFixed(92))
                         {
                             if (!(SectFlag[sprite[nPlayerSprite].sectnum] & kSectUnderwater))
                             {
@@ -3097,7 +2839,6 @@ loc_1BD2E:
     }
 }
 
-
 static SavegameHelper sgh("player",
     SV(lPlayerXVel),
     SV(lPlayerYVel),
@@ -3106,7 +2847,6 @@ static SavegameHelper sgh("player",
     SV(bobangle),
     SV(bPlayerPan),
     SV(bLockPan),
-    SV(g_MyAimMode),
     SV(nStandHeight),
     SV(PlayerCount),
     SV(nNetStartSprites),

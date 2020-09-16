@@ -38,13 +38,15 @@
 #include "buildtiles.h"
 #include "image.h"
 
-#include "baselayer.h"
 #include "palette.h"
 #include "m_crc32.h"
 #include "build.h"
 #include "gamecontrol.h"
 #include "palettecontainer.h"
 #include "texturemanager.h"
+#include "c_dispatch.h"
+#include "sc_man.h"
+#include "gamestruct.h"
 
 enum
 {
@@ -84,7 +86,6 @@ picanm_t tileConvertAnimFormat(int32_t const picanimraw, int* lo, int* to)
 int FTileTexture::CopyPixels(FBitmap* bmp, int conversion)
 {
 	TArray<uint8_t> buffer;
-	bmp->Create(Width, Height);
 	auto ppix = GetRawData();
 	if (ppix)
 	{
@@ -504,6 +505,8 @@ uint8_t* BuildTiles::tileMakeWritable(int num)
 
 void BuildTiles::PostLoadSetup()
 {
+	SetupReverseTileMap();
+
 	for (auto& tile : tiledata)
 	{
 		FGameTexture* detailTex = nullptr, * glowTex = nullptr, * normalTex = nullptr, *specTex = nullptr;
@@ -525,8 +528,8 @@ void BuildTiles::PostLoadSetup()
 			if (rep.palnum == DETAILPAL)
 			{
 				detailTex = rep.faces[0];
-				scalex = rep.scale.x;
-				scaley = rep.scale.y;
+				scalex = rep.scale.X;
+				scaley = rep.scale.Y;
 			}
 		}
 		if (!detailTex && !glowTex && !normalTex && !specTex) continue; // if there's no layers there's nothing to do.
@@ -588,6 +591,14 @@ int32_t tileGetCRC32(int tileNum)
 	return crc;
 }
 
+CCMD(tilecrc)
+{
+	if (argv.argc() > 1)
+	{
+		int tile = atoi(argv[1]);
+		Printf("%d\n", tileGetCRC32(tile));
+	}
+}
 
 //==========================================================================
 //
@@ -607,13 +618,9 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 	if (xsiz <= 0 || ysiz <= 0)
 		return -2;
 
-	TileFiles.tiledata[tilenum].texture = tex;
-#pragma message("tileImportFromTexture needs rework!")	// Reminder so that this place isn't forgotten.
-//#if 0
-	// Does this make any difference when the texture gets *properly* inserted into the tile array? Answer: Yes, it affects how translations affect it.
-	//if (istexture)
-		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);	// At the moment this is the only way to load the texture. The texture creation code is not ready yet for downconverting an image.
-//#endif
+	TileFiles.tiledata[tilenum].backup = TileFiles.tiledata[tilenum].texture = tex;
+	if (istexture)
+		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);
 	return 0;
 
 }
@@ -678,6 +685,7 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 // Clear map specific ART
 //
 //==========================================================================
+static FString currentMapArt;
 
 void artClearMapArt(void)
 {
@@ -687,6 +695,7 @@ void artClearMapArt(void)
 		td.picanm = td.picanmbackup;
 	}
 	TileFiles.SetupReverseTileMap();
+	currentMapArt = "";
 }
 
 //==========================================================================
@@ -694,7 +703,6 @@ void artClearMapArt(void)
 // Load map specficied ART
 //
 //==========================================================================
-static FString currentMapArt;
 
 void artSetupMapArt(const char* filename)
 {
@@ -995,9 +1003,6 @@ void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int til
 //
 //===========================================================================
 
-// Test CVARs.
-CVAR(Int, fixpalette, -1, 0)
-CVAR(Int, fixpalswap, -1, 0)
 
 bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick)
 {
@@ -1005,21 +1010,18 @@ bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick
 	if (picnum == -1) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
 
 	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
-	pick.texture = tex;
-	int curbasepal = GetTranslationType(paletteid) - Translation_Remap;
-	int palette = GetTranslationIndex(paletteid);
-	int usepalette = fixpalette >= 0 ? fixpalette : curbasepal;
-	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
+	int usepalette = GetTranslationType(paletteid) - Translation_Remap;
+	int usepalswap = GetTranslationIndex(paletteid);
 	int TextureType = hw_int_useindexedcolortextures && picnum >= 0 ? TT_INDEXED : TT_TRUECOLOR;
 
-	pick.translation = TRANSLATION(usepalette + Translation_Remap, usepalswap);
+	pick.translation = paletteid;
 	pick.basepalTint = 0xffffff;
 
-	auto& h = lookups.tables[palette];
+	auto& h = lookups.tables[usepalswap];
 	bool applytint = false;
 	// Canvas textures must be treated like hightile replacements in the following code.
 	if (picnum < 0) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
-	auto rep = (picnum >= 0 && hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, palette) : nullptr;
+	auto rep = (picnum >= 0 && hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, usepalswap) : nullptr;
 	if (rep || tex->GetTexture()->isHardwareCanvas())
 	{
 		if (usepalette != 0)
@@ -1034,7 +1036,7 @@ bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick
 		{
 			tex = rep->faces[0];
 		}
-		if (!rep || rep->palnum != palette || (h.tintFlags & TINTF_APPLYOVERALTPAL)) applytint = true;
+		if (!rep || rep->palnum != usepalswap || (h.tintFlags & TINTF_APPLYOVERALTPAL)) applytint = true;
 		pick.translation = 0;
 	}
 	else
@@ -1062,11 +1064,108 @@ bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick
 		pick.tintFlags = -1;
 		pick.tintColor = 0xffffff;
 	}
+	pick.texture = tex;
 
 	return true;
 }
 
+//===========================================================================
+// 
+//	Parsing stuff for tile data comes below.
+//
+//===========================================================================
 
+//===========================================================================
+// 
+//	Helpers for tile parsing
+//
+//===========================================================================
+
+bool ValidateTileRange(const char* cmd, int &begin, int& end, FScriptPosition pos, bool allowswap)
+{
+	if (end < begin)
+	{
+		pos.Message(MSG_WARNING, "%s: tile range [%d..%d] is backwards. Indices were swapped.", cmd, begin, end);
+		std::swap(begin, end);
+	}
+
+	if ((unsigned)begin >= MAXUSERTILES || (unsigned)end >= MAXUSERTILES)
+	{
+		pos.Message(MSG_ERROR, "%s: Invalid tile range [%d..%d]", cmd, begin, end);
+		return false;
+	}
+
+	return true;
+}
+
+bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos)
+{
+	if ((unsigned)tile >= MAXUSERTILES)
+	{
+		pos.Message(MSG_ERROR, "%s: Invalid tile number %d", cmd, tile);
+		return false;
+	}
+
+	return true;
+}
+
+//===========================================================================
+// 
+//	Internal worker for tileImportTexture
+//
+//===========================================================================
+
+void processTileImport(const char *cmd, FScriptPosition& pos, TileImport& imp)
+{
+	if (!ValidateTilenum(cmd, imp.tile, pos))
+		return;
+
+	if (imp.crc32 != INT64_MAX && int(imp.crc32) != tileGetCRC32(imp.tile))
+		return;
+
+	if (imp.sizex != INT_MAX && tileWidth(imp.tile) != imp.sizex && tileHeight(imp.tile) != imp.sizey)
+		return;
+
+	gi->SetTileProps(imp.tile, imp.surface, imp.vox, imp.shade);
+
+	if (imp.fn.IsNotEmpty() && tileImportFromTexture(imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
+
+	TileFiles.tiledata[imp.tile].picanm.sf |= imp.flags;
+	// This is not quite the same as originally, for two reasons:
+	// 1: Since these are texture properties now, there's no need to clear them.
+	// 2: The original code assumed that an imported texture cannot have an offset. But this can import Doom patches and PNGs with grAb, so the situation is very different.
+	if (imp.xoffset == INT_MAX) imp.xoffset = tileLeftOffset(imp.tile);
+	if (imp.yoffset == INT_MAX) imp.yoffset = tileTopOffset(imp.tile);
+
+	auto tex = tileGetTexture(imp.tile);
+	if (tex) tex->SetOffsets(imp.xoffset, imp.yoffset);
+	if (imp.extra != INT_MAX) TileFiles.tiledata[imp.tile].picanm.extra = imp.extra;
+}
+
+//===========================================================================
+// 
+//	Internal worker for tileSetAnim
+//
+//===========================================================================
+
+void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp) 
+{
+	if (!ValidateTilenum(cmd, imp.tile1, pos) ||
+	    !ValidateTilenum(cmd, imp.tile2, pos))
+		return;
+
+	if (imp.type < 0 || imp.type > 3)
+	{
+		pos.Message(MSG_ERROR, "%s: animation type must be 0-3, got %d", cmd, imp.type);
+		return;
+	}
+
+	int count = imp.tile2 - imp.tile1;
+	if (imp.type == (PICANM_ANIMTYPE_BACK >> PICANM_ANIMTYPE_SHIFT) && imp.tile1 > imp.tile2)
+		count = -count;
+
+	TileFiles.setAnim(imp.tile1, imp.type, imp.speed, count);
+}
 
 TileSiz tilesiz;
 PicAnm picanm;

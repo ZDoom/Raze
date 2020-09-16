@@ -27,8 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_crc32.h"
 
 #include "globals.h"
-#include "tile.h"
-#include "screen.h"
 
 BEGIN_BLD_NS
 
@@ -40,7 +38,7 @@ int qanimateoffs(int a1, int a2)
         int frames = picanm[a1].num;
         if (frames > 0)
         {
-            int const frameClock = (int)gFrameClock;
+            int const frameClock = gFrameClock;
             int vd;
             if ((a2&0xc000) == 0x8000)
                 vd = (Bcrc32(&a2, 2, 0)+frameClock)>>(picanm[a1].sf&PICANM_ANIMSPEED_MASK);
@@ -65,11 +63,6 @@ int qanimateoffs(int a1, int a2)
     return offset;
 }
 
-void qloadpalette()
-{
-    scrLoadPalette();
-}
-
 int32_t qgetpalookup(int32_t a1, int32_t a2)
 {
     if (gFogMode)
@@ -88,16 +81,14 @@ int32_t qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daa
 void HookReplaceFunctions(void)
 {
     animateoffs_replace = qanimateoffs;
-    paletteLoadFromDisk_replace = qloadpalette;
+    paletteLoadFromDisk_replace = scrLoadPalette;
     getpalookup_replace = qgetpalookup;
     initspritelists_replace = qinitspritelists;
     insertsprite_replace = qinsertsprite;
     deletesprite_replace = qdeletesprite;
     changespritesect_replace = qchangespritesect;
     changespritestat_replace = qchangespritestat;
-    loadvoxel_replace = qloadvoxel;
     loadboard_replace = qloadboard;
-    playing_blood = true;
 }
 
 END_BLD_NS

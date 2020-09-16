@@ -27,15 +27,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define QUIET
 #include "build.h"
+#include "automap.h"
 #include "pragmas.h"
 
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
-#include "quake.h"
-#include "vis.h"
 
 #include "jsector.h"
 
@@ -47,41 +45,39 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "jtags.h"
 #include "parent.h"
 
-#include "cache.h"
-#include "reserve.h"
+#include "misc.h"
 
-#include "text.h"
 #include "menus.h"
 #include "interp.h"
 #include "interpso.h"
 #include "sector.h"
-#include "config.h"
 #include "menu.h"
-#include "swcvar.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
 #include "glbackend/glbackend.h"
 
 BEGIN_SW_NS
 
-static int OverlapDraw = FALSE;
-extern SWBOOL QuitFlag, LocationInfo, ConPanel, SpriteInfo;
-extern SWBOOL Voxel;
+static int OverlapDraw = false;
+extern bool QuitFlag, SpriteInfo;
+extern bool Voxel;
 extern char buffer[];
-SWBOOL DrawScreen;
+bool DrawScreen;
 extern short f_c;
 
-extern SWBOOL HelpInputMode;
-extern short HelpPage;
-extern short HelpPagePic[];
 extern ParentalStruct aVoxelArray[MAXTILES];
-extern SWBOOL RedrawScreen;
-SWBOOL RedrawCompass=FALSE;
-extern int Follow_posx,Follow_posy;
 
 int ConnectCopySprite(uspritetype const * tsp);
 void PreDrawStackedWater(void);
-void DrawCompass(PLAYERp pp);
+
+void SW_InitMultiPsky(void)
+{
+    // default
+    psky_t* const defaultsky = tileSetupSky(DEFAULTPSKY);
+    defaultsky->lognumtiles = 1;
+    defaultsky->horizfrac = 8192;
+}
+
 
 #if 1
 void
@@ -203,34 +199,6 @@ SetActorRotation(short tSpriteNum, int viewx, int viewy)
     // thats a big deal
     tsp->picnum = State->Pic;
 
-    //sprintf(ds,"SetActorRotation:tsp->picnum: %d",tsp->picnum);
-    //CON_Message(ds);
-
-    /*
-
-     !AIC KEY - For actor states EVERY rotation needs to have the same tics
-     animators.  The only thing different can be the picnum.  If not then sync bugs
-     will occur.  This code attempts to check to the best of its ability for this
-     problem.  Should go away with shipped compile.
-
-    */
-
-#if DEBUG
-    {
-        short i;
-
-        for (i = 0; i < tu->RotNum; i++)
-        {
-            STATEp TestStateStart, TestState;
-
-            TestStateStart = tu->Rot[i];
-            TestState = TestStateStart + StateOffset;
-
-            ASSERT(State->Tics == TestState->Tics);
-            ASSERT(State->Animator == TestState->Animator);
-        }
-    }
-#endif
     return 0;
 }
 
@@ -285,92 +253,15 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
         break;
 
     default:
-        ASSERT(TRUE == FALSE);
+        ASSERT(true == false);
         break;
     }
 
     return loz;
 }
 
-#if 0
-#define GENERIC_SHADOW_PIC 66
-extern SWBOOL bVoxelsOn;
 void
-DoVoxelShadow(SPRITEp tspr)
-{
-    // Check for voxels
-    if (bVoxelsOn)
-    {
-        switch (tspr->picnum)
-        {
-        case ICON_STAR:             // 1793
-        case ICON_UZI:              // 1797
-        case ICON_UZIFLOOR:         // 1807
-        case ICON_LG_UZI_AMMO:      // 1799
-        case ICON_HEART:            // 1824
-        case ICON_HEART_LG_AMMO:    // 1820
-        case ICON_GUARD_HEAD:       // 1814
-        case ICON_FIREBALL_LG_AMMO: // 3035
-        case ICON_ROCKET:           // 1843
-        case ICON_SHOTGUN:          // 1794
-        case ICON_LG_ROCKET:        // 1796
-        case ICON_LG_SHOTSHELL:     // 1823
-        case ICON_MICRO_GUN:        // 1818
-        case ICON_MICRO_BATTERY:    // 1800
-        case ICON_GRENADE_LAUNCHER: // 1817
-        case ICON_LG_GRENADE:       // 1831
-        case ICON_LG_MINE:          // 1842
-        case ICON_RAIL_GUN:         // 1811
-        case ICON_RAIL_AMMO:        // 1812
-        case ICON_SM_MEDKIT:        // 1802
-        case ICON_MEDKIT:           // 1803
-        case ICON_CHEMBOMB:         // 1808
-        case ICON_FLASHBOMB:        // 1805
-        case ICON_NUKE:             // 1809
-        case ICON_CALTROPS:
-        case ICON_BOOSTER:          // 1810
-        case ICON_HEAT_CARD:        // 1819
-        case ICON_REPAIR_KIT:       // 1813
-        case ICON_EXPLOSIVE_BOX:    // 1801
-        case ICON_ENVIRON_SUIT:     // 1837
-        case ICON_FLY:              // 1782
-        case ICON_CLOAK:            // 1826
-        case ICON_NIGHT_VISION:     // 3031
-        case ICON_NAPALM:           // 3046
-        case ICON_RING:             // 3050
-        //case ICON_GOROAMMO:       // 3035
-        //case ICON_HEARTAMMO:      // 1820
-        case ICON_RINGAMMO:         // 3054
-        case ICON_NAPALMAMMO:       // 3058
-        case ICON_GRENADE:          // 3059
-        //case ICON_OXYGEN:         // 1800
-        case ICON_ARMOR:            // 3030
-        case BLUE_KEY:              // 1766
-        case RED_KEY:               // 1770
-        case GREEN_KEY:             // 1774
-        case YELLOW_KEY:            // 1778
-        case GOLD_SKELKEY:
-        case SILVER_SKELKEY:
-        case BRONZE_SKELKEY:
-        case RED_SKELKEY:
-        case BLUE_CARD:
-        case RED_CARD:
-        case GREEN_CARD:
-        case YELLOW_CARD:
-//              tspr->picnum = GENERIC_SHADOW_PIC;
-            tspr->xrepeat = 0;  // For now, don't do voxel shadows
-            tspr->yrepeat = 0;
-//              tspr->xrepeat = 27;
-//              tspr->yrepeat = 4;
-            //tspr->z+=(sintable[(rotang*2)%2047]/16);
-            break;
-        }
-    }
-}
-#endif
-
-void
-DoShadows(tspriteptr_t tsp, int viewz, SWBOOL mirror)
+DoShadows(tspriteptr_t tsp, int viewz, bool mirror)
 {
     tspriteptr_t New = &tsprite[spritesortcnt];
     USERp tu = User[tsp->owner];
@@ -389,10 +280,6 @@ DoShadows(tspriteptr_t tsp, int viewz, SWBOOL mirror)
 
     if (sectnum < 0)
     {
-        //int cz,fz;
-        //getzsofslope(tsp->sectnum, tsp->x, tsp->y, &cz, &fz);
-        ////DSPRINTF(ds,"Shad sect !fnd x%d, y%d, z%d, sect%d, cz %d, fz %d", tsp->x, tsp->y, tsp->z, tsp->sectnum, cz, fz);
-        //MONO_PRINT(ds);
         return;
     }
 
@@ -425,13 +312,6 @@ DoShadows(tspriteptr_t tsp, int viewz, SWBOOL mirror)
         }
     }
 
-#if 0
-    if (SectUser[tsp->sectnum] && SectUser[tsp->sectnum]->depth)
-    {
-        loz -= Z(SectUser[tsp->sectnum]->depth);
-    }
-#endif
-
     // need to find the ground here
     New->z = loz;
 
@@ -458,27 +338,22 @@ DoShadows(tspriteptr_t tsp, int viewz, SWBOOL mirror)
     New->xrepeat = xrepeat;
     New->yrepeat = yrepeat;
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
+    if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
     {
-        if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
-        {
-            New->yrepeat = 0;
-            // cstat:    trans reverse
-            // clipdist: tell mdsprite.cpp to use Z-buffer hacks to hide overdraw issues
-            New->clipdist |= TSPR_FLAGS_MDHACK;
-            New->cstat |= 512;
-        }
-        else
-        {
-            int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
-            vec2_t const ofs = { sintable[NORM_ANGLE(camang+512)]>>11, sintable[NORM_ANGLE(camang)]>>11};
-
-            New->x += ofs.x;
-            New->y += ofs.y;
-        }
+        New->yrepeat = 0;
+        // cstat:    trans reverse
+        // clipdist: tell mdsprite.cpp to use Z-buffer hacks to hide overdraw issues
+        New->clipdist |= TSPR_FLAGS_MDHACK;
+        New->cstat |= 512;
     }
-#endif
+    else
+    {
+        int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
+        vec2_t const ofs = { sintable[NORM_ANGLE(camang+512)]>>11, sintable[NORM_ANGLE(camang)]>>11};
+
+        New->x += ofs.x;
+        New->y += ofs.y;
+    }
 
     // Check for voxel items and use a round generic pic if so
     //DoVoxelShadow(New);
@@ -504,11 +379,11 @@ DoMotionBlur(tspritetype const * const tsp)
 
     if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
     {
-        z_amt_per_pixel = (((int)-tu->jump_speed * ACTORMOVETICS)<<16)/tsp->xvel;
+        z_amt_per_pixel = IntToFixed((int)-tu->jump_speed * ACTORMOVETICS)/tsp->xvel;
     }
     else
     {
-        z_amt_per_pixel = (((int)-tsp->zvel)<<16)/tsp->xvel;
+        z_amt_per_pixel = IntToFixed((int)-tsp->zvel)/tsp->xvel;
     }
 
     switch (tu->motion_blur_dist)
@@ -516,22 +391,22 @@ DoMotionBlur(tspritetype const * const tsp)
     case 64:
         dx = nx = MOVEx(64, ang);
         dy = ny = MOVEy(64, ang);
-        nz = (z_amt_per_pixel * 64)>>16;
+        nz = FixedToInt(z_amt_per_pixel * 64);
         break;
     case 128:
         dx = nx = MOVEx(128, ang);
         dy = ny = MOVEy(128, ang);
-        nz = (z_amt_per_pixel * 128)>>16;
+        nz = FixedToInt(z_amt_per_pixel * 128);
         break;
     case 256:
         dx = nx = MOVEx(256, ang);
         dy = ny = MOVEy(256, ang);
-        nz = (z_amt_per_pixel * 256)>>16;
+        nz = FixedToInt(z_amt_per_pixel * 256);
         break;
     case 512:
         dx = nx = MOVEx(512, ang);
         dy = ny = MOVEy(512, ang);
-        nz = (z_amt_per_pixel * 512)>>16;
+        nz = FixedToInt(z_amt_per_pixel * 512);
         break;
     default:
         dx = nx = MOVEx(tu->motion_blur_dist, ang);
@@ -685,7 +560,7 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
 }
 
 void
-analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
+analyzesprites(int viewx, int viewy, int viewz, bool mirror)
 {
     int tSpriteNum;
     short SpriteNum;
@@ -695,20 +570,19 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
     PLAYERp pp = Player + screenpeek;
     short newshade=0;
 
+    const int DART_PIC = 2526;
+    const int DART_REPEAT = 16;
 
     ang = NORM_ANGLE(ang + 12);
 
-    smr4 = smoothratio + (((int) MoveSkip4) << 16);
-    smr2 = smoothratio + (((int) MoveSkip2) << 16);
+    smr4 = smoothratio + IntToFixed(MoveSkip4);
+    smr2 = smoothratio + IntToFixed(MoveSkip2);
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
         SpriteNum = tsprite[tSpriteNum].owner;
         tspriteptr_t tsp = &tsprite[tSpriteNum];
         tu = User[SpriteNum];
-
-        //if(tsp->statnum == STAT_GENERIC_QUEUE)
-        //    Printf("tsp->pal = %d",tsp->pal);
 
 #if 0
         // Brighten up the sprite if set somewhere else to do so
@@ -732,7 +606,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
         }
 
         // Diss any parentally locked sprites
-        if (adult_lockout || Global_PLock)
+        if (adult_lockout)
         {
             if (aVoxelArray[tsp->picnum].Parental == 6145)
             {
@@ -797,12 +671,11 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                     tsp->yrepeat = 29;
                 }
 
-#define DART_PIC 2526
-#define DART_REPEAT 16
             if (tu->ID == STAR1)
             {
                 if (sw_darts)
                 {
+
                     tsp->picnum = DART_PIC;
                     tsp->ang = NORM_ANGLE(tsp->ang - 512 - 24);
                     tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
@@ -835,13 +708,13 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                     // if sector pal is something other than default
                     SECT_USERp sectu = SectUser[tsp->sectnum];
                     uint8_t pal = sector[tsp->sectnum].floorpal;
-                    SWBOOL nosectpal=FALSE;
+                    bool nosectpal=false;
 
                     // sprite does not take on the new pal if sector flag is set
                     if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
                     {
                         pal = PALETTE_DEFAULT;
-                        nosectpal = TRUE;
+                        nosectpal = true;
                     }
 
                     //if(tu->spal == PALETTE_DEFAULT)
@@ -920,19 +793,19 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                     //SET(tsp->cstat, CSTAT_SPRITE_INVISIBLE);
                 }
             }
-            else if (!PedanticMode) // Otherwise just interpolate the player sprite
+            else // Otherwise just interpolate the player sprite
             {
                 PLAYERp pp = tu->PlayerP;
                 tsp->x -= mulscale16(pp->posx - pp->oposx, 65536-smoothratio);
                 tsp->y -= mulscale16(pp->posy - pp->oposy, 65536-smoothratio);
                 tsp->z -= mulscale16(pp->posz - pp->oposz, 65536-smoothratio);
-                tsp->ang -= fix16_to_int(mulscale16(pp->q16ang - pp->oq16ang, 65536-smoothratio));
+                tsp->ang -= FixedToInt(mulscale16(pp->q16ang - pp->oq16ang, 65536-smoothratio));
             }
         }
 
         if (OverlapDraw && FAF_ConnectArea(tsp->sectnum) && tsp->owner >= 0)
         {
-            EDUKE32_STATIC_ASSERT(sizeof(uspritetype) == sizeof(tspritetype)); // see TSPRITE_SIZE
+            static_assert(sizeof(uspritetype) == sizeof(tspritetype)); // see TSPRITE_SIZE
             ConnectCopySprite((uspriteptr_t)tsp);
         }
 
@@ -1067,113 +940,9 @@ post_analyzesprites(void)
 }
 #endif
 
-static ClockTicks mapzoomclock;
 
 void
-ResizeView(PLAYERp pp)
-{
-    if (M_Active() || paused)
-        return;
-
-    if (dimensionmode == 2 || dimensionmode == 5 || dimensionmode == 6)
-    {
-        int32_t timepassed = (int32_t)(totalclock - mapzoomclock);
-        mapzoomclock += timepassed;
-        if (inputState.GetKeyStatus(KEYSC_DASH)||inputState.GetKeyStatus(KEYSC_GMINUS))            
-            zoom = max<int32_t>(zoom - mulscale7(timepassed * synctics, zoom), 48);
-
-        if (inputState.GetKeyStatus(KEYSC_EQUAL)||inputState.GetKeyStatus(KEYSC_GPLUS))
-            zoom = min<int32_t>(zoom + mulscale7(timepassed * synctics, zoom), 4096);
-
-        if (inputState.GetKeyStatus(KEYSC_ESC))
-        {
-            extern SWBOOL ScrollMode2D;
-
-			inputState.ClearKeyStatus(sc_Escape);
-            dimensionmode = 3;
-            ScrollMode2D = FALSE;
-            SetRedrawScreen(pp);
-        }
-    }
-    else
-    {
-        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))      // &&
-        {
-            buttonMap.ClearButton(gamefunc_Shrink_Screen);
-            G_ChangeHudLayout(-1);
-        }
-
-        if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen)) // &&
-        {
-            buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-            G_ChangeHudLayout(1);
-        }
-    }
-}
-
-// !JIM! 08/06
-
-#if 0
-void
-ViewOutsidePlayerRecurse(PLAYERp pp, int32_t* vx, int32_t* vy, int32_t* vz, int16_t* ang, int16_t* vsectnum)
-{
-    int nx, ny;
-    int ret;
-
-    *vx = pp->posx;
-    *vy = pp->posy;
-    *vz = pp->posz;
-    *vsectnum = pp->cursectnum;
-
-    *ang = fix16_to_int(pp->q16ang) + pp->view_outside_dang;
-
-    nx = sintable[NORM_ANGLE(*ang + 512 + 1024)] << 11;
-    ny = sintable[NORM_ANGLE(*ang + 1024)] << 11;
-
-    ret = clipmove_old(vx, vy, vz, vsectnum, nx, ny, 64L, 4 << 8, 4 << 8, CLIPMASK_PLAYER);
-
-    switch (TEST(ret, HIT_MASK))
-    {
-    case HIT_SPRITE:
-    {
-        short hit_sprite;
-        SPRITEp sp;
-
-        hit_sprite = NORM_SPRITE(ret);
-        sp = &sprite[hit_sprite];
-
-        // if you hit a sprite that's not a wall sprite - try again
-        if (!TEST(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
-        {
-            FLIP(sp->cstat, CSTAT_SPRITE_BLOCK);
-            ViewOutsidePlayerRecurse(pp, vx, vy, vz, ang, vsectnum);
-            FLIP(sp->cstat, CSTAT_SPRITE_BLOCK);
-        }
-
-        break;
-    }
-    }
-
-    if (TEST(sector[*vsectnum].floorstat, FLOOR_STAT_SLOPE)|TEST(sector[*vsectnum].ceilingstat, CEILING_STAT_SLOPE))
-    {
-        int cz, fz;
-
-        getzsofslope(*vsectnum, *vx, *vy, &cz, &fz);
-
-        if (*vz > fz - Z(12))
-            *vz = fz - Z(12);
-
-        if (*vz < cz + Z(12))
-            *vz = cz + Z(12);
-
-    }
-}
-#endif
-
-
-
-void
-BackView(int *nx, int *ny, int *nz, short *vsect, fix16_t *nq16ang, short horiz)
+BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, short horiz)
 {
     vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
@@ -1185,7 +954,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fix16_t *nq16ang, short horiz)
 
     ASSERT(*vsect >= 0 && *vsect < MAXSECTORS);
 
-    ang = fix16_to_int(*nq16ang) + pp->view_outside_dang;
+    ang = FixedToInt(*nq16ang) + pp->view_outside_dang;
 
     // Calculate the vector (nx,ny,nz) to shoot backwards
     vx = (sintable[NORM_ANGLE(ang + 1536)] >> 3);
@@ -1266,9 +1035,9 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fix16_t *nq16ang, short horiz)
         }
 
         if (klabs(vx) > klabs(vy))
-            i = (hx << 16) / vx;
+            i = IntToFixed(hx) / vx;
         else
-            i = (hy << 16) / vy;
+            i = IntToFixed(hy) / vy;
 
         if (i < pp->camera_dist)
             pp->camera_dist = i;
@@ -1288,7 +1057,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fix16_t *nq16ang, short horiz)
     // Make sure vsect is correct
     updatesectorz(*nx, *ny, *nz, vsect);
 
-    *nq16ang = fix16_from_int(ang);
+    *nq16ang = IntToFixed(ang);
 }
 
 void
@@ -1302,7 +1071,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, short horiz)
     PLAYERp pp = &Player[screenpeek];
     short ang;
 
-    ang = fix16_to_int(*nq16ang) + pp->circle_camera_ang;
+    ang = FixedToInt(*nq16ang) + pp->circle_camera_ang;
 
     // Calculate the vector (nx,ny,nz) to shoot backwards
     vx = (sintable[NORM_ANGLE(ang + 1536)] >> 4);
@@ -1375,18 +1144,18 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, short horiz)
         }
 
         if (klabs(vx) > klabs(vy))
-            i = (hx << 16) / vx;
+            i = IntToFixed(hx) / vx;
         else
-            i = (hy << 16) / vy;
+            i = IntToFixed(hy) / vy;
 
         if (i < pp->circle_camera_dist)
             pp->circle_camera_dist = i;
     }
 
     // Actually move you!  (Camerdist is 65536 if nothing is in the way)
-    *nx = (*nx) + ((vx * pp->circle_camera_dist) >> 16);
-    *ny = (*ny) + ((vy * pp->circle_camera_dist) >> 16);
-    *nz = (*nz) + ((vz * pp->circle_camera_dist) >> 16);
+    *nx = (*nx) + FixedToInt(vx * pp->circle_camera_dist);
+    *ny = (*ny) + FixedToInt(vy * pp->circle_camera_dist);
+    *nz = (*nz) + FixedToInt(vz * pp->circle_camera_dist);
 
     // Slowly increase pp->circle_camera_dist until it reaches 65536
     // Synctics is a timer variable so it increases the same rate
@@ -1397,29 +1166,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, short horiz)
     // Make sure vsect is correct
     updatesectorz(*nx, *ny, *nz, vsect);
 
-    *nq16ang = fix16_from_int(ang);
-}
-
-FString GameInterface::statFPS()
-{
-#define AVERAGEFRAMES 16
-    static int frameval[AVERAGEFRAMES], framecnt = 0;
-    int i;
-
-    FString out;
-    //if (LocationInfo)
-    {
-
-        i = (int32_t)totalclock;
-        if (i != frameval[framecnt])
-        {
-            out.AppendFormat("FPS: %d\n", ((120 * AVERAGEFRAMES) / (i - frameval[framecnt])) + f_c);
-            frameval[framecnt] = i;
-        }
-
-        framecnt = ((framecnt + 1) & (AVERAGEFRAMES - 1));
-    }
-    return out;
+    *nq16ang = IntToFixed(ang);
 }
 
 FString GameInterface::GetCoordString()
@@ -1429,40 +1176,15 @@ FString GameInterface::GetCoordString()
     out.AppendFormat("POSX:%d ", pp->posx);
     out.AppendFormat("POSY:%d ", pp->posy);
     out.AppendFormat("POSZ:%d ", pp->posz);
-    out.AppendFormat("ANG:%d\n", fix16_to_int(pp->camq16ang));
+    out.AppendFormat("ANG:%d\n", FixedToInt(pp->q16ang));
 
     return out;
 }
 
-SWBOOL DebugSecret = FALSE;
-void SecretInfo(PLAYERp pp)
-{
-	if (!hud_stats) return;
-#define Y_STEP 7
-#define AVERAGEFRAMES 16
-    int x = windowxy1.x+2;
-    int y = windowxy1.y+2+8;
-    extern short LevelSecrets,TotalKillable;
-
-    if (CommEnabled || numplayers > 1)
-        return;
-
-    x = x / (xdim/320.0);
-    y = y / (ydim/200.0);
-
-    if (hud_stats)
-    {
-        sprintf(ds, "Kills %d/%d", Player->Kills, TotalKillable);
-        DisplayMiniBarSmString(pp, x, y, PAL_XLAT_BROWN, ds);
-
-        sprintf(ds, "Secrets %d/%d", Player->SecretsFound, LevelSecrets);
-        DisplayMiniBarSmString(pp, x, y+10, PAL_XLAT_BROWN, ds);
-    }
-}
 
 void PrintSpriteInfo(PLAYERp pp)
 {
-#define Y_STEP 7
+    const int Y_STEP = 7;
     int x = windowxy1.x+2;
     int y = windowxy1.y+2;
     SPRITEp sp;
@@ -1533,90 +1255,26 @@ void SpriteSortList2D(int tx, int ty)
     }
 }
 
-void CheatResChange(void)
-{
-}
-
-void DrawCheckKeys(PLAYERp pp)
-{
-    extern SWBOOL ResCheat;
-
-    if (ResCheat)
-    {
-        ResCheat = FALSE;
-        CheatResChange(); // allow all modes when cheating
-    }
-
-    if (ConPanel) return;
-
-    if (!InputMode)
-        ResizeView(pp);
-}
-
-void DrawMessageInput(void)
-{
-    short w,h;
-    static SWBOOL cur_show;
-    short c;
-
-    // Used to make cursor fade in and out
-    c = 4-(sintable[((int32_t) totalclock<<4)&2047]>>11);
-
-    if (MessageInputMode)
-    {
-        MNU_MeasureSmallString(MessageInputString, &w, &h);
-
-        cur_show ^= 1;
-        if (cur_show)
-        {
-            minigametext(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,ROTATE_SPRITE_SCREEN_CLIP);
-            rotatesprite((TEXT_XCENTER(w)+w+2)<<16,(MESSAGE_LINE+1)<<16,20000,0,COINCURSOR+(((int32_t) totalclock>>3)%7),c,0,ROTATE_SPRITE_SCREEN_CLIP,0,0,xdim-1,ydim-1);
-        }
-        else
-        {
-            minigametext(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,ROTATE_SPRITE_SCREEN_CLIP);
-            rotatesprite((TEXT_XCENTER(w)+w+2)<<16,(MESSAGE_LINE+1)<<16,20000,0,COINCURSOR+(((int32_t) totalclock>>3)%7),c,0,ROTATE_SPRITE_SCREEN_CLIP,0,0,xdim-1,ydim-1);
-        }
-    }
-}
-
-
 void DrawCrosshair(PLAYERp pp)
 {
-    extern SWBOOL DemoMode,CameraTestMode;
+    extern bool CameraTestMode;
 
-    if (!cl_crosshair)
-        return;
-
-    if (DemoMode || CameraTestMode)
-        return;
-
-    if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
-        return;
-
-    if (dimensionmode == 6)
-        return;
-
+    if (!(CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
-//NORMALXHAIR:
-        rotatesprite(160<<16, 100<<16, (1 << 16), 0,
-                     2326, 10, 0,
-                     ROTATE_SPRITE_VIEW_CLIP, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+        USERp u = User[pp->PlayerSprite];
+        ::DrawCrosshair(2326, u->Health, 0, 2, shadeToLight(10));
     }
-
-    //#define TITLE_ROT_FLAGS (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
-
 }
 
-void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fix16_t *tq16ang, fix16_t *tq16horiz)
+void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t *tq16ang, fixed_t *tq16horiz)
 {
     int i,nexti;
     short ang;
     SPRITEp sp;
-    SWBOOL found_camera = FALSE;
-    SWBOOL player_in_camera = FALSE;
-    SWBOOL FAFcansee_test;
-    SWBOOL ang_test;
+    bool found_camera = false;
+    bool player_in_camera = false;
+    bool FAFcansee_test;
+    bool ang_test;
 
     if (pp == &Player[screenpeek])
     {
@@ -1650,7 +1308,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fix16_t 
                 case 1:
                     pp->last_camera_sp = sp;
                     CircleCamera(tx, ty, tz, tsectnum, tq16ang, 100);
-                    found_camera = TRUE;
+                    found_camera = true;
                     break;
 
                 default:
@@ -1675,20 +1333,20 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fix16_t 
                         zvect = 0;
 
                     // new horiz to player
-                    *tq16horiz = fix16_from_int(100 - (zvect/256));
-                    *tq16horiz = fix16_max(*tq16horiz, fix16_from_int(PLAYER_HORIZ_MIN));
-                    *tq16horiz = fix16_min(*tq16horiz, fix16_from_int(PLAYER_HORIZ_MAX));
+                    *tq16horiz = IntToFixed(100 - (zvect/256));
+                    *tq16horiz = max(*tq16horiz, IntToFixed(PLAYER_HORIZ_MIN));
+                    *tq16horiz = min(*tq16horiz, IntToFixed(PLAYER_HORIZ_MAX));
 
                     //DSPRINTF(ds,"xvect %d,yvect %d,zvect %d,tq16horiz %d",xvect,yvect,zvect,*tq16horiz);
                     MONO_PRINT(ds);
 
-                    *tq16ang = fix16_from_int(ang);
+                    *tq16ang = IntToFixed(ang);
                     *tx = sp->x;
                     *ty = sp->y;
                     *tz = sp->z;
                     *tsectnum = sp->sectnum;
 
-                    found_camera = TRUE;
+                    found_camera = true;
                     break;
                 }
                 }
@@ -1754,15 +1412,6 @@ PostDraw(void)
             FreeMem(User[i]);
             User[i] = NULL;
         }
-
-#if DEBUG
-        SPRITEp sp = &sprite[i];
-        short statnum = sp->statnum;
-        short sectnum = sp->sectnum;
-        memset(sp, 0xCC, sizeof(SPRITE));
-        sp->statnum = statnum;
-        sp->sectnum = sectnum;
-#endif
 
         deletesprite(i);
     }
@@ -1897,7 +1546,7 @@ void PreDrawStackedWater(void)
 }
 
 
-void FAF_DrawRooms(int x, int y, int z, fix16_t q16ang, fix16_t q16horiz, short sectnum)
+void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short sectnum)
 {
     short i,nexti;
 
@@ -1952,24 +1601,23 @@ void FAF_DrawRooms(int x, int y, int z, fix16_t q16ang, fix16_t q16horiz, short 
     }
 }
 
-short ScreenSavePic = FALSE;
+short ScreenSavePic = false;
 
-SWBOOL PicInView(short, SWBOOL);
+bool PicInView(short, bool);
 void DoPlayerDiveMeter(PLAYERp pp);
-void MoveScrollMode2D(PLAYERp pp);
 
 void
-drawscreen(PLAYERp pp)
+drawscreen(PLAYERp pp, double smoothratio)
 {
-    extern SWBOOL DemoMode,CameraTestMode;
+    extern bool CameraTestMode;
     int tx, ty, tz;
-    fix16_t tq16horiz, tq16ang;
+    fixed_t tq16horiz, tq16ang;
     short tsectnum;
     short i,j;
     int bob_amt = 0;
     int quake_z, quake_x, quake_y;
     short quake_ang;
-    extern SWBOOL FAF_DebugView;
+    extern bool FAF_DebugView;
     PLAYERp camerapp;                       // prediction player if prediction is on, else regular player
 
     // last valid stuff
@@ -1978,58 +1626,10 @@ drawscreen(PLAYERp pp)
 
     int const viewingRange = viewingrange;
 
-    if (HelpInputMode)
-    {
-        renderFlushPerms();
-        // note - could put Order Info Pages at the top like this also
-
-        rotatesprite(0,0,65536L,0,HelpPagePic[HelpPage],0,0,
-                     (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK|ROTATE_SPRITE_IGNORE_START_MOST),
-                     0, 0, xdim-1, ydim-1);
-        videoNextPage();
-
-        return;
-    }
-
-#if 0
-    if (TenScreenMode)
-    {
-#define TEN_PIC 5109
-
-        renderFlushPerms();
-        // note - could put Order Info Pages at the top like this also
-        rotatesprite(0,0,65536L,0,TEN_PIC,0,0,
-                     (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK|ROTATE_SPRITE_IGNORE_START_MOST),
-                     0, 0, xdim-1, ydim-1);
-
-        videoNextPage();
-        return;
-    }
-#endif
-
-    if (videoGetRenderMode() >= REND_POLYMOST)
-        RedrawScreen = TRUE;
-
-    DrawScreen = TRUE;
+    DrawScreen = true;
     PreDraw();
-    // part of new border refresh method
-    if (RedrawScreen && !ScreenSavePic)
-    {
-        RedrawCompass = TRUE;
-        RedrawScreen = FALSE;
-        // get rid of all PERM sprites!
-        renderFlushPerms();
-        // get rid of all PANF_KILL_AFTER_SHOW sprites!
-        pFlushPerms(pp);
-        SetBorder(pp,gs.BorderNum);
-    }
 
-    PreUpdatePanel();
-
-
-    smoothratio = CalcSmoothRatio(totalclock, ototalclock, 120 / synctics);
-    if (paused && !ReloadPrompt) // The checks were brought over from domovethings
-        smoothratio = 65536;
+    PreUpdatePanel(smoothratio);
 
     if (!ScreenSavePic)
     {
@@ -2046,46 +1646,27 @@ drawscreen(PLAYERp pp)
     else
         camerapp = pp;
 
-    tx = camerapp->oposx + mulscale16(camerapp->posx - camerapp->oposx, smoothratio);
-    ty = camerapp->oposy + mulscale16(camerapp->posy - camerapp->oposy, smoothratio);
-    tz = camerapp->oposz + mulscale16(camerapp->posz - camerapp->oposz, smoothratio);
-    // TODO: It'd be better to check pp->input.q16angvel instead, problem is that
-    // it's been repurposed for the q16ang diff while tying input to framerate
-    if (PedanticMode || (pp != Player+myconnectindex) ||
-        (TEST(pp->Flags, PF_DEAD) && (loc.q16angvel == 0)))
+    tx = camerapp->oposx + xs_CRoundToInt(fmulscale16(camerapp->posx - camerapp->oposx, smoothratio));
+    ty = camerapp->oposy + xs_CRoundToInt(fmulscale16(camerapp->posy - camerapp->oposy, smoothratio));
+    tz = camerapp->oposz + xs_CRoundToInt(fmulscale16(camerapp->posz - camerapp->oposz, smoothratio));
+
+    // Interpolate the player's angle while on a sector object, just like VoidSW.
+    // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
+    if (cl_syncinput || pp != Player+myconnectindex || (!cl_syncinput && pp->sop && !TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET)))
     {
-        tq16ang = camerapp->oq16ang + mulscale16(NORM_Q16ANGLE(camerapp->q16ang + fix16_from_int(1024) - camerapp->oq16ang) - fix16_from_int(1024), smoothratio);
-        tq16horiz = camerapp->oq16horiz + mulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio);
-    }
-    else if (cl_sointerpolation && !CommEnabled)
-    {
-        tq16ang = camerapp->oq16ang + mulscale16(((pp->camq16ang + fix16_from_int(1024) - camerapp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);
-        tq16horiz = camerapp->oq16horiz + mulscale16(pp->camq16horiz - camerapp->oq16horiz, smoothratio);
+        tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16ang + IntToFixed(1024) - camerapp->oq16ang) - IntToFixed(1024), smoothratio));
+        tq16horiz = camerapp->oq16horiz + xs_CRoundToInt(fmulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio));
     }
     else
     {
-        tq16ang = pp->camq16ang;
-        tq16horiz = pp->camq16horiz;
+        tq16ang = pp->q16ang;
+        tq16horiz = pp->q16horiz;
     }
     tsectnum = camerapp->cursectnum;
 
-    //ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);
-    // if updatesectorz is to sensitive try COVERupdatesector
-    //updatesectorz(tx, ty, tz, &tsectnum);
-
     COVERupdatesector(tx, ty, &tsectnum);
 
-    if (tsectnum < 0)
-    {
-#if 0
-        // if we hit an invalid sector move to the last valid position for drawing
-        tsectnum = lv_sectnum;
-        tx = lv_x;
-        ty = lv_y;
-        tz = lv_z;
-#endif
-    }
-    else
+    if (tsectnum >= 0)
     {
         // last valid stuff
         lv_sectnum = tsectnum;
@@ -2093,9 +1674,6 @@ drawscreen(PLAYERp pp)
         lv_y = ty;
         lv_z = tz;
     }
-
-    // with "last valid" code this should never happen
-    // ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);
 
     if (pp->sop_riding || pp->sop_control)
     {
@@ -2114,34 +1692,33 @@ drawscreen(PLAYERp pp)
     pp->six = tx;
     pp->siy = ty;
     pp->siz = tz - pp->posz;
-    pp->siang = fix16_to_int(tq16ang);
+    pp->siang = FixedToInt(tq16ang);
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);
     VisViewChange(camerapp, &g_visibility);
     tz = tz + quake_z;
     tx = tx + quake_x;
     ty = ty + quake_y;
-    //tq16horiz = tq16horiz + fix16_from_int(quake_x);
-    tq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(tq16ang) + quake_ang));
+    //tq16horiz = tq16horiz + IntToFixed(quake_x);
+    tq16ang = NORM_Q16ANGLE(tq16ang + quake_ang);
 
     if (pp->sop_remote)
     {
         if (TEST_BOOL1(pp->remote_sprite))
-            tq16ang = fix16_from_int(pp->remote_sprite->ang);
+            tq16ang = IntToFixed(pp->remote_sprite->ang);
         else
-            tq16ang = GetQ16AngleFromVect(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
+            tq16ang = gethiq16angle(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
 
-    //if (TEST(camerapp->Flags, PF_VIEW_FROM_OUTSIDE))
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
-        BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, fix16_to_int(tq16horiz));
+        BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, FixedToInt(tq16horiz));
     }
     else
     {
         bob_amt = camerapp->bob_amt;
 
-        if (DemoMode || CameraTestMode)
+        if (CameraTestMode)
         {
             CameraView(camerapp, &tx, &ty, &tz, &tsectnum, &tq16ang, &tq16horiz);
         }
@@ -2150,35 +1727,28 @@ drawscreen(PLAYERp pp)
     if (!TEST(pp->Flags, PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE))
     {
         tz += bob_amt;
-        tz += PedanticMode ? camerapp->bob_z :
-                             pp->obob_z + mulscale16(pp->bob_z - pp->obob_z, smoothratio);
+        tz += pp->obob_z + xs_CRoundToInt(fmulscale16(pp->bob_z - pp->obob_z, smoothratio));
 
         // recoil only when not in camera
-        //tq16horiz = tq16horiz + fix16_from_int(camerapp->recoil_horizoff);
-        tq16horiz = tq16horiz + fix16_from_int(pp->recoil_horizoff);
-        tq16horiz = fix16_max(tq16horiz, fix16_from_int(PLAYER_HORIZ_MIN));
-        tq16horiz = fix16_min(tq16horiz, fix16_from_int(PLAYER_HORIZ_MAX));
+        tq16horiz = tq16horiz + pp->recoil_horizoff;
+        tq16horiz = max(tq16horiz, IntToFixed(PLAYER_HORIZ_MIN));
+        tq16horiz = min(tq16horiz, IntToFixed(PLAYER_HORIZ_MAX));
     }
 
-    if (r_usenewaspect)
-    {
-        newaspect_enable = 1;
-        videoSetCorrectedAspect();
-    }
-
-    renderSetAspect(Blrintf(float(viewingrange) * tanf(r_fov * (fPI/360.f))), yxaspect);
-
-    if (dimensionmode != 6)// && !ScreenSavePic)
+    if (automapMode != am_full)// && !ScreenSavePic)
     {
         // Cameras must be done before the main loop.
         JS_DrawCameras(pp, tx, ty, tz);
     }
 
-    OverlapDraw = TRUE;
-    DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
-    OverlapDraw = FALSE;
 
-    if (dimensionmode != 6)// && !ScreenSavePic)
+    videoSetCorrectedAspect();
+    renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov* (PI / 360.))), yxaspect);
+    OverlapDraw = true;
+    DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
+    OverlapDraw = false;
+
+    if (automapMode != am_full)// && !ScreenSavePic)
     {
         // TEST this! Changed to camerapp
         //JS_DrawMirrors(camerapp, tx, ty, tz, tq16ang, tq16horiz);
@@ -2190,17 +1760,13 @@ drawscreen(PLAYERp pp)
     if (!FAF_DebugView)
         FAF_DrawRooms(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
 
-    analyzesprites(tx, ty, tz, FALSE);
+    analyzesprites(tx, ty, tz, false);
     post_analyzesprites();
     renderDrawMasks();
 
-    if (r_usenewaspect)
-    {
-        newaspect_enable = 0;
-        renderSetAspect(viewingRange, tabledivide32_noinline(65536 * ydim * 8, xdim * 5));
-    }
 
-    UpdatePanel();
+    renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
+    UpdatePanel(smoothratio);
 
 #define SLIME 2305
     // Only animate lava if its picnum is on screen
@@ -2217,35 +1783,10 @@ drawscreen(PLAYERp pp)
 #endif
 
 
-    i = pp->cursectnum;
+    MarkSectorSeen(pp->cursectnum);
 
-    if (i >= 0)
+    if ((automapMode != am_off) && pp == Player+myconnectindex)
     {
-        show2dsector.Set(i);
-        walltype *wal = &wall[sector[i].wallptr];
-        for (j=sector[i].wallnum; j>0; j--,wal++)
-        {
-            i = wal->nextsector;
-            if (i < 0) continue;
-            if (wal->cstat&0x0071) continue;
-            uint16_t const nextwall = wal->nextwall;
-            if (nextwall < MAXWALLS && wall[nextwall].cstat&0x0071) continue;
-            if (sector[i].lotag == 32767) continue;
-            if (sector[i].ceilingz >= sector[i].floorz) continue;
-            show2dsector.Set(i);
-        }
-    }
-
-    if ((dimensionmode == 5 || dimensionmode == 6) && pp == Player+myconnectindex)
-    {
-        extern SWBOOL ScrollMode2D;
-
-        if (ScrollMode2D)
-        {
-            tx = Follow_posx;
-            ty = Follow_posy;
-        }
-
         for (j = 0; j < MAXSPRITES; j++)
         {
             // Don't show sprites tagged with 257
@@ -2258,16 +1799,7 @@ drawscreen(PLAYERp pp)
                 }
             }
         }
-
-        if (dimensionmode == 6)
-        {
-            // only clear the actual window.
-            twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, (windowxy2.x + 1) - windowxy1.x, (windowxy2.y + 1) - windowxy1.y, 0xff000000);
-            renderDrawMapView(tx, ty, zoom, fix16_to_int(tq16ang));
-        }
-
-        // Draw the line map on top of texture 2d map or just stand alone
-        drawoverheadmap(tx, ty, zoom, fix16_to_int(tq16ang));
+        DrawOverheadMap(tx, ty, FixedToInt(tq16ang));
     }
 
     for (j = 0; j < MAXSPRITES; j++)
@@ -2281,7 +1813,7 @@ drawscreen(PLAYERp pp)
     // if doing a screen save don't need to process the rest
     if (ScreenSavePic)
     {
-        DrawScreen = FALSE;
+        DrawScreen = false;
         return;
     }
 
@@ -2292,34 +1824,16 @@ drawscreen(PLAYERp pp)
     SyncStatMessage();
 #endif
 
+    UpdateStatusBar();
     DrawCrosshair(pp);
-
-
-    operatefta();           // Draw all the user quotes in the quote array
-
-    operateconfta();        // Draw messages in the console
-
     DoPlayerDiveMeter(pp); // Do the underwater breathing bar
 
     // Boss Health Meter, if Boss present
     BossHealthMeter();
 
-    DrawMessageInput();   // This is only used for non-multiplayer input now
-
-    DrawCompass(pp);
-    UpdateMiniBar(pp);
-
-	if (!M_Active())
-    SecretInfo(pp);
-
-    videoNextPage();
-
 #if SYNC_TEST
     SyncStatMessage();
 #endif
-
-    // certain input is done here - probably shouldn't be
-    DrawCheckKeys(pp);
 
     restoreinterpolations();                 // Stick at end of drawscreen
     short_restoreinterpolations();                 // Stick at end of drawscreen
@@ -2328,132 +1842,231 @@ drawscreen(PLAYERp pp)
 
     if (paused && !M_Active())
     {
-        short w,h;
-#define MSG_GAME_PAUSED "Game Paused"
-        MNU_MeasureString(MSG_GAME_PAUSED, &w, &h);
-        PutStringTimer(pp, TEXT_TEST_COL(w), 100, MSG_GAME_PAUSED, 999);
-    }
-    else
-    {
-        pClearTextLine(pp, 100);
+        MNU_DrawString(160, 100, "Game Paused", 0, 0, 0);
     }
 
     if (!CommEnabled && TEST(pp->Flags, PF_DEAD))
     {
         if (ReloadPrompt)
         {
-            ReloadPrompt = FALSE;
+            ReloadPrompt = false;
         }
     }
 
     PostDraw();
-    DrawScreen = FALSE;
+    DrawScreen = false;
 }
-
-void
-DrawCompass(PLAYERp pp)
-{
-#define COMPASS_TIC     2380
-#define COMPASS_TIC2    2381
-
-#define COMPASS_NORTH   2382
-#define COMPASS_NORTH2  2383
-
-#define COMPASS_SOUTH   2384
-#define COMPASS_SOUTH2  2385
-
-#define COMPASS_EAST    2386
-#define COMPASS_EAST2   2387
-
-#define COMPASS_WEST    2388
-#define COMPASS_WEST2   2389
-
-#define COMPASS_MID_TIC    2390
-#define COMPASS_MID_TIC2   2391
-
-#define COMPASS_X   140
-#define COMPASS_Y   (162-5)
-
-#define NORM_CANG(ang) (((ang) + 32) & 31)
-
-    short start_ang,ang;
-    short x_size = tilesiz[COMPASS_NORTH].x;
-    short x;
-    short i;
-    int flags;
-
-    static short CompassPic[32] =
-    {
-        COMPASS_EAST, COMPASS_EAST2,
-        COMPASS_TIC, COMPASS_TIC2,
-        COMPASS_MID_TIC, COMPASS_MID_TIC2,
-        COMPASS_TIC, COMPASS_TIC2,
-
-        COMPASS_SOUTH, COMPASS_SOUTH2,
-        COMPASS_TIC, COMPASS_TIC2,
-        COMPASS_MID_TIC, COMPASS_MID_TIC2,
-        COMPASS_TIC, COMPASS_TIC2,
-
-        COMPASS_WEST, COMPASS_WEST2,
-        COMPASS_TIC, COMPASS_TIC2,
-        COMPASS_MID_TIC, COMPASS_MID_TIC2,
-        COMPASS_TIC, COMPASS_TIC2,
-
-        COMPASS_NORTH, COMPASS_NORTH2,
-        COMPASS_TIC, COMPASS_TIC2,
-        COMPASS_MID_TIC, COMPASS_MID_TIC2,
-        COMPASS_TIC, COMPASS_TIC2,
-    };
-
-    static short CompassShade[10] =
-    {
-        //20, 16, 11, 6, 1, 1, 6, 11, 16, 20
-        25, 19, 15, 9, 1, 1, 9, 15, 19, 25
-    };
-
-    extern SWBOOL PanelUpdateMode;
-
-    if (!PanelUpdateMode)
-        return;
-
-    if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
-        return;
-
-    ang = fix16_to_int(pp->q16ang);
-
-    if (pp->sop_remote)
-        ang = 0;
-
-    start_ang = (ang + 32) >> 6;
-
-    start_ang = NORM_CANG(start_ang - 4);
-
-    flags = ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER;
-    if (RedrawCompass && !M_Active())
-    {
-        RedrawCompass = FALSE;
-        SET(flags, ROTATE_SPRITE_ALL_PAGES);
-    }
-
-    for (i = 0, x = COMPASS_X; i < 10; i++)
-    {
-        rotatesprite(x << 16, COMPASS_Y << 16, (1 << 16), 0,
-                     CompassPic[NORM_CANG(start_ang + i)], CompassShade[i], 0,
-                     flags, 0, 0, xdim - 1, ydim - 1);
-        x += x_size;
-    }
-}
-
-
-
 
 bool GameInterface::GenerateSavePic()
 {
-    ScreenSavePic = TRUE;
-    drawscreen(Player + myconnectindex);
-    ScreenSavePic = FALSE;
+    ScreenSavePic = true;
+    drawscreen(Player + myconnectindex, 65536);
+    ScreenSavePic = false;
     return true;
 }
+
+
+
+
+bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
+{
+    int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
+    int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
+    int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
+    int xvect, yvect, xvect2, yvect2;
+    walltype* wal, * wal2;
+    spritetype* spr;
+    short p;
+    static int pspr_ndx[8] = { 0,0,0,0,0,0,0,0 };
+    bool sprisplayer = false;
+    short txt_x, txt_y;
+
+    xvect = sintable[(2048 - cang) & 2047] * czoom;
+    yvect = sintable[(1536 - cang) & 2047] * czoom;
+    xvect2 = mulscale16(xvect, yxaspect);
+    yvect2 = mulscale16(yvect, yxaspect);
+
+
+    // Draw sprites
+    k = Player[screenpeek].PlayerSprite;
+    for (i = 0; i < numsectors; i++)
+        for (j = headspritesect[i]; j >= 0; j = nextspritesect[j])
+        {
+            for (p = connecthead; p >= 0; p = connectpoint2[p])
+            {
+                if (Player[p].PlayerSprite == j)
+                {
+                    if (sprite[Player[p].PlayerSprite].xvel > 16)
+                        pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
+                    sprisplayer = true;
+
+                    goto SHOWSPRITE;
+                }
+            }
+            if (gFullMap || show2dsprite[j])
+            {
+            SHOWSPRITE:
+                spr = &sprite[j];
+
+                PalEntry col = GPalette.BaseColors[56]; // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
+                if ((spr->cstat & 1) > 0)
+                    col = GPalette.BaseColors[248];
+                if (j == k)
+                    col = GPalette.BaseColors[31];
+
+                sprx = spr->x;
+                spry = spr->y;
+
+                k = spr->statnum;
+                if ((k >= 1) && (k <= 8) && (k != 2))   // Interpolate moving
+                {
+                    sprx = sprite[j].x;
+                    spry = sprite[j].y;
+                }
+
+                switch (spr->cstat & 48)
+                {
+                case 0:  // Regular sprite
+                    if (Player[p].PlayerSprite == j)
+                    {
+                        ox = sprx - cposx;
+                        oy = spry - cposy;
+                        x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                        if (((gotsector[i >> 3] & (1 << (i & 7))) > 0) && (czoom > 192))
+                        {
+                            daang = (spr->ang - cang) & 2047;
+
+                            // Special case tiles
+                            if (spr->picnum == 3123) break;
+
+                            int spnum = -1;
+                            if (sprisplayer)
+                            {
+                                if (gNet.MultiGameType != MULTI_GAME_COMMBAT || j == Player[screenpeek].PlayerSprite)
+                                    spnum = 1196 + pspr_ndx[myconnectindex];
+                            }
+                            else spnum = spr->picnum;
+
+                            double xd = ((x1 << 4) + (xdim << 15)) / 65536.;
+                            double yd = ((y1 << 4) + (ydim << 15)) / 65536.;
+                            double sc = mulscale16(czoom * (spr->yrepeat), yxaspect) / 32768.;
+                            if (spnum >= 0)
+                            {
+                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xd, yd, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * (-360. / 2048),
+                                    DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, spr->pal), DTA_Color, shadeToLight(spr->shade),
+                                    DTA_Alpha, (spr->cstat & 2) ? 0.33 : 1., TAG_DONE);
+                            }
+                        }
+                    }
+                    break;
+                case 16: // Rotated sprite
+                    x1 = sprx;
+                    y1 = spry;
+                    tilenum = spr->picnum;
+                    xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
+                    if ((spr->cstat & 4) > 0)
+                        xoff = -xoff;
+                    k = spr->ang;
+                    l = spr->xrepeat;
+                    dax = sintable[k & 2047] * l;
+                    day = sintable[(k + 1536) & 2047] * l;
+                    l = tilesiz[tilenum].x;
+                    k = (l >> 1) + xoff;
+                    x1 -= mulscale16(dax, k);
+                    x2 = x1 + mulscale16(dax, l);
+                    y1 -= mulscale16(day, k);
+                    y2 = y1 + mulscale16(day, l);
+
+                    ox = x1 - cposx;
+                    oy = y1 - cposy;
+                    x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                    y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                    ox = x2 - cposx;
+                    oy = y2 - cposy;
+                    x2 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                    y2 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                    drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
+                        x2 + (xdim << 11), y2 + (ydim << 11), col);
+
+                    break;
+                case 32:    // Floor sprite
+                    if (automapMode == am_overlay)
+                    {
+                        tilenum = spr->picnum;
+                        xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
+                        yoff = (int)tileTopOffset(tilenum) + (int)spr->yoffset;
+                        if ((spr->cstat & 4) > 0)
+                            xoff = -xoff;
+                        if ((spr->cstat & 8) > 0)
+                            yoff = -yoff;
+
+                        k = spr->ang;
+                        cosang = sintable[(k + 512) & 2047];
+                        sinang = sintable[k];
+                        xspan = tilesiz[tilenum].x;
+                        xrepeat = spr->xrepeat;
+                        yspan = tilesiz[tilenum].y;
+                        yrepeat = spr->yrepeat;
+
+                        dax = ((xspan >> 1) + xoff) * xrepeat;
+                        day = ((yspan >> 1) + yoff) * yrepeat;
+                        x1 = sprx + mulscale16(sinang, dax) + mulscale16(cosang, day);
+                        y1 = spry + mulscale16(sinang, day) - mulscale16(cosang, dax);
+                        l = xspan * xrepeat;
+                        x2 = x1 - mulscale16(sinang, l);
+                        y2 = y1 + mulscale16(cosang, l);
+                        l = yspan * yrepeat;
+                        k = -mulscale16(cosang, l);
+                        x3 = x2 + k;
+                        x4 = x1 + k;
+                        k = -mulscale16(sinang, l);
+                        y3 = y2 + k;
+                        y4 = y1 + k;
+
+                        ox = x1 - cposx;
+                        oy = y1 - cposy;
+                        x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                        ox = x2 - cposx;
+                        oy = y2 - cposy;
+                        x2 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y2 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                        ox = x3 - cposx;
+                        oy = y3 - cposy;
+                        x3 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y3 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                        ox = x4 - cposx;
+                        oy = y4 - cposy;
+                        x4 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y4 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                        drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
+                            x2 + (xdim << 11), y2 + (ydim << 11), col);
+
+                        drawlinergb(x2 + (xdim << 11), y2 + (ydim << 11),
+                            x3 + (xdim << 11), y3 + (ydim << 11), col);
+
+                        drawlinergb(x3 + (xdim << 11), y3 + (ydim << 11),
+                            x4 + (xdim << 11), y4 + (ydim << 11), col);
+
+                        drawlinergb(x4 + (xdim << 11), y4 + (ydim << 11),
+                            x1 + (xdim << 11), y1 + (ydim << 11), col);
+
+                    }
+                    break;
+                }
+            }
+        }
+        return true;
+}
+
 
 
 END_SW_NS

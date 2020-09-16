@@ -158,6 +158,7 @@ static const gamefilter games[] = {
 	{ "Blood", GAMEFLAG_BLOOD},
 	{ "ShadowWarrior", GAMEFLAG_SW},
 	{ "Exhumed", GAMEFLAG_POWERSLAVE|GAMEFLAG_EXHUMED},
+	{ "Worldtour", GAMEFLAG_WORLDTOUR},
 };
 
 // for other parts that need to filter by game name.
@@ -174,7 +175,7 @@ bool validFilter(const char *str)
 }
 
 
-static bool CheckSkipGameBlock(FScanner &sc)
+static bool CheckSkipGameBlock(FScanner &sc, bool negate = false)
 {
 	int filter = 0;
 	sc.MustGetStringName("(");
@@ -186,6 +187,7 @@ static bool CheckSkipGameBlock(FScanner &sc)
 		filter |= games[gi].gameflag;
 	}
 	while (sc.CheckString(","));
+	if (negate) filter = ~filter;
 	sc.MustGetStringName(")");
 	if (!(filter & g_gameType))
 	{
@@ -282,6 +284,14 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 		else if (sc.Compare("ifgame"))
 		{
 			if (!CheckSkipGameBlock(sc))
+			{
+				// recursively parse sub-block
+				ParseListMenuBody(sc, desc);
+			}
+		}
+		else if (sc.Compare("ifnotgame"))
+		{
+			if (!CheckSkipGameBlock(sc, true))
 			{
 				// recursively parse sub-block
 				ParseListMenuBody(sc, desc);
@@ -466,35 +476,6 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 		if (desc->mSelectedItem == -1) desc->mSelectedItem = desc->mItems.Size() - 1;
 
 		}
-		else if (sc.Compare("NativeFont"))
-		{
-			desc->mNativePalNum = NIT_ActiveColor;
-			desc->mNativeFontScale = 1.f;
-			sc.MustGetString();
-			if (sc.Compare("Big")) desc->mNativeFontNum = NIT_BigFont;
-			else if (sc.Compare("Small")) desc->mNativeFontNum = NIT_SmallFont;
-			else if (sc.Compare("Tiny")) desc->mNativeFontNum = NIT_TinyFont;
-			else sc.ScriptError("Unknown native font type");
-			if (sc.CheckString(","))
-			{
-				sc.MustGetString();
-				if (sc.Compare("Active")) desc->mNativePalNum = NIT_ActiveColor;
-				else if (sc.Compare("Inactive")) desc->mNativePalNum = NIT_InactiveColor;
-				else if (sc.Compare("Selected")) desc->mNativePalNum = NIT_SelectedColor;
-				else
-				{
-					char* ep;
-					int v = (int)strtoll(sc.String, &ep, 0);
-					if (*ep != 0) sc.ScriptError("Unknown native palette");
-					desc->mNativePalNum = v;
-				}
-				if (sc.CheckString(","))
-				{
-					sc.MustGetFloat();
-					desc->mNativeFontScale = sc.Float;
-				}			
-			}
-		}
 		else if (sc.Compare("Font"))
 		{
 		sc.MustGetString();
@@ -614,6 +595,14 @@ static void ParseImageScrollerBody(FScanner &sc, FImageScrollerDescriptor *desc)
 		else if (sc.Compare("ifgame"))
 		{
 			if (!CheckSkipGameBlock(sc))
+			{
+				// recursively parse sub-block
+				ParseImageScrollerBody(sc, desc);
+			}
+		}
+		else if (sc.Compare("ifnotgame"))
+		{
+			if (!CheckSkipGameBlock(sc, true))
 			{
 				// recursively parse sub-block
 				ParseImageScrollerBody(sc, desc);
@@ -797,6 +786,14 @@ static void ParseOptionSettings(FScanner &sc)
 				ParseOptionSettings(sc);
 			}
 		}
+		else if (sc.Compare("ifnotgame"))
+		{
+			if (!CheckSkipGameBlock(sc, true))
+			{
+				// recursively parse sub-block
+				ParseOptionSettings(sc);
+			}
+		}
 		else if (sc.Compare("Linespacing"))
 		{
 			sc.MustGetNumber();
@@ -833,6 +830,14 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 		else if (sc.Compare("ifgame"))
 		{
 			if (!CheckSkipGameBlock(sc))
+			{
+				// recursively parse sub-block
+				ParseOptionMenuBody(sc, desc);
+			}
+		}
+		else if (sc.Compare("ifnotgame"))
+		{
+			if (!CheckSkipGameBlock(sc, true))
 			{
 				// recursively parse sub-block
 				ParseOptionMenuBody(sc, desc);
@@ -1402,7 +1407,6 @@ static void BuildEpisodeMenu()
 
 static void InitCrosshairsList()
 {
-#if 0
 	int lastlump, lump;
 
 	lastlump = 0;
@@ -1417,7 +1421,7 @@ static void InitCrosshairsList()
 	pair->Value = 0;
 	pair->Text = "None";
 
-	while ((lump = Wads.FindLump("XHAIRS", &lastlump)) != -1)
+	while ((lump = fileSystem.FindLump("XHAIRS", &lastlump)) != -1)
 	{
 		FScanner sc(lump);
 		while (sc.GetNumber())
@@ -1448,7 +1452,6 @@ static void InitCrosshairsList()
 			}
 		}
 	}
-#endif
 }
 
 //=============================================================================

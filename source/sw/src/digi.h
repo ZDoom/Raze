@@ -55,8 +55,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define DIST_NORMAL             0        // Just play sound normaly
 #define DIST_MAXNORMAL          16384    // This is max distance constant for normal sounds
 // This is the limiting constant in Sound_Dist function.
-#define DIST_WIDE               65536    // Half Level at full volume before sound begins to fade.
-#define DIST_LEVELWIDE          131072   // Full Level
+#define DIST_WIDE               65536    // Half level at full volume before sound begins to fade.
+#define DIST_LEVELWIDE          131072   // Full level
 
 // VOC Flag definitions
 #define VF_NORMAL               0

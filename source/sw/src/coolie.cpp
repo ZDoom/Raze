@@ -27,14 +27,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "tags.h"
 #include "ai.h"
 #include "sprite.h"
-#include "actor.h"
-#include "track.h"
+#include "misc.h"
 #include "weapon.h"
 
 BEGIN_SW_NS
@@ -343,11 +341,6 @@ STATEp sg_CoolieDead[] =
     s_CoolieDead
 };
 
-STATE s_CoolieDeadHead[] =
-    {
-    {COOLIE_DEAD_HEAD, COOLIE_DIE_RATE, DoActorDebris, &s_CoolieDeadHead[0]}
-    };
-
 /*
 typedef struct
 {
@@ -439,14 +432,6 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
     default:
     {
         TotalKillable++;
-#if DEBUG
-        extern SWBOOL DebugSecret;
-        if (DebugSecret)
-        {
-            sprintf(ds,"COUNTED: spnum %d, pic %d, x %d, y %d",SpriteNum,sp->picnum,sp->x,sp->y);
-            DebugWriteString(ds);
-        }
-#endif
     }
 
     break;
@@ -578,7 +563,6 @@ int SpawnCoolg(short SpriteNum)
     // Don't do a ghost every time
     if (RANDOM_RANGE(1000) > 700)
     {
-        ChangeState(SpriteNum,&s_CoolieDeadHead[0]);
         return(0);
     }
 
@@ -728,7 +712,6 @@ static saveable_data saveable_coolie_data[] =
     SAVE_DATA(sg_CoolieDead),
 
     SAVE_DATA(CoolieActionSet),
-    SAVE_DATA(s_CoolieDeadHead),
 };
 
 saveable_module saveable_coolie =

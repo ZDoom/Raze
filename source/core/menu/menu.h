@@ -9,9 +9,9 @@
 #include "version.h"
 #include "textures.h"
 #include "zstring.h"
-#include "baselayer.h"
 #include "v_draw.h"
 #include "menustate.h"
+#include "gamestruct.h"
 
 EXTERN_CVAR(Float, snd_menuvolume)
 EXTERN_CVAR(Int, m_use_mouse);
@@ -48,7 +48,7 @@ struct MenuTransition
 	DMenu* previous;
 	DMenu* current;
 
-	int32_t start;
+	double start;
 	int32_t length;
 	int32_t dir;
 
@@ -94,7 +94,8 @@ enum EMenuSounds : int
 	BackSound,
 	CloseSound,
 	PageSound,
-	ChangeSound
+	ChangeSound,
+	ChooseSound
 };
 
 EXTERN_CVAR(Bool, menu_sounds)
@@ -132,7 +133,6 @@ enum ENativeFontValues
 {
 	NIT_BigFont,
 	NIT_SmallFont,
-	NIT_TinyFont,
 
 	NIT_ActiveColor = -1,
 	NIT_InactiveColor = -2,
@@ -319,13 +319,13 @@ public:
 		BACKBUTTON_TIME = 4*MENU_TICRATE
 	};
 
-	static int MenuTime;
 	static bool InMenu;
 
 	DMenu *mParentMenu;
 	DVector2 origin = { 0,0 };
 	int scriptID = INT_MAX;
 	bool canAnimate = false;
+	bool isAnimated = false;	// set to true when uncapped frame rate is needed.
 
 	DMenu(DMenu *parent = NULL);
 	virtual ~DMenu() = default;
@@ -340,6 +340,7 @@ public:
 	virtual void Close();
 	virtual bool MouseEvent(int type, int x, int y);
 	virtual void Destroy() {}
+	bool IsAnimated() const { return isAnimated; }
 	bool MouseEventBack(int type, int x, int y);
 	void SetCapture();
 	void ReleaseCapture();
@@ -765,7 +766,7 @@ void I_ReleaseMouseCapture();
 struct MenuClassDescriptor;
 extern TArray<MenuClassDescriptor*> menuClasses;
 
-using hFunc = std::function<void(bool)>;
+using hFunc = std::function<bool(bool)>;
 DMenu* CreateMessageBoxMenu(DMenu* parent, const char* message, int messagemode, int scriptID, bool playsound, FName action = NAME_None, hFunc handler = nullptr);
 
 
@@ -836,5 +837,8 @@ public:
 
 extern FSavegameManager savegameManager;
 extern DMenu* CurrentMenu;
+
+bool M_IsAnimated();
+
 
 #endif

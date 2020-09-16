@@ -21,14 +21,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 #include "build.h"
-#include "osd.h"
-#include "osd.h"
 #include "exhumed.h"
 #include "engine.h"
 #include "sound.h"
 #include "names.h"
 #include "version.h"
 #include "raze_sound.h"
+#include "gamestate.h"
+#include "mapinfo.h"
+#include "gamecontrol.h"
 
 
 #include "menu/menu.h"	// to override the local menu.h
@@ -38,42 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-int handle1;
-
-
-int MenuExitCondition;
-
-int menu_Menu(int nVal)
-{
-	MenuExitCondition = -2;
-	M_StartControlPanel(false);
-	M_SetMenu(NAME_Mainmenu);
-	while (M_Active())
-	{
-		auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
-		int dword_9AB5F = ((int)totalclock / 16) & 3;
-
-		twod->ClearScreen();
-
-		overwritesprite(160, 100, kSkullHead, 32, 3, kPalNormal);
-		overwritesprite(161, 130, kSkullJaw, 32, 3, kPalNormal);
-
-		overwritesprite(160, 40, nLogoTile, 32, 3, kPalNormal);
-
-		// draw the fire urn/lamp thingies
-		overwritesprite(50, 150, kTile3512 + dword_9AB5F, 32, 3, kPalNormal);
-		overwritesprite(270, 150, kTile3512 + ((dword_9AB5F + 2) & 3), 32, 3, kPalNormal);
-
-		HandleAsync();
-		videoNextPage();
-
-	}
-	int me = MenuExitCondition;
-	MenuExitCondition = -2;
-	return me;
-}
-
-
 //----------------------------------------------------------------------------
 //
 // Implements the native looking menu used for the main menu
@@ -82,7 +47,7 @@ int menu_Menu(int nVal)
 //
 //----------------------------------------------------------------------------
 void menu_DoPlasma();
-int zoomsize = 0;
+double zoomsize = 0;
 
 class PSMainMenu : public DListMenu
 {
@@ -96,11 +61,11 @@ class PSMainMenu : public DListMenu
 	void Ticker() override
 	{
 		// handle the menu zoom-in
-		if (zoomsize < 0x10000)
+		if (zoomsize < 1.)
 		{
-			zoomsize += 4096;
-			if (zoomsize >= 0x10000) {
-				zoomsize = 0x10000;
+			zoomsize += 0.0625;
+			if (zoomsize >= 1.) {
+				zoomsize = 1.;
 			}
 		}
 	}
@@ -112,7 +77,7 @@ class PSMainMenu : public DListMenu
 		else
 		{
 			auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
-			overwritesprite(160, 40, nLogoTile, 32, 3, kPalNormal);
+			DrawRel(nLogoTile, 160, 40);
 		}
 	}
 };
@@ -133,7 +98,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 
 	if (state == NIT_SelectedState) 
 	{ // currently selected menu item
-		shade = Sin((int)totalclock << 4) >> 9;
+		shade = Sin(I_GetBuildTime() << 4) >> 9;
 	}
 	else if (state == NIT_ActiveState) {
 		shade = 0;
@@ -142,15 +107,20 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 		shade = 25;
 	}
 
-	rotatesprite(160 << 16, int((y + tilesiz[tilenum].y) *65536), zoomsize, 0, tilenum, shade, 0, RS_AUTO|RS_CENTER, 0, 0, xdim, ydim);
+	// Todo: Replace the boxes with an empty one and draw the text with a font.
+	auto tex = tileGetTexture(tilenum);
+
+	DrawTexture(twod, tex, 160, y + tex->GetDisplayHeight(), DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffset, true, DTA_ScaleX, zoomsize, DTA_ScaleY, zoomsize, 
+		DTA_Color, shadeToLight(shade), TAG_DONE);
 
 	// tilesizx is 51
 	// tilesizy is 33
 
 	if (state == NIT_SelectedState)
 	{
-		overwritesprite(62, short(ypos - 12), kMenuCursorTile, 0, 2, kPalNormal);
-		overwritesprite(62 + 146, short(ypos - 12), kMenuCursorTile, 0, 10, kPalNormal);
+		tex = tileGetTexture(kMenuCursorTile);
+		DrawTexture(twod, tex, 62, ypos - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, TAG_DONE);
+		DrawTexture(twod, tex, 207, ypos - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_FlipX, true, TAG_DONE);
 	}
 }
 
@@ -181,6 +151,11 @@ void GameInterface::MenuSound(EMenuSounds snd)
 	}
 }
 
+void GameInterface::QuitToTitle()
+{
+	gameaction = ga_mainmenu;
+}
+
 void GameInterface::MenuClosed()
 {
 
@@ -189,7 +164,8 @@ void GameInterface::MenuClosed()
 
 void GameInterface::StartGame(FNewGameStartup& gs)
 {
-	MenuExitCondition = gs.Episode;	// Gross hack. The main loop needs to be redone for better handling.
+	auto map = FindMapByLevelNum(gs.Episode);
+	DeferedStartGame(map, 0);	// 0 is training, 1 is the regular game - the game does not have skill levels.
 }
 
 FSavegameInfo GameInterface::GetSaveSig()
@@ -197,26 +173,10 @@ FSavegameInfo GameInterface::GetSaveSig()
 	return { SAVESIG_PS, MINSAVEVER_PS, SAVEVER_PS };
 }
 
-void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
-{
-	if (text)
-	{
-		int height = 11;
-
-		auto lines = FString(text).MakeUpper().Split("\n");
-		int y = position - (height * lines.Size() / 2);
-		for (auto& l : lines)
-		{
-			int width = MyGetStringWidth(l);
-			myprintext(int(origin.X) + 160 - width / 2, int(origin.Y) + y, l, 0);
-			y += height;
-		}
-	}
-}
-
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
-	DrawCenteredTextScreen(origin, text, 10, false);
+	// Fixme: should use the extracted font from the menu items (i.e. BigFont) and a stretched box for the menu items.
+	DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - SmallFont->StringWidth(text)/2, 10, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
 }
 
 

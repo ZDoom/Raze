@@ -20,13 +20,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "player.h"
-#include "serial.h"
-#include "network.h"
+#include "aistuff.h"
+#include "status.h"
+#include "view.h"
+#include "gamecontrol.h"
 #include <string.h>
+#include "v_video.h"
 
 BEGIN_PS_NS
 
-int nNetMoves = 0;
+extern short bPlayerPan;
+extern short bLockPan;
 
 short nInputStack = 0;
 
@@ -69,34 +73,10 @@ void InitInput()
 
 void ClearSpaceBar(short nPlayer)
 {
-    sPlayerInput[nPlayer].buttons &= 0x0FB;
+    sPlayerInput[nPlayer].actions &= SB_OPEN;
     buttonMap.ClearButton(gamefunc_Open);
 }
 
-void GetLocalInput()
-{
-    int i;
-    for (i = 6; i >= 0; i--)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Weapon_1+i))
-            break;
-    }
-    i++;
-
-    if (PlayerList[nLocalPlayer].nHealth)
-    {
-        lLocalButtons = (buttonMap.ButtonDown(gamefunc_Crouch) << 4) | (buttonMap.ButtonDown(gamefunc_Fire) << 3)
-                      | (buttonMap.ButtonDown(gamefunc_Jump)<<0) | (i<<13);
-    }
-    else
-    {
-        lLocalButtons = 0;
-    }
-
-    lLocalButtons |= buttonMap.ButtonDown(gamefunc_Open) << 2;
-
-// TODO	ExecRecord(&sPlayerInput[nLocalPlayer], sizeof(PlayerInput));
-}
 
 void BackupInput()
 {
@@ -108,105 +88,212 @@ void SendInput()
 
 }
 
-void LogoffPlayer(int nPlayer)
+
+void CheckKeys2()
 {
-    if (nPlayer == nLocalPlayer)
+    if (PlayerList[nLocalPlayer].nHealth <= 0)
+    {
+        SetAirFrame();
+    }
+}
+
+
+static void PlayerInterruptKeys(bool after, ControlInfo* const hidInput)
+{
+    static double lastInputTicks;
+    auto const    currentHiTicks = I_msTimeF();
+    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+
+    lastInputTicks = currentHiTicks;
+
+    auto scaleAdjustmentToInterval = [=](double x) { return x * (120 / 4) / (1000.0 / elapsedInputTicks); };
+
+    if (paused)
         return;
 
-    if (PlayerList[nPlayer].someNetVal == -1)
+    InputPacket tempinput{};
+    fixed_t input_angle = 0;
+
+    if (!after)
+    {
+        localInput = {};
+        ApplyGlobalInput(localInput, hidInput);
+        if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
+    }
+
+    if (PlayerList[nLocalPlayer].nHealth == 0)
+    {
+        lPlayerYVel = 0;
+        lPlayerXVel = 0;
+        nPlayerDAng = 0;
         return;
+    }
 
-    memset(&sPlayerInput[nPlayer], 0, sizeof(sPlayerInput));
+    // JBF: Run key behaviour is selectable
+    int const playerRunning = !!(localInput.actions & SB_RUN);
+    int const turnAmount = playerRunning ? 12 : 8;
+    int const keyMove = playerRunning ? 12 : 6;
 
-    sprite[nDoppleSprite[nPlayer]].cstat = 0x8000u;
-    sprite[nPlayerFloorSprite[nPlayer]].cstat = 0x8000u;
-    sprite[PlayerList[nPlayer].nSprite].cstat = 0x8000u;
-
-    PlayerList[nPlayer].someNetVal = -1;
-
-    StatusMessage(150, "Player %d has left the game", nPlayer);
-
-// TODO	ClearPlayerInput(&sPlayerInput[nPlayer]);
-    nNetPlayerCount--;
-}
-
-void UpdateInputs()
-{
-    nNetMoveFrames = moveframes;
-
-    if (nNetPlayerCount)
+    if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        if (bSerialPlay) {
-            UpdateSerialInputs();
+        tempinput.svel -= hidInput->mousex * 4.f;
+        tempinput.svel -= hidInput->dyaw * keyMove;
+    }
+    else
+    {
+        input_angle += FloatToFixed(hidInput->mousex + scaleAdjustmentToInterval(hidInput->dyaw));
+    }
+
+    bool mouseaim = !(localInput.actions & SB_AIMMODE);
+
+    if (mouseaim)
+        tempinput.q16horz += FloatToFixed(hidInput->mousey);
+    else
+        tempinput.fvel -= hidInput->mousey * 8.f;
+
+    if (!in_mouseflip) tempinput.q16horz = -tempinput.q16horz;
+
+    tempinput.q16horz -= FloatToFixed(scaleAdjustmentToInterval(hidInput->dpitch));
+    tempinput.svel -= hidInput->dx * keyMove;
+    tempinput.fvel -= hidInput->dz * keyMove;
+
+    if (buttonMap.ButtonDown(gamefunc_Strafe))
+    {
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+            tempinput.svel -= -keyMove;
+
+        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+            tempinput.svel -= keyMove;
+    }
+    else
+    {
+        static int turn = 0;
+        static int counter = 0;
+        // normal, non strafing movement
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+        {
+            turn -= 2;
+
+            if (turn < -turnAmount)
+                turn = -turnAmount;
         }
-        else {
-            UpdateNetInputs();
+        else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+        {
+            turn += 2;
+
+            if (turn > turnAmount)
+                turn = turnAmount;
         }
 
-        nNetMoves++;
+        if (turn < 0)
+        {
+            turn++;
+            if (turn > 0)
+                turn = 0;
+        }
 
-        if (!nNetMoves) {
-            nNetMoves++;
+        if (turn > 0)
+        {
+            turn--;
+            if (turn < 0)
+                turn = 0;
+        }
+
+        //if ((counter++) % 4 == 0) // what was this for???
+        input_angle += FloatToFixed(scaleAdjustmentToInterval(turn * 2));
+
+    }
+
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
+        tempinput.svel += keyMove;
+
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
+        tempinput.svel += -keyMove;
+
+    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+        tempinput.fvel += keyMove;
+
+    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+        tempinput.fvel += -keyMove;
+
+    localInput.fvel = clamp(localInput.fvel + tempinput.fvel, -12, 12);
+    localInput.svel = clamp(localInput.svel + tempinput.svel, -12, 12);
+    localInput.q16avel += input_angle;
+
+    if (!nFreeze)
+    {
+        PlayerList[nLocalPlayer].q16angle = (PlayerList[nLocalPlayer].q16angle + input_angle) & 0x7FFFFFF;
+
+        // A horiz diff of 128 equal 45 degrees,
+        // so we convert horiz to 1024 angle units
+
+        float const horizAngle = clamp(atan2f(PlayerList[nLocalPlayer].q16horiz - IntToFixed(92), IntToFixed(128)) * (512.f / fPI) + FixedToFloat(tempinput.q16horz), -255.f, 255.f);
+        auto newq16horiz = IntToFixed(92) + xs_CRoundToInt(IntToFixed(128) * tanf(horizAngle * (fPI / 512.f)));
+        if (PlayerList[nLocalPlayer].q16horiz != newq16horiz)
+        {
+            bLockPan = true;
+            PlayerList[nLocalPlayer].q16horiz = newq16horiz;
+            nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
+        }
+
+        // Look/aim up/down functions.
+        if (localInput.actions & (SB_LOOK_UP|SB_AIM_UP))
+        {
+            bLockPan |= (localInput.actions & SB_LOOK_UP);
+            if (PlayerList[nLocalPlayer].q16horiz < IntToFixed(180)) {
+                PlayerList[nLocalPlayer].q16horiz += FloatToFixed(scaleAdjustmentToInterval(4));
+            }
+
+            bPlayerPan = true;
+            nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
+        }
+        else if (localInput.actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
+        {
+            bLockPan |= (localInput.actions & SB_LOOK_DOWN);
+            if (PlayerList[nLocalPlayer].q16horiz > IntToFixed(4)) {
+                PlayerList[nLocalPlayer].q16horiz -= FloatToFixed(scaleAdjustmentToInterval(4));
+            }
+
+            bPlayerPan = true;
+            nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
         }
     }
-}
 
-/*
-ClearSpaceBar_
-    GetLocalInput_
-    GetModemInput_
-    BackupInput_
-    SendInput_
-    SendToUnAckd_
-    LogoffPlayer_
-    UpdateInputs_
-    faketimerhandler_
-*/
+    // loc_1C048:
+    if (totalvel[nLocalPlayer] > 20) {
+        bPlayerPan = false;
+    }
+    if (nFreeze) return;
 
-void WaitNoKey(int nSecs, void (*pFunc) (void))
-{
-    int nTotalTime = (kTimerTicks * nSecs) + (int)totalclock;
-
-    while (nTotalTime > (int)totalclock)
+    // loc_1C05E
+    fixed_t dVertPan = nDestVertPan[nLocalPlayer] - PlayerList[nLocalPlayer].q16horiz;
+    if (dVertPan != 0 && !bLockPan)
     {
-        HandleAsync();
-        if (pFunc) {
-            pFunc();
+        int val = dVertPan / 4;
+        if (abs(val) >= 4)
+        {
+            if (val >= 4)
+                PlayerList[nLocalPlayer].q16horiz += IntToFixed(4);
+            else if (val <= -4)
+                PlayerList[nLocalPlayer].q16horiz -= IntToFixed(4);
+        }
+        else if (abs(dVertPan) >= FRACUNIT)
+            PlayerList[nLocalPlayer].q16horiz += dVertPan / 2.0f;
+        else
+        {
+            if (mouseaim) bLockPan = true;
+            PlayerList[nLocalPlayer].q16horiz = nDestVertPan[nLocalPlayer];
         }
     }
+    else bLockPan = mouseaim;
+    PlayerList[nLocalPlayer].q16horiz = clamp(PlayerList[nLocalPlayer].q16horiz, 0, IntToFixed(184));
 }
 
-int WaitAnyKey(int nSecs)
+
+void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
-    int nTotalTime = (int)totalclock + (kTimerTicks * nSecs);
-
-    while (1)
-    {
-        HandleAsync();
-        if (nTotalTime <= (int)totalclock || nSecs == -1) {
-            return -1;
-        }
-		if (inputState.CheckAllInput()) return 1;
-    }
+    PlayerInterruptKeys(packet == nullptr, hidInput);
+    if (packet) *packet = localInput;
 }
 
-
-/*
-    Name:  _nLocalPlayer
-  Name:  _nNetPlayerCount
-  Name:  _nModemPlayer
-  Name:  _nNetMoves
-  Name:  _lLocalButtons
-  Name:  _lLocalCodes
-  Name:  _nInputStack
-  Name:  _bSyncNet
-  Name:  _lStartupTime
-  Name:  _bStackNode
-  Name:  _sSync
-  Name:  _nTypeStack
-  Name:  _sPlayerInput
-  Name:  _pStackPtr
-  Name:  _sInputStack
-
-  */
-  END_PS_NS
+END_PS_NS

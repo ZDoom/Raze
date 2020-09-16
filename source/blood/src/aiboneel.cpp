@@ -30,15 +30,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
-#include "aiboneel.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
-#include "trig.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 
@@ -81,8 +79,8 @@ static void BiteSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     spritetype *pSprite = &sprite[pXSprite->reference];
     spritetype *pTarget = &sprite[pXSprite->target];
-    int dx = Cos(pSprite->ang) >> 16;
-    int dy = Sin(pSprite->ang) >> 16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
@@ -109,11 +107,11 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-    if (pDudeExtraE->at8 && pDudeExtraE->at4 < 10)
-        pDudeExtraE->at4++;
-    else if (pDudeExtraE->at4 >= 10 && pDudeExtraE->at8)
+    if (pDudeExtraE->at8 && pDudeExtraE->Kills < 10)
+        pDudeExtraE->Kills++;
+    else if (pDudeExtraE->Kills >= 10 && pDudeExtraE->at8)
     {
-        pDudeExtraE->at4 = 0;
+        pDudeExtraE->Kills = 0;
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
@@ -141,13 +139,13 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                pDudeExtraE->at4 = 0;
+                pDudeExtraE->Kills = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
                 aiActivateDude(pSprite, pXSprite);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                pDudeExtraE->at4 = 0;
+                pDudeExtraE->Kills = 0;
                 aiSetTarget(pXSprite, x, y, z);
                 aiActivateDude(pSprite, pXSprite);
             }
@@ -353,7 +351,6 @@ static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (nDist <= 0x399)
         return;
@@ -384,7 +381,6 @@ static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x8000) && nDist <= 0x399)
         return;
@@ -413,7 +409,6 @@ static void MoveAscend(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x4000) && nDist <= 0x399)
         return;

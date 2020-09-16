@@ -29,10 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "common_game.h"
 #include "blood.h"
-#include "fire.h"
 #include "globals.h"
 #include "misc.h"
-#include "tile.h"
 
 BEGIN_BLD_NS
 
@@ -45,7 +43,7 @@ void CellularFrame(char *pFrame, int sizeX, int sizeY);
 
 char FrameBuffer[17280];
 char SeedBuffer[16][128];
-char *gCLU;
+static TArray<uint8_t> gCLU;
 
 void InitSeedBuffers(void)
 {
@@ -90,22 +88,24 @@ void FireInit(void)
     memset(FrameBuffer, 0, sizeof(FrameBuffer));
     BuildCoolTable();
     InitSeedBuffers();
-    DICTNODE *pNode = gSysRes.Lookup("RFIRE", "CLU");
-    if (!pNode)
+    auto fr = fileSystem.OpenFileReader("rfire.clu");
+    if (!fr.isOpen())
         ThrowError("RFIRE.CLU not found");
-    gCLU = (char*)gSysRes.Lock(pNode);
+    gCLU = fr.Read();
     for (int i = 0; i < 100; i++)
         DoFireFrame();
 }
 
 void FireProcess(void)
 {
-    static ClockTicks lastUpdate;
-    if (totalclock < lastUpdate || lastUpdate + 2 < totalclock)
+	// This assumes a smooth high frame rate. Ugh...
+    static int lastUpdate;
+	int clock = I_GetBuildTime()/ 2;
+    if (clock < lastUpdate || lastUpdate + 2 < clock)
     {
         DoFireFrame();
-        lastUpdate = totalclock;
-        tileInvalidate(2342, -1, -1);
+        lastUpdate = clock;
+        TileFiles.InvalidateTile(2342);
     }
 }
 

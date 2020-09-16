@@ -16,15 +16,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "spider.h"
+#include "aistuff.h"
 #include "exhumed.h"
 #include "engine.h"
-#include "runlist.h"
-#include "move.h"
 #include "sequence.h"
-#include "random.h"
 #include "sound.h"
-#include "trigdat.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -119,7 +115,7 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle)
 
     SpiderList[nSpider].nRun = runlist_AddRunRec(NewRun, nSpider | 0xC0000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nSpider | 0xC0000;
 }
@@ -435,7 +431,7 @@ void FuncSpider(int a, int nDamage, int nRun)
 
                 sprite[nSprite].cstat &= 0xFEFE;
 
-                nCreaturesLeft--;
+                nCreaturesKilled++;
 
                 for (int i = 0; i < 7; i++)
                 {

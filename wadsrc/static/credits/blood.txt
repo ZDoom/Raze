@@ -1,0 +1,1 @@
+All Blood widescreen assets and fonts were inherited from the NBlood parent repository. Widescreen tiles created by Maxi Clouds.

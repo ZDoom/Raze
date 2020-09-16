@@ -17,18 +17,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "exhumed.h"
-#include "anubis.h"
 #include "aistuff.h"
 #include "engine.h"
-#include "runlist.h"
 #include "sequence.h"
-#include "move.h"
-#include "bullet.h"
-#include "random.h"
-#include "items.h"
-#include "object.h"
 #include "sound.h"
-#include "trigdat.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -154,7 +146,7 @@ int BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nAnubis | 0x90000);
 
     runlist_AddRunRec(NewRun, nAnubis | 0x90000);
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nAnubis | 0x90000;
 }
@@ -488,7 +480,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
 
                     AnubisList[nAnubis].nHealth = 0;
 
-                    nCreaturesLeft--;
+                    nCreaturesKilled++;
 
                     if (nAction < 11)
                     {

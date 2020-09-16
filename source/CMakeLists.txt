@@ -764,31 +764,32 @@ set (PCH_SOURCES
 	glbackend/gl_texture.cpp
 
 	thirdparty/src/base64.cpp
-	thirdparty/src/fix16.cpp
 	thirdparty/src/md4.cpp
-	thirdparty/src/enet.cpp
 
 	# Todo: Split out the license-safe code from this.
-	build/src/animvpx.cpp
 	build/src/clip.cpp
-	build/src/common.cpp
 	build/src/defs.cpp
 	build/src/engine.cpp
-	build/src/hash.cpp
 	build/src/mdsprite.cpp
-	build/src/mhk.cpp
 	build/src/polymost.cpp
-	build/src/pragmas.cpp
-	build/src/scriptfile.cpp
-	build/src/timer.cpp
 	build/src/voxmodel.cpp
 
-	core/animlib.cpp
+	core/movie/playmve.cpp
+	core/automap.cpp
+	core/cheats.cpp
+	core/cheathandler.cpp
+	core/mathutil.cpp
 	core/rts.cpp
+	core/ct_chat.cpp
+	core/d_net.cpp
+	core/d_protocol.cpp
+	core/mainloop.cpp
 	core/gameconfigfile.cpp
 	core/gamecvars.cpp
 	core/gamecontrol.cpp
 	core/inputstate.cpp
+	core/maphack.cpp
+	core/mapinfo.cpp
 	core/searchpaths.cpp
 	core/screenjob.cpp
 	core/initfs.cpp
@@ -802,8 +803,7 @@ set (PCH_SOURCES
 	core/raze_sound.cpp
 	core/palette.cpp
 	core/zcompile.cpp
-
-	core/2d/screentext.cpp
+	core/statusbar.cpp
 
 	core/console/c_console.cpp
 	core/console/d_event.cpp
@@ -842,6 +842,7 @@ set (PCH_SOURCES
 	common/textures/skyboxtexture.cpp
 	common/textures/animtexture.cpp
 	common/textures/v_collection.cpp
+	common/textures/animlib.cpp
 	common/textures/formats/automaptexture.cpp
 	common/textures/formats/brightmaptexture.cpp
 	common/textures/formats/buildtexture.cpp
@@ -860,6 +861,7 @@ set (PCH_SOURCES
 	common/textures/formats/shadertexture.cpp
 	common/textures/formats/tgatexture.cpp
 	common/textures/formats/stbtexture.cpp
+	common/textures/formats/anmtexture.cpp
 	common/textures/hires/hqresize.cpp
 	common/models/models_md3.cpp
 	common/models/models_md2.cpp
@@ -912,6 +914,7 @@ set (PCH_SOURCES
 	common/engine/sc_man.cpp
 	common/engine/palettecontainer.cpp
 	common/engine/stringtable.cpp
+	common/engine/i_net.cpp
 	common/engine/i_interface.cpp
 	common/engine/renderstyle.cpp
 	common/engine/v_colortables.cpp
@@ -1059,7 +1062,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma duke3d blood rr sw exhumed )
+target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma duke blood sw exhumed )
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
@@ -1298,6 +1301,19 @@ macro( add_game_library )
 	)
 endmacro()
 
+macro( add_game_library2 )
+	file( GLOB HEADER_FILES src/*.h )
+	if( NOT_COMPILED_SOURCE_FILES )
+		set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
+	endif()
+	use_precompiled_header("../..")
+	add_library( ${ARGV0} STATIC
+		${PCH_SOURCES}
+		${HEADER_FILES}
+		${NOT_COMPILED_SOURCE_FILES}
+	)
+endmacro()
+
 require_stricmp()
 require_strnicmp()
 
@@ -1305,8 +1321,7 @@ unset( PCH_SOURCES )
 unset( HEADER_FILES )
 unset( NOT_COMPILED_SOURCE_FILES )
 
-add_subdirectory( duke3d )
+add_subdirectory( games/duke )
 add_subdirectory( blood )
-add_subdirectory( rr )
 add_subdirectory( sw )
 add_subdirectory( exhumed )

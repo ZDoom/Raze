@@ -43,11 +43,6 @@ inline size_t MWRITE(void* buf, size_t size, size_t nelem, FileWriter* handle)
 	return handle->Write(buf, size * nelem) / size;
 }
 
-inline void MCLOSE_WRITE(FileWriter* handle)
-{
-	FinishSavegameWrite();
-}
-
 inline void MCLOSE_READ(FileReader* handle)
 {
 	handle->Close();

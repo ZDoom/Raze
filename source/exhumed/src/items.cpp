@@ -16,18 +16,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "items.h"
-#include "anims.h"
+#include "aistuff.h"
 #include "player.h"
 #include "exhumed.h"
-#include "lighting.h"
 #include "sound.h"
 #include "status.h"
 #include "engine.h"
-#include "random.h"
-#include "init.h"
 #include "ps_input.h"
-#include "object.h"
+#include "mapinfo.h"
 
 BEGIN_PS_NS
 
@@ -180,11 +176,10 @@ void FillItems(short nPlayer)
     }
 }
 
-void UseEye(short nPlayer)
+static bool UseEye(short nPlayer)
 {
-    if (nPlayerInvisible[nPlayer] >= 0) {
+    if (nPlayerInvisible[nPlayer] >= 0) 
         nPlayerInvisible[nPlayer] = 900;
-    }
 
     int nSprite = PlayerList[nPlayer].nSprite;
 
@@ -199,9 +194,10 @@ void UseEye(short nPlayer)
         ItemFlash();
         D3PlayFX(StaticSound[kSound31], nSprite);
     }
+    return true;
 }
 
-void UseMask(short nPlayer)
+static bool UseMask(short nPlayer)
 {
     PlayerList[nPlayer].nMaskAmount = 1350;
     PlayerList[nPlayer].nAir = 100;
@@ -211,47 +207,52 @@ void UseMask(short nPlayer)
         SetAirFrame();
         D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
     }
+    return true;
 }
 
-void UseTorch(short nPlayer)
+bool UseTorch(short nPlayer)
 {
-    if (!nPlayerTorch[nPlayer]) {
+    if (!nPlayerTorch[nPlayer]) 
+    {
         SetTorch(nPlayer, 1);
     }
 
     nPlayerTorch[nPlayer] = 900;
+    return true;
 }
 
-void UseHeart(short nPlayer)
+bool UseHeart(short nPlayer)
 {
     if (PlayerList[nPlayer].nHealth < kMaxHealth) {
         PlayerList[nPlayer].nHealth = kMaxHealth;
-    }
 
-    if (nPlayer == nLocalPlayer)
-    {
-        ItemFlash();
-        SetHealthFrame(1);
-        D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
+        if (nPlayer == nLocalPlayer)
+        {
+            ItemFlash();
+            SetHealthFrame(1);
+            D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
+        }
+        return true;
     }
+    return false;
 }
 
 // invincibility
-void UseScarab(short nPlayer)
+bool UseScarab(short nPlayer)
 {
-    if (PlayerList[nPlayer].invincibility < 900) {
+    if (PlayerList[nPlayer].invincibility > 0 && PlayerList[nPlayer].invincibility < 900)
         PlayerList[nPlayer].invincibility = 900;
-    }
 
     if (nPlayer == nLocalPlayer)
     {
         ItemFlash();
         D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
     }
+    return true;
 }
 
 // faster firing
-void UseHand(short nPlayer)
+static bool UseHand(short nPlayer)
 {
     nPlayerDouble[nPlayer] = 1350;
 
@@ -260,33 +261,36 @@ void UseHand(short nPlayer)
         ItemFlash();
         D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
     }
+    return true;
 }
 
 void UseItem(short nPlayer, short nItem)
 {
+    bool didit = false;
     switch (nItem)
     {
         case 0:
-            UseHeart(nPlayer);
+            didit = UseHeart(nPlayer);
             break;
         case 1:
-            UseScarab(nPlayer);
+            didit = UseScarab(nPlayer);
             break;
         case 2:
-            UseTorch(nPlayer);
+            didit = UseTorch(nPlayer);
             break;
         case 3:
-            UseHand(nPlayer);
+            didit = UseHand(nPlayer);
             break;
         case 4:
-            UseEye(nPlayer);
+            didit = UseEye(nPlayer);
             break;
         case 5:
-            UseMask(nPlayer);
+            didit = UseMask(nPlayer);
             break;
         default:
             break;
     }
+    if (!didit) return;
 
     PlayerList[nPlayer].items[nItem]--;
     int nItemCount = PlayerList[nPlayer].items[nItem];
@@ -317,22 +321,6 @@ void UseItem(short nPlayer, short nItem)
 
     if (nPlayer == nLocalPlayer) {
         SetMagicFrame();
-    }
-}
-
-void UseCurItem(short nPlayer)
-{
-    int nItem = nPlayerItem[nPlayer];
-
-    if (nItem >= 0)
-    {
-        if (PlayerList[nPlayer].items[nItem] > 0)
-        {
-            if (nItemMagic[nItem] <= PlayerList[nPlayer].nMagic)
-            {
-                sPlayerInput[nPlayer].nItem = nItem;
-            }
-        }
     }
 }
 
@@ -440,7 +428,7 @@ void StartRegenerate(short nSprite)
     pSprite->extra = 1350;
     pSprite->ang = nFirstRegenerate;
 
-    if (levelnum <= kMap20)
+    if (currentLevel->levelNumber <= kMap20)
     {
         pSprite->ang /= 5;
     }

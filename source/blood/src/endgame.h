@@ -26,41 +26,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-class CEndGameMgr {
-public:
-    char at0;
-    char at1;
-    CEndGameMgr();
-    void Setup(void);
-    void ProcessKeys(void);
-    void Draw(void);
-    void Finish(void);
-};
-
 class CKillMgr {
 public:
-    int at0, at4;
+    int TotalKills, Kills;
     CKillMgr();
     void SetCount(int);
-    void sub_263E0(int);
+    void AddNewKill(int);
     void AddKill(spritetype *pSprite);
-    void sub_2641C(void);
+    void CountTotalKills(void);
     void Clear(void);
-    void Draw(void);
 };
 
 class CSecretMgr {
 public:
-    int at0, at4, at8;
+    int Total, Founds, Super;
     CSecretMgr();
     void SetCount(int);
     void Found(int);
     void Clear(void);
-    void Draw(void);
 };
 
-extern CEndGameMgr gEndGameMgr;
 extern CSecretMgr gSecretMgr;
 extern CKillMgr gKillMgr;
+
 
 END_BLD_NS

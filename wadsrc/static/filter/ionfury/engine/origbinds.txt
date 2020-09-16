@@ -1,6 +1,0 @@
-W "+Show_Opponents_Weapon"
-Mouse2 "+Steroids"
-Mouse3 "+MediKit"
-Pad_Y "+Steroids"
-DPadLeft "+MedKit"
-DPadRight "+Nightvision"

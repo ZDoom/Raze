@@ -16,24 +16,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "typedefs.h"
+#include "glbackend/glbackend.h"
 #include "sequence.h"
 #include "engine.h"
 #include "exhumed.h"
 #include "sound.h"
 #include "player.h"
-#include "trigdat.h"
-#include "move.h"
+#include "aistuff.h"
 #include "view.h"
-#include "init.h"
-#include "light.h"
-#ifndef __WATCOMC__
-#include <cstring>
-#include <cstdio> // for printf
-#else
 #include <string.h>
 #include <stdio.h>
-#endif
 
 // TEMP
 #include <assert.h>
@@ -52,7 +44,6 @@ short nPilotLightFrame;
 short nPilotLightCount;
 
 short nPilotLightBase;
-short laststatustile;
 
 short nShadowWidth = 1;
 short nFlameHeight = 1;
@@ -319,6 +310,7 @@ void seq_LoadSequences()
         }
     }
 
+#if 0
     FILE* f = fopen("seq.dump", "wb");
 
     fwrite(SeqBase, 1, sizeof(SeqBase), f);
@@ -335,6 +327,7 @@ void seq_LoadSequences()
     fwrite(ChunkPict, 1, sizeof(ChunkPict), f);
     fwrite(ChunkFlag, 1, sizeof(ChunkFlag), f);
     fclose(f);
+#endif
 
     nShadowPic = seq_GetFirstSeqPicnum(kSeqShadow);
     nShadowWidth = tilesiz[nShadowPic].x;
@@ -358,53 +351,12 @@ void seq_LoadSequences()
     }
 }
 
-void seq_DrawStatusSequence(short nSequence, uint16_t edx, short ebx)
-{
-    edx += SeqBase[nSequence];
-
-    short nFrameBase = FrameBase[edx];
-    int16_t nFrameSize = FrameSize[edx];
-
-    int const nPal = RemapPLU(kPalNormal);
-
-    while (1)
-    {
-        nFrameSize--;
-        if (nFrameSize < 0)
-            break;
-
-        uint8_t nStat = 1; // (thex, they) is middle
-
-        laststatusx = ChunkXpos[nFrameBase] + 160;
-        laststatusy = ChunkYpos[nFrameBase] + 100 + ebx;
-
-        short chunkFlag = ChunkFlag[nFrameBase];
-
-        if (chunkFlag & 1) {
-            nStat = 0x9; // (thex, they) is middle, and x-flipped
-        }
-
-        if (chunkFlag & 2) {
-            nStat |= 0x10; // y-flipped
-        }
-
-        laststatustile = ChunkPict[nFrameBase];
-
-        if (bHiRes) {
-            nStat |= 0x2; // scale and clip to viewing window
-        }
-
-        overwritesprite(laststatusx, laststatusy, laststatustile, 0, nStat, nPal);
-        nFrameBase++;
-    }
-}
-
 short seq_GetFrameFlag(short val, short nFrame)
 {
     return FrameFlag[SeqBase[val] + nFrame];
 }
 
-void seq_DrawPilotLightSeq(int xOffset, int yOffset)
+void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 {
     short nSect = nPlayerViewSect[nLocalPlayer];
 
@@ -421,10 +373,10 @@ void seq_DrawPilotLightSeq(int xOffset, int yOffset)
                 return;
 
             short nTile = ChunkPict[nFrameBase];
-            int x = ChunkXpos[nFrameBase] + (160 + xOffset);
-            int y = ChunkYpos[nFrameBase] + (100 + yOffset);
+            double x = ChunkXpos[nFrameBase] + (160 + xOffset);
+            double y = ChunkYpos[nFrameBase] + (100 + yOffset);
 
-            rotatesprite(x << 16, y << 16, 0x10000, (-2 * fix16_to_int(nPlayerDAng)) & kAngleMask, nTile, -127, 1, 2, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+            hud_drawsprite(x, y, 65536, fmod(-2 * FixedToFloat(nPlayerDAng), kAngleMask + 1), nTile, 0, 0, 1);
             nFrameBase++;
         }
     }
@@ -437,12 +389,12 @@ void seq_DrawPilotLightSeq(int xOffset, int yOffset)
 
 */
 
-int seq_DrawGunSequence(int nSeqOffset, short dx, int xOffs, int yOffs, int nShade, int nPal)
+int seq_DrawGunSequence(int nSeqOffset, short dx, double xOffs, double yOffs, int nShade, int nPal)
 {
-    short nFrame = SeqBase[nSeqOffset] + dx;
-    short nFrameBase = FrameBase[nFrame];
-    short nFrameSize = FrameSize[nFrame];
-    short frameFlag = FrameFlag[nFrame];
+    int nFrame = SeqBase[nSeqOffset] + dx;
+    int nFrameBase = FrameBase[nFrame];
+    int nFrameSize = FrameSize[nFrame];
+    int frameFlag = FrameFlag[nFrame];
 
     while (1)
     {
@@ -450,29 +402,27 @@ int seq_DrawGunSequence(int nSeqOffset, short dx, int xOffs, int yOffs, int nSha
         if (nFrameSize < 0)
             break;
 
-        uint8_t nStat = 3;
         int x = ChunkXpos[nFrameBase] + 160;
         int y = ChunkYpos[nFrameBase] + 100;
 
-        if (ChunkFlag[nFrameBase] & 1) {
-            nStat = 11;
-        }
+        int stat = 0;
+        if (ChunkFlag[nFrameBase] & 1)
+            stat |= RS_XFLIPHUD;
 
-        if (ChunkFlag[nFrameBase] & 2) {
-            nStat |= 0x10;
-        }
+        if (ChunkFlag[nFrameBase] & 2)
+            stat |= RS_YFLIPHUD;
 
         short nTile = ChunkPict[nFrameBase];
 
-        if (frameFlag & 4) {
+        if (frameFlag & 4)
             nShade = -100;
-        }
 
+        double alpha = 1;
         if (nPlayerInvisible[nLocalPlayer]) {
-            nStat |= 0x4;
+            alpha = 0.3;
         }
 
-        overwritesprite(x + xOffs, y + yOffs, nTile, nShade, nStat, nPal);
+        hud_drawsprite(x + xOffs, y + yOffs, 65536, 0, nTile, nShade, nPal, stat, alpha);
         nFrameBase++;
     }
 
@@ -686,7 +636,6 @@ static SavegameHelper sgh("sequence",
     SV(nPilotLightFrame),
     SV(nPilotLightCount),
     SV(nPilotLightBase),
-    SV(laststatustile),
     SV(nShadowWidth),
     SV(nFlameHeight),
     nullptr);

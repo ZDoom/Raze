@@ -26,16 +26,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 
 #include "build.h"
-#include "common.h"
 
 #include "gamecontrol.h"
 
 #include "names2.h"
 #include "game.h"
 #include "tags.h"
-#include "common_game.h"
 #include "break.h"
-#include "quake.h"
 #include "sprite.h"
 
 BEGIN_SW_NS
@@ -279,11 +276,11 @@ int SpawnQuake(short sectnum, int x, int y, int z,
     return SpriteNum;
 }
 
-SWBOOL
+bool
 SetQuake(PLAYERp pp, short tics, short amt)
 {
     SpawnQuake(pp->cursectnum, pp->posx, pp->posy, pp->posz,  tics, amt, 30000);
-    return FALSE;
+    return false;
 }
 
 int

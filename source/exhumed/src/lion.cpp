@@ -16,16 +16,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "lion.h"
+#include "aistuff.h"
 #include "engine.h"
-#include "runlist.h"
 #include "exhumed.h"
 #include "sequence.h"
-#include "move.h"
 #include "sound.h"
-#include "random.h"
-#include "trigdat.h"
-#include "items.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -133,7 +128,7 @@ int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
 
     MoveHook[nLion] = runlist_AddRunRec(NewRun, nLion | 0x130000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nLion | 0x130000;
 }
@@ -185,7 +180,7 @@ void FuncLion(int a, int nDamage, int nRun)
 
                     LionList[nLion].nHealth = 0;
 
-                    nCreaturesLeft--;
+                    nCreaturesKilled++;
 
                     if (nAction < 10)
                     {

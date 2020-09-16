@@ -32,15 +32,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
-#include "game.h"
+#include "misc.h"
 #include "tags.h"
 #include "weapon.h"
 #include "sprite.h"
-#include "actor.h"
-#include "swcvar.h"
 
 BEGIN_SW_NS
 
@@ -337,7 +334,7 @@ DoActorSectorDamage(short SpriteNum)
     SECTORp sectp = &sector[sp->sectnum];
 
     if (u->Health <= 0)
-        return FALSE;
+        return false;
 
     if (sectu && sectu->damage)
     {
@@ -352,7 +349,7 @@ DoActorSectorDamage(short SpriteNum)
                 {
                     UpdateSinglePlayKills(SpriteNum);
                     DoActorDie(SpriteNum, WPN_NM_LAVA);
-                    return TRUE;
+                    return true;
                 }
             }
         }
@@ -367,7 +364,7 @@ DoActorSectorDamage(short SpriteNum)
                 {
                     UpdateSinglePlayKills(SpriteNum);
                     DoActorDie(SpriteNum, WPN_NM_LAVA);
-                    return TRUE;
+                    return true;
                 }
             }
         }
@@ -385,14 +382,14 @@ DoActorSectorDamage(short SpriteNum)
         }
         else
         {
-            ASSERT(TRUE == FALSE);
+            ASSERT(true == false);
             //DoActorDie(SpriteNum, WPN_NM_SECTOR_SQUISH);
         }
 
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -644,7 +641,7 @@ DoActorSlide(short SpriteNum)
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {
         RESET(u->Flags, SPR_SLIDING);
-        return FALSE;
+        return false;
     }
 
     u->slide_vel -= u->slide_dec * ACTORMOVETICS;
@@ -654,7 +651,7 @@ DoActorSlide(short SpriteNum)
         RESET(u->Flags, SPR_SLIDING);
     }
 
-    return TRUE;
+    return true;
 }
 
 // !AIC - Actor jumping and falling

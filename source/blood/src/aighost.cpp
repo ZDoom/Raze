@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
-#include "aighost.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
@@ -40,8 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
-#include "trig.h"
+#include "sound.h"
 #include "nnexts.h"
 
 BEGIN_BLD_NS
@@ -94,8 +92,8 @@ static void SlashSeqCallback(int, int nXSprite)
     int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
     int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;
     int dz = height-height2;
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     sfxPlay3DSound(pSprite, 1406, 0, 0);
     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_12);
     int r1 = Random(50);
@@ -123,15 +121,13 @@ static void BlastSeqCallback(int, int nXSprite)
     int height = (pSprite->yrepeat*getDudeInfo(pSprite->type)->eyeHeight) << 2;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nDist) = approxDist(dx, dy);
-    int UNUSED(nAngle) = getangle(dx, dy);
     int x = pSprite->x;
     int y = pSprite->y;
     int z = height;
     TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
     Aim aim;
-    aim.dx = Cos(pSprite->ang)>>16;
-    aim.dy = Sin(pSprite->ang)>>16;
+    aim.dx = CosScale16(pSprite->ang);
+    aim.dy = SinScale16(pSprite->ang);
     aim.dz = gDudeSlope[nXSprite];
     int nClosest = 0x7fffffff;
     for (short nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
@@ -174,8 +170,8 @@ static void BlastSeqCallback(int, int nXSprite)
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
                 {
                     nClosest = nDist2;
-                    aim.dx = Cos(nAngle)>>16;
-                    aim.dy = Sin(nAngle)>>16;
+                    aim.dx = CosScale16(nAngle);
+                    aim.dy = SinScale16(nAngle);
                     aim.dz = divscale(tz, nDist, 10);
                     if (tz > -0x333)
                         aim.dz = divscale(tz, nDist, 10);
@@ -216,9 +212,9 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-    if (pDudeExtraE->at8 && pDudeExtraE->at4 < 10)
-        pDudeExtraE->at4++;
-    else if (pDudeExtraE->at4 >= 10 && pDudeExtraE->at8)
+    if (pDudeExtraE->at8 && pDudeExtraE->Kills < 10)
+        pDudeExtraE->Kills++;
+    else if (pDudeExtraE->Kills >= 10 && pDudeExtraE->at8)
     {
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
@@ -247,14 +243,14 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                pDudeExtraE->at4 = 0;
+                pDudeExtraE->Kills = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
                 aiActivateDude(pSprite, pXSprite);
                 return;
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                pDudeExtraE->at4 = 0;
+                pDudeExtraE->Kills = 0;
                 aiSetTarget(pXSprite, x, y, z);
                 aiActivateDude(pSprite, pXSprite);
                 return;
@@ -476,7 +472,6 @@ static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
         return;
@@ -514,7 +509,6 @@ static void MoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
     }
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x600) && nDist <= 0x400)
         return;
@@ -555,7 +549,6 @@ static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
     }
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x600) && nDist <= 0x400)
         return;
@@ -595,7 +588,6 @@ static void MoveFly(spritetype *pSprite, XSPRITE *pXSprite)
     }
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x4000) && nDist <= 0x400)
         return;

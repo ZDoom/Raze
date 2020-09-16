@@ -113,7 +113,7 @@ protected:
 		savepicHeight = int(180 * wScale);
 
 
-		FontScale = max(screen->GetHeight() / 480, 1);
+		FontScale = std::max(screen->GetHeight() / 480, 1);
 		rowHeight = std::max(int((NewConsoleFont->GetHeight() + 1) * FontScale), 1);
 		listboxLeft = savepicLeft + savepicWidth + int(20 * wScale);
 		listboxTop = savepicTop;

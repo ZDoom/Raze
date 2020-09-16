@@ -26,36 +26,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
 #include "build.h"
+#include "automap.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common.h"
 #include "common_game.h"
 
 #include "actor.h"
 #include "ai.h"
-#include "aibat.h"
-#include "aibeast.h"
-#include "aiboneel.h"
-#include "aiburn.h"
-#include "aicaleb.h"
-#include "aicerber.h"
-#include "aicult.h"
-#include "aigarg.h"
-#include "aighost.h"
-#include "aigilbst.h"
-#include "aihand.h"
-#include "aihound.h"
-#include "aiinnoc.h"
-#include "aipod.h"
-#include "airat.h"
-#include "aispid.h"
-#include "aitchern.h"
-#include "aizomba.h"
-#include "aizombf.h"
+#include "aistate.h"
 #include "aiunicult.h"
 #include "blood.h"
 #include "callback.h"
-#include "config.h"
 #include "db.h"
 #include "endgame.h"
 #include "eventq.h"
@@ -67,15 +48,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "loadsave.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
 #include "sound.h"
-#include "tile.h"
-#include "trig.h"
 #include "triggers.h"
 #include "view.h"
-#include "warp.h"
-#include "weapon.h"
 #include "nnexts.h"
+#include "player.h"
+#include "misc.h"
 
 BEGIN_BLD_NS
 
@@ -2384,7 +2362,7 @@ const int nDudeToGibClient2 = seqRegisterClient(DudeToGibCallback2);
 int gPostCount = 0;
 
 struct POSTPONE {
-    short at0;
+    short TotalKills;
     short at2;
 };
 
@@ -2517,8 +2495,8 @@ void actInit(bool bSaveLoad) {
             case kThingBloodChunks: {
                 SEQINST *pInst = GetInstance(3, pSprite->extra);
                 if (pInst && pInst->at13) {
-                    DICTNODE *hSeq = gSysRes.Lookup(pInst->at8, "SEQ");
-                    if (!hSeq) break;
+                    auto seq = getSequence(pInst->at8);
+                    if (!seq) break;
                     seqSpawn(pInst->at8, 3, pSprite->extra);
                 }
                 break;
@@ -2549,7 +2527,7 @@ void actInit(bool bSaveLoad) {
             unk[pSprite->type - kDudeBase] = 1;
         }
         
-        gKillMgr.sub_2641C();
+        gKillMgr.CountTotalKills();
         ///////////////
 
         for (int i = 0; i < kDudeMax - kDudeBase; i++)
@@ -2596,7 +2574,7 @@ void actInit(bool bSaveLoad) {
                     
             }
 
-            if (gSysRes.Lookup(seqStartId, "SEQ")) seqSpawn(seqStartId, 3, pSprite->extra);
+            if (getSequence(seqStartId)) seqSpawn(seqStartId, 3, pSprite->extra);
         }
         aiInit();
     }
@@ -2957,7 +2935,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
                         aiGenDudeNewState(pSprite, &genDudeBurnGoto);
                         actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
                         if (pXSprite->burnTime <= 0) pXSprite->burnTime = 1200;
-                        gDudeExtra[pSprite->extra].at0 = (int)gFrameClock + 360;
+                        gDudeExtra[pSprite->extra].TotalKills = gFrameClock + 360;
                         return;
                     }
 
@@ -2985,7 +2963,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
             
             playGenDudeSound(pSprite, kGenDudeSndTransforming);
             int seqId = pXSprite->data2 + kGenDudeSeqTransform;
-            if (gSysRes.Lookup(seqId, "SEQ")) seqSpawn(seqId, 3, nXSprite, -1);
+            if (getSequence(seqId)) seqSpawn(seqId, 3, nXSprite, -1);
             else {
                 seqKill(3, nXSprite);
                 spritetype* pEffect = gFX.fxSpawn((FX_ID)52, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, pSprite->ang);
@@ -3171,7 +3149,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         break;
     }
 
-    if (!gSysRes.Lookup(getDudeInfo(nType+kDudeBase)->seqStartID + nSeq, "SEQ"))
+    if (!getSequence(getDudeInfo(nType+kDudeBase)->seqStartID + nSeq))
     {
         seqKill(3, nXSprite);
         gKillMgr.AddKill(pSprite);
@@ -3246,7 +3224,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
             if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + pXSprite->data2, 3, nXSprite, dudeToGib);
             else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + pXSprite->data2, 3, nXSprite, dudeToGib);
             else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + pXSprite->data2, 3, nXSprite, dudeToGib);
-            else if (gSysRes.Lookup(pXSprite->data2 + nSeq, "SEQ"))seqSpawn(nSeq + pXSprite->data2, 3, nXSprite, dudeToGib);
+            else if (getSequence(pXSprite->data2 + nSeq))seqSpawn(nSeq + pXSprite->data2, 3, nXSprite, dudeToGib);
             else seqSpawn(1 + pXSprite->data2, 3, nXSprite, dudeToGib);
 
          } else {
@@ -3347,7 +3325,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     case kDudeSpiderBrown:
         if (pSprite->owner != -1) {
             spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.at4--;
+            gDudeExtra[pOwner->extra].at6.u1.Kills--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -3357,7 +3335,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     case kDudeSpiderRed:
         if (pSprite->owner != -1) {
             spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.at4--;
+            gDudeExtra[pOwner->extra].at6.u1.Kills--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -3367,7 +3345,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     case kDudeSpiderBlack:
         if (pSprite->owner != -1) {
             spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.at4--;
+            gDudeExtra[pOwner->extra].at6.u1.Kills--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -3594,7 +3572,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
                 case kThingZombieHead:
                     if (damageType == 3 && pSourcePlayer && gFrameClock > pSourcePlayer->laughCount && Chance(0x4000)) {
                         sfxPlay3DSound(pSourcePlayer->pSprite, gPlayerGibThingComments[Random(10)], 0, 2);
-                        pSourcePlayer->laughCount = (int)gFrameClock+3600;
+                        pSourcePlayer->laughCount = gFrameClock+3600;
                     }
                     break;
                 case kTrapMachinegun:
@@ -4164,7 +4142,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                     if (mass1 > mass2) {
                         actKickObject(pSprite, pSprite2);
                         sfxPlay3DSound(pSprite, 357, -1, 1);
-                        int dmg = (mass1 - mass2) + abs(xvel[pSprite->index] >> 16);
+                        int dmg = (mass1 - mass2) + abs(FixedToInt(xvel[pSprite->index]));
                         if (dmg > 0)
                             actDamageSprite(nSprite, pSprite2, (Chance(0x2000)) ? DAMAGE_TYPE_0 : DAMAGE_TYPE_2, dmg);
                     }
@@ -4233,7 +4211,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
             case kThingKickablePail:
                 if (pPlayer) {
                     if (pPlayer->kickPower > gFrameClock) return;
-                    pPlayer->kickPower = (int)gFrameClock+60;
+                    pPlayer->kickPower = gFrameClock+60;
                 }
                 actKickObject(pSprite, pSprite2);
                 sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
@@ -4242,7 +4220,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
             case kThingZombieHead:
                 if (pPlayer) {
                     if (pPlayer->kickPower > gFrameClock) return;
-                    pPlayer->kickPower = (int)gFrameClock+60;
+                    pPlayer->kickPower = gFrameClock+60;
                 }
                 actKickObject(pSprite, pSprite2);
                 sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
@@ -4422,9 +4400,9 @@ int MoveThing(spritetype *pSprite)
             spritetype *pFX = gFX.fxSpawn(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
             if (pFX)
             {
-                int v34 = ((int)gFrameClock*3)&2047;
-                int v30 = ((int)gFrameClock*5)&2047;
-                int vbx = ((int)gFrameClock*11)&2047;
+                int v34 = (gFrameClock*3)&2047;
+                int v30 = (gFrameClock*5)&2047;
+                int vbx = (gFrameClock*11)&2047;
                 int v2c = 0x44444;
                 int v28 = 0;
                 int v24 = 0;
@@ -4771,7 +4749,7 @@ void MoveDude(spritetype *pSprite)
             if (pPlayer) {
                 pPlayer->posture = 0;
                 pPlayer->bubbleTime = 0;
-                if (!pPlayer->cantJump && pPlayer->input.buttonFlags.jump) {
+                if (!pPlayer->cantJump && (pPlayer->input.actions & SB_JUMP)) {
                     zvel[nSprite] = -0x6aaaa;
                     pPlayer->cantJump = 1;
                 }
@@ -5023,7 +5001,7 @@ void MoveDude(spritetype *pSprite)
                         {
                             xvel[pFX2->index] = Random2(0x6aaaa);
                             yvel[pFX2->index] = Random2(0x6aaaa);
-                            zvel[pFX2->index] = -Random(0xd5555);
+                            zvel[pFX2->index] = -(int)Random(0xd5555);
                         }
                     }
                 }
@@ -5119,7 +5097,6 @@ int MoveMissile(spritetype *pSprite)
         if (pTarget->statnum == kStatDude && pXTarget && pXTarget->health > 0)
         {
             int nTargetAngle = getangle(-(pTarget->y-pSprite->y), pTarget->x-pSprite->x);
-            int UNUSED(nAngle) = getangle(xvel[nSprite]>>12,yvel[nSprite]>>12);
             int vx = missileInfo[pSprite->type - kMissileBase].velocity;
             int vy = 0;
             RotatePoint(&vx, &vy, (nTargetAngle+1536)&2047, 0, 0);
@@ -5363,7 +5340,7 @@ void actExplodeSprite(spritetype *pSprite)
         }
         #endif
 		
-        if (gSysRes.Lookup(nSeq, "SEQ"))
+        if (getSequence(nSeq))
 		    seqSpawn(nSeq, 3, nXSprite, -1);
 
 		sfxPlay3DSound(pSprite, nSnd, -1, 0);
@@ -5593,7 +5570,7 @@ void actProcessSprites(void)
             }
             actAirDrag(pSprite, 128);
 
-            if (((pSprite->index>>8)&15) == (gFrame&15) && (pSprite->flags&2))
+            if (((pSprite->index>>8)&15) == (gFrameCount&15) && (pSprite->flags&2))
                 pSprite->flags |= 4;
             if ((pSprite->flags&4) || xvel[nSprite] || yvel[nSprite] || zvel[nSprite] ||
                 velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
@@ -5659,7 +5636,6 @@ void actProcessSprites(void)
                             if ((hit&0xc000) != 0xc000 && (nObject < 0 || nObject >= 4096))
                                 break;
                             dassert(nObject >= 0 && nObject < kMaxSprites);
-                            int UNUSED(nOwner) = actSpriteOwnerToSpriteId(pSprite);
                             actExplodeSprite(pSprite);
                             break;
                         }
@@ -5872,8 +5848,8 @@ void actProcessSprites(void)
                     x += (dx/2)>>12;
                     y += (dy/2)>>12;
                 }
-                dy = Sin(pSprite->ang)>>16;
-                dx = Cos(pSprite->ang)>>16;
+                dy = SinScale16(pSprite->ang);
+                dx = CosScale16(pSprite->ang);
                 gVectorData[VECTOR_TYPE_20].maxDist = pXSprite->data1<<9;
                 actFireVector(pSprite, 0, 0, dx, dy, Random2(0x8888), VECTOR_TYPE_20);
             }
@@ -6129,7 +6105,7 @@ spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4)
     pSprite2->clipdist = getDudeInfo(nDude+kDudeBase)->clipdist;
     pXSprite2->health = getDudeInfo(nDude+kDudeBase)->startHealth<<4;
     pXSprite2->respawn = 1;
-    if (gSysRes.Lookup(getDudeInfo(nDude+kDudeBase)->seqStartID, "SEQ"))
+    if (getSequence(getDudeInfo(nDude+kDudeBase)->seqStartID))
         seqSpawn(getDudeInfo(nDude+kDudeBase)->seqStartID, 3, pSprite2->extra, -1);
     
     #ifdef NOONE_EXTENSIONS
@@ -6215,7 +6191,7 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
         pSprite->xrepeat = pThingInfo->xrepeat;
     if (pThingInfo->yrepeat)
         pSprite->yrepeat = pThingInfo->yrepeat;
-    SetBitString(show2dsprite, pSprite->index);
+    show2dsprite.Set(pSprite->index);
     switch (nThingType) {
     case kThingVoodooHead:
         pXThing->data1 = 0;
@@ -6243,7 +6219,7 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
         pXThing->data2 = 0;
         pXThing->data3 = 0;
         pXThing->data4 = 318;
-        pXThing->targetX = (int)gFrameClock+180.0;
+        pXThing->targetX = gFrameClock+180.0;
         pXThing->locked = 1;
         pXThing->state = 1;
         pXThing->triggerOnce = 0;
@@ -6255,7 +6231,7 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
         pXThing->data2 = 0;
         pXThing->data3 = 0;
         pXThing->data4 = 318;
-        pXThing->targetX = (int)gFrameClock+180.0;
+        pXThing->targetX = gFrameClock+180.0;
         pXThing->locked = 1;
         pXThing->state = 1;
         pXThing->triggerOnce = 0;
@@ -6331,7 +6307,7 @@ spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, 
     }
     spritetype *pMissile = actSpawnSprite(pSprite->sectnum, x, y, z, 5, 1);
     int nMissile = pMissile->index;
-    SetBitString(show2dsprite, nMissile);
+    show2dsprite.Set(nMissile);
     pMissile->type = nType;
     pMissile->shade = pMissileInfo->shade;
     pMissile->pal = 0;
@@ -6852,7 +6828,7 @@ void DudeToGibCallback1(int, int nXSprite)
     pXSprite->triggerOnce = 0;
     pXSprite->isTriggered = 0;
     pXSprite->locked = 0;
-    pXSprite->targetX = (int)gFrameClock;
+    pXSprite->targetX = gFrameClock;
     pXSprite->state = 1;
 }
 
@@ -6870,7 +6846,7 @@ void DudeToGibCallback2(int, int nXSprite)
     pXSprite->triggerOnce = 0;
     pXSprite->isTriggered = 0;
     pXSprite->locked = 0;
-    pXSprite->targetX = (int)gFrameClock;
+    pXSprite->targetX = gFrameClock;
     pXSprite->state = 1;
 }
 
@@ -6883,7 +6859,7 @@ void actPostSprite(int nSprite, int nStatus)
     if (sprite[nSprite].flags&32)
     {
         for (n = 0; n < gPostCount; n++)
-            if (gPost[n].at0 == nSprite)
+            if (gPost[n].TotalKills == nSprite)
                 break;
         dassert(n < gPostCount);
     }
@@ -6893,7 +6869,7 @@ void actPostSprite(int nSprite, int nStatus)
         sprite[nSprite].flags |= 32;
         gPostCount++;
     }
-    gPost[n].at0 = nSprite;
+    gPost[n].TotalKills = nSprite;
     gPost[n].at2 = nStatus;
 }
 
@@ -6902,7 +6878,7 @@ void actPostProcess(void)
     for (int i = 0; i < gPostCount; i++)
     {
         POSTPONE *pPost = &gPost[i];
-        int nSprite = pPost->at0;
+        int nSprite = pPost->TotalKills;
         spritetype *pSprite = &sprite[nSprite];
         pSprite->flags &= ~32;
         int nStatus = pPost->at2;
@@ -6984,353 +6960,4 @@ void ActorLoadSaveConstruct(void)
     myLoadSave = new ActorLoadSave();
 }
 
-#ifdef POLYMER
-
-// this is the same crap as in game.c's tspr manipulation.  puke.
-// XXX: may access tilesizy out-of-bounds by bad user code.
-#define LIGHTRAD(spriteNum, s) (s->yrepeat * tilesiz[s->picnum].y)
-#define LIGHTRAD2(spriteNum, s) ((s->yrepeat + ((rand() % s->yrepeat)>>2)) * tilesiz[s->picnum].y)
-
-void G_AddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange, int lightColor, int lightPrio)
-{
-    auto const s = &sprite[spriteNum];
-
-    if (videoGetRenderMode() != REND_POLYMER || pr_lighting != 1)
-        return;
-
-    if (gPolymerLight[spriteNum].lightptr == NULL)
-    {
-#pragma pack(push, 1)
-        _prlight mylight;
-#pragma pack(pop)
-        Bmemset(&mylight, 0, sizeof(mylight));
-
-        mylight.sector = s->sectnum;
-        mylight.x = s->x;
-        mylight.y = s->y;
-        mylight.z = s->z - zOffset;
-        mylight.color[0] = lightColor & 255;
-        mylight.color[1] = (lightColor >> 8) & 255;
-        mylight.color[2] = (lightColor >> 16) & 255;
-        mylight.radius = lightRadius;
-        gPolymerLight[spriteNum].lightmaxrange = mylight.range = lightRange;
-
-        mylight.priority = lightPrio;
-        mylight.tilenum = 0;
-
-        mylight.publicflags.emitshadow = 1;
-        mylight.publicflags.negative = 0;
-
-        gPolymerLight[spriteNum].lightId = polymer_addlight(&mylight);
-        if (gPolymerLight[spriteNum].lightId >= 0)
-            gPolymerLight[spriteNum].lightptr = &prlights[gPolymerLight[spriteNum].lightId];
-        return;
-    }
-
-    s->z -= zOffset;
-
-    if (lightRange<gPolymerLight[spriteNum].lightmaxrange>> 1)
-        gPolymerLight[spriteNum].lightmaxrange = 0;
-
-    if (lightRange > gPolymerLight[spriteNum].lightmaxrange || lightPrio != gPolymerLight[spriteNum].lightptr->priority ||
-        Bmemcmp(&sprite[spriteNum], gPolymerLight[spriteNum].lightptr, sizeof(int32_t) * 3))
-    {
-        if (lightRange > gPolymerLight[spriteNum].lightmaxrange)
-            gPolymerLight[spriteNum].lightmaxrange = lightRange;
-
-        Bmemcpy(gPolymerLight[spriteNum].lightptr, &sprite[spriteNum], sizeof(int32_t) * 3);
-        gPolymerLight[spriteNum].lightptr->sector = s->sectnum;
-        gPolymerLight[spriteNum].lightptr->flags.invalidate = 1;
-    }
-
-    gPolymerLight[spriteNum].lightptr->priority = lightPrio;
-    gPolymerLight[spriteNum].lightptr->range = lightRange;
-    gPolymerLight[spriteNum].lightptr->color[0] = lightColor & 255;
-    gPolymerLight[spriteNum].lightptr->color[1] = (lightColor >> 8) & 255;
-    gPolymerLight[spriteNum].lightptr->color[2] = (lightColor >> 16) & 255;
-
-    s->z += zOffset;
-}
-
-void actDoLight(int nSprite)
-{
-    auto const pSprite = &sprite[nSprite];
-    int savedFires = 0;
-    if (((sector[pSprite->sectnum].floorz - sector[pSprite->sectnum].ceilingz) < 16) || pSprite->z > sector[pSprite->sectnum].floorz)
-    {
-        if (gPolymerLight[nSprite].lightptr != NULL)
-            DeleteLight(nSprite);
-    }
-    else
-    {
-        if (gPolymerLight[nSprite].lightptr != NULL && gPolymerLight[nSprite].lightcount)
-        {
-            if (!(--gPolymerLight[nSprite].lightcount))
-                DeleteLight(nSprite);
-        }
-
-        if (pr_lighting != 1)
-            return;
-
-        switch (pSprite->statnum)
-        {
-        case kStatProjectile:
-            switch (pSprite->type)
-            {
-            case kMissileTeslaRegular:
-                {
-                    int32_t x = ((sintable[(pSprite->ang+512)&2047])>>6);
-                    int32_t y = ((sintable[(pSprite->ang)&2047])>>6);
-
-                    pSprite->x -= x;
-                    pSprite->y -= y;
-
-                    G_AddGameLight(0, nSprite, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 2048, 80+(252<<8)+(120<<16),PR_LIGHT_PRIO_HIGH_GAME);
-
-                    pSprite->x += x;
-                    pSprite->y += y;
-                }
-                break;
-            }
-            break;
-        case kStatExplosion:
-            switch (pSprite->type)
-            {
-            default:
-                if (!gPolymerLight[nSprite].lightcount)
-                {
-                    // XXX: This block gets CODEDUP'd too much.
-                    int32_t x = ((sintable[(pSprite->ang+512)&2047])>>6);
-                    int32_t y = ((sintable[(pSprite->ang)&2047])>>6);
-
-                    pSprite->x -= x;
-                    pSprite->y -= y;
-
-                    G_AddGameLight(0, nSprite, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), LIGHTRAD(spriteNum, pSprite), 240+(160<<8)+(80<<16),
-                        pSprite->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
-
-                    pSprite->x += x;
-                    pSprite->y += y;
-                }
-                break;
-            }
-            break;
-        }
-    }
-#if 0
-    if (((sector[pSprite->sectnum].floorz - sector[pSprite->sectnum].ceilingz) < 16) || pSprite->z > sector[pSprite->sectnum].floorz || pSprite->z > actor[spriteNum].floorz ||
-        (pSprite->picnum != SECTOREFFECTOR && ((pSprite->cstat & 32768) || pSprite->yrepeat < 4)) ||
-        A_CheckSpriteFlags(spriteNum, SFLAG_NOLIGHT) || (A_CheckSpriteFlags(spriteNum, SFLAG_USEACTIVATOR) && sector[pSprite->sectnum].lotag & 16384))
-    {
-        if (actor[spriteNum].lightptr != NULL)
-            A_DeleteLight(spriteNum);
-    }
-    else
-    {
-        if (actor[spriteNum].lightptr != NULL && actor[spriteNum].lightcount)
-        {
-            if (!(--actor[spriteNum].lightcount))
-                A_DeleteLight(spriteNum);
-        }
-
-        if (pr_lighting != 1)
-            return;
-
-#ifndef EDUKE32_STANDALONE
-        for (int ii=0; ii<2; ii++)
-        {
-            if (pSprite->picnum <= 0)  // oob safety
-                break;
-
-            switch (DYNAMICTILEMAP(pSprite->picnum-1+ii))
-            {
-            case DIPSWITCH__STATIC:
-            case DIPSWITCH2__STATIC:
-            case DIPSWITCH3__STATIC:
-            case PULLSWITCH__STATIC:
-            case SLOTDOOR__STATIC:
-            case LIGHTSWITCH__STATIC:
-            case SPACELIGHTSWITCH__STATIC:
-            case SPACEDOORSWITCH__STATIC:
-            case FRANKENSTINESWITCH__STATIC:
-            case POWERSWITCH1__STATIC:
-            case LOCKSWITCH1__STATIC:
-            case POWERSWITCH2__STATIC:
-            case TECHSWITCH__STATIC:
-            case ACCESSSWITCH__STATIC:
-            case ACCESSSWITCH2__STATIC:
-                {
-                    if ((pSprite->cstat & 32768) || A_CheckSpriteFlags(spriteNum, SFLAG_NOLIGHT))
-                    {
-                        if (actor[spriteNum].lightptr != NULL)
-                            A_DeleteLight(spriteNum);
-                        break;
-                    }
-
-                    vec2_t const d = { sintable[(pSprite->ang+512)&2047]>>7, sintable[(pSprite->ang)&2047]>>7 };
-
-                    pSprite->x += d.x;
-                    pSprite->y += d.y;
-
-                    int16_t sectnum = pSprite->sectnum;
-                    updatesector(pSprite->x, pSprite->y, &sectnum);
-
-                    if ((unsigned) sectnum >= MAXSECTORS || pSprite->z > sector[sectnum].floorz || pSprite->z < sector[sectnum].ceilingz)
-                        goto POOP;
-
-                    G_AddGameLight(0, spriteNum, (pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1, 512-ii*128,
-                        ii==0 ? (172+(200<<8)+(104<<16)) : 216+(52<<8)+(20<<16), PR_LIGHT_PRIO_LOW);
-
-                POOP:
-                    pSprite->x -= d.x;
-                    pSprite->y -= d.y;
-                }
-                break;
-            }
-        }
-
-        switch (DYNAMICTILEMAP(pSprite->picnum))
-        {
-        case ATOMICHEALTH__STATIC:
-            G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), LIGHTRAD2(spriteNum, pSprite), 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
-            break;
-
-        case FIRE__STATIC:
-        case FIRE2__STATIC:
-        case BURNING__STATIC:
-        case BURNING2__STATIC:
-            {
-                uint32_t color;
-                int32_t jj;
-
-                static int32_t savedfires[32][4];  // sectnum x y z
-
-                /*
-                if (Actor[i].floorz - Actor[i].ceilingz < 128) break;
-                if (s->z > Actor[i].floorz+2048) break;
-                */
-
-                switch (pSprite->pal)
-                {
-                case 1: color = 128+(128<<8)+(255<<16); break;
-                case 2: color = 255+(48<<8)+(48<<16); break;
-                case 8: color = 48+(255<<8)+(48<<16); break;
-                default: color = 240+(160<<8)+(80<<16); break;
-                }
-
-                for (jj=savedFires-1; jj>=0; jj--)
-                    if (savedfires[jj][0]==pSprite->sectnum && savedfires[jj][1]==(pSprite->x>>3) &&
-                        savedfires[jj][2]==(pSprite->y>>3) && savedfires[jj][3]==(pSprite->z>>7))
-                        break;
-
-                if (jj==-1 && savedFires<32)
-                {
-                    jj = savedFires;
-                    G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), LIGHTRAD2(spriteNum, pSprite), color, PR_LIGHT_PRIO_HIGH_GAME);
-                    savedfires[jj][0] = pSprite->sectnum;
-                    savedfires[jj][1] = pSprite->x>>3;
-                    savedfires[jj][2] = pSprite->y>>3;
-                    savedfires[jj][3] = pSprite->z>>7;
-                    savedFires++;
-                }
-            }
-            break;
-
-        case OOZFILTER__STATIC:
-            if (pSprite->xrepeat > 4)
-                G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 4096, 176+(252<<8)+(120<<16),PR_LIGHT_PRIO_HIGH_GAME);
-            break;
-        case FLOORFLAME__STATIC:
-        case FIREBARREL__STATIC:
-        case FIREVASE__STATIC:
-            G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<2), LIGHTRAD2(spriteNum, pSprite)>>1, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
-            break;
-
-        case EXPLOSION2__STATIC:
-            if (!actor[spriteNum].lightcount)
-            {
-                // XXX: This block gets CODEDUP'd too much.
-                int32_t x = ((sintable[(pSprite->ang+512)&2047])>>6);
-                int32_t y = ((sintable[(pSprite->ang)&2047])>>6);
-
-                pSprite->x -= x;
-                pSprite->y -= y;
-
-                G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), LIGHTRAD(spriteNum, pSprite), 240+(160<<8)+(80<<16),
-                    pSprite->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
-
-                pSprite->x += x;
-                pSprite->y += y;
-            }
-            break;
-        case FORCERIPPLE__STATIC:
-        case TRANSPORTERBEAM__STATIC:
-            G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), LIGHTRAD(spriteNum, pSprite), 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
-            break;
-        case GROWSPARK__STATIC:
-            {
-                int32_t x = ((sintable[(pSprite->ang+512)&2047])>>6);
-                int32_t y = ((sintable[(pSprite->ang)&2047])>>6);
-
-                pSprite->x -= x;
-                pSprite->y -= y;
-
-                G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 1024, 216+(52<<8)+(20<<16),PR_LIGHT_PRIO_HIGH_GAME);
-
-                pSprite->x += x;
-                pSprite->y += y;
-            }
-            break;
-        case SHRINKEREXPLOSION__STATIC:
-            {
-                int32_t x = ((sintable[(pSprite->ang+512)&2047])>>6);
-                int32_t y = ((sintable[(pSprite->ang)&2047])>>6);
-
-                pSprite->x -= x;
-                pSprite->y -= y;
-
-                G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 2048, 176+(252<<8)+(120<<16),PR_LIGHT_PRIO_HIGH_GAME);
-
-                pSprite->x += x;
-                pSprite->y += y;
-            }
-            break;
-        case FREEZEBLAST__STATIC:
-            G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), LIGHTRAD(spriteNum, pSprite)<<2, 72+(88<<8)+(140<<16),PR_LIGHT_PRIO_HIGH_GAME);
-            break;
-        case COOLEXPLOSION1__STATIC:
-            G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), LIGHTRAD(spriteNum, pSprite)<<2, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
-            break;
-        case SHRINKSPARK__STATIC:
-            G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), LIGHTRAD(spriteNum, pSprite), 176+(252<<8)+(120<<16),PR_LIGHT_PRIO_HIGH_GAME);
-            break;
-        case FIRELASER__STATIC:
-            if (pSprite->statnum == STAT_PROJECTILE)
-                G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 64 * pSprite->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
-            break;
-        case RPG__STATIC:
-            G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 128 * pSprite->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
-            break;
-        case SHOTSPARK1__STATIC:
-            if (actor[spriteNum].t_data[2] == 0) // check for first frame of action
-            {
-                int32_t x = ((sintable[(pSprite->ang+512)&2047])>>7);
-                int32_t y = ((sintable[(pSprite->ang)&2047])>>7);
-
-                pSprite->x -= x;
-                pSprite->y -= y;
-
-                G_AddGameLight(0, spriteNum, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 8 * pSprite->yrepeat, 240+(160<<8)+(80<<16),PR_LIGHT_PRIO_LOW_GAME);
-                actor[spriteNum].lightcount = 1;
-
-                pSprite->x += x;
-                pSprite->y += y;
-            }
-            break;
-        }
-#endif
-    }
-#endif
-}
-#endif // POLYMER
 END_BLD_NS

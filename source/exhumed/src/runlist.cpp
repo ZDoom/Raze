@@ -18,35 +18,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "exhumed.h"
 #include "engine.h"
-#include "runlist.h"
+#include "aistuff.h"
 #include "player.h"
-#include "trigdat.h"
-#include "move.h"
-#include "random.h"
-#include "mummy.h"
-#include "fish.h"
-#include "lion.h"
-#include "rex.h"
-#include "set.h"
-#include "rat.h"
-#include "wasp.h"
-#include "anubis.h"
-#include "snake.h"
-#include "scorp.h"
-#include "ra.h"
-#include "spider.h"
-#include "bullet.h"
-#include "queen.h"
-#include "roach.h"
-#include "bubbles.h"
-#include "lavadude.h"
-#include "grenade.h"
-#include "object.h"
-#include "switch.h"
-#include "anims.h"
 #include "sound.h"
-#include "init.h"
-#include "lighting.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -1569,7 +1543,18 @@ int runlist_CheckRadialDamage(short nSprite)
 
     int edi = 0;
 
-    int nDist = ksqrt(x * x + y * y);
+    uint32_t xDiff = klabs(x);
+    uint32_t yDiff = klabs(y);
+
+    uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+
+    if (sqrtNum > INT_MAX)
+    {
+        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
+        sqrtNum = INT_MAX;
+    }
+
+    int nDist = ksqrt(sqrtNum);
 
     if (nDist < nDamageRadius)
     {
@@ -1645,12 +1630,12 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
         return;
     }
 
-    short nPreCreaturesLeft = nCreaturesLeft;
+    short nPreCreaturesKilled = nCreaturesKilled;
 
     runlist_SendMessageToRunRec(nRun, (nSprite2 & 0xFFFF) | 0x80000, nDamage * 4);
 
     // is there now one less creature? (has one died)
-    if (nPreCreaturesLeft > nCreaturesLeft&& nSprite2 > -1)
+    if (nPreCreaturesKilled > nCreaturesKilled && nSprite2 > -1)
     {
         if (sprite[nSprite2].statnum != 100) {
             return;

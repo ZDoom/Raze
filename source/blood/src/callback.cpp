@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ai.h"
 #include "blood.h"
 #include "callback.h"
-#include "config.h"
 #include "db.h"
 #include "dude.h"
 #include "eventq.h"
@@ -40,9 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
 #include "sound.h"
-#include "trig.h"
 #include "triggers.h"
 #include "view.h"
 #include "nnexts.h"
@@ -276,7 +273,7 @@ void Respawn(int nSprite) // 9
                 switch (pSprite->type) {
                     default:
                         pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
-                        if (gSysRes.Lookup(getDudeInfo(nType + kDudeBase)->seqStartID, "SEQ"))
+                        if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
                             seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
                         break;
                     case kDudeModernCustom:
@@ -286,7 +283,7 @@ void Respawn(int nSprite) // 9
                 #else
                 pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
                 pXSprite->health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
-                if (gSysRes.Lookup(getDudeInfo(nType + kDudeBase)->seqStartID, "SEQ"))
+                if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
                     seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
                 #endif
                 aiInitSprite(pSprite);

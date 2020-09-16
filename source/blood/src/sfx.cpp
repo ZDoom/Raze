@@ -27,13 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "common_game.h"
 
-#include "config.h"
 #include "gameutil.h"
 #include "player.h"
-#include "resource.h"
-#include "sfx.h"
 #include "sound.h"
-#include "trig.h"
 #include "raze_sound.h"
 
 BEGIN_BLD_NS
@@ -125,23 +121,31 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 }
 
 
-void sfxUpdate3DSounds(void)
+void GameInterface::UpdateSounds()
 {
     SoundListener listener;
 
-    listener.angle = -(float)gMe->pSprite->ang * pi::pi() / 1024; // Build uses a period of 2048.
-    listener.velocity.Zero();
-    listener.position = GetSoundPos(&gMe->pSprite->pos);
+    if (gMe->pSprite)
+    {
+        listener.angle = -(float)gMe->pSprite->ang * pi::pi() / 1024; // Build uses a period of 2048.
+        listener.velocity.Zero();
+        listener.position = GetSoundPos(&gMe->pSprite->pos);
+        listener.valid = true;
+    }
+    else
+    {
+        listener.position.Zero();
+        listener.valid = false;
+    }
     listener.underwater = false;
     // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
     // listenactor->waterlevel == 3;
     //assert(primaryLevel->Zones.Size() > listenactor->Sector->ZoneNumber);
     listener.Environment = 0;// primaryLevel->Zones[listenactor->Sector->ZoneNumber].Environment;
-    listener.valid = true;
 
     listener.ListenerObject = gMe->pSprite;
     soundEngine->SetListener(listener);
-    soundEngine->UpdateSounds((int)totalclock);
+    soundEngine->UpdateSounds(I_GetTime());
 }
 
 FSoundID getSfx(FSoundID soundId, float &attenuation, int &pitch, int &relvol)

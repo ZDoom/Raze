@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+#include "c_cvars.h"
 #include "gl_samplers.h"
 #include "gl_hwtexture.h"
 #include "matrix.h"
@@ -94,7 +95,6 @@ public:
 	glinfo_t glinfo;
 	
 	void Init(int y);
-	void InitGLState(int fogmode, int multisample);
 	
 	void Deinit();
 	
@@ -351,10 +351,11 @@ public:
 		renderState.AlphaThreshold = al;
 	}
 
-	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int sampleroverride);
+	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int sampleroverride, bool notindexed = false);
 };
 
 extern GLInstance GLInterface;
+extern F2DDrawer twodpsp;
 
 void renderSetProjectionMatrix(const float* p);
 void renderSetViewMatrix(const float* p);
@@ -362,3 +363,5 @@ void renderSetVisibility(float v);
 void renderBeginScene();
 void renderFinishScene();
 void DrawRateStuff();
+void videoShowFrame(int32_t);
+void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dashade, int dapalnum, int dastat, double alpha = 1);

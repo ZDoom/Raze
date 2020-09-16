@@ -16,16 +16,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "fish.h"
-#include "anims.h"
+#include "aistuff.h"
 #include "engine.h"
 #include "sequence.h"
-#include "random.h"
-#include "runlist.h"
 #include "exhumed.h"
-#include "move.h"
-#include "trigdat.h"
-#include "init.h"
 #include "sound.h"
 #include <assert.h>
 
@@ -148,7 +142,7 @@ void BuildBlood(int x, int y, int z, short nSector)
     BuildAnim(-1, kSeqFish, 36, x, y, z, nSector, 75, 128);
 }
 
-void FuncFishLimb(int a, int UNUSED(nDamage), int nRun)
+void FuncFishLimb(int a, int, int nRun)
 {
     short nFish = RunData[nRun].nVal;
     short nSprite = FishChunk[nFish].nSprite;
@@ -273,7 +267,7 @@ int BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nFish | 0x120000);
     FishList[nFish].nRun = runlist_AddRunRec(NewRun, nFish | 0x120000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nFish | 0x120000;
 }
@@ -367,7 +361,7 @@ void FuncFish(int a, int nDamage, int nRun)
             if (FishList[nFish].nHealth <= 0)
             {
                 FishList[nFish].nHealth = 0;
-                nCreaturesLeft--;
+                nCreaturesKilled++;
 
                 sprite[nSprite].cstat &= 0xFEFE;
 

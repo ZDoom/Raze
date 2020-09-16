@@ -30,7 +30,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define QUIET
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -40,17 +39,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interpso.h"
 
 #include "network.h"
-//#include "save.h"
-#include "savedef.h"
 #include "jsector.h"
 #include "parent.h"
-#include "reserve.h"
 
 //#define FILE_TYPE 1
 
 #include "weapon.h"
-#include "cache.h"
-#include "colormap.h"
+#include "misc.h"
 #include "player.h"
 #include "i_specialpaths.h"
 #include "savegamehelp.h"
@@ -72,31 +67,24 @@ TO DO
 */
 
 extern int lastUpdate;
-extern char UserMapName[80];
 extern char SaveGameDescr[10][80];
 extern int PlayClock;
-extern short TotalKillable;
-extern short LevelSecrets;
 extern short Bunny_Count;
-extern SWBOOL NewGame;
-extern char CacheLastLevel[];
-extern short PlayingLevel;
+extern bool NewGame;
 extern int GodMode;
 extern int FinishTimer;
-extern SWBOOL FinishAnim;
+extern int FinishAnim;
 extern int GameVersion;
 //extern short Zombies;
 
-extern SWBOOL serpwasseen;
-extern SWBOOL sumowasseen;
-extern SWBOOL zillawasseen;
+extern bool serpwasseen;
+extern bool sumowasseen;
+extern bool zillawasseen;
 extern short BossSpriteNum[3];
 
 #define PANEL_SAVE 1
 #define ANIM_SAVE 1
 
-extern SW_PACKET loc;
-extern char LevelName[20];
 extern STATE s_NotRestored[];
 
 OrgTileListP otlist[] = {&orgwalllist, &orgwalloverlist, &orgsectorceilinglist, &orgsectorfloorlist};
@@ -238,9 +226,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     // workaround until the level info here has been transitioned.
 	fil = WriteSavegameChunk("snapshot.sw");
 
-    MWRITE(&GameVersion,sizeof(GameVersion),1,fil);
-
-    MWRITE(&Level,sizeof(Level),1,fil);
     MWRITE(&Skill,sizeof(Skill),1,fil);
 
     MWRITE(&numplayers,sizeof(numplayers),1,fil);
@@ -261,15 +246,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
         for (ndx = 0; ndx < MAX_WEAPONS; ndx++)
             pp->Wpn[ndx] = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->Wpn[ndx]);
         pp->Chops = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->Chops);
-        for (ndx = 0; ndx < MAX_INVENTORY; ndx++)
-            pp->InventorySprite[ndx] = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->InventorySprite[ndx]);
-        pp->InventorySelectionBox = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->InventorySelectionBox);
-        pp->MiniBarHealthBox = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->MiniBarHealthBox);
-        pp->MiniBarAmmo = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->MiniBarAmmo);
-        for (ndx = 0; ndx < (short)SIZ(pp->MiniBarHealthBoxDigit); ndx++)
-            pp->MiniBarHealthBoxDigit[ndx] = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->MiniBarHealthBoxDigit[ndx]);
-        for (ndx = 0; ndx < (short)SIZ(pp->MiniBarAmmoDigit); ndx++)
-            pp->MiniBarAmmoDigit[ndx] = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->MiniBarAmmoDigit[ndx]);
 #endif
 
         MWRITE(&tp, sizeof(PLAYER),1,fil);
@@ -474,12 +450,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     MWRITE(SineWaveFloor, sizeof(SineWaveFloor),1,fil);
     MWRITE(SineWall, sizeof(SineWall),1,fil);
     MWRITE(SpringBoard, sizeof(SpringBoard),1,fil);
-    //MWRITE(Rotate, sizeof(Rotate),1,fil);
-    //MWRITE(DoorAutoClose, sizeof(DoorAutoClose),1,fil);
-    MWRITE(&x_min_bound, sizeof(x_min_bound),1,fil);
-    MWRITE(&y_min_bound, sizeof(y_min_bound),1,fil);
-    MWRITE(&x_max_bound, sizeof(x_max_bound),1,fil);
-    MWRITE(&y_max_bound, sizeof(y_max_bound),1,fil);
 
 
     MWRITE(Track, sizeof(Track),1,fil);
@@ -492,13 +462,9 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
             MWRITE(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
     }
 
-    MWRITE(&loc,sizeof(loc),1,fil);
-    //MWRITE(&oloc,sizeof(oloc),1,fil);
-    //MWRITE(&fsync,sizeof(fsync),1,fil);
-
-    MWRITE(LevelName,sizeof(LevelName),1,fil);
+    // MWRITE(&loc,sizeof(loc),1,fil);
     MWRITE(&screenpeek,sizeof(screenpeek),1,fil);
-    MWRITE(&totalsynctics,sizeof(totalsynctics),1,fil);
+    MWRITE(&randomseed, sizeof(randomseed), 1, fil);
 
     // do all sector manipulation structures
 
@@ -586,10 +552,7 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 #endif
 #endif
 
-    MWRITE(&totalclock,sizeof(totalclock),1,fil);
-    
     MWRITE(&NormalVisibility,sizeof(NormalVisibility),1,fil);
-    MWRITE(&BorderInfo,sizeof(BorderInfo),1,fil);
     MWRITE(&MoveSkip2,sizeof(MoveSkip2),1,fil);
     MWRITE(&MoveSkip4,sizeof(MoveSkip4),1,fil);
     MWRITE(&MoveSkip8,sizeof(MoveSkip8),1,fil);
@@ -663,7 +626,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 
     MWRITE(&Bunny_Count,sizeof(Bunny_Count),1,fil);
 
-    MWRITE(UserMapName,sizeof(UserMapName),1,fil);
     MWRITE(&GodMode,sizeof(GodMode),1,fil);
 
     MWRITE(&FinishTimer,sizeof(FinishTimer),1,fil);
@@ -675,29 +637,11 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     MWRITE(BossSpriteNum, sizeof(BossSpriteNum), 1, fil);
     //MWRITE(&Zombies, sizeof(Zombies), 1, fil);
 
-	if (!saveisshot)
-		return FinishSavegameWrite();
-
-    return false;
+    return !saveisshot;
 }
 
 
-extern SWBOOL LoadGameOutsideMoveLoop;
-extern SWBOOL InMenuLevel;
-
- bool GameInterface::CleanupForLoad() 
- {
-     // Don't terminate until you've made sure conditions are valid for loading.
-     if (InMenuLevel)
-         Mus_Stop();
-     else
-     {
-         PauseAction();
-         TerminateLevel();
-     }
-     StopFX();
-     return true;
- }
+extern bool SavegameLoaded;
 
 bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
@@ -719,14 +663,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 	if (!filr.isOpen()) return false;
 	fil = &filr;
 
-    MREAD(&i,sizeof(i),1,fil);
-    if (i != GameVersion)
-    {
-        MCLOSE_READ(fil);
-        return false;
-    }
-
-    MREAD(&Level,sizeof(Level),1,fil);
     MREAD(&Skill,sizeof(Skill),1,fil);
 
     MREAD(&numplayers, sizeof(numplayers),1,fil);
@@ -738,6 +674,13 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     //MREAD(Player,sizeof(PLAYER), numplayers,fil);
 
     //save players info
+
+    for (auto& pp : Player)
+    {
+        pp.cookieTime = 0;
+        memset(pp.cookieQuote, 0, sizeof(pp.cookieQuote));
+    }
+
     for (i = 0; i < numplayers; i++)
     {
         pp = &Player[i];
@@ -773,7 +716,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
         INITLIST(&pp->PanelSpriteList);
 
-        while (TRUE)
+        while (true)
         {
             MREAD(&ndx, sizeof(ndx),1,fil);
 
@@ -888,12 +831,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     MREAD(SineWaveFloor, sizeof(SineWaveFloor),1,fil);
     MREAD(SineWall, sizeof(SineWall),1,fil);
     MREAD(SpringBoard, sizeof(SpringBoard),1,fil);
-    //MREAD(Rotate, sizeof(Rotate),1,fil);
-    //MREAD(DoorAutoClose, sizeof(DoorAutoClose),1,fil);
-    MREAD(&x_min_bound, sizeof(x_min_bound),1,fil);
-    MREAD(&y_min_bound, sizeof(y_min_bound),1,fil);
-    MREAD(&x_max_bound, sizeof(x_max_bound),1,fil);
-    MREAD(&y_max_bound, sizeof(y_max_bound),1,fil);
 
     MREAD(Track, sizeof(Track),1,fil);
     for (i = 0; i < MAX_TRACKS; i++)
@@ -910,11 +847,10 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
         }
     }
 
-    MREAD(&loc,sizeof(loc),1,fil);
+    // MREAD(&loc,sizeof(loc),1,fil);
 
-    MREAD(LevelName,sizeof(LevelName),1,fil);
     MREAD(&screenpeek,sizeof(screenpeek),1,fil);
-    MREAD(&totalsynctics,sizeof(totalsynctics),1,fil);  // same as kens lockclock
+    MREAD(&randomseed, sizeof(randomseed), 1, fil);
 
     // do all sector manipulation structures
 
@@ -975,11 +911,8 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 #endif
 #endif
 
-    MREAD(&totalclock,sizeof(totalclock),1,fil);
-
     MREAD(&NormalVisibility,sizeof(NormalVisibility),1,fil);
 
-    MREAD(&BorderInfo,sizeof(BorderInfo),1,fil);
     MREAD(&MoveSkip2,sizeof(MoveSkip2),1,fil);
     MREAD(&MoveSkip4,sizeof(MoveSkip4),1,fil);
     MREAD(&MoveSkip8,sizeof(MoveSkip8),1,fil);
@@ -1009,7 +942,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     {
         INITLIST(otlist[i]);
 
-        while (TRUE)
+        while (true)
         {
             MREAD(&ndx, sizeof(ndx),1,fil);
 
@@ -1056,7 +989,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     MREAD(&Bunny_Count,sizeof(Bunny_Count),1,fil);
 
-    MREAD(UserMapName,sizeof(UserMapName),1,fil);
     MREAD(&GodMode,sizeof(GodMode),1,fil);
 
     MREAD(&FinishTimer,sizeof(FinishTimer),1,fil);
@@ -1093,15 +1025,8 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     }
 #endif
 
-    if (Bstrcasecmp(CacheLastLevel, LevelName) != 0)
-    {
         SetupPreCache();
         DoTheCache();
-    }
-
-    // what is this for? don't remember
-    totalclock = totalsynctics;
-    ototalclock = totalsynctics;
 
     // this is ok - just duplicating sector list with pointers
     for (sop = SectorObject; sop < &SectorObject[SIZ(SectorObject)]; sop++)
@@ -1120,19 +1045,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
         for (ndx = 0; ndx < MAX_WEAPONS; ndx++)
             pp->Wpn[ndx] = PanelNdxToSprite(pp, (int)(intptr_t)pp->Wpn[ndx]);
 
-        for (ndx = 0; ndx < MAX_INVENTORY; ndx++)
-            pp->InventorySprite[ndx] = PanelNdxToSprite(pp, (int)(intptr_t)pp->InventorySprite[ndx]);
-
         pp->Chops = PanelNdxToSprite(pp, (int)(intptr_t)pp->Chops);
-        pp->InventorySelectionBox = PanelNdxToSprite(pp, (int)(intptr_t)pp->InventorySelectionBox);
-        pp->MiniBarHealthBox = PanelNdxToSprite(pp, (int)(intptr_t)pp->MiniBarHealthBox);
-        pp->MiniBarAmmo = PanelNdxToSprite(pp, (int)(intptr_t)pp->MiniBarAmmo);
-
-        for (ndx = 0; ndx < (short)SIZ(pp->MiniBarHealthBoxDigit); ndx++)
-            pp->MiniBarHealthBoxDigit[ndx] = PanelNdxToSprite(pp, (int)(intptr_t)pp->MiniBarHealthBoxDigit[ndx]);
-
-        for (ndx = 0; ndx < (short)SIZ(pp->MiniBarAmmoDigit); ndx++)
-            pp->MiniBarAmmoDigit[ndx] = PanelNdxToSprite(pp, (int)(intptr_t)pp->MiniBarAmmoDigit[ndx]);
 
 #endif
     }
@@ -1144,11 +1057,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     }
     InitNetVars();
 
-    SetupAspectRatio();
-    SetRedrawScreen(Player + myconnectindex);
-
     screenpeek = myconnectindex;
-    PlayingLevel = Level;
 
     Mus_ResumeSaved();
     if (snd_ambience)
@@ -1160,22 +1069,13 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     }
 
     // this is not a new game
-    NewGame = FALSE;
+    ShadowWarrior::NewGame = false;
 
 
     DoPlayerDivePalette(Player+myconnectindex);
     DoPlayerNightVisionPalette(Player+myconnectindex);
 
-
-	
-
-    hud_size.Callback();
-    LoadGameOutsideMoveLoop = TRUE;
-    if (!InMenuLevel)
-    {
-        ready2send = 1;
-    }
-    else ExitLevel = TRUE;
+    SavegameLoaded = true;
     return true;
 }
 

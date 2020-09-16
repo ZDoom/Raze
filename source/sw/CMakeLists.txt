@@ -1,35 +1,27 @@
 
 set( PCH_SOURCES
+	src/2d.cpp
 	src/actor.cpp
 	src/ai.cpp
-	src/anim.cpp
-	#src/bldscript.cpp
-	src/border.cpp
 	src/break.cpp
-	#src/brooms.cpp
 	src/bunny.cpp
 	src/cache.cpp
 	src/cheats.cpp
 	src/colormap.cpp
-	src/common.cpp
-	src/config.cpp
-	src/console.cpp
 	src/coolg.cpp
 	src/coolie.cpp
 	src/copysect.cpp
-	src/demo.cpp
 	src/draw.cpp
 	src/eel.cpp
 	src/game.cpp
 	src/girlninj.cpp
 	src/goro.cpp
 	src/hornet.cpp
+	src/input.cpp
 	src/interp.cpp
 	src/interpsh.cpp
 	src/interpso.cpp
 	src/inv.cpp
-	#src/jbhlp.cpp
-	src/jplayer.cpp
 	src/jsector.cpp
 	src/jweapon.cpp
 	src/lava.cpp
@@ -51,6 +43,7 @@ set( PCH_SOURCES
 	src/rotator.cpp
 	src/save.cpp
 	src/saveable.cpp
+	src/sbar.cpp
 	src/scrip2.cpp
 	src/sector.cpp
 	src/serp.cpp
@@ -61,7 +54,6 @@ set( PCH_SOURCES
 	src/spike.cpp
 	src/sprite.cpp
 	src/sumo.cpp
-	src/sync.cpp
 	src/text.cpp
 	src/track.cpp
 	src/vator.cpp
@@ -71,7 +63,6 @@ set( PCH_SOURCES
 	src/weapon.cpp
 	src/zilla.cpp
 	src/zombie.cpp
-	src/swcvar.cpp
 	src/d_menu.cpp
 )
 

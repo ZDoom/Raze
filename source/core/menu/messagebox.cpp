@@ -42,8 +42,32 @@
 #include "statistics.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
+#include "i_time.h"
+#include "engineerrors.h"
 
 extern FSaveGameNode *quickSaveSlot;
+
+
+void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
+{
+	double scale = SmallFontScale();
+	int formatwidth = int(320 / scale);
+	auto lines = V_BreakLines(SmallFont, formatwidth, text, true);
+	auto fheight = bg? 10 : SmallFont->GetHeight()* scale;	// Fixme: Get spacing for text pages from elsewhere.
+	if (!bg)
+	{
+		auto totaltextheight = lines.Size() * fheight;
+		position -= totaltextheight / 2;
+	}
+
+	double y = origin.Y + position;
+	for (auto& line : lines)
+	{
+		double x = origin.X + 160 - line.Width * scale * 0.5;
+		DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, line.Text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		y += fheight;
+	}
+}
 
 class DMessageBoxMenu : public DMenu
 {
@@ -54,7 +78,7 @@ class DMessageBoxMenu : public DMenu
 	int messageSelection;
 	int mMouseLeft, mMouseRight, mMouseY;
 	FName mAction;
-	std::function<void(bool)> mActionFunc;
+	std::function<bool(bool)> mActionFunc;
 
 public:
 
@@ -147,8 +171,7 @@ void DMessageBoxMenu::HandleResult(bool res)
 	{
 		if (mActionFunc)
 		{
-			mActionFunc(res);
-			Close();
+			if (mActionFunc(res)) Close();
 		}
 		else if (mAction == NAME_None && mParentMenu)
 		{
@@ -201,18 +224,19 @@ void DMessageBoxMenu::Drawer()
 		{
 			y += fontheight;
 			mMouseY = y;
-			DrawText(twod, NewSmallFont,
+			DrawText(twod, SmallFont,
 				messageSelection == 0 ? OptionSettings.mFontColorSelection : OptionSettings.mFontColor,
 				160, y, GStrings["TXT_YES"], DTA_Clean, true, TAG_DONE);
-			DrawText(twod, NewSmallFont,
+			DrawText(twod, SmallFont,
 				messageSelection == 1 ? OptionSettings.mFontColorSelection : OptionSettings.mFontColor,
 				160, y + fontheight + 1, GStrings["TXT_NO"], DTA_Clean, true, TAG_DONE);
 
 			if (messageSelection >= 0)
 			{
-				if (((DMenu::MenuTime >> 2) % 8) < 6)
+				auto time = I_msTime() / 30;
+				if (((time >> 2) % 8) < 6)
 				{
-					DrawText(twod, NewSmallFont, OptionSettings.mFontColorSelection,
+					DrawText(twod, SmallFont, OptionSettings.mFontColorSelection,
 						(150 - 160) * CleanXfac + screen->GetWidth() / 2,
 						(y + (fontheight + 1) * messageSelection - 100 + fontheight / 2 - 5) * CleanYfac + screen->GetHeight() / 2,
 						"\xd",
@@ -337,7 +361,7 @@ bool DMessageBoxMenu::MouseEvent(int type, int x, int y)
 		}
 		if (sel != -1 && sel != messageSelection)
 		{
-			gi->MenuSound(CursorSound);
+			M_MenuSound(CursorSound);
 		}
 		messageSelection = sel;
 		if (type == MOUSE_Release)
@@ -408,8 +432,11 @@ CCMD (menu_endgame)
 			if (res)
 			{
                 STAT_Cancel();
+				M_ClearMenus();
 				gi->QuitToTitle();
+				return false;
 			}
+			return true;
 		});
 
 	M_ActivateMenu(newmenu);
@@ -431,7 +458,8 @@ CCMD (menu_quit)
 
 	DMenu *newmenu = CreateMessageBoxMenu(CurrentMenu, EndString, 0, 500, false, NAME_None, [](bool res)
 	{
-		if (res) throw CExitEvent(0);
+			if (res) gi->ExitFromMenu();
+			return true;
 	});
 
 	M_ActivateMenu(newmenu);

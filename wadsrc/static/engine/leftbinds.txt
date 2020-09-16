@@ -1,7 +1,7 @@
 // Left handed config (puts as many controls as possible on the numpad. Also more useful actions on the mouse.)
 uparrow "+Move_Forward"
 downarrow "+Move_Backward"
-LCtrl "+Fire"
+Ctrl "+Fire"
 Space "+Open"
 A "+Jump"
 KP- "+Jump"
@@ -13,3 +13,4 @@ KP9 "+Strafe_Right"
 KP. "+Look_Right"
 Mouse2 "+Open"
 Mouse3 "+Run"
+CapsLock "toggle cl_autorun"

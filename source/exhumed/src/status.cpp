@@ -18,29 +18,47 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "engine.h"
 #include "player.h"
-#include "anims.h"
+#include "aistuff.h"
 #include "status.h"
 #include "exhumed.h"
 #include "sequence.h"
-#include "init.h"
 #include "names.h"
-#include "items.h"
 #include "view.h"
-#include "trigdat.h"
+#include "v_2ddrawer.h"
+#include "multipatchtexture.h"
+#include "texturemanager.h"
+#include "statusbar.h"
+#include "v_draw.h"
+#include "automap.h"
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "typedefs.h"
 
 BEGIN_PS_NS
+
+
+
+// All this must be moved into the status bar once it is made persistent!
+const int kMaxStatusAnims = 50;
+
+short word_9AD54[kMaxPlayers] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+int dword_9AD64[kMaxPlayers] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+short nStatusSeqOffset;
+short nHealthFrames;
+short nMagicFrames;
+
+short nHealthLevel;
+short nMagicLevel;
+short nHealthFrame;
+short nMagicFrame;
 
 short nMaskY;
 static short nAnimsFree = 0;
 
 short statusmask[MAXXDIM];
 
-short message_timer = 0;
 char message_text[80];
 int magicperline;
 int airperline;
@@ -49,26 +67,16 @@ int nAirFrames;
 int nCounter;
 int nCounterDest;
 
-short nStatusSeqOffset;
 short nItemFrames;
-
-int laststatusx;
-int laststatusy;
 
 int16_t nItemSeq;
 short nDigit[3];
 
-short nMagicFrames;
-short nHealthLevel;
 short nItemFrame;
 short nMeterRange;
-short nMagicLevel;
-short nHealthFrame;
-short nMagicFrame;
 
 short statusx;
 short statusy;
-short nHealthFrames;
 
 short airframe;
 
@@ -93,7 +101,6 @@ struct statusAnim
     int8_t nNextAnim;
 };
 
-#define kMaxStatusAnims		50
 
 statusAnim StatusAnim[kMaxStatusAnims];
 uint8_t StatusAnimsFree[kMaxStatusAnims];
@@ -101,13 +108,47 @@ uint8_t StatusAnimFlags[kMaxStatusAnims];
 
 short nItemSeqOffset[] = {91, 72, 76, 79, 68, 87, 83};
 
-short word_9AD54[kMaxPlayers] = {0, 0, 0, 0, 0, 0, 0, 0};
-int dword_9AD64[kMaxPlayers] = {0, 0, 0, 0, 0, 0, 0, 0};
-
 void SetCounterDigits();
 void SetItemSeq();
 void SetItemSeq2(int nSeqOffset);
 void DestroyStatusAnim(short nAnim);
+
+
+void InitStatus()
+{
+    nStatusSeqOffset = SeqOffsets[kSeqStatus];
+    nHealthFrames = SeqSize[nStatusSeqOffset + 1];
+    int nPicNum = seq_GetSeqPicnum(kSeqStatus, 1, 0);
+    nMagicFrames = SeqSize[nStatusSeqOffset + 129];
+    nHealthFrame = 0;
+    nMagicFrame = 0;
+    nHealthLevel = 0;
+    nMagicLevel = 0;
+    nMeterRange = tilesiz[nPicNum].y;
+    magicperline = 1000 / nMeterRange;
+    healthperline = 800 / nMeterRange;
+    nAirFrames = SeqSize[nStatusSeqOffset + 133];
+    airperline = 100 / nAirFrames;
+    nCounter = 0;
+    nCounterDest = 0;
+
+    memset(nDigit, 0, sizeof(nDigit));
+
+    SetCounter(0);
+    SetHealthFrame(0);
+    SetMagicFrame();
+
+    for (int i = 0; i < kMaxStatusAnims; i++) {
+        StatusAnimsFree[i] = i;
+    }
+
+    nLastAnim = -1;
+    nFirstAnim = -1;
+    nItemSeq = -1;
+    nAnimsFree = kMaxStatusAnims;
+    statusx = xdim - 320;
+    statusy = ydim - 200;
+}
 
 
 int BuildStatusAnim(int val, int nFlags)
@@ -151,7 +192,8 @@ void RefreshStatus()
 {
     short nLives = nPlayerLives[nLocalPlayer];
     if (nLives < 0 || nLives > kMaxPlayerLives) {
-        I_Error("illegal value for nPlayerLives #%d\n", nLocalPlayer);
+        //Error("illegal value for nPlayerLives #%d\n", nLocalPlayer);
+        nLives = 0;
     }
 
     // draws the red dots that indicate the lives amount
@@ -175,44 +217,6 @@ void RefreshStatus()
     SetHealthFrame(0);
     SetMagicFrame();
     SetAirFrame();
-}
-
-void InitStatus()
-{
-    nStatusSeqOffset = SeqOffsets[kSeqStatus];
-    nHealthFrames = SeqSize[nStatusSeqOffset + 1];
-    int nPicNum   = seq_GetSeqPicnum(kSeqStatus, 1, 0);
-    nMagicFrames  = SeqSize[nStatusSeqOffset + 129];
-    nHealthFrame  = 0;
-    nMagicFrame   = 0;
-    nHealthLevel  = 0;
-    nMagicLevel   = 0;
-    nMeterRange   = tilesiz[nPicNum].y;
-    magicperline  = 1000 / nMeterRange;
-    healthperline = 800 / nMeterRange;
-    nAirFrames = SeqSize[nStatusSeqOffset + 133];
-    airperline = 100 / nAirFrames;
-    nCounter   = 0;
-    nCounterDest = 0;
-
-    memset(nDigit, 0, sizeof(nDigit));
-
-    SetCounter(0);
-    SetHealthFrame(0);
-    SetMagicFrame();
-
-    for (int i = 0; i < kMaxStatusAnims; i++) {
-        StatusAnimsFree[i] = i;
-    }
-
-    nLastAnim  = -1;
-    nFirstAnim = -1;
-    nItemSeq   = -1;
-    nAnimsFree = kMaxStatusAnims;
-    statusx    = xdim - 320;
-    textpages  = 0;
-    message_timer = 0;
-    statusy = ydim - 200;
 }
 
 void MoveStatusAnims()
@@ -260,29 +264,6 @@ void DestroyStatusAnim(short nAnim)
 
     StatusAnimsFree[nAnimsFree] = (uint8_t)nAnim;
     nAnimsFree++;
-}
-
-void DrawStatusAnims()
-{
-    for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
-    {
-        int nSequence = nStatusSeqOffset + StatusAnim[i].s1;
-
-        //seq_DrawStatusSequence(nSequence, StatusAnim[i].s2, 0);
-
-/*
-        if (StatusAnim[nAnim].s2 >= (SeqSize[nSequence] - 1))
-        {
-            if (!(StatusAnimFlags[nAnim] & 0x10))
-            {
-                StatusAnim[nAnim].nPage--;
-                if (StatusAnim[nAnim].nPage <= 0) {
-                    DestroyStatusAnim(nAnim);
-                }
-            }
-        }
-*/
-    }
 }
 
 void SetMagicFrame()
@@ -404,51 +385,6 @@ void SetPlayerItem(short nPlayer, short nItem)
     }
 }
 
-void SetNextItem(int nPlayer)
-{
-    short nItem = nPlayerItem[nPlayer];
-
-    int i;
-
-    for (i = 6; i > 0; i--)
-    {
-        nItem++;
-        if (nItem == 6)
-            nItem = 0;
-
-        if (PlayerList[nPlayer].items[nItem] != 0)
-            break;
-    }
-
-    if (i > 0) {
-        SetPlayerItem(nPlayer, nItem);
-    }
-}
-
-void SetPrevItem(int nPlayer)
-{
-    if (nPlayerItem[nPlayer] == -1)
-        return;
-
-    int nItem = nPlayerItem[nPlayer];
-
-    int i;
-
-    for (i = 6; i > 0; i--)
-    {
-        nItem--;
-        if (nItem < 0)
-            nItem = 5;
-
-        if (PlayerList[nPlayer].items[nItem] != 0)
-            break;
-    }
-
-    if (i > 0) {
-        SetPlayerItem(nPlayer, nItem);
-    }
-}
-
 void MoveStatus()
 {
     if (nItemSeq >= 0)
@@ -479,19 +415,6 @@ void MoveStatus()
                 nItemSeq += nItemAltSeq;
                 nItemFrames = SeqSize[nStatusSeqOffset + nItemSeq];
             }
-        }
-    }
-
-    if (message_timer)
-    {
-        message_timer -= 4;
-        if (message_timer <= 0)
-        {
-            if (screensize > 0) {
-                textpages = numpages;
-            }
-
-            message_timer = 0;
         }
     }
 
@@ -588,284 +511,512 @@ void MoveStatus()
     }
 }
 
-void UnMaskStatus()
-{
-#if 0
-    for (int i = 0; i < xdim; i++) {
-        startdmost[i] = ydim;
-    }
-#endif
-}
 
-void MaskStatus()
+class DExhumedStatusBar : public DBaseStatusBar
 {
-#if 0
-    for (int i = 0; i < xdim; i++)
+    DHUDFont textfont, numberFont;
+
+public:
+    DExhumedStatusBar()
     {
-        short bx = startdmost[i];
-        short cx = statusmask[i];
-
-        if (bx > cx) {
-            startdmost[i] = cx;
-        }
-    }
-#endif
-}
-
-void LoadStatus()
-{
-#if 0
-    int i;
-    short nSize;
-    short tmp;
-    short buffer[1024];
-//	memset(buffer, 0, sizeof(buffer)); // bjd - added by me
-
-    for (i = 0; i < xdim; i++) {
-        statusmask[i] = ydim;
+        textfont = { SmallFont, 1, Off, 1, 1 };
+        numberFont = { BigFont, 0, Off, 1, 1 };
     }
 
-    nMaskY = ydim;
+private:
 
-    int hStatus = kopen4load("status.msk", 1);
-    if (!hStatus) {
-        return;
-    }
+    //---------------------------------------------------------------------------
+    //
+    // draws a sequence animation to the status bar
+    //
+    //---------------------------------------------------------------------------
 
-    kread(hStatus, &nSize, sizeof(nSize));
-
-    int nCount = nSize >> 1;
-
-    kread(hStatus, &tmp, sizeof(tmp));
-    kread(hStatus, buffer, nSize);
-
-    kclose(hStatus);
-
-    short *pStatusMask = statusmask;
-
-    for (i = 0; i < nCount; i++)
+    void DrawStatusSequence(short nSequence, uint16_t edx, short ebx, int xoffset = 0)
     {
-        int v8 = ydim - ((ydim * buffer[i]) / 200);
-        *pStatusMask++ = ydim - v8;
+        edx += SeqBase[nSequence];
 
-        if (bHiRes) {
-            *pStatusMask++ = ydim - v8;
-        }
+        short nFrameBase = FrameBase[edx];
+        int16_t nFrameSize = FrameSize[edx];
 
-        if (ydim - v8 < nMaskY) {
-            nMaskY = ydim - v8;
-        }
-    }
-#endif
-}
-
-void StatusMessage(int messageTime, const char *fmt, ...)
-{
-    message_timer = messageTime;
-
-    va_list args;
-    va_start(args, fmt);
-
-    vsprintf(message_text, fmt, args);
-
-    if (screensize > 0) {
-        textpages = numpages;
-    }
-}
-
-void DrawSnakeCamStatus()
-{
-    printext(0, 0, "S E R P E N T   C A M", kTile159, 255);
-}
-
-void DrawStatus()
-{
-    char numberBuf[10] = {0};
-    char stringBuf[20] = {0};
-    char coordBuf[50] = {0}; // not sure of the size for this?
-
-    if (!bFullScreen && nNetTime)
-    {
-        // bjd - commenting out this check seems to fix the black status bar at 320x200 resolution
-//		if (bHiRes) {
-            NoClip();
-//		}
-
-        // draw the main bar itself
-        seq_DrawStatusSequence(nStatusSeqOffset, 0, 0);
-
-        seq_DrawStatusSequence(nStatusSeqOffset + 128, 0, 0);
-        seq_DrawStatusSequence(nStatusSeqOffset + 127, 0, 0);
-        seq_DrawStatusSequence(nStatusSeqOffset + 1, nHealthFrame, nHealthLevel);
-        seq_DrawStatusSequence(nStatusSeqOffset + 129, nMagicFrame, nMagicLevel);
-        seq_DrawStatusSequence(nStatusSeqOffset + 125, 0, 0); // draw ankh on health pool
-        seq_DrawStatusSequence(nStatusSeqOffset + 130, 0, 0); // draw health pool frame (top)
-        seq_DrawStatusSequence(nStatusSeqOffset + 131, 0, 0); // magic pool frame (bottom)
-
-        if (nItemSeq >= 0) {
-            seq_DrawStatusSequence(nItemSeq + nStatusSeqOffset, nItemFrame, 0);
-        }
-
-        // draws health level dots, animates breathing lungs and other things
-        DrawStatusAnims();
-
-        // draw the blue air level meter when underwater (but not responsible for animating the breathing lungs otherwise)
-        if (airpages)
+        while (1)
         {
-            seq_DrawStatusSequence(nStatusSeqOffset + 133, airframe, 0);
-            // airpages--;
-        }
+            nFrameSize--;
+            if (nFrameSize < 0)
+                break;
 
-        // draw compass
-        seq_DrawStatusSequence(nStatusSeqOffset + 35, ((inita + 128) & kAngleMask) >> 8, 0);
+            int flags = DI_ITEM_RELCENTER;
 
-        /*
-        if (bCoordinates)
-        {
-            sprintf(numberBuf, "%i", lastfps);
-            // char *cFPS = itoa(lastfps, numberBuf, 10);
-            printext(xdim - 20, nViewTop, numberBuf, kTile159, -1);
-        }
-        */
+            double x = ChunkXpos[nFrameBase];
+            double y = ChunkYpos[nFrameBase] + ebx;
 
-        // draw ammo count
-        seq_DrawStatusSequence(nStatusSeqOffset + 44, nDigit[2], 0);
-        seq_DrawStatusSequence(nStatusSeqOffset + 45, nDigit[1], 0);
-        seq_DrawStatusSequence(nStatusSeqOffset + 46, nDigit[0], 0);
-
-        // bjd - commenting out this check seems to fix the black status bar at 320x200 resolution
-//		if (bHiRes) {
-            Clip();
-//		}
-    }
-
-    if (nNetPlayerCount)
-    {
-        NoClip();
-
-        int shade;
-
-        if ((int)totalclock / kTimerTicks & 1) {
-            shade = -100;
-        }
-        else {
-            shade = 127;
-        }
-
-        int nTile = kTile3593;
-
-        int x = 320 / (nTotalPlayers + 1);
-
-        for (int i = 0; i < nTotalPlayers; i++)
-        {
-            int nScore = nPlayerScore[i];
-            if (word_9AD54[i] == nScore)
+            if (x > 0)
             {
-                int v9 = dword_9AD64[i];
-                if (v9 && v9 <= (int)totalclock) {
-                    dword_9AD64[i] = 0;
-                }
+                if (xoffset == 0) { x += 0.5; y += 0.5; }
+            }
+
+            if (hud_size <= Hud_StbarOverlay)
+            {
+                x += 160;
+                y += 100;
             }
             else
             {
-                word_9AD54[i] = nScore;
-                dword_9AD64[i] = (int)totalclock + 30;
+                if (x < 0)
+                {
+                    x += 160;
+                    flags |= DI_SCREEN_LEFT_BOTTOM;
+                }
+                else if (x > 0)
+                {
+                    x -= 159; // graphics do not match up precisely.
+                    flags |= DI_SCREEN_RIGHT_BOTTOM;
+                }
+                y -= 100;
+                if (hud_size == Hud_full)
+                {
+                    x += xoffset;
+                }
             }
 
-            overwritesprite(x, 7, nTile, 0, 3, kPalNormal);
+            int tile = ChunkPict[nFrameBase];
 
-            if (i != nLocalPlayer) {
+            short chunkFlag = ChunkFlag[nFrameBase];
+
+            if (chunkFlag & 1) flags |= DI_MIRROR;
+            if (chunkFlag & 2) flags |= DI_MIRRORY;
+
+            DrawGraphic(tileGetTexture(tile), x, y, flags, 1, -1, -1, 1, 1);
+            nFrameBase++;
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // draws a sequence animation to the status bar
+    //
+    //---------------------------------------------------------------------------
+
+    FGameTexture * GetStatusSequencePic(short nSequence, uint16_t edx)
+    {
+        edx += SeqBase[nSequence];
+        int nFrameBase = FrameBase[edx];
+        return tileGetTexture(ChunkPict[nFrameBase]);
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DrawStatusAnims()
+    {
+        for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
+        {
+            int nSequence = nStatusSeqOffset + StatusAnim[i].s1;
+
+            int xoffs = 0;
+            if (StatusAnim[i].s1 == 132) xoffs = -32;
+
+            DrawStatusSequence(nSequence, StatusAnim[i].s2, 0, xoffs);
+
+            /*
+                    if (StatusAnim[nAnim].s2 >= (SeqSize[nSequence] - 1))
+                    {
+                        if (!(StatusAnimFlags[nAnim] & 0x10))
+                        {
+                            StatusAnim[nAnim].nPage--;
+                            if (StatusAnim[nAnim].nPage <= 0) {
+                                DestroyStatusAnim(nAnim);
+                            }
+                        }
+                    }
+            */
+        }
+    }
+
+
+    //---------------------------------------------------------------------------
+    //
+    // Frag display - very ugly and may have to be redone if multiplayer support gets added.
+    //
+    //---------------------------------------------------------------------------
+
+    void DrawMulti()
+    {
+        char stringBuf[30];
+        if (nNetPlayerCount)
+        {
+            BeginHUD(320, 200, 1);
+
+            int shade;
+
+            if ((leveltime / 30) & 1) {
                 shade = -100;
             }
+            else {
+                shade = 127;
+            }
 
-            sprintf(stringBuf, "%d", nPlayerScore[i]);
-            int nStringLen = MyGetStringWidth(stringBuf);
+            int nTile = kTile3593;
 
-            myprintext(x - (nStringLen / 2), 4, stringBuf, shade);
+            int xx = 320 / (nTotalPlayers + 1);
+            int x = xx - 160;
 
-            x *= 2;
-            nTile++;
-        }
-
-        if (nNetTime >= 0)
-        {
-            int y = nViewTop;
-
-            if (nNetTime)
+            for (int i = 0; i < nTotalPlayers; i++)
             {
-                int v12 = (nNetTime + 29) / 30 % 60;
-                int v13 = (nNetTime + 29) / 1800;
-                nNetTime += 29;
-
-                sprintf(stringBuf, "%d.%02d", v13, v12);
-
-                if (bHiRes) {
-                    y = nViewTop / 2;
+                int nScore = nPlayerScore[i];
+                if (word_9AD54[i] == nScore)
+                {
+                    int v9 = dword_9AD64[i];
+                    if (v9 && v9 <= leveltime*4) {
+                        dword_9AD64[i] = 0;
+                    }
+                }
+                else
+                {
+                    word_9AD54[i] = nScore;
+                    dword_9AD64[i] = leveltime*4 + 30;
                 }
 
-                if (nViewTop <= 0) {
+                DrawGraphic(tileGetTexture(nTile), x, 7, DI_ITEM_CENTER, 1, -1, -1, 1, 1);
+
+                if (i != nLocalPlayer) {
+                    shade = -100;
+                }
+
+                sprintf(stringBuf, "%d", nPlayerScore[i]);
+                SBar_DrawString(this, &textfont, stringBuf, x, 0, DI_ITEM_TOP|DI_TEXT_ALIGN_CENTER, i != nLocalPlayer ? CR_UNTRANSLATED : CR_GOLD, 1, -1, 0, 1, 1);
+                x += xx;
+                nTile++;
+            }
+
+            if (nNetTime >= 0)
+            {
+                int y = 0;
+
+                if (nNetTime)
+                {
+                    int v12 = (nNetTime + 29) / 30 % 60;
+                    int v13 = (nNetTime + 29) / 1800;
+                    nNetTime += 29;
+
+                    sprintf(stringBuf, "%d.%02d", v13, v12);
+
                     y += 20;
+                    nNetTime -= 29;
+                    SBar_DrawString(this, &textfont, stringBuf, 0, 10, DI_ITEM_TOP | DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, -1, 0, 1, 1);
                 }
-                else {
-                    y += 15;
-                }
-
-                nNetTime -= 29;
             }
-            else
+
+        }
+    }
+
+    //==========================================================================
+    //
+    // Fullscreen HUD variant #1
+    //
+    //==========================================================================
+
+    void DrawHUD2()
+    {
+        BeginHUD(320, 200, 1);
+
+        auto pp = &PlayerList[nLocalPlayer];
+
+        FString format;
+        FGameTexture* img;
+        double imgScale;
+        double baseScale = numberFont.mFont->GetHeight() * 0.9375;
+
+        
+        //
+        // Health
+        //
+        img = GetStatusSequencePic(nStatusSeqOffset + 125, 0);
+        imgScale = baseScale / img->GetDisplayHeight();
+        DrawGraphic(img, 1.5, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
+
+        if (!althud_flashing || pp->nHealth > 150 || (leveltime & 8))
+        {
+            int s = -8;
+            if (althud_flashing && pp->nHealth > 800)
+                s += (sintable[(leveltime << 7) & 2047] >> 10);
+            int intens = clamp(255 - 4 * s, 0, 255);
+            auto pe = PalEntry(255, intens, intens, intens);
+            format.Format("%d", pp->nHealth >> 3);
+            SBar_DrawString(this, &numberFont, format, 20, -numberFont.mFont->GetHeight()+2, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+        }
+		
+		//
+		// Air
+		//
+		if (SectFlag[nPlayerViewSect[nLocalPlayer]] & kSectUnderwater)
+		{
+			img = GetStatusSequencePic(nStatusSeqOffset + 133, airframe);
+            imgScale = baseScale / img->GetDisplayHeight();
+            DrawGraphic(img, -4, -22, DI_ITEM_RIGHT_BOTTOM, 1., -1, -1, imgScale, imgScale);
+		}
+
+
+        //
+        // Magic
+        //
+        if (nItemSeq >= 0)
+        {
+            img = GetStatusSequencePic(nItemSeq + nStatusSeqOffset, nItemFrame);
+            imgScale = baseScale / img->GetDisplayHeight();
+            DrawGraphic(img, 70, -1, DI_ITEM_CENTER_BOTTOM, 1., -1, -1, imgScale, imgScale);
+
+            format.Format("%d", pp->nMagic / 10);
+            SBar_DrawString(this, &numberFont, format, 87, -numberFont.mFont->GetHeight()+2, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+        }
+        //
+        // Weapon
+        //
+        const short ammo_sprites[] = { -1, -1 };
+
+        int weapon = pp->nCurrentWeapon;
+        int wicon = 0;// ammo_sprites[weapon];
+        int ammo = nCounterDest;// pp->WpnAmmo[weapon];
+        if (ammo > 0) // wicon > 0
+        {
+            format.Format("%d", ammo);
+            img = tileGetTexture(wicon);
+            imgScale = baseScale / img->GetDisplayHeight();
+            auto imgX = 21.125;
+            auto strlen = format.Len();
+
+            if (strlen > 1)
             {
-                y = 100;
-                strcpy(stringBuf, "GAME OVER");
+                imgX += (imgX * 0.855) * (strlen - 1);
             }
 
-            int nLenString = MyGetStringWidth(stringBuf);
-            myprintext((320 - nLenString) / 2, y, stringBuf, 0);
+            if ((!althud_flashing || leveltime & 8 || ammo > 10))// (DamageData[weapon].max_ammo / 10)))
+            {
+                SBar_DrawString(this, &numberFont, format, -4, -numberFont.mFont->GetHeight()+2, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+            }
+
+            //DrawGraphic(img, -imgX, -1, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, imgScale, imgScale);
         }
 
-        Clip();
-    }
+#if 0
+        //
+        // Selected inventory item
+        //
+        img = tileGetTexture(icons[pp->InventoryNum]);
+        imgScale = baseScale / img->GetDisplayHeight();
+        int x = 165;
+        DrawGraphic(img, x, -1, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, imgScale, imgScale);
 
-    if (bCoordinates)
-    {
-        int nSprite = PlayerList[nLocalPlayer].nSprite;
+        PlayerUpdateInventoryState(pp, x + 3.0, -18.0, 1, 1);
+        PlayerUpdateInventoryPercent(pp, x + 3.5, -20.5, 1, 1);
+#endif
 
-        int x = (nViewLeft + nViewRight) / 2;
 
-        snprintf(coordBuf, 50, "X %d", (int)sprite[nSprite].x.cast());
-        printext(x, nViewTop + 1, coordBuf, kTile159, 255);
+        //
+        // keys
+        //
 
-        snprintf(coordBuf, 50, "Y %d", sprite[nSprite].y.cast());
-        printext(x, nViewTop + 10, coordBuf, kTile159, 255);
-    }
+        uint16_t nKeys = PlayerList[nLocalPlayer].keys;
 
-    if (bHolly)
-    {
-        snprintf(message_text, 80, "HOLLY: %s", sHollyStr);
-        printext(0, 0, message_text, kTile159, 255);
-    }
-    else if (nSnakeCam < 0)
-    {
-        if (message_timer) {
-            printext(0, 0, message_text, kTile159, 255);
+        int val = 675;
+        int x = -134;
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (nKeys & 0x1000) 
+            {
+                auto tex = tileGetTexture(val);
+                if (tex && tex->isValid())
+                {
+                    DrawGraphic(tex, x, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 1, 1);
+                }
+            }
+
+            nKeys >>= 1;
+            val += 4;
+            x += 20;
         }
     }
+
+
+
+    //---------------------------------------------------------------------------
+    //
+    // draw the full status bar
+    //
+    //---------------------------------------------------------------------------
+
+    void DrawStatus()
+    {
+        if (hud_size <= Hud_StbarOverlay)
+        {
+            // draw the main bar itself
+            BeginStatusBar(320, 200, 40);
+            if (hud_size == Hud_StbarOverlay) Set43ClipRect();
+            DrawGraphic(tileGetTexture(kTileStatusBar), 160, 200, DI_ITEM_CENTER_BOTTOM, 1, -1, -1, 1, 1);
+            twod->ClearClipRect();
+        }
+        else if (hud_size == Hud_Mini)
+        {
+            auto lh = TexMan.GetGameTextureByName("hud_l");
+            auto rh = TexMan.GetGameTextureByName("hud_r");
+            BeginHUD(320, 200, 1);
+            if (lh) DrawGraphic(lh, 0, 0, DI_ITEM_LEFT_BOTTOM | DI_SCREEN_LEFT_BOTTOM, 1, -1, -1, 1, 1);
+            if (rh) DrawGraphic(rh, 0, 0, DI_ITEM_RIGHT_BOTTOM | DI_SCREEN_RIGHT_BOTTOM, 1, -1, -1, 1, 1);
+        }
+        else if (hud_size == Hud_full)
+        {
+            DrawHUD2();
+            return;
+        }
+
+        if (/*!bFullScreen &&*/ nNetTime)
+        {
+            DrawStatusSequence(nStatusSeqOffset + 127, 0, 0, -4);
+            DrawStatusSequence(nStatusSeqOffset + 129, nMagicFrame, nMagicLevel, -4);
+            DrawStatusSequence(nStatusSeqOffset + 131, 0, 0, -4); // magic pool frame (bottom)
+
+            DrawStatusSequence(nStatusSeqOffset + 128, 0, 0, 4);
+            DrawStatusSequence(nStatusSeqOffset + 1, nHealthFrame, nHealthLevel, 4);
+            DrawStatusSequence(nStatusSeqOffset + 125, 0, 0, 4); // draw ankh on health pool
+            DrawStatusSequence(nStatusSeqOffset + 130, 0, 0, 4); // draw health pool frame (top)
+
+            if (nItemSeq >= 0) {
+                DrawStatusSequence(nItemSeq + nStatusSeqOffset, nItemFrame, 0);
+            }
+
+            // draws health level dots, animates breathing lungs and other things
+            DrawStatusAnims();
+
+            // draw the blue air level meter when underwater (but not responsible for animating the breathing lungs otherwise)
+			if (SectFlag[nPlayerViewSect[nLocalPlayer]] & kSectUnderwater)
+			{
+				DrawStatusSequence(nStatusSeqOffset + 133, airframe, 0, -32);
+			}
+
+
+            // draw compass
+            if (hud_size <= Hud_StbarOverlay) DrawStatusSequence(nStatusSeqOffset + 35, ((inita + 128) & kAngleMask) >> 8, 0);
+
+            //if (hud_size < Hud_full)
+            {
+                // draw ammo count
+                DrawStatusSequence(nStatusSeqOffset + 44, nDigit[2], 0, -35);
+                DrawStatusSequence(nStatusSeqOffset + 45, nDigit[1], 0, -35);
+                DrawStatusSequence(nStatusSeqOffset + 46, nDigit[0], 0, -35);
+            }
+        }
+
+        DrawMulti();
+
+        if (nSnakeCam >= 0)
+        {
+            BeginHUD(320, 200, 1);
+            SBar_DrawString(this, &textfont, "S E R P E N T   C A M", 0, 0, DI_TEXT_ALIGN_CENTER | DI_SCREEN_CENTER_TOP, CR_UNTRANSLATED, 1, -1, 0, 1, 1);
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
+
+    void PrintLevelStats(int bottomy)
+    {
+        FLevelStats stats{};
+        stats.fontscale = 1.;
+        stats.spacing = SmallFont->GetHeight();
+        stats.screenbottomspace = bottomy;
+        stats.font = SmallFont;
+        stats.letterColor = CR_RED;
+        stats.standardColor = CR_UNTRANSLATED;
+        stats.time = Scale(leveltime, 1000, 30);
+        am_textfont = true; // Exhumed has no fallback.
+
+        if (automapMode == am_full)
+        {
+            DBaseStatusBar::PrintAutomapInfo(stats);
+        }
+        else if (hud_stats)
+        {
+
+            stats.completeColor = CR_DARKGREEN;
+            stats.kills = nCreaturesKilled;
+            stats.maxkills = nCreaturesTotal;
+            stats.frags = -1;
+            stats.secrets = 0;
+            stats.maxsecrets = 0;
+
+            DBaseStatusBar::PrintLevelStats(stats);
+        }
+    }
+
+
+
+
+public:
+    void Draw()
+    {
+        if (hud_size <= Hud_full)
+        {
+            DrawStatus();
+       }
+        PrintLevelStats(hud_size == Hud_Nothing ? 0 : hud_size == Hud_full? 22 : 40);
+    }
+};
+
+void UpdateFrame()
+{
+    auto tex = tileGetTexture(nBackgroundPic);
+
+    twod->AddFlatFill(0, 0, xdim, windowxy1.y - 3, tex);
+    twod->AddFlatFill(0, windowxy2.y + 4, xdim, ydim, tex);
+    twod->AddFlatFill(0, windowxy1.y - 3, windowxy1.x - 3, windowxy2.y + 4, tex);
+    twod->AddFlatFill(windowxy2.x + 4, windowxy1.y - 3, xdim, windowxy2.y + 4, tex);
+
+    twod->AddFlatFill(windowxy1.x - 3, windowxy1.y - 3, windowxy1.x, windowxy2.y + 1, tex, 0, 1, 0xff545454);
+    twod->AddFlatFill(windowxy1.x, windowxy1.y - 3, windowxy2.x + 4, windowxy1.y, tex, 0, 1, 0xff545454);
+    twod->AddFlatFill(windowxy2.x + 1, windowxy1.y, windowxy2.x + 4, windowxy2.y + 4, tex, 0, 1, 0xff2a2a2a);
+    twod->AddFlatFill(windowxy1.x - 3, windowxy2.y + 1, windowxy2.x + 1, windowxy2.y + 4, tex, 0, 1, 0xff2a2a2a);
 }
+
+void StatusMessage(int messageTime, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    VPrintf(PRINT_NOTIFY, fmt, ap);
+    Printf(PRINT_NOTIFY, "\n");
+    va_end(ap);
+}
+
+
+void DrawStatusBar()
+{
+    if (nFreeze == 2) return; // Hide when Ramses is talking.
+    if (hud_size <= Hud_Stbar)
+    {
+        UpdateFrame();
+    }
+    DExhumedStatusBar sbar;
+    sbar.Draw();
+    DrawCrosshair(MAXTILES, PlayerList[nLocalPlayer].nHealth >> 3, 0, 1);
+}
+
 
 // I'm not sure this really needs to be saved.
 static SavegameHelper sgh("status",
     SV(nMaskY),
     SV(nAnimsFree),
-    SV(message_timer),
     SV(magicperline),
     SV(airperline),
     SV(healthperline),
     SV(nAirFrames),
     SV(nCounter),
     SV(nCounterDest),
-    SV(nStatusSeqOffset),
     SV(nItemFrames),
-    SV(laststatusx),
-    SV(laststatusy),
     SV(nItemSeq),
     SV(nMagicFrames),
     SV(nHealthLevel),
@@ -876,7 +1027,6 @@ static SavegameHelper sgh("status",
     SV(nMagicFrame),
     SV(statusx),
     SV(statusy),
-    SV(nHealthFrames),
     SV(airframe),
     SV(nFirstAnim),
     SV(nLastAnim),
@@ -894,6 +1044,5 @@ static SavegameHelper sgh("status",
     SA(word_9AD54),
     SA(dword_9AD64),
     nullptr);
-
 
 END_PS_NS

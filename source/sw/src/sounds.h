@@ -71,7 +71,6 @@ struct ambientstruct;
 typedef struct ambientstruct AMB_INFO, *AMB_INFOp;
 
 
-void DoUpdateSounds(void);
 void Terminate3DSounds(void);
 
 void Set3DSoundOwner(short spritenum);
@@ -79,7 +78,7 @@ void PlaySpriteSound(short spritenum, int attrib_ndx, Voc3D_Flags flags);
 void DeleteNoSoundOwner(short spritenum);
 void DeleteNoFollowSoundOwner(short spritenum);
 
-inline SWBOOL CacheSound(int num, int type) { return false; }
+inline bool CacheSound(int num, int type) { return false; }
 void COVER_SetReverb(int amt);
 void UnInitSound(void);
 void InitFX(void);
@@ -87,7 +86,7 @@ void StopFX(void);
 void StopSound(void);
 void StartAmbientSound(void);
 void StopAmbientSound(void);
-SWBOOL PlaySong(const char *mapname, const char *song_file_name, int cdaudio_track, bool isThemeTrack = false); //(nullptr, nullptr, -1, false) starts the normal level music.
+bool PlaySong(const char *mapname, const char *song_file_name, int cdaudio_track, bool isThemeTrack = false); //(nullptr, nullptr, -1, false) starts the normal level music.
 void PlaySoundRTS(int rts_num);
 
 //
@@ -171,8 +170,8 @@ struct VOC3Dstruct
     int tics;                          // Tics used to count to next sound occurance
     int maxtics;                       // Tics until next sound occurance
     // for intermittent sounds
-    SWBOOL deleted;                       // Has sound been marked for deletion?
-    SWBOOL FX_Ok;                         // Did this sound play ok?
+    bool deleted;                       // Has sound been marked for deletion?
+    bool FX_Ok;                         // Did this sound play ok?
 };
 #endif
 

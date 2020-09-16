@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
-#include "aigilbst.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
@@ -39,8 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
-#include "trig.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 
@@ -80,8 +78,8 @@ static void GillBiteSeqCallback(int, int nXSprite)
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
     spritetype *pTarget = &sprite[pXSprite->target];
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     int dz = pSprite->z-pTarget->z;
     dx += Random3(2000);
     dy += Random3(2000);
@@ -296,7 +294,6 @@ static void thinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                int UNUSED(floorZ) = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
                 if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
                     aiNewState(pSprite, pXSprite, &gillBeastSwimBite);
                 else
@@ -329,7 +326,6 @@ static void sub_6CB00(spritetype *pSprite, XSPRITE *pXSprite)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Random(64) < 32 && nDist <= 0x400)
         return;
@@ -367,7 +363,6 @@ static void sub_6CD74(spritetype *pSprite, XSPRITE *pXSprite)
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
     int dz = z2 - z;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x600) && nDist <= 0x400)
         return;
@@ -403,7 +398,6 @@ static void sub_6D03C(spritetype *pSprite, XSPRITE *pXSprite)
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
     int dz = (z2 - z)<<3;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x4000) && nDist <= 0x400)
         return;

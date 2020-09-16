@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "gameutil.h"
 #include "globals.h"
-#include "trig.h"
 #include "sectorfx.h"
 
 BEGIN_BLD_NS
@@ -169,7 +168,7 @@ void DoSectorLighting(void)
             {
                 t2 = mulscale16(t2, pXSector->busy);
             }
-            int v4 = GetWaveValue(t1, pXSector->phase*8+pXSector->freq*(int)totalclock, t2);
+            int v4 = GetWaveValue(t1, pXSector->phase*8+pXSector->freq*gFrameClock, t2);
             if (pXSector->shadeFloor)
             {
                 sector[nSector].floorshade = ClipRange(sector[nSector].floorshade+v4, -128, 127);

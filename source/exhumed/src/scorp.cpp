@@ -16,17 +16,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "scorp.h"
+#include "aistuff.h"
 #include "engine.h"
-#include "runlist.h"
 #include "exhumed.h"
-#include "move.h"
 #include "sequence.h"
 #include "sound.h"
-#include "random.h"
-#include "trigdat.h"
-#include "bullet.h"
-#include "spider.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -126,20 +120,20 @@ int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, 
 
 //	GrabTimeSlot(3);
 
-    scorpion[ScorpCount].nHealth = 20000;
-    scorpion[ScorpCount].nFrame = 0;
-    scorpion[ScorpCount].nAction = 0;
-    scorpion[ScorpCount].nSprite = nSprite;
-    scorpion[ScorpCount].nTarget = -1;
-    scorpion[ScorpCount].g = 0;
-    scorpion[ScorpCount].i = 1;
+    scorpion[nScorp].nHealth = 20000;
+    scorpion[nScorp].nFrame = 0;
+    scorpion[nScorp].nAction = 0;
+    scorpion[nScorp].nSprite = nSprite;
+    scorpion[nScorp].nTarget = -1;
+    scorpion[nScorp].g = 0;
+    scorpion[nScorp].i = 1;
 
     ScorpChan[nScorp] = nChannel;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nScorp | 0x220000);
     scorpion[nScorp].f = runlist_AddRunRec(NewRun, nScorp | 0x220000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nScorp | 0x220000;
 }
@@ -202,7 +196,7 @@ void FuncScorp(int a, int nDamage, int nRun)
                 sprite[nSprite].zvel = 0;
                 sprite[nSprite].cstat &= 0xFEFE;
 
-                nCreaturesLeft--;
+                nCreaturesKilled++;
                 return;
             }
             else

@@ -8,44 +8,17 @@ LISTMENU "MainMenu"
 {
 	ScriptId 0
 	class "$.MainMenu"
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		ifgame(fury)
-		{
-			position 40, 130, 60
-			fixedspacing 2
-		}
-		else
-		{
-			position 160, 55, 115
-			centermenu
-			animatedtransition
-		}
+		position 160, 55, 115
+		centermenu
+		animatedtransition
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder.
-		ifgame(fury)
-		{
-			NativeTextItem "$MNU_CONTINUE", "l", "LoadGameMenu"
-		}
-		else
-		{
-			NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		}
+		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
-	}
-	ifgame(Deer)
-	{
-		position 160, 72, 115
-		centermenu
-		animatedtransition
-		NativeTextItem "Go Huntin'!", "g", "HuntMenu"
-		NativeTextItem "Target Range", "r", "TargetMenu"
-		NativeTextItem "Trophies", "t", "TrophiesMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)
@@ -88,7 +61,7 @@ LISTMENU "MainMenu"
 		linespacing 22
 		NativeTextItem "3460", "n", "StartGame", 1
 		NativeTextItem "3461", "l", "LoadGameMenu"
-		NativeTextItem "3462", "m", "StartGame", 3
+		NativeTextItem "3462", "m", "StartGame", 0
 		NativeTextItem "3463", "v", "OptionsMenu"
 		NativeTextItem "3464", "q", "QuitMenu"
 	}
@@ -104,37 +77,17 @@ LISTMENU "IngameMenu"
 {
 	ScriptId 50
 	class "$.MainMenu"
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		ifgame(fury)
-		{
-			position 40, 130, 60
-			fixedspacing 2
-		}
-		else
-		{
-			position 160, 55, 115
-			centermenu
-			animatedtransition
-		}
+		position 160, 55, 115
+		centermenu
+		animatedtransition
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
-	}
-	ifgame(Deer)
-	{
-		position 160, 72, 108
-		centermenu
-		animatedtransition
-		NativeTextItem "Keep Huntin'!", "k", "HuntMenu"
-		NativeTextItem "Trophies", "t", "TrophiesMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "Leave Area", "l", "EndgameMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)
@@ -177,7 +130,7 @@ LISTMENU "IngameMenu"
 		linespacing 22
 		NativeTextItem "3460", "n", "StartGame", 1
 		NativeTextItem "3461", "l", "LoadGameMenu"
-		NativeTextItem "3462", "m", "StartGame", 3
+		NativeTextItem "3462", "m", "StartGame", 0
 		NativeTextItem "3463", "v", "OptionsMenu"
 		NativeTextItem "3464", "q", "QuitMenu"
 	}
@@ -191,7 +144,7 @@ LISTMENU "IngameMenu"
 
 LISTMENU "EpisodeMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides) // Ion Fury does not use this menu.
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		class "$.ListMenu"
 		caption "$MNU_SELECTEPISODE"
@@ -218,74 +171,14 @@ LISTMENU "EpisodeMenu"
 	ScriptId 100
 }
 
-LISTMENU "HuntMenu"
-{
-	ifgame(Deer)
-	{
-		class "$.HuntMenu"
-		position 160, 102, 78
-		centermenu
-		animatedtransition
-		NativeTextItem "LAKE SWAMPY", "q", "WeaponsMenu", 0
-		NativeTextItem "SAGEBRUSH FLATS", "q", "WeaponsMenu", 1
-		NativeTextItem "OZARK FOREST", "q", "WeaponsMenu", 2
-		NativeTextItem "SNOWBUSH RIDGE", "q", "WeaponsMenu", 3
-	}
-}
-
-LISTMENU "TargetMenu"
-{
-	ifgame(Deer)
-	{
-		class "$.TargetMenu"
-		position 160, 102, 78
-		centermenu
-		animatedtransition
-		NativeTextItem "NORTH RANGE", "q", "WeaponsMenu", 4
-		NativeTextItem "SOUTH RANGE", "q", "WeaponsMenu", 5
-	}
-}
-
-LISTMENU "TrophiesMenu"
-{
-		class "$.TrophiesMenu"
-		position 160, 102, 78
-		centermenu
-		animatedtransition
-}
-
-LISTMENU "WeaponsMenu"
-{
-	ifgame(Deer)
-	{
-		class "$.WeaponMenu"
-		position 160, 102, 98
-		centermenu
-		animatedtransition
-		NativeTextItem "Pistol", "q", "StartGame", 0
-		NativeTextItem "Rifle", "q", "StartGame", 1
-		NativeTextItem "Rifle With Scope", "q", "StartGame", 2
-		NativeTextItem "Shotgun", "q", "StartGame", 3
-		NativeTextItem "Crossbow", "q", "StartGame", 4
-	}
-}
-
 LISTMENU "SkillMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		class "$.ListMenu"
-		ifgame(fury)
-		{
-			position 160, 55, 115
-			fixedspacing 2
-		}
-		else
-		{
-			position 160, 55, 115
-			centermenu
-			animatedtransition
-		}
+		position 160, 55, 115
+		centermenu
+		animatedtransition
 		caption "$MNU_SELECTSKILL"
 		fixedspacing 5
 		animatedtransition
@@ -309,173 +202,29 @@ LISTMENU "SkillMenu"
 
 //-------------------------------------------------------------------------------------------
 //
-// The custom menus are only supported by the EDuke32 frontend.
-//
-//-------------------------------------------------------------------------------------------
-
-LISTMENU "CustomGameMenu"
-{
-	caption "$MNU_NEWGAME"
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	ScriptId 102
-	class "$.ListMenu"
-	centermenu
-}
-
-LISTMENU "CustomSubMenu1"
-{
-	position 160, 48, 142
-	centermenu
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu2"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu3"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu4"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu5"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu6"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu7"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-//-------------------------------------------------------------------------------------------
-//
 //
 //
 //-------------------------------------------------------------------------------------------
 
 ImageScroller "HelpMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury)
+	ifgame(Duke, Nam, WW2GI)
 	{
-		ImageItem "TEXTSTORY", 400
-		ImageItem "F1HELP", 401
+		ImageItem "#3280", 400
+		ImageItem "#2445", 401
 		class "$.ImageScrollerMenu"
 		ifgame(Duke, Nam, WW2GI)
 		{
 			animatedtransition
 		}
 	}
-	ifgame(Redneck, RedneckRides, Deer)
+	ifgame(Redneck, RedneckRides)
 	{
-		ImageItem "TEXTSTORY"
-		ImageItem "F1HELP"
+		ImageItem "#2541"
+		ImageItem "#1633"
 		ifgame(RedneckRides)
 		{
-			ImageItem "RRTILE1636"
+			ImageItem "#1636"
 		}
 		animatedtransition
 	}
@@ -516,17 +265,10 @@ ImageScroller "CreditsMenu"
 {
 	ifgame(Duke, Nam, WW2GI)
 	{
-		ImageItem "CREDITSTEXT1", 990
-		ImageItem "CREDITSTEXT2", 991
-		ImageItem "CREDITSTEXT3", 992
+		ImageItem "#2504", 990
+		ImageItem "#2505", 991
+		ImageItem "#2506", 992
 		animatedtransition
-		class "Duke.ImageScrollerMenu"
-	}
-	ifgame(fury)
-	{
-		// Ion Fury does not have a separate credits menu, so if someone tries to open it anyway, use the same screens as "Help" but start on the one for the credits.
-		ImageItem "F1HELP", 401
-		ImageItem "TEXTSTORY", 400
 		class "Duke.ImageScrollerMenu"
 	}
 	ifgame(Redneck)
@@ -719,7 +461,7 @@ OptionMenu "CustomizeControls"// protected
 	Submenu    "$CNTRLMNU_WEAPONS"     , "WeaponsControlMenu"
 	Submenu    "$CNTRLMNU_INVENTORY"   , "InventoryControlsMenu"
 	Submenu    "$CNTRLMNU_OTHER"       , "OtherControlsMenu"
-	//Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu" // todo after thorough cleanup
+	Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu" // todo after thorough cleanup
 	StaticText ""
 	StaticText "$CTRL_PRESET"
 	SafeCommand		"$CTRL_DEFAULT",		"controlpreset 0" //engine/defbinds.txt
@@ -735,13 +477,13 @@ OptionMenu "ActionControlsMenu"// protected
 
 	StaticText ""
 	Control    "$CNTRLMNU_ATTACK"           , "+fire"
-	ifgame(Blood, Duke, Nam, WW2GI, Fury)
+	ifgame(Blood)
 	{
 		Control    "$CNTRLMNU_ALTATTACK"        , "+alt_fire"
 	}
-	ifgame(Duke, Nam, WW2GI, Fury, ShadowWarrior)
+	ifnotgame(Exhumed)
 	{
-		Control    "$CNTRLMNU_ALTWEAPON"        , "+alt_weapon"
+		Control    "$CNTRLMNU_ALTWEAPON"        , "weapalt"
 	}
 
 	StaticText ""
@@ -756,12 +498,15 @@ OptionMenu "ActionControlsMenu"// protected
 	StaticText ""
 	Control    "$CNTRLMNU_TURNLEFT"         , "+turn_left"
 	Control    "$CNTRLMNU_TURNRIGHT"        , "+turn_right"
-	Control    "$CNTRLMNU_TURN180"          , "+turnaround"
+	ifnotgame(Exhumed)
+	{
+		Control    "$CNTRLMNU_TURN180"          , "turnaround"
+	}
 
 	StaticText ""
 	Control    "$CNTRLMNU_JUMP"             , "+jump"
 	Control    "$CNTRLMNU_CROUCH"           , "+crouch"
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, Deer)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		// Fixme: Make this work in all games
 		Control    "$CNTRLMNU_TOGGLECROUCH"     , "+toggle_crouch"
@@ -775,20 +520,21 @@ OptionMenu "ActionControlsMenu"// protected
 	Control    "$CNTRLMNU_AIMDOWN"         , "+aim_down"
 	Control    "$CNTRLMNU_LOOKUP"           , "+look_up"
 	Control    "$CNTRLMNU_LOOKDOWN"         , "+look_down"
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, Deer)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		Control    "$CNTRLMNU_LOOKLEFT"           , "+look_left"
 		Control    "$CNTRLMNU_LOOKRIGHT"         , "+look_right"
 	}
-	Control    "$CNTRLMNU_CENTERVIEW"       , "+center_view"
+	Control    "$CNTRLMNU_CENTERVIEW"       , "centerview"
 
 	StaticText ""
 	Control    "$CNTRLMNU_RUN"              , "+run"
-	Control    "$CNTRLMNU_TOGGLERUN"        , "toggle autorun"
+	Control    "$CNTRLMNU_TOGGLERUN"        , "toggle cl_autorun"
 	Control    "$CNTRLMNU_STRAFE"           , "+strafe"
 
-	StaticText ""
-	Control    "$CNTRLMNU_SCOREBOARD"       , "+show_dukematch_scores"
+	// For later. Currently we have no working multiplayer.
+	//StaticText ""
+	//Control    "$CNTRLMNU_SCOREBOARD"       , "+show_dukematch_scores"
 }
 
 OptionMenu "ChatControlsMenu"// protected
@@ -808,46 +554,41 @@ OptionMenu "WeaponsControlMenu"// protected
 	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
 
 	StaticText ""
-	Control    "$CNTRLMNU_NEXTWEAPON"     , "+next_weapon"
-	Control    "$CNTRLMNU_PREVIOUSWEAPON" , "+previous_weapon"
+	Control    "$CNTRLMNU_NEXTWEAPON"     , "weapnext"
+	Control    "$CNTRLMNU_PREVIOUSWEAPON" , "weapprev"
 
 	StaticText ""
-	Control    "$CNTRLMNU_SLOT1"          , "+weapon_1"
-	Control    "$CNTRLMNU_SLOT2"          , "+weapon_2"
-	Control    "$CNTRLMNU_SLOT3"          , "+weapon_3"
-	Control    "$CNTRLMNU_SLOT4"          , "+weapon_4"
-	Control    "$CNTRLMNU_SLOT5"          , "+weapon_5"
-	Control    "$CNTRLMNU_SLOT6"          , "+weapon_6"
-	Control    "$CNTRLMNU_SLOT7"          , "+weapon_7"
-	Control    "$CNTRLMNU_SLOT8"          , "+weapon_8"
-	Control    "$CNTRLMNU_SLOT9"          , "+weapon_9"
-	Control    "$CNTRLMNU_SLOT0"          , "+weapon_10"
-	StaticText ""
-	Control    "$CNTRLMNU_HOLSTER"        , "+holster_weapon"
-	ifgame(Fury)
+	Control    "$CNTRLMNU_SLOT1"          , "slot 1"
+	Control    "$CNTRLMNU_SLOT2"          , "slot 2"
+	Control    "$CNTRLMNU_SLOT3"          , "slot 3"
+	Control    "$CNTRLMNU_SLOT4"          , "slot 4"
+	Control    "$CNTRLMNU_SLOT5"          , "slot 5"
+	Control    "$CNTRLMNU_SLOT6"          , "slot 6"
+	Control    "$CNTRLMNU_SLOT7"          , "slot 7"
+	ifnotgame(Exhumed)
 	{
-		Control    "$CNTRLMNU_RELOAD" , "+steroids"
+		Control    "$CNTRLMNU_SLOT8"          , "slot 8"
+		Control    "$CNTRLMNU_SLOT9"          , "slot 9"
+		Control    "$CNTRLMNU_SLOT0"          , "slot 10"
+		StaticText ""
+		Control    "$CNTRLMNU_HOLSTER"        , "holsterweapon"
 	}
-	ifgame(Duke, Nam, WW2GI, Fury)
+	ifgame(Duke, Nam, WW2GI)
 	{
 		Control "$CNTRLMNU_QUICKKICK"     , "+quick_kick"
 	}
 
-	ifgame(Redneck, RedneckRides)
-	{
-		Control "$CNTRLMNU_PEE"           , "+quick_kick"
-	}
 	ifgame(Blood)
 	{
-		Control "$CNTRLMNU_PROXIMITYBOMBS","+proximitybombs"
-		Control "$CNTRLMNU_REMOTEBOMBS"   ,"+remotebombs"
+		Control "$CNTRLMNU_PROXIMITYBOMBS","slot 11"
+		Control "$CNTRLMNU_REMOTEBOMBS"   ,"slot 12"
 	}
 	ifgame(ShadowWarrior)
 	{
-		Control "$CNTRLMNU_SMOKEBOMB","+smoke_bomb"
-		Control "$CNTRLMNU_GASBOMB"   ,"+gas_bomb"
-		Control "$CNTRLMNU_FLASHBOMB","+flash_bomb"
-		Control "$CNTRLMNU_CALTROPS"   ,"+caltrops"
+		Control "$CNTRLMNU_SMOKEBOMB","useitem 3"
+		Control "$CNTRLMNU_GASBOMB"   ,"useitem 5"
+		Control "$CNTRLMNU_FLASHBOMB","useitem 6"
+		Control "$CNTRLMNU_CALTROPS"   ,"useitem 7"
 	}
 
 }
@@ -859,66 +600,72 @@ OptionMenu "InventoryControlsMenu"// protected
 	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
 
 	StaticText ""
-	Control    "$CNTRLMNU_USEITEM"      , "+inventory"
+	Control    "$CNTRLMNU_USEITEM"      , "invuse"
 
 	StaticText ""
-	Control    "$CNTRLMNU_NEXTITEM"     , "+inventory_right"
-	Control    "$CNTRLMNU_PREVIOUSITEM" , "+inventory_left"
+	Control    "$CNTRLMNU_NEXTITEM"     , "invnext"
+	Control    "$CNTRLMNU_PREVIOUSITEM" , "invprev"
 	
+	// Item numbers here are are defined by the games' internal order.
 	ifgame(Duke)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_HOLODUKE" , "+holo_duke"
-		Control    "$CNTRLMNU_JETPACK" , "+jetpack"
-		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
-		Control    "$CNTRLMNU_STEROIDS" , "+steroids"
-	}
-	ifgame(Fury)
-	{
-		StaticText ""
-		Control    "$CNTRLMNU_RADAR" , "+nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
+		Control    "$CNTRLMNU_HOLODUKE" , "useitem 3"
+		Control    "$CNTRLMNU_JETPACK" , "useitem 4"
+		Control    "$CNTRLMNU_NIGHTVISION" , "useitem 5"
+		Control    "$CNTRLMNU_MEDKIT" , "useitem 1"
+		Control    "$CNTRLMNU_STEROIDS" , "useitem 2"
 	}
 	ifgame(Nam)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_HOLOSOLDIER" , "+holo_duke"
-		Control    "$CNTRLMNU_HUEY" , "+jetpack"
-		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
-		Control    "$CNTRLMNU_TANKMODE" , "+steroids"
+		Control    "$CNTRLMNU_HOLOSOLDIER" , "useitem 3"
+		Control    "$CNTRLMNU_HUEY" , "useitem 4"
+		Control    "$CNTRLMNU_NIGHTVISION" , "useitem 5"
+		Control    "$CNTRLMNU_MEDKIT" , "useitem 1"
+		Control    "$CNTRLMNU_TANKMODE" , "useitem 2"
 	}
 	ifgame(WW2GI)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_FIRE MISSION" , "+holo_duke"
-		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
-		Control    "$CNTRLMNU_SMOKES" , "+steroids"
+		Control    "$CNTRLMNU_FIRE MISSION" , "useitem 3"
+		Control    "$CNTRLMNU_NIGHTVISION" , "useitem 5"
+		Control    "$CNTRLMNU_MEDKIT" , "useitem 1"
+		Control    "$CNTRLMNU_SMOKES" , "useitem 2"
 	}
 	ifgame(Redneck, RedneckRides)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_BEER" , "+holo_duke"
-		Control    "$CNTRLMNU_COWPIE" , "+jetpack"
-		Control    "$CNTRLMNU_YEEHAA" , "+nightvision"
-		Control    "$CNTRLMNU_WHISKEY" , "+medkit"
-		Control    "$CNTRLMNU_MOONSHINE" , "+steroids"
+		Control    "$CNTRLMNU_BEER" , "useitem 3"
+		Control    "$CNTRLMNU_COWPIE" , "useitem 4"
+		Control    "$CNTRLMNU_YEEHAA" , "useitem 5"
+		Control    "$CNTRLMNU_WHISKEY" , "useitem 1"
+		Control    "$CNTRLMNU_MOONSHINE" , "useitem 2"
+		Control    "$CNTRLMNU_PEE", "+quick_kick"
 	}
 	ifgame(Blood)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_CRYSTALBALL" , "+crystalball"
-		Control    "$CNTRLMNU_JUMPBOOTS" , "+jetpack"
-		Control    "$CNTRLMNU_BEASTVISION" , "+nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
+		Control    "$CNTRLMNU_CRYSTALBALL" , "useitem 2"
+		Control    "$CNTRLMNU_JUMPBOOTS" , "useitem 4"
+		Control    "$CNTRLMNU_BEASTVISION" , "useitem 3"
+		Control    "$CNTRLMNU_MEDKIT" , "useitem 1"
 	}
 	ifgame(ShadowWarrior)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
+		Control    "$CNTRLMNU_NIGHTVISION" , "useitem 4"
+		Control    "$CNTRLMNU_MEDKIT" , "useitem 1"
+	}
+	ifgame(Exhumed)
+	{
+		StaticText ""
+		Control    "$TXT_EX_USEINV1" , "useitem 1"
+		Control    "$TXT_EX_USEINV2" , "useitem 2"
+		Control    "$TXT_EX_USEINV3" , "useitem 3"
+		Control    "$TXT_EX_USEINV4" , "useitem 4"
+		Control    "$TXT_EX_USEINV5" , "useitem 5"
+		Control    "$TXT_EX_USEINV6" , "useitem 6"
 	}
 }
 
@@ -929,11 +676,7 @@ OptionMenu "OtherControlsMenu"// protected
 	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
 
 	StaticText ""
-	Control    "$CNTRLMNU_AUTOMAP"         , "+map"
-	Control 	"$MAPCNTRLMNU_TOGGLEFOLLOW","+map_follow_mode"
-
-	StaticText ""
-	Control    "$CNTRLMNU_CHASECAM"        , "+third_person_view"
+	Control    "$CNTRLMNU_CHASECAM"        , "third_person_view"
 
 	StaticText ""
 	Control    "$CNTRLMNU_SCREENSHOT"      , "screenshot"
@@ -941,17 +684,20 @@ OptionMenu "OtherControlsMenu"// protected
 	//Control    "$CNTRLMNU_PAUSE"           , "pause"
 
 	StaticText ""
-	Control    "$CNTRLMNU_DISPLAY_INC"     , "+enlarge_Screen"
-	Control    "$CNTRLMNU_DISPLAY_DEC"     , "+shrink_screen"
+	Control    "$CNTRLMNU_DISPLAY_INC"     , "sizeup"
+	Control    "$CNTRLMNU_DISPLAY_DEC"     , "sizedown"
 	Control    "$CNTRLMNU_TOGGLE_MESSAGES" , "togglemessages"
 	Control    "$CNTRLMNU_ADJUST_GAMMA"    , "bumpgamma"
 
 	StaticText ""
-	Control    "$CNTRLMNU_OPEN_HELP"       , "openhelpmenu"
+	ifnotgame(Exhumed)
+	{
+		Control    "$CNTRLMNU_OPEN_HELP"       , "openhelpmenu"
+	}
 	Control    "$CNTRLMNU_OPEN_SAVE"       , "opensavemenu"
 	Control    "$CNTRLMNU_OPEN_LOAD"       , "openloadmenu"
 	Control    "$CNTRLMNU_OPEN_OPTIONS"    , "openmenu optionsmenu"
-	Control    "$CNTRLMNU_OPEN_DISPLAY"    , "openmenu displayoptions"
+	Control    "$CNTRLMNU_OPEN_DISPLAY"    , "openmenu videooptions"
 	Control    "$CNTRLMNU_EXIT_TO_MAIN"    , "menu_endgame"
 	Control    "$CNTRLMNU_MENU_QUIT"       , "menu_quit"
 
@@ -960,6 +706,24 @@ OptionMenu "OtherControlsMenu"// protected
 	Control    "$CNTRLMNU_QUICKLOAD"       , "quickload"
 }
 
+
+OptionMenu "MapControlsMenu"
+{
+	Title "$MAPCNTRLMNU_CONTROLS"
+
+	StaticText ""
+	Control    "$CNTRLMNU_AUTOMAP"         , "togglemap"
+	MapControl "$MAPCNTRLMNU_TOGGLEFOLLOW" ,"togglefollow"
+	MapControl "$MAPCNTRLMNU_ROTATE"			,"togglerotate"
+	StaticText ""
+	MapControl "$MAPCNTRLMNU_ZOOMIN"       , "+enlarge_Screen"
+	MapControl "$MAPCNTRLMNU_ZOOMOUT"      , "+shrink_screen"
+	StaticText ""
+	MapControl "$MAPCNTRLMNU_PANLEFT",			"+am_panleft"
+	MapControl "$MAPCNTRLMNU_PANRIGHT",			"+am_panright"
+	MapControl "$MAPCNTRLMNU_PANUP",			"+am_panup"
+	MapControl "$MAPCNTRLMNU_PANDOWN",			"+am_pandown"
+	}
 //-------------------------------------------------------------------------------------------
 //
 // Mouse Menu
@@ -999,7 +763,7 @@ OptionMenu "MouseOptions" //protected
 	StaticText 	""
 	Slider "$MOUSEMNU_SENSITIVITY",		"in_mousesensitivity", 0.5, 2.5, 0.1
 	Option "$MOUSEMNU_NOPRESCALE",		"m_noprescale", "NoYes"
-	Option "$MOUSEMNU_SMOOTHMOUSE",		"in_mousesmoothing", "YesNo"
+	Option "$MOUSEMNU_SMOOTHMOUSE",		"m_filter", "YesNo"
 	StaticText 	""
 	Slider "$MOUSEMNU_TURNSPEED",		"in_mousescalex", -4, 4, 0.2
 	Slider "$MOUSEMNU_MOUSELOOKSPEED",	"in_mousescaley", -4, 4, 0.2
@@ -1096,7 +860,7 @@ OptionMenu "NewPlayerMenu" //protected
 {
 	Title "$MNU_PLAYERSETUP"
 	TextField "$PLYRMNU_NAME", playername
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		Option "$PLYRMNU_PLAYERCOLOR", "playercolor", "PlayerColors"
 	}
@@ -1106,7 +870,6 @@ OptionMenu "NewPlayerMenu" //protected
 		Option "$PLYRMNU_PLAYERCOLOR", "playercolor", "PlayerColorsSW"
 	}
 	Option "$PLYRMNU_PLAYERGENDER", "playergender", "Gender"
-	Option "$PLYRMNU_TEAM", "playerteam", "PlayerTeam"
 	Submenu "$PLRMNU_TAUNTS", "TauntsMenu"
 	Class "NewPlayerMenu"
 }
@@ -1163,11 +926,10 @@ OptionMenu GameplayOptions //protected
 	{
 		Option "$PLRMNU_EQUIP", "cl_weaponswitch", "OnOff" // does not have the 'preferred' option.
 	}
-	else
+	ifgame(Blood)
 	{
 		Option "$PLRMNU_EQUIP", "cl_weaponswitch", "WeapSwitch"
 	}
-	Option "$PLRMNU_PLOCK", "adult_lockout", "OnOff" // I won't bother password protecting this piece of window dressing
 	// StaticText ""
 	// Option "Record Demo", "m_recstat", "OnOff"
 	// Submenu "Cheats" "CheatsMenu
@@ -1205,6 +967,8 @@ OptionMenu "VideoOptions" //protected
 	
 	Submenu "$OPTMNU_HUD", "HUDOptions"
 	Submenu "$OPTMNU_POLYMOST", "PolymostOptions"
+	Submenu "$AUTOMAPMNU_TITLE", "AutomapOptions"
+	StaticText ""
 
 	Slider "$DSPLYMNU_GAMMA",					"vid_gamma",					0.75, 3.0, 0.05, 2
 	Slider "$DSPLYMNU_BRIGHTNESS",				"vid_brightness",				-0.8,0.8, 0.05,2
@@ -1218,7 +982,7 @@ OptionMenu "VideoOptions" //protected
 	{
 		Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
 	}
-	ifgame (Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, Deer)
+	ifgame (Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"OnOff"
 	}
@@ -1236,6 +1000,28 @@ OptionMenu "VideoOptions" //protected
 }
 
 
+OptionMenu "AutomapOptions"
+{
+	Title "$AUTOMAPMNU_TITLE"
+	Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu"
+	StaticText ""
+	Option "$AUTOMAPMNU_ROTATE",				"am_rotate",					"OnOff"
+	Option "$AUTOMAPMNU_FOLLOW",				"am_followplayer",				"OnOff"
+
+	// move map controls here.
+	// todo:
+	//CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
+	//CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)
+	//CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
+
+	//CVAR(Color, am_twosidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
+	//CVAR(Color, am_onesidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
+	//CVAR(Color, am_playercolor, 0xaaaaaa, CVAR_ARCHIVE)
+	//CVAR(Color, am_ovtwosidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
+	//CVAR(Color, am_ovonesidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
+	//CVAR(Color, am_ovplayercolor, 0xaaaaaa, CVAR_ARCHIVE)
+
+}
 //-------------------------------------------------------------------------------------------
 //
 // HUD options
@@ -1246,44 +1032,54 @@ OptionValue "HUDMessages"
 {
 	0, "$OPTVAL_OFF"
 	1, "$OPTVAL_ON"
-	2, "$DSPLYMNU_GENERIC"
+}
+
+OptionValue "HUDMessageStyle"
+{
+	0, "$OPTVAL_CLASSIC"
+	1, "$OPTVAL_ADVANCED"
+}
+
+OptionValue Crosshairs
+{
+	// will be filled in from the XHAIRS lump
+}
+
+OptionValue CrosshairHealthTypes
+{
+	0.0, "$TXT_NO"
+	1.0, "$OPTVAL_YES_STANDARD"
+	2.0, "$OPTVAL_YES_ENHANCED"
 }
 
 OptionMenu "HUDOptions" //protected
 {
 	Title "$OPTMNU_HUD"
 
-	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury)
-	{
-		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 11.0, 1.0, -1
-		Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				35, 100, 5, 2
-	}
-	ifgame(blood)
-	{
-		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 7.0, 1.0, -1
-	}
-	ifgame(shadowwarrior)
-	{
-		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 9.0, 1.0, -1
-	}
-	ifgame(exhumed)
-	{
-		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 8.0, 1.0, -1
-	}
-	
+	Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 9.0, 1.0, -1
+	Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				0.36, 1.0, 0.04, 2
+	StaticText ""
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
-	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury, Deer)
-	{
-		Slider "$DSPLYMNU_TEXTSCALE",				"hud_textscale",			100, 400, 20, 2
-	}
+	Slider "$DSPLYMNU_STATSCALE",				"hud_statscale",			0.36, 1.0, 0.04, 2
+
 	StaticText ""
 	Option "$DSPLYMNU_MESSAGES",				"hud_messages",				"HudMessages"
+	Option "$DSPLYMNU_MESSAGEDISP",				"con_notify_advanced",		"HudMessageStyle"
+	Option "$MSGMNU_CENTERMESSAGES",			"con_centernotify", 		"OnOff", "con_notify_advanced"
+	Option "$MSGMNU_PULSEMESSAGES",				"con_pulsetext", 			"OnOff", "con_notify_advanced"
+	Slider "$MSGMNU_MESSAGESCALE", 				"con_notifyscale", 			0.36, 1.0, 0.04, 2
+
+	ifnotgame(Exhumed)
+	{
+		StaticText ""
+		Option "$DSPLYMNU_CLIPAMT",				"cl_showmagamt",	OnOff
+	}
 	StaticText ""
 	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
-	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury, deer)
-	{
-		Slider "$DSPLYMNU_CROSSHAIRSCALE",			"cl_crosshairscale",		50, 100, 10, 1
-	}
+	Slider "$DSPLYMNU_CROSSHAIRSCALE",			"cl_crosshairscale",		50, 100, 10, 1
+	Option "$HUDMNU_CROSSHAIR",				"crosshair", "Crosshairs"
+	//ColorPicker "$HUDMNU_CROSSHAIRCOLOR", 	"crosshaircolor" fixme: Does not exist yet in Raze.
+	Option "$HUDMNU_CROSSHAIRHEALTH",		"crosshairhealth", "CrosshairHealthTypes"
 }
 
 
@@ -1322,6 +1118,16 @@ OptionValue SampleRates
 	//0,		"$OPTVAL_DEFAULT"
 	//4000,	"$OPTVAL_4000HZ"
 	//8000,	"$OPTVAL_8000HZ"
+	11025,	"$OPTVAL_11025HZ"
+	22050,	"$OPTVAL_22050HZ"
+	32000,	"$OPTVAL_32000HZ"
+	44100,	"$OPTVAL_44100HZ"
+	48000,	"$OPTVAL_48000HZ"
+}
+
+OptionValue SampleRates2
+{
+	0,		"$OPTVAL_DEFAULT"
 	11025,	"$OPTVAL_11025HZ"
 	22050,	"$OPTVAL_22050HZ"
 	32000,	"$OPTVAL_32000HZ"
@@ -1394,13 +1200,18 @@ OptionMenu SoundOptions //protected
 	Option "$SNDMNU_MIDIDEVICE",		"snd_mididevice", "MidiDevices"
 	//StaticText " "
 	//Option "$SNDMNU_UNDERWATERREVERB",	"snd_waterreverb", "OnOff"
-	Slider "$SNDMNU_CHANNELS",			"snd_numchannels", 64, 128, 8, 0
+	Slider "$SNDMNU_CHANNELS",			"snd_channels", 64, 256, 16, 0
 	staticText ""
 	ifgame (Blood, ShadowWarrior, Redneck, RedneckRides)
 	{
 		Option "$SNDMNU_CDEMU",			"mus_redbook", "OnOff"
 	}
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, ShadowWarrior)
+	ifgame(Worldtour)
+	{
+		Option "$SNDMNU_WTSOUND",			"wt_forcevoc", "OnOff"
+		Option "$SNDMNU_WTMUSIC",			"wt_forcemidi", "OnOff"
+	}
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, ShadowWarrior)
 	{
 		Option "$SNDMNU_AMBIENCE",		"snd_ambience", "OnOff"
 		Option "$SNDMNU_SPEECH",		"snd_speech", "OnOff"
@@ -1423,7 +1234,6 @@ OptionMenu AdvSoundOptions //protected
 	Option "$ADVSNDMNU_LOOKUPSND",			"snd_extendedlookup", "OnOff"
 	StaticText " "
 	
-	Option "$ADVSNDMNU_SAMPLERATE",			"snd_mixrate", "SampleRates"
 	//Option "$ADVSNDMNU_HRTF",				"snd_hrtf", "AutoOffOn"
 	StaticText " "
 	//Option "$SNDMNU_BACKGROUND",			"i_soundinbackground", "OnOff"
@@ -1485,7 +1295,7 @@ OptionMenu ModReplayerOptions //protected
 {
 	Title "$MODMNU_TITLE"
 	Slider "$MODMNU_MASTERVOLUME",			"mod_dumb_mastervolume", 1, 16, 0.5, 1
-	Option "$ADVSNDMNU_SAMPLERATE",			"mod_samplerate", "SampleRates"
+	Option "$ADVSNDMNU_SAMPLERATE",			"mod_samplerate", "SampleRates2"
 	Option "$MODMNU_QUALITY",				"mod_interp", "ModQuality"
 	Option "$MODMNU_VOLUMERAMPING",			"mod_volramp", "ModVolumeRamps"
 	StaticText " "
@@ -1678,7 +1488,7 @@ OptionMenu "MiscOptions" //protected
 	//Option "$MISCMNU_SAVELOADCONFIRMATION",			"saveloadconfirmation", "OnOff"
 	Slider "$MISCMNU_AUTOSAVECOUNT",			"autosavecount", 1, 20, 1, 0
 	//Option "$MISCMNU_QUICKSAVEROTATION",			"quicksaverotation", "OnOff"
-	Slider "$MISCMNU_QUICKSAVECOUNT",			"quicksaverotationcount", 1, 20, 1, 0
+	Slider "$MISCMNU_QUICKSAVECOUNT",			"quicksavecount", 1, 20, 1, 0
 	ifgame(shadowwarrior)
 	{
 		StaticText " "
@@ -1699,12 +1509,12 @@ OptionMenu "MiscOptions" //protected
 
 LISTMENU "MultiMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury)
+	ifgame(Duke, Nam, WW2GI)
 	{
 		position 160, 55, 135
 		centermenu
 		fixedspacing 5
-		ifgame(Duke, Nam, WW2GI, Fury)
+		ifgame(Duke, Nam, WW2GI)
 		{
 			class "Duke.ListMenu"
 		}
@@ -1777,7 +1587,6 @@ OptionMenu "MultiOptionsMenu"
 	Option "$NETMNU_LEVEL", "m_level_number", "MultiEpisode"
 	Submenu "$MNU_USERMAP", "MultiUserMap" // todo: fileselect item
 	Option "$NETMNU_MONSTERS", "m_monsters", "OnOff"
-	Option "$NETMNU_MARKERS", "m_marker", "OnOff"
 	Option "$NETMNU_MAPEXITS", "m_noexit", "OnOff"
 	Option "$NETMNU_FFIRE", "m_ffire", "OnOff"
 	SafeCommand "$NETMNU_ACCEPT", "MultiAccept"
@@ -1789,12 +1598,14 @@ OptionMenu "EngineCredits"
 	Submenu " ---->", "EngineCredits1a"
 	StaticText "Developers"
 	StaticText "Christoph Oelckers", 0
+	StaticText "Mitchell Richters", 0
+	StaticText ""
+	StaticText "Additional Developers"
 	StaticText "Rachael Alexanderson", 0
 	StaticText "Magnus Norddahl", 0
 	StaticText "Alexey Lysiuk", 0
 	StaticText ""
 	StaticText "The Raze team thanks the following contributors"
-	StaticText "Mitchell Richters", 0
 	StaticText "Nash Muhandes", 0
 	StaticText "Dynamo", 0
 }
@@ -1805,17 +1616,17 @@ OptionMenu "EngineCredits1a"
 	Submenu " ---->", "EngineCredits1b"
 	StaticText "Raze QA"
 	
+	StaticText "sinisterseed                        ", 0
+	StaticText "Major Cooke       Dynamo            ", 0
 	StaticText "Nash Muhandes     Martin Howe       ", 0
-	StaticText "Lowskill.         Dynamo            ", 0
 	StaticText "SanyaWaffles      Nigel Rowand      ", 0
-	StaticText "Major Cooke                         ", 0
 }
 
 OptionMenu "EngineCredits1b"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits2"
-	StaticText "ZDoom / GZDoom"
+	StaticText "ZDoom / GZDoom / ZDuke"
 	StaticText "Marisa \"Randi\" Heit", 0
 	StaticText "Braden \"Blzut3\" Obrzut", 0
 	StaticText ""
@@ -1829,6 +1640,12 @@ OptionMenu "EngineCredits2"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits2a"
+	StaticText "EDuke 2.0"
+	StaticText "Matt Saettler", 0
+	StaticText ""
+	StaticText "JFDuke / JFSW", 0
+    StaticText "Jonathon \"JonoF\" Fowler", 0
+	StaticText ""
 	StaticText "EDuke32 / VoidSW"
 	StaticText "Richard \"TerminX\" Gobeille", 0
 	StaticText "Evan \"Hendricks266\" Ramos", 0
@@ -1852,9 +1669,6 @@ OptionMenu "EngineCredits2a"
 	StaticText "PCExhumed"
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText "sirlemonhead", 0
-	StaticText ""
-	StaticText "Special thanks to"
-    StaticText "Jonathon \"JonoF\" Fowler", 0
 }
 	
 OptionMenu "EngineCredits3"

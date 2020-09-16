@@ -16,7 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "trigdat.h"
+#include "engine.h"
 #ifndef __WATCOMC__
 #include <cstdlib>
 #include <cmath>

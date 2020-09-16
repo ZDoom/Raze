@@ -26,11 +26,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "common_game.h"
 #include "compat.h"
-#include "config.h"
+#include "globals.h"
 #include "controls.h"
 #include "db.h"
 #include "dude.h"
-#include "fix16.h"
 #include "levels.h"
 #include "qav.h"
 
@@ -86,16 +85,8 @@ struct PLAYER
     spritetype*         pSprite;
     XSPRITE*            pXSprite;
     DUDEINFO*           pDudeInfo;
-    GINPUT              input;
-    //short             input;                      // INPUT
-    //char              moveFunc;                        // forward
-    //short             at11;                       // turn
-    //char              hearDist;                    // strafe
-    //int               bobV;                         // buttonFlags
-    //unsigned int      bobH;                // keyFlags
-    //char              swayV;                       // useFlags;
-    //char              swayH;                       // newWeapon
-    //char              at21;                        // mlook
+    InputPacket              input;
+    uint8_t             newWeapon;
     int                 used1;  // something related to game checksum
     int                 weaponQav;
     int                 qavCallback;
@@ -118,7 +109,7 @@ struct PLAYER
     int                 zViewVel;
     int                 zWeapon;
     int                 zWeaponVel;
-    fix16_t             q16look;
+    fixed_t             q16look;
     int                 q16horiz;       // horiz
     int                 q16slopehoriz;  // horizoff
     int                 slope;
@@ -127,8 +118,8 @@ struct PLAYER
     char                hasFlag;
     short               used2[8];  // ??
     int                 damageControl[7];
-    char                curWeapon;
-    char                nextWeapon;
+    int8_t              curWeapon;
+    int8_t              nextWeapon;
     int                 weaponTimer;
     int                 weaponState;
     int                 weaponAmmo;  //rename
@@ -190,7 +181,7 @@ struct PLAYER
     int                 pickupEffect;
     bool                flashEffect;  // if true, reduce pPlayer->visibility counter
     int                 quakeEffect;
-    fix16_t             q16ang;
+    fixed_t             q16ang;
     int                 angold;
     int                 player_par;
     int                 nWaterPal;
@@ -199,8 +190,6 @@ struct PLAYER
 
 struct PROFILE
 {
-    int nAutoAim;
-    int nWeaponSwitch;
     int skill;
     char name[MAXPLAYERNAME];
 };
@@ -230,7 +219,7 @@ extern bool gRedFlagDropped;
 extern PROFILE gProfile[kMaxPlayers];
 
 extern int dword_21EFB0[kMaxPlayers];
-extern ClockTicks dword_21EFD0[kMaxPlayers];
+extern int dword_21EFD0[kMaxPlayers];
 extern AMMOINFO gAmmoInfo[];
 extern POWERUPINFO gPowerUpInfo[kMaxPowerUps];
 
@@ -280,7 +269,7 @@ void packPrevItem(PLAYER *pPlayer);
 void packNextItem(PLAYER *pPlayer);
 char        playerSeqPlaying(PLAYER *pPlayer, int nSeq);
 void playerSetRace(PLAYER *pPlayer, int nLifeMode);
-void playerSetGodMode(PLAYER *pPlayer, char bGodMode);
+void playerSetGodMode(PLAYER *pPlayer, bool bGodMode);
 void playerResetInertia(PLAYER *pPlayer);
 void        playerCorrectInertia(PLAYER *pPlayer, vec3_t const *oldpos);
 void        playerStart(int nPlayer, int bNewLevel = 0);

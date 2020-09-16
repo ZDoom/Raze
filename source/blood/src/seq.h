@@ -21,9 +21,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
-#include "resource.h"
 
+#include "misc.h"
 BEGIN_BLD_NS
+
 
 struct SEQFRAME {
     unsigned int tile : 12;
@@ -58,7 +59,7 @@ struct Seq {
     int atc;
     SEQFRAME frames[1];
     void Preload(void);
-    void Precache(void);
+    void Precache(HitList &);
 };
 
 struct ACTIVE
@@ -69,7 +70,6 @@ struct ACTIVE
 
 struct SEQINST
 {
-    DICTNODE *hSeq;
     Seq *pSequence;
     int at8;
     int atc;
@@ -85,7 +85,7 @@ inline int seqGetTile(SEQFRAME* pFrame)
 }
 
 int seqRegisterClient(void(*pClient)(int, int));
-void seqPrecacheId(int id);
+void seqPrecacheId(int id, HitList &hits);
 SEQINST * GetInstance(int a1, int a2);
 void UnlockInstance(SEQINST *pInst);
 void seqSpawn(int a1, int a2, int a3, int a4 = -1);
@@ -94,5 +94,8 @@ void seqKillAll(void);
 int seqGetStatus(int a1, int a2);
 int seqGetID(int a1, int a2);
 void seqProcess(int a1);
+
+Seq* getSequence(int res_id);
+
 
 END_BLD_NS

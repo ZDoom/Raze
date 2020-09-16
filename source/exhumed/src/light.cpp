@@ -16,12 +16,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "light.h"
 #include "engine.h"
 #include "exhumed.h"
 #include "view.h"
-#include "cd.h"
-#include "lighting.h"
+#include "aistuff.h"
 #include "../glbackend/glbackend.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,22 +60,6 @@ int bGreenPal = 0;
 // keep a local copy of the palette that would have been sent to the VGA display adapter
 uint8_t vgaPalette[768];
 
-
-void MyLoadPalette()
-{
-    //int hFile = kopen4load("PALETTE.DAT", 1);
-    //if (hFile == -1)
-    //{
-    //    Printf("Error reading palette 'PALETTE.DAT'\n");
-    //    return;
-    //}
-    //
-    //kread(hFile, kenpal, sizeof(kenpal));
-    //kclose(hFile);
-    videoSetPalette(0, BASEPAL, 0);
-    SetOverscan(BASEPAL);
-}
-
 int LoadPaletteLookups()
 {
     uint8_t buffer[256*64];
@@ -97,13 +79,11 @@ int LoadPaletteLookups()
         
         bGreenPal = 0;
 
-#ifdef USE_OPENGL
         // These 3 tables do not have normal gradients. The others work without adjustment.
         // Other changes than altering the fog gradient are not necessary.
         lookups.tables[kPalTorch].ShadeFactor = lookups.tables[kPalTorch2].ShadeFactor = (numshades - 2) / 20.f;
         lookups.tables[kPalNoTorch].ShadeFactor = lookups.tables[kPalNoTorch2].ShadeFactor = (numshades - 2) / 4.f;
         lookups.tables[kPalBrite].ShadeFactor = lookups.tables[kPalBrite].ShadeFactor = (numshades - 2) / 128.f;
-#endif
 
     }
 
@@ -153,20 +133,8 @@ uint8_t RemapPLU(uint8_t pal)
     return pal;
 }
 
-void WaitVBL()
-{
-#ifdef __WATCOMC__
-    while (!(inp(0x3da) & 8));
-#endif
-}
-
-
 void GrabPalette()
 {
-    SetOverscan(BASEPAL);
-
-    videoSetPalette(0, BASEPAL, 0);
-
     nPalDiff  = 0;
     nPalDelay = 0;
 
@@ -174,81 +142,6 @@ void GrabPalette()
     gtint = 0;
     rtint = 0;
     videoTintBlood(0, 0, 0);
-}
-
-void BlackOut()
-{
-    videoTintBlood(0, 0, 0);
-}
-
-void RestorePalette()
-{
-    videoSetPalette(0, BASEPAL, 0);
-    videoTintBlood(0, 0, 0);
-}
-
-void WaitTicks(int nTicks)
-{
-    if (htimer)
-    {
-        nTicks += (int)totalclock;
-        while (nTicks > (int)totalclock) { HandleAsync(); }
-    }
-    else
-    {
-        while (nTicks > 0) {
-            nTicks--;
-            WaitVBL();
-        }
-    }
-}
-
-// unused
-void DoFadeToRed()
-{
-    // fixme
-    videoTintBlood(-255, -255, -255);
-    videoNextPage();
-}
-
-void FadeToWhite()
-{
-    // fixme
-    videoTintBlood(255, 255, 255);
-    videoNextPage();
-}
-
-void FadeOut(int bFadeMusic)
-{
-    if (bFadeMusic) {
-        StartfadeCDaudio();
-    }
-
-
-    videoTintBlood(-255, -255, -255);
-    videoNextPage();
-
-    if (bFadeMusic) {
-        while (StepFadeCDaudio() != 0) {}
-    }
-
-    EraseScreen(overscanindex);
-}
-
-void StartFadeIn()
-{
-    //fadecurpal = curpal;
-}
-
-int DoFadeIn()
-{
-    videoNextPage();
-    return 0;
-}
-
-void FadeIn()
-{
-    videoNextPage();
 }
 
 void FixPalette()
@@ -368,17 +261,5 @@ void TintPalette(int r, int g, int b)
     nPalDelay = 0;
 }
 
-void DoOverscanSet(short someval)
-{
-}
 
-// unused
-void SetWhiteOverscan()
-{
-
-}
-
-void SetOverscan(int id)
-{
-}
 END_PS_NS

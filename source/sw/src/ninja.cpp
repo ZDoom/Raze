@@ -33,7 +33,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -43,11 +42,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "player.h"
 #include "network.h"
 #include "weapon.h"
-#include "track.h"
-#include "actor.h"
-#include "ninja.h"
+#include "misc.h"
 #include "sprite.h"
-#include "swcvar.h"
 
 BEGIN_SW_NS
 
@@ -1971,7 +1967,7 @@ DoNinjaHariKari(short SpriteNum)
 
     cnt = RANDOM_RANGE(4)+1;
     for (i=0; i<=cnt; i++)
-        InitBloodSpray(SpriteNum,TRUE,-2);
+        InitBloodSpray(SpriteNum,true,-2);
 
     return 0;
 }
@@ -2210,11 +2206,10 @@ PlayerLevelReset(PLAYERp pp)
     //PlayerUpdateArmor(pp, 0);
     pp->Kills = 0;
     pp->Killer = -1;
-    pp->NightVision = FALSE;
+    pp->NightVision = false;
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
-    PlayerUpdatePanelInfo(pp);
     RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
     RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
     RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
@@ -2250,11 +2245,11 @@ PlayerDeathReset(PLAYERp pp)
     pp->WpnShotgunType = 0;            // Shotgun has normal or fully automatic fire
     pp->WpnShotgunAuto = 0;            // 50-0 automatic shotgun rounds
     pp->WpnShotgunLastShell = 0;       // Number of last shell fired
-    pp->Bloody = FALSE;
-    pp->TestNukeInit = FALSE;
-    pp->InitingNuke = FALSE;
-    pp->NukeInitialized = FALSE;
-    pp->BunnyMode = FALSE;
+    pp->Bloody = false;
+    pp->TestNukeInit = false;
+    pp->InitingNuke = false;
+    pp->NukeInitialized = false;
+    pp->WpnReloadState = 2;
 
     memset(pp->WpnAmmo,0,sizeof(pp->WpnAmmo));
     memset(pp->InventoryTics,0,sizeof(pp->InventoryTics));
@@ -2278,11 +2273,10 @@ PlayerDeathReset(PLAYERp pp)
     pp->Armor = 0;
     PlayerUpdateArmor(pp, 0);
     pp->Killer = -1;
-    pp->NightVision = FALSE;
+    pp->NightVision = false;
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
-    PlayerUpdatePanelInfo(pp);
     RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
     RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
     RESET(pp->Flags, PF_DEAD);
@@ -2339,12 +2333,12 @@ PlayerGameReset(PLAYERp pp)
     pp->WpnShotgunType = 0;            // Shotgun has normal or fully automatic fire
     pp->WpnShotgunAuto = 0;            // 50-0 automatic shotgun rounds
     pp->WpnShotgunLastShell = 0;       // Number of last shell fired
-    pp->Bloody = FALSE;
-    pp->TestNukeInit = FALSE;
-    pp->InitingNuke = FALSE;
-    pp->NukeInitialized = FALSE;
-    pp->BunnyMode = FALSE;
+    pp->Bloody = false;
+    pp->TestNukeInit = false;
+    pp->InitingNuke = false;
+    pp->NukeInitialized = false;
     pp->SecretsFound = 0;
+    pp->WpnReloadState = 2;
 
     pp->WpnAmmo[WPN_STAR] = 30;
     pp->WpnAmmo[WPN_SWORD] = pp->WpnAmmo[WPN_FIST] = 30;
@@ -2365,12 +2359,11 @@ PlayerGameReset(PLAYERp pp)
     {
         videoFadePalette(0,0,0,0);
     }
-    pp->NightVision = FALSE;
+    pp->NightVision = false;
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
 
-    PlayerUpdatePanelInfo(pp);
     RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     pp->sop_control = NULL;
@@ -2400,12 +2393,12 @@ InitPlayerSprite(PLAYERp pp)
     SPRITE *sp;
     USERp u;
     int pnum = pp - Player;
-    extern SWBOOL NewGame;
+    extern bool NewGame;
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
     sp_num = pp->PlayerSprite = SpawnSprite(STAT_PLAYER0 + pnum, NINJA_RUN_R0, NULL, pp->cursectnum, pp->posx,
-                                            pp->posy, pp->posz, fix16_to_int(pp->q16ang), 0);
+                                            pp->posy, pp->posz, FixedToInt(pp->q16ang), 0);
 
     pp->SpriteP = sp = &sprite[sp_num];
     pp->pnum = pnum;
@@ -2465,11 +2458,10 @@ InitPlayerSprite(PLAYERp pp)
         videoFadePalette(0,0,0,0);
     }
 
-    pp->NightVision = FALSE;
+    pp->NightVision = false;
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
-    PlayerUpdatePanelInfo(pp);
 }
 
 void
@@ -2481,7 +2473,7 @@ SpawnPlayerUnderSprite(PLAYERp pp)
     int pnum = pp - Player, sp_num;
 
     sp_num = pp->PlayerUnderSprite = SpawnSprite(STAT_PLAYER_UNDER0 + pnum,
-                                                 NINJA_RUN_R0, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, fix16_to_int(pp->q16ang), 0);
+                                                 NINJA_RUN_R0, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, FixedToInt(pp->q16ang), 0);
 
     sp = &sprite[sp_num];
     u = User[sp_num];

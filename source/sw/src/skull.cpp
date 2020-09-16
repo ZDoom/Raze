@@ -26,13 +26,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
-#include "game.h"
+#include "misc.h"
 #include "tags.h"
 #include "ai.h"
 #include "weapon.h"
-#include "actor.h"
 
 BEGIN_SW_NS
 
@@ -41,7 +39,7 @@ int InitSpriteChemBomb(short SpriteNum);
 int InitFlashBomb(short SpriteNum);
 int InitCaltrops(short SpriteNum);
 int InitPhosphorus(int16_t SpriteNum);
-SWBOOL SpriteOverlapZ(int16_t, int16_t, int);
+bool SpriteOverlapZ(int16_t, int16_t, int);
 
 //////////////////////
 //

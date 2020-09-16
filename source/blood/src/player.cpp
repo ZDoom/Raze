@@ -24,37 +24,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <stdlib.h>
 #include <string.h>
+#include "automap.h"
 #include "compat.h"
 #include "build.h"
 #include "mmulti.h"
 #include "actor.h"
 #include "blood.h"
 #include "callback.h"
-#include "config.h"
 #include "controls.h"
-#include "demo.h"
 #include "eventq.h"
 #include "fx.h"
 #include "gib.h"
 #include "globals.h"
 #include "levels.h"
 #include "loadsave.h"
-#include "map2d.h"
-#include "network.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
 #include "sound.h"
-#include "tile.h"
 #include "triggers.h"
-#include "trig.h"
 #include "view.h"
-#include "warp.h"
-#include "weapon.h"
 #include "common_game.h"
 #include "messages.h"
 #include "nnexts.h"
 #include "gstrings.h"
+#include "gamestate.h"
+#include "automap.h"
 
 BEGIN_BLD_NS
 
@@ -172,8 +166,8 @@ AMMOINFO gAmmoInfo[] = {
 };
 
 struct ARMORDATA {
-    int at0;
-    int at4;
+    int TotalKills;
+    int Kills;
     int at8;
     int atc;
     int at10;
@@ -194,8 +188,8 @@ int nPlayerSurviveClient = seqRegisterClient(PlayerSurvive);
 int nPlayerKneelClient = seqRegisterClient(PlayerKneelsOver);
 
 struct VICTORY {
-    const char *at0;
-    int at4;
+    const char *TotalKills;
+    int Kills;
 };
 
 VICTORY gVictory[] = {
@@ -227,8 +221,8 @@ VICTORY gVictory[] = {
 };
 
 struct SUICIDE {
-    const char *at0;
-    int at4;
+    const char *TotalKills;
+    int Kills;
 };
 
 SUICIDE gSuicide[] = {
@@ -240,8 +234,8 @@ SUICIDE gSuicide[] = {
 };
 
 struct DAMAGEINFO {
-    int at0;
-    int at4[3];
+    int TotalKills;
+    int Kills[3];
     int at10[3];
 };
 
@@ -325,7 +319,7 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
             pPlayer->damageControl[1]++;
             break;
         case kItemTwoGuns:
-            pPlayer->input.newWeapon = pPlayer->curWeapon;
+            pPlayer->newWeapon = pPlayer->curWeapon;
             WeaponRaise(pPlayer);
             break;
     }
@@ -376,7 +370,7 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
             pPlayer->damageControl[1]--;
             break;
         case kItemTwoGuns:
-            pPlayer->input.newWeapon = pPlayer->curWeapon;
+            pPlayer->newWeapon = pPlayer->curWeapon;
             WeaponRaise(pPlayer);
             break;
     }
@@ -508,6 +502,8 @@ void packUseItem(PLAYER *pPlayer, int nPack)
     int nPowerUp = -1;
     if (pPlayer->packSlots[nPack].curAmount > 0)
     {
+		pPlayer->packItemId = nPack;
+
         switch (nPack)
         {
         case 0:
@@ -552,29 +548,42 @@ void packPrevItem(PLAYER *pPlayer)
 {
     if (pPlayer->packItemTime > 0)
     {
-        for (int nPrev = ClipLow(pPlayer->packItemId-1,0); nPrev >= 0; nPrev--)
+        for (int i = 0; i < 2; i++)
         {
-            if (pPlayer->packSlots[nPrev].curAmount)
+            for (int nPrev = pPlayer->packItemId-1; nPrev >= 0; nPrev--)
             {
-                pPlayer->packItemId = nPrev;
-                break;
+                if (pPlayer->packSlots[nPrev].curAmount)
+                {
+                    pPlayer->packItemId = nPrev;
+                    pPlayer->packItemTime = 600;
+                    return;
+                }
             }
+            pPlayer->packItemId = 4;
+            if (pPlayer->packSlots[4].curAmount) break;
         }
     }
+    
     pPlayer->packItemTime = 600;
 }
 
-void packNextItem(PLAYER *pPlayer)
+void packNextItem(PLAYER* pPlayer)
 {
     if (pPlayer->packItemTime > 0)
     {
-        for (int nNext = ClipHigh(pPlayer->packItemId+1,5); nNext < 5; nNext++)
+        for (int i = 0; i < 2; i++)
         {
-            if (pPlayer->packSlots[nNext].curAmount)
+            for (int nNext = pPlayer->packItemId + 1; nNext < 5; nNext++)
             {
-                pPlayer->packItemId = nNext;
-                break;
+                if (pPlayer->packSlots[nNext].curAmount)
+                {
+                    pPlayer->packItemId = nNext;
+                    pPlayer->packItemTime = 600;
+                    return;
+                }
             }
+            pPlayer->packItemId = 0;
+            if (pPlayer->packSlots[0].curAmount) break;
         }
     }
     pPlayer->packItemTime = 600;
@@ -602,8 +611,9 @@ void playerSetRace(PLAYER *pPlayer, int nLifeMode)
         pDudeInfo->at70[i] = mulscale8(Handicap[gProfile[pPlayer->nPlayer].skill], pDudeInfo->startDamage[i]);
 }
 
-void playerSetGodMode(PLAYER *pPlayer, char bGodMode)
+void playerSetGodMode(PLAYER *pPlayer, bool bGodMode)
 {
+    if (pPlayer->godMode == bGodMode) return;
     if (bGodMode)
     {
         for (int i = 0; i < 7; i++)
@@ -648,7 +658,7 @@ void playerResetPosture(PLAYER* pPlayer) {
 void playerStart(int nPlayer, int bNewLevel)
 {
     PLAYER* pPlayer = &gPlayer[nPlayer];
-    GINPUT* pInput = &pPlayer->input;
+    InputPacket* pInput = &pPlayer->input;
     ZONE* pStartZone = NULL;
 
     // normal start position
@@ -697,13 +707,13 @@ void playerStart(int nPlayer, int bNewLevel)
     playerResetPosture(pPlayer);
     seqSpawn(pDudeInfo->seqStartID, 3, pSprite->extra, -1);
     if (pPlayer == gMe)
-        SetBitString(show2dsprite, pSprite->index);
+        show2dsprite.Set(pSprite->index);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z -= bottom - pSprite->z;
     pSprite->pal = 11+(pPlayer->teamId&3);
     pPlayer->angold = pSprite->ang = pStartZone->ang;
-    pPlayer->q16ang = fix16_from_int(pSprite->ang);
+    pPlayer->q16ang = IntToFixed(pSprite->ang);
     pSprite->type = kDudePlayer1+nPlayer;
     pSprite->clipdist = pDudeInfo->clipdist;
     pSprite->flags = 15;
@@ -755,13 +765,11 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->deathTime = 0;
     pPlayer->nextWeapon = 0;
     xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
-    pInput->q16turn = 0;
-    pInput->keyFlags.word = 0;
-    pInput->forward = 0;
-    pInput->strafe = 0;
-    pInput->q16mlook = 0;
-    pInput->buttonFlags.byte = 0;
-    pInput->useFlags.byte = 0;
+    pInput->q16avel = 0;
+    pInput->actions = 0;
+    pInput->fvel = 0;
+    pInput->svel = 0;
+    pInput->q16horz = 0;
     pPlayer->flickerEffect = 0;
     pPlayer->quakeEffect = 0;
     pPlayer->tiltEffect = 0;
@@ -801,9 +809,6 @@ void playerStart(int nPlayer, int bNewLevel)
         viewInitializePrediction();
         gViewLook = pPlayer->q16look;
         gViewAngle = pPlayer->q16ang;
-        gViewMap.x = pPlayer->pSprite->x;
-        gViewMap.y = pPlayer->pSprite->y;
-        gViewMap.angle = pPlayer->pSprite->ang;
     }
     if (IsUnderwaterSector(pSprite->sectnum))
     {
@@ -829,7 +834,7 @@ void playerReset(PLAYER *pPlayer)
     pPlayer->hasWeapon[1] = 1;
     pPlayer->curWeapon = 0;
     pPlayer->qavCallback = -1;
-    pPlayer->input.newWeapon = 1;
+    pPlayer->newWeapon = 1;
     for (int i = 0; i < 14; i++)
     {
         pPlayer->weaponOrder[0][i] = dword_136400[i];
@@ -863,7 +868,7 @@ void playerReset(PLAYER *pPlayer)
 }
 
 int dword_21EFB0[8];
-ClockTicks dword_21EFD0[8];
+int dword_21EFD0[8];
 
 void playerInit(int nPlayer, unsigned int a2)
 {
@@ -964,13 +969,6 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         sprintf(buffer, "%s captured Red Flag!", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8001, 255, 2, 0);
                         viewSetMessage(buffer);
-#if 0
-                        if (dword_28E3D4 == 3 && myconnectindex == connecthead)
-                        {
-                            sprintf(buffer, "frag A killed B\n");
-                            sub_7AC28(buffer);
-                        }
-#endif
                     }
                 }
 
@@ -1008,13 +1006,6 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         sprintf(buffer, "%s captured Blue Flag!", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8000, 255, 2, 0);
                         viewSetMessage(buffer);
-#if 0
-                        if (dword_28E3D4 == 3 && myconnectindex == connecthead)
-                        {
-                            sprintf(buffer, "frag B killed A\n");
-                            sub_7AC28(buffer);
-                        }
-#endif
                     }
                 }
             }
@@ -1045,8 +1036,8 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                 pickedUp = true;
             }
         
-            if (pPlayer->armor[0] < pArmorData->at4) {
-                pPlayer->armor[0] = ClipHigh(pPlayer->armor[0]+pArmorData->at0, pArmorData->at4);
+            if (pPlayer->armor[0] < pArmorData->Kills) {
+                pPlayer->armor[0] = ClipHigh(pPlayer->armor[0]+pArmorData->TotalKills, pArmorData->Kills);
                 pickedUp = true;
             }
 
@@ -1244,8 +1235,8 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
     *a2 = 0;
     *a3 = 0;
     spritetype *pSprite = pPlayer->pSprite;
-    int x = Cos(pSprite->ang)>>16;
-    int y = Sin(pSprite->ang)>>16;
+    int x = CosScale16(pSprite->ang);
+    int y = SinScale16(pSprite->ang);
     int z = pPlayer->slope;
     int hit = HitScan(pSprite, pPlayer->zView, x, y, z, 0x10000040, 128);
     int hitDist = approxDist(pSprite->x-gHitInfo.hitx, pSprite->y-gHitInfo.hity)>>4;
@@ -1318,11 +1309,19 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
 
 void ProcessInput(PLAYER *pPlayer)
 {
+    enum
+    {
+        Item_MedKit = 0,
+        Item_CrystalBall = 1,
+        Item_BeastVision = 2,
+        Item_JumpBoots = 3
+    };
+
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     int nSprite = pPlayer->nSprite;
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-    GINPUT *pInput = &pPlayer->input;
+    InputPacket *pInput = &pPlayer->input;
 
     if (pPlayer == gMe && numplayers == 1)
     {
@@ -1331,8 +1330,8 @@ void ProcessInput(PLAYER *pPlayer)
         gViewLookAdjust = 0.f;
     }
 
-    pPlayer->isRunning = pInput->syncFlags.run;
-    if (pInput->buttonFlags.byte || pInput->forward || pInput->strafe || pInput->q16turn)
+    pPlayer->isRunning = !!(pInput->actions & SB_RUN);
+    if ((pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->q16avel)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
@@ -1343,19 +1342,19 @@ void ProcessInput(PLAYER *pPlayer)
         if (pPlayer->fraggerId != -1)
         {
             pPlayer->angold = pSprite->ang = getangle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
-            pPlayer->q16ang = fix16_from_int(pSprite->ang);
+            pPlayer->q16ang = IntToFixed(pSprite->ang);
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
         {
             if (bVanilla)
-                pPlayer->q16horiz = fix16_from_int(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), 120));
+                pPlayer->q16horiz = IntToFixed(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), 120));
             else
-                pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), fix16_from_int(120));
+                pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), IntToFixed(120));
         }
         if (pPlayer->curWeapon)
-            pInput->newWeapon = pPlayer->curWeapon;
-        if (pInput->keyFlags.action)
+            pInput->setNewWeapon(pPlayer->curWeapon);
+        if (pInput->actions & SB_OPEN)
         {
             if (bSeqStat)
             {
@@ -1371,14 +1370,12 @@ void ProcessInput(PLAYER *pPlayer)
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
                 {
-                    if (gDemo.at0)
-                        gDemo.Close();
-                    pInput->keyFlags.restart = 1;
+                    gameaction = ga_autoloadgame;
                 }
                 else
                     playerStart(pPlayer->nPlayer);
             }
-            pInput->keyFlags.action = 0;
+            pInput->actions &= ~SB_OPEN;
         }
         return;
     }
@@ -1386,9 +1383,9 @@ void ProcessInput(PLAYER *pPlayer)
     {
         int x = Cos(pSprite->ang);
         int y = Sin(pSprite->ang);
-        if (pInput->forward)
+        if (pInput->fvel)
         {
-            int forward = pInput->forward;
+            int forward = pInput->fvel;
             if (forward > 0)
                 forward = mulscale8(pPosture->frontAccel, forward);
             else
@@ -1396,9 +1393,9 @@ void ProcessInput(PLAYER *pPlayer)
             xvel[nSprite] += mulscale30(forward, x);
             yvel[nSprite] += mulscale30(forward, y);
         }
-        if (pInput->strafe)
+        if (pInput->svel)
         {
-            int strafe = pInput->strafe;
+            int strafe = pInput->svel;
             strafe = mulscale8(pPosture->sideAccel, strafe);
             xvel[nSprite] += mulscale30(strafe, y);
             yvel[nSprite] -= mulscale30(strafe, x);
@@ -1411,9 +1408,9 @@ void ProcessInput(PLAYER *pPlayer)
             speed -= divscale16(pXSprite->height, 256);
         int x = Cos(pSprite->ang);
         int y = Sin(pSprite->ang);
-        if (pInput->forward)
+        if (pInput->fvel)
         {
-            int forward = pInput->forward;
+            int forward = pInput->fvel;
             if (forward > 0)
                 forward = mulscale8(pPosture->frontAccel, forward);
             else
@@ -1423,9 +1420,9 @@ void ProcessInput(PLAYER *pPlayer)
             xvel[nSprite] += mulscale30(forward, x);
             yvel[nSprite] += mulscale30(forward, y);
         }
-        if (pInput->strafe)
+        if (pInput->svel)
         {
-            int strafe = pInput->strafe;
+            int strafe = pInput->svel;
             strafe = mulscale8(pPosture->sideAccel, strafe);
             if (pXSprite->height)
                 strafe = mulscale16(strafe, speed);
@@ -1433,13 +1430,13 @@ void ProcessInput(PLAYER *pPlayer)
             yvel[nSprite] -= mulscale30(strafe, x);
         }
     }
-    if (pInput->q16turn)
-        pPlayer->q16ang = (pPlayer->q16ang+pInput->q16turn)&0x7ffffff;
-    if (pInput->keyFlags.spin180)
+    if (pInput->q16avel)
+        pPlayer->q16ang = (pPlayer->q16ang+pInput->q16avel)&0x7ffffff;
+    if (pInput->actions & SB_TURNAROUND)
     {
         if (!pPlayer->spin)
             pPlayer->spin = -1024;
-        pInput->keyFlags.spin180 = 0;
+        pInput->actions &= ~SB_TURNAROUND;
     }
     if (pPlayer->spin < 0)
     {
@@ -1449,30 +1446,30 @@ void ProcessInput(PLAYER *pPlayer)
         else
             speed = 128;
         pPlayer->spin = min(pPlayer->spin+speed, 0);
-        pPlayer->q16ang += fix16_from_int(speed);
+        pPlayer->q16ang += IntToFixed(speed);
         if (pPlayer == gMe && numplayers == 1)
             gViewAngleAdjust += float(speed);
     }
     if (pPlayer == gMe && numplayers == 1)
         gViewAngleAdjust += float(pSprite->ang - pPlayer->angold);
-    pPlayer->q16ang = (pPlayer->q16ang+fix16_from_int(pSprite->ang-pPlayer->angold))&0x7ffffff;
-    pPlayer->angold = pSprite->ang = fix16_to_int(pPlayer->q16ang);
-    if (!pInput->buttonFlags.jump)
+    pPlayer->q16ang = (pPlayer->q16ang+IntToFixed(pSprite->ang-pPlayer->angold))&0x7ffffff;
+    pPlayer->angold = pSprite->ang = FixedToInt(pPlayer->q16ang);
+    if (!(pInput->actions & SB_JUMP))
         pPlayer->cantJump = 0;
 
     switch (pPlayer->posture) {
     case 1:
-        if (pInput->buttonFlags.jump)
+        if (pInput->actions & SB_JUMP)
             zvel[nSprite] -= pPosture->normalJumpZ;//0x5b05;
-        if (pInput->buttonFlags.crouch)
+        if (pInput->actions & SB_CROUCH)
             zvel[nSprite] += pPosture->normalJumpZ;//0x5b05;
         break;
     case 2:
-        if (!pInput->buttonFlags.crouch)
+        if (!(pInput->actions & SB_CROUCH))
             pPlayer->posture = 0;
         break;
     default:
-        if (!pPlayer->cantJump && pInput->buttonFlags.jump && pXSprite->height == 0) {
+        if (!pPlayer->cantJump && (pInput->actions & SB_JUMP) && pXSprite->height == 0) {
             #ifdef NOONE_EXTENSIONS
             if ((packItemActive(pPlayer, 4) && pPosture->pwupJumpZ != 0) || pPosture->normalJumpZ != 0)
             #endif
@@ -1483,11 +1480,11 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->cantJump = 1;
         }
 
-        if (pInput->buttonFlags.crouch)
+        if (pInput->actions & SB_CROUCH)
             pPlayer->posture = 2;
         break;
     }
-    if (pInput->keyFlags.action)
+    if (pInput->actions & SB_OPEN)
     {
         int a2, a3;
         int hit = ActionScan(pPlayer, &a2, &a3);
@@ -1553,38 +1550,38 @@ void ProcessInput(PLAYER *pPlayer)
             spritetype *pSprite2 = actSpawnDude(pPlayer->pSprite, kDudeHand, pPlayer->pSprite->clipdist<<1, 0);
             pSprite2->ang = (pPlayer->pSprite->ang+1024)&2047;
             int nSprite = pPlayer->pSprite->index;
-            int x = Cos(pPlayer->pSprite->ang)>>16;
-            int y = Sin(pPlayer->pSprite->ang)>>16;
+            int x = CosScale16(pPlayer->pSprite->ang);
+            int y = SinScale16(pPlayer->pSprite->ang);
             xvel[pSprite2->index] = xvel[nSprite] + mulscale14(0x155555, x);
             yvel[pSprite2->index] = yvel[nSprite] + mulscale14(0x155555, y);
             zvel[pSprite2->index] = zvel[nSprite];
             pPlayer->hand = 0;
         }
-        pInput->keyFlags.action = 0;
+        pInput->actions &= ~SB_OPEN;
     }
     if (bVanilla)
     {
-        if (pInput->keyFlags.lookCenter && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown)
+        if ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
         {
             if (pPlayer->q16look < 0)
-                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(0));
+                pPlayer->q16look = min(pPlayer->q16look+IntToFixed(4), 0);
             if (pPlayer->q16look > 0)
-                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(0));
+                pPlayer->q16look = max(pPlayer->q16look-IntToFixed(4), 0);
             if (!pPlayer->q16look)
-                pInput->keyFlags.lookCenter = 0;
+                pInput->actions &= ~SB_CENTERVIEW;
         }
         else
         {
-            if (pInput->buttonFlags.lookUp)
-                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(60));
-            if (pInput->buttonFlags.lookDown)
-                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(-60));
+            if (pInput->actions & (SB_LOOK_UP|SB_AIM_UP))
+                pPlayer->q16look = min(pPlayer->q16look+IntToFixed(4), IntToFixed(60));
+            if (pInput->actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
+                pPlayer->q16look = max(pPlayer->q16look-IntToFixed(4), IntToFixed(-60));
         }
-        pPlayer->q16look = fix16_clamp(pPlayer->q16look+pInput->q16mlook, fix16_from_int(-60), fix16_from_int(60));
+        pPlayer->q16look = clamp(pPlayer->q16look+pInput->q16horz, IntToFixed(-60), IntToFixed(60));
         if (pPlayer->q16look > 0)
-            pPlayer->q16horiz = fix16_from_int(mulscale30(120, Sin(fix16_to_int(pPlayer->q16look)<<3)));
+            pPlayer->q16horiz = IntToFixed(mulscale30(120, Sin(FixedToInt(pPlayer->q16look)<<3)));
         else if (pPlayer->q16look < 0)
-            pPlayer->q16horiz = fix16_from_int(mulscale30(180, Sin(fix16_to_int(pPlayer->q16look)<<3)));
+            pPlayer->q16horiz = IntToFixed(mulscale30(180, Sin(FixedToInt(pPlayer->q16look)<<3)));
         else
             pPlayer->q16horiz = 0;
     }
@@ -1594,36 +1591,36 @@ void ProcessInput(PLAYER *pPlayer)
         int downAngle = -347;
         double lookStepUp = 4.0*upAngle/60.0;
         double lookStepDown = -4.0*downAngle/60.0;
-        if (pInput->keyFlags.lookCenter && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown)
+        if ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
         {
             if (pPlayer->q16look < 0)
-                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepDown), fix16_from_int(0));
+                pPlayer->q16look = min(pPlayer->q16look+FloatToFixed(lookStepDown), 0);
             if (pPlayer->q16look > 0)
-                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepUp), fix16_from_int(0));
+                pPlayer->q16look = max(pPlayer->q16look-FloatToFixed(lookStepUp), 0);
             if (!pPlayer->q16look)
-                pInput->keyFlags.lookCenter = 0;
+                pInput->actions &= ~SB_CENTERVIEW;
         }
         else
         {
-            if (pInput->buttonFlags.lookUp)
-                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepUp), fix16_from_int(upAngle));
-            if (pInput->buttonFlags.lookDown)
-                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepDown), fix16_from_int(downAngle));
+            if (pInput->actions & (SB_LOOK_UP | SB_AIM_UP))
+                pPlayer->q16look = min(pPlayer->q16look+FloatToFixed(lookStepUp), IntToFixed(upAngle));
+            if (pInput->actions & (SB_LOOK_DOWN | SB_AIM_DOWN))
+                pPlayer->q16look = max(pPlayer->q16look-FloatToFixed(lookStepDown), IntToFixed(downAngle));
         }
         if (pPlayer == gMe && numplayers == 1)
         {
-            if (pInput->buttonFlags.lookUp)
+            if (pInput->actions & (SB_LOOK_UP | SB_AIM_UP))
             {
                 gViewLookAdjust += float(lookStepUp);
             }
-            if (pInput->buttonFlags.lookDown)
+            if (pInput->actions & (SB_LOOK_DOWN | SB_AIM_DOWN))
             {
                 gViewLookAdjust -= float(lookStepDown);
             }
-            gViewLookRecenter = pInput->keyFlags.lookCenter && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown;
+            gViewLookRecenter = ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)));
         }
-        pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16mlook<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
-        pPlayer->q16horiz = fix16_from_float(100.f*tanf(fix16_to_float(pPlayer->q16look)*fPI/1024.f));
+        pPlayer->q16look = clamp(pPlayer->q16look+(pInput->q16horz<<3), IntToFixed(downAngle), IntToFixed(upAngle));
+        pPlayer->q16horiz = FloatToFixed(100.f*tanf(FixedToFloat(pPlayer->q16look)*fPI/1024.f));
     }
     int nSector = pSprite->sectnum;
     int florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
@@ -1642,59 +1639,59 @@ void ProcessInput(PLAYER *pPlayer)
         if (nSector2 == nSector)
         {
             int z2 = getflorzofslope(nSector2, x2, y2);
-            pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, fix16_from_int(z1-z2)>>3, 0x4000);
+            pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, IntToFixed(z1-z2)>>3, 0x4000);
         }
     }
     else
     {
-        pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, fix16_from_int(0), 0x4000);
+        pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, 0, 0x4000);
         if (klabs(pPlayer->q16slopehoriz) < 4)
             pPlayer->q16slopehoriz = 0;
     }
-    pPlayer->slope = (-fix16_to_int(pPlayer->q16horiz))<<7;
-    if (pInput->keyFlags.prevItem)
+    pPlayer->slope = (-FixedToInt(pPlayer->q16horiz))<<7;
+    if (pInput->actions & SB_INVPREV)
     {
-        pInput->keyFlags.prevItem = 0;
+        pInput->actions&= ~SB_INVPREV;
         packPrevItem(pPlayer);
     }
-    if (pInput->keyFlags.nextItem)
+    if (pInput->actions & SB_INVNEXT)
     {
-        pInput->keyFlags.nextItem = 0;
+        pInput->actions &= ~SB_INVNEXT;
         packNextItem(pPlayer);
     }
-    if (pInput->keyFlags.useItem)
+    if (pInput->actions & SB_INVUSE)
     {
-        pInput->keyFlags.useItem = 0;
+        pInput->actions &= ~SB_INVUSE;
         if (pPlayer->packSlots[pPlayer->packItemId].curAmount > 0)
             packUseItem(pPlayer, pPlayer->packItemId);
     }
-    if (pInput->useFlags.useBeastVision)
+    if (pInput->isItemUsed(Item_BeastVision))
     {
-        pInput->useFlags.useBeastVision = 0;
+        pInput->clearItemUsed(Item_BeastVision);
         if (pPlayer->packSlots[3].curAmount > 0)
             packUseItem(pPlayer, 3);
     }
-    if (pInput->useFlags.useCrystalBall)
+    if (pInput->isItemUsed(Item_CrystalBall))
     {
-        pInput->useFlags.useCrystalBall = 0;
+        pInput->clearItemUsed(Item_CrystalBall);
         if (pPlayer->packSlots[2].curAmount > 0)
             packUseItem(pPlayer, 2);
     }
-    if (pInput->useFlags.useJumpBoots)
+    if (pInput->isItemUsed(Item_JumpBoots))
     {
-        pInput->useFlags.useJumpBoots = 0;
+        pInput->clearItemUsed(Item_JumpBoots);
         if (pPlayer->packSlots[4].curAmount > 0)
             packUseItem(pPlayer, 4);
     }
-    if (pInput->useFlags.useMedKit)
+    if (pInput->isItemUsed(Item_MedKit))
     {
-        pInput->useFlags.useMedKit = 0;
+        pInput->clearItemUsed(Item_MedKit);
         if (pPlayer->packSlots[0].curAmount > 0)
             packUseItem(pPlayer, 0);
     }
-    if (pInput->keyFlags.holsterWeapon)
+    if (pInput->actions & SB_HOLSTER)
     {
-        pInput->keyFlags.holsterWeapon = 0;
+        pInput->actions &= ~SB_HOLSTER;
         if (pPlayer->curWeapon)
         {
             WeaponLower(pPlayer);
@@ -1750,7 +1747,7 @@ void playerProcess(PLAYER *pPlayer)
         pPlayer->zWeaponVel += mulscale16(dz<<8, 0xc00);
     pPlayer->zWeapon += pPlayer->zWeaponVel>>8;
     pPlayer->bobPhase = ClipLow(pPlayer->bobPhase-4, 0);
-    nSpeed >>= 16;
+    nSpeed >>= FRACBITS;
     if (pPlayer->posture == 1)
     {
         pPlayer->bobAmp = (pPlayer->bobAmp+17)&2047;
@@ -1851,12 +1848,6 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
     dassert(nKiller >= 0 && nKiller < kMaxPlayers);
     int nVictim = pVictim->pSprite->type-kDudePlayer1;
     dassert(nVictim >= 0 && nVictim < kMaxPlayers);
-    if (myconnectindex == connecthead)
-    {
-        sprintf(buffer, "frag %d killed %d\n", pKiller->nPlayer+1, pVictim->nPlayer+1);
-        sub_7AC28(buffer);
-        buffer[0] = 0;
-    }
     if (nKiller == nVictim)
     {
         pVictim->fraggerId = -1;
@@ -1868,7 +1859,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         if (gGameOptions.nGameType == 3)
             dword_21EFB0[pVictim->teamId]--;
         int nMessage = Random(5);
-        int nSound = gSuicide[nMessage].at4;
+        int nSound = gSuicide[nMessage].Kills;
         if (pVictim == gMe && gMe->handTime <= 0)
         {
 			strcpy(buffer, GStrings("TXTB_KILLSELF"));
@@ -1877,7 +1868,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         }
         else
         {
-            sprintf(buffer, gSuicide[nMessage].at0, gProfile[nVictim].name);
+            sprintf(buffer, gSuicide[nMessage].TotalKills, gProfile[nVictim].name);
         }
     }
     else
@@ -1898,8 +1889,8 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
             }
         }
         int nMessage = Random(25);
-        int nSound = gVictory[nMessage].at4;
-        const char* pzMessage = gVictory[nMessage].at0;
+        int nSound = gVictory[nMessage].Kills;
+        const char* pzMessage = gVictory[nMessage].TotalKills;
         sprintf(buffer, pzMessage, gProfile[nKiller].name, gProfile[nVictim].name);
         if (gGameOptions.nGameType > 0 && nSound >= 0 && pKiller == gMe)
             sndStartSample(nSound, 255, 2, 0);
@@ -1938,7 +1929,7 @@ void FragPlayer(PLAYER *pPlayer, int nSprite)
 int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
 {
     DAMAGEINFO *pDamageInfo = &damageInfo[nType];
-    int nArmorType = pDamageInfo->at0;
+    int nArmorType = pDamageInfo->TotalKills;
     if (nArmorType >= 0 && pPlayer->armor[nArmorType])
     {
 #if 0
@@ -2051,9 +2042,9 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
             DAMAGEINFO *pDamageInfo = &damageInfo[nDamageType];
             int nSound;
             if (nDamage >= (10<<4))
-                nSound = pDamageInfo->at4[0];
+                nSound = pDamageInfo->Kills[0];
             else
-                nSound = pDamageInfo->at4[Random(3)];
+                nSound = pDamageInfo->Kills[Random(3)];
             if (nDamageType == DAMAGE_TYPE_4 && pXSprite->medium == kMediumWater && !pPlayer->hand)
                 nSound = 714;
             sfxPlay3DSound(pSprite, nSound, 0, 6);
@@ -2122,7 +2113,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
         FragPlayer(pPlayer, nSource);
         trTriggerSprite(nSprite, pXSprite, kCmdOff);
     }
-    dassert(gSysRes.Lookup(pDudeInfo->seqStartID + nDeathSeqID, "SEQ") != NULL);
+    dassert(getSequence(pDudeInfo->seqStartID + nDeathSeqID) != NULL);
     seqSpawn(pDudeInfo->seqStartID+nDeathSeqID, 3, nXSprite, nKneelingPlayer);
     return nDamage;
 }
@@ -2149,9 +2140,9 @@ void sub_41250(PLAYER *pPlayer)
     for (int i = 0; i < 4; i++)
     {
         int ang1 = (pPlayer->voodooVar1+pPlayer->vodooVar2)&2047;
-        actFireVector(pPlayer->pSprite, 0, dz, Cos(ang1)>>16, Sin(ang1)>>16, v4, VECTOR_TYPE_21);
+        actFireVector(pPlayer->pSprite, 0, dz, CosScale16(ang1), SinScale16(ang1), v4, VECTOR_TYPE_21);
         int ang2 = (pPlayer->voodooVar1+2048-pPlayer->vodooVar2)&2047;
-        actFireVector(pPlayer->pSprite, 0, dz, Cos(ang2)>>16, Sin(ang2)>>16, v4, VECTOR_TYPE_21);
+        actFireVector(pPlayer->pSprite, 0, dz, CosScale16(ang2), SinScale16(ang2), v4, VECTOR_TYPE_21);
     }
     pPlayer->voodooTargets = ClipLow(pPlayer->voodooTargets-1, 0);
 }
@@ -2207,7 +2198,7 @@ void PlayerSurvive(int, int nXSprite)
                 sprintf(buffer, "%s lives again!", gProfile[pPlayer->nPlayer].name);
                 viewSetMessage(buffer);
             }
-            pPlayer->input.newWeapon = 1;
+            pPlayer->newWeapon = 1;
         }
     }
 }

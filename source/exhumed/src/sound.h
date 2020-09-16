@@ -117,7 +117,6 @@ extern short nCreepyTimer;
 extern short StaticSound[];
 
 
-void UpdateSounds();
 void UpdateCreepySounds();
 
 void InitFX();
@@ -133,7 +132,7 @@ int LoadSound(const char* sound);
 void BendAmbientSound();
 void CheckAmbience(short nSector);
 
-void PlayFX2(unsigned short nSound, short nSprite);
+void PlayFX2(unsigned short nSound, short nSprite, int sectf = 0);
 void PlayFXAtXYZ(unsigned short nSound, int x, int y, int z, int nSector);
 inline void D3PlayFX(unsigned short nSound, short nVal)
 {
@@ -144,7 +143,6 @@ void StopSpriteSound(short nSprite);
 void StartSwirlies();
 void UpdateSwirlies();
 
-void PlayLogoSound(void);
 void PlayTitleSound(void);
 void PlayGameOverSound(void);
 

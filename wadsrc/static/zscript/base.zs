@@ -155,6 +155,8 @@ enum DrawTextureTags
 
 	DTA_FullscreenEx,		// advanced fullscreen control.
 	DTA_FullscreenScale,	// enable DTA_Fullscreen coordinate calculation for placed overlays.
+	DTA_ScaleX,				// scales the patch dimensions before applying any other transformation.
+	DTA_ScaleY,
 
 };
 
@@ -197,7 +199,7 @@ struct Screen native
 	native static vararg void DrawText(Font font, int normalcolor, double x, double y, String text, ...);
 	native static void DrawLine(int x0, int y0, int x1, int y1, Color color, int alpha = 255);
 	native static void DrawThickLine(int x0, int y0, int x1, int y1, double thickness, Color color, int alpha = 255);
-	native static Vector2, Vector2 VirtualToRealCoords(Vector2 pos, Vector2 size, Vector2 vsize, bool vbottom=false, bool handleaspect=true);
+	native static Vector2, Vector2 VirtualToRealCoords(Vector2 pos, Vector2 size, Vector2 vsize, bool vbottom=false, int handleaspect=0);
 	native static double GetAspectRatio();
 	native static void SetClipRect(int x, int y, int w, int h);
 	native static void ClearClipRect();

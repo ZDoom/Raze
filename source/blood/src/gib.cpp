@@ -31,20 +31,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "blood.h"
 #include "db.h"
 #include "callback.h"
-#include "config.h"
+#include "globals.h"
 #include "eventq.h"
 #include "fx.h"
 #include "gib.h"
 #include "levels.h"
-#include "sfx.h"
-#include "tile.h"
-#include "trig.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 
 struct GIBFX
 {
-    FX_ID at0;
+    FX_ID TotalKills;
     int at1;
     int chance;
     int at9;
@@ -55,8 +53,8 @@ struct GIBFX
 
 struct GIBTHING
 {
-    int at0;
-    int at4;
+    int TotalKills;
+    int Kills;
     int chance;
     int atc;
     int at10;
@@ -64,8 +62,8 @@ struct GIBTHING
 
 struct GIBLIST
 {
-    GIBFX *at0;
-    int at4;
+    GIBFX *TotalKills;
+    int Kills;
     GIBTHING *at8;
     int atc;
     int at10;
@@ -297,7 +295,7 @@ int ChanceToCount(int a1, int a2)
 void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pVel)
 {
     int nSector = pSprite->sectnum;
-    if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->at0 == FX_13)
+    if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->TotalKills == FX_13)
         return;
     CGibPosition gPos(pSprite->x, pSprite->y, pSprite->z);
     if (pPos)
@@ -318,7 +316,7 @@ void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *p
             gPos.y = pSprite->y+mulscale30(pSprite->clipdist<<2, Sin(nAngle));
             gPos.z = bottom-Random(bottom-top);
         }
-        spritetype *pFX = gFX.fxSpawn(pGFX->at0, nSector, gPos.x, gPos.y, gPos.z, 0);
+        spritetype *pFX = gFX.fxSpawn(pGFX->TotalKills, nSector, gPos.x, gPos.y, gPos.z, 0);
         if (pFX)
         {
             if (pGFX->at1 < 0)
@@ -345,12 +343,12 @@ void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *p
                     }
                     else if (dz2 > dz1 && dz1 < 0x4000)
                     {
-                        zvel[pFX->index] = -Random((klabs(pGFX->at11)<<18)/120);
+                        zvel[pFX->index] = -(int)Random((klabs(pGFX->at11)<<18)/120);
                     }
                     else
                     {
                         if ((pGFX->at11<<18)/120 < 0)
-                            zvel[pFX->index] = -Random((klabs(pGFX->at11)<<18)/120);
+                            zvel[pFX->index] = -(int)Random((klabs(pGFX->at11)<<18)/120);
                         else
                             zvel[pFX->index] = Random2((pGFX->at11<<18)/120);
                     }
@@ -364,7 +362,7 @@ void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *p
 void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVelocity *pVel)
 {
     if (adult_lockout && gGameOptions.nGameType <= 0)
-        switch (pGThing->at0) {
+        switch (pGThing->TotalKills) {
             case kThingBloodBits:
             case kThingZombieHead:
                 return;
@@ -393,10 +391,10 @@ void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVe
         getzsofslope(nSector, x, y, &ceilZ, &floorZ);
         int dz1 = floorZ-z;
         int dz2 = z-ceilZ;
-        spritetype *pGib = actSpawnThing(nSector, x, y, z, pGThing->at0);
+        spritetype *pGib = actSpawnThing(nSector, x, y, z, pGThing->TotalKills);
         dassert(pGib != NULL);
-        if (pGThing->at4 > -1)
-            pGib->picnum = pGThing->at4;
+        if (pGThing->Kills > -1)
+            pGib->picnum = pGThing->Kills;
         if (pVel)
         {
             xvel[pGib->index] = pVel->vx+Random2(pGThing->atc);
@@ -419,7 +417,7 @@ void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVe
                 }
                 else if (dz2 > dz1 && dz1 < 0x4000)
                 {
-                    zvel[pGib->index] = -Random((pGThing->at10<<18)/120);
+                    zvel[pGib->index] = -(int)Random((pGThing->at10<<18)/120);
                 }
                 else
                 {
@@ -438,9 +436,9 @@ void GibSprite(spritetype *pSprite, GIBTYPE nGibType, CGibPosition *pPos, CGibVe
     if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
         return;
     GIBLIST *pGib = &gibList[nGibType];
-    for (int i = 0; i < pGib->at4; i++)
+    for (int i = 0; i < pGib->Kills; i++)
     {
-        GIBFX *pGibFX = &pGib->at0[i];
+        GIBFX *pGibFX = &pGib->TotalKills[i];
         dassert(pGibFX->chance > 0);
         GibFX(pSprite, pGibFX, pPos, pVel);
     }
@@ -463,7 +461,7 @@ void GibFX(int nWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVelocity
         int r1 = Random(a6);
         int r2 = Random(a5);
         int r3 = Random(a4);
-        spritetype *pGib = gFX.fxSpawn(pGFX->at0, nSector, pWall->x+r3, pWall->y+r2, a3+r1, 0);
+        spritetype *pGib = gFX.fxSpawn(pGFX->TotalKills, nSector, pWall->x+r3, pWall->y+r2, a3+r1, 0);
         if (pGib)
         {
             if (pGFX->at1 < 0)
@@ -472,13 +470,13 @@ void GibFX(int nWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVelocity
             {
                 xvel[pGib->index] = Random2((pGFX->atd<<18)/120);
                 yvel[pGib->index] = Random2((pGFX->atd<<18)/120);
-                zvel[pGib->index] = -Random((pGFX->at11<<18)/120);
+                zvel[pGib->index] = -(int)Random((pGFX->at11<<18)/120);
             }
             else
             {
                 xvel[pGib->index] = Random2((pVel->vx<<18)/120);
                 yvel[pGib->index] = Random2((pVel->vy<<18)/120);
-                zvel[pGib->index] = -Random((pVel->vz<<18)/120);
+                zvel[pGib->index] = -(int)Random((pVel->vz<<18)/120);
             }
         }
     }
@@ -505,15 +503,15 @@ void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel)
     cz = (ceilZ+floorZ)>>1;
     GIBLIST *pGib = &gibList[nGibType];
     sfxPlay3DSound(cx, cy, cz, pGib->at10, nSector);
-    for (int i = 0; i < pGib->at4; i++)
+    for (int i = 0; i < pGib->Kills; i++)
     {
-        GIBFX *pGibFX = &pGib->at0[i];
+        GIBFX *pGibFX = &pGib->TotalKills[i];
         dassert(pGibFX->chance > 0);
         GibFX(nWall, pGibFX, ceilZ, wx, wy, wz, pVel);
     }
 }
 
-void gibPrecache(void)
+void gibPrecache(HitList &hits)
 {
     for (int i = 0; i < kGibMax; i++)
     {
@@ -522,8 +520,8 @@ void gibPrecache(void)
         {
             for (int j = 0; j < gibList[i].atc; j++)
             {
-                if (pThing[j].at4 >= 0)
-                    tilePrecacheTile(pThing[j].at4);
+                if (pThing[j].Kills >= 0)
+                    tilePrecacheTile(pThing[j].Kills, -1, hits);
             }
         }
     }

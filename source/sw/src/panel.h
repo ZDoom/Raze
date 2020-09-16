@@ -78,9 +78,7 @@ struct PANEL_STATEstruct
 #define PANF_TRANSLUCENT     (BIT(8)) // turn invisible
 #define PANF_INVISIBLE       (BIT(9)) // turn invisible
 #define PANF_DEATH_HIDE      (BIT(10)) // hide done when dead
-#define PANF_KILL_AFTER_SHOW (BIT(11)) // kill after showing numpages times
 #define PANF_SCREEN_CLIP     (BIT(12)) // maintain aspect to the screen
-#define PANF_STATUS_AREA     (BIT(13)) // maintain aspect to the screen
 #define PANF_IGNORE_START_MOST (BIT(14)) // maintain aspect to the screen
 #define PANF_XFLIP           (BIT(15)) // xflip
 #define PANF_SUICIDE         (BIT(16)) // kill myself
@@ -91,7 +89,6 @@ struct PANEL_STATEstruct
 #define PANF_JUMPING         (BIT(21))
 #define PANF_FALLING         (BIT(22))
 #define PANF_DRAW_BEFORE_VIEW (BIT(30)) // draw before drawrooms
-#define PANF_NOT_ALL_PAGES       (BIT(31)) // DONT use permanentwritesprite bit for rotatesprite
 
 typedef void (*PANEL_SPRITE_FUNCp)(PANEL_SPRITEp);
 
@@ -113,9 +110,9 @@ struct PANEL_SPRITEstruct
     PLAYERp PlayerP;
     // Do not change the order of this line
     uint16_t xfract;
-    int16_t x;
+    double x;
     uint16_t yfract;
-    int16_t y;                            // Do not change the order of this
+    double y;                            // Do not change the order of this
     // line
 
     PANEL_SPRITE_OVERLAY over[8];
@@ -124,7 +121,6 @@ struct PANEL_SPRITEstruct
     // list
     short picndx;                       // for pip stuff in conpic.h
     short picnum;                       // bypass pip stuff in conpic.h
-    short x1, y1, x2, y2;               // for rotatesprites box cliping
     short vel, vel_adj;
     short numpages;
     int xorig, yorig, flags, priority;
@@ -134,10 +130,13 @@ struct PANEL_SPRITEstruct
     short tics, delay;                  // time vars
     short ang, rotate_ang;
     short sin_ndx, sin_amt, sin_arc_speed;
-    short bob_height_shift;
+    double bob_height_divider;
     short shade, pal;
     short kill_tics;
     short WeaponType; // remember my own weapon type for weapons with secondary function
+
+    // Weapon interpolation variables.
+    double ox, oy;
 };
 
 typedef struct
@@ -184,21 +183,16 @@ enum BorderTypes
 #define SHOTGUN_AUTO_NUM 0
 #define SHOTGUN_AUTO 2078
 
-PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, int x, int y);
-PANEL_SPRITEp pSpawnFullScreenSprite(PLAYERp pp, short pic, short pri, int x, int y);
-PANEL_SPRITEp pSpawnFullViewSprite(PLAYERp pp,short pic,short pri,int x,int y);
+PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, double x, double y);
 void pSetSuicide(PANEL_SPRITEp psp);
-SWBOOL pKillScreenSpiteIDs(PLAYERp pp, short id);
-void pFlushPerms(PLAYERp pp);
-void PreUpdatePanel(void);
-void UpdatePanel(void);
-void PlayerUpdateKeys(PLAYERp pp);
+bool pKillScreenSpiteIDs(PLAYERp pp, short id);
+void PreUpdatePanel(double smoothratio);
+void UpdatePanel(double smoothratio);
 void PlayerUpdateArmor(PLAYERp pp,short value);
 void pToggleCrosshair(void);
 void pKillSprite(PANEL_SPRITEp psp);
 void InitChops(PLAYERp pp);
 void ChopsSetRetract(PLAYERp pp);
-void PlayerUpdateTimeLimit(PLAYERp pp);
 
 END_SW_NS
 

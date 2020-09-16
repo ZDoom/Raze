@@ -33,17 +33,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef NOONE_EXTENSIONS
 #include <random>
 #include "loadsave.h"
+#include "player.h"
 #include "aiunicult.h"
 #include "triggers.h"
 #include "sectorfx.h"
 #include "globals.h"
 #include "endgame.h"
-#include "weapon.h"
+#include "misc.h"
 #include "mmulti.h"
 #include "view.h"
-#include "tile.h"
-#include "trig.h"
-#include "sfx.h"
+#include "sound.h"
 #include "seq.h"
 #include "ai.h"
 
@@ -274,8 +273,6 @@ void nnExtInitModernStuff(bool bSaveLoad) {
 
     }*/
 
-	if (!gAllowTrueRandom) Printf("> STD randomness is not available, using in-game random function(s)");
-    else Printf("> Using STD randomness function(s).");
     
     for (int i = 0; i < kMaxXSprites; i++) {
 
@@ -355,7 +352,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 }
 
                 if (sysStat)
-                    ThrowError("Sprite status list number %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->index.cast(), pSprite->statnum.cast(), kStatModernBase, kStatModernMax);
+                    ThrowError("Sprite status list number %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->index, pSprite->statnum, kStatModernBase, kStatModernMax);
             }
 
             switch (pSprite->type) {
@@ -410,22 +407,22 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     switch (pXSprite->command) {
                         case kCmdLink:
                             if (pXSprite->data1 < 1 || pXSprite->data1 >= kMaxPlayers)
-                                ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", pSprite->index.cast(), pXSprite->data1);
+                                ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", pSprite->index, pXSprite->data1);
                             
                             //if (numplayers < pXSprite->data1)
                                 //ThrowError("\nPlayer Control (SPRITE #%d):\n There is no player #%d", pSprite->index, pXSprite->data1);
 
                             if (pXSprite->rxID && pXSprite->rxID != kChannelLevelStart)
-                                ThrowError("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", pSprite->index.cast(), pXSprite->data1);
+                                ThrowError("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", pSprite->index);
 
                             if (pXSprite->txID && pXSprite->txID < kChannelUser)
-                                ThrowError("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", pSprite->index.cast(), kChannelUser, kChannelMax);
+                                ThrowError("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", pSprite->index, kChannelUser, kChannelMax);
 
                             // only one linker per player allowed
                             for (int nSprite = headspritestat[kStatModernPlayerLinker]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
                                 XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
                                 if (pXSprite->data1 == pXCtrl->data1)
-                                    ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", pSprite->index.cast(), pXSprite->data1, nSprite);
+                                    ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", pSprite->index, pXSprite->data1, nSprite);
                             }
                             pXSprite->sysData1 = -1;
                             pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
@@ -443,7 +440,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                         
                         if (pXSprite->waitTime > 0) {
                             pXSprite->busyTime += ClipHigh(((pXSprite->waitTime * 120) / 10), 4095); pXSprite->waitTime = 0;
-                            consoleSysMsg("Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index.cast(), pXSprite->rxID, pXSprite->busyTime);
+                            consoleSysMsg("Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
                         }
 
                         pXSprite->busy = pXSprite->busyTime;
@@ -886,7 +883,7 @@ void nnExtProcessSuperSprites() {
 
             actAirDrag(pDebris, airVel);
 
-            if (((pDebris->index >> 8) & 15) == (gFrame & 15) && (pXDebris->physAttr & kPhysGravity))
+            if (((pDebris->index >> 8) & 15) == (gFrameCount & 15) && (pXDebris->physAttr & kPhysGravity))
                 pXDebris->physAttr |= kPhysFalling;
 
             if ((pXDebris->physAttr & 4) == 0 && xvel[pDebris->index] == 0 && yvel[pDebris->index] == 0 &&
@@ -948,10 +945,9 @@ int getSpriteMassBySize(spritetype* pSprite) {
     short massDiv = 30;  short addMul = 2; short subMul = 2;
 
     if (seqId >= 0) {
-        DICTNODE* hSeq = gSysRes.Lookup(seqId, "SEQ");
-        if (hSeq)
+        auto pSeq = getSequence(seqId);
+        if (pSeq)
         {
-            pSeq = (Seq*)gSysRes.Load(hSeq);
             picnum = seqGetTile(&pSeq->frames[0]);
         } else
             picnum = pSprite->picnum;
@@ -1352,7 +1348,7 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer) {
         // restore weapon
         if (pPlayer->pXSprite->health > 0) {
             int oldWeapon = (pXSource && pXSource->dropMsg != 0) ? pXSource->dropMsg : 1;
-            pPlayer->input.newWeapon = pPlayer->curWeapon = oldWeapon;
+            pPlayer->newWeapon = pPlayer->curWeapon = oldWeapon;
             WeaponRaise(pPlayer);
         }
     }
@@ -1488,13 +1484,14 @@ void trPlayerCtrlSetScreenEffect(XSPRITE* pXSource, PLAYER* pPlayer) {
 
 void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer) {
     
-    CONSTEXPR int upAngle = 289; CONSTEXPR int downAngle = -347;
-    CONSTEXPR double lookStepUp = 4.0 * upAngle / 60.0;
-    CONSTEXPR double lookStepDown = -4.0 * downAngle / 60.0;
+    const int upAngle = 289;
+	const int downAngle = -347;
+    const double lookStepUp = 4.0 * upAngle / 60.0;
+    const double lookStepDown = -4.0 * downAngle / 60.0;
 
     int look = pXSource->data2 << 5;
-    if (look > 0) pPlayer->q16look = fix16_min(mulscale8(F16(lookStepUp), look), F16(upAngle));
-    else if (look < 0) pPlayer->q16look = -fix16_max(mulscale8(F16(lookStepDown), abs(look)), F16(downAngle));
+    if (look > 0) pPlayer->q16look = min(mulscale8(FloatToFixed(lookStepUp), look), FloatToFixed(upAngle));
+    else if (look < 0) pPlayer->q16look = -max(mulscale8(FloatToFixed(lookStepDown), abs(look)), FloatToFixed(downAngle));
     else pPlayer->q16look = 0;
 
 }
@@ -1554,7 +1551,7 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                 consoleSysMsg("Weapon #%d is out of a weapons range!");
                 break;
             } else if (pXSource->data2 == 2 && pXSource->data4 == 0) {
-                consoleSysMsg("Zero ammo for weapon #%d is specyfied!");
+                consoleSysMsg("Zero ammo for weapon #%d is specified!");
                 break;
             }
             switch (weapon) {
@@ -1592,7 +1589,7 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                     XSPRITE* pXScene = &xsprite[sprite[pCtrl->qavScene.index].extra];
                     pXScene->dropMsg = weapon;
                 } else if (pPlayer->curWeapon != weapon) {
-                    pPlayer->input.newWeapon = weapon;
+                    pPlayer->newWeapon = weapon;
                     WeaponRaise(pPlayer);
                 }
             }
@@ -1992,7 +1989,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
 
                         xsprite[pSpr->extra].medium = kMediumNormal;
                         if (pPlayer) {
-                            pPlayer->posture = (!pPlayer->input.buttonFlags.crouch) ? kPostureStand : kPostureCrouch;
+                            pPlayer->posture = (!(pPlayer->input.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
                             pPlayer->nWaterPal = 0;
                         }
 
@@ -2089,7 +2086,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
 
             xsprite[pSprite->extra].medium = kMediumNormal;
             if (pPlayer) {
-                pPlayer->posture = (!pPlayer->input.buttonFlags.crouch) ? kPostureStand : kPostureCrouch;
+                pPlayer->posture = (!(pPlayer->input.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
                 pPlayer->nWaterPal = 0;
             }
 
@@ -2111,7 +2108,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
 
     if (pXSource->data2 == 1) {
         
-        if (pPlayer) pPlayer->q16ang = fix16_from_int(pSource->ang);
+        if (pPlayer) pPlayer->q16ang = IntToFixed(pSource->ang);
         else if (isDude) xsprite[pSprite->extra].goalAng = pSprite->ang = pSource->ang;
         else pSprite->ang = pSource->ang;
     }
@@ -2326,7 +2323,7 @@ void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
 
 void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
 
-    if (pXSource->data2 > 0 && !gSysRes.Lookup(pXSource->data2, "SEQ")) {
+    if (pXSource->data2 > 0 && !getSequence(pXSource->data2)) {
         consoleSysMsg("Missing sequence #%d", pXSource->data2);
         return;
     }
@@ -2502,11 +2499,11 @@ bool condCmpb(int val, int arg1, int arg2, int comOp) {
 void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
    
     char buffer[256]; char buffer2[512];
-    Bsprintf(buffer, "\nCONDITION RX: %d, TX: %d, SPRITE: #%d RETURNS:\n----------\n\n", pXCond->rxID, pXCond->txID, pXCond->reference);
+    sprintf(buffer, "\nCONDITION RX: %d, TX: %d, SPRITE: #%d RETURNS:\n----------\n\n", pXCond->rxID, pXCond->txID, pXCond->reference);
     va_list args;
     va_start(args, pzFormat);
     vsprintf(buffer2, pzFormat, args);
-    ThrowError(Bstrcat(buffer, buffer2));
+    ThrowError("%s%s", buffer, buffer2);
 }
 
 
@@ -2887,14 +2884,14 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             return true;
         case 10: // check keys pressed
             switch (arg1) {
-            case 1:  return (pPlayer->input.forward > 0);            // forward
-            case 2:  return (pPlayer->input.forward < 0);            // backward
-            case 3:  return (pPlayer->input.strafe > 0);             // left
-            case 4:  return (pPlayer->input.strafe < 0);             // right
-            case 5:  return (pPlayer->input.buttonFlags.jump);       // jump
-            case 6:  return (pPlayer->input.buttonFlags.crouch);     // crouch
-            case 7:  return (pPlayer->input.buttonFlags.shoot);      // normal fire weapon
-            case 8:  return (pPlayer->input.buttonFlags.shoot2);     // alt fire weapon
+            case 1:  return (pPlayer->input.fvel > 0);            // forward
+            case 2:  return (pPlayer->input.fvel < 0);            // backward
+            case 3:  return (pPlayer->input.svel > 0);             // left
+            case 4:  return (pPlayer->input.svel < 0);             // right
+            case 5:  return !!(pPlayer->input.actions & SB_JUMP);       // jump
+            case 6:  return !!(pPlayer->input.actions & SB_CROUCH);     // crouch
+            case 7:  return !!(pPlayer->input.actions & SB_FIRE);      // normal fire weapon
+            case 8:  return !!(pPlayer->input.actions & SB_ALTFIRE);     // alt fire weapon
             default:
                 condError(pXCond, "Player conditions:\nSpecify a correct key!");
                 break;
@@ -3068,9 +3065,9 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
                     var = HitScan(pSpr, pPlayer->zWeapon - pSpr->z, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
                 else if (IsDudeSprite(pSpr))
-                    var = HitScan(pSpr, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, gDudeSlope[pSpr->extra], arg1, arg3 << 1);
+                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), gDudeSlope[pSpr->extra], arg1, arg3 << 1);
                 else
-                    var = HitScan(pSpr, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, 0, arg1, arg3 << 1);
+                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), 0, arg1, arg3 << 1);
 
                 if (var >= 0) {
                     switch (cond) {
@@ -3219,7 +3216,8 @@ char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState) {
     if ((pXSprite->busy & 0xffff) == 0 && pXSprite->state == nState)
         return 0;
 
-    pXSprite->busy = nState << 16; pXSprite->state = nState;
+    pXSprite->busy  = IntToFixed(nState);
+    pXSprite->state = nState;
     
     evKill(nSprite, 3);
     if (pXSprite->restState != nState && pXSprite->waitTime > 0)
@@ -3679,7 +3677,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     return false; // go normal OperateSprite();
             
                 XSPRITE* pXSpawn = &xsprite[pSpawn->extra];
-                gKillMgr.sub_263E0(1);
+                gKillMgr.AddNewKill(1);
                 switch (pXSprite->data1) {
                     case kDudeBurningInnocent:
                     case kDudeBurningCultist:
@@ -3742,7 +3740,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             modernTypeSetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
             return true;
         case kModernCustomDudeSpawn:
-            if (gGameOptions.nMonsterSettings && genDudeSpawn(pSprite, -1) != NULL) gKillMgr.sub_263E0(1);
+            if (gGameOptions.nMonsterSettings && genDudeSpawn(pSprite, -1) != NULL) gKillMgr.AddNewKill(1);
             return true;
         case kModernSeqSpawner:
         case kModernEffectSpawner:
@@ -3962,8 +3960,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 case 9: // 73 (set player's sprite angle, TO-DO: if tx > 0, take a look on TX ID sprite)
                     //data4 is reserved
                     if (pXSprite->data4 != 0) break;
-                    else if (pSprite->flags & kModernTypeFlag1) pPlayer->q16ang = fix16_from_int(pSprite->ang);
-                    else if (valueIsBetween(pXSprite->data2, -kAng360, kAng360)) pPlayer->q16ang = fix16_from_int(pXSprite->data2);
+                    else if (pSprite->flags & kModernTypeFlag1) pPlayer->q16ang = IntToFixed(pSprite->ang);
+                    else if (valueIsBetween(pXSprite->data2, -kAng360, kAng360)) pPlayer->q16ang = IntToFixed(pXSprite->data2);
                     break;
             }
         }
@@ -4275,8 +4273,8 @@ void useUniMissileGen(int, int nXSprite) {
         if (pSprite->cstat & 8) dz = 0x4000;
         else dz = -0x4000;
     } else {
-        dx = Cos(pSprite->ang) >> 16;
-        dy = Sin(pSprite->ang) >> 16;
+        dx = CosScale16(pSprite->ang);
+        dy = SinScale16(pSprite->ang);
         dz = pXSprite->data3 << 6; // add slope controlling
         if (dz > 0x10000) dz = 0x10000;
         else if (dz < -0x10000) dz = -0x10000;
@@ -4590,7 +4588,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             return;
         }
         // lets try to look for target that fits better by distance
-        else if (((int)gFrameClock & 256) != 0 && (pXSprite->target < 0 || aiFightGetTargetDist(pSprite, pDudeInfo, pTarget) >= mDist)) {
+        else if ((gFrameClock & 256) != 0 && (pXSprite->target < 0 || aiFightGetTargetDist(pSprite, pDudeInfo, pTarget) >= mDist)) {
             pTarget = aiFightGetTargetInRange(pSprite, 0, mDist, pXSource->data1, pXSource->data2);
             if (pTarget != NULL) {
                 pXTarget = &xsprite[pTarget->extra];
@@ -4620,7 +4618,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
         }
     }
     
-    if ((pXSprite->target < 0 || pPlayer != NULL) && ((int)gFrameClock & 32) != 0) {
+    if ((pXSprite->target < 0 || pPlayer != NULL) && (gFrameClock & 32) != 0) {
         // try find first target that dude can see
         for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
             
@@ -4666,7 +4664,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
     }
 
     // got no target - let's ask mates if they have targets
-    if ((pXSprite->target < 0 || pPlayer != NULL) && pXSource->data2 == 1 && ((int)gFrameClock & 64) != 0) {
+    if ((pXSprite->target < 0 || pPlayer != NULL) && pXSource->data2 == 1 && (gFrameClock & 64) != 0) {
         spritetype* pMateTarget = NULL;
         if ((pMateTarget = aiFightGetMateTargets(pXSprite)) != NULL && pMateTarget->extra > 0) {
             XSPRITE* pXMateTarget = &xsprite[pMateTarget->extra];
@@ -4742,11 +4740,9 @@ void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
 
 // player related
 QAV* playerQavSceneLoad(int qavId) {
-    QAV* pQav = NULL; DICTNODE* hQav = gSysRes.Lookup(qavId, "QAV");
+    QAV* pQav = getQAV(qavId);
 
-    if (hQav) pQav = (QAV*)gSysRes.Lock(hQav);
-    else viewSetSystemMessage("Failed to load QAV animation #%d", qavId);
-
+    if (!pQav) viewSetSystemMessage("Failed to load QAV animation #%d", qavId);
     return pQav;
 }
 
@@ -4797,7 +4793,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
     }
 }
 
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5) {
+void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, int smoothratio) {
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
@@ -4806,32 +4802,24 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5) {
     if (pQavScene->qavResrc != NULL) {
 
         QAV* pQAV = pQavScene->qavResrc;
-        int v4 = (pPlayer->weaponTimer == 0) ? (int)totalclock % pQAV->at10 : pQAV->at10 - pPlayer->weaponTimer;
+        int v4 = (pPlayer->weaponTimer == 0) ? ((gFrameClock + mulscale16(4, smoothratio)) % pQAV->at10) : pQAV->at10 - pPlayer->weaponTimer;
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
-        if (nInv >= 120 * 8 || (nInv != 0 && ((int)totalclock & 32))) {
+        if (nInv >= 120 * 8 || (nInv != 0 && (gFrameClock & 32))) {
             a2 = -128; flags |= 1;
         }
 
         // draw as weapon
         if (!(pSprite->flags & kModernTypeFlag1)) {
 
-            pQAV->x = a3; pQAV->y = a4;
-            pQAV->Draw(v4, flags, a2, a5);
+            pQAV->x = int(a3); pQAV->y = int(a4);
+            pQAV->Draw(a3, a4, v4, flags, a2, a5, true);
 
             // draw fullscreen (currently 4:3 only)
         } else {
-
-            int wx1 = windowxy1.x, wy1 = windowxy1.y, wx2 = windowxy2.x, wy2 = windowxy2.y;
-
-            windowxy2.x = xdim - 1; windowxy2.y = ydim - 1;
-            windowxy1.x = windowxy1.y = 0;
-
-            pQAV->Draw(v4, flags, a2, a5);
-
-            windowxy1.x = wx1; windowxy1.y = wy1;
-            windowxy2.x = wx2; windowxy2.y = wy2;
-
+            // What an awful hack. This throws proper ordering out of the window, but there is no way to reproduce this better with strict layering of elements.
+			// From the above commit it seems to be incomplete anyway...
+            pQAV->Draw(v4, flags, a2, a5, false);
         }
 
     }
@@ -5182,11 +5170,10 @@ void seqSpawnerOffSameTx(XSPRITE* pXSource) {
 // it allows to set custom next level instead of taking it from INI file.
 void levelEndLevelCustom(int nLevel) {
 
-    gGameOptions.uGameFlags |= 1;
+    gGameOptions.uGameFlags |= GF_AdvanceLevel;
 
     if (nLevel >= 16 || nLevel < 0) {
-        gGameOptions.uGameFlags |= 2;
-        gGameOptions.nLevel = 0;
+        gGameOptions.uGameFlags |= GF_EndGame;
         return;
     }
 

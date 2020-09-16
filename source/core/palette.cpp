@@ -32,12 +32,10 @@
 */ 
 
 #include "build.h"
-#include "baselayer.h"
 #include "imagehelpers.h"
 
 #include "palette.h"
 #include "superfasthash.h"
-#include "common.h"
 #include "memarena.h"
 #include "palettecontainer.h"
 #include "palutil.h"
@@ -45,6 +43,7 @@
 #include "m_swap.h"
 #include "v_colortables.h"
 #include "v_font.h"
+#include "printf.h"
 #include "../../glbackend/glbackend.h"
 
 LookupTableInfo lookups;
@@ -64,13 +63,14 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency,
         BuildTransTable(GPalette.BaseColors);
     }
     FRemapTable remap;
-    remap.AddColors(0, 256, table, 255);
+    remap.AddColors(0, 256, table, -1);
     if (!notransparency)
     {
         remap.Palette[255] = 0;
         remap.Remap[255] = 255;
     }
-    remap.Inactive = twodonly;  // use Inactive as a marker for the postprocessing so that for pure 2D palettes the creation of shade tables can be skipped.
+    remap.TwodOnly = twodonly;  // 
+    remap.NoTransparency = notransparency;
     GPalette.UpdateTranslation(TRANSLATION(Translation_BasePalettes, id), &remap);
 }
 
@@ -254,9 +254,8 @@ void LookupTableInfo::postLoadLookups()
         auto palette = GPalette.GetTranslation(Translation_BasePalettes, i);
         if (!palette) continue;
 
-        if (palette->Inactive)
+        if (palette->TwodOnly)
         {
-            palette->Inactive = false;
             GPalette.CopyTranslation(TRANSLATION(Translation_Remap + i, 0), TRANSLATION(Translation_BasePalettes, i));
         }
         else
@@ -267,7 +266,7 @@ void LookupTableInfo::postLoadLookups()
                 {
                     const uint8_t* lookup = (uint8_t*)tables[l].Shades.GetChars();
                     FRemapTable remap;
-                    if (i == 0 || (palette != basepalette && !palette->Inactive))
+                    if (i == 0 || (palette != basepalette && !palette->TwodOnly))
                     {
                         memcpy(remap.Remap, lookup, 256);
                         for (int j = 0; j < 256; j++)
@@ -277,28 +276,26 @@ void LookupTableInfo::postLoadLookups()
                         remap.NumEntries = 256;
                         GPalette.UpdateTranslation(TRANSLATION(i + Translation_Remap, l), &remap);
                     }
-                    if (palette != basepalette) palette->Inactive = false;  // clear the marker flag
                 }
             }
         }
     }
-    // Assuming that color 255 is always transparent, do the following:
-    // Copy color 0 to color 255
-    // Set color 0 to transparent black
-    // Swap all remap entries from 0 to 255 and vice versa
-    // Always map 0 to 0.
 
+    // Swap colors 0 and 255. Note that color 255 may not be translucent!
     auto colorswap = [](FRemapTable* remap)
     {
-        remap->Palette[255] = remap->Palette[0];
-        remap->Palette[0] = 0;
-        remap->Remap[255] = remap->Remap[0];
+        std::swap(remap->Palette[255], remap->Palette[0]);
+        std::swap(remap->Remap[255], remap->Remap[0]);
         for (auto& c : remap->Remap)
         {
             if (c == 0) c = 255;
             else if (c == 255) c = 0;
         }
-        remap->Remap[0] = 0;
+        if (!remap->NoTransparency)
+        {
+            remap->Remap[0] = 0;
+            remap->Palette[0] = 0;
+        }
     };
 
     for (auto remap : GPalette.uniqueRemaps)
@@ -425,10 +422,9 @@ static int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;
 glblend_t glblend[MAXBLENDTABS];
 
 
-void videoSetPalette(int dabrightness, int palid, ESetPalFlags flags)
+void videoSetPalette(int palid)
 {
 	curbasepal = (GPalette.GetTranslation(Translation_BasePalettes, palid) == nullptr)? 0 : palid;
-    if ((flags & Pal_DontResetFade) == 0) palfadergb = 0;
 }
 
 //==========================================================================

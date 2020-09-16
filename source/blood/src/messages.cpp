@@ -28,23 +28,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "common_game.h"
 #include "blood.h"
-#include "config.h"
-#include "demo.h"
 #include "eventq.h"
 #include "globals.h"
 #include "levels.h"
 #include "loadsave.h"
-#include "gamemenu.h"
 #include "messages.h"
-#include "network.h"
 #include "player.h"
 #include "view.h"
 #include "gstrings.h"
+#include "cheathandler.h"
+#include "d_protocol.h"
+#include "gamestate.h"
+#include "automap.h"
 
 BEGIN_BLD_NS
-
-CPlayerMsg gPlayerMsg;
-CCheatMgr gCheatMgr;
 
 void sub_5A928(void)
 {
@@ -52,22 +49,18 @@ void sub_5A928(void)
         buttonMap.ClearButton(i);
 }
 
-void SetGodMode(bool god)
+const char *SetGodMode(bool god)
 {
     playerSetGodMode(gMe, god);
-    if (gMe->godMode)
-		viewSetMessage(GStrings("TXTB_GODMODE"));
-    else
-        viewSetMessage(GStrings("TXTB_NOTGODMODE"));
+    bPlayerCheated = true;
+    return gMe->godMode? GStrings("TXTB_GODMODE") : GStrings("TXTB_NOTGODMODE");
 }
 
-void SetClipMode(bool noclip)
+const char *SetClipMode(bool noclip)
 {
     gNoClip = noclip;
-    if (gNoClip)
-		viewSetMessage(GStrings("TXTB_NOCLIP"));
-    else
-        viewSetMessage(GStrings("TXTB_NOCLIPOFF"));
+    bPlayerCheated = true;
+    return gNoClip? GStrings("TXTB_NOCLIP") : GStrings("TXTB_NOCLIPOFF");
 }
 
 void packStuff(PLAYER *pPlayer)
@@ -275,462 +268,65 @@ void ToggleDelirium(void)
     }
 }
 
-void LevelWarp(int nEpisode, int nLevel)
+bool bPlayerCheated = false;
+
+static int parseArgs(char *pzArgs, int *nArg1, int *nArg2)
 {
-    levelSetupOptions(nEpisode, nLevel);
-    StartLevel(&gGameOptions);
-    viewResizeView(gViewSize);
-}
-
-void LevelWarpAndRecord(int nEpisode, int nLevel)
-{
-    char buffer[BMAX_PATH];
-    levelSetupOptions(nEpisode, nLevel);
-    gGameStarted = false;
-    strcpy(buffer, levelGetFilename(nEpisode, nLevel));
-    ChangeExtension(buffer, ".DEM");
-    gDemo.Create(buffer);
-    StartLevel(&gGameOptions);
-    viewResizeView(gViewSize);
-}
-
-CGameMessageMgr::CGameMessageMgr()
-{
-    if (!VanillaMode())
-        Clear();
-    x = 1;
-    y = 0;
-    at9 = 0;
-    atd = 0;
-    nFont = 0;
-    fontHeight = 8;
-    maxNumberOfMessagesToDisplay = 4;
-    visibilityDurationInSecs = 5;
-    messageFlags = 15;
-    numberOfDisplayedMessages = 0;
-    nextMessagesIndex = messagesIndex = 0;
-}
-
-void CGameMessageMgr::SetState(char state)
-{
-    if (this->state && !state)
-    {
-        this->state = 0;
-        Clear();
-    }
-    else if (!this->state && state)
-        this->state = 1;
-}
-
-void CGameMessageMgr::Add(const char *pText, char a2, const int pal, const MESSAGE_PRIORITY priority)
-{
-    if (a2 && messageFlags && hud_messages == 1)	// add only if messages are enabled and in native format
-    {
-        messageStruct *pMessage = &messages[nextMessagesIndex];
-        strncpy(pMessage->text, pText, kMaxMessageTextLength-1);
-        pMessage->text[kMaxMessageTextLength-1] = 0;
-        pMessage->lastTickWhenVisible = gFrameClock + visibilityDurationInSecs*kTicRate;
-        pMessage->pal = pal;
-        pMessage->priority = priority;
-        pMessage->deleted = false;
-        nextMessagesIndex = (nextMessagesIndex+1)%kMessageLogSize;
-        if (VanillaMode())
-        {
-            numberOfDisplayedMessages++;
-            if (numberOfDisplayedMessages > maxNumberOfMessagesToDisplay)
-            {
-                messagesIndex = (messagesIndex+1)%kMessageLogSize;
-                atd = 0;
-                numberOfDisplayedMessages = maxNumberOfMessagesToDisplay;
-                at9 = fontHeight;
-            }
-        }
-    }
-}
-
-void CGameMessageMgr::Display(void)
-{
-    if (VanillaMode())
-    {
-        if (numberOfDisplayedMessages && this->state && gInputMode != kInputMessage)
-        {
-            int initialNrOfDisplayedMsgs = numberOfDisplayedMessages;
-            int initialMessagesIndex = messagesIndex;
-            int shade = ClipHigh(initialNrOfDisplayedMsgs*8, 48);
-            int x = gViewMode == 3 ? gViewX0S : 0;
-            int y = (gViewMode == 3 ? this->y : 0) + (int)at9;
-            for (int i = 0; i < initialNrOfDisplayedMsgs; i++)
-            {
-                messageStruct* pMessage = &messages[(initialMessagesIndex+i)%kMessageLogSize];
-                if (pMessage->lastTickWhenVisible < gFrameClock)
-                {
-                    messagesIndex = (messagesIndex+1)%kMessageLogSize;
-                    numberOfDisplayedMessages--;
-                    continue;
-                }
-                viewDrawText(nFont, pMessage->text, x, y, shade, pMessage->pal, 0, false, 256);
-                if (gViewMode == 3)
-                {
-                    int height;
-                    viewGetFontInfo(nFont, pMessage->text, &height, NULL);
-                    if (x+height > gViewX1S)
-                        viewUpdatePages();
-                }
-                y += fontHeight;
-                shade = ClipLow(shade-64/initialNrOfDisplayedMsgs, -128);
-            }
-        }
-    }
-    else
-    {
-        if (this->state && gInputMode != kInputMessage)
-        {
-            messageStruct* currentMessages[kMessageLogSize];
-            int currentMessagesCount = 0;
-            for (int i = 0; i < kMessageLogSize; i++)
-            {
-                messageStruct* pMessage = &messages[i];
-                if (gFrameClock < pMessage->lastTickWhenVisible && !pMessage->deleted)
-                {
-                    currentMessages[currentMessagesCount++] = pMessage;
-                }
-            }
-
-            SortMessagesByPriority(currentMessages, currentMessagesCount);
-
-            messageStruct* messagesToDisplay[kMessageLogSize];
-            int messagesToDisplayCount = 0;
-            for (int i = 0; i < currentMessagesCount && messagesToDisplayCount < maxNumberOfMessagesToDisplay; i++)
-            {
-                messagesToDisplay[messagesToDisplayCount++] = currentMessages[i];
-            }
-
-            SortMessagesByTime(messagesToDisplay, messagesToDisplayCount);
-
-            int shade = ClipHigh(messagesToDisplayCount*8, 48);
-            int x = gViewMode == 3 ? gViewX0S : 0;
-            int y = (gViewMode == 3 ? this->y : 0) + (int)at9;
-            for (int i = 0; i < messagesToDisplayCount; i++)
-            {
-                messageStruct* pMessage = messagesToDisplay[i];
-                viewDrawText(nFont, pMessage->text, x, y, shade, pMessage->pal, 0, false, 256);
-                if (gViewMode == 3)
-                {
-                    int height;
-                    viewGetFontInfo(nFont, pMessage->text, &height, NULL);
-                    if (x+height > gViewX1S)
-                        viewUpdatePages();
-                }
-                y += fontHeight;
-                shade = ClipLow(shade-64/messagesToDisplayCount, -128);
-            }
-        }
-    }
-    if (at9 != 0)
-    {
-        at9 = fontHeight*at9/kTicRate;
-        atd += gFrameTicks;
-    }
-}
-
-void CGameMessageMgr::Clear(void)
-{
-    if (VanillaMode())
-    {
-        messagesIndex = nextMessagesIndex = numberOfDisplayedMessages = 0;
-    }
-    else
-    {
-        for (int i = 0; i < kMessageLogSize; i++)
-        {
-            messageStruct* pMessage = &messages[i];
-            pMessage->deleted = true;
-        }
-    }
-}
-
-void CGameMessageMgr::SetMaxMessages(int nMessages)
-{
-    maxNumberOfMessagesToDisplay = ClipRange(nMessages, 1, 16);
-}
-
-void CGameMessageMgr::SetFont(int nFont)
-{
-    this->nFont = nFont;
-    fontHeight = gFont[nFont].ySize;
-}
-
-void CGameMessageMgr::SetCoordinates(int x, int y)
-{
-    this->x = ClipRange(x, 0, gViewX1S);
-    this->y = ClipRange(y, 0, gViewY1S);
-}
-
-void CGameMessageMgr::SetMessageTime(int nTime)
-{
-    visibilityDurationInSecs = ClipRange(nTime, 1, 8);
-}
-
-void CGameMessageMgr::SetMessageFlags(unsigned int nFlags)
-{
-    messageFlags = nFlags&0xf;
-}
-
-void CGameMessageMgr::SortMessagesByPriority(messageStruct** messages, int count) {
-    for (int i = 1; i < count; i++)
-    {
-        for (int j = 0; j < count - i; j++)
-        {
-            if (messages[j]->priority != messages[j + 1]->priority ? messages[j]->priority < messages[j + 1]->priority : messages[j]->lastTickWhenVisible < messages[j + 1]->lastTickWhenVisible)
-            {
-                messageStruct* temp = messages[j];
-                messages[j] = messages[j + 1];
-                messages[j + 1] = temp;
-            }
-        }
-    }
-}
-
-void CGameMessageMgr::SortMessagesByTime(messageStruct** messages, int count) {
-    for (int i = 1; i < count; i++)
-    {
-        for (int j = 0; j < count - i; j++)
-        {
-            if (messages[j]->lastTickWhenVisible > messages[j + 1]->lastTickWhenVisible)
-            {
-                messageStruct* temp = messages[j];
-                messages[j] = messages[j + 1];
-                messages[j + 1] = temp;
-            }
-        }
-    }
-}
-
-void CPlayerMsg::Clear(void)
-{
-    text[0] = 0;
-    at0 = 0;
-}
-
-void CPlayerMsg::Term(void)
-{
-    Clear();
-    gInputMode = kInputGame;
-}
-
-void CPlayerMsg::Draw(void)
-{
-    char buffer[44];
-    strcpy(buffer, text);
-    if ((int)totalclock & 16)
-        strcat(buffer, "_");
-    int x = gViewMode == 3 ? gViewX0S : 0;
-    int y = gViewMode == 3 ? gViewY0S : 0;
-    if (gViewSize >= 1)
-        y += tilesiz[2229].y*((gNetPlayers+3)/4);
-    viewDrawText(0, buffer, x+1,y+1, -128, 0, 0, false, 256);
-    viewUpdatePages();
-}
-
-bool CPlayerMsg::AddChar(char ch)
-{
-    if (at0 < 40)
-    {
-        text[at0++] = ch;
-        text[at0] = 0;
-        return true;
-    }
-    return false;
-}
-
-void CPlayerMsg::DelChar(void)
-{
-    if (at0 > 0)
-        text[--at0] = 0;
-}
-
-void CPlayerMsg::Set(const char * pzString)
-{
-    strncpy(text, pzString, 40);
-    at0 = ClipHigh(strlen(pzString), 40);
-    text[at0] = 0;
-}
-
-void CPlayerMsg::Send(void)
-{
-    if (VanillaMode() || !IsWhitespaceOnly(text))
-    {
-        netBroadcastMessage(myconnectindex, text);
-        if (!VanillaMode())
-        {
-            char *myName = gProfile[myconnectindex].name;
-            char szTemp[128];
-            sprintf(szTemp, "%s: %s", myName, text);
-            viewSetMessage(szTemp, 10); // 10: dark blue
-        }
-        else
-            viewSetMessage(text);
-    }
-
-    Term();
-    inputState.keyFlushScans();
-}
-
-void CPlayerMsg::ProcessKeys(void)
-{
-	if (inputState.GetKeyStatus(sc_Escape)) Term();
-}
-
-bool CPlayerMsg::IsWhitespaceOnly(const char * const pzString)
-{
-    const char *p = pzString;
-    while (*p != 0)
-        if (*p++ > 32)
-            return false;
-    return true;
-}
-
-CCheatMgr::CHEATINFO CCheatMgr::s_CheatInfo[] = {
-    {"NQLGB", kCheatMpkfa, 0 }, // MPKFA (Invincibility)
-    {"DBQJONZBTT", kCheatCapInMyAss, 0 }, // CAPINMYASS (Disable invincibility )
-    {"OPDBQJONZBTT", kCheatNoCapInMyAss, 0 }, // NOCAPINMYASS (Invincibility)
-    {"J!XBOOB!CF!MJLF!LFWJO", kCheatNoCapInMyAss, 0 }, // I WANNA BE LIKE KEVIN (Invincibility)
-    {"JEBIP", kCheatIdaho, 0 }, // IDAHO (All weapons and full ammo)
-    {"NPOUBOB", kCheatMontana, 0 }, // MONTANA (All weapons, full ammo and all items)
-    {"HSJTXPME", kCheatGriswold, 0 }, // GRISWOLD (Full armor (same effect as getting super armor))
-    {"FENBSL", kCheatEdmark, 0 }, // EDMARK (Does a lot of fire damage to you (if you have 200HP and 200 fire armor then you can survive). Displays the message "THOSE WERE THE DAYS".)
-    {"UFRVJMB", kCheatTequila, 0 }, // TEQUILA (Guns akimbo power-up)
-    {"CVO[", kCheatBunz, 0 }, // BUNZ (All weapons, full ammo, and guns akimbo power-up)
-    {"GVOLZ!TIPFT", kCheatFunkyShoes, 0 }, // FUNKY SHOES (Gives jump boots item and activates it)
-    {"HBUFLFFQFS", kCheatGateKeeper, 0 }, // GATEKEEPER (Sets the you cheated flag to true, at the end of the level you will see that you have cheated)
-    {"LFZNBTUFS", kCheatKeyMaster, 0 }, // KEYMASTER (All keys)
-    {"KPKP", kCheatJoJo, 0 }, // JOJO (Drunk mode (same effect as getting bitten by red spider))
-    {"TBUDIFM", kCheatSatchel, 0 }, // SATCHEL (Full inventory)
-    {"TQPSL", kCheatSpork, 0 }, // SPORK (200% health (same effect as getting life seed))
-    {"POFSJOH", kCheatOneRing, 0 }, // ONERING (Cloak of invisibility power-up)
-    {"NBSJP", kCheatMario, 1 }, // MARIO (Warp to level E M, e.g.: MARIO 1 3 will take you to Phantom Express)
-    {"DBMHPO", kCheatCalgon, 1 }, // CALGON (Jumps to next level or can be used like MARIO with parameters)
-    {"LFWPSLJBO", kCheatKevorkian, 0 }, // KEVORKIAN (Does a lot of physical damage to you (if you have 200HP and 200 fire armor then you can survive). Displays the message "KEVORKIAN APPROVES".)
-    {"NDHFF", kCheatMcGee, 0 }, // MCGEE (Sets you on fire. Displays the message "YOU'RE FIRED".)
-    {"LSVFHFS", kCheatKrueger, 0 }, // KRUEGER (200% health, but sets you on fire. Displays the message "FLAME RETARDANT".)
-    {"DIFFTFIFBE", kCheatCheeseHead, 0 }, // CHEESEHEAD (100% diving suit)
-    {"DPVTUFBV", kCheatCousteau, 0 }, // COUSTEAU (200% health and diving suit)
-    {"WPPSIFFT", kCheatVoorhees, 0 }, // VOORHEES (Death mask power-up)
-    {"MBSB!DSPGU", kCheatLaraCroft, 0 }, // LARA CROFT (All weapons and infinite ammo. Displays the message "LARA RULES". Typing it the second time will lose all weapons and ammo.)
-    {"IPOHLPOH", kCheatHongKong, 0 }, // HONGKONG (All weapons and infinite ammo)
-    {"GSBOLFOTUFJO", kCheatFrankenstein, 0 }, // FRANKENSTEIN (100% med-kit)
-    {"TUFSOP", kCheatSterno, 0 }, // STERNO (Temporary blindness (same effect as getting bitten by green spider))
-    {"DMBSJDF", kCheatClarice, 0 }, // CLARICE (Gives 100% body armor, 100% fire armor, 100% spirit armor)
-    {"GPSL!ZPV", kCheatForkYou, 0 }, // FORK YOU (Drunk mode, 1HP, no armor, no weapons, no ammo, no items, no keys, no map, guns akimbo power-up)
-    {"MJFCFSNBO", kCheatLieberMan, 0 }, // LIEBERMAN (Sets the you cheated flag to true, at the end of the level you will see that you have cheated)
-    {"FWB!HBMMJ", kCheatEvaGalli, 0 }, // EVA GALLI (Disable/enable clipping (grant the ability to walk through walls))
-    {"SBUF", kCheatRate, 0 }, // RATE (Display frame rate (doesn't count as a cheat))
-    {"HPPOJFT", kCheatGoonies, 0 }, // GOONIES (Enable full map. Displays the message "YOU HAVE THE MAP".)
-    {"TQJFMCFSH", kCheatSpielberg, 1 }, // SPIELBERG (Disables all cheats. If number values corresponding to a level and episode number are entered after the cheat word (i.e. "spielberg 1 3" for Phantom Express), you will be spawned to said level and the game will begin recording a demo from your actions.)
-};
-
-bool CCheatMgr::m_bPlayerCheated = false;
-
-bool CCheatMgr::Check(char *pzString)
-{
-    char buffer[80];
-    strcpy(buffer, pzString);
-    for (size_t i = 0; i < strlen(pzString); i++)
-        buffer[i]++;
-    for (int i = 0; i < 36; i++)
-    {
-        int nCheatLen = strlen(s_CheatInfo[i].pzString);
-        if (s_CheatInfo[i].flags & 1)
-        {
-            if (!strnicmp(buffer, s_CheatInfo[i].pzString, nCheatLen))
-            {
-                Process(s_CheatInfo[i].id, buffer+nCheatLen);
-                return true;
-            }
-        }
-        if (!strcmp(buffer, s_CheatInfo[i].pzString))
-        {
-            Process(s_CheatInfo[i].id, NULL);
-            return true;
-        }
-    }
-    return false;
-}
-
-int parseArgs(char *pzArgs, int *nArg1, int *nArg2)
-{
-    if (!nArg1 || !nArg2)
+    if (!nArg1 || !nArg2 || strlen(pzArgs) < 3)
         return -1;
-    int nLength = strlen(pzArgs);
-    for (int i = 0; i < nLength; i++)
-        pzArgs[i]--;
-    int stat = sscanf(pzArgs, " %d %d", nArg1, nArg2);
-    if (stat == 2 && (*nArg1 == 0 || *nArg2 == 0))
-        return -1;
-    *nArg1 = ClipRange(*nArg1-1, 0, gEpisodeCount-1);
-    *nArg2 = ClipRange(*nArg2-1, 0, gEpisodeInfo[*nArg1].nLevels-1);
-    return stat;
+	*nArg1 = pzArgs[0] - '0' - 1;
+	*nArg2 = (pzArgs[1] - '0')*10+(pzArgs[2]-'0') - 1;
+    *nArg1 = ClipRange(*nArg1, 0, gEpisodeCount-1);
+    *nArg2 = ClipRange(*nArg2, 0, gEpisodeInfo[*nArg1].nLevels-1);
+    return 2;
 }
 
-void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
+const char* GameInterface::GenericCheat(int player, int cheat)
 {
-    dassert(nCheatCode > kCheatNone && nCheatCode < kCheatMax);
+    // message processing is not perfect because many cheats output multiple messages.
 
-    if (gDemo.at0) return;
-    if (nCheatCode == kCheatRate)
+    if (gGameOptions.nGameType != 0 || numplayers > 1) // sp only for now.
+        return nullptr;
+
+    if (gamestate != GS_LEVEL || gMe->pXSprite->health == 0) // must be alive and in a level to cheat.
+        return nullptr;
+
+    bPlayerCheated = true;
+    switch (cheat)
     {
-        r_showfps = !r_showfps;
-        return;
-    }
-    if (gGameOptions.nGameType != 0)
-        return;
-    int nEpisode, nLevel;
-    switch (nCheatCode)
-    {
+    case CHT_GOD:
+        return SetGodMode(!gMe->godMode);
+
+    case CHT_GODOFF:
+        return SetGodMode(false);
+
+    case CHT_GODON:
+        return SetGodMode(true);
+
+    case CHT_NOCLIP:
+        return SetClipMode(!gNoClip);
+
     case kCheatSpielberg:
-        if (parseArgs(pzArgs, &nEpisode, &nLevel) == 2)
-            LevelWarpAndRecord(nEpisode, nLevel);
-        break;
-    case kCheat1:
-        SetAmmo(true);
-        break;
-    case kCheatGriswold:
-        SetArmor(true);
+        // demo record
         break;
     case kCheatSatchel:
         SetToys(true);
         break;
-    case kCheatEvaGalli:
-        SetClipMode(!gNoClip);
-        break;
-    case kCheatMpkfa:
-        SetGodMode(!gMe->godMode);
-        break;
-    case kCheatCapInMyAss:
-        SetGodMode(false);
-        break;
-    case kCheatNoCapInMyAss:
-        SetGodMode(true);
-        break;
-    case kCheatIdaho:
-        SetWeapons(true);
-        break;
     case kCheatKevorkian:
         actDamageSprite(gMe->nSprite, gMe->pSprite, DAMAGE_TYPE_2, 8000);
-        viewSetMessage(GStrings("TXTB_KEVORKIAN"));
-        break;
+        return GStrings("TXTB_KEVORKIAN");
+
     case kCheatMcGee:
     {
         if (!gMe->pXSprite->burnTime)
             evPost(gMe->nSprite, 3, 0, kCallbackFXFlameLick);
         actBurnSprite(actSpriteIdToOwnerId(gMe->nSprite), gMe->pXSprite, 2400);
-        viewSetMessage(GStrings("TXTB_FIRED"));
-        break;
+        return GStrings("TXTB_FIRED");
     }
     case kCheatEdmark:
         actDamageSprite(gMe->nSprite, gMe->pSprite, DAMAGE_TYPE_3, 8000);
-        viewSetMessage(GStrings("TXTB_THEDAYS"));
-        break;
+        return GStrings("TXTB_THEDAYS");
+
     case kCheatKrueger:
     {
         actHealDude(gMe->pXSprite, 200, 200);
@@ -738,8 +334,7 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
         if (!gMe->pXSprite->burnTime)
             evPost(gMe->nSprite, 3, 0, kCallbackFXFlameLick);
         actBurnSprite(actSpriteIdToOwnerId(gMe->nSprite), gMe->pXSprite, 2400);
-        viewSetMessage(GStrings("TXTB_RETARD"));
-        break;
+        return GStrings("TXTB_RETARD");
     }
     case kCheatSterno:
         gMe->blindEffect = 250;
@@ -750,17 +345,10 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
     case kCheatSpork:
         actHealDude(gMe->pXSprite, 200, 200);
         break;
-    case kCheatGoonies:
-        SetMap(!gFullMap);
-        break;
     case kCheatClarice:
-        if (!VanillaMode())
-        {
-            viewSetMessage(GStrings("TXTB_HALFARMOR"));
-            for (int i = 0; i < 3; i++)
-                gMe->armor[i] = 1600;
-        }
-        break;
+        for (int i = 0; i < 3; i++)
+            gMe->armor[i] = 1600;
+        return GStrings("TXTB_HALFARMOR");
     case kCheatFrankenstein:
         gMe->packSlots[0].curAmount = 100;
         break;
@@ -787,19 +375,6 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
     case kCheatJoJo:
         ToggleDelirium();
         break;
-    case kCheatRate: // show FPS, handled before (dead code), leave here for safety
-        return;
-    case kCheatMario:
-        if (parseArgs(pzArgs, &nEpisode, &nLevel) == 2)
-            LevelWarp(nEpisode, nLevel);
-        break;
-    case kCheatCalgon:
-        if (parseArgs(pzArgs, &nEpisode, &nLevel) == 2)
-            LevelWarp(nEpisode, nLevel);
-        else
-            if (!VanillaMode())
-                levelEndLevel(0);
-        break;
     case kCheatLaraCroft:
         SetInfiniteAmmo(!gInfiniteAmmo);
         SetWeapons(gInfiniteAmmo);
@@ -817,7 +392,7 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
         SetWooMode(true);
         break;
     case kCheatCousteau:
-        actHealDude(gMe->pXSprite,200,200);
+        actHealDude(gMe->pXSprite, 200, 200);
         gMe->packSlots[1].curAmount = 100;
         if (!VanillaMode())
             gMe->pwUpTime[kPwUpDivingSuit] = gPowerUpInfo[kPwUpDivingSuit].bonusTime;
@@ -837,21 +412,144 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
         gMe->curWeapon = 0;
         gMe->nextWeapon = 1;
         break;
+
     default:
-        break;
+        return nullptr;
     }
-    m_bPlayerCheated = true;
+    return nullptr;
 }
 
-void CCheatMgr::sub_5BCF4(void)
+static bool cheatGoonies(cheatseq_t*)
 {
-    m_bPlayerCheated = 0;
+    SetMap(!gFullMap);
+    return true;
+}
+
+static bool cheatMario(cheatseq_t* c)
+{
+    int nEpisode, nLevel;
+    if (parseArgs((char*)c->Args, &nEpisode, &nLevel) == 2)
+	{
+		auto map = FindMapByLevelNum(levelnum(nEpisode, nLevel));
+		if (map) DeferedStartGame(map, -1);
+	}
+    return true;
+}
+
+static bool cheatCalgon(cheatseq_t*)
+{
+    levelEndLevel(0);
+    return true;
+}
+
+
+static cheatseq_t s_CheatInfo[] = {
+    {"MPKFA",                 nullptr,			SendGenericCheat, 0, CHT_GOD },
+    {"CAPINMYASS",            nullptr,			SendGenericCheat, 0, CHT_GODOFF },
+    {"NOCAPINMYASS",          nullptr,			SendGenericCheat, 0, CHT_GODON },
+    {"I WANNA BE LIKE KEVIN", nullptr,			SendGenericCheat, 0, CHT_GODON },
+    {"IDAHO",                 "give weapons" },
+    {"GRISWOLD",              "give armor" },
+    {"MONTANA",               nullptr,          SendGenericCheat, 0, kCheatMontana }, // MONTANA (All weapons, full ammo and all items)
+    {"EDMARK",                nullptr,          SendGenericCheat, 0, kCheatEdmark }, // EDMARK (Does a lot of fire damage to you (if you have 200HP and 200 fire armor then you can survive). Displays the message "THOSE WERE THE DAYS".)
+    {"TEQUILA",               nullptr,          SendGenericCheat, 0, kCheatTequila }, // TEQUILA (Guns akimbo power-up)
+    {"BUNZ",                  nullptr,          SendGenericCheat, 0, kCheatBunz }, // BUNZ (All weapons, full ammo, and guns akimbo power-up)
+    {"FUNKY SHOES",           nullptr,          SendGenericCheat, 0, kCheatFunkyShoes }, // FUNKY SHOES (Gives jump boots item and activates it)
+    {"GATEKEEPER",            nullptr,          SendGenericCheat, 0, kCheatGateKeeper }, // GATEKEEPER (Sets the you cheated flag to true, at the end of the level you will see that you have cheated)
+    {"KEYMASTER",             nullptr,          SendGenericCheat, 0, kCheatKeyMaster }, // KEYMASTER (All keys)
+    {"JOJO",                  nullptr,          SendGenericCheat, 0, kCheatJoJo }, // JOJO (Drunk mode (same effect as getting bitten by red spider))
+    {"SATCHEL",               nullptr,          SendGenericCheat, 0, kCheatSatchel }, // SATCHEL (Full inventory)
+    {"SPORK",                 nullptr,          SendGenericCheat, 0, kCheatSpork }, // SPORK (200% health (same effect as getting life seed))
+    {"ONERING",               nullptr,          SendGenericCheat, 0, kCheatOneRing }, // ONERING (Cloak of invisibility power-up)
+    {"MARIO###",              nullptr,          cheatMario }, // MARIO (Warp to level E M, e.g.: MARIO 1 3 will take you to Phantom Express)
+    {"CALGON",                nullptr,          cheatCalgon }, // CALGON (Jumps to next level)
+    {"KEVORKIAN",             nullptr,          SendGenericCheat, 0, kCheatKevorkian }, // KEVORKIAN (Does a lot of physical damage to you (if you have 200HP and 200 fire armor then you can survive). Displays the message "KEVORKIAN APPROVES".)
+    {"MCGEE",                 nullptr,          SendGenericCheat, 0, kCheatMcGee }, // MCGEE (Sets you on fire. Displays the message "YOU'RE FIRED".)
+    {"KRUEGER",               nullptr,          SendGenericCheat, 0, kCheatKrueger }, // KRUEGER (200% health, but sets you on fire. Displays the message "FLAME RETARDANT".)
+    {"CHEESEHEAD",            nullptr,          SendGenericCheat, 0, kCheatCheeseHead }, // CHEESEHEAD (100% diving suit)
+    {"COUSTEAU",              nullptr,          SendGenericCheat, 0, kCheatCousteau }, // COUSTEAU (200% health and diving suit)
+    {"VOORHEES",              nullptr,          SendGenericCheat, 0, kCheatVoorhees }, // VOORHEES (Death mask power-up)
+    {"LARA CROFT",            nullptr,          SendGenericCheat, 0, kCheatLaraCroft }, // LARA CROFT (All weapons and infinite ammo. Displays the message "LARA RULES". Typing it the second time will lose all weapons and ammo.)
+    {"HONGKONG",              nullptr,          SendGenericCheat, 0, kCheatHongKong }, // HONGKONG (All weapons and infinite ammo)
+    {"FRANKENSTEIN",          nullptr,          SendGenericCheat, 0, kCheatFrankenstein }, // FRANKENSTEIN (100% med-kit)
+    {"STERNO",                nullptr,          SendGenericCheat, 0, kCheatSterno }, // STERNO (Temporary blindness (same effect as getting bitten by green spider))
+    {"CLARICE",               nullptr,          SendGenericCheat, 0, kCheatClarice }, // CLARICE (Gives 100% body armor, 100% fire armor, 100% spirit armor)
+    {"FORK YOU",              nullptr,          SendGenericCheat, 0, kCheatForkYou }, // FORK YOU (Drunk mode, 1HP, no armor, no weapons, no ammo, no items, no keys, no map, guns akimbo power-up)
+    {"LIEBERMAN",             nullptr,          SendGenericCheat, 0, kCheatLieberMan }, // LIEBERMAN (Sets the you cheated flag to true, at the end of the level you will see that you have cheated)
+    {"EVA GALLI",             nullptr,			SendGenericCheat, 0, CHT_NOCLIP },
+    {"RATE",                  "toggle r_showfps", nullptr, 1 }, // RATE (Display frame rate (doesn't count as a cheat))
+    {"GOONIES",               nullptr,           cheatGoonies, 0 }, // GOONIES (Enable full map. Displays the message "YOU HAVE THE MAP".)
+    //{"SPIELBERG",           nullptr,           doCheat<kCheatSpielberg, 1 }, // SPIELBERG (Disables all cheats. If number values corresponding to a level and episode number are entered after the cheat word (i.e. "spielberg 1 3" for Phantom Express), you will be spawned to said level and the game will begin recording a demo from your actions.)
+}; 
+
+void cheatReset(void)
+{
+    bPlayerCheated = 0;
     playerSetGodMode(gMe, 0);
     gNoClip = 0;
     packClear(gMe);
     gInfiniteAmmo = 0;
     gFullMap = 0;
 }
+
+
+static void cmd_Give(int player, uint8_t **stream, bool skip)
+{
+    int type = ReadByte(stream);
+    if (skip) return;
+
+    if (numplayers != 1 || gamestate != GS_LEVEL || gMe->pXSprite->health == 0)
+    {
+        Printf("give: Cannot give while dead or not in a single-player game.\n");
+        return;
+    }
+
+    switch (type)
+    {
+    case GIVE_ALL:
+        SetWeapons(true);
+        SetAmmo(true);
+        SetToys(true);
+        SetArmor(true);
+        SetKeys(true);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_HEALTH:
+        actHealDude(gMe->pXSprite, 200, 200);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_WEAPONS:
+        SetWeapons(true);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_AMMO:
+        SetAmmo(true);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_ARMOR:
+        SetArmor(true);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_KEYS:
+        SetKeys(true);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_INVENTORY:
+        SetToys(true);
+        bPlayerCheated = true;
+        break;
+
+    default:
+        break;
+    }
+}
+
 
 class MessagesLoadSave : public LoadSave
 {
@@ -862,12 +560,12 @@ public:
 
 void MessagesLoadSave::Load()
 {
-    Read(&CCheatMgr::m_bPlayerCheated, sizeof(CCheatMgr::m_bPlayerCheated));
+    Read(&bPlayerCheated, sizeof(bPlayerCheated));
 }
 
 void MessagesLoadSave::Save()
 {
-    Write(&CCheatMgr::m_bPlayerCheated, sizeof(CCheatMgr::m_bPlayerCheated));
+    Write(&bPlayerCheated, sizeof(bPlayerCheated));
 }
 
 static MessagesLoadSave *myLoadSave;
@@ -875,6 +573,12 @@ static MessagesLoadSave *myLoadSave;
 void MessagesLoadSaveConstruct(void)
 {
     myLoadSave = new MessagesLoadSave();
+}
+
+void InitCheats()
+{
+    SetCheats(s_CheatInfo, countof(s_CheatInfo));
+    Net_SetCommandHandler(DEM_GIVE, cmd_Give);
 }
 
 END_BLD_NS

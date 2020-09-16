@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
-#include "aizombf.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
@@ -39,8 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
-#include "trig.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 
@@ -82,7 +80,7 @@ static void HackSeqCallback(int, int nXSprite)
     int height = (pDudeInfo->eyeHeight*pSprite->yrepeat);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int height2 = (pDudeInfoT->eyeHeight*pTarget->yrepeat);
-    actFireVector(pSprite, 0, 0, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, height-height2, VECTOR_TYPE_11);
+    actFireVector(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), height-height2, VECTOR_TYPE_11);
 }
 
 static void PukeSeqCallback(int, int nXSprite)
@@ -97,10 +95,9 @@ static void PukeSeqCallback(int, int nXSprite)
     int height2 = (pDudeInfoT->eyeHeight*pTarget->yrepeat);
     int tx = pXSprite->targetX-pSprite->x;
     int ty = pXSprite->targetY-pSprite->y;
-    int UNUSED(nDist) = approxDist(tx, ty);
     int nAngle = getangle(tx, ty);
-    int dx = Cos(nAngle)>>16;
-    int dy = Sin(nAngle)>>16;
+    int dx = CosScale16(nAngle);
+    int dy = SinScale16(nAngle);
     sfxPlay3DSound(pSprite, 1203, 1, 0);
     actFireMissile(pSprite, 0, -(height-height2), dx, dy, 0, kMissilePukeGreen);
 }
@@ -110,7 +107,7 @@ static void ThrowSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    actFireMissile(pSprite, 0, -getDudeInfo(pSprite->type)->eyeHeight, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, 0, kMissileButcherKnife);
+    actFireMissile(pSprite, 0, -getDudeInfo(pSprite->type)->eyeHeight, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileButcherKnife);
 }
 
 static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)

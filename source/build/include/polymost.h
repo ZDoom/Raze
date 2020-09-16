@@ -2,7 +2,6 @@
 # define polymost_h_
 
 
-#include "baselayer.h"  // glinfo
 #include "mdsprite.h"
 
 void Polymost_CacheHitList(uint8_t* hash);
@@ -10,7 +9,6 @@ void Polymost_CacheHitList(uint8_t* hash);
 typedef struct { uint8_t r, g, b, a; } coltype;
 typedef struct { float r, g, b, a; } coltypef;
 
-extern bool playing_rr;
 extern int32_t rendmode;
 extern float gtang;
 extern double gxyaspect;
@@ -28,7 +26,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 void polymost_fillpolygon(int32_t npoints);
 void polymost_initosdfuncs(void);
 void polymost_drawrooms(void);
-void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, fix16_t dahoriz, int16_t mirrorWall);
+void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t mirrorWall);
 void polymost_completeMirror();
 
 int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall);
@@ -66,21 +64,21 @@ static FORCE_INLINE int32_t fogshade(int32_t const shade, int32_t const pal)
     return (globalflags & GLOBAL_NO_GL_FOGSHADE) ? 0 : shade;
 }
 
-static FORCE_INLINE int check_nonpow2(int32_t const x)
+static constexpr inline int check_nonpow2(int32_t const x)
 {
     return (x > 1 && (x&(x-1)));
 }
 
 static inline float polymost_invsqrt_approximation(float x)
 {
-#ifdef B_LITTLE_ENDIAN
+#if !B_BIG_ENDIAN
     float const haf = x * .5f;
     union { float f; uint32_t i; } n = { x };
     n.i = 0x5f375a86 - (n.i >> 1);
     return n.f * (1.5f - haf * (n.f * n.f));
 #else
     // this is the comment
-    return 1.f / Bsqrtf(x);
+    return 1.f / sqrtf(x);
 #endif
 }
 
@@ -104,7 +102,7 @@ enum {
 };
 
 #define DAMETH_NARROW_MASKPROPS(dameth) (((dameth)&(~DAMETH_TRANS1))|(((dameth)&DAMETH_TRANS1)>>1))
-EDUKE32_STATIC_ASSERT(DAMETH_NARROW_MASKPROPS(DAMETH_MASKPROPS) == DAMETH_MASK);
+static_assert(DAMETH_NARROW_MASKPROPS(DAMETH_MASKPROPS) == DAMETH_MASK);
 
 extern float fcosglobalang, fsinglobalang;
 extern float fxdim, fydim, fydimen, fviewingrange;

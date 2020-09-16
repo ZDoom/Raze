@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "actor.h"
 #include "dude.h"
 #include "player.h"
-#include "warp.h"
 
 BEGIN_BLD_NS
 
@@ -315,7 +314,7 @@ void playerDeactivateShrooms(PLAYER* pPlayer);
 QAV* playerQavSceneLoad(int qavId);
 void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene);
 void playerQavScenePlay(PLAYER* pPlayer);
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5);
+void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, int smoothratio);
 void playerQavSceneReset(PLAYER* pPlayer);
 //  -------------------------------------------------------------------------   //
 void callbackUniMissileBurst(int nSprite);

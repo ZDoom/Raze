@@ -21,14 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
-#include "baselayer.h"
 #include "build.h"
 
-#include "common.h"
 #include "pragmas.h"
 #include "misc.h"
-#include "network.h"
 #include "printf.h"
+#include "v_text.h"
 
 BEGIN_BLD_NS
 
@@ -466,7 +464,6 @@ kAiStateAttack          =  6,
 // -------------------------------
 
 // NUKE-TODO:
-#include "v_text.h"
 
 
 
@@ -478,73 +475,12 @@ enum searchpathtypes_t {
     SEARCHPATH_REMOVE = 1<<0,
 };
 
-extern int loaddefinitions_game(const char *fn, int32_t preload);
-
 extern void G_ExtInit(void);
 
 extern void G_SetupGlobalPsky(void);
 
 
-static inline int gameHandleEvents(void)
-{
-    netGetPackets();
-    return handleevents();
-}
-
 #pragma pack(push,1)
-
-#if 0
-struct sectortype
-{
-    short wallptr, wallnum;
-    int ceilingz, floorz;
-    unsigned short ceilingstat, floorstat;
-    short ceilingpicnum, ceilingheinum;
-    signed char ceilingshade;
-    char ceilingpal, ceilingxpanning, ceilingypanning;
-    short floorpicnum, floorheinum;
-    signed char floorshade;
-    char floorpal, floorxpanning, floorypanning;
-    char visibility, filler;
-    unsigned short lotag;
-    short hitag, extra;
-};
-
-struct walltype
-{
-    int x, y;
-    short point2, nextwall, nextsector;
-    unsigned short cstat;
-    short picnum, overpicnum;
-    signed char shade;
-    char pal, xrepeat, yrepeat, xpanning, ypanning;
-    short lotag, hitag, extra;
-};
-
-struct spritetype
-{
-    int x, y, z;
-    short cstat, picnum;
-    signed char shade;
-    char pal, clipdist, filler;
-    unsigned char xrepeat, yrepeat;
-    signed char xoffset, yoffset;
-    short sectnum, statnum;
-    short ang, owner, index, yvel, zvel;
-    short type, hitag, extra;
-};
-
-struct PICANM {
-    unsigned int animframes : 5;
-    unsigned int at0_5 : 1;
-    unsigned int animtype : 2;
-    signed int xoffset : 8;
-    signed int yoffset : 8;
-    unsigned int animspeed : 4;
-    unsigned int at3_4 : 3; // type
-    unsigned int at3_7 : 1; // filler
-};
-#endif
 
 struct LOCATION {
     int x, y, z;
@@ -598,29 +534,6 @@ inline int DecBy(int a, int b)
     return a;
 }
 
-#if 0
-inline float IncByF(float a, float b)
-{
-    a += b;
-    float q = fmod(a, b);
-    a -= q;
-    if (q < 0)
-        a -= b;
-    return a;
-}
-
-inline float DecByF(float a, float b)
-{
-    //a--;
-    a -= fabs(b)*0.001;
-    float q = fmod(a, b);
-    a -= q;
-    if (q < 0)
-        a -= b;
-    return a;
-}
-#endif
-
 inline int ClipLow(int a, int b)
 {
     if (a < b)
@@ -658,12 +571,17 @@ inline int interpolate(int a, int b, int c)
     return a+mulscale16(b-a,c);
 }
 
+inline double finterpolate(double a, double b, double c)
+{
+    return a+fmulscale16(b-a,c);
+}
+
 inline int interpolateang(int a, int b, int c)
 {
     return a+mulscale16(((b-a+1024)&2047)-1024, c);
 }
 
-inline fix16_t interpolateangfix16(fix16_t a, fix16_t b, int c)
+inline fixed_t interpolateangfix16(fixed_t a, fixed_t b, int c)
 {
     return a+mulscale16(((b-a+0x4000000)&0x7ffffff)-0x4000000, c);
 }

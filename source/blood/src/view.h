@@ -31,6 +31,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+struct VIEW {
+    int TotalKills;
+    int Kills;
+    int at8; // bob height
+    int atc; // bob width
+    int at10;
+    int at14;
+    int at18; // bob sway y
+    int at1c; // bob sway x
+    fixed_t at20;
+    fixed_t at24; // horiz
+    int at28; // horizoff
+    int at2c;
+    fixed_t at30; // angle
+    int at34; // weapon z
+    int at38; // view z
+    int at3c;
+    int at40;
+    int at44;
+    int at48; // posture
+    int at4c; // spin
+    int at50; // x
+    int at54; // y
+    int at58; // z
+    int at5c; //xvel
+    int at60; //yvel
+    int at64; //zvel
+    short at68; // sectnum
+    unsigned int at6a; // floordist
+    char at6e; // look center
+    char at6f;
+    char at70; // run
+    char at71; // jump
+    char at72; // underwater
+    short at73; // sprite flags
+    SPRITEHIT at75;
+};
+
+extern VIEW gPrevView[kMaxPlayers];
+
+extern VIEW predict, predictOld;
+extern bool gPrediction;
+
 enum VIEW_EFFECT {
     VIEW_EFFECT_0 = 0,
     VIEW_EFFECT_1,
@@ -63,25 +106,28 @@ enum INTERPOLATE_TYPE {
     INTERPOLATE_TYPE_SHORT,
 };
 
-#define kCrosshairTile 2319
-#define kLoadScreen 2049
-#define kLoadScreenCRC -2051908571
-#define kLoadScreenWideBackWidth 256
-#define kLoadScreenWideSideWidth 128
-#define kLoadScreenWideBack 9216
-#define kLoadScreenWideLeft 9217
-#define kLoadScreenWideRight 9218
-#define kLoadScreenWideMiddle 9219
+enum
+{
+    kBackTile = 253,
+
+    kCrosshairTile = 2319,
+    kLoadScreen = 2049,
+    kLoadScreenWideBack = 9216,
+    kLoadScreenWideLeft = 9217,
+    kLoadScreenWideRight = 9218,
+    kLoadScreenWideMiddle = 9219,
+
+    kSBarNumberHealth = 9220,
+    kSBarNumberAmmo = 9230,
+    kSBarNumberInv = 9240,
+    kSBarNumberArmor1 = 9250,
+    kSBarNumberArmor2 = 9260,
+    kSBarNumberArmor3 = 9270,
+};
 
 #define kFontNum 5
 
-struct FONT {
-    int tile, xSize, ySize, space;
-};
-
-extern int gZoom;
-extern FONT gFont[kFontNum];
-extern int gViewMode;
+extern FFont *gFont[kFontNum];
 extern VIEWPOS gViewPos;
 extern int gViewIndex;
 extern int gScreenTilt;
@@ -92,25 +138,12 @@ extern char gInterpolateSprite[];
 extern char gInterpolateWall[];
 extern char gInterpolateSector[];
 extern LOCATION gPrevSpriteLoc[kMaxSprites];
-extern int gViewSize;
-extern CGameMessageMgr gGameMessageMgr;
-extern int gViewXCenter, gViewYCenter;
-extern int gViewX0, gViewY0, gViewX1, gViewY1;
-extern int gViewX0S, gViewY0S, gViewX1S, gViewY1S;
 extern int gLastPal;
+extern double gInterpolate;
 
-
-void viewGetFontInfo(int id, const char *unk1, int *pXSize, int *pYSize);
-void viewUpdatePages(void);
-void viewToggle(int viewMode);
+void hudDraw(PLAYER* gView, int nSectnum, int defaultHoriz, double bobx, double boby, double zDelta, int basepal, int smoothratio);
 void viewInitializePrediction(void);
-void viewUpdatePrediction(GINPUT *pInput);
-void sub_158B4(PLAYER *pPlayer);
-void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput);
-void fakePlayerProcess(PLAYER *pPlayer, GINPUT *pInput);
-void fakeMoveDude(spritetype *pSprite);
-void fakeActAirDrag(spritetype *pSprite, int num);
-void fakeActProcessSprites(void);
+void viewUpdatePrediction(InputPacket *pInput);
 void viewCorrectPrediction(void);
 void viewBackupView(int nPlayer);
 void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos);
@@ -118,37 +151,21 @@ void viewClearInterpolations(void);
 void viewAddInterpolation(void *data, INTERPOLATE_TYPE type);
 void CalcInterpolations(void);
 void RestoreInterpolations(void);
-void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat = 0, uint8_t alpha = 0);
-void viewTileSprite(int nTile, int nShade, int nPalette, int x1, int y1, int x2, int y2);
+void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat = 0, uint8_t alpha = 255);
 void InitStatusBar(void);
-void DrawStatSprite(int nTile, int x, int y, int nShade = 0, int nPalette = 0, unsigned int nStat = 0, int nScale = 65536);
-void DrawStatMaskedSprite(int nTile, int x, int y, int nShade = 0, int nPalette = 0, unsigned int nStat = 0, int nScale = 65536);
-void DrawStatNumber(const char *pFormat, int nNumber, int nTile, int x, int y, int nShade, int nPalette, unsigned int nStat = 0, int nScale = 65536);
-void TileHGauge(int nTile, int x, int y, int nMult, int nDiv, int nStat = 0, int nScale = 65536);
-void viewDrawPack(PLAYER *pPlayer, int x, int y);
-void DrawPackItemInStatusBar(PLAYER *pPlayer, int x, int y, int x2, int y2, int nStat = 0);
-void UpdateStatusBar(ClockTicks arg);
+void UpdateStatusBar();
 void viewInit(void);
-void viewResizeView(int size);
-void UpdateFrame(void);
-void viewDrawInterface(ClockTicks arg);
-tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect);
 void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth);
-void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, int zm);
-void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, int zm);
 void viewSetMessage(const char *pMessage, const int pal = 0, const MESSAGE_PRIORITY priority = MESSAGE_PRIORITY_NORMAL);
-void viewDisplayMessage(void);
+
+
 void viewSetErrorMessage(const char *pMessage);
 void DoLensEffect(void);
 void UpdateDacs(int nPalette, bool bNoTint = false);
 void viewDrawScreen(bool sceneonly = false);
-void viewLoadingScreenWide(void);
-void viewLoadingScreenUpdate(const char *pzText4 = NULL, int nPercent = -1);
-void viewLoadingScreen(int nTile, const char *pText, const char *pText2, const char *pText3);
 void viewUpdateDelirium(void);
 void viewUpdateShake(void);
 void viewSetSystemMessage(const char* pMessage, ...);
-void viewPrecacheTiles(void);
 
 inline void viewInterpolateSector(int nSector, sectortype *pSector)
 {

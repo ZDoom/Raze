@@ -44,7 +44,7 @@ typedef struct
 } saveable_module;
 
 template <typename T>
-static FORCE_INLINE constexpr enable_if_t<!std::is_pointer<T>::value, size_t> SAVE_SIZEOF(T const & obj) noexcept
+constexpr enable_if_t<!std::is_pointer<T>::value, size_t> SAVE_SIZEOF(T const & obj) noexcept
 {
     return sizeof(obj);
 }
@@ -52,7 +52,7 @@ static FORCE_INLINE constexpr enable_if_t<!std::is_pointer<T>::value, size_t> SA
 #define SAVE_CODE(s) (void*)(s)
 #define SAVE_DATA(s) { (void*)&(s), SAVE_SIZEOF(s) }
 
-#define NUM_SAVEABLE_ITEMS(x) ARRAY_SIZE(x)
+#define NUM_SAVEABLE_ITEMS(x) countof(x)
 
 typedef struct
 {

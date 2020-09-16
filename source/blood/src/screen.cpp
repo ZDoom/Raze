@@ -27,10 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 
 #include "globals.h"
-#include "config.h"
-#include "resource.h"
-#include "screen.h"
 #include "v_video.h"
+#include "view.h"
 
 BEGIN_BLD_NS
 
@@ -61,12 +59,7 @@ const char *PAL[5] = {
 };
 
 
-static RGB toRGB;
-static RGB *palTable[5];
-static int curPalette;
-bool gFogMode = false;
-
-void scrLoadPLUs(void)
+static void scrLoadPLUs(void)
 {
     // load lookup tables
     for (int i = 0; i < MAXPALOOKUPS; i++) 
@@ -111,29 +104,6 @@ void scrLoadPalette(void)
     paletteloaded |= PALETTE_MAIN;
     scrLoadPLUs();
     paletteloaded |= PALETTE_SHADE | PALETTE_TRANSLUC;
-
-    enginePostInit();
-
-}
-
-void scrSetPalette(int palId)
-{
-    curPalette = palId;
-}
-
-void scrInit(void)
-{
-    glrendmode = REND_POLYMOST;
-    engineInit();
-    curPalette = 0;
-}
-
-void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits)
-{
-    videoInit();
-    videoClearViewableArea(0);
-    videoNextPage();
-    scrSetPalette(curPalette);
 }
 
 END_BLD_NS

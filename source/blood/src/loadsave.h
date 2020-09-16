@@ -45,8 +45,6 @@ public:
     static void SaveGame(FSavegameNode*);
 };
 
-void UpdateSavedInfo(int nSlot);
-void LoadSavedInfo(void);
 void LoadSaveSetup(void);
 
 END_BLD_NS

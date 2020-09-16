@@ -27,7 +27,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef JSECTOR_H
 #define JSECTOR_H
 
-#include "reserve.h"
 
 BEGIN_SW_NS
 
@@ -54,7 +53,7 @@ typedef struct
     short spawnspots[MAXMIRRORMONSTERS]; // One spot for each possible skill
     // level for a
     // max of up to 4 coolie ghosts to spawn.
-    SWBOOL ismagic;                       // Is this a magic mirror?
+    bool ismagic;                       // Is this a magic mirror?
     MIRRORSTATE mstate;                 // What state the mirror is currently
     // in
     int maxtics;                       // Tic count used to time mirror
@@ -67,12 +66,12 @@ extern MIRRORTYPE mirror[MAXMIRRORS];
 
 extern short mirrorcnt, floormirrorcnt;
 extern short floormirrorsector[MAXMIRRORS];
-extern SWBOOL mirrorinview;
+extern bool mirrorinview;
 extern short NormalVisibility;
 
 void JAnalyzeSprites(tspriteptr_t tspr);
 void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz);
-void JS_DrawMirrors(PLAYERp pp,int tx,int ty,int tz,fix16_t tpq16ang,fix16_t tpq16horiz);
+void JS_DrawMirrors(PLAYERp pp,int tx,int ty,int tz,fixed_t tpq16ang,fixed_t tpq16horiz);
 void JS_InitMirrors(void);
 void JS_InitLockouts(void);
 void JS_ToggleLockouts(void);

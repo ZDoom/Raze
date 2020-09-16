@@ -1,17 +1,18 @@
 #pragma once
 
 #include <stdint.h>
+#include "compat.h"
+#include "printf.h"
+#include "c_dispatch.h" 
 #include "tarray.h"
 #include "scancodes.h"
 #include "c_bind.h"
 #include "c_buttons.h"
 #include "d_event.h"
-#include "osd.h"
 #include "m_joy.h"
 #include "gamecvars.h"
+#include "packet.h"
 
-typedef uint16_t kb_scancode;
-// This encapsulates the entire game-readable input state which previously was spread out across several files.
 
 struct ControlInfo
 {
@@ -28,161 +29,77 @@ struct ControlInfo
 
 class InputState
 {
-	enum
-	{
-		KEYFIFOSIZ = 64,
-	};
-
 	uint8_t KeyStatus[NUM_KEYS];
-
-	kb_scancode g_keyFIFO[KEYFIFOSIZ];
-	char16_t   g_keyAsciiFIFO[KEYFIFOSIZ];
-	uint8_t g_keyFIFOpos;
-	uint8_t g_keyFIFOend;
-	uint8_t g_keyAsciiPos;
-	uint8_t g_keyAsciiEnd;
-
+	bool AnyKeyStatus;
 	vec2f_t  g_mousePos;
-
-	void keySetState(int32_t key, int32_t state);
 
 public:
 
-	uint8_t GetKeyStatus(int key)
-	{
-		return KeyStatus[key];
-	}
-	
-	void ClearKeyStatus(int key)
-	{
-		KeyStatus[key] = 0;
-	}
-	
-	bool AltPressed()
-	{
-		return KeyStatus[sc_LeftAlt] || KeyStatus[sc_RightAlt];
-	}
-	
-	bool CtrlPressed()
-	{
-		return KeyStatus[sc_LeftControl] || KeyStatus[sc_RightControl];
-	}
-
-	bool WinPressed()
-	{
-		return KeyStatus[sc_LeftWin] || KeyStatus[sc_RightWin];
-	}
-	
 	bool ShiftPressed()
 	{
 		return KeyStatus[sc_LeftShift] || KeyStatus[sc_RightShift];
 	}
-	
-	bool EscapePressed()
-	{
-		return !!KeyStatus[sc_Escape];
-	}
-	
-	void SetBindsEnabled(bool on)
-	{
-	}
-	
-	bool keyBufferWaiting()
-	{
-		return (g_keyAsciiPos != g_keyAsciiEnd);
-	}
-
-	int keyBufferFull(void)
-	{
-		return ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1)) == g_keyAsciiPos;
-	}
-
-	kb_scancode keyGetScan()
-	{
-		if (g_keyFIFOpos == g_keyFIFOend)
-			return 0;
-
-		auto const c = g_keyFIFO[g_keyFIFOpos];
-		g_keyFIFOpos = ((g_keyFIFOpos + 2) & (KEYFIFOSIZ - 1));
-		return c;
-	}
-
-	void keyFlushScans(void)
-	{
-		memset(&g_keyFIFO, 0, sizeof(g_keyFIFO));
-		g_keyFIFOpos = g_keyFIFOend = 0;
-	}
-
-	//
-	// character-based input functions
-	//
-	char keyGetChar(void)
-	{
-		if (g_keyAsciiPos == g_keyAsciiEnd)
-			return 0;
-
-		char const c = g_keyAsciiFIFO[g_keyAsciiPos];
-		g_keyAsciiPos = ((g_keyAsciiPos + 1) & (KEYFIFOSIZ - 1));
-
-		return c;
-	}
-	
-	void keyFlushChars(void)
-	{
-		memset(&g_keyAsciiFIFO, 0, sizeof(g_keyAsciiFIFO));
-		g_keyAsciiPos = g_keyAsciiEnd = 0;
-	}
-
-	inline bool UnboundKeyPressed(int scan)
-	{
-		return (GetKeyStatus(scan) != 0 && Bindings.GetBind(scan) == nullptr);
-	}
 
 	void AddEvent(const event_t* ev);
 
-	void MouseSetPos(float x, float y)
-	{
-		g_mousePos = { x, y };
-	}
 	void MouseAddToPos(float x, float y)
 	{
 		g_mousePos.x += x;
 		g_mousePos.y += y;
 	}
 
-	bool gamePadActive()
-	{
-		// fixme: This needs to be tracked.
-		return false;
-	}
-	void GetMouseDelta(ControlInfo* info);
+	void GetMouseDelta(ControlInfo* hidInput);
 
-	void ClearAllInput()
-	{
-		memset(KeyStatus, 0, sizeof(KeyStatus));
-		keyFlushChars();
-		keyFlushScans();
-		buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
-	}
-
+	void ClearAllInput();
 	bool CheckAllInput()
 	{
-		int res;
-		do
-			res = keyGetScan();
-		while (res > KEY_LASTJOYBUTTON && res < KEY_PAD_LTHUMB_RIGHT);	// Controller movement events should not register here.
-		ClearAllInput();
+		bool res = AnyKeyStatus;
+		AnyKeyStatus = false;
 		return res;
 	}
-
 };
 
 extern InputState inputState;
 
-void CONTROL_GetInput(ControlInfo* info);
+ControlInfo CONTROL_GetInput();
 int32_t handleevents(void);
 
+enum GameFunction_t
+{
+	gamefunc_Move_Forward,		//
+	gamefunc_Move_Backward,		//
+	gamefunc_Turn_Left,			//
+	gamefunc_Turn_Right,		//
+	gamefunc_Strafe,			//
+	gamefunc_Fire,
+	gamefunc_Open,
+	gamefunc_Run,
+	gamefunc_Alt_Fire,
+	gamefunc_Jump,
+	gamefunc_Crouch,
+	gamefunc_Look_Up,
+	gamefunc_Look_Down,
+	gamefunc_Look_Left,
+	gamefunc_Look_Right,
+	gamefunc_Strafe_Left,		//
+	gamefunc_Strafe_Right,		//
+	gamefunc_Aim_Up,
+	gamefunc_Aim_Down,
+	gamefunc_Shrink_Screen, // Automap only
+	gamefunc_Enlarge_Screen, // Automap only
+	gamefunc_Mouse_Aiming,
+	gamefunc_Dpad_Select,
+	gamefunc_Dpad_Aiming,
+	gamefunc_Toggle_Crouch,
+	gamefunc_Quick_Kick,
+	gamefunc_AM_PanLeft,
+	gamefunc_AM_PanRight,
+	gamefunc_AM_PanUp,
+	gamefunc_AM_PanDown,
+	NUM_ACTIONS
+};
 
-#define WIN_IS_PRESSED ( inputState.WinPressed() )
-#define ALT_IS_PRESSED ( inputState.AltPressed() )
-#define SHIFTS_IS_PRESSED ( inputState.ShiftPressed() )
+void SetupGameButtons();
+void ApplyGlobalInput(InputPacket& input, ControlInfo* const hidInput);
+extern ESyncBits ActionsToSend;
+double InputScale();

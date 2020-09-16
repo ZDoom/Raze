@@ -1,0 +1,14 @@
+// HUD Knuckle Crack (by James Manning)
+tilefromtexture 2325 { file "duke3d/2325.png" xoffset 23 ifcrc -1031049892 }
+tilefromtexture 2326 { file "duke3d/2326.png" xoffset 15 ifcrc -1415291705 }
+
+// tiles by fgsfds
+
+// M16
+tilefromtexture 2544 { file "nam/2544.png" xoffset -108 ifcrc 1861973967 }
+
+// RPG
+tilefromtexture 2528 { file "nam/2528.png" xoffset -47 ifcrc 355122767 }
+
+// Status Bar
+tilefromtexture 2462 { file "nam/2462.png" xoffset 0 yoffset 16 ifcrc 2370548934 }

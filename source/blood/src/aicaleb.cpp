@@ -31,15 +31,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
-#include "aicaleb.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
-#include "trig.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 
@@ -78,8 +76,8 @@ static void SeqAttackCallback(int, int nXSprite)
 {
     int nSprite = xsprite[nXSprite].reference;
     spritetype *pSprite = &sprite[nSprite];
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     int dz = gDudeSlope[nXSprite];
     dx += Random2(1500);
     dy += Random2(1500);
@@ -309,7 +307,6 @@ static void thinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                int UNUSED(floorZ) = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
                 if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
                     aiNewState(pSprite, pXSprite, &tinycalebSwimAttack);
                 else
@@ -337,7 +334,6 @@ static void sub_65D04(spritetype *pSprite, XSPRITE *pXSprite)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Random(64) < 32 && nDist <= 0x400)
         return;
@@ -375,7 +371,6 @@ static void sub_65F44(spritetype *pSprite, XSPRITE *pXSprite)
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
     int dz = z2 - z;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x600) && nDist <= 0x400)
         return;
@@ -411,7 +406,6 @@ static void sub_661E0(spritetype *pSprite, XSPRITE *pXSprite)
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
     int dz = (z2 - z)<<3;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x4000) && nDist <= 0x400)
         return;

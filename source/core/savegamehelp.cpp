@@ -35,7 +35,6 @@
 
 #include "compositesaveame.h"
 #include "savegamehelp.h"
-#include "baselayer.h"
 #include "gstrings.h"
 #include "i_specialpaths.h"
 #include "cmdlib.h"
@@ -51,6 +50,9 @@
 #include "version.h"
 #include "raze_music.h"
 #include "raze_sound.h"
+#include "gamestruct.h"
+#include "automap.h"
+#include "statusbar.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -73,6 +75,8 @@ static void SerializeSession(FSerializer& arc)
 	Mus_Serialize(arc);
 	quoteMgr.Serialize(arc);
 	S_SerializeSounds(arc);
+	SerializeAutomap(arc);
+	SerializeHud(arc);
 }
 
 //=============================================================================
@@ -96,6 +100,20 @@ bool OpenSaveGameForRead(const char *name)
 
 	if (savereader != nullptr)
 	{
+		auto file = ReadSavegameChunk("info.json");
+		if (!file.isOpen())
+		{
+			FinishSavegameRead();
+			delete savereader;
+			return false;
+		}
+		if (G_ValidateSavegame(file, nullptr, false) <= 0)
+		{
+			FinishSavegameRead();
+			delete savereader;
+			return false;
+		}
+
 		FResourceLump* info = savereader->FindLump("session.json");
 		if (info == nullptr)
 		{
@@ -112,22 +130,9 @@ bool OpenSaveGameForRead(const char *name)
 		info->Unlock();
 
 		// Load system-side data from savegames.
-		SerializeSession(arc);
 		LoadEngineState();
-
-		auto file = ReadSavegameChunk("info.json");
-		if (!file.isOpen())
-		{
-			FinishSavegameRead();
-			delete savereader;
-			return false;
-		}
-		if (G_ValidateSavegame(file, nullptr, false) <= 0)
-		{
-			FinishSavegameRead();
-			delete savereader;
-			return false;
-		}
+		SerializeSession(arc); // must be AFTER LoadEngineState because it needs info from it.
+		gi->SerializeGameState(arc);
 	}
 	return savereader != nullptr;
 }
@@ -161,7 +166,7 @@ void FinishSavegameRead()
 	savereader = nullptr;
 }
 
-CVAR(Bool, save_formatted, true, 0)	// should be set to false once the conversion is done
+CVAR(Bool, save_formatted, false, 0)	// should be set to false once the conversion is done
 
 //=============================================================================
 //
@@ -186,16 +191,17 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	auto savesig = gi->GetSaveSig();
 	auto gs = gi->getStats();
 	FStringf timeStr("%02d:%02d", gs.timesecnd / 60, gs.timesecnd % 60);
+	auto lev = currentLevel;
 
 	savegameinfo.AddString("Software", buf)
 		("Save Version", savesig.currentsavever)
 		.AddString("Engine", savesig.savesig)
 		.AddString("Game Resource", fileSystem.GetResourceFileName(1))
-		.AddString("Map Name", currentLevel->DisplayName())
+		.AddString("Map Name", lev->DisplayName())
 		.AddString("Creation Time", myasctime())
 		.AddString("Title", name)
-		.AddString("Map File", currentLevel->fileName)
-		.AddString("Map Label", currentLevel->labelName)
+		.AddString("Map File", lev->fileName)
+		.AddString("Map Label", lev->labelName)
 		.AddString("Map Time", timeStr);
 
 	const char *fn = currentLevel->fileName;
@@ -220,12 +226,20 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	// Handle system-side modules that need to persist data in savegames here, in a central place.
 	savegamesession.OpenWriter(save_formatted);
 	SerializeSession(savegamesession);
+	SaveEngineState();
+	gi->SerializeGameState(savegamesession);
 	buff = savegamesession.GetCompressedOutput();
 	AddCompressedSavegameChunk("session.json", buff);
 
-	SaveEngineState();
 	auto picfile = WriteSavegameChunk("savepic.png");
 	WriteSavePic(picfile, 240, 180);
+	mysnprintf(buf, countof(buf), GAMENAME " %s", GetVersionString());
+	// put some basic info into the PNG so that this isn't lost when the image gets extracted.
+	M_AppendPNGText(picfile, "Software", buf);
+	M_AppendPNGText(picfile, "Title", name);
+	M_AppendPNGText(picfile, "Current Map", lev->labelName);
+	M_FinishPNG(picfile);
+
 	return true;
 }
 
@@ -305,13 +319,14 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 	}
 
 	int savever;
-	FString engine, gamegrp, mapgrp, title, filename;
+	FString engine, gamegrp, mapgrp, title, filename, label;
 
 	arc("Save Version", savever)
 		("Engine", engine)
 		("Game Resource", gamegrp)
 		("Map Resource", mapgrp)
 		("Title", title)
+		("Map Label", label)
 		("Map File", filename);
 
 	auto savesig = gi->GetSaveSig();
@@ -324,25 +339,16 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 		return 0;
 	}
 
-	MapRecord *curLevel = nullptr;
+	MapRecord *curLevel = FindMapByName(label);
 
-	if (strncmp(filename, "file://", 7) != 0)
+	// If the map does not exist, check if it's a user map.
+	if (!curLevel)
 	{
-		for (auto& mr : mapList)
-		{
-			if (mr.fileName.Compare(filename) == 0)
-			{
-				curLevel = &mr;
-			}
-		}
-	}
-	else
-	{
-		curLevel = &userMapRecord;
+		curLevel = AllocateMap();
 		if (!formenu)
 		{
-			userMapRecord.name = "";
-			userMapRecord.SetFileName(filename);
+			curLevel->name = "";
+			curLevel->SetFileName(filename);
 		}
 	}
 	if (!curLevel) return 0;
@@ -478,10 +484,8 @@ void SaveEngineState()
 	fw->Write(&myconnectindex, sizeof(myconnectindex));
 	fw->Write(&connecthead, sizeof(connecthead));
 	fw->Write(connectpoint2, sizeof(connectpoint2));
-	fw->Write(&numframes, sizeof(numframes));
 	fw->Write(&randomseed, sizeof(randomseed));
 	fw->Write(&numshades, sizeof(numshades));
-	fw->Write(&automapping, sizeof(automapping));
 	fw->Write(&showinvisibility, sizeof(showinvisibility));
 	WriteMagic(fw);
 
@@ -493,20 +497,11 @@ void SaveEngineState()
 	fw->Write(&pskybits_override, sizeof(pskybits_override));
 	WriteMagic(fw);
 
-	fw->Write(show2dwall, sizeof(show2dwall));
-	fw->Write(show2dsprite, sizeof(show2dsprite));
-	fw->Write(&show2dsector, sizeof(show2dsector));
-	WriteMagic(fw);
-
-	fw->Write(&numyaxbunches, sizeof(numyaxbunches));
-	fw->Write(yax_bunchnum, sizeof(yax_bunchnum));
-	fw->Write(yax_nextwall, sizeof(yax_nextwall));
-	WriteMagic(fw);
-
 	fw->Write(&Numsprites, sizeof(Numsprites));
 	sv_prespriteextsave();
 	fw->Write(spriteext, sizeof(spriteext_t) * MAXSPRITES);
 	fw->Write(wallext, sizeof(wallext_t) * MAXWALLS);
+	fw->Write(&randomseed, sizeof(randomseed));
 	sv_postspriteext();
 	WriteMagic(fw);
 
@@ -546,10 +541,8 @@ void LoadEngineState()
 		fr.Read(&myconnectindex, sizeof(myconnectindex));
 		fr.Read(&connecthead, sizeof(connecthead));
 		fr.Read(connectpoint2, sizeof(connectpoint2));
-		fr.Read(&numframes, sizeof(numframes));
 		fr.Read(&randomseed, sizeof(randomseed));
 		fr.Read(&numshades, sizeof(numshades));
-		fr.Read(&automapping, sizeof(automapping));
 		fr.Read(&showinvisibility, sizeof(showinvisibility));
 		CheckMagic(fr);
 
@@ -561,20 +554,10 @@ void LoadEngineState()
 		fr.Read(&pskybits_override, sizeof(pskybits_override));
 		CheckMagic(fr);
 
-		fr.Read(show2dwall, sizeof(show2dwall));
-		fr.Read(show2dsprite, sizeof(show2dsprite));
-		fr.Read(&show2dsector, sizeof(show2dsector));
-		CheckMagic(fr);
-
-		fr.Read(&numyaxbunches, sizeof(numyaxbunches));
-		fr.Read(yax_bunchnum, sizeof(yax_bunchnum));
-		fr.Read(yax_nextwall, sizeof(yax_nextwall));
-		yax_update(numyaxbunches > 0 ? 2 : 1);
-		CheckMagic(fr);
-
 		fr.Read(&Numsprites, sizeof(Numsprites));
 		fr.Read(spriteext, sizeof(spriteext_t) * MAXSPRITES);
 		fr.Read(wallext, sizeof(wallext_t) * MAXWALLS);
+		fr.Read(&randomseed, sizeof(randomseed));
 		sv_postspriteext();
 	CheckMagic(fr);
 

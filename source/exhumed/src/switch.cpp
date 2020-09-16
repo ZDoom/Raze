@@ -16,9 +16,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "switch.h"
+#include "aistuff.h"
 #include "exhumed.h"
-#include "runlist.h"
 #include "engine.h"
 #include "player.h"
 #include "sound.h"

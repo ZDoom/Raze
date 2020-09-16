@@ -52,33 +52,51 @@
 #include "build.h"
 #include "serializer.h"
 #include "findfile.h"
+#include "inputstate.h"
+#include "gamestate.h"
 
 
 FSavegameManager savegameManager;
+FString BackupSaveGame;
+
+void DoLoadGame(const char* name)
+{
+	if (OpenSaveGameForRead(name))
+	{
+		if (gi->LoadGame(nullptr))
+		{
+			gameaction = ga_level;
+		}
+		else
+		{
+			I_Error("%s: Failed to load savegame", name);
+		}
+	}
+	else
+	{
+		I_Error("%s: Failed to open savegame", name);
+	}
+}
 
 void FSavegameManager::LoadGame(FSaveGameNode* node)
 {
-	if (gi->CleanupForLoad())
-	{
-		if (OpenSaveGameForRead(node->Filename))
-		{
-			if (gi->LoadGame(node))
-			{
-				// do something here?
-			}
-		}
-	}
+	inputState.ClearAllInput();
+	gi->FreeLevelData();
+	DoLoadGame(node->Filename);
+	BackupSaveGame = node->Filename;
 }
 
 void FSavegameManager::SaveGame(FSaveGameNode* node, bool ok4q, bool forceq)
 {
 	if (OpenSaveGameForWrite(node->Filename, node->SaveTitle))
 	{
-		if (gi->SaveGame(node))
+		if (gi->SaveGame(node) && FinishSavegameWrite())
 		{
 			FString fn = node->Filename;
 			FString desc = node->SaveTitle;
 			NotifyNewSave(fn, desc, ok4q, forceq);
+			Printf(PRINT_NOTIFY, "%s\n", GStrings("GAME SAVED"));
+			BackupSaveGame = node->Filename;
 		}
 	}
 }
@@ -573,6 +591,7 @@ static int nextquicksave = -1;
 
 void M_Autosave()
 {
+	if (disableautosave) return;
 	if (!gi->CanSave()) return;
 	FString description;
 	FString file;
@@ -599,8 +618,7 @@ void M_Autosave()
 
 CCMD(autosave)
 {
-	if (disableautosave) return;
-	M_Autosave();
+	gameaction = ga_autosave;
 }
 
 CCMD(rotatingquicksave)
@@ -666,6 +684,7 @@ CCMD(quicksave)
 			{
 				savegameManager.SaveGame(savegameManager.quickSaveSlot, true, true);
 			}
+			return true;
 		});
 
 	M_ActivateMenu(newmenu);
@@ -714,6 +733,7 @@ CCMD(quickload)
 			{
 				savegameManager.LoadGame(savegameManager.quickSaveSlot);
 			}
+			return true;
 		});
 	M_ActivateMenu(newmenu);
 }

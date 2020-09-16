@@ -41,7 +41,6 @@ typedef struct
     const char *Name;
     void (*Init)(PLAYERp);
     void (*Stop)(PLAYERp, short);
-    PANEL_STATEp State;
     short DecPerSec;
     short MaxInv;
     int  Scale;
@@ -55,7 +54,6 @@ extern INVENTORY_DATA InventoryData[MAX_INVENTORY+1];
 #define INVF_COUNT (BIT(2))
 
 void PlayerUpdateInventory(PLAYERp pp,short InventoryNum);
-void UpdateMiniBar(PLAYERp pp);
 void InventoryKeys(PLAYERp pp);
 void UseInventoryRepairKit(PLAYERp pp);
 void InventoryTimer(PLAYERp pp);

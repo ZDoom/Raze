@@ -26,7 +26,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -37,8 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "network.h"
 #include "sprite.h"
 #include "weapon.h"
-#include "actor.h"
-#include "track.h"
+#include "misc.h"
 
 BEGIN_SW_NS
 
@@ -790,7 +788,7 @@ SpawnZombie(PLAYERp pp, short Weapon)
 
     //Zombies++;
 
-    New = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursectnum, pp->posx, pp->posy, pp->posz, fix16_to_int(pp->q16ang), 0);
+    New = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursectnum, pp->posx, pp->posy, pp->posz, FixedToInt(pp->q16ang), 0);
     np = &sprite[New];
     nu = User[New];
     np->sectnum = pp->cursectnum;
@@ -888,9 +886,9 @@ DoZombieMove(short SpriteNum)
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
-        InitBloodSpray(SpriteNum,TRUE,105);
-        InitBloodSpray(SpriteNum,TRUE,105);
-        InitBloodSpray(SpriteNum,TRUE,105);
+        InitBloodSpray(SpriteNum,true,105);
+        InitBloodSpray(SpriteNum,true,105);
+        InitBloodSpray(SpriteNum,true,105);
         SetSuicide(SpriteNum);
         return 0;
     }
@@ -938,9 +936,9 @@ NullZombie(short SpriteNum)
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
-        InitBloodSpray(SpriteNum,TRUE,105);
-        InitBloodSpray(SpriteNum,TRUE,105);
-        InitBloodSpray(SpriteNum,TRUE,105);
+        InitBloodSpray(SpriteNum,true,105);
+        InitBloodSpray(SpriteNum,true,105);
+        InitBloodSpray(SpriteNum,true,105);
         SetSuicide(SpriteNum);
         return 0;
     }

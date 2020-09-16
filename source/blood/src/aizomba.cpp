@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
-#include "aizomba.h"
+#include "aistate.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
@@ -39,8 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
-#include "trig.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 
@@ -87,13 +86,12 @@ static void HackSeqCallback(int, int nXSprite)
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int tx = pXSprite->targetX-pSprite->x;
     int ty = pXSprite->targetY-pSprite->y;
-    int UNUSED(nDist) = approxDist(tx, ty);
     int nAngle = getangle(tx, ty);
     int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
     int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;
     int dz = height-height2;
-    int dx = Cos(nAngle)>>16;
-    int dy = Sin(nAngle)>>16;
+    int dx = CosScale16(nAngle);
+    int dy = SinScale16(nAngle);
     sfxPlay3DSound(pSprite, 1101, 1, 0);
     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_10);
 }

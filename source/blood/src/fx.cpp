@@ -29,15 +29,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "actor.h"
 #include "blood.h"
 #include "callback.h"
-#include "config.h"
+#include "globals.h"
 #include "db.h"
 #include "eventq.h"
 #include "fx.h"
 #include "gameutil.h"
 #include "levels.h"
 #include "seq.h"
-#include "tile.h"
-#include "trig.h"
 #include "view.h"
 
 BEGIN_BLD_NS
@@ -48,7 +46,7 @@ struct FXDATA {
     CALLBACK_ID funcID; // callback
     char at1; // detail
     short at2; // seq
-    short at4; // flags
+    short Kills; // flags
     int at6; // gravity
     int ata; // air drag
     int ate;
@@ -188,9 +186,9 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
         pSprite->xrepeat = pFX->at14;
     if (pFX->at15 > 0)
         pSprite->yrepeat = pFX->at15;
-    if ((pFX->at4 & 1) && Chance(0x8000))
+    if ((pFX->Kills & 1) && Chance(0x8000))
         pSprite->cstat |= 4;
-    if ((pFX->at4 & 2) && Chance(0x8000))
+    if ((pFX->Kills & 2) && Chance(0x8000))
         pSprite->cstat |= 8;
     if (pFX->at2)
     {
@@ -288,7 +286,7 @@ void fxSpawnBlood(spritetype *pSprite, int a2)
         pBlood->ang = 1024;
         xvel[pBlood->index] = Random2(0x6aaaa);
         yvel[pBlood->index] = Random2(0x6aaaa);
-        zvel[pBlood->index] = -Random(0x10aaaa)-100;
+        zvel[pBlood->index] = -(int)Random(0x10aaaa)-100;
         evPost(pBlood->index, 3, 8, kCallbackFXBloodSpurt);
     }
 }
@@ -313,7 +311,7 @@ void sub_746D4(spritetype *pSprite, int a2)
         pSpawn->ang = 1024;
         xvel[pSpawn->index] = Random2(0x6aaaa);
         yvel[pSpawn->index] = Random2(0x6aaaa);
-        zvel[pSpawn->index] = -Random(0x10aaaa)-100;
+        zvel[pSpawn->index] = -(int)Random(0x10aaaa)-100;
         evPost(pSpawn->index, 3, 8, kCallbackFXPodBloodSpray);
     }
 }
@@ -356,13 +354,13 @@ void fxSpawnEjectingShell(spritetype *pSprite, int z, int a3, int a4)
     }
 }
 
-void fxPrecache(void)
+void fxPrecache(HitList &hits)
 {
     for (int i = 0; i < kFXMax; i++)
     {
-        tilePrecacheTile(gFXData[i].at12, 0);
+        tilePrecacheTile(gFXData[i].at12, 0, hits);
         if (gFXData[i].at2)
-            seqPrecacheId(gFXData[i].at2);
+            seqPrecacheId(gFXData[i].at2, hits);
     }
 }
 

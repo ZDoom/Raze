@@ -17,21 +17,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "engine.h"
-#include "bullet.h"
-#include "runlist.h"
-#include "anims.h"
+#include "aistuff.h"
 #include "sequence.h"
 #include "exhumed.h"
 #include "sound.h"
-#include "init.h"
-#include "move.h"
 #include "player.h"
-#include "trigdat.h"
-#include "random.h"
-#include "gun.h"
 #include "names.h"
-#include "lighting.h"
-#include "object.h"
 #include <string.h>
 #include <assert.h>
 #ifndef __WATCOMC__
@@ -445,7 +436,7 @@ HITSPRITE:
                 short nPlayer = GetPlayerFromSprite(hitsprite);
                 if (!PlayerList[nPlayer].bIsMummified)
                 {
-                    PlayerList[nPlayer].bIsMummified = kTrue;
+                    PlayerList[nPlayer].bIsMummified = true;
                     SetNewWeapon(nPlayer, kWeaponMummified);
                 }
             }
@@ -543,7 +534,7 @@ void SetBulletEnemy(short nBullet, short nEnemy)
     }
 }
 
-int BuildBullet(short nSprite, int nType, int UNUSED(ebx), int UNUSED(ecx), int val1, int nAngle, int val2, int val3)
+int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int val2, int val3)
 {
     Bullet sBullet;
     bulletInfo *pBulletInfo = &BulletInfo[nType];
@@ -791,10 +782,10 @@ int BuildBullet(short nSprite, int nType, int UNUSED(ebx), int UNUSED(ecx), int 
         pBullet->z = var_18 >> 3;
     }
 
-    return nBulletSprite | (nBullet << 16);
+    return nBulletSprite | IntToFixed(nBullet);
 }
 
-void FuncBullet(int a, int UNUSED(b), int nRun)
+void FuncBullet(int a, int, int nRun)
 {
     short nBullet = RunData[nRun].nVal;
     assert(nBullet >= 0 && nBullet < kMaxBullets);

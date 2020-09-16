@@ -1,0 +1,2 @@
+The widescreen assets are mainly those from BuildGDX. Permission to use have been obtained from their respective authors.
+For detailed credits, please see the game specific widescreen.def files.

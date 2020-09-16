@@ -16,17 +16,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "rex.h"
+#include "aistuff.h"
 #include "exhumed.h"
 #include "engine.h"
-#include "runlist.h"
-#include "move.h"
 #include "sequence.h"
 #include "sound.h"
-#include "random.h"
-#include "trigdat.h"
 #include "player.h"
-#include "aistuff.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -132,7 +127,7 @@ int BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, in
     // this isn't stored anywhere.
     runlist_AddRunRec(NewRun, nRex | 0x180000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nRex | 0x180000;
 }
@@ -190,7 +185,7 @@ void FuncRex(int a, int nDamage, int nRun)
                         
                         RexList[nRex].nHealth = 0;
                         
-                        nCreaturesLeft--;
+                        nCreaturesKilled++;
 
                         if (nAction < 6)
                         {

@@ -95,13 +95,13 @@ FString MusicFileExists(const char* fn)
 	return FString();
 }
 
-int LookupMusicLump(const char* fn)
+int LookupMusic(const char* fn, bool onlyextended)
 {
-	if (mus_extendedlookup)
+	if (mus_extendedlookup || onlyextended)
 	{
 		FString name = StripExtension(fn);
 		int l = fileSystem.FindFileWithExtensions(name, knownMusicExts, countof(knownMusicExts));
-		if (l >= 0) return l;
+		if (l >= 0 || onlyextended) return l;
 	}
 	return fileSystem.CheckNumForFullName(fn, true, ns_music);
 }
@@ -131,20 +131,20 @@ FileReader OpenMusic(const char* musicname)
 	}
 	if (!reader.isOpen())
 	{
-		int lumpnum = LookupMusicLump(musicname);
+		int lumpnum = LookupMusic(musicname);
 		if (mus_extendedlookup && lumpnum >= 0)
 		{
 			// EDuke also looks in a subfolder named after the main game resource. Do this as well if extended lookup is active.
 			auto rfn = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
 			auto rfbase = ExtractFileBase(rfn);
 			FStringf aliasMusicname("music/%s/%s", rfbase.GetChars(), musicname);
-			lumpnum = LookupMusicLump(aliasMusicname);
+			lumpnum = LookupMusic(aliasMusicname);
 		}
 		if (lumpnum == -1)
 		{
 			// Always look in the 'music' subfolder as well. This gets used by multiple setups to store ripped CD tracks.
 			FStringf aliasMusicname("music/%s", musicname);
-			lumpnum = LookupMusicLump(aliasMusicname);
+			lumpnum = LookupMusic(aliasMusicname);
 		}
 		if (lumpnum == -1 && (g_gameType & GAMEFLAG_SW))
 		{
@@ -170,7 +170,7 @@ FileReader OpenMusic(const char* musicname)
 }
 
 
-static FString LookupMusic(const char* musicname, int& order)
+static FString LookupMusicCB(const char* musicname, int& order)
 {
 	// Now perform music aliasing. This also needs to be done before checking identities because multiple names can map to the same song.
 	FName* aliasp = MusicAliases.CheckKey(musicname);
@@ -197,7 +197,7 @@ int Mus_Play(const char *mapname, const char *fn, bool loop)
 	
 	if (!MusicEnabled())
 	{
-		return 0;
+		return 1;
 	}
 
 	// Allow per level music substitution.
@@ -223,12 +223,6 @@ void Mus_Stop()
 {
 	if (mus_blocked) return;
 	S_StopMusic(true);
-}
-
-void Mus_Fade(double seconds)
-{
-	// Todo: Blood uses this, but the streamer cannot currently fade the volume.
-	Mus_Stop();
 }
 
 void Mus_SetPaused(bool on)
@@ -276,7 +270,7 @@ void Mus_InitMusic()
 	I_InitMusic();
 	static MusicCallbacks mus_cb =
 	{
-		LookupMusic,
+		LookupMusicCB,
 		OpenMusic
 	};
 	S_SetMusicCallbacks(&mus_cb);

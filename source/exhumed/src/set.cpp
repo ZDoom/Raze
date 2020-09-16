@@ -16,15 +16,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "set.h"
+#include "aistuff.h"
 #include "engine.h"
 #include "exhumed.h"
-#include "runlist.h"
 #include "sequence.h"
-#include "random.h"
-#include "move.h"
-#include "trigdat.h"
-#include "bullet.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -138,7 +133,7 @@ int BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, in
     // this isn't stored anywhere.
     runlist_AddRunRec(NewRun, nSet | 0x190000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nSet | 0x190000;
 }
@@ -277,7 +272,7 @@ void FuncSet(int a, int nDamage, int nRun)
 
                     SetList[nSet].nHealth = 0;
 
-                    nCreaturesLeft--;
+                    nCreaturesKilled++;
 
                     if (nAction < 10)
                     {
@@ -568,7 +563,7 @@ void FuncSet(int a, int nDamage, int nRun)
                     {
                         // low 16 bits of returned var contains the sprite index, the high 16 the bullet number
                         int nBullet = BuildBullet(nSprite, 11, 0, 0, -1, sprite[nSprite].ang, nTarget + 10000, 1);
-                        SetBulletEnemy(nBullet >> 16, nTarget); // isolate the bullet number (shift off the sprite index)
+                        SetBulletEnemy(FixedToInt(nBullet), nTarget); // isolate the bullet number (shift off the sprite index)
 
                         SetList[nSet].field_E--;
                         if (SetList[nSet].field_E <= 0 || !RandomBit())

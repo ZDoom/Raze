@@ -5,12 +5,10 @@
 #include "compat.h"
 #include "build.h"
 #include "pragmas.h"
-#include "baselayer.h"
 #include "engine_priv.h"
 #include "polymost.h"
 #include "mdsprite.h"
 
-#include "common.h"
 #include "palette.h"
 #include "textures.h"
 #include "bitmap.h"
@@ -18,6 +16,7 @@
 #include "flatvertices.h"
 #include "texturemanager.h"
 #include "hw_renderstate.h"
+#include "printf.h"
 #include "../../glbackend/glbackend.h"
 
 static int32_t curextra=MAXTILES;
@@ -104,9 +103,9 @@ void freeallmodels()
         nextmodelid = 0;
     }
 
-    Bmemset(tile2model,-1,sizeof(tile2model));
+    memset(tile2model,-1,sizeof(tile2model));
     for (i=0; i<MAXTILES; i++)
-        Bmemset(tile2model[i].hudmem, 0, sizeof(tile2model[i].hudmem));
+        memset(tile2model[i].hudmem, 0, sizeof(tile2model[i].hudmem));
 
     curextra=MAXTILES;
 
@@ -175,7 +174,7 @@ static int32_t framename2index(mdmodel_t *vm, const char *nam)
         for (i=0; i<m->numframes; i++)
         {
             fr = (md2frame_t *)&m->frames[i*m->framebytes];
-            if (!Bstrcmp(fr->name, nam)) break;
+            if (!strcmp(fr->name, nam)) break;
         }
     }
     break;
@@ -183,7 +182,7 @@ static int32_t framename2index(mdmodel_t *vm, const char *nam)
     {
         md3model_t *m = (md3model_t *)vm;
         for (i=0; i<m->numframes; i++)
-            if (!Bstrcmp(m->head.frames[i].nam,nam)) break;
+            if (!strcmp(m->head.frames[i].nam,nam)) break;
     }
     break;
     }
@@ -216,7 +215,7 @@ int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
     tile2model[tilenume].modelid = modelid;
     tile2model[tilenume].framenum = i;
     tile2model[tilenume].skinnum = skinnum;
-    tile2model[tilenume].smoothduration = Blrintf((float)UINT16_MAX * smoothduration);
+    tile2model[tilenume].smoothduration = xs_CRoundToInt((float)UINT16_MAX * smoothduration);
 
     return i;
 }
@@ -231,7 +230,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
 
     if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
 
-    Bmemset(&ma, 0, sizeof(ma));
+    memset(&ma, 0, sizeof(ma));
     m = (md2model_t *)models[modelid];
     if (m->mdnum < 2) return 0;
 
@@ -250,7 +249,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
 
     map = (mdanim_t *)Xmalloc(sizeof(mdanim_t));
 
-    Bmemcpy(map, &ma, sizeof(ma));
+    memcpy(map, &ma, sizeof(ma));
 
     map->next = m->animations;
     m->animations = map;
@@ -308,8 +307,8 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
         if (otonframe[i]>=0 && otonframe[i] != i)
         {
             if (m->muladdframes)
-                Bmemcpy(&m->muladdframes[2*otonframe[i]], &m->muladdframes[2*i], 2*sizeof(vec3f_t));
-            Bmemcpy(&m->head.frames[otonframe[i]], &m->head.frames[i], sizeof(md3frame_t));
+                memcpy(&m->muladdframes[2*otonframe[i]], &m->muladdframes[2*i], 2*sizeof(vec3f_t));
+            memcpy(&m->head.frames[otonframe[i]], &m->head.frames[i], sizeof(md3frame_t));
         }
     }
 
@@ -319,7 +318,7 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
 
         for (i=0; i<m->numframes; i++)
             if (otonframe[i]>=0 && otonframe[i] != i)
-                Bmemcpy(&s->xyzn[otonframe[i]*s->numverts], &s->xyzn[i*s->numverts], s->numverts*sizeof(md3xyzn_t));
+                memcpy(&s->xyzn[otonframe[i]*s->numverts], &s->xyzn[i*s->numverts], s->numverts*sizeof(md3xyzn_t));
     }
 
     ////// tweak frame indices in various places
@@ -596,18 +595,18 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
         goto prep_return;
     }
 
-    fps = smooth->mdsmooth ? Blrintf((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f)
+    fps = smooth->mdsmooth ? xs_CRoundToInt((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f)
                                    : anim ? anim->fpssc : 1;
 
-    i = (mdtims - sprext->mdanimtims) * ((fps * timerGetClockRate()) / 120);
+    i = (mdtims - sprext->mdanimtims) * ((fps * 120) / 120);
 
-    j = (smooth->mdsmooth || !anim) ? 65536 : ((anim->endframe + 1 - anim->startframe) << 16);
+    j = (smooth->mdsmooth || !anim) ? 65536 : IntToFixed(anim->endframe + 1 - anim->startframe);
 
     // XXX: Just in case you play the game for a VERY long time...
     if (i < 0) { i = 0; sprext->mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
     if (anim && (i >= j+j) && (fps) && !mdpause) //Keep mdanimtims close to mdtims to avoid the use of MOD
-        sprext->mdanimtims += j/((fps*timerGetClockRate())/120);
+        sprext->mdanimtims += j/((fps*120)/120);
 
     k = i;
 
@@ -636,7 +635,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
     else
     {
         if (anim)
-            m->cframe = (i>>16)+anim->startframe;
+            m->cframe = FixedToInt(i)+anim->startframe;
 
 
         m->nframe = m->cframe+1;
@@ -757,13 +756,13 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     }
 #endif
 
-    Bstrcpy(st,filnam);
+    strcpy(st,filnam);
     for (i=strlen(st)-1; i>0; i--)
         if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
     m->basepath = (char *)Xmalloc(i+1);
-    Bstrcpy(m->basepath, st);
+    strcpy(m->basepath, st);
 
     m->skinfn = (char *)Xmalloc(ournumskins*64);
     if (m->numskins > 0)
@@ -803,7 +802,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     while (i < m->numframes)
     {
         f = (md2frame_t *)&m->frames[i*m->framebytes];
-        Bstrcpy(m3->head.frames[i].nam, f->name);
+        strcpy(m3->head.frames[i].nam, f->name);
         //Printf("Copied frame %s.\n", m3->head.frames[i].nam);
         m3->muladdframes[i*2] = f->mul;
         m3->muladdframes[i*2+1] = f->add;
@@ -825,7 +824,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
 
     maxmodelverts = max(maxmodelverts, s->numverts);
 
-    Bstrcpy(s->nam, "Dummy surface from MD2");
+    strcpy(s->nam, "Dummy surface from MD2");
 
     s->shaders = NULL;
 
@@ -918,8 +917,8 @@ static int32_t partition(uint16_t *indexes, float *depths, int32_t f, int32_t l)
             down--;
         if (up < down)
         {
-            swapfloat(&depths[up], &depths[down]);
-            swapshort(&indexes[up], &indexes[down]);
+            std::swap(depths[up], depths[down]);
+            std::swap(indexes[up], indexes[down]);
         }
     }
     while (down > up);
@@ -990,7 +989,7 @@ static md3model_t *md3load(FileReader & fil)
     // NOTE: We assume that NULL is represented by all-zeros.
     // surfs[0].geometry is for POLYMER_MD_PROCESS_CHECK (else: crashes).
     // surfs[i].geometry is for FREE_SURFS_GEOMETRY.
-    Bassert(m->head.surfs[0].geometry == NULL);
+    assert(m->head.surfs[0].geometry == NULL);
 
 #if B_BIG_ENDIAN != 0
     {
@@ -1105,8 +1104,8 @@ static void      md3postload_common(md3model_t *m)
     {
         frame = &m->head.frames[framei];
 
-        Bmemset(&frame->min, 0, sizeof(vec3f_t));
-        Bmemset(&frame->max, 0, sizeof(vec3f_t));
+        memset(&frame->min, 0, sizeof(vec3f_t));
+        memset(&frame->max, 0, sizeof(vec3f_t));
 
         frame->r        = 0.0f;
 
@@ -1185,244 +1184,10 @@ static void      md3postload_common(md3model_t *m)
             ++surfi;
         }
 
-        frame->r = Bsqrtf(frame->r);
+        frame->r = sqrtf(frame->r);
 
         ++framei;
     }
-}
-
-#ifdef POLYMER
-// pre-check success of conversion since it must not fail later.
-// keep in sync with md3postload_polymer!
-static int md3postload_polymer_check(md3model_t *m)
-{
-    ssize_t surfi, trii;
-    md3surf_t   *s;
-
-    surfi = 0;
-    while (surfi < m->head.numsurfs)
-    {
-        s = &m->head.surfs[surfi];
-
-        uint32_t const numverts = s->numverts;
-
-        trii = 0;
-        while (trii < s->numtris)
-        {
-            uint32_t const * const u = (uint32_t const *)s->tris[trii].i;
-
-            // let the vertices know they're being referenced by a triangle
-            if (u[0] >= numverts || u[1] >= numverts || u[2] >= numverts)
-            {
-                // corrupt model
-                Printf("%s: Triangle index out of bounds!\n", m->head.nam);
-                return 1;
-            }
-
-            ++trii;
-        }
-
-        ++surfi;
-    }
-
-    return 0;
-}
-
-// Precalculated cos/sin arrays.
-static float g_mdcos[256], g_mdsin[256];
-static int32_t mdtrig_init = 0;
-
-static void init_mdtrig_arrays(void)
-{
-    int32_t i;
-
-    for (i=0; i<256; i++)
-    {
-        float ang = i * (2.f * fPI) * (1.f/255.f);
-        g_mdcos[i] = cosf(ang);
-        g_mdsin[i] = sinf(ang);
-    }
-
-    mdtrig_init = 1;
-}
-#endif
-
-int      md3postload_polymer(md3model_t *m)
-{
-#ifdef POLYMER
-    int         framei, surfi, verti, trii;
-    float       vec1[5], vec2[5], mat[9], r;
-
-    // POLYMER_MD_PROCESS_CHECK
-    if (m->head.surfs[0].geometry)
-        return -1;  // already postprocessed
-
-    if (!mdtrig_init)
-        init_mdtrig_arrays();
-
-    // let's also repack the geometry to more usable formats
-
-    surfi = 0;
-    while (surfi < m->head.numsurfs)
-    {
-        handleevents();
-
-        md3surf_t *const s = &m->head.surfs[surfi];
-#ifdef DEBUG_MODEL_MEM
-        i = (m->head.numframes * s->numverts * sizeof(float) * 15);
-        if (i > 1<<20)
-            Printf("size %d (%d fr, %d v): md %s surf %d/%d\n", i, m->head.numframes, s->numverts,
-                       m->head.nam, surfi, m->head.numsurfs);
-#endif
-        s->geometry = (float *)Xcalloc(m->head.numframes * s->numverts * 15, sizeof(float));
-
-        if (s->numverts > tribufverts)
-        {
-            tribuf = (int32_t *) Xrealloc(tribuf, s->numverts * sizeof(int32_t));
-            tribufverts = s->numverts;
-        }
-
-        Bmemset(tribuf, 0, s->numverts * sizeof(int32_t));
-
-        verti = 0;
-        while (verti < (m->head.numframes * s->numverts))
-        {
-            md3xyzn_t const & xyzn = s->xyzn[verti];
-
-            // normal extraction from packed spherical coordinates
-            // FIXME: swapping lat and lng because of npherno's compiler
-            uint8_t lat = xyzn.nlng;
-            uint8_t lng = xyzn.nlat;
-            size_t verti15 = (size_t)verti * 15;
-
-            s->geometry[verti15 + 0] = xyzn.x;
-            s->geometry[verti15 + 1] = xyzn.y;
-            s->geometry[verti15 + 2] = xyzn.z;
-
-            s->geometry[verti15 + 3] = g_mdcos[lat] * g_mdsin[lng];
-            s->geometry[verti15 + 4] = g_mdsin[lat] * g_mdsin[lng];
-            s->geometry[verti15 + 5] = g_mdcos[lng];
-
-            ++verti;
-        }
-
-        uint32_t numverts = s->numverts;
-
-        trii = 0;
-        while (trii < s->numtris)
-        {
-            int32_t const * const i = s->tris[trii].i;
-            uint32_t const * const u = (uint32_t const *)i;
-
-            // let the vertices know they're being referenced by a triangle
-            if (u[0] >= numverts ||u[1] >= numverts || u[2] >= numverts)
-            {
-                // corrupt model
-                return 0;
-            }
-            tribuf[u[0]]++;
-            tribuf[u[1]]++;
-            tribuf[u[2]]++;
-
-            uint32_t const tris15[] = { u[0] * 15, u[1] * 15, u[2] * 15 };
-
-
-            framei = 0;
-            while (framei < m->head.numframes)
-            {
-                const uint32_t verti15 = framei * s->numverts * 15;
-
-                vec1[0] = s->geometry[verti15 + tris15[1]]     - s->geometry[verti15 + tris15[0]];
-                vec1[1] = s->geometry[verti15 + tris15[1] + 1] - s->geometry[verti15 + tris15[0] + 1];
-                vec1[2] = s->geometry[verti15 + tris15[1] + 2] - s->geometry[verti15 + tris15[0] + 2];
-                vec1[3] = s->uv[u[1]].u - s->uv[u[0]].u;
-                vec1[4] = s->uv[u[1]].v - s->uv[u[0]].v;
-
-                vec2[0] = s->geometry[verti15 + tris15[2]]     - s->geometry[verti15 + tris15[1]];
-                vec2[1] = s->geometry[verti15 + tris15[2] + 1] - s->geometry[verti15 + tris15[1] + 1];
-                vec2[2] = s->geometry[verti15 + tris15[2] + 2] - s->geometry[verti15 + tris15[1] + 2];
-                vec2[3] = s->uv[u[2]].u - s->uv[u[1]].u;
-                vec2[4] = s->uv[u[2]].v - s->uv[u[1]].v;
-
-                r = (vec1[3] * vec2[4] - vec2[3] * vec1[4]);
-                if (r != 0.0f)
-                {
-                    r = 1.f/r;
-
-                    // tangent
-                    mat[0] = (vec2[4] * vec1[0] - vec1[4] * vec2[0]) * r;
-                    mat[1] = (vec2[4] * vec1[1] - vec1[4] * vec2[1]) * r;
-                    mat[2] = (vec2[4] * vec1[2] - vec1[4] * vec2[2]) * r;
-
-                    normalize(&mat[0]);
-
-                    // bitangent
-                    mat[3] = (vec1[3] * vec2[0] - vec2[3] * vec1[0]) * r;
-                    mat[4] = (vec1[3] * vec2[1] - vec2[3] * vec1[1]) * r;
-                    mat[5] = (vec1[3] * vec2[2] - vec2[3] * vec1[2]) * r;
-
-                    normalize(&mat[3]);
-                }
-                else
-                    Bmemset(mat, 0, sizeof(float) * 6);
-
-                // T and B are shared for the three vertices in that triangle
-                size_t const offs = (framei * numverts * 15) + 6;
-                size_t j = 0;
-                do
-                {
-                    size_t const offsi = offs + j;
-                    s->geometry[offsi + tris15[0]] += mat[j];
-                    s->geometry[offsi + tris15[1]] += mat[j];
-                    s->geometry[offsi + tris15[2]] += mat[j];
-                }
-                while (++j < 6);
-
-                ++framei;
-            }
-
-            ++trii;
-        }
-
-        // now that we accumulated the TBNs, average and invert them for each vertex
-        int verti_end = m->head.numframes * s->numverts;
-
-        verti = 0;
-        while (verti < verti_end)
-        {
-            const int32_t curnumtris = tribuf[verti % s->numverts];
-            uint32_t const verti15 = verti * 15;
-
-            if (curnumtris > 0)
-            {
-                const float rfcurnumtris = 1.f/(float)curnumtris;
-                size_t i = 6;
-                do
-                    s->geometry[i + verti15] *= rfcurnumtris;
-                while (++i < 12);
-            }
-#ifdef DEBUG_MODEL_MEM
-            else if (verti == verti%s->numverts)
-            {
-                Printf("%s: vert %d is unused\n", m->head.nam, verti);
-            }
-#endif
-            // copy N over
-            Bmemcpy(&s->geometry[verti15 + 12], &s->geometry[verti15 + 3], sizeof(float) * 3);
-            invertmatrix(&s->geometry[verti15 + 6], mat);
-            Bmemcpy(&s->geometry[verti15 + 6], mat, sizeof(float) * 9);
-
-            ++verti;
-        }
-
-        ++surfi;
-    }
-
-#else
-    UNREFERENCED_PARAMETER(m);
-#endif
-
-    return 1;
 }
 
 
@@ -1515,7 +1280,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
                    m->head.nam, m->cframe, m->nframe, m->numframes, m->interpol);
 #endif
 
-        m->interpol = fclamp(m->interpol, 0.f, 1.f);
+        m->interpol = clamp(m->interpol, 0.f, 1.f);
         m->cframe = clamp(m->cframe, 0, m->numframes-1);
         m->nframe = clamp(m->nframe, 0, m->numframes-1);
     }
@@ -1587,10 +1352,11 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // to use Z-buffer hacks to hide overdraw problems with the flat-tsprite-on-floor shadows,
     // also disabling detail, glow, normal, and specular maps.
 
+    // WTF??? This should be done with proper math.
     if (tspr->clipdist & TSPR_FLAGS_MDHACK)
     {
         double f = (double) (tspr->owner + 1) * (std::numeric_limits<double>::epsilon() * 8.0);
-        if (f != 0.0) f *= 1.0/(double) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
+        if (f != 0.0) f *= 1.0/(double) (FindDistance2D(globalposx - tspr->x, globalposy - tspr->y)>>5);
 		GLInterface.SetDepthFunc(DF_LEqual);
     }
 
@@ -1610,7 +1376,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         // PLAG : default cutoff removed
         GLInterface.EnableBlend(true);
         GLInterface.EnableAlphaTest(true);
-		GLInterface.SetAlphaThreshold(TileFiles.tiledata[globalpicnum].alphaThreshold);
+		GLInterface.SetAlphaThreshold(TileFiles.tiledata[globalpicnum].texture->alphaThreshold);
     }
     else
     {
@@ -1626,7 +1392,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     if (sext->pitch || sext->roll)
     {
         float f = 1.f/((fxdimen * fviewingrange) * (256.f/(65536.f*128.f)) * (m0.x+m1.x));
-        Bmemset(&a0, 0, sizeof(a0));
+        memset(&a0, 0, sizeof(a0));
 
         if (sext->pivot_offset.x)
             a0.x = (float) sext->pivot_offset.x * f;
@@ -1877,8 +1643,8 @@ static mdmodel_t *mdload(const char *filnam)
 
         // smuggle the file name into the model struct.
         // head.nam is unused as far as I can tell
-        Bstrncpyz(vm3->head.nam, filnam, sizeof(vm3->head.nam));
-
+        strncpy(vm3->head.nam, filnam, sizeof(vm3->head.nam));
+		vm3->head.nam[sizeof(vm3->head.nam)-1] = 0;
         md3postload_common(vm3);
 
     }
@@ -1910,6 +1676,16 @@ static void mdfree(mdmodel_t *vm)
     if (vm->mdnum == 2 || vm->mdnum == 3) { md3free((md3model_t *)vm); return; }
 }
 
+static void updateModelInterpolation()
+{
+	// sigh...
+	omdtims = mdtims;
+	mdtims = I_msTime();
+	
+	for (native_t i = 0; i < MAXSPRITES + MAXUNIQHUDID; ++i)
+		if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
+			spriteext[i].mdanimtims += mdtims - omdtims;
+}
 #endif
 
 //---------------------------------------- MD LIBRARY ENDS  ----------------------------------------

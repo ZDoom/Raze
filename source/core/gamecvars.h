@@ -9,10 +9,7 @@ EXTERN_CVAR(Bool, cl_runmode)
 EXTERN_CVAR(Bool, cl_autosave)
 EXTERN_CVAR(Bool, cl_autosavedeletion)
 EXTERN_CVAR(Int, cl_maxautosaves)
-EXTERN_CVAR(Int, cl_autovote)
-EXTERN_CVAR(Int, cl_cheatmask)
 EXTERN_CVAR(Bool, cl_obituaries)
-EXTERN_CVAR(Bool, cl_democams)
 EXTERN_CVAR(Bool, cl_idplayers)
 EXTERN_CVAR(Bool, cl_viewbob)
 EXTERN_CVAR(Bool, cl_weaponsway)
@@ -24,6 +21,12 @@ EXTERN_CVAR(Int, cl_showweapon)
 EXTERN_CVAR(Int, cl_weaponswitch)
 EXTERN_CVAR(Int, cl_crosshairscale)
 EXTERN_CVAR(Bool, cl_sointerpolation)
+EXTERN_CVAR(Bool, cl_syncinput)
+EXTERN_CVAR(Bool, cl_swaltnukeinit)
+EXTERN_CVAR(Bool, cl_dukefixrpgrecoil)
+EXTERN_CVAR(Bool, cl_smoothsway)
+EXTERN_CVAR(Bool, cl_showmagamt)
+EXTERN_CVAR(Bool, cl_nomeleeblur)
 
 EXTERN_CVAR(Bool, demorec_seeds_cvar)
 EXTERN_CVAR(Bool, demoplay_diffs)
@@ -35,11 +38,9 @@ EXTERN_CVAR(Int, demorec_difftics_cvar)
 EXTERN_CVAR(Bool, snd_ambience)
 EXTERN_CVAR(Bool, snd_enabled)
 EXTERN_CVAR(Bool, snd_tryformats)
-EXTERN_CVAR(Bool, snd_doppler)
 EXTERN_CVAR(Bool, mus_enabled)
 EXTERN_CVAR(Bool, mus_restartonload)
 EXTERN_CVAR(Bool, mus_redbook)
-EXTERN_CVAR(Int, snd_fxvolume)
 EXTERN_CVAR(Int, snd_mixrate)
 EXTERN_CVAR(Int, snd_numchannels)
 EXTERN_CVAR(Int, snd_numvoices)
@@ -47,24 +48,26 @@ EXTERN_CVAR(Int, snd_speech)
 EXTERN_CVAR(Int, mus_device)
 
 EXTERN_CVAR(Int, hud_layout)
-EXTERN_CVAR(Int, hud_scale)
+EXTERN_CVAR(Float, hud_scale)
 EXTERN_CVAR(Int, hud_size)
+EXTERN_CVAR(Float, hud_statscale)
 
 EXTERN_CVAR(Int, hud_custom)
 EXTERN_CVAR(Bool, hud_stats)
 EXTERN_CVAR(Bool, hud_showmapname)
 EXTERN_CVAR(Bool, hud_position)
 EXTERN_CVAR(Bool, hud_bgstretch)
-EXTERN_CVAR(Int, hud_messagetime)
-EXTERN_CVAR(Bool, hud_glowingquotes)
 EXTERN_CVAR(Int, hud_textscale)
-EXTERN_CVAR(Int, hud_weaponscale)
-EXTERN_CVAR(Int, hud_messages)
+EXTERN_CVAR(Bool, hud_messages)
 
 EXTERN_CVAR(Int, althud_numbertile)
 EXTERN_CVAR(Int, althud_numberpal)
 EXTERN_CVAR(Int, althud_shadows)
 EXTERN_CVAR(Int, althud_flashing)
+
+EXTERN_CVAR(Bool, am_textfont)
+EXTERN_CVAR(Bool, am_showlabel)
+EXTERN_CVAR(Bool, am_nameontop)
 
 
 EXTERN_CVAR(Int, r_fov)
@@ -74,7 +77,6 @@ EXTERN_CVAR(Int, r_showfps)
 EXTERN_CVAR(Int, r_showfpsperiod)
 EXTERN_CVAR(Float, r_ambientlight)
 EXTERN_CVAR(Bool, r_shadows)
-EXTERN_CVAR(Bool, r_rotatespritenowidescreen)
 EXTERN_CVAR(Bool, r_precache)
 EXTERN_CVAR(Bool, r_voxels)
 EXTERN_CVAR(Int, r_upscalefactor)
@@ -88,16 +90,10 @@ EXTERN_CVAR(Int, gl_ssao)
 EXTERN_CVAR(Bool, use_joystick)
 EXTERN_CVAR(Int, in_mousebias)
 EXTERN_CVAR(Bool, in_mouseflip)
-EXTERN_CVAR(Bool, in_mousemode)
-EXTERN_CVAR(Bool, in_mousesmoothing)
 EXTERN_CVAR(Float, in_mousesensitivity)
 EXTERN_CVAR(Float, in_mousescalex)
 EXTERN_CVAR(Float, in_mousescaley)
 EXTERN_CVAR(Bool, in_mousemode)
-EXTERN_CVAR(String, wchoice)
-
-EXTERN_CVAR(Bool, displaysetup)
-EXTERN_CVAR(Bool, noautoload)
 
 EXTERN_CVAR(Bool, adult_lockout)
 EXTERN_CVAR(String, playername)
@@ -106,17 +102,28 @@ EXTERN_CVAR(String, usermapfolder)
 
 EXTERN_CVAR(Int, m_recstat)
 EXTERN_CVAR(Int, m_coop)
-EXTERN_CVAR(Int, m_marker)
-EXTERN_CVAR(Int, m_level_number)
 EXTERN_CVAR(Int, m_ffire)
 EXTERN_CVAR(Int, m_noexits)
-EXTERN_CVAR(Int, m_levelnumber)
 EXTERN_CVAR(Int, playercolor)
-EXTERN_CVAR(Int, playerteam)
 
 extern bool gNoAutoLoad;
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.
-bool G_ChangeHudLayout(int direction);
 bool G_CheckAutorun(bool button);
 inline int G_FPSLimit(void) { return 1; }
 bool G_AllowAutoload();
+
+enum EHudSize
+{
+	Hud_Current = -1,
+	Hud_Frame50 = 0,
+	Hud_Frame60,
+	Hud_Frame70,
+	Hud_Frame80,
+	Hud_Frame90,
+	Hud_Stbar,
+	Hud_StbarOverlay,
+	Hud_Mini,
+	Hud_full,
+	Hud_Nothing,
+	Hud_MAX
+};

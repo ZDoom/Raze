@@ -50,8 +50,22 @@
 //
 //===========================================================================
 
-bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sampler)
+// Test CVARs.
+#ifdef _DEBUG
+CVAR(Int, fixpalette, -1, 0)
+CVAR(Int, fixpalswap, -1, 0)
+#endif
+
+bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sampler, bool notindexed)
 {
+#ifdef _DEBUG
+	int basepal = GetTranslationType(paletteid) - Translation_Remap;
+	int translation = GetTranslationIndex(paletteid);
+	int usepalette = fixpalette >= 0 ? fixpalette : basepal;
+	int usepalswap = fixpalswap >= 0 ? fixpalswap : translation;
+	paletteid = TRANSLATION(Translation_Remap + usepalette, usepalswap);
+#endif
+
 	TexturePick texpick;
 	if (!PickTexture(picnum, tex, paletteid, texpick)) return false;
 
@@ -69,14 +83,12 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sa
 
 	SetBasepalTint(texpick.basepalTint);
 	auto &mat = renderState.mMaterial;
-	int flags = hw_useindexedcolortextures ? CTF_Indexed : 0;
-	mat.mMaterial = FMaterial::ValidateTexture(tex, flags); // todo allow scaling
+	int flags = (TextureType == TT_INDEXED) ? CTF_Indexed : 0;
+	mat.mMaterial = FMaterial::ValidateTexture(texpick.texture, flags); // todo allow scaling
 	mat.mClampMode = sampler;
 	mat.mTranslation = texpick.translation;
-	mat.mOverrideShader = 0;
+	mat.mOverrideShader = -1;
 	mat.mChanged = true;
-	if (TextureType == TT_INDEXED) renderState.Flags |= RF_UsePalette;
-	else renderState.Flags &= ~RF_UsePalette;
 	GLInterface.SetAlphaThreshold(tex->alphaThreshold);
 	return true;
 }

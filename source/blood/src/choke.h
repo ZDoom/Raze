@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "player.h"
 #include "qav.h"
-#include "resource.h"
 
 BEGIN_BLD_NS
 
@@ -34,8 +33,7 @@ class CChoke
 public:
     CChoke()
     {
-        at0 = NULL;
-        at4 = NULL;
+        TotalKills = NULL;
         at8 = NULL;
         atc = 0;
         at10 = 0;
@@ -43,11 +41,10 @@ public:
         at14 = 0;
         at18 = 0;
     };
-    void sub_83ff0(int a1, void(*a2)(PLAYER*));
-    void sub_84110(int x, int y);
-    void sub_84218();
-    char *at0;
-    DICTNODE *at4;
+    void init(int a1, void(*a2)(PLAYER*));
+    void animateChoke(int x, int y, int smoothratio);
+	void reset() { at10 = 0; }
+    char *TotalKills;
     QAV *at8;
     int atc;
     int at10;

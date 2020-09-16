@@ -18,8 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "build.h"
 #include "compat.h"
-#include "baselayer.h"
-#include "cd.h"
+#include "engine.h"
 #include "sound.h"
 #include "exhumed.h"
 #include <stdio.h>
@@ -53,10 +52,6 @@ bool playCDtrack(int nTrack, bool bLoop)
     return true;
 }
 
-void StartfadeCDaudio()
-{
-}
-
 int StepFadeCDaudio()
 {
     if (!CDplaying()) {
@@ -82,18 +77,7 @@ void FadeSong()
 
 int fadecdaudio()
 {
-    StartfadeCDaudio();
-
-    while (1)
-    {
-        if (!StepFadeCDaudio()) {
-            return 1;
-        }
-        else {
-            WaitTicks(1);
-        }
-    }
-
+    Mus_Stop();
     return 1;
 }
 

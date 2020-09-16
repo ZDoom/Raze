@@ -21,9 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 #include "build.h"
-#include "osd.h"
+#include "g_input.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -34,37 +33,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "jsector.h"
 #include "menus.h"
-#include "sw_strs.h"
 #include "pal.h"
-#include "demo.h"
 #include "keydef.h"
+#include "d_net.h"
 
 #include "gamecontrol.h"
-#include "gamedefs.h"
-#include "config.h"
-#include "network.h"
-#include "text.h"
+#include "misc.h"
 #include "version.h"
 #include "network.h"
 
-#include "colormap.h"
-#include "config.h"
+#include "misc.h"
 #include "menu.h"
 #include "raze_sound.h"
 #include "sounds.h"
+#include "gamestate.h"
+#include "raze_music.h"
 
 #include "../../glbackend/glbackend.h"
 
 
 BEGIN_SW_NS
-
-int handle1;
-
-void Menu_Init(void)
-{
-
-
-}
 
 //----------------------------------------------------------------------------
 //
@@ -91,8 +79,8 @@ class SWMainMenu : public DListMenu
 
 	void PreDraw() override
 	{
-        rotatesprite(160 << 16, 15 << 16, 65536, 0, pic_shadow_warrior,
-                     m_defshade, 0, ROTATE_SPRITE_SCREEN_CLIP, 0, 0, xdim - 1, ydim - 1);
+		DrawTexture(twod, tileGetTexture(pic_shadow_warrior), 160, 15, DTA_FullscreenScale, FSMode_Fit320x200,
+			DTA_CenterOffsetRel, true, DTA_Color, 0xfff0f0f0, TAG_DONE);
 	}
 };
 
@@ -123,25 +111,16 @@ public:
 
 void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags)
 {
-	short w, h;
 	switch (fontnum)
 	{
 		case NIT_BigFont:
-			MNU_MeasureStringLarge(text, &w, &h);
-			if (flags & LMF_Centered) xpos -= w/2;
-			MNU_DrawStringLarge(short(xpos), short(ypos), text, state == NIT_InactiveState? 20 : 0);
+			if (flags & LMF_Centered) xpos -= BigFont->StringWidth(text) * 0.5;
+			DrawText(twod, BigFont, CR_UNDEFINED, xpos, ypos, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, state == NIT_InactiveState? 0xff505050 : 0xffffffff, TAG_DONE);
 			break;
 		
 		case NIT_SmallFont:
-			MNU_MeasureString(text, &w, &h);
-			if (flags & LMF_Centered) xpos -= w/2;
-			MNU_DrawString(short(xpos), short(ypos), text, state == NIT_InactiveState? 20 : 0, 16);
-			break;
-		
-		case NIT_TinyFont:
-			MNU_MeasureSmallString(text, &w, &h);
-			if (flags & LMF_Centered) xpos -= w/2;
-			MNU_DrawSmallString(short(xpos), short(ypos), text, state == NIT_InactiveState? 20 : 0, 16);
+		default:
+			MNU_DrawString(short(xpos), short(ypos), text, state == NIT_InactiveState? 20 : 0, 16, (flags & LMF_Centered) ? 0 : -1);
 			break;
 	}
 	if (state == NIT_SelectedState)
@@ -162,10 +141,15 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 			x -= ((tilesiz[pic_yinyang].x) / 2) - 3;
 			y += 8;
 		}
-
-		rotatesprite(x << 16, y << 16,
-					 scale, 0, pic_yinyang, 2, 0, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
+		DrawTexture(twod, tileGetTexture(pic_yinyang, true), x, y, DTA_FullscreenScale, FSMode_Fit320x200,
+			DTA_CenterOffset, true, DTA_Color, 0xfff0f0f0, DTA_ScaleX, scale / 65536., DTA_ScaleY, scale / 65536., TAG_DONE);
 	}
+}
+
+void GameInterface::QuitToTitle()
+{
+	Mus_Stop();
+	gameaction = ga_mainmenu;
 }
 
 
@@ -182,10 +166,12 @@ void GameInterface::MenuSound(EMenuSounds snd)
 			break;
 
 		case AdvanceSound:
+		case ChooseSound:
 			PlaySound(DIGI_SWORDSWOOSH, v3df_dontpan, CHAN_BODY, CHANF_UI);
 			break;
 			
 		case CloseSound:
+		case BackSound:
 			PlaySound(DIGI_STARCLINK, v3df_dontpan, CHAN_BODY, CHANF_UI);
 			break;
 
@@ -196,20 +182,11 @@ void GameInterface::MenuSound(EMenuSounds snd)
 
 void GameInterface::MenuClosed()
 {
-	if (!LoadGameOutsideMoveLoop)
-	{
-		ResumeGame();
-		SetRedrawScreen(&Player[myconnectindex]);
-	}
 }
-
-extern SWBOOL InMenuLevel;
-extern SWBOOL DemoMode;
-extern SWBOOL ExitLevel, NewGame;
 
 bool GameInterface::CanSave()
 {
-    return (!CommEnabled && numplayers ==1 && !DemoMode && !InMenuLevel && !TEST(Player[myconnectindex].Flags, PF_DEAD));
+    return (gamestate == GS_LEVEL && !CommEnabled && numplayers ==1 && /*!DemoMode &&*/ !TEST(Player[myconnectindex].Flags, PF_DEAD));
 }
 
 void GameInterface::StartGame(FNewGameStartup& gs)
@@ -217,40 +194,39 @@ void GameInterface::StartGame(FNewGameStartup& gs)
     PLAYERp pp = Player + screenpeek;
     int handle = 0;
     int zero = 0;
-
-    // always assumed that a demo is playing
-
-    ready2send = 0;
-
+	
+	MapRecord* map;
     if (gs.Episode >= 1)
-        Level = 5;
+		map = FindMapByLevelNum(5);
     else
-        Level = 1;
+		map = FindMapByLevelNum(1);
 
-    DemoPlaying = FALSE;
-    ExitLevel = TRUE;
-    NewGame = TRUE;
-    DemoMode = FALSE;
-    CameraTestMode = FALSE;
-	Skill = gs.Skill;
+	if (!map) return;
+    CameraTestMode = false;
 	StopFX();
 
     //InitNewGame();
 
-    if (Skill == 0)
-        PlaySound(DIGI_TAUNTAI3, v3df_none, CHAN_VOICE, CHANF_UI);
-    else if (Skill == 1)
-        PlaySound(DIGI_NOFEAR, v3df_none, CHAN_VOICE, CHANF_UI);
-    else if (Skill == 2)
-        PlaySound(DIGI_WHOWANTSWANG, v3df_none, CHAN_VOICE, CHANF_UI);
-    else if (Skill == 3)
-        PlaySound(DIGI_NOPAIN, v3df_none, CHAN_VOICE, CHANF_UI);
-
-	while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+	if (!netgame)
 	{
-		DoUpdateSounds();
-		handleevents();
+		if (Skill == 0)
+			PlaySound(DIGI_TAUNTAI3, v3df_none, CHAN_VOICE, CHANF_UI);
+		else if (Skill == 1)
+			PlaySound(DIGI_NOFEAR, v3df_none, CHAN_VOICE, CHANF_UI);
+		else if (Skill == 2)
+			PlaySound(DIGI_WHOWANTSWANG, v3df_none, CHAN_VOICE, CHANF_UI);
+		else if (Skill == 3)
+			PlaySound(DIGI_NOPAIN, v3df_none, CHAN_VOICE, CHANF_UI);
+
+		while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+		{
+			gi->UpdateSounds();
+			soundEngine->UpdateSounds(I_GetTime());
+			I_GetEvent();
+		}
+		Net_ClearFifo();
 	}
+	DeferedStartGame(map, gs.Skill);
 }
 
 FSavegameInfo GameInterface::GetSaveSig()
@@ -260,32 +236,8 @@ FSavegameInfo GameInterface::GetSaveSig()
 
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
-	short w, h;
-	// Draw the backdrop bar
-	rotatesprite(10 << 16, (5-3) << 16, 65536, 0, 2427,
-				 2, 0, MenuDrawFlags|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
-	MNU_MeasureStringLarge(text, &w, &h);
-	MNU_DrawStringLarge(TEXT_XCENTER(w), 5, text, 1);
-}
-
-void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
-{
-	if (text)
-	{
-		short width, height = 0;
-		MNU_MeasureString("T", &width, &height);
-
-		auto lines = FString(text).Split("\n");
-		int y = 100 - (height * lines.Size() / 2);
-		for (auto& l : lines)
-		{
-			short lheight = 0;
-			MNU_MeasureString(l, &width, &lheight);
-			int x = 160 - width / 2;
-			MNU_DrawString(x, y, l, 0, 0);
-			y += height;
-		}
-	}
+	DrawTexture(twod, tileGetTexture(2427), 10, 2, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_TopLeft, true, DTA_Color, 0xfff0f0f0,  TAG_DONE);
+	DrawText(twod, BigFont, CR_UNDEFINED, 160 - BigFont->StringWidth(text) * 0.5, 5, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
 }
 
 

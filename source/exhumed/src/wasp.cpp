@@ -16,16 +16,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "wasp.h"
+#include "aistuff.h"
 #include "engine.h"
-#include "runlist.h"
-#include "random.h"
 #include "exhumed.h"
 #include "sequence.h"
-#include "init.h"
-#include "move.h"
-#include "anims.h"
-#include "trigdat.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -98,9 +92,9 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
     short nWasp = nWaspCount;
     nWaspCount++;
 
-    uint8_t bEggWasp = kFalse;
+    uint8_t bEggWasp = false;
     if (nSprite == -2) {
-        bEggWasp = kTrue;
+        bEggWasp = true;
     }
 
     if (nSprite < 0)
@@ -173,7 +167,7 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
 
     WaspList[nWasp].nRun = runlist_AddRunRec(NewRun, nWasp | 0x1E0000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
     return nSprite;
 }
 
@@ -248,7 +242,7 @@ void FuncWasp(int a, int nDamage, int nRun)
 
                     sprite[nSprite].zvel = 512;
 
-                    nCreaturesLeft--;
+                    nCreaturesKilled++;
                 }
             }
             return;

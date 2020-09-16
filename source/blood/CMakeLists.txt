@@ -24,46 +24,39 @@ set( PCH_SOURCES
 	src/aiunicult.cpp
 	src/aizomba.cpp
 	src/aizombf.cpp
+	src/animatesprite.cpp
 	src/asound.cpp
 	src/barf.cpp
 	src/blood.cpp
 	src/callback.cpp
 	src/choke.cpp
-	src/common.cpp
-	src/config.cpp
 	src/controls.cpp
 	src/credits.cpp
 	src/db.cpp
-	src/demo.cpp
 	src/dude.cpp
 	src/endgame.cpp
 	src/eventq.cpp
 	src/fire.cpp
 	src/fx.cpp
-	src/gamemenu.cpp
 	src/gameutil.cpp
-	src/getopt.cpp
 	src/gib.cpp
 	src/globals.cpp
+	src/hudsprites.cpp
 	src/inifile.cpp
-	src/iob.cpp
 	src/levels.cpp
 	src/loadsave.cpp
-	src/map2d.cpp
-	src/menu.cpp
 	src/messages.cpp
 	src/mirrors.cpp
 	src/misc.cpp
-	src/network.cpp
 	src/nnexts.cpp
 	src/osdcmd.cpp
 	src/player.cpp
+	src/prediction.cpp
+	src/preload.cpp
 	src/qav.cpp
-	src/qheap.cpp
 	src/replace.cpp
-	src/resource.cpp
+	src/sbar.cpp
 	src/screen.cpp
-	src/text.cpp
 	src/sectorfx.cpp
 	src/seq.cpp
 	src/sfx.cpp

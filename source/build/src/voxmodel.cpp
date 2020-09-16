@@ -5,7 +5,6 @@
 #include "compat.h"
 #include "build.h"
 #include "pragmas.h"
-#include "baselayer.h"
 #include "engine_priv.h"
 #include "polymost.h"
 #include "mdsprite.h"
@@ -318,10 +317,10 @@ static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, 
     //Extend borders vertically
     for (bssize_t yy=0; yy<VOXBORDWIDTH; yy++)
     {
-        Bmemcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx + shp[z].x],
+        memcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx + shp[z].x],
                 &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx + shp[z].x],
                 (x+(VOXBORDWIDTH<<1))<<2);
-        Bmemcpy(&gvox->mytex[(shp[z].y+y+yy+VOXBORDWIDTH)*gvox->mytexx + shp[z].x],
+        memcpy(&gvox->mytex[(shp[z].y+y+yy+VOXBORDWIDTH)*gvox->mytexx + shp[z].x],
                 &gvox->mytex[(shp[z].y+y-1+VOXBORDWIDTH)*gvox->mytexx + shp[z].x],
                 (x+(VOXBORDWIDTH<<1))<<2);
     }
@@ -615,7 +614,7 @@ static void read_pal(FileReader &fil, int32_t pal[256])
         char c[3];
         fil.Read(c, 3);
 //#if B_BIG_ENDIAN != 0
-        pal[i] = B_LITTLE32((c[0]<<18) + (c[1]<<10) + (c[2]<<2) + (i<<24));
+        pal[i] = B_LITTLE32(unsigned((c[0]<<18) + (c[1]<<10) + (c[2]<<2) + (i<<24)));
 //#endif
     }
 }
@@ -864,14 +863,14 @@ voxmodel_t *voxload(const char *filnam)
 {
     int32_t is8bit, ret;
 
-    const int32_t i = Bstrlen(filnam)-4;
+    const int32_t i = strlen(filnam)-4;
     if (i < 0)
         return NULL;
 
-    if (!Bstrcasecmp(&filnam[i], ".vox")) { ret = loadvox(filnam); is8bit = 1; }
-    else if (!Bstrcasecmp(&filnam[i], ".kvx")) { ret = loadkvx(filnam); is8bit = 1; }
-    else if (!Bstrcasecmp(&filnam[i], ".kv6")) { ret = loadkv6(filnam); is8bit = 0; }
-    //else if (!Bstrcasecmp(&filnam[i],".vxl")) { ret = loadvxl(filnam); is8bit = 0; }
+    if (!stricmp(&filnam[i], ".vox")) { ret = loadvox(filnam); is8bit = 1; }
+    else if (!stricmp(&filnam[i], ".kvx")) { ret = loadkvx(filnam); is8bit = 1; }
+    else if (!stricmp(&filnam[i], ".kv6")) { ret = loadkv6(filnam); is8bit = 0; }
+    //else if (!stricmp(&filnam[i],".vxl")) { ret = loadvxl(filnam); is8bit = 0; }
     else return NULL;
 
     voxmodel_t *const vm = (ret >= 0) ? vox2poly() : NULL;
@@ -906,7 +905,7 @@ voxmodel_t *loadkvxfrombuf(const char *kvxbuffer, int32_t length)
     if (!buffer)
         return NULL;
 
-    Bmemcpy(buffer, kvxbuffer, length);
+    memcpy(buffer, kvxbuffer, length);
 
     int32_t *longptr = (int32_t*)buffer;
 
@@ -943,7 +942,7 @@ voxmodel_t *loadkvxfrombuf(const char *kvxbuffer, int32_t length)
     {
         const char *c = &paloff[i*3];
 //#if B_BIG_ENDIAN != 0
-        pal[i] = B_LITTLE32((c[0]<<18) + (c[1]<<10) + (c[2]<<2) + (i<<24));
+        pal[i] = B_LITTLE32(int((c[0]<<18) + (c[1]<<10) + (c[2]<<2) + (i<<24)));
 //#endif
     }
 
@@ -1108,7 +1107,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     //transform to Build coords
     float omat[16];
-    Bmemcpy(omat, mat, sizeof(omat));
+    memcpy(omat, mat, sizeof(omat));
 
     f = 1.f/64.f;
     g = m0.x*f; mat[0] *= g; mat[1] *= g; mat[2] *= g;
@@ -1152,7 +1151,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     GLInterface.SetPalswap(globalpal);
 	// The texture here is already translated.
-	GLInterface.SetTexture(-1, htex, 0/*TRANSLATION(Translation_Remap + curbasepal, globalpal)*/, CLAMP_NOFILTER_XY);
+	GLInterface.SetTexture(-1, htex, 0/*TRANSLATION(Translation_Remap + curbasepal, globalpal)*/, CLAMP_NOFILTER_XY, true);
 
 	// This must be done after setting up the texture.
 	auto& h = lookups.tables[globalpal];

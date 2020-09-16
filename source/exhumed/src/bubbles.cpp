@@ -16,17 +16,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "bubbles.h"
-#include "runlist.h"
+#include "aistuff.h"
 #include "exhumed.h"
-#include "random.h"
 #include "engine.h"
 #include "sequence.h"
-#include "move.h"
-#include "init.h"
-#include "runlist.h"
-#include "init.h"
-#include "anims.h"
+#include "mapinfo.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -150,7 +144,7 @@ int BuildBubble(int x, int y, int z, short nSector)
     return nBubble | 0x140000;
 }
 
-void FuncBubble(int a, int UNUSED(b), int nRun)
+void FuncBubble(int a, int, int nRun)
 {
     short nBubble = RunData[nRun].nVal;
     assert(nBubble >= 0 && nBubble < kMaxBubbles);
@@ -226,7 +220,7 @@ void DoBubbleMachines()
 void BuildBubbleMachine(int nSprite)
 {
     if (nMachineCount >= kMaxMachines) {
-        I_Error("too many bubble machines in level %d\n", levelnew);
+        I_Error("too many bubble machines in level %d\n", currentLevel->levelNumber);
         exit(-1);
     }
 

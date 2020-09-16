@@ -74,5 +74,4 @@ public:
 void GibSprite(spritetype *pSprite, GIBTYPE nGibType, CGibPosition *pPos, CGibVelocity *pVel);
 //void GibFX(int nWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVelocity * pVel);
 void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel);
-void gibPrecache(void);
 END_BLD_NS

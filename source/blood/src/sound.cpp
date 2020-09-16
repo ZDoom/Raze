@@ -25,14 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "compat.h"
 #include "common_game.h"
-#include "config.h"
 #include "levels.h"
-#include "resource.h"
 #include "sound.h"
-#include "baselayer.h"
 #include "raze_music.h"
-#include "sfx.h"
 #include "raze_sound.h"
+#include "gamecontrol.h"
 
 BEGIN_BLD_NS
 
@@ -54,6 +51,17 @@ int soundRates[13] = {
 #define kChannelMax 32
 
 
+void ByteSwapSFX(SFX* pSFX)
+{
+#if B_BIG_ENDIAN == 1
+    pSFX->relVol = LittleLong(pSFX->relVol);
+    pSFX->pitch = LittleLong(pSFX->pitch);
+    pSFX->pitchRange = LittleLong(pSFX->pitchRange);
+    pSFX->format = LittleLong(pSFX->format);
+    pSFX->loopStart = LittleLong(pSFX->loopStart);
+#endif
+}
+
 //==========================================================================
 //
 // S_AddBloodSFX
@@ -66,7 +74,8 @@ int soundRates[13] = {
 static void S_AddBloodSFX(int lumpnum)
 {
     auto sfxlump = fileSystem.ReadFile(lumpnum);
-    const SFX* sfx = (SFX*)sfxlump.GetMem();
+    SFX* sfx = (SFX*)sfxlump.GetMem();
+    ByteSwapSFX(sfx);
     FStringf rawname("%s.raw", sfx->rawName);
     auto rawlump = fileSystem.FindFile(rawname);
     int sfxnum;
@@ -90,11 +99,12 @@ static void S_AddBloodSFX(int lumpnum)
         S_sfx[sfxnum].bLoadRAW = true;
         S_sfx[sfxnum].LoopStart = LittleLong(sfx->loopStart);
         //S_sfx[sfxnum].Volume = sfx->relVol / 255.f; This cannot be done because this volume setting is optional.
-        S_sfx[sfxnum].UserData.Resize(2);
+        S_sfx[sfxnum].UserData.Resize(3);
         int* udata = (int*)S_sfx[sfxnum].UserData.Data();
         udata[0] = sfx->pitch;
         udata[1] = sfx->pitchRange;
-        udata[2] = sfx->relVol;    }
+        udata[2] = sfx->relVol;   
+    }
 }
 
 void sndInit(void)
@@ -131,7 +141,7 @@ int sndGetRate(int format)
 void SoundCallback(intptr_t val)
 {
     SAMPLE2D *pChannel = (SAMPLE2D*)val;
-    pChannel->at0 = 0;
+    pChannel->TotalKills = 0;
 }
 
 void sndStartSample(const char *pzSound, int nVolume, int nChannel)
@@ -148,7 +158,7 @@ void sndStartSample(const char *pzSound, int nVolume, int nChannel)
     }
 }
 
-void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
+void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop, EChanFlags chanflags)
 {
     if (!SoundEnabled())
         return;
@@ -160,10 +170,11 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
         if (nVolume < 0)
         {
             auto udata = soundEngine->GetUserData(snd);
-            if (udata) nVolume = udata[2];
+            if (udata) nVolume = std::min(Scale(udata[2], 255, 100), 255);
             else nVolume = 255;
         }
-        soundEngine->StartSound(SOURCE_None, nullptr, nullptr, (nChannel + 1), (bLoop? CHANF_LOOP : EChanFlags::FromInt(0)), snd, nVolume / 255.f, ATTN_NONE);
+        if (bLoop) chanflags |= CHANF_LOOP;
+        soundEngine->StartSound(SOURCE_None, nullptr, nullptr, (nChannel + 1), chanflags, snd, nVolume / 255.f, ATTN_NONE);
     }
 }
 

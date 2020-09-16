@@ -45,14 +45,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "seq.h"
 #include "qav.h"
-#include "sfx.h"
 #include "sound.h"
 #include "triggers.h"
-#include "trig.h"
 #include "view.h"
 #include "messages.h"
-#include "weapon.h"
 #include "nnexts.h"
+#include "d_net.h"
 
 BEGIN_BLD_NS
 
@@ -73,13 +71,13 @@ unsigned int GetWaveValue(unsigned int nPhase, int nType)
     switch (nType)
     {
     case 0:
-        return 0x8000-(Cos((nPhase<<10)>>16)>>15);
+        return 0x8000-(Cos(FixedToInt(nPhase<<10))>>15);
     case 1:
         return nPhase;
     case 2:
-        return 0x10000-(Cos((nPhase<<9)>>16)>>14);
+        return 0x10000-(Cos(FixedToInt(nPhase<<9))>>14);
     case 3:
-        return Sin((nPhase<<9)>>16)>>14;
+        return Sin(FixedToInt(nPhase<<9))>>14;
     }
     return nPhase;
 }
@@ -88,7 +86,7 @@ char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState)
 {
     if ((pXSprite->busy & 0xffff) == 0 && pXSprite->state == nState)
         return 0;
-    pXSprite->busy = nState << 16;
+    pXSprite->busy  = IntToFixed(nState);
     pXSprite->state = nState;
     evKill(nSprite, 3);
     if ((sprite[nSprite].flags & kHitagRespawn) != 0 && sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax)
@@ -115,7 +113,7 @@ char SetWallState(int nWall, XWALL *pXWall, int nState)
 {
     if ((pXWall->busy&0xffff) == 0 && pXWall->state == nState)
         return 0;
-    pXWall->busy = nState<<16;
+    pXWall->busy  = IntToFixed(nState);
     pXWall->state = nState;
     evKill(nWall, 0);
     if (pXWall->restState != nState && pXWall->waitTime > 0)
@@ -134,7 +132,7 @@ char SetSectorState(int nSector, XSECTOR *pXSector, int nState)
 {
     if ((pXSector->busy&0xffff) == 0 && pXSector->state == nState)
         return 0;
-    pXSector->busy = nState<<16;
+    pXSector->busy = IntToFixed(nState);
     pXSector->state = nState;
     evKill(nSector, 6);
     if (nState == 1)
@@ -178,8 +176,8 @@ enum BUSYID {
 };
 
 struct BUSY {
-    int at0;
-    int at4;
+    int TotalKills;
+    int Kills;
     int at8;
     BUSYID atc;
 };
@@ -192,19 +190,19 @@ void AddBusy(int a1, BUSYID a2, int nDelta)
     int i;
     for (i = 0; i < gBusyCount; i++)
     {
-        if (gBusy[i].at0 == a1 && gBusy[i].atc == a2)
+        if (gBusy[i].TotalKills == a1 && gBusy[i].atc == a2)
             break;
     }
     if (i == gBusyCount)
     {
         if (gBusyCount == 128)
             return;
-        gBusy[i].at0 = a1;
+        gBusy[i].TotalKills = a1;
         gBusy[i].atc = a2;
         gBusy[i].at8 = nDelta > 0 ? 0 : 65536;
         gBusyCount++;
     }
-    gBusy[i].at4 = nDelta;
+    gBusy[i].Kills = nDelta;
 }
 
 void ReverseBusy(int a1, BUSYID a2)
@@ -212,9 +210,9 @@ void ReverseBusy(int a1, BUSYID a2)
     int i;
     for (i = 0; i < gBusyCount; i++)
     {
-        if (gBusy[i].at0 == a1 && gBusy[i].atc == a2)
+        if (gBusy[i].TotalKills == a1 && gBusy[i].atc == a2)
         {
-            gBusy[i].at4 = -gBusy[i].at4;
+            gBusy[i].Kills = -gBusy[i].Kills;
             break;
         }
     }
@@ -253,7 +251,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
     case kCmdSpritePush:
     {
         int nPlayer = pXSprite->data4;
-        if (nPlayer >= 0 && nPlayer < gNetPlayers)
+        if (nPlayer >= 0 && nPlayer < kMaxPlayers && playeringame[nPlayer])
         {
             PLAYER *pPlayer = &gPlayer[nPlayer];
             if (pPlayer->pXSprite->health > 0)
@@ -296,8 +294,8 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                         y += (yvel[nTarget]*t)>>12;
                         int angBak = pSprite->ang;
                         pSprite->ang = getangle(x-pSprite->x, y-pSprite->y);
-                        int dx = Cos(pSprite->ang)>>16;
-                        int dy = Sin(pSprite->ang)>>16;
+                        int dx = CosScale16(pSprite->ang);
+                        int dy = SinScale16(pSprite->ang);
                         int tz = pTarget->z - (pTarget->yrepeat * pDudeInfo->aimHeight) * 4;
                         int dz = divscale(tz - top - 256, nDist, 10);
                         int nMissileType = kMissileLifeLeechAltNormal + (pXSprite->data3 ? 1 : 0);
@@ -509,7 +507,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             spritetype* pSpawn = actSpawnDude(pSprite, pXSprite->data1, -1, 0);
             if (pSpawn) {
                 XSPRITE *pXSpawn = &xsprite[pSpawn->extra];
-                gKillMgr.sub_263E0(1);
+                gKillMgr.AddNewKill(1);
                 switch (pXSprite->data1) {
                     case kDudeBurningInnocent:
                     case kDudeBurningCultist:
@@ -1105,8 +1103,8 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1154,8 +1152,8 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1253,8 +1251,8 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1281,8 +1279,8 @@ int HDoorBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1308,8 +1306,8 @@ int RDoorBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1341,8 +1339,8 @@ int StepRotateBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         pXSector->data = vbp&2047;
         return 3;
     }
@@ -1361,8 +1359,8 @@ int GenSectorBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1703,7 +1701,7 @@ void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
         default:
             pXSector->busy = nBusy;
             if ((pXSector->busy&0xffff) == 0)
-                SetSectorState(nSector, pXSector, nBusy>>16);
+                SetSectorState(nSector, pXSector, FixedToInt(nBusy));
             break;
     }
 }
@@ -1732,7 +1730,7 @@ void LinkSprite(int nSprite, XSPRITE *pXSprite, EVENT event) {
         {
             pXSprite->busy = nBusy;
             if ((pXSprite->busy & 0xffff) == 0)
-                SetSpriteState(nSprite, pXSprite, nBusy >> 16);
+                SetSpriteState(nSprite, pXSprite, FixedToInt(nBusy));
         }
         break;
     }
@@ -1743,7 +1741,7 @@ void LinkWall(int nWall, XWALL *pXWall, EVENT event)
     int nBusy = GetSourceBusy(event);
     pXWall->busy = nBusy;
     if ((pXWall->busy & 0xffff) == 0)
-        SetWallState(nWall, pXWall, nBusy>>16);
+        SetWallState(nWall, pXWall, FixedToInt(nBusy));
 }
 
 void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command) {
@@ -1983,15 +1981,15 @@ void trProcessBusy(void)
     for (int i = gBusyCount-1; i >= 0; i--)
     {
         int oldBusy = gBusy[i].at8;
-        gBusy[i].at8 = ClipRange(oldBusy+gBusy[i].at4*4, 0, 65536);
-        int nStatus = gBusyProc[gBusy[i].atc](gBusy[i].at0, gBusy[i].at8);
+        gBusy[i].at8 = ClipRange(oldBusy+gBusy[i].Kills*4, 0, 65536);
+        int nStatus = gBusyProc[gBusy[i].atc](gBusy[i].TotalKills, gBusy[i].at8);
         switch (nStatus) {
             case 1:
                 gBusy[i].at8 = oldBusy;
                 break;
             case 2:
                 gBusy[i].at8 = oldBusy;
-                gBusy[i].at4 = -gBusy[i].at4;
+                gBusy[i].Kills = -gBusy[i].Kills;
                 break;
             case 3:
                 gBusy[i] = gBusy[--gBusyCount];
@@ -2185,7 +2183,7 @@ void trInit(void)
 
 void trTextOver(int nId)
 {
-    const char *pzMessage = levelGetMessage(nId);
+    const char *pzMessage = currentLevel->GetMessage(nId);
     if (pzMessage)
         viewSetMessage(pzMessage, VanillaMode() ? 0 : 8, MESSAGE_PRIORITY_INI); // 8: gold
 }
@@ -2260,7 +2258,7 @@ void FireballTrapSeqCallback(int, int nXSprite)
     if (pSprite->cstat&32)
         actFireMissile(pSprite, 0, 0, 0, 0, (pSprite->cstat&8) ? 0x4000 : -0x4000, kMissileFireball);
     else
-        actFireMissile(pSprite, 0, 0, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, 0, kMissileFireball);
+        actFireMissile(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFireball);
 }
 
 
@@ -2277,8 +2275,8 @@ void MGunFireSeqCallback(int, int nXSprite)
             if (pXSprite->data2 == 0)
                 evPost(nSprite, 3, 1, kCmdOff);
         }
-        int dx = (Cos(pSprite->ang)>>16)+Random2(1000);
-        int dy = (Sin(pSprite->ang)>>16)+Random2(1000);
+        int dx = CosScale16(pSprite->ang)+Random2(1000);
+        int dy = SinScale16(pSprite->ang)+Random2(1000);
         int dz = Random2(1000);
         actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_2);
         sfxPlay3DSound(pSprite, 359, -1, 0);

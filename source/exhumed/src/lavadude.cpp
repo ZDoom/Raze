@@ -17,15 +17,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "engine.h"
-#include "lavadude.h"
-#include "random.h"
-#include "runlist.h"
+#include "aistuff.h"
 #include "sequence.h"
 #include "exhumed.h"
-#include "move.h"
-#include "trigdat.h"
-#include "move.h"
-#include "bullet.h"
 #include "sound.h"
 #include <assert.h>
 
@@ -105,7 +99,7 @@ int BuildLavaLimb(int nSprite, int edx, int ebx)
     return nLimbSprite;
 }
 
-void FuncLavaLimb(int a, int UNUSED(nDamage), int nRun)
+void FuncLavaLimb(int a, int, int nRun)
 {
     short nSprite = RunData[nRun].nVal;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
@@ -146,7 +140,7 @@ void FuncLavaLimb(int a, int UNUSED(nDamage), int nRun)
     }
 }
 
-int BuildLava(short nSprite, int x, int y, int UNUSED(z), short nSector, short nAngle, int nChannel)
+int BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, int nChannel)
 {
     short nLava = LavaCount;
     LavaCount++;
@@ -204,7 +198,7 @@ int BuildLava(short nSprite, int x, int y, int UNUSED(z), short nSector, short n
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nLava | 0x150000);
     LavaList[nLava].nRun = runlist_AddRunRec(NewRun, nLava | 0x150000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nLava | 0x150000;
 }
@@ -254,7 +248,7 @@ void FuncLava(int a, int nDamage, int nRun)
                 LavaList[nLava].nAction = 5;
                 LavaList[nLava].nFrame  = 0;
 
-                nCreaturesLeft--;
+                nCreaturesKilled++;
 
                 sprite[nSprite].cstat &= 0xFEFE;
             }

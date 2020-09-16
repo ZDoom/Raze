@@ -16,20 +16,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "grenade.h"
+#include "aistuff.h"
 #include "engine.h"
 #include "player.h"
-#include "runlist.h"
 #include "exhumed.h"
 #include "sound.h"
-#include "move.h"
-#include "init.h"
-#include "bullet.h"
-#include "gun.h"
-#include "anims.h"
-#include "lighting.h"
 #include "sequence.h"
-#include "random.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -102,7 +94,7 @@ void BounceGrenade(short nGrenade, short nAngle)
     D3PlayFX(StaticSound[kSound3], GrenadeList[nGrenade].nSprite);
 }
 
-int ThrowGrenade(short nPlayer, int UNUSED(edx), int UNUSED(ebx), int ecx, int push1)
+int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
 {
     if (nPlayerGrenade[nPlayer] < 0)
         return -1;
@@ -273,7 +265,7 @@ void ExplodeGrenade(short nGrenade)
     DestroyGrenade(nGrenade);
 }
 
-void FuncGrenade(int a, int UNUSED(nDamage), int nRun)
+void FuncGrenade(int a, int, int nRun)
 {
     short nGrenade = RunData[nRun].nVal;
     assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
@@ -323,7 +315,7 @@ void FuncGrenade(int a, int UNUSED(nDamage), int nRun)
 
                     if (PlayerList[nPlayer].nAmmo[kWeaponGrenade])
                     {
-                        PlayerList[nPlayer].bIsFiring = kFalse;
+                        PlayerList[nPlayer].bIsFiring = false;
                     }
                     else
                     {

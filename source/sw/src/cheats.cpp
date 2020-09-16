@@ -23,585 +23,316 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
-// From SWP:
-// Added SWKEYS
-// Added SWGUN# and SWGOD
-// Added SWMEDIC    (25%)
-// Added Full name key cheats - swbluecard - swgoldkey
-// Added swquit
-// Added 2 uzi's for swgimme
-//
 
 #include "ns.h"
 
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
 #include "mytypes.h"
-#include "text.h"
+#include "misc.h"
 
 #include "gamecontrol.h"
 #include "gstrings.h"
+#include "cheathandler.h"
+#include "d_protocol.h"
+#include "cheats.h"
+#include "gamestate.h"
+#include "automap.h"
 //#include "inv.h"
 
 BEGIN_SW_NS
 
-SWBOOL CheatInputMode = FALSE;
-SWBOOL EveryCheat = FALSE;
-SWBOOL ResCheat = FALSE;
-SWBOOL mapcheat = false;
+bool CheatInputMode = false;
+bool EveryCheat = false;
+bool mapcheat = false;
+extern bool FAF_DebugView;
 
 const char *CheatKeyType;
 void KeysCheat(PLAYERp pp, const char *cheat_string);
 
-void ResCheatOn(PLAYERp, const char *)
+static PLAYERp checkCheat(cheatseq_t* c)
 {
-    ResCheat = TRUE;
+	if (::CheckCheatmode(true, true)) return nullptr;
+    return &Player[screenpeek];
 }
 
-void VoxCheat(PLAYERp, const char *)
+const char *GameInterface::CheckCheatMode() 
 {
-    //gs.Voxel ^= 1;
+     if (Skill >= 3 && !sv_cheats)
+     {
+         return GStrings("TXTS_TOOSKILLFUL");
+     }
+     return nullptr;
+ }
+
+const char *GameInterface::GenericCheat(int player, int cheat)
+{
+    switch (cheat)
+    {
+    case CHT_GOD:
+        GodMode ^= 1;   // fixme: Make god mode a player property.
+        return GStrings(GodMode ? "GOD MODE: ON" : "GOD MODE: OFF");
+
+    case CHT_GODOFF:
+        GodMode = 0;   // fixme: Make god mode a player property.
+        return GStrings("GOD MODE: OFF");
+
+    case CHT_GODON:
+        GodMode = 1;   // fixme: Make god mode a player property.
+        return GStrings("GOD MODE: ON");
+
+    case CHT_NOCLIP:
+        Player[player].Flags ^= PF_CLIP_CHEAT;
+        return GStrings(Player[player].Flags & PF_CLIP_CHEAT ? "CLIPPING: OFF" : "CLIPPING: ON");
+
+    default:
+        return nullptr;
+    }
 }
 
-void RestartCheat(PLAYERp, const char *)
+
+bool RestartCheat(cheatseq_t* c)
 {
-    ExitLevel = TRUE;
+    if (!checkCheat(c)) return false;
+	DeferedStartGame(currentLevel, -1);
+    return true;
 }
 
-void RoomCheat(PLAYERp, const char *)
+bool RoomCheat(cheatseq_t* c)
 {
-    extern SWBOOL FAF_DebugView;
-    FAF_DebugView ^= 1;
+    FAF_DebugView = !FAF_DebugView;
+    return true;
 }
 
-void SecretCheat(PLAYERp pp, const char *)
+bool NextCheat(cheatseq_t* c)
 {
-    hud_stats = !hud_stats;
+    if (!checkCheat(c)) return false;
+    if (!currentLevel) return true;
+    auto map = FindMapByLevelNum(currentLevel->levelNumber + 1);
+	if (map) DeferedStartGame(map, -1);
+    return true;
 }
 
-void NextCheat(PLAYERp pp, const char *)
+bool PrevCheat(cheatseq_t* c)
 {
-    Level++;
-    ExitLevel = TRUE;
+    if (!checkCheat(c)) return false;
+    if (!currentLevel) return true;
+    auto map = FindMapByLevelNum(currentLevel->levelNumber - 1);
+	if (map) DeferedStartGame(map, -1);
+    return true;
 }
 
-void PrevCheat(PLAYERp pp, const char *)
+bool MapCheat(cheatseq_t* c)
 {
-    Level--;
-    ExitLevel = TRUE;
-}
-
-void MapCheat(PLAYERp pp, const char *)
-{
-    mapcheat = !mapcheat;
+    PLAYERp pp;
+    if (!(pp=checkCheat(c))) return false;
+    gFullMap = !gFullMap;
     // Need to do this differently. The code here was completely broken.
-    PutStringInfo(pp, GStrings(mapcheat ? "TXT_AMON" : "TXT_AMOFF"));
+    PutStringInfo(pp, GStrings(gFullMap ? "TXTS_AMON" : "TXTS_AMOFF"));
+    return true;
 }
 
-void LocCheat(PLAYERp pp, const char *)
+
+bool WarpCheat(cheatseq_t* c)
 {
-    extern SWBOOL LocationInfo;
-    LocationInfo++;
-    if (LocationInfo > 2)
-        LocationInfo = 0;
-}
-
-void GunsCheat(PLAYERp pp, const char *cheat_string)
-{
-    PLAYERp p;
-    short pnum;
-    unsigned int i;
-    short gAmmo[10] = {0,9,12,20,3,6,5,5,10,1};
-    const char *cp = cheat_string;
-	const char *str = "TXT_GIVENW";
-    int gunnum, x;
-    USERp u;
-
-    cp += sizeof("swgun")-1;
-    gunnum = atol(cp);
-    if (gunnum == 0)
-        gunnum = 10;
-    if (gunnum < 2 || gunnum > 10)
-        return;
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        p = &Player[pnum];
-        u = User[p->PlayerSprite];
-        x = gAmmo[gunnum-1];
-        if (TEST(p->WpnFlags, BIT(gunnum-1)) == 0)
-            p->WpnFlags += BIT(gunnum-2) << 1;
-        else
-            str = "TXTS_AMMOW";
-        p->WpnAmmo[gunnum-1] += x;
-        if (p->WpnAmmo[gunnum-1] > DamageData[gunnum-1].max_ammo)
-        {
-           p->WpnAmmo[gunnum-1] = DamageData[gunnum-1].max_ammo;
-           str = nullptr;
-        }
-        PlayerUpdateWeapon(p, u->WeaponNum);
-    }
-    if (str) PutStringInfo(pp, FStringf("%s %d", GStrings(str), gunnum));
-}
-
-void WeaponCheat(PLAYERp pp, const char *)
-{
-    PLAYERp p;
-    short pnum;
-    unsigned int i;
-    USERp u;
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        p = &Player[pnum];
-        u = User[p->PlayerSprite];
-
-        if (!TEST(p->Flags, PF_TWO_UZI))
-        {
-            SET(p->Flags, PF_TWO_UZI);
-            SET(p->Flags, PF_PICKED_UP_AN_UZI);
-        }
-
-        // ALL WEAPONS
-        if (!SW_SHAREWARE)
-            p->WpnFlags = 0xFFFFFFFF;
-        else
-            p->WpnFlags = 0x0000207F;  // Disallows high weapon cheat in shareware
-
-        for (i = 0; i < SIZ(p->WpnAmmo); i++)
-        {
-            p->WpnAmmo[i] = DamageData[i].max_ammo;
-        }
-
-        p->WpnShotgunAuto = 50;
-        p->WpnRocketHeat = 5;
-        p->WpnRocketNuke = 1;
-
-        PlayerUpdateWeapon(p, u->WeaponNum);
-    }
-}
-
-void AmmoCheat(PLAYERp pp, const char *)
-{
-    PLAYERp p;
-    short pnum;
-    unsigned int i;
-    USERp u;
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        p = &Player[pnum];
-        u = User[p->PlayerSprite];
-
-        p->WpnShotgunAuto = 50;
-        p->WpnRocketHeat = 5;
-        p->WpnRocketNuke = 1;
-
-        for (i = 0; i < SIZ(p->WpnAmmo); i++)
-        {
-            p->WpnAmmo[i] = DamageData[i].max_ammo;
-        }
-
-        PlayerUpdateWeapon(p, u->WeaponNum);
-    }
-}
-
-void GodCheat(PLAYERp pp, const char *)
-{
-    //
-    // GOD mode
-    //
-    GodMode ^= 1;
-
-    PutStringInfo(pp, GStrings(GodMode? "GOD MODE: ON" : "GOD MODE: OFF"));
-}
-
-void ClipCheat(PLAYERp pp, const char *)
-{
-    FLIP(pp->Flags, PF_CLIP_CHEAT);
-    PutStringInfo(pp, GStrings(TEST(pp->Flags, PF_CLIP_CHEAT) ? "CLIPPING: OFF" : "CLIPPING: ON"));;
-}
-
-void WarpCheat(PLAYERp pp, const char *cheat_string)
-{
-    const char *cp = cheat_string;
+    PLAYERp pp;
+    if (!(pp = checkCheat(c))) return false;
     int level_num;
 
-    cp += sizeof("swtrek")-1;
-    level_num = atol(cp);
+    level_num = atol((char*)c->Args);
+    auto maprec = FindMapByLevelNum(level_num);
+    if (!maprec) return false;
 
-    //int episode_num;
-    //DSPRINTF(ds,"ep %d, lev %d",episode_num, level_num);
-    //MONO_PRINT(ds);
-
-	if (!pp) return;
-    if (!SW_SHAREWARE)
-    {
-        if (level_num > 28 || level_num < 1)
-            return;
-    }
-    else
+	if (!pp) return true;
+    if (SW_SHAREWARE)
     {
         if (level_num > 4 || level_num < 1)
-            return;
+            return false;
     }
     if (TEST(pp->Flags, PF_DEAD))
-        return;
+        return true;
 
-
-    Level = level_num;
-    ExitLevel = TRUE;
-
-    sprintf(ds, "%s %1d", GStrings("TXT_ENTERING"), Level);
-    PutStringInfo(pp, ds);
+	DeferedStartGame(maprec, -1);
+    return true;
 }
 
-void ItemCheat(PLAYERp pp, const char *cheat_string)
+bool EveryCheatToggle(cheatseq_t* c)
 {
-    //
-    // Get all ITEMS
-    //
-    PLAYERp p;
-    short pnum;
-    short inv;
-    int i;
+    EveryCheat = !EveryCheat;
+    C_DoCommand("god");
+    C_DoCommand("give weapons");
+    C_DoCommand("give items");
+    return true;
+}
 
-    PutStringInfo(pp, "ITEMS");
+// The prefix was changed from 'sw' to 'lw' so that it doesn't contain two keys of the WASD control scheme, which interferes with input control.
+static cheatseq_t swcheats[] = {
+    {"lwgod",      "god" },
+    {"lwchan",     "god" },
+    {"lwgimme",    "give all" },
+    {"lwmedic",    "give health" },
+    {"lwkeys",     "give keys" },
+    {"lwammo",     "give ammo" },
+    {"lwarmor",    "give armor" },
+    {"lwitems",    "give items" },
+    {"lwguns",     "give weapons" },
+    {"lwtrek##",   nullptr,     WarpCheat, 0},
+    {"lwgreed",    nullptr,     EveryCheatToggle, 0},
+    {"lwghost",    "noclip" },
+    {"lwstart",    nullptr,     RestartCheat, 0},
+    {"lwloc",      "stat coord", nullptr, true},
+    {"lwmap",      nullptr,     MapCheat, 0},
+    {"lwroom",     nullptr,     RoomCheat, true}, // Room above room debug
+};
 
-    TRAVERSE_CONNECT(pnum)
+static void WeaponCheat(int player)
+{
+    auto p = &Player[player];
+    auto u = User[p->PlayerSprite];
+
+    if (!TEST(p->Flags, PF_TWO_UZI))
     {
-        p = &Player[pnum];
-        memset(p->HasKey, TRUE, sizeof(p->HasKey));
-
-        p->WpnShotgunAuto = 50;
-        p->WpnRocketHeat = 5;
-        p->WpnRocketNuke = 1;
-        p->Armor = 100;
-
-        for (inv = 0; inv < MAX_INVENTORY; inv++)
-        {
-            p->InventoryPercent[inv] = 100;
-            //p->InventoryAmount[inv] = 1;
-            p->InventoryAmount[inv] = InventoryData[inv].MaxInv;
-            //PlayerUpdateInventory(p, inv);
-        }
-
-        PlayerUpdateInventory(p, p->InventoryNum);
-        //p->InventoryNum = 0;
+        SET(p->Flags, PF_TWO_UZI);
+        SET(p->Flags, PF_PICKED_UP_AN_UZI);
     }
 
-    for (i=0; i<numsectors; i++)
+    // ALL WEAPONS
+    if (!SW_SHAREWARE) p->WpnFlags = 0xFFFFFFFF;
+    else p->WpnFlags = 0x0000207F;  // Disallows high weapon cheat in shareware
+
+    for (int i = 0; i < SIZ(p->WpnAmmo); i++)
+    {
+        p->WpnAmmo[i] = DamageData[i].max_ammo;
+    }
+
+    p->WpnShotgunAuto = 50;
+    p->WpnRocketHeat = 5;
+    p->WpnRocketNuke = 1;
+
+    PlayerUpdateWeapon(p, u->WeaponNum);
+}
+
+static void ItemCheat(int player)
+{
+    auto p = &Player[player];
+    PutStringInfo(p, GStrings("GIVING EVERYTHING!"));
+    memset(p->HasKey, true, sizeof(p->HasKey));
+
+    p->WpnShotgunAuto = 50;
+    p->WpnRocketHeat = 5;
+    p->WpnRocketNuke = 1;
+    p->Armor = 100;
+
+    for (int inv = 0; inv < MAX_INVENTORY; inv++)
+    {
+        p->InventoryPercent[inv] = 100;
+        p->InventoryAmount[inv] = InventoryData[inv].MaxInv;
+    }
+
+    PlayerUpdateInventory(p, p->InventoryNum);
+
+    for (int i = 0; i < numsectors; i++)
     {
         if (SectUser[i] && SectUser[i]->stag == SECT_LOCK_DOOR)
             SectUser[i]->number = 0;  // unlock all doors of this type
     }
-
-    WeaponCheat(pp, cheat_string);
-    PlayerUpdateKeys(pp);
 }
 
-void InventoryCheat(PLAYERp pp, const char *cheat_string)
+
+static void cmd_Give(int player, uint8_t** stream, bool skip)
 {
-    //
-    // Get all ITEMS
-    //
-    PLAYERp p;
-    short pnum;
-    short inv;
-    int i;
+    int type = ReadByte(stream);
+    if (skip) return;
 
-    PutStringInfo(pp, "INVENTORY");
-
-    TRAVERSE_CONNECT(pnum)
+    if (numplayers != 1 || gamestate != GS_LEVEL || (Player[player].Flags & PF_DEAD))
     {
-        p = &Player[pnum];
+        Printf("give: Cannot give while dead or not in a single-player game.\n");
+        return;
+    }
+
+    switch (type)
+    {
+    case GIVE_ALL:
+        ItemCheat(player);
+        WeaponCheat(player);
+        break;
+
+    case GIVE_HEALTH:
+        if (User[Player[player].PlayerSprite]->Health < Player[player].MaxHealth)
+        {
+            User[Player[player].PlayerSprite]->Health += 25;
+            PutStringInfo(&Player[player], GStrings("TXTS_ADDEDHEALTH"));
+        }
+        break;
+
+    case GIVE_WEAPONS:
+        WeaponCheat(player);
+        break;
+
+    case GIVE_AMMO:
+    {
+        auto p = &Player[player];
+        auto u = User[p->PlayerSprite];
+
+        p->WpnShotgunAuto = 50;
+        p->WpnRocketHeat = 5;
+        p->WpnRocketNuke = 1;
+
+        for (int i = 0; i < SIZ(p->WpnAmmo); i++)
+        {
+            p->WpnAmmo[i] = DamageData[i].max_ammo;
+        }
+
+        PlayerUpdateWeapon(p, u->WeaponNum);
+        break;
+    }
+
+    case GIVE_ARMOR:
+        if (User[Player[player].PlayerSprite]->Health < Player[player].MaxHealth)
+        {
+            Player[player].Armor = 100;
+            PutStringInfo(&Player[player], GStrings("TXTB_FULLARM"));
+        }
+        break;
+
+    case GIVE_KEYS:
+        memset(Player[player].HasKey, true, sizeof(Player[player].HasKey));
+        PutStringInfo(&Player[player], GStrings("TXTS_GIVEKEY"));
+        break;
+
+    case GIVE_INVENTORY:
+    {
+        auto p = &Player[player];
+        PutStringInfo(p, GStrings("GOT ALL INVENTORY"));
 
         p->WpnShotgunAuto = 50;
         p->WpnRocketHeat = 5;
         p->WpnRocketNuke = 1;
         p->Armor = 100;
 
-        for (inv = 0; inv < MAX_INVENTORY; inv++)
+        for (int inv = 0; inv < MAX_INVENTORY; inv++)
         {
             p->InventoryPercent[inv] = 100;
-            //p->InventoryAmount[inv] = 1;
             p->InventoryAmount[inv] = InventoryData[inv].MaxInv;
-            //PlayerUpdateInventory(p, inv);
         }
 
         PlayerUpdateInventory(p, p->InventoryNum);
-        //p->InventoryNum = 0;
     }
+    break;
 
-}
-
-void ArmorCheat(PLAYERp pp, const char *cheat_string)
-{
-    short pnum;
-    const char *str = nullptr;
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        if (User[Player[pnum].PlayerSprite]->Health < pp->MaxHealth)
-            str = "ARMOR";
-        Player[pnum].Armor = 100;
-    }
-    if (str) PutStringInfo(pp, GStrings(str));
-}
-
-void HealCheat(PLAYERp pp, const char *cheat_string)
-{
-    short pnum;
-    const char *str = nullptr;
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        if (User[Player[pnum].PlayerSprite]->Health < pp->MaxHealth)
-            str = "TXTS_ADDEDHEALTH";
-        User[Player[pnum].PlayerSprite]->Health += 25;
-    }
-    if (str) PutStringInfo(pp, GStrings(str));
-}
-
-void SortKeyCheat(PLAYERp pp, const char *sKey)
-{
-    const char *sTemp = "";
-
-    CheatKeyType = "";
-
-    if (Bstrncasecmp(sKey, "swredcard",9) == 0)
-    {
-       sTemp = "swkey1";
-       CheatKeyType = "Red Cardkey";
-    }
-    else
-    if (Bstrncasecmp(sKey, "swbluecard",10) == 0)
-    {
-       sTemp = "swkey2";
-       CheatKeyType = "Blue Cardkey";
-    }
-    else
-    if (Bstrncasecmp(sKey, "swgreencard",11) == 0)
-    {
-       sTemp = "swkey3";
-       CheatKeyType = "Green Cardkey";
-    }
-    else
-    if (Bstrncasecmp(sKey, "swyellowcard",12) == 0)
-    {
-       sTemp = "swkey4";
-       CheatKeyType = "Yellow Cardkey";
-    }
-    else
-    if (Bstrncasecmp(sKey, "swgoldkey",9) == 0)
-    {
-       sTemp = "swkey5";
-       CheatKeyType = "Gold Key";
-    }
-    else
-    if (Bstrncasecmp(sKey, "swsilverkey",11) == 0)
-    {
-       sTemp = "swkey6";
-       CheatKeyType = "Silver Key";
-    }
-    else
-    if (Bstrncasecmp(sKey, "swbronzekey",11) == 0)
-    {
-       sTemp = "swkey7";
-       CheatKeyType = "Bronze Key";
-    }
-    else
-    if (Bstrncasecmp(sKey, "swredkey",8) == 0)
-    {
-       sTemp = "swkey8";
-       CheatKeyType = "Red Key";
-    }
-
-    if (Bstrncmp(sTemp, "", 1) != 0)
-        KeysCheat(pp, sTemp);
-}
-
-void KeysCheat(PLAYERp pp, const char *cheat_string)
-{
-    // Get KEYS
-    PLAYERp p;
-    short pnum;
-    const char *cp = cheat_string;
-	const char *str = "TXT_GIVEKEY";
-    int keynum = 0;
-
-    cp += sizeof("swkey")-1;
-    keynum = atol(cp);
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        p = &Player[pnum];
-        if (keynum < 1 || keynum > 8)
-        {
-           memset(p->HasKey, TRUE, sizeof(p->HasKey));
-           keynum = 0;
-        }
-        else
-        {
-           if (p->HasKey[keynum-1] == FALSE)
-           {
-              p->HasKey[keynum-1] = TRUE; // cards: 0=red 1=blue 2=green 3=yellow | keys: 4=gold 5=silver 6=bronze 7=red
-              str = "TXT_KEYGIVEN";
-           }
-           else
-           {
-              p->HasKey[keynum-1] = FALSE;
-              str = "TXT_KEYREMOVED";
-           }
-        }
-    }
-    PlayerUpdateKeys(pp);
-    PutStringInfo(pp, GStrings(str));
-}
-
-void EveryCheatToggle(PLAYERp pp, const char *cheat_string)
-{
-    EveryCheat ^= 1;
-
-    WeaponCheat(pp, cheat_string);
-    GodCheat(pp, cheat_string);
-    ItemCheat(pp, cheat_string);
-}
-
-void GeorgeFunc(PLAYERp pp, char *)
-{
-    PlayerSound(DIGI_TAUNTAI9, v3df_dontpan|v3df_doppler|v3df_follow,pp);
-}
-
-void BlackburnFunc(PLAYERp pp, char *)
-{
-    PlayerSound(DIGI_TAUNTAI3, v3df_dontpan|v3df_doppler|v3df_follow,pp);
-}
-
-int cheatcmp(const char *str1, const char *str2, int len)
-{
-    const char *cp1 = str1;
-    const char *cp2 = str2;
-
-    do
-    {
-        if (*cp1 != *cp2)
-        {
-            if (!((*cp1 == '#' && isdigit(*cp2)) || (*cp2 == '#' && isdigit(*cp1))))
-                return -1;
-        }
-
-        cp1++;
-        cp2++;
-    }
-    while (--len);
-
-    return 0;
-}
-
-
-#define CF_ALL    BIT(0)
-#define CF_NOTSW  BIT(1)
-
-typedef struct
-{
-    const char *CheatInputCode;
-    void (*CheatInputFunc)(PLAYERp, const char *);
-    char flags;
-}CHEAT_INFO, *CHEAT_INFOp;
-
-
-CHEAT_INFO ci[] =
-    {
-    {"swgod",        GodCheat, 0},
-    {"swchan",       GodCheat, 0},
-    {"swgimme",      ItemCheat, 0},
-    {"swmedic",      HealCheat, 0},
-    {"swkeys",       KeysCheat, 0},
-    {"swredcard",    SortKeyCheat, 0},
-    {"swbluecard",   SortKeyCheat, 0},
-    {"swgreencard",  SortKeyCheat, 0},
-    {"swyellowcard", SortKeyCheat, 0},
-    {"swgoldkey",    SortKeyCheat, 0},
-    {"swsilverkey",  SortKeyCheat, 0},
-    {"swbronzekey",  SortKeyCheat, 0},
-    {"swredkey",     SortKeyCheat, 0},
-    {"swgun#",       GunsCheat, 0},
-    {"swtrek##",    WarpCheat, 0},
-    {"swgreed",     EveryCheatToggle, 0},
-    {"swghost",      ClipCheat, 0},
-
-    {"swstart",     RestartCheat, 0},
-
-    {"swres",       ResCheatOn, 0},
-    {"swloc",       LocCheat, 0},
-    {"swmap",       MapCheat, 0},
-    {"swroom",      RoomCheat, CF_NOTSW}, // Room above room dbug
-#if DEBUG
-    {"swsecret",    SecretCheat, CF_ALL},
-#endif
-};
-
-
-// !JIM! My simplified version of CheatInput which simply processes MessageInputString
-void CheatInput(void)
-{
-    SWBOOL match = FALSE;
-    unsigned int i;
-
-    //if (CommEnabled)
-    //    return;
-    FString CheatInputString = MessageInputString;
-    CheatInputString.ToLower();
-
-    // check for at least one single match
-    for (i = 0; i < SIZ(ci); i++)
-    {
-        // compare without the NULL
-        if (cheatcmp(CheatInputString, ci[i].CheatInputCode, CheatInputString.Len()) == 0)
-        {
-
-            // if they are equal in length then its a complet match
-            if (strlen(CheatInputString) == strlen(ci[i].CheatInputCode))
-            {
-                match = TRUE;
-                CheatInputMode = FALSE;
-
-                if (TEST(ci[i].flags, CF_NOTSW) && SW_SHAREWARE)
-                    return;
-
-                if (!TEST(ci[i].flags, CF_ALL))
-                {
-                    if (CommEnabled)
-                        return;
-
-                    if (Skill >= 3)
-                    {
-                        PutStringInfo(Player, GStrings("TXTS_TOOSKILLFUL"));
-                        return;
-                    }
-                }
-
-                if (ci[i].CheatInputFunc)
-                    (*ci[i].CheatInputFunc)(Player, CheatInputString);
-
-                return;
-            }
-            else
-            {
-                match = TRUE;
-                break;
-            }
-        }
-    }
-
-    if (!match)
-    {
-        CheatInputMode = FALSE;
+    case GIVE_ITEMS:
+        ItemCheat(player);
+        break;
     }
 }
+
+void InitCheats()
+{
+    SetCheats(swcheats, countof(swcheats));
+    Net_SetCommandHandler(DEM_GIVE, cmd_Give);
+}
+
 END_SW_NS

@@ -1,0 +1,6 @@
+tilefromtexture 2200 { file "tiles/2200.png" ifcrc -588541517 }
+tilefromtexture 2574 { file "tiles/2574.png" ifcrc -635337039 }
+tilefromtexture 9216 { file "tiles/9216.png" }
+tilefromtexture 9217 { file "tiles/9217.png" }
+tilefromtexture 9218 { file "tiles/9218.png" }
+tilefromtexture 9219 { file "tiles/9219.png" }

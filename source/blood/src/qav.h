@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "common_game.h"
 #include "blood.h"
+#include "misc.h"
+
+class F2DDrawer;
 
 BEGIN_BLD_NS
 
@@ -79,10 +82,11 @@ struct QAV
     //SPRITE *pSprite; // 1c
     char pad3[4]; // 20
     FRAMEINFO frames[1]; // 24
-    void Draw(int ticks, int stat, int shade, int palnum);
+    void Draw(int ticks, int stat, int shade, int palnum, bool in3dscene);
+    void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool in3dscene);
     void Play(int, int, int, void *);
     void Preload(void);
-    void Precache(void);
+    void Precache(HitList &hits);
 
     void PlaySound(int nSound);
     void PlaySound3D(spritetype *pSprite, int nSound, int a3, int a4);
@@ -91,5 +95,6 @@ struct QAV
 #pragma pack(pop)
 
 int qavRegisterClient(void(*pClient)(int, void *));
+QAV* getQAV(int res_id);
 
 END_BLD_NS

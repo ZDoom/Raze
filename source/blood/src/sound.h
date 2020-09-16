@@ -22,16 +22,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
-#include "resource.h"
+#include "misc.h"
 #include "raze_music.h"
+#include "s_soundinternal.h"
 
 BEGIN_BLD_NS
 
 struct SAMPLE2D
 {
-    int at0;
-    char at4;
-    DICTNODE *at5;
+    int TotalKills;
+    char Kills;
 }; // 9 bytes
 
 struct SFX
@@ -46,12 +46,26 @@ struct SFX
 
 int sndGetRate(int format);
 void sndStartSample(const char *pzSound, int nVolume, int nChannel = -1);
-void sndStartSample(unsigned int nSound, int nVolume, int nChannel = -1, bool bLoop = false);
+void sndStartSample(unsigned int nSound, int nVolume, int nChannel = -1, bool bLoop = false, EChanFlags soundflags = CHANF_NONE);
 void sndStartWavID(unsigned int nSound, int nVolume, int nChannel = -1);
 void sndStartWavDisk(const char *pzFile, int nVolume, int nChannel = -1);
 void sndKillAllSounds(void);
 void sndProcess(void);
 void sndTerm(void);
 void sndInit(void);
+
+void sfxInit(void);
+void sfxTerm(void);
+void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector);
+void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3 = -1, int a4 = 0);
+void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3 = -1, int a4 = 0, int pitch = 0, int volume = -1);
+void sfxKill3DSound(spritetype *pSprite, int a2 = -1, int a3 = -1);
+void sfxKillAllSounds(void);
+void sfxSetReverb(bool toggle);
+void sfxSetReverb2(bool toggle);
+
+void ambProcess(void);
+void ambKillAll(void);
+void ambInit(void);
 
 END_BLD_NS

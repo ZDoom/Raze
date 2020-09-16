@@ -269,10 +269,10 @@ public:
 	void WriteValue(FSerializer &ar, const char *key,const void *addr) const override;
 	bool ReadValue(FSerializer &ar, const char *key,void *addr) const override;
 
-	virtual void SetValue(void *addr, int val);
-	virtual void SetValue(void *addr, double val);
-	virtual int GetValueInt(void *addr) const;
-	virtual double GetValueFloat(void *addr) const;
+	virtual void SetValue(void *addr, int val) override;
+	virtual void SetValue(void *addr, double val) override;
+	virtual int GetValueInt(void *addr) const override;
+	virtual double GetValueFloat(void *addr) const override;
 	virtual bool isNumeric() override { return IntCompatible; }
 
 	bool Unsigned;
@@ -299,10 +299,10 @@ public:
 	void WriteValue(FSerializer &ar, const char *key,const void *addr) const override;
 	bool ReadValue(FSerializer &ar, const char *key,void *addr) const override;
 
-	virtual void SetValue(void *addr, int val);
-	virtual void SetValue(void *addr, double val);
-	virtual int GetValueInt(void *addr) const;
-	virtual double GetValueFloat(void *addr) const;
+	virtual void SetValue(void *addr, int val) override;
+	virtual void SetValue(void *addr, double val) override;
+	virtual int GetValueInt(void *addr) const override;
+	virtual double GetValueFloat(void *addr) const override;
 	virtual bool isNumeric() override { return true; }
 protected:
 	void SetOps();
@@ -410,8 +410,8 @@ public:
 		reader = r;
 	}
 
-	virtual bool IsMatch(intptr_t id1, intptr_t id2) const;
-	virtual void GetTypeIDs(intptr_t &id1, intptr_t &id2) const;
+	bool IsMatch(intptr_t id1, intptr_t id2) const override;
+	void GetTypeIDs(intptr_t &id1, intptr_t &id2) const override;
 
 	void WriteValue(FSerializer &ar, const char *key,const void *addr) const override;
 	bool ReadValue(FSerializer &ar, const char *key,void *addr) const override;
@@ -454,8 +454,8 @@ public:
 	bool ReadValue(FSerializer &ar, const char *key, void *addr) const override;
 
 	void SetPointer(void *base, unsigned offset, TArray<size_t> *special = NULL) override;
-	virtual bool IsMatch(intptr_t id1, intptr_t id2) const;
-	virtual void GetTypeIDs(intptr_t &id1, intptr_t &id2) const;
+	 bool IsMatch(intptr_t id1, intptr_t id2) const override;
+	 void GetTypeIDs(intptr_t &id1, intptr_t &id2) const override;
 };
 
 // Compound types -----------------------------------------------------------
@@ -478,8 +478,8 @@ public:
 	unsigned int ElementCount;
 	unsigned int ElementSize;
 
-	virtual bool IsMatch(intptr_t id1, intptr_t id2) const;
-	virtual void GetTypeIDs(intptr_t &id1, intptr_t &id2) const;
+	bool IsMatch(intptr_t id1, intptr_t id2) const override;
+	void GetTypeIDs(intptr_t &id1, intptr_t &id2) const override;
 
 	void WriteValue(FSerializer &ar, const char *key,const void *addr) const override;
 	bool ReadValue(FSerializer &ar, const char *key,void *addr) const override;
@@ -506,8 +506,8 @@ public:
 	PType *ElementType;
 	PStruct *BackingType;
 
-	virtual bool IsMatch(intptr_t id1, intptr_t id2) const;
-	virtual void GetTypeIDs(intptr_t &id1, intptr_t &id2) const;
+	bool IsMatch(intptr_t id1, intptr_t id2) const override;
+	void GetTypeIDs(intptr_t &id1, intptr_t &id2) const override;
 
 	void WriteValue(FSerializer &ar, const char *key, const void *addr) const override;
 	bool ReadValue(FSerializer &ar, const char *key, void *addr) const override;
@@ -539,8 +539,8 @@ public:
 	VMFunction *mConstructor = nullptr;
 	VMFunction *mDestructor = nullptr;
 
-	virtual PField *AddField(FName name, PType *type, uint32_t flags=0);
-	virtual PField *AddNativeField(FName name, PType *type, size_t address, uint32_t flags = 0, int bitvalue = 0);
+	 PField *AddField(FName name, PType *type, uint32_t flags=0) override;
+	 PField *AddNativeField(FName name, PType *type, size_t address, uint32_t flags = 0, int bitvalue = 0) override;
 
 	void WriteValue(FSerializer &ar, const char *key,const void *addr) const override;
 	bool ReadValue(FSerializer &ar, const char *key,void *addr) const override;

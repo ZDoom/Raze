@@ -125,12 +125,12 @@ int SetVisHigh(void);
 int SetVisNorm(void);
 void DoWeapon(void);
 void HeadBobStateControl(void);
-int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, SWBOOL skip_targets);
+int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets);
 void DoPlayer(void);
 void domovethings(void);
 void InitAllPlayers(void);
 void InitMultiPlayerInfo(void);
-void MoveScrollMode2D(PLAYERp pp);
+void MoveScrollMode2D(PLAYERp pp, ControlInfo* const hidInput);
 void DoPlayerDivePalette(PLAYERp pp);
 void DoPlayerNightVisionPalette(PLAYERp pp);
 void DoPlayerStopDiveNoWarp(PLAYERp pp);
@@ -143,6 +143,12 @@ void UpdatePlayerSprite(PLAYERp pp);
 void PlaySOsound(short sectnum,short sound_num);
 void DoSpawnTeleporterEffectPlace(SPRITEp sp);
 void FindMainSector(SECTOR_OBJECTp sop);
+
+void resetinputhelpers(PLAYERp pp);
+void playerAddAngle(PLAYERp pp, double ang);
+void playerSetAngle(PLAYERp pp, double ang);
+void playerAddHoriz(PLAYERp pp, double horiz);
+void playerSetHoriz(PLAYERp pp, double horiz);
 
 END_SW_NS
 
