@@ -1363,7 +1363,7 @@ void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust
             pPlayer->q16look = max(pPlayer->q16look - FloatToFixed(scaleAdjust * 4.), IntToFixed(-60));
     }
 
-    pPlayer->q16look = clamp(pPlayer->q16look + q16horz, IntToFixed(-60), IntToFixed(60));
+    pPlayer->q16look = clamp(pPlayer->q16look, IntToFixed(-60), IntToFixed(60));
 
     if (pPlayer->q16look > 0)
     {
@@ -1375,7 +1375,7 @@ void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust
     }
     else
     {
-        pPlayer->q16horiz = 0;
+        pPlayer->q16horiz = clamp(pPlayer->q16horiz + q16horz, IntToFixed(-179), IntToFixed(119));
     }
 }
 

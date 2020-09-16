@@ -106,10 +106,6 @@ static void GetInputInternal(ControlInfo* const hidInput)
     static int32_t lastInputClock;  // MED
     int32_t const  elapsedTics = gFrameClock - lastInputClock;
 
-    // Blood's q16mlook scaling is different from the other games, therefore use the below constant to attenuate
-    // the speed to match the other games.
-    float const mlookScale = 3.25f;
-
     lastInputClock = gFrameClock;
 
     if (turnLeft || turnRight)
@@ -138,14 +134,14 @@ static void GetInputInternal(ControlInfo* const hidInput)
     input.fvel -= xs_CRoundToInt(scaleAdjust * (hidInput->dz * keyMove));
 
     if (mouseaim)
-        input.q16horz += FloatToFixed(hidInput->mousey / mlookScale);
+        input.q16horz += FloatToFixed(hidInput->mousey);
     else
         input.fvel -= xs_CRoundToInt(hidInput->mousey * 64.);
 
     if (!in_mouseflip)
         input.q16horz = -input.q16horz;
 
-    input.q16horz -= FloatToFixed(scaleAdjust * (hidInput->dpitch / mlookScale));
+    input.q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
 
     gInput.fvel = clamp(gInput.fvel + input.fvel, -2048, 2048);
     gInput.svel = clamp(gInput.svel + input.svel, -2048, 2048);

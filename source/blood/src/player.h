@@ -109,8 +109,8 @@ struct PLAYER
     int                 zWeapon;
     int                 zWeaponVel;
     fixed_t             q16look;
-    int                 q16horiz;       // horiz
-    int                 q16slopehoriz;  // horizoff
+    fixed_t             q16horiz;       // horiz
+    fixed_t             q16slopehoriz;  // horizoff
     int                 slope;
     bool                isUnderwater;
     bool                hasKey[8];
