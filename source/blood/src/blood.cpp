@@ -337,7 +337,7 @@ void GameInterface::Ticker()
 		thinktime.Unclock();
 
 		gFrameCount++;
-		gFrameClock += 4;
+		gFrameClock += kTicsPerFrame;
 		if (gFrameClock == 8) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
 
 		for (int i = 0; i < 8; i++)

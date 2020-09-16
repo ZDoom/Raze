@@ -38,7 +38,6 @@ int gFrameCount;
 static const char *_module;
 static int _line;
 
-int32_t gTurnSpeed = 92;
 int32_t gDetail = 4;
 bool gNoClip;
 bool gInfiniteAmmo;

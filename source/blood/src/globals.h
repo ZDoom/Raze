@@ -35,7 +35,6 @@ extern int gFrameCount;
 
 #define MAXPLAYERNAME 16
 
-extern int32_t gTurnSpeed;
 extern int32_t gDetail;
 extern bool gNoClip;
 extern bool gInfiniteAmmo;
