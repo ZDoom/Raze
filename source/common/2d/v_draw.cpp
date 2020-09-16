@@ -335,7 +335,7 @@ DEFINE_ACTION_FUNCTION(_Screen, GetClipRect)
 }
 
 
-static void CalcFullscreenScale(F2DDrawer* drawer, DrawParms *parms, double srcwidth, double srcheight, int oautoaspect, DoubleRect &rect)
+void CalcFullscreenScale(DrawParms *parms, double srcwidth, double srcheight, int oautoaspect, DoubleRect &rect)
 {
 	auto GetWidth = [=]() { return parms->viewport.width; };
 	auto GetHeight = [=]() {return parms->viewport.height; };
@@ -475,7 +475,7 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 			{
 				// First calculate the destination rect for an image of the given size and then reposition this object in it.
 				DoubleRect rect;
-				CalcFullscreenScale(drawer, parms, parms->virtWidth, parms->virtHeight, parms->fsscalemode, rect);
+				CalcFullscreenScale(parms, parms->virtWidth, parms->virtHeight, parms->fsscalemode, rect);
 				double adder = parms->keepratio < 0 ? 0 : parms->keepratio == 0 ? rect.left : 2 * rect.left;
 				parms->x = parms->viewport.left + adder + parms->x * rect.width / parms->virtWidth;
 				parms->y = parms->viewport.top + rect.top + parms->y * rect.height / parms->virtHeight;
@@ -489,7 +489,7 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 		case DTA_FullscreenEx:
 		{
 			DoubleRect rect;
-			CalcFullscreenScale(drawer, parms, parms->texwidth, parms->texheight, parms->fsscalemode, rect);
+			CalcFullscreenScale(parms, parms->texwidth, parms->texheight, parms->fsscalemode, rect);
 			parms->keepratio = -1;
 			parms->x = parms->viewport.left + rect.left;
 			parms->y = parms->viewport.top + rect.top;

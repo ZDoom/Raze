@@ -228,34 +228,6 @@ static void setupbackdrop()
 //
 //---------------------------------------------------------------------------
 
-static void loaddefs()
-{
-	const char* defsfile = G_DefFile();
-	cycle_t deftimer;
-	deftimer.Reset();
-	deftimer.Clock();
-	if (!loaddefinitionsfile(defsfile))
-	{
-		deftimer.Unclock();
-		Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %.3f ms.\n", defsfile, deftimer.TimeMS());
-	}
-	TileFiles.SetBackup();
-	userConfig.AddDefs.reset();
-
-	// load the internal replacements last so that they do not clobber the CRC for the original items so that mod-side replacement are picked up.
-	if (fileSystem.FindFile("engine/duke-widescreen.def") >= 0)
-	{
-		loaddefinitionsfile("engine/duke-widescreen.def");
-	}
-
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void initTiles()
 {
 	if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
@@ -340,7 +312,8 @@ void GameInterface::app_init()
 		ps[j].auto_aim = 0;
 	}
 
-	loaddefs();
+	LoadDefinitions();
+	TileFiles.SetBackup();
 
 	if (ud.multimode > 1)
 	{

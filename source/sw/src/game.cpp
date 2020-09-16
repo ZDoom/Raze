@@ -227,7 +227,7 @@ void GameInterface::app_init()
     if (!SW_SHAREWARE)
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
  
-    if (!loaddefinitionsfile(G_DefFile())) Printf(PRINT_NONOTIFY, "Definitions file loaded.\n");
+    LoadDefinitions();
     TileFiles.SetBackup();
     userConfig.AddDefs.reset();
     InitFX();

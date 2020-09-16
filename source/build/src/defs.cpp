@@ -3204,7 +3204,7 @@ static int32_t defsparser(scriptfile *script)
 }
 
 
-int32_t loaddefinitionsfile(const char *fn)
+int32_t loaddefinitionsfile(const char *fn, bool loadadds)
 {
     scriptfile *script;
 
@@ -3217,7 +3217,7 @@ int32_t loaddefinitionsfile(const char *fn)
         defsparser(script);
     }
 
-    if (userConfig.AddDefs) for (auto& m : *userConfig.AddDefs)
+    if (userConfig.AddDefs && loadadds) for (auto& m : *userConfig.AddDefs)
 	{
 		Printf("Loading module \"%s\"\n",m.GetChars());
         defsparser_include(m, NULL, NULL); // Q: should we let the external script see our symbol table?

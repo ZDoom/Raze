@@ -380,14 +380,15 @@ public:
 
 	void Statusbar(int snum)
 	{
-		int tile = hud_size < Hud_StbarOverlay ? TILE_BOTTOMSTATUSBAR : BOTTOMSTATUSBAR;	// always use the narrow version for the overlay.
 		auto p = &ps[snum];
-		int h = tilesiz[tile].y;
+		int h = tilesiz[BOTTOMSTATUSBAR].y;
 		int top = 200 - h;
-		int left = (320 - tilesiz[tile].x) / 2;
+		int left = (320 - tilesiz[BOTTOMSTATUSBAR].x) / 2;
 		BeginStatusBar(320, 200, h);
 		DrawInventory(p, 160, 154, 0);
-		DrawGraphic(tileGetTexture(tile), left, top, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+		if (hud_size == Hud_StbarOverlay) Set43ClipRect();
+		DrawGraphic(tileGetTexture(BOTTOMSTATUSBAR), left, top, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+		twod->ClearClipRect();
 
 		FString format;
 

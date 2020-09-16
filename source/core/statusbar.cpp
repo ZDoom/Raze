@@ -821,6 +821,25 @@ short DBaseStatusBar::CalcMagazineAmount(short ammo_remaining, short clip_capaci
 //
 //============================================================================
 
+void DBaseStatusBar::Set43ClipRect()
+{
+	auto GetWidth = [=]() { return twod->GetWidth(); };
+	auto GetHeight = [=]() {return twod->GetHeight(); };
+
+	auto screenratio = ActiveRatio(GetWidth(), GetHeight());
+	if (screenratio < 1.34) return;
+
+	int width = xs_CRoundToInt(GetWidth() * 1.333 / screenratio);
+	int left = (GetWidth() - width) / 2;
+	twod->SetClipRect(left, 0, width, GetHeight());
+}
+
+//============================================================================
+//
+// 
+//
+//============================================================================
+
 void setViewport(int viewSize)
 {
 	int x0, y0, x1, y1;

@@ -854,7 +854,9 @@ private:
         {
             // draw the main bar itself
             BeginStatusBar(320, 200, 40);
+            if (hud_size == Hud_StbarOverlay) Set43ClipRect();
             DrawGraphic(tileGetTexture(kTileStatusBar), 160, 200, DI_ITEM_CENTER_BOTTOM, 1, -1, -1, 1, 1);
+            twod->ClearClipRect();
         }
         else if (hud_size == Hud_Mini)
         {

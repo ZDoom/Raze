@@ -343,6 +343,7 @@ public:
 		double h = tilesiz[BOTTOMSTATUSBAR].y * scale;
 		double wh = 0;
 		if (hud_size < Hud_Stbar) wh = tilesiz[WEAPONBAR].y * scale;
+		double left = (320 - tilesiz[BOTTOMSTATUSBAR].x * scale) / 2;
 
 		double top = 200 - h;
 		BeginStatusBar(320, 200, wh + h);
@@ -351,7 +352,9 @@ public:
 		if (hud_size < Hud_Stbar)
 			DrawWeaponBar(p, top);
 
-		DrawGraphic(tileGetTexture(BOTTOMSTATUSBAR), 0, top, DI_ITEM_LEFT_TOP, 1, -1, -1, scale, scale);
+		if (hud_size == Hud_StbarOverlay) Set43ClipRect();
+		DrawGraphic(tileGetTexture(BOTTOMSTATUSBAR), left, top, DI_ITEM_LEFT_TOP, 1, -1, -1, scale, scale);
+		twod->ClearClipRect();
 
 		FString format;
 

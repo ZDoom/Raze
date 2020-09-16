@@ -665,7 +665,10 @@ private:
         USERp u = User[pp->PlayerSprite];
         BeginStatusBar(320, 200, tileHeight(STATUS_BAR));
 
-        DrawGraphic(tileGetTexture(STATUS_BAR), 0, 200, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 1, 1);
+        if (hud_size == Hud_StbarOverlay) Set43ClipRect();
+        int left = (320 - tilesiz[STATUS_BAR].x) / 2;
+        DrawGraphic(tileGetTexture(STATUS_BAR), left, 200, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 1, 1);
+        twod->ClearClipRect();
         DisplayPanelNumber(PANEL_HEALTH_BOX_X + PANEL_HEALTH_XOFF, PANEL_BOX_Y + PANEL_HEALTH_YOFF, u->Health);
         DisplayPanelNumber(PANEL_ARMOR_BOX_X + PANEL_ARMOR_XOFF, PANEL_BOX_Y + PANEL_ARMOR_YOFF, pp->Armor);
         if (u->WeaponNum != WPN_FIST && u->WeaponNum != WPN_SWORD)

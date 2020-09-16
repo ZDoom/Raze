@@ -1415,3 +1415,34 @@ void DrawCrosshair(int deftile, int health, double xdelta, double scale, PalEntr
 		DrawGenericCrosshair(crosshair == 0 ? 2 : *crosshair, health, xdelta);
 	}
 }
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void LoadDefinitions()
+{
+	loaddefinitionsfile("engine/engine.def");	// Internal stuff that is required.
+
+	const char* defsfile = G_DefFile();
+
+	cycle_t deftimer;
+	deftimer.Reset();
+	deftimer.Clock();
+	if (!loaddefinitionsfile(defsfile, true))
+	{
+		deftimer.Unclock();
+		Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %.3f ms.\n", defsfile, deftimer.TimeMS());
+	}
+	userConfig.AddDefs.reset();
+
+	// load the widescreen replacements last so that they do not clobber the CRC for the original items so that mod-side replacement are picked up.
+	if (fileSystem.FindFile("engine/widescreen.def") >= 0 && !Args->CheckParm("-nowidescreen"))
+	{
+		loaddefinitionsfile("engine/widescreen.def");
+	}
+
+
+}
+

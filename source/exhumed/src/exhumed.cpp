@@ -521,14 +521,8 @@ void GameInterface::app_init()
 
     // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
     InstallEngine();
+    LoadDefinitions();
 
-    const char* defsfile = G_DefFile();
-    uint32_t stime = I_msTime();
-    if (!loaddefinitionsfile(defsfile))
-    {
-        uint32_t etime = I_msTime();
-        Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
-    }
     TileFiles.SetBackup();
 
     InitView();

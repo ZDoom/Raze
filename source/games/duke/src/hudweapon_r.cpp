@@ -75,10 +75,10 @@ void displaymasks_r(int snum, double smoothratio)
 
 	if (ps[snum].scuba_on)
 	{
-		int pin = 0;
+		//int pin = 0;
 		// to get the proper clock value with regards to interpolation we have add a smoothratio based offset to the value.
 		double interpclock = ud.levelclock + (TICSPERFRAME/65536.) * smoothratio;
-		if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_STRETCH;
+		int pin = RS_STRETCH;
 		hud_drawsprite((320 - (tilesiz[SCUBAMASK].x >> 1) - 15), (200 - (tilesiz[SCUBAMASK].y >> 1) + (calcSinTableValue(interpclock) / 1024.)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
 		hud_drawsprite((320 - tilesiz[SCUBAMASK + 4].x), (200 - tilesiz[SCUBAMASK + 4].y), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
 		hud_drawsprite(tilesiz[SCUBAMASK + 4].x, (200 - tilesiz[SCUBAMASK + 4].y), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
@@ -422,7 +422,7 @@ void displayweapon_r(int snum, double smoothratio)
 
 		auto displaycrossbow = [&]
 		{
-			if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
+			//if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
 			static const uint8_t kb_frames[] = { 0,1,1,2,2,3,2,3,2,3,2,2,2,2,2,2,2,2,2,4,4,4,4,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7 };
 			if (kb_frames[*kb] == 2 || kb_frames[*kb] == 3)
 			{
@@ -449,7 +449,7 @@ void displayweapon_r(int snum, double smoothratio)
 
 		auto displaychicken = [&]
 		{
-			if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
+			//if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
 			if (*kb)
 			{
 				static const uint8_t kb_frames[] = { 0,1,1,2,2,3,2,3,2,3,2,2,2,2,2,2,2,2,2,4,4,4,4,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7 };
@@ -760,7 +760,7 @@ void displayweapon_r(int snum, double smoothratio)
 			dy = 20;
 			if ((*kb) < 20)
 			{
-				if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
+				//if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
 				static const int8_t remote_frames[] = { 1,1,1,1,1,2,2,2,2,3,3,3,4,4,4,5,5,5,5,5,6,6,6 };
 
 				if (*kb)
@@ -811,7 +811,7 @@ void displayweapon_r(int snum, double smoothratio)
 
 		auto displayblaster = [&]
 		{
-			if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
+			//if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
 			if ((*kb))
 			{
 				char cat_frames[] = { 0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };

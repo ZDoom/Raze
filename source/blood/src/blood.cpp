@@ -417,16 +417,8 @@ void GameInterface::app_init()
 		I_FatalError("TILES###.ART files not found");
 
 	levelLoadDefaults();
+	LoadDefinitions();
 
-	loaddefinitionsfile(BLOODWIDESCREENDEF);
-
-	const char* defsfile = G_DefFile();
-	uint32_t stime = I_msTime();
-	if (!loaddefinitionsfile(defsfile))
-	{
-		uint32_t etime = I_msTime();
-		Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
-	}
 	TileFiles.SetBackup();
 	powerupInit();
 	Printf(PRINT_NONOTIFY, "Loading cosine table\n");
