@@ -96,7 +96,7 @@ static void viewBurnTime(int gScale)
 }
 
 
-void hudDraw(PLAYER *gView, int nSectnum, int defaultHoriz, double bobx, double boby, double zDelta, int basepal, int smoothratio)
+void hudDraw(PLAYER *gView, int nSectnum, double bobx, double boby, double zDelta, int basepal, int smoothratio)
 {
 	if (gViewPos == 0)
 	{

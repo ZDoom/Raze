@@ -74,7 +74,7 @@ INTERPOLATE gInterpolation[kMaxInterpolations];
 
 int gScreenTilt;
 
-
+int const defaultHoriz = polymostcenterhoriz;
 
 FFont *gFont[kFontNum];
 
@@ -586,7 +586,6 @@ static void DrawMap(spritetype* pSprite)
 void viewDrawScreen(bool sceneonly)
 {
     int nPalette = 0;
-    int defaultHoriz = r_horizcenter ? 100 : 90;
 	
 	if (TestBitString(gotpic, 2342))
 	{
@@ -594,10 +593,6 @@ void viewDrawScreen(bool sceneonly)
 		ClearBitString(gotpic, 2342);
 	}
 
-
-#ifdef USE_OPENGL
-    polymostcenterhoriz = defaultHoriz;
-#endif
     if (!paused && (!M_Active() || gGameOptions.nGameType != 0))
     {
         gInterpolate = I_GetTimeFrac() * MaxSmoothRatio;
@@ -957,7 +952,7 @@ void viewDrawScreen(bool sceneonly)
             }
         }
 #endif
-        hudDraw(gView, nSectnum, defaultHoriz, v4c, v48, zDelta, basepal, (int)gInterpolate);
+        hudDraw(gView, nSectnum, v4c, v48, zDelta, basepal, (int)gInterpolate);
     }
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (automapMode != am_off)

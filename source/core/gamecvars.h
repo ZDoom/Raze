@@ -71,7 +71,6 @@ EXTERN_CVAR(Bool, am_nameontop)
 
 
 EXTERN_CVAR(Int, r_fov)
-EXTERN_CVAR(Bool, r_horizcenter)
 EXTERN_CVAR(Int, r_drawweapon)
 EXTERN_CVAR(Int, r_showfps)
 EXTERN_CVAR(Int, r_showfpsperiod)
