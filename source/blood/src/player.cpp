@@ -1558,9 +1558,9 @@ void ProcessInput(PLAYER *pPlayer)
     }
     pPlayer->q16look = clamp(pPlayer->q16look+pInput->q16horz, IntToFixed(-60), IntToFixed(60));
     if (pPlayer->q16look > 0)
-        pPlayer->q16horiz = IntToFixed(mulscale30(120, Sin(FixedToInt(pPlayer->q16look)<<3)));
+        pPlayer->q16horiz = FloatToFixed(fmulscale30(120., Sinf(FixedToFloat(pPlayer->q16look) * 8.)));
     else if (pPlayer->q16look < 0)
-        pPlayer->q16horiz = IntToFixed(mulscale30(180, Sin(FixedToInt(pPlayer->q16look)<<3)));
+        pPlayer->q16horiz = FloatToFixed(fmulscale30(180., Sinf(FixedToFloat(pPlayer->q16look) * 8.)));
     else
         pPlayer->q16horiz = 0;
     int nSector = pSprite->sectnum;
