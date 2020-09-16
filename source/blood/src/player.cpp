@@ -1480,6 +1480,8 @@ void ProcessInput(PLAYER *pPlayer)
         Item_JumpBoots = 3
     };
 
+    resetinputhelpers(pPlayer);
+
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     int nSprite = pPlayer->nSprite;
@@ -1498,11 +1500,11 @@ void ProcessInput(PLAYER *pPlayer)
         if (pPlayer->fraggerId != -1)
         {
             pPlayer->angold = pSprite->ang = getangle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
-            pPlayer->q16ang = IntToFixed(pSprite->ang);
+            playerSetAngle(pPlayer, pSprite->ang);
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
-            pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), IntToFixed(120));
+            playerSetHoriz(pPlayer, FixedToFloat(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), IntToFixed(120))));
         if (pPlayer->curWeapon)
             pInput->setNewWeapon(pPlayer->curWeapon);
         if (pInput->actions & SB_OPEN)
