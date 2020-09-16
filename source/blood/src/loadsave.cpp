@@ -498,7 +498,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     InitSectorFX();
     viewInitializePrediction();
     PreloadCache();
-    if (!bVanilla && !gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
+    if (!gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
         sfxSetReverb(0);
     ambInit();
     for (int i = 0; i < gNetPlayers; i++)
@@ -506,7 +506,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
 	viewSetErrorMessage("");
     Net_ClearFifo();
     paused = 0;
-    bVanilla = false;
     
 
 #ifdef USE_OPENGL

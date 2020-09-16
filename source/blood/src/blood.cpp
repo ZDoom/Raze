@@ -123,7 +123,6 @@ void StartLevel(MapRecord* level)
 			gHealthTemp[i] = xsprite[gPlayer[i].pSprite->extra].health;
 		}
 	}
-	bVanilla = false;
 	memset(xsprite, 0, sizeof(xsprite));
 	memset(sprite, 0, kMaxSprites * sizeof(spritetype));
 	//drawLoadingScreen();
@@ -228,7 +227,7 @@ void StartLevel(MapRecord* level)
 	PreloadCache();
 	InitMirrors();
 	trInit();
-	if (!bVanilla && !gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
+	if (!gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
 		sfxSetReverb(0);
 	ambInit();
 	Net_ClearFifo();
@@ -442,7 +441,7 @@ void GameInterface::app_init()
 	gChoke.init(518, sub_84230);
 	UpdateDacs(0, true);
 
-	enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;//bVanilla;
+	enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;
 }
 
 static void gameInit()
