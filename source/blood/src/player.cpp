@@ -1306,7 +1306,6 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
 
 enum
 {
-    HORIZ_SPEED = 14,
     PLAYER_HORIZ_MIN = -79,
     PLAYER_HORIZ_MAX = 219
 };
@@ -1378,11 +1377,11 @@ void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust
 
         // adjust q16horiz negative
         if (pInput->actions & SB_AIM_DOWN)
-            horizAngle -= scaleAdjust * (HORIZ_SPEED >> 1);
+            horizAngle -= scaleAdjust * (210. / GameTicRate);
 
         // adjust q16horiz positive
         if (pInput->actions & SB_AIM_UP)
-            horizAngle += scaleAdjust * (HORIZ_SPEED >> 1);
+            horizAngle += scaleAdjust * (210. / GameTicRate);
     }
 
     // this is the unlocked type
@@ -1392,11 +1391,11 @@ void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust
 
         // adjust q16horiz negative
         if (pInput->actions & SB_LOOK_DOWN)
-            horizAngle -= scaleAdjust * HORIZ_SPEED;
+            horizAngle -= scaleAdjust * (420. / GameTicRate);
 
         // adjust q16horiz positive
         if (pInput->actions & SB_LOOK_UP)
-            horizAngle += scaleAdjust * HORIZ_SPEED;
+            horizAngle += scaleAdjust * (420. / GameTicRate);
     }
 
     if (pInput->actions & SB_CENTERVIEW)
