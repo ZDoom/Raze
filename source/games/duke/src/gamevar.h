@@ -112,6 +112,10 @@ extern int g_iWorksLikeVarID;	// var ID of "WORKSLIKE"
 extern int g_iZRangeVarID;	// var ID of "ZRANGE"
 extern int g_iAngRangeVarID;	// var ID of "ANGRANGE"
 extern int g_iAimAngleVarID;	// var ID of "AUTOAIMANGLE"
+extern int g_iLoTagID;			// var ID of "LOTAG"
+extern int g_iHiTagID;			// ver ID of "HITAG"
+extern int g_iTextureID;		// var ID of "TEXTURE"
+extern int g_iThisActorID;		// var ID of "THISACTOR"
 
 int AddGameVar(const char *pszLabel, intptr_t lValue, unsigned dwFlags);
 int GetGameID(const char *szGameLabel);

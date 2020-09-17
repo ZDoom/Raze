@@ -160,6 +160,7 @@ void clearcamera(player_struct* ps);
 void showtwoscreens(const CompletionFunc& func);
 void doorders(const CompletionFunc& func);
 
+void LoadActor(int i, int p, int x);
 void execute(int s, int p, int d);
 void makeitfall(int s);
 int furthestangle(int snum, int angDiv);

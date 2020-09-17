@@ -44,8 +44,12 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "global.h"
 #include "m_argv.h"
 #include "sounds.h"
+#include "conlabel.h"
+#include "conlabeldef.h"
 
 BEGIN_DUKE_NS
+
+#define VERSIONCHECK	41
 
 
 //---------------------------------------------------------------------------
@@ -103,11 +107,15 @@ class ConCompiler
 	int parsing_state = 0;
 	int num_squigilly_brackets = 0;
 	int checking_ifelse = 0;
+	int checking_switch = 0;
 	labelstring parselabel= {};
 	// This is for situations where the music gets defined before the map. Since the map records do not exist yet, we need a temporary buffer.
 	TArray<TempMusic> tempMusic;
 	char parsebuf[1024];
 	TArray<char> parsebuffer; // global so that the storage is persistent across calls.
+	int casecount = 0;
+	int casescriptptr;
+
 
 	void ReportError(int error);
 	int getkeyword(const char* text);
@@ -125,6 +133,9 @@ class ConCompiler
 	int transnum(int type);
 	void checkforkeyword();
 	int parsecommand();
+
+	// EDuke 2.x additions
+	int CountCaseStatements();
 
 public:
 	void compilecon(const char* filenam);
@@ -217,6 +228,7 @@ enum
 	ERROR_OPENBRACKET,
 	ERROR_CLOSEBRACKET,
 	ERROR_NOENDSWITCH,
+	ERROR_SYMBOLNOTRECOGNIZED
 };
 
 void ConCompiler::ReportError(int error)
@@ -262,6 +274,10 @@ void ConCompiler::ReportError(int error)
 		break;
 	case ERROR_NOENDSWITCH:
 		Printf(TEXTCOLOR_RED "  * ERROR! (%s, line %d) Did not find endswitch before '%s'.\n",
+			fn, line_number, parsebuf);
+		break;
+	case ERROR_SYMBOLNOTRECOGNIZED:
+		Printf(TEXTCOLOR_RED "  * ERROR! (%s, line %d) Symbol '%s' is not recognized.\n",
 			fn, line_number, parsebuf);
 		break;
 
@@ -462,6 +478,29 @@ int ConCompiler::keyword(void)
 
 	return getkeyword(parsebuf);
 }
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static int getlabeloffset(LABELS* pLabel, const char* psz)
+{
+	// find the label psz in the table pLabel.
+	// returns the offset in the array for the label, or -1
+	long l = -1;
+	int i;
+
+	for (i = 0; pLabel[i].lId >= 0; i++)
+	{
+		if (!stricmp(pLabel[i].name, psz))
+		{
+			//	printf("Label has flags of %02X\n",pLabel[i].flags);
+			return i;
+		}
+	}
+	return -1;
+}
 
 //---------------------------------------------------------------------------
 //
@@ -484,7 +523,7 @@ void ConCompiler::getlabel(void)
 	}
 
 	i = 0;
-	while (ispecial(*textptr) == 0)
+	while (ispecial(*textptr) == 0 && *textptr != ']')
 		parselabel[i++] = *(textptr++);
 
 	parselabel[i] = 0;
@@ -722,6 +761,47 @@ void ConCompiler::checkforkeyword()
 //
 //---------------------------------------------------------------------------
 
+int ConCompiler::CountCaseStatements()
+{
+	int lCount;
+	char* temptextptr;
+	int savescript;
+	int savecase;
+	int temp_line_number;
+
+
+	temp_line_number = line_number;
+
+	casecount = 0;
+	temptextptr = textptr;
+	savescript = scriptpos();
+	savecase = casescriptptr;
+	casescriptptr = 0;
+	while (parsecommand() == 0)
+	{
+		;
+	}
+	// since we processed the endswitch, we need to re-increment checking_switch
+	checking_switch++;
+
+	textptr = temptextptr;
+
+	ScriptCode.Resize(savescript);
+
+	line_number = temp_line_number;
+
+	lCount = casecount;
+	casecount = 0;
+	casescriptptr = savecase;
+	return lCount;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int ConCompiler::parsecommand()
 {
 	const char* fn = fileSystem.GetFileFullName(currentsourcefile);
@@ -796,7 +876,7 @@ int ConCompiler::parsecommand()
 		// defines var1 and sets initial value.
 		// flags are used to define usage
 		// (see top of this files for flags)
-		getlabel();	//GetGameVarLabel();
+		getlabel();	
 		// Check to see it's already defined
 		popscriptvalue();
 
@@ -1230,6 +1310,7 @@ int ConCompiler::parsecommand()
 	case concmd_isdrunk:
 	case concmd_iseat:
 	case concmd_newpic:
+	case concmd_espawn:
 		transnum(LABEL_DEFINE);
 		return 0;
 
@@ -1271,12 +1352,20 @@ int ConCompiler::parsecommand()
 		return 0;
 	case concmd_setvar:
 	case concmd_addvar:
+	case concmd_subvar:
+	case concmd_randvar:
+	case concmd_mulvar:
+	case concmd_divvar:
+	case concmd_modvar:
+	case concmd_andvar:
+	case concmd_orvar:
+	case concmd_xorvar:
 		// syntax: [rand|add|set]var	<var1> <const1>
 		// sets var1 to const1
 		// adds const1 to var1 (const1 can be negative...)
 
 		// get the ID of the DEF
-		getlabel();	//GetGameVarLabel();
+		getlabel();	
 
 		// Check to see if it's a keyword
 		checkforkeyword();
@@ -1302,12 +1391,23 @@ int ConCompiler::parsecommand()
 
 	case concmd_setvarvar:
 	case concmd_addvarvar:
+	case concmd_subvarvar:
+	case concmd_mulvarvar:
+	case concmd_divvarvar:
+	case concmd_modvarvar:
+	case concmd_andvarvar:
+	case concmd_orvarvar:
+	case concmd_xorvarvar:
+	case concmd_randvarvar:
+	case concmd_sin:
+	case concmd_gmaxammo:
+	case concmd_smaxammo:
 		// syntax: [add|set]varvar <var1> <var2>
 		// sets var1 = var2
 		// adds var1 and var2 with result in var1
 
 		// get the ID of the DEF
-		getlabel();	//GetGameVarLabel();
+		getlabel();	
 
 		checkforkeyword();
 
@@ -1328,7 +1428,7 @@ int ConCompiler::parsecommand()
 		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 
 		// get the ID of the DEF
-		getlabel();	//GetGameVarLabel();
+		getlabel();	
 		checkforkeyword();
 
 		i = GetDefID(parselabel);
@@ -1345,9 +1445,11 @@ int ConCompiler::parsecommand()
 	case concmd_ifvarvarg:
 	case concmd_ifvarvarl:
 	case concmd_ifvarvare:
+	case concmd_ifvarvarn:
+	case concmd_ifvarvarand:
 
 		// get the ID of the DEF
-		getlabel();	//GetGameVarLabel();
+		getlabel();	
 
 		checkforkeyword();
 
@@ -1361,7 +1463,7 @@ int ConCompiler::parsecommand()
 		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 
 		// get the ID of the DEF
-		getlabel();	//GetGameVarLabel();
+		getlabel();	
 
 		checkforkeyword();
 
@@ -1378,9 +1480,11 @@ int ConCompiler::parsecommand()
 	case concmd_ifvarl:
 	case concmd_ifvarg:
 	case concmd_ifvare:
+	case concmd_ifvarn:
+	case concmd_ifvarand:
 
 		// get the ID of the DEF
-		getlabel();	//GetGameVarLabel();
+		getlabel();	
 
 		checkforkeyword();
 		i = GetDefID(parselabel);
@@ -1402,7 +1506,7 @@ int ConCompiler::parsecommand()
 		appendscriptvalue(line_number);
 
 		// get the ID of the DEF
-		getlabel();	//GetGameVarLabel();
+		getlabel();	
 
 		checkforkeyword();
 
@@ -1435,6 +1539,10 @@ int ConCompiler::parsecommand()
 			j |= popscriptvalue();
 		} while (keyword() == -1);
 		appendscriptvalue(j);
+		goto if_common;
+
+	case concmd_ifsound:
+		transnum(LABEL_DEFINE);
 		goto if_common;
 
 	case concmd_ifpinventory:
@@ -1711,6 +1819,10 @@ int ConCompiler::parsecommand()
 
 		return 0;
 	case concmd_break:
+		if (checking_switch)
+		{
+			return 1;
+		}
 	case concmd_fall:
 	case concmd_tip:
 		//		  case 21:
@@ -1817,6 +1929,1117 @@ int ConCompiler::parsecommand()
 		}
 		return 0;
 	}
+
+	case concmd_eventloadactor:
+	{
+		if (parsing_state)
+		{
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found 'eventloadactor' within 'state'.\n", fn, line_number);
+			errorcount++;
+		}
+
+		if (parsing_actor)
+		{
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found 'eventloadactor' within 'actor'.\n", fn, line_number);
+			errorcount++;
+		}
+
+		num_squigilly_brackets = 0;
+		popscriptvalue();
+		parsing_actor = scriptpos();
+
+		transnum(LABEL_DEFINE);
+		int n = popscriptvalue();
+		tileinfo[n].loadeventscriptptr = parsing_actor;
+		checking_ifelse = 0;
+		return 0;
+	}
+	case concmd_setsector:
+	case concmd_getsector:
+	{
+		int lLabelID;
+		// syntax getsector[<var>].x <VAR>
+		// gets the value of sector[<var>].xxx into <VAR>
+
+		// now get name of .xxx
+		while ((*textptr != '['))
+		{
+			textptr++;
+		}
+		if (*textptr == '[')
+			textptr++;
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		// now get name of .xxx
+		while (*textptr != '.')
+		{
+			if (*textptr == 0xa)
+				break;
+			if (!*textptr)
+				break;
+
+			textptr++;
+		}
+		if (*textptr != '.')
+		{
+			errorcount++;
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Syntax error.\n", fn, line_number);
+			return 0;
+
+		}
+		textptr++;
+		/// now pointing at 'xxx'
+		getlabel();
+
+		lLabelID = getlabeloffset(sectorlabels, parselabel);
+
+		if (lLabelID == -1)
+		{
+			errorcount++;
+			ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+			return 0;
+		}
+		appendscriptvalue(sectorlabels[lLabelID].lId);
+		if (sectorlabels[lLabelID].flags & LABEL_HASPARM2)
+		{
+			getlabel();	
+
+			checkforkeyword();
+
+			i = GetDefID(parselabel);
+			if (i < 0)
+			{	// not a defined DEF
+				errorcount++;
+				ReportError(ERROR_NOTAGAMEDEF);
+				return 0;
+			}
+			appendscriptvalue(i);
+		}
+
+		// now at target VAR...
+
+		// get the ID of the DEF
+		getlabel();	
+
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		if (tw == concmd_getsector && aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			errorcount++;
+			ReportError(ERROR_VARREADONLY);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		break;
+	}
+	case concmd_findnearactor:
+	{
+		// syntax findnearactor <type> <maxdist> <getvar>
+		// gets the sprite ID of the nearest actor within max dist
+		// that is of <type> into <getvar>
+		// -1 for none found
+
+		transnum(LABEL_DEFINE);	// get <type>
+
+		transnum(LABEL_DEFINE); // get maxdist
+
+		getlabel();	
+
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			errorcount++;
+			ReportError(ERROR_VARREADONLY);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		break;
+	}
+	case concmd_findnearactorvar:
+	{
+		// syntax findnearactorvar <type> <maxdistvar> <getvar>
+		// gets the sprite ID of the nearest actor within max dist
+		// that is of <type> into <getvar>
+		// -1 for none found
+
+		transnum(LABEL_DEFINE);	// get <type>
+		getlabel();	
+
+		checkforkeyword();
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+
+		// target var
+		getlabel();	
+
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			errorcount++;
+			ReportError(ERROR_VARREADONLY);
+			return 0;
+
+		}
+		appendscriptvalue(i);
+		break;
+	}
+	case concmd_sqrt:
+	{
+		// syntax sqrt <invar> <outvar>
+		// gets the sqrt of invar into outvar
+
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		// target var
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			errorcount++;
+			ReportError(ERROR_VARREADONLY);
+			return 0;
+
+		}
+		appendscriptvalue(i);
+
+		break;
+	}
+	case concmd_setwall:
+	case concmd_getwall:
+	{
+		int lLabelID;
+		// syntax getwall[<var>].x <VAR>
+		// gets the value of wall[<var>].xxx into <VAR>
+
+		// now get name of .xxx
+		while ((*textptr != '['))
+		{
+			textptr++;
+		}
+		if (*textptr == '[')
+			textptr++;
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		// now get name of .xxx
+		while (*textptr != '.')
+		{
+			if (*textptr == 0xa)
+				break;
+			if (!*textptr)
+				break;
+
+			textptr++;
+		}
+		if (*textptr != '.')
+		{
+			errorcount++;
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Syntax error.\n", fn, line_number);
+			return 0;
+
+		}
+		textptr++;
+		/// now pointing at 'xxx'
+		getlabel();
+
+		lLabelID = getlabeloffset(walllabels, parselabel);
+
+		if (lLabelID == -1)
+		{
+			errorcount++;
+			ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+			return 0;
+		}
+		appendscriptvalue(walllabels[lLabelID].lId);
+
+		if (walllabels[lLabelID].flags & LABEL_HASPARM2)
+		{
+			// get parm2
+		// get the ID of the DEF
+			getlabel();	
+			checkforkeyword();
+
+			i = GetDefID(parselabel);
+			if (i < 0)
+			{	// not a defined DEF
+				errorcount++;
+				ReportError(ERROR_NOTAGAMEDEF);
+				return 0;
+			}
+			appendscriptvalue(i);	// the ID of the DEF (offset into array...)
+		}
+
+		// now at target VAR...
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		if (tw == concmd_getwall && aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			errorcount++;
+			ReportError(ERROR_VARREADONLY);
+			return 0;
+
+		}
+		appendscriptvalue(i);
+
+		break;
+	}
+	case concmd_setplayer:
+	case concmd_getplayer:
+	{
+		int lLabelID;
+		// syntax getwall[<var>].x <VAR>
+		// gets the value of wall[<var>].xxx into <VAR>
+
+		// now get name of .xxx
+		while ((*textptr != '['))
+		{
+			textptr++;
+		}
+		if (*textptr == '[')
+			textptr++;
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		// now get name of .xxx
+		while (*textptr != '.')
+		{
+			if (*textptr == 0xa)
+				break;
+			if (!*textptr)
+				break;
+
+			textptr++;
+		}
+		if (*textptr != '.')
+		{
+			errorcount++;
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Syntax error.\n", fn, line_number);
+			return 0;
+
+		}
+		textptr++;
+		/// now pointing at 'xxx'
+		getlabel();
+
+		lLabelID = getlabeloffset(playerlabels, parselabel);
+		if (lLabelID == -1)
+		{
+			errorcount++;
+			ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+			return 0;
+		}
+
+		appendscriptvalue(playerlabels[lLabelID].lId);
+
+		if (playerlabels[lLabelID].flags & LABEL_HASPARM2)
+		{
+			getlabel();	
+			checkforkeyword();
+
+			i = GetDefID(parselabel);
+			if (i < 0)
+			{	// not a defined DEF
+				errorcount++;
+				ReportError(ERROR_NOTAGAMEDEF);
+				return 0;
+			}
+			appendscriptvalue(i);	// the ID of the DEF (offset into array...)
+		}
+
+		// now at target VAR...
+		getlabel();	
+
+		checkforkeyword();
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		if (tw == concmd_getplayer && aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			errorcount++;
+			ReportError(ERROR_VARREADONLY);
+			return 0;
+
+		}
+		appendscriptvalue(i);
+
+		break;
+	}
+	case concmd_setuserdef:
+	case concmd_getuserdef:
+	{
+		int lLabelID;
+		// syntax [gs]etuserdef.x <VAR>
+		// gets the value of ud.xxx into <VAR>
+
+			// now get name of .xxx
+		while (*textptr != '.')
+		{
+			if (*textptr == 0xa)
+				break;
+			if (!*textptr)
+				break;
+
+			textptr++;
+		}
+		if (*textptr != '.')
+		{
+			errorcount++;
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Syntax error.\n", fn, line_number);
+			return 0;
+
+		}
+		textptr++;
+		/// now pointing at 'xxx'
+		getlabel();
+
+		lLabelID = getlabeloffset(userdefslabels, parselabel);
+		if (lLabelID == -1)
+		{
+			errorcount++;
+			ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+			return 0;
+		}
+		appendscriptvalue(userdefslabels[lLabelID].lId);
+
+		if (userdefslabels[lLabelID].flags & LABEL_HASPARM2)
+		{
+			// get parm2
+		// get the ID of the DEF
+			getlabel();	
+			checkforkeyword();
+
+			i = GetDefID(parselabel);
+			if (i < 0)
+			{	// not a defined DEF
+				errorcount++;
+				ReportError(ERROR_NOTAGAMEDEF);
+				return 0;
+			}
+			appendscriptvalue(i);	// the ID of the DEF (offset into array...)
+		}
+
+
+		// now at target VAR...
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		if (tw == concmd_getplayer && aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			errorcount++;
+			ReportError(ERROR_VARREADONLY);
+			return 0;
+
+		}
+		appendscriptvalue(i);
+
+		break;
+	}
+	case concmd_setactorvar:
+	case concmd_getactorvar:
+	{
+		// syntax [gs]etactorvar[<var>].<varx> <VAR>
+		// gets the value of the per-actor variable varx into VAR
+
+		// now get name of <var>
+		while ((*textptr != '['))
+		{
+			textptr++;
+		}
+		if (*textptr == '[')
+			textptr++;
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		// now get name of .<varx>
+		while (*textptr != '.')
+		{
+			if (*textptr == 0xa)
+				break;
+			if (!*textptr)
+				break;
+
+			textptr++;
+		}
+		if (*textptr != '.')
+		{
+			errorcount++;
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Syntax error.\n", fn, line_number);
+			return 0;
+
+		}
+		textptr++;
+		/// now pointing at 'xxx'
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		if (tw == concmd_setactorvar && aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			errorcount++;
+			ReportError(ERROR_VARREADONLY);
+			return 0;
+
+		}
+		if (tw == concmd_setactorvar && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR))
+		{
+			errorcount++;
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Variable '%s' is not per-actor.\n", fn, line_number, parselabel);
+			return 0;
+
+		}
+		appendscriptvalue(i);
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+
+		if (tw == concmd_getactorvar && aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			errorcount++;
+			ReportError(ERROR_VARREADONLY);
+			return 0;
+
+		}
+
+		appendscriptvalue(i);
+
+		break;
+	}
+	case concmd_setactor:
+	case concmd_getactor:
+	{
+		int lLabelID;
+		// syntax getsector[<var>].x <VAR>
+		// gets the value of sector[<var>].xxx into <VAR>
+
+		// now get name of .xxx
+		while ((*textptr != '['))
+		{
+			textptr++;
+		}
+		if (*textptr == '[')
+			textptr++;
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		// now get name of .xxx
+		while (*textptr != '.')
+		{
+			if (*textptr == 0xa)
+				break;
+			if (!*textptr)
+				break;
+
+			textptr++;
+		}
+		if (*textptr != '.')
+		{
+			errorcount++;
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Syntax error.\n", fn, line_number);
+			return 0;
+
+		}
+		textptr++;
+		/// now pointing at 'xxx'
+		getlabel();
+
+		lLabelID = getlabeloffset(actorlabels, parselabel);
+		if (lLabelID == -1)
+		{
+			errorcount++;
+			ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+			return 0;
+		}
+		appendscriptvalue(actorlabels[lLabelID].lId);
+
+		if (actorlabels[lLabelID].flags & LABEL_HASPARM2)
+		{
+			// get parm2
+		// get the ID of the DEF
+			getlabel();	
+			checkforkeyword();
+
+			i = GetDefID(parselabel);
+			if (i < 0)
+			{	// not a defined DEF
+				errorcount++;
+				ReportError(ERROR_NOTAGAMEDEF);
+
+				Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Symbol '%s' is not a Game Definition.\n", fn, line_number, parselabel);
+				return 0;
+			}
+			appendscriptvalue(i);	// the ID of the DEF (offset into array...)
+		}
+
+		// now at target VAR...
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		if (tw == concmd_getactor && aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			errorcount++;
+			ReportError(ERROR_VARREADONLY);
+			return 0;
+
+		}
+		appendscriptvalue(i);
+
+		break;
+	}
+	case concmd_espawnvar:
+		// syntax: espawnvar <Var1>
+		// spawns the sprite of type ID and sets RETURN to spawned sprite ID
+		// FALL THROUGH:
+	case concmd_lockplayer:
+		// syntax: lockplayer	<var1>
+		// sets locks the player controls for <var1> ticks
+
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			errorcount++;
+			ReportError(ERROR_VARREADONLY);
+			return 0;
+
+		}
+		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
+
+		return 0;
+
+	case concmd_enhanced:
+	{
+		popscriptvalue();
+		transnum(LABEL_DEFINE);
+		int k = popscriptvalue();
+		if (k > VERSIONCHECK)
+		{
+			Printf(TEXTCOLOR_RED, "  * ERROR: This CON Code requires at least Build %d, but we are only Build %d\n", k, (int)VERSIONCHECK);
+			errorcount++;
+		}
+		break;
+	}
+
+	case concmd_spgetlotag:
+	case concmd_spgethitag:
+	case concmd_sectgetlotag:
+	case concmd_sectgethitag:
+	case concmd_gettexturefloor:
+	case concmd_gettextureceiling:
+		// no paramaters...
+		return 0;
+	case concmd_starttrack:
+		// one parameter (track#)
+		transnum(LABEL_DEFINE);
+		return 0;
+	case concmd_gettexturewall:
+		errorcount++;
+		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Command  'gettexturewall' is not yet implemented.\n", fn, line_number);
+		return 0;
+	case concmd_displayrand:
+		// syntax: displayrand <var>
+		// gets rand (not game rand) into <var>
+
+		// Get The ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
+		break;
+	case concmd_switch:
+		checking_switch++; // allow nesting (if other things work)
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEVAR);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		tempscrptr = scriptpos();
+		appendscriptvalue(0); // leave spot for end location (for after processing)
+		appendscriptvalue(0); // count of case statements
+		casescriptptr = scriptpos();	// the first case's pointer.
+
+		appendscriptvalue(0); // leave spot for 'default' location (null if none)
+
+		j = keyword();
+		while (j == 20)	// '//'
+		{
+			while (*textptr != 0x0a)
+				textptr++;
+
+			j = keyword();
+		}
+		// probably does not allow nesting...
+
+
+		j = CountCaseStatements();
+		if (checking_switch > 1)
+		{
+			//	sprintf(g_szBuf,"ERROR::%s %d: Checking_switch=",__FILE__,__LINE__, checking_switch);
+			//	AddLog(g_szBuf);
+		}
+		if (j < 0)
+		{
+			return 1;
+		}
+		if (tempscrptr)
+		{
+			setscriptvalue(tempscrptr + 1, j);	// save count of cases
+		}
+
+		while (j--)
+		{
+			// leave room for statements
+			appendscriptvalue(0);	// value check
+			appendscriptvalue(0); // code offset
+		}
+
+		casecount = 0;
+		while (parsecommand() == 0);
+
+		casecount = 0;
+		if (tempscrptr)
+		{
+			setscriptvalue(tempscrptr, scriptpos());	// save 'end' location
+		}
+
+		casescriptptr = NULL;
+		// decremented in endswitch.  Don't decrement here...
+		//			checking_switch--; // allow nesting (maybe if other things work)
+		tempscrptr = NULL;
+		break;
+
+
+	case concmd_case:
+		//AddLog("Found Case");
+	repeatcase:
+		popscriptvalue(); // don't save in code
+		if (checking_switch < 1)
+		{
+			errorcount++;
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) case statement when not in switch\n", fn, line_number);
+			return 1;
+		}
+		casecount++;
+		transnum(LABEL_DEFINE);
+
+		j = popscriptvalue();
+		if (casescriptptr)
+		{
+			setscriptvalue(casescriptptr + (casecount++), j);
+			setscriptvalue(casescriptptr + casecount, scriptpos());
+		}
+		j = keyword();
+		while (j == 20)	// '//'
+		{
+			while (*textptr != 0x0a)
+				textptr++;
+
+			j = keyword();
+		}
+		if (j == concmd_case)
+		{
+			transword();	// eat 'case'
+			goto repeatcase;
+		}
+		while (parsecommand() == 0);
+		return 0;
+
+	case concmd_default:
+		popscriptvalue();	// don't save
+		if (casescriptptr != 0 && ScriptCode[casescriptptr] != 0)
+		{
+			// duplicate default statement
+			errorcount++;
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) multiple default statements found in switch\n", fn, line_number);
+		}
+		if (casescriptptr)
+		{
+			setscriptvalue(casescriptptr, scriptpos());
+		}
+		while (parsecommand() == 0);
+		break;
+	case concmd_endswitch:
+		checking_switch--;
+		if (checking_switch < 0)
+		{
+			errorcount++;
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) endswitch without matching switch\n", fn, line_number);
+		}
+		return 1;	// end of block
+		break;
+	case concmd_startlevel:
+		// start at specified level
+		// startlevel <episode> <level>
+#if 0
+		if (!g_bEnhanced)
+		{
+			errorcount++;
+			printf("  * ERROR!(L%ld) Command  '%s' is enhanced only.  Define enhance with the version number your code needs before using this commands.\n", line_number, tempbuf);
+			return 0;
+		}
+#endif
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		appendscriptvalue(i);
+		break;
+	case concmd_mapvoxel:
+		// map a tilenum to a voxel.
+		// syntax: mapvoxel <tilenum> <filename (8.3)>
+#if 0
+		if (!g_bEnhanced)
+		{
+			errorcount++;
+			printf("  * ERROR!(L%ld) Command  '%s' is enhanced only.  Define enhance with the version number your code needs before using this commands.\n", line_number, tempbuf);
+			return 0;
+		}
+#endif
+		popscriptvalue(); // don't save in compiled code
+
+		transnum(LABEL_DEFINE);
+		j = popscriptvalue();
+
+		while (*textptr == ' ' || *textptr == '\t') textptr++;
+
+		i = 0;
+#if 0
+		voxel_map[j].name[i] = 0;
+		voxel_map[j].voxnum = -2;	// flag to load later
+		while ((i < 12) && (isalnum(*textptr) || *textptr == '.'))
+		{
+			voxel_map[j].name[i++] = *textptr++;
+		}
+		voxel_map[j].name[i] = 0;
+#endif
+		break;
+	case concmd_myos:
+	case concmd_myospal:
+	case concmd_myosx:
+	case concmd_myospalx:
+#if 0
+		if (!g_bEnhanced)
+		{
+			errorcount++;
+			printf("  * ERROR!(L%ld) Command  '%s' is enhanced only.  Define enhance with the version number your code needs before using this commands.\n", line_number, tempbuf);
+			return 0;
+		}
+#endif
+		// syntax:
+		// int x, int y, short tilenum, signed char shade, char orientation
+		// myospal adds char pal
+
+		// Parse: x
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		// Parse: Y
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEVAR);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		// Parse: tilenum
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEVAR);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		// Parse: shade
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEVAR);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		// Parse: orientation
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEVAR);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		if (tw == concmd_myospal || tw == concmd_myospalx)
+		{
+			// Parse: pal
+
+			// get the ID of the DEF
+			getlabel();	
+			checkforkeyword();
+
+			i = GetDefID(parselabel);
+			if (i < 0)
+			{	// not a defined DEF
+				errorcount++;
+				ReportError(ERROR_NOTAGAMEVAR);
+				return 0;
+			}
+			appendscriptvalue(i);
+		}
+
+		break;
+
+	case concmd_getangletotarget:
+	case concmd_getactorangle:
+	case concmd_setactorangle:
+	case concmd_getplayerangle:
+	case concmd_setplayerangle:
+		// Syntax:	 <command> <var>
+
+		// get the ID of the DEF
+		getlabel();	
+		checkforkeyword();
+
+		i = GetDefID(parselabel);
+		//printf("Label '%s' ID is %d\n",label+(labelcnt<<6), i);
+		if (i < 0)
+		{	// not a defined DEF
+			errorcount++;
+			ReportError(ERROR_NOTAGAMEDEF);
+			return 0;
+		}
+		appendscriptvalue(i);
+
+		return 0;
+
+
 	}
 	return 0;
 }

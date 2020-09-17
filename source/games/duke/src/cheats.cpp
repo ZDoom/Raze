@@ -59,7 +59,7 @@ const char *GameInterface::CheckCheatMode()
 
 static const char *cheatGod(int myconnectindex, int state)
 {
-	if (state == -1) state = 1 - ud.god;
+	if (state == -1) state = !ud.god;
 	ud.god = state;
 
 	sprite[ps[myconnectindex].i].extra = max_player_health;

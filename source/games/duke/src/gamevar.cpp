@@ -285,6 +285,10 @@ int GetGameVarID(int id, int sActor, int sPlayer)
 		Printf("GetGameVarID: Invalid Game ID %d\n", id);
 		return -1;
 	}
+	if (id == g_iThisActorID)
+	{
+		return sActor;
+	}
 	if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER )
 	{
 		// for the current player
@@ -474,6 +478,10 @@ int g_iZRangeVarID = -1;	// var ID of "ZRANGE"
 int g_iAngRangeVarID = -1;	// var ID of "ANGRANGE"
 int g_iAimAngleVarID = -1;	// var ID of "AUTOAIMANGLE"
 int g_iAtWithVarID = -1;	// var ID of "AtWith"
+int g_iLoTagID = -1;			// var ID of "LOTAG"
+int g_iHiTagID = -1;			// ver ID of "HITAG"
+int g_iTextureID = -1;		// var ID of "TEXTURE"
+int g_iThisActorID = -1;		// var ID of "THISACTOR"
 
 //---------------------------------------------------------------------------
 //
@@ -1131,6 +1139,11 @@ void AddSystemVars()
 	AddGameVar("ZRANGE", 0, GAMEVAR_FLAG_SYSTEM);
 	AddGameVar("ANGRANGE", 0, GAMEVAR_FLAG_SYSTEM);
 	AddGameVar("AUTOAIMANGLE", 0, GAMEVAR_FLAG_SYSTEM);
+	AddGameVar("LOTAG", 0, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYSTEM);
+	AddGameVar("HITAG", 0, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYSTEM);
+	AddGameVar("TEXTURE", 0, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYSTEM);
+	AddGameVar("THISACTOR", 0, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYSTEM);
+	AddGameVar("ATWITH", 0, GAMEVAR_FLAG_READONLY | GAMEVAR_FLAG_SYSTEM);
 
 	AddGameVar("RESPAWN_MONSTERS", (intptr_t)&ud.respawn_monsters,GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
 	AddGameVar("RESPAWN_ITEMS",(intptr_t)&ud.respawn_items, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
@@ -1211,6 +1224,11 @@ void ResetSystemDefaults(void)
 	g_iZRangeVarID=GetGameID("ZRANGE");
 	g_iAngRangeVarID=GetGameID("ANGRANGE");
 	g_iAimAngleVarID=GetGameID("AUTOAIMANGLE");
+	g_iAtWithVarID = GetGameID("ATWITH");
+	g_iLoTagID = GetGameID("LOTAG");
+	g_iHiTagID = GetGameID("HITAG");
+	g_iTextureID = GetGameID("TEXTURE");
+	g_iThisActorID = GetGameID("THISACTOR");
 }
 	
 

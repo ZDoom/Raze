@@ -280,6 +280,7 @@ void prelevel_d(int g)
 	while (i >= 0)
 	{
 		nexti = nextspritestat[i];
+		LoadActor(i, -1, -1);
 
 		if (sprite[i].lotag == -1 && (sprite[i].cstat & 16))
 		{

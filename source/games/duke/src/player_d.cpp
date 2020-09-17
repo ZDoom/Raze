@@ -413,18 +413,14 @@ void shoot_d(int i, int atwith)
 
 		if (p >= 0)
 		{
-			if (isWW2GI())
+			SetGameVarID(g_iAimAngleVarID, AUTO_AIM_ANGLE, i, p);
+			OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
+			j = -1;
+			if (GetGameVarID(g_iAimAngleVarID, i, p) > 0)
 			{
-				SetGameVarID(g_iAimAngleVarID, AUTO_AIM_ANGLE, i, p);
-				OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
-				j = -1;
-				if (GetGameVarID(g_iAimAngleVarID, i, p) > 0)
-				{
-					j = aim(s, GetGameVarID(g_iAimAngleVarID, i, p));
-				}
+				j = aim(s, GetGameVarID(g_iAimAngleVarID, i, p));
 			}
-			else
-				j = aim(s, AUTO_AIM_ANGLE);
+
 			if (j >= 0)
 			{
 				dal = ((sprite[j].xrepeat * tilesiz[sprite[j].picnum].y) << 1) + (5 << 8);
@@ -2588,7 +2584,6 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 			OnEvent(EVENT_HOLSTER, pi, snum, -1);
 			if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
 			{
-
 				// now it uses the game definitions...
 				if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_HOLSTER_CLEARS_CLIP)
 				{

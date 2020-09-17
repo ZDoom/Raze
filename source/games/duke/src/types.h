@@ -47,13 +47,14 @@ struct ActorInfo
 struct TileInfo
 {
 	int flags;
+	int loadeventscriptptr;
 };
 
 struct user_defs
 {
 	int levelclock;
 	unsigned char god, cashman, eog;
-	unsigned char show_help, scrollmode, clipping;
+	unsigned char clipping;
 	char user_name[MAXPLAYERS][32];
 	unsigned char showweapons;
 	unsigned char user_pals[MAXPLAYERS];
@@ -63,16 +64,15 @@ struct user_defs
 	short last_level, secretlevel;
 
 	int const_visibility;
-	int reccnt;
 
 	int runkey_mode;
 
-	int entered_name, shadows, executions, auto_run;
-	int coords, tickrate, levelstats, m_coop, coop;
-	int wchoice[MAXPLAYERS][MAX_WEAPONS], playerai;
+	int shadows;
+	int coords, levelstats, m_coop, coop;
+	int wchoice[MAXPLAYERS][MAX_WEAPONS];
 
 	int respawn_monsters, respawn_items, respawn_inventory, recstat, monsters_off, brightness;
-	int m_respawn_items, m_respawn_monsters, m_respawn_inventory, m_recstat, m_monsters_off, detail;
+	int m_respawn_items, m_respawn_monsters, m_respawn_inventory, m_recstat, m_monsters_off;
 	int m_ffire, ffire, m_player_skill, multimode;
 	int player_skill, marker;
 	//MapRecord* nextLevel;

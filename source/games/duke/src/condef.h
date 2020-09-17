@@ -1,3 +1,4 @@
+//                             original index for reference. Raze never uses literal indices anywhere and should not care about the actual numbers
 cmd(definelevelname)		// 0
 cmd(actor)					// 1
 cmd(addammo)				// 2
@@ -170,6 +171,76 @@ cmd(garybanjo) 				// 143
 cmd(motoloopsnd) 			// 144
 cmd(ifsizedown) 			// 145
 cmd(rndmove) 				// 146
+
+// EDuke 2.x additions
+cmd(spgetlotag)				// 127
+cmd(spgethitag)				// 128
+cmd(sectgetlotag)			// 129
+cmd(sectgethitag)			// 130
+cmd(ifsound)				// 131
+cmd(gettexturefloor)		// 132
+cmd(gettextureceiling)		// 133
+cmd(gettexturewall)			// 134
+cmd(starttrack)				// 135
+cmd(randvar)				// 136
+cmd(enhanced)				// 137
+cmd(getangletotarget)		// 138
+cmd(getactorangle)			// 139
+cmd(setactorangle)			// 140
+cmd(mulvar)					// 141
+cmd(mulvarvar)				// 142
+cmd(divvar)					// 143
+cmd(divvarvar)				// 144
+cmd(modvar)					// 145
+cmd(modvarvar)				// 146
+cmd(andvar)					// 147
+cmd(andvarvar)				// 148
+cmd(orvar)					// 149
+cmd(orvarvar)				// 150
+cmd(getplayerangle)			// 151
+cmd(setplayerangle)			// 152
+cmd(lockplayer)				// 153
+cmd(setsector)				// 154
+cmd(getsector)				// 155
+cmd(setactor)				// 156
+cmd(getactor)				// 157
+cmd(setwall)				// 158
+cmd(getwall)				// 159
+cmd(findnearactor)			// 160
+cmd(findnearactorvar)		// 161
+cmd(setactorvar)			// 162
+cmd(getactorvar)			// 163
+cmd(espawn)					// 164
+cmd(getplayer)				// 165
+cmd(setplayer)				// 166
+cmd(sqrt)					// 167
+cmd(eventloadactor)			// 168
+cmd(espawnvar)				// 169
+cmd(getuserdef)				// 170
+cmd(setuserdef)				// 171
+cmd(subvarvar)				// 172
+cmd(subvar)					// 173
+cmd(ifvarn)					// 174
+cmd(ifvarvarn)				// 175
+cmd(ifvarand)				// 176
+cmd(ifvarvarand)			// 177
+cmd(myos)					// 178
+cmd(myospal)				// 179
+cmd(switch)					// 180
+cmd(case)					// 181
+cmd(default)				// 182
+cmd(endswitch)				// 183
+cmd(displayrand)			// 184
+cmd(sin)					// 185
+cmd(xorvarvar)				// 186
+cmd(xorvar)					// 187
+cmd(randvarvar)				// 188
+cmd(myosx) 					// 189
+cmd(myospalx) 				// 190
+cmd(gmaxammo) 				// 191
+cmd(smaxammo) 				// 192
+cmd(mapvoxel) 				// 193
+cmd(startlevel) 			// 194
 
 // RR Deer Huntin'. These are merely here for reference because the game is not supported.
 // cmd(iffindnewspot)
