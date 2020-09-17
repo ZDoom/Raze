@@ -721,9 +721,8 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->pXSprite->health = pDudeInfo->startHealth<<4;
     pPlayer->pSprite->cstat &= (unsigned short)~32768;
     pPlayer->bloodlust = 0;
-    pPlayer->q16horiz = 100;
+    pPlayer->q16horiz = IntToFixed(100);
     pPlayer->q16slopehoriz = 0;
-    pPlayer->q16look = 100;
     pPlayer->slope = 0;
     pPlayer->fraggerId = -1;
     pPlayer->underwaterTime = 1200;
@@ -1362,7 +1361,7 @@ void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust
     InputPacket *pInput = &pPlayer->input;
 
     // Calculate adjustment as true pitch (Fixed point math really sucks...)
-    double horizAngle = clamp(atan2(pPlayer->q16look - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi()), -180, 180);
+    double horizAngle = clamp(atan2(pPlayer->q16horiz - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi()), -180, 180);
 
     if (q16horz)
     {
@@ -1417,7 +1416,7 @@ void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust
     }
 
     // Convert back to Build's horizon and clamp.
-    pPlayer->q16horiz = pPlayer->q16look = clamp(IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.))), IntToFixed(PLAYER_HORIZ_MIN), IntToFixed(PLAYER_HORIZ_MAX));
+    pPlayer->q16horiz = clamp(IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.))), IntToFixed(PLAYER_HORIZ_MIN), IntToFixed(PLAYER_HORIZ_MAX));
 }
 
 //---------------------------------------------------------------------------

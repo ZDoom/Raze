@@ -1482,17 +1482,22 @@ void trPlayerCtrlSetScreenEffect(XSPRITE* pXSource, PLAYER* pPlayer) {
 
 }
 
-void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer) {
-    
-    const int upAngle = 289;
-	const int downAngle = -347;
-    const double lookStepUp = 4.0 * upAngle / 60.0;
-    const double lookStepDown = -4.0 * downAngle / 60.0;
-
+void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer)
+{
     int look = pXSource->data2 << 5;
-    if (look > 0) pPlayer->q16look = min(mulscale8(FloatToFixed(lookStepUp), look), FloatToFixed(upAngle));
-    else if (look < 0) pPlayer->q16look = -max(mulscale8(FloatToFixed(lookStepDown), abs(look)), FloatToFixed(downAngle));
-    else pPlayer->q16look = 0;
+
+    if (abs(look) > 0)
+    {
+        if (pPlayer->q16horiz != IntToFixed(100))
+        {
+            // move q16horiz back to 100
+            pPlayer->q16horiz += IntToFixed(25) - (pPlayer->q16horiz >> 2);
+        }
+    }
+    else
+    {
+        pPlayer->q16horiz = IntToFixed(100);
+    }
 
 }
 

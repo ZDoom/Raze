@@ -108,7 +108,6 @@ struct PLAYER
     int                 zViewVel;
     int                 zWeapon;
     int                 zWeaponVel;
-    fixed_t             q16look;
     fixed_t             q16horiz;       // horiz
     fixed_t             q16slopehoriz;  // horizoff
     int                 slope;

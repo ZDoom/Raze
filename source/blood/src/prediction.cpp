@@ -58,7 +58,6 @@ static VIEW predictFifo[256];
 void viewInitializePrediction(void)
 {
 	predict.at30 = gMe->q16ang;
-	predict.at20 = gMe->q16look;
 	predict.at24 = gMe->q16horiz;
 	predict.at28 = gMe->q16slopehoriz;
 	predict.at2c = gMe->slope;
