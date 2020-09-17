@@ -721,9 +721,9 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->pXSprite->health = pDudeInfo->startHealth<<4;
     pPlayer->pSprite->cstat &= (unsigned short)~32768;
     pPlayer->bloodlust = 0;
-    pPlayer->q16horiz = 0;
+    pPlayer->q16horiz = 100;
     pPlayer->q16slopehoriz = 0;
-    pPlayer->q16look = 0;
+    pPlayer->q16look = 100;
     pPlayer->slope = 0;
     pPlayer->fraggerId = -1;
     pPlayer->underwaterTime = 1200;
@@ -1304,6 +1304,13 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
     return -1;
 }
 
+enum
+{
+    HORIZ_SPEED = 14,
+    PLAYER_HORIZ_MIN = -79,
+    PLAYER_HORIZ_MAX = 219
+};
+
 //---------------------------------------------------------------------------
 //
 // Player's angle function, called in processInput() or from gi->GetInput() as required.
@@ -1355,40 +1362,63 @@ void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust
 {
     InputPacket *pInput = &pPlayer->input;
 
-    if ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
+    // Calculate adjustment as true pitch (Fixed point math really sucks...)
+    double horizAngle = clamp(atan2(pPlayer->q16look - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi()), -180, 180);
+
+    if (q16horz)
     {
-        if (pPlayer->q16look < 0)
-            pPlayer->q16look = min(pPlayer->q16look + FloatToFixed(scaleAdjust * 4.), 0);
-
-        if (pPlayer->q16look > 0)
-            pPlayer->q16look = max(pPlayer->q16look - FloatToFixed(scaleAdjust * 4.), 0);
-
-        if (!pPlayer->q16look)
-            pInput->actions &= ~SB_CENTERVIEW;
-    }
-    else
-    {
-        if (pInput->actions & (SB_LOOK_UP|SB_AIM_UP))
-            pPlayer->q16look = min(pPlayer->q16look + FloatToFixed(scaleAdjust * 4.), IntToFixed(60));
-
-        if (pInput->actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
-            pPlayer->q16look = max(pPlayer->q16look - FloatToFixed(scaleAdjust * 4.), IntToFixed(-60));
+        pInput->actions &= ~SB_CENTERVIEW;
+        horizAngle += FixedToFloat(q16horz);
     }
 
-    pPlayer->q16look = clamp(pPlayer->q16look + xs_CRoundToInt(q16horz / 3.25), IntToFixed(-60), IntToFixed(60));
+    // this is the locked type
+    if (pInput->actions & (SB_AIM_UP|SB_AIM_DOWN))
+    {
+        pInput->actions &= ~SB_CENTERVIEW;
 
-    if (pPlayer->q16look > 0)
-    {
-        pPlayer->q16horiz = FloatToFixed(fmulscale30(120., Sinf(FixedToFloat(pPlayer->q16look) * 8.)));
+        // adjust q16horiz negative
+        if (pInput->actions & SB_AIM_DOWN)
+            horizAngle -= scaleAdjust * (HORIZ_SPEED >> 1);
+
+        // adjust q16horiz positive
+        if (pInput->actions & SB_AIM_UP)
+            horizAngle += scaleAdjust * (HORIZ_SPEED >> 1);
     }
-    else if (pPlayer->q16look < 0)
+
+    // this is the unlocked type
+    if (pInput->actions & (SB_LOOK_UP|SB_LOOK_DOWN))
     {
-        pPlayer->q16horiz = FloatToFixed(fmulscale30(180., Sinf(FixedToFloat(pPlayer->q16look) * 8.)));
+        pInput->actions |= SB_CENTERVIEW;
+
+        // adjust q16horiz negative
+        if (pInput->actions & SB_LOOK_DOWN)
+            horizAngle -= scaleAdjust * HORIZ_SPEED;
+
+        // adjust q16horiz positive
+        if (pInput->actions & SB_LOOK_UP)
+            horizAngle += scaleAdjust * HORIZ_SPEED;
     }
-    else
+
+    if (pInput->actions & SB_CENTERVIEW)
     {
-        pPlayer->q16horiz = 0;
+        if (!(pInput->actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
+        {
+            // not pressing the q16horiz keys
+            if (horizAngle != 0)
+            {
+                // move q16horiz back to 100
+                horizAngle += scaleAdjust * ((1. / 65536.) - (horizAngle * (10. / GameTicRate)));
+            }
+            else
+            {
+                // not looking anymore because q16horiz is back at 100
+                pInput->actions &= ~SB_CENTERVIEW;
+            }
+        }
     }
+
+    // Convert back to Build's horizon and clamp.
+    pPlayer->q16horiz = pPlayer->q16look = clamp(IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.))), IntToFixed(PLAYER_HORIZ_MIN), IntToFixed(PLAYER_HORIZ_MAX));
 }
 
 //---------------------------------------------------------------------------

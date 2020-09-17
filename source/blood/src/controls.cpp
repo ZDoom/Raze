@@ -46,28 +46,11 @@ void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust
 
 //---------------------------------------------------------------------------
 //
-// handles the input bits
-//
-//---------------------------------------------------------------------------
-
-static void processInputBits(ControlInfo* const hidInput, bool* mouseaim)
-{
-    ApplyGlobalInput(gInput, hidInput);
-    *mouseaim = !(gInput.actions & SB_AIMMODE);
-
-    if (!mouseaim || (gInput.actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
-    {
-        gInput.actions |= SB_CENTERVIEW;
-    }
-}
-
-//---------------------------------------------------------------------------
-//
 // handles movement
 //
 //---------------------------------------------------------------------------
 
-static void processMovement(ControlInfo* const hidInput, bool const mouseaim)
+static void processMovement(ControlInfo* const hidInput)
 {
     double const scaleAdjust = InputScale();
     int const run = !!(gInput.actions & SB_RUN);
@@ -83,7 +66,7 @@ static void processMovement(ControlInfo* const hidInput, bool const mouseaim)
         input.q16avel += FloatToFixed(hidInput->mousex + (scaleAdjust * hidInput->dyaw));
     }
 
-    if (mouseaim)
+    if (!(gInput.actions & SB_AIMMODE))
     {
         input.q16horz += FloatToFixed(hidInput->mousey);
     }
@@ -209,10 +192,8 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         return;
     }
 
-    bool mouseaim;
-
-    processInputBits(hidInput, &mouseaim);
-    processMovement(hidInput, mouseaim);
+    ApplyGlobalInput(gInput, hidInput);
+    processMovement(hidInput);
 
     if (packet)
     {

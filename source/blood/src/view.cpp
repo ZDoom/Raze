@@ -74,8 +74,6 @@ INTERPOLATE gInterpolation[kMaxInterpolations];
 
 int gScreenTilt;
 
-int const defaultHoriz = polymostcenterhoriz;
-
 FFont *gFont[kFontNum];
 
 void FontSet(int id, int tile, int space)
@@ -806,8 +804,8 @@ void viewDrawScreen(bool sceneonly)
             for (int i = 0; i < 16; i++)
                 ror_status[i] = TestBitString(gotpic, 4080 + i);
             yax_preparedrawrooms();
-            DrawMirrors(vd8, vd4, vd0, IntToFixed(v50), IntToFixed(v54 + defaultHoriz), gInterpolate, -1);
-            drawrooms(vd8, vd4, vd0, v50, v54 + defaultHoriz, vcc);
+            DrawMirrors(vd8, vd4, vd0, IntToFixed(v50), IntToFixed(v54), gInterpolate, -1);
+            drawrooms(vd8, vd4, vd0, v50, v54, vcc);
             yax_drawrooms(viewProcessSprites, vcc, 0, gInterpolate);
             bool do_ror_hack = false;
             for (int i = 0; i < 16; i++)
@@ -881,7 +879,7 @@ void viewDrawScreen(bool sceneonly)
         for (int i = 0; i < 16; i++)
             ror_status[i] = TestBitString(gotpic, 4080 + i);
         fixed_t deliriumPitchI = interpolate(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
-        DrawMirrors(cX, cY, cZ, cA, q16horiz + IntToFixed(defaultHoriz) + deliriumPitchI, gInterpolate, gViewIndex);
+        DrawMirrors(cX, cY, cZ, cA, q16horiz + deliriumPitchI, gInterpolate, gViewIndex);
         int bakCstat = gView->pSprite->cstat;
         if (gViewPos == 0)
         {
@@ -892,7 +890,7 @@ void viewDrawScreen(bool sceneonly)
             gView->pSprite->cstat |= 514;
         }
 
-        renderDrawRoomsQ16(cX, cY, cZ, cA, q16horiz + IntToFixed(defaultHoriz) + deliriumPitchI, nSectnum);
+        renderDrawRoomsQ16(cX, cY, cZ, cA, q16horiz + deliriumPitchI, nSectnum);
         viewProcessSprites(cX, cY, cZ, FixedToInt(cA), gInterpolate);
         bool do_ror_hack = false;
         for (int i = 0; i < 16; i++)
@@ -950,7 +948,7 @@ void viewDrawScreen(bool sceneonly)
         int v8 = byte_1CE5C2 > 0 && (sector[tmpSect].ceilingstat & 1);
         if (gWeather.at12d8 > 0 || v8)
         {
-            gWeather.Draw(cX, cY, cZ, cA, q16horiz + defaultHoriz + deliriumPitch, gWeather.at12d8);
+            gWeather.Draw(cX, cY, cZ, cA, q16horiz + deliriumPitch, gWeather.at12d8);
             if (v8)
             {
                 gWeather.at12d8 = ClipRange(delta * 8 + gWeather.at12d8, 0, 4095);
