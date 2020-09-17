@@ -100,7 +100,6 @@ bool NoMeters = false;
 int FinishAnim = 0;
 bool ReloadPrompt = false;
 bool NewGame = false;
-bool SavegameLoaded = false;
 //Miscellaneous variables
 bool FinishedLevel = false;
 short screenpeek = 0;
@@ -676,7 +675,6 @@ void GameInterface::ErrorCleanup()
 {
     // Make sure we do not leave the game in an unstable state
     TerminateLevel();
-    SavegameLoaded = false;
     FinishAnim = false;
 }
 //---------------------------------------------------------------------------
