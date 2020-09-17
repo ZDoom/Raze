@@ -101,7 +101,15 @@ void shoot_d(int i, int atwith)
 		p = -1;
 	}
 
-	
+	SetGameVarID(g_iAtWithVarID, 0, p, atwith);
+	SetGameVarID(g_iReturnVarID, 0, p, i);
+	OnEvent(EVENT_SHOOT, i, p, -1);
+	if (GetGameVarID(g_iReturnVarID, p, i) != 0)
+	{
+		return;
+	}
+
+
 	sect = s->sectnum;
 	zvel = 0;
 

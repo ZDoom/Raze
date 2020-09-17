@@ -124,6 +124,14 @@ void shoot_r(int i, int atwith)
 		}
 	}
 
+	SetGameVarID(g_iAtWithVarID, 0, p, atwith);
+	SetGameVarID(g_iReturnVarID, 0, p, i);
+	OnEvent(EVENT_SHOOT, i, p, -1);
+	if (GetGameVarID(g_iReturnVarID, p, i) != 0)
+	{
+		return;
+	}
+
 	switch (atwith)
 	{
 	case SLINGBLADE:

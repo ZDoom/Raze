@@ -361,6 +361,8 @@ enum
 	EVENT_USEMEDKIT,
 	EVENT_USEJETPACK,
 	EVENT_TURNAROUND,
+	// The ones in-between here are not supported and many may never be.
+	EVENT_SHOOT = 51,
 
 	EVENT_NUMEVENTS,
 	EVENT_MAXEVENT = EVENT_NUMEVENTS - 1

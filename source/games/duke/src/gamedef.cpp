@@ -2014,7 +2014,7 @@ int ConCompiler::parsecommand()
 		appendscriptvalue(sectorlabels[lLabelID].lId);
 		if (sectorlabels[lLabelID].flags & LABEL_HASPARM2)
 		{
-			getlabel();	
+			getlabel();
 
 			checkforkeyword();
 
@@ -2027,6 +2027,7 @@ int ConCompiler::parsecommand()
 			}
 			appendscriptvalue(i);
 		}
+		else appendscriptvalue(0);
 
 		// now at target VAR...
 
@@ -2239,6 +2240,7 @@ int ConCompiler::parsecommand()
 			}
 			appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 		}
+		else appendscriptvalue(0);
 
 		// now at target VAR...
 
@@ -2337,6 +2339,7 @@ int ConCompiler::parsecommand()
 			}
 			appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 		}
+		else appendscriptvalue(0);
 
 		// now at target VAR...
 		getlabel();	
@@ -2413,6 +2416,7 @@ int ConCompiler::parsecommand()
 			}
 			appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 		}
+		else appendscriptvalue(0);
 
 
 		// now at target VAR...
@@ -2611,6 +2615,7 @@ int ConCompiler::parsecommand()
 			}
 			appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 		}
+		else appendscriptvalue(0);
 
 		// now at target VAR...
 

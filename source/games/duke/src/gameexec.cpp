@@ -2884,6 +2884,7 @@ int ParseState::parse(void)
 		lWhat = *(insptr++);
 		lVar1 = *(insptr++);
 		lLabelID = *(insptr++);
+		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 		DoSector(lWhat == concmd_setsector, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
 		break;
@@ -3007,15 +3008,7 @@ int ParseState::parse(void)
 		lWhat = *(insptr++);
 		lVar1 = *(insptr++);
 		lLabelID = *(insptr++);
-		// HACK: need to have access to labels structure at run-time...			
-		if (lLabelID == PLAYER_AMMO_AMOUNT)
-		{
-			lParm2 = *(insptr++);
-		}
-		else
-		{
-			lParm2 = 0;
-		}
+		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
 		DoPlayer(lWhat == concmd_setplayer, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
@@ -3034,6 +3027,7 @@ int ParseState::parse(void)
 		lWhat = *(insptr++);
 		lVar1 = -1;
 		lLabelID = *(insptr++);
+		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
 		DoUserDef(lWhat == concmd_setuserdef, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
@@ -3052,6 +3046,7 @@ int ParseState::parse(void)
 		lWhat = *(insptr++);
 		lVar1 = *(insptr++);
 		lLabelID = *(insptr++);
+		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
 		DoWall(lWhat == concmd_setwall, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
@@ -3116,6 +3111,7 @@ int ParseState::parse(void)
 		lWhat = *(insptr++);
 		lVar1 = *(insptr++);
 		lLabelID = *(insptr++);
+		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
 		DoActor(lWhat == concmd_setactor, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
