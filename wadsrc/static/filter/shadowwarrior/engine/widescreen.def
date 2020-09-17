@@ -43,3 +43,6 @@ tilefromtexture 2227 { file "tiles/2227.png" xoffset -75 yoffset 32 ifcrc -11307
 tilefromtexture 4090 { file "tiles/4090.png" xoffset 36 yoffset 107 ifcrc 1870938187 }
 tilefromtexture 4091 { file "tiles/4091.png" xoffset -66 yoffset 117 ifcrc 1700580893 }
 tilefromtexture 4092 { file "tiles/4092.png" xoffset 69 yoffset 126 ifcrc 1756935404 }
+
+// Summary screen background (Phredreeke)
+tilefromtexture 5120 { file "tiles/5120.png" ifcrc 285532568 }
