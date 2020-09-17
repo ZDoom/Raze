@@ -169,7 +169,7 @@ public:
 	{
 		const uint64_t duration = 7'000'000'000;
 		const auto tex = tileGetTexture(DREALMS, true);
-		const int translation = TRANSLATION(Translation_BasePalettes, DREALMSPAL);
+		int translation = tex->GetTexture()->GetImage()->UseGamePalette() ? TRANSLATION(Translation_BasePalettes, DREALMSPAL) : 0;
 
 		twod->ClearScreen();
 		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
@@ -188,17 +188,21 @@ class DTitleScreen : public DScreenJob
 	int soundanm = 0;
 
 public:
-	DTitleScreen() : DScreenJob(fadein | fadeout) {}
+	DTitleScreen() : DScreenJob(fadein | fadeout) 
+	{
+	}
 
 	int Frame(uint64_t nsclock, bool skiprequest) override
 	{
 		twod->ClearScreen();
 		int clock = nsclock * 120 / 1'000'000'000;
 
-		auto translation = TRANSLATION(Translation_BasePalettes, TITLEPAL);
-
 		twod->ClearScreen();
-		DrawTexture(twod, tileGetTexture(BETASCREEN, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+
+		// Only translate if the image depends on the global palette.
+		auto tex = tileGetTexture(BETASCREEN, true);
+		int translation = tex->GetTexture()->GetImage()->UseGamePalette() ? TRANSLATION(Translation_BasePalettes, TITLEPAL) : 0;
+		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
 		if (soundanm == 0 && clock >= 120 && clock < 120 + 60)
 		{
@@ -223,20 +227,35 @@ public:
 
 		double scale = clamp(clock - 120, 0, 60) / 64.;
 		if (scale > 0.)
+		{
+			tex = tileGetTexture(DUKENUKEM, true);
+			translation = tex->GetTexture()->GetImage()->UseGamePalette() ? TRANSLATION(Translation_BasePalettes, TITLEPAL) : 0;
+
 			DrawTexture(twod, tileGetTexture(DUKENUKEM, true), 160, 104, DTA_FullscreenScale, FSMode_Fit320x200,
-				DTA_CenterOffsetRel, true,  DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+				DTA_CenterOffsetRel, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		}
 
 		scale = clamp(clock - 220, 0, 30) / 32.;
 		if (scale > 0.)
+		{
+			tex = tileGetTexture(THREEDEE, true);
+			translation = tex->GetTexture()->GetImage()->UseGamePalette() ? TRANSLATION(Translation_BasePalettes, TITLEPAL) : 0;
+
 			DrawTexture(twod, tileGetTexture(THREEDEE, true), 160, 129, DTA_FullscreenScale, FSMode_Fit320x200,
 				DTA_CenterOffsetRel, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		}
 
 		if (PLUTOPAK) 
 		{
 			scale = (410 - clamp(clock, 280, 395)) / 16.;
 			if (scale > 0. && clock > 280)
-				DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE+1, true), 160, 151, DTA_FullscreenScale, FSMode_Fit320x200,
+			{
+				tex = tileGetTexture(PLUTOPAKSPRITE + 1, true);
+				translation = tex->GetTexture()->GetImage()->UseGamePalette() ? TRANSLATION(Translation_BasePalettes, TITLEPAL) : 0;
+
+				DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE + 1, true), 160, 151, DTA_FullscreenScale, FSMode_Fit320x200,
 					DTA_CenterOffsetRel, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+			}
 		}
 
 		if (clock > (860 + 120))

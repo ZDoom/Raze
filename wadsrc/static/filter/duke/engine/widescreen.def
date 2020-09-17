@@ -5,6 +5,9 @@ tilefromtexture 2326 { file "tiles/duke3d/2326.png" xoffset 16 ifcrc -1415291705
 // Status Bar (by fgsfds)
 tilefromtexture 2462 { file "tiles/duke3d/2462.png" xoffset 0 yoffset 14 ifcrc 126028789 }
 
+// Titlepic (by Kinsie)
+tilefromtexture 2493 { file "tiles/duke3d/2493.png" ifcrc -1469434308 }
+
 // all weapon graphics from Megaton edition.
 
 // HUD Pistol
