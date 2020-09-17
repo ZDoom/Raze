@@ -123,7 +123,7 @@ extern bool DebugOperate;
 enum
 {
     TURN_SHIFT = 2,
-    HORIZ_SPEED = 16
+    HORIZ_SPEED = 14
 };
 
 //unsigned char synctics, lastsynctics;
@@ -1785,9 +1785,12 @@ DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
     if (cl_slopetilting)
         PlayerAutoLook(pp, scaleAdjust);
 
+    // Calculate adjustment as true pitch (Fixed point math really sucks...)
+    double horizAngle = clamp(atan2(pp->q16horizbase - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi()), -180, 180);
+
     if (q16horz)
     {
-        pp->q16horizbase += q16horz;
+        horizAngle += FixedToFloat(q16horz);
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
     }
 
@@ -1799,11 +1802,11 @@ DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
 
         // adjust q16horiz negative
         if (pp->input.actions & SB_AIM_DOWN)
-            pp->q16horizbase -= FloatToFixed(scaleAdjust * (HORIZ_SPEED >> 1));
+            horizAngle -= scaleAdjust * (HORIZ_SPEED >> 1);
 
         // adjust q16horiz positive
         if (pp->input.actions & SB_AIM_UP)
-            pp->q16horizbase += FloatToFixed(scaleAdjust * (HORIZ_SPEED >> 1));
+            horizAngle += scaleAdjust * (HORIZ_SPEED >> 1);
     }
 
     // this is the unlocked type
@@ -1814,11 +1817,11 @@ DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
 
         // adjust q16horiz negative
         if (pp->input.actions & SB_LOOK_DOWN)
-            pp->q16horizbase -= FloatToFixed(scaleAdjust * HORIZ_SPEED);
+            horizAngle -= scaleAdjust * HORIZ_SPEED;
 
         // adjust q16horiz positive
         if (pp->input.actions & SB_LOOK_UP)
-            pp->q16horizbase += FloatToFixed(scaleAdjust * HORIZ_SPEED);
+            horizAngle += scaleAdjust * HORIZ_SPEED;
 
         if (pp->input.actions & SB_CENTERVIEW)
             pp->q16horizoff = 0;
@@ -1829,14 +1832,10 @@ DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
         if (!(pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
         {
             // not pressing the q16horiz keys
-            if (pp->q16horizbase != IntToFixed(100))
+            if (horizAngle != 0)
             {
                 // move q16horiz back to 100
-                for (int i = 1; i; i--)
-                {
-                    // this formula does not work for q16horiz = 101-103
-                    pp->q16horizbase += xs_CRoundToInt(scaleAdjust * (IntToFixed(25) - (pp->q16horizbase >> 2)));
-                }
+                horizAngle += scaleAdjust * ((1. / 65536.) - (horizAngle * 0.25));
             }
             else
             {
@@ -1846,9 +1845,8 @@ DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
         }
     }
 
-    // bound the base
-    pp->q16horizbase = max(pp->q16horizbase, IntToFixed(PLAYER_HORIZ_MIN));
-    pp->q16horizbase = min(pp->q16horizbase, IntToFixed(PLAYER_HORIZ_MAX));
+    // Convert back to Build's horizon and clamp.
+    pp->q16horizbase = clamp(IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.))), IntToFixed(PLAYER_HORIZ_MIN), IntToFixed(PLAYER_HORIZ_MAX));
 
     // bound adjust q16horizoff
     if (pp->q16horizbase + pp->q16horizoff < IntToFixed(PLAYER_HORIZ_MIN))
