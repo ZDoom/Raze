@@ -280,9 +280,9 @@ void InitAmbient(int num, SPRITEp sp)
 
 void StartAmbientSound(void)
 {
-    short i, nexti;
+    int i, nexti;
     
-    if (gamestate != GS_LEVEL || !SoundEnabled()) return; // Don't restart ambience if no level is active! Will crash game.
+    if (!SoundEnabled()) return;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_AMBIENT], i, nexti)
     {

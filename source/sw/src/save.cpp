@@ -66,6 +66,8 @@ TO DO
 //////////////////////////////////////////////////////////////////////////////
 */
 
+void InitLevelGlobals(void);
+
 extern int lastUpdate;
 extern char SaveGameDescr[10][80];
 extern int PlayClock;
@@ -641,8 +643,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 }
 
 
-extern bool SavegameLoaded;
-
 bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
     MFILE_READ fil;
@@ -1075,7 +1075,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     DoPlayerDivePalette(Player+myconnectindex);
     DoPlayerNightVisionPalette(Player+myconnectindex);
 
-    SavegameLoaded = true;
+    InitLevelGlobals();
     return true;
 }
 

@@ -620,15 +620,6 @@ void GameInterface::NewGame(MapRecord *map, int skill)
 
 void GameInterface::Ticker(void)
 {
-	if (SavegameLoaded)
-	{
-		InitLevelGlobals();
-		SavegameLoaded = false;
-		// contains what is needed from calls below
-		if (snd_ambience)
-			StartAmbientSound();
-	}
-
     int i;
     TRAVERSE_CONNECT(i)
     {
