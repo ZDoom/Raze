@@ -2006,7 +2006,7 @@ void camera(int i)
 			else
 			{
 				t[1] = 8;
-				s->ang += 16;
+				s->ang += 8;
 			}
 		}
 	}
