@@ -161,7 +161,6 @@ const int Tex_Blend_Hardlight = 4;
 vec4 getTexel(vec2 st)
 {
 	vec4 texel = texture(tex, st);
-	
 	//
 	// Apply texture modes
 	//
