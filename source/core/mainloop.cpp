@@ -387,8 +387,8 @@ void Display()
 		C_DrawConsole();
 		M_Drawer();
 		FStat::PrintStat(twod);
-		DrawRateStuff();
 	}
+	DrawRateStuff();
 
 	videoShowFrame(1);
 }
@@ -450,10 +450,10 @@ void TryRunTics (void)
 
 	// If paused, do not eat more CPU time than we need, because it
 	// will all be wasted anyway.
-	bool doWait = cl_capfps || pauseext || (r_NoInterpolate && !M_IsAnimated());
+	bool doWait = (cl_capfps || pauseext || (r_NoInterpolate && !M_IsAnimated() && gamestate != GS_INTERMISSION && gamestate != GS_INTRO));
 
 	// get real tics
-	if (doWait && gamestate != GS_INTERMISSION && gamestate != GS_INTRO)	// GS_INTERMISSION needs uncapped frame rate.
+	if (doWait)
 	{
 		entertic = I_WaitForTic (oldentertics);
 	}
