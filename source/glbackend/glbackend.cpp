@@ -558,7 +558,7 @@ void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dasha
 	DrawTexture(&twodpsp, pick.texture, sx, sy,
 		DTA_ScaleX, dz, DTA_ScaleY, dz,
 		DTA_Color, shadeToLight(dashade),
-		DTA_TranslationIndex, pick.translation,
+		DTA_TranslationIndex, pick.translation & 0x7fffffff,
 		DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y,
 		DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1,
 		DTA_FullscreenScale, (dastat & RS_STRETCH)? FSMode_ScaleToScreen: FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
