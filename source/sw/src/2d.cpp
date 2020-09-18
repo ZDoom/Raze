@@ -111,7 +111,7 @@ DScreenJob* GetFinishAnim(int num)
         { 64, DIGI_SHAREND_UGLY2 },
         { -1, -1 }
     };
-    static const int serpzillaframetimes[] = { 16, 16, 136 };
+    static const int serpzillaframetimes[] = { 16, 16, 140 };
 
     static const AnimSound sumosound[] =
     {
