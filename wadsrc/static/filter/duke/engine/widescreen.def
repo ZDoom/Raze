@@ -28,6 +28,9 @@ tilefromtexture 2555 { file "tiles/duke3d/2555.png" xoffset -4 ifcrc 1675835376 
 tilefromtexture 2556 { file "tiles/duke3d/2556.png" xoffset -1 yoffset -2 ifcrc 3227576907 }
 tilefromtexture 2557 { file "tiles/duke3d/2557.png" xoffset -1 yoffset -2 ifcrc 3133384900 }
 
+// Level Ending Screens (by fgsfds)
+tilefromtexture 3240 { file "duke3d/3240.png" ifcrc -2916948 }
+tilefromtexture 3245 { file "duke3d/3245.png" ifcrc -721918170 }
 
 // VACATION
 
@@ -44,4 +47,3 @@ tilefromtexture 2550 { file "tiles/caribbean/2550.png" xoffset 1 yoffset 25 ifcr
 // HUD Super Soak'em
 tilefromtexture 2613 { file "tiles/caribbean/2613.png" xoffset -76 yoffset -45 ifcrc 518391601 }
 tilefromtexture 2616 { file "tiles/caribbean/2616.png" xoffset -56 yoffset -40 ifcrc 487633089 }
-
