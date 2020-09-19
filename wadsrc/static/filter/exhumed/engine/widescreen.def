@@ -1,0 +1,43 @@
+
+// HUD (by Dzierzan)
+tilefromtexture 657 { file "tiles/657.png" xoff 2 yoff 1 ifcrc 1066640818 }
+
+// Weapons (by Dzierzan, fgsfds)
+tilefromtexture 1214 { file "tiles/1214.png" xoffset -14 ifcrc -2108308743 }
+tilefromtexture 1215 { file "tiles/1215.png" xoffset 12 ifcrc 737730009 }
+tilefromtexture 1216 { file "tiles/1216.png" xoffset 18 ifcrc 1120051860 }
+tilefromtexture 1217 { file "tiles/1217.png" xoffset 6 ifcrc 1954121221 }
+tilefromtexture 1218 { file "tiles/1218.png" xoffset -14 ifcrc -1493401675 }
+
+tilefromtexture 1261 { file "tiles/1261.png" xoffset 52 ifcrc 817041329 }
+tilefromtexture 1262 { file "tiles/1262.png" xoffset -53 ifcrc -746819462 }
+
+/* this one is left out because we were not able yet to clear permissions with one contributor, MaxED.
+tilefromtexture 2150 { file "tiles/2150.png" xoff 40 yoff 56 ifcrc -1544301210 }
+tilefromtexture 2151 { file "tiles/2151.png" xoff 40 yoff 56 ifcrc 561751025 }
+tilefromtexture 2152 { file "tiles/2152.png" xoff 25 yoff 56 ifcrc -628399723 }
+tilefromtexture 2153 { file "tiles/2153.png" xoff 21 yoff 56 ifcrc 1984690251 }
+tilefromtexture 2154 { file "tiles/2154.png" xoff 13 yoff 56 ifcrc 1950128411 }
+tilefromtexture 2155 { file "tiles/2155.png" xoff 7 yoff 56 ifcrc 1653814998 }
+tilefromtexture 2156 { file "tiles/2156.png" xoff 3 yoff 56 ifcrc 1975740523 }
+tilefromtexture 2157 { file "tiles/2157.png" xoff -4 yoff 56 ifcrc 77589986 }
+tilefromtexture 2158 { file "tiles/2158.png" xoff -18 yoff 21 ifcrc 2134811032 }
+tilefromtexture 2159 { file "tiles/2159.png" xoff 45 yoff -21 ifcrc -607574116 }  //fgsfds
+tilefromtexture 2160 { file "tiles/2160.png" xoff 41 yoff -21 ifcrc 10342541 }  //fgsfds
+*/
+
+tilefromtexture 2224 { file "tiles/2224.png" xoffset -2 ifcrc 1098340635 }
+
+tilefromtexture 2553 { file "tiles/2553.png" xoffset -29 yoffset 13 ifcrc 1436539856 }
+tilefromtexture 3190 { file "tiles/3190.png" xoffset -55 yoffset 21 ifcrc 1276763954 }
+tilefromtexture 3191 { file "tiles/3191.png" xoff 0 yoff -3 ifcrc 304316873 }
+tilefromtexture 3194 { file "tiles/3194.png" xoffset 98 yoffset 23 ifcrc -1067018698 }
+tilefromtexture 3195 { file "tiles/3195.png" xoffset 120 yoffset 70 ifcrc 915797202 }
+tilefromtexture 3196 { file "tiles/3196.png" xoffset 18 yoffset 5 ifcrc -640004948 }
+tilefromtexture 3198 { file "tiles/3198.png" xoffset -7 ifcrc -13488676 }
+
+tilefromtexture 3263 { file "tiles/3263.png" xoff -24 yoff -4 ifcrc -1968064866 }
+tilefromtexture 3265 { file "tiles/3265.png" xoff -8 yoff -7 ifcrc 1819660430 }
+tilefromtexture 3267 { file "tiles/3267.png" xoff -2 yoff -11 ifcrc 703785968 }
+tilefromtexture 3268 { file "tiles/3268.png" xoffset -23 yoffset -12 ifcrc 1735062855 }
+tilefromtexture 3271 { file "tiles/3271.png" xoffset 22 yoffset -2 ifcrc 1327884041 }
