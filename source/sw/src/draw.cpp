@@ -1766,7 +1766,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
 
     renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
-    UpdatePanel(smoothratio);
+    if (!ScreenSavePic) UpdatePanel(smoothratio);
 
 #define SLIME 2305
     // Only animate lava if its picnum is on screen
@@ -1781,6 +1781,13 @@ drawscreen(PLAYERp pp, double smoothratio)
             movelava((char *) waloff[SLIME]);
     }
 #endif
+
+    // if doing a screen save don't need to process the rest
+    if (ScreenSavePic)
+    {
+        DrawScreen = false;
+        return;
+    }
 
 
     MarkSectorSeen(pp->cursectnum);
@@ -1809,13 +1816,6 @@ drawscreen(PLAYERp pp, double smoothratio)
             SET(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
     }
 
-
-    // if doing a screen save don't need to process the rest
-    if (ScreenSavePic)
-    {
-        DrawScreen = false;
-        return;
-    }
 
     //PrintLocationInfo(pp);
     //PrintSpriteInfo(pp);

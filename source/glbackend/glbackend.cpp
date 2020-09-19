@@ -339,6 +339,7 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	RenderState.EnableDrawBuffers(1, true);
 
 	screen->SetViewportRects(&bounds);
+	twodpsp.Clear();
 	bool didit = gi->GenerateSavePic();
 
 	float Brightness = 8.f / (r_scenebrightness + 8.f);
