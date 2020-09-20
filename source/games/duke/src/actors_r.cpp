@@ -1400,7 +1400,7 @@ void moveweapons_r(void)
 							}
 
 							playerAddHoriz(&ps[p], 32);
-							ps[p].return_to_center = 8;
+							sync[p].actions |= SB_CENTERVIEW;
 
 							if (ps[p].loogcnt == 0)
 							{

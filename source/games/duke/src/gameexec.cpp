@@ -84,7 +84,7 @@ void fakebubbaspawn(int g_i, int g_p);
 void tearitup(int sect);
 void destroyit(int g_i);
 void mamaspawn(int g_i);
-void forceplayerangle(struct player_struct* p);
+void forceplayerangle(int snum);
 
 bool killthesprite = false;
 
@@ -907,11 +907,6 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 	case PLAYER_ACTORS_KILLED:
 		if (bSet) ps[iPlayer].actors_killed = lValue;
 		else SetGameVarID((int)lVar2, ps[iPlayer].actors_killed, sActor, sPlayer);
-		break;
-
-	case PLAYER_RETURN_TO_CENTER:
-		if (bSet) ps[iPlayer].return_to_center = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].return_to_center, sActor, sPlayer);
 		break;
 
 	default:
@@ -2461,14 +2456,14 @@ int ParseState::parse(void)
 		break;
 	case concmd_slapplayer:
 		insptr++;
-		forceplayerangle(&ps[g_p]);
+		forceplayerangle(g_p);
 		ps[g_p].posxv -= sintable[(ps[g_p].getang() + 512) & 2047] << 7;
 		ps[g_p].posyv -= sintable[ps[g_p].getang() & 2047] << 7;
 		return 0;
 	case concmd_wackplayer:
 		insptr++;
 		if (!isRR())
-			forceplayerangle(&ps[g_p]);
+			forceplayerangle(g_p);
 		else
 		{
 			ps[g_p].posxv -= sintable[(ps[g_p].getang() + 512) & 2047] << 10;

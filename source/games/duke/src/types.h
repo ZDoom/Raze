@@ -169,7 +169,6 @@ struct player_struct
 
 	unsigned char toggle_key_flag, knuckle_incs; // ,select_dir;
 	unsigned char walking_snd_toggle, palookup;
-	double return_to_center;
 	bool quick_kick_msg;
 
 	int max_secret_rooms, secret_rooms, max_actors_killed, actors_killed;
@@ -208,7 +207,7 @@ struct player_struct
 	int8_t crouch_toggle;
 
 	// input stuff.
-	double  horizAdjust, angAdjust, pitchAdjust;
+	double  horizAdjust, angAdjust;
 	bool    lookLeft, lookRight;
 
 

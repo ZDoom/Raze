@@ -1352,75 +1352,6 @@ void applylook(PLAYER *pPlayer, fixed_t const q16avel, double const scaleAdjust)
 
 //---------------------------------------------------------------------------
 //
-// Player's horizon function, called in processInput() or from gi->GetInput() as required.
-//
-//---------------------------------------------------------------------------
-
-void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust)
-{
-    InputPacket *pInput = &pPlayer->input;
-
-    // Calculate adjustment as true pitch (Fixed point math really sucks...)
-    double horizAngle = clamp(atan2(pPlayer->q16horiz - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi()), -180, 180);
-
-    if (q16horz)
-    {
-        pInput->actions &= ~SB_CENTERVIEW;
-        horizAngle += FixedToFloat(q16horz);
-    }
-
-    // this is the locked type
-    if (pInput->actions & (SB_AIM_UP|SB_AIM_DOWN))
-    {
-        pInput->actions &= ~SB_CENTERVIEW;
-
-        // adjust q16horiz negative
-        if (pInput->actions & SB_AIM_DOWN)
-            horizAngle -= scaleAdjust * (210. / GameTicRate);
-
-        // adjust q16horiz positive
-        if (pInput->actions & SB_AIM_UP)
-            horizAngle += scaleAdjust * (210. / GameTicRate);
-    }
-
-    // this is the unlocked type
-    if (pInput->actions & (SB_LOOK_UP|SB_LOOK_DOWN))
-    {
-        pInput->actions |= SB_CENTERVIEW;
-
-        // adjust q16horiz negative
-        if (pInput->actions & SB_LOOK_DOWN)
-            horizAngle -= scaleAdjust * (420. / GameTicRate);
-
-        // adjust q16horiz positive
-        if (pInput->actions & SB_LOOK_UP)
-            horizAngle += scaleAdjust * (420. / GameTicRate);
-    }
-
-    if (pInput->actions & SB_CENTERVIEW)
-    {
-        if (!(pInput->actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
-        {
-            // not pressing the q16horiz keys
-            if (horizAngle != 0)
-            {
-                // move q16horiz back to 100
-                horizAngle += scaleAdjust * ((1. / 65536.) - (horizAngle * (10. / GameTicRate)));
-            }
-            else
-            {
-                // not looking anymore because q16horiz is back at 100
-                pInput->actions &= ~SB_CENTERVIEW;
-            }
-        }
-    }
-
-    // Convert back to Build's horizon and clamp.
-    pPlayer->q16horiz = clamp(IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.))), IntToFixed(PLAYER_HORIZ_MIN), IntToFixed(PLAYER_HORIZ_MAX));
-}
-
-//---------------------------------------------------------------------------
-//
 // Unsynchronised input helpers.
 //
 //---------------------------------------------------------------------------
@@ -1429,7 +1360,6 @@ void resetinputhelpers(PLAYER* pPlayer)
 {
     pPlayer->horizAdjust = 0;
     pPlayer->angAdjust = 0;
-    pPlayer->pitchAdjust = 0;
 }
 
 void playerAddAngle(PLAYER* pPlayer, double ang)
@@ -1725,7 +1655,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        sethorizon(pPlayer, pInput->q16horz, 1);
+        sethorizon(&pPlayer->q16horiz, pInput->q16horz, &pInput->actions, 1);
     }
 
     int nSector = pSprite->sectnum;

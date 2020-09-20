@@ -229,7 +229,6 @@ int playercolor2lookup(int color);
 void PlayerColorChanged(void);
 void apply_seasick(player_struct* p, double scalefactor);
 void calcviewpitch(player_struct* p, double factor);
-void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment);
 bool movementBlocked(int snum);
 void loadcons();
 void recordoldspritepos();

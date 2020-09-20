@@ -1785,68 +1785,8 @@ DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
     if (cl_slopetilting)
         PlayerAutoLook(pp, scaleAdjust);
 
-    // Calculate adjustment as true pitch (Fixed point math really sucks...)
-    double horizAngle = clamp(atan2(pp->q16horizbase - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi()), -180, 180);
-
-    if (q16horz)
-    {
-        horizAngle += FixedToFloat(q16horz);
-        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-    }
-
-    // this is the locked type
-    if (pp->input.actions & (SB_AIM_UP|SB_AIM_DOWN))
-    {
-        // set looking because player is manually looking.
-        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-
-        // adjust q16horiz negative
-        if (pp->input.actions & SB_AIM_DOWN)
-            horizAngle -= scaleAdjust * (HORIZ_SPEED >> 1);
-
-        // adjust q16horiz positive
-        if (pp->input.actions & SB_AIM_UP)
-            horizAngle += scaleAdjust * (HORIZ_SPEED >> 1);
-    }
-
-    // this is the unlocked type
-    if (pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN|SB_CENTERVIEW))
-    {
-        RESET(pp->Flags, PF_LOCK_HORIZ);
-        SET(pp->Flags, PF_LOOKING);
-
-        // adjust q16horiz negative
-        if (pp->input.actions & SB_LOOK_DOWN)
-            horizAngle -= scaleAdjust * HORIZ_SPEED;
-
-        // adjust q16horiz positive
-        if (pp->input.actions & SB_LOOK_UP)
-            horizAngle += scaleAdjust * HORIZ_SPEED;
-
-        if (pp->input.actions & SB_CENTERVIEW)
-            pp->q16horizoff = 0;
-    }
-
-    if (!TEST(pp->Flags, PF_LOCK_HORIZ))
-    {
-        if (!(pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
-        {
-            // not pressing the q16horiz keys
-            if (horizAngle != 0)
-            {
-                // move q16horiz back to 100
-                horizAngle += scaleAdjust * ((1. / 65536.) - (horizAngle * 0.25));
-            }
-            else
-            {
-                // not looking anymore because q16horiz is back at 100
-                RESET(pp->Flags, PF_LOOKING);
-            }
-        }
-    }
-
-    // Convert back to Build's horizon and clamp.
-    pp->q16horizbase = clamp(IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.))), IntToFixed(PLAYER_HORIZ_MIN), IntToFixed(PLAYER_HORIZ_MAX));
+    // apply default horizon from backend
+    sethorizon(&pp->q16horizbase, q16horz, &pp->input.actions, scaleAdjust);
 
     // bound adjust q16horizoff
     if (pp->q16horizbase + pp->q16horizoff < IntToFixed(PLAYER_HORIZ_MIN))
@@ -3408,10 +3348,9 @@ DoPlayerFall(PLAYERp pp)
         }
         else if (pp->jump_speed > 1300)
         {
-            if (TEST(pp->Flags, PF_LOCK_HORIZ))
+            if (!(pp->input.actions & SB_CENTERVIEW))
             {
-                RESET(pp->Flags, PF_LOCK_HORIZ);
-                SET(pp->Flags, PF_LOOKING);
+                pp->input.actions |= SB_CENTERVIEW;
             }
         }
 
@@ -6139,7 +6078,7 @@ DoPlayerBeginDie(PLAYERp pp)
     // Get rid of all panel spells that are currently working
     KillAllPanelInv(pp);
 
-    SET(pp->Flags, PF_LOCK_HORIZ);
+    pp->input.actions &= ~SB_CENTERVIEW;
 
     pp->friction = PLAYER_RUN_FRICTION;
     pp->slide_xvect = pp->slide_yvect = 0;
@@ -6402,9 +6341,9 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
 
         RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
         RESET(pp->Flags, PF_DEAD);
-        RESET(pp->Flags, PF_LOCK_HORIZ);
         RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
         SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        pp->input.actions |= SB_CENTERVIEW;
         sp->xrepeat = PLAYER_NINJA_XREPEAT;
         sp->yrepeat = PLAYER_NINJA_YREPEAT;
 
@@ -7748,7 +7687,6 @@ void resetinputhelpers(PLAYERp pp)
 {
     pp->horizAdjust = 0;
     pp->angAdjust = 0;
-    pp->pitchAdjust = 0;
 }
 
 void playerAddAngle(PLAYERp pp, double ang)

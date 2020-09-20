@@ -873,7 +873,7 @@ void viewDrawScreen(bool sceneonly)
         {
             cZ = vfc + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
         }
-        q16horiz = ClipRange(q16horiz, IntToFixed(-200), IntToFixed(200));
+        q16horiz = ClipRange(q16horiz, gi->playerHorizMin(), gi->playerHorizMax());
     RORHACK:
         int ror_status[16];
         for (int i = 0; i < 16; i++)

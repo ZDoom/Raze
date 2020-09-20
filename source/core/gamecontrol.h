@@ -66,6 +66,8 @@ void CompleteLevel(MapRecord* map);
 int getincangle(int c, int n);
 fixed_t getincangleq16(fixed_t c, fixed_t n);
 
+void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust);
+
 struct UserConfig
 {
 	FString gamegrp;

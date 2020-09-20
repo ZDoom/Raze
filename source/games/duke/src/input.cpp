@@ -67,7 +67,7 @@ void hud_input(int snum)
 	i = p->aim_mode;
 	p->aim_mode = !PlayerInput(snum, SB_AIMMODE);
 	if (p->aim_mode < i)
-		p->return_to_center = 9;
+		sync[snum].actions |= SB_CENTERVIEW;
 
 	// Backup weapon here as hud_input() is the first function where any one of the weapon variables can change.
 	backupweapon(p);
@@ -965,7 +965,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.q16avel = input.q16avel = 0;
 		}
 
-		if (p->newowner == -1 && p->return_to_center <= 0)
+		if (p->newowner == -1 && !(sync[playerNum].actions & SB_CENTERVIEW))
 		{
 			loc.q16horz = clamp(loc.q16horz + input.q16horz, IntToFixed(-MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
 		}
@@ -1025,7 +1025,12 @@ static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput)
 		// Do these in the same order as the old code.
 		calcviewpitch(p, scaleAdjust);
 		applylook(myconnectindex, scaleAdjust, input.q16avel);
-		sethorizon(myconnectindex, loc.actions, scaleAdjust, input.q16horz);
+		sethorizon(&p->q16horiz, input.q16horz, &sync[myconnectindex].actions, scaleAdjust);
+
+		if (p->horizAdjust)
+        {
+            p->q16horiz += FloatToFixed(scaleAdjust * p->horizAdjust);
+        }
 	}
 }
 

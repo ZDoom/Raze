@@ -4091,7 +4091,7 @@ HORIZONLY:
 
 	if (cl_syncinput)
 	{
-		sethorizon(snum, actions, 1, PlayerHorizon(snum));
+		sethorizon(&p->q16horiz, PlayerHorizon(snum), &actions, 1);
 	}
 
 	checkhardlanding(p);

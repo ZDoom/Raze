@@ -229,7 +229,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("walking_snd_toggle", w.walking_snd_toggle)
 			("palookup", w.palookup)
 			("hard_landing", w.hard_landing)
-			("return_to_center", w.return_to_center)
 			("max_secret_rooms", w.max_secret_rooms)
 			("secret_rooms", w.secret_rooms)
 			("max_actors_killed", w.max_actors_killed)
@@ -299,7 +298,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		w.ohard_landing = w.hard_landing;
 		w.horizAdjust = 0;
 		w.angAdjust = 0;
-		w.pitchAdjust = 0;
 		w.lookLeft = false;
 		w.lookRight = false;
 	}

@@ -186,7 +186,7 @@ struct PLAYER
     POSTURE             pPosture[kModeMax][kPostureMax];
 
     // Input helper variables and setters.
-    double horizAdjust, angAdjust, pitchAdjust;
+    double horizAdjust, angAdjust;
     fixed_t horizTarget, angTarget;
     void addang(int v) { q16ang = (q16ang + IntToFixed(v)) & 0x7FFFFFF; }
     void setang(int v) { q16ang = IntToFixed(v); }

@@ -42,7 +42,6 @@ enum
 };
 
 void applylook(PLAYER *pPlayer, fixed_t const q16avel, double const scaleAdjust);
-void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust);
 
 //---------------------------------------------------------------------------
 //
@@ -140,7 +139,7 @@ static void processMovement(ControlInfo* const hidInput)
         if (gView->pXSprite->health != 0)
         {
             applylook(pPlayer, input.q16avel, scaleAdjust);
-            sethorizon(pPlayer, input.q16horz, scaleAdjust);
+            sethorizon(&pPlayer->q16horiz, input.q16horz, &pPlayer->input.actions, scaleAdjust);
         }
 
         // Process angle amendments from the game's ticker.

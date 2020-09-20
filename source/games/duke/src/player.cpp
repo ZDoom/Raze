@@ -157,14 +157,15 @@ void quickkill(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void forceplayerangle(struct player_struct* p)
+void forceplayerangle(int snum)
 {
+	player_struct* p = &ps[snum];
 	int n;
 
 	n = 128 - (krand() & 255);
 
 	playerAddHoriz(p, 64);
-	p->return_to_center = 9;
+	sync[snum].actions |= SB_CENTERVIEW;
 	p->setlookang(n >> 1);
 	p->setrotscrnang(n >> 1);
 }
@@ -406,7 +407,7 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 	{
 		p->knee_incs++;
 		playerAddHoriz(p, -48);
-		p->return_to_center = 9;
+		sync[snum].actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
 			p->knee_incs = 0;
@@ -920,7 +921,6 @@ void resetinputhelpers(player_struct* p)
 {
 	p->horizAdjust = 0;
 	p->angAdjust = 0;
-	p->pitchAdjust = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -1002,43 +1002,6 @@ void checklook(int snum, ESyncBits actions)
 //
 //---------------------------------------------------------------------------
 
-void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment)
-{
-	auto p = &ps[snum];
-
-	// Calculate adjustment as true pitch (Fixed point math really sucks...)
-	double horizAngle = clamp(atan2(p->q16horiz - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi()) + (factor * p->pitchAdjust) + (adjustment / 65536.), -180, 180);
-
-	if (p->return_to_center > 0 && (actions & (SB_LOOK_UP | SB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
-	{
-		p->return_to_center += -factor * (p->return_to_center / 2);
-		horizAngle += -factor * (horizAngle / 2);
-
-		if (horizAngle > -0.5 && horizAngle < 0.5)
-		{
-			horizAngle = 0.;
-			p->return_to_center = 0.;
-		}
-	}
-
-	// Convert back to Build's horizon.
-	p->q16horiz = IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.)));
-
-	// Add horizAdjust if input is unsynchronised.
-	if (!cl_syncinput)
-	{
-		p->q16horiz += xs_CRoundToInt(factor * (p->horizAdjust * 65536.));
-	}
-
-	p->q16horiz = clamp(p->q16horiz, IntToFixed(HORIZ_MIN), IntToFixed(HORIZ_MAX));
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void playerCenterView(int snum)
 {
 	auto p = &ps[snum];
@@ -1046,7 +1009,11 @@ void playerCenterView(int snum)
 	OnEvent(EVENT_RETURNTOCENTER, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->return_to_center = 9;
+		sync[snum].actions |= SB_CENTERVIEW;
+	}
+	else
+	{
+		sync[snum].actions &= ~SB_CENTERVIEW;
 	}
 }
 
@@ -1057,8 +1024,11 @@ void playerLookUp(int snum, ESyncBits actions)
 	OnEvent(EVENT_LOOKUP, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->return_to_center = 9;
-		p->pitchAdjust += (actions & SB_RUN) ? 12 : 24;
+		sync[snum].actions |= SB_CENTERVIEW;
+	}
+	else
+	{
+		sync[snum].actions &= ~SB_LOOK_UP;
 	}
 }
 
@@ -1069,8 +1039,11 @@ void playerLookDown(int snum, ESyncBits actions)
 	OnEvent(EVENT_LOOKDOWN, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->return_to_center = 9;
-		p->pitchAdjust -= (actions & SB_RUN) ? 12 : 24;
+		sync[snum].actions |= SB_CENTERVIEW;
+	}
+	else
+	{
+		sync[snum].actions &= ~SB_LOOK_DOWN;
 	}
 }
 
@@ -1079,9 +1052,9 @@ void playerAimUp(int snum, ESyncBits actions)
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 	OnEvent(EVENT_AIMUP, p->i, snum, -1);
-	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 	{
-		p->pitchAdjust += (actions & SB_RUN) ? 6 : 12;
+		sync[snum].actions &= ~SB_AIM_UP;
 	}
 }
 
@@ -1090,9 +1063,9 @@ void playerAimDown(int snum, ESyncBits actions)
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 	OnEvent(EVENT_AIMDOWN, p->i, snum, -1);
-	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 	{
-		p->pitchAdjust -= (actions & SB_RUN) ? 6 : 12;
+		sync[snum].actions &= ~SB_AIM_DOWN;
 	}
 }
 

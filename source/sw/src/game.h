@@ -1008,7 +1008,7 @@ struct PLAYERstruct
     char WpnReloadState;
 
     // Input helper variables and setters.
-    double horizAdjust, angAdjust, pitchAdjust;
+    double horizAdjust, angAdjust;
     fixed_t horizTarget, angTarget;
     void addang(int v) { q16ang = (q16ang + IntToFixed(v)) & 0x7FFFFFF; }
     void setang(int v) { q16ang = IntToFixed(v); }
@@ -1029,8 +1029,6 @@ enum
     PF_JUMPING                  = (BIT(2)),
     PF_FALLING                  = (BIT(3)),
     PF_LOCK_CRAWL               = (BIT(4)),
-    PF_LOCK_HORIZ               = (BIT(5)),
-    PF_LOOKING                  = (BIT(6)),
     PF_PLAYER_MOVED             = (BIT(7)),
     PF_PLAYER_RIDING            = (BIT(8)),
     PF_AUTO_AIM                 = (BIT(9)),
