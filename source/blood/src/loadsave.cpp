@@ -709,9 +709,10 @@ void MyLoadSave::Save(void)
             int nXSprite = sprite[nSprite].extra;
             if (nXSprite > 0)
             {
+                auto saved = xsprite[nXSprite].aiState;
                 IndexAIState(xsprite[nXSprite].aiState);
                 Write(&xsprite[nXSprite], sizeof(XSPRITE));
-                UnindexAIState(xsprite[nXSprite].aiState);
+                xsprite[nXSprite].aiState = saved;
             }
         }
     }
