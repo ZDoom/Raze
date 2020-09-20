@@ -152,7 +152,14 @@ void GLInstance::SetIdentityMatrix(int num)
 void GLInstance::SetPalswap(int index)
 {
 	renderState.ShadeDiv = lookups.tables[index].ShadeFactor;
-	renderState.FogColor = lookups.getFade(index);
+}
+
+void GLInstance::SetFade(int index)
+{
+	if (!hw_useindexedcolortextures)
+		renderState.FogColor = lookups.getFade(index);
+	else
+		renderState.FogColor = 0;
 }
 
 void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
@@ -227,17 +234,24 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		state.SetDepthFunc(DepthFunc);
 		oldState.DepthFunc = DepthFunc;
 	}
+	bool foggy = (GLInterface.useMapFog || FogColor);
 	// Disable brightmaps if non-black fog is used.
-	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f && (GLInterface.useMapFog || FogColor))
+	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f && foggy)
 	{
 		state.EnableFog(1);
+		float density = GLInterface.useMapFog ? 350.f : 350.f - Scale(numshades - Shade, 150, numshades);
+		state.SetFog((GLInterface.useMapFog) ? PalEntry(0x999999) : FogColor, density);
+		state.SetSoftLightLevel(255);
+		state.SetLightParms(128.f, 1/1000.f);
 	}
-	else state.EnableFog(0);
+	else
+	{
+		state.EnableFog(0);
+		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(Shade, 255, numshades) : 255);
+		state.SetLightParms(VisFactor, ShadeDiv / (numshades - 2));
+	}
 
-	state.SetFog((GLInterface.useMapFog) ? PalEntry(0x999999) : FogColor, 350.f);	// Fixme: The real density still needs to be implemented. 350 is a reasonable default only.
 
-	state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(Shade, 255, numshades) : 255);
-	state.SetLightParms(VisFactor, ShadeDiv / (numshades - 2));
 	state.SetTextureMode(TextureMode);
 
 	state.SetNpotEmulation(NPOTEmulation.Y, NPOTEmulation.X);

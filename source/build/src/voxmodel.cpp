@@ -1008,7 +1008,7 @@ voxmodel_t *loadkvxfrombuf(const char *kvxbuffer, int32_t length)
 
 //Draw voxel model as perfect cubes
 // Note: This is a hopeless mess that totally forfeits any chance of using a vertex buffer with its messy coordinate adjustments. :(
-int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
+int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
 {
     // float clut[6] = {1.02,1.02,0.94,1.06,0.98,0.98};
     float f, g, k0, zoff;
@@ -1016,7 +1016,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     if ((intptr_t)m == (intptr_t)(-1)) // hackhackhack
         return 0;
 
-    if ((tspr->cstat&48)==32)
+    if ((tspr->cstat & 48) == 32)
         return 0;
 
     polymost_outputGLDebugMessage(3, "polymost_voxdraw(m:%p, tspr:%p)", m, tspr);
@@ -1150,6 +1150,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     }
 
     GLInterface.SetPalswap(globalpal);
+    GLInterface.SetFade(sector[tspr->sectnum].floorpal);
 	// The texture here is already translated.
 	GLInterface.SetTexture(-1, htex, 0/*TRANSLATION(Translation_Remap + curbasepal, globalpal)*/, CLAMP_NOFILTER_XY, true);
 
