@@ -1726,8 +1726,11 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if (!TEST(pp->Flags, PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE))
     {
-        tz += bob_amt;
-        tz += pp->obob_z + xs_CRoundToInt(fmulscale16(pp->bob_z - pp->obob_z, smoothratio));
+        if (cl_viewbob)
+        {
+            tz += bob_amt;
+            tz += pp->obob_z + xs_CRoundToInt(fmulscale16(pp->bob_z - pp->obob_z, smoothratio));
+        }
 
         // recoil only when not in camera
         tq16horiz = tq16horiz + pp->recoil_horizoff;
