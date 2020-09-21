@@ -88,7 +88,6 @@ void HookReplaceFunctions(void)
     deletesprite_replace = qdeletesprite;
     changespritesect_replace = qchangespritesect;
     changespritestat_replace = qchangespritestat;
-    loadboard_replace = qloadboard;
 }
 
 END_BLD_NS

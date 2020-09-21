@@ -1044,7 +1044,6 @@ extern int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum);
 extern int32_t(*deletesprite_replace)(int16_t spritenum);
 extern int32_t(*changespritesect_replace)(int16_t spritenum, int16_t newsectnum);
 extern int32_t(*changespritestat_replace)(int16_t spritenum, int16_t newstatnum);
-extern int32_t(*loadboard_replace)(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 #ifdef USE_OPENGL
 extern void(*PolymostProcessVoxels_Callback)(void);
 #endif

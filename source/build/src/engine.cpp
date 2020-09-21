@@ -2080,8 +2080,6 @@ static void check_sprite(int32_t i)
 
 #include "md4.h"
 
-int32_t(*loadboard_replace)(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum) = NULL;
-
 // flags: 1, 2: former parameter "fromwhere"
 //           4: don't call polymer_loadboard
 //           8: don't autoexec <mapname>.cfg
@@ -2093,8 +2091,6 @@ int32_t(*loadboard_replace)(const char *filename, char flags, vec3_t *dapos, int
 int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     inputState.ClearAllInput();
-    if (loadboard_replace)
-        return loadboard_replace(filename, flags, dapos, daang, dacursectnum);
     int32_t i;
     int16_t numsprites;
     const char myflags = flags&(~3);
