@@ -17,20 +17,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "ps_input.h"
-#include "engine.h"
 #include "exhumed.h"
 #include "player.h"
-#include "aistuff.h"
 #include "status.h"
 #include "view.h"
-#include "gamecontrol.h"
-#include <string.h>
-#include "v_video.h"
+#include "menu.h"
 
 BEGIN_PS_NS
 
 extern short bPlayerPan;
 extern short bLockPan;
+
+static int turn;
+static int counter;
 
 short nInputStack = 0;
 
@@ -98,64 +97,40 @@ void CheckKeys2()
 }
 
 
-static void PlayerInterruptKeys(bool after, ControlInfo* const hidInput)
+static void processMovement(ControlInfo* const hidInput)
 {
-    static double lastInputTicks;
-    auto const    currentHiTicks = I_msTimeF();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
-
-    lastInputTicks = currentHiTicks;
-
-    auto scaleAdjustmentToInterval = [=](double x) { return x * (120 / 4) / (1000.0 / elapsedInputTicks); };
-
-    if (paused)
-        return;
-
-    InputPacket tempinput{};
-    fixed_t input_angle = 0;
-
-    if (!after)
-    {
-        localInput = {};
-        ApplyGlobalInput(localInput, hidInput);
-        if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
-    }
-
-    if (PlayerList[nLocalPlayer].nHealth == 0)
-    {
-        lPlayerYVel = 0;
-        lPlayerXVel = 0;
-        nPlayerDAng = 0;
-        return;
-    }
-
     // JBF: Run key behaviour is selectable
     int const playerRunning = !!(localInput.actions & SB_RUN);
     int const turnAmount = playerRunning ? 12 : 8;
     int const keyMove = playerRunning ? 12 : 6;
+    bool const mouseaim = !(localInput.actions & SB_AIMMODE);
+    double const scaleAdjust = InputScale();
+    InputPacket tempinput {};
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        tempinput.svel -= hidInput->mousex * 4.f;
-        tempinput.svel -= hidInput->dyaw * keyMove;
+        tempinput.svel -= xs_CRoundToInt((hidInput->mousex * 32.) + (scaleAdjust * (hidInput->dyaw * keyMove)));
     }
     else
     {
-        input_angle += FloatToFixed(hidInput->mousex + scaleAdjustmentToInterval(hidInput->dyaw));
+        tempinput.q16avel += FloatToFixed(hidInput->mousex + (scaleAdjust * hidInput->dyaw));
     }
 
-    bool mouseaim = !(localInput.actions & SB_AIMMODE);
-
     if (mouseaim)
+    {
         tempinput.q16horz += FloatToFixed(hidInput->mousey);
+    }
     else
-        tempinput.fvel -= hidInput->mousey * 8.f;
+    {
+        tempinput.fvel -= xs_CRoundToInt(hidInput->mousey * 8.);
+    }
 
-    if (!in_mouseflip) tempinput.q16horz = -tempinput.q16horz;
+    if (!in_mouseflip) 
+        tempinput.q16horz = -tempinput.q16horz;
 
-    tempinput.q16horz -= FloatToFixed(scaleAdjustmentToInterval(hidInput->dpitch));
-    tempinput.svel -= hidInput->dx * keyMove;
-    tempinput.fvel -= hidInput->dz * keyMove;
+    tempinput.q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
+    tempinput.svel -= xs_CRoundToInt(scaleAdjust * (hidInput->dx * keyMove));
+    tempinput.fvel -= xs_CRoundToInt(scaleAdjust * (hidInput->dz * keyMove));
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
@@ -167,9 +142,6 @@ static void PlayerInterruptKeys(bool after, ControlInfo* const hidInput)
     }
     else
     {
-        static int turn = 0;
-        static int counter = 0;
-        // normal, non strafing movement
         if (buttonMap.ButtonDown(gamefunc_Turn_Left))
         {
             turn -= 2;
@@ -200,7 +172,7 @@ static void PlayerInterruptKeys(bool after, ControlInfo* const hidInput)
         }
 
         //if ((counter++) % 4 == 0) // what was this for???
-        input_angle += FloatToFixed(scaleAdjustmentToInterval(turn * 2));
+        tempinput.q16avel += FloatToFixed(scaleAdjust * (turn * 2));
 
     }
 
@@ -218,81 +190,43 @@ static void PlayerInterruptKeys(bool after, ControlInfo* const hidInput)
 
     localInput.fvel = clamp(localInput.fvel + tempinput.fvel, -12, 12);
     localInput.svel = clamp(localInput.svel + tempinput.svel, -12, 12);
-    localInput.q16avel += input_angle;
+    localInput.q16avel += tempinput.q16avel;
+    localInput.q16horz += tempinput.q16horz;
 
-    if (!nFreeze)
+    if (!cl_syncinput && !nFreeze)
     {
-        PlayerList[nLocalPlayer].q16angle = (PlayerList[nLocalPlayer].q16angle + input_angle) & 0x7FFFFFF;
+        Player* pPlayer = &PlayerList[nLocalPlayer];
 
-        // A horiz diff of 128 equal 45 degrees,
-        // so we convert horiz to 1024 angle units
-
-        float const horizAngle = clamp(atan2f(PlayerList[nLocalPlayer].q16horiz - IntToFixed(92), IntToFixed(128)) * (512.f / fPI) + FixedToFloat(tempinput.q16horz), -255.f, 255.f);
-        auto newq16horiz = IntToFixed(92) + xs_CRoundToInt(IntToFixed(128) * tanf(horizAngle * (fPI / 512.f)));
-        if (PlayerList[nLocalPlayer].q16horiz != newq16horiz)
-        {
-            bLockPan = true;
-            PlayerList[nLocalPlayer].q16horiz = newq16horiz;
-            nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
-        }
-
-        // Look/aim up/down functions.
-        if (localInput.actions & (SB_LOOK_UP|SB_AIM_UP))
-        {
-            bLockPan |= (localInput.actions & SB_LOOK_UP);
-            if (PlayerList[nLocalPlayer].q16horiz < IntToFixed(180)) {
-                PlayerList[nLocalPlayer].q16horiz += FloatToFixed(scaleAdjustmentToInterval(4));
-            }
-
-            bPlayerPan = true;
-            nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
-        }
-        else if (localInput.actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
-        {
-            bLockPan |= (localInput.actions & SB_LOOK_DOWN);
-            if (PlayerList[nLocalPlayer].q16horiz > IntToFixed(4)) {
-                PlayerList[nLocalPlayer].q16horiz -= FloatToFixed(scaleAdjustmentToInterval(4));
-            }
-
-            bPlayerPan = true;
-            nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
-        }
+        applylook(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, tempinput.q16avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust, false);
+        sethorizon(&pPlayer->q16horiz, tempinput.q16horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
     }
-
-    // loc_1C048:
-    if (totalvel[nLocalPlayer] > 20) {
-        bPlayerPan = false;
-    }
-    if (nFreeze) return;
-
-    // loc_1C05E
-    fixed_t dVertPan = nDestVertPan[nLocalPlayer] - PlayerList[nLocalPlayer].q16horiz;
-    if (dVertPan != 0 && !bLockPan)
-    {
-        int val = dVertPan / 4;
-        if (abs(val) >= 4)
-        {
-            if (val >= 4)
-                PlayerList[nLocalPlayer].q16horiz += IntToFixed(4);
-            else if (val <= -4)
-                PlayerList[nLocalPlayer].q16horiz -= IntToFixed(4);
-        }
-        else if (abs(dVertPan) >= FRACUNIT)
-            PlayerList[nLocalPlayer].q16horiz += dVertPan / 2.0f;
-        else
-        {
-            if (mouseaim) bLockPan = true;
-            PlayerList[nLocalPlayer].q16horiz = nDestVertPan[nLocalPlayer];
-        }
-    }
-    else bLockPan = mouseaim;
-    PlayerList[nLocalPlayer].q16horiz = clamp(PlayerList[nLocalPlayer].q16horiz, 0, IntToFixed(184));
 }
 
 
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
-    PlayerInterruptKeys(packet == nullptr, hidInput);
+    if (paused || M_Active())
+    {
+        localInput = {};
+        return;
+    }
+
+    if (PlayerList[nLocalPlayer].nHealth == 0)
+    {
+        lPlayerYVel = 0;
+        lPlayerXVel = 0;
+        nPlayerDAng = 0;
+        return;
+    }
+
+    if (packet != nullptr)
+    {
+        localInput = {};
+        ApplyGlobalInput(localInput, hidInput);
+        if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
+    }
+
+    processMovement(hidInput);
     if (packet) *packet = localInput;
 }
 

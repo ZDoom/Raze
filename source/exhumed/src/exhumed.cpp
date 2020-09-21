@@ -439,9 +439,12 @@ void GameInterface::Ticker()
         // make weapon selection persist until it gets used up.
         sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
         int weap = sPlayerInput[nLocalPlayer].getNewWeapon();
-        sPlayerInput[nLocalPlayer].actions = localInput.actions;
         if (weap2 <= 0 || weap2 > 7) sPlayerInput[nLocalPlayer].SetNewWeapon(weap);
         sPlayerInput[nLocalPlayer].nTarget = besttarget;
+
+        auto oldactions = sPlayerInput[nLocalPlayer].actions;
+        sPlayerInput[nLocalPlayer].actions = localInput.actions;
+        if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;
 
         Ra[nLocalPlayer].nTarget = besttarget;
 

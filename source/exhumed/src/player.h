@@ -70,8 +70,11 @@ struct Player
     short field_3C;
     short nRun;
 
-    fixed_t q16angle;
-    fixed_t q16horiz;
+    fixed_t oq16angle, q16angle;
+    fixed_t oq16horiz, q16horiz;
+    fixed_t oq16look_ang, q16look_ang;
+    fixed_t oq16rotscrnang, q16rotscrnang;
+    fixed_t spin;
     vec3_t opos;
 };
 
