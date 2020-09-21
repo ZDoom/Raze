@@ -140,6 +140,7 @@ public:
 	}
 
 	void SetPalswap(int index);
+	void SetFade(int palette);
 
 	void SetShade(int32_t shade, int numshades)
 	{

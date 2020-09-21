@@ -300,7 +300,7 @@ void drawoverlays(double smoothratio)
 
 	if (ps[myconnectindex].newowner == -1 && ud.camerasprite == -1)
 	{
-		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -getHalfLookAng(pp->oq16look_ang, pp->q16look_ang, cl_syncinput, smoothratio), isRR() ? 0.5 : 1);
+		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -getHalfLookAng(pp->oq16look_ang, pp->q16look_ang, cl_syncinput, smoothratio), 0, isRR() ? 0.5 : 1);
 	}
 
 	if (paused == 2)

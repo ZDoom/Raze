@@ -165,20 +165,20 @@ inline void videoclearFade()
 
 void videoTintBlood(int32_t r, int32_t g, int32_t b);
 
-extern int32_t globalpal;
+extern int32_t globalpal, globalfloorpal;
 extern void paletteLoadFromDisk(void);
 
 
-typedef struct glblenddef_
+struct glblenddef_t
 {
     float alpha;
     uint8_t src, dst, flags;
-} glblenddef_t;
+};
 
-typedef struct glblend_
+struct glblend_t
 {
     glblenddef_t def[2];
-} glblend_t;
+};
 
 extern glblend_t const nullglblend, defaultglblend;
 extern glblend_t glblend[MAXBLENDTABS];

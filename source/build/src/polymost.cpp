@@ -299,7 +299,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
 
     if (!lookups.checkTable(globalpal))
-        globalpal = 0;
+        globalfloorpal = globalpal = 0;
 
     //Load texture (globalpicnum)
     setgotpic(globalpicnum);
@@ -377,6 +377,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
 
     int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
+    GLInterface.SetFade(globalfloorpal);
 	bool success = GLInterface.SetTexture(globalpicnum, tileGetTexture(globalpicnum), palid, sampleroverride);
 	if (!success)
 	{
@@ -1567,7 +1568,7 @@ static void polymost_drawalls(int32_t const bunch)
 
         globalpicnum = sec->floorpicnum;
         globalshade = sec->floorshade;
-        globalpal = sec->floorpal;
+        globalfloorpal = globalpal = sec->floorpal;
         globalorientation = sec->floorstat;
 
 		GLInterface.SetVisibility(sectorVisibility(sectnum));
@@ -1808,7 +1809,7 @@ static void polymost_drawalls(int32_t const bunch)
 
         globalpicnum = sec->ceilingpicnum;
         globalshade = sec->ceilingshade;
-        globalpal = sec->ceilingpal;
+        globalfloorpal = globalpal = sec->ceilingpal;
         globalorientation = sec->ceilingstat;
         GLInterface.SetVisibility(sectorVisibility(sectnum));
 
@@ -2074,7 +2075,7 @@ static void polymost_drawalls(int32_t const bunch)
 
             if (((cy0 < ocy0) || (cy1 < ocy1)) && (!((sec->ceilingstat&sector[nextsectnum].ceilingstat)&1)))
             {
-                globalpicnum = wal->picnum; globalshade = wal->shade; globalpal = (int32_t)((uint8_t)wal->pal);
+                globalpicnum = wal->picnum; globalshade = wal->shade; globalfloorpal = globalpal = (int32_t)((uint8_t)wal->pal);
                 GLInterface.SetVisibility(sectorVisibility(sectnum));
                 globalorientation = wal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
@@ -2109,7 +2110,7 @@ static void polymost_drawalls(int32_t const bunch)
                     xtex.u += (float)(nwal->xpanning - wal->xpanning) * xtex.d;
                     ytex.u += (float)(nwal->xpanning - wal->xpanning) * ytex.d;
                 }
-                globalpicnum = nwal->picnum; globalshade = nwal->shade; globalpal = (int32_t)((uint8_t)nwal->pal);
+                globalpicnum = nwal->picnum; globalshade = nwal->shade; globalfloorpal = globalpal = (int32_t)((uint8_t)nwal->pal);
                 GLInterface.SetVisibility(sectorVisibility(sectnum));
                 globalorientation = nwal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
@@ -2150,7 +2151,7 @@ static void polymost_drawalls(int32_t const bunch)
                 globalpicnum = (nextsectnum < 0) ? wal->picnum : wal->overpicnum;
 
                 globalshade = wal->shade;
-                globalpal = wal->pal;
+                globalfloorpal = globalpal = wal->pal;
                 GLInterface.SetVisibility(sectorVisibility(sectnum));
                 globalorientation = wal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
@@ -2670,7 +2671,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     GLInterface.SetVisibility(sectorVisibility(sectnum));
 
     globalshade = (int32_t)wal->shade;
-    globalpal = (int32_t)((uint8_t)wal->pal);
+    globalfloorpal = globalpal = (int32_t)((uint8_t)wal->pal);
 
     vec2f_t s0 = { (float)(wal->x-globalposx), (float)(wal->y-globalposy) };
     vec2f_t p0 = { s0.y*gcosang - s0.x*gsinang, s0.x*gcosang2 + s0.y*gsinang2 };
@@ -3043,6 +3044,7 @@ void polymost_drawsprite(int32_t snum)
     globalpicnum = tspr->picnum;
     globalshade = tspr->shade;
     globalpal = tspr->pal;
+    globalfloorpal = sector[tspr->sectnum].floorpal;
     globalorientation = tspr->cstat;
 
     GLInterface.SetVisibility(sectorVisibility(tspr->sectnum));

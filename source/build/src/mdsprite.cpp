@@ -1494,6 +1494,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 		}
 #endif
         int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
+        GLInterface.SetFade(sector[tspr->sectnum].floorpal);
         GLInterface.SetTexture(-1, tex, palid, CLAMP_XY);
 
         if (tspr->clipdist & TSPR_FLAGS_MDHACK)

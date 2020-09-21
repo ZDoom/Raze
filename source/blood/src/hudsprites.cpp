@@ -103,7 +103,7 @@ void hudDraw(PLAYER *gView, VIEW *pView, int nSectnum, double bobx, double boby,
 		double look_anghalf = getHalfLookAng(pView->q16look_ang, gView->q16look_ang, cl_syncinput, smoothratio);
 		double looking_arc = fabs(look_anghalf) / 4.5;
 
-		DrawCrosshair(kCrosshairTile, gView->pXSprite->health >> 4, -look_anghalf, 2);
+		DrawCrosshair(kCrosshairTile, gView->pXSprite->health >> 4, -look_anghalf, 0, 2);
 
 		double cX = 160 - look_anghalf;
 		double cY = 220 + looking_arc;

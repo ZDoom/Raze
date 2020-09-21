@@ -178,7 +178,7 @@ fixed_t qglobalhoriz;
 float fglobalposx, fglobalposy, fglobalposz;
 int16_t globalang, globalcursectnum;
 fixed_t qglobalang;
-int32_t globalpal, cosglobalang, singlobalang;
+int32_t globalpal, globalfloorpal, cosglobalang, singlobalang;
 int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 
 int32_t xyaspect;
@@ -1767,7 +1767,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             globalorientation = (int32_t)sec->floorstat;
             if ((globalorientation&1) != 0) continue;
 
-            globalpal = sec->floorpal;
+            globalfloorpal = globalpal = sec->floorpal;
 
             globalpicnum = sec->floorpicnum;
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;

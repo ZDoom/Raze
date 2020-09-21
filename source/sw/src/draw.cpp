@@ -1262,7 +1262,7 @@ void DrawCrosshair(PLAYERp pp)
     if (!(CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
         USERp u = User[pp->PlayerSprite];
-        ::DrawCrosshair(2326, u->Health, -getHalfLookAng(pp->oq16look_ang, pp->q16look_ang, cl_syncinput, smoothratio), 2, shadeToLight(10));
+        ::DrawCrosshair(2326, u->Health, -getHalfLookAng(pp->oq16look_ang, pp->q16look_ang, cl_syncinput, smoothratio), 0, 2, shadeToLight(10));
     }
 }
 
@@ -1733,8 +1733,11 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if (!TEST(pp->Flags, PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE))
     {
-        tz += bob_amt;
-        tz += pp->obob_z + xs_CRoundToInt(fmulscale16(pp->bob_z - pp->obob_z, smoothratio));
+        if (cl_viewbob)
+        {
+            tz += bob_amt;
+            tz += pp->obob_z + xs_CRoundToInt(fmulscale16(pp->bob_z - pp->obob_z, smoothratio));
+        }
 
         // recoil only when not in camera
         tq16horiz = tq16horiz + pp->recoil_horizoff;
@@ -1773,7 +1776,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
 
     renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
-    UpdatePanel(smoothratio);
+    if (!ScreenSavePic) UpdatePanel(smoothratio);
 
 #define SLIME 2305
     // Only animate lava if its picnum is on screen
@@ -1788,6 +1791,13 @@ drawscreen(PLAYERp pp, double smoothratio)
             movelava((char *) waloff[SLIME]);
     }
 #endif
+
+    // if doing a screen save don't need to process the rest
+    if (ScreenSavePic)
+    {
+        DrawScreen = false;
+        return;
+    }
 
 
     MarkSectorSeen(pp->cursectnum);
@@ -1816,13 +1826,6 @@ drawscreen(PLAYERp pp, double smoothratio)
             SET(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
     }
 
-
-    // if doing a screen save don't need to process the rest
-    if (ScreenSavePic)
-    {
-        DrawScreen = false;
-        return;
-    }
 
     //PrintLocationInfo(pp);
     //PrintSpriteInfo(pp);
