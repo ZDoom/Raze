@@ -201,6 +201,7 @@ static void processMovement(ControlInfo* const hidInput)
         {
             applylook(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, tempinput.q16avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust, false);
             sethorizon(&pPlayer->q16horiz, tempinput.q16horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
+            UpdatePlayerSpriteAngle(pPlayer);
         }
 
         playerProcessHelpers(&pPlayer->q16angle, &pPlayer->angAdjust, &pPlayer->angTarget, &pPlayer->q16horiz, &pPlayer->horizAdjust, &pPlayer->horizTarget, scaleAdjust);
@@ -220,7 +221,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     {
         lPlayerYVel = 0;
         lPlayerXVel = 0;
-        nPlayerDAng = 0;
         return;
     }
 

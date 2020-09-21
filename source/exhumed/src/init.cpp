@@ -196,7 +196,6 @@ void InitLevel(int level) // todo: use a map record
     totalmoves = 0;
     GrabPalette();
     ResetMoveFifo();
-    nPlayerDAng = 0;
     lPlayerXVel = 0;
     lPlayerYVel = 0;
     movefifopos = movefifoend;

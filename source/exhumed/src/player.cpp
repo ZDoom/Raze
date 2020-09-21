@@ -51,7 +51,6 @@ struct PlayerSave
 
 int lPlayerXVel = 0;
 int lPlayerYVel = 0;
-fixed_t nPlayerDAng = 0;
 short obobangle = 0, bobangle  = 0;
 short bPlayerPan = 0;
 short bLockPan  = 0;
@@ -338,6 +337,10 @@ void RestartPlayer(short nPlayer)
     }
 
     PlayerList[nPlayer].opos = sprite[nSprite].pos;
+    PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
+    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz;
+    PlayerList[nPlayer].oq16look_ang = PlayerList[nPlayer].q16look_ang = 0;
+    PlayerList[nPlayer].oq16rotscrnang = PlayerList[nPlayer].q16rotscrnang = 0;
 
     nPlayerFloorSprite[nPlayer] = floorspr;
 
@@ -437,7 +440,7 @@ void RestartPlayer(short nPlayer)
     nYDamage[nPlayer] = 0;
     nXDamage[nPlayer] = 0;
 
-    PlayerList[nPlayer].q16horiz = IntToFixed(100);
+    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz = IntToFixed(100);
     nBreathTimer[nPlayer] = 90;
 
     nTauntTimer[nPlayer] = RandomSize(3) + 3;
@@ -454,7 +457,6 @@ void RestartPlayer(short nPlayer)
     if (nPlayer == nLocalPlayer)
     {
         nLocalSpr = nSprite;
-        nPlayerDAng = 0;
 
         SetMagicFrame();
         RestoreGreenPal();
@@ -538,7 +540,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].q16horiz = IntToFixed(100);
+    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz = IntToFixed(100);
     oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
     nPlayerInvisible[nPlayer] = 0;
     dVertPan[nPlayer] = 15;
@@ -703,6 +705,11 @@ static void pickupMessage(int no)
     }
 }
 
+void UpdatePlayerSpriteAngle(Player* pPlayer)
+{
+    sprite[pPlayer->nSprite].ang = FixedToInt(pPlayer->q16angle);
+}
+
 void FuncPlayer(int a, int nDamage, int nRun)
 {
     int var_48 = 0;
@@ -724,6 +731,10 @@ void FuncPlayer(int a, int nDamage, int nRun)
     short nSprite2;
 
     PlayerList[nPlayer].opos = sprite[nPlayerSprite].pos;
+    PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
+    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz;
+    PlayerList[nPlayer].oq16look_ang = PlayerList[nPlayer].q16look_ang;
+    PlayerList[nPlayer].oq16rotscrnang = PlayerList[nPlayer].q16rotscrnang;
     oeyelevel[nPlayer] = eyelevel[nPlayer];
 
     switch (nMessage)
@@ -937,7 +948,12 @@ void FuncPlayer(int a, int nDamage, int nRun)
             }
 
             // loc_1A494:
-            sprite[nPlayerSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
+            if (cl_syncinput)
+            {
+                Player* pPlayer = &PlayerList[nPlayer];
+                applylook(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions, 1, false);
+                UpdatePlayerSpriteAngle(pPlayer);
+            }
 
             // sprite[nPlayerSprite].zvel is modified within Gravity()
             short zVel = sprite[nPlayerSprite].zvel;
@@ -1034,9 +1050,11 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 {
                     auto ang = GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask;
                     playerSetAngle(&PlayerList[nPlayer].q16angle, &PlayerList[nPlayer].angTarget, ang);
+                    PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
                     sprite[nPlayerSprite].ang = ang;
 
                     playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 100);
+                    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz;
 
                     lPlayerXVel = 0;
                     lPlayerYVel = 0;
@@ -1044,8 +1062,6 @@ void FuncPlayer(int a, int nDamage, int nRun)
                     sprite[nPlayerSprite].xvel = 0;
                     sprite[nPlayerSprite].yvel = 0;
                     sprite[nPlayerSprite].zvel = 0;
-
-                    nPlayerDAng = 0;
 
                     if (nFreeze < 1)
                     {
@@ -1190,11 +1206,6 @@ void FuncPlayer(int a, int nDamage, int nRun)
             }
 
 loc_1AB8E:
-            if (cl_syncinput)
-            {
-                ;// To be completed.
-            }
-
             playerX -= sprite[nPlayerSprite].x;
             playerY -= sprite[nPlayerSprite].y;
 
@@ -2663,6 +2674,12 @@ loc_1BD2E:
                     PlayerList[nPlayer].nAction = nActionB;
                     PlayerList[nPlayer].field_2 = 0;
                 }
+
+                if (cl_syncinput)
+                {
+                    Player* pPlayer = &PlayerList[nPlayer];
+                    sethorizon(&pPlayer->q16horiz, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions, 1);
+                }
             }
             else // else, player's health is less than 0
             {
@@ -2833,7 +2850,6 @@ loc_1BD2E:
 static SavegameHelper sgh("player",
     SV(lPlayerXVel),
     SV(lPlayerYVel),
-    SV(nPlayerDAng),
     SV(obobangle),
     SV(bobangle),
     SV(bPlayerPan),

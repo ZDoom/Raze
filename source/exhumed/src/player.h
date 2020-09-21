@@ -43,7 +43,6 @@ extern int nLocalPlayer;
 
 extern int lPlayerXVel;
 extern int lPlayerYVel;
-extern fixed_t nPlayerDAng;
 
 struct Player
 {
@@ -127,6 +126,7 @@ short GetPlayerFromSprite(short nSprite);
 void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);
+void UpdatePlayerSpriteAngle(Player* pPlayer);
 
 END_PS_NS
 

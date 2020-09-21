@@ -339,7 +339,6 @@ void GameInterface::Ticker()
 	}
     else if (EndLevel == 0)
     {
-        nPlayerDAng += localInput.q16avel;
         inita &= kAngleMask;
 
         for (int i = 0; i < 4; i++)
@@ -433,17 +432,12 @@ void GameInterface::Ticker()
         sPlayerInput[nLocalPlayer].actions = localInput.actions;
         if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;
 
-        if (cl_syncinput)
-        {
-            ;// To be completed...
-        }
+        sPlayerInput[nLocalPlayer].nAngle = localInput.q16avel;
+        sPlayerInput[nLocalPlayer].pan = localInput.q16horz;
 
         Ra[nLocalPlayer].nTarget = besttarget;
 
         lLocalCodes = 0;
-        nPlayerDAng = 0;
-
-        sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
 
         leveltime++;
         if (leveltime == 2) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
