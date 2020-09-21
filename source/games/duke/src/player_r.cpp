@@ -1812,7 +1812,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 				ang = var98 >> 7;
 			}
 		}
-		playerSetAngle(&p->q16ang, &p->angTarget, (var90 - ang) & 2047);
+		playerAddAngle(&p->q16ang, &p->angAdjust, FixedToFloat(getincangleq16(p->q16ang, IntToFixed(var90 - ang))));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
@@ -2111,7 +2111,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->posyv += (vard4 >> 7) * (sintable[(vardc * -51 + vard8) & 2047] << 4);
 			ang = vare0 >> 6;
 		}
-		playerSetAngle(&p->q16ang, &p->angTarget, (vard8 - ang) & 2047);
+		playerAddAngle(&p->q16ang, &p->angAdjust, FixedToFloat(getincangleq16(p->q16ang, IntToFixed(vard8 - ang))));
 	}
 	if (p->NotOnWater)
 		if (p->MotoSpeed > 50)
@@ -3737,7 +3737,7 @@ void processinput_r(int snum)
 		// may still be needed later for demo recording
 
 		processq16avel(p, &sb_avel);
-		applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, sb_avel, &actions, 1, p->dead_flag != 0, p->crouch_toggle || actions & SB_CROUCH);
+		applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, sb_avel, &sync[snum].actions, 1, p->crouch_toggle || actions & SB_CROUCH);
 		apply_seasick(p, 1);
 	}
 
@@ -4093,7 +4093,7 @@ HORIZONLY:
 
 	if (cl_syncinput)
 	{
-		sethorizon(&p->q16horiz, PlayerHorizon(snum), &actions, 1);
+		sethorizon(&p->q16horiz, PlayerHorizon(snum), &sync[snum].actions, 1);
 	}
 
 	checkhardlanding(p);

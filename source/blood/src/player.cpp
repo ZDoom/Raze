@@ -1445,7 +1445,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        applylook(&pPlayer->q16ang, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, pInput->q16avel, &pInput->actions, 1, gView->pXSprite->health == 0, pPlayer->posture != 0);
+        applylook(&pPlayer->q16ang, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, pInput->q16avel, &pInput->actions, 1, pPlayer->posture != 0);
         UpdatePlayerSpriteAngle(pPlayer);
     }
 

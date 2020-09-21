@@ -1560,54 +1560,58 @@ void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, do
 //
 //---------------------------------------------------------------------------
 
-void applylook(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const dead, bool const crouching)
+void applylook(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching)
 {
-	if (!dead)
+	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a FRACUNIT (16384)
+	*q16rotscrnang -= xs_CRoundToInt(scaleAdjust * (*q16rotscrnang * (15. / GameTicRate)));
+	if (abs(*q16rotscrnang) < (FRACUNIT >> 2)) *q16rotscrnang = 0;
+
+	// return q16look_ang to 0 and set to 0 if less than a quarter of a FRACUNIT (16384)
+	*q16look_ang -= xs_CRoundToInt(scaleAdjust * (*q16look_ang * (7.5 / GameTicRate)));
+	if (abs(*q16look_ang) < (FRACUNIT >> 2)) *q16look_ang = 0;
+
+	if (*actions & SB_LOOK_LEFT)
 	{
-		*q16rotscrnang -= xs_CRoundToInt(scaleAdjust * (*q16rotscrnang * (15. / GameTicRate)));
-		if (abs(*q16rotscrnang) < (FRACUNIT >> 2)) *q16rotscrnang = 0;
+		// start looking left
+		*q16look_ang -= FloatToFixed(scaleAdjust * (4560. / GameTicRate));
+		*q16rotscrnang += FloatToFixed(scaleAdjust * (720. / GameTicRate));
+	}
 
-		*q16look_ang -= xs_CRoundToInt(scaleAdjust * (*q16look_ang * (7.5 / GameTicRate)));
-		if (abs(*q16look_ang) < (FRACUNIT >> 2)) *q16look_ang = 0;
+	if (*actions & SB_LOOK_RIGHT)
+	{
+		// start looking right
+		*q16look_ang += FloatToFixed(scaleAdjust * (4560. / GameTicRate));
+		*q16rotscrnang -= FloatToFixed(scaleAdjust * (720. / GameTicRate));
+	}
 
-		if (*actions & SB_LOOK_LEFT)
+	if (*actions & SB_TURNAROUND)
+	{
+		if (*spin == 0)
 		{
-			*q16look_ang -= FloatToFixed(scaleAdjust * (4560. / GameTicRate));
-			*q16rotscrnang += FloatToFixed(scaleAdjust * (720. / GameTicRate));
+			// currently not spinning, so start a spin
+			*spin = IntToFixed(-1024);
 		}
+		*actions &= ~SB_TURNAROUND;
+	}
 
-		if (*actions & SB_LOOK_RIGHT)
+	if (*spin < 0)
+	{
+		// return spin to 0
+		fixed_t add = FloatToFixed(scaleAdjust * ((!crouching ? 3840. : 1920.) / GameTicRate));
+		*spin += add;
+		if (*spin > 0)
 		{
-			*q16look_ang += FloatToFixed(scaleAdjust * (4560. / GameTicRate));
-			*q16rotscrnang -= FloatToFixed(scaleAdjust * (720. / GameTicRate));
+			// Don't overshoot our target. With variable factor this is possible.
+			add -= *spin;
+			*spin = 0;
 		}
+		*q16ang += add;
+	}
 
-		if (*actions & SB_TURNAROUND)
-		{
-			if (*spin == 0)
-			{
-				*spin = IntToFixed(-1024);
-			}
-			*actions &= ~SB_TURNAROUND;
-		}
-
-		if (*spin < 0)
-		{
-			fixed_t add = FloatToFixed(scaleAdjust * ((!crouching ? 3840. : 1920.) / GameTicRate));
-			*spin += add;
-			if (*spin > 0)
-			{
-				// Don't overshoot our target. With variable factor this is possible.
-				add -= *spin;
-				*spin = 0;
-			}
-			*q16ang += add;
-		}
-
-		if (q16avel)
-		{
-			*q16ang = (*q16ang + q16avel) & 0x7FFFFFF;
-		}
+	if (q16avel)
+	{
+		// add player's input
+		*q16ang = (*q16ang + q16avel) & 0x7FFFFFF;
 	}
 }
 
@@ -1634,7 +1638,7 @@ void playerSetAngle(fixed_t* q16ang, fixed_t* helper, double adjustment)
 	if (!cl_syncinput)
 	{
 		// Add slight offset if adjustment is coming in as absolute 0.
-		if (adjustment == 0) adjustment += (1. / FRACUNIT);
+		if (adjustment == 0) adjustment += (1. / (FRACUNIT >> 1));
 
 		*helper = *q16ang + getincangleq16(*q16ang, FloatToFixed(adjustment));
 	}
@@ -1661,7 +1665,7 @@ void playerSetHoriz(fixed_t* q16horiz, fixed_t* helper, double adjustment)
 	if (!cl_syncinput)
 	{
 		// Add slight offset if adjustment is coming in as absolute 0.
-		if (adjustment == 0) adjustment += (1. / FRACUNIT);
+		if (adjustment == 0) adjustment += (1. / (FRACUNIT >> 1));
 
 		*helper = FloatToFixed(adjustment);
 	}

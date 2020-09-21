@@ -1020,12 +1020,15 @@ static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput)
 
 	if (!cl_syncinput)
 	{
-		// Do these in the same order as the old code.
-		calcviewpitch(p, scaleAdjust);
-		processq16avel(p, &input.q16avel);
-		applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, input.q16avel, &sync[myconnectindex].actions, scaleAdjust, p->dead_flag != 0, p->crouch_toggle || sync[myconnectindex].actions & SB_CROUCH);
-		apply_seasick(p, scaleAdjust);
-		sethorizon(&p->q16horiz, input.q16horz, &sync[myconnectindex].actions, scaleAdjust);
+		if (p->dead_flag == 0)
+		{
+			// Do these in the same order as the old code.
+			calcviewpitch(p, scaleAdjust);
+			processq16avel(p, &input.q16avel);
+			applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, input.q16avel, &sync[myconnectindex].actions, scaleAdjust, p->crouch_toggle || sync[myconnectindex].actions & SB_CROUCH);
+			sethorizon(&p->q16horiz, input.q16horz, &sync[myconnectindex].actions, scaleAdjust);
+		}
+
 		playerProcessHelpers(&p->q16ang, &p->angAdjust, &p->angTarget, &p->q16horiz, &p->horizAdjust, &p->horizTarget, scaleAdjust);
 	}
 }
