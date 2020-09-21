@@ -209,6 +209,7 @@ struct player_struct
 
 	// input stuff.
 	double  horizAdjust, angAdjust;
+	fixed_t horizTarget, angTarget;
 
 
 	// Access helpers for the widened angle and horizon fields.

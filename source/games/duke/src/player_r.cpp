@@ -1733,7 +1733,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
 		}
-		playerSetHoriz(p, horiz);
+		playerSetHoriz(&p->q16horiz, &p->horizTarget, horiz);
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
 	{
@@ -1743,7 +1743,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		playerSetHoriz(p, 100 + p->VBumpNow / 3);
+		playerSetHoriz(&p->q16horiz, &p->horizTarget, 100 + p->VBumpNow / 3);
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -1753,7 +1753,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		playerSetHoriz(p, 100 + p->VBumpNow / 3);
+		playerSetHoriz(&p->q16horiz, &p->horizTarget, 100 + p->VBumpNow / 3);
 	}
 	else
 	{
@@ -1812,7 +1812,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 				ang = var98 >> 7;
 			}
 		}
-		playerSetAngle(p, (var90 - ang) & 2047);
+		playerSetAngle(&p->q16ang, &p->angTarget, (var90 - ang) & 2047);
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
@@ -2057,7 +2057,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
 		}
-		playerSetHoriz(p, horiz);
+		playerSetHoriz(&p->q16horiz, &p->horizTarget, horiz);
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
 	{
@@ -2067,7 +2067,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		playerSetHoriz(p, 100 + p->VBumpNow / 3);
+		playerSetHoriz(&p->q16horiz, &p->horizTarget, 100 + p->VBumpNow / 3);
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -2077,7 +2077,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		playerSetHoriz(p, 100 + p->VBumpNow / 3);
+		playerSetHoriz(&p->q16horiz, &p->horizTarget, 100 + p->VBumpNow / 3);
 	}
 	else
 	{
@@ -2111,7 +2111,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->posyv += (vard4 >> 7) * (sintable[(vardc * -51 + vard8) & 2047] << 4);
 			ang = vare0 >> 6;
 		}
-		playerSetAngle(p, (vard8 - ang) & 2047);
+		playerSetAngle(&p->q16ang, &p->angTarget, (vard8 - ang) & 2047);
 	}
 	if (p->NotOnWater)
 		if (p->MotoSpeed > 50)
@@ -2455,7 +2455,7 @@ void onMotorcycleMove(int snum, int psect, int j)
 		ang = -(p->MotoSpeed >> 1);
 		break;
 	}
-	playerAddAngle(p, ang);
+	playerAddAngle(&p->q16ang, &p->angAdjust, ang);
 	if (var10c >= 441 && var10c <= 581)
 	{
 		var104 = (p->MotoSpeed * p->MotoSpeed) >> 8;
@@ -2522,7 +2522,7 @@ void onBoatMove(int snum, int psect, int j)
 		ang = -(p->MotoSpeed >> 2);
 		break;
 	}
-	playerAddAngle(p, ang);
+	playerAddAngle(&p->q16ang, &p->angAdjust, ang);
 	if (var118 >= 441 && var118 <= 581)
 	{
 		p->MotoSpeed = ((p->MotoSpeed >> 1) + (p->MotoSpeed >> 2)) >> 2;
@@ -3056,7 +3056,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		playerAddHoriz(p, 1);
+		playerAddHoriz(&p->q16horiz, &p->horizAdjust, 1);
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -3146,11 +3146,11 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		}
 		if (p->kickback_pic == 2)
 		{
-			playerAddAngle(p, 16);
+			playerAddAngle(&p->q16ang, &p->angAdjust, 16);
 		}
 		else if (p->kickback_pic == 4)
 		{
-			playerAddAngle(p, -16);
+			playerAddAngle(&p->q16ang, &p->angAdjust, -16);
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3176,11 +3176,11 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		}
 		if (p->kickback_pic == 2)
 		{
-			playerAddAngle(p, 4);
+			playerAddAngle(&p->q16ang, &p->angAdjust, 4);
 		}
 		else if (p->kickback_pic == 4)
 		{
-			playerAddAngle(p, -4);
+			playerAddAngle(&p->q16ang, &p->angAdjust, -4);
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3228,7 +3228,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		{
 			p->posxv -= sintable[(p->getang() + 512) & 2047] << 4;
 			p->posyv -= sintable[p->getang() & 2047] << 4;
-			playerAddHoriz(p, 20);
+			playerAddHoriz(&p->q16horiz, &p->horizAdjust, 20);
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -4088,7 +4088,7 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-		playerAddHoriz(p, -d);
+		playerAddHoriz(&p->q16horiz, &p->horizAdjust, -d);
 	}
 
 	if (cl_syncinput)

@@ -143,39 +143,7 @@ static void processMovement(ControlInfo* const hidInput)
             sethorizon(&pPlayer->q16horiz, input.q16horz, &pPlayer->input.actions, scaleAdjust);
         }
 
-        // Process angle amendments from the game's ticker.
-        if (pPlayer->angTarget)
-        {
-            fixed_t angDelta = getincangleq16(pPlayer->q16ang, pPlayer->angTarget);
-            pPlayer->q16ang = (pPlayer->q16ang + xs_CRoundToInt(scaleAdjust * angDelta));
-
-            if (abs(pPlayer->q16ang - pPlayer->angTarget) < FRACUNIT)
-            {
-                pPlayer->q16ang = pPlayer->angTarget;
-                pPlayer->angTarget = 0;
-            }
-        }
-        else if (pPlayer->angAdjust)
-        {
-            pPlayer->q16ang = (pPlayer->q16ang + FloatToFixed(scaleAdjust * pPlayer->angAdjust)) & 0x7FFFFFF;
-        }
-
-        // Process horizon amendments from the game's ticker.
-        if (pPlayer->horizTarget)
-        {
-            fixed_t horizDelta = pPlayer->horizTarget - pPlayer->q16horiz;
-            pPlayer->q16horiz += xs_CRoundToInt(scaleAdjust * horizDelta);
-
-            if (abs(pPlayer->q16horiz - pPlayer->horizTarget) < FRACUNIT)
-            {
-                pPlayer->q16horiz = pPlayer->horizTarget;
-                pPlayer->horizTarget = 0;
-            }
-        }
-        else if (pPlayer->horizAdjust)
-        {
-            pPlayer->q16horiz += FloatToFixed(scaleAdjust * pPlayer->horizAdjust);
-        }
+        playerProcessHelpers(&pPlayer->q16ang, &pPlayer->angAdjust, &pPlayer->angTarget, &pPlayer->q16horiz, &pPlayer->horizAdjust, &pPlayer->horizTarget, scaleAdjust);
     }
 
     gInput.fvel = clamp(gInput.fvel + input.fvel, -MAXFVEL, MAXFVEL);

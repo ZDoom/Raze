@@ -248,9 +248,4 @@ void resetinputhelpers(player_struct* p);
 void checkhardlanding(player_struct* p);
 void playerweaponsway(player_struct* p, spritetype* s);
 
-void playerAddAngle(player_struct* p, int ang);
-void playerSetAngle(player_struct* p, int ang);
-void playerAddHoriz(player_struct* p, int horiz);
-void playerSetHoriz(player_struct* p, int horiz);
-
 END_DUKE_NS

@@ -291,41 +291,9 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
             DoPlayerHorizon(pp, q16horz, scaleAdjust);
         }
 
-        if (pp->horizTarget)
-        {
-            fixed_t horizDelta = pp->horizTarget - pp->q16horiz;
-            pp->q16horiz += xs_CRoundToInt(scaleAdjust * horizDelta);
-
-            if (abs(pp->q16horiz - pp->horizTarget) < FRACUNIT)
-            {
-                pp->q16horiz = pp->horizTarget;
-                pp->horizTarget = 0;
-            }
-        }
-        else if (pp->horizAdjust)
-        {
-            pp->q16horiz += FloatToFixed(scaleAdjust * pp->horizAdjust);
-        }
-
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL))
         {
             DoPlayerTurn(pp, q16avel, scaleAdjust);
-        }
-
-        if (pp->angTarget)
-        {
-            fixed_t angDelta = getincangleq16(pp->q16ang, pp->angTarget);
-            pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * angDelta));
-
-            if (abs(pp->q16ang - pp->angTarget) < FRACUNIT)
-            {
-                pp->q16ang = pp->angTarget;
-                pp->angTarget = 0;
-            }
-        }
-        else if (pp->angAdjust)
-        {
-            pp->q16ang = (pp->q16ang + FloatToFixed(scaleAdjust * pp->angAdjust)) & 0x7FFFFFF;
         }
 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_VEHICLE))
@@ -337,6 +305,8 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
         {
             DoPlayerTurnTurret(pp, q16avel);
         }
+
+        playerProcessHelpers(&pp->q16ang, &pp->angAdjust, &pp->angTarget, &pp->q16horiz, &pp->horizAdjust, &pp->horizTarget, scaleAdjust);
     }
 
     loc.fvel = clamp(loc.fvel + fvel, -MAXFVEL, MAXFVEL);

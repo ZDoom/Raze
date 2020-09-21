@@ -330,7 +330,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_HORIZ:
-		if (bSet) playerSetHoriz(&ps[iPlayer], lValue);
+		if (bSet) playerSetHoriz(&ps[iPlayer].q16horiz, &ps[iPlayer].horizTarget, lValue);
 		else SetGameVarID((int)lVar2, FixedToInt(ps[iPlayer].q16horiz), sActor, sPlayer);
 		break;
 
@@ -452,7 +452,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_ANG:
-		if (bSet) playerSetAngle(&ps[iPlayer], lValue);
+		if (bSet) playerSetAngle(&ps[iPlayer].q16ang, &ps[iPlayer].angTarget, lValue);
 		else SetGameVarID((int)lVar2, ps[iPlayer].getang(), sActor, sPlayer);
 		break;
 

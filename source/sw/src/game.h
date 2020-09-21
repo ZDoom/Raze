@@ -1009,13 +1009,9 @@ struct PLAYERstruct
 
     char WpnReloadState;
 
-    // Input helper variables and setters.
+    // Input helper variables.
     double horizAdjust, angAdjust;
     fixed_t horizTarget, angTarget;
-    void addang(int v) { q16ang = (q16ang + IntToFixed(v)) & 0x7FFFFFF; }
-    void setang(int v) { q16ang = IntToFixed(v); }
-    void addhoriz(int v) { q16horiz += (IntToFixed(v)); }
-    void sethoriz(int v) { q16horiz = IntToFixed(v); }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

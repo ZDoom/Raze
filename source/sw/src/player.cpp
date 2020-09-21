@@ -1059,6 +1059,18 @@ STATEp sg_PlayerNinjaFly[] =
 
 /////////////////////////////////////////////////////////////////////////////
 
+//---------------------------------------------------------------------------
+//
+// Unsynchronised input helper.
+//
+//---------------------------------------------------------------------------
+
+static void resetinputhelpers(PLAYERp pp)
+{
+    pp->horizAdjust = 0;
+    pp->angAdjust = 0;
+}
+
 void
 DoPlayerSpriteThrow(PLAYERp pp)
 {
@@ -3657,7 +3669,7 @@ DoPlayerClimb(PLAYERp pp)
             pp->lx = lsp->x + nx * 5;
             pp->ly = lsp->y + ny * 5;
 
-            playerSetAngle(pp, pp->LadderAngle);
+            playerSetAngle(&pp->q16ang, &pp->angTarget, pp->LadderAngle);
         }
     }
 }
@@ -4116,7 +4128,7 @@ PlayerOnLadder(PLAYERp pp)
     pp->lx = lsp->x + nx * 5;
     pp->ly = lsp->y + ny * 5;
 
-    playerSetAngle(pp, pp->LadderAngle);
+    playerSetAngle(&pp->q16ang, &pp->angTarget, pp->LadderAngle);
 
     return true;
 }
@@ -5355,7 +5367,7 @@ DoPlayerBeginOperate(PLAYERp pp)
     pp->sop = pp->sop_control = sop;
     sop->controller = pp->SpriteP;
 
-    playerSetAngle(pp, sop->ang);
+    playerSetAngle(&pp->q16ang, &pp->angTarget, sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5442,7 +5454,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 
     save_sectnum = pp->cursectnum;
 
-    playerSetAngle(pp, sop->ang);
+    playerSetAngle(&pp->q16ang, &pp->angTarget, sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -6127,12 +6139,12 @@ DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
 {
     if ((pp->q16horiz - IntToFixed(target)) > FRACUNIT)
     {   
-        playerAddHoriz(pp, -speed);
+        playerAddHoriz(&pp->q16horiz, &pp->horizAdjust, -speed);
     }
 
     if ((IntToFixed(target) - pp->q16horiz) > FRACUNIT)
     {
-        playerAddHoriz(pp, speed);
+        playerAddHoriz(&pp->q16horiz, &pp->horizAdjust, speed);
     }
 }
 
@@ -6229,7 +6241,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            playerAddAngle(pp, getincangleq16(pp->q16ang, gethiq16angle(kp->x - pp->posx, kp->y - pp->posy)) / (double)(FRACUNIT << 4));
+            playerAddAngle(&pp->q16ang, &pp->angAdjust, getincangleq16(pp->q16ang, gethiq16angle(kp->x - pp->posx, kp->y - pp->posy)) / (double)(FRACUNIT << 4));
         }
     }
 }
@@ -7269,7 +7281,7 @@ domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            playerSetAngle(&Player[screenpeek], FixedToFloat(gethiq16angle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy)));
+            playerSetAngle(&Player[screenpeek].q16ang, &Player[screenpeek].angTarget, FixedToFloat(gethiq16angle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy)));
         }
 
         if (!TEST(pp->Flags, PF_DEAD))
@@ -7614,84 +7626,6 @@ void CheckFootPrints(PLAYERp pp)
         // Hey, you just got your feet wet!
         pp->NumFootPrints = RANDOM_RANGE(10)+3;
         FootMode = WATER_FOOT;
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-// Unsynchronised input helpers.
-//
-//---------------------------------------------------------------------------
-
-void resetinputhelpers(PLAYERp pp)
-{
-    pp->horizAdjust = 0;
-    pp->angAdjust = 0;
-}
-
-void playerAddAngle(PLAYERp pp, double ang)
-{
-    if (!cl_syncinput)
-    {
-        pp->angAdjust += ang;
-    }
-    else
-    {
-        pp->addang(ang);
-    }
-}
-
-void playerSetAngle(PLAYERp pp, double ang)
-{
-    if (!cl_syncinput)
-    {
-        // Cancel out any angle adjustments as we're setting angle now.
-        pp->angAdjust = 0;
-
-        // Add slight offset if input angle is coming in as absolute 0.
-        if (ang == 0)
-        {
-            ang += 0.1;
-        }
-
-        pp->angTarget = pp->q16ang + getincangleq16(pp->q16ang, FloatToFixed(ang));
-    }
-    else
-    {
-        pp->setang(ang);
-    }
-}
-
-void playerAddHoriz(PLAYERp pp, double horiz)
-{
-    if (!cl_syncinput)
-    {
-        pp->horizAdjust += horiz;
-    }
-    else
-    {
-        pp->addhoriz(horiz);
-    }
-}
-
-void playerSetHoriz(PLAYERp pp, double horiz)
-{
-    if (!cl_syncinput)
-    {
-        // Cancel out any horizon adjustments as we're setting horizon now.
-        pp->horizAdjust = 0;
-
-        // Add slight offset if input horizon is coming in as absolute 0.
-        if (horiz == 0)
-        {
-            horiz += 0.1;
-        }
-
-        pp->horizTarget = FloatToFixed(horiz);
-    }
-    else
-    {
-        pp->sethoriz(horiz);
     }
 }
 

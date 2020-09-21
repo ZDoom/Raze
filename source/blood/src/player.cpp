@@ -1323,76 +1323,10 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void resetinputhelpers(PLAYER* pPlayer)
+static void resetinputhelpers(PLAYER* pPlayer)
 {
     pPlayer->horizAdjust = 0;
     pPlayer->angAdjust = 0;
-}
-
-void playerAddAngle(PLAYER* pPlayer, double ang)
-{
-    if (!cl_syncinput)
-    {
-        pPlayer->angAdjust += ang;
-    }
-    else
-    {
-        pPlayer->addang(ang);
-    }
-}
-
-void playerSetAngle(PLAYER* pPlayer, double ang)
-{
-    if (!cl_syncinput)
-    {
-        // Cancel out any angle adjustments as we're setting angle now.
-        pPlayer->angAdjust = 0;
-
-        // Add slight offset if input angle is coming in as absolute 0.
-        if (ang == 0)
-        {
-            ang += 0.1;
-        }
-
-        pPlayer->angTarget = pPlayer->q16ang + getincangleq16(pPlayer->q16ang, FloatToFixed(ang));
-    }
-    else
-    {
-        pPlayer->setang(ang);
-    }
-}
-
-void playerAddHoriz(PLAYER* pPlayer, double horiz)
-{
-    if (!cl_syncinput)
-    {
-        pPlayer->horizAdjust += horiz;
-    }
-    else
-    {
-        pPlayer->addhoriz(horiz);
-    }
-}
-
-void playerSetHoriz(PLAYER* pPlayer, double horiz)
-{
-    if (!cl_syncinput)
-    {
-        // Cancel out any horizon adjustments as we're setting horizon now.
-        pPlayer->horizAdjust = 0;
-
-        // Add slight offset if input horizon is coming in as absolute 0.
-        if (horiz == 0)
-        {
-            horiz += 0.1;
-        }
-
-        pPlayer->horizTarget = FloatToFixed(horiz);
-    }
-    else
-    {
-        pPlayer->sethoriz(horiz);
-    }
 }
 
 void ProcessInput(PLAYER *pPlayer)
@@ -1425,11 +1359,11 @@ void ProcessInput(PLAYER *pPlayer)
         if (pPlayer->fraggerId != -1)
         {
             pPlayer->angold = pSprite->ang = getangle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
-            playerSetAngle(pPlayer, pSprite->ang);
+            playerSetAngle(&pPlayer->q16ang, &pPlayer->angTarget, pSprite->ang);
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
-            playerSetHoriz(pPlayer, FixedToFloat(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), IntToFixed(120))));
+            playerSetHoriz(&pPlayer->q16horiz, &pPlayer->horizTarget, FixedToFloat(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), IntToFixed(120))));
         if (pPlayer->curWeapon)
             pInput->setNewWeapon(pPlayer->curWeapon);
         if (pInput->actions & SB_OPEN)
