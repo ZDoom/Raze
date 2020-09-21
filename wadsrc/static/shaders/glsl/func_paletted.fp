@@ -60,5 +60,5 @@ vec4 ProcessTexel()
 		color.rgb = uFogColor.rgb * (1.0-fogfactor) + color.rgb * fogfactor;// mix(vec3(0.6), color.rgb, fogfactor);
 	}
 	if (color.a < uAlphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.
-	return vec4(color.rgb / 0.85, vColor.a);
+	return vec4(color.rgb, 1.0);
 }
