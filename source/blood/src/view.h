@@ -66,6 +66,8 @@ struct VIEW {
     char at72; // underwater
     short at73; // sprite flags
     SPRITEHIT at75;
+    fixed_t q16look_ang;
+    fixed_t q16rotscrnang;
 };
 
 extern VIEW gPrevView[kMaxPlayers];
@@ -140,7 +142,7 @@ extern LOCATION gPrevSpriteLoc[kMaxSprites];
 extern int gLastPal;
 extern double gInterpolate;
 
-void hudDraw(PLAYER* gView, int nSectnum, double bobx, double boby, double zDelta, int basepal, int smoothratio);
+void hudDraw(PLAYER* gView, VIEW *pView, int nSectnum, double bobx, double boby, double zDelta, int basepal, double smoothratio);
 void viewInitializePrediction(void);
 void viewUpdatePrediction(InputPacket *pInput);
 void viewCorrectPrediction(void);

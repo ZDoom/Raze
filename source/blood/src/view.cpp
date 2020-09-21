@@ -116,6 +116,8 @@ void viewBackupView(int nPlayer)
     pView->atc = pPlayer->bobWidth;
     pView->at18 = pPlayer->swayHeight;
     pView->at1c = pPlayer->swayWidth;
+    pView->q16look_ang = pPlayer->q16look_ang;
+    pView->q16rotscrnang = pPlayer->q16rotscrnang;
 }
 
 void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
@@ -631,7 +633,7 @@ void viewDrawScreen(bool sceneonly)
         renderSetAspect(v1, yxaspect);
 
         int cX, cY, cZ, v74, v8c;
-        fixed_t cA, q16horiz, q16slopehoriz;
+        fixed_t cA, q16horiz, q16slopehoriz, q16rotscrnang;
         double zDelta, v4c, v48;
         int nSectnum = gView->pSprite->sectnum;
         if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
@@ -649,13 +651,15 @@ void viewDrawScreen(bool sceneonly)
 
             if (!cl_syncinput)
             {
-                cA = predict.at30;
+                cA = predict.at30 + predict.q16look_ang;
                 q16horiz = predict.at24;
+                q16rotscrnang = predict.q16rotscrnang;
             }
             else
             {
-                cA = interpolateangfix16(predictOld.at30, predict.at30, gInterpolate);
+                cA = interpolateangfix16(predictOld.at30 + predictOld.q16look_ang, predict.at30 + predict.q16look_ang, gInterpolate);
                 q16horiz = interpolate(predictOld.at24, predict.at24, gInterpolate);
+                q16rotscrnang = interpolateangfix16(predictOld.q16rotscrnang, predict.q16rotscrnang, gInterpolate);
             }
         }
         else
@@ -673,13 +677,15 @@ void viewDrawScreen(bool sceneonly)
 
             if (!cl_syncinput)
             {
-                cA = gView->q16ang;
+                cA = gView->q16ang + gView->q16look_ang;
                 q16horiz = gView->q16horiz;
+                q16rotscrnang = gView->q16rotscrnang;
             }
             else
             {
-                cA = interpolateangfix16(pView->at30, gView->q16ang, gInterpolate);
+                cA = interpolateangfix16(pView->at30 + pView->q16look_ang, gView->q16ang + gView->q16look_ang, gInterpolate);
                 q16horiz = interpolate(pView->at24, gView->q16horiz, gInterpolate);
+                q16rotscrnang = interpolateangfix16(pView->q16rotscrnang, gView->q16rotscrnang, gInterpolate);
             }
         }
 
@@ -727,7 +733,7 @@ void viewDrawScreen(bool sceneonly)
         //int tiltcs, tiltdim;
         uint8_t v4 = powerupCheck(gView, kPwUpCrystalBall) > 0;
 #ifdef USE_OPENGL
-        renderSetRollAngle(0);
+        renderSetRollAngle(FixedToFloat(q16rotscrnang));
 #endif
         if (v78 || bDelirium)
         {
@@ -959,7 +965,7 @@ void viewDrawScreen(bool sceneonly)
             }
         }
 #endif
-        hudDraw(gView, nSectnum, v4c, v48, zDelta, basepal, (int)gInterpolate);
+        hudDraw(gView, &gPrevView[gViewIndex], nSectnum, v4c, v48, zDelta, basepal, gInterpolate);
     }
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (automapMode != am_off)

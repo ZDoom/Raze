@@ -202,13 +202,7 @@ inline void backupplayer(player_struct* p)
 	backupview(p);
 }
 
-// the weapon display code uses these.
-inline double getHalfLookAng(int snum, bool interpolate, double smoothratio)
-{
-	struct player_struct *p = &ps[snum];
-	return (!interpolate ? p->q16look_ang : p->oq16look_ang + fmulscale16(p->q16look_ang - p->oq16look_ang, smoothratio)) * (0.5 / FRACUNIT);
-}
-
+// the weapon display code uses this.
 inline double get16thOfHoriz(int snum, bool interpolate, double smoothratio)
 {
 	struct player_struct *p = &ps[snum];

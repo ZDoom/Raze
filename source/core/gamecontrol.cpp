@@ -1490,7 +1490,7 @@ fixed_t getincangleq16(fixed_t a, fixed_t na)
 
 //---------------------------------------------------------------------------
 //
-// Player's horizon function, called in processInput() or from gi->GetInput() as required.
+// Player's horizon function, called from game's ticker or from gi->GetInput() as required.
 //
 //---------------------------------------------------------------------------
 
@@ -1552,4 +1552,61 @@ void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, do
 
 	// clamp before returning
 	*q16horiz = clamp(*q16horiz, gi->playerHorizMin(), gi->playerHorizMax());
+}
+
+//---------------------------------------------------------------------------
+//
+// Player's angle function, called from game's ticker or from gi->GetInput() as required.
+//
+//---------------------------------------------------------------------------
+
+void applylook(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const dead, bool const crouching)
+{
+	if (!dead)
+	{
+		*q16rotscrnang -= xs_CRoundToInt(scaleAdjust * (*q16rotscrnang * (15. / GameTicRate)));
+		if (abs(*q16rotscrnang) < (FRACUNIT >> 2)) *q16rotscrnang = 0;
+
+		*q16look_ang -= xs_CRoundToInt(scaleAdjust * (*q16look_ang * (7.5 / GameTicRate)));
+		if (abs(*q16look_ang) < (FRACUNIT >> 2)) *q16look_ang = 0;
+
+		if (*actions & SB_LOOK_LEFT)
+		{
+			*q16look_ang -= FloatToFixed(scaleAdjust * (4560. / GameTicRate));
+			*q16rotscrnang += FloatToFixed(scaleAdjust * (720. / GameTicRate));
+		}
+
+		if (*actions & SB_LOOK_RIGHT)
+		{
+			*q16look_ang += FloatToFixed(scaleAdjust * (4560. / GameTicRate));
+			*q16rotscrnang -= FloatToFixed(scaleAdjust * (720. / GameTicRate));
+		}
+
+		if (*actions & SB_TURNAROUND)
+		{
+			if (*spin == 0)
+			{
+				*spin = IntToFixed(-1024);
+			}
+			*actions &= ~SB_TURNAROUND;
+		}
+
+		if (*spin < 0)
+		{
+			fixed_t add = FloatToFixed(scaleAdjust * ((!crouching ? 3840. : 1920.) / GameTicRate));
+			*spin += add;
+			if (*spin > 0)
+			{
+				// Don't overshoot our target. With variable factor this is possible.
+				add -= *spin;
+				*spin = 0;
+			}
+			*q16ang += add;
+		}
+
+		if (q16avel)
+		{
+			*q16ang = (*q16ang + q16avel) & 0x7FFFFFF;
+		}
+	}
 }

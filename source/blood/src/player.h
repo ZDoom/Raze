@@ -154,7 +154,7 @@ struct PLAYER
     int                 restTime;
     int                 kickPower;
     int                 laughCount;
-    int                 spin;  // turning around
+    fixed_t             spin;  // turning around
     bool                godMode;
     bool                fallScream;
     bool                cantJump;
@@ -184,6 +184,8 @@ struct PLAYER
     int                 player_par;
     int                 nWaterPal;
     POSTURE             pPosture[kModeMax][kPostureMax];
+    fixed_t             q16look_ang;
+    fixed_t             q16rotscrnang;
 
     // Input helper variables and setters.
     double horizAdjust, angAdjust;

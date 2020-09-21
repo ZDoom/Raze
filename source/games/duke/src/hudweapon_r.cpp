@@ -124,7 +124,7 @@ void displayweapon_r(int snum, double smoothratio)
 
 	o = 0;
 
-	look_anghalf = getHalfLookAng(snum, cl_syncinput, smoothratio);
+	look_anghalf = getHalfLookAng(p->oq16look_ang, p->q16look_ang, cl_syncinput, smoothratio);
 	looking_arc = fabs(look_anghalf) / 4.5;
 	weapon_sway = p->oweapon_sway + fmulscale16((p->weapon_sway - p->oweapon_sway), smoothratio);
 	TiltStatus = !cl_syncinput ? p->TiltStatus : p->oTiltStatus + fmulscale16((p->TiltStatus - p->oTiltStatus), smoothratio);

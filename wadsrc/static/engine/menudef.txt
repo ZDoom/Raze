@@ -520,7 +520,7 @@ OptionMenu "ActionControlsMenu"// protected
 	Control    "$CNTRLMNU_AIMDOWN"         , "+aim_down"
 	Control    "$CNTRLMNU_LOOKUP"           , "+look_up"
 	Control    "$CNTRLMNU_LOOKDOWN"         , "+look_down"
-	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
+	ifnotgame(Exhumed)
 	{
 		Control    "$CNTRLMNU_LOOKLEFT"           , "+look_left"
 		Control    "$CNTRLMNU_LOOKRIGHT"         , "+look_right"

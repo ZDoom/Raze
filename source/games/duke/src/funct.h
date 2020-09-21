@@ -109,7 +109,7 @@ void footprints(int snum);
 int makepainsounds(int snum, int type);
 void playerCrouch(int snum);
 void playerJump(int snum, int fz, int cz);
-void applylook(int snum, double factor, fixed_t adjustment); 
+void processq16avel(player_struct* p, fixed_t* q16avel); 
 void checklook(int snum, ESyncBits actions);
 void playerCenterView(int snum);
 void playerLookUp(int snum, ESyncBits actions);

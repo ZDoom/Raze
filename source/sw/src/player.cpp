@@ -120,12 +120,6 @@ char PlayerGravity = PLAYER_JUMP_GRAV;
 
 extern bool DebugOperate;
 
-enum
-{
-    TURN_SHIFT = 2,
-    HORIZ_SPEED = 14
-};
-
 //unsigned char synctics, lastsynctics;
 
 int ChopTics;
@@ -1506,77 +1500,21 @@ DoPlayerCrawlHeight(PLAYERp pp)
 }
 
 void
+UpdatePlayerSpriteAngle(PLAYERp pp)
+{
+    sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
+
+    if (!Prediction && pp->PlayerUnderSprite >= 0)
+    {
+        sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
+    }
+}
+
+void
 DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
 {
-    if (!TEST(pp->Flags, PF_TURN_180))
-    {
-        if (pp->input.actions & SB_TURNAROUND)
-        {
-            if (pp->KeyPressBits & SB_TURNAROUND)
-            {
-                fixed_t delta_ang;
-
-                pp->KeyPressBits &= ~SB_TURNAROUND;
-
-                pp->turn180_target = pp->q16ang + IntToFixed(1024);
-
-                // make the first turn in the clockwise direction
-                // the rest will follow
-                delta_ang = labs(getincangleq16(pp->q16ang, pp->turn180_target)) >> TURN_SHIFT;
-                pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
-
-                SET(pp->Flags, PF_TURN_180);
-            }
-        }
-        else
-        {
-            pp->KeyPressBits |= SB_TURNAROUND;
-        }
-    }
-
-    if (TEST(pp->Flags, PF_TURN_180))
-    {
-        fixed_t delta_ang;
-
-        delta_ang = getincangleq16(pp->q16ang, pp->turn180_target) >> TURN_SHIFT;
-        pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
-
-        sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
-
-        if (!Prediction && pp->PlayerUnderSprite >= 0)
-        {
-            sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
-        }
-
-        // get new delta to see how close we are
-        delta_ang = getincangleq16(pp->q16ang, pp->turn180_target);
-
-        if (labs(delta_ang) < (IntToFixed(3) << TURN_SHIFT))
-        {
-            pp->q16ang = pp->turn180_target;
-            RESET(pp->Flags, PF_TURN_180);
-        }
-        else
-        {
-            return;
-        }
-    }
-
-    if (q16avel != 0)
-    {
-        pp->q16ang = (pp->q16ang + q16avel) & 0x7FFFFFF;
-
-        // update players sprite angle
-        // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
-        // here to cover
-        // all cases.
-        sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
-
-        if (!Prediction && pp->PlayerUnderSprite >= 0)
-        {
-            sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
-        }
-    }
+    applylook(&pp->q16ang, &pp->q16look_ang, &pp->q16rotscrnang, &pp->turn180_target, q16avel, &pp->input.actions, scaleAdjust, TEST(pp->Flags, PF_DEAD), pp->input.actions & (SB_CROUCH|SB_CROUCH_LOCK));
+    UpdatePlayerSpriteAngle(pp);
 }
 
 #if 0
@@ -7022,6 +6960,8 @@ MoveSkipSavePos(void)
         pp->oq16ang = pp->q16ang;
         pp->oq16horiz = pp->q16horiz;
         pp->obob_z = pp->bob_z;
+        pp->oq16look_ang = pp->q16look_ang;
+        pp->oq16rotscrnang = pp->q16rotscrnang;
     }
 
     // save off stats for skip4

@@ -203,12 +203,12 @@ struct player_struct
 	uint8_t hurt_delay2, nocheat;
 	uint8_t OnMotorcycle, OnBoat, moto_underwater, NotOnWater, MotoOnGround;
 	uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
+	bool vehicle_turnl, vehicle_turnr, vehicle_backwards;
 
 	int8_t crouch_toggle;
 
 	// input stuff.
 	double  horizAdjust, angAdjust;
-	bool    lookLeft, lookRight;
 
 
 	// Access helpers for the widened angle and horizon fields.

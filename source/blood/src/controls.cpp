@@ -41,7 +41,7 @@ enum
     MAXHORIZVEL = 32
 };
 
-void applylook(PLAYER *pPlayer, fixed_t const q16avel, double const scaleAdjust);
+void UpdatePlayerSpriteAngle(PLAYER* pPlayer);
 
 //---------------------------------------------------------------------------
 //
@@ -138,7 +138,8 @@ static void processMovement(ControlInfo* const hidInput)
         // Perform unsynchronised angle/horizon if not dead.
         if (gView->pXSprite->health != 0)
         {
-            applylook(pPlayer, input.q16avel, scaleAdjust);
+            applylook(&pPlayer->q16ang, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, input.q16avel, &pPlayer->input.actions, scaleAdjust, gView->pXSprite->health == 0, pPlayer->posture != 0);
+            UpdatePlayerSpriteAngle(pPlayer);
             sethorizon(&pPlayer->q16horiz, input.q16horz, &pPlayer->input.actions, scaleAdjust);
         }
 

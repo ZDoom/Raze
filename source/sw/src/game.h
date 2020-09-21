@@ -832,6 +832,7 @@ struct PLAYERstruct
     int
         oposx, oposy, oposz;
     fixed_t oq16horiz, oq16ang;
+    fixed_t oq16look_ang, oq16rotscrnang;
 
     // holds last valid move position
     short lv_sectnum;
@@ -882,6 +883,7 @@ struct PLAYERstruct
     // variables that do not fit into sprite structure
     int hvel,tilt,tilt_dest;
     fixed_t q16horiz, q16horizbase, q16horizoff, q16ang;
+    fixed_t q16look_ang, q16rotscrnang;
     short recoil_amt;
     short recoil_speed;
     short recoil_ndx;
@@ -1042,7 +1044,6 @@ enum
     PF_DIVING                   = (BIT(17)),
     PF_DIVING_IN_LAVA           = (BIT(18)),
     PF_TWO_UZI                  = (BIT(19)),
-    PF_TURN_180                 = (BIT(21)),
     PF_DEAD_HEAD                = (BIT(22)), // are your a dead head
     PF_HEAD_CONTROL             = (BIT(23)), // have control of turning when a head?
     PF_CLIP_CHEAT               = (BIT(24)), // cheat for wall clipping

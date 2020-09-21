@@ -763,7 +763,7 @@ void playerJump(int snum, int fz, int cz)
 
 void apply_seasick(player_struct* p, double factor)
 {
-	if (isRRRA() && p->SeaSick)
+	if (isRRRA() && p->SeaSick && p->dead_flag == 0)
 	{
 		if (p->SeaSick < 250)
 		{
@@ -787,63 +787,17 @@ void apply_seasick(player_struct* p, double factor)
 //
 //---------------------------------------------------------------------------
 
-void applylook(int snum, double factor, fixed_t adjustment)
+void processq16avel(player_struct* p, fixed_t* q16avel)
 {
-	auto p = &ps[snum];
-	fixed_t q16avel;
-
-	if (p->dead_flag == 0)
-	{
-		p->addrotscrnang(factor * -0.5 * FixedToFloat(p->q16rotscrnang));
-		if (abs(p->q16rotscrnang) < FRACUNIT) p->q16rotscrnang = 0;
-
-		p->addlookang(factor * -0.25 * FixedToFloat(p->q16look_ang));
-		if (abs(p->q16look_ang) < FRACUNIT) p->q16look_ang = 0;
-
-		if (p->lookLeft)
-		{
-			p->addlookang(factor * -152);
-			p->addrotscrnang(factor * 24);
-		}
-
-		if (p->lookRight)
-		{
-			p->addlookang(factor * 152);
-			p->addrotscrnang(factor * -24);
-		}
-
-		if (p->one_eighty_count < 0 && p->on_crane < 0)
-		{
-			fixed_t add = FloatToFixed(factor * 128);
-			p->one_eighty_count += add;
-			if (p->one_eighty_count > 0)
-			{
-				// Don't overshoot our target. With variable factor this is possible.
-				add -= p->one_eighty_count;
-				p->one_eighty_count = 0;
-			}
-			p->q16ang += add;
-		}
-		apply_seasick(p, factor);
-	}
-
-	// Add angAdjust if input is unsynchronised.
-	if (!cl_syncinput)
-	{
-		p->q16ang += FloatToFixed(factor * p->angAdjust);
-	}
-
 	// Taken from processinput() for use with applying look while cl_syncinput is 0.
 	if (p->psectlotag == ST_2_UNDERWATER)
 	{
-		q16avel = (adjustment - (adjustment >> 3)) * sgn(TICSPERFRAME);
+		*q16avel = (*q16avel - (*q16avel >> 3)) * sgn(TICSPERFRAME);
 	}
 	else
 	{
-		q16avel = adjustment * sgn(TICSPERFRAME);
+		*q16avel = *q16avel * sgn(TICSPERFRAME);
 	}
-
-	p->q16ang = (p->q16ang + q16avel) & 0x7FFFFFF;
 }
 
 //---------------------------------------------------------------------------
@@ -972,15 +926,13 @@ void checklook(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 
-	p->lookLeft = false;
-	p->lookRight = false;
 	if ((actions & SB_LOOK_LEFT) && !p->OnMotorcycle)
 	{
 		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 		OnEvent(EVENT_LOOKLEFT, p->i, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+		if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 		{
-			p->lookLeft = true;
+			actions &= ~SB_LOOK_LEFT;
 		}
 	}
 
@@ -988,9 +940,9 @@ void checklook(int snum, ESyncBits actions)
 	{
 		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 		OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+		if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 		{
-			p->lookRight = true;
+			actions &= ~SB_LOOK_RIGHT;
 		}
 	}
 	backuplook(p);

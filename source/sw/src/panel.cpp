@@ -6921,13 +6921,16 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
     short ang;
     int flags;
 
+    double look_anghalf = getHalfLookAng(pp->oq16look_ang, pp->q16look_ang, cl_syncinput, smoothratio);
+    double looking_arc = fabs(look_anghalf) / 4.5;
+
     TRAVERSE(&pp->PanelSpriteList, psp, next)
     {
         ang = psp->rotate_ang;
         shade = 0;
         flags = 0;
-        x = psp->ox + fmulscale16(psp->x - psp->ox, smoothratio);
-        y = psp->oy + fmulscale16(psp->y - psp->oy, smoothratio);
+        x = (psp->ox + fmulscale16(psp->x - psp->ox, smoothratio)) - look_anghalf;
+        y = (psp->oy + fmulscale16(psp->y - psp->oy, smoothratio)) + looking_arc;
         // initilize pal here - jack with it below
         pal = psp->pal;
 

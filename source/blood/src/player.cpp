@@ -1303,48 +1303,15 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
     return -1;
 }
 
-enum
-{
-    PLAYER_HORIZ_MIN = -79,
-    PLAYER_HORIZ_MAX = 219
-};
-
 //---------------------------------------------------------------------------
 //
-// Player's angle function, called in processInput() or from gi->GetInput() as required.
+// Player's sprite angle function, called in ProcessInput() or from gi->GetInput() as required.
 //
 //---------------------------------------------------------------------------
 
-void applylook(PLAYER *pPlayer, fixed_t const q16avel, double const scaleAdjust)
+void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 {
     spritetype *pSprite = pPlayer->pSprite;
-    InputPacket *pInput = &pPlayer->input;
-
-    if (q16avel)
-    {
-        pPlayer->q16ang = (pPlayer->q16ang + q16avel) & 0x7FFFFFF;
-    }
-
-    if (pInput->actions & SB_TURNAROUND)
-    {
-        if (pPlayer->spin == 0.)
-        {
-            pPlayer->spin = -1024.;
-        }
-        pInput->actions &= ~SB_TURNAROUND;
-    }
-
-    if (pPlayer->spin < 0.)
-    {
-        double const speed = scaleAdjust * (pPlayer->posture == 1 ? 64. : 128.);
-        pPlayer->spin = min(pPlayer->spin + speed, 0.);
-        pPlayer->q16ang += FloatToFixed(speed);
-
-        if (pPlayer->spin > -1.)
-        {
-            pPlayer->spin = 0.;
-        }
-    }
 
     pPlayer->q16ang = (pPlayer->q16ang + IntToFixed(pSprite->ang - pPlayer->angold)) & 0x7FFFFFF;
     pPlayer->angold = pSprite->ang = FixedToInt(pPlayer->q16ang);
@@ -1544,7 +1511,8 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        applylook(pPlayer, pInput->q16avel, 1);
+        applylook(&pPlayer->q16ang, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, pInput->q16avel, &pInput->actions, 1, gView->pXSprite->health == 0, pPlayer->posture != 0);
+        UpdatePlayerSpriteAngle(pPlayer);
     }
 
     if (!(pInput->actions & SB_JUMP))

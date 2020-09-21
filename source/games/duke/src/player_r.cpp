@@ -1611,29 +1611,29 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		if (!S_CheckActorSoundPlaying(pi, 189) && !S_CheckActorSoundPlaying(pi, 187))
 			S_PlayActorSound(187, pi);
 	}
-	if (actions & SB_AIM_UP)
+	if (p->vehicle_backwards)
 	{
 		var6c = 1;
-		actions &= ~SB_AIM_UP;
+		p->vehicle_backwards = false;
 	}
 	else
 		var6c = 0;
-	if (actions & SB_AIM_DOWN)
+	if (p->vehicle_turnl)
 	{
 		var70 = 1;
 		var74 = 1;
-		actions &= ~SB_AIM_DOWN;
+		p->vehicle_turnl = false;
 	}
 	else
 	{
 		var70 = 0;
 		var74 = 0;
 	}
-	if (actions & SB_LOOK_LEFT)
+	if (p->vehicle_turnr)
 	{
 		var78 = 1;
 		var7c = 1;
-		actions &= ~SB_LOOK_LEFT;
+		p->vehicle_turnr = false;
 	}
 	else
 	{
@@ -1914,17 +1914,17 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	else
 		varb0 = 0;
-	if (actions & SB_AIM_UP)
+	if (p->vehicle_backwards)
 	{
 		varb4 = 1;
-		actions &= ~SB_AIM_UP;
+		p->vehicle_backwards = false;
 	}
 	else varb4 = 0;
-	if (actions & SB_AIM_DOWN)
+	if (p->vehicle_turnl)
 	{
 		varb8 = 1;
 		varbc = 1;
-		actions &= ~SB_AIM_DOWN;
+		p->vehicle_turnl = false;
 		if (!S_CheckActorSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 			S_PlayActorSound(91, pi);
 	}
@@ -1933,11 +1933,11 @@ static void onBoat(int snum, ESyncBits &actions)
 		varb8 = 0;
 		varbc = 0;
 	}
-	if (actions & SB_LOOK_LEFT)
+	if (p->vehicle_turnr)
 	{
 		varc0 = 1;
 		varc4 = 1;
-		actions &= ~SB_LOOK_LEFT;
+		p->vehicle_turnr = false;
 		if (!S_CheckActorSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 			S_PlayActorSound(91, pi);
 	}
@@ -3736,7 +3736,9 @@ void processinput_r(int snum)
 		//ENGINE calculates angvel for you
 		// may still be needed later for demo recording
 
-		applylook(snum, 1, sb_avel);
+		processq16avel(p, &sb_avel);
+		applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, sb_avel, &actions, 1, p->dead_flag != 0, p->crouch_toggle || actions & SB_CROUCH);
+		apply_seasick(p, 1);
 	}
 
 	if (p->spritebridge == 0)

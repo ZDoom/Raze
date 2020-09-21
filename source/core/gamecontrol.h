@@ -11,6 +11,7 @@
 #include "stats.h"
 #include "i_time.h"
 #include "palentry.h"
+#include "pragmas.h"
 
 extern FString currentGame;
 extern FString LumpFilter;
@@ -67,6 +68,7 @@ int getincangle(int c, int n);
 fixed_t getincangleq16(fixed_t c, fixed_t n);
 
 void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust);
+void applylook(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const dead, bool const crouching);
 
 struct UserConfig
 {
@@ -229,3 +231,13 @@ extern int chatmodeon;
 extern bool sendPause;
 extern int lastTic;
 
+//---------------------------------------------------------------------------
+//
+// Return half player's q16look_ang directly or interpolated as required.
+//
+//---------------------------------------------------------------------------
+
+inline double getHalfLookAng(fixed_t const oq16look_ang, fixed_t const q16look_ang, bool interpolate, double smoothratio)
+{
+	return (!interpolate ? q16look_ang : oq16look_ang + fmulscale16(q16look_ang - oq16look_ang, smoothratio)) * (0.5 / FRACUNIT);
+}
