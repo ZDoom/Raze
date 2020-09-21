@@ -52,8 +52,6 @@ struct PlayerSave
 int lPlayerXVel = 0;
 int lPlayerYVel = 0;
 short obobangle = 0, bobangle  = 0;
-short bPlayerPan = 0;
-short bLockPan  = 0;
 
 static actionSeq ActionSeq[] = {
     {18,  0}, {0,   0}, {9,   0}, {27,  0}, {63,  0},
@@ -460,9 +458,6 @@ void RestartPlayer(short nPlayer)
 
         SetMagicFrame();
         RestoreGreenPal();
-
-        bPlayerPan = 0;
-        bLockPan = 0;
     }
 
     sprintf(playerNames[nPlayer], "JOE%d", nPlayer);
@@ -1106,8 +1101,8 @@ void FuncPlayer(int a, int nDamage, int nRun)
                             zVelB = -zVelB;
                         }
 
-                        if (zVelB > 512 && !bLockPan) {
-                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 100);
+                        if (zVelB > 512 && PlayerList[nPlayer].q16angle != IntToFixed(100) && !(sPlayerInput[nPlayer].actions & (SB_AIM_UP|SB_AIM_DOWN))) {
+                            sPlayerInput[nPlayer].actions |= SB_CENTERVIEW;
                         }
                     }
 
@@ -2852,8 +2847,6 @@ static SavegameHelper sgh("player",
     SV(lPlayerYVel),
     SV(obobangle),
     SV(bobangle),
-    SV(bPlayerPan),
-    SV(bLockPan),
     SV(nStandHeight),
     SV(PlayerCount),
     SV(nNetStartSprites),
