@@ -38,7 +38,7 @@ enum
 {
     MAXFVEL     = 2048,
     MAXSVEL     = 2048,
-    MAXHORIZVEL = 32
+    MAXHORIZVEL = 128
 };
 
 void UpdatePlayerSpriteAngle(PLAYER* pPlayer);
