@@ -438,7 +438,6 @@ void RestartPlayer(short nPlayer)
     nXDamage[nPlayer] = 0;
 
     PlayerList[nPlayer].q16horiz = IntToFixed(100);
-    nDestVertPan[nPlayer] = IntToFixed(100);
     nBreathTimer[nPlayer] = 90;
 
     nTauntTimer[nPlayer] = RandomSize(3) + 3;
@@ -1033,10 +1032,11 @@ void FuncPlayer(int a, int nDamage, int nRun)
             {
                 if (nTotalPlayers <= 1)
                 {
-                    PlayerList[nPlayer].q16angle = IntToFixed(GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask);
-                    sprite[nPlayerSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
+                    auto ang = GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask;
+                    playerSetAngle(&PlayerList[nPlayer].q16angle, &PlayerList[nPlayer].angTarget, ang);
+                    sprite[nPlayerSprite].ang = ang;
 
-                    PlayerList[nPlayer].q16horiz = IntToFixed(100);
+                    playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 100);
 
                     lPlayerXVel = 0;
                     lPlayerYVel = 0;
@@ -1054,15 +1054,15 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         StopLocalSound();
                         InitSpiritHead();
 
-                        nDestVertPan[nPlayer] = IntToFixed(100);
+                        playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 100);
 
                         if (currentLevel->levelNumber == 11)
                         {
-                            nDestVertPan[nPlayer] += IntToFixed(46);
+                            playerAddHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizAdjust, 46);
                         }
                         else
                         {
-                            nDestVertPan[nPlayer] += IntToFixed(11);
+                            playerAddHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizAdjust, 11);
                         }
                     }
                 }
@@ -1091,7 +1091,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         }
 
                         if (zVelB > 512 && !bLockPan) {
-                            nDestVertPan[nPlayer] = IntToFixed(100);
+                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 100);
                         }
                     }
 
@@ -1190,19 +1190,9 @@ void FuncPlayer(int a, int nDamage, int nRun)
             }
 
 loc_1AB8E:
-            if (!bPlayerPan && !bLockPan)
+            if (cl_syncinput)
             {
-                fixed_t nPanVal = IntToFixed(spr_z - sprite[nPlayerSprite].z) / 32 + IntToFixed(100);
-
-                if (nPanVal < 0) {
-                    nPanVal = 0;
-                }
-                else if (nPanVal > IntToFixed(183))
-                {
-                    nPanVal = IntToFixed(183);
-                }
-
-                nDestVertPan[nPlayer] = nPanVal;
+                ;// To be completed.
             }
 
             playerX -= sprite[nPlayerSprite].x;
@@ -2793,15 +2783,16 @@ loc_1BD2E:
                 {
                     if (PlayerList[nPlayer].q16horiz < IntToFixed(100))
                     {
-                        PlayerList[nPlayer].q16horiz = IntToFixed(91);
+                        playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 100);
                         eyelevel[nPlayer] -= (dVertPan[nPlayer] << 8);
                     }
                     else
                     {
-                        PlayerList[nPlayer].q16horiz += IntToFixed(dVertPan[nPlayer]);
-                        if (PlayerList[nPlayer].q16horiz >= IntToFixed(200))
+                        playerAddHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizAdjust, dVertPan[nPlayer]);
+
+                        if (PlayerList[nPlayer].q16horiz > gi->playerHorizMax())
                         {
-                            PlayerList[nPlayer].q16horiz = IntToFixed(199);
+                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, gi->playerHorizMax());
                         }
                         else if (PlayerList[nPlayer].q16horiz <= IntToFixed(100))
                         {

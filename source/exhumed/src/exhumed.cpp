@@ -421,19 +421,6 @@ void GameInterface::Ticker()
             }
         }
 
-        if (localInput.actions & SB_CENTERVIEW)
-        {
-            bLockPan = false;
-            bPlayerPan = false;
-            //PlayerList[nLocalPlayer].q16horiz = IntToFixed(100);
-            nDestVertPan[nLocalPlayer] = IntToFixed(100);
-        }
-        if (localInput.actions & SB_TURNAROUND)
-        {
-            // todo
-        }
-
-
         sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
         sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
         // make weapon selection persist until it gets used up.
@@ -445,6 +432,11 @@ void GameInterface::Ticker()
         auto oldactions = sPlayerInput[nLocalPlayer].actions;
         sPlayerInput[nLocalPlayer].actions = localInput.actions;
         if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;
+
+        if (cl_syncinput)
+        {
+            ;// To be completed...
+        }
 
         Ra[nLocalPlayer].nTarget = besttarget;
 

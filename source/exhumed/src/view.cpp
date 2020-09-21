@@ -36,7 +36,6 @@ short bSubTitles = true;
 
 int zbob;
 
-fixed_t nDestVertPan[kMaxPlayers] = { 0 };
 short dVertPan[kMaxPlayers];
 int nCamerax;
 int nCameray;
@@ -497,7 +496,6 @@ static SavegameHelper sgh("view",
     SV(viewz),
     SV(enemy),
     SV(nEnemyPal),
-    SA(nDestVertPan),
     SA(dVertPan),
     SA(nQuake),
     SV(g_interpolationCnt),

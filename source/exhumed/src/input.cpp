@@ -193,12 +193,17 @@ static void processMovement(ControlInfo* const hidInput)
     localInput.q16avel += tempinput.q16avel;
     localInput.q16horz += tempinput.q16horz;
 
-    if (!cl_syncinput && !nFreeze)
+    if (!cl_syncinput)
     {
         Player* pPlayer = &PlayerList[nLocalPlayer];
 
-        applylook(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, tempinput.q16avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust, false);
-        sethorizon(&pPlayer->q16horiz, tempinput.q16horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
+        if (!nFreeze)
+        {
+            applylook(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, tempinput.q16avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust, false);
+            sethorizon(&pPlayer->q16horiz, tempinput.q16horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
+        }
+
+        playerProcessHelpers(&pPlayer->q16angle, &pPlayer->angAdjust, &pPlayer->angTarget, &pPlayer->q16horiz, &pPlayer->horizAdjust, &pPlayer->horizTarget, scaleAdjust);
     }
 }
 
