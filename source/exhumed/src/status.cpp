@@ -1002,7 +1002,7 @@ void DrawStatusBar()
     }
     DExhumedStatusBar sbar;
     sbar.Draw();
-    DrawCrosshair(MAXTILES, PlayerList[nLocalPlayer].nHealth >> 3, 0, 1);
+    DrawCrosshair(MAXTILES, PlayerList[nLocalPlayer].nHealth >> 3, 0, 0, 1);
 }
 
 

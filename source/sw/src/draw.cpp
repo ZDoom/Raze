@@ -1262,7 +1262,7 @@ void DrawCrosshair(PLAYERp pp)
     if (!(CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
         USERp u = User[pp->PlayerSprite];
-        ::DrawCrosshair(2326, u->Health, 0, 2, shadeToLight(10));
+        ::DrawCrosshair(2326, u->Health, 0, 0, 2, shadeToLight(10));
     }
 }
 

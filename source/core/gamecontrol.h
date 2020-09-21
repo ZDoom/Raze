@@ -57,7 +57,7 @@ void CONFIG_ReadCombatMacros();
 int GameMain();
 int GetAutomapZoom(int gZoom);
 
-void DrawCrosshair(int deftile, int health, double xdelta, double scale, PalEntry color = 0xffffffff);
+void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double scale, PalEntry color = 0xffffffff);
 void updatePauseStatus();
 void DeferedStartGame(MapRecord* map, int skill);
 void ChangeLevel(MapRecord* map, int skill);

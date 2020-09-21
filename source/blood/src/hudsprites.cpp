@@ -100,7 +100,7 @@ void hudDraw(PLAYER *gView, int nSectnum, int defaultHoriz, double bobx, double 
 {
 	if (gViewPos == 0)
 	{
-		DrawCrosshair(kCrosshairTile, gView->pXSprite->health >> 4, 0, 2);
+		DrawCrosshair(kCrosshairTile, gView->pXSprite->health >> 4, 0, defaultHoriz - 100, 2);
 
 		double cX = 160;
 		double cY = 220;
