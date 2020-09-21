@@ -425,8 +425,8 @@ void GameInterface::Ticker()
         {
             bLockPan = false;
             bPlayerPan = false;
-            //PlayerList[nLocalPlayer].q16horiz = IntToFixed(92);
-            nDestVertPan[nLocalPlayer] = IntToFixed(92);
+            //PlayerList[nLocalPlayer].q16horiz = IntToFixed(100);
+            nDestVertPan[nLocalPlayer] = IntToFixed(100);
         }
         if (localInput.actions & SB_TURNAROUND)
         {
@@ -528,7 +528,6 @@ void GameInterface::app_init()
 
     TileFiles.SetBackup();
 
-    InitView();
     InitFX();
     seq_LoadSequences();
     InitStatus();

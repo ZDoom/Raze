@@ -27,7 +27,6 @@ extern short bSubTitles;
 extern short besttarget;
 extern short bCamera;
 
-void InitView();
 void DrawStatusBar();
 void DrawView(double smoothRatio, bool sceneonly = false);
 void ResetView();

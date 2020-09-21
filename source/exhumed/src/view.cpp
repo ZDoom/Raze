@@ -120,11 +120,6 @@ void viewRestoreInterpolations(void)  //Stick at end of drawscreen
     for (; i>=0; i--) *curipos[i] = bakipos[i];
 }
 
-void InitView()
-{
-    polymostcenterhoriz = 92;
-}
-
 // NOTE - not to be confused with Ken's analyzesprites()
 static void analyzesprites()
 {
@@ -297,7 +292,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     {
         if (nSnakeCam >= 0 && !sceneonly)
         {
-            pan = IntToFixed(92);
+            pan = IntToFixed(100);
             viewz = playerZ;
         }
         else
@@ -321,7 +316,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             -2000 * Sin(inita),
             4, 0, 0, CLIPMASK1);
 
-        pan = IntToFixed(92);
+        pan = IntToFixed(100);
         viewz = playerZ;
     }
 
