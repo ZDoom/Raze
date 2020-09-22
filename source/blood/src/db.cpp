@@ -1128,9 +1128,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             
         }
     }
-
-    g_loadedMapVersion = 7;
-
     return 0;
 }
 

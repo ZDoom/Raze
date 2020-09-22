@@ -51,10 +51,6 @@ enum rendmode_t {
 #define MAXWALLSV8 16384
 #define MAXSPRITESV8 16384
 
-#define MAXSECTORSV7 1024
-#define MAXWALLSV7 8192
-#define MAXSPRITESV7 4096
-
 #define MAXVOXMIPS 5
 
 
@@ -216,13 +212,6 @@ typedef struct {
     float alpha;
     // NOTE: keep 'tspr' on an 8-byte boundary:
     tspriteptr_t tspr;
-#if !defined UINTPTR_MAX
-# error Need UINTPTR_MAX define to select between 32- and 64-bit structs
-#endif
-#if UINTPTR_MAX == 0xffffffff
-    /* On a 32-bit build, pad the struct so it has the same size everywhere. */
-    intptr_t dummy_;
-#endif
 } spriteext_t;
 
 typedef struct {
@@ -260,7 +249,6 @@ enum
 
 EXTERN int32_t guniqhudid;
 EXTERN int32_t spritesortcnt;
-extern int32_t g_loadedMapVersion;
 
 struct usermaphack_t 
 {
@@ -586,7 +574,7 @@ int32_t    engineInit(void);
 void   engineUnInit(void);
 void   initspritelists(void);
 
-int32_t   engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
+void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 int32_t   engineLoadMHK(const char *filename);
 void G_LoadMapHack(const char* filename);
 int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);

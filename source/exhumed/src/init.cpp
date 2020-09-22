@@ -141,9 +141,7 @@ uint8_t LoadLevel(int nMap)
     }
 
     vec3_t startPos;
-    int status = engineLoadBoard(currentLevel->fileName, 0, &startPos, &inita, &initsect);
-    if (status == -2)
-        status = engineLoadBoardV5V6(currentLevel->fileName, 0, &startPos, &inita, &initsect);
+    engineLoadBoard(currentLevel->fileName, 0, &startPos, &inita, &initsect);
     initx = startPos.x;
     inity = startPos.y;
     initz = startPos.z;

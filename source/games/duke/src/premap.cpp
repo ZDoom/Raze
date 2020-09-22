@@ -864,10 +864,8 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
         I_Error("Cannot load user maps with shareware version!\n");
     }
 
-    if (engineLoadBoard(mi->fileName, VOLUMEONE, &p->pos, &lbang, &p->cursectnum) < 0)
-    {
-        I_Error("Map \"%s\" not found or invalid map version!\n", mi->fileName.GetChars());
-    }
+    engineLoadBoard(mi->fileName, VOLUMEONE, &p->pos, &lbang, &p->cursectnum);
+
     currentLevel = mi;
     SECRET_SetMapName(mi->DisplayName(), mi->name);
     STAT_NewLevel(mi->fileName);

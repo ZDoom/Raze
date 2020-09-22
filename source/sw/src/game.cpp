@@ -332,10 +332,7 @@ void InitLevel(MapRecord *maprec)
     }
 
     int16_t ang;
-    if (engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, (vec3_t*)&Player[0], &ang, &Player[0].cursectnum) == -1)
-    {
-        I_Error("Map not found: %s", maprec->fileName.GetChars());
-    }
+    engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, (vec3_t*)&Player[0], &ang, &Player[0].cursectnum);
     currentLevel = maprec;
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
