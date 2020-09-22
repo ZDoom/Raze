@@ -739,7 +739,7 @@ loc_flag:
                 // loc_27266:
                 case kWeaponSword:
                 {
-                    nHeight += (100 - FixedToInt(PlayerList[nLocalPlayer].q16horiz)) << 6;
+                    nHeight += (IntToFixed(100) - PlayerList[nLocalPlayer].q16horiz) >> 10;
 
                     theZ += nHeight;
 
@@ -844,7 +844,7 @@ loc_flag:
                 }
                 case kWeaponPistol:
                 {
-                    int var_50 = (FixedToInt(PlayerList[nLocalPlayer].q16horiz) - 100) << 2;
+                    int var_50 = (PlayerList[nLocalPlayer].q16horiz - IntToFixed(100)) >> 14;
                     nHeight -= var_50;
 
                     if (sPlayerInput[nPlayer].nTarget >= 0 && cl_autoaim)

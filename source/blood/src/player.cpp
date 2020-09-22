@@ -1586,7 +1586,7 @@ void ProcessInput(PLAYER *pPlayer)
         if (klabs(pPlayer->q16slopehoriz) < 4)
             pPlayer->q16slopehoriz = 0;
     }
-    pPlayer->slope = -(FixedToInt(pPlayer->q16horiz) - 100)<<7;
+    pPlayer->slope = -(pPlayer->q16horiz - IntToFixed(100)) >> 9;
     if (pInput->actions & SB_INVPREV)
     {
         pInput->actions&= ~SB_INVPREV;
