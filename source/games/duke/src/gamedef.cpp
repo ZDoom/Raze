@@ -2509,7 +2509,7 @@ int ConCompiler::parsecommand()
 		if (tw == concmd_setactorvar && !(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR))
 		{
 			errorcount++;
-			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Variable '%s' is not per-actor.\n", fn, line_number, parselabel);
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Variable '%s' is not per-actor.\n", fn, line_number, parselabel.GetChars());
 			return 0;
 
 		}
@@ -2610,7 +2610,7 @@ int ConCompiler::parsecommand()
 				errorcount++;
 				ReportError(ERROR_NOTAGAMEDEF);
 
-				Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Symbol '%s' is not a Game Definition.\n", fn, line_number, parselabel);
+				Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Symbol '%s' is not a Game Definition.\n", fn, line_number, parselabel.GetChars());
 				return 0;
 			}
 			appendscriptvalue(i);	// the ID of the DEF (offset into array...)
@@ -2677,7 +2677,7 @@ int ConCompiler::parsecommand()
 		int k = popscriptvalue();
 		if (k > VERSIONCHECK)
 		{
-			Printf(TEXTCOLOR_RED, "  * ERROR: This CON Code requires at least Build %d, but we are only Build %d\n", k, (int)VERSIONCHECK);
+			Printf(TEXTCOLOR_RED "  * ERROR: This CON Code requires at least Build %d, but we are only Build %d\n", k, (int)VERSIONCHECK);
 			errorcount++;
 		}
 		break;

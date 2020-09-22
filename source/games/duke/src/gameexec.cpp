@@ -303,8 +303,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_LOOGIEY:
-		if (bSet) ps[iPlayer].loogiey[64] = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].loogiey[64], sActor, sPlayer);
+		if (bSet) ps[iPlayer].loogiey[lParm2] = lValue;
+		else SetGameVarID((int)lVar2, ps[iPlayer].loogiey[lParm2], sActor, sPlayer);
 		break;
 
 	case PLAYER_NUMLOOGS:

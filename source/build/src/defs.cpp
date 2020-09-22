@@ -934,10 +934,8 @@ static int32_t defsparser(scriptfile *script)
         case T_DEFINEMODELFRAME:
         {
             FString framename;
-#ifdef USE_OPENGL
             char happy=1;
             int32_t tilex;
-#endif
             int32_t ftilenume, ltilenume;
 
             if (scriptfile_getstring(script,&framename)) break;
@@ -949,12 +947,9 @@ static int32_t defsparser(scriptfile *script)
 
             if (lastmodelid < 0)
             {
-#ifdef USE_OPENGL
                 pos.Message(MSG_WARNING, "Ignoring frame definition.\n");
-#endif
                 break;
             }
-#ifdef USE_OPENGL
             for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
             {
                 switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), 0.0f,0))
@@ -973,7 +968,6 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 }
             }
-#endif
             seenframe = 1;
         }
         break;
@@ -990,12 +984,9 @@ static int32_t defsparser(scriptfile *script)
 
             if (lastmodelid < 0)
             {
-#ifdef USE_OPENGL
                 Printf("Warning: Ignoring animation definition.\n");
-#endif
                 break;
             }
-#ifdef USE_OPENGL
             switch (md_defineanimation(lastmodelid, startframe, endframe, (int32_t)(dfps*(65536.0*.001)), flags))
             {
             case 0:
@@ -1012,7 +1003,6 @@ static int32_t defsparser(scriptfile *script)
                 Printf("Out of memory");
                 break;
             }
-#endif
         }
         break;
         case T_DEFINEMODELSKIN:
@@ -1041,7 +1031,6 @@ static int32_t defsparser(scriptfile *script)
             if (!fileSystem.FileExists(skinfn))
                 break;
 
-#ifdef USE_OPENGL
             switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f, 1.0f, 1.0f, 0))
             {
             case 0:
@@ -1058,7 +1047,6 @@ static int32_t defsparser(scriptfile *script)
                 Printf("Out of memory");
                 break;
             }
-#endif
         }
         break;
         case T_SELECTMODELSKIN:
@@ -1147,7 +1135,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getstring(script,&modelfn)) break;
             if (scriptfile_getbraces(script,&modelend)) break;
-#ifdef USE_OPENGL
+
             lastmodelid = md_loadmodel(modelfn);
             if (lastmodelid < 0)
             {
@@ -1155,7 +1143,6 @@ static int32_t defsparser(scriptfile *script)
                 scriptfile_setposition(script, modelend);
                 break;
             }
-#endif
             while (!scriptfile_endofblock(script, modelend))
             {
                 int32_t token = getatoken(script,modeltokens,countof(modeltokens));
@@ -1177,10 +1164,8 @@ static int32_t defsparser(scriptfile *script)
 					auto framepos = scriptfile_getposition(script);
                     FScanner::SavedPos frameend;
                     FString framename;
-#ifdef USE_OPENGL
                     char happy=1;
                     int32_t tilex = 0, framei;
-#endif
                     int32_t ftilenume = -1, ltilenume = -1;
                     double smoothduration = 0.1f;
 
@@ -1223,9 +1208,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (lastmodelid < 0)
                     {
-#ifdef USE_OPENGL
 						framepos.Message(MSG_WARNING, "ignoring frame definition");
-#endif
                         break;
                     }
 
@@ -1234,7 +1217,6 @@ static int32_t defsparser(scriptfile *script)
                         framepos.Message(MSG_WARNING, "smoothduration out of range");
                         smoothduration = 1.0;
                     }
-#ifdef USE_OPENGL
                     for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
                     {
                         framei = md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), smoothduration,pal);
@@ -1254,10 +1236,8 @@ static int32_t defsparser(scriptfile *script)
                             if (framei >= 0 && framei<1024)
                                 usedframebitmap[framei>>3] |= pow2char[framei&7];
                         }
-
                         model_ok &= happy;
                     }
-#endif
                     seenframe = 1;
                 }
                 break;
@@ -1401,7 +1381,6 @@ static int32_t defsparser(scriptfile *script)
                     if (!fileSystem.FileExists(skinfn))
                         break;
 
-#ifdef USE_OPENGL
                     switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param, specpower, specfactor, flags))
                     {
                     case 0:
@@ -1421,17 +1400,14 @@ static int32_t defsparser(scriptfile *script)
                         model_ok = 0;
                         break;
                     }
-#endif
                 }
                 break;
                 case T_HUD:
                 {
 					auto hudpos = scriptfile_getposition(script);
                     FScanner::SavedPos frameend;
-#ifdef USE_OPENGL
                     char happy=1;
                     int32_t tilex = 0;
-#endif
                     int32_t ftilenume = -1, ltilenume = -1, flags = 0, fov = -1, angadd = 0;
                     double xadd = 0.0, yadd = 0.0, zadd = 0.0;
 
@@ -1607,10 +1583,8 @@ static int32_t defsparser(scriptfile *script)
                     double scale=1.0;
                     scriptfile_getdouble(script,&scale);
                     voxscale[lastvoxid] = (int32_t)(65536*scale);
-#ifdef USE_OPENGL
                     if (voxmodels[lastvoxid])
                         voxmodels[lastvoxid]->scale = scale;
-#endif
                     break;
                 }
 
@@ -2838,9 +2812,6 @@ static int32_t defsparser(scriptfile *script)
                 scriptfile_setposition(script, blockend);
                 break;
             }
-
-            int didLoadTransluc = 0;
-
             while (!scriptfile_endofblock(script, blockend))
             {
                 int32_t token = getatoken(script,subtokens,countof(subtokens));
@@ -2913,8 +2884,6 @@ static int32_t defsparser(scriptfile *script)
                         pos.Message(MSG_ERROR, "blendtable: Read failed");
                         break;
                     }
-
-                    didLoadTransluc = 1;
                     break;
                 }
                 case T_COPY:
@@ -2927,18 +2896,11 @@ static int32_t defsparser(scriptfile *script)
                         pos.Message(MSG_ERROR, "blendtable: Invalid source blendtable number");
                         break;
                     }
-
-                    didLoadTransluc = 1;
-
                     glblend[id] = glblend[source];
                     break;
                 }
                 case T_UNDEF:
                 {
-                    didLoadTransluc = 0;
-                    if (id == 0)
-                        paletteloaded &= ~PALETTE_TRANSLUC;
-
                     glblend[id] = defaultglblend;
                     break;
                 }
@@ -3028,11 +2990,6 @@ static int32_t defsparser(scriptfile *script)
                 default:
                     break;
                 }
-            }
-
-            if (didLoadTransluc && id == 0)
-            {
-                paletteloaded |= PALETTE_TRANSLUC;
             }
         }
         break;
@@ -3124,9 +3081,6 @@ static int32_t defsparser(scriptfile *script)
                 pos.Message(MSG_ERROR, "undefblendtablerange: Invalid range");
                 break;
             }
-
-            if (id0 == 0)
-                paletteloaded &= ~PALETTE_TRANSLUC;
         }
         break;
         case T_NEWGAMECHOICES: // stub
