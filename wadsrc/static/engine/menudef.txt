@@ -982,7 +982,7 @@ OptionMenu "VideoOptions" //protected
 	{
 		Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
 	}
-	ifgame (Duke, Nam, WW2GI, Redneck, RedneckRides)
+	ifgame (Duke, ShadowWarrior, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"OnOff"
 	}
