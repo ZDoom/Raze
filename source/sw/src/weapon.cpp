@@ -8310,9 +8310,9 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t d
         hp = &sprite[User[Weapon]->WpnGoal];
 
         // move to correct angle
-        ang2tgt = getangle(hp->y - sp->y, hp->x - sp->x);
+        ang2tgt = getangle(hp->x - sp->x, hp->y - sp->y);
 
-        delta_ang = getincangle(sp->ang, ang2tgt);
+        delta_ang = getincangle(ang2tgt, sp->ang);
 
         if (labs(delta_ang) > 32)
         {
