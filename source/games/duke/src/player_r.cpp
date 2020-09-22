@@ -1717,9 +1717,10 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 				p->moto_drink--;
 		}
 	}
+
+	int horiz = 0;
 	if (p->TurbCount)
 	{
-		int horiz;
 		if (p->TurbCount <= 1)
 		{
 			horiz = 100;
@@ -1733,7 +1734,6 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
 		}
-		playerSetHoriz(&p->q16horiz, &p->horizTarget, horiz);
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
 	{
@@ -1743,7 +1743,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		playerSetHoriz(&p->q16horiz, &p->horizTarget, 100 + p->VBumpNow / 3);
+		horiz = 100 + p->VBumpNow / 3;
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -1753,13 +1753,18 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		playerSetHoriz(&p->q16horiz, &p->horizTarget, 100 + p->VBumpNow / 3);
+		horiz = 100 + p->VBumpNow / 3;
 	}
 	else
 	{
 		p->VBumpTarget = 0;
 		p->moto_bump_fast = 0;
 	}
+	if (horiz != 0)
+	{
+		playerAddHoriz(&p->q16horiz, &p->horizAdjust, horiz - FixedToFloat(p->q16horiz));
+	}
+
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (var74 || var7c))
 	{
 		short var8c, var90, var94, var98;
@@ -2041,9 +2046,10 @@ static void onBoat(int snum, ESyncBits &actions)
 				p->moto_drink--;
 		}
 	}
+
+	int horiz = 0;
 	if (p->TurbCount)
 	{
-		int horiz;
 		if (p->TurbCount <= 1)
 		{
 			horiz = 100;
@@ -2057,7 +2063,6 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
 		}
-		playerSetHoriz(&p->q16horiz, &p->horizTarget, horiz);
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
 	{
@@ -2067,7 +2072,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		playerSetHoriz(&p->q16horiz, &p->horizTarget, 100 + p->VBumpNow / 3);
+		horiz = 100 + p->VBumpNow / 3;
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -2077,13 +2082,18 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		playerSetHoriz(&p->q16horiz, &p->horizTarget, 100 + p->VBumpNow / 3);
+		horiz = 100 + p->VBumpNow / 3;
 	}
 	else
 	{
 		p->VBumpTarget = 0;
 		p->moto_bump_fast = 0;
 	}
+	if (horiz != 0)
+	{
+		playerAddHoriz(&p->q16horiz, &p->horizAdjust, horiz - FixedToFloat(p->q16horiz));
+	}
+
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (varbc || varc4))
 	{
 		short vard4, vard8, vardc, vare0;

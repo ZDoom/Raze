@@ -1358,12 +1358,13 @@ void ProcessInput(PLAYER *pPlayer)
         char bSeqStat = playerSeqPlaying(pPlayer, 16);
         if (pPlayer->fraggerId != -1)
         {
-            pPlayer->angold = pSprite->ang = getangle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
-            playerSetAngle(&pPlayer->q16ang, &pPlayer->angTarget, pSprite->ang);
+            fixed_t fraggerAng = gethiq16angle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
+            pPlayer->angold = pSprite->ang = FixedToInt(fraggerAng);
+            playerAddAngle(&pPlayer->q16ang, &pPlayer->angAdjust, FixedToFloat(getincangleq16(pPlayer->q16ang, fraggerAng)));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
-            playerSetHoriz(&pPlayer->q16horiz, &pPlayer->horizTarget, FixedToFloat(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), IntToFixed(120))));
+            playerAddHoriz(&pPlayer->q16horiz, &pPlayer->horizAdjust, FixedToFloat(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), IntToFixed(120)) - pPlayer->q16horiz));
         if (pPlayer->curWeapon)
             pInput->setNewWeapon(pPlayer->curWeapon);
         if (pInput->actions & SB_OPEN)
