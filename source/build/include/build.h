@@ -690,11 +690,6 @@ int32_t   ksqrt(uint32_t num);
 int32_t   getangle(int32_t xvect, int32_t yvect);
 fixed_t   gethiq16angle(int32_t xvect, int32_t yvect);
 
-static FORCE_INLINE fixed_t getq16angle(int32_t xvect, int32_t yvect)
-{
-    return IntToFixed(getangle(xvect, yvect));
-}
-
 static FORCE_INLINE constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
 {
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
