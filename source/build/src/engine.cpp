@@ -3605,7 +3605,7 @@ void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, f
 
     *tposx = (x<<1) + scale(dx,i,j) - dax;
     *tposy = (y<<1) + scale(dy,i,j) - day;
-    *tang  = (IntToFixed(getangle(dx, dy) << 1) - daang) & 0x7FFFFFF;
+    *tang  = ((gethiq16angle(dx, dy) << 1) - daang) & 0x7FFFFFF;
 
     inpreparemirror = 1;
 
