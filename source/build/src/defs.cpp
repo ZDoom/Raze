@@ -3196,7 +3196,7 @@ static int32_t defsparser(scriptfile *script)
 
 
         default:
-            pos.Message(MSG_ERROR, "Unknown token."); break;
+            pos.Message(MSG_ERROR, "%s: Unknown token.", script->String); break;
         }
     }
 
