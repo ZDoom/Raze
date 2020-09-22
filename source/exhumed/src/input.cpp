@@ -196,7 +196,7 @@ static void processMovement(ControlInfo* const hidInput)
 
         if (!nFreeze)
         {
-            applylook(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, tempinput.q16avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust, false);
+            applylook(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, tempinput.q16avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust, eyelevel[nLocalPlayer] > -14080);
             sethorizon(&pPlayer->q16horiz, tempinput.q16horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
             UpdatePlayerSpriteAngle(pPlayer);
         }

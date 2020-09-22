@@ -946,7 +946,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
             if (cl_syncinput)
             {
                 Player* pPlayer = &PlayerList[nPlayer];
-                applylook(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions, 1, false);
+                applylook(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions, 1, eyelevel[nLocalPlayer] > -14080);
                 UpdatePlayerSpriteAngle(pPlayer);
             }
 
