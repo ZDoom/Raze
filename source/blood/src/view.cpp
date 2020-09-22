@@ -716,7 +716,7 @@ void viewDrawScreen(bool sceneonly)
             {
                 q16horiz += q16slopehoriz;
             }
-            cZ += FixedToInt(q16horiz * 10);
+            cZ += (FixedToInt(q16horiz) - 100) * 10;
             cameradist = -1;
             cameraclock = gFrameClock +mulscale16(4, (int)gInterpolate);
         }
