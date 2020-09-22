@@ -261,7 +261,6 @@ LABELS playerlabels[]=
 	{ "pals", PLAYER_PALS, LABEL_HASPARM2, 3 },
 	{ "max_actors_killed", PLAYER_MAX_ACTORS_KILLED, 0, 0 },
 	{ "actors_killed", PLAYER_ACTORS_KILLED, 0, 0 },
-	{ "return_to_center", PLAYER_RETURN_TO_CENTER, 0, 0 },
 	
   { "", -1, 0, 0  }	// END OF LIST
 	

@@ -49,7 +49,9 @@ void GameInterface::Ticker()
 	// Make copies so that the originals do not have to be modified.
 	for (int i = 0; i < MAXPLAYERS; i++)
 	{
+		auto oldactions = sync[i].actions;
 		sync[i] = playercmds[i].ucmd;
+		if (oldactions & SB_CENTERVIEW) sync[i].actions |= SB_CENTERVIEW;
 	}
 	if (rtsplaying > 0) rtsplaying--;
 

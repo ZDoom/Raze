@@ -32,14 +32,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-bool bVanilla = false;
 int gFrameClock;
 int gFrameCount;
 
 static const char *_module;
 static int _line;
 
-int32_t gTurnSpeed = 92;
 int32_t gDetail = 4;
 bool gNoClip;
 bool gInfiniteAmmo;

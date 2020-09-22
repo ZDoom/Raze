@@ -4728,12 +4728,7 @@ void MoveDude(spritetype *pSprite)
     {
         GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
         if (pPlayer)
-        {
-            if (bVanilla)
-                playerResetInertia(pPlayer);
-            else
-                playerCorrectInertia(pPlayer, &oldpos);
-        }
+            playerCorrectInertia(pPlayer, &oldpos);
         switch (nLink) {
         case kMarkerLowStack:
             if (pPlayer == gView)

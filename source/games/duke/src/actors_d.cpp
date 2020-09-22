@@ -1852,8 +1852,8 @@ void moveweapons_d(void)
 
 						if (s->picnum == SPIT)
 						{
-							playerAddHoriz(&ps[p], 32);
-							ps[p].return_to_center = 8;
+							playerAddHoriz(&ps[p].q16horiz, &ps[p].horizAdjust, 32);
+							sync[p].actions |= SB_CENTERVIEW;
 
 							if (ps[p].loogcnt == 0)
 							{

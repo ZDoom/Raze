@@ -120,12 +120,6 @@ char PlayerGravity = PLAYER_JUMP_GRAV;
 
 extern bool DebugOperate;
 
-enum
-{
-    TURN_SHIFT = 2,
-    HORIZ_SPEED = 16
-};
-
 //unsigned char synctics, lastsynctics;
 
 int ChopTics;
@@ -1065,6 +1059,18 @@ STATEp sg_PlayerNinjaFly[] =
 
 /////////////////////////////////////////////////////////////////////////////
 
+//---------------------------------------------------------------------------
+//
+// Unsynchronised input helper.
+//
+//---------------------------------------------------------------------------
+
+static void resetinputhelpers(PLAYERp pp)
+{
+    pp->horizAdjust = 0;
+    pp->angAdjust = 0;
+}
+
 void
 DoPlayerSpriteThrow(PLAYERp pp)
 {
@@ -1122,45 +1128,6 @@ SetVisNorm(void)
 void pSetVisNorm(PANEL_SPRITEp psp)
 {
 //    SetVisNorm();
-}
-
-short
-GetDeltaAngle(short ang1, short ang2)
-{
-    // Look at the smaller angle if > 1024 (180 degrees)
-    if (labs(ang1 - ang2) > 1024)
-    {
-        if (ang1 <= 1024)
-            ang1 += 2048;
-
-        if (ang2 <= 1024)
-            ang2 += 2048;
-    }
-
-    //if (ang1 - ang2 == -1024)
-    //    return(1024);
-
-    return ang1 - ang2;
-
-}
-
-fixed_t
-GetDeltaQ16Angle(fixed_t ang1, fixed_t ang2)
-{
-    // Look at the smaller angle if > 1024 (180 degrees)
-    if (abs(ang1 - ang2) > IntToFixed(1024))
-    {
-        if (ang1 <= IntToFixed(1024))
-            ang1 += IntToFixed(2048);
-
-        if (ang2 <= IntToFixed(1024))
-            ang2 += IntToFixed(2048);
-    }
-
-    //if (ang1 - ang2 == -IntToFixed(1024))
-    //    return(IntToFixed(1024));
-
-    return ang1 - ang2;
 }
 
 TARGET_SORT TargetSort[MAX_TARGET_SORT];
@@ -1240,7 +1207,7 @@ DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
             // Get the angle difference
             // delta_ang = labs(FixedToInt(pp->q16ang) - angle2);
 
-            delta_ang = labs(GetDeltaAngle(sp->ang, angle2));
+            delta_ang = labs(getincangle(angle2, sp->ang));
 
             // If delta_ang not in the range skip this one
             if (delta_ang > (int)max_delta_ang)
@@ -1545,77 +1512,21 @@ DoPlayerCrawlHeight(PLAYERp pp)
 }
 
 void
+UpdatePlayerSpriteAngle(PLAYERp pp)
+{
+    sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
+
+    if (!Prediction && pp->PlayerUnderSprite >= 0)
+    {
+        sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
+    }
+}
+
+void
 DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
 {
-    if (!TEST(pp->Flags, PF_TURN_180))
-    {
-        if (pp->input.actions & SB_TURNAROUND)
-        {
-            if (pp->KeyPressBits & SB_TURNAROUND)
-            {
-                fixed_t delta_ang;
-
-                pp->KeyPressBits &= ~SB_TURNAROUND;
-
-                pp->turn180_target = pp->q16ang + IntToFixed(1024);
-
-                // make the first turn in the clockwise direction
-                // the rest will follow
-                delta_ang = labs(GetDeltaQ16Angle(pp->turn180_target, pp->q16ang)) >> TURN_SHIFT;
-                pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
-
-                SET(pp->Flags, PF_TURN_180);
-            }
-        }
-        else
-        {
-            pp->KeyPressBits |= SB_TURNAROUND;
-        }
-    }
-
-    if (TEST(pp->Flags, PF_TURN_180))
-    {
-        fixed_t delta_ang;
-
-        delta_ang = GetDeltaQ16Angle(pp->turn180_target, pp->q16ang) >> TURN_SHIFT;
-        pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
-
-        sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
-
-        if (!Prediction && pp->PlayerUnderSprite >= 0)
-        {
-            sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
-        }
-
-        // get new delta to see how close we are
-        delta_ang = GetDeltaQ16Angle(pp->turn180_target, pp->q16ang);
-
-        if (labs(delta_ang) < (IntToFixed(3) << TURN_SHIFT))
-        {
-            pp->q16ang = pp->turn180_target;
-            RESET(pp->Flags, PF_TURN_180);
-        }
-        else
-        {
-            return;
-        }
-    }
-
-    if (q16avel != 0)
-    {
-        pp->q16ang = (pp->q16ang + q16avel) & 0x7FFFFFF;
-
-        // update players sprite angle
-        // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
-        // here to cover
-        // all cases.
-        sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
-
-        if (!Prediction && pp->PlayerUnderSprite >= 0)
-        {
-            sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
-        }
-    }
+    applylook(&pp->q16ang, &pp->q16look_ang, &pp->q16rotscrnang, &pp->turn180_target, q16avel, &pp->input.actions, scaleAdjust, pp->input.actions & (SB_CROUCH|SB_CROUCH_LOCK));
+    UpdatePlayerSpriteAngle(pp);
 }
 
 #if 0
@@ -1723,7 +1634,7 @@ DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel)
 
         if (sop->limit_ang_center >= 0)
         {
-            diff = GetDeltaQ16Angle(new_ang, IntToFixed(sop->limit_ang_center));
+            diff = getincangleq16(IntToFixed(sop->limit_ang_center), new_ang);
 
             if (labs(diff) >= IntToFixed(sop->limit_ang_delta))
             {
@@ -1824,70 +1735,8 @@ DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
     if (cl_slopetilting)
         PlayerAutoLook(pp, scaleAdjust);
 
-    if (q16horz)
-    {
-        pp->q16horizbase += q16horz;
-        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-    }
-
-    // this is the locked type
-    if (pp->input.actions & (SB_AIM_UP|SB_AIM_DOWN))
-    {
-        // set looking because player is manually looking.
-        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-
-        // adjust q16horiz negative
-        if (pp->input.actions & SB_AIM_DOWN)
-            pp->q16horizbase -= FloatToFixed(scaleAdjust * (HORIZ_SPEED >> 1));
-
-        // adjust q16horiz positive
-        if (pp->input.actions & SB_AIM_UP)
-            pp->q16horizbase += FloatToFixed(scaleAdjust * (HORIZ_SPEED >> 1));
-    }
-
-    // this is the unlocked type
-    if (pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN|SB_CENTERVIEW))
-    {
-        RESET(pp->Flags, PF_LOCK_HORIZ);
-        SET(pp->Flags, PF_LOOKING);
-
-        // adjust q16horiz negative
-        if (pp->input.actions & SB_LOOK_DOWN)
-            pp->q16horizbase -= FloatToFixed(scaleAdjust * HORIZ_SPEED);
-
-        // adjust q16horiz positive
-        if (pp->input.actions & SB_LOOK_UP)
-            pp->q16horizbase += FloatToFixed(scaleAdjust * HORIZ_SPEED);
-
-        if (pp->input.actions & SB_CENTERVIEW)
-            pp->q16horizoff = 0;
-    }
-
-    if (!TEST(pp->Flags, PF_LOCK_HORIZ))
-    {
-        if (!(pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
-        {
-            // not pressing the q16horiz keys
-            if (pp->q16horizbase != IntToFixed(100))
-            {
-                // move q16horiz back to 100
-                for (int i = 1; i; i--)
-                {
-                    // this formula does not work for q16horiz = 101-103
-                    pp->q16horizbase += xs_CRoundToInt(scaleAdjust * (IntToFixed(25) - (pp->q16horizbase >> 2)));
-                }
-            }
-            else
-            {
-                // not looking anymore because q16horiz is back at 100
-                RESET(pp->Flags, PF_LOOKING);
-            }
-        }
-    }
-
-    // bound the base
-    pp->q16horizbase = max(pp->q16horizbase, IntToFixed(PLAYER_HORIZ_MIN));
-    pp->q16horizbase = min(pp->q16horizbase, IntToFixed(PLAYER_HORIZ_MAX));
+    // apply default horizon from backend
+    sethorizon(&pp->q16horizbase, q16horz, &pp->input.actions, scaleAdjust);
 
     // bound adjust q16horizoff
     if (pp->q16horizbase + pp->q16horizoff < IntToFixed(PLAYER_HORIZ_MIN))
@@ -3449,10 +3298,9 @@ DoPlayerFall(PLAYERp pp)
         }
         else if (pp->jump_speed > 1300)
         {
-            if (TEST(pp->Flags, PF_LOCK_HORIZ))
+            if (!(pp->input.actions & SB_CENTERVIEW))
             {
-                RESET(pp->Flags, PF_LOCK_HORIZ);
-                SET(pp->Flags, PF_LOOKING);
+                pp->input.actions |= SB_CENTERVIEW;
             }
         }
 
@@ -3821,7 +3669,7 @@ DoPlayerClimb(PLAYERp pp)
             pp->lx = lsp->x + nx * 5;
             pp->ly = lsp->y + ny * 5;
 
-            playerSetAngle(pp, pp->LadderAngle);
+            playerSetAngle(&pp->q16ang, &pp->angTarget, pp->LadderAngle);
         }
     }
 }
@@ -4280,7 +4128,7 @@ PlayerOnLadder(PLAYERp pp)
     pp->lx = lsp->x + nx * 5;
     pp->ly = lsp->y + ny * 5;
 
-    playerSetAngle(pp, pp->LadderAngle);
+    playerSetAngle(&pp->q16ang, &pp->angTarget, pp->LadderAngle);
 
     return true;
 }
@@ -5519,7 +5367,7 @@ DoPlayerBeginOperate(PLAYERp pp)
     pp->sop = pp->sop_control = sop;
     sop->controller = pp->SpriteP;
 
-    playerSetAngle(pp, sop->ang);
+    playerSetAngle(&pp->q16ang, &pp->angTarget, sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5606,7 +5454,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 
     save_sectnum = pp->cursectnum;
 
-    playerSetAngle(pp, sop->ang);
+    playerSetAngle(&pp->q16ang, &pp->angTarget, sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -6180,7 +6028,7 @@ DoPlayerBeginDie(PLAYERp pp)
     // Get rid of all panel spells that are currently working
     KillAllPanelInv(pp);
 
-    SET(pp->Flags, PF_LOCK_HORIZ);
+    pp->input.actions &= ~SB_CENTERVIEW;
 
     pp->friction = PLAYER_RUN_FRICTION;
     pp->slide_xvect = pp->slide_yvect = 0;
@@ -6291,12 +6139,12 @@ DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
 {
     if ((pp->q16horiz - IntToFixed(target)) > FRACUNIT)
     {   
-        playerAddHoriz(pp, -speed);
+        playerAddHoriz(&pp->q16horiz, &pp->horizAdjust, -speed);
     }
 
     if ((IntToFixed(target) - pp->q16horiz) > FRACUNIT)
     {
-        playerAddHoriz(pp, speed);
+        playerAddHoriz(&pp->q16horiz, &pp->horizAdjust, speed);
     }
 }
 
@@ -6393,7 +6241,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            playerAddAngle(pp, GetDeltaQ16Angle(gethiq16angle(kp->x - pp->posx, kp->y - pp->posy), pp->q16ang) / (double)(FRACUNIT << 4));
+            playerAddAngle(&pp->q16ang, &pp->angAdjust, getincangleq16(pp->q16ang, gethiq16angle(kp->x - pp->posx, kp->y - pp->posy)) / (double)(FRACUNIT << 4));
         }
     }
 }
@@ -6443,9 +6291,9 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
 
         RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
         RESET(pp->Flags, PF_DEAD);
-        RESET(pp->Flags, PF_LOCK_HORIZ);
         RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
         SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        pp->input.actions |= SB_CENTERVIEW;
         sp->xrepeat = PLAYER_NINJA_XREPEAT;
         sp->yrepeat = PLAYER_NINJA_YREPEAT;
 
@@ -6585,7 +6433,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
 
 
             wall_ang = NORM_ANGLE(hsp->ang);
-            dang = GetDeltaAngle(u->slide_ang, wall_ang);
+            dang = getincangle(wall_ang, u->slide_ang);
             u->slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
             SpawnShrap(pp->PlayerSprite, -1);
@@ -6602,7 +6450,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
             nw = wall[w].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y)-512);
 
-            dang = GetDeltaAngle(u->slide_ang, wall_ang);
+            dang = getincangle(wall_ang, u->slide_ang);
             u->slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
             SpawnShrap(pp->PlayerSprite, -1);
@@ -7124,6 +6972,8 @@ MoveSkipSavePos(void)
         pp->oq16ang = pp->q16ang;
         pp->oq16horiz = pp->q16horiz;
         pp->obob_z = pp->bob_z;
+        pp->oq16look_ang = pp->q16look_ang;
+        pp->oq16rotscrnang = pp->q16rotscrnang;
     }
 
     // save off stats for skip4
@@ -7431,7 +7281,7 @@ domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            playerSetAngle(&Player[screenpeek], FixedToFloat(gethiq16angle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy)));
+            playerSetAngle(&Player[screenpeek].q16ang, &Player[screenpeek].angTarget, FixedToFloat(gethiq16angle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy)));
         }
 
         if (!TEST(pp->Flags, PF_DEAD))
@@ -7776,85 +7626,6 @@ void CheckFootPrints(PLAYERp pp)
         // Hey, you just got your feet wet!
         pp->NumFootPrints = RANDOM_RANGE(10)+3;
         FootMode = WATER_FOOT;
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-// Unsynchronised input helpers.
-//
-//---------------------------------------------------------------------------
-
-void resetinputhelpers(PLAYERp pp)
-{
-    pp->horizAdjust = 0;
-    pp->angAdjust = 0;
-    pp->pitchAdjust = 0;
-}
-
-void playerAddAngle(PLAYERp pp, double ang)
-{
-    if (!cl_syncinput)
-    {
-        pp->angAdjust += ang;
-    }
-    else
-    {
-        pp->addang(ang);
-    }
-}
-
-void playerSetAngle(PLAYERp pp, double ang)
-{
-    if (!cl_syncinput)
-    {
-        // Cancel out any angle adjustments as we're setting angle now.
-        pp->angAdjust = 0;
-
-        // Add slight offset if input angle is coming in as absolute 0.
-        if (ang == 0)
-        {
-            ang += 0.1;
-        }
-
-        pp->angTarget = pp->q16ang + GetDeltaQ16Angle(FloatToFixed(ang), pp->q16ang);
-    }
-    else
-    {
-        pp->setang(ang);
-    }
-}
-
-void playerAddHoriz(PLAYERp pp, double horiz)
-{
-    if (!cl_syncinput)
-    {
-        pp->horizAdjust += horiz;
-    }
-    else
-    {
-        pp->addhoriz(horiz);
-    }
-}
-
-void playerSetHoriz(PLAYERp pp, double horiz)
-{
-    if (!cl_syncinput)
-    {
-        // Cancel out any horizon adjustments as we're setting horizon now.
-        pp->horizAdjust = 0;
-
-        // Add slight offset if input horizon is coming in as absolute 0.
-        if (horiz == 0)
-        {
-            horiz += 0.1;
-        }
-
-        pp->horizTarget = FloatToFixed(horiz);
-    }
-    else
-    {
-        pp->sethoriz(horiz);
     }
 }
 

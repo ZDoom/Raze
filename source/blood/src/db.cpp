@@ -162,7 +162,7 @@ void qinitspritelists(void) // Replace
     {
         headspritestat[i] = -1;
     }
-    int const nMaxSprites = bVanilla ? 4096 : kMaxSprites;
+    int const nMaxSprites = kMaxSprites;
     for (short i = 0; i < nMaxSprites; i++)
     {
         sprite[i].sectnum = -1;
@@ -285,8 +285,7 @@ unsigned short dbInsertXSprite(int nSprite)
         ThrowError("Out of free XSprites");
     }
     memset(&xsprite[nXSprite], 0, sizeof(XSPRITE));
-    if (!bVanilla)
-        memset(&gSpriteHit[nXSprite], 0, sizeof(SPRITEHIT));
+    memset(&gSpriteHit[nXSprite], 0, sizeof(SPRITEHIT));
     xsprite[nXSprite].reference = nSprite;
     sprite[nSprite].extra = nXSprite;
     return nXSprite;

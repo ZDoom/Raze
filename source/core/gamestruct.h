@@ -108,6 +108,8 @@ struct GameInterface
 	virtual void LevelCompleted(MapRecord* map, int skill) {}
 	virtual bool DrawAutomapPlayer(int x, int y, int z, int a) { return false; }
 	virtual void SetTileProps(int tile, int surf, int vox, int shade) {}
+	virtual fixed_t playerHorizMin() { return IntToFixed(-99); }
+	virtual fixed_t playerHorizMax() { return IntToFixed(299); }
 
 	virtual FString statFPS()
 	{

@@ -62,7 +62,6 @@ void resetmys()
 	myjumpingtoggle = ps[myconnectindex].jumping_toggle;
 	myonground = ps[myconnectindex].on_ground;
 	myhardlanding = ps[myconnectindex].hard_landing;
-	myreturntocenter = ps[myconnectindex].return_to_center;
 }
 
 #if 0 // todo: fix this when networking works again
@@ -90,7 +89,6 @@ void fakedomovethingscorrect(void)
 	 myjumpingtoggle = p->jumping_toggle;
 	 myonground = p->on_ground;
 	 myhardlanding = p->hard_landing;
-	 myreturntocenter = p->return_to_center;
 
 	 fakemovefifoplc = movefifoplc;
 	 while (fakemovefifoplc < movefifoend[myconnectindex])

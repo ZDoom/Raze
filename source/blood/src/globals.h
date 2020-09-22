@@ -32,11 +32,9 @@ BEGIN_BLD_NS
 
 extern int gFrameClock;
 extern int gFrameCount;
-extern bool bVanilla;
 
 #define MAXPLAYERNAME 16
 
-extern int32_t gTurnSpeed;
 extern int32_t gDetail;
 extern bool gNoClip;
 extern bool gInfiniteAmmo;

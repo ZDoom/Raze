@@ -207,8 +207,6 @@ CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field o
 	else if (self > 140) self = 140;
 }
 
-CVARD(Bool, r_horizcenter, false, CVAR_ARCHIVE, "enable/disable centered horizon line") // only present in Blood.
-
 CVARD(Bool, in_mousemode, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "toggles vertical mouse view")
 
 CVAR(Bool, silentmouseaimtoggle, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)

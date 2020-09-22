@@ -50,10 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-extern short bPlayerPan;
-extern short bLockPan;
-
-
 static MapRecord* NextMap;
 
 void uploadCinemaPalettes();
@@ -339,7 +335,6 @@ void GameInterface::Ticker()
 	}
     else if (EndLevel == 0)
     {
-        nPlayerDAng += localInput.q16avel;
         inita &= kAngleMask;
 
         for (int i = 0; i < 4; i++)
@@ -421,34 +416,24 @@ void GameInterface::Ticker()
             }
         }
 
-        if (localInput.actions & SB_CENTERVIEW)
-        {
-            bLockPan = false;
-            bPlayerPan = false;
-            //PlayerList[nLocalPlayer].q16horiz = IntToFixed(92);
-            nDestVertPan[nLocalPlayer] = IntToFixed(92);
-        }
-        if (localInput.actions & SB_TURNAROUND)
-        {
-            // todo
-        }
-
-
         sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
         sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
         // make weapon selection persist until it gets used up.
         sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
         int weap = sPlayerInput[nLocalPlayer].getNewWeapon();
-        sPlayerInput[nLocalPlayer].actions = localInput.actions;
         if (weap2 <= 0 || weap2 > 7) sPlayerInput[nLocalPlayer].SetNewWeapon(weap);
         sPlayerInput[nLocalPlayer].nTarget = besttarget;
+
+        auto oldactions = sPlayerInput[nLocalPlayer].actions;
+        sPlayerInput[nLocalPlayer].actions = localInput.actions;
+        if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;
+
+        sPlayerInput[nLocalPlayer].nAngle = localInput.q16avel;
+        sPlayerInput[nLocalPlayer].pan = localInput.q16horz;
 
         Ra[nLocalPlayer].nTarget = besttarget;
 
         lLocalCodes = 0;
-        nPlayerDAng = 0;
-
-        sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
 
         leveltime++;
         if (leveltime == 2) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
@@ -525,7 +510,6 @@ void GameInterface::app_init()
 
     TileFiles.SetBackup();
 
-    InitView();
     InitFX();
     seq_LoadSequences();
     InitStatus();

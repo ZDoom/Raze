@@ -56,9 +56,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
 
     if (parm->numparms == 5)
     {
-        // fix me, I'm broken.
         pPlayer->q16horiz = gView->q16horiz = IntToFixed(atoi(parm->parms[4]));
-        gViewAngle = FloatToFixed(atan2(atoi(parm->parms[4]), 100) * (1024. / pi::pi()));
     }
 
     viewBackupView(pPlayer->nPlayer);

@@ -622,6 +622,7 @@ void GameInterface::Ticker(void)
         auto pp = Player + i;
         pp->lastinput = pp->input;
         pp->input = playercmds[i].ucmd;
+        if (pp->lastinput.actions & SB_CENTERVIEW) pp->input.actions |= SB_CENTERVIEW;
     }
 
     domovethings();

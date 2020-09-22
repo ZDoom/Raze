@@ -74,8 +74,6 @@ INTERPOLATE gInterpolation[kMaxInterpolations];
 
 int gScreenTilt;
 
-
-
 FFont *gFont[kFontNum];
 
 void FontSet(int id, int tile, int space)
@@ -118,6 +116,8 @@ void viewBackupView(int nPlayer)
     pView->atc = pPlayer->bobWidth;
     pView->at18 = pPlayer->swayHeight;
     pView->at1c = pPlayer->swayWidth;
+    pView->q16look_ang = pPlayer->q16look_ang;
+    pView->q16rotscrnang = pPlayer->q16rotscrnang;
 }
 
 void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
@@ -586,7 +586,6 @@ static void DrawMap(spritetype* pSprite)
 void viewDrawScreen(bool sceneonly)
 {
     int nPalette = 0;
-    int defaultHoriz = r_horizcenter ? 100 : 90;
 	
 	if (TestBitString(gotpic, 2342))
 	{
@@ -594,10 +593,6 @@ void viewDrawScreen(bool sceneonly)
 		ClearBitString(gotpic, 2342);
 	}
 
-
-#ifdef USE_OPENGL
-    polymostcenterhoriz = defaultHoriz;
-#endif
     if (!paused && (!M_Active() || gGameOptions.nGameType != 0))
     {
         gInterpolate = I_GetTimeFrac() * MaxSmoothRatio;
@@ -636,60 +631,64 @@ void viewDrawScreen(bool sceneonly)
         int v1 = xs_CRoundToInt(double(viewingrange) * tan(r_fov * (PI / 360.)));
 
         renderSetAspect(v1, yxaspect);
-        int cX = gView->pSprite->x;
-        int cY = gView->pSprite->y;
-        int cZ = gView->zView;
-        double zDelta = gView->zWeapon - gView->zView - (12 << 8);
-        fixed_t cA = gView->q16ang;
-        fixed_t q16horiz = gView->q16horiz;
-        fixed_t q16slopehoriz = gView->q16slopehoriz;
-        int v74 = gView->bobWidth;
-        int v8c = gView->bobHeight;
-        double v4c = gView->swayWidth;
-        double v48 = gView->swayHeight;
+
+        int cX, cY, cZ, v74, v8c;
+        fixed_t cA, q16horiz, q16slopehoriz, q16rotscrnang;
+        double zDelta, v4c, v48;
         int nSectnum = gView->pSprite->sectnum;
-        if (cl_interpolate)
+        if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
         {
-            if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
+            nSectnum = predict.at68;
+            cX = interpolate(predictOld.at50, predict.at50, gInterpolate);
+            cY = interpolate(predictOld.at54, predict.at54, gInterpolate);
+            cZ = interpolate(predictOld.at38, predict.at38, gInterpolate);
+            zDelta = finterpolate(predictOld.at34, predict.at34, gInterpolate);
+            q16slopehoriz = interpolate(predictOld.at28, predict.at28, gInterpolate);
+            v74 = interpolate(predictOld.atc, predict.atc, gInterpolate);
+            v8c = interpolate(predictOld.at8, predict.at8, gInterpolate);
+            v4c = finterpolate(predictOld.at1c, predict.at1c, gInterpolate);
+            v48 = finterpolate(predictOld.at18, predict.at18, gInterpolate);
+
+            if (!cl_syncinput)
             {
-                nSectnum = predict.at68;
-                cX = interpolate(predictOld.at50, predict.at50, gInterpolate);
-                cY = interpolate(predictOld.at54, predict.at54, gInterpolate);
-                cZ = interpolate(predictOld.at38, predict.at38, gInterpolate);
-                zDelta = finterpolate(predictOld.at34, predict.at34, gInterpolate);
-                cA = interpolateangfix16(predictOld.at30, predict.at30, gInterpolate);
-                q16horiz = interpolate(predictOld.at24, predict.at24, gInterpolate);
-                q16slopehoriz = interpolate(predictOld.at28, predict.at28, gInterpolate);
-                v74 = interpolate(predictOld.atc, predict.atc, gInterpolate);
-                v8c = interpolate(predictOld.at8, predict.at8, gInterpolate);
-                v4c = finterpolate(predictOld.at1c, predict.at1c, gInterpolate);
-                v48 = finterpolate(predictOld.at18, predict.at18, gInterpolate);
+                cA = predict.at30 + predict.q16look_ang;
+                q16horiz = predict.at24;
+                q16rotscrnang = predict.q16rotscrnang;
             }
             else
             {
-                VIEW* pView = &gPrevView[gViewIndex];
-                cX = interpolate(pView->at50, cX, gInterpolate);
-                cY = interpolate(pView->at54, cY, gInterpolate);
-                cZ = interpolate(pView->at38, cZ, gInterpolate);
-                zDelta = finterpolate(pView->at34, zDelta, gInterpolate);
-                cA = interpolateangfix16(pView->at30, cA, gInterpolate);
-                q16horiz = interpolate(pView->at24, q16horiz, gInterpolate);
-                q16slopehoriz = interpolate(pView->at28, q16slopehoriz, gInterpolate);
-                v74 = interpolate(pView->atc, v74, gInterpolate);
-                v8c = interpolate(pView->at8, v8c, gInterpolate);
-                v4c = finterpolate(pView->at1c, v4c, gInterpolate);
-                v48 = finterpolate(pView->at18, v48, gInterpolate);
+                cA = interpolateangfix16(predictOld.at30 + predictOld.q16look_ang, predict.at30 + predict.q16look_ang, gInterpolate);
+                q16horiz = interpolate(predictOld.at24, predict.at24, gInterpolate);
+                q16rotscrnang = interpolateangfix16(predictOld.q16rotscrnang, predict.q16rotscrnang, gInterpolate);
             }
         }
-        if (!cl_syncinput && gView == gMe && (numplayers <= 1 || gPrediction) && gView->pXSprite->health != 0 && !VanillaMode())
+        else
         {
-            int upAngle = 289;
-            int downAngle = -347;
-            fixed_t q16look;
-            cA = gViewAngle;
-            q16look = gViewLook;
-            q16horiz = FloatToFixed(100.f * tanf(FixedToFloat(q16look) * fPI / 1024.f));
+            VIEW* pView = &gPrevView[gViewIndex];
+            cX = interpolate(pView->at50, gView->pSprite->x, gInterpolate);
+            cY = interpolate(pView->at54, gView->pSprite->y, gInterpolate);
+            cZ = interpolate(pView->at38, gView->zView, gInterpolate);
+            zDelta = finterpolate(pView->at34, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
+            q16slopehoriz = interpolate(pView->at28, gView->q16slopehoriz, gInterpolate);
+            v74 = interpolate(pView->atc, gView->bobWidth, gInterpolate);
+            v8c = interpolate(pView->at8, gView->bobHeight, gInterpolate);
+            v4c = finterpolate(pView->at1c, gView->swayWidth, gInterpolate);
+            v48 = finterpolate(pView->at18, gView->swayHeight, gInterpolate);
+
+            if (!cl_syncinput)
+            {
+                cA = gView->q16ang + gView->q16look_ang;
+                q16horiz = gView->q16horiz;
+                q16rotscrnang = gView->q16rotscrnang;
+            }
+            else
+            {
+                cA = interpolateangfix16(pView->at30 + pView->q16look_ang, gView->q16ang + gView->q16look_ang, gInterpolate);
+                q16horiz = interpolate(pView->at24, gView->q16horiz, gInterpolate);
+                q16rotscrnang = interpolateangfix16(pView->q16rotscrnang, gView->q16rotscrnang, gInterpolate);
+            }
         }
+
         viewUpdateShake();
         q16horiz += IntToFixed(shakeHoriz);
         cA += IntToFixed(shakeAngle);
@@ -734,7 +733,7 @@ void viewDrawScreen(bool sceneonly)
         //int tiltcs, tiltdim;
         uint8_t v4 = powerupCheck(gView, kPwUpCrystalBall) > 0;
 #ifdef USE_OPENGL
-        renderSetRollAngle(0);
+        renderSetRollAngle(FixedToFloat(q16rotscrnang));
 #endif
         if (v78 || bDelirium)
         {
@@ -811,8 +810,8 @@ void viewDrawScreen(bool sceneonly)
             for (int i = 0; i < 16; i++)
                 ror_status[i] = TestBitString(gotpic, 4080 + i);
             yax_preparedrawrooms();
-            DrawMirrors(vd8, vd4, vd0, IntToFixed(v50), IntToFixed(v54 + defaultHoriz), gInterpolate, -1);
-            drawrooms(vd8, vd4, vd0, v50, v54 + defaultHoriz, vcc);
+            DrawMirrors(vd8, vd4, vd0, IntToFixed(v50), IntToFixed(v54), gInterpolate, -1);
+            drawrooms(vd8, vd4, vd0, v50, v54, vcc);
             yax_drawrooms(viewProcessSprites, vcc, 0, gInterpolate);
             bool do_ror_hack = false;
             for (int i = 0; i < 16; i++)
@@ -880,13 +879,13 @@ void viewDrawScreen(bool sceneonly)
         {
             cZ = vfc + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
         }
-        q16horiz = ClipRange(q16horiz, IntToFixed(-200), IntToFixed(200));
+        q16horiz = ClipRange(q16horiz, gi->playerHorizMin(), gi->playerHorizMax());
     RORHACK:
         int ror_status[16];
         for (int i = 0; i < 16; i++)
             ror_status[i] = TestBitString(gotpic, 4080 + i);
         fixed_t deliriumPitchI = interpolate(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
-        DrawMirrors(cX, cY, cZ, cA, q16horiz + IntToFixed(defaultHoriz) + deliriumPitchI, gInterpolate, gViewIndex);
+        DrawMirrors(cX, cY, cZ, cA, q16horiz + deliriumPitchI, gInterpolate, gViewIndex);
         int bakCstat = gView->pSprite->cstat;
         if (gViewPos == 0)
         {
@@ -897,7 +896,7 @@ void viewDrawScreen(bool sceneonly)
             gView->pSprite->cstat |= 514;
         }
 
-        renderDrawRoomsQ16(cX, cY, cZ, cA, q16horiz + IntToFixed(defaultHoriz) + deliriumPitchI, nSectnum);
+        renderDrawRoomsQ16(cX, cY, cZ, cA, q16horiz + deliriumPitchI, nSectnum);
         viewProcessSprites(cX, cY, cZ, FixedToInt(cA), gInterpolate);
         bool do_ror_hack = false;
         for (int i = 0; i < 16; i++)
@@ -955,7 +954,7 @@ void viewDrawScreen(bool sceneonly)
         int v8 = byte_1CE5C2 > 0 && (sector[tmpSect].ceilingstat & 1);
         if (gWeather.at12d8 > 0 || v8)
         {
-            gWeather.Draw(cX, cY, cZ, cA, q16horiz + defaultHoriz + deliriumPitch, gWeather.at12d8);
+            gWeather.Draw(cX, cY, cZ, cA, q16horiz + deliriumPitch, gWeather.at12d8);
             if (v8)
             {
                 gWeather.at12d8 = ClipRange(delta * 8 + gWeather.at12d8, 0, 4095);
@@ -966,7 +965,7 @@ void viewDrawScreen(bool sceneonly)
             }
         }
 #endif
-        hudDraw(gView, nSectnum, defaultHoriz, v4c, v48, zDelta, basepal, (int)gInterpolate);
+        hudDraw(gView, &gPrevView[gViewIndex], nSectnum, v4c, v48, zDelta, basepal, gInterpolate);
     }
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (automapMode != am_off)

@@ -498,7 +498,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     InitSectorFX();
     viewInitializePrediction();
     PreloadCache();
-    if (!bVanilla && !gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
+    if (!gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
         sfxSetReverb(0);
     ambInit();
     for (int i = 0; i < gNetPlayers; i++)
@@ -506,7 +506,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
 	viewSetErrorMessage("");
     Net_ClearFifo();
     paused = 0;
-    bVanilla = false;
     
 
 #ifdef USE_OPENGL
@@ -645,8 +644,6 @@ void MyLoadSave::Load(void)
     Read(&gMapRev, sizeof(gMapRev));
     Read(&gSongId, sizeof(gSkyCount));
     Read(&gFogMode, sizeof(gFogMode));
-    Read(&gViewAngle, sizeof(gViewAngle));
-    Read(&gViewLook, sizeof(gViewLook));
 #ifdef NOONE_EXTENSIONS
     Read(&gModernMap, sizeof(gModernMap));
 #endif
@@ -734,8 +731,6 @@ void MyLoadSave::Save(void)
     Write(&gMapRev, sizeof(gMapRev));
     Write(&gSongId, sizeof(gSkyCount));
     Write(&gFogMode, sizeof(gFogMode));
-    Write(&gViewAngle, sizeof(gViewAngle));
-    Write(&gViewLook, sizeof(gViewLook));
 #ifdef NOONE_EXTENSIONS
     Write(&gModernMap, sizeof(gModernMap));
 #endif

@@ -157,14 +157,15 @@ void quickkill(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void forceplayerangle(struct player_struct* p)
+void forceplayerangle(int snum)
 {
+	player_struct* p = &ps[snum];
 	int n;
 
 	n = 128 - (krand() & 255);
 
-	playerAddHoriz(p, 64);
-	p->return_to_center = 9;
+	playerAddHoriz(&p->q16horiz, &p->horizAdjust, 64);
+	sync[snum].actions |= SB_CENTERVIEW;
 	p->setlookang(n >> 1);
 	p->setrotscrnang(n >> 1);
 }
@@ -405,8 +406,8 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 	if (p->knee_incs > 0)
 	{
 		p->knee_incs++;
-		playerAddHoriz(p, -48);
-		p->return_to_center = 9;
+		playerAddHoriz(&p->q16horiz, &p->horizAdjust, -48);
+		sync[snum].actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
 			p->knee_incs = 0;
@@ -762,7 +763,7 @@ void playerJump(int snum, int fz, int cz)
 
 void apply_seasick(player_struct* p, double factor)
 {
-	if (isRRRA() && p->SeaSick)
+	if (isRRRA() && p->SeaSick && p->dead_flag == 0)
 	{
 		if (p->SeaSick < 250)
 		{
@@ -786,63 +787,17 @@ void apply_seasick(player_struct* p, double factor)
 //
 //---------------------------------------------------------------------------
 
-void applylook(int snum, double factor, fixed_t adjustment)
+void processq16avel(player_struct* p, fixed_t* q16avel)
 {
-	auto p = &ps[snum];
-	fixed_t q16avel;
-
-	if (p->dead_flag == 0)
-	{
-		p->addrotscrnang(factor * -0.5 * FixedToFloat(p->q16rotscrnang));
-		if (abs(p->q16rotscrnang) < FRACUNIT) p->q16rotscrnang = 0;
-
-		p->addlookang(factor * -0.25 * FixedToFloat(p->q16look_ang));
-		if (abs(p->q16look_ang) < FRACUNIT) p->q16look_ang = 0;
-
-		if (p->lookLeft)
-		{
-			p->addlookang(factor * -152);
-			p->addrotscrnang(factor * 24);
-		}
-
-		if (p->lookRight)
-		{
-			p->addlookang(factor * 152);
-			p->addrotscrnang(factor * -24);
-		}
-
-		if (p->one_eighty_count < 0 && p->on_crane < 0)
-		{
-			fixed_t add = FloatToFixed(factor * 128);
-			p->one_eighty_count += add;
-			if (p->one_eighty_count > 0)
-			{
-				// Don't overshoot our target. With variable factor this is possible.
-				add -= p->one_eighty_count;
-				p->one_eighty_count = 0;
-			}
-			p->q16ang += add;
-		}
-		apply_seasick(p, factor);
-	}
-
-	// Add angAdjust if input is unsynchronised.
-	if (!cl_syncinput)
-	{
-		p->q16ang += FloatToFixed(factor * p->angAdjust);
-	}
-
 	// Taken from processinput() for use with applying look while cl_syncinput is 0.
 	if (p->psectlotag == ST_2_UNDERWATER)
 	{
-		q16avel = (adjustment - (adjustment >> 3)) * sgn(TICSPERFRAME);
+		*q16avel = (*q16avel - (*q16avel >> 3)) * sgn(TICSPERFRAME);
 	}
 	else
 	{
-		q16avel = adjustment * sgn(TICSPERFRAME);
+		*q16avel = *q16avel * sgn(TICSPERFRAME);
 	}
-
-	p->q16ang = (p->q16ang + q16avel) & 0x7FFFFFF;
 }
 
 //---------------------------------------------------------------------------
@@ -920,7 +875,6 @@ void resetinputhelpers(player_struct* p)
 {
 	p->horizAdjust = 0;
 	p->angAdjust = 0;
-	p->pitchAdjust = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -933,7 +887,7 @@ void checkhardlanding(player_struct* p)
 {
 	if (p->hard_landing > 0)
 	{
-		playerAddHoriz(p, -(p->hard_landing << 4));
+		playerAddHoriz(&p->q16horiz, &p->horizAdjust, -(p->hard_landing << 4));
 		p->hard_landing--;
 	}
 }
@@ -972,15 +926,13 @@ void checklook(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 
-	p->lookLeft = false;
-	p->lookRight = false;
 	if ((actions & SB_LOOK_LEFT) && !p->OnMotorcycle)
 	{
 		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 		OnEvent(EVENT_LOOKLEFT, p->i, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+		if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 		{
-			p->lookLeft = true;
+			actions &= ~SB_LOOK_LEFT;
 		}
 	}
 
@@ -988,49 +940,12 @@ void checklook(int snum, ESyncBits actions)
 	{
 		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 		OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+		if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 		{
-			p->lookRight = true;
+			actions &= ~SB_LOOK_RIGHT;
 		}
 	}
 	backuplook(p);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment)
-{
-	auto p = &ps[snum];
-
-	// Calculate adjustment as true pitch (Fixed point math really sucks...)
-	double horizAngle = clamp(atan2(p->q16horiz - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi()) + (factor * p->pitchAdjust) + (adjustment / 65536.), -180, 180);
-
-	if (p->return_to_center > 0 && (actions & (SB_LOOK_UP | SB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
-	{
-		p->return_to_center += -factor * (p->return_to_center / 2);
-		horizAngle += -factor * (horizAngle / 2);
-
-		if (horizAngle > -0.5 && horizAngle < 0.5)
-		{
-			horizAngle = 0.;
-			p->return_to_center = 0.;
-		}
-	}
-
-	// Convert back to Build's horizon.
-	p->q16horiz = IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.)));
-
-	// Add horizAdjust if input is unsynchronised.
-	if (!cl_syncinput)
-	{
-		p->q16horiz += xs_CRoundToInt(factor * (p->horizAdjust * 65536.));
-	}
-
-	p->q16horiz = clamp(p->q16horiz, IntToFixed(HORIZ_MIN), IntToFixed(HORIZ_MAX));
 }
 
 //---------------------------------------------------------------------------
@@ -1046,7 +961,11 @@ void playerCenterView(int snum)
 	OnEvent(EVENT_RETURNTOCENTER, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->return_to_center = 9;
+		sync[snum].actions |= SB_CENTERVIEW;
+	}
+	else
+	{
+		sync[snum].actions &= ~SB_CENTERVIEW;
 	}
 }
 
@@ -1057,8 +976,11 @@ void playerLookUp(int snum, ESyncBits actions)
 	OnEvent(EVENT_LOOKUP, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->return_to_center = 9;
-		p->pitchAdjust += (actions & SB_RUN) ? 12 : 24;
+		sync[snum].actions |= SB_CENTERVIEW;
+	}
+	else
+	{
+		sync[snum].actions &= ~SB_LOOK_UP;
 	}
 }
 
@@ -1069,8 +991,11 @@ void playerLookDown(int snum, ESyncBits actions)
 	OnEvent(EVENT_LOOKDOWN, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->return_to_center = 9;
-		p->pitchAdjust -= (actions & SB_RUN) ? 12 : 24;
+		sync[snum].actions |= SB_CENTERVIEW;
+	}
+	else
+	{
+		sync[snum].actions &= ~SB_LOOK_DOWN;
 	}
 }
 
@@ -1079,9 +1004,9 @@ void playerAimUp(int snum, ESyncBits actions)
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 	OnEvent(EVENT_AIMUP, p->i, snum, -1);
-	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 	{
-		p->pitchAdjust += (actions & SB_RUN) ? 6 : 12;
+		sync[snum].actions &= ~SB_AIM_UP;
 	}
 }
 
@@ -1090,63 +1015,9 @@ void playerAimDown(int snum, ESyncBits actions)
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 	OnEvent(EVENT_AIMDOWN, p->i, snum, -1);
-	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 	{
-		p->pitchAdjust -= (actions & SB_RUN) ? 6 : 12;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void playerAddAngle(player_struct* p, int ang)
-{
-	if (!cl_syncinput)
-	{
-		p->angAdjust += ang;
-	}
-	else
-	{
-		p->addang(ang);
-	}
-}
-
-void playerSetAngle(player_struct* p, int ang)
-{
-	if (!cl_syncinput)
-	{
-		p->angAdjust += -1. * ((p->q16ang / 65536.) - ang);
-	}
-	else
-	{
-		p->setang(ang);
-	}
-}
-
-void playerAddHoriz(player_struct* p, int horiz)
-{
-	if (!cl_syncinput)
-	{
-		p->horizAdjust += horiz;
-	}
-	else
-	{
-		p->addhoriz(horiz);
-	}
-}
-
-void playerSetHoriz(player_struct* p, int horiz)
-{
-	if (!cl_syncinput)
-	{
-		p->horizAdjust += -1. * ((p->q16horiz / 65536.) - horiz);
-	}
-	else
-	{
-		p->sethoriz(horiz);
+		sync[snum].actions &= ~SB_AIM_DOWN;
 	}
 }
 

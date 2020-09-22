@@ -739,7 +739,7 @@ loc_flag:
                 // loc_27266:
                 case kWeaponSword:
                 {
-                    nHeight += (92 - FixedToInt(sPlayerInput[nPlayer].horizon)) << 6;
+                    nHeight += (IntToFixed(100) - PlayerList[nLocalPlayer].q16horiz) >> 10;
 
                     theZ += nHeight;
 
@@ -844,7 +844,7 @@ loc_flag:
                 }
                 case kWeaponPistol:
                 {
-                    int var_50 = (FixedToInt(sPlayerInput[nPlayer].horizon) - 92) << 2;
+                    int var_50 = (PlayerList[nLocalPlayer].q16horiz - IntToFixed(100)) >> 14;
                     nHeight -= var_50;
 
                     if (sPlayerInput[nPlayer].nTarget >= 0 && cl_autoaim)
@@ -859,7 +859,7 @@ loc_flag:
 
                 case kWeaponGrenade:
                 {
-                    ThrowGrenade(nPlayer, ebp, ebx, nHeight - 2560, FixedToInt(sPlayerInput[nPlayer].horizon) - 92);
+                    ThrowGrenade(nPlayer, ebp, ebx, nHeight - 2560, FixedToInt(PlayerList[nLocalPlayer].q16horiz) - 100);
                     break;
                 }
                 case kWeaponStaff:
@@ -984,6 +984,12 @@ void DrawWeapons(double smooth)
     if (nWeapon < 0) {
         nShade = sprite[PlayerList[nLocalPlayer].nSprite].shade;
     }
+
+    double const look_anghalf = getHalfLookAng(PlayerList[nLocalPlayer].oq16look_ang, PlayerList[nLocalPlayer].q16look_ang, cl_syncinput, smooth);
+    double const looking_arc = fabs(look_anghalf) / 4.5;
+
+    xOffset -= look_anghalf;
+    yOffset += looking_arc;
 
     seq_DrawGunSequence(var_28, PlayerList[nLocalPlayer].field_3FOUR, xOffset, yOffset, nShade, nPal);
 

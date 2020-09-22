@@ -8312,7 +8312,7 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t d
         // move to correct angle
         ang2tgt = getangle(hp->x - sp->x, hp->y - sp->y);
 
-        delta_ang = GetDeltaAngle(sp->ang, ang2tgt);
+        delta_ang = getincangle(ang2tgt, sp->ang);
 
         if (labs(delta_ang) > 32)
         {
@@ -8386,7 +8386,7 @@ ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int1
         // move to correct angle
         ang2tgt = getangle(hp->x - sp->x, hp->y - sp->y);
 
-        delta_ang = GetDeltaAngle(sp->ang, ang2tgt);
+        delta_ang = getincangle(ang2tgt, sp->ang);
 
         if (labs(delta_ang) > 32)
         {
@@ -18951,7 +18951,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
                 daang = 512;
                 if ((hitinfo.sprite = WeaponAutoAimHitscan(sp, &daz, &daang, false)) != -1)
                 {
-                    delta = labs(GetDeltaAngle(daang, sp->ang));
+                    delta = labs(getincangle(sp->ang, daang));
                     if (delta > 128)
                     {
                         // don't shoot if greater than 128

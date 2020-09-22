@@ -1262,7 +1262,7 @@ void DrawCrosshair(PLAYERp pp)
     if (!(CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
         USERp u = User[pp->PlayerSprite];
-        ::DrawCrosshair(2326, u->Health, 0, 0, 2, shadeToLight(10));
+        ::DrawCrosshair(2326, u->Health, -getHalfLookAng(pp->oq16look_ang, pp->q16look_ang, cl_syncinput, smoothratio), 0, 2, shadeToLight(10));
     }
 }
 
@@ -1283,7 +1283,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
             sp = &sprite[i];
 
             ang = getangle(*tx - sp->x, *ty - sp->y);
-            ang_test  = GetDeltaAngle(sp->ang, ang) < sp->lotag;
+            ang_test = getincangle(ang, sp->ang) < sp->lotag;
 
             FAFcansee_test =
                 (FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, *tx, *ty, *tz, pp->cursectnum) ||
@@ -1611,7 +1611,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 {
     extern bool CameraTestMode;
     int tx, ty, tz;
-    fixed_t tq16horiz, tq16ang;
+    fixed_t tq16horiz, tq16ang, tq16rotscrnang;
     short tsectnum;
     short i,j;
     int bob_amt = 0;
@@ -1654,15 +1654,22 @@ drawscreen(PLAYERp pp, double smoothratio)
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
     if (cl_syncinput || pp != Player+myconnectindex || (!cl_syncinput && pp->sop && !TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET)))
     {
-        tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16ang + IntToFixed(1024) - camerapp->oq16ang) - IntToFixed(1024), smoothratio));
+        fixed_t dang = IntToFixed(1024);
+        fixed_t oang = camerapp->oq16ang + camerapp->oq16look_ang;
+        fixed_t ang = camerapp->q16ang + camerapp->q16look_ang;
+        tq16ang = oang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(ang + dang - oang) - dang, smoothratio));
         tq16horiz = camerapp->oq16horiz + xs_CRoundToInt(fmulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio));
+        tq16rotscrnang = camerapp->oq16rotscrnang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16rotscrnang + dang - camerapp->oq16rotscrnang) - dang, smoothratio));
     }
     else
     {
-        tq16ang = pp->q16ang;
+        tq16ang = pp->q16ang + pp->q16look_ang;
         tq16horiz = pp->q16horiz;
+        tq16rotscrnang = pp->q16rotscrnang;
     }
     tsectnum = camerapp->cursectnum;
+
+    renderSetRollAngle(FixedToFloat(tq16rotscrnang));
 
     COVERupdatesector(tx, ty, &tsectnum);
 

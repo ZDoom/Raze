@@ -2485,7 +2485,7 @@ void polymost_drawrooms()
     ghalfy = (float)(ydimen>>1);
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
     ghoriz = FixedToFloat(qglobalhoriz);
-    ghorizcorrect = FixedToFloat((100-polymostcenterhoriz)*divscale16(xdimenscale, viewingrange));
+    ghorizcorrect = FixedToFloat(divscale16(xdimenscale, viewingrange));
 
     GLInterface.SetShadeInterpolate(hw_shadeinterpolate);
 
@@ -2885,7 +2885,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
     ghalfy = (float)(ydimen>>1);
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
     ghoriz = FixedToFloat(qglobalhoriz);
-    ghorizcorrect = FixedToFloat((100-polymostcenterhoriz)*divscale16(xdimenscale, viewingrange));
+    ghorizcorrect = FixedToFloat(divscale16(xdimenscale, viewingrange));
     resizeglcheck();
     if (r_yshearing)
     {

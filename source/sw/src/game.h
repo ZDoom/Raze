@@ -355,13 +355,13 @@ int StdRandomRange(int range);
 #define SQ(val) ((val) * (val))
 
 #define KENFACING_PLAYER(pp,sp) (sintable[NORM_ANGLE(sp->ang+512)]*(pp->posy-sp->y) >= sintable[NORM_ANGLE(sp-ang)]*(pp->posx-sp->x))
-#define FACING_PLAYER(pp,sp) (abs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < 512)
-#define PLAYER_FACING(pp,sp) (abs(GetDeltaAngle(FixedToInt((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < 320)
-#define FACING(sp1,sp2) (abs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < 512)
+#define FACING_PLAYER(pp,sp) (abs(getincangle(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y), (sp)->ang)) < 512)
+#define PLAYER_FACING(pp,sp) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), FixedToInt((pp)->q16ang))) < 320)
+#define FACING(sp1,sp2) (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < 512)
 
-#define FACING_PLAYER_RANGE(pp,sp,range) (abs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < (range))
-#define PLAYER_FACING_RANGE(pp,sp,range) (abs(GetDeltaAngle(FixedToInt((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < (range))
-#define FACING_RANGE(sp1,sp2,range) (abs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < (range))
+#define FACING_PLAYER_RANGE(pp,sp,range) (abs(getincangle(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y), (sp)->ang)) < (range))
+#define PLAYER_FACING_RANGE(pp,sp,range) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), FixedToInt((pp)->q16ang))) < (range))
+#define FACING_RANGE(sp1,sp2,range) (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < (range))
 
 // two vectors
 // can determin direction
@@ -832,6 +832,7 @@ struct PLAYERstruct
     int
         oposx, oposy, oposz;
     fixed_t oq16horiz, oq16ang;
+    fixed_t oq16look_ang, oq16rotscrnang;
 
     // holds last valid move position
     short lv_sectnum;
@@ -882,6 +883,7 @@ struct PLAYERstruct
     // variables that do not fit into sprite structure
     int hvel,tilt,tilt_dest;
     fixed_t q16horiz, q16horizbase, q16horizoff, q16ang;
+    fixed_t q16look_ang, q16rotscrnang;
     short recoil_amt;
     short recoil_speed;
     short recoil_ndx;
@@ -1007,13 +1009,9 @@ struct PLAYERstruct
 
     char WpnReloadState;
 
-    // Input helper variables and setters.
-    double horizAdjust, angAdjust, pitchAdjust;
+    // Input helper variables.
+    double horizAdjust, angAdjust;
     fixed_t horizTarget, angTarget;
-    void addang(int v) { q16ang = (q16ang + IntToFixed(v)) & 0x7FFFFFF; }
-    void setang(int v) { q16ang = IntToFixed(v); }
-    void addhoriz(int v) { q16horiz += (IntToFixed(v)); }
-    void sethoriz(int v) { q16horiz = IntToFixed(v); }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
@@ -1029,8 +1027,6 @@ enum
     PF_JUMPING                  = (BIT(2)),
     PF_FALLING                  = (BIT(3)),
     PF_LOCK_CRAWL               = (BIT(4)),
-    PF_LOCK_HORIZ               = (BIT(5)),
-    PF_LOOKING                  = (BIT(6)),
     PF_PLAYER_MOVED             = (BIT(7)),
     PF_PLAYER_RIDING            = (BIT(8)),
     PF_AUTO_AIM                 = (BIT(9)),
@@ -1044,7 +1040,6 @@ enum
     PF_DIVING                   = (BIT(17)),
     PF_DIVING_IN_LAVA           = (BIT(18)),
     PF_TWO_UZI                  = (BIT(19)),
-    PF_TURN_180                 = (BIT(21)),
     PF_DEAD_HEAD                = (BIT(22)), // are your a dead head
     PF_HEAD_CONTROL             = (BIT(23)), // have control of turning when a head?
     PF_CLIP_CHEAT               = (BIT(24)), // cheat for wall clipping
@@ -1846,8 +1841,6 @@ extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 ANIMATOR NullAnimator;
 
 int Distance(int x1, int y1, int x2, int y2);
-short GetDeltaAngle(short, short);
-fixed_t GetDeltaQ16Angle(fixed_t, fixed_t);
 
 int SetActorRotation(short SpriteNum,int,int);
 int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);

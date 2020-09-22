@@ -169,7 +169,6 @@ struct player_struct
 
 	unsigned char toggle_key_flag, knuckle_incs; // ,select_dir;
 	unsigned char walking_snd_toggle, palookup;
-	double return_to_center;
 	bool quick_kick_msg;
 
 	int max_secret_rooms, secret_rooms, max_actors_killed, actors_killed;
@@ -204,12 +203,13 @@ struct player_struct
 	uint8_t hurt_delay2, nocheat;
 	uint8_t OnMotorcycle, OnBoat, moto_underwater, NotOnWater, MotoOnGround;
 	uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
+	bool vehicle_turnl, vehicle_turnr, vehicle_backwards;
 
 	int8_t crouch_toggle;
 
 	// input stuff.
-	double  horizAdjust, angAdjust, pitchAdjust;
-	bool    lookLeft, lookRight;
+	double  horizAdjust, angAdjust;
+	fixed_t horizTarget, angTarget;
 
 
 	// Access helpers for the widened angle and horizon fields.

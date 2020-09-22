@@ -209,7 +209,7 @@ void DoSpiritHead()
 {
     static short dimSectCount = 0;
 
-    PlayerList[0].q16horiz += (nDestVertPan[0] - PlayerList[0].q16horiz) / 4;
+    PlayerList[0].q16horiz += PlayerList[0].q16horiz / 4;
     TileFiles.InvalidateTile(kTileRamsesWorkTile);
     int totalclock = leveltime * 4;
 

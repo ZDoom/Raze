@@ -36,7 +36,6 @@ short bSubTitles = true;
 
 int zbob;
 
-fixed_t nDestVertPan[kMaxPlayers] = { 0 };
 short dVertPan[kMaxPlayers];
 int nCamerax;
 int nCameray;
@@ -118,11 +117,6 @@ void viewRestoreInterpolations(void)  //Stick at end of drawscreen
     int32_t i=g_interpolationCnt-1;
 
     for (; i>=0; i--) *curipos[i] = bakipos[i];
-}
-
-void InitView()
-{
-    polymostcenterhoriz = 92;
 }
 
 // NOTE - not to be confused with Ken's analyzesprites()
@@ -243,6 +237,9 @@ void DrawView(double smoothRatio, bool sceneonly)
     short nSector;
     fixed_t nAngle;
     fixed_t pan;
+    fixed_t q16rotscrnang;
+
+    fixed_t dang = IntToFixed(1024);
 
     zbob = Sin(2 * bobangle) >> 3;
 
@@ -282,13 +279,32 @@ void DrawView(double smoothRatio, bool sceneonly)
                 + interpolate16(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
         nSector = nPlayerViewSect[nLocalPlayer];
         updatesector(playerX, playerY, &nSector);
-        nAngle  = PlayerList[nLocalPlayer].q16angle;
+
+        if (!cl_syncinput)
+        {
+            nAngle = PlayerList[nLocalPlayer].q16angle + PlayerList[nLocalPlayer].q16look_ang;
+            q16rotscrnang = PlayerList[nLocalPlayer].q16rotscrnang;
+        }
+        else
+        {
+            fixed_t oang, ang;
+
+            oang = PlayerList[nLocalPlayer].oq16angle + PlayerList[nLocalPlayer].oq16look_ang;
+            ang = PlayerList[nLocalPlayer].q16angle + PlayerList[nLocalPlayer].q16look_ang;
+            nAngle = oang + xs_CRoundToInt(fmulscale16(((ang + dang - oang) & 0x7FFFFFF) - dang, smoothRatio));
+
+            oang = PlayerList[nLocalPlayer].oq16rotscrnang + PlayerList[nLocalPlayer].oq16rotscrnang;
+            ang = PlayerList[nLocalPlayer].q16rotscrnang + PlayerList[nLocalPlayer].q16rotscrnang;
+            q16rotscrnang = oang + xs_CRoundToInt(fmulscale16(((ang + dang - oang) & 0x7FFFFFF) - dang, smoothRatio));
+        }
 
         if (!bCamera)
         {
             sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
             sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
+
+        renderSetRollAngle(FixedToFloat(q16rotscrnang));
     }
 
     nCameraa = nAngle;
@@ -297,7 +313,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     {
         if (nSnakeCam >= 0 && !sceneonly)
         {
-            pan = IntToFixed(92);
+            pan = IntToFixed(100);
             viewz = playerZ;
         }
         else
@@ -305,7 +321,14 @@ void DrawView(double smoothRatio, bool sceneonly)
             viewz = playerZ + nQuake[nLocalPlayer];
             int floorZ = sector[sprite[nPlayerSprite].sectnum].floorz;
 
-            pan = PlayerList[nLocalPlayer].q16horiz;
+            if (!cl_syncinput)
+            {
+                pan = PlayerList[nLocalPlayer].q16horiz;
+            }
+            else
+            {
+                pan = PlayerList[nLocalPlayer].oq16horiz + xs_CRoundToInt(fmulscale16(PlayerList[nLocalPlayer].q16horiz - PlayerList[nLocalPlayer].oq16horiz, smoothRatio));
+            }
 
             if (viewz > floorZ)
                 viewz = floorZ;
@@ -321,7 +344,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             -2000 * Sin(inita),
             4, 0, 0, CLIPMASK1);
 
-        pan = IntToFixed(92);
+        pan = IntToFixed(100);
         viewz = playerZ;
     }
 
@@ -502,7 +525,6 @@ static SavegameHelper sgh("view",
     SV(viewz),
     SV(enemy),
     SV(nEnemyPal),
-    SA(nDestVertPan),
     SA(dVertPan),
     SA(nQuake),
     SV(g_interpolationCnt),

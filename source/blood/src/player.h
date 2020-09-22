@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "compat.h"
 #include "globals.h"
-#include "controls.h"
 #include "db.h"
 #include "dude.h"
 #include "levels.h"
@@ -109,9 +108,8 @@ struct PLAYER
     int                 zViewVel;
     int                 zWeapon;
     int                 zWeaponVel;
-    fixed_t             q16look;
-    int                 q16horiz;       // horiz
-    int                 q16slopehoriz;  // horizoff
+    fixed_t             q16horiz;       // horiz
+    fixed_t             q16slopehoriz;  // horizoff
     int                 slope;
     bool                isUnderwater;
     bool                hasKey[8];
@@ -156,7 +154,7 @@ struct PLAYER
     int                 restTime;
     int                 kickPower;
     int                 laughCount;
-    int                 spin;  // turning around
+    fixed_t             spin;  // turning around
     bool                godMode;
     bool                fallScream;
     bool                cantJump;
@@ -186,6 +184,12 @@ struct PLAYER
     int                 player_par;
     int                 nWaterPal;
     POSTURE             pPosture[kModeMax][kPostureMax];
+    fixed_t             q16look_ang;
+    fixed_t             q16rotscrnang;
+
+    // Input helper variables.
+    double horizAdjust, angAdjust;
+    fixed_t horizTarget, angTarget;
 };
 
 struct PROFILE

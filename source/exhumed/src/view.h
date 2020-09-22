@@ -27,7 +27,6 @@ extern short bSubTitles;
 extern short besttarget;
 extern short bCamera;
 
-void InitView();
 void DrawStatusBar();
 void DrawView(double smoothRatio, bool sceneonly = false);
 void ResetView();
@@ -40,7 +39,6 @@ void viewDoInterpolations(int smoothRatio);
 void viewUpdateInterpolations(void);
 void viewRestoreInterpolations(void);
 
-extern fixed_t nDestVertPan[];
 extern short dVertPan[];
 extern short nQuake[];
 extern int nCamerax;

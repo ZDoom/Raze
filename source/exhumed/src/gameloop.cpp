@@ -102,8 +102,13 @@ void GameInterface::Render()
         DrawClock();
     }
 
-    DrawView(calc_smoothratio());
+    double const smoothratio = calc_smoothratio();
+    double const look_anghalf = getHalfLookAng(PlayerList[nLocalPlayer].oq16look_ang, PlayerList[nLocalPlayer].q16look_ang, cl_syncinput, smoothratio);
+
+    DrawView(smoothratio);
     DrawStatusBar();
+    DrawCrosshair(MAXTILES, PlayerList[nLocalPlayer].nHealth >> 3, -look_anghalf, 0, 1);
+
     if (paused && !M_Active())
     {
         auto tex = GStrings("TXTB_PAUSED");

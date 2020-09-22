@@ -498,10 +498,7 @@ OptionMenu "ActionControlsMenu"// protected
 	StaticText ""
 	Control    "$CNTRLMNU_TURNLEFT"         , "+turn_left"
 	Control    "$CNTRLMNU_TURNRIGHT"        , "+turn_right"
-	ifnotgame(Exhumed)
-	{
-		Control    "$CNTRLMNU_TURN180"          , "turnaround"
-	}
+	Control    "$CNTRLMNU_TURN180"          , "turnaround"
 
 	StaticText ""
 	Control    "$CNTRLMNU_JUMP"             , "+jump"
@@ -520,11 +517,8 @@ OptionMenu "ActionControlsMenu"// protected
 	Control    "$CNTRLMNU_AIMDOWN"         , "+aim_down"
 	Control    "$CNTRLMNU_LOOKUP"           , "+look_up"
 	Control    "$CNTRLMNU_LOOKDOWN"         , "+look_down"
-	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
-	{
-		Control    "$CNTRLMNU_LOOKLEFT"           , "+look_left"
-		Control    "$CNTRLMNU_LOOKRIGHT"         , "+look_right"
-	}
+	Control    "$CNTRLMNU_LOOKLEFT"           , "+look_left"
+	Control    "$CNTRLMNU_LOOKRIGHT"         , "+look_right"
 	Control    "$CNTRLMNU_CENTERVIEW"       , "centerview"
 
 	StaticText ""

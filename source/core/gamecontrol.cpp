@@ -1446,3 +1446,274 @@ void LoadDefinitions()
 
 }
 
+//---------------------------------------------------------------------------
+//
+// code fron gameexec/conrun
+//
+//---------------------------------------------------------------------------
+
+int getincangle(int a, int na)
+{
+	a &= 2047;
+	na &= 2047;
+
+	if(abs(a-na) < 1024)
+		return (na-a);
+	else
+	{
+		if(na > 1024) na -= 2048;
+		if(a > 1024) a -= 2048;
+
+		na -= 2048;
+		a -= 2048;
+		return (na-a);
+	}
+}
+
+fixed_t getincangleq16(fixed_t a, fixed_t na)
+{
+	a &= 0x7FFFFFF;
+	na &= 0x7FFFFFF;
+
+	if(abs(a-na) < IntToFixed(1024))
+		return (na-a);
+	else
+	{
+		if(na > IntToFixed(1024)) na -= IntToFixed(2048);
+		if(a > IntToFixed(1024)) a -= IntToFixed(2048);
+
+		na -= IntToFixed(2048);
+		a -= IntToFixed(2048);
+		return (na-a);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// Player's horizon function, called from game's ticker or from gi->GetInput() as required.
+//
+//---------------------------------------------------------------------------
+
+void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust)
+{
+	// Calculate adjustment as true pitch (Fixed point math really sucks...)
+	double horizAngle = atan2(*q16horiz - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi());
+
+	if (q16horz)
+	{
+		*actions &= ~SB_CENTERVIEW;
+		horizAngle = clamp(horizAngle + FixedToFloat(q16horz), -180, 180);
+	}
+
+	// this is the locked type
+	if (*actions & (SB_AIM_UP|SB_AIM_DOWN))
+	{
+		*actions &= ~SB_CENTERVIEW;
+		double const amount = 250. / GameTicRate;
+
+		if (*actions & SB_AIM_DOWN)
+			horizAngle -= scaleAdjust * amount;
+
+		if (*actions & SB_AIM_UP)
+			horizAngle += scaleAdjust * amount;
+	}
+
+	// this is the unlocked type
+	if (*actions & (SB_LOOK_UP|SB_LOOK_DOWN))
+	{
+		*actions |= SB_CENTERVIEW;
+		double const amount = 500. / GameTicRate;
+
+		if (*actions & SB_LOOK_DOWN)
+			horizAngle -= scaleAdjust * amount;
+
+		if (*actions & SB_LOOK_UP)
+			horizAngle += scaleAdjust * amount;
+	}
+
+	// convert back to Build's horizon
+	*q16horiz = IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.)));
+
+	// return to center if conditions met.
+	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
+	{
+		if (*q16horiz < FloatToFixed(99.75) || *q16horiz > FloatToFixed(100.25))
+		{
+			// move *q16horiz back to 100
+			*q16horiz += xs_CRoundToInt(scaleAdjust * (((1000. / GameTicRate) * FRACUNIT) - (*q16horiz * (10. / GameTicRate))));
+		}
+		else
+		{
+			// not looking anymore because *q16horiz is back at 100
+			*q16horiz = IntToFixed(100);
+			*actions &= ~SB_CENTERVIEW;
+		}
+	}
+
+	// clamp before returning
+	*q16horiz = clamp(*q16horiz, gi->playerHorizMin(), gi->playerHorizMax());
+}
+
+//---------------------------------------------------------------------------
+//
+// Player's angle function, called from game's ticker or from gi->GetInput() as required.
+//
+//---------------------------------------------------------------------------
+
+void applylook(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching)
+{
+	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a FRACUNIT (16384)
+	*q16rotscrnang -= xs_CRoundToInt(scaleAdjust * (*q16rotscrnang * (15. / GameTicRate)));
+	if (abs(*q16rotscrnang) < (FRACUNIT >> 2)) *q16rotscrnang = 0;
+
+	// return q16look_ang to 0 and set to 0 if less than a quarter of a FRACUNIT (16384)
+	*q16look_ang -= xs_CRoundToInt(scaleAdjust * (*q16look_ang * (7.5 / GameTicRate)));
+	if (abs(*q16look_ang) < (FRACUNIT >> 2)) *q16look_ang = 0;
+
+	if (*actions & SB_LOOK_LEFT)
+	{
+		// start looking left
+		*q16look_ang -= FloatToFixed(scaleAdjust * (4560. / GameTicRate));
+		*q16rotscrnang += FloatToFixed(scaleAdjust * (720. / GameTicRate));
+	}
+
+	if (*actions & SB_LOOK_RIGHT)
+	{
+		// start looking right
+		*q16look_ang += FloatToFixed(scaleAdjust * (4560. / GameTicRate));
+		*q16rotscrnang -= FloatToFixed(scaleAdjust * (720. / GameTicRate));
+	}
+
+	if (*actions & SB_TURNAROUND)
+	{
+		if (*spin == 0)
+		{
+			// currently not spinning, so start a spin
+			*spin = IntToFixed(-1024);
+		}
+		*actions &= ~SB_TURNAROUND;
+	}
+
+	if (*spin < 0)
+	{
+		// return spin to 0
+		fixed_t add = FloatToFixed(scaleAdjust * ((!crouching ? 3840. : 1920.) / GameTicRate));
+		*spin += add;
+		if (*spin > 0)
+		{
+			// Don't overshoot our target. With variable factor this is possible.
+			add -= *spin;
+			*spin = 0;
+		}
+		*q16ang += add;
+	}
+
+	if (q16avel)
+	{
+		// add player's input
+		*q16ang = (*q16ang + q16avel) & 0x7FFFFFF;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// Player's ticrate helper functions.
+//
+//---------------------------------------------------------------------------
+
+void playerAddAngle(fixed_t* q16ang, double* helper, double adjustment)
+{
+	if (!cl_syncinput)
+	{
+		*helper += adjustment;
+	}
+	else
+	{
+		*q16ang = (*q16ang + FloatToFixed(adjustment)) & 0x7FFFFFF;
+	}
+}
+
+void playerSetAngle(fixed_t* q16ang, fixed_t* helper, double adjustment)
+{
+	if (!cl_syncinput)
+	{
+		// Add slight offset if adjustment is coming in as absolute 0.
+		if (adjustment == 0) adjustment += (1. / (FRACUNIT >> 1));
+
+		*helper = *q16ang + getincangleq16(*q16ang, FloatToFixed(adjustment));
+	}
+	else
+	{
+		*q16ang = FloatToFixed(adjustment);
+	}
+}
+
+void playerAddHoriz(fixed_t* q16horiz, double* helper, double adjustment)
+{
+	if (!cl_syncinput)
+	{
+		*helper += adjustment;
+	}
+	else
+	{
+		*q16horiz += FloatToFixed(adjustment);
+	}
+}
+
+void playerSetHoriz(fixed_t* q16horiz, fixed_t* helper, double adjustment)
+{
+	if (!cl_syncinput)
+	{
+		// Add slight offset if adjustment is coming in as absolute 0.
+		if (adjustment == 0) adjustment += (1. / (FRACUNIT >> 1));
+
+		*helper = FloatToFixed(adjustment);
+	}
+	else
+	{
+		*q16horiz = FloatToFixed(adjustment);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// Player's ticrate helper processor.
+//
+//---------------------------------------------------------------------------
+
+void playerProcessHelpers(fixed_t* q16ang, double* angAdjust, fixed_t* angTarget, fixed_t* q16horiz, double* horizAdjust, fixed_t* horizTarget, double const scaleAdjust)
+{
+	// Process angle amendments from the game's ticker.
+	if (*angTarget)
+	{
+		fixed_t angDelta = getincangleq16(*q16ang, *angTarget);
+		*q16ang = (*q16ang + xs_CRoundToInt(scaleAdjust * angDelta));
+
+		if (abs(*q16ang - *angTarget) < FRACUNIT)
+		{
+			*q16ang = *angTarget;
+			*angTarget = 0;
+		}
+	}
+	else if (*angAdjust)
+	{
+		*q16ang = (*q16ang + FloatToFixed(scaleAdjust * *angAdjust)) & 0x7FFFFFF;
+	}
+
+	// Process horizon amendments from the game's ticker.
+	if (*horizTarget)
+	{
+		fixed_t horizDelta = *horizTarget - *q16horiz;
+		*q16horiz += xs_CRoundToInt(scaleAdjust * horizDelta);
+
+		if (abs(*q16horiz - *horizTarget) < FRACUNIT)
+		{
+			*q16horiz = *horizTarget;
+			*horizTarget = 0;
+		}
+	}
+	else if (*horizAdjust)
+	{
+		*q16horiz += FloatToFixed(scaleAdjust * *horizAdjust);
+	}
+}

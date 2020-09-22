@@ -67,7 +67,7 @@ void hud_input(int snum)
 	i = p->aim_mode;
 	p->aim_mode = !PlayerInput(snum, SB_AIMMODE);
 	if (p->aim_mode < i)
-		p->return_to_center = 9;
+		sync[snum].actions |= SB_CENTERVIEW;
 
 	// Backup weapon here as hud_input() is the first function where any one of the weapon variables can change.
 	backupweapon(p);
@@ -477,13 +477,13 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SB_TURNAROUND) && p->one_eighty_count == 0)
+		if (PlayerInput(snum, SB_TURNAROUND) && p->one_eighty_count == 0 && p->on_crane < 0)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_TURNAROUND, -1, snum, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			if (GetGameVarID(g_iReturnVarID, -1, snum) != 0)
 			{
-				p->one_eighty_count = -IntToFixed(1024);
+				sync[snum].actions &= ~SB_TURNAROUND;
 			}
 		}
 	}
@@ -884,15 +884,13 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 		if (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe))
 			loc.actions |= SB_JUMP;
 		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-			loc.actions |= SB_AIM_UP;
+			p->vehicle_backwards = true;
 		if (loc.actions & SB_RUN)
 			loc.actions |= SB_CROUCH;
 	}
 
-	if (turnl)
-		loc.actions |= SB_AIM_DOWN;
-	if (turnr)
-		loc.actions |= SB_LOOK_LEFT;
+	if (turnl) p->vehicle_turnl = true;
+	if (turnr) p->vehicle_turnr = true;
 
 	double turnvel;
 
@@ -965,7 +963,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.q16avel = input.q16avel = 0;
 		}
 
-		if (p->newowner == -1 && p->return_to_center <= 0)
+		if (p->newowner == -1 && !(sync[playerNum].actions & SB_CENTERVIEW))
 		{
 			loc.q16horz = clamp(loc.q16horz + input.q16horz, IntToFixed(-MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
 		}
@@ -1022,10 +1020,16 @@ static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput)
 
 	if (!cl_syncinput)
 	{
-		// Do these in the same order as the old code.
-		calcviewpitch(p, scaleAdjust);
-		applylook(myconnectindex, scaleAdjust, input.q16avel);
-		sethorizon(myconnectindex, loc.actions, scaleAdjust, input.q16horz);
+		if (p->dead_flag == 0)
+		{
+			// Do these in the same order as the old code.
+			calcviewpitch(p, scaleAdjust);
+			processq16avel(p, &input.q16avel);
+			applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, input.q16avel, &sync[myconnectindex].actions, scaleAdjust, p->crouch_toggle || sync[myconnectindex].actions & SB_CROUCH);
+			sethorizon(&p->q16horiz, input.q16horz, &sync[myconnectindex].actions, scaleAdjust);
+		}
+
+		playerProcessHelpers(&p->q16ang, &p->angAdjust, &p->angTarget, &p->q16horiz, &p->horizAdjust, &p->horizTarget, scaleAdjust);
 	}
 }
 

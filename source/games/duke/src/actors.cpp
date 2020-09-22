@@ -468,7 +468,7 @@ void moveplayers(void) //Players
 
 				if (p->actorsqu >= 0)
 				{
-					playerAddAngle(p, getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2);
+					playerAddAngle(&p->q16ang, &p->angAdjust, getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2);
 				}
 
 				if (s->extra > 0)
@@ -491,7 +491,7 @@ void moveplayers(void) //Players
 
 					if (p->wackedbyactor >= 0 && sprite[p->wackedbyactor].statnum < MAXSTATUS)
 					{
-						playerAddAngle(p, getincangle(p->getang(), getangle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1);
+						playerAddAngle(&p->q16ang, &p->angAdjust, getincangle(p->getang(), getangle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1);
 					}
 				}
 				s->ang = p->getang();
@@ -748,7 +748,7 @@ void movecrane(int i, int crane)
 				s->owner = -2;
 				ps[p].on_crane = i;
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
-				playerSetAngle(&ps[p], s->ang + 1024);
+				playerSetAngle(&ps[p].q16ang, &ps[p].angTarget, s->ang + 1024);
 			}
 			else
 			{
@@ -2674,7 +2674,7 @@ void handle_se00(int i, int LASERLINE)
 		{
 			if (ps[p].cursectnum == s->sectnum && ps[p].on_ground == 1)
 			{
-				playerAddAngle(&ps[p], l * q);
+				playerAddAngle(&ps[p].q16ang, &ps[p].angAdjust, l * q);
 
 				ps[p].posz += zchange;
 
@@ -2866,7 +2866,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 					ps[p].bobposx += m;
 					ps[p].bobposy += x;
 
-					playerAddAngle(&ps[p], q);
+					playerAddAngle(&ps[p].q16ang, &ps[p].angAdjust, q);
 
 					if (numplayers > 1)
 					{
@@ -4664,31 +4664,6 @@ void handle_se130(int i, int countmax, int EXPLOSION2)
 		sprite[k].ang += 256 - (krand() % 511);
 		sprite[k].xvel = krand() & 127;
 		ssp(k, CLIPMASK0);
-	}
-}
-
-
-//---------------------------------------------------------------------------
-//
-// code fron gameexec/conrun
-//
-//---------------------------------------------------------------------------
-
-int getincangle(int a,int na)
-{
-	a &= 2047;
-	na &= 2047;
-
-	if(abs(a-na) < 1024)
-		return (na-a);
-	else
-	{
-		if(na > 1024) na -= 2048;
-		if(a > 1024) a -= 2048;
-
-		na -= 2048;
-		a -= 2048;
-		return (na-a);
 	}
 }
 

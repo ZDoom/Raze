@@ -45,8 +45,6 @@ enum {
 
 extern float curpolygonoffset;
 
-extern int32_t polymostcenterhoriz;
-
 extern int16_t globalpicnum;
 
 #define POLYMOST_CHOOSE_FOG_PAL(fogpal, pal) \

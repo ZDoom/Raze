@@ -109,7 +109,7 @@ void footprints(int snum);
 int makepainsounds(int snum, int type);
 void playerCrouch(int snum);
 void playerJump(int snum, int fz, int cz);
-void applylook(int snum, double factor, fixed_t adjustment); 
+void processq16avel(player_struct* p, fixed_t* q16avel); 
 void checklook(int snum, ESyncBits actions);
 void playerCenterView(int snum);
 void playerLookUp(int snum, ESyncBits actions);
@@ -165,7 +165,6 @@ void execute(int s, int p, int d);
 void makeitfall(int s);
 int furthestangle(int snum, int angDiv);
 void getglobalz(int s);
-int getincangle(int c, int n);
 void OnEvent(int id, int pnum = -1, int snum = -1, int dist = -1);
 
 short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss);
@@ -230,7 +229,6 @@ int playercolor2lookup(int color);
 void PlayerColorChanged(void);
 void apply_seasick(player_struct* p, double scalefactor);
 void calcviewpitch(player_struct* p, double factor);
-void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment);
 bool movementBlocked(int snum);
 void loadcons();
 void recordoldspritepos();
@@ -249,10 +247,5 @@ void backupweapon(player_struct* p);
 void resetinputhelpers(player_struct* p);
 void checkhardlanding(player_struct* p);
 void playerweaponsway(player_struct* p, spritetype* s);
-
-void playerAddAngle(player_struct* p, int ang);
-void playerSetAngle(player_struct* p, int ang);
-void playerAddHoriz(player_struct* p, int horiz);
-void playerSetHoriz(player_struct* p, int horiz);
 
 END_DUKE_NS

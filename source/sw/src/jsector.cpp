@@ -653,7 +653,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                             SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) + oscilation_delta));
 
                             // TAG6 = Turn radius
-                            if (klabs(GetDeltaAngle(SP_TAG5(sp), sp->ang)) >= SP_TAG6(sp))
+                            if (klabs(getincangle(sp->ang, SP_TAG5(sp))) >= SP_TAG6(sp))
                             {
                                 SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) - oscilation_delta));
                                 RESET_BOOL3(sp);    // Reverse turn
@@ -666,7 +666,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                             SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) - oscilation_delta));
 
                             // TAG6 = Turn radius
-                            if (klabs(GetDeltaAngle(SP_TAG5(sp), sp->ang)) >= SP_TAG6(sp))
+                            if (klabs(getincangle(sp->ang, SP_TAG5(sp))) >= SP_TAG6(sp))
                             {
                                 SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) + oscilation_delta));
                                 SET_BOOL3(sp);      // Reverse turn

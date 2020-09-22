@@ -43,7 +43,6 @@ extern int nLocalPlayer;
 
 extern int lPlayerXVel;
 extern int lPlayerYVel;
-extern fixed_t nPlayerDAng;
 
 struct Player
 {
@@ -70,8 +69,13 @@ struct Player
     short field_3C;
     short nRun;
 
-    fixed_t q16angle;
-    fixed_t q16horiz;
+    fixed_t oq16angle, q16angle;
+    fixed_t oq16horiz, q16horiz;
+    fixed_t oq16look_ang, q16look_ang;
+    fixed_t oq16rotscrnang, q16rotscrnang;
+    fixed_t spin;
+    fixed_t angTarget, horizTarget;
+    double angAdjust, horizAdjust;
     vec3_t opos;
 };
 
@@ -122,6 +126,7 @@ short GetPlayerFromSprite(short nSprite);
 void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);
+void UpdatePlayerSpriteAngle(Player* pPlayer);
 
 END_PS_NS
 

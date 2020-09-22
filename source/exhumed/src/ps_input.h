@@ -38,7 +38,8 @@ struct PlayerInput
     int yVel;
     uint16_t buttons;
     short nTarget;
-    fixed_t horizon;
+    fixed_t nAngle;
+    fixed_t pan;
     int8_t nItem;
     ESyncBits actions;
 

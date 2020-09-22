@@ -2846,7 +2846,8 @@ void processinput_d(int snum)
 		//ENGINE calculates angvel for you
 		// may still be needed later for demo recording
 
-		applylook(snum, 1, sb_avel);
+		processq16avel(p, &sb_avel);
+		applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, sb_avel, &sync[snum].actions, 1, p->crouch_toggle || actions & SB_CROUCH);
 	}
 
 	if (p->spritebridge == 0)
@@ -3078,7 +3079,7 @@ HORIZONLY:
 
 	if (cl_syncinput)
 	{
-		sethorizon(snum, actions, 1, PlayerHorizon(snum));
+		sethorizon(&p->q16horiz, PlayerHorizon(snum), &sync[snum].actions, 1);
 	}
 
 	checkhardlanding(p);
