@@ -2986,10 +2986,7 @@ static int32_t defsparser(scriptfile *script)
                             if (scriptfile_getbraces(script,&glblenddefblockend))
                                 break;
 
-#ifdef USE_OPENGL
                             glblenddef_t * const glbdef = glb->def + (glblendtoken == T_REVERSE);
-#endif
-
                             while (!scriptfile_endofblock(script, glblenddefblockend))
                             {
                                 int32_t glblenddeftoken = getatoken(script,glblenddeftokens,countof(glblenddeftokens));
@@ -2998,60 +2995,31 @@ static int32_t defsparser(scriptfile *script)
                                 case T_SRC:
                                 case T_DST:
                                 {
-                                    static const tokenlist blendFuncTokens[] =
-                                    {
-                                        { "ZERO", T_ZERO },
-                                        { "ONE", T_ONE },
-                                        { "SRC_COLOR", T_SRC_COLOR },
-                                        { "ONE_MINUS_SRC_COLOR", T_ONE_MINUS_SRC_COLOR },
-                                        { "SRC_ALPHA", T_SRC_ALPHA },
-                                        { "ONE_MINUS_SRC_ALPHA", T_ONE_MINUS_SRC_ALPHA },
-                                        { "DST_ALPHA", T_DST_ALPHA },
-                                        { "ONE_MINUS_DST_ALPHA", T_ONE_MINUS_DST_ALPHA },
-                                        { "DST_COLOR", T_DST_COLOR },
-                                        { "ONE_MINUS_DST_COLOR", T_ONE_MINUS_DST_COLOR },
-                                    };
-
-                                    int32_t factortoken = getatoken(script,blendFuncTokens,countof(blendFuncTokens));
-
-#ifdef USE_OPENGL
                                     uint8_t * const factor = glblenddeftoken == T_SRC ? &glbdef->src : &glbdef->dst;
-                                    switch (factortoken)
-                                    {
-                                        case T_ZERO: *factor = STYLEALPHA_Zero; break;
-                                        case T_ONE: *factor = STYLEALPHA_One; break;
-                                        case T_SRC_COLOR: *factor = STYLEALPHA_SrcCol; break;
-                                        case T_ONE_MINUS_SRC_COLOR: *factor = STYLEALPHA_InvSrcCol; break;
-                                        case T_SRC_ALPHA: *factor = STYLEALPHA_Src; break;
-                                        case T_ONE_MINUS_SRC_ALPHA: *factor = STYLEALPHA_InvSrc; break;
-                                        case T_DST_ALPHA: *factor = STYLEALPHA_Dst; break;
-                                        case T_ONE_MINUS_DST_ALPHA: *factor = STYLEALPHA_InvDst; break;
-                                        case T_DST_COLOR: *factor = STYLEALPHA_DstCol; break;
-                                        case T_ONE_MINUS_DST_COLOR: *factor = STYLEALPHA_InvDstCol; break;
-                                    }
-#else
-                                    UNREFERENCED_PARAMETER(factortoken);
-#endif
-
+									if (script->Compare("ZERO")) *factor = STYLEALPHA_Zero;
+									else if (script->Compare("ONE")) *factor = STYLEALPHA_One;
+									else if (script->Compare("SRC_COLOR")) *factor = STYLEALPHA_SrcCol;
+									else if (script->Compare("ONE_MINUS_SRC_COLOR")) *factor = STYLEALPHA_InvSrcCol;
+									else if (script->Compare("SRC_ALPHA")) *factor = STYLEALPHA_Src;
+									else if (script->Compare("ONE_MINUS_SRC_ALPHA")) *factor = STYLEALPHA_InvSrc;
+									else if (script->Compare("DST_ALPHA")) *factor = STYLEALPHA_Dst;
+									else if (script->Compare("ONE_MINUS_DST_ALPHA")) *factor = STYLEALPHA_InvDst;
+									else if (script->Compare("DST_COLOR")) *factor = STYLEALPHA_DstCol;
+									else if (script->Compare("ONE_MINUS_DST_COLOR")) *factor = STYLEALPHA_InvDstCol;
+									else script->ScriptMessage("Unknown blend operation %s", script->String);
                                     break;
                                 }
                                 case T_ALPHA:
                                 {
                                     double tempalpha;
                                     scriptfile_getdouble(script,&tempalpha);
-#ifdef USE_OPENGL
                                     glbdef->alpha = (float)tempalpha;
-#endif
                                     break;
                                 }
                                 }
                             }
-
-#ifdef USE_OPENGL
                             if (glblendtoken == T_BOTH)
                                 glb->def[1] = *glbdef;
-#endif
-
                             break;
                         }
                         }
