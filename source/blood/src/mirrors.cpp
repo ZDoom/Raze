@@ -352,6 +352,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             }
             case 1:
             {
+                r_rorphase = 1;
                 int nSector = mirror[i].Kills;
                 int bakCstat;
                 if (viewPlayer >= 0)
@@ -378,10 +379,12 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 {
                     gPlayer[viewPlayer].pSprite->cstat = bakCstat;
                 }
+                r_rorphase = 0;
                 return;
             }
             case 2:
             {
+                r_rorphase = 1;
                 int nSector = mirror[i].Kills;
                 int bakCstat;
                 if (viewPlayer >= 0)
@@ -410,7 +413,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 {
                     gPlayer[viewPlayer].pSprite->cstat = bakCstat;
                 }
-
+                r_rorphase = 0;
                 return;
             }
             }
