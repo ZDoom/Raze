@@ -158,7 +158,7 @@ CCMD(noclip)
 
 CCMD(give)
 {
-	static const char* type[] = { "ALL","AMMO","ARMOR","HEALTH","INVENTORY","ITEMS","KEYS","WEAPONS",nullptr };
+	static const char* type[] = { "ALL","AMMO","ARMOR","HEALTH","INVENTORY","ITEMS","KEYS","WEAPONS" };
 	if (argv.argc() < 2)
 	{
 		Printf("give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item\n");
