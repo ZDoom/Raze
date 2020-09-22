@@ -234,7 +234,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		state.SetDepthFunc(DepthFunc);
 		oldState.DepthFunc = DepthFunc;
 	}
-	bool foggy = (GLInterface.useMapFog || FogColor);
+	bool foggy = (GLInterface.useMapFog || (FogColor & 0xffffff));
 	// Disable brightmaps if non-black fog is used.
 	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f && foggy)
 	{
