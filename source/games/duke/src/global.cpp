@@ -58,7 +58,6 @@ int otherp;
 TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
 ActorInfo actorinfo[MAXTILES];
 int actor_tog;
-InputPacket sync[MAXPLAYERS];
 int16_t max_ammo_amount[MAX_WEAPONS];
 int16_t weaponsandammosprites[15];
 int PHEIGHT = PHEIGHT_DUKE;

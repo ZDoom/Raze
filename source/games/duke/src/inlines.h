@@ -128,53 +128,53 @@ inline bool isIn(int value, const std::initializer_list<int>& list)
 // these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
 inline bool PlayerInput(int pl, ESyncBits bit)
 {
-	return (!!((sync[pl].actions) & bit));
+	return (!!((ps[pl].sync.actions) & bit));
 }
 
 inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
 {
-	return (sync[pl].actions & bits);
+	return (ps[pl].sync.actions & bits);
 }
 
 inline void PlayerSetInput(int pl, ESyncBits bit)
 {
-	sync[pl].actions |= bit;
+	ps[pl].sync.actions |= bit;
 }
 
 
 inline int PlayerNewWeapon(int pl)
 {
-	return sync[pl].getNewWeapon();
+	return ps[pl].sync.getNewWeapon();
 }
 
 inline void PlayerSetItemUsed(int pl, int num)
 {
-	sync[pl].setItemUsed(num - 1);
+	ps[pl].sync.setItemUsed(num - 1);
 }
 
 inline bool PlayerUseItem(int pl, int num)
 {
-	return sync[pl].isItemUsed(num - 1);
+	return ps[pl].sync.isItemUsed(num - 1);
 }
 
 inline int PlayerInputSideVel(int pl)
 {
-	return sync[pl].svel;
+	return ps[pl].sync.svel;
 }
 
 inline int PlayerInputForwardVel(int pl)
 {
-	return sync[pl].fvel;
+	return ps[pl].sync.fvel;
 }
 
 inline fixed_t PlayerInputAngVel(int pl)
 {
-	return sync[pl].q16avel;
+	return ps[pl].sync.q16avel;
 }
 
 inline fixed_t PlayerHorizon(int pl)
 {
-	return sync[pl].q16horz;
+	return ps[pl].sync.q16horz;
 }
 
 inline void clearfriction()
