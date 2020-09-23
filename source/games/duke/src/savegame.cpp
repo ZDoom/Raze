@@ -280,6 +280,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("moto_on_mud", w.moto_on_mud)
 			// new stuff
 			("crouch_toggle", w.crouch_toggle)
+			("actions", w.sync.actions)
 			.EndObject();
 
 		w.invdisptime = 0;
@@ -298,6 +299,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		w.ohard_landing = w.hard_landing;
 		w.horizAdjust = 0;
 		w.angAdjust = 0;
+		w.sync.actions &= SB_CENTERVIEW; // this is the only bit we need to preserve.
 	}
 	return arc;
 }
