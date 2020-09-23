@@ -604,7 +604,7 @@ void displayrooms(int snum, double smoothratio)
 		{
 			if (cl_viewbob) cposz += p->opyoff + xs_CRoundToInt(fmulscale16(p->pyoff - p->opyoff, smoothratio));
 		}
-		else view(p, &cposx, &cposy, &cposz, &sect, cang.asbuild(), choriz.asbuild(), smoothratio);
+		else view(p, &cposx, &cposy, &cposz, &sect, cang.asbuild(), choriz.asq16(), smoothratio);
 
 		// do screen rotation.
 		renderSetRollAngle(FixedToInt(q16rotscrnang));

@@ -1086,7 +1086,7 @@ int haskey(int sect, int snum)
 //
 //---------------------------------------------------------------------------
 
-bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, int horiz, double smoothratio)
+bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, fixed_t q16horiz, double smoothratio)
 {
 	spritetype* sp;
 	int i, nx, ny, nz, hx, hy, hitx, hity, hitz;
@@ -1094,7 +1094,7 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 
 	nx = (sintable[(ang + 1536) & 2047] >> 4);
 	ny = (sintable[(ang + 1024) & 2047] >> 4);
-	nz = (horiz - 100) * 128;
+	nz = (q16horiz - IntToFixed(100)) >> 9;
 
 	sp = &sprite[pp->i];
 

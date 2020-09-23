@@ -942,7 +942,7 @@ post_analyzesprites(void)
 
 
 void
-BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, short horiz)
+BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, fixed_t q16horiz)
 {
     vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
@@ -959,7 +959,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, short horiz)
     // Calculate the vector (nx,ny,nz) to shoot backwards
     vx = (sintable[NORM_ANGLE(ang + 1536)] >> 3);
     vy = (sintable[NORM_ANGLE(ang + 1024)] >> 3);
-    vz = (horiz - 100) * 256L;
+    vz = (q16horiz - IntToFixed(100)) >> 8;
 
     // Player sprite of current view
     sp = &sprite[pp->PlayerSprite];
@@ -1016,7 +1016,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, short horiz)
                 flag_backup = hsp->cstat;
                 RESET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
                 ASSERT(*vsect >= 0 && *vsect < MAXSECTORS);
-                BackView(nx, ny, nz, vsect, nq16ang, horiz);
+                BackView(nx, ny, nz, vsect, nq16ang, q16horiz);
                 hsp->cstat = flag_backup;
                 return;
             }
@@ -1061,7 +1061,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, short horiz)
 }
 
 void
-CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, short horiz)
+CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, fixed_t q16horiz)
 {
     vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
@@ -1081,7 +1081,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, short horiz)
     vx += DIV2(vx);
     vy += DIV2(vy);
 
-    vz = (horiz - 100) * 256;
+    vz = (q16horiz - IntToFixed(100)) >> 8;
 
     // Player sprite of current view
     sp = &sprite[pp->PlayerSprite];
@@ -1137,7 +1137,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, short horiz)
                 flag_backup = hsp->cstat;
                 RESET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-                CircleCamera(nx, ny, nz, vsect, nq16ang, horiz);
+                CircleCamera(nx, ny, nz, vsect, nq16ang, q16horiz);
                 hsp->cstat = flag_backup;
                 return;
             }
@@ -1307,7 +1307,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
                 {
                 case 1:
                     pp->last_camera_sp = sp;
-                    CircleCamera(tx, ty, tz, tsectnum, tq16ang, 100);
+                    CircleCamera(tx, ty, tz, tsectnum, tq16ang, IntToFixed(100));
                     found_camera = true;
                     break;
 
@@ -1719,7 +1719,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
-        BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, FixedToInt(tq16horiz));
+        BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, tq16horiz);
     }
     else
     {
