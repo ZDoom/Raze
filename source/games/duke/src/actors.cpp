@@ -1999,42 +1999,39 @@ void camera(int i)
 		
 		if (s->hitag > 0)
 		{
+			// alias our temp_data array indexes.
+			auto& increment = t[1];
+			auto& minimum = t[2];
+			auto& maximum = t[3];
+			auto& setupflag = t[4];
+
 			// set up camera if already not.
-			if (t[4] != 1)
+			if (setupflag != 1)
 			{
-				// set amount to adjust camera angle every tic.
-				t[1] = 8;
-
-				// set min/max camera angles respectively. hitag is used as a viewing arc -/+ the initial camera angle.
-				t[2] = s->ang - s->hitag - t[1];
-				t[3] = s->ang + s->hitag - t[1];
-
-				// flag that we've set up the camera.
-				t[4] = 1;
+				increment = 8;
+				minimum = s->ang - s->hitag - increment;
+				maximum = s->ang + s->hitag - increment;
+				setupflag = 1;
 			}
 
-			// if already at min/max, invert the adjustment, add it and return.
-			if (s->ang == t[2] || s->ang == t[3])
+			// update angle accordingly.
+			if (s->ang == minimum || s->ang == maximum)
 			{
-				t[1] = -t[1];
-				s->ang += t[1];
-				return;
+				increment = -increment;
+				s->ang += increment;
 			}
-
-			// if we're below the min or above the max, just return either.
-			if (s->ang + t[1] < t[2])
+			else if (s->ang + increment < minimum)
 			{
-				s->ang = t[2];
-				return;
+				s->ang = minimum;
 			}
-			if (s->ang + t[1] > t[3])
+			else if (s->ang + increment > maximum)
 			{
-				s->ang = t[3];
-				return;
+				s->ang = maximum;
 			}
-
-			// if we're within range, increment ang with adjustment.
-			s->ang += t[1];
+			else
+			{
+				s->ang += increment;
+			}
 		}
 	}
 }
