@@ -613,7 +613,7 @@ int spawn_d(int j, int pn)
                     sp->xrepeat = 32;
                     sp->yrepeat = 32;
                 }
-                else if( sp->picnum == SMALLSMOKE )
+                else if( sp->picnum == SMALLSMOKE || sp->picnum == ONFIRE )
                 {
                     // 64 "money"
                     sp->xrepeat = 24;
