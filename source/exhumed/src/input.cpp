@@ -214,18 +214,18 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         return;
     }
 
-    if (PlayerList[nLocalPlayer].nHealth == 0)
-    {
-        lPlayerYVel = 0;
-        lPlayerXVel = 0;
-        return;
-    }
-
     if (packet != nullptr)
     {
         localInput = {};
         ApplyGlobalInput(localInput, hidInput);
         if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
+    }
+
+    if (PlayerList[nLocalPlayer].nHealth == 0)
+    {
+        lPlayerYVel = 0;
+        lPlayerXVel = 0;
+        return;
     }
 
     processMovement(hidInput);
