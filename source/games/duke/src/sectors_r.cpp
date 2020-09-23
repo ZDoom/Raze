@@ -1723,7 +1723,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8166:
 	case RRTILE8167:
 	case RRTILE8168:
-		changespritestat(i, 5);
+		changespritestat(i, STAT_MISC);
 		sprite[i].picnum = RRTILE5063;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
@@ -1734,7 +1734,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8593:
 	case RRTILE8594:
 	case RRTILE8595:
-		changespritestat(i, 5);
+		changespritestat(i, STAT_MISC);
 		sprite[i].picnum = RRTILE8588;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;

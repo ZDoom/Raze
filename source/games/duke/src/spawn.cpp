@@ -575,7 +575,7 @@ int initreactor(int j, int i, bool isrecon)
 		if (sp->lotag > ud.player_skill)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changespritestat(i, 5);
+			changespritestat(i, STAT_MISC);
 			return true;
 		}
 		if (!isRR() || actorflag(i, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
@@ -584,7 +584,7 @@ int initreactor(int j, int i, bool isrecon)
 		if (ud.monsters_off == 1)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changespritestat(i, 5);
+			changespritestat(i, STAT_MISC);
 			return false;
 		}
 		sp->extra = 130;
@@ -597,7 +597,7 @@ int initreactor(int j, int i, bool isrecon)
 	if (ud.multimode < 2 && sp->pal != 0)
 	{
 		sp->xrepeat = sp->yrepeat = 0;
-		changespritestat(i, 5);
+		changespritestat(i, STAT_MISC);
 		return false;
 	}
 	sp->pal = 0;

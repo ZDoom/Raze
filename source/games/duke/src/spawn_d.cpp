@@ -92,7 +92,7 @@ int spawn_d(int j, int pn)
 			if ((sp->lotag > ud.player_skill) || ud.monsters_off) 
             {
 				sp->xrepeat = sp->yrepeat = 0;
-				changespritestat(i, 5);
+				changespritestat(i, STAT_MISC);
 				break;
 			} 
             else 
@@ -112,7 +112,7 @@ int spawn_d(int j, int pn)
 			return i;
 		case FIREFLYFLYINGEFFECT:
 			sp->owner = j;
-			changespritestat(i, 5);
+			changespritestat(i, STAT_MISC);
 			sp->xrepeat = 16;
 			sp->yrepeat = 16;
 			return i;
@@ -120,14 +120,14 @@ int spawn_d(int j, int pn)
 			if (sprite[j].xrepeat < 30)
 				return i;
 			sp->owner = j;
-			changespritestat(i, 5);
+			changespritestat(i, STAT_MISC);
 			sp->x += krand() % 512 - 256;
 			sp->y += krand() % 512 - 256;
 			sp->xrepeat = 16;
 			sp->yrepeat = 16;
 			return i;
 		case WHISPYSMOKE:
-			changespritestat(i, 5);
+			changespritestat(i, STAT_MISC);
 			sp->x += krand() % 256 - 128;
 			sp->y += krand() % 256 - 128;
 			sp->xrepeat = 20;
@@ -714,7 +714,7 @@ int spawn_d(int j, int pn)
                     if (sp->pal && ud.multimode > 1)
                     {
                         sp->xrepeat = sp->yrepeat = 0;
-                        changespritestat(i, 5);
+                        changespritestat(i, STAT_MISC);
                         break;
                     }
                 }
@@ -724,7 +724,7 @@ int spawn_d(int j, int pn)
                         || (sp->pal == 3 && (ud.multimode == 1 || (ud.multimode > 1 && ud.coop == 1)))) // Dukematch Only
                     {
                         sp->xrepeat = sp->yrepeat = 0;
-                        changespritestat(i, 5);
+                        changespritestat(i, STAT_MISC);
                         break;
                     }
                 }
