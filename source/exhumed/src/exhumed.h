@@ -235,6 +235,7 @@ struct GameInterface : ::GameInterface
 {
     const char* Name() override { return "Exhumed"; }
     void app_init() override;
+    void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
     void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
     void MenuOpened() override;

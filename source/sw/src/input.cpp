@@ -344,4 +344,16 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// This is called from ImputState::ClearAllInput and resets all static state being used here.
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::clearlocalinputstate()
+{
+    loc = {};
+    turnheldtime = 0;
+}
+
 END_SW_NS

@@ -71,6 +71,7 @@ struct GameInterface : ::GameInterface
 {
 	const char* Name() override { return "Blood"; }
 	void app_init() override;
+	void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
 	void FreeLevelData() override;
 	void FreeGameData() override;

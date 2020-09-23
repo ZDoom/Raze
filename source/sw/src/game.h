@@ -2182,6 +2182,7 @@ struct GameInterface : ::GameInterface
 {
     const char* Name() override { return "ShadowWarrior"; }
     void app_init() override;
+    void clearlocalinputstate() override;
     void FreeGameData() override;
     void FreeLevelData() override;
     bool GenerateSavePic() override;
