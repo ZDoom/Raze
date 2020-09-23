@@ -1981,7 +1981,6 @@ void camera(int i)
 	auto t = &hittype[i].temp_data[0];
 	if (t[0] == 0)
 	{
-		t[1] += 8;
 		if (camerashitable)
 		{
 			int j = fi.ifhitbyweapon(i);
@@ -1995,21 +1994,47 @@ void camera(int i)
 			}
 		}
 
+		// backup current angle for interpolating camera angle.
 		hittype[i].tempang = s->ang;
 		
 		if (s->hitag > 0)
 		{
-			if (t[1] < s->hitag)
-				s->ang += 8;
-			else if (t[1] < (s->hitag * 3))
-				s->ang -= 8;
-			else if (t[1] < (s->hitag << 2))
-				s->ang += 8;
-			else
+			// set up camera if already not.
+			if (t[4] != 1)
 			{
+				// set amount to adjust camera angle every tic.
 				t[1] = 8;
-				s->ang += 8;
+
+				// set min/max camera angles respectively. hitag is used as a viewing arc -/+ the initial camera angle.
+				t[2] = s->ang - s->hitag - t[1];
+				t[3] = s->ang + s->hitag - t[1];
+
+				// flag that we've set up the camera.
+				t[4] = 1;
 			}
+
+			// if already at min/max, invert the adjustment, add it and return.
+			if (s->ang == t[2] || s->ang == t[3])
+			{
+				t[1] = -t[1];
+				s->ang += t[1];
+				return;
+			}
+
+			// if we're below the min or above the max, just return either.
+			if (s->ang + t[1] < t[2])
+			{
+				s->ang = t[2];
+				return;
+			}
+			if (s->ang + t[1] > t[3])
+			{
+				s->ang = t[3];
+				return;
+			}
+
+			// if we're within range, increment ang with adjustment.
+			s->ang += t[1];
 		}
 	}
 }
