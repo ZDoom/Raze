@@ -99,6 +99,7 @@ void StartLevel(MapRecord* level)
 	gFrameClock = 0;
 	STAT_Update(0);
 	EndLevel();
+	inputState.ClearAllInput();
 	currentLevel = level;
 
 	if (gGameOptions.nGameType == 0)
