@@ -972,6 +972,12 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.q16horz = input.q16horz = 0;
 		}
 	}
+
+	// Remove look left/right bits if looking through a camera.
+	if (p->newowner != -1)
+	{
+		loc.actions &= ~(SB_LOOK_LEFT | SB_LOOK_RIGHT);
+	}
 }
 
 //---------------------------------------------------------------------------
