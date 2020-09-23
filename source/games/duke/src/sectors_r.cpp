@@ -2409,7 +2409,6 @@ void checkhitsprite_r(int i, int sn)
 					ps[p].posx = ps[p].oposx;
 					ps[p].posy = ps[p].oposy;
 					ps[p].posz = ps[p].oposz;
-					ps[p].q16ang = ps[p].oq16ang;
 
 					updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
 					setpal(&ps[p]);

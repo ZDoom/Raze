@@ -27,7 +27,6 @@ struct weaponhit
 	short timetosleep;
 	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags;
 	int temp_data[6];
-	fixed_t oq16ang;	// for interpolating security cameras in displayrooms() when p->newowner >= 0.
 };
 
 struct animwalltype
@@ -137,7 +136,7 @@ struct player_struct
 	short ammo_amount[MAX_WEAPONS], wackedbyactor, frag, fraggedself;
 
 	short curr_weapon, last_weapon, tipincs, wantweaponfire;
-	short holoduke_amount, newowner, oldowner, hurt_delay, hbomb_hold_delay;
+	short holoduke_amount, newowner, hurt_delay, hbomb_hold_delay;
 	short jumping_counter, airleft, knee_incs, access_incs;
 	short ftq, access_wallnum, access_spritenum;
 	short got_access, weapon_ang, firstaid_amount;

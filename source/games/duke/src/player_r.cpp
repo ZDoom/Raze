@@ -3667,13 +3667,7 @@ void processinput_r(int snum)
 	if (p->newowner >= 0)
 	{
 		i = p->newowner;
-		p->posx = sprite[i].x;
-		p->posy = sprite[i].y;
-		p->posz = sprite[i].z;
-		p->setang(sprite[i].ang);
 		p->posxv = p->posyv = s->xvel = 0;
-		p->setlookang(0);
-		p->setrotscrnang(0);
 
 		fi.doincrements(p);
 

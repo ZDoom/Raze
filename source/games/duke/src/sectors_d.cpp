@@ -1733,7 +1733,6 @@ void checksectors_d(int snum)
 				p->posx = p->oposx;
 				p->posy = p->oposy;
 				p->posz = p->oposz;
-				p->q16ang = p->oq16ang;
 				p->newowner = -1;
 
 				updatesector(p->posx, p->posy, &p->cursectnum);

@@ -530,11 +530,6 @@ static void processInputBits(player_struct *p, ControlInfo* const hidInput)
 		loc.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
 			SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
 	}
-	else if (p->newowner != -1)
-	{
-		// Remove look left/right bits if looking through a camera.
-		loc.actions &= ~(SB_LOOK_LEFT | SB_LOOK_RIGHT);
-	}
 	else
 	{
 		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) // this shares a bit with another function so cannot be in the common code.

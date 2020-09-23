@@ -244,6 +244,17 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 //
 //---------------------------------------------------------------------------
 
+static inline int16_t getcamspriteang(short const newowner, double const smoothratio)
+{
+	return hittype[newowner].tempang + xs_CRoundToInt(fmulscale16(((sprite[newowner].ang - hittype[newowner].tempang + 1024) & 2047) - 1024, smoothratio));
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void animatecamsprite(double smoothratio)
 {
 	const int VIEWSCREEN_ACTIVE_DISTANCE = 8192;
@@ -269,7 +280,7 @@ void animatecamsprite(double smoothratio)
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
 				auto camera = &sprite[sp->owner];
-				auto ang = hittype[sp->owner].tempang + xs_CRoundToInt(fmulscale16(((camera->ang - hittype[sp->owner].tempang + 1024) & 2047) - 1024, smoothratio));
+				auto ang = getcamspriteang(sp->owner, smoothratio);
 				// Note: no ROR or camera here for now - the current setup has no means to detect these things before rendering the scene itself.
 				drawrooms(camera->x, camera->y, camera->z, ang, 100 + camera->shade, camera->sectnum); // why 'shade'...?
 				display_mirror = 1; // should really be 'display external view'.
@@ -468,6 +479,7 @@ void displayrooms(int snum, double smoothratio)
 	short sect;
 	binangle cang;
 	fixedhoriz choriz;
+	fixed_t q16rotscrnang;
 	struct player_struct* p;
 	int tiltcs = 0; // JBF 20030807
 
@@ -531,10 +543,8 @@ void displayrooms(int snum, double smoothratio)
 			setdrugmode(p, i);
 		}
 
-		if (!cl_syncinput)
-			renderSetRollAngle(FixedToFloat(p->q16rotscrnang));
-		else
-			renderSetRollAngle(FixedToFloat(p->oq16rotscrnang + fmulscale16(((p->q16rotscrnang - p->oq16rotscrnang + dang) & 0x7FFFFFF) - dang, smoothratio)));
+		// set screen rotation.
+		q16rotscrnang = !cl_syncinput ? p->q16rotscrnang : p->oq16rotscrnang + fmulscale16(((p->q16rotscrnang - p->oq16rotscrnang + dang) & 0x7FFFFFF) - dang, smoothratio);
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
@@ -581,33 +591,23 @@ void displayrooms(int snum, double smoothratio)
 
 		if (p->newowner >= 0)
 		{
-			fixed_t& oang = hittype[p->newowner].oq16ang;
-			fixed_t& ang = p->q16ang;
-
-			if (p->newowner != p->oldowner)
-			{
-				oang = ang = IntToFixed(sprite[p->newowner].ang);
-				cang = q16ang(ang);
-				p->oldowner = p->newowner;
-			}
-			else
-			{
-				cang = q16ang(oang + xs_CRoundToInt(fmulscale16(((ang + dang - oang) & 0x7FFFFFF) - dang, smoothratio)));
-			}
-
+			cang = buildang(getcamspriteang(p->newowner, smoothratio));
 			choriz = q16horiz(p->q16horiz + p->q16horizoff);
 			cposx = sprite[p->newowner].pos.x;
 			cposy = sprite[p->newowner].pos.y;
 			cposz = sprite[p->newowner].pos.z;
 			sect = sprite[p->newowner].sectnum;
+			q16rotscrnang = 0;
 			smoothratio = MaxSmoothRatio;
 		}
 		else if (p->over_shoulder_on == 0)
 		{
-			p->oldowner = -1;
 			if (cl_viewbob) cposz += p->opyoff + xs_CRoundToInt(fmulscale16(p->pyoff - p->opyoff, smoothratio));
 		}
 		else view(p, &cposx, &cposy, &cposz, &sect, cang.asbuild(), choriz.asbuild(), smoothratio);
+
+		// do screen rotation.
+		renderSetRollAngle(FixedToInt(q16rotscrnang));
 
 		cz = hittype[p->i].ceilingz;
 		fz = hittype[p->i].floorz;
