@@ -247,7 +247,7 @@ void NewLevel(MapRecord *sng, int skill)
 	auto completion = [=](bool = false)
 	{
 		if (skill != -1) gGameOptions.nDifficulty = skill;
-		gSkill = skill;
+		gSkill = gGameOptions.nDifficulty;
 		cheatReset();
 		StartLevel(sng);
 		gameaction = ga_level;
