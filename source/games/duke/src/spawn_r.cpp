@@ -284,7 +284,7 @@ int spawn_r(int j, int pn)
 						sp->yrepeat = 54;
 					}
 				}
-				changespritestat(i,5);
+				changespritestat(i, STAT_MISC);
 				break;
 			case TONGUE:
 				if(j >= 0)
@@ -311,7 +311,7 @@ int spawn_r(int j, int pn)
 				}
 				else sp->xrepeat = sp->yrepeat = 0;
 
-				changespritestat(i,5);
+				changespritestat(i, STAT_MISC);
 				break;
 
 			case FORCESPHERE:
@@ -323,14 +323,14 @@ int spawn_r(int j, int pn)
 				else
 				{
 					sp->xrepeat = sp->yrepeat = 1;
-					changespritestat(i,5);
+					changespritestat(i, STAT_MISC);
 				}
 				break;
 
 			case BLOOD:
 				sp->xrepeat = sp->yrepeat = 4;
 				sp->z -= (26<<8);
-				changespritestat(i,5);
+				changespritestat(i, STAT_MISC);
 				break;
 			case BLOODPOOL:
 				if (spawnbloodpoolpart1(j, i)) break;
@@ -361,7 +361,7 @@ int spawn_r(int j, int pn)
 				if(j >= 0 && sprite[j].pal == 6)
 					sp->pal = 6;
 				insertspriteq(i);
-				changespritestat(i,5);
+				changespritestat(i, STAT_MISC);
 				break;
 
 			case HYDRENT:
@@ -583,7 +583,7 @@ int spawn_r(int j, int pn)
 					sp->xrepeat = sp->yrepeat = 8;
 					sp->ang = krand()&2047;
 				}
-				changespritestat(i,5);
+				changespritestat(i, STAT_MISC);
 				break;
 
 			case SHELL: //From the player
@@ -596,7 +596,7 @@ int spawn_r(int j, int pn)
 				if (ud.multimode < 2 && sp->pal == 1)
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(i,5);
+					changespritestat(i, STAT_MISC);
 					break;
 				}
 				sp->cstat = (short)32768;
@@ -654,7 +654,7 @@ int spawn_r(int j, int pn)
 						sp->z = x-(12<<8);
 				}
 
-				changespritestat(i,5);
+				changespritestat(i, STAT_MISC);
 
 				break;
 
@@ -676,7 +676,7 @@ int spawn_r(int j, int pn)
 				if(j == 2) j = 0;
 
 				if( ud.multimode < 2 || (ud.multimode > 1 && j != sp->lotag) )
-					changespritestat(i,5);
+					changespritestat(i, STAT_MISC);
 				else
 					changespritestat(i,10);
 				break;
@@ -692,7 +692,7 @@ int spawn_r(int j, int pn)
 				}
 				else
 					sp->xrepeat = sp->yrepeat = 32;
-				changespritestat(i,5);
+				changespritestat(i, STAT_MISC);
 				break;
 			case CRANE:
 				initcrane(j, i, CRANEPOLE);
@@ -720,7 +720,7 @@ int spawn_r(int j, int pn)
 				if(sp->pal && ud.multimode > 1)
 				{
 					sp->xrepeat=sp->yrepeat=0;
-					changespritestat(i,5);
+					changespritestat(i, STAT_MISC);
 					break;
 				}
 			case WATERBUBBLEMAKER:
@@ -1022,7 +1022,7 @@ int spawn_r(int j, int pn)
 				if( ( sp->lotag > ud.player_skill ) || ud.monsters_off == 1 )
 				{
 					sp->xrepeat=sp->yrepeat=0;
-					changespritestat(i,5);
+					changespritestat(i, STAT_MISC);
 					break;
 				}
 				else
@@ -1168,7 +1168,7 @@ int spawn_r(int j, int pn)
 				if( ( ud.multimode < 2 && sp->pal != 0) || (sp->lotag > ud.player_skill) )
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(i,5);
+					changespritestat(i, STAT_MISC);
 					break;
 				}
 
@@ -1182,7 +1182,7 @@ int spawn_r(int j, int pn)
 				if(ud.multimode > 1 && ud.coop != 1 && sp->picnum == ACCESSCARD)
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(i,5);
+					changespritestat(i, STAT_MISC);
 					break;
 				}
 				else
@@ -1336,7 +1336,7 @@ int spawn_r(int j, int pn)
 				if( ud.multimode < 2 && sp->pal != 0 )
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(i,5);
+					changespritestat(i, STAT_MISC);
 					break;
 				}
 				else sp->pal = 0;
@@ -1386,7 +1386,7 @@ int spawn_r(int j, int pn)
 				if( ud.multimode < 2 && sp->pal != 0)
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(i,5);
+					changespritestat(i, STAT_MISC);
 					break;
 				}
 
@@ -1462,7 +1462,7 @@ int spawn_r(int j, int pn)
 				if( ud.monsters_off == 1 && sp->picnum == EGG )
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(i,5);
+					changespritestat(i, STAT_MISC);
 				}
 				else
 				{

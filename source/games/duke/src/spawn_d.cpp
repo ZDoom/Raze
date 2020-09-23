@@ -148,7 +148,7 @@ int spawn_d(int j, int pn)
                 break;
             case FOF:
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             case WATERSPLASH2:
                 if(j >= 0)
@@ -201,7 +201,7 @@ int spawn_d(int j, int pn)
             case DUKETORSO:
             case DUKEGUN:
             case DUKELEG:
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             case TONGUE:
                 if(j >= 0)
@@ -229,7 +229,7 @@ int spawn_d(int j, int pn)
                 }
                 else sp->xrepeat = sp->yrepeat = 0;
 
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
 
                 break;
 
@@ -248,7 +248,7 @@ int spawn_d(int j, int pn)
                 }
 
                 if(j >= 0) sp->ang = hittype[j].temp_data[5]+512;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
 
             case FORCESPHERE:
@@ -260,7 +260,7 @@ int spawn_d(int j, int pn)
                 else
                 {
                     sp->xrepeat = sp->yrepeat = 1;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                 }
                 break;
 
@@ -269,7 +269,7 @@ int spawn_d(int j, int pn)
                sp->z -= (26<<8);
                if( j >= 0 && sprite[j].pal == 6 )
                    sp->pal = 6;
-               changespritestat(i,5);
+               changespritestat(i, STAT_MISC);
                break;
             case LAVAPOOL:
                 if (!isWorldTour()) // Twentieth Anniversary World Tour
@@ -327,7 +327,7 @@ int spawn_d(int j, int pn)
                 if( sp->lotag > ud.player_skill )
                 {
                     sp->xrepeat=sp->yrepeat=0;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                     break;
                 }
 
@@ -433,7 +433,7 @@ int spawn_d(int j, int pn)
                 if(ud.multimode < 2 && sp->pal)
                 {
                     sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                 }
                 else sp->pal = 0;
                 break;
@@ -552,7 +552,7 @@ int spawn_d(int j, int pn)
                     sp->xrepeat = sp->yrepeat = 8;
                     sp->ang = krand()&2047;
                 }
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
 
             case VIEWSCREEN:
@@ -574,7 +574,7 @@ int spawn_d(int j, int pn)
                 if( ud.multimode < 2 && sp->pal == 1)
                 {
                     sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                     break;
                 }
                 sp->cstat = (short)32768;
@@ -640,7 +640,7 @@ int spawn_d(int j, int pn)
 					sp->cstat |= 0x80;
 				}
 
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
 
                 break;
 
@@ -653,7 +653,7 @@ int spawn_d(int j, int pn)
                     if(sector[sp->sectnum].lotag != 2)
                         sp->cstat |= 32768;
                 }
-                changespritestat(i,13);
+                changespritestat(i, STAT_DUMMYPLAYER);
                 break;
 
             case APLAYER:
@@ -661,10 +661,10 @@ int spawn_d(int j, int pn)
                 j = ud.coop;
                 if(j == 2) j = 0;
 
-                if( ud.multimode < 2 || (ud.multimode > 1 && j != sp->lotag) )
-                    changespritestat(i,5);
+                if (ud.multimode < 2 || (ud.multimode > 1 && j != sp->lotag))
+                    changespritestat(i, STAT_MISC);
                 else
-                    changespritestat(i,10);
+                    changespritestat(i, STAT_PLAYER);
                 break;
             case WATERBUBBLE:
                 if(j >= 0 && sprite[j].picnum == APLAYER)
@@ -677,7 +677,7 @@ int spawn_d(int j, int pn)
                 }
                 else sp->xrepeat = sp->yrepeat = 32;
 
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
 
             case CRANE:
@@ -851,7 +851,7 @@ int spawn_d(int j, int pn)
                 if( ( sp->lotag > ud.player_skill ) || ud.monsters_off == 1 )
                 {
                     sp->xrepeat=sp->yrepeat=0;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                     break;
                 }
                 else
@@ -995,7 +995,7 @@ int spawn_d(int j, int pn)
                 if( ( ud.multimode < 2 && sp->pal != 0) || (sp->lotag > ud.player_skill) )
                 {
                     sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                     break;
                 }
 
@@ -1009,7 +1009,7 @@ int spawn_d(int j, int pn)
                 if(ud.multimode > 1 && ud.coop != 1 && sp->picnum == ACCESSCARD)
                 {
                     sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                     break;
                 }
                 else
@@ -1072,7 +1072,7 @@ int spawn_d(int j, int pn)
                 if( ud.multimode < 2 && sp->pal != 0 )
                 {
                     sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                     break;
                 }
                 else sp->pal = 0;
@@ -1134,7 +1134,7 @@ int spawn_d(int j, int pn)
                 if( ud.multimode < 2 && sp->pal != 0)
                 {
                     sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                     break;
                 }
 
@@ -1178,7 +1178,7 @@ int spawn_d(int j, int pn)
                 if( ud.monsters_off == 1 && sp->picnum == EGG )
                 {
                     sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                 }
                 else
                 {
