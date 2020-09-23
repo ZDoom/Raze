@@ -291,7 +291,7 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
 {
     int vX = mulscale30(-Cos(nAng), 1280);
     int vY = mulscale30(-Sin(nAng), 1280);
-    int vZ = FixedToInt(mulscale(zm, 1280, 3))-(16<<8);
+    int vZ = FixedToInt(mulscale(zm - IntToFixed(100), 1280, 3))-(16<<8);
     int bakCstat = pSprite->cstat;
     pSprite->cstat &= ~256;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
@@ -337,7 +337,7 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
 {
     int vX = mulscale30(-Cos(nAng), 1280);
     int vY = mulscale30(-Sin(nAng), 1280);
-    int vZ = FixedToInt(mulscale(zm, 1280, 3))-(16<<8);
+    int vZ = FixedToInt(mulscale(zm - IntToFixed(100), 1280, 3))-(16<<8);
     int bakCstat = pSprite->cstat;
     pSprite->cstat &= ~256;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
