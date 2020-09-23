@@ -1279,10 +1279,6 @@ loc_1AB8E:
 
             uint16_t buttons = sPlayerInput[nPlayer].buttons;
             auto actions = sPlayerInput[nPlayer].actions;
-            if (actions & SB_OPEN)
-            {
-                int a = 0;
-            }
 
             // loc_1AEF5:
             if (PlayerList[nPlayer].nHealth > 0)

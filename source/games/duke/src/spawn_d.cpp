@@ -295,10 +295,18 @@ int spawn_d(int j, int pn)
                         sp->shade = 127;
                 }
                 sp->cstat |= 32;
+                if (sp->picnum == LAVAPOOL)  // Twentieth Anniversary World Tour
+                {
+                    int fz = getflorzofslope(sp->sectnum, sp->x, sp->y);
+                    if (fz != sp->z)
+                        sp->z = fz;
+                    sp->z -= 200;
+                }
+
             case FECES:
                 if( j >= 0)
                     sp->xrepeat = sp->yrepeat = 1;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
 
             case BLOODSPLAT1:
@@ -312,7 +320,7 @@ int spawn_d(int j, int pn)
                 if(j >= 0 && sprite[j].pal == 6)
                     sp->pal = 6;
                 insertspriteq(i);
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
 
             case TRIPBOMB:
