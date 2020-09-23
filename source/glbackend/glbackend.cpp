@@ -262,6 +262,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	FVector4 blendcol(0, 0, 0, 0);
 	int flags = 0;
 
+	if (Flags & RF_ShadeInterpolate) flags |= 16384;	// hijack a free bit in here.
 	if (fullscreenTint != 0xffffff) flags |= 16;
 	if (hictint_flags != -1)
 	{
@@ -283,8 +284,8 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 			blendcol = modcol;	// WTF???, but the tinting code really uses the same color for both!
 			flags |= (((hictint_flags & TINTF_BLENDMASK) >> 6) + 1) & TextureManipulation::BlendMask;
 		}
-		addcol.W = flags;
 	}
+	addcol.W = flags;
 	state.SetTextureColors(&modcol.X, &addcol.X, &blendcol.X);
 
 	if (matrixIndex[Matrix_Model] != -1)

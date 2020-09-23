@@ -203,7 +203,7 @@ vec4 getTexel(vec2 st)
 	
 	// Apply the texture modification colors.
 	int blendflags = int(uTextureAddColor.a);	// this alpha is unused otherwise
-	if (blendflags != 0)	
+	if ((blendflags &  0x3fff) != 0)			// keep the upper flags for other things.
 	{
 		// only apply the texture manipulation if it contains something.
 		texel = ApplyTextureManipulation(texel, blendflags);

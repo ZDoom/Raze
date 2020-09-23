@@ -9,7 +9,7 @@ const int RF_ShadeInterpolate = 64;
 
 vec4 ProcessTexel()
 {
-	int u_flags = RF_ShadeInterpolate;
+	int blendflags = int(uTextureAddColor.a);
 	float fullbright = 0.0;
 	vec4 color;
 	float coordX = vTexCoord.x;
@@ -30,7 +30,7 @@ vec4 ProcessTexel()
 
 	color = texture(tex, newCoord);
 
-	float visibility = max(uGlobVis * uLightFactor * z - ((u_flags & RF_ShadeInterpolate) != 0.0? 0.5 : 0.0), 0.0);
+	float visibility = max(uGlobVis * uLightFactor * z - ((blendflags & 16384) != 0? 0.5 : 0.0), 0.0);
 	float numShades = float(uPalLightLevels & 255);
 	float shade = (1.0 - uLightLevel) * (numShades);
 	shade = clamp((shade + visibility), 0.0, numShades - 1.0);
@@ -41,7 +41,7 @@ vec4 ProcessTexel()
 	int colorIndex = int(colorIndexF * 255.0 + 0.1); // The 0.1 is for roundoff error compensation.
 	vec4 palettedColor = texelFetch(texture2, ivec2(colorIndex, 0), 0);
 	
-	if ((u_flags & RF_ShadeInterpolate) != 0)
+	if ((blendflags & 16384) != 0)
 	{
 		// Get the next shaded palette index for interpolation
 		colorIndexF = texelFetch(texture3, ivec2(palindex, shadeindex+1), 0).r;
