@@ -1445,7 +1445,7 @@ void checkhitsprite_d(int i, int sn)
 						hitpic = FLAMETHROWERFLAME;
 				}
 
-				hittype[i].picnum = sprite[sn].picnum;
+				hittype[i].picnum = hitpic;
 				hittype[i].extra += sprite[sn].extra;
 				hittype[i].ang = sprite[sn].ang;
 				hittype[i].owner = sprite[sn].owner;
