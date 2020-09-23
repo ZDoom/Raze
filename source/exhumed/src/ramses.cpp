@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "aistuff.h"
 #include "player.h"
 #include "mapinfo.h"
+#include "ps_input.h"
 
 
 BEGIN_PS_NS
@@ -209,7 +210,7 @@ void DoSpiritHead()
 {
     static short dimSectCount = 0;
 
-    PlayerList[0].q16horiz += PlayerList[0].q16horiz / 4;
+    sPlayerInput[0].actions |= SB_CENTERVIEW;
     TileFiles.InvalidateTile(kTileRamsesWorkTile);
     int totalclock = leveltime * 4;
 

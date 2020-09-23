@@ -348,6 +348,8 @@ void DrawView(double smoothRatio, bool sceneonly)
         viewz = playerZ;
     }
 
+    pan = clamp(pan, gi->playerHorizMin(), gi->playerHorizMax());
+
     nCamerax = playerX;
     nCameray = playerY;
     nCameraz = playerZ;
