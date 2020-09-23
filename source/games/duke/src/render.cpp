@@ -244,7 +244,7 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 //
 //---------------------------------------------------------------------------
 
-void animatecamsprite(int smoothRatio)
+void animatecamsprite(double smoothratio)
 {
 	const int VIEWSCREEN_ACTIVE_DISTANCE = 8192;
 
@@ -268,12 +268,12 @@ void animatecamsprite(int smoothRatio)
 
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
-				// fixme: This needs to interpolate the camera's angle. Position is not relevant because cameras do not move.
 				auto camera = &sprite[sp->owner];
+				auto ang = hittype[sp->owner].tempang + xs_CRoundToInt(fmulscale16(((camera->ang - hittype[sp->owner].tempang + 1024) & 2047) - 1024, smoothratio));
 				// Note: no ROR or camera here for now - the current setup has no means to detect these things before rendering the scene itself.
-				drawrooms(camera->x, camera->y, camera->z, camera->ang, 100 + camera->shade, camera->sectnum); // why 'shade'...?
+				drawrooms(camera->x, camera->y, camera->z, ang, 100 + camera->shade, camera->sectnum); // why 'shade'...?
 				display_mirror = 1; // should really be 'display external view'.
-				fi.animatesprites(camera->x, camera->y, camera->ang, smoothRatio);
+				fi.animatesprites(camera->x, camera->y, ang, smoothratio);
 				display_mirror = 0;
 				renderDrawMasks();
 			});

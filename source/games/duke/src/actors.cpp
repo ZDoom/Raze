@@ -1997,6 +1997,7 @@ void camera(int i)
 
 		if (s->hitag > 0)
 		{
+			hittype[i].tempang = s->ang;
 			if (t[1] < s->hitag)
 				s->ang += 8;
 			else if (t[1] < (s->hitag * 3))
