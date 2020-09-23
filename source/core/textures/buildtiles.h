@@ -274,6 +274,11 @@ struct TileDesc
 	TArray<HightileReplacement> Hightiles;
 	ReplacementType replacement;
 	float alphaThreshold;
+
+	// Sprite offset hackery for hires replacements. This only gets used for sprites in the 3D view, nothing else.
+	uint16_t h_xsize, h_ysize;
+	int8_t h_xoffs, h_yoffs;
+
 };
 
 struct TexturePick
