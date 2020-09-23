@@ -1101,7 +1101,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                             zVelB = -zVelB;
                         }
 
-                        if (zVelB > 512 && PlayerList[nPlayer].q16angle != IntToFixed(100) && !(sPlayerInput[nPlayer].actions & (SB_AIM_UP|SB_AIM_DOWN))) {
+                        if (zVelB > 512 && PlayerList[nPlayer].q16angle != IntToFixed(100) && (sPlayerInput[nPlayer].actions & (SB_AIMMODE))) {
                             sPlayerInput[nPlayer].actions |= SB_CENTERVIEW;
                         }
                     }
