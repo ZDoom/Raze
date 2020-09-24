@@ -727,7 +727,7 @@ private:
         FString format;
         FGameTexture* img;
         double imgScale;
-        double baseScale = numberFont.mFont->GetHeight() * 0.9375;
+        double baseScale = numberFont.mFont->GetHeight() * 0.75;
 
         
         //
@@ -745,7 +745,7 @@ private:
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", pp->nHealth >> 3);
-            SBar_DrawString(this, &numberFont, format, 20, -numberFont.mFont->GetHeight()+2, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+            SBar_DrawString(this, &numberFont, format, 13, -numberFont.mFont->GetHeight()+3, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
         }
 		
 		//
@@ -769,7 +769,7 @@ private:
             DrawGraphic(img, 70, -1, DI_ITEM_CENTER_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
             format.Format("%d", pp->nMagic / 10);
-            SBar_DrawString(this, &numberFont, format, 87, -numberFont.mFont->GetHeight()+2, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+            SBar_DrawString(this, &numberFont, format, 79.5, -numberFont.mFont->GetHeight()+3, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
         }
         //
         // Weapon
@@ -794,7 +794,7 @@ private:
 
             if ((!althud_flashing || leveltime & 8 || ammo > 10))// (DamageData[weapon].max_ammo / 10)))
             {
-                SBar_DrawString(this, &numberFont, format, -4, -numberFont.mFont->GetHeight()+2, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+                SBar_DrawString(this, &numberFont, format, -3, -numberFont.mFont->GetHeight()+3, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
             }
 
             //DrawGraphic(img, -imgX, -1, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, imgScale, imgScale);
