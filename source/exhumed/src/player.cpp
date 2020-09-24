@@ -725,6 +725,8 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
     short nSprite2;
 
+    PlayerList[nPlayer].angAdjust = 0;
+    PlayerList[nPlayer].horizAdjust = 0;
     PlayerList[nPlayer].opos = sprite[nPlayerSprite].pos;
     PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
     PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz;

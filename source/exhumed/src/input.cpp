@@ -94,14 +94,13 @@ void CheckKeys2()
 }
 
 
-static void processMovement(ControlInfo* const hidInput)
+static void processMovement(ControlInfo* const hidInput, double const scaleAdjust)
 {
     // JBF: Run key behaviour is selectable
     int const playerRunning = !!(localInput.actions & SB_RUN);
     int const turnAmount = playerRunning ? 12 : 8;
     int const keyMove = playerRunning ? 12 : 6;
     bool const mouseaim = !(localInput.actions & SB_AIMMODE);
-    double const scaleAdjust = InputScale();
     InputPacket tempinput {};
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
@@ -200,8 +199,6 @@ static void processMovement(ControlInfo* const hidInput)
             sethorizon(&pPlayer->q16horiz, tempinput.q16horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
             UpdatePlayerSpriteAngle(pPlayer);
         }
-
-        playerProcessHelpers(&pPlayer->q16angle, &pPlayer->angAdjust, &pPlayer->angTarget, &pPlayer->q16horiz, &pPlayer->horizAdjust, &pPlayer->horizTarget, scaleAdjust);
     }
 }
 
@@ -221,6 +218,10 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
     }
 
+    double const scaleAdjust = InputScale();
+    Player* pPlayer = &PlayerList[nLocalPlayer];
+    playerProcessHelpers(&pPlayer->q16angle, &pPlayer->angAdjust, &pPlayer->angTarget, &pPlayer->q16horiz, &pPlayer->horizAdjust, &pPlayer->horizTarget, scaleAdjust);
+
     if (PlayerList[nLocalPlayer].nHealth == 0)
     {
         lPlayerYVel = 0;
@@ -228,7 +229,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         return;
     }
 
-    processMovement(hidInput);
+    processMovement(hidInput, scaleAdjust);
     if (packet) *packet = localInput;
 }
 
