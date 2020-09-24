@@ -3741,7 +3741,7 @@ void processinput_r(int snum)
 		// may still be needed later for demo recording
 
 		processq16avel(p, &sb_avel);
-		applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, sb_avel, &ps[snum].sync.actions, 1, p->crouch_toggle || actions & SB_CROUCH);
+		applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, sb_avel, &p->sync.actions, 1, p->crouch_toggle || actions & SB_CROUCH);
 		apply_seasick(p, 1);
 	}
 
@@ -4097,7 +4097,7 @@ HORIZONLY:
 
 	if (cl_syncinput)
 	{
-		sethorizon(&p->q16horiz, PlayerHorizon(snum), &ps[snum].sync.actions, 1);
+		sethorizon(&p->q16horiz, PlayerHorizon(snum), &p->sync.actions, 1);
 	}
 
 	checkhardlanding(p);

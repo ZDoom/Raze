@@ -725,6 +725,8 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
     short nSprite2;
 
+    PlayerList[nPlayer].angAdjust = 0;
+    PlayerList[nPlayer].horizAdjust = 0;
     PlayerList[nPlayer].opos = sprite[nPlayerSprite].pos;
     PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
     PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz;
@@ -1065,15 +1067,13 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         StopLocalSound();
                         InitSpiritHead();
 
-                        playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 100);
-
                         if (currentLevel->levelNumber == 11)
                         {
-                            playerAddHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizAdjust, 46);
+                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 146);
                         }
                         else
                         {
-                            playerAddHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizAdjust, 11);
+                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 111);
                         }
                     }
                 }

@@ -109,17 +109,18 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
     }
 
+    double const scaleAdjust = InputScale();
+    InputPacket input {};
+
     if (PlayerList[nLocalPlayer].nHealth == 0)
     {
         lPlayerYVel = 0;
         lPlayerXVel = 0;
-        return;
     }
-
-    double const scaleAdjust = InputScale();
-    InputPacket input {};
-
-    processMovement(&input, &localInput, hidInput, true, scaleAdjust);
+    else
+    {
+        processMovement(&input, &localInput, hidInput, true, scaleAdjust);
+    }
 
     if (!cl_syncinput)
     {

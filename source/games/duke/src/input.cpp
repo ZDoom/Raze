@@ -67,7 +67,7 @@ void hud_input(int snum)
 	i = p->aim_mode;
 	p->aim_mode = !PlayerInput(snum, SB_AIMMODE);
 	if (p->aim_mode < i)
-		ps[snum].sync.actions |= SB_CENTERVIEW;
+		p->sync.actions |= SB_CENTERVIEW;
 
 	// Backup weapon here as hud_input() is the first function where any one of the weapon variables can change.
 	backupweapon(p);
@@ -483,7 +483,7 @@ void hud_input(int snum)
 			OnEvent(EVENT_TURNAROUND, -1, snum, -1);
 			if (GetGameVarID(g_iReturnVarID, -1, snum) != 0)
 			{
-				ps[snum].sync.actions &= ~SB_TURNAROUND;
+				p->sync.actions &= ~SB_TURNAROUND;
 			}
 		}
 	}
@@ -858,7 +858,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.q16avel = input.q16avel = 0;
 		}
 
-		if (p->newowner == -1 && !(ps[playerNum].sync.actions & SB_CENTERVIEW))
+		if (p->newowner == -1 && !(p->sync.actions & SB_CENTERVIEW))
 		{
 			// input.q16horz already added to loc in processMovement()
 			loc.q16horz = clamp(loc.q16horz, IntToFixed(-MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
@@ -922,8 +922,8 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 			// Do these in the same order as the old code.
 			calcviewpitch(p, scaleAdjust);
 			processq16avel(p, &input.q16avel);
-			applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, input.q16avel, &ps[myconnectindex].sync.actions, scaleAdjust, p->crouch_toggle || ps[myconnectindex].sync.actions & SB_CROUCH);
-			sethorizon(&p->q16horiz, input.q16horz, &ps[myconnectindex].sync.actions, scaleAdjust);
+			applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, input.q16avel, &p->sync.actions, scaleAdjust, p->crouch_toggle || p->sync.actions & SB_CROUCH);
+			sethorizon(&p->q16horiz, input.q16horz, &p->sync.actions, scaleAdjust);
 		}
 
 		playerProcessHelpers(&p->q16ang, &p->angAdjust, &p->angTarget, &p->q16horiz, &p->horizAdjust, &p->horizTarget, scaleAdjust);
