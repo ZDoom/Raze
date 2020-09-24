@@ -165,7 +165,7 @@ void forceplayerangle(int snum)
 	n = 128 - (krand() & 255);
 
 	playerAddHoriz(&p->q16horiz, &p->horizAdjust, 64);
-	ps[snum].sync.actions |= SB_CENTERVIEW;
+	p->sync.actions |= SB_CENTERVIEW;
 	p->setlookang(n >> 1);
 	p->setrotscrnang(n >> 1);
 }
@@ -407,7 +407,7 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 	{
 		p->knee_incs++;
 		playerAddHoriz(&p->q16horiz, &p->horizAdjust, -48);
-		ps[snum].sync.actions |= SB_CENTERVIEW;
+		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
 			p->knee_incs = 0;
@@ -961,11 +961,11 @@ void playerCenterView(int snum)
 	OnEvent(EVENT_RETURNTOCENTER, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		ps[snum].sync.actions |= SB_CENTERVIEW;
+		p->sync.actions |= SB_CENTERVIEW;
 	}
 	else
 	{
-		ps[snum].sync.actions &= ~SB_CENTERVIEW;
+		p->sync.actions &= ~SB_CENTERVIEW;
 	}
 }
 
@@ -976,11 +976,11 @@ void playerLookUp(int snum, ESyncBits actions)
 	OnEvent(EVENT_LOOKUP, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		ps[snum].sync.actions |= SB_CENTERVIEW;
+		p->sync.actions |= SB_CENTERVIEW;
 	}
 	else
 	{
-		ps[snum].sync.actions &= ~SB_LOOK_UP;
+		p->sync.actions &= ~SB_LOOK_UP;
 	}
 }
 
@@ -991,11 +991,11 @@ void playerLookDown(int snum, ESyncBits actions)
 	OnEvent(EVENT_LOOKDOWN, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		ps[snum].sync.actions |= SB_CENTERVIEW;
+		p->sync.actions |= SB_CENTERVIEW;
 	}
 	else
 	{
-		ps[snum].sync.actions &= ~SB_LOOK_DOWN;
+		p->sync.actions &= ~SB_LOOK_DOWN;
 	}
 }
 
@@ -1006,7 +1006,7 @@ void playerAimUp(int snum, ESyncBits actions)
 	OnEvent(EVENT_AIMUP, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 	{
-		ps[snum].sync.actions &= ~SB_AIM_UP;
+		p->sync.actions &= ~SB_AIM_UP;
 	}
 }
 
@@ -1017,7 +1017,7 @@ void playerAimDown(int snum, ESyncBits actions)
 	OnEvent(EVENT_AIMDOWN, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 	{
-		ps[snum].sync.actions &= ~SB_AIM_DOWN;
+		p->sync.actions &= ~SB_AIM_DOWN;
 	}
 }
 
