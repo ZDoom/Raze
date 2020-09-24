@@ -904,8 +904,6 @@ public:
 		int currentclock = int(clock * 120 / 1'000'000'000);
 		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
-		if (lastmapname) BigText(160, 20 - 6, lastmapname);
-		BigText(160, 36 - 6, GStrings("Completed"));
 		GameText(160, 190, GStrings("PRESSKEY"), 8 - int(sin(currentclock / 10.) * 8), 0);
 
 		if (currentclock > (60 * 3))
@@ -963,6 +961,9 @@ public:
 					break;
 			}
 		}
+
+		if (lastmapname) BigText(160, 20 - 6, lastmapname);
+		BigText(160, 36 - 6, GStrings("Completed"));
 
 		if (currentclock > 10240 && currentclock < 10240 + 10240)
 			SetTotalClock(1024);
