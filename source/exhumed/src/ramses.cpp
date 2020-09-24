@@ -242,6 +242,7 @@ void DoSpiritHead()
             {
                 if (!CDplaying())
                 {
+                    LevelFinished();
                     EndLevel = 1;
                 }
             }

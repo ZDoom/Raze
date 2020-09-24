@@ -461,6 +461,7 @@ void DrawView(double smoothRatio, bool sceneonly)
                     if ((bSubTitles && !subtitleOverlay.AdvanceCinemaText(I_GetTimeNS() * (120. / 1'000'000'000))) || inputState.CheckAllInput())
                     {
                         inputState.ClearAllInput();
+                        LevelFinished();
                         EndLevel = 1;
 
                         if (CDplaying()) {
