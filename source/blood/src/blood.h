@@ -102,6 +102,7 @@ struct GameInterface : ::GameInterface
 	void SetTileProps(int til, int surf, int vox, int shade) override;
 	fixed_t playerHorizMin() override { return IntToFixed(-80); }
 	fixed_t playerHorizMax() override { return IntToFixed(220); }
+	int playerKeyMove() override { return 1024; }
 
 	GameStats getStats() override;
 };

@@ -1490,6 +1490,130 @@ fixed_t getincangleq16(fixed_t a, fixed_t na)
 
 //---------------------------------------------------------------------------
 //
+// Player's movement function, called from game's ticker or from gi->GetInput() as required.
+//
+//---------------------------------------------------------------------------
+
+void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, bool const allowstrafe, double const scaleAdjust, int const turnscale, short const drink_amt)
+{
+	// set up variables
+	bool const mouseaim = !(inputBuffer->actions & SB_AIMMODE);
+	int const running = !!(inputBuffer->actions & SB_RUN);
+	int const keymove = gi->playerKeyMove() << running;
+	int const mousevelscale = g_gameType & GAMEFLAG_BLOOD ? 32 : 4;
+
+	// process mouse and initial controller input.
+	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
+		currInput->svel -= xs_CRoundToInt((hidInput->mousex * mousevelscale) + (scaleAdjust * (hidInput->dyaw * keymove)));
+	else
+		currInput->q16avel += FloatToFixed(hidInput->mousex + (scaleAdjust * hidInput->dyaw));
+
+	if (mouseaim)
+		currInput->q16horz -= FloatToFixed(hidInput->mousey);
+	else
+		currInput->fvel -= xs_CRoundToInt(hidInput->mousey * mousevelscale * 2);
+
+	if (in_mouseflip)
+		currInput->q16horz = -currInput->q16horz;
+
+	// process remaining controller input.
+	currInput->q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
+	currInput->svel -= xs_CRoundToInt(scaleAdjust * (hidInput->dx * keymove));
+	currInput->fvel -= xs_CRoundToInt(scaleAdjust * (hidInput->dz * keymove));
+
+	// process keyboard turning keys.
+	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
+	{
+		if (abs(inputBuffer->svel) < keymove)
+		{
+			if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+				currInput->svel += keymove;
+
+			if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+				currInput->svel -= keymove;
+		}
+	}
+	else
+	{
+		static double turnheldtime;
+		int const turnheldamt = 120 / GameTicRate;
+		double const turboturntime = 590. / GameTicRate;
+		double turnamount = ((running ? 1735. : 867.5) / GameTicRate) * turnscale;
+		double preambleturn = turnamount / 3.;
+
+		// allow Exhumed to use its legacy values given the drastic difference from the other games.
+		if ((g_gameType & GAMEFLAG_PSEXHUMED) && cl_exhumedoldturn)
+		{
+			turnamount = running ? 12 : 8;
+			preambleturn = turnamount;
+		}
+
+		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
+		{
+			turnheldtime += scaleAdjust * turnheldamt;
+			currInput->q16avel -= FloatToFixed(scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn));
+		}
+		else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe))
+		{
+			turnheldtime += scaleAdjust * turnheldamt;
+			currInput->q16avel += FloatToFixed(scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn));
+		}
+		else
+		{
+			turnheldtime = 0;
+		}
+	}
+
+	// process keyboard forward/side velocity keys.
+	if (abs(inputBuffer->svel) < keymove)
+	{
+		if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && allowstrafe)
+			currInput->svel += keymove;
+
+		if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && allowstrafe)
+			currInput->svel -= keymove;
+	}
+	if (abs(inputBuffer->fvel) < keymove)
+	{
+		if (isRR() && drink_amt >= 66 && drink_amt <= 87)
+		{
+			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+			{
+				currInput->fvel += keymove;
+				if (drink_amt & 1)
+					currInput->svel += keymove;
+				else
+					currInput->svel -= keymove;
+			}
+
+			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+			{
+				currInput->fvel -= keymove;
+				if (drink_amt & 1)
+					currInput->svel -= keymove;
+				else
+					currInput->svel += keymove;
+			}
+		}
+		else
+		{
+			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+				currInput->fvel += keymove;
+
+			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+				currInput->fvel -= keymove;
+		}
+	}
+
+	// add collected input to game's local input accumulation packet.
+	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -keymove, keymove);
+	inputBuffer->svel = clamp(inputBuffer->svel + currInput->svel, -keymove, keymove);
+	inputBuffer->q16avel += currInput->q16avel;
+	inputBuffer->q16horz += currInput->q16horz;
+}
+
+//---------------------------------------------------------------------------
+//
 // Player's horizon function, called from game's ticker or from gi->GetInput() as required.
 //
 //---------------------------------------------------------------------------

@@ -94,118 +94,6 @@ void CheckKeys2()
 }
 
 
-static void processMovement(ControlInfo* const hidInput)
-{
-    // JBF: Run key behaviour is selectable
-    int const playerRunning = !!(localInput.actions & SB_RUN);
-    int const turnAmount = playerRunning ? 12 : 8;
-    int const keyMove = playerRunning ? 12 : 6;
-    bool const mouseaim = !(localInput.actions & SB_AIMMODE);
-    double const scaleAdjust = InputScale();
-    InputPacket tempinput {};
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe))
-    {
-        tempinput.svel -= xs_CRoundToInt((hidInput->mousex * 32.) + (scaleAdjust * (hidInput->dyaw * keyMove)));
-    }
-    else
-    {
-        tempinput.q16avel += FloatToFixed(hidInput->mousex + (scaleAdjust * hidInput->dyaw));
-    }
-
-    if (mouseaim)
-    {
-        tempinput.q16horz += FloatToFixed(hidInput->mousey);
-    }
-    else
-    {
-        tempinput.fvel -= xs_CRoundToInt(hidInput->mousey * 8.);
-    }
-
-    if (!in_mouseflip) 
-        tempinput.q16horz = -tempinput.q16horz;
-
-    tempinput.q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
-    tempinput.svel -= xs_CRoundToInt(scaleAdjust * (hidInput->dx * keyMove));
-    tempinput.fvel -= xs_CRoundToInt(scaleAdjust * (hidInput->dz * keyMove));
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe))
-    {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-            tempinput.svel -= -keyMove;
-
-        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-            tempinput.svel -= keyMove;
-    }
-    else
-    {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-        {
-            turn -= 2;
-
-            if (turn < -turnAmount)
-                turn = -turnAmount;
-        }
-        else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-        {
-            turn += 2;
-
-            if (turn > turnAmount)
-                turn = turnAmount;
-        }
-
-        if (turn < 0)
-        {
-            turn++;
-            if (turn > 0)
-                turn = 0;
-        }
-
-        if (turn > 0)
-        {
-            turn--;
-            if (turn < 0)
-                turn = 0;
-        }
-
-        //if ((counter++) % 4 == 0) // what was this for???
-        tempinput.q16avel += FloatToFixed(scaleAdjust * (turn * 2));
-
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-        tempinput.svel += keyMove;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-        tempinput.svel += -keyMove;
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-        tempinput.fvel += keyMove;
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-        tempinput.fvel += -keyMove;
-
-    localInput.fvel = clamp(localInput.fvel + tempinput.fvel, -12, 12);
-    localInput.svel = clamp(localInput.svel + tempinput.svel, -12, 12);
-    localInput.q16avel += tempinput.q16avel;
-    localInput.q16horz += tempinput.q16horz;
-
-    if (!cl_syncinput)
-    {
-        Player* pPlayer = &PlayerList[nLocalPlayer];
-
-        if (!nFreeze)
-        {
-            applylook(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, tempinput.q16avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust, eyelevel[nLocalPlayer] > -14080);
-            sethorizon(&pPlayer->q16horiz, tempinput.q16horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
-            UpdatePlayerSpriteAngle(pPlayer);
-        }
-
-        playerProcessHelpers(&pPlayer->q16angle, &pPlayer->angAdjust, &pPlayer->angTarget, &pPlayer->q16horiz, &pPlayer->horizAdjust, &pPlayer->horizTarget, scaleAdjust);
-    }
-}
-
-
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
     if (paused || M_Active())
@@ -228,8 +116,29 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         return;
     }
 
-    processMovement(hidInput);
-    if (packet) *packet = localInput;
+    double const scaleAdjust = InputScale();
+    InputPacket input {};
+
+    processMovement(&input, &localInput, hidInput, true, scaleAdjust);
+
+    if (!cl_syncinput)
+    {
+        Player* pPlayer = &PlayerList[nLocalPlayer];
+
+        if (!nFreeze)
+        {
+            applylook(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, input.q16avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust, eyelevel[nLocalPlayer] > -14080);
+            sethorizon(&pPlayer->q16horiz, input.q16horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
+        }
+
+        playerProcessHelpers(&pPlayer->q16angle, &pPlayer->angAdjust, &pPlayer->angTarget, &pPlayer->q16horiz, &pPlayer->horizAdjust, &pPlayer->horizTarget, scaleAdjust);
+        UpdatePlayerSpriteAngle(pPlayer);
+    }
+
+    if (packet)
+    {
+        *packet = localInput;
+    }
 }
 
 //---------------------------------------------------------------------------
