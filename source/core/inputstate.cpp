@@ -188,10 +188,10 @@ ControlInfo CONTROL_GetInput()
 
 		I_GetAxes(joyaxes);
 
-		hidInput.dyaw += -joyaxes[JOYAXIS_Yaw] * 45.f;
+		hidInput.dyaw += -joyaxes[JOYAXIS_Yaw] * (1350.f / GameTicRate);
 		hidInput.dx += -joyaxes[JOYAXIS_Side] * 0.75f;
 		hidInput.dz += -joyaxes[JOYAXIS_Forward] * 0.75f;
-		hidInput.dpitch += -joyaxes[JOYAXIS_Pitch] * 22.5f;
+		hidInput.dpitch += -joyaxes[JOYAXIS_Pitch] * (675.f / GameTicRate);
 	}
 
 	return hidInput;

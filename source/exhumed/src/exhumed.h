@@ -263,6 +263,7 @@ struct GameInterface : ::GameInterface
     bool DrawAutomapPlayer(int x, int y, int z, int a) override;
     fixed_t playerHorizMin() override { return IntToFixed(-50); }
     fixed_t playerHorizMax() override { return IntToFixed(250); }
+    int playerKeyMove() override { return 6; }
 
 	::GameStats getStats() override;
 };

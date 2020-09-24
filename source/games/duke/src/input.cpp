@@ -582,112 +582,6 @@ int getticssincelastupdate()
 
 //---------------------------------------------------------------------------
 //
-// handles movement
-//
-//---------------------------------------------------------------------------
-
-static void processMovement(player_struct *p, InputPacket &input, ControlInfo* const hidInput, double scaleFactor)
-{
-	bool mouseaim = !(loc.actions & SB_AIMMODE);
-
-	// JBF: Run key behaviour is selectable
-	int running = !!(loc.actions & SB_RUN);
-	int turnamount = NORMALTURN << running;
-	int keymove = NORMALKEYMOVE << running;
-
-	if (buttonMap.ButtonDown(gamefunc_Strafe))
-		input.svel -= hidInput->mousex * 4.f + scaleFactor * hidInput->dyaw * keymove;
-	else
-		input.q16avel += FloatToFixed(hidInput->mousex + scaleFactor * hidInput->dyaw);
-
-	if (mouseaim)
-		input.q16horz += FloatToFixed(hidInput->mousey);
-	else
-		input.fvel -= hidInput->mousey * 8.f;
-
-	if (!in_mouseflip) input.q16horz = -input.q16horz;
-
-	input.q16horz -= FloatToFixed(scaleFactor * (hidInput->dpitch));
-	input.svel -= scaleFactor * (hidInput->dx * keymove);
-	input.fvel -= scaleFactor * (hidInput->dz * keymove);
-
-	if (buttonMap.ButtonDown(gamefunc_Strafe))
-	{
-		if (!loc.svel)
-		{
-			if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-				input.svel = keymove;
-
-			if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-				input.svel = -keymove;
-		}
-	}
-	else
-	{
-		int tics = getticssincelastupdate();
-
-		if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-		{
-			turnheldtime += tics;
-			input.q16avel -= FloatToFixed(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
-		}
-		else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-		{
-			turnheldtime += tics;
-			input.q16avel += FloatToFixed(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
-		}
-		else
-		{
-			turnheldtime = 0;
-			lastcontroltime = 0;
-		}
-
-	}
-
-	if (abs(loc.svel) < keymove)
-	{
-		if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-			input.svel += keymove;
-
-		if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-			input.svel += -keymove;
-	}
-
-	if (abs(loc.fvel) < keymove)
-	{
-		if (isRR() && p->drink_amt >= 66 && p->drink_amt <= 87)
-		{
-			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-			{
-				input.fvel += keymove;
-				if (p->drink_amt & 1)
-					input.svel += keymove;
-				else
-					input.svel -= keymove;
-			}
-
-			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-			{
-				input.fvel += -keymove;
-				if (p->drink_amt & 1)
-					input.svel -= keymove;
-				else
-					input.svel += keymove;
-			}
-		}
-		else
-		{
-			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-				input.fvel += keymove;
-
-			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-				input.fvel += -keymove;
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // split out for readability
 //
 //---------------------------------------------------------------------------
@@ -952,7 +846,8 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 
 		if (p->on_crane < 0 && p->newowner == -1)
 		{
-			loc.q16avel = clamp(loc.q16avel + input.q16avel, IntToFixed(-MAXANGVEL), IntToFixed(MAXANGVEL));
+			// input.q16avel already added to loc in processMovement()
+			loc.q16avel = clamp(loc.q16avel, IntToFixed(-MAXANGVEL), IntToFixed(MAXANGVEL));
 			if (!cl_syncinput && input.q16avel)
 			{
 				p->one_eighty_count = 0;
@@ -965,7 +860,8 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 
 		if (p->newowner == -1 && !(p->sync.actions & SB_CENTERVIEW))
 		{
-			loc.q16horz = clamp(loc.q16horz + input.q16horz, IntToFixed(-MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
+			// input.q16horz already added to loc in processMovement()
+			loc.q16horz = clamp(loc.q16horz, IntToFixed(-MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
 		}
 		else
 		{
@@ -974,21 +870,22 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 	}
 }
 
+
 //---------------------------------------------------------------------------
 //
-// main input handler routine
+// External entry point
 //
 //---------------------------------------------------------------------------
 
-static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput)
+void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
-	auto const p = &ps[myconnectindex];
-
 	if (paused)
 	{
 		loc = {};
 		return;
 	}
+
+	auto const p = &ps[myconnectindex];
 
 	if (numplayers == 1)
 	{
@@ -1013,7 +910,7 @@ static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput)
 	else
 	{
 		processInputBits(p, hidInput);
-		processMovement(p, input, hidInput, scaleAdjust);
+		processMovement(&input, &loc, hidInput, true, scaleAdjust, 1, p->drink_amt);
 		checkCrouchToggle(p);
 		FinalizeInput(myconnectindex, input, false);
 	}
@@ -1031,17 +928,7 @@ static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput)
 
 		playerProcessHelpers(&p->q16ang, &p->angAdjust, &p->angTarget, &p->q16horiz, &p->horizAdjust, &p->horizTarget, scaleAdjust);
 	}
-}
 
-//---------------------------------------------------------------------------
-//
-// External entry point
-//
-//---------------------------------------------------------------------------
-
-void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
-{
-	GetInputInternal(loc, hidInput);
 	if (packet)
 	{
 		auto const pPlayer = &ps[myconnectindex];

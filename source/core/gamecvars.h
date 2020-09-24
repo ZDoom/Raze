@@ -27,6 +27,7 @@ EXTERN_CVAR(Bool, cl_dukefixrpgrecoil)
 EXTERN_CVAR(Bool, cl_smoothsway)
 EXTERN_CVAR(Bool, cl_showmagamt)
 EXTERN_CVAR(Bool, cl_nomeleeblur)
+EXTERN_CVAR(Bool, cl_exhumedoldturn)
 
 EXTERN_CVAR(Bool, demorec_seeds_cvar)
 EXTERN_CVAR(Bool, demoplay_diffs)

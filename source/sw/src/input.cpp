@@ -78,17 +78,16 @@ enum
 //
 //---------------------------------------------------------------------------
 
-static void processInputBits(PLAYERp const pp, ControlInfo* const hidInput, bool* mouseaim)
+static void processInputBits(PLAYERp const pp, ControlInfo* const hidInput)
 {
     ApplyGlobalInput(loc, hidInput);
-    *mouseaim = !(loc.actions & SB_AIMMODE);
 
     if (!CommEnabled)
     {
         // Go back to the source to set this - the old code here was catastrophically bad.
         // this needs to be fixed properly - as it is this can never be compatible with demo playback.
 
-        if (mouseaim)
+        if (!(loc.actions & SB_AIMMODE))
             SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
         else
             RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
@@ -193,129 +192,6 @@ static void processWeapon(PLAYERp const pp)
     }
 }
 
-//---------------------------------------------------------------------------
-//
-// handles movement
-//
-//---------------------------------------------------------------------------
-
-static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool const mouseaim)
-{
-    double const scaleAdjust = InputScale();
-    bool const strafeKey = buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop;
-    int32_t turnamount, keymove;
-    int32_t fvel = 0, svel = 0;
-    fixed_t q16avel = 0, q16horz = 0;
-
-    if (loc.actions & SB_RUN)
-    {
-        turnamount = pp->sop_control ? RUNTURN * 3 : RUNTURN;
-        keymove = NORMALKEYMOVE << 1;
-    }
-    else
-    {
-        turnamount = pp->sop_control ? NORMALTURN * 3 : NORMALTURN;
-        keymove = NORMALKEYMOVE;
-    }
-
-    if (strafeKey)
-    {
-        svel -= xs_CRoundToInt((hidInput->mousex * 4.) + (scaleAdjust * (hidInput->dyaw * keymove)));
-    }
-    else
-    {
-        q16avel += FloatToFixed(hidInput->mousex + (scaleAdjust * hidInput->dyaw));
-    }
-
-    if (mouseaim)
-        q16horz -= FloatToFixed(hidInput->mousey);
-    else
-        fvel -= xs_CRoundToInt(hidInput->mousey * 8.);
-
-    if (in_mouseflip)
-        q16horz = -q16horz;
-
-    q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
-    svel -= xs_CRoundToInt(scaleAdjust * (hidInput->dx * keymove));
-    fvel -= xs_CRoundToInt(scaleAdjust * (hidInput->dz * keymove));
-
-    if (strafeKey)
-    {
-        if (abs(svel) < keymove)
-        {
-            if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-                svel += keymove;
-            if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-                svel -= keymove;
-        }
-    }
-    else
-    {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && pp->sop))
-        {
-            turnheldtime += synctics;
-            q16avel -= FloatToFixed(scaleAdjust * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
-        }
-        else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && pp->sop))
-        {
-            turnheldtime += synctics;
-            q16avel += FloatToFixed(scaleAdjust * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
-        }
-        else
-        {
-            turnheldtime = 0;
-        }
-    }
-
-    if (abs(loc.svel) < keymove)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !pp->sop)
-            svel += keymove;
-
-        if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
-            svel -= keymove;
-    }
-    if (abs(loc.fvel) < keymove)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-            fvel += keymove;
-
-        if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-            fvel -= keymove;
-    }
-
-    if (!cl_syncinput)
-    {
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
-        {
-            DoPlayerHorizon(pp, q16horz, scaleAdjust);
-        }
-
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL))
-        {
-            DoPlayerTurn(pp, q16avel, scaleAdjust);
-        }
-
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_VEHICLE))
-        {
-            DoPlayerTurnVehicle(pp, q16avel, pp->posz + Z(10), labs(pp->posz + Z(10) - pp->sop->floor_loz));
-        }
-
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET))
-        {
-            DoPlayerTurnTurret(pp, q16avel);
-        }
-
-        playerProcessHelpers(&pp->q16ang, &pp->angAdjust, &pp->angTarget, &pp->q16horiz, &pp->horizAdjust, &pp->horizTarget, scaleAdjust);
-    }
-
-    loc.fvel = clamp(loc.fvel + fvel, -MAXFVEL, MAXFVEL);
-    loc.svel = clamp(loc.svel + svel, -MAXSVEL, MAXSVEL);
-
-    loc.q16avel = clamp(loc.q16avel + q16avel, -IntToFixed(MAXANGVEL), IntToFixed(MAXANGVEL));
-    loc.q16horz = clamp(loc.q16horz + q16horz, -IntToFixed(MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
-}
-
 void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 {
     if (paused || M_Active())
@@ -324,12 +200,38 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
         return;
     }
 
+    double const scaleAdjust = InputScale();
+    InputPacket input {};
     PLAYERp pp = &Player[myconnectindex];
-    bool mouseaim;
 
-    processInputBits(pp, hidInput, &mouseaim);
-    processMovement(pp, hidInput, mouseaim);
+    processInputBits(pp, hidInput);
+    processMovement(&input, &loc, hidInput, true, scaleAdjust, pp->sop_control ? 3 : 1);
     processWeapon(pp);
+
+    if (!cl_syncinput)
+    {
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
+        {
+            DoPlayerHorizon(pp, input.q16horz, scaleAdjust);
+        }
+
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL))
+        {
+            DoPlayerTurn(pp, input.q16avel, scaleAdjust);
+        }
+
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_VEHICLE))
+        {
+            DoPlayerTurnVehicle(pp, input.q16avel, pp->posz + Z(10), labs(pp->posz + Z(10) - pp->sop->floor_loz));
+        }
+
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET))
+        {
+            DoPlayerTurnTurret(pp, input.q16avel);
+        }
+
+        playerProcessHelpers(&pp->q16ang, &pp->angAdjust, &pp->angTarget, &pp->q16horiz, &pp->horizAdjust, &pp->horizTarget, scaleAdjust);
+    }
 
     if (packet)
     {
