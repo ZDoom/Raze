@@ -119,8 +119,8 @@ public:
 		FString format;
 		FGameTexture* img;
 		double imgScale;
-		double baseScale = (scale * numberFont.mFont->GetHeight()) * 0.7;
-		double texty = -numberFont.mFont->GetHeight() + (isNamWW2GI() ? 2 : 4.5);
+		double baseScale = (scale * numberFont.mFont->GetHeight()) * (isNamWW2GI() ? 0.65 : !PLUTOPAK ? 0.75 : 0.7);
+		double texty = -numberFont.mFont->GetHeight() + (isNamWW2GI() ? 2.5 : !PLUTOPAK ? 3.5 : 4.5);
 
 		//
 		// Health
