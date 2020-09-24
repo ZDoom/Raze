@@ -1065,15 +1065,13 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         StopLocalSound();
                         InitSpiritHead();
 
-                        playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 100);
-
                         if (currentLevel->levelNumber == 11)
                         {
-                            playerAddHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizAdjust, 46);
+                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 146);
                         }
                         else
                         {
-                            playerAddHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizAdjust, 11);
+                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 111);
                         }
                     }
                 }
