@@ -219,7 +219,7 @@ public:
 			soundanm = 3;
 			S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
 		}
-		else if (soundanm == 3 && clock >= 395)
+		else if (soundanm == 3 && clock >= 395 && PLUTOPAK)
 		{
 			soundanm = 4;
 			S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
