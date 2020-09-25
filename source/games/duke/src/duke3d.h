@@ -46,6 +46,7 @@ struct GameInterface : public ::GameInterface
 	void DrawMenuCaption(const DVector2& origin, const char* text) override;
 	void SerializeGameState(FSerializer& arc) override;
 	void QuitToTitle() override;
+	bool DrawSpecialScreen(const DVector2& origin, int tilenum) override;
 	FString GetCoordString() override;
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
