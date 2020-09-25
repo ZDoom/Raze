@@ -371,8 +371,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 	int sampleroverride = CLAMP_NONE;
     if (method & DAMETH_CLAMPED)
     {
-        if (drawpoly_srepeat) sampleroverride |= CLAMP_Y;
-        if (drawpoly_trepeat) sampleroverride |= CLAMP_X;
+        if (!drawpoly_srepeat) sampleroverride |= CLAMP_Y;
+        if (!drawpoly_trepeat) sampleroverride |= CLAMP_X;
     }
 
 
