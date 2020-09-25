@@ -135,7 +135,7 @@ void displayweapon_r(int snum, double smoothratio)
 		gs = sprite[p->i].shade;
 	if(gs > 24) gs = 24;
 
-	if(p->newowner >= 0 || ud.camerasprite >= 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0))
+	if(p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0))
 		return;
 
 	int opos = p->oweapon_pos * p->oweapon_pos;
