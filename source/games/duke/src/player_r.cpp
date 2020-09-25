@@ -154,7 +154,7 @@ void shoot_r(int i, int atwith)
 		{
 			if (p >= 0)
 			{
-				zvel = (100 - ps[p].gethorizsum()) << 5;
+				zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
 				sz += (6 << 8);
 				sa += 15;
 			}
@@ -333,7 +333,7 @@ void shoot_r(int i, int atwith)
 				if (j == -1)
 				{
 					sa += 16 - (krand() & 31);
-					zvel = (100 - ps[p].gethorizsum()) << 5;
+					zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
 					zvel += 128 - (krand() & 255);
 				}
 			}
@@ -343,7 +343,7 @@ void shoot_r(int i, int atwith)
 					sa += 64 - (krand() & 127);
 				else
 					sa += 16 - (krand() & 31);
-				if (j == -1) zvel = (100 - ps[p].gethorizsum()) << 5;
+				if (j == -1) zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
 				zvel += 128 - (krand() & 255);
 			}
 			sz -= (2 << 8);
@@ -602,7 +602,7 @@ void shoot_r(int i, int atwith)
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
 			else
-				zvel = (100 - ps[p].gethorizsum()) * 98;
+				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / 65536.));
 		}
 		else
 		{
@@ -693,7 +693,7 @@ void shoot_r(int i, int atwith)
 			{
 				sx += sintable[(s->ang + 512 + 160) & 2047] >> 7;
 				sy += sintable[(s->ang + 160) & 2047] >> 7;
-				zvel = (100 - ps[p].gethorizsum()) * 98;
+				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / 65536.));
 			}
 		}
 		else
@@ -804,7 +804,7 @@ void shoot_r(int i, int atwith)
 				if (sprite[j].picnum != RECON)
 					sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = (100 - ps[p].gethorizsum()) * 81;
+			else zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (81. / 65536.));
 			if (atwith == RPG)
 				S_PlayActorSound(RPG_SHOOT, i);
 			else if (isRRRA())
@@ -2843,12 +2843,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
-				i = ((p->gethorizsum() - 100) * 20);
+				i = xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / 65536.));
 			}
 			else
 			{
 				k = 140;
-				i = -512 - ((p->gethorizsum() - 100) * 20);
+				i = -512 - xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / 65536.));
 			}
 
 			j = EGS(p->cursectnum,
@@ -3253,12 +3253,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
-				i = ((p->gethorizsum() - 100) * 20);
+				i = xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / 65536.));
 			}
 			else
 			{
 				k = 32;
-				i = -512 - ((p->gethorizsum() - 100) * 20);
+				i = -512 - xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / 65536.));
 			}
 
 			j = EGS(p->cursectnum,

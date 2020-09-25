@@ -2504,7 +2504,7 @@ static void greenslime(int i)
 
 		s->z = ps[p].posz + ps[p].pyoff - t[2] + (8 << 8);
 
-		s->z += (100 - ps[p].gethoriz()) << 4;
+		s->z += (IntToFixed(100) - ps[p].getq16horiz()) >> 12;
 
 		if (t[2] > 512)
 			t[2] -= 128;

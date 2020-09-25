@@ -232,7 +232,9 @@ struct player_struct
 	int gethoriz() { return FixedToInt(q16horiz); }
 	int gethorizof() { return FixedToInt(q16horizoff); }
 	int gethorizsum() { return FixedToInt(q16horiz + q16horizoff); }
-
+	int getq16horiz() { return q16horiz; }
+	int getq16horizof() { return q16horizoff; }
+	int getq16horizsum() { return q16horiz + q16horizoff; }
 };
 
 
