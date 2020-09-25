@@ -99,12 +99,12 @@ void genericCheat(int player, uint8_t** stream, bool skip)
         return;
 
     if (player == myconnectindex)
-        Printf("%s\n", msg);
+        Printf(PRINT_NOTIFY, "%s\n", msg);
     else
     {
         FString message = GStrings("TXT_X_CHEATS");
         //message.Substitute("%s", player->userinfo.GetName()); // fixme - make globally accessible
-        Printf("%s: %s\n", message.GetChars(), msg);
+        Printf(PRINT_NOTIFY, "%s: %s\n", message.GetChars(), msg);
     }
 }
 
