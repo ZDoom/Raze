@@ -263,8 +263,17 @@ bool GameInterface::CanSave()
 	return (sprite[myplayer.i].extra > 0);
 }
 
-void GameInterface::StartGame(FNewGameStartup& gs)
+bool GameInterface::StartGame(FNewGameStartup& gs)
 {
+	if (gs.Episode >= 1)
+	{
+		if (g_gameType & GAMEFLAG_SHAREWARE)
+		{
+			M_StartMessage(GStrings("BUYDUKE"), 1, -1);
+			return false;
+		}
+	}
+
 	int32_t skillsound = PISTOL_BODYHIT;
 
 	soundEngine->StopAllChannels();
@@ -289,7 +298,9 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 	if (map)
 	{
 		DeferedStartGame(map, gs.Skill);
+		return true;
 	}
+	return false;
 
 }
 

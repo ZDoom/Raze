@@ -189,19 +189,26 @@ bool GameInterface::CanSave()
     return (gamestate == GS_LEVEL && !CommEnabled && numplayers ==1 && /*!DemoMode &&*/ !TEST(Player[myconnectindex].Flags, PF_DEAD));
 }
 
-void GameInterface::StartGame(FNewGameStartup& gs)
+bool GameInterface::StartGame(FNewGameStartup& gs)
 {
     PLAYERp pp = Player + screenpeek;
     int handle = 0;
     int zero = 0;
 	
 	MapRecord* map;
-    if (gs.Episode >= 1)
+	if (gs.Episode >= 1)
+	{
+		if (g_gameType & GAMEFLAG_SHAREWARE)
+		{
+			M_StartMessage(GStrings("BUYSW"), 1, -1);
+			return false;
+		}
 		map = FindMapByLevelNum(5);
+	}
     else
 		map = FindMapByLevelNum(1);
 
-	if (!map) return;
+	if (!map) return false;
     CameraTestMode = false;
 	StopFX();
 
@@ -227,6 +234,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 		Net_ClearFifo();
 	}
 	DeferedStartGame(map, gs.Skill);
+	return true;
 }
 
 FSavegameInfo GameInterface::GetSaveSig()

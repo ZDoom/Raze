@@ -39,7 +39,7 @@ struct GameInterface : public ::GameInterface
 	void MenuSound(EMenuSounds snd) override;
 	void MenuClosed() override;
 	bool CanSave() override;
-	void StartGame(FNewGameStartup& gs) override;
+	bool StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
 	double SmallFontScale() override { return isRR() ? 0.5 : 1.; }

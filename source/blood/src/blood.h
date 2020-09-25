@@ -79,7 +79,7 @@ struct GameInterface : ::GameInterface
 	void MenuOpened() override;
 	void MenuClosed() override;
 	bool CanSave() override;
-	void StartGame(FNewGameStartup& gs) override;
+	bool StartGame(FNewGameStartup& gs) override;
 	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
 	void DrawMenuCaption(const DVector2& origin, const char* text) override;
 	bool SaveGame(FSaveGameNode*) override;

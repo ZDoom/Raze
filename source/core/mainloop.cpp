@@ -645,6 +645,7 @@ void MainLoop ()
 			}
 			gi->ErrorCleanup();
 			C_FullConsole();
+			gameaction = ga_nothing;
 		}
 		catch (CVMAbortException &error)
 		{

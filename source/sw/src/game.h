@@ -2191,7 +2191,7 @@ struct GameInterface : ::GameInterface
 	void MenuSound(EMenuSounds snd) override;
 	void MenuClosed() override;
 	bool CanSave() override;
-	void StartGame(FNewGameStartup& gs) override;
+	bool StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
 	void DrawMenuCaption(const DVector2& origin, const char* text) override;
     bool LoadGame(FSaveGameNode* sv) override;

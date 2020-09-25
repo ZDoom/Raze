@@ -463,12 +463,14 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	switch (menu.GetIndex())
 	{
 	case NAME_Startgame:
-		M_ClearMenus();	// must be done before starting the level.
 		if (caller == NAME_Mainmenu || caller == NAME_IngameMenu) NewGameStartupInfo.Episode = param;
-		STAT_StartNewGame(gVolumeNames[NewGameStartupInfo.Episode], NewGameStartupInfo.Skill);
-		inputState.ClearAllInput();
+		if (gi->StartGame(NewGameStartupInfo))
+		{
+			M_ClearMenus();
+			STAT_StartNewGame(gVolumeNames[NewGameStartupInfo.Episode], NewGameStartupInfo.Skill);
+			inputState.ClearAllInput();
+		}
 
-		gi->StartGame(NewGameStartupInfo);
 		return false;
 
 	case NAME_CustomSubMenu1:
