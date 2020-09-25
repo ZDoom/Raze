@@ -217,12 +217,12 @@ public:
 		if (soundanm == 2 && clock >= 280 && clock < 395)
 		{
 			soundanm = 3;
-			S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
+			if (PLUTOPAK) S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
 		}
-		else if (soundanm == 3 && clock >= 395 && PLUTOPAK)
+		else if (soundanm == 3 && clock >= 395)
 		{
 			soundanm = 4;
-			S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			if (PLUTOPAK) S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
 		}
 
 		double scale = clamp(clock - 120, 0, 60) / 64.;
@@ -630,7 +630,8 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 			jobs[job++] = { PlayVideo("cineov3.anm", cineov3sound, framespeed_10), nullptr };
 			jobs[job++] = { Create<DBlackScreen>(200), []() { FX_StopAllSounds(); } };
 			jobs[job++] = { Create<DEpisode3End>(), []() { if (!PLUTOPAK) S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI); } };
-			if (!PLUTOPAK) jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup)), []() { FX_StopAllSounds(); } };
+			if (!PLUTOPAK) jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup),
+				DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff), []() { FX_StopAllSounds(); } };
 		}
 		break;
 
