@@ -491,7 +491,7 @@ private:
         char ds[32];
         INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
 
-        int x = InventoryBoxX + INVENTORY_PERCENT_XOFF + InventoryXoff-1;
+        int x = InventoryBoxX + INVENTORY_PERCENT_XOFF + InventoryXoff;
         int y = InventoryBoxY + INVENTORY_PERCENT_YOFF + InventoryYoff;
 
         if (TEST(id->Flags, INVF_COUNT))
@@ -539,7 +539,6 @@ private:
         }
         else if (TEST(id->Flags, INVF_TIMED))
         {
-            sprintf(ds, "%s", pp->InventoryActive[pp->InventoryNum] ? "ON" : "OFF");
             DisplayTinyString(x, y, pp->InventoryActive[pp->InventoryNum] ? "ON" : "OFF", 0);
         }
     }
@@ -555,13 +554,13 @@ private:
         int InventoryBoxX = INVENTORY_BOX_X;
         int InventoryBoxY = INVENTORY_BOX_Y;
 
-        int InventoryXoff = 0;
+        int InventoryXoff = -1;
         int InventoryYoff = 0;
 
         // put pic
         if (pp->InventoryAmount[pp->InventoryNum])
         {
-            PlayerUpdateInventoryPic(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+            PlayerUpdateInventoryPic(pp, InventoryBoxX, InventoryBoxY, 0, InventoryYoff);
             // Auto/On/Off
             PlayerUpdateInventoryState(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
             // Percent count/Item count
@@ -694,7 +693,7 @@ private:
         int InventoryBoxX = MINI_BAR_INVENTORY_BOX_X;
         int InventoryBoxY = MINI_BAR_INVENTORY_BOX_Y;
 
-        int InventoryXoff = 1;
+        int InventoryXoff = 0;
         int InventoryYoff = 1;
 
         if (pp->InventoryAmount[pp->InventoryNum])
