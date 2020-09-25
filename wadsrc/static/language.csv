@@ -5,20 +5,20 @@ Options,MNU_OPTIONS,,,,Možnosti,Optionen,,Agordoj,Opciones,,Asetukset,Options,,
 Quit,MNU_QUITGAME,,,,Ukončit hru,Spiel verlassen,,Ĉesigi Ludon,Salir del juego,,Lopeta peli,Quitter le jeu,,Esci dal gioco,終了,게임 종료,Verlaat spel,Wyjdź z Gry,Sair,,Ieșire,Выход,Заврши игру
 Load Game,MNU_LOADGAME,,,,Načíst hru,Spiel laden,,Ŝarĝi Ludon,Cargar Partida,,Lataa peli,Chargement,,Carica gioco,ロード,게임 불러오기,Laden spel,Wczytaj Grę,Carregar,,Salvare Joc,Загрузка,Учитај игру
 Save Game,MNU_SAVEGAME,,,,Uložit hru,Spiel sichern,,Konservi Ludon,Guardar Partida,,Tallenna peli,Sauvegarde,,Salva gioco,セーブ,게임 저장하기,Opslaan spel,Zapisz Grę,Salvar,Gravar,Încărcare Joc,Сохранение,Сачувај игру
-Help,MNU_HELP,,,,,Hilfe,,,,,,Aide,,,,,,,,,Ajutor,,
-Credits,MNU_CREDITS,,,,,,,,,,,,,,,,,,,,Autori,,
-How to Order,MNU_HOWTOORDER,,,,,Bestellen,,,,,,,,,,,,,,,Cum Comanzi,,
-Multiplayer,MNU_MULTIPLAYER,,,,,Mehrspieler,,,,,,,,,,,,,,,Joc Online,,
-End Game,MNU_ENDGAME,,,,,Spiel beenden,,,,,,,,,,,,,,,Încheie Joc,,
-User Map,MNU_USERMAP,not used yet,,,,Benutzerlevel,,,,,,,,,,,,,,,Hărți de utilizatori,,
+Help,MNU_HELP,,,,,Hilfe,,,,,Ohje,Aide,,,,,,,,,Ajutor,,
+Credits,MNU_CREDITS,,,,,,,,,,Tekijät,,,,,,,,,,Autori,,
+How to Order,MNU_HOWTOORDER,,,,,Bestellen,,,,,Tilausohje,,,,,,,,,,Cum Comanzi,,
+Multiplayer,MNU_MULTIPLAYER,,,,,Mehrspieler,,,,,Moninpeli,,,,,,,,,,Joc Online,,
+End Game,MNU_ENDGAME,,,,,Spiel beenden,,,,,Lopeta peli,,,,,,,,,,Încheie Joc,,
+User Map,MNU_USERMAP,not used yet,,,,Benutzerlevel,,,,,Omat tasot,,,,,,,,,,Hărți de utilizatori,,
 Select a user map to play,MNU_SELECTUSERMAP,not used yet,,,,"Wähle ein Level zum Spielen
-",,,,,,,,,,,,,,,Alege o hartă de utilizatori,,
+",,,,,Valitse oma taso pelattavaksi,,,,,,,,,,Alege o hartă de utilizatori,,
 Select an Episode,MNU_SELECTEPISODE,DN3D et.al.,,,,"Welche Episode?
-",,,,,,,,,,,,,,,Alege un episod,,
-Episodes,MNU_EPISODES,Blood,,,,Episoden,,,,,,,,,,,,,,,Episoade,,
-Select Skill,MNU_SELECTSKILL,DN3D et.al.,,,,Schwierigkeitsgrad,,,,,,,,,,,,,,,Alege dificultatea,,
-Difficulty,MNU_DIFFICULTY,Blood,,,,Schwierigkeitsgrad,,,,,,,,,,,,,,,Dificultate,,
-Engine Credits,MNU_ENGINECREDITS,,,,,,,,,,,,,,,,,,,,Autori motor,,
+",,,,,Valitse episodi,,,,,,,,,,Alege un episod,,
+Episodes,MNU_EPISODES,Blood,,,,Episoden,,,,,Episodit,,,,,,,,,,Episoade,,
+Select Skill,MNU_SELECTSKILL,DN3D et.al.,,,,Schwierigkeitsgrad,,,,,Valitse vaikeustaso,,,,,,,,,,Alege dificultatea,,
+Difficulty,MNU_DIFFICULTY,Blood,,,,Schwierigkeitsgrad,,,,,Vaikeustaso,,,,,,,,,,Dificultate,,
+Engine Credits,MNU_ENGINECREDITS,,,,,,,,,,Moottorin tekijäluettelo,,,,,,,,,,Autori motor,,
 Press Y or N.,PRESSYN,,,,Stiskni Y nebo N.,Drücke Y oder N.,"Πάτα Y ή N
 ",Premu Y aŭ N.,Presiona Y ó N.,,Paina Y tai N.,Appuyez sur Y ou N.,Nyomj Y-t vagy N-t.,Premi Y oppure N.,YかNで答えろ,Y키 또는 N키를 누르시오.,Druk op Y of N.,Wciśnij Y lub N.,Aperte Y ou N.,Carrega Y ou N.,Apasă Y sau N.,Нажмите Y или N.,Притисните Y или N.
 "You can't save if you aren't playing!
@@ -201,8 +201,8 @@ Apasă Y sau N.","Загрузить быстрое сохранение
 Yes,TXT_YES,,,,Ano,Ja,Ναι,Jes,Sí,,Kyllä,Oui,Igen,Si,はい,네,Ja,Tak,Sim,,Da,Да,Да
 No,TXT_NO,,,,Ne,Nein,Όχι,Ne,No,,Ei,Non,Nem,No,いいえ,아니요,Nee,Nie,Não,,Nu,Нет,Не
 %s cheats,TXT_X_CHEATS,This is a gender sensitive message where %s represents the player,,,%s cheatuje,%s schummelt,@[art_gr] %s απατάει,%s trompas,%s hace trampa,,%s huijaa,%s triche.,,%s imbroglia,%s はチート使用,%s 이(가) 치트를 사용 함,%s bedriegt,%s oszukuje,%s está trapaceando,%s está a fazer batota,%s trișează,%s использует чит-коды,%s вара
-Rotate mode on,TXT_ROTATE_ON,,,,,Rotiermodus an,,,,,,,,,,,,,,,,,
-Rotate mode off,TXT_ROTATE_OFF,,,,,Rotiermodus aus,,,,,,,,,,,,,,,,,
+Rotate mode on,TXT_ROTATE_ON,,,,,Rotiermodus an,,,,,Kääntötila päällä,,,,,,,,,,,,
+Rotate mode off,TXT_ROTATE_OFF,,,,,Rotiermodus aus,,,,,Kääntötila pois päältä,,,,,,,,,,,,
 ,,Savegame,,,,,,,,,,,,,,,,,,,,,
 Empty slot,EMPTYSTRING,,,,Prázdný slot,nicht belegt,,Malplena Ingo,Ranura Vacía,,Tyhjä lokero,Emplacement Vide,Üres,Slot libero,空きスロット,빈 슬롯,Lege sleuf,Puste miejsce,Vazio,,Loc disponibil,Пустой слот,Празни слот
 <New Save Game>,NEWSAVE,,,,<Nová uložená hra>,<Neuer Spielstand>,,<Novan Konservita Ludo>,<Nueva Partida Guardada>,,<Uusi tallennettu peli>,<Nouveau Fichier de Sauvegarde>,<Új mentés>,<Nuovo Salvataggio>,<新規セーブ>,<새로운 게임 저장>,<Nieuw sparen spel>,<Nowy zapis gry>,<Novo jogo salvo>,<Novo jogo gravado>,<Salvare Nouă>,<Новое сохранение>,<Нова сачувана игра>
@@ -247,11 +247,11 @@ Reset to defaults,OPTMNU_DEFAULTS,,,,Obnovit původní,Auf Vorgaben zurücksetze
 Reset to last saved,OPTMNU_RESETTOSAVED,,,,Obnovit naposledy uložené,Auf gespeicherte Werte zurücksetzen,,Reŝanĝi al lasta konservo,Últimos Valores Guardados,,Palauta viimeksi tallennettu tila,Recharger dernière config.,Legutóbbi mentett beállítások használata,Reimposta ai valori salvati l'ultima volta,最後に保存した設定に戻す,이전 설정으로 초기화,Reset naar laatste opgeslagen,Resetuj do ostatnio zapisanych,Redefinir para última configuração salva,Redefinir para última configuração gravada,Revenire la ultimele setări salvate,Вернуть предыдущие настройки,Врати задње сачувано
 Go to console,OPTMNU_CONSOLE,,,,Jít do konzole,Öffne Konsole,,Iri al konzolo,Ir a la consola,,Mene konsoliin,Ouvrir la console,Konzol megnyitása,Vai alla console,コンソールを開く,콘솔로 이동,Ga naar de console,Przejdź do konsoli,Abrir console,Abrir consola,Mergi la consolă,Открыть консоль,Отвори конзолу
 ,Controls submenu,,,,,,,,,,,,,,,,,,,,,,
-Default,CTRL_DEFAULT,,,,,Standard,,,,,,,,,,,,,,,Implicit,,
+Default,CTRL_DEFAULT,,,,,Standard,,,,,Oletus,,,,,,,,,,Implicit,,
 Classic,CTRL_CLASSIC,,,,,"Klassisch
-",,,,,,,,,,,,,,,Clasic,,
-Left-handed,CTRL_LEFTHANDED,,,,,Linkshändig,,,,,,,,,,,,,,,Stângaci,,
-Control presets,CTRL_PRESET,,,,,Voreinstellungen,,,,,,,,,,,,,,,Configurații prestabilite,,
+",,,,,Alkuperäinen,,,,,,,,,,Clasic,,
+Left-handed,CTRL_LEFTHANDED,,,,,Linkshändig,,,,,Vasenkätinen,,,,,,,,,,Stângaci,,
+Control presets,CTRL_PRESET,,,,,Voreinstellungen,,,,,Ohjausesivalinnat,,,,,,,,,,Configurații prestabilite,,
 Customize Controls,CNTRLMNU_TITLE,,,,Nastavení ovládání,Steuerung einstellen,,Agordi Regilojn,Personalizar Controles ,,Ohjausasetukset,Modifier contrôles,Irányítás testreszabása,Personalizza i controlli,キー配置変更,조작 사용자 지정,Instellen van de controle,Ustaw Klawisze,Configurar Controles,Configurar Controlos,Personalizare schemă control,Настройки управления,Подешавања контрола
 "ENTER to change, BACKSPACE to clear",CNTRLMNU_SWITCHTEXT1,,,,"ENTER pro změnu, BACKSPACE pro smazání",ENTER: Editieren BACKSPACE: Löschen,,"ENTER klavo por ŝanĝi, BACKSPACE klavo por viŝi","ENTER para cambiar, BACKSPACE para limpiar",,"Aseta ENTERILLÄ, tyhjennä ASKELPALAUTTIMELLA","ENTREE pour changer, RET. ARRIERE pour effacer.","ENTER a változtatáshoz, BACKSPACE a törléshez","INVIO per modificare, BACKSPACE per ripulire",Enter で決定、BackSpaceで無効化,"바꿀려면 ENTER키, 지울려면 BACKSPACE키를 누르시오","ENTER om te veranderen, BACKSPACE om te wissen.","ENTER by zmienić, BACKSPACE by wyczyścić","ENTER para alterar, BACKSPACE para limpar",,"ENTER pentru a schimba, BACKSPACE pentru ștergere","ENTER — изменить, BACKSPACE — очистить","ENTER за промену, BACKSPACE за чишћење"
 "Press new key for control, ESC to cancel",CNTRLMNU_SWITCHTEXT2,,,,"Zmáčkni novou klávesu pro nastavení, ESC pro storno",Drücke eine Taste oder ESC um abzubrechen,,"Premi novan klavon por reakiri regilon, ESC por nuligi","Presiona una tecla para el control, ESC para cancelar",,"Valitse näppäin toiminnolle, ESC peruuttaa","Appuyez sur la nouvelle touche pour l'assigner,
@@ -259,7 +259,7 @@ Appuyez sur ECHAP pour annuler.","Nyomj meg egy gombot, ESC a törléshez","Prem
 Controls,CNTRLMNU_CONTROLS,,,,Ovládání,Steuerung,,Regiloj,Controles,,Ohjaimet,Contrôles,Irányítás,Controlli,操作系統,조작,Bedieningselementen,Klawisze,Comandos,Controlos,Control,Управление,Контроле
 Fire,CNTRLMNU_ATTACK,,,,Střelba,Feuer,,Pafi,Fuego,,Tuli,Tirer,Tűz,Fuoco,撃つ,공격,Vuur,Strzał,Atirar,,Foc,Атака,Нападни
 Secondary Fire,CNTRLMNU_ALTATTACK,,,,Sekundární střelba,Alternativfeuer,,Duaranga Pafi,Fuego secundario,,Vaihtoehtoistuli,Tir Secondaire,Másodlagos tüzelés,Fuoco secondario,セカンダリ,보조 공격,Secundaire vuur,Strzał Alternatywny,Tiro Secundário,,Foc Secundar,Вторичная атака,Секундарни напад
-Alternative Weapon,CNTRLMNU_ALTWEAPON,,,,,Alternative Waffe,,,,,,,,,,,,,,,Armă Alternativă,,
+Alternative Weapon,CNTRLMNU_ALTWEAPON,,,,,Alternative Waffe,,,,,Vaihtoehtoinen ase,,,,,,,,,,Armă Alternativă,,
 Use / Open,CNTRLMNU_USE,,,,Použít / otevřít,Benutzen / Öffnen,,Uzi / Malfermi,Usar / Abrir,,Käytä / Avaa,Utiliser/Ouvrir,Használ / Ajtónyitás,Usa / Apri,開く / スイッチ等使用,사용/열기,Gebruik / Openen,Użyj / Otwórz,Usar / Abrir,,Folosește / Deschide,Использовать/открыть,Користи / Отвори
 Move forward,CNTRLMNU_FORWARD,,,,Pohyb vpřed,Vorwärts bewegen,,Movi anatŭe,Avanzar,,Liiku eteenpäin,Avancer,Előre mozgás,Movimento in Avanti,前進,앞으로 이동,Voorwaarts bewegen,Idź do przodu,Mover para frente,,Deplasare în față,Движение вперёд,Крећи се напред
 Move backward,CNTRLMNU_BACK,,,,Pohyb vzad,Rückwarts bewegen,,Movi malantaŭe,Retroceder,,Liiku taaksepäin,Reculer,Hátra mozgás,Movimento in Indietro,後退,뒤로 이동,Achteruit bewegen,Idź do tyłu,Mover para trás,,Deplasare în spate,Движение назад,Крећи се уназад
@@ -273,13 +273,13 @@ Jump,CNTRLMNU_JUMP,,,,Skok,Springen,,Salti,Saltar,,Hyppää,Sauter,Ugrás,Salta,
 Crouch,CNTRLMNU_CROUCH,,,,Kleknutí,Ducken,,Kaŭri,Agacharse,,Kyyristy,S'accroupir (tenir),Guggolás,Abbassati,屈む,숙이기,Hurken,Kucnięcie,Agachar,,Ghemuire,Приседание,Чучни
 Crouch Toggle,CNTRLMNU_TOGGLECROUCH,,,,Zap. / Vyp. kleknutí,Ducken an/aus,,Kaŭrbaskulo,Alternar agachado,,Kyyristymisen vaihtokytkin,S'accroupir (alterner),Guggolási kapcsoló,Toggle abbassamento,屈む切替,숙이기 토글,Hurken Toggle,Włącz / Wyłącz kucnięcie,Agachar (Liga/Desliga),,Comutator chemuire,Сесть/встать,Чучни (без држања)
 Mouse look,CNTRLMNU_MOUSELOOK,,,,Pohled myší,Maus-Blick,,Musilregardo,Vista con ratón,,Hiirikatselu,Vue à la souris,Egérrel való nézelődés,Modalità vista col mouse,マウス視点上下化,마우스 룩,Muis-look,Rozglądanie się myszką,Vista com o mouse,Vista com o rato,Privire în jur cu mouse,Обзор мышью,Гледај мишем
-Mouse look toggle,CNTRLMNU_MLOOKTOGGLE,,,,,Maus-Blick umschalten,,,,,,,,,,,,,,,Comutator privire în jur cu mouse,,
+Mouse look toggle,CNTRLMNU_MLOOKTOGGLE,,,,,Maus-Blick umschalten,,,,,Hiirikatselun vaihtokytkin,,,,,,,,,,Comutator privire în jur cu mouse,,
 Look up,CNTRLMNU_LOOKUP,Look doesn't change the aim! It only alters the view pitch,,,Pohled vzhůru,Nach oben schauen,,Rigardi supre,Mirar arriba,,Katso ylös,Regarder en haut,Felfele nézés,Guarda sopra,視点を上げる,위로 보기,Kijk omhoog,Patrz w górę,Olhar para cima,,Privire în sus,Смотреть вверх,Гледај горе
 Look down,CNTRLMNU_LOOKDOWN,,,,Pohled dolů,Nach unten schauen,,Rigardi malsupre,Mirar abajo,,Katso alas,Regarder en bas,Lefele nézés,Guarda sotto,視点を下げる,아래로 보기,Kijk naar beneden,Patrz w dół,Olhar para baixo,,Privire în jos,Смотреть вниз,Гледај доле
-Aim up,CNTRLMNU_AIMUP,,,,,Nach oben zielen,,,,,,,,,,,,,,,Țintire sus,,
-Aim down,CNTRLMNU_AIMDOWN,,,,,Nach unten zielen,,,,,,,,,,,,,,,Țintire jos,,
-Look left,CNTRLMNU_LOOKLEFT,,,,,Nach links schauen,,,,,,,,,,,,,,,Privire stânga,,
-Look right,CNTRLMNU_LOOKRIGHT,,,,,Nach rechts schauen,,,,,,,,,,,,,,,Privire dreapta,,
+Aim up,CNTRLMNU_AIMUP,,,,,Nach oben zielen,,,,,Tähtää ylös,,,,,,,,,,Țintire sus,,
+Aim down,CNTRLMNU_AIMDOWN,,,,,Nach unten zielen,,,,,Tähtää alas,,,,,,,,,,Țintire jos,,
+Look left,CNTRLMNU_LOOKLEFT,,,,,Nach links schauen,,,,,Katso vasemmalle,,,,,,,,,,Privire stânga,,
+Look right,CNTRLMNU_LOOKRIGHT,,,,,Nach rechts schauen,,,,,Katso oikealle,,,,,,,,,,Privire dreapta,,
 Center view,CNTRLMNU_CENTERVIEW,,,Centre view,Vystředit pohled,Ansicht zentrieren,,Centra vidon,Centrar vista,,Keskitä katse,Recentrer Vue,Nézet középreigazítása,Sguardo centrato,視点を戻す,중앙 시점으로 보기,Middenaanzicht,Wyśrodkuj widok,Olhar para o centro,,Privire centru,Отцентрировать взгляд,Централизирај поглед
 Run,CNTRLMNU_RUN,,,,Běh,Rennen,,Kuri,Correr,,Juokse,Courir (tenir),Futás,Corri,駆け足,달리기,Rennen,Bieg,Correr,,Fugă,Бег,Трчи
 Toggle Run,CNTRLMNU_TOGGLERUN,,,,Zap. / Vyp. běh,Rennen an/aus,,Baskulkuri,Alternar Correr,,Juoksun vaihtokytkin,Courir (alterner),Futás kapcsoló,Toggle corsa,常時駆け足切替,달리기 토글,Rennen aan/uit,Włącz / Wyłącz bieg,Correr (Liga/Desliga),,Comutator fugă,Бежать/идти,Трчи (без држања)
@@ -312,45 +312,45 @@ Activate item,CNTRLMNU_USEITEM,,,,Aktivovat předmět,Gegenstand aktivieren,,Akt
 Activate all items,CNTRLMNU_USEALLITEMS,,,,Aktivovat všechny předměty,Alle Gegenstände aktivieren,,Aktivigi ĉiuj aĵojn,Activar todos los objetos,,Aktivoi kaikki varusteet,Activer tous les objets,Minden eszköz használata,Attiva tutti gli oggetti,全てのアイテムを使用,모든 아이템 사용,Activeer alle items,Użyj wszystkie przedmioty,Ativar todos os itens,,Activează tot inventarul,Использовать все предметы,Активирај све предмете
 Next item,CNTRLMNU_NEXTITEM,,,,Další předmět,Nächster Gegenstand,,Proksima aĵo,Objeto siguiente,,Seuraava varuste,Objet suivant,Következő eszköz,Oggetto successivo,次のアイテム,다음 아이템,Volgende item,Następny przedmiot,Próximo item,,Următorul obiect,Следующий предмет,Следећи предмет
 Previous item,CNTRLMNU_PREVIOUSITEM,,,,Předchozí předmět,Vorheriger Gegenstand,,Antaŭa aĵo,Objeto anterior,,Edellinen varuste,Objet précédent,Előző eszköz,Oggetto precedente,前のアイテム,이전 아이템,Vorige item,Poprzedni przedmiot,Item anterior,,Obiect anterior,Предыдущий предмет,Претходни предмет
-Holster Weapon,CNTRLMNU_HOLSTER,,,,,Waffe wegstecken,,,,,,,,,,,,,,,Coboară arma,,
-Quick Kick,CNTRLMNU_QUICKKICK,,,,,Schneller Tritt,,,,,,,,,,,,,,,Șut rapid,,
-Pee,CNTRLMNU_PEE,,,,,Pinkeln,,,,,,,,,,,,,,,Urinează,,
-Proximity Bomb,CNTRLMNU_PROXIMITYBOMBS,,,,,,,,,,,,,,,,,,,,Bombă de proximitate,,
-Remote Bomb,CNTRLMNU_REMOTEBOMBS,,,,,,,,,,,,,,,,,,,,Bombă cu detonator,,
-Smoke Bomb,CNTRLMNU_SMOKEBOMB,,,,,Rauchbombe,,,,,,,,,,,,,,,Bombă fumigenă,,
-Gas Bomb,CNTRLMNU_GASBOMB,,,,,Gasgranate,,,,,,,,,,,,,,,Bombă cu gaz,,
-Flash Bomb,CNTRLMNU_FLASHBOMB,,,,,Blendgranate,,,,,,,,,,,,,,,Bombă orbitoare,,
-Caltrops,CNTRLMNU_CALTROPS,,,,,Krähenfüße,,,,,,,,,,,,,,,Ciulini de fier,,
-Holo Duke,CNTRLMNU_HOLODUKE,,,,,,,,,,,,,,,,,,,,Duke Holografic,,
-Jetpack,CNTRLMNU_JETPACK,,,,,,,,,,,,,,,,,,,,,,
-Night Vision,CNTRLMNU_NIGHTVISION,,,,,Nachtsichtgerät,,,,,,,,,,,,,,,Vedere infraroșie,,
-Medkit,CNTRLMNU_MEDKIT,,,,,,,,,,,,,,,,,,,,Kit medical,,
-Steroids,CNTRLMNU_STEROIDS,,,,,Steroide,,,,,,,,,,,,,,,Steroizi,,
-Holo Soldier,CNTRLMNU_HOLOSOLDIER,,,,,Holosoldat,,,,,,,,,,,,,,,Soldat Holografic,,
-Huey,CNTRLMNU_HUEY,,,,,,,,,,,,,,,,,,,,,,
-Beer,CNTRLMNU_BEER,,,,,Bier,,,,,,,,,,,,,,,Bere,,
-Cow Pie,CNTRLMNU_COWPIE,not translatable,,,,,,,,,,,,,,,,,,,Plăcintă de vacă,,
-Yeehaa,CNTRLMNU_YEEHAA,not translatable,,,,,,,,,,,,,,,,,,,,,
-Whiskey,CNTRLMNU_WHISKEY,,,,,Whisky,,,,,,,,,,,,,,,,,
-Moonshine,CNTRLMNU_MOONSHINE,,,,,Schwarzgebrannter,,,,,,,,,,,,,,,Whiskey ilegal,,
-Crystal Ball,CNTRLMNU_CRYSTALBALL,,,,,Kristallkugel,,,,,,,,,,,,,,,Bilă de cristal,,
-Jump Boots,CNTRLMNU_JUMPBOOTS,,,,,Sprungstiefel,,,,,,,,,,,,,,,Cizme pentru sărituri,,
-Beast Vision,CNTRLMNU_BEASTVISION,,,,,,,,,,,,,,,,,,,,Vedere de bestie,,
-Tank Mode,CNTRLMNU_TANKMODE,,,,,Panzermodus,,,,,,,,,,,,,,,Mod Tanc,,
-Smokes,CNTRLMNU_SMOKES,What precisely is this?,,,,,,,,,,,,,,,,,,,,,
-Fire Mission,CNTRLMNU_FIRE_MISSION,,,,,,,,,,,,,,,,,,,,,,
+Holster Weapon,CNTRLMNU_HOLSTER,,,,,Waffe wegstecken,,,,,Laske ase,,,,,,,,,,Coboară arma,,
+Quick Kick,CNTRLMNU_QUICKKICK,,,,,Schneller Tritt,,,,,Pikapotkaisu,,,,,,,,,,Șut rapid,,
+Pee,CNTRLMNU_PEE,,,,,Pinkeln,,,,,Pissaa,,,,,,,,,,Urinează,,
+Proximity Bomb,CNTRLMNU_PROXIMITYBOMBS,,,,,,,,,,Miinapommi,,,,,,,,,,Bombă de proximitate,,
+Remote Bomb,CNTRLMNU_REMOTEBOMBS,,,,,,,,,,Kauko-ohjauspommi,,,,,,,,,,Bombă cu detonator,,
+Smoke Bomb,CNTRLMNU_SMOKEBOMB,,,,,Rauchbombe,,,,,Savupommi,,,,,,,,,,Bombă fumigenă,,
+Gas Bomb,CNTRLMNU_GASBOMB,,,,,Gasgranate,,,,,Kaasupommi,,,,,,,,,,Bombă cu gaz,,
+Flash Bomb,CNTRLMNU_FLASHBOMB,,,,,Blendgranate,,,,,Sokaisupommi,,,,,,,,,,Bombă orbitoare,,
+Caltrops,CNTRLMNU_CALTROPS,,,,,Krähenfüße,,,,,Jalkapiikit,,,,,,,,,,Ciulini de fier,,
+Holo Duke,CNTRLMNU_HOLODUKE,,,,,,,,,,Holo-Duke,,,,,,,,,,Duke Holografic,,
+Jetpack,CNTRLMNU_JETPACK,,,,,,,,,,Rakettireppu,,,,,,,,,,,,
+Night Vision,CNTRLMNU_NIGHTVISION,,,,,Nachtsichtgerät,,,,,Yönäkö,,,,,,,,,,Vedere infraroșie,,
+Medkit,CNTRLMNU_MEDKIT,,,,,,,,,,Lääkintälaukku,,,,,,,,,,Kit medical,,
+Steroids,CNTRLMNU_STEROIDS,,,,,Steroide,,,,,Steroidit,,,,,,,,,,Steroizi,,
+Holo Soldier,CNTRLMNU_HOLOSOLDIER,,,,,Holosoldat,,,,,Holo-sotilas,,,,,,,,,,Soldat Holografic,,
+Huey,CNTRLMNU_HUEY,,,,,,,,,,Huey,,,,,,,,,,,,
+Beer,CNTRLMNU_BEER,,,,,Bier,,,,,Kalja,,,,,,,,,,Bere,,
+Cow Pie,CNTRLMNU_COWPIE,not translatable,,,,,,,,,Nautapiirakka,,,,,,,,,,Plăcintă de vacă,,
+Yeehaa,CNTRLMNU_YEEHAA,not translatable,,,,,,,,,Jiihaa,,,,,,,,,,,,
+Whiskey,CNTRLMNU_WHISKEY,,,,,Whisky,,,,,Viski,,,,,,,,,,,,
+Moonshine,CNTRLMNU_MOONSHINE,,,,,Schwarzgebrannter,,,,,Pontikka,,,,,,,,,,Whiskey ilegal,,
+Crystal Ball,CNTRLMNU_CRYSTALBALL,,,,,Kristallkugel,,,,,Kristallipallo,,,,,,,,,,Bilă de cristal,,
+Jump Boots,CNTRLMNU_JUMPBOOTS,,,,,Sprungstiefel,,,,,Hyppysaappaat,,,,,,,,,,Cizme pentru sărituri,,
+Beast Vision,CNTRLMNU_BEASTVISION,,,,,,,,,,Petonäkö,,,,,,,,,,Vedere de bestie,,
+Tank Mode,CNTRLMNU_TANKMODE,,,,,Panzermodus,,,,,Tankkitila,,,,,,,,,,Mod Tanc,,
+Smokes,CNTRLMNU_SMOKES,What precisely is this?,,,,Zigaretten,,,,,Röökit,,,,,,,,,,,,
+Fire Mission,CNTRLMNU_FIRE_MISSION,,,,,,,,,,Tulitehtävä,,,,,,,,,,,,
 Reload,CNTRLMNU_RELOAD,,,,,"Waffe laden
-",,,,,,,,,,,,,,,,,
-Radar,CNTRLMNU_RADAR,,,,,,,,,,,,,,,,,,,,Încarcă,,
+",,,,,Lataa ase,,,,,,,,,,,,
+Radar,CNTRLMNU_RADAR,,,,,,,,,,Tutka,,,,,,,,,,Încarcă,,
 Other,CNTRLMNU_OTHER,,,,Ostatní,Andere,,Alia,Otros,,Muu,Autres,Más,Altro,その他,그 외 조작,Andere,Inne,Outro,,,Прочее,Остало
 Messages: OFF,MSGOFF,,,,Zprávy ZAP,Meldungen AUS,Μηνύματα ΚΛΕΙΣΤΑ,Mesaĝoj MALAKTIVA,Mensajes DESACTIVADOS,,Viestit POIS PÄÄLTÄ,Messages désactivés.,Üzenetek KI,Messaggi DISATTIVATI,メッセージ: オフ,메시지 끔,Berichten UIT,Wiadomości WYŁĄCZONE,Mensagens DESATIVADAS,,Mesaje OPRITE,Сообщения ОТКЛЮЧЕНЫ,Поруке ИСКЉУЧЕНЕ
 Messages: ON,MSGON,,,,Zprávy VYP,Meldungen AN,Μηνύματα ΑΝΟΙΧΤΑ,Mesaĝoj AKTIVA,Mensajes ACTIVADOS,,Viestit PÄÄLLÄ,Messages activés.,Üzenetek BE,Messaggi ATTIVATI,メッセージ: オン,메시지 켬,Berichten AAN,Wiadomości WŁĄCZONE,Mensagens ATIVADAS,,Mesaje PORNITE,Сообщения ВКЛЮЧЁНЫ,Поруке УКЉУЧЕНЕ
-Writin': OFF,MSGOFF,,Redneck RedneckRides,,Zprávy ZAP,Geschreibsel: AUS,Μηνύματα ΚΛΕΙΣΤΑ,Mesaĝoj MALAKTIVA,Mensajes DESACTIVADOS,,Viestit POIS PÄÄLTÄ,Messages désactivés.,Üzenetek KI,Messaggi DISATTIVATI,メッセージ: オフ,메시지 끔,Berichten UIT,Wiadomości WYŁĄCZONE,Mensagens DESATIVADAS,,Scriere oprită,Сообщения ОТКЛЮЧЕНЫ,Поруке ИСКЉУЧЕНЕ
-Writin': ON,MSGON,,Redneck RedneckRides,,Zprávy VYP,Geschreibsel: AN,Μηνύματα ΑΝΟΙΧΤΑ,Mesaĝoj AKTIVA,Mensajes ACTIVADOS,,Viestit PÄÄLLÄ,Messages activés.,Üzenetek BE,Messaggi ATTIVATI,メッセージ: オン,메시지 켬,Berichten AAN,Wiadomości WŁĄCZONE,Mensagens ATIVADAS,,Scriere pornită,Сообщения ВКЛЮЧЁНЫ,Поруке УКЉУЧЕНЕ
-Mouse aiming ON,TXT_MOUSEAIMON,,,,,Maus-Blick AN,,,,,,,,,,,,,,,Țintire cu mouse OPRITĂ,,
-Mouse aiming OFF,TXT_MOUSEAIMOFF,,,,,Maus-Blick AUS,,,,,,,,,,,,,,,Țintire cu mouse PORNITĂ,,
-Rat aimin' ON,TXT_MOUSEAIMON,I don't think this translates well...,Redneck RedneckRides,,,Maus-Blick AN,,,,,,,,,,,,,,,Țintire de șobolan PORNITĂ,,
-Rat aimin' OFF,TXT_MOUSEAIMOFF,,Redneck RedneckRides,,,Maus-Blick AUS,,,,,,,,,,,,,,,Țintire de șobolan OPRITĂ,,
+Writin': OFF,MSGOFF,,Redneck RedneckRides,,Zprávy ZAP,Geschreibsel: AUS,Μηνύματα ΚΛΕΙΣΤΑ,Mesaĝoj MALAKTIVA,Mensajes DESACTIVADOS,,Sepustukset POIES PIÄLTÄ,Messages désactivés.,Üzenetek KI,Messaggi DISATTIVATI,メッセージ: オフ,메시지 끔,Berichten UIT,Wiadomości WYŁĄCZONE,Mensagens DESATIVADAS,,Scriere oprită,Сообщения ОТКЛЮЧЕНЫ,Поруке ИСКЉУЧЕНЕ
+Writin': ON,MSGON,,Redneck RedneckRides,,Zprávy VYP,Geschreibsel: AN,Μηνύματα ΑΝΟΙΧΤΑ,Mesaĝoj AKTIVA,Mensajes ACTIVADOS,,Sepustukset PIÄLLÄ,Messages activés.,Üzenetek BE,Messaggi ATTIVATI,メッセージ: オン,메시지 켬,Berichten AAN,Wiadomości WŁĄCZONE,Mensagens ATIVADAS,,Scriere pornită,Сообщения ВКЛЮЧЁНЫ,Поруке УКЉУЧЕНЕ
+Mouse aiming ON,TXT_MOUSEAIMON,,,,,Maus-Blick AN,,,,,Hiiritähtäys PÄÄLLÄ,,,,,,,,,,Țintire cu mouse OPRITĂ,,
+Mouse aiming OFF,TXT_MOUSEAIMOFF,,,,,Maus-Blick AUS,,,,,Hiiritähtäys POIS PÄÄLTÄ,,,,,,,,,,Țintire cu mouse PORNITĂ,,
+Rat aimin' ON,TXT_MOUSEAIMON,I don't think this translates well...,Redneck RedneckRides,,,Maus-Blick AN,,,,,Rottasihtaus PIÄLLÄ,,,,,,,,,,Țintire de șobolan PORNITĂ,,
+Rat aimin' OFF,TXT_MOUSEAIMOFF,,Redneck RedneckRides,,,Maus-Blick AUS,,,,,Rottasihtaus POIES PIÄLTÄ,,,,,,,,,,Țintire de șobolan OPRITĂ,,
 Customize Map Controls,MAPCNTRLMNU_TITLE,most are not used yet but will be,,,Nastavení ovládání mapy,Automapsteuerung einstellen,,Agordi mapregilojn,Controles del mapa,,Kartanohjausasetukset,Contrôles Carte,,Personalizza i controlli mappa,マップコントロール カスタマイズ,미니맵 단축키 설정,Kaartcontroles aanpassen,Ustaw klawisze mapy,Configurar comandos de mapa,,Personalizare schemă de control a hărții,Клавиши управления автокартой,Промени контроле мапе
 Map Controls,MAPCNTRLMNU_CONTROLS,,,,Ovládání mapy,Automapsteuerung,,Mapregilojn,Controles del mapa,,Kartanohjaus,Contrôles de la carte,,Controlli mappa,マップコントロール,미니맵 조정,Kaartcontroles,Klawisze mapy,Comandos de mapa,,Schemă de control a hărtii,Автокарта,Контроле мапе
 Pan left,MAPCNTRLMNU_PANLEFT,,,,Posun vlevo,Nach links,,Alturni maldekstren,Mover a la izquierda,,Panoroi vasemmalle,Aller à gauche,,Sposta a sinistra,左に振る,왼쪽으로 이동,Pan links,Przesuń w lewo,Mover para a esquerda,,Mutare spre stânga,Сдвиг влево,Лево
@@ -362,7 +362,7 @@ Zoom out,MAPCNTRLMNU_ZOOMOUT,,,,Oddálit,Rauszoomen,,Malzomi,Alejar,,Loitonna,Zo
 Toggle zoom,MAPCNTRLMNU_TOGGLEZOOM,,,,Zoom vyp./zap.,Zoom an/aus,,Inversigi zomon,Alternar zoom,,Zoomauksen vaihtokytkin,Alterner zoom,,Abilita/disabilita zoom,ズーム切替,표준배율 조정,Omschakelen van de zoom,Przełącz przybliżanie,Ativar zoom,,Comutator Zoom,Переключить зум,Укључи зум
 Toggle follow,MAPCNTRLMNU_TOGGLEFOLLOW,,,,Následování hráče vyp./zap.,Folgen an/aus,,Aktivigi sekvon,Alternar seguimiento,,Seuraamistilan vaihtokytkin,Alterner suivi,,Abilita/disabilita scorrimento mappa,追従切替,추적모드 조정,Schakelen volgen,Przełącz śledzenie,Ativar seguimento,,Comutator urmărire jucător,Переключить привязку к игроку,Укључи праћење
 Toggle grid,MAPCNTRLMNU_TOGGLEGRID,,,,Mřížka vyp./zap.,Gitter an/aus,,Aktivigi kradon,Alternar cuadrícula,Alternar rejilla,Ruudukon vaihtokytkin,Alterner grille,,Abilita/disabilita la griglia,グリッド切替,그리드 조정,Kiesnet,Przełącz siatkę,Ativar grade,,Comutator grilă,Переключить сетку,Укључи координатну мрежу
-Toggle rotate,MAPCNTRLMNU_ROTATE,,,,,Rotation an/aus,,,,,,,,,,,,,,,,,
+Toggle rotate,MAPCNTRLMNU_ROTATE,,,,,Rotation an/aus,,,,,Kääntämisen vaihtokytkin,,,,,,,,,,,,
 Toggle texture,MAPCNTRLMNU_TOGGLETEXTURE,,,,Textury vyp./zap.,Texturen an/aus,,Akitvigi teksturon,Alternar textura,,Pintakuvioinnin vaihtokytkin,Alterner texture,,Abilita/disabilita le texture,テクスチャ切替,미니맵 텍스쳐 조정,Toggle textuur,Przełącz tekstury,Ativar texturas,,Comutator mod texturat,Переключить текстуры,Укључи текстуру
 Toggle automap,CNTRLMNU_AUTOMAP,,,,Zap. / Vyp. automapu,Automap an/aus,,Baskuligi aŭtomapo,Alternar automapa,,Kytke automaattikartta päälle/pois,Activer Carte,Térkép ki- bekapcsolása,Toggle automappa,オートマップの切替,오토맵 조정,Automap aan/uit,Włącz mapę,Ativar automapa,,Comutator hartă computerizată,Открыть автокарту,Прикажи аутомапу
 Chasecam,CNTRLMNU_CHASECAM,,,,Kamera z třetí osoby,Verfolgerkamera,,Ĉaskamerao,Cámara de Seguimiento,,Seurantakamera,Caméra 3ième personne,Külsőnézetű kamera,Telecamera di inseguimento,背後視点,3인칭 카메라,,Kamera Śledzenia,Câmera de terceira-pessoa,Câmera em terceira-pessoa,Cameră urmăritoare,Вид от 3-го лица (Chasecam),Чејс-кем
@@ -459,30 +459,30 @@ Female,OPTVAL_FEMALE,,,,Žena,Weiblich,,Ina (Ŝi),Femenino,,Naispuolinen,Fémini
 Neutral,OPTVAL_NEUTRAL,,,,Neutrální,Neutral,,Neŭtrala (Ri),Neutro,,Sukupuoleton,Neutre,,Neutrale,中間,중성,Neutraal,Neutralne,Neutro,,Neutru,Нейтральный,Неутрално
 Object,OPTVAL_OTHER,,,,Objekt,Objekt,,Objekto (Ĝi),Objeto,,Olio,Objet,,Oggetto,物体,기타,Doel,Obiekt,Objeto,,Obiect,Предмет,Предмет
 ,Multiplayer,,,,,,,,,,,,,,,,,,,,,,
-Game Options,NETMNU_OPTIONS,,,,,Spieleinstellungen,,,,,,,,,,,,,,,Setări joc,,
-Launch Game,NETMNU_LAUNCH,,,,,Spiel starten,,,,,,,,,,,,,,,Pornire joc,,
-Game Type,NETMNU_GAMETYPE,,,,,,,,,,,,,,,,,,,,Tip joc,,
-Deathmatch (Spawn),NETMNU_GAMETYPE1,,,,,,,,,,,,,,,,,,,,Deathmatch (doar spawn),,
-DukeMatch (Spawn),NETMNU_GAMETYPE1,Duke,,,,,,,,,,,,,,,,,,,DukeMatch (doar spawn),,
-GI Match (Spawn),NETMNU_GAMETYPE1,Nam,,,,,,,,,,,,,,,,,,,Meci GI (doar spawn),,
-GruntMatch (Spawn),NETMNU_GAMETYPE1,WW2GI,,,,,,,,,,,,,,,,,,,GruntMatch (doar spawn),,
-Cooperative Play,NETMNU_GAMETYPE2,,,,,,,,,,,,,,,,,,,,Joc Cooperativ,,
-Deathmatch (No Spawn),NETMNU_GAMETYPE3,,,,,,,,,,,,,,,,,,,,Deathmatch (fără spawn),,
-DukeMatch (No Spawn),NETMNU_GAMETYPE3,Duke,,,,,,,,,,,,,,,,,,,DukeMatch (fără spawn),,
-GI Match (No Spawn),NETMNU_GAMETYPE3,Nam,,,,,,,,,,,,,,,,,,,Meci GI (fără spawn),,
-GruntMatch (No Spawn),NETMNU_GAMETYPE3,WW2GI,,,,,,,,,,,,,,,,,,,GruntMatch (fără spawn),,
-Team DM (Spawn),NETMNU_GAMETYPE4,,,,,,,,,,,,,,,,,,,,DM în echipă (doar spawn),,
-Team DM (No Spawn),NETMNU_GAMETYPE5,,,,,,,,,,,,,,,,,,,,DM în echipă (fără spawn),,
-Episode,NETMNU_EPISODE,,,,,,,,,,,,,,,,,,,,Episod,,
-Level,NETMNU_LEVEL,,,,,,,,,,,,,,,,,,,,Nivel,,
-Monsters,NETMNU_MONSTERS,,,,,,,,,,,,,,,,,,,,Monștri,,
-Markers,NETMNU_MARKERS,,,,,,,,,,,,,,,,,,,,Markere,,
-Map Exits,NETMNU_MAPEXITS,,,,,,,,,,,,,,,,,,,,Ieșiri Hartă,,
-Friendly Fire,NETMNU_FFIRE,,,,,,,,,,,,,,,,,,,,Accidente,,
-Accept,NETMNU_ACCEPT,,,,,,,,,,,,,,,,,,,,,,
-Server,NETMNU_SERVER,,,,,,,,,,,,,,,,,,,,,,
-Port,NETMNU_PORT,Network port!,,,,,,,,,,,,,,,,,,,,,
-Connect,NETMNU_CONNECT,,,,,,,,,,,,,,,,,,,,Conectare,,
+Game Options,NETMNU_OPTIONS,,,,,Spieleinstellungen,,,,,Pelin asetukset,,,,,,,,,,Setări joc,,
+Launch Game,NETMNU_LAUNCH,,,,,Spiel starten,,,,,Käynnistä peli,,,,,,,,,,Pornire joc,,
+Game Type,NETMNU_GAMETYPE,,,,,,,,,,Pelityyppi,,,,,,,,,,Tip joc,,
+Deathmatch (Spawn),NETMNU_GAMETYPE1,,,,,,,,,,Kuolonmatsi (esineet palautuvat),,,,,,,,,,Deathmatch (doar spawn),,
+DukeMatch (Spawn),NETMNU_GAMETYPE1,Duke,,,,,,,,,Dukematsi (esineet palautuvat),,,,,,,,,,DukeMatch (doar spawn),,
+GI Match (Spawn),NETMNU_GAMETYPE1,Nam,,,,,,,,,Solttumatsi (esineet palautuvat),,,,,,,,,,Meci GI (doar spawn),,
+GruntMatch (Spawn),NETMNU_GAMETYPE1,WW2GI,,,,,,,,,Solttumatsi (esineet palautuvat),,,,,,,,,,GruntMatch (doar spawn),,
+Cooperative Play,NETMNU_GAMETYPE2,,,,,,,,,,Yhteispeli,,,,,,,,,,Joc Cooperativ,,
+Deathmatch (No Spawn),NETMNU_GAMETYPE3,,,,,,,,,,Kuolonmatsi (esineet eivät palaudu),,,,,,,,,,Deathmatch (fără spawn),,
+DukeMatch (No Spawn),NETMNU_GAMETYPE3,Duke,,,,,,,,,Dukematsi (esineet eivät palaudu),,,,,,,,,,DukeMatch (fără spawn),,
+GI Match (No Spawn),NETMNU_GAMETYPE3,Nam,,,,,,,,,Solttumatsi (esineet eivät palaudu),,,,,,,,,,Meci GI (fără spawn),,
+GruntMatch (No Spawn),NETMNU_GAMETYPE3,WW2GI,,,,,,,,,Solttumatsi (esineet eivät palaudu),,,,,,,,,,GruntMatch (fără spawn),,
+Team DM (Spawn),NETMNU_GAMETYPE4,,,,,,,,,,Joukkuematsi (esineet palautuvat),,,,,,,,,,DM în echipă (doar spawn),,
+Team DM (No Spawn),NETMNU_GAMETYPE5,,,,,,,,,,Joukkuematsi (esineet eivät palaudu),,,,,,,,,,DM în echipă (fără spawn),,
+Episode,NETMNU_EPISODE,,,,,,,,,,Episodi,,,,,,,,,,Episod,,
+Level,NETMNU_LEVEL,,,,,,,,,,Taso,,,,,,,,,,Nivel,,
+Monsters,NETMNU_MONSTERS,,,,,,,,,,Hirviöt,,,,,,,,,,Monștri,,
+Markers,NETMNU_MARKERS,,,,,,,,,,Merkit,,,,,,,,,,Markere,,
+Map Exits,NETMNU_MAPEXITS,,,,,,,,,,Tasopoistumiset,,,,,,,,,,Ieșiri Hartă,,
+Friendly Fire,NETMNU_FFIRE,,,,,,,,,,Ristituli,,,,,,,,,,Accidente,,
+Accept,NETMNU_ACCEPT,,,,,,,,,,Hyväksy,,,,,,,,,,,,
+Server,NETMNU_SERVER,,,,,,,,,,Palvelin,,,,,,,,,,,,
+Port,NETMNU_PORT,Network port!,,,,,,,,,Portti,,,,,,,,,,,,
+Connect,NETMNU_CONNECT,,,,,,,,,,Yhdistä,,,,,,,,,,Conectare,,
 ,Gameplay options,,,,,,,,,,,,,,,,,,,,,,
 Gameplay Options,GMPLYMNU_TITLE,,,,Nastavení herních mechanik,Gameplay-Optionen,,Ludadagordoj,Opciones de jugabilidad,,Pelattavuusasetukset,Options Gameplay,,Opzioni gameplay,ゲームプレイ オプション,게임플레이 설정,Gameplay-opties,Opcje Rozgrywki,Opções de Jogabilidade,,Setări pe timp de joc,Настройки геймплея,Подешавања гејмплеја
 Always,OPTVAL_ALWAYS,,,,Vždy,Immer,,Ĉiam,Siempre,,Aina,Toujours,,Sempre,常に,언제나,Altijd,Zawsze,Sempre,,Mereu,Всегда,Увек
@@ -547,17 +547,33 @@ Automap Options,AUTOMAPMNU_TITLE,,,,Nastavení automapy,Automapoptionen,,Aŭtoma
 Rotate automap,AUTOMAPMNU_ROTATE,,,,Otáčet automapu,Rotiere Automap,,Rotacii aŭtomapon,Rotar automapa,,Kiertyvä automaattikartta,Rotation de la Carte,,Ruota l'automappa,オートマップの回転表示,오토맵 회전,Automatisch roteren,Obracaj mapę,Girar automapa,,Rotire hartă computerizată,Вращающаяся автокарта,Ротирај аутомапу
 Follow player,AUTOMAPMNU_FOLLOW,,,,Následovat hráče,Folge dem Spieler,,Sekvi ludanton,Seguir jugador,,Seuraa pelaajaa,Suivre le joueur,,Segui il giocatore,プレイヤー追従,플레이어 추적,Volg de speler,Podążaj za graczem,Seguir jogador,,Urmărire jucător,Привязка к игроку,Прати играча
 ,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,
 2x,OPTVAL_2X,,,,,,,2-oble,,,,,,,,,,,,,,,
 4x,OPTVAL_4X,,,,,,,4-oble,,,,,,,,,,,,,,,
 8x,OPTVAL_8X,,,,,,,8-oble,,,,,,,,,,,,,,,
 16x,OPTVAL_16X,,,,,,,16-oble,,,,,,,,,,,,,,,
 32x,OPTVAL_32X,,,,,,,32-oble,,,,,,,,,,,,,,,
+,Postprocessing,,,,,,,,,,,,,,,,,,,,,,
+Uncharted 2,OPTVAL_UNCHARTED2,,,,,,,,,,,,,,,,,,,,,,
+Hejl Dawson,OPTVAL_HEJLDAWSON,,,,,,,,,,,,,,,,,,,,,,
+Reinhard,OPTVAL_REINHARD,,,,,,,,,,,,,,,,,,,,,,
+Palette,OPTVAL_PALETTE,,,,Paleta,,,Paletro,Paleta,,Paletti,,,Palette,パレット,팔레트,Palet,Paleta,Paleta,Palete,Paletă,Палитра игры,Палет
+Low,OPTVAL_LOW,,,,Nízká,Niedrig,Χαμηλό,Malalta,Bajo,,Matala,Bas,,Basso,低,낮음,Laag,Niskie,Baixo,,Scăzut,Низкое,Ниско
+Medium,OPTVAL_MEDIUM,,,,Střední,Mittel,Μεσαίο,Meza,Medio,,Keskitaso,Moyen,,Medio,中,중간,Middel,Średnie,Médio,,Mediu,Среднее,Средње
+High,OPTVAL_HIGH,,,,Vysoká,Hoch,Υψηλό,Alta,Alto,,Korkea,Haut,,Alto,高,높음,Hoog,Wysokie,Alto,,Ridicat,Высокое,Високо
+Extreme,OPTVAL_EXTREME,,,,Extrémní,Extrem,Ακράιο,Ekstrema,Extremo,,Äärimmäinen,Extrême,,Estremo,最高,매우 높음,Extreem,Ekstremalne,Extremo,,Extrem,Максимальное,Екстремно
+Obverse,OPTVAL_OBVERSEFIRST,,,,Vpřed (obvers),Obvers,Παρατήρησε,Aversa,Anverso,,Etupuoli,,,Dritto,正面,앞면,Gezicht,Awers,Obverso,,Avers,Прямой,Супротно
+Reverse,OPTVAL_REVERSEFIRST,,,,Vzad (revers),Revers,Αντίστροφο,Inversa,Inverso,,Käänteinen,Inverse,,Contrario,反転,반전,Omgekeerd,Rewers,Reverso,,Invers,Обратный,Обрнуто
+Postprocessing,GLMNU_POSTPROCESS,,,,,,Μετα-επεξεργασία,Postprocezado,Postprocesado,,Jälkikäsittely,,,,ポストプロセッシング,포스트프로세싱 적용,Nabewerking,Przetwarzanie końcowe,Pós processamento,,Postprocesare,Постобработка,Пост обрада
+Tonemap Mode,GLPREFMNU_TONEMAP,,,,Režim tónovací mapy,Tonemap Modus,,Reĝimo de tonmapo,Modo de mapa de tonos,,Sävykarttatila,Mode Tonemap,,Modalità Tonemap,トーンマップ モード,톤맵 모드,Tonemap modus,Tryb Mapowania Tonów,Tipo de tonemap,,Mod Tonemap,Режим тоун-мэппинга,Тонирано-мапни мод
+Lens distortion effect,GLPREFMNU_LENS,,,,Efekt distorze čočky,Optischer Verzerrungseffekt,,Lensdistorto-efiko,Efecto de distorsión de lente,,Linssinvääristystehoste,Effet distorsion de lentille,,Effetto distorsione della lente,レンズの歪みエフェクト,렌즈 왜곡 효과,Effect van de lensvervorming,Efekt zniekształcenia obiektywu,Efeito de distorção de lente,Efeito de distorção da lente,Efect de distorsionare,Искажение линзы,Дисторзија објектива ефект
+FXAA Quality,GLPREFMNU_FXAA,,,,Kvalita FXAA,FXAA Qualität,,Kvaliteco de FXAA,Calidad FXAA,,FXAA-laatu,Qualité FXAA,,Qualità FXAA,FXAA品質,FXAA 품질,FXAA-kwaliteit,Jakość FXAA,Qualidade de FXAA,,Calitate FXAA,Качество FXAA,FXAA квалитет
+Dither output,GLPREFMNU_DITHER,,,,Dithering,Dithering,,Diteri eligon,Dither de salida,,Sekoitussävytyksen (dithering) ulostulo,Dithering,,Dithering,ディザー出力,떨림 효과 출력,Dither output,Dygotanie,Dithering,,Putere Dithering,Дизеринг,Учестаност трептања
+Tonemap Palette Order,GLPREFMNU_PALTONEMAPORDER,,,,Pořadí palety tónovací mapy,Palettensortierung für Tonemap,,Ordo de kolormapo-paletro,Orden de la paleta en mapa de tonos,,Sävykartan paletin järjestys,Ordre des palettes tonemap,,Ordine della Palette Tonemap,トーンマップパレット順序,톤맵 팔레트 순서,Tonemap Palet Orde van het Tonemap-palet,Kolejność Palet Mapowania Tonów,Ordem da paleta do tonemap,,Ordine paletă Tonemap,Порядок палитры тоун-мэпа,Тонирано-мапни палетни ред
+Tonemap Palette Exponent,GLPREFMNU_PALTONEMAPPOWER,,,,Exponent palety tónovací mapy,Palettenexponent für Tonemap,,Exponeto de kolormapo-paletro,Exponente paleta en mapa de tonos,,Sävykartan paletin eksponentti,Exponent des palettes tonemap,,Esponente della Palette Tonemap,トーンマップパレット指数,톤맵 팔레트 지수,Tonemap Palet Exponent,Wykładnik Palet Mapowania Tonów,Expoente da paleta do tonemap,,Exponent paletă Tonemap,Экспонента палитры тоун-мэпа,Тонирано-мапни палетни експонент
 ,Polymost,,,,,,,,,,,,,,,,,,,,,,
 True Color Textures,POLYMOST_TC,,,True Colour Textures,,True Color Texturen,,,,,,,,,,,,,,,Texturi Naturale,,
 Pre-load map textures,POLYMOST_CACHE,,,,,Texturen cachen,,,,,,,,,,,,,,,Preîncărcare Texturi Hartă,,
-Detail Textures,POLYMOST_DETAIL,,,,,Detailtexturen,,,,,,,,,,,,,,,Detalii Texturi,,
+Detail Textures,POLYMOST_DETAIL,,,,,Detailtexturen,,,,,,,,,,,,,,,Detaliu Texturi,,
 Glow Textures,POLYMOST_GLOW,,,,,Leucht-Texturen,,,,,,,,,,,,,,,Strălucire Texturi,,
 3D-Models,POLYMOST_MODELS,,,,,3D Modelle,,,,,,,,,,,,,,,Modele 3D,,
 "Polymost Options
@@ -674,13 +690,13 @@ Chorus,ADVSNDMNU_CHORUS,,,,,,,Koruso,,,,,,,コーラス,코러스,,,,,,Хору�
 Timidity++,ADVSNDMNU_TIMIDITY,,,,,,,,,,,,,,,,,,,,,,
 Sound enabled,SNDMNU_SNDENABLED,,,,,Sound aktiv,,,,,,,,,,,,,,,,,
 Music enabled,SNDMNU_MUSENABLED,,,,,Musik aktiv,,,,,,,,,,,,,,,,,
-CD Music Emulation,SNDMNU_CDEMU,,,,,CD-Musik-Emulation,,,,,,,,,,,,,,,,,
-Play original Sounds,SNDMNU_WTSOUND,,,,,Original-Soundeffekte spielen,,,,,,,,,,,,,,,,,
-Play original MIDI music,SNDMNU_WTMUSIC,,,,,Original-MIDI-Musik spielen,,,,,,,,,,,,,,,,,
-Sound Ambience,SNDMNU_AMBIENCE,,,,,Umgebungsgeräusche,,,,,,,,,,,,,,,,,
+CD Music Emulation,SNDMNU_CDEMU,,,,,CD-Musik-Emulation,,,,,,,,,,,,,,,Emulare CD muzică,,
+Play original Sounds,SNDMNU_WTSOUND,,,,,Original-Soundeffekte spielen,,,,,,,,,,,,,,,Utilizare sunete originale,,
+Play original MIDI music,SNDMNU_WTMUSIC,,,,,Original-MIDI-Musik spielen,,,,,,,,,,,,,,,Utilizare muzică MIDI originală,,
+Sound Ambience,SNDMNU_AMBIENCE,,,,,Umgebungsgeräusche,,,,,,,,,,,,,,,Ambianță,,
 "Player Speech
-",SNDMNU_SPEECH,,,,,Spielerkommentare,,,,,,,,,,,,,,,,,
-Flip Stereo Channels,ADVSNDMNU_FLIPSTEREO,,,,,Stereo Kanäle vertauschen,,,,,,,,,,,,,,,,,
+",SNDMNU_SPEECH,,,,,Spielerkommentare,,,,,,,,,,,,,,,Vorbire caracter,,
+Flip Stereo Channels,ADVSNDMNU_FLIPSTEREO,,,,,Stereo Kanäle vertauschen,,,,,,,,,,,,,,,Schimbă canalele stereo,,
 MAME OPL2,OPTVAL_MAMEOPL2,,,,,,,,,,,,,,,마메 OPL2,,,,,,,
 DOSBox OPL3,OPTVAL_DOSBOXOPL3,,,,,,,,,,,,,,,도스박스 OPL3,,,,,,,
 Java OPL3,OPTVAL_JAVAOPL3,,,,,,,,,,,,,,,자바 OPL3,,,,,,,
@@ -717,8 +733,8 @@ Preset Resolution Modes,VIDMNU_RESPRESETHEAD,,,,Přednastavená rozlišení,Vord
 Normal,OPTVAL_NORMAL,,,,Normální,,,Normala,,,Normaali,,,Normale,通常,기본형,Normaal,Normalny,Normal,,,Обычный,Нормално
 Lowest Possible Scale,OPTVAL_LOWEST,"This describes vid_scalemode 6, which represents the lowest possible scaling to fill the allocated screen area",,,Nejmenší možná velikost,Kleinstmögliche Auflösung,,Plej Malpli Ebla Skalo,Menor Escala Posible,,,Echelle la plus faible,,,可能な限り最小,,,,Menor Escala Possível,,Cea mai mică scară posibilă,,
 Custom,OPTVAL_CUSTOM,,,,Vlastní,Benutzerdefiniert,,Laŭmenda,Personalizado,,Mukautettu,Modifié,,Personalizzato,カスタム,사용자 지정,Gebruiker gedefinieerd,Niestandardowe,Personalizado,,Personalizat,Польз.,Прилагођ.
-Max FPS,VIDMNU_MAXFPS,,,,,,,,,,,,,,,,,,,,,,
-Unlimited,OPTVAL_UNLIMITED,,,,,Unlimitiert,,,,,,,,,,,,,,,,,
+Max FPS,VIDMNU_MAXFPS,,,,,,,,,,,,,,,,,,,,Cadre pe secundă,,
+Unlimited,OPTVAL_UNLIMITED,,,,,Unlimitiert,,,,,,,,,,,,,,,Nelimitate,,
 60 fps,OPTVAL_60FPS,,,,,,,,,,,,,,,,,,,,,,
 75 fps,OPTVAL_75FPS,,,,,,,,,,,,,,,,,,,,,,
 90 fps,OPTVAL_90FPS,,,,,,,,,,,,,,,,,,,,,,
@@ -746,8 +762,8 @@ Scripts Only,OPTVAL_SCRIPTSONLY,,,,Pouze skripty,Nur Skripte,,Skriptoj Sole,Sól
 Disable keyboard cheats,MISCMNU_NOCHEATS,,,,,Tastatur-Cheats deaktivieren,,Malaktivigi klavaran trumpon,Desactivar trucos por teclado,,,,,,キーボードからのチート無効,,Schakel cheats uit,,Desabilitar trapaças de teclado,,,,
 Quicksave rotation,MISCMNU_QUICKSAVEROTATION,,,,Rotace rychle uložených her,Schnellspeicherrotation,,Rapidkonservado-rotacio,Rotación de Salvado Rápido,,Pikatallennuskierto,Rotation Sauvegardes Rapides,,Rotazione rapide della quicksave,クイックセーブ間隔,빠른 저장 간격,Roteer quicksaves,Rotacja szybkich zapisów,Rotação de quicksave,,,Чередовать слоты для быстрых сохранений,Окретање брзих чувања
 Number of quicksaves in rotation,MISCMNU_QUICKSAVECOUNT,,,,Počet rychle uložených her v rotaci,Anzahl Schnellspeicherplätze,,Nombro da rapidkonservitaj ludoj en rotaciado,Número de Salvados Rápidos en Rotación,,Pikatallennusten määrä kierrossa,Nombre de sauvegardes en rotation,,Numero di quicksaves in rotazione,間隔クイックセーブの数,빠른 저장 간격의 수,Aantal roterende quicksaves,Ilość szybkich zapisów w rotacji,Número de quicksaves em rotação,,,Кол-во слотов для быстрых сохранений,Број брзих чувања у окретању
-Ninja Slice Animation,MISCMNU_NINJA,,,,,,,,,,,,,,,,,,,,,,
-Use Darts instead of Shurikens,MISCMNU_DARTS,,,,,,,,,,,,,,,,,,,,,,
+Ninja Slice Animation,MISCMNU_NINJA,,,,,,,,,,,,,,,,,,,,Animație feliere Ninja,,
+Use Darts instead of Shurikens,MISCMNU_DARTS,,,,,,,,,,,,,,,,,,,,Săgeți în loc de shurikeni,,
 ,Miscellaneous,,,,,,,,,,,,,,,,,,,,,,
 "You are playing the shareware
 version of Duke Nukem 3D.  While
@@ -756,14 +772,14 @@ are missing over 75% of the total
 game, along with other great extras
 which you'll get when you order
 the complete version and get
-the final three episodes.",BUYDUKE,not used,,,,,,,,,,,,,,,,,,,,,
+the final three episodes.",BUYDUKE,not used,,,,,,,,,,,,,,,,,,,"Joci versiunea gratuită a jocului Duke Nukem 3D. Deși versiunea aceasta e grozavă, pierzi aproximativ 75% din versiunea completă, împreună cu alte suplimente pe care le primești când comanzi versiunea completă și primești ultimele trei episoade.",,
 "Buy the complete version of
 Blood for three new episodes
-plus eight BloodBath-only levels!",BUYBLOOD,not used,,,,,,,,,,,,,,,,,,,,,
+plus eight BloodBath-only levels!",BUYBLOOD,not used,,,,,,,,,,,,,,,,,,,Cumpără versiunea completă a jocului Blood pentru încă trei episoade și încă opt hărți pentru modul BloodBath!,,
 "Loading and saving games
 not supported
 in this demo version of Blood.","BLOOD_SW_BLOCK
-",not used,,,,,,,,,,,,,,,,,,,,,
+",not used,,,,,,,,,,,,,,,,,,,Salvarea și încărcarea jocului nu este suportată de această versiune demo a jocului Blood.,,
 "Are you sure you want to end the game?
 ",ENDGAME,,,,"Opravdu si přeješ ukončit hru?
 ","Willst du das Spiel wirklich beenden?
@@ -779,13 +795,13 @@ in this demo version of Blood.","BLOOD_SW_BLOCK
 ","Czy jesteś pewien że chcesz zakończyć grę?
 ","Tem certeza que deseja encerrar este jogo?
 ","Tem certeza que deseja fechar este jogo?
-",,"Вы действительно хотите закончить игру?
+",Ești sigur că vrei să închei jocul?,"Вы действительно хотите закончить игру?
 ","Јесте ли сигурни да желите завршити игру?
 "
-Are you sure you want to quit this game?,CONFIRM_QUITMSG,,,,Přeješ si odejít?,"Bist du dir sicher, dass du gehen willst?",,"Ĉu vi certas, ke vi volas ĉesi?",¿Estás segur@[ao_esp] que quieres salir?,,Haluatko varmasti lopettaa?,Êtes vous sûr de vouloir quitter ?,Biztos vagy benne hogy ki akarsz lépni?,Sei sicuro di voler abbandonare?,本当に終了するのか?,정말 종료하시겠습니까?,Weet je zeker dat je wilt stoppen?,Czy jesteś pewien że chcesz wyjść?,Tem certeza que quer sair?,Tens a certeza que queres sair?,,Вы действительно желаете выйти?,Да ли сте сигурни да желите да одустанеш?
-Reset controls to defaults?,CONFIRM_CTRL1,,,,,Steuerung auf Standard zurücksetzen?,,,,,,,,,,,,,,,,,
-Reset controls to classic defaults?,CONFIRM_CTRL2,,,,,Steuerung auf klassischen Standard zurücksetzen?,,,,,,,,,,,,,,,,,
-Reset controls to left-handed defaults?,CONFIRM_CTRL3,,,,,Steuerung auf linkshändigen Standard zurücksetzen?,,,,,,,,,,,,,,,,,
+Are you sure you want to quit this game?,CONFIRM_QUITMSG,,,,Přeješ si odejít?,"Bist du dir sicher, dass du gehen willst?",,"Ĉu vi certas, ke vi volas ĉesi?",¿Estás segur@[ao_esp] que quieres salir?,,Haluatko varmasti lopettaa?,Êtes vous sûr de vouloir quitter ?,Biztos vagy benne hogy ki akarsz lépni?,Sei sicuro di voler abbandonare?,本当に終了するのか?,정말 종료하시겠습니까?,Weet je zeker dat je wilt stoppen?,Czy jesteś pewien że chcesz wyjść?,Tem certeza que quer sair?,Tens a certeza que queres sair?,Ești sigur că vrei să ieși din joc?,Вы действительно желаете выйти?,Да ли сте сигурни да желите да одустанеш?
+Reset controls to defaults?,CONFIRM_CTRL1,,,,,Steuerung auf Standard zurücksetzen?,,,,,,,,,,,,,,,Revenire la schema de control implicită?,,
+Reset controls to classic defaults?,CONFIRM_CTRL2,,,,,Steuerung auf klassischen Standard zurücksetzen?,,,,,,,,,,,,,,,Revenire la schema de control clasică?,,
+Reset controls to left-handed defaults?,CONFIRM_CTRL3,,,,,Steuerung auf linkshändigen Standard zurücksetzen?,,,,,,,,,,,,,,,Revenire la schema de control pentru stângaci?,,
 Say:,TXT_SAY,,,,Říct:,Sage:,Πές:,Diru:,,,Sano:,Parler:,Üzenet:,Parla:,発言:,,Zeg:,Powiedz:,Fala:,Diz:,Vorbește:,Чат:,Пиши:
 ,Obituaries,,,,,,,,,,,,,,,,,,,,,,
 %k boned %o like a fish,TXT_OBITUARY1,"Currently not used, still exist in raw form.",,,%o byl@[ao_cs] vykoštěn@[ao_cs] jako ryba hráčem %k,%k hat %o zerlegt wie einen Fisch,,%k senostigis %o kiel fiŝon,%k deshuesó a %o como a un pescado,,%k perkasi %o paran kuin kalan,%k désossa %o comme un poisson,%k kifilézte %o -t mint a halat,%k ha dissossato %o come un pesce,%k は %o の骨を魚のように引っこ抜いた。,%k 은(는) %o 의 뼈를 발랐다.,%k uitgebeend %o zoals een vis,%k odfiletował@[ao_pl] %o jak rybę,%k desossou %o como um peixe,,,Игрок %k пересчитал косточки игрока %o,%k је очистио %o као рибу
@@ -827,69 +843,69 @@ Say:,TXT_SAY,,,,Říct:,Sage:,Πές:,Diru:,,,Sano:,Parler:,Üzenet:,Parla:,発�
 %o has suicided,TXT_SELFOBIT5,,,,%o spáchal@[ao_cs] sebevraždu,%o hat Selbstmord begangen,,%o sin mortigis,%o se ha suicidado,,%o on tehnyt itsemurhan,%o s'est suicidé,%o öngyilkos lett,%o si è suicidato,%o は勝手にくたばった。,%o 은(는) 한심하게 자살했다.,%o heeft zelfmoord gepleegd.,%o popełnił@[ao_pl] samobójstwo,%o se suicidou,%o suicidou-se,,Игрок %o самоубился,%o је убио самог себе
 %o received the Darwin Award,TXT_SELFOBIT6,,,,%o dostal@[ao_cs] darwinovu cenu,%o hat den Darwinpreis erhalten,,%o ricevis la Darwin-Premion,%o recibió el premio Darwin,,%o sai Darwin-palkinnon,%o a recu la médaille Darwin,És a Darwin Díj nyertese : %o,%o ha ricevuto il Darwin Award,%o にはダーウィン賞が授与された。,%o 은(는) 다윈상을 받을 자격이 있다.,%o ontving de Darwin Award....,%o otrzymał@[ao_pl] Nagrodę Darwina,%o ganhou o Prêmio Darwin,,,Игрок %o получил премию Дарвина,%o је добио Дарвиново признање
 ,Duke Nukem Script quotes,,,,,,,,,,,,,,,,,,,,,,
-Auto Aiming,AUTO AIMING,,,,,,,,,,,,,,,,,,,,,,
-Show Map: OFF,SHOW MAP: OFF,,,,,,,,,,,,,,,,,,,,,,
-Activated,ACTIVATED,,,,,,,,,,,,,,,,,,,,,,
-Portable Medkit,PORTABLE MEDKIT,,,,,,,,,,,,,,,,,,,,,,
-Locked,LOCKED,,,,,,,,,,,,,,,,,,,,,,
-Giving Everything!,GIVING EVERYTHING!,,,,,,,,,,,,,,,,,,,,,,
-Boots,BOOTS,,,,,,,,,,,,,,,,,,,,,,
-Wasted!,WASTED!,,,,,,,,,,,,,,,,,,,,,,
-Unlocked,UNLOCKED,,,,,,,,,,,,,,,,,,,,,,
-A Secret Place!,A SECRET PLACE!,,,,,,,,,,,,,,,,,,,,,,
-Squish!,SQUISH!,,,,,,,,,,,,,,,,,,,,,,
-All Doors Unlocked,ALL DOORS UNLOCKED,,,,,,,,,,,,,,,,,,,,,,
-Used Steroids,USED STEROIDS,,,,,,,,,,,,,,,,,,,,,,
-Press Space To Restart Level,PRESS SPACE TO RESTART LEVEL,,,,,,,,,,,,,,,,,,,,,,
-Ammo For Devastator,AMMO FOR DEVASTATOR,,,,,,,,,,,,,,,,,,,,,,
-Deactivated,DEACTIVATED,,,,,,,,,,,,,,,,,,,,,,
-Switch Operated Only!,SWITCH OPERATED ONLY!,,,,,,,,,,,,,,,,,,,,,,
-God Mode: ON,GOD MODE: ON,,,,,,,,,,,,,,,,,,,,,,
-God Mode: OFF,GOD MODE: OFF,,,,,,,,,,,,,,,,,,,,,,
-Atomic Health!,ATOMIC HEALTH!,,,,,,,,,,,,,,,,,,,,,,
-Crosshair: ON,CROSSHAIR: ON,,,,,,,,,,,,,,,,,,,,,,
-Crosshair: OFF,CROSSHAIR: OFF,,,,,,,,,,,,,,,,,,,,,,
-You're Too Good To Be Cheating!,YOU'RE TOO GOOD TO BE CHEATING!,,,,,,,,,,,,,,,,,,,,,,
-Messages: ON,MESSAGES: ON,,,,,,,,,,,,,,,,,,,,,,
-Messages: OFF,MESSAGES: OFF,,,,,,,,,,,,,,,,,,,,,,
-Type The Cheat Code:,TYPE THE CHEAT CODE:,,,,,,,,,,,,,,,,,,,,,,
-Detail: Low,DETAIL: LOW,,,,,,,,,,,,,,,,,,,,,,
-Detail: High,DETAIL: HIGH,,,,,,,,,,,,,,,,,,,,,,
-Will Always Have No Future,WILL ALWAYS HAVE NO FUTURE,,,,,,,,,,,,,,,,,,,,,,
-Brightness Level: ONe,BRIGHTNESS LEVEL: ONE,,,,,,,,,,,,,,,,,,,,,,
-Brightness Level: Two,BRIGHTNESS LEVEL: TWO,,,,,,,,,,,,,,,,,,,,,,
-Brightness Level: Three,BRIGHTNESS LEVEL: THREE,,,,,,,,,,,,,,,,,,,,,,
-Brightness Level: Four,BRIGHTNESS LEVEL: FOUR,,,,,,,,,,,,,,,,,,,,,,
-Brightness Level: Five,BRIGHTNESS LEVEL: FIVE,,,,,,,,,,,,,,,,,,,,,,
-Sound: ON,SOUND: ON,,,,,,,,,,,,,,,,,,,,,,
-Sound: OFF,SOUND: OFF,,,,,,,,,,,,,,,,,,,,,,
-Screen Captured,SCREEN CAPTURED,,,,,,,,,,,,,,,,,,,,,,
-Steroids,STEROIDS,,,,,,,,,,,,,,,,,,,,,,
-Armor,ARMOR,,,,,,,,,,,,,,,,,,,,,,
-Scuba Gear,SCUBA GEAR,,,,,,,,,,,,,,,,,,,,,,
-Press F1 For Help,Press F1 for Help,,,,,,,,,,,,,,,,,,,,,,
-Jetpack,JETPACK,,,,,,,,,,,,,,,,,,,,,,
-Body Suit,BODY SUIT,,,,,,,,,,,,,,,,,,,,,,
-Access Card,ACCESS CARD,,,,,,,,,,,,,,,,,,,,,,
-Mouse Aiming Off,MOUSE AIMING OFF,,,,,,,,,,,,,,,,,,,,,,
-Mouse Aiming On,MOUSE AIMING ON,,,,,,,,,,,,,,,,,,,,,,
-Cheat Code:  Unrecognized,CHEAT CODE:  UNRECOGNIZED,,,,,,,,,,,,,,,,,,,,,,
-Holoduke On,HOLODUKE ON,,,,,,,,,,,,,,,,,,,,,,
-Holoduke Off,HOLODUKE OFF,,,,,,,,,,,,,,,,,,,,,,
-Holoduke Not Found Yet!,HOLODUKE NOT FOUND YET!,,,,,,,,,,,,,,,,,,,,,,
-Jetpack Not Found Yet!,JETPACK NOT FOUND YET!,,,,,,,,,,,,,,,,,,,,,,
-Holoduke,HOLODUKE,,,,,,,,,,,,,,,,,,,,,,
-Jetpack On,JETPACK ON,,,,,,,,,,,,,,,,,,,,,,
-Jetpack Off,JETPACK OFF,,,,,,,,,,,,,,,,,,,,,,
-Chaingun Cannon!,CHAINGUN CANNON!,,,,,,,,,,,,,,,,,,,,,,
-Pipebomb!,PIPEBOMB!,,,,,,,,,,,,,,,,,,,,,,
-RPG!,RPG!,,,,,,,,,,,,,,,,,,,,,,
-Shotgun,SHOTGUN,,,,,,,,,,,,,,,,,,,,,,
-Laser Tripbomb!,LASER TRIPBOMB!,,,,,,,,,,,,,,,,,,,,,,
-Freezethrower!,FREEZETHROWER!,,,,,,,,,,,,,,,,,,,,,,
-Got Shrinker/Expander!,GOT SHRINKER/EXPANDER!,,,,,,,,,,,,,,,,,,,,,,
-Small Medkit: +10,SMALL MEDKIT: +10,,,,,,,,,,,,,,,,,,,,,,
-Large Medkit: +30,LARGE MEDKIT: +30,,,,,,,,,,,,,,,,,,,,,,
+Auto Aiming,AUTO AIMING,,,,,,,,,,,,,,,,,,,,Țintire automată,,
+Show Map: OFF,SHOW MAP: OFF,,,,,,,,,,,,,,,,,,,,Afișare harta: OPRIT,,
+Activated,ACTIVATED,,,,,,,,,,,,,,,,,,,,Activat,,
+Portable Medkit,PORTABLE MEDKIT,,,,,,,,,,,,,,,,,,,,Kit Prim-Ajutor Portabil,,
+Locked,LOCKED,,,,,,,,,,,,,,,,,,,,Încuiat,,
+Giving Everything!,GIVING EVERYTHING!,,,,,,,,,,,,,,,,,,,,Dăm totul!,,
+Boots,BOOTS,,,,,,,,,,,,,,,,,,,,Cizme,,
+Wasted!,WASTED!,,,,,,,,,,,,,,,,,,,,Irosit,,
+Unlocked,UNLOCKED,,,,,,,,,,,,,,,,,,,,Deschis,,
+A Secret Place!,A SECRET PLACE!,,,,,,,,,,,,,,,,,,,,Un Loc Secret!,,
+Squish!,SQUISH!,,,,,,,,,,,,,,,,,,,,Strivit!,,
+All Doors Unlocked,ALL DOORS UNLOCKED,,,,,,,,,,,,,,,,,,,,Toate Ușile Deschise!,,
+Used Steroids,USED STEROIDS,,,,,,,,,,,,,,,,,,,,Utilizat Steroizi,,
+Press Space To Restart Level,PRESS SPACE TO RESTART LEVEL,,,,,,,,,,,,,,,,,,,,Apasă Space pentru a Reîncepe,,
+Ammo For Devastator,AMMO FOR DEVASTATOR,,,,,,,,,,,,,,,,,,,,Muniție pentru Devastator,,
+Deactivated,DEACTIVATED,,,,,,,,,,,,,,,,,,,,Dezactivat,,
+Switch Operated Only!,SWITCH OPERATED ONLY!,,,,,,,,,,,,,,,,,,,,Operat doar de la buton!,,
+God Mode: ON,GOD MODE: ON,,,,,,,,,,,,,,,,,,,,Modul Invincibil: Pornit,,
+God Mode: OFF,GOD MODE: OFF,,,,,,,,,,,,,,,,,,,,Modul Invincibil: Oprit,,
+Atomic Health!,ATOMIC HEALTH!,,,,,,,,,,,,,,,,,,,,Sănătate Atomică!,,
+Crosshair: ON,CROSSHAIR: ON,,,,,,,,,,,,,,,,,,,,Țintă: Activată,,
+Crosshair: OFF,CROSSHAIR: OFF,,,,,,,,,,,,,,,,,,,,Țintă: Dezactivată,,
+You're Too Good To Be Cheating!,YOU'RE TOO GOOD TO BE CHEATING!,,,,,,,,,,,,,,,,,,,,Ești Prea Bun pentru a Trișa!,,
+Messages: ON,MESSAGES: ON,,,,,,,,,,,,,,,,,,,,Mesaje: Pornite,,
+Messages: OFF,MESSAGES: OFF,,,,,,,,,,,,,,,,,,,,Mesaje: Oprite,,
+Type The Cheat Code:,TYPE THE CHEAT CODE:,,,,,,,,,,,,,,,,,,,,Scrie Codul,,
+Detail: Low,DETAIL: LOW,,,,,,,,,,,,,,,,,,,,Detaliu: Scăzut,,
+Detail: High,DETAIL: HIGH,,,,,,,,,,,,,,,,,,,,Detaliu: Ridicat,,
+Will Always Have No Future,WILL ALWAYS HAVE NO FUTURE,,,,,,,,,,,,,,,,,,,,Nu Va Avea Niciodată Viitor,,
+Brightness Level: One,BRIGHTNESS LEVEL: ONE,,,,,,,,,,,,,,,,,,,,Nivel Luminozitate: Unu,,
+Brightness Level: Two,BRIGHTNESS LEVEL: TWO,,,,,,,,,,,,,,,,,,,,Nivel Luminozitate: Doi,,
+Brightness Level: Three,BRIGHTNESS LEVEL: THREE,,,,,,,,,,,,,,,,,,,,Nivel Luminozitate: Trei,,
+Brightness Level: Four,BRIGHTNESS LEVEL: FOUR,,,,,,,,,,,,,,,,,,,,Nivel Luminozitate: Patru,,
+Brightness Level: Five,BRIGHTNESS LEVEL: FIVE,,,,,,,,,,,,,,,,,,,,Nivel Luminozitate: Cinci,,
+Sound: ON,SOUND: ON,,,,,,,,,,,,,,,,,,,,Sunet: Pornit,,
+Sound: OFF,SOUND: OFF,,,,,,,,,,,,,,,,,,,,Sunet: Oprit,,
+Screen Captured,SCREEN CAPTURED,,,,,,,,,,,,,,,,,,,,Captură Ecran,,
+Steroids,STEROIDS,,,,,,,,,,,,,,,,,,,,Steroizi,,
+Armor,ARMOR,,,,,,,,,,,,,,,,,,,,Armură,,
+Scuba Gear,SCUBA GEAR,,,,,,,,,,,,,,,,,,,,Echipament Scufundări,,
+Press F1 For Help,Press F1 for Help,,,,,,,,,,,,,,,,,,,,Apasă F1 pentru Ajutor,,
+Jetpack,JETPACK,,,,,,,,,,,,,,,,,,,,Jetpack,,
+Body Suit,BODY SUIT,,,,,,,,,,,,,,,,,,,,Costum,,
+Access Card,ACCESS CARD,,,,,,,,,,,,,,,,,,,,Card de Acces,,
+Mouse Aiming Off,MOUSE AIMING OFF,,,,,,,,,,,,,,,,,,,,Țintire cu Mouse: Pornită,,
+Mouse Aiming On,MOUSE AIMING ON,,,,,,,,,,,,,,,,,,,,Țintire cu Mouse: Oprită,,
+Cheat Code:  Unrecognized,CHEAT CODE:  UNRECOGNIZED,,,,,,,,,,,,,,,,,,,,Cod: Nerecunoscut,,
+Holoduke On,HOLODUKE ON,,,,,,,,,,,,,,,,,,,,Holoduke Pornit,,
+Holoduke Off,HOLODUKE OFF,,,,,,,,,,,,,,,,,,,,Holoduke Oprit,,
+Holoduke Not Found Yet!,HOLODUKE NOT FOUND YET!,,,,,,,,,,,,,,,,,,,,Holoduke Negăsit!,,
+Jetpack Not Found Yet!,JETPACK NOT FOUND YET!,,,,,,,,,,,,,,,,,,,,Jetpack Negăsit!,,
+Holoduke,HOLODUKE,,,,,,,,,,,,,,,,,,,,Holoduke,,
+Jetpack On,JETPACK ON,,,,,,,,,,,,,,,,,,,,Jetpack Pornit,,
+Jetpack Off,JETPACK OFF,,,,,,,,,,,,,,,,,,,,Jetpack Oprit,,
+Chaingun Cannon!,CHAINGUN CANNON!,,,,,,,,,,,,,,,,,,,,Mitralieră!,,
+Pipebomb!,PIPEBOMB!,,,,,,,,,,,,,,,,,,,,Bombă Artizanală,,
+RPG!,RPG!,,,,,,,,,,,,,,,,,,,,RPG!,,
+Shotgun,SHOTGUN,,,,,,,,,,,,,,,,,,,,Pușcă,,
+Laser Tripbomb!,LASER TRIPBOMB!,,,,,,,,,,,,,,,,,,,,Mină cu Laser!,,
+Freezethrower!,FREEZETHROWER!,,,,,,,,,,,,,,,,,,,,Aruncător de Gheață!,,
+Got Shrinker/Expander!,GOT SHRINKER/EXPANDER!,,,,,,,,,,,,,,,,,,,,Ridicat Micșorător/Expansor,,
+Small Medkit: +10,SMALL MEDKIT: +10,,,,,,,,,,,,,,,,,,,,Kit medical mic: 10%,,
+Large Medkit: +30,LARGE MEDKIT: +30,,,,,,,,,,,,,,,,,,,,Kit medical mare: 30%,,
 Ammo For Chaingun Cannon!,AMMO FOR CHAINGUN CANNON!,,,,,,,,,,,,,,,,,,,,,,
 Ammo For Rpg!,AMMO FOR RPG!,,,,,,,,,,,,,,,,,,,,,,
 Ammo For Pistol!,AMMO FOR PISTOL!,,,,,,,,,,,,,,,,,,,,,,

@@ -955,6 +955,17 @@ OptionValue "Anisotropy"
 	16, "$OPTVAL_16X"
 }
 
+OptionValue "Multisample"
+{
+	1, "$OPTVAL_OFF"
+	2, "$OPTVAL_2X"
+	4, "$OPTVAL_4X"
+	8, "$OPTVAL_8X"
+	16, "$OPTVAL_16X"
+	32, "$OPTVAL_32X"
+}
+
+
 OptionMenu "VideoOptions" //protected
 {
 	Title "$DSPLYMNU_TITLE"
@@ -962,6 +973,7 @@ OptionMenu "VideoOptions" //protected
 	Submenu "$OPTMNU_HUD", "HUDOptions"
 	Submenu "$OPTMNU_POLYMOST", "PolymostOptions"
 	Submenu "$AUTOMAPMNU_TITLE", "AutomapOptions"
+	Submenu "$GLMNU_POSTPROCESS",				"PostProcessMenu"
 	StaticText ""
 
 	Slider "$DSPLYMNU_GAMMA",					"vid_gamma",					0.75, 3.0, 0.05, 2
@@ -991,7 +1003,60 @@ OptionMenu "VideoOptions" //protected
 	StaticText ""
 	Option "$GLTEXMNU_TEXFILTER",		gl_texture_filter,				"FilterModes"
 	Option "$GLTEXMNU_ANISOTROPIC",		gl_texture_filter_anisotropic,				"Anisotropy"
+	StaticText " "
+	Option "$GLPREFMNU_MULTISAMPLE", 			gl_multisample,					"Multisample"
+
 }
+
+OptionValue "DitherModes"
+{
+	0, "$OPTVAL_OFF"
+	-1, "$OPTVAL_ON"
+	6, "6 BPC"
+	8, "8 BPC"
+	10, "10 BPC"
+	12, "12 BPC"
+}
+
+OptionValue "FXAAQuality"
+{
+	0, "$OPTVAL_OFF"
+	1, "$OPTVAL_LOW"
+	2, "$OPTVAL_MEDIUM"
+	3, "$OPTVAL_HIGH"
+	4, "$OPTVAL_EXTREME"
+}
+
+OptionValue "TonemapModes"
+{
+	0, "$OPTVAL_OFF"
+	1, "$OPTVAL_UNCHARTED2"
+	2, "$OPTVAL_HEJLDAWSON"
+	3, "$OPTVAL_REINHARD"
+	5, "$OPTVAL_PALETTE"
+}
+
+OptionValue "LookupOrder"
+{
+	0, "$OPTVAL_OBVERSEFIRST"
+	1, "$OPTVAL_REVERSEFIRST"
+}
+
+OptionMenu "PostProcessMenu" protected
+{
+	Title "$GLMNU_POSTPROCESS"
+	//Option "$GLPREFMNU_BLOOM",		 			gl_bloom,						"OnOff"
+	Option "$GLPREFMNU_LENS",		 			gl_lens,						"OnOff"
+	//Option "$GLPREFMNU_SSAO",		 			gl_ssao,						"SSAOModes"
+	//Slider "$GLPREFMNU_SSAO_PORTALS",			gl_ssao_portals,				0.0, 4.0, 1.0, 0
+	Option "$GLPREFMNU_FXAA",		 			gl_fxaa,						"FXAAQuality"
+	Option "$GLPREFMNU_DITHER",		 			gl_dither_bpc,					"DitherModes"
+	Option "$GLPREFMNU_TONEMAP", 				gl_tonemap,						"TonemapModes"
+	StaticText " "
+	Slider "$GLPREFMNU_PALTONEMAPPOWER",		gl_paltonemap_powtable,			0.2, 3.0, 0.1, 1
+	Option "$GLPREFMNU_PALTONEMAPORDER",		gl_paltonemap_reverselookup,	"LookupOrder"
+}
+
 
 
 OptionMenu "AutomapOptions"
