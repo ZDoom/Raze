@@ -910,7 +910,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 	else
 	{
 		processInputBits(p, hidInput);
-		processMovement(&input, &loc, hidInput, true, scaleAdjust, 1, p->drink_amt);
+		processMovement(&input, &loc, hidInput, scaleAdjust, p->drink_amt);
 		checkCrouchToggle(p);
 		FinalizeInput(myconnectindex, input, false);
 	}

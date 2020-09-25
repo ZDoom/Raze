@@ -46,7 +46,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     InputPacket input {};
 
     ApplyGlobalInput(gInput, hidInput);
-    processMovement(&input, &gInput, hidInput, true, scaleAdjust);
+    processMovement(&input, &gInput, hidInput, scaleAdjust);
 
     if (!cl_syncinput && gamestate == GS_LEVEL)
     {

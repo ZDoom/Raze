@@ -119,7 +119,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     }
     else
     {
-        processMovement(&input, &localInput, hidInput, true, scaleAdjust);
+        processMovement(&input, &localInput, hidInput, scaleAdjust);
     }
 
     if (!cl_syncinput)

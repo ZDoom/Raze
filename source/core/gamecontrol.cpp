@@ -1494,7 +1494,7 @@ fixed_t getincangleq16(fixed_t a, fixed_t na)
 //
 //---------------------------------------------------------------------------
 
-void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, bool const allowstrafe, double const scaleAdjust, double const turnscale, short const drink_amt)
+void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, short const drink_amt, bool const allowstrafe, double const turnscale)
 {
 	// set up variables
 	int const running = !!(inputBuffer->actions & SB_RUN);
