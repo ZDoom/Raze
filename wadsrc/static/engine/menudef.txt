@@ -452,7 +452,7 @@ OptionMenu "OptionsMenu"
 //
 //-------------------------------------------------------------------------------------------
 
-OptionMenu "CustomizeControls"// protected
+OptionMenu "CustomizeControls"
 {
 	Title "$CNTRLMNU_TITLE"
 
@@ -1042,7 +1042,7 @@ OptionValue "LookupOrder"
 	1, "$OPTVAL_REVERSEFIRST"
 }
 
-OptionMenu "PostProcessMenu" protected
+OptionMenu "PostProcessMenu"
 {
 	Title "$GLMNU_POSTPROCESS"
 	//Option "$GLPREFMNU_BLOOM",		 			gl_bloom,						"OnOff"
