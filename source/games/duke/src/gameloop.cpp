@@ -191,7 +191,8 @@ void GameInterface::NewGame(MapRecord* map, int skill)
 	ps[0].last_extra = max_player_health;
 	resetweapons(0);
 	resetinventory(0);
-	NextLevel(map, skill);
+
+	startnewgame(map, skill);
 }
 
 //---------------------------------------------------------------------------
