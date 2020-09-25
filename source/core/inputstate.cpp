@@ -335,7 +335,7 @@ CCMD(pause)
 
 
 
-void ApplyGlobalInput(InputPacket& input, ControlInfo* const hidInput)
+void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput)
 {
 	if (WeaponToSend != 0) input.setNewWeapon(WeaponToSend);
 	WeaponToSend = 0;
