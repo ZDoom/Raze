@@ -941,7 +941,7 @@ post_analyzesprites(void)
 #endif
 
 
-void
+bool
 BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, fixed_t q16horiz)
 {
     vec3_t n = { *nx, *ny, *nz };
@@ -972,6 +972,12 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, fixed_t q16h
 
     hitscan(&n, *vsect, vx, vy, vz,
             &hitinfo, CLIPMASK_PLAYER);
+
+    if (*vsect < 0)
+    {
+        sp->cstat = bakcstat;
+        return false;
+    }
 
     ASSERT(*vsect >= 0 && *vsect < MAXSECTORS);
 
@@ -1018,7 +1024,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, fixed_t q16h
                 ASSERT(*vsect >= 0 && *vsect < MAXSECTORS);
                 BackView(nx, ny, nz, vsect, nq16ang, q16horiz);
                 hsp->cstat = flag_backup;
-                return;
+                return false;
             }
             else
             {
@@ -1057,7 +1063,8 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, fixed_t q16h
     // Make sure vsect is correct
     updatesectorz(*nx, *ny, *nz, vsect);
 
-    *nq16ang = IntToFixed(ang);
+    *nq16ang += IntToFixed(pp->view_outside_dang);
+    return true;
 }
 
 void
@@ -1259,10 +1266,10 @@ void DrawCrosshair(PLAYERp pp)
 {
     extern bool CameraTestMode;
 
-    if (!(CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
+    if (!(CameraTestMode))
     {
         USERp u = User[pp->PlayerSprite];
-        ::DrawCrosshair(2326, u->Health, -getHalfLookAng(pp->oq16look_ang, pp->q16look_ang, cl_syncinput, smoothratio), 0, 2, shadeToLight(10));
+        ::DrawCrosshair(2326, u->Health, -getHalfLookAng(pp->oq16look_ang, pp->q16look_ang, cl_syncinput, smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
     }
 }
 
@@ -1719,7 +1726,13 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
-        BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, tq16horiz);
+        tz -= 8448;
+        
+        if (!BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, tq16horiz))
+        {
+            tz += 8448;
+            BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, tq16horiz);
+        }
     }
     else
     {

@@ -98,12 +98,13 @@ static void viewBurnTime(int gScale)
 
 void hudDraw(PLAYER *gView, VIEW *pView, int nSectnum, double bobx, double boby, double zDelta, int basepal, double smoothratio)
 {
+	double look_anghalf = getHalfLookAng(pView->q16look_ang, gView->q16look_ang, cl_syncinput, smoothratio);
+
+	DrawCrosshair(kCrosshairTile, gView->pXSprite->health >> 4, -look_anghalf, 0, 2);
+
 	if (gViewPos == 0)
 	{
-		double look_anghalf = getHalfLookAng(pView->q16look_ang, gView->q16look_ang, cl_syncinput, smoothratio);
 		double looking_arc = fabs(look_anghalf) / 4.5;
-
-		DrawCrosshair(kCrosshairTile, gView->pXSprite->health >> 4, -look_anghalf, 0, 2);
 
 		double cX = 160 - look_anghalf;
 		double cY = 220 + looking_arc;
