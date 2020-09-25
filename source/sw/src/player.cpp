@@ -118,6 +118,8 @@ extern int FinishAnim;
 char PlayerGravity = PLAYER_JUMP_GRAV;
 #endif
 
+bool ToggleFlyMode = false;
+
 extern bool DebugOperate;
 
 //unsigned char synctics, lastsynctics;
@@ -3711,19 +3713,10 @@ DoPlayerWadeSuperJump(PLAYERp pp)
 
 bool PlayerFlyKey(void)
 {
-    bool key = false;
-
-    if (!GodMode)
+    if (!ToggleFlyMode)
         return false;
-
-#if 0
-    // Cheat or not, this simply won't do.
-    key = inputState.GetKeyStatus(KEYSC_J);
-
-	if (key)
-		inputState.ClearKeyStatus(KEYSC_J);
-#endif
-    return key;
+    ToggleFlyMode = false;
+        return true;
 }
 
 void
