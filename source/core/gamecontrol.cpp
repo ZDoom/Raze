@@ -1538,8 +1538,8 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		static double turnheldtime;
 		int const turnheldamt = 120 / GameTicRate;
 		double const turboturntime = 590. / GameTicRate;
-		double turnamount = ((running ? 1735. : 867.5) / GameTicRate) * turnscale;
-		double preambleturn = turnamount / 3.;
+		double turnamount = ((running ? 43375. / 27. : 867.5) / GameTicRate) * turnscale;
+		double preambleturn = turnamount / (347. / 92.);
 
 		// allow Exhumed to use its legacy values given the drastic difference from the other games.
 		if ((g_gameType & GAMEFLAG_PSEXHUMED) && cl_exhumedoldturn)
