@@ -162,9 +162,7 @@ int animateknuckles(int gs, int snum, double hard_landing, double look_anghalf, 
 	short pal;
 	double looking_arc;
 
-	if (isWW2GI()) return 0;
-
-	if (ps[snum].knuckle_incs == 0 || sprite[ps[snum].i].extra <= 0) return 0;
+	if (isWW2GI() || ps[snum].over_shoulder_on != 0 || ps[snum].knuckle_incs == 0 || sprite[ps[snum].i].extra <= 0) return 0;
 
 	looking_arc = fabs(look_anghalf) / 4.5;
 
