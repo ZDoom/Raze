@@ -531,7 +531,7 @@ private:
     //
     //---------------------------------------------------------------------------
 
-    void DrawStatusSequence(short nSequence, uint16_t edx, short ebx, int xoffset = 0)
+    void DrawStatusSequence(short nSequence, uint16_t edx, double ebx, double xoffset = 0)
     {
         edx += SeqBase[nSequence];
 
@@ -546,17 +546,12 @@ private:
 
             int flags = DI_ITEM_RELCENTER;
 
-            double x = ChunkXpos[nFrameBase];
+            double x = ChunkXpos[nFrameBase] + xoffset;
             double y = ChunkYpos[nFrameBase] + ebx;
-
-            if (x > 0)
-            {
-                if (xoffset == 0) { x += 0.5; y += 0.5; }
-            }
 
             if (hud_size <= Hud_StbarOverlay)
             {
-                x += 160;
+                x += 161;
                 y += 100;
             }
             else
@@ -572,10 +567,6 @@ private:
                     flags |= DI_SCREEN_RIGHT_BOTTOM;
                 }
                 y -= 100;
-                if (hud_size == Hud_full)
-                {
-                    x += xoffset;
-                }
             }
 
             int tile = ChunkPict[nFrameBase];
@@ -615,10 +606,7 @@ private:
         {
             int nSequence = nStatusSeqOffset + StatusAnim[i].s1;
 
-            int xoffs = 0;
-            if (StatusAnim[i].s1 == 132) xoffs = -32;
-
-            DrawStatusSequence(nSequence, StatusAnim[i].s2, 0, xoffs);
+            DrawStatusSequence(nSequence, StatusAnim[i].s2, StatusAnim[i].s1 <= 43 ? 0.5 : 0, StatusAnim[i].s1 != 166 ? 0.5 : 0);
 
             /*
                     if (StatusAnim[nAnim].s2 >= (SeqSize[nSequence] - 1))
@@ -874,17 +862,17 @@ private:
 
         if (/*!bFullScreen &&*/ nNetTime)
         {
-            DrawStatusSequence(nStatusSeqOffset + 127, 0, 0, -4);
-            DrawStatusSequence(nStatusSeqOffset + 129, nMagicFrame, nMagicLevel, -4);
-            DrawStatusSequence(nStatusSeqOffset + 131, 0, 0, -4); // magic pool frame (bottom)
+            DrawStatusSequence(nStatusSeqOffset + 127, 0, 0);
+            DrawStatusSequence(nStatusSeqOffset + 129, nMagicFrame, nMagicLevel);
+            DrawStatusSequence(nStatusSeqOffset + 131, 0, 0); // magic pool frame (bottom)
 
-            DrawStatusSequence(nStatusSeqOffset + 128, 0, 0, 4);
-            DrawStatusSequence(nStatusSeqOffset + 1, nHealthFrame, nHealthLevel, 4);
-            DrawStatusSequence(nStatusSeqOffset + 125, 0, 0, 4); // draw ankh on health pool
-            DrawStatusSequence(nStatusSeqOffset + 130, 0, 0, 4); // draw health pool frame (top)
+            DrawStatusSequence(nStatusSeqOffset + 128, 0, 0);
+            DrawStatusSequence(nStatusSeqOffset + 1, nHealthFrame, nHealthLevel);
+            DrawStatusSequence(nStatusSeqOffset + 125, 0, 0); // draw ankh on health pool
+            DrawStatusSequence(nStatusSeqOffset + 130, 0, 0); // draw health pool frame (top)
 
             if (nItemSeq >= 0) {
-                DrawStatusSequence(nItemSeq + nStatusSeqOffset, nItemFrame, 0);
+                DrawStatusSequence(nItemSeq + nStatusSeqOffset, nItemFrame, 1);
             }
 
             // draws health level dots, animates breathing lungs and other things
@@ -898,14 +886,14 @@ private:
 
 
             // draw compass
-            if (hud_size <= Hud_StbarOverlay) DrawStatusSequence(nStatusSeqOffset + 35, ((inita + 128) & kAngleMask) >> 8, 0);
+            if (hud_size <= Hud_StbarOverlay) DrawStatusSequence(nStatusSeqOffset + 35, ((inita + 128) & kAngleMask) >> 8, 0, 0.5);
 
             //if (hud_size < Hud_full)
             {
                 // draw ammo count
-                DrawStatusSequence(nStatusSeqOffset + 44, nDigit[2], 0, -35);
-                DrawStatusSequence(nStatusSeqOffset + 45, nDigit[1], 0, -35);
-                DrawStatusSequence(nStatusSeqOffset + 46, nDigit[0], 0, -35);
+                DrawStatusSequence(nStatusSeqOffset + 44, nDigit[2], 0, 0.5);
+                DrawStatusSequence(nStatusSeqOffset + 45, nDigit[1], 0, 0.5);
+                DrawStatusSequence(nStatusSeqOffset + 46, nDigit[0], 0, 0.5);
             }
         }
 
