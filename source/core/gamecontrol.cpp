@@ -1494,10 +1494,9 @@ fixed_t getincangleq16(fixed_t a, fixed_t na)
 //
 //---------------------------------------------------------------------------
 
-void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, bool const allowstrafe, double const scaleAdjust, int const turnscale, short const drink_amt)
+void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, bool const allowstrafe, double const scaleAdjust, double const turnscale, short const drink_amt)
 {
 	// set up variables
-	bool const mouseaim = !(inputBuffer->actions & SB_AIMMODE);
 	int const running = !!(inputBuffer->actions & SB_RUN);
 	int const keymove = gi->playerKeyMove() << running;
 	int const mousevelscale = g_gameType & GAMEFLAG_BLOOD ? 32 : 4;
@@ -1509,7 +1508,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	else
 		currInput->q16avel += FloatToFixed(hidInput->mousex + (scaleAdjust * hidInput->dyaw));
 
-	if (mouseaim)
+	if (!(inputBuffer->actions & SB_AIMMODE))
 		currInput->q16horz -= FloatToFixed(hidInput->mousey);
 	else
 		currInput->fvel -= xs_CRoundToInt(hidInput->mousey * mousevelscale * 2);
@@ -1519,8 +1518,8 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 
 	// process remaining controller input.
 	currInput->q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
-	currInput->svel -= xs_CRoundToInt(scaleAdjust * (hidInput->dx * keymove * cntrlvelscale));
-	currInput->fvel -= xs_CRoundToInt(scaleAdjust * (hidInput->dz * keymove * cntrlvelscale));
+	currInput->svel -= xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * cntrlvelscale);
+	currInput->fvel -= xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * cntrlvelscale);
 
 	// process keyboard turning keys.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)

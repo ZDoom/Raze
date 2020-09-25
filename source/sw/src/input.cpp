@@ -205,7 +205,7 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
     PLAYERp pp = &Player[myconnectindex];
 
     processInputBits(pp, hidInput);
-    processMovement(&input, &loc, hidInput, true, scaleAdjust, pp->sop_control ? 3 : 1);
+    processMovement(&input, &loc, hidInput, !pp->sop, scaleAdjust, pp->sop_control ? 3. / 1.40625 : 1.);
     processWeapon(pp);
 
     if (!cl_syncinput)
