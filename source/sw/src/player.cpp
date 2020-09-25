@@ -3715,8 +3715,13 @@ bool PlayerFlyKey(void)
 {
     if (!ToggleFlyMode)
         return false;
+
     ToggleFlyMode = false;
-        return true;
+
+    if (!GodMode)
+        return false;
+
+    return true;
 }
 
 void
