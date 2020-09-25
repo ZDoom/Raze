@@ -542,10 +542,10 @@ void BuildTiles::PostLoadSetup()
 				auto tex = rep.faces[0];
 				// Make a copy so that multiple appearances of the same texture can be handled. They will all refer to the same internal texture anyway.
 				tex = MakeGameTexture(tex->GetTexture(), "", ETextureType::Any);
-				tex->SetGlowmap(glowTex->GetTexture());
-				tex->SetDetailmap(detailTex->GetTexture());
-				tex->SetNormalmap(normalTex->GetTexture());
-				tex->SetSpecularmap(specTex->GetTexture());
+				if (glowTex) tex->SetGlowmap(glowTex->GetTexture());
+				if (detailTex) tex->SetDetailmap(detailTex->GetTexture());
+				if (normalTex) tex->SetNormalmap(normalTex->GetTexture());
+				if (specTex) tex->SetSpecularmap(specTex->GetTexture());
 				tex->SetDetailScale(scalex, scaley);
 				rep.faces[0] = tex;
 			}

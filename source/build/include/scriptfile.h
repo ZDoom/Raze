@@ -13,40 +13,55 @@ using scriptfile = FScanner;
 inline int32_t scriptfile_getnumber(scriptfile *sf, int32_t *num)
 {
 	bool res = sf->GetNumber();
-	if (res) *num = sf->Number;
-	else *num = 0;
+	if (num)
+	{
+		if (res) *num = sf->Number;
+		else *num = 0;
+	}
 	return !res;
 }
 
 inline int32_t scriptfile_getdouble(scriptfile *sf, double *num)
 {
 	bool res = sf->GetFloat();
-	if (res) *num = sf->Float;
-	else *num = 0;
+	if (num)
+	{
+		if (res) *num = sf->Float;
+		else *num = 0;
+	}
 	return !res;
 }
 
 inline int32_t scriptfile_getstring(scriptfile *sf, FString *st)
 {
 	bool res = sf->GetString();
-	if (res) *st = sf->String;
-	else *st = "";
+	if (st)
+	{
+		if (res) *st = sf->String;
+		else *st = "";
+	}
 	return !res;
 }
 
 inline int32_t scriptfile_getsymbol(scriptfile *sf, int32_t *num)
 {
 	bool res = sf->GetNumber(true);
-	if (res) *num = sf->Number;
-	else *num = 0;
+	if (num)
+	{
+		if (res) *num = sf->Number;
+		else *num = 0;
+	}
 	return !res;
 }
 
 inline int32_t scriptfile_getsymbol(scriptfile* sf, int64_t* num)
 {
 	bool res = sf->GetNumber(true);
-	if (res) *num = sf->BigNumber;
-	else *num = 0;
+	if (num)
+	{
+		if (res) *num = sf->BigNumber;
+		else *num = 0;
+	}
 	return !res;
 }
 
