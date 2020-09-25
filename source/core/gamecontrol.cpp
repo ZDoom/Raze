@@ -1505,7 +1505,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
-		currInput->svel -= xs_CRoundToInt((hidInput->mousex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove));
+		currInput->svel -= xs_CRoundToInt((hidInput->mousex * mousevelscale) + (scaleAdjust * (hidInput->dyaw / 60) * keymove * cntrlvelscale));
 	else
 		currInput->q16avel += FloatToFixed(hidInput->mousex + (scaleAdjust * hidInput->dyaw));
 
