@@ -765,7 +765,7 @@ void donewgame(MapRecord* map, int sk)
     show_shareware = 26 * 34;
 
     //ud.nextLevel = map;
-    ud.player_skill = sk != -1 ? sk + 1 : sk;
+    ud.player_skill = sk;
     ud.secretlevel = 0;
     ud.from_bonus = 0;
 
@@ -990,6 +990,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 
 void startnewgame(MapRecord* map, int skill)
 {
+    ud.player_skill = skill;
     ud.m_respawn_monsters = (skill == 4);
     ud.m_monsters_off = ud.monsters_off = 0;
     ud.m_respawn_items = 0;

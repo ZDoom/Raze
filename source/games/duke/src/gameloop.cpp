@@ -165,8 +165,6 @@ void loadscreen_r(MapRecord* rec, CompletionFunc func);
 
 void GameInterface::NextLevel(MapRecord* map, int skill)
 {
-	if (skill != -1) ud.player_skill = skill + 1;
-
 #if 0
 	// Loading is so fast on modern system so that this only serves as an irritant, not an asset.
 	auto loadscreen = isRR() ? loadscreen_r : loadscreen_d;
@@ -191,6 +189,7 @@ void GameInterface::NewGame(MapRecord* map, int skill)
 	ps[0].last_extra = max_player_health;
 	resetweapons(0);
 	resetinventory(0);
+	if (skill != -1) skill = skill + 1;
 
 	startnewgame(map, skill);
 }
