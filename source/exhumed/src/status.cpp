@@ -604,9 +604,20 @@ private:
     {
         for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
         {
+            double xoff = 0.5, yoff = 0;
             int nSequence = nStatusSeqOffset + StatusAnim[i].s1;
 
-            DrawStatusSequence(nSequence, StatusAnim[i].s2, StatusAnim[i].s1 <= 43 ? 0.5 : 0, StatusAnim[i].s1 != 166 ? 0.5 : 0);
+            if (StatusAnim[i].s1 >= 37 && StatusAnim[i].s1 <= 43)
+            {
+                yoff = 0.5;
+            }
+
+            if (StatusAnim[i].s1 == 4 || StatusAnim[i].s1 == 166)
+            {
+                xoff = 0;
+            }
+
+            DrawStatusSequence(nSequence, StatusAnim[i].s2, yoff, xoff);
 
             /*
                     if (StatusAnim[nAnim].s2 >= (SeqSize[nSequence] - 1))
