@@ -49,6 +49,7 @@ bool CheatInputMode = false;
 bool EveryCheat = false;
 bool mapcheat = false;
 extern bool FAF_DebugView;
+extern bool ToggleFlyMode;
 
 const char *CheatKeyType;
 void KeysCheat(PLAYERp pp, const char *cheat_string);
@@ -87,6 +88,10 @@ const char *GameInterface::GenericCheat(int player, int cheat)
     case CHT_NOCLIP:
         Player[player].Flags ^= PF_CLIP_CHEAT;
         return GStrings(Player[player].Flags & PF_CLIP_CHEAT ? "CLIPPING: OFF" : "CLIPPING: ON");
+
+    case CHT_FLY:
+        ToggleFlyMode = true;
+        return nullptr;
 
     default:
         return nullptr;

@@ -121,6 +121,9 @@ enum ECheat
 	CHT_KFC,
 	CHT_MONSTERS,
 
+	// Shadow Warrior
+	CHT_FLY,
+
 	// Blood 
 	kCheatSatchel,
 	kCheatKevorkian,

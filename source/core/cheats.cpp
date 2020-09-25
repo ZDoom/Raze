@@ -114,6 +114,21 @@ void genericCheat(int player, uint8_t** stream, bool skip)
 //
 //---------------------------------------------------------------------------
 
+CCMD(fly)
+{
+	if (!CheckCheatmode(true, true))
+	{
+		Net_WriteByte(DEM_GENERICCHEAT);
+		Net_WriteByte(CHT_FLY);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 CCMD(god)
 {
 	if (!CheckCheatmode(true, true))	// Right now the god cheat is a global setting in some games and not a player property. This should be changed.
