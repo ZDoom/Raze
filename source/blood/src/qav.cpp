@@ -51,6 +51,7 @@ void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int p
     stat |= pTile->stat;
 	x += pTile->x;
 	y += pTile->y;
+    if (palnum <= 0) palnum = pTile->palnum;
 
     if (!to3dview)
     {
@@ -60,7 +61,6 @@ void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int p
 		int renderstyle = (stat & RS_NOMASK)? STYLE_Normal : STYLE_Translucent;
 		double alpha = (stat & RS_TRANS1)? glblend[0].def[!!(stat & RS_TRANS2)].alpha : 1.;
 		int pin = (stat & kQavOrientationLeft)? -1 : (stat & RS_ALIGN_R)? 1:0;
-		if (palnum <= 0) palnum = pTile->palnum;
 		auto translation = TRANSLATION(Translation_Remap, palnum);
 		bool topleft = !!(stat & RS_TOPLEFT);
 
