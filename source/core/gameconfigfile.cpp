@@ -198,7 +198,6 @@ void FGameConfigFile::DoAutoloadSetup (/*FIWadManager *iwad_man*/)
 
 	// The same goes for auto-exec files.
 	CreateStandardAutoExec("ShadowWarrior.AutoLoad", true);
-	CreateStandardAutoExec("IonFury.AutoLoad", true);
 	CreateStandardAutoExec("Redneck.RidesAgain.AutoLoad", true);
 	CreateStandardAutoExec("Redneck.Redneck.AutoLoad", true);
 	CreateStandardAutoExec("WW2GI.AutoLoad", true);
@@ -210,7 +209,6 @@ void FGameConfigFile::DoAutoloadSetup (/*FIWadManager *iwad_man*/)
 	CreateStandardAutoExec("DukeNukem3D.Vacation.AutoLoad", true);
 
 	CreateStandardAutoExec("ShadowWarrior.AutoLoad", true);
-	CreateStandardAutoExec("IonFury.AutoLoad", true);
 	CreateStandardAutoExec("Redneck.RidesAgain.AutoLoad", true);
 	CreateStandardAutoExec("Redneck.Redneck.AutoLoad", true);
 	CreateStandardAutoExec("WW2GI.AutoLoad", true);

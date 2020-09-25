@@ -154,7 +154,6 @@ const char *AppInfo[] =
 	"Shadow Warrior Classic/gameroot",
 	"Shadow Warrior Classic/gameroot/addons",
 	"Shadow Warrior Original/gameroot",
-	"Ion Fury",
 	"Blood",
 	"One Unit Whole Blood",
 	"Nam/NAM",

@@ -122,7 +122,6 @@ static const RegistryPathInfo paths[] = {
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225160", L"InstallLocation", swaddons }, // Shadow Warrior Classic Redux - Steam
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 238070", L"InstallLocation", gameroot}, // Shadow Warrior Classic (1997) - Steam
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 358400", L"InstallLocation", sw},
-	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 562860", L"InstallLocation", nullptr}, // Ion Fury (Steam)
 
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 565550", L"InstallLocation", redneck},
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 580940", L"InstallLocation", redneck},
@@ -390,7 +389,6 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 	FlagMap.Insert("GAMEFLAG_ADDON", GAMEFLAG_ADDON);
 	FlagMap.Insert("GAMEFLAG_SHAREWARE", GAMEFLAG_SHAREWARE);
 	FlagMap.Insert("GAMEFLAG_DUKEBETA", GAMEFLAG_DUKEBETA); // includes 0x20 since it's a shareware beta
-	FlagMap.Insert("GAMEFLAG_FURY", GAMEFLAG_FURY);
 	FlagMap.Insert("GAMEFLAG_RR", GAMEFLAG_RR);
 	FlagMap.Insert("GAMEFLAG_RRRA", GAMEFLAG_RRRA);
 	FlagMap.Insert("GAMEFLAG_DEER", GAMEFLAG_DEER);
@@ -561,7 +559,7 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 				}
 				else sc.ScriptError(nullptr);
 			}
-			if (grp.dependencyCRC == 0 && (grp.flags & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI | GAMEFLAG_FURY | GAMEFLAG_RRALL | GAMEFLAG_BLOOD | GAMEFLAG_SW | GAMEFLAG_PSEXHUMED)) == 0)
+			if (grp.dependencyCRC == 0 && (grp.flags & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI | GAMEFLAG_RRALL | GAMEFLAG_BLOOD | GAMEFLAG_SW | GAMEFLAG_PSEXHUMED)) == 0)
 			{
 				sc.ScriptMessage("Warning: GRP without game defined. Ignoring");
 				groups.Pop();

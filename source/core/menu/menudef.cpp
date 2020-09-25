@@ -151,7 +151,6 @@ static const gamefilter games[] = {
 	{ "NamOnly", GAMEFLAG_NAM},	// for cases where the difference matters.
 	{ "Napalm", GAMEFLAG_NAPALM},
 	{ "WW2GI", GAMEFLAG_WW2GI},
-	{ "Fury", GAMEFLAG_FURY},
 	{ "Redneck", GAMEFLAG_RR},
 	{ "RedneckRides", GAMEFLAG_RRRA},
 	{ "Deer", GAMEFLAG_DEER},
@@ -1143,13 +1142,6 @@ void M_ParseMenuDefs()
 		OptionSettings.mFontColorHeader = CR_DARKGRAY;
 		OptionSettings.mFontColorHighlight = CR_WHITE;
 		OptionSettings.mFontColorSelection = CR_DARKRED;
-	}
-	else if (g_gameType & GAMEFLAG_FURY)
-	{
-		OptionSettings.mFontColor = CR_TEAL;
-		OptionSettings.mFontColorHeader = CR_LIGHTBLUE;
-		OptionSettings.mFontColorHighlight = CR_ORANGE;
-		OptionSettings.mFontColorSelection = CR_GOLD;
 	}
 	else if (g_gameType & GAMEFLAG_RRALL)
 	{
