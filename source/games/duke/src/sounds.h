@@ -70,6 +70,9 @@ void S_PlaySpecialMusic(unsigned int);
 void S_ContinueLevelMusic(void);
 
 // Placeholders.
+
+void S_ParseDeveloperCommentary();
+
 inline void StopCommentary()
 {}
 

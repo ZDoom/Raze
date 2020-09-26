@@ -733,4 +733,56 @@ void S_WorldTourMappingsForOldSounds()
 	}
 }
 
+static TArray<FString> Commentaries;
+
+
+void S_ParseDeveloperCommentary()
+{
+	int lumpnum = fileSystem.FindFile("def/developer_commentary.def");
+	if (lumpnum < 0) return;
+	FScanner sc;
+	sc.OpenLumpNum(lumpnum);
+	try
+	{
+		sc.SetCMode(true);
+		sc.MustGetStringName("def");
+		sc.MustGetStringName("developercommentary");
+		sc.MustGetStringName("{");
+		while (!sc.CheckString("}"))
+		{
+			FString path;
+			int num = -1;
+			sc.MustGetStringName("def");
+			sc.MustGetStringName("sound");
+			sc.MustGetStringName("{");
+			while (!sc.CheckString("}"))
+			{
+				sc.MustGetString();
+				if (sc.Compare("path"))
+				{
+					sc.MustGetStringName(":");
+					sc.MustGetString();
+					path = sc.String;
+					sc.MustGetStringName(";");
+				}
+				else if (sc.Compare("num"))
+				{
+					sc.MustGetStringName(":");
+					sc.MustGetNumber();
+					num = sc.Number;
+					sc.MustGetStringName(";");
+				}
+			}
+			sc.MustGetStringName(";");
+			if (Commentaries.Size() <= num) Commentaries.Resize(num + 1);
+			Commentaries[num] = std::move(path);
+		}
+		//sc.MustGetStringName(";");
+	}
+	catch (const std::exception& ex)
+	{
+		Printf("Failed to read developer commentary definitions:\n%s", ex.what());
+		return;
+	}
+}
 END_DUKE_NS
