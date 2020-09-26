@@ -1192,7 +1192,6 @@ int ConCompiler::parsecommand()
 
 		for (j = 0; j < 4; j++)
 		{
-			setscriptvalue(parsing_actor + j, 0);
 			if (j == 3)
 			{
 				j = 0;
