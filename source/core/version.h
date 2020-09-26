@@ -41,19 +41,19 @@ const char *GetVersionString();
 
 /** Lots of different version numbers **/
 
-#define VERSIONSTR "0.6.0 alpha"
+#define VERSIONSTR "0.7.0 alpha"
 
 // The version as seen in the Windows resource
-#define RC_FILEVERSION 0,6,0,0
-#define RC_PRODUCTVERSION 0,6,0,0
+#define RC_FILEVERSION 0,7,0,0
+#define RC_PRODUCTVERSION 0,7,0,0
 #define RC_PRODUCTVERSION2 VERSIONSTR
 // These are for content versioning.
 #define VER_MAJOR 4
-#define VER_MINOR 3
+#define VER_MINOR 4
 #define VER_REVISION 0
 
 #define ENG_MAJOR 0
-#define ENG_MINOR 6
+#define ENG_MINOR 7
 #define ENG_REVISION 0
 
 // More stuff that needs to be different for derivatives.
@@ -66,21 +66,18 @@ const char *GetVersionString();
 
 #define SAVESIG_DN3D GAMENAME ".Duke"
 #define SAVESIG_BLD GAMENAME ".Blood"
-#define SAVESIG_RR GAMENAME ".Redneck"
 #define SAVESIG_SW GAMENAME ".ShadowWarrior"
 #define SAVESIG_PS GAMENAME ".Exhumed"
 
-#define MINSAVEVER_DN3D 8
-#define MINSAVEVER_BLD 6
-#define MINSAVEVER_RR 7
-#define MINSAVEVER_SW 7
-#define MINSAVEVER_PS 6
+#define MINSAVEVER_DN3D 9
+#define MINSAVEVER_BLD 9
+#define MINSAVEVER_SW 9
+#define MINSAVEVER_PS 9
 
-#define SAVEVER_DN3D 8
-#define SAVEVER_BLD 6
-#define SAVEVER_RR 7
-#define SAVEVER_SW 7
-#define SAVEVER_PS 6
+#define SAVEVER_DN3D 9
+#define SAVEVER_BLD 9
+#define SAVEVER_SW 9
+#define SAVEVER_PS 9
 
 #define NETGAMEVERSION 1
 

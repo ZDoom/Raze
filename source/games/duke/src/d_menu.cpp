@@ -307,7 +307,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 
 FSavegameInfo GameInterface::GetSaveSig()
 {
-	return { SAVESIG_RR, MINSAVEVER_RR, SAVEVER_RR };
+	return { SAVESIG_DN3D, MINSAVEVER_DN3D, SAVEVER_DN3D };
 }
 
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
