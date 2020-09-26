@@ -736,50 +736,6 @@ static TArray<GrpEntry> SetupGame()
 
 //==========================================================================
 //
-// reads a Duke Nukem World Tour translation file.
-//
-//==========================================================================
-
-static void LoadLanguageWT(int lumpnum, TArray<uint8_t>& buffer, const char* langid)
-{
-	uint32_t activeMap;
-	FScanner sc;
-
-	if (stricmp(langid, "default") == 0) activeMap = FStringTable::default_table;
-	else activeMap = MAKE_ID(tolower(langid[0]), tolower(langid[1]), tolower(langid[2]), 0);
-
-	// Notes about the text files:
-	// The English text has a few lines where a period follows a quoted string, they are skipped over by the first check in the loop.
-	// The Russian text file contains a line starting with two quotation marks. 
-	// Unfortunately we need to get across that because important stuff comes afterward.
-	// The Japanese text also has a fatal error, but it comes after all the texts we actually need so it is easier to handle by just aborting the parse.
-
-	if (!stricmp(langid, "ru"))
-	{
-		for (unsigned i = 1; i < buffer.Size(); i++)
-		{
-			if (buffer[i] == '"' && buffer[i - 1] == '"')
-			{
-				buffer.Delete(i);
-				break;
-			}
-		}
-	}
-
-	sc.OpenMem(fileSystem.GetFileFullName(lumpnum), buffer);
-	while (sc.GetString())
-	{
-
-		if (sc.String[0] != '#') sc.MustGetString();// there's a few fucked up texts in the files.
-		if (sc.String[0] != '#') return;
-		FName strName(sc.String);
-		sc.MustGetString();
-		GStrings.InsertString(lumpnum, activeMap, strName, sc.String);
-	}
-}
-
-//==========================================================================
-//
 //
 //
 //==========================================================================
@@ -787,28 +743,6 @@ static void LoadLanguageWT(int lumpnum, TArray<uint8_t>& buffer, const char* lan
 void InitLanguages()
 {
 	GStrings.LoadStrings(language);
-	if (g_gameType & GAMEFLAG_DUKE)	// these are for World Tour but at this point we do not know yet, do just look for them anyway
-	{
-		static const struct wt_lang
-		{
-			const char* filename;
-			const char* langid;
-		} langfiles[] = {
-			{ "locale/english/strings.txt", "default" },
-			{ "locale/brazilian/brazilian.txt", "pt" },
-			{ "locale/french/french.txt", "fr" },
-			{ "locale/german/german.txt", "de" },
-			{ "locale/italian/italian.txt", "it" },
-			{ "locale/japanese/japanese.txt", "jp" },
-			{ "locale/russian/russian.txt", "ru" },
-			{ "locale/spanish/spanish.txt", "es" } };
-
-		for (const auto& li : langfiles)
-		{
-			auto buffer = fileSystem.LoadFile(li.filename, 1);
-			if (buffer.Size() > 0) LoadLanguageWT(fileSystem.FindFile(li.filename), buffer, li.langid);
-		}
-	}
 }
 
 //==========================================================================

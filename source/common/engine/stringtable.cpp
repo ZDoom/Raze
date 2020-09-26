@@ -93,6 +93,10 @@ TArray<TArray<FString>> FStringTable::parseCSV(const TArray<uint8_t> &buffer)
 
 	for (size_t i = 0; i < bufLength; ++i)
 	{
+		if (buffer[i] == '#')
+		{
+			int a = 0;
+		}
 		if (buffer[i] == '"')
 		{
 			// Double quotes inside a quoted string count as an escaped quotation mark.
@@ -575,7 +579,10 @@ const char *FStringTable::GetString(const char *name, uint32_t *langtable, int g
 			if (item)
 			{
 				if (langtable) *langtable = map.first;
-				return item->strings[gender].GetChars();
+				auto c = item->strings[gender].GetChars();
+				if (c && *c == '$' && c[1] == '$')
+					return GetString(c + 2, langtable, gender);
+				return c;
 			}
 		}
 	}
