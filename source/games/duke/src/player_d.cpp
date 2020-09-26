@@ -166,7 +166,7 @@ void shoot_d(int i, int atwith)
 			}
 			else
 			{
-				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / 65536.));
+				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / FRACUNIT));
 				sx += sintable[(sa + 860) & 0x7FF] / 448;
 				sy += sintable[(sa + 348) & 0x7FF] / 448;
 				sz += (3 << 8);
@@ -224,7 +224,7 @@ void shoot_d(int i, int atwith)
 			}
 			else
 			{
-				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (81. / 65536.));
+				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (81. / FRACUNIT));
 				if (sprite[ps[p].i].xvel != 0)
 					vel = (int)((((512 - (1024
 						- abs(abs(getangle(sx - ps[p].oposx, sy - ps[p].oposy) - sa) - 1024)))
@@ -681,7 +681,7 @@ void shoot_d(int i, int atwith)
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
 			else
-				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / 65536.));
+				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / FRACUNIT));
 		}
 		else
 		{
@@ -769,7 +769,7 @@ void shoot_d(int i, int atwith)
 				if (sprite[j].picnum != RECON)
 					sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (81. / 65536.));
+			else zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (81. / FRACUNIT));
 			if (atwith == RPG)
 				S_PlayActorSound(RPG_SHOOT, i);
 
@@ -1090,7 +1090,7 @@ void shoot_d(int i, int atwith)
 				zvel = ((sprite[j].z - sz - dal - (4 << 8)) * 768) / (ldist(&sprite[ps[p].i], &sprite[j]));
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / 65536.));
+			else zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / FRACUNIT));
 		}
 		else if (s->statnum != 3)
 		{
@@ -2122,12 +2122,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				k = 15;
-				i = xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / 65536.));
+				i = xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
 			}
 			else
 			{
 				k = 140;
-				i = -512 - xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / 65536.));
+				i = -512 - xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
 			}
 
 			j = EGS(p->cursectnum,

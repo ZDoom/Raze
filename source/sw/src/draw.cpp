@@ -389,25 +389,11 @@ DoMotionBlur(tspritetype const * const tsp)
     switch (tu->motion_blur_dist)
     {
     case 64:
-        dx = nx = MOVEx(64, ang);
-        dy = ny = MOVEy(64, ang);
-        nz = FixedToInt(z_amt_per_pixel * 64);
-        break;
     case 128:
-        dx = nx = MOVEx(128, ang);
-        dy = ny = MOVEy(128, ang);
-        nz = FixedToInt(z_amt_per_pixel * 128);
-        break;
     case 256:
-        dx = nx = MOVEx(256, ang);
-        dy = ny = MOVEy(256, ang);
-        nz = FixedToInt(z_amt_per_pixel * 256);
-        break;
     case 512:
-        dx = nx = MOVEx(512, ang);
-        dy = ny = MOVEy(512, ang);
-        nz = FixedToInt(z_amt_per_pixel * 512);
-        break;
+        nz = FixedToInt(z_amt_per_pixel * tu->motion_blur_dist);
+        [[fallthrough]];
     default:
         dx = nx = MOVEx(tu->motion_blur_dist, ang);
         dy = ny = MOVEy(tu->motion_blur_dist, ang);
@@ -1340,7 +1326,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
                         zvect = 0;
 
                     // new horiz to player
-                    *tq16horiz = IntToFixed(100 - (zvect/256));
+                    *tq16horiz = IntToFixed(100) - (zvect << 8);
                     *tq16horiz = max(*tq16horiz, IntToFixed(PLAYER_HORIZ_MIN));
                     *tq16horiz = min(*tq16horiz, IntToFixed(PLAYER_HORIZ_MAX));
 
