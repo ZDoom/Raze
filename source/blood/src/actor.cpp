@@ -6214,7 +6214,7 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
         pXThing->data2 = 0;
         pXThing->data3 = 0;
         pXThing->data4 = 318;
-        pXThing->targetX = gFrameClock+180.0;
+        pXThing->targetX = gFrameClock+180;
         pXThing->locked = 1;
         pXThing->state = 1;
         pXThing->triggerOnce = 0;
@@ -6226,7 +6226,7 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
         pXThing->data2 = 0;
         pXThing->data3 = 0;
         pXThing->data4 = 318;
-        pXThing->targetX = gFrameClock+180.0;
+        pXThing->targetX = gFrameClock+180;
         pXThing->locked = 1;
         pXThing->state = 1;
         pXThing->triggerOnce = 0;

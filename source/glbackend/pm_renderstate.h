@@ -46,7 +46,7 @@ enum PRSFlags
 struct PolymostRenderState
 {
 	int vindex, vcount, primtype;
-    float Shade;
+    int Shade;
 	float ShadeDiv = 62.f;
 	float VisFactor = 128.f;
 	int Flags = 0;

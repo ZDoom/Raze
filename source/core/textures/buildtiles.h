@@ -57,7 +57,8 @@ struct picanm_t
 
 	void Clear()
 	{
-		extra = sf = num = 0;
+		extra = sf = 0;
+		num = 0;
 	}
 };
 picanm_t    tileConvertAnimFormat(int32_t const picanmdisk, int* lo, int* to);
@@ -451,25 +452,25 @@ extern PicAnm picanm;
 inline int tileWidth(int num)
 {
 	assert(num < MAXTILES);
-	return TileFiles.tiledata[num].texture->GetDisplayWidth();
+	return (int)TileFiles.tiledata[num].texture->GetDisplayWidth();
 }
 
 inline int tileHeight(int num)
 {
 	assert(num < MAXTILES);
-	return TileFiles.tiledata[num].texture->GetDisplayHeight();
+	return (int)TileFiles.tiledata[num].texture->GetDisplayHeight();
 }
 
 inline int tileLeftOffset(int num)
 {
 	assert(num < MAXTILES);
-	return TileFiles.tiledata[num].texture->GetDisplayLeftOffset();
+	return (int)TileFiles.tiledata[num].texture->GetDisplayLeftOffset();
 }
 
 inline int tileTopOffset(int num)
 {
 	assert(num < MAXTILES);
-	return TileFiles.tiledata[num].texture->GetDisplayTopOffset();
+	return (int)TileFiles.tiledata[num].texture->GetDisplayTopOffset();
 }
 
 inline int widthBits(int num)

@@ -50,7 +50,7 @@ constexpr enable_if_t<!std::is_pointer<T>::value, size_t> SAVE_SIZEOF(T const & 
 }
 
 #define SAVE_CODE(s) (void*)(s)
-#define SAVE_DATA(s) { (void*)&(s), SAVE_SIZEOF(s) }
+#define SAVE_DATA(s) { (void*)&(s), (int)SAVE_SIZEOF(s) }
 
 #define NUM_SAVEABLE_ITEMS(x) countof(x)
 

@@ -472,10 +472,11 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         if (cl_interpolate && TestBitString(gInterpolateSprite, nSprite) && !(pTSprite->flags&512))
         {
             LOCATION *pPrevLoc = &gPrevSpriteLoc[nSprite];
-            pTSprite->x = interpolate(pPrevLoc->x, pTSprite->x, gInterpolate);
-            pTSprite->y = interpolate(pPrevLoc->y, pTSprite->y, gInterpolate);
-            pTSprite->z = interpolate(pPrevLoc->z, pTSprite->z, gInterpolate);
-            pTSprite->ang = pPrevLoc->ang+mulscale16(((pTSprite->ang-pPrevLoc->ang+1024)&2047)-1024, gInterpolate);
+            int iInterpolate = (int)gInterpolate;
+            pTSprite->x = interpolate(pPrevLoc->x, pTSprite->x, iInterpolate);
+            pTSprite->y = interpolate(pPrevLoc->y, pTSprite->y, iInterpolate);
+            pTSprite->z = interpolate(pPrevLoc->z, pTSprite->z, iInterpolate);
+            pTSprite->ang = pPrevLoc->ang+mulscale16(((pTSprite->ang-pPrevLoc->ang+1024)&2047)-1024, iInterpolate);
         }
         int nAnim = 0;
         switch (picanm[nTile].extra & 7) {

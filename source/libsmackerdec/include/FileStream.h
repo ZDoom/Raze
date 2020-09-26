@@ -50,9 +50,9 @@ class FileStream
 			kSeekEnd     = SEEK_END
 		};
 
-        int32_t Seek(int32_t offset, SeekDirection dir = kSeekStart) { return file.Seek(offset, (FileReader::ESeek) dir); }
-        int32_t Skip(int32_t offset) { return Seek(offset, kSeekCurrent); }
-		int32_t GetPosition() { return file.Tell(); }
+        int32_t Seek(int32_t offset, SeekDirection dir = kSeekStart) { return (int)file.Seek(offset, (FileReader::ESeek) dir); }
+        int32_t Skip(int32_t offset) { return (int)Seek(offset, kSeekCurrent); }
+		int32_t GetPosition() { return (int)file.Tell(); }
 
 	private:
 		FileReader file;

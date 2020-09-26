@@ -1209,7 +1209,7 @@ template bool ParseDrawTextureTags<VMVa_List>(F2DDrawer* drawer, FGameTexture *i
 static void VirtualToRealCoords(F2DDrawer *drawer, double Width, double Height, double &x, double &y, double &w, double &h,
 	double vwidth, double vheight, bool vbottom, bool handleaspect) 
 {
-	float myratio = handleaspect ? ActiveRatio (Width, Height) : (4.0f / 3.0f);
+	float myratio = float(handleaspect ? ActiveRatio (Width, Height) : (4.0 / 3.0));
 
     // if 21:9 AR, map to 16:9 for all callers.
     // this allows for black bars and stops the stretching of fullscreen images
