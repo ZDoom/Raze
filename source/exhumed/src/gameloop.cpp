@@ -60,21 +60,6 @@ void DrawClock();
 double calc_smoothratio();
 void DoTitle(CompletionFunc completion);
 
-static void FinishLevel(int lnum, TArray<JobDesc> &jobs)
-{
-    StopAllSounds();
-
-    bCamera = false;
-    automapMode = am_off;
-
-    STAT_Update(lnum == kMap20);
-    if (lnum == kMap20)
-    nPlayerLives[0] = 0;
-
-    DoAfterCinemaScene(lnum-1, jobs);
-}
-
-
 static void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<JobDesc> &jobs)
 {
     if (nLevelNew == 5 && !(nCinemaSeen & 1)) {
@@ -151,22 +136,46 @@ static void Intermission(MapRecord *from_map, MapRecord *to_map)
 {
     TArray<JobDesc> jobs;
 
-	if (to_map && to_map->levelNumber != 0)
-	{
-		nBestLevel = to_map->levelNumber - 1;
-		FinishLevel(to_map->levelNumber, jobs);
-	}
+    StopAllSounds();
+    bCamera = false;
+    automapMode = am_off;
+
+    if (to_map)
+    {
+        if (to_map->levelNumber != 0)
+            nBestLevel = to_map->levelNumber - 1;
+
+        STAT_Update(false);
+        if (to_map->levelNumber == kMap20)
+            nPlayerLives[0] = 0;
+
+        if (to_map->levelNumber == 0) // skip all intermission stuff when going to the training map.
+        {
+            gameaction = ga_nextlevel;
+            return;
+        }
+        else
+        {
+            DoAfterCinemaScene(to_map->levelNumber - 1, jobs);
+        }
+        if (to_map->levelNumber > -1 && to_map->levelNumber < kMap20)
+        {
+            // start a new game at the given level
+            if (!nNetPlayerCount && to_map->levelNumber > 0)
+            {
+                showmap(from_map ? from_map->levelNumber : -1, to_map->levelNumber, nBestLevel, jobs);
+            }
+            else
+                jobs.Push({ Create<DScreenJob>() }); // we need something in here even in the multiplayer case.
+        }
+    }
+    else
+    {
+        DoAfterCinemaScene(20, jobs);
+        STAT_Update(true);
+    }
 	
-	if (to_map->levelNumber > -1 && to_map->levelNumber < kMap20)
-	{
-		// start a new game at the given level
-		if (!nNetPlayerCount && to_map->levelNumber > 0)
-		{
-			showmap(from_map? from_map->levelNumber : -1, to_map->levelNumber, nBestLevel, jobs);
-		}
-		else
-			jobs.Push({ Create<DScreenJob>() }); // we need something in here even in the multiplayer case.
-	}
+
 	if (jobs.Size() > 0)
 	{
 		RunScreenJob(jobs.Data(), jobs.Size(), [=](bool)
