@@ -1269,7 +1269,7 @@ OptionMenu SoundOptions //protected
 	{
 		Option "$SNDMNU_WTSOUND",			"wt_forcevoc", "OnOff"
 		Option "$SNDMNU_WTMUSIC",			"wt_forcemidi", "OnOff"
-		Option "$SNDMNU_WTCOOMENT",			"wt_commentary", "OnOff"
+		Option "$SNDMNU_WTCOMMENT",			"wt_commentary", "OnOff"
 	}
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, ShadowWarrior)
 	{
