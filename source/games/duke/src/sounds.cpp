@@ -46,9 +46,14 @@ source as it is released.
 
 CVAR(Bool, wt_forcemidi, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // quick hack to disable the oggs, which are of lower quality than playing the MIDIs with a good synth and sound font.
 CVAR(Bool, wt_forcevoc, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // The same for sound effects. The re-recordings are rather poor and disliked
+CVAR(Bool, wt_commentary, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
 BEGIN_DUKE_NS
 
 TArray<FString> specialmusic;
+static FSoundID currentCommentarySound;
+static int currentCommentarySprite;
+
 
 class DukeSoundEngine : public SoundEngine
 {
@@ -71,7 +76,21 @@ public:
 			chan->Source = NULL;
 			chan->SourceType = SOURCE_Unattached;
 		}
+		auto sndid = chan->SoundID;
 		SoundEngine::StopChannel(chan);
+	}
+
+	void SoundDone(FISoundChannel* ichan) override
+	{
+		FSoundChan* schan = static_cast<FSoundChan*>(ichan);
+
+		if (schan != NULL && schan->SoundID == currentCommentarySound)
+		{
+			UnloadSound(schan->SoundID);
+			currentCommentarySound = 0;
+			sprite[currentCommentarySprite].picnum--;
+		}
+		SoundEngine::SoundDone(schan);
 	}
 
 };
@@ -735,7 +754,6 @@ void S_WorldTourMappingsForOldSounds()
 
 static TArray<FString> Commentaries;
 
-
 void S_ParseDeveloperCommentary()
 {
 	int lumpnum = fileSystem.FindFile("def/developer_commentary.def");
@@ -785,4 +803,37 @@ void S_ParseDeveloperCommentary()
 		return;
 	}
 }
+
+void StopCommentary()
+{
+	if (currentCommentarySound > 0)
+	{
+		soundEngine->StopSound(SOURCE_None, nullptr, CHAN_VOICE, currentCommentarySound);
+	}
+}
+
+bool StartCommentary(int tag, int sprnum)
+{
+	if (wt_commentary && Commentaries.Size() > tag && Commentaries[tag].IsNotEmpty())
+	{
+		FSoundID id = soundEngine->FindSound(Commentaries[tag]);
+		if (id == 0)
+		{
+			int lump = fileSystem.FindFile(Commentaries[tag]);
+			if (lump < 0)
+			{
+				Commentaries[tag] = "";
+				return false;
+			}
+			id = FSoundID(soundEngine->AddSoundLump(Commentaries[tag], lump, 0));
+		}
+		StopCommentary();
+		soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_VOICE, CHANF_UI | CHANF_TRANSIENT | CHANF_OVERLAP, id, 1.f, 0.f);
+		currentCommentarySound = id;
+		currentCommentarySprite = sprnum;
+		return true;
+	}
+	return false;
+}
+
 END_DUKE_NS

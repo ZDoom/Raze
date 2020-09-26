@@ -1070,6 +1070,7 @@ void exitlevel(MapRecord *nextlevel)
     bool endofgame = nextlevel == nullptr;
     STAT_Update(endofgame);
     setpal(&ps[myconnectindex]);
+    StopCommentary();
 
     dobonus(endofgame? -1 : 0, [=](bool)
         {

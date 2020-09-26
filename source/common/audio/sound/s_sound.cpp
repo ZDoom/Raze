@@ -1334,13 +1334,29 @@ void SoundEngine::ChannelEnded(FISoundChannel *ichan)
 		}
 		if (!evicted)
 		{
-			ReturnChannel(schan);
+			schan->ChanFlags &= ~CHANF_EVICTED;
 		}
 		else
 		{
 			schan->ChanFlags |= CHANF_EVICTED;
 			schan->SysChannel = NULL;
 		}
+
+	}
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void SoundEngine::SoundDone(FISoundChannel* ichan)
+{
+	FSoundChan* schan = static_cast<FSoundChan*>(ichan);
+	if (schan != NULL)
+	{
+		ReturnChannel(schan);
 	}
 }
 

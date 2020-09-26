@@ -1520,6 +1520,9 @@ void OpenALSoundRenderer::StopChannel(FISoundChannel *chan)
 	if((i=SfxGroup.Find(source)) < SfxGroup.Size())
 		SfxGroup.Delete(i);
 
+	if (!(chan->ChanFlags & CHANF_EVICTED))
+		soundEngine->SoundDone(chan);
+
 	FreeSfx.Push(source);
 }
 

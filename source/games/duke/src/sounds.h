@@ -73,13 +73,8 @@ void S_ContinueLevelMusic(void);
 
 void S_ParseDeveloperCommentary();
 
-inline void StopCommentary()
-{}
-
-inline bool StartCommentary(int tag, int sprnum)
-{
-	return false;
-}
+void StopCommentary();
+bool StartCommentary(int tag, int sprnum);
 
 extern TArray<FString> specialmusic;
 

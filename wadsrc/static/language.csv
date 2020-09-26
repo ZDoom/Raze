@@ -693,6 +693,7 @@ Sound enabled,SNDMNU_SNDENABLED,,,,,Sound aktiv,,,,,Ääni päällä,,,,,,,,,,,,
 Music enabled,SNDMNU_MUSENABLED,,,,,Musik aktiv,,,,,Musiikki päällä,,,,,,,,,,,,
 CD Music Emulation,SNDMNU_CDEMU,,,,,CD-Musik-Emulation,,,,,CD-musiikin emulaatio,,,,,,,,,,Emulare CD muzică,,
 Play original Sounds,SNDMNU_WTSOUND,,,,,Original-Soundeffekte spielen,,,,,Toista alkuperäiset äänet,,,,,,,,,,Utilizare sunete originale,,
+Developer commentary,SNDMNU_WTCOMMENT,,,,,Entwicklerkommentar,,,Comentarios del desarrollador,,,Commentaire développeur,,Commentario sviluppatore,デベロッパーのコメンタリー,,,,Comentário de desenvolvedor,,,Комментарии разработчиков,
 Play original MIDI music,SNDMNU_WTMUSIC,,,,,Original-MIDI-Musik spielen,,,,,Toista alkuperäinen MIDI-musiikki,,,,,,,,,,Utilizare muzică MIDI originală,,
 Sound Ambience,SNDMNU_AMBIENCE,,,,,Umgebungsgeräusche,,,,,Taustaäänet,,,,,,,,,,Ambianță,,
 "Player Speech

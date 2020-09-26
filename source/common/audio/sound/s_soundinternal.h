@@ -302,6 +302,10 @@ public:
 	virtual void CacheSound(sfxinfo_t* sfx);
 	void CacheSound(int sfx) { CacheSound(&S_sfx[sfx]); }
 	void UnloadSound(sfxinfo_t* sfx);
+	void UnloadSound(int sfx)
+	{
+		UnloadSound(&S_sfx[sfx]);
+	}
 
 	void UpdateSounds(int time);
 
@@ -409,6 +413,7 @@ public:
 	// Allow this to be overridden for special needs.
 	virtual float GetRolloff(const FRolloffInfo* rolloff, float distance);
 	virtual void ChannelEnded(FISoundChannel* ichan); // allows the client to do bookkeeping on the sound.
+	virtual void SoundDone(FISoundChannel* ichan); // gets called when the sound has been completely taken down.
 
 	// Lookup utilities.
 	int FindSound(const char* logicalname);

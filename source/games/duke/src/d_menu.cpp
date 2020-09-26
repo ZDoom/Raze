@@ -219,6 +219,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double oxpos, dou
 
 void GameInterface::MenuOpened()
 {
+	StopCommentary();
 	if (ud.multimode < 2)
 	{
 		screenpeek = myconnectindex;
