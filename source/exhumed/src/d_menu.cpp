@@ -165,7 +165,7 @@ void GameInterface::MenuClosed()
 bool GameInterface::StartGame(FNewGameStartup& gs)
 {
 	auto map = FindMapByLevelNum(gs.Episode);
-	DeferedStartGame(map, 0);	// 0 is training, 1 is the regular game - the game does not have skill levels.
+	DeferedStartGame(map, gs.Skill);	// 0 is training, 1 is the regular game - the game does not have skill levels.
 	return true;
 }
 
