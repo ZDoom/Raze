@@ -2836,7 +2836,10 @@ DoPlayerMoveVehicle(PLAYERp pp)
     }
 
     // force synchronised input here for now.
-    gamesetinput = cl_syncinput = true;
+    if (!cl_syncinput)
+    {
+        gamesetinput = cl_syncinput = true;
+    }
 
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);

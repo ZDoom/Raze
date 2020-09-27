@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+static bool gamesetinput = false;
+
 static int osdcmd_warptocoords(CCmdFuncPtr parm)
 {
     if (parm->numparms < 3 || parm->numparms > 5)
@@ -110,10 +112,16 @@ static int osdcmd_third_person_view(CCmdFuncPtr parm)
     {
         bCamera = !bCamera;
 
-        if (bCamera)
+        if (bCamera && !cl_syncinput)
+        {
+            gamesetinput = cl_syncinput = true;
             GrabPalette();
+        }
     }
-    cl_syncinput = bCamera;
+    if (gamesetinput && !bCamera)
+    {
+        gamesetinput = cl_syncinput = false;
+    }
     return CCMD_OK;
 }
 
