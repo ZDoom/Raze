@@ -329,7 +329,8 @@ public:
 		   260, 290,VICTORY1 + 5,86,59,
 		   290, 320,VICTORY1 + 6,86,59,
 		   320, 350,VICTORY1 + 7,86,59,
-		   350, 380,VICTORY1 + 8,86,59
+		   350, 380,VICTORY1 + 8,86,59,
+		   350, 380,VICTORY1 + 8,86,59,
 		};
 
 		auto translation = TRANSLATION(Translation_BasePalettes, ENDINGPAL);
