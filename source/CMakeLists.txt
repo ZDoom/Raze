@@ -761,7 +761,6 @@ set (PCH_SOURCES
 	glbackend/gl_palmanager.cpp
 	glbackend/gl_texture.cpp
 
-	thirdparty/src/base64.cpp
 	thirdparty/src/md4.cpp
 
 	# Todo: Split out the license-safe code from this.
@@ -893,6 +892,7 @@ set (PCH_SOURCES
 	common/utility/zstrformat.cpp
 	common/utility/name.cpp
 	common/utility/r_memory.cpp
+	common/thirdparty/base64.cpp
 	common/thirdparty/md5.cpp
  	common/thirdparty/superfasthash.cpp
 	common/filesystem/filesystem.cpp
