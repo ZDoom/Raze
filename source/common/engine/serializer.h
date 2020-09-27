@@ -182,6 +182,7 @@ public:
 	}
 
 	int mErrors = 0;
+	int mObjectErrors = 0;
 };
 
 FSerializer& Serialize(FSerializer& arc, const char* key, char& value, char* defval);
@@ -242,7 +243,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, TArray<T, TT> &value, 
 template<int size> 
 FSerializer& Serialize(FSerializer& arc, const char* key, FixedBitArray<size>& value, FixedBitArray<size>* def)
 {
-	return arc.Array(key, value.Storage(), def ? def->Storage() : nullptr, value.StorageSize());
+	return arc.SerializeMemory(key, value.Storage(), value.StorageSize());
 }
 
 template<> FSerializer& Serialize(FSerializer& arc, const char* key, PClass*& clst, PClass** def);

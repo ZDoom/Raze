@@ -4,4 +4,5 @@
 SystemCallbacks *sysCallbacks;
 FString endoomName;
 bool batchrun;
+float menuBlurAmount;
 

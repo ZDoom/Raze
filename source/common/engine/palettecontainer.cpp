@@ -40,7 +40,6 @@
 #include "templates.h"
 #include "palettecontainer.h"
 #include "files.h"
-#include "c_dispatch.h"
 
 PaletteContainer GPalette;
 FColorMatcher ColorMatcher;
@@ -821,15 +820,4 @@ bool FRemapTable::AddColors(int start, int count, const uint8_t*colors, int tran
 
 }
 
-CCMD(exportpalette)
-{
-	FILE* f = fopen("palette.pal", "wb");
-	if (!f) return;
-	for (int i = 0; i < 256; i++)
-	{
-		fputc(GPalette.BaseColors[i].r, f);
-		fputc(GPalette.BaseColors[i].g, f);
-		fputc(GPalette.BaseColors[i].b, f);
-	}
-	fclose(f);
-}
+

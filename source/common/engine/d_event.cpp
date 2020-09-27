@@ -41,7 +41,6 @@
 #include "utf8.h"
 #include "m_joy.h"
 #include "vm.h"
-#include "cheathandler.h"
 #include "gamestate.h"
 
 bool G_Responder(event_t* ev);

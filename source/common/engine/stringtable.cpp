@@ -93,10 +93,6 @@ TArray<TArray<FString>> FStringTable::parseCSV(const TArray<uint8_t> &buffer)
 
 	for (size_t i = 0; i < bufLength; ++i)
 	{
-		if (buffer[i] == '#')
-		{
-			int a = 0;
-		}
 		if (buffer[i] == '"')
 		{
 			// Double quotes inside a quoted string count as an escaped quotation mark.
@@ -454,7 +450,7 @@ void FStringTable::InsertString(int lumpnum, int langid, FName label, const FStr
 		auto replace = allMacros.CheckKey(lookupname);
 		for (int i = 0; i < 4; i++)
 		{
-			const char *replacement = replace ? replace->Replacements[i].GetChars() : "";
+			const char *replacement = replace? replace->Replacements[i].GetChars() : "";
 			te.strings[i].Substitute(replacee, replacement);
 		}
 	}
