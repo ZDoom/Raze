@@ -327,7 +327,7 @@ Night Vision,CNTRLMNU_NIGHTVISION,,,,,Nachtsichtgerät,,,Visión nocturna,,Yön�
 Medkit,CNTRLMNU_MEDKIT,,,,,,,,Botiquín,,Lääkintälaukku,Médikit,,,,,,,Kit médico,,Kit medical,Аптечка,
 Steroids,CNTRLMNU_STEROIDS,,,,,Steroide,,,Esteroides,,Steroidit,Stéroïdes,,Steroidi,ステロイド,,,,Esteroides,,Steroizi,Стероиды,
 Holo Soldier,CNTRLMNU_HOLOSOLDIER,,,,,Holosoldat,,,,,Holo-sotilas,,,,,,,,,,Soldat Holografic,,
-Huey,CNTRLMNU_HUEY,,,,,,,,,,Huey-kopteri,,,,,,,,,,,,
+Huey,CNTRLMNU_HUEY,,,,,,,,,,Huey,,,,,,,,,,,,
 Beer,CNTRLMNU_BEER,,,,,Bier,,,Cerveza,,Olut,Bière,,Bara,ビール,,,,Cerveja,,Bere,Пиво,
 Cow Pie,CNTRLMNU_COWPIE,not translatable,,,,,,,,,Nautapiirakka,,,,,,,,,,Plăcintă de vacă,,
 Yeehaa,CNTRLMNU_YEEHAA,not translatable,,,,,,,,,Jiihaa,,,,,,,,,,,,
@@ -623,11 +623,11 @@ Restart sound,SNDMNU_RESTART,,,,Restartovat zvuk,Sound neu starten,,Rekomenci so
 Advanced options,SNDMNU_ADVANCED,,,,Pokročilá nastavení,Erweiterte Optionen,,Altnivelaj agordoj,Opciones avanzadas,,Edistyneet asetukset,Options avancées,Haladó beállítások,Opzioni avanzate,高度なオプション,고급 설정,Geavanceerde opties,Zaawansowane Opcje,Opções avançadas,,,Расширенные настройки,Напредна подешавања
 Module replayer options,SNDMNU_MODREPLAYER,,,,Nastavení přehrávače modulů,Modul-Spieler-Optionen,,Agordoj por modulreludilo,Opciones reproductor de módulos,,Moduulisoitinasetukset,Options lecteur de module,,Opzioni Module replayer,モジュールリプレイヤー オプション,모듈 재생 설정,Module replayer opties,Opcje Modułu Odtwarzacza,Opções de reprodutor de módulos,,,Параметры воспроизведения модулей,Подешавања модулног риплејера
 Midi player options,SNDMNU_MIDIPLAYER,,,,Nastavení MIDI přehrávače,MIDI-Spieler-Optionen,,Agordoj por MIDI-ludilo,Opciones de reproductor MIDI,,MIDI-soitinasetukset,Option lecteur MIDI,,Opzioni Midi player,Midi再生のオプション,MIDI 플레이어 설정,Midi speler opties,Opcje Odtwarzacza Midi,Opções de reprodutor MIDI,,,Настройки MIDI-проигрывателя,MIDI плејер подешавања
-Sound in Menus,SNDMNU_MENUSOUND,,,,,Sound in Menüs,,,,,,,,,,,,,,,,,
+Sound in Menus,SNDMNU_MENUSOUND,,,,,Sound in Menüs,,,,,Ääni valikoissa,,,,,,,,,,,,
 Advanced Sound Options,ADVSNDMNU_TITLE,,,,Pokročilá nastavení zvuku,Erweiterte Soundoptionen,,Altnivelaj Son-agordoj,Opciones avanzadas de sonido,,Edistyneet ääniasetukset,Options Sonores Avancées,,Opzioni avanzate dei suoni,高度なサウンドオプション,고급 음향 설정,Geavanceerde geluidsopties,Zaawansowane Opcje Dźwięku,Opções de Áudio Avançadas,,,Расширенные настройки,Напредна подешавања звука
 "Ignore file type for music lookup
-",ADVSNDMNU_LOOKUPMUS,,,,,Dateityp bei Musicsuche ignorieren,,,,,,,,,,,,,,,,,
-Ignore file type for sound lookup,ADVSNDMNU_LOOKUPSND,,,,,Dateityp bei Soundsuche ignorieren,,,,,,,,,,,,,,,,,
+",ADVSNDMNU_LOOKUPMUS,,,,,Dateityp bei Musicsuche ignorieren,,,,,Jätä tiedostotyyppi huomioimatta musiikkihaussa,,,,,,,,,,,,
+Ignore file type for sound lookup,ADVSNDMNU_LOOKUPSND,,,,,Dateityp bei Soundsuche ignorieren,,,,,Jätä tiedostotyyppi huomioimatta äänihaussa,,,,,,,,,,,,
 Sample rate,ADVSNDMNU_SAMPLERATE,,,,Vzorkovací frekvence,Samplerate,,Specimenrapideco,Frecuencia de muestreo,,Näytteenottotaajuus,Cadence de Sampling,,,サンプルレート,샘플링레이트,Steekproeftarief,Częstotliwość próbkowania,Taxa de amostragem,,,Частота дискретизации,Фреквенција узорковања
 HRTF,ADVSNDMNU_HRTF,,,,,,,,,,,,,,,머리전달함수,,HRTF,,,,,
 OPL Synthesis,ADVSNDMNU_OPLSYNTHESIS,,,,Emulace OPL,OPL Synthese,,OPL-Sintezo,Síntesis OPL,,OPL-synteesi,Synthèse OPL,,,OPLシンセサイズ,OPL 합성,OPL synthese,Synteza OPL,Síntese OPL,,,Синтез OPL,OPL синтеза
@@ -733,7 +733,7 @@ Preset Resolution Modes,VIDMNU_RESPRESETHEAD,,,,Přednastavená rozlišení,Vord
 16:9 Aspect,VIDMNU_ASPECT169,,,,Poměr stran 16:9,16:9 Seitenverhältnis,,16:9 Proporcio,Aspecto 16:9,,16:9-tilat,Rapport 16:9,,Aspetto 16:9,16:9アスペクト比,16:9 비율,,Proporcje 16:9,Proporção 16:9,,,Соотношение сторон 16:9,16:9 гледиште
 16:10 Aspect,VIDMNU_ASPECT1610,,,,Poměr stran 16:10,16.10 Seitenverhältnis,,16:10 Proporcio,Aspecto 16:10,,16:10-tilat,Rapport 16:10,,Aspetto 16:10,16:10アスペクト比,16:10 비율,,Proporcje 16:10,Proporção 16:10,,,Соотношение сторон 16:10,16:10 гледиште
 Normal,OPTVAL_NORMAL,,,,Normální,,,Normala,,,Normaali,,,Normale,通常,기본형,Normaal,Normalny,Normal,,,Обычный,Нормално
-Lowest Possible Scale,OPTVAL_LOWEST,"This describes vid_scalemode 6, which represents the lowest possible scaling to fill the allocated screen area",,,Nejmenší možná velikost,Kleinstmögliche Auflösung,,Plej Malpli Ebla Skalo,Menor Escala Posible,,,Echelle la plus faible,,,可能な限り最小,,,,Menor Escala Possível,,Cea mai mică scară posibilă,,
+Lowest Possible Scale,OPTVAL_LOWEST,"This describes vid_scalemode 6, which represents the lowest possible scaling to fill the allocated screen area",,,Nejmenší možná velikost,Kleinstmögliche Auflösung,,Plej Malpli Ebla Skalo,Menor Escala Posible,,Pienin mahdollinen skaalaus,Echelle la plus faible,,,可能な限り最小,,,,Menor Escala Possível,,Cea mai mică scară posibilă,,
 Custom,OPTVAL_CUSTOM,,,,Vlastní,Benutzerdefiniert,,Laŭmenda,Personalizado,,Mukautettu,Modifié,,Personalizzato,カスタム,사용자 지정,Gebruiker gedefinieerd,Niestandardowe,Personalizado,,Personalizat,Польз.,Прилагођ.
 Max FPS,VIDMNU_MAXFPS,,,,,,,,,,Kuvataajuuden rajoitin,,,,,,,,,,Cadre pe secundă,,
 Unlimited,OPTVAL_UNLIMITED,,,,,Unlimitiert,,,,,Ei rajoitusta,,,,,,,,,,Nelimitate,,
@@ -1112,26 +1112,26 @@ Golden Carnage,#E5L6,,,,,Goldene Verwüstung,,,Matanza en el Puente,,Kultainen v
 Hollywood Inferno,#E5L7,,,,,Hollywood-Inferno,,,Infierno Hollywoodiense,,Hollywood-inferno,Enfer à Hollywood,,Inferno a Hollywood,ハリウッド・インフェルノ,,,,Inferno em Hollywood,,,Голливудские Ужасы,
 Prima Arena,#E5L8,,,,,Superarena,,,Primera Arena,,Priima-areena,,,,プリマ・アリーナ,,,,,,,Прима Арена,
 ,Duke Caribbean,,,,,,,,,,,,,,,,,,,,,,
-Vacation Dukematch,VACATION DUKEMATCH,,,,,Urlaubs-Deathmatch,,,,,,,,,,,,,,,,,
-Life's A Beach,LIFE'S A BEACH,,,,,Das Leben ist ein Strand,,,,,,,,,,,,,,,,,
-Low Tide,LOW TIDE,,,,,Ebbe,,,,,,,,,,,,,,,,,
-Makin' Waves,MAKIN' WAVES,,,,,Leichte Wellen,,,,,,,,,,,,,,,,,
-Big Kahuna,BIG KAHUNA,,,,,Springflut,,,,,,,,,,,,,,,,,
+Vacation Dukematch,VACATION DUKEMATCH,,,,,Urlaubs-Deathmatch,,,,,Lomadukematsi,,,,,,,,,,,,
+Life's A Beach,LIFE'S A BEACH,,,,,Das Leben ist ein Strand,,,,,Elämä on rantaa,,,,,,,,,,,,
+Low Tide,LOW TIDE,,,,,Ebbe,,,,,Matala vuorovesi,,,,,,,,,,,,
+Makin' Waves,MAKIN' WAVES,,,,,Leichte Wellen,,,,,Aaltoa pukkaa,,,,,,,,,,,,
+Big Kahuna,BIG KAHUNA,,,,,Springflut,,,,,Surffimestareille,,,,,,,,,,,,
 Tsunami,TSUNAMI,,,,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,
-Island Hopping,ISLAND HOPPING,,,,,Inselsprünge,,,,,,,,,,,,,,,,,
-Hidden Grotto,HIDDEN GROTTO,,,,,Versteckte Grotte,,,,,,,,,,,,,,,,,
-Cruise Ship,CRUISE SHIP,,,,,Kreuzfahrtschiff,,,,,,,,,,,,,,,,,
+Island Hopping,ISLAND HOPPING,,,,,Inselsprünge,,,,,Saarihyppely,,,,,,,,,,,,
+Hidden Grotto,HIDDEN GROTTO,,,,,Versteckte Grotte,,,,,Salainen luola,,,,,,,,,,,,
+Cruise Ship,CRUISE SHIP,,,,,Kreuzfahrtschiff,,,,,Risteilyalus,,,,,,,,,,,,
 The Docks,THE DOCKS,,,,Přístav,Die Docks,,La Havenoj,Los Muelles,,Satamat,Les Docks,A Kikötő,Il Molo,埠頭,항구,De dokken,Doki,As Docas,,Docul,Доки,Лука
 ,,,,,,,,,,,,,,,,,,,,,,,
-Caribbean Catastrophe,CARIBBEAN CATASTROPHE,,,,,Karibische Katastrophe,,,,,,,,,,,,,,,,,
-Market Melee,MARKET MELEE,,,,,Marktgeprügel,,,,,,,,,,,,,,,,,
+Caribbean Catastrophe,CARIBBEAN CATASTROPHE,,,,,Karibische Katastrophe,,,,,Katastrofi Karibialla,,,,,,,,,,,,
+Market Melee,MARKET MELEE,,,,,Marktgeprügel,,,,,Torilla tapellaan,,,,,,,,,,,,
 Mr. Splashy's,MR. SPLASHY'S,,,,,,,,,,,,,,,,,,,,,,
-The Wavemistress,THE WAVEMISTRESS,,,,,Die Wellenmeisterin,,,,,,,,,,,,,,,,,
-Lost Lagoon,LOST LAGOON,,,,,Vergessene Lagune,,,,,,,,,,,,,,,,,
-Voodoo Caves,VOODOO CAVES,,,,,Voodoohöhlen,,,,,,,,,,,,,,,,,
-The Alien Remains,THE ALIEN REMAINS,,,,,Die Überreste der Fremden,,,,,,,,,,,,,,,,,
-A Full House,A FULL HOUSE,,,,,Ein volles Haus,,,,,,,,,,,,,,,,,
+The Wavemistress,THE WAVEMISTRESS,,,,,Die Wellenmeisterin,,,,,Aaltojen Valtiatar,,,,,,,,,,,,
+Lost Lagoon,LOST LAGOON,,,,,Vergessene Lagune,,,,,Kadonnut laguuni,,,,,,,,,,,,
+Voodoo Caves,VOODOO CAVES,,,,,Voodoohöhlen,,,,,Voodooluolat,,,,,,,,,,,,
+The Alien Remains,THE ALIEN REMAINS,,,,,Die Überreste der Fremden,,,,,Muukalaisrauniot,,,,,,,,,,,,
+A Full House,A FULL HOUSE,,,,,Ein volles Haus,,,,,Täyskäsi,,,,,,,,,,,,
 ,DukeDC,,,,,,,,,,,,,,,,,,,,,,
 Duke It Out In D.C.,DUKE IT OUT IN D.C.,,,,,Kampf um D.C.,,,,,,,,,,,,,,,,,
 Hell To The Chief,HELL TO THE CHIEF,,,,,Hölle für den Boss,,,,,,,,,,,,,,,,,
@@ -1803,7 +1803,7 @@ I LIVE...AGAIN!!,TXTB_LIVEAGAIN,,,,,,,,,,,,,,,,,,,,,,
 Level Stats,TXTB_LEVELSTATS,,,,,,,,,,,,,,,,,,,,,,
 >>> YOU CHEATED! <<<,TXTB_CHEATED,,,,,,,,,,,,,,,,,,,,,,
 Frag Stats,TXTB_FRAGSTATS,,,,,,,,,,,,,,,,,,,,,,
-Of,OF,,,,,,,,,,,,,,,,,,,,,,
+Of,OF,,,,,von,,,,,,,,,,,,,,,,,
 A secret is revealed.,TXTB_SECRET0,,,,Tajemství odhaleno!,Ein Geheimnis wurde enthüllt!,Ένα μυστικό αποκαλύφθηκε!,Sekreto estas malkaŝita!,¡Se ha revelado un secreto!,,Sala löydetty!,Vous avez découvert un secret!,Egy rejtekhely feltárva!,È stato svelato un segreto! ,シークレットを解き明かした!,비밀 발견!,Een geheim is onthuld!,Znaleziono sekret!,Um segredo foi revelado!,,,Обнаружен тайник!,Тајна је откривена!
 You found a secret.,TXTB_SECRET1,,,,,,,,,,,,,,,,,,,,,,
 Secrets,TXT_SECRETS,,,,Tajemství,Geheimnisse,,Sekretoj,Secretos,,Salat,,Rejtekhelyek,Segreti,シークレット,밝혀낸 비밀,Geheimen,Sekrety,Segredos,,,Тайники,Тајне
@@ -2197,7 +2197,7 @@ Luxor,TXT_EX_MAP15,,,,,,,,,,,,,,,,,,,,,,
 Karnak,TXT_EX_MAP16,,,,,,,,,,,,,,,,,,,,,,
 Saqqara,TXT_EX_MAP17,,,,,,,,,,,,,,,,,,,,,,
 Mitrrahn,TXT_EX_MAP18,,,,,,,,,,,,,,,,,,,,,,
-19,TXT_EX_MAP19,Does not have a readable name.,,,,,,,,,,,,,,,,,,,,,
+Kilmaatikahn Boss,TXT_EX_MAP19,,,,,,,,,,,,,,,,,,,,,,
 Alien Mothership,TXT_EX_MAP20,,,,,,,,,,,,,,,,,,,,,,
 Level 21,TXT_EX_MAP21,No names exist for the MP levels,,,,,,,,,,,,,,,,,,,,,
 Level 22,TXT_EX_MAP22,,,,,,,,,,,,,,,,,,,,,,
