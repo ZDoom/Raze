@@ -106,7 +106,7 @@ void FAnmTexture::ReadFrame(uint8_t *pixels, uint8_t *palette)
 	uint8_t *source = (uint8_t *)lump.GetMem(); 
 
 	anim_t anim;
-	if (ANIM_LoadAnim(&anim, source, lump.GetSize()) >= 0)
+	if (ANIM_LoadAnim(&anim, source, (int)lump.GetSize()) >= 0)
 	{
 		int numframes = ANIM_NumFrames(&anim);
 		if (numframes >= 1)

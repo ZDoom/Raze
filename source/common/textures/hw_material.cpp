@@ -65,73 +65,73 @@ FMaterial::FMaterial(FGameTexture * tx, int scaleflags)
 	}
 	else
 	{
-	if (tx->isWarped())
-	{
-		mShaderIndex = tx->isWarped(); // This picks SHADER_Warp1 or SHADER_Warp2
-	}
-	// Note that the material takes no ownership of the texture!
-	else if (tx->Normal.get() && tx->Specular.get())
-	{
-		for (auto& texture : { tx->Normal.get(), tx->Specular.get() })
+		if (tx->isWarped())
 		{
-			mTextureLayers.Push({ texture, 0, -1 });
+			mShaderIndex = tx->isWarped(); // This picks SHADER_Warp1 or SHADER_Warp2
 		}
-		mShaderIndex = SHADER_Specular;
-	}
-	else if (tx->Normal.get() && tx->Metallic.get() && tx->Roughness.get() && tx->AmbientOcclusion.get())
-	{
-		for (auto& texture : { tx->Normal.get(), tx->Metallic.get(), tx->Roughness.get(), tx->AmbientOcclusion.get() })
+		// Note that the material takes no ownership of the texture!
+		else if (tx->Normal.get() && tx->Specular.get())
 		{
-			mTextureLayers.Push({ texture, 0, -1 });
-		}
-		mShaderIndex = SHADER_PBR;
-	}
-
-	// Note that these layers must present a valid texture even if not used, because empty TMUs in the shader are an undefined condition.
-	tx->CreateDefaultBrightmap();
-	auto placeholder = TexMan.GameByIndex(1);
-	if (tx->Brightmap.get())
-	{
-		mTextureLayers.Push({ tx->Brightmap.get(), scaleflags, -1 });
-		mLayerFlags |= TEXF_Brightmap;
-	}
-	else
-	{
-		mTextureLayers.Push({ placeholder->GetTexture(), 0, -1 });
-	}
-	if (tx->Detailmap.get())
-	{
-		mTextureLayers.Push({ tx->Detailmap.get(), 0, CLAMP_NONE });
-		mLayerFlags |= TEXF_Detailmap;
-	}
-	else
-	{
-		mTextureLayers.Push({ placeholder->GetTexture(), 0, -1 });
-	}
-	if (tx->Glowmap.get())
-	{
-		mTextureLayers.Push({ tx->Glowmap.get(), scaleflags, -1 });
-		mLayerFlags |= TEXF_Glowmap;
-	}
-	else
-	{
-		mTextureLayers.Push({ placeholder->GetTexture(), 0, -1 });
-	}
-
-	auto index = tx->GetShaderIndex();
-	if (index >= FIRST_USER_SHADER)
-	{
-		const UserShaderDesc& usershader = usershaders[index - FIRST_USER_SHADER];
-		if (usershader.shaderType == mShaderIndex) // Only apply user shader if it matches the expected material
-		{
-			for (auto& texture : tx->CustomShaderTextures)
+			for (auto &texture : { tx->Normal.get(), tx->Specular.get() })
 			{
-				if (texture == nullptr) continue;
-				mTextureLayers.Push({ texture.get(), 0 });	// scalability should be user-definable.
+				mTextureLayers.Push({ texture, 0, -1 });
 			}
-			mShaderIndex = index;
+			mShaderIndex = SHADER_Specular;
 		}
-	}
+		else if (tx->Normal.get() && tx->Metallic.get() && tx->Roughness.get() && tx->AmbientOcclusion.get())
+		{
+			for (auto &texture : { tx->Normal.get(), tx->Metallic.get(), tx->Roughness.get(), tx->AmbientOcclusion.get() })
+			{
+				mTextureLayers.Push({ texture, 0, -1 });
+			}
+			mShaderIndex = SHADER_PBR;
+		}
+
+		// Note that these layers must present a valid texture even if not used, because empty TMUs in the shader are an undefined condition.
+		tx->CreateDefaultBrightmap();
+		auto placeholder = TexMan.GameByIndex(1);
+		if (tx->Brightmap.get())
+		{
+			mTextureLayers.Push({ tx->Brightmap.get(), scaleflags, -1 });
+			mLayerFlags |= TEXF_Brightmap;
+		}
+		else	
+		{ 
+			mTextureLayers.Push({ placeholder->GetTexture(), 0, -1 });
+		}
+		if (tx->Detailmap.get())
+		{
+			mTextureLayers.Push({ tx->Detailmap.get(), 0, CLAMP_NONE });
+			mLayerFlags |= TEXF_Detailmap;
+		}
+		else
+		{
+			mTextureLayers.Push({ placeholder->GetTexture(), 0, -1 });
+		}
+		if (tx->Glowmap.get())
+		{
+			mTextureLayers.Push({ tx->Glowmap.get(), scaleflags, -1 });
+			mLayerFlags |= TEXF_Glowmap;
+		}
+		else
+		{
+			mTextureLayers.Push({ placeholder->GetTexture(), 0, -1 });
+		}
+
+		auto index = tx->GetShaderIndex();
+		if (index >= FIRST_USER_SHADER)
+		{
+			const UserShaderDesc &usershader = usershaders[index - FIRST_USER_SHADER];
+			if (usershader.shaderType == mShaderIndex) // Only apply user shader if it matches the expected material
+			{
+				for (auto &texture : tx->CustomShaderTextures)
+				{
+					if (texture == nullptr) continue;
+					mTextureLayers.Push({ texture.get(), 0 });	// scalability should be user-definable.
+				}
+				mShaderIndex = index;
+			}
+		}
 	}
 	mScaleFlags = scaleflags;
 
