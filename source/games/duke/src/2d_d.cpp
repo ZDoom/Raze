@@ -613,15 +613,17 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 	{
 	case 0:
 		jobs[job++] = { Create<DEpisode1End1>(), nullptr };
-		jobs[job++] = { Create<DImageScreen>(E1ENDSCREEN, DScreenJob::fadein|DScreenJob::fadeout, 0x7fffffff), nullptr };
+		jobs[job++] = { Create<DImageScreen>(E1ENDSCREEN, DScreenJob::fadein|DScreenJob::fadeout, 0x7fffffff), []() { Mus_Stop(); } };
 		break;
 
 	case 1:
+		Mus_Stop();
 		jobs[job++] = { PlayVideo("cineov2.anm", cineov2sound, framespeed_18), []() { S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI); } };
 		jobs[job++] = { Create<DImageScreen>(E2ENDSCREEN, DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff), []() { FX_StopAllSounds(); } };
 		break;
 
 	case 2:
+		Mus_Stop();
 		if (g_gameType & GAMEFLAG_DUKEDC)
 		{
 			jobs[job++] = { PlayVideo("radlogo.anm", dukedcsound, framespeed_10), nullptr };
@@ -637,6 +639,7 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 		break;
 
 	case 3:
+		Mus_Stop();
 		jobs[job++] = { PlayVideo("vol4e1.anm", vol4e1, framespeed_10), nullptr };
 		jobs[job++] = { PlayVideo("vol4e2.anm", vol4e2, framespeed_10), nullptr };
 		jobs[job++] = { PlayVideo("vol4e3.anm", vol4e3, framespeed_10), []() { S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI); } };
@@ -646,6 +649,7 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 		break;
 
 	case 4:
+		Mus_Stop();
 		jobs[job++] = { Create<DEpisode5End>(),  []() { FX_StopAllSounds(); } };
 		break;
 	}
@@ -1002,12 +1006,13 @@ void dobonus_d(int bonusonly, const CompletionFunc& completion)
 	int job = 0;
 
 	FX_StopAllSounds();
-	Mus_Stop();
 
 	if (bonusonly < 0 && numplayers < 2 && ud.from_bonus == 0)
 	{
 		bonussequence_d(volfromlevelnum(currentLevel->levelNumber), jobs, job);
 	}
+	else
+		Mus_Stop();
 
 	if (playerswhenstarted > 1 && ud.coop != 1)
 	{
