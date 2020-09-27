@@ -134,6 +134,9 @@ PLAYER Player[MAX_SW_PLAYERS_REG + 1];
 
 short NormalVisibility;
 
+// bool for determining whether game has set cl_syncinput or not.
+static bool gamesetinput = false;
+
 int InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity);
 
 SPRITEp FindNearSprite(SPRITEp sp, short stat);
@@ -2831,6 +2834,9 @@ DoPlayerMoveVehicle(PLAYERp pp)
         else if (!labs(pp->input.fvel|pp->input.svel) && labs(pp->lastinput.fvel| pp->lastinput.svel))
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
+
+    // force synchronised input here for now.
+    gamesetinput = cl_syncinput = true;
 
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);
@@ -7295,6 +7301,12 @@ domovethings(void)
         // Reset flags used while tying input to framerate
         RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_TURN_TURRET);
         resetinputhelpers(pp);
+
+        // disable synchronised input if set by game.
+        if (gamesetinput)
+        {
+            gamesetinput = cl_syncinput = false;
+        }
 
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 

@@ -1645,7 +1645,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
-    if (cl_syncinput || pp != Player+myconnectindex || (!cl_syncinput && pp->sop && !TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET)))
+    if (cl_syncinput || pp != Player+myconnectindex)
     {
         fixed_t dang = IntToFixed(1024);
         fixed_t oang = camerapp->oq16ang + camerapp->oq16look_ang;
