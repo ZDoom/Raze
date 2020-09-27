@@ -456,8 +456,6 @@ namespace Powerslave
 	::GameInterface* CreateInterface();
 }
 
-extern int MinFPSRate; // this is a bit messy.
-
 void CheckFrontend(int flags)
 {
 	if (flags & GAMEFLAG_BLOOD)
@@ -466,7 +464,6 @@ void CheckFrontend(int flags)
 	}
 	else if (flags & GAMEFLAG_SW)
 	{
-		MinFPSRate = 40;
 		gi = ShadowWarrior::CreateInterface();
 	}
 	else if (flags & GAMEFLAG_PSEXHUMED)
