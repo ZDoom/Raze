@@ -267,8 +267,8 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 	case DEVELOPERCOMMENTARY + 1: //Twentieth Anniversary World Tour
 		if (switchtype == 1)
 		{
-			sprite[w].picnum--;
 			StopCommentary();
+			sprite[w].picnum = DEVELOPERCOMMENTARY;
 			return true;
 		}
 		return false;
@@ -276,7 +276,7 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		if (switchtype == 1)
 		{
 			if (StartCommentary(lotag, w))
-				sprite[w].picnum++;
+				sprite[w].picnum = DEVELOPERCOMMENTARY+1;
 			return true;
 		}
 		return false;

@@ -43,6 +43,8 @@ source as it is released.
 #include "mapinfo.h"
 #include "raze_sound.h"
 #include "gamestate.h"
+#include "names_d.h"
+#include "i_music.h"
 
 CVAR(Bool, wt_forcemidi, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // quick hack to disable the oggs, which are of lower quality than playing the MIDIs with a good synth and sound font.
 CVAR(Bool, wt_forcevoc, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // The same for sound effects. The re-recordings are rather poor and disliked
@@ -88,7 +90,8 @@ public:
 		{
 			UnloadSound(schan->SoundID);
 			currentCommentarySound = 0;
-			sprite[currentCommentarySprite].picnum--;
+			sprite[currentCommentarySprite].picnum = DEVELOPERCOMMENTARY;
+			I_SetRelativeVolume(1.0f);
 		}
 		SoundEngine::SoundDone(schan);
 	}
@@ -831,6 +834,7 @@ bool StartCommentary(int tag, int sprnum)
 		soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_VOICE, CHANF_UI | CHANF_TRANSIENT | CHANF_OVERLAP, id, 1.f, 0.f);
 		currentCommentarySound = id;
 		currentCommentarySprite = sprnum;
+		I_SetRelativeVolume(0.25f);
 		return true;
 	}
 	return false;
