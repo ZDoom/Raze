@@ -25,7 +25,7 @@ BEGIN_PS_NS
 
 extern short bSubTitles;
 extern short besttarget;
-extern short bCamera;
+extern bool bCamera;
 
 void DrawStatusBar();
 void DrawView(double smoothRatio, bool sceneonly = false);

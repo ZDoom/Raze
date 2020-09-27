@@ -108,16 +108,12 @@ static int osdcmd_third_person_view(CCmdFuncPtr parm)
     if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
     if (!nFreeze)
     {
-        if (bCamera) {
-            bCamera = false;
-        }
-        else {
-            bCamera = true;
-        }
+        bCamera = !bCamera;
 
         if (bCamera)
             GrabPalette();
     }
+    cl_syncinput = bCamera;
     return CCMD_OK;
 }
 

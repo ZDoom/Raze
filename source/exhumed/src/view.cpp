@@ -51,7 +51,7 @@ short nChunkTotal = 0;
 fixed_t nCameraa;
 fixed_t nCamerapan;
 short nViewTop;
-short bCamera = false;
+bool bCamera = false;
 
 int viewz;
 
