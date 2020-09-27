@@ -167,6 +167,7 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
 	JobDesc job = { Create<DBloodSummaryScreen>() };
 	sndStartSample(268, 128, -1, false, CHANF_UI);
+	Mus_Stop();
 	RunScreenJob(&job, 1, [=](bool)
 		{
 			soundEngine->StopAllChannels();

@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "core/menu/menu.h"
 #include "d_net.h"
 #include "automap.h"
+#include "raze_music.h"
 
 BEGIN_PS_NS
 
@@ -221,7 +222,8 @@ void GameInterface::NewGame(MapRecord *map, int skill)
 
 void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
-	if (currentLevel->levelNumber == 0) gameaction = ga_mainmenu;
+    Mus_Stop();
+    if (currentLevel->levelNumber == 0) gameaction = ga_mainmenu;
 	else Intermission(currentLevel, map);
 }
 
