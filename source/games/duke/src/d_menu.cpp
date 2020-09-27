@@ -70,7 +70,7 @@ static void Menu_DrawCursor(double x, double y, double scale, bool right)
 	int picnum;
 	if (!right) picnum = TILE_SPINNINGNUKEICON + ((mclock >> 3) % frames);
 	else picnum = TILE_SPINNINGNUKEICON + frames - 1 - ((frames - 1 + (mclock >> 3)) % frames);
-	int light = int(224 + 31 * sin(mclock / 20.));
+	int light = 231 + (calcSinTableValue(mclock<<5) / 768.);
 	PalEntry pe(255, light, light, light);
 	DrawTexture(twod, tileGetTexture(picnum), x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
 }
@@ -155,7 +155,7 @@ class DukeMainMenu : public DukeListMenu
 			if (PLUTOPAK)
 			{
 				int mclock = I_GetBuildTime();
-				int light = 224 + 31 * sin(mclock / 40.);
+				int light = 223 + (calcSinTableValue(mclock<<4) / 512.);
 				PalEntry pe(255, light, light, light);
 				DrawTexture(twod, tileGetTexture(TILE_PLUTOPAKSPRITE + 2), x + 100, origin.Y + 36, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
 			}
@@ -189,7 +189,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double oxpos, dou
 	{
 		trans = 0;
 		int mclock = I_GetBuildTime();
-		int light = 224 + 31 * sin(mclock / 20.);
+		int light = 231 + (calcSinTableValue(mclock<<5) / 768.);
 		pe = PalEntry(255, light, light, light);
 	}
 	else
