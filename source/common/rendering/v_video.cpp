@@ -72,13 +72,11 @@ CVAR(Int, win_w, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Int, win_h, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, win_maximized, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL)
 
-int MinFPSRate = 35;
-
 CUSTOM_CVAR(Int, vid_maxfps, 200, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
-	if (self < MinFPSRate && self != 0)
+	if (self < GameTicRate && self != 0)
 	{
-		self = MinFPSRate;
+		self = GameTicRate;
 	}
 	else if (self > 1000)
 	{
