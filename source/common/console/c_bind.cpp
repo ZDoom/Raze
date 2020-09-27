@@ -155,7 +155,6 @@ const char *KeyNames[NUM_KEYS] =
 FKeyBindings Bindings;
 FKeyBindings DoubleBindings;
 FKeyBindings AutomapBindings;
-FKeyBindings ShiftBindings;
 
 static unsigned int DClickTime[NUM_KEYS];
 static FixedBitArray<NUM_KEYS> DClicked;
@@ -698,7 +697,6 @@ void ReadBindings(int lump, bool override)
 			sc.MustGetString();
 		}
 		key = GetConfigKeyFromName(sc.String);
-		assert(key);
 		sc.MustGetString();
 		dest->SetBind(key, sc.String, override);
 	}

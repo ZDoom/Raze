@@ -803,7 +803,7 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 			}
 			else if (intval >= FSMode_Predefined && intval < FSMode_Predefined_Max)
 			{
-				static const uint16_t modes[] = { FSMode_ScaleToFit43, FSMode_ScaleToFit43, FSMode_ScaleToFit43, FSMode_ScaleToFit43, FSMode_ScaleToFit43Top};
+				static const uint8_t modes[] = { FSMode_ScaleToFit43, FSMode_ScaleToFit43, FSMode_ScaleToFit43, FSMode_ScaleToFit43, FSMode_ScaleToFit43Top};
 				static const uint16_t widths[] = { 320, 320, 640, 640, 320};
 				static const uint16_t heights[] = { 200, 240, 400, 480, 200};
 				parms->fsscalemode = modes[intval - FSMode_Predefined];
