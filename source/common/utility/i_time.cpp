@@ -48,10 +48,13 @@ static uint64_t CurrentFrameStartTime;
 static uint64_t FreezeTime;
 int GameTicRate = 35;	// make sure it is not 0, even if the client doesn't set it.
 
+double TimeScale = 1.0;
+
 static uint64_t GetClockTimeNS()
 {
 	using namespace std::chrono;
-	return (uint64_t)(duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count());
+	if (TimeScale == 1.0) return (uint64_t)(duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count());
+	else return (uint64_t)((duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count()) * (uint64_t)(TimeScale * 1000));
 }
 
 static uint64_t MSToNS(unsigned int ms)
@@ -73,12 +76,10 @@ static int NSToBuildTic(uint64_t ns)
 {
 	return static_cast<int>(ns * 120 / 1'000'000'000);
 }
-
 static uint64_t TicToNS(int tic)
 {
 	return static_cast<uint64_t>(tic) * 1'000'000'000 / GameTicRate;
 }
-
 static uint64_t BuildTicToNS(int tic)
 {
 	return static_cast<uint64_t>(tic) * 1'000'000'000 / 120;
