@@ -86,6 +86,8 @@ private:
 	struct UE1Vertex
 	{
 		FVector3 Pos, Normal;
+		TArray<int> P;	// polys that reference this vertex, used in normal computation to save time
+		int nP;	// count of those polys
 	};
 	struct UE1Poly
 	{
@@ -103,7 +105,7 @@ private:
 	int numFrames;
 	int numPolys;
 	int numGroups;
-	int weaponPoly;	// for future model attachment support, unused for now
+	TArray<int> specialPolys;	// for future model attachment support, unused for now
 
 	TArray<UE1Vertex> verts;
 	TArray<UE1Poly> polys;
