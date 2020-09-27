@@ -1078,6 +1078,7 @@ void exitlevel(MapRecord *nextlevel)
             // Clear potentially loaded per-map ART only after the bonus screens.
             artClearMapArt();
             gameaction = ga_level;
+            ud.eog = false;
             if (endofgame)
             {
                 if (ud.multimode < 2)
