@@ -67,14 +67,10 @@
 #	endif
 #endif
 
-//#include "doomtype.h"
 #include "i_system.h"
-//#include "d_net.h"
 #include "m_argv.h"
 #include "m_crc32.h"
-//#include "d_player.h"
 #include "st_start.h"
-//#include "m_misc.h"
 #include "engineerrors.h"
 #include "cmdlib.h"
 #include "printf.h"
@@ -166,8 +162,8 @@ uint8_t TransmitBuffer[TRANSMIT_SIZE];
 
 FString GetPlayerName(int num)
 {
-	if (sysCallbacks && sysCallbacks->GetPlayerName) return sysCallbacks->GetPlayerName(num);
-	else return FStringf("Player %d", num + 1);
+	if (sysCallbacks && sysCallbacks->GetPlayerName) return sysCallbacks->GetPlayerName(sendplayer[num]);
+	else return FStringf("Player %d", sendplayer[num] + 1);
 }
 
 //
