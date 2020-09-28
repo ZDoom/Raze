@@ -286,7 +286,6 @@ static bool cheatItems(int player)
 
 static bool cheatLevel(cheatseq_t *s)
 {
-	// Fixme: This should be broadcast as a net event once things are up again.
 	lastlevel = 0;
 	int volnume,levnume;
 	volnume = s->Args[0] - '0' - 1;
