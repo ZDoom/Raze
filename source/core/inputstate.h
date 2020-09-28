@@ -22,8 +22,10 @@ struct ControlInfo
 	float       dyaw;
 	float       dpitch;
 	float       droll;
-	float       mousex;
-	float       mousey;
+	float       mouseturnx;
+	float       mouseturny;
+	float       mousemovex;
+	float       mousemovey;
 };
 
 

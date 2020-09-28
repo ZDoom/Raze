@@ -760,7 +760,7 @@ static double boatApplyTurn(player_struct *p, int turnl, int turnr, int boat_tur
 
 static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, InputPacket& input, double scaleAdjust)
 {
-	auto turnspeed = hidInput->mousex + scaleAdjust * hidInput->dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
+	auto turnspeed = hidInput->mouseturnx + scaleAdjust * hidInput->dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
 	int turnl = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 	int turnr = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
 

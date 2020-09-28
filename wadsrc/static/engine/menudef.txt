@@ -755,17 +755,18 @@ OptionMenu "MouseOptions" //protected
 	Option "$MOUSEMNU_SHOWBACKBUTTON",	"m_show_backbutton", "Corners", "use_mouse"
 	// todo Option "$MOUSEMNU_CURSOR",			"vid_cursor", "Cursors"
 	StaticText 	""
-	Slider "$MOUSEMNU_SENSITIVITY",		"in_mousesensitivity", 0.5, 2.5, 0.1
-	Option "$MOUSEMNU_NOPRESCALE",		"m_noprescale", "NoYes"
+	Slider "$MOUSEMNU_SENSITIVITY_X",	"m_sensitivity_x", 0.5, 8, 0.25
+	Slider "$MOUSEMNU_SENSITIVITY_Y",	"m_sensitivity_y", 0.5, 8, 0.25
 	Option "$MOUSEMNU_SMOOTHMOUSE",		"m_filter", "YesNo"
 	StaticText 	""
-	Slider "$MOUSEMNU_TURNSPEED",		"in_mousescalex", -4, 4, 0.2
-	Slider "$MOUSEMNU_MOUSELOOKSPEED",	"in_mousescaley", -4, 4, 0.2
-	//Slider "$MOUSEMNU_FORWBACKSPEED",	"in_mouseforward", 0, 2.5, 0.1
-	//Slider "$MOUSEMNU_STRAFESPEED",	"in_mouseside", 0, 2.5, 0.1
+	Slider "$MOUSEMNU_TURNSPEED",		"m_yaw", 0, 2.5, 0.1
+	Slider "$MOUSEMNU_MOUSELOOKSPEED",	"m_pitch", 0, 2.5, 0.1
+	Slider "$MOUSEMNU_FORWBACKSPEED",	"m_forward", 0, 2.5, 0.1
+	Slider "$MOUSEMNU_STRAFESPEED",		"m_side", 0, 2.5, 0.1
 	StaticText 	""
 	Option "$MOUSEMNU_ALWAYSMOUSELOOK",	"in_mousemode", "OnOff"
-	Option "$MOUSEMNU_INVERTMOUSE",		"in_mouseflip", "OnOff"
+	Option "$MOUSEMNU_INVERTMOUSEX",	"invertmousex", "OnOff"
+	Option "$MOUSEMNU_INVERTMOUSE",		"invertmouse", "OnOff"
 	// Do we need this? Option "$MOUSEMNU_LOOKSTRAFE",		"lookstrafe", "OnOff"
 }
 

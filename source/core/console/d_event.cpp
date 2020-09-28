@@ -71,13 +71,6 @@ bool G_Responder (event_t *ev)
 		C_DoKey (ev, &Bindings, &DoubleBindings);
 		break;
 
-#if 0
-	// [RH] mouse buttons are sent as key up/down events
-	case EV_Mouse: 
-		mousex = (int)(ev->x * mouse_sensitivity);
-		mousey = (int)(ev->y * mouse_sensitivity);
-		break;
-#endif
 	}
 
 	// This won't work as expected with Build's overlay automap.
@@ -92,34 +85,4 @@ bool G_Responder (event_t *ev)
 			ev->type == EV_Mouse);
 }
 
-
-//==========================================================================
-//
-// D_PostEvent
-//
-// Called by the I/O functions when input is detected.
-//
-//==========================================================================
-void sendKeyForBinding(int key);
-
-void D_PostEvent (const event_t *ev)
-{
-	// Do not post duplicate consecutive EV_DeviceChange events.
-	if (ev->type == EV_DeviceChange && events[eventhead].type == EV_DeviceChange)
-	{
-		return;
-	}
-
-	if (ev->type == EV_Mouse && !System_WantGuiCapture())
-	{
-		inputState.MouseAddToPos(ev->x, -ev->y);
-		return;
-	}
-
-	inputState.AddEvent(ev);
-	
-	// Also add it to the event queue.
-	events[eventhead] = *ev;
-	eventhead = (eventhead+1)&(MAXEVENTS-1);
-}
 

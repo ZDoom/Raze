@@ -72,7 +72,6 @@ TArray<DMenu*> toDelete;
 //
 // Todo: Move these elsewhere
 //
-CVAR (Float, mouse_sensitivity, 1.f, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 EXTERN_CVAR (Bool, show_messages)
 
 

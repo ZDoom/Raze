@@ -67,7 +67,7 @@ void CompleteLevel(MapRecord* map);
 int getincangle(int c, int n);
 fixed_t getincangleq16(fixed_t c, fixed_t n);
 
-void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, short const drink_amt = 0, bool const allowstrafe = true, double const turnscale = 1);
+void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt = 0, bool const allowstrafe = true, double const turnscale = 1);
 void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust);
 void applylook(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching);
 void playerAddAngle(fixed_t* q16ang, double* helper, double adjustment);

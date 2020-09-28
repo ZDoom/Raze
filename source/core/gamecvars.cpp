@@ -221,33 +221,6 @@ CCMD(togglemouseaim)
 	}
 }
 
-CVARD(Bool, in_mouseflip, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "invert vertical mouse movement")
-
-CUSTOM_CVARD(Int, in_mousebias, 0, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time")
-{
-	if (self < 0) self = 0;
-	else if (self > 32) self = 32;
-}
-
-CUSTOM_CVARD(Float, in_mousesensitivity, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
-{
-	if (self < 0) self = 0;
-	else if (self > 6) self = 6;
-}
-
-CUSTOM_CVARD(Float, in_mousescalex, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
-{
-	if (self < -4) self = 4;
-	else if (self > 4) self = 4;
-}
-
-CUSTOM_CVARD(Float, in_mousescaley, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
-{
-	if (self < -4) self = 4;
-	else if (self > 4) self = 4;
-}
-
-
 CUSTOM_CVARD(Int, r_drawweapon, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable weapon drawing")
 {
 	if (self < 0 || self > 2) self = 1;

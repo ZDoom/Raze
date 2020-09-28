@@ -49,6 +49,11 @@ bool sendPause;
 
 static double lastCheck;
 
+CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)		// Mouse speeds
+CVAR(Float, m_yaw, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
+CVAR(Float, m_forward, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
+CVAR(Float, m_side, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
+
 //==========================================================================
 //
 //
@@ -60,21 +65,11 @@ void InputState::GetMouseDelta(ControlInfo * hidInput)
     vec2f_t finput = g_mousePos;
 	g_mousePos = {};
 
-    hidInput->mousex = finput.x * (16.f / 32.f) * in_mousesensitivity * in_mousescalex / 3.f;
-    hidInput->mousey = finput.y * (16.f / 64.f) * in_mousesensitivity * in_mousescaley;
+    hidInput->mouseturnx = finput.x * m_yaw * (1.f / 3.f);
+	hidInput->mouseturny = finput.y * m_pitch * 0.5f;
 
-	// todo: Use these when the mouse is used for moving instead of turning.
-	//hidInput->mousex = int(finput.x * (4.f) * in_mousesensitivity * in_mouseside);
-	//hidInput->mousey = int(finput.y * (4.f) * in_mousesensitivity * in_mouseforward);
-
-	if (in_mousebias)
-	{
-		if (fabs(hidInput->mousex) > fabs(hidInput->mousey))
-			hidInput->mousey /= in_mousebias;
-		else
-			hidInput->mousex /= in_mousebias;
-	}
-
+	hidInput->mousemovex = finput.x * m_side* (1.f / 3.f);
+	hidInput->mousemovey = finput.y * m_forward * 0.5f;
 }
 
 //==========================================================================

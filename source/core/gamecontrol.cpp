@@ -74,6 +74,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CVARD(Bool, invertmousex, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert horizontal mouse movement")
+CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertical mouse movement")
 
 CUSTOM_CVAR(String, language, "auto", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 {
@@ -177,6 +179,18 @@ bool System_WantGuiCapture()
 		wantCapt = (menuactive == MENU_On || menuactive == MENU_OnNoPause);
 	}
 	return wantCapt;
+}
+
+bool System_DispatchEvent(event_t* ev)
+{
+	if (ev->type == EV_Mouse && !System_WantGuiCapture())
+	{
+		inputState.MouseAddToPos(ev->x, -ev->y);
+		return true;
+	}
+
+	inputState.AddEvent(ev);
+	return false;
 }
 
 bool System_WantLeftButton()
@@ -497,6 +511,10 @@ int GameMain()
 		System_DisableTextureFilter,
 		nullptr,
 		System_GetSceneRect,
+		nullptr,
+		nullptr,
+		nullptr,
+		System_DispatchEvent,
 	};
 	sysCallbacks = &syscb;
 
@@ -1425,7 +1443,7 @@ fixed_t getincangleq16(fixed_t a, fixed_t na)
 //
 //---------------------------------------------------------------------------
 
-void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, short const drink_amt, bool const allowstrafe, double const turnscale)
+void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt, bool const allowstrafe, double const turnscale)
 {
 	// set up variables
 	int const running = !!(inputBuffer->actions & SB_RUN);
@@ -1435,17 +1453,20 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
-		currInput->svel -= xs_CRoundToInt((hidInput->mousex * mousevelscale) + (scaleAdjust * (hidInput->dyaw / 60) * keymove * cntrlvelscale));
+		currInput->svel -= xs_CRoundToInt((hidInput->mousemovex * mousevelscale) + (scaleAdjust * (hidInput->dyaw / 60) * keymove * cntrlvelscale));
 	else
-		currInput->q16avel += FloatToFixed(hidInput->mousex + (scaleAdjust * hidInput->dyaw));
+		currInput->q16avel += FloatToFixed(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw));
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
-		currInput->q16horz -= FloatToFixed(hidInput->mousey);
+		currInput->q16horz -= FloatToFixed(hidInput->mouseturny);
 	else
-		currInput->fvel -= xs_CRoundToInt(hidInput->mousey * mousevelscale * 2);
+		currInput->fvel -= xs_CRoundToInt(hidInput->mousemovey * mousevelscale * 2);
 
-	if (in_mouseflip)
+	if (invertmouse)
 		currInput->q16horz = -currInput->q16horz;
+
+	if (invertmousex)
+		currInput->q16avel = -currInput->q16avel;
 
 	// process remaining controller input.
 	currInput->q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
