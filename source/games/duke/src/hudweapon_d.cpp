@@ -828,21 +828,10 @@ void displayweapon_d(int snum, double smoothratio)
 				if (*kb == 2)
 					l -= 3;
 				{
-					double x, y;
-					short tilenum;
-					signed char shade;
-					char orientation;
-					x = (l - look_anghalf);
-					y = (looking_arc + 244 - gun_pos);
-					tilenum = FIRSTGUN + kb_frames[*kb];
-					shade = gs;
-					orientation = 2;
-
-
 					hud_drawpal(
-						x,
-						y,
-						tilenum,
+						(l - look_anghalf),
+						(looking_arc + 244 - gun_pos),
+						FIRSTGUN + kb_frames[*kb],
 						gs, 2, pal);
 				}
 			}
@@ -865,30 +854,18 @@ void displayweapon_d(int snum, double smoothratio)
 					hud_drawpal(124 + (kickback_pic * 2.) - look_anghalf, looking_arc + 430 - gun_pos - (kickback_pic * 8.), FIRSTGUN + 6, gs, o | pin, pal);
 					hud_drawpal(224 - look_anghalf, looking_arc + 220 - gun_pos, pic_5, gs, o | pin, pal);
 				}
-				else if (*kb < (reload_time - 12))
+				else if (*kb < (isNamWW2GI()? (reload_time - 12) : 23))
 				{
 					hud_drawpal(184 - look_anghalf, looking_arc + 235 - gun_pos, FIRSTGUN + 8, gs, o | pin, pal);
 					hud_drawpal(224 - look_anghalf, looking_arc + 210 - gun_pos, pic_5, gs, o | pin, pal);
 				}
-				else if (*kb < (reload_time - 6))
+				else if (*kb < (isNamWW2GI()? (reload_time - 6) : 25))
 				{
 					hud_drawpal(164 - look_anghalf, looking_arc + 245 - gun_pos, FIRSTGUN + 8, gs, o | pin, pal);
 					hud_drawpal(224 - look_anghalf, looking_arc + 220 - gun_pos, pic_5, gs, o | pin, pal);
 				}
-				else if (*kb < (reload_time))
+				else if (*kb < (isNamWW2GI()? reload_time : 27))
 					hud_drawpal(194 - look_anghalf, looking_arc + 235 - gun_pos, pic_5, gs, o, pal);
-				else if (*kb < 23)
-				{
-					hud_drawpal(184 - look_anghalf, looking_arc + 235 - gun_pos, FIRSTGUN + 8, gs, o | pin, pal);
-					hud_drawpal(224 - look_anghalf, looking_arc + 210 - gun_pos, pic_5, gs, o | pin, pal);
-				}
-				else if (*kb < 25)
-				{
-					hud_drawpal(164 - look_anghalf, looking_arc + 245 - gun_pos, FIRSTGUN + 8, gs, o | pin, pal);
-					hud_drawpal(224 - look_anghalf, looking_arc + 220 - gun_pos, pic_5, gs, o | pin, pal);
-				}
-				else if (*kb < 27)
-					hud_drawpal(194 - look_anghalf, looking_arc + 235 - gun_pos, pic_5, gs, o | pin, pal);
 			}
 		};
 
