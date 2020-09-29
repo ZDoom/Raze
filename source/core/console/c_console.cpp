@@ -64,6 +64,7 @@
 #include "g_input.h"
 #include "menu.h"
 #include "raze_music.h"
+#include "gstrings.h"
 
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8
@@ -1143,12 +1144,22 @@ void FNotifyBuffer::DrawNative()
 	}
 }
 
+static bool printNative()
+{
+	// Blood originally uses its tiny font for the notify display which does not play along well with localization because it is too small
+	if (con_notify_advanced) return false;
+	if (!(g_gameType & GAMEFLAG_BLOOD)) return true;
+	auto p = GStrings["REQUIRED_CHARACTERS"];
+	if (p && *p) return false;
+	return true;
+}
+
 void FNotifyBuffer::Draw()
 {
 	if (gamestate == GS_FULLCONSOLE || gamestate == GS_MENUSCREEN)
 		return;
 
-	if (!con_notify_advanced)
+	if (printNative())
 	{
 		DrawNative();
 		return;

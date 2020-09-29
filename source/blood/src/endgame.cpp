@@ -144,7 +144,10 @@ class DBloodSummaryScreen : public DScreenJob
 			DrawMenuCaption(GStrings("TXTB_LEVELSTATS"));
 			if (bPlayerCheated)
 			{
-				viewDrawText(3, GStrings("TXTB_CHEATED"), 160, 32, -128, 0, 1, 1);
+				auto text = GStrings("TXTB_CHEATED");
+				int font = 3;
+				if (!SmallFont2->CanPrint(text)) font = 0;
+				viewDrawText(font, text, 160, 32, -128, 0, 1, font == 3);
 			}
 			DrawKills();
 			DrawSecrets();
@@ -157,7 +160,10 @@ class DBloodSummaryScreen : public DScreenJob
 		int myclock = int(clock * 120 / 1'000'000'000);
 		if ((myclock & 32))
 		{
-			viewDrawText(3, GStrings("PRESSKEY"), 160, 134, -128, 0, 1, 1);
+			auto text = GStrings("PRESSKEY");
+			int font = 3;
+			if (!SmallFont2->CanPrint(text)) font = 0;
+			viewDrawText(font, text, 160, 134, -128, 0, 1, font == 3);
 		}
 		return skiprequest ? -1 : 1;
 	}
@@ -297,7 +303,12 @@ public:
 		drawTextScreenBackground();
 		DrawMenuCaption(pzLoadingScreenText1);
 		viewDrawText(1, rec->DisplayName(), 160, 50, -128, 0, 1, 1);
-		viewDrawText(3, GStrings("TXTB_PLSWAIT"), 160, 134, -128, 0, 1, 1);
+
+		auto text = GStrings("TXTB_PLSWAIT");
+		int font = 3;
+		if (!SmallFont2->CanPrint(text)) font = 0;
+
+		viewDrawText(font, GStrings("TXTB_PLSWAIT"), 160, 134, -128, 0, 1, font == 3);
 		return 0;
 	}
 };

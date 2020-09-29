@@ -209,7 +209,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 	int shade = (state != NIT_InactiveState) ? 32 : 48;
 	int pal = (state != NIT_InactiveState) ? 5 : 5;
 	if (state == NIT_SelectedState)	shade = 32 - (I_GetBuildTime() & 63);
-	auto gamefont = fontnum == NIT_BigFont ? BigFont : fontnum == NIT_SmallFont ? SmallFont : SmallFont2;
+	auto gamefont = fontnum == NIT_BigFont ? BigFont : SmallFont;
 
 	if (flags & LMF_Centered)
 	{
