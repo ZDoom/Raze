@@ -990,6 +990,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 
 void startnewgame(MapRecord* map, int skill)
 {
+    if (skill == -1) skill = ud.player_skill;
     ud.player_skill = skill;
     ud.m_respawn_monsters = (skill == 4);
     ud.m_monsters_off = ud.monsters_off = 0;
