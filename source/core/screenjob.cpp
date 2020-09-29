@@ -135,13 +135,6 @@ public:
 	{
 		int currentclock = int(clock * 120 / 1'000'000'000);
 
-		if (curframe > 4 && currentclock > frametime + 60)
-		{
-			Printf(PRINT_BOLD, "WARNING: slowdown in video playback, aborting\n");
-			soundEngine->StopAllChannels();
-			return -1;
-		}
-
 		if (currentclock < nextframetime - 1)
 		{
 			twod->ClearScreen();
