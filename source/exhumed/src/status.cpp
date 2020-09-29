@@ -933,11 +933,10 @@ private:
         stats.letterColor = CR_RED;
         stats.standardColor = CR_UNTRANSLATED;
         stats.time = Scale(leveltime, 1000, 30);
-        am_textfont = true; // Exhumed has no fallback.
 
         if (automapMode == am_full)
         {
-            DBaseStatusBar::PrintAutomapInfo(stats);
+            DBaseStatusBar::PrintAutomapInfo(stats, true);
         }
         else if (hud_stats)
         {

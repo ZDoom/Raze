@@ -951,13 +951,22 @@ private:
 		{
             stats.letterColor = CR_SAPPHIRE;
             stats.standardColor = CR_UNTRANSLATED;
+
+            bool textfont = am_textfont;
             if (!am_textfont)
+            {
+                // For non-English languages force use of the text font. The tiny one is simply too small to ever add localized characters to it.
+                auto p = GStrings["REQUIRED_CHARACTERS"];
+                if (p && *p) textfont = true;
+            }
+
+            if (!textfont)
             {
                 stats.font = SmallFont2;
                 stats.spacing = 6;
             }
             else stats.spacing = SmallFont->GetHeight() + 1;
-            DBaseStatusBar::PrintAutomapInfo(stats);
+            DBaseStatusBar::PrintAutomapInfo(stats, textfont);
 		}
         // JBF 20040124: display level stats in screen corner
         else if (hud_stats && !(CommEnabled || numplayers > 1))
@@ -1052,6 +1061,15 @@ static void UpdateFrame(void)
 //
 //---------------------------------------------------------------------------
 
+void DrawConString(int x, int y, const char* string, double alpha)
+{
+    x = x * 2 - SmallFont->StringWidth(string) / 2;
+    y *= 2;
+    DrawText(twod, SmallFont, CR_TAN, x, y, string, DTA_FullscreenScale, FSMode_Fit640x400, DTA_Alpha, alpha, TAG_DONE);
+
+}
+
+
 void UpdateStatusBar()
 {
     DSWStatusBar sbar;
@@ -1066,7 +1084,11 @@ void UpdateStatusBar()
     if (pp->cookieTime > 0)
     {
         const int MESSAGE_LINE = 142;    // Used to be 164
-        MNU_DrawSmallString(160, MESSAGE_LINE, pp->cookieQuote, 0, 0, 0, clamp(pp->cookieTime / 60., 0., 1.));
+        
+        if (!SmallFont2->CanPrint(pp->cookieQuote))
+            DrawConString(160, MESSAGE_LINE, pp->cookieQuote, clamp(pp->cookieTime / 60., 0., 1.));
+        else
+            MNU_DrawSmallString(160, MESSAGE_LINE, pp->cookieQuote, 0, 0, 0, clamp(pp->cookieTime / 60., 0., 1.));
     }
 }
 
