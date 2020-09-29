@@ -1448,19 +1448,19 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	// set up variables
 	int const running = !!(inputBuffer->actions & SB_RUN);
 	int const keymove = gi->playerKeyMove() << running;
-	int const mousevelscale = g_gameType & GAMEFLAG_BLOOD ? 32 : 4;
 	int const cntrlvelscale = g_gameType & GAMEFLAG_PSEXHUMED ? 8 : 1;
+	float const mousevelscale = keymove / 160.f;
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
-		currInput->svel -= xs_CRoundToInt((hidInput->mousemovex * mousevelscale) + (scaleAdjust * (hidInput->dyaw / 60) * keymove * cntrlvelscale));
+		currInput->svel -= xs_CRoundToInt(hidInput->mousemovex * mousevelscale + (scaleAdjust * (hidInput->dyaw / 60) * keymove * cntrlvelscale));
 	else
 		currInput->q16avel += FloatToFixed(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw));
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
 		currInput->q16horz -= FloatToFixed(hidInput->mouseturny);
 	else
-		currInput->fvel -= xs_CRoundToInt(hidInput->mousemovey * mousevelscale * 2);
+		currInput->fvel -= xs_CRoundToInt(hidInput->mousemovey * mousevelscale);
 
 	if (invertmouse)
 		currInput->q16horz = -currInput->q16horz;
@@ -1496,8 +1496,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		// allow Exhumed to use its legacy values given the drastic difference from the other games.
 		if ((g_gameType & GAMEFLAG_PSEXHUMED) && cl_exhumedoldturn)
 		{
-			turnamount = running ? 12 : 8;
-			preambleturn = turnamount;
+			preambleturn = turnamount = running ? 12 : 8;
 		}
 
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
