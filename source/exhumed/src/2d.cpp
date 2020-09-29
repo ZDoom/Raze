@@ -1122,11 +1122,25 @@ private:
     void DisplayPhase2()
     {
         int yy = ebp;
-        for (int i = 0; i < nStringTypeOn; i++, yy += 8)
+
+        auto p = GStrings["REQUIRED_CHARACTERS"];
+        if (1)//p && *p)
         {
-            DrawText(twod, SmallFont2, CR_UNTRANSLATED, 70, yy, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+            yy *= 2;
+            for (int i = 0; i < nStringTypeOn; i++, yy += 10)
+            {
+                DrawText(twod, ConFont, CR_GREEN, 140, yy, screentext[i], DTA_FullscreenScale, FSMode_Fit640x400, TAG_DONE);
+            }
+            DrawText(twod, ConFont, CR_GREEN, 140, yy, screentext[nStringTypeOn], DTA_FullscreenScale, FSMode_Fit640x400, DTA_TextLen, nCharTypeOn, TAG_DONE);
         }
-        DrawText(twod, SmallFont2, CR_UNTRANSLATED, 70, yy, screentext[nStringTypeOn], DTA_FullscreenScale, FSMode_Fit320x200, DTA_TextLen, nCharTypeOn, TAG_DONE);
+        else
+        {
+            for (int i = 0; i < nStringTypeOn; i++, yy += 8)
+            {
+                DrawText(twod, SmallFont2, CR_UNTRANSLATED, 70, yy, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+            }
+            DrawText(twod, SmallFont2, CR_UNTRANSLATED, 70, yy, screentext[nStringTypeOn], DTA_FullscreenScale, FSMode_Fit320x200, DTA_TextLen, nCharTypeOn, TAG_DONE);
+        }
     }
 
     int Frame(uint64_t clock, bool skiprequest) override
