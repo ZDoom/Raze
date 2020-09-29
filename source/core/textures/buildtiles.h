@@ -426,6 +426,14 @@ inline uint8_t* tileData(int num)
 	return p ? p->GetRawData() : nullptr;
 }
 
+inline const uint8_t* tileRawData(int num)
+{
+	auto tex = dynamic_cast<FImageTexture*>(TileFiles.tiledata[num].texture->GetTexture());
+	if (!tex) return nullptr;
+	auto p = dynamic_cast<FTileTexture*>(tex->GetImage());
+	return p ? p->GetRawData() : nullptr;
+}
+
 // Some hacks to allow accessing the no longer existing arrays as if they still were arrays to avoid changing hundreds of lines of code.
 struct TileSiz
 {
@@ -513,6 +521,8 @@ inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 	}
 	return TileFiles.tiledata[tile].texture;
 }
+
+bool tileEqualTo(int me, int other);
 
 bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick);
 

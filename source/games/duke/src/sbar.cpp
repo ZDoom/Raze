@@ -195,15 +195,23 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 
 	if (automapMode == am_full)
 	{
+		bool textfont = am_textfont;
 		if (!am_textfont)
+		{
+			// For non-English languages force use of the text font. The tiny one is simply too small to ever add localized characters to it.
+			auto p = GStrings["REQUIRED_CHARACTERS"];
+			if (p && *p) textfont = true;
+		}
+
+		if (!textfont)
 		{
 			stats.font = SmallFont2;
 			stats.spacing = 6;
 		}
-		else stats.spacing = ConFont->GetHeight() + 1;
+		else stats.spacing = stats.font->GetHeight() + 1;
 		stats.standardColor = (isNamWW2GI() && am_textfont)? CR_ORANGE : CR_UNTRANSLATED;
 		stats.letterColor = CR_GOLD;
-		DBaseStatusBar::PrintAutomapInfo(stats);
+		DBaseStatusBar::PrintAutomapInfo(stats, textfont);
 	}
 	else if (hud_stats)
 	{

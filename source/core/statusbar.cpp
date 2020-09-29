@@ -760,7 +760,7 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 //
 //============================================================================
 
-void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats)
+void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats, bool forcetextfont)
 {
 	auto lev = currentLevel;
 	FString mapname;
@@ -769,10 +769,11 @@ void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats)
 	else 
 		mapname = lev->DisplayName();
 
+	forcetextfont |= am_textfont;
 	double y;
-	double scale = stats.fontscale * (am_textfont? *hud_statscale : 1);	// the tiny default font used by all games here cannot be scaled for readability purposes.
+	double scale = stats.fontscale * (forcetextfont ? *hud_statscale : 1);	// the tiny default font used by all games here cannot be scaled for readability purposes.
 	if (stats.spacing <= 0) stats.spacing = stats.font->GetHeight() * stats.fontscale;
-	double spacing = stats.spacing * (am_textfont ? *hud_statscale : 1);
+	double spacing = stats.spacing * (forcetextfont ? *hud_statscale : 1);
 	if (am_nameontop)
 	{
 		y = spacing + 1;

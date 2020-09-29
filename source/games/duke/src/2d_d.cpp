@@ -60,6 +60,7 @@ void InitFonts_d()
 		auto tile = tileGetTexture(STARTALPHANUM + i);
 		if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
 		{
+			if (i >= 'a' && i <= 'z' && tileEqualTo(i, i - 32)) continue;
 			fontdata.Insert('!' + i, tile);
 			tile->SetOffsetsNotForFont();
 		}
@@ -98,7 +99,11 @@ void InitFonts_d()
 	{
 		auto tile = tileGetTexture(MINIFONT + i);
 		if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+		{
+			if (i >= 'a' && i <= 'z' && tileEqualTo(i, i - 32)) continue;
 			fontdata.Insert('!' + i, tile);
+			tile->SetOffsetsNotForFont();
+		}
 	}
 	fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
 	SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 3, false, false, false, &fontdata);

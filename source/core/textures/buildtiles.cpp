@@ -998,6 +998,30 @@ void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int til
 	TileFiles.InvalidateTile(tilenum2);
 }
 
+//==========================================================================
+//
+//  Check if two tiles are the same
+//
+//==========================================================================
+
+bool tileEqualTo(int me, int other)
+{
+	auto tile = tileGetTexture(me);
+	auto tile2 = tileGetTexture(other);
+	int tilew1 = tile->GetTexelWidth();
+	int tileh1 = tile->GetTexelHeight();
+	int tilew2 = tile2->GetTexelWidth();
+	int tileh2 = tile2->GetTexelHeight();
+	if (tilew1 == tilew2 && tileh1 == tileh2)
+	{
+		auto p1 = tileRawData(me);
+		auto p2 = tileRawData(other);
+		if (p1 && p2 && !memcmp(p1, p2, tilew1 * tileh2))
+			return true;
+	}
+	return false;
+}
+
 //===========================================================================
 // 
 //	Picks a texture for rendering for a given tilenum/palette combination
