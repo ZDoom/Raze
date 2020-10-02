@@ -159,51 +159,10 @@ enum
 };
 #endif
 
-//44 bytes
-typedef struct
-{
-    union {
-        struct
-        {
-            StructTracker(Sprite, int32_t) x, y, z;
-        };
-        vec3_t pos;
-    };
-    StructTracker(Sprite, uint16_t) cstat;
-    StructTracker(Sprite, int16_t) picnum;
-    StructTracker(Sprite, int8_t) shade;
-    StructTracker(Sprite, uint8_t) pal, clipdist, blend;
-    StructTracker(Sprite, uint8_t) xrepeat, yrepeat;
-    StructTracker(Sprite, int8_t) xoffset, yoffset;
-    StructTracker(Sprite, int16_t) sectnum, statnum;
-    StructTracker(Sprite, int16_t) ang, owner;
-	// What a gross hack! This needs to be done differently. :(
-    union {
-        struct
-        {
-            union {
-                StructTracker(Sprite, int16_t) xvel, index;
-            };
-            StructTracker(Sprite, int16_t) yvel;
-            union {
-                StructTracker(Sprite, int16_t) zvel, inittype;
-            };
-        };
-        vec3_16_t vel;
-    };
-    union {
-        StructTracker(Sprite, int16_t) lotag, type;
-    };
-    union {
-        StructTracker(Sprite, int16_t) hitag, flags;
-    };
-    StructTracker(Sprite, int16_t) extra;
-} StructName(spritetypev7);
-
 #ifndef buildtypes_h__enums
-//44 bytes
-// TODO: Remove unused fields from the end of this struct. (TSPRITE_SIZE)
-typedef struct
+
+// This is the on-disk format. Only Blood still needs this for its retarded encryption that needs to read this in as a block.
+struct spritetypev7
 {
     union {
         struct
@@ -240,7 +199,24 @@ typedef struct
         int16_t hitag, flags;
     };
     int16_t extra;
-} tspritetype;
+};
+
+struct spritetype : public spritetypev7
+{
+    int16_t detail;
+
+    // make sure we do not accidentally copy this
+    spritetype() = default;
+    spritetype(const spritetype&) = delete;
+    spritetype& operator=(const spritetype&) = delete;
+    void clear()
+    {
+        memset(this, 0, sizeof(*this));
+    }
+
+};
+
+using tspritetype = spritetype;
 #endif
 
 //////////////////// END Version 7 map format ////////////////

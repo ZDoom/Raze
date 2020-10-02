@@ -228,7 +228,7 @@ static void ValidateSprite(spritetype& spr)
 	}
 	if (bugged)
 	{
-		spr = {};
+		spr.clear();
 		spr.statnum = MAXSTATUS;
 		spr.sectnum = MAXSECTORS;
 	}
@@ -259,6 +259,7 @@ static void ReadSpriteV7(FileReader& fr, spritetype& spr)
 	spr.lotag = fr.ReadInt16();
 	spr.hitag = fr.ReadInt16();
 	spr.extra = fr.ReadInt16();
+	spr.deteil = 0;
 	ValidateSprite(spr);
 }
 
@@ -287,6 +288,7 @@ static void ReadSpriteV6(FileReader& fr, spritetype& spr)
 	spr.hitag = fr.ReadInt16();
 	spr.extra = fr.ReadInt16();
 	spr.blend = 0;
+	spr.deteil = 0;
 	ValidateSprite(spr);
 }
 
@@ -321,6 +323,7 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr)
 	spr.clipdist = 32;
 	spr.xoffset = 0;
 	spr.yoffset = 0;
+	spr.deteil = 0;
 	ValidateSprite(spr);
 }
 

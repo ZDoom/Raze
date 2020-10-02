@@ -286,7 +286,7 @@ extern XWALL xwall[kMaxXWalls];
 
 extern SPRITEHIT gSpriteHit[kMaxXSprites];
 
-extern char qsprite_filler[kMaxSprites], qsector_filler[kMaxSectors];
+extern char qsector_filler[kMaxSectors];
 
 extern int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 

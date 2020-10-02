@@ -453,7 +453,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         //int nXSprite = pTSprite->extra;
         int nXSprite = sprite[pTSprite->owner].extra;
         XSPRITE *pTXSprite = NULL;
-        if (qsprite_filler[pTSprite->owner] > gDetail)
+        if (sprite[pTSprite->owner].deteil > gDetail)
         {
             pTSprite->xrepeat = 0;
             continue;

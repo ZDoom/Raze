@@ -584,7 +584,6 @@ void MyLoadSave::Load(void)
     int nNumSprites;
     Read(&nNumSprites, sizeof(nNumSprites));
     Read(qsector_filler, sizeof(qsector_filler[0])*numsectors);
-    Read(qsprite_filler, sizeof(qsprite_filler[0])*kMaxSprites);
     Read(&pSky->horizfrac, sizeof(pSky->horizfrac));
     Read(&pSky->yoffs, sizeof(pSky->yoffs));
     Read(&pSky->yscale, sizeof(pSky->yscale));
@@ -672,7 +671,6 @@ void MyLoadSave::Save(void)
     Write(&gGameOptions, sizeof(gGameOptions));
     Write(&nNumSprites, sizeof(nNumSprites));
     Write(qsector_filler, sizeof(qsector_filler[0])*numsectors);
-    Write(qsprite_filler, sizeof(qsprite_filler[0])*kMaxSprites);
     Write(&pSky->horizfrac, sizeof(pSky->horizfrac));
     Write(&pSky->yoffs, sizeof(pSky->yoffs));
     Write(&pSky->yscale, sizeof(pSky->yscale));

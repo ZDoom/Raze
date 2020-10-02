@@ -452,7 +452,8 @@ static void fakeMoveDude(spritetype *pSprite)
     if (predict.at64)
         predict.at58 += predict.at64 >> 8;
 
-    spritetype pSpriteBak = *pSprite;
+    static_assert(sizeof(tspritetype) == sizeof(spritetype));
+    tspritetype pSpriteBak; memcpy(&pSpriteBak, pSprite, sizeof(pSpriteBak)); // how dare you??? (Use a tspritetype here so that if the sprite storage gets refactored, this line gets flagged.)
     spritetype *pTempSprite = pSprite;
     pTempSprite->x = predict.at50;
     pTempSprite->y = predict.at54;
@@ -543,7 +544,7 @@ static void fakeMoveDude(spritetype *pSprite)
         predict.at75.ceilhit = 0;
 
     GetSpriteExtents(pTempSprite, &top, &bottom);
-    *pSprite = pSpriteBak;
+    memcpy(pSprite, &pSpriteBak, sizeof(pSpriteBak));
     predict.at6a = ClipLow(floorZ-bottom, 0)>>8;
     if (predict.at5c || predict.at60)
     {

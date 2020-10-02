@@ -51,7 +51,7 @@ SPRITEHIT gSpriteHit[kMaxXSprites];
 int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 
 
-char qsprite_filler[kMaxSprites], qsector_filler[kMaxSectors];
+char qsector_filler[kMaxSectors];
 
 int gVisibility;
 
@@ -917,35 +917,36 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     for (int i = 0; i < mapHeader.at23; i++)
     {
         RemoveSpriteStat(i);
+        spritetypev7 load;
         spritetype *pSprite = &sprite[i];
-        fr.Read(pSprite, sizeof(spritetype));
-        if (byte_1A76C8)
+        fr.Read(&load, sizeof(spritetypev7)); // load into an intermediate buffer so that spritetype is no longer bound by file formats.
+        if (byte_1A76C8) // What were these people thinking? :(
         {
             dbCrypt((char*)pSprite, sizeof(spritetype), (gMapRev*sizeof(spritetype)) | 0x7474614d);
         }
 
-        pSprite->x = LittleLong(pSprite->x);
-        pSprite->y = LittleLong(pSprite->y);
-        pSprite->z = LittleLong(pSprite->z);
-        pSprite->cstat = LittleShort(pSprite->cstat);
-        pSprite->picnum = LittleShort(pSprite->picnum);
-        pSprite->sectnum = LittleShort(pSprite->sectnum);
-        pSprite->statnum = LittleShort(pSprite->statnum);
-        pSprite->ang = LittleShort(pSprite->ang);
-        pSprite->owner = LittleShort(pSprite->owner);
-        pSprite->index = LittleShort(pSprite->index);
-        pSprite->yvel = LittleShort(pSprite->yvel);
-        pSprite->inittype = LittleShort(pSprite->inittype);
-        pSprite->type = LittleShort(pSprite->type);
-        pSprite->flags = LittleShort(pSprite->hitag);
-        pSprite->extra = LittleShort(pSprite->extra);
+        pSprite->x = LittleLong(load.x);
+        pSprite->y = LittleLong(load.y);
+        pSprite->z = LittleLong(load.z);
+        pSprite->cstat = LittleShort(load.cstat);
+        pSprite->picnum = LittleShort(load.picnum);
+        pSprite->sectnum = LittleShort(load.sectnum);
+        pSprite->statnum = LittleShort(load.statnum);
+        pSprite->ang = LittleShort(load.ang);
+        pSprite->owner = LittleShort(load.owner);
+        pSprite->index = LittleShort(load.index);
+        pSprite->yvel = LittleShort(load.yvel);
+        pSprite->inittype = LittleShort(load.inittype);
+        pSprite->type = LittleShort(load.type);
+        pSprite->flags = LittleShort(load.hitag);
+        pSprite->extra = LittleShort(load.extra);
+        pSprite->detail = pSprite->blend;
+        pSprite->blend = 0;
 
         InsertSpriteSect(i, sprite[i].sectnum);
         InsertSpriteStat(i, sprite[i].statnum);
         Numsprites++;
         sprite[i].index = i;
-        qsprite_filler[i] = pSprite->blend;
-        pSprite->blend = 0;
         if (sprite[i].extra > 0)
         {
             char pBuffer[nXSpriteSize];

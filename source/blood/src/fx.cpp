@@ -181,7 +181,7 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
     pSprite->cstat |= pFX->at16;
     pSprite->shade = pFX->at18;
     pSprite->pal = pFX->at19;
-    qsprite_filler[pSprite->index] = pFX->at1;
+    sprite[pSprite->index].detail = pFX->at1;
     if (pFX->at14 > 0)
         pSprite->xrepeat = pFX->at14;
     if (pFX->at15 > 0)

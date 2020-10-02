@@ -185,8 +185,7 @@ using usectortype = sectortypev7;
 using walltype  = walltypev7;
 using uwalltype = walltypev7;
 
-using spritetype  = spritetypev7;
-using uspritetype = spritetypev7;
+using uspritetype = spritetype;
 
 using uspriteptr_t = uspritetype const *;
 using uwallptr_t   = uwalltype const *;
