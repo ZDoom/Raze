@@ -20,6 +20,9 @@
 #define BEGIN_PS_NS namespace Exhumed {
 #define END_PS_NS }
 
+#define BEGIN_WH_NS namespace Witchaven {
+#define END_WH_NS }
+
 #else
 	
 #define BEGIN_EDUKE_NS
