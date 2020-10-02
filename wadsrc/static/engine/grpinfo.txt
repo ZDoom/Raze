@@ -648,5 +648,28 @@ grpinfo
 	gamefilter "Exhumed.Powerslave"
 }
 
+grpinfo
+{
+	// The file identification info here is for joesnd which is one of two containers in the game data.
+	name "Witchaven"
+	flags GAMEFLAG_WITCHAVEN
+	crc 0x4CC892B7
+	size 2797568
+	defname "witchaven.def"
+	loadgrp "SONGS"
+	gamefilter "Witchaven.Witchaven"
+}
+
+grpinfo
+{
+	// The file identification info here is for joesnd which is one of two containers in the game data.
+	name "Witchaven 2"
+	flags GAMEFLAG_WITCHAVEN2
+	crc 0x2F673425
+	size 3051520
+	defname "witchaven2.def"
+	loadgrp "SONGS"
+	gamefilter "Witchaven.Witchaven2"
+}
 
 //  { "Exhumed Demo",    EXHUMED_DEMO_CRC,    16481687, GAMEFLAG_EXHUMED | GAMEFLAG_DEMO,    0 },
