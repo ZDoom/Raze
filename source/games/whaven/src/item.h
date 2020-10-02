@@ -14,7 +14,10 @@ struct Item {
 		this->sizy = sizy;
 		this->treasures = treasure;
 		this->cflag = cflag;
-		this->callback = call;
+		this->pickup = call;
 	}
 };
+
+extern Item items[MAXITEMS - ITEMSBASE];
+
 

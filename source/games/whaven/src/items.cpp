@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-Item items[MAXITEMS];
+Item items[MAXITEMS - ITEMSBASE];
 	
 boolean isItemSprite(int i) {
 	return (sprite[i].detail & 0xFF) >= ITEMSBASE && (sprite[i].detail & 0xFF) < MAXITEMS;
@@ -15,42 +15,42 @@ void InitItems()
 	items[a++].Init(-1, -1, false, false, [](PLAYER& plr, short i) // SILVERBAG
 		{
 			showmessage("Silver!", 360);
-			engine.deletesprite(i);
+			deletesprite(i);
 			SND_Sound(S_POTION1);
-			addscore(plr, engine.krand() % 100 + 10);
+			addscore(&plr, krand() % 100 + 10);
 		});
 
 	items[a++].Init(-1, -1, false, false, [](PLAYER& plr, short i) // GOLDBAG
 		{
 			showmessage("Gold!", 360);
-			engine.deletesprite(i);
+			deletesprite(i);
 			SND_Sound(S_POTION1);
-			addscore(plr, engine.krand() % 100 + 10);
+			addscore(&plr, krand() % 100 + 10);
 		});
 
 	items[a++].Init(27, 28, true, false, [](PLAYER& plr, short i) // HELMET
 		{
 			showmessage("Hero Time", 360);
-			engine.deletesprite(i);
+			deletesprite(i);
 			if (!isWh2())
 				addarmor(plr, 10);
 			plr.helmettime = 7200;
 			// JSA_DEMO3
 			treasuresfound++;
-			SND_Sound(S_STING1 + engine.krand() % 2);
-			addscore(plr, 10);
+			SND_Sound(S_STING1 + krand() % 2);
+			addscore(&plr, 10);
 		});
 
 	items[a++].Init(26, 26, true, false, [](PLAYER& plr, short i) // PLATEARMOR
 		{
 			if (plr.armor <= 149) {
 				showmessage("Plate Armor", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				plr.armortype = 3;
 				plr.armor = 0;
 				addarmor(plr, 150);
 				SND_Sound(S_POTION1);
-				addscore(plr, 40);
+				addscore(&plr, 40);
 				treasuresfound++;
 			}
 		});
@@ -59,12 +59,12 @@ void InitItems()
 		{
 			if (plr.armor <= 99) {
 				showmessage("Chain Mail", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				plr.armortype = 2;
 				plr.armor = 0;
 				addarmor(plr, 100);
 				SND_Sound(S_POTION1);
-				addscore(plr, 20);
+				addscore(&plr, 20);
 				treasuresfound++;
 			}
 		});
@@ -72,12 +72,12 @@ void InitItems()
 		{
 			if (plr.armor <= 49) {
 				showmessage("Leather Armor", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				plr.armortype = 1;
 				plr.armor = 0;
 				addarmor(plr, 50);
 				SND_Sound(S_POTION1);
-				addscore(plr, 10);
+				addscore(&plr, 10);
 				treasuresfound++;
 			}
 		});
@@ -86,10 +86,10 @@ void InitItems()
 			sprite[i].detail = 0;
 			treasuresfound++;
 			playsound_loc(S_TREASURE1, sprite[i].x, sprite[i].y);
-			int j = engine.krand() % 8;
+			int j = krand() % 8;
 			switch (j) {
 			case 0:
-				switch (engine.krand() % 5) {
+				switch (krand() % 5) {
 				case 0:
 					if (!potionspace(plr, 0))
 						break;
@@ -97,7 +97,7 @@ void InitItems()
 					updatepotion(plr, HEALTHPOTION);
 					plr.currentpotion = 0;
 					SND_Sound(S_POTION1);
-					addscore(plr, 10);
+					addscore(&plr, 10);
 					break;
 				case 1:
 					if (!potionspace(plr, 1))
@@ -106,7 +106,7 @@ void InitItems()
 					updatepotion(plr, STRENGTHPOTION);
 					plr.currentpotion = 1;
 					SND_Sound(S_POTION1);
-					addscore(plr, 20);
+					addscore(&plr, 20);
 					break;
 				case 2:
 					if (!potionspace(plr, 2))
@@ -115,7 +115,7 @@ void InitItems()
 					updatepotion(plr, ARMORPOTION);
 					plr.currentpotion = 2;
 					SND_Sound(S_POTION1);
-					addscore(plr, 15);
+					addscore(&plr, 15);
 					break;
 				case 3:
 					if (!potionspace(plr, 3))
@@ -124,7 +124,7 @@ void InitItems()
 					updatepotion(plr, FIREWALKPOTION);
 					plr.currentpotion = 3;
 					SND_Sound(S_POTION1);
-					addscore(plr, 15);
+					addscore(&plr, 15);
 					break;
 				case 4:
 					if (!potionspace(plr, 4))
@@ -133,13 +133,13 @@ void InitItems()
 					updatepotion(plr, INVISIBLEPOTION);
 					plr.currentpotion = 4;
 					SND_Sound(S_POTION1);
-					addscore(plr, 30);
+					addscore(&plr, 30);
 					break;
 				}
 				sprite[i].picnum = OPENCHEST;
 				break;
 			case 1:
-				switch (engine.krand() % 8) {
+				switch (krand() % 8) {
 				case 0:
 					if (plr.orbammo[0] < 10) {
 						plr.orb[0] = 1;
@@ -209,13 +209,13 @@ void InitItems()
 				break;
 			case 2:
 				sprite[i].picnum = OPENCHEST;
-				addscore(plr, (engine.krand() % 400) + 100);
+				addscore(&plr, (krand() % 400) + 100);
 				showmessage("Treasure Chest", 360);
 				SND_Sound(S_POTION1);
 				break;
 			case 3:
 				// random weapon
-				switch ((engine.krand() % 5) + 1) {
+				switch ((krand() % 5) + 1) {
 				case 1:
 					if (plr.ammo[1] < 12) {
 						plr.weapon[1] = 1;
@@ -224,7 +224,7 @@ void InitItems()
 						SND_Sound(S_POTION1);
 						if (plr.selectedgun < 1)
 							autoweaponchange(plr, 1);
-						addscore(plr, 10);
+						addscore(&plr, 10);
 					}
 					break;
 				case 2:
@@ -235,7 +235,7 @@ void InitItems()
 						SND_Sound(S_POTION1);
 						if (plr.selectedgun < 3)
 							autoweaponchange(plr, 3);
-						addscore(plr, 20);
+						addscore(&plr, 20);
 					}
 					break;
 				case 3:
@@ -246,7 +246,7 @@ void InitItems()
 						SND_Sound(S_POTION1);
 						if (plr.selectedgun < 2)
 							autoweaponchange(plr, 2);
-						addscore(plr, 10);
+						addscore(&plr, 10);
 					}
 					break;
 				case 4:
@@ -257,7 +257,7 @@ void InitItems()
 						SND_Sound(S_POTION1);
 						if (plr.selectedgun < 5)
 							autoweaponchange(plr, 5);
-						addscore(plr, 30);
+						addscore(&plr, 30);
 					}
 					break;
 				case 5:
@@ -265,28 +265,28 @@ void InitItems()
 						plr.weapon[7] = 2;
 						plr.ammo[7] = 1;
 						showmessage("Pike axe", 360);
-						engine.deletesprite(i);
+						deletesprite(i);
 						SND_Sound(S_POTION1);
-						addscore(plr, 30);
+						addscore(&plr, 30);
 					}
 					if (plr.weapon[7] == 2) {
 						plr.weapon[7] = 2;
 						plr.ammo[7]++;
 						showmessage("Pike axe", 360);
-						engine.deletesprite(i);
+						deletesprite(i);
 						SND_Sound(S_POTION1);
-						addscore(plr, 30);
+						addscore(&plr, 30);
 					}
 					if (plr.weapon[7] < 1) {
 						if (plr.ammo[7] < 12) {
 							plr.weapon[7] = 1;
 							plr.ammo[7] = 30;
 							showmessage("Pike axe", 360);
-							engine.deletesprite(i);
+							deletesprite(i);
 							SND_Sound(S_POTION1);
 							if (plr.selectedgun < 7)
 								autoweaponchange(plr, 7);
-							addscore(plr, 30);
+							addscore(&plr, 30);
 						}
 					}
 					break;
@@ -295,12 +295,12 @@ void InitItems()
 				break;
 			case 4:
 				// random armor
-				switch (engine.krand() & 4) {
+				switch (krand() & 4) {
 				case 0:
 					showmessage("Hero Time", 360);
 					addarmor(plr, 10);
 					plr.helmettime = 7200;
-					SND_Sound(S_STING1 + engine.krand() % 2);
+					SND_Sound(S_STING1 + krand() % 2);
 					break;
 				case 1:
 					if (plr.armor <= 149) {
@@ -309,7 +309,7 @@ void InitItems()
 						plr.armor = 0;
 						addarmor(plr, 150);
 						SND_Sound(S_POTION1);
-						addscore(plr, 40);
+						addscore(&plr, 40);
 					}
 					break;
 				case 2:
@@ -319,7 +319,7 @@ void InitItems()
 						plr.armor = 0;
 						addarmor(plr, 100);
 						SND_Sound(S_POTION1);
-						addscore(plr, 20);
+						addscore(&plr, 20);
 					}
 					break;
 				case 3:
@@ -329,7 +329,7 @@ void InitItems()
 						plr.armor = 0;
 						addarmor(plr, 50);
 						SND_Sound(S_POTION1);
-						addscore(plr, 20);
+						addscore(&plr, 20);
 					}
 					break;
 				}
@@ -337,15 +337,15 @@ void InitItems()
 				break;
 			case 5:
 				// poison chest
-				if ((engine.krand() & 2) == 0) {
+				if ((krand() & 2) == 0) {
 					plr.poisoned = 1;
 					plr.poisontime = 7200;
 					sprite[i].detail = GIFTBOXTYPE;
 					addhealth(plr, -10);
 					showmessage("Poisoned Chest", 360);
 				} else {
-					engine.deletesprite(i);
-					addscore(plr, (engine.krand() & 400) + 100);
+					deletesprite(i);
+					addscore(&plr, (krand() & 400) + 100);
 					showmessage("Treasure Chest", 360);
 					SND_Sound(S_POTION1);
 				}
@@ -354,11 +354,11 @@ void InitItems()
 				for (j = 0; j < 8; j++)
 					explosion(i, sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].owner);
 				playsound_loc(S_EXPLODE, sprite[i].x, sprite[i].y);
-				engine.deletesprite(i);
+				deletesprite(i);
 				break;
 			default:
 				sprite[i].picnum = OPENCHEST;
-				addscore(plr, (engine.krand() % 400) + 100);
+				addscore(&plr, (krand() % 400) + 100);
 				showmessage("Experience Gained", 360);
 				SND_Sound(S_POTION1);
 				break;
@@ -372,9 +372,9 @@ void InitItems()
 				showmessage("Health Potion", 360);
 				updatepotion(plr, HEALTHPOTION);
 				plr.currentpotion = 0;
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 10);
+				addscore(&plr, 10);
 				treasuresfound++;
 			});
 		items[a++].Init(-1, -1, true, false, [](PLAYER& plr, short i) // FLASKGREEN
@@ -384,9 +384,9 @@ void InitItems()
 				showmessage("Strength Potion", 360);
 				updatepotion(plr, STRENGTHPOTION);
 				plr.currentpotion = 1;
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 15);
+				addscore(&plr, 15);
 				treasuresfound++;
 			});
 		items[a++].Init(-1, -1, true, false, [](PLAYER& plr, short i) // FLASKOCHRE
@@ -397,9 +397,9 @@ void InitItems()
 				showmessage("Cure Poison Potion", 360);
 				updatepotion(plr, ARMORPOTION);
 				plr.currentpotion = 2;
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 15);
+				addscore(&plr, 15);
 				treasuresfound++;
 			});
 		items[a++].Init(-1, -1, true, false, [](PLAYER& plr, short i) // FLASKRED
@@ -409,9 +409,9 @@ void InitItems()
 				showmessage("Resist Fire Potion", 360);
 				updatepotion(plr, FIREWALKPOTION);
 				plr.currentpotion = 3;
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 20);
+				addscore(&plr, 20);
 				treasuresfound++;
 			});
 		items[a++].Init(-1, -1, true, false, [](PLAYER& plr, short i) // FLASKTAN
@@ -421,9 +421,9 @@ void InitItems()
 				showmessage("Invisibility Potion", 360);
 				updatepotion(plr, INVISIBLEPOTION);
 				plr.currentpotion = 4;
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 30);
+				addscore(&plr, 30);
 				treasuresfound++;
 			});
 		items[a++].Init(14, 14, true, false, [](PLAYER& plr, short i) // DIAMONDRING
@@ -433,26 +433,26 @@ void InitItems()
 				plr.armor = 0;
 				addarmor(plr, 200);
 				plr.armortype = 3;
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 25);
+				addscore(&plr, 25);
 				treasuresfound++;
 			});
 		items[a++].Init(30, 23, true, false, [](PLAYER& plr, short i) // SHADOWAMULET
 			{
 				plr.treasure[TSHADOWAMULET] = 1;
 				showmessage("SHADOW AMULET", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
 				plr.shadowtime = 7500;
-				addscore(plr, 50);
+				addscore(&plr, 50);
 				treasuresfound++;
 			});
 		items[a++].Init(-1, -1, true, false, [](PLAYER& plr, short i) // GLASSSKULL
 			{
 				plr.treasure[TGLASSSKULL] = 1;
 				showmessage("GLASS SKULL", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
 				treasuresfound++;
 				switch (plr.lvl) {
@@ -481,7 +481,7 @@ void InitItems()
 					plr.score = 280500;
 					break;
 				}
-				addscore(plr, 10);
+				addscore(&plr, 10);
 			});
 		items[a++].Init(51, 54, true, false, [](PLAYER& plr, short i) // AHNK
 			{
@@ -489,18 +489,18 @@ void InitItems()
 				showmessage("ANKH", 360);
 				plr.health = 0;
 				addhealth(plr, 250);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 100);
+				addscore(&plr, 100);
 				treasuresfound++;
 			});
 		items[a++].Init(32, 32, true, false, [](PLAYER& plr, short i) // BLUESCEPTER
 			{
 				plr.treasure[TBLUESCEPTER] = 1;
 				showmessage("Water walk scepter", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 10);
+				addscore(&plr, 10);
 				treasuresfound++;
 			});
 		items[a++].Init(32, 32, true, false, [](PLAYER& plr, short i) // YELLOWSCEPTER
@@ -508,9 +508,9 @@ void InitItems()
 			{
 				plr.treasure[TYELLOWSCEPTER] = 1;
 				showmessage("Fire walk scepter", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 10);
+				addscore(&plr, 10);
 				treasuresfound++;
 			});
 		items[a++].Init(14, 14, true, false, [](PLAYER& plr, short i) // ADAMANTINERING
@@ -519,9 +519,9 @@ void InitItems()
 				// ring or protection +5
 				plr.treasure[TADAMANTINERING] = 1;
 				showmessage("ADAMANTINE RING", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 30);
+				addscore(&plr, 30);
 				treasuresfound++;
 			});
 		items[a++].Init(42, 28, true, false, [](PLAYER& plr, short i) // ONYXRING
@@ -532,9 +532,9 @@ void InitItems()
 				// dont forget to cleanup values
 				plr.treasure[TONYXRING] = 1;
 				showmessage("ONYX RING", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 35);
+				addscore(&plr, 35);
 				treasuresfound++;
 			});
 		items[a++].Init(-1, -1, true, true, [](PLAYER& plr, short i) // PENTAGRAM
@@ -545,11 +545,11 @@ void InitItems()
 				else {
 					plr.treasure[TPENTAGRAM] = 1;
 					showmessage("PENTAGRAM", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					treasuresfound++;
 				}
-				addscore(plr, 100);
+				addscore(&plr, 100);
 			});
 		items[a++].Init(64, 64, true, false, [](PLAYER& plr, short i) // CRYSTALSTAFF
 
@@ -561,55 +561,34 @@ void InitItems()
 				plr.armortype = 2;
 				plr.armor = 0;
 				addarmor(plr, 300);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
 				treasuresfound++;
-				addscore(plr, 150);
+				addscore(&plr, 150);
 			});
 		items[a++].Init(26, 28, true, false, [](PLAYER& plr, short i) // AMULETOFTHEMIST
 
 			{
 				plr.treasure[TAMULETOFTHEMIST] = 1;
 				showmessage("AMULET OF THE MIST", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
 				plr.invisibletime = 3200;
-				addscore(plr, 75);
+				addscore(&plr, 75);
 				treasuresfound++;
 			});
 		items[a++].Init(64, 64, true, false, [](PLAYER& plr, short i) // HORNEDSKULL
 
 			{
 				if (isWh2()) {
-					final Runnable ending3 = new Runnable(){
-
-						public void run() {
-							if (gCutsceneScreen.init("ending3.smk"))
-								game.changeScreen(gCutsceneScreen.setSkipping(game.main).escSkipping(true));
-							else
-								game.changeScreen(gMenuScreen);
-						}
-					};
-					Runnable ending2 = new Runnable(){
-
-						public void run() {
-							if (gCutsceneScreen.init("ending2.smk"))
-								game.changeScreen(gCutsceneScreen.setSkipping(ending3).escSkipping(true));
-							else
-								game.changeScreen(gMenuScreen);
-						}
-					};
-					if (gCutsceneScreen.init("ending1.smk"))
-						game.changeScreen(gCutsceneScreen.setSkipping(ending2).escSkipping(true));
-					else
-						game.changeScreen(gMenuScreen);
+					startWh2Ending();
 					return;
 				}
 				plr.treasure[THORNEDSKULL] = 1;
 				showmessage("HORNED SKULL", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_STING2);
-				addscore(plr, 750);
+				addscore(&plr, 750);
 				treasuresfound++;
 			});
 		items[a++].Init(32, 32, true, false, [](PLAYER& plr, short i) // THEHORN
@@ -617,12 +596,12 @@ void InitItems()
 			{
 				plr.treasure[TTHEHORN] = 1;
 				showmessage("Ornate Horn", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
 				plr.vampiretime = 7200;
 				// gain 5-10 hp when you kill something
 				// for 60 seconds
-				addscore(plr, 350);
+				addscore(&plr, 350);
 				treasuresfound++;
 			});
 		items[a++].Init(30, 20, true, false, [](PLAYER& plr, short i) // SAPHIRERING
@@ -631,9 +610,9 @@ void InitItems()
 				plr.treasure[TSAPHIRERING] = 1;
 				showmessage("SAPPHIRE RING", 360);
 				plr.armortype = 3;
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 25);
+				addscore(&plr, 25);
 				treasuresfound++;
 			});
 		items[a++].Init(24, 24, true, false, [](PLAYER& plr, short i) // BRASSKEY
@@ -641,9 +620,9 @@ void InitItems()
 			{
 				plr.treasure[TBRASSKEY] = 1;
 				showmessage("BRASS KEY", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 15);
+				addscore(&plr, 15);
 				treasuresfound++;
 			});
 		items[a++].Init(24, 24, true, false, [](PLAYER& plr, short i) // BLACKKEY
@@ -651,18 +630,18 @@ void InitItems()
 			{
 				plr.treasure[TBLACKKEY] = 1;
 				showmessage("BLACK KEY", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 15);
+				addscore(&plr, 15);
 			});
 		items[a++].Init(24, 24, true, false, [](PLAYER& plr, short i) // GLASSKEY
 
 			{
 				plr.treasure[TGLASSKEY] = 1;
 				showmessage("GLASS KEY", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 15);
+				addscore(&plr, 15);
 				treasuresfound++;
 			});
 		items[a++].Init(24, 24, true, false, [](PLAYER& plr, short i) // IVORYKEY
@@ -670,9 +649,9 @@ void InitItems()
 			{
 				plr.treasure[TIVORYKEY] = 1;
 				showmessage("IVORY KEY", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
-				addscore(plr, 15);
+				addscore(&plr, 15);
 				treasuresfound++;
 			});
 		items[a++].Init(35, 36, true, true, [](PLAYER& plr, short i) // SCROLLSCARE
@@ -683,7 +662,7 @@ void InitItems()
 					plr.orbammo[0]++;
 					changebook(plr, 0);
 					showmessage("Scare Scroll", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					treasuresfound++;
 				}
@@ -696,7 +675,7 @@ void InitItems()
 					plr.orbammo[1]++;
 					changebook(plr, 1);
 					showmessage("Night Vision Scroll", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					treasuresfound++;
 				}
@@ -709,7 +688,7 @@ void InitItems()
 					plr.orbammo[2]++;
 					changebook(plr, 2);
 					showmessage("Freeze Scroll", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					treasuresfound++;
 				}
@@ -722,7 +701,7 @@ void InitItems()
 					plr.orbammo[3]++;
 					changebook(plr, 3);
 					showmessage("Magic Arrow Scroll", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					treasuresfound++;
 				}
@@ -735,7 +714,7 @@ void InitItems()
 					plr.orbammo[4]++;
 					changebook(plr, 4);
 					showmessage("Open Door Scroll", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					treasuresfound++;
 				}
@@ -748,7 +727,7 @@ void InitItems()
 					plr.orbammo[5]++;
 					changebook(plr, 5);
 					showmessage("Fly Scroll", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					treasuresfound++;
 				}
@@ -761,7 +740,7 @@ void InitItems()
 					plr.orbammo[6]++;
 					changebook(plr, 6);
 					showmessage("Fireball Scroll", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					treasuresfound++;
 				}
@@ -774,7 +753,7 @@ void InitItems()
 					plr.orbammo[7]++;
 					changebook(plr, 7);
 					showmessage("Nuke Scroll", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					treasuresfound++;
 				}
@@ -787,9 +766,9 @@ void InitItems()
 					if (plr.ammo[6] > 100)
 						plr.ammo[6] = 100;
 					showmessage("Quiver of magic arrows", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
-					addscore(plr, 10);
+					addscore(&plr, 10);
 				}
 			});
 		items[a++].Init(-1, -1, false, false, [](PLAYER& plr, short i) // WALLBOW BOW
@@ -800,11 +779,11 @@ void InitItems()
 				if (plr.ammo[6] > 100)
 					plr.ammo[6] = 100;
 				showmessage("Magic bow", 360);
-				engine.deletesprite(i);
+				deletesprite(i);
 				SND_Sound(S_POTION1);
 				if (plr.selectedgun < 6)
 					autoweaponchange(plr, 6);
-				addscore(plr, 10);
+				addscore(&plr, 10);
 			});
 		items[a++].Init(34, 21, false, false, [](PLAYER& plr, short i) // WEAPON1
 
@@ -813,11 +792,11 @@ void InitItems()
 					plr.weapon[1] = 1;
 					plr.ammo[1] = 40;
 					showmessage("Dagger", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					if (plr.selectedgun < 1)
 						autoweaponchange(plr, 1);
-					addscore(plr, 10);
+					addscore(&plr, 10);
 				}
 			});
 		items[a++].Init(34, 21, false, false, [](PLAYER& plr, short i) // WEAPON1A
@@ -827,10 +806,10 @@ void InitItems()
 					plr.weapon[1] = 3;
 					plr.ammo[1] = 80;
 					showmessage("Jeweled Dagger", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					autoweaponchange(plr, 1);
-					addscore(plr, 30);
+					addscore(&plr, 30);
 				}
 			});
 		items[a++].Init(34, 21, false, false, [](PLAYER& plr, short i) // GOBWEAPON
@@ -840,11 +819,11 @@ void InitItems()
 					plr.weapon[2] = 1;
 					plr.ammo[2] = 20;
 					showmessage("Short sword", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					if (plr.selectedgun < 2)
 						autoweaponchange(plr, 2);
-					addscore(plr, 10);
+					addscore(&plr, 10);
 				}
 			});
 		items[a++].Init(26, 26, false, false, [](PLAYER& plr, short i) // WEAPON2
@@ -854,11 +833,11 @@ void InitItems()
 					plr.weapon[3] = 1;
 					plr.ammo[3] = 55;
 					showmessage("Morning Star", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					if (plr.selectedgun < 3)
 						autoweaponchange(plr, 3);
-					addscore(plr, 20);
+					addscore(&plr, 20);
 				}
 			});
 		items[a++].Init(-1, -1, false, false, [](PLAYER& plr, short i) // WALLSWORD WEAPON3A
@@ -868,10 +847,10 @@ void InitItems()
 					plr.weapon[4] = 1;
 					plr.ammo[4] = 160;
 					showmessage("Broad Sword", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					autoweaponchange(plr, 4);
-					addscore(plr, 60);
+					addscore(&plr, 60);
 				}
 			});
 		items[a++].Init(44, 39, false, false, [](PLAYER& plr, short i) // WEAPON3
@@ -881,11 +860,11 @@ void InitItems()
 					plr.weapon[4] = 1;
 					plr.ammo[4] = 80;
 					showmessage("Broad Sword", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					if (plr.selectedgun < 4)
 						autoweaponchange(plr, 4);
-					addscore(plr, 30);
+					addscore(&plr, 30);
 				}
 			});
 		items[a++].Init(25, 20, false, false, [](PLAYER& plr, short i) // WALLAXE WEAPON4
@@ -895,11 +874,11 @@ void InitItems()
 					plr.weapon[5] = 1;
 					plr.ammo[5] = 100;
 					showmessage("Battle axe", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					if (plr.selectedgun < 5)
 						autoweaponchange(plr, 5);
-					addscore(plr, 30);
+					addscore(&plr, 30);
 				}
 			});
 		items[a++].Init(-1, -1, false, false, [](PLAYER& plr, short i) // THROWHALBERD
@@ -908,26 +887,26 @@ void InitItems()
 				// EG fix: don't collect moving halberds, be hurt by them as you should be
 				// ...but only if you don't have the Onyx Ring
 				if (sprite[i].statnum != INACTIVE && plr.treasure[TONYXRING] == 0) {
-					addhealth(plr, -((engine.krand() % 20) + 5)); // Inflict pain
+					addhealth(plr, -((krand() % 20) + 5)); // Inflict pain
 					// make it look and sound painful, too
-					if ((engine.krand() % 9) == 0) {
-						playsound_loc(S_PLRPAIN1 + (engine.rand() % 2), sprite[i].x, sprite[i].y);
+					if ((krand() % 9) == 0) {
+						playsound_loc(S_PLRPAIN1 + (rand() % 2), sprite[i].x, sprite[i].y);
 					}
 					startredflash(10);
-					engine.deletesprite(i);
+					deletesprite(i);
 					return;
 				}
 				if (sprite[i].statnum != INACTIVE && plr.treasure[TONYXRING] != 0) {
 					// Can we grab?
 					if (plr.ammo[9] < 12 && plr.weapon[9] != 3) {
 						// You grabbed a halberd out of midair, so go ahead and be smug about it
-						if ((engine.rand() % 10) > 6)
+						if ((rand() % 10) > 6)
 							SND_Sound(S_PICKUPAXE);
 						// fall through to collect
 					}
 					else {
 						// Can't grab, so just block getting hit
-						engine.deletesprite(i);
+						deletesprite(i);
 						return;
 					}
 				}
@@ -936,11 +915,11 @@ void InitItems()
 					plr.weapon[9] = 1;
 					plr.ammo[9] = 30;
 					showmessage("Halberd", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					if (plr.selectedgun < 9)
 						autoweaponchange(plr, 9);
-					addscore(plr, 30);
+					addscore(&plr, 30);
 				}
 			});
 		items[a++].Init(-1, -1, false, false, [](PLAYER& plr, short i) // WEAPON5
@@ -950,11 +929,11 @@ void InitItems()
 					plr.weapon[9] = 1;
 					plr.ammo[9] = 30;
 					showmessage("Halberd", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					if (plr.selectedgun < 9)
 						autoweaponchange(plr, 9);
-					addscore(plr, 30);
+					addscore(&plr, 30);
 				}
 			});
 		items[a++].Init(12, 12, false, false, [](PLAYER& plr, short i) // GONZOBSHIELD
@@ -964,10 +943,10 @@ void InitItems()
 					plr.shieldtype = 2;
 					plr.shieldpoints = 200;
 					droptheshield = false;
-					engine.deletesprite(i);
+					deletesprite(i);
 					showmessage("Magic Shield", 360);
 					SND_Sound(S_POTION1);
-					addscore(plr, 50);
+					addscore(&plr, 50);
 				}
 			});
 		items[a++].Init(26, 26, false, false, [](PLAYER& plr, short i) // SHIELD
@@ -976,18 +955,18 @@ void InitItems()
 				if (plr.shieldpoints < 100) {
 					plr.shieldpoints = 100;
 					plr.shieldtype = 1;
-					engine.deletesprite(i);
+					deletesprite(i);
 					showmessage("Shield", 360);
 					droptheshield = false; // EG 17 Oct 2017
 					SND_Sound(S_POTION1);
-					addscore(plr, 10);
+					addscore(&plr, 10);
 				}
 			});
 		items[a++].Init(-1, -1, false, false, [](PLAYER& plr, short i) // WEAPON5B
 
 			{
 				if (plr.ammo[9] < 12) { // XXX orly?
-					engine.deletesprite(i);
+					deletesprite(i);
 				}
 			});
 		items[a++].Init(-1, -1, false, false, [](PLAYER& plr, short i) // WALLPIKE
@@ -997,15 +976,15 @@ void InitItems()
 					plr.weapon[7] = 2;
 					plr.ammo[7] = 2;
 					showmessage("Pike axe", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_PICKUPAXE);
-					addscore(plr, 30);
+					addscore(&plr, 30);
 				}
 				if (plr.weapon[7] == 2) {
 					plr.weapon[7] = 2;
 					plr.ammo[7]++;
 					showmessage("Pike axe", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_PICKUPAXE);
 					// score(plr, 30);
 				}
@@ -1014,11 +993,11 @@ void InitItems()
 						plr.weapon[7] = 1;
 						plr.ammo[7] = 30;
 						showmessage("Pike axe", 360);
-						engine.deletesprite(i);
+						deletesprite(i);
 						SND_Sound(S_POTION1);
 						if (plr.selectedgun < 7)
 							autoweaponchange(plr, 7);
-						addscore(plr, 30);
+						addscore(&plr, 30);
 					}
 				}
 			});
@@ -1029,15 +1008,15 @@ void InitItems()
 					plr.weapon[7] = 2;
 					plr.ammo[7] = 10;
 					showmessage("Pike axe", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
-					addscore(plr, 30);
+					addscore(&plr, 30);
 				}
 				if (plr.weapon[7] == 2) {
 					plr.weapon[7] = 2;
 					plr.ammo[7] += 10;
 					showmessage("Pike axe", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					// score(plr, 30);
 				}
@@ -1046,11 +1025,11 @@ void InitItems()
 						plr.weapon[7] = 2;
 						plr.ammo[7] = 10;
 						showmessage("Pike axe", 360);
-						engine.deletesprite(i);
+						deletesprite(i);
 						SND_Sound(S_POTION1);
 						if (plr.selectedgun < 7)
 							autoweaponchange(plr, 7);
-						addscore(plr, 30);
+						addscore(&plr, 30);
 					}
 				}
 			});
@@ -1061,11 +1040,11 @@ void InitItems()
 					plr.weapon[8] = 1;
 					plr.ammo[8] = 250;
 					showmessage("Magic sword", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					if (plr.selectedgun < 8)
 						autoweaponchange(plr, 8);
-					addscore(plr, 30);
+					addscore(&plr, 30);
 				}
 			});
 		items[a++].Init(32, 18, false, false, [](PLAYER& plr, short i) // GYSER
@@ -1117,10 +1096,10 @@ void InitItems()
 					plr.weapon[8] = 1;
 					plr.ammo[8] = 250;
 					showmessage("Two Handed Sword", 360);
-					engine.deletesprite(i);
+					deletesprite(i);
 					SND_Sound(S_POTION1);
 					autoweaponchange(plr, 8);
-					addscore(plr, 30);
+					addscore(&plr, 30);
 				}
 			});
 };

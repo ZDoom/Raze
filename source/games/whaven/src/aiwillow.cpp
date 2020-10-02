@@ -14,7 +14,7 @@ static void chase(PLAYER& plr, short i) {
 	short osectnum = spr.sectnum;
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum) && plr.invisibletime < 0)
+			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum) && plr.invisibletime < 0)
 			newstatus(i, ATTACK);
 		return;
 	}
@@ -78,7 +78,7 @@ static void attack(PLAYER& plr, short i) {
 		spr.z += TICSPERFRAME << 8;
 
 	if (spr.lotag < 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum))
 			if (checkdist(plr, i)) {
 				if (plr.shockme < 0)
@@ -142,7 +142,7 @@ static void face(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
-	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum) && plr.invisibletime < 0) {
 		spr.ang = (short)(getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
 
@@ -278,13 +278,13 @@ void createWillowAI() {
 }
 	
 
-void premap(short i) {
+void premapWillow(short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.detail = WILLOWTYPE;
 	enemy[WILLOWTYPE].info.set(spr);
 	spr.cstat |= 128;
-	spr.z -= tilesizy[WILLOW] << 8;
+	spr.z -= tileHeight(WILLOW) << 8;
 	changespritestat(i, FACE);
 }
 

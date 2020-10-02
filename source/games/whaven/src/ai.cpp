@@ -1,5 +1,6 @@
 #include "ns.h"
 #include "wh.h"
+#include "i_net.h"
 
 BEGIN_WH_NS
 
@@ -34,6 +35,13 @@ void createSkeletonAI();
 void createSkullyAI();
 void createSpiderAI();
 void createWillowAI();
+
+void judyOperate(PLAYER& plr);
+void gonzoProcess(PLAYER& plr);
+void goblinWarProcess(PLAYER& plr);
+void dragonProcess(PLAYER& plr);
+void willowProcess(PLAYER& plr);
+
 
 void initAI()
 {
@@ -77,7 +85,7 @@ void initAI()
 	createKurtAI(); // kurt must be initialized after gonzo
 }
 
-static void aiInit() {
+void aiInit() {
 	for (short i = 0; i < MAXSPRITES; i++) {
 		if (sprite[i].statnum >= MAXSTATUS)
 			continue;
@@ -240,12 +248,12 @@ void aiProcess() {
 		short j = headspritesect[spr.sectnum];
 		while (j != -1) {
 			short nextj = nextspritesect[j];
-			SPRITE tspr = sprite[j];
+			SPRITE& tspr = sprite[j];
 			if (tspr.picnum == PATROLPOINT) {
-				int dx = klabs(spr.x - tspr.x); // x distance to sprite
-				int dy = klabs(spr.y - tspr.y); // y distance to sprite
-				int dz = klabs((spr.z >> 8) - (tspr.z >> 8)); // z distance to sprite
-				int dh = tilesizy[tspr.picnum] >> 4; // height of sprite
+				int dx = abs(spr.x - tspr.x); // x distance to sprite
+				int dy = abs(spr.y - tspr.y); // y distance to sprite
+				int dz = abs((spr.z >> 8) - (tspr.z >> 8)); // z distance to sprite
+				int dh = tileHeight(tspr.picnum) >> 4; // height of sprite
 				if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
 					spr.ang = tspr.ang;
 				}
@@ -254,7 +262,7 @@ void aiProcess() {
 		}
 		if (sintable[(spr.ang + 2560) & 2047] * (plr.x - spr.x)
 			+ sintable[(spr.ang + 2048) & 2047] * (plr.y - spr.y) >= 0) {
-			if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+			if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 				spr.sectnum)) {
 				newstatus(i, CHASE);
 			}
@@ -270,15 +278,15 @@ void aiProcess() {
 	for (i = headspritestat[CHASE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		SPRITE& spr = sprite[i];
-		if (enemy[spr.detail] != null && enemy[spr.detail].chase != null)
-			enemy[spr.detail].chase.process(plr, i);
+		if (enemy[spr.detail].chase != nullptr)
+			enemy[spr.detail].chase(plr, i);
 	}
 
 	for (i = headspritestat[RESURECT]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		SPRITE& spr = sprite[i];
-		if (enemy[spr.detail] != null && enemy[spr.detail].resurect != null) {
-			enemy[spr.detail].resurect.process(plr, i);
+		if (enemy[spr.detail].resurect != nullptr) {
+			enemy[spr.detail].resurect(plr, i);
 		}
 	}
 
@@ -286,8 +294,8 @@ void aiProcess() {
 		nextsprite = nextspritestat[i];
 		SPRITE& spr = sprite[i];
 
-		if (enemy[spr.detail] != null && enemy[spr.detail].search != null)
-			enemy[spr.detail].search.process(plr, i);
+		if (enemy[spr.detail].search != nullptr)
+			enemy[spr.detail].search(plr, i);
 	}
 
 	for (i = headspritestat[NUKED]; i >= 0; i = nextsprite) {
@@ -300,32 +308,32 @@ void aiProcess() {
 				deletesprite(i);
 		}
 		else {
-			if (enemy[spr.detail] != null && enemy[spr.detail].nuked != null)
-				enemy[spr.detail].nuked.process(plr, i);
+			if (enemy[spr.detail].nuked != nullptr)
+				enemy[spr.detail].nuked(plr, i);
 		}
 	}
 
 	for (i = headspritestat[FROZEN]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		SPRITE& spr = sprite[i];
-		if (enemy[spr.detail] != null && enemy[spr.detail].frozen != null)
-			enemy[spr.detail].frozen.process(plr, i);
+		if (enemy[spr.detail].frozen != nullptr)
+			enemy[spr.detail].frozen(plr, i);
 	}
 
 	for (i = headspritestat[PAIN]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		SPRITE& spr = sprite[i];
 
-		if (enemy[spr.detail] != null && enemy[spr.detail].pain != null)
-			enemy[spr.detail].pain.process(plr, i);
+		if (enemy[spr.detail].pain != nullptr)
+			enemy[spr.detail].pain(plr, i);
 	}
 
 	for (i = headspritestat[FACE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		SPRITE& spr = sprite[i];
 
-		if (enemy[spr.detail] != null && enemy[spr.detail].face != null)
-			enemy[spr.detail].face.process(plr, i);
+		if (enemy[spr.detail].face != nullptr)
+			enemy[spr.detail].face(plr, i);
 	}
 
 	for (i = headspritestat[ATTACK]; i >= 0; i = nextsprite) {
@@ -337,47 +345,47 @@ void aiProcess() {
 			startsong((rand() % 2) + 2);
 		}
 
-		if (enemy[spr.detail] != null && enemy[spr.detail].attack != null)
-			enemy[spr.detail].attack.process(plr, i);
+		if (enemy[spr.detail].attack != nullptr)
+			enemy[spr.detail].attack(plr, i);
 	}
 
 	for (i = headspritestat[FLEE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		SPRITE& spr = sprite[i];
 
-		if (enemy[spr.detail] != null && enemy[spr.detail].flee != null)
-			enemy[spr.detail].flee.process(plr, i);
+		if (enemy[spr.detail].flee != nullptr)
+			enemy[spr.detail].flee(plr, i);
 	}
 
 	for (i = headspritestat[CAST]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		SPRITE& spr = sprite[i];
 
-		if (enemy[spr.detail] != null && enemy[spr.detail].cast != null)
-			enemy[spr.detail].cast.process(plr, i);
+		if (enemy[spr.detail].cast != nullptr)
+			enemy[spr.detail].cast(plr, i);
 	}
 
 	for (i = headspritestat[DIE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		SPRITE& spr = sprite[i];
-		if (enemy[spr.detail] != null && enemy[spr.detail].die != null)
-			enemy[spr.detail].die.process(plr, i);
+		if (enemy[spr.detail].die != nullptr)
+			enemy[spr.detail].die(plr, i);
 	}
 
 	for (i = headspritestat[SKIRMISH]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		SPRITE& spr = sprite[i];
 
-		if (enemy[spr.detail] != null && enemy[spr.detail].skirmish != null)
-			enemy[spr.detail].skirmish.process(plr, i);
+		if (enemy[spr.detail].skirmish != nullptr)
+			enemy[spr.detail].skirmish(plr, i);
 	}
 
 	for (i = headspritestat[STAND]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		SPRITE& spr = sprite[i];
 
-		if (enemy[spr.detail] != null && enemy[spr.detail].stand != null)
-			enemy[spr.detail].stand.process(plr, i);
+		if (enemy[spr.detail].stand != nullptr)
+			enemy[spr.detail].stand(plr, i);
 	}
 
 	for (i = headspritestat[CHILL]; i >= 0; i = nextsprite) {
@@ -401,7 +409,7 @@ void aiProcess() {
 		switch (checkfluid(i, zr_florhit)) {
 		case TYPELAVA:
 		case TYPEWATER:
-			spr.z = zr_florz + (tilesizy[spr.picnum] << 5);
+			spr.z = zr_florz + (tileHeight(spr.picnum) << 5);
 			break;
 		}
 	}
@@ -416,7 +424,7 @@ int aimove(short i) {
 	int movestate = movesprite(i, ((sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
 		((sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
-	if (((zr_florz - oz) >> 4) > tilesizy[sprite[i].picnum] + sprite[i].yrepeat << 2
+	if (((zr_florz - oz) >> 4) > tileHeight(sprite[i].picnum) + (sprite[i].yrepeat << 2)
 		|| (movestate & kHitTypeMask) == kHitWall) {
 		//			changespritesect(i, osect);
 		//			setsprite(i, ox + mulscale((sprite[i].clipdist) << 2, sintable[(sprite[i].ang + 1536) & 2047], 16),
@@ -450,8 +458,8 @@ int aifly(short i) {
 	spr.cstat = ocs;
 	if (spr.z > zr_florz)
 		spr.z = zr_florz;
-	if (spr.z - (tilesizy[spr.picnum] << 7) < zr_ceilz)
-		spr.z = zr_ceilz + (tilesizy[spr.picnum] << 7);
+	if (spr.z - (tileHeight(spr.picnum) << 7) < zr_ceilz)
+		spr.z = zr_ceilz + (tileHeight(spr.picnum) << 7);
 
 	return movestate;
 }
@@ -484,7 +492,7 @@ void aisearch(PLAYER& plr, short i, boolean fly) {
 	}
 
 	if (movestat != 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && spr.lotag < 0) {
 			spr.ang = (short)((spr.ang + 1024) & 2047);
 			newstatus(i, FLEE);
@@ -503,7 +511,7 @@ void aisearch(PLAYER& plr, short i, boolean fly) {
 		}
 	}
 
-	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum) && movestat == 0 && spr.lotag < 0) {
 		newstatus(i, FACE);
 		return;
@@ -557,14 +565,14 @@ void processfluid(int i, int zr_florhit, boolean fly) {
 	switch (checkfluid(i, zr_florhit)) {
 	case TYPELAVA:
 		if (!fly) {
-			spr.z += tilesizy[spr.picnum] << 5;
+			spr.z += tileHeight(spr.picnum) << 5;
 			trailingsmoke(i, true);
 			makemonstersplash(LAVASPLASH, i);
 		}
 		break;
 	case TYPEWATER:
 		if (!fly) {
-			spr.z += tilesizy[spr.picnum] << 5;
+			spr.z += tileHeight(spr.picnum) << 5;
 			if (krand() % 100 > 60)
 				makemonstersplash(SPLASHAROO, i);
 		}
@@ -578,9 +586,9 @@ void castspell(PLAYER& plr, int i) {
 	sprite[j].x = sprite[i].x;
 	sprite[j].y = sprite[i].y;
 	if (isWh2() || sprite[i].picnum == SPAWNFIREBALL)
-		sprite[j].z = sprite[i].z - ((tilesizy[sprite[i].picnum] >> 1) << 8);
+		sprite[j].z = sprite[i].z - ((tileHeight(sprite[i].picnum) >> 1) << 8);
 	else
-		sprite[j].z = getflorzofslope(sprite[i].sectnum, sprite[i].x, sprite[i].y) - ((tilesizy[sprite[i].picnum] >> 1) << 8);
+		sprite[j].z = getflorzofslope(sprite[i].sectnum, sprite[i].x, sprite[i].y) - ((tileHeight(sprite[i].picnum) >> 1) << 8);
 	sprite[j].cstat = 0; // Hitscan does not hit other bullets
 	sprite[j].picnum = MONSTERBALL;
 	sprite[j].shade = -15;
@@ -606,8 +614,6 @@ void castspell(PLAYER& plr, int i) {
 	sprite[j].clipdist = 16;
 	sprite[j].lotag = 512;
 	sprite[j].hitag = 0;
-
-	game.pInt.setsprinterpolate(j, sprite[j]);
 }
 
 void skullycastspell(PLAYER& plr, int i) {
@@ -616,9 +622,9 @@ void skullycastspell(PLAYER& plr, int i) {
 	sprite[j].x = sprite[i].x;
 	sprite[j].y = sprite[i].y;
 	if (sprite[i].picnum == SPAWNFIREBALL)
-		sprite[j].z = sprite[i].z - ((tilesizy[sprite[i].picnum] >> 1) << 8);
+		sprite[j].z = sprite[i].z - ((tileHeight(sprite[i].picnum) >> 1) << 8);
 	else
-		sprite[j].z = getflorzofslope(sprite[i].sectnum, sprite[i].x, sprite[i].y) - ((tilesizy[sprite[i].picnum] >> 1) << 8);
+		sprite[j].z = getflorzofslope(sprite[i].sectnum, sprite[i].x, sprite[i].y) - ((tileHeight(sprite[i].picnum) >> 1) << 8);
 	sprite[j].cstat = 0; // Hitscan does not hit other bullets
 	sprite[j].picnum = PLASMA;
 	sprite[j].shade = -15;
@@ -642,8 +648,6 @@ void skullycastspell(PLAYER& plr, int i) {
 	sprite[j].lotag = 512;
 	sprite[j].hitag = 0;
 	sprite[j].pal = 7;
-
-	game.pInt.setsprinterpolate(j, sprite[j]);
 }
 
 void attack(PLAYER& plr, int i) {
@@ -919,7 +923,7 @@ boolean checkdist(int i, int x, int y, int z) {
 	int attackdist = 512;
 	int attackheight = 120;
 	if (spr.detail > 0) {
-		attackdist = enemy[spr.detail].info.getAttackDist(spr);
+		attackdist = enemy[spr.detail].info.getAttackDist(enemy[spr.detail].info, spr);
 		attackheight = enemy[spr.detail].info.attackheight;
 	}
 
@@ -930,8 +934,8 @@ boolean checkdist(int i, int x, int y, int z) {
 		break;
 	}
 
-	if ((klabs(x - spr.x) + klabs(y - spr.y) < attackdist)
-		&& (klabs((z >> 8) - ((spr.z >> 8) - (tilesizy[spr.picnum] >> 1))) <= attackheight))
+	if ((abs(x - spr.x) + abs(y - spr.y) < attackdist)
+		&& (abs((z >> 8) - ((spr.z >> 8) - (tileHeight(spr.picnum) >> 1))) <= attackheight))
 		return true;
 
 	return false;
@@ -944,7 +948,7 @@ boolean checksight(PLAYER& plr, int i) {
 	}
 
 	if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-		sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum) && plr.invisibletime < 0) {
+		sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum) && plr.invisibletime < 0) {
 		checksight_ang = (getangle(plr.x - sprite[i].x, plr.y - sprite[i].y) & 2047);
 		if (((sprite[i].ang + 2048 - checksight_ang) & 2047) < 1024)
 			sprite[i].ang = (short)((sprite[i].ang + 2048 - (TICSPERFRAME << 1)) & 2047);
@@ -972,7 +976,7 @@ void monsterweapon(int i) {
 
 	int j = insertsprite(sprite[i].sectnum, (short)0);
 
-	SPRITE weap = sprite[j];
+	SPRITE& weap = sprite[j];
 	weap.x = sprite[i].x;
 	weap.y = sprite[i].y;
 	weap.z = sprite[i].z - (24 << 8);
@@ -986,8 +990,6 @@ void monsterweapon(int i) {
 	weap.detail = (short)(FLASKBLUETYPE + type);
 	weap.xrepeat = 25;
 	weap.yrepeat = 20;
-
-	game.pInt.setsprinterpolate(j, weap);// XXX
 
 	switch (sprite[i].picnum) {
 	case NEWGUYDEAD:
@@ -1158,25 +1160,26 @@ void monsterweapon(int i) {
 	}
 }
 
-PLAYER& aiGetPlayerTarget(short i) {
+PLAYER* aiGetPlayerTarget(short i) {
 	if (sprite[i].owner >= 0 && sprite[i].owner < MAXSPRITES) {
 		int playernum = sprite[sprite[i].owner].owner;
 		if (playernum >= 4096)
-			return player[playernum - 4096];
+			return &player[playernum - 4096];
 	}
 
-	return null;
+	return nullptr;
 }
 
 boolean actoruse(short i) {
 	SPRITE& spr = sprite[i];
+	Neartag nearTag;
 
-	neartag(spr.x, spr.y, spr.z, spr.sectnum, spr.ang, neartag, 1024, 3);
+	neartag(spr.x, spr.y, spr.z, spr.sectnum, spr.ang, nearTag, 1024, 3);
 
-	if (neartag.tagsector >= 0) {
-		if (sector[neartag.tagsector].hitag == 0) {
-			if (sector[neartag.tagsector].floorz != sector[neartag.tagsector].ceilingz) {
-				operatesector(player[pyrn], neartag.tagsector);
+	if (nearTag.tagsector >= 0) {
+		if (sector[nearTag.tagsector].hitag == 0) {
+			if (sector[nearTag.tagsector].floorz != sector[nearTag.tagsector].ceilingz) {
+				operatesector(player[pyrn], nearTag.tagsector);
 				return true;
 			}
 		}

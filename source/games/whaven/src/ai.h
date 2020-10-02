@@ -3,6 +3,8 @@
 
 BEGIN_WH_NS
 
+short adjusthp(int hp);
+
 struct EnemyInfo 
 {
 	short sizx, sizy;
@@ -133,10 +135,11 @@ boolean checkdist(int i, int x, int y, int z);
 extern int checksight_ang;
 boolean checksight(PLAYER& plr, int i);
 void monsterweapon(int i);
-PLAYER& aiGetPlayerTarget(short i);
+PLAYER* aiGetPlayerTarget(short i);
 boolean actoruse(short i);
 
 void initAI();
+void aiInit();
 
 void premapDemon(short i);
 void premapDevil(short i);
@@ -160,6 +163,7 @@ void premapSkeleton(short i);
 void premapSkully(short i);
 void premapSpider(short i);
 void premapWillow(short i);
+void deaddude(short sn);
 
 
 inline int findplayer() {

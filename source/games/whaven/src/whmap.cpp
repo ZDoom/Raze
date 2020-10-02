@@ -1,5 +1,7 @@
 #include "ns.h"
 #include "wh.h"
+#include "mmulti.h"
+#include "automap.h"
 
 BEGIN_WH_NS
 
@@ -199,18 +201,10 @@ void preparesectors() {
 	for (int i = 0; i < numwalls; i++) {
 		wallshadearray[i] = wall[i].shade;
 		if (wall[i].lotag == 1) {
-			if (ypanningwallcnt < ypanningwalllist.length)
+			if (ypanningwallcnt < countof(ypanningwalllist))
 				ypanningwalllist[ypanningwallcnt++] = (short) i;
 		}
 	}
-
-//	    // Map starts out completed WH2 XXX
-//	    // for(i=0;i<(MAXSECTORS>>3);i++) show2dsector[i] = 0xff;
-//	    for(i=0;i<(MAXSECTORS>>3);i++) show2dsector[i] = 0x00;
-//	     // for(i=0;i<(MAXWALLS>>3);i++) show2dwall[i] = 0xff;
-//	    for(i=0;i<(MAXWALLS>>3);i++) show2dwall[i] = 0x00;
-//	    // for(i=0;i<(MAXSPRITES>>3);i++) show2dsprite[i] = 0xff;
-//	    for(i=0;i<(MAXSPRITES>>3);i++) show2dsprite[i] = 0x00;
 }
 
 boolean prepareboard(const char* fname) {
@@ -218,18 +212,19 @@ boolean prepareboard(const char* fname) {
 	short i;
 	short treesize;
 
-	PLAYER plr = player[0];
+	PLAYER& plr = player[0];
 
 	srand(17);
 
-	BuildPos out = nullptr;
-	out = loadboard(fname);
+	vec3_t pos;
+	int16_t ang;
 
-	plr.x = out.x;
-	plr.y = out.y;
-	plr.z = out.z;
-	plr.ang = out.ang;
-	plr.sector = out.sectnum;
+	engineLoadBoard(fname, 0, &pos, &ang, &plr.sector);
+
+	plr.x = pos.x;
+	plr.y = pos.y;
+	plr.z = pos.z;
+	plr.ang = ang;
 
 //		int ratcnt = 0;
 	swingcnt = 0;
@@ -263,8 +258,7 @@ boolean prepareboard(const char* fname) {
 
 	// the new mirror code
 	floormirrorcnt = 0;
-	tilesizx[FLOORMIRROR] = 0;
-	tilesizy[FLOORMIRROR] = 0;
+	tileDelete(FLOORMIRROR);
 
 	for (i = 0; i < ARROWCOUNTLIMIT; i++)
 		arrowsprite[i] = -1;
@@ -835,16 +829,18 @@ boolean prepareboard(const char* fname) {
 		justteleported = false;
 	} else {
 		initplayersprite(plr);
-		dimension = 3;
+		ClearAutomap();
 		SND_Sound(S_SCARYDUDE);
 	}
 
 	if (nextlevel) {
-		gAutosaveRequest = true;
+		//gAutosaveRequest = true;
 		nextlevel = false;
 	}
 
+#if 0
 	if (mUserFlag != UserFlag.UserMap)
+#endif
 		startmusic(mapon - 1);
 
 	return true;

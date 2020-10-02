@@ -15,7 +15,7 @@ static void chase(PLAYER& plr, short i) {
 		playsound_loc(S_KSNARL1 + (krand() % 4), sprite[i].x, sprite[i].y);
 
 	short osectnum = spr.sectnum;
-	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum) && plr.invisibletime < 0) {
 		if (checkdist(plr, i)) {
 			if (plr.shadowtime > 0) {
@@ -129,7 +129,7 @@ static void face(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
-	boolean cansee = cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {
@@ -202,7 +202,7 @@ static void attack(PLAYER& plr, short i) {
 	{
 	case TYPELAVA:
 	case TYPEWATER:
-		spr.z += tilesizy[spr.picnum] << 5;
+		spr.z += tileHeight(spr.picnum) << 5;
 		break;
 	}
 
@@ -313,10 +313,10 @@ static void checkexpl(PLAYER& plr, short i) {
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
 		short nextj = nextspritesect[j];
-		long dx = klabs(spr.x - sprite[j].x); // x distance to sprite
-		long dy = klabs(spr.y - sprite[j].y); // y distance to sprite
-		long dz = klabs((spr.z >> 8) - (sprite[j].z >> 8)); // z distance to sprite
-		long dh = tilesizy[sprite[j].picnum] >> 1; // height of sprite
+		int dx = abs(spr.x - sprite[j].x); // x distance to sprite
+		int dy = abs(spr.y - sprite[j].y); // y distance to sprite
+		int dz = abs((spr.z >> 8) - (sprite[j].z >> 8)); // z distance to sprite
+		int dh = tileHeight(sprite[j].picnum) >> 1; // height of sprite
 		if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
 			if (sprite[j].picnum == EXPLO2
 				|| sprite[j].picnum == SMOKEFX

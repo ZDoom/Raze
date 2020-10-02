@@ -140,8 +140,7 @@ void bookprocess(int snum) {
 	PLAYER& plr = player[snum];
 		
 	if (plr.currweaponanim == 0 && plr.currweaponflip == 0) {
-		int bits = plr.pInput.bits;
-		int spell = ((bits & (15 << 12)) >> 12) - 1;
+		int spell = ((plr.plInput.actions & (SB_ITEM_BIT_4 | SB_ITEM_BIT_5 | SB_ITEM_BIT_6 | SB_ITEM_BIT_7)) / SB_ITEM_BIT_4) - 1;
 	
 		if(spell != -1 && spell < 10)
 		{
@@ -257,9 +256,9 @@ void nukespell(PLAYER& plr, short j) {
 		sprite[j].lotag = 360;
 		sprite[j].ang = (short) plr.ang;
 		sprite[j].hitag = 0;
-		addscore(plr, 150);
+		addscore(&plr, 150);
 
-		int k = engine.insertsprite(sprite[j].sectnum, NUKED);
+		int k = insertsprite(sprite[j].sectnum, NUKED);
 		sprite[k].lotag = 360;
 		sprite[k].xrepeat = 30;
 		sprite[k].yrepeat = 12;
@@ -277,22 +276,22 @@ void nukespell(PLAYER& plr, short j) {
 	switch (sprite[j].detail) {
 	case WILLOWTYPE:
 	case SPIDERTYPE:
-		engine.deletesprite((short) j);
-		addscore(plr, 10);
+		deletesprite((short) j);
+		addscore(&plr, 10);
 		break;
 	case KOBOLDTYPE:
 		sprite[j].picnum = KOBOLDCHAR;
 		newstatus(j, NUKED);
 		sprite[j].pal = 0;
 		sprite[j].cstat |= 1;
-		addscore(plr, 150);
+		addscore(&plr, 150);
 		break;
 	case DEVILTYPE:
 		sprite[j].picnum = DEVILCHAR;
 		newstatus(j, NUKED);
 		sprite[j].pal = 0;
 		sprite[j].cstat |= 1;
-		addscore(plr, 150);
+		addscore(&plr, 150);
 		break;
 	case GOBLINTYPE:
 	case IMPTYPE:
@@ -300,56 +299,56 @@ void nukespell(PLAYER& plr, short j) {
 		newstatus(j, NUKED);
 		sprite[j].pal = 0;
 		sprite[j].cstat |= 1;
-		addscore(plr, 150);
+		addscore(&plr, 150);
 		break;
 	case MINOTAURTYPE:
 		sprite[j].picnum = MINOTAURCHAR;
 		newstatus(j, NUKED);
 		sprite[j].pal = 0;
 		sprite[j].cstat |= 1;
-		addscore(plr, 150);
+		addscore(&plr, 150);
 		break;
 	case SKELETONTYPE:
 		sprite[j].picnum = SKELETONCHAR;
 		newstatus(j, NUKED);
 		sprite[j].pal = 0;
 		sprite[j].cstat |= 1;
-		addscore(plr, 150);
+		addscore(&plr, 150);
 		break;
 	case GRONTYPE:
 		sprite[j].picnum = GRONCHAR;
 		newstatus(j, NUKED);
 		sprite[j].pal = 0;
 		sprite[j].cstat |= 1;
-		addscore(plr, 150);
+		addscore(&plr, 150);
 		break;
 	case DRAGONTYPE:
 		sprite[j].picnum = DRAGONCHAR;
 		newstatus(j, NUKED);
 		sprite[j].pal = 0;
 		sprite[j].cstat |= 1;
-		addscore(plr, 150);
+		addscore(&plr, 150);
 		break;
 	case GUARDIANTYPE:
 		sprite[j].picnum = GUARDIANCHAR;
 		newstatus(j, NUKED);
 		sprite[j].pal = 0;
 		sprite[j].cstat |= 1;
-		addscore(plr, 150);
+		addscore(&plr, 150);
 		break;
 	case FATWITCHTYPE:
 		sprite[j].picnum = FATWITCHCHAR;
 		newstatus(j, NUKED);
 		sprite[j].pal = 0;
 		sprite[j].cstat |= 1;
-		addscore(plr, 150);
+		addscore(&plr, 150);
 		break;
 	case SKULLYTYPE:
 		sprite[j].picnum = SKULLYCHAR;
 		newstatus(j, NUKED);
 		sprite[j].pal = 0;
 		sprite[j].cstat |= 1;
-		addscore(plr, 150);
+		addscore(&plr, 150);
 		break;
 	case JUDYTYPE:
 		if (mapon < 24) {
@@ -357,7 +356,7 @@ void nukespell(PLAYER& plr, short j) {
 			newstatus(j, NUKED);
 			sprite[j].pal = 0;
 			sprite[j].cstat |= 1;
-			addscore(plr, 150);
+			addscore(&plr, 150);
 		}
 		break;
 	}
@@ -423,7 +422,7 @@ void medusa(PLAYER& plr, short j) {
 	}
 	sprite[j].pal = 6;
 	sprite[j].cstat |= 1;
-	addscore(plr, 100);
+	addscore(&plr, 100);
 }
 
 void displayspelltext(PLAYER& plr) {
@@ -459,6 +458,8 @@ void orbpic(PLAYER& plr, int currentorb) {
 	if (plr.orbammo[currentorb] < 0)
 		plr.orbammo[currentorb] = 0;
 
+#pragma message("fix orbpic")
+#if 0
 	Bitoa(plr.orbammo[currentorb], tempchar);
 
 	int y = 382;
@@ -474,6 +475,7 @@ void orbpic(PLAYER& plr, int currentorb) {
 	int spellbookpage = sspellbookanim[currentorb][8].daweaponframe;
 	overwritesprite(121 << 1, y, spellbookpage, 0, 0, 0);
 	game.getFont(4).drawText(126 << 1,439, tempchar, 0, 0, TextAlign.Left, 0, false);
+#endif
 }
 
 END_WH_NS

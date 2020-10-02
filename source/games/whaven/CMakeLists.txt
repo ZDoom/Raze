@@ -1,5 +1,6 @@
 
 set( PCH_SOURCES
+		src/2d.cpp
 		src/ai.cpp
 		src/aidemon.cpp
 		src/aidevil.cpp
@@ -23,6 +24,7 @@ set( PCH_SOURCES
 		src/aiskully.cpp
 		src/aispider.cpp
 		src/aiwillow.cpp
+		src/animate.cpp
 		src/items.cpp
 		src/names.cpp
 		src/potions.cpp
@@ -36,6 +38,7 @@ set( PCH_SOURCES
 		src/whobj.cpp
 		src/whplr.cpp
 		src/whtag.cpp
+		src/wh.cpp
 	)
 
 add_game_library2( whaven )

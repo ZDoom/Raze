@@ -19,12 +19,12 @@ static void chase(PLAYER& plr, short i) {
 	short osectnum = spr.sectnum;
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum) && plr.invisibletime < 0)
+			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum) && plr.invisibletime < 0)
 			newstatus(i, ATTACK);
 		return;
 	}
 	else {
-		if (totalclock % 100 > 70)
+		if (lockclock % 100 > 70)
 			trailingsmoke(i, true);
 
 		int dax = ((sintable[(sprite[i].ang + 512) & 2047] * TICSPERFRAME) << 2);
@@ -94,8 +94,7 @@ static void pain(PLAYER& plr, short i) {
 static void face(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
-	boolean cansee = cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
-		spr.sectnum);
+	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {
 		spr.ang = (short)(getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
@@ -133,7 +132,7 @@ static void attack(PLAYER& plr, short i) {
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum))
 			newstatus(i, CAST);
 		else
@@ -229,3 +228,5 @@ void premapDemon(short i) {
 	changespritestat(i, FACE);
 	enemy[DEMONTYPE].info.set(spr);
 }
+
+END_WH_NS

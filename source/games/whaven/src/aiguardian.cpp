@@ -17,7 +17,7 @@ static void chase(PLAYER& plr, short i) {
 
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum) && plr.invisibletime < 0)
+			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum) && plr.invisibletime < 0)
 			newstatus(i, ATTACK);
 		return;
 	}
@@ -26,7 +26,7 @@ static void chase(PLAYER& plr, short i) {
 		int day = (sintable[sprite[i].ang & 2047] * TICSPERFRAME) << 3;
 		checksight(plr, i);
 
-		if (totalclock % 100 > 70)
+		if (lockclock % 100 > 70)
 			trailingsmoke(i, true);
 
 		if (!checkdist(plr, i)) {
@@ -103,7 +103,7 @@ static void attack(PLAYER& plr, short i) {
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum))
 			newstatus(i, CAST);
 		else
@@ -117,7 +117,7 @@ static void face(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
-	boolean cansee = cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {
@@ -154,7 +154,7 @@ static void flee(PLAYER& plr, short i) {
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
-	if (totalclock % 100 > 70)
+	if (lockclock % 100 > 70)
 		trailingsmoke(i, true);
 
 	int movestat = aifly(i);

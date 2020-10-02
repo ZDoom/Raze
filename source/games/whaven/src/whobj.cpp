@@ -60,17 +60,14 @@ void timerprocess(PLAYER& plr) {
 	if (plr.helmettime > 0)
 		plr.helmettime -= TICSPERFRAME;
 
-	if (displaytime > 0)
-		displaytime -= TICSPERFRAME;
-
 	if (plr.shadowtime >= 0)
 		plr.shadowtime -= TICSPERFRAME;
 
 	if (plr.nightglowtime >= 0) {
 		plr.nightglowtime -= TICSPERFRAME;
-		visibility = 256;
+		g_visibility = 256;
 		if (plr.nightglowtime < 0)
-			visibility = 1024;
+			g_visibility = 1024;
 	}
 
 	if (plr.strongtime >= 0) {
@@ -95,6 +92,11 @@ void timerprocess(PLAYER& plr) {
 	if(plr.spiked != 0)
 		plr.spiketics -= TICSPERFRAME;
 
+#pragma message("displaytext")
+#if 0
+	if (displaytime > 0)
+		displaytime -= TICSPERFRAME;
+
 	if (displaytime <= 0) {
 		if (plr.manatime > 0) {
 			if (plr.manatime < 512) {
@@ -102,20 +104,21 @@ void timerprocess(PLAYER& plr) {
 					return;
 				}
 			}
-			game.getFont(1).drawText(18,24,  toCharArray("FIRE RESISTANCE"), 0, 0, TextAlign.Left, 2, false);
+			drawText(1, 18,24,  "FIRE RESISTANCE", 0, 0, TextAlign.Left, 2, false);
 		} else if (plr.poisoned == 1) {
-			game.getFont(1).drawText(18,24,  toCharArray("POISONED"), 0, 0, TextAlign.Left, 2, false);
+			drawText(1, 18,24,  "POISONED", 0, 0, TextAlign.Left, 2, false);
 		} else if (plr.orbactive[5] > 0) {
 			if (plr.orbactive[5] < 512) {
 				if ((plr.orbactive[5] % 64) > 32) {
 					return;
 				}
 			}
-			game.getFont(1).drawText(18,24, toCharArray("FLYING"), 0, 0, TextAlign.Left, 2, false);
+			drawText(1, 18,24, "FLYING", 0, 0, TextAlign.Left, 2, false);
 		} else if (plr.vampiretime > 0) {
-			game.getFont(1).drawText(18,24,  toCharArray("ORNATE HORN"), 0, 0, TextAlign.Left, 2, false);
+			drawText(1, 18,24,  "ORNATE HORN", 0, 0, TextAlign.Left, 2, false);
 		}
 	}
+#endif
 }
 
 int getPickHeight() {
@@ -138,10 +141,10 @@ void processobjs(PLAYER& plr) {
 	i = headspritesect[plr.sector];
 	while (i != -1) {
 		nexti = nextspritesect[i];
-		dx = (int) klabs(plr.x - sprite[i].x); // x distance to sprite
-		dy = (int) klabs(plr.y - sprite[i].y); // y distance to sprite
-		dz = (int) klabs((plr.z >> 8) - (sprite[i].z >> 8)); // z distance to sprite
-		dh = tilesizy[sprite[i].picnum] >> 1; // height of sprite
+		dx = abs(plr.x - sprite[i].x); // x distance to sprite
+		dy = abs(plr.y - sprite[i].y); // y distance to sprite
+		dz = abs((plr.z >> 8) - (sprite[i].z >> 8)); // z distance to sprite
+		dh = tileHeight(sprite[i].picnum) >> 1; // height of sprite
 		if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
 			if(isItemSprite(i)) 
 				items[(sprite[i].detail & 0xFF) - ITEMSBASE].pickup(plr, (short)i);
@@ -845,7 +848,7 @@ void newstatus(short sn, int seq) {
 			default:
 				sprite[sn].lotag = 20;
 				sprite[sn].picnum = GONZOGSWPAIN;
-				System.err.println("die error " + sprite[sn].picnum);
+				//System.err.println("die error " + sprite[sn].picnum);
 				return;
 			}
 			break;
@@ -871,7 +874,7 @@ void newstatus(short sn, int seq) {
 			else if(sprite[sn].picnum == GRONMU || sprite[sn].picnum == GRONMUATTACK || sprite[sn].picnum == GRONMUPAIN)
 				sprite[sn].picnum = GRONMUDIE;
 			else {
-				System.err.println("error gron" + sprite[sn].picnum);
+				//System.err.println("error gron" + sprite[sn].picnum);
 				sprite[sn].picnum = GRONDIE;
 			}
 			break;
@@ -1318,10 +1321,7 @@ void newstatus(short sn, int seq) {
 				sprite[sn].picnum = GOBLINDEAD;
 				sprite[sn].cstat &= ~3;
 				changespritestat(sn, DEAD);
-				
-				PLAYER p = aiGetPlayerTarget(sn);
-				if(p != null) addscore(p, 25);
-
+				addscore(aiGetPlayerTarget(sn), 25);
 				if ((rand() % 100) > 60)
 					monsterweapon(sn);
 				break;
@@ -1396,7 +1396,6 @@ void newstatus(short sn, int seq) {
 
 void makeafire(int i, int firetype) {
 	short j = insertsprite(sprite[i].sectnum, FIRE);
-	//game.pInt.setsprinterpolate(j, sprite[j]);
 	
 	sprite[j].x = sprite[i].x + (krand() & 1024) - 512;
 	sprite[j].y = sprite[i].y + (krand() & 1024) - 512;
@@ -1429,8 +1428,6 @@ void explosion(int i, int x, int y, int z, int owner) {
 		sprite[j].y = y;
 		sprite[j].z = z + (16 << 8);
 	}
-
-	//game.pInt.setsprinterpolate(j, sprite[j]);
 
 	sprite[j].cstat = 0; // Hitscan does not hit smoke on wall
 	sprite[j].cstat &= ~3;
@@ -1468,8 +1465,6 @@ void explosion2(int i, int x, int y, int z, int owner) {
 		sprite[j].z = z + (16 << 8);
 	}
 	
-	//game.pInt.setsprinterpolate(j, sprite[j]);
-
 	sprite[j].cstat = 0;
 	sprite[j].cstat &= ~3;
 	
@@ -1501,7 +1496,6 @@ void trailingsmoke(int i, boolean ball) {
 	sprite[j].y = sprite[i].y;
 	sprite[j].z = sprite[i].z;
 	
-	//game.pInt.setsprinterpolate(j, sprite[j]);
 	sprite[j].cstat = 0x03;
 	sprite[j].cstat &= ~3;
 	sprite[j].picnum = SMOKEFX;
@@ -1528,8 +1522,6 @@ void icecubes(int i, int x, int y, int z, int owner) {
 
 	sprite[j].z = sector[sprite[i].sectnum].floorz - (getPlayerHeight() << 8) + (krand() & 4096);
 
-	//game.pInt.setsprinterpolate(j, sprite[j]);
-	
 	sprite[j].cstat = 0; // Hitscan does not hit smoke on wall
 	sprite[j].picnum = ICECUBE;
 	sprite[j].shade = -16;
@@ -1711,7 +1703,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 					for (int k = 0; k < 32; k++)
 						icecubes(j, sprite[j].x, sprite[j].y, sprite[j].z, j);
 					// EG 26 Oct 2017: Move this here from medusa (anti multi-freeze exploit)
-					addscore(plr, 100);
+					addscore(&plr, 100);
 					deletesprite(j);
 				}
 				return true;
@@ -1744,13 +1736,6 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 	return false;
 }
 
-enum
-{
-	NORMALCLIP = 0,
-	PROJECTILECLIP = 1,
-	CLIFFCLIP = 2,
-};
-
 int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, int cliptype) {
 
 	int daz, zoffs;
@@ -1760,8 +1745,6 @@ int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordi
 	SPRITE& spr = sprite[spritenum];
 	if (spr.statnum == MAXSTATUS)
 		return (-1);
-
-	//game.pInt.setsprinterpolate(spritenum, spr);
 
 	int dcliptype = 0;
 	switch (cliptype) {
@@ -1777,29 +1760,17 @@ int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordi
 	}
 
 	if ((spr.cstat & 128) == 0)
-		zoffs = -((tilesizy[spr.picnum] * spr.yrepeat) << 1);
+		zoffs = -((tileHeight(spr.picnum) * spr.yrepeat) << 1);
 	else
 		zoffs = 0;
 
 	dasectnum = spr.sectnum; // Can't modify sprite sectors directly becuase of linked lists
 	daz = spr.z + zoffs; // Must do this if not using the new centered centering (of course)
-	retval = clipmove(spr.x, spr.y, daz, dasectnum, dx, dy, (spr.clipdist) << 2, ceildist, flordist,
-			dcliptype);
 
-	if (clipmove_sectnum != -1) {
-		spr.x = clipmove_x;
-		spr.y = clipmove_y;
-		daz = clipmove_z;
-		dasectnum = clipmove_sectnum;
-	}
-	
-	pushmove(spr.x, spr.y, daz, dasectnum, spr.clipdist << 2, ceildist, flordist, CLIPMASK0);
-	if(pushmove_sectnum != -1) {
-		spr.x = pushmove_x;
-		spr.y = pushmove_y;
-		daz = pushmove_z;
-		dasectnum = pushmove_sectnum;
-	}
+
+	retval = clipmove(&spr.x, &spr.y, &daz, &dasectnum, dx, dy, (spr.clipdist) << 2, ceildist, flordist, dcliptype);
+
+	pushmove(&spr.x, &spr.y, &daz, &dasectnum, spr.clipdist << 2, ceildist, flordist, CLIPMASK0);
 	
 	if ((dasectnum != spr.sectnum) && (dasectnum >= 0))
 		changespritesect(spritenum, dasectnum);
@@ -1828,8 +1799,6 @@ void trowajavlin(int s) {
 	sprite[j].y = sprite[s].y;
 	sprite[j].z = sprite[s].z;// - (40 << 8);
 	
-	//game.pInt.setsprinterpolate(j, sprite[j]);
-
 	sprite[j].cstat = 21;
 
 	switch (sprite[s].lotag) {
@@ -1881,8 +1850,6 @@ void spawnhornskull(short i) {
 	sprite[j].y = sprite[i].y;
 	sprite[j].z = sprite[i].z - (24 << 8);
 	
-	//game.pInt.setsprinterpolate(j, sprite[j]);
-	
 	sprite[j].shade = -15;
 	sprite[j].cstat = 0;
 	sprite[j].cstat &= ~3;
@@ -1899,8 +1866,6 @@ void spawnapentagram(int sn) {
 	sprite[j].x = sprite[sn].x;
 	sprite[j].y = sprite[sn].y;
 	sprite[j].z = sprite[sn].z - (8 << 8);
-	
-	//game.pInt.setsprinterpolate(j, sprite[j]);
 	
 	sprite[j].xrepeat = sprite[j].yrepeat = 64;
 	sprite[j].pal = 0;

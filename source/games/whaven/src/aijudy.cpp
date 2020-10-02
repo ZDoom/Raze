@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void spawnabaddy(int i, int monster);
+void spawnabaddy(int i, int monster);
 
 static void chase(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
@@ -25,7 +25,7 @@ static void chase(PLAYER& plr, short i) {
 
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum))// && invisibletime < 0)
+			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))// && invisibletime < 0)
 			newstatus(i, ATTACK);
 	}
 	else {
@@ -120,7 +120,7 @@ static void face(PLAYER& plr, short i) {
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 
-	boolean cansee = cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {
@@ -154,7 +154,7 @@ static void attack(PLAYER& plr, short i) {
 	switch (checkfluid(i, zr_florhit)) {
 	case TYPELAVA:
 	case TYPEWATER:
-		spr.z += tilesizy[spr.picnum] << 5;
+		spr.z += tileHeight(spr.picnum) << 5;
 		break;
 	}
 
@@ -164,7 +164,7 @@ static void attack(PLAYER& plr, short i) {
 	sprite[i].lotag -= TICSPERFRAME;
 	if (sprite[i].lotag < 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum))
+			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
 			newstatus(i, CAST);
 		else
 			newstatus(i, CHASE);
@@ -345,7 +345,7 @@ void judyOperate(PLAYER& plr)
 
 		sprite[i].ang = (short)(getangle(plr.x - sprite[i].x, plr.y - sprite[i].y) & 2047);
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum)) {
+			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum)) {
 			sprite[i].lotag -= TICSPERFRAME;
 			if (sprite[i].lotag < 0) {
 				sprite[i].picnum++;
@@ -359,65 +359,65 @@ void judyOperate(PLAYER& plr)
 	}
 }
 	
-static void spawnabaddy(int i, int monster) {
-		short j = insertsprite(sprite[i].sectnum, FACE);
+void spawnabaddy(int i, int monster) {
+	short j = insertsprite(sprite[i].sectnum, FACE);
 
-		sprite[j].x = sprite[i].x + (krand() & 2048) - 1024;
-		sprite[j].y = sprite[i].y + (krand() & 2048) - 1024;
-		sprite[j].z = sprite[i].z;
-		
-		sprite[j].pal = 0;
-		sprite[j].shade = 0;
-		sprite[j].cstat = 0;
-		
-		if(monster == WILLOW)
-			premapWillow(j);
-		else if(monster == SPIDER)
-			premapSpider(j);
-		else if(monster == GRONSW)
-			premapGron(j);
-		else if(monster == SKELETON)
-			premapSkeleton(j);
-		else if(monster == GONZOGSH)
-			premapGonzo(j);
-		
-		sprite[j].picnum = (short) monster;
-		killcnt++;
-		
-		setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
-		//game.pInt.setsprinterpolate(j, sprite[j]);
-	}
+	sprite[j].x = sprite[i].x + (krand() & 2048) - 1024;
+	sprite[j].y = sprite[i].y + (krand() & 2048) - 1024;
+	sprite[j].z = sprite[i].z;
 
+	sprite[j].pal = 0;
+	sprite[j].shade = 0;
+	sprite[j].cstat = 0;
 
-	void createJudyAI() {
-		auto &e = enemy[JUDYTYPE];
-		e.info.Init(32, 32, 2048, 120, 0, 64, false, 500, 0);
-		e.chase = chase;
-		e.resurect = resurect;
-		e.search = search;
-		e.nuked = nuked;
-		e.pain = pain;
-		e.face = face;
-		e.attack = attack;
-		e.flee = flee;
-		e.cast = cast;
-		e.die = die;
-	}
+	if (monster == WILLOW)
+		premapWillow(j);
+	else if (monster == SPIDER)
+		premapSpider(j);
+	else if (monster == GRONSW)
+		premapGron(j);
+	else if (monster == SKELETON)
+		premapSkeleton(j);
+	else if (monster == GONZOGSH)
+		premapGonzo(j);
 
-	void premapJudy(short i) {
-		SPRITE& spr = sprite[i];
-		spr.detail = JUDYTYPE;
+	sprite[j].picnum = (short)monster;
+	killcnt++;
 
-		enemy[JUDYTYPE].info.set(spr);
-		
-		if (mapon > 24)
-			spr.hitag = adjusthp(700);
-		
-		if (spr.picnum == JUDYSIT) {
-			changespritestat(i, WITCHSIT);
-			spr.extra = 1200;
-		} else
-			changespritestat(i, FACE);
-	}
+	setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
 }
+
+
+void createJudyAI() {
+	auto& e = enemy[JUDYTYPE];
+	e.info.Init(32, 32, 2048, 120, 0, 64, false, 500, 0);
+	e.chase = chase;
+	e.resurect = resurect;
+	e.search = search;
+	e.nuked = nuked;
+	e.pain = pain;
+	e.face = face;
+	e.attack = attack;
+	e.flee = flee;
+	e.cast = cast;
+	e.die = die;
+}
+
+void premapJudy(short i) {
+	SPRITE& spr = sprite[i];
+	spr.detail = JUDYTYPE;
+
+	enemy[JUDYTYPE].info.set(spr);
+
+	if (mapon > 24)
+		spr.hitag = adjusthp(700);
+
+	if (spr.picnum == JUDYSIT) {
+		changespritestat(i, WITCHSIT);
+		spr.extra = 1200;
+	}
+	else
+		changespritestat(i, FACE);
+}
+
 END_WH_NS

@@ -3,6 +3,7 @@
 
 BEGIN_WH_NS
 
+static void throwspank(PLAYER& plr, int i);
 
 static void chase(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
@@ -14,7 +15,7 @@ static void chase(PLAYER& plr, short i) {
 
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum))// && invisibletime < 0)
+			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))// && invisibletime < 0)
 			newstatus(i, ATTACK);
 	}
 	else {
@@ -107,7 +108,7 @@ static void pain(PLAYER& plr, short i) {
 static void face(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
-	boolean cansee = cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7), spr.sectnum);
+	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
@@ -141,7 +142,7 @@ static void attack(PLAYER& plr, short i) {
 	switch (checkfluid(i, zr_florhit)) {
 	case TYPELAVA:
 	case TYPEWATER:
-		spr.z += tilesizy[spr.picnum] << 5;
+		spr.z += tileHeight(spr.picnum) << 5;
 		break;
 	}
 
@@ -150,7 +151,7 @@ static void attack(PLAYER& plr, short i) {
 	sprite[i].lotag -= TICSPERFRAME;
 	if (sprite[i].lotag < 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum))
+			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
 			newstatus(i, CAST);
 		else
 			newstatus(i, CHASE);
@@ -228,7 +229,7 @@ static void die(PLAYER& plr, short i) {
 }
 
 
-void throwspank(PLAYER& plr, int i) {
+static void throwspank(PLAYER& plr, int i) {
 	int j = insertsprite(sprite[i].sectnum, MISSILE);
 	if (j == -1)
 		return;
@@ -236,7 +237,7 @@ void throwspank(PLAYER& plr, int i) {
 
 	sprite[j].x = sprite[i].x;
 	sprite[j].y = sprite[i].y;
-	sprite[j].z = sector[sprite[i].sectnum].floorz - ((tilesizy[sprite[i].picnum] >> 1) << 8);
+	sprite[j].z = sector[sprite[i].sectnum].floorz - ((tileHeight(sprite[i].picnum) >> 1) << 8);
 	sprite[j].cstat = 0; // Hitscan does not hit other bullets
 	sprite[j].picnum = FATSPANK;
 	sprite[j].shade = -15;

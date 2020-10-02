@@ -18,7 +18,7 @@ static void chase(PLAYER& plr, short i) {
 	short osectnum = spr.sectnum;
 	//				int speed = 10;
 	if ((krand() % 16) == 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && plr.invisibletime < 0)
 			if (plr.z < spr.z)
 				newstatus(i, ATTACK2);
@@ -195,7 +195,7 @@ static void attack(PLAYER& plr, short i) {
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum))
 			newstatus(i, CAST);
 		else
@@ -261,7 +261,7 @@ static void face(PLAYER& plr, short i) {
 
 
 
-	boolean cansee = cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {
@@ -307,39 +307,7 @@ static void dragonAttack2(PLAYER& plr, short i) {
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
-			spr.sectnum) && plr.invisibletime < 0)
-			newstatus(i, CAST);
-		else
-			newstatus(i, CHASE);
-		return;
-	}
-	else
-		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-
-	checksector6(i);
-}
-
-void dragonProcess(PLAYER& plr)
-{
-	for (short i = headspritestat[ATTACK2], nextsprite; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
-
-		switch (spr.detail) {
-		case DRAGON:
-			dragonAttack2(plr, i);
-			break;
-		}
-	}
-}
-	
-static void dragonAttack2(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
-	spr.lotag -= TICSPERFRAME;
-	if (spr.lotag < 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && plr.invisibletime < 0)
 			newstatus(i, CAST);
 		else
@@ -363,7 +331,7 @@ static void firebreath(PLAYER& plr, int i, int a, int b, int c) {
 		if (c == LOW)
 			sprite[j].z = sector[sprite[i].sectnum].floorz - (32 << 8);
 		else
-			sprite[j].z = sector[sprite[i].sectnum].floorz - (tilesizy[sprite[i].picnum] << 7);
+			sprite[j].z = sector[sprite[i].sectnum].floorz - (tileHeight(sprite[i].picnum) << 7);
 		sprite[j].cstat = 0;
 		sprite[j].picnum = MONSTERBALL;
 		sprite[j].shade = -15;
@@ -418,3 +386,5 @@ void premapDragon(short i) {
 	changespritestat(i, FACE);
 	enemy[DRAGONTYPE].info.set(spr);
 }
+
+END_WH_NS

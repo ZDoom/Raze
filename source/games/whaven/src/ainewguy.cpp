@@ -9,7 +9,7 @@ static void stand(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	if (sintable[(spr.ang + 512) & 2047] * (plr.x - spr.x)
 		+ sintable[spr.ang & 2047] * (plr.y - spr.y) >= 0)
-		if (cansee(spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7), spr.sectnum, plr.x, plr.y,
+		if (cansee(spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum, plr.x, plr.y,
 			plr.z, plr.sector) && plr.invisibletime < 0) {
 			if (plr.shadowtime > 0) {
 				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
@@ -27,7 +27,7 @@ static void chase(PLAYER& plr, short i) {
 		spr.lotag = 250;
 
 	short osectnum = spr.sectnum;
-	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum) && plr.invisibletime < 0) {
 		if (checkdist(plr, i)) {
 			if (plr.shadowtime > 0) {
@@ -183,7 +183,7 @@ static void pain(PLAYER& plr, short i) {
 static void face(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
-	boolean cansee = cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {
@@ -252,7 +252,7 @@ static void attack(PLAYER& plr, short i) {
 	switch (checkfluid(i, zr_florhit)) {
 	case TYPELAVA:
 	case TYPEWATER:
-		spr.z += tilesizy[spr.picnum] << 5;
+		spr.z += tileHeight(spr.picnum) << 5;
 		break;
 	}
 
@@ -264,7 +264,7 @@ static void attack(PLAYER& plr, short i) {
 		sprite[i].lotag -= TICSPERFRAME;
 		if (sprite[i].lotag < 0) {
 			if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-				sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum))
+				sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
 				newstatus(i, CAST);
 			else
 				newstatus(i, CHASE);
@@ -365,8 +365,7 @@ static void newguyarrow(short s, PLAYER& plr) {
 	spr.xvel = (short)((krand() & 256) - 128);
 	spr.yvel = (short)((krand() & 256) - 128);
 
-	spr.zvel = (short)(((plr.z + (8 << 8) - sprite[s].z) << 7) / engine
-		.ksqrt((plr.x - sprite[s].x) * (plr.x - sprite[s].x) + (plr.y - sprite[s].y) * (plr.y - sprite[s].y)));
+	spr.zvel = (short)(((plr.z + (8 << 8) - sprite[s].z) << 7) / ksqrt((plr.x - sprite[s].x) * (plr.x - sprite[s].x) + (plr.y - sprite[s].y) * (plr.y - sprite[s].y)));
 
 	spr.zvel += ((krand() % 256) - 128);
 
@@ -376,104 +375,104 @@ static void newguyarrow(short s, PLAYER& plr) {
 	spr.pal = 0;
 }
 
-	void createNewGuyAI() {
-		//picanm[NEWGUYDIE] = 0;
-		//picanm[NEWGUYDIE + 3] = 0;
-		auto& e = enemy[NEWGUYTYPE];
-		e.info.Init(35, 35, 1024 + 256, 120, 0, 48, false, 90, 0);
-		e.info.getAttackDist = [](EnemyInfo& e, SPRITE& spr)
-		{
-			int out = e.attackdist;
-			switch (spr.picnum) {
-			case NEWGUY:
-			case NEWGUYMACE:
-			case NEWGUYCAST:
-			case NEWGUYBOW:
-				if (spr.extra > 10)
-					out = 2048 << 1;
-				else out = 1024 + 256;
-				break;
-			case NEWGUYPUNCH:
-				out = 1024 + 256;
-				break;
-			default:
-				out = 512;
-				break;
-			}
+void createNewGuyAI() {
+	//picanm[NEWGUYDIE] = 0;
+	//picanm[NEWGUYDIE + 3] = 0;
+	auto& e = enemy[NEWGUYTYPE];
+	e.info.Init(35, 35, 1024 + 256, 120, 0, 48, false, 90, 0);
+	e.info.getAttackDist = [](EnemyInfo& e, SPRITE& spr)
+	{
+		int out = e.attackdist;
+		switch (spr.picnum) {
+		case NEWGUY:
+		case NEWGUYMACE:
+		case NEWGUYCAST:
+		case NEWGUYBOW:
+			if (spr.extra > 10)
+				out = 2048 << 1;
+			else out = 1024 + 256;
+			break;
+		case NEWGUYPUNCH:
+			out = 1024 + 256;
+			break;
+		default:
+			out = 512;
+			break;
+		}
 
-			return out;
-		};
-			
-		e.info.getHealth = [](EnemyInfo& e, SPRITE& spr)
-		{
-			switch (spr.picnum) {
-			case NEWGUYSTAND:
-			case NEWGUYKNEE:
-				return adjusthp(50);
-			case NEWGUYCAST:
-				return adjusthp(85);
-			case NEWGUYBOW:
-				return adjusthp(85);
-			case NEWGUYMACE:
-				return adjusthp(45);
-			case NEWGUYPUNCH:
-				return adjusthp(15);
-			}
+		return out;
+	};
 
-			return adjusthp(e.health);
-		};
-		e.stand = stand;
-		e.chase = chase;
-		e.resurect = resurect;
-		e.skirmish = skirmish;
-		e.search = search;
-		e.nuked = nuked;
-		e.pain = pain;
-		e.face = face;
-		e.flee = flee;
-		e.attack = attack;
-		e.die = die;
-		e.cast = cast;
-	}
-
-
-	void premapNewGuy(short i) {
-		SPRITE& spr = sprite[i];
-		spr.detail = NEWGUYTYPE;
-
-		enemy[NEWGUYTYPE].info.set(spr);
-
+	e.info.getHealth = [](EnemyInfo& e, SPRITE& spr)
+	{
 		switch (spr.picnum) {
 		case NEWGUYSTAND:
 		case NEWGUYKNEE:
-			changespritestat(i, STAND);
-			if (spr.picnum == NEWGUYSTAND)
-				spr.extra = 20;
-			else
-				spr.extra = 30;
-			break;
+			return adjusthp(50);
 		case NEWGUYCAST:
+			return adjusthp(85);
 		case NEWGUYBOW:
+			return adjusthp(85);
 		case NEWGUYMACE:
+			return adjusthp(45);
 		case NEWGUYPUNCH:
-		case NEWGUY:
-			switch (spr.picnum) {
-			case NEWGUYCAST:
-				spr.extra = 30;
-				break;
-			case NEWGUYBOW:
-				spr.extra = 20;
-				break;
-			case NEWGUYMACE:
-				spr.extra = 10;
-				break;
-			case NEWGUYPUNCH:
-				spr.extra = 0;
-				break;
-			}
-			changespritestat(i, FACE);
-			spr.picnum = NEWGUY;
+			return adjusthp(15);
 		}
+
+		return adjusthp(e.health);
+	};
+	e.stand = stand;
+	e.chase = chase;
+	e.resurect = resurect;
+	e.skirmish = skirmish;
+	e.search = search;
+	e.nuked = nuked;
+	e.pain = pain;
+	e.face = face;
+	e.flee = flee;
+	e.attack = attack;
+	e.die = die;
+	e.cast = cast;
+}
+
+
+void premapNewGuy(short i) {
+	SPRITE& spr = sprite[i];
+	spr.detail = NEWGUYTYPE;
+
+	enemy[NEWGUYTYPE].info.set(spr);
+
+	switch (spr.picnum) {
+	case NEWGUYSTAND:
+	case NEWGUYKNEE:
+		changespritestat(i, STAND);
+		if (spr.picnum == NEWGUYSTAND)
+			spr.extra = 20;
+		else
+			spr.extra = 30;
+		break;
+	case NEWGUYCAST:
+	case NEWGUYBOW:
+	case NEWGUYMACE:
+	case NEWGUYPUNCH:
+	case NEWGUY:
+		switch (spr.picnum) {
+		case NEWGUYCAST:
+			spr.extra = 30;
+			break;
+		case NEWGUYBOW:
+			spr.extra = 20;
+			break;
+		case NEWGUYMACE:
+			spr.extra = 10;
+			break;
+		case NEWGUYPUNCH:
+			spr.extra = 0;
+			break;
+		}
+		changespritestat(i, FACE);
+		spr.picnum = NEWGUY;
 	}
 }
+
 END_WH_NS

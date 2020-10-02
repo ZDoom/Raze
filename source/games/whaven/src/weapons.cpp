@@ -20,8 +20,8 @@ int enchantedsoundhandle = -1;
 boolean checkmedusadist(int i, int x, int y, int z, int lvl) {
 	int attackdist = (isWh2() ? 8192 : 1024) + (lvl << 9);
 
-	if ((klabs(x - sprite[i].x) + klabs(y - sprite[i].y) < attackdist)
-			&& (klabs((z >> 8) - ((sprite[i].z >> 8) - (tilesizy[sprite[i].picnum] >> 1))) <= 120))
+	if ((abs(x - sprite[i].x) + abs(y - sprite[i].y) < attackdist)
+			&& (abs((z >> 8) - ((sprite[i].z >> 8) - (tileHeight(sprite[i].picnum) >> 1))) <= 120))
 		return true;
 	else
 		return false;
@@ -109,8 +109,7 @@ void autoweaponchange(PLAYER& plr, int dagun) {
 void weaponchange(int snum) {
 	PLAYER& plr = player[snum];
 	if (plr.currweaponanim == 0 && plr.currweaponflip == 0) {
-		int bits = plr.pInput.bits;
-		int key = ((bits & (15 << 8)) >> 8) - 1;
+		int key = (plr.plInput.actions & SB_WEAPONMASK_BITS) / SB_FIRST_WEAPON_BIT - 1;
 		if (key != -1 && key < 12) {
 			if (key == 10 || key == 11) {
 				int k = plr.currweapon;
@@ -694,9 +693,9 @@ void weaponsprocess(int snum) {
 			else
 				plr.currweaponframe = weaponanimtics[plr.currweapon][0].daweaponframe;
 		}
-		if ((plr.pInput.fvel|plr.pInput.svel) != 0) {
+		if (plr.plInput.fvel || plr.plInput.svel) {
 			snakex = (sintable[(lockclock << 4) & 2047] >> 12);
-			snakey = (sintable[(totalclock << 4) & 2047] >> 12);
+			snakey = (sintable[(lockclock << 4) & 2047] >> 12);
 		}
 		break;
 	case 2: // unready
@@ -880,7 +879,7 @@ void weaponsprocess(int snum) {
 			&& plr.selectedgun < 5 && !droptheshield) {
 		if (plr.currweaponfired == 1) {
 			snakex = (sintable[(lockclock << 4) & 2047] >> 12);
-			snakey = (sintable[(totalclock << 4) & 2047] >> 12);
+			snakey = (sintable[(lockclock << 4) & 2047] >> 12);
 			if (droptheshield) {
 				dropshieldcnt += (TICSPERFRAME << 1);
 				snakey += dropshieldcnt;
@@ -898,7 +897,7 @@ void madenoise(PLAYER& plr, int val, int x, int y, int z) {
 	short nextsprite;
 	for (short i = headspritestat[FACE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		if ((klabs(x - sprite[i].x) + klabs(y - sprite[i].y) < (val * 4096)))
+		if ((abs(x - sprite[i].x) + abs(y - sprite[i].y) < (val * 4096)))
 			newstatus(i, FINDME);
 	}
 }
@@ -912,6 +911,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 	if(plr.hasshot == 1)
 		return;
 
+	Hitscan pHitInfo;
 	switch (guntype) {
 	case 0:
 		daz2 = (int) (100 - plr.horiz) * 2000;
@@ -926,8 +926,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			madeahit = true;
 
 		if (pHitInfo.hitwall >= 0) {
-			if ((klabs(plr.x - pHitInfo.hitx) + klabs(plr.y - pHitInfo.hity) < 512)
-					&& (klabs((plr.z >> 8) - ((pHitInfo.hitz >> 8) - (64))) <= (512 >> 3))) {
+			if ((abs(plr.x - pHitInfo.hitx) + abs(plr.y - pHitInfo.hity) < 512)
+					&& (abs((plr.z >> 8) - ((pHitInfo.hitz >> 8) - (64))) <= (512 >> 3))) {
 				madeahit = true;
 				switch (plr.currweapon) {
 				case 0: // fist
@@ -1655,7 +1655,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					for (k = 0; k < 32; k++)
 						icecubes(pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 								pHitInfo.hitsprite);
-					addscore(plr, 100);
+					addscore(&plr, 100);
 					deletesprite((short) pHitInfo.hitsprite);
 				}
 				break;
@@ -1706,10 +1706,11 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				}
 			}
 
+			Neartag ntag;
 			neartag(pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz, (short) pHitInfo.hitsect, (short) daang,
-					neartag, 1024, 3);
+					ntag, 1024, 3);
 
-			if (neartag.tagsector < 0) {
+			if (ntag.tagsector < 0) {
 				j = insertsprite(pHitInfo.hitsect, (short) 0);
 				sprite[j].x = pHitInfo.hitx;
 				sprite[j].y = pHitInfo.hity;
@@ -1890,7 +1891,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				case KURTTYPE:
 				case NEWGUYTYPE:
 					if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-							sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum)) {
+							sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum)) {
 						// distance check
 						if (checkmedusadist(i, plr.x, plr.y, plr.z, plr.lvl))
 							medusa(plr, i);
@@ -1901,33 +1902,35 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		}
 		break;
 	case 7: // KNOCKSPELL
-		daz2 = (int) (100 - plr.horiz) * 2000;
+	{
+		daz2 = (int)(100 - plr.horiz) * 2000;
 
+		Neartag ntag;
 		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
-				sintable[(daang + 2560) & 2047], // X vector of 3D ang
-				sintable[(daang + 2048) & 2047], // Y vector of 3D ang
-				daz2, // Z vector of 3D ang
-				pHitInfo, CLIPMASK1);
+			sintable[(daang + 2560) & 2047], // X vector of 3D ang
+			sintable[(daang + 2048) & 2047], // Y vector of 3D ang
+			daz2, // Z vector of 3D ang
+			pHitInfo, CLIPMASK1);
 
 		if (pHitInfo.hitsect < 0 && pHitInfo.hitsprite < 0 || pHitInfo.hitwall >= 0) {
 
-			neartag(pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz, (short) pHitInfo.hitsect, (short) daang,
-					neartag, 1024, 3);
+			neartag(pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz, (short)pHitInfo.hitsect, (short)daang,	ntag, 1024, 3);
 
-			if (neartag.tagsector >= 0) {
-				if (sector[neartag.tagsector].lotag >= 60 && sector[neartag.tagsector].lotag <= 69) {
-					sector[neartag.tagsector].lotag = 6;
-					sector[neartag.tagsector].hitag = 0;
+			if (ntag.tagsector >= 0) {
+				if (sector[ntag.tagsector].lotag >= 60 && sector[ntag.tagsector].lotag <= 69) {
+					sector[ntag.tagsector].lotag = 6;
+					sector[ntag.tagsector].hitag = 0;
 				}
-				if (sector[neartag.tagsector].lotag >= 70 && sector[neartag.tagsector].lotag <= 79) {
-					sector[neartag.tagsector].lotag = 7;
-					sector[neartag.tagsector].hitag = 0;
+				if (sector[ntag.tagsector].lotag >= 70 && sector[ntag.tagsector].lotag <= 79) {
+					sector[ntag.tagsector].lotag = 7;
+					sector[ntag.tagsector].hitag = 0;
 				}
-				operatesector(plr, neartag.tagsector);
+				operatesector(plr, ntag.tagsector);
 			}
 
 		}
 		break;
+	}
 	case 10: // throw a pike axe
 		if (plr.currweaponframe == PIKEATTACK1 + 4 || plr.currweaponframe == ZPIKEATTACK + 4) {
 			if (plr.currweaponanim == 8 && plr.currweapontics == 10) {
@@ -2218,7 +2221,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			case JUDYTYPE:
 			case WILLOWTYPE:
 				if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[j].x, sprite[j].y,
-						sprite[j].z - (tilesizy[sprite[j].picnum] << 7), sprite[j].sectnum))
+						sprite[j].z - (tileHeight(sprite[j].picnum) << 7), sprite[j].sectnum))
 					if ((isWh2() && sprite[j].owner != sprite[plr.spritenum].owner)
 							|| checkmedusadist(j, plr.x, plr.y, plr.z, 12))
 						nukespell(plr, j);
@@ -2256,8 +2259,8 @@ boolean checkweapondist(int i, int x, int y, int z, int guntype) {
 		}
 	}
 
-	if (i >= 0 && (klabs(x - sprite[i].x) + klabs(y - sprite[i].y) < length)
-			&& (klabs((z >> 8) - ((sprite[i].z >> 8) - (tilesizy[sprite[i].picnum] >> 1))) <= (length >> 3)))
+	if (i >= 0 && (abs(x - sprite[i].x) + abs(y - sprite[i].y) < length)
+			&& (abs((z >> 8) - ((sprite[i].z >> 8) - (tileHeight(sprite[i].picnum) >> 1))) <= (length >> 3)))
 		return true;
 	else
 		return false;
@@ -2489,3 +2492,4 @@ void swingdasound(int daweapon, boolean enchanted) {
 	}
 }
 
+END_WH_NS

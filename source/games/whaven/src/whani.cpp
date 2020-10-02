@@ -1,5 +1,6 @@
 #include "ns.h"
 #include "wh.h"
+#include "automap.h"
 
 BEGIN_WH_NS
 
@@ -285,7 +286,7 @@ void animateobjs(PLAYER& plr) {
 					((sintable[(short) plr.ang & 2047]) << TICSPERFRAME) << 8, 0, 4 << 8, 4 << 8, 0);
 
 			spr.cstat |= 0x8000;
-			show2dsprite[i >> 3] &= ~(1 << (i & 7));
+			show2dsprite.Set(i);
 
 			if (osectnum != spr.sectnum) {
 				sector[osectnum].ceilingshade = (byte) j;
@@ -503,7 +504,7 @@ void animateobjs(PLAYER& plr) {
 
 		switch (sprite[i].lotag) {
 		case 1821:
-			game.pInt.setsprinterpolate(i, sprite[i]);
+			
 			sprite[i].z -= (TICSPERFRAME << 6);
 			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 			if (sprite[i].z <= sector[sprite[i].sectnum].ceilingz + 32768) {
@@ -516,7 +517,7 @@ void animateobjs(PLAYER& plr) {
 			}
 			break;
 		case 1811:
-			game.pInt.setsprinterpolate(i, sprite[i]);
+			
 			sprite[i].z -= (TICSPERFRAME << 6);
 			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 			if (sprite[i].z <= sector[sprite[i].sectnum].ceilingz + 65536) {
@@ -526,7 +527,7 @@ void animateobjs(PLAYER& plr) {
 			}
 			break;
 		case 1801:
-			game.pInt.setsprinterpolate(i, sprite[i]);
+			
 			sprite[i].z -= (TICSPERFRAME << 6);
 			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 			if (sprite[i].z <= sector[sprite[i].sectnum].ceilingz + 65536) {
@@ -545,7 +546,7 @@ void animateobjs(PLAYER& plr) {
 
 		switch (sprite[i].lotag) {
 		case 1820:
-			game.pInt.setsprinterpolate(i, sprite[i]);
+			
 			ironbarmove = TICSPERFRAME << 6;
 			sprite[i].z += ironbarmove;
 			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
@@ -559,7 +560,6 @@ void animateobjs(PLAYER& plr) {
 			}
 			break;
 		case 1810:
-			game.pInt.setsprinterpolate(i, sprite[i]);
 			ironbarmove = TICSPERFRAME << 6;
 			sprite[i].z += ironbarmove;
 			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
@@ -570,7 +570,7 @@ void animateobjs(PLAYER& plr) {
 			}
 			break;
 		case 1800:
-			game.pInt.setsprinterpolate(i, sprite[i]);
+			
 			ironbarmove = TICSPERFRAME << 6;
 			sprite[i].z += ironbarmove;
 			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
@@ -586,9 +586,9 @@ void animateobjs(PLAYER& plr) {
 	// MASPLASH
 	for (i = headspritestat[MASPLASH]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		game.pInt.setsprinterpolate(i, sprite[i]);
+		
 		sprite[i].lotag -= TICSPERFRAME;
-		sprite[i].z = sector[sprite[i].sectnum].floorz + (tilesizy[sprite[i].picnum] << 8);
+		sprite[i].z = sector[sprite[i].sectnum].floorz + (tileHeight(sprite[i].picnum) << 8);
 		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 
 		if (sprite[i].lotag <= 0) {
@@ -1166,7 +1166,7 @@ void animateobjs(PLAYER& plr) {
 			if (sprite[i].lotag < 0) {
 				sprite[i].lotag = (short) (krand() & 120 + 360);
 				if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-						sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum)) {
+						sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum)) {
 					// JSA_NEW
 					playsound_loc(S_FIREBALL, sprite[i].x, sprite[i].y);
 					castspell(plr, i);
@@ -1200,7 +1200,7 @@ void animateobjs(PLAYER& plr) {
 
 		sprite[i].lotag -= TICSPERFRAME;
 
-//			game.pInt.setsprinterpolate(i, sprite[i]);
+//			
 //			sprite[i].z -= (TICSPERFRAME << 6);
 
 		if (sprite[i].xrepeat > 1)
@@ -1275,10 +1275,10 @@ void animateobjs(PLAYER& plr) {
 			while (j != -1) {
 				short nextj = nextspritesect[j];
 				SPRITE tspr = sprite[j];
-				long dx = klabs(spr.x - tspr.x); // x distance to sprite
-				long dy = klabs(spr.y - tspr.y); // y distance to sprite
-				long dz = klabs((spr.z >> 8) - (tspr.z >> 8)); // z distance to sprite
-				int dh = tilesizy[tspr.picnum] >> 1; // height of sprite
+				int dx = abs(spr.x - tspr.x); // x distance to sprite
+				int dy = abs(spr.y - tspr.y); // y distance to sprite
+				int dz = abs((spr.z >> 8) - (tspr.z >> 8)); // z distance to sprite
+				int dh = tileHeight(tspr.picnum) >> 1; // height of sprite
 				if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
 					if (tspr.owner == 4096) {
 						// strcpy(displaybuf,"hit player");
@@ -1415,3 +1415,5 @@ void animateobjs(PLAYER& plr) {
 boolean isBlades(int pic) {
 	return pic == THROWPIKE || pic == WALLARROW || pic == DART || pic == HORIZSPIKEBLADE || pic == THROWHALBERD;
 }
+
+END_WH_NS

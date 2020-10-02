@@ -791,7 +791,7 @@ void operatesector(PLAYER& plr, int s) {
 
 				switch (sprite[ironbarsanim[k]].picnum) {
 
-				case SwingDoor:
+				case SWINGDOOR:
 
 				case SWINGDOOR2:
 
@@ -935,7 +935,8 @@ void animatetags(int nPlayer) {
 			dragpoint((short) j, wall[j].x + dragxdir[i], wall[j].y + dragydir[i]);
 		j = sector[dasector].floorz;
 			
-		game.pInt.setceilinterpolate(dasector, sector[dasector]);
+#pragma message ("setinterpolation")
+		//game.pInt.setceilinterpolate(dasector, sector[dasector]);
 		sector[dasector].floorz = dragfloorz[i] + (sintable[(lockclock << 4) & 2047] >> 3);
 	
 		if (plr.sector == dasector) {
@@ -948,7 +949,6 @@ void animatetags(int nPlayer) {
 
 			// Update sprite representation of player
 				
-			game.pInt.setsprinterpolate(plr.spritenum, sprite[plr.spritenum]);
 			setsprite(plr.spritenum, plr.x, plr.y, plr.z + (plr.height));
 			sprite[plr.spritenum].ang = (short) plr.ang;
 		}

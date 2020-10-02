@@ -196,25 +196,19 @@ void teleporter() {
 		if (plr.sector != plr.oldsector) {
 			if (plr.treasure[TPENTAGRAM] == 1) {
 				plr.treasure[TPENTAGRAM] = 0;
+#pragma message ("usermap")
+#if 0
 				if (mUserFlag == UserFlag.UserMap) {
 					game.changeScreen(gMenuScreen);
 					return;
 				}
+#endif
 				switch (sector[plr.sector].hitag) {
 				case 1: // NEXTLEVEL
 					justteleported = true;
 						
 					if(isWh2()) {
-						gStatisticsScreen.show(plr, new Runnable() {
-							@Override
-							public void run() {
-								mapon++;
-								playsound_loc(S_CHAINDOOR1, plr.x, plr.y);
-								playertorch = 0;
-								playsound_loc(S_WARP, plr.x, plr.y);
-								loadnewlevel(mapon);
-							}
-						});
+						showStatisticsScreen();
 						break;
 					}
 						
@@ -227,7 +221,7 @@ void teleporter() {
 				case 2: // ENDOFDEMO
 					playsound_loc(S_THUNDER1, plr.x, plr.y);
 					justteleported = true;
-					game.changeScreen(gVictoryScreen);
+					showVictoryScreen();
 					break;
 				}
 			} else {
@@ -267,7 +261,7 @@ void warp(int x, int y, int z, int daang, short dasector) {
 	warpy = day / (endwall - startwall + 1);
 	warpz = sector[warpsect].floorz - (32 << 8);
 
-	warpsect = updatesector(warpx, warpy, warpsect);
+	updatesector(warpx, warpy, &warpsect);
 	dax = ((wall[i].x + wall[wall[i].point2].x) >> 1);
 	day = ((wall[i].y + wall[wall[i].point2].y) >> 1);
 	warpang = getangle(dax - warpx, day - warpy);
@@ -299,7 +293,6 @@ void ironbars() {
 			short spritenum = ironbarsanim[i];
 			switch (sprite[ironbarsanim[i]].hitag) {
 			case 1:
-				game.pInt.setsprinterpolate(spritenum, sprite[spritenum]);
 				sprite[ironbarsanim[i]].ang += TICSPERFRAME << 1;
 				if (sprite[ironbarsanim[i]].ang > 2047)
 					sprite[ironbarsanim[i]].ang -= 2047;
@@ -312,7 +305,6 @@ void ironbars() {
 				}
 				break;
 			case 2:
-				game.pInt.setsprinterpolate(spritenum, sprite[spritenum]);
 				sprite[ironbarsanim[i]].ang -= TICSPERFRAME << 1;
 				if (sprite[ironbarsanim[i]].ang < 0)
 					sprite[ironbarsanim[i]].ang += 2047;
@@ -325,7 +317,6 @@ void ironbars() {
 				}
 				break;
 			case 3:
-				game.pInt.setsprinterpolate(spritenum, sprite[spritenum]);
 				sprite[ironbarsanim[i]].z -= TICSPERFRAME << 4;
 				if (sprite[ironbarsanim[i]].z < ironbarsgoal[i]) {
 					sprite[ironbarsanim[i]].z = ironbarsgoal[i];
@@ -336,7 +327,6 @@ void ironbars() {
 				setsprite(spritenum, sprite[spritenum].x, sprite[spritenum].y, sprite[spritenum].z);
 				break;
 			case 4:
-				game.pInt.setsprinterpolate(spritenum, sprite[spritenum]);
 				sprite[ironbarsanim[i]].z += TICSPERFRAME << 4;
 				if (sprite[ironbarsanim[i]].z > ironbarsgoal[i]) {
 					sprite[ironbarsanim[i]].z = ironbarsgoal[i];
@@ -355,6 +345,8 @@ void sectorsounds() {
 	if (!SoundEnabled())
 		return;
 
+#pragma message("sectorspunds")
+#if 0
 	PLAYER& plr = player[pyrn];
 
 	int sec = sector[plr.sector].extra & 0xFFFF;
@@ -376,6 +368,7 @@ void sectorsounds() {
 				playsound_loc(sec, plr.x, plr.y);
 		}
 	}
+#endif
 }
 
 
@@ -422,15 +415,18 @@ void dofx() {
 			weaponpowerup(plr);
 	}
 
+#pragma message ("drunk?")
+#if 0
 	GLRenderer gl = glrender();
 	if (gl != nullptr) {
 		if (player[pyrn].poisoned != 0) {
-			int tilt = mulscale(sintable[(3 * totalclock) & 2047], 20, 16);
+			int tilt = mulscale(sintable[(3 * lockclock) & 2047], 20, 16);
 			if (tilt != 0)
 				gl.setdrunk(tilt);
 		} else
 			gl.setdrunk(0);
 	}
+#endif
 }
 
 static int thunderflash;
@@ -440,7 +436,7 @@ void thunder() {
 	int val;
 
 	if (thunderflash == 0) {
-		visibility = 1024;
+		g_visibility = 1024;
 		if ((gotpic[SKY >> 3] & (1 << (SKY & 7))) > 0) {
 			gotpic[SKY >> 3] &= ~(1 << (SKY & 7));
 			if (krand() % 32768 > 32700) {
@@ -507,7 +503,7 @@ void thunder() {
 		if (thundertime < 0) {
 			thunderflash = 0;
 			SND_Sound(S_THUNDER1 + (krand() % 4));
-			visibility = 1024;
+			g_visibility = 1024;
 		}
 	}
 
@@ -515,19 +511,19 @@ void thunder() {
 		val = krand() % 4;
 		switch (val) {
 		case 0:
-			visibility = 2048;
+			g_visibility = 2048;
 			break;
 		case 1:
-			visibility = 1024;
+			g_visibility = 1024;
 			break;
 		case 2:
-			visibility = 512;
+			g_visibility = 512;
 			break;
 		case 3:
-			visibility = 256;
+			g_visibility = 256;
 			break;
 		default:
-			visibility = 4096;
+			g_visibility = 4096;
 			break;
 		}
 	}
@@ -566,7 +562,7 @@ void makeasplash(int picnum, PLAYER& plr) {
 	int j = insertsprite(plr.sector, MASPLASH);
 	sprite[j].x = plr.x;
 	sprite[j].y = plr.y;
-	sprite[j].z = sector[plr.sector].floorz + (tilesizy[picnum] << 8);
+	sprite[j].z = sector[plr.sector].floorz + (tileHeight(picnum) << 8);
 	sprite[j].cstat = 0; // Hitscan does not hit other bullets
 	sprite[j].picnum = (short) picnum;
 	sprite[j].shade = 0;
@@ -601,7 +597,7 @@ void makemonstersplash(int picnum, int i) {
 	int j = insertsprite(sprite[i].sectnum, MASPLASH);
 	sprite[j].x = sprite[i].x;
 	sprite[j].y = sprite[i].y;
-	sprite[j].z = sector[sprite[i].sectnum].floorz + (tilesizy[picnum] << 8);
+	sprite[j].z = sector[sprite[i].sectnum].floorz + (tileHeight(picnum) << 8);
 	sprite[j].cstat = 0; // Hitscan does not hit other bullets
 	sprite[j].picnum = (short) picnum;
 	sprite[j].shade = 0;
@@ -622,7 +618,6 @@ void makemonstersplash(int picnum, int i) {
 	sprite[j].clipdist = 16;
 	sprite[j].lotag = 8;
 	sprite[j].hitag = 0;
-	game.pInt.setsprinterpolate(j, sprite[j]);
 
 	// JSA 5/3 start
 	switch (picnum) {
@@ -967,6 +962,7 @@ void FadeInit() {
 }
 
 void resetEffects() {
+#if 0
 	greencount = 0;
 	bluecount = 0;
 	redcount = 0;
@@ -975,6 +971,7 @@ void resetEffects() {
 	updateFade("GREEN", 0);
 	updateFade("BLUE", 0);
 	updateFade("WHITE", 0);
+#endif
 }
 
 void weaponpowerup(PLAYER& plr) {

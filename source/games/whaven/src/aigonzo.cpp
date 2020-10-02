@@ -18,7 +18,7 @@ static void chase(PLAYER& plr, short i) {
 	switch (spr.picnum) {
 	case GONZOGHM:
 	case GONZOGSH:
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && plr.invisibletime < 0) {
 			if (checkdist(plr, i)) {
 				if (plr.shadowtime > 0) {
@@ -111,7 +111,7 @@ static void chase(PLAYER& plr, short i) {
 		break;
 	case GONZOCSW:
 	case GONZOGSW:
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && plr.invisibletime < 0) {
 			if (checkdist(plr, i)) {
 				if (plr.shadowtime > 0) {
@@ -313,7 +313,7 @@ static void face(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
-	boolean cansee = cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {
@@ -350,7 +350,7 @@ static void attack(PLAYER& plr, short i) {
 	switch (checkfluid(i, zr_florhit)) {
 	case TYPELAVA:
 	case TYPEWATER:
-		spr.z += tilesizy[spr.picnum] << 5;
+		spr.z += tileHeight(spr.picnum) << 5;
 		break;
 	}
 
@@ -393,7 +393,7 @@ static void attack(PLAYER& plr, short i) {
 		sprite[i].lotag -= TICSPERFRAME;
 		if (sprite[i].lotag < 0) {
 			if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-				sprite[i].z - (tilesizy[sprite[i].picnum] << 7), sprite[i].sectnum))
+				sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
 				newstatus(i, CAST);
 			else
 				newstatus(i, CHASE);
@@ -600,13 +600,13 @@ void gonzoProcess(PLAYER& plr)
 }
 
 static short searchpatrol(SPRITE& spr) {
-	long mindist = 0x7fffffff;
+	int mindist = 0x7fffffff;
 	short target = -1;
 	short j = headspritestat[APATROLPOINT];
 	while (j != -1) {
 		short nextj = nextspritestat[j];
-		SPRITE tspr = sprite[j];
-		long dist = klabs(tspr.x - spr.x) + klabs(tspr.y - spr.y);
+		SPRITE& tspr = sprite[j];
+		int dist = abs(tspr.x - spr.x) + abs(tspr.y - spr.y);
 		if (dist < mindist) {
 			mindist = dist;
 			target = j;
@@ -621,8 +621,8 @@ static boolean patrolprocess(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	short target = searchpatrol(spr);
 	if (target != -1) {
-		SPRITE tspr = sprite[target];
-		if (cansee(tspr.x, tspr.y, tspr.z, tspr.sectnum, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+		SPRITE& tspr = sprite[target];
+		if (cansee(tspr.x, tspr.y, tspr.z, tspr.sectnum, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum)) {
 			spr.ang = getangle(tspr.x - spr.x, tspr.y - spr.y);
 			newstatus(i, PATROL);
@@ -655,8 +655,7 @@ static void gonzopike(short s, PLAYER& plr) {
 	spr.xvel = (short)((krand() & 256) - 128);
 	spr.yvel = (short)((krand() & 256) - 128);
 
-	spr.zvel = (short)(((plr.z + (8 << 8) - sprite[s].z) << 7) / engine
-		.ksqrt((plr.x - sprite[s].x) * (plr.x - sprite[s].x) + (plr.y - sprite[s].y) * (plr.y - sprite[s].y)));
+	spr.zvel = (short)(((plr.z + (8 << 8) - sprite[s].z) << 7) / ksqrt((plr.x - sprite[s].x) * (plr.x - sprite[s].x) + (plr.y - sprite[s].y) * (plr.y - sprite[s].y)));
 
 	spr.zvel += ((krand() % 256) - 128);
 
@@ -672,10 +671,10 @@ static void checkexpl(PLAYER& plr, short i) {
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
 		short nextj = nextspritesect[j];
-		long dx = klabs(spr.x - sprite[j].x); // x distance to sprite
-		long dy = klabs(spr.y - sprite[j].y); // y distance to sprite
-		long dz = klabs((spr.z >> 8) - (sprite[j].z >> 8)); // z distance to sprite
-		long dh = tilesizy[sprite[j].picnum] >> 1; // height of sprite
+		long dx = abs(spr.x - sprite[j].x); // x distance to sprite
+		long dy = abs(spr.y - sprite[j].y); // y distance to sprite
+		long dz = abs((spr.z >> 8) - (sprite[j].z >> 8)); // z distance to sprite
+		long dh = tileHeight(sprite[j].picnum) >> 1; // height of sprite
 		if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
 			if (sprite[j].picnum == EXPLO2
 				|| sprite[j].picnum == MONSTERBALL) {
@@ -707,7 +706,7 @@ void createGonzoAI() {
 		return out;
 	};
 
-	e.info.getHealth = [](EnemyInfo& e, SPRITE& spr)
+	e.info.getHealth = [](EnemyInfo& e, SPRITE& spr) ->short
 	{
 		switch (spr.picnum) {
 		case KURTAT:

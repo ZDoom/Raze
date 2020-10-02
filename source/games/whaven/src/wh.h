@@ -5,6 +5,7 @@
 BEGIN_WH_NS
 
 using SPRITE = spritetype;
+using WALL = walltype;
 using boolean = bool;
 using byte = uint8_t;
 
@@ -12,7 +13,6 @@ END_WH_NS
 
 #include "globals.h"
 #include "names.h"
-#include "item.h"
 #include "wh1names.h"
 #include "wh2names.h"
 #include "sndnames.h"
@@ -21,6 +21,7 @@ END_WH_NS
 #include "printf.h"
 #include "gstrings.h"
 #include "gamecontrol.h"
+#include "d_net.h"
 
 BEGIN_WH_NS
 
@@ -92,6 +93,13 @@ enum EItems
 	MAXITEMS = 162,
 };
 
+struct Point
+{
+	int x, y;
+	int getX() const { return x; }
+	int getY() const { return y; }
+};
+
 
 struct Delayitem {
      int  item;
@@ -128,7 +136,41 @@ struct PLOCATION {
 };
 
 
-extern int killcnt;
+extern int killcnt, kills;
+extern int treasurescnt, treasuresfound;
+extern int expgained;
+extern int difficulty;
+extern int lockclock;
+extern SPRITE tspritelist[MAXSPRITESONSCREEN + 1];
+extern int tspritelistcnt;
+extern short arrowsprite[ARROWCOUNTLIMIT], throwpikesprite[THROWPIKELIMIT];
+extern int sparksx, sparksy, sparksz;
+extern int playertorch;
+extern uint8_t ceilingshadearray[MAXSECTORS];
+extern uint8_t floorshadearray[MAXSECTORS];
+extern uint8_t wallshadearray[MAXWALLS];
+extern int hours, minutes, seconds, fortieth;
+extern short floormirrorsector[64];
+extern int floormirrorcnt;
+extern int displaytime;
+extern int redcount, whitecount;
+
+extern int zr_ceilz, zr_ceilhit, zr_florz, zr_florhit;
+void getzrange(int x, int y, int z, short sectnum, int walldist, int cliptype);
+
+struct Neartag {
+	int taghitdist;
+	short tagsector, tagwall, tagsprite;
+};
+void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, Neartag& nt, int32_t neartagrange, uint8_t tagsearch);
+
+struct Hitscan {
+	int hitx = -1, hity = -1, hitz = -1;
+	short hitsect = -1, hitwall = -1, hitsprite = -1;
+};
+
+int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz, Hitscan& hit, int cliptype);
+Point rotatepoint(int xpivot, int ypivot, int x, int y, short daang);
 
 // whobj
 
@@ -137,7 +179,6 @@ extern byte flashflag;
 extern short torchpattern[];
 extern int monsterwarptime;
 
-short adjusthp(int hp);
 void timerprocess(PLAYER& plr);
 int getPickHeight();
 void processobjs(PLAYER& plr);
@@ -176,8 +217,17 @@ void plruse(PLAYER& plr);
 void chunksofmeat(PLAYER& plr, int hitsprite, int hitx, int hity, int hitz, short hitsect, int daang);
 void addhealth(PLAYER& plr, int hp);
 void addarmor(PLAYER& plr, int arm);
-void addscore(PLAYER& plr, int score);
+void addscore(PLAYER* plr, int score);
 void goesupalevel(PLAYER& plr);
+void lockon(PLAYER& plr, int numshots, int shootguntype);
+void goesupalevel1(PLAYER& plr);
+void goesupalevel2(PLAYER& plr);
+
+inline int getPlayerHeight()
+{
+	return isWh2() ? WH2PLAYERHEIGHT : PLAYERHEIGHT;
+}
+
 
 // whtag.cpp
 
@@ -222,20 +272,20 @@ boolean isBlades(int pic);
 
 // weapons
 
-extern const WEAPONINF sspellbookanim[MAXNUMORBS][9];
-extern const WEAPONINF spikeanimtics[5];
-extern const WEAPONINF wh2throwanimtics[MAXNUMORBS][MAXFRAMES + 1];
-extern const WEAPONINF throwanimtics[MAXNUMORBS][MAXFRAMES + 1];
-extern const WEAPONINF cockanimtics[MAXFRAMES + 1];
-extern const WEAPONINF zcockanimtics[MAXFRAMES + 1];
-extern const WEAPONINF zreadyanimtics[MAXWEAPONS][MAXFRAMES + 1];
-extern const WEAPONINF readyanimtics[MAXWEAPONS][MAXFRAMES + 1];
-extern const WEAPONINF weaponanimtics[MAXWEAPONS][MAXFRAMES];
-extern const WEAPONINF zweaponanimtics[MAXWEAPONS][MAXFRAMES];
-extern const WEAPONINF zlefthandanimtics[5][MAXFRAMES];
-extern const WEAPONINF weaponanimtics2[MAXWEAPONS][MAXFRAMES];
-extern const WEAPONINF zweaponanimtics2[MAXWEAPONS][MAXFRAMES];
-extern const WEAPONINF lefthandanimtics[5][MAXFRAMES];
+extern WEAPONINF sspellbookanim[MAXNUMORBS][9];
+extern WEAPONINF spikeanimtics[5];
+extern WEAPONINF wh2throwanimtics[MAXNUMORBS][MAXFRAMES + 1];
+extern WEAPONINF throwanimtics[MAXNUMORBS][MAXFRAMES + 1];
+extern WEAPONINF cockanimtics[MAXFRAMES + 1];
+extern WEAPONINF zcockanimtics[MAXFRAMES + 1];
+extern WEAPONINF zreadyanimtics[MAXWEAPONS][MAXFRAMES + 1];
+extern WEAPONINF readyanimtics[MAXWEAPONS][MAXFRAMES + 1];
+extern WEAPONINF weaponanimtics[MAXWEAPONS][MAXFRAMES];
+extern WEAPONINF zweaponanimtics[MAXWEAPONS][MAXFRAMES];
+extern WEAPONINF zlefthandanimtics[5][MAXFRAMES];
+extern WEAPONINF weaponanimtics2[MAXWEAPONS][MAXFRAMES];
+extern WEAPONINF zweaponanimtics2[MAXWEAPONS][MAXFRAMES];
+extern WEAPONINF lefthandanimtics[5][MAXFRAMES];
 
 extern int dropshieldcnt;
 extern boolean droptheshield;
@@ -283,10 +333,135 @@ void updatepotion(PLAYER& plr, int vial);
 void potionpic(PLAYER& plr, int currentpotion, int x, int y, int scale);
 void randompotion(int i);
 
+// whfx
+
+extern short skypanlist[64], skypancnt;
+extern short lavadrylandsector[32];
+extern short lavadrylandcnt;
+extern short bobbingsectorlist[16], bobbingsectorcnt;
+extern int justwarpedfx;
+extern int lastbat;
+extern short revolveclip[16];
+extern short revolvesector[4], revolveang[4], revolvecnt;
+extern int revolvex[4][32], revolvey[4][32];
+extern int revolvepivotx[4], revolvepivoty[4];
+extern int warpx, warpy, warpz, warpang;
+extern short warpsect;
+extern int scarytime;
+extern int scarysize;
+
+void initlava();
+void movelava();
+void initwater();
+void movewater();
+void skypanfx();
+void panningfx();
+void revolvefx();
+void bobbingsector();
+void teleporter();
+void warp(int x, int y, int z, int daang, short dasector);
+void warpsprite(short spritenum);
+void ironbars();
+void sectorsounds();
+void scaryprocess();
+void dofx();
+void thunder();
+void thesplash();
+void makeasplash(int picnum, PLAYER& plr);
+void makemonstersplash(int picnum, int i);
+void bats(PLAYER& plr, int k);
+void cracks();
+void lavadryland();
+void warpfxsprite(int s);
+void FadeInit();
+void resetEffects();
+void weaponpowerup(PLAYER& plr);
+void makesparks(short i, int type);
+void shards(int i, int type);
+
+
+// animate
+
+struct ANIMATION
+{
+	short id;
+	byte type;
+	int goal;
+	int vel;
+	int acc;
+};
+
+extern ANIMATION gAnimationData[MAXANIMATES];
+extern int gAnimationCount;
+
+int getanimationgoal(sectortype& object, int type);
+int setanimation(int index, int thegoal, int thevel, int theacc, int type);
+void doanimations();
+
+
 
 inline void showmessage(const char* msg, int)
 {
 	Printf(PRINT_NOTIFY, "%s\n", GStrings(msg));
 }
 
+inline bool isValidSector(int num)
+{
+	return ((unsigned)num < numsectors);
+}
+
+inline int BClampAngle(int a)
+{
+	return a & 2047;
+}
+
+
+// placeholders 
+
+extern int lavasnd, cartsnd, batsnd;
+inline void startredflash(int)
+{}
+inline void startwhiteflash(int)
+{}
+inline void startgreenflash(int)
+{}
+inline void startblueflash(int)
+{}
+
+inline int SND_Sound(int sn) {
+	return 0;
+}
+
+inline int playsound_loc(int sn, int x, int y) {
+	return 0;
+}
+
+inline int playsound(int sn, int x, int y, int loop) {
+	return 0;
+}
+inline void stopsound(int snd)
+{}
+inline void SND_StopLoop(int)
+{}
+inline void SND_CheckLoops()
+{}
+
+extern int attacktheme;
+inline void startsong(int)
+{
+}
+inline void startmusic(int)
+{
+}
+
+
+
+void startWh2Ending();
+void showStatisticsScreen();
+void showVictoryScreen();
+
+
+#include "item.h"
+
 END_WH_NS
+

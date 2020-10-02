@@ -11,7 +11,7 @@ static void chase(PLAYER& plr, short i) {
 		spr.lotag = 250;
 
 	short osectnum = spr.sectnum;
-	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum) && plr.invisibletime < 0) {
 		if (checkdist(plr, i)) {
 			if (plr.shadowtime > 0) {
@@ -147,7 +147,7 @@ static void face(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
-	boolean cansee = cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tilesizy[spr.picnum] << 7),
+	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {

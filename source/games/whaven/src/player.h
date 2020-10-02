@@ -1,10 +1,12 @@
 #pragma once
 
+#include "packet.h"
+
 BEGIN_WH_NS
 
 struct PLAYER {
 	
-	//Input pInput;
+	InputPacket plInput;
 	int x,y,z;
 	float ang;
     float horiz, jumphoriz;

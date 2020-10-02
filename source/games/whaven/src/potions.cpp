@@ -30,7 +30,7 @@ void potionchange(int snum)
 {
 	PLAYER& plr = player[snum];
 		
-	int key = ((plr.pInput.bits & (15 << 16)) >> 16) - 1;
+	int key = ((plr.plInput.actions & (SB_ITEM_BIT_1 | SB_ITEM_BIT_2 | SB_ITEM_BIT_3)) / SB_ITEM_BIT_1) - 1;
 	if(key != -1 && key < 7)
 	{
 		if(key == 5 || key == 6)
@@ -135,6 +135,8 @@ void potionpic(PLAYER& plr, int currentpotion, int x, int y, int scale) {
 		
 	if( netgame )
 		return;
+#pragma message("fix potionpic")
+#if 0
 	x = x + mulscale(200, scale, 16);
 	y = y - mulscale(94, scale, 16);
 	engine.rotatesprite(x<<16,y<<16,scale,0,SPOTIONBACKPIC,0, 0, 8 | 16, 0, 0, xdim, ydim-1);
@@ -170,24 +172,27 @@ void potionpic(PLAYER& plr, int currentpotion, int x, int y, int scale) {
 		else 
 			engine.rotatesprite((x + mulscale(i*20, scale, 16))<<16,(y + mulscale(19, scale, 16))<<16,scale,0,SFLASKBLACK,0, 0, 8 | 16, 0, 0, xdim, ydim-1);
 	}
+#endif
 }
 	
 void randompotion(int i) {
-	if( (engine.krand()%100) > 20)
+	if ((krand() % 100) > 20)
 		return;
 
-	int j=engine.insertsprite(sprite[i].sectnum,(short)0);
+	int j = insertsprite(sprite[i].sectnum, (short)0);
 
-	sprite[j].x=sprite[i].x;
-	sprite[j].y=sprite[i].y;
-	sprite[j].z=sprite[i].z-(12<<8);
-	sprite[j].shade=-12;
-	sprite[j].pal=0;
-	sprite[j].cstat=0;
-	sprite[j].cstat&=~3;
-	sprite[j].xrepeat=64;
-	sprite[j].yrepeat=64;
-	int type = engine.krand()%4;
-	sprite[j].picnum = (short) (FLASKBLUE + type);
-	sprite[j].detail = (short) (FLASKBLUETYPE + type);
+	sprite[j].x = sprite[i].x;
+	sprite[j].y = sprite[i].y;
+	sprite[j].z = sprite[i].z - (12 << 8);
+	sprite[j].shade = -12;
+	sprite[j].pal = 0;
+	sprite[j].cstat = 0;
+	sprite[j].cstat &= ~3;
+	sprite[j].xrepeat = 64;
+	sprite[j].yrepeat = 64;
+	int type = krand() % 4;
+	sprite[j].picnum = (short)(FLASKBLUE + type);
+	sprite[j].detail = (short)(FLASKBLUETYPE + type);
 }
+
+END_WH_NS

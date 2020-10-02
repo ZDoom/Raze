@@ -37,20 +37,20 @@ static void flee(PLAYER& plr, short i) {
 	}
 
 	if ((movestat & kHitTypeMask) == kHitWall) {
-		WALL wal = wall[movestat & kHitIndexMask];
+		WALL& wal = wall[movestat & kHitIndexMask];
 		short wallang = (short)((getangle(wall[wal.point2].x - wal.x, wall[wal.point2].y - wal.y) + 512)
 			& 2047);
 		spr.ang = (short)(krand() & 512 - 256 + wallang);
 	}
 
 	if ((movestat & kHitTypeMask) == kHitSprite) {
-		SPRITE sp = sprite[movestat & kHitIndexMask];
+		SPRITE& sp = sprite[movestat & kHitIndexMask];
 		spr.owner = (short)(movestat & kHitIndexMask);
 		spr.ang = getangle(sp.x - spr.x, sp.y - spr.y);
 		spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 	}
 
-	if (klabs(plr.x - spr.x) <= 1024 && klabs(plr.y - spr.y) <= 1024) {
+	if (abs(plr.x - spr.x) <= 1024 && abs(plr.y - spr.y) <= 1024) {
 		spr.owner = sprite[plr.spritenum].owner;
 		newstatus(i, FACE);
 	}
@@ -67,7 +67,7 @@ static void flee(PLAYER& plr, short i) {
 	//				switch (checkfluid(i, zr_florhit)) {
 	//				case TYPELAVA:
 	//				case TYPEWATER:
-	//					spr.z += tilesizy[spr.picnum] << 5;
+	//					spr.z += tileHeight(spr.picnum) << 5;
 	//					break;
 	//				}
 
@@ -86,7 +86,7 @@ static void flee(PLAYER& plr, short i) {
 void createRatAI() {
 	auto& e = enemy[RATTYPE];
 	e.info.Init(32, 32, 512, 120, 0, 32, false, 0, 0);
-	e.info.getHealth = [](EnemyInfo&, SPRITE& spr)
+	e.info.getHealth = [](EnemyInfo&, SPRITE& spr) -> short
 	{
 		return 10;
 	};
