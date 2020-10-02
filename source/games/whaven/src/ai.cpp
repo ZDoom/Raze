@@ -35,30 +35,6 @@ void createSkullyAI();
 void createSpiderAI();
 void createWillowAI();
 
-void premapDemon(short i);
-void premapDevil(short i);
-void premapDragon(short i);
-void premapFatwitch(short i);
-void premapFish(short i);
-void premapFred(short i);
-void premapGoblin(short i);
-void premapGonzo(short i);
-void premapGron(short i);
-void premapGuardian(short i);
-void premapImp(short i);
-void premapJudy(short i);
-void premapKatie(short i);
-void premapKobold(short i);
-void premapKurt(short i);
-void premapMinotaur(short i);
-void premapNewGuy(short i);
-void premapRat(short i);
-void premapSkeleton(short i);
-void premapSkully(short i);
-void premapSpider(short i);
-void premapWillow(short i);
-
-
 void initAI()
 {
 
@@ -75,7 +51,7 @@ void initAI()
 	 * PATROL
 	 */
 
-	if (game.WH2)
+	if (isWh2())
 		createImpAI();
 	else
 		createGoblinAI();
@@ -123,7 +99,7 @@ static void aiInit() {
 				killcnt++;
 			}
 			else if (pic == RAT) {
-				.premapRat(i);
+				premapRat(i);
 			}
 			else if (pic == FISH) {
 				premapFish(i);
@@ -137,12 +113,12 @@ static void aiInit() {
 		case GOBLINSTAND:
 		case GOBLINCHILL:
 			killcnt++;
-			if (game.WH2 && spr.picnum == IMP) {
+			if (isWh2() && spr.picnum == IMP) {
 				premapImp(i);
 				break;
 			}
 
-			if (!game.WH2)
+			if (!isWh2())
 				premapGoblin(i);
 			break;
 		case DEVIL:
@@ -251,7 +227,7 @@ void aiProcess() {
 	for (i = headspritestat[PATROL]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 		short movestat = (short)movesprite((short)i, ((sintable[(spr.ang + 512) & 2047]) * TICSPERFRAME) << 3,
 			((sintable[spr.ang]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		if (zr_florz > spr.z + (48 << 8)) {
@@ -293,14 +269,14 @@ void aiProcess() {
 
 	for (i = headspritestat[CHASE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 		if (enemy[spr.detail] != null && enemy[spr.detail].chase != null)
 			enemy[spr.detail].chase.process(plr, i);
 	}
 
 	for (i = headspritestat[RESURECT]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 		if (enemy[spr.detail] != null && enemy[spr.detail].resurect != null) {
 			enemy[spr.detail].resurect.process(plr, i);
 		}
@@ -308,7 +284,7 @@ void aiProcess() {
 
 	for (i = headspritestat[FINDME]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 
 		if (enemy[spr.detail] != null && enemy[spr.detail].search != null)
 			enemy[spr.detail].search.process(plr, i);
@@ -316,7 +292,7 @@ void aiProcess() {
 
 	for (i = headspritestat[NUKED]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 
 		if (spr.picnum == ZFIRE) {
 			spr.lotag -= TICSPERFRAME;
@@ -331,14 +307,14 @@ void aiProcess() {
 
 	for (i = headspritestat[FROZEN]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 		if (enemy[spr.detail] != null && enemy[spr.detail].frozen != null)
 			enemy[spr.detail].frozen.process(plr, i);
 	}
 
 	for (i = headspritestat[PAIN]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 
 		if (enemy[spr.detail] != null && enemy[spr.detail].pain != null)
 			enemy[spr.detail].pain.process(plr, i);
@@ -346,7 +322,7 @@ void aiProcess() {
 
 	for (i = headspritestat[FACE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 
 		if (enemy[spr.detail] != null && enemy[spr.detail].face != null)
 			enemy[spr.detail].face.process(plr, i);
@@ -354,9 +330,9 @@ void aiProcess() {
 
 	for (i = headspritestat[ATTACK]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 
-		if (game.WH2 && attacktheme == 0) {
+		if (isWh2() && attacktheme == 0) {
 			attacktheme = 1;
 			startsong((rand() % 2) + 2);
 		}
@@ -367,7 +343,7 @@ void aiProcess() {
 
 	for (i = headspritestat[FLEE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 
 		if (enemy[spr.detail] != null && enemy[spr.detail].flee != null)
 			enemy[spr.detail].flee.process(plr, i);
@@ -375,7 +351,7 @@ void aiProcess() {
 
 	for (i = headspritestat[CAST]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 
 		if (enemy[spr.detail] != null && enemy[spr.detail].cast != null)
 			enemy[spr.detail].cast.process(plr, i);
@@ -383,14 +359,14 @@ void aiProcess() {
 
 	for (i = headspritestat[DIE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 		if (enemy[spr.detail] != null && enemy[spr.detail].die != null)
 			enemy[spr.detail].die.process(plr, i);
 	}
 
 	for (i = headspritestat[SKIRMISH]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 
 		if (enemy[spr.detail] != null && enemy[spr.detail].skirmish != null)
 			enemy[spr.detail].skirmish.process(plr, i);
@@ -398,7 +374,7 @@ void aiProcess() {
 
 	for (i = headspritestat[STAND]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 
 		if (enemy[spr.detail] != null && enemy[spr.detail].stand != null)
 			enemy[spr.detail].stand.process(plr, i);
@@ -406,7 +382,7 @@ void aiProcess() {
 
 	for (i = headspritestat[CHILL]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 		switch (spr.detail) {
 		case GOBLINTYPE:
 			goblinChill(plr, i);
@@ -419,7 +395,7 @@ void aiProcess() {
 
 	for (i = headspritestat[DEAD]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		SPRITE spr = sprite[i];
+		SPRITE& spr = sprite[i];
 
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 		switch (checkfluid(i, zr_florhit)) {
@@ -449,7 +425,7 @@ int aimove(short i) {
 		setsprite(i, ox, oy, oz);
 
 		if ((movestate & kHitTypeMask) != kHitWall) {
-			if (game.WH2)
+			if (isWh2())
 				sprite[i].z += WH2GRAVITYCONSTANT;
 			else
 				sprite[i].z += GRAVITYCONSTANT;
@@ -463,7 +439,7 @@ int aimove(short i) {
 }
 
 int aifly(short i) {
-	SPRITE spr = sprite[i];
+	SPRITE& spr = sprite[i];
 	int movestate = movesprite(i, ((sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
 		((sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
@@ -481,7 +457,7 @@ int aifly(short i) {
 }
 
 void aisearch(PLAYER& plr, short i, boolean fly) {
-	SPRITE spr = sprite[i];
+	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
 	//		if (plr.invisibletime > 0) {
@@ -542,7 +518,7 @@ void aisearch(PLAYER& plr, short i, boolean fly) {
 }
 
 boolean checksector6(short i) {
-	SPRITE spr = sprite[i];
+	SPRITE& spr = sprite[i];
 	if (sector[spr.sectnum].floorz - (32 << 8) < sector[spr.sectnum].ceilingz) {
 		if (sector[spr.sectnum].lotag == 6)
 			newstatus(i, DIE);
@@ -556,7 +532,7 @@ boolean checksector6(short i) {
 }
 
 int checkfluid(int i, int zr_florhit) {
-	SPRITE spr = sprite[i];
+	SPRITE& spr = sprite[i];
 	if (isValidSector(spr.sectnum) && (zr_florhit & kHitTypeMask) == kHitSector && (sector[spr.sectnum].floorpicnum == WATER
 		/* || sector[spr.sectnum].floorpicnum == LAVA2 */ || sector[spr.sectnum].floorpicnum == LAVA
 		|| sector[spr.sectnum].floorpicnum == SLIME || sector[spr.sectnum].floorpicnum == FLOORMIRROR
@@ -577,7 +553,7 @@ int checkfluid(int i, int zr_florhit) {
 }
 
 void processfluid(int i, int zr_florhit, boolean fly) {
-	SPRITE spr = sprite[i];
+	SPRITE& spr = sprite[i];
 	switch (checkfluid(i, zr_florhit)) {
 	case TYPELAVA:
 		if (!fly) {
@@ -601,7 +577,7 @@ void castspell(PLAYER& plr, int i) {
 
 	sprite[j].x = sprite[i].x;
 	sprite[j].y = sprite[i].y;
-	if (game.WH2 || sprite[i].picnum == SPAWNFIREBALL)
+	if (isWh2() || sprite[i].picnum == SPAWNFIREBALL)
 		sprite[j].z = sprite[i].z - ((tilesizy[sprite[i].picnum] >> 1) << 8);
 	else
 		sprite[j].z = getflorzofslope(sprite[i].sectnum, sprite[i].x, sprite[i].y) - ((tilesizy[sprite[i].picnum] >> 1) << 8);
@@ -621,7 +597,7 @@ void castspell(PLAYER& plr, int i) {
 	int discrim = ksqrt((plr.x - sprite[j].x) * (plr.x - sprite[j].x) + (plr.y - sprite[j].y) * (plr.y - sprite[j].y));
 	if (discrim == 0)
 		discrim = 1;
-	if (game.WH2)
+	if (isWh2())
 		sprite[j].zvel = (short)(((plr.z + (8 << 8) - sprite[j].z) << 7) / discrim);
 	else
 		sprite[j].zvel = (short)(((plr.z + (48 << 8) - sprite[j].z) << 7) / discrim);
@@ -703,7 +679,7 @@ void attack(PLAYER& plr, int i) {
 	}
 
 	int k = 5;
-	if (!game.WH2) {
+	if (!isWh2()) {
 		k = krand() % 100;
 		if (k > (plr.armortype << 3))
 			k = 15;
@@ -726,7 +702,7 @@ void attack(PLAYER& plr, int i) {
 		if ((krand() % 2) != 0)
 			playsound_loc(S_BREATH1 + (krand() % 6), sprite[i].x, sprite[i].y);
 
-		if (game.WH2)
+		if (isWh2())
 			k = (krand() % 5) + 5;
 		else
 			k >>= 2;
@@ -738,7 +714,7 @@ void attack(PLAYER& plr, int i) {
 
 	case DEVILTYPE:
 		playsound_loc(S_DEMONTHROW, sprite[i].x, sprite[i].y);
-		if (!game.WH2)
+		if (!isWh2())
 			k >>= 2;
 		break;
 
@@ -748,7 +724,7 @@ void attack(PLAYER& plr, int i) {
 			playsound_loc(S_KOBOLDHIT, plr.x, plr.y);
 			playsound_loc(S_BREATH1 + (krand() % 6), plr.x, plr.y);
 		}
-		if (game.WH2)
+		if (isWh2())
 			k = (krand() % 5) + 5;
 		else
 			k >>= 2;
@@ -763,7 +739,7 @@ void attack(PLAYER& plr, int i) {
 		k >>= 3;
 		break;
 	case IMPTYPE:
-		if (!game.WH2)
+		if (!isWh2())
 			break;
 		playsound_loc(S_RIP1 + (krand() % 3), sprite[i].x, sprite[i].y);
 		if ((krand() % 2) != 0) {
@@ -779,7 +755,7 @@ void attack(PLAYER& plr, int i) {
 		}
 		break;
 	case GOBLINTYPE:
-		if (game.WH2)
+		if (isWh2())
 			break;
 
 		playsound_loc(S_GENSWING, sprite[i].x, sprite[i].y);
@@ -836,7 +812,7 @@ void attack(PLAYER& plr, int i) {
 		if (sprite[i].picnum != GRONSWATTACK)
 			break;
 
-		if (game.WH2) {
+		if (isWh2()) {
 			k = (krand() % 20) + 5;
 			if (sprite[i].shade > 30) {
 				k += krand() % 10;
@@ -855,7 +831,7 @@ void attack(PLAYER& plr, int i) {
 		playsound_loc(S_GENSWING, sprite[i].x, sprite[i].y);
 		if (krand() % 10 > 4)
 			playsound_loc(S_SWORD1 + (krand() % 6), sprite[i].x, sprite[i].y);
-		if (game.WH2)
+		if (isWh2())
 			k = (krand() % 25) + 5;
 		break;
 	}
@@ -938,7 +914,7 @@ boolean checkdist(PLAYER& plr, int i) {
 }
 	
 boolean checkdist(int i, int x, int y, int z) {
-	SPRITE spr = sprite[i];
+	SPRITE& spr = sprite[i];
 
 	int attackdist = 512;
 	int attackheight = 120;
@@ -1032,7 +1008,7 @@ void monsterweapon(int i) {
 	case MINOTAURDEAD:
 		weap.xrepeat = 25;
 		weap.yrepeat = 20;
-		if (!game.WH2) {
+		if (!isWh2()) {
 			if (krand() % 100 > 50) {
 				weap.picnum = WEAPON4;
 			}
@@ -1193,7 +1169,7 @@ PLAYER& aiGetPlayerTarget(short i) {
 }
 
 boolean actoruse(short i) {
-	SPRITE spr = sprite[i];
+	SPRITE& spr = sprite[i];
 
 	neartag(spr.x, spr.y, spr.z, spr.sectnum, spr.ang, neartag, 1024, 3);
 

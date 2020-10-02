@@ -129,7 +129,7 @@ static void skirmish(PLAYER& plr, short i) {
 static void nuked(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
-	if (game.WH2) {
+	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 		trailingsmoke(i, false);
 		newstatus((short)i, DIE);
@@ -333,7 +333,7 @@ void createMinotaurAI() {
 	//picanm[MINOTAUR + 16] = 0;
 
 	auto& e = enemy[MINOTAURTYPE];
-	e.info.Init(64, 64, 1024 + 512, 120, 0, 64, false, game.WH2 ? 80 : 100, 0);
+	e.info.Init(64, 64, 1024 + 512, 120, 0, 64, false, isWh2() ? 80 : 100, 0);
 	e.chase = chase;
 	e.resurect = resurect;
 	e.skirmish = skirmish;

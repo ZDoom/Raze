@@ -1,4 +1,4 @@
-#include "ns.h"
+#pragma once 
 
 BEGIN_WH_NS
 

@@ -115,6 +115,7 @@ enum EAIConst
 };
 
 extern Enemy enemy[MAXTYPES];
+extern int checksight_ang;
 
 void aiProcess();
 int aimove(short i);
@@ -134,6 +135,32 @@ boolean checksight(PLAYER& plr, int i);
 void monsterweapon(int i);
 PLAYER& aiGetPlayerTarget(short i);
 boolean actoruse(short i);
+
+void initAI();
+
+void premapDemon(short i);
+void premapDevil(short i);
+void premapDragon(short i);
+void premapFatwitch(short i);
+void premapFish(short i);
+void premapFred(short i);
+void premapGoblin(short i);
+void premapGonzo(short i);
+void premapGron(short i);
+void premapGuardian(short i);
+void premapImp(short i);
+void premapJudy(short i);
+void premapKatie(short i);
+void premapKobold(short i);
+void premapKurt(short i);
+void premapMinotaur(short i);
+void premapNewGuy(short i);
+void premapRat(short i);
+void premapSkeleton(short i);
+void premapSkully(short i);
+void premapSpider(short i);
+void premapWillow(short i);
+
 
 inline int findplayer() {
 	return 0; // no multiplayer support, apparently...

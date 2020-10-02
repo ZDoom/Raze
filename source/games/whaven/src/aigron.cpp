@@ -181,7 +181,7 @@ static void search(PLAYER& plr, short i) {
 static void nuked(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
-	if (game.WH2) {
+	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 		trailingsmoke(i, false);
 		newstatus((short)i, DIE);
@@ -467,7 +467,7 @@ static void throwhalberd(int s) {
 
 void createGronAI() {
 	auto& e = enemy[GRONTYPE];
-	e.info.Init(game.WH2 ? 35 : 30, game.WH2 ? 35 : 30, -1, 120, 0, 64, false, 300, 0);
+	e.info.Init(isWh2() ? 35 : 30, isWh2() ? 35 : 30, -1, 120, 0, 64, false, 300, 0);
 	e.info.getAttackDist = [](EnemyInfo& e, SPRITE& spr)
 	{
 		int out = e.attackdist;
@@ -485,7 +485,7 @@ void createGronAI() {
 
 	e.info.getHealth = [](EnemyInfo& e, SPRITE& spr)
 	{
-		if (game.WH2) {
+		if (isWh2()) {
 			if (spr.picnum == GRONHAL)
 				return adjusthp(65);
 			if (spr.picnum == GRONMU)

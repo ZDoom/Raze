@@ -84,7 +84,7 @@ static void attack(PLAYER& plr, short i) {
 				if (plr.shockme < 0)
 					if ((krand() & 1) != 0) {
 						plr.shockme = 120;
-						if (!game.WH2) {
+						if (!isWh2()) {
 							plr.lvl--;
 							switch (plr.lvl) {
 							case 1:
@@ -230,7 +230,7 @@ static void die(PLAYER& plr, short i) {
 static void nuked(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
-	if (game.WH2) {
+	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 		trailingsmoke(i, false);
 		newstatus((short)i, DIE);
@@ -267,7 +267,7 @@ static void willowDrain(PLAYER& plr, short i) {
 
 void createWillowAI() {
 	auto& e = enemy[WILLOWTYPE];
-	e.info.Init(32, 32, 512, 120, 0, 64, true, game.WH2 ? 5 : 400, 0);
+	e.info.Init(32, 32, 512, 120, 0, 64, true, isWh2() ? 5 : 400, 0);
 	e.chase = chase;
 	e.attack = attack;
 	e.face = face;

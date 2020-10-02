@@ -83,8 +83,16 @@ struct PLAYER {
 	boolean noclip;
 
 	// no copy assignments for this one!
+	PLAYER() = default;
 	PLAYER(const PLAYER&) = delete;
 	PLAYER& operator=(const PLAYER&) = delete;
+};
+
+struct WEAPONINF {
+	int daweapontics;
+	int daweaponframe;
+	int currx;
+	int curry;
 };
 
 END_WH_NS

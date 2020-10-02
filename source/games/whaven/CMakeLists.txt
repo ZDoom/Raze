@@ -23,7 +23,19 @@ set( PCH_SOURCES
 		src/aiskully.cpp
 		src/aispider.cpp
 		src/aiwillow.cpp
+		src/items.cpp
 		src/names.cpp
+		src/potions.cpp
+		src/sndnames.cpp
+		src/spellbooks.cpp
+		src/weapons.cpp
+		src/wepdata.cpp
+		src/whani.cpp
+		src/whfx.cpp
+		src/whmap.cpp
+		src/whobj.cpp
+		src/whplr.cpp
+		src/whtag.cpp
 	)
 
 add_game_library2( whaven )

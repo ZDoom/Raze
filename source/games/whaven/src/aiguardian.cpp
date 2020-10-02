@@ -73,7 +73,7 @@ static void chase(PLAYER& plr, short i) {
 static void nuked(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
-	if (game.WH2) {
+	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 		trailingsmoke(i, false);
 		newstatus((short)i, DIE);
@@ -227,7 +227,7 @@ static void cast(PLAYER& plr, short i) {
 
 void createGuardianAI() {
 	auto& e = enemy[GUARDIANTYPE];
-	e.info.Init(game.WH2 ? 35 : 32, game.WH2 ? 35 : 32, 4096, 120, 0, 64, true, game.WH2 ? 100 : 200, 0);
+	e.info.Init(isWh2() ? 35 : 32, isWh2() ? 35 : 32, 4096, 120, 0, 64, true, isWh2() ? 100 : 200, 0);
 	e.chase = chase;
 	e.nuked = nuked;
 	e.attack = attack;

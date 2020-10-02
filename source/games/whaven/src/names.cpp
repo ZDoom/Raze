@@ -1,6 +1,8 @@
 #include "ns.h"
 #include "gamecontrol.h"
 
+BEGIN_WH_NS
+
 short KNIFEREADY;
 short KNIFEATTACK;
 short RFIST;
@@ -167,7 +169,7 @@ short SHIELD;
 
 void InitNames()
 {
-	if(!game.WH2) {
+	if(!isWh2()) {
 		KNIFEREADY = 1249;
 		KNIFEATTACK = 1261;
 		RFIST = 1268;

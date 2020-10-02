@@ -121,6 +121,8 @@ enum
 	GAMEFLAG_PSEXHUMED  = GAMEFLAG_POWERSLAVE | GAMEFLAG_EXHUMED,	// the two games really are the same, except for the name and the publisher.
 	GAMEFLAG_WORLDTOUR = 0x00008000,
 	GAMEFLAG_DUKEDC = 0x00010000,
+	GAMEGLAG_WH			= 0x00020000,
+	GAMEFLAG_WH2		= 0x00040000,
 	GAMEFLAGMASK        = 0x0000FFFF, // flags allowed from grpinfo
 
 	// We still need these for the parsers.
@@ -200,6 +202,11 @@ inline bool isPlutoPak()
 inline bool isShareware()
 {
 	return g_gameType & GAMEFLAG_SHAREWARE;
+}
+
+inline bool isWh2()
+{
+	return g_gameType & GAMEFLAG_WH2;
 }
 
 TArray<GrpEntry> GrpScan();

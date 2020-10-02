@@ -215,7 +215,7 @@ static void frozen(PLAYER& plr, short i) {
 static void nuked(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
-	if (game.WH2) {
+	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 		trailingsmoke(i, false);
 		newstatus((short)i, DIE);
@@ -254,7 +254,7 @@ static void cast(PLAYER& plr, short i) {
 
 void createDevilAI() {
 	auto &e = enemy[DEVILTYPE];
-	e.info.Init(game.WH2 ? 50 : 36, game.WH2 ? 50 : 36, 2048, 120, 0, 64, false, 50, 0);
+	e.info.Init(isWh2() ? 50 : 36, isWh2() ? 50 : 36, 2048, 120, 0, 64, false, 50, 0);
 	e.chase = chase;
 	e.die = die;
 	e.pain = pain;

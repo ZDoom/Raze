@@ -263,7 +263,7 @@ static void frozen(PLAYER& plr, short i) {
 static void nuked(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
-	if (game.WH2) {
+	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 		trailingsmoke(i, false);
 		newstatus((short)i, DIE);
@@ -333,7 +333,7 @@ static void checkexpl(PLAYER& plr, short i) {
 
 void createKoboldAI() {
 	auto& e = enemy[KOBOLDTYPE];
-	e.info.Init(game.WH2 ? 60 : 54, game.WH2 ? 60 : 54, 1024, 120, 0, 64, false, 20, 0);
+	e.info.Init(isWh2() ? 60 : 54, isWh2() ? 60 : 54, 1024, 120, 0, 64, false, 20, 0);
 	e.chase = chase;
 	e.die = die;
 	e.pain = pain;
