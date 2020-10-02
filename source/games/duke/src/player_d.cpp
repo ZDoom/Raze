@@ -468,7 +468,7 @@ void shoot_d(int i, int atwith)
 				}
 				zvel += (zRange / 2) - (krand() & (zRange - 1));
 			}
-			else if (j == -1 || atwith != SHOTSPARK1)
+			else if (j == -1)
 			{
 				sa += 16 - (krand() & 31);
 				zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
