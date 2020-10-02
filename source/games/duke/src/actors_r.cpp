@@ -4168,7 +4168,7 @@ void move_r(int g_i, int g_p, int g_x)
 
 	if (a & face_player_smart)
 	{
-		long newx, newy;
+		int newx, newy;
 
 		newx = ps[g_p].posx + (ps[g_p].posxv / 768);
 		newy = ps[g_p].posy + (ps[g_p].posyv / 768);

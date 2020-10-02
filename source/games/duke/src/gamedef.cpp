@@ -488,7 +488,7 @@ static int getlabeloffset(LABELS* pLabel, const char* psz)
 {
 	// find the label psz in the table pLabel.
 	// returns the offset in the array for the label, or -1
-	long l = -1;
+	int l = -1;
 	int i;
 
 	for (i = 0; pLabel[i].lId >= 0; i++)

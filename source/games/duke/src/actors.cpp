@@ -4804,7 +4804,7 @@ void makeitfall(int i)
 int dodge(spritetype* s)
 {
 	short i;
-	long bx, by, mx, my, bxvect, byvect, mxvect, myvect, d;
+	int bx, by, mx, my, bxvect, byvect, mxvect, myvect, d;
 
 	mx = s->x;
 	my = s->y;

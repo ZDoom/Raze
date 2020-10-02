@@ -348,8 +348,8 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 				p->getang(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
 
 			{
-				long lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
-				long lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
+				int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
+				int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
 				// set timer.  blows up when at zero....
 				sprite[j].extra = lGrenadeLifetime
 					+ mulscale(krand(), lGrenadeLifetimeVar, 14)

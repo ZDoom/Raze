@@ -42,7 +42,7 @@ BEGIN_DUKE_NS
 
 void incur_damage_r(struct player_struct* p)
 {
-	long  damage = 0L, unk = 0L, shield_damage = 0L;
+	int  damage = 0, unk = 0, shield_damage = 0;
 	short gut = 0;
 
 	sprite[p->i].extra -= p->extra_extra8 >> 8;

@@ -925,7 +925,7 @@ void activatebysector_r(int sect, int j)
 
 static void lotsofpopcorn(short i, short wallnum, short n)
 {
-	long j, xv, yv, z, x1, y1;
+	int j, xv, yv, z, x1, y1;
 	short sect, a;
 
 	sect = -1;
