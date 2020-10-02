@@ -63,26 +63,34 @@ typedef struct
 //   bits 12-15: reserved  (14: temp use by editor)
 
 //32 bytes
-typedef struct
+struct walltypev7
 {
     union {
         struct
         {
-            StructTracker(Wall, int32_t) x, y;
+            int32_t x, y;
         };
         vec2_t pos;
     };
-    StructTracker(Wall, int16_t) point2, nextwall, nextsector;
-    StructTracker(Wall, uint16_t) cstat;
-    StructTracker(Wall, int16_t) picnum, overpicnum;
-    StructTracker(Wall, int8_t) shade;
-    StructTracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
+    int16_t point2, nextwall, nextsector;
+    uint16_t cstat;
+    int16_t picnum, overpicnum;
+    int8_t shade;
+    uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
     union {
-        StructTracker(Wall, int16_t) lotag, type;
+        int16_t lotag, type;
     };
-    StructTracker(Wall, int16_t) hitag;
-    StructTracker(Wall, int16_t) extra;
-} StructName(walltypev7);
+    int16_t hitag;
+    int16_t extra;
+
+#if 0
+    // make sure we do not accidentally copy this
+    walltypev7() = default;
+    walltypev7(const walltypev7&) = delete;
+    walltypev7& operator=(const walltypev7&) = delete;
+#endif
+
+};
 
 //cstat:
 //   bit 0: 1 = Blocking sprite (use with clipmove, getzrange)       "B"
@@ -205,15 +213,16 @@ struct spritetype : public spritetypev7
 {
     int16_t detail;
 
+#if 0
     // make sure we do not accidentally copy this
     spritetype() = default;
     spritetype(const spritetype&) = delete;
     spritetype& operator=(const spritetype&) = delete;
+#endif
     void clear()
     {
         memset(this, 0, sizeof(*this));
     }
-
 };
 
 using tspritetype = spritetype;
