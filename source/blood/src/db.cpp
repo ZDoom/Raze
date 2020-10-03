@@ -592,6 +592,29 @@ const int nXSectorSize = 60;
 const int nXSpriteSize = 56;
 const int nXWallSize = 24;
 
+
+#pragma pack(push, 1)
+// This is the on-disk format. Only Blood still needs this for its retarded encryption that has to read this in as a block so that it can be decoded.
+// Keep it local so that the engine's sprite type is no longer limited by file format restrictions.
+struct spritetypedisk
+{
+    int32_t x, y, z;
+    uint16_t cstat;
+    int16_t picnum;
+    int8_t shade;
+    uint8_t pal, clipdist, detail;
+    uint8_t xrepeat, yrepeat;
+    int8_t xoffset, yoffset;
+    int16_t sectnum, statnum;
+    int16_t ang, owner;
+    int16_t index, yvel, inittype;
+    int16_t type;
+    int16_t hitag;
+    int16_t extra;
+};
+#pragma pack(pop)
+
+
 int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC) {
     int16_t tpskyoff[256];
     ClearAutomap();
@@ -917,12 +940,12 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     for (int i = 0; i < mapHeader.at23; i++)
     {
         RemoveSpriteStat(i);
-        spritetypev7 load;
+        spritetypedisk load;
         spritetype *pSprite = &sprite[i];
-        fr.Read(&load, sizeof(spritetypev7)); // load into an intermediate buffer so that spritetype is no longer bound by file formats.
+        fr.Read(&load, sizeof(spritetypedisk)); // load into an intermediate buffer so that spritetype is no longer bound by file formats.
         if (byte_1A76C8) // What were these people thinking? :(
         {
-            dbCrypt((char*)pSprite, sizeof(spritetype), (gMapRev*sizeof(spritetype)) | 0x7474614d);
+            dbCrypt((char*)&load, sizeof(spritetypedisk), (gMapRev*sizeof(spritetypedisk)) | 0x7474614d);
         }
 
         pSprite->x = LittleLong(load.x);
@@ -940,7 +963,13 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         pSprite->type = LittleShort(load.type);
         pSprite->flags = LittleShort(load.hitag);
         pSprite->extra = LittleShort(load.extra);
-        pSprite->detail = pSprite->blend;
+        pSprite->pal = load.pal;
+        pSprite->clipdist = load.clipdist;
+        pSprite->xrepeat = load.xrepeat;
+        pSprite->yrepeat = load.yrepeat;
+        pSprite->xoffset = load.xoffset;
+        pSprite->yoffset = load.yoffset;
+        pSprite->detail = load.detail;
         pSprite->blend = 0;
 
         InsertSpriteSect(i, sprite[i].sectnum);

@@ -169,8 +169,8 @@ enum
 
 #ifndef buildtypes_h__enums
 
-// This is the on-disk format. Only Blood still needs this for its retarded encryption that needs to read this in as a block.
-struct spritetypev7
+
+struct spritetype
 {
     union {
         struct
@@ -207,10 +207,6 @@ struct spritetypev7
         int16_t hitag, flags;
     };
     int16_t extra;
-};
-
-struct spritetype : public spritetypev7
-{
     int16_t detail;
 
 #if 0
