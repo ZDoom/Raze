@@ -397,6 +397,8 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 	FlagMap.Insert("GAMEFLAG_POWERSLAVE", GAMEFLAG_POWERSLAVE);
 	FlagMap.Insert("GAMEFLAG_EXHUMED", GAMEFLAG_EXHUMED);
 	FlagMap.Insert("GAMEFLAG_DUKEDC", GAMEFLAG_DUKEDC);
+	FlagMap.Insert("GAMEFLAG_WITCHAVEN", GAMEFLAG_WH);
+	FlagMap.Insert("GAMEFLAG_WITCHAVEN2", GAMEFLAG_WH2);
 
 	FScanner sc;
 	auto mem = fr.Read();
