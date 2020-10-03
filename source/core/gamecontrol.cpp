@@ -498,7 +498,7 @@ int GameMain()
 {
 	int r;
 
-	static SystemCallbacks syscb =
+	sysCallbacks =
 	{
 		System_WantGuiCapture,
 		System_WantLeftButton,
@@ -516,7 +516,6 @@ int GameMain()
 		nullptr,
 		System_DispatchEvent,
 	};
-	sysCallbacks = &syscb;
 
 	try
 	{
