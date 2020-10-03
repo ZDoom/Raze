@@ -54,11 +54,6 @@ vec4 ProcessTexel()
 	palettedColor.a = color.r == 0.0? 0.0 : 1.0;// 1.0-floor(color.r);
 	color = palettedColor;
 	
-	if (uFogDensity != 0.0) // fog hack for RRRA E2L1. Needs to be done better, this is gross, but still preferable to the broken original implementation.
-	{
-		float fogfactor = 0.55 + 0.3 * exp2 (uFogDensity * abs(z) / 1024.0); 		
-		color.rgb = uFogColor.rgb * (1.0-fogfactor) + color.rgb * fogfactor;// mix(vec3(0.6), color.rgb, fogfactor);
-	}
 	if (color.a < uAlphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.
 	return vec4(color.rgb, 1.0);
 }
