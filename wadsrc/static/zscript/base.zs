@@ -1,7 +1,8 @@
-
+	
 struct _ native	// These are the global variables, the struct is only here to avoid extending the parser for this.
 {
 	native readonly Array<class> AllClasses;
+	native readonly @GameInfoStruct gameinfo; 
 	//native readonly int GameTicRate;
 
 	native readonly Font smallfont;
@@ -343,6 +344,13 @@ struct GIFont version("2.4")
 	Name fontname;
 	Name color;
 };
+
+struct GameInfoStruct native
+{
+	native int gametype;
+	native String mBackButton;
+	native Name mSliderColor;
+} 
 
 class Object native
 {

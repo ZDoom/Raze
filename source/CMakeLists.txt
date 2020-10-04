@@ -802,6 +802,7 @@ set (PCH_SOURCES
 	core/palette.cpp
 	core/zcompile.cpp
 	core/statusbar.cpp
+	core/gi.cpp
 
 	core/console/c_console.cpp
 	core/console/d_event.cpp
