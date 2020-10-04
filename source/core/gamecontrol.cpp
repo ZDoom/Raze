@@ -159,12 +159,6 @@ int StrTable_GetGender()
 
 bool validFilter(const char* str);
 
-static StringtableCallbacks stblcb =
-{
-	validFilter,
-	StrTable_GetGender
-};
-
 extern int chatmodeon;
 
 bool System_WantGuiCapture()
@@ -516,6 +510,8 @@ int GameMain()
 		nullptr,
 		nullptr,
 		System_DispatchEvent,
+		validFilter,
+		StrTable_GetGender,
 	};
 
 	try

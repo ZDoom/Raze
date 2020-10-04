@@ -22,6 +22,8 @@ struct SystemCallbacks
 	void (*MenuDim)();
 	FString(*GetPlayerName)(int i);
 	bool (*DispatchEvent)(event_t* ev);
+	bool (*CheckGame)(const char* nm);
+	int (*GetGender)();
 };
 
 extern SystemCallbacks sysCallbacks;

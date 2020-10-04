@@ -175,13 +175,7 @@ FTextureID GetMenuTexture(const char* const name)
 static void SkipSubBlock(FScanner &sc)
 {
 	sc.MustGetStringName("{");
-	int depth = 1;
-	while (depth > 0)
-	{
-		sc.MustGetString();
-		if (sc.Compare("{")) depth++;
-		if (sc.Compare("}")) depth--;
-	}
+	sc.SkipToEndOfBlock();
 }
 
 //=============================================================================
