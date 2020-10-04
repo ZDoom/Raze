@@ -1669,16 +1669,16 @@ OptionMenu "EngineCredits"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits1a"
-	StaticText "Developers"
+	StaticText "Developers", 1
 	StaticText "Christoph Oelckers", 0
 	StaticText "Mitchell Richters", 0
 	StaticText ""
-	StaticText "Additional Developers"
+	StaticText "Additional Developers", 1
 	StaticText "Rachael Alexanderson", 0
 	StaticText "Magnus Norddahl", 0
 	StaticText "Alexey Lysiuk", 0
 	StaticText ""
-	StaticText "The Raze team thanks the following contributors"
+	StaticText "The Raze team thanks the following contributors", 1
 	StaticText "Nash Muhandes", 0
 	StaticText "Dynamo", 0
 }
@@ -1687,7 +1687,7 @@ OptionMenu "EngineCredits1a"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits1b"
-	StaticText "Raze QA"
+	StaticText "Raze QA", 1
 	
 	StaticText "sinisterseed                        ", 0
 	StaticText "Major Cooke       Dynamo            ", 0
@@ -1699,11 +1699,11 @@ OptionMenu "EngineCredits1b"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits2"
-	StaticText "ZDoom / GZDoom / ZDuke"
+	StaticText "ZDoom / GZDoom / ZDuke", 1
 	StaticText "Marisa \"Randi\" Heit", 0
 	StaticText "Braden \"Blzut3\" Obrzut", 0
 	StaticText ""
-	StaticText "Sound Engine"
+	StaticText "Sound Engine", 1
 	StaticText "Chris Robinson", 0
 	StaticText ""
 }
@@ -1713,18 +1713,18 @@ OptionMenu "EngineCredits2"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits2a"
-	StaticText "EDuke 2.0"
+	StaticText "EDuke 2.0", 1
 	StaticText "Matt Saettler", 0
 	StaticText ""
-	StaticText "JFDuke / JFSW", 0
+	StaticText "JFDuke / JFSW", 1
     StaticText "Jonathon \"JonoF\" Fowler", 0
 	StaticText ""
-	StaticText "EDuke32 / VoidSW"
+	StaticText "EDuke32 / VoidSW", 1
 	StaticText "Richard \"TerminX\" Gobeille", 0
 	StaticText "Evan \"Hendricks266\" Ramos", 0
 	StaticText "Alex \"pogokeen\" Dawson", 0
 	StaticText ""
-	StaticText "Retired developers"
+	StaticText "Retired developers", 1
 	StaticText "Pierre-Loup \"Plagman\" Griffais", 0
 	StaticText "Philipp \"Helixhorned\" Kutin", 0
 }
@@ -1733,13 +1733,13 @@ OptionMenu "EngineCredits2a"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits3"
-	StaticText "RedNukem / NBlood"
+	StaticText "RedNukem / NBlood", 1
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText ""
-	StaticText "SWP"
+	StaticText "SWP", 1
 	StaticText "Ben \"ProAsm\" Smit", 0
 	StaticText ""
-	StaticText "PCExhumed"
+	StaticText "PCExhumed", 1
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText "sirlemonhead", 0
 }
@@ -1748,8 +1748,8 @@ OptionMenu "EngineCredits3"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits"
-	StaticText "The EDuke32 team thanks the following people"
-	StaticText "for their contributions:"
+	StaticText "The EDuke32 team thanks the following people", 1
+	StaticText "for their contributions:", 1
 	
 	StaticText "Alexey Skrybykin  Bioman            Brandon Bergren  ", 0
 	StaticText "Charlie Honig     Dan Gaskill       David Koenig     ", 0
