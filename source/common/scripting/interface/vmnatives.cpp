@@ -42,7 +42,7 @@
 #include "c_bind.h"
 #include "c_dispatch.h"
 #include "templates.h"
-#include "razemenu.h"
+#include "menu.h"
 #include "vm.h"
 #include "gstrings.h"
 #include "printf.h"

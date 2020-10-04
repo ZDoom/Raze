@@ -37,7 +37,7 @@
 #include "d_eventbase.h"
 #include "c_console.h"
 #include "d_gui.h"
-#include "razemenu.h"
+#include "menu.h"
 #include "utf8.h"
 #include "m_joy.h"
 #include "vm.h"

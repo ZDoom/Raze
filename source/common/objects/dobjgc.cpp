@@ -59,7 +59,7 @@
 #include "dobject.h"
 #include "templates.h"
 #include "c_dispatch.h"
-#include "razemenu.h"
+#include "menu.h"
 #include "stats.h"
 #include "printf.h"
 

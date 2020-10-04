@@ -42,7 +42,7 @@
 #include "d_eventbase.h"
 #include "d_gui.h"
 #include "hardware.h"
-#include "razemenu.h"
+#include "menu.h"
 #include "menustate.h"
 #include "keydef.h"
 #include "i_interface.h"

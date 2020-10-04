@@ -40,7 +40,7 @@
 #include "c_dispatch.h"
 #include "v_video.h"
 #include "hw_cvars.h"
-#include "razemenu.h"
+#include "menu.h"
 #include "printf.h"
 
 
