@@ -24,6 +24,13 @@ struct _ native	// These are the global variables, the struct is only here to av
 	native readonly int CleanWidth_1;
 	native readonly int CleanHeight_1;
 	native readonly @MusPlayingInfo musplaying;
+	native ui int BackbuttonTime;
+	native ui float BackbuttonAlpha;
+	native readonly int GameTicRate;
+	native readonly @FOptionMenuSettings OptionMenuSettings; 
+	native int menuactive;
+	native @KeyBindings Bindings;
+	native @KeyBindings AutomapBindings;
 }
 
 
@@ -85,6 +92,30 @@ struct TexMan
 	native static int CheckRealHeight(TextureID tex);
 	native static bool OkForLocalization(TextureID patch, String textSubstitute);
 }
+
+enum EScaleMode
+{
+	FSMode_None = 0,
+	FSMode_ScaleToFit = 1,
+	FSMode_ScaleToFill = 2,
+	FSMode_ScaleToFit43 = 3,
+	FSMode_ScaleToScreen = 4,
+	FSMode_ScaleToFit43Top = 5,
+	FSMode_ScaleToFit43Bottom = 6,
+	FSMode_ScaleToHeight = 7,
+
+
+	FSMode_Max,
+
+	// These all use ScaleToFit43, their purpose is to cut down on verbosity because they imply the virtual screen size.
+	FSMode_Predefined = 1000,
+	FSMode_Fit320x200 = 1000,
+	FSMode_Fit320x240,
+	FSMode_Fit640x400,
+	FSMode_Fit640x480,
+	FSMode_Fit320x200Top,
+	FSMode_Predefined_Max,
+};
 
 enum DrawTextureTags
 {

@@ -167,6 +167,11 @@ class LoadSaveMenu : ListMenu
 	//
 	//=============================================================================
 
+	virtual void DrawFrame(int left, int top, int width, int height)
+	{
+		// Todo: Define this in subclasses
+	}
+
 	override void Drawer ()
 	{
 		Super.Drawer();
@@ -177,12 +182,14 @@ class LoadSaveMenu : ListMenu
 		bool didSeeSelected = false;
 
 		// Draw picture area
+		/* (todo: move to subclass)
 		if (gameaction == ga_loadgame || gameaction == ga_loadgamehidecon || gameaction == ga_savegame)
 		{
 			return;
 		}
+		*/
 
-		Screen.DrawFrame (savepicLeft, savepicTop, savepicWidth, savepicHeight);
+		DrawFrame (savepicLeft, savepicTop, savepicWidth, savepicHeight);
 		if (!manager.DrawSavePic(savepicLeft, savepicTop, savepicWidth, savepicHeight))
 		{
 			screen.Clear (savepicLeft, savepicTop, savepicLeft+savepicWidth, savepicTop+savepicHeight, 0, 0);
@@ -198,7 +205,7 @@ class LoadSaveMenu : ListMenu
 		}
 
 		// Draw comment area
-		Screen.DrawFrame (commentLeft, commentTop, commentWidth, commentHeight);
+		DrawFrame (commentLeft, commentTop, commentWidth, commentHeight);
 		screen.Clear (commentLeft, commentTop, commentRight, commentBottom, 0, 0);
 
 		int numlinestoprint = min(commentRows, BrokenSaveComment? BrokenSaveComment.Count() : 0);
@@ -210,7 +217,7 @@ class LoadSaveMenu : ListMenu
 		
 
 		// Draw file area
-		Screen.DrawFrame (listboxLeft, listboxTop, listboxWidth, listboxHeight);
+		DrawFrame (listboxLeft, listboxTop, listboxWidth, listboxHeight);
 		screen.Clear (listboxLeft, listboxTop, listboxRight, listboxBottom, 0, 0);
 
 		if (manager.SavegameCount() == 0)

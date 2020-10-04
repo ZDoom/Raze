@@ -73,9 +73,9 @@ DEFINE_ACTION_FUNCTION(DPlayerMenu, ColorChanged)
 //
 //=============================================================================
 
+#if 0
 DEFINE_ACTION_FUNCTION(DPlayerMenu, PlayerNameChanged)
 {
-#if 0
 	PARAM_PROLOGUE;
 	PARAM_STRING(s);
 	const char *pp = s;
@@ -95,7 +95,6 @@ DEFINE_ACTION_FUNCTION(DPlayerMenu, PlayerNameChanged)
 		command << '"';
 		C_DoCommand(command);
 	}
-#endif
 	return 0;
 }
 
@@ -104,7 +103,6 @@ DEFINE_ACTION_FUNCTION(DPlayerMenu, PlayerNameChanged)
 //
 //
 //=============================================================================
-#if 0
 DEFINE_ACTION_FUNCTION(DPlayerMenu, ColorSetChanged)
 {
 	PARAM_PROLOGUE;
@@ -201,6 +199,7 @@ DEFINE_ACTION_FUNCTION(DPlayerMenu, TeamChanged)
 //
 //=============================================================================
 
+#if 0
 DEFINE_ACTION_FUNCTION(DPlayerMenu, GenderChanged)
 {
 	PARAM_PROLOGUE;
@@ -218,6 +217,7 @@ DEFINE_ACTION_FUNCTION(DPlayerMenu, GenderChanged)
 	}
 	return 0;
 }
+#endif
 
 //=============================================================================
 //
