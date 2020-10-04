@@ -975,6 +975,13 @@ set (PCH_SOURCES
 	common/scripting/backend/vmbuilder.cpp
 	common/scripting/backend/codegen.cpp
 
+	common/menu/joystickmenu.cpp
+	common/menu/menu.cpp
+	common/menu/menudef.cpp
+	common/menu/messagebox.cpp
+	common/menu/optionmenu.cpp
+	common/menu/resolutionmenu.cpp
+
 
 	core/textures/buildtiles.cpp
 	#core/textures/texture.cpp
@@ -982,17 +989,11 @@ set (PCH_SOURCES
 	core/music/s_advsound.cpp
 
 	#core/menu/imagescroller.cpp
-	core/menu/joystickmenu.cpp
 	#core/menu/listmenu.cpp
 	#core/menu/savegamemanager.cpp
-	core/menu/loadsavemenu.cpp
-	core/menu/menu.cpp
-	core/menu/menudef.cpp
 	#core/menu/menuinput.cpp
-	core/menu/messagebox.cpp
-	core/menu/optionmenu.cpp
+	core/menu/loadsavemenu.cpp
 	core/menu/playermenu.cpp
-	core/menu/resolutionmenu.cpp
 	core/menu/razemenu.cpp
 )
 
