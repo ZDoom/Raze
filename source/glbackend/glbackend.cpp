@@ -572,7 +572,7 @@ void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dasha
 	if (!PickTexture(picnum, nullptr, palid, pick)) return;
 
 	DrawTexture(&twodpsp, pick.texture, sx, sy,
-		DTA_ScaleX, dz, DTA_ScaleY, dz,
+		DTA_ScaleX, dz * tileWidth(picnum) / pick.texture->GetDisplayWidth() , DTA_ScaleY, dz * tileHeight(picnum) / pick.texture->GetDisplayHeight(),
 		DTA_Color, shadeToLight(dashade),
 		DTA_TranslationIndex, pick.translation & 0x7fffffff,
 		DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y,
