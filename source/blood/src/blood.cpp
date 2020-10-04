@@ -51,7 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "m_argv.h"
 #include "statistics.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "raze_sound.h"
 #include "nnexts.h"
 #include "secrets.h"
@@ -61,6 +61,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "choke.h"
 #include "d_net.h"
 #include "v_video.h"
+#include "v_draw.h"
 #include "statusbar.h"
 
 BEGIN_BLD_NS

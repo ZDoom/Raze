@@ -36,7 +36,7 @@
 
 #include "gstrings.h"
 #include "v_font.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "types.h"
 #include "dictionary.h"
 #include "vm.h"

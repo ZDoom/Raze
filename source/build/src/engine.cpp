@@ -23,7 +23,7 @@
 #include "v_2ddrawer.h"
 #include "v_draw.h"
 #include "stats.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "version.h"
 #include "earcut.hpp"
 #include "gamestate.h"

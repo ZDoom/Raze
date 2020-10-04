@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheathandler.h"
 #include "inputstate.h"
 #include "d_protocol.h"
-#include "core/menu/menu.h"
+#include "razemenu.h"
 
 BEGIN_PS_NS
 
@@ -481,7 +481,9 @@ void GameInterface::app_init()
     //int esi = 1;
     //int edi = esi;
 
+#if 0
     help_disabled = true;
+#endif
     // Create the global level table. Parts of the engine need it, even though the game itself does not.
     for (int i = 0; i <= 32; i++)
     {

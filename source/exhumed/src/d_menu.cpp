@@ -30,9 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestate.h"
 #include "mapinfo.h"
 #include "gamecontrol.h"
+#include "v_draw.h"
 
 
-#include "menu/menu.h"	// to override the local menu.h
+#include "razemenu.h"	// to override the local menu.h
 
 #include "../../glbackend/glbackend.h"
 
@@ -49,6 +50,7 @@ BEGIN_PS_NS
 void menu_DoPlasma();
 double zoomsize = 0;
 
+#if 0
 class PSMainMenu : public DListMenu
 {
 
@@ -81,6 +83,7 @@ class PSMainMenu : public DListMenu
 		}
 	}
 };
+#endif
 
 
 //----------------------------------------------------------------------------
@@ -91,6 +94,7 @@ class PSMainMenu : public DListMenu
 
 void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags)
 {
+#if 0
 	int tilenum = (int)strtoll(text, nullptr, 0);
 	double y = ypos - tilesiz[tilenum].y / 2;
 
@@ -122,6 +126,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 		DrawTexture(twod, tex, 62, ypos - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, TAG_DONE);
 		DrawTexture(twod, tex, 207, ypos - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_FlipX, true, TAG_DONE);
 	}
+#endif
 }
 
 
@@ -183,17 +188,3 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 
 
 END_PS_NS
-
-//----------------------------------------------------------------------------
-//
-// Class registration
-//
-//----------------------------------------------------------------------------
-
-
-static TMenuClassDescriptor<Powerslave::PSMainMenu> _mm("Exhumed.MainMenu");
-
-void RegisterPSMenus()
-{
-	menuClasses.Push(&_mm);
-}

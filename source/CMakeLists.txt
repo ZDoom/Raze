@@ -980,17 +980,19 @@ set (PCH_SOURCES
 
 	core/music/s_advsound.cpp
 
-	core/menu/imagescroller.cpp
+	#core/menu/imagescroller.cpp
 	core/menu/joystickmenu.cpp
-	core/menu/listmenu.cpp
-	core/menu/savegamemanager.cpp
+	#core/menu/listmenu.cpp
+	#core/menu/savegamemanager.cpp
 	core/menu/loadsavemenu.cpp
 	core/menu/menu.cpp
 	core/menu/menudef.cpp
-	core/menu/menuinput.cpp
+	#core/menu/menuinput.cpp
 	core/menu/messagebox.cpp
 	core/menu/optionmenu.cpp
+	core/menu/playermenu.cpp
 	core/menu/resolutionmenu.cpp
+	core/menu/razemenu.cpp
 )
 
 if( ${HAVE_VM_JIT} )

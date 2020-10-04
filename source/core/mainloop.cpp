@@ -67,7 +67,7 @@
 #include "d_net.h"
 #include "gamecontrol.h"
 #include "c_console.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "i_system.h"
 #include "raze_sound.h"
 #include "raze_music.h"
@@ -76,7 +76,6 @@
 #include "screenjob.h"
 #include "mmulti.h"
 #include "c_console.h"
-#include "menu.h"
 #include "uiinput.h"
 #include "v_video.h"
 #include "glbackend/glbackend.h"
@@ -86,6 +85,8 @@
 #include "mapinfo.h"
 #include "automap.h"
 #include "statusbar.h"
+#include "gamestruct.h"
+#include "savegamehelp.h"
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -103,7 +104,7 @@ int entertic;
 int oldentertics;
 int gametic;
 
-extern FString BackupSaveGame;
+FString BackupSaveGame;
 
 void DoLoadGame(const char* name);
 
@@ -146,7 +147,9 @@ static void GameTicker()
 			C_ClearMessages();
 			if (BackupSaveGame.IsNotEmpty() && cl_resumesavegame)
 			{
+#if 0
 				DoLoadGame(BackupSaveGame);
+#endif
 			}
 			else
 			{

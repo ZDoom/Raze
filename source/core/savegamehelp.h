@@ -19,6 +19,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu);
 
 void SaveEngineState();
 void LoadEngineState();
+void M_Autosave();
 
 #define SAVEGAME_EXT ".dsave"
 

@@ -64,7 +64,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "printf.h"
 #include "m_argv.h"
 #include "debugbreak.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "raze_music.h"
 #include "statistics.h"
 #include "gstrings.h"
@@ -77,6 +77,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "inputstate.h"
 #include "gamestate.h"
 #include "d_net.h"
+#include "v_draw.h"
 
 //#include "crc32.h"
 

@@ -43,7 +43,7 @@
 #include "s_soundinternal.h"
 #include "animtexture.h"
 #include "gamestate.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "raze_sound.h"
 #include "SmackerDecoder.h"
 #include "movie/playmve.h"

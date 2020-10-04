@@ -40,7 +40,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "printf.h"
 #include "filesystem.h"
 #include "mapinfo.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "global.h"
 #include "m_argv.h"
 #include "sounds.h"

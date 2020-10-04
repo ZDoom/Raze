@@ -53,6 +53,8 @@
 #include "gamestruct.h"
 #include "automap.h"
 #include "statusbar.h"
+#include "gamestate.h"
+#include "razemenu.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -564,3 +566,88 @@ void LoadEngineState()
 		fr.Close();
 	}
 }
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+CVAR(Bool, saveloadconfirmation, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+CVAR(Int, autosavenum, 0, CVAR_NOSET | CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+static int nextautosave = -1;
+CVAR(Int, disableautosave, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CUSTOM_CVAR(Int, autosavecount, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	if (self < 1)
+		self = 1;
+}
+
+CVAR(Int, quicksavenum, 0, CVAR_NOSET | CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+static int nextquicksave = -1;
+ CUSTOM_CVAR(Int, quicksavecount, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	if (self < 1)
+		self = 1;
+}
+
+void M_Autosave()
+{
+	if (disableautosave) return;
+	if (!gi->CanSave()) return;
+	FString description;
+	FString file;
+	// Keep a rotating sets of autosaves
+	UCVarValue num;
+	const char* readableTime;
+	int count = autosavecount != 0 ? autosavecount : 1;
+
+	if (nextautosave == -1)
+	{
+		nextautosave = (autosavenum + 1) % count;
+	}
+
+	num.Int = nextautosave;
+	autosavenum.ForceSet(num, CVAR_Int);
+
+	FSaveGameNode sg;
+	sg.Filename = G_BuildSaveName(FStringf("auto%04d", nextautosave));
+	readableTime = myasctime();
+	sg.SaveTitle.Format("Autosave %s", readableTime);
+	nextautosave = (nextautosave + 1) % count;
+	//savegameManager.SaveGame(&sg, false, false);
+}
+
+CCMD(autosave)
+{
+	gameaction = ga_autosave;
+}
+
+CCMD(rotatingquicksave)
+{
+	if (!gi->CanSave()) return;
+	FString description;
+	FString file;
+	// Keep a rotating sets of quicksaves
+	UCVarValue num;
+	const char* readableTime;
+	int count = quicksavecount != 0 ? quicksavecount : 1;
+
+	if (nextquicksave == -1)
+	{
+		nextquicksave = (quicksavenum + 1) % count;
+	}
+
+	num.Int = nextquicksave;
+	quicksavenum.ForceSet(num, CVAR_Int);
+
+	FSaveGameNode sg;
+	sg.Filename = G_BuildSaveName(FStringf("quick%04d", nextquicksave));
+	readableTime = myasctime();
+	sg.SaveTitle.Format("Quicksave %s", readableTime);
+	nextquicksave = (nextquicksave + 1) % count;
+	//savegameManager.SaveGame(&sg, false, false);
+}
+
+

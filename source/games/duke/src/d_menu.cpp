@@ -35,7 +35,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "gamecvars.h"
 #include "gamecontrol.h"
 #include "c_bind.h"
-#include "menu/menu.h"
+#include "razemenu.h"
 #include "gstrings.h"
 #include "version.h"
 #include "names.h"
@@ -83,6 +83,7 @@ static void Menu_DrawCursor(double x, double y, double scale, bool right)
 //
 //----------------------------------------------------------------------------
 
+#if 0
 class DukeListMenu : public DListMenu
 {
 	using Super = DListMenu;
@@ -163,7 +164,7 @@ class DukeMainMenu : public DukeListMenu
 		
 	}
 };
-
+#endif
 
 //----------------------------------------------------------------------------
 //
@@ -173,6 +174,7 @@ class DukeMainMenu : public DukeListMenu
 
 void GameInterface::DrawNativeMenuText(int fontnum, int state, double oxpos, double ypos, float fontscale, const char* text, int flags)
 {
+#if 0
 	double xpos = oxpos;
 	int trans;
 	PalEntry pe;
@@ -214,7 +216,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double oxpos, dou
 		else
 			Menu_DrawCursor(oxpos - cursorOffset, ymid, cursorScale, false);
 	}
-
+#endif
 }
 
 void GameInterface::MenuOpened()
@@ -270,7 +272,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 	{
 		if (g_gameType & GAMEFLAG_SHAREWARE)
 		{
-			M_StartMessage(GStrings("BUYDUKE"), 1, -1);
+			M_StartMessage(GStrings("BUYDUKE"), 1, NAME_None);
 			return false;
 		}
 	}
@@ -283,6 +285,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 	static const short sounds_r[] = { 427, 428, 196, 195, 197 };
 	if (gs.Skill >=0 && gs.Skill <= 5) skillsound = isRR()? sounds_r[gs.Skill] : sounds_d[gs.Skill];
 
+#if 0
 	if (menu_sounds && skillsound >= 0 && SoundEnabled() && !netgame)
 	{
 		S_PlaySound(skillsound, CHAN_AUTO, CHANF_UI);
@@ -295,6 +298,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 		}
 		Net_ClearFifo();
 	}
+#endif
 	auto map = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
 	if (map)
 	{
@@ -520,22 +524,3 @@ bool GameInterface::DrawSpecialScreen(const DVector2& origin, int tilenum)
 }
 
 END_DUKE_NS
-
-//----------------------------------------------------------------------------
-//
-// Class registration
-//
-//----------------------------------------------------------------------------
-
-
-static TMenuClassDescriptor<Duke3d::DukeMainMenu> _mm("Duke.MainMenu");
-static TMenuClassDescriptor<Duke3d::DukeListMenu> _lm("Duke.ListMenu");
-
-static TMenuClassDescriptor<DImageScrollerMenu> _ism("Duke.ImageScrollerMenu"); // does not implement a new class, we only need the descriptor.
-
-void RegisterDuke3dMenus()
-{
-	menuClasses.Push(&_mm);
-	menuClasses.Push(&_lm);
-	menuClasses.Push(&_ism);
-}

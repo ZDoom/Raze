@@ -43,11 +43,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "network.h"
 
 #include "misc.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "raze_sound.h"
 #include "sounds.h"
 #include "gamestate.h"
 #include "raze_music.h"
+#include "v_draw.h"
 
 #include "../../glbackend/glbackend.h"
 
@@ -62,6 +63,7 @@ BEGIN_SW_NS
 //
 //----------------------------------------------------------------------------
 
+#if 0
 class SWMainMenu : public DListMenu
 {
 	void Ticker() override
@@ -102,6 +104,7 @@ public:
 		}
 	}
 };
+#endif
 
 //----------------------------------------------------------------------------
 //
@@ -111,6 +114,7 @@ public:
 
 void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags)
 {
+#if 0
 	switch (fontnum)
 	{
 		case NIT_BigFont:
@@ -144,6 +148,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 		DrawTexture(twod, tileGetTexture(pic_yinyang, true), x, y, DTA_FullscreenScale, FSMode_Fit320x200,
 			DTA_CenterOffset, true, DTA_Color, 0xfff0f0f0, DTA_ScaleX, scale / 65536., DTA_ScaleY, scale / 65536., TAG_DONE);
 	}
+#endif
 }
 
 void GameInterface::QuitToTitle()
@@ -200,7 +205,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 	{
 		if (g_gameType & GAMEFLAG_SHAREWARE)
 		{
-			M_StartMessage(GStrings("BUYSW"), 1, -1);
+			M_StartMessage(GStrings("BUYSW"), 1, NAME_None);
 			return false;
 		}
 		map = FindMapByLevelNum(5);
@@ -251,19 +256,3 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 
 
 END_SW_NS
-
-//----------------------------------------------------------------------------
-//
-// Class registration
-//
-//----------------------------------------------------------------------------
-
-
-static TMenuClassDescriptor<ShadowWarrior::SWMainMenu> _mm("ShadowWarrior.MainMenu");
-static TMenuClassDescriptor<ShadowWarrior::SWOrderMenu> _so("ShadowWarrior.OrderMenu");
-
-void RegisterSWMenus()
-{
-	menuClasses.Push(&_mm);
-	menuClasses.Push(&_so);
-}

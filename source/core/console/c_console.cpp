@@ -62,9 +62,10 @@
 #include "v_video.h"
 #include "v_draw.h"
 #include "g_input.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "raze_music.h"
 #include "gstrings.h"
+#include "menustate.h"
 
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8

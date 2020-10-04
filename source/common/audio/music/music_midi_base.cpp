@@ -35,7 +35,7 @@
 #include "c_dispatch.h"
 
 #include "v_text.h"
-#include "menu.h"
+#include "razemenu.h"
 #include <zmusic.h>
 #include "s_music.h"
 #include "c_cvars.h"

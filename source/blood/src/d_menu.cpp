@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "mmulti.h"
 #include "c_bind.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "gamestate.h"
 
 #include "blood.h"
@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "sound.h"
 #include "v_video.h"
+#include "v_draw.h"
 
 bool ShowOptionMenu();
 
@@ -124,6 +125,7 @@ static std::unique_ptr<CGameMenuItemQAV> itemBloodQAV;	// This must be global to
 
 void UpdateNetworkMenus(void)
 {
+#if 0
 	// For now disable the network menu item as it is not yet functional.
 	for (auto name : { NAME_Mainmenu, NAME_IngameMenu })
 	{
@@ -140,8 +142,11 @@ void UpdateNetworkMenus(void)
 			}
 		}
 	}
+#endif
 }
 
+
+#if 0
 //----------------------------------------------------------------------------
 //
 // Implements the native looking menu used for the main menu
@@ -196,6 +201,7 @@ class DBloodImageScrollerMenu : public DImageScrollerMenu
 	}
 };
 
+#endif
 
 //----------------------------------------------------------------------------
 //
@@ -205,6 +211,7 @@ class DBloodImageScrollerMenu : public DImageScrollerMenu
 
 void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags)
 {
+#if 0
 	if (!text) return;
 	int shade = (state != NIT_InactiveState) ? 32 : 48;
 	int pal = (state != NIT_InactiveState) ? 5 : 5;
@@ -221,6 +228,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 
 	DrawText(twod, gamefont, CR_UNDEFINED, xpos, ypos, text, DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Color, shadeToLight(shade),
 			 DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+#endif
 }
 
 
@@ -245,7 +253,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 	{
 		if (g_gameType & GAMEFLAG_SHAREWARE)
 		{
-			M_StartMessage(GStrings("BUYBLOOD"), 1, -1); // unreachable because we do not support Blood SW versions yet.
+			M_StartMessage(GStrings("BUYBLOOD"), 1, NAME_None); // unreachable because we do not support Blood SW versions yet.
 			return false;
 		}
 	}
@@ -304,20 +312,3 @@ void GameInterface::QuitToTitle()
 
 END_BLD_NS
 
-//----------------------------------------------------------------------------
-//
-// Class registration
-//
-//----------------------------------------------------------------------------
-
-
-static TMenuClassDescriptor<Blood::BloodListMenu> _lm("Blood.ListMenu");
-static TMenuClassDescriptor<Blood::BloodListMenu> _mm("Blood.MainMenu");
-static TMenuClassDescriptor<Blood::DBloodImageScrollerMenu> _im("Blood.ImageScrollerMenu");
-
-void RegisterBloodMenus()
-{
-	menuClasses.Push(&_lm);
-	menuClasses.Push(&_mm);
-	menuClasses.Push(&_im);
-}

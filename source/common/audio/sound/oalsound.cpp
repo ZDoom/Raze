@@ -2078,7 +2078,7 @@ FSoundChan *OpenALSoundRenderer::FindLowestChannel()
 
 #endif // NO_OPENAL
 
-#include "menu.h"
+#include "razemenu.h"
 
 void I_BuildALDeviceList(FOptionValues* opt)
 {

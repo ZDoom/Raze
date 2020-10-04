@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "raze_music.h"
 #include "statistics.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "gstrings.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
@@ -71,6 +71,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "uiinput.h"
 #include "d_net.h"
 #include "automap.h"
+#include "v_draw.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -533,7 +534,7 @@ int GameMain()
 		r = -1;
 	}
 	DeleteScreenJob();
-	M_ClearMenus(true);
+	M_ClearMenus();
 	if (gi)
 	{
 		gi->FreeGameData();	// Must be done before taking down any subsystems.
@@ -551,7 +552,6 @@ int GameMain()
 	TileFiles.CloseAll();	// delete the texture data before shutting down graphics.
 	GLInterface.Deinit();
 	I_ShutdownGraphics();
-	M_DeinitMenus();
 	engineUnInit();
 	if (gi)
 	{
@@ -1790,4 +1790,64 @@ void playerProcessHelpers(fixed_t* q16ang, double* angAdjust, fixed_t* angTarget
 	{
 		*q16horiz += FloatToFixed(scaleAdjust * *horizAdjust);
 	}
+}
+
+void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
+{
+	double scale = SmallFontScale();
+	int formatwidth = int(320 / scale);
+	auto lines = V_BreakLines(SmallFont, formatwidth, text, true);
+	auto fheight = bg ? 10 : SmallFont->GetHeight() * scale;	// Fixme: Get spacing for text pages from elsewhere.
+	if (!bg)
+	{
+		auto totaltextheight = lines.Size() * fheight;
+		position -= totaltextheight / 2;
+	}
+
+	double y = origin.Y + position;
+	for (auto& line : lines)
+	{
+		double x = origin.X + 160 - line.Width * scale * 0.5;
+		DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, line.Text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		y += fheight;
+	}
+}
+
+bool M_Active()
+{
+	return CurrentMenu != nullptr || ConsoleState == c_down || ConsoleState == c_falling;
+}
+
+struct gamefilter
+{
+	const char* gamename;
+	int gameflag;
+};
+
+static const gamefilter games[] = {
+	{ "Duke", GAMEFLAG_DUKE},
+	{ "Nam", GAMEFLAG_NAM | GAMEFLAG_NAPALM},
+	{ "NamOnly", GAMEFLAG_NAM},	// for cases where the difference matters.
+	{ "Napalm", GAMEFLAG_NAPALM},
+	{ "WW2GI", GAMEFLAG_WW2GI},
+	{ "Redneck", GAMEFLAG_RR},
+	{ "RedneckRides", GAMEFLAG_RRRA},
+	{ "Deer", GAMEFLAG_DEER},
+	{ "Blood", GAMEFLAG_BLOOD},
+	{ "ShadowWarrior", GAMEFLAG_SW},
+	{ "Exhumed", GAMEFLAG_POWERSLAVE | GAMEFLAG_EXHUMED},
+	{ "Worldtour", GAMEFLAG_WORLDTOUR},
+};
+
+// for other parts that need to filter by game name.
+bool validFilter(const char* str)
+{
+	for (auto& gf : games)
+	{
+		if (g_gameType & gf.gameflag)
+		{
+			if (!stricmp(str, gf.gamename)) return true;
+		}
+	}
+	return false;
 }

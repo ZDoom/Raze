@@ -9,7 +9,7 @@
 
 #include "polymost.h"
 #include "gamecvars.h"
-#include "menu/menu.h"
+#include "razemenu.h"
 #include "funct.h"
 #include "gamecontrol.h"
 #include "gamevar.h"
@@ -20,6 +20,8 @@
 #include "sounds.h"
 #include "soundefs.h"
 #include "binaryangle.h"
+#include "gamestruct.h"
+#include "v_draw.h"
 
 BEGIN_DUKE_NS
 

@@ -34,58 +34,111 @@
 #include <float.h>
 
 #include "menu.h"
-#include "c_dispatch.h"
 #include "filesystem.h"
-#include "sc_man.h"
-#include "v_font.h"
 #include "c_bind.h"
-#include "d_event.h"
-#include "d_gui.h"
-#include "printf.h"
-#include "gamecontrol.h"
+#include "i_music.h"
+#include "i_sound.h"
 #include "cmdlib.h"
-#include "c_cvars.h"
-#include "optionmenuitems.h"
+#include "vm.h"
+#include "types.h"
+#include "m_argv.h"
 #include "i_soundfont.h"
-#include "zstring.h"
-#include "texturemanager.h"
+#include "i_system.h"
 #include "v_video.h"
+#include "gstrings.h"
 #include <zmusic.h>
+#include "texturemanager.h"
+#include "printf.h"
 
-// Menu-relevant content that gets filled in by scripts. This will get processed after the game has loaded.
-FString gSkillNames[MAXSKILLS];
-FString gVolumeNames[MAXVOLUMES];
-FString gVolumeSubtitles[MAXVOLUMES];
-int32_t gVolumeFlags[MAXVOLUMES];
-int gDefaultVolume = 0, gDefaultSkill = 1;
-MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
+
+bool CheckGame(const char* string, bool chexisdoom) { return false; }
+bool CheckSkipGameOptionBlock(FScanner& sc) { return false; }
+void SetDefaultMenuColors();
 
 MenuDescriptorList MenuDescriptors;
-static FListMenuDescriptor DefaultListMenuSettings;	// contains common settings for all list menus
-static FOptionMenuDescriptor DefaultOptionMenuSettings;	// contains common settings for all Option menus
+static DListMenuDescriptor *DefaultListMenuSettings;	// contains common settings for all list menus
+static DOptionMenuDescriptor *DefaultOptionMenuSettings;	// contains common settings for all Option menus
 FOptionMenuSettings OptionSettings;
 FOptionMap OptionValues;
+bool mustPrintErrors;
+PClass *DefaultListMenuClass;
+PClass *DefaultOptionMenuClass;
 
-void I_BuildMIDIMenuList(FOptionValues* opt);
 void I_BuildALDeviceList(FOptionValues *opt);
-void I_BuildALResamplersList(FOptionValues* opt);
+void I_BuildALResamplersList(FOptionValues *opt);
 
-bool IsOpenALPresent();
 
-void M_DeinitMenus()
+
+DEFINE_GLOBAL_NAMED(OptionSettings, OptionMenuSettings)
+
+DEFINE_ACTION_FUNCTION(FOptionValues, GetCount)
 {
+	PARAM_PROLOGUE;
+	PARAM_NAME(grp);
+	int cnt = 0;
+	FOptionValues **pGrp = OptionValues.CheckKey(grp);
+	if (pGrp != nullptr)
 	{
-		MenuDescriptorList::Iterator it(MenuDescriptors);
+		cnt = (*pGrp)->mValues.Size();
+	}
+	ACTION_RETURN_INT(cnt);
+}
 
-		MenuDescriptorList::Pair *pair;
-
-		while (it.NextPair(pair))
+DEFINE_ACTION_FUNCTION(FOptionValues, GetValue)
+{
+	PARAM_PROLOGUE;
+	PARAM_NAME(grp);
+	PARAM_UINT(index);
+	double val = 0;
+	FOptionValues **pGrp = OptionValues.CheckKey(grp);
+	if (pGrp != nullptr)
+	{
+		if (index < (*pGrp)->mValues.Size())
 		{
-			delete pair->Value;
-			pair->Value = NULL;
+			val = (*pGrp)->mValues[index].Value;
 		}
 	}
+	ACTION_RETURN_FLOAT(val);
+}
 
+DEFINE_ACTION_FUNCTION(FOptionValues, GetTextValue)
+{
+	PARAM_PROLOGUE;
+	PARAM_NAME(grp);
+	PARAM_UINT(index);
+	FString val;
+	FOptionValues **pGrp = OptionValues.CheckKey(grp);
+	if (pGrp != nullptr)
+	{
+		if (index < (*pGrp)->mValues.Size())
+		{
+			val = (*pGrp)->mValues[index].TextValue;
+		}
+	}
+	ACTION_RETURN_STRING(val);
+}
+
+DEFINE_ACTION_FUNCTION(FOptionValues, GetText)
+{
+	PARAM_PROLOGUE;
+	PARAM_NAME(grp);
+	PARAM_UINT(index);
+	FString val;
+	FOptionValues **pGrp = OptionValues.CheckKey(grp);
+	if (pGrp != nullptr)
+	{
+		if (index < (*pGrp)->mValues.Size())
+		{
+			val = (*pGrp)->mValues[index].Text;
+		}
+	}
+	ACTION_RETURN_STRING(val);
+}
+
+
+void DeinitMenus()
+{
+	M_ClearMenus();
 	{
 		FOptionMap::Iterator it(OptionValues);
 
@@ -94,25 +147,23 @@ void M_DeinitMenus()
 		while (it.NextPair(pair))
 		{
 			delete pair->Value;
-			pair->Value = NULL;
+			pair->Value = nullptr;
 		}
 	}
 	MenuDescriptors.Clear();
 	OptionValues.Clear();
-
-	CurrentMenu = NULL;
-	DefaultListMenuSettings.mItems.Clear();
 }
 
-static FGameTexture* GetMenuTexture(const char* const name)
+FTextureID GetMenuTexture(const char* const name)
 {
-	auto texid = TexMan.CheckForTexture(name, ETextureType::Any);
-	if (!texid.isValid())
+	const FTextureID texture = TexMan.CheckForTexture(name, ETextureType::MiscPatch);
+
+	if (!texture.Exists() && mustPrintErrors)
 	{
 		Printf("Missing menu texture: \"%s\"\n", name);
 	}
 
-	return TexMan.GetGameTexture(texid);
+	return texture;
 }
 
 //=============================================================================
@@ -139,56 +190,18 @@ static void SkipSubBlock(FScanner &sc)
 //
 //=============================================================================
 
-struct gamefilter
+static bool CheckSkipGameBlock(FScanner &sc)
 {
-	const char* gamename;
-	int gameflag;
-};
-
-static const gamefilter games[] = {
-	{ "Duke", GAMEFLAG_DUKE},
-	{ "Nam", GAMEFLAG_NAM|GAMEFLAG_NAPALM},
-	{ "NamOnly", GAMEFLAG_NAM},	// for cases where the difference matters.
-	{ "Napalm", GAMEFLAG_NAPALM},
-	{ "WW2GI", GAMEFLAG_WW2GI},
-	{ "Redneck", GAMEFLAG_RR},
-	{ "RedneckRides", GAMEFLAG_RRRA},
-	{ "Deer", GAMEFLAG_DEER},
-	{ "Blood", GAMEFLAG_BLOOD},
-	{ "ShadowWarrior", GAMEFLAG_SW},
-	{ "Exhumed", GAMEFLAG_POWERSLAVE|GAMEFLAG_EXHUMED},
-	{ "Worldtour", GAMEFLAG_WORLDTOUR},
-};
-
-// for other parts that need to filter by game name.
-bool validFilter(const char *str)
-{
-	for (auto &gf : games)
-	{
-		if (g_gameType & gf.gameflag)
-		{
-			if (!stricmp(str, gf.gamename)) return true;
-		}
-	}
-	return false;
-}
-
-
-static bool CheckSkipGameBlock(FScanner &sc, bool negate = false)
-{
-	int filter = 0;
+	bool filter = false;
 	sc.MustGetStringName("(");
 	do
 	{
 		sc.MustGetString();
-		int gi = sc.MustMatchString(&games[0].gamename, sizeof(games[0]));
-
-		filter |= games[gi].gameflag;
+		filter |= CheckGame(sc.String, false);
 	}
 	while (sc.CheckString(","));
-	if (negate) filter = ~filter;
 	sc.MustGetStringName(")");
-	if (!(filter & g_gameType))
+	if (!filter)
 	{
 		SkipSubBlock(sc);
 		return !sc.CheckString("else");
@@ -209,7 +222,8 @@ static bool CheckSkipOptionBlock(FScanner &sc)
 	do
 	{
 		sc.MustGetString();
-		if (sc.Compare("Windows"))
+		if (CheckSkipGameOptionBlock(sc)) filter = true;
+		else if (sc.Compare("Windows"))
 		{
 			#ifdef _WIN32
 				filter = true;
@@ -227,11 +241,15 @@ static bool CheckSkipOptionBlock(FScanner &sc)
 				filter = true;
 			#endif
 		}
-
-		if (sc.Compare("openal"))
+		else if (sc.Compare("OpenAL"))
 		{
-			if (IsOpenALPresent())
+			filter |= IsOpenALPresent();
+		}
+		else if (sc.Compare("MMX"))
+		{
+			#ifdef HAVE_MMX
 				filter = true;
+			#endif
 		}
 	}
 	while (sc.CheckString(","));
@@ -250,28 +268,10 @@ static bool CheckSkipOptionBlock(FScanner &sc)
 //
 //=============================================================================
 
-static bool CheckSkipNoSwBlock(FScanner& sc)
+static void ParseListMenuBody(FScanner &sc, DListMenuDescriptor *desc)
 {
-	sc.MustGetStringName("(");
-	sc.MustGetString();
-	bool res = sc.Compare("true");
-	sc.MustGetStringName(")");
-	if ((!(g_gameType & GAMEFLAG_SHAREWARE)) == res)
-	{
-		SkipSubBlock(sc);
-		return !sc.CheckString("else");
-	}
-	return false;
-}
-
-//=============================================================================
-//
-//
-//
-//=============================================================================
-
-static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
-{
+	bool sizeset = false;
+	bool sizecompatible = true;
 	sc.MustGetStringName("{");
 	while (!sc.CheckString("}"))
 	{
@@ -288,14 +288,6 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 				ParseListMenuBody(sc, desc);
 			}
 		}
-		else if (sc.Compare("ifnotgame"))
-		{
-			if (!CheckSkipGameBlock(sc, true))
-			{
-				// recursively parse sub-block
-				ParseListMenuBody(sc, desc);
-			}
-		}
 		else if (sc.Compare("ifoption"))
 		{
 			if (!CheckSkipOptionBlock(sc))
@@ -304,31 +296,27 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 				ParseListMenuBody(sc, desc);
 			}
 		}
-		else if (sc.Compare("ifshareware"))
-		{
-			if (!CheckSkipNoSwBlock(sc))
-			{
-				// recursively parse sub-block
-				ParseListMenuBody(sc, desc);
-			}
-		}
 		else if (sc.Compare("Class"))
 		{
 			sc.MustGetString();
-			FString s = sc.String;
-			s.Substitute("$", gi->Name());
-			desc->mClass = s;
+			PClass *cls = PClass::FindClass(sc.String);
+			if (cls == nullptr || !cls->IsDescendantOf("ListMenu"))
+			{
+				sc.ScriptError("Unknown menu class '%s'", sc.String);
+			}
+			desc->mClass = cls;
+			sizecompatible = false;
 		}
 		else if (sc.Compare("Selector"))
 		{
 			sc.MustGetString();
 			desc->mSelector = GetMenuTexture(sc.String);
 			sc.MustGetStringName(",");
-			sc.MustGetNumber();
-			desc->mSelectOfsX = sc.Number;
+			sc.MustGetFloat();
+			desc->mSelectOfsX = sc.Float;
 			sc.MustGetStringName(",");
-			sc.MustGetNumber();
-			desc->mSelectOfsY = sc.Number;
+			sc.MustGetFloat();
+			desc->mSelectOfsY = sc.Float;
 		}
 		else if (sc.Compare("Linespacing"))
 		{
@@ -337,29 +325,15 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 		}
 		else if (sc.Compare("Position"))
 		{
-			sc.MustGetNumber();
-			desc->mXpos = sc.Number;
+			sc.MustGetFloat();
+			desc->mXpos = sc.Float;
 			sc.MustGetStringName(",");
-			sc.MustGetNumber();
-			desc->mYpos = sc.Number;
-			if (sc.CheckString(","))
-			{
-				sc.MustGetNumber();
-				desc->mYbotton = sc.Number;
-			}
+			sc.MustGetFloat();
+			desc->mYpos = sc.Float;
 		}
 		else if (sc.Compare("Centermenu"))
 		{
-			desc->mFlags |= LMF_Centered;
-		}
-		else if (sc.Compare("animatedtransition"))
-		{
-			desc->mFlags |= LMF_Animate;
-		}
-		else if (sc.Compare("Fixedspacing"))
-		{
-			sc.MustGetNumber();
-			desc->mSpacing = sc.Number;
+			desc->mCenter = true;
 		}
 		else if (sc.Compare("MouseWindow"))
 		{
@@ -369,142 +343,203 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 			sc.MustGetNumber();
 			desc->mWRight = sc.Number;
 		}
-		else if (sc.Compare("StaticPatch") || sc.Compare("StaticPatchCentered"))
-		{
-			bool centered = sc.Compare("StaticPatchCentered");
-			sc.MustGetNumber();
-			int x = sc.Number;
-			sc.MustGetStringName(",");
-			sc.MustGetNumber();
-			int y = sc.Number;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			auto tex = GetMenuTexture(sc.String);
-
-			FListMenuItem *it = new FListMenuItemStaticPatch(x, y, tex, centered);
-			desc->mItems.Push(it);
-		}
-		else if (sc.Compare("ScriptId"))
-		{
-			sc.MustGetNumber();
-			desc->mScriptId = sc.Number;
-		}
-		else if (sc.Compare("Caption"))
-		{
-			sc.MustGetString();
-			desc->mCaption = sc.String;
-		}
-		else if (sc.Compare("StaticText") || sc.Compare("StaticTextCentered"))
-		{
-			bool centered = sc.Compare("StaticTextCentered");
-			sc.MustGetNumber();
-			int x = sc.Number;
-			sc.MustGetStringName(",");
-			sc.MustGetNumber();
-			int y = sc.Number;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FListMenuItem *it = new FListMenuItemStaticText(x, y, sc.String, desc->mFont, desc->mFontColor, centered);
-			desc->mItems.Push(it);
-		}
-		else if (sc.Compare("PatchItem"))
-		{
-			sc.MustGetString();
-			auto tex = GetMenuTexture(sc.String);
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			int hotkey = sc.String[0];
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FName action = sc.String;
-			int param = 0;
-			if (sc.CheckString(","))
-			{
-				sc.MustGetNumber();
-				param = sc.Number;
-			}
-
-			FListMenuItem *it = new FListMenuItemPatch(desc->mXpos, desc->mYpos, desc->mLinespacing, hotkey, tex, action, param);
-			desc->mItems.Push(it);
-			desc->mYpos += desc->mLinespacing;
-			if (desc->mSelectedItem == -1) desc->mSelectedItem = desc->mItems.Size()-1;
-		}
-		else if (sc.Compare("TextItem"))
-		{
-			sc.MustGetString();
-			FString text = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			int hotkey = sc.String[0];
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FName action = sc.String;
-			int param = 0;
-			if (sc.CheckString(","))
-			{
-				sc.MustGetNumber();
-				param = sc.Number;
-			}
-
-			FListMenuItem *it = new FListMenuItemText(desc->mXpos, desc->mYpos, desc->mLinespacing, hotkey, text, desc->mFont, desc->mFontColor, desc->mFontColor2, action, param);
-			desc->mItems.Push(it);
-			desc->mYpos += desc->mLinespacing;
-			if (desc->mSelectedItem == -1) desc->mSelectedItem = desc->mItems.Size()-1;
-
-		}
-		else if (sc.Compare("NativeTextItem"))
-		{
-		sc.MustGetString();
-		FString text = sc.String;
-		sc.MustGetStringName(",");
-		sc.MustGetString();
-		int hotkey = sc.String[0];
-		sc.MustGetStringName(",");
-		sc.MustGetString();
-		FName action = sc.String;
-		int param = 0;
-		if (sc.CheckString(","))
-		{
-			sc.MustGetNumber();
-			param = sc.Number;
-		}
-
-		auto it = new FListMenuItemNativeText(desc->mXpos, desc->mYpos, desc->mLinespacing, hotkey, text, desc->mNativeFontNum, desc->mNativePalNum, desc->mNativeFontScale, action, param);
-		desc->mItems.Push(it);
-		desc->mYpos += desc->mLinespacing;
-		if (desc->mSelectedItem == -1) desc->mSelectedItem = desc->mItems.Size() - 1;
-
-		}
 		else if (sc.Compare("Font"))
 		{
-		sc.MustGetString();
-		FFont* newfont = V_GetFont(sc.String);
-		if (newfont != NULL) desc->mFont = newfont;
-		if (sc.CheckString(","))
-		{
 			sc.MustGetString();
-			desc->mFontColor2 = desc->mFontColor = V_FindFontColor((FName)sc.String);
+			FFont *newfont = V_GetFont(sc.String);
+			if (newfont != nullptr) desc->mFont = newfont;
 			if (sc.CheckString(","))
 			{
 				sc.MustGetString();
-				desc->mFontColor2 = V_FindFontColor((FName)sc.String);
+				desc->mFontColor2 = desc->mFontColor = V_FindFontColor((FName)sc.String);
+				if (sc.CheckString(","))
+				{
+					sc.MustGetString();
+					desc->mFontColor2 = V_FindFontColor((FName)sc.String);
 				}
 			}
-		else
-		{
-			desc->mFontColor = OptionSettings.mFontColor;
-			desc->mFontColor2 = OptionSettings.mFontColorValue;
-		}
+			else
+			{
+				desc->mFontColor = OptionSettings.mFontColor;
+				desc->mFontColor2 = OptionSettings.mFontColorValue;
+			}
 		}
 		else if (sc.Compare("NetgameMessage"))
 		{
 			sc.MustGetString();
 			desc->mNetgameMessage = sc.String;
 		}
+		else if (sc.Compare("size"))
+		{
+			if (sc.CheckNumber())
+			{
+				desc->mVirtWidth = sc.Number;
+				sc.MustGetStringName(",");
+				sc.MustGetNumber();
+				desc->mVirtHeight = sc.Number;
+			}
+			else
+			{
+				sc.MustGetString();
+				if (sc.Compare("clean"))
+				{
+					desc->mVirtWidth = -1;
+				}
+				else if (sc.Compare("optclean"))
+				{
+					desc->mVirtWidth = -2;
+				}
+				else
+				{
+					sc.ScriptError("Invalid value '%s' for 'size'", sc.String);
+				}
+			}
+		}
 		else
 		{
-			sc.ScriptError("Unknown keyword '%s'", sc.String);
+			// all item classes from which we know that they support sized scaling.
+			// If anything else comes through here the option to swich scaling mode is disabled for this menu.
+			static const char*  const compatibles[] = { "StaticPatch", "StaticText", "StaticTextCentered", "TextItem", "PatchItem", "PlayerDisplay", nullptr };
+			if (sc.MatchString(compatibles) < 0) sizecompatible = false;
+
+			bool success = false;
+			FStringf buildname("ListMenuItem%s", sc.String);
+			PClass *cls = PClass::FindClass(buildname);
+			if (cls != nullptr && cls->IsDescendantOf("ListMenuItem"))
+			{
+				auto func = dyn_cast<PFunction>(cls->FindSymbol("Init", true));
+				if (func != nullptr && !(func->Variants[0].Flags & (VARF_Protected | VARF_Private)))	// skip internal classes which have a protected init method.
+				{
+					auto &args = func->Variants[0].Proto->ArgumentTypes;
+					TArray<VMValue> params;
+					int start = 1;
+
+					params.Push(0);
+					if (args.Size() > 1 && args[1] == NewPointer(PClass::FindClass("ListMenuDescriptor")))
+					{
+						params.Push(desc);
+						start = 2;
+					}
+					auto TypeCVar = NewPointer(NewStruct("CVar", nullptr, true));
+
+					// Note that this array may not be reallocated so its initial size must be the maximum possible elements.
+					TArray<FString> strings(args.Size());
+					for (unsigned i = start; i < args.Size(); i++)
+					{
+						sc.MustGetString();
+						if (args[i] == TypeString)
+						{
+							strings.Push(sc.String);
+							params.Push(&strings.Last());
+						}
+						else if (args[i] == TypeName)
+						{
+							params.Push(FName(sc.String).GetIndex());
+						}
+						else if (args[i] == TypeColor)
+						{
+							params.Push(V_GetColor(nullptr, sc));
+						}
+						else if (args[i] == TypeFont)
+						{
+							auto f = V_GetFont(sc.String);
+							if (f == nullptr)
+							{
+								sc.ScriptError("Unknown font %s", sc.String);
+							}
+							params.Push(f);
+						}
+						else if (args[i] == TypeTextureID)
+						{
+							auto f = TexMan.CheckForTexture(sc.String, ETextureType::MiscPatch);
+							if (!f.Exists())
+							{
+								sc.ScriptMessage("Unknown texture %s", sc.String);
+							}
+							params.Push(f.GetIndex());
+						}
+						else if (args[i]->isIntCompatible())
+						{
+							char *endp;
+							int v = (int)strtoll(sc.String, &endp, 0);
+							if (*endp != 0)
+							{
+								// special check for font color ranges.
+								v = V_FindFontColor(sc.String);
+								if (v == CR_UNTRANSLATED && !sc.Compare("untranslated"))
+								{
+									// todo: check other data types that may get used.
+									sc.ScriptError("Integer expected, got %s", sc.String);
+								}
+							}
+							if (args[i] == TypeBool) v = !!v;
+							params.Push(v);
+						}
+						else if (args[i]->isFloat())
+						{
+							char *endp;
+							double v = strtod(sc.String, &endp);
+							if (*endp != 0)
+							{
+								sc.ScriptError("Float expected, got %s", sc.String);
+							}
+							params.Push(v);
+						}
+						else if (args[i] == TypeCVar)
+						{
+							auto cv = FindCVar(sc.String, nullptr);
+							if (cv == nullptr && *sc.String)
+							{
+								sc.ScriptError("Unknown CVar %s", sc.String);
+							}
+							params.Push(cv);
+						}
+						else
+						{
+							sc.ScriptError("Invalid parameter type %s for menu item", args[i]->DescriptiveName());
+						}
+						if (sc.CheckString(","))
+						{
+							if (i == args.Size() - 1)
+							{
+								sc.ScriptError("Too many parameters for %s", cls->TypeName.GetChars());
+							}
+						}
+						else
+						{
+							if (i < args.Size() - 1 && !(func->Variants[0].ArgFlags[i + 1] & VARF_Optional))
+							{
+								sc.ScriptError("Insufficient parameters for %s", cls->TypeName.GetChars());
+							}
+							break;
+						}
+					}
+					DMenuItemBase *item = (DMenuItemBase*)cls->CreateNew();
+					params[0] = item;
+					VMCallWithDefaults(func->Variants[0].Implementation, params, nullptr, 0);
+					desc->mItems.Push((DMenuItemBase*)item);
+
+					if (cls->IsDescendantOf("ListMenuItemSelectable"))
+					{
+						desc->mYpos += desc->mLinespacing;
+						if (desc->mSelectedItem == -1) desc->mSelectedItem = desc->mItems.Size() - 1;
+					}
+					success = true;
+				}
+			}
+			if (!success)
+			{
+				sc.ScriptError("Unknown keyword '%s'", sc.String);
+			}
 		}
+	}
+	if (!sizeset && sizecompatible) // allow unclean scaling on this menu
+	{
+		desc->mVirtWidth = -2;
+	}
+	for (auto &p : desc->mItems)
+	{
+		GC::WriteBarrier(p);
 	}
 }
 
@@ -514,28 +549,112 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 //
 //=============================================================================
 
-static bool CheckCompatible(FMenuDescriptor *newd, FMenuDescriptor *oldd)
+static bool CheckCompatible(DMenuDescriptor *newd, DMenuDescriptor *oldd)
 {
-	/*if (oldd->mClass == NULL)*/ return true;
-	//return oldd->mClass == newd->mClass;
+	if (oldd->mClass == nullptr) return true;
+	return newd->mClass->IsDescendantOf(oldd->mClass);
 }
 
-static bool ReplaceMenu(FScanner &sc, FMenuDescriptor *desc)
+static int GetGroup(DMenuItemBase *desc)
 {
-	FMenuDescriptor **pOld = MenuDescriptors.CheckKey(desc->mMenuName);
-	if (pOld != NULL && *pOld != NULL) 
+	if (desc->IsKindOf(NAME_OptionMenuItemCommand)) return 2;
+	if (desc->IsKindOf(NAME_OptionMenuItemSubmenu)) return 1;
+	if (desc->IsKindOf(NAME_OptionMenuItemControlBase)) return 3;
+	if (desc->IsKindOf(NAME_OptionMenuItemOptionBase)) return 4;
+	if (desc->IsKindOf(NAME_OptionMenuSliderBase)) return 4;
+	if (desc->IsKindOf(NAME_OptionMenuFieldBase)) return 4;
+	if (desc->IsKindOf(NAME_OptionMenuItemColorPicker)) return 4;
+	if (desc->IsKindOf(NAME_OptionMenuItemStaticText)) return 5;
+	if (desc->IsKindOf(NAME_OptionMenuItemStaticTextSwitchable)) return 5;
+	return 0;
+}
+
+static bool FindMatchingItem(DMenuItemBase *desc)
+{
+	int grp = GetGroup(desc);
+	if (grp == 0) return false;	// no idea what this is.
+	if (grp == 5) return true;	// static texts always match
+
+	FName name = desc->mAction;
+
+	if (grp == 1)
 	{
-		if (CheckCompatible(desc, *pOld))
+		// Check for presence of menu
+		auto menu = MenuDescriptors.CheckKey(name);
+		if (menu == nullptr) return false;
+	}
+	else if (grp == 4)
+	{
+		static const FName CVarBlacklist[] = {
+			NAME_snd_waterlp, NAME_snd_output, NAME_snd_output_format, NAME_snd_speakermode, NAME_snd_resampler, NAME_AlwaysRun };
+
+		// Check for presence of CVAR and blacklist
+		auto cv = FindCVar(name.GetChars(), nullptr);
+		if (cv == nullptr) return true;
+
+		for (auto bname : CVarBlacklist)
 		{
-			delete *pOld;
+			if (name == bname) return true;
 		}
-		else
+	}
+
+	MenuDescriptorList::Iterator it(MenuDescriptors);
+	MenuDescriptorList::Pair *pair;
+	while (it.NextPair(pair))
+	{
+		for (auto it : pair->Value->mItems)
+		{
+			if (it->mAction == name && GetGroup(it) == grp) return true;
+		}
+	}
+	return false;
+}
+
+static bool ReplaceMenu(FScanner &sc, DMenuDescriptor *desc)
+{
+	DMenuDescriptor **pOld = MenuDescriptors.CheckKey(desc->mMenuName);
+	if (pOld != nullptr && *pOld != nullptr) 
+	{
+		if ((*pOld)->mProtected)
+		{
+			// If this tries to replace an option menu with an option menu, let's append all new entries to the old menu.
+			// Otherwise bail out because for list menus it's not that simple.
+			if (desc->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)) || (*pOld)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
+			{
+				sc.ScriptMessage("Cannot replace protected menu %s.", desc->mMenuName.GetChars());
+				return true;
+			}
+			for (int i = desc->mItems.Size()-1; i >= 0; i--)
+			{
+				if (FindMatchingItem(desc->mItems[i]))
+				{
+					desc->mItems.Delete(i);
+				}
+			}
+			if (desc->mItems.Size() > 0)
+			{
+				auto sep = CreateOptionMenuItemStaticText(" ");
+				(*pOld)->mItems.Push(sep);
+				sep = CreateOptionMenuItemStaticText("---------------", 1);
+				(*pOld)->mItems.Push(sep);
+				for (auto it : desc->mItems)
+				{
+					(*pOld)->mItems.Push(it);
+				}
+				desc->mItems.Clear();
+				//sc.ScriptMessage("Merged %d items into %s", desc->mItems.Size(), desc->mMenuName.GetChars());
+			}
+			return true;
+		}
+
+		if (!CheckCompatible(desc, *pOld))
 		{
 			sc.ScriptMessage("Tried to replace menu '%s' with a menu of different type", desc->mMenuName.GetChars());
 			return true;
 		}
 	}
 	MenuDescriptors[desc->mMenuName] = desc;
+	GC::WriteBarrier(desc);
 	return false;
 }
 
@@ -549,151 +668,30 @@ static void ParseListMenu(FScanner &sc)
 {
 	sc.MustGetString();
 
-	FListMenuDescriptor *desc = new FListMenuDescriptor;
-	desc->mType = MDESC_ListMenu;
+	DListMenuDescriptor *desc = Create<DListMenuDescriptor>();
+	desc->Reset();
 	desc->mMenuName = sc.String;
 	desc->mSelectedItem = -1;
 	desc->mAutoselect = -1;
-	desc->mSelectOfsX = DefaultListMenuSettings.mSelectOfsX;
-	desc->mSelectOfsY = DefaultListMenuSettings.mSelectOfsY;
-	desc->mSelector = DefaultListMenuSettings.mSelector;
-	desc->mDisplayTop = DefaultListMenuSettings.mDisplayTop;
-	desc->mXpos = DefaultListMenuSettings.mXpos;
-	desc->mYpos = DefaultListMenuSettings.mYpos;
-	desc->mLinespacing = DefaultListMenuSettings.mLinespacing;
-	desc->mNetgameMessage = DefaultListMenuSettings.mNetgameMessage;
-	desc->mFont = DefaultListMenuSettings.mFont;
-	desc->mFontColor = DefaultListMenuSettings.mFontColor;
-	desc->mFontColor2 = DefaultListMenuSettings.mFontColor2;
-	desc->mClass = NULL;
-	desc->mRedirect = NULL;
+	desc->mSelectOfsX = DefaultListMenuSettings->mSelectOfsX;
+	desc->mSelectOfsY = DefaultListMenuSettings->mSelectOfsY;
+	desc->mSelector = DefaultListMenuSettings->mSelector;
+	desc->mDisplayTop = DefaultListMenuSettings->mDisplayTop;
+	desc->mXpos = DefaultListMenuSettings->mXpos;
+	desc->mYpos = DefaultListMenuSettings->mYpos;
+	desc->mLinespacing = DefaultListMenuSettings->mLinespacing;
+	desc->mNetgameMessage = DefaultListMenuSettings->mNetgameMessage;
+	desc->mFont = DefaultListMenuSettings->mFont;
+	desc->mFontColor = DefaultListMenuSettings->mFontColor;
+	desc->mFontColor2 = DefaultListMenuSettings->mFontColor2;
+	desc->mClass = nullptr;
 	desc->mWLeft = 0;
 	desc->mWRight = 0;
+	desc->mCenter = false;
+	desc->mFromEngine = fileSystem.GetFileContainer(sc.LumpNum) == 0;	// flags menu if the definition is from the IWAD.
 
 	ParseListMenuBody(sc, desc);
-	bool scratch = ReplaceMenu(sc, desc);
-	if (scratch) delete desc;
-}
-
-//=============================================================================
-//
-//
-//
-//=============================================================================
-
-static void ParseImageScrollerBody(FScanner &sc, FImageScrollerDescriptor *desc)
-{
-	sc.MustGetStringName("{");
-	while (!sc.CheckString("}"))
-	{
-		sc.MustGetString();
-		if (sc.Compare("else"))
-		{
-			SkipSubBlock(sc);
-		}
-		else if (sc.Compare("ifgame"))
-		{
-			if (!CheckSkipGameBlock(sc))
-			{
-				// recursively parse sub-block
-				ParseImageScrollerBody(sc, desc);
-			}
-		}
-		else if (sc.Compare("ifnotgame"))
-		{
-			if (!CheckSkipGameBlock(sc, true))
-			{
-				// recursively parse sub-block
-				ParseImageScrollerBody(sc, desc);
-			}
-		}
-		else if (sc.Compare("ifshareware"))
-		{
-			if (!CheckSkipNoSwBlock(sc))
-			{
-				// recursively parse sub-block
-				ParseImageScrollerBody(sc, desc);
-			}
-		}
-		else if (sc.Compare("ifoption"))
-		{
-			if (!CheckSkipOptionBlock(sc))
-			{
-				// recursively parse sub-block
-				ParseImageScrollerBody(sc, desc);
-			}
-		}
-		else if (sc.Compare("Class"))
-		{
-			sc.MustGetString();
-			FString s = sc.String;
-			s.Substitute("$", gi->Name());
-			desc->mClass = s;
-		}
-		else if (sc.Compare("TextItem") || sc.Compare("ImageItem"))
-		{
-			FImageScrollerDescriptor::ScrollerItem item;
-			int type = sc.Compare("TextItem");
-			sc.MustGetString();
-			item.text = strbin1(sc.String);
-			if (type)
-			{
-				sc.MustGetStringName(",");
-				sc.MustGetNumber();
-				item.type = sc.Number; // y-coordinate
-			}
-			else item.type = 0;
-			item.scriptID = INT_MAX;
-			if (sc.CheckString(","))
-			{
-				sc.MustGetNumber();
-				item.scriptID = sc.Number;
-			}
-			desc->mItems.Push(item);
-		}
-		else if (sc.Compare("qavanimationitem"))
-		{
-			if (!(g_gameType & GAMEFLAG_BLOOD))
-			{
-				I_Error("QAV animations not available!"); // these (currently) only exist in Blood.
-			}
-			FImageScrollerDescriptor::ScrollerItem item;
-			sc.GetString();
-			item.text = sc.String;
-			item.type = -1;
-			item.scriptID = INT_MAX;
-			desc->mItems.Push(item);
-		}
-		else if (sc.Compare("animatedtransition"))
-		{
-			desc->mFlags |= LMF_Animate;
-		}
-		else
-		{
-			sc.ScriptError("Unknown keyword '%s'", sc.String);
-		}
-	}
-}
-
-
-//=============================================================================
-//
-//
-//
-//=============================================================================
-
-static void ParseImageScroller(FScanner &sc)
-{
-	sc.MustGetString();
-
-	FImageScrollerDescriptor *desc = new FImageScrollerDescriptor;
-	desc->mType = MDESC_ImageScroller;
-	desc->mMenuName = sc.String;
-	desc->mClass = NAME_None;
-
-	ParseImageScrollerBody(sc, desc);
-	bool scratch = ReplaceMenu(sc, desc);
-	if (scratch) delete desc;
+	ReplaceMenu(sc, desc);
 }
 
 //=============================================================================
@@ -704,11 +702,9 @@ static void ParseImageScroller(FScanner &sc)
 
 static void ParseOptionValue(FScanner &sc)
 {
-	FName optname;
-
 	FOptionValues *val = new FOptionValues;
 	sc.MustGetString();
-	optname = sc.String;
+	FName optname = sc.String;
 	sc.MustGetStringName("{");
 	while (!sc.CheckString("}"))
 	{
@@ -720,7 +716,7 @@ static void ParseOptionValue(FScanner &sc)
 		pair.Text = strbin1(sc.String);
 	}
 	FOptionValues **pOld = OptionValues.CheckKey(optname);
-	if (pOld != NULL && *pOld != NULL) 
+	if (pOld != nullptr && *pOld != nullptr) 
 	{
 		delete *pOld;
 	}
@@ -736,11 +732,9 @@ static void ParseOptionValue(FScanner &sc)
 
 static void ParseOptionString(FScanner &sc)
 {
-	FName optname;
-
 	FOptionValues *val = new FOptionValues;
 	sc.MustGetString();
-	optname = sc.String;
+	FName optname = sc.String;
 	sc.MustGetStringName("{");
 	while (!sc.CheckString("}"))
 	{
@@ -753,7 +747,7 @@ static void ParseOptionString(FScanner &sc)
 		pair.Text = strbin1(sc.String);
 	}
 	FOptionValues **pOld = OptionValues.CheckKey(optname);
-	if (pOld != NULL && *pOld != NULL) 
+	if (pOld != nullptr && *pOld != nullptr) 
 	{
 		delete *pOld;
 	}
@@ -785,14 +779,6 @@ static void ParseOptionSettings(FScanner &sc)
 				ParseOptionSettings(sc);
 			}
 		}
-		else if (sc.Compare("ifnotgame"))
-		{
-			if (!CheckSkipGameBlock(sc, true))
-			{
-				// recursively parse sub-block
-				ParseOptionSettings(sc);
-			}
-		}
 		else if (sc.Compare("Linespacing"))
 		{
 			sc.MustGetNumber();
@@ -816,7 +802,7 @@ static void ParseOptionSettings(FScanner &sc)
 //
 //=============================================================================
 
-static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
+static void ParseOptionMenuBody(FScanner &sc, DOptionMenuDescriptor *desc)
 {
 	sc.MustGetStringName("{");
 	while (!sc.CheckString("}"))
@@ -834,22 +820,6 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 				ParseOptionMenuBody(sc, desc);
 			}
 		}
-		else if (sc.Compare("ifnotgame"))
-		{
-			if (!CheckSkipGameBlock(sc, true))
-			{
-				// recursively parse sub-block
-				ParseOptionMenuBody(sc, desc);
-			}
-		}
-		else if (sc.Compare("ifshareware"))
-		{
-			if (!CheckSkipNoSwBlock(sc))
-			{
-				// recursively parse sub-block
-				ParseOptionMenuBody(sc, desc);
-			}
-		}
 		else if (sc.Compare("ifoption"))
 		{
 			if (!CheckSkipOptionBlock(sc))
@@ -861,11 +831,14 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 		else if (sc.Compare("Class"))
 		{
 			sc.MustGetString();
-			FString s = sc.String;
-			s.Substitute("$", gi->Name());
-			desc->mClass = s;
+			PClass *cls = PClass::FindClass(sc.String);
+			if (cls == nullptr || !cls->IsDescendantOf("OptionMenu"))
+			{
+				sc.ScriptError("Unknown menu class '%s'", sc.String);
+			}
+			desc->mClass = cls;
 		}
-		else if (sc.Compare("Title") || sc.Compare("Caption"))
+		else if (sc.Compare("Title"))
 		{
 			sc.MustGetString();
 			desc->mTitle = sc.String;
@@ -890,198 +863,120 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 			sc.MustGetNumber();
 			desc->mIndent = sc.Number;
 		}
-		else if (sc.Compare("Submenu"))
-		{
-			sc.MustGetString();
-			FString label = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FOptionMenuItem *it = new FOptionMenuItemSubmenu(label, sc.String);
-			desc->mItems.Push(it);
-		}
-		else if (sc.Compare("LabeledSubmenu"))
-		{
-			sc.MustGetString();
-			FString label = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			auto cvar = FindCVar(sc.String, nullptr);
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FOptionMenuItem* it = new FOptionMenuItemLabeledSubmenu(label, cvar, sc.String);
-			desc->mItems.Push(it);
-		}
-		else if (sc.Compare("Option"))
-		{
-			sc.MustGetString();
-			FString label = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FString cvar = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FString values = sc.String;
-			FString check;
-			int center = 0;
-			if (sc.CheckString(","))
-			{
-				sc.MustGetString();
-				if (*sc.String != 0) check = sc.String;
-				if (sc.CheckString(","))
-				{
-					sc.MustGetNumber();
-					center = sc.Number;
-				}
-			}
-			FOptionMenuItem *it = new FOptionMenuItemOption(label, cvar, values, check, center);
-			desc->mItems.Push(it);
-		}
-		else if (sc.Compare("Command"))
-		{
-			sc.MustGetString();
-			FString label = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FOptionMenuItem *it = new FOptionMenuItemCommand(label, sc.String);
-			desc->mItems.Push(it);
-		}
-		else if (sc.Compare("SafeCommand"))
-		{
-			sc.MustGetString();
-			FString label = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FOptionMenuItem *it = new FOptionMenuItemSafeCommand(label, sc.String);
-			desc->mItems.Push(it);
-		}
-		else if (sc.Compare("Control") || sc.Compare("MapControl"))
-		{
-			bool map = sc.Compare("MapControl");
-			sc.MustGetString();
-			FString label = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FOptionMenuItem *it = new FOptionMenuItemControl(label, sc.String, map? &AutomapBindings : &Bindings);
-			desc->mItems.Push(it);
-		}
-		else if (sc.Compare("StaticText"))
-		{
-			sc.MustGetString();
-			FString label = sc.String;
-			EColorRange cr = OptionSettings.mFontColorHeader;
-			if (sc.CheckString(","))
-			{
-				sc.MustGetNumber();
-				cr = sc.Number? OptionSettings.mFontColorHeader : OptionSettings.mFontColor;	// fixme!
-			}
-			FOptionMenuItem *it = new FOptionMenuItemStaticText(label, cr);
-			desc->mItems.Push(it);
-		}
-		else if (sc.Compare("StaticTextSwitchable"))
-		{
-			sc.MustGetString();
-			FString label = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FString label2 = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FName action = sc.String;
-			EColorRange cr = OptionSettings.mFontColorHeader;
-			if (sc.CheckString(","))
-			{
-				sc.MustGetNumber();
-				cr = sc.Number ? OptionSettings.mFontColorHeader : OptionSettings.mFontColor;	// fixme!
-			}
-			FOptionMenuItem *it = new FOptionMenuItemStaticTextSwitchable(label, label2, action, cr);
-			desc->mItems.Push(it);
-		}
-		else if (sc.Compare("Slider"))
-		{
-			sc.MustGetString();
-			FString text = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			FString action = sc.String;
-			sc.MustGetStringName(",");
-			sc.MustGetFloat();
-			double min = sc.Float;
-			sc.MustGetStringName(",");
-			sc.MustGetFloat();
-			double max = sc.Float;
-			sc.MustGetStringName(",");
-			sc.MustGetFloat();
-			double step = sc.Float;
-			int showvalue = 1;
-			if (sc.CheckString(","))
-			{
-				sc.MustGetNumber();
-				showvalue = sc.Number;
-			}
-			FOptionMenuItem *it = new FOptionMenuSliderCVar(text, action, min, max, step, showvalue);
-			desc->mItems.Push(it);
-		}
-		// [TP] -- Text input widget
-		else if ( sc.Compare( "TextField" ))
-		{
-			sc.MustGetString();
-			FString label = sc.String;
-			sc.MustGetStringName( "," );
-			sc.MustGetString();
-			FString cvar = sc.String;
-			FString check;
-			
-			if ( sc.CheckString( "," ))
-			{
-				sc.MustGetString();
-				check = sc.String;
-			}
-
-			FOptionMenuItem* it = new FOptionMenuTextField( label, cvar, check );
-			desc->mItems.Push( it );
-		}
-		// [TP] -- Number input widget
-		else if ( sc.Compare( "NumberField" ))
-		{
-			sc.MustGetString();
-			FString label = sc.String;
-			sc.MustGetStringName( "," );
-			sc.MustGetString();
-			FString cvar = sc.String;
-			float minimum = 0.0f;
-			float maximum = 100.0f;
-			float step = 1.0f;
-			FString check;
-
-			if ( sc.CheckString( "," ))
-			{
-				sc.MustGetFloat();
-				minimum = (float) sc.Float;
-				sc.MustGetStringName( "," );
-				sc.MustGetFloat();
-				maximum = (float) sc.Float;
-
-				if ( sc.CheckString( "," ))
-				{
-					sc.MustGetFloat();
-					step = (float) sc.Float;
-
-					if ( sc.CheckString( "," ))
-					{
-						sc.MustGetString();
-						check = sc.String;
-					}
-				}
-			}
-
-			FOptionMenuItem* it = new FOptionMenuNumberField( label, cvar,
-				minimum, maximum, step, check );
-			desc->mItems.Push( it );
-		}
 		else
 		{
-			sc.ScriptError("Unknown keyword '%s'", sc.String);
+			bool success = false;
+			FStringf buildname("OptionMenuItem%s", sc.String);
+			// Handle one special case: MapControl maps to Control with one parameter different
+			PClass *cls = PClass::FindClass(buildname);
+			if (cls != nullptr && cls->IsDescendantOf("OptionMenuItem"))
+			{
+				auto func = dyn_cast<PFunction>(cls->FindSymbol("Init", true));
+				if (func != nullptr && !(func->Variants[0].Flags & (VARF_Protected | VARF_Private)))	// skip internal classes which have a protexted init method.
+				{
+					auto &args = func->Variants[0].Proto->ArgumentTypes;
+					TArray<VMValue> params;
+
+					params.Push(0);
+					auto TypeCVar = NewPointer(NewStruct("CVar", nullptr, true));
+
+					// Note that this array may not be reallocated so its initial size must be the maximum possible elements.
+					TArray<FString> strings(args.Size());
+					for (unsigned i = 1; i < args.Size(); i++)
+					{
+						sc.MustGetString();
+						if (args[i] == TypeString)
+						{
+							strings.Push(sc.String);
+							params.Push(&strings.Last());
+						}
+						else if (args[i] == TypeName)
+						{
+							params.Push(FName(sc.String).GetIndex());
+						}
+						else if (args[i] == TypeColor)
+						{
+							params.Push(V_GetColor(nullptr, sc));
+						}
+						else if (args[i]->isIntCompatible())
+						{
+							char *endp;
+							int v = (int)strtoll(sc.String, &endp, 0);
+							if (*endp != 0)
+							{
+								// special check for font color ranges.
+								v = V_FindFontColor(sc.String);
+								if (v == CR_UNTRANSLATED && !sc.Compare("untranslated"))
+								{
+									// todo: check other data types that may get used.
+									sc.ScriptError("Integer expected, got %s", sc.String);
+								}
+								// Color ranges need to be marked for option menu items to support an older feature where a boolean number could be passed instead.
+								v |= 0x12340000;
+							}
+							if (args[i] == TypeBool) v = !!v;
+							params.Push(v);
+						}
+						else if (args[i]->isFloat())
+						{
+							char *endp;
+							double v = strtod(sc.String, &endp);
+							if (*endp != 0)
+							{
+								sc.ScriptError("Float expected, got %s", sc.String);
+							}
+							params.Push(v);
+						}
+						else if (args[i] == TypeCVar)
+						{
+							auto cv = FindCVar(sc.String, nullptr);
+							if (cv == nullptr && *sc.String)
+							{
+									if (func->Variants[0].ArgFlags[i] & VARF_Optional)
+										sc.ScriptMessage("Unknown CVar %s", sc.String);
+									else
+										sc.ScriptError("Unknown CVar %s", sc.String);
+							}
+							params.Push(cv);
+						}
+						else
+						{
+							sc.ScriptError("Invalid parameter type %s for menu item", args[i]->DescriptiveName());
+						}
+						if (sc.CheckString(","))
+						{
+							if (i == args.Size() - 1)
+							{
+								sc.ScriptError("Too many parameters for %s", cls->TypeName.GetChars());
+							}
+						}
+						else
+						{
+							if (i < args.Size() - 1 && !(func->Variants[0].ArgFlags[i + 1] & VARF_Optional))
+							{
+								sc.ScriptError("Insufficient parameters for %s", cls->TypeName.GetChars());
+							}
+							break;
+						}
+					}
+
+					DMenuItemBase *item = (DMenuItemBase*)cls->CreateNew();
+					params[0] = item;
+					VMCallWithDefaults(func->Variants[0].Implementation, params, nullptr, 0);
+					desc->mItems.Push((DMenuItemBase*)item);
+
+					success = true;
+				}
+			}
+			if (!success)
+			{
+				sc.ScriptError("Unknown keyword '%s'", sc.String);
+			}
 		}
+	}
+	for (auto &p : desc->mItems)
+	{
+		GC::WriteBarrier(p);
 	}
 }
 
@@ -1095,20 +990,39 @@ static void ParseOptionMenu(FScanner &sc)
 {
 	sc.MustGetString();
 
-	FOptionMenuDescriptor *desc = new FOptionMenuDescriptor;
-	desc->mType = MDESC_OptionsMenu;
+	DOptionMenuDescriptor *desc = Create<DOptionMenuDescriptor>();
+	desc->mFont = BigUpper;
 	desc->mMenuName = sc.String;
 	desc->mSelectedItem = -1;
 	desc->mScrollPos = 0;
-	desc->mClass = NULL;
-	desc->mPosition = DefaultOptionMenuSettings.mPosition;
-	desc->mScrollTop = DefaultOptionMenuSettings.mScrollTop;
-	desc->mIndent =  DefaultOptionMenuSettings.mIndent;
-	desc->mDontDim =  DefaultOptionMenuSettings.mDontDim;
+	desc->mClass = nullptr;
+	desc->mPosition = DefaultOptionMenuSettings->mPosition;
+	desc->mScrollTop = DefaultOptionMenuSettings->mScrollTop;
+	desc->mIndent =  DefaultOptionMenuSettings->mIndent;
+	desc->mDontDim =  DefaultOptionMenuSettings->mDontDim;
+	desc->mProtected = sc.CheckString("protected");
 
 	ParseOptionMenuBody(sc, desc);
-	bool scratch = ReplaceMenu(sc, desc);
-	if (scratch) delete desc;
+	ReplaceMenu(sc, desc);
+}
+
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+static void ParseAddOptionMenu(FScanner &sc)
+{
+	sc.MustGetString();
+
+	DMenuDescriptor **pOld = MenuDescriptors.CheckKey(sc.String);
+	if (pOld == nullptr || *pOld == nullptr || !(*pOld)->IsKindOf(RUNTIME_CLASS(DOptionMenuDescriptor)))
+	{
+		sc.ScriptError("%s is not an option menu that can be extended", sc.String);
+	}
+	ParseOptionMenuBody(sc, (DOptionMenuDescriptor*)(*pOld));
 }
 
 
@@ -1122,48 +1036,22 @@ void M_ParseMenuDefs()
 {
 	int lump, lastlump = 0;
 
-	//OptionSettings.mTitleColor = CR_RED;// V_FindFontColor(gameinfo.mTitleColor);
-	OptionSettings.mFontColor = CR_RED;
-	OptionSettings.mFontColorValue = CR_GRAY;
-	OptionSettings.mFontColorMore = CR_GRAY;
-	OptionSettings.mFontColorHeader = CR_GOLD;
-	OptionSettings.mFontColorHighlight = CR_YELLOW;
-	OptionSettings.mFontColorSelection = CR_BRICK;
+#if 0
+	SetDefaultMenuColors();
+#endif
+	// these are supposed to get GC'd after parsing is complete.
+	DefaultListMenuSettings = Create<DListMenuDescriptor>();
+	DefaultOptionMenuSettings = Create<DOptionMenuDescriptor>();
+	DefaultListMenuSettings->Reset();
+	DefaultOptionMenuSettings->Reset();
 
-	if (g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI))
-	{
-		OptionSettings.mFontColor = CR_DARKGREEN;
-		OptionSettings.mFontColorHeader = CR_DARKGRAY;
-		OptionSettings.mFontColorHighlight = CR_WHITE;
-		OptionSettings.mFontColorSelection = CR_DARKGREEN;
-	}
-	else if (g_gameType & GAMEFLAG_BLOOD)
-	{
-		OptionSettings.mFontColorHeader = CR_DARKGRAY;
-		OptionSettings.mFontColorHighlight = CR_WHITE;
-		OptionSettings.mFontColorSelection = CR_DARKRED;
-	}
-	else if (g_gameType & GAMEFLAG_RRALL)
-	{
-		OptionSettings.mFontColor = CR_BROWN;
-		OptionSettings.mFontColorHeader = CR_DARKBROWN;
-		OptionSettings.mFontColorHighlight = CR_ORANGE;
-		OptionSettings.mFontColorSelection = CR_TAN;
-	}
-	else if (g_gameType & GAMEFLAG_SW)
-	{
-		OptionSettings.mFontColorHeader = CR_DARKRED;
-		OptionSettings.mFontColorHighlight = CR_WHITE;
-	}
+	int IWADMenu = fileSystem.CheckNumForName("MENUDEF", ns_global, fileSystem.GetIwadNum());
 
-	DefaultListMenuSettings.Reset();
-	DefaultOptionMenuSettings.Reset();
-
-	M_DeinitMenus();
-	while ((lump = fileSystem.FindLumpFullName("engine/menudef.txt", &lastlump)) != -1)
+	while ((lump = fileSystem.FindLump ("MENUDEF", &lastlump)) != -1)
 	{
 		FScanner sc(lump);
 
+		mustPrintErrors = lump >= IWADMenu;
 		sc.SetCMode(true);
 		while (sc.GetString())
 		{
@@ -1171,16 +1059,12 @@ void M_ParseMenuDefs()
 			{
 				ParseListMenu(sc);
 			}
-			else if (sc.Compare("ImageScroller"))
-			{
-				ParseImageScroller(sc);
-			}
 			else if (sc.Compare("DEFAULTLISTMENU"))
 			{
-				ParseListMenuBody(sc, &DefaultListMenuSettings);
-				if (DefaultListMenuSettings.mItems.Size() > 0)
+				ParseListMenuBody(sc, DefaultListMenuSettings);
+				if (DefaultListMenuSettings->mItems.Size() > 0)
 				{
-					I_Error("You cannot add menu items to the menu default settings.");
+					I_FatalError("You cannot add menu items to the menu default settings.");
 				}
 			}
 			else if (sc.Compare("OPTIONVALUE"))
@@ -1199,12 +1083,16 @@ void M_ParseMenuDefs()
 			{
 				ParseOptionMenu(sc);
 			}
+			else if (sc.Compare("ADDOPTIONMENU"))
+			{
+				ParseAddOptionMenu(sc);
+			}
 			else if (sc.Compare("DEFAULTOPTIONMENU"))
 			{
-				ParseOptionMenuBody(sc, &DefaultOptionMenuSettings);
-				if (DefaultOptionMenuSettings.mItems.Size() > 0)
+				ParseOptionMenuBody(sc, DefaultOptionMenuSettings);
+				if (DefaultOptionMenuSettings->mItems.Size() > 0)
 				{
-					I_Error("You cannot add menu items to the menu default settings.");
+					I_FatalError("You cannot add menu items to the menu default settings.");
 				}
 			}
 			else
@@ -1212,239 +1100,14 @@ void M_ParseMenuDefs()
 				sc.ScriptError("Unknown keyword '%s'", sc.String);
 			}
 		}
+		if (Args->CheckParm("-nocustommenu")) break;
 	}
+	DefaultListMenuClass = DefaultListMenuSettings->mClass;
+	DefaultListMenuSettings = nullptr;
+	DefaultOptionMenuClass = DefaultOptionMenuSettings->mClass;
+	DefaultOptionMenuSettings = nullptr;
 }
 
-
-//=============================================================================
-//
-// Unlocks a custom menu from a script
-//
-//=============================================================================
-
-void M_UnhideCustomMenu(int menu, int iSet)
-{
-	FName menuname = FName(ENamedName(NAME_CustomSubMenu1 + menu));
-	auto desc = MenuDescriptors.CheckKey(menuname);
-	if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
-	{
-		FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
-		for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
-		{
-			if (b >= ld->mItems.Size()) return;
-			if (iSet & (1u << b))
-			{
-				ld->mItems[b]->mHidden = false;
-				ld->mItems[b]->mEnabled = true;
-			}
-		}
-	}
-}
-
-//=============================================================================
-//
-// Creates the episode menu
-//
-//=============================================================================
-
-static void BuildEpisodeMenu()
-{
-	// Build episode menu
-	int addedVolumes = 0;
-	FMenuDescriptor **desc = MenuDescriptors.CheckKey(NAME_Episodemenu);
-	if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
-	{
-		FListMenuDescriptor *ld = static_cast<FListMenuDescriptor*>(*desc);
-		ld->mSelectedItem = gDefaultVolume;
-		int y = ld->mYpos;
-
-		for (int i = 0; i < MAXVOLUMES; i++)
-		{
-			if (gVolumeNames[i].IsNotEmpty() && !(gVolumeFlags[i] & EF_HIDEFROMSP))
-
-			{
-				auto it = new FListMenuItemNativeText(ld->mXpos, y, ld->mLinespacing, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_Skillmenu, i);
-				if ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && i > 0)
-				{
-					it->mEnabled = false;
-				}
-				y += ld->mLinespacing;
-				ld->mItems.Push(it);
-				addedVolumes++;
-				if (gVolumeSubtitles[i].IsNotEmpty())
-				{
-					auto it = new FListMenuItemNativeStaticText(ld->mXpos, y, gVolumeSubtitles[i], NIT_SmallFont, NIT_ActiveState, false);
-					y += ld->mLinespacing * 6 / 10;
-					ld->mItems.Push(it);
-				}
-			}
-		}
-#if 0	// this needs to be backed by a working selection menu, until that gets done it must be disabled.
-		if (!(g_gameType & GAMEFLAG_SHAREWARE))
-		{
-			//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "", NIT_SmallFont);	// empty entry as spacer.
-			//ld->mItems.Push(it);
-
-			y += ld->mLinespacing / 3;
-			auto it = new FListMenuItemNativeText(ld->mXpos, y, ld->mLineSpacing, 0, "$MNU_USERMAP", NIT_BigFont, NIT_ActiveState, 1, NAME_UsermapMenu);
-			ld->mItems.Push(it);
-			addedVolumes++;
-		}
-#endif
-		if (addedVolumes == 1)
-		{
-			ld->mAutoselect = 0;
-		}
-	}
-
-	// Build skill menu
-	int addedSkills = 0;
-	desc = MenuDescriptors.CheckKey(NAME_Skillmenu);
-	if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
-	{
-		FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
-		ld->mSelectedItem = gDefaultSkill;
-		int y = ld->mYpos;
-
-		for (int i = 0; i < MAXSKILLS; i++)
-		{
-			if (gSkillNames[i].IsNotEmpty())
-			{
-				auto it = new FListMenuItemNativeText(ld->mXpos, y, ld->mLinespacing, gSkillNames[i][0], gSkillNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_Startgame, i);
-				y += ld->mLinespacing;
-				ld->mItems.Push(it);
-				addedSkills++;
-			}
-		}
-		if (addedSkills == 0)
-		{
-			// Need to add one item with the default skill so that the menu does not break.
-			auto it = new FListMenuItemNativeText(ld->mXpos, 0, ld->mLinespacing, 0, "", NIT_BigFont, NIT_ActiveState, 1, NAME_Startgame, gDefaultSkill);
-			ld->mItems.Push(it);
-		}
-		if (addedSkills == 1)
-		{
-			ld->mAutoselect = 0;
-		}
-	}
-
-	if (g_MenuGameplayEntries[0].entry.isValid())
-	{
-		int e = 0;
-		FMenuDescriptor** desc = MenuDescriptors.CheckKey("CustomGameMenu");
-		if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
-		{
-			FListMenuDescriptor* ldo = static_cast<FListMenuDescriptor*>(*desc);
-
-			for (MenuGameplayStemEntry const& stem : g_MenuGameplayEntries)
-			{
-				MenuGameplayEntry const& entry = stem.entry;
-				if (!entry.isValid())
-					break;
-
-				int s = 0;
-				FMenuDescriptor** sdesc = MenuDescriptors.CheckKey(FName(FStringf("CustomSubMenu%d", e+1)));
-				if (sdesc != NULL && (*sdesc)->mType == MDESC_ListMenu)
-				{
-					FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*sdesc);
-					ld->mCaption = entry.name;
-
-					for (MenuGameplayEntry const& subentry : stem.subentries)
-					{
-						if (!subentry.isValid())
-							break;
-
-						auto li = new FListMenuItemNativeText(ld->mXpos, 0, ld->mLinespacing, 0, subentry.name, NIT_BigFont, NIT_ActiveColor, 1.f, subentry.flags & MGE_UserContent ? NAME_UsermapMenu : NAME_Skillmenu);
-
-						if (subentry.flags & MGE_Locked) li->mEnabled = false;
-						if (subentry.flags & MGE_Hidden) li->mHidden = true;
-						ld->mItems.Push(li);
-						++s;
-					}
-				}
-				FName link = entry.flags & MGE_UserContent ? NAME_UsermapMenu : s == 0 ? NAME_Skillmenu : NAME_CustomSubMenu1;
-
-				auto li = new FListMenuItemNativeText(ldo->mXpos, 0, ldo->mLinespacing, 0, entry.name, NIT_BigFont, NIT_ActiveColor, 1.f, link, e);
-				if (entry.flags & MGE_Locked) li->mEnabled = false;
-				if (entry.flags & MGE_Hidden) li->mHidden = true;
-				ldo->mItems.Push(li);
-				e++;
-			}
-		}
-		if (e > 0)
-		{
-			for (auto name : { NAME_Mainmenu, NAME_IngameMenu })
-			{
-				FMenuDescriptor** desc = MenuDescriptors.CheckKey(name);
-				if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
-				{
-					FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
-					auto li = ld->mItems[0];
-					if (li->GetAction(nullptr) == NAME_Episodemenu)
-					{
-						li->SetAction(NAME_CustomGameMenu);
-					}
-				}
-			}
-		}
-	}
-}
-
-//=============================================================================
-//
-// Reads any XHAIRS lumps for the names of crosshairs and
-// adds them to the display options menu.
-//
-//=============================================================================
-
-static void InitCrosshairsList()
-{
-	int lastlump, lump;
-
-	lastlump = 0;
-
-	FOptionValues **opt = OptionValues.CheckKey(NAME_Crosshairs);
-	if (opt == NULL) 
-	{
-		return;	// no crosshair value list present. No need to go on.
-	}
-
-	FOptionValues::Pair *pair = &(*opt)->mValues[(*opt)->mValues.Reserve(1)];
-	pair->Value = 0;
-	pair->Text = "None";
-
-	while ((lump = fileSystem.FindLump("XHAIRS", &lastlump)) != -1)
-	{
-		FScanner sc(lump);
-		while (sc.GetNumber())
-		{
-			FOptionValues::Pair value;
-			value.Value = sc.Number;
-			sc.MustGetString();
-			value.Text = sc.String;
-			if (value.Value != 0)
-			{ // Check if it already exists. If not, add it.
-				unsigned int i;
-
-				for (i = 1; i < (*opt)->mValues.Size(); ++i)
-				{
-					if ((*opt)->mValues[i].Value == value.Value)
-					{
-						break;
-					}
-				}
-				if (i < (*opt)->mValues.Size())
-				{
-					(*opt)->mValues[i].Text = value.Text;
-				}
-				else
-				{
-					(*opt)->mValues.Push(value);
-				}
-			}
-		}
-	}
-}
 
 //=============================================================================
 //
@@ -1454,42 +1117,59 @@ static void InitCrosshairsList()
 extern "C"
 {
 	extern int adl_getBanksCount();
-	extern const char* const* adl_getBankNames();
+	extern const char *const *adl_getBankNames();
 }
 
 static void InitMusicMenus()
 {
-	FMenuDescriptor** advmenu = MenuDescriptors.CheckKey(NAME_AdvSoundOptions);
+	DMenuDescriptor **advmenu = MenuDescriptors.CheckKey("AdvSoundOptions");
 	auto soundfonts = sfmanager.GetList();
-	std::tuple<const char*, int, const char*> sfmenus[] = { 
-																std::make_tuple("FluidPatchsetMenu", SF_SF2, "fluid_patchset") };
+	std::tuple<const char *, int, const char *> sfmenus[] = { std::make_tuple("GusConfigMenu", SF_SF2 | SF_GUS, "midi_config"),
+																std::make_tuple("WildMidiConfigMenu", SF_GUS, "wildmidi_config"),
+																std::make_tuple("TimidityConfigMenu", SF_SF2 | SF_GUS, "timidity_config"),
+																std::make_tuple("FluidPatchsetMenu", SF_SF2, "fluid_patchset"),
+																std::make_tuple("ADLMIDICustomBanksMenu", SF_WOPL, "adl_custom_bank"),
+																std::make_tuple("OPNMIDICustomBanksMenu", SF_WOPN, "opn_custom_bank")};
 
-	for (auto& p : sfmenus)
+	for (auto &p : sfmenus)
 	{
-		FMenuDescriptor** menu = MenuDescriptors.CheckKey(std::get<0>(p));
+		DMenuDescriptor **menu = MenuDescriptors.CheckKey(std::get<0>(p));
 
 		if (menu != nullptr)
 		{
 			if (soundfonts.Size() > 0)
 			{
-				for (auto& entry : soundfonts)
+				for (auto &entry : soundfonts)
 				{
 					if (entry.type & std::get<1>(p))
 					{
 						FString display = entry.mName;
 						display.ReplaceChars("_", ' ');
-						auto it = new FOptionMenuItemCommand (display, FStringf("%s \"%s\"", std::get<2>(p), entry.mName.GetChars())/*, true*/);
-						static_cast<FOptionMenuDescriptor*>(*menu)->mItems.Push(it);
+						auto it = CreateOptionMenuItemCommand(display, FStringf("%s \"%s\"", std::get<2>(p), entry.mName.GetChars()), true);
+						static_cast<DOptionMenuDescriptor*>(*menu)->mItems.Push(it);
 					}
 				}
 			}
 			else if (advmenu != nullptr)
 			{
 				// Remove the item for this submenu
-				auto d = static_cast<FOptionMenuDescriptor*>(*advmenu);
+				auto d = static_cast<DOptionMenuDescriptor*>(*advmenu);
 				auto it = d->GetItem(std::get<0>(p));
 				if (it != nullptr) d->mItems.Delete(d->mItems.Find(it));
 			}
+		}
+	}
+
+	DMenuDescriptor **menu = MenuDescriptors.CheckKey("ADLBankMenu");
+
+	if (menu != nullptr)
+	{
+		const char* const* adl_bank_names;
+		int adl_banks_count = ZMusic_GetADLBanks(&adl_bank_names);
+		for (int i=0; i < adl_banks_count; i++)
+		{
+			auto it = CreateOptionMenuItemCommand(adl_bank_names[i], FStringf("adl_bank %d", i), true);
+			static_cast<DOptionMenuDescriptor*>(*menu)->mItems.Push(it);
 		}
 	}
 }
@@ -1502,18 +1182,14 @@ static void InitMusicMenus()
 
 void M_CreateMenus()
 {
-	BuildEpisodeMenu();
-	InitCrosshairsList();
 	InitMusicMenus();
-
-	FOptionValues** opt = OptionValues.CheckKey(NAME_Mididevices);
-	if (opt != nullptr)
+	FOptionValues **opt = OptionValues.CheckKey(NAME_Mididevices);
+	if (opt != nullptr) 
 	{
 		I_BuildMIDIMenuList(*opt);
 	}
-#ifndef NO_OPENAL
 	opt = OptionValues.CheckKey(NAME_Aldevices);
-	if (opt != nullptr)
+	if (opt != nullptr) 
 	{
 		I_BuildALDeviceList(*opt);
 	}
@@ -1522,39 +1198,7 @@ void M_CreateMenus()
 	{
 		I_BuildALResamplersList(*opt);
 	}
-#endif // !NO_OPENAL
 }
 
-//=============================================================================
-//
-// Returns the default skill level.
-//
-//=============================================================================
 
-int M_GetDefaultSkill()
-{
-	return gDefaultSkill;
-}
 
-void FListMenuDescriptor::Reset()
-{
-	// Reset the default settings (ignore all other values in the struct)
-	mSelectOfsX = 0;
-	mSelectOfsY = 0;
-	mSelector = nullptr;
-	mDisplayTop = 0;
-	mXpos = 0;
-	mYpos = 0;
-	mLinespacing = 0;
-	mNetgameMessage = "";
-	mFont = NULL;
-	mFontColor = CR_UNTRANSLATED;
-	mFontColor2 = CR_UNTRANSLATED;
-	mScriptId = -1;
-	mSecondaryId = 0;
-	mNativeFontNum = NIT_BigFont;
-	mNativePalNum = NIT_ActiveColor;
-	mNativeFontScale = 1.f;
-	mFlags = 0;
-	mSpacing = 0;
-}
