@@ -31,6 +31,7 @@ struct _ native	// These are the global variables, the struct is only here to av
 	native int menuactive;
 	native @KeyBindings Bindings;
 	native @KeyBindings AutomapBindings;
+	native readonly bool generic_ui;
 }
 
 

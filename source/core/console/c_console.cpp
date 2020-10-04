@@ -66,6 +66,7 @@
 #include "raze_music.h"
 #include "gstrings.h"
 #include "menustate.h"
+#include "i_interface.h"
 
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8
@@ -164,9 +165,6 @@ CVAR(String, con_ctrl_d, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Int, developer, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 EXTERN_CVAR(Int, uiscale);
-
-
-CVAR(Bool, generic_ui, false, CVAR_ARCHIVE)
 
 
 struct History
