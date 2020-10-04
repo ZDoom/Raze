@@ -810,7 +810,7 @@ set (PCH_SOURCES
 	common/audio/sound/oalsound.cpp
 	common/audio/sound/s_environment.cpp
 	common/audio/sound/s_sound.cpp
-	#common/audio/sound/s_reverbedit.cpp
+	common/audio/sound/s_reverbedit.cpp
 	common/audio/music/music_midi_base.cpp
 	common/audio/music/music.cpp
 	common/audio/music/i_music.cpp
