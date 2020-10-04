@@ -51,9 +51,7 @@
 #include "printf.h"
 
 
-bool CheckGame(const char* string, bool chexisdoom) { return false; }
-bool CheckSkipGameOptionBlock(FScanner& sc) { return false; }
-void SetDefaultMenuColors();
+bool CheckSkipGameOptionBlock(FScanner& sc);
 
 MenuDescriptorList MenuDescriptors;
 static DListMenuDescriptor *DefaultListMenuSettings;	// contains common settings for all list menus
@@ -1054,9 +1052,6 @@ void M_ParseMenuDefs()
 {
 	int lump, lastlump = 0;
 
-#if 0
-	SetDefaultMenuColors();
-#endif
 	// these are supposed to get GC'd after parsing is complete.
 	DefaultListMenuSettings = Create<DListMenuDescriptor>();
 	DefaultOptionMenuSettings = Create<DOptionMenuDescriptor>();
@@ -1217,6 +1212,5 @@ void M_CreateMenus()
 		I_BuildALResamplersList(*opt);
 	}
 }
-
 
 

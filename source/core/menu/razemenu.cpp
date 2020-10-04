@@ -1082,6 +1082,8 @@ fail:
 //
 //==========================================================================
 
+bool CheckSkipGameOptionBlock(FScanner& sc) { return false; }
+
 #if 0
 CUSTOM_CVAR(Int, cl_gfxlocalization, 3, CVAR_ARCHIVE)
 {
