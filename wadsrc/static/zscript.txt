@@ -18,3 +18,5 @@ version "4.3"
 #include "zscript/ui/menu/optionmenuitems.zs"
 #include "zscript/ui/menu/reverbedit.zs"
 #include "zscript/ui/menu/textentermenu.zs"
+#include "zscript/ui/menu/menucustomize.zs"
+
