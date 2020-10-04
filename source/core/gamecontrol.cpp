@@ -1835,7 +1835,6 @@ static const gamefilter games[] = {
 	{ "Worldtour", GAMEFLAG_WORLDTOUR},
 };
 
-// for other parts that need to filter by game name.
 bool validFilter(const char* str)
 {
 	for (auto& gf : games)

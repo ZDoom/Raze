@@ -347,7 +347,8 @@ void Display()
 	twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 	twodpsp.ClearClipRect();
 	twod->Clear();
-	twod->SetSize(screen->GetWidth(), screen->GetHeight());
+	//twod->SetSize(screen->GetWidth(), screen->GetHeight());
+	twod->Begin(screen->GetWidth(), screen->GetHeight());
 	twod->ClearClipRect();
 	switch (gamestate)
 	{
