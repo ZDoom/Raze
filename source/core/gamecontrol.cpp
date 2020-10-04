@@ -867,6 +867,7 @@ int RunGame()
 
 	SetupGameButtons();
 	gi->app_init();
+	SetDefaultMenuColors();
 	M_Init();
 	if (!(paletteloaded & PALETTE_MAIN))
 		I_FatalError("No palette found.");

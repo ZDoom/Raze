@@ -49,6 +49,7 @@
 #include <zmusic.h>
 #include "texturemanager.h"
 #include "printf.h"
+#include "i_interface.h"
 
 
 bool CheckSkipGameOptionBlock(FScanner& sc);
@@ -189,7 +190,7 @@ static bool CheckSkipGameBlock(FScanner &sc, bool yes = true)
 	do
 	{
 		sc.MustGetString();
-		filter |= CheckGame(sc.String, false);
+		if (sysCallbacks.CheckGame) filter |= sysCallbacks.CheckGame(sc.String);
 	}
 	while (sc.CheckString(","));
 	sc.MustGetStringName(")");

@@ -55,6 +55,7 @@
 #include "st_start.h"
 #include "i_system.h"
 #include "gameconfigfile.h"
+#include "gamecontrol.h"
 
 EXTERN_CVAR(Int, cl_gfxlocalization)
 EXTERN_CVAR(Bool, m_quickexit)
@@ -1107,15 +1108,40 @@ bool CheckSkipGameOptionBlock(FScanner &sc)
 	else if (sc.Compare("Swapmenu")) filter |= gameinfo.swapmenu;
 	return filter;
 }
-
+#endif
 void SetDefaultMenuColors()
 {
-	OptionSettings.mTitleColor = V_FindFontColor(gameinfo.mTitleColor);
-	OptionSettings.mFontColor = V_FindFontColor(gameinfo.mFontColor);
-	OptionSettings.mFontColorValue = V_FindFontColor(gameinfo.mFontColorValue);
-	OptionSettings.mFontColorMore = V_FindFontColor(gameinfo.mFontColorMore);
-	OptionSettings.mFontColorHeader = V_FindFontColor(gameinfo.mFontColorHeader);
-	OptionSettings.mFontColorHighlight = V_FindFontColor(gameinfo.mFontColorHighlight);
-	OptionSettings.mFontColorSelection = V_FindFontColor(gameinfo.mFontColorSelection);
+	//OptionSettings.mTitleColor = CR_RED;// V_FindFontColor(gameinfo.mTitleColor);
+	OptionSettings.mFontColor = CR_RED;
+	OptionSettings.mFontColorValue = CR_GRAY;
+	OptionSettings.mFontColorMore = CR_GRAY;
+	OptionSettings.mFontColorHeader = CR_GOLD;
+	OptionSettings.mFontColorHighlight = CR_YELLOW;
+	OptionSettings.mFontColorSelection = CR_BRICK;
+
+	if (g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI))
+	{
+		OptionSettings.mFontColor = CR_DARKGREEN;
+		OptionSettings.mFontColorHeader = CR_DARKGRAY;
+		OptionSettings.mFontColorHighlight = CR_WHITE;
+		OptionSettings.mFontColorSelection = CR_DARKGREEN;
+	}
+	else if (g_gameType & GAMEFLAG_BLOOD)
+	{
+		OptionSettings.mFontColorHeader = CR_DARKGRAY;
+		OptionSettings.mFontColorHighlight = CR_WHITE;
+		OptionSettings.mFontColorSelection = CR_DARKRED;
+	}
+	else if (g_gameType & GAMEFLAG_RRALL)
+	{
+		OptionSettings.mFontColor = CR_BROWN;
+		OptionSettings.mFontColorHeader = CR_DARKBROWN;
+		OptionSettings.mFontColorHighlight = CR_ORANGE;
+		OptionSettings.mFontColorSelection = CR_TAN;
+	}
+	else if (g_gameType & GAMEFLAG_SW)
+	{
+		OptionSettings.mFontColorHeader = CR_DARKRED;
+		OptionSettings.mFontColorHighlight = CR_WHITE;
+	}
 }
-#endif
