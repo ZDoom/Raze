@@ -244,8 +244,19 @@ void GetSpriteSoundPitch(int* pVolume, int* pPitch)
     int nLocalSectFlags = SectFlag[nSoundSect];
     if (nLocalSectFlags & kSectUnderwater)
     {
-        *pVolume >>= 1;
-        *pPitch -= 1200;
+		if (*pVolume == 255)
+		{
+			*pVolume >>= 1;
+			*pPitch -= 1200;
+		}
+	}
+	else
+	{
+		if (*pVolume < 255)
+		{
+			*pVolume = 255;
+			*pPitch += 1200;
+		}
     }
 }
 
@@ -397,7 +408,7 @@ void SoundBigEntrance(void)
     StopAllSounds();
     for (int i = 0; i < 4; i++)
     {
-        short nPitch = i * 512 - 1200;
+        short nPitch = 11025 + (i * 512 - 1200);
         //pASound->snd_pitch = nPitch;
         soundEngine->StopSound(SOURCE_EXBoss, &fakesources[i], -1);
         soundEngine->StartSound(SOURCE_EXBoss, &fakesources[i], nullptr, CHAN_BODY, CHANF_TRANSIENT, StaticSound[kSoundTorchOn]+1, 200 / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
@@ -523,12 +534,16 @@ void GameInterface::UpdateSounds()
         {
             if (!(chan->ChanFlags & (CHANF_UI|CHANF_FORGETTABLE)))
             {
-                int nVolume = 255;
+                int nVolume = int(chan->Volume * 255);
                 int nPitch = int(chan->Pitch * (11025.f / 128.f)) - 11025;
+				int oVolume = nVolume;
                 GetSpriteSoundPitch(&nVolume, &nPitch);
-                soundEngine->SetPitch(chan, (11025 + nPitch) / 11025.f);
-                soundEngine->SetVolume(chan, nVolume / 255.f);
-            }
+				if (oVolume != nVolume)
+				{
+					soundEngine->SetPitch(chan, (11025 + nPitch) / 11025.f);
+					soundEngine->SetVolume(chan, nVolume / 255.f);
+				}
+			}
             return 0;
         });
 }
