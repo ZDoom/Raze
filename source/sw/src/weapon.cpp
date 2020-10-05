@@ -13758,7 +13758,7 @@ InitSwordAttack(PLAYERp pp)
         int daz;
 
         daang = FixedToInt(pp->q16ang);
-        daz = xs_CRoundToInt(-pp->q16horiz * (2000. / FRACUNIT)) + (RANDOM_RANGE(24000) - 12000);
+        daz = -mulscale16(pp->q16horiz, 2000) + (RANDOM_RANGE(24000) - 12000);
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,       // Start position
                    sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
@@ -13948,7 +13948,7 @@ InitFistAttack(PLAYERp pp)
         int daz;
 
         daang = FixedToInt(pp->q16ang);
-        daz = xs_CRoundToInt(-pp->q16horiz * (2000. / FRACUNIT)) + (RANDOM_RANGE(24000) - 12000);
+        daz = -mulscale16(pp->q16horiz, 2000) + (RANDOM_RANGE(24000) - 12000);
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,       // Start position
                    sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
@@ -14621,7 +14621,7 @@ InitStar(PLAYERp pp)
     wp->clipdist = 32L >> 2;
     // wp->zvel was overflowing with this calculation - had to move to a local
     // long var
-    zvel = xs_CRoundToInt(-pp->q16horiz * ((double)(HORIZ_MULT+STAR_HORIZ_ADJ) / FRACUNIT));
+    zvel = -mulscale16(pp->q16horiz, HORIZ_MULT+STAR_HORIZ_ADJ);
 
     wu->ceiling_dist = Z(1);
     wu->floor_dist = Z(1);
@@ -14678,7 +14678,7 @@ InitStar(PLAYERp pp)
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(np))
             SET(nu->Flags, SPR_UNDERWATER);
 
-        zvel = xs_CRoundToInt(-pp->q16horiz * ((double)(HORIZ_MULT+STAR_HORIZ_ADJ) / FRACUNIT));
+        zvel = -mulscale16(pp->q16horiz, HORIZ_MULT+STAR_HORIZ_ADJ);
         np->zvel = zvel >> 1;
 
         if (MissileSetPos(nw, DoStar, 1000))
@@ -14966,7 +14966,7 @@ InitShotgun(PLAYERp pp)
     }
     else
     {
-        daz = xs_CRoundToInt(-pp->q16horiz * (2000. / FRACUNIT));
+        daz = -mulscale16(pp->q16horiz, 2000);
         daang = FixedToInt(pp->q16ang);
     }
 
@@ -15249,7 +15249,7 @@ InitRail(PLAYERp pp)
     wp->yrepeat = 52;
     wp->xrepeat = 52;
     wp->shade = -15;
-    zvel = xs_CRoundToInt(-pp->q16horiz * ((HORIZ_MULT + 17.) / FRACUNIT));
+    zvel = -mulscale16(pp->q16horiz, HORIZ_MULT + 17);
 
     wu->RotNum = 5;
     NewStateGroup(w, &sg_Rail[0]);
@@ -15450,7 +15450,7 @@ InitRocket(PLAYERp pp)
     wp->yrepeat = 90;
     wp->xrepeat = 90;
     wp->shade = -15;
-    zvel = xs_CRoundToInt(-pp->q16horiz * ((HORIZ_MULT + 35.) / FRACUNIT));
+    zvel = -mulscale16(pp->q16horiz, HORIZ_MULT + 35);
 
     wp->clipdist = 64L>>2;
 
@@ -15581,7 +15581,7 @@ InitBunnyRocket(PLAYERp pp)
     wp->yrepeat = 64;
     wp->xrepeat = 64;
     wp->shade = -15;
-    zvel = xs_CRoundToInt(-pp->q16horiz * ((HORIZ_MULT + 35.) / FRACUNIT));
+    zvel = -mulscale16(pp->q16horiz, HORIZ_MULT + 35);
 
     wp->clipdist = 64L>>2;
 
@@ -15695,7 +15695,7 @@ InitNuke(PLAYERp pp)
     wp->yrepeat = 128;
     wp->xrepeat = 128;
     wp->shade = -15;
-    zvel = xs_CRoundToInt(-pp->q16horiz * ((HORIZ_MULT - 36.) / FRACUNIT));
+    zvel = -mulscale16(pp->q16horiz, HORIZ_MULT + 36);
     wp->clipdist = 64L>>2;
 
     // Set to red palette
@@ -17432,8 +17432,8 @@ InitTracerUzi(PLAYERp pp)
     nx = pp->posx;
     ny = pp->posy;
     //nz = pp->posz + pp->bob_z + Z(8);
-    //nz = pp->posz + pp->bob_z + Z(8) + xs_CRoundToInt(-pp->q16horiz * (72. / FRACUNIT));
-    nz = pp->posz + Z(8) + xs_CRoundToInt(-pp->q16horiz * (72. / FRACUNIT));
+    //nz = pp->posz + pp->bob_z + Z(8) + -mulscale16(pp->q16horiz, 72);
+    nz = pp->posz + Z(8) + -mulscale16(pp->q16horiz, 72);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -17478,7 +17478,7 @@ InitTracerUzi(PLAYERp pp)
         return 0;
     }
 
-    wp->zvel = xs_CRoundToInt(-pp->q16horiz * ((wp->xvel / 8.) / FRACUNIT));
+    wp->zvel = xs_CRoundToInt(-fmulscale16(pp->q16horiz, wp->xvel / 8.));
 
     pp->SpriteP->clipdist = oclipdist;
 
@@ -17498,7 +17498,7 @@ InitTracerUzi(PLAYERp pp)
 }
 
 int
-InitTracerTurret(short SpriteNum, short Operator, int horiz)
+InitTracerTurret(short SpriteNum, short Operator, fixed_t q16horiz)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
@@ -17510,7 +17510,7 @@ InitTracerTurret(short SpriteNum, short Operator, int horiz)
 
     nx = sp->x;
     ny = sp->y;
-    nz = sp->z + (-horiz * 72);
+    nz = sp->z + -mulscale16(q16horiz, 72);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -17537,7 +17537,7 @@ InitTracerTurret(short SpriteNum, short Operator, int horiz)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     SET(wp->cstat, CSTAT_SPRITE_INVISIBLE);
 
-    wp->zvel = (-horiz * (wp->xvel/8));
+    wp->zvel = xs_CRoundToInt(-fmulscale16(q16horiz, wp->xvel / 8.));
 
     WeaponAutoAim(sp, w, 32, false);
 
@@ -17830,7 +17830,7 @@ InitUzi(PLAYERp pp)
     {
         //daang = NORM_ANGLE(FixedToInt(pp->q16ang) + (RANDOM_RANGE(50) - 25));
         daang = NORM_ANGLE(FixedToInt(pp->q16ang) + (RANDOM_RANGE(24) - 12));
-        daz = xs_CRoundToInt(-pp->q16horiz * (2000. / FRACUNIT)) + (RANDOM_RANGE(24000) - 12000);
+        daz = -mulscale16(pp->q16horiz, 2000) + (RANDOM_RANGE(24000) - 12000);
     }
 
 
@@ -18005,7 +18005,7 @@ InitEMP(PLAYERp pp)
 
     InitTracerUzi(pp);
 
-    //daz = nz = pp->posz + Z(8) + xs_CRoundToInt(-pp->q16horiz * (72. / FRACUNIT));
+    //daz = nz = pp->posz + Z(8) + -mulscale16(pp->q16horiz, 72);
     //daang = NORM_ANGLE(FixedToInt(pp->q16ang) + (RANDOM_RANGE(50) - 25));
 
     daz = nz = pp->posz + pp->bob_z;
@@ -18015,7 +18015,7 @@ InitEMP(PLAYERp pp)
     }
     else
     {
-        daz = xs_CRoundToInt(-pp->q16horiz * (2000. / FRACUNIT));
+        daz = -mulscale16(pp->q16horiz, 2000);
         daang = FixedToInt(pp->q16ang);
     }
 
@@ -18189,7 +18189,7 @@ InitTankShell(short SpriteNum, PLAYERp pp)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     SET(wp->cstat, CSTAT_SPRITE_INVISIBLE);
 
-    wp->zvel = xs_CRoundToInt(-pp->q16horiz * ((wp->xvel / 8.) / FRACUNIT));
+    wp->zvel = xs_CRoundToInt(-fmulscale16(pp->q16horiz, wp->xvel / 8.));
 
     WeaponAutoAim(sp, w, 64, false);
     // a bit of randomness
@@ -18349,7 +18349,7 @@ InitTurretRocket(short SpriteNum, PLAYERp pp)
     SET(wu->Flags2, SPR2_SO_MISSILE);
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
-    wp->zvel = xs_CRoundToInt(-pp->q16horiz * ((wp->xvel / 8.) / FRACUNIT));
+    wp->zvel = xs_CRoundToInt(-fmulscale16(pp->q16horiz, wp->xvel / 8.));
 
     WeaponAutoAim(sp, w, 64, false);
     // a bit of randomness
@@ -18396,7 +18396,7 @@ InitTurretFireball(short SpriteNum, PLAYERp pp)
     SET(wu->Flags2, SPR2_SO_MISSILE);
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
-    wp->zvel = xs_CRoundToInt(-pp->q16horiz * ((wp->xvel / 8.) / FRACUNIT));
+    wp->zvel = xs_CRoundToInt(-fmulscale16(pp->q16horiz, wp->xvel / 8.));
 
     WeaponAutoAim(sp, w, 64, false);
     // a bit of randomness
@@ -18566,7 +18566,7 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
         if (q16horiz < horizmin)
             q16horiz = horizmin;
 
-        daz = xs_CRoundToInt(-q16horiz * (2000. / FRACUNIT)) + (RANDOM_RANGE(Z(80)) - Z(40));
+        daz = -mulscale16(pp->q16horiz, 2000) + (RANDOM_RANGE(Z(80)) - Z(40));
         daang = sp->ang;
     }
 
@@ -19617,8 +19617,8 @@ InitFireball(PLAYERp pp)
 
     wu->ceiling_dist = Z(6);
     wu->floor_dist = Z(6);
-    //zvel = xs_CRoundToInt(-pp->q16horiz * ((100. + ADJUST) / FRACUNIT));
-    zvel = xs_CRoundToInt(-pp->q16horiz * (240. / FRACUNIT));
+    //zvel = -mulscale16(pp->q16horiz, 100 + ADJUST);
+    zvel = -mulscale16(pp->q16horiz, 240);
 
     //wu->RotNum = 5;
     //NewStateGroup(w, &sg_Fireball);

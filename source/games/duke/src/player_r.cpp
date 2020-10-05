@@ -602,7 +602,7 @@ void shoot_r(int i, int atwith)
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
 			else
-				zvel = xs_CRoundToInt(-ps[p].getq16horizsum() * (98. / FRACUNIT));
+				zvel = -mulscale16(ps[p].getq16horizsum(), 98);
 		}
 		else
 		{
@@ -693,7 +693,7 @@ void shoot_r(int i, int atwith)
 			{
 				sx += sintable[(s->ang + 512 + 160) & 2047] >> 7;
 				sy += sintable[(s->ang + 160) & 2047] >> 7;
-				zvel = xs_CRoundToInt(-ps[p].getq16horizsum() * (98. / FRACUNIT));
+				zvel = -mulscale16(ps[p].getq16horizsum(), 98);
 			}
 		}
 		else
@@ -804,7 +804,7 @@ void shoot_r(int i, int atwith)
 				if (sprite[j].picnum != RECON)
 					sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = xs_CRoundToInt(-ps[p].getq16horizsum() * (81. / FRACUNIT));
+			else zvel = -mulscale16(ps[p].getq16horizsum(), 81);
 			if (atwith == RPG)
 				S_PlayActorSound(RPG_SHOOT, i);
 			else if (isRRRA())
@@ -2843,12 +2843,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
-				i = xs_CRoundToInt(p->getq16horizsum() * (20. / FRACUNIT));
+				i = -mulscale16(p->getq16horizsum(), 20);
 			}
 			else
 			{
 				k = 140;
-				i = -512 - xs_CRoundToInt(p->getq16horizsum() * (20. / FRACUNIT));
+				i = -512 - -mulscale16(p->getq16horizsum(), 20);
 			}
 
 			j = EGS(p->cursectnum,
@@ -3253,12 +3253,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
-				i = xs_CRoundToInt(p->getq16horizsum() * (20. / FRACUNIT));
+				i = mulscale16(p->getq16horizsum(), 20);
 			}
 			else
 			{
 				k = 32;
-				i = -512 - xs_CRoundToInt(p->getq16horizsum() * (20. / FRACUNIT));
+				i = -512 - mulscale16(p->getq16horizsum(), 20);
 			}
 
 			j = EGS(p->cursectnum,

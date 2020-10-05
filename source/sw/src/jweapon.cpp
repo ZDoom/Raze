@@ -2496,7 +2496,7 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
 
     if (u->PlayerP)
     {
-        wp->z += xs_CRoundToInt(-u->PlayerP->q16horiz * ((HORIZ_MULT / 3.) / FRACUNIT));
+        wp->z += xs_CRoundToInt(-fmulscale16(u->PlayerP->q16horiz, HORIZ_MULT / 3.));
     }
 
     switch (wu->ID)
