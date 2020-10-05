@@ -1850,3 +1850,23 @@ bool validFilter(const char* str)
 	}
 	return false;
 }
+
+#include "vm.h"
+
+DEFINE_ACTION_FUNCTION(_Screen, GetViewWindow)
+{
+	PARAM_PROLOGUE;
+	if (numret > 0) ret[0].SetInt(windowxy1.x);
+	if (numret > 1) ret[1].SetInt(windowxy1.y);
+	if (numret > 2) ret[2].SetInt(windowxy2.x - windowxy1.x + 1);
+	if (numret > 3) ret[3].SetInt(windowxy2.y - windowxy1.y + 1);
+	return MIN(numret, 4);
+}
+
+extern bool demoplayback;
+DEFINE_GLOBAL(multiplayer)
+DEFINE_GLOBAL(netgame)
+DEFINE_GLOBAL(gameaction)
+DEFINE_GLOBAL(gamestate)
+DEFINE_GLOBAL(demoplayback)
+DEFINE_GLOBAL(consoleplayer)
