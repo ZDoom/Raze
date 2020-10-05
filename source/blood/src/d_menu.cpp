@@ -269,23 +269,6 @@ FSavegameInfo GameInterface::GetSaveSig()
 	return { SAVESIG_BLD, MINSAVEVER_BLD, SAVEVER_BLD };
 }
 
-// This also gets used by the summary and the loading screen
-void DrawMenuCaption(const char* text)
-{
-	double scalex = 1.; // Expand the box if the text is longer
-	int width = BigFont->StringWidth(text);
-	int boxwidth = tileWidth(2038);
-	if (boxwidth - 10 < width) scalex = double(width) / (boxwidth - 10);
-	
-	DrawTexture(twod, tileGetTexture(2038, true), 160, 20, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex, TAG_DONE);
-	DrawText(twod, BigFont, CR_UNDEFINED, 160 - width/2, 20 - tileHeight(4193) / 2, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
-}
-
-void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
-{
-	Blood::DrawMenuCaption(text);
-}
-
 void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
 {
 	if (text)

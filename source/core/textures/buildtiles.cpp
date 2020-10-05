@@ -1194,3 +1194,20 @@ void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp)
 
 TileSiz tilesiz;
 PicAnm picanm;
+
+#include "vm.h"
+
+static int GetTexture(int tile, int anim)
+{
+	if (tile < 0 || tile >= MAXTILES) return 0;
+	auto tex = tileGetTexture(tile, anim);
+	return tex ? tex->GetID().GetIndex() : 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_TileFiles, GetTexture, GetTexture)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(tile);
+	PARAM_BOOL(animate);
+	ACTION_RETURN_INT(GetTexture(tile, animate));
+}

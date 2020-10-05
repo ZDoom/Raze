@@ -314,20 +314,6 @@ FSavegameInfo GameInterface::GetSaveSig()
 	return { SAVESIG_DN3D, MINSAVEVER_DN3D, SAVEVER_DN3D };
 }
 
-void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
-{
-	DrawTexture(twod, tileGetTexture(TILE_MENUBAR), origin.X + 160, origin.Y + 19, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_Color, 0xff808080, DTA_CenterOffsetRel, 1, TAG_DONE);
-
-	FString t = text;
-	size_t newlen = t.Len();
-	if (t[t.Len() - 1] == ':') newlen--;
-	if (newlen > 63) newlen = 63;
-	t.Truncate(newlen);
-	double scale = isRR() ? 0.4 : 1.0;
-	double x = 160 + origin.X - BigFont->StringWidth(t) * scale * 0.5;
-	DrawText(twod, BigFont, CR_UNTRANSLATED, x, origin.Y + 12, t, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
-}
-
 void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position, bool bg)
 {
 	if (bg) Menu_DrawBackground(origin);
@@ -401,7 +387,7 @@ bool GameInterface::DrawSpecialScreen(const DVector2& origin, int tilenum)
 		if (tilenum == 2504)
 		{
 			Menu_DrawBackground(origin);
-			DrawMenuCaption(origin, GStrings("MNU_CREDITS"));
+			//DrawMenuCaption(origin, GStrings("MNU_CREDITS"));
 			m = int(origin.X * 65536) + (20 << 16);
 			l = int(origin.Y * 65536) + (33 << 16);
 
@@ -462,7 +448,7 @@ bool GameInterface::DrawSpecialScreen(const DVector2& origin, int tilenum)
 		else if (tilenum == 2505)
 		{
 			Menu_DrawBackground(origin);
-			DrawMenuCaption(origin, GStrings("MNU_CREDITS"));
+			//DrawMenuCaption(origin, GStrings("MNU_CREDITS"));
 			m = int(origin.X * 65536) + (20 << 16);
 			l = int(origin.Y * 65536) + (33 << 16);
 
@@ -505,7 +491,7 @@ bool GameInterface::DrawSpecialScreen(const DVector2& origin, int tilenum)
 		else if (tilenum == 2506)
 		{
 			Menu_DrawBackground(origin);
-			DrawMenuCaption(origin, GStrings("MNU_CREDITS"));
+			//DrawMenuCaption(origin, GStrings("MNU_CREDITS"));
 			mgametextcenter(int(origin.X * 65536), int(origin.Y * 65536) + (50 << 16), "Duke Nukem 3D is a trademark of");
 			mgametextcenter(int(origin.X * 65536), int(origin.Y * 65536) + (59 << 16), "3D Realms Entertainment");
 			mgametextcenter(int(origin.X * 65536), int(origin.Y * 65536) + (77 << 16), "Duke Nukem 3D");

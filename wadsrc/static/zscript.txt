@@ -20,3 +20,5 @@ version "4.3"
 #include "zscript/ui/menu/textentermenu.zs"
 #include "zscript/ui/menu/menucustomize.zs"
 
+#include "zscript/games/blood/ui/menu.zs"
+

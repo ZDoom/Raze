@@ -247,12 +247,6 @@ FSavegameInfo GameInterface::GetSaveSig()
 	return { SAVESIG_SW, MINSAVEVER_SW, SAVEVER_SW };
 }
 
-void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
-{
-	DrawTexture(twod, tileGetTexture(2427), 10, 2, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_TopLeft, true, DTA_Color, 0xfff0f0f0,  TAG_DONE);
-	DrawText(twod, BigFont, CR_UNDEFINED, 160 - BigFont->StringWidth(text) * 0.5, 5, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
-}
-
 
 
 END_SW_NS

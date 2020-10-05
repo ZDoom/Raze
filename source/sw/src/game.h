@@ -2193,8 +2193,7 @@ struct GameInterface : ::GameInterface
 	bool CanSave() override;
 	bool StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
-	void DrawMenuCaption(const DVector2& origin, const char* text) override;
-    bool LoadGame(FSaveGameNode* sv) override;
+	bool LoadGame(FSaveGameNode* sv) override;
 	bool SaveGame(FSaveGameNode* sv) override;
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;

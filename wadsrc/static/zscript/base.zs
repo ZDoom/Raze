@@ -482,6 +482,7 @@ struct Font native
 	native static Font FindFont(Name fontname);
 	native static Font GetFont(Name fontname);
 	native BrokenLines BreakLines(String text, int maxlen);
+	native int GetGlyphHeight(int code);
 }
 
 struct Console native

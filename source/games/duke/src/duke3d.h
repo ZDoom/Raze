@@ -45,7 +45,6 @@ struct GameInterface : public ::GameInterface
 	FSavegameInfo GetSaveSig() override;
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
 	double SmallFontScale() override { return isRR() ? 0.5 : 1.; }
-	void DrawMenuCaption(const DVector2& origin, const char* text) override;
 	void SerializeGameState(FSerializer& arc) override;
 	void QuitToTitle() override;
 	bool DrawSpecialScreen(const DVector2& origin, int tilenum) override;

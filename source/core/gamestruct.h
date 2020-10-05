@@ -83,7 +83,6 @@ struct GameInterface
 	virtual bool DrawSpecialScreen(const DVector2 &origin, int tilenum) { return false; }
 	virtual void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool withbg = true);
 	virtual double SmallFontScale() { return 1; }
-	virtual void DrawMenuCaption(const DVector2& origin, const char* text) {}
 	virtual bool SaveGame(FSaveGameNode*) { return true; }
 	virtual bool LoadGame(FSaveGameNode*) { return true; }
 	virtual void SerializeGameState(FSerializer& arc) {}
