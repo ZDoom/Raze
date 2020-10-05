@@ -1,10 +1,155 @@
+
+
+// constants for A_PlaySound
+enum ESoundFlags
+{
+	CHAN_AUTO = 0,
+	CHAN_WEAPON = 1,
+	CHAN_VOICE = 2,
+	CHAN_ITEM = 3,
+	CHAN_BODY = 4,
+	CHAN_5 = 5,
+	CHAN_6 = 6,
+	CHAN_7 = 7,
 	
+	// modifier flags
+	CHAN_LISTENERZ = 8,
+	CHAN_MAYBE_LOCAL = 16,
+	CHAN_UI = 32,
+	CHAN_NOPAUSE = 64,
+	CHAN_LOOP = 256,
+	CHAN_PICKUP = (CHAN_ITEM|CHAN_MAYBE_LOCAL), // Do not use this with A_StartSound! It would not do what is expected.
+	CHAN_NOSTOP = 4096,
+	CHAN_OVERLAP = 8192,
+
+	// Same as above, with an F appended to allow better distinction of channel and channel flags.
+	CHANF_DEFAULT = 0,	// just to make the code look better and avoid literal 0's.
+	CHANF_LISTENERZ = 8,
+	CHANF_MAYBE_LOCAL = 16,
+	CHANF_UI = 32,
+	CHANF_NOPAUSE = 64,
+	CHANF_LOOP = 256,
+	CHANF_NOSTOP = 4096,
+	CHANF_OVERLAP = 8192,
+	CHANF_LOCAL = 16384,
+
+
+	CHANF_LOOPING = CHANF_LOOP | CHANF_NOSTOP, // convenience value for replicating the old 'looping' boolean.
+
+};
+
+// sound attenuation values
+const ATTN_NONE = 0;
+const ATTN_NORM = 1;
+const ATTN_IDLE = 1.001;
+const ATTN_STATIC = 3;
+
+
+enum ERenderStyle
+{
+	STYLE_None,				// Do not draw
+	STYLE_Normal,			// Normal; just copy the image to the screen
+	STYLE_Fuzzy,			// Draw silhouette using "fuzz" effect
+	STYLE_SoulTrans,		// Draw translucent with amount in r_transsouls
+	STYLE_OptFuzzy,			// Draw as fuzzy or translucent, based on user preference
+	STYLE_Stencil,			// Fill image interior with alphacolor
+	STYLE_Translucent,		// Draw translucent
+	STYLE_Add,				// Draw additive
+	STYLE_Shaded,			// Treat patch data as alpha values for alphacolor
+	STYLE_TranslucentStencil,
+	STYLE_Shadow,
+	STYLE_Subtract,			// Actually this is 'reverse subtract' but this is what normal people would expect by 'subtract'.
+	STYLE_AddStencil,		// Fill image interior with alphacolor
+	STYLE_AddShaded,		// Treat patch data as alpha values for alphacolor
+	STYLE_Multiply,			// Multiply source with destination (HW renderer only.)
+	STYLE_InverseMultiply,	// Multiply source with inverse of destination (HW renderer only.)
+	STYLE_ColorBlend,		// Use color intensity as transparency factor
+	STYLE_Source,			// No blending (only used internally)
+	STYLE_ColorAdd,			// Use color intensity as transparency factor and blend additively.
+
+};
+
+
+enum EGameState
+{
+	GS_LEVEL,
+	GS_INTERMISSION,
+	GS_FINALE,
+	GS_DEMOSCREEN,
+	GS_MENUSCREEN = GS_DEMOSCREEN,
+	GS_FULLCONSOLE,
+	GS_HIDECONSOLE,
+	GS_STARTUP,
+	GS_TITLELEVEL,
+}
+
+const TEXTCOLOR_BRICK			= "\034A";
+const TEXTCOLOR_TAN				= "\034B";
+const TEXTCOLOR_GRAY			= "\034C";
+const TEXTCOLOR_GREY			= "\034C";
+const TEXTCOLOR_GREEN			= "\034D";
+const TEXTCOLOR_BROWN			= "\034E";
+const TEXTCOLOR_GOLD			= "\034F";
+const TEXTCOLOR_RED				= "\034G";
+const TEXTCOLOR_BLUE			= "\034H";
+const TEXTCOLOR_ORANGE			= "\034I";
+const TEXTCOLOR_WHITE			= "\034J";
+const TEXTCOLOR_YELLOW			= "\034K";
+const TEXTCOLOR_UNTRANSLATED	= "\034L";
+const TEXTCOLOR_BLACK			= "\034M";
+const TEXTCOLOR_LIGHTBLUE		= "\034N";
+const TEXTCOLOR_CREAM			= "\034O";
+const TEXTCOLOR_OLIVE			= "\034P";
+const TEXTCOLOR_DARKGREEN		= "\034Q";
+const TEXTCOLOR_DARKRED			= "\034R";
+const TEXTCOLOR_DARKBROWN		= "\034S";
+const TEXTCOLOR_PURPLE			= "\034T";
+const TEXTCOLOR_DARKGRAY		= "\034U";
+const TEXTCOLOR_CYAN			= "\034V";
+const TEXTCOLOR_ICE				= "\034W";
+const TEXTCOLOR_FIRE			= "\034X";
+const TEXTCOLOR_SAPPHIRE		= "\034Y";
+const TEXTCOLOR_TEAL			= "\034Z";
+
+const TEXTCOLOR_NORMAL			= "\034-";
+const TEXTCOLOR_BOLD			= "\034+";
+
+const TEXTCOLOR_CHAT			= "\034*";
+const TEXTCOLOR_TEAMCHAT		= "\034!";
+
+
+enum EMonospacing
+{
+	Mono_Off = 0,
+	Mono_CellLeft = 1,
+	Mono_CellCenter = 2,
+	Mono_CellRight = 3
+};
+
+enum EPrintLevel
+{
+	PRINT_LOW,		// pickup messages
+	PRINT_MEDIUM,	// death messages
+	PRINT_HIGH,		// critical messages
+	PRINT_CHAT,		// chat messages
+	PRINT_TEAMCHAT,	// chat messages from a teammate
+	PRINT_LOG,		// only to logfile
+	PRINT_BOLD = 200,				// What Printf_Bold used
+	PRINT_TYPES = 1023,		// Bitmask.
+	PRINT_NONOTIFY = 1024,	// Flag - do not add to notify buffer
+	PRINT_NOLOG = 2048,		// Flag - do not print to log file
+};
+
 struct _ native	// These are the global variables, the struct is only here to avoid extending the parser for this.
 {
 	native readonly Array<class> AllClasses;
-	native readonly @GameInfoStruct gameinfo; 
-	//native readonly int GameTicRate;
-
+	native readonly bool multiplayer;
+	native @KeyBindings Bindings;
+	native @KeyBindings AutomapBindings;
+	native readonly @GameInfoStruct gameinfo;
+	native readonly ui bool netgame;
+	native readonly uint gameaction;
+	native readonly int gamestate;
 	native readonly Font smallfont;
 	native readonly Font smallfont2;
 	native readonly Font bigfont;
@@ -23,17 +168,17 @@ struct _ native	// These are the global variables, the struct is only here to av
 	native readonly int CleanYFac_1;
 	native readonly int CleanWidth_1;
 	native readonly int CleanHeight_1;
-	native readonly @MusPlayingInfo musplaying;
+	native ui int menuactive;
+	native readonly @FOptionMenuSettings OptionMenuSettings;
+	native readonly bool demoplayback;
 	native ui int BackbuttonTime;
 	native ui float BackbuttonAlpha;
-	native readonly int GameTicRate;
-	native readonly @FOptionMenuSettings OptionMenuSettings; 
-	native int menuactive;
-	native @KeyBindings Bindings;
-	native @KeyBindings AutomapBindings;
+	native readonly @MusPlayingInfo musplaying;
 	native readonly bool generic_ui;
+	native readonly int GameTicRate;
+	native MenuCustomize menuCustomizer;
+	native readonly int consoleplayer;
 }
-
 
 struct MusPlayingInfo native
 {
@@ -245,12 +390,12 @@ struct Screen native
 	native static vararg void DrawText(Font font, int normalcolor, double x, double y, String text, ...);
 	native static void DrawLine(int x0, int y0, int x1, int y1, Color color, int alpha = 255);
 	native static void DrawThickLine(int x0, int y0, int x1, int y1, double thickness, Color color, int alpha = 255);
-	native static Vector2, Vector2 VirtualToRealCoords(Vector2 pos, Vector2 size, Vector2 vsize, bool vbottom=false, int handleaspect=0);
+	native static Vector2, Vector2 VirtualToRealCoords(Vector2 pos, Vector2 size, Vector2 vsize, bool vbottom=false, bool handleaspect=true);
 	native static double GetAspectRatio();
 	native static void SetClipRect(int x, int y, int w, int h);
 	native static void ClearClipRect();
 	native static int, int, int, int GetClipRect();
-	//native static int, int, int, int GetViewWindow();
+	native static int, int, int, int GetViewWindow();
 	native static double, double, double, double GetFullscreenRect(double vwidth, double vheight, int fsmode);
 }
 
@@ -358,7 +503,6 @@ struct CVar native
 	};
 
 	native static CVar FindCVar(Name name);
-	//native static CVar GetCVar(Name name, PlayerInfo player = null);
 	bool GetBool() { return GetInt(); }
 	native int GetInt();
 	native double GetFloat();
@@ -369,7 +513,6 @@ struct CVar native
 	native void SetString(String s);
 	native int GetRealType();
 	native int ResetToDefault();
-	native int GetGlyphHeight(String charcode);
 }
 
 struct GIFont version("2.4")
@@ -383,7 +526,13 @@ struct GameInfoStruct native
 	native int gametype;
 	native String mBackButton;
 	native Name mSliderColor;
-} 
+}
+
+struct SystemTime
+{
+	native static ui int Now(); // This returns the epoch time
+	native static clearscope String Format(String timeForm, int timeVal); // This converts an epoch time to a local time, then uses the strftime syntax to format it
+}
 
 class Object native
 {
