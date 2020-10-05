@@ -369,6 +369,7 @@ struct CVar native
 	native void SetString(String s);
 	native int GetRealType();
 	native int ResetToDefault();
+	native int GetGlyphHeight(String charcode);
 }
 
 struct GIFont version("2.4")

@@ -239,15 +239,7 @@ class OptionMenu : Menu
 
 					if (y <= 0)
 					{
-						let font = generic_ui || !mDesc.mFont? NewSmallFont : mDesc.mFont;
-						if (font && mDesc.mTitle.Length() > 0)
-						{
-							y = -y + font.GetHeight();
-						}
-						else
-						{
-							y = -y;
-						}
+						y = DrawCaption(mDesc.mTitle, y, false);
 					}
 					y *= CleanYfac_1;
 					int	rowheight = OptionMenuSettings.mLinespacing * CleanYfac_1;
@@ -430,25 +422,39 @@ class OptionMenu : Menu
 		return screen.GetWidth() / 2 + indent * CleanXfac_1;
 	}
 
+	//=============================================================================
+	//
+	// draws and/or measures the caption. 
+	//
+	//=============================================================================
+
+	virtual int DrawCaption(String title, int y, bool drawit)
+	{
+		let font = generic_ui || !mDesc.mFont ? NewSmallFont : mDesc.mFont;
+		if (font && mDesc.mTitle.Length() > 0)
+		{
+			return menuCustomizer.DrawCaption(title, font, y, drawit);
+		}
+		else
+		{
+			return y;
+		}
+
+	}
+
+	//=============================================================================
+	//
+	//
+	//
+	//=============================================================================
+
 	override void Drawer ()
 	{
 		int y = mDesc.mPosition;
 
 		if (y <= 0)
 		{
-			let font = generic_ui || !mDesc.mFont? NewSmallFont : mDesc.mFont;
-			if (font && mDesc.mTitle.Length() > 0)
-			{
-				let tt = Stringtable.Localize(mDesc.mTitle);
-				screen.DrawText (font, OptionMenuSettings.mTitleColor,
-					(screen.GetWidth() - font.StringWidth(tt) * CleanXfac_1) / 2, 10*CleanYfac_1,
-					tt, DTA_CleanNoMove_1, true);
-				y = -y + font.GetHeight();
-			}
-			else
-			{
-				y = -y;
-			}
+			y = DrawCaption(mDesc.mTitle, -y, true);
 		}
 		mDesc.mDrawTop = y;
 		int fontheight = OptionMenuSettings.mLinespacing * CleanYfac_1;
