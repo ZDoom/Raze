@@ -434,7 +434,7 @@ OptionMenuSettings
 
 DefaultOptionMenu
 {
-	Position 85
+	Position -20
 }
 
 OptionMenu "OptionsMenu" protected

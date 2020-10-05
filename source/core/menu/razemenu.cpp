@@ -1131,6 +1131,8 @@ void SetDefaultMenuColors()
 		OptionSettings.mFontColorHeader = CR_DARKGRAY;
 		OptionSettings.mFontColorHighlight = CR_WHITE;
 		OptionSettings.mFontColorSelection = CR_DARKRED;
+		auto cls = PClass::FindClass("MenuCustomizerBlood");
+		if (cls) menuCustomizer = cls->CreateNew();
 	}
 	else if (g_gameType & GAMEFLAG_RRALL)
 	{
