@@ -911,6 +911,7 @@ set (PCH_SOURCES
 	common/filesystem/resourcefile.cpp
 	common/engine/cycler.cpp
 	common/engine/d_event.cpp
+	common/engine/date.cpp
 	common/engine/stats.cpp
 	common/engine/sc_man.cpp
 	common/engine/palettecontainer.cpp
@@ -925,6 +926,12 @@ set (PCH_SOURCES
 	common/objects/dobject.cpp
 	common/objects/dobjgc.cpp
 	common/objects/dobjtype.cpp
+	common/menu/joystickmenu.cpp
+	common/menu/menu.cpp
+	common/menu/messagebox.cpp
+	common/menu/optionmenu.cpp
+	common/menu/resolutionmenu.cpp
+	common/menu/menudef.cpp
 	
 	common/rendering/v_framebuffer.cpp
 	common/rendering/v_video.cpp
@@ -975,12 +982,6 @@ set (PCH_SOURCES
 	common/scripting/backend/vmbuilder.cpp
 	common/scripting/backend/codegen.cpp
 
-	common/menu/joystickmenu.cpp
-	common/menu/menu.cpp
-	common/menu/menudef.cpp
-	common/menu/messagebox.cpp
-	common/menu/optionmenu.cpp
-	common/menu/resolutionmenu.cpp
 
 
 	core/textures/buildtiles.cpp
