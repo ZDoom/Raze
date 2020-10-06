@@ -129,9 +129,13 @@ class Menu : Object native ui version("2.4")
 		switch (mkey)
 		{
 		case MKEY_Back:
+		{
 			Close();
-			MenuSound (GetCurrentMenu() != null? "menu/backup" : "menu/clear");
+			let m = GetCurrentMenu();
+			MenuSound(m != null ? "menu/backup" : "menu/clear");
+			if (!m) menuDelegate.MenuDismissed();
 			return true;
+		}
 		}
 		return false;
 	}

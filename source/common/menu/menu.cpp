@@ -195,6 +195,58 @@ void M_MarkMenus()
 	GC::Mark(menuDelegate);
 }
 
+
+//============================================================================
+//
+// Transition animation
+//
+//============================================================================
+
+static MenuTransition transition;
+
+bool MenuTransition::StartTransition(DMenu* from, DMenu* to, MenuTransitionType animtype)
+{
+	if (!from->canAnimate() || !to->canAnimate() || animtype == MA_None)
+	{
+		return false;
+	}
+	else
+	{
+		start = I_GetTimeNS() * (120. / 1'000'000'000.);
+		length = 30;
+		dir = animtype == MA_Advance ? 1 : -1;
+		previous = from;
+		current = to;
+		if (from) GC::AddSoftRoot(from);
+		if (to) GC::AddSoftRoot(to);
+		return true;
+	}
+}
+
+bool MenuTransition::Draw()
+{
+	double now = I_GetTimeNS() * (120. / 1'000'000'000);
+	if (now < start + length)
+	{
+		double factor = 120 * screen->GetWidth() / screen->GetHeight();
+		double phase = (now - start) / double(length) * M_PI + M_PI / 2;
+		DVector2 origin;
+
+		origin.Y = 0;
+		origin.X = factor * dir * (sin(phase) - 1.);
+		twod->SetOffset(origin);
+		previous->CallDrawer();
+		origin.X = factor * dir * (sin(phase) + 1.);
+		twod->SetOffset(origin);
+		current->CallDrawer();
+		return true;
+	}
+	if (previous) GC::DelSoftRoot(previous);
+	if (current) GC::DelSoftRoot(current);
+	return false;
+}
+
+
 //============================================================================
 //
 // DMenu base class
@@ -299,20 +351,28 @@ void DMenu::Close ()
 	if (CurrentMenu == nullptr) return;	// double closing can happen in the save menu.
 	assert(CurrentMenu == this);
 	CurrentMenu = mParentMenu;
-	Destroy();
-	if (CurrentMenu != nullptr)
-	{
-		GC::WriteBarrier(CurrentMenu);
-		IFVIRTUALPTR(CurrentMenu, DMenu, OnReturn)
-		{
-			VMValue params[] = { CurrentMenu };
-			VMCall(func, params, 1, nullptr, 0);
-		}
 
+	if (mParentMenu && transition.StartTransition(this, mParentMenu, MA_Return))
+	{
+		return;
 	}
 	else
 	{
-		M_ClearMenus ();
+		Destroy();
+		if (CurrentMenu != nullptr)
+		{
+			GC::WriteBarrier(CurrentMenu);
+			IFVIRTUALPTR(CurrentMenu, DMenu, OnReturn)
+			{
+				VMValue params[] = { CurrentMenu };
+				VMCall(func, params, 1, nullptr, 0);
+			}
+
+		}
+		else
+		{
+			M_ClearMenus();
+		}
 	}
 }
 
@@ -407,10 +467,14 @@ void M_DoStartControlPanel (bool scaleoverride)
 void M_ActivateMenu(DMenu *menu)
 {
 	if (menuactive == MENU_Off) menuactive = MENU_On;
-	if (CurrentMenu != nullptr && CurrentMenu->mMouseCapture)
+	if (CurrentMenu != nullptr)
 	{
-		CurrentMenu->mMouseCapture = false;
-		I_ReleaseMouseCapture();
+		if (CurrentMenu->mMouseCapture)
+		{
+			CurrentMenu->mMouseCapture = false;
+			I_ReleaseMouseCapture();
+		}
+		transition.StartTransition(CurrentMenu, menu, MA_Advance);
 	}
 	CurrentMenu = menu;
 	GC::WriteBarrier(CurrentMenu);

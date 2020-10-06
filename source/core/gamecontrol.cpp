@@ -871,6 +871,7 @@ int RunGame()
 	if (exec) exec->ExecCommands();
 
 	SetupGameButtons();
+	gameinfo.mBackButton = "engine/graphics/m_back.png";
 	gi->app_init();
 	SetDefaultMenuColors();
 	M_Init();

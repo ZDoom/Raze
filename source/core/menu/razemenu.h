@@ -3,6 +3,8 @@
 #include "gamestruct.h"
 #include "c_cvars.h"
 
+extern bool help_disabled;
+
 void M_StartControlPanel (bool makeSound, bool scaleoverride = false);
 
 

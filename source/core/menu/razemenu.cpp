@@ -74,6 +74,7 @@ void D_ToggleHud();
 void I_WaitVBL(int count);
 
 extern bool hud_toggled;
+bool help_disabled;
 
 
 //FNewGameStartup NewGameStartupInfo;
@@ -1166,6 +1167,59 @@ void SetDefaultMenuColors()
 
 }
 
+
+//=============================================================================
+//
+// [RH] Most menus can now be accessed directly
+// through console commands.
+//
+//=============================================================================
+
+EXTERN_CVAR(Int, screenblocks)
+
+CCMD(reset2defaults)
+{
+	C_SetDefaultBindings();
+	C_SetCVarsToDefaults();
+}
+
+CCMD(reset2saved)
+{
+	GameConfig->DoGlobalSetup();
+	GameConfig->DoGameSetup(currentGame);
+}
+
+CCMD(menu_main)
+{
+	M_StartControlPanel(true);
+	M_SetMenu(gi->CanSave() ? NAME_IngameMenu : NAME_Mainmenu, -1);
+}
+
+CCMD(openhelpmenu)
+{
+	if (!help_disabled)
+	{
+		M_StartControlPanel(true);
+		M_SetMenu(NAME_HelpMenu);
+	}
+}
+
+CCMD(opensavemenu)
+{
+	if (gi->CanSave())
+	{
+		M_StartControlPanel(true);
+		M_SetMenu(NAME_Savegamemenu);
+	}
+}
+
+CCMD(openloadmenu)
+{
+	M_StartControlPanel(true);
+	M_SetMenu(NAME_Loadgamemenu);
+}
+
+
 // The sound system is not yet capable of resolving this properly.
 DEFINE_ACTION_FUNCTION(_RazeMenuDelegate, PlaySound)
 {
@@ -1204,5 +1258,12 @@ DEFINE_ACTION_FUNCTION(_RazeMenuDelegate, PlaySound)
 		return 0;
 	}
 	gi->MenuSound(soundindex);
+	return 0;
+}
+
+// C_ToggleConsole cannot be exported for security reasons as it can be used to make the engine unresponsive.
+DEFINE_ACTION_FUNCTION(_RazeMenuDelegate, MenuDismissed)
+{
+	if (CurrentMenu == nullptr && gamestate == GS_MENUSCREEN) C_ToggleConsole();
 	return 0;
 }

@@ -8,10 +8,18 @@ class MenuDelegateBase
 		return (y + fnt.GetHeight()) * CleanYfac_1;	// return is spacing in screen pixels.
 	}
 	
+	virtual void PlaySound(Name sound)
+	{
+	}
+	
 	virtual bool DrawSelector(ListMenuDescriptor desc)
 	{
 		return false;
 	}
 
+	virtual void MenuDismissed()
+	{
+		// overriding this allows to execute special actions when the menu closes
+	}
 	
 }

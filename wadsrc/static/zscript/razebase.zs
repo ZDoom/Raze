@@ -44,4 +44,7 @@ class RazeMenuDelegate : MenuDelegateBase
 {
 	// Todo: Fix this so that it can be done outside the games' sound modules.
 	native override void PlaySound(name sname);
+	// This is native for security reasons. Having a script call to open the console could be subject to abuse.
+	native override void MenuDismissed();
+	
 }
