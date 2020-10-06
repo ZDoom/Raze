@@ -39,3 +39,9 @@ struct TileFiles
 	native static TextureID GetTexture(int tile, bool animate = false);
 }
 */
+
+class RazeMenuDelegate : MenuDelegateBase
+{
+	// Todo: Fix this so that it can be done outside the games' sound modules.
+	native override void PlaySound(name sname);
+}

@@ -1,5 +1,5 @@
 
-class MenuCustomizerDuke : MenuCustomize
+class DukeMenuDelegate : RazeMenuDelegate
 {
 	override int DrawCaption(String title, Font fnt, int y, bool drawit)
 	{

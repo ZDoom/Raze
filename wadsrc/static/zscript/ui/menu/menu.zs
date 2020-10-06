@@ -285,8 +285,7 @@ class Menu : Object native ui version("2.4")
 
 	static void MenuSound(Name snd)
 	{
-		// todo: Cannot use game specific IDs here - sound also may be set up too late by the games
-		//S_StartSound (snd, CHAN_VOICE, CHANF_MAYBE_LOCAL|CHAN_UI, snd_menuvolume, ATTN_NONE);
+		menuDelegate.PlaySound(snd);
 	}
 	
 	deprecated("4.0") static void DrawConText (int color, int x, int y, String str)

@@ -58,18 +58,7 @@
 #include "gamecontrol.h"
 #include "raze_sound.h"
 #include "gamestruct.h"
-
-enum EMenuSounds : int
-{
-	ActivateSound,
-	CursorSound,
-	AdvanceSound,
-	BackSound,
-	CloseSound,
-	PageSound,
-	ChangeSound,
-	ChooseSound
-};
+#include "razemenu.h"
 
 EXTERN_CVAR(Int, cl_gfxlocalization)
 EXTERN_CVAR(Bool, m_quickexit)
@@ -173,17 +162,6 @@ bool M_SetSpecialMenu(FName& menu, int param)
 //
 //=============================================================================
 
-void M_MenuSound(EMenuSounds snd)
-{
-	if (menu_sounds) gi->MenuSound(snd);
-}
-
-//=============================================================================
-//
-//
-//
-//=============================================================================
-
 void M_StartControlPanel(bool makeSound, bool)
 {
 	static bool created = false;
@@ -198,7 +176,7 @@ void M_StartControlPanel(bool makeSound, bool)
 	}
 	GSnd->SetSfxPaused(true, PAUSESFX_MENU);
 	gi->MenuOpened();
-	if (makeSound) M_MenuSound(ActivateSound);
+	if (makeSound && menu_sounds) gi->MenuSound(ActivateSound);
 	M_DoStartControlPanel(false);
 }
 
@@ -1149,13 +1127,13 @@ void SetDefaultMenuColors()
 		OptionSettings.mFontColorHeader = CR_DARKGRAY;
 		OptionSettings.mFontColorHighlight = CR_WHITE;
 		OptionSettings.mFontColorSelection = CR_DARKRED;
-		cls = PClass::FindClass("MenuCustomizerBlood");
+		cls = PClass::FindClass("BloodMenuDelegate");
 	}
 	else if (g_gameType & GAMEFLAG_SW)
 	{
 		OptionSettings.mFontColorHeader = CR_DARKRED;
 		OptionSettings.mFontColorHighlight = CR_WHITE;
-		cls = PClass::FindClass("MenuCustomizerSW");
+		cls = PClass::FindClass("SWMenuDelegate");
 	}
 	else if (g_gameType & GAMEFLAG_PSEXHUMED)
 	{	
@@ -1163,7 +1141,7 @@ void SetDefaultMenuColors()
 		OptionSettings.mFontColorHighlight = CR_SAPPHIRE;
 		OptionSettings.mFontColorSelection = CR_ORANGE;
 		OptionSettings.mFontColor = CR_FIRE;
-		cls = PClass::FindClass("MenuCustomizerExhumed");
+		cls = PClass::FindClass("ExhumedMenuDelegate");
 	}
 	else
 	{
@@ -1181,9 +1159,50 @@ void SetDefaultMenuColors()
 			OptionSettings.mFontColorHighlight = CR_ORANGE;
 			OptionSettings.mFontColorSelection = CR_TAN;
 		}
-		cls = PClass::FindClass("MenuCustomizerDuke");
+		cls = PClass::FindClass("DukeMenuDelegate");
 	}
-	if (!cls) cls = PClass::FindClass("MenuCustomize");
-	if (cls) menuCustomizer = cls->CreateNew();
+	if (!cls) cls = PClass::FindClass("RazeMenuDelegate");
+	if (cls) menuDelegate = cls->CreateNew();
 
+}
+
+// The sound system is not yet capable of resolving this properly.
+DEFINE_ACTION_FUNCTION(_RazeMenuDelegate, PlaySound)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(void);
+	PARAM_NAME(name);
+	EMenuSounds soundindex;
+
+	switch (name.GetIndex())
+	{
+	case NAME_menu_cursor:
+		soundindex = CursorSound;
+		break;
+
+	case NAME_menu_choose:
+		soundindex = ChooseSound;
+		break;
+
+	case NAME_menu_backup:
+		soundindex = BackSound;
+		break;
+
+	case NAME_menu_clear:
+	case NAME_menu_dismiss:
+		soundindex = CloseSound;
+		break;
+
+	case NAME_menu_change:
+		soundindex = ChangeSound;
+		break;
+
+	case NAME_menu_advance:
+		soundindex = AdvanceSound;
+		break;
+
+	default:
+		return 0;
+	}
+	gi->MenuSound(soundindex);
+	return 0;
 }

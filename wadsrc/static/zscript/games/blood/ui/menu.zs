@@ -5,7 +5,7 @@
 //
 //-------------------------------------------------------------------------------------------
 
-class MenuCustomizerBlood : MenuCustomize
+class BloodMenuDelegate : RazeMenuDelegate
 {
 	override int DrawCaption(String title, Font fnt, int y, bool drawit)
 	{

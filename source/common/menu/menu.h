@@ -47,7 +47,7 @@ class DMenu;
 extern DMenu *CurrentMenu;
 extern int MenuTime;
 class DMenuItemBase;
-extern DObject* menuCustomizer;
+extern DObject* menuDelegate;
 
 //=============================================================================
 //

@@ -87,7 +87,7 @@ static void drawTextScreenBackground(void)
 	}
 }
 
-// One these screens get scriptified this should use the version in menuCustomizerBlood.
+// One these screens get scriptified this should use the version in BloodMenuDelegate.
 static void DrawCaption(const char* text)
 {
 	double scalex = 1.; // Expand the box if the text is longer

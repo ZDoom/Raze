@@ -363,7 +363,7 @@ class ListMenuItemCaptionItem : ListMenuItem
 		let font = generic_ui || !desc.mFont ? NewSmallFont : desc.mFont;
 		if (font && mText.Length() > 0)
 		{
-			menuCustomizer.DrawCaption(mText, font, 0, true);
+			menuDelegate.DrawCaption(mText, font, 0, true);
 		}
 	}
 }
