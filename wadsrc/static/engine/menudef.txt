@@ -1550,11 +1550,12 @@ OptionMenu "MiscOptions" //protected
 	Slider "$MISCMNU_AUTOSAVECOUNT",			"autosavecount", 1, 20, 1, 0
 	//Option "$MISCMNU_QUICKSAVEROTATION",			"quicksaverotation", "OnOff"
 	Slider "$MISCMNU_QUICKSAVECOUNT",			"quicksavecount", 1, 20, 1, 0
-	ifgame(shadowwarrior)
+	ifgame(ShadowWarrior)
 	{
 		StaticText " "
 		Option "$MISCMNU_DARTS",				"sw_darts", "OnOff"
 		Option "$MISCMNU_NINJA",				"sw_ninjahack", "OnOff"
+		Option "$MISCMNU_ALTNUKE",              "cl_swaltnukeinit", "OnOff"
 	}
 	//StaticText " "
 	//Option "$OPTMNU_LANGUAGE", "language", "LanguageOptions" - not ready yet
