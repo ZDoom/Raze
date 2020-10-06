@@ -961,7 +961,7 @@ void shoot_d(int i, int atwith)
 			sprite[k].cstat = 16;
 			hittype[k].temp_data[5] = sprite[k].ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) - 512;
 
-			if (isWW2GI() && p >= 0)
+			if (p >= 0)
 				ps[p].ammo_amount[TRIPBOMB_WEAPON]--;
 
 		}
