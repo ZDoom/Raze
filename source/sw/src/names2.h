@@ -232,69 +232,6 @@ enum STAT_ENUMS
 //
 //////////////////////
 
-#define ICON_STAR  1793
-
-#define ICON_UZI   1797
-#define ICON_UZIFLOOR 1807
-#define ICON_LG_UZI_AMMO  1799
-
-#define ICON_HEART      1824
-#define ICON_HEART_LG_AMMO 1820
-
-#define ICON_GUARD_HEAD 1814
-#define ICON_FIREBALL_LG_AMMO 3035
-
-#define NAPALM_MIN_AMMO 10
-#define RING_MIN_AMMO 30
-
-#define ICON_ROCKET      1843
-#define ICON_SHOTGUN     1794
-#define ICON_LG_ROCKET 1796
-#define ICON_LG_SHOTSHELL 1823
-#define ICON_AUTORIOT 1822
-
-#define ICON_MICRO_GUN 1818
-#define ICON_MICRO_BATTERY 1800
-
-#define ICON_GRENADE_LAUNCHER 1817
-#define ICON_LG_GRENADE 1831
-
-#define ICON_LG_MINE 1842
-
-#define ICON_RAIL_GUN 1811
-#define ICON_RAIL_AMMO 1812
-
-// not used now
-#define ICON_SPELL     1880
-#define ICON_ELECTRO   1822
-
-#define ICON_EXPLOSIVE_BOX 1801
-#define ICON_ENVIRON_SUIT   1837
-#define ICON_FLY      1782
-#define ICON_CLOAK    1804
-#define ICON_NIGHT_VISION 3031
-#define ICON_NAPALM      3046
-#define ICON_RING        3050
-#define ICON_GOROAMMO    3035
-#define ICON_HEARTAMMO   1820
-#define ICON_RINGAMMO    3054
-#define ICON_NAPALMAMMO  3058
-#define ICON_GRENADE     3059
-#define ICON_OXYGEN      1800
-#define ICON_ARMOR       3030
-#define ICON_SM_MEDKIT   1802
-#define ICON_BOOSTER     1810
-#define ICON_HEAT_CARD   1819
-#define ICON_REPAIR_KIT  1813
-#define ICON_MEDKIT      1803
-#define ICON_CHEMBOMB    1808
-#define ICON_FLASHBOMB   1805
-#define ICON_NUKE        1809
-#define ICON_CALTROPS    1829
-#define ICON_FLAG        2520
-
-
-
 #define STAR 2039
 #define ELECTRO 2025
 
@@ -344,29 +281,6 @@ enum STAT_ENUMS
 // MISC
 //
 //////////////////////
-
-#define COINCURSOR    2440  // Jim uses this for a text input cursor
-#define STARTALPHANUM 4608  // New SW font for typing in stuff, It's in ASCII order.
-#define ENDALPHANUM   4701
-
-#define STATUS_BAR 2434
-#define STATUS_KEYS 2881
-#define STATUS_NUMBERS 2887
-#define BORDER_TILE 2604
-
-
-#define BLUE_KEY 1766
-#define RED_KEY 1770
-#define GREEN_KEY 1774
-#define YELLOW_KEY 1778
-#define GOLD_SKELKEY 1765
-#define SILVER_SKELKEY 1769
-#define BRONZE_SKELKEY 1773
-#define RED_SKELKEY 1777
-#define BLUE_CARD 1767
-#define RED_CARD 1771
-#define GREEN_CARD 1775
-#define YELLOW_CARD 1779
 
 #define BLUE_KEY_STATUE BLUE_KEY+2
 #define RED_KEY_STATUE RED_KEY+2

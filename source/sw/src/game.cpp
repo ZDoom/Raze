@@ -44,6 +44,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 #include "automap.h"
 #include "statusbar.h"
+#include "texturemanager.h"
 
 
 #include "mytypes.h"
@@ -156,6 +157,17 @@ int ThemeTrack[6];
 /// L O C A L   P R O T O T Y P E S /////////////////////////////////////////////////////////
 void SybexScreen(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
+
+#define x(a, b) registerName(#a, b);
+static void SetTileNames()
+{
+    auto registerName = [](const char* name, int index)
+    {
+        TexMan.AddAlias(name, tileGetTexture(index));
+    };
+#include "namelist.h"
+}
+#undef x
 
 //---------------------------------------------------------------------------
 //
