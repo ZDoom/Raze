@@ -11,8 +11,8 @@ void M_StartControlPanel (bool makeSound, bool scaleoverride = false);
 extern FNewGameStartup NewGameStartupInfo;
 void M_StartupEpisodeMenu(FNewGameStartup *gs);
 void M_StartupSkillMenu(FNewGameStartup *gs);
-void M_CreateGameMenus();
 void SetDefaultMenuColors();
+void BuildGameMenus();
 
 // The savegame manager contains too much code that is game specific. Parts are shareable but need more work first.
 

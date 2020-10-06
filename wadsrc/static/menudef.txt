@@ -64,9 +64,9 @@ LISTMENU "MainMenu"
 		Position 160, 65
 		centermenu
 		linespacing 22
-		NativeTextItem "3460", "n", "StartGame", 1
+		NativeTextItem "3460", "n", "StartGameNoSkill", 1
 		NativeTextItem "3461", "l", "LoadGameMenu"
-		NativeTextItem "3462", "m", "StartGame", 0
+		NativeTextItem "3462", "m", "StartGameNoSkill", 0
 		NativeTextItem "3463", "v", "OptionsMenu"
 		NativeTextItem "3464", "q", "QuitMenu"
 	*/
@@ -85,7 +85,7 @@ LISTMENU "IngameMenu"
 	class "$.MainMenu"
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		position 160, 55, 115
+		position 160, 55
 		centermenu
 		animatedtransition
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
@@ -96,21 +96,24 @@ LISTMENU "IngameMenu"
 		NativeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
+	*/
 	ifgame(Blood)
 	{
-		position 160, 45, 150
-		caption "Blood"
+		position 160, 45
+		CaptionItem "Blood"
 		centermenu
 		Linespacing 17
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		NativeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		BloodTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
+		BloodTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		BloodTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+		BloodTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		BloodTextItem "$MNU_HELP", "h", "HelpMenu"
+		BloodTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		BloodTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
+		BloodTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		BloodDripDrawer
 	}
+	/*
 	ifgame(ShadowWarrior)
 	{
 		Position 55, 32
@@ -156,19 +159,20 @@ LISTMENU "EpisodeMenu"
 	{
 		class "$.ListMenu"
 		caption "$MNU_SELECTEPISODE"
-		position 160, 48, 142
+		position 160, 48
 		centermenu
 		fixedspacing 5
 		animatedtransition
 	}
+	*/
 	ifgame(blood)
 	{
-		class "$.ListMenu"
-		caption "$MNU_EPISODES"
-		position 160, 45, 150
-		centermenu
+		position 160, 45
 		Linespacing 20
+		CaptionItem "$MNU_EPISODES"
+		BloodDripDrawer
 	}
+	/*
 	ifgame(ShadowWarrior)
 	{
 		caption "$MNU_EPISODES"
@@ -191,14 +195,15 @@ LISTMENU "SkillMenu"
 		fixedspacing 5
 		animatedtransition
 	}
+	*/
 	ifgame(blood)
 	{
-		class "$.ListMenu"
-		caption "$MNU_DIFFICULTY"
-		position 160, 60, 150
-		centermenu
+		position 160, 60
 		Linespacing 20
+		CaptionItem "$MNU_DIFFICULTY"
+		BloodDripDrawer
 	}
+	/*
 	ifgame(ShadowWarrior)
 	{
 		caption "$MNU_DIFFICULTY"
@@ -1084,7 +1089,6 @@ OptionMenu "AutomapOptions"
 	Option "$AUTOMAPMNU_ROTATE",				"am_rotate",					"OnOff"
 	Option "$AUTOMAPMNU_FOLLOW",				"am_followplayer",				"OnOff"
 
-	// move map controls here.
 	// todo:
 	//CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
 	//CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)

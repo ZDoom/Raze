@@ -15,6 +15,11 @@ enum EMax
 	MAXMENUGAMEPLAYENTRIES = 7,
 };
 
+enum EVolFlags
+{
+	EF_HIDEFROMSP = 1,
+};
+
 // These get filled in by the map definition parsers of the front ends.
 extern FString gSkillNames[MAXSKILLS];
 extern FString gVolumeNames[MAXVOLUMES];

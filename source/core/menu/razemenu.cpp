@@ -59,6 +59,8 @@
 #include "raze_sound.h"
 #include "gamestruct.h"
 #include "razemenu.h"
+#include "mapinfo.h"
+#include "statistics.h"
 
 EXTERN_CVAR(Int, cl_gfxlocalization)
 EXTERN_CVAR(Bool, m_quickexit)
@@ -75,6 +77,7 @@ void I_WaitVBL(int count);
 
 extern bool hud_toggled;
 bool help_disabled;
+FNewGameStartup NewGameStartupInfo;
 
 
 //FNewGameStartup NewGameStartupInfo;
@@ -82,77 +85,60 @@ bool help_disabled;
 
 bool M_SetSpecialMenu(FName& menu, int param)
 {
-#if 0
-	// some menus need some special treatment
-	switch (menu.GetIndex())
+	// Transitions between the engine credits pages need to pop off the last slide
+	if (!strnicmp(menu.GetChars(), "EngineCredits", 13) && CurrentMenu && !strnicmp(CurrentMenu->GetClass()->TypeName.GetChars(), "EngineCredits", 13))
 	{
-	case NAME_Mainmenu:
-		break;
-	case NAME_Episodemenu:
-		// sent from the player class menu
-		break;
-
-	case NAME_Skillmenu:
-		// sent from the episode menu
-		break;
-
-	case NAME_StartgameConfirm:
-	{
-		// sent from the skill menu for a skill that needs to be confirmed
-		return false;
+		auto m = CurrentMenu;
+		CurrentMenu = m->mParentMenu;
+		m->mParentMenu = nullptr;
+		m->Destroy();
 	}
 
-	case NAME_Startgame:
-		// sent either from skill menu or confirmation screen. Skill gets only set if sent from skill menu
-		// Now we can finally start the game. Ugh...
-		//NewGameStartupInfo.Skill = param;
-	case NAME_StartgameConfirmed:
+	switch (menu.GetIndex())
+	{
+	case NAME_Skillmenu:
+		// sent from the episode menu
+		NewGameStartupInfo.Episode = param;
+		NewGameStartupInfo.Level = 0;
+		NewGameStartupInfo.Skill = gDefaultSkill;
+		return true;
 
-		//G_DeferedInitNew (&NewGameStartupInfo);
-		if (gamestate == GS_FULLCONSOLE)
+	case NAME_Startgame:
+	case NAME_StartgameNoSkill:
+		NewGameStartupInfo.Skill = param;
+		if (menu == NAME_StartgameNoSkill) NewGameStartupInfo.Episode = param;
+		if (gi->StartGame(NewGameStartupInfo))
 		{
-			gamestate = GS_HIDECONSOLE;
-			gameaction = ga_newgame;
+			M_ClearMenus();
+			STAT_StartNewGame(gVolumeNames[NewGameStartupInfo.Episode], NewGameStartupInfo.Skill);
+			inputState.ClearAllInput();
 		}
-		M_ClearMenus ();
 		return false;
 
+	case NAME_CustomSubMenu1:
+		menu = ENamedName(menu.GetIndex() + param);
+		break;
+
 	case NAME_Savegamemenu:
-		if (!usergame || (players[consoleplayer].health <= 0 && !multiplayer) || gamestate != GS_LEVEL)
+		if (!gi->CanSave())
 		{
 			// cannot save outside the game.
-			M_StartMessage (GStrings("SAVEDEAD"), 1);
-			return false;
+			M_StartMessage(GStrings("SAVEDEAD"), 1, NAME_None);
+			return true;
 		}
 		break;
 
 	case NAME_Quitmenu:
-		// The separate menu class no longer exists but the name still needs support for existing mods.
+		// This is no separate class
 		C_DoCommand("menu_quit");
-		return false;
+		return true;
 
 	case NAME_EndGameMenu:
-		// The separate menu class no longer exists but the name still needs support for existing mods.
-		void ActivateEndGameMenu();
-		ActivateEndGameMenu();
-		return false;
+		// This is no separate class
+		C_DoCommand("menu_endgame");
+		return true;
+}
 
-	case NAME_Playermenu:
-		menu = NAME_NewPlayerMenu;	// redirect the old player menu to the new one.
-		break;
-	}
-
-	DMenuDescriptor** desc = MenuDescriptors.CheckKey(menu);
-	if (desc != nullptr)
-	{
-		if ((*desc)->mNetgameMessage.IsNotEmpty() && netgame && !demoplayback)
-		{
-			M_StartMessage((*desc)->mNetgameMessage, 1);
-			return false;
-		}
-	}
-
-#endif
 	// End of special checks
 	return true;
 }
@@ -204,26 +190,11 @@ CUSTOM_CVAR(Float, dimamount, -1.f, CVAR_ARCHIVE)
 }
 CVAR(Color, dimcolor, 0xffd700, CVAR_ARCHIVE)
 
-void System_M_Dim()
-{
-#if 0
-	PalEntry dimmer;
-	float amount;
-
-	if (dimamount >= 0)
-	{
-		dimmer = PalEntry(dimcolor);
-		amount = dimamount;
-	}
-	else
-	{
-		dimmer = gameinfo.dimcolor;
-		amount = gameinfo.dimamount;
-	}
-
-	Dim(twod, dimmer, amount, 0, 0, twod->GetWidth(), twod->GetHeight());
-#endif
-}
+//=============================================================================
+//
+//
+//
+//=============================================================================
 
 
 //=============================================================================
@@ -232,51 +203,21 @@ void System_M_Dim()
 //
 //=============================================================================
 
-CCMD (menu_quit)
+CCMD(menu_quit)
 {	// F10
-#if 0
-	if (m_quickexit)
-	{
-		ST_Endoom();
-	}
 
-	M_StartControlPanel (true);
+	M_StartControlPanel(true);
 
-	const size_t messageindex = static_cast<size_t>(gametic) % gameinfo.quitmessages.Size();
 	FString EndString;
-	const char *msg = gameinfo.quitmessages[messageindex];
-	if (msg[0] == '$')
-	{
-		if (msg[1] == '*')
-		{
-			EndString = GStrings(msg + 2);
-		}
-		else
-		{
-			EndString.Format("%s\n\n%s", GStrings(msg + 1), GStrings("DOSY"));
-		}
-	}
-	else EndString = gameinfo.quitmessages[messageindex];
+	EndString << GStrings("CONFIRM_QUITMSG") << "\n\n" << GStrings("PRESSYN");
 
-	DMenu *newmenu = CreateMessageBoxMenu(CurrentMenu, EndString, 0, false, NAME_None, []()
-	{
-		if (!netgame)
+	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, EndString, 0, false, NAME_None, []()
 		{
-			if (gameinfo.quitSound.IsNotEmpty())
-			{
-				S_Sound(CHAN_VOICE, CHANF_UI, gameinfo.quitSound, snd_menuvolume, ATTN_NONE);
-				I_WaitVBL(105);
-			}
-		}
-		ST_Endoom();
-	});
-
+			gi->ExitFromMenu();
+		});
 
 	M_ActivateMenu(newmenu);
-#endif
 }
-
-
 
 //=============================================================================
 //
@@ -284,39 +225,24 @@ CCMD (menu_quit)
 //
 //=============================================================================
 
-void ActivateEndGameMenu()
-{
-#if 0
-	FString tempstring = GStrings(netgame ? "NETEND" : "ENDGAME");
-	DMenu *newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
-	{
-		M_ClearMenus();
-		if (!netgame)
-		{
-			if (demorecording)
-				G_CheckDemoStatus();
-			D_StartTitle();
-		}
-	});
-
-	M_ActivateMenu(newmenu);
-#endif
-}
-
-CCMD (menu_endgame)
+CCMD(menu_endgame)
 {	// F7
-#if 0
-	if (!usergame)
+	if (!gi->CanSave())
 	{
-		S_Sound (CHAN_VOICE, CHANF_UI, "menu/invalid", snd_menuvolume, ATTN_NONE);
 		return;
 	}
-		
-	//M_StartControlPanel (true);
-	S_Sound (CHAN_VOICE, CHANF_UI, "menu/activate", snd_menuvolume, ATTN_NONE);
 
-	ActivateEndGameMenu();
-#endif
+	M_StartControlPanel(true);
+	FString tempstring;
+	tempstring << GStrings("ENDGAME") << "\n\n" << GStrings("PRESSYN");
+	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
+		{
+			STAT_Cancel();
+			M_ClearMenus();
+			gi->QuitToTitle();
+		});
+
+	M_ActivateMenu(newmenu);
 }
 
 //=============================================================================
@@ -421,326 +347,129 @@ CCMD (quickload)
 #endif
 }
 
+//=============================================================================
+//
+// Creation wrapper
+//
+//=============================================================================
 
-
-
-EXTERN_CVAR (Int, screenblocks)
-
-#if 0
-CCMD (sizedown)
+static DMenuItemBase* CreateCustomListMenuItemText(double x, double y, int height, int hotkey, const char* text, FFont* font, PalEntry color1, PalEntry color2, FName command, int param)
 {
-	screenblocks = screenblocks - 1;
-	S_Sound (CHAN_VOICE, CHANF_UI, "menu/change", snd_menuvolume, ATTN_NONE);
+	const char* classname = 
+		(g_gameType & GAMEFLAG_BLOOD) ? "ListMenuItemBloodTextItem" :
+		(g_gameType & GAMEFLAG_SW) ? "ListMenuItemSWTextItem" :
+		(g_gameType & GAMEFLAG_PSEXHUMED) ? "ListMenuItemExhumedTextItem" : "ListMenuItemDukeTextItem";
+	auto c = PClass::FindClass(classname);
+	auto p = c->CreateNew();
+	FString keystr = FString(char(hotkey));
+	FString textstr = text;
+	VMValue params[] = { p, x, y, height, &keystr, &textstr, font, int(color1.d), int(color2.d), command.GetIndex(), param };
+	auto f = dyn_cast<PFunction>(c->FindSymbol("InitDirect", false));
+	VMCall(f->Variants[0].Implementation, params, countof(params), nullptr, 0);
+	return (DMenuItemBase*)p;
 }
-
-CCMD (sizeup)
-{
-	screenblocks = screenblocks + 1;
-	S_Sound (CHAN_VOICE, CHANF_UI, "menu/change", snd_menuvolume, ATTN_NONE);
-}
-
-CCMD(reset2defaults)
-{
-	C_SetDefaultBindings ();
-	C_SetCVarsToDefaults ();
-	R_SetViewSize (screenblocks);
-}
-
-CCMD(reset2saved)
-{
-	GameConfig->DoGlobalSetup ();
-	GameConfig->DoGameSetup (gameinfo.ConfigName);
-	GameConfig->DoModSetup (gameinfo.ConfigName);
-	R_SetViewSize (screenblocks);
-}
-
-CCMD(resetb2defaults)
-{
-	C_SetDefaultBindings ();
-}
-#endif
 
 //=============================================================================
 //
 // Creates the episode menu
-// Falls back on an option menu if there's not enough screen space to show all episodes
 //
 //=============================================================================
 
-#if 0
-void M_StartupEpisodeMenu(FNewGameStartup *gs)
+static void BuildEpisodeMenu()
 {
 	// Build episode menu
-	bool success = false;
-	bool isOld = false;
-	DMenuDescriptor **desc = MenuDescriptors.CheckKey(NAME_Episodemenu);
-	if (desc != nullptr)
+	int addedVolumes = 0;
+	DMenuDescriptor** desc = MenuDescriptors.CheckKey(NAME_Episodemenu);
+	if (desc != nullptr && (*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
 	{
-		if ((*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
+		DListMenuDescriptor* ld = static_cast<DListMenuDescriptor*>(*desc);
+
+		DMenuItemBase* popped = nullptr;
+		if (ld->mItems.Size() && ld->mItems.Last()->IsKindOf(NAME_ListMenuItemBloodDripDrawer))
 		{
-			DListMenuDescriptor *ld = static_cast<DListMenuDescriptor*>(*desc);
-			
-			// Delete previous contents
-			for(unsigned i=0; i<ld->mItems.Size(); i++)
-			{
-				FName n = ld->mItems[i]->mAction;
-				if (n == NAME_Skillmenu)
-				{
-					isOld = true;
-					ld->mItems.Resize(i);
-					break;
-				}
-			}
-
-			
-			int posx = (int)ld->mXpos;
-			int posy = (int)ld->mYpos;
-			int topy = posy;
-
-			// Get lowest y coordinate of any static item in the menu
-			for(unsigned i = 0; i < ld->mItems.Size(); i++)
-			{
-				int y = (int)ld->mItems[i]->GetY();
-				if (y < topy) topy = y;
-			}
-
-			// center the menu on the screen if the top space is larger than the bottom space
-			int totalheight = posy + AllEpisodes.Size() * ld->mLinespacing - topy;
-
-			if (totalheight < 190 || AllEpisodes.Size() == 1)
-			{
-				int newtop = (200 - totalheight) / 2;
-				int topdelta = newtop - topy;
-				if (topdelta < 0)
-				{
-					for(unsigned i = 0; i < ld->mItems.Size(); i++)
-					{
-						ld->mItems[i]->OffsetPositionY(topdelta);
-					}
-					posy += topdelta;
-					ld->mYpos += topdelta;
-				}
-
-				if (!isOld) ld->mSelectedItem = ld->mItems.Size();
-
-				for (unsigned i = 0; i < AllEpisodes.Size(); i++)
-				{
-					DMenuItemBase *it = nullptr;
-					if (AllEpisodes[i].mPicName.IsNotEmpty())
-					{
-						FTextureID tex = GetMenuTexture(AllEpisodes[i].mPicName);
-						if (AllEpisodes[i].mEpisodeName.IsEmpty() || OkForLocalization(tex, AllEpisodes[i].mEpisodeName))
-							continue;	// We do not measure patch based entries. They are assumed to fit
-					}
-					const char *c = AllEpisodes[i].mEpisodeName;
-					if (*c == '$') c = GStrings(c + 1);
-					int textwidth = ld->mFont->StringWidth(c);
-					int textright = posx + textwidth;
-					if (posx + textright > 320) posx = std::max(0, 320 - textright);
-				}
-
-				for(unsigned i = 0; i < AllEpisodes.Size(); i++)
-				{
-					DMenuItemBase *it = nullptr;
-					if (AllEpisodes[i].mPicName.IsNotEmpty())
-					{
-						FTextureID tex = GetMenuTexture(AllEpisodes[i].mPicName);
-						if (AllEpisodes[i].mEpisodeName.IsEmpty() || OkForLocalization(tex, AllEpisodes[i].mEpisodeName))
-							it = CreateListMenuItemPatch(posx, posy, ld->mLinespacing, AllEpisodes[i].mShortcut, tex, NAME_Skillmenu, i);
-					}
-					if (it == nullptr)
-					{
-						it = CreateListMenuItemText(posx, posy, ld->mLinespacing, AllEpisodes[i].mShortcut, 
-							AllEpisodes[i].mEpisodeName, ld->mFont, ld->mFontColor, ld->mFontColor2, NAME_Skillmenu, i);
-					}
-					ld->mItems.Push(it);
-					posy += ld->mLinespacing;
-				}
-				if (AllEpisodes.Size() == 1)
-				{
-					ld->mAutoselect = ld->mSelectedItem;
-				}
-				success = true;
-				for (auto &p : ld->mItems)
-				{
-					GC::WriteBarrier(*desc, p);
-				}
-			}
+			ld->mItems.Pop(popped);
 		}
-		else return;	// do not recreate the option menu variant, because it is always text based.
-	}
-	if (!success)
-	{
-		// Couldn't create the episode menu, either because there's too many episodes or some error occured
-		// Create an option menu for episode selection instead.
-		DOptionMenuDescriptor *od = Create<DOptionMenuDescriptor>();
-		MenuDescriptors[NAME_Episodemenu] = od;
-		od->mMenuName = NAME_Episodemenu;
-		od->mFont = gameinfo.gametype == GAME_Doom ? BigUpper : BigFont;
-		od->mTitle = "$MNU_EPISODE";
-		od->mSelectedItem = 0;
-		od->mScrollPos = 0;
-		od->mClass = nullptr;
-		od->mPosition = -15;
-		od->mScrollTop = 0;
-		od->mIndent = 160;
-		od->mDontDim = false;
-		GC::WriteBarrier(od);
-		for(unsigned i = 0; i < AllEpisodes.Size(); i++)
+
+		ld->mSelectedItem = gDefaultVolume + ld->mItems.Size(); // account for pre-added items
+		int y = ld->mYpos;
+
+		for (int i = 0; i < MAXVOLUMES; i++)
 		{
-			auto it = CreateOptionMenuItemSubmenu(AllEpisodes[i].mEpisodeName, "Skillmenu", i);
-			od->mItems.Push(it);
-			GC::WriteBarrier(od, it);
-		}
-	}
-}
-#endif
-//=============================================================================
-//
-//
-//
-//=============================================================================
+			if (gVolumeNames[i].IsNotEmpty() && !(gVolumeFlags[i] & EF_HIDEFROMSP))
 
-static void BuildPlayerclassMenu()
-{
-#if 0
-	bool success = false;
-
-	// Build player class menu
-	DMenuDescriptor **desc = MenuDescriptors.CheckKey(NAME_Playerclassmenu);
-	if (desc != nullptr)
-	{
-		if ((*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
-		{
-			DListMenuDescriptor *ld = static_cast<DListMenuDescriptor*>(*desc);
-			// add player display
-
-			ld->mSelectedItem = ld->mItems.Size();
-			
-			int posy = (int)ld->mYpos;
-			int topy = posy;
-
-			// Get lowest y coordinate of any static item in the menu
-			for(unsigned i = 0; i < ld->mItems.Size(); i++)
 			{
-				int y = (int)ld->mItems[i]->GetY();
-				if (y < topy) topy = y;
-			}
+				int isShareware = ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && i > 0);
+				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, gVolumeNames[i][0],
+					gVolumeNames[i], ld->mFont, ld->mFontColor, isShareware, NAME_Skillmenu, i); // font colors are not used, so hijack one for the shareware flag.
 
-			// Count the number of items this menu will show
-			int numclassitems = 0;
-			for (unsigned i = 0; i < PlayerClasses.Size (); i++)
-			{
-				if (!(PlayerClasses[i].Flags & PCF_NOMENU))
+				y += ld->mLinespacing;
+				ld->mItems.Push(it);
+				addedVolumes++;
+				if (gVolumeSubtitles[i].IsNotEmpty())
 				{
-					const char *pname = GetPrintableDisplayName(PlayerClasses[i].Type);
-					if (pname != nullptr)
-					{
-						numclassitems++;
-					}
-				}
-			}
-
-			// center the menu on the screen if the top space is larger than the bottom space
-			int totalheight = posy + (numclassitems+1) * ld->mLinespacing - topy;
-
-			if (numclassitems <= 1)
-			{
-				// create a dummy item that auto-chooses the default class.
-				auto it = CreateListMenuItemText(0, 0, 0, 'p', "player", 
-					ld->mFont,ld->mFontColor, ld->mFontColor2, NAME_Episodemenu, -1000);
-				ld->mAutoselect = ld->mItems.Push(it);
-				success = true;
-			}
-			else if (totalheight <= 190)
-			{
-				int newtop = (200 - totalheight + topy) / 2;
-				int topdelta = newtop - topy;
-				if (topdelta < 0)
-				{
-					for(unsigned i = 0; i < ld->mItems.Size(); i++)
-					{
-						ld->mItems[i]->OffsetPositionY(topdelta);
-					}
-					posy -= topdelta;
-				}
-
-				int n = 0;
-				for (unsigned i = 0; i < PlayerClasses.Size (); i++)
-				{
-					if (!(PlayerClasses[i].Flags & PCF_NOMENU))
-					{
-						const char *pname = GetPrintableDisplayName(PlayerClasses[i].Type);
-						if (pname != nullptr)
-						{
-							auto it = CreateListMenuItemText(ld->mXpos, ld->mYpos, ld->mLinespacing, *pname,
-								pname, ld->mFont,ld->mFontColor,ld->mFontColor2, NAME_Episodemenu, i);
-							ld->mItems.Push(it);
-							ld->mYpos += ld->mLinespacing;
-							n++;
-						}
-					}
-				}
-				if (n > 1 && !gameinfo.norandomplayerclass)
-				{
-					auto it = CreateListMenuItemText(ld->mXpos, ld->mYpos, ld->mLinespacing, 'r',
-						"$MNU_RANDOM", ld->mFont,ld->mFontColor,ld->mFontColor2, NAME_Episodemenu, -1);
+					auto it = CreateListMenuItemStaticText(ld->mXpos, y, gVolumeSubtitles[i], SmallFont, CR_UNTRANSLATED, false);
+					y += ld->mLinespacing * 6 / 10;
 					ld->mItems.Push(it);
 				}
-				if (n == 0)
-				{
-					const char *pname = GetPrintableDisplayName(PlayerClasses[0].Type);
-					if (pname != nullptr)
-					{
-						auto it = CreateListMenuItemText(ld->mXpos, ld->mYpos, ld->mLinespacing, *pname,
-							pname, ld->mFont,ld->mFontColor,ld->mFontColor2, NAME_Episodemenu, 0);
-						ld->mItems.Push(it);
-					}
-				}
-				success = true;
-				for (auto &p : ld->mItems)
-				{
-					GC::WriteBarrier(ld, p);
-				}
 			}
 		}
-	}
-	if (!success)
-	{
-		// Couldn't create the playerclass menu, either because there's too many episodes or some error occured
-		// Create an option menu for class selection instead.
-		DOptionMenuDescriptor *od = Create<DOptionMenuDescriptor>();
-		MenuDescriptors[NAME_Playerclassmenu] = od;
-		od->mMenuName = NAME_Playerclassmenu;
-		od->mFont = gameinfo.gametype == GAME_Doom ? BigUpper : BigFont;
-		od->mTitle = "$MNU_CHOOSECLASS";
-		od->mSelectedItem = 0;
-		od->mScrollPos = 0;
-		od->mClass = nullptr;
-		od->mPosition = -15;
-		od->mScrollTop = 0;
-		od->mIndent = 160;
-		od->mDontDim = false;
-		od->mNetgameMessage = "$NEWGAME";
-		GC::WriteBarrier(od);
-		for (unsigned i = 0; i < PlayerClasses.Size (); i++)
+#if 0	// this needs to be backed by a working selection menu, until that gets done it must be disabled.
+		if (!(g_gameType & GAMEFLAG_SHAREWARE))
 		{
-			if (!(PlayerClasses[i].Flags & PCF_NOMENU))
+			//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "", NIT_SmallFont);	// empty entry as spacer.
+			//ld->mItems.Push(it);
+
+			y += ld->mLinespacing / 3;
+			auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, 'U', "$MNU_USERMAP", ld->mFont, ld->mFontColor, ld->mFontColor2, NAME_UsermapMenu);
+			ld->mItems.Push(it);
+			addedVolumes++;
+		}
+#endif
+		if (addedVolumes == 1)
+		{
+			ld->mAutoselect = 0;
+		}
+		if (popped) ld->mItems.Push(popped);
+	}
+
+	// Build skill menu
+	int addedSkills = 0;
+	desc = MenuDescriptors.CheckKey(NAME_Skillmenu);
+	if (desc != nullptr && (*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
+	{
+		DListMenuDescriptor* ld = static_cast<DListMenuDescriptor*>(*desc);
+		DMenuItemBase* popped = nullptr;
+		if (ld->mItems.Size() && ld->mItems.Last()->IsKindOf(NAME_ListMenuItemBloodDripDrawer))
+		{
+			ld->mItems.Pop(popped);
+		}
+
+		ld->mSelectedItem = gDefaultVolume + ld->mItems.Size(); // account for pre-added items
+		int y = ld->mYpos;
+
+		for (int i = 0; i < MAXSKILLS; i++)
+		{
+			if (gSkillNames[i].IsNotEmpty())
 			{
-				const char *pname = GetPrintableDisplayName(PlayerClasses[i].Type);
-				if (pname != nullptr)
-				{
-					auto it = CreateOptionMenuItemSubmenu(pname, "Episodemenu", i);
-					od->mItems.Push(it);
-					GC::WriteBarrier(od, it);
-				}
+				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, gSkillNames[i][0],
+					gSkillNames[i], ld->mFont, ld->mFontColor, ld->mFontColor2, NAME_Startgame, i);
+				y += ld->mLinespacing;
+				ld->mItems.Push(it);
+				addedSkills++;
 			}
 		}
-		auto it = CreateOptionMenuItemSubmenu("Random", "Episodemenu", -1);
-		od->mItems.Push(it);
-		GC::WriteBarrier(od, it);
+		if (addedSkills == 0)
+		{
+			// Need to add one item with the default skill so that the menu does not break.
+			auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, 0, "", ld->mFont, ld->mFontColor, ld->mFontColor2, NAME_Startgame, gDefaultSkill);
+			ld->mItems.Push(it);
+		}
+		if (addedSkills == 1)
+		{
+			ld->mAutoselect = 0;
+		}
+		if (popped) ld->mItems.Push(popped);
 	}
-#endif
 }
 
 //=============================================================================
@@ -752,7 +481,6 @@ static void BuildPlayerclassMenu()
 
 static void InitCrosshairsList()
 {
-#if 0
 	int lastlump, lump;
 
 	lastlump = 0;
@@ -798,281 +526,8 @@ static void InitCrosshairsList()
 			}
 		}
 	}
-#endif
 }
 
-//=============================================================================
-//
-// Special menus will be created once all engine data is loaded
-//
-//=============================================================================
-
-void M_CreateGameMenus()
-{
-#if 0
-	BuildPlayerclassMenu();
-	InitCrosshairsList();
-
-	auto opt = OptionValues.CheckKey(NAME_PlayerTeam);
-	if (opt != nullptr)
-	{
-		auto op = *opt; 
-		op->mValues.Resize(Teams.Size() + 1);
-		op->mValues[0].Value = 0;
-		op->mValues[0].Text = "$OPTVAL_NONE";
-		for (unsigned i = 0; i < Teams.Size(); i++)
-		{
-			op->mValues[i+1].Value = i+1;
-			op->mValues[i+1].Text = Teams[i].GetName();
-		}
-	}
-	opt = OptionValues.CheckKey(NAME_PlayerClass);
-	if (opt != nullptr)
-	{
-		auto op = *opt;
-		int o = 0;
-		if (!gameinfo.norandomplayerclass && PlayerClasses.Size() > 1)
-		{
-			op->mValues.Resize(PlayerClasses.Size()+1);
-			op->mValues[0].Value = -1;
-			op->mValues[0].Text = "$MNU_RANDOM";
-			o = 1;
-		}
-		else op->mValues.Resize(PlayerClasses.Size());
-		for (unsigned i = 0; i < PlayerClasses.Size(); i++)
-		{
-			op->mValues[i+o].Value = i;
-			op->mValues[i+o].Text = GetPrintableDisplayName(PlayerClasses[i].Type);
-		}
-	}
-#endif
-}
-
-
-//=============================================================================
-//
-// The skill menu must be refeshed each time it starts up
-//
-//=============================================================================
-extern int restart;
-
-#if 0
-void M_StartupSkillMenu(FNewGameStartup *gs)
-{
-	static int done = -1;
-	bool success = false;
-	TArray<FSkillInfo*> MenuSkills;
-	TArray<int> SkillIndices;
-	if (MenuSkills.Size() == 0)
-	{
-		for (unsigned ind = 0; ind < AllSkills.Size(); ind++)
-		{
-			if (!AllSkills[ind].NoMenu)
-			{
-				MenuSkills.Push(&AllSkills[ind]);
-				SkillIndices.Push(ind);
-			}
-		}
-	}
-	if (MenuSkills.Size() == 0) I_Error("No valid skills for menu found. At least one must be defined.");
-
-	int defskill = DefaultSkill;
-	if ((unsigned int)defskill >= MenuSkills.Size())
-	{
-		defskill = SkillIndices[(MenuSkills.Size() - 1) / 2];
-	}
-	if (AllSkills[defskill].NoMenu)
-	{
-		for (defskill = 0; defskill < (int)AllSkills.Size(); defskill++)
-		{
-			if (!AllSkills[defskill].NoMenu) break;
-		}
-	}
-	int defindex = 0;
-	for (unsigned i = 0; i < MenuSkills.Size(); i++)
-	{
-		if (MenuSkills[i] == &AllSkills[defskill])
-		{
-			defindex = i;
-			break;
-		}
-	}
-
-	DMenuDescriptor **desc = MenuDescriptors.CheckKey(NAME_Skillmenu);
-	if (desc != nullptr)
-	{
-		if ((*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
-		{
-			DListMenuDescriptor *ld = static_cast<DListMenuDescriptor*>(*desc);
-			int posx = (int)ld->mXpos;
-			int y = (int)ld->mYpos;
-
-			// Delete previous contents
-			for(unsigned i=0; i<ld->mItems.Size(); i++)
-			{
-				FName n = ld->mItems[i]->mAction;
-				if (n == NAME_Startgame || n == NAME_StartgameConfirm) 
-				{
-					ld->mItems.Resize(i);
-					break;
-				}
-			}
-
-			if (done != restart)
-			{
-				done = restart;
-				ld->mSelectedItem = ld->mItems.Size() + defindex;
-
-				int posy = y;
-				int topy = posy;
-
-				// Get lowest y coordinate of any static item in the menu
-				for(unsigned i = 0; i < ld->mItems.Size(); i++)
-				{
-					int y = (int)ld->mItems[i]->GetY();
-					if (y < topy) topy = y;
-				}
-
-				// center the menu on the screen if the top space is larger than the bottom space
-				int totalheight = posy + MenuSkills.Size() * ld->mLinespacing - topy;
-
-				if (totalheight < 190 || MenuSkills.Size() == 1)
-				{
-					int newtop = (200 - totalheight) / 2;
-					int topdelta = newtop - topy;
-					if (topdelta < 0)
-					{
-						for(unsigned i = 0; i < ld->mItems.Size(); i++)
-						{
-							ld->mItems[i]->OffsetPositionY(topdelta);
-						}
-						ld->mYpos = y = posy + topdelta;
-					}
-				}
-				else
-				{
-					// too large
-					desc = nullptr;
-					done = false;
-					goto fail;
-				}
-			}
-
-			for (unsigned int i = 0; i < MenuSkills.Size(); i++)
-			{
-				FSkillInfo &skill = *MenuSkills[i];
-				DMenuItemBase *li = nullptr;
-
-				FString *pItemText = nullptr;
-				if (gs->PlayerClass != nullptr)
-				{
-					pItemText = skill.MenuNamesForPlayerClass.CheckKey(gs->PlayerClass);
-				}
-
-				if (skill.PicName.Len() != 0 && pItemText == nullptr)
-				{
-					FTextureID tex = GetMenuTexture(skill.PicName);
-					if (skill.MenuName.IsEmpty() || OkForLocalization(tex, skill.MenuName))
-						continue;
-				}
-				const char *c = pItemText ? pItemText->GetChars() : skill.MenuName.GetChars();
-				if (*c == '$') c = GStrings(c + 1);
-				int textwidth = ld->mFont->StringWidth(c);
-				int textright = posx + textwidth;
-				if (posx + textright > 320) posx = std::max(0, 320 - textright);
-			}
-
-			unsigned firstitem = ld->mItems.Size();
-			for(unsigned int i = 0; i < MenuSkills.Size(); i++)
-			{
-				FSkillInfo &skill = *MenuSkills[i];
-				DMenuItemBase *li = nullptr;
-				// Using a different name for skills that must be confirmed makes handling this easier.
-				FName action = (skill.MustConfirm && !AllEpisodes[gs->Episode].mNoSkill) ?
-					NAME_StartgameConfirm : NAME_Startgame;
-				FString *pItemText = nullptr;
-				if (gs->PlayerClass != nullptr)
-				{
-					pItemText = skill.MenuNamesForPlayerClass.CheckKey(gs->PlayerClass);
-				}
-
-				EColorRange color = (EColorRange)skill.GetTextColor();
-				if (color == CR_UNTRANSLATED) color = ld->mFontColor;
-				if (skill.PicName.Len() != 0 && pItemText == nullptr)
-				{
-					FTextureID tex = GetMenuTexture(skill.PicName);
-					if (skill.MenuName.IsEmpty() || OkForLocalization(tex, skill.MenuName))
-						li = CreateListMenuItemPatch(posx, y, ld->mLinespacing, skill.Shortcut, tex, action, SkillIndices[i]);
-				}
-				if (li == nullptr)
-				{
-					li = CreateListMenuItemText(posx, y, ld->mLinespacing, skill.Shortcut,
-									pItemText? *pItemText : skill.MenuName, ld->mFont, color,ld->mFontColor2, action, SkillIndices[i]);
-				}
-				ld->mItems.Push(li);
-				GC::WriteBarrier(*desc, li);
-				y += ld->mLinespacing;
-			}
-			if (AllEpisodes[gs->Episode].mNoSkill || MenuSkills.Size() == 1)
-			{
-				ld->mAutoselect = firstitem + defindex;
-			}
-			else
-			{
-				ld->mAutoselect = -1;
-			}
-			success = true;
-		}
-	}
-	if (success) return;
-fail:
-	// Option menu fallback for overlong skill lists
-	DOptionMenuDescriptor *od;
-	if (desc == nullptr)
-	{
-		od = Create<DOptionMenuDescriptor>();
-		MenuDescriptors[NAME_Skillmenu] = od;
-		od->mMenuName = NAME_Skillmenu;
-		od->mFont = gameinfo.gametype == GAME_Doom ? BigUpper : BigFont;
-		od->mTitle = "$MNU_CHOOSESKILL";
-		od->mSelectedItem = defindex;
-		od->mScrollPos = 0;
-		od->mClass = nullptr;
-		od->mPosition = -15;
-		od->mScrollTop = 0;
-		od->mIndent = 160;
-		od->mDontDim = false;
-		GC::WriteBarrier(od);
-	}
-	else
-	{
-		od = static_cast<DOptionMenuDescriptor*>(*desc);
-		od->mItems.Clear();
-	}
-	for(unsigned int i = 0; i < MenuSkills.Size(); i++)
-	{
-		FSkillInfo &skill = *MenuSkills[i];
-		DMenuItemBase *li;
-		// Using a different name for skills that must be confirmed makes handling this easier.
-		const char *action = (skill.MustConfirm && !AllEpisodes[gs->Episode].mNoSkill) ?
-			"StartgameConfirm" : "Startgame";
-
-		FString *pItemText = nullptr;
-		if (gs->PlayerClass != nullptr)
-		{
-			pItemText = skill.MenuNamesForPlayerClass.CheckKey(gs->PlayerClass);
-		}
-		li = CreateOptionMenuItemSubmenu(pItemText? *pItemText : skill.MenuName, action, SkillIndices[i]);
-		od->mItems.Push(li);
-		GC::WriteBarrier(od, li);
-		if (!done)
-		{
-			done = true;
-			od->mSelectedItem = defindex;
-		}
-	}
-}
-#endif
 //==========================================================================
 //
 // Defines how graphics substitution is handled.
@@ -1086,7 +541,7 @@ fail:
 //
 //==========================================================================
 
-bool CheckSkipGameOptionBlock(FScanner& sc) { return false; }
+bool CheckSkipGameOptionBlock(FScanner& sc) { return false; } // not applicable
 
 #if 0
 CUSTOM_CVAR(Int, cl_gfxlocalization, 3, CVAR_ARCHIVE)
@@ -1104,13 +559,6 @@ bool OkForLocalization(FTextureID texnum, const char* substitute)
 	return TexMan.OkForLocalization(texnum, substitute, cl_gfxlocalization);
 }
 
-bool CheckSkipGameOptionBlock(FScanner &sc)
-{
-	bool filter = false;
-	if (sc.Compare("ReadThis")) filter |= gameinfo.drawreadthis;
-	else if (sc.Compare("Swapmenu")) filter |= gameinfo.swapmenu;
-	return filter;
-}
 #endif
 void SetDefaultMenuColors()
 {
@@ -1137,7 +585,7 @@ void SetDefaultMenuColors()
 		cls = PClass::FindClass("SWMenuDelegate");
 	}
 	else if (g_gameType & GAMEFLAG_PSEXHUMED)
-	{	
+	{
 		OptionSettings.mFontColorHeader = CR_LIGHTBLUE;
 		OptionSettings.mFontColorHighlight = CR_SAPPHIRE;
 		OptionSettings.mFontColorSelection = CR_ORANGE;
@@ -1164,7 +612,13 @@ void SetDefaultMenuColors()
 	}
 	if (!cls) cls = PClass::FindClass("RazeMenuDelegate");
 	if (cls) menuDelegate = cls->CreateNew();
+}
 
+void BuildGameMenus()
+{
+	BuildEpisodeMenu();
+	InitCrosshairsList();
+	UpdateJoystickMenu(nullptr);
 }
 
 

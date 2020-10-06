@@ -352,7 +352,7 @@ void DMenu::Close ()
 	assert(CurrentMenu == this);
 	CurrentMenu = mParentMenu;
 
-	if (mParentMenu && transition.StartTransition(this, mParentMenu, MA_Return))
+	if (false)// todo: && mParentMenu && transition.StartTransition(this, mParentMenu, MA_Return))
 	{
 		return;
 	}
@@ -474,7 +474,7 @@ void M_ActivateMenu(DMenu *menu)
 			CurrentMenu->mMouseCapture = false;
 			I_ReleaseMouseCapture();
 		}
-		transition.StartTransition(CurrentMenu, menu, MA_Advance);
+		//transition.StartTransition(CurrentMenu, menu, MA_Advance);
 	}
 	CurrentMenu = menu;
 	GC::WriteBarrier(CurrentMenu);
@@ -1086,6 +1086,17 @@ DMenuItemBase * CreateListMenuItemText(double x, double y, int height, int hotke
 	FString keystr = FString(char(hotkey));
 	FString textstr = text;
 	VMValue params[] = { p, x, y, height, &keystr, &textstr, font, int(color1.d), int(color2.d), command.GetIndex(), param };
+	auto f = dyn_cast<PFunction>(c->FindSymbol("InitDirect", false));
+	VMCall(f->Variants[0].Implementation, params, countof(params), nullptr, 0);
+	return (DMenuItemBase*)p;
+}
+
+DMenuItemBase* CreateListMenuItemStaticText(double x, double y, const char* text, FFont* font, PalEntry color, bool centered)
+{
+	auto c = PClass::FindClass("ListMenuItemStaticText");
+	auto p = c->CreateNew();
+	FString textstr = text;
+	VMValue params[] = { p, x, y, &textstr, font, int(color.d), centered };
 	auto f = dyn_cast<PFunction>(c->FindSymbol("InitDirect", false));
 	VMCall(f->Variants[0].Implementation, params, countof(params), nullptr, 0);
 	return (DMenuItemBase*)p;
