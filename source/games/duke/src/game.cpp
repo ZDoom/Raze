@@ -242,6 +242,27 @@ static void initTiles()
 	tileDelete(FOF);
 }
 
+#define x(a, b) registerName(#a, b);
+#define y(a, b)	// Do not create names for RRTILExxxx.
+static void SetTileNames()
+{
+	auto registerName = [](const char* name, int index)
+	{
+		TexMan.AddAlias(name, tileGetTexture(index));
+	};
+	if (!isRR())
+	{
+#include "namelist_d.h"
+	}
+	else
+	{
+#include "namelist_r.h"
+	}
+}
+#undef x
+#undef y
+
+
 //---------------------------------------------------------------------------
 //
 // set up the game module's state
@@ -313,6 +334,7 @@ void GameInterface::app_init()
 	}
 
 	LoadDefinitions();
+	SetTileNames();
 	TileFiles.SetBackup();
 
 	if (ud.multimode > 1)
