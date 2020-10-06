@@ -1137,7 +1137,9 @@ void SetDefaultMenuColors()
 	{	
 		OptionSettings.mFontColorHeader = CR_LIGHTBLUE;
 		OptionSettings.mFontColorHighlight = CR_SAPPHIRE;
-		OptionSettings.mFontColor = CR_GOLD;
+		OptionSettings.mFontColorSelection = CR_ORANGE;
+		OptionSettings.mFontColor = CR_FIRE;
+		cls = PClass::FindClass("MenuCustomizerExhumed");
 	}
 	else
 	{
