@@ -1195,6 +1195,7 @@ void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp)
 TileSiz tilesiz;
 PicAnm picanm;
 
+#if 0 // this only gets in if unavoidable. It'd be preferable if the script side can solely operate on texture names.
 #include "vm.h"
 
 static int GetTexture(int tile, int anim)
@@ -1211,3 +1212,4 @@ DEFINE_ACTION_FUNCTION_NATIVE(_TileFiles, GetTexture, GetTexture)
 	PARAM_BOOL(animate);
 	ACTION_RETURN_INT(GetTexture(tile, animate));
 }
+#endif

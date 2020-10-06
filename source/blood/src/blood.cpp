@@ -62,6 +62,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "d_net.h"
 #include "v_video.h"
 #include "v_draw.h"
+#include "texturemanager.h"
 #include "statusbar.h"
 
 BEGIN_BLD_NS
@@ -395,6 +396,16 @@ void GameInterface::DrawBackground()
 	DrawTexture(twod, tileGetTexture(2518, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
 }
 
+#define x(a, b) registerName(#a, b);
+static void SetTileNames()
+{
+	auto registerName = [](const char* name, int index)
+	{
+		TexMan.AddAlias(name, tileGetTexture(index));
+	};
+#include "namelist.h"
+}
+#undef x
 
 
 void ReadAllRFS();
@@ -417,6 +428,7 @@ void GameInterface::app_init()
 
 	levelLoadDefaults();
 	LoadDefinitions();
+	SetTileNames();
 
 	TileFiles.SetBackup();
 	powerupInit();

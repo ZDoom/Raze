@@ -1554,7 +1554,7 @@ void FTextureManager::SetTranslation(FTextureID fromtexnum, FTextureID totexnum)
 void FTextureManager::AddAlias(const char* name, FGameTexture* tex)
 {
 	FTextureID id = tex->GetID();
-	if (tex != Textures[id.GetIndex()].Texture) return;	// Whatever got passed in here was not valid, so ignore the alias.
+	if (tex != Textures[id.GetIndex()].Texture || !tex->isValid()) return;	// Whatever got passed in here was not valid, so ignore the alias.
 	aliases.Insert(name, id.GetIndex());
 }
 

@@ -4,7 +4,7 @@ class MenuCustomizerBlood : MenuCustomize
 	override int DrawCaption(String title, Font fnt, int y, bool drawit)
 	{
 		let font = generic_ui? NewConsoleFont : BigFont;	// this ignores the passed font intentionally.
-		let texid = tileFiles.GetTexture(2038, true);
+		let texid = TexMan.CheckForTexture("MENUBAR");
 		let texsize = TexMan.GetScaledSize(texid);
 		let fonth = font.GetGlyphHeight("A");
 		if (drawit)
