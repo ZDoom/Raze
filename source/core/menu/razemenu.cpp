@@ -1111,6 +1111,7 @@ bool CheckSkipGameOptionBlock(FScanner &sc)
 #endif
 void SetDefaultMenuColors()
 {
+	PClass* cls = nullptr;
 	//OptionSettings.mTitleColor = CR_RED;// V_FindFontColor(gameinfo.mTitleColor);
 	OptionSettings.mFontColor = CR_RED;
 	OptionSettings.mFontColorValue = CR_GRAY;
@@ -1119,31 +1120,43 @@ void SetDefaultMenuColors()
 	OptionSettings.mFontColorHighlight = CR_YELLOW;
 	OptionSettings.mFontColorSelection = CR_BRICK;
 
-	if (g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI))
-	{
-		OptionSettings.mFontColor = CR_DARKGREEN;
-		OptionSettings.mFontColorHeader = CR_DARKGRAY;
-		OptionSettings.mFontColorHighlight = CR_WHITE;
-		OptionSettings.mFontColorSelection = CR_DARKGREEN;
-	}
-	else if (g_gameType & GAMEFLAG_BLOOD)
+	if (g_gameType & GAMEFLAG_BLOOD)
 	{
 		OptionSettings.mFontColorHeader = CR_DARKGRAY;
 		OptionSettings.mFontColorHighlight = CR_WHITE;
 		OptionSettings.mFontColorSelection = CR_DARKRED;
-		auto cls = PClass::FindClass("MenuCustomizerBlood");
-		if (cls) menuCustomizer = cls->CreateNew();
-	}
-	else if (g_gameType & GAMEFLAG_RRALL)
-	{
-		OptionSettings.mFontColor = CR_BROWN;
-		OptionSettings.mFontColorHeader = CR_DARKBROWN;
-		OptionSettings.mFontColorHighlight = CR_ORANGE;
-		OptionSettings.mFontColorSelection = CR_TAN;
+		cls = PClass::FindClass("MenuCustomizerBlood");
 	}
 	else if (g_gameType & GAMEFLAG_SW)
 	{
 		OptionSettings.mFontColorHeader = CR_DARKRED;
 		OptionSettings.mFontColorHighlight = CR_WHITE;
 	}
+	else if (g_gameType & GAMEFLAG_PSEXHUMED)
+	{
+		OptionSettings.mFontColorHeader = CR_LIGHTBLUE;
+		OptionSettings.mFontColorHighlight = CR_SAPPHIRE;
+		OptionSettings.mFontColor = CR_GOLD;
+	}
+	else
+	{
+		if (g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI))
+		{
+			OptionSettings.mFontColor = CR_DARKGREEN;
+			OptionSettings.mFontColorHeader = CR_DARKGRAY;
+			OptionSettings.mFontColorHighlight = CR_WHITE;
+			OptionSettings.mFontColorSelection = CR_DARKGREEN;
+		}
+		else if (g_gameType & GAMEFLAG_RRALL)
+		{
+			OptionSettings.mFontColor = CR_BROWN;
+			OptionSettings.mFontColorHeader = CR_DARKBROWN;
+			OptionSettings.mFontColorHighlight = CR_ORANGE;
+			OptionSettings.mFontColorSelection = CR_TAN;
+		}
+		cls = PClass::FindClass("MenuCustomizerDuke");
+	}
+	if (!cls) cls = PClass::FindClass("MenuCustomize");
+	if (cls) menuCustomizer = cls->CreateNew();
+
 }

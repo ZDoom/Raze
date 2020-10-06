@@ -72,6 +72,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "d_net.h"
 #include "automap.h"
 #include "v_draw.h"
+#include "gi.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -744,6 +745,7 @@ static TArray<GrpEntry> SetupGame()
 	currentGame = LumpFilter;
 	currentGame.Truncate(currentGame.IndexOf("."));
 	CheckFrontend(g_gameType);
+	gameinfo.gametype = g_gameType;
 	return usedgroups;
 }
 
