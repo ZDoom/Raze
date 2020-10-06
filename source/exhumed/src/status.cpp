@@ -892,7 +892,7 @@ private:
             // draw the blue air level meter when underwater (but not responsible for animating the breathing lungs otherwise)
 			if (SectFlag[nPlayerViewSect[nLocalPlayer]] & kSectUnderwater)
 			{
-				DrawStatusSequence(nStatusSeqOffset + 133, airframe, 0, -32);
+				DrawStatusSequence(nStatusSeqOffset + 133, airframe, 0, 0.5);
 			}
 
 
