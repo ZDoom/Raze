@@ -2,8 +2,9 @@
 /*
 Copyright (C) 2010-2019 EDuke32 developers and contributors
 Copyright (C) 2019 Nuke.YKT
+Copyright (C) 2020 Christoph Oelckers
 
-This file is part of NBlood.
+This file is part of Raze.
 
 NBlood is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -37,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "v_video.h"
 #include "v_draw.h"
+#include "vm.h"
 
 bool ShowOptionMenu();
 
@@ -119,56 +121,39 @@ void CGameMenuItemQAV::Draw(void)
 }
 
 
-
 static std::unique_ptr<CGameMenuItemQAV> itemBloodQAV;	// This must be global to ensure that the animation remains consistent across menus.
+
+DEFINE_ACTION_FUNCTION(DListMenuItemBloodDripDrawer, Draw)
+{
+	// For narrow screens this would be mispositioned so skip drawing it there.
+	double ratio = screen->GetWidth() / double(screen->GetHeight());
+	if (ratio > 1.32) itemBloodQAV->Draw();
+	return 0;
+}
 
 
 void UpdateNetworkMenus(void)
 {
-#if 0
-	// For now disable the network menu item as it is not yet functional.
+	// For now disable the network menu item as it is not functional.
 	for (auto name : { NAME_Mainmenu, NAME_IngameMenu })
 	{
-		FMenuDescriptor** desc = MenuDescriptors.CheckKey(name);
-		if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
+		DMenuDescriptor** desc = MenuDescriptors.CheckKey(name);
+		if (desc != NULL && (*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
 		{
-			FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
+			DListMenuDescriptor* ld = static_cast<DListMenuDescriptor*>(*desc);
 			for (auto& li : ld->mItems)
 			{
-				if (li->GetAction(nullptr) == NAME_MultiMenu)
+				if (li->mAction == NAME_MultiMenu)
 				{
 					li->mEnabled = false;
 				}
 			}
 		}
 	}
-#endif
 }
 
 
 #if 0
-//----------------------------------------------------------------------------
-//
-// Implements the native looking menu used for the main menu
-// and the episode/skill selection screens, i.e. the parts
-// that need to look authentic
-//
-//----------------------------------------------------------------------------
-
-class BloodListMenu : public DListMenu
-{
-	using Super = DListMenu;
-protected:
-
-	void PostDraw()
-	{
-		// For narrow screens this would be mispositioned so skip drawing it there.
-		double ratio = screen->GetWidth() / double(screen->GetHeight());
-		if (ratio > 1.32) itemBloodQAV->Draw();
-	}
-
-};
-
 
 //----------------------------------------------------------------------------
 //

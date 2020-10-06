@@ -6,6 +6,7 @@
 
 LISTMENU "MainMenu"
 {
+	Size 320, 200
 	//class "$.MainMenu"
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
@@ -25,10 +26,10 @@ LISTMENU "MainMenu"
 	ifgame(Blood)
 	{
 		CaptionItem "Blood"
-	/*
-		position 160, 45, 150
-		centermenu
+		position 160, 45
 		Linespacing 20
+	/*
+		centermenu
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
@@ -37,6 +38,7 @@ LISTMENU "MainMenu"
 		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	*/
+		BloodDripDrawer
 	}
 	ifgame(ShadowWarrior)
 	{

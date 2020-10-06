@@ -56,12 +56,27 @@
 #include "i_system.h"
 #include "gameconfigfile.h"
 #include "gamecontrol.h"
+#include "raze_sound.h"
+#include "gamestruct.h"
+
+enum EMenuSounds : int
+{
+	ActivateSound,
+	CursorSound,
+	AdvanceSound,
+	BackSound,
+	CloseSound,
+	PageSound,
+	ChangeSound,
+	ChooseSound
+};
 
 EXTERN_CVAR(Int, cl_gfxlocalization)
 EXTERN_CVAR(Bool, m_quickexit)
 EXTERN_CVAR(Bool, saveloadconfirmation) // [mxd]
 EXTERN_CVAR(Bool, quicksaverotation)
 EXTERN_CVAR(Bool, show_messages)
+CVAR(Bool, menu_sounds, true, CVAR_ARCHIVE) // added mainly because RR's sounds are so supremely annoying.
 
 typedef void(*hfunc)();
 DMenu* CreateMessageBoxMenu(DMenu* parent, const char* message, int messagemode, bool playsound, FName action = NAME_None, hfunc handler = nullptr);
@@ -158,24 +173,33 @@ bool M_SetSpecialMenu(FName& menu, int param)
 //
 //=============================================================================
 
-void M_StartControlPanel(bool makeSound, bool scaleoverride)
+void M_MenuSound(EMenuSounds snd)
 {
-#if 0
-	if (hud_toggled)
-		D_ToggleHud();
+	if (menu_sounds) gi->MenuSound(snd);
+}
 
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void M_StartControlPanel(bool makeSound, bool)
+{
+	static bool created = false;
 	// intro might call this repeatedly
-	if (CurrentMenu != nullptr)
+	if (CurrentMenu != NULL)
 		return;
 
-	P_CheckTickerPaused();
-
-	if (makeSound)
+	if (!created) // Cannot do this earlier.
 	{
-		S_Sound(CHAN_VOICE, CHANF_UI, "menu/activate", snd_menuvolume, ATTN_NONE);
+		created = true;
+		M_CreateMenus();
 	}
-	M_DoStartControlPanel(scaleoverride);
-#endif
+	GSnd->SetSfxPaused(true, PAUSESFX_MENU);
+	gi->MenuOpened();
+	if (makeSound) M_MenuSound(ActivateSound);
+	M_DoStartControlPanel(false);
 }
 
 

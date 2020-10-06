@@ -1,4 +1,10 @@
 
+//-------------------------------------------------------------------------------------------
+//
+// Caption drawer
+//
+//-------------------------------------------------------------------------------------------
+
 class MenuCustomizerBlood : MenuCustomize
 {
 	override int DrawCaption(String title, Font fnt, int y, bool drawit)
@@ -23,4 +29,20 @@ class MenuCustomizerBlood : MenuCustomize
 		int h = texid.isValid()? texsize.Y : fonth;
 		return int((y+h) * fh / 200); // This must be the covered height of the header in true pixels.
 	}
+}
+
+//-------------------------------------------------------------------------------------------
+//
+// The dripping blood - partially native.
+//
+//-------------------------------------------------------------------------------------------
+
+class ListMenuItemBloodDripDrawer : ListMenuItem
+{
+	void Init(ListMenuDescriptor desc)
+	{
+		Super.Init(0, 0);
+	}
+
+	native override void Draw(bool selected, ListMenuDescriptor desc);
 }
