@@ -219,12 +219,12 @@ class ListMenuItemSelectable : ListMenuItem
 	
 	override bool CheckCoordinate(int x, int y)
 	{
-		return mEnabled && y >= mYpos && y < mYpos + mHeight;	// no x check here
+		return mEnabled > 0 && y >= mYpos && y < mYpos + mHeight;	// no x check here
 	}
 	
 	override bool Selectable()
 	{
-		return mEnabled;
+		return mEnabled > 0;
 	}
 
 	override bool CheckHotkey(int c)

@@ -52,3 +52,41 @@ class ListMenuItemBloodDripDrawer : ListMenuItem
 
 	native override void Draw(bool selected, ListMenuDescriptor desc);
 }
+
+
+
+//=============================================================================
+//
+// text item
+//
+//=============================================================================
+
+class ListMenuItemBloodTextItem : ListMenuItemTextItem
+{
+	void Init(ListMenuDescriptor desc, String text, String hotkey, Name child, int param = 0)
+	{
+		Super.Init(desc, text, hotkey, child, param);
+	}
+	
+	void InitDirect(double x, double y, int height, String hotkey, String text, Font font, int color, int color2, Name child, int param = 0)
+	{
+		Super.InitDirect(x, y, height, hotkey, text, font, color, color2, child, param);
+	}
+	
+	override void Draw(bool selected, ListMenuDescriptor desc)
+	{
+		int shade = Selectable()? 32: 48;
+		int pal = 5;
+		let gamefont = generic_ui ? NewSmallFont : BigFont;
+		int xpos = mXpos - gamefont.StringWidth(mText) / 2;
+		int cr = generic_ui? Font.CR_GRAY : Font.CR_UNDEFINED;
+		int trans = generic_ui? 0 : Translation.MakeID(Translation_Remap, pal);
+		
+		if (selected) shade = 32 - ((MSTime() * 120 / 1000) & 63);
+
+		Screen.DrawText(gamefont, Font.CR_UNDEFINED, xpos+1, mYpos+1, mText, DTA_Color, 0xff000000, DTA_FullscreenScale, FSMode_Fit320x200);
+		Screen.DrawText(gamefont, Font.CR_UNDEFINED, xpos, mYpos, mText, DTA_TranslationIndex, trans, DTA_Color, Build.shadeToLight(shade), DTA_FullscreenScale, FSMode_Fit320x200);
+	}
+	
+}
+

@@ -209,7 +209,7 @@ class DMenuItemBase : public DObject
 public:
 	double mXpos, mYpos;
 	FName mAction;
-	bool mEnabled;
+	int mEnabled;
 
 	bool Activate();
 	bool SetString(int i, const char *s);

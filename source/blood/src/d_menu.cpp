@@ -145,7 +145,7 @@ void UpdateNetworkMenus(void)
 			{
 				if (li->mAction == NAME_MultiMenu)
 				{
-					li->mEnabled = false;
+					li->mEnabled = -1;
 				}
 			}
 		}
@@ -194,29 +194,6 @@ class DBloodImageScrollerMenu : public DImageScrollerMenu
 //
 //----------------------------------------------------------------------------
 
-void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags)
-{
-#if 0
-	if (!text) return;
-	int shade = (state != NIT_InactiveState) ? 32 : 48;
-	int pal = (state != NIT_InactiveState) ? 5 : 5;
-	if (state == NIT_SelectedState)	shade = 32 - (I_GetBuildTime() & 63);
-	auto gamefont = fontnum == NIT_BigFont ? BigFont : SmallFont;
-
-	if (flags & LMF_Centered)
-	{
-		int width = gamefont->StringWidth(text);
-		xpos -= width / 2;
-	}
-	DrawText(twod, gamefont, CR_UNDEFINED, xpos+1, ypos+1, text, DTA_Color, 0xff000000, //DTA_Alpha, 0.5,
-			 DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
-
-	DrawText(twod, gamefont, CR_UNDEFINED, xpos, ypos, text, DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Color, shadeToLight(shade),
-			 DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
-#endif
-}
-
-
 void GameInterface::MenuOpened()
 {
 	itemBloodQAV.reset(new CGameMenuItemQAV(160, 100, "BDRIP.QAV", true));
@@ -252,24 +229,6 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 FSavegameInfo GameInterface::GetSaveSig()
 {
 	return { SAVESIG_BLD, MINSAVEVER_BLD, SAVEVER_BLD };
-}
-
-void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
-{
-	if (text)
-	{
-		int height = SmallFont->GetHeight();
-
-		auto lines = FString(text).Split("\n");
-		int y = 100 - (height * lines.Size() / 2);
-		for (auto& l : lines)
-		{
-			int width = SmallFont->StringWidth(l);
-			int x = 160 - width / 2;
-			DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, l, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
-			y += height;
-		}
-	}
 }
 
 void GameInterface::QuitToTitle()

@@ -28,16 +28,13 @@ LISTMENU "MainMenu"
 		CaptionItem "Blood"
 		position 160, 45
 		Linespacing 20
-	/*
-		centermenu
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
-	*/
+		BloodTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
+		BloodTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
+		BloodTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		BloodTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		BloodTextItem "$MNU_HELP", "h", "HelpMenu"
+		BloodTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		BloodTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 		BloodDripDrawer
 	}
 	ifgame(ShadowWarrior)

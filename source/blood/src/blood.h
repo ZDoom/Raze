@@ -80,10 +80,8 @@ struct GameInterface : ::GameInterface
 	void MenuClosed() override;
 	bool CanSave() override;
 	bool StartGame(FNewGameStartup& gs) override;
-	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
 	bool SaveGame(FSaveGameNode*) override;
 	bool LoadGame(FSaveGameNode*) override;
-	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;

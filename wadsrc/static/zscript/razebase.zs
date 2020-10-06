@@ -28,6 +28,11 @@ enum EGameType
 };
 
 
+struct Build
+{
+	native static Color shadeToLight(int shade);
+}
+
 /*
 struct TileFiles
 {

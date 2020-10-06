@@ -1865,6 +1865,13 @@ DEFINE_ACTION_FUNCTION(_Screen, GetViewWindow)
 	return MIN(numret, 4);
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_Build, ShadeToLight, shadeToLight)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(shade);
+	ACTION_RETURN_INT(shadeToLight(shade));
+}
+
 extern bool demoplayback;
 DEFINE_GLOBAL(multiplayer)
 DEFINE_GLOBAL(netgame)
