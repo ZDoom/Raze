@@ -5595,10 +5595,10 @@ DoPlayerStopOperate(PLAYERp pp)
             pp->q16ang = pp->oq16ang = IntToFixed(pp->remote_sprite->ang);
         else
             pp->q16ang = pp->oq16ang = gethiq16angle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy);
-
-        if (!cl_syncinput)
-            pp->angTarget = 0;
     }
+
+    if (!cl_syncinput)
+        pp->angTarget = 0;
 
     if (pp->sop_control)
     {
