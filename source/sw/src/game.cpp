@@ -240,6 +240,7 @@ void GameInterface::app_init()
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
  
     LoadDefinitions();
+    SetTileNames();
     TileFiles.SetBackup();
     userConfig.AddDefs.reset();
     InitFX();

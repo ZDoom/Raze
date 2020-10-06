@@ -1131,9 +1131,10 @@ void SetDefaultMenuColors()
 	{
 		OptionSettings.mFontColorHeader = CR_DARKRED;
 		OptionSettings.mFontColorHighlight = CR_WHITE;
+		cls = PClass::FindClass("MenuCustomizerSW");
 	}
 	else if (g_gameType & GAMEFLAG_PSEXHUMED)
-	{
+	{	
 		OptionSettings.mFontColorHeader = CR_LIGHTBLUE;
 		OptionSettings.mFontColorHighlight = CR_SAPPHIRE;
 		OptionSettings.mFontColor = CR_GOLD;
