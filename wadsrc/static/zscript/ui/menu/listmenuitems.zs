@@ -340,3 +340,31 @@ class ListMenuItemPatchItem : ListMenuItemSelectable
 	
 }
 
+//=============================================================================
+//
+// caption - draws a text using the customizer's caption hook
+//
+//=============================================================================
+
+class ListMenuItemCaptionItem : ListMenuItem
+{
+	String mText;
+	Font mFont;
+
+	void Init(ListMenuDescriptor desc, String text, String fnt = "BigFont")
+	{
+		Super.Init(0, 0);
+		mText = text;
+		mFont = Font.FindFont(fnt);
+	}
+	
+	override void Draw(bool selected, ListMenuDescriptor desc)
+	{
+		let font = generic_ui || !desc.mFont ? NewSmallFont : desc.mFont;
+		if (font && mText.Length() > 0)
+		{
+			menuCustomizer.DrawCaption(mText, font, 0, true);
+		}
+	}
+}
+

@@ -6,10 +6,10 @@
 
 LISTMENU "MainMenu"
 {
-	/*
-	class "$.MainMenu"
+	//class "$.MainMenu"
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
+	/*
 		position 160, 55, 115
 		centermenu
 		animatedtransition
@@ -20,11 +20,13 @@ LISTMENU "MainMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+	*/
 	}
 	ifgame(Blood)
 	{
+		CaptionItem "Blood"
+	/*
 		position 160, 45, 150
-		caption "Blood"
 		centermenu
 		Linespacing 20
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
@@ -34,9 +36,11 @@ LISTMENU "MainMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+	*/
 	}
 	ifgame(ShadowWarrior)
 	{
+	/*
 		Position 55, 32
 		Linespacing 17
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
@@ -53,9 +57,11 @@ LISTMENU "MainMenu"
 			NativeTextItem "$MNU_HOWTOORDER", "h", "CreditsMenu"
 		}
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+	*/
 	}
 	ifgame(Exhumed)
 	{
+	/*
 		Position 160, 65
 		centermenu
 		linespacing 22
@@ -64,8 +70,8 @@ LISTMENU "MainMenu"
 		NativeTextItem "3462", "m", "StartGame", 0
 		NativeTextItem "3463", "v", "OptionsMenu"
 		NativeTextItem "3464", "q", "QuitMenu"
-	}
 	*/
+	}
 }
 
 //-------------------------------------------------------------------------------------------
