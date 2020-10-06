@@ -7,4 +7,11 @@ class MenuCustomize
 		screen.DrawText(fnt, OptionMenuSettings.mTitleColor, (screen.GetWidth() - fnt.StringWidth(title) * CleanXfac_1) / 2, 10 * CleanYfac_1, title, DTA_CleanNoMove_1, true);
 		return (y + fnt.GetHeight()) * CleanYfac_1;	// return is spacing in screen pixels.
 	}
+	
+	virtual bool DrawSelector(ListMenuDescriptor desc)
+	{
+		return false;
+	}
+
+	
 }

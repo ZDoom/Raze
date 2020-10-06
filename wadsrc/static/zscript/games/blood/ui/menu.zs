@@ -29,6 +29,12 @@ class MenuCustomizerBlood : MenuCustomize
 		int h = texid.isValid()? texsize.Y : fonth;
 		return int((y+h) * fh / 200); // This must be the covered height of the header in true pixels.
 	}
+	
+	override bool DrawSelector(ListMenuDescriptor desc)
+	{
+		return true;	// do not draw any selector.
+	}
+	
 }
 
 //-------------------------------------------------------------------------------------------
