@@ -1571,7 +1571,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Calculate adjustment as true pitch (Fixed point math really sucks...)
-	double horizAngle = atan2(*q16horiz, IntToFixed(128)) * (512. / pi::pi());
+	double horizAngle = HorizToPitch(*q16horiz);
 
 	if (q16horz)
 	{
@@ -1583,7 +1583,7 @@ void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, do
 	if (*actions & (SB_AIM_UP|SB_AIM_DOWN))
 	{
 		*actions &= ~SB_CENTERVIEW;
-		double const amount = 250. / GameTicRate;
+		double const amount = HorizToPitch(250. / GameTicRate);
 
 		if (*actions & SB_AIM_DOWN)
 			horizAngle -= scaleAdjust * amount;
@@ -1596,7 +1596,7 @@ void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, do
 	if (*actions & (SB_LOOK_UP|SB_LOOK_DOWN))
 	{
 		*actions |= SB_CENTERVIEW;
-		double const amount = 500. / GameTicRate;
+		double const amount = HorizToPitch(500. / GameTicRate);
 
 		if (*actions & SB_LOOK_DOWN)
 			horizAngle -= scaleAdjust * amount;
@@ -1606,12 +1606,12 @@ void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, do
 	}
 
 	// clamp horizAngle after processing
-	horizAngle = clamp(horizAngle, -180, 180);
+	horizAngle = clamp(horizAngle, -90, 90);
 
 	// return to center if conditions met.
 	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 	{
-		if (abs(horizAngle) > 0.275)
+		if (abs(horizAngle) > 0.1375)
 		{
 			// move horizAngle back to 0
 			horizAngle += -scaleAdjust * horizAngle * (9. / GameTicRate);
@@ -1625,7 +1625,7 @@ void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, do
 	}
 
 	// clamp before returning
-	*q16horiz = clamp(xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.))), gi->playerHorizMin(), gi->playerHorizMax());
+	*q16horiz = clamp(PitchToHoriz(horizAngle), gi->playerHorizMin(), gi->playerHorizMax());
 }
 
 //---------------------------------------------------------------------------

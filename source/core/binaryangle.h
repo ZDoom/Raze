@@ -136,22 +136,49 @@ public:
 
 };
 
+//---------------------------------------------------------------------------
+//
+// Constants and functions for use with fixedhoriz and friendly functions.
+//
+//---------------------------------------------------------------------------
+
+// 280039127 is the maximum horizon in Q16.16 the engine will handle before wrapping around.
+constexpr double horizDiff = 280039127 * 3. / 100.;
+
+// Degrees needed to convert horizAngle into pitch degrees.
+constexpr double horizDegrees = 183.503609961216825;
+
+// Ratio to convert inverse tangent to -90/90 degrees of pitch.
+constexpr double horizRatio = horizDegrees / pi::pi();
+
+// Horizon conversion functions.
+inline double HorizToPitch(double horiz) { return atan2(horiz, horizDiff / 65536.) * horizRatio; }
+inline double HorizToPitch(fixed_t q16horiz) { return atan2(q16horiz, horizDiff) * horizRatio; }
+inline fixed_t PitchToHoriz(double horizAngle) { return xs_CRoundToInt(horizDiff * tan(horizAngle * (pi::pi() / horizDegrees))); }
+inline int32_t PitchToBAM(double horizAngle) { return xs_CRoundToInt(clamp(horizAngle * (1073741823.5 / 45.), -INT32_MAX, INT32_MAX)); }
+inline constexpr double BAMToPitch(int32_t bam) { return bam * (45. / 1073741823.5); }
+
+
 class fixedhoriz
 {
-	int value;
+	fixed_t value;
 	
-	constexpr fixedhoriz(int v) : value(v) {}
+	constexpr fixedhoriz(fixed_t v) : value(v) {}
 	
-	friend constexpr fixedhoriz q16horiz(int v);
+	friend constexpr fixedhoriz q16horiz(fixed_t v);
 	friend constexpr fixedhoriz buildhoriz(int v);
+	friend fixedhoriz pitchhoriz(double v);
+	friend fixedhoriz bamhoriz(int32_t v);
 	
 public:
 	fixedhoriz() = default;
 	fixedhoriz(const fixedhoriz &other) = default;
 
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
-	short asbuild() const { return FixedToInt(value); }
+	constexpr short asbuild() const { return FixedToInt(value); }
 	constexpr fixed_t asq16() const { return value; }
+	double aspitch() const { return HorizToPitch(value); }
+	int32_t asbam() const { return PitchToBAM(aspitch()); }
 	
 	bool operator< (fixedhoriz other) const
 	{
@@ -218,6 +245,8 @@ inline constexpr binangle buildang(unsigned int v) { return binangle(v << 21); }
 inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / binangle::pi()))); }
 inline binangle degang(double v) { return binangle(xs_CRoundToUInt(v * (0x40000000 / 90.))); }
 
-inline constexpr fixedhoriz q16horiz(int v) { return fixedhoriz(v); }
+inline constexpr fixedhoriz q16horiz(fixed_t v) { return fixedhoriz(v); }
 inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(IntToFixed(v)); }
+inline fixedhoriz pitchhoriz(double v) { return fixedhoriz(PitchToHoriz(v)); }
+inline fixedhoriz bamhoriz(int32_t v) { return pitchhoriz(BAMToPitch(v)); }
 

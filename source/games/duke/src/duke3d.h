@@ -19,7 +19,6 @@
 #include "rts.h"
 #include "sounds.h"
 #include "soundefs.h"
-#include "binaryangle.h"
 
 BEGIN_DUKE_NS
 
