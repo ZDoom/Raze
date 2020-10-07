@@ -89,7 +89,7 @@ void GameInterface::Render()
     }
 
     double const smoothratio = calc_smoothratio();
-    double const look_anghalf = getHalfLookAng(PlayerList[nLocalPlayer].oq16look_ang, PlayerList[nLocalPlayer].q16look_ang, cl_syncinput, smoothratio);
+    double const look_anghalf = getHalfLookAng(PlayerList[nLocalPlayer].angle.olook_ang.asq16(), PlayerList[nLocalPlayer].angle.look_ang.asq16(), cl_syncinput, smoothratio);
 
     DrawView(smoothratio);
     DrawStatusBar();

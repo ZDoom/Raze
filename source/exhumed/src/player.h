@@ -71,12 +71,7 @@ struct Player
     short nRun;
 
     PlayerHorizon horizon;
-    fixed_t oq16angle, q16angle;
-    fixed_t oq16look_ang, q16look_ang;
-    fixed_t oq16rotscrnang, q16rotscrnang;
-    fixed_t spin;
-    fixed_t angTarget;
-    double angAdjust;
+    PlayerAngle angle;
     vec3_t opos;
 };
 

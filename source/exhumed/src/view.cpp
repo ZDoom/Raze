@@ -48,7 +48,7 @@ short nQuake[kMaxPlayers] = { 0 };
 
 short nChunkTotal = 0;
 
-fixed_t nCameraa;
+binangle nCameraa;
 fixedhoriz nCamerapan;
 short nViewTop;
 bool bCamera = false;
@@ -235,9 +235,9 @@ void DrawView(double smoothRatio, bool sceneonly)
     int playerY;
     int playerZ;
     short nSector;
-    fixed_t nAngle;
+    binangle nAngle;
     fixedhoriz pan;
-    fixed_t q16rotscrnang;
+    lookangle rotscrnang;
 
     fixed_t dang = IntToFixed(1024);
 
@@ -255,7 +255,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerY = sprite[nSprite].y;
         playerZ = sprite[nSprite].z;
         nSector = sprite[nSprite].sectnum;
-        nAngle = IntToFixed(sprite[nSprite].ang);
+        nAngle = buildang(sprite[nSprite].ang);
 
         SetGreenPal();
 
@@ -282,20 +282,13 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!cl_syncinput)
         {
-            nAngle = PlayerList[nLocalPlayer].q16angle + PlayerList[nLocalPlayer].q16look_ang;
-            q16rotscrnang = PlayerList[nLocalPlayer].q16rotscrnang;
+            nAngle = PlayerList[nLocalPlayer].angle.sum();
+            rotscrnang = PlayerList[nLocalPlayer].angle.rotscrnang;
         }
         else
         {
-            fixed_t oang, ang;
-
-            oang = PlayerList[nLocalPlayer].oq16angle + PlayerList[nLocalPlayer].oq16look_ang;
-            ang = PlayerList[nLocalPlayer].q16angle + PlayerList[nLocalPlayer].q16look_ang;
-            nAngle = oang + xs_CRoundToInt(fmulscale16(((ang + dang - oang) & 0x7FFFFFF) - dang, smoothRatio));
-
-            oang = PlayerList[nLocalPlayer].oq16rotscrnang + PlayerList[nLocalPlayer].oq16rotscrnang;
-            ang = PlayerList[nLocalPlayer].q16rotscrnang + PlayerList[nLocalPlayer].q16rotscrnang;
-            q16rotscrnang = oang + xs_CRoundToInt(fmulscale16(((ang + dang - oang) & 0x7FFFFFF) - dang, smoothRatio));
+            nAngle = PlayerList[nLocalPlayer].angle.interpolatedsum(smoothRatio);
+            rotscrnang = PlayerList[nLocalPlayer].angle.interpolatedrotscrn(smoothRatio);
         }
 
         if (!bCamera)
@@ -304,7 +297,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
 
-        renderSetRollAngle(FixedToFloat(q16rotscrnang));
+        renderSetRollAngle(rotscrnang.asbam() / (double)BAMUNIT);
     }
 
     nCameraa = nAngle;
@@ -333,8 +326,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             if (viewz > floorZ)
                 viewz = floorZ;
 
-            nCameraa += IntToFixed((nQuake[nLocalPlayer] >> 7) % 31);
-            nCameraa &= 0x7FFFFFF;
+            nCameraa += buildang((nQuake[nLocalPlayer] >> 7) % 31);
         }
     }
     else
@@ -404,7 +396,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             }
         }
 
-        renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa, nCamerapan.asq16(), nSector);
+        renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
         analyzesprites();
         renderDrawMasks();
 
@@ -436,7 +428,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
                     sprite[nPlayerSprite].cstat |= 0x8000;
 
-                    int ang2 = FixedToInt(nCameraa) - sprite[nPlayerSprite].ang;
+                    int ang2 = nCameraa.asbuild() - sprite[nPlayerSprite].ang;
                     if (ang2 < 0)
                         ang2 = -ang2;
 

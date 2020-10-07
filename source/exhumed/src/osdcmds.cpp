@@ -50,7 +50,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
 
     if (parm->numparms >= 4)
     {
-        nPlayer->oq16angle = nPlayer->q16angle = IntToFixed(atoi(parm->parms[3]));
+        nPlayer->angle.oang = nPlayer->angle.ang = buildang(atoi(parm->parms[3]));
     }
 
     if (parm->numparms == 5)

@@ -309,8 +309,8 @@ void RestartPlayer(short nPlayer)
         sprite[nSprite].y = sprite[nNStartSprite].y;
         sprite[nSprite].z = sprite[nNStartSprite].z;
         mychangespritesect(nSprite, sprite[nNStartSprite].sectnum);
-        PlayerList[nPlayer].q16angle = IntToFixed(sprite[nNStartSprite].ang&kAngleMask);
-        sprite[nSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
+        PlayerList[nPlayer].angle.ang = buildang(sprite[nNStartSprite].ang&kAngleMask);
+        sprite[nSprite].ang = PlayerList[nPlayer].angle.ang.asbuild();
 
         floorspr = insertsprite(sprite[nSprite].sectnum, 0);
         assert(floorspr >= 0 && floorspr < kMaxSprites);
@@ -328,16 +328,14 @@ void RestartPlayer(short nPlayer)
         sprite[nSprite].x = sPlayerSave[nPlayer].x;
         sprite[nSprite].y = sPlayerSave[nPlayer].y;
         sprite[nSprite].z = sector[sPlayerSave[nPlayer].nSector].floorz;
-        PlayerList[nPlayer].q16angle = IntToFixed(sPlayerSave[nPlayer].nAngle&kAngleMask);
-        sprite[nSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
+        PlayerList[nPlayer].angle.ang = buildang(sPlayerSave[nPlayer].nAngle&kAngleMask);
+        sprite[nSprite].ang = PlayerList[nPlayer].angle.ang.asbuild();
 
         floorspr = -1;
     }
 
     PlayerList[nPlayer].opos = sprite[nSprite].pos;
-    PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
-    PlayerList[nPlayer].oq16look_ang = PlayerList[nPlayer].q16look_ang = 0;
-    PlayerList[nPlayer].oq16rotscrnang = PlayerList[nPlayer].q16rotscrnang = 0;
+    PlayerList[nPlayer].angle.backup();
     PlayerList[nPlayer].horizon.backup();
 
     nPlayerFloorSprite[nPlayer] = floorspr;
@@ -702,7 +700,7 @@ static void pickupMessage(int no)
 
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
-    sprite[pPlayer->nSprite].ang = FixedToInt(pPlayer->q16angle);
+    sprite[pPlayer->nSprite].ang = pPlayer->angle.ang.asbuild();
 }
 
 void FuncPlayer(int a, int nDamage, int nRun)
@@ -725,12 +723,10 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
     short nSprite2;
 
-    PlayerList[nPlayer].angAdjust = 0;
     PlayerList[nPlayer].opos = sprite[nPlayerSprite].pos;
-    PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
-    PlayerList[nPlayer].oq16look_ang = PlayerList[nPlayer].q16look_ang;
-    PlayerList[nPlayer].oq16rotscrnang = PlayerList[nPlayer].q16rotscrnang;
+    PlayerList[nPlayer].angle.backup();
     PlayerList[nPlayer].horizon.backup();
+    PlayerList[nPlayer].angle.resetadjustment();
     PlayerList[nPlayer].horizon.resetadjustment();
     oeyelevel[nPlayer] = eyelevel[nPlayer];
 
@@ -948,7 +944,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
             if (cl_syncinput)
             {
                 Player* pPlayer = &PlayerList[nPlayer];
-                applylook2(&pPlayer->q16angle, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions, 1, eyelevel[nLocalPlayer] > -14080);
+                applylook(&pPlayer->angle, sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions, 1, eyelevel[nLocalPlayer] > -14080);
                 UpdatePlayerSpriteAngle(pPlayer);
             }
 
@@ -1046,8 +1042,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 if (nTotalPlayers <= 1)
                 {
                     auto ang = GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask;
-                    playerSetAngle2(&PlayerList[nPlayer].q16angle, &PlayerList[nPlayer].angTarget, ang);
-                    PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
+                    PlayerList[nPlayer].angle.settarget(ang, true);
                     sprite[nPlayerSprite].ang = ang;
 
                     PlayerList[nPlayer].horizon.settarget(0, true);
