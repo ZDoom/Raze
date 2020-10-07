@@ -7,21 +7,19 @@
 LISTMENU "MainMenu"
 {
 	Size 320, 200
-	//class "$.MainMenu"
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-	/*
-		position 160, 55, 115
-		centermenu
-		animatedtransition
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder.
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
-	*/
+		position 160, 55
+		Linespacing 20
+		//animatedtransition
+		DukeLogo
+		DukeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
+		//DukeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder.
+		DukeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		DukeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		DukeTextItem "$MNU_HELP", "h", "HelpMenu"
+		DukeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		DukeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)
 	{
@@ -81,22 +79,20 @@ LISTMENU "MainMenu"
 
 LISTMENU "IngameMenu"
 {
-	/*
-	class "$.MainMenu"
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		position 160, 55
-		centermenu
-		animatedtransition
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		linespacing 18
+		//animatedtransition
+		DukeLogo
+		DukeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
+		DukeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+		DukeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		DukeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		DukeTextItem "$MNU_HELP", "h", "HelpMenu"
+		DukeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
+		DukeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
-	*/
 	ifgame(Blood)
 	{
 		position 160, 45
@@ -154,17 +150,13 @@ LISTMENU "IngameMenu"
 
 LISTMENU "EpisodeMenu"
 {
-	/*
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		class "$.ListMenu"
-		caption "$MNU_SELECTEPISODE"
 		position 160, 48
-		centermenu
-		fixedspacing 5
-		animatedtransition
+		Linespacing 20
+		captionItem "$MNU_SELECTEPISODE"
+		//animatedtransition
 	}
-	*/
 	ifgame(blood)
 	{
 		position 160, 45
@@ -184,18 +176,13 @@ LISTMENU "EpisodeMenu"
 
 LISTMENU "SkillMenu"
 {
-	/*
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		class "$.ListMenu"
-		position 160, 55, 115
-		centermenu
-		animatedtransition
-		caption "$MNU_SELECTSKILL"
-		fixedspacing 5
-		animatedtransition
+		position 160, 48
+		Linespacing 20
+		captionItem "$MNU_SELECTSKILL"
+		//animatedtransition
 	}
-	*/
 	ifgame(blood)
 	{
 		position 160, 60

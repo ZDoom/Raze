@@ -36,7 +36,6 @@ struct GameInterface : public ::GameInterface
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;
 	GameStats getStats() override;
-	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
 	void MenuOpened() override;
 	void MenuSound(EMenuSounds snd) override;
 	void MenuClosed() override;

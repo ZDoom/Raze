@@ -102,7 +102,7 @@ public:
 		//
 		// Health
 		//
-		img = tileGetTexture(SPINNINGNUKEICON+1);
+		img = tileGetTexture(SPINNINGNUKEICON1);
 		imgScale = baseScale / img->GetDisplayHeight();
 		DrawGraphic(img, 2, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, imgScale, imgScale);
 

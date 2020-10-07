@@ -152,42 +152,6 @@ void UpdateNetworkMenus(void)
 	}
 }
 
-
-#if 0
-
-//----------------------------------------------------------------------------
-//
-//
-//
-//----------------------------------------------------------------------------
-
-class BloodImageScreen : public ImageScreen
-{
-	CGameMenuItemQAV anim;
-public:
-	BloodImageScreen(FImageScrollerDescriptor::ScrollerItem* desc)
-		: ImageScreen(desc), anim(169, 100, mDesc->text.GetChars(), false, true)
-	{
-
-	}
-
-	void Drawer() override
-	{
-		anim.Draw();
-	}
-};
-
-class DBloodImageScrollerMenu : public DImageScrollerMenu
-{
-	ImageScreen* newImageScreen(FImageScrollerDescriptor::ScrollerItem* desc) override
-	{
-		if (desc->type >= 0) return DImageScrollerMenu::newImageScreen(desc);
-		return new BloodImageScreen(desc);
-	}
-};
-
-#endif
-
 //----------------------------------------------------------------------------
 //
 // Menu related game interface functions

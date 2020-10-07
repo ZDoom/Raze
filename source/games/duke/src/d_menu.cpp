@@ -59,165 +59,9 @@ static void Menu_DrawBackground(const DVector2 &origin)
 
 //----------------------------------------------------------------------------
 //
-//
-//
-//----------------------------------------------------------------------------
-
-static void Menu_DrawCursor(double x, double y, double scale, bool right)
-{
-	int mclock = I_GetBuildTime();
-	const int frames = isRR() ? 16 : 7;
-	int picnum;
-	if (!right) picnum = TILE_SPINNINGNUKEICON + ((mclock >> 3) % frames);
-	else picnum = TILE_SPINNINGNUKEICON + frames - 1 - ((frames - 1 + (mclock >> 3)) % frames);
-	int light = 231 + (calcSinTableValue(mclock<<5) / 768.);
-	PalEntry pe(255, light, light, light);
-	DrawTexture(twod, tileGetTexture(picnum), x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
-}
-
-//----------------------------------------------------------------------------
-//
-// Implements the native looking menu used for the main menu
-// and the episode/skill selection screens, i.e. the parts
-// that need to look authentic
-//
-//----------------------------------------------------------------------------
-
-#if 0
-class DukeListMenu : public DListMenu
-{
-	using Super = DListMenu;
-protected:
-
-	void Ticker() override
-	{
-		// Lay out the menu.
-		int y_upper = mDesc->mYpos;
-		int y_lower = y_upper + mDesc->mYbotton;
-		int y = 0;
-		int spacing = 0;
-		const int height = 15; // cannot take value from the font because it would be inconsistent
-
-		int totalheight = 0, numvalidentries = mDesc->mItems.Size();
-
-		for (unsigned e = 0; e < mDesc->mItems.Size(); ++e)
-		{
-			auto entry = mDesc->mItems[e];
-			entry->mHidden = false;
-			entry->SetHeight(height);
-			totalheight += height;
-		}
-		if (mDesc->mSpacing <= 0) spacing = std::max(0, (y_lower - y_upper - totalheight) / (numvalidentries > 1 ? numvalidentries - 1 : 1));
-		if (spacing <= 0) spacing = mDesc->mSpacing;
-
-		int totalHeight;
-		for (unsigned e = 0; e < mDesc->mItems.Size(); ++e)
-		{
-			auto entry = mDesc->mItems[e];
-			if (!entry->mHidden)
-			{
-				entry->SetY(y_upper + y);
-				y += height;
-				totalHeight = y;
-				y += spacing;
-			}
-		}
-	}
-};
-
-//----------------------------------------------------------------------------
-//
-//
-//
-//----------------------------------------------------------------------------
-
-class DukeMainMenu : public DukeListMenu
-{
-	virtual void Init(DMenu* parent = nullptr, FListMenuDescriptor* desc = nullptr) override
-	{
-		DukeListMenu::Init(parent, desc);
-	}
-
-	void PreDraw() override
-	{
-		DukeListMenu::PreDraw();
-		double x = origin.X + 160;
-		if (isRRRA())
-		{
-			DrawTexture(twod, tileGetTexture(TILE_THREEDEE), x-5, origin.Y+57, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_ScaleX, 0.253, DTA_ScaleY, 0.253, DTA_CenterOffsetRel, true, TAG_DONE);
-		}
-		else if (isRR())
-		{
-			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x+5, origin.Y + 24, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_ScaleX, 0.36, DTA_ScaleY, 0.36, DTA_CenterOffsetRel, true, TAG_DONE);
-		}
-		else
-		{
-			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x, origin.Y + 29, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, TAG_DONE);
-			if (PLUTOPAK)
-			{
-				int mclock = I_GetBuildTime();
-				int light = 223 + (calcSinTableValue(mclock<<4) / 512.);
-				PalEntry pe(255, light, light, light);
-				DrawTexture(twod, tileGetTexture(TILE_PLUTOPAKSPRITE + 2), x + 100, origin.Y + 36, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
-			}
-		}
-		
-	}
-};
-#endif
-
-//----------------------------------------------------------------------------
-//
 // Menu related game interface functions
 //
 //----------------------------------------------------------------------------
-
-void GameInterface::DrawNativeMenuText(int fontnum, int state, double oxpos, double ypos, float fontscale, const char* text, int flags)
-{
-#if 0
-	double xpos = oxpos;
-	int trans;
-	PalEntry pe;
-
-	double scale = isRR() ? 0.4 : 1.;
-	if (flags & LMF_Centered) xpos -= BigFont->StringWidth(text) * scale * 0.5;
-
-	if (state == NIT_InactiveState)
-	{
-		trans = TRANSLATION(Translation_Remap, 1);
-		pe = 0xffffffff;
-	}
-	else if (state == NIT_SelectedState)
-	{
-		trans = 0;
-		int mclock = I_GetBuildTime();
-		int light = 231 + (calcSinTableValue(mclock<<5) / 768.);
-		pe = PalEntry(255, light, light, light);
-	}
-	else
-	{
-		trans = 0;
-		pe = 0xffa0a0a0;
-	}
-
-	DrawText(twod, BigFont, CR_UNDEFINED, xpos, ypos, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe,
-		DTA_TranslationIndex, trans, TAG_DONE);
-
-	if (state == NIT_SelectedState)
-	{
-		const int cursorOffset = 110;
-		const double cursorScale = isRR() ? 0.2 : 1.0;
-		const double ymid = ypos + 7;	// half height must be hardcoded or layouts will break.
-		if (flags & LMF_Centered)
-		{
-			Menu_DrawCursor(oxpos + cursorOffset, ymid, cursorScale, false);
-			Menu_DrawCursor(oxpos - cursorOffset, ymid, cursorScale, true);
-		}
-		else
-			Menu_DrawCursor(oxpos - cursorOffset, ymid, cursorScale, false);
-	}
-#endif
-}
 
 void GameInterface::MenuOpened()
 {
@@ -285,7 +129,6 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 	static const short sounds_r[] = { 427, 428, 196, 195, 197 };
 	if (gs.Skill >=0 && gs.Skill <= 5) skillsound = isRR()? sounds_r[gs.Skill] : sounds_d[gs.Skill];
 
-#if 0
 	if (menu_sounds && skillsound >= 0 && SoundEnabled() && !netgame)
 	{
 		S_PlaySound(skillsound, CHAN_AUTO, CHANF_UI);
@@ -298,7 +141,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 		}
 		Net_ClearFifo();
 	}
-#endif
+
 	auto map = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
 	if (map)
 	{
@@ -319,7 +162,7 @@ void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *t
 	if (bg) Menu_DrawBackground(origin);
 	else if (!isRR())
 	{
-		Menu_DrawCursor(160, 130, 1, false);
+		//Menu_DrawCursor(160, 130, 1, false);
 	}
 	::GameInterface::DrawCenteredTextScreen(origin, text, position, bg);
 }
