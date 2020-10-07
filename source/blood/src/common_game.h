@@ -42,14 +42,12 @@ void _consoleSysMsg(const char* pMessage, ...);
 
 #define ThrowError(...) \
 	{ \
-		_SetErrorLoc(__FILE__,__LINE__); \
 		I_Error(__VA_ARGS__); \
 	}
 
 // print error to console only
 #define consoleSysMsg(...) \
 	{ \
-		_SetErrorLoc(__FILE__,__LINE__); \
 		_consoleSysMsg(__VA_ARGS__); \
 	}
 
