@@ -1448,6 +1448,12 @@ void PlayerHorizon::backup()
 	ohorizoff = horizoff;
 }
 
+void PlayerHorizon::restore()
+{
+	horiz = ohoriz;
+	horizoff = ohorizoff;
+}
+
 void PlayerHorizon::addadjustment(double value)
 {
 	if (!cl_syncinput)
@@ -1507,6 +1513,92 @@ fixedhoriz PlayerHorizon::interpolatedsum(double const smoothratio)
 	fixedhoriz prev = ohoriz + ohorizoff;
 	fixedhoriz curr = horiz + horizoff;
 	return q16horiz(prev.asq16() + mulscale16(curr.asq16() - prev.asq16(), smoothratio));
+}
+
+//---------------------------------------------------------------------------
+//
+// PlayerAngle struct functions.
+//
+//---------------------------------------------------------------------------
+
+void PlayerAngle::backup()
+{
+	oang = ang;
+	olook_ang = look_ang;
+	orotscrnang = rotscrnang;
+}
+
+void PlayerAngle::restore()
+{
+	ang = oang;
+	look_ang = olook_ang;
+	rotscrnang = orotscrnang;
+}
+
+void PlayerAngle::addadjustment(double value)
+{
+	if (!cl_syncinput)
+	{
+		adjustment += value;
+	}
+	else
+	{
+		ang += bamang(xs_CRoundToUInt(value * BAMUNIT));
+	}
+}
+
+void PlayerAngle::resetadjustment()
+{
+	adjustment = 0;
+}
+
+void PlayerAngle::settarget(double value, bool backup)
+{
+	if (!cl_syncinput)
+	{
+		target = bamang(xs_CRoundToUInt(value * BAMUNIT));
+		if (target.asbam() == 0) target += bamang(1);
+	}
+	else
+	{
+		ang = bamang(xs_CRoundToUInt(value * BAMUNIT));
+		if (backup) oang = ang;
+	}
+}
+
+void PlayerAngle::processhelpers(double const scaleAdjust)
+{
+	if (target.asbam())
+	{
+		ang = bamang(ang.asbam() + xs_CRoundToInt(scaleAdjust * (target - ang).asbam()));
+
+		if (ang.asbam() - target.asbam() < BAMUNIT)
+		{
+			ang = target;
+			target = bamang(0);
+		}
+	}
+	else if (adjustment)
+	{
+		ang += bamang(xs_CRoundToUInt(scaleAdjust * adjustment * BAMUNIT));
+	}
+}
+
+binangle PlayerAngle::sum()
+{
+	return bamang(ang.asbam() + look_ang.asbam());
+}
+
+binangle PlayerAngle::interpolatedsum(double const smoothratio)
+{
+	auto prev = oang.asbam() + olook_ang.asbam();
+	auto curr = ang.asbam() + look_ang.asbam();
+	return bamang(xs_CRoundToUInt(prev + fmulscale16(curr - prev, smoothratio)));
+}
+
+lookangle PlayerAngle::interpolatedrotscrn(double const smoothratio)
+{
+	return bamlook(xs_CRoundToUInt(orotscrnang.asbam() + fmulscale16(rotscrnang.asbam() - orotscrnang.asbam(), smoothratio)));
 }
 
 //---------------------------------------------------------------------------
@@ -1708,7 +1800,71 @@ void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double 
 //
 //---------------------------------------------------------------------------
 
-void applylook(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching)
+void applylook(PlayerAngle* angle, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching)
+{
+	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a unit
+	angle->rotscrnang -= q16look(xs_CRoundToInt(scaleAdjust * (angle->rotscrnang.asq16() * (15. / GameTicRate))));
+	if (abs(angle->rotscrnang.asq16()) < (FRACUNIT >> 2)) angle->rotscrnang = q16look(0);
+
+	// return q16look_ang to 0 and set to 0 if less than a quarter of a unit
+	angle->look_ang -= q16look(xs_CRoundToInt(scaleAdjust * (angle->look_ang.asq16() * (7.5 / GameTicRate))));
+	if (abs(angle->look_ang.asq16()) < (FRACUNIT >> 2)) angle->look_ang = q16look(0);
+
+	if (*actions & SB_LOOK_LEFT)
+	{
+		// start looking left
+		angle->look_ang -= q16look(FloatToFixed(scaleAdjust * (4560. / GameTicRate)));
+		angle->rotscrnang += q16look(FloatToFixed(scaleAdjust * (720. / GameTicRate)));
+	}
+
+	if (*actions & SB_LOOK_RIGHT)
+	{
+		// start looking right
+		angle->look_ang += q16look(FloatToFixed(scaleAdjust * (4560. / GameTicRate)));
+		angle->rotscrnang -= q16look(FloatToFixed(scaleAdjust * (720. / GameTicRate)));
+	}
+
+	Printf("look_ang %d\n", angle->look_ang.asbuild());
+	Printf("rotscrnang %d\n", angle->rotscrnang.asbuild());
+
+	if (*actions & SB_TURNAROUND)
+	{
+		if (angle->spin.asbam() == 0)
+		{
+			// currently not spinning, so start a spin
+			angle->spin = buildlook(-1024);
+		}
+		*actions &= ~SB_TURNAROUND;
+	}
+
+	if (angle->spin.asbam() < 0)
+	{
+		// return spin to 0
+		fixed_t add = FloatToFixed(scaleAdjust * ((!crouching ? 3840. : 1920.) / GameTicRate));
+		angle->spin += q16look(add);
+		if (angle->spin.asbam() > 0)
+		{
+			// Don't overshoot our target. With variable factor this is possible.
+			add -= angle->spin.asq16();
+			angle->spin = bamlook(0);
+		}
+		angle->ang += q16ang(add);
+	}
+
+	if (q16avel)
+	{
+		// add player's input
+		angle->ang += degang(FixedToFloat(q16avel));
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// Player's angle function, called from game's ticker or from gi->GetInput() as required.
+//
+//---------------------------------------------------------------------------
+
+void applylook2(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching)
 {
 	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a FRACUNIT (16384)
 	*q16rotscrnang -= xs_CRoundToInt(scaleAdjust * (*q16rotscrnang * (15. / GameTicRate)));
@@ -1769,7 +1925,7 @@ void applylook(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fi
 //
 //---------------------------------------------------------------------------
 
-void playerAddAngle(fixed_t* q16ang, double* helper, double adjustment)
+void playerAddAngle2(fixed_t* q16ang, double* helper, double adjustment)
 {
 	if (!cl_syncinput)
 	{
@@ -1781,7 +1937,7 @@ void playerAddAngle(fixed_t* q16ang, double* helper, double adjustment)
 	}
 }
 
-void playerSetAngle(fixed_t* q16ang, fixed_t* helper, double adjustment)
+void playerSetAngle2(fixed_t* q16ang, fixed_t* helper, double adjustment)
 {
 	if (!cl_syncinput)
 	{

@@ -2098,7 +2098,7 @@ void movetransports_d(void)
 									sprite[ps[k].i].extra = 0;
 								}
 
-							ps[p].setang(sprite[sprite[i].owner].ang);
+							ps[p].angle.ang = buildang(sprite[sprite[i].owner].ang);
 
 							if (sprite[sprite[i].owner].owner != sprite[i].owner)
 							{
@@ -2454,7 +2454,7 @@ static void greenslime(int i)
 		}
 		else if (x < 1024 && ps[p].quick_kick == 0)
 		{
-			j = getincangle(ps[p].getang(), getangle(sprite[i].x - ps[p].posx, sprite[i].y - ps[p].posy));
+			j = getincangle(ps[p].angle.ang.asbuild(), getangle(sprite[i].x - ps[p].posx, sprite[i].y - ps[p].posy));
 			if (j > -128 && j < 128)
 				ps[p].quick_kick = 14;
 		}
@@ -2476,7 +2476,7 @@ static void greenslime(int i)
 
 		setsprite(i, s->x, s->y, s->z);
 
-		s->ang = ps[p].getang();
+		s->ang = ps[p].angle.ang.asbuild();
 
 		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && sprite[ps[p].i].extra > 0)
 			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
@@ -2518,7 +2518,7 @@ static void greenslime(int i)
 			ps[p].posx = ps[p].oposx;
 			ps[p].posy = ps[p].oposy;
 			ps[p].posz = ps[p].oposz;
-			ps[p].q16ang = ps[p].oq16ang;
+			ps[p].angle.restore();
 
 			updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
 			setpal(&ps[p]);
@@ -2557,8 +2557,8 @@ static void greenslime(int i)
 		s->xrepeat = 20 + (sintable[t[1] & 2047] >> 13);
 		s->yrepeat = 15 + (sintable[t[1] & 2047] >> 13);
 
-		s->x = ps[p].posx + (sintable[(ps[p].getang() + 512) & 2047] >> 7);
-		s->y = ps[p].posy + (sintable[ps[p].getang() & 2047] >> 7);
+		s->x = ps[p].posx + (sintable[(ps[p].angle.ang.asbuild() + 512) & 2047] >> 7);
+		s->y = ps[p].posy + (sintable[ps[p].angle.ang.asbuild() & 2047] >> 7);
 
 		return;
 	}

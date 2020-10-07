@@ -105,7 +105,7 @@ void shoot_r(int i, int atwith)
 		sx = ps[p].posx;
 		sy = ps[p].posy;
 		sz = ps[p].posz + ps[p].pyoff + (4 << 8);
-		sa = ps[p].getang();
+		sa = ps[p].angle.ang.asbuild();
 
 		if (isRRRA()) ps[p].crack_time = CRACK_TIME;
 	}
@@ -302,7 +302,7 @@ void shoot_r(int i, int atwith)
 				j = fi.spawn(ps[p].i, WATERSPLASH2);
 				sprite[j].x = hitx;
 				sprite[j].y = hity;
-				sprite[j].ang = ps[p].getang(); // Total tweek
+				sprite[j].ang = ps[p].angle.ang.asbuild(); // Total tweek
 				sprite[j].xvel = 32;
 				ssp(i, 0);
 				sprite[j].xvel = 0;
@@ -1275,8 +1275,8 @@ int doincrements_r(struct player_struct* p)
 		{
 			p->noise_radius = 16384;
 			madenoise(screenpeek);
-			p->posxv += sintable[(p->getang() + 512) & 2047] << 4;
-			p->posyv += sintable[p->getang() & 2047] << 4;
+			p->posxv += sintable[(p->angle.ang.asbuild() + 512) & 2047] << 4;
+			p->posyv += sintable[p->angle.ang.asbuild() & 2047] << 4;
 		}
 		p->eat -= 4;
 		if (p->eat < 0)
@@ -1472,7 +1472,7 @@ void checkweapons_r(struct player_struct* p)
 		if (p->OnMotorcycle && numplayers > 1)
 		{
 			j = fi.spawn(p->i, 7220);
-			sprite[j].ang = p->getang();
+			sprite[j].ang = p->angle.ang.asbuild();
 			sprite[j].owner = p->ammo_amount[MOTORCYCLE_WEAPON];
 			p->OnMotorcycle = 0;
 			p->gotweapon.Clear(MOTORCYCLE_WEAPON);
@@ -1488,7 +1488,7 @@ void checkweapons_r(struct player_struct* p)
 		else if (p->OnBoat && numplayers > 1)
 		{
 			j = fi.spawn(p->i, 7233);
-			sprite[j].ang = p->getang();
+			sprite[j].ang = p->angle.ang.asbuild();
 			sprite[j].owner = p->ammo_amount[BOAT_WEAPON];
 			p->OnBoat = 0;
 			p->gotweapon.Clear(BOAT_WEAPON);
@@ -1769,7 +1769,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	{
 		short var8c, var90, var94, var98;
 		var8c = p->MotoSpeed;
-		var90 = p->getang();
+		var90 = p->angle.ang.asbuild();
 		if (var74)
 			var94 = -10;
 		else
@@ -1817,13 +1817,13 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 				ang = var98 >> 7;
 			}
 		}
-		playerAddAngle(&p->q16ang, &p->angAdjust, FixedToFloat(getincangleq16(p->q16ang, IntToFixed(var90 - ang))));
+		p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), IntToFixed(var90 - ang))));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
 		short var9c, vara0, vara4=0;
 		var9c = p->MotoSpeed;
-		vara0 = p->getang();
+		vara0 = p->angle.ang.asbuild();
 		var84 = krand() & 1;
 		if (var84 == 0)
 			vara4 = -10;
@@ -2098,7 +2098,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	{
 		short vard4, vard8, vardc, vare0;
 		vard4 = p->MotoSpeed;
-		vard8 = p->getang();
+		vard8 = p->angle.ang.asbuild();
 		if (varbc)
 			vardc = -10;
 		else
@@ -2121,7 +2121,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->posyv += (vard4 >> 7) * (sintable[(vardc * -51 + vard8) & 2047] << 4);
 			ang = vare0 >> 6;
 		}
-		playerAddAngle(&p->q16ang, &p->angAdjust, FixedToFloat(getincangleq16(p->q16ang, IntToFixed(vard8 - ang))));
+		p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), IntToFixed(vard8 - ang))));
 	}
 	if (p->NotOnWater)
 		if (p->MotoSpeed > 50)
@@ -2427,9 +2427,9 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 	{
 		j = fi.spawn(pi, WATERBUBBLE);
 		sprite[j].x +=
-			sintable[(p->getang() + 512 + 64 - (global_random & 128) + 128) & 2047] >> 6;
+			sintable[(p->angle.ang.asbuild() + 512 + 64 - (global_random & 128) + 128) & 2047] >> 6;
 		sprite[j].y +=
-			sintable[(p->getang() + 64 - (global_random & 128) + 128) & 2047] >> 6;
+			sintable[(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128) & 2047] >> 6;
 		sprite[j].xrepeat = 3;
 		sprite[j].yrepeat = 2;
 		sprite[j].z = p->posz + (8 << 8);
@@ -2454,7 +2454,7 @@ void onMotorcycleMove(int snum, int psect, int j)
 	var104 = 0;
 	j &= (MAXWALLS - 1);
 	var108 = getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y);
-	var10c = abs(p->getang() - var108);
+	var10c = abs(p->angle.ang.asbuild() - var108);
 	int ang;
 	switch (krand() & 1)
 	{
@@ -2465,7 +2465,7 @@ void onMotorcycleMove(int snum, int psect, int j)
 		ang = -(p->MotoSpeed >> 1);
 		break;
 	}
-	playerAddAngle(&p->q16ang, &p->angAdjust, ang);
+	p->angle.addadjustment(ang);
 	if (var10c >= 441 && var10c <= 581)
 	{
 		var104 = (p->MotoSpeed * p->MotoSpeed) >> 8;
@@ -2521,7 +2521,7 @@ void onBoatMove(int snum, int psect, int j)
 	short var114, var118;
 	j &= (MAXWALLS - 1);
 	var114 = getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y);
-	var118 = abs(p->getang() - var114);
+	var118 = abs(p->angle.ang.asbuild() - var114);
 	int ang;
 	switch (krand() & 1)
 	{
@@ -2532,7 +2532,7 @@ void onBoatMove(int snum, int psect, int j)
 		ang = -(p->MotoSpeed >> 2);
 		break;
 	}
-	playerAddAngle(&p->q16ang, &p->angAdjust, ang);
+	p->angle.addadjustment(ang);
 	if (var118 >= 441 && var118 <= 581)
 	{
 		p->MotoSpeed = ((p->MotoSpeed >> 1) + (p->MotoSpeed >> 2)) >> 2;
@@ -2580,8 +2580,8 @@ void onMotorcycleHit(int snum, int var60)
 		{
 			if (numplayers == 1)
 			{
-				fi.movesprite(var60, sintable[int(p->TiltStatus * 20 + p->getang() + 512) & 2047] >> 8,
-					sintable[int(p->TiltStatus * 20 + p->getang()) & 2047] >> 8, sprite[var60].zvel, CLIPMASK0);
+				fi.movesprite(var60, sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild() + 512) & 2047] >> 8,
+					sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild()) & 2047] >> 8, sprite[var60].zvel, CLIPMASK0);
 			}
 		}
 		else
@@ -2637,8 +2637,8 @@ void onBoatHit(int snum, int var60)
 		{
 			if (numplayers == 1)
 			{
-				fi.movesprite(var60, sintable[int(p->TiltStatus * 20 + p->getang() + 512) & 2047] >> 9,
-					sintable[int(p->TiltStatus * 20 + p->getang()) & 2047] >> 9, sprite[var60].zvel, CLIPMASK0);
+				fi.movesprite(var60, sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild() + 512) & 2047] >> 9,
+					sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild()) & 2047] >> 9, sprite[var60].zvel, CLIPMASK0);
 			}
 		}
 		else
@@ -2852,10 +2852,10 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			}
 
 			j = EGS(p->cursectnum,
-				p->posx + (sintable[(p->getang() + 512) & 2047] >> 6),
-				p->posy + (sintable[p->getang() & 2047] >> 6),
+				p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 6),
+				p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 6),
 				p->posz, HEAVYHBOMB, -16, 9, 9,
-				p->getang(), (k + (p->hbomb_hold_delay << 5)) * 2, i, pi, 1);
+				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)) * 2, i, pi, 1);
 
 			if (k == 15)
 			{
@@ -2904,8 +2904,8 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			p->visibility = 0;
 			if (psectlotag != 857)
 			{
-				p->posxv -= sintable[(p->getang() + 512) & 2047] << 4;
-				p->posyv -= sintable[p->getang() & 2047] << 4;
+				p->posxv -= sintable[(p->angle.ang.asbuild() + 512) & 2047] << 4;
+				p->posyv -= sintable[p->angle.ang.asbuild() & 2047] << 4;
 			}
 		}
 		else if (p->kickback_pic == 2)
@@ -3004,14 +3004,14 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 				if (psectlotag != 857)
 				{
-					p->posxv -= sintable[(p->getang() + 512) & 2047] << 5;
-					p->posyv -= sintable[p->getang() & 2047] << 5;
+					p->posxv -= sintable[(p->angle.ang.asbuild() + 512) & 2047] << 5;
+					p->posyv -= sintable[p->angle.ang.asbuild() & 2047] << 5;
 				}
 			}
 			else if (psectlotag != 857)
 			{
-				p->posxv -= sintable[(p->getang() + 512) & 2047] << 4;
-				p->posyv -= sintable[p->getang() & 2047] << 4;
+				p->posxv -= sintable[(p->angle.ang.asbuild() + 512) & 2047] << 4;
+				p->posyv -= sintable[p->angle.ang.asbuild() & 2047] << 4;
 			}
 		}
 
@@ -3095,8 +3095,8 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 				if (psectlotag != 857)
 				{
-					p->posxv -= sintable[(p->getang() + 512) & 2047] << 4;
-					p->posyv -= sintable[p->getang() & 2047] << 4;
+					p->posxv -= sintable[(p->angle.ang.asbuild() + 512) & 2047] << 4;
+					p->posyv -= sintable[p->angle.ang.asbuild() & 2047] << 4;
 				}
 				checkavailweapon(p);
 
@@ -3156,11 +3156,11 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		}
 		if (p->kickback_pic == 2)
 		{
-			playerAddAngle(&p->q16ang, &p->angAdjust, 16);
+			p->angle.addadjustment(16);
 		}
 		else if (p->kickback_pic == 4)
 		{
-			playerAddAngle(&p->q16ang, &p->angAdjust, -16);
+			p->angle.addadjustment(-16);
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3186,11 +3186,11 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		}
 		if (p->kickback_pic == 2)
 		{
-			playerAddAngle(&p->q16ang, &p->angAdjust, 4);
+			p->angle.addadjustment(4);
 		}
 		else if (p->kickback_pic == 4)
 		{
-			playerAddAngle(&p->q16ang, &p->angAdjust, -4);
+			p->angle.addadjustment(-4);
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3236,8 +3236,8 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		}
 		else if (p->kickback_pic == 12)
 		{
-			p->posxv -= sintable[(p->getang() + 512) & 2047] << 4;
-			p->posyv -= sintable[p->getang() & 2047] << 4;
+			p->posxv -= sintable[(p->angle.ang.asbuild() + 512) & 2047] << 4;
+			p->posyv -= sintable[p->angle.ang.asbuild() & 2047] << 4;
 			p->horizon.addadjustment(20);
 			p->recoil += 20;
 		}
@@ -3262,10 +3262,10 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			}
 
 			j = EGS(p->cursectnum,
-				p->posx + (sintable[(p->getang() + 512) & 2047] >> 6),
-				p->posy + (sintable[p->getang() & 2047] >> 6),
+				p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 6),
+				p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 6),
 				p->posz, TRIPBOMBSPRITE, -16, 9, 9,
-				p->getang(), k * 2, i, pi, 1);
+				p->angle.ang.asbuild(), k * 2, i, pi, 1);
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
@@ -3286,8 +3286,8 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		}
 		if (p->kickback_pic < 30)
 		{
-			p->posxv += sintable[(p->getang() + 512) & 2047] << 4;
-			p->posyv += sintable[p->getang() & 2047] << 4;
+			p->posxv += sintable[(p->angle.ang.asbuild() + 512) & 2047] << 4;
+			p->posyv += sintable[p->angle.ang.asbuild() & 2047] << 4;
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 40)
@@ -3741,7 +3741,7 @@ void processinput_r(int snum)
 		// may still be needed later for demo recording
 
 		processq16avel(p, &sb_avel);
-		applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, sb_avel, &p->sync.actions, 1, p->crouch_toggle || actions & SB_CROUCH);
+		applylook(&p->angle, sb_avel, &p->sync.actions, 1, p->crouch_toggle || actions & SB_CROUCH);
 		apply_seasick(p, 1);
 	}
 
@@ -4170,7 +4170,7 @@ void OnMotorcycle(struct player_struct *p, int motosprite)
 		{
 			p->posx = sprite[motosprite].x;
 			p->posy = sprite[motosprite].y;
-			p->setang(sprite[motosprite].ang);
+			p->angle.ang = buildang(sprite[motosprite].ang);
 			p->ammo_amount[MOTORCYCLE_WEAPON] = sprite[motosprite].owner;
 			deletesprite(motosprite);
 		}
@@ -4222,13 +4222,13 @@ void OffMotorcycle(struct player_struct *p)
 		p->TurbCount = 0;
 		p->posxv = 0;
 		p->posyv = 0;
-		p->posxv -= sintable[(p->getang()+512)&2047]<<7;
-		p->posyv -= sintable[p->getang()&2047]<<7;
+		p->posxv -= sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
+		p->posyv -= sintable[p->angle.ang.asbuild()&2047]<<7;
 		p->moto_underwater = 0;
 		j = fi.spawn(p->i, EMPTYBIKE);
-		sprite[j].ang = p->getang();
-		sprite[j].xvel += sintable[(p->getang()+512)&2047]<<7;
-		sprite[j].yvel += sintable[p->getang()&2047]<<7;
+		sprite[j].ang = p->angle.ang.asbuild();
+		sprite[j].xvel += sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
+		sprite[j].yvel += sintable[p->angle.ang.asbuild()&2047]<<7;
 		sprite[j].owner = p->ammo_amount[MOTORCYCLE_WEAPON];
 	}
 }
@@ -4247,7 +4247,7 @@ void OnBoat(struct player_struct *p, int boatsprite)
 		{
 			p->posx = sprite[boatsprite].x;
 			p->posy = sprite[boatsprite].y;
-			p->setang(sprite[boatsprite].ang);
+			p->angle.ang = buildang(sprite[boatsprite].ang);
 			p->ammo_amount[BOAT_WEAPON] = sprite[boatsprite].owner;
 			deletesprite(boatsprite);
 		}
@@ -4287,13 +4287,13 @@ void OffBoat(struct player_struct *p)
 		p->TurbCount = 0;
 		p->posxv = 0;
 		p->posyv = 0;
-		p->posxv -= sintable[(p->getang()+512)&2047]<<7;
-		p->posyv -= sintable[p->getang()&2047]<<7;
+		p->posxv -= sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
+		p->posyv -= sintable[p->angle.ang.asbuild()&2047]<<7;
 		p->moto_underwater = 0;
 		j = fi.spawn(p->i, EMPTYBOAT);
-		sprite[j].ang = p->getang();
-		sprite[j].xvel += sintable[(p->getang()+512)&2047]<<7;
-		sprite[j].yvel += sintable[p->getang()&2047]<<7;
+		sprite[j].ang = p->angle.ang.asbuild();
+		sprite[j].xvel += sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
+		sprite[j].yvel += sintable[p->angle.ang.asbuild()&2047]<<7;
 		sprite[j].owner = p->ammo_amount[BOAT_WEAPON];
 	}
 }

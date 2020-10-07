@@ -342,10 +342,10 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 			}
 
 			j = EGS(p->cursectnum,
-				p->posx + (sintable[(p->getang() + 512) & 2047] >> 6),
-				p->posy + (sintable[p->getang() & 2047] >> 6),
+				p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 6),
+				p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 6),
 				p->posz, HEAVYHBOMB, -16, 9, 9,
-				p->getang(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
+				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
 
 			{
 				int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);

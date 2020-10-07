@@ -113,12 +113,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		arc("posx", w.posx)
 			("posy", w.posy)
 			("posz", w.posz)
-			("q16ang", w.q16ang)
+			//("q16ang", w.angle.ang.asq16())
 			//("q16horiz", w.horizon.horiz.asq16())
 			//("q16horizoff", w.horizon.horizoff.asq16())
-			("q16rotscrnang", w.q16rotscrnang)
-			("q16look_ang", w.q16look_ang)
-			("one_eighty_count", w.one_eighty_count)
+			//("q16rotscrnang", w.angle.rotscrnang.asbuild())
+			//("q16look_ang", w.angle.look_ang.asq16())
+			//("one_eighty_count", w.angle.spin.asq16())
 			("gotweapon", w.gotweapon)
 			("palette", w.palette)
 			("pals", w.pals)
@@ -284,10 +284,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			.EndObject();
 
 		w.invdisptime = 0;
-		w.oq16ang = w.q16ang;
+		//w.angle.oang = w.angle.ang;
 		//w.horizon.ohoriz = w.horizon.horiz;
 		//w.horizon.ohorizoff = w.horizon.horizoff;
-		w.oq16rotscrnang = w.q16rotscrnang;
+		//w.oq16rotscrnang = w.angle.rotscrnang;
 		w.oposx = w.posx;
 		w.oposy = w.posy;
 		w.oposz = w.posz;

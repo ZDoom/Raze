@@ -1149,8 +1149,8 @@ void moveclouds(double smoothratio)
 		cloudclock = myclock + 6;
 
 		// cloudx/y were an array, but all entries were always having the same value so a single pair is enough.
-		cloudx += (sintable[(ps[screenpeek].getang() + 512) & 2047] >> 9);
-		cloudy += (sintable[ps[screenpeek].getang() & 2047] >> 9);
+		cloudx += (sintable[(ps[screenpeek].angle.ang.asbuild() + 512) & 2047] >> 9);
+		cloudy += (sintable[ps[screenpeek].angle.ang.asbuild() & 2047] >> 9);
 		for (int i = 0; i < numclouds; i++)
 		{
 			sector[clouds[i]].ceilingxpanning = cloudx >> 6;

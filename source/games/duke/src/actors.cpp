@@ -203,7 +203,7 @@ void clearcamera(player_struct* ps)
 	ps->posx = ps->oposx;
 	ps->posy = ps->oposy;
 	ps->posz = ps->oposz;
-	ps->q16ang = ps->oq16ang;
+	ps->angle.restore();
 	updatesector(ps->posx, ps->posy, &ps->cursectnum);
 	setpal(ps);
 
@@ -383,7 +383,7 @@ void movedummyplayers(void)
 			{
 				sprite[i].cstat = CSTAT_SPRITE_BLOCK_ALL;
 				sprite[i].z = sector[sprite[i].sectnum].ceilingz + (27 << 8);
-				sprite[i].ang = ps[p].getang();
+				sprite[i].ang = ps[p].angle.ang.asbuild();
 				if (hittype[i].temp_data[0] == 8)
 					hittype[i].temp_data[0] = 0;
 				else hittype[i].temp_data[0]++;
@@ -429,7 +429,7 @@ void moveplayers(void) //Players
 				s->x = p->oposx;
 				s->y = p->oposy;
 				hittype[i].bposz = s->z = p->oposz + PHEIGHT;
-				s->ang = p->getoang();
+				s->ang = p->angle.oang.asbuild();
 				setsprite(i, s->x, s->y, s->z);
 			}
 			else
@@ -468,7 +468,7 @@ void moveplayers(void) //Players
 
 				if (p->actorsqu >= 0)
 				{
-					playerAddAngle(&p->q16ang, &p->angAdjust, getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2);
+					p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), gethiq16angle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2));
 				}
 
 				if (s->extra > 0)
@@ -491,10 +491,10 @@ void moveplayers(void) //Players
 
 					if (p->wackedbyactor >= 0 && sprite[p->wackedbyactor].statnum < MAXSTATUS)
 					{
-						playerAddAngle(&p->q16ang, &p->angAdjust, getincangle(p->getang(), getangle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1);
+						p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), gethiq16angle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1));
 					}
 				}
-				s->ang = p->getang();
+				s->ang = p->angle.ang.asbuild();
 			}
 		}
 		else
@@ -532,7 +532,7 @@ void moveplayers(void) //Players
 			if (s->extra < 8)
 			{
 				s->xvel = 128;
-				s->ang = p->getang();
+				s->ang = p->angle.ang.asbuild();
 				s->extra++;
 				//IFMOVING;		// JBF 20040825: is really "if (ssp(i,CLIPMASK0)) ;" which is probably
 				ssp(i, CLIPMASK0);	// not the safest of ideas because a zealous optimiser probably sees
@@ -540,7 +540,7 @@ void moveplayers(void) //Players
 			}
 			else
 			{
-				s->ang = 2047 - (p->getang());
+				s->ang = 2047 - (p->angle.ang.asbuild());
 				setsprite(i, s->x, s->y, s->z);
 			}
 		}
@@ -748,7 +748,7 @@ void movecrane(int i, int crane)
 				s->owner = -2;
 				ps[p].on_crane = i;
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
-				playerSetAngle(&ps[p].q16ang, &ps[p].angTarget, s->ang + 1024);
+				ps[p].angle.addadjustment(s->ang + 1024);
 			}
 			else
 			{
@@ -834,7 +834,7 @@ void movecrane(int i, int crane)
 		}
 		else if (s->owner == -2)
 		{
-			auto ang = ps[p].getang();
+			auto ang = ps[p].angle.ang.asbuild();
 			ps[p].oposx = ps[p].posx;
 			ps[p].oposy = ps[p].posy;
 			ps[p].oposz = ps[p].posz;
@@ -1521,7 +1521,7 @@ bool queball(int i, int pocket, int queball, int stripeball)
 
 			//						if(s->pal == 12)
 			{
-				j = getincangle(ps[p].getang(), getangle(s->x - ps[p].posx, s->y - ps[p].posy));
+				j = getincangle(ps[p].angle.ang.asbuild(), getangle(s->x - ps[p].posx, s->y - ps[p].posy));
 				if (j > -64 && j < 64 && PlayerInput(p, SB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{
@@ -1530,7 +1530,7 @@ bool queball(int i, int pocket, int queball, int stripeball)
 						{
 							if (sprite[a].picnum == queball || sprite[a].picnum == stripeball)
 							{
-								j = getincangle(ps[p].getang(), getangle(sprite[a].x - ps[p].posx, sprite[a].y - ps[p].posy));
+								j = getincangle(ps[p].angle.ang.asbuild(), getangle(sprite[a].x - ps[p].posx, sprite[a].y - ps[p].posy));
 								if (j > -64 && j < 64)
 								{
 									int l;
@@ -1545,7 +1545,7 @@ bool queball(int i, int pocket, int queball, int stripeball)
 							if (s->pal == 12)
 								s->xvel = 164;
 							else s->xvel = 140;
-							s->ang = ps[p].getang();
+							s->ang = ps[p].angle.ang.asbuild();
 							ps[p].toggle_key_flag = 2;
 						}
 					}
@@ -2698,7 +2698,7 @@ void handle_se00(int i, int LASERLINE)
 		{
 			if (ps[p].cursectnum == s->sectnum && ps[p].on_ground == 1)
 			{
-				playerAddAngle(&ps[p].q16ang, &ps[p].angAdjust, l * q);
+				ps[p].angle.addadjustment(l * q);
 
 				ps[p].posz += zchange;
 
@@ -2890,7 +2890,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 					ps[p].bobposx += m;
 					ps[p].bobposy += x;
 
-					playerAddAngle(&ps[p].q16ang, &ps[p].angAdjust, q);
+					ps[p].angle.addadjustment(q);
 
 					if (numplayers > 1)
 					{

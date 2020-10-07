@@ -1359,7 +1359,7 @@ void ProcessInput(PLAYER *pPlayer)
         {
             fixed_t fraggerAng = gethiq16angle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
             pPlayer->angold = pSprite->ang = FixedToInt(fraggerAng);
-            playerAddAngle(&pPlayer->q16ang, &pPlayer->angAdjust, FixedToFloat(getincangleq16(pPlayer->q16ang, fraggerAng)));
+            playerAddAngle2(&pPlayer->q16ang, &pPlayer->angAdjust, FixedToFloat(getincangleq16(pPlayer->q16ang, fraggerAng)));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
@@ -1445,7 +1445,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        applylook(&pPlayer->q16ang, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, pInput->q16avel, &pInput->actions, 1, pPlayer->posture != 0);
+        applylook2(&pPlayer->q16ang, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, pInput->q16avel, &pInput->actions, 1, pPlayer->posture != 0);
         UpdatePlayerSpriteAngle(pPlayer);
     }
 

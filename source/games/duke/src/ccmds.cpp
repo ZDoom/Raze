@@ -114,7 +114,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
 
     if (parm->numparms >= 4)
     {
-        p->oq16ang = p->q16ang = IntToFixed(atoi(parm->parms[3]));
+        p->angle.oang = p->angle.ang = buildang(atoi(parm->parms[3]));
     }
 
     if (parm->numparms == 5)

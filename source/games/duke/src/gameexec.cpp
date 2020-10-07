@@ -457,12 +457,12 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_ANG:
-		if (bSet) playerSetAngle(&ps[iPlayer].q16ang, &ps[iPlayer].angTarget, lValue);
-		else SetGameVarID((int)lVar2, ps[iPlayer].getang(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].angle.settarget(lValue);
+		else SetGameVarID((int)lVar2, ps[iPlayer].angle.ang.asbuild(), sActor, sPlayer);
 		break;
 
 	case PLAYER_OANG:
-		if (!bSet) SetGameVarID((int)lVar2, ps[iPlayer].getang(), sActor, sPlayer);
+		if (!bSet) SetGameVarID((int)lVar2, ps[iPlayer].angle.oang.asbuild(), sActor, sPlayer);
 		break;
 
 	case PLAYER_ANGVEL: // This no longer exists.
@@ -475,8 +475,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_LOOK_ANG:
-		if (bSet) ps[iPlayer].q16look_ang = IntToFixed(lValue);
-		else SetGameVarID((int)lVar2, FixedToInt(ps[iPlayer].q16look_ang), sActor, sPlayer);
+		if (bSet) ps[iPlayer].angle.look_ang = buildlook(lValue);
+		else SetGameVarID((int)lVar2, ps[iPlayer].angle.look_ang.asbuild(), sActor, sPlayer);
 		break;
 
 	case PLAYER_LAST_EXTRA:
@@ -636,8 +636,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_ONE_EIGHTY_COUNT:
-		if (bSet) ps[iPlayer].one_eighty_count = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].one_eighty_count, sActor, sPlayer);
+		if (bSet) ps[iPlayer].angle.spin = buildlook(lValue);
+		else SetGameVarID((int)lVar2, ps[iPlayer].angle.spin.asbuild(), sActor, sPlayer);
 		break;
 
 	case PLAYER_CHEAT_PHASE:
@@ -696,8 +696,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_ROTSCRNANG:
-		if (bSet) ps[iPlayer].setrotscrnang(lValue);
-		else SetGameVarID((int)lVar2, FixedToInt(ps[iPlayer].q16rotscrnang), sActor, sPlayer);
+		if (bSet) ps[iPlayer].angle.rotscrnang = buildlook(lValue);
+		else SetGameVarID((int)lVar2, ps[iPlayer].angle.rotscrnang.asbuild(), sActor, sPlayer);
 		break;
 
 	case PLAYER_DEAD_FLAG:
@@ -2054,7 +2054,7 @@ int ParseState::parse(void)
 			ps[g_p].posx = ps[g_p].oposx;
 			ps[g_p].posy = ps[g_p].oposy;
 			ps[g_p].posz = ps[g_p].oposz;
-			ps[g_p].q16ang = ps[g_p].oq16ang;
+			ps[g_p].angle.restore();
 			updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
 			setpal(&ps[g_p]);
 
@@ -2259,7 +2259,7 @@ int ParseState::parse(void)
 			ps[g_p].weapreccnt = 0;
 			ps[g_p].ftq = 0;
 			ps[g_p].posxv = ps[g_p].posyv = 0;
-			if (!isRR()) ps[g_p].setrotscrnang(0);
+			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = buildlook(0);
 
 			ps[g_p].falling_counter = 0;
 
@@ -2431,9 +2431,9 @@ int ParseState::parse(void)
 			else if( (l& pfacing) )
 			{
 				if (g_sp->picnum == TILE_APLAYER && ud.multimode > 1)
-					j = getincangle(ps[otherp].getang(), getangle(ps[g_p].posx - ps[otherp].posx, ps[g_p].posy - ps[otherp].posy));
+					j = getincangle(ps[otherp].angle.ang.asbuild(), getangle(ps[g_p].posx - ps[otherp].posx, ps[g_p].posy - ps[otherp].posy));
 				else
-					j = getincangle(ps[g_p].getang(), getangle(g_sp->x - ps[g_p].posx, g_sp->y - ps[g_p].posy));
+					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_sp->x - ps[g_p].posx, g_sp->y - ps[g_p].posy));
 
 				if( j > -128 && j < 128 )
 					j = 1;
@@ -2457,8 +2457,8 @@ int ParseState::parse(void)
 	case concmd_slapplayer:
 		insptr++;
 		forceplayerangle(g_p);
-		ps[g_p].posxv -= sintable[(ps[g_p].getang() + 512) & 2047] << 7;
-		ps[g_p].posyv -= sintable[ps[g_p].getang() & 2047] << 7;
+		ps[g_p].posxv -= sintable[(ps[g_p].angle.ang.asbuild() + 512) & 2047] << 7;
+		ps[g_p].posyv -= sintable[ps[g_p].angle.ang.asbuild() & 2047] << 7;
 		return 0;
 	case concmd_wackplayer:
 		insptr++;
@@ -2466,8 +2466,8 @@ int ParseState::parse(void)
 			forceplayerangle(g_p);
 		else
 		{
-			ps[g_p].posxv -= sintable[(ps[g_p].getang() + 512) & 2047] << 10;
-			ps[g_p].posyv -= sintable[ps[g_p].getang() & 2047] << 10;
+			ps[g_p].posxv -= sintable[(ps[g_p].angle.ang.asbuild() + 512) & 2047] << 10;
+			ps[g_p].posyv -= sintable[ps[g_p].angle.ang.asbuild() & 2047] << 10;
 			ps[g_p].jumping_counter = 767;
 			ps[g_p].jumping_toggle = 1;
 		}
@@ -2828,7 +2828,7 @@ int ParseState::parse(void)
 
 	case concmd_ifangdiffl:
 		insptr++;
-		j = abs(getincangle(ps[g_p].getang(),g_sp->ang));
+		j = abs(getincangle(ps[g_p].angle.ang.asbuild(),g_sp->ang));
 		parseifelse( j <= *insptr);
 		break;
 
@@ -3138,7 +3138,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, ps[g_p].getang(), g_i, g_p);
+		SetGameVarID(i, ps[g_p].angle.ang.asbuild(), g_i, g_p);
 		break;
 	}
 	case concmd_setplayerangle:
@@ -3146,7 +3146,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		ps[g_p].setang(GetGameVarID(i, g_i, g_p) & 2047);
+		ps[g_p].angle.ang = buildang(GetGameVarID(i, g_i, g_p) & 2047);
 		break;
 	}
 	case concmd_getactorangle:

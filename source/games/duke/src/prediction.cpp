@@ -39,7 +39,7 @@ BEGIN_DUKE_NS
 
 int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
 short globalskillsound;
-fixed_t q16myang, oq16myang;
+binangle myang, omyang;
 fixedhoriz myhoriz, omyhoriz, myhorizoff, omyhorizoff;
 short mycursectnum, myjumpingcounter;
 char myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
@@ -55,7 +55,7 @@ void resetmys()
 	myy = omyy = ps[myconnectindex].posy;
 	myz = omyz = ps[myconnectindex].posz;
 	myxvel = myyvel = myzvel = 0;
-	q16myang = oq16myang = ps[myconnectindex].q16ang;
+	myang = myang = ps[myconnectindex].angle.ang;
 	myhoriz = omyhoriz = ps[myconnectindex].horizon.horiz;
 	myhorizoff = omyhorizoff = ps[myconnectindex].horizon.horizoff;
 	mycursectnum = ps[myconnectindex].cursectnum;
@@ -214,7 +214,7 @@ void fakedomovethings(void)
 
 		if(p->on_crane >= 0) goto FAKEHORIZONLY;
 
-		if(p->one_eighty_count < 0) myang += 128;
+		if(p->angle.spin.asbam() < 0) myang += 128;
 
 		i = 40;
 

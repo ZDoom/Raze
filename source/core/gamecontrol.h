@@ -75,6 +75,7 @@ struct PlayerHorizon
 	double adjustment;
 
 	void backup();
+	void restore();
 	void addadjustment(double value);
 	void resetadjustment();
 	void settarget(double value, bool backup = false);
@@ -83,11 +84,29 @@ struct PlayerHorizon
 	fixedhoriz interpolatedsum(double const smoothratio);
 };
 
+struct PlayerAngle
+{
+	binangle ang, oang, target;
+	lookangle look_ang, olook_ang, rotscrnang, orotscrnang, spin;
+	double adjustment;
+
+	void backup();
+	void restore();
+	void addadjustment(double value);
+	void resetadjustment();
+	void settarget(double value, bool backup = false);
+	void processhelpers(double const scaleAdjust);
+	binangle sum();
+	binangle interpolatedsum(double const smoothratio);
+	lookangle interpolatedrotscrn(double const smoothratio);
+};
+
 void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt = 0, bool const allowstrafe = true, double const turnscale = 1);
 void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double const scaleAdjust);
-void applylook(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching);
-void playerAddAngle(fixed_t* q16ang, double* helper, double adjustment);
-void playerSetAngle(fixed_t* q16ang, fixed_t* helper, double adjustment);
+void applylook(PlayerAngle* angle, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching);
+void applylook2(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching);
+void playerAddAngle2(fixed_t* q16ang, double* helper, double adjustment);
+void playerSetAngle2(fixed_t* q16ang, fixed_t* helper, double adjustment);
 void playerProcessHelpers(fixed_t* q16ang, double* angAdjust, fixed_t* angTarget, double const scaleAdjust);
 
 struct UserConfig

@@ -93,8 +93,8 @@ void calcviewpitch(player_struct *p, double factor)
 	int psectlotag = sector[psect].lotag;
 	if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
 	{
-		int x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
-		int y = p->posy + (sintable[p->getang() & 2047] >> 5);
+		int x = p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 5);
+		int y = p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 5);
 		short tempsect = psect;
 		updatesector(x, y, &tempsect);
 
@@ -166,8 +166,7 @@ void forceplayerangle(int snum)
 
 	p->horizon.addadjustment(64);
 	p->sync.actions |= SB_CENTERVIEW;
-	p->setlookang(n >> 1);
-	p->setrotscrnang(n >> 1);
+	p->angle.rotscrnang = p->angle.look_ang = buildlook(n >> 1);
 }
 
 //---------------------------------------------------------------------------
@@ -264,7 +263,7 @@ int hitawall(struct player_struct* p, int* hitw)
 	short sect, hs, hitw1;
 
 	hitscan(p->posx, p->posy, p->posz, p->cursectnum,
-		sintable[(p->getang() + 512) & 2047], sintable[p->getang() & 2047], 0, &sect, &hitw1, &hs, &sx, &sy, &sz, CLIPMASK0);
+		sintable[(p->angle.ang.asbuild() + 512) & 2047], sintable[p->angle.ang.asbuild() & 2047], 0, &sect, &hitw1, &hs, &sx, &sy, &sz, CLIPMASK0);
 	*hitw = hitw1;
 
 	return (FindDistance2D(sx - p->posx, sy - p->posy));
@@ -656,7 +655,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 128L, (4L << 8), (20L << 8), CLIPMASK0);
 
 	if (fz > cz + (16 << 8) && s->pal != 1)
-		p->setrotscrnang((p->dead_flag + ((fz + p->posz) >> 7)) & 2047);
+		p->angle.rotscrnang = buildlook(p->dead_flag + ((fz + p->posz) >> 7));
 
 	p->on_warping_sector = 0;
 
@@ -767,16 +766,16 @@ void apply_seasick(player_struct* p, double factor)
 		if (p->SeaSick < 250)
 		{
 			if (p->SeaSick >= 180)
-				p->addrotscrnang(24 * factor);
+				p->angle.rotscrnang += bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
 			else if (p->SeaSick >= 130)
-				p->addrotscrnang(-24 * factor);
+				p->angle.rotscrnang -= bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
 			else if (p->SeaSick >= 70)
-				p->addrotscrnang(24 * factor);
+				p->angle.rotscrnang += bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
 			else if (p->SeaSick >= 20)
-				p->addrotscrnang(-24 * factor);
+				p->angle.rotscrnang -= bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
 		}
 		if (p->SeaSick < 250)
-			p->addlookang(((krand() & 255) - 128) * factor);
+			p->angle.look_ang = bamlook(xs_CRoundToUInt(((krand() & 255) - 128) * factor * BAMUNIT));
 	}
 }
 
@@ -830,19 +829,6 @@ void backuppos(player_struct* p, bool noclipping)
 //
 //---------------------------------------------------------------------------
 
-void backuplook(player_struct* p)
-{
-	p->oq16ang = p->q16ang;
-	p->oq16look_ang = p->q16look_ang;
-	p->oq16rotscrnang = p->q16rotscrnang;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void backupweapon(player_struct* p)
 {
 	p->oweapon_sway = p->weapon_sway;
@@ -861,7 +847,7 @@ void backupweapon(player_struct* p)
 void resetinputhelpers(player_struct* p)
 {
 	p->horizon.resetadjustment();
-	p->angAdjust = 0;
+	p->angle.resetadjustment();
 }
 
 //---------------------------------------------------------------------------
@@ -932,7 +918,7 @@ void checklook(int snum, ESyncBits actions)
 			actions &= ~SB_LOOK_RIGHT;
 		}
 	}
-	backuplook(p);
+	p->angle.backup();
 }
 
 //---------------------------------------------------------------------------

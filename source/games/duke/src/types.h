@@ -95,13 +95,9 @@ struct player_struct
 		struct { int32_t posx, posy, posz; };
 	};
 
-	// input handles angle as fixed16 numbers. We need to account for that as well.
-	fixed_t q16ang, q16rotscrnang, q16look_ang;
-	fixed_t oq16ang, oq16rotscrnang, oq16look_ang; // These are only needed with synchronous mouse input.
-	fixed_t one_eighty_count;
-
-	// player's horison struct.
+	// player's horizon and angle structs.
 	PlayerHorizon horizon;
+	PlayerAngle angle;
 
 	// using a bit field for this to save a bit of space.
 	FixedBitArray<MAX_WEAPONS> gotweapon;
@@ -210,23 +206,7 @@ struct player_struct
 	int8_t crouch_toggle;
 
 	// input stuff.
-	double  angAdjust;
-	fixed_t angTarget;
 	InputPacket sync;
-
-
-	// Access helpers for the widened angle fields.
-	void setlookang(int b) { q16look_ang = IntToFixed(b); }
-	void addlookang(int b) { q16look_ang += IntToFixed(b); }
-	void addlookang(double b) { q16look_ang += FloatToFixed(b); }
-	void setrotscrnang(int b) { q16rotscrnang = IntToFixed(b); }
-	void addrotscrnang(int b) { q16rotscrnang += IntToFixed(b); }
-	void addrotscrnang(double b) { q16rotscrnang += FloatToFixed(b); }
-	int getang() { return FixedToInt(q16ang); }
-	int getoang() { return FixedToInt(oq16ang); }
-	void setang(int v) { q16ang = IntToFixed(v); }
-	void addang(int v) { q16ang = (q16ang + IntToFixed(v)) & 0x7FFFFFF; }
-	void setoang(int v) { oq16ang = IntToFixed(v); }
 };
 
 

@@ -190,7 +190,7 @@ inline bool playrunning()
 inline void backupplayer(player_struct* p)
 {
 	backuppos(p);
-	backuplook(p);
+	p->angle.backup();
 	p->horizon.backup();
 }
 

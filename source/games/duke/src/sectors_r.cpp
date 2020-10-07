@@ -1033,7 +1033,7 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 					if (wal->nextwall >= 0)
 						wall[wal->nextwall].cstat = 0;
 
-					i = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].getang(), 0, 0, spr, 3);
+					i = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
 					sprite[i].lotag = 128; hittype[i].temp_data[1] = 2; hittype[i].temp_data[2] = dawallnum;
 					S_PlayActorSound(GLASS_BREAKING, i);
 					return;
@@ -1047,7 +1047,7 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 					if (wal->nextwall >= 0)
 						wall[wal->nextwall].cstat = 0;
 
-					i = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].getang(), 0, 0, spr, 3);
+					i = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
 					sprite[i].lotag = 128; hittype[i].temp_data[1] = 2; hittype[i].temp_data[2] = dawallnum;
 					S_PlayActorSound(GLASS_BREAKING, i);
 					return;
@@ -1419,8 +1419,8 @@ void checkplayerhurt_r(struct player_struct* p, int j)
 	case BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->i, j,
-			p->posx + (sintable[(p->getang() + 512) & 2047] >> 9),
-			p->posy + (sintable[p->getang() & 2047] >> 9),
+			p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 9),
+			p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 9),
 			p->posz, -1);
 		break;
 
@@ -2555,21 +2555,21 @@ void checksectors_r(int snum)
 				}
 				return;
 			}
-			neartag(p->posx, p->posy, p->posz, sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+			neartag(p->posx, p->posy, p->posz, sprite[p->i].sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 		}
 
 		if (p->newowner >= 0)
-			neartag(p->oposx, p->oposy, p->oposz, sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			neartag(p->oposx, p->oposy, p->oposz, sprite[p->i].sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 		else
 		{
-			neartag(p->posx, p->posy, p->posz, sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			neartag(p->posx, p->posy, p->posz, sprite[p->i].sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
-				neartag(p->posx, p->posy, p->posz + (8 << 8), sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+				neartag(p->posx, p->posy, p->posz + (8 << 8), sprite[p->i].sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
-				neartag(p->posx, p->posy, p->posz + (16 << 8), sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+				neartag(p->posx, p->posy, p->posz + (16 << 8), sprite[p->i].sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
 			{
-				neartag(p->posx, p->posy, p->posz + (16 << 8), sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+				neartag(p->posx, p->posy, p->posz + (16 << 8), sprite[p->i].sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 				if (neartagsprite >= 0)
 				{
 					switch (sprite[neartagsprite].picnum)

@@ -1530,7 +1530,7 @@ UpdatePlayerSpriteAngle(PLAYERp pp)
 void
 DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
 {
-    applylook(&pp->q16ang, &pp->q16look_ang, &pp->q16rotscrnang, &pp->turn180_target, q16avel, &pp->input.actions, scaleAdjust, pp->input.actions & (SB_CROUCH|SB_CROUCH_LOCK));
+    applylook2(&pp->q16ang, &pp->q16look_ang, &pp->q16rotscrnang, &pp->turn180_target, q16avel, &pp->input.actions, scaleAdjust, pp->input.actions & (SB_CROUCH|SB_CROUCH_LOCK));
     UpdatePlayerSpriteAngle(pp);
 }
 
@@ -3671,7 +3671,7 @@ DoPlayerClimb(PLAYERp pp)
             pp->lx = lsp->x + nx * 5;
             pp->ly = lsp->y + ny * 5;
 
-            playerSetAngle(&pp->q16ang, &pp->angTarget, pp->LadderAngle);
+            playerSetAngle2(&pp->q16ang, &pp->angTarget, pp->LadderAngle);
         }
     }
 }
@@ -4126,7 +4126,7 @@ PlayerOnLadder(PLAYERp pp)
     pp->lx = lsp->x + nx * 5;
     pp->ly = lsp->y + ny * 5;
 
-    playerSetAngle(&pp->q16ang, &pp->angTarget, pp->LadderAngle);
+    playerSetAngle2(&pp->q16ang, &pp->angTarget, pp->LadderAngle);
 
     return true;
 }
@@ -5365,7 +5365,7 @@ DoPlayerBeginOperate(PLAYERp pp)
     pp->sop = pp->sop_control = sop;
     sop->controller = pp->SpriteP;
 
-    playerSetAngle(&pp->q16ang, &pp->angTarget, sop->ang);
+    playerSetAngle2(&pp->q16ang, &pp->angTarget, sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5452,7 +5452,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 
     save_sectnum = pp->cursectnum;
 
-    playerSetAngle(&pp->q16ang, &pp->angTarget, sop->ang);
+    playerSetAngle2(&pp->q16ang, &pp->angTarget, sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -6242,7 +6242,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            playerAddAngle(&pp->q16ang, &pp->angAdjust, getincangleq16(pp->q16ang, gethiq16angle(kp->x - pp->posx, kp->y - pp->posy)) / (double)(FRACUNIT << 4));
+            playerAddAngle2(&pp->q16ang, &pp->angAdjust, getincangleq16(pp->q16ang, gethiq16angle(kp->x - pp->posx, kp->y - pp->posy)) / (double)(FRACUNIT << 4));
         }
     }
 }
@@ -7282,7 +7282,7 @@ domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            playerSetAngle(&Player[screenpeek].q16ang, &Player[screenpeek].angTarget, FixedToFloat(gethiq16angle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy)));
+            playerSetAngle2(&Player[screenpeek].q16ang, &Player[screenpeek].angTarget, FixedToFloat(gethiq16angle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy)));
         }
 
         if (!TEST(pp->Flags, PF_DEAD))

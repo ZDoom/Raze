@@ -62,7 +62,7 @@ FString GameInterface::GetCoordString()
 	FString out;
 
 	out.Format("pos= %d, %d, %d - angle = %2.3f - sector = %d, lotag = %d, hitag = %d",
-		ps[snum].posx, ps[snum].posy, ps[snum].posz, ps[snum].q16ang / 65536., ps[snum].cursectnum,
+		ps[snum].posx, ps[snum].posy, ps[snum].posz, ps[snum].angle.ang.asbuild(), ps[snum].cursectnum,
 		sector[ps[snum].cursectnum].lotag, sector[ps[snum].cursectnum].hitag);
 
 	return out;
@@ -274,20 +274,20 @@ void drawoverlays(double smoothratio)
 				{
 					cposx = omyx + mulscale16(myx - omyx, smoothratio);
 					cposy = omyy + mulscale16(myy - omyy, smoothratio);
-					cang = FixedToInt(oq16myang + mulscale16(((q16myang + IntToFixed(1024) - oq16myang) & 0x7FFFFFF) - IntToFixed(1024), smoothratio));
+					cang = omyang.asbuild() + mulscale16(((myang.asbuild() + 1024 - omyang.asbuild()) & 2047) - 1024, smoothratio);
 				}
 				else
 				{
 					cposx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
 					cposy = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
-					cang = pp->getoang() + mulscale16(((pp->getang() + 1024 - pp->getoang()) & 2047) - 1024, smoothratio);
+					cang = pp->angle.oang.asbuild() + mulscale16(((pp->angle.ang.asbuild() + 1024 - pp->angle.oang.asbuild()) & 2047) - 1024, smoothratio);
 				}
 			}
 			else
 			{
 				cposx = pp->oposx;
 				cposy = pp->oposy;
-				cang = pp->getoang();
+				cang = pp->angle.oang.asbuild();
 			}
 			DrawOverheadMap(cposx, cposy, cang);
 			restoreinterpolations();
@@ -300,7 +300,7 @@ void drawoverlays(double smoothratio)
 
 	if (ps[myconnectindex].newowner == -1 && ud.camerasprite == -1)
 	{
-		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -getHalfLookAng(pp->oq16look_ang, pp->q16look_ang, cl_syncinput, smoothratio), pp->over_shoulder_on ? 2.5 : 0, isRR() ? 0.5 : 1);
+		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -getHalfLookAng(pp->angle.olook_ang.asq16(), pp->angle.look_ang.asq16(), cl_syncinput, smoothratio), pp->over_shoulder_on ? 2.5 : 0, isRR() ? 0.5 : 1);
 	}
 
 	if (paused == 2)

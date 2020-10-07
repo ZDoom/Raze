@@ -118,7 +118,7 @@ void shoot_d(int i, int atwith)
 		sx = ps[p].posx;
 		sy = ps[p].posy;
 		sz = ps[p].posz + ps[p].pyoff + (4 << 8);
-		sa = ps[p].getang();
+		sa = ps[p].angle.ang.asbuild();
 
 		ps[p].crack_time = CRACK_TIME;
 
@@ -403,7 +403,7 @@ void shoot_d(int i, int atwith)
 				j = fi.spawn(ps[p].i, WATERSPLASH2);
 				sprite[j].x = hitx;
 				sprite[j].y = hity;
-				sprite[j].ang = ps[p].getang(); // Total tweek
+				sprite[j].ang = ps[p].angle.ang.asbuild(); // Total tweek
 				sprite[j].xvel = 32;
 				ssp(i, CLIPMASK0);
 				sprite[j].xvel = 0;
@@ -1915,9 +1915,9 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 	{
 		j = fi.spawn(pi, WATERBUBBLE);
 		sprite[j].x +=
-			sintable[(p->getang() + 512 + 64 - (global_random & 128)) & 2047] >> 6;
+			sintable[(p->angle.ang.asbuild() + 512 + 64 - (global_random & 128)) & 2047] >> 6;
 		sprite[j].y +=
-			sintable[(p->getang() + 64 - (global_random & 128)) & 2047] >> 6;
+			sintable[(p->angle.ang.asbuild() + 64 - (global_random & 128)) & 2047] >> 6;
 		sprite[j].xrepeat = 3;
 		sprite[j].yrepeat = 2;
 		sprite[j].z = p->posz + (8 << 8);
@@ -1939,8 +1939,8 @@ int operateTripbomb(int snum)
 	short sect, hw, hitsp;
 
 	hitscan(p->posx, p->posy, p->posz,
-		p->cursectnum, sintable[(p->getang() + 512) & 2047],
-		sintable[p->getang() & 2047], -p->horizon.sum().asq16() >> 11,
+		p->cursectnum, sintable[(p->angle.ang.asbuild() + 512) & 2047],
+		sintable[p->angle.ang.asbuild() & 2047], -p->horizon.sum().asq16() >> 11,
 		&sect, &hw, &hitsp, &sx, &sy, &sz, CLIPMASK1);
 
 	if (sect < 0 || hitsp >= 0)
@@ -2131,10 +2131,10 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			}
 
 			j = EGS(p->cursectnum,
-				p->posx + (sintable[(p->getang() + 512) & 2047] >> 6),
-				p->posy + (sintable[p->getang() & 2047] >> 6),
+				p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 6),
+				p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 6),
 				p->posz, HEAVYHBOMB, -16, 9, 9,
-				p->getang(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
+				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
 
 			if (isNam())
 			{
@@ -2840,7 +2840,7 @@ void processinput_d(int snum)
 		// may still be needed later for demo recording
 
 		processq16avel(p, &sb_avel);
-		applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, sb_avel, &p->sync.actions, 1, p->crouch_toggle || actions & SB_CROUCH);
+		applylook(&p->angle, sb_avel, &p->sync.actions, 1, p->crouch_toggle || actions & SB_CROUCH);
 	}
 
 	if (p->spritebridge == 0)
