@@ -336,9 +336,9 @@ void RestartPlayer(short nPlayer)
 
     PlayerList[nPlayer].opos = sprite[nSprite].pos;
     PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
-    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz;
     PlayerList[nPlayer].oq16look_ang = PlayerList[nPlayer].q16look_ang = 0;
     PlayerList[nPlayer].oq16rotscrnang = PlayerList[nPlayer].q16rotscrnang = 0;
+    PlayerList[nPlayer].horizon.backup();
 
     nPlayerFloorSprite[nPlayer] = floorspr;
 
@@ -438,7 +438,7 @@ void RestartPlayer(short nPlayer)
     nYDamage[nPlayer] = 0;
     nXDamage[nPlayer] = 0;
 
-    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz = 0;
+    PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = q16horiz(0);
     nBreathTimer[nPlayer] = 90;
 
     nTauntTimer[nPlayer] = RandomSize(3) + 3;
@@ -535,7 +535,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz = 0;
+    PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = q16horiz(0);
     oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
     nPlayerInvisible[nPlayer] = 0;
     dVertPan[nPlayer] = 15;
@@ -726,12 +726,12 @@ void FuncPlayer(int a, int nDamage, int nRun)
     short nSprite2;
 
     PlayerList[nPlayer].angAdjust = 0;
-    PlayerList[nPlayer].horizAdjust = 0;
     PlayerList[nPlayer].opos = sprite[nPlayerSprite].pos;
     PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
-    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz;
     PlayerList[nPlayer].oq16look_ang = PlayerList[nPlayer].q16look_ang;
     PlayerList[nPlayer].oq16rotscrnang = PlayerList[nPlayer].q16rotscrnang;
+    PlayerList[nPlayer].horizon.backup();
+    PlayerList[nPlayer].horizon.resetadjustment();
     oeyelevel[nPlayer] = eyelevel[nPlayer];
 
     switch (nMessage)
@@ -1050,8 +1050,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                     PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
                     sprite[nPlayerSprite].ang = ang;
 
-                    playerSetHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 0);
-                    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz;
+                    PlayerList[nPlayer].horizon.settarget(0, true);
 
                     lPlayerXVel = 0;
                     lPlayerYVel = 0;
@@ -1069,11 +1068,11 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
                         if (currentLevel->levelNumber == 11)
                         {
-                            playerSetHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 46);
+                            PlayerList[nPlayer].horizon.settarget(46);
                         }
                         else
                         {
-                            playerSetHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 11);
+                            PlayerList[nPlayer].horizon.settarget(11);
                         }
                     }
                 }
@@ -1101,7 +1100,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                             zVelB = -zVelB;
                         }
 
-                        if (zVelB > 512 && PlayerList[nPlayer].q16horiz != 0 && (sPlayerInput[nPlayer].actions & (SB_AIMMODE))) {
+                        if (zVelB > 512 && PlayerList[nPlayer].horizon.horiz.asq16() != 0 && (sPlayerInput[nPlayer].actions & (SB_AIMMODE))) {
                             sPlayerInput[nPlayer].actions |= SB_CENTERVIEW;
                         }
                     }
@@ -2669,7 +2668,7 @@ loc_1BD2E:
                 if (cl_syncinput)
                 {
                     Player* pPlayer = &PlayerList[nPlayer];
-                    sethorizon2(&pPlayer->q16horiz, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions, 1);
+                    sethorizon(&pPlayer->horizon.horiz, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions, 1);
                 }
             }
             else // else, player's health is less than 0
@@ -2789,20 +2788,20 @@ loc_1BD2E:
                 }
                 else
                 {
-                    if (PlayerList[nPlayer].q16horiz < 0)
+                    if (PlayerList[nPlayer].horizon.horiz.asq16() < 0)
                     {
-                        playerSetHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 0);
+                        PlayerList[nPlayer].horizon.settarget(0);
                         eyelevel[nPlayer] -= (dVertPan[nPlayer] << 8);
                     }
                     else
                     {
-                        playerAddHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizAdjust, dVertPan[nPlayer]);
+                        PlayerList[nPlayer].horizon.addadjustment(dVertPan[nPlayer]);
 
-                        if (PlayerList[nPlayer].q16horiz > gi->playerHorizMax())
+                        if (PlayerList[nPlayer].horizon.horiz.asq16() > gi->playerHorizMax())
                         {
-                            playerSetHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, gi->playerHorizMax());
+                            PlayerList[nPlayer].horizon.settarget(gi->playerHorizMax());
                         }
-                        else if (PlayerList[nPlayer].q16horiz <= 0)
+                        else if (PlayerList[nPlayer].horizon.horiz.asq16() <= 0)
                         {
                             if (!(SectFlag[sprite[nPlayerSprite].sectnum] & kSectUnderwater))
                             {

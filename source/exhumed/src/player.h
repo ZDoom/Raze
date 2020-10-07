@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define __player_h__
 
 #include "compat.h"
+#include "gamecontrol.h"
 
 BEGIN_PS_NS
 
@@ -69,13 +70,13 @@ struct Player
     short field_3C;
     short nRun;
 
+    PlayerHorizon horizon;
     fixed_t oq16angle, q16angle;
-    fixed_t oq16horiz, q16horiz;
     fixed_t oq16look_ang, q16look_ang;
     fixed_t oq16rotscrnang, q16rotscrnang;
     fixed_t spin;
-    fixed_t angTarget, horizTarget;
-    double angAdjust, horizAdjust;
+    fixed_t angTarget;
+    double angAdjust;
     vec3_t opos;
 };
 

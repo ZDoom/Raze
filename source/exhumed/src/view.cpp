@@ -49,7 +49,7 @@ short nQuake[kMaxPlayers] = { 0 };
 short nChunkTotal = 0;
 
 fixed_t nCameraa;
-fixed_t nCamerapan;
+fixedhoriz nCamerapan;
 short nViewTop;
 bool bCamera = false;
 
@@ -236,7 +236,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     int playerZ;
     short nSector;
     fixed_t nAngle;
-    fixed_t pan;
+    fixedhoriz pan;
     fixed_t q16rotscrnang;
 
     fixed_t dang = IntToFixed(1024);
@@ -313,7 +313,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     {
         if (nSnakeCam >= 0 && !sceneonly)
         {
-            pan = 0;
+            pan = q16horiz(0);
             viewz = playerZ;
         }
         else
@@ -323,11 +323,11 @@ void DrawView(double smoothRatio, bool sceneonly)
 
             if (!cl_syncinput)
             {
-                pan = PlayerList[nLocalPlayer].q16horiz;
+                pan = PlayerList[nLocalPlayer].horizon.sum();
             }
             else
             {
-                pan = PlayerList[nLocalPlayer].oq16horiz + xs_CRoundToInt(fmulscale16(PlayerList[nLocalPlayer].q16horiz - PlayerList[nLocalPlayer].oq16horiz, smoothRatio));
+                pan = PlayerList[nLocalPlayer].horizon.interpolatedsum(smoothRatio);
             }
 
             if (viewz > floorZ)
@@ -344,11 +344,11 @@ void DrawView(double smoothRatio, bool sceneonly)
             -2000 * Sin(inita),
             4, 0, 0, CLIPMASK1);
 
-        pan = 0;
+        pan = q16horiz(0);
         viewz = playerZ;
     }
 
-    pan = clamp(pan, gi->playerHorizMin(), gi->playerHorizMax());
+    pan = q16horiz(clamp(pan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
     nCamerax = playerX;
     nCameray = playerY;
@@ -404,7 +404,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             }
         }
 
-        renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa, nCamerapan, nSector);
+        renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa, nCamerapan.asq16(), nSector);
         analyzesprites();
         renderDrawMasks();
 

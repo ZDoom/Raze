@@ -97,7 +97,7 @@ struct PlayerHorizon
 		adjustment = 0;
 	}
 
-	void settarget(double value)
+	void settarget(double value, bool backup = false)
 	{
 		if (!cl_syncinput)
 		{
@@ -107,6 +107,7 @@ struct PlayerHorizon
 		else
 		{
 			horiz = q16horiz(FloatToFixed(value));
+			if (backup) ohoriz = horiz;
 		}
 	}
 
