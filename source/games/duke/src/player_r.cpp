@@ -154,7 +154,7 @@ void shoot_r(int i, int atwith)
 		{
 			if (p >= 0)
 			{
-				zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
+				zvel = -ps[p].getq16horizsum() >> 11;
 				sz += (6 << 8);
 				sa += 15;
 			}
@@ -333,7 +333,7 @@ void shoot_r(int i, int atwith)
 				if (j == -1)
 				{
 					sa += 16 - (krand() & 31);
-					zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
+					zvel = -ps[p].getq16horizsum() >> 11;
 					zvel += 128 - (krand() & 255);
 				}
 			}
@@ -343,7 +343,7 @@ void shoot_r(int i, int atwith)
 					sa += 64 - (krand() & 127);
 				else
 					sa += 16 - (krand() & 31);
-				if (j == -1) zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
+				if (j == -1) zvel = -ps[p].getq16horizsum() >> 11;
 				zvel += 128 - (krand() & 255);
 			}
 			sz -= (2 << 8);
@@ -602,7 +602,7 @@ void shoot_r(int i, int atwith)
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
 			else
-				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / FRACUNIT));
+				zvel = xs_CRoundToInt(-ps[p].getq16horizsum() * (98. / FRACUNIT));
 		}
 		else
 		{
@@ -693,7 +693,7 @@ void shoot_r(int i, int atwith)
 			{
 				sx += sintable[(s->ang + 512 + 160) & 2047] >> 7;
 				sy += sintable[(s->ang + 160) & 2047] >> 7;
-				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / FRACUNIT));
+				zvel = xs_CRoundToInt(-ps[p].getq16horizsum() * (98. / FRACUNIT));
 			}
 		}
 		else
@@ -804,7 +804,7 @@ void shoot_r(int i, int atwith)
 				if (sprite[j].picnum != RECON)
 					sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (81. / FRACUNIT));
+			else zvel = xs_CRoundToInt(-ps[p].getq16horizsum() * (81. / FRACUNIT));
 			if (atwith == RPG)
 				S_PlayActorSound(RPG_SHOOT, i);
 			else if (isRRRA())
@@ -1476,7 +1476,7 @@ void checkweapons_r(struct player_struct* p)
 			sprite[j].owner = p->ammo_amount[MOTORCYCLE_WEAPON];
 			p->OnMotorcycle = 0;
 			p->gotweapon.Clear(MOTORCYCLE_WEAPON);
-			p->sethoriz(100);
+			p->sethoriz(0);
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -1492,7 +1492,7 @@ void checkweapons_r(struct player_struct* p)
 			sprite[j].owner = p->ammo_amount[BOAT_WEAPON];
 			p->OnBoat = 0;
 			p->gotweapon.Clear(BOAT_WEAPON);
-			p->sethoriz(100);
+			p->sethoriz(0);
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -2843,12 +2843,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
-				i = xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
+				i = xs_CRoundToInt(p->getq16horizsum() * (20. / FRACUNIT));
 			}
 			else
 			{
 				k = 140;
-				i = -512 - xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
+				i = -512 - xs_CRoundToInt(p->getq16horizsum() * (20. / FRACUNIT));
 			}
 
 			j = EGS(p->cursectnum,
@@ -3253,12 +3253,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
-				i = xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
+				i = xs_CRoundToInt(p->getq16horizsum() * (20. / FRACUNIT));
 			}
 			else
 			{
 				k = 32;
-				i = -512 - xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
+				i = -512 - xs_CRoundToInt(p->getq16horizsum() * (20. / FRACUNIT));
 			}
 
 			j = EGS(p->cursectnum,
@@ -4181,7 +4181,7 @@ void OnMotorcycle(struct player_struct *p, int motosprite)
 		p->gotweapon.Set(MOTORCYCLE_WEAPON);
 		p->posxv = 0;
 		p->posyv = 0;
-		p->sethoriz(100);
+		p->sethoriz(0);
 	}
 	if (!S_CheckActorSoundPlaying(p->i,186))
 		S_PlayActorSound(186, p->i);
@@ -4212,7 +4212,7 @@ void OffMotorcycle(struct player_struct *p)
 		p->gotweapon.Clear(MOTORCYCLE_WEAPON);
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->sethoriz(100);
+		p->sethoriz(0);
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;
@@ -4258,7 +4258,7 @@ void OnBoat(struct player_struct *p, int boatsprite)
 		p->gotweapon.Set(BOAT_WEAPON);
 		p->posxv = 0;
 		p->posyv = 0;
-		p->sethoriz(100);
+		p->sethoriz(0);
 	}
 }
 
@@ -4277,7 +4277,7 @@ void OffBoat(struct player_struct *p)
 		p->gotweapon.Clear(BOAT_WEAPON);
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->sethoriz(100);
+		p->sethoriz(0);
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;

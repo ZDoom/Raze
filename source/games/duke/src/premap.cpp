@@ -112,7 +112,7 @@ void resetplayerstats(int snum)
     p->footprintpal     = 0;
     p->footprintshade   = 0;
     p->jumping_toggle   = 0;
-    p->sethoriz(140);                                   //!!
+    p->sethoriz(40);                                   //!!
     p->oq16horiz = p->q16horiz;
     p->sethorizoff(0);
     p->oq16horizoff = p->q16horizoff;

@@ -593,7 +593,7 @@ void displayrooms(int snum, double smoothratio)
 		if (p->newowner >= 0)
 		{
 			cang = buildang(getcamspriteang(p->newowner, smoothratio));
-			choriz = q16horiz(p->q16horiz + p->q16horizoff);
+			choriz = buildhoriz(sprite[p->newowner].shade);
 			cposx = sprite[p->newowner].pos.x;
 			cposy = sprite[p->newowner].pos.y;
 			cposz = sprite[p->newowner].pos.z;
@@ -630,9 +630,6 @@ void displayrooms(int snum, double smoothratio)
 
 		if (sprite[p->i].pal == 1) cposz -= (18 << 8);
 
-		if (p->newowner >= 0)
-			choriz = buildhoriz(100 + sprite[p->newowner].shade);
-
 		else if (p->spritebridge == 0)
 		{
 			if (cposz < (p->truecz + (4 << 8))) cposz = cz + (4 << 8);
@@ -646,7 +643,7 @@ void displayrooms(int snum, double smoothratio)
 			if (cposz > fz - (4 << 8)) cposz = fz - (4 << 8);
 		}
 
-		choriz = clamp(choriz, buildhoriz(HORIZ_MIN), buildhoriz(HORIZ_MAX));
+		choriz = clamp(choriz, q16horiz(gi->playerHorizMin()), q16horiz(gi->playerHorizMax()));
 
 		if (isRR() && sector[sect].lotag == 848)
 		{

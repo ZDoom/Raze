@@ -1488,15 +1488,15 @@ void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer)
 
     if (abs(look) > 0)
     {
-        if (pPlayer->q16horiz != IntToFixed(100))
+        if (pPlayer->q16horiz != 0)
         {
-            // move q16horiz back to 100
-            pPlayer->q16horiz += IntToFixed(25) - (pPlayer->q16horiz >> 2);
+            // move q16horiz back to 0
+            pPlayer->q16horiz += xs_CRoundToInt(-pPlayer->q16horiz * (1. / 3.));
         }
     }
     else
     {
-        pPlayer->q16horiz = IntToFixed(100);
+        pPlayer->q16horiz = 0;
     }
 
 }

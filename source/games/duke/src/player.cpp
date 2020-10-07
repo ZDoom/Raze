@@ -375,7 +375,7 @@ int aim(spritetype* s, int aang)
 							if (sdist > 512 && sdist < smax)
 							{
 								if (s->picnum == TILE_APLAYER)
-									a = (abs(scale(sp->z - s->z, 10, sdist) - (ps[s->yvel].gethorizsum() - 100)) < 100);
+									a = (abs(scale(sp->z - s->z, 10, sdist) - ps[s->yvel].gethorizsum()) < 100);
 								else a = 1;
 
 								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + actorinfo[sp->picnum].aimoffset, sp->sectnum, s->x, s->y, s->z - (32 << 8), s->sectnum);
@@ -649,7 +649,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 
 	backupplayer(p);
 
-	p->sethoriz(100);
+	p->sethoriz(0);
 	p->q16horizoff = 0;
 
 	updatesector(p->posx, p->posy, &p->cursectnum);
@@ -1094,7 +1094,7 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 
 	nx = (sintable[(ang + 1536) & 2047] >> 4);
 	ny = (sintable[(ang + 1024) & 2047] >> 4);
-	nz = (q16horiz - IntToFixed(100)) >> 9;
+	nz = q16horiz >> 9;
 
 	sp = &sprite[pp->i];
 

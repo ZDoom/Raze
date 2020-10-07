@@ -333,12 +333,12 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				k = 15;
-				i = xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
+				i = xs_CRoundToInt(p->getq16horizsum() * (20. / FRACUNIT));
 			}
 			else
 			{
 				k = 140;
-				i = -512 - xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
+				i = -512 - xs_CRoundToInt(p->getq16horizsum() * (20. / FRACUNIT));
 			}
 
 			j = EGS(p->cursectnum,

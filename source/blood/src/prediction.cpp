@@ -263,7 +263,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         if (klabs(predict.at28) < 4)
             predict.at28 = 0;
     }
-    predict.at2c = -(predict.at24 - IntToFixed(100)) >> 9;
+    predict.at2c = -predict.at24 >> 9;
 }
 
 void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)

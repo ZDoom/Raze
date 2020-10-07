@@ -1418,7 +1418,7 @@ PlayerInitChemBomb(PLAYERp pp)
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    wp->zvel = (IntToFixed(100) - pp->q16horiz) >> 9;
+    wp->zvel = -pp->q16horiz >> 9;
 
     // //DSPRINTF(ds,"horiz %d, ho %d, ho+ho %d",FixedToInt(pp->q16horiz), FixedToInt(pp->q16horizoff),
     // FixedToInt(pp->q16horizoff + pp->q16horiz));
@@ -1489,7 +1489,7 @@ InitSpriteChemBomb(int16_t SpriteNum)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     SET(wp->cstat, CSTAT_SPRITE_BLOCK);
 
-    wp->zvel = ((-100 - RANDOM_RANGE(100)) * HORIZ_MULT);
+    wp->zvel = -RANDOM_RANGE(100) * HORIZ_MULT;
 
     wp->clipdist = 80L >> 2;
 
@@ -1551,7 +1551,7 @@ InitChemBomb(short SpriteNum)
     if (SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    wp->zvel = ((-100 - RANDOM_RANGE(100)) * HORIZ_MULT);
+    wp->zvel = -RANDOM_RANGE(100) * HORIZ_MULT;
     wp->clipdist = 0;
 
     if (u->ID == MUSHROOM_CLOUD || u->ID == 3121 || u->ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
@@ -1862,7 +1862,7 @@ PlayerInitCaltrops(PLAYERp pp)
     // They go out at different angles
 //        wp->ang = NORM_ANGLE(FixedToInt(pp->q16ang) + (RANDOM_RANGE(50) - 25));
 
-    wp->zvel = (IntToFixed(100) - pp->q16horiz) >> 9;
+    wp->zvel = -pp->q16horiz >> 9;
 
     oclipdist = pp->SpriteP->clipdist;
     pp->SpriteP->clipdist = 0;
@@ -1928,7 +1928,7 @@ InitCaltrops(int16_t SpriteNum)
     wu->floor_dist = Z(3);
     wu->Counter = 0;
 
-    wp->zvel = ((-100 - RANDOM_RANGE(100)) * HORIZ_MULT);
+    wp->zvel = -RANDOM_RANGE(100) * HORIZ_MULT;
 
     // wp->clipdist = 80L>>2;
 
@@ -1990,7 +1990,7 @@ InitPhosphorus(int16_t SpriteNum)
     wu->floor_dist = Z(3);
     wu->Counter = 0;
 
-    wp->zvel = ((-100 - RANDOM_RANGE(100)) * HORIZ_MULT);
+    wp->zvel = -RANDOM_RANGE(100) * HORIZ_MULT;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -2496,7 +2496,7 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
 
     if (u->PlayerP)
     {
-        wp->z += xs_CRoundToInt((IntToFixed(100) - u->PlayerP->q16horiz) * ((HORIZ_MULT / 3.) / FRACUNIT));
+        wp->z += xs_CRoundToInt(-u->PlayerP->q16horiz * ((HORIZ_MULT / 3.) / FRACUNIT));
     }
 
     switch (wu->ID)

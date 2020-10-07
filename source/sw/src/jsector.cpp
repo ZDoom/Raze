@@ -684,14 +684,10 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                     // 100!
                     if (SP_TAG7(sp) != 0)
                     {
-                        camhoriz = SP_TAG7(sp);
-                        if (camhoriz > PLAYER_HORIZ_MAX)
-                            camhoriz = PLAYER_HORIZ_MAX;
-                        else if (camhoriz < PLAYER_HORIZ_MIN)
-                            camhoriz = PLAYER_HORIZ_MIN;
+                        camhoriz = clamp(SP_TAG7(sp), gi->playerHorizMin(), gi->playerHorizMax());
                     }
                     else
-                        camhoriz = 100;     // Default
+                        camhoriz = 0;     // Default
 
                     // If player is dead still then update at MoveSkip4
                     // rate.

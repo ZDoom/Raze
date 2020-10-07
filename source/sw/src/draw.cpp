@@ -945,7 +945,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, fixed_t q16h
     // Calculate the vector (nx,ny,nz) to shoot backwards
     vx = (sintable[NORM_ANGLE(ang + 1536)] >> 3);
     vy = (sintable[NORM_ANGLE(ang + 1024)] >> 3);
-    vz = (q16horiz - IntToFixed(100)) >> 8;
+    vz = q16horiz >> 8;
 
     // Player sprite of current view
     sp = &sprite[pp->PlayerSprite];
@@ -1074,7 +1074,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, fixed_t q16h
     vx += DIV2(vx);
     vy += DIV2(vy);
 
-    vz = (q16horiz - IntToFixed(100)) >> 8;
+    vz = q16horiz >> 8;
 
     // Player sprite of current view
     sp = &sprite[pp->PlayerSprite];
@@ -1300,7 +1300,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
                 {
                 case 1:
                     pp->last_camera_sp = sp;
-                    CircleCamera(tx, ty, tz, tsectnum, tq16ang, IntToFixed(100));
+                    CircleCamera(tx, ty, tz, tsectnum, tq16ang, 0);
                     found_camera = true;
                     break;
 
@@ -1326,9 +1326,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
                         zvect = 0;
 
                     // new horiz to player
-                    *tq16horiz = IntToFixed(100) - (zvect << 8);
-                    *tq16horiz = max(*tq16horiz, IntToFixed(PLAYER_HORIZ_MIN));
-                    *tq16horiz = min(*tq16horiz, IntToFixed(PLAYER_HORIZ_MAX));
+                    *tq16horiz = clamp(-(zvect << 8), gi->playerHorizMin(), gi->playerHorizMax());
 
                     //DSPRINTF(ds,"xvect %d,yvect %d,zvect %d,tq16horiz %d",xvect,yvect,zvect,*tq16horiz);
                     MONO_PRINT(ds);
@@ -1739,9 +1737,7 @@ drawscreen(PLAYERp pp, double smoothratio)
         }
 
         // recoil only when not in camera
-        tq16horiz = tq16horiz + pp->recoil_horizoff;
-        tq16horiz = max(tq16horiz, IntToFixed(PLAYER_HORIZ_MIN));
-        tq16horiz = min(tq16horiz, IntToFixed(PLAYER_HORIZ_MAX));
+        tq16horiz = clamp(tq16horiz + pp->recoil_horizoff, gi->playerHorizMin(), gi->playerHorizMax());
     }
 
     if (automapMode != am_full)// && !ScreenSavePic)

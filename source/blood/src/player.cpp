@@ -721,7 +721,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->pXSprite->health = pDudeInfo->startHealth<<4;
     pPlayer->pSprite->cstat &= (unsigned short)~32768;
     pPlayer->bloodlust = 0;
-    pPlayer->q16horiz = IntToFixed(100);
+    pPlayer->q16horiz = 0;
     pPlayer->q16slopehoriz = 0;
     pPlayer->slope = 0;
     pPlayer->fraggerId = -1;
@@ -1587,7 +1587,7 @@ void ProcessInput(PLAYER *pPlayer)
         if (klabs(pPlayer->q16slopehoriz) < 4)
             pPlayer->q16slopehoriz = 0;
     }
-    pPlayer->slope = -(pPlayer->q16horiz - IntToFixed(100)) >> 9;
+    pPlayer->slope = -pPlayer->q16horiz >> 9;
     if (pInput->actions & SB_INVPREV)
     {
         pInput->actions&= ~SB_INVPREV;

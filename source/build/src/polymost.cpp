@@ -2872,8 +2872,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
 
     set_globalpos(dax, day, daz);
     set_globalang(daang);
-    globalhoriz = mulscale16(FixedToInt(dahoriz)-100,divscale16(xdimenscale,viewingrange))+(ydimen>>1);
-    qglobalhoriz = mulscale16(dahoriz-IntToFixed(100), divscale16(xdimenscale, viewingrange))+IntToFixed(ydimen>>1);
+    qglobalhoriz = mulscale16(dahoriz, divscale16(xdimenscale, viewingrange))+IntToFixed(ydimen>>1);
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
     gxyaspect = ((double)xyaspect*fviewingrange)*(5.0/(65536.0*262144.0));
     gviewxrange = fviewingrange * fxdimen * (1.f/(32768.f*1024.f));

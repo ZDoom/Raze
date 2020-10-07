@@ -87,7 +87,7 @@ extern int16_t maskwall[MAXWALLSB], maskwallcnt;
 extern tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
-extern int32_t globalposx, globalposy, globalposz, globalhoriz;
+extern int32_t globalposx, globalposy, globalposz;
 extern fixed_t qglobalhoriz, qglobalang;
 extern float fglobalposx, fglobalposy, fglobalposz;
 extern int16_t globalang, globalcursectnum;

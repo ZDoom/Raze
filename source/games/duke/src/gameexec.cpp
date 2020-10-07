@@ -330,12 +330,12 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_HORIZ:
-		if (bSet) playerSetHoriz(&ps[iPlayer].q16horiz, &ps[iPlayer].horizTarget, lValue);
-		else SetGameVarID((int)lVar2, FixedToInt(ps[iPlayer].q16horiz), sActor, sPlayer);
+		if (bSet) playerSetHoriz(&ps[iPlayer].q16horiz, &ps[iPlayer].horizTarget - 100, lValue);
+		else SetGameVarID((int)lVar2, FixedToInt(ps[iPlayer].q16horiz + 100), sActor, sPlayer);
 		break;
 
 	case PLAYER_OHORIZ:
-		if (!bSet) SetGameVarID((int)lVar2, FixedToInt(ps[iPlayer].q16horiz), sActor, sPlayer);
+		if (!bSet) SetGameVarID((int)lVar2, FixedToInt(ps[iPlayer].q16horiz + 100), sActor, sPlayer);
 		break;
 
 	case PLAYER_OHORIZOFF:
@@ -2246,7 +2246,7 @@ int ParseState::parse(void)
 
 			ps[g_p].last_extra = g_sp->extra = max_player_health;
 			ps[g_p].wantweaponfire = -1;
-			ps[g_p].sethoriz(100);
+			ps[g_p].sethoriz(0);
 			ps[g_p].on_crane = -1;
 			ps[g_p].frag_ps = g_p;
 			ps[g_p].sethorizoff(0);

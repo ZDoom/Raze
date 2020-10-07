@@ -313,7 +313,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     {
         if (nSnakeCam >= 0 && !sceneonly)
         {
-            pan = IntToFixed(100);
+            pan = 0;
             viewz = playerZ;
         }
         else
@@ -344,7 +344,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             -2000 * Sin(inita),
             4, 0, 0, CLIPMASK1);
 
-        pan = IntToFixed(100);
+        pan = 0;
         viewz = playerZ;
     }
 

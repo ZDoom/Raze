@@ -438,7 +438,7 @@ void RestartPlayer(short nPlayer)
     nYDamage[nPlayer] = 0;
     nXDamage[nPlayer] = 0;
 
-    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz = IntToFixed(100);
+    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz = 0;
     nBreathTimer[nPlayer] = 90;
 
     nTauntTimer[nPlayer] = RandomSize(3) + 3;
@@ -535,7 +535,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz = IntToFixed(100);
+    PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz = 0;
     oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
     nPlayerInvisible[nPlayer] = 0;
     dVertPan[nPlayer] = 15;
@@ -1050,7 +1050,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                     PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
                     sprite[nPlayerSprite].ang = ang;
 
-                    playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 100);
+                    playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 0);
                     PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz;
 
                     lPlayerXVel = 0;
@@ -1069,11 +1069,11 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
                         if (currentLevel->levelNumber == 11)
                         {
-                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 146);
+                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 46);
                         }
                         else
                         {
-                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 111);
+                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 11);
                         }
                     }
                 }
@@ -1101,7 +1101,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                             zVelB = -zVelB;
                         }
 
-                        if (zVelB > 512 && PlayerList[nPlayer].q16angle != IntToFixed(100) && (sPlayerInput[nPlayer].actions & (SB_AIMMODE))) {
+                        if (zVelB > 512 && PlayerList[nPlayer].q16horiz != 0 && (sPlayerInput[nPlayer].actions & (SB_AIMMODE))) {
                             sPlayerInput[nPlayer].actions |= SB_CENTERVIEW;
                         }
                     }
@@ -2789,9 +2789,9 @@ loc_1BD2E:
                 }
                 else
                 {
-                    if (PlayerList[nPlayer].q16horiz < IntToFixed(100))
+                    if (PlayerList[nPlayer].q16horiz < 0)
                     {
-                        playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 100);
+                        playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 0);
                         eyelevel[nPlayer] -= (dVertPan[nPlayer] << 8);
                     }
                     else
@@ -2802,7 +2802,7 @@ loc_1BD2E:
                         {
                             playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, gi->playerHorizMax());
                         }
-                        else if (PlayerList[nPlayer].q16horiz <= IntToFixed(100))
+                        else if (PlayerList[nPlayer].q16horiz <= 0)
                         {
                             if (!(SectFlag[sprite[nPlayerSprite].sectnum] & kSectUnderwater))
                             {

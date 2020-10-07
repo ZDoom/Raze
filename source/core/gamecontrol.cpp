@@ -1571,12 +1571,12 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Calculate adjustment as true pitch (Fixed point math really sucks...)
-	double horizAngle = atan2(*q16horiz - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi());
+	double horizAngle = atan2(*q16horiz, IntToFixed(128)) * (512. / pi::pi());
 
 	if (q16horz)
 	{
 		*actions &= ~SB_CENTERVIEW;
-		horizAngle = clamp(horizAngle + FixedToFloat(q16horz), -180, 180);
+		horizAngle += FixedToFloat(q16horz);
 	}
 
 	// this is the locked type
@@ -1605,27 +1605,27 @@ void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, do
 			horizAngle += scaleAdjust * amount;
 	}
 
-	// convert back to Build's horizon
-	*q16horiz = IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.)));
+	// clamp horizAngle after processing
+	horizAngle = clamp(horizAngle, -180, 180);
 
 	// return to center if conditions met.
 	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 	{
-		if (*q16horiz < FloatToFixed(99.75) || *q16horiz > FloatToFixed(100.25))
+		if (abs(horizAngle) > 0.275)
 		{
-			// move *q16horiz back to 100
-			*q16horiz += xs_CRoundToInt(scaleAdjust * (((1000. / GameTicRate) * FRACUNIT) - (*q16horiz * (10. / GameTicRate))));
+			// move horizAngle back to 0
+			horizAngle += -scaleAdjust * horizAngle * (9. / GameTicRate);
 		}
 		else
 		{
-			// not looking anymore because *q16horiz is back at 100
-			*q16horiz = IntToFixed(100);
+			// not looking anymore because horizAngle is back at 0
+			horizAngle = 0;
 			*actions &= ~SB_CENTERVIEW;
 		}
 	}
 
 	// clamp before returning
-	*q16horiz = clamp(*q16horiz, gi->playerHorizMin(), gi->playerHorizMax());
+	*q16horiz = clamp(xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.))), gi->playerHorizMin(), gi->playerHorizMax());
 }
 
 //---------------------------------------------------------------------------
