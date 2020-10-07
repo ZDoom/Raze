@@ -26,6 +26,15 @@ class ExhumedMenuDelegate : RazeMenuDelegate
 		int h = texid.isValid()? texsize.Y : fonth;
 		return int((y+h) * fh / 200); // This must be the covered height of the header in true pixels.
 	}
+
+	override bool DrawSelector(ListMenuDescriptor desc)
+	{
+		double y = desc.mItems[desc.mSelectedItem].GetY();
+		let tex = TexMan.CheckForTexture("MENUCURSORTILE");
+		screen.DrawTexture(tex, false, 37, y - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true);
+		screen.DrawTexture(tex, false, 232, y - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_FlipX, true);
+		return true;
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -81,6 +90,9 @@ class ListMenuItemExhumedTextItem : ListMenuItemTextItem
 		let texsize = TexMan.GetScaledSize(tex);
 		let fonth = font.GetGlyphHeight("A");
 		int width = font.StringWidth(mText);
+		let delegate = ExhumedMenuDelegate(menuDelegate);
+		let zoom = delegate ? delegate.zoomsize : 1.;
+
 
 		let v = TexMan.GetScaledSize(tex);
 		double y = mYpos + v.y / 2;
@@ -92,17 +104,14 @@ class ListMenuItemExhumedTextItem : ListMenuItemTextItem
 		let color = Build.shadeToLight(shade);
 
 		double scalex = 1.; // Squash the text if it is too wide. Due to design limitations we cannot expand the box here. :(
-		if (texsize.X - 18 < width) scalex = (texsize.X - 18) / width;
-
-		screen.DrawTexture(tex, false, 160, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffset, true, DTA_ScaleX, scalex, DTA_Color, color);
-		screen.DrawText(font, cr, 160 - width / 2, y - fonth / 2, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, color);
-
-		if (selected)
+		if (texsize.X - 18 < width)
 		{
-			tex = TexMan.CheckForTexture("MENUCURSORTILE");
-			screen.DrawTexture(tex, false, 62, y - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true);
-			screen.DrawTexture( tex, false, 207, y - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_FlipX, true);
+			scalex = (texsize.X - 18) / width;
+			width = (texsize.X - 18);
 		}
+
+		screen.DrawTexture(tex, false, 160, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffset, true, DTA_ScaleX, scalex, DTA_Color, color, DTA_ScaleX, zoom, DTA_ScaleY, zoom);
+		screen.DrawText(font, cr, 160 - zoom * width / 2, y - zoom * fonth / 2, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, color, DTA_ScaleX, zoom * scalex, DTA_ScaleY, zoom);
 	}
 }
 
@@ -118,7 +127,7 @@ class ExhumedMainMenu : ListMenu
 		Super.Ticker();
 		let delegate = ExhumedMenuDelegate(menuDelegate);
 		if (!delegate) return;
-		// handle the menu zoom-in
+		// handle the menu zoom-in. The zoom is stored in the delegate so that it can be accessed by code which does not receive a reference to the menu.
 		if (delegate.zoomsize < 1.)
 		{
 			delegate.zoomsize += 0.0625;
