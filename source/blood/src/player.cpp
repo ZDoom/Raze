@@ -721,8 +721,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->pXSprite->health = pDudeInfo->startHealth<<4;
     pPlayer->pSprite->cstat &= (unsigned short)~32768;
     pPlayer->bloodlust = 0;
-    pPlayer->q16horiz = 0;
-    pPlayer->q16slopehoriz = 0;
+    pPlayer->horizon.horiz = pPlayer->horizon.horizoff = q16horiz(0);
     pPlayer->slope = 0;
     pPlayer->fraggerId = -1;
     pPlayer->underwaterTime = 1200;
@@ -1325,7 +1324,7 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 
 static void resetinputhelpers(PLAYER* pPlayer)
 {
-    pPlayer->horizAdjust = 0;
+    pPlayer->horizon.resetadjustment();
     pPlayer->angAdjust = 0;
 }
 
@@ -1364,7 +1363,7 @@ void ProcessInput(PLAYER *pPlayer)
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
-            playerAddHoriz2(&pPlayer->q16horiz, &pPlayer->horizAdjust, FixedToFloat(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), gi->playerHorizMax()) - pPlayer->q16horiz));
+            pPlayer->horizon.addadjustment(FixedToFloat(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), gi->playerHorizMax()) - pPlayer->horizon.horiz.asq16()));
         if (pPlayer->curWeapon)
             pInput->setNewWeapon(pPlayer->curWeapon);
         if (pInput->actions & SB_OPEN)
@@ -1558,7 +1557,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        sethorizon2(&pPlayer->q16horiz, pInput->q16horz, &pInput->actions, 1);
+        sethorizon(&pPlayer->horizon.horiz, pInput->q16horz, &pInput->actions, 1);
     }
 
     int nSector = pSprite->sectnum;
@@ -1578,16 +1577,16 @@ void ProcessInput(PLAYER *pPlayer)
         if (nSector2 == nSector)
         {
             int z2 = getflorzofslope(nSector2, x2, y2);
-            pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, IntToFixed(z1-z2)>>3, 0x4000);
+            pPlayer->horizon.horizoff = q16horiz(interpolate(pPlayer->horizon.horizoff.asq16(), IntToFixed(z1-z2)>>3, 0x4000));
         }
     }
     else
     {
-        pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, 0, 0x4000);
-        if (klabs(pPlayer->q16slopehoriz) < 4)
-            pPlayer->q16slopehoriz = 0;
+        pPlayer->horizon.horizoff = q16horiz(interpolate(pPlayer->horizon.horizoff.asq16(), 0, 0x4000));
+        if (klabs(pPlayer->horizon.horizoff.asq16()) < 4)
+            pPlayer->horizon.horizoff = q16horiz(0);
     }
-    pPlayer->slope = -pPlayer->q16horiz >> 9;
+    pPlayer->slope = -pPlayer->horizon.horiz.asq16() >> 9;
     if (pInput->actions & SB_INVPREV)
     {
         pInput->actions&= ~SB_INVPREV;

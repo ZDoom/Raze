@@ -56,7 +56,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
 
     if (parm->numparms == 5)
     {
-        pPlayer->q16horiz = gView->q16horiz = IntToFixed(atoi(parm->parms[4]));
+        pPlayer->horizon.horiz = gView->horizon.horiz = buildhoriz(atoi(parm->parms[4]));
     }
 
     viewBackupView(pPlayer->nPlayer);

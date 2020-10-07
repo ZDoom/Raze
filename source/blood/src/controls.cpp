@@ -56,10 +56,15 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         if (gView->pXSprite->health != 0)
         {
             applylook(&pPlayer->q16ang, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, input.q16avel, &pPlayer->input.actions, scaleAdjust, pPlayer->posture != 0);
-            sethorizon2(&pPlayer->q16horiz, input.q16horz, &pPlayer->input.actions, scaleAdjust);
+            sethorizon(&pPlayer->horizon.horiz, input.q16horz, &pPlayer->input.actions, scaleAdjust);
         }
 
-        playerProcessHelpers(&pPlayer->q16ang, &pPlayer->angAdjust, &pPlayer->angTarget, &pPlayer->q16horiz, &pPlayer->horizAdjust, &pPlayer->horizTarget, scaleAdjust);
+        // temporary vals to pass through to playerProcessHelpers().
+        fixed_t horiz = 0;
+        fixed_t target = 0;
+        double adjust = 0;
+        playerProcessHelpers(&pPlayer->q16ang, &pPlayer->angAdjust, &pPlayer->angTarget, &horiz, &adjust, &target, scaleAdjust);
+        pPlayer->horizon.processhelpers(scaleAdjust);
         UpdatePlayerSpriteAngle(pPlayer);
     }
 

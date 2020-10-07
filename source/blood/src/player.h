@@ -84,7 +84,8 @@ struct PLAYER
     spritetype*         pSprite;
     XSPRITE*            pXSprite;
     DUDEINFO*           pDudeInfo;
-    InputPacket              input;
+    InputPacket         input;
+    PlayerHorizon       horizon;
     uint8_t             newWeapon;
     int                 used1;  // something related to game checksum
     int                 weaponQav;
@@ -108,8 +109,6 @@ struct PLAYER
     int                 zViewVel;
     int                 zWeapon;
     int                 zWeaponVel;
-    fixed_t             q16horiz;       // horiz
-    fixed_t             q16slopehoriz;  // horizoff
     int                 slope;
     bool                isUnderwater;
     bool                hasKey[8];
@@ -188,8 +187,8 @@ struct PLAYER
     fixed_t             q16rotscrnang;
 
     // Input helper variables.
-    double horizAdjust, angAdjust;
-    fixed_t horizTarget, angTarget;
+    double angAdjust;
+    fixed_t angTarget;
 };
 
 struct PROFILE

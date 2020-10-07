@@ -39,9 +39,8 @@ struct VIEW {
     int at14;
     int at18; // bob sway y
     int at1c; // bob sway x
-    fixed_t at20;
-    fixed_t at24; // horiz
-    int at28; // horizoff
+    fixedhoriz at24; // horiz
+    fixedhoriz at28; // horizoff
     int at2c;
     fixed_t at30; // angle
     int at34; // weapon z

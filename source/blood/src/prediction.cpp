@@ -58,8 +58,8 @@ static VIEW predictFifo[256];
 void viewInitializePrediction(void)
 {
 	predict.at30 = gMe->q16ang;
-	predict.at24 = gMe->q16horiz;
-	predict.at28 = gMe->q16slopehoriz;
+	predict.at24 = gMe->horizon.horiz;
+	predict.at28 = gMe->horizon.horizoff;
 	predict.at2c = gMe->slope;
 	predict.at6f = gMe->cantJump;
 	predict.at70 = gMe->isRunning;
@@ -212,6 +212,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         break;
     }
 
+#if 0
     if (predict.at6e && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
     {
         if (predict.at20 < 0)
@@ -236,6 +237,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         predict.at24 = FloatToFixed(fmulscale30(180., Sinf(FixedToFloat(predict.at20) * 8.)));
     else
         predict.at24 = 0;
+#endif
 
     int nSector = predict.at68;
     int florhit = predict.at75.florhit & 0xc000;
@@ -254,16 +256,16 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         if (nSector2 == nSector)
         {
             int z2 = getflorzofslope(nSector2, x2, y2);
-            predict.at28 = interpolate(predict.at28, IntToFixed(z1-z2)>>3, 0x4000);
+            predict.at28 = q16horiz(interpolate(predict.at28.asq16(), IntToFixed(z1 - z2) >> 3, 0x4000));
         }
     }
     else
     {
-        predict.at28 = interpolate(predict.at28, 0, 0x4000);
-        if (klabs(predict.at28) < 4)
-            predict.at28 = 0;
+        predict.at28 = q16horiz(interpolate(predict.at28.asq16(), 0, 0x4000));
+        if (klabs(predict.at28.asq16()) < 4)
+            predict.at28 = q16horiz(0);
     }
-    predict.at2c = -predict.at24 >> 9;
+    predict.at2c = -predict.at24.asq16() >> 9;
 }
 
 void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
@@ -654,7 +656,7 @@ void viewCorrectPrediction(void)
 #if 0
     spritetype *pSprite = gMe->pSprite;
     VIEW *pView = &predictFifo[(gNetFifoTail-1)&255];
-    if (gMe->q16ang != pView->at30 || pView->at24 != gMe->q16horiz || pView->at50 != pSprite->x || pView->at54 != pSprite->y || pView->at58 != pSprite->z)
+    if (gMe->q16ang != pView->at30 || pView->at24 != gMe->horizon.horiz || pView->at50 != pSprite->x || pView->at54 != pSprite->y || pView->at58 != pSprite->z)
     {
         viewInitializePrediction();
         predictOld = gPrevView[myconnectindex];
