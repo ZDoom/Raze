@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestate.h"
 #include "raze_music.h"
 #include "v_draw.h"
+#include "vm.h"
 
 #include "../../glbackend/glbackend.h"
 
@@ -63,92 +64,21 @@ BEGIN_SW_NS
 //
 //----------------------------------------------------------------------------
 
-#if 0
-class SWMainMenu : public DListMenu
-{
-	void Ticker() override
-	{
-		// Dynamically enable and disable the save option
-		for (unsigned e = 0; e < mDesc->mItems.Size(); ++e)
-		{
-			auto entry = mDesc->mItems[e];
-			if (entry->GetAction(nullptr) == NAME_Savegamemenu)
-			{
-				entry->mEnabled = gi->CanSave();
-			}
-		}
-	}
-
-	void PreDraw() override
-	{
-		DrawTexture(twod, tileGetTexture(pic_shadow_warrior), 160, 15, DTA_FullscreenScale, FSMode_Fit320x200,
-			DTA_CenterOffsetRel, true, DTA_Color, 0xfff0f0f0, TAG_DONE);
-	}
-};
-
 static bool DidOrderSound;
 static int zero = 0;
-class SWOrderMenu : public DImageScrollerMenu
+
+DEFINE_ACTION_FUNCTION(_SWMenuDelegate, PlayOrderSound)
 {
-public:
-	SWOrderMenu()
+	if (SW_SHAREWARE && !DidOrderSound)
 	{
-		if (SW_SHAREWARE && !DidOrderSound)
-		{
-			DidOrderSound = true;
-			int choose_snd = STD_RANDOM_RANGE(1000);
-			if (choose_snd > 500)
-				PlaySound(DIGI_WANGORDER1, v3df_dontpan, CHAN_BODY, CHANF_UI);
-			else 
-				PlaySound(DIGI_WANGORDER2, v3df_dontpan, CHAN_BODY, CHANF_UI);
-		}
+		DidOrderSound = true;
+		int choose_snd = STD_RANDOM_RANGE(1000);
+		if (choose_snd > 500)
+			PlaySound(DIGI_WANGORDER1, v3df_dontpan, CHAN_BODY, CHANF_UI);
+		else 
+			PlaySound(DIGI_WANGORDER2, v3df_dontpan, CHAN_BODY, CHANF_UI);
 	}
-};
-#endif
-
-//----------------------------------------------------------------------------
-//
-// Menu related game interface functions
-//
-//----------------------------------------------------------------------------
-
-void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags)
-{
-#if 0
-	switch (fontnum)
-	{
-		case NIT_BigFont:
-			if (flags & LMF_Centered) xpos -= BigFont->StringWidth(text) * 0.5;
-			DrawText(twod, BigFont, CR_UNDEFINED, xpos, ypos, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, state == NIT_InactiveState? 0xff505050 : 0xffffffff, TAG_DONE);
-			break;
-		
-		case NIT_SmallFont:
-		default:
-			MNU_DrawString(short(xpos), short(ypos), text, state == NIT_InactiveState? 20 : 0, 16, (flags & LMF_Centered) ? 0 : -1);
-			break;
-	}
-	if (state == NIT_SelectedState)
-	{
-		int x = int(xpos), y = int(ypos);
-		int scale = 65536;
-		short w,h;
-
-		if (text)
-		{
-			scale /= 2;
-			x -= mulscale17(tilesiz[pic_yinyang].x,scale) + 2;
-			y += 4;
-		}
-		else
-		{
-			scale -= (1<<13);
-			x -= ((tilesiz[pic_yinyang].x) / 2) - 3;
-			y += 8;
-		}
-		DrawTexture(twod, tileGetTexture(pic_yinyang, true), x, y, DTA_FullscreenScale, FSMode_Fit320x200,
-			DTA_CenterOffset, true, DTA_Color, 0xfff0f0f0, DTA_ScaleX, scale / 65536., DTA_ScaleY, scale / 65536., TAG_DONE);
-	}
-#endif
+	return 0;
 }
 
 void GameInterface::QuitToTitle()

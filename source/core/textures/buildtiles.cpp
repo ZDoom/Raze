@@ -1028,6 +1028,27 @@ bool tileEqualTo(int me, int other)
 //
 //===========================================================================
 
+void tileUpdateAnimations()
+{
+	for (int i = 0; i < MAXTILES; i++)
+	{
+		if (picanm[i].sf & PICANM_ANIMTYPE_MASK)
+		{
+			int j = i + animateoffs(i, 0);
+
+			auto id1 = TileFiles.tiledata[i].texture->GetID();
+			auto id2 = TileFiles.tiledata[j].texture->GetID();
+			TexMan.SetTranslation(id1, id2);
+		}
+	}
+}
+
+//===========================================================================
+// 
+//	Picks a texture for rendering for a given tilenum/palette combination
+//
+//===========================================================================
+
 
 bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick)
 {

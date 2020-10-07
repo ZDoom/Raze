@@ -523,6 +523,7 @@ inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 }
 
 bool tileEqualTo(int me, int other);
+void tileUpdateAnimations();
 
 bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick);
 

@@ -1841,6 +1841,7 @@ static const gamefilter games[] = {
 	{ "ShadowWarrior", GAMEFLAG_SW},
 	{ "Exhumed", GAMEFLAG_POWERSLAVE | GAMEFLAG_EXHUMED},
 	{ "Worldtour", GAMEFLAG_WORLDTOUR},
+	{ "Shareware", GAMEFLAG_SHAREWARE},
 };
 
 bool validFilter(const char* str)

@@ -35,10 +35,6 @@ BEGIN_SW_NS
 void MNU_DrawString(int x, int y, const char* string, int shade, int pal, int align = -1);
 void MNU_DrawSmallString(int x, int y, const char* string, int shade, int pal, int align = -1, double alpha = 1);
 
-#define pic_yinyang 2870
-#define pic_shadow_warrior 2366
-
-
 END_SW_NS
 
 #endif

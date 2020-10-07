@@ -342,6 +342,7 @@ void Display()
 	}
 
 	screen->FrameTime = I_msTimeFS();
+	tileUpdateAnimations();
 	screen->BeginFrame();
 	twodpsp.Clear();
 	twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
