@@ -1824,9 +1824,6 @@ void applylook(PlayerAngle* angle, fixed_t const q16avel, ESyncBits* actions, do
 		angle->rotscrnang -= q16look(FloatToFixed(scaleAdjust * (720. / GameTicRate)));
 	}
 
-	Printf("look_ang %d\n", angle->look_ang.asbuild());
-	Printf("rotscrnang %d\n", angle->rotscrnang.asbuild());
-
 	if (*actions & SB_TURNAROUND)
 	{
 		if (angle->spin.asbam() == 0)
