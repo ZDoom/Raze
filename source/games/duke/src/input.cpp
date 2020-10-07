@@ -926,11 +926,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 			sethorizon(&p->horizon.horiz, input.q16horz, &p->sync.actions, scaleAdjust);
 		}
 
-		// temporary vals to pass through to playerProcessHelpers().
-		fixed_t horiz = 0;
-		fixed_t target = 0;
-		double adjust = 0;
-		playerProcessHelpers(&p->q16ang, &p->angAdjust, &p->angTarget, &horiz, &adjust, &target, scaleAdjust);
+		playerProcessHelpers(&p->q16ang, &p->angAdjust, &p->angTarget, scaleAdjust);
 		p->horizon.processhelpers(scaleAdjust);
 	}
 

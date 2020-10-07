@@ -230,11 +230,7 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
             DoPlayerTurnTurret(pp, input.q16avel);
         }
 
-        // temporary vals to pass through to playerProcessHelpers().
-        fixed_t horiz = 0;
-        fixed_t target = 0;
-        double adjust = 0;
-        playerProcessHelpers(&pp->q16ang, &pp->angAdjust, &pp->angTarget, &horiz, &adjust, &target, scaleAdjust);
+        playerProcessHelpers(&pp->q16ang, &pp->angAdjust, &pp->angTarget, scaleAdjust);
         pp->horizon.processhelpers(scaleAdjust);
     }
 

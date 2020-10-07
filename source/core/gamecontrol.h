@@ -144,13 +144,10 @@ struct PlayerHorizon
 
 void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt = 0, bool const allowstrafe = true, double const turnscale = 1);
 void sethorizon(fixedhoriz* horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust);
-void sethorizon2(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust);
 void applylook(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching);
 void playerAddAngle(fixed_t* q16ang, double* helper, double adjustment);
 void playerSetAngle(fixed_t* q16ang, fixed_t* helper, double adjustment);
-void playerAddHoriz2(fixed_t* q16horiz, double* helper, double adjustment);
-void playerSetHoriz2(fixed_t* q16horiz, fixed_t* helper, double adjustment);
-void playerProcessHelpers(fixed_t* q16ang, double* angAdjust, fixed_t* angTarget, fixed_t* q16horiz, double* horizAdjust, fixed_t* horizTarget, double const scaleAdjust);
+void playerProcessHelpers(fixed_t* q16ang, double* angAdjust, fixed_t* angTarget, double const scaleAdjust);
 
 struct UserConfig
 {

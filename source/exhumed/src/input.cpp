@@ -132,11 +132,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
             sethorizon(&pPlayer->horizon.horiz, input.q16horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
         }
 
-        // temporary vals to pass through to playerProcessHelpers().
-        fixed_t horiz = 0;
-        fixed_t target = 0;
-        double adjust = 0;
-        playerProcessHelpers(&pPlayer->q16angle, &pPlayer->angAdjust, &pPlayer->angTarget, &horiz, &adjust, &target, scaleAdjust);
+        playerProcessHelpers(&pPlayer->q16angle, &pPlayer->angAdjust, &pPlayer->angTarget, scaleAdjust);
         pPlayer->horizon.processhelpers(scaleAdjust);
         UpdatePlayerSpriteAngle(pPlayer);
     }
