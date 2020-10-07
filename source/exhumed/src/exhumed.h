@@ -243,8 +243,8 @@ struct GameInterface : ::GameInterface
     void MenuClosed() override;
     bool StartGame(FNewGameStartup& gs) override;
     FSavegameInfo GetSaveSig() override;
-    bool LoadGame(FSaveGameNode* sv) override;
-    bool SaveGame(FSaveGameNode* sv) override;
+    bool LoadGame() override;
+    bool SaveGame() override;
     bool CanSave() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override { return { 0, 24 }; }
 	void QuitToTitle() override;

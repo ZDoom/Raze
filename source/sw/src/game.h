@@ -2193,8 +2193,8 @@ struct GameInterface : ::GameInterface
 	bool CanSave() override;
 	bool StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
-	bool LoadGame(FSaveGameNode* sv) override;
-	bool SaveGame(FSaveGameNode* sv) override;
+	bool LoadGame() override;
+	bool SaveGame() override;
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;

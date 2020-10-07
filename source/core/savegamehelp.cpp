@@ -61,6 +61,7 @@ static FResourceFile *savereader;
 void LoadEngineState();
 void SaveEngineState();
 void WriteSavePic(FileWriter* file, int width, int height);
+extern FString BackupSaveGame;
 
 CVAR(String, cl_savedir, "", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
@@ -592,6 +593,48 @@ static int nextquicksave = -1;
 		self = 1;
 }
 
+ void DoLoadGame(const char* name)
+ {
+	 if (OpenSaveGameForRead(name))
+	 {
+		 if (gi->LoadGame())
+		 {
+			 gameaction = ga_level;
+		 }
+		 else
+		 {
+			 I_Error("%s: Failed to load savegame", name);
+		 }
+	 }
+	 else
+	 {
+		 I_Error("%s: Failed to open savegame", name);
+	 }
+ }
+
+
+ void G_LoadGame(const char *filename)
+ {
+	 inputState.ClearAllInput();
+	 gi->FreeLevelData();
+	 DoLoadGame(filename);
+	 BackupSaveGame = filename;
+ }
+
+ void G_SaveGame(const char *fn, const char *desc, bool ok4q, bool forceq)
+ {
+	 if (OpenSaveGameForWrite(fn, desc))
+	 {
+		 if (gi->SaveGame() && FinishSavegameWrite())
+		 {
+			 savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
+			 Printf(PRINT_NOTIFY, "%s\n", GStrings("GAME SAVED"));
+			 BackupSaveGame = fn;
+		 }
+	 }
+ }
+
+
 void M_Autosave()
 {
 	if (disableautosave) return;
@@ -611,12 +654,11 @@ void M_Autosave()
 	num.Int = nextautosave;
 	autosavenum.ForceSet(num, CVAR_Int);
 
-	FSaveGameNode sg;
-	sg.Filename = G_BuildSaveName(FStringf("auto%04d", nextautosave));
+	auto Filename = G_BuildSaveName(FStringf("auto%04d", nextautosave));
 	readableTime = myasctime();
-	sg.SaveTitle.Format("Autosave %s", readableTime);
+	FStringf SaveTitle("Autosave %s", readableTime);
 	nextautosave = (nextautosave + 1) % count;
-	//savegameManager.SaveGame(&sg, false, false);
+	G_SaveGame(Filename, SaveTitle, false, false);
 }
 
 CCMD(autosave)
@@ -643,11 +685,11 @@ CCMD(rotatingquicksave)
 	quicksavenum.ForceSet(num, CVAR_Int);
 
 	FSaveGameNode sg;
-	sg.Filename = G_BuildSaveName(FStringf("quick%04d", nextquicksave));
+	auto Filename = G_BuildSaveName(FStringf("quick%04d", nextquicksave));
 	readableTime = myasctime();
-	sg.SaveTitle.Format("Quicksave %s", readableTime);
+	FStringf SaveTitle("Quicksave %s", readableTime);
 	nextquicksave = (nextquicksave + 1) % count;
-	//savegameManager.SaveGame(&sg, false, false);
+	G_SaveGame(Filename, SaveTitle, false, false);
 }
 
 

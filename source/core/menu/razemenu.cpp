@@ -61,6 +61,8 @@
 #include "razemenu.h"
 #include "mapinfo.h"
 #include "statistics.h"
+#include "i_net.h"
+#include "savegamehelp.h"
 
 EXTERN_CVAR(Int, cl_gfxlocalization)
 EXTERN_CVAR(Bool, m_quickexit)
@@ -131,12 +133,12 @@ bool M_SetSpecialMenu(FName& menu, int param)
 	case NAME_Quitmenu:
 		// This is no separate class
 		C_DoCommand("menu_quit");
-		return true;
+		return false;
 
 	case NAME_EndGameMenu:
 		// This is no separate class
 		C_DoCommand("menu_endgame");
-		return true;
+		return false;
 }
 
 	// End of special checks
@@ -251,54 +253,43 @@ CCMD(menu_endgame)
 //
 //=============================================================================
 
-CCMD (quicksave)
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+CCMD(quicksave)
 {	// F6
-#if 0
-	if (!usergame || (players[consoleplayer].health <= 0 && !multiplayer))
-	{
-		S_Sound (CHAN_VOICE, CHANF_UI, "menu/invalid", snd_menuvolume, ATTN_NONE);
-		return;
-	}
+	if (!gi->CanSave()) return;
 
-	if (gamestate != GS_LEVEL)
-		return;
-
-	// If the quick save rotation is enabled, it handles the save slot.
-	if (quicksaverotation)
-	{
-		G_DoQuickSave();
-		return;
-	}
-		
 	if (savegameManager.quickSaveSlot == NULL || savegameManager.quickSaveSlot == (FSaveGameNode*)1)
 	{
-		S_Sound(CHAN_VOICE, CHANF_UI, "menu/activate", snd_menuvolume, ATTN_NONE);
-		M_StartControlPanel(false);
+		M_StartControlPanel(true);
 		M_SetMenu(NAME_Savegamemenu);
 		return;
 	}
-	
+
+	auto slot = savegameManager.quickSaveSlot;
+
 	// [mxd]. Just save the game, no questions asked.
 	if (!saveloadconfirmation)
 	{
-		G_SaveGame(savegameManager.quickSaveSlot->Filename.GetChars(), savegameManager.quickSaveSlot->SaveTitle.GetChars());
+		G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle, true, true);
 		return;
 	}
 
-	S_Sound(CHAN_VOICE, CHANF_UI, "menu/activate", snd_menuvolume, ATTN_NONE);
-
 	FString tempstring = GStrings("QSPROMPT");
-	tempstring.Substitute("%s", savegameManager.quickSaveSlot->SaveTitle.GetChars());
+	tempstring.Substitute("%s", slot->SaveTitle.GetChars());
+	M_StartControlPanel(true);
 
-	DMenu *newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
-	{
-		G_SaveGame(savegameManager.quickSaveSlot->Filename.GetChars(), savegameManager.quickSaveSlot->SaveTitle.GetChars());
-		S_Sound(CHAN_VOICE, CHANF_UI, "menu/dismiss", snd_menuvolume, ATTN_NONE);
-		M_ClearMenus();
-	});
+	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
+		{
+			G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle, true, true);
+		});
 
 	M_ActivateMenu(newmenu);
-#endif
 }
 
 //=============================================================================
@@ -307,21 +298,20 @@ CCMD (quicksave)
 //
 //=============================================================================
 
-CCMD (quickload)
+CCMD(quickload)
 {	// F9
-#if 0
 	if (netgame)
 	{
 		M_StartControlPanel(true);
-		M_StartMessage (GStrings("QLOADNET"), 1);
+		M_StartMessage(GStrings("QLOADNET"), 1);
 		return;
 	}
-		
-	if (savegameManager.quickSaveSlot == NULL || savegameManager.quickSaveSlot == (FSaveGameNode*)1)
+
+	if (savegameManager.quickSaveSlot == nullptr || savegameManager.quickSaveSlot == (FSaveGameNode*)1)
 	{
 		M_StartControlPanel(true);
 		// signal that whatever gets loaded should be the new quicksave
-		savegameManager.quickSaveSlot = (FSaveGameNode *)1;
+		savegameManager.quickSaveSlot = (FSaveGameNode*)1;
 		M_SetMenu(NAME_Loadgamemenu);
 		return;
 	}
@@ -329,7 +319,7 @@ CCMD (quickload)
 	// [mxd]. Just load the game, no questions asked.
 	if (!saveloadconfirmation)
 	{
-		G_LoadGame(savegameManager.quickSaveSlot->Filename.GetChars());
+		G_LoadGame(savegameManager.quickSaveSlot->Filename);
 		return;
 	}
 	FString tempstring = GStrings("QLPROMPT");
@@ -337,14 +327,11 @@ CCMD (quickload)
 
 	M_StartControlPanel(true);
 
-	DMenu *newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
-	{
-		G_LoadGame(savegameManager.quickSaveSlot->Filename.GetChars());
-		S_Sound(CHAN_VOICE, CHANF_UI, "menu/dismiss", snd_menuvolume, ATTN_NONE);
-		M_ClearMenus();
+	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
+		{
+			G_LoadGame(savegameManager.quickSaveSlot->Filename);
 	});
 	M_ActivateMenu(newmenu);
-#endif
 }
 
 //=============================================================================

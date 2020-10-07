@@ -377,11 +377,9 @@ ImageScroller "CreditsMenu"
 
 ListMenu "LoadGameMenu"
 {
-	/*
-	Caption "$MNU_LOADGAME"
 	Position 0, 40
 	Class "LoadMenu"	// uses its own implementation
-	*/
+	CaptionItem "$MNU_LOADGAME"
 }
 
 //-------------------------------------------------------------------------------------------
@@ -392,11 +390,9 @@ ListMenu "LoadGameMenu"
 
 ListMenu "SaveGameMenu"
 {
-	/*
-	Caption "$MNU_SAVEGAME"
 	Position 0, 40
 	Class "SaveMenu"	// uses its own implementation
-	*/
+	CaptionItem "$MNU_SAVEGAME"
 }
 	
 //-------------------------------------------------------------------------------------------

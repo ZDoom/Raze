@@ -41,8 +41,6 @@ public:
     virtual void Load(void);
     void Read(void *, int);
     void Write(void *, int);
-    static void LoadGame(FSavegameNode *);
-    static void SaveGame(FSavegameNode*);
 };
 
 void LoadSaveSetup(void);

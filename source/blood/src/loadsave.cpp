@@ -474,7 +474,7 @@ void LoadSave::Write(void *pData, int nSize)
         ThrowError("File error #%d writing save file.", errno);
 }
 
-bool GameInterface::LoadGame(FSaveGameNode* node)
+bool GameInterface::LoadGame()
 {
     sndKillAllSounds();
     sfxKillAllSounds();
@@ -534,7 +534,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     return true;
 }
 
-bool GameInterface::SaveGame(FSaveGameNode* node)
+bool GameInterface::SaveGame()
 {
 	LoadSave::hSFile = WriteSavegameChunk("snapshot.bld");
 
