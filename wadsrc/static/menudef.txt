@@ -11,7 +11,7 @@ LISTMENU "MainMenu"
 	{
 		position 160, 55
 		Linespacing 20
-		//animatedtransition
+		animatedtransition
 		DukeLogo
 		DukeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		//DukeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder.
@@ -80,7 +80,7 @@ LISTMENU "IngameMenu"
 	{
 		position 160, 55
 		linespacing 18
-		//animatedtransition
+		animatedtransition
 		DukeLogo
 		DukeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		DukeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
@@ -152,7 +152,7 @@ LISTMENU "EpisodeMenu"
 		position 160, 48
 		Linespacing 20
 		captionItem "$MNU_SELECTEPISODE"
-		//animatedtransition
+		animatedtransition
 	}
 	ifgame(blood)
 	{
@@ -176,7 +176,7 @@ LISTMENU "SkillMenu"
 		position 160, 48
 		Linespacing 20
 		captionItem "$MNU_SELECTSKILL"
-		//animatedtransition
+		animatedtransition
 	}
 	ifgame(blood)
 	{
