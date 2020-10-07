@@ -74,72 +74,13 @@ struct PlayerHorizon
 	fixed_t target;
 	double adjustment;
 
-	void backup()
-	{
-		ohoriz = horiz;
-		ohorizoff = horizoff;
-	}
-
-	void addadjustment(double value)
-	{
-		if (!cl_syncinput)
-		{
-			adjustment += value;
-		}
-		else
-		{
-			horiz += q16horiz(FloatToFixed(value));
-		}
-	}
-
-	void resetadjustment()
-	{
-		adjustment = 0;
-	}
-
-	void settarget(double value, bool backup = false)
-	{
-		if (!cl_syncinput)
-		{
-			target = FloatToFixed(value);
-			if (target == 0) target += 1;
-		}
-		else
-		{
-			horiz = q16horiz(FloatToFixed(value));
-			if (backup) ohoriz = horiz;
-		}
-	}
-
-	void processhelpers(double const scaleAdjust)
-	{
-		if (target)
-		{
-			horiz += q16horiz(xs_CRoundToInt(scaleAdjust * (target - horiz.asq16())));
-
-			if (abs(horiz.asq16() - target) < FRACUNIT)
-			{
-				horiz = q16horiz(target);
-				target = 0;
-			}
-		}
-		else if (adjustment)
-		{
-			horiz += q16horiz(FloatToFixed(scaleAdjust * adjustment));
-		}
-	}
-
-	fixedhoriz sum()
-	{
-		return horiz + horizoff;
-	}
-
-	fixedhoriz interpolatedsum(double const smoothratio)
-	{
-		fixedhoriz prev = ohoriz + ohorizoff;
-		fixedhoriz curr = horiz + horizoff;
-		return q16horiz(prev.asq16() + mulscale16(curr.asq16() - prev.asq16(), smoothratio));
-	}
+	void backup();
+	void addadjustment(double value);
+	void resetadjustment();
+	void settarget(double value, bool backup = false);
+	void processhelpers(double const scaleAdjust);
+	fixedhoriz sum();
+	fixedhoriz interpolatedsum(double const smoothratio);
 };
 
 void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt = 0, bool const allowstrafe = true, double const turnscale = 1);
