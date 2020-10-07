@@ -2113,7 +2113,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
 
     if (pXSource->data2 == 1) {
         
-        if (pPlayer) pPlayer->q16ang = IntToFixed(pSource->ang);
+        if (pPlayer) pPlayer->angle.ang = buildang(pSource->ang);
         else if (isDude) xsprite[pSprite->extra].goalAng = pSprite->ang = pSource->ang;
         else pSprite->ang = pSource->ang;
     }
@@ -3965,8 +3965,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 case 9: // 73 (set player's sprite angle, TO-DO: if tx > 0, take a look on TX ID sprite)
                     //data4 is reserved
                     if (pXSprite->data4 != 0) break;
-                    else if (pSprite->flags & kModernTypeFlag1) pPlayer->q16ang = IntToFixed(pSprite->ang);
-                    else if (valueIsBetween(pXSprite->data2, -kAng360, kAng360)) pPlayer->q16ang = IntToFixed(pXSprite->data2);
+                    else if (pSprite->flags & kModernTypeFlag1) pPlayer->angle.ang = buildang(pSprite->ang);
+                    else if (valueIsBetween(pXSprite->data2, -kAng360, kAng360)) pPlayer->angle.ang = buildang(pXSprite->data2);
                     break;
             }
         }

@@ -98,7 +98,7 @@ static void viewBurnTime(int gScale)
 
 void hudDraw(PLAYER *gView, VIEW *pView, int nSectnum, double bobx, double boby, double zDelta, int basepal, double smoothratio)
 {
-	double look_anghalf = getHalfLookAng(pView->q16look_ang, gView->q16look_ang, cl_syncinput, smoothratio);
+	double look_anghalf = getHalfLookAng(pView->look_ang.asq16(), gView->angle.look_ang.asq16(), cl_syncinput, smoothratio);
 
 	DrawCrosshair(kCrosshairTile, gView->pXSprite->health >> 4, -look_anghalf, 0, 2);
 

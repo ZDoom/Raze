@@ -86,6 +86,7 @@ struct PLAYER
     DUDEINFO*           pDudeInfo;
     InputPacket         input;
     PlayerHorizon       horizon;
+    PlayerAngle         angle;
     uint8_t             newWeapon;
     int                 used1;  // something related to game checksum
     int                 weaponQav;
@@ -153,7 +154,6 @@ struct PLAYER
     int                 restTime;
     int                 kickPower;
     int                 laughCount;
-    fixed_t             spin;  // turning around
     bool                godMode;
     bool                fallScream;
     bool                cantJump;
@@ -178,17 +178,10 @@ struct PLAYER
     int                 pickupEffect;
     bool                flashEffect;  // if true, reduce pPlayer->visibility counter
     int                 quakeEffect;
-    fixed_t             q16ang;
     int                 angold;
     int                 player_par;
     int                 nWaterPal;
     POSTURE             pPosture[kModeMax][kPostureMax];
-    fixed_t             q16look_ang;
-    fixed_t             q16rotscrnang;
-
-    // Input helper variables.
-    double angAdjust;
-    fixed_t angTarget;
 };
 
 struct PROFILE

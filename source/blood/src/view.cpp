@@ -104,7 +104,7 @@ void viewBackupView(int nPlayer)
 {
     PLAYER *pPlayer = &gPlayer[nPlayer];
     VIEW *pView = &gPrevView[nPlayer];
-    pView->at30 = pPlayer->q16ang;
+    pView->at30 = pPlayer->angle.ang;
     pView->at50 = pPlayer->pSprite->x;
     pView->at54 = pPlayer->pSprite->y;
     pView->at38 = pPlayer->zView;
@@ -116,8 +116,8 @@ void viewBackupView(int nPlayer)
     pView->atc = pPlayer->bobWidth;
     pView->at18 = pPlayer->swayHeight;
     pView->at1c = pPlayer->swayWidth;
-    pView->q16look_ang = pPlayer->q16look_ang;
-    pView->q16rotscrnang = pPlayer->q16rotscrnang;
+    pView->look_ang = pPlayer->angle.look_ang;
+    pView->rotscrnang = pPlayer->angle.rotscrnang;
 }
 
 void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
@@ -633,8 +633,9 @@ void viewDrawScreen(bool sceneonly)
         renderSetAspect(v1, yxaspect);
 
         int cX, cY, cZ, v74, v8c;
-        fixed_t cA, q16rotscrnang;
-        fixedhoriz q16horizon, q16horizoff;
+        lookangle rotscrnang;
+        binangle cA;
+        fixedhoriz cH, cOff;
         double zDelta, v4c, v48;
         int nSectnum = gView->pSprite->sectnum;
         if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
@@ -644,7 +645,7 @@ void viewDrawScreen(bool sceneonly)
             cY = interpolate(predictOld.at54, predict.at54, gInterpolate);
             cZ = interpolate(predictOld.at38, predict.at38, gInterpolate);
             zDelta = finterpolate(predictOld.at34, predict.at34, gInterpolate);
-            q16horizoff = q16horiz(interpolate(predictOld.at28.asq16(), predict.at28.asq16(), gInterpolate));
+            cOff = q16horiz(interpolate(predictOld.at28.asq16(), predict.at28.asq16(), gInterpolate));
             v74 = interpolate(predictOld.atc, predict.atc, gInterpolate);
             v8c = interpolate(predictOld.at8, predict.at8, gInterpolate);
             v4c = finterpolate(predictOld.at1c, predict.at1c, gInterpolate);
@@ -652,15 +653,17 @@ void viewDrawScreen(bool sceneonly)
 
             if (!cl_syncinput)
             {
-                cA = predict.at30 + predict.q16look_ang;
-                q16horizon = predict.at24;
-                q16rotscrnang = predict.q16rotscrnang;
+                cA = bamang(predict.at30.asbam() + predict.look_ang.asbam());
+                cH = predict.at24;
+                rotscrnang = predict.rotscrnang;
             }
             else
             {
-                cA = interpolateangfix16(predictOld.at30 + predictOld.q16look_ang, predict.at30 + predict.q16look_ang, gInterpolate);
-                q16horizon = q16horiz(interpolate(predictOld.at24.asq16(), predict.at24.asq16(), gInterpolate));
-                q16rotscrnang = interpolateangfix16(predictOld.q16rotscrnang, predict.q16rotscrnang, gInterpolate);
+                uint32_t oang = predictOld.at30.asbam() + predictOld.look_ang.asbam();
+                uint32_t ang = predict.at30.asbam() + predict.look_ang.asbam();
+                cA = interpolateangbin(oang, ang, gInterpolate);
+                cH = q16horiz(interpolate(predictOld.at24.asq16(), predict.at24.asq16(), gInterpolate));
+                rotscrnang = interpolateanglook(predictOld.rotscrnang.asbam(), predict.rotscrnang.asbam(), gInterpolate);
             }
         }
         else
@@ -670,7 +673,7 @@ void viewDrawScreen(bool sceneonly)
             cY = interpolate(pView->at54, gView->pSprite->y, gInterpolate);
             cZ = interpolate(pView->at38, gView->zView, gInterpolate);
             zDelta = finterpolate(pView->at34, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
-            q16horizoff = q16horiz(interpolate(pView->at28.asq16(), gView->horizon.horizoff.asq16(), gInterpolate));
+            cOff = q16horiz(interpolate(pView->at28.asq16(), gView->horizon.horizoff.asq16(), gInterpolate));
             v74 = interpolate(pView->atc, gView->bobWidth, gInterpolate);
             v8c = interpolate(pView->at8, gView->bobHeight, gInterpolate);
             v4c = finterpolate(pView->at1c, gView->swayWidth, gInterpolate);
@@ -678,35 +681,37 @@ void viewDrawScreen(bool sceneonly)
 
             if (!cl_syncinput)
             {
-                cA = gView->q16ang + gView->q16look_ang;
-                q16horizon = gView->horizon.horiz;
-                q16rotscrnang = gView->q16rotscrnang;
+                cA = bamang(gView->angle.ang.asbam() + gView->angle.look_ang.asbam());
+                cH = gView->horizon.horiz;
+                rotscrnang = gView->angle.rotscrnang;
             }
             else
             {
-                cA = interpolateangfix16(pView->at30 + pView->q16look_ang, gView->q16ang + gView->q16look_ang, gInterpolate);
-                q16horizon = q16horiz(interpolate(pView->at24.asq16(), gView->horizon.horiz.asq16(), gInterpolate));
-                q16rotscrnang = interpolateangfix16(pView->q16rotscrnang, gView->q16rotscrnang, gInterpolate);
+                uint32_t oang = pView->at30.asbam() + pView->look_ang.asbam();
+                uint32_t ang = gView->angle.ang.asbam() + gView->angle.look_ang.asbam();
+                cA = interpolateangbin(oang, ang, gInterpolate);
+                cH = q16horiz(interpolate(pView->at24.asq16(), gView->horizon.horiz.asq16(), gInterpolate));
+                rotscrnang = interpolateanglook(pView->rotscrnang.asbam(), gView->angle.rotscrnang.asbam(), gInterpolate);
             }
         }
 
         viewUpdateShake();
-        q16horizon += buildhoriz(shakeHoriz);
-        cA += IntToFixed(shakeAngle);
+        cH += buildhoriz(shakeHoriz);
+        cA += buildang(shakeAngle);
         cX += shakeX;
         cY += shakeY;
         cZ += shakeZ;
         v4c += shakeBobX;
         v48 += shakeBobY;
-        q16horizon += buildhoriz(mulscale30(0x40000000 - Cos(gView->tiltEffect << 2), 30));
+        cH += buildhoriz(mulscale30(0x40000000 - Cos(gView->tiltEffect << 2), 30));
         if (gViewPos == 0)
         {
             if (cl_viewbob)
             {
                 if (cl_viewhbob)
                 {
-                    cX -= mulscale30(v74, Sin(FixedToInt(cA))) >> 4;
-                    cY += mulscale30(v74, Cos(FixedToInt(cA))) >> 4;
+                    cX -= mulscale30(v74, Sin(cA.asbuild())) >> 4;
+                    cY += mulscale30(v74, Cos(cA.asbuild())) >> 4;
                 }
                 if (cl_viewvbob)
                 {
@@ -715,15 +720,15 @@ void viewDrawScreen(bool sceneonly)
             }
             if (cl_slopetilting)
             {
-                q16horizon += q16horizoff;
+                cH += cOff;
             }
-            cZ += xs_CRoundToInt(q16horizon.asq16() / 6553.6);
+            cZ += xs_CRoundToInt(cH.asq16() / 6553.6);
             cameradist = -1;
             cameraclock = gFrameClock +mulscale16(4, (int)gInterpolate);
         }
         else
         {
-            CalcPosition(gView->pSprite, (int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum, FixedToInt(cA), q16horizon.asq16(), (int)gInterpolate);
+            CalcPosition(gView->pSprite, (int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum, cA.asbuild(), cH.asq16(), (int)gInterpolate);
         }
         CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum);
         int v78 = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
@@ -734,7 +739,7 @@ void viewDrawScreen(bool sceneonly)
         //int tiltcs, tiltdim;
         uint8_t v4 = powerupCheck(gView, kPwUpCrystalBall) > 0;
 #ifdef USE_OPENGL
-        renderSetRollAngle(FixedToFloat(q16rotscrnang));
+        renderSetRollAngle(rotscrnang.asbam() / (double)(BAMUNIT));
 #endif
         if (v78 || bDelirium)
         {
@@ -869,7 +874,7 @@ void viewDrawScreen(bool sceneonly)
             nSprite = nextspritestat[nSprite];
         }
         g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - unk, 0));
-        cA = (cA + interpolateangfix16(IntToFixed(deliriumTurnO), IntToFixed(deliriumTurn), gInterpolate)) & 0x7ffffff;
+        cA += q16ang(interpolateangfix16(IntToFixed(deliriumTurnO), IntToFixed(deliriumTurn), gInterpolate));
         int vfc, vf8;
         getzsofslope(nSectnum, cX, cY, &vfc, &vf8);
         if (cZ >= vf8)
@@ -880,13 +885,13 @@ void viewDrawScreen(bool sceneonly)
         {
             cZ = vfc + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
         }
-        q16horizon = q16horiz(ClipRange(q16horizon.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
+        cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
     RORHACK:
         int ror_status[16];
         for (int i = 0; i < 16; i++)
             ror_status[i] = TestBitString(gotpic, 4080 + i);
         fixed_t deliriumPitchI = interpolate(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
-        DrawMirrors(cX, cY, cZ, cA, q16horizon.asq16() + deliriumPitchI, gInterpolate, gViewIndex);
+        DrawMirrors(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, gInterpolate, gViewIndex);
         int bakCstat = gView->pSprite->cstat;
         if (gViewPos == 0)
         {
@@ -897,8 +902,8 @@ void viewDrawScreen(bool sceneonly)
             gView->pSprite->cstat |= 514;
         }
 
-        renderDrawRoomsQ16(cX, cY, cZ, cA, q16horizon.asq16() + deliriumPitchI, nSectnum);
-        viewProcessSprites(cX, cY, cZ, FixedToInt(cA), gInterpolate);
+        renderDrawRoomsQ16(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, nSectnum);
+        viewProcessSprites(cX, cY, cZ, cA.asbuild(), gInterpolate);
         bool do_ror_hack = false;
         for (int i = 0; i < 16; i++)
             if (ror_status[i] != TestBitString(gotpic, 4080 + i))
@@ -955,7 +960,7 @@ void viewDrawScreen(bool sceneonly)
         int v8 = byte_1CE5C2 > 0 && (sector[tmpSect].ceilingstat & 1);
         if (gWeather.at12d8 > 0 || v8)
         {
-            gWeather.Draw(cX, cY, cZ, cA, q16horizon.asq16() + deliriumPitch, gWeather.at12d8);
+            gWeather.Draw(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitch, gWeather.at12d8);
             if (v8)
             {
                 gWeather.at12d8 = ClipRange(delta * 8 + gWeather.at12d8, 0, 4095);

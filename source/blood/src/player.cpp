@@ -712,7 +712,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pSprite->z -= bottom - pSprite->z;
     pSprite->pal = 11+(pPlayer->teamId&3);
     pPlayer->angold = pSprite->ang = pStartZone->ang;
-    pPlayer->q16ang = IntToFixed(pSprite->ang);
+    pPlayer->angle.ang = buildang(pSprite->ang);
     pSprite->type = kDudePlayer1+nPlayer;
     pSprite->clipdist = pDudeInfo->clipdist;
     pSprite->flags = 15;
@@ -733,7 +733,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->restTime = 0;
     pPlayer->kickPower = 0;
     pPlayer->laughCount = 0;
-    pPlayer->spin = 0;
+    pPlayer->angle.spin = buildlook(0);
     pPlayer->posture = 0;
     pPlayer->voodooTarget = -1;
     pPlayer->voodooTargets = 0;
@@ -1312,8 +1312,8 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 {
     spritetype *pSprite = pPlayer->pSprite;
 
-    pPlayer->q16ang = (pPlayer->q16ang + IntToFixed(pSprite->ang - pPlayer->angold)) & 0x7FFFFFF;
-    pPlayer->angold = pSprite->ang = FixedToInt(pPlayer->q16ang);
+    pPlayer->angle.ang += buildang(pSprite->ang - pPlayer->angold);
+    pPlayer->angold = pSprite->ang = pPlayer->angle.ang.asbuild();
 }
 
 //---------------------------------------------------------------------------
@@ -1325,7 +1325,7 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 static void resetinputhelpers(PLAYER* pPlayer)
 {
     pPlayer->horizon.resetadjustment();
-    pPlayer->angAdjust = 0;
+    pPlayer->angle.resetadjustment();
 }
 
 void ProcessInput(PLAYER *pPlayer)
@@ -1359,7 +1359,7 @@ void ProcessInput(PLAYER *pPlayer)
         {
             fixed_t fraggerAng = gethiq16angle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
             pPlayer->angold = pSprite->ang = FixedToInt(fraggerAng);
-            playerAddAngle2(&pPlayer->q16ang, &pPlayer->angAdjust, FixedToFloat(getincangleq16(pPlayer->q16ang, fraggerAng)));
+            pPlayer->angle.addadjustment(FixedToFloat(getincangleq16(pPlayer->angle.ang.asq16(), fraggerAng)));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
@@ -1445,7 +1445,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        applylook2(&pPlayer->q16ang, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, pInput->q16avel, &pInput->actions, 1, pPlayer->posture != 0);
+        applylook(&pPlayer->angle, pInput->q16avel, &pInput->actions, 1, pPlayer->posture != 0);
         UpdatePlayerSpriteAngle(pPlayer);
     }
 
