@@ -1259,7 +1259,7 @@ void DrawCrosshair(PLAYERp pp)
     }
 }
 
-void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t *tq16ang, fixed_t *tq16horiz)
+void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t *tq16ang, fixedhoriz *thoriz)
 {
     int i,nexti;
     short ang;
@@ -1326,9 +1326,9 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
                         zvect = 0;
 
                     // new horiz to player
-                    *tq16horiz = clamp(-(zvect << 8), gi->playerHorizMin(), gi->playerHorizMax());
+                    *thoriz = q16horiz(clamp(-(zvect << 8), gi->playerHorizMin(), gi->playerHorizMax()));
 
-                    //DSPRINTF(ds,"xvect %d,yvect %d,zvect %d,tq16horiz %d",xvect,yvect,zvect,*tq16horiz);
+                    //DSPRINTF(ds,"xvect %d,yvect %d,zvect %d,thoriz %d",xvect,yvect,zvect,*thoriz.asbuild());
                     MONO_PRINT(ds);
 
                     *tq16ang = IntToFixed(ang);
@@ -1602,7 +1602,8 @@ drawscreen(PLAYERp pp, double smoothratio)
 {
     extern bool CameraTestMode;
     int tx, ty, tz;
-    fixed_t tq16horiz, tq16ang, tq16rotscrnang;
+    fixed_t tq16ang, tq16rotscrnang;
+    fixedhoriz thoriz;
     short tsectnum;
     short i,j;
     int bob_amt = 0;
@@ -1650,15 +1651,13 @@ drawscreen(PLAYERp pp, double smoothratio)
         fixed_t ang = camerapp->q16ang + camerapp->q16look_ang;
         tq16ang = oang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(ang + dang - oang) - dang, smoothratio));
 
-        fixed_t ohoriz = camerapp->oq16horiz + camerapp->oq16horizoff;
-        fixed_t horiz = camerapp->q16horiz + camerapp->q16horizoff;
-        tq16horiz = ohoriz + xs_CRoundToInt(fmulscale16(horiz - ohoriz, smoothratio));
+        thoriz = camerapp->horizon.interpolatedsum(smoothratio);
         tq16rotscrnang = camerapp->oq16rotscrnang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16rotscrnang + dang - camerapp->oq16rotscrnang) - dang, smoothratio));
     }
     else
     {
         tq16ang = pp->q16ang + pp->q16look_ang;
-        tq16horiz = pp->q16horiz + pp->q16horizoff;
+        thoriz = pp->horizon.sum();
         tq16rotscrnang = pp->q16rotscrnang;
     }
     tsectnum = camerapp->cursectnum;
@@ -1700,7 +1699,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     tz = tz + quake_z;
     tx = tx + quake_x;
     ty = ty + quake_y;
-    //tq16horiz = tq16horiz + IntToFixed(quake_x);
+    //thoriz += buildhoriz(quake_x);
     tq16ang = NORM_Q16ANGLE(tq16ang + IntToFixed(quake_ang));
 
     if (pp->sop_remote)
@@ -1715,10 +1714,10 @@ drawscreen(PLAYERp pp, double smoothratio)
     {
         tz -= 8448;
         
-        if (!BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, tq16horiz))
+        if (!BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, thoriz.asq16()))
         {
             tz += 8448;
-            BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, tq16horiz);
+            BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, thoriz.asq16());
         }
     }
     else
@@ -1727,7 +1726,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
         if (CameraTestMode)
         {
-            CameraView(camerapp, &tx, &ty, &tz, &tsectnum, &tq16ang, &tq16horiz);
+            CameraView(camerapp, &tx, &ty, &tz, &tsectnum, &tq16ang, &thoriz);
         }
     }
 
@@ -1740,7 +1739,7 @@ drawscreen(PLAYERp pp, double smoothratio)
         }
 
         // recoil only when not in camera
-        tq16horiz = clamp(tq16horiz + pp->recoil_horizoff, gi->playerHorizMin(), gi->playerHorizMax());
+        thoriz = q16horiz(clamp(thoriz.asq16() + pp->recoil_horizoff, gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
     if (automapMode != am_full)// && !ScreenSavePic)
@@ -1753,20 +1752,20 @@ drawscreen(PLAYERp pp, double smoothratio)
     videoSetCorrectedAspect();
     renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov* (PI / 360.))), yxaspect);
     OverlapDraw = true;
-    DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
+    DrawOverlapRoom(tx, ty, tz, tq16ang, thoriz.asq16(), tsectnum);
     OverlapDraw = false;
 
     if (automapMode != am_full)// && !ScreenSavePic)
     {
         // TEST this! Changed to camerapp
-        //JS_DrawMirrors(camerapp, tx, ty, tz, tq16ang, tq16horiz);
-        JS_DrawMirrors(pp, tx, ty, tz, tq16ang, tq16horiz);
+        //JS_DrawMirrors(camerapp, tx, ty, tz, tq16ang, thoriz.asq16());
+        JS_DrawMirrors(pp, tx, ty, tz, tq16ang, thoriz.asq16());
     }
 
     // TODO: This call is redundant if the tiled overhead map is shown, but the
     // HUD elements should be properly outputted with hardware rendering first.
     if (!FAF_DebugView)
-        FAF_DrawRooms(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
+        FAF_DrawRooms(tx, ty, tz, tq16ang, thoriz.asq16(), tsectnum);
 
     analyzesprites(tx, ty, tz, false);
     post_analyzesprites();

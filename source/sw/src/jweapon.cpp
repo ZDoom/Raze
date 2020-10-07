@@ -1418,10 +1418,10 @@ PlayerInitChemBomb(PLAYERp pp)
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    wp->zvel = -pp->q16horiz >> 9;
+    wp->zvel = -pp->horizon.horiz.asq16() >> 9;
 
-    // //DSPRINTF(ds,"horiz %d, ho %d, ho+ho %d",FixedToInt(pp->q16horiz), FixedToInt(pp->q16horizoff),
-    // FixedToInt(pp->q16horizoff + pp->q16horiz));
+    // //DSPRINTF(ds,"horiz %d, ho %d, ho+ho %d", pp->horizon.horiz.asbuild(), pp->horizon.horizoff.asbuild(),
+    // pp->horizon.horizoff.asbuild() + pp->horizon.horiz.asbuild());
     // MONO_PRINT(ds);
 
     oclipdist = pp->SpriteP->clipdist;
@@ -1862,7 +1862,7 @@ PlayerInitCaltrops(PLAYERp pp)
     // They go out at different angles
 //        wp->ang = NORM_ANGLE(FixedToInt(pp->q16ang) + (RANDOM_RANGE(50) - 25));
 
-    wp->zvel = -pp->q16horiz >> 9;
+    wp->zvel = -pp->horizon.horiz.asq16() >> 9;
 
     oclipdist = pp->SpriteP->clipdist;
     pp->SpriteP->clipdist = 0;
@@ -2496,7 +2496,7 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
 
     if (u->PlayerP)
     {
-        wp->z += xs_CRoundToInt(-fmulscale16(u->PlayerP->q16horiz, HORIZ_MULT / 3.));
+        wp->z += xs_CRoundToInt(-fmulscale16(u->PlayerP->horizon.horiz.asq16(), HORIZ_MULT / 3.));
     }
 
     switch (wu->ID)

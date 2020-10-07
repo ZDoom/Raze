@@ -64,7 +64,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
 
     if (parm->numparms == 5)
     {
-    	Player->oq16horiz = Player->q16horiz = IntToFixed(atoi(parm->parms[4]));
+    	Player->horizon.ohoriz = Player->horizon.horiz = buildhoriz(atoi(parm->parms[4]));
     }
 
     return CCMD_OK;

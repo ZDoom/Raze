@@ -1706,29 +1706,29 @@ PlayerAutoLook(PLAYERp pp, double const scaleAdjust)
                 // accordingly
                 if ((pp->cursectnum == tempsect) || (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
                 {
-                    pp->q16horizoff += xs_CRoundToInt(scaleAdjust * ((j - k) * 160));
+                    pp->horizon.horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * 160)));
                 }
             }
         }
     }
 
-    if (TEST(pp->Flags, PF_CLIMBING) && pp->q16horizoff < IntToFixed(100))
+    if (TEST(pp->Flags, PF_CLIMBING) && pp->horizon.horizoff.asq16() < IntToFixed(100))
     {
         // tilt when climbing but you can't even really tell it.
-        pp->q16horizoff += xs_CRoundToInt(scaleAdjust * (((IntToFixed(100) - pp->q16horizoff) >> 3) + FRACUNIT));
+        pp->horizon.horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * (((IntToFixed(100) - pp->horizon.horizoff.asq16()) >> 3) + FRACUNIT)));
     }
     else
     {
-        // Make q16horizoff grow towards 0 since q16horizoff is not modified when you're not on a slope.
-        if (pp->q16horizoff > 0)
+        // Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
+        if (pp->horizon.horizoff.asq16() > 0)
         {
-            pp->q16horizoff -= xs_CRoundToInt(scaleAdjust * ((pp->q16horizoff >> 3) + FRACUNIT));
-            pp->q16horizoff = max(pp->q16horizoff, 0);
+            pp->horizon.horizoff -= q16horiz(xs_CRoundToInt(scaleAdjust * ((pp->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
+            pp->horizon.horizoff = q16horiz(max(pp->horizon.horizoff.asq16(), 0));
         }
-        if (pp->q16horizoff < 0)
+        if (pp->horizon.horizoff.asq16() < 0)
         {
-            pp->q16horizoff += xs_CRoundToInt(scaleAdjust * ((pp->q16horizoff >> 3) + FRACUNIT));
-            pp->q16horizoff = min(pp->q16horizoff, 0);
+            pp->horizon.horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((pp->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
+            pp->horizon.horizoff = q16horiz(min(pp->horizon.horizoff.asq16(), 0));
         }
     }
 }
@@ -1741,7 +1741,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
         PlayerAutoLook(pp, scaleAdjust);
 
     // apply default horizon from backend
-    sethorizon2(&pp->q16horiz, q16horz, &pp->input.actions, scaleAdjust);
+    sethorizon(&pp->horizon.horiz, q16horz, &pp->input.actions, scaleAdjust);
 }
 
 void
@@ -6138,14 +6138,14 @@ DoPlayerBeginDie(PLAYERp pp)
 void
 DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
 {
-    if ((pp->q16horiz - IntToFixed(target)) > FRACUNIT)
+    if ((pp->horizon.horiz.asq16() - IntToFixed(target)) > FRACUNIT)
     {   
-        playerAddHoriz2(&pp->q16horiz, &pp->horizAdjust, -speed);
+        pp->horizon.addadjustment(-speed);
     }
 
-    if ((IntToFixed(target) - pp->q16horiz) > FRACUNIT)
+    if ((IntToFixed(target) - pp->horizon.horiz.asq16()) > FRACUNIT)
     {
-        playerAddHoriz2(&pp->q16horiz, &pp->horizAdjust, speed);
+        pp->horizon.addadjustment(speed);
     }
 }
 
@@ -6299,7 +6299,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         sp->yrepeat = PLAYER_NINJA_YREPEAT;
 
         //pp->tilt = 0;
-        pp->q16horiz = 0;
+        pp->horizon.horiz = q16horiz(0);
         DoPlayerResetMovement(pp);
         u->ID = NINJA_RUN_R0;
         PlayerDeathReset(pp);
@@ -6971,11 +6971,10 @@ MoveSkipSavePos(void)
         pp->oposy = pp->posy;
         pp->oposz = pp->posz;
         pp->oq16ang = pp->q16ang;
-        pp->oq16horiz = pp->q16horiz;
-        pp->oq16horizoff = pp->q16horizoff;
         pp->obob_z = pp->bob_z;
         pp->oq16look_ang = pp->q16look_ang;
         pp->oq16rotscrnang = pp->q16rotscrnang;
+        pp->horizon.backup();
     }
 
     // save off stats for skip4
@@ -7352,7 +7351,7 @@ InitAllPlayers(void)
 
     //getzsofslope(pfirst->cursectnum, pfirst->posx, pfirst->posy, &cz, &fz);
     //pfirst->posz = fz - PLAYER_HEIGHT;
-    pfirst->q16horiz = 0;
+    pfirst->horizon.horiz = q16horiz(0);
 
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
@@ -7361,7 +7360,7 @@ InitAllPlayers(void)
         pp->posy = pp->oposy = pfirst->posy;
         pp->posz = pp->oposz = pfirst->posz;
         pp->q16ang = pp->oq16ang = pfirst->q16ang;
-        pp->q16horiz = pp->oq16horiz = pfirst->q16horiz;
+        pp->horizon.horiz = pp->horizon.ohoriz = pfirst->horizon.horiz;
         pp->cursectnum = pfirst->cursectnum;
         // set like this so that player can trigger something on start of the level
         pp->lastcursectnum = pfirst->cursectnum+1;
@@ -7398,7 +7397,7 @@ InitAllPlayers(void)
         pp->FadeAmt = 0;
         pp->FadeTics = 0;
         pp->StartColor = 0;
-        pp->q16horizoff = 0;
+        pp->horizon.horizoff = q16horiz(0);
 
         INITLIST(&pp->PanelSpriteList);
     }
