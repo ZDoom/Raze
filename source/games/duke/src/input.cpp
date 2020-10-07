@@ -823,8 +823,8 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 	{
 		// neutralize all movement when blocked or in automap follow mode
 		loc.fvel = loc.svel = 0;
-		loc.q16avel = loc.q16horz = 0;
-		input.q16avel = input.q16horz = 0;
+		loc.q16avel = loc.horz = 0;
+		input.q16avel = input.horz = 0;
 	}
 	else
 	{
@@ -860,12 +860,12 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 
 		if (p->newowner == -1 && !(p->sync.actions & SB_CENTERVIEW))
 		{
-			// input.q16horz already added to loc in processMovement()
-			loc.q16horz = clamp(loc.q16horz, IntToFixed(-MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
+			// input.horz already added to loc in processMovement()
+			loc.horz = clamp(loc.horz, -MAXHORIZVEL, MAXHORIZVEL);
 		}
 		else
 		{
-			loc.q16horz = input.q16horz = 0;
+			loc.horz = input.horz = 0;
 		}
 	}
 }
@@ -923,7 +923,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 			calcviewpitch(p, scaleAdjust);
 			processq16avel(p, &input.q16avel);
 			applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, input.q16avel, &p->sync.actions, scaleAdjust, p->crouch_toggle || p->sync.actions & SB_CROUCH);
-			sethorizon(&p->horizon.horiz, input.q16horz, &p->sync.actions, scaleAdjust);
+			sethorizon(&p->horizon.horiz, input.horz, &p->sync.actions, scaleAdjust);
 		}
 
 		playerProcessHelpers(&p->q16ang, &p->angAdjust, &p->angTarget, scaleAdjust);

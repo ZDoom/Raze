@@ -56,7 +56,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         if (gView->pXSprite->health != 0)
         {
             applylook(&pPlayer->q16ang, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, input.q16avel, &pPlayer->input.actions, scaleAdjust, pPlayer->posture != 0);
-            sethorizon(&pPlayer->horizon.horiz, input.q16horz, &pPlayer->input.actions, scaleAdjust);
+            sethorizon(&pPlayer->horizon.horiz, input.horz, &pPlayer->input.actions, scaleAdjust);
         }
 
         playerProcessHelpers(&pPlayer->q16ang, &pPlayer->angAdjust, &pPlayer->angTarget, scaleAdjust);

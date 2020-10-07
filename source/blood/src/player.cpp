@@ -766,7 +766,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pInput->actions = 0;
     pInput->fvel = 0;
     pInput->svel = 0;
-    pInput->q16horz = 0;
+    pInput->horz = 0;
     pPlayer->flickerEffect = 0;
     pPlayer->quakeEffect = 0;
     pPlayer->tiltEffect = 0;
@@ -1557,7 +1557,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        sethorizon(&pPlayer->horizon.horiz, pInput->q16horz, &pInput->actions, 1);
+        sethorizon(&pPlayer->horizon.horiz, pInput->horz, &pInput->actions, 1);
     }
 
     int nSector = pSprite->sectnum;

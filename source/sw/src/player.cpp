@@ -1734,14 +1734,14 @@ PlayerAutoLook(PLAYERp pp, double const scaleAdjust)
 }
 
 void
-DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
+DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
 {
     // Fixme: This should probably be made optional.
     if (cl_slopetilting)
         PlayerAutoLook(pp, scaleAdjust);
 
     // apply default horizon from backend
-    sethorizon(&pp->horizon.horiz, q16horz, &pp->input.actions, scaleAdjust);
+    sethorizon(&pp->horizon.horiz, horz, &pp->input.actions, scaleAdjust);
 }
 
 void
@@ -2298,7 +2298,7 @@ DoPlayerMove(PLAYERp pp)
     }
     else
     {
-        DoPlayerHorizon(pp, pp->input.q16horz, 1);
+        DoPlayerHorizon(pp, pp->input.horz, 1);
     }
 
     if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
@@ -2514,7 +2514,7 @@ DoPlayerMoveBoat(PLAYERp pp)
     }
     else
     {
-        DoPlayerHorizon(pp, pp->input.q16horz, 1);
+        DoPlayerHorizon(pp, pp->input.horz, 1);
     }
 }
 #endif
@@ -3008,7 +3008,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
     }
     else
     {
-        DoPlayerHorizon(pp, pp->input.q16horz, 1);
+        DoPlayerHorizon(pp, pp->input.horz, 1);
     }
 
     DoTankTreads(pp);
@@ -3045,7 +3045,7 @@ DoPlayerMoveTurret(PLAYERp pp)
     }
     else
     {
-        DoPlayerHorizon(pp, pp->input.q16horz, 1);
+        DoPlayerHorizon(pp, pp->input.horz, 1);
     }
 }
 
@@ -3624,7 +3624,7 @@ DoPlayerClimb(PLAYERp pp)
     }
     else
     {
-        DoPlayerHorizon(pp, pp->input.q16horz, 1);
+        DoPlayerHorizon(pp, pp->input.horz, 1);
     }
 
     if (FAF_ConnectArea(pp->cursectnum))
@@ -7038,7 +7038,7 @@ void ChopsCheck(PLAYERp pp)
 {
     if (!M_Active() && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if (pp->input.actions & ~SB_RUN || pp->input.fvel || pp->input.svel || pp->input.q16avel || pp->input.q16horz ||
+        if (pp->input.actions & ~SB_RUN || pp->input.fvel || pp->input.svel || pp->input.q16avel || pp->input.horz ||
             TEST(pp->Flags, PF_CLIMBING | PF_FALLING | PF_DIVING))
         {
             // Hit a input key or other reason to stop chops

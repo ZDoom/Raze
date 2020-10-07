@@ -429,7 +429,7 @@ void GameInterface::Ticker()
         if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;
 
         sPlayerInput[nLocalPlayer].nAngle = localInput.q16avel;
-        sPlayerInput[nLocalPlayer].pan = localInput.q16horz;
+        sPlayerInput[nLocalPlayer].pan = localInput.horz;
 
         Ra[nLocalPlayer].nTarget = besttarget;
 

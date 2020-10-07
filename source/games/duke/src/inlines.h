@@ -164,9 +164,9 @@ inline fixed_t PlayerInputAngVel(int pl)
 	return ps[pl].sync.q16avel;
 }
 
-inline fixed_t PlayerHorizon(int pl)
+inline float PlayerHorizon(int pl)
 {
-	return ps[pl].sync.q16horz;
+	return ps[pl].sync.horz;
 }
 
 inline void clearfriction()

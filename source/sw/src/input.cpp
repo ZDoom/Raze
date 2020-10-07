@@ -34,7 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust);
+void DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust);
 void DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust);
 void DoPlayerTurnVehicle(PLAYERp pp, fixed_t q16avel, int z, int floor_dist);
 void DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel);
@@ -212,7 +212,7 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
     {
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
         {
-            DoPlayerHorizon(pp, input.q16horz, scaleAdjust);
+            DoPlayerHorizon(pp, input.horz, scaleAdjust);
         }
 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL))

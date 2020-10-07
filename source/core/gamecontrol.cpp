@@ -1457,18 +1457,18 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		currInput->q16avel += FloatToFixed(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw));
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
-		currInput->q16horz -= FloatToFixed(hidInput->mouseturny);
+		currInput->horz -= hidInput->mouseturny;
 	else
 		currInput->fvel -= xs_CRoundToInt(hidInput->mousemovey * mousevelscale);
 
 	if (invertmouse)
-		currInput->q16horz = -currInput->q16horz;
+		currInput->horz = -currInput->horz;
 
 	if (invertmousex)
 		currInput->q16avel = -currInput->q16avel;
 
 	// process remaining controller input.
-	currInput->q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
+	currInput->horz -= scaleAdjust * hidInput->dpitch;
 	currInput->svel -= xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * cntrlvelscale);
 	currInput->fvel -= xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * cntrlvelscale);
 
@@ -1559,7 +1559,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -keymove, keymove);
 	inputBuffer->svel = clamp(inputBuffer->svel + currInput->svel, -keymove, keymove);
 	inputBuffer->q16avel += currInput->q16avel;
-	inputBuffer->q16horz += currInput->q16horz;
+	inputBuffer->horz += currInput->horz;
 }
 
 //---------------------------------------------------------------------------
@@ -1571,15 +1571,15 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 static double const aimamount = HorizToPitch(250. / GameTicRate);
 static double const lookamount = HorizToPitch(500. / GameTicRate);
 
-void sethorizon(fixedhoriz* horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust)
+void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Store current horizon as true pitch.
 	double pitch = horiz->aspitch();
 
-	if (q16horz)
+	if (horz)
 	{
 		*actions &= ~SB_CENTERVIEW;
-		pitch += FixedToFloat(q16horz);
+		pitch += horz;
 	}
 
 	// this is the locked type
