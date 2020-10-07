@@ -461,10 +461,10 @@ void F2DDrawer::AddTexture(FGameTexture* img, DrawParms& parms)
 
 		if (x < (double)parms.lclip || y < (double)parms.uclip || x + w >(double)parms.rclip || y + h >(double)parms.dclip)
 		{
-			dg.mScissor[0] = parms.lclip + offset.X;
-			dg.mScissor[1] = parms.uclip + offset.Y;
-			dg.mScissor[2] = parms.rclip + offset.X;
-			dg.mScissor[3] = parms.dclip + offset.Y;
+			dg.mScissor[0] = parms.lclip + int(offset.X);
+			dg.mScissor[1] = parms.uclip + int(offset.Y);
+			dg.mScissor[2] = parms.rclip + int(offset.X);
+			dg.mScissor[3] = parms.dclip + int(offset.Y);
 			dg.mFlags |= DTF_Scissor;
 		}
 		else
@@ -502,10 +502,10 @@ void F2DDrawer::AddTexture(FGameTexture* img, DrawParms& parms)
 		double x4 = parms.x + xscale * (xd2 * cosang + yd2 * sinang);
 		double y4 = parms.y - yscale * (xd2 * sinang - yd2 * cosang);
 
-		dg.mScissor[0] = parms.lclip + offset.X;
-		dg.mScissor[1] = parms.uclip + offset.Y;
-		dg.mScissor[2] = parms.rclip + offset.X;
-		dg.mScissor[3] = parms.dclip + offset.Y;
+		dg.mScissor[0] = parms.lclip + int(offset.X);
+		dg.mScissor[1] = parms.uclip + int(offset.Y);
+		dg.mScissor[2] = parms.rclip + int(offset.X);
+		dg.mScissor[3] = parms.dclip + int(offset.Y);
 		dg.mFlags |= DTF_Scissor;
 
 		dg.mVertCount = 4;
@@ -571,10 +571,10 @@ void F2DDrawer::AddShape(FGameTexture* img, DShape2D* shape, DrawParms& parms)
 	}
 	if (minx < (double)parms.lclip || miny < (double)parms.uclip || maxx >(double)parms.rclip || maxy >(double)parms.dclip)
 	{
-		dg.mScissor[0] = parms.lclip + offset.X;
-		dg.mScissor[1] = parms.uclip + offset.Y;
-		dg.mScissor[2] = parms.rclip + offset.X;
-		dg.mScissor[3] = parms.dclip + offset.Y;
+		dg.mScissor[0] = parms.lclip + int(offset.X);
+		dg.mScissor[1] = parms.uclip + int(offset.Y);
+		dg.mScissor[2] = parms.rclip + int(offset.X);
+		dg.mScissor[3] = parms.dclip + int(offset.Y);
 		dg.mFlags |= DTF_Scissor;
 	}
 	else
@@ -694,10 +694,10 @@ void F2DDrawer::AddPoly(FGameTexture* img, FVector4* vt, size_t vtcount, unsigne
 	dg.mType = DrawTypeTriangles;
 	if (clipx1 > 0 || clipy1 > 0 || clipx2 < GetWidth() - 1 || clipy2 < GetHeight() - 1)
 	{
-		dg.mScissor[0] = clipx1     + offset.X;
-		dg.mScissor[1] = clipy1     + offset.Y;
-		dg.mScissor[2] = clipx2 + 1 + offset.X;
-		dg.mScissor[3] = clipy2 + 1 + offset.Y;
+		dg.mScissor[0] = clipx1     + int(offset.X);
+		dg.mScissor[1] = clipy1     + int(offset.Y);
+		dg.mScissor[2] = clipx2 + 1 + int(offset.X);
+		dg.mScissor[3] = clipy2 + 1 + int(offset.Y);
 		dg.mFlags |= DTF_Scissor;
 	}
 
@@ -911,10 +911,10 @@ void F2DDrawer::AddLine(double x1, double y1, double x2, double y2, int clipx1, 
 
 	if (clipx1 > 0 || clipy1 > 0 || clipx2 < GetWidth()- 1 || clipy2 < GetHeight() - 1)
 	{
-		dg.mScissor[0] = clipx1     + offset.X;
-		dg.mScissor[1] = clipy1     + offset.Y;
-		dg.mScissor[2] = clipx2 + 1 + offset.X;
-		dg.mScissor[3] = clipy2 + 1 + offset.Y;
+		dg.mScissor[0] = clipx1     + int(offset.X);
+		dg.mScissor[1] = clipy1     + int(offset.Y);
+		dg.mScissor[2] = clipx2 + 1 + int(offset.X);
+		dg.mScissor[3] = clipy2 + 1 + int(offset.Y);
 		dg.mFlags |= DTF_Scissor;
 	}
 	
