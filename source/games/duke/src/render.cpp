@@ -574,9 +574,7 @@ void displayrooms(int snum, double smoothratio)
 			if (cl_syncinput)
 			{
 				// Original code for when the values are passed through the sync struct
-				fixed_t ohorz = (p->oq16horiz + p->oq16horizoff);
-				fixed_t horz = (p->q16horiz + p->q16horizoff);
-				choriz = q16horiz(ohorz + xs_CRoundToInt(fmulscale16(horz - ohorz, smoothratio)));
+				choriz = p->horizon.interpolatedsum(smoothratio);
 
 				fixed_t oang = (p->oq16ang + p->oq16look_ang);
 				fixed_t ang = (p->q16ang + p->q16look_ang);
@@ -586,7 +584,7 @@ void displayrooms(int snum, double smoothratio)
 			{
 				// This is for real time updating of the view direction.
 				cang = q16ang(p->q16ang + p->q16look_ang);
-				choriz = q16horiz(p->q16horiz + p->q16horizoff);
+				choriz = p->horizon.sum();
 			}
 		}
 

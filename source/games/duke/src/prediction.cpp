@@ -55,8 +55,8 @@ void resetmys()
 	myz = omyz = ps[myconnectindex].posz;
 	myxvel = myyvel = myzvel = 0;
 	q16myang = oq16myang = ps[myconnectindex].q16ang;
-	q16myhoriz = oq16myhoriz = ps[myconnectindex].q16horiz;
-	q16myhorizoff = oq16myhorizoff = ps[myconnectindex].q16horizoff;
+	q16myhoriz = oq16myhoriz = ps[myconnectindex].horizon.horiz.asq16();
+	q16myhorizoff = oq16myhorizoff = ps[myconnectindex].horizon.horizoff.asq16();
 	mycursectnum = ps[myconnectindex].cursectnum;
 	myjumpingcounter = ps[myconnectindex].jumping_counter;
 	myjumpingtoggle = ps[myconnectindex].jumping_toggle;

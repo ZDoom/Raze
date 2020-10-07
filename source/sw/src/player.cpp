@@ -1741,7 +1741,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
         PlayerAutoLook(pp, scaleAdjust);
 
     // apply default horizon from backend
-    sethorizon(&pp->q16horiz, q16horz, &pp->input.actions, scaleAdjust);
+    sethorizon2(&pp->q16horiz, q16horz, &pp->input.actions, scaleAdjust);
 }
 
 void
@@ -6140,12 +6140,12 @@ DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
 {
     if ((pp->q16horiz - IntToFixed(target)) > FRACUNIT)
     {   
-        playerAddHoriz(&pp->q16horiz, &pp->horizAdjust, -speed);
+        playerAddHoriz2(&pp->q16horiz, &pp->horizAdjust, -speed);
     }
 
     if ((IntToFixed(target) - pp->q16horiz) > FRACUNIT)
     {
-        playerAddHoriz(&pp->q16horiz, &pp->horizAdjust, speed);
+        playerAddHoriz2(&pp->q16horiz, &pp->horizAdjust, speed);
     }
 }
 

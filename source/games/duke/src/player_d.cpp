@@ -166,7 +166,7 @@ void shoot_d(int i, int atwith)
 			}
 			else
 			{
-				zvel = -mulscale16(ps[p].getq16horizsum(), 98);
+				zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
 				sx += sintable[(sa + 860) & 0x7FF] / 448;
 				sy += sintable[(sa + 348) & 0x7FF] / 448;
 				sz += (3 << 8);
@@ -224,7 +224,7 @@ void shoot_d(int i, int atwith)
 			}
 			else
 			{
-				zvel = -mulscale16(ps[p].getq16horizsum(), 81);
+				zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
 				if (sprite[ps[p].i].xvel != 0)
 					vel = (int)((((512 - (1024
 						- abs(abs(getangle(sx - ps[p].oposx, sy - ps[p].oposy) - sa) - 1024)))
@@ -292,7 +292,7 @@ void shoot_d(int i, int atwith)
 		{
 			if (p >= 0)
 			{
-				zvel = -ps[p].getq16horizsum() >> 11;
+				zvel = -ps[p].horizon.sum().asq16() >> 11;
 				sz += (6 << 8);
 				sa += 15;
 			}
@@ -464,14 +464,14 @@ void shoot_d(int i, int atwith)
 				if (j == -1)
 				{
 					// no target
-					zvel = -ps[p].getq16horizsum() >> 11;
+					zvel = -ps[p].horizon.sum().asq16() >> 11;
 				}
 				zvel += (zRange / 2) - (krand() & (zRange - 1));
 			}
 			else if (j == -1)
 			{
 				sa += 16 - (krand() & 31);
-				zvel = -ps[p].getq16horizsum() >> 11;
+				zvel = -ps[p].horizon.sum().asq16() >> 11;
 				zvel += 128 - (krand() & 255);
 			}
 
@@ -681,7 +681,7 @@ void shoot_d(int i, int atwith)
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
 			else
-				zvel = -mulscale16(ps[p].getq16horizsum(), 98);
+				zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
 		}
 		else
 		{
@@ -769,7 +769,7 @@ void shoot_d(int i, int atwith)
 				if (sprite[j].picnum != RECON)
 					sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = -mulscale16(ps[p].getq16horizsum(), 81);
+			else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
 			if (atwith == RPG)
 				S_PlayActorSound(RPG_SHOOT, i);
 
@@ -914,7 +914,7 @@ void shoot_d(int i, int atwith)
 	case HANDHOLDINGLASER:
 
 		if (p >= 0)
-			zvel = -ps[p].getq16horizsum() >> 11;
+			zvel = -ps[p].horizon.sum().asq16() >> 11;
 		else zvel = 0;
 
 		hitscan(sx, sy, sz - ps[p].pyoff, sect,
@@ -1015,7 +1015,7 @@ void shoot_d(int i, int atwith)
 			else
 			{
 				sa += 16 - (krand() & 31);
-				zvel = -ps[p].getq16horizsum() >> 11;
+				zvel = -ps[p].horizon.sum().asq16() >> 11;
 				zvel += 128 - (krand() & 255);
 			}
 
@@ -1090,7 +1090,7 @@ void shoot_d(int i, int atwith)
 				zvel = ((sprite[j].z - sz - dal - (4 << 8)) * 768) / (ldist(&sprite[ps[p].i], &sprite[j]));
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = -mulscale16(ps[p].getq16horizsum(), 98);
+			else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
 		}
 		else if (s->statnum != 3)
 		{
@@ -1940,7 +1940,7 @@ int operateTripbomb(int snum)
 
 	hitscan(p->posx, p->posy, p->posz,
 		p->cursectnum, sintable[(p->getang() + 512) & 2047],
-		sintable[p->getang() & 2047], -p->getq16horizsum() >> 11,
+		sintable[p->getang() & 2047], -p->horizon.sum().asq16() >> 11,
 		&sect, &hw, &hitsp, &sx, &sy, &sz, CLIPMASK1);
 
 	if (sect < 0 || hitsp >= 0)
@@ -2122,12 +2122,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				k = 15;
-				i = mulscale16(p->getq16horizsum(), 20);
+				i = mulscale16(p->horizon.sum().asq16(), 20);
 			}
 			else
 			{
 				k = 140;
-				i = -512 - mulscale16(p->getq16horizsum(), 20);
+				i = -512 - mulscale16(p->horizon.sum().asq16(), 20);
 			}
 
 			j = EGS(p->cursectnum,
@@ -2707,7 +2707,7 @@ void processinput_d(int snum)
 
 	if (cl_syncinput)
 	{
-		backupview(p);
+		p->horizon.backup();
 		calcviewpitch(p, 1);
 	}
 
@@ -3072,7 +3072,7 @@ HORIZONLY:
 
 	if (cl_syncinput)
 	{
-		sethorizon(&p->q16horiz, PlayerHorizon(snum), &p->sync.actions, 1);
+		sethorizon(&p->horizon.horiz, PlayerHorizon(snum), &p->sync.actions, 1);
 	}
 
 	checkhardlanding(p);

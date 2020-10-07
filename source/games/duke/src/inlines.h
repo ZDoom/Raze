@@ -191,15 +191,15 @@ inline void backupplayer(player_struct* p)
 {
 	backuppos(p);
 	backuplook(p);
-	backupview(p);
+	p->horizon.backup();
 }
 
 // the weapon display code uses this.
 inline double get16thOfHoriz(int snum, bool interpolate, double smoothratio)
 {
 	struct player_struct *p = &ps[snum];
-	fixed_t ohorz = p->oq16horiz - p->oq16horizoff;
-	fixed_t horz = p->q16horiz - p->q16horizoff;
+	fixed_t ohorz = p->horizon.ohoriz.asq16() - p->horizon.ohorizoff.asq16();
+	fixed_t horz = p->horizon.horiz.asq16() - p->horizon.horizoff.asq16();
 	return (!interpolate ? horz : ohorz + fmulscale16(horz - ohorz, smoothratio)) * (0.0625 / FRACUNIT);
 }
 

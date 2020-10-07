@@ -154,7 +154,7 @@ void shoot_r(int i, int atwith)
 		{
 			if (p >= 0)
 			{
-				zvel = -ps[p].getq16horizsum() >> 11;
+				zvel = -ps[p].horizon.sum().asq16() >> 11;
 				sz += (6 << 8);
 				sa += 15;
 			}
@@ -333,7 +333,7 @@ void shoot_r(int i, int atwith)
 				if (j == -1)
 				{
 					sa += 16 - (krand() & 31);
-					zvel = -ps[p].getq16horizsum() >> 11;
+					zvel = -ps[p].horizon.sum().asq16() >> 11;
 					zvel += 128 - (krand() & 255);
 				}
 			}
@@ -343,7 +343,7 @@ void shoot_r(int i, int atwith)
 					sa += 64 - (krand() & 127);
 				else
 					sa += 16 - (krand() & 31);
-				if (j == -1) zvel = -ps[p].getq16horizsum() >> 11;
+				if (j == -1) zvel = -ps[p].horizon.sum().asq16() >> 11;
 				zvel += 128 - (krand() & 255);
 			}
 			sz -= (2 << 8);
@@ -602,7 +602,7 @@ void shoot_r(int i, int atwith)
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
 			else
-				zvel = -mulscale16(ps[p].getq16horizsum(), 98);
+				zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
 		}
 		else
 		{
@@ -693,7 +693,7 @@ void shoot_r(int i, int atwith)
 			{
 				sx += sintable[(s->ang + 512 + 160) & 2047] >> 7;
 				sy += sintable[(s->ang + 160) & 2047] >> 7;
-				zvel = -mulscale16(ps[p].getq16horizsum(), 98);
+				zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
 			}
 		}
 		else
@@ -804,7 +804,7 @@ void shoot_r(int i, int atwith)
 				if (sprite[j].picnum != RECON)
 					sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = -mulscale16(ps[p].getq16horizsum(), 81);
+			else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
 			if (atwith == RPG)
 				S_PlayActorSound(RPG_SHOOT, i);
 			else if (isRRRA())
@@ -1476,7 +1476,7 @@ void checkweapons_r(struct player_struct* p)
 			sprite[j].owner = p->ammo_amount[MOTORCYCLE_WEAPON];
 			p->OnMotorcycle = 0;
 			p->gotweapon.Clear(MOTORCYCLE_WEAPON);
-			p->sethoriz(0);
+			p->horizon.horiz = q16horiz(0);
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -1492,7 +1492,7 @@ void checkweapons_r(struct player_struct* p)
 			sprite[j].owner = p->ammo_amount[BOAT_WEAPON];
 			p->OnBoat = 0;
 			p->gotweapon.Clear(BOAT_WEAPON);
-			p->sethoriz(0);
+			p->horizon.horiz = q16horiz(0);
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -1762,7 +1762,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 	if (horiz != 0)
 	{
-		playerAddHoriz(&p->q16horiz, &p->horizAdjust, horiz - FixedToFloat(p->q16horiz));
+		p->horizon.addadjustment(horiz - FixedToFloat(p->horizon.horiz.asq16()));
 	}
 
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (var74 || var7c))
@@ -2091,7 +2091,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	if (horiz != 0)
 	{
-		playerAddHoriz(&p->q16horiz, &p->horizAdjust, horiz - FixedToFloat(p->q16horiz));
+		p->horizon.addadjustment(horiz - FixedToFloat(p->horizon.horiz.asq16()));
 	}
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (varbc || varc4))
@@ -2843,12 +2843,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
-				i = -mulscale16(p->getq16horizsum(), 20);
+				i = -mulscale16(p->horizon.sum().asq16(), 20);
 			}
 			else
 			{
 				k = 140;
-				i = -512 - -mulscale16(p->getq16horizsum(), 20);
+				i = -512 - -mulscale16(p->horizon.sum().asq16(), 20);
 			}
 
 			j = EGS(p->cursectnum,
@@ -3066,7 +3066,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		playerAddHoriz(&p->q16horiz, &p->horizAdjust, 1);
+		p->horizon.addadjustment(1);
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -3238,7 +3238,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		{
 			p->posxv -= sintable[(p->getang() + 512) & 2047] << 4;
 			p->posyv -= sintable[p->getang() & 2047] << 4;
-			playerAddHoriz(&p->q16horiz, &p->horizAdjust, 20);
+			p->horizon.addadjustment(20);
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -3253,12 +3253,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
-				i = mulscale16(p->getq16horizsum(), 20);
+				i = mulscale16(p->horizon.sum().asq16(), 20);
 			}
 			else
 			{
 				k = 32;
-				i = -512 - mulscale16(p->getq16horizsum(), 20);
+				i = -512 - mulscale16(p->horizon.sum().asq16(), 20);
 			}
 
 			j = EGS(p->cursectnum,
@@ -3535,7 +3535,7 @@ void processinput_r(int snum)
 
 	if (cl_syncinput)
 	{
-		backupview(p);
+		p->horizon.backup();
 		calcviewpitch(p, 1);
 	}
 
@@ -4092,12 +4092,12 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-		playerAddHoriz(&p->q16horiz, &p->horizAdjust, -d);
+		p->horizon.addadjustment(-d);
 	}
 
 	if (cl_syncinput)
 	{
-		sethorizon(&p->q16horiz, PlayerHorizon(snum), &p->sync.actions, 1);
+		sethorizon(&p->horizon.horiz, PlayerHorizon(snum), &p->sync.actions, 1);
 	}
 
 	checkhardlanding(p);
@@ -4181,7 +4181,7 @@ void OnMotorcycle(struct player_struct *p, int motosprite)
 		p->gotweapon.Set(MOTORCYCLE_WEAPON);
 		p->posxv = 0;
 		p->posyv = 0;
-		p->sethoriz(0);
+		p->horizon.horiz = q16horiz(0);
 	}
 	if (!S_CheckActorSoundPlaying(p->i,186))
 		S_PlayActorSound(186, p->i);
@@ -4212,7 +4212,7 @@ void OffMotorcycle(struct player_struct *p)
 		p->gotweapon.Clear(MOTORCYCLE_WEAPON);
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->sethoriz(0);
+		p->horizon.horiz = q16horiz(0);
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;
@@ -4258,7 +4258,7 @@ void OnBoat(struct player_struct *p, int boatsprite)
 		p->gotweapon.Set(BOAT_WEAPON);
 		p->posxv = 0;
 		p->posyv = 0;
-		p->sethoriz(0);
+		p->horizon.horiz = q16horiz(0);
 	}
 }
 
@@ -4277,7 +4277,7 @@ void OffBoat(struct player_struct *p)
 		p->gotweapon.Clear(BOAT_WEAPON);
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
-		p->sethoriz(0);
+		p->horizon.horiz = q16horiz(0);
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
 		p->TiltStatus = 0;

@@ -112,10 +112,8 @@ void resetplayerstats(int snum)
     p->footprintpal     = 0;
     p->footprintshade   = 0;
     p->jumping_toggle   = 0;
-    p->sethoriz(40);                                   //!!
-    p->oq16horiz = p->q16horiz;
-    p->sethorizoff(0);
-    p->oq16horizoff = p->q16horizoff;
+    p->horizon.ohoriz = p->horizon.horiz = q16horiz(40);
+    p->horizon.ohorizoff = p->horizon.horizoff = q16horiz(0);
     p->bobcounter       = 0;
     p->on_ground        = 0;
     p->player_par       = 0;

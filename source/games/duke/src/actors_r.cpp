@@ -1399,7 +1399,7 @@ void moveweapons_r(void)
 								guts_r(s, RABBITJIBC, 2, myconnectindex);
 							}
 
-							playerAddHoriz(&ps[p].q16horiz, &ps[p].horizAdjust, 32);
+							ps[p].horizon.addadjustment(32);
 							ps[p].sync.actions |= SB_CENTERVIEW;
 
 							if (ps[p].loogcnt == 0)

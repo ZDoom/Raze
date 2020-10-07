@@ -91,30 +91,30 @@ void calcviewpitch(player_struct *p, double factor)
 {
 	int psect = p->cursectnum;
 	int psectlotag = sector[psect].lotag;
-	 if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
-	 {
-		 int x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
-		 int y = p->posy + (sintable[p->getang() & 2047] >> 5);
-		 short tempsect = psect;
-		 updatesector(x, y, &tempsect);
+	if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
+	{
+		int x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
+		int y = p->posy + (sintable[p->getang() & 2047] >> 5);
+		short tempsect = psect;
+		updatesector(x, y, &tempsect);
 
-		 if (tempsect >= 0)
-		 {
-			 int k = getflorzofslope(psect, x, y);
-			 if (psect == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
-				 p->addhorizoff(factor * mulscale16(p->truefz - k, 160));
-		 }
-	 }
-	 if (p->q16horizoff > 0)
-	 {
-		 p->addhorizoff(-factor * FixedToFloat((p->q16horizoff >> 3) + FRACUNIT));
-		 if (p->q16horizoff < 0) p->q16horizoff = 0;
-	 }
-	 else if (p->q16horizoff < 0)
-	 {
-		 p->addhorizoff(-factor * FixedToFloat((p->q16horizoff >> 3) + FRACUNIT));
-		 if (p->q16horizoff > 0) p->q16horizoff = 0;
-	 }
+		if (tempsect >= 0)
+		{
+			int k = getflorzofslope(psect, x, y);
+			if (psect == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
+			p->horizon.horizoff += q16horiz(FloatToFixed(factor * mulscale16(p->truefz - k, 160)));
+		}
+	}
+	if (p->horizon.horizoff.asq16() > 0)
+	{
+		p->horizon.horizoff += q16horiz(xs_CRoundToInt(-factor * ((p->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
+		if (p->horizon.horizoff.asq16() < 0) p->horizon.horizoff = q16horiz(0);
+	}
+	else if (p->horizon.horizoff.asq16() < 0)
+	{
+		p->horizon.horizoff += q16horiz(xs_CRoundToInt(-factor * ((p->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
+		if (p->horizon.horizoff.asq16() > 0) p->horizon.horizoff = q16horiz(0);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -164,7 +164,7 @@ void forceplayerangle(int snum)
 
 	n = 128 - (krand() & 255);
 
-	playerAddHoriz(&p->q16horiz, &p->horizAdjust, 64);
+	p->horizon.addadjustment(64);
 	p->sync.actions |= SB_CENTERVIEW;
 	p->setlookang(n >> 1);
 	p->setrotscrnang(n >> 1);
@@ -375,7 +375,7 @@ int aim(spritetype* s, int aang)
 							if (sdist > 512 && sdist < smax)
 							{
 								if (s->picnum == TILE_APLAYER)
-									a = (abs(scale(sp->z - s->z, 10, sdist) - ps[s->yvel].gethorizsum()) < 100);
+									a = (abs(scale(sp->z - s->z, 10, sdist) - ps[s->yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
 								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + actorinfo[sp->picnum].aimoffset, sp->sectnum, s->x, s->y, s->z - (32 << 8), s->sectnum);
@@ -406,7 +406,7 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 	if (p->knee_incs > 0)
 	{
 		p->knee_incs++;
-		playerAddHoriz(&p->q16horiz, &p->horizAdjust, -48);
+		p->horizon.addadjustment(-48);
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -649,8 +649,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 
 	backupplayer(p);
 
-	p->sethoriz(0);
-	p->q16horizoff = 0;
+	p->horizon.horizoff = p->horizon.horiz = q16horiz(0);
 
 	updatesector(p->posx, p->posy, &p->cursectnum);
 
@@ -844,18 +843,6 @@ void backuplook(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void backupview(player_struct* p)
-{
-	p->oq16horiz = p->q16horiz;
-	p->oq16horizoff = p->q16horizoff;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void backupweapon(player_struct* p)
 {
 	p->oweapon_sway = p->weapon_sway;
@@ -873,7 +860,7 @@ void backupweapon(player_struct* p)
 
 void resetinputhelpers(player_struct* p)
 {
-	p->horizAdjust = 0;
+	p->horizon.resetadjustment();
 	p->angAdjust = 0;
 }
 
@@ -887,7 +874,7 @@ void checkhardlanding(player_struct* p)
 {
 	if (p->hard_landing > 0)
 	{
-		playerAddHoriz(&p->q16horiz, &p->horizAdjust, -(p->hard_landing << 4));
+		p->horizon.addadjustment(-(p->hard_landing << 4));
 		p->hard_landing--;
 	}
 }

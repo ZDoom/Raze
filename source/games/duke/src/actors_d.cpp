@@ -1852,7 +1852,7 @@ void moveweapons_d(void)
 
 						if (s->picnum == SPIT)
 						{
-							playerAddHoriz(&ps[p].q16horiz, &ps[p].horizAdjust, 32);
+							ps[p].horizon.addadjustment(32);
 							ps[p].sync.actions |= SB_CENTERVIEW;
 
 							if (ps[p].loogcnt == 0)
@@ -2504,7 +2504,7 @@ static void greenslime(int i)
 
 		s->z = ps[p].posz + ps[p].pyoff - t[2] + (8 << 8);
 
-		s->z += -ps[p].getq16horiz() >> 12;
+		s->z += -ps[p].horizon.horiz.asq16() >> 12;
 
 		if (t[2] > 512)
 			t[2] -= 128;

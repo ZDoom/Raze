@@ -1568,7 +1568,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 //
 //---------------------------------------------------------------------------
 
-void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust)
+void sethorizon2(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Calculate adjustment as true pitch (Fixed point math really sucks...)
 	double horizAngle = HorizToPitch(*q16horiz);
@@ -1626,6 +1626,73 @@ void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, do
 
 	// clamp before returning
 	*q16horiz = clamp(PitchToHoriz(horizAngle), gi->playerHorizMin(), gi->playerHorizMax());
+}
+
+//---------------------------------------------------------------------------
+//
+// Player's horizon function, called from game's ticker or from gi->GetInput() as required.
+//
+//---------------------------------------------------------------------------
+
+static double const aimamount = HorizToPitch(250. / GameTicRate);
+static double const lookamount = HorizToPitch(500. / GameTicRate);
+
+void sethorizon(fixedhoriz* horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust)
+{
+	// Store current horizon as true pitch.
+	double pitch = horiz->aspitch();
+
+	if (q16horz)
+	{
+		*actions &= ~SB_CENTERVIEW;
+		pitch += FixedToFloat(q16horz);
+	}
+
+	// this is the locked type
+	if (*actions & (SB_AIM_UP|SB_AIM_DOWN))
+	{
+		*actions &= ~SB_CENTERVIEW;
+
+		if (*actions & SB_AIM_DOWN)
+			pitch -= scaleAdjust * aimamount;
+
+		if (*actions & SB_AIM_UP)
+			pitch += scaleAdjust * aimamount;
+	}
+
+	// this is the unlocked type
+	if (*actions & (SB_LOOK_UP|SB_LOOK_DOWN))
+	{
+		*actions |= SB_CENTERVIEW;
+
+		if (*actions & SB_LOOK_DOWN)
+			pitch -= scaleAdjust * lookamount;
+
+		if (*actions & SB_LOOK_UP)
+			pitch += scaleAdjust * lookamount;
+	}
+
+	// clamp pitch after processing
+	pitch = clamp(pitch, -90, 90);
+
+	// return to center if conditions met.
+	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
+	{
+		if (abs(pitch) > 0.1375)
+		{
+			// move pitch back to 0
+			pitch += -scaleAdjust * pitch * (9. / GameTicRate);
+		}
+		else
+		{
+			// not looking anymore because pitch is back at 0
+			pitch = 0;
+			*actions &= ~SB_CENTERVIEW;
+		}
+	}
+
+	// clamp before returning
+	*horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
 }
 
 //---------------------------------------------------------------------------
@@ -1722,7 +1789,7 @@ void playerSetAngle(fixed_t* q16ang, fixed_t* helper, double adjustment)
 	}
 }
 
-void playerAddHoriz(fixed_t* q16horiz, double* helper, double adjustment)
+void playerAddHoriz2(fixed_t* q16horiz, double* helper, double adjustment)
 {
 	if (!cl_syncinput)
 	{
@@ -1734,7 +1801,7 @@ void playerAddHoriz(fixed_t* q16horiz, double* helper, double adjustment)
 	}
 }
 
-void playerSetHoriz(fixed_t* q16horiz, fixed_t* helper, double adjustment)
+void playerSetHoriz2(fixed_t* q16horiz, fixed_t* helper, double adjustment)
 {
 	if (!cl_syncinput)
 	{

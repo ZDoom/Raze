@@ -923,10 +923,15 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 			calcviewpitch(p, scaleAdjust);
 			processq16avel(p, &input.q16avel);
 			applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, input.q16avel, &p->sync.actions, scaleAdjust, p->crouch_toggle || p->sync.actions & SB_CROUCH);
-			sethorizon(&p->q16horiz, input.q16horz, &p->sync.actions, scaleAdjust);
+			sethorizon(&p->horizon.horiz, input.q16horz, &p->sync.actions, scaleAdjust);
 		}
 
-		playerProcessHelpers(&p->q16ang, &p->angAdjust, &p->angTarget, &p->q16horiz, &p->horizAdjust, &p->horizTarget, scaleAdjust);
+		// temporary vals to pass through to playerProcessHelpers().
+		fixed_t horiz = 0;
+		fixed_t target = 0;
+		double adjust = 0;
+		playerProcessHelpers(&p->q16ang, &p->angAdjust, &p->angTarget, &horiz, &adjust, &target, scaleAdjust);
+		p->horizon.processhelpers(scaleAdjust);
 	}
 
 	if (packet)

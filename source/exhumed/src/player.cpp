@@ -1050,7 +1050,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                     PlayerList[nPlayer].oq16angle = PlayerList[nPlayer].q16angle;
                     sprite[nPlayerSprite].ang = ang;
 
-                    playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 0);
+                    playerSetHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 0);
                     PlayerList[nPlayer].oq16horiz = PlayerList[nPlayer].q16horiz;
 
                     lPlayerXVel = 0;
@@ -1069,11 +1069,11 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
                         if (currentLevel->levelNumber == 11)
                         {
-                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 46);
+                            playerSetHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 46);
                         }
                         else
                         {
-                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 11);
+                            playerSetHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 11);
                         }
                     }
                 }
@@ -2669,7 +2669,7 @@ loc_1BD2E:
                 if (cl_syncinput)
                 {
                     Player* pPlayer = &PlayerList[nPlayer];
-                    sethorizon(&pPlayer->q16horiz, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions, 1);
+                    sethorizon2(&pPlayer->q16horiz, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions, 1);
                 }
             }
             else // else, player's health is less than 0
@@ -2791,16 +2791,16 @@ loc_1BD2E:
                 {
                     if (PlayerList[nPlayer].q16horiz < 0)
                     {
-                        playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 0);
+                        playerSetHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, 0);
                         eyelevel[nPlayer] -= (dVertPan[nPlayer] << 8);
                     }
                     else
                     {
-                        playerAddHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizAdjust, dVertPan[nPlayer]);
+                        playerAddHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizAdjust, dVertPan[nPlayer]);
 
                         if (PlayerList[nPlayer].q16horiz > gi->playerHorizMax())
                         {
-                            playerSetHoriz(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, gi->playerHorizMax());
+                            playerSetHoriz2(&PlayerList[nPlayer].q16horiz, &PlayerList[nPlayer].horizTarget, gi->playerHorizMax());
                         }
                         else if (PlayerList[nPlayer].q16horiz <= 0)
                         {

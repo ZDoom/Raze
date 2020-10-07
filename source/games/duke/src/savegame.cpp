@@ -114,8 +114,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("posy", w.posy)
 			("posz", w.posz)
 			("q16ang", w.q16ang)
-			("q16horiz", w.q16horiz)
-			("q16horizoff", w.q16horizoff)
+			//("q16horiz", w.horizon.horiz.asq16())
+			//("q16horizoff", w.horizon.horizoff.asq16())
 			("q16rotscrnang", w.q16rotscrnang)
 			("q16look_ang", w.q16look_ang)
 			("one_eighty_count", w.one_eighty_count)
@@ -285,8 +285,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 
 		w.invdisptime = 0;
 		w.oq16ang = w.q16ang;
-		w.oq16horiz = w.q16horiz;
-		w.oq16horizoff = w.q16horizoff;
+		//w.horizon.ohoriz = w.horizon.horiz;
+		//w.horizon.ohorizoff = w.horizon.horizoff;
 		w.oq16rotscrnang = w.q16rotscrnang;
 		w.oposx = w.posx;
 		w.oposy = w.posy;
@@ -297,8 +297,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		w.okickback_pic = w.kickback_pic;
 		w.orandom_club_frame = w.random_club_frame;
 		w.ohard_landing = w.hard_landing;
-		w.horizAdjust = 0;
-		w.angAdjust = 0;
 		w.sync.actions &= SB_CENTERVIEW; // this is the only bit we need to preserve.
 	}
 	return arc;
