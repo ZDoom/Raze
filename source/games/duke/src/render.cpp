@@ -554,15 +554,15 @@ void displayrooms(int snum, double smoothratio)
 			cposz = omyz + xs_CRoundToInt(fmulscale16(myz - omyz, smoothratio));
 			if (cl_syncinput)
 			{
-				fixed_t ohorz = (oq16myhoriz + oq16myhorizoff);
-				fixed_t horz = (q16myhoriz + q16myhorizoff);
+				fixed_t ohorz = (omyhoriz.asq16() + omyhorizoff.asq16());
+				fixed_t horz = (myhoriz.asq16() + myhorizoff.asq16());
 				choriz = q16horiz(ohorz + xs_CRoundToInt(fmulscale16(horz - ohorz, smoothratio)));
 				cang = q16ang(oq16myang + xs_CRoundToInt(fmulscale16(((q16myang + dang - oq16myang) & 0x7FFFFFF) - dang, smoothratio)));
 			}
 			else
 			{
 				cang = q16ang(q16myang);
-				choriz = q16horiz(q16myhoriz + q16myhorizoff);
+				choriz = q16horiz(myhoriz.asq16() + myhorizoff.asq16());
 			}
 			sect = mycursectnum;
 		}

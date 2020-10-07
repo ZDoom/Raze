@@ -195,12 +195,9 @@ inline void backupplayer(player_struct* p)
 }
 
 // the weapon display code uses this.
-inline double get16thOfHoriz(int snum, bool interpolate, double smoothratio)
+inline double get16thOfHoriz(int const snum, bool const interpolate, double const smoothratio)
 {
-	struct player_struct *p = &ps[snum];
-	fixed_t ohorz = p->horizon.ohoriz.asq16() - p->horizon.ohorizoff.asq16();
-	fixed_t horz = p->horizon.horiz.asq16() - p->horizon.horizoff.asq16();
-	return (!interpolate ? horz : ohorz + fmulscale16(horz - ohorz, smoothratio)) * (0.0625 / FRACUNIT);
+	return (!interpolate ? ps[snum].horizon.sum() : ps[snum].horizon.interpolatedsum(smoothratio)).asq16() * (0.0625 / FRACUNIT);
 }
 
 

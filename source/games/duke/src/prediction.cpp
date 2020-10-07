@@ -39,7 +39,8 @@ BEGIN_DUKE_NS
 
 int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
 short globalskillsound;
-fixed_t q16myang, oq16myang, q16myhoriz, oq16myhoriz, q16myhorizoff, oq16myhorizoff;
+fixed_t q16myang, oq16myang;
+fixedhoriz myhoriz, omyhoriz, myhorizoff, omyhorizoff;
 short mycursectnum, myjumpingcounter;
 char myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
 int fakemovefifoplc;
@@ -55,8 +56,8 @@ void resetmys()
 	myz = omyz = ps[myconnectindex].posz;
 	myxvel = myyvel = myzvel = 0;
 	q16myang = oq16myang = ps[myconnectindex].q16ang;
-	q16myhoriz = oq16myhoriz = ps[myconnectindex].horizon.horiz.asq16();
-	q16myhorizoff = oq16myhorizoff = ps[myconnectindex].horizon.horizoff.asq16();
+	myhoriz = omyhoriz = ps[myconnectindex].horizon.horiz;
+	myhorizoff = omyhorizoff = ps[myconnectindex].horizon.horizoff;
 	mycursectnum = ps[myconnectindex].cursectnum;
 	myjumpingcounter = ps[myconnectindex].jumping_counter;
 	myjumpingtoggle = ps[myconnectindex].jumping_toggle;
