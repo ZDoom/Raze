@@ -33,8 +33,8 @@ class DukeMenuDelegate : RazeMenuDelegate
 
 	void DrawCursor(double x, double y, double scale, bool right)
 	{
-		int mclock = MSTime() * 120 / 1000;
-		int frames = (gameinfo.gametype & GAMEFLAG_RR) ? 16 : 7;
+		uint mclock = MSTime() * 120 / 1000;
+		uint frames = (gameinfo.gametype & GAMEFLAG_RR) ? 16 : 7;
 		String picname;
 		if (!right) picname= String.Format("SPINNINGNUKEICON%d", ((mclock >> 3) % frames));
 		else picname = String.Format("SPINNINGNUKEICON%d", frames - 1 - ((frames - 1 + (mclock >> 3)) % frames));
