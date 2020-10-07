@@ -56,16 +56,15 @@ LISTMENU "MainMenu"
 	}
 	ifgame(Exhumed)
 	{
-	/*
+		class ExhumedMainMenu
 		Position 160, 65
-		centermenu
 		linespacing 22
-		NativeTextItem "3460", "n", "StartGameNoSkill", 1
-		NativeTextItem "3461", "l", "LoadGameMenu"
-		NativeTextItem "3462", "m", "StartGameNoSkill", 0
-		NativeTextItem "3463", "v", "OptionsMenu"
-		NativeTextItem "3464", "q", "QuitMenu"
-	*/
+		ExhumedPlasma
+		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 1
+		ExhumedTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameSkill", 0
+		ExhumedTextItem "$MNU_OPTIONS", "v", "OptionsMenu"
+		ExhumedTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 }
 
@@ -126,19 +125,18 @@ LISTMENU "IngameMenu"
 		}
 		SWTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
-	/*
 	ifgame(Exhumed)
 	{
+		class ExhumedMainMenu
 		Position 160, 65
-		centermenu
 		linespacing 22
-		NativeTextItem "3460", "n", "StartGame", 1
-		NativeTextItem "3461", "l", "LoadGameMenu"
-		NativeTextItem "3462", "m", "StartGame", 0
-		NativeTextItem "3463", "v", "OptionsMenu"
-		NativeTextItem "3464", "q", "QuitMenu"
+		ExhumedLogo
+		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 1
+		ExhumedTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameSkill", 0
+		ExhumedTextItem "$MNU_OPTIONS", "v", "OptionsMenu"
+		ExhumedTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
-	*/
 }
 
 //-------------------------------------------------------------------------------------------

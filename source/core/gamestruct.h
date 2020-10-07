@@ -56,7 +56,6 @@ struct GameInterface
 	virtual void FreeGameData() {}
 	virtual void PlayHudSound() {}
 	virtual GameStats getStats() { return {}; }
-	virtual void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) {}
 	virtual void MainMenuOpened() {}
 	virtual void MenuOpened() {}
 	virtual void MenuClosed() {}
@@ -66,7 +65,6 @@ struct GameInterface
 	virtual bool StartGame(FNewGameStartup& gs) { return false; }
 	virtual FSavegameInfo GetSaveSig() { return { "", 0, 0}; }
 	virtual bool DrawSpecialScreen(const DVector2 &origin, int tilenum) { return false; }
-	virtual void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool withbg = true);
 	virtual double SmallFontScale() { return 1; }
 	virtual bool SaveGame() { return true; }
 	virtual bool LoadGame() { return true; }

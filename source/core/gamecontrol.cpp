@@ -1796,27 +1796,6 @@ void playerProcessHelpers(fixed_t* q16ang, double* angAdjust, fixed_t* angTarget
 	}
 }
 
-void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
-{
-	double scale = SmallFontScale();
-	int formatwidth = int(320 / scale);
-	auto lines = V_BreakLines(SmallFont, formatwidth, text, true);
-	auto fheight = bg ? 10 : SmallFont->GetHeight() * scale;	// Fixme: Get spacing for text pages from elsewhere.
-	if (!bg)
-	{
-		auto totaltextheight = lines.Size() * fheight;
-		position -= totaltextheight / 2;
-	}
-
-	double y = origin.Y + position;
-	for (auto& line : lines)
-	{
-		double x = origin.X + 160 - line.Width * scale * 0.5;
-		DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, line.Text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
-		y += fheight;
-	}
-}
-
 bool M_Active()
 {
 	return CurrentMenu != nullptr || ConsoleState == c_down || ConsoleState == c_falling;

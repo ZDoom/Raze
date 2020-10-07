@@ -157,16 +157,6 @@ FSavegameInfo GameInterface::GetSaveSig()
 	return { SAVESIG_DN3D, MINSAVEVER_DN3D, SAVEVER_DN3D };
 }
 
-void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position, bool bg)
-{
-	if (bg) Menu_DrawBackground(origin);
-	else if (!isRR())
-	{
-		//Menu_DrawCursor(160, 130, 1, false);
-	}
-	::GameInterface::DrawCenteredTextScreen(origin, text, position, bg);
-}
-
 void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 {
 	int mclock = I_GetBuildTime();

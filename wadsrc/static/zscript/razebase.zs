@@ -30,6 +30,11 @@ enum EGameType
 
 struct Build
 {
+	static int calcSinTableValue(int ang)
+	{
+		return int(16384 * sin((360./2048) * ang));
+	}
+	
 	native static Color shadeToLight(int shade);
 }
 
