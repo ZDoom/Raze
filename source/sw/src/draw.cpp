@@ -1649,13 +1649,16 @@ drawscreen(PLAYERp pp, double smoothratio)
         fixed_t oang = camerapp->oq16ang + camerapp->oq16look_ang;
         fixed_t ang = camerapp->q16ang + camerapp->q16look_ang;
         tq16ang = oang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(ang + dang - oang) - dang, smoothratio));
-        tq16horiz = camerapp->oq16horiz + xs_CRoundToInt(fmulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio));
+
+        fixed_t ohoriz = camerapp->oq16horiz + camerapp->oq16horizoff;
+        fixed_t horiz = camerapp->q16horiz + camerapp->q16horizoff;
+        tq16horiz = ohoriz + xs_CRoundToInt(fmulscale16(horiz - ohoriz, smoothratio));
         tq16rotscrnang = camerapp->oq16rotscrnang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16rotscrnang + dang - camerapp->oq16rotscrnang) - dang, smoothratio));
     }
     else
     {
         tq16ang = pp->q16ang + pp->q16look_ang;
-        tq16horiz = pp->q16horiz;
+        tq16horiz = pp->q16horiz + pp->q16horizoff;
         tq16rotscrnang = pp->q16rotscrnang;
     }
     tsectnum = camerapp->cursectnum;

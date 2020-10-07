@@ -1741,16 +1741,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
         PlayerAutoLook(pp, scaleAdjust);
 
     // apply default horizon from backend
-    sethorizon(&pp->q16horizbase, q16horz, &pp->input.actions, scaleAdjust);
-
-    // bound adjust q16horizoff
-    if (pp->q16horizbase + pp->q16horizoff < gi->playerHorizMin())
-        pp->q16horizoff = gi->playerHorizMin() - pp->q16horizbase;
-    else if (pp->q16horizbase + pp->q16horizoff > gi->playerHorizMax())
-        pp->q16horizoff = gi->playerHorizMax() - pp->q16horizbase;
-
-    // add base and offsets
-    pp->q16horiz = pp->q16horizbase + pp->q16horizoff;
+    sethorizon(&pp->q16horiz, q16horz, &pp->input.actions, scaleAdjust);
 }
 
 void
@@ -6308,7 +6299,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         sp->yrepeat = PLAYER_NINJA_YREPEAT;
 
         //pp->tilt = 0;
-        pp->q16horiz = pp->q16horizbase = 0;
+        pp->q16horiz = 0;
         DoPlayerResetMovement(pp);
         u->ID = NINJA_RUN_R0;
         PlayerDeathReset(pp);
@@ -6981,6 +6972,7 @@ MoveSkipSavePos(void)
         pp->oposz = pp->posz;
         pp->oq16ang = pp->q16ang;
         pp->oq16horiz = pp->q16horiz;
+        pp->oq16horizoff = pp->q16horizoff;
         pp->obob_z = pp->bob_z;
         pp->oq16look_ang = pp->q16look_ang;
         pp->oq16rotscrnang = pp->q16rotscrnang;
@@ -7360,7 +7352,7 @@ InitAllPlayers(void)
 
     //getzsofslope(pfirst->cursectnum, pfirst->posx, pfirst->posy, &cz, &fz);
     //pfirst->posz = fz - PLAYER_HEIGHT;
-    pfirst->q16horiz = pfirst->q16horizbase = 0;
+    pfirst->q16horiz = 0;
 
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
@@ -7376,7 +7368,6 @@ InitAllPlayers(void)
 
         //pp->MaxHealth = 100;
 
-        pp->q16horizbase = pfirst->q16horizbase;
         pp->oldposx = 0;
         pp->oldposy = 0;
         pp->climb_ndx = 10;

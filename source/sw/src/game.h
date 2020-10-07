@@ -831,7 +831,7 @@ struct PLAYERstruct
     // interpolation
     int
         oposx, oposy, oposz;
-    fixed_t oq16horiz, oq16ang;
+    fixed_t oq16horiz, oq16horizoff, oq16ang;
     fixed_t oq16look_ang, oq16rotscrnang;
 
     // holds last valid move position
@@ -882,7 +882,7 @@ struct PLAYERstruct
 
     // variables that do not fit into sprite structure
     int hvel,tilt,tilt_dest;
-    fixed_t q16horiz, q16horizbase, q16horizoff, q16ang;
+    fixed_t q16horiz, q16horizoff, q16ang;
     fixed_t q16look_ang, q16rotscrnang;
     short recoil_amt;
     short recoil_speed;
