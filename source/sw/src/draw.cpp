@@ -785,7 +785,7 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
                 tsp->x -= mulscale16(pp->posx - pp->oposx, 65536-smoothratio);
                 tsp->y -= mulscale16(pp->posy - pp->oposy, 65536-smoothratio);
                 tsp->z -= mulscale16(pp->posz - pp->oposz, 65536-smoothratio);
-                tsp->ang -= FixedToInt(mulscale16(pp->q16ang - pp->oq16ang, 65536-smoothratio));
+                tsp->ang -= mulscale16(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), 65536-smoothratio);
             }
         }
 
@@ -928,7 +928,7 @@ post_analyzesprites(void)
 
 
 bool
-BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, fixed_t q16horiz)
+BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16horiz)
 {
     vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
@@ -940,7 +940,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, fixed_t q16h
 
     ASSERT(*vsect >= 0 && *vsect < MAXSECTORS);
 
-    ang = FixedToInt(*nq16ang) + pp->view_outside_dang;
+    ang = nang->asbuild() + pp->view_outside_dang;
 
     // Calculate the vector (nx,ny,nz) to shoot backwards
     vx = (sintable[NORM_ANGLE(ang + 1536)] >> 3);
@@ -1008,7 +1008,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, fixed_t q16h
                 flag_backup = hsp->cstat;
                 RESET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
                 ASSERT(*vsect >= 0 && *vsect < MAXSECTORS);
-                BackView(nx, ny, nz, vsect, nq16ang, q16horiz);
+                BackView(nx, ny, nz, vsect, nang, q16horiz);
                 hsp->cstat = flag_backup;
                 return false;
             }
@@ -1049,12 +1049,12 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, fixed_t q16h
     // Make sure vsect is correct
     updatesectorz(*nx, *ny, *nz, vsect);
 
-    *nq16ang += IntToFixed(pp->view_outside_dang);
+    *nang += buildang(pp->view_outside_dang);
     return true;
 }
 
 void
-CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, fixed_t q16horiz)
+CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16horiz)
 {
     vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
@@ -1062,13 +1062,13 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, fixed_t q16h
     int i, vx, vy, vz, hx, hy;
     short bakcstat, daang;
     PLAYERp pp = &Player[screenpeek];
-    short ang;
+    binangle ang;
 
-    ang = FixedToInt(*nq16ang) + pp->circle_camera_ang;
+    ang = *nang + buildang(pp->circle_camera_ang);
 
     // Calculate the vector (nx,ny,nz) to shoot backwards
-    vx = (sintable[NORM_ANGLE(ang + 1536)] >> 4);
-    vy = (sintable[NORM_ANGLE(ang + 1024)] >> 4);
+    vx = (sintable[NORM_ANGLE(ang.asbuild() + 1536)] >> 4);
+    vy = (sintable[NORM_ANGLE(ang.asbuild() + 1024)] >> 4);
 
     // lengthen the vector some
     vx += DIV2(vx);
@@ -1130,7 +1130,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, fixed_t q16h
                 flag_backup = hsp->cstat;
                 RESET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-                CircleCamera(nx, ny, nz, vsect, nq16ang, q16horiz);
+                CircleCamera(nx, ny, nz, vsect, nang, q16horiz);
                 hsp->cstat = flag_backup;
                 return;
             }
@@ -1159,7 +1159,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, fixed_t q16h
     // Make sure vsect is correct
     updatesectorz(*nx, *ny, *nz, vsect);
 
-    *nq16ang = IntToFixed(ang);
+    *nang = ang;
 }
 
 FString GameInterface::GetCoordString()
@@ -1169,7 +1169,7 @@ FString GameInterface::GetCoordString()
     out.AppendFormat("POSX:%d ", pp->posx);
     out.AppendFormat("POSY:%d ", pp->posy);
     out.AppendFormat("POSZ:%d ", pp->posz);
-    out.AppendFormat("ANG:%d\n", FixedToInt(pp->q16ang));
+    out.AppendFormat("ANG:%d\n", pp->angle.ang.asbuild());
 
     return out;
 }
@@ -1255,14 +1255,14 @@ void DrawCrosshair(PLAYERp pp)
     if (!(CameraTestMode))
     {
         USERp u = User[pp->PlayerSprite];
-        ::DrawCrosshair(2326, u->Health, -getHalfLookAng(pp->oq16look_ang, pp->q16look_ang, cl_syncinput, smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
+        ::DrawCrosshair(2326, u->Health, -getHalfLookAng(pp->angle.olook_ang.asq16(), pp->angle.look_ang.asq16(), cl_syncinput, smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
     }
 }
 
-void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t *tq16ang, fixedhoriz *thoriz)
+void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, binangle *tang, fixedhoriz *thoriz)
 {
     int i,nexti;
-    short ang;
+    binangle ang;
     SPRITEp sp;
     bool found_camera = false;
     bool player_in_camera = false;
@@ -1275,8 +1275,8 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
         {
             sp = &sprite[i];
 
-            ang = getangle(*tx - sp->x, *ty - sp->y);
-            ang_test = getincangle(ang, sp->ang) < sp->lotag;
+            ang = q16ang(gethiq16angle(*tx - sp->x, *ty - sp->y));
+            ang_test = getincangle(ang.asbuild(), sp->ang) < sp->lotag;
 
             FAFcansee_test =
                 (FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, *tx, *ty, *tz, pp->cursectnum) ||
@@ -1300,7 +1300,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
                 {
                 case 1:
                     pp->last_camera_sp = sp;
-                    CircleCamera(tx, ty, tz, tsectnum, tq16ang, 0);
+                    CircleCamera(tx, ty, tz, tsectnum, tang, 0);
                     found_camera = true;
                     break;
 
@@ -1310,8 +1310,8 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
 
                     pp->last_camera_sp = sp;
 
-                    xvect = sintable[NORM_ANGLE(ang + 512)] >> 3;
-                    yvect = sintable[NORM_ANGLE(ang)] >> 3;
+                    xvect = sintable[NORM_ANGLE(ang.asbuild() + 512)] >> 3;
+                    yvect = sintable[NORM_ANGLE(ang.asbuild())] >> 3;
 
                     zdiff = sp->z - *tz;
                     if (labs(sp->x - *tx) > 1000)
@@ -1331,7 +1331,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
                     //DSPRINTF(ds,"xvect %d,yvect %d,zvect %d,thoriz %d",xvect,yvect,zvect,*thoriz.asbuild());
                     MONO_PRINT(ds);
 
-                    *tq16ang = IntToFixed(ang);
+                    *tang = ang;
                     *tx = sp->x;
                     *ty = sp->y;
                     *tz = sp->z;
@@ -1602,7 +1602,8 @@ drawscreen(PLAYERp pp, double smoothratio)
 {
     extern bool CameraTestMode;
     int tx, ty, tz;
-    fixed_t tq16ang, tq16rotscrnang;
+    lookangle trotscrnang;
+    binangle tang;
     fixedhoriz thoriz;
     short tsectnum;
     short i,j;
@@ -1646,23 +1647,19 @@ drawscreen(PLAYERp pp, double smoothratio)
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
     if (cl_syncinput || pp != Player+myconnectindex)
     {
-        fixed_t dang = IntToFixed(1024);
-        fixed_t oang = camerapp->oq16ang + camerapp->oq16look_ang;
-        fixed_t ang = camerapp->q16ang + camerapp->q16look_ang;
-        tq16ang = oang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(ang + dang - oang) - dang, smoothratio));
-
+        tang = camerapp->angle.interpolatedsum(smoothratio);
         thoriz = camerapp->horizon.interpolatedsum(smoothratio);
-        tq16rotscrnang = camerapp->oq16rotscrnang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16rotscrnang + dang - camerapp->oq16rotscrnang) - dang, smoothratio));
+        trotscrnang = camerapp->angle.interpolatedrotscrn(smoothratio);
     }
     else
     {
-        tq16ang = pp->q16ang + pp->q16look_ang;
+        tang = pp->angle.sum();
         thoriz = pp->horizon.sum();
-        tq16rotscrnang = pp->q16rotscrnang;
+        trotscrnang = pp->angle.rotscrnang;
     }
     tsectnum = camerapp->cursectnum;
 
-    renderSetRollAngle(FixedToFloat(tq16rotscrnang));
+    renderSetRollAngle(trotscrnang.asbam() / (double)BAMUNIT);
 
     COVERupdatesector(tx, ty, &tsectnum);
 
@@ -1683,7 +1680,7 @@ drawscreen(PLAYERp pp, double smoothratio)
             tx = pp->posx;
             ty = pp->posy;
             tz = pp->posz;
-            tq16ang = pp->q16ang;
+            tang = pp->angle.ang;
         }
         tsectnum = pp->cursectnum;
         updatesectorz(tx, ty, tz, &tsectnum);
@@ -1692,7 +1689,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     pp->six = tx;
     pp->siy = ty;
     pp->siz = tz - pp->posz;
-    pp->siang = FixedToInt(tq16ang);
+    pp->siang = tang.asbuild();
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);
     VisViewChange(camerapp, &g_visibility);
@@ -1700,24 +1697,24 @@ drawscreen(PLAYERp pp, double smoothratio)
     tx = tx + quake_x;
     ty = ty + quake_y;
     //thoriz += buildhoriz(quake_x);
-    tq16ang = NORM_Q16ANGLE(tq16ang + IntToFixed(quake_ang));
+    tang += buildang(quake_ang);
 
     if (pp->sop_remote)
     {
         if (TEST_BOOL1(pp->remote_sprite))
-            tq16ang = IntToFixed(pp->remote_sprite->ang);
+            tang = buildang(pp->remote_sprite->ang);
         else
-            tq16ang = gethiq16angle(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
+            tang = q16ang(gethiq16angle(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty));
     }
 
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
         tz -= 8448;
         
-        if (!BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, thoriz.asq16()))
+        if (!BackView(&tx, &ty, &tz, &tsectnum, &tang, thoriz.asq16()))
         {
             tz += 8448;
-            BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, thoriz.asq16());
+            BackView(&tx, &ty, &tz, &tsectnum, &tang, thoriz.asq16());
         }
     }
     else
@@ -1726,7 +1723,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
         if (CameraTestMode)
         {
-            CameraView(camerapp, &tx, &ty, &tz, &tsectnum, &tq16ang, &thoriz);
+            CameraView(camerapp, &tx, &ty, &tz, &tsectnum, &tang, &thoriz);
         }
     }
 
@@ -1752,20 +1749,20 @@ drawscreen(PLAYERp pp, double smoothratio)
     videoSetCorrectedAspect();
     renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov* (PI / 360.))), yxaspect);
     OverlapDraw = true;
-    DrawOverlapRoom(tx, ty, tz, tq16ang, thoriz.asq16(), tsectnum);
+    DrawOverlapRoom(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
     OverlapDraw = false;
 
     if (automapMode != am_full)// && !ScreenSavePic)
     {
         // TEST this! Changed to camerapp
-        //JS_DrawMirrors(camerapp, tx, ty, tz, tq16ang, thoriz.asq16());
-        JS_DrawMirrors(pp, tx, ty, tz, tq16ang, thoriz.asq16());
+        //JS_DrawMirrors(camerapp, tx, ty, tz, tang.asq16(), thoriz.asq16());
+        JS_DrawMirrors(pp, tx, ty, tz, tang.asq16(), thoriz.asq16());
     }
 
     // TODO: This call is redundant if the tiled overhead map is shown, but the
     // HUD elements should be properly outputted with hardware rendering first.
     if (!FAF_DebugView)
-        FAF_DrawRooms(tx, ty, tz, tq16ang, thoriz.asq16(), tsectnum);
+        FAF_DrawRooms(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
 
     analyzesprites(tx, ty, tz, false);
     post_analyzesprites();
@@ -1813,7 +1810,7 @@ drawscreen(PLAYERp pp, double smoothratio)
                 }
             }
         }
-        DrawOverheadMap(tx, ty, FixedToInt(tq16ang));
+        DrawOverheadMap(tx, ty, tang.asbuild());
     }
 
     for (j = 0; j < MAXSPRITES; j++)

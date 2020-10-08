@@ -788,7 +788,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
         if (pp->posx > xlow && pp->posx < xhigh && pp->posy > ylow && pp->posy < yhigh)
         {
-            pp->RevolveQ16Ang = pp->q16ang;
+            pp->RevolveAng = pp->angle.ang;
             pp->RevolveX = pp->posx;
             pp->RevolveY = pp->posy;
             pp->RevolveDeltaAng = 0;
@@ -1624,7 +1624,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
     {
         SET(pp->Flags, PF_PLAYER_RIDING);
 
-        pp->RevolveQ16Ang = pp->q16ang;
+        pp->RevolveAng = pp->angle.ang;
         pp->RevolveX = pp->posx;
         pp->RevolveY = pp->posy;
 
@@ -1648,7 +1648,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         // save the current information so when Player stops
         // moving then you
         // know where he was last
-        pp->RevolveQ16Ang = pp->q16ang;
+        pp->RevolveAng = pp->angle.ang;
         pp->RevolveX = pp->posx;
         pp->RevolveY = pp->posy;
 
@@ -1664,7 +1664,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         pp->RevolveY += BOUND_4PIX(ny);
 
         // Last known angle is now adjusted by the delta angle
-        pp->RevolveQ16Ang = NORM_Q16ANGLE(pp->q16ang - IntToFixed(pp->RevolveDeltaAng));
+        pp->RevolveAng = pp->angle.ang - buildang(pp->RevolveDeltaAng);
     }
 
     // increment Players delta angle
@@ -1678,7 +1678,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    playerAddAngle2(&pp->q16ang, &pp->angAdjust, FixedToFloat(getincangleq16(pp->q16ang, pp->RevolveQ16Ang + IntToFixed(pp->RevolveDeltaAng))));
+    pp->angle.addadjustment((pp->angle.ang - (pp->RevolveAng + buildang(pp->RevolveDeltaAng))).asbam() / (double)BAMUNIT);
 
     UpdatePlayerSprite(pp);
 }

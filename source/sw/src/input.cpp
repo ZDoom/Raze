@@ -230,13 +230,13 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
             DoPlayerTurnTurret(pp, input.q16avel);
         }
 
-        playerProcessHelpers(&pp->q16ang, &pp->angAdjust, &pp->angTarget, scaleAdjust);
+        pp->angle.processhelpers(scaleAdjust);
         pp->horizon.processhelpers(scaleAdjust);
     }
 
     if (packet)
     {
-        auto const ang = FixedToInt(pp->q16ang);
+        auto const ang = pp->angle.ang.asbuild();
 
         *packet = loc;
 

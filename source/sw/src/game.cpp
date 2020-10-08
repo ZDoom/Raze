@@ -336,7 +336,7 @@ void InitLevel(MapRecord *maprec)
     currentLevel = maprec;
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
-    Player[0].q16ang = IntToFixed(ang);
+    Player[0].angle.ang = buildang(ang);
 
     SetupPreCache();
 

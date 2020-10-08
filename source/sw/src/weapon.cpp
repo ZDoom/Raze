@@ -12874,7 +12874,7 @@ InitSpellRing(PLAYERp pp)
 
     ang_diff = 2048 / max_missiles;
 
-    ang_start = NORM_ANGLE(FixedToInt(pp->q16ang) - DIV2(2048));
+    ang_start = NORM_ANGLE(pp->angle.ang.asbuild() - DIV2(2048));
 
     if (!SW_SHAREWARE)
         PlaySound(DIGI_RFWIZ, pp, v3df_none);
@@ -13433,7 +13433,7 @@ InitSpellNapalm(PLAYERp pp)
     for (i = 0; i < SIZ(mp); i++)
     {
         SpriteNum = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursectnum,
-                                pp->posx, pp->posy, pp->posz + Z(12), FixedToInt(pp->q16ang), NAPALM_VELOCITY*2);
+                                pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), NAPALM_VELOCITY*2);
 
         sp = &sprite[SpriteNum];
         u = User[SpriteNum];
@@ -13593,7 +13593,7 @@ InitSpellMirv(PLAYERp pp)
         return 0;
 
     SpriteNum = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursectnum,
-                            pp->posx, pp->posy, pp->posz + Z(12), FixedToInt(pp->q16ang), MIRV_VELOCITY);
+                            pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), MIRV_VELOCITY);
 
     sp = &sprite[SpriteNum];
     u = User[SpriteNum];
@@ -13708,7 +13708,7 @@ InitSwordAttack(PLAYERp pp)
             {
                 bp = &sprite[bubble];
 
-                bp->ang = FixedToInt(pp->q16ang);
+                bp->ang = pp->angle.ang.asbuild();
 
                 random_amt = (RANDOM_P2(32<<8)>>8) - 16;
 
@@ -13757,7 +13757,7 @@ InitSwordAttack(PLAYERp pp)
         short daang;
         int daz;
 
-        daang = FixedToInt(pp->q16ang);
+        daang = pp->angle.ang.asbuild();
         daz = -mulscale16(pp->horizon.horiz.asq16(), 2000) + (RANDOM_RANGE(24000) - 12000);
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,       // Start position
@@ -13885,7 +13885,7 @@ InitFistAttack(PLAYERp pp)
             {
                 bp = &sprite[bubble];
 
-                bp->ang = FixedToInt(pp->q16ang);
+                bp->ang = pp->angle.ang.asbuild();
 
                 random_amt = (RANDOM_P2(32<<8)>>8) - 16;
 
@@ -13947,7 +13947,7 @@ InitFistAttack(PLAYERp pp)
         short daang;
         int daz;
 
-        daang = FixedToInt(pp->q16ang);
+        daang = pp->angle.ang.asbuild();
         daz = -mulscale16(pp->horizon.horiz.asq16(), 2000) + (RANDOM_RANGE(24000) - 12000);
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,       // Start position
@@ -14606,7 +14606,7 @@ InitStar(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, STAR1, s_Star, pp->cursectnum, nx, ny, nz, FixedToInt(pp->q16ang), STAR_VELOCITY);
+    w = SpawnSprite(STAT_MISSILE, STAR1, s_Star, pp->cursectnum, nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
     wp = &sprite[w];
     wu = User[w];
 
@@ -14729,7 +14729,7 @@ InitHeartAttack(PLAYERp pp)
         return;
 
     SpriteNum = SpawnSprite(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursectnum,
-                            pp->posx, pp->posy, pp->posz + Z(12), FixedToInt(pp->q16ang), BLOOD_WORM_VELOCITY*2);
+                            pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), BLOOD_WORM_VELOCITY*2);
 
     sp = &sprite[SpriteNum];
     u = User[SpriteNum];
@@ -14805,7 +14805,7 @@ InitHeartAttack(PLAYERp pp)
         return;
 
     SpriteNum = SpawnSprite(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursectnum,
-                            pp->posx, pp->posy, pp->posz + Z(12), FixedToInt(pp->q16ang), BLOOD_WORM_VELOCITY*2);
+                            pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), BLOOD_WORM_VELOCITY*2);
 
     sp = &sprite[SpriteNum];
     u = User[SpriteNum];
@@ -14967,7 +14967,7 @@ InitShotgun(PLAYERp pp)
     else
     {
         daz = -mulscale16(pp->horizon.horiz.asq16(), 2000);
-        daang = FixedToInt(pp->q16ang);
+        daang = pp->angle.ang.asbuild();
     }
 
     for (i = 0; i < 12; i++)
@@ -15129,7 +15129,7 @@ InitLaser(PLAYERp pp)
     // Inserting and setting up variables
 
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursectnum,
-                    nx, ny, nz, FixedToInt(pp->q16ang), 300);
+                    nx, ny, nz, pp->angle.ang.asbuild(), 300);
 
     wp = &sprite[w];
     wu = User[w];
@@ -15240,7 +15240,7 @@ InitRail(PLAYERp pp)
     // Inserting and setting up variables
 
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursectnum,
-                    nx, ny, nz, FixedToInt(pp->q16ang), 1200);
+                    nx, ny, nz, pp->angle.ang.asbuild(), 1200);
 
     wp = &sprite[w];
     wu = User[w];
@@ -15440,7 +15440,7 @@ InitRocket(PLAYERp pp)
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursectnum,
-                    nx, ny, nz, FixedToInt(pp->q16ang), ROCKET_VELOCITY);
+                    nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
     wp = &sprite[w];
     wu = User[w];
@@ -15571,7 +15571,7 @@ InitBunnyRocket(PLAYERp pp)
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursectnum,
-                    nx, ny, nz, FixedToInt(pp->q16ang), ROCKET_VELOCITY);
+                    nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
     wp = &sprite[w];
     wu = User[w];
@@ -15685,7 +15685,7 @@ InitNuke(PLAYERp pp)
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursectnum,
-                    nx, ny, nz, FixedToInt(pp->q16ang), 700);
+                    nx, ny, nz, pp->angle.ang.asbuild(), 700);
 
     wp = &sprite[w];
     wu = User[w];
@@ -15748,7 +15748,7 @@ InitNuke(PLAYERp pp)
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = zvel;
 
-    PlayerDamageSlide(pp, -40, NORM_ANGLE(FixedToInt(pp->q16ang)+1024)); // Recoil slide
+    PlayerDamageSlide(pp, -40, NORM_ANGLE(pp->angle.ang.asbuild()+1024)); // Recoil slide
 
     return 0;
 }
@@ -15883,7 +15883,7 @@ InitMicro(PLAYERp pp)
         {
             hp = NULL;
             hu = NULL;
-            ang = FixedToInt(pp->q16ang);
+            ang = pp->angle.ang.asbuild();
         }
 
         nz = pp->posz + pp->bob_z + Z(14);
@@ -17439,7 +17439,7 @@ InitTracerUzi(PLAYERp pp)
     // Inserting and setting up variables
 
     w = SpawnSprite(STAT_MISSILE, 0, s_Tracer, pp->cursectnum,
-                    nx, ny, nz, FixedToInt(pp->q16ang), TRACER_VELOCITY);
+                    nx, ny, nz, pp->angle.ang.asbuild(), TRACER_VELOCITY);
 
     wp = &sprite[w];
     wu = User[w];
@@ -17721,8 +17721,8 @@ int SpawnWallHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_
     sp->ang = NORM_ANGLE(wall_ang + 1024);
 
 //    int nx,ny;
-    //nx = (sintable[(512 + FixedToInt(Player[0].q16ang)) & 2047] >> 7);
-    //ny = (sintable[FixedToInt(Player[0].q16ang)] >> 7);
+    //nx = (sintable[(512 + Player[0].angle.ang.asbuild()) & 2047] >> 7);
+    //ny = (sintable[Player[0].angle.ang.asbuild()] >> 7);
     //sp->x -= nx;
     //sp->y -= ny;
 
@@ -17828,8 +17828,8 @@ InitUzi(PLAYERp pp)
     }
     else
     {
-        //daang = NORM_ANGLE(FixedToInt(pp->q16ang) + (RANDOM_RANGE(50) - 25));
-        daang = NORM_ANGLE(FixedToInt(pp->q16ang) + (RANDOM_RANGE(24) - 12));
+        //daang = NORM_ANGLE(pp->angle.ang.asbuild() + (RANDOM_RANGE(50) - 25));
+        daang = NORM_ANGLE(pp->angle.ang.asbuild() + (RANDOM_RANGE(24) - 12));
         daz = -mulscale16(pp->horizon.horiz.asq16(), 2000) + (RANDOM_RANGE(24000) - 12000);
     }
 
@@ -18006,7 +18006,7 @@ InitEMP(PLAYERp pp)
     InitTracerUzi(pp);
 
     //daz = nz = pp->posz + Z(8) + -mulscale16(pp->horizon.horiz.asq16(), 72);
-    //daang = NORM_ANGLE(FixedToInt(pp->q16ang) + (RANDOM_RANGE(50) - 25));
+    //daang = NORM_ANGLE(pp->angle.ang.asbuild() + (RANDOM_RANGE(50) - 25));
 
     daz = nz = pp->posz + pp->bob_z;
     daang = 64;
@@ -18016,7 +18016,7 @@ InitEMP(PLAYERp pp)
     else
     {
         daz = -mulscale16(pp->horizon.horiz.asq16(), 2000);
-        daang = FixedToInt(pp->q16ang);
+        daang = pp->angle.ang.asbuild();
     }
 
     FAFhitscan(pp->posx, pp->posy, nz, pp->cursectnum,       // Start position
@@ -19271,7 +19271,7 @@ InitGrenade(PLAYERp pp)
     // Inserting and setting up variables
 
     w = SpawnSprite(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursectnum,
-                    nx, ny, nz, FixedToInt(pp->q16ang), GRENADE_VELOCITY);
+                    nx, ny, nz, pp->angle.ang.asbuild(), GRENADE_VELOCITY);
 
     wp = &sprite[w];
     wu = User[w];
@@ -19440,7 +19440,7 @@ InitMine(PLAYERp pp)
     // Inserting and setting up variables
 
     w = SpawnSprite(STAT_MISSILE, MINE, s_Mine, pp->cursectnum,
-                    nx, ny, nz, FixedToInt(pp->q16ang), MINE_VELOCITY);
+                    nx, ny, nz, pp->angle.ang.asbuild(), MINE_VELOCITY);
 
     wp = &sprite[w];
     wu = User[w];
@@ -19471,7 +19471,7 @@ InitMine(PLAYERp pp)
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
 
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(FixedToInt(pp->q16ang)+512)], sintable[FixedToInt(pp->q16ang)]);
+    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->angle.ang.asbuild()+512)], sintable[pp->angle.ang.asbuild()]);
 
     // don't adjust for strafing
     if (labs(dot) > 10000)
@@ -19601,7 +19601,7 @@ InitFireball(PLAYERp pp)
 
     nz = pp->posz + pp->bob_z + Z(15);
 
-    w = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursectnum, nx, ny, nz, FixedToInt(pp->q16ang), FIREBALL_VELOCITY);
+    w = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursectnum, nx, ny, nz, pp->angle.ang.asbuild(), FIREBALL_VELOCITY);
     wp = &sprite[w];
     wu = User[w];
 
