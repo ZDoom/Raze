@@ -223,16 +223,16 @@ ImageScroller "HelpMenu"
 		QAVAnimationItem "Help5.qav"
 		QAVAnimationItem "Help3b.qav"
 	}
+	*/
 	ifgame(ShadowWarrior)
 	{
 		// The menu has no default binding, but if someone tries to open it anyway show the cool retro ads that were shipped with the game. :D
-		ImageItem "#5262"
-		ifshareware(false)
+		ImageItem "ADSCREEN1"
+		ifnotgame (shareware)
 		{
-			ImageItem "#5261"
+			ImageItem "ADSCREEN2"
 		}
 	}
-	*/
 }
 
 //-------------------------------------------------------------------------------------------
@@ -331,19 +331,19 @@ ImageScroller "CreditsMenu"
 		class "Blood.ImageScrollerMenu"
 		QAVAnimationItem "Credits.qav"
 	}
+	*/
 	ifgame(ShadowWarrior)
 	{
-		ifshareware(true)
+		ifgame (shareware)
 		{
-			ImageItem "#5110"
-			ImageItem "#5112"
+			ImageItem "SWORDER1"
+			ImageItem "SWORDER2"
 		}
-		ImageItem "#5111"
-		ImageItem "#5118"
-		ImageItem "#4979"
-		ImageItem "#5113"
+		ImageItem "CREDITS1"
+		ImageItem "CREDITS2"
+		ImageItem "SUPPORT"
+		ImageItem "ONLINE"
 	}
-	*/
 }
 	
 //-------------------------------------------------------------------------------------------

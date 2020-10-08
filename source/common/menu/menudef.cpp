@@ -1079,7 +1079,7 @@ static void ParseImageScrollerBody(FScanner& sc, DImageScrollerDescriptor* desc)
 		}
 		else if (sc.Compare("ifnotgame"))
 		{
-			if (!CheckSkipGameBlock(sc, true))
+			if (!CheckSkipGameBlock(sc, false))
 			{
 				// recursively parse sub-block
 				ParseImageScrollerBody(sc, desc);
