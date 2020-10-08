@@ -174,6 +174,14 @@ void M_StartControlPanel(bool makeSound, bool)
 }
 
 
+void System_MenuClosed()
+{
+	GSnd->SetSfxPaused(false, PAUSESFX_MENU);
+	inputState.ClearAllInput();
+	gi->MenuClosed();
+}
+
+
 //==========================================================================
 //
 // M_Dim

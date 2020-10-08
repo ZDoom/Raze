@@ -213,6 +213,7 @@ public:
 	bool mBackbuttonSelected;
 	bool DontDim;
 	bool DontBlur;
+	bool Animated;
 	bool AnimatedTransition;
 	static int InMenu;
 
@@ -297,7 +298,7 @@ void M_MarkMenus();
 FTextureID GetMenuTexture(const char* const name);
 void DeinitMenus();
 bool M_Active();
-inline bool M_IsAnimated() { return false; }
+bool M_IsAnimated();
 
 
 struct IJoystickConfig;

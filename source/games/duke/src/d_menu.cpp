@@ -99,10 +99,6 @@ void GameInterface::MenuSound(EMenuSounds snd)
 	}
 }
 
-void GameInterface::MenuClosed()
-{
-}
-
 bool GameInterface::CanSave()
 {
 	if (ud.recstat == 2 || gamestate != GS_LEVEL) return false;

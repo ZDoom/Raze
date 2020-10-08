@@ -88,10 +88,6 @@ void GameInterface::QuitToTitle()
 }
 
 
-void GameInterface::MenuOpened()
-{
-}
-
 void GameInterface::MenuSound(EMenuSounds snd)
 {
 	switch (snd)
@@ -113,10 +109,6 @@ void GameInterface::MenuSound(EMenuSounds snd)
 		default:
 			return;
 	}
-}
-
-void GameInterface::MenuClosed()
-{
 }
 
 bool GameInterface::CanSave()

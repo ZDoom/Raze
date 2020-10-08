@@ -90,12 +90,6 @@ void GameInterface::QuitToTitle()
 	gameaction = ga_mainmenu;
 }
 
-void GameInterface::MenuClosed()
-{
-
-}
-
-
 bool GameInterface::StartGame(FNewGameStartup& gs)
 {
 	auto map = FindMapByLevelNum(gs.Episode);

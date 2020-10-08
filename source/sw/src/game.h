@@ -2186,9 +2186,7 @@ struct GameInterface : ::GameInterface
     void FreeGameData() override;
     void FreeLevelData() override;
     bool GenerateSavePic() override;
-	void MenuOpened() override;
 	void MenuSound(EMenuSounds snd) override;
-	void MenuClosed() override;
 	bool CanSave() override;
 	bool StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;

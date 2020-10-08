@@ -492,6 +492,7 @@ void CheckFrontend(int flags)
 void I_StartupJoysticks();
 void I_ShutdownInput();
 int RunGame();
+void System_MenuClosed();
 
 int GameMain()
 {
@@ -516,6 +517,8 @@ int GameMain()
 		System_DispatchEvent,
 		validFilter,
 		StrTable_GetGender,
+		System_MenuClosed,
+		nullptr
 	};
 
 	try

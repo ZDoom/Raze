@@ -460,6 +460,17 @@ void M_DoStartControlPanel (bool scaleoverride)
 	}
 }
 
+
+bool M_IsAnimated()
+{
+	if (ConsoleState == c_down) return false;
+	if (!CurrentMenu) return false;
+	if (CurrentMenu->Animated) return true;
+	if (transition.previous) return true;
+	return false;
+}
+
+
 //=============================================================================
 //
 //
@@ -855,6 +866,8 @@ void M_Drawer (void)
 
 void M_ClearMenus()
 {
+	if (menuactive == MENU_Off) return;
+
 	transition.previous = transition.current = nullptr;
 	transition.dir = 0;
 
@@ -867,6 +880,7 @@ void M_ClearMenus()
 	menuactive = MENU_Off;
 	if (CurrentScaleOverrider)  delete CurrentScaleOverrider;
 	CurrentScaleOverrider = nullptr;
+	if (sysCallbacks.MenuClosed) sysCallbacks.MenuClosed();
 }
 
 //=============================================================================
@@ -980,6 +994,7 @@ DEFINE_FIELD(DMenu, mBackbuttonSelected);
 DEFINE_FIELD(DMenu, DontDim);
 DEFINE_FIELD(DMenu, DontBlur);
 DEFINE_FIELD(DMenu, AnimatedTransition);
+DEFINE_FIELD(DMenu, Animated);
 
 DEFINE_FIELD(DMenuDescriptor, mMenuName)
 DEFINE_FIELD(DMenuDescriptor, mNetgameMessage)
