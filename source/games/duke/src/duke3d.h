@@ -44,7 +44,6 @@ struct GameInterface : public ::GameInterface
 	double SmallFontScale() override { return isRR() ? 0.5 : 1.; }
 	void SerializeGameState(FSerializer& arc) override;
 	void QuitToTitle() override;
-	bool DrawSpecialScreen(const DVector2& origin, int tilenum) override;
 	FString GetCoordString() override;
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;

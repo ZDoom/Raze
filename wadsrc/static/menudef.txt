@@ -203,6 +203,7 @@ ImageScroller "HelpMenu"
 {
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
+		
 		ImageItem "TEXTSTORY"
 		ImageItem "F1HELP"
 		ifgame(RedneckRides)
@@ -250,9 +251,18 @@ ImageScroller "CreditsMenu"
 {
 	ifgame(Duke, Nam, WW2GI)
 	{
-		ImageItem "CREDITPAGE1"
-		ImageItem "CREDITPAGE2"
-		ImageItem "CREDITPAGE3"
+		ifgame(PLUTOPAK)
+		{
+			ImageItem "CREDITPAGE1"
+			ImageItem "CREDITPAGE2"
+			ImageItem "CREDITPAGE3"
+		}
+		else
+		{
+			DukeCredits1
+			DukeCredits2
+			DukeCredits3
+		}
 		animatedtransition
 	}
 	ifgame(Redneck)
