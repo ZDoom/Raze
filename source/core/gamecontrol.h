@@ -142,17 +142,18 @@ struct PlayerHorizon
 
 	fixedhoriz interpolatedsum(double const smoothratio)
 	{
-		fixedhoriz prev = ohoriz + ohorizoff;
-		fixedhoriz curr = horiz + horizoff;
-		return q16horiz(prev.asq16() + mulscale16(curr.asq16() - prev.asq16(), smoothratio));
+		double const ratio = smoothratio / FRACUNIT;
+		fixed_t const prev = (ohoriz + ohorizoff).asq16();
+		fixed_t const curr = (horiz + horizoff).asq16();
+		return q16horiz(prev + xs_CRoundToInt(ratio * (curr - prev)));
 	}
 };
 
 struct PlayerAngle
 {
-	binangle ang, oang, target;
+	binangle ang, oang;
 	lookangle look_ang, olook_ang, rotscrnang, orotscrnang, spin;
-	double adjustment;
+	double adjustment, target;
 
 	void backup()
 	{
@@ -189,8 +190,8 @@ struct PlayerAngle
 	{
 		if (!cl_syncinput)
 		{
-			target = bamang(xs_CRoundToUInt(value * BAMUNIT));
-			if (target.asbam() == 0) target += bamang(1);
+			if (value == 0) value += (1. / BAMUNIT);
+			target = xs_CRoundToUInt(value * BAMUNIT);
 		}
 		else
 		{
@@ -201,14 +202,14 @@ struct PlayerAngle
 
 	void processhelpers(double const scaleAdjust)
 	{
-		if (target.asbam())
+		if (target)
 		{
-			ang = bamang(ang.asbam() + xs_CRoundToInt(scaleAdjust * (target - ang).asbam()));
+			ang = bamang(ang.asbam() + xs_CRoundToInt(scaleAdjust * (target - ang.asbam())));
 
-			if (ang.asbam() - target.asbam() < BAMUNIT)
+			if (ang.asbam() - target < BAMUNIT)
 			{
-				ang = target;
-				target = bamang(0);
+				ang = bamang(target);
+				target = 0;
 			}
 		}
 		else if (adjustment)
@@ -224,14 +225,17 @@ struct PlayerAngle
 
 	binangle interpolatedsum(double const smoothratio)
 	{
-		auto prev = oang.asbam() + olook_ang.asbam();
-		auto curr = ang.asbam() + look_ang.asbam();
-		return bamang(xs_CRoundToUInt(prev + fmulscale16(curr - prev, smoothratio)));
+		double const ratio = smoothratio / FRACUNIT;
+		int32_t const dang = UINT32_MAX / 2;
+		int64_t const prev = oang.asbam() + olook_ang.asbam();
+		int64_t const curr = ang.asbam() + look_ang.asbam();
+		return bamang(prev + xs_CRoundToUInt(ratio * (((curr + dang - prev) & 0xFFFFFFFF) - dang)));
 	}
 
 	lookangle interpolatedrotscrn(double const smoothratio)
 	{
-		return bamlook(xs_CRoundToUInt(orotscrnang.asbam() + fmulscale16(rotscrnang.asbam() - orotscrnang.asbam(), smoothratio)));
+		double const ratio = smoothratio / FRACUNIT;
+		return bamlook(orotscrnang.asbam() + xs_CRoundToInt(ratio * (rotscrnang.asbam() - orotscrnang.asbam())));
 	}
 };
 

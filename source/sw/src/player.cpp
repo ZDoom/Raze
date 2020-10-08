@@ -5592,7 +5592,7 @@ DoPlayerStopOperate(PLAYERp pp)
     }
 
     if (!cl_syncinput)
-        pp->angle.target = buildang(0);
+        pp->angle.target = 0;
 
     if (pp->sop_control)
     {
@@ -5922,6 +5922,12 @@ DoPlayerDeathMessage(PLAYERp pp, PLAYERp killer)
 
 }
 
+enum
+{
+    PLAYER_DEATH_HORIZ_UP_VALUE = 65,
+    PLAYER_DEATH_HORIZ_JUMP_VALUE = 50,
+    PLAYER_DEATH_HORIZ_FALL_VALUE = -50
+};
 
 void
 DoPlayerBeginDie(PLAYERp pp)
@@ -5941,11 +5947,6 @@ DoPlayerBeginDie(PLAYERp pp)
         DoPlayerDeathExplode,
         DoPlayerDeathDrown,
     };
-
-#define PLAYER_DEATH_TILT_VALUE       (32)
-#define PLAYER_DEATH_HORIZ_UP_VALUE   (165)
-#define PLAYER_DEATH_HORIZ_JUMP_VALUE (150)
-#define PLAYER_DEATH_HORIZ_FALL_VALUE (50)
 
     if (Prediction)
         return;

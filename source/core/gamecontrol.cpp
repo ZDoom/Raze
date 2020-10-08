@@ -1501,12 +1501,12 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
 		{
 			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->avel -= scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
+			currInput->avel -= scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn) * (45. / 256.);
 		}
 		else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe))
 		{
 			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->avel += scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
+			currInput->avel += scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn) * (45. / 256.);
 		}
 		else
 		{
@@ -1568,9 +1568,6 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 //
 //---------------------------------------------------------------------------
 
-static double const aimamount = HorizToPitch(250. / GameTicRate);
-static double const lookamount = HorizToPitch(500. / GameTicRate);
-
 void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Store current horizon as true pitch.
@@ -1586,24 +1583,26 @@ void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double 
 	if (*actions & (SB_AIM_UP|SB_AIM_DOWN))
 	{
 		*actions &= ~SB_CENTERVIEW;
+		double const amount = HorizToPitch(250. / GameTicRate);
 
 		if (*actions & SB_AIM_DOWN)
-			pitch -= scaleAdjust * aimamount;
+			pitch -= scaleAdjust * amount;
 
 		if (*actions & SB_AIM_UP)
-			pitch += scaleAdjust * aimamount;
+			pitch += scaleAdjust * amount;
 	}
 
 	// this is the unlocked type
 	if (*actions & (SB_LOOK_UP|SB_LOOK_DOWN))
 	{
 		*actions |= SB_CENTERVIEW;
+		double const amount = HorizToPitch(500. / GameTicRate);
 
 		if (*actions & SB_LOOK_DOWN)
-			pitch -= scaleAdjust * lookamount;
+			pitch -= scaleAdjust * amount;
 
 		if (*actions & SB_LOOK_UP)
-			pitch += scaleAdjust * lookamount;
+			pitch += scaleAdjust * amount;
 	}
 
 	// clamp pitch after processing
@@ -1638,25 +1637,25 @@ void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double 
 void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double const scaleAdjust, bool const crouching)
 {
 	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a unit
-	angle->rotscrnang -= q16look(xs_CRoundToInt(scaleAdjust * (angle->rotscrnang.asq16() * (15. / GameTicRate))));
-	if (abs(angle->rotscrnang.asq16()) < (FRACUNIT >> 2)) angle->rotscrnang = q16look(0);
+	angle->rotscrnang -= bamlook(xs_CRoundToInt(scaleAdjust * angle->rotscrnang.asbam() * (15. / GameTicRate)));
+	if (abs(angle->rotscrnang.asbam()) < (BAMUNIT >> 2)) angle->rotscrnang = bamlook(0);
 
 	// return q16look_ang to 0 and set to 0 if less than a quarter of a unit
-	angle->look_ang -= q16look(xs_CRoundToInt(scaleAdjust * (angle->look_ang.asq16() * (7.5 / GameTicRate))));
-	if (abs(angle->look_ang.asq16()) < (FRACUNIT >> 2)) angle->look_ang = q16look(0);
+	angle->look_ang -= bamlook(xs_CRoundToInt(scaleAdjust * angle->look_ang.asbam() * (7.5 / GameTicRate)));
+	if (abs(angle->look_ang.asbam()) < (BAMUNIT >> 2)) angle->look_ang = bamlook(0);
 
 	if (*actions & SB_LOOK_LEFT)
 	{
 		// start looking left
-		angle->look_ang -= q16look(FloatToFixed(scaleAdjust * (4560. / GameTicRate)));
-		angle->rotscrnang += q16look(FloatToFixed(scaleAdjust * (720. / GameTicRate)));
+		angle->look_ang -= bamlook(xs_CRoundToInt(scaleAdjust * (4560. / GameTicRate) * BAMUNIT));
+		angle->rotscrnang += bamlook(xs_CRoundToInt(scaleAdjust * (720. / GameTicRate) * BAMUNIT));
 	}
 
 	if (*actions & SB_LOOK_RIGHT)
 	{
 		// start looking right
-		angle->look_ang += q16look(FloatToFixed(scaleAdjust * (4560. / GameTicRate)));
-		angle->rotscrnang -= q16look(FloatToFixed(scaleAdjust * (720. / GameTicRate)));
+		angle->look_ang += bamlook(xs_CRoundToInt(scaleAdjust * (4560. / GameTicRate) * BAMUNIT));
+		angle->rotscrnang -= bamlook(xs_CRoundToInt(scaleAdjust * (720. / GameTicRate) * BAMUNIT));
 	}
 
 	if (*actions & SB_TURNAROUND)
@@ -1672,15 +1671,15 @@ void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double 
 	if (angle->spin.asbam() < 0)
 	{
 		// return spin to 0
-		fixed_t add = FloatToFixed(scaleAdjust * ((!crouching ? 3840. : 1920.) / GameTicRate));
-		angle->spin += q16look(add);
+		lookangle add = bamlook(xs_CRoundToUInt(scaleAdjust * ((!crouching ? 3840. : 1920.) / GameTicRate) * BAMUNIT));
+		angle->spin += add;
 		if (angle->spin.asbam() > 0)
 		{
 			// Don't overshoot our target. With variable factor this is possible.
-			add -= angle->spin.asq16();
+			add -= angle->spin;
 			angle->spin = bamlook(0);
 		}
-		angle->ang += q16ang(add);
+		angle->ang += bamang(add.asbam());
 	}
 
 	if (avel)
