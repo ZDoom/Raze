@@ -34,7 +34,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 	void DrawCursor(double x, double y, double scale, bool right)
 	{
 		uint mclock = MSTime() * 120 / 1000;
-		uint frames = (gameinfo.gametype & GAMEFLAG_RR) ? 16 : 7;
+		uint frames = (gameinfo.gametype & GAMEFLAG_RRALL) ? 16 : 7;
 		String picname;
 		if (!right) picname= String.Format("SPINNINGNUKEICON%d", ((mclock >> 3) % frames));
 		else picname = String.Format("SPINNINGNUKEICON%d", frames - 1 - ((frames - 1 + (mclock >> 3)) % frames));
@@ -46,7 +46,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 	override bool DrawSelector(ListMenuDescriptor desc)
 	{
 		int cursorOffset = 110;
-		double cursorScale = (gameinfo.gametype & GAMEFLAG_RR) ? 0.2 : 1.0;
+		double cursorScale = (gameinfo.gametype & GAMEFLAG_RRALL) ? 0.2 : 1.0;
 		double ymid = desc.mItems[desc.mSelectedItem].GetY() + 7;	// half height must be hardcoded or layouts will break.
 		DrawCursor(160 + cursorOffset, ymid, cursorScale, false);
 		DrawCursor(169 - cursorOffset, ymid, cursorScale, true);
@@ -117,7 +117,7 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 	{
 		int trans = mColorSelected? Translation.MakeID(Translation_Remap, 1) : 0; 
 		Color pe;
-		double scale = (gameinfo.gametype & GAMEFLAG_RR) ? 0.4 : 1.;
+		double scale = (gameinfo.gametype & GAMEFLAG_RRALL) ? 0.4 : 1.;
 		let xpos = mXpos - BigFont.StringWidth(mText) * scale * 0.5;
 
 		if (selected)

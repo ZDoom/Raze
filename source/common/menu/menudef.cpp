@@ -1255,6 +1255,8 @@ static void ParseImageScroller(FScanner& sc)
 	desc->textFont = SmallFont;
 	desc->textScale = 1;
 	desc->mAnimatedTransition = false;
+	desc->virtWidth = 320;
+	desc->virtHeight = 200;
 
 	ParseImageScrollerBody(sc, desc);
 	bool scratch = ReplaceMenu(sc, desc);

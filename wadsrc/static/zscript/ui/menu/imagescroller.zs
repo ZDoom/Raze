@@ -103,8 +103,9 @@ class ImageScrollerPageTextItem : ImageScrollerPage
 		mTextScale = desc.textScale;
 		virtWidth = desc.virtWidth;
 		virtHeight = desc.virtHeight;
-		mText = mFont.BreakLines(Stringtable.Localize(txt), virtWidth / mTextScale);
-		mYpos = y >= 0? y : virtHeight / 2 - mText.Count() * mFont.GetHeight() / 2;
+		
+		mText = mFont.BreakLines(Stringtable.Localize(txt.Filter()), virtWidth / mTextScale);
+		mYpos = y >= 0? y : virtHeight / 2 - mText.Count() * mFont.GetHeight() * mTextScale / 2;
 		
 	} 
 	
