@@ -986,16 +986,9 @@ set (PCH_SOURCES
 
 
 	core/textures/buildtiles.cpp
-	#core/textures/texture.cpp
-
 	core/music/s_advsound.cpp
 
-	#core/menu/imagescroller.cpp
-	#core/menu/listmenu.cpp
-	#core/menu/savegamemanager.cpp
-	#core/menu/menuinput.cpp
 	core/menu/loadsavemenu.cpp
-	core/menu/playermenu.cpp
 	core/menu/razemenu.cpp
 )
 

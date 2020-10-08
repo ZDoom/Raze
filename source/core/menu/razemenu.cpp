@@ -719,3 +719,12 @@ DEFINE_ACTION_FUNCTION(_RazeMenuDelegate, MenuDismissed)
 	if (CurrentMenu == nullptr && gamestate == GS_MENUSCREEN) C_ToggleConsole();
 	return 0;
 }
+
+DEFINE_ACTION_FUNCTION(_PlayerMenu, DrawPlayerSprite)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(selected);
+	gi->DrawPlayerSprite(DVector2(0.,0.), selected);
+	return 0;
+}
+

@@ -876,7 +876,7 @@ OptionMenu "NewPlayerMenu" protected
 	}
 	Option "$PLYRMNU_PLAYERGENDER", "playergender", "Gender"
 	Submenu "$PLRMNU_TAUNTS", "TauntsMenu"
-	//Class "NewPlayerMenu"
+	Class "PlayerMenu"
 }
 
 OptionMenu "TauntsMenu" protected

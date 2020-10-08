@@ -317,3 +317,15 @@ class ImageScrollerPageDukeCredits3 : ImageScrollerPage
 		DukeMenuDelegate.mgametextcenter(0, ((VOLUMEONE ? 134 : 115) << 16), "Made in Dallas, Texas USA");
 	}
 }
+
+class PlayerMenu : OptionMenu
+{
+	override void Drawer()
+	{
+		// Hack: The team item is #3. This part doesn't work properly yet.
+		DrawPlayerSprite((mDesc.mSelectedItem == 3));
+		Super.Drawer();
+	}
+	
+	native static void DrawPlayerSprite(int sel);
+}
