@@ -169,8 +169,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
             predict.at60 -= mulscale30(strafe, x);
         }
     }
-    if (pInput->q16avel)
-        predict.at30 = degang(FixedToFloat(pInput->q16avel));
+    if (pInput->avel)
+        predict.at30 = degang(pInput->avel);
     if (pInput->actions & SB_TURNAROUND)
         if (!predict.at4c.asbuild())
             predict.at4c = buildlook(-1024);

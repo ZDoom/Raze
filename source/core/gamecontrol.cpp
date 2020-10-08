@@ -1454,7 +1454,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
 		currInput->svel -= xs_CRoundToInt(hidInput->mousemovex * mousevelscale + (scaleAdjust * (hidInput->dyaw / 60) * keymove * cntrlvelscale));
 	else
-		currInput->q16avel += FloatToFixed(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw));
+		currInput->avel += hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw);
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
 		currInput->horz -= hidInput->mouseturny;
@@ -1465,7 +1465,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		currInput->horz = -currInput->horz;
 
 	if (invertmousex)
-		currInput->q16avel = -currInput->q16avel;
+		currInput->avel = -currInput->avel;
 
 	// process remaining controller input.
 	currInput->horz -= scaleAdjust * hidInput->dpitch;
@@ -1501,12 +1501,12 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
 		{
 			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->q16avel -= FloatToFixed(scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn));
+			currInput->avel -= scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
 		}
 		else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe))
 		{
 			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->q16avel += FloatToFixed(scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn));
+			currInput->avel += scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
 		}
 		else
 		{
@@ -1558,7 +1558,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	// add collected input to game's local input accumulation packet.
 	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -keymove, keymove);
 	inputBuffer->svel = clamp(inputBuffer->svel + currInput->svel, -keymove, keymove);
-	inputBuffer->q16avel += currInput->q16avel;
+	inputBuffer->avel += currInput->avel;
 	inputBuffer->horz += currInput->horz;
 }
 
@@ -1635,7 +1635,7 @@ void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double 
 //
 //---------------------------------------------------------------------------
 
-void applylook(PlayerAngle* angle, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching)
+void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double const scaleAdjust, bool const crouching)
 {
 	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a unit
 	angle->rotscrnang -= q16look(xs_CRoundToInt(scaleAdjust * (angle->rotscrnang.asq16() * (15. / GameTicRate))));
@@ -1683,9 +1683,9 @@ void applylook(PlayerAngle* angle, fixed_t const q16avel, ESyncBits* actions, do
 		angle->ang += q16ang(add);
 	}
 
-	if (q16avel)
+	if (avel)
 	{
 		// add player's input
-		angle->ang += degang(FixedToFloat(q16avel));
+		angle->ang += degang(avel);
 	}
 }

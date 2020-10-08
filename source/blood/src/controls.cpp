@@ -55,7 +55,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         // Perform unsynchronised angle/horizon if not dead.
         if (gView->pXSprite->health != 0)
         {
-            applylook(&pPlayer->angle, input.q16avel, &pPlayer->input.actions, scaleAdjust, pPlayer->posture != 0);
+            applylook(&pPlayer->angle, input.avel, &pPlayer->input.actions, scaleAdjust, pPlayer->posture != 0);
             sethorizon(&pPlayer->horizon.horiz, input.horz, &pPlayer->input.actions, scaleAdjust);
         }
 

@@ -237,7 +237,7 @@ struct PlayerAngle
 
 void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt = 0, bool const allowstrafe = true, double const turnscale = 1);
 void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double const scaleAdjust);
-void applylook(PlayerAngle* angle, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching);
+void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double const scaleAdjust, bool const crouching);
 
 struct UserConfig
 {

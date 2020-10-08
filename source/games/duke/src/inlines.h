@@ -159,9 +159,9 @@ inline int PlayerInputForwardVel(int pl)
 	return ps[pl].sync.fvel;
 }
 
-inline fixed_t PlayerInputAngVel(int pl)
+inline float PlayerInputAngVel(int pl)
 {
-	return ps[pl].sync.q16avel;
+	return ps[pl].sync.avel;
 }
 
 inline float PlayerHorizon(int pl)

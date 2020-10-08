@@ -805,7 +805,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 		turnvel *= clamp(turnspeed * turnspeed, 0., 1.);
 
 	input.fvel = p->MotoSpeed;
-	input.q16avel = FloatToFixed(turnvel);
+	input.avel = turnvel;
 }
 
 //---------------------------------------------------------------------------
@@ -823,8 +823,8 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 	{
 		// neutralize all movement when blocked or in automap follow mode
 		loc.fvel = loc.svel = 0;
-		loc.q16avel = loc.horz = 0;
-		input.q16avel = input.horz = 0;
+		loc.avel = loc.horz = 0;
+		input.avel = input.horz = 0;
 	}
 	else
 	{
@@ -846,16 +846,16 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 
 		if (p->on_crane < 0 && p->newowner == -1)
 		{
-			// input.q16avel already added to loc in processMovement()
-			loc.q16avel = clamp(loc.q16avel, IntToFixed(-MAXANGVEL), IntToFixed(MAXANGVEL));
-			if (!cl_syncinput && input.q16avel)
+			// input.avel already added to loc in processMovement()
+			loc.avel = clamp(loc.avel, -MAXANGVEL, MAXANGVEL);
+			if (!cl_syncinput && input.avel)
 			{
 				p->angle.spin = bamlook(0);
 			}
 		}
 		else
 		{
-			loc.q16avel = input.q16avel = 0;
+			loc.avel = input.avel = 0;
 		}
 
 		if (p->newowner == -1 && !(p->sync.actions & SB_CENTERVIEW))
@@ -921,8 +921,8 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		{
 			// Do these in the same order as the old code.
 			calcviewpitch(p, scaleAdjust);
-			processq16avel(p, &input.q16avel);
-			applylook(&p->angle, input.q16avel, &p->sync.actions, scaleAdjust, p->crouch_toggle || p->sync.actions & SB_CROUCH);
+			processavel(p, &input.avel);
+			applylook(&p->angle, input.avel, &p->sync.actions, scaleAdjust, p->crouch_toggle || p->sync.actions & SB_CROUCH);
 			sethorizon(&p->horizon.horiz, input.horz, &p->sync.actions, scaleAdjust);
 		}
 

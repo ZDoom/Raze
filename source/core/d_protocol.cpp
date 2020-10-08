@@ -162,7 +162,7 @@ int UnpackUserCmd (InputPacket *ucmd, const InputPacket *basis, uint8_t **stream
 		if (flags & UCMDF_PITCH)
 			ucmd->horz = ReadLong(stream);
 		if (flags & UCMDF_YAW)
-			ucmd->q16avel = ReadLong(stream);
+			ucmd->avel = ReadLong(stream);
 		if (flags & UCMDF_FORWARDMOVE)
 			ucmd->fvel = ReadWord (stream);
 		if (flags & UCMDF_SIDEMOVE)
@@ -198,10 +198,10 @@ int PackUserCmd (const InputPacket *ucmd, const InputPacket *basis, uint8_t **st
 		flags |= UCMDF_PITCH;
 		WriteLong (ucmd->horz, stream);
 	}
-	if (ucmd->q16avel != basis->q16avel)
+	if (ucmd->avel != basis->avel)
 	{
 		flags |= UCMDF_YAW;
-		WriteLong (ucmd->q16avel, stream);
+		WriteLong (ucmd->avel, stream);
 	}
 	if (ucmd->fvel != basis->fvel)
 	{
@@ -237,7 +237,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, InputPacket &cmd, Inpu
 	{
 		arc("actions", cmd.actions)
 			("horz", cmd.horz)
-			("avel", cmd.q16avel)
+			("avel", cmd.avel)
 			("fvel", cmd.fvel)
 			("svwl", cmd.svel)
 			.EndObject();
@@ -251,7 +251,7 @@ int WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, uint8_t **
 	{
 		if (ucmd->actions != 0 ||
 			ucmd->horz != 0 ||
-			ucmd->q16avel != 0 ||
+			ucmd->avel != 0 ||
 			ucmd->fvel != 0 ||
 			ucmd->svel != 0)
 		{
@@ -262,7 +262,7 @@ int WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, uint8_t **
 	else
 	if (ucmd->actions != basis->actions ||
 		ucmd->horz != basis->horz ||
-		ucmd->q16avel != basis->q16avel ||
+		ucmd->avel != basis->avel ||
 		ucmd->fvel != basis->fvel ||
 		ucmd->svel != basis->svel)
 	{

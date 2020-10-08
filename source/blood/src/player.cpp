@@ -762,7 +762,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->deathTime = 0;
     pPlayer->nextWeapon = 0;
     xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
-    pInput->q16avel = 0;
+    pInput->avel = 0;
     pInput->actions = 0;
     pInput->fvel = 0;
     pInput->svel = 0;
@@ -1347,7 +1347,7 @@ void ProcessInput(PLAYER *pPlayer)
     InputPacket *pInput = &pPlayer->input;
 
     pPlayer->isRunning = !!(pInput->actions & SB_RUN);
-    if ((pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->q16avel)
+    if ((pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->avel)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
@@ -1445,7 +1445,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        applylook(&pPlayer->angle, pInput->q16avel, &pInput->actions, 1, pPlayer->posture != 0);
+        applylook(&pPlayer->angle, pInput->avel, &pInput->actions, 1, pPlayer->posture != 0);
         UpdatePlayerSpriteAngle(pPlayer);
     }
 

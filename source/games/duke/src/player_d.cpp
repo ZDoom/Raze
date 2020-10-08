@@ -2839,7 +2839,7 @@ void processinput_d(int snum)
 		//ENGINE calculates angvel for you
 		// may still be needed later for demo recording
 
-		processq16avel(p, &sb_avel);
+		processavel(p, &sb_avel);
 		applylook(&p->angle, sb_avel, &p->sync.actions, 1, p->crouch_toggle || actions & SB_CROUCH);
 	}
 

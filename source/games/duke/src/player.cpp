@@ -785,16 +785,16 @@ void apply_seasick(player_struct* p, double factor)
 //
 //---------------------------------------------------------------------------
 
-void processq16avel(player_struct* p, fixed_t* q16avel)
+void processavel(player_struct* p, float* avel)
 {
 	// Taken from processinput() for use with applying look while cl_syncinput is 0.
 	if (p->psectlotag == ST_2_UNDERWATER)
 	{
-		*q16avel = (*q16avel - (*q16avel >> 3)) * sgn(TICSPERFRAME);
+		*avel = (*avel - (*avel / 8.f)) * sgn(TICSPERFRAME);
 	}
 	else
 	{
-		*q16avel = *q16avel * sgn(TICSPERFRAME);
+		*avel = *avel * sgn(TICSPERFRAME);
 	}
 }
 

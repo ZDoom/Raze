@@ -861,7 +861,7 @@ struct PLAYERstruct
     int slide_xvect, slide_yvect;
     short slide_ang;
     int slide_dec;
-    int drive_q16avel;
+    float drive_avel;
 
 
 

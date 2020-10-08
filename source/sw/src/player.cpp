@@ -1281,7 +1281,7 @@ DoPlayerResetMovement(PLAYERp pp)
     pp->yvect = pp->oxvect = 0;
     pp->slide_xvect = 0;
     pp->slide_yvect = 0;
-    pp->drive_q16avel = 0;
+    pp->drive_avel = 0;
     RESET(pp->Flags, PF_PLAYER_MOVED);
 }
 
@@ -1528,58 +1528,58 @@ UpdatePlayerSpriteAngle(PLAYERp pp)
 }
 
 void
-DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
+DoPlayerTurn(PLAYERp pp, float const avel, double const scaleAdjust)
 {
-    applylook(&pp->angle, q16avel, &pp->input.actions, scaleAdjust, pp->input.actions & (SB_CROUCH|SB_CROUCH_LOCK));
+    applylook(&pp->angle, avel, &pp->input.actions, scaleAdjust, pp->input.actions & (SB_CROUCH|SB_CROUCH_LOCK));
     UpdatePlayerSpriteAngle(pp);
 }
 
 #if 0
 void
-DoPlayerTurnBoat(PLAYERp pp, fixed_t q16avel)
+DoPlayerTurnBoat(PLAYERp pp, float avel)
 {
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
-        fixed_t drive_oq16avel = pp->drive_q16avel;
-        pp->drive_q16avel = (mulscale16(q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        float drive_oavel = pp->drive_avel;
+        pp->drive_avel = (fmulscale16(avel, sop->drive_angspeed) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
-        q16avel = pp->drive_q16avel;
+        avel = pp->drive_avel;
     }
     else
     {
-        q16avel = xs_CRoundToInt(q16avel * 1.4);
+        avel *= 1.4;
     }
 
-    if (q16avel != 0)
+    if (avel != 0)
     {
-        pp->angle.ang += degang(q16avel);
+        pp->angle.ang += degang(avel);
         sprite[pp->PlayerSprite].ang = pp->angle.ang.asbuild();
     }
 }
 #endif
 
 void
-DoPlayerTurnVehicle(PLAYERp pp, fixed_t q16avel, int z, int floor_dist)
+DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
 {
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
-        fixed_t drive_oq16avel = pp->drive_q16avel;
-        pp->drive_q16avel = (mulscale16(q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        float drive_oavel = pp->drive_avel;
+        pp->drive_avel = (fmulscale16(avel, sop->drive_angspeed) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
-        q16avel = pp->drive_q16avel;
+        avel = pp->drive_avel;
     }
     else
     {
-        q16avel = DIV8(q16avel * synctics);
+        avel = avel * synctics * 0.125;
     }
 
-    if (q16avel != 0)
+    if (avel != 0)
     {
-        auto sum = pp->angle.ang + degang(q16avel);
+        auto sum = pp->angle.ang + degang(avel);
         if (MultiClipTurn(pp, NORM_ANGLE(sum.asbuild()), z, floor_dist))
         {
             pp->angle.ang = sum;
@@ -1591,24 +1591,24 @@ DoPlayerTurnVehicle(PLAYERp pp, fixed_t q16avel, int z, int floor_dist)
 void
 DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 {
-    fixed_t q16avel;
+    float avel;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
-        fixed_t drive_oq16avel = pp->drive_q16avel;
-        pp->drive_q16avel = (mulscale16(pp->input.q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        float drive_oavel = pp->drive_avel;
+        pp->drive_avel = (fmulscale16(pp->input.avel, sop->drive_angspeed) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
-        q16avel = pp->drive_q16avel;
+        avel = pp->drive_avel;
     }
     else
     {
-        q16avel = DIV8(pp->input.q16avel * synctics);
+        avel = pp->input.avel * synctics * 0.125;
     }
 
-    if (q16avel != 0)
+    if (avel != 0)
     {
-        auto sum = pp->angle.ang + degang(q16avel);
+        auto sum = pp->angle.ang + degang(avel);
         if (RectClipTurn(pp, NORM_ANGLE(sum.asbuild()), x, y, ox, oy))
         {
             pp->angle.ang = sum;
@@ -1618,7 +1618,7 @@ DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 }
 
 void
-DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel)
+DoPlayerTurnTurret(PLAYERp pp, float avel)
 {
     fixed_t diff;
     binangle new_ang;
@@ -1626,19 +1626,19 @@ DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel)
 
     if (sop->drive_angspeed)
     {
-        fixed_t drive_oq16avel = pp->drive_q16avel;
-        pp->drive_q16avel = (mulscale16(q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        float drive_oavel = pp->drive_avel;
+        pp->drive_avel = (fmulscale16(avel, sop->drive_angspeed) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
-        q16avel = pp->drive_q16avel;
+        avel = pp->drive_avel;
     }
     else
     {
-        q16avel = DIV4(q16avel * synctics);
+        avel = avel * synctics * 0.25;
     }
 
-    if (q16avel != 0)
+    if (avel != 0)
     {
-        new_ang = pp->angle.ang + degang(q16avel);
+        new_ang = pp->angle.ang + degang(avel);
 
         if (sop->limit_ang_center >= 0)
         {
@@ -2173,7 +2173,7 @@ DoPlayerMove(PLAYERp pp)
     }
     else
     {
-        DoPlayerTurn(pp, pp->input.q16avel, 1);
+        DoPlayerTurn(pp, pp->input.avel, 1);
     }
 
     pp->oldposx = pp->posx;
@@ -2462,7 +2462,7 @@ DoPlayerMoveBoat(PLAYERp pp)
     }
     else
     {
-        DoPlayerTurnBoat(pp, pp->input.q16avel);
+        DoPlayerTurnBoat(pp, pp->input.avel);
     }
 
     if (PLAYER_MOVING(pp) == 0)
@@ -2657,7 +2657,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
         return;
 
     // not moving - don't crush
-    if ((pp->xvect|pp->yvect) == 0 && pp->input.q16avel == 0)
+    if ((pp->xvect|pp->yvect) == 0 && pp->input.avel == 0)
         return;
 
     // main sector
@@ -2966,7 +2966,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
         }
         else
         {
-            DoPlayerTurnVehicle(pp, pp->input.q16avel, z, floor_dist);
+            DoPlayerTurnVehicle(pp, pp->input.avel, z, floor_dist);
         }
 
         save_cstat = pp->SpriteP->cstat;
@@ -3022,9 +3022,9 @@ DoPlayerMoveTurret(PLAYERp pp)
 {
     if (!Prediction)
     {
-        if (pp->input.q16avel && !pp->lastinput.q16avel)
+        if (pp->input.avel && !pp->lastinput.avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
-        else if (!pp->input.q16avel && pp->lastinput.q16avel)
+        else if (!pp->input.avel && pp->lastinput.avel)
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
     }
 
@@ -3034,7 +3034,7 @@ DoPlayerMoveTurret(PLAYERp pp)
     }
     else
     {
-        DoPlayerTurnTurret(pp, pp->input.q16avel);
+        DoPlayerTurnTurret(pp, pp->input.avel);
     }
 
     if (PLAYER_MOVING(pp) == 0)
@@ -5403,7 +5403,7 @@ DoPlayerBeginOperate(PLAYERp pp)
         break;
     case SO_TURRET_MGUN:
     case SO_TURRET:
-        if (pp->input.q16avel)
+        if (pp->input.avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5493,7 +5493,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         break;
     case SO_TURRET_MGUN:
     case SO_TURRET:
-        if (pp->input.q16avel)
+        if (pp->input.avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -6234,7 +6234,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
         }
         else
         {
-            DoPlayerTurn(pp, pp->input.q16avel, 1);
+            DoPlayerTurn(pp, pp->input.avel, 1);
         }
     }
 
@@ -7039,7 +7039,7 @@ void ChopsCheck(PLAYERp pp)
 {
     if (!M_Active() && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if (pp->input.actions & ~SB_RUN || pp->input.fvel || pp->input.svel || pp->input.q16avel || pp->input.horz ||
+        if (pp->input.actions & ~SB_RUN || pp->input.fvel || pp->input.svel || pp->input.avel || pp->input.horz ||
             TEST(pp->Flags, PF_CLIMBING | PF_FALLING | PF_DIVING))
         {
             // Hit a input key or other reason to stop chops
