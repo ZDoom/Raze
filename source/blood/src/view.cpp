@@ -118,6 +118,8 @@ void viewBackupView(int nPlayer)
     pView->at1c = pPlayer->swayWidth;
     pView->look_ang = pPlayer->angle.look_ang;
     pView->rotscrnang = pPlayer->angle.rotscrnang;
+    pPlayer->angle.backup();
+    pPlayer->horizon.backup();
 }
 
 void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
@@ -681,17 +683,15 @@ void viewDrawScreen(bool sceneonly)
 
             if (!cl_syncinput)
             {
-                cA = bamang(gView->angle.ang.asbam() + gView->angle.look_ang.asbam());
+                cA = gView->angle.sum();
                 cH = gView->horizon.horiz;
                 rotscrnang = gView->angle.rotscrnang;
             }
             else
             {
-                uint32_t oang = pView->at30.asbam() + pView->look_ang.asbam();
-                uint32_t ang = gView->angle.ang.asbam() + gView->angle.look_ang.asbam();
-                cA = interpolateangbin(oang, ang, gInterpolate);
+                cA = gView->angle.interpolatedsum(gInterpolate);
                 cH = q16horiz(interpolate(pView->at24.asq16(), gView->horizon.horiz.asq16(), gInterpolate));
-                rotscrnang = interpolateanglook(pView->rotscrnang.asbam(), gView->angle.rotscrnang.asbam(), gInterpolate);
+                rotscrnang = gView->angle.interpolatedrotscrn(gInterpolate);
             }
         }
 
