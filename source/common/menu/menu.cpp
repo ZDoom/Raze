@@ -230,7 +230,7 @@ bool MenuTransition::Draw()
 	double now = I_GetTimeNS() * (120. / 1'000'000'000);
 	if (now < start + length)
 	{
-		double factor = 120 * screen->GetWidth() / screen->GetHeight();
+		double factor = screen->GetWidth()/2;
 		double phase = (now - start) / double(length) * M_PI + M_PI / 2;
 		DVector2 origin;
 
@@ -241,6 +241,8 @@ bool MenuTransition::Draw()
 		origin.X = factor * dir * (sin(phase) + 1.);
 		twod->SetOffset(origin);
 		current->CallDrawer();
+		origin = { 0,0 };
+		twod->SetOffset(origin);
 		return true;
 	}
 	if (destroyprev && previous) previous->Destroy();
@@ -977,6 +979,7 @@ DEFINE_FIELD(DMenu, mMouseCapture);
 DEFINE_FIELD(DMenu, mBackbuttonSelected);
 DEFINE_FIELD(DMenu, DontDim);
 DEFINE_FIELD(DMenu, DontBlur);
+DEFINE_FIELD(DMenu, AnimatedTransition);
 
 DEFINE_FIELD(DMenuDescriptor, mMenuName)
 DEFINE_FIELD(DMenuDescriptor, mNetgameMessage)
@@ -1002,6 +1005,7 @@ DEFINE_FIELD(DListMenuDescriptor, mAutoselect)
 DEFINE_FIELD(DListMenuDescriptor, mFont)
 DEFINE_FIELD(DListMenuDescriptor, mFontColor)
 DEFINE_FIELD(DListMenuDescriptor, mFontColor2)
+DEFINE_FIELD(DListMenuDescriptor, mAnimatedTransition)
 DEFINE_FIELD(DListMenuDescriptor, mCenter)
 DEFINE_FIELD(DListMenuDescriptor, mVirtWidth)
 DEFINE_FIELD(DListMenuDescriptor, mVirtHeight)

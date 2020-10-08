@@ -213,6 +213,7 @@ public:
 	bool mBackbuttonSelected;
 	bool DontDim;
 	bool DontBlur;
+	bool AnimatedTransition;
 	static int InMenu;
 
 	DMenu(DMenu *parent = NULL);
@@ -223,7 +224,7 @@ public:
 	bool CallMenuEvent(int mkey, bool fromcontroller);
 	void CallTicker();
 	void CallDrawer();
-	bool canAnimate() { return false; }
+	bool canAnimate() { return AnimatedTransition; }
 };
 
 //=============================================================================
