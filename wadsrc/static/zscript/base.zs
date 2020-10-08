@@ -399,6 +399,7 @@ struct Screen native
 	native static int, int, int, int GetClipRect();
 	native static int, int, int, int GetViewWindow();
 	native static double, double, double, double GetFullscreenRect(double vwidth, double vheight, int fsmode);
+	native static Vector2 SetOffset(double x, double y);
 }
 
 struct Font native

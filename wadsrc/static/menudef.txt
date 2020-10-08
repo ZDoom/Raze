@@ -199,19 +199,15 @@ LISTMENU "SkillMenu"
 //
 //-------------------------------------------------------------------------------------------
 
-/*
 ImageScroller "HelpMenu"
 {
 	ifgame(Duke, Nam, WW2GI)
 	{
-		ImageItem "#3280"
-		ImageItem "#2445"
-		class "$.ImageScrollerMenu"
-		ifgame(Duke, Nam, WW2GI)
-		{
-			animatedtransition
-		}
+		ImageItem "TEXTSTORY"
+		ImageItem "F1HELP"
+		animatedtransition
 	}
+	/*
 	ifgame(Redneck, RedneckRides)
 	{
 		ImageItem "#2541"
@@ -242,8 +238,8 @@ ImageScroller "HelpMenu"
 			ImageItem "#5261"
 		}
 	}
+	*/
 }
-*/
 
 //-------------------------------------------------------------------------------------------
 //
@@ -256,17 +252,16 @@ ImageScroller "HelpMenu"
 //
 //-------------------------------------------------------------------------------------------
 
-/*
 ImageScroller "CreditsMenu"
 {
 	ifgame(Duke, Nam, WW2GI)
 	{
-		ImageItem "#2504"
-		ImageItem "#2505"
-		ImageItem "#2506"
+		ImageItem "CREDITPAGE1"
+		ImageItem "CREDITPAGE2"
+		ImageItem "CREDITPAGE3"
 		animatedtransition
-		class "Duke.ImageScrollerMenu"
 	}
+	/*
 	ifgame(Redneck)
 	{
 		// no point putting this into the string table.
@@ -346,8 +341,8 @@ ImageScroller "CreditsMenu"
 		ImageItem "#4979"
 		ImageItem "#5113"
 	}
+	*/
 }
-*/
 	
 //-------------------------------------------------------------------------------------------
 //

@@ -122,6 +122,7 @@ bool OkForLocalization(FTextureID texnum, const char* substitute);
 IMPLEMENT_CLASS(DMenuDescriptor, false, false)
 IMPLEMENT_CLASS(DListMenuDescriptor, false, false)
 IMPLEMENT_CLASS(DOptionMenuDescriptor, false, false)
+IMPLEMENT_CLASS(DImageScrollerDescriptor, false, false)
 
 DMenuDescriptor *GetMenuDescriptor(int name)
 {
@@ -135,6 +136,13 @@ DEFINE_ACTION_FUNCTION_NATIVE(DMenuDescriptor, GetDescriptor, GetMenuDescriptor)
 	PARAM_NAME(name);
 	ACTION_RETURN_OBJECT(GetMenuDescriptor(name.GetIndex()));
 }
+
+size_t DMenuDescriptor::PropagateMark()
+{
+	for (auto item : mItems) GC::Mark(item);
+	return 0;
+}
+
 
 void DListMenuDescriptor::Reset()
 {
@@ -162,12 +170,6 @@ DEFINE_ACTION_FUNCTION(DListMenuDescriptor, Reset)
 }
 
 
-size_t DListMenuDescriptor::PropagateMark()
-{
-	for (auto item : mItems) GC::Mark(item);
-	return 0;
-}
-
 void DOptionMenuDescriptor::Reset()
 {
 	// Reset the default settings (ignore all other values in the struct)
@@ -176,12 +178,6 @@ void DOptionMenuDescriptor::Reset()
 	mIndent = 0;
 	mDontDim = 0;
 	mFont = BigUpper;
-}
-
-size_t DOptionMenuDescriptor::PropagateMark()
-{
-	for (auto item : mItems) GC::Mark(item);
-	return 0;
 }
 
 void M_MarkMenus()
@@ -1044,6 +1040,15 @@ DEFINE_FIELD(FOptionMenuSettings, mFontColorHeader)
 DEFINE_FIELD(FOptionMenuSettings, mFontColorHighlight)
 DEFINE_FIELD(FOptionMenuSettings, mFontColorSelection)
 DEFINE_FIELD(FOptionMenuSettings, mLinespacing)
+
+DEFINE_FIELD(DImageScrollerDescriptor, mItems)
+DEFINE_FIELD(DImageScrollerDescriptor, textBackground)
+DEFINE_FIELD(DImageScrollerDescriptor, textBackgroundBrightness)
+DEFINE_FIELD(DImageScrollerDescriptor,textFont)
+DEFINE_FIELD(DImageScrollerDescriptor, textScale)
+DEFINE_FIELD(DImageScrollerDescriptor, mAnimatedTransition)
+DEFINE_FIELD(DImageScrollerDescriptor, virtWidth)
+DEFINE_FIELD(DImageScrollerDescriptor, virtHeight)
 
 
 struct IJoystickConfig;

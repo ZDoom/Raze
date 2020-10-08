@@ -137,8 +137,6 @@ bool AppActive = true;
 
 FString currentGame;
 FString LumpFilter;
-TMap<FName, int32_t> NameToTileIndex; // for assigning names to tiles. The menu accesses this list. By default it gets everything from the dynamic tile map in Duke Nukem and Redneck Rampage.
-										// Todo: Add additional definition file for the other games or textures not in that list so that the menu does not have to rely on indices.
 
 CVAR(Bool, queryiwad, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 CVAR(String, defaultiwad, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
@@ -1822,6 +1820,7 @@ static const gamefilter games[] = {
 	{ "Blood", GAMEFLAG_BLOOD},
 	{ "ShadowWarrior", GAMEFLAG_SW},
 	{ "Exhumed", GAMEFLAG_POWERSLAVE | GAMEFLAG_EXHUMED},
+	{ "Plutopak", GAMEFLAG_PLUTOPAK},
 	{ "Worldtour", GAMEFLAG_WORLDTOUR},
 	{ "Shareware", GAMEFLAG_SHAREWARE},
 };

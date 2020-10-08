@@ -20,6 +20,7 @@ version "4.3"
 #include "zscript/ui/menu/reverbedit.zs"
 #include "zscript/ui/menu/textentermenu.zs"
 #include "zscript/ui/menu/menucustomize.zs"
+#include "zscript/ui/menu/imagescroller.zs"
 
 #include "zscript/games/duke/ui/menu.zs"
 #include "zscript/games/blood/ui/menu.zs"
