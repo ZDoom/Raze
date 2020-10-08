@@ -234,6 +234,12 @@ ImageScroller "HelpMenu"
 			ImageItem "ADSCREEN2"
 		}
 	}
+	ifgame(Exhumed)
+	{
+		// This is only here to prevent crashes if someone decides to open the menu from the console
+		ImageItem "TileBMGLogo"
+		ImageItem "TilePIELogo"
+	}
 }
 
 //-------------------------------------------------------------------------------------------
@@ -353,6 +359,12 @@ ImageScroller "CreditsMenu"
 		ImageItem "CREDITS2"
 		ImageItem "SUPPORT"
 		ImageItem "ONLINE"
+	}
+	ifgame(Exhumed)
+	{
+		// This is only here to prevent crashes if someone decides to open the menu from the console
+		ImageItem "TileBMGLogo"
+		ImageItem "TilePIELogo"
 	}
 }
 	

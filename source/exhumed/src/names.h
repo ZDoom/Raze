@@ -3368,7 +3368,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kTile3346 3346
 #define kTile3347 3347
 #define kTile3348 3348
-#define kTilePIELogo 3349
 #define kTile3350 3350
 #define kTile3351 3351
 #define kTile3352 3352
@@ -3387,7 +3386,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kTile3365 3365 // sky
 #define kTile3366 3366 // sky
 #define kTile3367 3367 // sky
-#define kTileBMGLogo 3368
 #define kTile3369 3369
 #define kTile3370 3370
 #define kTile3371 3371
