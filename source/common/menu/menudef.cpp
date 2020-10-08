@@ -1249,6 +1249,7 @@ static void ParseImageScroller(FScanner& sc)
 
 	DImageScrollerDescriptor* desc = Create<DImageScrollerDescriptor>();
 
+	desc->mMenuName = sc.String;
 	desc->textBackground.SetInvalid();
 	desc->textBackgroundBrightness = 0xffffffff;
 	desc->textFont = SmallFont;

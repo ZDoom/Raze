@@ -550,6 +550,21 @@ void M_SetMenu(FName menu, int param)
 			}
 			M_ActivateMenu(newmenu);
 		}
+		else if ((*desc)->IsKindOf(RUNTIME_CLASS(DImageScrollerDescriptor)))
+		{
+			auto ld = static_cast<DImageScrollerDescriptor*>(*desc);
+			PClass* cls = ld->mClass;
+			if (cls == nullptr) cls = DefaultOptionMenuClass;
+			if (cls == nullptr) cls = PClass::FindClass("ImageScrollerMenu");
+
+			DMenu* newmenu = (DMenu*)cls->CreateNew();
+			IFVIRTUALPTRNAME(newmenu, "ImageScrollerMenu", Init)
+			{
+				VMValue params[3] = { newmenu, CurrentMenu, ld };
+				VMCall(func, params, 3, nullptr, 0);
+			}
+			M_ActivateMenu(newmenu);
+		}
 		return;
 	}
 	else

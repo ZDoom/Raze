@@ -648,6 +648,7 @@ void MainLoop ()
 				Printf (PRINT_BOLD, "\n%s\n", error.GetMessage());
 			}
 			gi->ErrorCleanup();
+			M_ClearMenus();
 			C_FullConsole();
 			gameaction = ga_nothing;
 		}
@@ -656,6 +657,8 @@ void MainLoop ()
 			error.MaybePrintMessage();
 			Printf("%s", error.stacktrace.GetChars());
 			gi->ErrorCleanup();
+			twod->SetOffset(DVector2(0, 0));
+			M_ClearMenus();
 			C_FullConsole();
 		}
 	}

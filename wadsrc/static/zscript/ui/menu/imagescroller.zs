@@ -154,12 +154,14 @@ class ImageScrollerMenu : Menu
 		current = to;
 	}
 
-	void Init(Menu parent, ImageScrollerDescriptor desc)
+	virtual void Init(Menu parent, ImageScrollerDescriptor desc)
 	{
 		mParentMenu = parent;
 		index = 0;
 		mDesc = desc;
 		AnimatedTransition = desc.mAnimatedTransition;
+		current = mDesc.mItems[0];
+		previous = null;
 	}
 
 	//=============================================================================
@@ -240,9 +242,9 @@ class ImageScrollerMenu : Menu
 			double factor = screen.GetWidth()/2;
 			double phase = (now - start) / length * 180. + 90.;
 
-			screen.SetOffset(0, factor * dir * (sin(phase) - 1.));
+			screen.SetOffset(factor * dir * (sin(phase) - 1.), 0);
 			previous.Drawer(false);
-			screen.SetOffset(0, factor * dir * (sin(phase) + 1.));
+			screen.SetOffset(factor * dir * (sin(phase) + 1.), 0);
 			current.Drawer(false);
 			screen.SetOffset(0, 0);
 			return true;
@@ -261,9 +263,11 @@ class ImageScrollerMenu : Menu
 	{
 		if (previous != null)
 		{
+			Animated = true;
 			if (DrawTransition()) return;
 			previous = null;
 		}
 		current.Drawer(false);
+		Animated = false;
 	}
 }
