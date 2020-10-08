@@ -90,3 +90,42 @@ class ListMenuItemBloodTextItem : ListMenuItemTextItem
 	
 }
 
+
+class ImageScrollerPageQavDrawer : ImageScrollerPage
+{
+	String qavn;
+	voidptr qav;
+	
+	void Init(ImageScrollerDescriptor desc, String qavname)
+	{
+		Super.Init();
+		qavn = qavname;
+		qav = null;
+	} 
+
+	override void OnDestroy()
+	{
+		if (qav) DestroyQav(qav);
+		Super.OnDestroy();
+	}
+
+	override void Drawer(bool selected)
+	{
+		if (qav) DrawQav(qav);
+	}
+
+	override void OnStartPage()
+	{
+		qav = LoadQav(qavn);
+	}
+	
+	override void OnEndPage()
+	{
+		if (qav) DestroyQav(qav);
+		qav = null;
+	}
+
+	native static voidptr LoadQav(string s);
+	native static void DestroyQav(voidptr s);
+	native static void DrawQav(voidptr s);
+} 

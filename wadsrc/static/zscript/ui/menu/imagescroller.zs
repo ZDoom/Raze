@@ -56,6 +56,12 @@ class ImageScrollerPage : MenuItemBase
 	{
 		screen.DrawTexture(tex, true, x, y, DTA_VirtualWidth, virtWidth, DTA_VirtualHeight, virtHeight, DTA_FullscreenScale, FSMode_ScaleToFit43);
 	}
+	
+	virtual void OnStartPage()
+	{}
+	
+	virtual void OnEndPage()
+	{}
 }
 
 //=============================================================================
@@ -152,6 +158,7 @@ class ImageScrollerMenu : Menu
 			dir = animtype;
 			previous = current;
 		}
+		to.onStartPage();
 		current = to;
 	}
 
@@ -162,6 +169,7 @@ class ImageScrollerMenu : Menu
 		mDesc = desc;
 		AnimatedTransition = desc.mAnimatedTransition;
 		current = mDesc.mItems[0];
+		current.onStartPage();
 		previous = null;
 	}
 
@@ -250,6 +258,7 @@ class ImageScrollerMenu : Menu
 			screen.SetOffset(0, 0);
 			return true;
 		}
+		previous.OnEndPage();
 		previous = null;
 		return false;
 	}

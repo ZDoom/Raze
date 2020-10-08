@@ -201,5 +201,35 @@ void GameInterface::QuitToTitle()
 	gameaction = ga_mainmenu;
 }
 
+//----------------------------------------------------------------------------
+//
+//
+//
+//----------------------------------------------------------------------------
+
+DEFINE_ACTION_FUNCTION(_ImageScrollerPageQavDrawer, LoadQav)
+{
+	PARAM_PROLOGUE;
+	PARAM_STRING(str);
+	auto qav = new CGameMenuItemQAV(160, 100, str, false, true);
+	ACTION_RETURN_POINTER(qav);
+}
+
+DEFINE_ACTION_FUNCTION(_ImageScrollerPageQavDrawer, DestroyQav)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(qav, CGameMenuItemQAV);
+	if (qav) delete qav;
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_ImageScrollerPageQavDrawer, DrawQav)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(qav, CGameMenuItemQAV);
+	qav->Draw();
+	return 0;
+}
+
 END_BLD_NS
 

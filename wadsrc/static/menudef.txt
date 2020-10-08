@@ -212,19 +212,16 @@ ImageScroller "HelpMenu"
 		}
 		animatedtransition
 	}
-	/*
 	ifgame(blood)
 	{
-		class "$.ImageScrollerMenu"
 		// The duplication here is to integrate the alternating versions of HELP3
-		QAVAnimationItem "Help4.qav"
-		QAVAnimationItem "Help5.qav"
-		QAVAnimationItem "Help3.qav"
-		QAVAnimationItem "Help4.qav"
-		QAVAnimationItem "Help5.qav"
-		QAVAnimationItem "Help3b.qav"
+		QAVDrawer "Help4.qav"
+		QAVDrawer "Help5.qav"
+		QAVDrawer "Help3.qav"
+		QAVDrawer "Help4.qav"
+		QAVDrawer "Help5.qav"
+		QAVDrawer "Help3b.qav"
 	}
-	*/
 	ifgame(ShadowWarrior)
 	{
 		// The menu has no default binding, but if someone tries to open it anyway show the cool retro ads that were shipped with the game. :D
@@ -341,13 +338,10 @@ ImageScroller "CreditsMenu"
 		TextItem "REDNECK RAMPAGE RIDES AGAIN\n(c) 1998 XATRIX ENTERTAINMENT, INC.\n\nREDNECK RAMPAGE RIDES AGAIN\nIS A TRADEMARK OF\nINTERPLAY PRODUCTIONS" //, 70
 		animatedtransition
 	}
-	/*
 	ifgame(blood)
 	{
-		class "Blood.ImageScrollerMenu"
-		QAVAnimationItem "Credits.qav"
+		QAVDrawer "Credits.qav"
 	}
-	*/
 	ifgame(ShadowWarrior)
 	{
 		ifgame (shareware)
