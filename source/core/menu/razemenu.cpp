@@ -87,6 +87,8 @@ FNewGameStartup NewGameStartupInfo;
 
 bool M_SetSpecialMenu(FName& menu, int param)
 {
+	// Engine credits need a different approach to work with the option search
+#if 0
 	// Transitions between the engine credits pages need to pop off the last slide
 	if (!strnicmp(menu.GetChars(), "EngineCredits", 13) && CurrentMenu && !strnicmp(CurrentMenu->GetClass()->TypeName.GetChars(), "EngineCredits", 13))
 	{
@@ -95,6 +97,7 @@ bool M_SetSpecialMenu(FName& menu, int param)
 		m->mParentMenu = nullptr;
 		m->Destroy();
 	}
+#endif
 
 	switch (menu.GetIndex())
 	{

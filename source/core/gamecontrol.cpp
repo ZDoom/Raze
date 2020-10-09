@@ -857,6 +857,7 @@ int RunGame()
 	I_InitSound();
 	Mus_InitMusic();
 	S_ParseSndInfo();
+	S_ParseReverbDef();
 	InitStatistics();
 	LoadScripts();
 	SetDefaultStrings();
