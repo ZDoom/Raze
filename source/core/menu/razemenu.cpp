@@ -115,6 +115,7 @@ bool M_SetSpecialMenu(FName& menu, int param)
 
 	case NAME_Startgame:
 	case NAME_StartgameNoSkill:
+		menu = NAME_Startgame;
 		NewGameStartupInfo.Skill = param;
 		if (menu == NAME_StartgameNoSkill) NewGameStartupInfo.Episode = param;
 		if (gi->StartGame(NewGameStartupInfo))
