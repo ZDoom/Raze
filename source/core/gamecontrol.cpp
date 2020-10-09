@@ -1449,12 +1449,14 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	int const keymove = gi->playerKeyMove() << running;
 	int const cntrlvelscale = g_gameType & GAMEFLAG_PSEXHUMED ? 8 : 1;
 	float const mousevelscale = keymove / 160.f;
+	double const angtodegscale = 45. / 256.;
+	double const hidspeed = ((running ? 43375. / 27. : 867.5) / GameTicRate) * angtodegscale;
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
-		currInput->svel -= xs_CRoundToInt(hidInput->mousemovex * mousevelscale + (scaleAdjust * (hidInput->dyaw / 60) * keymove * cntrlvelscale));
+		currInput->svel -= xs_CRoundToInt((hidInput->mousemovex * mousevelscale) + (scaleAdjust * (hidInput->dyaw / 60) * keymove * cntrlvelscale));
 	else
-		currInput->avel += hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw);
+		currInput->avel += hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed * turnscale);
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
 		currInput->horz -= hidInput->mouseturny;
@@ -1468,7 +1470,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		currInput->avel = -currInput->avel;
 
 	// process remaining controller input.
-	currInput->horz -= scaleAdjust * hidInput->dpitch;
+	currInput->horz -= scaleAdjust * hidInput->dpitch * hidspeed;
 	currInput->svel -= xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * cntrlvelscale);
 	currInput->fvel -= xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * cntrlvelscale);
 
@@ -1489,24 +1491,24 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		static double turnheldtime;
 		int const turnheldamt = 120 / GameTicRate;
 		double const turboturntime = 590. / GameTicRate;
-		double turnamount = ((running ? 43375. / 27. : 867.5) / GameTicRate) * turnscale;
-		double preambleturn = turnamount / (347. / 92.);
+		double turnamount = hidspeed * turnscale;
+		double preambleturn = turnamount * (92. / 347.);
 
 		// allow Exhumed to use its legacy values given the drastic difference from the other games.
 		if ((g_gameType & GAMEFLAG_PSEXHUMED) && cl_exhumedoldturn)
 		{
-			preambleturn = turnamount = running ? 12 : 8;
+			preambleturn = turnamount = (running ? 12 : 8) * angtodegscale;
 		}
 
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
 		{
 			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->avel -= scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn) * (45. / 256.);
+			currInput->avel -= scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
 		}
 		else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe))
 		{
 			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->avel += scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn) * (45. / 256.);
+			currInput->avel += scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
 		}
 		else
 		{
