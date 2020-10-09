@@ -17,7 +17,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 				screen.DrawTexture(texid, false, 160, 19, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_Color, 0xff808080);
 				if (texsize.X - 30 < width) scalex = (texsize.X - 30) / width; // Squash the text if it doesn't fit.
 			}			
-			screen.DrawText(font, Font.CR_UNTRANSLATED, 160 - width / 2 * scalex, 18 - fonth / 2 * scaley, title, DTA_ScaleX, scalex, DTA_ScaleY, scaley, DTA_FullscreenScale, FSMode_Fit320x200Top);
+			screen.DrawText(font, Font.CR_UNTRANSLATED, 160 - width / 2 * scalex, 19 - fonth / 2 * scaley, title, DTA_ScaleX, scalex, DTA_ScaleY, scaley, DTA_FullscreenScale, FSMode_Fit320x200Top);
 		}
 		double fx, fy, fw, fh;
 		[fx, fy, fw, fh] = Screen.GetFullscreenRect(320, 200, FSMode_ScaleToFit43Top);
