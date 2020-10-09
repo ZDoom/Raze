@@ -63,6 +63,7 @@
 #include "statistics.h"
 #include "i_net.h"
 #include "savegamehelp.h"
+#include "gi.h"
 
 EXTERN_CVAR(Int, cl_gfxlocalization)
 EXTERN_CVAR(Bool, m_quickexit)
@@ -409,7 +410,7 @@ static void BuildEpisodeMenu()
 				addedVolumes++;
 				if (gVolumeSubtitles[i].IsNotEmpty())
 				{
-					auto it = CreateListMenuItemStaticText(ld->mXpos, y, gVolumeSubtitles[i], SmallFont, CR_UNTRANSLATED, false);
+					auto it = CreateListMenuItemStaticText(ld->mXpos, y, gVolumeSubtitles[i], SmallFont, CR_GRAY, false);
 					y += ld->mLinespacing * 6 / 10;
 					ld->mItems.Push(it);
 				}
@@ -571,18 +572,21 @@ void SetDefaultMenuColors()
 	OptionSettings.mFontColorHeader = CR_GOLD;
 	OptionSettings.mFontColorHighlight = CR_YELLOW;
 	OptionSettings.mFontColorSelection = CR_BRICK;
+	gameinfo.mSliderColor = "Orange";
 
 	if (g_gameType & GAMEFLAG_BLOOD)
 	{
 		OptionSettings.mFontColorHeader = CR_DARKGRAY;
 		OptionSettings.mFontColorHighlight = CR_WHITE;
 		OptionSettings.mFontColorSelection = CR_DARKRED;
+		gameinfo.mSliderColor = "Red";
 		cls = PClass::FindClass("BloodMenuDelegate");
 	}
 	else if (g_gameType & GAMEFLAG_SW)
 	{
 		OptionSettings.mFontColorHeader = CR_DARKRED;
 		OptionSettings.mFontColorHighlight = CR_WHITE;
+		gameinfo.mSliderColor = "Red";
 		cls = PClass::FindClass("SWMenuDelegate");
 	}
 	else if (g_gameType & GAMEFLAG_PSEXHUMED)
@@ -591,6 +595,7 @@ void SetDefaultMenuColors()
 		OptionSettings.mFontColorHighlight = CR_SAPPHIRE;
 		OptionSettings.mFontColorSelection = CR_ORANGE;
 		OptionSettings.mFontColor = CR_FIRE;
+		gameinfo.mSliderColor = "Yellow";
 		cls = PClass::FindClass("ExhumedMenuDelegate");
 	}
 	else
@@ -601,6 +606,7 @@ void SetDefaultMenuColors()
 			OptionSettings.mFontColorHeader = CR_DARKGRAY;
 			OptionSettings.mFontColorHighlight = CR_WHITE;
 			OptionSettings.mFontColorSelection = CR_DARKGREEN;
+			gameinfo.mSliderColor = "Green";
 		}
 		else if (g_gameType & GAMEFLAG_RRALL)
 		{
@@ -608,6 +614,7 @@ void SetDefaultMenuColors()
 			OptionSettings.mFontColorHeader = CR_DARKBROWN;
 			OptionSettings.mFontColorHighlight = CR_ORANGE;
 			OptionSettings.mFontColorSelection = CR_TAN;
+			gameinfo.mSliderColor = "Tan";
 		}
 		cls = PClass::FindClass("DukeMenuDelegate");
 	}
