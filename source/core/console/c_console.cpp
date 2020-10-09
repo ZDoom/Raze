@@ -67,6 +67,7 @@
 #include "gstrings.h"
 #include "menustate.h"
 #include "i_interface.h"
+#include "vm.h"
 
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8
@@ -109,6 +110,8 @@ uint64_t	CursorTicker;
 constate_e	ConsoleState = c_up;
 
 double NotifyFontScale = 1;
+
+DEFINE_GLOBAL(NotifyFontScale)
 
 void C_SetNotifyFontScale(double scale)
 {
