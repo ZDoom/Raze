@@ -160,9 +160,9 @@ int UnpackUserCmd (InputPacket *ucmd, const InputPacket *basis, uint8_t **stream
 		if (flags & UCMDF_BUTTONS)
 			ucmd->actions = ESyncBits::FromInt(ReadLong(stream));
 		if (flags & UCMDF_PITCH)
-			ucmd->horz = ReadLong(stream);
+			ucmd->horz = ReadFloat(stream);
 		if (flags & UCMDF_YAW)
-			ucmd->avel = ReadLong(stream);
+			ucmd->avel = ReadFloat(stream);
 		if (flags & UCMDF_FORWARDMOVE)
 			ucmd->fvel = ReadWord (stream);
 		if (flags & UCMDF_SIDEMOVE)
@@ -196,12 +196,12 @@ int PackUserCmd (const InputPacket *ucmd, const InputPacket *basis, uint8_t **st
 	if (ucmd->horz != basis->horz)
 	{
 		flags |= UCMDF_PITCH;
-		WriteLong (ucmd->horz, stream);
+		WriteFloat (ucmd->horz, stream);
 	}
 	if (ucmd->avel != basis->avel)
 	{
 		flags |= UCMDF_YAW;
-		WriteLong (ucmd->avel, stream);
+		WriteFloat (ucmd->avel, stream);
 	}
 	if (ucmd->fvel != basis->fvel)
 	{
