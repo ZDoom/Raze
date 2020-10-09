@@ -94,7 +94,6 @@ LISTMENU "IngameMenu"
 	{
 		position 160, 45
 		CaptionItem "Blood"
-		centermenu
 		Linespacing 17
 		BloodTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		BloodTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
