@@ -143,13 +143,13 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 
 	if (!netgame)
 	{
-		if (Skill == 0)
+		if (gs.Skill == 0)
 			PlaySound(DIGI_TAUNTAI3, v3df_none, CHAN_VOICE, CHANF_UI);
-		else if (Skill == 1)
+		else if (gs.Skill == 1)
 			PlaySound(DIGI_NOFEAR, v3df_none, CHAN_VOICE, CHANF_UI);
-		else if (Skill == 2)
+		else if (gs.Skill == 2)
 			PlaySound(DIGI_WHOWANTSWANG, v3df_none, CHAN_VOICE, CHANF_UI);
-		else if (Skill == 3)
+		else if (gs.Skill == 3)
 			PlaySound(DIGI_NOPAIN, v3df_none, CHAN_VOICE, CHANF_UI);
 
 		while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
