@@ -45,6 +45,7 @@ struct gameinfo_t
 	int gametype;
 	FName mSliderColor;
 	FString mBackButton;
+	FString TitlePage;
 };
 
 

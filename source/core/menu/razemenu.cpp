@@ -638,6 +638,7 @@ CCMD(reset2saved)
 
 CCMD(menu_main)
 {
+	if (gamestate == GS_FULLCONSOLE) gamestate = GS_MENUSCREEN;
 	M_StartControlPanel(true);
 	M_SetMenu(NAME_Mainmenu, -1);
 }
