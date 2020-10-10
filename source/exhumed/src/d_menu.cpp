@@ -30,106 +30,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestate.h"
 #include "mapinfo.h"
 #include "gamecontrol.h"
-
-
-#include "menu/menu.h"	// to override the local menu.h
+#include "v_draw.h"
+#include "vm.h"
+#include "razemenu.h"
 
 #include "../../glbackend/glbackend.h"
 
 
 BEGIN_PS_NS
 
-//----------------------------------------------------------------------------
-//
-// Implements the native looking menu used for the main menu
-// and the episode/skill selection screens, i.e. the parts
-// that need to look authentic
-//
-//----------------------------------------------------------------------------
-void menu_DoPlasma();
-double zoomsize = 0;
-
-class PSMainMenu : public DListMenu
-{
-
-	void Init(DMenu* parent, FListMenuDescriptor* desc) override
-	{
-		DListMenu::Init(parent, desc);
-		PlayLocalSound(StaticSound[kSound31], 0, false, CHANF_UI);
-	}
-
-	void Ticker() override
-	{
-		// handle the menu zoom-in
-		if (zoomsize < 1.)
-		{
-			zoomsize += 0.0625;
-			if (zoomsize >= 1.) {
-				zoomsize = 1.;
-			}
-		}
-	}
-
-	void PreDraw() override
-	{
-		if (mDesc->mMenuName == NAME_Mainmenu)
-			menu_DoPlasma();
-		else
-		{
-			auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
-			DrawRel(nLogoTile, 160, 40);
-		}
-	}
-};
-
-
-//----------------------------------------------------------------------------
-//
-// Menu related game interface functions
-//
-//----------------------------------------------------------------------------
-
-void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags)
-{
-	int tilenum = (int)strtoll(text, nullptr, 0);
-	double y = ypos - tilesiz[tilenum].y / 2;
-
-	int8_t shade;
-
-	if (state == NIT_SelectedState) 
-	{ // currently selected menu item
-		shade = Sin(I_GetBuildTime() << 4) >> 9;
-	}
-	else if (state == NIT_ActiveState) {
-		shade = 0;
-	}
-	else {
-		shade = 25;
-	}
-
-	// Todo: Replace the boxes with an empty one and draw the text with a font.
-	auto tex = tileGetTexture(tilenum);
-
-	DrawTexture(twod, tex, 160, y + tex->GetDisplayHeight(), DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffset, true, DTA_ScaleX, zoomsize, DTA_ScaleY, zoomsize, 
-		DTA_Color, shadeToLight(shade), TAG_DONE);
-
-	// tilesizx is 51
-	// tilesizy is 33
-
-	if (state == NIT_SelectedState)
-	{
-		tex = tileGetTexture(kMenuCursorTile);
-		DrawTexture(twod, tex, 62, ypos - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, TAG_DONE);
-		DrawTexture(twod, tex, 207, ypos - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_FlipX, true, TAG_DONE);
-	}
-}
-
-
 void GameInterface::MenuOpened()
 {
 	GrabPalette();
-	zoomsize = 0;
-	StopAllSounds();
+	menuDelegate->FloatVar(NAME_zoomsize) = 0;
 	StopLocalSound();
 }
 
@@ -137,17 +50,21 @@ void GameInterface::MenuSound(EMenuSounds snd)
 {
 	switch (snd)
 	{
-		case CursorSound:
-			PlayLocalSound(StaticSound[kSound35], 0, false, CHANF_UI);
-			break;
+	case ActivateSound:
+		PlayLocalSound(StaticSound[kSound31], 0, false, CHANF_UI);
+		break;
 
-		case AdvanceSound:
-		case BackSound:
-			PlayLocalSound(StaticSound[kSound33], 0, false, CHANF_UI);
-			break;
+	case CursorSound:
+		PlayLocalSound(StaticSound[kSound35], 0, false, CHANF_UI);
+		break;
 
-		default:
-			return;
+	case AdvanceSound:
+	case BackSound:
+		PlayLocalSound(StaticSound[kSound33], 0, false, CHANF_UI);
+		break;
+
+	default:
+		return;
 	}
 }
 
@@ -156,16 +73,10 @@ void GameInterface::QuitToTitle()
 	gameaction = ga_mainmenu;
 }
 
-void GameInterface::MenuClosed()
-{
-
-}
-
-
 bool GameInterface::StartGame(FNewGameStartup& gs)
 {
-	auto map = FindMapByLevelNum(gs.Episode);
-	DeferedStartGame(map, gs.Skill);	// 0 is training, 1 is the regular game - the game does not have skill levels.
+	auto map = FindMapByLevelNum(gs.Skill);	// 0 is training, 1 is the regular game - the game does not have skill levels.
+	DeferedStartGame(map, 1, true);
 	return true;
 }
 
@@ -174,26 +85,22 @@ FSavegameInfo GameInterface::GetSaveSig()
 	return { SAVESIG_PS, MINSAVEVER_PS, SAVEVER_PS };
 }
 
-void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
-{
-	// Fixme: should use the extracted font from the menu items (i.e. BigFont) and a stretched box for the menu items.
-	DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - SmallFont->StringWidth(text)/2, 10, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
-}
-
 
 
 END_PS_NS
 
-//----------------------------------------------------------------------------
-//
-// Class registration
-//
-//----------------------------------------------------------------------------
+using namespace Exhumed;
 
-
-static TMenuClassDescriptor<Powerslave::PSMainMenu> _mm("Exhumed.MainMenu");
-
-void RegisterPSMenus()
+DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedPlasma, Draw)
 {
-	menuClasses.Push(&_mm);
+	menu_DoPlasma();
+	return 0;
 }
+
+DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedLogo, Draw)
+{
+	auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
+	DrawRel(nLogoTile, 160, 40);
+	return 0;
+}
+

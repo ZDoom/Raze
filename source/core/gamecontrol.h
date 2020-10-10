@@ -23,14 +23,10 @@ extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
 extern bool r_NoInterpolate;
 
 struct MapRecord;
-struct FSaveGameNode;
 extern MapRecord* g_nextmap;
-extern int g_nextskill;
-extern FSaveGameNode* g_savenode;
+extern int g_nextskill;	
 
 extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
-
-extern TMap<FName, int32_t> NameToTileIndex;
 
 int CONFIG_Init();
 
@@ -61,7 +57,7 @@ int GetAutomapZoom(int gZoom);
 
 void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double scale, PalEntry color = 0xffffffff);
 void updatePauseStatus();
-void DeferedStartGame(MapRecord* map, int skill);
+void DeferedStartGame(MapRecord* map, int skill, bool nostopsound = false);
 void ChangeLevel(MapRecord* map, int skill);
 void CompleteLevel(MapRecord* map);
 

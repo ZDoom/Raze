@@ -29,7 +29,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "network.h"
 #include "gamecontrol.h"
 #include "player.h"
-#include "menu.h"
+#include "razemenu.h"
 
 
 BEGIN_SW_NS

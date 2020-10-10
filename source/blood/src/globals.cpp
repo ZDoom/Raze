@@ -58,12 +58,9 @@ void _SetErrorLoc(const char *pzFile, int nLine)
 // by NoOne: show warning msgs in game instead of throwing errors (in some cases)
 void _consoleSysMsg(const char* pzFormat, ...) {
 
-    char buffer[1024];
     va_list args;
     va_start(args, pzFormat);
-    vsprintf(buffer, pzFormat, args);
-
-    Printf(TEXTCOLOR_RED "%s(%i): %s\n", _module, _line, buffer);
+    VPrintf(PRINT_LOW, TEXTCOLOR_RED "%s\n", args);
 }
 
 END_BLD_NS

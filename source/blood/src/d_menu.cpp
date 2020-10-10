@@ -2,8 +2,9 @@
 /*
 Copyright (C) 2010-2019 EDuke32 developers and contributors
 Copyright (C) 2019 Nuke.YKT
+Copyright (C) 2020 Christoph Oelckers
 
-This file is part of NBlood.
+This file is part of Raze.
 
 NBlood is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -27,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "mmulti.h"
 #include "c_bind.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "gamestate.h"
 
 #include "blood.h"
@@ -36,6 +37,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "sound.h"
 #include "v_video.h"
+#include "v_draw.h"
+#include "vm.h"
 
 bool ShowOptionMenu();
 
@@ -118,24 +121,22 @@ void CGameMenuItemQAV::Draw(void)
 }
 
 
-
 static std::unique_ptr<CGameMenuItemQAV> itemBloodQAV;	// This must be global to ensure that the animation remains consistent across menus.
-
 
 void UpdateNetworkMenus(void)
 {
-	// For now disable the network menu item as it is not yet functional.
+	// For now disable the network menu item as it is not functional.
 	for (auto name : { NAME_Mainmenu, NAME_IngameMenu })
 	{
-		FMenuDescriptor** desc = MenuDescriptors.CheckKey(name);
-		if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
+		DMenuDescriptor** desc = MenuDescriptors.CheckKey(name);
+		if (desc != NULL && (*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
 		{
-			FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
+			DListMenuDescriptor* ld = static_cast<DListMenuDescriptor*>(*desc);
 			for (auto& li : ld->mItems)
 			{
-				if (li->GetAction(nullptr) == NAME_MultiMenu)
+				if (li->mAction == NAME_MultiMenu)
 				{
-					li->mEnabled = false;
+					li->mEnabled = -1;
 				}
 			}
 		}
@@ -144,85 +145,9 @@ void UpdateNetworkMenus(void)
 
 //----------------------------------------------------------------------------
 //
-// Implements the native looking menu used for the main menu
-// and the episode/skill selection screens, i.e. the parts
-// that need to look authentic
-//
-//----------------------------------------------------------------------------
-
-class BloodListMenu : public DListMenu
-{
-	using Super = DListMenu;
-protected:
-
-	void PostDraw()
-	{
-		// For narrow screens this would be mispositioned so skip drawing it there.
-		double ratio = screen->GetWidth() / double(screen->GetHeight());
-		if (ratio > 1.32) itemBloodQAV->Draw();
-	}
-
-};
-
-
-//----------------------------------------------------------------------------
-//
-//
-//
-//----------------------------------------------------------------------------
-
-class BloodImageScreen : public ImageScreen
-{
-	CGameMenuItemQAV anim;
-public:
-	BloodImageScreen(FImageScrollerDescriptor::ScrollerItem* desc)
-		: ImageScreen(desc), anim(169, 100, mDesc->text.GetChars(), false, true)
-	{
-
-	}
-
-	void Drawer() override
-	{
-		anim.Draw();
-	}
-};
-
-class DBloodImageScrollerMenu : public DImageScrollerMenu
-{
-	ImageScreen* newImageScreen(FImageScrollerDescriptor::ScrollerItem* desc) override
-	{
-		if (desc->type >= 0) return DImageScrollerMenu::newImageScreen(desc);
-		return new BloodImageScreen(desc);
-	}
-};
-
-
-//----------------------------------------------------------------------------
-//
 // Menu related game interface functions
 //
 //----------------------------------------------------------------------------
-
-void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags)
-{
-	if (!text) return;
-	int shade = (state != NIT_InactiveState) ? 32 : 48;
-	int pal = (state != NIT_InactiveState) ? 5 : 5;
-	if (state == NIT_SelectedState)	shade = 32 - (I_GetBuildTime() & 63);
-	auto gamefont = fontnum == NIT_BigFont ? BigFont : SmallFont;
-
-	if (flags & LMF_Centered)
-	{
-		int width = gamefont->StringWidth(text);
-		xpos -= width / 2;
-	}
-	DrawText(twod, gamefont, CR_UNDEFINED, xpos+1, ypos+1, text, DTA_Color, 0xff000000, //DTA_Alpha, 0.5,
-			 DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
-
-	DrawText(twod, gamefont, CR_UNDEFINED, xpos, ypos, text, DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Color, shadeToLight(shade),
-			 DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
-}
-
 
 void GameInterface::MenuOpened()
 {
@@ -245,7 +170,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 	{
 		if (g_gameType & GAMEFLAG_SHAREWARE)
 		{
-			M_StartMessage(GStrings("BUYBLOOD"), 1, -1); // unreachable because we do not support Blood SW versions yet.
+			M_StartMessage(GStrings("BUYBLOOD"), 1, NAME_None); // unreachable because we do not support Blood SW versions yet.
 			return false;
 		}
 	}
@@ -261,41 +186,6 @@ FSavegameInfo GameInterface::GetSaveSig()
 	return { SAVESIG_BLD, MINSAVEVER_BLD, SAVEVER_BLD };
 }
 
-// This also gets used by the summary and the loading screen
-void DrawMenuCaption(const char* text)
-{
-	double scalex = 1.; // Expand the box if the text is longer
-	int width = BigFont->StringWidth(text);
-	int boxwidth = tileWidth(2038);
-	if (boxwidth - 10 < width) scalex = double(width) / (boxwidth - 10);
-	
-	DrawTexture(twod, tileGetTexture(2038, true), 160, 20, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex, TAG_DONE);
-	DrawText(twod, BigFont, CR_UNDEFINED, 160 - width/2, 20 - tileHeight(4193) / 2, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
-}
-
-void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
-{
-	Blood::DrawMenuCaption(text);
-}
-
-void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
-{
-	if (text)
-	{
-		int height = SmallFont->GetHeight();
-
-		auto lines = FString(text).Split("\n");
-		int y = 100 - (height * lines.Size() / 2);
-		for (auto& l : lines)
-		{
-			int width = SmallFont->StringWidth(l);
-			int x = 160 - width / 2;
-			DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, l, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
-			y += height;
-		}
-	}
-}
-
 void GameInterface::QuitToTitle()
 {
 	Mus_Stop();
@@ -304,20 +194,43 @@ void GameInterface::QuitToTitle()
 
 END_BLD_NS
 
+using namespace Blood;
 //----------------------------------------------------------------------------
 //
-// Class registration
+//
 //
 //----------------------------------------------------------------------------
 
-
-static TMenuClassDescriptor<Blood::BloodListMenu> _lm("Blood.ListMenu");
-static TMenuClassDescriptor<Blood::BloodListMenu> _mm("Blood.MainMenu");
-static TMenuClassDescriptor<Blood::DBloodImageScrollerMenu> _im("Blood.ImageScrollerMenu");
-
-void RegisterBloodMenus()
+DEFINE_ACTION_FUNCTION(DListMenuItemBloodDripDrawer, Draw)
 {
-	menuClasses.Push(&_lm);
-	menuClasses.Push(&_mm);
-	menuClasses.Push(&_im);
+	// For narrow screens this would be mispositioned so skip drawing it there.
+	double ratio = screen->GetWidth() / double(screen->GetHeight());
+	if (ratio > 1.32) itemBloodQAV->Draw();
+	return 0;
 }
+
+DEFINE_ACTION_FUNCTION(_ImageScrollerPageQavDrawer, LoadQav)
+{
+	PARAM_PROLOGUE;
+	PARAM_STRING(str);
+	auto qav = new CGameMenuItemQAV(160, 100, str, false, true);
+	ACTION_RETURN_POINTER(qav);
+}
+
+DEFINE_ACTION_FUNCTION(_ImageScrollerPageQavDrawer, DestroyQav)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(qav, CGameMenuItemQAV);
+	if (qav) delete qav;
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_ImageScrollerPageQavDrawer, DrawQav)
+{
+	PARAM_PROLOGUE;
+	PARAM_POINTER(qav, CGameMenuItemQAV);
+	qav->Draw();
+	return 0;
+}
+
+

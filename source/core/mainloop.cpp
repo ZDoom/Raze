@@ -67,7 +67,7 @@
 #include "d_net.h"
 #include "gamecontrol.h"
 #include "c_console.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "i_system.h"
 #include "raze_sound.h"
 #include "raze_music.h"
@@ -76,7 +76,6 @@
 #include "screenjob.h"
 #include "mmulti.h"
 #include "c_console.h"
-#include "menu.h"
 #include "uiinput.h"
 #include "v_video.h"
 #include "glbackend/glbackend.h"
@@ -86,6 +85,8 @@
 #include "mapinfo.h"
 #include "automap.h"
 #include "statusbar.h"
+#include "gamestruct.h"
+#include "savegamehelp.h"
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -103,7 +104,7 @@ int entertic;
 int oldentertics;
 int gametic;
 
-extern FString BackupSaveGame;
+FString BackupSaveGame;
 
 void DoLoadGame(const char* name);
 
@@ -146,7 +147,9 @@ static void GameTicker()
 			C_ClearMessages();
 			if (BackupSaveGame.IsNotEmpty() && cl_resumesavegame)
 			{
+#if 0
 				DoLoadGame(BackupSaveGame);
+#endif
 			}
 			else
 			{
@@ -184,8 +187,9 @@ static void GameTicker()
 			break;
 
 		case ga_newgame:
-			newGameStarted = true;
 			FX_StopAllSounds();
+		case ga_newgamenostopsound:
+			newGameStarted = true;
 			FX_SetReverb(0);
 			gi->FreeLevelData();
 			C_ClearMessages();
@@ -206,7 +210,7 @@ static void GameTicker()
 		case ga_mainmenunostopsound:
 			gi->FreeLevelData();
 			gamestate = GS_MENUSCREEN;
-			M_StartControlPanel(false);
+			M_StartControlPanel(ga == ga_mainmenu);
 			M_SetMenu(NAME_Mainmenu);
 			break;
 
@@ -339,12 +343,14 @@ void Display()
 	}
 
 	screen->FrameTime = I_msTimeFS();
+	tileUpdateAnimations();
 	screen->BeginFrame();
 	twodpsp.Clear();
 	twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 	twodpsp.ClearClipRect();
 	twod->Clear();
-	twod->SetSize(screen->GetWidth(), screen->GetHeight());
+	//twod->SetSize(screen->GetWidth(), screen->GetHeight());
+	twod->Begin(screen->GetWidth(), screen->GetHeight());
 	twod->ClearClipRect();
 	switch (gamestate)
 	{
@@ -643,6 +649,7 @@ void MainLoop ()
 				Printf (PRINT_BOLD, "\n%s\n", error.GetMessage());
 			}
 			gi->ErrorCleanup();
+			M_ClearMenus();
 			C_FullConsole();
 			gameaction = ga_nothing;
 		}
@@ -651,6 +658,8 @@ void MainLoop ()
 			error.MaybePrintMessage();
 			Printf("%s", error.stacktrace.GetChars());
 			gi->ErrorCleanup();
+			twod->SetOffset(DVector2(0, 0));
+			M_ClearMenus();
 			C_FullConsole();
 		}
 	}

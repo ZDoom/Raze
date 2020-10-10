@@ -619,6 +619,9 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 	if (xsiz <= 0 || ysiz <= 0)
 		return -2;
 
+	// create a new game texture here - we want to give it a new name!
+	tex = MakeGameTexture(tex->GetTexture(), FStringf("#%05d", tilenum), ETextureType::Override);
+	TexMan.AddGameTexture(tex);
 	TileFiles.tiledata[tilenum].backup = TileFiles.tiledata[tilenum].texture = tex;
 	if (istexture)
 		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);
@@ -1028,6 +1031,27 @@ bool tileEqualTo(int me, int other)
 //
 //===========================================================================
 
+void tileUpdateAnimations()
+{
+	for (int i = 0; i < MAXTILES; i++)
+	{
+		if (picanm[i].sf & PICANM_ANIMTYPE_MASK)
+		{
+			int j = i + animateoffs(i, 0);
+
+			auto id1 = TileFiles.tiledata[i].texture->GetID();
+			auto id2 = TileFiles.tiledata[j].texture->GetID();
+			TexMan.SetTranslation(id1, id2);
+		}
+	}
+}
+
+//===========================================================================
+// 
+//	Picks a texture for rendering for a given tilenum/palette combination
+//
+//===========================================================================
+
 
 bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick)
 {
@@ -1194,3 +1218,22 @@ void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp)
 
 TileSiz tilesiz;
 PicAnm picanm;
+
+#if 0 // this only gets in if unavoidable. It'd be preferable if the script side can solely operate on texture names.
+#include "vm.h"
+
+static int GetTexture(int tile, int anim)
+{
+	if (tile < 0 || tile >= MAXTILES) return 0;
+	auto tex = tileGetTexture(tile, anim);
+	return tex ? tex->GetID().GetIndex() : 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_TileFiles, GetTexture, GetTexture)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(tile);
+	PARAM_BOOL(animate);
+	ACTION_RETURN_INT(GetTexture(tile, animate));
+}
+#endif

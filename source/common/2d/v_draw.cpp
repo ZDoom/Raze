@@ -417,8 +417,6 @@ DEFINE_ACTION_FUNCTION(_Screen, GetFullscreenRect)
 	PARAM_FLOAT(virth);
 	PARAM_INT(fsmode);
 
-	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
-
 	DrawParms parms;
 	DoubleRect rect;
 	parms.viewport.width = twod->GetWidth();
@@ -705,6 +703,7 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 	parms->rotateangle = 0;
 	parms->flipoffsets = false;
 	parms->indexed = false;
+	parms->nooffset = false;
 
 	// Parse the tag list for attributes. (For floating point attributes,
 	// consider that the C ABI dictates that all floats be promoted to
@@ -914,6 +913,10 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 
 		case DTA_FlipOffsets:
 			parms->flipoffsets = ListGetInt(tags);
+			break;
+
+		case DTA_NoOffset:
+			parms->nooffset = ListGetInt(tags);
 			break;
 
 		case DTA_SrcX:
@@ -1531,9 +1534,30 @@ void DrawFrame(F2DDrawer* twod, PalEntry color, int left, int top, int width, in
 	twod->AddColorOnlyQuad(right, top - offset, offset, height + 2 * offset, color);
 }
 
+DEFINE_ACTION_FUNCTION(_Screen, DrawLineFrame)
+{
+	PARAM_PROLOGUE;
+	PARAM_COLOR(color);
+	PARAM_INT(left);
+	PARAM_INT(top);
+	PARAM_INT(width);
+	PARAM_INT(height);
+	PARAM_INT(thickness);
+	DrawFrame(twod, color, left, top, width, height, thickness);
+	return 0;
+}
+
 void V_CalcCleanFacs(int designwidth, int designheight, int realwidth, int realheight, int* cleanx, int* cleany, int* _cx1, int* _cx2)
 {
 	if (designheight < 240 && realheight >= 480) designheight = 240;
 	*cleanx = *cleany = std::min(realwidth / designwidth, realheight / designheight);
 }
 
+
+DEFINE_ACTION_FUNCTION(_Screen, SetOffset)
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	ACTION_RETURN_VEC2(twod->SetOffset(DVector2(x, y)));
+}

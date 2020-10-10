@@ -40,7 +40,9 @@ enum gameaction_t : int
 	ga_savegame,			// save the game
 	ga_autosave,			// autosave the game (for triggering a save from within the game.)
 	ga_completed,			// Level was exited.
-	ga_nextlevel			// Actually start the next level.
+	ga_nextlevel,			// Actually start the next level.
+	ga_loadgamehidecon,
+	ga_newgamenostopsound,	// start a new game
 };
 extern	gamestate_t 	gamestate;
 extern gameaction_t		gameaction;

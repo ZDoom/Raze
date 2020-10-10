@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "view.h"
 #include "gamestate.h"
-#include "menu.h"
+#include "razemenu.h"
 
 BEGIN_BLD_NS
 

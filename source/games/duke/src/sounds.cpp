@@ -185,10 +185,6 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	if (index >= S_sfx.Size())
 	{
 		S_sfx.Resize(index + 1);
-		for (; oldindex <= index; oldindex++)
-		{
-			S_sfx[oldindex].Clear();
-		}
 	}
 	auto sfx = &S_sfx[index];
 	bool alreadydefined = !sfx->bTentative;
@@ -412,6 +408,10 @@ void GameInterface::UpdateSounds(void)
 
 int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, EChanFlags flags)
 {
+	if (sndnum == GENERIC_AMBIENCE1 || sndnum == DUMPSTER_MOVE)
+	{
+		int a = 0;
+	}
 	auto const pl = &ps[myconnectindex];
 	if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled() || (unsigned)spriteNum >= MAXSPRITES || !playrunning() ||
 		(pl->timebeforeexit > 0 && pl->timebeforeexit <= REALGAMETICSPERSEC * 3)) return -1;

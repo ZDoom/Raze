@@ -36,9 +36,10 @@
 #include "vm.h"
 #include "c_buttons.h"
 #include "v_draw.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "gamestruct.h"
 #include "gamecvars.h"
+#include "menustate.h"
 
 enum
 {

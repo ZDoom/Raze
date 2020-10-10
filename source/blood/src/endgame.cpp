@@ -87,6 +87,18 @@ static void drawTextScreenBackground(void)
 	}
 }
 
+// One these screens get scriptified this should use the version in BloodMenuDelegate.
+static void DrawCaption(const char* text)
+{
+	double scalex = 1.; // Expand the box if the text is longer
+	int width = BigFont->StringWidth(text);
+	int boxwidth = tileWidth(2038);
+	if (boxwidth - 10 < width) scalex = double(width) / (boxwidth - 10);
+
+	DrawTexture(twod, tileGetTexture(2038, true), 160, 20, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex, TAG_DONE);
+	DrawText(twod, BigFont, CR_UNDEFINED, 160 - width / 2, 20 - tileHeight(4193) / 2, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
+}
+
 
 class DBloodSummaryScreen : public DScreenJob
 {
@@ -141,7 +153,7 @@ class DBloodSummaryScreen : public DScreenJob
 		drawTextScreenBackground();
 		if (gGameOptions.nGameType == 0)
 		{
-			DrawMenuCaption(GStrings("TXTB_LEVELSTATS"));
+			DrawCaption(GStrings("TXTB_LEVELSTATS"));
 			if (bPlayerCheated)
 			{
 				auto text = GStrings("TXTB_CHEATED");
@@ -154,7 +166,7 @@ class DBloodSummaryScreen : public DScreenJob
 		}
 		else
 		{
-			DrawMenuCaption(GStrings("TXTB_FRAGSTATS"));
+			DrawCaption(GStrings("TXTB_FRAGSTATS"));
 			DrawKills();
 		}
 		int myclock = int(clock * 120 / 1'000'000'000);
@@ -301,7 +313,7 @@ public:
 	{
 		twod->ClearScreen();
 		drawTextScreenBackground();
-		DrawMenuCaption(pzLoadingScreenText1);
+		DrawCaption(pzLoadingScreenText1);
 		viewDrawText(1, rec->DisplayName(), 160, 50, -128, 0, 1, 1);
 
 		auto text = GStrings("TXTB_PLSWAIT");

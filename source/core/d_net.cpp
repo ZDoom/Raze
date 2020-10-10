@@ -46,7 +46,7 @@
 #include <inttypes.h>
 
 #include "version.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "i_video.h"
 #include "c_console.h"
 #include "d_net.h"

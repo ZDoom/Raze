@@ -44,10 +44,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheathandler.h"
 #include "statistics.h"
 #include "g_input.h"
-#include "core/menu/menu.h"
+#include "razemenu.h"
 #include "d_net.h"
 #include "automap.h"
 #include "raze_music.h"
+#include "v_draw.h"
 
 BEGIN_PS_NS
 
@@ -137,7 +138,7 @@ static void Intermission(MapRecord *from_map, MapRecord *to_map)
 {
     TArray<JobDesc> jobs;
 
-    StopAllSounds();
+    if (from_map) StopAllSounds();
     bCamera = false;
     automapMode = am_off;
 

@@ -40,12 +40,13 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "printf.h"
 #include "filesystem.h"
 #include "mapinfo.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "global.h"
 #include "m_argv.h"
 #include "sounds.h"
 #include "conlabel.h"
 #include "conlabeldef.h"
+#include "gi.h"
 
 BEGIN_DUKE_NS
 
@@ -1880,6 +1881,7 @@ int ConCompiler::parsecommand()
 			else if (pcount == 31) g_gameType |= GAMEFLAG_PLUTOPAK | GAMEFLAG_WORLDTOUR;
 			else if (pcount != 26) I_FatalError("Invalid CONs. Cannot detect version. gamestartup has %d entries", pcount);
 		}
+		gameinfo.gametype = g_gameType;
 
 		popscriptvalue();
 		auto parseone = [&]() { return params[pget++]; };

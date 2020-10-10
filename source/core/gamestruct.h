@@ -33,21 +33,6 @@ struct FSavegameInfo
 	int currentsavever;
 };
 
-struct FSaveGameNode
-{
-	FString SaveTitle;
-	FString Filename;
-	bool bOldVersion = false;
-	bool bMissingWads = false;
-	bool bNoDelete = false;
-	bool bIsExt = false;
-
-	bool isValid() const
-	{
-		return Filename.IsNotEmpty() && !bOldVersion && !bMissingWads;
-	}
-};
-
 struct ReservedSpace
 {
 	int top;
@@ -71,7 +56,6 @@ struct GameInterface
 	virtual void FreeGameData() {}
 	virtual void PlayHudSound() {}
 	virtual GameStats getStats() { return {}; }
-	virtual void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) {}
 	virtual void MainMenuOpened() {}
 	virtual void MenuOpened() {}
 	virtual void MenuClosed() {}
@@ -80,12 +64,9 @@ struct GameInterface
 	virtual void CustomMenuSelection(int menu, int item) {}
 	virtual bool StartGame(FNewGameStartup& gs) { return false; }
 	virtual FSavegameInfo GetSaveSig() { return { "", 0, 0}; }
-	virtual bool DrawSpecialScreen(const DVector2 &origin, int tilenum) { return false; }
-	virtual void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool withbg = true);
 	virtual double SmallFontScale() { return 1; }
-	virtual void DrawMenuCaption(const DVector2& origin, const char* text) {}
-	virtual bool SaveGame(FSaveGameNode*) { return true; }
-	virtual bool LoadGame(FSaveGameNode*) { return true; }
+	virtual bool SaveGame() { return true; }
+	virtual bool LoadGame() { return true; }
 	virtual void SerializeGameState(FSerializer& arc) {}
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void QuitToTitle() {}

@@ -369,11 +369,11 @@ public:
 	DRRLevelSummaryScreen(bool dofadeout = true) : DScreenJob(dofadeout? (fadein | fadeout) : fadein)
 	{
 		if (currentLevel->flags & MI_USERMAP)
-			gfx_offset = RRTILE403;
+			gfx_offset = BONUSPIC01;
 		else if (!isRRRA())
-			gfx_offset = RRTILE403 + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
+			gfx_offset = BONUSPIC01 + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
 		else
-			gfx_offset = LEVELMAP + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
+			gfx_offset = LEVELMAP01 + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
 		
 
 		lastmapname = currentLevel->DisplayName();
@@ -544,7 +544,7 @@ public:
 	int Frame(uint64_t clock, bool skiprequest)
 	{
 		int currentclock = int(clock * 120 / 1'000'000'000);
-		auto tex = tileGetTexture(RRTILE8677 + ((currentclock >> 4) & 1));
+		auto tex = tileGetTexture(ENDGAME + ((currentclock >> 4) & 1));
 		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
 		if (!S_CheckSoundPlaying(-1, 35) && currentclock > 15*120) return 0; // make sure it stays, even if sound is off.
 		if (skiprequest)

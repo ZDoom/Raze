@@ -35,6 +35,7 @@ bool hw_int_useindexedcolortextures;
 CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
 {
     hw_int_useindexedcolortextures = self;
+    if (screen) screen->SetTextureFilterMode();
 }
 
 
