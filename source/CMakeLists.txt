@@ -773,6 +773,7 @@ set (PCH_SOURCES
 
 	core/movie/playmve.cpp
 	core/automap.cpp
+	core/binaryangle.cpp
 	core/cheats.cpp
 	core/cheathandler.cpp
 	core/mathutil.cpp

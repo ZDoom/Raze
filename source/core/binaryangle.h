@@ -39,7 +39,10 @@
 #include <math.h>
 #include "m_fixed.h"
 #include "xs_Float.h"	// needed for reliably overflowing float->int conversions.
+#include "serializer.h"
 #include "build.h"
+
+class FSerializer;
 
 enum
 {
@@ -57,6 +60,8 @@ class binangle
 	friend constexpr binangle buildang(uint32_t v);
 	friend binangle radang(double v);
 	friend binangle degang(double v);
+
+	friend FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval);
 	
 public:
 	binangle() = default;
@@ -119,6 +124,8 @@ class lookangle
 	friend constexpr lookangle buildlook(int32_t v);
 	friend lookangle radlook(double v);
 	friend lookangle deglook(double v);
+
+	friend FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval);
 	
 public:
 	lookangle() = default;
@@ -201,6 +208,8 @@ class fixedhoriz
 	friend constexpr fixedhoriz buildhoriz(int v);
 	friend fixedhoriz pitchhoriz(double v);
 	friend fixedhoriz bamhoriz(int32_t v);
+
+	friend FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval);
 	
 public:
 	fixedhoriz() = default;
