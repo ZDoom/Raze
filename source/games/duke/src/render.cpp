@@ -625,7 +625,7 @@ void displayrooms(int snum, double smoothratio)
 
 		if (sprite[p->i].pal == 1) cposz -= (18 << 8);
 
-		else if (p->spritebridge == 0)
+		else if (p->spritebridge == 0 && p->newowner < 0)
 		{
 			if (cposz < (p->truecz + (4 << 8))) cposz = cz + (4 << 8);
 			else if (cposz > (p->truefz - (4 << 8))) cposz = fz - (4 << 8);
