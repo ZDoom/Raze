@@ -43,7 +43,6 @@ void GameInterface::MenuOpened()
 {
 	GrabPalette();
 	menuDelegate->FloatVar(NAME_zoomsize) = 0;
-	StopAllSounds();
 	StopLocalSound();
 }
 

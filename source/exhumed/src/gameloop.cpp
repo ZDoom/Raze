@@ -138,7 +138,7 @@ static void Intermission(MapRecord *from_map, MapRecord *to_map)
 {
     TArray<JobDesc> jobs;
 
-    StopAllSounds();
+    if (from_map) StopAllSounds();
     bCamera = false;
     automapMode = am_off;
 

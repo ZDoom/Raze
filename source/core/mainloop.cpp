@@ -209,7 +209,7 @@ static void GameTicker()
 		case ga_mainmenunostopsound:
 			gi->FreeLevelData();
 			gamestate = GS_MENUSCREEN;
-			M_StartControlPanel(false);
+			M_StartControlPanel(ga == ga_mainmenu);
 			M_SetMenu(NAME_Mainmenu);
 			break;
 
