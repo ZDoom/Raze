@@ -853,7 +853,6 @@ int RunGame()
 	TexMan.Init([]() {}, [](BuildInfo &) {});
 	V_InitFonts();
 	TileFiles.Init();
-	sfx_empty = fileSystem.FindFile("engine/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
 	I_InitSound();
 	Mus_InitMusic();
 	S_ParseSndInfo();

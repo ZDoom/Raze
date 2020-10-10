@@ -201,7 +201,6 @@ int LoadSound(const char* name)
             looped[retval] = true;
         }
         auto& newsfx = S_sfx.Last();
-        newsfx.Clear();
         newsfx.name = nname;
         newsfx.lumpnum = lump;
         newsfx.NearLimit = 6;
@@ -228,7 +227,6 @@ void InitFX(void)
 
     auto& S_sfx = soundEngine->GetSounds();
     S_sfx.Resize(1);
-    S_sfx[0].Clear(); S_sfx[0].lumpnum = sfx_empty; 
     for (size_t i = 0; i < kMaxSoundFiles; i++)
     {
         StaticSound[i] = LoadSound(SoundFiles[i]);

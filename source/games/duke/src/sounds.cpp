@@ -185,10 +185,6 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	if (index >= S_sfx.Size())
 	{
 		S_sfx.Resize(index + 1);
-		for (; oldindex <= index; oldindex++)
-		{
-			S_sfx[oldindex].Clear();
-		}
 	}
 	auto sfx = &S_sfx[index];
 	bool alreadydefined = !sfx->bTentative;

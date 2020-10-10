@@ -481,7 +481,6 @@ void InitFX(void)
 
     auto &S_sfx = soundEngine->GetSounds();
     S_sfx.Resize(countof(voc));
-    for (auto& sfx : S_sfx) { sfx.Clear(); sfx.lumpnum = sfx_empty; }
     for (size_t i = 1; i < countof(voc); i++)
     {
         auto& entry = voc[i];
