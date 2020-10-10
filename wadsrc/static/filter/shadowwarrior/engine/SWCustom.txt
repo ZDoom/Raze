@@ -391,7 +391,7 @@ weapon 7
     maxammo 0
     mindamage 0
     maxdamage 800
-    pickup 1
+    pickup 5
     weaponpickup 1
 }
 weapon 8
