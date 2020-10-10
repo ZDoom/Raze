@@ -7,6 +7,27 @@
 #undef GetMessage	// Windows strikes...
 #endif
 
+
+enum EMax
+{
+	MAXSKILLS = 7,
+	MAXVOLUMES = 7,
+	MAXMENUGAMEPLAYENTRIES = 7,
+};
+
+enum EVolFlags
+{
+	EF_HIDEFROMSP = 1,
+};
+
+// These get filled in by the map definition parsers of the front ends.
+extern FString gSkillNames[MAXSKILLS];
+extern FString gVolumeNames[MAXVOLUMES];
+extern FString gVolumeSubtitles[MAXVOLUMES];
+extern int32_t gVolumeFlags[MAXVOLUMES];
+extern int gDefaultVolume, gDefaultSkill;
+
+
 // Localization capable replacement of the game specific solutions.
 
 inline void MakeStringLocalizable(FString &quote)

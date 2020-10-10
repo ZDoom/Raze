@@ -38,6 +38,12 @@
 #include "filesystem.h"
 #include "printf.h"
 
+FString gSkillNames[MAXSKILLS];
+FString gVolumeNames[MAXVOLUMES];
+FString gVolumeSubtitles[MAXVOLUMES];
+int32_t gVolumeFlags[MAXVOLUMES];
+int gDefaultVolume = 0, gDefaultSkill = 1;
+
 MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
 MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
 MapRecord* lastLevel;		// Same here, for the last level.

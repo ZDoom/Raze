@@ -2186,16 +2186,12 @@ struct GameInterface : ::GameInterface
     void FreeGameData() override;
     void FreeLevelData() override;
     bool GenerateSavePic() override;
-	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
-	void MenuOpened() override;
 	void MenuSound(EMenuSounds snd) override;
-	void MenuClosed() override;
 	bool CanSave() override;
 	bool StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
-	void DrawMenuCaption(const DVector2& origin, const char* text) override;
-    bool LoadGame(FSaveGameNode* sv) override;
-	bool SaveGame(FSaveGameNode* sv) override;
+	bool LoadGame() override;
+	bool SaveGame() override;
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;

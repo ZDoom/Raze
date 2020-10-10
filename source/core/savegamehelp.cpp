@@ -53,12 +53,15 @@
 #include "gamestruct.h"
 #include "automap.h"
 #include "statusbar.h"
+#include "gamestate.h"
+#include "razemenu.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
 void LoadEngineState();
 void SaveEngineState();
 void WriteSavePic(FileWriter* file, int width, int height);
+extern FString BackupSaveGame;
 
 CVAR(String, cl_savedir, "", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
@@ -564,3 +567,129 @@ void LoadEngineState()
 		fr.Close();
 	}
 }
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+CVAR(Bool, saveloadconfirmation, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+CVAR(Int, autosavenum, 0, CVAR_NOSET | CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+static int nextautosave = -1;
+CVAR(Int, disableautosave, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CUSTOM_CVAR(Int, autosavecount, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	if (self < 1)
+		self = 1;
+}
+
+CVAR(Int, quicksavenum, 0, CVAR_NOSET | CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+static int nextquicksave = -1;
+ CUSTOM_CVAR(Int, quicksavecount, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	if (self < 1)
+		self = 1;
+}
+
+ void DoLoadGame(const char* name)
+ {
+	 if (OpenSaveGameForRead(name))
+	 {
+		 if (gi->LoadGame())
+		 {
+			 gameaction = ga_level;
+		 }
+		 else
+		 {
+			 I_Error("%s: Failed to load savegame", name);
+		 }
+	 }
+	 else
+	 {
+		 I_Error("%s: Failed to open savegame", name);
+	 }
+ }
+
+
+ void G_LoadGame(const char *filename)
+ {
+	 inputState.ClearAllInput();
+	 gi->FreeLevelData();
+	 DoLoadGame(filename);
+	 BackupSaveGame = filename;
+ }
+
+ void G_SaveGame(const char *fn, const char *desc, bool ok4q, bool forceq)
+ {
+	 if (OpenSaveGameForWrite(fn, desc))
+	 {
+		 if (gi->SaveGame() && FinishSavegameWrite())
+		 {
+			 savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
+			 Printf(PRINT_NOTIFY, "%s\n", GStrings("GAME SAVED"));
+			 BackupSaveGame = fn;
+		 }
+	 }
+ }
+
+
+void M_Autosave()
+{
+	if (disableautosave) return;
+	if (!gi->CanSave()) return;
+	FString description;
+	FString file;
+	// Keep a rotating sets of autosaves
+	UCVarValue num;
+	const char* readableTime;
+	int count = autosavecount != 0 ? autosavecount : 1;
+
+	if (nextautosave == -1)
+	{
+		nextautosave = (autosavenum + 1) % count;
+	}
+
+	num.Int = nextautosave;
+	autosavenum.ForceSet(num, CVAR_Int);
+
+	auto Filename = G_BuildSaveName(FStringf("auto%04d", nextautosave));
+	readableTime = myasctime();
+	FStringf SaveTitle("Autosave %s", readableTime);
+	nextautosave = (nextautosave + 1) % count;
+	G_SaveGame(Filename, SaveTitle, false, false);
+}
+
+CCMD(autosave)
+{
+	gameaction = ga_autosave;
+}
+
+CCMD(rotatingquicksave)
+{
+	if (!gi->CanSave()) return;
+	FString description;
+	FString file;
+	// Keep a rotating sets of quicksaves
+	UCVarValue num;
+	const char* readableTime;
+	int count = quicksavecount != 0 ? quicksavecount : 1;
+
+	if (nextquicksave == -1)
+	{
+		nextquicksave = (quicksavenum + 1) % count;
+	}
+
+	num.Int = nextquicksave;
+	quicksavenum.ForceSet(num, CVAR_Int);
+
+	FSaveGameNode sg;
+	auto Filename = G_BuildSaveName(FStringf("quick%04d", nextquicksave));
+	readableTime = myasctime();
+	FStringf SaveTitle("Quicksave %s", readableTime);
+	nextquicksave = (nextquicksave + 1) % count;
+	G_SaveGame(Filename, SaveTitle, false, false);
+}
+
+

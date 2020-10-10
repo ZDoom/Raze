@@ -34,14 +34,14 @@ void LoadTextureState();
 
 static TArray<SavegameHelper*> sghelpers(TArray<SavegameHelper*>::NoInit);
 
-bool GameInterface::SaveGame(FSaveGameNode* sv)
+bool GameInterface::SaveGame()
 {
     for (auto sgh : sghelpers) sgh->Save();
     SaveTextureState();
     return 1; // CHECKME
 }
 
-bool GameInterface::LoadGame(FSaveGameNode* sv)
+bool GameInterface::LoadGame()
 {
 
     for (auto sgh : sghelpers) sgh->Load();

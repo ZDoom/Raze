@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screenjob.h"
 #include "gamestate.h"
 #include "seq.h"
-#include "menu.h"
+#include "razemenu.h"
 
 BEGIN_BLD_NS
 

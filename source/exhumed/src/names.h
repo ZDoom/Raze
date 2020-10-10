@@ -3368,7 +3368,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kTile3346 3346
 #define kTile3347 3347
 #define kTile3348 3348
-#define kTilePIELogo 3349
 #define kTile3350 3350
 #define kTile3351 3351
 #define kTile3352 3352
@@ -3387,7 +3386,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kTile3365 3365 // sky
 #define kTile3366 3366 // sky
 #define kTile3367 3367 // sky
-#define kTileBMGLogo 3368
 #define kTile3369 3369
 #define kTile3370 3370
 #define kTile3371 3371
@@ -3461,7 +3459,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kTile3439 3439
 #define kTile3440 3440
 #define kTile3441 3441
-#define kPowerslaveLogo 3442
 #define kTile3443 3443
 #define kTile3444 3444
 #define kTile3445 3445
@@ -3479,16 +3476,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kTile3457 3457
 #define kTile3458 3458
 #define kTile3459 3459
-#define kMenuNewGameTile 3460
-#define kMenuLoadGameTile 3461
 #define kTile3462 3462
 #define kTile3463 3463
 #define kTile3464 3464
-#define kMenuMusicTile 3465
-#define kMenuSoundFxTile 3466
 #define kTile3467 3467
-#define kMenuCursorTile 3468
-#define kMenuBlankTitleTile 3469
 #define kTile3470 3470
 #define kTile3471 3471
 #define kTile3472 3472
@@ -3601,7 +3592,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kTile3579 3579
 #define kTile3580 3580
 #define kTile3581 3581
-#define kSkullHead 3582
 #define kTile3583 3583
 #define kTile3584 3584
 #define kTile3585 3585
@@ -3611,7 +3601,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kTile3589 3589
 #define kTile3590 3590
 #define kTile3591 3591
-#define kExhumedLogo 3592
 #define kTile3593 3593
 #define kTile3594 3594
 #define kTile3595 3595
@@ -3623,26 +3612,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kTile3601 3601
 #define kTile3602 3602
 #define kTile3603 3603
-#define kEnergy1 3604
-#define kEnergy2 3605
-#define kClockSymbol1 3606
-#define kClockSymbol2 3607
-#define kClockSymbol3 3608
-#define kClockSymbol4 3609
-#define kClockSymbol5 3610
-#define kClockSymbol6 3611
-#define kClockSymbol7 3612
-#define kClockSymbol8 3613
-#define kClockSymbol9 3614
-#define kClockSymbol10 3615
-#define kClockSymbol11 3616
-#define kClockSymbol12 3617
-#define kClockSymbol13 3618
-#define kClockSymbol14 3619
-#define kClockSymbol15 3620
-#define kClockSymbol16 3621
 #define kTile3622 3622
-#define kTileLoboLaptop 3623
 #define kTile3624 3624
 #define kTile3625 3625
 #define kTile3626 3626
@@ -6163,5 +6133,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define kTile6141 6141
 #define kTile6142 6142
 #define kTile6143 6143
+
+
+BEGIN_PS_NS
+
+#define x(a, b) k##a = b,
+enum
+{
+#include "namelist.h"
+};
+#undef x
+
+END_PS_NS
 
 #endif

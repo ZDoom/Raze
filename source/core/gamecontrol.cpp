@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "raze_music.h"
 #include "statistics.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "gstrings.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
@@ -71,15 +71,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "uiinput.h"
 #include "d_net.h"
 #include "automap.h"
+#include "v_draw.h"
+#include "gi.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVARD(Bool, invertmousex, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert horizontal mouse movement")
 CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertical mouse movement")
 
+EXTERN_CVAR(Bool, ui_generic)
+
 CUSTOM_CVAR(String, language, "auto", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 {
 	GStrings.UpdateLanguage(self);
+	UpdateGenericUI(ui_generic);
 }
 
 CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
@@ -132,8 +137,6 @@ bool AppActive = true;
 
 FString currentGame;
 FString LumpFilter;
-TMap<FName, int32_t> NameToTileIndex; // for assigning names to tiles. The menu accesses this list. By default it gets everything from the dynamic tile map in Duke Nukem and Redneck Rampage.
-										// Todo: Add additional definition file for the other games or textures not in that list so that the menu does not have to rely on indices.
 
 CVAR(Bool, queryiwad, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 CVAR(String, defaultiwad, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
@@ -157,12 +160,6 @@ int StrTable_GetGender()
 }
 
 bool validFilter(const char* str);
-
-static StringtableCallbacks stblcb =
-{
-	validFilter,
-	StrTable_GetGender
-};
 
 extern int chatmodeon;
 
@@ -465,7 +462,7 @@ namespace ShadowWarrior
 {
 	::GameInterface* CreateInterface();
 }
-namespace Powerslave
+namespace Exhumed
 {
 	::GameInterface* CreateInterface();
 }
@@ -482,7 +479,7 @@ void CheckFrontend(int flags)
 	}
 	else if (flags & GAMEFLAG_PSEXHUMED)
 	{
-		gi = Powerslave::CreateInterface();
+		gi = Exhumed::CreateInterface();
 	}
 	else
 	{
@@ -493,6 +490,8 @@ void CheckFrontend(int flags)
 void I_StartupJoysticks();
 void I_ShutdownInput();
 int RunGame();
+void System_MenuClosed();
+void System_MenuDim();
 
 int GameMain()
 {
@@ -512,9 +511,13 @@ int GameMain()
 		nullptr,
 		System_GetSceneRect,
 		nullptr,
-		nullptr,
+		System_MenuDim,
 		nullptr,
 		System_DispatchEvent,
+		validFilter,
+		StrTable_GetGender,
+		System_MenuClosed,
+		nullptr
 	};
 
 	try
@@ -533,7 +536,7 @@ int GameMain()
 		r = -1;
 	}
 	DeleteScreenJob();
-	M_ClearMenus(true);
+	DeinitMenus();
 	if (gi)
 	{
 		gi->FreeGameData();	// Must be done before taking down any subsystems.
@@ -551,7 +554,6 @@ int GameMain()
 	TileFiles.CloseAll();	// delete the texture data before shutting down graphics.
 	GLInterface.Deinit();
 	I_ShutdownGraphics();
-	M_DeinitMenus();
 	engineUnInit();
 	if (gi)
 	{
@@ -745,6 +747,7 @@ static TArray<GrpEntry> SetupGame()
 	currentGame = LumpFilter;
 	currentGame.Truncate(currentGame.IndexOf("."));
 	CheckFrontend(g_gameType);
+	gameinfo.gametype = g_gameType;
 	return usedgroups;
 }
 
@@ -851,10 +854,10 @@ int RunGame()
 	TexMan.Init([]() {}, [](BuildInfo &) {});
 	V_InitFonts();
 	TileFiles.Init();
-	sfx_empty = fileSystem.FindFile("engine/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
 	I_InitSound();
 	Mus_InitMusic();
 	S_ParseSndInfo();
+	S_ParseReverbDef();
 	InitStatistics();
 	LoadScripts();
 	SetDefaultStrings();
@@ -870,8 +873,11 @@ int RunGame()
 	if (exec) exec->ExecCommands();
 
 	SetupGameButtons();
+	gameinfo.mBackButton = "engine/graphics/m_back.png";
 	gi->app_init();
+	SetDefaultMenuColors();
 	M_Init();
+	BuildGameMenus();
 	if (!(paletteloaded & PALETTE_MAIN))
 		I_FatalError("No palette found.");
 
@@ -1791,3 +1797,70 @@ void playerProcessHelpers(fixed_t* q16ang, double* angAdjust, fixed_t* angTarget
 		*q16horiz += FloatToFixed(scaleAdjust * *horizAdjust);
 	}
 }
+
+bool M_Active()
+{
+	return CurrentMenu != nullptr || ConsoleState == c_down || ConsoleState == c_falling;
+}
+
+struct gamefilter
+{
+	const char* gamename;
+	int gameflag;
+};
+
+static const gamefilter games[] = {
+	{ "Duke", GAMEFLAG_DUKE},
+	{ "Nam", GAMEFLAG_NAM | GAMEFLAG_NAPALM},
+	{ "NamOnly", GAMEFLAG_NAM},	// for cases where the difference matters.
+	{ "Napalm", GAMEFLAG_NAPALM},
+	{ "WW2GI", GAMEFLAG_WW2GI},
+	{ "Redneck", GAMEFLAG_RR},
+	{ "RedneckRides", GAMEFLAG_RRRA},
+	{ "Deer", GAMEFLAG_DEER},
+	{ "Blood", GAMEFLAG_BLOOD},
+	{ "ShadowWarrior", GAMEFLAG_SW},
+	{ "Exhumed", GAMEFLAG_POWERSLAVE | GAMEFLAG_EXHUMED},
+	{ "Plutopak", GAMEFLAG_PLUTOPAK},
+	{ "Worldtour", GAMEFLAG_WORLDTOUR},
+	{ "Shareware", GAMEFLAG_SHAREWARE},
+};
+
+bool validFilter(const char* str)
+{
+	for (auto& gf : games)
+	{
+		if (g_gameType & gf.gameflag)
+		{
+			if (!stricmp(str, gf.gamename)) return true;
+		}
+	}
+	return false;
+}
+
+#include "vm.h"
+
+DEFINE_ACTION_FUNCTION(_Screen, GetViewWindow)
+{
+	PARAM_PROLOGUE;
+	if (numret > 0) ret[0].SetInt(windowxy1.x);
+	if (numret > 1) ret[1].SetInt(windowxy1.y);
+	if (numret > 2) ret[2].SetInt(windowxy2.x - windowxy1.x + 1);
+	if (numret > 3) ret[3].SetInt(windowxy2.y - windowxy1.y + 1);
+	return MIN(numret, 4);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Build, ShadeToLight, shadeToLight)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(shade);
+	ACTION_RETURN_INT(shadeToLight(shade));
+}
+
+extern bool demoplayback;
+DEFINE_GLOBAL(multiplayer)
+DEFINE_GLOBAL(netgame)
+DEFINE_GLOBAL(gameaction)
+DEFINE_GLOBAL(gamestate)
+DEFINE_GLOBAL(demoplayback)
+DEFINE_GLOBAL(consoleplayer)

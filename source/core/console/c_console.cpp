@@ -62,9 +62,12 @@
 #include "v_video.h"
 #include "v_draw.h"
 #include "g_input.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "raze_music.h"
 #include "gstrings.h"
+#include "menustate.h"
+#include "i_interface.h"
+#include "vm.h"
 
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8
@@ -107,6 +110,8 @@ uint64_t	CursorTicker;
 constate_e	ConsoleState = c_up;
 
 double NotifyFontScale = 1;
+
+DEFINE_GLOBAL(NotifyFontScale)
 
 void C_SetNotifyFontScale(double scale)
 {
@@ -163,9 +168,6 @@ CVAR(String, con_ctrl_d, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Int, developer, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 EXTERN_CVAR(Int, uiscale);
-
-
-CVAR(Bool, generic_ui, false, CVAR_ARCHIVE)
 
 
 struct History

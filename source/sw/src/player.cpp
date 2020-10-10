@@ -50,9 +50,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "misc.h"
 #include "interp.h"
 #include "interpso.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "gstrings.h"
 #include "raze_music.h"
+#include "v_draw.h"
 #include "gamestate.h"
 
 BEGIN_SW_NS

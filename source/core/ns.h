@@ -17,7 +17,7 @@
 #define BEGIN_SW_NS namespace ShadowWarrior {
 #define END_SW_NS }
 
-#define BEGIN_PS_NS namespace Powerslave {
+#define BEGIN_PS_NS namespace Exhumed {
 #define END_PS_NS }
 
 #else

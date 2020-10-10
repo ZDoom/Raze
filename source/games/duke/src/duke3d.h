@@ -9,7 +9,7 @@
 
 #include "polymost.h"
 #include "gamecvars.h"
-#include "menu/menu.h"
+#include "razemenu.h"
 #include "funct.h"
 #include "gamecontrol.h"
 #include "gamevar.h"
@@ -20,6 +20,8 @@
 #include "sounds.h"
 #include "soundefs.h"
 #include "binaryangle.h"
+#include "gamestruct.h"
+#include "v_draw.h"
 
 BEGIN_DUKE_NS
 
@@ -34,19 +36,14 @@ struct GameInterface : public ::GameInterface
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;
 	GameStats getStats() override;
-	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
 	void MenuOpened() override;
 	void MenuSound(EMenuSounds snd) override;
-	void MenuClosed() override;
 	bool CanSave() override;
 	bool StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
-	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
 	double SmallFontScale() override { return isRR() ? 0.5 : 1.; }
-	void DrawMenuCaption(const DVector2& origin, const char* text) override;
 	void SerializeGameState(FSerializer& arc) override;
 	void QuitToTitle() override;
-	bool DrawSpecialScreen(const DVector2& origin, int tilenum) override;
 	FString GetCoordString() override;
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;

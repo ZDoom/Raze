@@ -41,7 +41,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "misc.h"
 #include "rts.h"
 #include "menus.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "raze_music.h"
 #include "raze_sound.h"
 #include "filesystem.h"
@@ -481,7 +481,6 @@ void InitFX(void)
 
     auto &S_sfx = soundEngine->GetSounds();
     S_sfx.Resize(countof(voc));
-    for (auto& sfx : S_sfx) { sfx.Clear(); sfx.lumpnum = sfx_empty; }
     for (size_t i = 1; i < countof(voc); i++)
     {
         auto& entry = voc[i];

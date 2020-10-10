@@ -42,59 +42,57 @@ void _consoleSysMsg(const char* pMessage, ...);
 
 #define ThrowError(...) \
 	{ \
-		_SetErrorLoc(__FILE__,__LINE__); \
 		I_Error(__VA_ARGS__); \
 	}
 
 // print error to console only
 #define consoleSysMsg(...) \
 	{ \
-		_SetErrorLoc(__FILE__,__LINE__); \
 		_consoleSysMsg(__VA_ARGS__); \
 	}
 
 #define dassert(x) assert(x)
 
-
-#define kMaxSectors MAXSECTORS
-#define kMaxWalls MAXWALLS
-#define kMaxSprites MAXSPRITES
-
-#define kMaxTiles MAXTILES
-#define kMaxStatus MAXSTATUS
-#define kMaxPlayers 8
 #define kMaxViewSprites maxspritesonscreen
 
-#define kMaxVoxels MAXVOXELS
+enum
+{
+    kMaxSectors = MAXSECTORS,
+    kMaxWalls = MAXWALLS,
+    kMaxSprites = MAXSPRITES,
 
-#define kTicRate 120
-#define kTicsPerFrame 4
-#define kTicsPerSec (kTicRate/kTicsPerFrame)
+    kMaxTiles = MAXTILES,
+    kMaxStatus = MAXSTATUS,
+    kMaxPlayers = 8,
+    kMaxVoxels = MAXVOXELS,
 
-#define TILTBUFFER 4078
+    kTicRate = 120,
+    kTicsPerFrame = 4,
+    kTicsPerSec = (kTicRate / kTicsPerFrame),
 
-#define kExplodeMax 8
+    kExplodeMax = 8,
 
-#define kLensSize 80
-#define kViewEffectMax 19
+    kLensSize = 80,
+    kViewEffectMax = 19,
 
-#define kNoTile -1
+    kNoTile = -1,
 
 
-// defined by NoOne:
-// -------------------------------
+    //= = = = // = defined = by = NoOne:
+    //= = = = // = -------------------------------
 
-#define kMaxPAL 5
-#define kUserPLUStart  15
+    kMaxPAL = 5,
+    kUserPLUStart = 15,
 
-#define kDmgFall 0
-#define kDmgBurn 1
-#define kDmgBullet 2
-#define kDmgExplode 3
-#define kDmgChoke 4
-#define kDmgSpirit 5
-#define kDmgElectric 6
-#define kDmgMax 7
+    kDmgFall = 0,
+    kDmgBurn = 1,
+    kDmgBullet = 2,
+    kDmgExplode = 3,
+    kDmgChoke = 4,
+    kDmgSpirit = 5,
+    kDmgElectric = 6,
+    kDmgMax = 7,
+};
 
 // MEDIUM /////////////////////////////////////////////////////
 enum {

@@ -6,64 +6,65 @@
 
 LISTMENU "MainMenu"
 {
-	ScriptId 0
-	class "$.MainMenu"
+	Size 320, 200
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		position 160, 55, 115
-		centermenu
+		position 160, 55
+		Linespacing 20
 		animatedtransition
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder.
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		DukeLogo
+		DukeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
+		//DukeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder.
+		DukeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		DukeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		DukeTextItem "$MNU_HELP", "h", "HelpMenu"
+		DukeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		DukeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)
 	{
-		position 160, 45, 150
-		caption "Blood"
-		centermenu
+		CaptionItem "Blood"
+		position 160, 45
 		Linespacing 20
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		BloodTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
+		BloodTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
+		BloodTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		BloodTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		BloodTextItem "$MNU_HELP", "h", "HelpMenu"
+		BloodTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		BloodTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		BloodDripDrawer
 	}
 	ifgame(ShadowWarrior)
 	{
 		Position 55, 32
 		Linespacing 17
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		//NativeTextItem "$MNU_COOLSTUFF", "h", "HelpMenu" // Perfectly useless retro ads. :D
-		ifshareware(false)
+		SWLogo
+		SWTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
+		SWTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		SWTextItem "$MNU_SAVEGAME", "s", "none"
+		SWTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		ifnotgame (shareware)
 		{
-			NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+			SWTextItem "$MNU_CREDITS", "c", "CreditsMenu"
 		}
 		else
 		{
-			NativeTextItem "$MNU_HOWTOORDER", "h", "CreditsMenu"
+			SWTextItem "$MNU_HOWTOORDER", "h", "CreditsMenu"
 		}
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		SWTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Exhumed)
 	{
+		class ExhumedMainMenu
 		Position 160, 65
-		centermenu
 		linespacing 22
-		NativeTextItem "3460", "n", "StartGame", 1
-		NativeTextItem "3461", "l", "LoadGameMenu"
-		NativeTextItem "3462", "m", "StartGame", 0
-		NativeTextItem "3463", "v", "OptionsMenu"
-		NativeTextItem "3464", "q", "QuitMenu"
+		ExhumedPlasma
+		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 1
+		ExhumedTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameNoSkill", 0
+		ExhumedTextItem "$MNU_OPTIONS", "v", "OptionsMenu"
+		ExhumedTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 }
 
@@ -75,64 +76,65 @@ LISTMENU "MainMenu"
 
 LISTMENU "IngameMenu"
 {
-	ScriptId 50
-	class "$.MainMenu"
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		position 160, 55, 115
-		centermenu
+		position 160, 55
+		linespacing 18
 		animatedtransition
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		DukeLogo
+		DukeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
+		DukeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+		DukeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		DukeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		DukeTextItem "$MNU_HELP", "h", "HelpMenu"
+		DukeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
+		DukeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)
 	{
-		position 160, 45, 150
-		caption "Blood"
-		centermenu
+		position 160, 45
+		CaptionItem "Blood"
 		Linespacing 17
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		NativeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		BloodTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
+		BloodTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		BloodTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+		BloodTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		BloodTextItem "$MNU_HELP", "h", "HelpMenu"
+		BloodTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		BloodTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
+		BloodTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		BloodDripDrawer
 	}
 	ifgame(ShadowWarrior)
 	{
 		Position 55, 32
 		Linespacing 17
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		ifshareware(false)
+		SWLogo
+		SWTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
+		SWTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		SWTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+		SWTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		ifnotgame (shareware)
 		{
-			NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+			SWTextItem "$MNU_CREDITS", "c", "CreditsMenu"
 		}
 		else
 		{
-			NativeTextItem "$MNU_HOWTOORDER", "h", "CreditsMenu"
+			SWTextItem "$MNU_HOWTOORDER", "h", "CreditsMenu"
 		}
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		SWTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Exhumed)
 	{
+		class ExhumedMainMenu
 		Position 160, 65
-		centermenu
 		linespacing 22
-		NativeTextItem "3460", "n", "StartGame", 1
-		NativeTextItem "3461", "l", "LoadGameMenu"
-		NativeTextItem "3462", "m", "StartGame", 0
-		NativeTextItem "3463", "v", "OptionsMenu"
-		NativeTextItem "3464", "q", "QuitMenu"
+		ExhumedLogo
+		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 1
+		ExhumedTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameNoSkill", 0
+		ExhumedTextItem "$MNU_OPTIONS", "v", "OptionsMenu"
+		ExhumedTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 }
 
@@ -146,58 +148,48 @@ LISTMENU "EpisodeMenu"
 {
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		class "$.ListMenu"
-		caption "$MNU_SELECTEPISODE"
-		position 160, 48, 142
-		centermenu
-		fixedspacing 5
+		position 160, 48
+		Linespacing 20
+		captionItem "$MNU_SELECTEPISODE"
 		animatedtransition
 	}
 	ifgame(blood)
 	{
-		class "$.ListMenu"
-		caption "$MNU_EPISODES"
-		position 160, 45, 150
-		centermenu
+		position 160, 45
 		Linespacing 20
+		CaptionItem "$MNU_EPISODES"
+		BloodDripDrawer
 	}
 	ifgame(ShadowWarrior)
 	{
-		caption "$MNU_EPISODES"
+		CaptionItem "$MNU_EPISODES"
 		Position 35, 32
 		Linespacing 17
 	}
-	
-	ScriptId 100
 }
 
 LISTMENU "SkillMenu"
 {
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		class "$.ListMenu"
-		position 160, 55, 115
-		centermenu
-		animatedtransition
-		caption "$MNU_SELECTSKILL"
-		fixedspacing 5
+		position 160, 48
+		Linespacing 20
+		captionItem "$MNU_SELECTSKILL"
 		animatedtransition
 	}
 	ifgame(blood)
 	{
-		class "$.ListMenu"
-		caption "$MNU_DIFFICULTY"
-		position 160, 60, 150
-		centermenu
+		position 160, 60
 		Linespacing 20
+		CaptionItem "$MNU_DIFFICULTY"
+		BloodDripDrawer
 	}
 	ifgame(ShadowWarrior)
 	{
-		caption "$MNU_DIFFICULTY"
+		CaptionItem "$MNU_DIFFICULTY"
 		Position 35, 32
 		Linespacing 17
 	}
-	ScriptId 110
 }
 
 //-------------------------------------------------------------------------------------------
@@ -208,45 +200,41 @@ LISTMENU "SkillMenu"
 
 ImageScroller "HelpMenu"
 {
-	ifgame(Duke, Nam, WW2GI)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		ImageItem "#3280", 400
-		ImageItem "#2445", 401
-		class "$.ImageScrollerMenu"
-		ifgame(Duke, Nam, WW2GI)
-		{
-			animatedtransition
-		}
-	}
-	ifgame(Redneck, RedneckRides)
-	{
-		ImageItem "#2541"
-		ImageItem "#1633"
+		
+		ImageItem "TEXTSTORY"
+		ImageItem "F1HELP"
 		ifgame(RedneckRides)
 		{
-			ImageItem "#1636"
+			ImageItem "DRIVABLES"
 		}
 		animatedtransition
 	}
 	ifgame(blood)
 	{
-		class "$.ImageScrollerMenu"
 		// The duplication here is to integrate the alternating versions of HELP3
-		QAVAnimationItem "Help4.qav"
-		QAVAnimationItem "Help5.qav"
-		QAVAnimationItem "Help3.qav"
-		QAVAnimationItem "Help4.qav"
-		QAVAnimationItem "Help5.qav"
-		QAVAnimationItem "Help3b.qav"
+		QAVDrawer "Help4.qav"
+		QAVDrawer "Help5.qav"
+		QAVDrawer "Help3.qav"
+		QAVDrawer "Help4.qav"
+		QAVDrawer "Help5.qav"
+		QAVDrawer "Help3b.qav"
 	}
 	ifgame(ShadowWarrior)
 	{
 		// The menu has no default binding, but if someone tries to open it anyway show the cool retro ads that were shipped with the game. :D
-		ImageItem "#5262"
-		ifshareware(false)
+		ImageItem "ADSCREEN1"
+		ifnotgame (shareware)
 		{
-			ImageItem "#5261"
+			ImageItem "ADSCREEN2"
 		}
+	}
+	ifgame(Exhumed)
+	{
+		// This is only here to prevent crashes if someone decides to open the menu from the console
+		ImageItem "TileBMGLogo"
+		ImageItem "TilePIELogo"
 	}
 }
 
@@ -265,90 +253,111 @@ ImageScroller "CreditsMenu"
 {
 	ifgame(Duke, Nam, WW2GI)
 	{
-		ImageItem "#2504", 990
-		ImageItem "#2505", 991
-		ImageItem "#2506", 992
+		ifgame(PLUTOPAK)
+		{
+			ImageItem "CREDITPAGE1"
+			ImageItem "CREDITPAGE2"
+			ImageItem "CREDITPAGE3"
+		}
+		else
+		{
+			DukeCredits1
+			DukeCredits2
+			DukeCredits3
+		}
 		animatedtransition
-		class "Duke.ImageScrollerMenu"
 	}
 	ifgame(Redneck)
 	{
+		TextBackground "MENUSCREEN"
+		TextBackgroundBrightness 0.5
+		TextFont "SmallFont"
+		TextScale 0.45
 		// no point putting this into the string table.
-		TextItem "ORIGINAL CONCEPT, DESIGN AND DIRECTION\n\nDREW MARKHAM", 80
-		TextItem "PRODUCED BY\n\nGREG GOODRICH", 80
-		TextItem "GAME PROGRAMMING\n\nRAFAEL PAIZ", 80
-		TextItem "ART DIRECTORS\n\nCLAIRE PRADERIE     MAXX KAUFMAN ", 80
-		TextItem "LEAD LEVEL DESIGNER\nALEX MAYBERRY\n\nLEVEL DESIGN\nMAL BLACKWELL\nSVERRE KVERNMO", 80
-		TextItem "SENIOR ANIMATOR AND ARTIST\n\nJASON HOOVER", 80
-		TextItem "TECHNICAL DIRECTOR\n\nBARRY DEMPSEY", 80
-		TextItem "MOTION CAPTURE SPECIALIST AND\nCHARACTER ANIMATION\nAMIT DORON\n\nA.I. PROGRAMMING\nARTHUR DONAVAN\n\nADDITIONAL ANIMATION\nGEORGE KARL", 60
-		TextItem "CHARACTER DESIGN\nCORKY LEHMKUHL\n\nMAP PAINTERS\nVIKTOR ANTONOV\nMATTHIAS BEEGUER\nSTEPHAN BURLE\n\nSCULPTORS\nGEORGE ENGEL\nJAKE GARBER\nJEFF HIMMEL", 50
-		TextItem "CHARACTER VOICES\n\nLEONARD\nBURTON GILLIAM\n\nBUBBA, BILLY RAY, SKINNY OL' COOT\nAND THE TURD MINION\nDREW MARKHAM\n\nSHERIFF LESTER T. HOBBES\nMOJO NIXON\n\nALIEN VIXEN\nPEGGY JO JACOBS", 40
-		TextItem "SOUND DESIGN\nGARY BRADFIELD\n\nMUSIC\nMOJO NIXON\nTHE BEAT FARMERS\nTHE REVEREND HORTON HEAT\nCEMENT POND\n\nADDITIONAL SOUND EFFECTS\nJIM SPURGIN", 50
-		TextItem "MOTION CAPTURE ACTOR\nJ.P. MANOUX\n\nMOTION CAPTURE VIXEN\nSHAWN WOLFE", 80
-		TextItem "PRODUCTION ASSISTANCE\nMINERVA MAYBERRY\n\nNUTS AND BOLTS\nSTEVE GOLDBERG\nMARCUS HUTCHINSON\n\nBEAN COUNTING\nMAX YOSHIKAWA\n\nADMINISTRATIVE ASSISTANCE\nSERAFIN LEWIS", 50
-		TextItem "LOCATION MANAGER, LOUISIANA\nRICK SKINNER\n\nLOCATION SCOUT, LOUISIANA\nBRIAN BENOS\n\nPHOTOGRAPHER\nCARLOS SERRAO", 70
-		TextItem "ADDITIONAL 3D MODELING BY\n3 NAME 3D\nVIEWPOINT DATALABS INTERNATIONAL\n\nAUDIO RECORDED AT\nPACIFIC OCEAN POST, SANTA MONICA, C.A.\n\nCEMENT POND TRACKS RECORDED AT\nDREAMSTATE RECORDING, BURBANK, C.A.\n\nRECORDING ENGINEER\nDAVE AHLERT", 50
-		TextItem "3D BUILD ENGINE LICENSED FROM\n3D REALMS ENTERTAINMENT\n\nBUILD ENGINE AND RELATED TOOLS\nCREATED BY KEN SILVERMAN", 80
-		TextItem "FOR INTERPLAY\n\nLEAD TESTER\nDARRELL JONES\n\nTESTERS\nTIM ANDERSON\nERICK LUJAN\nTIEN TRAN", 60
-		TextItem "IS TECHS\nBILL DELK\nAARON MEYERS\n\nCOMPATIBILITY TECHS\nMARC DURAN\nDAN FORSYTH\nDEREK GIBBS\nAARON OLAIZ\nJACK PARKER", 60
-		TextItem "DIRECTOR OF COMPATIBILITY\nPHUONG NGUYEN\n\nASSISTANT QA DIRECTOR\nCOLIN TOTMAN\n\nQA DIRECTOR\nCHAD ALLISON", 70
-		TextItem "INTERPLAY PRODUCER\nBILL DUGAN\n\nINTERPLAY LINE PRODUCER\nCHRIS BENSON\n\nPRODUCT MANAGER\nJIM VEEVAERT\n\nPUBLIC RELATIONS\nERIKA PRICE", 50
-		TextItem "SPECIAL THANKS\n\nJIM GAUER\nPAUL VAIS\nSCOTT MILLER\nTODD REPLOGLE\nCHUCK BUECHE\nCARTER LIPSCOMB\nJOHN CONLEY\nDON MAGGI", 60
-		TextItem "EXTRA SPECIAL THANKS\n\nBRIAN FARGO", 80
-		TextItem "REDNECK RAMPAGE\n(c) 1997 XATRIX ENTERTAINMENT, INC.\n\nREDNECK RAMPAGE IS A TRADEMARK OF\nINTERPLAY PRODUCTIONS", 60
+		TextItem "ORIGINAL CONCEPT, DESIGN AND DIRECTION\n\nDREW MARKHAM" //, 80
+		TextItem "PRODUCED BY\n\nGREG GOODRICH" //, 80
+		TextItem "GAME PROGRAMMING\n\nRAFAEL PAIZ" //, 80
+		TextItem "ART DIRECTORS\n\nCLAIRE PRADERIE     MAXX KAUFMAN " //, 80
+		TextItem "LEAD LEVEL DESIGNER\nALEX MAYBERRY\n\nLEVEL DESIGN\nMAL BLACKWELL\nSVERRE KVERNMO" //, 60
+		TextItem "SENIOR ANIMATOR AND ARTIST\n\nJASON HOOVER" //, 80
+		TextItem "TECHNICAL DIRECTOR\n\nBARRY DEMPSEY" //, 80
+		TextItem "MOTION CAPTURE SPECIALIST AND\nCHARACTER ANIMATION\nAMIT DORON\n\nA.I. PROGRAMMING\nARTHUR DONAVAN\n\nADDITIONAL ANIMATION\nGEORGE KARL" //, 60
+		TextItem "CHARACTER DESIGN\nCORKY LEHMKUHL\n\nMAP PAINTERS\nVIKTOR ANTONOV\nMATTHIAS BEEGUER\nSTEPHAN BURLE\n\nSCULPTORS\nGEORGE ENGEL\nJAKE GARBER\nJEFF HIMMEL" //, 30
+		TextItem "CHARACTER VOICES\n\nLEONARD\nBURTON GILLIAM\n\nBUBBA, BILLY RAY, SKINNY OL' COOT\nAND THE TURD MINION\nDREW MARKHAM\n\nSHERIFF LESTER T. HOBBES\nMOJO NIXON\n\nALIEN VIXEN\nPEGGY JO JACOBS" //, 30
+		TextItem "SOUND DESIGN\nGARY BRADFIELD\n\nMUSIC\nMOJO NIXON\nTHE BEAT FARMERS\nTHE REVEREND HORTON HEAT\nCEMENT POND\n\nADDITIONAL SOUND EFFECTS\nJIM SPURGIN" //, 30
+		TextItem "MOTION CAPTURE ACTOR\nJ.P. MANOUX\n\nMOTION CAPTURE VIXEN\nSHAWN WOLFE" //, 70
+		TextItem "PRODUCTION ASSISTANCE\nMINERVA MAYBERRY\n\nNUTS AND BOLTS\nSTEVE GOLDBERG\nMARCUS HUTCHINSON\n\nBEAN COUNTING\nMAX YOSHIKAWA\n\nADMINISTRATIVE ASSISTANCE\nSERAFIN LEWIS" //, 50
+		TextItem "LOCATION MANAGER, LOUISIANA\nRICK SKINNER\n\nLOCATION SCOUT, LOUISIANA\nBRIAN BENOS\n\nPHOTOGRAPHER\nCARLOS SERRAO" //, 70
+		TextItem "ADDITIONAL 3D MODELING BY\n3 NAME 3D\nVIEWPOINT DATALABS INTERNATIONAL\n\nAUDIO RECORDED AT\nPACIFIC OCEAN POST, SANTA MONICA, C.A.\n\nCEMENT POND TRACKS RECORDED AT\nDREAMSTATE RECORDING, BURBANK, C.A.\n\nRECORDING ENGINEER\nDAVE AHLERT" //, 50
+		TextItem "3D BUILD ENGINE LICENSED FROM\n3D REALMS ENTERTAINMENT\n\nBUILD ENGINE AND RELATED TOOLS\nCREATED BY KEN SILVERMAN" //, 80
+		TextItem "FOR INTERPLAY\n\nLEAD TESTER\nDARRELL JONES\n\nTESTERS\nTIM ANDERSON\nERICK LUJAN\nTIEN TRAN" //, 60
+		TextItem "IS TECHS\nBILL DELK\nAARON MEYERS\n\nCOMPATIBILITY TECHS\nMARC DURAN\nDAN FORSYTH\nDEREK GIBBS\nAARON OLAIZ\nJACK PARKER" //, 60
+		TextItem "DIRECTOR OF COMPATIBILITY\nPHUONG NGUYEN\n\nASSISTANT QA DIRECTOR\nCOLIN TOTMAN\n\nQA DIRECTOR\nCHAD ALLISON" //, 70
+		TextItem "INTERPLAY PRODUCER\nBILL DUGAN\n\nINTERPLAY LINE PRODUCER\nCHRIS BENSON\n\nPRODUCT MANAGER\nJIM VEEVAERT\n\nPUBLIC RELATIONS\nERIKA PRICE" //, 50
+		TextItem "SPECIAL THANKS\n\nJIM GAUER\nPAUL VAIS\nSCOTT MILLER\nTODD REPLOGLE\nCHUCK BUECHE\nCARTER LIPSCOMB\nJOHN CONLEY\nDON MAGGI" //, 60
+		TextItem "EXTRA SPECIAL THANKS\n\nBRIAN FARGO" //, 80
+		TextItem "REDNECK RAMPAGE\n(c) 1997 XATRIX ENTERTAINMENT, INC.\n\nREDNECK RAMPAGE IS A TRADEMARK OF\nINTERPLAY PRODUCTIONS" //, 60
 		animatedtransition
 	}
 	ifgame(RedneckRides)
 	{
-		TextItem "ORIGINAL CONCEPT, DESIGN AND DIRECTION\n\nDREW MARKHAM", 80
-		TextItem "ART DIRECTION AND ADDITIONAL DESIGN\n\nCORKY LEHMKUHL", 80
-		TextItem "PRODUCED BY\n\nGREG GOODRICH", 80
-		TextItem "GAME PROGRAMMING\n\nJOSEPH AURILI", 80
-		TextItem "ORIGINAL GAME PROGRAMMING\n\nRAFAEL PAIZ", 80
-		TextItem "LEVEL DESIGN\n\nRHETT BALDWIN & AARON BARBER", 80
-		TextItem "ORIGINAL ART DIRECTION AND SUPPORT\n\nMAXX KAUFMAN & CLAIRE PRADERIE-MARKHAM", 80
-		TextItem "COMPUTER GRAPHICS SUPERVISOR &\nCHARACTER ANIMATION DIRECTION\n\nBARRY DEMPSEY", 80
-		TextItem "SENIOR ANIMATOR & MODELER\n\nJASON HOOVER", 80
-		TextItem "CHARACTER ANIMATION &\nMOTION CAPTURE SPECIALIST\n\nAMIT DORON", 80
-		TextItem "SOUND DESIGN &\nMUSIC PRODUCTION COORDINATION\n\nGARY BRADFIELD", 80
-		TextItem "INTRODUCTION ANIMATION\n\nDOMINIQUE DROZDZ", 80
-		TextItem "ARTIST\n\nMATTHIAS BEEGUER", 80
-		TextItem "ADDITIONAL ART\n\nVIKTOR ANTONOV", 80
-		TextItem "PRODUCTION COORDINATOR\n\nVICTORIA SYLVESTER", 80
-		TextItem "CHARACTER VOICES\n\nLEONARD\nBURTON GILLIAM\n\nDAISY MAE\nTARA CHARENDOFF\n\nBUBBA, BILLY RAY, SKINNY OL' COOT,\nFRANK THE BIKER, THE TURD MINION\n& ALL OTHER VARIOUS RAMBLINGS...\nDREW MARKHAM", 40
-		TextItem "SPECIAL APPEARENCE BY\n\nSHERIFF LESTER T. HOBBES\nMOJO NIXON\n\nALIEN VIXEN\nPEGGY JO JACOBS", 70
+		TextBackground "MENUSCREEN"
+		TextBackgroundBrightness 0.5
+		TextFont "SmallFont"
+		TextScale 0.45
+		TextItem "ORIGINAL CONCEPT, DESIGN AND DIRECTION\n\nDREW MARKHAM" //, 80
+		TextItem "ART DIRECTION AND ADDITIONAL DESIGN\n\nCORKY LEHMKUHL" //, 80
+		TextItem "PRODUCED BY\n\nGREG GOODRICH" //, 80
+		TextItem "GAME PROGRAMMING\n\nJOSEPH AURILI" //, 80
+		TextItem "ORIGINAL GAME PROGRAMMING\n\nRAFAEL PAIZ" //, 80
+		TextItem "LEVEL DESIGN\n\nRHETT BALDWIN & AARON BARBER" //, 80
+		TextItem "ORIGINAL ART DIRECTION AND SUPPORT\n\nMAXX KAUFMAN & CLAIRE PRADERIE-MARKHAM" //, 80
+		TextItem "COMPUTER GRAPHICS SUPERVISOR &\nCHARACTER ANIMATION DIRECTION\n\nBARRY DEMPSEY" //, 80
+		TextItem "SENIOR ANIMATOR & MODELER\n\nJASON HOOVER" //, 80
+		TextItem "CHARACTER ANIMATION &\nMOTION CAPTURE SPECIALIST\n\nAMIT DORON" //, 80
+		TextItem "SOUND DESIGN &\nMUSIC PRODUCTION COORDINATION\n\nGARY BRADFIELD" //, 80
+		TextItem "INTRODUCTION ANIMATION\n\nDOMINIQUE DROZDZ" //, 80
+		TextItem "ARTIST\n\nMATTHIAS BEEGUER" //, 80
+		TextItem "ADDITIONAL ART\n\nVIKTOR ANTONOV" //, 80
+		TextItem "PRODUCTION COORDINATOR\n\nVICTORIA SYLVESTER" //, 80
+		TextItem "CHARACTER VOICES\n\nLEONARD\nBURTON GILLIAM\n\nDAISY MAE\nTARA CHARENDOFF\n\nBUBBA, BILLY RAY, SKINNY OL' COOT,\nFRANK THE BIKER, THE TURD MINION\n& ALL OTHER VARIOUS RAMBLINGS...\nDREW MARKHAM" //, 40
+		TextItem "SPECIAL APPEARENCE BY\n\nSHERIFF LESTER T. HOBBES\nMOJO NIXON\n\nALIEN VIXEN\nPEGGY JO JACOBS" //, 70
 		TextItem "REDNECK RAMPAGE TITLE TRACK & CYBERSEX\nWRITTEN & PERFORMED BY\nMOJO NIXON\n\n(c) MUFFIN'STUFFIN' MUSIC (BMI)\nADMINISTERED BY BUG.", 70
-		TextItem "MUSIC\n\nDISGRACELAND\nTINY D & THE SOFA KINGS\n\nBANJO AND GUITAR PICKIN\nJOHN SCHLOCKER\nHOWARD YEARWOOD", 60
-		TextItem "RECORDING ENGINEER\nDAVE AHLERT\n\nRECORDING ASSISTANCE\nJEFF GILBERT", 80
-		TextItem "MOTION CAPTURE ACTOR\nJ.P. MANOUX\n\nMOTION CAPTURE ACTRESS\nSHAWN WOLFE", 80
-		TextItem "THIS GAME COULD NOT HAVE BEEN MADE WITHOUT\nALEX MAYBERRY\nMAL BLACKWELL\n\nNUTS AND BOLTS\nSTEVE GOLDBERG\n\nBEAN COUNTING\nMAX YOSHIKAWA\n\nADMINISTRATIVE ASSISTANCE\nMINERVA MAYBERRY", 50
-		TextItem "FOR INTERPLAY\n\nPRODUCER\nBILL DUGAN\n\nLINE PRODUCER\nCHRIS BENSON\n\nLEAD TESTER\nDARRELL JONES", 60
-		TextItem "TESTERS\n\nTIM ANDERSON\nPRIMO PULANCO\nMARK MCCARTY\nBRIAN AXLINE", 70
-		TextItem "PRODUCTION BABY\n\nPAULINE MARIE MARKHAM", 80
-		TextItem "ORIGINAL PRODUCTION BABY\n\nALYSON KAUFMAN", 80
-		TextItem "3D BUILD ENGINE LICENSED FROM\n3D REALMS ENTERTAINMENT\n\nBUILD ENGINE AND RELATED TOOLS\nCREATED BY KEN SILVERMAN", 80
-		TextItem "SPECIAL THANKS\n\nSCOTT MILLER\nGEORGE BROUSSARD", 80
-		TextItem "EXTRA SPECIAL THANKS\n\nBRIAN FARGO", 80
-		TextItem "REDNECK RAMPAGE RIDES AGAIN\n(c) 1998 XATRIX ENTERTAINMENT, INC.\n\nREDNECK RAMPAGE RIDES AGAIN\nIS A TRADEMARK OF\nINTERPLAY PRODUCTIONS", 70
+		TextItem "MUSIC\n\nDISGRACELAND\nTINY D & THE SOFA KINGS\n\nBANJO AND GUITAR PICKIN\nJOHN SCHLOCKER\nHOWARD YEARWOOD" //, 60
+		TextItem "RECORDING ENGINEER\nDAVE AHLERT\n\nRECORDING ASSISTANCE\nJEFF GILBERT" //, 80
+		TextItem "MOTION CAPTURE ACTOR\nJ.P. MANOUX\n\nMOTION CAPTURE ACTRESS\nSHAWN WOLFE" //, 80
+		TextItem "THIS GAME COULD NOT HAVE BEEN MADE WITHOUT\nALEX MAYBERRY\nMAL BLACKWELL\n\nNUTS AND BOLTS\nSTEVE GOLDBERG\n\nBEAN COUNTING\nMAX YOSHIKAWA\n\nADMINISTRATIVE ASSISTANCE\nMINERVA MAYBERRY" //, 50
+		TextItem "FOR INTERPLAY\n\nPRODUCER\nBILL DUGAN\n\nLINE PRODUCER\nCHRIS BENSON\n\nLEAD TESTER\nDARRELL JONES" //, 60
+		TextItem "TESTERS\n\nTIM ANDERSON\nPRIMO PULANCO\nMARK MCCARTY\nBRIAN AXLINE" //, 70
+		TextItem "PRODUCTION BABY\n\nPAULINE MARIE MARKHAM" //, 80
+		TextItem "ORIGINAL PRODUCTION BABY\n\nALYSON KAUFMAN" //, 80
+		TextItem "3D BUILD ENGINE LICENSED FROM\n3D REALMS ENTERTAINMENT\n\nBUILD ENGINE AND RELATED TOOLS\nCREATED BY KEN SILVERMAN" //, 80
+		TextItem "SPECIAL THANKS\n\nSCOTT MILLER\nGEORGE BROUSSARD" //, 80
+		TextItem "EXTRA SPECIAL THANKS\n\nBRIAN FARGO" //, 80
+		TextItem "REDNECK RAMPAGE RIDES AGAIN\n(c) 1998 XATRIX ENTERTAINMENT, INC.\n\nREDNECK RAMPAGE RIDES AGAIN\nIS A TRADEMARK OF\nINTERPLAY PRODUCTIONS" //, 70
 		animatedtransition
 	}
 	ifgame(blood)
 	{
-		class "Blood.ImageScrollerMenu"
-		QAVAnimationItem "Credits.qav"
+		QAVDrawer "Credits.qav"
 	}
 	ifgame(ShadowWarrior)
 	{
-		ifshareware(true)
+		ifgame (shareware)
 		{
-			ImageItem "#5110"
-			ImageItem "#5112"
+			ImageItem "SWORDER1"
+			ImageItem "SWORDER2"
 		}
-		ImageItem "#5111"
-		ImageItem "#5118"
-		ImageItem "#4979"
-		ImageItem "#5113"
+		ImageItem "CREDITS1"
+		ImageItem "CREDITS2"
+		ImageItem "SUPPORT"
+		ImageItem "ONLINE"
+	}
+	ifgame(Exhumed)
+	{
+		// This is only here to prevent crashes if someone decides to open the menu from the console
+		ImageItem "TileBMGLogo"
+		ImageItem "TilePIELogo"
 	}
 }
 	
@@ -360,9 +369,9 @@ ImageScroller "CreditsMenu"
 
 ListMenu "LoadGameMenu"
 {
-	Caption "$MNU_LOADGAME"
 	Position 0, 40
 	Class "LoadMenu"	// uses its own implementation
+	CaptionItem "$MNU_LOADGAME"
 }
 
 //-------------------------------------------------------------------------------------------
@@ -373,9 +382,9 @@ ListMenu "LoadGameMenu"
 
 ListMenu "SaveGameMenu"
 {
-	Caption "$MNU_SAVEGAME"
 	Position 0, 40
 	Class "SaveMenu"	// uses its own implementation
+	CaptionItem "$MNU_SAVEGAME"
 }
 	
 //-------------------------------------------------------------------------------------------
@@ -423,10 +432,10 @@ OptionMenuSettings
 
 DefaultOptionMenu
 {
-	Position 85
+	Position -20
 }
 
-OptionMenu "OptionsMenu"
+OptionMenu "OptionsMenu" protected
 {
 	Caption "$MNU_OPTIONS"
 	Submenu "$OPTMNU_CONTROLS",			"CustomizeControls"
@@ -440,6 +449,8 @@ OptionMenu "OptionsMenu"
 	Submenu "$OPTMNU_GAMEPLAY",			"GameplayOptions"
 	Submenu "$OPTMNU_MISCELLANEOUS",	"MiscOptions"
 	StaticText " "
+	Submenu "$OS_TITLE", "os_Menu"
+	StaticText " "
 	Submenu "$MNU_ENGINECREDITS",		"EngineCredits"
 	SafeCommand "$OPTMNU_DEFAULTS",	"reset2defaults"
 	SafeCommand	"$OPTMNU_RESETTOSAVED",	"reset2saved"
@@ -452,7 +463,7 @@ OptionMenu "OptionsMenu"
 //
 //-------------------------------------------------------------------------------------------
 
-OptionMenu "CustomizeControls"
+OptionMenu "CustomizeControls" protected
 {
 	Title "$CNTRLMNU_TITLE"
 
@@ -469,7 +480,7 @@ OptionMenu "CustomizeControls"
 	SafeCommand		"$CTRL_LEFTHANDED",		"controlpreset 2" //engine/leftbinds.txt
 }
 
-OptionMenu "ActionControlsMenu"// protected
+OptionMenu "ActionControlsMenu" protected
 {
 	Title "$CNTRLMNU_ACTION_TITLE"
 	ScrollTop 2
@@ -531,7 +542,7 @@ OptionMenu "ActionControlsMenu"// protected
 	//Control    "$CNTRLMNU_SCOREBOARD"       , "+show_dukematch_scores"
 }
 
-OptionMenu "ChatControlsMenu"// protected
+OptionMenu "ChatControlsMenu" protected
 {
 	Title "$CNTRLMNU_CHAT_TITLE"
 	ScrollTop 2
@@ -541,7 +552,7 @@ OptionMenu "ChatControlsMenu"// protected
 	Control    "$CNTRLMNU_SAY"     , "+send_message"
 }
 
-OptionMenu "WeaponsControlMenu"// protected
+OptionMenu "WeaponsControlMenu" protected
 {
 	Title "$CNTRLMNU_WEAPONS_TITLE"
 	ScrollTop 2
@@ -587,7 +598,7 @@ OptionMenu "WeaponsControlMenu"// protected
 
 }
 
-OptionMenu "InventoryControlsMenu"// protected
+OptionMenu "InventoryControlsMenu" protected
 {
 	Title "$CNTRLMNU_INVENTORY_TITLE"
 	ScrollTop 2
@@ -663,7 +674,7 @@ OptionMenu "InventoryControlsMenu"// protected
 	}
 }
 
-OptionMenu "OtherControlsMenu"// protected
+OptionMenu "OtherControlsMenu" protected
 {
 	Title "$CNTRLMNU_OTHER_TITLE"
 	ScrollTop 2
@@ -701,7 +712,7 @@ OptionMenu "OtherControlsMenu"// protected
 }
 
 
-OptionMenu "MapControlsMenu"
+OptionMenu "MapControlsMenu" protected
 {
 	Title "$MAPCNTRLMNU_CONTROLS"
 
@@ -747,7 +758,7 @@ OptionString "Cursors"
 	"-", "$OPTSTR_SYSTEMCURSOR"
 }
 
-OptionMenu "MouseOptions" //protected
+OptionMenu "MouseOptions" protected
 {
 	Title "$MOUSEMNU_TITLE"
 	//Option "$MOUSEMNU_ENABLEMOUSE",		"in_mouse", "YesNo"
@@ -776,12 +787,29 @@ OptionMenu "MouseOptions" //protected
 //
 //-------------------------------------------------------------------------------------------
 
-OptionMenu "JoystickOptions" //protected
+OptionMenu "JoystickOptionsDefaults" protected
 {
 	Title "$JOYMNU_OPTIONS"
-	// This will be filled in by joystick code if devices get connected or disconnected
+	Option "$JOYMNU_ENABLE", "use_joystick", "YesNo"
+	Option "$JOYMNU_NOMENU", "m_blockcontrollers", "YesNo"
+	IfOption(Windows)
+	{
+		Option "$JOYMNU_DINPUT", "joy_dinput", "YesNo"
+		Option "$JOYMNU_XINPUT", "joy_xinput", "YesNo"
+		Option "$JOYMNU_PS2", "joy_ps2raw", "YesNo"
+	}
+	StaticText ""
+	StaticTextSwitchable "$JOYMNU_NOCON", "$JOYMNU_CONFIG", "ConfigureMessage"
+	StaticTextSwitchable " ", "$JOYMNU_DISABLED1", "ConnectMessage1"
+	StaticTextSwitchable " ", "$JOYMNU_DISABLED2", "ConnectMessage2"
+
+	// The rest will be filled in by joystick code if devices get connected or disconnected
 }
 
+OptionMenu "JoystickOptions" protected
+{
+	Title "$JOYMNU_OPTIONS"
+}
 
 OptionValue "JoyAxisMapNames"
 {
@@ -799,7 +827,7 @@ OptionValue "Inversion"
 	1, "$OPTVAL_INVERTED"
 }
 
-OptionMenu "JoystickConfigMenu" //protected
+OptionMenu "JoystickConfigMenu" protected
 {
 	Title "$JOYMNU_TITLE"
 	Class "JoystickConfigMenu"
@@ -851,7 +879,7 @@ OptionValue "Gender"
 }
 
 
-OptionMenu "NewPlayerMenu" //protected
+OptionMenu "NewPlayerMenu" protected
 {
 	Title "$MNU_PLAYERSETUP"
 	TextField "$PLYRMNU_NAME", playername
@@ -866,10 +894,10 @@ OptionMenu "NewPlayerMenu" //protected
 	}
 	Option "$PLYRMNU_PLAYERGENDER", "playergender", "Gender"
 	Submenu "$PLRMNU_TAUNTS", "TauntsMenu"
-	Class "NewPlayerMenu"
+	Class "PlayerMenu"
 }
 
-OptionMenu "TauntsMenu" //protected
+OptionMenu "TauntsMenu" protected
 {
 	Title "$PLRMNU_TAUNTS"
 	TextField "1", "combatmacro0"
@@ -911,7 +939,7 @@ OptionValue "WeapSwitch"
 }
 
 
-OptionMenu GameplayOptions //protected
+OptionMenu GameplayOptions protected
 {
 	Title 	"$GMPLYMNU_TITLE"
 	Option "$PLYRMNU_AUTOAIM", "cl_autoaim", "AimMode"
@@ -967,7 +995,7 @@ OptionValue "Multisample"
 }
 
 
-OptionMenu "VideoOptions" //protected
+OptionMenu "VideoOptions" protected
 {
 	Title "$DSPLYMNU_TITLE"
 	
@@ -1068,7 +1096,6 @@ OptionMenu "AutomapOptions"
 	Option "$AUTOMAPMNU_ROTATE",				"am_rotate",					"OnOff"
 	Option "$AUTOMAPMNU_FOLLOW",				"am_followplayer",				"OnOff"
 
-	// move map controls here.
 	// todo:
 	//CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
 	//CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)
@@ -1112,7 +1139,7 @@ OptionValue CrosshairHealthTypes
 	2.0, "$OPTVAL_YES_ENHANCED"
 }
 
-OptionMenu "HUDOptions" //protected
+OptionMenu "HUDOptions" protected
 {
 	Title "$OPTMNU_HUD"
 
@@ -1231,7 +1258,7 @@ OptionString SpeakerModes
 }
 
 
-OptionMenu OpenALSoundItems //protected
+OptionMenu OpenALSoundItems protected
 {
 	Title "$OPENALMNU_TITLE"
 	Option "$OPENALMNU_PLAYBACKDEVICE",		"snd_aldevice",		"ALDevices"
@@ -1245,7 +1272,7 @@ OptionValue MidiDevices
 	// filled in by the sound code
 }
 
-OptionMenu SoundOptions //protected
+OptionMenu SoundOptions protected
 {
 	Title "$SNDMNU_TITLE"
 	Slider "$MODMNU_MASTERVOLUME",		"snd_mastervolume", 0, 1, 0.05, 2
@@ -1279,6 +1306,7 @@ OptionMenu SoundOptions //protected
 	}
 	StaticText " "
 	Submenu "$SNDMNU_ADVANCED",			"AdvSoundOptions"
+	//Submenu "$OPTMNU_REVERB",			"ReverbEdit" // disabled because there's no way to use the edited data.
 }
 
 /*=======================================
@@ -1288,7 +1316,7 @@ OptionMenu SoundOptions //protected
  *=======================================*/
 
 
-OptionMenu AdvSoundOptions //protected
+OptionMenu AdvSoundOptions protected
 {
 	Title "$ADVSNDMNU_TITLE"
 	Option "$ADVSNDMNU_LOOKUPMUS",			"mus_extendedlookup", "OnOff"
@@ -1314,12 +1342,12 @@ OptionMenu AdvSoundOptions //protected
 }
 
 
-OptionMenu TimidityConfigMenu //protected
+OptionMenu TimidityConfigMenu protected
 {
 	Title "$ADVSNDMNU_SELCONFIG"
 }
 
-OptionMenu FluidPatchsetMenu //protected
+OptionMenu FluidPatchsetMenu protected
 {
 	Title "$ADVSNDMNU_SELCONFIG"
 }
@@ -1352,7 +1380,7 @@ OptionValue ModVolumeRamps
 
 
 
-OptionMenu ModReplayerOptions //protected
+OptionMenu ModReplayerOptions protected
 {
 	Title "$MODMNU_TITLE"
 	Slider "$MODMNU_MASTERVOLUME",			"mod_dumb_mastervolume", 1, 16, 0.5, 1
@@ -1372,7 +1400,7 @@ OptionMenu ModReplayerOptions //protected
  *
  *=======================================*/
 
- OptionMenu MidiPlayerOptions /*FluidsynthOptions*/ //protected
+ OptionMenu MidiPlayerOptions /*FluidsynthOptions*/ protected
  {
 	Title "$SNDMNU_MIDIPLAYER"
 	//Title "$ADVSNDMNU_FLUIDSYNTH"
@@ -1445,7 +1473,7 @@ OptionValue GPUSwitch
 	2.0, "$OPTVAL_INTEGRATED"
 }
 
-OptionMenu VideoModeMenu //protected
+OptionMenu VideoModeMenu protected
 {
 	Title "$VIDMNU_TITLE"
 
@@ -1485,7 +1513,7 @@ OptionMenu VideoModeMenu //protected
 	SubMenu "$VIDMNU_RESPRESET", CustomResolutionMenu
 }
 
-OptionMenu CustomResolutionMenu //protected
+OptionMenu CustomResolutionMenu protected
 {
 	Title "$VIDMNU_RESPRESETTTL"
 
@@ -1530,7 +1558,7 @@ OptionValue Autosave
 	2,	"$OPTVAL_NEVER"
 }
 
-OptionMenu "MiscOptions" //protected
+OptionMenu "MiscOptions" protected
 {
 	Title "$MISCMNU_TITLE"
 	//Indent 220
@@ -1562,13 +1590,123 @@ OptionMenu "MiscOptions" //protected
 
 }
 
+//-------------------------------------------------------------------------------------------
+//
+// Reverb editor
+//
+//-------------------------------------------------------------------------------------------
+
+OptionMenu "ReverbEdit" protected
+{
+	Class "ReverbEdit"
+	Title "$OPTMNU_REVERB"
+	StaticTextSwitchable 	"", "", "EvironmentName", 1
+	StaticTextSwitchable 	"", "", "EvironmentID"
+	StaticText " "
+	Submenu "$REVMNU_SELECT", "ReverbSelect"
+	Option "$REVMNU_TEST", "eaxedit_test", OnOff
+	StaticText " "
+	Submenu "$REVMNU_NEW", "ReverbNew"
+	Submenu "$REVMNU_SAVE", "ReverbSave"
+	Submenu "$REVMNU_EDIT", "ReverbSettings"
+}
+
+OptionMenu "ReverbSelect" protected
+{
+	Class "ReverbSelect"
+	Title "$REVMNU_SELECT"
+	// filled in by code
+}
+
+OptionMenu "ReverbSettings" protected
+{
+	Title "$REVMNU_EDIT"
+	SafeCommand "$REVMNU_REVERT", "revertenvironment"
+	StaticText " "
+	SliderReverbEditOption "$REVMNU_Environment_Size", 1, 100, 0.01, 3, 1
+	SliderReverbEditOption "$REVMNU_Environment_Diffusion", 0, 1, 0.01, 3, 2
+	SliderReverbEditOption "$REVMNU_Room", -10000, 0, 1, 0, 3
+	SliderReverbEditOption "$REVMNU_Room_HF", -10000, 0, 1, 0, 4
+	SliderReverbEditOption "$REVMNU_Room_LF", -10000, 0, 1, 0, 5
+	SliderReverbEditOption "$REVMNU_Decay_Time", 1, 200, 0.01, 3, 6
+	SliderReverbEditOption "$REVMNU_Decay_HF_Ratio", 1, 20, 0.01, 3, 7
+	SliderReverbEditOption "$REVMNU_Decay_LF_Ratio", 1, 20, 0.01, 3, 8
+	SliderReverbEditOption "$REVMNU_Reflections", -10000, 1000, 1, 0, 9
+	SliderReverbEditOption "$REVMNU_Reflections_Delay", 0, 0.3, 1, 3, 10
+	SliderReverbEditOption "$REVMNU_Reflections_Pan_X", -2000, 2000, 1, 3, 11
+	SliderReverbEditOption "$REVMNU_Reflections_Pan_Y", -2000, 2000, 1, 3, 12
+	SliderReverbEditOption "$REVMNU_Reflections_Pan_Z", -2000, 2000, 1, 3, 13
+	SliderReverbEditOption "$REVMNU_Reverb", -10000, 2000, 1, 0, 14
+	SliderReverbEditOption "$REVMNU_Reverb_Delay", 0, 0.1, 0.01, 3, 15
+	SliderReverbEditOption "$REVMNU_Reverb_Pan_X", -2000, 2000, 1, 3, 16
+	SliderReverbEditOption "$REVMNU_Reverb_Pan_Y", -2000, 2000, 1, 3, 17
+	SliderReverbEditOption "$REVMNU_Reverb_Pan_Z", -2000, 2000, 1, 3, 18
+	SliderReverbEditOption "$REVMNU_Echo_Time", 0.075, 0.25, 0.005, 3, 19
+	SliderReverbEditOption "$REVMNU_Echo_Depth", 0, 1, 0.01, 3, 20
+	SliderReverbEditOption "$REVMNU_Modulation_Time", 0.04, 4, 0.01, 3, 21
+	SliderReverbEditOption "$REVMNU_Modulation_Depth",0, 1, 0.01, 3, 22
+	SliderReverbEditOption "$REVMNU_Air_Absorption_HF", -100, 0, 0.01, 3, 23
+	SliderReverbEditOption "$REVMNU_HF_Reference", 10000, 200000, 1, 3, 24
+	SliderReverbEditOption "$REVMNU_LF_Reference",20, 10000, 0.1, 3, 25
+	SliderReverbEditOption "$REVMNU_Room_Rolloff_Factor",0, 10, 0.01, 3, 26
+	SliderReverbEditOption "$REVMNU_Diffusion",0, 100, 0.01, 3, 27
+	SliderReverbEditOption "$REVMNU_Density",0, 100, 0.01, 3, 28
+	StaticText " "
+	ReverbOption "$REVMNU_Reflections_Scale", 29, OnOff
+	ReverbOption "$REVMNU_Reflections_Delay_Scale", 30, OnOff
+	ReverbOption "$REVMNU_Decay_Time_Scale", 31, OnOff
+	ReverbOption "$REVMNU_Decay_HF_Limit", 32, OnOff
+	ReverbOption "$REVMNU_Reverb_Scale", 33, OnOff
+	ReverbOption "$REVMNU_Reverb_Delay_Scale", 34, OnOff
+	ReverbOption "$REVMNU_Echo_Time_Scale", 35, OnOff
+	ReverbOption "$REVMNU_Modulation_Time_Scale", 36, OnOff
+}
+
+OptionMenu "ReverbNew" protected
+{
+	Title "$REVMNU_NEW"
+	ReverbSelect "$REVMNU_Based_on", "ReverbSelect"
+	TextField "$REVMNU_Name", "reverbedit_name"
+	NumberField "$REVMNU_ID_1", "reverbedit_id1", 0, 255
+	NumberField "$REVMNU_ID_2", "reverbedit_id2", 0, 255
+	Command "$REVMNU_Create", "createenvironment", 0, 1
+}
+
+OptionMenu "ReverbSave" protected
+{
+	Class "ReverbSave"
+	Title "$REVMNU_SAVE"
+	Command "$REVMNU_Save", "savereverbs"
+	TextField "$REVMNU_File_name", "reverbsavename"
+	StaticText ""
+	StaticText "$REVMNU_Environments_to_save"
+	// Rest is filled in by code.
+}
+
+/*=======================================
+ *
+ * Option Search menu
+ *
+ *=======================================*/
+
+OptionMenu "os_Menu"
+{
+	Class "os_Menu"
+	Title "$OS_TITLE"
+}
+
+OptionValue "os_isanyof_values"
+{
+	0, "$OS_ALL"
+	1, "$OS_ANY"
+}
 
 //-------------------------------------------------------------------------------------------
 //
 // No multiplayer support for now, but kept for documentation.
 //
 //-------------------------------------------------------------------------------------------
-
+/*
 LISTMENU "MultiMenu"
 {
 	ifgame(Duke, Nam, WW2GI)
@@ -1653,21 +1791,22 @@ OptionMenu "MultiOptionsMenu"
 	Option "$NETMNU_FFIRE", "m_ffire", "OnOff"
 	SafeCommand "$NETMNU_ACCEPT", "MultiAccept"
 }
+*/
 
 OptionMenu "EngineCredits"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits1a"
-	StaticText "Developers"
+	StaticText "Developers", 1
 	StaticText "Christoph Oelckers", 0
 	StaticText "Mitchell Richters", 0
 	StaticText ""
-	StaticText "Additional Developers"
+	StaticText "Additional Developers", 1
 	StaticText "Rachael Alexanderson", 0
 	StaticText "Magnus Norddahl", 0
 	StaticText "Alexey Lysiuk", 0
 	StaticText ""
-	StaticText "The Raze team thanks the following contributors"
+	StaticText "The Raze team thanks the following contributors", 1
 	StaticText "Nash Muhandes", 0
 	StaticText "Dynamo", 0
 }
@@ -1676,7 +1815,7 @@ OptionMenu "EngineCredits1a"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits1b"
-	StaticText "Raze QA"
+	StaticText "Raze QA", 1
 	
 	StaticText "sinisterseed                        ", 0
 	StaticText "Major Cooke       Dynamo            ", 0
@@ -1688,11 +1827,11 @@ OptionMenu "EngineCredits1b"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits2"
-	StaticText "ZDoom / GZDoom / ZDuke"
+	StaticText "ZDoom / GZDoom / ZDuke", 1
 	StaticText "Marisa \"Randi\" Heit", 0
 	StaticText "Braden \"Blzut3\" Obrzut", 0
 	StaticText ""
-	StaticText "Sound Engine"
+	StaticText "Sound Engine", 1
 	StaticText "Chris Robinson", 0
 	StaticText ""
 }
@@ -1702,18 +1841,18 @@ OptionMenu "EngineCredits2"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits2a"
-	StaticText "EDuke 2.0"
+	StaticText "EDuke 2.0", 1
 	StaticText "Matt Saettler", 0
 	StaticText ""
-	StaticText "JFDuke / JFSW", 0
+	StaticText "JFDuke / JFSW", 1
     StaticText "Jonathon \"JonoF\" Fowler", 0
 	StaticText ""
-	StaticText "EDuke32 / VoidSW"
+	StaticText "EDuke32 / VoidSW", 1
 	StaticText "Richard \"TerminX\" Gobeille", 0
 	StaticText "Evan \"Hendricks266\" Ramos", 0
 	StaticText "Alex \"pogokeen\" Dawson", 0
 	StaticText ""
-	StaticText "Retired developers"
+	StaticText "Retired developers", 1
 	StaticText "Pierre-Loup \"Plagman\" Griffais", 0
 	StaticText "Philipp \"Helixhorned\" Kutin", 0
 }
@@ -1722,13 +1861,13 @@ OptionMenu "EngineCredits2a"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits3"
-	StaticText "RedNukem / NBlood"
+	StaticText "RedNukem / NBlood", 1
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText ""
-	StaticText "SWP"
+	StaticText "SWP", 1
 	StaticText "Ben \"ProAsm\" Smit", 0
 	StaticText ""
-	StaticText "PCExhumed"
+	StaticText "PCExhumed", 1
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText "sirlemonhead", 0
 }
@@ -1736,9 +1875,9 @@ OptionMenu "EngineCredits2a"
 OptionMenu "EngineCredits3"
 {
 	title "$MNU_CREDITS"
-	Submenu " ---->", "EngineCredits"
-	StaticText "The EDuke32 team thanks the following people"
-	StaticText "for their contributions:"
+	//Submenu " ---->", "EngineCredits"	// This creates a circular dependency which makes the search tool crash.
+	StaticText "The EDuke32 team thanks the following people", 1
+	StaticText "for their contributions:", 1
 	
 	StaticText "Alexey Skrybykin  Bioman            Brandon Bergren  ", 0
 	StaticText "Charlie Honig     Dan Gaskill       David Koenig     ", 0

@@ -44,6 +44,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 #include "automap.h"
 #include "statusbar.h"
+#include "texturemanager.h"
 
 
 #include "mytypes.h"
@@ -64,7 +65,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "printf.h"
 #include "m_argv.h"
 #include "debugbreak.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "raze_music.h"
 #include "statistics.h"
 #include "gstrings.h"
@@ -77,6 +78,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "inputstate.h"
 #include "gamestate.h"
 #include "d_net.h"
+#include "v_draw.h"
 
 //#include "crc32.h"
 
@@ -156,6 +158,17 @@ int ThemeTrack[6];
 void SybexScreen(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+#define x(a, b) registerName(#a, b);
+static void SetTileNames()
+{
+    auto registerName = [](const char* name, int index)
+    {
+        TexMan.AddAlias(name, tileGetTexture(index));
+    };
+#include "namelist.h"
+}
+#undef x
+
 //---------------------------------------------------------------------------
 //
 //
@@ -227,6 +240,7 @@ void GameInterface::app_init()
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
  
     LoadDefinitions();
+    SetTileNames();
     TileFiles.SetBackup();
     userConfig.AddDefs.reset();
     InitFX();
@@ -559,6 +573,25 @@ void TerminateLevel(void)
 }
 
 
+using namespace ShadowWarrior;
+static bool DidOrderSound;
+static int zero = 0;
+
+static void PlayOrderSound()
+{
+    if (!DidOrderSound)
+    {
+        DidOrderSound = true;
+        int choose_snd = STD_RANDOM_RANGE(1000);
+        if (choose_snd > 500)
+            PlaySound(DIGI_WANGORDER1, v3df_dontpan, CHAN_BODY, CHANF_UI);
+        else
+            PlaySound(DIGI_WANGORDER2, v3df_dontpan, CHAN_BODY, CHANF_UI);
+    }
+}
+
+
+
 void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
 	//ResetPalette(mpp);
@@ -573,7 +606,11 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 				STAT_Update(true);
 				FinishAnim = false;
 				PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
-				if (SW_SHAREWARE) gameaction = ga_creditsmenu;
+                if (SW_SHAREWARE)
+                {
+                    PlayOrderSound();
+                    gameaction = ga_creditsmenu;
+                }
 				else gameaction = ga_mainmenu;
 			}
 			else gameaction = ga_nextlevel;

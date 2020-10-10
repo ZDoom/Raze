@@ -70,11 +70,6 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sa
 	if (!PickTexture(picnum, tex, paletteid, texpick)) return false;
 
 	int TextureType = (texpick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
-	if (TextureType == TT_INDEXED)
-	{
-		sampler = sampler + CLAMP_NOFILTER - CLAMP_NONE;
-	}
-
 
 	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
 	SetTinting(texpick.tintFlags, texpick.tintColor, texpick.tintColor);

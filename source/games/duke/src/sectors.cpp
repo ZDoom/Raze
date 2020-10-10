@@ -75,7 +75,6 @@ int callsound(int sn, int whatsprite)
 					hittype[i].temp_data[0] = 0;
 			}
 
-
 			if (hittype[i].temp_data[0] == 0)
 			{
 				if ((flags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL)
@@ -92,7 +91,7 @@ int callsound(int sn, int whatsprite)
 						hittype[i].temp_data[0] = 1;
 				}
 			}
-			else if (hival)
+			else if (sprite[i].hitag < 1000)
 			{
 				if ((flags & SF_LOOP) || (sprite[i].hitag && sprite[i].hitag != sprite[i].lotag))
 					S_StopSound(sprite[i].lotag, hittype[i].temp_data[5]);

@@ -802,6 +802,7 @@ set (PCH_SOURCES
 	core/palette.cpp
 	core/zcompile.cpp
 	core/statusbar.cpp
+	core/gi.cpp
 
 	core/console/c_console.cpp
 	core/console/d_event.cpp
@@ -810,7 +811,7 @@ set (PCH_SOURCES
 	common/audio/sound/oalsound.cpp
 	common/audio/sound/s_environment.cpp
 	common/audio/sound/s_sound.cpp
-	#common/audio/sound/s_reverbedit.cpp
+	common/audio/sound/s_reverbedit.cpp
 	common/audio/music/music_midi_base.cpp
 	common/audio/music/music.cpp
 	common/audio/music/i_music.cpp
@@ -910,6 +911,7 @@ set (PCH_SOURCES
 	common/filesystem/resourcefile.cpp
 	common/engine/cycler.cpp
 	common/engine/d_event.cpp
+	common/engine/date.cpp
 	common/engine/stats.cpp
 	common/engine/sc_man.cpp
 	common/engine/palettecontainer.cpp
@@ -924,6 +926,13 @@ set (PCH_SOURCES
 	common/objects/dobject.cpp
 	common/objects/dobjgc.cpp
 	common/objects/dobjtype.cpp
+	common/menu/joystickmenu.cpp
+	common/menu/menu.cpp
+	common/menu/messagebox.cpp
+	common/menu/optionmenu.cpp
+	common/menu/resolutionmenu.cpp
+	common/menu/menudef.cpp
+	common/menu/savegamemanager.cpp
 	
 	common/rendering/v_framebuffer.cpp
 	common/rendering/v_video.cpp
@@ -975,22 +984,12 @@ set (PCH_SOURCES
 	common/scripting/backend/codegen.cpp
 
 
-	core/textures/buildtiles.cpp
-	#core/textures/texture.cpp
 
+	core/textures/buildtiles.cpp
 	core/music/s_advsound.cpp
 
-	core/menu/imagescroller.cpp
-	core/menu/joystickmenu.cpp
-	core/menu/listmenu.cpp
-	core/menu/savegamemanager.cpp
 	core/menu/loadsavemenu.cpp
-	core/menu/menu.cpp
-	core/menu/menudef.cpp
-	core/menu/menuinput.cpp
-	core/menu/messagebox.cpp
-	core/menu/optionmenu.cpp
-	core/menu/resolutionmenu.cpp
+	core/menu/razemenu.cpp
 )
 
 if( ${HAVE_VM_JIT} )

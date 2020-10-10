@@ -204,7 +204,7 @@ int LoadSymCodeInfo(MFILE_READ fil, void **ptr)
 
 
 
-bool GameInterface::SaveGame(FSaveGameNode *sv)
+bool GameInterface::SaveGame()
 {
     MFILE_WRITE fil;
     int i,j;
@@ -643,7 +643,7 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 }
 
 
-bool GameInterface::LoadGame(FSaveGameNode* sv)
+bool GameInterface::LoadGame()
 {
     MFILE_READ fil;
     int i,j,saveisshot=0;

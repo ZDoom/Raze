@@ -59,7 +59,7 @@
 #include "m_fixed.h"
 #include "gamecontrol.h"
 #include "gamestruct.h"
-#include "menu.h"
+#include "razemenu.h"
 #include "mapinfo.h"
 
 #include "../version.h"

@@ -1142,7 +1142,7 @@ int spawn_r(int j, int pn)
 			case FIRSTAID:
 			case SIXPAK:
 
-			case RRTILE43:
+			case SAWAMMO:
 			case BOWLINGBALLSPRITE:
 				if (j >= 0)
 				{
@@ -1289,7 +1289,7 @@ int spawn_r(int j, int pn)
 					sp->xrepeat = 18;
 					sp->yrepeat = 17;
 					break;
-				case RRTILE43:
+				case SAWAMMO:
 					sp->xrepeat = 12;
 					sp->yrepeat = 7;
 					break;

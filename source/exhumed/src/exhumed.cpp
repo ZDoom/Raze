@@ -46,7 +46,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheathandler.h"
 #include "inputstate.h"
 #include "d_protocol.h"
-#include "core/menu/menu.h"
+#include "texturemanager.h"
+#include "razemenu.h"
 
 BEGIN_PS_NS
 
@@ -475,13 +476,26 @@ void ExitGame()
     throw CExitEvent(0);
 }
 
+#define x(a, b) registerName(#a, b);
+static void SetTileNames()
+{
+    auto registerName = [](const char* name, int index)
+    {
+        TexMan.AddAlias(name, tileGetTexture(index));
+    };
+#include "namelist.h"
+}
+#undef x
+
 void GameInterface::app_init()
 {
     int i;
     //int esi = 1;
     //int edi = esi;
 
+#if 0
     help_disabled = true;
+#endif
     // Create the global level table. Parts of the engine need it, even though the game itself does not.
     for (int i = 0; i <= 32; i++)
     {
@@ -507,6 +521,7 @@ void GameInterface::app_init()
     // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
     InstallEngine();
     LoadDefinitions();
+    SetTileNames();
 
     TileFiles.SetBackup();
 

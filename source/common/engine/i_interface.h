@@ -22,6 +22,10 @@ struct SystemCallbacks
 	void (*MenuDim)();
 	FString(*GetPlayerName)(int i);
 	bool (*DispatchEvent)(event_t* ev);
+	bool (*CheckGame)(const char* nm);
+	int (*GetGender)();
+	void (*MenuClosed)();
+	bool (*CheckMenudefOption)(const char* opt);
 };
 
 extern SystemCallbacks sysCallbacks;
@@ -36,3 +40,6 @@ struct WadStuff
 extern FString endoomName;
 extern bool batchrun;
 extern float menuBlurAmount;
+extern bool generic_ui;
+
+void UpdateGenericUI(bool cvar);
