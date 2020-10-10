@@ -1802,7 +1802,7 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 		else s->z -= 1024;
 	}
 
-	if (roamsnd >= 0 && S_CheckSoundPlaying(roamsnd) < 2)
+	if (roamsnd >= 0 && S_CheckSoundPlaying(i, roamsnd) < 1)
 		S_PlayActorSound(roamsnd, i);
 
 	ssp(i, CLIPMASK0);
