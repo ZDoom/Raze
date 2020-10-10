@@ -535,7 +535,7 @@ int GameMain()
 		r = -1;
 	}
 	DeleteScreenJob();
-	M_ClearMenus();
+	DeinitMenus();
 	if (gi)
 	{
 		gi->FreeGameData();	// Must be done before taking down any subsystems.
