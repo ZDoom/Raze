@@ -491,6 +491,7 @@ void I_StartupJoysticks();
 void I_ShutdownInput();
 int RunGame();
 void System_MenuClosed();
+void System_MenuDim();
 
 int GameMain()
 {
@@ -510,7 +511,7 @@ int GameMain()
 		nullptr,
 		System_GetSceneRect,
 		nullptr,
-		nullptr,
+		System_MenuDim,
 		nullptr,
 		System_DispatchEvent,
 		validFilter,

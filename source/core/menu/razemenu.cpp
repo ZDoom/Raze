@@ -186,35 +186,19 @@ void System_MenuClosed()
 	gi->MenuClosed();
 }
 
-
 //==========================================================================
 //
-// M_Dim
 //
-// Applies a colored overlay to the entire screen, with the opacity
-// determined by the dimamount cvar.
 //
 //==========================================================================
 
-CUSTOM_CVAR(Float, dimamount, -1.f, CVAR_ARCHIVE)
+void System_MenuDim()
 {
-	if (self < 0.f && self != -1.f)
+	if (gamestate != GS_MENUSCREEN)	// With GS_MENUSCREEN we can assume that the background has been tuned for proper menu display already.
 	{
-		self = -1.f;
-	}
-	else if (self > 1.f)
-	{
-		self = 1.f;
+		Dim(twod, 0, 0.5f, 0, 0, screen->GetWidth(), screen->GetHeight());
 	}
 }
-CVAR(Color, dimcolor, 0xffd700, CVAR_ARCHIVE)
-
-//=============================================================================
-//
-//
-//
-//=============================================================================
-
 
 //=============================================================================
 //
