@@ -187,8 +187,9 @@ static void GameTicker()
 			break;
 
 		case ga_newgame:
-			newGameStarted = true;
 			FX_StopAllSounds();
+		case ga_newgamenostopsound:
+			newGameStarted = true;
 			FX_SetReverb(0);
 			gi->FreeLevelData();
 			C_ClearMessages();

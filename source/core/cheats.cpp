@@ -252,11 +252,11 @@ void ChangeLevel(MapRecord* map, int skill)
 //
 //---------------------------------------------------------------------------
 
-void DeferedStartGame(MapRecord* map, int skill)
+void DeferedStartGame(MapRecord* map, int skill, bool nostopsound)
 {
 	g_nextmap = map;
 	g_nextskill = skill;
-	gameaction = ga_newgame;
+	gameaction = nostopsound? ga_newgamenostopsound : ga_newgame;
 }
 
 //---------------------------------------------------------------------------
