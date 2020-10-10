@@ -619,6 +619,9 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 	if (xsiz <= 0 || ysiz <= 0)
 		return -2;
 
+	// create a new game texture here - we want to give it a new name!
+	tex = MakeGameTexture(tex->GetTexture(), FStringf("#%05d", tilenum), ETextureType::Override);
+	TexMan.AddGameTexture(tex);
 	TileFiles.tiledata[tilenum].backup = TileFiles.tiledata[tilenum].texture = tex;
 	if (istexture)
 		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);
