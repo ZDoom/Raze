@@ -462,7 +462,7 @@ namespace ShadowWarrior
 {
 	::GameInterface* CreateInterface();
 }
-namespace Powerslave
+namespace Exhumed
 {
 	::GameInterface* CreateInterface();
 }
@@ -479,7 +479,7 @@ void CheckFrontend(int flags)
 	}
 	else if (flags & GAMEFLAG_PSEXHUMED)
 	{
-		gi = Powerslave::CreateInterface();
+		gi = Exhumed::CreateInterface();
 	}
 	else
 	{

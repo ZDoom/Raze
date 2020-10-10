@@ -573,6 +573,25 @@ void TerminateLevel(void)
 }
 
 
+using namespace ShadowWarrior;
+static bool DidOrderSound;
+static int zero = 0;
+
+static void PlayOrderSound()
+{
+    if (!DidOrderSound)
+    {
+        DidOrderSound = true;
+        int choose_snd = STD_RANDOM_RANGE(1000);
+        if (choose_snd > 500)
+            PlaySound(DIGI_WANGORDER1, v3df_dontpan, CHAN_BODY, CHANF_UI);
+        else
+            PlaySound(DIGI_WANGORDER2, v3df_dontpan, CHAN_BODY, CHANF_UI);
+    }
+}
+
+
+
 void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
 	//ResetPalette(mpp);
@@ -587,7 +606,11 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 				STAT_Update(true);
 				FinishAnim = false;
 				PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
-				if (SW_SHAREWARE) gameaction = ga_creditsmenu;
+                if (SW_SHAREWARE)
+                {
+                    PlayOrderSound();
+                    gameaction = ga_creditsmenu;
+                }
 				else gameaction = ga_mainmenu;
 			}
 			else gameaction = ga_nextlevel;

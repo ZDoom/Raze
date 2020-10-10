@@ -53,8 +53,6 @@ class SWMenuDelegate : RazeMenuDelegate
 			DTA_CenterOffset, true, DTA_Color, 0xfff0f0f0, DTA_ScaleX, 0.5, DTA_ScaleY, 0.5);
 		return true;
 	}
-
-	//native static void PlayOrderSound();
 }
 
 //=============================================================================
@@ -75,27 +73,6 @@ class ListMenuItemSWLogo : ListMenuItem
 		screen.DrawTexture(TexMan.CheckForTexture("shadow_warrior"), false, 160, 15, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true, DTA_Color, 0xfff0f0f0);
 	}
 }
-
-//=============================================================================
-//
-// SW order sound
-//
-//=============================================================================
-/*
-class ListMenuItemOrderSound : ListMenuItem
-{
-	void Init(ListMenuDescriptor desc)
-	{
-		Super.Init(0, 0);
-	}
-
-	override void Drawer()
-	{
-		if (mEnabled) SWMenuDelegate.PlayOrderSound();
-		mEnabled = 0;
-	}
-}
-*/
 
 //=============================================================================
 //

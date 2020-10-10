@@ -39,22 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-
-DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedPlasma, Draw)
-{
-	menu_DoPlasma();
-	return 0;
-}
-
-DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedLogo, Draw)
-{
-	auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
-	DrawRel(nLogoTile, 160, 40);
-	return 0;
-}
-
-
-
 void GameInterface::MenuOpened()
 {
 	GrabPalette();
@@ -105,3 +89,19 @@ FSavegameInfo GameInterface::GetSaveSig()
 
 
 END_PS_NS
+
+using namespace Exhumed;
+
+DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedPlasma, Draw)
+{
+	menu_DoPlasma();
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedLogo, Draw)
+{
+	auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
+	DrawRel(nLogoTile, 160, 40);
+	return 0;
+}
+

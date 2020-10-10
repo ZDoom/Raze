@@ -123,15 +123,6 @@ void CGameMenuItemQAV::Draw(void)
 
 static std::unique_ptr<CGameMenuItemQAV> itemBloodQAV;	// This must be global to ensure that the animation remains consistent across menus.
 
-DEFINE_ACTION_FUNCTION(DListMenuItemBloodDripDrawer, Draw)
-{
-	// For narrow screens this would be mispositioned so skip drawing it there.
-	double ratio = screen->GetWidth() / double(screen->GetHeight());
-	if (ratio > 1.32) itemBloodQAV->Draw();
-	return 0;
-}
-
-
 void UpdateNetworkMenus(void)
 {
 	// For now disable the network menu item as it is not functional.
@@ -201,11 +192,22 @@ void GameInterface::QuitToTitle()
 	gameaction = ga_mainmenu;
 }
 
+END_BLD_NS
+
+using namespace Blood;
 //----------------------------------------------------------------------------
 //
 //
 //
 //----------------------------------------------------------------------------
+
+DEFINE_ACTION_FUNCTION(DListMenuItemBloodDripDrawer, Draw)
+{
+	// For narrow screens this would be mispositioned so skip drawing it there.
+	double ratio = screen->GetWidth() / double(screen->GetHeight());
+	if (ratio > 1.32) itemBloodQAV->Draw();
+	return 0;
+}
 
 DEFINE_ACTION_FUNCTION(_ImageScrollerPageQavDrawer, LoadQav)
 {
@@ -231,5 +233,4 @@ DEFINE_ACTION_FUNCTION(_ImageScrollerPageQavDrawer, DrawQav)
 	return 0;
 }
 
-END_BLD_NS
 

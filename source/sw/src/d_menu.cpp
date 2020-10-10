@@ -64,23 +64,6 @@ BEGIN_SW_NS
 //
 //----------------------------------------------------------------------------
 
-static bool DidOrderSound;
-static int zero = 0;
-
-DEFINE_ACTION_FUNCTION(_SWMenuDelegate, PlayOrderSound)
-{
-	if (SW_SHAREWARE && !DidOrderSound)
-	{
-		DidOrderSound = true;
-		int choose_snd = STD_RANDOM_RANGE(1000);
-		if (choose_snd > 500)
-			PlaySound(DIGI_WANGORDER1, v3df_dontpan, CHAN_BODY, CHANF_UI);
-		else 
-			PlaySound(DIGI_WANGORDER2, v3df_dontpan, CHAN_BODY, CHANF_UI);
-	}
-	return 0;
-}
-
 void GameInterface::QuitToTitle()
 {
 	Mus_Stop();
@@ -172,3 +155,4 @@ FSavegameInfo GameInterface::GetSaveSig()
 
 
 END_SW_NS
+
