@@ -909,6 +909,18 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		else SetGameVarID((int)lVar2, ps[iPlayer].actors_killed, sActor, sPlayer);
 		break;
 
+	case PLAYER_RETURN_TO_CENTER:
+		if (bSet)
+		{
+			ps[iPlayer].sync.actions |= SB_CENTERVIEW;
+		}
+		else
+		{
+			auto center = ps[iPlayer].sync.actions & SB_CENTERVIEW ? xs_CRoundToInt(ps[iPlayer].horizon.horiz.asbuild() * (9. / gi->playerHorizMax())) : 0;
+			SetGameVarID((int)lVar2, center, sActor, sPlayer);
+		}
+		break;
+
 	default:
 		if (!bSet) SetGameVarID((int)lVar2, 0, sActor, sPlayer);
 		break;
