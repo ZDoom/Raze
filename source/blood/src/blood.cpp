@@ -251,7 +251,6 @@ void NewLevel(MapRecord *sng, int skill)
 	{
 		if (skill != -1) gGameOptions.nDifficulty = skill;
 		gSkill = gGameOptions.nDifficulty;
-		cheatReset();
 		StartLevel(sng);
 		gameaction = ga_level;
 	};
@@ -275,6 +274,7 @@ void NewLevel(MapRecord *sng, int skill)
 void GameInterface::NewGame(MapRecord *sng, int skill)
 {
 	gGameOptions.uGameFlags = 0;
+	cheatReset();
 	NewLevel(sng, skill);
 }
 
