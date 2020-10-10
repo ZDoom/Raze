@@ -38,27 +38,15 @@
 
 FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval)
 {
-	if (arc.BeginObject(key))
-	{
-		arc("value", obj.value).EndObject();
-	}
-	return arc;
+	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
 }
 
 FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval)
 {
-	if (arc.BeginObject(key))
-	{
-		arc("value", obj.value).EndObject();
-	}
-	return arc;
+	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
 }
 
 FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval)
 {
-	if (arc.BeginObject(key))
-	{
-		arc("value", obj.value).EndObject();
-	}
-	return arc;
+	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
 }
