@@ -432,7 +432,7 @@ static void BuildEpisodeMenu()
 			ld->mItems.Pop(popped);
 		}
 
-		ld->mSelectedItem = gDefaultVolume + ld->mItems.Size(); // account for pre-added items
+		ld->mSelectedItem = gDefaultSkill + ld->mItems.Size(); // account for pre-added items
 		int y = ld->mYpos;
 
 		for (int i = 0; i < MAXSKILLS; i++)

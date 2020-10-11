@@ -929,7 +929,7 @@ void C_DrawConsole ()
 		}
 		if (conline && visheight < screen->GetHeight())
 		{
-			twod->AddColorOnlyQuad(0, visheight, screen->GetWidth(), visheight+1, 0xff000000);
+			twod->AddColorOnlyQuad(0, visheight, screen->GetWidth(), 1, 0xff000000);
 		}
 
 		if (ConBottom >= 12)
