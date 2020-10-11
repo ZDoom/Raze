@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "gamecontrol.h"
+#include "gameinput.h"
 
 BEGIN_PS_NS
 
