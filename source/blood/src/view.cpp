@@ -1064,8 +1064,6 @@ public:
     void Save(void);
 };
 
-static ViewLoadSave *myLoadSave;
-
 static int messageTime;
 static char message[256];
 
@@ -1095,7 +1093,7 @@ void ViewLoadSave::Save(void)
 
 void ViewLoadSaveConstruct(void)
 {
-    myLoadSave = new ViewLoadSave();
+    new ViewLoadSave();
 }
 
 END_BLD_NS

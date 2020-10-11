@@ -2545,26 +2545,4 @@ void sub_51340(spritetype *pMissile, int a2)
     }
 }
 
-class WeaponLoadSave : public LoadSave
-{
-public:
-    virtual void Load();
-    virtual void Save();
-};
-
-void WeaponLoadSave::Load()
-{
-}
-
-void WeaponLoadSave::Save()
-{
-}
-
-static WeaponLoadSave *myLoadSave;
-
-void WeaponLoadSaveConstruct(void)
-{
-    myLoadSave = new WeaponLoadSave();
-}
-
 END_BLD_NS

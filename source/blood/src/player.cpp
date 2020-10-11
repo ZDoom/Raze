@@ -2210,11 +2210,9 @@ void PlayerLoadSave::Save(void)
     #endif
 }
 
-static PlayerLoadSave *myLoadSave;
-
 void PlayerLoadSaveConstruct(void)
 {
-    myLoadSave = new PlayerLoadSave();
+    new PlayerLoadSave();
 }
 
 END_BLD_NS

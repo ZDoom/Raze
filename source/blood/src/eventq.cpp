@@ -609,11 +609,10 @@ void EventQLoadSave::Save()
     Write(bucketHead, sizeof(bucketHead));
 }
 
-static EventQLoadSave *myLoadSave;
 
 void EventQLoadSaveConstruct(void)
 {
-    myLoadSave = new EventQLoadSave();
+    new EventQLoadSave();
 }
 
 END_BLD_NS

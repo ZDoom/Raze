@@ -606,7 +606,7 @@ void sub_76A08(spritetype *pSprite, spritetype *pSprite2, PLAYER *pPlayer) // ??
     }
 }
 
-void DropVoodoo(int nSprite) // unused
+void DropVoodooCb(int nSprite) // unused
 {
     spritetype *pSprite = &sprite[nSprite];
     int nOwner = actSpriteOwnerToSpriteId(pSprite);
@@ -760,7 +760,7 @@ void(*gCallback[kCallbackMax])(int) =
     fxPodBloodSpray,
     fxPodBloodSplat,
     LeechStateTimer,
-    DropVoodoo, // unused
+    DropVoodooCb, // unused
     #ifdef NOONE_EXTENSIONS
     callbackUniMissileBurst, // the code is in nnexts.cpp
     callbackMakeMissileBlocking, // the code is in nnexts.cpp

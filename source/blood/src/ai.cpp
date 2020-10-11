@@ -1757,11 +1757,9 @@ void AILoadSave::Save(void)
     Write(gGenDudeExtra, sizeof(gGenDudeExtra));
 }
 
-static AILoadSave *myLoadSave;
-
 void AILoadSaveConstruct(void)
 {
-    myLoadSave = new AILoadSave();
+    new AILoadSave();
 }
 
 END_BLD_NS

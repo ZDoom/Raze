@@ -736,9 +736,6 @@ void MyLoadSave::Save(void)
     Write(skyInfo, sizeof(*skyInfo));
 }
 
-static MyLoadSave *myLoadSave;
-
-
 void ActorLoadSaveConstruct(void);
 void AILoadSaveConstruct(void);
 void EndGameLoadSaveConstruct(void);
@@ -751,14 +748,13 @@ void SeqLoadSaveConstruct(void);
 void TriggersLoadSaveConstruct(void);
 void ViewLoadSaveConstruct(void);
 void WarpLoadSaveConstruct(void);
-void WeaponLoadSaveConstruct(void);
 #ifdef NOONE_EXTENSIONS
 void NNLoadSaveConstruct(void);
 #endif
 
 void LoadSaveSetup(void)
 {
-    myLoadSave = new MyLoadSave();
+    new MyLoadSave();
 
     ActorLoadSaveConstruct();
     AILoadSaveConstruct();
@@ -772,7 +768,6 @@ void LoadSaveSetup(void)
     TriggersLoadSaveConstruct();
     ViewLoadSaveConstruct();
     WarpLoadSaveConstruct();
-    WeaponLoadSaveConstruct();
 #ifdef NOONE_EXTENSIONS
     NNLoadSaveConstruct();
 #endif

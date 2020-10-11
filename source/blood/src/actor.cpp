@@ -6948,11 +6948,10 @@ void ActorLoadSave::Save(void)
     Write(gPost, sizeof(gPost));
 }
 
-static ActorLoadSave *myLoadSave;
 
 void ActorLoadSaveConstruct(void)
 {
-    myLoadSave = new ActorLoadSave();
+    new ActorLoadSave();
 }
 
 END_BLD_NS

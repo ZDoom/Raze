@@ -427,8 +427,6 @@ public:
     void Save(void);
 };
 
-static MirrorLoadSave *myLoadSave;
-
 void MirrorLoadSave::Load(void)
 {
 #ifdef USE_OPENGL
@@ -472,7 +470,7 @@ void MirrorLoadSave::Save(void)
 
 void MirrorLoadSaveConstruct(void)
 {
-    myLoadSave = new MirrorLoadSave();
+    new MirrorLoadSave();
 }
 
 END_BLD_NS

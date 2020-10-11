@@ -5284,11 +5284,9 @@ void NNLoadSave::Save(void)
 	Write(&gEventRedirectsUsed, sizeof(gEventRedirectsUsed));
 }
 
-static NNLoadSave* myLoadSave;
-
 void NNLoadSaveConstruct(void)
 {
-    myLoadSave = new NNLoadSave();
+    new NNLoadSave();
 }
 
 ///////////////////////////////////////////////////////////////////

@@ -33,8 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-#define gotpic blafasl
-
 int nPrecacheCount;
 
 void fxPrecache(HitList &hits);

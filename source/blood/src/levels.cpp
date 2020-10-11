@@ -257,8 +257,6 @@ class LevelsLoadSave : public LoadSave
 };
 
 
-static LevelsLoadSave *myLoadSave;
-
 void LevelsLoadSave::Load(void)
 {
     Read(&gNextLevel, sizeof(gNextLevel));
@@ -273,7 +271,7 @@ void LevelsLoadSave::Save(void)
 
 void LevelsLoadSaveConstruct(void)
 {
-    myLoadSave = new LevelsLoadSave();
+    new LevelsLoadSave();
 }
 
 END_BLD_NS

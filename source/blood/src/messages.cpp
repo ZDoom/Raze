@@ -568,11 +568,9 @@ void MessagesLoadSave::Save()
     Write(&bPlayerCheated, sizeof(bPlayerCheated));
 }
 
-static MessagesLoadSave *myLoadSave;
-
 void MessagesLoadSaveConstruct(void)
 {
-    myLoadSave = new MessagesLoadSave();
+    new MessagesLoadSave();
 }
 
 void InitCheats()

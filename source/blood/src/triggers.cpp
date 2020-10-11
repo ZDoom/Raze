@@ -2309,11 +2309,9 @@ void TriggersLoadSave::Save()
     Write(basePath, sizeof(basePath));
 }
 
-static TriggersLoadSave *myLoadSave;
-
 void TriggersLoadSaveConstruct(void)
 {
-    myLoadSave = new TriggersLoadSave();
+    new TriggersLoadSave();
 }
 
 END_BLD_NS
