@@ -84,7 +84,9 @@ struct PLAYER
     spritetype*         pSprite;
     XSPRITE*            pXSprite;
     DUDEINFO*           pDudeInfo;
-    InputPacket              input;
+    InputPacket         input;
+    PlayerHorizon       horizon;
+    PlayerAngle         angle;
     uint8_t             newWeapon;
     int                 used1;  // something related to game checksum
     int                 weaponQav;
@@ -108,8 +110,6 @@ struct PLAYER
     int                 zViewVel;
     int                 zWeapon;
     int                 zWeaponVel;
-    fixed_t             q16horiz;       // horiz
-    fixed_t             q16slopehoriz;  // horizoff
     int                 slope;
     bool                isUnderwater;
     bool                hasKey[8];
@@ -154,7 +154,6 @@ struct PLAYER
     int                 restTime;
     int                 kickPower;
     int                 laughCount;
-    fixed_t             spin;  // turning around
     bool                godMode;
     bool                fallScream;
     bool                cantJump;
@@ -179,17 +178,10 @@ struct PLAYER
     int                 pickupEffect;
     bool                flashEffect;  // if true, reduce pPlayer->visibility counter
     int                 quakeEffect;
-    fixed_t             q16ang;
     int                 angold;
     int                 player_par;
     int                 nWaterPal;
     POSTURE             pPosture[kModeMax][kPostureMax];
-    fixed_t             q16look_ang;
-    fixed_t             q16rotscrnang;
-
-    // Input helper variables.
-    double horizAdjust, angAdjust;
-    fixed_t horizTarget, angTarget;
 };
 
 struct PROFILE

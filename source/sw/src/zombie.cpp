@@ -788,7 +788,7 @@ SpawnZombie(PLAYERp pp, short Weapon)
 
     //Zombies++;
 
-    New = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursectnum, pp->posx, pp->posy, pp->posz, FixedToInt(pp->q16ang), 0);
+    New = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
     np = &sprite[New];
     nu = User[New];
     np->sectnum = pp->cursectnum;

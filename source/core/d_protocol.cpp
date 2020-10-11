@@ -160,9 +160,9 @@ int UnpackUserCmd (InputPacket *ucmd, const InputPacket *basis, uint8_t **stream
 		if (flags & UCMDF_BUTTONS)
 			ucmd->actions = ESyncBits::FromInt(ReadLong(stream));
 		if (flags & UCMDF_PITCH)
-			ucmd->q16horz = ReadLong(stream);
+			ucmd->horz = ReadFloat(stream);
 		if (flags & UCMDF_YAW)
-			ucmd->q16avel = ReadLong(stream);
+			ucmd->avel = ReadFloat(stream);
 		if (flags & UCMDF_FORWARDMOVE)
 			ucmd->fvel = ReadWord (stream);
 		if (flags & UCMDF_SIDEMOVE)
@@ -193,15 +193,15 @@ int PackUserCmd (const InputPacket *ucmd, const InputPacket *basis, uint8_t **st
 		flags |= UCMDF_BUTTONS;
 		WriteLong(ucmd->actions, stream);
 	}
-	if (ucmd->q16horz != basis->q16horz)
+	if (ucmd->horz != basis->horz)
 	{
 		flags |= UCMDF_PITCH;
-		WriteLong (ucmd->q16horz, stream);
+		WriteFloat (ucmd->horz, stream);
 	}
-	if (ucmd->q16avel != basis->q16avel)
+	if (ucmd->avel != basis->avel)
 	{
 		flags |= UCMDF_YAW;
-		WriteLong (ucmd->q16avel, stream);
+		WriteFloat (ucmd->avel, stream);
 	}
 	if (ucmd->fvel != basis->fvel)
 	{
@@ -236,8 +236,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, InputPacket &cmd, Inpu
 	if (arc.BeginObject(key))
 	{
 		arc("actions", cmd.actions)
-			("horz", cmd.q16horz)
-			("avel", cmd.q16avel)
+			("horz", cmd.horz)
+			("avel", cmd.avel)
 			("fvel", cmd.fvel)
 			("svwl", cmd.svel)
 			.EndObject();
@@ -250,8 +250,8 @@ int WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, uint8_t **
 	if (basis == NULL)
 	{
 		if (ucmd->actions != 0 ||
-			ucmd->q16horz != 0 ||
-			ucmd->q16avel != 0 ||
+			ucmd->horz != 0 ||
+			ucmd->avel != 0 ||
 			ucmd->fvel != 0 ||
 			ucmd->svel != 0)
 		{
@@ -261,8 +261,8 @@ int WriteUserCmdMessage (InputPacket *ucmd, const InputPacket *basis, uint8_t **
 	}
 	else
 	if (ucmd->actions != basis->actions ||
-		ucmd->q16horz != basis->q16horz ||
-		ucmd->q16avel != basis->q16avel ||
+		ucmd->horz != basis->horz ||
+		ucmd->avel != basis->avel ||
 		ucmd->fvel != basis->fvel ||
 		ucmd->svel != basis->svel)
 	{

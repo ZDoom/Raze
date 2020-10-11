@@ -712,7 +712,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pSprite->z -= bottom - pSprite->z;
     pSprite->pal = 11+(pPlayer->teamId&3);
     pPlayer->angold = pSprite->ang = pStartZone->ang;
-    pPlayer->q16ang = IntToFixed(pSprite->ang);
+    pPlayer->angle.ang = buildang(pSprite->ang);
     pSprite->type = kDudePlayer1+nPlayer;
     pSprite->clipdist = pDudeInfo->clipdist;
     pSprite->flags = 15;
@@ -721,8 +721,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->pXSprite->health = pDudeInfo->startHealth<<4;
     pPlayer->pSprite->cstat &= (unsigned short)~32768;
     pPlayer->bloodlust = 0;
-    pPlayer->q16horiz = IntToFixed(100);
-    pPlayer->q16slopehoriz = 0;
+    pPlayer->horizon.horiz = pPlayer->horizon.horizoff = q16horiz(0);
     pPlayer->slope = 0;
     pPlayer->fraggerId = -1;
     pPlayer->underwaterTime = 1200;
@@ -734,7 +733,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->restTime = 0;
     pPlayer->kickPower = 0;
     pPlayer->laughCount = 0;
-    pPlayer->spin = 0;
+    pPlayer->angle.spin = buildlook(0);
     pPlayer->posture = 0;
     pPlayer->voodooTarget = -1;
     pPlayer->voodooTargets = 0;
@@ -763,11 +762,11 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->deathTime = 0;
     pPlayer->nextWeapon = 0;
     xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
-    pInput->q16avel = 0;
+    pInput->avel = 0;
     pInput->actions = 0;
     pInput->fvel = 0;
     pInput->svel = 0;
-    pInput->q16horz = 0;
+    pInput->horz = 0;
     pPlayer->flickerEffect = 0;
     pPlayer->quakeEffect = 0;
     pPlayer->tiltEffect = 0;
@@ -1313,8 +1312,8 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 {
     spritetype *pSprite = pPlayer->pSprite;
 
-    pPlayer->q16ang = (pPlayer->q16ang + IntToFixed(pSprite->ang - pPlayer->angold)) & 0x7FFFFFF;
-    pPlayer->angold = pSprite->ang = FixedToInt(pPlayer->q16ang);
+    pPlayer->angle.ang += buildang(pSprite->ang - pPlayer->angold);
+    pPlayer->angold = pSprite->ang = pPlayer->angle.ang.asbuild();
 }
 
 //---------------------------------------------------------------------------
@@ -1325,8 +1324,8 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 
 static void resetinputhelpers(PLAYER* pPlayer)
 {
-    pPlayer->horizAdjust = 0;
-    pPlayer->angAdjust = 0;
+    pPlayer->horizon.resetadjustment();
+    pPlayer->angle.resetadjustment();
 }
 
 void ProcessInput(PLAYER *pPlayer)
@@ -1348,7 +1347,7 @@ void ProcessInput(PLAYER *pPlayer)
     InputPacket *pInput = &pPlayer->input;
 
     pPlayer->isRunning = !!(pInput->actions & SB_RUN);
-    if ((pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->q16avel)
+    if ((pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->avel)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
@@ -1360,11 +1359,11 @@ void ProcessInput(PLAYER *pPlayer)
         {
             fixed_t fraggerAng = gethiq16angle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
             pPlayer->angold = pSprite->ang = FixedToInt(fraggerAng);
-            playerAddAngle(&pPlayer->q16ang, &pPlayer->angAdjust, FixedToFloat(getincangleq16(pPlayer->q16ang, fraggerAng)));
+            pPlayer->angle.addadjustment(FixedToFloat(getincangleq16(pPlayer->angle.ang.asq16(), fraggerAng)));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
-            playerAddHoriz(&pPlayer->q16horiz, &pPlayer->horizAdjust, FixedToFloat(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), gi->playerHorizMax()) - pPlayer->q16horiz));
+            pPlayer->horizon.addadjustment(FixedToFloat(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), gi->playerHorizMax()) - pPlayer->horizon.horiz.asq16()));
         if (pPlayer->curWeapon)
             pInput->setNewWeapon(pPlayer->curWeapon);
         if (pInput->actions & SB_OPEN)
@@ -1446,7 +1445,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        applylook(&pPlayer->q16ang, &pPlayer->q16look_ang, &pPlayer->q16rotscrnang, &pPlayer->spin, pInput->q16avel, &pInput->actions, 1, pPlayer->posture != 0);
+        applylook(&pPlayer->angle, pInput->avel, &pInput->actions, 1, pPlayer->posture != 0);
         UpdatePlayerSpriteAngle(pPlayer);
     }
 
@@ -1558,7 +1557,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        sethorizon(&pPlayer->q16horiz, pInput->q16horz, &pInput->actions, 1);
+        sethorizon(&pPlayer->horizon.horiz, pInput->horz, &pInput->actions, 1);
     }
 
     int nSector = pSprite->sectnum;
@@ -1578,16 +1577,16 @@ void ProcessInput(PLAYER *pPlayer)
         if (nSector2 == nSector)
         {
             int z2 = getflorzofslope(nSector2, x2, y2);
-            pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, IntToFixed(z1-z2)>>3, 0x4000);
+            pPlayer->horizon.horizoff = q16horiz(interpolate(pPlayer->horizon.horizoff.asq16(), IntToFixed(z1-z2)>>3, 0x4000));
         }
     }
     else
     {
-        pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, 0, 0x4000);
-        if (klabs(pPlayer->q16slopehoriz) < 4)
-            pPlayer->q16slopehoriz = 0;
+        pPlayer->horizon.horizoff = q16horiz(interpolate(pPlayer->horizon.horizoff.asq16(), 0, 0x4000));
+        if (klabs(pPlayer->horizon.horizoff.asq16()) < 4)
+            pPlayer->horizon.horizoff = q16horiz(0);
     }
-    pPlayer->slope = -(pPlayer->q16horiz - IntToFixed(100)) >> 9;
+    pPlayer->slope = -pPlayer->horizon.horiz.asq16() >> 9;
     if (pInput->actions & SB_INVPREV)
     {
         pInput->actions&= ~SB_INVPREV;

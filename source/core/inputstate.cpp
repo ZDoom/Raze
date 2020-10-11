@@ -62,8 +62,8 @@ CVAR(Float, m_side, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 
 void InputState::GetMouseDelta(ControlInfo * hidInput)
 {
-	hidInput->mouseturnx = g_mousePos.x * m_yaw * (1.f / 4.f);
-	hidInput->mouseturny = g_mousePos.y * m_pitch * (1.f / 5.f);
+	hidInput->mouseturnx = g_mousePos.x * m_yaw * (1.f / 18.f);
+	hidInput->mouseturny = g_mousePos.y * m_pitch * (1.f / 14.f);
 	hidInput->mousemovex = g_mousePos.x * m_side;
 	hidInput->mousemovey = g_mousePos.y * m_forward;
 
@@ -181,10 +181,10 @@ ControlInfo CONTROL_GetInput()
 
 		I_GetAxes(joyaxes);
 
-		hidInput.dyaw += -joyaxes[JOYAXIS_Yaw] * (1350.f / GameTicRate);
-		hidInput.dx += -joyaxes[JOYAXIS_Side] * 0.75f;
-		hidInput.dz += -joyaxes[JOYAXIS_Forward] * 0.75f;
-		hidInput.dpitch += -joyaxes[JOYAXIS_Pitch] * (675.f / GameTicRate);
+		hidInput.dyaw += -joyaxes[JOYAXIS_Yaw];
+		hidInput.dx += -joyaxes[JOYAXIS_Side] * .5f;
+		hidInput.dz += -joyaxes[JOYAXIS_Forward] * .5f;
+		hidInput.dpitch += -joyaxes[JOYAXIS_Pitch];
 	}
 
 	return hidInput;

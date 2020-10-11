@@ -435,10 +435,10 @@ void initshell(int j, int i, bool isshell)
 		if (sprite[j].picnum == TILE_APLAYER)
 		{
 			snum = sprite[j].yvel;
-			a = ps[snum].getang() - (krand() & 63) + 8;  //Fine tune
+			a = ps[snum].angle.ang.asbuild() - (krand() & 63) + 8;  //Fine tune
 
 			t[0] = krand() & 1;
-			sp->z = (3 << 8) + ps[snum].pyoff + ps[snum].posz - ((ps[snum].q16horizoff + ps[snum].q16horiz - IntToFixed(100)) >> 12) + (!isshell ? (3 << 8) : 0);
+			sp->z = (3 << 8) + ps[snum].pyoff + ps[snum].posz - (ps[snum].horizon.sum().asq16() >> 12) + (!isshell ? (3 << 8) : 0);
 			sp->zvel = -(krand() & 255);
 		}
 		else

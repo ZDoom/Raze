@@ -159,14 +159,14 @@ inline int PlayerInputForwardVel(int pl)
 	return ps[pl].sync.fvel;
 }
 
-inline fixed_t PlayerInputAngVel(int pl)
+inline float PlayerInputAngVel(int pl)
 {
-	return ps[pl].sync.q16avel;
+	return ps[pl].sync.avel;
 }
 
-inline fixed_t PlayerHorizon(int pl)
+inline float PlayerHorizon(int pl)
 {
-	return ps[pl].sync.q16horz;
+	return ps[pl].sync.horz;
 }
 
 inline void clearfriction()
@@ -190,17 +190,14 @@ inline bool playrunning()
 inline void backupplayer(player_struct* p)
 {
 	backuppos(p);
-	backuplook(p);
-	backupview(p);
+	p->angle.backup();
+	p->horizon.backup();
 }
 
 // the weapon display code uses this.
-inline double get16thOfHoriz(int snum, bool interpolate, double smoothratio)
+inline double get16thOfHoriz(int const snum, bool const interpolate, double const smoothratio)
 {
-	struct player_struct *p = &ps[snum];
-	fixed_t ohorz = p->oq16horiz - p->oq16horizoff;
-	fixed_t horz = p->q16horiz - p->q16horizoff;
-	return (!interpolate ? horz : ohorz + fmulscale16(horz - ohorz, smoothratio)) * (0.0625 / FRACUNIT);
+	return (!interpolate ? ps[snum].horizon.sum() : ps[snum].horizon.interpolatedsum(smoothratio)).asq16() * (0.0625 / FRACUNIT);
 }
 
 

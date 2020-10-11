@@ -57,9 +57,9 @@ static VIEW predictFifo[256];
 
 void viewInitializePrediction(void)
 {
-	predict.at30 = gMe->q16ang;
-	predict.at24 = gMe->q16horiz;
-	predict.at28 = gMe->q16slopehoriz;
+	predict.at30 = gMe->angle.ang;
+	predict.at24 = gMe->horizon.horiz;
+	predict.at28 = gMe->horizon.horizoff;
 	predict.at2c = gMe->slope;
 	predict.at6f = gMe->cantJump;
 	predict.at70 = gMe->isRunning;
@@ -75,7 +75,7 @@ void viewInitializePrediction(void)
 	predict.at64 = zvel[gMe->pSprite->index];
 	predict.at6a = gMe->pXSprite->height;
 	predict.at48 = gMe->posture;
-	predict.at4c = gMe->spin;
+	predict.at4c = gMe->angle.spin;
 	predict.at6e = !!(gMe->input.actions & SB_CENTERVIEW);
 	memcpy(&predict.at75,&gSpriteHit[gMe->pSprite->extra],sizeof(SPRITEHIT));
 	predict.TotalKills = gMe->bobPhase;
@@ -120,8 +120,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     predict.at71 = !!(gMe->input.actions & SB_JUMP);
     if (predict.at48 == 1)
     {
-        int x = Cos(FixedToInt(predict.at30));
-        int y = Sin(FixedToInt(predict.at30));
+        int x = Cos(predict.at30.asbuild());
+        int y = Sin(predict.at30.asbuild());
         if (pInput->fvel)
         {
             int forward = pInput->fvel;
@@ -145,8 +145,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         int speed = 0x10000;
         if (predict.at6a > 0)
             speed -= divscale16(predict.at6a, 0x100);
-        int x = Cos(FixedToInt(predict.at30));
-        int y = Sin(FixedToInt(predict.at30));
+        int x = Cos(predict.at30.asbuild());
+        int y = Sin(predict.at30.asbuild());
         if (pInput->fvel)
         {
             int forward = pInput->fvel;
@@ -169,12 +169,12 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
             predict.at60 -= mulscale30(strafe, x);
         }
     }
-    if (pInput->q16avel)
-        predict.at30 = (predict.at30+pInput->q16avel)&0x7ffffff;
+    if (pInput->avel)
+        predict.at30 = degang(pInput->avel);
     if (pInput->actions & SB_TURNAROUND)
-        if (!predict.at4c)
-            predict.at4c = -1024;
-    if (predict.at4c < 0)
+        if (!predict.at4c.asbuild())
+            predict.at4c = buildlook(-1024);
+    if (predict.at4c.asbuild() < 0)
     {
         int speed;
         if (predict.at48 == 1)
@@ -182,8 +182,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         else
             speed = 128;
 
-        predict.at4c = min(predict.at4c+speed, 0);
-        predict.at30 += IntToFixed(speed);
+        predict.at4c = buildlook(min(predict.at4c.asbuild()+speed, 0));
+        predict.at30 += buildang(speed);
     }
 
     if (!predict.at71)
@@ -212,6 +212,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         break;
     }
 
+#if 0
     if (predict.at6e && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
     {
         if (predict.at20 < 0)
@@ -228,7 +229,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         if (pInput->actions & SB_LOOK_DOWN)
             predict.at20 = max(predict.at20-IntToFixed(4), IntToFixed(-60));
     }
-    predict.at20 = clamp(predict.at20+pInput->q16horz, IntToFixed(-60), IntToFixed(60));
+    predict.at20 = clamp(predict.at20+pInput->horz, IntToFixed(-60), IntToFixed(60));
 
     if (predict.at20 > 0)
         predict.at24 = FloatToFixed(fmulscale30(120., Sinf(FixedToFloat(predict.at20) * 8.)));
@@ -236,6 +237,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         predict.at24 = FloatToFixed(fmulscale30(180., Sinf(FixedToFloat(predict.at20) * 8.)));
     else
         predict.at24 = 0;
+#endif
 
     int nSector = predict.at68;
     int florhit = predict.at75.florhit & 0xc000;
@@ -247,23 +249,23 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     if (va && (sector[nSector].floorstat&2) != 0)
     {
         int z1 = getflorzofslope(nSector, predict.at50, predict.at54);
-        int x2 = predict.at50+mulscale30(64, Cos(FixedToInt(predict.at30)));
-        int y2 = predict.at54+mulscale30(64, Sin(FixedToInt(predict.at30)));
+        int x2 = predict.at50+mulscale30(64, Cos(predict.at30.asbuild()));
+        int y2 = predict.at54+mulscale30(64, Sin(predict.at30.asbuild()));
         short nSector2 = nSector;
         updatesector(x2, y2, &nSector2);
         if (nSector2 == nSector)
         {
             int z2 = getflorzofslope(nSector2, x2, y2);
-            predict.at28 = interpolate(predict.at28, IntToFixed(z1-z2)>>3, 0x4000);
+            predict.at28 = q16horiz(interpolate(predict.at28.asq16(), IntToFixed(z1 - z2) >> 3, 0x4000));
         }
     }
     else
     {
-        predict.at28 = interpolate(predict.at28, 0, 0x4000);
-        if (klabs(predict.at28) < 4)
-            predict.at28 = 0;
+        predict.at28 = q16horiz(interpolate(predict.at28.asq16(), 0, 0x4000));
+        if (klabs(predict.at28.asq16()) < 4)
+            predict.at28 = q16horiz(0);
     }
-    predict.at2c = -(predict.at24 - IntToFixed(100)) >> 9;
+    predict.at2c = -predict.at24.asq16() >> 9;
 }
 
 void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
@@ -654,7 +656,7 @@ void viewCorrectPrediction(void)
 #if 0
     spritetype *pSprite = gMe->pSprite;
     VIEW *pView = &predictFifo[(gNetFifoTail-1)&255];
-    if (gMe->q16ang != pView->at30 || pView->at24 != gMe->q16horiz || pView->at50 != pSprite->x || pView->at54 != pSprite->y || pView->at58 != pSprite->z)
+    if (gMe->angle.ang != pView->at30 || pView->at24 != gMe->horizon.horiz || pView->at50 != pSprite->x || pView->at54 != pSprite->y || pView->at58 != pSprite->z)
     {
         viewInitializePrediction();
         predictOld = gPrevView[myconnectindex];

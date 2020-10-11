@@ -478,8 +478,8 @@ void displayrooms(int snum, double smoothratio)
 	int cposx, cposy, cposz, fz, cz;
 	short sect;
 	binangle cang;
+	lookangle rotscrnang;
 	fixedhoriz choriz;
-	fixed_t q16rotscrnang;
 	struct player_struct* p;
 	int tiltcs = 0; // JBF 20030807
 
@@ -545,7 +545,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 
 		// set screen rotation.
-		q16rotscrnang = !cl_syncinput ? p->q16rotscrnang : p->oq16rotscrnang + fmulscale16(((p->q16rotscrnang - p->oq16rotscrnang + dang) & 0x7FFFFFF) - dang, smoothratio);
+		rotscrnang = !cl_syncinput ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio);
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
@@ -554,15 +554,15 @@ void displayrooms(int snum, double smoothratio)
 			cposz = omyz + xs_CRoundToInt(fmulscale16(myz - omyz, smoothratio));
 			if (cl_syncinput)
 			{
-				fixed_t ohorz = (oq16myhoriz + oq16myhorizoff);
-				fixed_t horz = (q16myhoriz + q16myhorizoff);
+				fixed_t ohorz = (omyhoriz.asq16() + omyhorizoff.asq16());
+				fixed_t horz = (myhoriz.asq16() + myhorizoff.asq16());
 				choriz = q16horiz(ohorz + xs_CRoundToInt(fmulscale16(horz - ohorz, smoothratio)));
-				cang = q16ang(oq16myang + xs_CRoundToInt(fmulscale16(((q16myang + dang - oq16myang) & 0x7FFFFFF) - dang, smoothratio)));
+				cang = bamang(xs_CRoundToUInt(omyang.asbam() + fmulscale16(myang.asbam() - omyang.asbam(), smoothratio)));
 			}
 			else
 			{
-				cang = q16ang(q16myang);
-				choriz = q16horiz(q16myhoriz + q16myhorizoff);
+				cang = myang;
+				choriz = myhoriz + myhorizoff;
 			}
 			sect = mycursectnum;
 		}
@@ -574,31 +574,26 @@ void displayrooms(int snum, double smoothratio)
 			if (cl_syncinput)
 			{
 				// Original code for when the values are passed through the sync struct
-				fixed_t ohorz = (p->oq16horiz + p->oq16horizoff);
-				fixed_t horz = (p->q16horiz + p->q16horizoff);
-				choriz = q16horiz(ohorz + xs_CRoundToInt(fmulscale16(horz - ohorz, smoothratio)));
-
-				fixed_t oang = (p->oq16ang + p->oq16look_ang);
-				fixed_t ang = (p->q16ang + p->q16look_ang);
-				cang = q16ang(oang + xs_CRoundToInt(fmulscale16(((ang + dang - oang) & 0x7FFFFFF) - dang, smoothratio)));
+				choriz = p->horizon.interpolatedsum(smoothratio);
+				cang = p->angle.interpolatedsum(smoothratio);
 			}
 			else
 			{
 				// This is for real time updating of the view direction.
-				cang = q16ang(p->q16ang + p->q16look_ang);
-				choriz = q16horiz(p->q16horiz + p->q16horizoff);
+				cang = p->angle.sum();
+				choriz = p->horizon.sum();
 			}
 		}
 
 		if (p->newowner >= 0)
 		{
 			cang = buildang(getcamspriteang(p->newowner, smoothratio));
-			choriz = q16horiz(p->q16horiz + p->q16horizoff);
+			choriz = buildhoriz(sprite[p->newowner].shade);
 			cposx = sprite[p->newowner].pos.x;
 			cposy = sprite[p->newowner].pos.y;
 			cposz = sprite[p->newowner].pos.z;
 			sect = sprite[p->newowner].sectnum;
-			q16rotscrnang = 0;
+			rotscrnang = buildlook(0);
 			smoothratio = MaxSmoothRatio;
 		}
 		else if (p->over_shoulder_on == 0)
@@ -617,7 +612,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 
 		// do screen rotation.
-		renderSetRollAngle(FixedToInt(q16rotscrnang));
+		renderSetRollAngle(rotscrnang.asbam() / (double)(BAMUNIT));
 
 		cz = hittype[p->i].ceilingz;
 		fz = hittype[p->i].floorz;
@@ -630,10 +625,7 @@ void displayrooms(int snum, double smoothratio)
 
 		if (sprite[p->i].pal == 1) cposz -= (18 << 8);
 
-		if (p->newowner >= 0)
-			choriz = buildhoriz(100 + sprite[p->newowner].shade);
-
-		else if (p->spritebridge == 0)
+		else if (p->spritebridge == 0 && p->newowner < 0)
 		{
 			if (cposz < (p->truecz + (4 << 8))) cposz = cz + (4 << 8);
 			else if (cposz > (p->truefz - (4 << 8))) cposz = fz - (4 << 8);
@@ -646,7 +638,7 @@ void displayrooms(int snum, double smoothratio)
 			if (cposz > fz - (4 << 8)) cposz = fz - (4 << 8);
 		}
 
-		choriz = clamp(choriz, buildhoriz(HORIZ_MIN), buildhoriz(HORIZ_MAX));
+		choriz = clamp(choriz, q16horiz(gi->playerHorizMin()), q16horiz(gi->playerHorizMax()));
 
 		if (isRR() && sector[sect].lotag == 848)
 		{

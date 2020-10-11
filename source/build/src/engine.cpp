@@ -170,7 +170,7 @@ int32_t ydimen;
 
 int32_t rxi[8], ryi[8];
 
-int32_t globalposx, globalposy, globalposz, globalhoriz;
+int32_t globalposx, globalposy, globalposz;
 fixed_t qglobalhoriz;
 float fglobalposx, fglobalposy, fglobalposz;
 int16_t globalang, globalcursectnum;
@@ -1092,8 +1092,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     // xdimenscale is scale(xdimen,yxaspect,320);
     // normalization by viewingrange so that center-of-aim doesn't depend on it
-    qglobalhoriz = mulscale16(dahoriz-IntToFixed(100), divscale16(xdimenscale, viewingrange))+IntToFixed(ydimen>>1);
-    globalhoriz = FixedToInt(qglobalhoriz);
+    qglobalhoriz = mulscale16(dahoriz, divscale16(xdimenscale, viewingrange))+IntToFixed(ydimen>>1);
 
     globalcursectnum = dacursectnum;
 

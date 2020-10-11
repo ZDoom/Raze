@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "misc.h"
 #include "printf.h"
 #include "v_text.h"
+#include "binaryangle.h"
 
 BEGIN_BLD_NS
 
@@ -560,6 +561,16 @@ inline int interpolateang(int a, int b, int c)
 inline fixed_t interpolateangfix16(fixed_t a, fixed_t b, int c)
 {
     return a+mulscale16(((b-a+0x4000000)&0x7ffffff)-0x4000000, c);
+}
+
+inline binangle interpolateangbin(uint32_t a, uint32_t b, double c)
+{
+    return bamang(xs_CRoundToUInt(a + fmulscale16(b - a, c)));
+}
+
+inline lookangle interpolateanglook(int32_t a, int32_t b, double c)
+{
+    return bamlook(xs_CRoundToUInt(a + fmulscale16(b - a, c)));
 }
 
 inline char Chance(int a1)

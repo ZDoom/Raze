@@ -189,7 +189,6 @@ static FORCE_INLINE uint16_t B_UNBUF16(void const * const buf) { return *(uint16
 
 ////////// Abstract data operations //////////
 
-template <typename T, typename X, typename Y> constexpr T clamp(T in, X min, Y max) { return in <= (T) min ? (T) min : (in >= (T) max ? (T) max : in); }
 using std::min;
 using std::max;
 

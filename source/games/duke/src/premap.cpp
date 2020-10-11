@@ -59,8 +59,7 @@ void pickrandomspot(int snum)
     p->bobposx = p->oposx = p->posx = po[i].ox;
     p->bobposy = p->oposy = p->posy = po[i].oy;
     p->oposz = p->posz = po[i].oz;
-    p->setang(po[i].oa);
-    p->setoang(po[i].oa);
+    p->angle.oang = p->angle.ang = buildang(po[i].oa);
     p->cursectnum = po[i].os;
 }
 
@@ -112,10 +111,8 @@ void resetplayerstats(int snum)
     p->footprintpal     = 0;
     p->footprintshade   = 0;
     p->jumping_toggle   = 0;
-    p->sethoriz(140);                                   //!!
-    p->oq16horiz = p->q16horiz;
-    p->sethorizoff(0);
-    p->oq16horizoff = p->q16horizoff;
+    p->horizon.ohoriz = p->horizon.horiz = q16horiz(40);
+    p->horizon.ohorizoff = p->horizon.horizoff = q16horiz(0);
     p->bobcounter       = 0;
     p->on_ground        = 0;
     p->player_par       = 0;
@@ -141,11 +138,9 @@ void resetplayerstats(int snum)
     p->jetpack_on =         0;
     p->holoduke_on =       -1;
 
-    p->setlookang(512 - ((currentLevel->levelNumber & 1) << 10));
-    p->oq16look_ang = p->q16look_ang;
+    p->angle.olook_ang = p->angle.look_ang = buildlook(512 - ((currentLevel->levelNumber & 1) << 10));
+    p->angle.orotscrnang = p->angle.rotscrnang = buildlook(0);
 
-    p->setrotscrnang(0);
-    p->oq16rotscrnang = p->q16rotscrnang;
     p->newowner          =-1;
     p->jumping_counter   = 0;
     p->hard_landing      = 0;
@@ -155,7 +150,7 @@ void resetplayerstats(int snum)
     p->fric.x            = 0;
     p->fric.y            = 0;
     p->somethingonplayer =-1;
-    p->one_eighty_count  = 0;
+    p->angle.spin        = bamlook(0);
 
     p->on_crane          = -1;
 
@@ -513,7 +508,7 @@ void resetpspritevars(int g)
     STATUSBARTYPE tsbar[MAXPLAYERS];
 
     EGS(ps[0].cursectnum, ps[0].posx, ps[0].posy, ps[0].posz,
-        TILE_APLAYER, 0, 0, 0, ps[0].getang(), 0, 0, 0, 10);
+        TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, 0, 10);
 
     if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
     {
@@ -638,8 +633,7 @@ void resetpspritevars(int g)
             hittype[i].bposx = ps[j].bobposx = ps[j].oposx = ps[j].posx = s->x;
             hittype[i].bposy = ps[j].bobposy = ps[j].oposy = ps[j].posy = s->y;
             hittype[i].bposz = ps[j].oposz = ps[j].posz = s->z;
-            ps[j].setang(s->ang);
-            ps[j].setoang(s->ang);
+            ps[j].angle.oang = ps[j].angle.ang = buildang(s->ang);
 
             updatesector(s->x, s->y, &ps[j].cursectnum);
 
@@ -876,7 +870,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
             ps[0].ammo_amount[i] = 0;
         ps[0].gotweapon.Clear(KNEE_WEAPON);
     }
-    p->setang(lbang);
+    p->angle.ang = buildang(lbang);
 
     memset(gotpic, 0, sizeof(gotpic));
     

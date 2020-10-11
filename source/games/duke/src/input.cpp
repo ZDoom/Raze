@@ -286,7 +286,7 @@ void hud_input(int snum)
 								EGS(p->cursectnum,
 									p->posx,
 									p->posy,
-									p->posz + (30 << 8), TILE_APLAYER, -64, 0, 0, p->getang(), 0, 0, -1, 10);
+									p->posz + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, -1, 10);
 							hittype[i].temp_data[3] = hittype[i].temp_data[4] = 0;
 							sprite[i].yvel = snum;
 							sprite[i].extra = 0;
@@ -477,7 +477,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SB_TURNAROUND) && p->one_eighty_count == 0 && p->on_crane < 0)
+		if (PlayerInput(snum, SB_TURNAROUND) && p->angle.spin.asbam() == 0 && p->on_crane < 0)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_TURNAROUND, -1, snum, -1);
@@ -805,7 +805,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 		turnvel *= clamp(turnspeed * turnspeed, 0., 1.);
 
 	input.fvel = p->MotoSpeed;
-	input.q16avel = FloatToFixed(turnvel);
+	input.avel = turnvel;
 }
 
 //---------------------------------------------------------------------------
@@ -823,8 +823,8 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 	{
 		// neutralize all movement when blocked or in automap follow mode
 		loc.fvel = loc.svel = 0;
-		loc.q16avel = loc.q16horz = 0;
-		input.q16avel = input.q16horz = 0;
+		loc.avel = loc.horz = 0;
+		input.avel = input.horz = 0;
 	}
 	else
 	{
@@ -846,26 +846,26 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 
 		if (p->on_crane < 0 && p->newowner == -1)
 		{
-			// input.q16avel already added to loc in processMovement()
-			loc.q16avel = clamp(loc.q16avel, IntToFixed(-MAXANGVEL), IntToFixed(MAXANGVEL));
-			if (!cl_syncinput && input.q16avel)
+			// input.avel already added to loc in processMovement()
+			loc.avel = clamp(loc.avel, -MAXANGVEL, MAXANGVEL);
+			if (!cl_syncinput && input.avel)
 			{
-				p->one_eighty_count = 0;
+				p->angle.spin = bamlook(0);
 			}
 		}
 		else
 		{
-			loc.q16avel = input.q16avel = 0;
+			loc.avel = input.avel = 0;
 		}
 
 		if (p->newowner == -1 && !(p->sync.actions & SB_CENTERVIEW))
 		{
-			// input.q16horz already added to loc in processMovement()
-			loc.q16horz = clamp(loc.q16horz, IntToFixed(-MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
+			// input.horz already added to loc in processMovement()
+			loc.horz = clamp(loc.horz, -MAXHORIZVEL, MAXHORIZVEL);
 		}
 		else
 		{
-			loc.q16horz = input.q16horz = 0;
+			loc.horz = input.horz = 0;
 		}
 	}
 }
@@ -921,27 +921,28 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		{
 			// Do these in the same order as the old code.
 			calcviewpitch(p, scaleAdjust);
-			processq16avel(p, &input.q16avel);
-			applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, input.q16avel, &p->sync.actions, scaleAdjust, p->crouch_toggle || p->sync.actions & SB_CROUCH);
-			sethorizon(&p->q16horiz, input.q16horz, &p->sync.actions, scaleAdjust);
+			processavel(p, &input.avel);
+			applylook(&p->angle, input.avel, &p->sync.actions, scaleAdjust, p->crouch_toggle || p->sync.actions & SB_CROUCH);
+			sethorizon(&p->horizon.horiz, input.horz, &p->sync.actions, scaleAdjust);
 		}
 
-		playerProcessHelpers(&p->q16ang, &p->angAdjust, &p->angTarget, &p->q16horiz, &p->horizAdjust, &p->horizTarget, scaleAdjust);
+		p->angle.processhelpers(scaleAdjust);
+		p->horizon.processhelpers(scaleAdjust);
 	}
 
 	if (packet)
 	{
 		auto const pPlayer = &ps[myconnectindex];
-		auto const q16ang = FixedToInt(pPlayer->q16ang);
+		auto const ang = pPlayer->angle.ang.asbuild();
 
 		*packet = loc;
 		auto fvel = loc.fvel;
 		auto svel = loc.svel;
-		packet->fvel = mulscale9(fvel, sintable[(q16ang + 2560) & 2047]) +
-			mulscale9(svel, sintable[(q16ang + 2048) & 2047]) +
+		packet->fvel = mulscale9(fvel, sintable[(ang + 2560) & 2047]) +
+			mulscale9(svel, sintable[(ang + 2048) & 2047]) +
 			pPlayer->fric.x;
-		packet->svel = mulscale9(fvel, sintable[(q16ang + 2048) & 2047]) +
-			mulscale9(svel, sintable[(q16ang + 1536) & 2047]) +
+		packet->svel = mulscale9(fvel, sintable[(ang + 2048) & 2047]) +
+			mulscale9(svel, sintable[(ang + 1536) & 2047]) +
 			pPlayer->fric.y;
 		loc = {};
 	}

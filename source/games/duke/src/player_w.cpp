@@ -333,19 +333,19 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				k = 15;
-				i = xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
+				i = mulscale16(p->horizon.sum().asq16(), 20);
 			}
 			else
 			{
 				k = 140;
-				i = -512 - xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
+				i = -512 - mulscale16(p->horizon.sum().asq16(), 20);
 			}
 
 			j = EGS(p->cursectnum,
-				p->posx + (sintable[(p->getang() + 512) & 2047] >> 6),
-				p->posy + (sintable[p->getang() & 2047] >> 6),
+				p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 6),
+				p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 6),
 				p->posz, HEAVYHBOMB, -16, 9, 9,
-				p->getang(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
+				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
 
 			{
 				int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);

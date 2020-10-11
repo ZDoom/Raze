@@ -113,12 +113,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		arc("posx", w.posx)
 			("posy", w.posy)
 			("posz", w.posz)
-			("q16ang", w.q16ang)
-			("q16horiz", w.q16horiz)
-			("q16horizoff", w.q16horizoff)
-			("q16rotscrnang", w.q16rotscrnang)
-			("q16look_ang", w.q16look_ang)
-			("one_eighty_count", w.one_eighty_count)
+			("ang", w.angle.ang)
+			("look_ang", w.angle.look_ang)
+			("rotscrnang", w.angle.rotscrnang)
+			("horiz", w.horizon.horiz)
+			("horizoff", w.horizon.horizoff)
+			("spin", w.angle.spin)
 			("gotweapon", w.gotweapon)
 			("palette", w.palette)
 			("pals", w.pals)
@@ -284,10 +284,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			.EndObject();
 
 		w.invdisptime = 0;
-		w.oq16ang = w.q16ang;
-		w.oq16horiz = w.q16horiz;
-		w.oq16horizoff = w.q16horizoff;
-		w.oq16rotscrnang = w.q16rotscrnang;
+		w.angle.oang = w.angle.ang;
+		w.angle.olook_ang = w.angle.look_ang;
+		w.angle.orotscrnang = w.angle.rotscrnang;
+		w.horizon.ohoriz = w.horizon.horiz;
+		w.horizon.ohorizoff = w.horizon.horizoff;
 		w.oposx = w.posx;
 		w.oposy = w.posy;
 		w.oposz = w.posz;
@@ -297,8 +298,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		w.okickback_pic = w.kickback_pic;
 		w.orandom_club_frame = w.random_club_frame;
 		w.ohard_landing = w.hard_landing;
-		w.horizAdjust = 0;
-		w.angAdjust = 0;
 		w.sync.actions &= SB_CENTERVIEW; // this is the only bit we need to preserve.
 	}
 	return arc;

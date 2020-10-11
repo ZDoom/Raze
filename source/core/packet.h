@@ -72,8 +72,8 @@ struct InputPacket
 {
     int16_t svel;
     int16_t fvel;
-    fixed_t q16avel;
-    fixed_t q16horz;
+    float avel;
+    float horz;
     ESyncBits actions;
 	
 

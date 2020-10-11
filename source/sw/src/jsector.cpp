@@ -685,14 +685,10 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                     // 100!
                     if (SP_TAG7(sp) != 0)
                     {
-                        camhoriz = SP_TAG7(sp);
-                        if (camhoriz > PLAYER_HORIZ_MAX)
-                            camhoriz = PLAYER_HORIZ_MAX;
-                        else if (camhoriz < PLAYER_HORIZ_MIN)
-                            camhoriz = PLAYER_HORIZ_MIN;
+                        camhoriz = clamp(SP_TAG7(sp), gi->playerHorizMin(), gi->playerHorizMax());
                     }
                     else
-                        camhoriz = 100;     // Default
+                        camhoriz = 0;     // Default
 
                     // If player is dead still then update at MoveSkip4
                     // rate.
@@ -710,7 +706,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
 
                             if (TEST_BOOL11(sp) && numplayers > 1)
                             {
-                                drawroomstotile(cp->posx, cp->posy, cp->posz, cp->q16ang, cp->q16horiz, cp->cursectnum, mirror[cnt].campic);
+                                drawroomstotile(cp->posx, cp->posy, cp->posz, cp->angle.ang.asq16(), cp->horizon.horiz.asq16(), cp->cursectnum, mirror[cnt].campic);
                             }
                             else
                             {
@@ -762,7 +758,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 //                tx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
 //                ty = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
 //                tz = pp->oposz + mulscale16(pp->posz - pp->oposz, smoothratio);
-//                tpq16ang = pp->q16ang;
+//                tpq16ang = pp->angle.ang.asq16();
 
 
                 dist = 0x7fffffff;

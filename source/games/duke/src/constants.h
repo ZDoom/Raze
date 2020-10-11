@@ -376,8 +376,6 @@ enum miscConstants
 	FOURSLEIGHT = (1 << 8),
 
 	MOVEFIFOSIZ     =256,
-	HORIZ_MIN       =-99,
-	HORIZ_MAX       =299,
 	AUTO_AIM_ANGLE  =48,
 	PHEIGHT_DUKE    =(38<<8),
 	PHEIGHT_RR      =(40<<8),

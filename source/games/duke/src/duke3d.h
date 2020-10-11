@@ -18,7 +18,6 @@
 #include "rts.h"
 #include "sounds.h"
 #include "soundefs.h"
-#include "binaryangle.h"
 #include "gamestruct.h"
 #include "v_draw.h"
 

@@ -739,7 +739,7 @@ loc_flag:
                 // loc_27266:
                 case kWeaponSword:
                 {
-                    nHeight += (IntToFixed(100) - PlayerList[nLocalPlayer].q16horiz) >> 10;
+                    nHeight += -PlayerList[nLocalPlayer].horizon.horiz.asq16() >> 10;
 
                     theZ += nHeight;
 
@@ -844,7 +844,7 @@ loc_flag:
                 }
                 case kWeaponPistol:
                 {
-                    int var_50 = (PlayerList[nLocalPlayer].q16horiz - IntToFixed(100)) >> 14;
+                    int var_50 = PlayerList[nLocalPlayer].horizon.horiz.asq16() >> 14;
                     nHeight -= var_50;
 
                     if (sPlayerInput[nPlayer].nTarget >= 0 && cl_autoaim)
@@ -859,7 +859,7 @@ loc_flag:
 
                 case kWeaponGrenade:
                 {
-                    ThrowGrenade(nPlayer, ebp, ebx, nHeight - 2560, FixedToInt(PlayerList[nLocalPlayer].q16horiz) - 100);
+                    ThrowGrenade(nPlayer, ebp, ebx, nHeight - 2560, FixedToInt(PlayerList[nLocalPlayer].horizon.horiz.asq16()));
                     break;
                 }
                 case kWeaponStaff:
@@ -985,7 +985,7 @@ void DrawWeapons(double smooth)
         nShade = sprite[PlayerList[nLocalPlayer].nSprite].shade;
     }
 
-    double const look_anghalf = getHalfLookAng(PlayerList[nLocalPlayer].oq16look_ang, PlayerList[nLocalPlayer].q16look_ang, cl_syncinput, smooth);
+    double const look_anghalf = getHalfLookAng(PlayerList[nLocalPlayer].angle.olook_ang.asq16(), PlayerList[nLocalPlayer].angle.look_ang.asq16(), cl_syncinput, smooth);
     double const looking_arc = fabs(look_anghalf) / 4.5;
 
     xOffset -= look_anghalf;

@@ -287,7 +287,7 @@ void displayweapon_d(int snum, double smoothratio)
 	o = 0;
 
 	horiz16th = get16thOfHoriz(snum, cl_syncinput, smoothratio);
-	look_anghalf = getHalfLookAng(p->oq16look_ang, p->q16look_ang, cl_syncinput, smoothratio);
+	look_anghalf = getHalfLookAng(p->angle.olook_ang.asq16(), p->angle.look_ang.asq16(), cl_syncinput, smoothratio);
 	looking_arc = fabs(look_anghalf) / 4.5;
 	weapon_sway = p->oweapon_sway + fmulscale16(p->weapon_sway - p->oweapon_sway, smoothratio);
 	kickback_pic = p->okickback_pic + fmulscale16(*kb - p->okickback_pic, smoothratio);

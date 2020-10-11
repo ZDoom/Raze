@@ -91,30 +91,30 @@ void calcviewpitch(player_struct *p, double factor)
 {
 	int psect = p->cursectnum;
 	int psectlotag = sector[psect].lotag;
-	 if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
-	 {
-		 int x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
-		 int y = p->posy + (sintable[p->getang() & 2047] >> 5);
-		 short tempsect = psect;
-		 updatesector(x, y, &tempsect);
+	if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
+	{
+		int x = p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 5);
+		int y = p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 5);
+		short tempsect = psect;
+		updatesector(x, y, &tempsect);
 
-		 if (tempsect >= 0)
-		 {
-			 int k = getflorzofslope(psect, x, y);
-			 if (psect == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
-				 p->addhorizoff(factor * mulscale16(p->truefz - k, 160));
-		 }
-	 }
-	 if (p->q16horizoff > 0)
-	 {
-		 p->addhorizoff(-factor * FixedToFloat((p->q16horizoff >> 3) + FRACUNIT));
-		 if (p->q16horizoff < 0) p->q16horizoff = 0;
-	 }
-	 else if (p->q16horizoff < 0)
-	 {
-		 p->addhorizoff(-factor * FixedToFloat((p->q16horizoff >> 3) + FRACUNIT));
-		 if (p->q16horizoff > 0) p->q16horizoff = 0;
-	 }
+		if (tempsect >= 0)
+		{
+			int k = getflorzofslope(psect, x, y);
+			if (psect == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
+			p->horizon.horizoff += q16horiz(FloatToFixed(factor * mulscale16(p->truefz - k, 160)));
+		}
+	}
+	if (p->horizon.horizoff.asq16() > 0)
+	{
+		p->horizon.horizoff += q16horiz(xs_CRoundToInt(-factor * ((p->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
+		if (p->horizon.horizoff.asq16() < 0) p->horizon.horizoff = q16horiz(0);
+	}
+	else if (p->horizon.horizoff.asq16() < 0)
+	{
+		p->horizon.horizoff += q16horiz(xs_CRoundToInt(-factor * ((p->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
+		if (p->horizon.horizoff.asq16() > 0) p->horizon.horizoff = q16horiz(0);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -164,10 +164,9 @@ void forceplayerangle(int snum)
 
 	n = 128 - (krand() & 255);
 
-	playerAddHoriz(&p->q16horiz, &p->horizAdjust, 64);
+	p->horizon.addadjustment(64);
 	p->sync.actions |= SB_CENTERVIEW;
-	p->setlookang(n >> 1);
-	p->setrotscrnang(n >> 1);
+	p->angle.rotscrnang = p->angle.look_ang = buildlook(n >> 1);
 }
 
 //---------------------------------------------------------------------------
@@ -264,7 +263,7 @@ int hitawall(struct player_struct* p, int* hitw)
 	short sect, hs, hitw1;
 
 	hitscan(p->posx, p->posy, p->posz, p->cursectnum,
-		sintable[(p->getang() + 512) & 2047], sintable[p->getang() & 2047], 0, &sect, &hitw1, &hs, &sx, &sy, &sz, CLIPMASK0);
+		sintable[(p->angle.ang.asbuild() + 512) & 2047], sintable[p->angle.ang.asbuild() & 2047], 0, &sect, &hitw1, &hs, &sx, &sy, &sz, CLIPMASK0);
 	*hitw = hitw1;
 
 	return (FindDistance2D(sx - p->posx, sy - p->posy));
@@ -375,7 +374,7 @@ int aim(spritetype* s, int aang)
 							if (sdist > 512 && sdist < smax)
 							{
 								if (s->picnum == TILE_APLAYER)
-									a = (abs(scale(sp->z - s->z, 10, sdist) - (ps[s->yvel].gethorizsum() - 100)) < 100);
+									a = (abs(scale(sp->z - s->z, 10, sdist) - ps[s->yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
 								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + actorinfo[sp->picnum].aimoffset, sp->sectnum, s->x, s->y, s->z - (32 << 8), s->sectnum);
@@ -406,7 +405,7 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 	if (p->knee_incs > 0)
 	{
 		p->knee_incs++;
-		playerAddHoriz(&p->q16horiz, &p->horizAdjust, -48);
+		p->horizon.addadjustment(-48);
 		p->sync.actions |= SB_CENTERVIEW;
 		if (p->knee_incs > 15)
 		{
@@ -649,15 +648,14 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 
 	backupplayer(p);
 
-	p->sethoriz(100);
-	p->q16horizoff = 0;
+	p->horizon.horizoff = p->horizon.horiz = q16horiz(0);
 
 	updatesector(p->posx, p->posy, &p->cursectnum);
 
 	pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 128L, (4L << 8), (20L << 8), CLIPMASK0);
 
 	if (fz > cz + (16 << 8) && s->pal != 1)
-		p->setrotscrnang((p->dead_flag + ((fz + p->posz) >> 7)) & 2047);
+		p->angle.rotscrnang = buildlook(p->dead_flag + ((fz + p->posz) >> 7));
 
 	p->on_warping_sector = 0;
 
@@ -768,16 +766,16 @@ void apply_seasick(player_struct* p, double factor)
 		if (p->SeaSick < 250)
 		{
 			if (p->SeaSick >= 180)
-				p->addrotscrnang(24 * factor);
+				p->angle.rotscrnang += bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
 			else if (p->SeaSick >= 130)
-				p->addrotscrnang(-24 * factor);
+				p->angle.rotscrnang -= bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
 			else if (p->SeaSick >= 70)
-				p->addrotscrnang(24 * factor);
+				p->angle.rotscrnang += bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
 			else if (p->SeaSick >= 20)
-				p->addrotscrnang(-24 * factor);
+				p->angle.rotscrnang -= bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
 		}
 		if (p->SeaSick < 250)
-			p->addlookang(((krand() & 255) - 128) * factor);
+			p->angle.look_ang = bamlook(xs_CRoundToUInt(((krand() & 255) - 128) * factor * BAMUNIT));
 	}
 }
 
@@ -787,16 +785,16 @@ void apply_seasick(player_struct* p, double factor)
 //
 //---------------------------------------------------------------------------
 
-void processq16avel(player_struct* p, fixed_t* q16avel)
+void processavel(player_struct* p, float* avel)
 {
 	// Taken from processinput() for use with applying look while cl_syncinput is 0.
 	if (p->psectlotag == ST_2_UNDERWATER)
 	{
-		*q16avel = (*q16avel - (*q16avel >> 3)) * sgn(TICSPERFRAME);
+		*avel = (*avel - (*avel / 8.f)) * sgn(TICSPERFRAME);
 	}
 	else
 	{
-		*q16avel = *q16avel * sgn(TICSPERFRAME);
+		*avel = *avel * sgn(TICSPERFRAME);
 	}
 }
 
@@ -831,31 +829,6 @@ void backuppos(player_struct* p, bool noclipping)
 //
 //---------------------------------------------------------------------------
 
-void backuplook(player_struct* p)
-{
-	p->oq16ang = p->q16ang;
-	p->oq16look_ang = p->q16look_ang;
-	p->oq16rotscrnang = p->q16rotscrnang;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void backupview(player_struct* p)
-{
-	p->oq16horiz = p->q16horiz;
-	p->oq16horizoff = p->q16horizoff;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void backupweapon(player_struct* p)
 {
 	p->oweapon_sway = p->weapon_sway;
@@ -873,8 +846,8 @@ void backupweapon(player_struct* p)
 
 void resetinputhelpers(player_struct* p)
 {
-	p->horizAdjust = 0;
-	p->angAdjust = 0;
+	p->horizon.resetadjustment();
+	p->angle.resetadjustment();
 }
 
 //---------------------------------------------------------------------------
@@ -887,7 +860,7 @@ void checkhardlanding(player_struct* p)
 {
 	if (p->hard_landing > 0)
 	{
-		playerAddHoriz(&p->q16horiz, &p->horizAdjust, -(p->hard_landing << 4));
+		p->horizon.addadjustment(-(p->hard_landing << 4));
 		p->hard_landing--;
 	}
 }
@@ -945,7 +918,7 @@ void checklook(int snum, ESyncBits actions)
 			actions &= ~SB_LOOK_RIGHT;
 		}
 	}
-	backuplook(p);
+	p->angle.backup();
 }
 
 //---------------------------------------------------------------------------
@@ -1094,7 +1067,7 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 
 	nx = (sintable[(ang + 1536) & 2047] >> 4);
 	ny = (sintable[(ang + 1024) & 2047] >> 4);
-	nz = (q16horiz - IntToFixed(100)) >> 9;
+	nz = q16horiz >> 9;
 
 	sp = &sprite[pp->i];
 

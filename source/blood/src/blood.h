@@ -97,8 +97,8 @@ struct GameInterface : ::GameInterface
 	void LevelCompleted(MapRecord* map, int skill) override;
 	bool DrawAutomapPlayer(int x, int y, int z, int a) override;
 	void SetTileProps(int til, int surf, int vox, int shade) override;
-	fixed_t playerHorizMin() override { return IntToFixed(-80); }
-	fixed_t playerHorizMax() override { return IntToFixed(220); }
+	fixed_t playerHorizMin() override { return IntToFixed(-180); }
+	fixed_t playerHorizMax() override { return IntToFixed(120); }
 	int playerKeyMove() override { return 1024; }
 
 	GameStats getStats() override;

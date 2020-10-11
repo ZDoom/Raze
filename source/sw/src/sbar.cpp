@@ -637,7 +637,7 @@ private:
             25, 19, 15, 9, 1, 1, 9, 15, 19, 25
         };
 
-        ang = FixedToInt(pp->q16ang);
+        ang = pp->angle.ang.asbuild();
 
         if (pp->sop_remote)
             ang = 0;

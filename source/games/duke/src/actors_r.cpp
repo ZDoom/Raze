@@ -1399,7 +1399,7 @@ void moveweapons_r(void)
 								guts_r(s, RABBITJIBC, 2, myconnectindex);
 							}
 
-							playerAddHoriz(&ps[p].q16horiz, &ps[p].horizAdjust, 32);
+							ps[p].horizon.addadjustment(32);
 							ps[p].sync.actions |= SB_CENTERVIEW;
 
 							if (ps[p].loogcnt == 0)
@@ -1730,7 +1730,7 @@ void movetransports_r(void)
 									sprite[ps[k].i].extra = 0;
 								}
 
-							ps[p].setang(sprite[OW].ang);
+							ps[p].angle.ang = buildang(sprite[OW].ang);
 
 							if (sprite[OW].owner != OW)
 							{
@@ -2633,7 +2633,7 @@ void rr_specialstats()
 					nextj = nextspritestat[j];
 					if (sprite[j].picnum == RRTILE297)
 					{
-						ps[p].setang(sprite[j].ang);
+						ps[p].angle.ang = buildang(sprite[j].ang);
 						ps[p].bobposx = ps[p].oposx = ps[p].posx = sprite[j].x;
 						ps[p].bobposy = ps[p].oposy = ps[p].posy = sprite[j].y;
 						ps[p].oposz = ps[p].posz = sprite[j].z - (36 << 8);

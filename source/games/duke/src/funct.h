@@ -109,7 +109,7 @@ void footprints(int snum);
 int makepainsounds(int snum, int type);
 void playerCrouch(int snum);
 void playerJump(int snum, int fz, int cz);
-void processq16avel(player_struct* p, fixed_t* q16avel); 
+void processavel(player_struct* p, float* avel); 
 void checklook(int snum, ESyncBits actions);
 void playerCenterView(int snum);
 void playerLookUp(int snum, ESyncBits actions);
@@ -241,8 +241,6 @@ void dointerpolations(int smoothratio);
 int* animateptr(int i);
 
 void backuppos(player_struct* p, bool noclipping = false);
-void backuplook(player_struct* p);
-void backupview(player_struct* p);
 void backupweapon(player_struct* p);
 void resetinputhelpers(player_struct* p);
 void checkhardlanding(player_struct* p);

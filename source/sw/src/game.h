@@ -356,11 +356,11 @@ int StdRandomRange(int range);
 
 #define KENFACING_PLAYER(pp,sp) (sintable[NORM_ANGLE(sp->ang+512)]*(pp->posy-sp->y) >= sintable[NORM_ANGLE(sp-ang)]*(pp->posx-sp->x))
 #define FACING_PLAYER(pp,sp) (abs(getincangle(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y), (sp)->ang)) < 512)
-#define PLAYER_FACING(pp,sp) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), FixedToInt((pp)->q16ang))) < 320)
+#define PLAYER_FACING(pp,sp) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), (pp)->angle.ang.asbuild())) < 320)
 #define FACING(sp1,sp2) (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < 512)
 
 #define FACING_PLAYER_RANGE(pp,sp,range) (abs(getincangle(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y), (sp)->ang)) < (range))
-#define PLAYER_FACING_RANGE(pp,sp,range) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), FixedToInt((pp)->q16ang))) < (range))
+#define PLAYER_FACING_RANGE(pp,sp,range) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), (pp)->angle.ang.asbuild())) < (range))
 #define FACING_RANGE(sp1,sp2,range) (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < (range))
 
 // two vectors
@@ -829,10 +829,7 @@ struct PLAYERstruct
     // variable that fit in the sprite or user structure
     int32_t posx, posy, posz;
     // interpolation
-    int
-        oposx, oposy, oposz;
-    fixed_t oq16horiz, oq16ang;
-    fixed_t oq16look_ang, oq16rotscrnang;
+    int oposx, oposy, oposz;
 
     // holds last valid move position
     short lv_sectnum;
@@ -864,7 +861,7 @@ struct PLAYERstruct
     int slide_xvect, slide_yvect;
     short slide_ang;
     int slide_dec;
-    int drive_q16avel;
+    float drive_avel;
 
 
 
@@ -882,8 +879,8 @@ struct PLAYERstruct
 
     // variables that do not fit into sprite structure
     int hvel,tilt,tilt_dest;
-    fixed_t q16horiz, q16horizbase, q16horizoff, q16ang;
-    fixed_t q16look_ang, q16rotscrnang;
+    PlayerHorizon horizon;
+    PlayerAngle angle;
     short recoil_amt;
     short recoil_speed;
     short recoil_ndx;
@@ -892,7 +889,7 @@ struct PLAYERstruct
     int oldposx,oldposy,oldposz;
     int RevolveX, RevolveY;
     short RevolveDeltaAng;
-    fixed_t RevolveQ16Ang;
+    binangle RevolveAng;
 
     // under vars are for wading and swimming
     short PlayerSprite, PlayerUnderSprite;
@@ -1008,10 +1005,6 @@ struct PLAYERstruct
     int cookieTime;
 
     char WpnReloadState;
-
-    // Input helper variables.
-    double horizAdjust, angAdjust;
-    fixed_t horizTarget, angTarget;
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

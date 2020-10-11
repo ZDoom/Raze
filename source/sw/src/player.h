@@ -28,10 +28,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define PLAYER_H
 
-#define PLAYER_HORIZ_MAX 299    // !JIM! was 199 and 5
-#define PLAYER_HORIZ_MIN -99    // Had to make plax sky pan up/down like in Duke
-// But this is MUCH better!
-
 #define MIN_SWIM_DEPTH 15
 
 // Player view height

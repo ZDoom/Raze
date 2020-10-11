@@ -39,18 +39,17 @@ struct VIEW {
     int at14;
     int at18; // bob sway y
     int at1c; // bob sway x
-    fixed_t at20;
-    fixed_t at24; // horiz
-    int at28; // horizoff
+    fixedhoriz at24; // horiz
+    fixedhoriz at28; // horizoff
     int at2c;
-    fixed_t at30; // angle
+    binangle at30; // angle
     int at34; // weapon z
     int at38; // view z
     int at3c;
     int at40;
     int at44;
     int at48; // posture
-    int at4c; // spin
+    lookangle at4c; // spin
     int at50; // x
     int at54; // y
     int at58; // z
@@ -66,8 +65,8 @@ struct VIEW {
     char at72; // underwater
     short at73; // sprite flags
     SPRITEHIT at75;
-    fixed_t q16look_ang;
-    fixed_t q16rotscrnang;
+    lookangle look_ang;
+    lookangle rotscrnang;
 };
 
 extern VIEW gPrevView[kMaxPlayers];

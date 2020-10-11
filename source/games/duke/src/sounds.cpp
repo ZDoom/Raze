@@ -298,7 +298,7 @@ void S_GetCamera(vec3_t** c, int32_t* ca, int32_t* cs)
 		auto p = &ps[screenpeek];
 		if (c) *c = &p->pos;
 		if (cs) *cs = p->cursectnum;
-		if (ca) *ca = p->getang();
+		if (ca) *ca = p->angle.ang.asbuild();
 	}
 	else
 	{

@@ -44,22 +44,21 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
         return CCMD_SHOWHELP;
 
     PLAYER *pPlayer = &gPlayer[myconnectindex];
+    VIEW* pView = &gPrevView[myconnectindex];
 
-    pPlayer->pSprite->x = gView->pSprite->x = atoi(parm->parms[0]);
-    pPlayer->pSprite->y = gView->pSprite->y = atoi(parm->parms[1]);
-    pPlayer->zView      = gView->zView      = atoi(parm->parms[2]);
+    pPlayer->pSprite->x = pView->at50 = gView->pSprite->x = atoi(parm->parms[0]);
+    pPlayer->pSprite->y = pView->at54 = gView->pSprite->y = atoi(parm->parms[1]);
+    pPlayer->zView      = pView->at38 = gView->zView      = atoi(parm->parms[2]);
 
     if (parm->numparms >= 4)
     {
-        pPlayer->q16ang = gView->q16ang = IntToFixed(atoi(parm->parms[3]));
+        pPlayer->angle.oang = pPlayer->angle.ang = pView->at30 = gView->angle.ang = buildang(atoi(parm->parms[3]));
     }
 
     if (parm->numparms == 5)
     {
-        pPlayer->q16horiz = gView->q16horiz = IntToFixed(atoi(parm->parms[4]));
+        pPlayer->horizon.ohoriz = pPlayer->horizon.horiz = pView->at24 = gView->horizon.horiz = buildhoriz(atoi(parm->parms[4]));
     }
-
-    viewBackupView(pPlayer->nPlayer);
 
     return CCMD_OK;
 }

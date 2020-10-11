@@ -2317,7 +2317,7 @@ bool NearThings(PLAYERp pp)
         return false;
     }
 
-    neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, FixedToInt(pp->q16ang),
+    neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, pp->angle.ang.asbuild(),
             &neartagsect, &neartagwall, &neartagsprite,
             &neartaghitdist, 1024L, NTAG_SEARCH_LO_HI, NULL);
 
@@ -2351,7 +2351,7 @@ bool NearThings(PLAYERp pp)
     // This only gets called if nothing else worked, check for nearness to a wall
     {
         hitdata_t hitinfo = { { 0, 0, 0 }, 0, 0, 0 };
-        short dang = FixedToInt(pp->q16ang);
+        short dang = pp->angle.ang.asbuild();
 
         FAFhitscan(pp->posx, pp->posy, pp->posz - Z(30), pp->cursectnum,    // Start position
                    sintable[NORM_ANGLE(dang + 512)],  // X vector of 3D ang
@@ -2415,7 +2415,7 @@ NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int coun
     int neartaghitdist;
 
 
-    neartag(pp->posx, pp->posy, z, pp->cursectnum, FixedToInt(pp->q16ang),
+    neartag(pp->posx, pp->posy, z, pp->cursectnum, pp->angle.ang.asbuild(),
             &neartagsector, &neartagwall, &neartagsprite,
             &neartaghitdist, dist, type, NULL);
 

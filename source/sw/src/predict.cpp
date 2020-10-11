@@ -45,7 +45,8 @@ PLAYERp ppp = &PredictPlayer;
 typedef struct
 {
     int x,y,z;
-    fixed_t q16horiz, q16ang;
+    binangle ang;
+    fixedhoriz horiz;
     short filler;
 } PREDICT, *PREDICTp;
 
@@ -95,11 +96,11 @@ DoPrediction(PLAYERp ppp)
     u = User[ppp->PlayerSprite];
     User[ppp->PlayerSprite] = &PredictUser;
 
-    ppp->oq16ang = ppp->q16ang;
     ppp->oposx = ppp->posx;
     ppp->oposy = ppp->posy;
     ppp->oposz = ppp->posz;
-    ppp->oq16horiz = ppp->q16horiz;
+    ppp->angle.backup();
+    ppp->horizon.backup();
 
     // go through the player MOVEMENT code only
     Prediction = true;
@@ -113,11 +114,11 @@ DoPrediction(PLAYERp ppp)
     sprite[Player[myconnectindex].PlayerSprite] = spr;
     randomseed = bakrandomseed;
 
-    Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].q16ang = ppp->q16ang;
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].x = ppp->posx;
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].y = ppp->posy;
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].z = ppp->posz;
-    Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].q16horiz = ppp->q16horiz;
+    Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].ang = ppp->angle.ang;
+    Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].horiz = ppp->horizon.horiz;
     predictmovefifoplc++;
 #endif
 }
@@ -135,17 +136,17 @@ CorrectPrediction(int actualfifoplc)
         return;
 
     // see if player position is predicted position
-    if (predict->q16ang == Player[myconnectindex].q16ang &&
+    if (predict->ang == Player[myconnectindex].angle.ang &&
         predict->x == Player[myconnectindex].posx &&
         predict->y == Player[myconnectindex].posy &&
         predict->z == Player[myconnectindex].posz &&
-        predict->q16horiz == Player[myconnectindex].q16horiz
+        predict->horiz == Player[myconnectindex].horizon.horiz
         )
     {
         return;
     }
 
-//    //DSPRINTF(ds,"PREDICT ERROR: %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", FixedToInt(predict->q16ang),  FixedToInt(Player[myconnectindex].q16ang), predict->x,    Player[myconnectindex].posx, predict->y,    Player[myconnectindex].posy, predict->z,    Player[myconnectindex].posz,  FixedToInt(predict->q16horiz),FixedToInt(Player[myconnectindex].q16horiz));
+//    //DSPRINTF(ds,"PREDICT ERROR: %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", predict->angle.ang.asbuild(), Player[myconnectindex].angle.ang.asbuild(), predict->x,    Player[myconnectindex].posx, predict->y,    Player[myconnectindex].posy, predict->z,    Player[myconnectindex].posz,  predict->horiz.asbuild(), Player[myconnectindex].horizon.horiz.asbuild()));
 //    MONO_PRINT(ds);
 
     InitPrediction(&Player[myconnectindex]);

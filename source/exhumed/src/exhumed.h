@@ -264,8 +264,8 @@ struct GameInterface : ::GameInterface
 	void LevelCompleted(MapRecord *map, int skill) override;
 	void NextLevel(MapRecord *map, int skill) override;
     bool DrawAutomapPlayer(int x, int y, int z, int a) override;
-    fixed_t playerHorizMin() override { return IntToFixed(-50); }
-    fixed_t playerHorizMax() override { return IntToFixed(250); }
+    fixed_t playerHorizMin() override { return IntToFixed(-150); }
+    fixed_t playerHorizMax() override { return IntToFixed(150); }
     int playerKeyMove() override { return 6; }
 
 	::GameStats getStats() override;

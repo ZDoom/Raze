@@ -95,10 +95,9 @@ struct player_struct
 		struct { int32_t posx, posy, posz; };
 	};
 
-	// input handles angle and horizon as fixed16 numbers. We need to account for that as well.
-	fixed_t q16ang, q16horiz, q16horizoff, q16rotscrnang, q16look_ang;
-	fixed_t oq16ang, oq16horiz, oq16horizoff, oq16rotscrnang, oq16look_ang; // These are only needed with synchronous mouse input.
-	fixed_t one_eighty_count;
+	// player's horizon and angle structs.
+	PlayerHorizon horizon;
+	PlayerAngle angle;
 
 	// using a bit field for this to save a bit of space.
 	FixedBitArray<MAX_WEAPONS> gotweapon;
@@ -207,34 +206,7 @@ struct player_struct
 	int8_t crouch_toggle;
 
 	// input stuff.
-	double  horizAdjust, angAdjust;
-	fixed_t horizTarget, angTarget;
 	InputPacket sync;
-
-
-	// Access helpers for the widened angle and horizon fields.
-	void setlookang(int b) { q16look_ang = IntToFixed(b); }
-	void addlookang(int b) { q16look_ang += IntToFixed(b); }
-	void addlookang(double b) { q16look_ang += FloatToFixed(b); }
-	void setrotscrnang(int b) { q16rotscrnang = IntToFixed(b); }
-	void addrotscrnang(int b) { q16rotscrnang += IntToFixed(b); }
-	void addrotscrnang(double b) { q16rotscrnang += FloatToFixed(b); }
-	int getang() { return FixedToInt(q16ang); }
-	int getoang() { return FixedToInt(oq16ang); }
-	void setang(int v) { q16ang = IntToFixed(v); }
-	void addang(int v) { q16ang = (q16ang + IntToFixed(v)) & 0x7FFFFFF; }
-	void setoang(int v) { oq16ang = IntToFixed(v); }
-	void addhoriz(int v) { q16horiz += (IntToFixed(v)); }
-	void addhorizoff(int v) { q16horiz += (IntToFixed(v)); }
-	void addhorizoff(double v) { q16horiz += FloatToFixed(v); }
-	void sethoriz(int v) { q16horiz = IntToFixed(v); }
-	void sethorizoff(int v) { q16horizoff = IntToFixed(v); }
-	int gethoriz() { return FixedToInt(q16horiz); }
-	int gethorizof() { return FixedToInt(q16horizoff); }
-	int gethorizsum() { return FixedToInt(q16horiz + q16horizoff); }
-	int getq16horiz() { return q16horiz; }
-	int getq16horizof() { return q16horizoff; }
-	int getq16horizsum() { return q16horiz + q16horizoff; }
 };
 
 

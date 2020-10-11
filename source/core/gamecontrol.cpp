@@ -1455,26 +1455,28 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	int const keymove = gi->playerKeyMove() << running;
 	int const cntrlvelscale = g_gameType & GAMEFLAG_PSEXHUMED ? 8 : 1;
 	float const mousevelscale = keymove / 160.f;
+	double const angtodegscale = 45. / 256.;
+	double const hidspeed = ((running ? 43375. / 27. : 867.5) / GameTicRate) * angtodegscale;
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
-		currInput->svel -= xs_CRoundToInt(hidInput->mousemovex * mousevelscale + (scaleAdjust * (hidInput->dyaw / 60) * keymove * cntrlvelscale));
+		currInput->svel -= xs_CRoundToInt((hidInput->mousemovex * mousevelscale) + (scaleAdjust * (hidInput->dyaw / 60) * keymove * cntrlvelscale));
 	else
-		currInput->q16avel += FloatToFixed(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw));
+		currInput->avel += hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed * turnscale);
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
-		currInput->q16horz -= FloatToFixed(hidInput->mouseturny);
+		currInput->horz -= hidInput->mouseturny;
 	else
 		currInput->fvel -= xs_CRoundToInt(hidInput->mousemovey * mousevelscale);
 
 	if (invertmouse)
-		currInput->q16horz = -currInput->q16horz;
+		currInput->horz = -currInput->horz;
 
 	if (invertmousex)
-		currInput->q16avel = -currInput->q16avel;
+		currInput->avel = -currInput->avel;
 
 	// process remaining controller input.
-	currInput->q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
+	currInput->horz -= scaleAdjust * hidInput->dpitch * hidspeed;
 	currInput->svel -= xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * cntrlvelscale);
 	currInput->fvel -= xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * cntrlvelscale);
 
@@ -1495,24 +1497,24 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		static double turnheldtime;
 		int const turnheldamt = 120 / GameTicRate;
 		double const turboturntime = 590. / GameTicRate;
-		double turnamount = ((running ? 43375. / 27. : 867.5) / GameTicRate) * turnscale;
-		double preambleturn = turnamount / (347. / 92.);
+		double turnamount = hidspeed * turnscale;
+		double preambleturn = turnamount * (92. / 347.);
 
 		// allow Exhumed to use its legacy values given the drastic difference from the other games.
 		if ((g_gameType & GAMEFLAG_PSEXHUMED) && cl_exhumedoldturn)
 		{
-			preambleturn = turnamount = running ? 12 : 8;
+			preambleturn = turnamount = (running ? 12 : 8) * angtodegscale;
 		}
 
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
 		{
 			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->q16avel -= FloatToFixed(scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn));
+			currInput->avel -= scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
 		}
 		else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe))
 		{
 			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->q16avel += FloatToFixed(scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn));
+			currInput->avel += scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
 		}
 		else
 		{
@@ -1564,8 +1566,8 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	// add collected input to game's local input accumulation packet.
 	inputBuffer->fvel = clamp(inputBuffer->fvel + currInput->fvel, -keymove, keymove);
 	inputBuffer->svel = clamp(inputBuffer->svel + currInput->svel, -keymove, keymove);
-	inputBuffer->q16avel += currInput->q16avel;
-	inputBuffer->q16horz += currInput->q16horz;
+	inputBuffer->avel += currInput->avel;
+	inputBuffer->horz += currInput->horz;
 }
 
 //---------------------------------------------------------------------------
@@ -1574,64 +1576,64 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 //
 //---------------------------------------------------------------------------
 
-void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, double const scaleAdjust)
+void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double const scaleAdjust)
 {
-	// Calculate adjustment as true pitch (Fixed point math really sucks...)
-	double horizAngle = atan2(*q16horiz - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi());
+	// Store current horizon as true pitch.
+	double pitch = horiz->aspitch();
 
-	if (q16horz)
+	if (horz)
 	{
 		*actions &= ~SB_CENTERVIEW;
-		horizAngle = clamp(horizAngle + FixedToFloat(q16horz), -180, 180);
+		pitch += horz;
 	}
 
 	// this is the locked type
 	if (*actions & (SB_AIM_UP|SB_AIM_DOWN))
 	{
 		*actions &= ~SB_CENTERVIEW;
-		double const amount = 250. / GameTicRate;
+		double const amount = HorizToPitch(250. / GameTicRate);
 
 		if (*actions & SB_AIM_DOWN)
-			horizAngle -= scaleAdjust * amount;
+			pitch -= scaleAdjust * amount;
 
 		if (*actions & SB_AIM_UP)
-			horizAngle += scaleAdjust * amount;
+			pitch += scaleAdjust * amount;
 	}
 
 	// this is the unlocked type
 	if (*actions & (SB_LOOK_UP|SB_LOOK_DOWN))
 	{
 		*actions |= SB_CENTERVIEW;
-		double const amount = 500. / GameTicRate;
+		double const amount = HorizToPitch(500. / GameTicRate);
 
 		if (*actions & SB_LOOK_DOWN)
-			horizAngle -= scaleAdjust * amount;
+			pitch -= scaleAdjust * amount;
 
 		if (*actions & SB_LOOK_UP)
-			horizAngle += scaleAdjust * amount;
+			pitch += scaleAdjust * amount;
 	}
 
-	// convert back to Build's horizon
-	*q16horiz = IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.)));
+	// clamp pitch after processing
+	pitch = clamp(pitch, -90, 90);
 
 	// return to center if conditions met.
 	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 	{
-		if (*q16horiz < FloatToFixed(99.75) || *q16horiz > FloatToFixed(100.25))
+		if (abs(pitch) > 0.1375)
 		{
-			// move *q16horiz back to 100
-			*q16horiz += xs_CRoundToInt(scaleAdjust * (((1000. / GameTicRate) * FRACUNIT) - (*q16horiz * (10. / GameTicRate))));
+			// move pitch back to 0
+			pitch += -scaleAdjust * pitch * (9. / GameTicRate);
 		}
 		else
 		{
-			// not looking anymore because *q16horiz is back at 100
-			*q16horiz = IntToFixed(100);
+			// not looking anymore because pitch is back at 0
+			pitch = 0;
 			*actions &= ~SB_CENTERVIEW;
 		}
 	}
 
 	// clamp before returning
-	*q16horiz = clamp(*q16horiz, gi->playerHorizMin(), gi->playerHorizMax());
+	*horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
 }
 
 //---------------------------------------------------------------------------
@@ -1640,161 +1642,58 @@ void sethorizon(fixed_t* q16horiz, fixed_t const q16horz, ESyncBits* actions, do
 //
 //---------------------------------------------------------------------------
 
-void applylook(fixed_t* q16ang, fixed_t* q16look_ang, fixed_t* q16rotscrnang, fixed_t* spin, fixed_t const q16avel, ESyncBits* actions, double const scaleAdjust, bool const crouching)
+void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double const scaleAdjust, bool const crouching)
 {
-	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a FRACUNIT (16384)
-	*q16rotscrnang -= xs_CRoundToInt(scaleAdjust * (*q16rotscrnang * (15. / GameTicRate)));
-	if (abs(*q16rotscrnang) < (FRACUNIT >> 2)) *q16rotscrnang = 0;
+	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a unit
+	angle->rotscrnang -= bamlook(xs_CRoundToInt(scaleAdjust * angle->rotscrnang.asbam() * (15. / GameTicRate)));
+	if (abs(angle->rotscrnang.asbam()) < (BAMUNIT >> 2)) angle->rotscrnang = bamlook(0);
 
-	// return q16look_ang to 0 and set to 0 if less than a quarter of a FRACUNIT (16384)
-	*q16look_ang -= xs_CRoundToInt(scaleAdjust * (*q16look_ang * (7.5 / GameTicRate)));
-	if (abs(*q16look_ang) < (FRACUNIT >> 2)) *q16look_ang = 0;
+	// return q16look_ang to 0 and set to 0 if less than a quarter of a unit
+	angle->look_ang -= bamlook(xs_CRoundToInt(scaleAdjust * angle->look_ang.asbam() * (7.5 / GameTicRate)));
+	if (abs(angle->look_ang.asbam()) < (BAMUNIT >> 2)) angle->look_ang = bamlook(0);
 
 	if (*actions & SB_LOOK_LEFT)
 	{
 		// start looking left
-		*q16look_ang -= FloatToFixed(scaleAdjust * (4560. / GameTicRate));
-		*q16rotscrnang += FloatToFixed(scaleAdjust * (720. / GameTicRate));
+		angle->look_ang -= bamlook(xs_CRoundToInt(scaleAdjust * (4560. / GameTicRate) * BAMUNIT));
+		angle->rotscrnang += bamlook(xs_CRoundToInt(scaleAdjust * (720. / GameTicRate) * BAMUNIT));
 	}
 
 	if (*actions & SB_LOOK_RIGHT)
 	{
 		// start looking right
-		*q16look_ang += FloatToFixed(scaleAdjust * (4560. / GameTicRate));
-		*q16rotscrnang -= FloatToFixed(scaleAdjust * (720. / GameTicRate));
+		angle->look_ang += bamlook(xs_CRoundToInt(scaleAdjust * (4560. / GameTicRate) * BAMUNIT));
+		angle->rotscrnang -= bamlook(xs_CRoundToInt(scaleAdjust * (720. / GameTicRate) * BAMUNIT));
 	}
 
 	if (*actions & SB_TURNAROUND)
 	{
-		if (*spin == 0)
+		if (angle->spin.asbam() == 0)
 		{
 			// currently not spinning, so start a spin
-			*spin = IntToFixed(-1024);
+			angle->spin = buildlook(-1024);
 		}
 		*actions &= ~SB_TURNAROUND;
 	}
 
-	if (*spin < 0)
+	if (angle->spin.asbam() < 0)
 	{
 		// return spin to 0
-		fixed_t add = FloatToFixed(scaleAdjust * ((!crouching ? 3840. : 1920.) / GameTicRate));
-		*spin += add;
-		if (*spin > 0)
+		lookangle add = bamlook(xs_CRoundToUInt(scaleAdjust * ((!crouching ? 3840. : 1920.) / GameTicRate) * BAMUNIT));
+		angle->spin += add;
+		if (angle->spin.asbam() > 0)
 		{
 			// Don't overshoot our target. With variable factor this is possible.
-			add -= *spin;
-			*spin = 0;
+			add -= angle->spin;
+			angle->spin = bamlook(0);
 		}
-		*q16ang += add;
+		angle->ang += bamang(add.asbam());
 	}
 
-	if (q16avel)
+	if (avel)
 	{
 		// add player's input
-		*q16ang = (*q16ang + q16avel) & 0x7FFFFFF;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// Player's ticrate helper functions.
-//
-//---------------------------------------------------------------------------
-
-void playerAddAngle(fixed_t* q16ang, double* helper, double adjustment)
-{
-	if (!cl_syncinput)
-	{
-		*helper += adjustment;
-	}
-	else
-	{
-		*q16ang = (*q16ang + FloatToFixed(adjustment)) & 0x7FFFFFF;
-	}
-}
-
-void playerSetAngle(fixed_t* q16ang, fixed_t* helper, double adjustment)
-{
-	if (!cl_syncinput)
-	{
-		// Add slight offset if adjustment is coming in as absolute 0.
-		if (adjustment == 0) adjustment += (1. / (FRACUNIT >> 1));
-
-		*helper = *q16ang + getincangleq16(*q16ang, FloatToFixed(adjustment));
-	}
-	else
-	{
-		*q16ang = FloatToFixed(adjustment);
-	}
-}
-
-void playerAddHoriz(fixed_t* q16horiz, double* helper, double adjustment)
-{
-	if (!cl_syncinput)
-	{
-		*helper += adjustment;
-	}
-	else
-	{
-		*q16horiz += FloatToFixed(adjustment);
-	}
-}
-
-void playerSetHoriz(fixed_t* q16horiz, fixed_t* helper, double adjustment)
-{
-	if (!cl_syncinput)
-	{
-		// Add slight offset if adjustment is coming in as absolute 0.
-		if (adjustment == 0) adjustment += (1. / (FRACUNIT >> 1));
-
-		*helper = FloatToFixed(adjustment);
-	}
-	else
-	{
-		*q16horiz = FloatToFixed(adjustment);
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// Player's ticrate helper processor.
-//
-//---------------------------------------------------------------------------
-
-void playerProcessHelpers(fixed_t* q16ang, double* angAdjust, fixed_t* angTarget, fixed_t* q16horiz, double* horizAdjust, fixed_t* horizTarget, double const scaleAdjust)
-{
-	// Process angle amendments from the game's ticker.
-	if (*angTarget)
-	{
-		fixed_t angDelta = getincangleq16(*q16ang, *angTarget);
-		*q16ang = (*q16ang + xs_CRoundToInt(scaleAdjust * angDelta));
-
-		if (abs(*q16ang - *angTarget) < FRACUNIT)
-		{
-			*q16ang = *angTarget;
-			*angTarget = 0;
-		}
-	}
-	else if (*angAdjust)
-	{
-		*q16ang = (*q16ang + FloatToFixed(scaleAdjust * *angAdjust)) & 0x7FFFFFF;
-	}
-
-	// Process horizon amendments from the game's ticker.
-	if (*horizTarget)
-	{
-		fixed_t horizDelta = *horizTarget - *q16horiz;
-		*q16horiz += xs_CRoundToInt(scaleAdjust * horizDelta);
-
-		if (abs(*q16horiz - *horizTarget) < FRACUNIT)
-		{
-			*q16horiz = *horizTarget;
-			*horizTarget = 0;
-		}
-	}
-	else if (*horizAdjust)
-	{
-		*q16horiz += FloatToFixed(scaleAdjust * *horizAdjust);
+		angle->ang += degang(avel);
 	}
 }
 

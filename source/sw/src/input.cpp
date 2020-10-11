@@ -34,10 +34,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust);
-void DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust);
-void DoPlayerTurnVehicle(PLAYERp pp, fixed_t q16avel, int z, int floor_dist);
-void DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel);
+void DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust);
+void DoPlayerTurn(PLAYERp pp, float const avel, double const scaleAdjust);
+void DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist);
+void DoPlayerTurnTurret(PLAYERp pp, float avel);
 
 static InputPacket loc;
 static int32_t turnheldtime;
@@ -212,30 +212,31 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
     {
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
         {
-            DoPlayerHorizon(pp, input.q16horz, scaleAdjust);
+            DoPlayerHorizon(pp, input.horz, scaleAdjust);
         }
 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL))
         {
-            DoPlayerTurn(pp, input.q16avel, scaleAdjust);
+            DoPlayerTurn(pp, input.avel, scaleAdjust);
         }
 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_VEHICLE))
         {
-            DoPlayerTurnVehicle(pp, input.q16avel, pp->posz + Z(10), labs(pp->posz + Z(10) - pp->sop->floor_loz));
+            DoPlayerTurnVehicle(pp, input.avel, pp->posz + Z(10), labs(pp->posz + Z(10) - pp->sop->floor_loz));
         }
 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET))
         {
-            DoPlayerTurnTurret(pp, input.q16avel);
+            DoPlayerTurnTurret(pp, input.avel);
         }
 
-        playerProcessHelpers(&pp->q16ang, &pp->angAdjust, &pp->angTarget, &pp->q16horiz, &pp->horizAdjust, &pp->horizTarget, scaleAdjust);
+        pp->angle.processhelpers(scaleAdjust);
+        pp->horizon.processhelpers(scaleAdjust);
     }
 
     if (packet)
     {
-        auto const ang = FixedToInt(pp->q16ang);
+        auto const ang = pp->angle.ang.asbuild();
 
         *packet = loc;
 

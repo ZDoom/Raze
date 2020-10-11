@@ -118,7 +118,7 @@ void shoot_d(int i, int atwith)
 		sx = ps[p].posx;
 		sy = ps[p].posy;
 		sz = ps[p].posz + ps[p].pyoff + (4 << 8);
-		sa = ps[p].getang();
+		sa = ps[p].angle.ang.asbuild();
 
 		ps[p].crack_time = CRACK_TIME;
 
@@ -166,7 +166,7 @@ void shoot_d(int i, int atwith)
 			}
 			else
 			{
-				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / FRACUNIT));
+				zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
 				sx += sintable[(sa + 860) & 0x7FF] / 448;
 				sy += sintable[(sa + 348) & 0x7FF] / 448;
 				sz += (3 << 8);
@@ -224,7 +224,7 @@ void shoot_d(int i, int atwith)
 			}
 			else
 			{
-				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (81. / FRACUNIT));
+				zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
 				if (sprite[ps[p].i].xvel != 0)
 					vel = (int)((((512 - (1024
 						- abs(abs(getangle(sx - ps[p].oposx, sy - ps[p].oposy) - sa) - 1024)))
@@ -292,7 +292,7 @@ void shoot_d(int i, int atwith)
 		{
 			if (p >= 0)
 			{
-				zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
+				zvel = -ps[p].horizon.sum().asq16() >> 11;
 				sz += (6 << 8);
 				sa += 15;
 			}
@@ -403,7 +403,7 @@ void shoot_d(int i, int atwith)
 				j = fi.spawn(ps[p].i, WATERSPLASH2);
 				sprite[j].x = hitx;
 				sprite[j].y = hity;
-				sprite[j].ang = ps[p].getang(); // Total tweek
+				sprite[j].ang = ps[p].angle.ang.asbuild(); // Total tweek
 				sprite[j].xvel = 32;
 				ssp(i, CLIPMASK0);
 				sprite[j].xvel = 0;
@@ -464,14 +464,14 @@ void shoot_d(int i, int atwith)
 				if (j == -1)
 				{
 					// no target
-					zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
+					zvel = -ps[p].horizon.sum().asq16() >> 11;
 				}
 				zvel += (zRange / 2) - (krand() & (zRange - 1));
 			}
 			else if (j == -1)
 			{
 				sa += 16 - (krand() & 31);
-				zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
+				zvel = -ps[p].horizon.sum().asq16() >> 11;
 				zvel += 128 - (krand() & 255);
 			}
 
@@ -681,7 +681,7 @@ void shoot_d(int i, int atwith)
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
 			else
-				zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / FRACUNIT));
+				zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
 		}
 		else
 		{
@@ -769,7 +769,7 @@ void shoot_d(int i, int atwith)
 				if (sprite[j].picnum != RECON)
 					sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (81. / FRACUNIT));
+			else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
 			if (atwith == RPG)
 				S_PlayActorSound(RPG_SHOOT, i);
 
@@ -914,7 +914,7 @@ void shoot_d(int i, int atwith)
 	case HANDHOLDINGLASER:
 
 		if (p >= 0)
-			zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
+			zvel = -ps[p].horizon.sum().asq16() >> 11;
 		else zvel = 0;
 
 		hitscan(sx, sy, sz - ps[p].pyoff, sect,
@@ -1015,7 +1015,7 @@ void shoot_d(int i, int atwith)
 			else
 			{
 				sa += 16 - (krand() & 31);
-				zvel = (IntToFixed(100) - ps[p].getq16horizsum()) >> 11;
+				zvel = -ps[p].horizon.sum().asq16() >> 11;
 				zvel += 128 - (krand() & 255);
 			}
 
@@ -1090,7 +1090,7 @@ void shoot_d(int i, int atwith)
 				zvel = ((sprite[j].z - sz - dal - (4 << 8)) * 768) / (ldist(&sprite[ps[p].i], &sprite[j]));
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = xs_CRoundToInt((IntToFixed(100) - ps[p].getq16horizsum()) * (98. / FRACUNIT));
+			else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
 		}
 		else if (s->statnum != 3)
 		{
@@ -1915,9 +1915,9 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 	{
 		j = fi.spawn(pi, WATERBUBBLE);
 		sprite[j].x +=
-			sintable[(p->getang() + 512 + 64 - (global_random & 128)) & 2047] >> 6;
+			sintable[(p->angle.ang.asbuild() + 512 + 64 - (global_random & 128)) & 2047] >> 6;
 		sprite[j].y +=
-			sintable[(p->getang() + 64 - (global_random & 128)) & 2047] >> 6;
+			sintable[(p->angle.ang.asbuild() + 64 - (global_random & 128)) & 2047] >> 6;
 		sprite[j].xrepeat = 3;
 		sprite[j].yrepeat = 2;
 		sprite[j].z = p->posz + (8 << 8);
@@ -1939,8 +1939,8 @@ int operateTripbomb(int snum)
 	short sect, hw, hitsp;
 
 	hitscan(p->posx, p->posy, p->posz,
-		p->cursectnum, sintable[(p->getang() + 512) & 2047],
-		sintable[p->getang() & 2047], (IntToFixed(100) - p->getq16horizsum()) >> 11,
+		p->cursectnum, sintable[(p->angle.ang.asbuild() + 512) & 2047],
+		sintable[p->angle.ang.asbuild() & 2047], -p->horizon.sum().asq16() >> 11,
 		&sect, &hw, &hitsp, &sx, &sy, &sz, CLIPMASK1);
 
 	if (sect < 0 || hitsp >= 0)
@@ -2122,19 +2122,19 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				k = 15;
-				i = xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
+				i = mulscale16(p->horizon.sum().asq16(), 20);
 			}
 			else
 			{
 				k = 140;
-				i = -512 - xs_CRoundToInt((p->getq16horizsum() - IntToFixed(100)) * (20. / FRACUNIT));
+				i = -512 - mulscale16(p->horizon.sum().asq16(), 20);
 			}
 
 			j = EGS(p->cursectnum,
-				p->posx + (sintable[(p->getang() + 512) & 2047] >> 6),
-				p->posy + (sintable[p->getang() & 2047] >> 6),
+				p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 6),
+				p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 6),
 				p->posz, HEAVYHBOMB, -16, 9, 9,
-				p->getang(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
+				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
 
 			if (isNam())
 			{
@@ -2707,7 +2707,7 @@ void processinput_d(int snum)
 
 	if (cl_syncinput)
 	{
-		backupview(p);
+		p->horizon.backup();
 		calcviewpitch(p, 1);
 	}
 
@@ -2839,8 +2839,8 @@ void processinput_d(int snum)
 		//ENGINE calculates angvel for you
 		// may still be needed later for demo recording
 
-		processq16avel(p, &sb_avel);
-		applylook(&p->q16ang, &p->q16look_ang, &p->q16rotscrnang, &p->one_eighty_count, sb_avel, &p->sync.actions, 1, p->crouch_toggle || actions & SB_CROUCH);
+		processavel(p, &sb_avel);
+		applylook(&p->angle, sb_avel, &p->sync.actions, 1, p->crouch_toggle || actions & SB_CROUCH);
 	}
 
 	if (p->spritebridge == 0)
@@ -3072,7 +3072,7 @@ HORIZONLY:
 
 	if (cl_syncinput)
 	{
-		sethorizon(&p->q16horiz, PlayerHorizon(snum), &p->sync.actions, 1);
+		sethorizon(&p->horizon.horiz, PlayerHorizon(snum), &p->sync.actions, 1);
 	}
 
 	checkhardlanding(p);
