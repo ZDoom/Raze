@@ -38,22 +38,14 @@ BEGIN_BLD_NS
 void _SetErrorLoc(const char *pzFile, int nLine);
 void __dassert(const char *pzExpr, const char *pzFile, int nLine);
 void QuitGame(void);
-void _consoleSysMsg(const char* pMessage, ...);
+void consoleSysMsg(const char* pMessage, ...);
 
 #define ThrowError(...) \
 	{ \
 		I_Error(__VA_ARGS__); \
 	}
 
-// print error to console only
-#define consoleSysMsg(...) \
-	{ \
-		_consoleSysMsg(__VA_ARGS__); \
-	}
-
 #define dassert(x) assert(x)
-
-#define kMaxViewSprites maxspritesonscreen
 
 enum
 {
@@ -426,38 +418,40 @@ kAiStateRecoil          =  5,
 kAiStateAttack          =  6,
 };
 
-// sprite attributes
-#define kHitagAutoAim 0x0008
-#define kHitagRespawn 0x0010
-#define kHitagFree 0x0020
-#define kHitagSmoke 0x0100
+enum
+{
+    // sprite attributes
+    kHitagAutoAim = 0x0008,
+    kHitagRespawn = 0x0010,
+    kHitagFree = 0x0020,
+    kHitagSmoke = 0x0100,
 
-// sprite physics attributes
-#define kPhysMove 0x0001 // affected by movement physics
-#define kPhysGravity 0x0002 // affected by gravity
-#define kPhysFalling 0x0004 // currently in z-motion
+    //  sprite physics attributes
+    kPhysMove = 0x0001, // affected by movement physics
+    kPhysGravity = 0x0002, // affected by gravity
+    kPhysFalling = 0x0004, // currently in z-motion
 
-// sector cstat
-#define kSecCParallax 0x01
-#define kSecCSloped 0x02
-#define kSecCSwapXY 0x04
-#define kSecCExpand 0x08
-#define kSecCFlipX 0x10
-#define kSecCFlipY 0x20
-#define kSecCFlipMask 0x34
-#define kSecCRelAlign 0x40
-#define kSecCFloorShade 0x8000
+    //  sector cstat
+    kSecCParallax = 0x01,
+    kSecCSloped = 0x02,
+    kSecCSwapXY = 0x04,
+    kSecCExpand = 0x08,
+    kSecCFlipX = 0x10,
+    kSecCFlipY = 0x20,
+    kSecCFlipMask = 0x34,
+    kSecCRelAlign = 0x40,
+    kSecCFloorShade = 0x8000,
 
-#define kAng5 28
-#define kAng15 85
-#define kAng30 170
-#define kAng45 256
-#define kAng60 341
-#define kAng90 512
-#define kAng120 682
-#define kAng180 1024
-#define kAng360 2048
-
+    kAng5 = 28,
+    kAng15 = 85,
+    kAng30 = 170,
+    kAng45 = 256,
+    kAng60 = 341,
+    kAng90 = 512,
+    kAng120 = 682,
+    kAng180 = 1024,
+    kAng360 = 2048,
+};
 
 // -------------------------------
 
@@ -747,7 +741,7 @@ public:
     int readBit()
     {
         if (nSize <= 0)
-            ThrowError("Buffer overflow");
+            ThrowError("Buffer overflow in BitReader");
         int bit = ((*pBuffer)>>nBitPos)&1;
         if (++nBitPos >= 8)
         {
@@ -764,7 +758,7 @@ public:
         nSize -= nBitPos>>3;
         nBitPos &= 7;
         if ((nSize == 0 && nBitPos > 0) || nSize < 0)
-            ThrowError("Buffer overflow");
+            ThrowError("Buffer overflow in BitReader");
     }
     unsigned int readUnsigned(int nBits)
     {
@@ -784,40 +778,5 @@ public:
     }
 };
 
-class BitWriter {
-public:
-    int nBitPos;
-    int nSize;
-    char *pBuffer;
-    BitWriter(char *_pBuffer, int _nSize, int _nBitPos) { pBuffer = _pBuffer; nSize = _nSize; nBitPos = _nBitPos; memset(pBuffer, 0, nSize); nSize -= nBitPos>>3; }
-    BitWriter(char *_pBuffer, int _nSize) { pBuffer = _pBuffer; nSize = _nSize; nBitPos = 0; memset(pBuffer, 0, nSize); }
-    void writeBit(int bit)
-    {
-        if (nSize <= 0)
-            ThrowError("Buffer overflow");
-        *pBuffer |= bit<<nBitPos;
-        if (++nBitPos >= 8)
-        {
-            nBitPos = 0;
-            pBuffer++;
-            nSize--;
-        }
-    }
-    void skipBits(int nBits)
-    {
-        nBitPos += nBits;
-        pBuffer += nBitPos>>3;
-        nSize -= nBitPos>>3;
-        nBitPos &= 7;
-        if ((nSize == 0 && nBitPos > 0) || nSize < 0)
-            ThrowError("Buffer overflow");
-    }
-    void write(int nValue, int nBits)
-    {
-        dassert(nBits <= 32);
-        for (int i = 0; i < nBits; i++)
-            writeBit((nValue>>i)&1);
-    }
-};
 
 END_BLD_NS

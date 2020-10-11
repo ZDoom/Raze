@@ -24,10 +24,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-#define kMaxXSprites 16384
-#define kMaxXWalls 512
-#define kMaxXSectors 512
-
+enum
+{
+	kMaxXSprites = 16384,
+	kMaxXWalls = 512,
+	kMaxXSectors = 512
+};
 
 
 // by NoOne: functions to quckly check range of specifical arrays

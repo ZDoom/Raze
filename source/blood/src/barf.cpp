@@ -33,12 +33,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 // I don't think we still need these.
-#define DICT_LOAD 0
-#define DICT_LOCK 0
-
-#define kMaxCmdLineDefines  5
-#define kMaxDefines         1000
-#define kMaxParseLevels     5
+enum
+{
+    DICT_LOAD = 0,
+    DICT_LOCK = 0,
+    
+    kMaxCmdLineDefines = 5,
+    kMaxDefines        = 1000,
+    kMaxParseLevels    = 5
+};
 static int nCmdDefines = 0;
 static int nDefines = 0;
 

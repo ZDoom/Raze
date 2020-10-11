@@ -41,8 +41,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-#define kMaxSeqClients 256
-#define kMaxSequences 1024
+enum
+{
+	kMaxSeqClients = 256,
+	kMaxSequences = 1024
+};
 
 static ACTIVE activeList[kMaxSequences];
 static int seqActiveCount = 0;

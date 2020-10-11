@@ -56,7 +56,7 @@ void _SetErrorLoc(const char *pzFile, int nLine)
 }
 
 // by NoOne: show warning msgs in game instead of throwing errors (in some cases)
-void _consoleSysMsg(const char* pzFormat, ...) {
+void consoleSysMsg(const char* pzFormat, ...) {
 
     va_list args;
     va_start(args, pzFormat);

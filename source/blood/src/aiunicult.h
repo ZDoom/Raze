@@ -29,14 +29,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 #ifdef NOONE_EXTENSIONS
-#define kGenDudeDefaultSeq 11520
-#define kGenDudeMaxSlaves 7
-#define kGenDudeTransformStatus -222
-#define kGenDudeUpdTimeRate 10
-#define kGenDudeMaxMeleeDist 2048
-#define kGenDudeMinDispesion 200
-#define kGenDudeMaxDispersion 3500
-#define kGenDudeKlabsAng 56
+enum
+{
+    kGenDudeDefaultSeq = 11520,
+    kGenDudeMaxSlaves = 7,
+    kGenDudeTransformStatus = -222,
+    kGenDudeUpdTimeRate = 10,
+    kGenDudeMaxMeleeDist = 2048,
+    kGenDudeMinDispesion = 200,
+    kGenDudeMaxDispersion = 3500,
+    kGenDudeKlabsAng = 56
+};
 
 enum {
 kGenDudeSeqIdleL            = 0,

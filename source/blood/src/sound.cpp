@@ -48,7 +48,7 @@ int soundRates[13] = {
     44100,
     44100,
 };
-#define kChannelMax 32
+enum { kChannelMax = 32 };
 
 
 void ByteSwapSFX(SFX* pSFX)

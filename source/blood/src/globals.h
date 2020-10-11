@@ -33,7 +33,7 @@ BEGIN_BLD_NS
 extern int gFrameClock;
 extern int gFrameCount;
 
-#define MAXPLAYERNAME 16
+enum { MAXPLAYERNAME = 16 };
 
 extern int32_t gDetail;
 extern bool gNoClip;

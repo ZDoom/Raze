@@ -69,7 +69,7 @@ char gInterpolateSprite[(kMaxSprites+7)>>3];
 char gInterpolateWall[(kMaxWalls+7)>>3];
 char gInterpolateSector[(kMaxSectors+7)>>3];
 
-#define kMaxInterpolations 16384
+enum { kMaxInterpolations = 16384 };
 
 INTERPOLATE gInterpolation[kMaxInterpolations];
 

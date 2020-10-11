@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-#define kMaxQavClients 64
+enum { kMaxQavClients = 64 };
 static void (*qavClientCallback[kMaxQavClients])(int, void *);
 static int nQavClients;
 

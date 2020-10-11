@@ -48,7 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-#define kQAVEnd 125
+enum { kQAVEnd = 125 };
 
 void FirePitchfork(int, PLAYER *pPlayer);
 void FireSpray(int, PLAYER *pPlayer);
@@ -1109,7 +1109,7 @@ void FireRemote(int, PLAYER *pPlayer)
     evSend(0, 0, 90+(pPlayer->pSprite->type-kDudePlayer1), kCmdOn);
 }
 
-#define kMaxShotgunBarrels 4
+enum { kMaxShotgunBarrels = 4 };
 
 void FireShotgun(int nTrigger, PLAYER *pPlayer)
 {
@@ -1193,7 +1193,7 @@ void FireTommy(int nTrigger, PLAYER *pPlayer)
     pPlayer->flashEffect = 1;
 }
 
-#define kMaxSpread 14
+enum { kMaxSpread = 14 };
 
 void FireSpread(int nTrigger, PLAYER *pPlayer)
 {

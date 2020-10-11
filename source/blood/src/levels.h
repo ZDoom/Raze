@@ -29,9 +29,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-#define kMaxMessages 32
-#define kMaxEpisodes 7
-#define kMaxLevels 16
+enum
+{
+	kMaxMessages = 32,
+	kMaxEpisodes = 7,
+	kMaxLevels = 16
+};
 
 #pragma pack(push, 1)
 
