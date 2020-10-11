@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxGrads	12
+enum { kMaxGrads = 12 };
 
 const char *GradList[kMaxGrads] = {
     "normal.rmp",

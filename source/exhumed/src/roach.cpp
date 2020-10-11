@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxRoach	100
+enum { kMaxRoach = 100 };
 
 int16_t RoachCount = -1;
 

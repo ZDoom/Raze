@@ -26,11 +26,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxFlashes			2000
-#define kMaxFlickerMask		25
-#define kMaxGlows			50
-#define kMaxFlickers		100
-#define kMaxFlows			375
+enum
+{
+	kMaxFlashes			= 2000,
+	kMaxFlickerMask		= 25,
+	kMaxGlows			= 50,
+	kMaxFlickers		= 100,
+	kMaxFlows			= 375,
+};
 
 struct Flash
 {

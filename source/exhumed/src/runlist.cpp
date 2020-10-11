@@ -25,9 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-//#define kFuncMax	0x260000 // the number 38 stored in the high word of an int
-#define kFuncMax		39
-#define kMaxRunStack	200
+enum
+{
+	kFuncMax		= 39,
+	kMaxRunStack	= 200
+};
 
 
 short RunCount = -1;

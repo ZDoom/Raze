@@ -33,10 +33,13 @@ void RestartPlayer(short nPlayer);
 
 void FuncPlayer(int nSector, int nSprite, int nRun);
 
-#define kMaxPlayers			8
-#define kDefaultLives		3
-#define kMaxPlayerLives		5
-#define kMaxHealth			800
+enum
+{
+	kMaxPlayers			= 8,
+	kDefaultLives		= 3,
+	kMaxPlayerLives		= 5,
+	kMaxHealth			= 800
+}
 
 extern int nLocalPlayer;
 

@@ -32,10 +32,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxSequences	4096
-#define kMaxSEQFiles	78
-#define kMaxSEQFrames	18000
-#define kMaxSEQChunks	21000
+enum
+{
+	kMaxSequences	= 4096,
+	kMaxSEQFiles	= 78,
+	kMaxSEQFrames	= 18000,
+	kMaxSEQChunks	= 21000
+};
 
 short sequences = 0;
 short frames = 0;

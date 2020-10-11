@@ -42,8 +42,11 @@ short nBodySprite[50];
 
 int hihit, sprceiling, sprfloor, lohit;
 
-#define kMaxPushBlocks	100
-#define kMaxMoveChunks	75
+enum
+{
+	kMaxPushBlocks	= 100,
+	kMaxMoveChunks	= 75
+};
 
 // think this belongs in init.c?
 BlockInfo sBlockInfo[kMaxPushBlocks];

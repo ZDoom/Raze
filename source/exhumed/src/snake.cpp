@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxSnakes	50
+enum { kMaxSnakes	= 50 };
 
 int nSnakeCount = 0;
 int nSnakesFree;

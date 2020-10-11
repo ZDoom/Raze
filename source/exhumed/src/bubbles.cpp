@@ -26,8 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 
-#define kMaxBubbles		200
-#define kMaxMachines	125
+enum
+{
+	kMaxBubbles		= 200,
+	kMaxMachines	= 125
+};
 
 struct Bubble
 {

@@ -101,7 +101,7 @@ void FuncFishLimb(int a, int b, int c);
 
 // grenade
 
-#define kMaxGrenades	50
+enum { kMaxGrenades = 50 };
 
 void InitGrenades();
 int BuildGrenade(int nPlayer);
@@ -111,7 +111,7 @@ void FuncGrenade(int, int, int);
 
 // gun
 
-#define kMaxWeapons		7
+enum { kMaxWeapons = 7 };
 
 enum
 {
@@ -255,7 +255,7 @@ void SetQuake(short nSprite, int nVal);
 
 // mummy
 
-#define kMaxMummies	150
+enum { kMaxMummies = 150 };
 
 void InitMummy();
 int BuildMummy(int val, int x, int y, int z, int nSector, int nAngle);
@@ -263,9 +263,12 @@ void FuncMummy(int nSector, int edx, int nRun);
 
 // object
 
-#define kMaxPoints	1024
-#define kMaxSlides	128
-#define kMaxElevs	1024
+enum
+{
+	kMaxPoints	= 1024,
+	kMaxSlides	= 128,
+	kMaxElevs	= 1024
+};
 
 enum kStatus
 {
@@ -366,8 +369,11 @@ void FuncRoach(int a, int nDamage, int nRun);
 
 // runlist
 
-#define kMaxRuns		25600
-#define kMaxChannels	4096
+enum
+{
+	kMaxRuns		= 25600,
+	kMaxChannels	= 4096
+};
 
 struct RunStruct
 {
@@ -438,7 +444,7 @@ void FuncSet(int, int, int);
 
 // snake
 
-#define kSnakeSprites	8 // or rename to kSnakeParts?
+enum { kSnakeSprites = 8 }; // or rename to kSnakeParts?
 
 // 32bytes
 struct Snake
@@ -480,8 +486,11 @@ void FuncSpider(int a, int b, int nRun);
 
 // switch
 
-#define kMaxLinks		1024
-#define kMaxSwitches	1024
+enum
+{
+	kMaxLinks		= 1024,
+	kMaxSwitches	= 1024
+};
 
 void InitLink();
 void InitSwitch();
@@ -516,7 +525,7 @@ void FuncWasp(int eax, int edx, int nRun);
 
 
 
-#define kMessageMask    0x7F0000
+enum { kMessageMask = 0x7F0000 };
 inline int GrabTimeSlot(int nVal) { return -1; }
 
 END_PS_NS

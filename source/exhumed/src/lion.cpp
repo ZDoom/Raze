@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxLions	40
+enum { kMaxLions = 40 };
 
 short LionCount = -1;
 short MoveHook[kMaxLions];

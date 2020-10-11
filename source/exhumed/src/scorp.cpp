@@ -29,7 +29,7 @@ BEGIN_PS_NS
     Selkis Boss AI code
 */
 
-#define kMaxScorpions   5
+enum { kMaxScorpions = 5 };
 
 short ScorpCount = -1;
 

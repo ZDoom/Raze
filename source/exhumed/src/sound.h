@@ -22,14 +22,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 
-#define kMaxSoundFiles      80
-#define kMaxSounds          200
-#define kMaxSoundNameLen    8
-#define kMaxActiveSounds    8
-
-#define kCreepyCount 150
-
-#define MUSIC_ID    (-65536)
+enum
+{
+	kMaxSoundFiles      = 80,
+	kMaxSounds          = 200,
+	kMaxSoundNameLen    = 8,
+	kMaxActiveSounds    = 8,
+	kCreepyCount 		= 150,
+	MUSIC_ID    		= (-65536)
+};
 
 enum {
     kSound0 = 0,

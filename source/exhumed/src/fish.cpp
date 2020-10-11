@@ -25,8 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxFishes		128
-#define kMaxChunks		128
+enum
+{
+    kMaxFishes = 128,
+    kMaxChunks = 128
+};
 
 short FishCount = 0;
 

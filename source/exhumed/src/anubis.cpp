@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxAnubis	80
+enum { kMaxAnubis = 80 };
 
 struct Anubis
 {

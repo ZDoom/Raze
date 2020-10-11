@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxWasps	100
+enum { kMaxWasps = 100 };
 
 static short nWaspVelShift = 0;
 short nWaspCount;

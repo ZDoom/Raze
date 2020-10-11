@@ -30,16 +30,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxBobs		200
-#define kMaxDrips		50
-#define kMaxMoveSects	50
-#define kMaxObjects		128
-#define kMaxWallFace	4096
-#define kMaxSlideData	128
-#define kMaxPoints		1024
-#define kMaxTraps		40
-#define kMaxTrails		20
-#define kMaxTrailPoints	100
+enum
+{
+	kMaxBobs		= 200,
+	kMaxDrips		= 50,
+	kMaxMoveSects	= 50,
+	kMaxObjects		= 128,
+	kMaxWallFace	= 4096,
+	kMaxSlideData	= 128,
+	kMaxTraps		= 40,
+	kMaxTrails		= 20,
+	kMaxTrailPoints	= 100,
+};
 
 
 static short ObjectSeq[] = {

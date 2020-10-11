@@ -59,7 +59,7 @@ short enemy;
 
 short nEnemyPal = 0;
 
-#define MAXINTERPOLATIONS MAXSPRITES
+enum { MAXINTERPOLATIONS = MAXSPRITES };
 int32_t g_interpolationCnt;
 int32_t oldipos[MAXINTERPOLATIONS];
 int32_t* curipos[MAXINTERPOLATIONS];

@@ -24,20 +24,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxSprites 4096
-#define kMaxSectors 1024
-#define kMaxWalls   8192
-#define kMaxVoxels	4096
-
 enum
 {
-	kStatIgnited = 404
+	kStatIgnited = 404,
+	kMaxSprites = 4096,
+	kMaxSectors = 1024,
+	kMaxWalls   = 8192,
+	kMaxVoxels	= 4096,
+	kMaxPalookups = 256,
+	kMaxStatus   = 1024,
+	kMap20	= 20,
+	kAngleMask	= 0x7FF
 };
-
-
-#define kMaxPalookups 256
-#define kMaxStatus   1024
-//#define MAXPSKYTILES 256
 
 
 int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask);
@@ -52,7 +50,6 @@ bool CDplaying();
 void StopCD();
 
 // init
-#define kMap20	20
 
 enum {
     kSectUnderwater = 0x2000,
@@ -123,7 +120,6 @@ int RandomSize(int nSize);
 
 // trigdat
 
-#define kAngleMask	0x7FF
 
 int GetMyAngle(int x, int y);
 

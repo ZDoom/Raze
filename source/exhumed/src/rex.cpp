@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxRex	50
+enum { kMaxRex	= 50 };
 
 short RexCount = 0;
 short RexChan[kMaxRex];

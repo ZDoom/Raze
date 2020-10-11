@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 
-#define kTimerTicks		120
+enum { kTimerTicks = 120 };
 
 enum basepal_t {
     BASEPAL = 0,

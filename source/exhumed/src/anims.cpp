@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxAnims	400
+enum { kMaxAnims = 400 };
 
 short nMagicSeq = -1;
 short nPreMagicSeq  = -1;

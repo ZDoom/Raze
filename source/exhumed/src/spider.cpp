@@ -27,7 +27,7 @@ BEGIN_PS_NS
 
 short SpiderCount = 0;
 
-#define kMaxSpiders		100
+enum { kMaxSpiders	= 100 };
 
 struct Spider
 {

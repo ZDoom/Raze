@@ -27,9 +27,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-#define kMaxQueens	1
-#define kMaxEggs	10
-#define kMaxTails	7
+enum
+{
+	kMaxQueens	= 1,
+	kMaxEggs	= 10,
+	kMaxTails	= 7
+};
 
 short QueenCount = 0;
 
