@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "gameinput.h"
 #include "gamestruct.h"
+#include "serializer.h"
 
 CVARD(Bool, invertmousex, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert horizontal mouse movement")
 CVARD(Bool, invertmouse, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "invert vertical mouse movement")
@@ -325,3 +326,42 @@ void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double 
 	}
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("ang", w.ang)
+			("lookang", w.look_ang)
+			("rotscrnang", w.rotscrnang)
+			("spin", w.spin)
+			.EndObject();
+
+		if (arc.isReading())
+		{
+			w.oang = w.ang;
+			w.olook_ang = w.look_ang;
+			w.orotscrnang = w.rotscrnang;
+			w.resetadjustment();
+		}
+	}
+	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, PlayerHorizon* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("horiz", w.horiz)
+			("horizoff", w.horizoff)
+			.EndObject();
+
+		if (arc.isReading())
+		{
+			w.ohoriz = w.horiz;
+			w.ohorizoff = w.horizoff;
+			w.resetadjustment();
+			w.settarget(0);
+		}
+	}
+	return arc;
+}
