@@ -297,3 +297,17 @@ inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(IntToFixed(v))
 inline fixedhoriz pitchhoriz(double v) { return fixedhoriz(PitchToHoriz(v)); }
 inline fixedhoriz bamhoriz(int32_t v) { return pitchhoriz(BAMToPitch(v)); }
 
+inline FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval)
+{
+	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
+}
+
+inline FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval)
+{
+	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
+}
+
+inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval)
+{
+	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
+}
