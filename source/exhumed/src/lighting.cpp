@@ -88,7 +88,7 @@ int bDoFlicks = 0;
 int bDoGlows = 0;
 
 
-static SavegameHelper sgh("lightning",
+static SavegameHelper sghlighnting("lightning",
     SA(sFlash),
     SA(sGlow),
     SA(nNextFlash),

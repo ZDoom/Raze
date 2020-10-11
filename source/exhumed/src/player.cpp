@@ -53,7 +53,7 @@ int lPlayerXVel = 0;
 int lPlayerYVel = 0;
 short obobangle = 0, bobangle  = 0;
 
-static actionSeq ActionSeq[] = {
+static actionSeq PlayerSeq[] = {
     {18,  0}, {0,   0}, {9,   0}, {27,  0}, {63,  0},
     {72,  0}, {54,  0}, {45,  0}, {54,  0}, {81,  0},
     {90,  0}, {99,  0}, {108, 0}, {8,   0}, {0,   0},
@@ -738,7 +738,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
     {
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[PlayerList[nPlayer].nSeq] + ActionSeq[nAction].a, PlayerList[nPlayer].field_2, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].field_2, PlayerSeq[nAction].b);
             return;
         }
 
@@ -876,7 +876,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
             int var_EC = PlayerList[nPlayer].field_2;
 
-            sprite[nPlayerSprite].picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, ActionSeq[nHeightTemplate[nAction]].a, var_EC);
+            sprite[nPlayerSprite].picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
             sprite[nDopple].picnum = sprite[nPlayerSprite].picnum;
 
             if (nPlayerTorch[nPlayer] > 0)
@@ -2721,7 +2721,7 @@ loc_1BD2E:
                 CheckAmbience(nLocalEyeSect);
             }
 
-            int var_AC = SeqOffsets[PlayerList[nPlayer].nSeq] + ActionSeq[nAction].a;
+            int var_AC = SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a;
 
             seq_MoveSequence(nPlayerSprite, var_AC, PlayerList[nPlayer].field_2);
             PlayerList[nPlayer].field_2++;
@@ -2838,7 +2838,7 @@ loc_1BD2E:
     }
 }
 
-static SavegameHelper sgh("player",
+static SavegameHelper sghplayer("player",
     SV(lPlayerXVel),
     SV(lPlayerYVel),
     SV(obobangle),

@@ -41,7 +41,7 @@ struct Mummy
 
 Mummy MummyList[kMaxMummies];
 
-static actionSeq ActionSeq[] = {
+static actionSeq MummySeq[] = {
     {8, 0},
     {0, 0},
     {16, 0},
@@ -53,7 +53,7 @@ static actionSeq ActionSeq[] = {
 };
 
 
-static SavegameHelper sgh("mummy",
+static SavegameHelper sghmummy("mummy",
     SV(nMummies),
     SA(MummyList),
     nullptr);
@@ -185,7 +185,7 @@ void FuncMummy(int a, int nDamage, int nRun)
         {
             Gravity(nSprite);
 
-            int nSeq = SeqOffsets[kSeqMummy] + ActionSeq[nAction].a;
+            int nSeq = SeqOffsets[kSeqMummy] + MummySeq[nAction].a;
 
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, MummyList[nMummy].B);
 
@@ -465,7 +465,7 @@ void FuncMummy(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqMummy] + ActionSeq[nAction].a, MummyList[nMummy].B, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, MummyList[nMummy].B, MummySeq[nAction].b);
             return;
         }
 

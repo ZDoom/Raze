@@ -26,7 +26,7 @@ BEGIN_PS_NS
 
 #define kMaxWasps	100
 
-static short nVelShift = 0;
+static short nWaspVelShift = 0;
 short nWaspCount;
 
 struct Wasp
@@ -47,7 +47,7 @@ struct Wasp
 
 Wasp WaspList[kMaxWasps];
 
-static actionSeq ActionSeq[] = {
+static actionSeq WaspSeq[] = {
     {0,  0},
     {0,  0},
     {9,  0},
@@ -57,8 +57,8 @@ static actionSeq ActionSeq[] = {
     {29, 1}
 };
 
-static SavegameHelper sgh("wasp",
-    SV(nVelShift),
+static SavegameHelper sghwasp("wasp",
+    SV(nWaspVelShift),
     SV(nWaspCount),
     SA(WaspList),
     nullptr);
@@ -71,15 +71,15 @@ void InitWasps()
 
 void SetWaspVel(short nSprite)
 {
-    if (nVelShift < 0)
+    if (nWaspVelShift < 0)
     {
-        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) << -nVelShift;
-        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) << -nVelShift;
+        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) << -nWaspVelShift;
+        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) << -nWaspVelShift;
     }
     else
     {
-        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> nVelShift;
-        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> nVelShift;
+        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> nWaspVelShift;
+        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> nWaspVelShift;
     }
 }
 
@@ -187,7 +187,7 @@ void FuncWasp(int a, int nDamage, int nRun)
     {
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqWasp] + ActionSeq[nAction].a, WaspList[nWasp].nFrame, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqWasp] + WaspSeq[nAction].a, WaspList[nWasp].nFrame, WaspSeq[nAction].b);
             return;
         }
 
@@ -230,7 +230,7 @@ void FuncWasp(int a, int nDamage, int nRun)
                 else
                 {
                     // Wasp is dead
-                    nVelShift = 0;
+                    nWaspVelShift = 0;
 
                     WaspList[nWasp].nAction = 4;
                     WaspList[nWasp].nFrame  = 0;
@@ -250,7 +250,7 @@ void FuncWasp(int a, int nDamage, int nRun)
 
         case 0x20000:
         {
-            short nSeq = SeqOffsets[kSeqWasp] + ActionSeq[nAction].a;
+            short nSeq = SeqOffsets[kSeqWasp] + WaspSeq[nAction].a;
 
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, WaspList[nWasp].nFrame);
 

@@ -28,7 +28,7 @@ BEGIN_PS_NS
 
 short SetCount = 0;
 
-static actionSeq ActionSeq[] = {
+static actionSeq SetSeq[] = {
     {0, 0},
     {77, 1},
     {78, 1},
@@ -59,7 +59,7 @@ struct Set
 Set SetList[kMaxSets];
 short SetChan[kMaxSets];
 
-static SavegameHelper sgh("set",
+static SavegameHelper sghset("set",
     SV(SetCount),
     SA(SetList),
     SA(SetChan),
@@ -291,7 +291,7 @@ void FuncSet(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a, SeqOffsets[kSeqSet] + ActionSeq[nAction].a, SetList[nSet].nFrame, ActionSeq[nAction].b);
+            seq_PlotSequence(a, SeqOffsets[kSeqSet] + SetSeq[nAction].a, SetList[nSet].nFrame, SetSeq[nAction].b);
             return;
         }
 
@@ -299,7 +299,7 @@ void FuncSet(int a, int nDamage, int nRun)
         {
             Gravity(nSprite);
 
-            short nSeq = SeqOffsets[kSeqSet] + ActionSeq[SetList[nSet].nAction].a;
+            short nSeq = SeqOffsets[kSeqSet] + SetSeq[SetList[nSet].nAction].a;
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, SetList[nSet].nFrame);
             seq_MoveSequence(nSprite, nSeq, SetList[nSet].nFrame);
 

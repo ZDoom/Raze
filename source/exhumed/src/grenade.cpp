@@ -48,7 +48,7 @@ struct Grenade
 
 Grenade GrenadeList[kMaxGrenades];
 
-static SavegameHelper sgh("grenade",
+static SavegameHelper sghgrenade("grenade",
     SV(nGrenadeCount),
     SV(nGrenadesFree),
     SA(GrenadeFree),

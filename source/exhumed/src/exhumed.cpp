@@ -620,7 +620,7 @@ bool GameInterface::CanSave()
 
 
 // This is only the static global data.
-static SavegameHelper sgh("exhumed",
+static SavegameHelper sghexhumed("exhumed",
     SV(besttarget),
     SV(nCreaturesTotal),
     SV(nCreaturesKilled),

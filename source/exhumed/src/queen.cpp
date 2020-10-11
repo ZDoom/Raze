@@ -33,7 +33,7 @@ BEGIN_PS_NS
 
 short QueenCount = 0;
 
-static actionSeq ActionSeq[] = {
+static actionSeq QueenSeq[] = {
     {0,  0},
     {0,  0},
     {9,  0},
@@ -130,7 +130,7 @@ short MoveQA[25];
 
 
 
-static SavegameHelper sgh("queen",
+static SavegameHelper sghqueen("queen",
     SV(QueenCount),
     SV(nQHead),
     SV(nEggsFree),
@@ -1197,7 +1197,7 @@ void FuncQueen(int a, int nDamage, int nRun)
                 Gravity(nSprite);
             }
 
-            short nSeq = SeqOffsets[kSeqQueen] + ActionSeq[nAction].a;
+            short nSeq = SeqOffsets[kSeqQueen] + QueenSeq[nAction].a;
 
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, QueenList[nQueen].nFrame);
 
@@ -1511,7 +1511,7 @@ void FuncQueen(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqQueen] + ActionSeq[nAction].a, QueenList[nQueen].nFrame, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqQueen] + QueenSeq[nAction].a, QueenList[nQueen].nFrame, QueenSeq[nAction].b);
             break;
         }
         }

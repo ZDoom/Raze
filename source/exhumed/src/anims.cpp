@@ -37,7 +37,7 @@ short AnimsFree[kMaxAnims];
 Anim AnimList[kMaxAnims];
 uint8_t AnimFlags[kMaxAnims];
 
-static SavegameHelper sgh("anims",
+static SavegameHelper sghanims("anims",
     SV(nMagicSeq),
     SV(nPreMagicSeq),
     SV(nSavePointSeq),

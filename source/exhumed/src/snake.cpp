@@ -40,7 +40,7 @@ short nPlayerSnake[kMaxPlayers];
 Snake SnakeList[kMaxSnakes];
 short nSnakePlayer[kMaxSnakes];
 
-static SavegameHelper sgh("snake",
+static SavegameHelper sghsnake("snake",
     SV(nSnakeCount),
     SV(nSnakesFree),
     SA(SnakeFree),

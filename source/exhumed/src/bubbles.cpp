@@ -53,7 +53,7 @@ uint8_t nBubblesFree[kMaxBubbles];
 machine Machine[kMaxMachines];
 Bubble BubbleList[kMaxBubbles];
 
-static SavegameHelper sgh("bubbles",
+static SavegameHelper sghbubbles("bubbles",
     SV(BubbleCount),
     SV(nFreeCount),
     SV(nMachineCount),

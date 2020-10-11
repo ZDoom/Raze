@@ -2665,7 +2665,7 @@ void PostProcess()
 }
 
 
-static SavegameHelper sgh("objects",
+static SavegameHelper sghobj("objects",
     SA(sTrap),
     SA(sBob),
     SA(sTrail),

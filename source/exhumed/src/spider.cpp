@@ -41,7 +41,7 @@ struct Spider
 
 Spider SpiderList[kMaxSpiders];
 
-static actionSeq ActionSeq[] = {
+static actionSeq SpiderSeq[] = {
     {16, 0},
     {8,  0},
     {32, 0},
@@ -51,7 +51,7 @@ static actionSeq ActionSeq[] = {
     {41, 1}
 };
 
-static SavegameHelper sgh("spider",
+static SavegameHelper sghspider("spider",
     SV(SpiderCount),
     SA(SpiderList),
     nullptr);
@@ -156,7 +156,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                 }
             }
 
-            int nSeq = SeqOffsets[kSeqSpider] + ActionSeq[nAction].a;
+            int nSeq = SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a;
 
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, SpiderList[nSpider].nFrame);
 
@@ -384,7 +384,7 @@ void FuncSpider(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqSpider] + ActionSeq[nAction].a, SpiderList[nSpider].nFrame, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a, SpiderList[nSpider].nFrame, SpiderSeq[nAction].b);
             break;
         }
 

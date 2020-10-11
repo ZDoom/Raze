@@ -49,7 +49,7 @@ struct Switch
 
 Switch SwitchData[kMaxSwitches];
 
-static SavegameHelper sgh("switch",
+static SavegameHelper sghswitch("switch",
     SV(LinkCount),
     SV(SwitchCount),
     SA(LinkMap),

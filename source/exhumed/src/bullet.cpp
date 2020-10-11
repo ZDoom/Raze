@@ -66,7 +66,7 @@ short lasthitsect, lasthitsprite, lasthitwall;
 int nBulletCount = 0;
 short nRadialBullet = 0;
 
-static SavegameHelper sgh("bullet",
+static SavegameHelper sghbullet("bullet",
     SV(BulletFree),
     SA(BulletList),
     SA(nBulletEnemy),

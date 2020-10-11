@@ -30,7 +30,7 @@ BEGIN_PS_NS
 short LionCount = -1;
 short MoveHook[kMaxLions];
 
-static actionSeq ActionSeq[] = {
+static actionSeq LionSeq[] = {
     {54, 1},
     {18, 0},
     {0,  0},
@@ -58,7 +58,7 @@ struct Lion
 
 Lion LionList[kMaxLions];
 
-static SavegameHelper sgh("lion",
+static SavegameHelper sghlion("lion",
     SV(LionCount),
     SA(MoveHook),
     SA(LionList),
@@ -155,7 +155,7 @@ void FuncLion(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a, SeqOffsets[kSeqLion] + ActionSeq[nAction].a, LionList[nLion].nFrame, ActionSeq[nAction].b);
+            seq_PlotSequence(a, SeqOffsets[kSeqLion] + LionSeq[nAction].a, LionList[nLion].nFrame, LionSeq[nAction].b);
             return;
         }
 
@@ -245,7 +245,7 @@ void FuncLion(int a, int nDamage, int nRun)
                 Gravity(nSprite);
             }
 
-            short nSeq = SeqOffsets[kSeqLion] + ActionSeq[nAction].a;
+            short nSeq = SeqOffsets[kSeqLion] + LionSeq[nAction].a;
 
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, LionList[nLion].nFrame);
 

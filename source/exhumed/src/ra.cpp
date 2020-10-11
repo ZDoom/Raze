@@ -31,14 +31,14 @@ BEGIN_PS_NS
 RA Ra[kMaxPlayers]; // one Ra for each player
 short RaCount;
 
-static actionSeq ActionSeq[] = {
+static actionSeq RaSeq[] = {
     {2, 1},
     {0, 0},
     {1, 0},
     {2, 0}
 };
 
-static SavegameHelper sgh("ra",
+static SavegameHelper sghra("ra",
     SA(Ra),
     SV(RaCount),
     nullptr);
@@ -154,7 +154,7 @@ void FuncRa(int a, int, int nRun)
     short nPlayer = RunData[nRun].nVal;
     short nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
-    short nSeq = SeqOffsets[kSeqEyeHit] + ActionSeq[Ra[nPlayer].nAction].a;
+    short nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
     short nSprite = Ra[nPlayer].nSprite;
 
     bool bVal = false;

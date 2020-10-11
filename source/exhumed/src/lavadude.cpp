@@ -42,7 +42,7 @@ Lava LavaList[kMaxLavas];
 
 short LavaCount = 0;
 
-static actionSeq ActionSeq[] = {
+static actionSeq LavadudeSeq[] = {
     {0, 1},
     {0, 1},
     {1, 0},
@@ -54,7 +54,7 @@ static actionSeq ActionSeq[] = {
     {42, 1}
 };
 
-static SavegameHelper sgh("lavadude",
+static SavegameHelper sghlava("lavadude",
     SA(LavaList),
     SV(LavaCount),
     nullptr);
@@ -176,7 +176,7 @@ int BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, int
     sprite[nSprite].clipdist = 127;
     sprite[nSprite].xoffset = 0;
     sprite[nSprite].yoffset = 0;
-    sprite[nSprite].picnum = seq_GetSeqPicnum(kSeqLavag, ActionSeq[3].a, 0);
+    sprite[nSprite].picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].a, 0);
     sprite[nSprite].xvel = 0;
     sprite[nSprite].yvel = 0;
     sprite[nSprite].zvel = 0;
@@ -209,7 +209,7 @@ void FuncLava(int a, int nDamage, int nRun)
     assert(nLava >= 0 && nLava < kMaxLavas);
 
     short nAction = LavaList[nLava].nAction;
-    short nSeq = ActionSeq[nAction].a + SeqOffsets[kSeqLavag];
+    short nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
     short nSprite = LavaList[nLava].nSprite;
 
     int nMessage = a & kMessageMask;
@@ -224,7 +224,7 @@ void FuncLava(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, nSeq, LavaList[nLava].nFrame, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, nSeq, LavaList[nLava].nFrame, LavadudeSeq[nAction].b);
             tsprite[a & 0xFFFF].owner = -1;
             return;
         }

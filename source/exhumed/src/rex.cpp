@@ -43,7 +43,7 @@ struct Rex
 
 Rex RexList[kMaxRex];
 
-static actionSeq ActionSeq[] = {
+static actionSeq RexSeq[] = {
     {29, 0},
     {0,  0},
     {0,  0},
@@ -55,7 +55,7 @@ static actionSeq ActionSeq[] = {
 };
 
 
-static SavegameHelper sgh("rex",
+static SavegameHelper sghrex("rex",
     SV(RexCount),
     SA(RexChan),
     SA(RexList),
@@ -200,7 +200,7 @@ void FuncRex(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqRex] + ActionSeq[nAction].a, RexList[nRex].nFrame, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqRex] + RexSeq[nAction].a, RexList[nRex].nFrame, RexSeq[nAction].b);
             return;
         }
 
@@ -208,7 +208,7 @@ void FuncRex(int a, int nDamage, int nRun)
         {
             Gravity(nSprite);
 
-            int nSeq = SeqOffsets[kSeqRex] + ActionSeq[nAction].a;
+            int nSeq = SeqOffsets[kSeqRex] + RexSeq[nAction].a;
 
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, RexList[nRex].nFrame);
 

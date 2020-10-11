@@ -43,15 +43,15 @@ short nBodySprite[50];
 int hihit, sprceiling, sprfloor, lohit;
 
 #define kMaxPushBlocks	100
-#define kMaxChunks	75
+#define kMaxMoveChunks	75
 
 // think this belongs in init.c?
 BlockInfo sBlockInfo[kMaxPushBlocks];
 
-short nChunkSprite[kMaxChunks];
+short nChunkSprite[kMaxMoveChunks];
 
 
-static SavegameHelper sgh("move",
+static SavegameHelper sghmove("move",
     SV(nPushBlocks),
     SV(overridesect),
     SV(NearCount),
@@ -1371,10 +1371,10 @@ int GrabChunkSprite()
     changespritestat(nSprite, 899);
 
     nCurChunkNum++;
-    if (nCurChunkNum >= kMaxChunks)
+    if (nCurChunkNum >= kMaxMoveChunks)
         nCurChunkNum = 0;
 
-    if (nChunkTotal < kMaxChunks)
+    if (nChunkTotal < kMaxMoveChunks)
         nChunkTotal++;
 
     sprite[nSprite].cstat = 0x80;

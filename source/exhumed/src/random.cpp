@@ -25,7 +25,7 @@ int randA = 0;
 int randB = 0x11111111;
 int randC = 0x1010101;
 
-static SavegameHelper sgh("rand",
+static SavegameHelper sghrandom("rand",
     SV(randA),
     SV(randB),
     SV(randC),

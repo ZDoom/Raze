@@ -45,7 +45,7 @@ struct Rat
 
 Rat RatList[kMaxRats];
 
-static actionSeq ActionSeq[] = {
+static actionSeq RatSeq[] = {
     {0, 1},
     {1, 0},
     {1, 0},
@@ -224,13 +224,13 @@ void FuncRat(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqRat] + ActionSeq[nAction].a, RatList[nRat].nFrame, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqRat] + RatSeq[nAction].a, RatList[nRat].nFrame, RatSeq[nAction].b);
             return;
         }
 
         case 0x20000:
         {
-            int nSeq = SeqOffsets[kSeqRat] + ActionSeq[nAction].a;
+            int nSeq = SeqOffsets[kSeqRat] + RatSeq[nAction].a;
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, RatList[nRat].nFrame);
 
             seq_MoveSequence(nSprite, nSeq, RatList[nRat].nFrame);

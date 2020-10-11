@@ -109,7 +109,7 @@ short nRegenerates;
 short nFirstRegenerate;
 short nMagicCount;
 
-static SavegameHelper sgh("items",
+static SavegameHelper sghitems("items",
     SV(nRegenerates),
     SV(nFirstRegenerate),
     SV(nMagicCount),

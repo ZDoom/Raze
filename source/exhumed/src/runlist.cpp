@@ -1667,7 +1667,7 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
     }
 }
 
-static SavegameHelper sgh("runlist",
+static SavegameHelper sghrunlist("runlist",
     SV(RunCount),
     SV(nRadialSpr),
     SV(nStackCount),

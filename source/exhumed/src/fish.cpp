@@ -30,7 +30,7 @@ BEGIN_PS_NS
 
 short FishCount = 0;
 
-static actionSeq ActionSeq[] = {
+static actionSeq FishSeq[] = {
     {8, 0},
     {8, 0},
     {0, 0},
@@ -70,7 +70,7 @@ struct Chunk
 Fish FishList[kMaxFishes];
 Chunk FishChunk[kMaxChunks];
 
-static SavegameHelper sgh("fish",
+static SavegameHelper sghfish("fish",
     SV(FishCount),
     SV(nChunksFree),
     SA(nFreeChunk),
@@ -246,7 +246,7 @@ int BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
     sprite[nSprite].pal = sector[sprite[nSprite].sectnum].ceilingpal;
     sprite[nSprite].xoffset = 0;
     sprite[nSprite].yoffset = 0;
-    sprite[nSprite].picnum = seq_GetSeqPicnum(kSeqFish, ActionSeq[0].a, 0);
+    sprite[nSprite].picnum = seq_GetSeqPicnum(kSeqFish, FishSeq[0].a, 0);
     sprite[nSprite].xvel = 0;
     sprite[nSprite].yvel = 0;
     sprite[nSprite].zvel = 0;
@@ -329,7 +329,7 @@ void FuncFish(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqFish] + ActionSeq[nAction].a, FishList[nFish].nFrame, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqFish] + FishSeq[nAction].a, FishList[nFish].nFrame, FishSeq[nAction].b);
             tsprite[a & 0xFFFF].owner = -1;
             return;
         }
@@ -406,7 +406,7 @@ void FuncFish(int a, int nDamage, int nRun)
                 Gravity(nSprite);
             }
 
-            short nSeq = SeqOffsets[kSeqFish] + ActionSeq[nAction].a;
+            short nSeq = SeqOffsets[kSeqFish] + FishSeq[nAction].a;
 
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, FishList[nFish].nFrame);
 

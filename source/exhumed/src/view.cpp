@@ -516,7 +516,7 @@ void Clip()
 }
 
 
-static SavegameHelper sgh("view",
+static SavegameHelper sghview("view",
     SV(nCamerax),
     SV(nCameray),
     SV(nCameraz),

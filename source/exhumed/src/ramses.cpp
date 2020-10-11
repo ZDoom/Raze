@@ -452,7 +452,7 @@ void DoSpiritHead()
 }
 
 // This is only the static global data.
-static SavegameHelper sgh("ramses",
+static SavegameHelper sghramses("ramses",
     SA(cPupData),
     SV(nPupData),
     SV(nPixels),

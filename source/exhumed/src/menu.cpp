@@ -238,7 +238,7 @@ void DoEnergyTile()
     }
 }
 
-static SavegameHelper sgh("menu",
+static SavegameHelper sghmenu("menu",
     SA(nCinemaSeen),
     SA(energytile),
     SV(nButtonColor),

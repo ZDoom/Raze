@@ -55,7 +55,7 @@ short nHealthFrame;
 short nMagicFrame;
 
 short nMaskY;
-static short nAnimsFree = 0;
+static short nStatusFree = 0;
 
 short statusmask[MAXXDIM];
 
@@ -145,7 +145,7 @@ void InitStatus()
     nLastAnim = -1;
     nFirstAnim = -1;
     nItemSeq = -1;
-    nAnimsFree = kMaxStatusAnims;
+    nStatusFree = kMaxStatusAnims;
     statusx = xdim - 320;
     statusy = ydim - 200;
 }
@@ -162,13 +162,13 @@ int BuildStatusAnim(int val, int nFlags)
         }
     }
 
-    if (nAnimsFree <= 0) {
+    if (nStatusFree <= 0) {
         return -1;
     }
 
-    nAnimsFree--;
+    nStatusFree--;
 
-    uint8_t nStatusAnim = StatusAnimsFree[nAnimsFree];
+    uint8_t nStatusAnim = StatusAnimsFree[nStatusFree];
 
     StatusAnim[nStatusAnim].nPrevAnim = -1;
     StatusAnim[nStatusAnim].nNextAnim = nLastAnim;
@@ -262,8 +262,8 @@ void DestroyStatusAnim(short nAnim)
         nLastAnim = nNext;
     }
 
-    StatusAnimsFree[nAnimsFree] = (uint8_t)nAnim;
-    nAnimsFree++;
+    StatusAnimsFree[nStatusFree] = (uint8_t)nAnim;
+    nStatusFree++;
 }
 
 void SetMagicFrame()
@@ -1004,9 +1004,9 @@ void DrawStatusBar()
 
 
 // I'm not sure this really needs to be saved.
-static SavegameHelper sgh("status",
+static SavegameHelper sghstatus("status",
     SV(nMaskY),
-    SV(nAnimsFree),
+    SV(nStatusFree),
     SV(magicperline),
     SV(airperline),
     SV(healthperline),

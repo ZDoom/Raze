@@ -28,7 +28,7 @@ BEGIN_PS_NS
 
 int16_t RoachCount = -1;
 
-static actionSeq ActionSeq[] = {
+static actionSeq RoachSeq[] = {
     {24, 0},
     {0,  0},
     {0,  0},
@@ -52,7 +52,7 @@ struct Roach
 
 Roach RoachList[kMaxRoach];
 
-static SavegameHelper sgh("roach",
+static SavegameHelper sghroach("roach",
     SV(RoachCount),
     SA(RoachList),
     nullptr);
@@ -161,7 +161,7 @@ void FuncRoach(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, ActionSeq[nAction].a + SeqOffsets[kSeqRoach], RoachList[nRoach].field_2, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], RoachList[nRoach].field_2, RoachSeq[nAction].b);
             return;
         }
 
@@ -231,7 +231,7 @@ void FuncRoach(int a, int nDamage, int nRun)
         {
             Gravity(nSprite);
 
-            int nSeq = SeqOffsets[kSeqRoach] + ActionSeq[RoachList[nRoach].nAction].a;
+            int nSeq = SeqOffsets[kSeqRoach] + RoachSeq[RoachList[nRoach].nAction].a;
 
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, RoachList[nRoach].field_2);
             seq_MoveSequence(nSprite, nSeq, RoachList[nRoach].field_2);

@@ -49,7 +49,7 @@ struct Scorpion
 Scorpion scorpion[kMaxScorpions];
 short ScorpChan[kMaxScorpions];
 
-static actionSeq ActionSeq[] = {
+static actionSeq ScorpSeq[] = {
     {0, 0},
     {8, 0},
     {29, 0},
@@ -62,7 +62,7 @@ static actionSeq ActionSeq[] = {
     {53, 1}
 };
 
-static SavegameHelper sgh("scorp",
+static SavegameHelper sghscorp("scorp",
     SV(ScorpCount),
     SA(scorpion),
     SA(ScorpChan),
@@ -162,7 +162,7 @@ void FuncScorp(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqScorp] + ActionSeq[nAction].a, scorpion[nScorp].nFrame, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, scorpion[nScorp].nFrame, ScorpSeq[nAction].b);
             return;
         }
 
@@ -234,7 +234,7 @@ void FuncScorp(int a, int nDamage, int nRun)
                 Gravity(nSprite);
             }
 
-            int nSeq = SeqOffsets[kSeqScorp] + ActionSeq[nAction].a;
+            int nSeq = SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a;
 
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, scorpion[nScorp].nFrame);
             seq_MoveSequence(nSprite, nSeq, scorpion[nScorp].nFrame);

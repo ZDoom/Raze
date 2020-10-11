@@ -43,7 +43,7 @@ Anubis AnubisList[kMaxAnubis];
 
 short AnubisCount  = -1;
 
-static actionSeq ActionSeq[] = {
+static actionSeq AnubisSeq[] = {
     { 0, 0 },
     { 8, 0 },
     { 16, 0 },
@@ -63,7 +63,7 @@ static actionSeq ActionSeq[] = {
 
 short nAnubisDrum = 0;
 
-static SavegameHelper sgh("anubis",
+static SavegameHelper sghanubis("anubis",
     SA(AnubisList),
     SV(AnubisCount),
     SV(nAnubisDrum),
@@ -177,7 +177,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
                 Gravity(nSprite);
             }
 
-            short nSeq = SeqOffsets[kSeqAnubis] + ActionSeq[nAction].a;
+            short nSeq = SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a;
 
             seq_MoveSequence(nSprite, nSeq, AnubisList[nAnubis].nFrame);
 
@@ -406,7 +406,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqAnubis] + ActionSeq[nAction].a, AnubisList[nAnubis].nFrame, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a, AnubisList[nAnubis].nFrame, AnubisSeq[nAction].b);
             break;
         }
 

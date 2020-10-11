@@ -910,7 +910,7 @@ void LoadObjects()
 }
 
 
-static SavegameHelper sgh("init",
+static SavegameHelper sghinit("init",
     SV(initx),
     SV(inity),
     SV(initz),
