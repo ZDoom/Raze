@@ -179,12 +179,8 @@ enum {
 
 #include "buildtypes.h"
 
-using sectortype  = sectortypev7;
-using usectortype = sectortypev7;
-
-using walltype  = walltypev7;
-using uwalltype = walltypev7;
-
+using usectortype = sectortype;
+using uwalltype = walltype;
 using uspritetype = spritetype;
 
 using uspriteptr_t = uspritetype const *;

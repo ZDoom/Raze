@@ -1,13 +1,6 @@
 #ifndef buildtypes_h__
 #define buildtypes_h__
 
-#undef WALLTYPE
-#undef SECTORTYPE
-#undef SPRITETYPE
-
-#define StructTracker(tracker, type) type
-#define StructName(name) name
-
 //ceilingstat/floorstat:
 //   bit 0: 1 = parallaxing, 0 = not                                 "P"
 //   bit 1: 1 = groudraw, 0 = not
@@ -29,24 +22,24 @@
 //////////////////// Version 7 map format ////////////////////
 
 //40 bytes
-typedef struct
+struct sectortype
 {
-    StructTracker(Sector, int16_t) wallptr, wallnum;
-    StructTracker(Sector, int32_t) ceilingz, floorz;
-    StructTracker(Sector, uint16_t) ceilingstat, floorstat;
-    StructTracker(Sector, int16_t) ceilingpicnum, ceilingheinum;
-    StructTracker(Sector, int8_t) ceilingshade;
-    StructTracker(Sector, uint8_t) ceilingpal, /*CM_FLOORZ:*/ ceilingxpanning, ceilingypanning;
-    StructTracker(Sector, int16_t) floorpicnum, floorheinum;
-    StructTracker(Sector, int8_t) floorshade;
-    StructTracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
-    StructTracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, fogpal;
+    int16_t wallptr, wallnum;
+    int32_t ceilingz, floorz;
+    uint16_t ceilingstat, floorstat;
+    int16_t ceilingpicnum, ceilingheinum;
+    int8_t ceilingshade;
+    uint8_t ceilingpal, /*CM_FLOORZ:*/ ceilingxpanning, ceilingypanning;
+    int16_t floorpicnum, floorheinum;
+    int8_t floorshade;
+    uint8_t floorpal, floorxpanning, floorypanning;
+    uint8_t /*CM_CEILINGZ:*/ visibility, fogpal;
     union {
-        StructTracker(Sector, int16_t) lotag, type;
+        int16_t lotag, type;
     };
-    StructTracker(Sector, int16_t) hitag;
-    StructTracker(Sector, int16_t) extra;
-} StructName(sectortypev7);
+    int16_t hitag;
+    int16_t extra;
+};
 
 //cstat:
 //   bit 0: 1 = Blocking wall (use with clipmove, getzrange)         "B"
@@ -63,7 +56,7 @@ typedef struct
 //   bits 12-15: reserved  (14: temp use by editor)
 
 //32 bytes
-struct walltypev7
+struct walltype
 {
     union {
         struct
@@ -85,9 +78,9 @@ struct walltypev7
 
 #if 0
     // make sure we do not accidentally copy this
-    walltypev7() = default;
-    walltypev7(const walltypev7&) = delete;
-    walltypev7& operator=(const walltypev7&) = delete;
+    walltype() = default;
+    walltype(const walltypev7&) = delete;
+    walltype& operator=(const walltypev7&) = delete;
 #endif
 
 };
@@ -225,9 +218,6 @@ using tspritetype = spritetype;
 #endif
 
 //////////////////// END Version 7 map format ////////////////
-
-#undef StructTracker
-#undef StructName
 
 #ifndef buildtypes_h__enums
 #define buildtypes_h__enums

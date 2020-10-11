@@ -62,6 +62,7 @@ void LoadEngineState();
 void SaveEngineState();
 void WriteSavePic(FileWriter* file, int width, int height);
 extern FString BackupSaveGame;
+void SerializeMap(FSerializer &arc);
 
 CVAR(String, cl_savedir, "", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
@@ -73,6 +74,7 @@ CVAR(String, cl_savedir, "", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 static void SerializeSession(FSerializer& arc)
 {
+	SerializeMap(arc);
 	SerializeStatistics(arc);
 	SECRET_Serialize(arc);
 	Mus_Serialize(arc);
@@ -458,15 +460,89 @@ void CheckMagic(FileReader& fr)
 #endif
 }
 
+
+#define V(x) x
+static spritetype zsp;
+static sectortype zsec;
+static walltype zwal;
+
+FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectortype *def)
+{
+	def = &zsec;
+	if (arc.isReading()) c = {};
+	if (arc.BeginObject(key))
+	{
+		arc("wallptr", c.wallptr, def->wallptr)
+			("wallnum", c.wallnum, def->wallnum)
+			("ceilingz", c.ceilingz, def->ceilingz)
+			("floorz", c.floorz, def->floorz)
+			("ceilingstat", c.ceilingstat, def->ceilingstat)
+			("floorstat", c.floorstat, def->floorstat)
+			("ceilingpicnum", c.ceilingpicnum, def->ceilingpicnum)
+			("ceilingheinum", c.ceilingheinum, def->ceilingheinum)
+			("ceilingshade", c.ceilingshade, def->ceilingshade)
+			("ceilingpal", c.ceilingpal, def->ceilingpal)
+			("ceilingxpanning", c.ceilingxpanning, def->ceilingxpanning)
+			("ceilingypanning", c.ceilingypanning, def->ceilingypanning)
+			("floorpicnum", c.floorpicnum, def->floorpicnum)
+			("floorheinum", c.floorheinum, def->floorheinum)
+			("floorshade", c.floorshade, def->floorshade)
+			("floorpal", c.floorpal, def->floorpal)
+			("floorxpanning", c.floorxpanning, def->floorxpanning)
+			("floorypanning", c.floorypanning, def->floorypanning)
+			("visibility", c.visibility, def->visibility)
+			("fogpal", c.fogpal, def->fogpal)
+			("lotag", c.lotag, def->lotag)
+			("hitag", c.hitag, def->hitag)
+			("extra", c.extra, def->extra)
+			.EndObject();
+	}
+	return arc;
+}
+
+FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype *def)
+{
+	def = &zwal;
+	if (arc.isReading()) c = {};
+	if (arc.BeginObject(key))
+	{
+		arc("x", c.x, def->x)
+			("y", c.y, def->y)
+			("point2", c.point2, def->point2)
+			("nextwall", c.nextwall, def->nextwall)
+			("nextsector", c.nextsector, def->nextsector)
+			("cstat", c.cstat, def->cstat)
+			("picnum", c.picnum, def->picnum)
+			("overpicnum", c.overpicnum, def->overpicnum)
+			("shade", c.shade, def->shade)
+			("pal", c.pal, def->pal)
+			("xrepeat", c.xrepeat, def->xrepeat)
+			("yrepeat", c.yrepeat, def->yrepeat)
+			("xpanning", c.xpanning, def->xpanning)
+			("ypanning", c.ypanning, def->ypanning)
+			("lotag", c.lotag, def->lotag)
+			("hitag", c.hitag, def->hitag)
+			("extra", c.extra, def->extra)
+			.EndObject();
+	}
+	return arc;
+}
+
+void SerializeMap(FSerializer& arc)
+{
+	if (arc.BeginObject("engine"))
+	{
+		arc ("numsectors", numsectors)
+			.Array("sectors", sector, numsectors)
+			("numwalls", numwalls)
+			.Array("walls", wall, numwalls)
+			.EndObject();
+	}
+
+}
 void SaveEngineState()
 {
 	auto fw = WriteSavegameChunk("engine.bin");
-	fw->Write(&numsectors, sizeof(numsectors));
-	fw->Write(sector, sizeof(sectortype) * numsectors);
-	WriteMagic(fw);
-	fw->Write(&numwalls, sizeof(numwalls));
-	fw->Write(wall, sizeof(walltype) * numwalls);
-	WriteMagic(fw);
 	fw->Write(sprite, sizeof(spritetype) * MAXSPRITES);
 	WriteMagic(fw);
 	fw->Write(headspritesect, sizeof(headspritesect));
@@ -515,16 +591,8 @@ void LoadEngineState()
 	auto fr = ReadSavegameChunk("engine.bin");
 	if (fr.isOpen())
 	{
-		memset(sector, 0, sizeof(sector[0]) * MAXSECTORS);
-		memset(wall, 0, sizeof(wall[0]) * MAXWALLS);
 		memset(sprite, 0, sizeof(sprite[0]) * MAXSPRITES);
 
-		fr.Read(&numsectors, sizeof(numsectors));
-		fr.Read(sector, sizeof(sectortype) * numsectors);
-		CheckMagic(fr);
-		fr.Read(&numwalls, sizeof(numwalls));
-		fr.Read(wall, sizeof(walltype) * numwalls);
-		CheckMagic(fr);
 		fr.Read(sprite, sizeof(spritetype) * MAXSPRITES);
 		CheckMagic(fr);
 		fr.Read(headspritesect, sizeof(headspritesect));
