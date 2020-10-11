@@ -24,9 +24,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
-#ifndef INTERP_H
+#pragma once
 
-#define INTERP_H
 
 #include "build.h"
 
@@ -50,6 +49,6 @@ void updateinterpolations(void);
 void dointerpolations(int smoothratio);
 void restoreinterpolations(void);
 
-#endif
 
 END_SW_NS
+
