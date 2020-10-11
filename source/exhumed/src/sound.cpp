@@ -191,22 +191,17 @@ int LoadSound(const char* name)
     auto lump = S_LookupSound(filename);
     if (lump > 0)
     {
-        auto &S_sfx = soundEngine->GetSounds();
-        S_sfx.Reserve(1);
-        int retval = S_sfx.Size() - 2;
         auto check = fileSystem.GetFileData(lump);
+		bool loops = false;
         if (check.Size() > 26 && check[26] == 6 && !memcmp("Creative Voice File", check.Data(), 19))
         {
             // This game uses the actual loop point information in the sound data as its only means to check if a sound is looped.
-            looped[retval] = true;
+            loops = true;
         }
-        auto& newsfx = S_sfx.Last();
-        newsfx.name = nname;
-        newsfx.lumpnum = lump;
-        newsfx.NearLimit = 6;
-        newsfx.bTentative = false;
-        soundEngine->CacheSound(retval + 1);
-        return retval;
+		int retval = soundEngine->AddSoundLump(nname, lump, 0, -1, 6);
+        soundEngine->CacheSound(retval);
+		looped[retval-1] = loops;
+        return retval - 1;
     }
     else if (!ISDEMOVER)  // demo tries to load sound files it doesn't have
     {
