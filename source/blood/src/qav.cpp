@@ -33,17 +33,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-#define kMaxClients 64
-static void (*clientCallback[kMaxClients])(int, void *);
-static int nClients;
+#define kMaxQavClients 64
+static void (*qavClientCallback[kMaxQavClients])(int, void *);
+static int nQavClients;
 
 
 int qavRegisterClient(void(*pClient)(int, void *))
 {
-    dassert(nClients < kMaxClients);
-    clientCallback[nClients] = pClient;
+    dassert(nQavClients < kMaxQavClients);
+    qavClientCallback[nQavClients] = pClient;
 
-    return nClients++;
+    return nQavClients++;
 }
 
 void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int palnum, bool to3dview)
@@ -152,7 +152,7 @@ void QAV::Play(int start, int end, int nCallback, void *pData)
             }
             
             if (pFrame->nCallbackId > 0 && nCallback != -1) {
-                clientCallback[nCallback](pFrame->nCallbackId, pData);
+                qavClientCallback[nCallback](pFrame->nCallbackId, pData);
             }
         }
     }
@@ -218,10 +218,10 @@ void ByteSwapQAV(void* p)
 // Sequences were cached in the resource and directly returned from there in writable form, with byte swapping directly performed in the cache on Big Endian systems.
 // To avoid such unsafe operations this caches the read data separately.
 extern FMemArena seqcache; // Use the same storage as the SEQs.
-static TMap<int, QAV*> sequences;
+static TMap<int, QAV*> qavcache;
 QAV* getQAV(int res_id)
 {
-    auto p = sequences.CheckKey(res_id);
+    auto p = qavcache.CheckKey(res_id);
     if (p != nullptr) return *p;
 
     int index = fileSystem.FindResource(res_id, "QAV");
@@ -232,7 +232,7 @@ QAV* getQAV(int res_id)
     auto fr = fileSystem.OpenFileReader(index);
     auto qavdata = (QAV*)seqcache.Alloc(fr.GetLength());
     fr.Read(qavdata, fr.GetLength());
-    sequences.Insert(res_id, qavdata);
+    qavcache.Insert(res_id, qavdata);
     ByteSwapQAV(qavdata);
     return qavdata;
 }

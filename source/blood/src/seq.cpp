@@ -41,19 +41,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-#define kMaxClients 256
+#define kMaxSeqClients 256
 #define kMaxSequences 1024
 
 static ACTIVE activeList[kMaxSequences];
-static int activeCount = 0;
-static int nClients = 0;
-static void(*clientCallback[kMaxClients])(int, int);
+static int seqActiveCount = 0;
+static int nSeqClients = 0;
+static void(*seqClientCallback[kMaxSeqClients])(int, int);
 
 int seqRegisterClient(void(*pClient)(int, int))
 {
-    dassert(nClients < kMaxClients);
-    clientCallback[nClients] = pClient;
-    return nClients++;
+    dassert(nSeqClients < kMaxSeqClients);
+    seqClientCallback[nSeqClients] = pClient;
+    return nSeqClients++;
 }
 
 void Seq::Preload(void)
@@ -338,7 +338,7 @@ void SEQINST::Update(ACTIVE *pActive)
         break;
     }
     if (pSequence->frames[frameIndex].at5_5 && atc != -1)
-        clientCallback[atc](pActive->type, pActive->xindex);
+        seqClientCallback[atc](pActive->type, pActive->xindex);
 }
 
 SEQINST * GetInstance(int a1, int a2)
@@ -381,18 +381,18 @@ void seqSpawn(int a1, int a2, int a3, int a4)
     if (!pSeq)
         ThrowError("Missing sequence #%d", a1);
 
-    int i = activeCount;
+    int i = seqActiveCount;
     if (pInst->at13)
     {
         if (pSeq == pInst->pSequence)
             return;
         UnlockInstance(pInst);
-        for (i = 0; i < activeCount; i++)
+        for (i = 0; i < seqActiveCount; i++)
         {
             if (activeList[i].type == a2 && activeList[i].xindex == a3)
                 break;
         }
-        dassert(i < activeCount);
+        dassert(i < seqActiveCount);
     }
     if (memcmp(pSeq->signature, "SEQ\x1a", 4) != 0)
         ThrowError("Invalid sequence %d", a1);
@@ -409,12 +409,12 @@ void seqSpawn(int a1, int a2, int a3, int a4)
     pInst->atc = a4;
     pInst->at10 = pSeq->at8;
     pInst->frameIndex = 0;
-    if (i == activeCount)
+    if (i == seqActiveCount)
     {
-        dassert(activeCount < kMaxSequences);
-        activeList[activeCount].type = a2;
-        activeList[activeCount].xindex = a3;
-        activeCount++;
+        dassert(seqActiveCount < kMaxSequences);
+        activeList[seqActiveCount].type = a2;
+        activeList[seqActiveCount].xindex = a3;
+        seqActiveCount++;
     }
     pInst->Update(&activeList[i]);
 }
@@ -425,14 +425,14 @@ void seqKill(int a1, int a2)
     if (!pInst || !pInst->at13)
         return;
     int i;
-    for (i = 0; i < activeCount; i++)
+    for (i = 0; i < seqActiveCount; i++)
     {
         if (activeList[i].type == a1 && activeList[i].xindex == a2)
             break;
     }
-    dassert(i < activeCount);
-    activeCount--;
-    activeList[i] = activeList[activeCount];
+    dassert(i < seqActiveCount);
+    seqActiveCount--;
+    activeList[i] = activeList[seqActiveCount];
     pInst->at13 = 0;
     UnlockInstance(pInst);
 }
@@ -458,7 +458,7 @@ void seqKillAll(void)
         if (siSprite[i].at13)
             UnlockInstance(&siSprite[i]);
     }
-    activeCount = 0;
+    seqActiveCount = 0;
 }
 
 int seqGetStatus(int a1, int a2)
@@ -479,7 +479,7 @@ int seqGetID(int a1, int a2)
 
 void seqProcess(int a1)
 {
-    for (int i = 0; i < activeCount; i++)
+    for (int i = 0; i < seqActiveCount; i++)
     {
         SEQINST *pInst = GetInstance(activeList[i].type, activeList[i].xindex);
         Seq *pSeq = pInst->pSequence;
@@ -524,7 +524,7 @@ void seqProcess(int a1)
                         }
                         }
                     }
-                    activeList[i--] = activeList[--activeCount];
+                    activeList[i--] = activeList[--seqActiveCount];
                     break;
                 }
             }
@@ -546,7 +546,7 @@ void SeqLoadSave::Load(void)
     Read(&siFloor, sizeof(siFloor));
     Read(&siSprite, sizeof(siSprite));
     Read(&activeList, sizeof(activeList));
-    Read(&activeCount, sizeof(activeCount));
+    Read(&seqActiveCount, sizeof(seqActiveCount));
     for (int i = 0; i < kMaxXWalls; i++)
     {
         siWall[i].pSequence = NULL;
@@ -561,7 +561,7 @@ void SeqLoadSave::Load(void)
     {
         siSprite[i].pSequence = NULL;
     }
-    for (int i = 0; i < activeCount; i++)
+    for (int i = 0; i < seqActiveCount; i++)
     {
         SEQINST *pInst = GetInstance(activeList[i].type, activeList[i].xindex);
         if (pInst->at13)
@@ -589,14 +589,12 @@ void SeqLoadSave::Save(void)
     Write(&siFloor, sizeof(siFloor));
     Write(&siSprite, sizeof(siSprite));
     Write(&activeList, sizeof(activeList));
-    Write(&activeCount, sizeof(activeCount));
+    Write(&seqActiveCount, sizeof(seqActiveCount));
 }
-
-static SeqLoadSave *myLoadSave;
 
 void SeqLoadSaveConstruct(void)
 {
-    myLoadSave = new SeqLoadSave();
+    new SeqLoadSave();
 }
 
 
