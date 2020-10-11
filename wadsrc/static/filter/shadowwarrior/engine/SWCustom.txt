@@ -199,7 +199,7 @@ level 22
 level 23
 {
     title    "$TXTS_MAP23"
-    filename "tank.map"
+    filename "$tank.map"
     song     ""
     cdatrack 11
     besttime 600
@@ -235,7 +235,7 @@ level 26
 level 27
 {
     title    "$TXTS_MAP27"
-    filename "shotgun.map"
+    filename "$shotgun.map"
     song     ""
     cdatrack 5
     besttime 600
