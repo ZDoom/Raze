@@ -248,7 +248,6 @@ struct usermaphack_t
 
 extern usermaphack_t g_loadedMapHack;
 
-#if !defined DEBUG_MAIN_ARRAYS
 EXTERN spriteext_t *spriteext;
 EXTERN spritesmooth_t *spritesmooth;
 
@@ -256,31 +255,16 @@ EXTERN sectortype *sector;
 EXTERN walltype *wall;
 EXTERN spritetype *sprite;
 EXTERN tspriteptr_t tsprite;
-#else
-#endif
+
+extern sectortype sectorbackup[MAXSECTORS];
+extern walltype wallbackup[MAXWALLS];
 
 
 static inline tspriteptr_t renderMakeTSpriteFromSprite(tspriteptr_t const tspr, uint16_t const spritenum)
 {
     auto const spr = &sprite[spritenum];
 
-    tspr->pos = spr->pos;
-    tspr->cstat = spr->cstat;
-    tspr->picnum = spr->picnum;
-    tspr->shade = spr->shade;
-    tspr->pal = spr->pal;
-    tspr->blend = spr->blend;
-    tspr->xrepeat = spr->xrepeat;
-    tspr->yrepeat = spr->yrepeat;
-    tspr->xoffset = spr->xoffset;
-    tspr->yoffset = spr->yoffset;
-    tspr->sectnum = spr->sectnum;
-    tspr->statnum = spr->statnum;
-    tspr->ang = spr->ang;
-    tspr->vel = spr->vel;
-    tspr->lotag = spr->lotag;
-    tspr->hitag = spr->hitag;
-    tspr->extra = spr->extra;
+    *tspr = *spr;
 
     tspr->clipdist = 0;
     tspr->owner = spritenum;
@@ -561,9 +545,8 @@ void   engineUnInit(void);
 void   initspritelists(void);
 
 void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
-int32_t   engineLoadMHK(const char *filename);
+void loadMapBackup(const char* filename);
 void G_LoadMapHack(const char* filename);
-int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);

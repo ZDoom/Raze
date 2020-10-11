@@ -56,6 +56,10 @@
 #include "gamestate.h"
 #include "razemenu.h"
 
+
+sectortype sectorbackup[MAXSECTORS];
+walltype wallbackup[MAXWALLS];
+
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
 void LoadEngineState();
@@ -135,6 +139,7 @@ bool OpenSaveGameForRead(const char *name)
 		info->Unlock();
 
 		// Load system-side data from savegames.
+		loadMapBackup(currentLevel->fileName);
 		LoadEngineState();
 		SerializeSession(arc); // must be AFTER LoadEngineState because it needs info from it.
 		gi->SerializeGameState(arc);
@@ -468,8 +473,6 @@ static walltype zwal;
 
 FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectortype *def)
 {
-	def = &zsec;
-	if (arc.isReading()) c = {};
 	if (arc.BeginObject(key))
 	{
 		arc("wallptr", c.wallptr, def->wallptr)
@@ -502,8 +505,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 
 FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype *def)
 {
-	def = &zwal;
-	if (arc.isReading()) c = {};
 	if (arc.BeginObject(key))
 	{
 		arc("x", c.x, def->x)
@@ -533,9 +534,9 @@ void SerializeMap(FSerializer& arc)
 	if (arc.BeginObject("engine"))
 	{
 		arc ("numsectors", numsectors)
-			.Array("sectors", sector, numsectors)
+			.Array("sectors", sector, sectorbackup, numsectors)
 			("numwalls", numwalls)
-			.Array("walls", wall, numwalls)
+			.Array("walls", wall, wallbackup, numwalls)
 			.EndObject();
 	}
 

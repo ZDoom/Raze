@@ -40,6 +40,7 @@
 #include "printf.h"
 #include "inputstate.h"
 #include "md4.h"
+#include "gamecontrol.h"
 
 
 static void ReadSectorV7(FileReader& fr, sectortype& sect)
@@ -63,7 +64,7 @@ static void ReadSectorV7(FileReader& fr, sectortype& sect)
 	sect.floorxpanning = fr.ReadUInt8();
 	sect.floorypanning = fr.ReadUInt8();
 	sect.visibility = fr.ReadUInt8();
-	sect.fogpal = fr.ReadUInt8(); // note: currently unused.
+	sect.fogpal = fr.ReadUInt8(); // note: currently unused, except for Blood.
 	sect.lotag = fr.ReadInt16();
 	sect.hitag = fr.ReadInt16();
 	sect.extra = fr.ReadInt16();
@@ -440,4 +441,27 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	guniqhudid = 0;
 	G_LoadMapHack(filename);
 
+	memcpy(wallbackup, wall, sizeof(wallbackup));
+	memcpy(sectorbackup, sector, sizeof(sectorbackup));
+}
+
+
+void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum);
+
+
+// loads a map into the backup buffer.
+void loadMapBackup(const char* filename)
+{
+	vec3_t pos;
+	int16_t scratch;
+
+	if (g_gameType & GAMEFLAG_BLOOD)
+	{
+		qloadboard(filename, 0, &pos, &scratch, &scratch);
+	}
+	else
+	{
+		engineLoadBoard(filename, 0, &pos, &scratch, &scratch);
+		initspritelists();
+	}
 }

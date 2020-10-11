@@ -457,10 +457,41 @@ struct spritetypedisk
     int16_t hitag;
     int16_t extra;
 };
+
+struct sectortypedisk
+{
+    int16_t wallptr, wallnum;
+    int32_t ceilingz, floorz;
+    uint16_t ceilingstat, floorstat;
+    int16_t ceilingpicnum, ceilingheinum;
+    int8_t ceilingshade;
+    uint8_t ceilingpal, ceilingxpanning, ceilingypanning;
+    int16_t floorpicnum, floorheinum;
+    int8_t floorshade;
+    uint8_t floorpal, floorxpanning, floorypanning;
+    uint8_t visibility, fogpal;
+    int16_t type;
+    int16_t hitag;
+    int16_t extra;
+};
+
+struct walltypedisk
+{
+    int32_t x, y;
+    int16_t point2, nextwall, nextsector;
+    uint16_t cstat;
+    int16_t picnum, overpicnum;
+    int8_t shade;
+    uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
+    int16_t type;
+    int16_t hitag;
+    int16_t extra;
+};
+
 #pragma pack(pop)
 
 
-int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC) {
+void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC) {
     int16_t tpskyoff[256];
     ClearAutomap();
     #ifdef NOONE_EXTENSIONS
@@ -477,15 +508,13 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 
     if (!fr.isOpen())
     {
-        Printf("Error opening map file %s", mapname.GetChars());
-        return -1;
+        I_Error("Error opening map file %s", mapname.GetChars());
     }
     MAPSIGNATURE header;
     fr.Read(&header, 6);
     if (memcmp(header.signature, "BLM\x1a", 4))
     {
-        Printf("%s: Map file corrupted", mapname.GetChars());
-        return -1;
+        I_Error("%s: Map file corrupted", mapname.GetChars());
     }
     byte_1A76C8 = 0;
     if ((LittleShort(header.version) & 0xff00) == 0x700) {
@@ -499,8 +528,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         #endif
 
     } else {
-        Printf("%s: Map file is wrong version", mapname.GetChars());
-        return -1;
+        I_Error("%s: Map file is wrong version", mapname.GetChars());
     }
 
     MAPHEADER mapHeader;
@@ -542,14 +570,12 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         }
         else
         {
-            Printf("%s: Corrupted Map file", mapname.GetChars());
-            return -1;
+            I_Error("%s: Corrupted Map file", mapname.GetChars());
         }
     }
     else if (mapHeader.at16)
     {
-        Printf("%s: Corrupted Map file", mapname.GetChars());
-        return -1;
+        I_Error("%s: Corrupted Map file", mapname.GetChars());
     }
     parallaxtype = mapHeader.at1a;
     gMapRev = mapHeader.at1b;
@@ -587,27 +613,37 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     for (int i = 0; i < numsectors; i++)
     {
         sectortype *pSector = &sector[i];
-        fr.Read(pSector, sizeof(sectortype));
+        sectortypedisk load;
+        fr.Read(&load, sizeof(sectortypedisk));
         if (byte_1A76C8)
         {
-            dbCrypt((char*)pSector, sizeof(sectortype), gMapRev*sizeof(sectortype));
+            dbCrypt((char*)&load, sizeof(sectortypedisk), gMapRev*sizeof(sectortypedisk));
         }
-        pSector->wallptr = LittleShort(pSector->wallptr);
-        pSector->wallnum = LittleShort(pSector->wallnum);
-        pSector->ceilingz = LittleLong(pSector->ceilingz);
-        pSector->floorz = LittleLong(pSector->floorz);
-        pSector->ceilingstat = LittleShort(pSector->ceilingstat);
-        pSector->floorstat = LittleShort(pSector->floorstat);
-        pSector->ceilingpicnum = LittleShort(pSector->ceilingpicnum);
-        pSector->ceilingheinum = LittleShort(pSector->ceilingheinum);
-        pSector->floorpicnum = LittleShort(pSector->floorpicnum);
-        pSector->floorheinum = LittleShort(pSector->floorheinum);
-        pSector->type = LittleShort(pSector->type);
-        pSector->hitag = LittleShort(pSector->hitag);
-        pSector->extra = LittleShort(pSector->extra);
-
-        qsector_filler[i] = pSector->fogpal;
+        pSector->wallptr = LittleShort(load.wallptr);
+        pSector->wallnum = LittleShort(load.wallnum);
+        pSector->ceilingz = LittleLong(load.ceilingz);
+        pSector->floorz = LittleLong(load.floorz);
+        pSector->ceilingstat = LittleShort(load.ceilingstat);
+        pSector->floorstat = LittleShort(load.floorstat);
+        pSector->ceilingpicnum = LittleShort(load.ceilingpicnum);
+        pSector->ceilingheinum = LittleShort(load.ceilingheinum);
+        pSector->floorpicnum = LittleShort(load.floorpicnum);
+        pSector->floorheinum = LittleShort(load.floorheinum);
+        pSector->type = LittleShort(load.type);
+        pSector->hitag = LittleShort(load.hitag);
+        pSector->extra = LittleShort(load.extra);
+        pSector->ceilingshade = load.ceilingshade;
+        pSector->ceilingpal = load.ceilingpal;
+        pSector->ceilingxpanning = load.ceilingxpanning;
+        pSector->ceilingypanning = load.ceilingypanning;
+        pSector->floorshade = load.floorshade;
+        pSector->floorpal = load.floorpal;
+        pSector->floorxpanning = load.floorxpanning;
+        pSector->floorypanning = load.floorypanning;
+        pSector->visibility = load.visibility;
+        qsector_filler[i] = load.fogpal;
         pSector->fogpal = 0;
+
         if (sector[i].extra > 0)
         {
             char pBuffer[nXSectorSize];
@@ -711,22 +747,30 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     for (int i = 0; i < numwalls; i++)
     {
         walltype *pWall = &wall[i];
-        fr.Read(pWall, sizeof(walltype));
+        walltypedisk load;
+        fr.Read(&load, sizeof(walltypedisk));
         if (byte_1A76C8)
         {
-            dbCrypt((char*)pWall, sizeof(walltype), (gMapRev*sizeof(sectortype)) | 0x7474614d);
+            dbCrypt((char*)&load, sizeof(walltypedisk), (gMapRev*sizeof(sectortypedisk)) | 0x7474614d);
         }
-        pWall->x = LittleLong(pWall->x);
-        pWall->y = LittleLong(pWall->y);
-        pWall->point2 = LittleShort(pWall->point2);
-        pWall->nextwall = LittleShort(pWall->nextwall);
-        pWall->nextsector = LittleShort(pWall->nextsector);
-        pWall->cstat = LittleShort(pWall->cstat);
-        pWall->picnum = LittleShort(pWall->picnum);
-        pWall->overpicnum = LittleShort(pWall->overpicnum);
-        pWall->type = LittleShort(pWall->type);
-        pWall->hitag = LittleShort(pWall->hitag);
-        pWall->extra = LittleShort(pWall->extra);
+        pWall->x = LittleLong(load.x);
+        pWall->y = LittleLong(load.y);
+        pWall->point2 = LittleShort(load.point2);
+        pWall->nextwall = LittleShort(load.nextwall);
+        pWall->nextsector = LittleShort(load.nextsector);
+        pWall->cstat = LittleShort(load.cstat);
+        pWall->picnum = LittleShort(load.picnum);
+        pWall->overpicnum = LittleShort(load.overpicnum);
+        pWall->type = LittleShort(load.type);
+        pWall->hitag = LittleShort(load.hitag);
+        pWall->extra = LittleShort(load.extra);
+        pWall->shade = load.shade;
+        pWall->pal = load.pal;
+        pWall->xrepeat = load.xrepeat;
+        pWall->xpanning = load.xpanning;
+        pWall->yrepeat = load.yrepeat;
+        pWall->ypanning = load.ypanning;
+
         if (wall[i].extra > 0)
         {
             char pBuffer[nXWallSize];
@@ -927,8 +971,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 
     if (CalcCRC32(buffer.Data(), buffer.Size() -4) != nCRC)
     {
-        Printf("%s: Map File does not match CRC", mapname.GetChars());
-        return -1;
+        I_Error("%s: Map File does not match CRC", mapname.GetChars());
     }
     if (pCRC)
         *pCRC = nCRC;
@@ -945,14 +988,12 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         }
         else
         {
-            Printf("%s: Corrupted Map file", mapname.GetChars());
-            return -1;
+            I_Error("%s: Corrupted Map file", mapname.GetChars());
         }
     }
     else if (gSongId != 0)
     {
-        Printf("%s: Corrupted Map file", mapname.GetChars());
-        return -1;
+        I_Error("%s: Corrupted Map file", mapname.GetChars());
     }
 
     if ((header.version & 0xff00) == 0x600)
@@ -1002,14 +1043,18 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             
         }
     }
-    return 0;
-}
 
-int32_t qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum)
-{
-    // NUKE-TODO: implement flags, see mapedit.cpp
-    return dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, (short*)daang, (short*)dacursectnum, NULL);
+    memcpy(wallbackup, wall, sizeof(wallbackup));
+    memcpy(sectorbackup, sector, sizeof(sectorbackup));
+    // todo: back up xsector and xwall as well
 }
 
 
 END_BLD_NS
+
+// only used by the backup loader.
+void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum)
+{
+    Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, (short*)daang, (short*)dacursectnum, NULL);
+    Blood::dbInit();    // clean up immediately.
+}

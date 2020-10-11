@@ -129,10 +129,7 @@ void StartLevel(MapRecord* level)
 	memset(xsprite, 0, sizeof(xsprite));
 	memset(sprite, 0, kMaxSprites * sizeof(spritetype));
 	//drawLoadingScreen();
-	if (dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsectnum, nullptr))
-	{
-		I_Error("%s: Unable to load map", level->DisplayName());
-	}
+	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsectnum, nullptr);
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);
 	wsrand(dbReadMapCRC(currentLevel->LabelName()));
