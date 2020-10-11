@@ -50,7 +50,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 BEGIN_DUKE_NS
 
-#define VERSIONCHECK	41
+enum { VERSIONCHECK = 41 };
 
 
 //---------------------------------------------------------------------------
@@ -1916,7 +1916,7 @@ int ConCompiler::parsecommand()
 		camerashitable = parseone();
 		numfreezebounces = parseone();
 		freezerhurtowner = parseone();
-		if (PLUTOPAK || isRR())
+		if (isPlutoPak() || isRR())
 		{
 			spriteqamount = clamp(parseone(), 0, 1024);
 			lasermode = parseone();

@@ -95,7 +95,7 @@ static const char *cheatGod(int myconnectindex, int state)
 
 static const char* cheatUnlock()
 {
-	if (VOLUMEONE) return nullptr;
+	if (isShareware()) return nullptr;
 	for (int i = numsectors - 1; i >= 0; i--) //Unlock
 	{
 		int j = sector[i].lotag;
@@ -221,7 +221,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 
 static bool cheatWeapons(int player)
 {
-	int weaponLimit = (VOLUMEONE) ? SHRINKER_WEAPON : MAX_WEAPONS;
+	int weaponLimit = (isShareware()) ? SHRINKER_WEAPON : MAX_WEAPONS;
 
 	for (int weapon = PISTOL_WEAPON; weapon < weaponLimit; weapon++ )
 	{
@@ -493,7 +493,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 
 	case GIVE_AMMO:
 	{
-		int maxw = VOLUMEONE ? SHRINKER_WEAPON : MAX_WEAPONS;
+		int maxw = isShareware() ? SHRINKER_WEAPON : MAX_WEAPONS;
 		for (int i = maxw; i >= PISTOL_WEAPON; i--)
 			addammo(i, &ps[player], max_ammo_amount[i]);
 		break;

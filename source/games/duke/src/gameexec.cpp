@@ -1735,7 +1735,7 @@ int ParseState::parse(void)
 		// JBF 20030805: As I understand it, if xrepeat becomes 0 it basically kills the
 		// sprite, which is why the "sizeto 0 41" calls in 1.3d became "sizeto 4 41" in
 		// 1.4, so instead of patching the CONs I'll surruptitiously patch the code here
-		//if (!PLUTOPAK && *insptr == 0) *insptr = 4;
+		//if (!isPlutoPak() && *insptr == 0) *insptr = 4;
 
 		j = ((*insptr) - g_sp->xrepeat) << 1;
 		g_sp->xrepeat += ksgn(j);

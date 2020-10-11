@@ -208,6 +208,11 @@ inline bool isPlutoPak()
 	return g_gameType & GAMEFLAG_PLUTOPAK;
 }
 
+inline bool isShareware()
+{
+	return g_gameType & GAMEFLAG_SHAREWARE;
+}
+
 TArray<GrpEntry> GrpScan();
 void S_PauseSound(bool notmusic, bool notsfx);
 void S_ResumeSound(bool notsfx);

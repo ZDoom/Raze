@@ -98,14 +98,14 @@ template <class func>
 void runtwoscreens(func completion)
 {
 	// shareware and TEN screens
-	if (!VOLUMEALL && !isRR())
+	if (!isShareware() && !isRR())
 		showtwoscreens(completion);
 	else completion(false);
 }
 
 static void endthegame(bool)
 {
-	endoomName = isRR() ? "redneck.bin" : VOLUMEALL ? "duke3d.bin" : "dukesw.bin";
+	endoomName = isRR() ? "redneck.bin" : !isShareware() ? "duke3d.bin" : "dukesw.bin";
 	ST_Endoom();
 }
 

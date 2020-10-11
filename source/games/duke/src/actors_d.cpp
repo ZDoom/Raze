@@ -2391,7 +2391,7 @@ static void greenslime(int i)
 	int sect = s->sectnum;
 	int j;
 
-	// #ifndef VOLUMEONE
+	// #ifndef isShareware()
 	if (ud.multimode < 2)
 	{
 		if (actor_tog == 1)

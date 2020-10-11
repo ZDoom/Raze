@@ -119,8 +119,8 @@ public:
 		FString format;
 		FGameTexture* img;
 		double imgScale;
-		double baseScale = (scale * numberFont.mFont->GetHeight()) * (isNamWW2GI() ? 0.65 : !PLUTOPAK ? 0.75 : 0.7);
-		double texty = -numberFont.mFont->GetHeight() + (isNamWW2GI() ? 2.5 : !PLUTOPAK ? 3.5 : 4.5);
+		double baseScale = (scale * numberFont.mFont->GetHeight()) * (isNamWW2GI() ? 0.65 : !isPlutoPak() ? 0.75 : 0.7);
+		double texty = -numberFont.mFont->GetHeight() + (isNamWW2GI() ? 2.5 : !isPlutoPak() ? 3.5 : 4.5);
 
 		//
 		// Health
@@ -303,7 +303,7 @@ public:
 	void DrawWeaponNum(int index, double x, double y, int num1, int num2, int shade, int numdigits)
 	{
 		/*
-		if (VOLUMEONE && (ind > HANDBOMB_WEAPON || ind < 0))
+		if (isShareware() && (ind > HANDBOMB_WEAPON || ind < 0))
 		{
 			minitextshade(x + 1, y - 4, "ORDER", 20, 11, 2 + 8 + 16 + ROTATESPRITE_MAX);
 			return;

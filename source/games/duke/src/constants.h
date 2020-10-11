@@ -422,8 +422,3 @@ enum gamemode_t {
 	MODE_GAME = 0x00000004,
 	MODE_EOL = 0x00000008,
 };
-
-
-#define VOLUMEALL           ((g_gameType & GAMEFLAG_SHAREWARE) == 0)
-#define PLUTOPAK            ((g_gameType & GAMEFLAG_PLUTOPAK) != 0)
-#define VOLUMEONE           ((g_gameType & GAMEFLAG_SHAREWARE) != 0)

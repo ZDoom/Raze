@@ -222,12 +222,12 @@ public:
 		if (soundanm == 2 && clock >= 280 && clock < 395)
 		{
 			soundanm = 3;
-			if (PLUTOPAK) S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
+			if (isPlutoPak()) S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
 		}
 		else if (soundanm == 3 && clock >= 395)
 		{
 			soundanm = 4;
-			if (PLUTOPAK) S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			if (isPlutoPak()) S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
 		}
 
 		double scale = clamp(clock - 120, 0, 60) / 64.;
@@ -250,7 +250,7 @@ public:
 				DTA_CenterOffsetRel, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		}
 
-		if (PLUTOPAK) 
+		if (isPlutoPak()) 
 		{
 			scale = (410 - clamp(clock, 280, 395)) / 16.;
 			if (scale > 0. && clock > 280)
@@ -295,7 +295,7 @@ void Logo_d(const CompletionFunc &completion)
 	int job = 0;
 	if (!userConfig.nologo)
 	{
-		if (VOLUMEALL) jobs[job++] = { PlayVideo("logo.anm", logosound, logoframetimes), []() { S_PlaySpecialMusic(MUS_INTRO); } };
+		if (!isShareware()) jobs[job++] = { PlayVideo("logo.anm", logosound, logoframetimes), []() { S_PlaySpecialMusic(MUS_INTRO); } };
 		else jobs[job++] = { Create<DScreenJob>(), []() { S_PlaySpecialMusic(MUS_INTRO); } };
 		if (!isNam()) jobs[job++] = { Create<DDRealmsScreen>(), nullptr };
 	}
@@ -469,7 +469,7 @@ public:
 			break;
 
 		case 6:
-			if (PLUTOPAK)
+			if (isPlutoPak())
 			{
 				if (clock > waittime) skiprequest = true;
 			}
@@ -637,8 +637,8 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 		{
 			jobs[job++] = { PlayVideo("cineov3.anm", cineov3sound, framespeed_10), nullptr };
 			jobs[job++] = { Create<DBlackScreen>(200), []() { FX_StopAllSounds(); } };
-			jobs[job++] = { Create<DEpisode3End>(), []() { if (!PLUTOPAK) S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI); } };
-			if (!PLUTOPAK) jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup),
+			jobs[job++] = { Create<DEpisode3End>(), []() { if (!isPlutoPak()) S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI); } };
+			if (!isPlutoPak()) jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup),
 				DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff), []() { FX_StopAllSounds(); } };
 		}
 		break;
@@ -711,7 +711,7 @@ public:
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true, TAG_DONE);
-		if (PLUTOPAK)
+		if (isPlutoPak())
 			DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE+2, true), 260, 36, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true, TAG_DONE);
 
 		GameText(160, 58 + 2, GStrings("Multiplayer Totals"), 0, 0);

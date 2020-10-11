@@ -1133,7 +1133,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 				switch (p->curr_weapon)
 				{
 					case SHRINKER_WEAPON:
-						j = PLUTOPAK ? GROW_WEAPON : p->curr_weapon;
+						j = isPlutoPak() ? GROW_WEAPON : p->curr_weapon;
 						break;
 					case GROW_WEAPON:
 						j = SHRINKER_WEAPON;
@@ -1155,7 +1155,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 				j = (weap == WeaponSel_Prev ? -1 : 1);	// JBF: prev (-1) or next (1) weapon choice
 				i = 0;
 
-				while ((k >= 0 && k < 10) || (PLUTOPAK && k == GROW_WEAPON && (p->subweapon & (1 << GROW_WEAPON)) != 0)
+				while ((k >= 0 && k < 10) || (isPlutoPak() && k == GROW_WEAPON && (p->subweapon & (1 << GROW_WEAPON)) != 0)
 					|| (isWorldTour() && k == FLAMETHROWER_WEAPON && (p->subweapon & (1 << FLAMETHROWER_WEAPON)) != 0))
 				{
 					if (k == FLAMETHROWER_WEAPON) //Twentieth Anniversary World Tour
@@ -1174,7 +1174,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 					{
 						k += j;
 						// JBF 20040116: so we don't select grower with v1.3d
-						if (PLUTOPAK && k == SHRINKER_WEAPON && (p->subweapon & (1 << GROW_WEAPON)))	// JBF: activates grower
+						if (isPlutoPak() && k == SHRINKER_WEAPON && (p->subweapon & (1 << GROW_WEAPON)))	// JBF: activates grower
 							k = GROW_WEAPON;							// if enabled
 						if (isWorldTour() && k == FREEZE_WEAPON && (p->subweapon & (1 << FLAMETHROWER_WEAPON)) != 0)
 							k = FLAMETHROWER_WEAPON;
@@ -1185,7 +1185,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 
 					if (p->gotweapon[k] && p->ammo_amount[k] > 0)
 					{
-						if (PLUTOPAK)	// JBF 20040116: so we don't select grower with v1.3d
+						if (isPlutoPak())	// JBF 20040116: so we don't select grower with v1.3d
 							if (k == SHRINKER_WEAPON && (p->subweapon & (1 << GROW_WEAPON)))
 								k = GROW_WEAPON;
 							if (isWorldTour() && k == FREEZE_WEAPON && (p->subweapon & (1 << FLAMETHROWER_WEAPON)) != 0)
@@ -1194,13 +1194,13 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 						j = k;
 						break;
 					}
-					else if (PLUTOPAK && k == GROW_WEAPON && p->ammo_amount[GROW_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[SHRINKER_WEAPON] > 0)	// JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
+					else if (isPlutoPak() && k == GROW_WEAPON && p->ammo_amount[GROW_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[SHRINKER_WEAPON] > 0)	// JBF 20040116: added isPlutoPak() so we don't select grower with v1.3d
 					{
 						j = SHRINKER_WEAPON;
 						p->subweapon &= ~(1 << GROW_WEAPON);
 						break;
 					}
-					else if (PLUTOPAK && k == SHRINKER_WEAPON && p->ammo_amount[SHRINKER_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[GROW_WEAPON] > 0)	// JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
+					else if (isPlutoPak() && k == SHRINKER_WEAPON && p->ammo_amount[SHRINKER_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[GROW_WEAPON] > 0)	// JBF 20040116: added isPlutoPak() so we don't select grower with v1.3d
 					{
 						j = GROW_WEAPON;
 						p->subweapon |= (1 << GROW_WEAPON);
@@ -1274,7 +1274,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 					p->subweapon &= ~(1 << FLAMETHROWER_WEAPON);
 			}
 
-			if (j == SHRINKER_WEAPON && PLUTOPAK)	// JBF 20040116: so we don't select the grower with v1.3d
+			if (j == SHRINKER_WEAPON && isPlutoPak())	// JBF 20040116: so we don't select the grower with v1.3d
 			{
 				if (p->curr_weapon != GROW_WEAPON && p->curr_weapon != SHRINKER_WEAPON)
 				{

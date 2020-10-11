@@ -859,12 +859,12 @@ void newgame(MapRecord* map, int sk, func completion)
 static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 {
     int16_t lbang;
-    if (VOLUMEONE && (mi->flags & MI_USERMAP))
+    if (isShareware() && (mi->flags & MI_USERMAP))
     {
         I_Error("Cannot load user maps with shareware version!\n");
     }
 
-    engineLoadBoard(mi->fileName, VOLUMEONE, &p->pos, &lbang, &p->cursectnum);
+    engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &p->cursectnum);
 
     currentLevel = mi;
     SECRET_SetMapName(mi->DisplayName(), mi->name);
@@ -953,7 +953,7 @@ void enterlevel(MapRecord *mi, int gamemode)
         S_PlayLevelMusic(mi);
     }
 
-    if (VOLUMEONE && mi->levelNumber == 0 && ud.recstat != 2) FTA(QUOTE_F1HELP, &ps[myconnectindex]);
+    if (isShareware() && mi->levelNumber == 0 && ud.recstat != 2) FTA(QUOTE_F1HELP, &ps[myconnectindex]);
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
@@ -1084,7 +1084,7 @@ void exitlevel(MapRecord *nextlevel)
             {
                 if (ud.multimode < 2)
                 {
-                    if (!VOLUMEALL)
+                    if (isShareware())
                         doorders([](bool) { gameaction = ga_startup; });
                     else gameaction = ga_startup;
                     return;
