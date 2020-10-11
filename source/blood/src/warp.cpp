@@ -158,7 +158,7 @@ void warpInit(void)
         {
             spritetype *pSprite = &sprite[nSprite];
             int nXSprite = pSprite->extra;
-            dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+            assert(nXSprite > 0 && nXSprite < kMaxXSprites);
             XSPRITE *pXSprite = &xsprite[nXSprite];
             int nLink = pXSprite->data1;
             for (int j = 0; j < kMaxSectors; j++)
@@ -168,7 +168,7 @@ void warpInit(void)
                 {
                     spritetype *pSprite2 = &sprite[nSprite2];
                     int nXSprite = pSprite2->extra;
-                    dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+                    assert(nXSprite > 0 && nXSprite < kMaxXSprites);
                     XSPRITE *pXSprite2 = &xsprite[nXSprite];
                     if (pXSprite2->data1 == nLink)
                     {
@@ -197,9 +197,9 @@ int CheckLink(spritetype *pSprite)
         if (z <= pSprite->z)
         {
             nLower = pUpper->owner;
-            dassert(nLower >= 0 && nLower < kMaxSprites);
+            assert(nLower >= 0 && nLower < kMaxSprites);
             spritetype *pLower = &sprite[nLower];
-            dassert(pLower->sectnum >= 0 && pLower->sectnum < kMaxSectors);
+            assert(pLower->sectnum >= 0 && pLower->sectnum < kMaxSectors);
             ChangeSpriteSect(pSprite->index, pLower->sectnum);
             pSprite->x += pLower->x-pUpper->x;
             pSprite->y += pLower->y-pUpper->y;
@@ -224,9 +224,9 @@ int CheckLink(spritetype *pSprite)
         if (z >= pSprite->z)
         {
             nUpper = pLower->owner;
-            dassert(nUpper >= 0 && nUpper < kMaxSprites);
+            assert(nUpper >= 0 && nUpper < kMaxSprites);
             spritetype *pUpper = &sprite[nUpper];
-            dassert(pUpper->sectnum >= 0 && pUpper->sectnum < kMaxSectors);
+            assert(pUpper->sectnum >= 0 && pUpper->sectnum < kMaxSectors);
             ChangeSpriteSect(pSprite->index, pUpper->sectnum);
             pSprite->x += pUpper->x-pLower->x;
             pSprite->y += pUpper->y-pLower->y;
@@ -258,9 +258,9 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
         if (z1 <= *z)
         {
             nLower = pUpper->owner;
-            dassert(nLower >= 0 && nLower < kMaxSprites);
+            assert(nLower >= 0 && nLower < kMaxSprites);
             spritetype *pLower = &sprite[nLower];
-            dassert(pLower->sectnum >= 0 && pLower->sectnum < kMaxSectors);
+            assert(pLower->sectnum >= 0 && pLower->sectnum < kMaxSectors);
             *nSector = pLower->sectnum;
             *x += pLower->x-pUpper->x;
             *y += pLower->y-pUpper->y;
@@ -284,9 +284,9 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
         if (z1 >= *z)
         {
             nUpper = pLower->owner;
-            dassert(nUpper >= 0 && nUpper < kMaxSprites);
+            assert(nUpper >= 0 && nUpper < kMaxSprites);
             spritetype *pUpper = &sprite[nUpper];
-            dassert(pUpper->sectnum >= 0 && pUpper->sectnum < kMaxSectors);
+            assert(pUpper->sectnum >= 0 && pUpper->sectnum < kMaxSectors);
             *nSector = pUpper->sectnum;
             *x += pUpper->x-pLower->x;
             *y += pUpper->y-pLower->y;

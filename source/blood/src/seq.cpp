@@ -54,7 +54,7 @@ static void(*seqClientCallback[kMaxSeqClients])(int, int);
 
 int seqRegisterClient(void(*pClient)(int, int))
 {
-    dassert(nSeqClients < kMaxSeqClients);
+    assert(nSeqClients < kMaxSeqClients);
     seqClientCallback[nSeqClients] = pClient;
     return nSeqClients++;
 }
@@ -93,11 +93,11 @@ SEQINST siMasked[kMaxXWalls];
 
 void UpdateSprite(int nXSprite, SEQFRAME *pFrame)
 {
-    dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+    assert(nXSprite > 0 && nXSprite < kMaxXSprites);
     int nSprite = xsprite[nXSprite].reference;
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
     spritetype *pSprite = &sprite[nSprite];
-    dassert(pSprite->extra == nXSprite);
+    assert(pSprite->extra == nXSprite);
     if (pSprite->flags & 2)
     {
         if (tilesiz[pSprite->picnum].y != tilesiz[seqGetTile(pFrame)].y || tileTopOffset(pSprite->picnum) != tileTopOffset(seqGetTile(pFrame))
@@ -164,11 +164,11 @@ void UpdateSprite(int nXSprite, SEQFRAME *pFrame)
 
 void UpdateWall(int nXWall, SEQFRAME *pFrame)
 {
-    dassert(nXWall > 0 && nXWall < kMaxXWalls);
+    assert(nXWall > 0 && nXWall < kMaxXWalls);
     int nWall = xwall[nXWall].reference;
-    dassert(nWall >= 0 && nWall < kMaxWalls);
+    assert(nWall >= 0 && nWall < kMaxWalls);
     walltype *pWall = &wall[nWall];
-    dassert(pWall->extra == nXWall);
+    assert(pWall->extra == nXWall);
     pWall->picnum = seqGetTile(pFrame);
     if (pFrame->at5_0)
         pWall->pal = pFrame->at5_0;
@@ -192,12 +192,12 @@ void UpdateWall(int nXWall, SEQFRAME *pFrame)
 
 void UpdateMasked(int nXWall, SEQFRAME *pFrame)
 {
-    dassert(nXWall > 0 && nXWall < kMaxXWalls);
+    assert(nXWall > 0 && nXWall < kMaxXWalls);
     int nWall = xwall[nXWall].reference;
-    dassert(nWall >= 0 && nWall < kMaxWalls);
+    assert(nWall >= 0 && nWall < kMaxWalls);
     walltype *pWall = &wall[nWall];
-    dassert(pWall->extra == nXWall);
-    dassert(pWall->nextwall >= 0);
+    assert(pWall->extra == nXWall);
+    assert(pWall->nextwall >= 0);
     walltype *pWallNext = &wall[pWall->nextwall];
     pWall->overpicnum = pWallNext->overpicnum = seqGetTile(pFrame);
     if (pFrame->at5_0)
@@ -246,11 +246,11 @@ void UpdateMasked(int nXWall, SEQFRAME *pFrame)
 
 void UpdateFloor(int nXSector, SEQFRAME *pFrame)
 {
-    dassert(nXSector > 0 && nXSector < kMaxXSectors);
+    assert(nXSector > 0 && nXSector < kMaxXSectors);
     int nSector = xsector[nXSector].reference;
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     sectortype *pSector = &sector[nSector];
-    dassert(pSector->extra == nXSector);
+    assert(pSector->extra == nXSector);
     pSector->floorpicnum = seqGetTile(pFrame);
     pSector->floorshade = pFrame->at4_0;
     if (pFrame->at5_0)
@@ -259,11 +259,11 @@ void UpdateFloor(int nXSector, SEQFRAME *pFrame)
 
 void UpdateCeiling(int nXSector, SEQFRAME *pFrame)
 {
-    dassert(nXSector > 0 && nXSector < kMaxXSectors);
+    assert(nXSector > 0 && nXSector < kMaxXSectors);
     int nSector = xsector[nXSector].reference;
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     sectortype *pSector = &sector[nSector];
-    dassert(pSector->extra == nXSector);
+    assert(pSector->extra == nXSector);
     pSector->ceilingpicnum = seqGetTile(pFrame);
     pSector->ceilingshade = pFrame->at4_0;
     if (pFrame->at5_0)
@@ -272,7 +272,7 @@ void UpdateCeiling(int nXSector, SEQFRAME *pFrame)
 
 void SEQINST::Update(ACTIVE *pActive)
 {
-    dassert(frameIndex < pSequence->nFrames);
+    assert(frameIndex < pSequence->nFrames);
     switch (pActive->type)
     {
     case 0:
@@ -369,8 +369,8 @@ SEQINST * GetInstance(int a1, int a2)
 
 void UnlockInstance(SEQINST *pInst)
 {
-    dassert(pInst != NULL);
-    dassert(pInst->pSequence != NULL);
+    assert(pInst != NULL);
+    assert(pInst->pSequence != NULL);
     pInst->pSequence = NULL;
     pInst->at13 = 0;
 }
@@ -395,7 +395,7 @@ void seqSpawn(int a1, int a2, int a3, int a4)
             if (activeList[i].type == a2 && activeList[i].xindex == a3)
                 break;
         }
-        dassert(i < seqActiveCount);
+        assert(i < seqActiveCount);
     }
     if (memcmp(pSeq->signature, "SEQ\x1a", 4) != 0)
         I_Error("Invalid sequence %d", a1);
@@ -414,7 +414,7 @@ void seqSpawn(int a1, int a2, int a3, int a4)
     pInst->frameIndex = 0;
     if (i == seqActiveCount)
     {
-        dassert(seqActiveCount < kMaxSequences);
+        assert(seqActiveCount < kMaxSequences);
         activeList[seqActiveCount].type = a2;
         activeList[seqActiveCount].xindex = a3;
         seqActiveCount++;
@@ -433,7 +433,7 @@ void seqKill(int a1, int a2)
         if (activeList[i].type == a1 && activeList[i].xindex == a2)
             break;
     }
-    dassert(i < seqActiveCount);
+    assert(i < seqActiveCount);
     seqActiveCount--;
     activeList[i] = activeList[seqActiveCount];
     pInst->at13 = 0;
@@ -486,7 +486,7 @@ void seqProcess(int a1)
     {
         SEQINST *pInst = GetInstance(activeList[i].type, activeList[i].xindex);
         Seq *pSeq = pInst->pSequence;
-        dassert(pInst->frameIndex < pSeq->nFrames);
+        assert(pInst->frameIndex < pSeq->nFrames);
         pInst->at10 -= a1;
         while (pInst->at10 < 0)
         {
@@ -507,7 +507,7 @@ void seqProcess(int a1)
                         {
                             int nXSprite = activeList[i].xindex;
                             int nSprite = xsprite[nXSprite].reference;
-                            dassert(nSprite >= 0 && nSprite < kMaxSprites);
+                            assert(nSprite >= 0 && nSprite < kMaxSprites);
                             evKill(nSprite, 3);
                             if ((sprite[nSprite].flags & kHitagRespawn) && sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax)
                                 evPost(nSprite, 3, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
@@ -519,7 +519,7 @@ void seqProcess(int a1)
                         {
                             int nXWall = activeList[i].xindex;
                             int nWall = xwall[nXWall].reference;
-                            dassert(nWall >= 0 && nWall < kMaxWalls);
+                            assert(nWall >= 0 && nWall < kMaxWalls);
                             wall[nWall].cstat &= ~(8 + 16 + 32);
                             if (wall[nWall].nextwall != -1)
                                 wall[wall[nWall].nextwall].cstat &= ~(8 + 16 + 32);

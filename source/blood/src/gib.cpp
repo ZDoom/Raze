@@ -392,7 +392,7 @@ void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVe
         int dz1 = floorZ-z;
         int dz2 = z-ceilZ;
         spritetype *pGib = actSpawnThing(nSector, x, y, z, pGThing->TotalKills);
-        dassert(pGib != NULL);
+        assert(pGib != NULL);
         if (pGThing->Kills > -1)
             pGib->picnum = pGThing->Kills;
         if (pVel)
@@ -431,28 +431,28 @@ void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVe
 
 void GibSprite(spritetype *pSprite, GIBTYPE nGibType, CGibPosition *pPos, CGibVelocity *pVel)
 {
-    dassert(pSprite != NULL);
-    dassert(nGibType >= 0 && nGibType < kGibMax);
+    assert(pSprite != NULL);
+    assert(nGibType >= 0 && nGibType < kGibMax);
     if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
         return;
     GIBLIST *pGib = &gibList[nGibType];
     for (int i = 0; i < pGib->Kills; i++)
     {
         GIBFX *pGibFX = &pGib->TotalKills[i];
-        dassert(pGibFX->chance > 0);
+        assert(pGibFX->chance > 0);
         GibFX(pSprite, pGibFX, pPos, pVel);
     }
     for (int i = 0; i < pGib->atc; i++)
     {
         GIBTHING *pGibThing = &pGib->at8[i];
-        dassert(pGibThing->chance > 0);
+        assert(pGibThing->chance > 0);
         GibThing(pSprite, pGibThing, pPos, pVel);
     }
 }
 
 void GibFX(int nWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVelocity * pVel)
 {
-    dassert(nWall >= 0 && nWall < numwalls);
+    assert(nWall >= 0 && nWall < numwalls);
     walltype *pWall = &wall[nWall];
     int nCount = ChanceToCount(pGFX->chance, pGFX->at9);
     int nSector = sectorofwall(nWall);
@@ -484,8 +484,8 @@ void GibFX(int nWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVelocity
 
 void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel)
 {
-    dassert(nWall >= 0 && nWall < numwalls);
-    dassert(nGibType >= 0 && nGibType < kGibMax);
+    assert(nWall >= 0 && nWall < numwalls);
+    assert(nGibType >= 0 && nGibType < kGibMax);
     int cx, cy, cz, wx, wy, wz;
     walltype *pWall = &wall[nWall];
     cx = (pWall->x+wall[pWall->point2].x)>>1;
@@ -506,7 +506,7 @@ void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel)
     for (int i = 0; i < pGib->Kills; i++)
     {
         GIBFX *pGibFX = &pGib->TotalKills[i];
-        dassert(pGibFX->chance > 0);
+        assert(pGibFX->chance > 0);
         GibFX(nWall, pGibFX, ceilZ, wx, wy, wz, pVel);
     }
 }

@@ -133,7 +133,7 @@ static const WEAPONICON gWeaponIcon[] = {
 
 static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
 {
-    dassert(nViewEffect >= 0 && nViewEffect < kViewEffectMax);
+    assert(nViewEffect >= 0 && nViewEffect < kViewEffectMax);
     auto pTSprite = &tsprite[nTSprite];
     if (gDetail < effectDetail[nViewEffect] || nTSprite >= maxspritesonscreen) return NULL;
     switch (nViewEffect)
@@ -239,7 +239,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
             int y = mulscale30(nLen, Sin(nAng));
             pNSprite->y = pTSprite->y + y;
             pNSprite->z = pTSprite->z;
-            dassert(nSector >= 0 && nSector < kMaxSectors);
+            assert(nSector >= 0 && nSector < kMaxSectors);
             FindSector(pNSprite->x, pNSprite->y, pNSprite->z, &nSector);
             pNSprite->sectnum = nSector;
             pNSprite->owner = pTSprite->owner;
@@ -395,7 +395,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_12:
     {
-        dassert(pTSprite->type >= kDudePlayer1 && pTSprite->type <= kDudePlayer8);
+        assert(pTSprite->type >= kDudePlayer1 && pTSprite->type <= kDudePlayer8);
         PLAYER *pPlayer = &gPlayer[pTSprite->type-kDudePlayer1];
         WEAPONICON weaponIcon = gWeaponIcon[pPlayer->curWeapon];
         const int nTile = weaponIcon.nTile;
@@ -444,7 +444,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
 {
 	// shift before interpolating to increase precision.
 	int myclock = (gFrameClock<<3) + mulscale16(4<<3, smoothratio);
-    dassert(spritesortcnt <= maxspritesonscreen);
+    assert(spritesortcnt <= maxspritesonscreen);
     gCameraAng = cA;
     int nViewSprites = spritesortcnt;
     for (int nTSprite = spritesortcnt-1; nTSprite >= 0; nTSprite--)
@@ -481,7 +481,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         int nAnim = 0;
         switch (picanm[nTile].extra & 7) {
             case 0:
-                //dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+                //assert(nXSprite > 0 && nXSprite < kMaxXSprites);
                 if (nXSprite <= 0 || nXSprite >= kMaxXSprites) break;
                 switch (pTSprite->type) {
                     case kSwitchToggle:
@@ -632,7 +632,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         pTSprite->shade = ClipRange(nShade, -128, 127);
         if ((pTSprite->flags&kHitagRespawn) && sprite[pTSprite->owner].owner == 3)
         {
-            dassert(pTXSprite != NULL);
+            assert(pTXSprite != NULL);
             pTSprite->xrepeat = 48;
             pTSprite->yrepeat = 48;
             pTSprite->shade = -128;
@@ -736,7 +736,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 case kMissileFlareRegular:
                 case kMissileFlareAlt:
                     if (pTSprite->statnum == kStatFlare) {
-                        dassert(pTXSprite != NULL);
+                        assert(pTXSprite != NULL);
                         if (pTXSprite->target == gView->nSprite) {
                             pTSprite->xrepeat = 0;
                             break;
@@ -765,7 +765,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             if (pTSprite->type == kDudeHand && pTXSprite->aiState == &hand13A3B4)
             {
                 spritetype *pTTarget = &sprite[pTXSprite->target];
-                dassert(pTXSprite != NULL && pTTarget != NULL);
+                assert(pTXSprite != NULL && pTTarget != NULL);
                 if (IsPlayerSprite(pTTarget))
                 {
                     pTSprite->xrepeat = 0;

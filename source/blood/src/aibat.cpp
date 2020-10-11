@@ -80,18 +80,18 @@ static void batBiteSeqCallback(int, int nXSprite)
     spritetype *pTarget = &sprite[pXSprite->target];
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
     int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     actFireVector(pSprite, 0, 0, dx, dy, height2-height, VECTOR_TYPE_6);
 }
 
 static void batThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
     if (pDudeExtraE->at8 && pDudeExtraE->Kills < 10)
@@ -149,7 +149,7 @@ static void batThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void batThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -168,9 +168,9 @@ static void batThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
         aiNewState(pSprite, pXSprite, &batSearch);
         return;
     }
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
@@ -218,7 +218,7 @@ static void batThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
 static void batMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
@@ -242,7 +242,7 @@ static void batMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
 static void batMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
@@ -272,9 +272,9 @@ static void batThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         aiNewState(pSprite, pXSprite, &batGoto);
         return;
     }
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
@@ -328,7 +328,7 @@ static void batThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 static void batMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
@@ -360,7 +360,7 @@ static void batMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 static void batMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
@@ -391,7 +391,7 @@ static void batMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
 static void batMoveFly(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;

@@ -166,9 +166,9 @@ static void cultThrowSeqCallback(int, int nXSprite)
         nMissile = kThingArmedTNTBundle;
     char v4 = Chance(0x6000);
     sfxPlay3DSound(pSprite, 455, -1, 0);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     int dx = pTarget->x - pSprite->x;
     int dy = pTarget->y - pSprite->y;
     int dz = pTarget->z - pSprite->z;
@@ -205,9 +205,9 @@ static void sub_68230(int, int nXSprite)
     if (gGameOptions.nDifficulty > 2)
         nMissile = kThingArmedTNTBundle;
     sfxPlay3DSound(pSprite, 455, -1, 0);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     int dx = pTarget->x - pSprite->x;
     int dy = pTarget->y - pSprite->y;
     int dz = pTarget->z - pSprite->z;
@@ -235,7 +235,7 @@ static void cultThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void cultThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -274,9 +274,9 @@ static void cultThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         }
         return;
     }
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;

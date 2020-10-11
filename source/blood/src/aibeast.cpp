@@ -204,7 +204,7 @@ static void beastThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void beastThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     XSECTOR *pXSector;
     int nXSector = sector[pSprite->sectnum].extra;
@@ -243,9 +243,9 @@ static void beastThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
             aiNewState(pSprite, pXSprite, &beastSearch);
         return;
     }
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
@@ -391,7 +391,7 @@ static void beastThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void beastThinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -410,9 +410,9 @@ static void beastThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
         aiNewState(pSprite, pXSprite, &beastSwimGoto);
         return;
     }
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
@@ -460,7 +460,7 @@ static void beastThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
 static void beastMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
@@ -479,7 +479,7 @@ static void beastMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 static void sub_628A0(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
@@ -511,7 +511,7 @@ static void sub_628A0(spritetype *pSprite, XSPRITE *pXSprite)
 static void sub_62AE0(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     spritetype *pTarget = &sprite[pXSprite->target];
     int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;
@@ -546,7 +546,7 @@ static void sub_62AE0(spritetype *pSprite, XSPRITE *pXSprite)
 static void sub_62D7C(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     spritetype *pTarget = &sprite[pXSprite->target];
     int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;

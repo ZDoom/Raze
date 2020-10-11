@@ -49,8 +49,8 @@ HITINFO gHitInfo;
 
 bool AreSectorsNeighbors(int sect1, int sect2)
 {
-    dassert(sect1 >= 0 && sect1 < kMaxSectors);
-    dassert(sect2 >= 0 && sect2 < kMaxSectors);
+    assert(sect1 >= 0 && sect1 < kMaxSectors);
+    assert(sect2 >= 0 && sect2 < kMaxSectors);
     if (sector[sect1].wallnum < sector[sect2].wallnum)
     {
         for (int i = 0; i < sector[sect1].wallnum; i++)
@@ -77,7 +77,7 @@ bool AreSectorsNeighbors(int sect1, int sect2)
 bool FindSector(int nX, int nY, int nZ, int *nSector)
 {
     int32_t nZFloor, nZCeil;
-    dassert(*nSector >= 0 && *nSector < kMaxSectors);
+    assert(*nSector >= 0 && *nSector < kMaxSectors);
     if (inside(nX, nY, *nSector))
     {
         getzsofslope(*nSector, nX, nY, &nZCeil, &nZFloor);
@@ -117,7 +117,7 @@ bool FindSector(int nX, int nY, int nZ, int *nSector)
 
 bool FindSector(int nX, int nY, int *nSector)
 {
-    dassert(*nSector >= 0 && *nSector < kMaxSectors);
+    assert(*nSector >= 0 && *nSector < kMaxSectors);
     if (inside(nX, nY, *nSector))
     {
         return 1;
@@ -145,7 +145,7 @@ bool FindSector(int nX, int nY, int *nSector)
 
 bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, int nDist)
 {
-    dassert(pSprite != NULL);
+    assert(pSprite != NULL);
     int oX = klabs(nX-pSprite->x)>>4;
     if (oX >= nDist) return 0;
 
@@ -327,7 +327,7 @@ int GetWallAngle(int nWall)
 
 void GetWallNormal(int nWall, int *pX, int *pY)
 {
-    dassert(nWall >= 0 && nWall < kMaxWalls);
+    assert(nWall >= 0 && nWall < kMaxWalls);
     int nWall2 = wall[nWall].point2;
     int dX = -(wall[nWall2].y - wall[nWall].y);
     dX >>= 4;
@@ -375,8 +375,8 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
 
 int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
 {
-    dassert(pSprite != NULL);
-    dassert(dx != 0 || dy != 0);
+    assert(pSprite != NULL);
+    assert(dx != 0 || dy != 0);
     gHitInfo.hitsect = -1;
     gHitInfo.hitwall = -1;
     gHitInfo.hitsprite = -1;
@@ -428,7 +428,7 @@ int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMa
 int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac)
 {
     int nNum = 256;
-    dassert(pSprite != NULL);
+    assert(pSprite != NULL);
     gHitInfo.hitsect = -1;
     gHitInfo.hitwall = -1;
     gHitInfo.hitsprite = -1;
@@ -482,7 +482,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
             int nOffset = tileTopOffset(nPicnum);
             if (nOffset)
                 otherZ -= (nOffset*pOther->yrepeat)<<2;
-            dassert(height > 0);
+            assert(height > 0);
             int height2 = scale(otherZ-gHitInfo.hitz, tileHeight(nPicnum), height);
             if (!(pOther->cstat & 8))
                 height2 = tileHeight(nPicnum)-height2;
@@ -491,7 +491,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 int width = (tileWidth(nPicnum)*pOther->xrepeat)>>2;
                 width = (width*3)/4;
                 int check1 = ((y1 - pOther->y)*dx - (x1 - pOther->x)*dy) / ksqrt(dx*dx+dy*dy);
-                dassert(width > 0);
+                assert(width > 0);
                 int width2 = scale(check1, tileWidth(nPicnum), width);
                 int nOffset = tileLeftOffset(nPicnum);
                 width2 += nOffset + tileWidth(nPicnum) / 2;
@@ -657,7 +657,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
 
 void GetZRange(spritetype *pSprite, int *ceilZ, int *ceilHit, int *floorZ, int *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax)
 {
-    dassert(pSprite != NULL);
+    assert(pSprite != NULL);
     int bakCstat = pSprite->cstat;
     int32_t nTemp1, nTemp2;
     pSprite->cstat &= ~257;
@@ -789,7 +789,7 @@ unsigned int ClipMove(int *x, int *y, int *z, int *nSector, int xv, int yv, int 
 int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, char *pSectBit)
 {
     char sectbits[(kMaxSectors+7)>>3];
-    dassert(pSectors != NULL);
+    assert(pSectors != NULL);
     memset(sectbits, 0, sizeof(sectbits));
     pSectors[0] = nSector;
     SetBitString(sectbits, nSector);
@@ -835,7 +835,7 @@ int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, cha
 int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pSectors, char *pSectBit, short *a8)
 {
     char sectbits[(kMaxSectors+7)>>3];
-    dassert(pSectors != NULL);
+    assert(pSectors != NULL);
     memset(sectbits, 0, sizeof(sectbits));
     pSectors[0] = nSector;
     SetBitString(sectbits, nSector);

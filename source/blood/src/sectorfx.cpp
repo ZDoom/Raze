@@ -121,7 +121,7 @@ void DoSectorLighting(void)
         int nXSector = shadeList[i];
         XSECTOR *pXSector = &xsector[nXSector];
         int nSector = pXSector->reference;
-        dassert(sector[nSector].extra == nXSector);
+        assert(sector[nSector].extra == nXSector);
         if (pXSector->shade)
         {
             int v4 = pXSector->shade;
@@ -267,9 +267,9 @@ void DoSectorPanning(void)
         int nXSector = panList[i];
         XSECTOR *pXSector = &xsector[nXSector];
         int nSector = pXSector->reference;
-        dassert(nSector >= 0 && nSector < kMaxSectors);
+        assert(nSector >= 0 && nSector < kMaxSectors);
         sectortype *pSector = &sector[nSector];
-        dassert(pSector->extra == nXSector);
+        assert(pSector->extra == nXSector);
         if (pXSector->panAlways || pXSector->busy)
         {
             int angle = pXSector->panAngle+1024;
@@ -316,7 +316,7 @@ void DoSectorPanning(void)
         int nXWall = wallPanList[i];
         XWALL *pXWall = &xwall[nXWall];
         int nWall = pXWall->reference;
-        dassert(wall[nWall].extra == nXWall);
+        assert(wall[nWall].extra == nXWall);
         if (pXWall->panAlways || pXWall->busy)
         {
             int psx = pXWall->panXVel<<10;

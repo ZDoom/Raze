@@ -35,9 +35,6 @@ BEGIN_BLD_NS
 int gFrameClock;
 int gFrameCount;
 
-static const char *_module;
-static int _line;
-
 int32_t gDetail = 4;
 bool gNoClip;
 bool gInfiniteAmmo;
@@ -47,20 +44,5 @@ bool gFogMode = false;
 //////////
 int gWeaponsV10x;
 /////////
-
-
-void _SetErrorLoc(const char *pzFile, int nLine)
-{
-    _module = pzFile;
-    _line = nLine;
-}
-
-// by NoOne: show warning msgs in game instead of throwing errors (in some cases)
-void consoleSysMsg(const char* pzFormat, ...) {
-
-    va_list args;
-    va_start(args, pzFormat);
-    VPrintf(PRINT_LOW, TEXTCOLOR_RED "%s\n", args);
-}
 
 END_BLD_NS

@@ -250,8 +250,8 @@ DAMAGEINFO damageInfo[7] = {
 
 int powerupCheck(PLAYER *pPlayer, int nPowerUp)
 {
-    dassert(pPlayer != NULL);
-    dassert(nPowerUp >= 0 && nPowerUp < kMaxPowerUps);
+    assert(pPlayer != NULL);
+    assert(nPowerUp >= 0 && nPowerUp < kMaxPowerUps);
     int nPack = powerupToPackItem(nPowerUp);
     if (nPack >= 0 && !packItemActive(pPlayer, nPack))
         return 0;
@@ -598,7 +598,7 @@ char playerSeqPlaying(PLAYER * pPlayer, int nSeq)
 
 void playerSetRace(PLAYER *pPlayer, int nLifeMode)
 {
-    dassert(nLifeMode >= kModeHuman && nLifeMode <= kModeHumanGrown);
+    assert(nLifeMode >= kModeHuman && nLifeMode <= kModeHumanGrown);
     DUDEINFO *pDudeInfo = pPlayer->pDudeInfo;
     *pDudeInfo = gPlayerTemplate[nLifeMode];
     pPlayer->lifeMode = nLifeMode;
@@ -695,7 +695,7 @@ void playerStart(int nPlayer, int bNewLevel)
     }
 
     spritetype *pSprite = actSpawnSprite(pStartZone->sectnum, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
-    dassert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+    assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
     XSPRITE *pXSprite = &xsprite[pSprite->extra];
     pPlayer->pSprite = pSprite;
     pPlayer->pXSprite = pXSprite;
@@ -821,7 +821,7 @@ void playerReset(PLAYER *pPlayer)
     static int dword_136438[] = {
         3, 4, 2, 8, 9, 10, 7, 1, 1, 1, 1, 1, 1, 1
     };
-    dassert(pPlayer != NULL);
+    assert(pPlayer != NULL);
     for (int i = 0; i < 14; i++)
     {
         pPlayer->hasWeapon[i] = gInfiniteAmmo;
@@ -1665,7 +1665,7 @@ void playerProcess(PLAYER *pPlayer)
                 nSector = pSprite->sectnum;
                 actDamageSprite(nSprite, pSprite, DAMAGE_TYPE_0, 500<<4);
             }
-            dassert(nSector >= 0 && nSector < kMaxSectors);
+            assert(nSector >= 0 && nSector < kMaxSectors);
             ChangeSpriteSect(nSprite, nSector);
         }
     }
@@ -1773,20 +1773,20 @@ spritetype *playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, i
 
 spritetype * playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5)
 {
-    dassert(thingType >= kThingBase && thingType < kThingMax);
+    assert(thingType >= kThingBase && thingType < kThingMax);
     return actFireThing(pPlayer->pSprite, a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
 }
 
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
 {
-    dassert(pKiller != NULL);
-    dassert(pVictim != NULL);
+    assert(pKiller != NULL);
+    assert(pVictim != NULL);
     
     char buffer[128] = "";
     int nKiller = pKiller->pSprite->type-kDudePlayer1;
-    dassert(nKiller >= 0 && nKiller < kMaxPlayers);
+    assert(nKiller >= 0 && nKiller < kMaxPlayers);
     int nVictim = pVictim->pSprite->type-kDudePlayer1;
-    dassert(nVictim >= 0 && nVictim < kMaxPlayers);
+    assert(nVictim >= 0 && nVictim < kMaxPlayers);
     if (nKiller == nVictim)
     {
         pVictim->fraggerId = -1;
@@ -1918,8 +1918,8 @@ spritetype *sub_40A94(PLAYER *pPlayer, int a2)
 
 int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage)
 {
-    dassert(nSource < kMaxSprites);
-    dassert(pPlayer != NULL);
+    assert(nSource < kMaxSprites);
+    assert(pPlayer != NULL);
     if (pPlayer->damageControl[nDamageType])
         return 0;
     nDamage = playerDamageArmor(pPlayer, nDamageType, nDamage);
@@ -2052,7 +2052,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
         FragPlayer(pPlayer, nSource);
         trTriggerSprite(nSprite, pXSprite, kCmdOff);
     }
-    dassert(getSequence(pDudeInfo->seqStartID + nDeathSeqID) != NULL);
+    assert(getSequence(pDudeInfo->seqStartID + nDeathSeqID) != NULL);
     seqSpawn(pDudeInfo->seqStartID+nDeathSeqID, 3, nXSprite, nKneelingPlayer);
     return nDamage;
 }

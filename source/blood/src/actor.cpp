@@ -2378,7 +2378,7 @@ bool IsUnderwaterSector(int nSector)
 
 int actSpriteOwnerToSpriteId(spritetype *pSprite)
 {
-    dassert(pSprite != NULL);
+    assert(pSprite != NULL);
     if (pSprite->owner == -1)
         return -1;
     int nSprite = pSprite->owner & (kMaxSprites-1);
@@ -2389,7 +2389,7 @@ int actSpriteOwnerToSpriteId(spritetype *pSprite)
 
 void actPropagateSpriteOwner(spritetype *pTarget, spritetype *pSource)
 {
-    dassert(pTarget != NULL && pSource != NULL);
+    assert(pTarget != NULL && pSource != NULL);
     if (IsPlayerSprite(pSource))
         pTarget->owner = (pSource->type - kDudePlayer1) | kMaxSprites;
     else
@@ -2400,7 +2400,7 @@ int actSpriteIdToOwnerId(int nSprite)
 {
     if (nSprite == -1)
         return -1;
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
     spritetype *pSprite = &sprite[nSprite];
     if (IsPlayerSprite(pSprite))
         nSprite = (pSprite->type - kDudePlayer1) | kMaxSprites;
@@ -2582,12 +2582,12 @@ void actInit(bool bSaveLoad) {
 
 void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6)
 {
-    dassert(pSprite != NULL);
+    assert(pSprite != NULL);
     int dx = pSprite->x-x;
     int dy = pSprite->y-y;
     int dz = (pSprite->z-z)>>4;
     int dist2 = 0x40000+dx*dx+dy*dy+dz*dz;
-    dassert(dist2 > 0);
+    assert(dist2 > 0);
     a6 = scale(0x40000, a6, dist2);
 
     if (pSprite->flags & kPhysMove) {
@@ -2607,19 +2607,19 @@ void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6)
         } else if (pSprite->type >= kThingBase && pSprite->type < kThingMax) {
             mass = thingInfo[pSprite->type - kThingBase].mass;
         } else {
-            consoleSysMsg("Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", (int)pSprite->index, (int)pSprite->type, (int)pSprite->statnum);
+            Printf(PRINT_HIGH, "Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", (int)pSprite->index, (int)pSprite->type, (int)pSprite->statnum);
             return;
         }
 
         int size = (tilesiz[pSprite->picnum].x*pSprite->xrepeat*tilesiz[pSprite->picnum].y*pSprite->yrepeat)>>1;
-        dassert(mass > 0);
+        assert(mass > 0);
 
         int t = scale(a6, size, mass);
         dx = mulscale16(t, dx);
         dy = mulscale16(t, dy);
         dz = mulscale16(t, dz);
         int nSprite = pSprite->index;
-        dassert(nSprite >= 0 && nSprite < kMaxSprites);
+        assert(nSprite >= 0 && nSprite < kMaxSprites);
         xvel[nSprite] += dx;
         yvel[nSprite] += dy;
         zvel[nSprite] += dz;
@@ -2889,7 +2889,7 @@ spritetype *actDropObject(spritetype *pSprite, int nType) {
 
 bool actHealDude(XSPRITE *pXDude, int a2, int a3)
 {
-    dassert(pXDude != NULL);
+    assert(pXDude != NULL);
     a2 <<= 4;
     a3 <<= 4;
     if (pXDude->health < a3)
@@ -2906,10 +2906,10 @@ bool actHealDude(XSPRITE *pXDude, int a2, int a3)
 void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType, int damage)
 {
     spritetype *pKillerSprite = &sprite[nKillerSprite];
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     int nType = pSprite->type-kDudeBase;
     int nXSprite = pSprite->extra;
-    dassert(nXSprite > 0);
+    assert(nXSprite > 0);
     XSPRITE *pXSprite = &xsprite[pSprite->extra];
     
     switch (pSprite->type) {
@@ -3481,7 +3481,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
 }
 
 int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, int damage) {
-    dassert(nSource < kMaxSprites);
+    assert(nSource < kMaxSprites);
 
     if (pSprite->flags&32 || pSprite->extra <= 0 || pSprite->extra >= kMaxXSprites || xsprite[pSprite->extra].reference != pSprite->index) 
         return 0;
@@ -3500,7 +3500,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
     switch (pSprite->statnum) {
         case kStatDude: {
             if (!IsDudeSprite(pSprite)) {
-                consoleSysMsg("Bad Dude Failed: initial=%d type=%d %s\n", (int)pSprite->inittype, (int)pSprite->type, (int)(pSprite->flags & kHitagRespawn) ? "RESPAWN" : "NORMAL");
+                Printf(PRINT_HIGH, "Bad Dude Failed: initial=%d type=%d %s\n", (int)pSprite->inittype, (int)pSprite->type, (int)(pSprite->flags & kHitagRespawn) ? "RESPAWN" : "NORMAL");
                 return damage >> 4;
                 //I_Error("Bad Dude Failed: initial=%d type=%d %s\n", (int)pSprite->inittype, (int)pSprite->type, (int)(pSprite->flags & 16) ? "RESPAWN" : "NORMAL");
             }
@@ -3532,7 +3532,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
         }
         break;
     case kStatThing:
-        dassert(pSprite->type >= kThingBase && pSprite->type < kThingMax);
+        assert(pSprite->type >= kThingBase && pSprite->type < kThingMax);
         int nType = pSprite->type - kThingBase; int nDamageFactor = thingInfo[nType].dmgControl[damageType];
         
         if (!nDamageFactor) return 0;
@@ -3616,7 +3616,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
 
 void actHitcodeToData(int a1, HITINFO *pHitInfo, int *a3, spritetype **a4, XSPRITE **a5, int *a6, walltype **a7, XWALL **a8, int *a9, sectortype **a10, XSECTOR **a11)
 {
-    dassert(pHitInfo != NULL);
+    assert(pHitInfo != NULL);
     int nSprite = -1;
     spritetype *pSprite = NULL;
     XSPRITE *pXSprite = NULL;
@@ -3631,7 +3631,7 @@ void actHitcodeToData(int a1, HITINFO *pHitInfo, int *a3, spritetype **a4, XSPRI
     case 3:
     case 5:
         nSprite = pHitInfo->hitsprite;
-        dassert(nSprite >= 0 && nSprite < kMaxSprites);
+        assert(nSprite >= 0 && nSprite < kMaxSprites);
         pSprite = &sprite[nSprite];
         if (pSprite->extra > 0)
             pXSprite = &xsprite[pSprite->extra];
@@ -3639,7 +3639,7 @@ void actHitcodeToData(int a1, HITINFO *pHitInfo, int *a3, spritetype **a4, XSPRI
     case 0:
     case 4:
         nWall = pHitInfo->hitwall;
-        dassert(nWall >= 0 && nWall < kMaxWalls);
+        assert(nWall >= 0 && nWall < kMaxWalls);
         pWall = &wall[nWall];
         if (pWall->extra > 0)
             pXWall = &xwall[pWall->extra];
@@ -3648,7 +3648,7 @@ void actHitcodeToData(int a1, HITINFO *pHitInfo, int *a3, spritetype **a4, XSPRI
     case 2:
     case 6:
         nSector = pHitInfo->hitsect;
-        dassert(nSector >= 0 && nSector < kMaxSectors);
+        assert(nSector >= 0 && nSector < kMaxSectors);
         pSector = &sector[nSector];
         if (pSector->extra > 0)
             pXSector = &xsector[pSector->extra];
@@ -3677,7 +3677,7 @@ void actHitcodeToData(int a1, HITINFO *pHitInfo, int *a3, spritetype **a4, XSPRI
 void actImpactMissile(spritetype *pMissile, int hitCode)
 {
     int nXMissile = pMissile->extra;
-    dassert(nXMissile > 0 && nXMissile < kMaxXSprites);
+    assert(nXMissile > 0 && nXMissile < kMaxXSprites);
     XSPRITE *pXMissile = &xsprite[pMissile->extra];
     
     int nSpriteHit = -1; int nWallHit = -1; int nSectorHit = -1;
@@ -3833,7 +3833,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             if (hitCode == 3)
             {
                 int nObject = gHitInfo.hitsprite;
-                dassert(nObject >= 0 && nObject < kMaxSprites);
+                assert(nObject >= 0 && nObject < kMaxSprites);
                 spritetype *pObject = &sprite[nObject];
                 if (pObject->extra > 0)
                 {
@@ -3851,7 +3851,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             if (hitCode == 3)
             {
                 int nObject = gHitInfo.hitsprite;
-                dassert(nObject >= 0 && nObject < kMaxSprites);
+                assert(nObject >= 0 && nObject < kMaxSprites);
                 spritetype *pObject = &sprite[nObject];
                 if (pObject->extra > 0)
                 {
@@ -3872,7 +3872,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             if (hitCode == 3)
             {
                 int nObject = gHitInfo.hitsprite;
-                dassert(nObject >= 0 && nObject < kMaxSprites);
+                assert(nObject >= 0 && nObject < kMaxSprites);
                 spritetype *pObject = &sprite[nObject];
                 if (pObject->extra > 0)
                 {
@@ -3896,7 +3896,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             if (hitCode == 3)
             {
                 int nObject = gHitInfo.hitsprite;
-                dassert(nObject >= 0 && nObject < kMaxSprites);
+                assert(nObject >= 0 && nObject < kMaxSprites);
                 spritetype *pObject = &sprite[nObject];
                 if (pObject->statnum == kStatDude)
                 {
@@ -3914,7 +3914,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             if (hitCode == 3)
             {
                 int nObject = gHitInfo.hitsprite;
-                dassert(nObject >= 0 && nObject < kMaxSprites);
+                assert(nObject >= 0 && nObject < kMaxSprites);
                 spritetype *pObject = &sprite[nObject];
                 if (pObject->statnum == kStatDude)
                 {
@@ -3939,7 +3939,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             if (hitCode == 3)
             {
                 int nObject = gHitInfo.hitsprite;
-                dassert(nObject >= 0 && nObject < kMaxSprites);
+                assert(nObject >= 0 && nObject < kMaxSprites);
                 spritetype *pObject = &sprite[nObject];
                 int nOwner = actSpriteOwnerToSpriteId(pMissile);
                 int nDamage = (15+Random(10))<<4;
@@ -3952,7 +3952,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             if (hitCode == 3)
             {
                 int nObject = gHitInfo.hitsprite;
-                dassert(nObject >= 0 && nObject < kMaxSprites);
+                assert(nObject >= 0 && nObject < kMaxSprites);
                 spritetype *pObject = &sprite[nObject];
                 int nOwner = actSpriteOwnerToSpriteId(pMissile);
                 int nDamage = (10+Random(10))<<4;
@@ -3981,8 +3981,8 @@ void actKickObject(spritetype *pSprite1, spritetype *pSprite2)
 
 void actTouchFloor(spritetype *pSprite, int nSector)
 {
-    dassert(pSprite != NULL);
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(pSprite != NULL);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     sectortype * pSector = &sector[nSector];
     XSECTOR * pXSector = NULL;
     if (pSector->extra > 0)
@@ -4321,12 +4321,12 @@ void actAirDrag(spritetype *pSprite, int a2)
     int vbp = 0;
     int v4 = 0;
     int nSector = pSprite->sectnum;
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     sectortype *pSector = &sector[nSector];
     int nXSector = pSector->extra;
     if (nXSector > 0)
     {
-        dassert(nXSector < kMaxXSectors);
+        assert(nXSector < kMaxXSectors);
         XSECTOR *pXSector = &xsector[nXSector];
         if (pXSector->windVel && (pXSector->windAlways || pXSector->busy))
         {
@@ -4345,14 +4345,14 @@ void actAirDrag(spritetype *pSprite, int a2)
 int MoveThing(spritetype *pSprite)
 {
     int nXSprite = pSprite->extra;
-    dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+    assert(nXSprite > 0 && nXSprite < kMaxXSprites);
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pSprite->index;
     int v8 = 0;
-    dassert(pSprite->type >= kThingBase && pSprite->type < kThingMax);
+    assert(pSprite->type >= kThingBase && pSprite->type < kThingMax);
     const THINGINFO *pThingInfo = &thingInfo[pSprite->type-kThingBase];
     int nSector = pSprite->sectnum;
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     if (xvel[nSprite] || yvel[nSprite])
@@ -4361,10 +4361,10 @@ int MoveThing(spritetype *pSprite)
         pSprite->cstat &= ~257;
         v8 = gSpriteHit[nXSprite].hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, xvel[nSprite]>>12, yvel[nSprite]>>12, pSprite->clipdist<<2, (pSprite->z-top)/4, (bottom-pSprite->z)/4, CLIPMASK0);
         pSprite->cstat = bakCstat;
-        dassert(nSector >= 0);
+        assert(nSector >= 0);
         if (pSprite->sectnum != nSector)
         {
-            dassert(nSector >= 0 && nSector < kMaxSectors);
+            assert(nSector >= 0 && nSector < kMaxSectors);
             ChangeSpriteSect(nSprite, nSector);
         }
         if ((gSpriteHit[nXSprite].hit&0xc000) == 0x8000) {
@@ -4383,7 +4383,7 @@ int MoveThing(spritetype *pSprite)
     }
     else
     {
-        dassert(nSector >= 0 && nSector < kMaxSectors);
+        assert(nSector >= 0 && nSector < kMaxSectors);
         FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector);
     }
     if (zvel[nSprite])
@@ -4529,7 +4529,7 @@ void MoveDude(spritetype *pSprite)
     if (IsPlayerSprite(pSprite))
         pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -4539,7 +4539,7 @@ void MoveDude(spritetype *pSprite)
     int tz = (pSprite->z-top)/4;
     int wd = pSprite->clipdist<<2;
     int nSector = pSprite->sectnum;
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     if (xvel[nSprite] || yvel[nSprite])
     {
         if (pPlayer && gNoClip)
@@ -4569,7 +4569,7 @@ void MoveDude(spritetype *pSprite)
                 if (nSector2 != -1)
                     nSector = nSector2;
             }
-            dassert(nSector >= 0);
+            assert(nSector >= 0);
             pSprite->cstat = bakCstat;
         }
         switch (gSpriteHit[nXSprite].hit&0xc000)
@@ -4633,12 +4633,12 @@ void MoveDude(spritetype *pSprite)
     }
     else
     {
-        dassert(nSector >= 0 && nSector < kMaxSectors);
+        assert(nSector >= 0 && nSector < kMaxSectors);
         FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector);
     }
     if (pSprite->sectnum != nSector)
     {
-        dassert(nSector >= 0 && nSector < kMaxSectors);
+        assert(nSector >= 0 && nSector < kMaxSectors);
         XSECTOR *pXSector;
         int nXSector = sector[pSprite->sectnum].extra;
         if (nXSector > 0)
@@ -5206,7 +5206,7 @@ int MoveMissile(spritetype *pSprite)
         updatesector(x, y, &nSector);
         if (nSector >= 0 && nSector != pSprite->sectnum)
         {
-            dassert(nSector >= 0 && nSector < kMaxSectors);
+            assert(nSector >= 0 && nSector < kMaxSectors);
             ChangeSpriteSect(nSprite, nSector);
         }
         CheckLink(pSprite);
@@ -5517,13 +5517,13 @@ void actProcessSprites(void)
             continue;
         int nSector = pSprite->sectnum;
         int nXSprite = pSprite->extra;
-        dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+        assert(nXSprite > 0 && nXSprite < kMaxXSprites);
         int nXSector = sector[nSector].extra;
         XSECTOR *pXSector = NULL;
         if (nXSector > 0)
         {
-            dassert(nXSector > 0 && nXSector < kMaxXSectors);
-            dassert(xsector[nXSector].reference == nSector);
+            assert(nXSector > 0 && nXSector < kMaxXSectors);
+            assert(xsector[nXSector].reference == nSector);
             pXSector = &xsector[nXSector];
         }
         if (pXSector && pXSector->panVel && (pXSector->panAlways || pXSector->state || pXSector->busy))
@@ -5592,7 +5592,7 @@ void actProcessSprites(void)
                                 pSprite->xrepeat = 32;
                                 pSprite->yrepeat = 32;
                                 int nObject = hit & 0x3fff;
-                                dassert(nObject >= 0 && nObject < kMaxSprites);
+                                assert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype * pObject = &sprite[nObject];
                                 actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, pXSprite->data1);
                             }
@@ -5603,7 +5603,7 @@ void actProcessSprites(void)
                             if ((hit&0xc000) == 0xc000)
                             {
                                 int nObject = hit & 0x3fff;
-                                dassert(nObject >= 0 && nObject < kMaxSprites);
+                                assert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype *pObject = &sprite[nObject];
                                 actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, 12);
                             }
@@ -5619,7 +5619,7 @@ void actProcessSprites(void)
                                 int nObject = hit & 0x3fff;
                                 if ((hit&0xc000) != 0xc000 && (nObject < 0 || nObject >= 4096))
                                     break;
-                                dassert(nObject >= 0 && nObject < kMaxSprites);
+                                assert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype *pObject = &sprite[nObject];
                                 actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, 12);
                                 evPost(pSprite->index, 3, 0, kCallbackFXPodBloodSplat);
@@ -5630,7 +5630,7 @@ void actProcessSprites(void)
                             int nObject = hit & 0x3fff;
                             if ((hit&0xc000) != 0xc000 && (nObject < 0 || nObject >= 4096))
                                 break;
-                            dassert(nObject >= 0 && nObject < kMaxSprites);
+                            assert(nObject >= 0 && nObject < kMaxSprites);
                             actExplodeSprite(pSprite);
                             break;
                         }
@@ -5660,10 +5660,10 @@ void actProcessSprites(void)
             continue;
         int nOwner = actSpriteOwnerToSpriteId(pSprite);
         int nType = pSprite->type;
-        dassert(nType >= 0 && nType < kExplodeMax);
+        assert(nType >= 0 && nType < kExplodeMax);
         const EXPLOSION *pExplodeInfo = &explodeInfo[nType];
         int nXSprite = pSprite->extra;
-        dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+        assert(nXSprite > 0 && nXSprite < kMaxXSprites);
         XSPRITE *pXSprite = &xsprite[nXSprite];
         int x = pSprite->x;
         int y = pSprite->y;
@@ -5710,7 +5710,7 @@ void actProcessSprites(void)
                         ConcussSprite(nOwner, pDude, x, y, z, pExplodeInfo->dmgType);
                     if (pExplodeInfo->burnTime)
                     {
-                        dassert(pDude->extra > 0 && pDude->extra < kMaxXSprites);
+                        assert(pDude->extra > 0 && pDude->extra < kMaxXSprites);
                         XSPRITE *pXDude = &xsprite[pDude->extra];
                         if (!pXDude->burnTime)
                             evPost(nSprite2, 3, 0, kCallbackFXFlameLick);
@@ -5737,7 +5737,7 @@ void actProcessSprites(void)
                             ConcussSprite(nOwner, pThing, x, y, z, pExplodeInfo->dmgType);
                         if (pExplodeInfo->burnTime)
                         {
-                            dassert(pThing->extra > 0 && pThing->extra < kMaxXSprites);
+                            assert(pThing->extra > 0 && pThing->extra < kMaxXSprites);
                             XSPRITE *pXThing = &xsprite[pThing->extra];
                             if (pThing->type == kThingTNTBarrel && !pXThing->burnTime)
                                 evPost(nSprite2, 3, 0, kCallbackFXFlameLick);
@@ -5815,7 +5815,7 @@ void actProcessSprites(void)
         if (pSprite->flags & 32)
             continue;
         int nXSprite = pSprite->extra;
-        //dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+        //assert(nXSprite > 0 && nXSprite < kMaxXSprites);
         if (nXSprite <= 0 || nXSprite >= kMaxXSprites)
             continue;
         XSPRITE *pXSprite = &xsprite[nXSprite];
@@ -5960,15 +5960,15 @@ void actProcessSprites(void)
         if (pSprite->flags & 32)
             continue;
         int nXSprite = pSprite->extra;
-        dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+        assert(nXSprite > 0 && nXSprite < kMaxXSprites);
         int nSector = pSprite->sectnum;
         viewBackupSpriteLoc(nSprite, pSprite);
         int nXSector = sector[nSector].extra;
         XSECTOR *pXSector = NULL;
         if (nXSector > 0)
         {
-            dassert(nXSector > 0 && nXSector < kMaxXSectors);
-            dassert(xsector[nXSector].reference == nSector);
+            assert(nXSector > 0 && nXSector < kMaxXSectors);
+            assert(xsector[nXSector].reference == nSector);
             pXSector = &xsector[nXSector];
         }
         if (pXSector)
@@ -6009,12 +6009,12 @@ void actProcessSprites(void)
         if (pSprite->flags & 32)
             continue;
         int nXSprite = pSprite->extra;
-        dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+        assert(nXSprite > 0 && nXSprite < kMaxXSprites);
         XSPRITE *pXSprite = &xsprite[nXSprite];
         int nTarget = pXSprite->target;
-        dassert(nTarget >= 0);
+        assert(nTarget >= 0);
         viewBackupSpriteLoc(nSprite, pSprite);
-        dassert(nTarget < kMaxSprites);
+        assert(nTarget < kMaxSprites);
         spritetype *pTarget = &sprite[nTarget];
         if (pTarget->statnum == kMaxStatus)
         {
@@ -6050,8 +6050,8 @@ spritetype * actSpawnSprite(int nSector, int x, int y, int z, int nStat, char a6
     else
     {
         nSprite = headspritestat[kStatPurge];
-        dassert(nSprite >= 0);
-        dassert(nSector >= 0 && nSector < kMaxSectors);
+        assert(nSprite >= 0);
+        assert(nSector >= 0 && nSector < kMaxSectors);
         ChangeSpriteSect(nSprite, nSector);
         actPostSprite(nSprite, nStat);
     }
@@ -6141,8 +6141,8 @@ spritetype * actSpawnSprite(spritetype *pSource, int nStat)
     if (nSprite < 0)
     {
         nSprite = headspritestat[kStatPurge];
-        dassert(nSprite >= 0);
-        dassert(pSource->sectnum >= 0 && pSource->sectnum < kMaxSectors);
+        assert(nSprite >= 0);
+        assert(pSource->sectnum >= 0 && pSource->sectnum < kMaxSectors);
         ChangeSpriteSect(nSprite, pSource->sectnum);
         actPostSprite(nSprite, nStat);
     }
@@ -6164,13 +6164,13 @@ spritetype * actSpawnSprite(spritetype *pSource, int nStat)
 
 spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
 {
-    dassert(nThingType >= kThingBase && nThingType < kThingMax);
+    assert(nThingType >= kThingBase && nThingType < kThingMax);
     spritetype *pSprite = actSpawnSprite(nSector, x, y, z, 4, 1);
     int nType = nThingType-kThingBase;
     int nThing = pSprite->index;
     int nXThing = pSprite->extra;
     pSprite->type = nThingType;
-    dassert(nXThing > 0 && nXThing < kMaxXSprites);
+    assert(nXThing > 0 && nXThing < kMaxXSprites);
     XSPRITE *pXThing = &xsprite[nXThing];
     const THINGINFO *pThingInfo = &thingInfo[nType];
     pXThing->health = pThingInfo->startHealth<<4;
@@ -6249,7 +6249,7 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
 
 spritetype * actFireThing(spritetype *pSprite, int a2, int a3, int a4, int thingType, int a6)
 {
-    dassert(thingType >= kThingBase && thingType < kThingMax);
+    assert(thingType >= kThingBase && thingType < kThingMax);
     int x = pSprite->x+mulscale30(a2, Cos(pSprite->ang+512));
     int y = pSprite->y+mulscale30(a2, Sin(pSprite->ang+512));
     int z = pSprite->z+a3;
@@ -6275,7 +6275,7 @@ spritetype * actFireThing(spritetype *pSprite, int a2, int a3, int a4, int thing
 spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, int a6, int nType)
 {
     
-    dassert(nType >= kMissileBase && nType < kMissileMax);
+    assert(nType >= kMissileBase && nType < kMissileMax);
     char v4 = 0;
     int nSprite = pSprite->index;
     const MissileType *pMissileInfo = &missileInfo[nType-kMissileBase];
@@ -6318,7 +6318,7 @@ spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, 
     actPropagateSpriteOwner(pMissile, pSprite);
     pMissile->cstat |= 1;
     int nXSprite = pMissile->extra;
-    dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+    assert(nXSprite > 0 && nXSprite < kMaxXSprites);
     xsprite[nXSprite].target = -1;
     evPost(nMissile, 3, 600, kCallbackRemove);
    
@@ -6486,7 +6486,7 @@ bool actCheckRespawn(spritetype *pSprite)
 
 bool actCanSplatWall(int nWall)
 {
-    dassert(nWall >= 0 && nWall < kMaxWalls);
+    assert(nWall >= 0 && nWall < kMaxWalls);
     walltype *pWall = &wall[nWall];
     if (pWall->cstat & 16384)
         return 0;
@@ -6507,14 +6507,14 @@ bool actCanSplatWall(int nWall)
 void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType)
 {
     int nShooter = pShooter->index;
-    dassert(vectorType >= 0 && vectorType < kVectorMax);
+    assert(vectorType >= 0 && vectorType < kVectorMax);
     const VECTORDATA *pVectorData = &gVectorData[vectorType];
     int nRange = pVectorData->maxDist;
     int hit = VectorScan(pShooter, a2, a3, a4, a5, a6, nRange, 1);
     if (hit == 3)
     {
         int nSprite = gHitInfo.hitsprite;
-        dassert(nSprite >= 0 && nSprite < kMaxSprites);
+        assert(nSprite >= 0 && nSprite < kMaxSprites);
         spritetype *pSprite = &sprite[nSprite];
         if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pShooter, pSprite)) return;
         if (IsPlayerSprite(pSprite)) {
@@ -6558,7 +6558,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         case 0:
         {
             int nWall = gHitInfo.hitwall;
-            dassert(nWall >= 0 && nWall < kMaxWalls);
+            assert(nWall >= 0 && nWall < kMaxWalls);
             nSurf = surfType[wall[nWall].picnum];
             if (actCanSplatWall(nWall))
             {
@@ -6566,7 +6566,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                 int y = gHitInfo.hity-mulscale(a5, 16, 14);
                 int z = gHitInfo.hitz-mulscale(a6, 256, 14);
                 int nSurf = surfType[wall[nWall].picnum];
-                dassert(nSurf < kSurfMax);
+                assert(nSurf < kSurfMax);
                 if (pVectorData->surfHit[nSurf].fx1 >= 0)
                 {
                     spritetype *pFX = gFX.fxSpawn(pVectorData->surfHit[nSurf].fx1, nSector, x, y, z, 0);
@@ -6582,7 +6582,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         case 4:
         {
             int nWall = gHitInfo.hitwall;
-            dassert(nWall >= 0 && nWall < kMaxWalls);
+            assert(nWall >= 0 && nWall < kMaxWalls);
             nSurf = surfType[wall[nWall].overpicnum];
             int nXWall = wall[nWall].extra;
             if (nXWall > 0)
@@ -6597,7 +6597,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         {
             int nSprite = gHitInfo.hitsprite;
             nSurf = surfType[sprite[nSprite].picnum];
-            dassert(nSprite >= 0 && nSprite < kMaxSprites);
+            assert(nSprite >= 0 && nSprite < kMaxSprites);
             spritetype *pSprite = &sprite[nSprite];
             x -= mulscale(a4, 112, 14);
             y -= mulscale(a5, 112, 14);
@@ -6725,7 +6725,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         }
         }
     }
-    dassert(nSurf < kSurfMax);
+    assert(nSurf < kSurfMax);
     if (pVectorData->surfHit[nSurf].fx2 >= 0)
         gFX.fxSpawn(pVectorData->surfHit[nSurf].fx2, nSector, x, y, z, 0);
     if (pVectorData->surfHit[nSurf].fx3 >= 0)
@@ -6848,15 +6848,15 @@ void DudeToGibCallback2(int, int nXSprite)
 void actPostSprite(int nSprite, int nStatus)
 {
     int n;
-    dassert(gPostCount < kMaxSprites);
-    dassert(nSprite < kMaxSprites && sprite[nSprite].statnum < kMaxStatus);
-    dassert(nStatus >= 0 && nStatus <= kStatFree);
+    assert(gPostCount < kMaxSprites);
+    assert(nSprite < kMaxSprites && sprite[nSprite].statnum < kMaxStatus);
+    assert(nStatus >= 0 && nStatus <= kStatFree);
     if (sprite[nSprite].flags&32)
     {
         for (n = 0; n < gPostCount; n++)
             if (gPost[n].TotalKills == nSprite)
                 break;
-        dassert(n < gPostCount);
+        assert(n < gPostCount);
     }
     else
     {

@@ -66,8 +66,8 @@ void dbCrypt(char *pPtr, int nLength, int nKey)
 
 void InsertSpriteSect(int nSprite, int nSector)
 {
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     int nOther = headspritesect[nSector];
     if (nOther >= 0)
     {
@@ -87,9 +87,9 @@ void InsertSpriteSect(int nSprite, int nSector)
 
 void RemoveSpriteSect(int nSprite)
 {
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
     int nSector = sprite[nSprite].sectnum;
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     int nOther = nextspritesect[nSprite];
     if (nOther < 0)
     {
@@ -109,8 +109,8 @@ void RemoveSpriteSect(int nSprite)
 
 void InsertSpriteStat(int nSprite, int nStat)
 {
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
-    dassert(nStat >= 0 && nStat <= kMaxStatus);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nStat >= 0 && nStat <= kMaxStatus);
     int nOther = headspritestat[nStat];
     if (nOther >= 0)
     {
@@ -131,9 +131,9 @@ void InsertSpriteStat(int nSprite, int nStat)
 
 void RemoveSpriteStat(int nSprite)
 {
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
     int nStat = sprite[nSprite].statnum;
-    dassert(nStat >= 0 && nStat <= kMaxStatus);
+    assert(nStat >= 0 && nStat <= kMaxStatus);
     int nOther = nextspritestat[nSprite];
     if (nOther < 0)
     {
@@ -176,7 +176,7 @@ void qinitspritelists(void) // Replace
 int InsertSprite(int nSector, int nStat)
 {
     int nSprite = headspritestat[kMaxStatus];
-    dassert(nSprite < kMaxSprites);
+    assert(nSprite < kMaxSprites);
     if (nSprite < 0)
     {
         return nSprite;
@@ -210,9 +210,9 @@ int DeleteSprite(int nSprite)
     {
         dbDeleteXSprite(sprite[nSprite].extra);
     }
-    dassert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
+    assert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
     RemoveSpriteStat(nSprite);
-    dassert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
+    assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
     RemoveSpriteSect(nSprite);
     InsertSpriteStat(nSprite, kMaxStatus);
 
@@ -228,9 +228,9 @@ int qdeletesprite(short nSprite) // Replace
 
 int ChangeSpriteSect(int nSprite, int nSector)
 {
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
-    dassert(nSector >= 0 && nSector < kMaxSectors);
-    dassert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nSector >= 0 && nSector < kMaxSectors);
+    assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
     RemoveSpriteSect(nSprite);
     InsertSpriteSect(nSprite, nSector);
     return 0;
@@ -243,10 +243,10 @@ int qchangespritesect(short nSprite, short nSector)
 
 int ChangeSpriteStat(int nSprite, int nStatus)
 {
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
-    dassert(nStatus >= 0 && nStatus < kMaxStatus);
-    dassert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
-    dassert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nStatus >= 0 && nStatus < kMaxStatus);
+    assert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
+    assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
     RemoveSpriteStat(nSprite);
     InsertSpriteStat(nSprite, nStatus);
     return 0;
@@ -293,8 +293,8 @@ unsigned short dbInsertXSprite(int nSprite)
 
 void dbDeleteXSprite(int nXSprite)
 {
-    dassert(xsprite[nXSprite].reference >= 0);
-    dassert(sprite[xsprite[nXSprite].reference].extra == nXSprite);
+    assert(xsprite[nXSprite].reference >= 0);
+    assert(sprite[xsprite[nXSprite].reference].extra == nXSprite);
     InsertFree(nextXSprite, nXSprite);
     sprite[xsprite[nXSprite].reference].extra = -1;
     xsprite[nXSprite].reference = -1;
@@ -316,7 +316,7 @@ unsigned short dbInsertXWall(int nWall)
 
 void dbDeleteXWall(int nXWall)
 {
-    dassert(xwall[nXWall].reference >= 0);
+    assert(xwall[nXWall].reference >= 0);
     InsertFree(nextXWall, nXWall);
     wall[xwall[nXWall].reference].extra = -1;
     xwall[nXWall].reference = -1;
@@ -338,7 +338,7 @@ unsigned short dbInsertXSector(int nSector)
 
 void dbDeleteXSector(int nXSector)
 {
-    dassert(xsector[nXSector].reference >= 0);
+    assert(xsector[nXSector].reference >= 0);
     InsertFree(nextXSector, nXSector);
     sector[xsector[nXSector].reference].extra = -1;
     xsector[nXSector].reference = -1;
@@ -355,7 +355,7 @@ void dbXSpriteClean(void)
         }
         if (sprite[i].statnum < kMaxStatus && nXSprite > 0)
         {
-            dassert(nXSprite < kMaxXSprites);
+            assert(nXSprite < kMaxXSprites);
             if (xsprite[nXSprite].reference != i)
             {
                 int nXSprite2 = dbInsertXSprite(i);
@@ -369,7 +369,7 @@ void dbXSpriteClean(void)
         int nSprite = xsprite[i].reference;
         if (nSprite >= 0)
         {
-            dassert(nSprite < kMaxSprites);
+            assert(nSprite < kMaxSprites);
             if (sprite[nSprite].statnum >= kMaxStatus || sprite[nSprite].extra != i)
             {
                 InsertFree(nextXSprite, i);
@@ -390,7 +390,7 @@ void dbXWallClean(void)
         }
         if (nXWall > 0)
         {
-            dassert(nXWall < kMaxXWalls);
+            assert(nXWall < kMaxXWalls);
             if (xwall[nXWall].reference == -1)
             {
                 wall[i].extra = -1;
@@ -406,7 +406,7 @@ void dbXWallClean(void)
         int nXWall = wall[i].extra;
         if (nXWall > 0)
         {
-            dassert(nXWall < kMaxXWalls);
+            assert(nXWall < kMaxXWalls);
             if (xwall[nXWall].reference != i)
             {
                 int nXWall2 = dbInsertXWall(i);
@@ -420,7 +420,7 @@ void dbXWallClean(void)
         int nWall = xwall[i].reference;
         if (nWall >= 0)
         {
-            dassert(nWall < kMaxWalls);
+            assert(nWall < kMaxWalls);
             if (nWall >= numwalls || wall[nWall].extra != i)
             {
                 InsertFree(nextXWall, i);
@@ -443,7 +443,7 @@ void dbXSectorClean(void)
         }
         if (nXSector > 0)
         {
-            dassert(nXSector < kMaxXSectors);
+            assert(nXSector < kMaxXSectors);
             if (xsector[nXSector].reference == -1)
             {
                 sector[i].extra = -1;
@@ -459,7 +459,7 @@ void dbXSectorClean(void)
         int nXSector = sector[i].extra;
         if (nXSector > 0)
         {
-            dassert(nXSector < kMaxXSectors);
+            assert(nXSector < kMaxXSectors);
             if (xsector[nXSector].reference != i)
             {
                 int nXSector2 = dbInsertXSector(i);
@@ -473,7 +473,7 @@ void dbXSectorClean(void)
         int nSector = xsector[i].reference;
         if (nSector >= 0)
         {
-            dassert(nSector < kMaxSectors);
+            assert(nSector < kMaxSectors);
             if (nSector >= numsectors || sector[nSector].extra != i)
             {
                 InsertFree(nextXSector, i);
@@ -778,7 +778,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             {
                 nCount = byte_19AE44.at48;
             }
-            dassert(nCount <= nXSectorSize);
+            assert(nCount <= nXSectorSize);
             fr.Read(pBuffer, nCount);
             BitReader bitReader(pBuffer, nCount);
             pXSector->reference = bitReader.readSigned(14);
@@ -897,7 +897,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             {
                 nCount = byte_19AE44.at44;
             }
-            dassert(nCount <= nXWallSize);
+            assert(nCount <= nXWallSize);
             fr.Read(pBuffer, nCount);
             BitReader bitReader(pBuffer, nCount);
             pXWall->reference = bitReader.readSigned(14);
@@ -991,7 +991,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             {
                 nCount = byte_19AE44.at40;
             }
-            dassert(nCount <= nXSpriteSize);
+            assert(nCount <= nXSpriteSize);
             fr.Read(pBuffer, nCount);
             BitReader bitReader(pBuffer, nCount);
             pXSprite->reference = bitReader.readSigned(14);

@@ -69,15 +69,15 @@ static void houndBiteSeqCallback(int, int nXSprite)
     spritetype *pSprite = &sprite[nSprite];
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
 
-    ///dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        consoleSysMsg("pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
+        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
         return;
     }
     spritetype *pTarget = &sprite[pXSprite->target];
@@ -106,9 +106,9 @@ static void houndThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void houndThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     
@@ -130,15 +130,15 @@ static void houndThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         aiNewState(pSprite, pXSprite, &houndGoto);
         return;
     }
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    ///dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        consoleSysMsg("pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
+        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
         return;
     }
     spritetype *pTarget = &sprite[pXSprite->target];

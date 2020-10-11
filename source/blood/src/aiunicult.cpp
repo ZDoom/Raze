@@ -210,14 +210,14 @@ static void punchCallback(int, int nXIndex) {
 
 static void genDudeAttack1(int, int nXIndex) {
     if (!(nXIndex >= 0 && nXIndex < kMaxXSprites)) {
-        consoleSysMsg("nXIndex >= 0 && nXIndex < kMaxXSprites");
+        Printf(PRINT_HIGH, "nXIndex >= 0 && nXIndex < kMaxXSprites");
         return;
     }
     
     XSPRITE* pXSprite = &xsprite[nXIndex]; int nSprite = pXSprite->reference;
     if (pXSprite->target < 0) return;
     else if (!(nSprite >= 0 && nSprite < kMaxSprites)) {
-        consoleSysMsg("nIndex >= 0 && nIndex < kMaxSprites");
+        Printf(PRINT_HIGH, "nIndex >= 0 && nIndex < kMaxSprites");
         return;
     }
 
@@ -398,7 +398,7 @@ static void unicultThinkSearch( spritetype* pSprite, XSPRITE* pXSprite ) {
 static void unicultThinkGoto(spritetype* pSprite, XSPRITE* pXSprite) {
 
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
 
@@ -1025,7 +1025,7 @@ void aiGenDudeMoveForward(spritetype* pSprite, XSPRITE* pXSprite ) {
 
 void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, int xvel, int yvel) {
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     
@@ -1061,7 +1061,7 @@ void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, in
 
 void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState) {
     if (!xspriRangeIsFine(pSprite->extra)) {
-        consoleSysMsg("!xspriRangeIsFine(pSprite->extra)");
+        Printf(PRINT_HIGH, "!xspriRangeIsFine(pSprite->extra)");
         return;
     }
 
@@ -1693,7 +1693,7 @@ spritetype* genDudeSpawn(spritetype* pSprite, int nDist) {
 void genDudeTransform(spritetype* pSprite) {
     
     if (!(pSprite->extra >= 0 && pSprite->extra < kMaxXSprites)) {
-        consoleSysMsg("pSprite->extra >= 0 && pSprite->extra < kMaxXSprites");
+        Printf(PRINT_HIGH, "pSprite->extra >= 0 && pSprite->extra < kMaxXSprites");
         return;
     }
     
@@ -1810,7 +1810,7 @@ void genDudeTransform(spritetype* pSprite) {
 
 void updateTargetOfLeech(spritetype* pSprite) {
     if (!(pSprite->extra >= 0 && pSprite->extra < kMaxXSprites)) {
-        consoleSysMsg("pSprite->extra >= 0 && pSprite->extra < kMaxXSprites");
+        Printf(PRINT_HIGH, "pSprite->extra >= 0 && pSprite->extra < kMaxXSprites");
         return;
     }
     
@@ -1831,7 +1831,7 @@ void updateTargetOfLeech(spritetype* pSprite) {
 
 void updateTargetOfSlaves(spritetype* pSprite) {
     if (!xspriRangeIsFine(pSprite->extra)) {
-        consoleSysMsg("!xspriRangeIsFine(pSprite->extra)");
+        Printf(PRINT_HIGH, "!xspriRangeIsFine(pSprite->extra)");
         return;
     }
     
@@ -1938,13 +1938,13 @@ int genDudeSeqStartId(XSPRITE* pXSprite) {
 
 bool genDudePrepare(spritetype* pSprite, int propId) {
     if (!spriRangeIsFine(pSprite->index)) {
-        consoleSysMsg("!spriRangeIsFine(pSprite->index)");
+        Printf(PRINT_HIGH, "!spriRangeIsFine(pSprite->index)");
         return false;
     } else if (!xspriRangeIsFine(pSprite->extra)) {
-        consoleSysMsg("!xspriRangeIsFine(pSprite->extra)");
+        Printf(PRINT_HIGH, "!xspriRangeIsFine(pSprite->extra)");
         return false;
     } else if (pSprite->type != kDudeModernCustom) {
-        consoleSysMsg("pSprite->type != kDudeModernCustom");
+        Printf(PRINT_HIGH, "pSprite->type != kDudeModernCustom");
         return false;
     } else if (propId < kGenDudePropertyAll || propId >= kGenDudePropertyMax) {
         viewSetSystemMessage("Unknown custom dude #%d property (%d)", pSprite->index, propId);

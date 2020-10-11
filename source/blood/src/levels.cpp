@@ -97,7 +97,7 @@ void CheckSectionAbend(const char *pzSection)
 
 void CheckKeyAbend(const char *pzSection, const char *pzKey)
 {
-    dassert(pzSection != NULL);
+    assert(pzSection != NULL);
 
     if (!pzKey || !BloodINI->KeyExists(pzSection, pzKey))
         I_Error("Key %s expected in section [%s] of BLOOD.INI", pzKey, pzSection);
@@ -183,7 +183,7 @@ void levelLoadDefaults(void)
 
 void levelGetNextLevels(int *pnEndingA, int *pnEndingB)
 {
-    dassert(pnEndingA != NULL && pnEndingB != NULL);
+    assert(pnEndingA != NULL && pnEndingB != NULL);
     int nEndingA = currentLevel->nextLevel;
     if (nEndingA >= 0)
         nEndingA--;

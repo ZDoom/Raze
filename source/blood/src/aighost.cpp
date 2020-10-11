@@ -205,9 +205,9 @@ static void ghostBlastSeqCallback(int, int nXSprite)
 
 static void ghostThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -267,9 +267,9 @@ static void ghostThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void ghostThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -286,9 +286,9 @@ static void ghostThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 static void ghostMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -314,9 +314,9 @@ static void ghostMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
 static void ghostMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -348,15 +348,15 @@ static void ghostThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         aiNewState(pSprite, pXSprite, &ghostGoto);
         return;
     }
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    ///dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        consoleSysMsg("pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
+        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
         return;
     }
     spritetype *pTarget = &sprite[pXSprite->target];
@@ -456,9 +456,9 @@ static void ghostThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 static void ghostMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -492,9 +492,9 @@ static void ghostMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 static void ghostMoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -532,9 +532,9 @@ static void ghostMoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
 static void ghostMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -571,9 +571,9 @@ static void ghostMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
 static void ghostMoveFly(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);

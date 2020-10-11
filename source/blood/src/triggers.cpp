@@ -186,7 +186,7 @@ BUSY gBusy[128];
 
 void AddBusy(int a1, BUSYID a2, int nDelta)
 {
-    dassert(nDelta != 0);
+    assert(nDelta != 0);
     int i;
     for (i = 0; i < gBusyCount; i++)
     {
@@ -226,19 +226,19 @@ unsigned int GetSourceBusy(EVENT a1)
     case 6:
     {
         int nXIndex = sector[nIndex].extra;
-        dassert(nXIndex > 0 && nXIndex < kMaxXSectors);
+        assert(nXIndex > 0 && nXIndex < kMaxXSectors);
         return xsector[nXIndex].busy;
     }
     case 0:
     {
         int nXIndex = wall[nIndex].extra;
-        dassert(nXIndex > 0 && nXIndex < kMaxXWalls);
+        assert(nXIndex > 0 && nXIndex < kMaxXWalls);
         return xwall[nXIndex].busy;
     }
     case 3:
     {
         int nXIndex = sprite[nIndex].extra;
-        dassert(nXIndex > 0 && nXIndex < kMaxXSprites);
+        assert(nXIndex > 0 && nXIndex < kMaxXSprites);
         return xsprite[nXIndex].busy;
     }
     }
@@ -766,7 +766,7 @@ void SectorStartSound(int nSector, int nState)
         if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector)
         {
             int nXSprite = pSprite->extra;
-            dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+            assert(nXSprite > 0 && nXSprite < kMaxXSprites);
             XSPRITE *pXSprite = &xsprite[nXSprite];
             if (nState)
             {
@@ -790,7 +790,7 @@ void SectorEndSound(int nSector, int nState)
         if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector)
         {
             int nXSprite = pSprite->extra;
-            dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+            assert(nXSprite > 0 && nXSprite < kMaxXSprites);
             XSPRITE *pXSprite = &xsprite[nXSprite];
             if (nState)
             {
@@ -1047,8 +1047,8 @@ int GetHighestSprite(int nSector, int nStatus, int *a3)
 
 int GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
 {
-    dassert(pzTop != NULL && pzBot != NULL);
-    dassert(nSector < (unsigned int)numsectors);
+    assert(pzTop != NULL && pzBot != NULL);
+    assert(nSector < (unsigned int)numsectors);
     int vc = -1;
     sectortype *pSector = &sector[nSector];
     int vbp = pSector->ceilingz;
@@ -1073,9 +1073,9 @@ int GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
 
 int VCrushBusy(unsigned int nSector, unsigned int a2)
 {
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     int nXSector = sector[nSector].extra;
-    dassert(nXSector > 0 && nXSector < kMaxXSectors);
+    assert(nXSector > 0 && nXSector < kMaxXSectors);
     XSECTOR *pXSector = &xsector[nXSector];
     int nWave;
     if (pXSector->busy < a2)
@@ -1112,9 +1112,9 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
 
 int VSpriteBusy(unsigned int nSector, unsigned int a2)
 {
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     int nXSector = sector[nSector].extra;
-    dassert(nXSector > 0 && nXSector < kMaxXSectors);
+    assert(nXSector > 0 && nXSector < kMaxXSectors);
     XSECTOR *pXSector = &xsector[nXSector];
     int nWave;
     if (pXSector->busy < a2)
@@ -1161,9 +1161,9 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
 
 int VDoorBusy(unsigned int nSector, unsigned int a2)
 {
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     int nXSector = sector[nSector].extra;
-    dassert(nXSector > 0 && nXSector < kMaxXSectors);
+    assert(nXSector > 0 && nXSector < kMaxXSectors);
     XSECTOR *pXSector = &xsector[nXSector];
     int vbp;
     if (pXSector->state)
@@ -1175,7 +1175,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     if (nSprite >= 0 && a2 > pXSector->busy)
     {
         spritetype *pSprite = &sprite[nSprite];
-        dassert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+        assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
         XSPRITE *pXSprite = &xsprite[pSprite->extra];
         if (pXSector->onCeilZ > pXSector->offCeilZ || pXSector->onFloorZ < pXSector->offFloorZ)
         {
@@ -1209,7 +1209,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     else if (nSprite >= 0 && a2 < pXSector->busy)
     {
         spritetype *pSprite = &sprite[nSprite];
-        dassert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+        assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
         XSPRITE *pXSprite = &xsprite[pSprite->extra];
         if (pXSector->offCeilZ > pXSector->onCeilZ || pXSector->offFloorZ < pXSector->onFloorZ)
         {
@@ -1260,10 +1260,10 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
 
 int HDoorBusy(unsigned int nSector, unsigned int a2)
 {
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     sectortype *pSector = &sector[nSector];
     int nXSector = pSector->extra;
-    dassert(nXSector > 0 && nXSector < kMaxXSectors);
+    assert(nXSector > 0 && nXSector < kMaxXSectors);
     XSECTOR *pXSector = &xsector[nXSector];
     int nWave;
     if (pXSector->busy < a2)
@@ -1288,10 +1288,10 @@ int HDoorBusy(unsigned int nSector, unsigned int a2)
 
 int RDoorBusy(unsigned int nSector, unsigned int a2)
 {
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     sectortype *pSector = &sector[nSector];
     int nXSector = pSector->extra;
-    dassert(nXSector > 0 && nXSector < kMaxXSectors);
+    assert(nXSector > 0 && nXSector < kMaxXSectors);
     XSECTOR *pXSector = &xsector[nXSector];
     int nWave;
     if (pXSector->busy < a2)
@@ -1315,10 +1315,10 @@ int RDoorBusy(unsigned int nSector, unsigned int a2)
 
 int StepRotateBusy(unsigned int nSector, unsigned int a2)
 {
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     sectortype *pSector = &sector[nSector];
     int nXSector = pSector->extra;
-    dassert(nXSector > 0 && nXSector < kMaxXSectors);
+    assert(nXSector > 0 && nXSector < kMaxXSectors);
     XSECTOR *pXSector = &xsector[nXSector];
     spritetype *pSprite = &sprite[pXSector->marker0];
     int vbp;
@@ -1349,10 +1349,10 @@ int StepRotateBusy(unsigned int nSector, unsigned int a2)
 
 int GenSectorBusy(unsigned int nSector, unsigned int a2)
 {
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     sectortype *pSector = &sector[nSector];
     int nXSector = pSector->extra;
-    dassert(nXSector > 0 && nXSector < kMaxXSectors);
+    assert(nXSector > 0 && nXSector < kMaxXSectors);
     XSECTOR *pXSector = &xsector[nXSector];
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1368,10 +1368,10 @@ int GenSectorBusy(unsigned int nSector, unsigned int a2)
 
 int PathBusy(unsigned int nSector, unsigned int a2)
 {
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     sectortype *pSector = &sector[nSector];
     int nXSector = pSector->extra;
-    dassert(nXSector > 0 && nXSector < kMaxXSectors);
+    assert(nXSector > 0 && nXSector < kMaxXSectors);
     XSECTOR *pXSector = &xsector[nXSector];
     spritetype *pSprite = &sprite[basePath[nSector]];
     spritetype *pSprite1 = &sprite[pXSector->marker0];
@@ -1452,13 +1452,13 @@ void TeleFrag(int nKiller, int nSector)
 
 void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
 {
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     int nDest = pXSector->marker0;
-    dassert(nDest < kMaxSprites);
+    assert(nDest < kMaxSprites);
     spritetype *pDest = &sprite[nDest];
-    dassert(pDest->statnum == kStatMarker);
-    dassert(pDest->type == kMarkerWarpDest);
-    dassert(pDest->sectnum >= 0 && pDest->sectnum < kMaxSectors);
+    assert(pDest->statnum == kStatMarker);
+    assert(pDest->type == kMarkerWarpDest);
+    assert(pDest->sectnum >= 0 && pDest->sectnum < kMaxSectors);
     for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
     {
         spritetype *pSprite = &sprite[nSprite];
@@ -1498,7 +1498,7 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
     int nSprite;
     spritetype *pSprite = NULL;
     XSPRITE *pXSprite;
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     spritetype *pSprite2 = &sprite[pXSector->marker0];
     XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
     int nId = pXSprite2->data2;
@@ -1541,7 +1541,7 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
 
 void OperateSector(unsigned int nSector, XSECTOR *pXSector, EVENT event)
 {
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     sectortype *pSector = &sector[nSector];
     
     #ifdef NOONE_EXTENSIONS
@@ -1653,7 +1653,7 @@ void InitPath(unsigned int nSector, XSECTOR *pXSector)
     int nSprite;
     spritetype *pSprite;
     XSPRITE *pXSprite;
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     int nId = pXSector->data;
     for (nSprite = headspritestat[kStatPathMarker]; nSprite >= 0; nSprite = nextspritestat[nSprite])
     {
@@ -1717,7 +1717,7 @@ void LinkSprite(int nSprite, XSPRITE *pXSprite, EVENT event) {
             {
                 int nSprite2 = event.index;
                 int nXSprite2 = sprite[nSprite2].extra;
-                dassert(nXSprite2 > 0 && nXSprite2 < kMaxXSprites);
+                assert(nXSprite2 > 0 && nXSprite2 < kMaxXSprites);
                 pXSprite->data1 = xsprite[nXSprite2].data1;
                 if (pXSprite->data1 == pXSprite->data2)
                     SetSpriteState(nSprite, pXSprite, 1);
@@ -1745,7 +1745,7 @@ void LinkWall(int nWall, XWALL *pXWall, EVENT event)
 }
 
 void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command) {
-    dassert(nSector < (unsigned int)numsectors);
+    assert(nSector < (unsigned int)numsectors);
     if (!pXSector->locked && !pXSector->isTriggered) {
         
         if (pXSector->triggerOnce) 
@@ -1764,7 +1764,7 @@ void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command) {
 }
 
 void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command) {
-    dassert(nWall < (unsigned int)numwalls);
+    assert(nWall < (unsigned int)numwalls);
     if (!pXWall->locked && !pXWall->isTriggered) {
         
         if (pXWall->triggerOnce)
@@ -1802,8 +1802,8 @@ void trTriggerSprite(unsigned int nSprite, XSPRITE *pXSprite, int command) {
 
 
 void trMessageSector(unsigned int nSector, EVENT event) {
-    dassert(nSector < (unsigned int)numsectors);
-    dassert(sector[nSector].extra > 0 && sector[nSector].extra < kMaxXSectors);
+    assert(nSector < (unsigned int)numsectors);
+    assert(sector[nSector].extra > 0 && sector[nSector].extra < kMaxXSectors);
     XSECTOR *pXSector = &xsector[sector[nSector].extra];
     if (!pXSector->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) {
         switch (event.cmd) {
@@ -1823,8 +1823,8 @@ void trMessageSector(unsigned int nSector, EVENT event) {
 }
 
 void trMessageWall(unsigned int nWall, EVENT event) {
-    dassert(nWall < (unsigned int)numwalls);
-    dassert(wall[nWall].extra > 0 && wall[nWall].extra < kMaxXWalls);
+    assert(nWall < (unsigned int)numwalls);
+    assert(wall[nWall].extra > 0 && wall[nWall].extra < kMaxXWalls);
     
     XWALL *pXWall = &xwall[wall[nWall].extra];
     if (!pXWall->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) {
@@ -2025,7 +2025,7 @@ void trInit(void)
     for (int i = 0; i < numwalls; i++)
     {
         int nXWall = wall[i].extra;
-        dassert(nXWall < kMaxXWalls);
+        assert(nXWall < kMaxXWalls);
         if (nXWall > 0)
         {
             XWALL *pXWall = &xwall[nXWall];
@@ -2033,7 +2033,7 @@ void trInit(void)
                 pXWall->busy = 65536;
         }
     }
-    dassert((numsectors >= 0) && (numsectors < kMaxSectors));
+    assert((numsectors >= 0) && (numsectors < kMaxSectors));
     for (int i = 0; i < numsectors; i++)
     {
         sectortype *pSector = &sector[i];
@@ -2042,7 +2042,7 @@ void trInit(void)
         int nXSector = pSector->extra;
         if (nXSector > 0)
         {
-            dassert(nXSector < kMaxXSectors);
+            assert(nXSector < kMaxXSectors);
             XSECTOR *pXSector = &xsector[nXSector];
             if (pXSector->state)
                 pXSector->busy = 65536;
@@ -2115,7 +2115,7 @@ void trInit(void)
         int nXSprite = sprite[i].extra;
         if (sprite[i].statnum < kStatFree && nXSprite > 0)
         {
-            dassert(nXSprite < kMaxXSprites);
+            assert(nXSprite < kMaxXSprites);
             XSPRITE *pXSprite = &xsprite[nXSprite];
             if (pXSprite->state)
                 pXSprite->busy = 65536;
@@ -2190,11 +2190,11 @@ void trTextOver(int nId)
 
 void InitGenerator(int nSprite)
 {
-    dassert(nSprite < kMaxSprites);
+    assert(nSprite < kMaxSprites);
     spritetype *pSprite = &sprite[nSprite];
-    dassert(pSprite->statnum != kMaxStatus);
+    assert(pSprite->statnum != kMaxStatus);
     int nXSprite = pSprite->extra;
-    dassert(nXSprite > 0);
+    assert(nXSprite > 0);
     XSPRITE *pXSprite = &xsprite[nXSprite];
     switch (sprite[nSprite].type) {
         case kGenTrigger:
@@ -2208,11 +2208,11 @@ void InitGenerator(int nSprite)
 
 void ActivateGenerator(int nSprite)
 {
-    dassert(nSprite < kMaxSprites);
+    assert(nSprite < kMaxSprites);
     spritetype *pSprite = &sprite[nSprite];
-    dassert(pSprite->statnum != kMaxStatus);
+    assert(pSprite->statnum != kMaxStatus);
     int nXSprite = pSprite->extra;
-    dassert(nXSprite > 0);
+    assert(nXSprite > 0);
     XSPRITE *pXSprite = &xsprite[nXSprite];
     switch (pSprite->type) {
         case kGenDripWater:

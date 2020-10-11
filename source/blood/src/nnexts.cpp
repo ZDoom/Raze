@@ -293,7 +293,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 if (bSaveLoad) break;
                 else if (!pXSprite->rxID) condError(pXSprite,"\nThe condition must have RX ID!\nSPRITE #%d", pSprite->index);
                 else if (!pXSprite->txID && !pSprite->hitag) {
-                    consoleSysMsg("The condition must have TX ID or hitag to be set: RX ID %d, SPRITE #%d", pXSprite->rxID, pSprite->index);
+                    Printf(PRINT_HIGH, "The condition must have TX ID or hitag to be set: RX ID %d, SPRITE #%d", pXSprite->rxID, pSprite->index);
                 }
                 break;
         }
@@ -440,7 +440,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                         
                         if (pXSprite->waitTime > 0) {
                             pXSprite->busyTime += ClipHigh(((pXSprite->waitTime * 120) / 10), 4095); pXSprite->waitTime = 0;
-                            consoleSysMsg("Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
+                            Printf(PRINT_HIGH, "Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
                         }
 
                         pXSprite->busy = pXSprite->busyTime;
@@ -633,7 +633,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
         }
 
         if (count == 0)
-            consoleSysMsg("No objects to track found for condition #%d, rx id: %d!", pSprite->index, pXSprite->rxID);
+            Printf(PRINT_HIGH, "No objects to track found for condition #%d, rx id: %d!", pSprite->index, pXSprite->rxID);
 
         pCond->length = count;
         pCond->xindex = pSprite->extra;
@@ -653,7 +653,7 @@ int nnExtRandom(int a, int b) {
 }
 
 int GetDataVal(spritetype* pSprite, int data) {
-    dassert(xspriRangeIsFine(pSprite->extra));
+    assert(xspriRangeIsFine(pSprite->extra));
     
     switch (data) {
         case 0: return xsprite[pSprite->extra].data1;
@@ -1095,10 +1095,10 @@ void debrisMove(int listIndex) {
 
         pSprite->cstat = oldcstat;
 
-        dassert(nSector >= 0);
+        assert(nSector >= 0);
 
         if (pSprite->sectnum != nSector) {
-            dassert(nSector >= 0 && nSector < kMaxSectors);
+            assert(nSector >= 0 && nSector < kMaxSectors);
             ChangeSpriteSect(nSprite, nSector);
         }
 
@@ -1108,7 +1108,7 @@ void debrisMove(int listIndex) {
         }
 
     } else {
-        dassert(nSector >= 0 && nSector < kMaxSectors);
+        assert(nSector >= 0 && nSector < kMaxSectors);
         FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector);
     }
 
@@ -1553,10 +1553,10 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
         case 1: // give N weapon and default ammo for it
         case 2: // give just N ammo for selected weapon
             if (weapon <= 0 || weapon > 13) {
-                consoleSysMsg("Weapon #%d is out of a weapons range!");
+                Printf(PRINT_HIGH, "Weapon #%d is out of a weapons range!");
                 break;
             } else if (pXSource->data2 == 2 && pXSource->data4 == 0) {
-                consoleSysMsg("Zero ammo for weapon #%d is specified!");
+                Printf(PRINT_HIGH, "Zero ammo for weapon #%d is specified!");
                 break;
             }
             switch (weapon) {
@@ -2299,7 +2299,7 @@ void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
     if (dmgType >= kDmgFall) {
         if (dmg < pXSprite->health << 4) {
             if (nnExtIsImmune(pSprite, dmgType, 0)) {
-                consoleSysMsg("Dude type %d is immune to damage type %d!", pSprite->type, dmgType);
+                Printf(PRINT_HIGH, "Dude type %d is immune to damage type %d!", pSprite->type, dmgType);
                 return;
             }
 
@@ -2329,7 +2329,7 @@ void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
 void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
 
     if (pXSource->data2 > 0 && !getSequence(pXSource->data2)) {
-        consoleSysMsg("Missing sequence #%d", pXSource->data2);
+        Printf(PRINT_HIGH, "Missing sequence #%d", pXSource->data2);
         return;
     }
 
@@ -4330,7 +4330,7 @@ void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
     for (int i = 0; i < len; i++) {
         dataIndex = (buffer[i] - 52) + 4;
         if ((data = getDataFieldOfObject(objType, objIndex, dataIndex)) == -65535) {
-            consoleSysMsg("\nWrong index of data (%c) for IncDec Gen #%d! Only 1, 2, 3 and 4 indexes allowed!\n", buffer[i], objIndex);
+            Printf(PRINT_HIGH, "\nWrong index of data (%c) for IncDec Gen #%d! Only 1, 2, 3 and 4 indexes allowed!\n", buffer[i], objIndex);
             continue;
         }
         spritetype* pSource = &sprite[pXSource->reference];
@@ -5187,7 +5187,7 @@ void levelEndLevelCustom(int nLevel) {
 
 void callbackUniMissileBurst(int nSprite) // 22
 {
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
     if (sprite[nSprite].statnum != kStatProjectile) return;
     spritetype* pSprite = &sprite[nSprite];
     int nAngle = getangle(xvel[nSprite], yvel[nSprite]);
@@ -5238,7 +5238,7 @@ void callbackUniMissileBurst(int nSprite) // 22
 
 void callbackMakeMissileBlocking(int nSprite) // 23
 {
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
     if (sprite[nSprite].statnum != kStatProjectile) return;
     sprite[nSprite].cstat |= CSTAT_SPRITE_BLOCK;
 }

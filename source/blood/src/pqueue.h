@@ -112,13 +112,13 @@ public:
     }
     void Delete(uint32_t k)
     {
-        dassert(k <= fNodeCount);
+        assert(k <= fNodeCount);
         queueItems[k] = queueItems[fNodeCount--];
         Downheap(k);
     }
     void Insert(uint32_t a1, T a2)
     {
-        dassert(fNodeCount < kPQueueSize);
+        assert(fNodeCount < kPQueueSize);
         fNodeCount++;
         queueItems[fNodeCount].TotalKills = a1;
         queueItems[fNodeCount].Kills = a2;
@@ -133,7 +133,7 @@ public:
     }
     uint32_t LowestPriority(void)
     {
-        dassert(fNodeCount > 0);
+        assert(fNodeCount > 0);
         return queueItems[1].TotalKills;
     }
     void Kill(std::function<bool(T)> pMatch)
@@ -167,7 +167,7 @@ public:
     }
     T Remove(void)
     {
-        dassert(stdQueue.size() > 0);
+        assert(stdQueue.size() > 0);
         T data = stdQueue.begin()->Kills;
         stdQueue.erase(stdQueue.begin());
         return data;

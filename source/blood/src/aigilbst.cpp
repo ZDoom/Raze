@@ -96,7 +96,7 @@ static void gillThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void gillThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     XSECTOR *pXSector;
     int nXSector = sector[pSprite->sectnum].extra;
@@ -135,9 +135,9 @@ static void gillThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
             aiNewState(pSprite, pXSprite, &gillBeastSearch);
         return;
     }
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
@@ -245,7 +245,7 @@ static void gillThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void gillThinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -264,9 +264,9 @@ static void gillThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
         aiNewState(pSprite, pXSprite, &gillBeastSwimSearch);
         return;
     }
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
@@ -314,7 +314,7 @@ static void gillThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
 static void sub_6CB00(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
@@ -346,7 +346,7 @@ static void sub_6CB00(spritetype *pSprite, XSPRITE *pXSprite)
 static void sub_6CD74(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     spritetype *pTarget = &sprite[pXSprite->target];
     int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;
@@ -381,7 +381,7 @@ static void sub_6CD74(spritetype *pSprite, XSPRITE *pXSprite)
 static void sub_6D03C(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     spritetype *pTarget = &sprite[pXSprite->target];
     int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;

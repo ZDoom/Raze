@@ -131,7 +131,7 @@ void SortTags()
 
 void AddCmdDefine(char *text, int value)
 {
-    dassert(nCmdDefines < kMaxCmdLineDefines);
+    assert(nCmdDefines < kMaxCmdLineDefines);
 
 	gCmdDefines[nCmdDefines]._text = text;
     gCmdDefines[nCmdDefines]._value = value;
@@ -696,7 +696,7 @@ void ParseScript(int lumpnum)
 
                     // loc_11FC3:
                     gParseLevel++;
-                    dassert(gParseLevel < kMaxParseLevels);
+                    assert(gParseLevel < kMaxParseLevels);
 
                     if (bGotDefine) {
                         dword_44CE0[gParseLevel] = dword_44CE0[gParseLevel - 1];

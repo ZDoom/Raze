@@ -133,7 +133,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
     x += mulscale30(nRange, Cos(nAngle));
     y += mulscale30(nRange, Sin(nAngle));
     int nSector = pSprite->sectnum;
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     if (!FindSector(x, y, z, &nSector))
         return false;
     int floorZ = getflorzofslope(nSector, x, y);
@@ -231,7 +231,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
 void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     int vc = ((a3+1024-pSprite->ang)&2047)-1024;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
@@ -273,7 +273,7 @@ void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
 void aiMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
@@ -286,7 +286,7 @@ void aiMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 
 void aiMoveTurn(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
@@ -296,7 +296,7 @@ void aiMoveTurn(spritetype *pSprite, XSPRITE *pXSprite)
 void aiMoveDodge(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
@@ -321,7 +321,7 @@ void aiMoveDodge(spritetype *pSprite, XSPRITE *pXSprite)
 
 void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!pXSprite->state) {
         aiChooseDirection(pSprite, pXSprite, getangle(pXSprite->targetX-pSprite->x, pXSprite->targetY-pSprite->y));
         pXSprite->state = 1;
@@ -872,7 +872,7 @@ void aiSetTarget(XSPRITE *pXSprite, int x, int y, int z)
 
 void aiSetTarget(XSPRITE *pXSprite, int nTarget)
 {
-    dassert(nTarget >= 0 && nTarget < kMaxSprites);
+    assert(nTarget >= 0 && nTarget < kMaxSprites);
     spritetype *pTarget = &sprite[nTarget];
     if (pTarget->type >= kDudeBase && pTarget->type < kDudeMax)
     {
@@ -890,7 +890,7 @@ void aiSetTarget(XSPRITE *pXSprite, int nTarget)
 
 int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_TYPE nDmgType, int nDamage)
 {
-    dassert(nSource < kMaxSprites);
+    assert(nSource < kMaxSprites);
     if (!pXSprite->health)
         return 0;
     pXSprite->health = ClipLow(pXSprite->health - nDamage, 0);
@@ -1339,7 +1339,7 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
 
 void aiThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (Chance(pDudeInfo->alertChance))
     {
@@ -1378,7 +1378,7 @@ void aiThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 
 void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (Chance(pDudeInfo->alertChance))
     {

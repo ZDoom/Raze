@@ -264,7 +264,7 @@ void viewInit(void)
     FontSet(4, 4480, 0);
 
     lensdata = fileSystem.LoadFile("lens.dat");
-    dassert(lensdata.Size() == kLensSize * kLensSize * sizeof(int));
+    assert(lensdata.Size() == kLensSize * kLensSize * sizeof(int));
 
     lensTable = (int*)lensdata.Data();
 #if B_BIG_ENDIAN == 1
@@ -295,7 +295,7 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     int vZ = FixedToInt(mulscale(zm - IntToFixed(100), 1280, 3))-(16<<8);
     int bakCstat = pSprite->cstat;
     pSprite->cstat &= ~256;
-    dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
+    assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     short nHSector;
     int hX, hY;
@@ -329,7 +329,7 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
 	int myclock = gFrameClock + mulscale16(4, smoothratio);
     othercameradist = ClipHigh(othercameradist+((myclock-othercameraclock)<<10), 65536);
     othercameraclock = myclock;
-    dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
+    assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
 }
@@ -341,7 +341,7 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
     int vZ = FixedToInt(mulscale(zm - IntToFixed(100), 1280, 3))-(16<<8);
     int bakCstat = pSprite->cstat;
     pSprite->cstat &= ~256;
-    dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
+    assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     short nHSector;
     int hX, hY;
@@ -376,7 +376,7 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
 	int myclock = gFrameClock + mulscale16(4, smoothratio);
     cameradist = ClipHigh(cameradist+((myclock-cameraclock)<<10), 65536);
     cameraclock = myclock;
-    dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
+    assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
 }
@@ -404,9 +404,9 @@ void DoLensEffect(void)
 {
 	// To investigate whether this can be implemented as a shader effect.
     auto d = tileData(4077);
-    dassert(d != NULL);
+    assert(d != NULL);
 	auto s = tilePtr(4079);
-    dassert(s != NULL);
+    assert(s != NULL);
     for (int i = 0; i < kLensSize*kLensSize; i++, d++)
         if (lensTable[i] >= 0)
             *d = s[lensTable[i]];
@@ -847,7 +847,7 @@ void viewDrawScreen(bool sceneonly)
         {
             spritetype* pSprite = &sprite[nSprite];
             int nXSprite = pSprite->extra;
-            dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+            assert(nXSprite > 0 && nXSprite < kMaxXSprites);
             XSPRITE* pXSprite = &xsprite[nXSprite];
             if (TestBitString(gotsector, pSprite->sectnum))
             {

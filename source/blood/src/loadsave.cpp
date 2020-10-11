@@ -460,7 +460,7 @@ void LoadSave::Load(void)
 void LoadSave::Read(void *pData, int nSize)
 {
     dword_27AA38 += nSize;
-    dassert(hLFile.isOpen());
+    assert(hLFile.isOpen());
     if (hLFile.Read(pData, nSize) != nSize)
         I_Error("Error reading save file.");
 }
@@ -469,7 +469,7 @@ void LoadSave::Write(void *pData, int nSize)
 {
     dword_27AA38 += nSize;
     dword_27AA3C += nSize;
-    dassert(hSFile != NULL);
+    assert(hSFile != NULL);
     if (hSFile->Write(pData, nSize) != (size_t)nSize)
         I_Error("File error #%d writing save file.", errno);
 }
@@ -573,12 +573,6 @@ void MyLoadSave::Load(void)
     psky_t *pSky = tileSetupSky(DEFAULTPSKY);
     int id;
     Read(&id, sizeof(id));
-    if (id != 0x5653424e/*'VSBN'*/)
-        I_Error("Old saved game found");
-    short version;
-    Read(&version, sizeof(version));
-    if (version != BYTEVERSION)
-        I_Error("Incompatible version of saved game found!");
     Read(&gGameOptions, sizeof(gGameOptions));
     
     int nNumSprites;
@@ -659,8 +653,6 @@ void MyLoadSave::Save(void)
     int nNumSprites = 0;
     int id = 0x5653424e/*'VSBN'*/;
     Write(&id, sizeof(id));
-    short version = BYTEVERSION;
-    Write(&version, sizeof(version));
     for (int nSprite = 0; nSprite < kMaxSprites; nSprite++)
     {
         if (sprite[nSprite].statnum < kMaxStatus && nSprite > nNumSprites)

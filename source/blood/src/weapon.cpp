@@ -234,7 +234,7 @@ void WeaponPrecache(HitList &hits)
 
 void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5, int smoothratio)
 {
-    dassert(pPlayer != NULL);
+    assert(pPlayer != NULL);
     if (pPlayer->weaponQav == -1)
         return;
     QAV * pQAV = weaponQAV[pPlayer->weaponQav];
@@ -257,7 +257,7 @@ void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5, int smoot
 
 void WeaponPlay(PLAYER *pPlayer)
 {
-    dassert(pPlayer != NULL);
+    assert(pPlayer != NULL);
     if (pPlayer->weaponQav == -1)
         return;
     QAV *pQAV = weaponQAV[pPlayer->weaponQav];
@@ -268,7 +268,7 @@ void WeaponPlay(PLAYER *pPlayer)
 
 void StartQAV(PLAYER *pPlayer, int nWeaponQAV, int a3, char a4)
 {
-    dassert(nWeaponQAV < kQAVEnd);
+    assert(nWeaponQAV < kQAVEnd);
     pPlayer->weaponQav = nWeaponQAV;
     pPlayer->weaponTimer = weaponQAV[nWeaponQAV]->at10;
     pPlayer->qavCallback = a3;
@@ -309,7 +309,7 @@ void UpdateAimVector(PLAYER * pPlayer)
 {
     short nSprite;
     spritetype *pSprite;
-    dassert(pPlayer != NULL);
+    assert(pPlayer != NULL);
     spritetype *pPSprite = pPlayer->pSprite;
     int x = pPSprite->x;
     int y = pPSprite->y;
@@ -467,7 +467,7 @@ t_WeaponModes weaponModes[] = {
 
 void WeaponRaise(PLAYER *pPlayer)
 {
-    dassert(pPlayer != NULL);
+    assert(pPlayer != NULL);
     int prevWeapon = pPlayer->curWeapon;
     pPlayer->curWeapon = pPlayer->newWeapon;
     pPlayer->newWeapon = 0;
@@ -617,7 +617,7 @@ void WeaponRaise(PLAYER *pPlayer)
 
 void WeaponLower(PLAYER *pPlayer)
 {
-    dassert(pPlayer != NULL);
+    assert(pPlayer != NULL);
     if (sub_4B1A4(pPlayer))
         return;
     pPlayer->throwPower = 0;
@@ -1113,7 +1113,7 @@ enum { kMaxShotgunBarrels = 4 };
 
 void FireShotgun(int nTrigger, PLAYER *pPlayer)
 {
-    dassert(nTrigger > 0 && nTrigger <= kMaxShotgunBarrels);
+    assert(nTrigger > 0 && nTrigger <= kMaxShotgunBarrels);
     if (nTrigger == 1)
     {
         sfxPlay3DSound(pPlayer->pSprite, 411, 2, 0);
@@ -1197,7 +1197,7 @@ enum { kMaxSpread = 14 };
 
 void FireSpread(int nTrigger, PLAYER *pPlayer)
 {
-    dassert(nTrigger > 0 && nTrigger <= kMaxSpread);
+    assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
     int dx = CosScale16(angle);
@@ -1218,7 +1218,7 @@ void FireSpread(int nTrigger, PLAYER *pPlayer)
 
 void AltFireSpread(int nTrigger, PLAYER *pPlayer)
 {
-    dassert(nTrigger > 0 && nTrigger <= kMaxSpread);
+    assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
     int dx = CosScale16(angle);
@@ -1247,7 +1247,7 @@ void AltFireSpread(int nTrigger, PLAYER *pPlayer)
 
 void AltFireSpread2(int nTrigger, PLAYER *pPlayer)
 {
-    dassert(nTrigger > 0 && nTrigger <= kMaxSpread);
+    assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
     int dx = CosScale16(angle);
@@ -1346,7 +1346,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
         actDamageSprite(nSprite, pSprite, DAMAGE_TYPE_2, 1<<4);
         return;
     }
-    dassert(pPlayer->voodooTarget >= 0);
+    assert(pPlayer->voodooTarget >= 0);
     spritetype *pTarget = &sprite[pPlayer->voodooTarget];
     if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
         return;

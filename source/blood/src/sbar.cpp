@@ -509,7 +509,7 @@ private:
 
     void flashTeamScore(int team, bool show)
     {
-        dassert(0 == team || 1 == team); // 0: blue, 1: red
+        assert(0 == team || 1 == team); // 0: blue, 1: red
 
         if (dword_21EFD0[team] == 0 || (gFrameClock & 8))
         {

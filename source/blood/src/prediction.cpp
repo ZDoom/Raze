@@ -367,7 +367,7 @@ static void fakeMoveDude(spritetype *pSprite)
     int bottom, top;
     if (IsPlayerSprite(pSprite))
         pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     GetSpriteExtents(pSprite, &top, &bottom);
 	top += predict.at58 - pSprite->z;
 	bottom += predict.at58 - pSprite->z;
@@ -375,7 +375,7 @@ static void fakeMoveDude(spritetype *pSprite)
     int tz = (predict.at58-top)/4;
     int wd = pSprite->clipdist*4;
     int nSector = predict.at68;
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     if (predict.at5c || predict.at60)
     {
         if (pPlayer && gNoClip)
@@ -401,7 +401,7 @@ static void fakeMoveDude(spritetype *pSprite)
                     nSector = nSector2;
             }
 
-            dassert(nSector >= 0);
+            assert(nSector >= 0);
 
             pSprite->cstat = bakCstat;
         }
@@ -426,7 +426,7 @@ static void fakeMoveDude(spritetype *pSprite)
     }
     if (predict.at68 != nSector)
     {
-        dassert(nSector >= 0 && nSector < kMaxSectors);
+        assert(nSector >= 0 && nSector < kMaxSectors);
         predict.at68 = nSector;
     }
     char bUnderwater = 0;
@@ -578,12 +578,12 @@ static void fakeActAirDrag(spritetype *, int num)
     int xvec = 0;
     int yvec = 0;
     int nSector = predict.at68;
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     sectortype *pSector = &sector[nSector];
     int nXSector = pSector->extra;
     if (nXSector > 0)
     {
-        dassert(nXSector < kMaxXSectors);
+        assert(nXSector < kMaxXSectors);
         XSECTOR *pXSector = &xsector[nXSector];
         if (pXSector->windVel && (pXSector->windAlways || pXSector->busy))
         {
@@ -605,14 +605,14 @@ void fakeActProcessSprites(void)
 	if (pSprite->statnum == kStatDude)
 	{
 		int nXSprite = pSprite->extra;
-		dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+		assert(nXSprite > 0 && nXSprite < kMaxXSprites);
 		int nSector = predict.at68;
 		int nXSector = sector[nSector].extra;
         XSECTOR *pXSector = NULL;
         if (nXSector > 0)
         {
-            dassert(nXSector > 0 && nXSector < kMaxXSectors);
-            dassert(xsector[nXSector].reference == nSector);
+            assert(nXSector > 0 && nXSector < kMaxXSectors);
+            assert(xsector[nXSector].reference == nSector);
             pXSector = &xsector[nXSector];
         }
 		if (pXSector)

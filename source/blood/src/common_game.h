@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 #include "build.h"
+#include <assert.h>
 
 #include "pragmas.h"
 #include "misc.h"
@@ -30,17 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-#define BLOODWIDESCREENDEF "blood_widescreen.def"
-
-#define BYTEVERSION 103
-#define EXEVERSION 101
-
-void _SetErrorLoc(const char *pzFile, int nLine);
-void __dassert(const char *pzExpr, const char *pzFile, int nLine);
 void QuitGame(void);
-void consoleSysMsg(const char* pMessage, ...);
-
-#define dassert(x) assert(x)
 
 enum
 {
@@ -462,8 +453,6 @@ enum searchpathtypes_t {
     SEARCHPATH_REMOVE = 1<<0,
 };
 
-extern void G_ExtInit(void);
-
 extern void G_SetupGlobalPsky(void);
 
 
@@ -758,14 +747,14 @@ public:
     unsigned int readUnsigned(int nBits)
     {
         unsigned int n = 0;
-        dassert(nBits <= 32);
+        assert(nBits <= 32);
         for (int i = 0; i < nBits; i++)
             n += readBit()<<i;
         return n;
     }
     int readSigned(int nBits)
     {
-        dassert(nBits <= 32);
+        assert(nBits <= 32);
         int n = (int)readUnsigned(nBits);
         n <<= 32-nBits;
         n >>= 32-nBits;

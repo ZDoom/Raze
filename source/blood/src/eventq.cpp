@@ -86,19 +86,19 @@ int GetBucketChannel(const RXBUCKET *pRX)
         case 6: {
             int nIndex = pRX->index;
             int nXIndex = sector[nIndex].extra;
-            dassert(nXIndex > 0);
+            assert(nXIndex > 0);
             return xsector[nXIndex].rxID;
         }
         case 0: {
             int nIndex = pRX->index;
             int nXIndex = wall[nIndex].extra;
-            dassert(nXIndex > 0);
+            assert(nXIndex > 0);
             return xwall[nXIndex].rxID;
         }
         case 3: {
             int nIndex = pRX->index;
             int nXIndex = sprite[nIndex].extra;
-            dassert(nXIndex > 0);
+            assert(nXIndex > 0);
             return xsprite[nXIndex].rxID;
         }
     }
@@ -280,7 +280,7 @@ void evInit(void)
             I_Error("Invalid xsector reference in sector %d", i);
         if (nXSector > 0 && xsector[nXSector].rxID > 0)
         {
-            dassert(nCount < kChannelMax);
+            assert(nCount < kChannelMax);
             rxBucket[nCount].type = 6;
             rxBucket[nCount].index = i;
             nCount++;
@@ -293,7 +293,7 @@ void evInit(void)
             I_Error("Invalid xwall reference in wall %d", i);
         if (nXWall > 0 && xwall[nXWall].rxID > 0)
         {
-            dassert(nCount < kChannelMax);
+            assert(nCount < kChannelMax);
             rxBucket[nCount].type = 0;
             rxBucket[nCount].index = i;
             nCount++;
@@ -308,7 +308,7 @@ void evInit(void)
                 I_Error("Invalid xsprite reference in sprite %d", i);
             if (nXSprite > 0 && xsprite[nXSprite].rxID > 0)
             {
-                dassert(nCount < kChannelMax);
+                assert(nCount < kChannelMax);
                 rxBucket[nCount].type = 3;
                 rxBucket[nCount].index = i;
                 nCount++;
@@ -333,19 +333,19 @@ char evGetSourceState(int nType, int nIndex)
     case 6:
     {
         int nXIndex = sector[nIndex].extra;
-        dassert(nXIndex > 0 && nXIndex < kMaxXSectors);
+        assert(nXIndex > 0 && nXIndex < kMaxXSectors);
         return xsector[nXIndex].state;
     }
     case 0:
     {
         int nXIndex = wall[nIndex].extra;
-        dassert(nXIndex > 0 && nXIndex < kMaxXWalls);
+        assert(nXIndex > 0 && nXIndex < kMaxXWalls);
         return xwall[nXIndex].state;
     }
     case 3:
     {
         int nXIndex = sprite[nIndex].extra;
-        dassert(nXIndex > 0 && nXIndex < kMaxXSprites);
+        assert(nXIndex > 0 && nXIndex < kMaxXSprites);
         return xsprite[nXIndex].state;
     }
     }
@@ -486,7 +486,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 }
 
 void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command) {
-    dassert(command != kCmdCallback);
+    assert(command != kCmdCallback);
     if (command == kCmdState) command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
     else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
     EVENT evn = {};
@@ -524,8 +524,8 @@ void evProcess(unsigned int nTime)
         EVENT event = eventQ.ERemove();
         if (event.cmd == kCmdCallback)
         {
-            dassert(event.funcID < kCallbackMax);
-            dassert(gCallback[event.funcID] != NULL);
+            assert(event.funcID < kCallbackMax);
+            assert(gCallback[event.funcID] != NULL);
             gCallback[event.funcID](event.index);
         }
         else
@@ -600,7 +600,7 @@ void EventQLoadSave::Save()
         Write(&eventstime[i], sizeof(eventstime[i]));
         Write(&events[i], sizeof(events[i]));
     }
-    dassert(eventQ.PQueue->Size() == 0);
+    assert(eventQ.PQueue->Size() == 0);
     for (int i = 0; i < nEvents; i++)
     {
         eventQ.PQueue->Insert(eventstime[i], events[i]);

@@ -150,7 +150,7 @@ void sndStartSample(const char *pzSound, int nVolume, int nChannel)
         return;
     if (!strlen(pzSound))
         return;
-    dassert(nChannel >= -1 && nChannel < kChannelMax);
+    assert(nChannel >= -1 && nChannel < kChannelMax);
     auto snd = soundEngine->FindSound(pzSound);
     if (snd > 0)
     {
@@ -162,7 +162,7 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop, 
 {
     if (!SoundEnabled())
         return;
-    dassert(nChannel >= -1 && nChannel < kChannelMax);
+    assert(nChannel >= -1 && nChannel < kChannelMax);
     if (nChannel >= 7) nChannel = -1;
     auto snd = soundEngine->FindSoundByResID(nSound);
     if (snd > 0)

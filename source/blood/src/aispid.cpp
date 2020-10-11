@@ -65,7 +65,7 @@ AISTATE spid13A92C = { kAiStateOther, 0, dword_279B50, 60, NULL, NULL, NULL, &sp
 
 static char sub_70D30(XSPRITE *pXDude, int a2, int a3)
 {
-    dassert(pXDude != NULL);
+    assert(pXDude != NULL);
     int nDude = pXDude->reference;
     spritetype *pDude = &sprite[nDude];
     if (IsPlayerSprite(pDude))
@@ -95,8 +95,8 @@ static void SpidBiteSeqCallback(int, int nXSprite)
     dx += Random2(2000);
     dy += Random2(2000);
     int dz = Random2(2000);
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     if (IsPlayerSprite(pTarget)) {
@@ -145,8 +145,8 @@ static void SpidJumpSeqCallback(int, int nXSprite)
     dx += Random2(200);
     dy += Random2(200);
     int dz = Random2(200);
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     if (IsPlayerSprite(pTarget)) {
         dz += pTarget->z-pSprite->z;
@@ -167,9 +167,9 @@ static void sub_71370(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
     int dx = pXSprite->targetX-pSprite->x;
@@ -204,7 +204,7 @@ static void spidThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 
 static void spidThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -223,9 +223,9 @@ static void spidThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         aiNewState(pSprite, pXSprite, &spidGoto);
         return;
     }
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
+    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;

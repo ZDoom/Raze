@@ -88,7 +88,7 @@ void Remove(int nSprite) // 1
 
 void FlareBurst(int nSprite) // 2
 {
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
     spritetype *pSprite = &sprite[nSprite];
     int nAngle = getangle(xvel[nSprite], yvel[nSprite]);
     int nRadius = 0x55555;
@@ -147,10 +147,10 @@ void fxFlareSparkLite(int nSprite) // 4
 
 void fxZombieBloodSpurt(int nSprite) // 5
 {
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
+    assert(nSprite >= 0 && nSprite < kMaxSprites);
     spritetype *pSprite = &sprite[nSprite];
     int nXSprite = pSprite->extra;
-    dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
+    assert(nXSprite > 0 && nXSprite < kMaxXSprites);
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
@@ -226,7 +226,7 @@ void fxDynPuff(int nSprite) // 8
 void Respawn(int nSprite) // 9
 {
     spritetype *pSprite = &sprite[nSprite];
-    dassert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+    assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
     XSPRITE *pXSprite = &xsprite[pSprite->extra];
     
     if (pSprite->statnum != kStatRespawn && pSprite->statnum != kStatThing) {
@@ -251,8 +251,8 @@ void Respawn(int nSprite) // 9
             break;
         }
         case 3: {
-            dassert(pSprite->owner != kStatRespawn);
-            dassert(pSprite->owner >= 0 && pSprite->owner < kMaxStatus);
+            assert(pSprite->owner != kStatRespawn);
+            assert(pSprite->owner >= 0 && pSprite->owner < kMaxStatus);
             ChangeSpriteStat(nSprite, pSprite->owner);
             pSprite->type = pSprite->inittype;
             pSprite->owner = -1;
@@ -306,7 +306,7 @@ void PlayerBubble(int nSprite) // 10
     if (IsPlayerSprite(pSprite))
     {
         PLAYER *pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
-        dassert(pPlayer != NULL);
+        assert(pPlayer != NULL);
         if (!pPlayer->bubbleTime)
             return;
         int top, bottom;
@@ -355,7 +355,7 @@ void EnemyBubble(int nSprite) // 11
 
 void CounterCheck(int nSector) // 12
 {
-    dassert(nSector >= 0 && nSector < kMaxSectors);
+    assert(nSector >= 0 && nSector < kMaxSectors);
     if (sector[nSector].type != kSectorCounter) return;
     if (sector[nSector].extra <= 0) return;
     
@@ -403,7 +403,7 @@ void fxBloodBits(int nSprite) // 14
     if (pSprite->ang == 1024)
     {
         int nChannel = 28+(pSprite->index&2);
-        dassert(nChannel < 32);
+        assert(nChannel < 32);
         sfxPlay3DSound(pSprite, 385, nChannel, 1);
     }
     if (Chance(0x5000))
@@ -452,7 +452,7 @@ void fxBouncingSleeve(int nSprite) // 16
         }
 
         int nChannel = 28 + (pSprite->index & 2);
-        dassert(nChannel < 32);
+        assert(nChannel < 32);
         
         // tommy sleeve
         if (pSprite->type >= 37 && pSprite->type <= 39) {
@@ -549,7 +549,7 @@ void fxPodBloodSplat(int nSprite) // 19
     if (pSprite->ang == 1024)
     {
         int nChannel = 28+(pSprite->index&2);
-        dassert(nChannel < 32);
+        assert(nChannel < 32);
         sfxPlay3DSound(pSprite, 385, nChannel, 1);
     }
     spritetype *pFX = NULL;

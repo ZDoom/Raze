@@ -40,7 +40,7 @@ static int nQavClients;
 
 int qavRegisterClient(void(*pClient)(int, void *))
 {
-    dassert(nQavClients < kMaxQavClients);
+    assert(nQavClients < kMaxQavClients);
     qavClientCallback[nQavClients] = pClient;
 
     return nQavClients++;
@@ -88,9 +88,9 @@ void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int p
 
 void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview)
 {
-    dassert(ticksPerFrame > 0);
+    assert(ticksPerFrame > 0);
     int nFrame = ticks / ticksPerFrame;
-    dassert(nFrame >= 0 && nFrame < nFrames);
+    assert(nFrame >= 0 && nFrame < nFrames);
     FRAMEINFO *pFrame = &frames[nFrame];
     for (int i = 0; i < 8; i++)
     {
@@ -107,7 +107,7 @@ void QAV::Draw(int ticks, int stat, int shade, int palnum, bool to3dview)
 
 void QAV::Play(int start, int end, int nCallback, void *pData)
 {
-    dassert(ticksPerFrame > 0);
+    assert(ticksPerFrame > 0);
     int frame;
     int ticks;
     if (start < 0)

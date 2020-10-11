@@ -122,7 +122,7 @@ void IniFile::LoadRes(void *res)
         }
 
         curNode->next = (FNODE*)malloc(strlen(pBuffer) + sizeof(FNODE));
-        dassert(curNode->next != NULL);
+        assert(curNode->next != NULL);
 
         anotherNode = curNode;
         curNode = curNode->next;
@@ -184,7 +184,7 @@ void IniFile::Save(void)
 {
     char buffer[256];
     FILE *hFile = fopen(fileName, "w");
-    dassert(hFile != NULL);
+    assert(hFile != NULL);
     curNode = head.next;
     while (curNode != &head)
     {
@@ -238,7 +238,7 @@ bool IniFile::FindKey(const char *key)
 
         char *pEqual = strchr(curNode->name, '=');
         char *pEqualStart = pEqual;
-        dassert(pEqual != NULL);
+        assert(pEqual != NULL);
 
         // remove whitespace
         while (isspace(*(pEqual - 1))) {
@@ -274,7 +274,7 @@ void IniFile::AddSection(const char *section)
     if (anotherNode != &head)
     {
         FNODE *newNode = (FNODE*)malloc(sizeof(FNODE));
-        dassert(newNode != NULL);
+        assert(newNode != NULL);
 
         newNode->name[0] = 0;
         newNode->next = anotherNode->next;
@@ -284,7 +284,7 @@ void IniFile::AddSection(const char *section)
 
     sprintf(buffer, "[%s]", section);
     FNODE *newNode = (FNODE*)malloc(strlen(buffer) + sizeof(FNODE));
-    dassert(newNode != NULL);
+    assert(newNode != NULL);
 
     strcpy(newNode->name, buffer);
 
@@ -300,7 +300,7 @@ void IniFile::AddKeyString(const char *key, const char *value)
     sprintf(buffer, "%s=%s", key, value);
 
     FNODE *newNode = (FNODE*)malloc(strlen(buffer) + sizeof(FNODE));
-    dassert(newNode != NULL);
+    assert(newNode != NULL);
 
     strcpy(newNode->name, buffer);
 
@@ -316,7 +316,7 @@ void IniFile::ChangeKeyString(const char *key, const char *value)
     sprintf(buffer, "%s=%s", key, value);
 
     FNODE *newNode = (FNODE*)realloc(curNode, strlen(buffer) + sizeof(FNODE));
-    dassert(newNode != NULL);
+    assert(newNode != NULL);
 
     strcpy(newNode->name, buffer);
 
