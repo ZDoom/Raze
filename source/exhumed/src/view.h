@@ -16,9 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __view_h__
-#define __view_h__
-
+#pragma once 
 #include "build.h"
 
 BEGIN_PS_NS
@@ -55,4 +53,3 @@ static inline int angle_interpolate16(int a, int b, int smooth)
 
 END_PS_NS
 
-#endif

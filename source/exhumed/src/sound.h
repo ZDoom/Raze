@@ -16,9 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __sound_h__
-#define __sound_h__
-
+#pragma once 
 #include "raze_sound.h"
 
 BEGIN_PS_NS
@@ -149,5 +147,3 @@ void PlayGameOverSound(void);
 void SoundBigEntrance(void);
 
 END_PS_NS
-
-#endif

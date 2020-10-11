@@ -16,8 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __status_h__
-#define __status_h__
+#pragma once
 
 BEGIN_PS_NS
 
@@ -41,4 +40,3 @@ void SetCounterImmediate(short nVal);
 
 END_PS_NS
 
-#endif

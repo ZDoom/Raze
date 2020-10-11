@@ -16,8 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __aistuff_h__
-#define __aistuff_h__
+#pragma once 
 
 #include "compat.h"
 
@@ -522,4 +521,3 @@ inline int GrabTimeSlot(int nVal) { return -1; }
 
 END_PS_NS
 
-#endif

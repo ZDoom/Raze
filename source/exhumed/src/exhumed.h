@@ -16,8 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __exhumed_h__
-#define __exhumed_h__
+#pragma once
 
 #include "compat.h"
 #include "v_text.h"
@@ -268,4 +267,3 @@ struct GameInterface : ::GameInterface
 
 END_PS_NS
 
-#endif

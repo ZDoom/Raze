@@ -16,8 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __sequence_h__
-#define __sequence_h__
+#pragma once 
 
 #include "compat.h"
 
@@ -147,4 +146,3 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset);
 
 END_PS_NS
 
-#endif

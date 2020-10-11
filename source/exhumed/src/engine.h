@@ -16,8 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __engine_h__
-#define __engine_h__
+#pragma once 
 
 #include "compat.h"
 #include "build.h"
@@ -148,4 +147,3 @@ inline int Cos(int angle)
 
 END_PS_NS
 
-#endif

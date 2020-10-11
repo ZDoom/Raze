@@ -16,8 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __player_h__
-#define __player_h__
+#pragma once 
 
 #include "compat.h"
 
@@ -130,4 +129,3 @@ void UpdatePlayerSpriteAngle(Player* pPlayer);
 
 END_PS_NS
 
-#endif

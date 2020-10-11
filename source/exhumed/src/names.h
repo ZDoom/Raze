@@ -16,8 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __names_h__
-#define __names_h__
+#pragma once 
 
 #define kTile0 0
 #define kTile1 1
@@ -6146,4 +6145,3 @@ enum
 
 END_PS_NS
 
-#endif

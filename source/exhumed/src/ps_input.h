@@ -16,8 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __input_h__
-#define __input_h__
+#pragma once 
 
 #include "compat.h"
 #include "packet.h"
@@ -67,4 +66,3 @@ extern int lLocalCodes;
 
 END_PS_NS
 
-#endif
