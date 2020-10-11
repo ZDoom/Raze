@@ -114,7 +114,7 @@ void GameInterface::Render()
 
 void GameInterface::DrawBackground()
 {
-    auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
+    auto nLogoTile = GameLogo();
     int dword_9AB5F = (I_GetBuildTime() / 16) & 3;
 
     twod->ClearScreen();

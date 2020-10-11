@@ -203,7 +203,7 @@ int LoadSound(const char* name)
 		looped[retval-1] = loops;
         return retval - 1;
     }
-    else if (!ISDEMOVER)  // demo tries to load sound files it doesn't have
+    else if (!isShareware())  // demo tries to load sound files it doesn't have
     {
         Printf("Unable to open sound '%s'!\n", filename.GetChars());
     }

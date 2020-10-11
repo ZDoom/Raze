@@ -39,7 +39,7 @@ enum
 	kDefaultLives		= 3,
 	kMaxPlayerLives		= 5,
 	kMaxHealth			= 800
-}
+};
 
 extern int nLocalPlayer;
 

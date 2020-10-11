@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "filesystem.h"
 #include "screenjob.h"
 #include "gamestruct.h"
+#include "names.h"
 
 BEGIN_PS_NS
 
@@ -157,9 +158,15 @@ extern short bDoFlashes;
 
 extern int bVanilla;
 
-#define POWERSLAVE  (g_gameType & GAMEFLAG_POWERSLAVE)
-#define EXHUMED     (g_gameType & GAMEFLAG_EXHUMED)
-#define ISDEMOVER   (g_gameType & GAMEFLAG_SHAREWARE)
+inline int PublisherLogo()
+{
+    return (g_gameType & GAMEFLAG_EXHUMED) ? kTileBMGLogo : kTilePIELogo;
+}
+
+inline int GameLogo()
+{
+    return (g_gameType & GAMEFLAG_EXHUMED) ? kExhumedLogo : kPowerslaveLogo;
+}
 
 extern double g_frameDelay;
 

@@ -99,7 +99,7 @@ DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedPlasma, Draw)
 
 DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedLogo, Draw)
 {
-	auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
+	auto nLogoTile = GameLogo();
 	DrawRel(nLogoTile, 160, 40);
 	return 0;
 }

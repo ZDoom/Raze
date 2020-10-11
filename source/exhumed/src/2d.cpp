@@ -168,7 +168,7 @@ void menu_DoPlasma()
         nextPlasmaTic = pclock + 4;
 
         if (!nLogoTile)
-            nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
+            nLogoTile = GameLogo();
 
         if (!PlasmaBuffer)
         {
@@ -505,7 +505,7 @@ void DoTitle(CompletionFunc completion)
     JobDesc jobs[5];
     int job = 0;
 
-    jobs[job++] = { Create<DImageScreen>(tileGetTexture(EXHUMED ? kTileBMGLogo : kTilePIELogo), DScreenJob::fadein | DScreenJob::fadeout) };
+    jobs[job++] = { Create<DImageScreen>(tileGetTexture(PublisherLogo()), DScreenJob::fadein | DScreenJob::fadeout) };
     jobs[job++] = { Create<DLobotomyScreen>(tileGetTexture(seq_GetSeqPicnum(kSeqScreens, 0, 0)), DScreenJob::fadein | DScreenJob::fadeout) };
     jobs[job++] = { PlayMovie("book.mov") };
     jobs[job++] = { Create<DMainTitle>() };
@@ -1003,7 +1003,7 @@ public:
         int ret = skiprequest ? -1 : cont ? 1 : 0;
 
         // quit the game if we've finished level 4 and displayed the advert text
-        if (ISDEMOVER && currentCinemaPalette == 3 && ret != 1) 
+        if (isShareware() && currentCinemaPalette == 3 && ret != 1) 
         {
             ExitGame();
         }
