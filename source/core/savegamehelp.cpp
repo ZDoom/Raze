@@ -579,7 +579,6 @@ void SaveEngineState()
 	fw->Write(&Numsprites, sizeof(Numsprites));
 	sv_prespriteextsave();
 	fw->Write(spriteext, sizeof(spriteext_t) * MAXSPRITES);
-	fw->Write(wallext, sizeof(wallext_t) * MAXWALLS);
 	fw->Write(&randomseed, sizeof(randomseed));
 	sv_postspriteext();
 	WriteMagic(fw);
@@ -627,7 +626,6 @@ void LoadEngineState()
 
 		fr.Read(&Numsprites, sizeof(Numsprites));
 		fr.Read(spriteext, sizeof(spriteext_t) * MAXSPRITES);
-		fr.Read(wallext, sizeof(wallext_t) * MAXWALLS);
 		fr.Read(&randomseed, sizeof(randomseed));
 		sv_postspriteext();
 	CheckMagic(fr);

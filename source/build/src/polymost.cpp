@@ -2751,11 +2751,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     if (wal->cstat & 128)
         method = DAMETH_WALL | (((wal->cstat & 512)) ? DAMETH_TRANS2 : DAMETH_TRANS1);
 
-#ifdef NEW_MAP_FORMAT
-    uint8_t const blend = wal->blend;
-#else
-    uint8_t const blend = wallext[wallIndex].blend;
-#endif
+    uint8_t const blend = 0;// wal->blend; nothing sets this and this feature is not worth reimplementing (render style needs to be done less hacky.)
     SetRenderStyleFromBlend(!!(wal->cstat & 128), blend, !!(wal->cstat & 512));
 
     drawpoly_alpha = 0.f;

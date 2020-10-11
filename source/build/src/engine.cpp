@@ -903,7 +903,6 @@ static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];
 static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
 static sectortype sector_s[MAXSECTORS];
 static walltype wall_s[MAXWALLS];
-static wallext_t wallext_s[MAXWALLS];
 static spritetype sprite_s[MAXSPRITES];
 static tspritetype tsprite_s[MAXSPRITESONSCREEN];
 
@@ -913,7 +912,6 @@ int32_t enginePreInit(void)
 
     sector = sector_s;
     wall = wall_s;
-    wallext = wallext_s;
     sprite = sprite_s;
     tsprite = tsprite_s;
     spriteext = spriteext_s;
