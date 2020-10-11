@@ -30,7 +30,7 @@ class F2DDrawer;
 
 BEGIN_BLD_NS
 
-#define kQavOrientationLeft 4096
+enum { kQavOrientationLeft = 4096 };
 
 #pragma pack(push, 1)
 

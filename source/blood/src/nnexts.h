@@ -40,28 +40,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-// CONSTANTS
-// additional non-thing proximity, sight and physics sprites 
-#define kMaxSuperXSprites 128
-#define kMaxTrackingConditions 64
-#define kMaxTracedObjects 32 // per one tracking condition
+enum
+{
+    // CONSTANTS
+    // additional non-thing proximity, sight and physics sprites 
+    kMaxSuperXSprites = 128,
+    kMaxTrackingConditions = 64,
+    kMaxTracedObjects = 32, // per one tracking condition
 
-// additional physics attributes for debris sprites
-#define kPhysDebrisFly 0x0008 // *debris* affected by negative gravity (fly instead of falling, DO NOT mess with kHitagAutoAim)
-#define kPhysDebrisSwim 0x0016 // *debris* can swim underwater (instead of drowning)
-#define kPhysDebrisVector 0x0400 // *debris* can be affected by vector weapons
-#define kPhysDebrisExplode 0x0800 // *debris* can be affected by explosions
+    // additional physics attributes for debris sprites
+    kPhysDebrisFly = 0x0008, // *debris* affected by negative gravity (fly instead of falling, DO NOT mess with kHitagAutoAim)
+    kPhysDebrisSwim = 0x0016, // *debris* can swim underwater (instead of drowning)
+    kPhysDebrisVector = 0x0400, // *debris* can be affected by vector weapons
+    kPhysDebrisExplode = 0x0800, // *debris* can be affected by explosions
 
-// *modern types only hitag*
-#define kModernTypeFlag0 0x0000
-#define kModernTypeFlag1 0x0001
-#define kModernTypeFlag2 0x0002
-#define kModernTypeFlag3 0x0003
-#define kModernTypeFlag4 0x0004
+    // *modern types only hitag*
+    kModernTypeFlag0 = 0x0000,
+    kModernTypeFlag1 = 0x0001,
+    kModernTypeFlag2 = 0x0002,
+    kModernTypeFlag3 = 0x0003,
+    kModernTypeFlag4 = 0x0004,
 
-#define kMaxRandomizeRetries 16
-#define kPercFull 100
-#define kCondRange 100
+    kMaxRandomizeRetries = 16,
+    kPercFull = 100,
+    kCondRange = 100,
+};
 
 
 

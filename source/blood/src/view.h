@@ -126,7 +126,7 @@ enum
     kSBarNumberArmor3 = 9270,
 };
 
-#define kFontNum 5
+enum { kFontNum = 5 };
 
 extern FFont *gFont[kFontNum];
 extern VIEWPOS gViewPos;

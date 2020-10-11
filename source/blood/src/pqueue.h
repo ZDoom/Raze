@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-#define kPQueueSize 1024
+enum { kPQueueSize = 1024 };
 
 template <typename T> struct queueItem
 {

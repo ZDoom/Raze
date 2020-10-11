@@ -28,9 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-#define kMessageLogSize 32
-#define kMaxMessageTextLength 81
-
 enum MESSAGE_PRIORITY {
     MESSAGE_PRIORITY_PICKUP = -10,
     MESSAGE_PRIORITY_NORMAL = 0,
