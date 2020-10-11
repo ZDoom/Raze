@@ -1229,15 +1229,15 @@ STATE s_BoltShrapnel[] =
 
 #define COOLG_FIRE 2430
 //#define COOLG_FIRE 1465
-#define COOLG_FIRE_RATE 8
+#define COOLG_W_FIRE_RATE 8
 ANIMATOR DoCoolgFire;
 
 STATE s_CoolgFire[] =
 {
-    {2031 + 0, COOLG_FIRE_RATE, DoCoolgFire, &s_CoolgFire[1]},
-    {2031 + 1, COOLG_FIRE_RATE, DoCoolgFire, &s_CoolgFire[2]},
-    {2031 + 2, COOLG_FIRE_RATE, DoCoolgFire, &s_CoolgFire[3]},
-    {2031 + 3, COOLG_FIRE_RATE, DoCoolgFire, &s_CoolgFire[0]}
+    {2031 + 0, COOLG_W_FIRE_RATE, DoCoolgFire, &s_CoolgFire[1]},
+    {2031 + 1, COOLG_W_FIRE_RATE, DoCoolgFire, &s_CoolgFire[2]},
+    {2031 + 2, COOLG_W_FIRE_RATE, DoCoolgFire, &s_CoolgFire[3]},
+    {2031 + 3, COOLG_W_FIRE_RATE, DoCoolgFire, &s_CoolgFire[0]}
 };
 
 #define COOLG_FIRE_DONE 2410
@@ -1547,7 +1547,7 @@ STATE s_MineExp[] =
     {GRENADE_EXP + 21, 100, DoSuicide, &s_MineExp[24]}
 };
 
-#define EXP_RATE 7
+#define EXP_RATE_W 7
 #define BOLT_EXP EXP
 #define FIREBALL_EXP EXP+1
 #define BASIC_EXP EXP+2
@@ -1558,26 +1558,26 @@ STATE s_MineExp[] =
 
 STATE s_BasicExp[] =
 {
-    {EXP + 0, EXP_RATE, NullAnimator, &s_BasicExp[1]},
-    {EXP + 1, EXP_RATE, NullAnimator, &s_BasicExp[2]},
-    {EXP + 2, EXP_RATE, NullAnimator, &s_BasicExp[3]},
-    {EXP + 3, EXP_RATE, NullAnimator, &s_BasicExp[4]},
-    {EXP + 4, EXP_RATE, NullAnimator, &s_BasicExp[5]},
-    {EXP + 5, EXP_RATE, NullAnimator, &s_BasicExp[6]},
-    {EXP + 6, EXP_RATE, NullAnimator, &s_BasicExp[7]},
-    {EXP + 7, EXP_RATE, NullAnimator, &s_BasicExp[8]},
-    {EXP + 8, EXP_RATE, NullAnimator, &s_BasicExp[9]},
-    {EXP + 9, EXP_RATE, NullAnimator, &s_BasicExp[10]},
-    {EXP + 10, EXP_RATE, NullAnimator, &s_BasicExp[11]},
-    {EXP + 11, EXP_RATE, NullAnimator, &s_BasicExp[12]},
-    {EXP + 12, EXP_RATE, NullAnimator, &s_BasicExp[13]},
-    {EXP + 13, EXP_RATE, NullAnimator, &s_BasicExp[14]},
-    {EXP + 14, EXP_RATE, NullAnimator, &s_BasicExp[15]},
-    {EXP + 15, EXP_RATE, NullAnimator, &s_BasicExp[16]},
-    {EXP + 16, EXP_RATE, NullAnimator, &s_BasicExp[17]},
-    {EXP + 17, EXP_RATE, NullAnimator, &s_BasicExp[18]},
-    {EXP + 18, EXP_RATE, NullAnimator, &s_BasicExp[19]},
-    {EXP + 19, EXP_RATE, NullAnimator, &s_BasicExp[20]},
+    {EXP + 0, EXP_RATE_W, NullAnimator, &s_BasicExp[1]},
+    {EXP + 1, EXP_RATE_W, NullAnimator, &s_BasicExp[2]},
+    {EXP + 2, EXP_RATE_W, NullAnimator, &s_BasicExp[3]},
+    {EXP + 3, EXP_RATE_W, NullAnimator, &s_BasicExp[4]},
+    {EXP + 4, EXP_RATE_W, NullAnimator, &s_BasicExp[5]},
+    {EXP + 5, EXP_RATE_W, NullAnimator, &s_BasicExp[6]},
+    {EXP + 6, EXP_RATE_W, NullAnimator, &s_BasicExp[7]},
+    {EXP + 7, EXP_RATE_W, NullAnimator, &s_BasicExp[8]},
+    {EXP + 8, EXP_RATE_W, NullAnimator, &s_BasicExp[9]},
+    {EXP + 9, EXP_RATE_W, NullAnimator, &s_BasicExp[10]},
+    {EXP + 10, EXP_RATE_W, NullAnimator, &s_BasicExp[11]},
+    {EXP + 11, EXP_RATE_W, NullAnimator, &s_BasicExp[12]},
+    {EXP + 12, EXP_RATE_W, NullAnimator, &s_BasicExp[13]},
+    {EXP + 13, EXP_RATE_W, NullAnimator, &s_BasicExp[14]},
+    {EXP + 14, EXP_RATE_W, NullAnimator, &s_BasicExp[15]},
+    {EXP + 15, EXP_RATE_W, NullAnimator, &s_BasicExp[16]},
+    {EXP + 16, EXP_RATE_W, NullAnimator, &s_BasicExp[17]},
+    {EXP + 17, EXP_RATE_W, NullAnimator, &s_BasicExp[18]},
+    {EXP + 18, EXP_RATE_W, NullAnimator, &s_BasicExp[19]},
+    {EXP + 19, EXP_RATE_W, NullAnimator, &s_BasicExp[20]},
     {EXP + 20, 100, DoSuicide, &s_BasicExp[0]}
 };
 
@@ -1629,59 +1629,59 @@ STATE s_BigGunFlame[] =
 
 STATE s_BoltExp[] =
 {
-    {EXP + 0, EXP_RATE, NullAnimator, &s_BoltExp[1]},
+    {EXP + 0, EXP_RATE_W, NullAnimator, &s_BoltExp[1]},
     {EXP + 0, SF_QUICK_CALL,  NullAnimator,  &s_BoltExp[2]},
     {EXP + 0, SF_QUICK_CALL,  SpawnShrapX,   &s_BoltExp[3]},
-    {EXP + 1, EXP_RATE, NullAnimator, &s_BoltExp[4]},
-    {EXP + 2, EXP_RATE, NullAnimator, &s_BoltExp[5]},
-    {EXP + 3, EXP_RATE, NullAnimator, &s_BoltExp[6]},
-    {EXP + 4, EXP_RATE, NullAnimator, &s_BoltExp[7]},
-    {EXP + 5, EXP_RATE, NullAnimator, &s_BoltExp[8]},
-    {EXP + 6, EXP_RATE, NullAnimator, &s_BoltExp[9]},
-    {EXP + 7, EXP_RATE, NullAnimator, &s_BoltExp[10]},
+    {EXP + 1, EXP_RATE_W, NullAnimator, &s_BoltExp[4]},
+    {EXP + 2, EXP_RATE_W, NullAnimator, &s_BoltExp[5]},
+    {EXP + 3, EXP_RATE_W, NullAnimator, &s_BoltExp[6]},
+    {EXP + 4, EXP_RATE_W, NullAnimator, &s_BoltExp[7]},
+    {EXP + 5, EXP_RATE_W, NullAnimator, &s_BoltExp[8]},
+    {EXP + 6, EXP_RATE_W, NullAnimator, &s_BoltExp[9]},
+    {EXP + 7, EXP_RATE_W, NullAnimator, &s_BoltExp[10]},
     {EXP + 7, SF_QUICK_CALL,  SpawnShrapX,   &s_BoltExp[11]},
-    {EXP + 8, EXP_RATE, NullAnimator, &s_BoltExp[12]},
-    {EXP + 9, EXP_RATE, NullAnimator, &s_BoltExp[13]},
-    {EXP + 10, EXP_RATE, NullAnimator, &s_BoltExp[14]},
-    {EXP + 11, EXP_RATE, NullAnimator, &s_BoltExp[15]},
-    {EXP + 12, EXP_RATE, NullAnimator, &s_BoltExp[16]},
-    {EXP + 13, EXP_RATE, NullAnimator, &s_BoltExp[17]},
-    {EXP + 14, EXP_RATE, NullAnimator, &s_BoltExp[18]},
-    {EXP + 15, EXP_RATE, NullAnimator, &s_BoltExp[19]},
-    {EXP + 16, EXP_RATE, NullAnimator, &s_BoltExp[20]},
-    {EXP + 17, EXP_RATE, NullAnimator, &s_BoltExp[21]},
-    {EXP + 18, EXP_RATE, NullAnimator, &s_BoltExp[22]},
-    {EXP + 19, EXP_RATE, NullAnimator, &s_BoltExp[23]},
-    {EXP + 20, EXP_RATE, NullAnimator, &s_BoltExp[24]},
+    {EXP + 8, EXP_RATE_W, NullAnimator, &s_BoltExp[12]},
+    {EXP + 9, EXP_RATE_W, NullAnimator, &s_BoltExp[13]},
+    {EXP + 10, EXP_RATE_W, NullAnimator, &s_BoltExp[14]},
+    {EXP + 11, EXP_RATE_W, NullAnimator, &s_BoltExp[15]},
+    {EXP + 12, EXP_RATE_W, NullAnimator, &s_BoltExp[16]},
+    {EXP + 13, EXP_RATE_W, NullAnimator, &s_BoltExp[17]},
+    {EXP + 14, EXP_RATE_W, NullAnimator, &s_BoltExp[18]},
+    {EXP + 15, EXP_RATE_W, NullAnimator, &s_BoltExp[19]},
+    {EXP + 16, EXP_RATE_W, NullAnimator, &s_BoltExp[20]},
+    {EXP + 17, EXP_RATE_W, NullAnimator, &s_BoltExp[21]},
+    {EXP + 18, EXP_RATE_W, NullAnimator, &s_BoltExp[22]},
+    {EXP + 19, EXP_RATE_W, NullAnimator, &s_BoltExp[23]},
+    {EXP + 20, EXP_RATE_W, NullAnimator, &s_BoltExp[24]},
     {EXP + 20, 100, DoSuicide, &s_BoltExp[0]}
 };
 
 STATE s_TankShellExp[] =
 {
-    {EXP + 0, EXP_RATE, NullAnimator, &s_TankShellExp[1]},
+    {EXP + 0, EXP_RATE_W, NullAnimator, &s_TankShellExp[1]},
     {EXP + 0, SF_QUICK_CALL,  NullAnimator,  &s_TankShellExp[2]},
     {EXP + 0, SF_QUICK_CALL,  SpawnShrapX,   &s_TankShellExp[3]},
-    {EXP + 1, EXP_RATE, NullAnimator, &s_TankShellExp[4]},
-    {EXP + 2, EXP_RATE, NullAnimator, &s_TankShellExp[5]},
-    {EXP + 3, EXP_RATE, NullAnimator, &s_TankShellExp[6]},
-    {EXP + 4, EXP_RATE, NullAnimator, &s_TankShellExp[7]},
-    {EXP + 5, EXP_RATE, NullAnimator, &s_TankShellExp[8]},
-    {EXP + 6, EXP_RATE, NullAnimator, &s_TankShellExp[9]},
-    {EXP + 7, EXP_RATE, NullAnimator, &s_TankShellExp[10]},
+    {EXP + 1, EXP_RATE_W, NullAnimator, &s_TankShellExp[4]},
+    {EXP + 2, EXP_RATE_W, NullAnimator, &s_TankShellExp[5]},
+    {EXP + 3, EXP_RATE_W, NullAnimator, &s_TankShellExp[6]},
+    {EXP + 4, EXP_RATE_W, NullAnimator, &s_TankShellExp[7]},
+    {EXP + 5, EXP_RATE_W, NullAnimator, &s_TankShellExp[8]},
+    {EXP + 6, EXP_RATE_W, NullAnimator, &s_TankShellExp[9]},
+    {EXP + 7, EXP_RATE_W, NullAnimator, &s_TankShellExp[10]},
     {EXP + 7, SF_QUICK_CALL,  SpawnShrapX,   &s_TankShellExp[11]},
-    {EXP + 8, EXP_RATE, NullAnimator, &s_TankShellExp[12]},
-    {EXP + 9, EXP_RATE, NullAnimator, &s_TankShellExp[13]},
-    {EXP + 10, EXP_RATE, NullAnimator, &s_TankShellExp[14]},
-    {EXP + 11, EXP_RATE, NullAnimator, &s_TankShellExp[15]},
-    {EXP + 12, EXP_RATE, NullAnimator, &s_TankShellExp[16]},
-    {EXP + 13, EXP_RATE, NullAnimator, &s_TankShellExp[17]},
-    {EXP + 14, EXP_RATE, NullAnimator, &s_TankShellExp[18]},
-    {EXP + 15, EXP_RATE, NullAnimator, &s_TankShellExp[19]},
-    {EXP + 16, EXP_RATE, NullAnimator, &s_TankShellExp[20]},
-    {EXP + 17, EXP_RATE, NullAnimator, &s_TankShellExp[21]},
-    {EXP + 18, EXP_RATE, NullAnimator, &s_TankShellExp[22]},
-    {EXP + 19, EXP_RATE, NullAnimator, &s_TankShellExp[23]},
-    {EXP + 20, EXP_RATE, NullAnimator, &s_TankShellExp[24]},
+    {EXP + 8, EXP_RATE_W, NullAnimator, &s_TankShellExp[12]},
+    {EXP + 9, EXP_RATE_W, NullAnimator, &s_TankShellExp[13]},
+    {EXP + 10, EXP_RATE_W, NullAnimator, &s_TankShellExp[14]},
+    {EXP + 11, EXP_RATE_W, NullAnimator, &s_TankShellExp[15]},
+    {EXP + 12, EXP_RATE_W, NullAnimator, &s_TankShellExp[16]},
+    {EXP + 13, EXP_RATE_W, NullAnimator, &s_TankShellExp[17]},
+    {EXP + 14, EXP_RATE_W, NullAnimator, &s_TankShellExp[18]},
+    {EXP + 15, EXP_RATE_W, NullAnimator, &s_TankShellExp[19]},
+    {EXP + 16, EXP_RATE_W, NullAnimator, &s_TankShellExp[20]},
+    {EXP + 17, EXP_RATE_W, NullAnimator, &s_TankShellExp[21]},
+    {EXP + 18, EXP_RATE_W, NullAnimator, &s_TankShellExp[22]},
+    {EXP + 19, EXP_RATE_W, NullAnimator, &s_TankShellExp[23]},
+    {EXP + 20, EXP_RATE_W, NullAnimator, &s_TankShellExp[24]},
     {EXP + 20, 100, DoSuicide, &s_TankShellExp[0]}
 };
 
@@ -1715,36 +1715,36 @@ STATE s_TracerExp[] =
     {EXP + 20, 100, DoSuicide, &s_TracerExp[0]}
 };
 
-#define EXP_RATE 7
+#define EXP_RATE_W 7
 ANIMATOR SpawnShrapX;
 ANIMATOR DoSectorExp;
 
 STATE s_SectorExp[] =
 {
-    {EXP + 0, EXP_RATE, DoSectorExp, &s_SectorExp[1]},
+    {EXP + 0, EXP_RATE_W, DoSectorExp, &s_SectorExp[1]},
     {EXP + 0, SF_QUICK_CALL,  SpawnShrapX,  &s_SectorExp[2]},
     {EXP + 0, SF_QUICK_CALL,  DoSectorExp,   &s_SectorExp[3]},
-    {EXP + 1, EXP_RATE, DoSectorExp, &s_SectorExp[4]},
-    {EXP + 2, EXP_RATE, DoSectorExp, &s_SectorExp[5]},
-    {EXP + 3, EXP_RATE, DoSectorExp, &s_SectorExp[6]},
-    {EXP + 4, EXP_RATE, DoSectorExp, &s_SectorExp[7]},
-    {EXP + 5, EXP_RATE, DoSectorExp, &s_SectorExp[8]},
-    {EXP + 6, EXP_RATE, DoSectorExp, &s_SectorExp[9]},
-    {EXP + 7, EXP_RATE, DoSectorExp, &s_SectorExp[10]},
+    {EXP + 1, EXP_RATE_W, DoSectorExp, &s_SectorExp[4]},
+    {EXP + 2, EXP_RATE_W, DoSectorExp, &s_SectorExp[5]},
+    {EXP + 3, EXP_RATE_W, DoSectorExp, &s_SectorExp[6]},
+    {EXP + 4, EXP_RATE_W, DoSectorExp, &s_SectorExp[7]},
+    {EXP + 5, EXP_RATE_W, DoSectorExp, &s_SectorExp[8]},
+    {EXP + 6, EXP_RATE_W, DoSectorExp, &s_SectorExp[9]},
+    {EXP + 7, EXP_RATE_W, DoSectorExp, &s_SectorExp[10]},
     {EXP + 7, SF_QUICK_CALL,  DoSectorExp,  &s_SectorExp[11]},
-    {EXP + 8, EXP_RATE, DoSectorExp, &s_SectorExp[12]},
-    {EXP + 9, EXP_RATE, DoSectorExp, &s_SectorExp[13]},
-    {EXP + 10, EXP_RATE, DoSectorExp, &s_SectorExp[14]},
-    {EXP + 11, EXP_RATE, DoSectorExp, &s_SectorExp[15]},
-    {EXP + 12, EXP_RATE, DoSectorExp, &s_SectorExp[16]},
-    {EXP + 13, EXP_RATE, DoSectorExp, &s_SectorExp[17]},
-    {EXP + 14, EXP_RATE, DoSectorExp, &s_SectorExp[18]},
-    {EXP + 15, EXP_RATE, DoSectorExp, &s_SectorExp[19]},
-    {EXP + 16, EXP_RATE, DoSectorExp, &s_SectorExp[20]},
-    {EXP + 17, EXP_RATE, DoSectorExp, &s_SectorExp[21]},
-    {EXP + 18, EXP_RATE, DoSectorExp, &s_SectorExp[22]},
-    {EXP + 19, EXP_RATE, DoSectorExp, &s_SectorExp[23]},
-    {EXP + 20, EXP_RATE, DoSectorExp, &s_SectorExp[24]},
+    {EXP + 8, EXP_RATE_W, DoSectorExp, &s_SectorExp[12]},
+    {EXP + 9, EXP_RATE_W, DoSectorExp, &s_SectorExp[13]},
+    {EXP + 10, EXP_RATE_W, DoSectorExp, &s_SectorExp[14]},
+    {EXP + 11, EXP_RATE_W, DoSectorExp, &s_SectorExp[15]},
+    {EXP + 12, EXP_RATE_W, DoSectorExp, &s_SectorExp[16]},
+    {EXP + 13, EXP_RATE_W, DoSectorExp, &s_SectorExp[17]},
+    {EXP + 14, EXP_RATE_W, DoSectorExp, &s_SectorExp[18]},
+    {EXP + 15, EXP_RATE_W, DoSectorExp, &s_SectorExp[19]},
+    {EXP + 16, EXP_RATE_W, DoSectorExp, &s_SectorExp[20]},
+    {EXP + 17, EXP_RATE_W, DoSectorExp, &s_SectorExp[21]},
+    {EXP + 18, EXP_RATE_W, DoSectorExp, &s_SectorExp[22]},
+    {EXP + 19, EXP_RATE_W, DoSectorExp, &s_SectorExp[23]},
+    {EXP + 20, EXP_RATE_W, DoSectorExp, &s_SectorExp[24]},
     {EXP + 20, 100, DoSuicide, &s_SectorExp[0]}
 };
 
