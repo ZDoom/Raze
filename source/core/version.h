@@ -41,11 +41,11 @@ const char *GetVersionString();
 
 /** Lots of different version numbers **/
 
-#define VERSIONSTR "0.7.1 alpha"
+#define VERSIONSTR "0.7.2 alpha"
 
 // The version as seen in the Windows resource
-#define RC_FILEVERSION 0,7,0,0
-#define RC_PRODUCTVERSION 0,7,0,0
+#define RC_FILEVERSION 0,7,2,0
+#define RC_PRODUCTVERSION 0,7,2,0
 #define RC_PRODUCTVERSION2 VERSIONSTR
 // These are for content versioning.
 #define VER_MAJOR 4
@@ -54,7 +54,7 @@ const char *GetVersionString();
 
 #define ENG_MAJOR 0
 #define ENG_MINOR 7
-#define ENG_REVISION 0
+#define ENG_REVISION 2
 
 // More stuff that needs to be different for derivatives.
 #define GAMENAME "Raze"
