@@ -42,22 +42,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void BiteSeqCallback(int, int);
-static void thinkSearch(spritetype *, XSPRITE *);
-static void thinkGoto(spritetype *, XSPRITE *);
-static void thinkChase(spritetype *, XSPRITE *);
+static void ratBiteSeqCallback(int, int);
+static void ratThinkSearch(spritetype *, XSPRITE *);
+static void ratThinkGoto(spritetype *, XSPRITE *);
+static void ratThinkChase(spritetype *, XSPRITE *);
 
-static int nBiteClient = seqRegisterClient(BiteSeqCallback);
+static int nRatBiteClient = seqRegisterClient(ratBiteSeqCallback);
 
 AISTATE ratIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE ratSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, thinkSearch, &ratIdle };
-AISTATE ratChase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, thinkChase, NULL };
+AISTATE ratSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, ratThinkSearch, &ratIdle };
+AISTATE ratChase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, ratThinkChase, NULL };
 AISTATE ratDodge = { kAiStateMove, 7, -1, 0, NULL, NULL, NULL, &ratChase };
 AISTATE ratRecoil = { kAiStateRecoil, 7, -1, 0, NULL, NULL, NULL, &ratDodge };
-AISTATE ratGoto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, thinkGoto, &ratIdle };
-AISTATE ratBite = { kAiStateChase, 6, nBiteClient, 120, NULL, NULL, NULL, &ratChase };
+AISTATE ratGoto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, ratThinkGoto, &ratIdle };
+AISTATE ratBite = { kAiStateChase, 6, nRatBiteClient, 120, NULL, NULL, NULL, &ratChase };
 
-static void BiteSeqCallback(int, int nXSprite)
+static void ratBiteSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -71,13 +71,13 @@ static void BiteSeqCallback(int, int nXSprite)
         actFireVector(pSprite, 0, 0, dx, dy, pTarget->z-pSprite->z, VECTOR_TYPE_16);
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void ratThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void ratThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -91,7 +91,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void ratThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {

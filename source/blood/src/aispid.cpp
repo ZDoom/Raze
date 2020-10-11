@@ -46,21 +46,21 @@ BEGIN_BLD_NS
 static void SpidBiteSeqCallback(int, int);
 static void SpidJumpSeqCallback(int, int);
 static void sub_71370(int, int);
-static void thinkSearch(spritetype *, XSPRITE *);
-static void thinkGoto(spritetype *, XSPRITE *);
-static void thinkChase(spritetype *, XSPRITE *);
+static void spidThinkSearch(spritetype *, XSPRITE *);
+static void spidThinkGoto(spritetype *, XSPRITE *);
+static void spidThinkChase(spritetype *, XSPRITE *);
 
-static int nBiteClient = seqRegisterClient(SpidBiteSeqCallback);
-static int nJumpClient = seqRegisterClient(SpidJumpSeqCallback);
+static int nSpidBiteClient = seqRegisterClient(SpidBiteSeqCallback);
+static int nSpidJumpClient = seqRegisterClient(SpidJumpSeqCallback);
 static int dword_279B50 = seqRegisterClient(sub_71370);
 
 AISTATE spidIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE spidChase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, thinkChase, NULL };
+AISTATE spidChase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, spidThinkChase, NULL };
 AISTATE spidDodge = { kAiStateMove, 7, -1, 90, NULL, aiMoveDodge, NULL, &spidChase };
-AISTATE spidGoto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, thinkGoto, &spidIdle };
-AISTATE spidSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, thinkSearch, &spidIdle };
-AISTATE spidBite = { kAiStateChase, 6, nBiteClient, 60, NULL, NULL, NULL, &spidChase };
-AISTATE spidJump = { kAiStateChase, 8, nJumpClient, 60, NULL, aiMoveForward, NULL, &spidChase };
+AISTATE spidGoto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, spidThinkGoto, &spidIdle };
+AISTATE spidSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, spidThinkSearch, &spidIdle };
+AISTATE spidBite = { kAiStateChase, 6, nSpidBiteClient, 60, NULL, NULL, NULL, &spidChase };
+AISTATE spidJump = { kAiStateChase, 8, nSpidJumpClient, 60, NULL, aiMoveForward, NULL, &spidChase };
 AISTATE spid13A92C = { kAiStateOther, 0, dword_279B50, 60, NULL, NULL, NULL, &spidIdle };
 
 static char sub_70D30(XSPRITE *pXDude, int a2, int a3)
@@ -196,13 +196,13 @@ static void sub_71370(int, int nXSprite)
 
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void spidThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void spidThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -216,7 +216,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void spidThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {

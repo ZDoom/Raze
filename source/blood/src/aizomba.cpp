@@ -45,10 +45,10 @@ BEGIN_BLD_NS
 
 static void HackSeqCallback(int, int);
 static void StandSeqCallback(int, int);
-static void thinkSearch(spritetype *, XSPRITE *);
-static void thinkGoto(spritetype *, XSPRITE *);
-static void thinkChase(spritetype *, XSPRITE *);
-static void thinkPonder(spritetype *, XSPRITE *);
+static void zombaThinkSearch(spritetype *, XSPRITE *);
+static void zombaThinkGoto(spritetype *, XSPRITE *);
+static void zombaThinkChase(spritetype *, XSPRITE *);
+static void zombaThinkPonder(spritetype *, XSPRITE *);
 static void myThinkTarget(spritetype *, XSPRITE *);
 static void myThinkSearch(spritetype *, XSPRITE *);
 static void entryEZombie(spritetype *, XSPRITE *);
@@ -59,11 +59,11 @@ static int nHackClient = seqRegisterClient(HackSeqCallback);
 static int nStandClient = seqRegisterClient(StandSeqCallback);
 
 AISTATE zombieAIdle = { kAiStateIdle, 0, -1, 0, entryAIdle, NULL, aiThinkTarget, NULL };
-AISTATE zombieAChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, thinkChase, NULL };
-AISTATE zombieAPonder = { kAiStateOther, 0, -1, 0, NULL, aiMoveTurn, thinkPonder, NULL };
-AISTATE zombieAGoto = { kAiStateMove, 8, -1, 1800, NULL, aiMoveForward, thinkGoto, &zombieAIdle };
+AISTATE zombieAChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, zombaThinkChase, NULL };
+AISTATE zombieAPonder = { kAiStateOther, 0, -1, 0, NULL, aiMoveTurn, zombaThinkPonder, NULL };
+AISTATE zombieAGoto = { kAiStateMove, 8, -1, 1800, NULL, aiMoveForward, zombaThinkGoto, &zombieAIdle };
 AISTATE zombieAHack = { kAiStateChase, 6, nHackClient, 80, NULL, NULL, NULL, &zombieAPonder };
-AISTATE zombieASearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, thinkSearch, &zombieAIdle };
+AISTATE zombieASearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, zombaThinkSearch, &zombieAIdle };
 AISTATE zombieARecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &zombieAPonder };
 AISTATE zombieATeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &zombieAPonder };
 AISTATE zombieARecoil2 = { kAiStateRecoil, 1, -1, 360, NULL, NULL, NULL, &zombieAStand };
@@ -103,13 +103,13 @@ static void StandSeqCallback(int, int nXSprite)
     sfxPlay3DSound(&sprite[nSprite], 1102, -1, 0);
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombaThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     sub_5F15C(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombaThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -123,7 +123,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombaThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {
@@ -173,7 +173,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     pXSprite->target = -1;
 }
 
-static void thinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombaThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {

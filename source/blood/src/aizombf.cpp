@@ -42,29 +42,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void HackSeqCallback(int, int);
+static void zombfHackSeqCallback(int, int);
 static void PukeSeqCallback(int, int);
 static void ThrowSeqCallback(int, int);
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite);
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite);
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite);
+static void zombfThinkSearch(spritetype *pSprite, XSPRITE *pXSprite);
+static void zombfThinkGoto(spritetype *pSprite, XSPRITE *pXSprite);
+static void zombfThinkChase(spritetype *pSprite, XSPRITE *pXSprite);
 
-static int nHackClient = seqRegisterClient(HackSeqCallback);
-static int nPukeClient = seqRegisterClient(PukeSeqCallback);
-static int nThrowClient = seqRegisterClient(ThrowSeqCallback);
+static int nZombfHackClient = seqRegisterClient(zombfHackSeqCallback);
+static int nZombfPukeClient = seqRegisterClient(PukeSeqCallback);
+static int nZombfThrowClient = seqRegisterClient(ThrowSeqCallback);
 
 AISTATE zombieFIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE zombieFChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, thinkChase, NULL };
-AISTATE zombieFGoto = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, thinkGoto, &zombieFIdle };
-AISTATE zombieFDodge = { kAiStateMove, 8, -1, 0, NULL, aiMoveDodge, thinkChase, &zombieFChase };
-AISTATE zombieFHack = { kAiStateChase, 6, nHackClient, 120, NULL, NULL, NULL, &zombieFChase };
-AISTATE zombieFPuke = { kAiStateChase, 9, nPukeClient, 120, NULL, NULL, NULL, &zombieFChase };
-AISTATE zombieFThrow = { kAiStateChase, 6, nThrowClient, 120, NULL, NULL, NULL, &zombieFChase };
-AISTATE zombieFSearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, thinkSearch, &zombieFIdle };
+AISTATE zombieFChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, zombfThinkChase, NULL };
+AISTATE zombieFGoto = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, zombfThinkGoto, &zombieFIdle };
+AISTATE zombieFDodge = { kAiStateMove, 8, -1, 0, NULL, aiMoveDodge, zombfThinkChase, &zombieFChase };
+AISTATE zombieFHack = { kAiStateChase, 6, nZombfHackClient, 120, NULL, NULL, NULL, &zombieFChase };
+AISTATE zombieFPuke = { kAiStateChase, 9, nZombfPukeClient, 120, NULL, NULL, NULL, &zombieFChase };
+AISTATE zombieFThrow = { kAiStateChase, 6, nZombfThrowClient, 120, NULL, NULL, NULL, &zombieFChase };
+AISTATE zombieFSearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, zombfThinkSearch, &zombieFIdle };
 AISTATE zombieFRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &zombieFChase };
 AISTATE zombieFTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &zombieFChase };
 
-static void HackSeqCallback(int, int nXSprite)
+static void zombfHackSeqCallback(int, int nXSprite)
 {
     if (nXSprite <= 0 || nXSprite >= kMaxXSprites)
         return;
@@ -110,13 +110,13 @@ static void ThrowSeqCallback(int, int nXSprite)
     actFireMissile(pSprite, 0, -getDudeInfo(pSprite->type)->eyeHeight, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileButcherKnife);
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombfThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombfThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -130,7 +130,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombfThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {

@@ -41,39 +41,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void BiteSeqCallback(int, int);
-static void BurnSeqCallback(int, int);
-static void BurnSeqCallback2(int, int);
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite);
-static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite);
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite);
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite);
+static void cerberusBiteSeqCallback(int, int);
+static void cerberusBurnSeqCallback(int, int);
+static void cerberusBurnSeqCallback2(int, int);
+static void cerberusThinkSearch(spritetype *pSprite, XSPRITE *pXSprite);
+static void cerberusThinkTarget(spritetype *pSprite, XSPRITE *pXSprite);
+static void cerberusThinkGoto(spritetype *pSprite, XSPRITE *pXSprite);
+static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite);
 
-static int nBiteClient = seqRegisterClient(BiteSeqCallback);
-static int nBurnClient = seqRegisterClient(BurnSeqCallback);
-static int nBurnClient2 = seqRegisterClient(BurnSeqCallback2);
+static int nCerberusBiteClient = seqRegisterClient(cerberusBiteSeqCallback);
+static int nCerberusBurnClient = seqRegisterClient(cerberusBurnSeqCallback);
+static int nCerberusBurnClient2 = seqRegisterClient(cerberusBurnSeqCallback2);
 
-AISTATE cerberusIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, thinkTarget, NULL };
-AISTATE cerberusSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, thinkSearch, &cerberusIdle };
-AISTATE cerberusChase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, thinkChase, NULL };
+AISTATE cerberusIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, cerberusThinkTarget, NULL };
+AISTATE cerberusSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, cerberusThinkSearch, &cerberusIdle };
+AISTATE cerberusChase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, cerberusThinkChase, NULL };
 AISTATE cerberusRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &cerberusSearch };
 AISTATE cerberusTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &cerberusSearch };
-AISTATE cerberusGoto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, thinkGoto, &cerberusIdle };
-AISTATE cerberusBite = { kAiStateChase, 6, nBiteClient, 60, NULL, NULL, NULL, &cerberusChase };
-AISTATE cerberusBurn = { kAiStateChase, 6, nBurnClient, 60, NULL, NULL, NULL, &cerberusChase };
-AISTATE cerberus3Burn = { kAiStateChase, 6, nBurnClient2, 60, NULL, NULL, NULL, &cerberusChase };
-AISTATE cerberus2Idle = { kAiStateIdle, 0, -1, 0, NULL, NULL, thinkTarget, NULL };
-AISTATE cerberus2Search = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, thinkSearch, &cerberus2Idle };
-AISTATE cerberus2Chase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, thinkChase, NULL };
+AISTATE cerberusGoto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, cerberusThinkGoto, &cerberusIdle };
+AISTATE cerberusBite = { kAiStateChase, 6, nCerberusBiteClient, 60, NULL, NULL, NULL, &cerberusChase };
+AISTATE cerberusBurn = { kAiStateChase, 6, nCerberusBurnClient, 60, NULL, NULL, NULL, &cerberusChase };
+AISTATE cerberus3Burn = { kAiStateChase, 6, nCerberusBurnClient2, 60, NULL, NULL, NULL, &cerberusChase };
+AISTATE cerberus2Idle = { kAiStateIdle, 0, -1, 0, NULL, NULL, cerberusThinkTarget, NULL };
+AISTATE cerberus2Search = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, cerberusThinkSearch, &cerberus2Idle };
+AISTATE cerberus2Chase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, cerberusThinkChase, NULL };
 AISTATE cerberus2Recoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &cerberus2Search };
-AISTATE cerberus2Goto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, thinkGoto, &cerberus2Idle };
-AISTATE cerberus2Bite = { kAiStateChase, 6, nBiteClient, 60, NULL, NULL, NULL, &cerberus2Chase };
-AISTATE cerberus2Burn = { kAiStateChase, 6, nBurnClient, 60, NULL, NULL, NULL, &cerberus2Chase };
-AISTATE cerberus4Burn = { kAiStateChase, 6, nBurnClient2, 60, NULL, NULL, NULL, &cerberus2Chase };
+AISTATE cerberus2Goto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, cerberusThinkGoto, &cerberus2Idle };
+AISTATE cerberus2Bite = { kAiStateChase, 6, nCerberusBiteClient, 60, NULL, NULL, NULL, &cerberus2Chase };
+AISTATE cerberus2Burn = { kAiStateChase, 6, nCerberusBurnClient, 60, NULL, NULL, NULL, &cerberus2Chase };
+AISTATE cerberus4Burn = { kAiStateChase, 6, nCerberusBurnClient2, 60, NULL, NULL, NULL, &cerberus2Chase };
 AISTATE cerberus139890 = { kAiStateOther, 7, -1, 120, NULL, aiMoveTurn, NULL, &cerberusChase };
 AISTATE cerberus1398AC = { kAiStateOther, 7, -1, 120, NULL, aiMoveTurn, NULL, &cerberusChase };
 
-static void BiteSeqCallback(int, int nXSprite)
+static void cerberusBiteSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -97,7 +97,7 @@ static void BiteSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_14);
 }
 
-static void BurnSeqCallback(int, int nXSprite)
+static void cerberusBurnSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -178,7 +178,7 @@ static void BurnSeqCallback(int, int nXSprite)
     }
 }
 
-static void BurnSeqCallback2(int, int nXSprite)
+static void cerberusBurnSeqCallback2(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -264,13 +264,13 @@ static void BurnSeqCallback2(int, int nXSprite)
     }
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -330,7 +330,7 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -357,7 +357,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1) {
         switch (pSprite->type) {

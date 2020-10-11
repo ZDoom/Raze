@@ -48,18 +48,18 @@ static void SlashFSeqCallback(int, int);
 static void ThrowFSeqCallback(int, int);
 static void BlastSSeqCallback(int, int);
 static void ThrowSSeqCallback(int, int);
-static void thinkTarget(spritetype *, XSPRITE *);
-static void thinkSearch(spritetype *, XSPRITE *);
-static void thinkGoto(spritetype *, XSPRITE *);
-static void MoveDodgeUp(spritetype *, XSPRITE *);
-static void MoveDodgeDown(spritetype *, XSPRITE *);
-static void thinkChase(spritetype *, XSPRITE *);
+static void gargThinkTarget(spritetype *, XSPRITE *);
+static void gargThinkSearch(spritetype *, XSPRITE *);
+static void gargThinkGoto(spritetype *, XSPRITE *);
+static void gargMoveDodgeUp(spritetype *, XSPRITE *);
+static void gargMoveDodgeDown(spritetype *, XSPRITE *);
+static void gargThinkChase(spritetype *, XSPRITE *);
 static void entryFStatue(spritetype *, XSPRITE *);
 static void entrySStatue(spritetype *, XSPRITE *);
-static void MoveForward(spritetype *, XSPRITE *);
-static void MoveSlow(spritetype *, XSPRITE *);
-static void MoveSwoop(spritetype *, XSPRITE *);
-static void MoveFly(spritetype *, XSPRITE *);
+static void gargMoveForward(spritetype *, XSPRITE *);
+static void gargMoveSlow(spritetype *, XSPRITE *);
+static void gargMoveSwoop(spritetype *, XSPRITE *);
+static void gargMoveFly(spritetype *, XSPRITE *);
 static void playStatueBreakSnd(spritetype*,XSPRITE*);
 
 static int nSlashFClient = seqRegisterClient(SlashFSeqCallback);
@@ -67,29 +67,29 @@ static int nThrowFClient = seqRegisterClient(ThrowFSeqCallback);
 static int nThrowSClient = seqRegisterClient(ThrowSSeqCallback);
 static int nBlastSClient = seqRegisterClient(BlastSSeqCallback);
 
-AISTATE gargoyleFIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, thinkTarget, NULL };
+AISTATE gargoyleFIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, gargThinkTarget, NULL };
 AISTATE gargoyleStatueIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, NULL, NULL };
-AISTATE gargoyleFChase = { kAiStateChase, 0, -1, 0, NULL, MoveForward, thinkChase, &gargoyleFIdle };
-AISTATE gargoyleFGoto = { kAiStateMove, 0, -1, 600, NULL, MoveForward, thinkGoto, &gargoyleFIdle };
+AISTATE gargoyleFChase = { kAiStateChase, 0, -1, 0, NULL, gargMoveForward, gargThinkChase, &gargoyleFIdle };
+AISTATE gargoyleFGoto = { kAiStateMove, 0, -1, 600, NULL, gargMoveForward, gargThinkGoto, &gargoyleFIdle };
 AISTATE gargoyleFSlash = { kAiStateChase, 6, nSlashFClient, 120, NULL, NULL, NULL, &gargoyleFChase };
 AISTATE gargoyleFThrow = { kAiStateChase, 6, nThrowFClient, 120, NULL, NULL, NULL, &gargoyleFChase };
-AISTATE gargoyleSThrow = { kAiStateChase, 6, nThrowSClient, 120, NULL, MoveForward, NULL, &gargoyleFChase };
-AISTATE gargoyleSBlast = { kAiStateChase, 7, nBlastSClient, 60, NULL, MoveSlow, NULL, &gargoyleFChase };
+AISTATE gargoyleSThrow = { kAiStateChase, 6, nThrowSClient, 120, NULL, gargMoveForward, NULL, &gargoyleFChase };
+AISTATE gargoyleSBlast = { kAiStateChase, 7, nBlastSClient, 60, NULL, gargMoveSlow, NULL, &gargoyleFChase };
 AISTATE gargoyleFRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &gargoyleFChase };
-AISTATE gargoyleFSearch = { kAiStateSearch, 0, -1, 120, NULL, MoveForward, thinkSearch, &gargoyleFIdle };
+AISTATE gargoyleFSearch = { kAiStateSearch, 0, -1, 120, NULL, gargMoveForward, gargThinkSearch, &gargoyleFIdle };
 AISTATE gargoyleFMorph2 = { kAiStateOther, -1, -1, 0, entryFStatue, NULL, NULL, &gargoyleFIdle };
 AISTATE gargoyleFMorph = { kAiStateOther, 6, -1, 0, NULL, NULL, NULL, &gargoyleFMorph2 };
 AISTATE gargoyleSMorph2 = { kAiStateOther, -1, -1, 0, entrySStatue, NULL, NULL, &gargoyleFIdle };
 AISTATE gargoyleSMorph = { kAiStateOther, 6, -1, 0, NULL, NULL, NULL, &gargoyleSMorph2 };
-AISTATE gargoyleSwoop = { kAiStateOther, 0, -1, 120, NULL, MoveSwoop, thinkChase, &gargoyleFChase };
-AISTATE gargoyleFly = { kAiStateMove, 0, -1, 120, NULL, MoveFly, thinkChase, &gargoyleFChase };
+AISTATE gargoyleSwoop = { kAiStateOther, 0, -1, 120, NULL, gargMoveSwoop, gargThinkChase, &gargoyleFChase };
+AISTATE gargoyleFly = { kAiStateMove, 0, -1, 120, NULL, gargMoveFly, gargThinkChase, &gargoyleFChase };
 AISTATE gargoyleTurn = { kAiStateMove, 0, -1, 120, NULL, aiMoveTurn, NULL, &gargoyleFChase };
-AISTATE gargoyleDodgeUp = { kAiStateMove, 0, -1, 60, NULL, MoveDodgeUp, NULL, &gargoyleFChase };
-AISTATE gargoyleFDodgeUpRight = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeUp, NULL, &gargoyleFChase };
-AISTATE gargoyleFDodgeUpLeft = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeUp, NULL, &gargoyleFChase };
-AISTATE gargoyleDodgeDown = { kAiStateMove, 0, -1, 120, NULL, MoveDodgeDown, NULL, &gargoyleFChase };
-AISTATE gargoyleFDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeDown, NULL, &gargoyleFChase };
-AISTATE gargoyleFDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeDown, NULL, &gargoyleFChase };
+AISTATE gargoyleDodgeUp = { kAiStateMove, 0, -1, 60, NULL, gargMoveDodgeUp, NULL, &gargoyleFChase };
+AISTATE gargoyleFDodgeUpRight = { kAiStateMove, 0, -1, 90, NULL, gargMoveDodgeUp, NULL, &gargoyleFChase };
+AISTATE gargoyleFDodgeUpLeft = { kAiStateMove, 0, -1, 90, NULL, gargMoveDodgeUp, NULL, &gargoyleFChase };
+AISTATE gargoyleDodgeDown = { kAiStateMove, 0, -1, 120, NULL, gargMoveDodgeDown, NULL, &gargoyleFChase };
+AISTATE gargoyleFDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, gargMoveDodgeDown, NULL, &gargoyleFChase };
+AISTATE gargoyleFDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, gargMoveDodgeDown, NULL, &gargoyleFChase };
 
 AISTATE statueFBreakSEQ = { kAiStateOther, 5, -1, 0, entryFStatue, NULL, playStatueBreakSnd, &gargoyleFMorph2};
 AISTATE statueSBreakSEQ = { kAiStateOther, 5, -1, 0, entrySStatue, NULL, playStatueBreakSnd, &gargoyleSMorph2};
@@ -229,7 +229,7 @@ static void ThrowSSeqCallback(int, int nXSprite)
     actFireThing(pSprite, 0, 0, gDudeSlope[nXSprite]-7500, kThingBone, Chance(0x6000) ? 0x133333 : 0x111111);
 }
 
-static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -286,13 +286,13 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     sub_5F15C(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -310,7 +310,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void MoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -338,7 +338,7 @@ static void MoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = -0x1d555;
 }
 
-static void MoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -368,7 +368,7 @@ static void MoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = 0x44444;
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {
@@ -562,7 +562,7 @@ static void entrySStatue(spritetype *pSprite, XSPRITE *pXSprite)
     pSprite->type = kDudeGargoyleStone;
 }
 
-static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -598,7 +598,7 @@ static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void MoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -641,7 +641,7 @@ static void MoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -683,7 +683,7 @@ static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void MoveFly(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveFly(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);

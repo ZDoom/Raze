@@ -40,41 +40,41 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void BiteSeqCallback(int, int);
-static void thinkTarget(spritetype *, XSPRITE *);
-static void thinkSearch(spritetype *, XSPRITE *);
-static void thinkGoto(spritetype *, XSPRITE *);
-static void thinkPonder(spritetype *, XSPRITE *);
-static void MoveDodgeUp(spritetype *, XSPRITE *);
-static void MoveDodgeDown(spritetype *, XSPRITE *);
-static void thinkChase(spritetype *, XSPRITE *);
-static void MoveForward(spritetype *, XSPRITE *);
-static void MoveSwoop(spritetype *, XSPRITE *);
-static void MoveAscend(spritetype *pSprite, XSPRITE *pXSprite);
-static void MoveToCeil(spritetype *, XSPRITE *);
+static void eelBiteSeqCallback(int, int);
+static void eelThinkTarget(spritetype *, XSPRITE *);
+static void eelThinkSearch(spritetype *, XSPRITE *);
+static void eelThinkGoto(spritetype *, XSPRITE *);
+static void eelThinkPonder(spritetype *, XSPRITE *);
+static void eelMoveDodgeUp(spritetype *, XSPRITE *);
+static void eelMoveDodgeDown(spritetype *, XSPRITE *);
+static void eelThinkChase(spritetype *, XSPRITE *);
+static void eelMoveForward(spritetype *, XSPRITE *);
+static void eelMoveSwoop(spritetype *, XSPRITE *);
+static void eelMoveAscend(spritetype *pSprite, XSPRITE *pXSprite);
+static void eelMoveToCeil(spritetype *, XSPRITE *);
 
-static int nBiteClient = seqRegisterClient(BiteSeqCallback);
+static int nEelBiteClient = seqRegisterClient(eelBiteSeqCallback);
 
-AISTATE eelIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, thinkTarget, NULL };
-AISTATE eelFlyIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, thinkTarget, NULL };
-AISTATE eelChase = { kAiStateChase, 0, -1, 0, NULL, MoveForward, thinkChase, &eelIdle };
-AISTATE eelPonder = { kAiStateOther, 0, -1, 0, NULL, NULL, thinkPonder, NULL };
-AISTATE eelGoto = { kAiStateMove, 0, -1, 600, NULL, NULL, thinkGoto, &eelIdle };
-AISTATE eelBite = { kAiStateChase, 7, nBiteClient, 60, NULL, NULL, NULL, &eelChase };
+AISTATE eelIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, eelThinkTarget, NULL };
+AISTATE eelFlyIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, eelThinkTarget, NULL };
+AISTATE eelChase = { kAiStateChase, 0, -1, 0, NULL, eelMoveForward, eelThinkChase, &eelIdle };
+AISTATE eelPonder = { kAiStateOther, 0, -1, 0, NULL, NULL, eelThinkPonder, NULL };
+AISTATE eelGoto = { kAiStateMove, 0, -1, 600, NULL, NULL, eelThinkGoto, &eelIdle };
+AISTATE eelBite = { kAiStateChase, 7, nEelBiteClient, 60, NULL, NULL, NULL, &eelChase };
 AISTATE eelRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &eelChase };
-AISTATE eelSearch = { kAiStateSearch, 0, -1, 120, NULL, MoveForward, thinkSearch, &eelIdle };
-AISTATE eelSwoop = { kAiStateOther, 0, -1, 60, NULL, MoveSwoop, thinkChase, &eelChase };
-AISTATE eelFly = { kAiStateMove, 0, -1, 0, NULL, MoveAscend, thinkChase, &eelChase };
+AISTATE eelSearch = { kAiStateSearch, 0, -1, 120, NULL, eelMoveForward, eelThinkSearch, &eelIdle };
+AISTATE eelSwoop = { kAiStateOther, 0, -1, 60, NULL, eelMoveSwoop, eelThinkChase, &eelChase };
+AISTATE eelFly = { kAiStateMove, 0, -1, 0, NULL, eelMoveAscend, eelThinkChase, &eelChase };
 AISTATE eelTurn = { kAiStateMove, 0, -1, 60, NULL, aiMoveTurn, NULL, &eelChase };
-AISTATE eelHide = { kAiStateOther, 0, -1, 0, NULL, MoveToCeil, MoveForward, NULL };
-AISTATE eelDodgeUp = { kAiStateMove, 0, -1, 120, NULL, MoveDodgeUp, NULL, &eelChase };
-AISTATE eelDodgeUpRight = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeUp, NULL, &eelChase };
-AISTATE eelDodgeUpLeft = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeUp, NULL, &eelChase };
-AISTATE eelDodgeDown = { kAiStateMove, 0, -1, 120, NULL, MoveDodgeDown, NULL, &eelChase };
-AISTATE eelDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeDown, NULL, &eelChase };
-AISTATE eelDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeDown, NULL, &eelChase };
+AISTATE eelHide = { kAiStateOther, 0, -1, 0, NULL, eelMoveToCeil, eelMoveForward, NULL };
+AISTATE eelDodgeUp = { kAiStateMove, 0, -1, 120, NULL, eelMoveDodgeUp, NULL, &eelChase };
+AISTATE eelDodgeUpRight = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeUp, NULL, &eelChase };
+AISTATE eelDodgeUpLeft = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeUp, NULL, &eelChase };
+AISTATE eelDodgeDown = { kAiStateMove, 0, -1, 120, NULL, eelMoveDodgeDown, NULL, &eelChase };
+AISTATE eelDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
+AISTATE eelDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 
-static void BiteSeqCallback(int, int nXSprite)
+static void eelBiteSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     spritetype *pSprite = &sprite[pXSprite->reference];
@@ -102,7 +102,7 @@ static void BiteSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx, dy, height2-height, VECTOR_TYPE_7);
 }
 
-static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -156,13 +156,13 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    thinkTarget(pSprite, pXSprite);
+    eelThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -173,10 +173,10 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(pSprite, pXSprite, &eelSearch);
-    thinkTarget(pSprite, pXSprite);
+    eelThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {
@@ -230,7 +230,7 @@ static void thinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
     pXSprite->target = -1;
 }
 
-static void MoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -254,7 +254,7 @@ static void MoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = -0x8000;
 }
 
-static void MoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -280,7 +280,7 @@ static void MoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = 0x44444;
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {
@@ -336,7 +336,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiNewState(pSprite, pXSprite, &eelSearch);
 }
 
-static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -368,7 +368,7 @@ static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -396,7 +396,7 @@ static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = 0x22222;
 }
 
-static void MoveAscend(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelMoveAscend(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -424,7 +424,7 @@ static void MoveAscend(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = -0x8000;
 }
 
-void MoveToCeil(spritetype *pSprite, XSPRITE *pXSprite)
+void eelMoveToCeil(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int x = pSprite->x;
     int y = pSprite->y;

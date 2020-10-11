@@ -59,9 +59,9 @@ static void punchCallback(int, int);
 static void ThrowCallback1(int, int);
 static void ThrowCallback2(int, int);
 static void ThrowThing(int, bool);
-static void thinkSearch(spritetype*, XSPRITE*);
-static void thinkGoto(spritetype*, XSPRITE*);
-static void thinkChase(spritetype*, XSPRITE*);
+static void unicultThinkSearch(spritetype*, XSPRITE*);
+static void unicultThinkGoto(spritetype*, XSPRITE*);
+static void unicultThinkChase(spritetype*, XSPRITE*);
 static void forcePunch(spritetype*, XSPRITE*);
 
 static int nGenDudeAttack1 = seqRegisterClient(genDudeAttack1);
@@ -72,17 +72,17 @@ static int nGenDudeThrow2 = seqRegisterClient(ThrowCallback2);
 AISTATE genDudeIdleL = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE genDudeIdleW = { kAiStateIdle, 13, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 // ---------------------
-AISTATE genDudeSearchL = { kAiStateSearch, 9, -1, 600, NULL, aiGenDudeMoveForward, thinkSearch, &genDudeIdleL };
-AISTATE genDudeSearchW = { kAiStateSearch, 13, -1, 600, NULL, aiGenDudeMoveForward, thinkSearch, &genDudeIdleW };
+AISTATE genDudeSearchL = { kAiStateSearch, 9, -1, 600, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleL };
+AISTATE genDudeSearchW = { kAiStateSearch, 13, -1, 600, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleW };
 // ---------------------
-AISTATE genDudeSearchShortL = { kAiStateSearch, 9, -1, 200, NULL, aiGenDudeMoveForward, thinkSearch, &genDudeIdleL };
-AISTATE genDudeSearchShortW = { kAiStateSearch, 13, -1, 200, NULL, aiGenDudeMoveForward, thinkSearch, &genDudeIdleW };
+AISTATE genDudeSearchShortL = { kAiStateSearch, 9, -1, 200, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleL };
+AISTATE genDudeSearchShortW = { kAiStateSearch, 13, -1, 200, NULL, aiGenDudeMoveForward, unicultThinkSearch, &genDudeIdleW };
 // ---------------------
-AISTATE genDudeSearchNoWalkL = { kAiStateSearch, 0, -1, 600, NULL, aiMoveTurn, thinkSearch, &genDudeIdleL };
-AISTATE genDudeSearchNoWalkW = { kAiStateSearch, 13, -1, 600, NULL, aiMoveTurn, thinkSearch, &genDudeIdleW };
+AISTATE genDudeSearchNoWalkL = { kAiStateSearch, 0, -1, 600, NULL, aiMoveTurn, unicultThinkSearch, &genDudeIdleL };
+AISTATE genDudeSearchNoWalkW = { kAiStateSearch, 13, -1, 600, NULL, aiMoveTurn, unicultThinkSearch, &genDudeIdleW };
 // ---------------------
-AISTATE genDudeGotoL = { kAiStateMove, 9, -1, 600, NULL, aiGenDudeMoveForward, thinkGoto, &genDudeIdleL };
-AISTATE genDudeGotoW = { kAiStateMove, 13, -1, 600, NULL, aiGenDudeMoveForward, thinkGoto, &genDudeIdleW };
+AISTATE genDudeGotoL = { kAiStateMove, 9, -1, 600, NULL, aiGenDudeMoveForward, unicultThinkGoto, &genDudeIdleL };
+AISTATE genDudeGotoW = { kAiStateMove, 13, -1, 600, NULL, aiGenDudeMoveForward, unicultThinkGoto, &genDudeIdleW };
 // ---------------------
 AISTATE genDudeDodgeL = { kAiStateMove, 9, -1, 90, NULL,	aiMoveDodge,	NULL, &genDudeChaseL };
 AISTATE genDudeDodgeD = { kAiStateMove, 14, -1, 90, NULL, aiMoveDodge,	NULL, &genDudeChaseD };
@@ -96,17 +96,17 @@ AISTATE genDudeDodgeShorterL = { kAiStateMove, 9, -1, 20, NULL,	aiMoveDodge,	NUL
 AISTATE genDudeDodgeShorterD = { kAiStateMove, 14, -1, 20, NULL, aiMoveDodge,	NULL, &genDudeChaseD };
 AISTATE genDudeDodgeShorterW = { kAiStateMove, 13, -1, 20, NULL, aiMoveDodge,	NULL, &genDudeChaseW };
 // ---------------------
-AISTATE genDudeChaseL = { kAiStateChase, 9, -1, 0, NULL,	aiGenDudeMoveForward, thinkChase, NULL };
-AISTATE genDudeChaseD = { kAiStateChase, 14, -1, 0, NULL,	aiGenDudeMoveForward, thinkChase, NULL };
-AISTATE genDudeChaseW = { kAiStateChase, 13, -1, 0, NULL,	aiGenDudeMoveForward, thinkChase, NULL };
+AISTATE genDudeChaseL = { kAiStateChase, 9, -1, 0, NULL,	aiGenDudeMoveForward, unicultThinkChase, NULL };
+AISTATE genDudeChaseD = { kAiStateChase, 14, -1, 0, NULL,	aiGenDudeMoveForward, unicultThinkChase, NULL };
+AISTATE genDudeChaseW = { kAiStateChase, 13, -1, 0, NULL,	aiGenDudeMoveForward, unicultThinkChase, NULL };
 // ---------------------
-AISTATE genDudeChaseNoWalkL = { kAiStateChase, 0, -1, 0, NULL,	aiMoveTurn, thinkChase, NULL };
-AISTATE genDudeChaseNoWalkD = { kAiStateChase, 14, -1, 0, NULL,	aiMoveTurn, thinkChase, NULL };
-AISTATE genDudeChaseNoWalkW = { kAiStateChase, 13, -1, 0, NULL,	aiMoveTurn, thinkChase, NULL };
+AISTATE genDudeChaseNoWalkL = { kAiStateChase, 0, -1, 0, NULL,	aiMoveTurn, unicultThinkChase, NULL };
+AISTATE genDudeChaseNoWalkD = { kAiStateChase, 14, -1, 0, NULL,	aiMoveTurn, unicultThinkChase, NULL };
+AISTATE genDudeChaseNoWalkW = { kAiStateChase, 13, -1, 0, NULL,	aiMoveTurn, unicultThinkChase, NULL };
 // ---------------------
-AISTATE genDudeFireL = { kAiStateChase, 6, nGenDudeAttack1, 0, NULL, aiMoveTurn, thinkChase, &genDudeFireL };
-AISTATE genDudeFireD = { kAiStateChase, 8, nGenDudeAttack1, 0, NULL, aiMoveTurn, thinkChase, &genDudeFireD };
-AISTATE genDudeFireW = { kAiStateChase, 8, nGenDudeAttack1, 0, NULL, aiMoveTurn, thinkChase, &genDudeFireW };
+AISTATE genDudeFireL = { kAiStateChase, 6, nGenDudeAttack1, 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireL };
+AISTATE genDudeFireD = { kAiStateChase, 8, nGenDudeAttack1, 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireD };
+AISTATE genDudeFireW = { kAiStateChase, 8, nGenDudeAttack1, 0, NULL, aiMoveTurn, unicultThinkChase, &genDudeFireW };
 // ---------------------z
 AISTATE genDudeRecoilL = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &genDudeChaseL };
 AISTATE genDudeRecoilD = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &genDudeChaseD };
@@ -386,7 +386,7 @@ static void ThrowThing(int nXIndex, bool impact) {
     }
 }
 
-static void thinkSearch( spritetype* pSprite, XSPRITE* pXSprite ) {
+static void unicultThinkSearch( spritetype* pSprite, XSPRITE* pXSprite ) {
     
     // TO DO: if can't see the target, but in fireDist range - stop moving and look around
     
@@ -395,7 +395,7 @@ static void thinkSearch( spritetype* pSprite, XSPRITE* pXSprite ) {
     sub_5F15C(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype* pSprite, XSPRITE* pXSprite) {
+static void unicultThinkGoto(spritetype* pSprite, XSPRITE* pXSprite) {
 
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -416,7 +416,7 @@ static void thinkGoto(spritetype* pSprite, XSPRITE* pXSprite) {
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
+static void unicultThinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
 
     if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax) return;
     else if (pXSprite->target < 0 || pXSprite->target >= kMaxSprites) {

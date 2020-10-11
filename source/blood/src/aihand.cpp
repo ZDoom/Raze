@@ -43,18 +43,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 static void HandJumpSeqCallback(int, int);
-static void thinkSearch(spritetype *, XSPRITE *);
-static void thinkGoto(spritetype *, XSPRITE *);
-static void thinkChase(spritetype *, XSPRITE *);
+static void handThinkSearch(spritetype *, XSPRITE *);
+static void handThinkGoto(spritetype *, XSPRITE *);
+static void handThinkChase(spritetype *, XSPRITE *);
 
 static int nJumpClient = seqRegisterClient(HandJumpSeqCallback);
 
 AISTATE handIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE hand13A3B4 = { kAiStateOther, 0, -1, 0, NULL, NULL, NULL, NULL };
-AISTATE handSearch = { kAiStateMove, 6, -1, 600, NULL, aiMoveForward, thinkSearch, &handIdle };
-AISTATE handChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveForward, thinkChase, NULL };
+AISTATE handSearch = { kAiStateMove, 6, -1, 600, NULL, aiMoveForward, handThinkSearch, &handIdle };
+AISTATE handChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveForward, handThinkChase, NULL };
 AISTATE handRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &handSearch };
-AISTATE handGoto = { kAiStateMove, 6, -1, 1800, NULL, aiMoveForward, thinkGoto, &handIdle };
+AISTATE handGoto = { kAiStateMove, 6, -1, 1800, NULL, aiMoveForward, handThinkGoto, &handIdle };
 AISTATE handJump = { kAiStateChase, 7, nJumpClient, 120, NULL, NULL, NULL, &handChase };
 
 static void HandJumpSeqCallback(int, int nXSprite)
@@ -74,13 +74,13 @@ static void HandJumpSeqCallback(int, int nXSprite)
     }
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void handThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void handThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -94,7 +94,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void handThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {

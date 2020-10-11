@@ -44,25 +44,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void BiteSeqCallback(int, int);
-static void BurnSeqCallback(int, int);
-static void thinkSearch(spritetype *, XSPRITE *);
-static void thinkGoto(spritetype *, XSPRITE *);
-static void thinkChase(spritetype *, XSPRITE *);
+static void houndBiteSeqCallback(int, int);
+static void houndBurnSeqCallback(int, int);
+static void houndThinkSearch(spritetype *, XSPRITE *);
+static void houndThinkGoto(spritetype *, XSPRITE *);
+static void houndThinkChase(spritetype *, XSPRITE *);
 
-static int nBiteClient = seqRegisterClient(BiteSeqCallback);
-static int nBurnClient = seqRegisterClient(BurnSeqCallback);
+static int nHoundBiteClient = seqRegisterClient(houndBiteSeqCallback);
+static int nHoundBurnClient = seqRegisterClient(houndBurnSeqCallback);
 
 AISTATE houndIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE houndSearch = { kAiStateMove, 8, -1, 1800, NULL, aiMoveForward, thinkSearch, &houndIdle };
-AISTATE houndChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, thinkChase, NULL };
+AISTATE houndSearch = { kAiStateMove, 8, -1, 1800, NULL, aiMoveForward, houndThinkSearch, &houndIdle };
+AISTATE houndChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, houndThinkChase, NULL };
 AISTATE houndRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &houndSearch };
 AISTATE houndTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &houndSearch };
-AISTATE houndGoto = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, thinkGoto, &houndIdle };
-AISTATE houndBite = { kAiStateChase, 6, nBiteClient, 60, NULL, NULL, NULL, &houndChase };
-AISTATE houndBurn = { kAiStateChase, 7, nBurnClient, 60, NULL, NULL, NULL, &houndChase };
+AISTATE houndGoto = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, houndThinkGoto, &houndIdle };
+AISTATE houndBite = { kAiStateChase, 6, nHoundBiteClient, 60, NULL, NULL, NULL, &houndChase };
+AISTATE houndBurn = { kAiStateChase, 7, nHoundBurnClient, 60, NULL, NULL, NULL, &houndChase };
 
-static void BiteSeqCallback(int, int nXSprite)
+static void houndBiteSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -90,7 +90,7 @@ static void BiteSeqCallback(int, int nXSprite)
     #endif
 }
 
-static void BurnSeqCallback(int, int nXSprite)
+static void houndBurnSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -98,13 +98,13 @@ static void BurnSeqCallback(int, int nXSprite)
     actFireMissile(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFlameHound);
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void houndThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void houndThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -123,7 +123,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void houndThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {

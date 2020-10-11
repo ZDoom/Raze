@@ -46,17 +46,17 @@ BEGIN_BLD_NS
 static void TommySeqCallback(int, int);
 static void TeslaSeqCallback(int, int);
 static void ShotSeqCallback(int, int);
-static void ThrowSeqCallback(int, int);
+static void cultThrowSeqCallback(int, int);
 static void sub_68170(int, int);
 static void sub_68230(int, int);
-static void thinkSearch(spritetype *, XSPRITE *);
-static void thinkGoto(spritetype *, XSPRITE *);
-static void thinkChase(spritetype *, XSPRITE *);
+static void cultThinkSearch(spritetype *, XSPRITE *);
+static void cultThinkGoto(spritetype *, XSPRITE *);
+static void cultThinkChase(spritetype *, XSPRITE *);
 
 static int nTommyClient = seqRegisterClient(TommySeqCallback);
 static int nTeslaClient = seqRegisterClient(TeslaSeqCallback);
 static int nShotClient = seqRegisterClient(ShotSeqCallback);
-static int nThrowClient = seqRegisterClient(ThrowSeqCallback);
+static int nThrowClient = seqRegisterClient(cultThrowSeqCallback);
 static int n68170Client = seqRegisterClient(sub_68170);
 static int n68230Client = seqRegisterClient(sub_68230);
 
@@ -64,11 +64,11 @@ AISTATE cultistIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL 
 AISTATE cultistProneIdle = { kAiStateIdle, 17, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE fanaticProneIdle = { kAiStateIdle, 17, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE cultistProneIdle3 = { kAiStateIdle, 17, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE cultistChase = { kAiStateChase, 9, -1, 0, NULL, aiMoveForward, thinkChase, NULL };
-AISTATE fanaticChase = { kAiStateChase, 0, -1, 0, NULL, aiMoveTurn, thinkChase, NULL };
+AISTATE cultistChase = { kAiStateChase, 9, -1, 0, NULL, aiMoveForward, cultThinkChase, NULL };
+AISTATE fanaticChase = { kAiStateChase, 0, -1, 0, NULL, aiMoveTurn, cultThinkChase, NULL };
 AISTATE cultistDodge = { kAiStateMove, 9, -1, 90, NULL, aiMoveDodge, NULL, &cultistChase };
-AISTATE cultistGoto = { kAiStateMove, 9, -1, 600, NULL, aiMoveForward, thinkGoto, &cultistIdle };
-AISTATE cultistProneChase = { kAiStateChase, 14, -1, 0, NULL, aiMoveForward, thinkChase, NULL };
+AISTATE cultistGoto = { kAiStateMove, 9, -1, 600, NULL, aiMoveForward, cultThinkGoto, &cultistIdle };
+AISTATE cultistProneChase = { kAiStateChase, 14, -1, 0, NULL, aiMoveForward, cultThinkChase, NULL };
 AISTATE cultistProneDodge = { kAiStateMove, 14, -1, 90, NULL, aiMoveDodge, NULL, &cultistProneChase };
 AISTATE cultistTThrow = { kAiStateChase, 7, nThrowClient, 120, NULL, NULL, NULL, &cultistTFire };
 AISTATE cultistSThrow = { kAiStateChase, 7, nThrowClient, 120, NULL, NULL, NULL, &cultistSFire };
@@ -76,27 +76,27 @@ AISTATE cultistTsThrow = { kAiStateChase, 7, nThrowClient, 120, NULL, NULL, NULL
 AISTATE cultistDThrow = { kAiStateChase, 7, nThrowClient, 120, NULL, NULL, NULL, &cultistChase };
 AISTATE cultist139A78 = { kAiStateChase, 7, n68170Client, 120, NULL, NULL, NULL, &cultistChase };
 AISTATE cultist139A94 = { kAiStateChase, 7, n68230Client, 120, NULL, NULL, NULL, &cultistIdle };
-AISTATE cultist139AB0 = { kAiStateChase, 7, n68230Client, 120, NULL, NULL, thinkSearch, &cultist139A94 };
-AISTATE cultist139ACC = { kAiStateChase, 7, n68230Client, 120, NULL, NULL, thinkSearch, &cultist139AB0 };
-AISTATE cultist139AE8 = { kAiStateChase, 7, n68230Client, 120, NULL, NULL, thinkSearch, &cultist139AE8 };
-AISTATE cultistSearch = { kAiStateSearch, 9, -1, 1800, NULL, aiMoveForward, thinkSearch, &cultistIdle };
+AISTATE cultist139AB0 = { kAiStateChase, 7, n68230Client, 120, NULL, NULL, cultThinkSearch, &cultist139A94 };
+AISTATE cultist139ACC = { kAiStateChase, 7, n68230Client, 120, NULL, NULL, cultThinkSearch, &cultist139AB0 };
+AISTATE cultist139AE8 = { kAiStateChase, 7, n68230Client, 120, NULL, NULL, cultThinkSearch, &cultist139AE8 };
+AISTATE cultistSearch = { kAiStateSearch, 9, -1, 1800, NULL, aiMoveForward, cultThinkSearch, &cultistIdle };
 AISTATE cultistSFire = { kAiStateChase, 6, nShotClient, 60, NULL, NULL, NULL, &cultistChase };
-AISTATE cultistTFire = { kAiStateChase, 6, nTommyClient, 0, NULL, aiMoveTurn, thinkChase, &cultistTFire };
-AISTATE cultistTsFire = { kAiStateChase, 6, nTeslaClient, 0, NULL, aiMoveTurn, thinkChase, &cultistChase };
+AISTATE cultistTFire = { kAiStateChase, 6, nTommyClient, 0, NULL, aiMoveTurn, cultThinkChase, &cultistTFire };
+AISTATE cultistTsFire = { kAiStateChase, 6, nTeslaClient, 0, NULL, aiMoveTurn, cultThinkChase, &cultistChase };
 AISTATE cultistSProneFire = { kAiStateChase, 8, nShotClient, 60, NULL, NULL, NULL, &cultistProneChase };
-AISTATE cultistTProneFire = { kAiStateChase, 8, nTommyClient, 0, NULL, aiMoveTurn, thinkChase, &cultistTProneFire };
+AISTATE cultistTProneFire = { kAiStateChase, 8, nTommyClient, 0, NULL, aiMoveTurn, cultThinkChase, &cultistTProneFire };
 AISTATE cultistTsProneFire = { kAiStateChase, 8, nTeslaClient, 0, NULL, aiMoveTurn, NULL, &cultistTsProneFire };
 AISTATE cultistRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &cultistDodge };
 AISTATE cultistProneRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &cultistProneDodge };
 AISTATE cultistTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &cultistDodge };
 AISTATE cultistSwimIdle = { kAiStateIdle, 13, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE cultistSwimChase = { kAiStateChase, 13, -1, 0, NULL, aiMoveForward, thinkChase, NULL };
+AISTATE cultistSwimChase = { kAiStateChase, 13, -1, 0, NULL, aiMoveForward, cultThinkChase, NULL };
 AISTATE cultistSwimDodge = { kAiStateMove, 13, -1, 90, NULL, aiMoveDodge, NULL, &cultistSwimChase };
-AISTATE cultistSwimGoto = { kAiStateMove, 13, -1, 600, NULL, aiMoveForward, thinkGoto, &cultistSwimIdle };
-AISTATE cultistSwimSearch = { kAiStateSearch, 13, -1, 1800, NULL, aiMoveForward, thinkSearch, &cultistSwimIdle };
+AISTATE cultistSwimGoto = { kAiStateMove, 13, -1, 600, NULL, aiMoveForward, cultThinkGoto, &cultistSwimIdle };
+AISTATE cultistSwimSearch = { kAiStateSearch, 13, -1, 1800, NULL, aiMoveForward, cultThinkSearch, &cultistSwimIdle };
 AISTATE cultistSSwimFire = { kAiStateChase, 8, nShotClient, 60, NULL, NULL, NULL, &cultistSwimChase };
-AISTATE cultistTSwimFire = { kAiStateChase, 8, nTommyClient, 0, NULL, aiMoveTurn, thinkChase, &cultistTSwimFire };
-AISTATE cultistTsSwimFire = { kAiStateChase, 8, nTeslaClient, 0, NULL, aiMoveTurn, thinkChase, &cultistTsSwimFire };
+AISTATE cultistTSwimFire = { kAiStateChase, 8, nTommyClient, 0, NULL, aiMoveTurn, cultThinkChase, &cultistTSwimFire };
+AISTATE cultistTsSwimFire = { kAiStateChase, 8, nTeslaClient, 0, NULL, aiMoveTurn, cultThinkChase, &cultistTsSwimFire };
 AISTATE cultistSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &cultistSwimDodge };
 
 static void TommySeqCallback(int, int nXSprite)
@@ -156,7 +156,7 @@ static void ShotSeqCallback(int, int nXSprite)
         sfxPlay3DSound(pSprite, 1002, -1, 0);
 }
 
-static void ThrowSeqCallback(int, int nXSprite)
+static void cultThrowSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -227,13 +227,13 @@ static char TargetNearExplosion(spritetype *pSprite)
     return 0;
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void cultThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     sub_5F15C(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void cultThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -258,7 +258,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void cultThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {

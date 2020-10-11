@@ -44,12 +44,12 @@ BEGIN_BLD_NS
 static void SlashSeqCallback(int, int);
 static void StompSeqCallback(int, int);
 static void MorphToBeast(spritetype *, XSPRITE *);
-static void thinkSearch(spritetype *, XSPRITE *);
-static void thinkGoto(spritetype *, XSPRITE *);
-static void thinkChase(spritetype *, XSPRITE *);
-static void thinkSwimGoto(spritetype *, XSPRITE *);
-static void thinkSwimChase(spritetype *, XSPRITE *);
-static void MoveForward(spritetype *, XSPRITE *);
+static void beastThinkSearch(spritetype *, XSPRITE *);
+static void beastThinkGoto(spritetype *, XSPRITE *);
+static void beastThinkChase(spritetype *, XSPRITE *);
+static void beastThinkSwimGoto(spritetype *, XSPRITE *);
+static void beastThinkSwimChase(spritetype *, XSPRITE *);
+static void beastMoveForward(spritetype *, XSPRITE *);
 static void sub_628A0(spritetype *, XSPRITE *);
 static void sub_62AE0(spritetype *, XSPRITE *);
 static void sub_62D7C(spritetype *, XSPRITE *);
@@ -58,25 +58,25 @@ static int nSlashClient = seqRegisterClient(SlashSeqCallback);
 static int nStompClient = seqRegisterClient(StompSeqCallback);
 
 AISTATE beastIdle = {kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE beastChase = {kAiStateChase, 8, -1, 0, NULL, MoveForward, thinkChase, NULL };
+AISTATE beastChase = {kAiStateChase, 8, -1, 0, NULL, beastMoveForward, beastThinkChase, NULL };
 AISTATE beastDodge = { kAiStateMove, 8, -1, 60, NULL, aiMoveDodge, NULL, &beastChase };
-AISTATE beastGoto = { kAiStateMove, 8, -1, 600, NULL, MoveForward, thinkGoto, &beastIdle };
+AISTATE beastGoto = { kAiStateMove, 8, -1, 600, NULL, beastMoveForward, beastThinkGoto, &beastIdle };
 AISTATE beastSlash = { kAiStateChase, 6, nSlashClient, 120, NULL, NULL, NULL, &beastChase };
 AISTATE beastStomp = { kAiStateChase, 7, nStompClient, 120, NULL, NULL, NULL, &beastChase };
-AISTATE beastSearch = { kAiStateSearch, 8, -1, 120, NULL, MoveForward, thinkSearch, &beastIdle };
+AISTATE beastSearch = { kAiStateSearch, 8, -1, 120, NULL, beastMoveForward, beastThinkSearch, &beastIdle };
 AISTATE beastRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &beastDodge };
 AISTATE beastTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &beastDodge };
 AISTATE beastSwimIdle = {kAiStateIdle, 9, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE beastSwimChase = { kAiStateChase, 9, -1, 0, NULL, sub_628A0, thinkSwimChase, NULL };
+AISTATE beastSwimChase = { kAiStateChase, 9, -1, 0, NULL, sub_628A0, beastThinkSwimChase, NULL };
 AISTATE beastSwimDodge = { kAiStateMove, 9, -1, 90, NULL, aiMoveDodge, NULL, &beastSwimChase };
-AISTATE beastSwimGoto = { kAiStateMove, 9, -1, 600, NULL, MoveForward, thinkSwimGoto, &beastSwimIdle };
-AISTATE beastSwimSearch = { kAiStateSearch, 9, -1, 120, NULL, MoveForward, thinkSearch, &beastSwimIdle };
-AISTATE beastSwimSlash = { kAiStateChase, 9, nSlashClient, 0, NULL, NULL, thinkSwimChase, &beastSwimChase };
+AISTATE beastSwimGoto = { kAiStateMove, 9, -1, 600, NULL, beastMoveForward, beastThinkSwimGoto, &beastSwimIdle };
+AISTATE beastSwimSearch = { kAiStateSearch, 9, -1, 120, NULL, beastMoveForward, beastThinkSearch, &beastSwimIdle };
+AISTATE beastSwimSlash = { kAiStateChase, 9, nSlashClient, 0, NULL, NULL, beastThinkSwimChase, &beastSwimChase };
 AISTATE beastSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &beastSwimDodge };
 AISTATE beastMorphToBeast = { kAiStateOther, -1, -1, 0, MorphToBeast, NULL, NULL, &beastIdle };
 AISTATE beastMorphFromCultist = { kAiStateOther, 2576, -1, 0, NULL, NULL, NULL, &beastMorphToBeast };
-AISTATE beast138FB4 = { kAiStateOther, 9, -1, 120, NULL, sub_62AE0, thinkSwimChase, &beastSwimChase };
-AISTATE beast138FD0 = { kAiStateOther, 9, -1, 0, NULL, sub_62D7C, thinkSwimChase, &beastSwimChase };
+AISTATE beast138FB4 = { kAiStateOther, 9, -1, 120, NULL, sub_62AE0, beastThinkSwimChase, &beastSwimChase };
+AISTATE beast138FD0 = { kAiStateOther, 9, -1, 0, NULL, sub_62D7C, beastThinkSwimChase, &beastSwimChase };
 AISTATE beast138FEC = { kAiStateOther, 9, -1, 120, NULL, aiMoveTurn, NULL, &beastSwimChase };
 
 static void SlashSeqCallback(int, int nXSprite)
@@ -196,13 +196,13 @@ static void MorphToBeast(spritetype *pSprite, XSPRITE *pXSprite)
     pSprite->type = kDudeBeast;
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -227,7 +227,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {
@@ -389,7 +389,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     pXSprite->target = -1;
 }
 
-static void thinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastThinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -403,7 +403,7 @@ static void thinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {
@@ -457,7 +457,7 @@ static void thinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
     pXSprite->target = -1;
 }
 
-static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);

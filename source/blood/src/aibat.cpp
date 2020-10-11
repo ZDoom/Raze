@@ -39,41 +39,41 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void BiteSeqCallback(int, int);
-static void thinkTarget(spritetype *, XSPRITE *);
-static void thinkSearch(spritetype *, XSPRITE *);
-static void thinkGoto(spritetype *, XSPRITE *);
-static void thinkPonder(spritetype *, XSPRITE *);
-static void MoveDodgeUp(spritetype *, XSPRITE *);
-static void MoveDodgeDown(spritetype *, XSPRITE *);
-static void thinkChase(spritetype *, XSPRITE *);
-static void MoveForward(spritetype *, XSPRITE *);
-static void MoveSwoop(spritetype *, XSPRITE *);
-static void MoveFly(spritetype *, XSPRITE *);
-static void MoveToCeil(spritetype *, XSPRITE *);
+static void batBiteSeqCallback(int, int);
+static void batThinkTarget(spritetype *, XSPRITE *);
+static void batThinkSearch(spritetype *, XSPRITE *);
+static void batThinkGoto(spritetype *, XSPRITE *);
+static void batThinkPonder(spritetype *, XSPRITE *);
+static void batMoveDodgeUp(spritetype *, XSPRITE *);
+static void batMoveDodgeDown(spritetype *, XSPRITE *);
+static void batThinkChase(spritetype *, XSPRITE *);
+static void batMoveForward(spritetype *, XSPRITE *);
+static void batMoveSwoop(spritetype *, XSPRITE *);
+static void batMoveFly(spritetype *, XSPRITE *);
+static void batMoveToCeil(spritetype *, XSPRITE *);
 
-static int nBiteClient = seqRegisterClient(BiteSeqCallback);
+static int nBatBiteClient = seqRegisterClient(batBiteSeqCallback);
 
-AISTATE batIdle = {kAiStateIdle, 0, -1, 0, NULL, NULL, thinkTarget, NULL };
-AISTATE batFlyIdle = {kAiStateIdle, 6, -1, 0, NULL, NULL, thinkTarget, NULL };
-AISTATE batChase = {kAiStateChase, 6, -1, 0, NULL, MoveForward, thinkChase, &batFlyIdle };
-AISTATE batPonder = {kAiStateOther, 6, -1, 0, NULL, NULL, thinkPonder, NULL };
-AISTATE batGoto = {kAiStateMove, 6, -1, 600, NULL, MoveForward, thinkGoto, &batFlyIdle };
-AISTATE batBite = {kAiStateChase, 7, nBiteClient, 60, NULL, NULL, NULL, &batPonder };
+AISTATE batIdle = {kAiStateIdle, 0, -1, 0, NULL, NULL, batThinkTarget, NULL };
+AISTATE batFlyIdle = {kAiStateIdle, 6, -1, 0, NULL, NULL, batThinkTarget, NULL };
+AISTATE batChase = {kAiStateChase, 6, -1, 0, NULL, batMoveForward, batThinkChase, &batFlyIdle };
+AISTATE batPonder = {kAiStateOther, 6, -1, 0, NULL, NULL, batThinkPonder, NULL };
+AISTATE batGoto = {kAiStateMove, 6, -1, 600, NULL, batMoveForward, batThinkGoto, &batFlyIdle };
+AISTATE batBite = {kAiStateChase, 7, nBatBiteClient, 60, NULL, NULL, NULL, &batPonder };
 AISTATE batRecoil = {kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &batChase };
-AISTATE batSearch = {kAiStateSearch, 6, -1, 120, NULL, MoveForward, thinkSearch, &batFlyIdle };
-AISTATE batSwoop = {kAiStateOther, 6, -1, 60, NULL, MoveSwoop, thinkChase, &batChase };
-AISTATE batFly = { kAiStateMove, 6, -1, 0, NULL, MoveFly, thinkChase, &batChase };
+AISTATE batSearch = {kAiStateSearch, 6, -1, 120, NULL, batMoveForward, batThinkSearch, &batFlyIdle };
+AISTATE batSwoop = {kAiStateOther, 6, -1, 60, NULL, batMoveSwoop, batThinkChase, &batChase };
+AISTATE batFly = { kAiStateMove, 6, -1, 0, NULL, batMoveFly, batThinkChase, &batChase };
 AISTATE batTurn = {kAiStateMove, 6, -1, 60, NULL, aiMoveTurn, NULL, &batChase };
-AISTATE batHide = {kAiStateOther, 6, -1, 0, NULL, MoveToCeil, MoveForward, NULL };
-AISTATE batDodgeUp = {kAiStateMove, 6, -1, 120, NULL, MoveDodgeUp, 0, &batChase };
-AISTATE batDodgeUpRight = {kAiStateMove, 6, -1, 90, NULL, MoveDodgeUp, 0, &batChase };
-AISTATE batDodgeUpLeft = {kAiStateMove, 6, -1, 90, NULL, MoveDodgeUp, 0, &batChase };
-AISTATE batDodgeDown = {kAiStateMove, 6, -1, 120, NULL, MoveDodgeDown, 0, &batChase };
-AISTATE batDodgeDownRight = {kAiStateMove, 6, -1, 90, NULL, MoveDodgeDown, 0, &batChase };
-AISTATE batDodgeDownLeft = {kAiStateMove, 6, -1, 90, NULL, MoveDodgeDown, 0, &batChase };
+AISTATE batHide = {kAiStateOther, 6, -1, 0, NULL, batMoveToCeil, batMoveForward, NULL };
+AISTATE batDodgeUp = {kAiStateMove, 6, -1, 120, NULL, batMoveDodgeUp, 0, &batChase };
+AISTATE batDodgeUpRight = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeUp, 0, &batChase };
+AISTATE batDodgeUpLeft = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeUp, 0, &batChase };
+AISTATE batDodgeDown = {kAiStateMove, 6, -1, 120, NULL, batMoveDodgeDown, 0, &batChase };
+AISTATE batDodgeDownRight = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
+AISTATE batDodgeDownLeft = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 
-static void BiteSeqCallback(int, int nXSprite)
+static void batBiteSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     spritetype *pSprite = &sprite[pXSprite->reference];
@@ -89,7 +89,7 @@ static void BiteSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx, dy, height2-height, VECTOR_TYPE_6);
 }
 
-static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void batThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -141,13 +141,13 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void batThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    thinkTarget(pSprite, pXSprite);
+    batThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void batThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -158,10 +158,10 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(pSprite, pXSprite, &batSearch);
-    thinkTarget(pSprite, pXSprite);
+    batThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
+static void batThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {
@@ -215,7 +215,7 @@ static void thinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
     pXSprite->target = -1;
 }
 
-static void MoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
+static void batMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -239,7 +239,7 @@ static void MoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = -0x52aaa;
 }
 
-static void MoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
+static void batMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -265,7 +265,7 @@ static void MoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = 0x44444;
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void batThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {
@@ -325,7 +325,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiNewState(pSprite, pXSprite, &batHide);
 }
 
-static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+static void batMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -357,7 +357,7 @@ static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
+static void batMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -388,7 +388,7 @@ static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = 0x44444;
 }
 
-static void MoveFly(spritetype *pSprite, XSPRITE *pXSprite)
+static void batMoveFly(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -419,7 +419,7 @@ static void MoveFly(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = -0x2d555;
 }
 
-void MoveToCeil(spritetype *pSprite, XSPRITE *pXSprite)
+void batMoveToCeil(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int x = pSprite->x;
     int y = pSprite->y;

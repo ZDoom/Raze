@@ -44,44 +44,44 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void SlashSeqCallback(int, int);
-static void ThrowSeqCallback(int, int);
-static void BlastSeqCallback(int, int);
-static void thinkTarget(spritetype *, XSPRITE *);
-static void thinkSearch(spritetype *, XSPRITE *);
-static void thinkGoto(spritetype *, XSPRITE *);
-static void MoveDodgeUp(spritetype *, XSPRITE *);
-static void MoveDodgeDown(spritetype *, XSPRITE *);
-static void thinkChase(spritetype *, XSPRITE *);
-static void MoveForward(spritetype *, XSPRITE *);
-static void MoveSlow(spritetype *, XSPRITE *);
-static void MoveSwoop(spritetype *, XSPRITE *);
-static void MoveFly(spritetype *, XSPRITE *);
+static void ghostSlashSeqCallback(int, int);
+static void ghostThrowSeqCallback(int, int);
+static void ghostBlastSeqCallback(int, int);
+static void ghostThinkTarget(spritetype *, XSPRITE *);
+static void ghostThinkSearch(spritetype *, XSPRITE *);
+static void ghostThinkGoto(spritetype *, XSPRITE *);
+static void ghostMoveDodgeUp(spritetype *, XSPRITE *);
+static void ghostMoveDodgeDown(spritetype *, XSPRITE *);
+static void ghostThinkChase(spritetype *, XSPRITE *);
+static void ghostMoveForward(spritetype *, XSPRITE *);
+static void ghostMoveSlow(spritetype *, XSPRITE *);
+static void ghostMoveSwoop(spritetype *, XSPRITE *);
+static void ghostMoveFly(spritetype *, XSPRITE *);
 
-static int nSlashClient = seqRegisterClient(SlashSeqCallback);
-static int nThrowClient = seqRegisterClient(ThrowSeqCallback);
-static int nBlastClient = seqRegisterClient(BlastSeqCallback);
+static int nGhostSlashClient = seqRegisterClient(ghostSlashSeqCallback);
+static int nGhostThrowClient = seqRegisterClient(ghostThrowSeqCallback);
+static int nGhostBlastClient = seqRegisterClient(ghostBlastSeqCallback);
 
-AISTATE ghostIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, thinkTarget, NULL };
-AISTATE ghostChase = { kAiStateChase, 0, -1, 0, NULL, MoveForward, thinkChase, &ghostIdle };
-AISTATE ghostGoto = { kAiStateMove, 0, -1, 600, NULL, MoveForward, thinkGoto, &ghostIdle };
-AISTATE ghostSlash = { kAiStateChase, 6, nSlashClient, 120, NULL, NULL, NULL, &ghostChase };
-AISTATE ghostThrow = { kAiStateChase, 6, nThrowClient, 120, NULL, NULL, NULL, &ghostChase };
-AISTATE ghostBlast = { kAiStateChase, 6, nBlastClient, 120, NULL, MoveSlow, NULL, &ghostChase };
+AISTATE ghostIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, ghostThinkTarget, NULL };
+AISTATE ghostChase = { kAiStateChase, 0, -1, 0, NULL, ghostMoveForward, ghostThinkChase, &ghostIdle };
+AISTATE ghostGoto = { kAiStateMove, 0, -1, 600, NULL, ghostMoveForward, ghostThinkGoto, &ghostIdle };
+AISTATE ghostSlash = { kAiStateChase, 6, nGhostSlashClient, 120, NULL, NULL, NULL, &ghostChase };
+AISTATE ghostThrow = { kAiStateChase, 6, nGhostThrowClient, 120, NULL, NULL, NULL, &ghostChase };
+AISTATE ghostBlast = { kAiStateChase, 6, nGhostBlastClient, 120, NULL, ghostMoveSlow, NULL, &ghostChase };
 AISTATE ghostRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &ghostChase };
 AISTATE ghostTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &ghostChase };
-AISTATE ghostSearch = { kAiStateSearch, 0, -1, 120, NULL, MoveForward, thinkSearch, &ghostIdle };
-AISTATE ghostSwoop = { kAiStateOther, 0, -1, 120, NULL, MoveSwoop, thinkChase, &ghostChase };
-AISTATE ghostFly = { kAiStateMove, 0, -1, 0, NULL, MoveFly, thinkChase, &ghostChase };
+AISTATE ghostSearch = { kAiStateSearch, 0, -1, 120, NULL, ghostMoveForward, ghostThinkSearch, &ghostIdle };
+AISTATE ghostSwoop = { kAiStateOther, 0, -1, 120, NULL, ghostMoveSwoop, ghostThinkChase, &ghostChase };
+AISTATE ghostFly = { kAiStateMove, 0, -1, 0, NULL, ghostMoveFly, ghostThinkChase, &ghostChase };
 AISTATE ghostTurn = { kAiStateMove, 0, -1, 120, NULL, aiMoveTurn, NULL, &ghostChase };
-AISTATE ghostDodgeUp = { kAiStateMove, 0, -1, 60, NULL, MoveDodgeUp, NULL, &ghostChase };
-AISTATE ghostDodgeUpRight = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeUp, NULL, &ghostChase };
-AISTATE ghostDodgeUpLeft = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeUp, NULL, &ghostChase };
-AISTATE ghostDodgeDown = { kAiStateMove, 0, -1, 120, NULL, MoveDodgeDown, NULL, &ghostChase };
-AISTATE ghostDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeDown, NULL, &ghostChase };
-AISTATE ghostDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, MoveDodgeDown, NULL, &ghostChase };
+AISTATE ghostDodgeUp = { kAiStateMove, 0, -1, 60, NULL, ghostMoveDodgeUp, NULL, &ghostChase };
+AISTATE ghostDodgeUpRight = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeUp, NULL, &ghostChase };
+AISTATE ghostDodgeUpLeft = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeUp, NULL, &ghostChase };
+AISTATE ghostDodgeDown = { kAiStateMove, 0, -1, 120, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
+AISTATE ghostDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
+AISTATE ghostDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
 
-static void SlashSeqCallback(int, int nXSprite)
+static void ghostSlashSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -104,14 +104,14 @@ static void SlashSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx-r2, dy+r1, dz, VECTOR_TYPE_12);
 }
 
-static void ThrowSeqCallback(int, int nXSprite)
+static void ghostThrowSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     actFireThing(&sprite[nSprite], 0, 0, gDudeSlope[nXSprite]-7500, kThingBone, 0xeeeee);
 }
 
-static void BlastSeqCallback(int, int nXSprite)
+static void ghostBlastSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -203,7 +203,7 @@ static void BlastSeqCallback(int, int nXSprite)
     #endif
 }
 
-static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -259,13 +259,13 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 {
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -283,7 +283,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiThinkTarget(pSprite, pXSprite);
 }
 
-static void MoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -311,7 +311,7 @@ static void MoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = -0x1d555;
 }
 
-static void MoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -341,7 +341,7 @@ static void MoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = 0x44444;
 }
 
-static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 {
     if (pXSprite->target == -1)
     {
@@ -453,7 +453,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     pXSprite->target = -1;
 }
 
-static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -489,7 +489,7 @@ static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void MoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -529,7 +529,7 @@ static void MoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -568,7 +568,7 @@ static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void MoveFly(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveFly(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
