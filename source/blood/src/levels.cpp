@@ -62,7 +62,7 @@ IniFile *BloodINI;
 void levelInitINI(const char *pzIni)
 {
 	if (!fileSystem.FileExists(pzIni))
-        ThrowError("Initialization: %s does not exist", pzIni);
+        I_Error("Initialization: %s does not exist", pzIni);
     BloodINI = new IniFile(pzIni);
     strncpy(BloodIniFile, pzIni, BMAX_PATH);
 }
@@ -92,7 +92,7 @@ void levelTriggerSecret(int nSecret)
 void CheckSectionAbend(const char *pzSection)
 {
     if (!pzSection || !BloodINI->SectionExists(pzSection))
-        ThrowError("Section [%s] expected in BLOOD.INI", pzSection);
+        I_Error("Section [%s] expected in BLOOD.INI", pzSection);
 }
 
 void CheckKeyAbend(const char *pzSection, const char *pzKey)
@@ -100,7 +100,7 @@ void CheckKeyAbend(const char *pzSection, const char *pzKey)
     dassert(pzSection != NULL);
 
     if (!pzKey || !BloodINI->KeyExists(pzSection, pzKey))
-        ThrowError("Key %s expected in section [%s] of BLOOD.INI", pzKey, pzSection);
+        I_Error("Key %s expected in section [%s] of BLOOD.INI", pzKey, pzSection);
 }
 
 

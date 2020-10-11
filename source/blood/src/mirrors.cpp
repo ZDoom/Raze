@@ -90,7 +90,7 @@ void InitMirrors(void)
                     }
                 }
                 if (j < 0)
-                    ThrowError("wall[%d] has no matching wall link! (data=%d)\n", i, tmp);
+                    I_Error("wall[%d] has no matching wall link! (data=%d)\n", i, tmp);
                 mirrorcnt++;
             }
             continue;
@@ -119,7 +119,7 @@ void InitMirrors(void)
             int nLink2 = sprite[nLink].owner & 0xfff;
             int j = sprite[nLink2].sectnum;
             if (sector[j].ceilingpicnum != 504)
-                ThrowError("Lower link sector %d doesn't have mirror picnum\n", j);
+                I_Error("Lower link sector %d doesn't have mirror picnum\n", j);
             mirror[mirrorcnt].TotalKills = 2;
             mirror[mirrorcnt].at8 = sprite[nLink2].x-sprite[nLink].x;
             mirror[mirrorcnt].atc = sprite[nLink2].y-sprite[nLink].y;

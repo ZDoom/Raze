@@ -90,7 +90,7 @@ void FireInit(void)
     InitSeedBuffers();
     auto fr = fileSystem.OpenFileReader("rfire.clu");
     if (!fr.isOpen())
-        ThrowError("RFIRE.CLU not found");
+        I_Error("RFIRE.CLU not found");
     gCLU = fr.Read();
     for (int i = 0; i < 100; i++)
         DoFireFrame();

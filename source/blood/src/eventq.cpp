@@ -277,7 +277,7 @@ void evInit(void)
     {
         int nXSector = sector[i].extra;
         if (nXSector >= kMaxXSectors)
-            ThrowError("Invalid xsector reference in sector %d", i);
+            I_Error("Invalid xsector reference in sector %d", i);
         if (nXSector > 0 && xsector[nXSector].rxID > 0)
         {
             dassert(nCount < kChannelMax);
@@ -290,7 +290,7 @@ void evInit(void)
     {
         int nXWall = wall[i].extra;
         if (nXWall >= kMaxXWalls)
-            ThrowError("Invalid xwall reference in wall %d", i);
+            I_Error("Invalid xwall reference in wall %d", i);
         if (nXWall > 0 && xwall[nXWall].rxID > 0)
         {
             dassert(nCount < kChannelMax);
@@ -305,7 +305,7 @@ void evInit(void)
         {
             int nXSprite = sprite[i].extra;
             if (nXSprite >= kMaxXSprites)
-                ThrowError("Invalid xsprite reference in sprite %d", i);
+                I_Error("Invalid xsprite reference in sprite %d", i);
             if (nXSprite > 0 && xsprite[nXSprite].rxID > 0)
             {
                 dassert(nCount < kChannelMax);

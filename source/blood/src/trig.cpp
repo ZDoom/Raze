@@ -62,7 +62,7 @@ void trigInit()
     auto fr = fileSystem.OpenFileReader("cosine.dat");
     auto len = fr.Read(costable, 2048);
     if (len != 2048)
-        ThrowError("Cosine table incorrect size");
+        I_Error("Cosine table incorrect size");
 #if B_BIG_ENDIAN == 1
     for (int i = 0; i < 512; i++)
     {

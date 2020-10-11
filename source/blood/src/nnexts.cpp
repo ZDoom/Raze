@@ -352,7 +352,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 }
 
                 if (sysStat)
-                    ThrowError("Sprite status list number %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->index, pSprite->statnum, kStatModernBase, kStatModernMax);
+                    I_Error("Sprite status list number %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->index, pSprite->statnum, kStatModernBase, kStatModernMax);
             }
 
             switch (pSprite->type) {
@@ -393,7 +393,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     for (int nSprite = headspritestat[kStatDude], found = 0; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
                         XSPRITE* pXSpr = &xsprite[sprite[nSprite].extra];
                         if (pXSpr->rxID != pXSprite->txID) continue;
-                        else if (found) ThrowError("\nCustom dude (TX ID %d):\nOnly one incarnation allowed per channel!", pXSprite->txID);
+                        else if (found) I_Error("\nCustom dude (TX ID %d):\nOnly one incarnation allowed per channel!", pXSprite->txID);
                         changespritestat(nSprite, kStatInactive);
                         nSprite = headspritestat[kStatDude];
                         found++;
@@ -407,22 +407,22 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     switch (pXSprite->command) {
                         case kCmdLink:
                             if (pXSprite->data1 < 1 || pXSprite->data1 >= kMaxPlayers)
-                                ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", pSprite->index, pXSprite->data1);
+                                I_Error("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", pSprite->index, pXSprite->data1);
                             
                             //if (numplayers < pXSprite->data1)
-                                //ThrowError("\nPlayer Control (SPRITE #%d):\n There is no player #%d", pSprite->index, pXSprite->data1);
+                                //I_Error("\nPlayer Control (SPRITE #%d):\n There is no player #%d", pSprite->index, pXSprite->data1);
 
                             if (pXSprite->rxID && pXSprite->rxID != kChannelLevelStart)
-                                ThrowError("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", pSprite->index);
+                                I_Error("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", pSprite->index);
 
                             if (pXSprite->txID && pXSprite->txID < kChannelUser)
-                                ThrowError("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", pSprite->index, kChannelUser, kChannelMax);
+                                I_Error("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", pSprite->index, kChannelUser, kChannelMax);
 
                             // only one linker per player allowed
                             for (int nSprite = headspritestat[kStatModernPlayerLinker]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
                                 XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
                                 if (pXSprite->data1 == pXCtrl->data1)
-                                    ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", pSprite->index, pXSprite->data1, nSprite);
+                                    I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", pSprite->index, pXSprite->data1, nSprite);
                             }
                             pXSprite->sysData1 = -1;
                             pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
@@ -494,7 +494,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 default:
                     gProxySpritesList[gProxySpritesCount++] = pSprite->index;
                     if (gProxySpritesCount == kMaxSuperXSprites)
-                        ThrowError("Max (%d) *additional* Proximity sprites reached!", kMaxSuperXSprites);
+                        I_Error("Max (%d) *additional* Proximity sprites reached!", kMaxSuperXSprites);
                     break;
             }
         }
@@ -510,7 +510,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 default:
                     gSightSpritesList[gSightSpritesCount++] = pSprite->index;
                     if (gSightSpritesCount == kMaxSuperXSprites)
-                        ThrowError("Max (%d) Sight sprites reached!", kMaxSuperXSprites);
+                        I_Error("Max (%d) Sight sprites reached!", kMaxSuperXSprites);
                     break;
             }
         }
@@ -526,7 +526,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 default:
                     gImpactSpritesList[gImpactSpritesCount++] = pSprite->index;
                     if (gImpactSpritesCount == kMaxSuperXSprites)
-                        ThrowError("Max (%d) *additional* Impact sprites reached!", kMaxSuperXSprites);
+                        I_Error("Max (%d) *additional* Impact sprites reached!", kMaxSuperXSprites);
                     break;
             }
         }
@@ -569,7 +569,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
 
         if (pXSprite->busyTime <= 0) continue;
         else if (gTrackingCondsCount >= kMaxTrackingConditions)
-            ThrowError("\nMax (%d) tracking conditions reached!", kMaxTrackingConditions);
+            I_Error("\nMax (%d) tracking conditions reached!", kMaxTrackingConditions);
             
         int count = 0;
         TRCONDITION* pCond = &gCondition[gTrackingCondsCount];
@@ -912,7 +912,7 @@ void sfxPlayVectorSound(spritetype* pSprite, int vectorId) {
 int getSpriteMassBySize(spritetype* pSprite) {
     int mass = 0; int seqId = -1; int clipDist = pSprite->clipdist; Seq* pSeq = NULL;
     if (pSprite->extra < 0) {
-        ThrowError("getSpriteMassBySize: pSprite->extra < 0");
+        I_Error("getSpriteMassBySize: pSprite->extra < 0");
 
     } else if (IsDudeSprite(pSprite)) {
 
@@ -2408,7 +2408,7 @@ int condSerialize(int objType, int objIndex) {
         case OBJ_WALL:   return kCondSerialWall + objIndex;
         case OBJ_SPRITE: return kCondSerialSprite + objIndex;
     }
-    ThrowError("Unknown object type %d, index %d", objType, objIndex)
+    I_Error("Unknown object type %d, index %d", objType, objIndex);
     return -1;
 }
 
@@ -2430,7 +2430,7 @@ void condUnserialize(int serial, int* objType, int* objIndex) {
 
     } else {
         
-        ThrowError("%d is not condition serial!", serial);
+        I_Error("%d is not condition serial!", serial);
 
     }
 }
@@ -2468,7 +2468,7 @@ bool condCmp(int val, int arg1, int arg2, int comOp) {
     if (comOp & 0x2000) return (comOp & CSTAT_SPRITE_BLOCK) ? (val > arg1) : (val >= arg1); // blue sprite
     else if (comOp & 0x4000) return (comOp & CSTAT_SPRITE_BLOCK) ? (val < arg1) : (val <= arg1); // green sprite
     else if (comOp & CSTAT_SPRITE_BLOCK) {
-        if (arg1 > arg2) ThrowError("Value of argument #1 (%d) must be less than value of argument #2 (%d)", arg1, arg2);
+        if (arg1 > arg2) I_Error("Value of argument #1 (%d) must be less than value of argument #2 (%d)", arg1, arg2);
         return (val >= arg1 && val <= arg2);
     }
     else return (val == arg1);
@@ -2480,7 +2480,7 @@ bool condCmpne(int arg1, int arg2, int comOp) {
     if (comOp & 0x2000) return (comOp & CSTAT_SPRITE_BLOCK) ? (0 > arg1) : (0 >= arg1); // blue sprite
     else if (comOp & 0x4000) return (comOp & CSTAT_SPRITE_BLOCK) ? (0 < arg1) : (0 <= arg1); // green sprite
     else if (comOp & CSTAT_SPRITE_BLOCK) {
-        if (arg1 > arg2) ThrowError("Value of argument #1 (%d) must be less than value of argument #2 (%d)", arg1, arg2);
+        if (arg1 > arg2) I_Error("Value of argument #1 (%d) must be less than value of argument #2 (%d)", arg1, arg2);
         return (0 >= arg1 && 0 <= arg2);
     }
     else return (0 == arg1);
@@ -2494,7 +2494,7 @@ bool condCmpb(int val, int arg1, int arg2, int comOp) {
     if (comOp & 0x2000) return (comOp & CSTAT_SPRITE_BLOCK) ? (val > 0) : (val >= 0); // blue sprite
     else if (comOp & 0x4000) return (comOp & CSTAT_SPRITE_BLOCK) ? (val < arg1) : (val <= arg1); // green sprite
     else if (comOp & CSTAT_SPRITE_BLOCK) {
-        if (arg1 > arg2) ThrowError("Value of argument #1 (%d) must be less than value of argument #2 (%d)", arg1, arg2);
+        if (arg1 > arg2) I_Error("Value of argument #1 (%d) must be less than value of argument #2 (%d)", arg1, arg2);
         return (val >= arg1 && val <= arg2);
     }
     else return (val == arg1);
@@ -2508,7 +2508,7 @@ void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
     va_list args;
     va_start(args, pzFormat);
     vsprintf(buffer2, pzFormat, args);
-    ThrowError("%s%s", buffer, buffer2);
+    I_Error("%s%s", buffer, buffer2);
 }
 
 

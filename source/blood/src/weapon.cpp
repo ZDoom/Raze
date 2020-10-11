@@ -218,7 +218,7 @@ void WeaponInit(void)
     {
         weaponQAV[i] = getQAV(i);
         if (!weaponQAV[i])
-            ThrowError("Could not load QAV %d\n", i);
+            I_Error("Could not load QAV %d\n", i);
         weaponQAV[i]->nSprite = -1;
     }
 }

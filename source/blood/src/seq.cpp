@@ -62,9 +62,9 @@ int seqRegisterClient(void(*pClient)(int, int))
 void Seq::Preload(void)
 {
     if (memcmp(signature, "SEQ\x1a", 4) != 0)
-        ThrowError("Invalid sequence");
+        I_Error("Invalid sequence");
     if ((version & 0xff00) != 0x300)
-        ThrowError("Obsolete sequence version");
+        I_Error("Obsolete sequence version");
     for (int i = 0; i < nFrames; i++)
         tilePreloadTile(seqGetTile(&frames[i]));
 }
@@ -72,9 +72,9 @@ void Seq::Preload(void)
 void Seq::Precache(HitList &hits)
 {
     if (memcmp(signature, "SEQ\x1a", 4) != 0)
-        ThrowError("Invalid sequence");
+        I_Error("Invalid sequence");
     if ((version & 0xff00) != 0x300)
-        ThrowError("Obsolete sequence version");
+        I_Error("Obsolete sequence version");
     for (int i = 0; i < nFrames; i++)
         tilePrecacheTile(seqGetTile(&frames[i]), -1, hits);
 }
@@ -382,7 +382,7 @@ void seqSpawn(int a1, int a2, int a3, int a4)
     
     auto pSeq = getSequence(a1);
     if (!pSeq)
-        ThrowError("Missing sequence #%d", a1);
+        I_Error("Missing sequence #%d", a1);
 
     int i = seqActiveCount;
     if (pInst->at13)
@@ -398,9 +398,9 @@ void seqSpawn(int a1, int a2, int a3, int a4)
         dassert(i < seqActiveCount);
     }
     if (memcmp(pSeq->signature, "SEQ\x1a", 4) != 0)
-        ThrowError("Invalid sequence %d", a1);
+        I_Error("Invalid sequence %d", a1);
     if ((pSeq->version & 0xff00) != 0x300)
-        ThrowError("Sequence %d is obsolete version", a1);
+        I_Error("Sequence %d is obsolete version", a1);
     if ((pSeq->version & 0xff) == 0x00)
     {
         for (int i = 0; i < pSeq->nFrames; i++)
@@ -572,13 +572,13 @@ void SeqLoadSave::Load(void)
             int nSeq = pInst->at8;
             auto pSeq = getSequence(nSeq);
             if (!pSeq) {
-                ThrowError("Missing sequence #%d", nSeq);
+                I_Error("Missing sequence #%d", nSeq);
                 continue;
             }
             if (memcmp(pSeq->signature, "SEQ\x1a", 4) != 0)
-                ThrowError("Invalid sequence %d", nSeq);
+                I_Error("Invalid sequence %d", nSeq);
             if ((pSeq->version & 0xff00) != 0x300)
-                ThrowError("Sequence %d is obsolete version", nSeq);
+                I_Error("Sequence %d is obsolete version", nSeq);
             pInst->pSequence = pSeq;
         }
     }

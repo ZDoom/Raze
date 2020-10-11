@@ -1667,7 +1667,7 @@ void InitPath(unsigned int nSector, XSECTOR *pXSector)
     }
     
     if (nSprite < 0) {
-        //ThrowError("Unable to find path marker with id #%d", nId);
+        //I_Error("Unable to find path marker with id #%d", nId);
         viewSetSystemMessage("Unable to find path marker with id #%d for path sector #%d", nId, nSector);
         return;
         

@@ -40,11 +40,6 @@ void __dassert(const char *pzExpr, const char *pzFile, int nLine);
 void QuitGame(void);
 void consoleSysMsg(const char* pMessage, ...);
 
-#define ThrowError(...) \
-	{ \
-		I_Error(__VA_ARGS__); \
-	}
-
 #define dassert(x) assert(x)
 
 enum
@@ -741,7 +736,7 @@ public:
     int readBit()
     {
         if (nSize <= 0)
-            ThrowError("Buffer overflow in BitReader");
+            I_Error("Buffer overflow in BitReader");
         int bit = ((*pBuffer)>>nBitPos)&1;
         if (++nBitPos >= 8)
         {
@@ -758,7 +753,7 @@ public:
         nSize -= nBitPos>>3;
         nBitPos &= 7;
         if ((nSize == 0 && nBitPos > 0) || nSize < 0)
-            ThrowError("Buffer overflow in BitReader");
+            I_Error("Buffer overflow in BitReader");
     }
     unsigned int readUnsigned(int nBits)
     {

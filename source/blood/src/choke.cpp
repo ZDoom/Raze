@@ -43,7 +43,7 @@ void CChoke::init(int a1, void(*a2)(PLAYER*))
     {
         at8 = getQAV(a1);
         if (!at8)
-            ThrowError("Could not load QAV %d\n", a1);
+            I_Error("Could not load QAV %d\n", a1);
         at8->nSprite = -1;
         at8->x = at14;
         at8->y = at18;

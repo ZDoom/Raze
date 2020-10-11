@@ -2523,7 +2523,7 @@ void actInit(bool bSaveLoad) {
         for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
             spritetype *pSprite = &sprite[nSprite];
             if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
-                ThrowError("Non-enemy sprite (%d) in the enemy sprite list.\n", nSprite);
+                I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", nSprite);
             unk[pSprite->type - kDudeBase] = 1;
         }
         
@@ -3502,7 +3502,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
             if (!IsDudeSprite(pSprite)) {
                 consoleSysMsg("Bad Dude Failed: initial=%d type=%d %s\n", (int)pSprite->inittype, (int)pSprite->type, (int)(pSprite->flags & kHitagRespawn) ? "RESPAWN" : "NORMAL");
                 return damage >> 4;
-                //ThrowError("Bad Dude Failed: initial=%d type=%d %s\n", (int)pSprite->inittype, (int)pSprite->type, (int)(pSprite->flags & 16) ? "RESPAWN" : "NORMAL");
+                //I_Error("Bad Dude Failed: initial=%d type=%d %s\n", (int)pSprite->inittype, (int)pSprite->type, (int)(pSprite->flags & 16) ? "RESPAWN" : "NORMAL");
             }
 
             int nType = pSprite->type - kDudeBase; int nDamageFactor = getDudeInfo(nType+kDudeBase)->at70[damageType];

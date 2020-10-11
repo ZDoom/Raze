@@ -282,7 +282,7 @@ unsigned short dbInsertXSprite(int nSprite)
     nextXSprite[0] = nextXSprite[nXSprite];
     if (nXSprite == 0)
     {
-        ThrowError("Out of free XSprites");
+        I_Error("Out of free XSprites");
     }
     memset(&xsprite[nXSprite], 0, sizeof(XSPRITE));
     memset(&gSpriteHit[nXSprite], 0, sizeof(SPRITEHIT));
@@ -306,7 +306,7 @@ unsigned short dbInsertXWall(int nWall)
     nextXWall[0] = nextXWall[nXWall];
     if (nXWall == 0)
     {
-        ThrowError("Out of free XWalls");
+        I_Error("Out of free XWalls");
     }
     memset(&xwall[nXWall], 0, sizeof(XWALL));
     xwall[nXWall].reference = nWall;
@@ -328,7 +328,7 @@ unsigned short dbInsertXSector(int nSector)
     nextXSector[0] = nextXSector[nXSector];
     if (nXSector == 0)
     {
-        ThrowError("Out of free XSectors");
+        I_Error("Out of free XSectors");
     }
     memset(&xsector[nXSector], 0, sizeof(XSECTOR));
     xsector[nXSector].reference = nSector;

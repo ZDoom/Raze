@@ -444,7 +444,7 @@ int packItemToPowerup(int nPack)
             nPowerUp = kPwUpJumpBoots;
             break;
         default:
-            ThrowError("Unhandled pack item %d", nPack);
+            I_Error("Unhandled pack item %d", nPack);
             break;
     }
     return nPowerUp;
@@ -481,7 +481,7 @@ char packAddItem(PLAYER *pPlayer, unsigned int nPack)
             pPlayer->packItemId = nPack;
     }
     else
-        ThrowError("Unhandled pack item %d", nPack);
+        I_Error("Unhandled pack item %d", nPack);
     return 1;
 }
 
@@ -534,7 +534,7 @@ void packUseItem(PLAYER *pPlayer, int nPack)
             nPowerUp = kPwUpJumpBoots;
             break;
         default:
-            ThrowError("Unhandled pack item %d", nPack);
+            I_Error("Unhandled pack item %d", nPack);
             return;
         }
     }

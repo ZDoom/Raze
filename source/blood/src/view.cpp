@@ -141,7 +141,7 @@ void viewClearInterpolations(void)
 void viewAddInterpolation(void *data, INTERPOLATE_TYPE type)
 {
     if (nInterpolations == kMaxInterpolations)
-        ThrowError("Too many interpolations");
+        I_Error("Too many interpolations");
     INTERPOLATE *pInterpolate = &gInterpolation[nInterpolations++];
     pInterpolate->pointer = data;
     pInterpolate->type = type;

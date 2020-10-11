@@ -134,7 +134,7 @@ void ambInit(void)
             int nSFX = pXSprite->data3;
             auto snd = soundEngine->FindSoundByResID(nSFX);
             if (!snd) {
-                //ThrowError("Missing sound #%d used in ambient sound generator %d\n", nSFX);
+                //I_Error("Missing sound #%d used in ambient sound generator %d\n", nSFX);
                 viewSetSystemMessage("Missing sound #%d used in ambient sound generator #%d\n", nSFX, nSprite);
                 actPostSprite(nSprite, kStatDecoration);
                 continue;

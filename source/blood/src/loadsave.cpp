@@ -449,12 +449,12 @@ void sub_76FD4(void)
 
 void LoadSave::Save(void)
 {
-    ThrowError("Pure virtual function called");
+    I_Error("Pure virtual function called");
 }
 
 void LoadSave::Load(void)
 {
-    ThrowError("Pure virtual function called");
+    I_Error("Pure virtual function called");
 }
 
 void LoadSave::Read(void *pData, int nSize)
@@ -462,7 +462,7 @@ void LoadSave::Read(void *pData, int nSize)
     dword_27AA38 += nSize;
     dassert(hLFile.isOpen());
     if (hLFile.Read(pData, nSize) != nSize)
-        ThrowError("Error reading save file.");
+        I_Error("Error reading save file.");
 }
 
 void LoadSave::Write(void *pData, int nSize)
@@ -471,7 +471,7 @@ void LoadSave::Write(void *pData, int nSize)
     dword_27AA3C += nSize;
     dassert(hSFile != NULL);
     if (hSFile->Write(pData, nSize) != (size_t)nSize)
-        ThrowError("File error #%d writing save file.", errno);
+        I_Error("File error #%d writing save file.", errno);
 }
 
 bool GameInterface::LoadGame()
@@ -574,11 +574,11 @@ void MyLoadSave::Load(void)
     int id;
     Read(&id, sizeof(id));
     if (id != 0x5653424e/*'VSBN'*/)
-        ThrowError("Old saved game found");
+        I_Error("Old saved game found");
     short version;
     Read(&version, sizeof(version));
     if (version != BYTEVERSION)
-        ThrowError("Incompatible version of saved game found!");
+        I_Error("Incompatible version of saved game found!");
     Read(&gGameOptions, sizeof(gGameOptions));
     
     int nNumSprites;
