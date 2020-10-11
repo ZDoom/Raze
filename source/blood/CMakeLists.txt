@@ -67,7 +67,7 @@ set( PCH_SOURCES
 	src/view.cpp
 	src/warp.cpp
 	src/weapon.cpp
-	src/d_menu.cpp
+	#src/d_menu.cpp
 )
 
 add_game_library( blood )
