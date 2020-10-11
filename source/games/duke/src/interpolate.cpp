@@ -37,9 +37,6 @@ source as it is released.
 
 BEGIN_DUKE_NS
 
-
-#define MAXINTERPOLATIONS MAXSPRITES
-
 int32_t numinterpolations;
 int32_t g_interpolationLock;
 int32_t oldipos[MAXINTERPOLATIONS];

@@ -15,7 +15,7 @@ BEGIN_DUKE_NS
 extern user_defs ud;
 // Interpolation code is the same in all games with slightly different naming - this needs to be unified and cleaned up.
 // Interpolations are reconstructed on load and do not need to be saved.
-#define MAXINTERPOLATIONS MAXSPRITES
+enum { MAXINTERPOLATIONS = MAXSPRITES };
 extern int numinterpolations;
 extern int* curipos[MAXINTERPOLATIONS];
 extern int bakipos[MAXINTERPOLATIONS];

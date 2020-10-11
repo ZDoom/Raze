@@ -3,9 +3,7 @@
 // sounds.h
 //
 //****************************************************************************
-
-#ifndef sounds_public_h_
-#define sounds_public_h_
+#pragma once
 
 #include "raze_sound.h"
 #include "raze_music.h"
@@ -81,4 +79,3 @@ extern TArray<FString> specialmusic;
 
 END_DUKE_NS
 
-#endif

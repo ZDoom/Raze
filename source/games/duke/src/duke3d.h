@@ -1,5 +1,4 @@
-#ifndef duke3d_h_
-#define duke3d_h_
+#pragma once
 
 #include "build.h"
 
@@ -125,4 +124,3 @@ extern Dispatcher fi;
 
 END_DUKE_NS
 
-#endif
