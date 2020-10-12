@@ -552,24 +552,23 @@ void moveplayers(void) //Players
 
 void movefx(void)
 {
-	short i, j, nexti, p;
+	int i, j, p;
 	int x, ht;
 	spritetype* s;
 
-	i = headspritestat[STAT_FX];
-	while (i >= 0)
+	StatIterator iti(STAT_FX);
+	while ((i = iti.NextIndex()) >= 0)
 	{
-		s = &sprite[i];
-
-		nexti = nextspritestat[i];
+		auto s = &sprite[i];
+		auto hti = &hittype[i];
 
 		switch (s->picnum)
 		{
 		case RESPAWN:
-			if (sprite[i].extra == 66)
+			if (s->extra == 66)
 			{
-				j = fi.spawn(i, sprite[i].hitag);
-				if (isRRRA()) 
+				j = fi.spawn(i, s->hitag);
+				if (isRRRA())
 				{
 					respawn_rrra(i, j);
 				}
@@ -578,49 +577,49 @@ void movefx(void)
 					deletesprite(i);
 				}
 			}
-			else if (sprite[i].extra > (66 - 13))
-				sprite[i].extra++;
+			else if (s->extra > (66 - 13))
+				s->extra++;
 			break;
 
 		case MUSICANDSFX:
 
 			ht = s->hitag;
 
-			if (hittype[i].temp_data[1] != (int)SoundEnabled())
+			if (hti->temp_data[1] != (int)SoundEnabled())
 			{
-				hittype[i].temp_data[1] = SoundEnabled();
-				hittype[i].temp_data[0] = 0;
+				hti->temp_data[1] = SoundEnabled();
+				hti->temp_data[0] = 0;
 			}
 
 			if (s->lotag >= 1000 && s->lotag < 2000)
 			{
 				x = ldist(&sprite[ps[screenpeek].i], s);
-				if (x < ht && hittype[i].temp_data[0] == 0)
+				if (x < ht && hti->temp_data[0] == 0)
 				{
 					FX_SetReverb(s->lotag - 1000);
-					hittype[i].temp_data[0] = 1;
+					hti->temp_data[0] = 1;
 				}
-				if (x >= ht && hittype[i].temp_data[0] == 1)
+				if (x >= ht && hti->temp_data[0] == 1)
 				{
 					FX_SetReverb(0);
 					FX_SetReverbDelay(0);
-					hittype[i].temp_data[0] = 0;
+					hti->temp_data[0] = 0;
 				}
 			}
-			else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && sector[sprite[i].sectnum].floorz != sector[sprite[i].sectnum].ceilingz)
+			else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && sector[s->sectnum].floorz != sector[s->sectnum].ceilingz)
 			{
 				auto flags = S_GetUserFlags(s->lotag);
 				if (flags & SF_MSFX)
 				{
 					int x = dist(&sprite[ps[screenpeek].i], s);
 
-					if (x < ht && hittype[i].temp_data[0] == 0)
+					if (x < ht && hti->temp_data[0] == 0)
 					{
 						// Start playing an ambience sound.
 						S_PlayActorSound(s->lotag, i, CHAN_AUTO, CHANF_LOOP);
-						hittype[i].temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
+						hti->temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
 					}
-					else if (x >= ht && hittype[i].temp_data[0] == 1)
+					else if (x >= ht && hti->temp_data[0] == 1)
 					{
 						// Stop playing ambience sound because we're out of its range.
 						S_StopSound(s->lotag, i);
@@ -629,18 +628,17 @@ void movefx(void)
 
 				if ((flags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL)
 				{
-					if (hittype[i].temp_data[4] > 0) hittype[i].temp_data[4]--;
+					if (hti->temp_data[4] > 0) hti->temp_data[4]--;
 					else for (p = connecthead; p >= 0; p = connectpoint2[p])
 						if (p == myconnectindex && ps[p].cursectnum == s->sectnum)
 						{
 							S_PlaySound(s->lotag + (unsigned)global_random % (s->hitag + 1));
-							hittype[i].temp_data[4] = 26 * 40 + (global_random % (26 * 40));
+							hti->temp_data[4] = 26 * 40 + (global_random % (26 * 40));
 						}
 				}
 			}
 			break;
 		}
-		i = nexti;
 	}
 }
 
@@ -881,13 +879,14 @@ void movefountain(int i, int fountain)
 void moveflammable(int i, int tire, int box, int pool)
 {
 	auto s = &sprite[i];
+	auto ht = &hittype[i];
 	int j;
-	if (hittype[i].temp_data[0] == 1)
+	if (ht->temp_data[0] == 1)
 	{
-		hittype[i].temp_data[1]++;
-		if ((hittype[i].temp_data[1] & 3) > 0) return;
+		ht->temp_data[1]++;
+		if ((ht->temp_data[1] & 3) > 0) return;
 
-		if (!isRR() && s->picnum == tire && hittype[i].temp_data[1] == 32)
+		if (!isRR() && s->picnum == tire && ht->temp_data[1] == 32)
 		{
 			s->cstat = 0;
 			j = fi.spawn(i, pool);
@@ -904,7 +903,7 @@ void moveflammable(int i, int tire, int box, int pool)
 		}
 
 		j = s->xrepeat - (krand() & 7);
-		if (j < 10) 
+		if (j < 10)
 		{
 			deletesprite(i);
 			return;
@@ -913,7 +912,7 @@ void moveflammable(int i, int tire, int box, int pool)
 		s->xrepeat = j;
 
 		j = s->yrepeat - (krand() & 7);
-		if (j < 4) 
+		if (j < 4)
 		{
 			deletesprite(i);
 			return;
@@ -923,9 +922,10 @@ void moveflammable(int i, int tire, int box, int pool)
 	if (box >= 0 && s->picnum == box)
 	{
 		makeitfall(i);
-		hittype[i].ceilingz = sector[s->sectnum].ceilingz;
+		ht->ceilingz = sector[s->sectnum].ceilingz;
 	}
 }
+
 
 //---------------------------------------------------------------------------
 //
@@ -936,30 +936,33 @@ void moveflammable(int i, int tire, int box, int pool)
 void detonate(int i, int explosion)
 {
 	auto s = &sprite[i];
+	auto ht = &hittype[i];
 	auto t = &hittype[i].temp_data[0];
 	earthquaketime = 16;
 
-	int j = headspritestat[STAT_EFFECTOR];
-	while (j >= 0)
+	int j;
+	StatIterator itj(STAT_EFFECTOR);
+	while ((j = itj.NextIndex()) >= 0)
 	{
-		if (s->hitag == sprite[j].hitag)
+		auto sj = &sprite[j];
+		auto htj = &hittype[j];
+		if (s->hitag == sj->hitag)
 		{
-			if (sprite[j].lotag == SE_13_EXPLOSIVE)
+			if (sj->lotag == SE_13_EXPLOSIVE)
 			{
-				if (hittype[j].temp_data[2] == 0)
-					hittype[j].temp_data[2] = 1;
+				if (htj->temp_data[2] == 0)
+					htj->temp_data[2] = 1;
 			}
-			else if (sprite[j].lotag == SE_8_UP_OPEN_DOOR_LIGHTS)
-				hittype[j].temp_data[4] = 1;
-			else if (sprite[j].lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL)
+			else if (sj->lotag == SE_8_UP_OPEN_DOOR_LIGHTS)
+				htj->temp_data[4] = 1;
+			else if (sj->lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL)
 			{
-				if (hittype[j].temp_data[0] == 0)
-					hittype[j].temp_data[0] = 1;
+				if (htj->temp_data[0] == 0)
+					htj->temp_data[0] = 1;
 			}
-			else if (sprite[j].lotag == SE_21_DROP_FLOOR)
-				hittype[j].temp_data[0] = 1;
+			else if (sj->lotag == SE_21_DROP_FLOOR)
+				htj->temp_data[0] = 1;
 		}
-		j = nextspritestat[j];
 	}
 
 	s->z -= (32 << 8);
