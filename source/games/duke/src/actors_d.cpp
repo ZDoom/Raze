@@ -2039,118 +2039,123 @@ void moveweapons_d(void)
 
 //---------------------------------------------------------------------------
 //
-// 
+//
 //
 //---------------------------------------------------------------------------
 
 void movetransports_d(void)
 {
 	char warpspriteto;
-	short j, k, l, p, sect, sectlotag, nextj;
-	int ll, onfloorz, q, nexti;
-
-	for (int i = headspritestat[STAT_TRANSPORT]; i >= 0; i = nexti)
+	short k, l, p, sect, sectlotag;
+	int ll, onfloorz, q;
+	int i, j;
+	
+	StatIterator iti(STAT_TRANSPORT);
+	while ((i = iti.NextIndex()) >= 0)
 	{
-		sect = sprite[i].sectnum;
+		auto spri = &sprite[i];
+		auto hiti = &hittype[i];
+		auto spriowner = spri->owner < 0? nullptr : &sprite[spri->owner];
+		
+		sect = spri->sectnum;
 		sectlotag = sector[sect].lotag;
-
-		nexti = nextspritestat[i];
-
-		if (sprite[i].owner == i)
+		
+		
+		if (spri->owner == i)
 		{
-			i = nexti;
 			continue;
 		}
-
-		onfloorz = hittype[i].temp_data[4];
-
-		if (hittype[i].temp_data[0] > 0) hittype[i].temp_data[0]--;
-
-		j = headspritesect[sect];
-		while (j >= 0)
+		
+		onfloorz = hiti->temp_data[4];
+		
+		if (hiti->temp_data[0] > 0) hiti->temp_data[0]--;
+		
+		SectIterator itj(sect);
+		while ((j = itj.NextIndex()) >= 0)
 		{
-			nextj = nextspritesect[j];
-
-			switch (sprite[j].statnum)
+			auto sprj = &sprite[j];
+			auto hitj = &hittype[j];
+			
+			switch (sprj->statnum)
 			{
-			case STAT_PLAYER:	// Player
-
-				if (sprite[j].owner != -1)
+			case STAT_PLAYER:    // Player
+				
+				if (sprj->owner != -1)
 				{
-					p = sprite[j].yvel;
-
+					p = sprj->yvel;
+					
 					ps[p].on_warping_sector = 1;
-
+					
 					if (ps[p].transporter_hold == 0 && ps[p].jumping_counter == 0)
 					{
 						if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
 						{
-							if (sprite[i].pal == 0)
+							if (spri->pal == 0)
 							{
 								fi.spawn(i, TRANSPORTERBEAM);
 								S_PlayActorSound(TELEPORTER, i);
 							}
-
+							
 							for (k = connecthead; k >= 0; k = connectpoint2[k])
-								if (ps[k].cursectnum == sprite[sprite[i].owner].sectnum)
-								{
-									ps[k].frag_ps = p;
-									sprite[ps[k].i].extra = 0;
-								}
-
-							ps[p].angle.ang = buildang(sprite[sprite[i].owner].ang);
-
-							if (sprite[sprite[i].owner].owner != sprite[i].owner)
+							if (ps[k].cursectnum == spriowner->sectnum)
 							{
-								hittype[i].temp_data[0] = 13;
-								hittype[sprite[i].owner].temp_data[0] = 13;
+								ps[k].frag_ps = p;
+								sprite[ps[k].i].extra = 0;
+							}
+							
+							ps[p].angle.ang = buildang(spriowner->ang);
+							
+							if (spriowner->owner != spri->owner)
+							{
+								hiti->temp_data[0] = 13;
+								hittype[spri->owner].temp_data[0] = 13;
 								ps[p].transporter_hold = 13;
 							}
-
-							ps[p].bobposx = ps[p].oposx = ps[p].posx = sprite[sprite[i].owner].x;
-							ps[p].bobposy = ps[p].oposy = ps[p].posy = sprite[sprite[i].owner].y;
-							ps[p].oposz = ps[p].posz = sprite[sprite[i].owner].z - PHEIGHT;
-
-							changespritesect(j, sprite[sprite[i].owner].sectnum);
-							ps[p].cursectnum = sprite[j].sectnum;
-
-							if (sprite[i].pal == 0)
+							
+							ps[p].bobposx = ps[p].oposx = ps[p].posx = spriowner->x;
+							ps[p].bobposy = ps[p].oposy = ps[p].posy = spriowner->y;
+							ps[p].oposz = ps[p].posz = spriowner->z - PHEIGHT;
+							
+							changespritesect(j, spriowner->sectnum);
+							ps[p].cursectnum = sprj->sectnum;
+							
+							if (spri->pal == 0)
 							{
-								k = fi.spawn(sprite[i].owner, TRANSPORTERBEAM);
+								k = fi.spawn(spri->owner, TRANSPORTERBEAM);
 								S_PlayActorSound(TELEPORTER, k);
 							}
-
+							
 							break;
 						}
 					}
 					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
-
-					if (onfloorz == 0 && abs(sprite[i].z - ps[p].posz) < 6144)
+					
+					if (onfloorz == 0 && abs(spri->z - ps[p].posz) < 6144)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && (PlayerInput(p, SB_CROUCH) ^ !!ps[p].crouch_toggle)))
 						{
-							ps[p].oposx = ps[p].posx += sprite[sprite[i].owner].x - sprite[i].x;
-							ps[p].oposy = ps[p].posy += sprite[sprite[i].owner].y - sprite[i].y;
-
+							ps[p].oposx = ps[p].posx += spriowner->x - spri->x;
+							ps[p].oposy = ps[p].posy += spriowner->y - spri->y;
+							
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].posz = sprite[sprite[i].owner].z - 6144;
-							else ps[p].posz = sprite[sprite[i].owner].z + 6144;
+								ps[p].posz = spriowner->z - 6144;
+							else ps[p].posz = spriowner->z + 6144;
 							ps[p].oposz = ps[p].posz;
-
+							
 							hittype[ps[p].i].bposx = ps[p].posx;
 							hittype[ps[p].i].bposy = ps[p].posy;
 							hittype[ps[p].i].bposz = ps[p].posz;
-
-							changespritesect(j, sprite[sprite[i].owner].sectnum);
-							ps[p].cursectnum = sprite[sprite[i].owner].sectnum;
-
+							
+							changespritesect(j, spriowner->sectnum);
+							ps[p].cursectnum = spriowner->sectnum;
+							
 							break;
 						}
-
+					
 					k = 0;
-
+					
 					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].posz > (sector[sect].floorz - (16 << 8)) && (PlayerInput(p, SB_CROUCH) || ps[p].poszv > 2048))
-						//						if( onfloorz && sectlotag == 1 && ps[p].posz > (sector[sect].floorz-(6<<8)) )
+						//                        if( onfloorz && sectlotag == 1 && ps[p].posz > (sector[sect].floorz-(6<<8)) )
 					{
 						k = 1;
 						if (screenpeek == p)
@@ -2160,59 +2165,59 @@ void movetransports_d(void)
 						if (sprite[ps[p].i].extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, j);
 						ps[p].oposz = ps[p].posz =
-							sector[sprite[sprite[i].owner].sectnum].ceilingz + (7 << 8);
-
+						sector[spriowner->sectnum].ceilingz + (7 << 8);
+						
 						ps[p].posxv = 4096 - (krand() & 8192);
 						ps[p].posyv = 4096 - (krand() & 8192);
-
+						
 					}
-
+					
 					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].posz < (sector[sect].ceilingz + (6 << 8)))
 					{
 						k = 1;
-						//							if( sprite[j].extra <= 0) break;
+						//                            if( sprj->extra <= 0) break;
 						if (screenpeek == p)
 						{
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_GASP, j);
-
+						
 						ps[p].oposz = ps[p].posz =
-							sector[sprite[sprite[i].owner].sectnum].floorz - (7 << 8);
-
+						sector[spriowner->sectnum].floorz - (7 << 8);
+						
 						ps[p].jumping_toggle = 1;
 						ps[p].jumping_counter = 0;
 					}
-
+					
 					if (k == 1)
 					{
-						ps[p].oposx = ps[p].posx += sprite[sprite[i].owner].x - sprite[i].x;
-						ps[p].oposy = ps[p].posy += sprite[sprite[i].owner].y - sprite[i].y;
-
-						if (sprite[sprite[i].owner].owner != sprite[i].owner)
+						ps[p].oposx = ps[p].posx += spriowner->x - spri->x;
+						ps[p].oposy = ps[p].posy += spriowner->y - spri->y;
+						
+						if (spriowner->owner != spri->owner)
 							ps[p].transporter_hold = -2;
-						ps[p].cursectnum = sprite[sprite[i].owner].sectnum;
-
-						changespritesect(j, sprite[sprite[i].owner].sectnum);
+						ps[p].cursectnum = spriowner->sectnum;
+						
+						changespritesect(j, spriowner->sectnum);
 						setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + PHEIGHT);
-
+						
 						setpal(&ps[p]);
-
+						
 						if ((krand() & 255) < 32)
 							fi.spawn(j, WATERSPLASH2);
-
+						
 						if (sectlotag == 1)
 							for (l = 0; l < 9; l++)
-							{
-								q = fi.spawn(ps[p].i, WATERBUBBLE);
-								sprite[q].z += krand() & 16383;
-							}
+						{
+							q = fi.spawn(ps[p].i, WATERBUBBLE);
+							sprite[q].z += krand() & 16383;
+						}
 					}
 				}
 				break;
-
+				
 			case STAT_ACTOR:
-				switch (sprite[j].picnum)
+				switch (sprj->picnum)
 				{
 				case SHARK:
 				case COMMANDER:
@@ -2225,35 +2230,35 @@ void movetransports_d(void)
 				case GREENSLIME + 5:
 				case GREENSLIME + 6:
 				case GREENSLIME + 7:
-					if (sprite[j].extra > 0)
-						goto JBOLT;
+					if (sprj->extra > 0)
+						continue;
 				}
 			case STAT_PROJECTILE:
 			case STAT_MISC:
 			case STAT_FALLER:
 			case STAT_DUMMYPLAYER:
-
-				ll = abs(sprite[j].zvel);
-
+				
+				ll = abs(sprj->zvel);
+				
 				{
 					warpspriteto = 0;
-					if (ll && sectlotag == 2 && sprite[j].z < (sector[sect].ceilingz + ll))
+					if (ll && sectlotag == 2 && sprj->z < (sector[sect].ceilingz + ll))
 						warpspriteto = 1;
-
-					if (ll && sectlotag == 1 && sprite[j].z > (sector[sect].floorz - ll))
+					
+					if (ll && sectlotag == 1 && sprj->z > (sector[sect].floorz - ll))
 						warpspriteto = 1;
-
-					if (sectlotag == 0 && (onfloorz || abs(sprite[j].z - sprite[i].z) < 4096))
+					
+					if (sectlotag == 0 && (onfloorz || abs(sprj->z - spri->z) < 4096))
 					{
-						if (sprite[sprite[i].owner].owner != sprite[i].owner && onfloorz && hittype[i].temp_data[0] > 0 && sprite[j].statnum != 5)
+						if (spriowner->owner != spri->owner && onfloorz && hiti->temp_data[0] > 0 && sprj->statnum != 5)
 						{
-							hittype[i].temp_data[0]++;
+							hiti->temp_data[0]++;
 							goto BOLT;
 						}
 						warpspriteto = 1;
 					}
-
-					if (warpspriteto) switch (sprite[j].picnum)
+					
+					if (warpspriteto) switch (sprj->picnum)
 					{
 					case TRANSPORTERSTAR:
 					case TRANSPORTERBEAM:
@@ -2266,113 +2271,111 @@ void movetransports_d(void)
 					case FIRE2:
 					case TOILETWATER:
 					case LASERLINE:
-						goto JBOLT;
+						continue;
 					case PLAYERONWATER:
 						if (sectlotag == 2)
 						{
-							sprite[j].cstat &= 32767;
+							sprj->cstat &= 32767;
 							break;
 						}
 					default:
-						if (sprite[j].statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
+						if (sprj->statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
 							break;
-
+						
 					case WATERBUBBLE:
-						//								if( rnd(192) && sprite[j].picnum == WATERBUBBLE)
-						  //								 break;
-
+						//if( rnd(192) && sprj->picnum == WATERBUBBLE)
+						// break;
+						
 						if (sectlotag > 0)
 						{
 							k = fi.spawn(j, WATERSPLASH2);
-							if (sectlotag == 1 && sprite[j].statnum == 4)
+							if (sectlotag == 1 && sprj->statnum == 4)
 							{
-								sprite[k].xvel = sprite[j].xvel >> 1;
-								sprite[k].ang = sprite[j].ang;
+								sprite[k].xvel = sprj->xvel >> 1;
+								sprite[k].ang = sprj->ang;
 								ssp(k, CLIPMASK0);
 							}
 						}
-
+						
 						switch (sectlotag)
 						{
 						case 0:
 							if (onfloorz)
 							{
-								if (sprite[j].statnum == 4 || (checkcursectnums(sect) == -1 && checkcursectnums(sprite[sprite[i].owner].sectnum) == -1))
+								if (sprj->statnum == 4 || (checkcursectnums(sect) == -1 && checkcursectnums(spriowner->sectnum) == -1))
 								{
-									sprite[j].x += (sprite[sprite[i].owner].x - sprite[i].x);
-									sprite[j].y += (sprite[sprite[i].owner].y - sprite[i].y);
-									sprite[j].z -= sprite[i].z - sector[sprite[sprite[i].owner].sectnum].floorz;
-									sprite[j].ang = sprite[sprite[i].owner].ang;
-
-									hittype[j].bposx = sprite[j].x;
-									hittype[j].bposy = sprite[j].y;
-									hittype[j].bposz = sprite[j].z;
-
-									if (sprite[i].pal == 0)
+									sprj->x += (spriowner->x - spri->x);
+									sprj->y += (spriowner->y - spri->y);
+									sprj->z -= spri->z - sector[spriowner->sectnum].floorz;
+									sprj->ang = spriowner->ang;
+									
+									hitj->bposx = sprj->x;
+									hitj->bposy = sprj->y;
+									hitj->bposz = sprj->z;
+									
+									if (spri->pal == 0)
 									{
 										k = fi.spawn(i, TRANSPORTERBEAM);
 										S_PlayActorSound(TELEPORTER, k);
-
-										k = fi.spawn(sprite[i].owner, TRANSPORTERBEAM);
+										
+										k = fi.spawn(spri->owner, TRANSPORTERBEAM);
 										S_PlayActorSound(TELEPORTER, k);
 									}
-
-									if (sprite[sprite[i].owner].owner != sprite[i].owner)
+									
+									if (spriowner->owner != spri->owner)
 									{
-										hittype[i].temp_data[0] = 13;
-										hittype[sprite[i].owner].temp_data[0] = 13;
+										hiti->temp_data[0] = 13;
+										hittype[spri->owner].temp_data[0] = 13;
 									}
-
-									changespritesect(j, sprite[sprite[i].owner].sectnum);
+									
+									changespritesect(j, spriowner->sectnum);
 								}
 							}
 							else
 							{
-								sprite[j].x += (sprite[sprite[i].owner].x - sprite[i].x);
-								sprite[j].y += (sprite[sprite[i].owner].y - sprite[i].y);
-								sprite[j].z = sprite[sprite[i].owner].z + 4096;
-
-								hittype[j].bposx = sprite[j].x;
-								hittype[j].bposy = sprite[j].y;
-								hittype[j].bposz = sprite[j].z;
-
-								changespritesect(j, sprite[sprite[i].owner].sectnum);
+								sprj->x += (spriowner->x - spri->x);
+								sprj->y += (spriowner->y - spri->y);
+								sprj->z = spriowner->z + 4096;
+								
+								hitj->bposx = sprj->x;
+								hitj->bposy = sprj->y;
+								hitj->bposz = sprj->z;
+								
+								changespritesect(j, spriowner->sectnum);
 							}
 							break;
 						case 1:
-							sprite[j].x += (sprite[sprite[i].owner].x - sprite[i].x);
-							sprite[j].y += (sprite[sprite[i].owner].y - sprite[i].y);
-							sprite[j].z = sector[sprite[sprite[i].owner].sectnum].ceilingz + ll;
-
-							hittype[j].bposx = sprite[j].x;
-							hittype[j].bposy = sprite[j].y;
-							hittype[j].bposz = sprite[j].z;
-
-							changespritesect(j, sprite[sprite[i].owner].sectnum);
-
+							sprj->x += (spriowner->x - spri->x);
+							sprj->y += (spriowner->y - spri->y);
+							sprj->z = sector[spriowner->sectnum].ceilingz + ll;
+							
+							hitj->bposx = sprj->x;
+							hitj->bposy = sprj->y;
+							hitj->bposz = sprj->z;
+							
+							changespritesect(j, spriowner->sectnum);
+							
 							break;
 						case 2:
-							sprite[j].x += (sprite[sprite[i].owner].x - sprite[i].x);
-							sprite[j].y += (sprite[sprite[i].owner].y - sprite[i].y);
-							sprite[j].z = sector[sprite[sprite[i].owner].sectnum].floorz - ll;
-
-							hittype[j].bposx = sprite[j].x;
-							hittype[j].bposy = sprite[j].y;
-							hittype[j].bposz = sprite[j].z;
-
-							changespritesect(j, sprite[sprite[i].owner].sectnum);
-
+							sprj->x += (spriowner->x - spri->x);
+							sprj->y += (spriowner->y - spri->y);
+							sprj->z = sector[spriowner->sectnum].floorz - ll;
+							
+							hitj->bposx = sprj->x;
+							hitj->bposy = sprj->y;
+							hitj->bposz = sprj->z;
+							
+							changespritesect(j, spriowner->sectnum);
+							
 							break;
 						}
-
+						
 						break;
 					}
 				}
 				break;
-
+				
 			}
-		JBOLT:
-			j = nextj;
 		}
 	BOLT:;
 	}

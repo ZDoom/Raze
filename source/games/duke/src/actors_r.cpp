@@ -1679,40 +1679,45 @@ void moveweapons_r(void)
 void movetransports_r(void)
 {
 	char warpdir, warpspriteto;
-	short i, j, k, p, sect, sectlotag, nexti, nextj;
+	short i, j, k, p, sect, sectlotag;
 	int ll2, ll, onfloorz;
 
 	 //Transporters
 
-	for (i = headspritestat[STAT_TRANSPORT]; i >= 0; i = nexti)
+	StatIterator iti(STAT_TRANSPORT);
+	while ((i = iti.NextIndex()) >= 0)
 	{
-		sect = sprite[i].sectnum;
+		auto spri = &sprite[i];
+		auto hiti = &hittype[i];
+		auto spriowner = spri->owner < 0? nullptr : &sprite[spri->owner];
+
+		sect = spri->sectnum;
 		sectlotag = sector[sect].lotag;
 
-		nexti = nextspritestat[i];
-
-		auto& OW = sprite[i].owner;
-		auto PN = sprite[i].picnum;
+		auto& OW = spri->owner;
+		auto PN = spri->picnum;
 		if (OW == i)
 		{
 			continue;
 		}
 
-		onfloorz = hittype[i].temp_data[4];
+		onfloorz = hiti->temp_data[4];
 
-		if (hittype[i].temp_data[0] > 0) hittype[i].temp_data[0]--;
+		if (hiti->temp_data[0] > 0) hiti->temp_data[0]--;
 
-		for (j = headspritesect[sect]; j >= 0; j = nextj)
+		SectIterator itj(sect);
+		while ((j = itj.NextIndex()) >= 0)
 		{
-			nextj = nextspritesect[j];
+			auto sprj = &sprite[j];
+			auto hitj = &hittype[j];
 
-			switch (sprite[j].statnum)
+			switch (sprj->statnum)
 			{
 			case STAT_PLAYER:	// Player
 
-				if (sprite[j].owner != -1)
+				if (sprj->owner != -1)
 				{
-					p = sprite[j].yvel;
+					p = sprj->yvel;
 
 					ps[p].on_warping_sector = 1;
 
@@ -1724,27 +1729,27 @@ void movetransports_r(void)
 							S_PlayActorSound(TELEPORTER, i);
 
 							for (k = connecthead; k >= 0; k = connectpoint2[k])// connectpoinhittype[i].temp_data[1][k])
-								if (ps[k].cursectnum == sprite[OW].sectnum)
+								if (ps[k].cursectnum == spriowner->sectnum)
 								{
 									ps[k].frag_ps = p;
 									sprite[ps[k].i].extra = 0;
 								}
 
-							ps[p].angle.ang = buildang(sprite[OW].ang);
+							ps[p].angle.ang = buildang(spriowner->ang);
 
-							if (sprite[OW].owner != OW)
+							if (spriowner->owner != OW)
 							{
-								hittype[i].temp_data[0] = 13;
+								hiti->temp_data[0] = 13;
 								hittype[OW].temp_data[0] = 13;
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].bobposx = ps[p].oposx = ps[p].posx = sprite[OW].x;
-							ps[p].bobposy = ps[p].oposy = ps[p].posy = sprite[OW].y;
-							ps[p].oposz = ps[p].posz = sprite[OW].z - (PHEIGHT - (4 << 8));
+							ps[p].bobposx = ps[p].oposx = ps[p].posx = spriowner->x;
+							ps[p].bobposy = ps[p].oposy = ps[p].posy = spriowner->y;
+							ps[p].oposz = ps[p].posz = spriowner->z - (PHEIGHT - (4 << 8));
 
-							changespritesect(j, sprite[OW].sectnum);
-							ps[p].cursectnum = sprite[j].sectnum;
+							changespritesect(j, spriowner->sectnum);
+							ps[p].cursectnum = sprj->sectnum;
 
 							k = fi.spawn(OW, TRANSPORTERBEAM);
 							S_PlayActorSound(TELEPORTER, k);
@@ -1754,20 +1759,20 @@ void movetransports_r(void)
 					}
 					else break;
 
-					if (onfloorz == 0 && abs(sprite[i].z - ps[p].posz) < 6144)
+					if (onfloorz == 0 && abs(spri->z - ps[p].posz) < 6144)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].oposx = ps[p].posx += sprite[OW].x - sprite[i].x;
-							ps[p].oposy = ps[p].posy += sprite[OW].y - sprite[i].y;
+							ps[p].oposx = ps[p].posx += spriowner->x - spri->x;
+							ps[p].oposy = ps[p].posy += spriowner->y - spri->y;
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].posz = sprite[OW].z - 6144;
-							else ps[p].posz = sprite[OW].z + 6144;
+								ps[p].posz = spriowner->z - 6144;
+							else ps[p].posz = spriowner->z + 6144;
 							ps[p].oposz = ps[p].posz;
 
-							changespritesect(j, sprite[OW].sectnum);
-							ps[p].cursectnum = sprite[OW].sectnum;
+							changespritesect(j, spriowner->sectnum);
+							ps[p].cursectnum = spriowner->sectnum;
 
 							break;
 						}
@@ -1780,7 +1785,7 @@ void movetransports_r(void)
 						{
 							k = 2;
 							ps[p].oposz = ps[p].posz =
-								sector[sprite[OW].sectnum].ceilingz + (7 << 8);
+								sector[spriowner->sectnum].ceilingz + (7 << 8);
 						}
 
 						if (onfloorz && sectlotag == 161 && ps[p].posz < (sector[sect].ceilingz + (6 << 8)))
@@ -1788,7 +1793,7 @@ void movetransports_r(void)
 							k = 2;
 							if (sprite[ps[p].i].extra <= 0) break;
 							ps[p].oposz = ps[p].posz =
-								sector[sprite[OW].sectnum].floorz - (49 << 8);
+								sector[spriowner->sectnum].floorz - (49 << 8);
 						}
 					}
 
@@ -1803,7 +1808,7 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].i);
 						ps[p].oposz = ps[p].posz =
-							sector[sprite[OW].sectnum].ceilingz + (7 << 8);
+							sector[spriowner->sectnum].ceilingz + (7 << 8);
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
 					}
@@ -1819,19 +1824,19 @@ void movetransports_r(void)
 						S_PlayActorSound(DUKE_GASP, ps[p].i);
 
 						ps[p].oposz = ps[p].posz =
-							sector[sprite[OW].sectnum].floorz - (7 << 8);
+							sector[spriowner->sectnum].floorz - (7 << 8);
 					}
 
 					if (k == 1)
 					{
-						ps[p].oposx = ps[p].posx += sprite[OW].x - sprite[i].x;
-						ps[p].oposy = ps[p].posy += sprite[OW].y - sprite[i].y;
+						ps[p].oposx = ps[p].posx += spriowner->x - spri->x;
+						ps[p].oposy = ps[p].posy += spriowner->y - spri->y;
 
-						if (sprite[OW].owner != OW)
+						if (spriowner->owner != OW)
 							ps[p].transporter_hold = -2;
-						ps[p].cursectnum = sprite[OW].sectnum;
+						ps[p].cursectnum = spriowner->sectnum;
 
-						changespritesect(j, sprite[OW].sectnum);
+						changespritesect(j, spriowner->sectnum);
 
 						setpal(&ps[p]);
 
@@ -1840,14 +1845,14 @@ void movetransports_r(void)
 					}
 					else if (isRRRA() && k == 2)
 					{
-						ps[p].oposx = ps[p].posx += sprite[OW].x - sprite[i].x;
-						ps[p].oposy = ps[p].posy += sprite[OW].y - sprite[i].y;
+						ps[p].oposx = ps[p].posx += spriowner->x - spri->x;
+						ps[p].oposy = ps[p].posy += spriowner->y - spri->y;
 
-						if (sprite[OW].owner != OW)
+						if (spriowner->owner != OW)
 							ps[p].transporter_hold = -2;
-						ps[p].cursectnum = sprite[OW].sectnum;
+						ps[p].cursectnum = spriowner->sectnum;
 
-						changespritesect(j, sprite[OW].sectnum);
+						changespritesect(j, spriowner->sectnum);
 					}
 				}
 				break;
@@ -1860,10 +1865,10 @@ void movetransports_r(void)
 			case STAT_MISC:
 			case STAT_DUMMYPLAYER:
 
-				ll = abs(sprite[j].zvel);
+				ll = abs(sprj->zvel);
 				if (isRRRA())
 				{
-					if (sprite[j].zvel >= 0)
+					if (sprj->zvel >= 0)
 						warpdir = 2;
 					else
 						warpdir = 1;
@@ -1871,48 +1876,48 @@ void movetransports_r(void)
 
 				{
 					warpspriteto = 0;
-					if (ll && sectlotag == ST_2_UNDERWATER && sprite[j].z < (sector[sect].ceilingz + ll))
+					if (ll && sectlotag == ST_2_UNDERWATER && sprj->z < (sector[sect].ceilingz + ll))
 						warpspriteto = 1;
 
-					if (ll && sectlotag == ST_1_ABOVE_WATER && sprite[j].z > (sector[sect].floorz - ll))
-						if (!isRRRA() || (sprite[j].picnum != CHEERBOAT && sprite[j].picnum != HULKBOAT && sprite[j].picnum != MINIONBOAT))
+					if (ll && sectlotag == ST_1_ABOVE_WATER && sprj->z > (sector[sect].floorz - ll))
+						if (!isRRRA() || (sprj->picnum != CHEERBOAT && sprj->picnum != HULKBOAT && sprj->picnum != MINIONBOAT))
 							warpspriteto = 1;
 
 					if (isRRRA())
 					{
-						if (ll && sectlotag == 161 && sprite[j].z < (sector[sect].ceilingz + ll) && warpdir == 1)
+						if (ll && sectlotag == 161 && sprj->z < (sector[sect].ceilingz + ll) && warpdir == 1)
 						{
 							warpspriteto = 1;
-							ll2 = ll - abs(sprite[j].z - sector[sect].ceilingz);
+							ll2 = ll - abs(sprj->z - sector[sect].ceilingz);
 						}
-						else if (sectlotag == 161 && sprite[j].z < (sector[sect].ceilingz + 1000) && warpdir == 1)
+						else if (sectlotag == 161 && sprj->z < (sector[sect].ceilingz + 1000) && warpdir == 1)
 						{
 							warpspriteto = 1;
 							ll2 = 1;
 						}
-						if (ll && sectlotag == 160 && sprite[j].z > (sector[sect].floorz - ll) && warpdir == 2)
+						if (ll && sectlotag == 160 && sprj->z > (sector[sect].floorz - ll) && warpdir == 2)
 						{
 							warpspriteto = 1;
-							ll2 = ll - abs(sector[sect].floorz - sprite[j].z);
+							ll2 = ll - abs(sector[sect].floorz - sprj->z);
 						}
-						else if (sectlotag == 160 && sprite[j].z > (sector[sect].floorz - 1000) && warpdir == 2)
+						else if (sectlotag == 160 && sprj->z > (sector[sect].floorz - 1000) && warpdir == 2)
 						{
 							warpspriteto = 1;
 							ll2 = 1;
 						}
 					}
 
-					if (sectlotag == 0 && (onfloorz || abs(sprite[j].z - sprite[i].z) < 4096))
+					if (sectlotag == 0 && (onfloorz || abs(sprj->z - spri->z) < 4096))
 					{
-						if (sprite[OW].owner != OW && onfloorz && hittype[i].temp_data[0] > 0 && sprite[j].statnum != 5)
+						if (spriowner->owner != OW && onfloorz && hiti->temp_data[0] > 0 && sprj->statnum != 5)
 						{
-							hittype[i].temp_data[0]++;
+							hiti->temp_data[0]++;
 							continue;
 						}
 						warpspriteto = 1;
 					}
 
-					if (warpspriteto) switch (sprite[j].picnum)
+					if (warpspriteto) switch (sprj->picnum)
 					{
 					case TRANSPORTERSTAR:
 					case TRANSPORTERBEAM:
@@ -1925,24 +1930,24 @@ void movetransports_r(void)
 					case PLAYERONWATER:
 						if (sectlotag == ST_2_UNDERWATER)
 						{
-							sprite[j].cstat &= 32767;
+							sprj->cstat &= 32767;
 							break;
 						}
 					default:
-						if (sprite[j].statnum == 5 && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || (isRRRA() && (sectlotag == 160 || sectlotag == 161))))
+						if (sprj->statnum == 5 && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || (isRRRA() && (sectlotag == 160 || sectlotag == 161))))
 							break;
 
 					case WATERBUBBLE:
-						if (rnd(192) && sprite[j].picnum == WATERBUBBLE)
+						if (rnd(192) && sprj->picnum == WATERBUBBLE)
 							break;
 
 						if (sectlotag > 0)
 						{
 							k = fi.spawn(j, WATERSPLASH2);
-							if (sectlotag == 1 && sprite[j].statnum == 4)
+							if (sectlotag == 1 && sprj->statnum == 4)
 							{
-								sprite[k].xvel = sprite[j].xvel >> 1;
-								sprite[k].ang = sprite[j].ang;
+								sprite[k].xvel = sprj->xvel >> 1;
+								sprite[k].ang = sprj->ang;
 								ssp(k, CLIPMASK0);
 							}
 						}
@@ -1952,16 +1957,16 @@ void movetransports_r(void)
 						case ST_0_NO_EFFECT:
 							if (onfloorz)
 							{
-								if (checkcursectnums(sect) == -1 && checkcursectnums(sprite[OW].sectnum) == -1)
+								if (checkcursectnums(sect) == -1 && checkcursectnums(spriowner->sectnum) == -1)
 								{
-									sprite[j].x += (sprite[OW].x - sprite[i].x);
-									sprite[j].y += (sprite[OW].y - sprite[i].y);
-									sprite[j].z -= sprite[i].z - sector[sprite[OW].sectnum].floorz;
-									sprite[j].ang = sprite[OW].ang;
+									sprj->x += (spriowner->x - spri->x);
+									sprj->y += (spriowner->y - spri->y);
+									sprj->z -= spri->z - sector[spriowner->sectnum].floorz;
+									sprj->ang = spriowner->ang;
 
-									hittype[j].bposx = sprite[j].x;
-									hittype[j].bposy = sprite[j].y;
-									hittype[j].bposz = sprite[j].z;
+									hitj->bposx = sprj->x;
+									hitj->bposy = sprj->y;
+									hitj->bposz = sprj->z;
 
 									k = fi.spawn(i, TRANSPORTERBEAM);
 									S_PlayActorSound(TELEPORTER, k);
@@ -1969,83 +1974,83 @@ void movetransports_r(void)
 									k = fi.spawn(OW, TRANSPORTERBEAM);
 									S_PlayActorSound(TELEPORTER, k);
 
-									if (sprite[OW].owner != OW)
+									if (spriowner->owner != OW)
 									{
-										hittype[i].temp_data[0] = 13;
+										hiti->temp_data[0] = 13;
 										hittype[OW].temp_data[0] = 13;
 									}
 
-									changespritesect(j, sprite[OW].sectnum);
+									changespritesect(j, spriowner->sectnum);
 								}
 							}
 							else
 							{
-								sprite[j].x += (sprite[OW].x - sprite[i].x);
-								sprite[j].y += (sprite[OW].y - sprite[i].y);
-								sprite[j].z = sprite[OW].z + 4096;
+								sprj->x += (spriowner->x - spri->x);
+								sprj->y += (spriowner->y - spri->y);
+								sprj->z = spriowner->z + 4096;
 
-								hittype[j].bposx = sprite[j].x;
-								hittype[j].bposy = sprite[j].y;
-								hittype[j].bposz = sprite[j].z;
+								hitj->bposx = sprj->x;
+								hitj->bposy = sprj->y;
+								hitj->bposz = sprj->z;
 
-								changespritesect(j, sprite[OW].sectnum);
+								changespritesect(j, spriowner->sectnum);
 							}
 							break;
 						case ST_1_ABOVE_WATER:
-							sprite[j].x += (sprite[OW].x - sprite[i].x);
-							sprite[j].y += (sprite[OW].y - sprite[i].y);
-							sprite[j].z = sector[sprite[OW].sectnum].ceilingz + ll;
+							sprj->x += (spriowner->x - spri->x);
+							sprj->y += (spriowner->y - spri->y);
+							sprj->z = sector[spriowner->sectnum].ceilingz + ll;
 
-							hittype[j].bposx = sprite[j].x;
-							hittype[j].bposy = sprite[j].y;
-							hittype[j].bposz = sprite[j].z;
+							hitj->bposx = sprj->x;
+							hitj->bposy = sprj->y;
+							hitj->bposz = sprj->z;
 
-							changespritesect(j, sprite[OW].sectnum);
+							changespritesect(j, spriowner->sectnum);
 
 							break;
 						case ST_2_UNDERWATER:
-							sprite[j].x += (sprite[OW].x - sprite[i].x);
-							sprite[j].y += (sprite[OW].y - sprite[i].y);
-							sprite[j].z = sector[sprite[OW].sectnum].floorz - ll;
+							sprj->x += (spriowner->x - spri->x);
+							sprj->y += (spriowner->y - spri->y);
+							sprj->z = sector[spriowner->sectnum].floorz - ll;
 
-							hittype[j].bposx = sprite[j].x;
-							hittype[j].bposy = sprite[j].y;
-							hittype[j].bposz = sprite[j].z;
+							hitj->bposx = sprj->x;
+							hitj->bposy = sprj->y;
+							hitj->bposz = sprj->z;
 
-							changespritesect(j, sprite[OW].sectnum);
+							changespritesect(j, spriowner->sectnum);
 
 							break;
 
 						case 160:
 							if (!isRRRA()) break;
-							sprite[j].x += (sprite[OW].x - sprite[i].x);
-							sprite[j].y += (sprite[OW].y - sprite[i].y);
-							sprite[j].z = sector[sprite[OW].sectnum].ceilingz + ll2;
+							sprj->x += (spriowner->x - spri->x);
+							sprj->y += (spriowner->y - spri->y);
+							sprj->z = sector[spriowner->sectnum].ceilingz + ll2;
 
-							hittype[j].bposx = sprite[j].x;
-							hittype[j].bposy = sprite[j].y;
-							hittype[j].bposz = sprite[j].z;
+							hitj->bposx = sprj->x;
+							hitj->bposy = sprj->y;
+							hitj->bposz = sprj->z;
 
-							changespritesect(j, sprite[OW].sectnum);
+							changespritesect(j, spriowner->sectnum);
 
-							fi.movesprite(j, (sprite[j].xvel * sintable[(sprite[j].ang + 512) & 2047]) >> 14,
-								(sprite[j].xvel * sintable[sprite[j].ang & 2047]) >> 14, 0, CLIPMASK1);
+							fi.movesprite(j, (sprj->xvel * sintable[(sprj->ang + 512) & 2047]) >> 14,
+								(sprj->xvel * sintable[sprj->ang & 2047]) >> 14, 0, CLIPMASK1);
 
 							break;
 						case 161:
 							if (!isRRRA()) break;
-							sprite[j].x += (sprite[OW].x - sprite[i].x);
-							sprite[j].y += (sprite[OW].y - sprite[i].y);
-							sprite[j].z = sector[sprite[OW].sectnum].floorz - ll2;
+							sprj->x += (spriowner->x - spri->x);
+							sprj->y += (spriowner->y - spri->y);
+							sprj->z = sector[spriowner->sectnum].floorz - ll2;
 
-							hittype[j].bposx = sprite[j].x;
-							hittype[j].bposy = sprite[j].y;
-							hittype[j].bposz = sprite[j].z;
+							hitj->bposx = sprj->x;
+							hitj->bposy = sprj->y;
+							hitj->bposz = sprj->z;
 
-							changespritesect(j, sprite[OW].sectnum);
+							changespritesect(j, spriowner->sectnum);
 
-							fi.movesprite(j, (sprite[j].xvel * sintable[(sprite[j].ang + 512) & 2047]) >> 14,
-								(sprite[j].xvel * sintable[sprite[j].ang & 2047]) >> 14, 0, CLIPMASK1);
+							fi.movesprite(j, (sprj->xvel * sintable[(sprj->ang + 512) & 2047]) >> 14,
+								(sprj->xvel * sintable[sprj->ang & 2047]) >> 14, 0, CLIPMASK1);
 
 							break;
 						}
