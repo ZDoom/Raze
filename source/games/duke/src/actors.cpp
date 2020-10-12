@@ -285,9 +285,7 @@ void ms(short i)
 
 	short startwall, endwall, x;
 	int tx, ty;
-	spritetype* s;
-
-	s = &sprite[i];
+	auto s = &sprite[i];
 
 	s->x += (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14;
 	s->y += (s->xvel * (sintable[s->ang & 2047])) >> 14;
@@ -361,44 +359,42 @@ void movecyclers(void)
 
 void movedummyplayers(void)
 {
-	short i, p, nexti;
+	int i, p;
 
-	i = headspritestat[STAT_DUMMYPLAYER];
-	while (i >= 0)
+	StatIterator iti(STAT_DUMMYPLAYER);
+	while ((i = iti.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
-
-		p = sprite[sprite[i].owner].yvel;
+		auto spri = &sprite[i];
+		auto hti = &hittype[i];
+		p = sprite[spri->owner].yvel;
 
 		if ((!isRR() && ps[p].on_crane >= 0) || sector[ps[p].cursectnum].lotag != 1 || sprite[ps[p].i].extra <= 0)
 		{
 			ps[p].dummyplayersprite = -1;
 			deletesprite(i);
-			i = nexti;
 			continue;
 		}
 		else
 		{
 			if (ps[p].on_ground && ps[p].on_warping_sector == 1 && sector[ps[p].cursectnum].lotag == 1)
 			{
-				sprite[i].cstat = CSTAT_SPRITE_BLOCK_ALL;
-				sprite[i].z = sector[sprite[i].sectnum].ceilingz + (27 << 8);
-				sprite[i].ang = ps[p].angle.ang.asbuild();
-				if (hittype[i].temp_data[0] == 8)
-					hittype[i].temp_data[0] = 0;
-				else hittype[i].temp_data[0]++;
+				spri->cstat = CSTAT_SPRITE_BLOCK_ALL;
+				spri->z = sector[spri->sectnum].ceilingz + (27 << 8);
+				spri->ang = ps[p].angle.ang.asbuild();
+				if (hti->temp_data[0] == 8)
+					hti->temp_data[0] = 0;
+				else hti->temp_data[0]++;
 			}
 			else
 			{
-				if (sector[sprite[i].sectnum].lotag != 2) sprite[i].z = sector[sprite[i].sectnum].floorz;
-				sprite[i].cstat = (short)32768;
+				if (sector[spri->sectnum].lotag != 2) spri->z = sector[spri->sectnum].floorz;
+				spri->cstat = (short)32768;
 			}
 		}
 
-		sprite[i].x += (ps[p].posx - ps[p].oposx);
-		sprite[i].y += (ps[p].posy - ps[p].oposy);
-		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
-		i = nexti;
+		spri->x += (ps[p].posx - ps[p].oposx);
+		spri->y += (ps[p].posy - ps[p].oposy);
+		setsprite(i, spri->x, spri->y, spri->z);
 	}
 }
 
@@ -410,25 +406,22 @@ void movedummyplayers(void)
 
 void moveplayers(void) //Players
 {
-	short i, nexti;
+	int i;
 	int otherx;
-	spritetype* s;
-	struct player_struct* p;
 
-	i = headspritestat[STAT_PLAYER];
-	while (i >= 0)
+	StatIterator iti(STAT_PLAYER);
+	while ((i = iti.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
-
-		s = &sprite[i];
-		p = &ps[s->yvel];
+		auto s = &sprite[i];
+		auto ht = &hittype[i];
+		auto p = &ps[s->yvel];
 		if (s->owner >= 0)
 		{
 			if (p->newowner >= 0) //Looking thru the camera
 			{
 				s->x = p->oposx;
 				s->y = p->oposy;
-				hittype[i].bposz = s->z = p->oposz + PHEIGHT;
+				ht->bposz = s->z = p->oposz + PHEIGHT;
 				s->ang = p->angle.oang.asbuild();
 				setsprite(i, s->x, s->y, s->z);
 			}
@@ -475,7 +468,7 @@ void moveplayers(void) //Players
 				{
 					// currently alive...
 
-					hittype[i].owner = i;
+					ht->owner = i;
 
 					if (ud.god == 0)
 						if (fi.ceilingspace(s->sectnum) || fi.floorspace(s->sectnum))
@@ -502,13 +495,12 @@ void moveplayers(void) //Players
 			if (p->holoduke_on == -1)
 			{
 				deletesprite(i);
-				i = nexti;
 				continue;
 			}
 
-			hittype[i].bposx = s->x;
-			hittype[i].bposy = s->y;
-			hittype[i].bposz = s->z;
+			ht->bposx = s->x;
+			ht->bposy = s->y;
+			ht->bposz = s->z;
 
 			s->cstat = 0;
 
@@ -549,8 +541,6 @@ void moveplayers(void) //Players
 			s->shade += (sector[s->sectnum].ceilingshade - s->shade) >> 1;
 		else
 			s->shade += (sector[s->sectnum].floorshade - s->shade) >> 1;
-
-		i = nexti;
 	}
 }
 

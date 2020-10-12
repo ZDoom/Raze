@@ -489,7 +489,7 @@ SKIPWALLCHECK:
 							ht->extra = hp1 + (krand() % (hp2 - hp1));
 						}
 						
-						if (sprite[j].picnum != TANK && sprite[j].picnum != ROTATEGUN && sprite[j].picnum != RECON && !bossguy(&sprite[j]))
+						if (sj->picnum != TANK && sj->picnum != ROTATEGUN && sj->picnum != RECON && !bossguy(sj))
 						{
 							if (sj->xvel < 0) sj->xvel = 0;
 							sj->xvel += (s->extra << 2);
@@ -688,14 +688,15 @@ void guts_d(spritetype* s, short gtype, short n, short p)
 		int r4 = krand();
 		int r5 = krand();
 		// TRANSITIONAL: owned by a player???
-		i = EGS(s->sectnum, s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].i, 5); 
-		if (sprite[i].picnum == JIBS2)
+		i = EGS(s->sectnum, s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].i, 5);
+		auto si = &sprite[i];
+		if (si->picnum == JIBS2)
 		{
-			sprite[i].xrepeat >>= 2;
-			sprite[i].yrepeat >>= 2;
+			si->xrepeat >>= 2;
+			si->yrepeat >>= 2;
 		}
 		if (pal != 0)
-			sprite[i].pal = pal;
+			si->pal = pal;
 	}
 }
 
@@ -983,55 +984,54 @@ int ifhitbyweapon_d(int sn)
 
 void movefallers_d(void)
 {
-	short i, nexti, sect, j;
-	spritetype* s;
-	int x;
+	short sect;
+	int i, j, x;
 
-	i = headspritestat[STAT_FALLER];
-	while (i >= 0)
+	StatIterator iti(STAT_FALLER);
+	while ((i = iti.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
-		s = &sprite[i];
+		auto s = &sprite[i];
+		auto ht = &hittype[i];
 
 		sect = s->sectnum;
 
-		if (hittype[i].temp_data[0] == 0)
+		if (ht->temp_data[0] == 0)
 		{
 			s->z -= (16 << 8);
-			hittype[i].temp_data[1] = s->ang;
+			ht->temp_data[1] = s->ang;
 			x = s->extra;
 			j = fi.ifhitbyweapon(i);
-			if (j >= 0) 
+			if (j >= 0)
 			{
 				if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 				{
 					if (s->extra <= 0)
 					{
-						hittype[i].temp_data[0] = 1;
-						j = headspritestat[STAT_FALLER];
-						while (j >= 0)
+						ht->temp_data[0] = 1;
+						StatIterator itj(STAT_FALLER);
+						while ((j = itj.NextIndex()) >= 0)
 						{
-							if (sprite[j].hitag == sprite[i].hitag)
+							auto sj = &sprite[j];
+							if (sj->hitag == s->hitag)
 							{
 								hittype[j].temp_data[0] = 1;
-								sprite[j].cstat &= (65535 - 64);
-								if (sprite[j].picnum == CEILINGSTEAM || sprite[j].picnum == STEAM)
-									sprite[j].cstat |= 32768;
+								sj->cstat &= (65535 - 64);
+								if (sj->picnum == CEILINGSTEAM || sj->picnum == STEAM)
+									sj->cstat |= 32768;
 							}
-							j = nextspritestat[j];
 						}
 					}
 				}
 				else
 				{
-					hittype[i].extra = 0;
+					ht->extra = 0;
 					s->extra = x;
 				}
 			}
-			s->ang = hittype[i].temp_data[1];
+			s->ang = ht->temp_data[1];
 			s->z += (16 << 8);
 		}
-		else if (hittype[i].temp_data[0] == 1)
+		else if (ht->temp_data[0] == 1)
 		{
 			if (s->lotag > 0)
 			{
@@ -1074,10 +1074,9 @@ void movefallers_d(void)
 				}
 			}
 		}
-
-		i = nexti;
 	}
 }
+
 
 //---------------------------------------------------------------------------
 //
