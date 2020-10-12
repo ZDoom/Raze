@@ -1837,8 +1837,9 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 
 	if (t[4] == 1)
 	{
-		int j = headspritesect[sect];
-		while (j >= 0)
+		SectIterator it(sect);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
 			auto sprj = &sprite[j];
 			if (sprj->picnum == SECTOREFFECTOR)
@@ -1861,9 +1862,7 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 			{
 				sprj->cstat = (short)32768;
 			}
-			j = nextspritesect[j];
-		}
-		return;
+		}		return;
 	}
 
 	if (t[1] >= 20)

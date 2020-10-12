@@ -3699,11 +3699,12 @@ void moveeffectors_d(void)   //STATNUM 3
 			while (j >= 0)
 			{
 				nextj = nextspritesect[j];
-				if (sprite[j].zvel >= 0)
-					switch (sprite[j].statnum)
+				auto sprj = &sprite[j];
+				if (sprj->zvel >= 0)
+					switch (sprj->statnum)
 					{
 					case 5:
-						switch (sprite[j].picnum)
+						switch (sprj->picnum)
 						{
 						case BLOODPOOL:
 						case PUKE:
@@ -3716,7 +3717,7 @@ void moveeffectors_d(void)   //STATNUM 3
 						case BLOODSPLAT2:
 						case BLOODSPLAT3:
 						case BLOODSPLAT4:
-							sprite[j].xrepeat = sprite[j].yrepeat = 0;
+							sprj->xrepeat = sprj->yrepeat = 0;
 							j = nextj;
 							continue;
 						case LASERLINE:
@@ -3724,36 +3725,36 @@ void moveeffectors_d(void)   //STATNUM 3
 							continue;
 						}
 					case 6:
-						if (sprite[j].picnum == TRIPBOMB) break;
+						if (sprj->picnum == TRIPBOMB) break;
 					case 1:
 					case 0:
 						if (
-							sprite[j].picnum == BOLT1 ||
-							sprite[j].picnum == BOLT1 + 1 ||
-							sprite[j].picnum == BOLT1 + 2 ||
-							sprite[j].picnum == BOLT1 + 3 ||
-							sprite[j].picnum == SIDEBOLT1 ||
-							sprite[j].picnum == SIDEBOLT1 + 1 ||
-							sprite[j].picnum == SIDEBOLT1 + 2 ||
-							sprite[j].picnum == SIDEBOLT1 + 3 ||
+							sprj->picnum == BOLT1 ||
+							sprj->picnum == BOLT1 + 1 ||
+							sprj->picnum == BOLT1 + 2 ||
+							sprj->picnum == BOLT1 + 3 ||
+							sprj->picnum == SIDEBOLT1 ||
+							sprj->picnum == SIDEBOLT1 + 1 ||
+							sprj->picnum == SIDEBOLT1 + 2 ||
+							sprj->picnum == SIDEBOLT1 + 3 ||
 							wallswitchcheck(j)
 							)
 							break;
 
-						if (!(sprite[j].picnum >= CRANE && sprite[j].picnum <= (CRANE + 3)))
+						if (!(sprj->picnum >= CRANE && sprj->picnum <= (CRANE + 3)))
 						{
-							if (sprite[j].z > (hittype[j].floorz - (16 << 8)))
+							if (sprj->z > (hittype[j].floorz - (16 << 8)))
 							{
-								hittype[j].bposx = sprite[j].x;
-								hittype[j].bposy = sprite[j].y;
+								hittype[j].bposx = sprj->x;
+								hittype[j].bposy = sprj->y;
 
-								sprite[j].x += x >> 2;
-								sprite[j].y += l >> 2;
+								sprj->x += x >> 2;
+								sprj->y += l >> 2;
 
-								setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+								setsprite(j, sprj->x, sprj->y, sprj->z);
 
-								if (sector[sprite[j].sectnum].floorstat & 2)
-									if (sprite[j].statnum == 2)
+								if (sector[sprj->sectnum].floorstat & 2)
+									if (sprj->statnum == 2)
 										makeitfall(j);
 							}
 						}

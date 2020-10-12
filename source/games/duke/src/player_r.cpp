@@ -2573,40 +2573,42 @@ void onBoatMove(int snum, int psect, int j)
 void onMotorcycleHit(int snum, int var60)
 {
 	auto p = &ps[snum];
-
-	if (badguy(&sprite[var60]) || sprite[var60].picnum == APLAYER)
+	auto s = &sprite[var60];
+	auto ht = &hittype[var60];
+	if (badguy(s) || s->picnum == APLAYER)
 	{
-		if (sprite[var60].picnum != APLAYER)
+		if (s->picnum != APLAYER)
 		{
 			if (numplayers == 1)
 			{
 				fi.movesprite(var60, sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild() + 512) & 2047] >> 8,
-					sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild()) & 2047] >> 8, sprite[var60].zvel, CLIPMASK0);
+					sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild()) & 2047] >> 8, s->zvel, CLIPMASK0);
 			}
 		}
 		else
-			hittype[var60].owner = p->i;
-		hittype[var60].picnum = MOTOHIT;
-		hittype[var60].extra = p->MotoSpeed >> 1;
+			ht->owner = p->i;
+		ht->picnum = MOTOHIT;
+		ht->extra = p->MotoSpeed >> 1;
 		p->MotoSpeed -= p->MotoSpeed >> 2;
 		p->TurbCount = 6;
 	}
-	else if ((sprite[var60].picnum == RRTILE2431 || sprite[var60].picnum == RRTILE2443 || sprite[var60].picnum == RRTILE2451 || sprite[var60].picnum == RRTILE2455)
-		&& sprite[var60].picnum != ACTIVATORLOCKED && p->MotoSpeed > 45)
+	else if ((s->picnum == RRTILE2431 || s->picnum == RRTILE2443 || s->picnum == RRTILE2451 || s->picnum == RRTILE2455)
+		&& s->picnum != ACTIVATORLOCKED && p->MotoSpeed > 45)
 	{
 		S_PlayActorSound(SQUISHED, var60);
-		if (sprite[var60].picnum == RRTILE2431 || sprite[var60].picnum == RRTILE2451)
+		if (s->picnum == RRTILE2431 || s->picnum == RRTILE2451)
 		{
-			if (sprite[var60].lotag != 0)
+			if (s->lotag != 0)
 			{
 				for (int j = 0; j < MAXSPRITES; j++)
 				{
-					if ((sprite[j].picnum == RRTILE2431 || sprite[j].picnum == RRTILE2451) && sprite[j].pal == 4)
+					auto sprj = &sprite[j];
+					if ((sprj->picnum == RRTILE2431 || sprj->picnum == RRTILE2451) && sprj->pal == 4)
 					{
-						if (sprite[var60].lotag == sprite[j].lotag)
+						if (s->lotag == sprj->lotag)
 						{
-							sprite[j].xrepeat = 0;
-							sprite[j].yrepeat = 0;
+							sprj->xrepeat = 0;
+							sprj->yrepeat = 0;
 						}
 					}
 				}
@@ -2617,8 +2619,8 @@ void onMotorcycleHit(int snum, int var60)
 		else
 			fi.guts(&sprite[var60], RRTILE2465, 3, myconnectindex);
 		fi.guts(&sprite[var60], RRTILE2465, 3, myconnectindex);
-		sprite[var60].xrepeat = 0;
-		sprite[var60].yrepeat = 0;
+		s->xrepeat = 0;
+		s->yrepeat = 0;
 	}
 }
 
@@ -2631,20 +2633,23 @@ void onMotorcycleHit(int snum, int var60)
 void onBoatHit(int snum, int var60)
 {
 	auto p = &ps[snum];
-	if (badguy(&sprite[var60]) || sprite[var60].picnum == APLAYER)
+	auto s = &sprite[var60];
+	auto ht = &hittype[var60];
+
+	if (badguy(s) || s->picnum == APLAYER)
 	{
-		if (sprite[var60].picnum != APLAYER)
+		if (s->picnum != APLAYER)
 		{
 			if (numplayers == 1)
 			{
 				fi.movesprite(var60, sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild() + 512) & 2047] >> 9,
-					sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild()) & 2047] >> 9, sprite[var60].zvel, CLIPMASK0);
+					sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild()) & 2047] >> 9, s->zvel, CLIPMASK0);
 			}
 		}
 		else
-			hittype[var60].owner = p->i;
-		hittype[var60].picnum = MOTOHIT;
-		hittype[var60].extra = p->MotoSpeed >> 2;
+			ht->owner = p->i;
+		ht->picnum = MOTOHIT;
+		ht->extra = p->MotoSpeed >> 2;
 		p->MotoSpeed -= p->MotoSpeed >> 2;
 		p->TurbCount = 6;
 	}
