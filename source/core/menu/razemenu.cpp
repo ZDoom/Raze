@@ -216,6 +216,7 @@ CCMD(menu_quit)
 
 	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, EndString, 0, false, NAME_None, []()
 		{
+            M_ClearMenus();
 			gi->ExitFromMenu();
 		});
 

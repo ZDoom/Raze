@@ -98,7 +98,7 @@ template <class func>
 void runtwoscreens(func completion)
 {
 	// shareware and TEN screens
-	if (!isShareware() && !isRR())
+	if (isShareware() && !isRR())
 		showtwoscreens(completion);
 	else completion(false);
 }
