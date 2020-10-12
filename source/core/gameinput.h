@@ -93,7 +93,8 @@ struct PlayerAngle
 {
 	binangle ang, oang;
 	lookangle look_ang, olook_ang, rotscrnang, orotscrnang, spin;
-	double adjustment, target;
+	uint32_t target;
+	double adjustment;
 
 	void backup()
 	{
@@ -130,8 +131,8 @@ struct PlayerAngle
 	{
 		if (!cl_syncinput)
 		{
-			if (value == 0) value += (1. / BAMUNIT);
 			target = xs_CRoundToUInt(value * BAMUNIT);
+			if (target == 0) target += 1;
 		}
 		else
 		{
