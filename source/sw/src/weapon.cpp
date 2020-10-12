@@ -18561,11 +18561,12 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
     }
     else
     {
-        auto horizmin = 75;
-        if (pp->horizon.horiz.asbuild() < horizmin)
-            pp->horizon.settarget(horizmin);
+        fixed_t q16horiz = pp->horizon.horiz.asq16();
+        fixed_t horizmin = IntToFixed(-25);
+        if (q16horiz < horizmin)
+            q16horiz = horizmin;
 
-        daz = -mulscale16(pp->horizon.horiz.asq16(), 2000) + (RANDOM_RANGE(Z(80)) - Z(40));
+        daz = -mulscale16(q16horiz, 2000) + (RANDOM_RANGE(Z(80)) - Z(40));
         daang = sp->ang;
     }
 
