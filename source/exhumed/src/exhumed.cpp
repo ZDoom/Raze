@@ -308,18 +308,6 @@ void GameMove(void)
     totalmoves++;
 }
 
-static int SelectNextWeapon(int weap2)
-{
-    // todo
-    return 0;
-}
-
-static int SelectPrevWeapon(int weap2)
-{
-    // todo
-    return 0;
-}
-
 static int SelectAltWeapon(int weap2)
 {
     // todo
@@ -344,19 +332,6 @@ void GameInterface::Ticker()
             lPlayerYVel += localInput.fvel * Sin(inita) - localInput.svel * Cos(inita);
             lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
             lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
-        }
-        int weap2 = localInput.getNewWeapon();
-        if (weap2 == WeaponSel_Next)
-        {
-            weap2 = SelectNextWeapon(weap2);
-        }
-        else if (weap2 == WeaponSel_Prev)
-        {
-            weap2 = SelectPrevWeapon(weap2);
-        }
-        else if (weap2 == WeaponSel_Alt)
-        {
-            weap2 = SelectAltWeapon(weap2);
         }
 
         if (localInput.actions & SB_INVPREV)
@@ -417,18 +392,35 @@ void GameInterface::Ticker()
             }
         }
 
-        sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
-        sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
+        auto currWeap = PlayerList[nLocalPlayer].nCurrentWeapon;
+        int weap2 = localInput.getNewWeapon();
+        if (weap2 == WeaponSel_Next)
+        {
+            auto newWeap = currWeap == 6 ? 1 : currWeap + 2;
+            localInput.setNewWeapon(newWeap);
+        }
+        else if (weap2 == WeaponSel_Prev)
+        {
+            auto newWeap = currWeap == 0 ? 7 : currWeap;
+            localInput.setNewWeapon(newWeap);
+        }
+        else if (weap2 == WeaponSel_Alt)
+        {
+            weap2 = SelectAltWeapon(weap2);
+        }
+
         // make weapon selection persist until it gets used up.
-        sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
         int weap = sPlayerInput[nLocalPlayer].getNewWeapon();
         if (weap2 <= 0 || weap2 > 7) sPlayerInput[nLocalPlayer].SetNewWeapon(weap);
-        sPlayerInput[nLocalPlayer].nTarget = besttarget;
 
         auto oldactions = sPlayerInput[nLocalPlayer].actions;
         sPlayerInput[nLocalPlayer].actions = localInput.actions;
-        if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;
+        if (oldactions & SB_CENTERVIEW) sPlayerInput[nLocalPlayer].actions |= SB_CENTERVIEW;        
 
+        sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
+        sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
+        sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
+        sPlayerInput[nLocalPlayer].nTarget = besttarget;
         sPlayerInput[nLocalPlayer].nAngle = localInput.avel;
         sPlayerInput[nLocalPlayer].pan = localInput.horz;
 
