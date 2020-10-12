@@ -147,9 +147,7 @@ static void GameTicker()
 			C_ClearMessages();
 			if (BackupSaveGame.IsNotEmpty() && cl_resumesavegame)
 			{
-#if 0
 				DoLoadGame(BackupSaveGame);
-#endif
 			}
 			else
 			{
