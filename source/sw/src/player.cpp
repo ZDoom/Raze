@@ -5369,7 +5369,7 @@ DoPlayerBeginOperate(PLAYERp pp)
     pp->sop = pp->sop_control = sop;
     sop->controller = pp->SpriteP;
 
-    pp->angle.settarget(sop->ang);
+    pp->angle.oang = pp->angle.ang = buildang(sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5456,7 +5456,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 
     save_sectnum = pp->cursectnum;
 
-    pp->angle.settarget(sop->ang);
+    pp->angle.oang = pp->angle.ang = buildang(sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5591,9 +5591,6 @@ DoPlayerStopOperate(PLAYERp pp)
         else
             pp->angle.ang = pp->angle.oang = q16ang(gethiq16angle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
     }
-
-    if (!cl_syncinput)
-        pp->angle.target = 0;
 
     if (pp->sop_control)
     {
