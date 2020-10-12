@@ -1316,18 +1316,6 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
     pPlayer->angold = pSprite->ang = pPlayer->angle.ang.asbuild();
 }
 
-//---------------------------------------------------------------------------
-//
-// Unsynchronised input helpers.
-//
-//---------------------------------------------------------------------------
-
-static void resetinputhelpers(PLAYER* pPlayer)
-{
-    pPlayer->horizon.resetadjustment();
-    pPlayer->angle.resetadjustment();
-}
-
 void ProcessInput(PLAYER *pPlayer)
 {
     enum
@@ -1338,7 +1326,8 @@ void ProcessInput(PLAYER *pPlayer)
         Item_JumpBoots = 3
     };
 
-    resetinputhelpers(pPlayer);
+    pPlayer->horizon.resetadjustment();
+    pPlayer->angle.resetadjustment();
 
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;

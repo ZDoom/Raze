@@ -2668,7 +2668,8 @@ void processinput_d(int snum)
 	pi = p->i;
 	s = &sprite[pi];
 
-	resetinputhelpers(p);
+	p->horizon.resetadjustment();
+	p->angle.resetadjustment();
 
 	actions = PlayerInputBits(snum, SB_ALL);
 

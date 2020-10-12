@@ -1065,18 +1065,6 @@ STATEp sg_PlayerNinjaFly[] =
 
 /////////////////////////////////////////////////////////////////////////////
 
-//---------------------------------------------------------------------------
-//
-// Unsynchronised input helper.
-//
-//---------------------------------------------------------------------------
-
-static void resetinputhelpers(PLAYERp pp)
-{
-    pp->angle.resetadjustment();
-    pp->horizon.resetadjustment();
-}
-
 void
 DoPlayerSpriteThrow(PLAYERp pp)
 {
@@ -7297,7 +7285,8 @@ domovethings(void)
 
         // Reset flags used while tying input to framerate
         RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_TURN_TURRET);
-        resetinputhelpers(pp);
+        pp->horizon.resetadjustment();
+        pp->angle.resetadjustment();
 
         // disable synchronised input if set by game.
         if (gamesetinput)

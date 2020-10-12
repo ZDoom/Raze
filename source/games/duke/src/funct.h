@@ -242,7 +242,6 @@ int* animateptr(int i);
 
 void backuppos(player_struct* p, bool noclipping = false);
 void backupweapon(player_struct* p);
-void resetinputhelpers(player_struct* p);
 void checkhardlanding(player_struct* p);
 void playerweaponsway(player_struct* p, spritetype* s);
 

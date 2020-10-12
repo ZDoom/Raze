@@ -844,18 +844,6 @@ void backupweapon(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void resetinputhelpers(player_struct* p)
-{
-	p->horizon.resetadjustment();
-	p->angle.resetadjustment();
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void checkhardlanding(player_struct* p)
 {
 	if (p->hard_landing > 0)
