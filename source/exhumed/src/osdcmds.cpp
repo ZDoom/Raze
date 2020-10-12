@@ -107,7 +107,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
 
 static int osdcmd_third_person_view(CCmdFuncPtr parm)
 {
-    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return CCMD_OK;
     if (!nFreeze)
     {
         bCamera = !bCamera;

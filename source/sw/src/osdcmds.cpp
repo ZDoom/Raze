@@ -102,7 +102,7 @@ static int osdcmd_mirror(CCmdFuncPtr parm)
 
 static int osdcmd_third_person_view(CCmdFuncPtr parm)
 {
-    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return CCMD_OK;
     auto pp = &Player[myconnectindex];
     if (inputState.ShiftPressed())
     {
@@ -126,7 +126,7 @@ static int osdcmd_third_person_view(CCmdFuncPtr parm)
 
 static int osdcmd_coop_view(CCmdFuncPtr parm)
 {
-    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return CCMD_OK;
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
     {
         screenpeek = connectpoint2[screenpeek];

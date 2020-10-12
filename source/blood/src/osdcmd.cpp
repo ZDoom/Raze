@@ -65,7 +65,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
 
 static int osdcmd_third_person_view(CCmdFuncPtr parm)
 {
-    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return CCMD_OK;
     if (gViewPos > VIEWPOS_0)
         gViewPos = VIEWPOS_0;
     else
@@ -75,7 +75,7 @@ static int osdcmd_third_person_view(CCmdFuncPtr parm)
 
 static int osdcmd_coop_view(CCmdFuncPtr parm)
 {
-    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return CCMD_OK;
     if (gGameOptions.nGameType == 1)
     {
         gViewIndex = connectpoint2[gViewIndex];
@@ -101,7 +101,7 @@ static int osdcmd_coop_view(CCmdFuncPtr parm)
 
 static int osdcmd_show_weapon(CCmdFuncPtr parm)
 {
-    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return CCMD_OK;
     cl_showweapon = (cl_showweapon + 1) & 3;
     return CCMD_OK;
 }

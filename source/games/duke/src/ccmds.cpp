@@ -127,7 +127,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
 
 static int osdcmd_third_person_view(CCmdFuncPtr parm)
 {
-	if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+	if (gamestate != GS_LEVEL) return CCMD_OK;
 	if (!isRRRA() || (!ps[myconnectindex].OnMotorcycle && !ps[myconnectindex].OnBoat))
 	{
 		if (ps[myconnectindex].over_shoulder_on)
@@ -145,7 +145,7 @@ static int osdcmd_third_person_view(CCmdFuncPtr parm)
 
 static int osdcmd_coop_view(CCmdFuncPtr parm)
 {
-	if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+	if (gamestate != GS_LEVEL) return CCMD_OK;
 	if (ud.coop || ud.recstat == 2)
 	{
 		screenpeek = connectpoint2[screenpeek];
@@ -156,7 +156,7 @@ static int osdcmd_coop_view(CCmdFuncPtr parm)
 
 static int osdcmd_show_weapon(CCmdFuncPtr parm)
 {
-	if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+	if (gamestate != GS_LEVEL) return CCMD_OK;
 	if (ud.multimode > 1)
 	{
 		ud.showweapons = 1 - ud.showweapons;
