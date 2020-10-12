@@ -243,7 +243,7 @@ void addweapon_d(struct player_struct *p, int weapon)
 #ifdef EDUKE
 	if(p->curr_weapon != weapon)
 	{
-		short snum;
+		int snum;
 		snum = sprite[p->i].yvel;
 
 		SetGameVarID(g_iWeaponVarID,weapon, snum, p->i);
@@ -713,16 +713,14 @@ void guts_d(spritetype* s, short gtype, short n, short p)
 
 void gutsdir_d(spritetype* s, short gtype, short n, short p)
 {
-	int gutz, floorz;
-	short i, j;
-	char sx, sy;
+	int sx, sy;
 
 	if (badguy(s) && s->xrepeat < 16)
 		sx = sy = 8;
 	else sx = sy = 32;
 
-	gutz = s->z - (8 << 8);
-	floorz = getflorzofslope(s->sectnum, s->x, s->y);
+	int gutz = s->z - (8 << 8);
+	int floorz = getflorzofslope(s->sectnum, s->x, s->y);
 
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
@@ -730,19 +728,19 @@ void gutsdir_d(spritetype* s, short gtype, short n, short p)
 	if (s->picnum == COMMANDER)
 		gutz -= (24 << 8);
 
-	for (j = 0; j < n; j++)
+	for (int j = 0; j < n; j++)
 	{
 		int a = krand() & 2047;
 		int r1 = krand();
 		int r2 = krand();
 		// TRANSITIONAL: owned by a player???
-		i = EGS(s->sectnum, s->x, s->y, gutz, gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].i, 5);
+		EGS(s->sectnum, s->x, s->y, gutz, gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].i, 5);
 	}
 }
 
 //---------------------------------------------------------------------------
 //
-// 
+//
 //
 //---------------------------------------------------------------------------
 
@@ -752,12 +750,12 @@ void movefta_d(void)
 	short p, psect, ssect, nexti;
 	int i, j;
 
-	i = headspritestat[STAT_ZOMBIEACTOR];
-	while (i >= 0)
-	{
-		nexti = nextspritestat[i];
+	StatIterator iti(STAT_ZOMBIEACTOR);
 
+	while ((i = iti.NextIndex()) >= 0)
+	{
 		auto s = &sprite[i];
+		auto ht = &hittype[i];
 		p = findplayer(s, &x);
 
 		ssect = psect = s->sectnum;
@@ -766,8 +764,8 @@ void movefta_d(void)
 		{
 			if (x < 30000)
 			{
-				hittype[i].timetosleep++;
-				if (hittype[i].timetosleep >= (x >> 8))
+				ht->timetosleep++;
+				if (ht->timetosleep >= (x >> 8))
 				{
 					if (badguy(s))
 					{
@@ -820,17 +818,17 @@ void movefta_d(void)
 								s->shade = sector[s->sectnum].ceilingshade;
 							else s->shade = sector[s->sectnum].floorshade;
 
-							hittype[i].timetosleep = 0;
+							ht->timetosleep = 0;
 							changespritestat(i, STAT_STANDABLE);
 							break;
 
 						default:
-							hittype[i].timetosleep = 0;
+							ht->timetosleep = 0;
 							fi.check_fta_sounds(i);
 							changespritestat(i, STAT_ACTOR);
 							break;
 					}
-					else hittype[i].timetosleep = 0;
+					else ht->timetosleep = 0;
 				}
 			}
 			if (badguy(s))
@@ -840,7 +838,6 @@ void movefta_d(void)
 				else s->shade = sector[s->sectnum].floorshade;
 			}
 		}
-		i = nexti;
 	}
 }
 
@@ -852,12 +849,13 @@ void movefta_d(void)
 
 int ifhitsectors_d(int sectnum)
 {
-	int i = headspritestat[STAT_MISC];
-	while(i >= 0)
+	StatIterator it(STAT_MISC);
+	int i;
+	while((i = it.NextIndex()) >= 0)
 	{
-		if (sprite[i].picnum == EXPLOSION2 && sectnum == sprite[i].sectnum)
+		auto s = &sprite[i];
+		if (s->picnum == EXPLOSION2 && sectnum == s->sectnum)
 			return i;
-		i = nextspritestat[i];
 	}
 	return -1;
 }
@@ -871,20 +869,20 @@ int ifhitsectors_d(int sectnum)
 int ifhitbyweapon_d(int sn)
 {
 	short j, p;
-	spritetype* npc;
+	auto spr = &sprite[sn];
+	auto ht = &hittype[sn];
+	auto htowner = ht->owner < 0? nullptr : &sprite[ht->owner];
 
-	if (hittype[sn].extra >= 0)
+	if (ht->extra >= 0)
 	{
-		if (sprite[sn].extra >= 0)
+		if (spr->extra >= 0)
 		{
-			npc = &sprite[sn];
-
-			if (npc->picnum == APLAYER)
+			if (spr->picnum == APLAYER)
 			{
-				if (ud.god && hittype[sn].picnum != SHRINKSPARK) return -1;
+				if (ud.god && ht->picnum != SHRINKSPARK) return -1;
 
-				p = npc->yvel;
-				j = hittype[sn].owner;
+				p = spr->yvel;
+				j = ht->owner;
 
 				if (j >= 0 &&
 					sprite[j].picnum == APLAYER &&
@@ -892,27 +890,27 @@ int ifhitbyweapon_d(int sn)
 					ud.ffire == 0)
 					return -1;
 
-				npc->extra -= hittype[sn].extra;
+				spr->extra -= ht->extra;
 
 				if (j >= 0)
 				{
-					if (npc->extra <= 0 && hittype[sn].picnum != FREEZEBLAST)
+					if (spr->extra <= 0 && ht->picnum != FREEZEBLAST)
 					{
-						npc->extra = 0;
+						spr->extra = 0;
 
 						ps[p].wackedbyactor = j;
 
-						if (sprite[hittype[sn].owner].picnum == APLAYER && p != sprite[hittype[sn].owner].yvel)
+						if (htowner->picnum == APLAYER && p != htowner->yvel)
 						{
 							// yvel contains player ID
 							ps[p].frag_ps = sprite[j].yvel;
 						}
 
-						hittype[sn].owner = ps[p].i;
+						ht->owner = ps[p].i;
 					}
 				}
 
-				switch(hittype[sn].picnum)
+				switch(ht->picnum)
 				{
 					case RADIUSEXPLOSION:
 					case RPG:
@@ -922,68 +920,67 @@ int ifhitbyweapon_d(int sn)
 					case OOZFILTER:
 					case EXPLODINGBARREL:
 						ps[p].posxv +=
-							hittype[sn].extra*(sintable[(hittype[sn].ang+512)&2047]) << 2;
+							ht->extra*(sintable[(ht->ang+512)&2047]) << 2;
 						ps[p].posyv +=
-							hittype[sn].extra*(sintable[hittype[sn].ang&2047]) << 2;
+							ht->extra*(sintable[ht->ang&2047]) << 2;
 						break;
 					default:
 						ps[p].posxv +=
-							hittype[sn].extra*(sintable[(hittype[sn].ang+512)&2047]) << 1;
+							ht->extra*(sintable[(ht->ang+512)&2047]) << 1;
 						ps[p].posyv +=
-							hittype[sn].extra*(sintable[hittype[sn].ang&2047]) << 1;
+							ht->extra*(sintable[ht->ang&2047]) << 1;
 						break;
 				}
 			}
 			else
 			{
-				if (hittype[sn].extra == 0)
-					if (hittype[sn].picnum == SHRINKSPARK && npc->xrepeat < 24)
+				if (ht->extra == 0)
+					if (ht->picnum == SHRINKSPARK && spr->xrepeat < 24)
 						return -1;
 
-				if (isWorldTour() && hittype[sn].picnum == FIREFLY && npc->xrepeat < 48) 
+				if (isWorldTour() && ht->picnum == FIREFLY && spr->xrepeat < 48)
 				{
-					if (hittype[sn].picnum != RADIUSEXPLOSION && hittype[sn].picnum != RPG)
+					if (ht->picnum != RADIUSEXPLOSION && ht->picnum != RPG)
 						return -1;
 				}
 
-				npc->extra -= hittype[sn].extra;
-				if (npc->picnum != RECON && npc->owner >= 0 && sprite[npc->owner].statnum < MAXSTATUS)
-					npc->owner = hittype[sn].owner;
+				spr->extra -= ht->extra;
+				if (spr->picnum != RECON && spr->owner >= 0 && sprite[spr->owner].statnum < MAXSTATUS)
+					spr->owner = ht->owner;
 			}
 
-			hittype[sn].extra = -1;
-			return hittype[sn].picnum;
+			ht->extra = -1;
+			return ht->picnum;
 		}
 	}
 
 
 	if (ud.multimode < 2 || !isWorldTour()
-		|| hittype[sn].picnum != FLAMETHROWERFLAME
-		|| hittype[sn].extra >= 0
-		|| sprite[sn].extra > 0
-		|| sprite[sn].picnum != APLAYER
-		|| ps[sprite[sn].yvel].numloogs > 0
-		|| hittype[sn].owner < 0) 
+		|| ht->picnum != FLAMETHROWERFLAME
+		|| ht->extra >= 0
+		|| spr->extra > 0
+		|| spr->picnum != APLAYER
+		|| ps[spr->yvel].numloogs > 0
+		|| ht->owner < 0)
 	{
-		hittype[sn].extra = -1;
+		ht->extra = -1;
 		return -1;
 	}
-	else 
+	else
 	{
-		p = sprite[sn].yvel;
-		sprite[sn].extra = 0;
-		ps[p].wackedbyactor = (short)hittype[sn].owner;
+		p = spr->yvel;
+		spr->extra = 0;
+		ps[p].wackedbyactor = (short)ht->owner;
 
-		if (sprite[hittype[sn].owner].picnum == APLAYER && p != hittype[sn].owner)
-			ps[p].frag_ps = (short)hittype[sn].owner;
+		if (htowner->picnum == APLAYER && p != ht->owner)
+			ps[p].frag_ps = (short)ht->owner;
 
-		hittype[sn].owner = ps[p].i;
-		hittype[sn].extra = -1;
+		ht->owner = ps[p].i;
+		ht->extra = -1;
 
 		return FLAMETHROWERFLAME;
 	}
 }
-
 
 
 //---------------------------------------------------------------------------
@@ -2047,8 +2044,7 @@ void moveweapons_d(void)
 
 void movetransports_d(void)
 {
-	char warpspriteto;
-	short k, l, p, sect, sectlotag;
+	int warpspriteto;
 	int ll, onfloorz, q;
 	int i, j;
 	
@@ -2059,8 +2055,8 @@ void movetransports_d(void)
 		auto hiti = &hittype[i];
 		auto spriowner = spri->owner < 0? nullptr : &sprite[spri->owner];
 		
-		sect = spri->sectnum;
-		sectlotag = sector[sect].lotag;
+		int sect = spri->sectnum;
+		int sectlotag = sector[sect].lotag;
 		
 		
 		if (spri->owner == i)
@@ -2084,7 +2080,7 @@ void movetransports_d(void)
 				
 				if (sprj->owner != -1)
 				{
-					p = sprj->yvel;
+					int p = sprj->yvel;
 					
 					ps[p].on_warping_sector = 1;
 					
@@ -2098,7 +2094,7 @@ void movetransports_d(void)
 								S_PlayActorSound(TELEPORTER, i);
 							}
 							
-							for (k = connecthead; k >= 0; k = connectpoint2[k])
+							for (int k = connecthead; k >= 0; k = connectpoint2[k])
 							if (ps[k].cursectnum == spriowner->sectnum)
 							{
 								ps[k].frag_ps = p;
@@ -2123,7 +2119,7 @@ void movetransports_d(void)
 							
 							if (spri->pal == 0)
 							{
-								k = fi.spawn(spri->owner, TRANSPORTERBEAM);
+								int k = fi.spawn(spri->owner, TRANSPORTERBEAM);
 								S_PlayActorSound(TELEPORTER, k);
 							}
 							
@@ -2154,7 +2150,7 @@ void movetransports_d(void)
 							break;
 						}
 					
-					k = 0;
+					int k = 0;
 					
 					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].posz > (sector[sect].floorz - (16 << 8)) && (PlayerInput(p, SB_CROUCH) || ps[p].poszv > 2048))
 						//                        if( onfloorz && sectlotag == 1 && ps[p].posz > (sector[sect].floorz-(6<<8)) )
@@ -2209,7 +2205,7 @@ void movetransports_d(void)
 							fi.spawn(j, WATERSPLASH2);
 						
 						if (sectlotag == 1)
-							for (l = 0; l < 9; l++)
+							for (int l = 0; l < 9; l++)
 						{
 							q = fi.spawn(ps[p].i, WATERBUBBLE);
 							sprite[q].z += krand() & 16383;
@@ -2290,7 +2286,7 @@ void movetransports_d(void)
 						
 						if (sectlotag > 0)
 						{
-							k = fi.spawn(j, WATERSPLASH2);
+							int k = fi.spawn(j, WATERSPLASH2);
 							if (sectlotag == 1 && sprj->statnum == 4)
 							{
 								sprite[k].xvel = sprj->xvel >> 1;
@@ -2317,7 +2313,7 @@ void movetransports_d(void)
 									
 									if (spri->pal == 0)
 									{
-										k = fi.spawn(i, TRANSPORTERBEAM);
+										int k = fi.spawn(i, TRANSPORTERBEAM);
 										S_PlayActorSound(TELEPORTER, k);
 										
 										k = fi.spawn(spri->owner, TRANSPORTERBEAM);
