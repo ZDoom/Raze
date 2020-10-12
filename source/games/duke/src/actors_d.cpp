@@ -145,7 +145,8 @@ bool floorspace_d(int sectnum)
 
 void check_fta_sounds_d(int i)
 {
-	if (sprite[i].extra > 0) switch (sprite[i].picnum)
+	auto spri = &sprite[i];
+	if (spri->extra > 0) switch (spri->picnum)
 	{
 	case LIZTROOPONTOILET:
 	case LIZTROOPJUSTSIT:
@@ -187,18 +188,18 @@ void check_fta_sounds_d(int i)
 		S_PlaySound(BOS1_RECOG);
 		break;
 	case BOSS2:
-		if (sprite[i].pal == 1)
+		if (spri->pal == 1)
 			S_PlaySound(BOS2_RECOG);
 		else S_PlaySound(WHIPYOURASS);
 		break;
 	case BOSS3:
-		if (sprite[i].pal == 1)
+		if (spri->pal == 1)
 			S_PlaySound(BOS3_RECOG);
 		else S_PlaySound(RIPHEADNECK);
 		break;
 	case BOSS4:
 	case BOSS4STAYPUT:
-		if (sprite[i].pal == 1)
+		if (spri->pal == 1)
 			S_PlaySound(BOS4_RECOG);
 		S_PlaySound(BOSS4_FIRSTSEE);
 		break;
@@ -294,16 +295,17 @@ bool ifsquished(int i, int p)
 {
 	if (isRR()) return false;	// this function is a no-op in RR's source.
 
+	auto spri = &sprite[i];
 	bool squishme = false;
-	if (sprite[i].picnum == APLAYER && ud.clipping)
+	if (spri->picnum == APLAYER && ud.clipping)
 		return false;
 
-	auto& sc = sector[sprite[i].sectnum];
+	auto& sc = sector[spri->sectnum];
 	int floorceildist = sc.floorz - sc.ceilingz;
 
 	if (sc.lotag != ST_23_SWINGING_DOOR)
 	{
-		if (sprite[i].pal == 1)
+		if (spri->pal == 1)
 			squishme = floorceildist < (32 << 8) && (sc.lotag & 32768) == 0;
 		else
 			squishme = floorceildist < (12 << 8);
@@ -314,9 +316,9 @@ bool ifsquished(int i, int p)
 		FTA(QUOTE_SQUISHED, &ps[p]);
 
 		if (badguy(&sprite[i]))
-			sprite[i].xvel = 0;
+			spri->xvel = 0;
 
-		if (sprite[i].pal == 1)
+		if (spri->pal == 1)
 		{
 			hittype[i].picnum = SHOTSPARK1;
 			hittype[i].extra = 1;
@@ -545,82 +547,82 @@ int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigne
 {
 	int daz, h, oldx, oldy;
 	short retval, dasectnum, cd;
-	char bg;
 
-	bg = badguy(&sprite[spritenum]);
+	auto spri = &sprite[spritenum];
+	int bg = badguy(spri);
 
-	if (sprite[spritenum].statnum == 5 || (bg && sprite[spritenum].xrepeat < 4))
+	if (spri->statnum == 5 || (bg && spri->xrepeat < 4))
 	{
-		sprite[spritenum].x += (xchange * TICSPERFRAME) >> 2;
-		sprite[spritenum].y += (ychange * TICSPERFRAME) >> 2;
-		sprite[spritenum].z += (zchange * TICSPERFRAME) >> 2;
+		spri->x += (xchange * TICSPERFRAME) >> 2;
+		spri->y += (ychange * TICSPERFRAME) >> 2;
+		spri->z += (zchange * TICSPERFRAME) >> 2;
 		if (bg)
-			setsprite(spritenum, sprite[spritenum].x, sprite[spritenum].y, sprite[spritenum].z);
+			setsprite(spritenum, spri->x, spri->y, spri->z);
 		return 0;
 	}
 
-	dasectnum = sprite[spritenum].sectnum;
+	dasectnum = spri->sectnum;
 
-	daz = sprite[spritenum].z;
-	h = ((tilesiz[sprite[spritenum].picnum].y * sprite[spritenum].yrepeat) << 1);
+	daz = spri->z;
+	h = ((tilesiz[spri->picnum].y * spri->yrepeat) << 1);
 	daz -= h;
 
 	if (bg)
 	{
-		oldx = sprite[spritenum].x;
-		oldy = sprite[spritenum].y;
+		oldx = spri->x;
+		oldy = spri->y;
 
-		if (sprite[spritenum].xrepeat > 60)
-			retval = clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024L, (4 << 8), (4 << 8), cliptype);
+		if (spri->xrepeat > 60)
+			retval = clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024L, (4 << 8), (4 << 8), cliptype);
 		else 
 		{
-			if (sprite[spritenum].picnum == LIZMAN)
+			if (spri->picnum == LIZMAN)
 				cd = 292;
 			else if (actorflag(spritenum, SFLAG_BADGUY))
-				cd = sprite[spritenum].clipdist << 2;
+				cd = spri->clipdist << 2;
 			else
 				cd = 192;
 
-			retval = clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), cd, (4 << 8), (4 << 8), cliptype);
+			retval = clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), cd, (4 << 8), (4 << 8), cliptype);
 		}
 
 		// conditional code from hell...
 		if (dasectnum < 0 || (dasectnum >= 0 &&
 			((hittype[spritenum].actorstayput >= 0 && hittype[spritenum].actorstayput != dasectnum) ||
-			 ((sprite[spritenum].picnum == BOSS2) && sprite[spritenum].pal == 0 && sector[dasectnum].lotag != 3) ||
-			 ((sprite[spritenum].picnum == BOSS1 || sprite[spritenum].picnum == BOSS2) && sector[dasectnum].lotag == ST_1_ABOVE_WATER) ||
-			 (sector[dasectnum].lotag == ST_1_ABOVE_WATER && (sprite[spritenum].picnum == LIZMAN || (sprite[spritenum].picnum == LIZTROOP && sprite[spritenum].zvel == 0)))
+			 ((spri->picnum == BOSS2) && spri->pal == 0 && sector[dasectnum].lotag != 3) ||
+			 ((spri->picnum == BOSS1 || spri->picnum == BOSS2) && sector[dasectnum].lotag == ST_1_ABOVE_WATER) ||
+			 (sector[dasectnum].lotag == ST_1_ABOVE_WATER && (spri->picnum == LIZMAN || (spri->picnum == LIZTROOP && spri->zvel == 0)))
 			))
 		 )
 		{
-			sprite[spritenum].x = oldx;
-			sprite[spritenum].y = oldy;
-			if (sector[dasectnum].lotag == ST_1_ABOVE_WATER && sprite[spritenum].picnum == LIZMAN)
-				sprite[spritenum].ang = (krand()&2047);
-			else if ((hittype[spritenum].temp_data[0]&3) == 1 && sprite[spritenum].picnum != COMMANDER)
-				sprite[spritenum].ang = (krand()&2047);
-			setsprite(spritenum,oldx,oldy,sprite[spritenum].z);
+			spri->x = oldx;
+			spri->y = oldy;
+			if (sector[dasectnum].lotag == ST_1_ABOVE_WATER && spri->picnum == LIZMAN)
+				spri->ang = (krand()&2047);
+			else if ((hittype[spritenum].temp_data[0]&3) == 1 && spri->picnum != COMMANDER)
+				spri->ang = (krand()&2047);
+			setsprite(spritenum,oldx,oldy,spri->z);
 			if (dasectnum < 0) dasectnum = 0;
 			return (16384+dasectnum);
 		}
-		if ((retval&49152) >= 32768 && (hittype[spritenum].cgg==0)) sprite[spritenum].ang += 768;
+		if ((retval&49152) >= 32768 && (hittype[spritenum].cgg==0)) spri->ang += 768;
 	}
 	else
 	{
-		if (sprite[spritenum].statnum == 4)
+		if (spri->statnum == 4)
 			retval =
-			clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8L, (4 << 8), (4 << 8), cliptype);
+			clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8L, (4 << 8), (4 << 8), cliptype);
 		else
 			retval =
-			clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(sprite[spritenum].clipdist << 2), (4 << 8), (4 << 8), cliptype);
+			clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(spri->clipdist << 2), (4 << 8), (4 << 8), cliptype);
 	}
 
 	if (dasectnum >= 0)
-		if ((dasectnum != sprite[spritenum].sectnum))
+		if ((dasectnum != spri->sectnum))
 			changespritesect(spritenum, dasectnum);
-	daz = sprite[spritenum].z + ((zchange * TICSPERFRAME) >> 3);
+	daz = spri->z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > hittype[spritenum].ceilingz) && (daz <= hittype[spritenum].floorz))
-		sprite[spritenum].z = daz;
+		spri->z = daz;
 	else
 		if (retval == 0)
 			return(16384 + dasectnum);
@@ -747,15 +749,15 @@ void gutsdir_d(spritetype* s, short gtype, short n, short p)
 void movefta_d(void)
 {
 	int x, px, py, sx, sy;
-	short i, j, p, psect, ssect, nexti;
-	spritetype* s;
+	short p, psect, ssect, nexti;
+	int i, j;
 
 	i = headspritestat[STAT_ZOMBIEACTOR];
 	while (i >= 0)
 	{
 		nexti = nextspritestat[i];
 
-		s = &sprite[i];
+		auto s = &sprite[i];
 		p = findplayer(s, &x);
 
 		ssect = psect = s->sectnum;
