@@ -167,7 +167,7 @@ struct PlayerAngle
 	binangle interpolatedsum(double const smoothratio)
 	{
 		double const ratio = smoothratio / FRACUNIT;
-		int32_t const dang = UINT32_MAX / 2;
+		uint32_t const dang = UINT32_MAX >> 1;
 		int64_t const prev = oang.asbam() + olook_ang.asbam();
 		int64_t const curr = ang.asbam() + look_ang.asbam();
 		return bamang(prev + xs_CRoundToUInt(ratio * (((curr + dang - prev) & 0xFFFFFFFF) - dang)));
