@@ -296,6 +296,7 @@ bool ifsquished(int i, int p)
 	if (isRR()) return false;	// this function is a no-op in RR's source.
 
 	auto spri = &sprite[i];
+	auto ht = &hittype[i];
 	bool squishme = false;
 	if (spri->picnum == APLAYER && ud.clipping)
 		return false;
@@ -320,8 +321,8 @@ bool ifsquished(int i, int p)
 
 		if (spri->pal == 1)
 		{
-			hittype[i].picnum = SHOTSPARK1;
-			hittype[i].extra = 1;
+			ht->picnum = SHOTSPARK1;
+			ht->extra = 1;
 			return false;
 		}
 
@@ -338,24 +339,23 @@ bool ifsquished(int i, int p)
 
 void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 {
-	spritetype* s, * sj;
 	walltype* wal;
 	int d, q, x1, y1;
 	int sectcnt, sectend, dasect, startwall, endwall, nextsect;
-	short j, p, x, nextj, sect;
+	short j, p, x, sect;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 	short tempshort[MAXSECTORS];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
-
-	s = &sprite[i];
-
+	
+	auto s = &sprite[i];
+	
 	if(s->picnum == RPG && s->xrepeat < 11) goto SKIPWALLCHECK;
-
+	
 	if(s->picnum != SHRINKSPARK)
 	{
 		tempshort[0] = s->sectnum;
 		dasect = s->sectnum;
 		sectcnt = 0; sectend = 1;
-
+		
 		do
 		{
 			dasect = tempshort[sectcnt++];
@@ -393,41 +393,39 @@ void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 				}
 		} while (sectcnt < sectend);
 	}
-
+	
 SKIPWALLCHECK:
-
+	
 	q = -(16 << 8) + (krand() & ((32 << 8) - 1));
-
+	
 	for (x = 0; x < 7; x++)
 	{
-		j = headspritestat[statlist[x]];
-		while (j >= 0)
+		StatIterator itj(statlist[x]);
+		while ((j = itj.NextIndex()) >= 0)
 		{
-			nextj = nextspritestat[j];
-			sj = &sprite[j];
-
+			auto sj = &sprite[j];
+			auto ht = &hittype[j];
+			
 			if (isWorldTour())
 			{
 				if (sprite[s->owner].picnum == APLAYER && sj->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && s->owner != j)
 				{
-					j = nextj;
 					continue;
 				}
-
+				
 				if (s->picnum == FLAMETHROWERFLAME && ((sprite[s->owner].picnum == FIREFLY && sj->picnum == FIREFLY) || (sprite[s->owner].picnum == BOSS5 && sj->picnum == BOSS5)))
 				{
-					j = nextj;
 					continue;
 				}
 			}
-
+			
 			if (x == 0 || x >= 5 || AFLAMABLE(sj->picnum))
 			{
 				if (s->picnum != SHRINKSPARK || (sj->cstat & 257))
 					if (dist(s, sj) < r)
 					{
 						if (badguy(sj) && !cansee(sj->x, sj->y, sj->z + q, sj->sectnum, s->x, s->y, s->z + q, s->sectnum))
-							goto BOLT;
+							continue;
 						fi.checkhitsprite(j, i);
 					}
 			}
@@ -435,70 +433,68 @@ SKIPWALLCHECK:
 			{
 				if (s->picnum == SHRINKSPARK && sj->picnum != SHARK && (j == s->owner || sj->xrepeat < 24))
 				{
-					j = nextj;
 					continue;
 				}
 				if (s->picnum == MORTER && j == s->owner)
 				{
-					j = nextj;
 					continue;
 				}
-
+				
 				if (sj->picnum == APLAYER) sj->z -= PHEIGHT;
 				d = dist(s, sj);
 				if (sj->picnum == APLAYER) sj->z += PHEIGHT;
-
+				
 				if (d < r && cansee(sj->x, sj->y, sj->z - (8 << 8), sj->sectnum, s->x, s->y, s->z - (12 << 8), s->sectnum))
 				{
-					hittype[j].ang = getangle(sj->x - s->x, sj->y - s->y);
-
+					ht->ang = getangle(sj->x - s->x, sj->y - s->y);
+					
 					if (s->picnum == RPG && sj->extra > 0)
-						hittype[j].picnum = RPG;
+						ht->picnum = RPG;
 					else if (!isWorldTour())
 					{
 						if (s->picnum == SHRINKSPARK)
-							hittype[j].picnum = SHRINKSPARK;
-						else hittype[j].picnum = RADIUSEXPLOSION;
+							ht->picnum = SHRINKSPARK;
+						else ht->picnum = RADIUSEXPLOSION;
 					}
 					else
 					{
 						if (s->picnum == SHRINKSPARK || s->picnum == FLAMETHROWERFLAME)
-							hittype[j].picnum = s->picnum;
+							ht->picnum = s->picnum;
 						else if (s->picnum != FIREBALL || sprite[s->owner].picnum != APLAYER)
 						{
 							if (s->picnum == LAVAPOOL)
-								hittype[j].picnum = FLAMETHROWERFLAME;
+								ht->picnum = FLAMETHROWERFLAME;
 							else
-								hittype[j].picnum = RADIUSEXPLOSION;
+								ht->picnum = RADIUSEXPLOSION;
 						}
 						else
-							hittype[j].picnum = FLAMETHROWERFLAME;
+							ht->picnum = FLAMETHROWERFLAME;
 					}
-
+					
 					if (s->picnum != SHRINKSPARK && (!isWorldTour() || s->picnum != LAVAPOOL))
 					{
 						if (d < r / 3)
 						{
 							if (hp4 == hp3) hp4++;
-							hittype[j].extra = hp3 + (krand() % (hp4 - hp3));
+							ht->extra = hp3 + (krand() % (hp4 - hp3));
 						}
 						else if (d < 2 * r / 3)
 						{
 							if (hp3 == hp2) hp3++;
-							hittype[j].extra = hp2 + (krand() % (hp3 - hp2));
+							ht->extra = hp2 + (krand() % (hp3 - hp2));
 						}
 						else if (d < r)
 						{
 							if (hp2 == hp1) hp2++;
-							hittype[j].extra = hp1 + (krand() % (hp2 - hp1));
+							ht->extra = hp1 + (krand() % (hp2 - hp1));
 						}
-
+						
 						if (sprite[j].picnum != TANK && sprite[j].picnum != ROTATEGUN && sprite[j].picnum != RECON && !bossguy(&sprite[j]))
 						{
 							if (sj->xvel < 0) sj->xvel = 0;
 							sj->xvel += (s->extra << 2);
 						}
-
+						
 						if (sj->picnum == PODFEM1 || sj->picnum == FEM1 ||
 							sj->picnum == FEM2 || sj->picnum == FEM3 ||
 							sj->picnum == FEM4 || sj->picnum == FEM5 ||
@@ -508,31 +504,29 @@ SKIPWALLCHECK:
 							sj->picnum == STATUEFLASH || sj->picnum == SPACEMARINE || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL)
 							fi.checkhitsprite(j, i);
 					}
-					else if (s->extra == 0) hittype[j].extra = 0;
-
+					else if (s->extra == 0) ht->extra = 0;
+					
 					if (sj->picnum != RADIUSEXPLOSION &&
 						s->owner >= 0 && sprite[s->owner].statnum < MAXSTATUS)
 					{
 						if (sj->picnum == APLAYER)
 						{
 							p = sj->yvel;
-
-							if (isWorldTour() && hittype[j].picnum == FLAMETHROWERFLAME && sprite[s->owner].picnum == APLAYER) 
+							
+							if (isWorldTour() && ht->picnum == FLAMETHROWERFLAME && sprite[s->owner].picnum == APLAYER)
 							{
 								ps[p].numloogs = -1 - s->yvel;
 							}
-
+							
 							if (ps[p].newowner >= 0)
 							{
 								clearcamera(&ps[p]);
 							}
 						}
-						hittype[j].owner = s->owner;
+						ht->owner = s->owner;
 					}
 				}
 			}
-		BOLT:
-			j = nextj;
 		}
 	}
 }
@@ -747,7 +741,7 @@ void gutsdir_d(spritetype* s, short gtype, short n, short p)
 void movefta_d(void)
 {
 	int x, px, py, sx, sy;
-	short p, psect, ssect, nexti;
+	short p, psect, ssect;
 	int i, j;
 
 	StatIterator iti(STAT_ZOMBIEACTOR);
@@ -774,7 +768,6 @@ void movefta_d(void)
 						updatesector(px, py, &psect);
 						if (psect == -1)
 						{
-							i = nexti;
 							continue;
 						}
 						sx = s->x + 64 - (krand() & 127);
@@ -782,7 +775,6 @@ void movefta_d(void)
 						updatesector(px, py, &ssect);
 						if (ssect == -1)
 						{
-							i = nexti;
 							continue;
 						}
 
@@ -4103,10 +4095,10 @@ void move_d(int g_i, int g_p, int g_x)
 	auto g_sp = &sprite[g_i];
 	auto g_t = hittype[g_i].temp_data;
 	int l;
-	short a, goalang, angdif;
+	short goalang, angdif;
 	int daxvel;
 
-	a = g_sp->hitag;
+	int a = g_sp->hitag;
 
 	if (a == -1) a = 0;
 
