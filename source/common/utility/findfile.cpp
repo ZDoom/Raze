@@ -42,6 +42,7 @@
 
 #include <unistd.h>
 #include <fnmatch.h>
+#include <sys/stat.h>
 
 #include "cmdlib.h"
 
