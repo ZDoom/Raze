@@ -73,8 +73,8 @@ kChannelMax                         = 4096,
 
 struct RXBUCKET
 {
-    unsigned int index : 13;
-    unsigned int type : 3;
+    uint16_t index;
+    uint8_t type;
 };
 extern RXBUCKET rxBucket[];
 extern unsigned short bucketHead[];
