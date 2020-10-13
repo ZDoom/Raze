@@ -934,8 +934,6 @@ void DrawWeapons(double smooth)
     if (nWeapon < -1) {
         return;
     }
-    PspTwoDSetter set; // this is the last one.
-
     short var_34 = PlayerList[nLocalPlayer].field_3A;
 
     short var_30 = SeqOffsets[WeaponInfo[nWeapon].nSeq];

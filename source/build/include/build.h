@@ -994,25 +994,5 @@ extern int32_t(*changespritestat_replace)(int16_t spritenum, int16_t newstatnum)
 extern void(*PolymostProcessVoxels_Callback)(void);
 #endif
 
-class F2DDrawer;
-
-extern F2DDrawer twodpsp;
-extern F2DDrawer* twod;
-
-// This is for safely substituting the 2D drawer for a block of code. Won't be needed anymore after proper refactoring.
-class PspTwoDSetter
-{
-	F2DDrawer* old;
-public:
-	PspTwoDSetter()
-	{
-		old = twod;
-		twod = &twodpsp;
-	}
-	~PspTwoDSetter()
-	{
-		twod = old;
-	}
-};
 
 #endif // build_h_

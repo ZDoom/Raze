@@ -87,6 +87,7 @@
 #include "statusbar.h"
 #include "gamestruct.h"
 #include "savegamehelp.h"
+#include "v_draw.h"
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)

@@ -44,6 +44,7 @@
 #include "v_colortables.h"
 #include "v_font.h"
 #include "printf.h"
+#include "v_draw.h"
 #include "../../glbackend/glbackend.h"
 
 LookupTableInfo lookups;

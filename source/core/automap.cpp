@@ -43,6 +43,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "quotemgr.h"
 #include "v_video.h"
 #include "gamestruct.h"
+#include "v_draw.h"
 
 CVAR(Bool, am_followplayer, true, CVAR_ARCHIVE)
 CVAR(Bool, am_rotate, true, CVAR_ARCHIVE)

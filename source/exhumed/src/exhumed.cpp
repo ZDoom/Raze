@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "d_protocol.h"
 #include "texturemanager.h"
 #include "razemenu.h"
+#include "v_draw.h"
 
 BEGIN_PS_NS
 
