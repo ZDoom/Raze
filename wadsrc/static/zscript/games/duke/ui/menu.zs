@@ -9,13 +9,13 @@ class DukeMenuDelegate : RazeMenuDelegate
 		let fonth = font.GetGlyphHeight("A");
 		if (drawit)
 		{
-			int width = font.StringWidth(title);
 			double scalex = (gameinfo.gameType & GAMEFLAG_RRALL)? 0.4 : 1.; 
+			double width = font.StringWidth(title);
 			double scaley = scalex;
 			if (texid.isValid())
 			{
 				screen.DrawTexture(texid, false, 160, 19, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_Color, 0xff808080);
-				if (texsize.X - 30 < width) scalex = (texsize.X - 30) / width; // Squash the text if it doesn't fit.
+				if (texsize.X - 30 < width * scalex) scalex = (texsize.X - 30) / (width); // Squash the text if it doesn't fit.
 			}			
 			screen.DrawText(font, Font.CR_UNTRANSLATED, 160 - width / 2 * scalex, 19 - fonth / 2 * scaley, title, DTA_ScaleX, scalex, DTA_ScaleY, scaley, DTA_FullscreenScale, FSMode_Fit320x200Top);
 		}
@@ -49,7 +49,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 		double cursorScale = (gameinfo.gametype & GAMEFLAG_RRALL) ? 0.2 : 1.0;
 		double ymid = desc.mItems[desc.mSelectedItem].GetY() + 7;	// half height must be hardcoded or layouts will break.
 		DrawCursor(160 + cursorOffset, ymid, cursorScale, false);
-		DrawCursor(169 - cursorOffset, ymid, cursorScale, true);
+		DrawCursor(160 - cursorOffset, ymid, cursorScale, true);
 		return true;
 	}
 	
@@ -143,7 +143,7 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 		int trans = mColorSelected? Translation.MakeID(Translation_Remap, 1) : 0; 
 		Color pe;
 		double scale = (gameinfo.gametype & GAMEFLAG_RRALL) ? 0.4 : 1.;
-		let xpos = mXpos - BigFont.StringWidth(mText) * scale * 0.5;
+		let xpos = 160 - BigFont.StringWidth(mText) * scale * 0.5;
 
 		if (selected)
 		{

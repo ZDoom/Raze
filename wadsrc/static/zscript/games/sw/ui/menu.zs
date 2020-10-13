@@ -17,13 +17,13 @@ class SWMenuDelegate : RazeMenuDelegate
 				if (texsize.X - 60 < width) 
 				{
 					// First start squashing the font down to 0.7x the original width.
-					fontscale = (texsize.X - 60) / width;
+					fontscale = (texsize.X - 66) / width;
 					if (fontscale < 0.7)
 					{
 						// If that is not enough, extend the box.
 						fontscale = 0.7;
 						width *= 0.7;
-						scalex = width / (texsize.X - 60);
+						scalex = width / (texsize.X - 66);
 					}
 					else width *= fontscale;
 				}
