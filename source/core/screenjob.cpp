@@ -753,7 +753,6 @@ public:
 		auto& job = jobs[index];
 		auto now = I_GetTimeNS();
 		bool processed = job.job->ProcessInput();
-		bool skiprequest = inputState.CheckAllInput() && !processed;
 		if (startTime == -1)
 		{
 			lastTime = startTime = now;
@@ -763,6 +762,7 @@ public:
 			clock += now - lastTime;
 			if (clock == 0) clock = 1;
 		}
+		bool skiprequest = clock > 100'000'000 && inputState.CheckAllInput() && !processed;
 		lastTime = now;
 
 		if (screenfade < 1.f && !M_Active())
