@@ -83,7 +83,7 @@ int DImageScreen::Frame(uint64_t clock, bool skiprequest)
 	}
 	int span = int(clock / 1'000'000);
 	twod->ClearScreen();
-	DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+	DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TranslationIndex, trans, TAG_DONE);
 	// Only end after having faded out.
 	return skiprequest ? -1 : span > waittime? 0 : 1;
 }

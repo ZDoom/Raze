@@ -73,18 +73,21 @@ class DImageScreen : public DScreenJob
 	DECLARE_CLASS(DImageScreen, DScreenJob)
 
 	int tilenum = -1;
+	int trans;
 	int waittime; // in ms.
 	FGameTexture* tex = nullptr;
 
 public:
-	DImageScreen(FGameTexture* tile, int fade = DScreenJob::fadein | DScreenJob::fadeout, int wait = 3000) : DScreenJob(fade), waittime(wait)
+	DImageScreen(FGameTexture* tile, int fade = DScreenJob::fadein | DScreenJob::fadeout, int wait = 3000, int translation = 0) : DScreenJob(fade), waittime(wait)
 	{
 		tex = tile;
+		trans = translation;
 	}
 
-	DImageScreen(int tile, int fade = DScreenJob::fadein | DScreenJob::fadeout, int wait = 3000) : DScreenJob(fade), waittime(wait)
+	DImageScreen(int tile, int fade = DScreenJob::fadein | DScreenJob::fadeout, int wait = 3000, int translation = 0) : DScreenJob(fade), waittime(wait)
 	{
 		tilenum = tile;
+		trans = translation;
 	}
 
 	int Frame(uint64_t clock, bool skiprequest) override;

@@ -1314,9 +1314,9 @@ void DoGameOverScene(bool finallevel)
     {
         StopCD();
         PlayGameOverSound();
-        job = { Create<DImageScreen>(tileGetTexture(kTile3591), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff) };
+        job = { Create<DImageScreen>(tileGetTexture(kTile3591), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff, TRANSLATION(Translation_BasePalettes, 16)) };
     }
-    RunScreenJob(&job, 1, [](bool) { gameaction = ga_startup; });
+    RunScreenJob(&job, 1, [](bool) { gameaction = ga_mainmenu; });
 }
 
 
