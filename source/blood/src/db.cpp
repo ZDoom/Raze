@@ -333,7 +333,7 @@ void dbInit(void)
     {
         xsprite[i].reference = -1;
     }
-    XWallsUsed = XSectorsUsed = 0;
+    XWallsUsed = XSectorsUsed = 1;  // 0 is not usable because it's the default for 'extra' and some code actually uses it to clobber the contents in here. :(
     for (int i = 1; i < kMaxXWalls; i++)
     {
         xwall[i].reference = -1;
