@@ -1070,13 +1070,8 @@ public:
     void Save(void);
 };
 
-static int messageTime;
-static char message[256];
-
 void ViewLoadSave::Load(void)
 {
-    Read(&messageTime, sizeof(messageTime));
-    Read(message, sizeof(message));
     Read(otherMirrorGotpic, sizeof(otherMirrorGotpic));
     Read(bakMirrorGotpic, sizeof(bakMirrorGotpic));
     Read(&gScreenTilt, sizeof(gScreenTilt));
@@ -1087,8 +1082,6 @@ void ViewLoadSave::Load(void)
 
 void ViewLoadSave::Save(void)
 {
-    Write(&messageTime, sizeof(messageTime));
-    Write(message, sizeof(message));
     Write(otherMirrorGotpic, sizeof(otherMirrorGotpic));
     Write(bakMirrorGotpic, sizeof(bakMirrorGotpic));
     Write(&gScreenTilt, sizeof(gScreenTilt));
