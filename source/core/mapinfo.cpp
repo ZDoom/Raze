@@ -33,6 +33,7 @@
 **
 */ 
 
+#include "c_dispatch.h"
 #include "mapinfo.h"
 #include "raze_music.h"
 #include "filesystem.h"
@@ -48,6 +49,15 @@ MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDu
 MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
 MapRecord* lastLevel;		// Same here, for the last level.
 unsigned int numUsedSlots;
+
+
+CCMD(listmaps)
+{
+	for (unsigned int i = 0; i < numUsedSlots; i++)
+	{
+		Printf("%s\n", mapList[i].fileName.GetChars());
+	}
+}
 
 
 MapRecord *FindMapByName(const char *nm)
