@@ -554,7 +554,6 @@ void movefx(void)
 {
 	int i, j, p;
 	int x, ht;
-	spritetype* s;
 
 	StatIterator iti(STAT_FX);
 	while ((i = iti.NextIndex()) >= 0)
@@ -1310,7 +1309,7 @@ void movecanwithsomething(int i)
 void bounce(int i)
 {
 	int k, l, daang, dax, day, daz, xvect, yvect, zvect;
-	short hitsect;
+	int hitsect;
 	spritetype* s = &sprite[i];
 
 	xvect = mulscale10(s->xvel, sintable[(s->ang + 512) & 2047]);
@@ -2580,9 +2579,10 @@ void scrap(int i, int SCRAP1, int SCRAP6)
 
 void handle_se00(int i, int LASERLINE)
 {
-	spritetype* s = &sprite[i];
+	auto s = &sprite[i];
+	auto ht = &hittype[i];
 	int sect = s->sectnum;
-	auto t = &hittype[i].temp_data[0];
+	auto t = &ht->temp_data[0];
 	sectortype *sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
@@ -2590,8 +2590,9 @@ void handle_se00(int i, int LASERLINE)
 	int zchange = 0;
 
 	int j = s->owner;
+	auto sprowner = &sprite[j];
 
-	if (sprite[j].lotag == (short)65535)
+	if (sprowner->lotag == (short)65535)
 	{
 		deletesprite(i);
 		return;
@@ -2606,15 +2607,15 @@ void handle_se00(int i, int LASERLINE)
 
 		if (sprite[i].extra == 1)
 		{
-			if (hittype[i].tempang < 256)
+			if (ht->tempang < 256)
 			{
-				hittype[i].tempang += 4;
-				if (hittype[i].tempang >= 256)
+				ht->tempang += 4;
+				if (ht->tempang >= 256)
 					callsound(s->sectnum, i);
 				if (s->clipdist) l = 1;
 				else l = -1;
 			}
-			else hittype[i].tempang = 256;
+			else ht->tempang = 256;
 
 			if (sc->floorz > s->z) //z's are touching
 			{
@@ -2634,30 +2635,30 @@ void handle_se00(int i, int LASERLINE)
 		}
 		else if (sprite[i].extra == 3)
 		{
-			if (hittype[i].tempang > 0)
+			if (ht->tempang > 0)
 			{
-				hittype[i].tempang -= 4;
-				if (hittype[i].tempang <= 0)
+				ht->tempang -= 4;
+				if (ht->tempang <= 0)
 					callsound(s->sectnum, i);
 				if (s->clipdist) l = -1;
 				else l = 1;
 			}
-			else hittype[i].tempang = 0;
+			else ht->tempang = 0;
 
-			if (sc->floorz > hittype[i].temp_data[3]) //z's are touching
+			if (sc->floorz > ht->temp_data[3]) //z's are touching
 			{
 				sc->floorz -= 512;
 				zchange = -512;
-				if (sc->floorz < hittype[i].temp_data[3])
-					sc->floorz = hittype[i].temp_data[3];
+				if (sc->floorz < ht->temp_data[3])
+					sc->floorz = ht->temp_data[3];
 			}
 
-			else if (sc->floorz < hittype[i].temp_data[3]) //z's are touching
+			else if (sc->floorz < ht->temp_data[3]) //z's are touching
 			{
 				sc->floorz += 512;
 				zchange = 512;
-				if (sc->floorz > hittype[i].temp_data[3])
-					sc->floorz = hittype[i].temp_data[3];
+				if (sc->floorz > ht->temp_data[3])
+					sc->floorz = ht->temp_data[3];
 			}
 		}
 
@@ -2673,14 +2674,14 @@ void handle_se00(int i, int LASERLINE)
 			return;
 		}
 
-		if (sprite[j].ang > 1024)
+		if (sprowner->ang > 1024)
 			l = -1;
 		else l = 1;
 		if (t[3] == 0)
 			t[3] = ldist(s, &sprite[j]);
 		s->xvel = t[3];
-		s->x = sprite[j].x;
-		s->y = sprite[j].y;
+		s->x = sprowner->x;
+		s->y = sprowner->y;
 		s->ang += (l * q);
 		t[2] += (l * q);
 	}
@@ -2697,7 +2698,7 @@ void handle_se00(int i, int LASERLINE)
 				ps[p].posz += zchange;
 
 				int m, x;
-				rotatepoint(sprite[j].x, sprite[j].y,
+				rotatepoint(sprowner->x, sprowner->y,
 					ps[p].posx, ps[p].posy, (q * l),
 					&m, &x);
 
@@ -2714,30 +2715,28 @@ void handle_se00(int i, int LASERLINE)
 				}
 			}
 		}
-
-		p = headspritesect[s->sectnum];
-		while (p >= 0)
+		SectIterator itp(s->sectnum);
+		while ((p = itp.NextIndex()) >= 0)
 		{
-			if (sprite[p].statnum != 3 && sprite[p].statnum != 4)
-				if (LASERLINE < 0 || sprite[p].picnum != LASERLINE)
+			auto sprp = &sprite[p];
+			if (sprp->statnum != 3 && sprp->statnum != 4)
+				if (LASERLINE < 0 || sprp->picnum != LASERLINE)
 				{
-					if (sprite[p].picnum == TILE_APLAYER && sprite[p].owner >= 0)
+					if (sprp->picnum == TILE_APLAYER && sprp->owner >= 0)
 					{
-						p = nextspritesect[p];
 						continue;
 					}
 
-					sprite[p].ang += (l * q);
-					sprite[p].ang &= 2047;
+					sprp->ang += (l * q);
+					sprp->ang &= 2047;
 
-					sprite[p].z += zchange;
+					sprp->z += zchange;
 
-					rotatepoint(sprite[j].x, sprite[j].y,
-						sprite[p].x, sprite[p].y, (q * l),
-						&sprite[p].x, &sprite[p].y);
+					rotatepoint(sprowner->x, sprowner->y,
+						sprp->x, sprp->y, (q * l),
+						&sprp->x, &sprp->y);
 
 				}
-			p = nextspritesect[p];
 		}
 
 	}
@@ -2759,15 +2758,16 @@ void handle_se01(int i)
 	{
 		s->owner = i;
 
-		int j = headspritestat[STAT_EFFECTOR];
-		while (j >= 0)
+		StatIterator it(STAT_EFFECTOR);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
-			if (sprite[j].lotag == 19 && sprite[j].hitag == sh)
+			auto ss = &sprite[j];
+			if (ss->lotag == 19 && ss->hitag == sh)
 			{
 				t[0] = 0;
 				break;
 			}
-			j = nextspritestat[j];
 		}
 	}
 }
@@ -2943,11 +2943,11 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 						}
 					}
 
-			j = headspritesect[sprite[sprite[i].owner].sectnum];
-			while (j >= 0)
+			SectIterator itr(sprite[s->owner].sectnum);
+			while ((j = itr.NextIndex()) >= 0)
 			{
 				auto spj = &sprite[j];
-				int l = nextspritesect[j];
+
 				if (spj->statnum == 1 && badguy(spj) && spj->picnum != SECTOREFFECTOR && spj->picnum != LOCATORS)
 				{
 					short k = spj->sectnum;
@@ -2959,7 +2959,6 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 						deletesprite(j);
 					}
 				}
-				j = l;
 			}
 		}
 	}
@@ -3079,8 +3078,9 @@ void handle_se30(int i, int JIBS6)
 			}
 		}
 
-		int j = headspritesect[s->sectnum];
-		while (j >= 0)
+		SectIterator its(s->sectnum);
+		int j;
+		while ((j = its.NextIndex()) >= 0)
 		{
 			auto sprj = &sprite[j];
 			auto htj = &hittype[j];
@@ -3101,7 +3101,6 @@ void handle_se30(int i, int JIBS6)
 					htj->bposy = sprj->y;
 				}
 			}
-			j = nextspritesect[j];
 		}
 
 		ms(i);
