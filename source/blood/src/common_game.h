@@ -82,7 +82,6 @@ kMediumGoo                      = 2,
 
 // STATNUMS /////////////////////////////////////////////////////
 enum {
-kStatNothing                    = -1,
 kStatDecoration                 = 0,
 kStatFX                         = 1,
 kStatExplosion                  = 2,

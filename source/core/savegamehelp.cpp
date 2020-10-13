@@ -62,11 +62,10 @@ walltype wallbackup[MAXWALLS];
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
-void LoadEngineState();
-void SaveEngineState();
 void WriteSavePic(FileWriter* file, int width, int height);
 extern FString BackupSaveGame;
 void SerializeMap(FSerializer &arc);
+FixedBitArray<MAXSPRITES> activeSprites;
 
 CVAR(String, cl_savedir, "", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
@@ -140,8 +139,7 @@ bool OpenSaveGameForRead(const char *name)
 
 		// Load system-side data from savegames.
 		loadMapBackup(currentLevel->fileName);
-		LoadEngineState();
-		SerializeSession(arc); // must be AFTER LoadEngineState because it needs info from it.
+		SerializeSession(arc);
 		gi->SerializeGameState(arc);
 	}
 	return savereader != nullptr;
@@ -236,7 +234,6 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	// Handle system-side modules that need to persist data in savegames here, in a central place.
 	savegamesession.OpenWriter(save_formatted);
 	SerializeSession(savegamesession);
-	SaveEngineState();
 	gi->SerializeGameState(savegamesession);
 	buff = savegamesession.GetCompressedOutput();
 	AddCompressedSavegameChunk("session.json", buff);
@@ -431,24 +428,6 @@ FString G_BuildSaveName (const char *prefix)
 #include "build.h"
 #include "mmulti.h"
 
-static void sv_prespriteextsave()
-{
-	for (int i = 0; i < MAXSPRITES; i++)
-		if (spriteext[i].mdanimtims)
-		{
-			spriteext[i].mdanimtims -= mdtims;
-			if (spriteext[i].mdanimtims == 0)
-				spriteext[i].mdanimtims++;
-		}
-}
-static void sv_postspriteext()
-{
-	for (int i = 0; i < MAXSPRITES; i++)
-		if (spriteext[i].mdanimtims)
-			spriteext[i].mdanimtims += mdtims;
-}
-
-
 static const int magic = 0xbeefcafe;
 void WriteMagic(FileWriter *fw)
 {
@@ -468,8 +447,68 @@ void CheckMagic(FileReader& fr)
 
 #define V(x) x
 static spritetype zsp;
-static sectortype zsec;
-static walltype zwal;
+static spriteext_t zspx;
+
+FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritetype *def)
+{
+	def = &zsp; // always delta against 0
+	if (arc.BeginObject(key))
+	{
+		arc("x", c.x, def->x)
+			("y", c.y, def->y)
+			("z", c.z, def->z)
+			("cstat", c.cstat, def->cstat)
+			("picnum", c.picnum, def->picnum)
+			("shade", c.shade, def->shade)
+			("pal", c.pal, def->pal)
+			("clipdist", c.clipdist, def->clipdist)
+			("blend", c.blend, def->blend)
+			("xrepeat", c.xrepeat, def->xrepeat)
+			("yrepeat", c.yrepeat, def->yrepeat)
+			("xoffset", c.xoffset, def->xoffset)
+			("yoffset", c.yoffset, def->yoffset)
+			("statnum", c.statnum)
+			("sectnum", c.sectnum)
+			("ang", c.ang, def->ang)
+			("owner", c.owner, def->owner)
+			("xvel", c.xvel, def->xvel)
+			("yvel", c.yvel, def->yvel)
+			("zvel", c.zvel, def->zvel)
+			("lotag", c.lotag, def->lotag)
+			("hitag", c.hitag, def->hitag)
+			("extra", c.extra, def->extra)
+			("detail", c.detail, def->detail)
+			.EndObject();
+	}
+	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* key, spriteext_t& c, spriteext_t* def)
+{
+	if (arc.isWriting() && c.mdanimtims)
+	{
+		c.mdanimtims -= mdtims;
+		if (c.mdanimtims == 0) c.mdanimtims++;
+	}
+
+	def = &zspx; // always delta against 0
+	if (arc.BeginObject(key))
+	{
+		arc("mdanimtims", c.mdanimtims, def->mdanimtims)
+			("mdanimcur", c.mdanimcur, def->mdanimcur)
+			("angoff", c.angoff, def->angoff)
+			("pitch", c.pitch, def->pitch)
+			("roll", c.roll, def->roll)
+			("pivot_offset", c.pivot_offset, def->pivot_offset)
+			("position_offset", c.position_offset, def->position_offset)
+			("flags", c.flags, def->flags)
+			("alpha", c.alpha, def->alpha)
+			.EndObject();
+	}
+
+	if (c.mdanimtims) c.mdanimtims += mdtims;
+	return arc;
+}
 
 FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectortype *def)
 {
@@ -529,109 +568,88 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 	return arc;
 }
 
+
 void SerializeMap(FSerializer& arc)
 {
+	// create a map of all used sprites so that we can use that elsewhere to only save what's needed.
+	activeSprites.Zero();
+	if (arc.isWriting())
+	{
+		for (int i=0; i<MAXSPRITES;i++)
+		{
+			if (sprite[i].statnum != MAXSTATUS)
+			{
+				activeSprites.Set(i);
+			}
+		}
+		// simplify the data a bit for better compression. 
+		for (int i = 0; i < MAXSPRITES; i++)
+		{
+			if (nextspritestat[i] == i + 1) nextspritestat[i] = -2;
+			if (nextspritesect[i] == i + 1) nextspritesect[i] = -2;
+			if (prevspritestat[i] == i - 1) prevspritestat[i] = -2;
+			if (prevspritesect[i] == i - 1) prevspritesect[i] = -2;
+		}
+
+	}
+	else
+	{
+		memset(sprite, 0, sizeof(sprite[0]) * MAXSPRITES);
+		initspritelists();
+		zsp = sprite[0];
+	}
+
 	if (arc.BeginObject("engine"))
 	{
-		arc ("numsectors", numsectors)
+		arc.SerializeMemory("activesprites", activeSprites.Storage(), activeSprites.StorageSize())
+			.SparseArray("sprites", sprite, MAXSPRITES, activeSprites)
+			.SparseArray("spriteext", spriteext, MAXSPRITES, activeSprites)
+			("numsectors", numsectors)
 			.Array("sectors", sector, sectorbackup, numsectors)
 			("numwalls", numwalls)
 			.Array("walls", wall, wallbackup, numwalls)
-			.EndObject();
-	}
+			.Array("headspritestat", headspritestat, MAXSTATUS + 1)
+			.Array("nextspritestat", nextspritestat, MAXSPRITES)
+			.Array("prevspritestat", prevspritestat, MAXSPRITES)
+			.Array("headspritesect", headspritesect, MAXSECTORS + 1)
+			.Array("nextspritesect", nextspritesect, MAXSPRITES)
+			.Array("prevspritesect", prevspritesect, MAXSPRITES)
+			
+			("tailspritefree", tailspritefree)
+			("myconnectindex", myconnectindex)
+			("connecthead", connecthead)
+			.Array("connectpoint2", connectpoint2, countof(connectpoint2))
+			("randomseed", randomseed)
+			("numshades", numshades)	// is this really needed?
+			("visibility", g_visibility)
+			("parallaxtype", parallaxtype)
+			("parallaxvisibility", parallaxvisibility)
+			("parallaxyo", parallaxyoffs_override)
+			("parallaxys", parallaxyscale_override)
+			("pskybits", pskybits_override)
+			("numsprites", Numsprites);
 
-}
-void SaveEngineState()
-{
-	auto fw = WriteSavegameChunk("engine.bin");
-	fw->Write(sprite, sizeof(spritetype) * MAXSPRITES);
-	WriteMagic(fw);
-	fw->Write(headspritesect, sizeof(headspritesect));
-	fw->Write(prevspritesect, sizeof(prevspritesect));
-	fw->Write(nextspritesect, sizeof(nextspritesect));
-	fw->Write(headspritestat, sizeof(headspritestat));
-	fw->Write(prevspritestat, sizeof(prevspritestat));
-	fw->Write(nextspritestat, sizeof(nextspritestat));
-	WriteMagic(fw);
-	for (int i = 0; i < MAXTILES; i++)
-	{
-		fw->Write(&picanm[i], sizeof(picanm[i]));
-	}
-	WriteMagic(fw);
-
-
-	fw->Write(&tailspritefree, sizeof(tailspritefree));
-	fw->Write(&myconnectindex, sizeof(myconnectindex));
-	fw->Write(&connecthead, sizeof(connecthead));
-	fw->Write(connectpoint2, sizeof(connectpoint2));
-	fw->Write(&randomseed, sizeof(randomseed));
-	fw->Write(&numshades, sizeof(numshades));
-	fw->Write(&showinvisibility, sizeof(showinvisibility));
-	WriteMagic(fw);
-
-	fw->Write(&g_visibility, sizeof(g_visibility));
-	fw->Write(&parallaxtype, sizeof(parallaxtype));
-	fw->Write(&parallaxvisibility, sizeof(parallaxvisibility));
-	fw->Write(&parallaxyoffs_override, sizeof(parallaxyoffs_override));
-	fw->Write(&parallaxyscale_override, sizeof(parallaxyscale_override));
-	fw->Write(&pskybits_override, sizeof(pskybits_override));
-	WriteMagic(fw);
-
-	fw->Write(&Numsprites, sizeof(Numsprites));
-	sv_prespriteextsave();
-	fw->Write(spriteext, sizeof(spriteext_t) * MAXSPRITES);
-	fw->Write(&randomseed, sizeof(randomseed));
-	sv_postspriteext();
-	WriteMagic(fw);
-
-}
-
-void LoadEngineState()
-{
-	auto fr = ReadSavegameChunk("engine.bin");
-	if (fr.isOpen())
-	{
-		memset(sprite, 0, sizeof(sprite[0]) * MAXSPRITES);
-
-		fr.Read(sprite, sizeof(spritetype) * MAXSPRITES);
-		CheckMagic(fr);
-		fr.Read(headspritesect, sizeof(headspritesect));
-		fr.Read(prevspritesect, sizeof(prevspritesect));
-		fr.Read(nextspritesect, sizeof(nextspritesect));
-		fr.Read(headspritestat, sizeof(headspritestat));
-		fr.Read(prevspritestat, sizeof(prevspritestat));
-		fr.Read(nextspritestat, sizeof(nextspritestat));
-		CheckMagic(fr);
-		for (int i = 0; i < MAXTILES; i++)
+		if (arc.BeginArray("picanm")) // write this in the most compact form available.
 		{
-			fr.Read(&picanm[i], sizeof(picanm[i]));
+			for (int i = 0; i < MAXTILES; i++)
+			{
+				arc(nullptr, picanm[i].sf)
+					(nullptr, picanm[i].extra);
+			}
+			arc.EndArray();
 		}
-		CheckMagic(fr);
 
-		fr.Read(&tailspritefree, sizeof(tailspritefree));
-		fr.Read(&myconnectindex, sizeof(myconnectindex));
-		fr.Read(&connecthead, sizeof(connecthead));
-		fr.Read(connectpoint2, sizeof(connectpoint2));
-		fr.Read(&randomseed, sizeof(randomseed));
-		fr.Read(&numshades, sizeof(numshades));
-		fr.Read(&showinvisibility, sizeof(showinvisibility));
-		CheckMagic(fr);
+		arc.EndObject();
+	}
 
-		fr.Read(&g_visibility, sizeof(g_visibility));
-		fr.Read(&parallaxtype, sizeof(parallaxtype));
-		fr.Read(&parallaxvisibility, sizeof(parallaxvisibility));
-		fr.Read(&parallaxyoffs_override, sizeof(parallaxyoffs_override));
-		fr.Read(&parallaxyscale_override, sizeof(parallaxyscale_override));
-		fr.Read(&pskybits_override, sizeof(pskybits_override));
-		CheckMagic(fr);
 
-		fr.Read(&Numsprites, sizeof(Numsprites));
-		fr.Read(spriteext, sizeof(spriteext_t) * MAXSPRITES);
-		fr.Read(&randomseed, sizeof(randomseed));
-		sv_postspriteext();
-	CheckMagic(fr);
-
-		fr.Close();
+	// Undo the simplification.
+	for (int i = 0; i < MAXSPRITES; i++)
+	{
+		if (nextspritestat[i] == -2) nextspritestat[i] = i + 1;
+		if (nextspritesect[i] == -2) nextspritesect[i] = i + 1;
+		if (prevspritestat[i] == -2) prevspritestat[i] = i - 1;
+		if (prevspritesect[i] == -2) prevspritesect[i] = i - 1;
 	}
 }
 

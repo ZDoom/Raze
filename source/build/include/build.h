@@ -201,12 +201,7 @@ typedef struct {
     int16_t angoff, pitch, roll;
     vec3_t pivot_offset, position_offset;
     uint8_t flags;
-    uint8_t xpanning, ypanning; // EDuke script hacks.
-    uint8_t filler;
-    uint32_t filler2;
     float alpha;
-    // NOTE: keep 'tspr' on an 8-byte boundary:
-    tspriteptr_t tspr;
 } spriteext_t;
 
 typedef struct {
@@ -328,7 +323,6 @@ enum {
     PALETTE_TRANSLUC = 1<<2,
 };
 
-EXTERN char showinvisibility;
 EXTERN int32_t g_visibility, parallaxvisibility;
 
 // blendtable[1] to blendtable[numalphatabs] are considered to be

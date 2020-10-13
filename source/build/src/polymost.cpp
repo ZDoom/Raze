@@ -2231,7 +2231,7 @@ void polymost_scansector(int32_t sectnum)
         {
             auto const spr = (uspriteptr_t)&sprite[z];
 
-            if ((spr->cstat & 0x8000 && !showinvisibility) || spr->xrepeat == 0 || spr->yrepeat == 0)
+            if ((spr->cstat & 0x8000) || spr->xrepeat == 0 || spr->yrepeat == 0)
                 continue;
 
             vec2_t const s = { spr->x-globalposx, spr->y-globalposy };
@@ -3204,21 +3204,6 @@ void polymost_drawsprite(int32_t snum)
                 otex.v = -ytex.v * (pxy[3].y + .001f);
             }
 
-            // sprite panning
-            if (spriteext[spritenum].xpanning)
-            {
-                ytex.u -= ytex.d * ((float) (spriteext[spritenum].xpanning) * (1.0f / 255.f)) * ftsiz.x;
-                otex.u -= otex.d * ((float) (spriteext[spritenum].xpanning) * (1.0f / 255.f)) * ftsiz.x;
-                drawpoly_srepeat = 1;
-            }
-
-            if (spriteext[spritenum].ypanning)
-            {
-                ytex.v -= ytex.d * ((float) (spriteext[spritenum].ypanning) * (1.0f / 255.f)) * ftsiz.y;
-                otex.v -= otex.d * ((float) (spriteext[spritenum].ypanning) * (1.0f / 255.f)) * ftsiz.y;
-                drawpoly_trepeat = 1;
-            }
-
             // Clip sprites to ceilings/floors when no parallaxing and not sloped
             if (!(sector[tspr->sectnum].ceilingstat & 3))
             {
@@ -3363,15 +3348,6 @@ void polymost_drawsprite(int32_t snum)
                 t1 = 1.f - t1;
             }
 
-            // sprite panning
-            if (spriteext[spritenum].xpanning)
-            {
-                float const xpan = ((float)(spriteext[spritenum].xpanning) * (1.0f / 255.f));
-                t0 -= xpan;
-                t1 -= xpan;
-                drawpoly_srepeat = 1;
-            }
-
             xtex.u = (t0 * ryp0 - t1 * ryp1) * gxyaspect * ftsiz.x / (sx0 - sx1);
             ytex.u = 0;
             otex.u = t0 * ryp0 * gxyaspect * ftsiz.x - xtex.u * sx0;
@@ -3399,16 +3375,6 @@ void polymost_drawsprite(int32_t snum)
                 xtex.v = (sf1 - sf0) * f;
                 ytex.v = (sx0 - sx1) * f;
                 otex.v = -xtex.v * sx0 - ytex.v * sf0;
-            }
-
-            // sprite panning
-            if (spriteext[spritenum].ypanning)
-            {
-                float const ypan = ((float)(spriteext[spritenum].ypanning) * (1.0f / 255.f)) * ftsiz.y;
-                xtex.v -= xtex.d * ypan;
-                ytex.v -= ytex.d * ypan;
-                otex.v -= otex.d * ypan;
-                drawpoly_trepeat = 1;
             }
 
             // Clip sprites to ceilings/floors when no parallaxing
@@ -3594,23 +3560,6 @@ void polymost_drawsprite(int32_t snum)
                     xtex.u = ftsiz.x * xtex.d - xtex.u;
                     ytex.u = ftsiz.x * ytex.d - ytex.u;
                     otex.u = ftsiz.x * otex.d - otex.u;
-                }
-
-                // sprite panning
-                if (spriteext[spritenum].xpanning)
-                {
-                    float const f = ((float)(spriteext[spritenum].xpanning) * (1.0f / 255.f)) * ftsiz.x;
-                    ytex.u -= ytex.d * f;
-                    otex.u -= otex.d * f;
-                    drawpoly_srepeat = 1;
-                }
-
-                if (spriteext[spritenum].ypanning)
-                {
-                    float const f = ((float)(spriteext[spritenum].ypanning) * (1.0f / 255.f)) * ftsiz.y;
-                    ytex.v -= ytex.d * f;
-                    otex.v -= otex.d * f;
-                    drawpoly_trepeat = 1;
                 }
 
 				vec2_16_t tempsiz = { (int16_t)tsiz.x, (int16_t)tsiz.y };

@@ -943,8 +943,6 @@ int32_t engineInit(void)
 
     xyaspect = -1;
 
-    showinvisibility = 0;
-
 	voxelmemory.Reset();
 
     for (i=0; i<MAXTILES; i++)

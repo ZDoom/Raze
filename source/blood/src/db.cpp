@@ -104,7 +104,7 @@ void RemoveSpriteSect(int nSprite)
     {
         headspritesect[nSector] = nextspritesect[nSprite];
     }
-    sprite[nSprite].sectnum = -1;
+    sprite[nSprite].sectnum = MAXSECTORS;
 }
 
 void InsertSpriteStat(int nSprite, int nStat)
@@ -148,7 +148,7 @@ void RemoveSpriteStat(int nSprite)
     {
         headspritestat[nStat] = nextspritestat[nSprite];
     }
-    sprite[nSprite].statnum = kStatNothing;
+    sprite[nSprite].statnum = MAXSTATUS;
     gStatCount[nStat]--;
 }
 

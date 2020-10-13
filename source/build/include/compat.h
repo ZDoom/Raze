@@ -11,6 +11,7 @@
 #include "m_alloc.h"
 #include "intvec.h"
 #include "m_swap.h"
+#include "serializer.h"
 
 ////////// Compiler detection //////////
 
@@ -241,6 +242,19 @@ void bfirst_search_try(T *const list, uint8_t *const bitmap, T *const eltnumptr,
 ////////// Inlined external libraries //////////
 
 /* End dependence on compat.o object. */
+
+inline FSerializer& Serialize(FSerializer& arc, const char* key, vec3_t& c, vec3_t* def)
+{
+    if (def && !memcmp(&c, def, sizeof(c))) return arc;
+    if (arc.BeginObject(key))
+    {
+        arc("x", c.x, def? &def->x : nullptr)
+            ("y", c.y, def ? &def->y : nullptr)
+            ("z", c.z, def ? &def->z : nullptr)
+            .EndObject();
+    }
+    return arc;
+}
 
 
 #endif // compat_h_

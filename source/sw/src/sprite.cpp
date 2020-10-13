@@ -4632,7 +4632,7 @@ NewStateGroup(short SpriteNum, STATEp StateGroup[])
 
     // Kind of a goofy check, but it should catch alot of invalid states!
     // BTW, 6144 is the max tile number allowed in editart.
-    if (u->State && (u->State->Pic < 0 || u->State->Pic > 6144))    // JBF: verify this!
+    if (u->State && (u->State->Pic < 0 || u->State->Pic > MAXTILES))    // JBF: verify this!
         return 0;
 
     u->Rot = StateGroup;
