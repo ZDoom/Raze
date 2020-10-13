@@ -995,4 +995,66 @@ extern void(*PolymostProcessVoxels_Callback)(void);
 #endif
 
 
+class StatIterator
+{
+    int next;
+public:
+    StatIterator(int stat)
+    {
+        assert(stat >= 0 && stat < MAXSTATUS);
+        next = headspritestat[stat];
+    }
+    
+    void Reset(int stat)
+    {
+        assert(stat >= 0 && stat < MAXSTATUS);
+        next = headspritestat[stat];
+    }
+    
+    int NextIndex()
+    {
+        int n = next;
+        next = nextspritestat[next];
+        return n;
+    }
+    
+    spritetype *Next()
+    {
+        int n = next;
+        next = nextspritestat[next];
+        return n < 0? nullptr : &sprite[n];
+    }
+};
+
+class SectIterator
+{
+    int next;
+public:
+    SectIterator(int stat)
+    {
+        assert(stat >= 0 && stat < MAXSECTORS);
+        next = headspritesect[stat];
+    }
+    
+    void Reset(int stat)
+    {
+        assert(stat >= 0 && stat < MAXSECTORS);
+        next = headspritesect[stat];
+    }
+    
+    int NextIndex()
+    {
+        int n = next;
+        next = nextspritesect[next];
+        return n;
+    }
+    
+    spritetype *Next()
+    {
+        int n = next;
+        next = nextspritestat[next];
+        return n < 0? nullptr : &sprite[n];
+    }
+};
+
 #endif // build_h_
