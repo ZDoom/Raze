@@ -696,7 +696,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSector->Depth = bitReader.readUnsigned(3);
             pXSector->panVel = bitReader.readUnsigned(8);
             pXSector->panAngle = bitReader.readUnsigned(11);
-            pXSector->unused1 = bitReader.readUnsigned(1);
+            bitReader.readUnsigned(1);
             pXSector->decoupled = bitReader.readUnsigned(1);
             pXSector->triggerOnce = bitReader.readUnsigned(1);
             pXSector->isTriggered = bitReader.readUnsigned(1);
@@ -708,7 +708,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSector->Exit = bitReader.readUnsigned(1);
             pXSector->Wallpush = bitReader.readUnsigned(1);
             pXSector->color = bitReader.readUnsigned(1);
-            pXSector->unused2 = bitReader.readUnsigned(1);
+            bitReader.readUnsigned(1);
             pXSector->busyTimeB = bitReader.readUnsigned(12);
             pXSector->waitTimeB = bitReader.readUnsigned(12);
             pXSector->stopOn = bitReader.readUnsigned(1);
@@ -794,7 +794,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXWall->busy = bitReader.readUnsigned(17);
             pXWall->data = bitReader.readSigned(16);
             pXWall->txID = bitReader.readUnsigned(10);
-            pXWall->unused1 = bitReader.readUnsigned(6);
+            bitReader.readUnsigned(6);
             pXWall->rxID = bitReader.readUnsigned(10);
             pXWall->command = bitReader.readUnsigned(8);
             pXWall->triggerOn = bitReader.readUnsigned(1);
@@ -813,13 +813,13 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXWall->triggerPush = bitReader.readUnsigned(1);
             pXWall->triggerVector = bitReader.readUnsigned(1);
             pXWall->triggerTouch = bitReader.readUnsigned(1);
-            pXWall->unused2 = bitReader.readUnsigned(2);
+            bitReader.readUnsigned(2);
             pXWall->xpanFrac = bitReader.readUnsigned(8);
             pXWall->ypanFrac = bitReader.readUnsigned(8);
             pXWall->locked = bitReader.readUnsigned(1);
             pXWall->dudeLockout = bitReader.readUnsigned(1);
-            pXWall->unused3 = bitReader.readUnsigned(4);
-            pXWall->unused4 = bitReader.readUnsigned(32);
+            bitReader.readUnsigned(4);
+            bitReader.readUnsigned(32);
             xwall[wall[i].extra].reference = i;
             xwall[wall[i].extra].busy = IntToFixed(xwall[wall[i].extra].state);
 
@@ -896,9 +896,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSprite->waitTime = bitReader.readUnsigned(12);
             pXSprite->restState = bitReader.readUnsigned(1);
             pXSprite->Interrutable = bitReader.readUnsigned(1);
-            pXSprite->unused1 = bitReader.readUnsigned(2);
+            bitReader.readUnsigned(2);
             pXSprite->respawnPending = bitReader.readUnsigned(2);
-            pXSprite->unused2 = bitReader.readUnsigned(1);
+            bitReader.readUnsigned(1);
             pXSprite->lT = bitReader.readUnsigned(1);
             pXSprite->dropMsg = bitReader.readUnsigned(8);
             pXSprite->Decoupled = bitReader.readUnsigned(1);
@@ -912,7 +912,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSprite->Touch = bitReader.readUnsigned(1);
             pXSprite->Sight = bitReader.readUnsigned(1);
             pXSprite->Proximity = bitReader.readUnsigned(1);
-            pXSprite->unused3 = bitReader.readUnsigned(2);
+            bitReader.readUnsigned(2);
             pXSprite->lSkill = bitReader.readUnsigned(5);
             pXSprite->lS = bitReader.readUnsigned(1);
             pXSprite->lB = bitReader.readUnsigned(1);
@@ -927,7 +927,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSprite->medium = bitReader.readUnsigned(2);
             pXSprite->respawn = bitReader.readUnsigned(2);
             pXSprite->data4 = bitReader.readUnsigned(16);
-            pXSprite->unused4 = bitReader.readUnsigned(6);
+            bitReader.readUnsigned(6);
             pXSprite->lockMsg = bitReader.readUnsigned(8);
             pXSprite->health = bitReader.readUnsigned(12);
             pXSprite->dudeDeaf = bitReader.readUnsigned(1);

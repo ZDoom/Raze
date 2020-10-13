@@ -49,197 +49,204 @@ inline bool xwallRangeIsFine(int nXindex) {
 struct AISTATE;
 
 struct XSPRITE {
-    unsigned int unused1 : 2;           // unused
-    unsigned int unused2 : 1;           // unused
-    unsigned int unused3 : 2;           // unused
-    unsigned int unused4 : 6;           // unused
-
-    signed   int reference : 15;
-    unsigned int state : 1;             // State 0
-    unsigned int busy : 17;
-    unsigned int txID : 10;             // TX ID
-    unsigned int rxID : 10;             // RX ID
-    unsigned int command : 8;           // Cmd
-    unsigned int triggerOn : 1;         // going ON
-    unsigned int triggerOff : 1;        // going OFF
-    unsigned int busyTime : 12;         // busyTime
-    unsigned int waitTime : 12;         // waitTime
-    unsigned int restState : 1;         // restState
-    unsigned int Interrutable : 1;      // Interruptable
-
-    unsigned int respawnPending : 2;    // respawnPending
-
-    unsigned int dropMsg : 8;           // Drop Item
-    unsigned int Decoupled : 1;         // Decoupled
-    unsigned int triggerOnce : 1;       // 1-shot
-    unsigned int isTriggered : 1;       // works in case if triggerOnce selected
-
-    unsigned int key : 3;               // Key
-    unsigned int wave : 2;              // Wave
-    unsigned int Push : 1;              // Push
-    unsigned int Vector : 1;            // Vector
-    unsigned int Impact : 1;            // Impact
-    unsigned int Pickup : 1;            // Pickup
-    unsigned int Touch : 1;             // Touch
-    unsigned int Sight : 1;             // Sight
-    unsigned int Proximity : 1;         // Proximity
-    unsigned int lSkill : 5;            // Launch 12345
-    unsigned int lS : 1;                // Single
-    unsigned int lB : 1;                // Bloodbath
-    unsigned int lT : 1;                // Launch Team
-    unsigned int lC : 1;                // Coop
-    unsigned int DudeLockout : 1;       // DudeLockout
-    signed   int data1 : 16;            // Data 1
-    signed   int data2 : 16;            // Data 2
-    signed   int data3 : 16;            // Data 3
-    unsigned int data4 : 16;            // Data 4
-    unsigned int locked : 1;            // Locked
-    unsigned int medium : 2;            // medium
-    unsigned int respawn : 2;           // Respawn option
-    unsigned int lockMsg : 8;           // Lock msg
-    unsigned int health : 20;
-    unsigned int dudeDeaf : 1;          // dudeDeaf
-    unsigned int dudeAmbush : 1;        // dudeAmbush
-    unsigned int dudeGuard : 1;         // dudeGuard
-    unsigned int dudeFlag4 : 1;         // unused
-    signed   int target : 16;           // target sprite
-    signed   int targetX : 32;          // target x
-    signed   int targetY : 32;          // target y
-    signed   int targetZ : 32;          // target z
-    unsigned int goalAng : 11;          // Dude goal ang
-    signed   int dodgeDir : 2;          // Dude dodge direction
-    unsigned int burnTime : 16;
-    signed   int burnSource : 16;
-    unsigned int height : 16;
-    unsigned int stateTimer : 16;       // ai timer
+    
     AISTATE* aiState;                   // ai
-    #ifdef NOONE_EXTENSIONS
-    signed int sysData1: 32;            // used to keep here various system data, so user can't change it in map editor
-    signed int sysData2: 32;            //
-    unsigned int physAttr : 32;         // currently used by additional physics sprites to keep it's attributes.
-    #endif
-    signed int scale;                   // used for scaling SEQ size on sprites
+    union
+    {
+        uint32_t flags;
+        struct {
+            unsigned int state : 1;             // State 0
+            unsigned int triggerOn : 1;         // going ON
+            unsigned int triggerOff : 1;        // going OFF
+            unsigned int restState : 1;         // restState
+            unsigned int Interrutable : 1;      // Interruptable
+            unsigned int Decoupled : 1;         // Decoupled
+            unsigned int triggerOnce : 1;       // 1-shot
+            unsigned int isTriggered : 1;       // works in case if triggerOnce selected
+            unsigned int Push : 1;              // Push
+            unsigned int Vector : 1;            // Vector
+            unsigned int Impact : 1;            // Impact
+            unsigned int Pickup : 1;            // Pickup
+            unsigned int Touch : 1;             // Touch
+            unsigned int Sight : 1;             // Sight
+            unsigned int Proximity : 1;         // Proximity
+            unsigned int lS : 1;                // Single
+            unsigned int lB : 1;                // Bloodbath
+            unsigned int lT : 1;                // Launch Team
+            unsigned int lC : 1;                // Coop
+            unsigned int DudeLockout : 1;       // DudeLockout
+            unsigned int locked : 1;            // Locked
+            unsigned int dudeDeaf : 1;          // dudeDeaf
+            unsigned int dudeAmbush : 1;        // dudeAmbush
+            unsigned int dudeGuard : 1;         // dudeGuard
+            unsigned int dudeFlag4 : 1;         // unused
+            unsigned int wave : 2;              // Wave
+            unsigned int medium : 2;            // medium
+            unsigned int respawn : 2;           // Respawn option
+       };
+    };
+    int32_t targetX;          // target x
+    int32_t targetY;          // target y
+    int32_t targetZ;          // target z
+    int32_t sysData1;            // used to keep here various system data, so user can't change it in map editor
+    int32_t sysData2;            //
+    int32_t scale;                   // used for scaling SEQ size on sprites
+    uint32_t physAttr;         // currently used by additional physics sprites to keep it's attributes.
+    uint32_t health;
+    uint32_t busy;
+
+    int16_t reference;
+    int16_t data1;            // Data 1
+    int16_t data2;            // Data 2
+    int16_t data3;            // Data 3
+    int16_t target;           // target sprite
+    int16_t burnSource;
+    uint16_t txID;             // TX ID
+    uint16_t rxID;             // RX ID
+    uint16_t command;           // Cmd
+    uint16_t busyTime;         // busyTime
+    uint16_t waitTime;         // waitTime
+    uint16_t data4;            // Data 4
+    uint16_t goalAng;          // Dude goal ang
+    uint16_t burnTime;
+    uint16_t height;
+    uint16_t stateTimer;       // ai timer
+
+    uint8_t respawnPending;    // respawnPending
+    uint8_t dropMsg;           // Drop Item
+    uint8_t key;               // Key
+    uint8_t lSkill;            // Launch 12345
+    uint8_t lockMsg;           // Lock msg
+    int8_t dodgeDir;          // Dude dodge direction
 
 };
 
 struct XSECTOR {
-    signed int reference : 14;
-    unsigned int state : 1;             // State
-    unsigned int busy : 17;
-    unsigned int data : 16;             // Data
-    unsigned int txID : 10;             // TX ID
-    unsigned int rxID : 10;             // RX ID
-    unsigned int busyWaveA : 3;         // OFF->ON wave
-    unsigned int busyWaveB : 3;         // ON->OFF wave
+ 
+    union
+    {
+        uint64_t flags;
+        struct {
+            unsigned int state : 1;             // State
+            unsigned int triggerOn : 1;         // Send at ON
+            unsigned int triggerOff : 1;        // Send at OFF
+            unsigned int restState : 1;
+            unsigned int interruptable : 1;     // Interruptable
+            unsigned int reTriggerA : 1;        // OFF->ON wait
+            unsigned int reTriggerB : 1;        // ON->OFF wait
+            unsigned int shadeAlways : 1;       // Lighting shadeAlways
+            unsigned int shadeFloor : 1;        // Lighting floor
+            unsigned int shadeCeiling : 1;      // Lighting ceiling
+            unsigned int shadeWalls : 1;        // Lighting walls
+            unsigned int panAlways : 1;         // Pan always
+            unsigned int panFloor : 1;          // Pan floor
+            unsigned int panCeiling : 1;        // Pan ceiling
+            unsigned int Drag : 1;              // Pan drag
+            unsigned int Underwater : 1;        // Underwater
+            unsigned int decoupled : 1;         // Decoupled
+            unsigned int triggerOnce : 1;       // 1-shot
+            unsigned int isTriggered : 1;
+            unsigned int Push : 1;              // Push
+            unsigned int Vector : 1;            // Vector
+            unsigned int Reserved : 1;          // Reserved
+            unsigned int Enter : 1;             // Enter
+            unsigned int Exit : 1;              // Exit
+            unsigned int Wallpush : 1;          // WallPush
+            unsigned int color : 1;             // Color Lights
+            unsigned int stopOn : 1;
+            unsigned int stopOff : 1;
+            unsigned int Crush : 1;             // Crush
+            unsigned int locked : 1;            // Locked
+            unsigned int windAlways : 1;        // Wind always
+            unsigned int dudeLockout : 1;
+            unsigned int bobAlways : 1;         // Motion always
+            unsigned int bobFloor : 1;          // Motion bob floor
+            unsigned int bobCeiling : 1;        // Motion bob ceiling
+            unsigned int bobRotate : 1;         // Motion rotate
+            
+        };
+    };
+    
+    uint32_t busy;
+    int32_t offCeilZ;
+    int32_t onCeilZ;
+    int32_t offFloorZ;
+    int32_t onFloorZ;
+    uint32_t windVel;          // Wind vel (changed from 10 bit to use higher velocity values)
 
-    unsigned int command : 8;           // Cmd
-    unsigned int triggerOn : 1;         // Send at ON
-    unsigned int triggerOff : 1;        // Send at OFF
-    unsigned int busyTimeA : 12;        // OFF->ON busyTime
-    unsigned int waitTimeA : 12;        // OFF->ON waitTime
-    unsigned int restState : 1;
-    unsigned int interruptable : 1;     // Interruptable
+    uint16_t reference;
+    uint16_t data;             // Data
+    uint16_t txID;             // TX ID
+    uint16_t rxID;             // RX ID
+    uint16_t busyTimeA;        // OFF->ON busyTime
+    uint16_t waitTimeA;        // OFF->ON waitTime
+    uint16_t panAngle;         // Motion angle
+    uint16_t busyTimeB;        // ON->OFF busyTime
+    uint16_t waitTimeB;        // ON->OFF waitTime
+    uint16_t marker0;
+    uint16_t marker1;
+    uint16_t windAng;          // Wind ang
+    uint16_t bobTheta;         // Motion Theta
+    int16_t bobSpeed;           // Motion speed
 
-    unsigned int reTriggerA : 1;        // OFF->ON wait
-    unsigned int reTriggerB : 1;        // ON->OFF wait
-    signed int amplitude : 8;           // Lighting amplitude
-    unsigned int freq : 8;              // Lighting freq
-    unsigned int phase : 8;             // Lighting phase
-    unsigned int wave : 4;              // Lighting wave
-    unsigned int shadeAlways : 1;       // Lighting shadeAlways
-    unsigned int shadeFloor : 1;        // Lighting floor
-    unsigned int shadeCeiling : 1;      // Lighting ceiling
-    unsigned int shadeWalls : 1;        // Lighting walls
-    signed int shade : 8;               // Lighting value
-    unsigned int panAlways : 1;         // Pan always
-    unsigned int panFloor : 1;          // Pan floor
-    unsigned int panCeiling : 1;        // Pan ceiling
-    unsigned int Drag : 1;              // Pan drag
-    unsigned int panVel : 8;            // Motion speed
-    unsigned int panAngle : 11;         // Motion angle
-    unsigned int Underwater : 1;        // Underwater
-    unsigned int Depth : 3;             // Depth
-    unsigned int unused1 : 1;
-    unsigned int decoupled : 1;         // Decoupled
-    unsigned int triggerOnce : 1;       // 1-shot
-    unsigned int isTriggered : 1;
-    unsigned int Key : 3;               // Key
-    unsigned int Push : 1;              // Push
-    unsigned int Vector : 1;            // Vector
-    unsigned int Reserved : 1;          // Reserved
-    unsigned int Enter : 1;             // Enter
-    unsigned int Exit : 1;              // Exit
-    unsigned int Wallpush : 1;          // WallPush
-    unsigned int color : 1;             // Color Lights
-    unsigned int unused2 : 1;
-    unsigned int busyTimeB : 12;        // ON->OFF busyTime
-    unsigned int waitTimeB : 12;        // ON->OFF waitTime
-    unsigned int stopOn : 1;
-    unsigned int stopOff : 1;
-    unsigned int ceilpal : 4;           // Ceil pal2
-    signed int offCeilZ : 32;
-    signed int onCeilZ : 32;
-    signed int offFloorZ : 32;
-    signed int onFloorZ : 32;
-    unsigned int marker0 : 16;
-    unsigned int marker1 : 16;
-    unsigned int Crush : 1;             // Crush
-    unsigned int ceilXPanFrac : 8;      // Ceiling x panning frac
-    unsigned int ceilYPanFrac : 8;      // Ceiling y panning frac
-    unsigned int floorXPanFrac : 8;     // Floor x panning frac
-    unsigned int damageType : 3;        // DamageType
-    unsigned int floorpal : 4;          // Floor pal2
-    unsigned int floorYPanFrac : 8;     // Floor y panning frac
-    unsigned int locked : 1;            // Locked
-    #ifdef NOONE_EXTENSIONS
-    unsigned int windVel : 32;          // Wind vel (changed from 10 bit to use higher velocity values)
-    #else
-    unsigned int windVel : 10;
-    #endif
-    unsigned int windAng : 11;          // Wind ang
-    unsigned int windAlways : 1;        // Wind always
-    unsigned int dudeLockout : 1;
-    unsigned int bobTheta : 11;         // Motion Theta
-    unsigned int bobZRange : 5;         // Motion Z range
-    signed int bobSpeed : 12;           // Motion speed
-    unsigned int bobAlways : 1;         // Motion always
-    unsigned int bobFloor : 1;          // Motion bob floor
-    unsigned int bobCeiling : 1;        // Motion bob ceiling
-    unsigned int bobRotate : 1;         // Motion rotate
+    uint8_t busyWaveA;         // OFF->ON wave
+    uint8_t busyWaveB;         // ON->OFF wave
+    uint8_t command;           // Cmd
+    int8_t amplitude;           // Lighting amplitude
+    uint8_t freq;              // Lighting freq
+    uint8_t phase;             // Lighting phase
+    uint8_t wave;              // Lighting wave
+    int8_t shade;               // Lighting value
+    uint8_t panVel;            // Motion speed
+    uint8_t Depth;             // Depth
+    uint8_t Key;               // Key
+    uint8_t ceilpal;           // Ceil pal2
+    uint8_t ceilXPanFrac;      // Ceiling x panning frac
+    uint8_t ceilYPanFrac;      // Ceiling y panning frac
+    uint8_t floorXPanFrac;     // Floor x panning frac
+    uint8_t damageType;        // DamageType
+    uint8_t floorpal;          // Floor pal2
+    uint8_t floorYPanFrac;     // Floor y panning frac
+    uint8_t bobZRange;         // Motion Z range
 };
 
 struct XWALL {
-    signed int reference : 15;
-    unsigned int state : 1;             // State
-    unsigned int busy : 17;
-    signed int data : 16;               // Data
-    unsigned int txID : 10;             // TX ID
-    unsigned int unused1 : 6;           // unused
-    unsigned int rxID : 10;             // RX ID
-    unsigned int command : 8;           // Cmd
-    unsigned int triggerOn : 1;         // going ON
-    unsigned int triggerOff : 1;        // going OFF
-    unsigned int busyTime : 12;         // busyTime
-    unsigned int waitTime : 12;         // waitTime
-    unsigned int restState : 1;         // restState
-    unsigned int interruptable : 1;     // Interruptable
-    unsigned int panAlways : 1;         // panAlways
-    signed   int panXVel : 8;           // panX
-    signed   int panYVel : 8;           // panY
-    unsigned int decoupled : 1;         // Decoupled
-    unsigned int triggerOnce : 1;       // 1-shot
-    unsigned int isTriggered : 1;
-    unsigned int key : 3;               // Key 
-    unsigned int triggerPush : 1;       // Push
-    unsigned int triggerVector : 1;     // Vector
-    unsigned int triggerTouch : 1;      // by NoOne: renamed from Reserved to Touch as it works with Touch now.
-    unsigned int unused2 : 2;           // unused
-    unsigned int xpanFrac : 8;          // x panning frac
-    unsigned int ypanFrac : 8;          // y panning frac
-    unsigned int locked : 1;            // Locked
-    unsigned int dudeLockout : 1;       // DudeLockout
-    unsigned int unused3 : 4;           // unused;
-    unsigned int unused4 : 32;          // unused
+    
+    union
+    {
+        uint32_t flags;
+        struct {
+            unsigned int state : 1;             // State
+            unsigned int triggerOn : 1;         // going ON
+            unsigned int triggerOff : 1;        // going OFF
+            unsigned int restState : 1;         // restState
+            unsigned int interruptable : 1;     // Interruptable
+            unsigned int panAlways : 1;         // panAlways
+            unsigned int decoupled : 1;         // Decoupled
+            unsigned int triggerOnce : 1;       // 1-shot
+            unsigned int isTriggered : 1;
+            unsigned int triggerPush : 1;       // Push
+            unsigned int triggerVector : 1;     // Vector
+            unsigned int triggerTouch : 1;      // by NoOne: renamed from Reserved to Touch as it works with Touch now.
+            unsigned int locked : 1;            // Locked
+            unsigned int dudeLockout : 1;       // DudeLockout
+        };
+    };
+    uint32_t busy;
+
+    int16_t reference;
+    int16_t data;               // Data
+    uint16_t txID;             // TX ID
+    uint16_t rxID;             // RX ID
+    uint16_t busyTime;         // busyTime
+    uint16_t waitTime;         // waitTime
+    
+    uint8_t command;           // Cmd
+    int8_t panXVel;           // panX
+    int8_t panYVel;           // panY
+    uint8_t key;               // Key
+    uint8_t xpanFrac;          // x panning frac
+    uint8_t ypanFrac;          // y panning frac
 };
 
 struct MAPSIGNATURE {
