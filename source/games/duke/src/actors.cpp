@@ -1848,25 +1848,26 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 		int j = headspritesect[sect];
 		while (j >= 0)
 		{
-			if (sprite[j].picnum == SECTOREFFECTOR)
+			auto sprj = &sprite[j];
+			if (sprj->picnum == SECTOREFFECTOR)
 			{
-				if (sprite[j].lotag == 1)
+				if (sprj->lotag == 1)
 				{
-					sprite[j].lotag = (short)65535;
-					sprite[j].hitag = (short)65535;
+					sprj->lotag = (short)65535;
+					sprj->hitag = (short)65535;
 				}
 			}
-			else if (sprite[j].picnum == REACTOR)
+			else if (sprj->picnum == REACTOR)
 			{
-				sprite[j].picnum = REACTORBURNT;
+				sprj->picnum = REACTORBURNT;
 			}
-			else if (sprite[j].picnum == REACTOR2)
+			else if (sprj->picnum == REACTOR2)
 			{
-				sprite[j].picnum = REACTOR2BURNT;
+				sprj->picnum = REACTOR2BURNT;
 			}
-			else if (sprite[j].picnum == REACTORSPARK || sprite[j].picnum == REACTOR2SPARK)
+			else if (sprj->picnum == REACTORSPARK || sprj->picnum == REACTOR2SPARK)
 			{
-				sprite[j].cstat = (short)32768;
+				sprj->cstat = (short)32768;
 			}
 			j = nextspritesect[j];
 		}
@@ -2952,12 +2953,13 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 			j = headspritesect[sprite[sprite[i].owner].sectnum];
 			while (j >= 0)
 			{
+				auto spj = &sprite[j];
 				int l = nextspritesect[j];
-				if (sprite[j].statnum == 1 && badguy(&sprite[j]) && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+				if (spj->statnum == 1 && badguy(spj) && spj->picnum != SECTOREFFECTOR && spj->picnum != LOCATORS)
 				{
-					short k = sprite[j].sectnum;
-					updatesector(sprite[j].x, sprite[j].y, &k);
-					if (sprite[j].extra >= 0 && k == s->sectnum)
+					short k = spj->sectnum;
+					updatesector(spj->x, spj->y, &k);
+					if (spj->extra >= 0 && k == s->sectnum)
 					{
 						fi.gutsdir(&sprite[j], JIBS6, 72, myconnectindex);
 						S_PlayActorSound(SQUISHED, i);
@@ -3087,21 +3089,23 @@ void handle_se30(int i, int JIBS6)
 		int j = headspritesect[s->sectnum];
 		while (j >= 0)
 		{
-			if (sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+			auto sprj = &sprite[j];
+			auto htj = &hittype[j];
+			if (sprj->picnum != SECTOREFFECTOR && sprj->picnum != LOCATORS)
 			{
 				if (numplayers < 2)
 				{
-					hittype[j].bposx = sprite[j].x;
-					hittype[j].bposy = sprite[j].y;
+					htj->bposx = sprj->x;
+					htj->bposy = sprj->y;
 				}
 
-				sprite[j].x += l;
-				sprite[j].y += x;
+				sprj->x += l;
+				sprj->y += x;
 
 				if (numplayers > 1)
 				{
-					hittype[j].bposx = sprite[j].x;
-					hittype[j].bposy = sprite[j].y;
+					htj->bposx = sprj->x;
+					htj->bposy = sprj->y;
 				}
 			}
 			j = nextspritesect[j];
@@ -3245,7 +3249,7 @@ void handle_se02(int i)
 
 void handle_se03(int i)
 {
-	spritetype* s = &sprite[i];
+	auto s = &sprite[i];
 	auto t = &hittype[i].temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
@@ -3297,7 +3301,7 @@ void handle_se03(int i)
 
 void handle_se04(int i)
 {
-	spritetype* s = &sprite[i];
+	auto s = &sprite[i];
 	auto t = &hittype[i].temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
