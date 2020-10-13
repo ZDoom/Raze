@@ -257,223 +257,228 @@ short GetPlayerFromSprite(short nSprite)
 
 void RestartPlayer(short nPlayer)
 {
-    int nSprite = PlayerList[nPlayer].nSprite;
-    int nDopSprite = nDoppleSprite[nPlayer];
+	auto plr = &PlayerList[nPlayer];
+	int nSprite = plr->nSprite;
+	auto nSpr = &sprite[nSprite];
+	int nDopSprite = nDoppleSprite[nPlayer];
 
-    int floorspr;
+	int floorspr;
 
-    if (nSprite > -1)
-    {
-        runlist_DoSubRunRec(sprite[nSprite].owner);
-        runlist_FreeRun(sprite[nSprite].lotag - 1);
+	if (nSprite > -1)
+	{
+		runlist_DoSubRunRec(nSpr->owner);
+		runlist_FreeRun(nSpr->lotag - 1);
 
-        changespritestat(nSprite, 0);
+		changespritestat(nSprite, 0);
 
-        PlayerList[nPlayer].nSprite = -1;
+		plr->nSprite = -1;
 
-        int nFloorSprite = nPlayerFloorSprite[nPlayer];
-        if (nFloorSprite > -1) {
-            mydeletesprite(nFloorSprite);
-        }
+		int nFloorSprite = nPlayerFloorSprite[nPlayer];
+		if (nFloorSprite > -1) {
+			mydeletesprite(nFloorSprite);
+		}
 
-        if (nDopSprite > -1)
-        {
-            runlist_DoSubRunRec(sprite[nDopSprite].owner);
-            runlist_FreeRun(sprite[nDopSprite].lotag - 1);
-            mydeletesprite(nDopSprite);
-        }
-    }
+		if (nDopSprite > -1)
+		{
+			runlist_DoSubRunRec(sprite[nDopSprite].owner);
+			runlist_FreeRun(sprite[nDopSprite].lotag - 1);
+			mydeletesprite(nDopSprite);
+		}
+	}
 
-    nSprite = GrabBody();
+	nSprite = GrabBody();
+	nSpr = &sprite[nSprite];
 
-    mychangespritesect(nSprite, sPlayerSave[nPlayer].nSector);
-    changespritestat(nSprite, 100);
+	mychangespritesect(nSprite, sPlayerSave[nPlayer].nSector);
+	changespritestat(nSprite, 100);
 
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
+	assert(nSprite >= 0 && nSprite < kMaxSprites);
 
-    int nDSprite = insertsprite(sprite[nSprite].sectnum, 100);
-    nDoppleSprite[nPlayer] = nDSprite;
+	int nDSprite = insertsprite(nSpr->sectnum, 100);
+	nDoppleSprite[nPlayer] = nDSprite;
 
-    assert(nDSprite >= 0 && nDSprite < kMaxSprites);
+	assert(nDSprite >= 0 && nDSprite < kMaxSprites);
 
-    if (nTotalPlayers > 1)
-    {
-        int nNStartSprite = nNetStartSprite[nCurStartSprite];
-        nCurStartSprite++;
+	if (nTotalPlayers > 1)
+	{
+		int nNStartSprite = nNetStartSprite[nCurStartSprite];
+		auto nstspr = &sprite[nNStartSprite];
+		nCurStartSprite++;
 
-        if (nCurStartSprite >= nNetStartSprites) {
-            nCurStartSprite = 0;
-        }
+		if (nCurStartSprite >= nNetStartSprites) {
+			nCurStartSprite = 0;
+		}
 
-        sprite[nSprite].x = sprite[nNStartSprite].x;
-        sprite[nSprite].y = sprite[nNStartSprite].y;
-        sprite[nSprite].z = sprite[nNStartSprite].z;
-        mychangespritesect(nSprite, sprite[nNStartSprite].sectnum);
-        PlayerList[nPlayer].angle.ang = buildang(sprite[nNStartSprite].ang&kAngleMask);
-        sprite[nSprite].ang = PlayerList[nPlayer].angle.ang.asbuild();
+		nSpr->x = nstspr->x;
+		nSpr->y = nstspr->y;
+		nSpr->z = nstspr->z;
+		mychangespritesect(nSprite, nstspr->sectnum);
+		plr->angle.ang = buildang(nstspr->ang&kAngleMask);
+		nSpr->ang = plr->angle.ang.asbuild();
 
-        floorspr = insertsprite(sprite[nSprite].sectnum, 0);
-        assert(floorspr >= 0 && floorspr < kMaxSprites);
+		floorspr = insertsprite(nSpr->sectnum, 0);
+		assert(floorspr >= 0 && floorspr < kMaxSprites);
+		auto fspr = &sprite[floorspr];
 
-        sprite[floorspr].x = sprite[nSprite].x;
-        sprite[floorspr].y = sprite[nSprite].y;
-        sprite[floorspr].z = sprite[nSprite].z;
-        sprite[floorspr].yrepeat = 64;
-        sprite[floorspr].xrepeat = 64;
-        sprite[floorspr].cstat = 32;
-        sprite[floorspr].picnum = nPlayer + kTile3571;
-    }
-    else
-    {
-        sprite[nSprite].x = sPlayerSave[nPlayer].x;
-        sprite[nSprite].y = sPlayerSave[nPlayer].y;
-        sprite[nSprite].z = sector[sPlayerSave[nPlayer].nSector].floorz;
-        PlayerList[nPlayer].angle.ang = buildang(sPlayerSave[nPlayer].nAngle&kAngleMask);
-        sprite[nSprite].ang = PlayerList[nPlayer].angle.ang.asbuild();
+		fspr->x = nSpr->x;
+		fspr->y = nSpr->y;
+		fspr->z = nSpr->z;
+		fspr->yrepeat = 64;
+		fspr->xrepeat = 64;
+		fspr->cstat = 32;
+		fspr->picnum = nPlayer + kTile3571;
+	}
+	else
+	{
+		nSpr->x = sPlayerSave[nPlayer].x;
+		nSpr->y = sPlayerSave[nPlayer].y;
+		nSpr->z = sector[sPlayerSave[nPlayer].nSector].floorz;
+		plr->angle.ang = buildang(sPlayerSave[nPlayer].nAngle&kAngleMask);
+		nSpr->ang = plr->angle.ang.asbuild();
 
-        floorspr = -1;
-    }
+		floorspr = -1;
+	}
 
-    PlayerList[nPlayer].opos = sprite[nSprite].pos;
-    PlayerList[nPlayer].angle.backup();
-    PlayerList[nPlayer].horizon.backup();
+	plr->opos = nSpr->pos;
+	plr->angle.backup();
+	plr->horizon.backup();
 
-    nPlayerFloorSprite[nPlayer] = floorspr;
+	nPlayerFloorSprite[nPlayer] = floorspr;
 
-    sprite[nSprite].cstat = 0x101;
-    sprite[nSprite].shade = -12;
-    sprite[nSprite].clipdist = 58;
-    sprite[nSprite].pal = 0;
-    sprite[nSprite].xrepeat = 40;
-    sprite[nSprite].yrepeat = 40;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);
+	nSpr->cstat = 0x101;
+	nSpr->shade = -12;
+	nSpr->clipdist = 58;
+	nSpr->pal = 0;
+	nSpr->xrepeat = 40;
+	nSpr->yrepeat = 40;
+	nSpr->xoffset = 0;
+	nSpr->yoffset = 0;
+	nSpr->picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);
 
-    int nHeight = GetSpriteHeight(nSprite);
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
+	int nHeight = GetSpriteHeight(nSprite);
+	nSpr->xvel = 0;
+	nSpr->yvel = 0;
+	nSpr->zvel = 0;
 
-    nStandHeight = nHeight;
+	nStandHeight = nHeight;
 
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].extra = -1;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
+	nSpr->hitag = 0;
+	nSpr->extra = -1;
+	nSpr->lotag = runlist_HeadRun() + 1;
 
-    sprite[nDSprite].x = sprite[nSprite].x;
-    sprite[nDSprite].y = sprite[nSprite].y;
-    sprite[nDSprite].z = sprite[nSprite].z;
-    sprite[nDSprite].xrepeat = sprite[nSprite].xrepeat;
-    sprite[nDSprite].yrepeat = sprite[nSprite].yrepeat;
-    sprite[nDSprite].xoffset = 0;
-    sprite[nDSprite].yoffset = 0;
-    sprite[nDSprite].shade = sprite[nSprite].shade;
-    sprite[nDSprite].ang = sprite[nSprite].ang;
-    sprite[nDSprite].cstat = sprite[nSprite].cstat;
+	auto nDSpr = &sprite[nDSprite];
+	nDSpr->x = nSpr->x;
+	nDSpr->y = nSpr->y;
+	nDSpr->z = nSpr->z;
+	nDSpr->xrepeat = nSpr->xrepeat;
+	nDSpr->yrepeat = nSpr->yrepeat;
+	nDSpr->xoffset = 0;
+	nDSpr->yoffset = 0;
+	nDSpr->shade = nSpr->shade;
+	nDSpr->ang = nSpr->ang;
+	nDSpr->cstat = nSpr->cstat;
 
-    sprite[nDSprite].lotag = runlist_HeadRun() + 1;
+	nDSpr->lotag = runlist_HeadRun() + 1;
 
-    PlayerList[nPlayer].nAction = 0;
-    PlayerList[nPlayer].nHealth = 800; // TODO - define
+	plr->nAction = 0;
+	plr->nHealth = 800; // TODO - define
 
-    if (nNetPlayerCount) {
-        PlayerList[nPlayer].nHealth = 1600; // TODO - define
-    }
+	if (nNetPlayerCount) {
+		plr->nHealth = 1600; // TODO - define
+	}
 
-    PlayerList[nPlayer].field_2 = 0;
-    PlayerList[nPlayer].nSprite = nSprite;
-    PlayerList[nPlayer].bIsMummified = false;
+	plr->field_2 = 0;
+	plr->nSprite = nSprite;
+	plr->bIsMummified = false;
 
-    if (PlayerList[nPlayer].invincibility >= 0) {
-        PlayerList[nPlayer].invincibility = 0;
-    }
+	if (plr->invincibility >= 0) {
+		plr->invincibility = 0;
+	}
 
-    nPlayerTorch[nPlayer] = 0;
-    PlayerList[nPlayer].nMaskAmount = 0;
+	nPlayerTorch[nPlayer] = 0;
+	plr->nMaskAmount = 0;
 
-    SetTorch(nPlayer, 0);
+	SetTorch(nPlayer, 0);
 
-    nPlayerInvisible[nPlayer] = 0;
+	nPlayerInvisible[nPlayer] = 0;
 
-    PlayerList[nPlayer].bIsFiring = 0;
-    PlayerList[nPlayer].field_3FOUR = 0;
-    nPlayerViewSect[nPlayer] = sPlayerSave[nPlayer].nSector;
-    PlayerList[nPlayer].field_3A = 0;
+	plr->bIsFiring = 0;
+	plr->field_3FOUR = 0;
+	nPlayerViewSect[nPlayer] = sPlayerSave[nPlayer].nSector;
+	plr->field_3A = 0;
 
-    nPlayerDouble[nPlayer] = 0;
+	nPlayerDouble[nPlayer] = 0;
 
-    PlayerList[nPlayer].nSeq = kSeqJoe;
+	plr->nSeq = kSeqJoe;
 
-    nPlayerPushSound[nPlayer] = -1;
+	nPlayerPushSound[nPlayer] = -1;
 
-    PlayerList[nPlayer].field_38 = -1;
+	plr->field_38 = -1;
 
-    if (PlayerList[nPlayer].nCurrentWeapon == 7) {
-        PlayerList[nPlayer].nCurrentWeapon = PlayerList[nPlayer].field_3C;
-    }
+	if (plr->nCurrentWeapon == 7) {
+		plr->nCurrentWeapon = plr->field_3C;
+	}
 
-    PlayerList[nPlayer].field_3C = 0;
-    PlayerList[nPlayer].nAir = 100;
-    airpages = 0;
+	plr->field_3C = 0;
+	plr->nAir = 100;
+	airpages = 0;
 
-    if (currentLevel->levelNumber <= kMap20)
-    {
-        RestoreMinAmmo(nPlayer);
-    }
-    else
-    {
-        ResetPlayerWeapons(nPlayer);
-        PlayerList[nPlayer].nMagic = 0;
-    }
+	if (currentLevel->levelNumber <= kMap20)
+	{
+		RestoreMinAmmo(nPlayer);
+	}
+	else
+	{
+		ResetPlayerWeapons(nPlayer);
+		plr->nMagic = 0;
+	}
 
-    nPlayerGrenade[nPlayer] = -1;
-    oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
-    dVertPan[nPlayer] = 0;
+	nPlayerGrenade[nPlayer] = -1;
+	oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
+	dVertPan[nPlayer] = 0;
 
-    nTemperature[nPlayer] = 0;
+	nTemperature[nPlayer] = 0;
 
-    nYDamage[nPlayer] = 0;
-    nXDamage[nPlayer] = 0;
+	nYDamage[nPlayer] = 0;
+	nXDamage[nPlayer] = 0;
 
-    PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = q16horiz(0);
-    nBreathTimer[nPlayer] = 90;
+	plr->horizon.ohoriz = plr->horizon.horiz = q16horiz(0);
+	nBreathTimer[nPlayer] = 90;
 
-    nTauntTimer[nPlayer] = RandomSize(3) + 3;
+	nTauntTimer[nPlayer] = RandomSize(3) + 3;
 
-    sprite[nDSprite].owner = runlist_AddRunRec(sprite[nDSprite].lotag - 1, nPlayer | 0xA0000);
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nPlayer | 0xA0000);
+	nDSpr->owner = runlist_AddRunRec(nDSpr->lotag - 1, nPlayer | 0xA0000);
+	nSpr->owner = runlist_AddRunRec(nSpr->lotag - 1, nPlayer | 0xA0000);
 
-    if (PlayerList[nPlayer].nRun < 0) {
-        PlayerList[nPlayer].nRun = runlist_AddRunRec(NewRun, nPlayer | 0xA0000);
-    }
+	if (plr->nRun < 0) {
+		plr->nRun = runlist_AddRunRec(NewRun, nPlayer | 0xA0000);
+	}
 
-    BuildRa(nPlayer);
+	BuildRa(nPlayer);
 
-    if (nPlayer == nLocalPlayer)
-    {
-        nLocalSpr = nSprite;
+	if (nPlayer == nLocalPlayer)
+	{
+		nLocalSpr = nSprite;
 
-        SetMagicFrame();
-        RestoreGreenPal();
-    }
+		SetMagicFrame();
+		RestoreGreenPal();
+	}
 
-    sprintf(playerNames[nPlayer], "JOE%d", nPlayer);
-    namelen[nPlayer] = strlen(playerNames[nPlayer]);
+	sprintf(playerNames[nPlayer], "JOE%d", nPlayer);
+	namelen[nPlayer] = strlen(playerNames[nPlayer]);
 
-    ototalvel[nPlayer] = totalvel[nPlayer] = 0;
+	ototalvel[nPlayer] = totalvel[nPlayer] = 0;
 
-    memset(&sPlayerInput[nPlayer], 0, sizeof(PlayerInput));
-    sPlayerInput[nPlayer].nItem = -1;
+	memset(&sPlayerInput[nPlayer], 0, sizeof(PlayerInput));
+	sPlayerInput[nPlayer].nItem = -1;
 
-    nDeathType[nPlayer] = 0;
-    nQuake[nPlayer] = 0;
+	nDeathType[nPlayer] = 0;
+	nQuake[nPlayer] = 0;
 
-    if (nPlayer == nLocalPlayer) {
-        SetHealthFrame(0);
-    }
+	if (nPlayer == nLocalPlayer) {
+		SetHealthFrame(0);
+	}
 }
-
 // done
 int GrabPlayer()
 {
