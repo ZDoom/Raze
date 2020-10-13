@@ -55,7 +55,16 @@ CCMD(listmaps)
 {
 	for (unsigned int i = 0; i < numUsedSlots; i++)
 	{
-		Printf("%s - %s\n", mapList[i].fileName.GetChars(), mapList[i].DisplayName());
+		int lump = fileSystem.FindFile(mapList[i].fileName);
+		if (lump >= 0)
+		{
+			int rfnum = fileSystem.GetFileContainer(lump);
+			Printf("%s - %s (%s)\n", mapList[i].fileName.GetChars(), mapList[i].DisplayName(), fileSystem.GetResourceFileName(rfnum));
+		}
+		else
+		{
+			Printf("%s - %s (defined but does not exist)\n", mapList[i].fileName.GetChars(), mapList[i].DisplayName());
+		}
 	}
 }
 
