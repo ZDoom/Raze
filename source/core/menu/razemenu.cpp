@@ -416,7 +416,7 @@ static void BuildEpisodeMenu()
 #endif
 		if (addedVolumes == 1)
 		{
-			ld->mAutoselect = 0;
+			ld->mAutoselect = ld->mItems.Size()-1;
 		}
 		if (popped) ld->mItems.Push(popped);
 	}
@@ -454,7 +454,7 @@ static void BuildEpisodeMenu()
 		}
 		if (addedSkills == 1)
 		{
-			ld->mAutoselect = 0;
+			ld->mAutoselect = ld->mItems.Size() - 1;
 		}
 		if (popped) ld->mItems.Push(popped);
 	}
