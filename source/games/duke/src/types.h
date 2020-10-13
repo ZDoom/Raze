@@ -30,6 +30,15 @@ struct weaponhit
 	int temp_data[6];
 };
 
+// This is how a Duke actor should later be exposed to scripting. The object definition parts are disabled for now so that this can be used already to transition the code.
+class DDukeActor //: public DBuildActor
+{
+public:
+	//DECLARE_CLASS(DDukeActor, DBuildActor)
+	spritetype s;
+	weaponhit h;
+};
+
 struct animwalltype
 {
 	short wallnum, tag;

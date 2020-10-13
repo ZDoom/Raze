@@ -246,6 +246,25 @@ extern usermaphack_t g_loadedMapHack;
 EXTERN spriteext_t *spriteext;
 EXTERN spritesmooth_t *spritesmooth;
 
+// Wrapper that makes an array of pointers look like an array of references. (Refactoring helper.)
+
+template<class T, int size>
+class ReferenceArray
+{
+    T* data[size];
+public:
+    T& operator[](size_t index)
+    {
+        assert(index < size);
+        return *data[index];
+    }
+
+    void set(int pos, T* spr)
+    {
+        data[pos] = spr;
+    }
+};
+
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
 EXTERN spritetype *sprite;
