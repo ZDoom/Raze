@@ -50,6 +50,10 @@ SPRITEHIT gSpriteHit[kMaxXSprites];
 
 int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 
+unsigned short nextXSprite[kMaxXSprites];
+int XWallsUsed, XSectorsUsed;
+
+
 
 char qsector_filler[kMaxSectors];
 
@@ -257,10 +261,6 @@ int qchangespritestat(short nSprite, short nStatus)
     return ChangeSpriteStat(nSprite, nStatus);
 }
 
-unsigned short nextXSprite[kMaxXSprites];
-unsigned short nextXWall[kMaxXWalls];
-unsigned short nextXSector[kMaxXSectors];
-
 void InitFreeList(unsigned short *pList, int nCount)
 {
     for (int i = 1; i < nCount; i++)
@@ -302,9 +302,8 @@ void dbDeleteXSprite(int nXSprite)
 
 unsigned short dbInsertXWall(int nWall)
 {
-    int nXWall = nextXWall[0];
-    nextXWall[0] = nextXWall[nXWall];
-    if (nXWall == 0)
+    int nXWall = XWallsUsed++;
+    if (nXWall >= kMaxXWalls)
     {
         I_Error("Out of free XWalls");
     }
@@ -316,9 +315,8 @@ unsigned short dbInsertXWall(int nWall)
 
 unsigned short dbInsertXSector(int nSector)
 {
-    int nXSector = nextXSector[0];
-    nextXSector[0] = nextXSector[nXSector];
-    if (nXSector == 0)
+    int nXSector = XSectorsUsed++;
+    if (nXSector >= kMaxXSectors)
     {
         I_Error("Out of free XSectors");
     }
@@ -335,12 +333,11 @@ void dbInit(void)
     {
         xsprite[i].reference = -1;
     }
-    InitFreeList(nextXWall, kMaxXWalls);
+    XWallsUsed = XSectorsUsed = 0;
     for (int i = 1; i < kMaxXWalls; i++)
     {
         xwall[i].reference = -1;
     }
-    InitFreeList(nextXSector, kMaxXSectors);
     for (int i = 1; i < kMaxXSectors; i++)
     {
         xsector[i].reference = -1;

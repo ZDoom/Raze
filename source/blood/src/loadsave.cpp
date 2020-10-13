@@ -602,8 +602,8 @@ void MyLoadSave::Load(void)
     Read(&byte_19AE44, sizeof(byte_19AE44));
     Read(gStatCount, sizeof(gStatCount));
     Read(nextXSprite, sizeof(nextXSprite));
-    Read(nextXWall, sizeof(nextXWall));
-    Read(nextXSector, sizeof(nextXSector));
+    Read(&XWallsUsed, sizeof(XWallsUsed));
+    Read(&XSectorsUsed, sizeof(XSectorsUsed));
     memset(xsprite, 0, sizeof(xsprite));
     for (int nSprite = 0; nSprite < kMaxSprites; nSprite++)
     {
@@ -687,8 +687,8 @@ void MyLoadSave::Save(void)
     Write(&byte_19AE44, sizeof(byte_19AE44));
     Write(gStatCount, sizeof(gStatCount));
     Write(nextXSprite, sizeof(nextXSprite));
-    Write(nextXWall, sizeof(nextXWall));
-    Write(nextXSector, sizeof(nextXSector));
+    Write(&XWallsUsed, sizeof(XWallsUsed));
+    Write(&XSectorsUsed, sizeof(XSectorsUsed));
     for (int nSprite = 0; nSprite < kMaxSprites; nSprite++)
     {
         if (sprite[nSprite].statnum < kMaxStatus)

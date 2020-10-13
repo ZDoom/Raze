@@ -306,8 +306,7 @@ extern const char *gAmmoText[];
 extern const char *gWeaponText[];
 
 extern unsigned short nextXSprite[kMaxXSprites];
-extern unsigned short nextXWall[kMaxXWalls];
-extern unsigned short nextXSector[kMaxXSectors];
+extern int XWallsUsed, XSectorsUsed;
 
 static inline int GetWallType(int nWall)
 {
