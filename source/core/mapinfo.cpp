@@ -55,7 +55,7 @@ CCMD(listmaps)
 {
 	for (unsigned int i = 0; i < numUsedSlots; i++)
 	{
-		Printf("%s\n", mapList[i].fileName.GetChars());
+		Printf("%s - %s\n", mapList[i].fileName.GetChars(), mapList[i].DisplayName());
 	}
 }
 
