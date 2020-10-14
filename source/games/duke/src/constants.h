@@ -253,6 +253,8 @@ enum
 	STAT_DUMMYPLAYER    = 13,
 	STAT_LIGHT          = 14,
 	STAT_RAROR          = 15,
+
+	STAT_DESTRUCT		= 100,
 	STAT_NETALLOC       = MAXSTATUS-1
 };
 

@@ -558,14 +558,14 @@ void gutsdir_r(spritetype* s, short gtype, short n, short p)
 void movefta_r(void)
 {
 	int x, px, py, sx, sy;
-	short i, j, p, psect, ssect, nexti;
+	short j, p, psect, ssect;
 	spritetype* s;
 
-	i = headspritestat[STAT_ZOMBIEACTOR];
-	while (i >= 0)
-	{
-		nexti = nextspritestat[i];
 
+	StatIterator it(STAT_ZOMBIEACTOR);
+	int i;
+	while((i = it.NextIndex()) >= 0)
+	{
 		s = &sprite[i];
 		p = findplayer(s, &x);
 		j = 0;
@@ -586,7 +586,6 @@ void movefta_r(void)
 						updatesector(px, py, &psect);
 						if (psect == -1)
 						{
-							i = nexti;
 							continue;
 						}
 						sx = s->x + 64 - (krand() & 127);
@@ -594,7 +593,6 @@ void movefta_r(void)
 						updatesector(px, py, &ssect);
 						if (ssect == -1)
 						{
-							i = nexti;
 							continue;
 						}
 
@@ -666,7 +664,6 @@ void movefta_r(void)
 				}
 			}
 		}
-		i = nexti;
 	}
 }
 
@@ -678,12 +675,12 @@ void movefta_r(void)
 
 int ifhitsectors_r(int sectnum)
 {
-	int i = headspritestat[STAT_MISC];
-	while (i >= 0)
+	StatIterator it(STAT_MISC);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
 		if (sprite[i].picnum == EXPLOSION2 || (sprite[i].picnum == EXPLOSION3 && sectnum == sprite[i].sectnum))
 			return i;
-		i = nextspritestat[i];
 	}
 	return -1;
 }
@@ -844,14 +841,14 @@ void respawn_rrra(int i, int j)
 
 void movefallers_r(void)
 {
-	short i, nexti, sect, j;
+	short sect, j;
 	spritetype* s;
 	int x;
 
-	i = headspritestat[STAT_FALLER];
-	while (i >= 0)
+	StatIterator it(STAT_FALLER);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
 		s = &sprite[i];
 
 		sect = s->sectnum;
@@ -869,17 +866,17 @@ void movefallers_r(void)
 					if (s->extra <= 0)
 					{
 						hittype[i].temp_data[0] = 1;
-						j = headspritestat[STAT_FALLER];
-						while (j >= 0)
+						StatIterator it(STAT_FALLER);
+						while ((j = it.NextIndex()) >= 0)
 						{
-							if (sprite[j].hitag == sprite[i].hitag)
+							auto sj = &sprite[j];
+							if (sj->hitag == sprite[i].hitag)
 							{
 								hittype[j].temp_data[0] = 1;
-								sprite[j].cstat &= (65535 - 64);
-								if (sprite[j].picnum == CEILINGSTEAM || sprite[j].picnum == STEAM)
-									sprite[j].cstat |= 32768;
+								sj->cstat &= (65535 - 64);
+								if (sj->picnum == CEILINGSTEAM || sj->picnum == STEAM)
+									sj->cstat |= 32768;
 							}
-							j = nextspritestat[j];
 						}
 					}
 				}
@@ -932,8 +929,6 @@ void movefallers_r(void)
 				}
 			}
 		}
-
-		i = nexti;
 	}
 }
 
@@ -960,13 +955,13 @@ static void movecrack(int i)
 		int j = ifhitbyweapon_r(i);
 		if (j == RPG || (isRRRA() && j == RPG2) || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 		{
-			j = headspritestat[STAT_STANDABLE];
-			while (j >= 0)
+			StatIterator it(STAT_STANDABLE);
+			while ((j = it.NextIndex()) >= 0)
 			{
-				if (s->hitag == sprite[j].hitag && (sprite[j].picnum == OOZFILTER || sprite[j].picnum == SEENINE))
-					if (sprite[j].shade != -32)
-						sprite[j].shade = -32;
-				j = nextspritestat[j];
+				auto sj = &sprite[j];
+				if (s->hitag == sj->hitag && (sj->picnum == OOZFILTER || sj->picnum == SEENINE))
+					if (sj->shade != -32)
+						sj->shade = -32;
 			}
 			detonate(i, EXPLOSION2);
 		}
@@ -1051,12 +1046,10 @@ CLEAR_THE_BOLT:
 
 void movestandables_r(void)
 {
-	int nexti;
-	
-	for (int i = headspritestat[STAT_STANDABLE]; i >= 0; i = nexti)
+	StatIterator it(STAT_STANDABLE);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
-
 		auto s = &sprite[i];
 		int picnum = s->picnum;
 
@@ -1161,14 +1154,15 @@ void movestandables_r(void)
 
 void moveweapons_r(void)
 {
-	int j, k, nexti, p;
+	int j, k, p;
 	int dax, day, daz, x, ll;
 	unsigned int qq;
 	spritetype* s;
 
-	for (int i = headspritestat[STAT_PROJECTILE];  i >= 0; i = nexti)
+	StatIterator it(STAT_PROJECTILE);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
 		s = &sprite[i];
 
 		if (s->sectnum < 0)
@@ -2453,7 +2447,7 @@ static void rrra_specialstats()
 void rr_specialstats()
 {
 	int x;
-	int i, j, nextj, p, pi;
+	int i, j, p, pi;
 	unsigned short pst;
 
 	StatIterator it(107);
@@ -2978,7 +2972,7 @@ static int henstand(int i)
 
 void moveactors_r(void)
 {
-	int x, nexti;
+	int x;
 	int j, sect, p;
 	spritetype *s;
 	
@@ -2991,9 +2985,10 @@ void moveactors_r(void)
 	}
 	rr_specialstats();
 
-	for (int i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti)
+	StatIterator it(STAT_ACTOR);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
 		bool deleteafterexecute = false;	// taking a cue here from RedNukem to not run scripts on deleted sprites.
 
 		s = &sprite[i];
@@ -3262,15 +3257,15 @@ void moveactors_r(void)
 
 void moveexplosions_r(void)  // STATNUM 5
 {
-	int nexti, sect, p;
+	int sect, p;
 	int x, * t;
 	spritetype* s;
 
 	
-	for (int i = headspritestat[STAT_MISC]; i >= 0; i = nexti)
+	StatIterator it(STAT_MISC);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
-
 		t = &hittype[i].temp_data[0];
 		s = &sprite[i];
 		sect = s->sectnum;
@@ -3502,7 +3497,7 @@ void moveexplosions_r(void)  // STATNUM 5
 void moveeffectors_r(void)   //STATNUM 3
 {
 	int l, x, st, j, * t;
-	int nexti, p, sh, nextj, ns, pn;
+	int p, sh, nextj, ns, pn;
 	short k;
 	spritetype* s;
 	sectortype* sc;
@@ -3511,9 +3506,10 @@ void moveeffectors_r(void)   //STATNUM 3
 	clearfriction();
 
 	
-	for (int i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nexti)
+	StatIterator it(STAT_EFFECTOR);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
 		s = &sprite[i];
 
 		sc = &sector[s->sectnum];
@@ -3533,6 +3529,7 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 			
 		case SE_6_SUBWAY:
+		{
 			k = sc->extra;
 
 			if (t[4] > 0)
@@ -3611,27 +3608,29 @@ void moveeffectors_r(void)   //STATNUM 3
 				}
 			}
 
-			j = headspritestat[STAT_EFFECTOR];
-			while (j >= 0)
+			StatIterator it(STAT_EFFECTOR);
+			while ((j = it.NextIndex()) >= 0)
 			{
-				if ((sprite[j].lotag == 14) && (sh == sprite[j].hitag) && (hittype[j].temp_data[0] == t[0]))
+				auto sj = &sprite[j];
+				auto htj = &hittype[j];
+				if ((sj->lotag == 14) && (sh == sj->hitag) && (htj->temp_data[0] == t[0]))
 				{
-					sprite[j].xvel = s->xvel;
+					sj->xvel = s->xvel;
 					//						if( t[4] == 1 )
 					{
-						if (hittype[j].temp_data[5] == 0)
-							hittype[j].temp_data[5] = dist(&sprite[j], s);
-						x = sgn(dist(&sprite[j], s) - hittype[j].temp_data[5]);
-						if (sprite[j].extra)
+						if (htj->temp_data[5] == 0)
+							htj->temp_data[5] = dist(&sprite[j], s);
+						x = sgn(dist(&sprite[j], s) - htj->temp_data[5]);
+						if (sj->extra)
 							x = -x;
 						s->xvel += x;
 					}
-					hittype[j].temp_data[4] = t[4];
+					htj->temp_data[4] = t[4];
 				}
 				j = nextspritestat[j];
 			}
 			x = 0;
-
+		}
 
 		case SE_14_SUBWAY_CAR:
 			handle_se14(i, false, RPG, JIBS6);
@@ -4015,7 +4014,8 @@ void moveeffectors_r(void)   //STATNUM 3
 	}
 
 	//Sloped sin-wave floors!
-	for (int i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nextspritestat[i])
+	it.Reset(STAT_EFFECTOR);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		s = &sprite[i];
 		if (s->lotag != 29) continue;
@@ -4488,14 +4488,14 @@ void destroyit(int g_i)
 {
 	auto g_sp = &sprite[g_i];
 	spritetype* js;
-	short lotag, hitag;
-	short k, jj;
-	short wi, wj;
-	short spr;
-	short nextk, nextjj;
-	short wallstart2, wallend2;
-	short sectnum;
-	short wallstart, wallend;
+	int lotag, hitag;
+	int k, jj;
+	int wi, wj;
+	int spr;
+	int nextk;
+	int wallstart2, wallend2;
+	int sectnum;
+	int wallstart, wallend;
 
 	hitag = 0;
 	k = headspritesect[g_sp->sectnum];
@@ -4511,10 +4511,9 @@ void destroyit(int g_i)
 		}
 		k = nextk;
 	}
-	jj = headspritestat[100];
-	while (jj >= 0)
+	StatIterator it(STAT_DESTRUCT);
+	while ((jj = it.NextIndex()) >= 0)
 	{
-		nextjj = nextspritestat[jj];
 		js = &sprite[jj];
 		if (hitag)
 			if (hitag == js->hitag)
@@ -4576,7 +4575,6 @@ void destroyit(int g_i)
 				sector[sectnum].hitag = sector[js->sectnum].hitag;
 				sector[sectnum].extra = sector[js->sectnum].extra;
 			}
-		jj = nextjj;
 	}
 	k = headspritesect[g_sp->sectnum];
 	while (k != -1)
