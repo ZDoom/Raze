@@ -306,7 +306,7 @@ void AddMovingSector(int nSector, int edx, int ebx, int ecx);
 int BuildWallSprite(int nSector);
 void ProcessTrailSprite(int nSprite, int nLotag, int nHitag);
 void AddSectorBob(int nSector, int nHitag, int bx);
-int BuildObject(short nSprite, int nOjectType, int nHitag);
+int BuildObject(int const nSprite, int nOjectType, int nHitag);
 int BuildArrow(int nSprite, int nVal);
 int BuildFireBall(int nSprite, int a, int b);
 void BuildDrip(int nSprite);

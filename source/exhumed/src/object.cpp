@@ -1348,33 +1348,34 @@ int BuildSpark(int nSprite, int nVal)
     if (var_14 < 0) {
         return -1;
     }
+    auto spr = &sprite[nSprite];
 
     assert(var_14 < kMaxSprites);
 
-    sprite[var_14].x = sprite[nSprite].x;
-    sprite[var_14].y = sprite[nSprite].y;
-    sprite[var_14].cstat = 0;
-    sprite[var_14].shade = -127;
-    sprite[var_14].pal = 1;
-    sprite[var_14].xoffset = 0;
-    sprite[var_14].yoffset = 0;
-    sprite[var_14].xrepeat = 50;
-    sprite[var_14].yrepeat = 50;
+    spr->x = sprite[nSprite].x;
+    spr->y = sprite[nSprite].y;
+    spr->cstat = 0;
+    spr->shade = -127;
+    spr->pal = 1;
+    spr->xoffset = 0;
+    spr->yoffset = 0;
+    spr->xrepeat = 50;
+    spr->yrepeat = 50;
 
     if (nVal >= 2)
     {
-        sprite[var_14].picnum = kEnergy2;
+        spr->picnum = kEnergy2;
         nSmokeSparks++;
 
         if (nVal == 3)
         {
-            sprite[var_14].xrepeat = 120;
-            sprite[var_14].yrepeat = 120;
+            spr->xrepeat = 120;
+            spr->yrepeat = 120;
         }
         else
         {
-            sprite[var_14].xrepeat = sprite[nSprite].xrepeat + 15;
-            sprite[var_14].yrepeat = sprite[nSprite].xrepeat + 15;
+            spr->xrepeat = sprite[nSprite].xrepeat + 15;
+            spr->yrepeat = sprite[nSprite].xrepeat + 15;
         }
     }
     else
@@ -1383,29 +1384,29 @@ int BuildSpark(int nSprite, int nVal)
 
         if (nVal)
         {
-            sprite[var_14].xvel = Cos(nAngle) >> 5;
-            sprite[var_14].yvel = Sin(nAngle) >> 5;
+            spr->xvel = Cos(nAngle) >> 5;
+            spr->yvel = Sin(nAngle) >> 5;
         }
         else
         {
-            sprite[var_14].xvel = Cos(nAngle) >> 6;
-            sprite[var_14].yvel = Sin(nAngle) >> 6;
+            spr->xvel = Cos(nAngle) >> 6;
+            spr->yvel = Sin(nAngle) >> 6;
         }
 
-        sprite[var_14].zvel = -(RandomSize(4) << 7);
-        sprite[var_14].picnum = kTile985 + nVal;
+        spr->zvel = -(RandomSize(4) << 7);
+        spr->picnum = kTile985 + nVal;
     }
 
-    sprite[var_14].z = sprite[nSprite].z;
-    sprite[var_14].lotag = runlist_HeadRun() + 1;
-    sprite[var_14].clipdist = 1;
-    sprite[var_14].hitag = 0;
+    spr->z = sprite[nSprite].z;
+    spr->lotag = runlist_HeadRun() + 1;
+    spr->clipdist = 1;
+    spr->hitag = 0;
 
 //	GrabTimeSlot(3);
 
-    sprite[var_14].extra = -1;
-    sprite[var_14].owner = runlist_AddRunRec(sprite[var_14].lotag - 1, var_14 | 0x260000);
-    sprite[var_14].hitag = runlist_AddRunRec(NewRun, var_14 | 0x260000);
+    spr->extra = -1;
+    spr->owner = runlist_AddRunRec(spr->lotag - 1, var_14 | 0x260000);
+    spr->hitag = runlist_AddRunRec(NewRun, var_14 | 0x260000);
 
     return var_14;
 }
@@ -1579,34 +1580,36 @@ int BuildEnergyBlock(short nSector)
     int xAvg = x / nWalls;
     int yAvg = y / nWalls;
 
-    int nSprite = insertsprite(nSector, 406);
+    int const nSprite = insertsprite(nSector, 406);
+    auto spr = &sprite[nSprite];
+
 
     short nextsector = wall[startwall].nextsector;
 
-    sprite[nSprite].x = xAvg;
-    sprite[nSprite].y = yAvg;
+    spr->x = xAvg;
+    spr->y = yAvg;
 
     sector[nSector].extra = nSprite;
 
 //	GrabTimeSlot(3);
 
-    sprite[nSprite].z = sector[nextsector].floorz;
+    spr->z = sector[nextsector].floorz;
 
     // CHECKME - name of this variable?
-    int nRepeat = (sprite[nSprite].z - sector[nSector].floorz) >> 8;
+    int nRepeat = (spr->z - sector[nSector].floorz) >> 8;
     if (nRepeat > 255) {
         nRepeat = 255;
     }
 
-    sprite[nSprite].xrepeat = nRepeat;
-    sprite[nSprite].cstat = 0x8000;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].extra = -1;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nSprite | 0x250000);
+    spr->xrepeat = nRepeat;
+    spr->cstat = 0x8000;
+    spr->xvel = 0;
+    spr->yvel = 0;
+    spr->zvel = 0;
+    spr->extra = -1;
+    spr->lotag = runlist_HeadRun() + 1;
+    spr->hitag = 0;
+    spr->owner = runlist_AddRunRec(spr->lotag - 1, nSprite | 0x250000);
 
     nEnergyBlocks++;
 
@@ -1743,7 +1746,8 @@ void ExplodeEnergyBlock(int nSprite)
 
 void FuncEnergyBlock(int a, int nDamage, int nRun)
 {
-    short nSprite = RunData[nRun].nVal;
+    int const nSprite = RunData[nRun].nVal;
+    auto spr = &sprite[nSprite];
 
     int nMessage = a & 0x7F0000;
 
@@ -1758,7 +1762,7 @@ void FuncEnergyBlock(int a, int nDamage, int nRun)
 
         case 0xA0000:
         {
-            short nSector = sprite[nSprite].sectnum;
+            short nSector = spr->sectnum;
 
             if (sector[nSector].extra == -1) {
                 return;
@@ -1766,14 +1770,14 @@ void FuncEnergyBlock(int a, int nDamage, int nRun)
 
             int nFloorZ = sector[nSector].floorz;
 
-            sector[nSector].floorz = sprite[nSprite].z;
-            sprite[nSprite].z -= 256;
+            sector[nSector].floorz = spr->z;
+            spr->z -= 256;
 
             nDamage = runlist_CheckRadialDamage(nSprite);
 
             // restore previous values
             sector[nSector].floorz = nFloorZ;
-            sprite[nSprite].z += 256;
+            spr->z += 256;
 
             if (nDamage <= 0) {
                 return;
@@ -1790,9 +1794,9 @@ void FuncEnergyBlock(int a, int nDamage, int nRun)
                 return;
             }
 
-            if (nDamage < sprite[nSprite].xrepeat)
+            if (nDamage < spr->xrepeat)
             {
-                sprite[nSprite].xrepeat -= nDamage;
+                spr->xrepeat -= nDamage;
 
                 int nSprite2 = insertsprite(lasthitsect, 0);
 
@@ -1806,7 +1810,7 @@ void FuncEnergyBlock(int a, int nDamage, int nRun)
             }
             else
             {
-                sprite[nSprite].xrepeat = 0; // using xrepeat to store health
+                spr->xrepeat = 0; // using xrepeat to store health
                 ExplodeEnergyBlock(nSprite);
             }
 
@@ -1815,11 +1819,12 @@ void FuncEnergyBlock(int a, int nDamage, int nRun)
     }
 }
 
-int BuildObject(short nSprite, int nOjectType, int nHitag)
+int BuildObject(int const nSprite, int nOjectType, int nHitag)
 {
     if (ObjectCount >= kMaxObjects) {
         I_Error("Too many objects!\n");
     }
+    auto spr = &sprite[nSprite];
 
     short nObject = ObjectCount;
     ObjectCount++;
@@ -1827,18 +1832,18 @@ int BuildObject(short nSprite, int nOjectType, int nHitag)
     changespritestat(nSprite, ObjectStatnum[nOjectType]);
 
     // 0x7FFD to ensure set as blocking ('B' and 'H') sprite and also disable translucency and set not invisible
-    sprite[nSprite].cstat = (sprite[nSprite].cstat | 0x101) & 0x7FFD;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].extra = -1;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nObject | 0x170000);
+    spr->cstat = (spr->cstat | 0x101) & 0x7FFD;
+    spr->xvel = 0;
+    spr->yvel = 0;
+    spr->zvel = 0;
+    spr->extra = -1;
+    spr->lotag = runlist_HeadRun() + 1;
+    spr->hitag = 0;
+    spr->owner = runlist_AddRunRec(spr->lotag - 1, nObject | 0x170000);
 
 //	GrabTimeSlot(3);
 
-    if (sprite[nSprite].statnum == kStatDestructibleSprite) {
+    if (spr->statnum == kStatDestructibleSprite) {
         ObjectList[nObject].nHealth = 4;
     }
     else {
@@ -1859,20 +1864,20 @@ int BuildObject(short nSprite, int nOjectType, int nHitag)
             ObjectList[nObject].field_0 = RandomSize(4) % (SeqSize[ObjectList[nObject].field_8] - 1);
         }
 
-        int nSprite2 = insertsprite(sprite[nSprite].sectnum, 0);
+        int nSprite2 = insertsprite(spr->sectnum, 0);
         ObjectList[nObject].field_10 = nSprite2;
 
         sprite[nSprite2].cstat = 0x8000;
-        sprite[nSprite2].x = sprite[nSprite].x;
-        sprite[nSprite2].y = sprite[nSprite].y;
-        sprite[nSprite2].z = sprite[nSprite].z;
+        sprite[nSprite2].x = spr->x;
+        sprite[nSprite2].y = spr->y;
+        sprite[nSprite2].z = spr->z;
     }
     else
     {
         ObjectList[nObject].field_0 = 0;
         ObjectList[nObject].field_8 = -1;
 
-        if (sprite[nSprite].statnum == kStatDestructibleSprite) {
+        if (spr->statnum == kStatDestructibleSprite) {
             ObjectList[nObject].field_10 = -1;
         }
         else {
