@@ -1123,12 +1123,11 @@ static void movetripbomb(int i)
 			sprite[j].xvel = 348;
 			ssp(j, CLIPMASK0);
 
-			j = headspritestat[STAT_MISC];
-			while (j >= 0)
+			StatIterator it(STAT_MISC);
+			while ((j = it.NextIndex()) >= 0)
 			{
 				if (sprite[j].picnum == LASERLINE && s->hitag == sprite[j].hitag)
 					sprite[j].xrepeat = sprite[j].yrepeat = 0;
-				j = nextspritestat[j];
 			}
 			deletesprite(i);
 		}
@@ -1267,13 +1266,13 @@ static void movecrack(int i)
 		int j = fi.ifhitbyweapon(i);
 		if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 		{
-			j = headspritestat[STAT_STANDABLE];
-			while (j >= 0)
+			StatIterator it(STAT_MISC);
+			while ((j = it.NextIndex()) >= 0)
 			{
-				if (s->hitag == sprite[j].hitag && (sprite[j].picnum == OOZFILTER || sprite[j].picnum == SEENINE))
-					if (sprite[j].shade != -32)
-						sprite[j].shade = -32;
-				j = nextspritestat[j];
+				auto sj = &sprite[j];
+				if (s->hitag == sj->hitag && (sj->picnum == OOZFILTER || sj->picnum == SEENINE))
+					if (sj->shade != -32)
+						sj->shade = -32;
 			}
 			detonate(i, EXPLOSION2);
 		}
@@ -1312,13 +1311,14 @@ static void movefireext(int i)
 
 	if (s->hitag > 0)
 	{
-		j = headspritestat[STAT_STANDABLE];
-		while (j >= 0)
+		StatIterator it(STAT_STANDABLE);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
-			if (s->hitag == sprite[j].hitag && (sprite[j].picnum == OOZFILTER || sprite[j].picnum == SEENINE))
-				if (sprite[j].shade != -32)
-					sprite[j].shade = -32;
-			j = nextspritestat[j];
+			auto sj = &sprite[j];
+			if (s->hitag == sj->hitag && (sj->picnum == OOZFILTER || sj->picnum == SEENINE))
+				if (sj->shade != -32)
+					sj->shade = -32;
 		}
 
 		int x = s->extra;
@@ -1485,12 +1485,10 @@ CLEAR_THE_BOLT:
 
 void movestandables_d(void)
 {
-	int nexti;
-	
-	for (int i = headspritestat[STAT_STANDABLE]; i >= 0; i = nexti)
+	StatIterator it(STAT_STANDABLE);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
-
 		auto s = &sprite[i];
 		int picnum = s->picnum;
 
@@ -1616,14 +1614,15 @@ void movestandables_d(void)
 
 void moveweapons_d(void)
 {
-	int j, k, nexti, p;
+	int j, k, p;
 	int dax, day, daz, x, ll;
 	unsigned int qq;
 	spritetype* s;
 
-	for (int i = headspritestat[STAT_PROJECTILE];  i >= 0; i = nexti)
+	StatIterator it(STAT_PROJECTILE);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
 		s = &sprite[i];
 
 		if (s->sectnum < 0)
@@ -2515,11 +2514,10 @@ static void greenslime(int i)
 			updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
 			setpal(&ps[p]);
 
-			j = headspritestat[STAT_ACTOR];
-			while (j >= 0)
+			StatIterator it(STAT_ACTOR);
+			while ((j = it.NextIndex()) >= 0)
 			{
 				if (sprite[j].picnum == CAMERA1) sprite[j].yvel = 0;
-				j = nextspritestat[j];
 			}
 		}
 
@@ -3108,12 +3106,11 @@ void moveactors_d(void)
 	short j, sect, p;
 	spritetype* s;
 	unsigned short k;
-	int nexti;
 	
-	for (int i = headspritestat[STAT_ACTOR]; i >= 0; i = nexti)
+	StatIterator it(STAT_ACTOR);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
-
 		s = &sprite[i];
 
 		sect = s->sectnum;
@@ -3157,22 +3154,22 @@ void moveactors_d(void)
 					s->cstat = 32 + 128;
 					k = 1;
 
-					j = headspritestat[STAT_ACTOR];
-					while (j >= 0)
+					StatIterator it(STAT_ACTOR);
+					int j;
+					while ((j = it.NextIndex()) >= 0)
 					{
-						if (sprite[j].lotag == s->lotag &&
-							sprite[j].picnum == s->picnum)
+						auto sj = &sprite[j];
+						if (sj->lotag == s->lotag &&
+							sj->picnum == s->picnum)
 						{
-							if ((sprite[j].hitag && !(sprite[j].cstat & 32)) ||
-								(!sprite[j].hitag && (sprite[j].cstat & 32))
+							if ((sj->hitag && !(sj->cstat & 32)) ||
+								(!sj->hitag && (sj->cstat & 32))
 								)
 							{
 								k = 0;
 								break;
 							}
 						}
-
-						j = nextspritestat[j];
 					}
 
 					if (k == 1)
@@ -3338,15 +3335,15 @@ static void fireflyflyingeffect(int i)
 
 void moveexplosions_d(void)  // STATNUM 5
 {
-	int nexti, sect, p;
+	int sect, p;
 	int x, * t;
 	spritetype* s;
 
 	
-	for (int i = headspritestat[STAT_MISC]; i >= 0; i = nexti)
+	StatIterator it(STAT_MISC);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
-
 		t = &hittype[i].temp_data[0];
 		s = &sprite[i];
 		sect = s->sectnum;
@@ -3530,7 +3527,7 @@ void moveexplosions_d(void)  // STATNUM 5
 void moveeffectors_d(void)   //STATNUM 3
 {
 	int q = 0, l, x, st, j, * t;
-	int nexti, p, sh, nextj;
+	int p, sh, nextj;
 	short k;
 	spritetype* s;
 	sectortype* sc;
@@ -3539,9 +3536,10 @@ void moveeffectors_d(void)   //STATNUM 3
 	clearfriction();
 
 	
-	for (int i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nexti)
+	StatIterator it(STAT_EFFECTOR);
+	int i;
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
 		s = &sprite[i];
 
 		sc = &sector[s->sectnum];
@@ -3561,6 +3559,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 			
 		case SE_6_SUBWAY:
+		{
 			k = sc->extra;
 
 			if (t[4] > 0)
@@ -3580,28 +3579,28 @@ void moveeffectors_d(void)   //STATNUM 3
 			}
 			else s->xvel = k;
 
-			j = headspritestat[STAT_EFFECTOR];
-			while (j >= 0)
+			StatIterator it(STAT_EFFECTOR);
+			int j;
+			while ((j = it.NextIndex()) >= 0)
 			{
-				if ((sprite[j].lotag == 14) && (sh == sprite[j].hitag) && (hittype[j].temp_data[0] == t[0]))
+				auto sj = &sprite[j];
+				if ((sj->lotag == 14) && (sh == sj->hitag) && (hittype[j].temp_data[0] == t[0]))
 				{
-					sprite[j].xvel = s->xvel;
+					sj->xvel = s->xvel;
 					//						if( t[4] == 1 )
 					{
 						if (hittype[j].temp_data[5] == 0)
-							hittype[j].temp_data[5] = dist(&sprite[j], s);
-						x = sgn(dist(&sprite[j], s) - hittype[j].temp_data[5]);
-						if (sprite[j].extra)
+							hittype[j].temp_data[5] = dist(sj, s);
+						x = sgn(dist(sj, s) - hittype[j].temp_data[5]);
+						if (sj->extra)
 							x = -x;
 						s->xvel += x;
 					}
 					hittype[j].temp_data[4] = t[4];
 				}
-				j = nextspritestat[j];
 			}
 			x = 0;
-
-
+		}
 		case SE_14_SUBWAY_CAR:
 			handle_se14(i, true, RPG, JIBS6);
 			break;
@@ -3845,8 +3844,8 @@ void moveeffectors_d(void)   //STATNUM 3
 					S_PlayActorSound(LIGHTNING_SLAP, i);
 				else if (hittype[i].temp_data[2] == (hittype[i].temp_data[1] >> 2))
 				{
-					j = headspritestat[0];
-					while (j >= 0)
+					StatIterator it(STAT_DEFAULT);
+					while ((j = it.NextIndex()) >= 0)
 					{
 						if (sprite[j].picnum == NATURALLIGHTNING && sprite[j].hitag == s->hitag)
 							sprite[j].cstat |= 32768;
@@ -3867,18 +3866,19 @@ void moveeffectors_d(void)   //STATNUM 3
 					else if (j)
 						ps[screenpeek].visibility = ud.const_visibility;
 
-					j = headspritestat[0];
-					while (j >= 0)
+					StatIterator it(STAT_DEFAULT);
+					while ((j = it.NextIndex()) >= 0)
 					{
-						if (sprite[j].picnum == NATURALLIGHTNING && sprite[j].hitag == s->hitag)
+						auto sj = &sprite[j];
+						if (sj->picnum == NATURALLIGHTNING && sj->hitag == s->hitag)
 						{
 							if (rnd(32) && (hittype[i].temp_data[2] & 1))
 							{
-								sprite[j].cstat &= 32767;
+								sj->cstat &= 32767;
 								fi.spawn(j, SMALLSMOKE);
 
 								p = findplayer(s, &x);
-								x = ldist(&sprite[ps[p].i], &sprite[j]);
+								x = ldist(&sprite[ps[p].i], sj);
 								if (x < 768)
 								{
 									if (S_CheckSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN) < 1)
@@ -3889,10 +3889,8 @@ void moveeffectors_d(void)   //STATNUM 3
 								}
 								break;
 							}
-							else sprite[j].cstat |= 32768;
+							else sj->cstat |= 32768;
 						}
-
-						j = nextspritestat[j];
 					}
 				}
 			}
@@ -4073,7 +4071,8 @@ void moveeffectors_d(void)   //STATNUM 3
 	}
 
 	//Sloped sin-wave floors!
-	for (int i = headspritestat[STAT_EFFECTOR]; i >= 0; i = nextspritestat[i])
+	it.Reset(STAT_EFFECTOR);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		s = &sprite[i];
 		if (s->lotag != 29) continue;
