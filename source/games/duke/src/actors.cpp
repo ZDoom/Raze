@@ -661,10 +661,10 @@ void movecrane(int i, int crane)
 
 	if (t[0] == 0) //Waiting to check the sector
 	{
-		int j = headspritesect[t[1]];
-		while (j >= 0)
+		SectIterator it(t[1]);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
-			int nextj = nextspritesect[j];
 			switch (sprite[j].statnum)
 			{
 			case STAT_ACTOR:
@@ -676,7 +676,6 @@ void movecrane(int i, int crane)
 				t[0]++;
 				return;
 			}
-			j = nextj;
 		}
 	}
 
@@ -739,8 +738,9 @@ void movecrane(int i, int crane)
 			}
 			else
 			{
-				int j = headspritesect[t[1]];
-				while (j >= 0)
+				SectIterator it(t[1]);
+				int j;
+				while ((j = it.NextIndex()) >= 0)
 				{
 					switch (sprite[j].statnum)
 					{
@@ -749,7 +749,6 @@ void movecrane(int i, int crane)
 						s->owner = j;
 						break;
 					}
-					j = nextspritesect[j];
 				}
 			}
 
@@ -998,12 +997,14 @@ void movemasterswitch(int i, int spectype1, int spectype2)
 		{
 			operatesectors(s->sectnum, i);
 
-			int j = headspritesect[s->sectnum];
-			while (j >= 0)
+			SectIterator it(s->sectnum);
+			int j;
+			while ((j = it.NextIndex()) >= 0)
 			{
-				if (sprite[j].statnum == 3)
+				auto sj = &sprite[j];
+				if (sj->statnum == 3)
 				{
-					switch (sprite[j].lotag)
+					switch (sj->lotag)
 					{
 					case SE_2_EARTHQUAKE:
 					case SE_21_DROP_FLOOR:
@@ -1017,14 +1018,13 @@ void movemasterswitch(int i, int spectype1, int spectype2)
 						break;
 					}
 				}
-				else if (sprite[j].statnum == 6)
+				else if (sj->statnum == 6)
 				{
-					if (sprite[j].picnum == spectype1 || sprite[j].picnum == spectype2) // SEENINE and OOZFILTER
+					if (sj->picnum == spectype1 || sj->picnum == spectype2) // SEENINE and OOZFILTER
 					{
-						sprite[j].shade = -31;
+						sj->shade = -31;
 					}
 				}
-				j = nextspritesect[j];
 			}
 			deletesprite(i);
 		}
@@ -1929,19 +1929,18 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 		case 7:
 		case 10:
 		case 15:
-			j = headspritesect[sect];
-			while (j >= 0)
+		{
+			SectIterator it(sect);
+			while ((j = it.NextIndex()) >= 0)
 			{
-				int l = nextspritesect[j];
-
 				if (j != i)
 				{
 					deletesprite(j);
 					break;
 				}
-				j = l;
 			}
 			break;
+		}
 		}
 		for (x = 0; x < 16; x++)
 			RANDOMSCRAP(s, i);
@@ -2899,27 +2898,27 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 					}
 				}
 			}
-		j = headspritesect[s->sectnum];
-		while (j >= 0)
+		SectIterator it(s->sectnum);
+		while ((j = it.NextIndex()) >= 0)
 		{
-			if (sprite[j].statnum != 10 && sector[sprite[j].sectnum].lotag != 2 && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+			auto sj = &sprite[j];
+			if (sj->statnum != 10 && sector[sj->sectnum].lotag != 2 && sj->picnum != SECTOREFFECTOR && sj->picnum != LOCATORS)
 			{
 				rotatepoint(s->x, s->y,
-					sprite[j].x, sprite[j].y, q,
-					&sprite[j].x, &sprite[j].y);
+					sj->x, sj->y, q,
+					&sj->x, &sj->y);
 
-				sprite[j].x += m;
-				sprite[j].y += x;
+				sj->x += m;
+				sj->y += x;
 
-				sprite[j].ang += q;
+				sj->ang += q;
 
 				if (numplayers > 1)
 				{
-					hittype[j].bposx = sprite[j].x;
-					hittype[j].bposy = sprite[j].y;
+					hittype[j].bposx = sj->x;
+					hittype[j].bposy = sj->y;
 				}
 			}
-			j = nextspritesect[j];
 		}
 
 		ms(i);
@@ -3017,15 +3016,16 @@ void handle_se30(int i, int JIBS6)
 				t[4] = 0;
 				fi.operateforcefields(i, s->hitag);
 
-				int j = headspritesect[s->sectnum];
-				while (j >= 0)
+				SectIterator it(s->sectnum);
+				int j;
+				while ((j = it.NextIndex()) >= 0)
 				{
-					if (sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+					auto sj = &sprite[j];
+					if (sj->picnum != SECTOREFFECTOR && sj->picnum != LOCATORS)
 					{
-						hittype[j].bposx = sprite[j].x;
-						hittype[j].bposy = sprite[j].y;
+						hittype[j].bposx = sj->x;
+						hittype[j].bposy = sj->y;
 					}
-					j = nextspritesect[j];
 				}
 
 			}
@@ -3130,17 +3130,17 @@ void handle_se30(int i, int JIBS6)
 						}
 					}
 
-			j = headspritesect[sprite[sprite[i].owner].sectnum];
-			while (j >= 0)
+			SectIterator it(sprite[sprite[i].owner].sectnum);
+			while ((j = it.NextIndex()) >= 0)
 			{
-				l = nextspritesect[j];
-				if (sprite[j].statnum == 1 && badguy(&sprite[j]) && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+				auto sj = &sprite[j];
+				if (sj->statnum == 1 && badguy(&sprite[j]) && sj->picnum != SECTOREFFECTOR && sj->picnum != LOCATORS)
 				{
-					//					if(sprite[j].sectnum != s->sectnum)
+					//					if(sj->sectnum != s->sectnum)
 					{
-						short k = sprite[j].sectnum;
-						updatesector(sprite[j].x, sprite[j].y, &k);
-						if (sprite[j].extra >= 0 && k == s->sectnum)
+						short k = sj->sectnum;
+						updatesector(sj->x, sj->y, &k);
+						if (sj->extra >= 0 && k == s->sectnum)
 						{
 							fi.gutsdir(&sprite[j], JIBS6, 24, myconnectindex);
 							S_PlayActorSound(SQUISHED, j);
@@ -3149,7 +3149,6 @@ void handle_se30(int i, int JIBS6)
 					}
 
 				}
-				j = l;
 			}
 		}
 	}
@@ -3216,18 +3215,17 @@ void handle_se02(int i)
 				ps[p].bobposy += x;
 			}
 
-		int j = headspritesect[s->sectnum];
-		while (j >= 0)
+		SectIterator it(s->sectnum);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
-			int nextj = nextspritesect[j];
-
-			if (sprite[j].picnum != SECTOREFFECTOR)
+			auto sj = &sprite[j];
+			if (sj->picnum != SECTOREFFECTOR)
 			{
-				sprite[j].x += m;
-				sprite[j].y += x;
-				setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+				sj->x += m;
+				sj->y += x;
+				setsprite(j, sj->x, sj->y, sj->z);
 			}
-			j = nextj;
 		}
 		ms(i);
 		setsprite(i, s->x, s->y, s->z);
@@ -3338,17 +3336,16 @@ void handle_se04(int i)
 		}
 	}
 
-	j = headspritesect[sprite[i].sectnum];
-	while (j >= 0)
+	SectIterator it(s->sectnum);
+	while ((j = it.NextIndex()) >= 0)
 	{
-		if (sprite[j].cstat & 16)
+		auto sj = &sprite[j];
+		if (sj->cstat & 16)
 		{
 			if (sc->ceilingstat & 1)
-				sprite[j].shade = sc->ceilingshade;
-			else sprite[j].shade = sc->floorshade;
+				sj->shade = sc->ceilingshade;
+			else sj->shade = sc->floorshade;
 		}
-
-		j = nextspritesect[j];
 	}
 
 	if (t[4])
@@ -3684,17 +3681,17 @@ void handle_se12(int i, int planeonly)
 		sc->ceilingshade = t[2];
 		t[0] = 0;
 
-		int j = headspritesect[sprite[i].sectnum];
-		while (j >= 0)
+		SectIterator it(s->sectnum);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
-			if (sprite[j].cstat & 16)
+			auto sj = &sprite[j];
+			if (sj->cstat & 16)
 			{
 				if (sc->ceilingstat & 1)
-					sprite[j].shade = sc->ceilingshade;
-				else sprite[j].shade = sc->floorshade;
+					sj->shade = sc->ceilingshade;
+				else sj->shade = sc->floorshade;
 			}
-			j = nextspritesect[j];
-
 		}
 
 		if (t[3] == 1)
@@ -3725,16 +3722,17 @@ void handle_se12(int i, int planeonly)
 		}
 		else t[0] = 2;
 
-		int j = headspritesect[sprite[i].sectnum];
-		while (j >= 0)
+		SectIterator it(s->sectnum);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
-			if (sprite[j].cstat & 16)
+			auto sj = &sprite[j];
+			if (sj->cstat & 16)
 			{
 				if (sc->ceilingstat & 1)
-					sprite[j].shade = sc->ceilingshade;
-				else sprite[j].shade = sc->floorshade;
+					sj->shade = sc->ceilingshade;
+				else sj->shade = sc->floorshade;
 			}
-			j = nextspritesect[j];
 		}
 	}
 }
@@ -3881,12 +3879,13 @@ void handle_se16(int i, int REACTOR, int REACTOR2)
 		//If there isn't, then kill this sectoreffector
 		//itself.....
 
-		int j = headspritesect[s->sectnum];
-		while (j >= 0)
+		SectIterator it(s->sectnum);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
-			if (sprite[j].picnum == REACTOR || sprite[j].picnum == REACTOR2)
+			auto sj = &sprite[j];
+			if (sj->picnum == REACTOR || sj->picnum == REACTOR2)
 				return;
-			j = nextspritesect[j];
 		}
 		if (j == -1)
 		{
@@ -3922,12 +3921,14 @@ void handle_se17(int i)
 	sc->ceilingz += q;
 	sc->floorz += q;
 
-	int j = headspritesect[s->sectnum];
-	while (j >= 0)
+	SectIterator it(s->sectnum);
+	int j;
+	while ((j = it.NextIndex()) >= 0)
 	{
-		if (sprite[j].statnum == 10 && sprite[j].owner >= 0)
+		auto sj = &sprite[j];
+		if (sj->statnum == 10 && sj->owner >= 0)
 		{
-			int p = sprite[j].yvel;
+			int p = sj->yvel;
 			if (numplayers < 2)
 				ps[p].oposz = ps[p].posz;
 			ps[p].posz += q;
@@ -3936,16 +3937,14 @@ void handle_se17(int i)
 			if (numplayers > 1)
 				ps[p].oposz = ps[p].posz;
 		}
-		if (sprite[j].statnum != 3)
+		if (sj->statnum != 3)
 		{
-			hittype[j].bposz = sprite[j].z;
-			sprite[j].z += q;
+			hittype[j].bposz = sj->z;
+			sj->z += q;
 		}
 
 		hittype[j].floorz = sc->floorz;
 		hittype[j].ceilingz = sc->ceilingz;
-
-		j = nextspritesect[j];
 	}
 
 	if (t[0]) //If in motion
@@ -3979,54 +3978,54 @@ void handle_se17(int i)
 
 		if (j == -1) return;
 
-		int k = headspritesect[s->sectnum];
-		while (k >= 0)
+		SectIterator its(s->sectnum);
+		int k;
+		while ((k = its.NextIndex()) >= 0)
 		{
-			int nextk = nextspritesect[k];
-
-			if (sprite[k].statnum == 10 && sprite[k].owner >= 0)
+			auto sk = &sprite[k];
+			auto htk = &hittype[k];
+			if (sk->statnum == 10 && sk->owner >= 0)
 			{
-				int p = sprite[k].yvel;
+				int p = sk->yvel;
 
 				ps[p].posx += sprite[j].x - s->x;
 				ps[p].posy += sprite[j].y - s->y;
 				ps[p].posz = sector[sprite[j].sectnum].floorz - (sc->floorz - ps[p].posz);
 
-				hittype[k].floorz = sector[sprite[j].sectnum].floorz;
-				hittype[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
+				htk->floorz = sector[sprite[j].sectnum].floorz;
+				htk->ceilingz = sector[sprite[j].sectnum].ceilingz;
 
 				ps[p].bobposx = ps[p].oposx = ps[p].posx;
 				ps[p].bobposy = ps[p].oposy = ps[p].posy;
 				ps[p].oposz = ps[p].posz;
 
-				ps[p].truefz = hittype[k].floorz;
-				ps[p].truecz = hittype[k].ceilingz;
+				ps[p].truefz = htk->floorz;
+				ps[p].truecz = htk->ceilingz;
 				ps[p].bobcounter = 0;
 
 				changespritesect(k, sprite[j].sectnum);
 				ps[p].cursectnum = sprite[j].sectnum;
 			}
-			else if (sprite[k].statnum != 3)
+			else if (sk->statnum != 3)
 			{
-				sprite[k].x +=
+				sk->x +=
 					sprite[j].x - s->x;
-				sprite[k].y +=
+				sk->y +=
 					sprite[j].y - s->y;
-				sprite[k].z = sector[sprite[j].sectnum].floorz -
-					(sc->floorz - sprite[k].z);
+				sk->z = sector[sprite[j].sectnum].floorz -
+					(sc->floorz - sk->z);
 
-				hittype[k].bposx = sprite[k].x;
-				hittype[k].bposy = sprite[k].y;
-				hittype[k].bposz = sprite[k].z;
+				htk->bposx = sk->x;
+				htk->bposy = sk->y;
+				htk->bposz = sk->z;
 
 				changespritesect(k, sprite[j].sectnum);
-				setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
+				setsprite(k, sk->x, sk->y, sk->z);
 
-				hittype[k].floorz = sector[sprite[j].sectnum].floorz;
-				hittype[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
+				htk->floorz = sector[sprite[j].sectnum].floorz;
+				htk->ceilingz = sector[sprite[j].sectnum].ceilingz;
 
 			}
-			k = nextk;
 		}
 	}
 }
@@ -4064,18 +4063,19 @@ void handle_se18(int i, bool morecheck)
 				sc->floorz += sc->extra;
 				if (morecheck)
 				{
-					int j = headspritesect[s->sectnum];
-					while (j >= 0)
+					SectIterator it(s->sectnum);
+					int j;
+					while ((j = it.NextIndex()) >= 0)
 					{
-						if (sprite[j].picnum == TILE_APLAYER && sprite[j].owner >= 0)
-							if (ps[sprite[j].yvel].on_ground == 1)
-								ps[sprite[j].yvel].posz += sc->extra;
-						if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
+						auto sj = &sprite[j];
+						if (sj->picnum == TILE_APLAYER && sj->owner >= 0)
+							if (ps[sj->yvel].on_ground == 1)
+								ps[sj->yvel].posz += sc->extra;
+						if (sj->zvel == 0 && sj->statnum != STAT_EFFECTOR && sj->statnum != STAT_PROJECTILE)
 						{
-							hittype[j].bposz = sprite[j].z += sc->extra;
+							hittype[j].bposz = sj->z += sc->extra;
 							hittype[j].floorz = sc->floorz;
 						}
-						j = nextspritesect[j];
 					}
 				}
 				if (sc->floorz >= t[1])
@@ -4103,18 +4103,19 @@ void handle_se18(int i, bool morecheck)
 				sc->floorz -= sc->extra;
 				if (morecheck)
 				{
-					int j = headspritesect[s->sectnum];
-					while (j >= 0)
+					SectIterator it(s->sectnum);
+					int j;
+					while ((j = it.NextIndex()) >= 0)
 					{
-						if (sprite[j].picnum == TILE_APLAYER && sprite[j].owner >= 0)
-							if (ps[sprite[j].yvel].on_ground == 1)
-								ps[sprite[j].yvel].posz -= sc->extra;
-						if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
+						auto sj = &sprite[j];
+						if (sj->picnum == TILE_APLAYER && sj->owner >= 0)
+							if (ps[sj->yvel].on_ground == 1)
+								ps[sj->yvel].posz -= sc->extra;
+						if (sj->zvel == 0 && sj->statnum != STAT_EFFECTOR && sj->statnum != STAT_PROJECTILE)
 						{
-							hittype[j].bposz = sprite[j].z -= sc->extra;
+							hittype[j].bposz = sj->z -= sc->extra;
 							hittype[j].floorz = sc->floorz;
 						}
-						j = nextspritesect[j];
 					}
 				}
 				if (sc->floorz <= s->z)
@@ -4280,21 +4281,20 @@ void handle_se20(int i)
 			return;
 		}
 
-		int j = headspritesect[s->sectnum];
-		while (j >= 0)
+		SectIterator it(s->sectnum);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
-			int nextj = nextspritesect[j];
-
-			if (sprite[j].statnum != 3 && sprite[j].zvel == 0)
+			auto sj = &sprite[j];
+			if (sj->statnum != 3 && sj->zvel == 0)
 			{
-				sprite[j].x += x;
-				sprite[j].y += l;
-				setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
-				if (sector[sprite[j].sectnum].floorstat & 2)
-					if (sprite[j].statnum == 2)
+				sj->x += x;
+				sj->y += l;
+				setsprite(j, sj->x, sj->y, sj->z);
+				if (sector[sj->sectnum].floorstat & 2)
+					if (sj->statnum == 2)
 						makeitfall(j);
 			}
-			j = nextj;
 		}
 
 		dragpoint((short)t[1], wall[t[1]].x + x, wall[t[1]].y + l);
@@ -4408,22 +4408,21 @@ void handle_se26(int i)
 	else
 		sc->floorz += s->zvel;
 
-	j = headspritesect[s->sectnum];
-	while (j >= 0)
+	SectIterator it(s->sectnum);
+	while ((j = it.NextIndex()) >= 0)
 	{
-		int nextj = nextspritesect[j];
-		if (sprite[j].statnum != 3 && sprite[j].statnum != 10)
+		auto sj = &sprite[j];
+		if (sj->statnum != 3 && sj->statnum != 10)
 		{
-			hittype[j].bposx = sprite[j].x;
-			hittype[j].bposy = sprite[j].y;
+			hittype[j].bposx = sj->x;
+			hittype[j].bposy = sj->y;
 
-			sprite[j].x += l;
-			sprite[j].y += x;
+			sj->x += l;
+			sj->y += x;
 
-			sprite[j].z += s->zvel;
-			setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+			sj->z += s->zvel;
+			setsprite(j, sj->x, sj->y, sj->z);
 		}
-		j = nextj;
 	}
 
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
