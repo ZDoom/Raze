@@ -206,21 +206,27 @@ bool D_AddFile(TArray<FString>& wadfiles, const char* file, bool check, int posi
 	}
 #ifdef __unix__
 	// Test case sensitively, pure lowercase and pure uppercase.
-	FString checks = file;
+	FString fullpath = file;
+	auto lastindex = fullpath.LastIndexOf("/");
+	FString basepath = fullpath.Left(lastindex);
+	FString filename = fullpath.Right(fullpath.Len() - lastindex - 1);
+
 	struct stat info;
-	bool res = stat(file, &info) == 0;
+	bool res = stat(fullpath, &info) == 0;
 	if (!res)
 	{
-		checks.ToLower();
-		res = stat(checks, &info) == 0;
+		filename.ToLower();
+		fullpath = basepath << "/" << filename;
+		res = stat(fullpath, &info) == 0;
 		if (!res)
 		{
-			checks.ToUpper();
-			res = stat(checks, &info) == 0;
-			if (!res) checks = file;
+			filename.ToUpper();
+			fullpath = basepath << "/" << filename;
+			res = stat(fullpath, &info) == 0;
+			if (!res) fullpath = file;
 		}
 	}
-	file = checks;
+	file = fullpath;
 #endif
 
 	if (check && !DirEntryExists(file))
