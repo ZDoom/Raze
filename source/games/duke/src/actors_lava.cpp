@@ -377,7 +377,6 @@ void moveminecart(void)
 	int speed;
 	int y;
 	int x;
-	short nextj;
 	int cx;
 	int cy;
 	int max_x;
@@ -514,13 +513,12 @@ void moveminecart(void)
 		}
 		cx = (max_x + min_x) >> 1;
 		cy = (max_y + min_y) >> 1;
-		j = headspritesect[csect];
-		while (j != -1)
+		SectIterator it(csect);
+		while ((j = it.NextIndex()) >= 0)
 		{
-			nextj = nextspritesect[j];
+			auto sj = &sprite[j];
 			if (badguy(&sprite[j]))
 				setsprite(j,cx,cy,sprite[j].z);
-			j = nextj;
 		}
 	}
 }

@@ -214,7 +214,7 @@ void hitradius_r(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 	walltype* wal;
 	int d, q, x1, y1;
 	int sectcnt, sectend, dasect, startwall, endwall, nextsect;
-	short j, p, x, nextj, sect;
+	short j, p, x, sect;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 	short tempshort[MAXSECTORS];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
 
@@ -272,10 +272,9 @@ SKIPWALLCHECK:
 
 	for (x = 0; x < 7; x++)
 	{
-		j = headspritestat[statlist[x]];
-		while (j >= 0)
+		StatIterator it1(statlist[x]);
+		while ((j = it1.NextIndex()) >= 0)
 		{
-			nextj = nextspritestat[j];
 			sj = &sprite[j];
 
 			if (x == 0 || x >= 5 || AFLAMABLE(sj->picnum))
@@ -285,7 +284,6 @@ SKIPWALLCHECK:
 					{
 						if (badguy(sj) && !cansee(sj->x, sj->y, sj->z + q, sj->sectnum, s->x, s->y, s->z + q, s->sectnum))
 						{
-							j = nextj;
 							continue;
 						}
 						fi.checkhitsprite(j, i);
@@ -295,12 +293,10 @@ SKIPWALLCHECK:
 			{
 				if (s->picnum == MORTER && j == s->owner)
 				{
-					j = nextj;
 					continue;
 				}
 				if ((isRRRA()) && s->picnum == CHEERBOMB && j == s->owner)
 				{
-					j = nextj;
 					continue;
 				}
 
@@ -312,7 +308,6 @@ SKIPWALLCHECK:
 				{
 					if ((isRRRA()) && sprite[j].picnum == MINION && sprite[j].pal == 19)
 					{
-						j = nextj;
 						continue;
 					}
 
@@ -369,7 +364,6 @@ SKIPWALLCHECK:
 					}
 				}
 			}
-			j = nextj;
 		}
 	}
 }
@@ -3497,7 +3491,7 @@ void moveexplosions_r(void)  // STATNUM 5
 void moveeffectors_r(void)   //STATNUM 3
 {
 	int l, x, st, j, * t;
-	int p, sh, nextj, ns, pn;
+	int p, sh, ns, pn;
 	short k;
 	spritetype* s;
 	sectortype* sc;
@@ -3571,10 +3565,9 @@ void moveeffectors_r(void)   //STATNUM 3
 			else
 			{
 				s->xvel = k;
-				j = headspritesect[s->sectnum];
-				while (j >= 0)
+				SectIterator it(s->sectnum);
+				while ((j = it.NextIndex()) >= 0)
 				{
-					nextj = nextspritesect[j];
 					if (sprite[j].picnum == UFOBEAM)
 						if (ufospawn)
 							if (++ufocnt == 64)
@@ -3604,7 +3597,6 @@ void moveeffectors_r(void)   //STATNUM 3
 								ns = fi.spawn(i, pn);
 								sprite[ns].z = sector[sprite[ns].sectnum].ceilingz;
 							}
-					j = nextj;
 				}
 			}
 
@@ -3627,7 +3619,6 @@ void moveeffectors_r(void)   //STATNUM 3
 					}
 					htj->temp_data[4] = t[4];
 				}
-				j = nextspritestat[j];
 			}
 			x = 0;
 		}
@@ -3726,67 +3717,65 @@ void moveeffectors_r(void)   //STATNUM 3
 			if (!isRRRA()) break;
 		case SE_24_CONVEYOR:
 		case 34:
-
+		{
 			if (t[4]) break;
 
-			x = (sprite[i].yvel  * sintable[(s->ang + 512) & 2047]) >> 18;
-			l = (sprite[i].yvel  * sintable[s->ang & 2047]) >> 18;
+			x = (sprite[i].yvel * sintable[(s->ang + 512) & 2047]) >> 18;
+			l = (sprite[i].yvel * sintable[s->ang & 2047]) >> 18;
 
 			k = 0;
 
-			j = headspritesect[s->sectnum];
-			while (j >= 0)
+			SectIterator it(s->sectnum);
+			while ((j = it.NextIndex()) >= 0)
 			{
-				nextj = nextspritesect[j];
-				if (sprite[j].zvel >= 0)
-					switch (sprite[j].statnum)
+				auto sj = &sprite[j];
+				if (sj->zvel >= 0)
+					switch (sj->statnum)
 					{
 					case 5:
-						switch (sprite[j].picnum)
+						switch (sj->picnum)
 						{
 						case BLOODPOOL:
 						case FOOTPRINTS:
 						case FOOTPRINTS2:
 						case FOOTPRINTS3:
-							sprite[j].xrepeat = sprite[j].yrepeat = 0;
+							sj->xrepeat = sj->yrepeat = 0;
 							k = 1;
 							break;
 						case BULLETHOLE:
-							j = nextj;
 							continue;
 						}
 					case 6:
 					case 1:
 					case 0:
 						if (
-							sprite[j].picnum == BOLT1 ||
-							sprite[j].picnum == BOLT1 + 1 ||
-							sprite[j].picnum == BOLT1 + 2 ||
-							sprite[j].picnum == BOLT1 + 3 ||
+							sj->picnum == BOLT1 ||
+							sj->picnum == BOLT1 + 1 ||
+							sj->picnum == BOLT1 + 2 ||
+							sj->picnum == BOLT1 + 3 ||
 							wallswitchcheck(j)
 							)
 							break;
 
-						if (!(sprite[j].picnum >= CRANE && sprite[j].picnum <= (CRANE + 3)))
+						if (!(sj->picnum >= CRANE && sj->picnum <= (CRANE + 3)))
 						{
-							if (sprite[j].z > (hittype[j].floorz - (16 << 8)))
+							if (sj->z > (hittype[j].floorz - (16 << 8)))
 							{
-								hittype[j].bposx = sprite[j].x;
-								hittype[j].bposy = sprite[j].y;
+								hittype[j].bposx = sj->x;
+								hittype[j].bposy = sj->y;
 
-								sprite[j].x += x >> 1;
-								sprite[j].y += l >> 1;
+								sj->x += x >> 1;
+								sj->y += l >> 1;
 
-								setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+								setsprite(j, sj->x, sj->y, sj->z);
 
-								if (sector[sprite[j].sectnum].floorstat & 2)
-									if (sprite[j].statnum == 2)
+								if (sector[sj->sectnum].floorstat & 2)
+									if (sj->statnum == 2)
 										makeitfall(j);
 							}
 						}
 						break;
 					}
-				j = nextj;
 			}
 
 			for (p = connecthead; p >= 0; p = connectpoint2[p])
@@ -3801,10 +3790,10 @@ void moveeffectors_r(void)   //STATNUM 3
 				}
 			}
 
-			sc->floorxpanning += sprite[i].yvel  >> 7;
+			sc->floorxpanning += sprite[i].yvel >> 7;
 
 			break;
-
+		}
 		case 35:
 			handle_se35(i, SMALLSMOKE, EXPLOSION2);
 			break;
@@ -3874,18 +3863,18 @@ void moveeffectors_r(void)   //STATNUM 3
 							l = sgn(s->z - sc->floorz) * sprite[i].yvel ;
 							sc->floorz += l;
 
-							j = headspritesect[s->sectnum];
-							while (j >= 0)
+							SectIterator it(s->sectnum);
+							while ((j = it.NextIndex()) >= 0)
 							{
-								if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-									if (ps[sprite[j].yvel].on_ground == 1)
-										ps[sprite[j].yvel].posz += l;
-								if (sprite[j].zvel == 0 && sprite[j].statnum != 3)
+								auto sj = &sprite[j];
+								if (sj->picnum == APLAYER && sj->owner >= 0)
+									if (ps[sj->yvel].on_ground == 1)
+										ps[sj->yvel].posz += l;
+								if (sj->zvel == 0 && sj->statnum != 3)
 								{
-									hittype[j].bposz = sprite[j].z += l;
+									hittype[j].bposz = sj->z += l;
 									hittype[j].floorz = sc->floorz;
 								}
-								j = nextspritesect[j];
 							}
 						}
 					}
@@ -3903,18 +3892,18 @@ void moveeffectors_r(void)   //STATNUM 3
 							l = sgn(t[1] - sc->floorz) * sprite[i].yvel ;
 							sc->floorz += l;
 
-							j = headspritesect[s->sectnum];
-							while (j >= 0)
+							SectIterator it(s->sectnum);
+							while ((j = it.NextIndex()) >= 0)
 							{
-								if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-									if (ps[sprite[j].yvel].on_ground == 1)
-										ps[sprite[j].yvel].posz += l;
-								if (sprite[j].zvel == 0 && sprite[j].statnum != 3)
+								auto sj = &sprite[j];
+								if (sj->picnum == APLAYER && sj->owner >= 0)
+									if (ps[sj->yvel].on_ground == 1)
+										ps[sj->yvel].posz += l;
+								if (sj->zvel == 0 && sj->statnum != 3)
 								{
-									hittype[j].bposz = sprite[j].z += l;
+									hittype[j].bposz = sj->z += l;
 									hittype[j].floorz = sc->floorz;
 								}
-								j = nextspritesect[j];
 							}
 						}
 					}
@@ -3934,18 +3923,18 @@ void moveeffectors_r(void)   //STATNUM 3
 						l = sgn(s->z - sc->floorz) * sprite[i].yvel ;
 						sc->floorz += l;
 
-						j = headspritesect[s->sectnum];
-						while (j >= 0)
+						SectIterator it(s->sectnum);
+						while ((j = it.NextIndex()) >= 0)
 						{
-							if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-								if (ps[sprite[j].yvel].on_ground == 1)
-									ps[sprite[j].yvel].posz += l;
-							if (sprite[j].zvel == 0 && sprite[j].statnum != 3)
+							auto sj = &sprite[j];
+							if (sj->picnum == APLAYER && sj->owner >= 0)
+								if (ps[sj->yvel].on_ground == 1)
+									ps[sj->yvel].posz += l;
+							if (sj->zvel == 0 && sj->statnum != 3)
 							{
-								hittype[j].bposz = sprite[j].z += l;
+								hittype[j].bposz = sj->z += l;
 								hittype[j].floorz = sc->floorz;
 							}
-							j = nextspritesect[j];
 						}
 					}
 				}
@@ -3962,18 +3951,18 @@ void moveeffectors_r(void)   //STATNUM 3
 						l = sgn(s->z - t[1]) * sprite[i].yvel ;
 						sc->floorz -= l;
 
-						j = headspritesect[s->sectnum];
-						while (j >= 0)
+						SectIterator it(s->sectnum);
+						while ((j = it.NextIndex()) >= 0)
 						{
-							if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-								if (ps[sprite[j].yvel].on_ground == 1)
-									ps[sprite[j].yvel].posz -= l;
-							if (sprite[j].zvel == 0 && sprite[j].statnum != 3)
+							auto sj = &sprite[j];
+							if (sj->picnum == APLAYER && sj->owner >= 0)
+								if (ps[sj->yvel].on_ground == 1)
+									ps[sj->yvel].posz -= l;
+							if (sj->zvel == 0 && sj->statnum != 3)
 							{
-								hittype[j].bposz = sprite[j].z -= l;
+								hittype[j].bposz = sj->z -= l;
 								hittype[j].floorz = sc->floorz;
 							}
-							j = nextspritesect[j];
 						}
 					}
 				}
@@ -4492,24 +4481,22 @@ void destroyit(int g_i)
 	int k, jj;
 	int wi, wj;
 	int spr;
-	int nextk;
 	int wallstart2, wallend2;
 	int sectnum;
 	int wallstart, wallend;
 
 	hitag = 0;
-	k = headspritesect[g_sp->sectnum];
-	while (k != -1)
+	SectIterator it1(g_sp->sectnum);
+	while ((k = it1.NextIndex()) >= 0)
 	{
-		nextk = nextspritesect[k];
-		if (sprite[k].picnum == RRTILE63)
+		auto sj = &sprite[k];
+		if (sj->picnum == RRTILE63)
 		{
-			lotag = sprite[k].lotag;
+			lotag = sj->lotag;
 			spr = k;
-			if (sprite[k].hitag)
-				hitag = sprite[k].hitag;
+			if (sj->hitag)
+				hitag = sj->hitag;
 		}
-		k = nextk;
 	}
 	StatIterator it(STAT_DESTRUCT);
 	while ((jj = it.NextIndex()) >= 0)
@@ -4518,16 +4505,14 @@ void destroyit(int g_i)
 		if (hitag)
 			if (hitag == js->hitag)
 			{
-				k = headspritesect[js->sectnum];
-				while (k != -1)
+				SectIterator it(js->sectnum);
+				while ((k = it.NextIndex()) >= 0)
 				{
-					nextk = nextspritesect[k];
 					if (sprite[k].picnum == DESTRUCTO)
 					{
 						hittype[k].picnum = SHOTSPARK1;
 						hittype[k].extra = 1;
 					}
-					k = nextk;
 				}
 			}
 		if (sprite[spr].sectnum != js->sectnum)
@@ -4576,10 +4561,9 @@ void destroyit(int g_i)
 				sector[sectnum].extra = sector[js->sectnum].extra;
 			}
 	}
-	k = headspritesect[g_sp->sectnum];
-	while (k != -1)
+	it1.Reset(g_sp->sectnum);
+	while ((k = it.NextIndex()) >= 0)
 	{
-		nextk = nextspritesect[k];
 		switch (sprite[k].picnum)
 		{
 		case DESTRUCTO:
@@ -4592,7 +4576,6 @@ void destroyit(int g_i)
 			deletesprite(k);
 			break;
 		}
-		k = nextk;
 	}
 }
 

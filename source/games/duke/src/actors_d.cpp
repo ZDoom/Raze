@@ -2651,8 +2651,8 @@ static void greenslime(int i)
 	//Check randomly to see of there is an actor near
 	if (rnd(32))
 	{
-		j = headspritesect[sect];
-		while (j >= 0)
+		SectIterator it(sect);
+		while ((j = it.NextIndex()) >= 0)
 		{
 			switch (sprite[j].picnum)
 			{
@@ -2668,8 +2668,6 @@ static void greenslime(int i)
 					return;
 				}
 			}
-
-			j = nextspritesect[j];
 		}
 	}
 
@@ -3527,7 +3525,7 @@ void moveexplosions_d(void)  // STATNUM 5
 void moveeffectors_d(void)   //STATNUM 3
 {
 	int q = 0, l, x, st, j, * t;
-	int p, sh, nextj;
+	int p, sh;
 	short k;
 	spritetype* s;
 	sectortype* sc;
@@ -3686,18 +3684,17 @@ void moveeffectors_d(void)   //STATNUM 3
 
 		case SE_24_CONVEYOR:
 		case 34:
-
+		{
 			if (t[4]) break;
 
-			x = (sprite[i].yvel  * sintable[(s->ang + 512) & 2047]) >> 18;
-			l = (sprite[i].yvel  * sintable[s->ang & 2047]) >> 18;
+			x = (sprite[i].yvel * sintable[(s->ang + 512) & 2047]) >> 18;
+			l = (sprite[i].yvel * sintable[s->ang & 2047]) >> 18;
 
 			k = 0;
 
-			j = headspritesect[s->sectnum];
-			while (j >= 0)
+			SectIterator it(s->sectnum);
+			while ((j = it.NextIndex()) >= 0)
 			{
-				nextj = nextspritesect[j];
 				auto sprj = &sprite[j];
 				if (sprj->zvel >= 0)
 					switch (sprj->statnum)
@@ -3717,10 +3714,8 @@ void moveeffectors_d(void)   //STATNUM 3
 						case BLOODSPLAT3:
 						case BLOODSPLAT4:
 							sprj->xrepeat = sprj->yrepeat = 0;
-							j = nextj;
 							continue;
 						case LASERLINE:
-							j = nextj;
 							continue;
 						}
 					case 6:
@@ -3759,7 +3754,6 @@ void moveeffectors_d(void)   //STATNUM 3
 						}
 						break;
 					}
-				j = nextj;
 			}
 
 			for (p = connecthead; p >= 0; p = connectpoint2[p])
@@ -3774,10 +3768,10 @@ void moveeffectors_d(void)   //STATNUM 3
 				}
 			}
 
-			sc->floorxpanning += sprite[i].yvel  >> 7;
+			sc->floorxpanning += sprite[i].yvel >> 7;
 
 			break;
-
+		}
 		case 35:
 			handle_se35(i, SMALLSMOKE, EXPLOSION2);
 			break;
@@ -3849,7 +3843,6 @@ void moveeffectors_d(void)   //STATNUM 3
 					{
 						if (sprite[j].picnum == NATURALLIGHTNING && sprite[j].hitag == s->hitag)
 							sprite[j].cstat |= 32768;
-						j = nextspritestat[j];
 					}
 				}
 				else if (hittype[i].temp_data[2] > (hittype[i].temp_data[1] >> 3) && hittype[i].temp_data[2] < (hittype[i].temp_data[1] >> 2))
@@ -3928,18 +3921,18 @@ void moveeffectors_d(void)   //STATNUM 3
 							l = sgn(s->z - sc->floorz) * sprite[i].yvel ;
 							sc->floorz += l;
 
-							j = headspritesect[s->sectnum];
-							while (j >= 0)
+							SectIterator it(s->sectnum);
+							while ((j = it.NextIndex()) >= 0)
 							{
-								if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-									if (ps[sprite[j].yvel].on_ground == 1)
-										ps[sprite[j].yvel].posz += l;
-								if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+								auto sj = &sprite[j];
+								if (sj->picnum == APLAYER && sj->owner >= 0)
+									if (ps[sj->yvel].on_ground == 1)
+										ps[sj->yvel].posz += l;
+								if (sj->zvel == 0 && sj->statnum != 3 && sj->statnum != 4)
 								{
-									hittype[j].bposz = sprite[j].z += l;
+									hittype[j].bposz = sj->z += l;
 									hittype[j].floorz = sc->floorz;
 								}
-								j = nextspritesect[j];
 							}
 						}
 					}
@@ -3958,18 +3951,18 @@ void moveeffectors_d(void)   //STATNUM 3
 							l = sgn(t[1] - sc->floorz) * sprite[i].yvel ;
 							sc->floorz += l;
 
-							j = headspritesect[s->sectnum];
-							while (j >= 0)
+							SectIterator it(s->sectnum);
+							while ((j = it.NextIndex()) >= 0)
 							{
-								if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-									if (ps[sprite[j].yvel].on_ground == 1)
-										ps[sprite[j].yvel].posz += l;
-								if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+								auto sj = &sprite[j];
+								if (sj->picnum == APLAYER && sj->owner >= 0)
+									if (ps[sj->yvel].on_ground == 1)
+										ps[sj->yvel].posz += l;
+								if (sj->zvel == 0 && sj->statnum != 3 && sj->statnum != 4)
 								{
-									hittype[j].bposz = sprite[j].z += l;
+									hittype[j].bposz = sj->z += l;
 									hittype[j].floorz = sc->floorz;
 								}
-								j = nextspritesect[j];
 							}
 						}
 					}
@@ -3990,18 +3983,18 @@ void moveeffectors_d(void)   //STATNUM 3
 						l = sgn(s->z - sc->floorz) * sprite[i].yvel ;
 						sc->floorz += l;
 
-						j = headspritesect[s->sectnum];
-						while (j >= 0)
+						SectIterator it(s->sectnum);
+						while ((j = it.NextIndex()) >= 0)
 						{
-							if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-								if (ps[sprite[j].yvel].on_ground == 1)
-									ps[sprite[j].yvel].posz += l;
-							if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+							auto sj = &sprite[j];
+							if (sj->picnum == APLAYER && sj->owner >= 0)
+								if (ps[sj->yvel].on_ground == 1)
+									ps[sj->yvel].posz += l;
+							if (sj->zvel == 0 && sj->statnum != 3 && sj->statnum != 4)
 							{
-								hittype[j].bposz = sprite[j].z += l;
+								hittype[j].bposz = sj->z += l;
 								hittype[j].floorz = sc->floorz;
 							}
-							j = nextspritesect[j];
 						}
 					}
 				}
@@ -4019,18 +4012,18 @@ void moveeffectors_d(void)   //STATNUM 3
 						l = sgn(s->z - t[1]) * sprite[i].yvel ;
 						sc->floorz -= l;
 
-						j = headspritesect[s->sectnum];
-						while (j >= 0)
+						SectIterator it(s->sectnum);
+						while ((j = it.NextIndex()) >= 0)
 						{
-							if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-								if (ps[sprite[j].yvel].on_ground == 1)
-									ps[sprite[j].yvel].posz -= l;
-							if (sprite[j].zvel == 0 && sprite[j].statnum != 3 && sprite[j].statnum != 4)
+							auto sj = &sprite[j];
+							if (sj->picnum == APLAYER && sj->owner >= 0)
+								if (ps[sj->yvel].on_ground == 1)
+									ps[sj->yvel].posz -= l;
+							if (sj->zvel == 0 && sj->statnum != 3 && sj->statnum != 4)
 							{
-								hittype[j].bposz = sprite[j].z -= l;
+								hittype[j].bposz = sj->z -= l;
 								hittype[j].floorz = sc->floorz;
 							}
-							j = nextspritesect[j];
 						}
 					}
 				}
