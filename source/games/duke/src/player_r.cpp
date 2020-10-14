@@ -1718,7 +1718,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		}
 	}
 
-	int horiz = 0;
+	double horiz = 0;
 	if (p->TurbCount)
 	{
 		if (p->TurbCount <= 1)
@@ -1743,7 +1743,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow / 3;
+		horiz = p->VBumpNow / 3.;
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -1753,7 +1753,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow / 3;
+		horiz = p->VBumpNow / 3.;
 	}
 	else
 	{
@@ -2047,7 +2047,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		}
 	}
 
-	int horiz = 0;
+	double horiz = 0;
 	if (p->TurbCount)
 	{
 		if (p->TurbCount <= 1)
@@ -2072,7 +2072,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow / 3;
+		horiz = p->VBumpNow / 3.;
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -2082,7 +2082,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow / 3;
+		horiz = p->VBumpNow / 3.;
 	}
 	else
 	{
