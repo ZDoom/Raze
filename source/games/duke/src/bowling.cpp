@@ -37,34 +37,26 @@ short pinsectorresetdown(short sect);
 
 void ballreturn(short spr)
 {
-	short j, i, nexti, nextj;
-	i = headspritestat[105];
-	while (i >= 0)
+	int j, i;
+	StatIterator it(STAT_BOWLING);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
-		if (sprite[i].picnum == RRTILE281)
-			if (sprite[spr].sectnum == sprite[i].sectnum)
+		auto si = &sprite[i];
+		if (si->picnum == RRTILE281 && sprite[spr].sectnum == si->sectnum)
 		{
-			j = headspritestat[105];
-			while (j >= 0)
+			StatIterator it2(STAT_BOWLING);
+			while ((j = it2.NextIndex()) >= 0)
 			{
-				nextj = nextspritestat[j];
-				if (sprite[j].picnum == RRTILE282)
-					if (sprite[i].hitag == sprite[j].hitag)
+				auto sj = &sprite[j];
+				if (sj->picnum == RRTILE282 && si->hitag == sj->hitag)
 					fi.spawn(j, BOWLINGBALLSPRITE);
-				if (sprite[j].picnum == RRTILE280)
-					if (sprite[i].hitag == sprite[j].hitag)
-						if (sprite[j].lotag == 0)
+				if (sj->picnum == RRTILE280 && si->hitag == sj->hitag && sj->lotag == 0)
 				{
-					sprite[j].lotag = 100;
-					sprite[j].extra++;
-					pinsectorresetdown(sprite[j].sectnum);
+					sj->lotag = 100;
+					sj->extra++;
 				}
-				j = nextj;
 			}
 		}
-
-		i = nexti;
 	}
 }
 

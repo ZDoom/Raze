@@ -346,22 +346,25 @@ int aim(spritetype* s, int aang)
 	{
 		if (j >= 0)
 			break;
-		for (i = headspritestat[aimstats[k]]; i >= 0; i = nextspritestat[i])
-			if (sprite[i].xrepeat > 0 && sprite[i].extra >= 0 && (sprite[i].cstat & (257 + 32768)) == 257)
-				if (badguy(&sprite[i]) || k < 2)
+
+		StatIterator it(aimstats[k]);
+		while ((i = it.NextIndex()) >= 0)
+		{
+			auto sp = &sprite[i];
+			if (sp->xrepeat > 0 && sp->extra >= 0 && (sp->cstat & (257 + 32768)) == 257)
+				if (badguy(sp) || k < 2)
 				{
-					auto sp = &sprite[i];
-					if (badguy(&sprite[i]) || sp->picnum == TILE_APLAYER)
+					if (badguy(sp) || sp->picnum == TILE_APLAYER)
 					{
 						if (sp->picnum == TILE_APLAYER &&
 							(isRR() && ud.ffire == 0) &&
 							ud.coop == 1 &&
 							s->picnum == TILE_APLAYER &&
-							s != &sprite[i])
+							s != sp)
 							continue;
 
-						if (gotshrinker && sprite[i].xrepeat < 30 && !(actorinfo[sp->picnum].flags & SFLAG_SHRINKAUTOAIM)) continue;
-						if (gotfreezer && sprite[i].pal == 1) continue;
+						if (gotshrinker && sp->xrepeat < 30 && !(actorinfo[sp->picnum].flags & SFLAG_SHRINKAUTOAIM)) continue;
+						if (gotfreezer && sp->pal == 1) continue;
 					}
 
 					xv = (sp->x - s->x);
@@ -387,6 +390,7 @@ int aim(spritetype* s, int aang)
 							}
 						}
 				}
+		}
 	}
 
 	return j;

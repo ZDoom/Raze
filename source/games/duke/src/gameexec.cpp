@@ -2070,12 +2070,11 @@ int ParseState::parse(void)
 			updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
 			setpal(&ps[g_p]);
 
-			j = headspritestat[1];
-			while (j >= 0)
+			StatIterator it(STAT_ACTOR);
+			while ((j = it.NextIndex()) >= 0)
 			{
 				if (sprite[j].picnum == TILE_CAMERA1)
 					sprite[j].yvel = 0;
-				j = nextspritestat[j];
 			}
 		}
 
@@ -2934,8 +2933,8 @@ int ParseState::parse(void)
 		lFound = -1;
 		lDist = 32767;	// big number
 
-		j = headspritestat[1];	// all sprites
-		while (j >= 0)
+		StatIterator it(STAT_ACTOR);
+		while ((j = it.NextIndex()) >= 0)
 		{
 			if (sprite[j].picnum == lType)
 			{
@@ -2949,7 +2948,6 @@ int ParseState::parse(void)
 				}
 
 			}
-			j = nextspritestat[j];
 		}
 		SetGameVarID(lVarID, lFound, g_i, g_p);
 
@@ -2980,8 +2978,8 @@ int ParseState::parse(void)
 		lFound = -1;
 		lDist = 32767;	// big number
 
-		j = headspritestat[1];	// all sprites
-		while (j >= 0)
+		StatIterator it(STAT_ACTOR);
+		while ((j = it.NextIndex()) >= 0)
 		{
 			if (sprite[j].picnum == lType)
 			{
@@ -2995,7 +2993,6 @@ int ParseState::parse(void)
 				}
 
 			}
-			j = nextspritestat[j];
 		}
 		SetGameVarID(lVarID, lFound, g_i, g_p);
 

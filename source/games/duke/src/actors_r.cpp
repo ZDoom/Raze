@@ -2571,7 +2571,7 @@ void rr_specialstats()
 		}
 	}
 
-	it.Reset(105);
+	it.Reset(STAT_BOWLING);
 	while ((i = it.NextIndex()) >= 0)
 	{
 		auto s = &sprite[i];

@@ -270,43 +270,42 @@ void cacheit_d(void)
 
 void prelevel_d(int g)
 {
-	short i, nexti, j, startwall, endwall, lotaglist;
+	short i, j, startwall, endwall, lotaglist;
 	short lotags[65];
 
 	prelevel_common(g);
 
-	i = headspritestat[0];
-	while (i >= 0)
+	StatIterator it(STAT_DEFAULT);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
+		auto si = &sprite[i];
 		LoadActor(i, -1, -1);
 
-		if (sprite[i].lotag == -1 && (sprite[i].cstat & 16))
+		if (si->lotag == -1 && (si->cstat & 16))
 		{
-			ps[0].exitx = sprite[i].x;
-			ps[0].exity = sprite[i].y;
+			ps[0].exitx = si->x;
+			ps[0].exity = si->y;
 		}
-		else switch (sprite[i].picnum)
+		else switch (si->picnum)
 		{
 		case GPSPEED:
-			sector[sprite[i].sectnum].extra = sprite[i].lotag;
+			sector[si->sectnum].extra = si->lotag;
 			deletesprite(i);
 			break;
 
 		case CYCLER:
 			if (numcyclers >= MAXCYCLERS)
 				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers][0] = sprite[i].sectnum;
-			cyclers[numcyclers][1] = sprite[i].lotag;
-			cyclers[numcyclers][2] = sprite[i].shade;
-			cyclers[numcyclers][3] = sector[sprite[i].sectnum].floorshade;
-			cyclers[numcyclers][4] = sprite[i].hitag;
-			cyclers[numcyclers][5] = (sprite[i].ang == 1536);
+			cyclers[numcyclers][0] = si->sectnum;
+			cyclers[numcyclers][1] = si->lotag;
+			cyclers[numcyclers][2] = si->shade;
+			cyclers[numcyclers][3] = sector[si->sectnum].floorshade;
+			cyclers[numcyclers][4] = si->hitag;
+			cyclers[numcyclers][5] = (si->ang == 1536);
 			numcyclers++;
 			deletesprite(i);
 			break;
 		}
-		i = nexti;
 	}
 
 	for (i = 0; i < MAXSPRITES; i++)
@@ -328,8 +327,8 @@ void prelevel_d(int g)
 
 	lotaglist = 0;
 
-	i = headspritestat[0];
-	while (i >= 0)
+	it.Reset(STAT_DEFAULT);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		switch (sprite[i].picnum)
 		{
@@ -357,17 +356,15 @@ void prelevel_d(int g)
 				if (lotaglist > 64)
 					I_Error("Too many switches (64 max).");
 
-				j = headspritestat[3];
-				while (j >= 0)
+				StatIterator it1(STAT_EFFECTOR);
+				while ((j = it1.NextIndex()) >= 0)
 				{
 					if (sprite[j].lotag == 12 && sprite[j].hitag == sprite[i].lotag)
 						hittype[j].temp_data[0] = 1;
-					j = nextspritestat[j];
 				}
 			}
 			break;
 		}
-		i = nextspritestat[i];
 	}
 
 	mirrorcnt = 0;

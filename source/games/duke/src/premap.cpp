@@ -501,7 +501,7 @@ void resetprestat(int snum,int g)
 void resetpspritevars(int g)
 {
     int i, j;
-    short nexti, circ;
+    short circ;
     int firstx, firsty;
     spritetype* s;
     int aimmode[MAXPLAYERS], autoaim[MAXPLAYERS];
@@ -571,10 +571,9 @@ void resetpspritevars(int g)
 
     which_palookup = 9;
     j = connecthead;
-    i = headspritestat[STAT_PLAYER];
-    while (i >= 0)
+    StatIterator it(STAT_PLAYER);
+    while ((i = it.NextIndex()) >= 0)
     {
-        nexti = nextspritestat[i];
         s = &sprite[i];
 
         if (numplayersprites == MAXPLAYERS)
@@ -641,7 +640,6 @@ void resetpspritevars(int g)
 
         }
         else deletesprite(i);
-        i = nexti;
     }
 }
 

@@ -446,7 +446,6 @@ void prelevel_r(int g)
 {
 	struct player_struct* p;
 	short i;
-	short nexti;
 	short j;
 	short startwall;
 	short endwall;
@@ -554,37 +553,37 @@ void prelevel_r(int g)
 		}
 	}
 
-	i = headspritestat[0];
-	while (i >= 0)
+	StatIterator it(STAT_DEFAULT);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
+		auto si = &sprite[i];
 		LoadActor(i, -1, -1);
 
-		if (sprite[i].lotag == -1 && (sprite[i].cstat & 16))
+		if (si->lotag == -1 && (si->cstat & 16))
 		{
-			ps[0].exitx = sprite[i].x;
-			ps[0].exity = sprite[i].y;
+			ps[0].exitx = si->x;
+			ps[0].exity = si->y;
 		}
-		else switch (sprite[i].picnum)
+		else switch (si->picnum)
 		{
 		case NUKEBUTTON:
 			chickenplant = 1;
 			break;
 
 		case GPSPEED:
-			sector[sprite[i].sectnum].extra = sprite[i].lotag;
+			sector[si->sectnum].extra = si->lotag;
 			deletesprite(i);
 			break;
 
 		case CYCLER:
 			if (numcyclers >= MAXCYCLERS)
 				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers][0] = sprite[i].sectnum;
-			cyclers[numcyclers][1] = sprite[i].lotag;
-			cyclers[numcyclers][2] = sprite[i].shade;
-			cyclers[numcyclers][3] = sector[sprite[i].sectnum].floorshade;
-			cyclers[numcyclers][4] = sprite[i].hitag;
-			cyclers[numcyclers][5] = (sprite[i].ang == 1536);
+			cyclers[numcyclers][0] = si->sectnum;
+			cyclers[numcyclers][1] = si->lotag;
+			cyclers[numcyclers][2] = si->shade;
+			cyclers[numcyclers][3] = sector[si->sectnum].floorshade;
+			cyclers[numcyclers][4] = si->hitag;
+			cyclers[numcyclers][5] = (si->ang == 1536);
 			numcyclers++;
 			deletesprite(i);
 			break;
@@ -600,12 +599,12 @@ void prelevel_r(int g)
 			break;
 
 		case RRTILE68:
-			shadedsector[sprite[i].sectnum] = 1;
+			shadedsector[si->sectnum] = 1;
 			deletesprite(i);
 			break;
 
 		case RRTILE67:
-			sprite[i].cstat |= 32768;
+			si->cstat |= 32768;
 			break;
 
 		case SOUNDFX:
@@ -613,16 +612,15 @@ void prelevel_r(int g)
 				I_Error("Too many ambient effects");
 			else
 			{
-				ambienthitag[ambientfx] = sprite[i].hitag;
-				ambientlotag[ambientfx] = sprite[i].lotag;
-				sprite[i].ang = ambientfx;
+				ambienthitag[ambientfx] = si->hitag;
+				ambientlotag[ambientfx] = si->lotag;
+				si->ang = ambientfx;
 				ambientfx++;
-				sprite[i].lotag = 0;
-				sprite[i].hitag = 0;
+				si->lotag = 0;
+				si->hitag = 0;
 			}
 			break;
 		}
-		i = nexti;
 	}
 
 	for (i = 0; i < MAXSPRITES; i++)
@@ -687,8 +685,8 @@ void prelevel_r(int g)
 
 	lotaglist = 0;
 
-	i = headspritestat[0];
-	while (i >= 0)
+	it.Reset(STAT_DEFAULT);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		switch (sprite[i].picnum)
 		{
@@ -721,17 +719,15 @@ void prelevel_r(int g)
 				if (lotaglist > 64)
 					I_Error("Too many switches (64 max).");
 
-				j = headspritestat[3];
-				while (j >= 0)
+				StatIterator it1(STAT_EFFECTOR);
+				while ((j = it1.NextIndex()) >= 0)
 				{
 					if (sprite[j].lotag == 12 && sprite[j].hitag == sprite[i].lotag)
 						hittype[j].temp_data[0] = 1;
-					j = nextspritestat[j];
 				}
 			}
 			break;
 		}
-		i = nextspritestat[i];
 	}
 
 	mirrorcnt = 0;

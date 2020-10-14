@@ -175,8 +175,8 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 	else if (isRRRA()) tag = 150;
 	else return;
 
-	i = headspritestat[STAT_RAROR];
-	while (i >= 0)
+	StatIterator it(STAT_RAROR);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		switch (sprite[i].lotag - tag + 40)
 		{
@@ -192,7 +192,6 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 				SE40_Draw(tag, i, x, y, z, a, h, smoothratio);
 			break;
 		}
-		i = nextspritestat[i];
 	}
 }
 

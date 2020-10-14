@@ -43,8 +43,9 @@ static void recreateinterpolations()
 {
 	numinterpolations = 0;
 
-	int k = headspritestat[STAT_EFFECTOR];
-	while (k >= 0)
+	int k;
+	StatIterator it(STAT_EFFECTOR);
+	while ((k = it.NextIndex()) >= 0)
 	{
 		switch (sprite[k].lotag)
 		{
@@ -71,8 +72,6 @@ static void recreateinterpolations()
 			setsectinterpolate(k);
 			break;
 		}
-
-		k = nextspritestat[k];
 	}
 
 	for (int i = numinterpolations - 1; i >= 0; i--) bakipos[i] = *curipos[i];
@@ -500,20 +499,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			show_shareware = 0;
 			everyothertime = 0;
 
-			// should be unnecessary with the sounds getting serialized as well.
-			#if 0
-			if (ps[myconnectindex].jetpack_on)
-				spritesound(DUKE_JETPACK_IDLE, ps[myconnectindex].i);
-
-				// Update sound state in SFX sprites.
-			for (int i = headspritestat[STAT_FX]; i >= 0; i = nextspritestat[i])
-				if (sprite[i].picnum == MUSICANDSFX)
-				{
-					hittype[i].temp_data[1] = SoundEnabled();
-					hittype[i].temp_data[0] = 0;
-				}
-
-			#endif
 			FX_SetReverb(0);
 
 		}

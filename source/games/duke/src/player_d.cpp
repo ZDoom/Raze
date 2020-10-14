@@ -594,13 +594,12 @@ void shoot_d(int i, int atwith)
 									}
 								}
 
-								l = headspritestat[5];
-								while (l >= 0)
+								StatIterator it(STAT_MISC);
+								while ((l = it.NextIndex()) >= 0)
 								{
 									if (sprite[l].picnum == BULLETHOLE)
 										if (dist(&sprite[l], &sprite[k]) < (12 + (krand() & 7)))
 											goto SKIPBULLETHOLE;
-									l = nextspritestat[l];
 								}
 								l = fi.spawn(k, BULLETHOLE);
 								sprite[l].xvel = -1;
@@ -1232,8 +1231,8 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 
 			if (j == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
 			{
-				k = headspritestat[1];
-				while (k >= 0)
+				StatIterator it(STAT_ACTOR);
+				while ((k = it.NextIndex()) >= 0)
 				{
 					if (sprite[k].picnum == HEAVYHBOMB && sprite[k].owner == p->i)
 					{
@@ -1241,7 +1240,6 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 						j = HANDREMOTE_WEAPON;
 						break;
 					}
-					k = nextspritestat[k];
 				}
 			}
 

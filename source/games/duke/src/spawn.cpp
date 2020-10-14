@@ -491,30 +491,31 @@ void initcrane(int j, int i, int CRANEPOLE)
 	msy[tempwallptr] = sp->y;
 	msx[tempwallptr + 2] = sp->z;
 
-	int s = headspritestat[0];
-	while (s >= 0)
+	int s;
+	StatIterator it(STAT_DEFAULT);
+	while ((s = it.NextIndex()) >= 0)
 	{
-		if (sprite[s].picnum == CRANEPOLE && sp->hitag == (sprite[s].hitag))
+		auto ss = &sprite[s];
+		if (ss->picnum == CRANEPOLE && sp->hitag == (ss->hitag))
 		{
 			msy[tempwallptr + 2] = s;
 
-			t[1] = sprite[s].sectnum;
+			t[1] = ss->sectnum;
 
-			sprite[s].xrepeat = 48;
-			sprite[s].yrepeat = 128;
+			ss->xrepeat = 48;
+			ss->yrepeat = 128;
 
-			msx[tempwallptr + 1] = sprite[s].x;
-			msy[tempwallptr + 1] = sprite[s].y;
+			msx[tempwallptr + 1] = ss->x;
+			msy[tempwallptr + 1] = ss->y;
 
-			sprite[s].x = sp->x;
-			sprite[s].y = sp->y;
-			sprite[s].z = sp->z;
-			sprite[s].shade = sp->shade;
+			ss->x = sp->x;
+			ss->y = sp->y;
+			ss->z = sp->z;
+			ss->shade = sp->shade;
 
-			setsprite(s, sprite[s].x, sprite[s].y, sprite[s].z);
+			setsprite(s, ss->x, ss->y, ss->z);
 			break;
 		}
-		s = nextspritestat[s];
 	}
 
 	tempwallptr += 3;
