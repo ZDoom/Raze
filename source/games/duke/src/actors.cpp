@@ -207,12 +207,12 @@ void clearcamera(player_struct* ps)
 	updatesector(ps->posx, ps->posy, &ps->cursectnum);
 	setpal(ps);
 
-	int k = headspritestat[STAT_ACTOR];
-	while (k >= 0)
+	StatIterator it(STAT_ACTOR);
+	int k;
+	while ((k = it.NextIndex()) >= 0)
 	{
 		if (sprite[k].picnum == TILE_CAMERA1)
 			sprite[k].yvel = 0;
-		k = nextspritestat[k];
 	}
 }
 
@@ -1184,15 +1184,15 @@ void movetouchplate(int i, int plate)
 
 	if (t[1] == 1)
 	{
-		int j = headspritestat[STAT_STANDABLE];
-		while (j >= 0)
+		StatIterator it(STAT_STANDABLE);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
 			if (j != i && sprite[j].picnum == plate && sprite[j].lotag == s->lotag)
 			{
 				hittype[j].temp_data[1] = 1;
 				hittype[j].temp_data[3] = t[3];
 			}
-			j = nextspritestat[j];
 		}
 	}
 }
@@ -1221,12 +1221,13 @@ void moveooz(int i, int seenine, int seeninedead, int ooz, int explosion)
 
 			t[3] = 1;
 
-			j = headspritestat[STAT_STANDABLE];
-			while (j >= 0)
+			StatIterator it(STAT_STANDABLE);
+			int j;
+			while ((j = it.NextIndex()) >= 0)
 			{
-				if (s->hitag == sprite[j].hitag && (sprite[j].picnum == seenine || sprite[j].picnum == ooz))
-					sprite[j].shade = -32;
-				j = nextspritestat[j];
+				auto ss = &sprite[j];
+				if (s->hitag == ss->hitag && (ss->picnum == seenine || ss->picnum == ooz))
+					ss->shade = -32;
 			}
 		}
 	}
@@ -1458,19 +1459,17 @@ bool rat(int i, bool makesound)
 bool queball(int i, int pocket, int queball, int stripeball)
 {
 	spritetype* s = &sprite[i];
-	int j, nextj;
 	if (s->xvel)
 	{
-		j = headspritestat[STAT_DEFAULT];
-		while (j >= 0)
+		StatIterator it(STAT_DEFAULT);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
-			nextj = nextspritestat[j];
 			if (sprite[j].picnum == pocket && ldist(&sprite[j], s) < 52)
 			{
 				deletesprite(i);
 				return false;
 			}
-			j = nextj;
 		}
 
 		j = clipmove(&s->x, &s->y, &s->z, &s->sectnum,
@@ -1513,24 +1512,25 @@ bool queball(int i, int pocket, int queball, int stripeball)
 
 			//						if(s->pal == 12)
 			{
-				j = getincangle(ps[p].angle.ang.asbuild(), getangle(s->x - ps[p].posx, s->y - ps[p].posy));
+				int j = getincangle(ps[p].angle.ang.asbuild(), getangle(s->x - ps[p].posx, s->y - ps[p].posy));
 				if (j > -64 && j < 64 && PlayerInput(p, SB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{
-						int a = headspritestat[STAT_ACTOR];
-						while (a >= 0)
+						StatIterator it(STAT_ACTOR);
+						int a;
+						while ((a = it.NextIndex()) >= 0)
 						{
-							if (sprite[a].picnum == queball || sprite[a].picnum == stripeball)
+							auto sa = &sprite[a];
+							if (sa->picnum == queball || sa->picnum == stripeball)
 							{
-								j = getincangle(ps[p].angle.ang.asbuild(), getangle(sprite[a].x - ps[p].posx, sprite[a].y - ps[p].posy));
+								j = getincangle(ps[p].angle.ang.asbuild(), getangle(sa->x - ps[p].posx, sa->y - ps[p].posy));
 								if (j > -64 && j < 64)
 								{
 									int l;
-									findplayer(&sprite[a], &l);
+									findplayer(sa, &l);
 									if (x > l) break;
 								}
 							}
-							a = nextspritestat[a];
 						}
 						if (a == -1)
 						{
@@ -1595,12 +1595,12 @@ void forcesphere(int i, int forcesphere)
 		}
 		else if (t[2] > 10)
 		{
-			int j = headspritestat[STAT_MISC];
-			while (j >= 0)
+			StatIterator it(STAT_MISC);
+			int j;
+			while ((j = it.NextIndex()) >= 0)
 			{
 				if (sprite[j].owner == i && sprite[j].picnum == forcesphere)
 					hittype[j].temp_data[1] = 1 + (krand() & 63);
-				j = nextspritestat[j];
 			}
 			t[3] = 64;
 		}
@@ -1906,23 +1906,25 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 		switch (t[1])
 		{
 		case 3:
+		{
 			//Turn on all of those flashing sectoreffector.
 			fi.hitradius(i, 4096,
 				impact_damage << 2,
 				impact_damage << 2,
 				impact_damage << 2,
 				impact_damage << 2);
-			j = headspritestat[STAT_STANDABLE];
-			while (j >= 0)
+			StatIterator it(STAT_STANDABLE);
+			int j;
+			while ((j = it.NextIndex()) >= 0)
 			{
-				if (sprite[j].picnum == MASTERSWITCH)
-					if (sprite[j].hitag == s->hitag)
-						if (sprite[j].yvel == 0)
-							sprite[j].yvel = 1;
-				j = nextspritestat[j];
+				auto sj = &sprite[j];
+				if (sj->picnum == MASTERSWITCH)
+					if (sj->hitag == s->hitag)
+						if (sj->yvel == 0)
+							sj->yvel = 1;
 			}
 			break;
-
+		}
 		case 4:
 		case 7:
 		case 10:
@@ -2183,8 +2185,9 @@ bool money(int i, int BLOODPOOL)
 		insertspriteq(i);
 		sprite[i].picnum++;
 
-		int j = headspritestat[STAT_MISC];
-		while (j >= 0)
+		StatIterator it(STAT_MISC);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
 			if (sprite[j].picnum == BLOODPOOL)
 				if (ldist(s, &sprite[j]) < 348)
@@ -2192,7 +2195,6 @@ bool money(int i, int BLOODPOOL)
 					s->pal = 2;
 					break;
 				}
-			j = nextspritestat[j];
 		}
 	}
 	return true;
@@ -3488,17 +3490,19 @@ void handle_se08(int i, bool checkhitag1)
 
 		if (st == 9) x = -x;
 
-		j = headspritestat[STAT_EFFECTOR];
-		while (j >= 0)
+		StatIterator it(STAT_EFFECTOR);
+		while ((j = it.NextIndex()) >= 0)
 		{
-			if (((sprite[j].lotag) == st) && (sprite[j].hitag) == sh)
+			auto sj = &sprite[j];
+			if (((sj->lotag) == st) && (sj->hitag) == sh)
 			{
-				sn = sprite[j].sectnum;
-				int m = sprite[j].shade;
+				sn = sj->sectnum;
+				auto sect = &sector[sn];
+				int m = sj->shade;
 
-				auto wal = &wall[sector[sn].wallptr];
+				auto wal = &wall[sect->wallptr];
 
-				for (int l = sector[sn].wallnum; l > 0; l--, wal++)
+				for (int l = sect->wallnum; l > 0; l--, wal++)
 				{
 					if (wal->hitag != 1)
 					{
@@ -3515,24 +3519,23 @@ void handle_se08(int i, bool checkhitag1)
 					}
 				}
 
-				sector[sn].floorshade += x;
-				sector[sn].ceilingshade += x;
+				sect->floorshade += x;
+				sect->ceilingshade += x;
 
-				if (sector[sn].floorshade < m)
-					sector[sn].floorshade = m;
-				else if (sector[sn].floorshade > hittype[j].temp_data[0])
-					sector[sn].floorshade = hittype[j].temp_data[0];
+				if (sect->floorshade < m)
+					sect->floorshade = m;
+				else if (sect->floorshade > hittype[j].temp_data[0])
+					sect->floorshade = hittype[j].temp_data[0];
 
-				if (sector[sn].ceilingshade < m)
-					sector[sn].ceilingshade = m;
-				else if (sector[sn].ceilingshade > hittype[j].temp_data[1])
-					sector[sn].ceilingshade = hittype[j].temp_data[1];
+				if (sect->ceilingshade < m)
+					sect->ceilingshade = m;
+				else if (sect->ceilingshade > hittype[j].temp_data[1])
+					sect->ceilingshade = hittype[j].temp_data[1];
 
-				if (checkhitag1 && sector[sn].hitag == 1)
-					sector[sn].ceilingshade = hittype[j].temp_data[1];
+				if (checkhitag1 && sect->hitag == 1)
+					sect->ceilingshade = hittype[j].temp_data[1];
 
 			}
-			j = nextspritestat[j];
 		}
 	}
 }
@@ -3609,32 +3612,33 @@ void handle_se11(int i)
 
 		for (int j = startwall; j < endwall; j++)
 		{
-			int k = headspritestat[STAT_ACTOR];
-			while (k >= 0)
+			StatIterator it(STAT_ACTOR);
+			int k;
+			while ((k = it.NextIndex()) >= 0)
 			{
-				if (sprite[k].extra > 0 && badguy(&sprite[k]) && clipinsidebox(sprite[k].x, sprite[k].y, j, 256L) == 1)
+				auto sk = &sprite[k];
+				if (sk->extra > 0 && badguy(&sprite[k]) && clipinsidebox(sk->x, sk->y, j, 256L) == 1)
 					return;
-				k = nextspritestat[k];
 			}
 
-			k = headspritestat[STAT_PLAYER];
-			while (k >= 0)
+			it.Reset(STAT_PLAYER);
+			while ((k = it.NextIndex()) >= 0)
 			{
-				if (sprite[k].owner >= 0 && clipinsidebox(sprite[k].x, sprite[k].y, j, 144L) == 1)
+				auto sk = &sprite[k];
+				if (sk->owner >= 0 && clipinsidebox(sk->x, sk->y, j, 144L) == 1)
 				{
 					t[5] = 8; // Delay
-					k = (sprite[i].yvel >> 3) * t[3];
+					k = (s->yvel >> 3) * t[3];
 					t[2] -= k;
 					t[4] -= k;
 					ms(i);
 					setsprite(i, s->x, s->y, s->z);
 					return;
 				}
-				k = nextspritestat[k];
 			}
 		}
 
-		int k = (sprite[i].yvel >> 3) * t[3];
+		int k = (s->yvel >> 3) * t[3];
 		t[2] += k;
 		t[4] += k;
 		ms(i);
@@ -3962,15 +3966,15 @@ void handle_se17(int i)
 		if (t[1] == 0) return;
 		t[1] = 0;
 
-		int j = headspritestat[STAT_EFFECTOR];
-		while (j >= 0)
+		StatIterator it(STAT_EFFECTOR);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
 			if (i != j && (sprite[j].lotag) == 17)
 				if ((sc->hitag - t[0]) ==
 					(sector[sprite[j].sectnum].hitag)
 					&& sh == (sprite[j].hitag))
 					break;
-			j = nextspritestat[j];
 		}
 
 		if (j == -1) return;
@@ -4172,20 +4176,21 @@ void handle_se19(int i, int BIGFORCE)
 		{
 			sc->ceilingz = sc->floorz;
 
-			j = headspritestat[STAT_EFFECTOR];
-			while (j >= 0)
+			StatIterator it(STAT_EFFECTOR);
+			int j;
+			while ((j = it.NextIndex()) >= 0)
 			{
-				if (sprite[j].lotag == 0 && sprite[j].hitag == sh)
+				auto sj = &sprite[j];
+				if (sj->lotag == 0 && sj->hitag == sh)
 				{
-					q = sprite[sprite[j].owner].sectnum;
-					sector[sprite[j].sectnum].floorpal = sector[sprite[j].sectnum].ceilingpal =
+					q = sprite[sj->owner].sectnum;
+					sector[sj->sectnum].floorpal = sector[sj->sectnum].ceilingpal =
 						sector[q].floorpal;
-					sector[sprite[j].sectnum].floorshade = sector[sprite[j].sectnum].ceilingshade =
+					sector[sj->sectnum].floorshade = sector[sj->sectnum].ceilingshade =
 						sector[q].floorshade;
 
-					hittype[sprite[j].owner].temp_data[0] = 2;
+					hittype[sj->owner].temp_data[0] = 2;
 				}
-				j = nextspritestat[j];
 			}
 			deletesprite(i);
 			return;
@@ -4198,22 +4203,24 @@ void handle_se19(int i, int BIGFORCE)
 		{
 			FTA(8, &ps[myconnectindex]);
 
-			int l = headspritestat[STAT_EFFECTOR];
-			while (l >= 0)
+			StatIterator it(STAT_EFFECTOR);
+			int l;
+			while ((l = it.NextIndex()) >= 0)
 			{
-				x = sprite[l].lotag & 0x7fff;
+				auto sl = &sprite[l];
+				x = sl->lotag & 0x7fff;
 				switch (x)
 				{
 				case 0:
-					if (sprite[l].hitag == sh)
+					if (sl->hitag == sh)
 					{
-						q = sprite[l].sectnum;
+						q = sl->sectnum;
 						sector[q].floorshade =
 							sector[q].ceilingshade =
-							sprite[sprite[l].owner].shade;
+							sprite[sl->owner].shade;
 						sector[q].floorpal =
 							sector[q].ceilingpal =
-							sprite[sprite[l].owner].pal;
+							sprite[sl->owner].pal;
 					}
 					break;
 
@@ -4222,16 +4229,15 @@ void handle_se19(int i, int BIGFORCE)
 					//case 18:
 				case 19:
 
-					if (sh == sprite[l].hitag)
+					if (sh == sl->hitag)
 						if (hittype[l].temp_data[0] == 0)
 						{
 							hittype[l].temp_data[0] = 1; //Shut them all on
-							sprite[l].owner = i;
+							sl->owner = i;
 						}
 
 					break;
 				}
-				l = nextspritestat[l];
 			}
 		}
 	}
@@ -4798,21 +4804,23 @@ void makeitfall(int i)
 
 int dodge(spritetype* s)
 {
-	short i;
+	int i;
 	int bx, by, mx, my, bxvect, byvect, mxvect, myvect, d;
 
 	mx = s->x;
 	my = s->y;
 	mxvect = sintable[(s->ang + 512) & 2047]; myvect = sintable[s->ang & 2047];
 
-	for (i = headspritestat[4]; i >= 0; i = nextspritestat[i]) //weapons list
+	StatIterator it(STAT_PROJECTILE);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		if (sprite[i].owner == i || sprite[i].sectnum != s->sectnum)
+		auto si = &sprite[i];
+		if (si->owner == i || si->sectnum != s->sectnum)
 			continue;
 
-		bx = sprite[i].x - mx;
-		by = sprite[i].y - my;
-		bxvect = sintable[(sprite[i].ang + 512) & 2047]; byvect = sintable[sprite[i].ang & 2047];
+		bx = si->x - mx;
+		by = si->y - my;
+		bxvect = sintable[(si->ang + 512) & 2047]; byvect = sintable[si->ang & 2047];
 
 		if (mxvect * bx + myvect * by >= 0)
 			if (bxvect * bx + byvect * by < 0)
@@ -5084,12 +5092,11 @@ int LocateTheLocator(int n, int sn)
 {
 	int i;
 
-	i = headspritestat[7];
-	while (i >= 0)
+	StatIterator it(STAT_LOCATOR);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		if ((sn == -1 || sn == sprite[i].sectnum) && n == sprite[i].lotag)
 			return i;
-		i = nextspritestat[i];
 	}
 	return -1;
 }
@@ -5105,16 +5112,15 @@ void recordoldspritepos()
 	
 	for (int statNum = 0; statNum < MAXSTATUS; statNum++)
 	{
-		int spriteNum = headspritestat[statNum];
-
-		while (spriteNum >= 0)
+		StatIterator it(STAT_STANDABLE);
+		int j;
+		while ((j = it.NextIndex()) >= 0)
 		{
-			int const nextSprite = nextspritestat[spriteNum];
-			hittype[spriteNum].bposx = sprite[spriteNum].x;
-			hittype[spriteNum].bposy = sprite[spriteNum].y;
-			hittype[spriteNum].bposz = sprite[spriteNum].z;
-
-			spriteNum = nextSprite;
+			auto s = &sprite[j];
+			auto h = &hittype[j];
+			h->bposx = s->x;
+			h->bposy = s->y;
+			h->bposz = s->z;
 		}
 	}
 }
