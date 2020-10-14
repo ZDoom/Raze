@@ -42,7 +42,6 @@
 
 #include <unistd.h>
 #include <fnmatch.h>
-#include <sys/stat.h>
 
 #include "cmdlib.h"
 
@@ -211,22 +210,38 @@ bool D_AddFile(TArray<FString>& wadfiles, const char* file, bool check, int posi
 	FString basepath = fullpath.Left(lastindex);
 	FString filename = fullpath.Right(fullpath.Len() - lastindex - 1);
 
-	struct stat info;
-	bool res = stat(fullpath, &info) == 0;
-	if (!res)
+	if (filename.IsNotEmpty())
 	{
-		filename.ToLower();
-		fullpath = basepath << "/" << filename;
-		res = stat(fullpath, &info) == 0;
-		if (!res)
+		bool found = false;
+		DIR *d;
+		struct dirent *dir;
+		d = opendir(basepath.GetChars());
+		if (d)
 		{
-			filename.ToUpper();
-			fullpath = basepath << "/" << filename;
-			res = stat(fullpath, &info) == 0;
-			if (!res) fullpath = file;
+			while ((dir = readdir(d)) != NULL)
+			{
+				if (filename.CompareNoCase(dir->d_name) == 0)
+				{
+					found = true;
+					filename = dir->d_name;
+					fullpath = basepath << "/" << filename;
+					file = fullpath.GetChars();
+					break;
+				}
+			}
+			closedir(d);
+			if (!found)
+			{
+				Printf("Can't find file '%s'\n", filename.GetChars());
+				return false;
+			}
+		}
+		else
+		{
+			Printf("Can't open directory '%s'\n", basepath.GetChars());
+			return false;
 		}
 	}
-	file = fullpath;
 #endif
 
 	if (check && !DirEntryExists(file))
