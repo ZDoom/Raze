@@ -805,7 +805,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 		turnvel *= clamp(turnspeed * turnspeed, 0., 1.);
 
 	input.fvel = p->MotoSpeed;
-	input.avel = turnvel;
+	input.avel = turnvel * (45. / 256.);
 }
 
 //---------------------------------------------------------------------------
