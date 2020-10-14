@@ -119,8 +119,8 @@ int check_activator_motion(int lotag)
 	int i, j;
 	spritetype* s;
 
-	i = headspritestat[STAT_ACTIVATOR];
-	while (i >= 0)
+	StatIterator it(STAT_ACTIVATOR);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		if (sprite[i].lotag == lotag)
 		{
@@ -130,8 +130,8 @@ int check_activator_motion(int lotag)
 				if (s->sectnum == animatesect[j])
 					return(1);
 
-			j = headspritestat[STAT_EFFECTOR];
-			while (j >= 0)
+			StatIterator it1(STAT_EFFECTOR);
+			while ((j = it1.NextIndex()) >= 0)
 			{
 				if (s->sectnum == sprite[j].sectnum)
 					switch (sprite[j].lotag)
@@ -151,10 +151,8 @@ int check_activator_motion(int lotag)
 						break;
 					}
 
-				j = nextspritestat[j];
 			}
 		}
-		i = nextspritestat[i];
 	}
 	return(0);
 }
@@ -439,21 +437,20 @@ int setanimation(short animsect, int animtype, int animtarget, int thegoal, int 
 
 bool activatewarpelevators(int s, int d) //Parm = sectoreffectornum
 {
-	short i, sn;
+	int i, sn;
 
 	sn = sprite[s].sectnum;
 
 	// See if the sector exists
 
-	i = headspritestat[3];
-	while (i >= 0)
+	StatIterator it(STAT_EFFECTOR);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		if (sprite[i].lotag == SE_17_WARP_ELEVATOR || (isRRRA() && sprite[i].lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
 			if (sprite[i].hitag == sprite[s].hitag)
 				if ((abs(sector[sn].floorz - hittype[s].temp_data[2]) > sprite[i].yvel) ||
 					(sector[sprite[i].sectnum].hitag == (sector[sn].hitag - d)))
 					break;
-		i = nextspritestat[i];
 	}
 
 	if (i == -1)
@@ -469,8 +466,8 @@ bool activatewarpelevators(int s, int d) //Parm = sectoreffectornum
 	}
 
 
-	i = headspritestat[3];
-	while (i >= 0)
+	it.Reset(STAT_EFFECTOR);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		if (sprite[i].lotag == SE_17_WARP_ELEVATOR || (isRRRA() && sprite[i].lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
 			if (sprite[i].hitag == sprite[s].hitag)
@@ -478,7 +475,6 @@ bool activatewarpelevators(int s, int d) //Parm = sectoreffectornum
 				hittype[i].temp_data[0] = d;
 				hittype[i].temp_data[1] = d; //Make all check warp
 			}
-		i = nextspritestat[i];
 	}
 	return 0;
 }
@@ -711,14 +707,14 @@ void operatesectors(int sn, int ii)
 		return;
 
 	case ST_29_TEETH_DOOR:
-
+	{
 		if (sptr->lotag & 0x8000)
 			j = sector[nextsectorneighborz(sn, sptr->ceilingz, 1, 1)].floorz;
 		else
 			j = sector[nextsectorneighborz(sn, sptr->ceilingz, -1, -1)].ceilingz;
 
-		i = headspritestat[3]; //Effectors
-		while (i >= 0)
+		StatIterator it(STAT_EFFECTOR);
+		while ((i = it.NextIndex()) >= 0)
 		{
 			if ((sprite[i].lotag == 22) &&
 				(sprite[i].hitag == sptr->hitag))
@@ -728,7 +724,6 @@ void operatesectors(int sn, int ii)
 				hittype[i].temp_data[0] = sn;
 				hittype[i].temp_data[1] = 1;
 			}
-			i = nextspritestat[i];
 		}
 
 		sptr->lotag ^= 0x8000;
@@ -738,7 +733,7 @@ void operatesectors(int sn, int ii)
 		callsound(sn, ii);
 
 		return;
-
+	}
 	case ST_20_CEILING_DOOR:
 	REDODOOR:
 
@@ -820,27 +815,26 @@ void operatesectors(int sn, int ii)
 		return;
 
 	case ST_23_SWINGING_DOOR: //Swingdoor
-
+	{
 		j = -1;
 		q = 0;
 
-		i = headspritestat[3];
-		while (i >= 0)
+		StatIterator it(STAT_EFFECTOR);
+		while ((i = it.NextIndex()) >= 0)
 		{
 			if (sprite[i].lotag == 11 && sprite[i].sectnum == sn && !hittype[i].temp_data[4])
 			{
 				j = i;
 				break;
 			}
-			i = nextspritestat[i];
 		}
 
 		l = sector[sprite[i].sectnum].lotag & 0x8000;
 
 		if (j >= 0)
 		{
-			i = headspritestat[3];
-			while (i >= 0)
+			StatIterator it(STAT_EFFECTOR);
+			while ((i = it.NextIndex()) >= 0)
 			{
 				if (l == (sector[sprite[i].sectnum].lotag & 0x8000) && sprite[i].lotag == 11 && sprite[j].hitag == sprite[i].hitag && !hittype[i].temp_data[4])
 				{
@@ -854,26 +848,24 @@ void operatesectors(int sn, int ii)
 						q = 1;
 					}
 				}
-				i = nextspritestat[i];
 			}
 		}
 		return;
-
+	}
 	case ST_25_SLIDING_DOOR: //Subway type sliding doors
-
-		j = headspritestat[3];
-		while (j >= 0)//Find the sprite
+	{
+		StatIterator it(STAT_EFFECTOR);
+		while ((j = it.NextIndex()) >= 0)
 		{
 			if ((sprite[j].lotag) == 15 && sprite[j].sectnum == sn)
 				break; //Found the sectoreffector.
-			j = nextspritestat[j];
 		}
 
 		if (j < 0)
 			return;
 
-		i = headspritestat[3];
-		while (i >= 0)
+		it.Reset(STAT_EFFECTOR);
+		while ((i = it.NextIndex()) >= 0)
 		{
 			if (sprite[i].hitag == sprite[j].hitag)
 			{
@@ -887,14 +879,13 @@ void operatesectors(int sn, int ii)
 					else hittype[i].temp_data[4] = 2;
 				}
 			}
-			i = nextspritestat[i];
 		}
 		return;
-
+	}
 	case ST_27_STRETCH_BRIDGE:  //Extended bridge
-
-		j = headspritestat[3];
-		while (j >= 0)
+	{
+		StatIterator it(STAT_EFFECTOR);
+		while ((j = it.NextIndex()) >= 0)
 		{
 			if ((sprite[j].lotag & 0xff) == 20 && sprite[j].sectnum == sn) //Bridge
 			{
@@ -906,10 +897,9 @@ void operatesectors(int sn, int ii)
 				callsound(sn, ii);
 				break;
 			}
-			j = nextspritestat[j];
 		}
 		return;
-
+	}
 
 	case ST_28_DROP_FLOOR:
 	{
@@ -924,13 +914,12 @@ void operatesectors(int sn, int ii)
 
 		j = sprite[j].hitag;
 
-		l = headspritestat[3];
-		while (l >= 0)
+		StatIterator it1(STAT_EFFECTOR);
+		while ((l = it1.NextIndex()) >= 0)
 		{
 			if ((sprite[l].lotag & 0xff) == 21 && !hittype[l].temp_data[0] &&
 				(sprite[l].hitag) == j)
 				hittype[l].temp_data[0] = 1;
-			l = nextspritestat[l];
 		}
 		callsound(sn, ii);
 
@@ -967,48 +956,47 @@ void operateactivators(int low, int snum)
 		}
 	}
 
-	i = headspritestat[8];
 	k = -1;
-	while (i >= 0)
+	StatIterator it(STAT_ACTIVATOR);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		if (sprite[i].lotag == low)
+		auto si = &sprite[i];
+		if (si->lotag == low)
 		{
-			if (sprite[i].picnum == ACTIVATORLOCKED)
+			if (si->picnum == ACTIVATORLOCKED)
 			{
-				sector[sprite[i].sectnum].lotag ^= 16384;
+				sector[si->sectnum].lotag ^= 16384;
 
 				if (snum >= 0)
 				{
-					if (sector[sprite[i].sectnum].lotag & 16384)
+					if (sector[si->sectnum].lotag & 16384)
 						FTA(4, &ps[snum]);
 					else FTA(8, &ps[snum]);
 				}
 			}
 			else
 			{
-				switch (sprite[i].hitag)
+				switch (si->hitag)
 				{
 				case 0:
 					break;
 				case 1:
-					if (sector[sprite[i].sectnum].floorz != sector[sprite[i].sectnum].ceilingz)
+					if (sector[si->sectnum].floorz != sector[si->sectnum].ceilingz)
 					{
-						i = nextspritestat[i];
 						continue;
 					}
 					break;
 				case 2:
-					if (sector[sprite[i].sectnum].floorz == sector[sprite[i].sectnum].ceilingz)
+					if (sector[si->sectnum].floorz == sector[si->sectnum].ceilingz)
 					{
-						i = nextspritestat[i];
 						continue;
 					}
 					break;
 				}
 
-				if (sector[sprite[i].sectnum].lotag < 3)
+				if (sector[si->sectnum].lotag < 3)
 				{
-					SectIterator it(sprite[i].sectnum);
+					SectIterator it(si->sectnum);
 					while ((j = it.NextIndex()) >= 0)
 					{
 						if (sprite[j].statnum == 3) switch (sprite[j].lotag)
@@ -1019,19 +1007,18 @@ void operateactivators(int low, int snum)
 						case SE_31_FLOOR_RISE_FALL:
 						case SE_32_CEILING_RISE_FALL:
 							hittype[j].temp_data[0] = 1 - hittype[j].temp_data[0];
-							callsound(sprite[i].sectnum, j);
+							callsound(si->sectnum, j);
 							break;
 						}
 					}
 				}
 
-				if (k == -1 && (sector[sprite[i].sectnum].lotag & 0xff) == 22)
-					k = callsound(sprite[i].sectnum, i);
+				if (k == -1 && (sector[si->sectnum].lotag & 0xff) == 22)
+					k = callsound(si->sectnum, i);
 
-				operatesectors(sprite[i].sectnum, i);
+				operatesectors(si->sectnum, i);
 			}
 		}
-		i = nextspritestat[i];
 	}
 
 	fi.operaterespawns(low);
@@ -1045,14 +1032,13 @@ void operateactivators(int low, int snum)
 
 void operatemasterswitches(int low)
 {
-	short i;
+	int i;
 
-	i = headspritestat[6];
-	while (i >= 0)
+	StatIterator it(STAT_STANDABLE);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		if (sprite[i].picnum == MASTERSWITCH && sprite[i].lotag == low && sprite[i].yvel == 0)
 			sprite[i].yvel = 1;
-		i = nextspritestat[i];
 	}
 }
 
@@ -1111,27 +1097,25 @@ void breakwall(short newpn, short spr, short dawallnum)
 
 void allignwarpelevators(void)
 {
-	short i, j;
+	int i, j;
 
-	i = headspritestat[STAT_EFFECTOR];
-	while (i >= 0)
+	StatIterator it(STAT_EFFECTOR);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		if (sprite[i].lotag == SE_17_WARP_ELEVATOR && sprite[i].shade > 16)
+		auto si = &sprite[i];
+		if (si->lotag == SE_17_WARP_ELEVATOR && si->shade > 16)
 		{
-			j = headspritestat[STAT_EFFECTOR];
-			while (j >= 0)
+			StatIterator it1(STAT_EFFECTOR);
+			while ((j = it1.NextIndex()) >= 0)
 			{
 				if ((sprite[j].lotag) == SE_17_WARP_ELEVATOR && i != j &&
-					(sprite[i].hitag) == (sprite[j].hitag))
+					(si->hitag) == (sprite[j].hitag))
 				{
-					sector[sprite[j].sectnum].floorz = sector[sprite[i].sectnum].floorz;
-					sector[sprite[j].sectnum].ceilingz = sector[sprite[i].sectnum].ceilingz;
+					sector[sprite[j].sectnum].floorz = sector[si->sectnum].floorz;
+					sector[sprite[j].sectnum].ceilingz = sector[si->sectnum].ceilingz;
 				}
-
-				j = nextspritestat[j];
 			}
 		}
-		i = nextspritestat[i];
 	}
 }
 
