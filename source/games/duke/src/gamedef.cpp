@@ -3146,10 +3146,7 @@ void ConCompiler::setmusic()
 
 void loadcons()
 {
-	for (int i = 0; i < MAXTILES; i++)
-	{
-		memset(&actorinfo[i], 0, sizeof(actorinfo));
-	}
+	memset(&actorinfo, 0, sizeof(actorinfo));
 
 	ScriptCode.Clear();
 	labels.Clear();

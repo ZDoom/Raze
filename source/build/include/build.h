@@ -1036,13 +1036,6 @@ public:
         next = nextspritestat[next];
         return n;
     }
-    
-    spritetype *Next()
-    {
-        int n = next;
-        next = nextspritestat[next];
-        return n < 0? nullptr : &sprite[n];
-    }
 };
 
 class SectIterator
@@ -1066,13 +1059,6 @@ public:
         int n = next;
         next = nextspritesect[next];
         return n;
-    }
-    
-    spritetype *Next()
-    {
-        int n = next;
-        next = nextspritestat[next];
-        return n < 0? nullptr : &sprite[n];
     }
 };
 
