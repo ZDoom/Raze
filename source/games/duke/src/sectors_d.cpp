@@ -186,12 +186,11 @@ void animatewalls_d(void)
 
 void operaterespawns_d(int low)
 {
-	short i, j, nexti;
+	int i, j;
 
-	i = headspritestat[11];
-	while (i >= 0)
+	StatIterator it(STAT_FX);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
 		if (sprite[i].lotag == low) switch (sprite[i].picnum)
 		{
 		case RESPAWN:
@@ -203,7 +202,6 @@ void operaterespawns_d(int low)
 			sprite[i].extra = 66 - 12;   // Just a way to killit
 			break;
 		}
-		i = nexti;
 	}
 }
 
@@ -352,32 +350,33 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		break;
 	}
 
-	i = headspritestat[0];
-	while (i >= 0)
+	StatIterator it(STAT_DEFAULT);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		if (lotag == sprite[i].lotag) switch (sprite[i].picnum)
+		auto si = &sprite[i];
+		if (lotag == si->lotag) switch (si->picnum)
 		{
 		case DIPSWITCH:
 		case TECHSWITCH:
 		case ALIENSWITCH:
-			if (switchtype == SWITCH_SPRITE && w == i) sprite[i].picnum++;
-			else if (sprite[i].hitag == 0) correctdips++;
+			if (switchtype == SWITCH_SPRITE && w == i) si->picnum++;
+			else if (si->hitag == 0) correctdips++;
 			numdips++;
 			break;
 		case TECHSWITCH + 1:
 		case DIPSWITCH + 1:
 		case ALIENSWITCH + 1:
-			if (switchtype == SWITCH_SPRITE && w == i) sprite[i].picnum--;
-			else if (sprite[i].hitag == 1) correctdips++;
+			if (switchtype == SWITCH_SPRITE && w == i) si->picnum--;
+			else if (si->hitag == 1) correctdips++;
 			numdips++;
 			break;
 		case MULTISWITCH:
 		case MULTISWITCH + 1:
 		case MULTISWITCH + 2:
 		case MULTISWITCH + 3:
-			sprite[i].picnum++;
-			if (sprite[i].picnum > (MULTISWITCH + 3))
-				sprite[i].picnum = MULTISWITCH;
+			si->picnum++;
+			if (si->picnum > (MULTISWITCH + 3))
+				si->picnum = MULTISWITCH;
 			break;
 		case ACCESSSWITCH:
 		case ACCESSSWITCH2:
@@ -394,7 +393,7 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		case PULLSWITCH:
 		case DIPSWITCH2:
 		case DIPSWITCH3:
-			sprite[i].picnum++;
+			si->picnum++;
 			break;
 		case PULLSWITCH + 1:
 		case HANDSWITCH + 1:
@@ -409,10 +408,9 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		case FRANKENSTINESWITCH + 1:
 		case DIPSWITCH2 + 1:
 		case DIPSWITCH3 + 1:
-			sprite[i].picnum--;
+			si->picnum--;
 			break;
 		}
-		i = nextspritestat[i];
 	}
 
 	for (i = 0; i < numwalls; i++)
@@ -549,8 +547,8 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 			picnum == (MULTISWITCH + 2) || picnum == (MULTISWITCH + 3))
 			lotag += picnum - MULTISWITCH;
 
-		x = headspritestat[3];
-		while (x >= 0)
+		StatIterator it(STAT_EFFECTOR);
+		while ((x = it.NextIndex()) >= 0)
 		{
 			if (sprite[x].hitag == lotag)
 			{
@@ -576,7 +574,6 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 					break;
 				}
 			}
-			x = nextspritestat[x];
 		}
 
 		operateactivators(lotag, snum);
@@ -864,8 +861,8 @@ void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith)
 				darkestwall = wal->shade;
 
 		j = krand() & 1;
-		i = headspritestat[3];
-		while (i >= 0)
+		StatIterator it(STAT_EFFECTOR);
+		while ((i = it.NextIndex()) >= 0)
 		{
 			if (sprite[i].hitag == wall[dawallnum].lotag && sprite[i].lotag == 3)
 			{
@@ -873,7 +870,6 @@ void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith)
 				hittype[i].temp_data[3] = darkestwall;
 				hittype[i].temp_data[4] = 1;
 			}
-			i = nextspritestat[i];
 		}
 		break;
 	}
@@ -990,28 +986,26 @@ bool checkhitceiling_d(int sn)
 			{
 				if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 12)
 				{
-					j = headspritestat[3];
-					while (j >= 0)
+					StatIterator it1(STAT_EFFECTOR);
+					while ((j = it1.NextIndex()) >= 0)
 					{
 						if (sprite[j].hitag == sprite[i].hitag)
 							hittype[j].temp_data[3] = 1;
-						j = nextspritestat[j];
 					}
 					break;
 				}
 			}
 		}
 
-		i = headspritestat[3];
 		j = krand() & 1;
-		while (i >= 0)
+		StatIterator it(STAT_EFFECTOR);
+		while ((i = it.NextIndex()) >= 0)
 		{
 			if (sprite[i].hitag == (sector[sn].hitag) && sprite[i].lotag == 3)
 			{
 				hittype[i].temp_data[2] = j;
 				hittype[i].temp_data[4] = 1;
 			}
-			i = nextspritestat[i];
 		}
 
 		return 1;
@@ -1463,11 +1457,10 @@ void checkhitsprite_d(int i, int sn)
 					updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
 					setpal(&ps[p]);
 
-					j = headspritestat[1];
-					while (j >= 0)
+					StatIterator it(STAT_ACTOR);
+					while ((j = it.NextIndex()) >= 0)
 					{
 						if (sprite[j].picnum == CAMERA1) sprite[j].yvel = 0;
-						j = nextspritestat[j];
 					}
 				}
 
@@ -1697,9 +1690,8 @@ void checksectors_d(int snum)
 			case VIEWSCREEN:
 			case VIEWSCREEN2:
 			{
-				i = headspritestat[1];
-
-				while (i >= 0)
+				StatIterator it(STAT_ACTOR);
+				while ((i = it.NextIndex()) >= 0)
 				{
 					if (sprite[i].picnum == CAMERA1 && sprite[i].yvel == 0 && sprite[neartagsprite].hitag == sprite[i].lotag)
 					{
@@ -1720,7 +1712,6 @@ void checksectors_d(int snum)
 						p->newowner = i;
 						return;
 					}
-					i = nextspritestat[i];
 				}
 			}
 
@@ -1736,12 +1727,10 @@ void checksectors_d(int snum)
 				updatesector(p->posx, p->posy, &p->cursectnum);
 				setpal(p);
 
-
-				i = headspritestat[1];
-				while (i >= 0)
+				StatIterator it(STAT_ACTOR);
+				while ((i = it.NextIndex()) >= 0)
 				{
 					if (sprite[i].picnum == CAMERA1) sprite[i].yvel = 0;
-					i = nextspritestat[i];
 				}
 			}
 			else if (p->newowner >= 0)

@@ -301,12 +301,11 @@ void animatewalls_r(void)
 
 void operaterespawns_r(int low)
 {
-	short i, j, nexti;
+	int i, j;
 
-	i = headspritestat[11];
-	while (i >= 0)
+	StatIterator it(STAT_FX);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritestat[i];
 		if (sprite[i].lotag == low) switch (sprite[i].picnum)
 		{
 		case RESPAWN:
@@ -323,7 +322,6 @@ void operaterespawns_r(int low)
 			break;
 
 		}
-		i = nexti;
 	}
 }
 
@@ -483,46 +481,47 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 		break;
 	}
 
-	i = headspritestat[0];
-	while (i >= 0)
+	StatIterator it(STAT_DEFAULT);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		if (lotag == sprite[i].lotag) switch (sprite[i].picnum)
+		auto si = &sprite[i];
+		if (lotag == si->lotag) switch (si->picnum)
 		{
 		case DIPSWITCH:
 		case TECHSWITCH:
 		case ALIENSWITCH:
-			if (switchtype == 1 && w == i) sprite[i].picnum++;
-			else if (sprite[i].hitag == 0) correctdips++;
+			if (switchtype == 1 && w == i) si->picnum++;
+			else if (si->hitag == 0) correctdips++;
 			numdips++;
 			break;
 		case TECHSWITCH + 1:
 		case DIPSWITCH + 1:
 		case ALIENSWITCH + 1:
-			if (switchtype == 1 && w == i) sprite[i].picnum--;
-			else if (sprite[i].hitag == 1) correctdips++;
+			if (switchtype == 1 && w == i) si->picnum--;
+			else if (si->hitag == 1) correctdips++;
 			numdips++;
 			break;
 		case MULTISWITCH:
 		case MULTISWITCH + 1:
 		case MULTISWITCH + 2:
 		case MULTISWITCH + 3:
-			sprite[i].picnum++;
-			if (sprite[i].picnum > (MULTISWITCH + 3))
-				sprite[i].picnum = MULTISWITCH;
+			si->picnum++;
+			if (si->picnum > (MULTISWITCH + 3))
+				si->picnum = MULTISWITCH;
 			break;
 		case MULTISWITCH2:
 		case MULTISWITCH2 + 1:
 		case MULTISWITCH2 + 2:
 		case MULTISWITCH2 + 3:
 			if (!isRRRA()) break;
-			sprite[i].picnum++;
-			if (sprite[i].picnum > (MULTISWITCH2 + 3))
-				sprite[i].picnum = MULTISWITCH2;
+			si->picnum++;
+			if (si->picnum > (MULTISWITCH2 + 3))
+				si->picnum = MULTISWITCH2;
 			break;
 
 		case RRTILE2214:
 			//if (ud.level_numbe r > 6) ud.level_numbe r = 0; ??? Looks like some leftover garbage.
-			sprite[i].picnum++;
+			si->picnum++;
 			break;
 		case RRTILE8660:
 			if (!isRRRA()) break;
@@ -544,14 +543,13 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 		case NUKEBUTTON:
 		case RRTILE2697:
 		case RRTILE2707:
-			if (sprite[i].picnum == DIPSWITCH3)
-				if (sprite[i].hitag == 999)
+			if (si->picnum == DIPSWITCH3)
+				if (si->hitag == 999)
 				{
-					short j, nextj;
-					j = headspritestat[107];
-					while (j >= 0)
+					int j;
+					StatIterator it1(107);
+					while ((j = it1.NextIndex()) >= 0)
 					{
-						nextj = nextspritestat[j];
 						if (sprite[j].picnum == RRTILE3410)
 						{
 							sprite[j].picnum++;
@@ -561,19 +559,18 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 						}
 						else if (sprite[j].picnum == RRTILE295)
 							deletesprite(j);
-						j = nextj;
 					}
-					sprite[i].picnum++;
+					si->picnum++;
 					break;
 				}
-			if (sprite[i].picnum == NUKEBUTTON)
+			if (si->picnum == NUKEBUTTON)
 				chickenplant = 0;
-			if (sprite[i].picnum == RRTILE8660)
+			if (si->picnum == RRTILE8660)
 			{
 				BellTime = 132;
 				BellSprite = i;
 			}
-			sprite[i].picnum++;
+			si->picnum++;
 			break;
 		case PULLSWITCH + 1:
 		case HANDSWITCH + 1:
@@ -591,13 +588,12 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 		case NUKEBUTTON + 1:
 		case RRTILE2697 + 1:
 		case RRTILE2707 + 1:
-			if (sprite[i].picnum == NUKEBUTTON + 1)
+			if (si->picnum == NUKEBUTTON + 1)
 				chickenplant = 1;
-			if (sprite[i].hitag != 999)
-				sprite[i].picnum--;
+			if (si->hitag != 999)
+				si->picnum--;
 			break;
 		}
-		i = nextspritestat[i];
 	}
 
 	for (i = 0; i < numwalls; i++)
@@ -828,8 +824,8 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 				lotag += picnum - MULTISWITCH2;
 		}
 
-		x = headspritestat[STAT_EFFECTOR];
-		while (x >= 0)
+		StatIterator itx(STAT_EFFECTOR);
+		while ((x = itx.NextIndex()) >= 0)
 		{
 			if (sprite[x].hitag == lotag)
 			{
@@ -859,7 +855,6 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 					break;
 				}
 			}
-			x = nextspritestat[x];
 		}
 
 		operateactivators(lotag, snum);
@@ -1349,8 +1344,8 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 				darkestwall = wal->shade;
 
 		j = krand() & 1;
-		i = headspritestat[3];
-		while (i >= 0)
+		StatIterator it(STAT_EFFECTOR);
+		while ((i = it.NextIndex()) >= 0)
 		{
 			if (sprite[i].hitag == wall[dawallnum].lotag && sprite[i].lotag == 3)
 			{
@@ -1358,7 +1353,6 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 				hittype[i].temp_data[3] = darkestwall;
 				hittype[i].temp_data[4] = 1;
 			}
-			i = nextspritestat[i];
 		}
 		break;
 	}
@@ -1496,28 +1490,26 @@ bool checkhitceiling_r(int sn)
 			{
 				if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || (isRRRA() && (sprite[i].lotag == 47 || sprite[i].lotag == 48))))
 				{
-					j = headspritestat[3];
-					while (j >= 0)
+					StatIterator it(STAT_EFFECTOR);
+					while ((j = it.NextIndex()) >= 0)
 					{
 						if (sprite[j].hitag == sprite[i].hitag)
 							hittype[j].temp_data[3] = 1;
-						j = nextspritestat[j];
 					}
 					break;
 				}
 			}
 		}
 
-		i = headspritestat[3];
 		j = krand() & 1;
-		while (i >= 0)
+		StatIterator it(STAT_EFFECTOR);
+		while ((i = it.NextIndex()) >= 0)
 		{
 			if (sprite[i].hitag == (sector[sn].hitag) && sprite[i].lotag == 3)
 			{
 				hittype[i].temp_data[2] = j;
 				hittype[i].temp_data[4] = 1;
 			}
-			i = nextspritestat[i];
 		}
 
 		return 1;
@@ -2408,11 +2400,10 @@ void checkhitsprite_r(int i, int sn)
 					updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
 					setpal(&ps[p]);
 
-					j = headspritestat[1];
-					while (j >= 0)
+					StatIterator it(STAT_EFFECTOR);
+					while ((j = it.NextIndex()) >= 0)
 					{
 						if (sprite[j].picnum == CAMERA1) sprite[j].yvel = 0;
-						j = nextspritestat[j];
 					}
 				}
 
