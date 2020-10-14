@@ -1266,7 +1266,7 @@ static void movecrack(int i)
 		int j = fi.ifhitbyweapon(i);
 		if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 		{
-			StatIterator it(STAT_MISC);
+			StatIterator it(STAT_STANDABLE);
 			while ((j = it.NextIndex()) >= 0)
 			{
 				auto sj = &sprite[j];
