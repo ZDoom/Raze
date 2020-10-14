@@ -417,7 +417,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 	for (i = 0; i < numsectors; i++)
 	{
 		if (!gFullMap || !show2dsector[i]) continue;
-		for (j = headspritesect[i]; j >= 0; j = nextspritesect[j])
+		SectIterator it(i);
+		while ((j = it.NextIndex()) >= 0)
 		{
 			spr = &sprite[j];
 

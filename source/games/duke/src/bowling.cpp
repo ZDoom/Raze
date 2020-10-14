@@ -105,17 +105,14 @@ short checkpins(short sect)
 	short i, pin;
 	int  x, y;
 	short pins[10];
-	short nexti, tag;
+	short tag;
 	
 	pin = 0;
 	for(i=0;i<10;i++) pins[i] = 0;
 
-	i = headspritesect[sect];
-
-	while (i >= 0)
+	SectIterator it(sect);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritesect[i];
-
 		if (sprite[i].picnum == RRTILE3440)
 		{
 			pin++;
@@ -125,8 +122,6 @@ short checkpins(short sect)
 		{
 			tag = sprite[i].hitag;
 		}
-
-		i = nexti;
 	}
 
 	if (tag)
@@ -190,20 +185,17 @@ short checkpins(short sect)
 
 void resetpins(short sect)
 {
-	short i, j, nexti, tag;
+	short i, j, tag;
 	int x, y;
-	i = headspritesect[sect];
-	while (i >= 0)
+	SectIterator it(sect);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = headspritesect[i];
 		if (sprite[i].picnum == 3440)
 			deletesprite(i);
-		i = nexti;
 	}
-	i = headspritesect[sect];
-	while (i >= 0)
+	it.Reset(sect);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		nexti = nextspritesect[i];
 		if (sprite[i].picnum == 283)
 		{
 			j = fi.spawn(i,3440);
@@ -220,7 +212,6 @@ void resetpins(short sect)
 		}
 		if (sprite[i].picnum == 280)
 			tag = sprite[i].hitag;
-		i = nexti;
 	}
 	if (tag)
 	{

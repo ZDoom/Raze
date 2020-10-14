@@ -427,12 +427,11 @@ void cacheit_r(void)
 		}
 	}
 
-	j = headspritesect[i];
-	while(j >= 0)
+	SectIterator it(i);
+	while ((j = it.NextIndex()) >= 0)
 	{
 		if(sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat&32768) == 0)
 				cachespritenum(j);
-		j = nextspritesect[j];
 	}
 	precacheMarkedTiles();
 }
@@ -495,10 +494,10 @@ void prelevel_r(int g)
 		switch (sector[i].lotag)
 		{
 		case 41:
-			k = headspritesect[i];
-			while (k != -1)
+		{
+			SectIterator it(i);
+			while ((k = it.NextIndex()) >= 0)
 			{
-				nexti = nextspritesect[k];
 				if (sprite[k].picnum == RRTILE11)
 				{
 					dist = sprite[k].lotag << 4;
@@ -510,7 +509,6 @@ void prelevel_r(int g)
 					sound = sprite[k].lotag;
 					deletesprite(k);
 				}
-				k = nexti;
 			}
 			for (j = 0; j < numsectors; j++)
 			{
@@ -520,22 +518,23 @@ void prelevel_r(int g)
 				}
 			}
 			break;
+		}
 		case 42:
 		{
 			short ii;
 			int childsectnum = -1;
-			k = headspritesect[i];
-			while (k != -1)
+			SectIterator it(i);
+			while ((k = it.NextIndex()) >= 0)
 			{
-				nexti = nextspritesect[k];
-				if (sprite[k].picnum == RRTILE64)
+				auto sj = &sprite[k];
+				if (sj->picnum == RRTILE64)
 				{
-					dist = sprite[k].lotag << 4;
-					speed = sprite[k].hitag;
+					dist = sj->lotag << 4;
+					speed = sj->hitag;
 					for (ii = 0; ii < MAXSPRITES; ii++)
 					{
 						if (sprite[ii].picnum == RRTILE66)
-							if (sprite[ii].lotag == sprite[k].sectnum)
+							if (sprite[ii].lotag == sj->sectnum)
 							{
 								childsectnum = sprite[ii].sectnum;
 								deletesprite(ii);
@@ -543,12 +542,11 @@ void prelevel_r(int g)
 					}
 					deletesprite(k);
 				}
-				if (sprite[k].picnum == RRTILE65)
+				if (sj->picnum == RRTILE65)
 				{
-					sound = sprite[k].lotag;
+					sound = sj->lotag;
 					deletesprite(k);
 				}
-				k = nexti;
 			}
 			addminecart(dist, speed, i, sector[i].hitag, sound, childsectnum);
 			break;

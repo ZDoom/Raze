@@ -217,8 +217,8 @@ void shoot_r(int i, int atwith)
 						{
 							if (wall[hitwall].nextsector >= 0)
 							{
-								k = headspritesect[wall[hitwall].nextsector];
-								while (k >= 0)
+								SectIterator it(wall[hitwall].nextsector);
+								while ((k = it.NextIndex()) >= 0)
 								{
 									if (sprite[k].statnum == 3 && sprite[k].lotag == 13)
 										return;
@@ -500,8 +500,8 @@ void shoot_r(int i, int atwith)
 							{
 								if (wall[hitwall].nextsector >= 0)
 								{
-									l = headspritesect[wall[hitwall].nextsector];
-									while (l >= 0)
+									SectIterator it(wall[hitwall].nextsector);
+									while ((l = it.NextIndex()) >= 0)
 									{
 										if (sprite[l].statnum == 3 && sprite[l].lotag == 13)
 											goto SKIPBULLETHOLE;
@@ -3492,15 +3492,12 @@ void processinput_r(int snum)
 
 	if (psectlotag == 867)
 	{
-		short sj, nextsj;
-		sj = headspritesect[psect];
-		while (sj >= 0)
+		SectIterator it(psect);
+		while ((j = it.NextIndex()) >= 0)
 		{
-			nextsj = nextspritesect[sj];
-			if (sprite[sj].picnum == RRTILE380)
-				if (sprite[sj].z - (8 << 8) < p->posz)
+			if (sprite[j].picnum == RRTILE380)
+				if (sprite[j].z - (8 << 8) < p->posz)
 					psectlotag = 2;
-			sj = nextsj;
 		}
 	}
 	else if (psectlotag == 7777)

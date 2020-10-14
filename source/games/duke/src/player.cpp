@@ -533,11 +533,14 @@ void footprints(int snum)
 		if ((sector[p->cursectnum].floorstat & 2) != 2)
 		{
 			int j;
-			for (j = headspritesect[psect]; j >= 0; j = nextspritesect[j])
+			SectIterator it(psect);
+			while ((j = it.NextIndex()) >= 0)
+			{
 				if (sprite[j].picnum == TILE_FOOTPRINTS || sprite[j].picnum == TILE_FOOTPRINTS2 || sprite[j].picnum == TILE_FOOTPRINTS3 || sprite[j].picnum == TILE_FOOTPRINTS4)
 					if (abs(sprite[j].x - p->posx) < 384)
 						if (abs(sprite[j].y - p->posy) < 384)
 							break;
+			}
 			if (j < 0)
 			{
 				p->footprintcount--;

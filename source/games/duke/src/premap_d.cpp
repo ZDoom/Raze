@@ -252,12 +252,11 @@ void cacheit_d(void)
 		}
 	}
 
-	j = headspritesect[i];
-	while (j >= 0)
+	SectIterator it(i);
+	while ((j = it.NextIndex()) >= 0)
 	{
 		if (sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat & 32768) == 0)
 			cachespritenum(j);
-		j = nextspritesect[j];
 	}
 
 	precacheMarkedTiles();

@@ -328,8 +328,8 @@ void shoot_d(int i, int atwith)
 						{
 							if (wall[hitwall].nextsector >= 0)
 							{
-								k = headspritesect[wall[hitwall].nextsector];
-								while (k >= 0)
+								SectIterator it(wall[hitwall].nextsector);
+								while ((k = it.NextIndex()) >= 0)
 								{
 									if (sprite[k].statnum == 3 && sprite[k].lotag == 13)
 										return;
@@ -587,8 +587,8 @@ void shoot_d(int i, int atwith)
 							{
 								if (wall[hitwall].nextsector >= 0)
 								{
-									l = headspritesect[wall[hitwall].nextsector];
-									while (l >= 0)
+									SectIterator it(wall[hitwall].nextsector);
+									while ((l = it.NextIndex()) >= 0)
 									{
 										if (sprite[l].statnum == 3 && sprite[l].lotag == 13)
 											goto SKIPBULLETHOLE;
@@ -1953,13 +1953,14 @@ int operateTripbomb(int snum)
 		if (wall[hw].overpicnum == BIGFORCE)
 			return 0;
 
-	int j = headspritesect[sect];
-	while (j >= 0)
+	int j;
+	SectIterator it(sect);
+	while ((j = it.NextIndex()) >= 0)
 	{
-		if (sprite[j].picnum == TRIPBOMB &&
-			abs(sprite[j].z - sz) < (12 << 8) && ((sprite[j].x - sx) * (sprite[j].x - sx) + (sprite[j].y - sy) * (sprite[j].y - sy)) < (290 * 290))
+		auto sj = &sprite[j];
+		if (sj->picnum == TRIPBOMB &&
+			abs(sj->z - sz) < (12 << 8) && ((sj->x - sx) * (sj->x - sx) + (sj->y - sy) * (sj->y - sy)) < (290 * 290))
 			return 0;
-		j = nextspritesect[j];
 	}
 
 	if (j == -1 && hw >= 0 && (wall[hw].cstat & 16) == 0)

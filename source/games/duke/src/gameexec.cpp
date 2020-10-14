@@ -2507,18 +2507,17 @@ int ParseState::parse(void)
 			if( neartagsector >= 0 && isanearoperator(sector[neartagsector].lotag) )
 				if( (sector[neartagsector].lotag&0xff) == ST_23_SWINGING_DOOR || sector[neartagsector].floorz == sector[neartagsector].ceilingz )
 					if( (sector[neartagsector].lotag&16384) == 0 )
-						if( (sector[neartagsector].lotag&32768) == 0 )
-					{
-						j = headspritesect[neartagsector];
-						while(j >= 0)
+						if ((sector[neartagsector].lotag & 32768) == 0)
 						{
-							if(sprite[j].picnum == ACTIVATOR)
-								break;
-							j = nextspritesect[j];
+							SectIterator it(neartagsector);
+							while ((j = it.NextIndex()) >= 0)
+							{
+								if (sprite[j].picnum == ACTIVATOR)
+									break;
+							}
+							if (j == -1)
+								operatesectors(neartagsector, g_i);
 						}
-						if(j == -1)
-							operatesectors(neartagsector,g_i);
-					}
 		}
 		break;
 	case concmd_ifinspace:
