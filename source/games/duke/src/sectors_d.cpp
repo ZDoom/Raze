@@ -1023,11 +1023,11 @@ bool checkhitceiling_d(int sn)
 void checkhitsprite_d(int i, int sn)
 {
 	int j, k, p;
-	spritetype* s;
 
 	i &= (MAXSPRITES - 1);
+	spritetype* s = &sprite[i];
 
-	switch (sprite[i].picnum)
+	switch (s->picnum)
 	{
 	case WTGLASS1:
 	case WTGLASS2:
@@ -1050,9 +1050,9 @@ void checkhitsprite_d(int i, int sn)
 	case STRIPEBALL:
 		if (sprite[sn].picnum == QUEBALL || sprite[sn].picnum == STRIPEBALL)
 		{
-			sprite[sn].xvel = (sprite[i].xvel >> 1) + (sprite[i].xvel >> 2);
-			sprite[sn].ang -= (sprite[i].ang << 1) + 1024;
-			sprite[i].ang = getangle(sprite[i].x - sprite[sn].x, sprite[i].y - sprite[sn].y) - 512;
+			sprite[sn].xvel = (s->xvel >> 1) + (s->xvel >> 2);
+			sprite[sn].ang -= (s->ang << 1) + 1024;
+			s->ang = getangle(s->x - sprite[sn].x, s->y - sprite[sn].y) - 512;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, i);
 		}
@@ -1060,8 +1060,8 @@ void checkhitsprite_d(int i, int sn)
 		{
 			if (krand() & 3)
 			{
-				sprite[i].xvel = 164;
-				sprite[i].ang = sprite[sn].ang;
+				s->xvel = 164;
+				s->ang = sprite[sn].ang;
 			}
 			else
 			{
@@ -1084,7 +1084,7 @@ void checkhitsprite_d(int i, int sn)
 		case HEAVYHBOMB:
 			if (hittype[i].temp_data[0] == 0)
 			{
-				sprite[i].cstat &= ~257;
+				s->cstat &= ~257;
 				hittype[i].temp_data[0] = 1;
 				fi.spawn(i, BURNING);
 			}
@@ -1102,13 +1102,13 @@ void checkhitsprite_d(int i, int sn)
 		case HEAVYHBOMB:
 			for (k = 0; k < 64; k++)
 			{
-				j = EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (sprite[i].zvel >> 2), i, 5);
+				j = EGS(s->sectnum, s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), i, 5);
 				sprite[j].pal = 8;
 			}
 
-			if (sprite[i].picnum == CACTUS)
-				sprite[i].picnum = CACTUSBROKE;
-			sprite[i].cstat &= ~257;
+			if (s->picnum == CACTUS)
+				s->picnum = CACTUSBROKE;
+			s->cstat &= ~257;
 			//	   else deletesprite(i);
 			break;
 		}
@@ -1117,20 +1117,19 @@ void checkhitsprite_d(int i, int sn)
 	case HANGLIGHT:
 	case GENERICPOLE2:
 		for (k = 0; k < 6; k++)
-			EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (8 << 8), SCRAP1 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (sprite[i].zvel >> 2), i, 5);
+			EGS(s->sectnum, s->x, s->y, s->z - (8 << 8), SCRAP1 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), i, 5);
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		deletesprite(i);
 		break;
 
 
 	case FANSPRITE:
-		sprite[i].picnum = FANSPRITEBROKE;
-		sprite[i].cstat &= (65535 - 257);
-		if (sector[sprite[i].sectnum].floorpicnum == FANSHADOW)
-			sector[sprite[i].sectnum].floorpicnum = FANSHADOWBROKE;
+		s->picnum = FANSPRITEBROKE;
+		s->cstat &= (65535 - 257);
+		if (sector[s->sectnum].floorpicnum == FANSHADOW)
+			sector[s->sectnum].floorpicnum = FANSHADOWBROKE;
 
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
-		s = &sprite[i];
 		for (j = 0; j < 16; j++) RANDOMSCRAP(s, i);
 
 		break;
@@ -1138,7 +1137,7 @@ void checkhitsprite_d(int i, int sn)
 	case WATERFOUNTAIN + 1:
 	case WATERFOUNTAIN + 2:
 	case WATERFOUNTAIN + 3:
-		sprite[i].picnum = WATERFOUNTAINBROKE;
+		s->picnum = WATERFOUNTAINBROKE;
 		fi.spawn(i, TOILETWATER);
 		break;
 	case SATELITE:
@@ -1148,7 +1147,7 @@ void checkhitsprite_d(int i, int sn)
 		if (actorinfo[SHOTSPARK1].scriptaddress && sprite[sn].extra != ScriptCode[actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sector[sprite[i].sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(s->sectnum, s->x, s->y, sector[s->sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, i, 5);
 			fi.spawn(i, EXPLOSION2);
 			deletesprite(i);
@@ -1182,23 +1181,23 @@ void checkhitsprite_d(int i, int sn)
 	case VASE:
 	case STATUEFLASH:
 	case STATUE:
-		if (sprite[i].picnum == BOTTLE10)
+		if (s->picnum == BOTTLE10)
 			fi.lotsofmoney(&sprite[i], 4 + (krand() & 3));
-		else if (sprite[i].picnum == STATUE || sprite[i].picnum == STATUEFLASH)
+		else if (s->picnum == STATUE || s->picnum == STATUEFLASH)
 		{
 			lotsofcolourglass(i, -1, 40);
 			S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		}
-		else if (sprite[i].picnum == VASE)
+		else if (s->picnum == VASE)
 			lotsofglass(i, -1, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, i);
-		sprite[i].ang = krand() & 2047;
+		s->ang = krand() & 2047;
 		lotsofglass(i, -1, 8);
 		deletesprite(i);
 		break;
 	case FETUS:
-		sprite[i].picnum = FETUSBROKE;
+		s->picnum = FETUSBROKE;
 		S_PlayActorSound(GLASS_BREAKING, i);
 		lotsofglass(i, -1, 10);
 		break;
@@ -1206,7 +1205,7 @@ void checkhitsprite_d(int i, int sn)
 		for (j = 0; j < 48; j++)
 		{
 			fi.shoot(i, BLOODSPLAT1);
-			sprite[i].ang += 333;
+			s->ang += 333;
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		S_PlayActorSound(SQUISHED, i);
@@ -1216,77 +1215,77 @@ void checkhitsprite_d(int i, int sn)
 		deletesprite(i);
 		break;
 	case HYDROPLANT:
-		sprite[i].picnum = BROKEHYDROPLANT;
+		s->picnum = BROKEHYDROPLANT;
 		S_PlayActorSound(GLASS_BREAKING, i);
 		lotsofglass(i, -1, 10);
 		break;
 
 	case FORCESPHERE:
-		sprite[i].xrepeat = 0;
-		hittype[sprite[i].owner].temp_data[0] = 32;
-		hittype[sprite[i].owner].temp_data[1] = !hittype[sprite[i].owner].temp_data[1];
-		hittype[sprite[i].owner].temp_data[2] ++;
+		s->xrepeat = 0;
+		hittype[s->owner].temp_data[0] = 32;
+		hittype[s->owner].temp_data[1] = !hittype[s->owner].temp_data[1];
+		hittype[s->owner].temp_data[2] ++;
 		fi.spawn(i, EXPLOSION2);
 		break;
 
 	case BROKEHYDROPLANT:
-		if (sprite[i].cstat & 1)
+		if (s->cstat & 1)
 		{
 			S_PlayActorSound(GLASS_BREAKING, i);
-			sprite[i].z += 16 << 8;
-			sprite[i].cstat = 0;
+			s->z += 16 << 8;
+			s->cstat = 0;
 			lotsofglass(i, -1, 5);
 		}
 		break;
 
 	case TOILET:
-		sprite[i].picnum = TOILETBROKE;
-		sprite[i].cstat |= (krand() & 1) << 2;
-		sprite[i].cstat &= ~257;
+		s->picnum = TOILETBROKE;
+		s->cstat |= (krand() & 1) << 2;
+		s->cstat &= ~257;
 		fi.spawn(i, TOILETWATER);
 		S_PlayActorSound(GLASS_BREAKING, i);
 		break;
 
 	case STALL:
-		sprite[i].picnum = STALLBROKE;
-		sprite[i].cstat |= (krand() & 1) << 2;
-		sprite[i].cstat &= ~257;
+		s->picnum = STALLBROKE;
+		s->cstat |= (krand() & 1) << 2;
+		s->cstat &= ~257;
 		fi.spawn(i, TOILETWATER);
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 
 	case HYDRENT:
-		sprite[i].picnum = BROKEFIREHYDRENT;
+		s->picnum = BROKEFIREHYDRENT;
 		fi.spawn(i, TOILETWATER);
 
 		//			for(k=0;k<5;k++)
 		  //		  {
-			//			j = EGS(sprite[i].sectnum,sprite[i].x,sprite[i].y,sprite[i].z-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
+			//			j = EGS(s->sectnum,s->x,s->y,s->z-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(s->zvel>>2),i,5);
 			  //		  sprite[j].pal = 2;
 				//	}
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 
 	case GRATE1:
-		sprite[i].picnum = BGRATE1;
-		sprite[i].cstat &= (65535 - 256 - 1);
+		s->picnum = BGRATE1;
+		s->cstat &= (65535 - 256 - 1);
 		S_PlayActorSound(VENT_BUST, i);
 		break;
 
 	case CIRCLEPANNEL:
-		sprite[i].picnum = CIRCLEPANNELBROKE;
-		sprite[i].cstat &= (65535 - 256 - 1);
+		s->picnum = CIRCLEPANNELBROKE;
+		s->cstat &= (65535 - 256 - 1);
 		S_PlayActorSound(VENT_BUST, i);
 		break;
 	case PANNEL1:
 	case PANNEL2:
-		sprite[i].picnum = BPANNEL1;
-		sprite[i].cstat &= (65535 - 256 - 1);
+		s->picnum = BPANNEL1;
+		s->cstat &= (65535 - 256 - 1);
 		S_PlayActorSound(VENT_BUST, i);
 		break;
 	case PANNEL3:
-		sprite[i].picnum = BPANNEL3;
-		sprite[i].cstat &= (65535 - 256 - 1);
+		s->picnum = BPANNEL3;
+		s->cstat &= (65535 - 256 - 1);
 		S_PlayActorSound(VENT_BUST, i);
 		break;
 	case PIPE1:
@@ -1295,44 +1294,44 @@ void checkhitsprite_d(int i, int sn)
 	case PIPE4:
 	case PIPE5:
 	case PIPE6:
-		switch (sprite[i].picnum)
+		switch (s->picnum)
 		{
-		case PIPE1:sprite[i].picnum = PIPE1B; break;
-		case PIPE2:sprite[i].picnum = PIPE2B; break;
-		case PIPE3:sprite[i].picnum = PIPE3B; break;
-		case PIPE4:sprite[i].picnum = PIPE4B; break;
-		case PIPE5:sprite[i].picnum = PIPE5B; break;
-		case PIPE6:sprite[i].picnum = PIPE6B; break;
+		case PIPE1:s->picnum = PIPE1B; break;
+		case PIPE2:s->picnum = PIPE2B; break;
+		case PIPE3:s->picnum = PIPE3B; break;
+		case PIPE4:s->picnum = PIPE4B; break;
+		case PIPE5:s->picnum = PIPE5B; break;
+		case PIPE6:s->picnum = PIPE6B; break;
 		}
 
 		j = fi.spawn(i, STEAM);
-		sprite[j].z = sector[sprite[i].sectnum].floorz - (32 << 8);
+		sprite[j].z = sector[s->sectnum].floorz - (32 << 8);
 		break;
 
 	case MONK:
 	case LUKE:
 	case INDY:
 	case JURYGUY:
-		S_PlayActorSound(sprite[i].lotag, i);
-		fi.spawn(i, sprite[i].hitag);
+		S_PlayActorSound(s->lotag, i);
+		fi.spawn(i, s->hitag);
 	case SPACEMARINE:
-		sprite[i].extra -= sprite[sn].extra;
-		if (sprite[i].extra > 0) break;
-		sprite[i].ang = krand() & 2047;
+		s->extra -= sprite[sn].extra;
+		if (s->extra > 0) break;
+		s->ang = krand() & 2047;
 		fi.shoot(i, BLOODSPLAT1);
-		sprite[i].ang = krand() & 2047;
+		s->ang = krand() & 2047;
 		fi.shoot(i, BLOODSPLAT2);
-		sprite[i].ang = krand() & 2047;
+		s->ang = krand() & 2047;
 		fi.shoot(i, BLOODSPLAT3);
-		sprite[i].ang = krand() & 2047;
+		s->ang = krand() & 2047;
 		fi.shoot(i, BLOODSPLAT4);
-		sprite[i].ang = krand() & 2047;
+		s->ang = krand() & 2047;
 		fi.shoot(i, BLOODSPLAT1);
-		sprite[i].ang = krand() & 2047;
+		s->ang = krand() & 2047;
 		fi.shoot(i, BLOODSPLAT2);
-		sprite[i].ang = krand() & 2047;
+		s->ang = krand() & 2047;
 		fi.shoot(i, BLOODSPLAT3);
-		sprite[i].ang = krand() & 2047;
+		s->ang = krand() & 2047;
 		fi.shoot(i, BLOODSPLAT4);
 		fi.guts(&sprite[i], JIBS1, 1, myconnectindex);
 		fi.guts(&sprite[i], JIBS2, 2, myconnectindex);
@@ -1345,8 +1344,8 @@ void checkhitsprite_d(int i, int sn)
 		break;
 	case CHAIR1:
 	case CHAIR2:
-		sprite[i].picnum = BROKENCHAIR;
-		sprite[i].cstat = 0;
+		s->picnum = BROKENCHAIR;
+		s->cstat = 0;
 		break;
 	case CHAIR3:
 	case MOVIECAMERA:
@@ -1359,28 +1358,28 @@ void checkhitsprite_d(int i, int sn)
 	case POT3:
 	case TRIPODCAMERA:
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
-		s = &sprite[i];
 		for (j = 0; j < 16; j++) RANDOMSCRAP(s, i);
 		deletesprite(i);
 		break;
 	case PLAYERONWATER:
-		i = sprite[i].owner;
+		i = s->owner;
+		s = &sprite[i];
 	default:
-		if ((sprite[i].cstat & 16) && sprite[i].hitag == 0 && sprite[i].lotag == 0 && sprite[i].statnum == 0)
+		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
 			break;
 
-		if ((sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && sprite[i].statnum != 4)
+		if ((sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && s->statnum != 4)
 		{
 			if (badguy(&sprite[i]) == 1)
 			{
-				if (isWorldTour() && sprite[i].picnum == FIREFLY && sprite[i].xrepeat < 48)
+				if (isWorldTour() && s->picnum == FIREFLY && s->xrepeat < 48)
 					break;
 
 				if (sprite[sn].picnum == RPG) sprite[sn].extra <<= 1;
 
-				if ((sprite[i].picnum != DRONE) && (sprite[i].picnum != ROTATEGUN) && (sprite[i].picnum != COMMANDER) && (sprite[i].picnum < GREENSLIME || sprite[i].picnum > GREENSLIME + 7))
+				if ((s->picnum != DRONE) && (s->picnum != ROTATEGUN) && (s->picnum != COMMANDER) && (s->picnum < GREENSLIME || s->picnum > GREENSLIME + 7))
 					if (sprite[sn].picnum != FREEZEBLAST)
-						//if (actortype[sprite[i].picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
+						//if (actortype[s->picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
 						{
 							j = fi.spawn(sn, JIBS6);
 							if (sprite[sn].pal == 6)
@@ -1393,7 +1392,7 @@ void checkhitsprite_d(int i, int sn)
 
 				j = sprite[sn].owner;
 
-				if (j >= 0 && sprite[j].picnum == APLAYER && sprite[i].picnum != ROTATEGUN && sprite[i].picnum != DRONE)
+				if (j >= 0 && sprite[j].picnum == APLAYER && s->picnum != ROTATEGUN && s->picnum != DRONE)
 					if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
 					{
 						fi.shoot(i, BLOODSPLAT3);
@@ -1402,38 +1401,38 @@ void checkhitsprite_d(int i, int sn)
 						fi.shoot(i, BLOODSPLAT4);
 					}
 
-				if (sprite[i].picnum != TANK && !bossguy(&sprite[i]) && sprite[i].picnum != RECON && sprite[i].picnum != ROTATEGUN)
+				if (s->picnum != TANK && !bossguy(&sprite[i]) && s->picnum != RECON && s->picnum != ROTATEGUN)
 				{
-					if ((sprite[i].cstat & 48) == 0)
-						sprite[i].ang = (sprite[sn].ang + 1024) & 2047;
-					sprite[i].xvel = -(sprite[sn].extra << 2);
-					short j = sprite[i].sectnum;
-					pushmove(&sprite[i].x, &sprite[i].y, &sprite[i].z, &j, 128L, (4L << 8), (4L << 8), CLIPMASK0);
-					if (j != sprite[i].sectnum && j >= 0 && j < MAXSECTORS)
+					if ((s->cstat & 48) == 0)
+						s->ang = (sprite[sn].ang + 1024) & 2047;
+					s->xvel = -(sprite[sn].extra << 2);
+					short j = s->sectnum;
+					pushmove(&s->x, &s->y, &s->z, &j, 128L, (4L << 8), (4L << 8), CLIPMASK0);
+					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
 						changespritesect(i, j);
 				}
 
-				if (sprite[i].statnum == 2)
+				if (s->statnum == 2)
 				{
 					changespritestat(i, 1);
 					hittype[i].timetosleep = SLEEPTIME;
 				}
-				if ((sprite[i].xrepeat < 24 || sprite[i].picnum == SHARK) && sprite[sn].picnum == SHRINKSPARK) return;
+				if ((s->xrepeat < 24 || s->picnum == SHARK) && sprite[sn].picnum == SHRINKSPARK) return;
 			}
 
-			if (sprite[i].statnum != 2)
+			if (s->statnum != 2)
 			{
-				if (sprite[sn].picnum == FREEZEBLAST && ((sprite[i].picnum == APLAYER && sprite[i].pal == 1) || (freezerhurtowner == 0 && sprite[sn].owner == i)))
+				if (sprite[sn].picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (freezerhurtowner == 0 && sprite[sn].owner == i)))
 					return;
 
 
 				int hitpic = sprite[sn].picnum;
 				if (sprite[sprite[sn].owner].picnum == APLAYER)
 				{
-					if (sprite[i].picnum == APLAYER && ud.coop != 0 && ud.ffire == 0)
+					if (s->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0)
 						return;
 
-					if (isWorldTour() && hitpic == FIREBALL && sprite[sprite[i].owner].picnum != FIREBALL)
+					if (isWorldTour() && hitpic == FIREBALL && sprite[s->owner].picnum != FIREBALL)
 						hitpic = FLAMETHROWERFLAME;
 				}
 
@@ -1443,9 +1442,9 @@ void checkhitsprite_d(int i, int sn)
 				hittype[i].owner = sprite[sn].owner;
 			}
 
-			if (sprite[i].statnum == 10)
+			if (s->statnum == 10)
 			{
-				p = sprite[i].yvel;
+				p = s->yvel;
 				if (ps[p].newowner >= 0)
 				{
 					ps[p].newowner = -1;
@@ -1464,7 +1463,7 @@ void checkhitsprite_d(int i, int sn)
 					}
 				}
 
-				if (sprite[i].xrepeat < 24 && sprite[sn].picnum == SHRINKSPARK)
+				if (s->xrepeat < 24 && sprite[sn].picnum == SHRINKSPARK)
 					return;
 
 				if (sprite[hittype[i].owner].picnum != APLAYER)

@@ -1527,18 +1527,18 @@ bool checkhitceiling_r(int sn)
 void checkhitsprite_r(int i, int sn)
 {
 	int j, k, p;
-	spritetype* s;
 
 	i &= (MAXSPRITES - 1);
+	spritetype* s = &sprite[i];
 
-	if (isRRRA()) switch (sprite[i].picnum)
+	if (isRRRA()) switch (s->picnum)
 	{
 	case RRTILE8464:
 		break;
 	case RRTILE8487:
 	case RRTILE8489:
 		S_PlayActorSound(471, i);
-		sprite[i].picnum++;
+		s->picnum++;
 		break;
 	case RRTILE7638:
 	case RRTILE7644:
@@ -1550,11 +1550,11 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE7876:
 	case RRTILE7881:
 	case RRTILE7883:
-		sprite[i].picnum++;
+		s->picnum++;
 		S_PlayActorSound(VENT_BUST, i);
 		break;
 	case RRTILE7879:
-		sprite[i].picnum++;
+		s->picnum++;
 		S_PlayActorSound(495, i);
 		fi.hitradius(i, 10, 0, 0, 1, 1);
 		break;
@@ -1563,120 +1563,120 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE7700:
 	case RRTILE7702:
 	case RRTILE7711:
-		sprite[i].picnum++;
+		s->picnum++;
 		S_PlayActorSound(47, i);
 		break;
 	case RRTILE7636:
-		sprite[i].picnum += 3;
+		s->picnum += 3;
 		S_PlayActorSound(VENT_BUST, i);
 		break;
 	case RRTILE7875:
-		sprite[i].picnum += 3;
+		s->picnum += 3;
 		S_PlayActorSound(VENT_BUST, i);
 		break;
 	case RRTILE7640:
-		sprite[i].picnum += 2;
+		s->picnum += 2;
 		S_PlayActorSound(VENT_BUST, i);
 		break;
 	case RRTILE7595:
 	case RRTILE7704:
-		sprite[i].picnum = RRTILE7705;
+		s->picnum = RRTILE7705;
 		S_PlayActorSound(495, i);
 		break;
 	case RRTILE8579:
-		sprite[i].picnum = RRTILE5014;
+		s->picnum = RRTILE5014;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7441:
-		sprite[i].picnum = RRTILE5016;
+		s->picnum = RRTILE5016;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7534:
-		sprite[i].picnum = RRTILE5029;
+		s->picnum = RRTILE5029;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7545:
-		sprite[i].picnum = RRTILE5030;
+		s->picnum = RRTILE5030;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7547:
-		sprite[i].picnum = RRTILE5031;
+		s->picnum = RRTILE5031;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7574:
-		sprite[i].picnum = RRTILE5032;
+		s->picnum = RRTILE5032;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7575:
-		sprite[i].picnum = RRTILE5033;
+		s->picnum = RRTILE5033;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7578:
-		sprite[i].picnum = RRTILE5034;
+		s->picnum = RRTILE5034;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7478:
-		sprite[i].picnum = RRTILE5035;
+		s->picnum = RRTILE5035;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8525:
-		sprite[i].picnum = RRTILE5036;
+		s->picnum = RRTILE5036;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8537:
-		sprite[i].picnum = RRTILE5062;
+		s->picnum = RRTILE5062;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8215:
-		sprite[i].picnum = RRTILE5064;
+		s->picnum = RRTILE5064;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8216:
-		sprite[i].picnum = RRTILE5065;
+		s->picnum = RRTILE5065;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8217:
-		sprite[i].picnum = RRTILE5066;
+		s->picnum = RRTILE5066;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8218:
-		sprite[i].picnum = RRTILE5067;
+		s->picnum = RRTILE5067;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8220:
-		sprite[i].picnum = RRTILE5068;
+		s->picnum = RRTILE5068;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8221:
-		sprite[i].picnum = RRTILE5069;
+		s->picnum = RRTILE5069;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8312:
-		sprite[i].picnum = RRTILE5071;
+		s->picnum = RRTILE5071;
 		S_PlayActorSound(472, i);
 		break;
 	case RRTILE8395:
-		sprite[i].picnum = RRTILE5072;
+		s->picnum = RRTILE5072;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8423:
-		sprite[i].picnum = RRTILE5073;
+		s->picnum = RRTILE5073;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE3462:
-		sprite[i].picnum = RRTILE5074;
+		s->picnum = RRTILE5074;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case UWHIP:
-		sprite[i].picnum = RRTILE5075;
+		s->picnum = RRTILE5075;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8608:
-		sprite[i].picnum = RRTILE5083;
+		s->picnum = RRTILE5083;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8609:
-		sprite[i].picnum = RRTILE5084;
+		s->picnum = RRTILE5084;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8567:
@@ -1684,23 +1684,23 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8569:
 	case RRTILE8570:
 	case RRTILE8571:
-		sprite[i].picnum = RRTILE5082;
+		s->picnum = RRTILE5082;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8640:
-		sprite[i].picnum = RRTILE5085;
+		s->picnum = RRTILE5085;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8611:
-		sprite[i].picnum = RRTILE5086;
+		s->picnum = RRTILE5086;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case TECHLIGHTBUST2:
-		sprite[i].picnum = TECHLIGHTBUST4;
+		s->picnum = TECHLIGHTBUST4;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8497:
-		sprite[i].picnum = RRTILE5076;
+		s->picnum = RRTILE5076;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8162:
@@ -1711,7 +1711,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8167:
 	case RRTILE8168:
 		changespritestat(i, STAT_MISC);
-		sprite[i].picnum = RRTILE5063;
+		s->picnum = RRTILE5063;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8589:
@@ -1722,218 +1722,218 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8594:
 	case RRTILE8595:
 		changespritestat(i, STAT_MISC);
-		sprite[i].picnum = RRTILE8588;
+		s->picnum = RRTILE8588;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE3497:
-		sprite[i].picnum = RRTILE5076;
+		s->picnum = RRTILE5076;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE3498:
-		sprite[i].picnum = RRTILE5077;
+		s->picnum = RRTILE5077;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE3499:
-		sprite[i].picnum = RRTILE5078;
+		s->picnum = RRTILE5078;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8503:
-		sprite[i].picnum = RRTILE5079;
+		s->picnum = RRTILE5079;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7901:
-		sprite[i].picnum = RRTILE5080;
+		s->picnum = RRTILE5080;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7696:
-		sprite[i].picnum = RRTILE7697;
+		s->picnum = RRTILE7697;
 		S_PlayActorSound(DUKE_SHUCKS, i);
 		break;
 	case RRTILE7806:
-		sprite[i].picnum = RRTILE5043;
+		s->picnum = RRTILE5043;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7885:
 	case RRTILE7890:
-		sprite[i].picnum = RRTILE5045;
+		s->picnum = RRTILE5045;
 		S_PlayActorSound(495, i);
 		fi.hitradius(i, 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7886:
-		sprite[i].picnum = RRTILE5046;
+		s->picnum = RRTILE5046;
 		S_PlayActorSound(495, i);
 		fi.hitradius(i, 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7887:
-		sprite[i].picnum = RRTILE5044;
+		s->picnum = RRTILE5044;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		fi.hitradius(i, 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7900:
-		sprite[i].picnum = RRTILE5047;
+		s->picnum = RRTILE5047;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7906:
-		sprite[i].picnum = RRTILE5048;
+		s->picnum = RRTILE5048;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7912:
 	case RRTILE7913:
-		sprite[i].picnum = RRTILE5049;
+		s->picnum = RRTILE5049;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8047:
-		sprite[i].picnum = RRTILE5050;
+		s->picnum = RRTILE5050;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8596:
-		sprite[i].picnum = RRTILE8598;
+		s->picnum = RRTILE8598;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8059:
-		sprite[i].picnum = RRTILE5051;
+		s->picnum = RRTILE5051;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8060:
-		sprite[i].picnum = RRTILE5052;
+		s->picnum = RRTILE5052;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8222:
-		sprite[i].picnum = RRTILE5053;
+		s->picnum = RRTILE5053;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8223:
-		sprite[i].picnum = RRTILE5054;
+		s->picnum = RRTILE5054;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8224:
-		sprite[i].picnum = RRTILE5055;
+		s->picnum = RRTILE5055;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8370:
-		sprite[i].picnum = RRTILE5056;
+		s->picnum = RRTILE5056;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8371:
-		sprite[i].picnum = RRTILE5057;
+		s->picnum = RRTILE5057;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8372:
-		sprite[i].picnum = RRTILE5058;
+		s->picnum = RRTILE5058;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8373:
-		sprite[i].picnum = RRTILE5059;
+		s->picnum = RRTILE5059;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8396:
-		sprite[i].picnum = RRTILE5038;
+		s->picnum = RRTILE5038;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8397:
-		sprite[i].picnum = RRTILE5039;
+		s->picnum = RRTILE5039;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8398:
-		sprite[i].picnum = RRTILE5040;
+		s->picnum = RRTILE5040;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8399:
-		sprite[i].picnum = RRTILE5041;
+		s->picnum = RRTILE5041;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8385:
-		sprite[i].picnum = RRTILE8386;
+		s->picnum = RRTILE8386;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8387:
-		sprite[i].picnum = RRTILE8388;
+		s->picnum = RRTILE8388;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8389:
-		sprite[i].picnum = RRTILE8390;
+		s->picnum = RRTILE8390;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8391:
-		sprite[i].picnum = RRTILE8392;
+		s->picnum = RRTILE8392;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE7553:
-		sprite[i].picnum = RRTILE5035;
+		s->picnum = RRTILE5035;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8475:
-		sprite[i].picnum = RRTILE5075;
+		s->picnum = RRTILE5075;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8498:
-		sprite[i].picnum = RRTILE5077;
+		s->picnum = RRTILE5077;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8499:
-		sprite[i].picnum = RRTILE5078;
+		s->picnum = RRTILE5078;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE2445:
-		sprite[i].picnum = RRTILE2450;
+		s->picnum = RRTILE2450;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE2123:
-		sprite[i].picnum = RRTILE2124;
+		s->picnum = RRTILE2124;
 		S_PlayActorSound(GLASS_BREAKING, i);
 		lotsofglass(i, -1, 10);
 		break;
 	case RRTILE3773:
-		sprite[i].picnum = RRTILE8651;
+		s->picnum = RRTILE8651;
 		S_PlayActorSound(GLASS_BREAKING, i);
 		lotsofglass(i, -1, 10);
 		break;
 	case RRTILE7533:
-		sprite[i].picnum = RRTILE5035;
+		s->picnum = RRTILE5035;
 		S_PlayActorSound(495, i);
 		fi.hitradius(i, 10, 0, 0, 1, 1);
 		break;
 	case RRTILE8394:
-		sprite[i].picnum = RRTILE5072;
+		s->picnum = RRTILE5072;
 		S_PlayActorSound(495, i);
 		break;
 	case RRTILE8461:
 	case RRTILE8462:
-		sprite[i].picnum = RRTILE5074;
+		s->picnum = RRTILE5074;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8679:
-		sprite[i].picnum = RRTILE8680;
+		s->picnum = RRTILE8680;
 		S_PlayActorSound(DUKE_SHUCKS, i);
 		fi.hitradius(i, 10, 0, 0, 1, 1);
-		if (sprite[i].lotag != 0)
+		if (s->lotag != 0)
 		{
 			short j;
 			for (j = 0; j < MAXSPRITES; j++)
 			{
 				if (sprite[j].picnum == RRTILE8679 && sprite[j].pal == 4)
 				{
-					if (sprite[j].lotag == sprite[i].lotag)
+					if (sprite[j].lotag == s->lotag)
 						sprite[j].picnum = RRTILE8680;
 				}
 			}
 		}
 		break;
 	case RRTILE3584:
-		sprite[i].picnum = RRTILE8681;
+		s->picnum = RRTILE8681;
 		S_PlayActorSound(495, i);
 		fi.hitradius(i, 250, 0, 0, 1, 1);
 		break;
 	case RRTILE8682:
-		sprite[i].picnum = RRTILE8683;
+		s->picnum = RRTILE8683;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 	case RRTILE8099:
-		if (sprite[i].lotag == 5)
+		if (s->lotag == 5)
 		{
 			short j;
-			sprite[i].lotag = 0;
-			sprite[i].picnum = RRTILE5087;
+			s->lotag = 0;
+			s->picnum = RRTILE5087;
 			S_PlayActorSound(340, i);
 			for (j = 0; j < MAXSPRITES; j++)
 			{
@@ -1943,17 +1943,17 @@ void checkhitsprite_r(int i, int sn)
 		}
 		break;
 	case RRTILE2431:
-		if (sprite[i].pal != 4)
+		if (s->pal != 4)
 		{
-			sprite[i].picnum = RRTILE2451;
-			if (sprite[i].lotag != 0)
+			s->picnum = RRTILE2451;
+			if (s->lotag != 0)
 			{
 				short j;
 				for (j = 0; j < MAXSPRITES; j++)
 				{
 					if (sprite[j].picnum == RRTILE2431 && sprite[j].pal == 4)
 					{
-						if (sprite[i].lotag == sprite[j].lotag)
+						if (s->lotag == sprite[j].lotag)
 							sprite[j].picnum = RRTILE2451;
 					}
 				}
@@ -1961,8 +1961,8 @@ void checkhitsprite_r(int i, int sn)
 		}
 		break;
 	case RRTILE2443:
-		if (sprite[i].pal != 19)
-			sprite[i].picnum = RRTILE2455;
+		if (s->pal != 19)
+			s->picnum = RRTILE2455;
 		break;
 	case RRTILE2455:
 		S_PlayActorSound(SQUISHED, i);
@@ -1970,24 +1970,24 @@ void checkhitsprite_r(int i, int sn)
 		deletesprite(i);
 		break;
 	case RRTILE2451:
-		if (sprite[i].pal != 4)
+		if (s->pal != 4)
 		{
 			S_PlayActorSound(SQUISHED, i);
-			if (sprite[i].lotag != 0)
+			if (s->lotag != 0)
 			{
 				short j;
 				for (j = 0; j < MAXSPRITES; j++)
 				{
 					if (sprite[j].picnum == RRTILE2451 && sprite[j].pal == 4)
 					{
-						if (sprite[i].lotag == sprite[j].lotag)
+						if (s->lotag == sprite[j].lotag)
 						{
 							fi.guts(&sprite[i], RRTILE2460, 12, myconnectindex);
 							fi.guts(&sprite[i], RRTILE2465, 3, myconnectindex);
 							sprite[j].xrepeat = 0;
 							sprite[j].yrepeat = 0;
-							sprite[i].xrepeat = 0;
-							sprite[i].yrepeat = 0;
+							s->xrepeat = 0;
+							s->yrepeat = 0;
 						}
 					}
 				}
@@ -1996,8 +1996,8 @@ void checkhitsprite_r(int i, int sn)
 			{
 				fi.guts(&sprite[i], RRTILE2460, 12, myconnectindex);
 				fi.guts(&sprite[i], RRTILE2465, 3, myconnectindex);
-				sprite[i].xrepeat = 0;
-				sprite[i].yrepeat = 0;
+				s->xrepeat = 0;
+				s->yrepeat = 0;
 			}
 		}
 		break;
@@ -2006,22 +2006,22 @@ void checkhitsprite_r(int i, int sn)
 		break;
 	}
 
-	switch (sprite[i].picnum)
+	switch (s->picnum)
 	{
 	case RRTILE3114:
-		sprite[i].picnum = RRTILE3117;
+		s->picnum = RRTILE3117;
 		break;
 	case RRTILE2876:
-		sprite[i].picnum = RRTILE2990;
+		s->picnum = RRTILE2990;
 		break;
 	case RRTILE3152:
-		sprite[i].picnum = RRTILE3218;
+		s->picnum = RRTILE3218;
 		break;
 	case RRTILE3153:
-		sprite[i].picnum = RRTILE3219;
+		s->picnum = RRTILE3219;
 		break;
 	case RRTILE2030:
-		sprite[i].picnum = RRTILE2034;
+		s->picnum = RRTILE2034;
 		S_PlayActorSound(GLASS_BREAKING, i);
 		lotsofglass(i, -1, 10);
 		break;
@@ -2029,19 +2029,19 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE2915:
 	case RRTILE3115:
 	case RRTILE3171:
-		switch (sprite[i].picnum)
+		switch (s->picnum)
 		{
 		case RRTILE2915:
-			sprite[i].picnum = RRTILE2977;
+			s->picnum = RRTILE2977;
 			break;
 		case RRTILE2893:
-			sprite[i].picnum = RRTILE2978;
+			s->picnum = RRTILE2978;
 			break;
 		case RRTILE3115:
-			sprite[i].picnum = RRTILE3116;
+			s->picnum = RRTILE3116;
 			break;
 		case RRTILE3171:
-			sprite[i].picnum = RRTILE3216;
+			s->picnum = RRTILE3216;
 			break;
 		}
 		S_PlayActorSound(GLASS_BREAKING, i);
@@ -2051,7 +2051,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE2158:
 	case RRTILE2160:
 	case RRTILE2175:
-		sprite[i].picnum++;
+		s->picnum++;
 		S_PlayActorSound(GLASS_BREAKING, i);
 		lotsofglass(i, -1, 10);
 		break;
@@ -2060,12 +2060,12 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE2152:
 		S_PlayActorSound(GLASS_BREAKING, i);
 		lotsofglass(i, -1, 10);
-		sprite[i].picnum++;
+		s->picnum++;
 		for (k = 0; k < 6; k++)
-			EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (sprite[i].zvel >> 2), i, 5);
+			EGS(s->sectnum, s->x, s->y, s->z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), i, 5);
 		break;
 	case BOWLINGBALL:
-		sprite[sn].xvel = (sprite[i].xvel >> 1) + (sprite[i].xvel >> 2);
+		sprite[sn].xvel = (s->xvel >> 1) + (s->xvel >> 2);
 		sprite[sn].ang -= (krand() & 16);
 		S_PlayActorSound(355, i);
 		break;
@@ -2078,32 +2078,32 @@ void checkhitsprite_r(int i, int sn)
 	case HENSTAND + 1:
 		if (sprite[sn].picnum == QUEBALL || sprite[sn].picnum == STRIPEBALL)
 		{
-			sprite[sn].xvel = (sprite[i].xvel >> 1) + (sprite[i].xvel >> 2);
-			sprite[sn].ang -= (sprite[i].ang << 1) + 1024;
-			sprite[i].ang = getangle(sprite[i].x - sprite[sn].x, sprite[i].y - sprite[sn].y) - 512;
+			sprite[sn].xvel = (s->xvel >> 1) + (s->xvel >> 2);
+			sprite[sn].ang -= (s->ang << 1) + 1024;
+			s->ang = getangle(s->x - sprite[sn].x, s->y - sprite[sn].y) - 512;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, i);
 		}
 		else if (sprite[sn].picnum == RRTILE3440 || sprite[sn].picnum == RRTILE3440 + 1)
 		{
-			sprite[sn].xvel = (sprite[i].xvel >> 1) + (sprite[i].xvel >> 2);
-			sprite[sn].ang -= ((sprite[i].ang << 1) + krand()) & 64;
-			sprite[i].ang = (sprite[i].ang + krand()) & 16;
+			sprite[sn].xvel = (s->xvel >> 1) + (s->xvel >> 2);
+			sprite[sn].ang -= ((s->ang << 1) + krand()) & 64;
+			s->ang = (s->ang + krand()) & 16;
 			S_PlayActorSound(355, i);
 		}
 		else if (sprite[sn].picnum == HENSTAND || sprite[sn].picnum == HENSTAND + 1)
 		{
-			sprite[sn].xvel = (sprite[i].xvel >> 1) + (sprite[i].xvel >> 2);
-			sprite[sn].ang -= ((sprite[i].ang << 1) + krand()) & 16;
-			sprite[i].ang = (sprite[i].ang + krand()) & 16;
+			sprite[sn].xvel = (s->xvel >> 1) + (s->xvel >> 2);
+			sprite[sn].ang -= ((s->ang << 1) + krand()) & 16;
+			s->ang = (s->ang + krand()) & 16;
 			S_PlayActorSound(355, i);
 		}
 		else
 		{
 			if (krand() & 3)
 			{
-				sprite[i].xvel = 164;
-				sprite[i].ang = sprite[sn].ang;
+				s->xvel = 164;
+				s->ang = sprite[sn].ang;
 			}
 		}
 		break;
@@ -2127,7 +2127,7 @@ void checkhitsprite_r(int i, int sn)
 		case UWHIP:
 			if (hittype[i].temp_data[0] == 0)
 			{
-				sprite[i].cstat &= ~257;
+				s->cstat &= ~257;
 				hittype[i].temp_data[0] = 1;
 				fi.spawn(i, BURNING);
 			}
@@ -2152,13 +2152,13 @@ void checkhitsprite_r(int i, int sn)
 		case UWHIP:
 			for (k = 0; k < 64; k++)
 			{
-				j = EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (sprite[i].zvel >> 2), i, 5);
+				j = EGS(s->sectnum, s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), i, 5);
 				sprite[j].pal = 8;
 			}
 
-			if (sprite[i].picnum == CACTUS)
-				sprite[i].picnum = CACTUSBROKE;
-			sprite[i].cstat &= ~257;
+			if (s->picnum == CACTUS)
+				s->picnum = CACTUSBROKE;
+			s->cstat &= ~257;
 			//	   else deletesprite(i);
 			break;
 		}
@@ -2166,10 +2166,9 @@ void checkhitsprite_r(int i, int sn)
 
 
 	case FANSPRITE:
-		sprite[i].picnum = FANSPRITEBROKE;
-		sprite[i].cstat &= (65535 - 257);
+		s->picnum = FANSPRITEBROKE;
+		s->cstat &= (65535 - 257);
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
-		s = &sprite[i];
 		for (j = 0; j < 16; j++) RANDOMSCRAP(s, i);
 
 		break;
@@ -2186,7 +2185,7 @@ void checkhitsprite_r(int i, int sn)
 		if (actorinfo[SHOTSPARK1].scriptaddress && sprite[sn].extra != ScriptCode[actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sector[sprite[i].sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(s->sectnum, s->x, s->y, sector[s->sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, i, 5);
 			fi.spawn(i, EXPLOSION2);
 			deletesprite(i);
@@ -2221,18 +2220,18 @@ void checkhitsprite_r(int i, int sn)
 	case VASE:
 	case STATUEFLASH:
 	case STATUE:
-		if (sprite[i].picnum == BOTTLE10)
+		if (s->picnum == BOTTLE10)
 			fi.lotsofmoney(&sprite[i], 4 + (krand() & 3));
-		else if (sprite[i].picnum == STATUE || sprite[i].picnum == STATUEFLASH)
+		else if (s->picnum == STATUE || s->picnum == STATUEFLASH)
 		{
 			lotsofcolourglass(i, -1, 40);
 			S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		}
-		else if (sprite[i].picnum == VASE)
+		else if (s->picnum == VASE)
 			lotsofglass(i, -1, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, i);
-		sprite[i].ang = krand() & 2047;
+		s->ang = krand() & 2047;
 		lotsofglass(i, -1, 8);
 		deletesprite(i);
 		break;
@@ -2246,49 +2245,49 @@ void checkhitsprite_r(int i, int sn)
 		deletesprite(i);
 		break;
 	case FORCESPHERE:
-		sprite[i].xrepeat = 0;
-		hittype[sprite[i].owner].temp_data[0] = 32;
-		hittype[sprite[i].owner].temp_data[1] = !hittype[sprite[i].owner].temp_data[1];
-		hittype[sprite[i].owner].temp_data[2] ++;
+		s->xrepeat = 0;
+		hittype[s->owner].temp_data[0] = 32;
+		hittype[s->owner].temp_data[1] = !hittype[s->owner].temp_data[1];
+		hittype[s->owner].temp_data[2] ++;
 		fi.spawn(i, EXPLOSION2);
 		break;
 	case TOILET:
-		sprite[i].picnum = TOILETBROKE;
-		sprite[i].cstat |= (krand() & 1) << 2;
-		sprite[i].cstat &= ~257;
+		s->picnum = TOILETBROKE;
+		s->cstat |= (krand() & 1) << 2;
+		s->cstat &= ~257;
 		fi.spawn(i, TOILETWATER);
 		S_PlayActorSound(GLASS_BREAKING, i);
 		break;
 
 	case STALL:
-		sprite[i].picnum = STALLBROKE;
-		sprite[i].cstat |= (krand() & 1) << 2;
-		sprite[i].cstat &= ~257;
+		s->picnum = STALLBROKE;
+		s->cstat |= (krand() & 1) << 2;
+		s->cstat &= ~257;
 		fi.spawn(i, TOILETWATER);
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 
 	case HYDRENT:
-		sprite[i].picnum = BROKEFIREHYDRENT;
+		s->picnum = BROKEFIREHYDRENT;
 		fi.spawn(i, TOILETWATER);
 
 		//			for(k=0;k<5;k++)
 		  //		  {
-			//			j = EGS(sprite[i].sectnum,sprite[i].x,sprite[i].y,sprite[i].z-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
+			//			j = EGS(s->sectnum,s->x,s->y,s->z-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(s->zvel>>2),i,5);
 			  //		  sprite[j].pal = 2;
 				//	}
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
 		break;
 
 	case GRATE1:
-		sprite[i].picnum = BGRATE1;
-		sprite[i].cstat &= (65535 - 256 - 1);
+		s->picnum = BGRATE1;
+		s->cstat &= (65535 - 256 - 1);
 		S_PlayActorSound(VENT_BUST, i);
 		break;
 
 	case CIRCLEPANNEL:
-		sprite[i].picnum = CIRCLEPANNELBROKE;
-		sprite[i].cstat &= (65535 - 256 - 1);
+		s->picnum = CIRCLEPANNELBROKE;
+		s->cstat &= (65535 - 256 - 1);
 		S_PlayActorSound(VENT_BUST, i);
 		break;
 
@@ -2298,24 +2297,24 @@ void checkhitsprite_r(int i, int sn)
 	case PIPE4:
 	case PIPE5:
 	case PIPE6:
-		switch (sprite[i].picnum)
+		switch (s->picnum)
 		{
-		case PIPE1:sprite[i].picnum = PIPE1B; break;
-		case PIPE2:sprite[i].picnum = PIPE2B; break;
-		case PIPE3:sprite[i].picnum = PIPE3B; break;
-		case PIPE4:sprite[i].picnum = PIPE4B; break;
-		case PIPE5:sprite[i].picnum = PIPE5B; break;
-		case PIPE6:sprite[i].picnum = PIPE6B; break;
+		case PIPE1:s->picnum = PIPE1B; break;
+		case PIPE2:s->picnum = PIPE2B; break;
+		case PIPE3:s->picnum = PIPE3B; break;
+		case PIPE4:s->picnum = PIPE4B; break;
+		case PIPE5:s->picnum = PIPE5B; break;
+		case PIPE6:s->picnum = PIPE6B; break;
 		}
 
 		j = fi.spawn(i, STEAM);
-		sprite[j].z = sector[sprite[i].sectnum].floorz - (32 << 8);
+		sprite[j].z = sector[s->sectnum].floorz - (32 << 8);
 		break;
 
 	case CHAIR1:
 	case CHAIR2:
-		sprite[i].picnum = BROKENCHAIR;
-		sprite[i].cstat = 0;
+		s->picnum = BROKENCHAIR;
+		s->cstat = 0;
 		break;
 	case CHAIR3:
 	case MOVIECAMERA:
@@ -2327,26 +2326,26 @@ void checkhitsprite_r(int i, int sn)
 	case POT2:
 	case POT3:
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
-		s = &sprite[i];
 		for (j = 0; j < 16; j++) RANDOMSCRAP(s, i);
 		deletesprite(i);
 		break;
 	case PLAYERONWATER:
-		i = sprite[i].owner;
+		i = s->owner;
+		s = &sprite[i];
 	default:
-		if ((sprite[i].cstat & 16) && sprite[i].hitag == 0 && sprite[i].lotag == 0 && sprite[i].statnum == 0)
+		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
 			break;
 
-		if ((sprite[sn].picnum == SHRINKSPARK || sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && sprite[i].statnum != 4)
+		if ((sprite[sn].picnum == SHRINKSPARK || sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && s->statnum != 4)
 		{
 			if (badguy(&sprite[i]) == 1)
 			{
 				if (sprite[sn].picnum == RPG) sprite[sn].extra <<= 1;
 				else if (isRRRA() && sprite[sn].picnum == RPG2) sprite[sn].extra <<= 1;
 
-				if ((sprite[i].picnum != DRONE))
+				if ((s->picnum != DRONE))
 					if (sprite[sn].picnum != FREEZEBLAST)
-						//if (actortype[sprite[i].picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
+						//if (actortype[s->picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
 						{
 							j = fi.spawn(sn, JIBS6);
 							if (sprite[sn].pal == 6)
@@ -2359,7 +2358,7 @@ void checkhitsprite_r(int i, int sn)
 
 				j = sprite[sn].owner;
 
-				if (j >= 0 && sprite[j].picnum == APLAYER && sprite[i].picnum != DRONE)
+				if (j >= 0 && sprite[j].picnum == APLAYER && s->picnum != DRONE)
 					if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
 					{
 						fi.shoot(i, BLOODSPLAT3);
@@ -2368,28 +2367,28 @@ void checkhitsprite_r(int i, int sn)
 						fi.shoot(i, BLOODSPLAT4);
 					}
 
-				if (sprite[i].statnum == 2)
+				if (s->statnum == 2)
 				{
 					changespritestat(i, 1);
 					hittype[i].timetosleep = SLEEPTIME;
 				}
 			}
 
-			if (sprite[i].statnum != 2)
+			if (s->statnum != 2)
 			{
-				if (sprite[sn].picnum == FREEZEBLAST && ((sprite[i].picnum == APLAYER && sprite[i].pal == 1) || (freezerhurtowner == 0 && sprite[sn].owner == i)))
+				if (sprite[sn].picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (freezerhurtowner == 0 && sprite[sn].owner == i)))
 					return;
 
 				hittype[i].picnum = sprite[sn].picnum;
 				hittype[i].extra += sprite[sn].extra;
-				if (sprite[i].picnum != COW)
+				if (s->picnum != COW)
 					hittype[i].ang = sprite[sn].ang;
 				hittype[i].owner = sprite[sn].owner;
 			}
 
-			if (sprite[i].statnum == 10)
+			if (s->statnum == 10)
 			{
-				p = sprite[i].yvel;
+				p = s->yvel;
 				if (ps[p].newowner >= 0)
 				{
 					ps[p].newowner = -1;
