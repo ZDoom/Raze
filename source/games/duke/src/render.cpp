@@ -389,7 +389,7 @@ void setdrugmode(player_struct *p, int oyrepeat)
 
 static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixedhoriz choriz, int sect, int smoothratio)
 {
-	short gs, tgsect, nextspr, geosect, geoid = 0;
+	short gs, tgsect, geosect, geoid = 0;
 	int spr;
 	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
 	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
@@ -397,13 +397,12 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosector[gs];
-		spr = headspritesect[tgsect];
-		while (spr != -1)
+
+		SectIterator it(tgsect);
+		while ((spr = it.NextIndex()) >= 0)
 		{
-			nextspr = nextspritesect[spr];
 			changespritesect((short)spr, geosectorwarp[gs]);
 			setsprite((short)spr, sprite[spr].x -= geox[gs], sprite[spr].y -= geoy[gs], sprite[spr].z);
-			spr = nextspr;
 		}
 		if (geosector[gs] == sect)
 		{
@@ -419,13 +418,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosectorwarp[gs];
-		spr = headspritesect[tgsect];
-		while (spr != -1)
+		SectIterator it(tgsect);
+		while ((spr = it.NextIndex()) >= 0)
 		{
-			nextspr = nextspritesect[spr];
 			changespritesect((short)spr, geosector[gs]);
 			setsprite((short)spr, sprite[spr].x += geox[gs], sprite[spr].y += geoy[gs], sprite[spr].z);
-			spr = nextspr;
 		}
 	}
 	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
@@ -433,13 +430,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosector[gs];
-		spr = headspritesect[tgsect];
-		while (spr != -1)
+		SectIterator it(tgsect);
+		while ((spr = it.NextIndex()) >= 0)
 		{
-			nextspr = nextspritesect[spr];
 			changespritesect((short)spr, geosectorwarp2[gs]);
 			setsprite((short)spr, sprite[spr].x -= geox2[gs], sprite[spr].y -= geoy2[gs], sprite[spr].z);
-			spr = nextspr;
 		}
 		if (geosector[gs] == sect)
 		{
@@ -455,13 +450,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosectorwarp2[gs];
-		spr = headspritesect[tgsect];
-		while (spr != -1)
+		SectIterator it(tgsect);
+		while ((spr = it.NextIndex()) >= 0)
 		{
-			nextspr = nextspritesect[spr];
 			changespritesect((short)spr, geosector[gs]);
 			setsprite((short)spr, sprite[spr].x += geox2[gs], sprite[spr].y += geoy2[gs], sprite[spr].z);
-			spr = nextspr;
 		}
 	}
 	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);

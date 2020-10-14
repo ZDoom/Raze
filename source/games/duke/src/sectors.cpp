@@ -57,18 +57,20 @@ int callsound(int sn, int whatsprite)
 		return -1;
 	}
 
-	int i = headspritesect[sn];
-	while (i >= 0)
+	int i;
+	SectIterator it(sn);
+	while ((i = it.NextIndex()) >= 0)
 	{
-		if (sprite[i].picnum == MUSICANDSFX && sprite[i].lotag < 1000)
+		auto si = &sprite[i];
+		if (si->picnum == MUSICANDSFX && si->lotag < 1000)
 		{
 			if (whatsprite == -1) whatsprite = i;
 
-			int snum = sprite[i].lotag;
+			int snum = si->lotag;
 			auto flags = S_GetUserFlags(snum);
 
 			// Reset if the desired actor isn't playing anything.
-			bool hival = S_IsSoundValid(sprite[i].hitag);
+			bool hival = S_IsSoundValid(si->hitag);
 			if (hittype[i].temp_data[0] == 1 && !hival)
 			{
 				if (!S_CheckActorSoundPlaying(hittype[i].temp_data[5], snum))
@@ -81,27 +83,26 @@ int callsound(int sn, int whatsprite)
 				{
 					if (snum)
 					{
-						if (sprite[i].hitag && snum != sprite[i].hitag)
-							S_StopSound(sprite[i].hitag, hittype[i].temp_data[5]);
+						if (si->hitag && snum != si->hitag)
+							S_StopSound(si->hitag, hittype[i].temp_data[5]);
 						S_PlayActorSound(snum, whatsprite);
 						hittype[i].temp_data[5] = whatsprite;
 					}
 
-					if ((sector[sprite[i].sectnum].lotag & 0xff) != ST_22_SPLITTING_DOOR)
+					if ((sector[si->sectnum].lotag & 0xff) != ST_22_SPLITTING_DOOR)
 						hittype[i].temp_data[0] = 1;
 				}
 			}
-			else if (sprite[i].hitag < 1000)
+			else if (si->hitag < 1000)
 			{
-				if ((flags & SF_LOOP) || (sprite[i].hitag && sprite[i].hitag != sprite[i].lotag))
-					S_StopSound(sprite[i].lotag, hittype[i].temp_data[5]);
-				if (sprite[i].hitag) S_PlayActorSound(sprite[i].hitag, whatsprite);
+				if ((flags & SF_LOOP) || (si->hitag && si->hitag != si->lotag))
+					S_StopSound(si->lotag, hittype[i].temp_data[5]);
+				if (si->hitag) S_PlayActorSound(si->hitag, whatsprite);
 				hittype[i].temp_data[0] = 0;
 				hittype[i].temp_data[5] = whatsprite;
 			}
-			return sprite[i].lotag;
+			return si->lotag;
 		}
-		i = nextspritesect[i];
 	}
 	return -1;
 }
@@ -355,13 +356,16 @@ void doanimations(void)
 							ps[p].poszv = 0;
 						}
 
-			for (j = headspritesect[dasect]; j >= 0; j = nextspritesect[j])
+			SectIterator it(dasect);
+			while ((j = it.NextIndex()) >= 0)
+			{
 				if (sprite[j].statnum != STAT_EFFECTOR)
 				{
 					hittype[j].bposz = sprite[j].z;
 					sprite[j].z += v;
 					hittype[j].floorz = sector[dasect].floorz + v;
 				}
+			}
 		}
 
 		*animateptr(i) = a;
@@ -634,15 +638,14 @@ void operatesectors(int sn, int ii)
 	return;
 
 	case ST_15_WARP_ELEVATOR://Warping elevators
-
+	{
 		if (sprite[ii].picnum != TILE_APLAYER) return;
 		//			if(ps[sprite[ii].yvel].select_dir == 1) return;
 
-		i = headspritesect[sn];
-		while (i >= 0)
+		SectIterator it(sn);
+		while ((i = it.NextIndex()) >= 0)
 		{
 			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 17) break;
-			i = nextspritesect[i];
 		}
 
 		if (sprite[ii].sectnum == sn)
@@ -662,7 +665,7 @@ void operatesectors(int sn, int ii)
 		}
 
 		return;
-
+	}
 	case ST_16_PLATFORM_DOWN:
 	case ST_17_PLATFORM_UP:
 
@@ -741,15 +744,14 @@ void operatesectors(int sn, int ii)
 
 		if (sptr->lotag & 0x8000)
 		{
-			i = headspritesect[sn];
-			while (i >= 0)
+			SectIterator it(sn);
+			while ((i = it.NextIndex()) >= 0)
 			{
 				if (sprite[i].statnum == 3 && sprite[i].lotag == 9)
 				{
 					j = sprite[i].z;
 					break;
 				}
-				i = nextspritesect[i];
 			}
 			if (i == -1)
 				j = sptr->floorz;
@@ -910,14 +912,14 @@ void operatesectors(int sn, int ii)
 
 
 	case ST_28_DROP_FLOOR:
+	{
 		//activate the rest of them
 
-		j = headspritesect[sn];
-		while (j >= 0)
+		SectIterator it(sn);
+		while ((j = it.NextIndex()) >= 0)
 		{
 			if (sprite[j].statnum == 3 && (sprite[j].lotag & 0xff) == 21)
 				break; //Found it
-			j = nextspritesect[j];
 		}
 
 		j = sprite[j].hitag;
@@ -933,6 +935,7 @@ void operatesectors(int sn, int ii)
 		callsound(sn, ii);
 
 		return;
+	}
 	}
 }
 
@@ -1005,8 +1008,8 @@ void operateactivators(int low, int snum)
 
 				if (sector[sprite[i].sectnum].lotag < 3)
 				{
-					j = headspritesect[sprite[i].sectnum];
-					while (j >= 0)
+					SectIterator it(sprite[i].sectnum);
+					while ((j = it.NextIndex()) >= 0)
 					{
 						if (sprite[j].statnum == 3) switch (sprite[j].lotag)
 						{
@@ -1019,7 +1022,6 @@ void operateactivators(int low, int snum)
 							callsound(sprite[i].sectnum, j);
 							break;
 						}
-						j = nextspritesect[j];
 					}
 				}
 

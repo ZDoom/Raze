@@ -222,7 +222,6 @@ void shoot_r(int i, int atwith)
 								{
 									if (sprite[k].statnum == 3 && sprite[k].lotag == 13)
 										return;
-									k = nextspritesect[k];
 								}
 							}
 
@@ -505,7 +504,6 @@ void shoot_r(int i, int atwith)
 									{
 										if (sprite[l].statnum == 3 && sprite[l].lotag == 13)
 											goto SKIPBULLETHOLE;
-										l = nextspritesect[l];
 									}
 								}
 

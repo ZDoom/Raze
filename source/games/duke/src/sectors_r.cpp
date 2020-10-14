@@ -901,15 +901,14 @@ void activatebysector_r(int sect, int j)
 {
 	short i;
 
-	i = headspritesect[sect];
-	while (i >= 0)
+	SectIterator it(sect);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		if (sprite[i].picnum == ACTIVATOR)
 		{
 			operateactivators(sprite[i].lotag, -1);
 			//			return;
 		}
-		i = nextspritesect[i];
 	}
 
 	if (sector[sect].lotag != 22)
@@ -1072,16 +1071,14 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 	case RRTILE3643 + 2:
 	case RRTILE3643 + 3:
 	{
-		short sect;
-		short unk = 0;
-		short jj;
-		short nextjj;
-		short startwall, endwall;
+		int sect;
+		int unk = 0;
+		int jj;
+		int startwall, endwall;
 		sect = wall[wal->nextwall].nextsector;
-		jj = headspritesect[sect];
-		while (jj != -1)
+		SectIterator it(sect);
+		while ((jj = it.NextIndex()) >= 0)
 		{
-			nextjj = nextspritesect[jj];
 			s = &sprite[jj];
 			if (s->lotag == 6)
 			{
@@ -1099,7 +1096,6 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 					deletesprite(jj);
 				}
 			}
-			jj = nextjj;
 		}
 		return;
 	}
@@ -1495,8 +1491,8 @@ bool checkhitceiling_r(int sn)
 
 		if (!sector[sn].hitag)
 		{
-			i = headspritesect[sn];
-			while (i >= 0)
+			SectIterator it(sn);
+			while ((i = it.NextIndex()) >= 0)
 			{
 				if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || (isRRRA() && (sprite[i].lotag == 47 || sprite[i].lotag == 48))))
 				{
@@ -1509,7 +1505,6 @@ bool checkhitceiling_r(int sn)
 					}
 					break;
 				}
-				i = nextspritesect[i];
 			}
 		}
 
@@ -2732,12 +2727,11 @@ void checksectors_r(int snum)
 		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384) == 0 && isanearoperator(sector[neartagsector].lotag))
 		{
 			short unk = 0;
-			i = headspritesect[neartagsector];
-			while (i >= 0)
+			SectIterator it(neartagsector);
+			while ((i = it.NextIndex()) >= 0)
 			{
 				if (sprite[i].picnum == ACTIVATOR || sprite[i].picnum == MASTERSWITCH)
 					return;
-				i = nextspritesect[i];
 			}
 			if (haskey(neartagsector, snum))
 				operatesectors(neartagsector, p->i);
@@ -2754,11 +2748,10 @@ void checksectors_r(int snum)
 		{
 			if (isanunderoperator(sector[sprite[p->i].sectnum].lotag))
 			{
-				i = headspritesect[sprite[p->i].sectnum];
-				while (i >= 0)
+				SectIterator it(sprite[p->i].sectnum);
+				while ((i = it.NextIndex()) >= 0)
 				{
 					if (sprite[i].picnum == ACTIVATOR || sprite[i].picnum == MASTERSWITCH) return;
-					i = nextspritesect[i];
 				}
 				if (haskey(neartagsector, snum))
 					operatesectors(sprite[p->i].sectnum, p->i);
@@ -2902,16 +2895,15 @@ void dofurniture(int wl, int sect, int snum)
 
 void tearitup(int sect)
 {
-	int j = headspritesect[sect];
-	while (j != -1)
+	int j;
+	SectIterator it(sect);
+	while ((j = it.NextIndex()) >= 0)
 	{
-		int nextj = nextspritesect[j];
 		if (sprite[j].picnum == DESTRUCTO)
 		{
 			hittype[j].picnum = SHOTSPARK1;
 			hittype[j].extra = 1;
 		}
-		j = nextj;
 	}
 }
 END_DUKE_NS

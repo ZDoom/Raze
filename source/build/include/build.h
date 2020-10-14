@@ -478,41 +478,6 @@ SPRITE VARIABLES:
         be in some sector, and must have some kind of status that you define.
 
 
-Coding example #1:
-    To go through all the sprites in sector 1, the code can look like this:
-
-        sectnum = 1;
-        i = headspritesect[sectnum];
-        while (i != -1)
-        {
-            nexti = nextspritesect[i];
-
-            //your code goes here
-            //ex: printf("Sprite %d is in sector %d\n",i,sectnum);
-
-            i = nexti;
-        }
-
-Coding example #2:
-    To go through all sprites with status = 1, the code can look like this:
-
-        statnum = 1;        //status 1
-        i = headspritestat[statnum];
-        while (i != -1)
-        {
-            nexti = nextspritestat[i];
-
-            //your code goes here
-            //ex: printf("Sprite %d has a status of 1 (active)\n",i,statnum);
-
-            i = nexti;
-        }
-
-             insertsprite(short sectnum, short statnum);
-             deletesprite(short spritenum);
-             changespritesect(short spritenum, short newsectnum);
-             changespritestat(short spritenum, short newstatnum);
-
 TILE VARIABLES:
         NUMTILES - the number of tiles found TILES.DAT.
 

@@ -620,8 +620,8 @@ void activatebysector_d(int sect, int j)
 
 	didit = 0;
 
-	i = headspritesect[sect];
-	while (i >= 0)
+	SectIterator it(sect);
+	while ((i = it.NextIndex()) >= 0)
 	{
 		if (sprite[i].picnum == ACTIVATOR)
 		{
@@ -629,7 +629,6 @@ void activatebysector_d(int sect, int j)
 			didit = 1;
 			//			return;
 		}
-		i = nextspritesect[i];
 	}
 
 	if (didit == 0)
@@ -986,8 +985,8 @@ bool checkhitceiling_d(int sn)
 
 		if (!sector[sn].hitag)
 		{
-			i = headspritesect[sn];
-			while (i >= 0)
+			SectIterator it(sn);
+			while ((i = it.NextIndex()) >= 0)
 			{
 				if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 12)
 				{
@@ -1000,7 +999,6 @@ bool checkhitceiling_d(int sn)
 					}
 					break;
 				}
-				i = nextspritesect[i];
 			}
 		}
 
@@ -1782,12 +1780,11 @@ void checksectors_d(int snum)
 
 		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384) == 0 && isanearoperator(sector[neartagsector].lotag))
 		{
-			i = headspritesect[neartagsector];
-			while (i >= 0)
+			SectIterator it(neartagsector);
+			while ((i = it.NextIndex()) >= 0)
 			{
 				if (sprite[i].picnum == ACTIVATOR || sprite[i].picnum == MASTERSWITCH)
 					return;
-				i = nextspritesect[i];
 			}
 			operatesectors(neartagsector, p->i);
 		}
@@ -1795,11 +1792,10 @@ void checksectors_d(int snum)
 		{
 			if (isanunderoperator(sector[sprite[p->i].sectnum].lotag))
 			{
-				i = headspritesect[sprite[p->i].sectnum];
-				while (i >= 0)
+				SectIterator it(sprite[p->i].sectnum);
+				while ((i = it.NextIndex()) >= 0)
 				{
 					if (sprite[i].picnum == ACTIVATOR || sprite[i].picnum == MASTERSWITCH) return;
-					i = nextspritesect[i];
 				}
 				operatesectors(sprite[p->i].sectnum, p->i);
 			}
