@@ -58,7 +58,7 @@ InitTimingVars(void)
     MoveSkip4 = 1;                      // start slightly offset so these
 }
 
-
+#if 0
 enum
 {
     TURBOTURNTIME = (120 / 8),
@@ -71,6 +71,7 @@ enum
     MAXANGVEL = 100,
     MAXHORIZVEL = 128
 };
+#endif
 
 //---------------------------------------------------------------------------
 //

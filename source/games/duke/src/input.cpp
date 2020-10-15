@@ -499,18 +499,16 @@ void hud_input(int snum)
 
 enum
 {
-	TURBOTURNTIME =  (TICRATE/8), // 7
+	TURBOTURNTIME = (TICRATE/8), // 7
 	NORMALTURN    = 15,
 	PREAMBLETURN  = 5,
 	NORMALKEYMOVE = 40,
 	MAXVEL        = ((NORMALKEYMOVE*2)+10),
 	MAXSVEL       = ((NORMALKEYMOVE*2)+10),
-	MAXANGVEL     = 1024,
-	MAXHORIZVEL   = 256,
-	ONEEIGHTYSCALE = 4,
+	MAXANGVEL     = 1024, // 127
+	MAXHORIZVEL   = 256,  // 127
 
-	MOTOTURN      = 20,
-	MAXVELMOTO    = 120,
+	MAXVELMOTO    = 120
 };
 
 //---------------------------------------------------------------------------

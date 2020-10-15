@@ -77,6 +77,33 @@ fixed_t getincangleq16(fixed_t a, fixed_t na)
 //
 //---------------------------------------------------------------------------
 
+/*
+// Running speed.
+Blood: 92 / 4 * 2 * 30 = 1380;
+Duke:  15 * 2 * 2 * 30 = 1800;
+SW:  28 * 1.40625 * 40 = 1575;   // Precisely, ((((28 * 12) + ((28 * 12) / 4)) * 3) / 32) * 40
+Average: 1585.;
+
+// Normal speed.
+Blood:     92 / 4 * 30 = 690;
+Duke:      15 * 2 * 30 = 900;
+SW:  18 * 1.40625 * 40 = 1012.5; // Precisely, (((((12 + 6) * 12) + (((12 + 6) * 12) / 4)) * 3) / 32) * 40
+Average: 867.5;
+
+// Preamble.
+Blood: N/A;
+Duke:       5 * 2 * 30 = 300;
+SW:   3 * 1.40625 * 40 = 168.75; // Precisely, ((((3 * 12) + ((3 * 12) / 4)) * 3) / 32) * 40
+Average: 234.375;
+Ratio: 867.5 / 234.375 = (2776. / 750.);
+
+// Turbo turn time.
+Blood:         24 * 30 = 720;
+Duke:     128 / 8 * 30 = 450;
+SW:       128 / 8 * 40 = 600;
+Average: 590.;
+*/
+
 void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt, bool const allowstrafe, double const turnscale)
 {
 	// set up variables
@@ -84,8 +111,8 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	int const keymove = gi->playerKeyMove() << running;
 	int const cntrlvelscale = g_gameType & GAMEFLAG_PSEXHUMED ? 8 : 1;
 	float const mousevelscale = keymove / 160.f;
-	double const angtodegscale = 45. / 256.;
-	double const hidspeed = ((running ? 43375. / 27. : 867.5) / GameTicRate) * angtodegscale;
+	double const angtodegscale = 360. / 2048.;
+	double const hidspeed = ((running ? 1585. : 867.5) / GameTicRate) * angtodegscale;
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
@@ -127,7 +154,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		int const turnheldamt = 120 / GameTicRate;
 		double const turboturntime = 590. / GameTicRate;
 		double turnamount = hidspeed * turnscale;
-		double preambleturn = turnamount * (92. / 347.);
+		double preambleturn = turnamount * (750. / 2776.);
 
 		// allow Exhumed to use its legacy values given the drastic difference from the other games.
 		if ((g_gameType & GAMEFLAG_PSEXHUMED) && cl_exhumedoldturn)

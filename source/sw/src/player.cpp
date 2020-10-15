@@ -1538,7 +1538,7 @@ DoPlayerTurnBoat(PLAYERp pp, float avel)
     }
     else
     {
-        avel *= 1.4;
+        avel *= synctics * 0.65625;
     }
 
     if (avel != 0)

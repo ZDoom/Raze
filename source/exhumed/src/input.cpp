@@ -25,9 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-static int turn;
-static int counter;
-
 short nInputStack = 0;
 
 short bStackNode[kMaxPlayers];
@@ -152,8 +149,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 void GameInterface::clearlocalinputstate()
 {
     localInput = {};
-    turn = 0;
-    counter = 0;
 }
 
 END_PS_NS
