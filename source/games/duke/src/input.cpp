@@ -804,6 +804,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 
 	input.fvel = p->MotoSpeed;
 	input.avel = turnvel * (45. / 256.);
+	loc.avel = clamp(loc.avel + input.avel, -MAXANGVEL, MAXANGVEL);
 }
 
 //---------------------------------------------------------------------------
@@ -834,7 +835,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 				loc.svel = clamp(loc.svel + input.svel, -MAXSVEL, MAXSVEL);
 			}
 			else
-				loc.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
+				loc.fvel = clamp(input.fvel, -(MAXVELMOTO >> 3), MAXVELMOTO);
 		}
 		else
 		{
