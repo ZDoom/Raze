@@ -253,8 +253,6 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define SectorIsDiveArea(sect) (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? true : false)
 #define SectorIsUnderwaterArea(sect) (TEST(sector[sect].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? true : false)
 
-#define TRAVERSE_SPRITE_SECT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritesect[o], (o) != -1; (o) = (n))
-#define TRAVERSE_SPRITE_STAT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritestat[o], (o) != -1; (o) = (n))
 #define TRAVERSE_CONNECT(i)   for (i = connecthead; i != -1; i = connectpoint2[i])
 
 

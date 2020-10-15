@@ -337,11 +337,13 @@ void JS_InitMirrors(void)
                 mirror[mirrorcnt].ismagic = false;
                 do if (wall[i].lotag == TAG_WALL_MAGIC_MIRROR)
                 {
-                    short ii, nextii;
+                    int ii;
                     SPRITEp sp;
 
                     Found_Cam = false;
-                    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ST1], ii, nextii)
+
+                    StatIterator it(STAT_ST1);
+                    while ((ii = it.NextIndex()) >= 0)
                     {
                         sp = &sprite[ii];
                         // if correct type and matches
@@ -355,10 +357,9 @@ void JS_InitMirrors(void)
                         }
                     }
 
-                    ii = nextii = 0;
-                    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPAWN_SPOT], ii, nextii)
+                    it.Reset(STAT_SPAWN_SPOT);
+                    while ((ii = it.NextIndex()) >= 0)
                     {
-
                         sp = &sprite[ii];
 
                         // if correct type and matches

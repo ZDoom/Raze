@@ -2740,7 +2740,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     // all players
     for (stat = 0; stat < MAX_SW_PLAYERS; stat++)
     {
-        i = headspritestat[STAT_PLAYER0 + stat];
+        i = StatIterator::First(STAT_PLAYER0 + stat);
 
         if (i < 0)
             continue;
@@ -4007,12 +4007,13 @@ DoPlayerFly(PLAYERp pp)
 SPRITEp
 FindNearSprite(SPRITEp sp, short stat)
 {
-    short fs, next_fs;
+    int fs;
     int dist, near_dist = 15000;
     SPRITEp fp, near_fp = NULL;
 
 
-    TRAVERSE_SPRITE_STAT(headspritestat[stat], fs, next_fs)
+    StatIterator it(stat);
+    while ((fs = it.NextIndex()) >= 0)
     {
         fp = &sprite[fs];
 
@@ -7423,7 +7424,7 @@ int SearchSpawnPosition(PLAYERp pp)
     {
         // get a spawn position
         pos_num = RANDOM_RANGE(MAX_SW_PLAYERS);
-        spawn_sprite = headspritestat[STAT_MULTI_START + pos_num];
+        spawn_sprite = StatIterator::First(STAT_MULTI_START + pos_num);
         if (spawn_sprite <= -1)
             return 0;
 
@@ -7481,7 +7482,7 @@ PlayerSpawnPosition(PLAYERp pp)
     {
     case MULTI_GAME_NONE:
         // start from the beginning
-        spawn_sprite = headspritestat[STAT_MULTI_START + 0];
+        spawn_sprite = StatIterator::First(STAT_MULTI_START + 0);
         break;
     case MULTI_GAME_COMMBAT:
     case MULTI_GAME_AI_BOTS:
@@ -7491,11 +7492,11 @@ PlayerSpawnPosition(PLAYERp pp)
             pos_num = SearchSpawnPosition(pp);
         }
 
-        spawn_sprite = headspritestat[STAT_MULTI_START + pos_num];
+        spawn_sprite = StatIterator::First(STAT_MULTI_START + pos_num);
         break;
     case MULTI_GAME_COOPERATIVE:
         // start your assigned spot
-        spawn_sprite = headspritestat[STAT_CO_OP_START + pos_num];
+        spawn_sprite = StatIterator::First(STAT_MULTI_START + pos_num);
         break;
     }
 
@@ -7503,7 +7504,7 @@ PlayerSpawnPosition(PLAYERp pp)
 
     if (spawn_sprite < 0)
     {
-        spawn_sprite = headspritestat[STAT_MULTI_START + 0];
+        spawn_sprite = StatIterator::First(STAT_MULTI_START + 0);
     }
 
     ASSERT(spawn_sprite >= 0);
@@ -7570,7 +7571,7 @@ InitMultiPlayerInfo(void)
         if (gNet.MultiGameType != MULTI_GAME_NONE)
         {
             // if start position is physically set then don't spawn a new one
-            if (headspritestat[MultiStatList[stat] + 0] >= 0)
+            if (StatIterator::First(MultiStatList[stat] + 0) >= 0)
                 continue;
         }
 

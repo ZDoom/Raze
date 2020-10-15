@@ -607,7 +607,7 @@ TrackSetup(void)
     // put points on track
     for (ndx = 0; ndx < MAX_TRACKS; ndx++)
     {
-        if (headspritestat[STAT_TRACK + ndx] == -1)
+        if (StatIterator::First(STAT_TRACK + ndx) == -1)
         {
             // for some reason I need at least one record allocated
             // can't remember why at this point
@@ -643,7 +643,7 @@ TrackSetup(void)
         if (t->NumPoints == 0)
         {
             int i;
-            auto const sp = (uspritetype const *)&sprite[headspritestat[STAT_TRACK+ndx]];
+            auto const sp = (uspritetype const *)&sprite[StatIterator::First(STAT_TRACK+ndx)];
             Printf("WARNING: Did not find first point of Track Number %d, x %d, y %d\n", ndx, sp->x, sp->y);
             StatIterator it(STAT_TRACK + ndx);
             while ((i = it.NextIndex()) >= 0)
@@ -659,7 +659,7 @@ TrackSetup(void)
             SET(t->ttflags, BIT(tp->tag_high));
 
         // while there are still sprites on this status list
-        while (headspritestat[STAT_TRACK + ndx] != -1)
+        while (StatIterator::First(STAT_TRACK + ndx) != -1)
         {
             short next_sprite = -1;
             int dist, low_dist = 999999;
@@ -730,7 +730,7 @@ void
 SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 {
     int xlow, ylow, xhigh, yhigh;
-    short sp_num, next_sp_num, startwall, endwall;
+    int sp_num, startwall, endwall;
     int i, k, j;
     SPRITEp BoundSprite;
     bool FoundOutsideLoop = false;
@@ -891,7 +891,8 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
     for (i = 0; i < (int)SIZ(StatList); i++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatList[i]], sp_num, next_sp_num)
+        StatIterator it(StatList[i]);
+        while ((sp_num = it.NextIndex()) >= 0)
         {
             SPRITEp sp = &sprite[sp_num];
             USERp u;
@@ -1790,19 +1791,6 @@ PlayerPart:
 
             if (TEST(sector[pp->lo_sectp - sector].extra, SECTFX_NO_RIDE))
             {
-#if 0
-                short nr, nextnr;
-                bool skip = true;
-                TRAVERSE_SPRITE_STAT(headspritestat[STAT_NO_RIDE], nr, nextnr)
-                {
-                    if (sprite[nr].lotag == sop - SectorObject)
-                        skip = true;
-                    else
-                        skip = false;
-                }
-
-                if (skip)
-#endif
                 continue;
             }
 

@@ -4156,11 +4156,12 @@ int ActorCoughItem(short SpriteNum)
 
 int SpawnItemsMatch(short match)
 {
-    short SpriteNum;
-    short si, nextsi;
+    int SpriteNum;
+    int si;
     SPRITEp sp,sip;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPAWN_ITEMS],si,nextsi)
+    StatIterator it(STAT_SPAWN_ITEMS);
+    while ((si = it.NextIndex()) >= 0)
     {
         sip = &sprite[si];
 

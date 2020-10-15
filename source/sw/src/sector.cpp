@@ -1067,14 +1067,15 @@ DoExplodeSector(short match)
 {
     short orig_ang;
     int zh;
-    short cf,nextcf;
+    int cf;
 
     SPRITEp esp;
     SECTORp sectp;
 
     orig_ang = 0; //sp->ang;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_EXPLODING_CEIL_FLOOR], cf, nextcf)
+    StatIterator it(STAT_EXPLODING_CEIL_FLOOR);
+    while ((cf = it.NextIndex()) >= 0)
     {
         esp = &sprite[cf];
 
