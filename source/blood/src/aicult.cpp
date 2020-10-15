@@ -219,7 +219,9 @@ static void sub_68230(int, int nXSprite)
 
 static char TargetNearExplosion(spritetype *pSprite)
 {
-    for (short nSprite = headspritesect[pSprite->sectnum]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+    int nSprite;
+    SectIterator it(pSprite->sectnum);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         if (sprite[nSprite].type == kThingArmedTNTStick || sprite[nSprite].statnum == kStatExplosion)
             return 1;

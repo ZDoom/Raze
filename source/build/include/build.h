@@ -81,32 +81,8 @@ enum rendmode_t {
 #define PR_LIGHT_PRIO_LOW       4
 #define PR_LIGHT_PRIO_LOW_GAME  5
 
-// Convenient sprite iterators, must not be used if any sprites inside the loop
-// are potentially deleted or their sector changed...
-#define SPRITES_OF(Statnum, Iter)  Iter=headspritestat[Statnum]; Iter>=0; Iter=nextspritestat[Iter]
 #define SPRITES_OF_SECT(Sectnum, Iter)  Iter=headspritesect[Sectnum]; Iter>=0; Iter=nextspritesect[Iter]
-// ... in which case this iterator may be used:
-#define SPRITES_OF_SECT_SAFE(Sectnum, Iter, Next)  Iter=headspritesect[Sectnum]; \
-    Iter>=0 && (Next=nextspritesect[Iter], 1); Iter=Next
-#define SPRITES_OF_STAT_SAFE(Statnum, Iter, Next)  Iter=headspritestat[Statnum]; \
-    Iter>=0 && (Next=nextspritestat[Iter], 1); Iter=Next
 
-
-////////// yax defs //////////
-#define SECTORFLD(Sect,Fld, Cf) (*((Cf) ? (&sector[Sect].floor##Fld) : (&sector[Sect].ceiling##Fld)))
-
-#define YAX_CEILING 0  // don't change!
-#define YAX_FLOOR 1  // don't change!
-
-
-#  define YAX_MAXBUNCHES 256
-#  define YAX_BIT 1024
-   // "has next wall when constrained"-bit (1<<10: ceiling, 1<<11: floor)
-#  define YAX_NEXTWALLBIT(Cf) (1<<(10+Cf))
-#  define YAX_NEXTWALLBITS (YAX_NEXTWALLBIT(0)|YAX_NEXTWALLBIT(1))
-
-# define yax_preparedrawrooms()
-# define yax_drawrooms(SpriteAnimFunc, sectnum, didmirror, smoothr)
 
 #define CLIPMASK0 (IntToFixed(1)+1)
 #define CLIPMASK1 (IntToFixed(256)+64)

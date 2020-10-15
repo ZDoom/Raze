@@ -363,7 +363,10 @@ void CounterCheck(int nSector) // 12
     int nReq = pXSector->waitTimeA; int nType = pXSector->data; int nCount = 0;
     if (!nType || !nReq) return;
     
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite]) {
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         if (sprite[nSprite].type == nType) nCount++;
     }
         

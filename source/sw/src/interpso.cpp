@@ -139,7 +139,9 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
             }
         }
 
-        for (SPRITES_OF_SECT(*sectp - sector, i))
+        int i;
+        SectIterator it(*sectp - sector);
+        while ((i = it.NextIndex()) >= 0)
             if (sprite[i].statnum == STAT_VATOR && SP_TAG1(sprite+i) == SECT_VATOR)
                 break;
         interp->hasvator |= (i >= 0);

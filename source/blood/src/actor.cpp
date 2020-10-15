@@ -2418,7 +2418,9 @@ int actOwnerIdToSpriteId(int nSprite)
 
 bool actTypeInSector(int nSector, int nType)
 {
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         if (sprite[nSprite].index == nType)
             return 1;
