@@ -1742,7 +1742,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
 
             //Collect floor sprites to draw
-            for (i=headspritesect[s]; i>=0; i=nextspritesect[i])
+            SectIterator it(s);
+            while ((i = it.NextIndex()) >= 0)
             {
                 if (sprite[i].cstat & 32768)
                     continue;
@@ -2525,7 +2526,8 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
         if (tagsearch & 4)
             continue; // skip sprite search
 
-        for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
+        SectIterator it(dasector);
+        while ((z = it.NextIndex()) >= 0)
         {
             auto const spr = (uspriteptr_t)&sprite[z];
 

@@ -2227,7 +2227,9 @@ void polymost_scansector(int32_t sectnum)
     {
         sectnum = sectorborder[--sectorbordercnt];
 
-        for (bssize_t z=headspritesect[sectnum]; z>=0; z=nextspritesect[z])
+        int z;
+        SectIterator it(sectnum);
+        while ((z = it.NextIndex()) >= 0)
         {
             auto const spr = (uspriteptr_t)&sprite[z];
 
@@ -2260,7 +2262,6 @@ void polymost_scansector(int32_t sectnum)
         vec2d_t p2 = { 0, 0 };
 
         uwallptr_t wal;
-        int z;
 
         for (z=startwall,wal=(uwallptr_t)&wall[z]; z<endwall; z++,wal++)
         {

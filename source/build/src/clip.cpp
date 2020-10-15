@@ -606,7 +606,9 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         if (dasprclipmask==0)
             continue;
 
-        for (native_t j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
+        int j;
+        SectIterator it(dasect);
+        while ((j = it.NextIndex()) >= 0)
         {
             auto const spr = (uspriteptr_t)&sprite[j];
             const int32_t cstat = spr->cstat;
@@ -885,39 +887,7 @@ int pushmove(vec3_t *const vect, int16_t *const sectnum,
         {
             uwallptr_t wal;
             int32_t startwall, endwall;
-#if 0
-            // Push FACE sprites
-            for (i=headspritesect[clipsectorlist[clipsectcnt]]; i>=0; i=nextspritesect[i])
-            {
-                spr = &sprite[i];
-                if (((spr->cstat&48) != 0) && ((spr->cstat&48) != 48)) continue;
-                if ((spr->cstat&dasprclipmask) == 0) continue;
 
-                dax = (vect->x)-spr->x; day = (vect->y)-spr->y;
-                t = (spr->clipdist<<2)+walldist;
-                if ((klabs(dax) < t) && (klabs(day) < t))
-                {
-                    daz = spr->z + spriteheightofs(i, &t, 1);
-                    if (((vect->z) < daz+ceildist) && ((vect->z) > daz-t-flordist))
-                    {
-                        t = (spr->clipdist<<2)+walldist;
-
-                        j = getangle(dax, day);
-                        dx = (sintable[(j+512)&2047]>>11);
-                        dy = (sintable[(j)&2047]>>11);
-                        bad2 = 16;
-                        do
-                        {
-                            vect->x = (vect->x) + dx; vect->y = (vect->y) + dy;
-                            bad2--; if (bad2 == 0) break;
-                        } while ((klabs((vect->x)-spr->x) < t) && (klabs((vect->y)-spr->y) < t));
-                        bad = -1;
-                        k--; if (k <= 0) return bad;
-                        updatesector(vect->x, vect->y, sectnum);
-                    }
-                }
-            }
-#endif
             auto sec = (usectorptr_t)&sector[clipsectorlist[clipsectcnt]];
             if (dir > 0)
                 startwall = sec->wallptr, endwall = startwall + sec->wallnum;
@@ -1117,7 +1087,9 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     if (dasprclipmask)
     for (bssize_t i=0; i<clipsectnum; i++)
     {
-        for (bssize_t j=headspritesect[clipsectorlist[i]]; j>=0; j=nextspritesect[j])
+        int j;
+        SectIterator it(clipsectorlist[i]);
+        while ((j = it.NextIndex()) >= 0)
         {
             const int32_t cstat = sprite[j].cstat;
             int32_t daz, daz2;
@@ -1451,7 +1423,8 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
         if (dasprclipmask==0)
             continue;
 
-        for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
+        SectIterator it(dasector);
+        while ((z = it.NextIndex()) >= 0)
         {
             auto const spr = (uspriteptr_t)&sprite[z];
             uint32_t const cstat = spr->cstat;
