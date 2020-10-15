@@ -293,7 +293,7 @@ PreCacheRange(short start_pic, short end_pic)
 
 void PreCacheOverride(void)
 {
-    int i,nexti;
+    int i;
 
     StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while ((i = it.NextIndex()) >= 0)

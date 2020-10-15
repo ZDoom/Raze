@@ -399,7 +399,7 @@ DoActorPickClosePlayer(short SpriteNum)
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
     bool found = false;
-    int i,nexti;
+    int i;
 
     if (u->ID == ZOMBIE_RUN_R0 && gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
         goto TARGETACTOR;

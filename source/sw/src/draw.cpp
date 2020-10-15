@@ -1263,7 +1263,7 @@ void DrawCrosshair(PLAYERp pp)
 
 void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, binangle *tang, fixedhoriz *thoriz)
 {
-    int i,nexti;
+    int i;
     binangle ang;
     SPRITEp sp;
     bool found_camera = false;
@@ -1379,8 +1379,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, binangle
 void
 PreDraw(void)
 {
-    short i, nexti;
-
+    int i;
     PreDrawStackedWater();
 
     StatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
@@ -1393,8 +1392,7 @@ PreDraw(void)
 void
 PostDraw(void)
 {
-    short i, nexti;
-
+    int i;
     StatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
     while ((i = it.NextIndex()) >= 0)
     {
@@ -1546,8 +1544,7 @@ void PreDrawStackedWater(void)
 
 void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short sectnum)
 {
-    short i,nexti;
-
+    int i;
     StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while ((i = it.NextIndex()) >= 0)
     {

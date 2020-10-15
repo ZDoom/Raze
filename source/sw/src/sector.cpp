@@ -834,7 +834,7 @@ SectorDistanceByMid(short sect1, int sect2)
 short
 DoSpawnActorTrigger(short match)
 {
-    int i, nexti;
+    int i;
     short spawn_count = 0;
     SPRITEp sp;
 
@@ -866,8 +866,7 @@ OperateSector(short sectnum, short player_is_operating)
     if (!player_is_operating)
     {
         SPRITEp fsp;
-        short i,nexti;
-
+        int i;
 
         if (SectUser[sectnum] && SectUser[sectnum]->stag == SECT_LOCK_DOOR)
             return false;
@@ -1348,7 +1347,7 @@ DoSectorObjectKillMatch(short match)
 bool
 SearchExplodeSectorMatch(short match)
 {
-    short i,nexti;
+    int i;
 
     // THIS IS ONLY CALLED FROM DoMatchEverything
     StatIterator it(STAT_SPRITE_HIT_MATCH);
@@ -1370,7 +1369,7 @@ SearchExplodeSectorMatch(short match)
 void
 KillMatchingCrackSprites(short match)
 {
-    short i,nexti;
+    int i;
     SPRITEp sp;
 
     StatIterator it(STAT_SPRITE_HIT_MATCH);
@@ -1391,7 +1390,7 @@ KillMatchingCrackSprites(short match)
 void
 WeaponExplodeSectorInRange(short weapon)
 {
-    short i, nexti;
+    int i;
     SPRITEp wp = &sprite[weapon];
     USERp wu = User[weapon];
     SPRITEp sp;
@@ -1472,7 +1471,7 @@ void DoDeleteSpriteMatch(short match)
     };
 
     int del_x = 0,del_y = 0;
-    short i,nexti;
+    int i;
     unsigned stat;
     short found;
 
@@ -1632,7 +1631,7 @@ void DoMatchEverything(PLAYERp pp, short match, short state)
 
 bool ComboSwitchTest(short combo_type, short match)
 {
-    short i,nexti;
+    int i;
     SPRITEp sp;
     int state;
 
@@ -1983,7 +1982,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
 int DoTrapReset(short match)
 {
-    short i, nexti;
+    int i;
     SPRITEp sp;
     USERp u;
 
@@ -2013,7 +2012,7 @@ int DoTrapReset(short match)
 
 int DoTrapMatch(short match)
 {
-    short i, nexti;
+    int i;
     SPRITEp sp;
     USERp u;
 
@@ -2145,7 +2144,7 @@ OperateTripTrigger(PLAYERp pp)
     case TAG_TRIGGER_ACTORS:
     {
         int dist;
-        short i, nexti;
+        int i;
         SPRITEp sp;
         USERp u;
 
@@ -2221,7 +2220,7 @@ OperateContinuousTrigger(PLAYERp pp)
 #if 1
         DoTrapMatch(sector[pp->cursectnum].hitag);
 #else
-        short i, nexti;
+        int i;
         SPRITEp sp;
         USERp u;
 
@@ -3190,7 +3189,7 @@ void
 DoPanning(void)
 {
     int nx, ny;
-    short i,nexti;
+    int i;
     SPRITEp sp;
     SECTORp sectp;
     WALLp wallp;

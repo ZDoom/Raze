@@ -2760,7 +2760,7 @@ int DoLavaErupt(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    short i,nexti,pnum;
+    short i,pnum;
     PLAYERp pp;
     SPRITEp tsp;
     bool found = false;
@@ -7523,7 +7523,7 @@ DoDamageTest(short Weapon)
 
     USERp u;
     SPRITEp sp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, tx, ty;
     int tmin;
@@ -7595,7 +7595,7 @@ DoFlamesDamageTest(short Weapon)
 
     USERp u;
     SPRITEp sp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, tx, ty;
     int tmin;
@@ -7769,7 +7769,7 @@ int DoExpDamageTest(short Weapon)
 
     USERp u;
     SPRITEp sp;
-    short i, nexti, stat;
+    short i, stat;
     int dist, tx, ty;
     int tmin;
     int max_stat;
@@ -7922,7 +7922,7 @@ int DoMineExpMine(short Weapon)
 
     USERp u;
     SPRITEp sp;
-    short i, nexti;
+    int i;
     int dist, tx, ty;
     int tmin;
     int zdist;
@@ -9341,7 +9341,7 @@ DoMineRangeTest(short Weapon, short range)
 
     USERp u;
     SPRITEp sp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, tx, ty;
     int tmin;
@@ -12278,7 +12278,7 @@ DoBloodWorm(int16_t Weapon)
         {
             SPRITEp tsp;
             USERp tu;
-            int i,nexti;
+            int i;
 
             InitBloodSpray(Weapon, false, 1);
             InitBloodSpray(Weapon, false, 1);
@@ -12393,7 +12393,7 @@ DoBloodWorm(int16_t Weapon)
     {
         SPRITEp tsp;
         USERp tu;
-        int i,nexti;
+        int i;
 
         InitBloodSpray(Weapon, false, 1);
         InitBloodSpray(Weapon, false, 1);
@@ -13683,7 +13683,7 @@ InitSwordAttack(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite],tu;
     SPRITEp sp = NULL;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist;
     short reach,face;
@@ -13862,7 +13862,7 @@ InitFistAttack(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite],tu;
     SPRITEp sp = NULL;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist;
     short reach,face;
@@ -14213,7 +14213,7 @@ InitSumoStompAttack(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum],tsp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist;
     short reach;
@@ -15987,7 +15987,7 @@ InitRipperSlash(short SpriteNum)
     USERp u = User[SpriteNum], hu;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, a, b, c;
 
@@ -16025,7 +16025,7 @@ InitBunnySlash(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, a, b, c;
 
@@ -16059,7 +16059,7 @@ InitSerpSlash(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, a, b, c;
 
@@ -16129,7 +16129,7 @@ DoBladeDamage(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, a, b, c;
 
@@ -16173,7 +16173,7 @@ DoStaticFlamesDamage(short SpriteNum)
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, a, b, c;
 
@@ -16218,7 +16218,7 @@ InitCoolgBash(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, a, b, c;
 
@@ -16256,7 +16256,7 @@ InitSkelSlash(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, a, b, c;
 
@@ -16290,7 +16290,7 @@ InitGoroChop(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, a, b, c;
 
@@ -17195,7 +17195,7 @@ InitEelFire(short SpriteNum)
     USERp u = User[SpriteNum], hu;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
-    short i, nexti;
+    int i;
     unsigned stat;
     int dist, a, b, c;
 
@@ -19770,7 +19770,7 @@ InitEnemyFireball(short SpriteNum)
 bool
 WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 {
-    short i, nexti;
+    int i;
     SECT_USERp sectu = SectUser[*sectnum];
     SPRITEp under_sp = NULL, over_sp = NULL;
     bool Found = false;
@@ -19800,7 +19800,7 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
     Found = false;
 
     // search for UNDERWATER "under" sprite for reference point
-    StatIterator it(STAT_UNDERWATER);
+    it.Reset(STAT_UNDERWATER);
     while ((i = it.NextIndex()) >= 0)
     {
         under_sp = &sprite[i];
@@ -19844,7 +19844,7 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 bool
 WarpToSurface(short *sectnum, int *x, int *y, int *z)
 {
-    short i, nexti;
+    int i;
     SECT_USERp sectu = SectUser[*sectnum];
     short over, under;
     int sx, sy;
@@ -19875,7 +19875,7 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
     Found = false;
 
     // search for DIVE_AREA "over" sprite for reference point
-    StatIterator it(STAT_DIVE_AREA);
+    it.Reset(STAT_DIVE_AREA);
     while ((i = it.NextIndex()) >= 0)
     {
         over_sp = &sprite[i];
@@ -19919,7 +19919,7 @@ bool
 SpriteWarpToUnderwater(SPRITEp sp)
 {
     USERp u = User[sp - sprite];
-    short i, nexti;
+    int i;
     SECT_USERp sectu = SectUser[sp->sectnum];
     SPRITEp under_sp = NULL, over_sp = NULL;
     bool Found = false;
@@ -19949,7 +19949,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
     Found = false;
 
     // search for UNDERWATER "under" sprite for reference point
-    StatIterator it(STAT_UNDERWATER);
+    it.Reset(STAT_UNDERWATER);
     while ((i = it.NextIndex()) >= 0)
     {
         under_sp = &sprite[i];
@@ -19999,7 +19999,7 @@ bool
 SpriteWarpToSurface(SPRITEp sp)
 {
     USERp u = User[sp - sprite];
-    short i, nexti;
+    int i;
     SECT_USERp sectu = SectUser[sp->sectnum];
     short over, under;
     int sx, sy;
@@ -20034,7 +20034,7 @@ SpriteWarpToSurface(SPRITEp sp)
     Found = false;
 
     // search for DIVE_AREA "over" sprite for reference point
-    StatIterator it(STAT_DIVE_AREA);
+    it.Reset(STAT_DIVE_AREA);
     while ((i = it.NextIndex()) >= 0)
     {
         over_sp = &sprite[i];

@@ -1145,7 +1145,8 @@ DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
 {
 #define PICK_DIST 40000L
 
-    short i, nexti, angle2, delta_ang;
+    int i;
+    short angle2, delta_ang;
     int dist, zh;
     SPRITEp ep;
     USERp eu;
@@ -2401,7 +2402,7 @@ DoPlayerSectorUpdatePostMove(PLAYERp pp)
 
 void PlaySOsound(short sectnum, short sound_num)
 {
-    short i,nexti;
+    int i;
 
     // play idle sound - sound 1
     SectIterator it(StatDamageList[sectnum]);
@@ -2417,7 +2418,7 @@ void PlaySOsound(short sectnum, short sound_num)
 
 void StopSOsound(short sectnum)
 {
-    short i,nexti;
+    int i;
 
     // play idle sound - sound 1
     SectIterator it(StatDamageList[sectnum]);
@@ -2517,7 +2518,7 @@ DoPlayerMoveBoat(PLAYERp pp)
 void DoTankTreads(PLAYERp pp)
 {
     SPRITEp sp;
-    short i,nexti;
+    int i;
     int vel;
     SECTORp *sectp;
     int j;
@@ -2642,7 +2643,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     SECTOR_OBJECTp sop = pp->sop_control;
     SPRITEp sp;
     USERp u;
-    int i,nexti;
+    int i;
     short stat;
     SECTORp *sectp;
 
@@ -4297,7 +4298,7 @@ GetOverlapSector(int x, int y, short *over, short *under)
 int
 GetOverlapSector2(int x, int y, short *over, short *under)
 {
-    int i, nexti, found = 0;
+    int i, found = 0;
     short sf[2]= {0,0};                       // sectors found
 
     unsigned stat;
@@ -4389,7 +4390,7 @@ void
 DoPlayerWarpToUnderwater(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
-    short i, nexti;
+    int i;
     SECT_USERp sectu = SectUser[pp->cursectnum];
     SPRITEp under_sp = NULL, over_sp = NULL;
     bool Found = false;
@@ -4466,7 +4467,7 @@ void
 DoPlayerWarpToSurface(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
-    short i, nexti;
+    int i;
     SECT_USERp sectu = SectUser[pp->cursectnum];
     short over, under;
 
@@ -5303,7 +5304,7 @@ void FindMainSector(SECTOR_OBJECTp sop)
 void DoPlayerOperateMatch(PLAYERp pp, bool starting)
 {
     SPRITEp sp;
-    short i,nexti;
+    int i;
 
     if (!pp->sop)
         return;
@@ -6352,7 +6353,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP, hp;
     USERp u = User[pp->PlayerSprite], hu;
-    short i,nexti;
+    int i;
     unsigned stat,dist;
     int a,b,c;
 
@@ -6960,7 +6961,7 @@ MoveSkipSavePos(void)
 {
     SPRITEp sp;
     USERp u;
-    short i,nexti;
+    int i;
     short pnum;
     PLAYERp pp;
 

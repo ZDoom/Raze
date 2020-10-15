@@ -77,7 +77,7 @@ bool
 RotatorSwitch(short match, short setting)
 {
     SPRITEp sp;
-    short i,nexti;
+    int i;
     bool found = false;
 
     StatIterator it(STAT_DEFAULT);
@@ -159,7 +159,7 @@ DoRotatorMatch(PLAYERp pp, short match, bool manual)
     short sectnum;
     short first_vator = -1;
 
-    short i,nexti;
+    int i;
 
     //RotatorSwitch(match, ON);
 
@@ -238,7 +238,7 @@ TestRotatorMatchActive(short match)
     USERp fu;
     SPRITEp fsp;
 
-    short i,nexti;
+    int i;
 
     StatIterator it(STAT_ROTATOR);
     while ((i = it.NextIndex()) >= 0)
@@ -315,7 +315,7 @@ int DoRotatorMove(short SpriteNum)
     ROTATORp r;
     short ndx,w,startwall,endwall;
     SPRITEp pivot = NULL;
-    int i, nexti;
+    int i;
     vec2_t nxy;
     int dist,closest;
     bool kill = false;

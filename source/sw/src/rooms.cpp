@@ -349,7 +349,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
 int
 GetZadjustment(short sectnum, short hitag)
 {
-    short i, nexti;
+    int i;
     SPRITEp sp;
 
     if (sectnum < 0 || !TEST(sector[sectnum].extra, SECTFX_Z_ADJUST))
@@ -651,7 +651,7 @@ PicInView(short tile_num, bool reset)
 void
 SetupMirrorTiles(void)
 {
-    int i, nexti;
+    int i;
     SPRITEp sp;
 
     StatIterator it(STAT_FAF);
@@ -802,7 +802,7 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
 {
     int xoff = 0;
     int yoff = 0;
-    short i, nexti;
+    int i;
     SPRITEp sp = NULL;
     int pix_diff;
     int newz;
@@ -892,7 +892,7 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 {
     int xoff = 0;
     int yoff = 0;
-    short i, nexti;
+    int i;
     SPRITEp sp = NULL;
     int newz;
     int pix_diff;
@@ -983,7 +983,7 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 short
 ViewSectorInScene(short cursectnum, short level)
 {
-    int i, nexti;
+    int i;
     SPRITEp sp;
     short match;
 

@@ -819,7 +819,7 @@ int PachinkoCheckWin(short SpriteNum)
     /*short rnd = */RANDOM_RANGE(1000);
     if (RANDOM_RANGE(1000) > 900 || Pachinko_Win_Cheat)
     {
-        short i, nexti;
+        int i;
         SPRITEp tsp;
         USERp tu;
 

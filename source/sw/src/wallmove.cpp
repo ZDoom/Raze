@@ -164,7 +164,7 @@ int DoWallMove(SPRITEp sp)
 
 bool CanSeeWallMove(SPRITEp wp, short match)
 {
-    short i,nexti;
+    int i;
     bool found = false;
     SPRITEp sp;
 
@@ -193,7 +193,7 @@ bool CanSeeWallMove(SPRITEp wp, short match)
 int DoWallMoveMatch(short match)
 {
     SPRITEp sp;
-    short i,nexti;
+    int i;
     bool found = false;
 
     // just all with the same matching tags

@@ -76,7 +76,7 @@ bool
 SpikeSwitch(short match, short setting)
 {
     SPRITEp sp;
-    short i,nexti;
+    int i;
     bool found = false;
 
     StatIterator it(STAT_DEFAULT);
@@ -146,7 +146,7 @@ short DoSpikeOperate(short sectnum)
 {
     SPRITEp fsp;
     short match;
-    short i,nexti;
+    int i;
 
     SectIterator it(sectnum);
     while ((i = it.NextIndex()) >= 0)
@@ -183,7 +183,7 @@ DoSpikeMatch(short match)
     SPRITEp fsp;
     short first_spike = -1;
 
-    short i,nexti;
+    int i;
 
     //SpikeSwitch(match, ON);
 
@@ -219,7 +219,7 @@ TestSpikeMatchActive(short match)
     USERp fu;
     SPRITEp fsp;
 
-    short i,nexti;
+    int i;
 
     StatIterator it(STAT_SPIKE);
     while ((i = it.NextIndex()) >= 0)
@@ -304,7 +304,7 @@ void SpikeAlign(short SpriteNum)
 void MoveSpritesWithSpike(short sectnum)
 {
     SPRITEp sp;
-    short i,nexti;
+    int i;
     int cz,fz;
 
     SectIterator it(sectnum);
@@ -399,7 +399,7 @@ int DoSpike(short SpriteNum)
         // if heading for the OFF (original) position and should NOT CRUSH
         if (TEST_BOOL3(sp) && u->z_tgt == u->oz)
         {
-            int i,nexti;
+            int i;
             SPRITEp bsp;
             USERp bu;
             bool found = false;

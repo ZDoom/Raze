@@ -79,7 +79,7 @@ short CopyQuakeSpotToOn(SPRITEp sp)
 
 void DoQuakeMatch(short match)
 {
-    short i, nexti;
+    int i;
     SPRITEp sp;
 
     StatIterator it(STAT_QUAKE_SPOT);
@@ -110,7 +110,7 @@ void DoQuakeMatch(short match)
 
 void ProcessQuakeOn(void)
 {
-    short i, nexti;
+    int i;
     SPRITEp sp;
 
     StatIterator it(STAT_QUAKE_ON);
@@ -130,7 +130,7 @@ void ProcessQuakeOn(void)
 
 void ProcessQuakeSpot(void)
 {
-    short i, nexti;
+    int i;
     SPRITEp sp;
     int rand_test;
 
@@ -178,7 +178,7 @@ void ProcessQuakeSpot(void)
 
 void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *ang_diff)
 {
-    short i, nexti;
+    int i;
     SPRITEp sp;
     SPRITEp save_sp = NULL;
     int dist,save_dist = 999999;

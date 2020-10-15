@@ -552,7 +552,7 @@ DoHornetDeath(short SpriteNum)
 // Hornets can swarm around other hornets or whatever is tagged as swarm target
 int DoCheckSwarm(short SpriteNum)
 {
-    short i,nexti;
+    int i;
     SPRITEp sp = &sprite[SpriteNum], tsp;
     USERp u = User[SpriteNum], tu;
     int dist, pdist, a,b,c;

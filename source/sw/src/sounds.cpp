@@ -280,7 +280,7 @@ void InitAmbient(int num, SPRITEp sp)
 
 void StartAmbientSound(void)
 {
-    int i, nexti;
+    int i;
     
     if (!SoundEnabled()) return;
 

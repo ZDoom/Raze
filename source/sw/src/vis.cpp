@@ -45,7 +45,7 @@ extern short NormalVisibility;  // player.c
 
 void ProcessVisOn(void)
 {
-    short i, nexti;
+    int i;
     SPRITEp sp;
 
     StatIterator it(STAT_VIS_ON);
@@ -86,7 +86,7 @@ void ProcessVisOn(void)
 
 void VisViewChange(PLAYERp pp, int *vis)
 {
-    short i, nexti;
+    int i;
     SPRITEp sp;
     short BrightestVis = NormalVisibility;
     int x,y,z;
@@ -131,7 +131,7 @@ int SpawnVis(short Parent, short sectnum, int x, int y, int z, int amt)
 {
     short SpriteNum;
     SPRITEp sp;
-    short i,nexti;
+    int i;
 
     if (Parent >= 0)
     {

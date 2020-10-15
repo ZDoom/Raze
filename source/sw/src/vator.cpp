@@ -81,7 +81,7 @@ bool
 VatorSwitch(short match, short setting)
 {
     SPRITEp sp;
-    short i,nexti;
+    int i;
     bool found = false;
 
     StatIterator it(STAT_DEFAULT);
@@ -151,7 +151,7 @@ short DoVatorOperate(PLAYERp pp, short sectnum)
 {
     SPRITEp fsp;
     short match;
-    short i,nexti;
+    int i;
 
     SectIterator it(sectnum);
     while ((i = it.NextIndex()) >= 0)
@@ -222,7 +222,7 @@ DoVatorMatch(PLAYERp pp, short match)
     short sectnum;
     short first_vator = -1;
 
-    short i,nexti;
+    int i;
 
     //VatorSwitch(match, ON);
 
@@ -296,7 +296,7 @@ TestVatorMatchActive(short match)
     USERp fu;
     SPRITEp fsp;
 
-    short i,nexti;
+    int i;
 
     StatIterator it(STAT_VATOR);
     while ((i = it.NextIndex()) >= 0)
@@ -322,7 +322,7 @@ TestVatorMatchActive(short match)
 void InterpSectorSprites(short sectnum, bool state)
 {
     SPRITEp sp;
-    short i,nexti;
+    int i;
 
     SectIterator it(sectnum);
     while ((i = it.NextIndex()) >= 0)
@@ -348,7 +348,7 @@ void InterpSectorSprites(short sectnum, bool state)
 void MoveSpritesWithSector(short sectnum, int z_amt, bool type)
 {
     SPRITEp sp;
-    short i,nexti;
+    int i;
     bool both = false;
 
     if (SectUser[sectnum])
@@ -541,7 +541,7 @@ int DoVator(short SpriteNum)
         // if heading for the OFF (original) position and should NOT CRUSH
         if (TEST_BOOL3(sp) && u->z_tgt == u->oz)
         {
-            int i,nexti;
+            int i;
             SPRITEp bsp;
             USERp bu;
             bool found = false;
@@ -595,7 +595,7 @@ int DoVator(short SpriteNum)
         }
         else
         {
-            int i,nexti;
+            int i;
             SPRITEp bsp;
 
             SectIterator it(sp->sectnum);

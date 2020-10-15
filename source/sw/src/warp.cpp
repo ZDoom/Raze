@@ -43,7 +43,7 @@ extern bool Prediction;
 bool
 WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
 {
-    int i,nexti;
+    int i;
     SPRITEp sp;
 
     *sp_floor = NULL;
@@ -116,7 +116,7 @@ WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum
     int xoff;
     int yoff;
     int zoff;
-    short i, nexti;
+    int i;
     SPRITEp sp = sp_from;
     short match;
     short to_tag = 0;
@@ -215,7 +215,7 @@ WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum
 bool
 WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
 {
-    int i,nexti;
+    int i;
     SPRITEp sp;
 
     *sp_warp = NULL;

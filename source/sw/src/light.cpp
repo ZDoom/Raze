@@ -111,7 +111,7 @@ void SectorLightShade(SPRITEp sp, short intensity)
 
 void DiffuseLighting(SPRITEp sp)
 {
-    short i, nexti;
+    int i;
     short count;
     short shade;
     SPRITEp dsp;
@@ -143,7 +143,7 @@ void DiffuseLighting(SPRITEp sp)
 
 void DoLightingMatch(short match, short state)
 {
-    short i,nexti;
+    int i;
     SPRITEp sp;
 
     StatIterator it(STAT_LIGHTING);
@@ -266,9 +266,8 @@ void DoLightingMatch(short match, short state)
 
 void InitLighting(void)
 {
-    short i,nexti;
     SPRITEp sp;
-
+    int i;
 
     // processed on level startup
     // puts lights in correct state
@@ -286,9 +285,8 @@ void InitLighting(void)
 
 void DoLighting(void)
 {
-    short i,nexti;
     SPRITEp sp;
-
+    int i;
 
     StatIterator it(STAT_LIGHTING);
     while ((i = it.NextIndex()) >= 0)

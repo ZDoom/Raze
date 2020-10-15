@@ -72,7 +72,7 @@ bool
 SlidorSwitch(short match, short setting)
 {
     SPRITEp sp;
-    short i,nexti;
+    int i;
     bool found = false;
 
     StatIterator it(STAT_DEFAULT);
@@ -155,7 +155,7 @@ DoSlidorMatch(PLAYERp pp, short match, bool manual)
     short sectnum;
     short first_vator = -1;
 
-    short i,nexti;
+    int i;
 
     //SlidorSwitch(match, ON);
 
@@ -234,7 +234,7 @@ TestSlidorMatchActive(short match)
     USERp fu;
     SPRITEp fsp;
 
-    short i,nexti;
+    int i;
 
     StatIterator it(STAT_SLIDOR);
     while ((i = it.NextIndex()) >= 0)
@@ -623,7 +623,7 @@ int DoSlidorMove(short SpriteNum)
         // if heading for the OFF (original) position and should NOT CRUSH
         if (TEST_BOOL3(sp) && r->tgt == 0)
         {
-            int i,nexti;
+            int i;
             SPRITEp bsp;
             USERp bu;
             bool found = false;

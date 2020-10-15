@@ -473,7 +473,7 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
     // make sure we start in the water if thats where we are
     if (u->lo_sectp) // && SectUser[u->lo_sectp - sector])
     {
-        short i,nexti;
+        int i;
         short sectnum = u->lo_sectp - sector;
 
         if (SectUser[sectnum] && TEST(u->lo_sectp->extra, SECTFX_SINK))

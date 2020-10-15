@@ -814,7 +814,8 @@ BossHealthMeter(void)
     SPRITEp sp;
     USERp u;
     PLAYERp pp = Player + myconnectindex;
-    short color=0,i=0,nexti,metertics,meterunit;
+    short color=0,metertics,meterunit;
+    int i = 0;
     int y;
     extern bool NoMeters;
     short health;

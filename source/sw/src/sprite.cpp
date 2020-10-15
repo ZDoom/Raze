@@ -622,7 +622,7 @@ KillSprite(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    short i,nexti;
+    int i;
     unsigned stat;
     short statnum,sectnum;
     //extern short Zombies;
@@ -1759,7 +1759,7 @@ SpriteSetupPost(void)
     SPRITEp ds;
     USERp u;
     short SpriteNum, NextSprite;
-    short i, nexti;
+    int i;
     int cz,fz;
 
     // Post processing of some sprites after gone through the main SpriteSetup()
@@ -2882,7 +2882,7 @@ SpriteSetup(void)
                 case VIEW_THRU_CEILING:
                 case VIEW_THRU_FLOOR:
                 {
-                    int i,nexti;
+                    int i;
                     // make sure there is only one set per level of these
                     StatIterator it(STAT_FAF);
                     while ((i = it.NextIndex()) >= 0)
@@ -3819,7 +3819,7 @@ NUKE_REPLACEMENT:
 bool ItemSpotClear(SPRITEp sip, short statnum, short id)
 {
     bool found = false;
-    short i,nexti;
+    int i;
 
     if (TEST_BOOL2(sip))
     {
@@ -6693,7 +6693,7 @@ StateControl(int16_t SpriteNum)
 void
 SpriteControl(void)
 {
-    int32_t i, nexti, stat;
+    int32_t i, stat;
     SPRITEp sp;
     USERp u;
     short pnum, CloseToPlayer;
@@ -6709,11 +6709,11 @@ SpriteControl(void)
         u = User[i];
         sp = User[i]->SpriteP;
         STATE_CONTROL(i, sp, u, StateTics)
-        // ASSERT(nexti >= 0 ? User[nexti] != NULL : true);
+        // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
 #else
         ASSERT(User[i]);
         StateControl(i);
-        // ASSERT(nexti >= 0 ? User[nexti] != NULL : true);
+        // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
 #endif
     }
 
@@ -6730,11 +6730,11 @@ SpriteControl(void)
                 u = User[i];
                 sp = User[i]->SpriteP;
                 STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(nexti >= 0 ? User[nexti] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
 #else
                 ASSERT(User[i]);
                 StateControl(i);
-                ASSERT(nexti >= 0 ? User[nexti] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
 #endif
             }
         }
@@ -6780,12 +6780,12 @@ SpriteControl(void)
                 u = User[i];
                 sp = User[i]->SpriteP;
                 STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(nexti >= 0 ? User[nexti] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
 #else
                 StateControl(i);
-                ASSERT(nexti >= 0 ? User[nexti] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
 #endif
-                ASSERT(nexti >= 0 ? User[nexti] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
             }
             else
             {
@@ -6808,22 +6808,22 @@ SpriteControl(void)
                 u = User[i];
                 sp = User[i]->SpriteP;
                 STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(nexti >= 0 ? User[nexti] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
 #else
                 ASSERT(User[i]);
                 StateControl(i);
-                ASSERT(nexti >= 0 ? User[nexti] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
 #endif
             }
         }
     }
 
-    StatIterator it(STAT_NO_STATE);
+    it.Reset(STAT_NO_STATE);
     while ((i = it.NextIndex()) >= 0)
     {
         if (User[i] && User[i]->ActorActionFunc)
             (*User[i]->ActorActionFunc)(i);
-        ASSERT(nexti >= 0 ? sprite[nexti].statnum != MAXSTATUS : true);
+        ASSERT(it.PeekIndex() >= 0 ? sprite[it.PeekIndex()].statnum != MAXSTATUS : true);
     }
 
     if (MoveSkip8 == 0)
@@ -6842,17 +6842,11 @@ SpriteControl(void)
         it.Reset(STAT_WALLBLOOD_QUEUE);
         while ((i = it.NextIndex()) >= 0)
         {
-#if INLINE_STATE
             ASSERT(User[i]);
             u = User[i];
             sp = User[i]->SpriteP;
             STATE_CONTROL(i, sp, u, StateTics)
-            ASSERT(nexti >= 0 ? User[nexti] != NULL : true);
-#else
-            ASSERT(User[i]);
-            StateControl(i);
-            ASSERT(nexti >= 0 ? User[nexti] != NULL : true);
-#endif
+            ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
 
         }
     }
@@ -6896,7 +6890,7 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        if (i == 69 && nexti == -1)
+        if (i == 69 && it.PeekIndex() == -1)
             continue;
 
         (*User[i]->ActorActionFunc)(i);

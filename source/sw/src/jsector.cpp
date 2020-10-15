@@ -478,7 +478,7 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 void
 JS_ProcessEchoSpot()
 {
-    short i,nexti;
+    int i;
     SPRITEp tp;
     int j,dist;
     PLAYERp pp = Player+screenpeek;

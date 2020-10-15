@@ -637,13 +637,13 @@ TrackSetup(void)
         // didn't find the start point of the track
         if (t->NumPoints == 0)
         {
-            int i, nexti;
+            int i;
             auto const sp = (uspritetype const *)&sprite[headspritestat[STAT_TRACK+ndx]];
             Printf("WARNING: Did not find first point of Track Number %d, x %d, y %d\n", ndx, sp->x, sp->y);
-            for (i=headspritestat[STAT_TRACK+ndx]; i>=0; i=nexti)
+            StatIterator it(STAT_TRACK + ndx);
+            while ((i = it.NextIndex()) >= 0)
             {
                 // neuter the track's sprite list
-                nexti = nextspritestat[i];
                 deletesprite(i);
             }
             continue;
@@ -1544,7 +1544,7 @@ PlaceSectorObjectsOnTracks(void)
 void
 PlaceActorsOnTracks(void)
 {
-    short i, nexti, j, tag;
+    short i, j, tag;
     SPRITEp sp;
     USERp u;
     TRACK_POINTp tpoint = NULL;
@@ -2238,7 +2238,7 @@ void CallbackSOsink(ANIMp ap, void *data)
     short startwall, endwall, j;
     short dest_sector = -1;
     short src_sector = -1;
-    short i, nexti, ndx;
+    short i, ndx;
     char found = false;
     int tgt_depth;
 

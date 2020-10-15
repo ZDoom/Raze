@@ -925,7 +925,7 @@ DoPickCloseBunny(short SpriteNum)
     USERp u = User[SpriteNum],tu;
     SPRITEp sp = &sprite[SpriteNum],tsp;
     int dist, near_dist = 1000, a,b,c;
-    short i, nexti;
+    int i;
     //short BunnyCount=0, Bunny_Result = -1;
 
     // if actor can still see the player

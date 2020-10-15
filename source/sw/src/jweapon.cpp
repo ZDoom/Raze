@@ -1584,7 +1584,7 @@ InitChemBomb(short SpriteNum)
 int
 PlayerInitFlashBomb(PLAYERp pp)
 {
-    short i, nexti;
+    int i;
     unsigned int stat;
     int dist, tx, ty, tmin;
     short damage;
@@ -1654,7 +1654,7 @@ PlayerInitFlashBomb(PLAYERp pp)
 int
 InitFlashBomb(int16_t SpriteNum)
 {
-    short i, nexti;
+    int i;
     unsigned int stat;
     int dist, tx, ty, tmin;
     short damage;
@@ -2138,7 +2138,7 @@ DoFlagRangeTest(short Weapon, short range)
     SPRITEp wp = &sprite[Weapon];
 
     SPRITEp sp;
-    short i, nexti;
+    int i;
     unsigned int stat;
     int dist, tx, ty;
     int tmin;

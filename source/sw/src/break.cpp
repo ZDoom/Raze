@@ -543,7 +543,7 @@ BREAK_INFOp SetupSpriteForBreak(SPRITEp sp)
 
 short FindBreakSpriteMatch(short match)
 {
-    short i,nexti;
+    int i;
 
     StatIterator it(STAT_BREAKABLE);
     while ((i = it.NextIndex()) >= 0)
@@ -1119,7 +1119,7 @@ void DoWallBreakMatch(short match)
 
 static void DoWallBreakSpriteMatch(short match)
 {
-    short i,nexti;
+    int i;
 
     StatIterator it(STAT_ENEMY);
     while ((i = it.NextIndex()) >= 0)
