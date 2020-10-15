@@ -204,7 +204,9 @@ void sub_557C4(int x, int y, int interpolation)
             {
                 int nSector = mirror[i].Kills;
                 int nSector2 = mirror[i].at14;
-                for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+                int nSprite;
+                SectIterator it(nSector);
+                while ((nSprite = it.NextIndex()) >= 0)
                 {
                     spritetype *pSprite = &sprite[nSprite];
                     if (pSprite == gView->pSprite)

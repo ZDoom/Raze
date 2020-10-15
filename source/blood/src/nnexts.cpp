@@ -1967,8 +1967,10 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                 }
 
                 // search for dudes in this sector and change their underwater status
-                for (int nSprite = headspritesect[objIndex]; nSprite >= 0; nSprite = nextspritesect[nSprite]) {
-
+                int nSprite;
+                SectIterator it(objIndex);
+                while ((nSprite = it.NextIndex()) >= 0)
+                {
                     spritetype* pSpr = &sprite[nSprite];
                     if (pSpr->statnum != kStatDude || !IsDudeSprite(pSpr) || !xspriRangeIsFine(pSpr->extra))
                         continue;
@@ -2744,7 +2746,10 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         case 5: return condCmp(pSect->floorheinum, arg1, arg2, cmpOp);
         case 6: return condCmp(pSect->ceilingheinum, arg1, arg2, cmpOp);
         case 10: // required sprite type is in current sector?
-            for (var = headspritesect[objIndex]; var >= 0; var = nextspritesect[var]) {
+            int nSprite;
+            SectIterator it(objIndex);
+            while ((nSprite = it.NextIndex()) >= 0)
+            {
                 if (!condCmp(sprite[var].type, arg1, arg2, cmpOp)) continue;
                 else if (PUSH) condPush(pXCond, OBJ_SPRITE, var);
                 return true;

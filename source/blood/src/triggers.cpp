@@ -760,7 +760,9 @@ void OperateWall(int nWall, XWALL *pXWall, EVENT event) {
 
 void SectorStartSound(int nSector, int nState)
 {
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector)
@@ -784,7 +786,9 @@ void SectorStartSound(int nSector, int nState)
 
 void SectorEndSound(int nSector, int nState)
 {
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector)
@@ -808,7 +812,9 @@ void SectorEndSound(int nSector, int nState)
 
 void PathSound(int nSector, int nSound)
 {
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector)
@@ -920,7 +926,9 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
             }
         }
     }
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
         // allow to move markers by sector movements in game if flags 1 is added in editor.
@@ -983,7 +991,9 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
         int oldZ = pSector->floorz;
         baseFloor[nSector] = pSector->floorz = pXSector->offFloorZ + mulscale16(dz, GetWaveValue(a3, a4));
         velFloor[nSector] += (pSector->floorz-oldZ)<<8;
-        for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+        int nSprite;
+        SectIterator it(nSector);
+        while ((nSprite = it.NextIndex()) >= 0)
         {
             spritetype *pSprite = &sprite[nSprite];
             if (pSprite->statnum == kStatMarker || pSprite->statnum == kStatPathMarker)
@@ -1010,7 +1020,9 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
         int oldZ = pSector->ceilingz;
         baseCeil[nSector] = pSector->ceilingz = pXSector->offCeilZ + mulscale16(dz, GetWaveValue(a3, a4));
         velCeil[nSector] += (pSector->ceilingz-oldZ)<<8;
-        for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+        int nSprite;
+        SectIterator it(nSector);
+        while ((nSprite = it.NextIndex()) >= 0)
         {
             spritetype *pSprite = &sprite[nSprite];
             if (pSprite->statnum == kStatMarker || pSprite->statnum == kStatPathMarker)
@@ -1028,7 +1040,9 @@ int GetHighestSprite(int nSector, int nStatus, int *a3)
 {
     *a3 = sector[nSector].floorz;
     int v8 = -1;
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         if (sprite[nSprite].statnum == nStatus || nStatus == kStatFree)
         {
@@ -1052,7 +1066,9 @@ int GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
     int vc = -1;
     sectortype *pSector = &sector[nSector];
     int vbp = pSector->ceilingz;
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->statnum == kStatDude || pSprite->statnum == kStatThing)
@@ -1124,7 +1140,9 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
     int dz1 = pXSector->onFloorZ - pXSector->offFloorZ;
     if (dz1 != 0)
     {
-        for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+        int nSprite;
+        SectIterator it(nSector);
+        while ((nSprite = it.NextIndex()) >= 0)
         {
             spritetype *pSprite = &sprite[nSprite];
             if (pSprite->cstat&8192)
@@ -1137,7 +1155,9 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
     int dz2 = pXSector->onCeilZ - pXSector->offCeilZ;
     if (dz2 != 0)
     {
-        for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+        int nSprite;
+        SectIterator it(nSector);
+        while ((nSprite = it.NextIndex()) >= 0)
         {
             spritetype *pSprite = &sprite[nSprite];
             if (pSprite->cstat&16384)
@@ -1430,7 +1450,9 @@ void OperateDoor(unsigned int nSector, XSECTOR *pXSector, EVENT event, BUSYID bu
 
 char SectorContainsDudes(int nSector)
 {
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         if (sprite[nSprite].statnum == kStatDude)
             return 1;
@@ -1440,7 +1462,9 @@ char SectorContainsDudes(int nSector)
 
 void TeleFrag(int nKiller, int nSector)
 {
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->statnum == kStatDude)
@@ -1459,7 +1483,9 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
     assert(pDest->statnum == kStatMarker);
     assert(pDest->type == kMarkerWarpDest);
     assert(pDest->sectnum >= 0 && pDest->sectnum < kMaxSectors);
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->statnum == kStatDude)
@@ -1887,7 +1913,9 @@ void ProcessMotion(void)
             else
                 pXSector->bobTheta += mulscale16(pXSector->bobSpeed, pXSector->busy);
             int vdi = mulscale30(Sin(pXSector->bobTheta), pXSector->bobZRange<<8);
-            for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+            int nSprite;
+            SectIterator it(nSector);
+            while ((nSprite = it.NextIndex()) >= 0)
             {
                 spritetype *pSprite = &sprite[nSprite];
                 if (pSprite->cstat&24576)
@@ -1901,7 +1929,9 @@ void ProcessMotion(void)
                 int floorZ = pSector->floorz;
                 viewInterpolateSector(nSector, pSector);
                 pSector->floorz = baseFloor[nSector]+vdi;
-                for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+                int nSprite;
+                SectIterator it(nSector);
+                while ((nSprite = it.NextIndex()) >= 0)
                 {
                     spritetype *pSprite = &sprite[nSprite];
                     if (pSprite->flags&2)
@@ -1923,7 +1953,9 @@ void ProcessMotion(void)
                 int ceilZ = pSector->ceilingz;
                 viewInterpolateSector(nSector, pSector);
                 pSector->ceilingz = baseCeil[nSector]+vdi;
-                for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+                int nSprite;
+                SectIterator it(nSector);
+                while ((nSprite = it.NextIndex()) >= 0)
                 {
                     spritetype *pSprite = &sprite[nSprite];
                     int top, bottom;
@@ -2072,7 +2104,9 @@ void trInit(void)
                     baseWall[pSector->wallptr+j].x = wall[pSector->wallptr+j].x;
                     baseWall[pSector->wallptr+j].y = wall[pSector->wallptr+j].y;
                 }
-                for (int nSprite = headspritesect[i]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+                int nSprite;
+                SectIterator it(i);
+                while ((nSprite = it.NextIndex()) >= 0)
                 {
                     baseSprite[nSprite].x = sprite[nSprite].x;
                     baseSprite[nSprite].y = sprite[nSprite].y;
@@ -2092,7 +2126,9 @@ void trInit(void)
                     baseWall[pSector->wallptr+j].x = wall[pSector->wallptr+j].x;
                     baseWall[pSector->wallptr+j].y = wall[pSector->wallptr+j].y;
                 }
-                for (int nSprite = headspritesect[i]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+                int nSprite;
+                SectIterator it(i);
+                while ((nSprite = it.NextIndex()) >= 0)
                 {
                     baseSprite[nSprite].x = sprite[nSprite].x;
                     baseSprite[nSprite].y = sprite[nSprite].y;

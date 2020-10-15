@@ -675,7 +675,10 @@ void playerStart(int nPlayer, int bNewLevel)
 
             if (maxRetries != 0) {
                 // check if there is no spawned player in selected zone
-                for (int i = headspritesect[pStartZone->sectnum]; i >= 0; i = nextspritesect[i]) {
+                int i;
+                SectIterator it(pStartZone->sectnum);
+                while ((i = it.NextIndex()) >= 0)
+                {
                     spritetype* pSprite = &sprite[i];
                     if (pStartZone->x == pSprite->x && pStartZone->y == pSprite->y && IsPlayerSprite(pSprite)) {
                         pStartZone = NULL;
