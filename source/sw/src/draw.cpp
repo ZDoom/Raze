@@ -1212,10 +1212,10 @@ void PrintSpriteInfo(PLAYERp pp)
         }
         if (sp)
         {
-            Printf("POSX:%d, ", TrackerCast(sp->x));
-            Printf("POSY:%d, ", TrackerCast(sp->y));
-            Printf("POSZ:%d,", TrackerCast(sp->z));
-            Printf("ANG:%d\n", TrackerCast(sp->ang));
+            Printf("POSX:%d, ", sp->x);
+            Printf("POSY:%d, ", sp->y);
+            Printf("POSZ:%d,", sp->z);
+            Printf("ANG:%d\n", sp->ang);
         }
     }
 }

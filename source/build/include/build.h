@@ -19,10 +19,6 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 # error C++11 or greater is required.
 #endif
 
-#if defined _MSC_VER && _MSC_VER < 1800
-# error Visual Studio 2013 is the minimum supported version.
-#endif
-
 #include "compat.h"
 #include "palette.h"
 #include "pragmas.h"
@@ -47,51 +43,38 @@ enum rendmode_t {
 
 #define BANG2RAD (PI * (1./1024.))
 
-#define MAXSECTORSV8 4096
-#define MAXWALLSV8 16384
-#define MAXSPRITESV8 16384
+enum
+{
+    MAXSECTORS = 4096,
+    MAXWALLS = 16384,
+    MAXSPRITES = 16384,
 
-#define MAXVOXMIPS 5
+    MAXVOXMIPS = 5,
 
+    MAXXDIM = 7680,
+    MAXYDIM = 3200,
+    MINXDIM = 640,
+    MINYDIM = 480,
 
-# define MAXSECTORS MAXSECTORSV8
-# define MAXWALLS MAXWALLSV8
-# define MAXSPRITES MAXSPRITESV8
+    MAXWALLSB = ((MAXWALLS >> 2) + (MAXWALLS >> 3)),
 
-# define MAXXDIM 7680
-# define MAXYDIM 3200
-# define MINXDIM 640
-# define MINYDIM 480
+    MAXVOXELS = 1024,
+    MAXSTATUS = 1024,
+    // Maximum number of component tiles in a multi-psky:
+    MAXPSKYTILES = 16,
+    MAXSPRITESONSCREEN = 2560,
+    MAXUNIQHUDID = 256, //Extra slots so HUD models can store animation state without messing game sprites
 
-#define MAXWALLSB ((MAXWALLS>>2)+(MAXWALLS>>3))
+    TSPR_TEMP = 99,
 
-#define MAXVOXELS 1024
-#define MAXSTATUS 1024
-// Maximum number of component tiles in a multi-psky:
-#define MAXPSKYTILES 16
-#define MAXSPRITESONSCREEN 2560
-#define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
-
-#define TSPR_TEMP 99
-
-#define PR_LIGHT_PRIO_MAX       0
-#define PR_LIGHT_PRIO_MAX_GAME  1
-#define PR_LIGHT_PRIO_HIGH      2
-#define PR_LIGHT_PRIO_HIGH_GAME 3
-#define PR_LIGHT_PRIO_LOW       4
-#define PR_LIGHT_PRIO_LOW_GAME  5
-
-#define SPRITES_OF_SECT(Sectnum, Iter)  Iter=headspritesect[Sectnum]; Iter>=0; Iter=nextspritesect[Iter]
+    CLIPMASK0 = (IntToFixed(1)+1),
+    CLIPMASK1 = (IntToFixed(256)+64),
+};
 
 
-#define CLIPMASK0 (IntToFixed(1)+1)
-#define CLIPMASK1 (IntToFixed(256)+64)
 
-#define NEXTWALL(i) (wall[wall[i].nextwall])
 #define POINT2(i) (wall[wall[i].point2])
 
-// max x/y val (= max editorgridextent in Mapster32)
-#define BXY_MAX 524288
 
 // rotatesprite 'orientation' (actually much more) bits
 enum {
@@ -127,22 +110,6 @@ enum {
 #  define EXTERN extern
 #endif
 
-#define TrackerCast(x) x
-
-
-// Links to various ABIs specifying (or documenting non-normatively) the
-// alignment requirements of aggregates:
-//
-//  System V AMD64: http://www.x86-64.org/documentation/abi-0.99.pdf
-//   (x86-64.org down as of 2013-02-02?)
-//  "An array uses the same alignment as its elements, except that a local or global
-//   array variable of length at least 16 bytes or a C99 variable-length array variable
-//   always has alignment of at least 16 bytes."
-//   (Not reproducible with GCC or LuaJIT on Ubuntu)
-//
-//  Win64: http://msdn.microsoft.com/en-us/library/9dbwhz68.aspx
-//
-//  x86: http://en.wikipedia.org/wiki/Data_structure_alignment#Typical_alignment_of_C_structs_on_x86
 
 enum {
     SPR_XFLIP = 4,
@@ -352,7 +319,7 @@ typedef struct {
 // New multi-psky
 EXTERN TArray<psky_t> multipskies;
 
-static FORCE_INLINE psky_t *getpskyidx(int32_t picnum)
+static inline psky_t *getpskyidx(int32_t picnum)
 {
     for (auto& sky : multipskies)
         if (picnum == sky.tilenum) return &sky;

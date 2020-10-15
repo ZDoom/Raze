@@ -1082,7 +1082,7 @@ ActorTestSpawn(SPRITEp sp)
             default: c = "?"; break;
             }
             Printf("WARNING: skill-masked %s at %d,%d,%d not being killed because it "
-                        "activates something\n", c, TrackerCast(sp->x), TrackerCast(sp->y), TrackerCast(sp->z));
+                        "activates something\n", c, sp->x, sp->y, sp->z);
             return true;
         }
         //always spawn girls in addons
@@ -2882,7 +2882,7 @@ SpriteSetup(void)
                     {
                         if (sprite[i].hitag == sp->hitag && sprite[i].lotag == sp->lotag)
                         {
-                            I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", TrackerCast(sp->x), TrackerCast(sp->y), TrackerCast(sprite[i].x), TrackerCast(sprite[i].y));
+                            I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", sp->x, sp->y, sprite[i].x, sprite[i].y);
                         }
                     }
                     change_sprite_stat(SpriteNum, STAT_FAF);

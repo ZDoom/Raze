@@ -1597,7 +1597,7 @@ PlaceActorsOnTracks(void)
 
         if (Track[u->track].NumPoints == 0)
         {
-            Printf("WARNING: Sprite %d (%d, %d) placed on track %d with no points!\n", i, TrackerCast(sp->x), TrackerCast(sp->y), u->track);
+            Printf("WARNING: Sprite %d (%d, %d) placed on track %d with no points!\n", i, sp->x, sp->y, u->track);
             continue;
         }
 

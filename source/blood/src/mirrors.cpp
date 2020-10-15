@@ -401,9 +401,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                         gPlayer[viewPlayer].pSprite->cstat |= 514;
                     }
                 }
-                yax_preparedrawrooms();
                 renderDrawRoomsQ16(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, a, horiz, nSector|MAXSECTORS);
-                yax_drawrooms(viewProcessSprites, nSector, 0, smooth);
                 viewProcessSprites(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, FixedToInt(a), smooth);
                 short cstat = sector[nSector].ceilingstat;
                 sector[nSector].ceilingstat |= 1;
