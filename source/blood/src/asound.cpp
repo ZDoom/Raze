@@ -52,7 +52,9 @@ void ambProcess(void)
 {
     if (!SoundEnabled())
         return;
-    for (int nSprite = headspritestat[kStatAmbience]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    int nSprite;
+    StatIterator it(kStatAmbience);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->owner < 0 || pSprite->owner >= kMaxAmbChannel)
@@ -114,7 +116,10 @@ void ambInit(void)
 {
     ambKillAll();
     memset(ambChannels, 0, sizeof(ambChannels));
-    for (int nSprite = headspritestat[kStatAmbience]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    int nSprite;
+    StatIterator it(kStatAmbience);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         if (sprite[nSprite].extra <= 0 || sprite[nSprite].extra >= kMaxXSprites) continue;
         
         XSPRITE *pXSprite = &xsprite[sprite[nSprite].extra];

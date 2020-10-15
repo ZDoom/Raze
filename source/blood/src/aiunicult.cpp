@@ -1194,7 +1194,10 @@ spritetype* leechIsDropped(spritetype* pSprite) {
 }
     
 void removeDudeStuff(spritetype* pSprite) {
-    for (short nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    int nSprite;
+    StatIterator it(kStatThing);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         if (sprite[nSprite].owner != pSprite->index) continue;
         switch (sprite[nSprite].type) {
             case kThingArmedProxBomb:
@@ -1209,7 +1212,9 @@ void removeDudeStuff(spritetype* pSprite) {
         }
     }
 
-    for (short nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    it.Reset(kStatDude);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         if (sprite[nSprite].owner != pSprite->index) continue;
         actDamageSprite(sprite[nSprite].owner, &sprite[nSprite], (DAMAGE_TYPE) 0, 65535);
     }
@@ -2126,7 +2131,10 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
         case kGenDudePropertyLeech:
             pExtra->nLifeLeech = -1;
             if (pSprite->owner != kMaxSprites - 1) {
-                for (int nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+                int nSprite;
+                StatIterator it(kStatThing);
+                while ((nSprite = it.NextIndex()) >= 0)
+                {
                     if (sprite[nSprite].owner == pSprite->index && sprite[nSprite].type == kModernThingEnemyLifeLeech) {
                         pExtra->nLifeLeech = nSprite;
                         break;
@@ -2137,8 +2145,12 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
             fallthrough__;
 
         case kGenDudePropertySlaves:
+        {
             pExtra->slaveCount = 0; memset(pExtra->slave, -1, sizeof(pExtra->slave));
-            for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+            int nSprite;
+            StatIterator it(kStatDude);
+            while ((nSprite = it.NextIndex()) >= 0)
+            {
                 if (sprite[nSprite].owner != pSprite->index) continue;
                 else if (!IsDudeSprite(&sprite[nSprite]) || !xspriRangeIsFine(sprite[nSprite].extra) || xsprite[sprite[nSprite].extra].health <= 0) {
                     sprite[nSprite].owner = -1;
@@ -2151,7 +2163,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
             }
             if (propId) break;
             fallthrough__;
-
+        }
         case kGenDudePropertySpriteSize: {
             if (seqGetStatus(3, pSprite->extra) == -1)
                 seqSpawn(pXSprite->data2 + pXSprite->aiState->seqId, 3, pSprite->extra, -1);

@@ -168,9 +168,10 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
     FXDATA *pFX = &gFXData[nFx];
     if (gStatCount[1] == 512)
     {
-        int nSprite = headspritestat[kStatFX];;
-        while ((sprite[nSprite].flags & 32) && nSprite != -1)
-            nSprite = nextspritestat[nSprite];
+        StatIterator it(kStatFX);
+        int nSprite = it.NextIndex();
+        while (nSprite != -1 && (sprite[nSprite].flags & 32))
+            nSprite = it.NextIndex();
         if (nSprite == -1)
             return NULL;
         sub_73FB0(nSprite);
@@ -204,7 +205,9 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
 
 void CFX::fxProcess(void)
 {
-    for (int nSprite = headspritestat[kStatFX]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    int nSprite;
+    StatIterator it(kStatFX);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
         viewBackupSpriteLoc(nSprite, pSprite);

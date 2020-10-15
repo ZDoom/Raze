@@ -405,7 +405,10 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
     case kChannelRemoteBomb5:
     case kChannelRemoteBomb6:
     case kChannelRemoteBomb7:
-        for (int nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    {
+        int nSprite;
+        StatIterator it(kStatThing);
+        while ((nSprite = it.NextIndex()) >= 0)
         {
             spritetype* pSprite = &sprite[nSprite];
             if (pSprite->flags & 32)
@@ -419,9 +422,13 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
             }
         }
         return;
+    }
     case kChannelTeamAFlagCaptured:
     case kChannelTeamBFlagCaptured:
-        for (int nSprite = headspritestat[kStatItem]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    {
+        int nSprite;
+        StatIterator it(kStatItem);
+        while ((nSprite = it.NextIndex()) >= 0)
         {
             spritetype* pSprite = &sprite[nSprite];
             if (pSprite->flags & 32)
@@ -435,6 +442,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
             }
         }
         return;
+    }
     default:
         break;
     }

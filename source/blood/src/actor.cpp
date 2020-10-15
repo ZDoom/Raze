@@ -5471,7 +5471,7 @@ void actProcessSprites(void)
                 StatIterator it1(kStatDude);
                 while ((nSprite2 = it1.NextIndex()) >= 0)
                 {
-                    nNextSprite = nextspritestat[nSprite2];
+                    nNextSprite = it1.PeekIndex();
                     spritetype *pSprite2 = &sprite[nSprite2];
 
                     if (pSprite2->flags&32) continue;
@@ -5936,7 +5936,7 @@ void actProcessSprites(void)
                 StatIterator it1(kStatDude);
                 while ((nSprite2 = it1.NextIndex()) >= 0)
                 {
-                    nNextSprite = nextspritestat[nSprite2];
+                    nNextSprite = it1.PeekIndex();
                     spritetype *pSprite2 = &sprite[nSprite2];
 
                     if (pSprite2->flags&32)

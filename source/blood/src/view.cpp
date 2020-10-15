@@ -847,9 +847,11 @@ void viewDrawScreen(bool sceneonly)
             deliriumTurn = 0;
             deliriumPitch = 0;
         }
-        int nSprite = headspritestat[kStatExplosion];
         int unk = 0;
-        while (nSprite >= 0)
+
+        int nSprite;
+        StatIterator it(kStatExplosion);
+        while ((nSprite = it.NextIndex()) >= 0)
         {
             spritetype* pSprite = &sprite[nSprite];
             int nXSprite = pSprite->extra;
@@ -859,10 +861,10 @@ void viewDrawScreen(bool sceneonly)
             {
                 unk += pXSprite->data3 * 32;
             }
-            nSprite = nextspritestat[nSprite];
         }
-        nSprite = headspritestat[kStatProjectile];
-        while (nSprite >= 0) {
+        it.Reset(kStatProjectile);
+        while ((nSprite = it.NextIndex()) >= 0)
+        {
             spritetype* pSprite = &sprite[nSprite];
             switch (pSprite->type) {
             case kMissileFlareRegular:
@@ -872,7 +874,6 @@ void viewDrawScreen(bool sceneonly)
                 if (TestBitString(gotsector, pSprite->sectnum)) unk += 256;
                 break;
             }
-            nSprite = nextspritestat[nSprite];
         }
         g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - unk, 0));
         cA += q16ang(interpolateangfix16(IntToFixed(deliriumTurnO), IntToFixed(deliriumTurn), gInterpolate));

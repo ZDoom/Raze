@@ -787,7 +787,10 @@ void playerStart(int nPlayer, int bNewLevel)
     // assign or update player's sprite index for conditions
     if (gModernMap) {
 
-        for (int nSprite = headspritestat[kStatModernPlayerLinker]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+        int nSprite;
+        StatIterator it(kStatModernPlayerLinker);
+        while ((nSprite = it.NextIndex()) >= 0)
+        {
             XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
             if (pXCtrl->data1 == pPlayer->nPlayer + 1) {
                 int nSpriteOld = pXCtrl->sysData1;
@@ -888,7 +891,9 @@ void playerInit(int nPlayer, unsigned int a2)
 
 char sub_3A158(PLAYER *a1, spritetype *a2)
 {
-    for (int nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    int nSprite;
+    StatIterator it(kStatThing);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         if (a2 && a2->index == nSprite)
             continue;
@@ -1198,7 +1203,10 @@ void CheckPickUp(PLAYER *pPlayer)
     int z = pSprite->z;
     int nSector = pSprite->sectnum;
     int nNextSprite;
-    for (int nSprite = headspritestat[kStatItem]; nSprite >= 0; nSprite = nNextSprite) {
+    int nSprite;
+    StatIterator it(kStatItem);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         spritetype *pItem = &sprite[nSprite];
         nNextSprite = nextspritestat[nSprite];
         if (pItem->flags&32)

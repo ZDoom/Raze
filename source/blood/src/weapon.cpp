@@ -307,7 +307,6 @@ WEAPONTRACK gWeaponTrack[] = {
 
 void UpdateAimVector(PLAYER * pPlayer)
 {
-    short nSprite;
     spritetype *pSprite;
     assert(pPlayer != NULL);
     spritetype *pPSprite = pPlayer->pSprite;
@@ -324,7 +323,9 @@ void UpdateAimVector(PLAYER * pPlayer)
     if (cl_autoaim == 1 || (cl_autoaim == 2 && !pWeaponTrack->bIsProjectile) || pPlayer->curWeapon == 10 || pPlayer->curWeapon == 9)
     {
         int nClosest = 0x7fffffff;
-        for (nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+        int nSprite;
+        StatIterator it(kStatDude);
+        while ((nSprite = it.NextIndex()) >= 0)
         {
             pSprite = &sprite[nSprite];
             if (pSprite == pPSprite)
@@ -382,7 +383,9 @@ void UpdateAimVector(PLAYER * pPlayer)
         }
         if (pWeaponTrack->atc > 0)
         {
-            for (nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+            int nSprite;
+            StatIterator it(kStatThing);
+            while ((nSprite = it.NextIndex()) >= 0)
             {
                 pSprite = &sprite[nSprite];
                 if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pSprite))
@@ -2508,7 +2511,9 @@ void sub_51340(spritetype *pMissile, int a2)
     actHitcodeToData(a2, &gHitInfo, &v24, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     if (a2 == 3 && v24 >= 0 && sprite[v24].statnum == kStatDude)
         v4 = 0;
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    int nSprite;
+    StatIterator it(kStatDude);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         if (nSprite != nOwner || v4)
         {
@@ -2526,7 +2531,8 @@ void sub_51340(spritetype *pMissile, int a2)
             }
         }
     }
-    for (int nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    it.Reset(kStatThing);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->flags&32)

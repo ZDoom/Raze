@@ -389,16 +389,20 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     pXSprite->Proximity = true;
                     break;
                 case kDudeModernCustom: 
+                {
                     if (pXSprite->txID <= 0) break;
-                    for (int nSprite = headspritestat[kStatDude], found = 0; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+                    int nSprite, found = 0;
+                    StatIterator it(kStatDude);
+                    while ((nSprite = it.NextIndex()) >= 0)
+                    {
                         XSPRITE* pXSpr = &xsprite[sprite[nSprite].extra];
                         if (pXSpr->rxID != pXSprite->txID) continue;
                         else if (found) I_Error("\nCustom dude (TX ID %d):\nOnly one incarnation allowed per channel!", pXSprite->txID);
                         changespritestat(nSprite, kStatInactive);
-                        nSprite = headspritestat[kStatDude];
                         found++;
                     }
                     break;
+                }
                 case kDudePodMother:
                 case kDudeTentacleMother:
                     pXSprite->state = 1;
@@ -406,9 +410,10 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 case kModernPlayerControl:
                     switch (pXSprite->command) {
                         case kCmdLink:
+                        {
                             if (pXSprite->data1 < 1 || pXSprite->data1 >= kMaxPlayers)
                                 I_Error("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", pSprite->index, pXSprite->data1);
-                            
+
                             //if (numplayers < pXSprite->data1)
                                 //I_Error("\nPlayer Control (SPRITE #%d):\n There is no player #%d", pSprite->index, pXSprite->data1);
 
@@ -419,7 +424,10 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                                 I_Error("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", pSprite->index, kChannelUser, kChannelMax);
 
                             // only one linker per player allowed
-                            for (int nSprite = headspritestat[kStatModernPlayerLinker]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+                            int nSprite;
+                            StatIterator it(kStatModernPlayerLinker);
+                            while ((nSprite = it.NextIndex()) >= 0)
+                            {
                                 XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
                                 if (pXSprite->data1 == pXCtrl->data1)
                                     I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", pSprite->index, pXSprite->data1, nSprite);
@@ -428,6 +436,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                             pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
                             changespritestat(pSprite->index, kStatModernPlayerLinker);
                             break;
+                        }
                         case 67: // play qav animation
                             if (pXSprite->txID && !pXSprite->waitTime) pXSprite->waitTime = 1;
                             changespritestat(pSprite->index, kStatModernQavScene);
@@ -532,18 +541,19 @@ void nnExtInitModernStuff(bool bSaveLoad) {
         }
     }
 
+    int i;
     if (!bSaveLoad) {
 
         // let's try to find "else" and "else if" of conditions here
         spritetype* pCond = NULL; XSPRITE* pXCond = NULL;
         bool found = false; int rx = 0; int sum1 = 0; int sum2 = 0;
         
-        for (int i = headspritestat[kStatModernCondition]; i >= 0;) {
+        for (i = StatIterator::First(kStatModernCondition); i >= 0;) {
             pCond = &sprite[i]; pXCond = &xsprite[pCond->extra];
             sum1 = pXCond->locked + pXCond->busyTime + pXCond->waitTime + pXCond->data1;
             if (!found) rx = pXCond->rxID;
             
-            for (int a = i; a >= 0; a = nextspritestat[a], found = false) {
+            for (int a = i; a >= 0; a = StatIterator::NextFor(a), found = false) {
                 spritetype* pCond2 = &sprite[a]; XSPRITE* pXCond2 = &xsprite[pCond2->extra];
                 sum2 = pXCond2->locked + pXCond2->busyTime + pXCond2->waitTime + pXCond2->data1;
 
@@ -558,13 +568,15 @@ void nnExtInitModernStuff(bool bSaveLoad) {
 
             }
 
-            if (!found) i = nextspritestat[i];
+            if (!found) i = StatIterator::NextFor(i);
         }
 
     }
 
     // collect objects for tracking conditions
-    for (int i = headspritestat[kStatModernCondition]; i >= 0; i = nextspritestat[i]) {
+    StatIterator it(kStatModernCondition);
+    while ((i = it.NextIndex()) >= 0)
+    {
         spritetype* pSprite = &sprite[i]; XSPRITE* pXSprite = &xsprite[pSprite->extra];
 
         if (pXSprite->busyTime <= 0) continue;
@@ -791,8 +803,10 @@ void nnExtProcessSuperSprites() {
 
             if (!pXProxSpr->DudeLockout) {
 
-                for (int nAffected = headspritestat[kStatDude]; nAffected >= 0; nAffected = nextspritestat[nAffected]) {
-
+                int nAffected;
+                StatIterator it(kStatDude);
+                while ((nAffected = it.NextIndex()) >= 0)
+                {
                     if ((sprite[nAffected].flags & 32) || xsprite[sprite[nAffected].extra].health <= 0) continue;
                     else if (CheckProximity(&sprite[nAffected], x, y, z, sectnum, 96)) {
                         trTriggerSprite(index, pXProxSpr, kCmdSpriteProximity);
@@ -2834,16 +2848,6 @@ bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 if (!sectRangeIsFine(var = sectorofwall(pWall->nextwall))) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, var);
                 return true;
-            /*case 57: // someone touching this wall?
-                for (int i = headspritestat[kStatDude]; i >= 0; i = nextspritestat[i]) {
-                    if (!xspriRangeIsFine(sprite[i].extra) || (gSpriteHit[sprite[i].extra].hit & 0xc000) != 0x8000) continue;
-                    else if ((gSpriteHit[sprite[i].extra].hit & 0x3fff) != objIndex) continue;
-                    else if (PUSH) {
-                        condPush(pXCond, OBJ_SPRITE, i);
-                        return true;
-                    }
-                }
-                return false;*/
         }
     }
 
@@ -3103,7 +3107,10 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 }
                 return retn;
             case 45: // this sprite is a target of some dude?
-                for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+                int nSprite;
+                StatIterator it(kStatDude);
+                while ((nSprite = it.NextIndex()) >= 0)
+                {
                     if (pSpr->index == nSprite) continue;
 
                     spritetype* pDude = &sprite[nSprite];
@@ -3160,17 +3167,22 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 else if (PUSH && spriRangeIsFine(pXSpr->burnSource)) condPush(pXCond, OBJ_SPRITE, pXSpr->burnSource);
                 return true;
             case 66: // any flares stuck in this sprite?
-                for (int nSprite = headspritestat[kStatFlare]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+            {
+                int nSprite;
+                StatIterator it(kStatFlare);
+                while ((nSprite = it.NextIndex()) >= 0)
+                {
                     spritetype* pFlare = &sprite[nSprite];
                     if (!xspriRangeIsFine(pFlare->extra) || (pFlare->flags & kHitagFree))
                         continue;
-                    
+
                     XSPRITE* pXFlare = &xsprite[pFlare->extra];
                     if (!spriRangeIsFine(pXFlare->target) || pXFlare->target != objIndex) continue;
                     else if (PUSH) condPush(pXCond, OBJ_SPRITE, nSprite);
                     return true;
                 }
                 return false;
+            }
             case 70:
                 return condCmp(getSpriteMassBySize(pSpr), arg1, arg2, cmpOp); // mass of the sprite in a range?
         }
@@ -3207,8 +3219,10 @@ void condUpdateObjectIndex(int objType, int oldIndex, int newIndex) {
     int newSerial = condSerialize(objType, newIndex);
 
     // then update serials
-    for (int nSpr = headspritestat[kStatModernCondition]; nSpr >= 0; nSpr = nextspritestat[nSpr]) {
-        
+    int nSpr;
+    StatIterator it(kStatModernCondition);
+    while ((nSpr = it.NextIndex()) >= 0)
+    {
         XSPRITE* pXCond = &xsprite[sprite[nSpr].extra];
         if (pXCond->targetX == oldSerial) pXCond->targetX = newSerial;
         if (pXCond->targetY == oldSerial) pXCond->targetY = newSerial;
@@ -3383,7 +3397,10 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
 spritetype* aiFightGetTargetInRange(spritetype* pSprite, int minDist, int maxDist, short data, short teamMode) {
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); XSPRITE* pXSprite = &xsprite[pSprite->extra];
     spritetype* pTarget = NULL; XSPRITE* pXTarget = NULL; spritetype* cTarget = NULL;
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    int nSprite;
+    StatIterator it(kStatDude);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         pTarget = &sprite[nSprite];  pXTarget = &xsprite[pTarget->extra];
         if (!aiFightDudeCanSeeTarget(pXSprite, pDudeInfo, pTarget)) continue;
 
@@ -3498,7 +3515,10 @@ void aiFightActivateDudes(int rx) {
 
 // this function sets target to -1 for all dudes that hunting for nSprite
 void aiFightFreeTargets(int nSprite) {
-    for (int nTarget = headspritestat[kStatDude]; nTarget >= 0; nTarget = nextspritestat[nTarget]) {
+    int nTarget;
+    StatIterator it(kStatDude);
+    while ((nTarget = it.NextIndex()) >= 0)
+    {
         if (!IsDudeSprite(&sprite[nTarget]) || sprite[nTarget].extra < 0) continue;
         else if (xsprite[sprite[nTarget].extra].target == nSprite)
             aiSetTarget(&xsprite[sprite[nTarget].extra], sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z);
@@ -3521,7 +3541,10 @@ void aiFightFreeAllTargets(XSPRITE* pXSource) {
 
 bool aiFightDudeIsAffected(XSPRITE* pXDude) {
     if (pXDude->rxID <= 0 || pXDude->locked == 1) return false;
-    for (int nSprite = headspritestat[kStatModernDudeTargetChanger]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    int nSprite;
+    StatIterator it(kStatModernDudeTargetChanger);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         XSPRITE* pXSprite = (sprite[nSprite].extra >= 0) ? &xsprite[sprite[nSprite].extra] : NULL;
         if (pXSprite == NULL || pXSprite->txID <= 0 || pXSprite->state != 1) continue;
         for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
@@ -3564,7 +3587,10 @@ void aiFightAlarmDudesInSight(spritetype* pSprite, int max) {
     spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    int nSprite;
+    StatIterator it(kStatDude);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         pDude = &sprite[nSprite];
         if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || pDude->extra < 0)
             continue;
@@ -4243,7 +4269,10 @@ int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event) {
 void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource) {
     // let's first search for previously dropped items and remove it
     if (pXSource->dropMsg > 0) {
-        for (short nItem = headspritestat[kStatItem]; nItem >= 0; nItem = nextspritestat[nItem]) {
+        int nItem;
+        StatIterator it(kStatItem);
+        while ((nItem = it.NextIndex()) >= 0)
+        {
             spritetype* pItem = &sprite[nItem];
             if ((unsigned int)pItem->type == pXSource->dropMsg && pItem->x == pSource->x && pItem->y == pSource->y && pItem->z == pSource->z) {
                 gFX.fxSpawn((FX_ID)29, pSource->sectnum, pSource->x, pSource->y, pSource->z, 0);
@@ -4630,8 +4659,10 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
     
     if ((pXSprite->target < 0 || pPlayer != NULL) && (gFrameClock & 32) != 0) {
         // try find first target that dude can see
-        for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-            
+        int nSprite;
+        StatIterator it(kStatDude);
+        while ((nSprite = it.NextIndex()) >= 0)
+        {
             pTarget = &sprite[nSprite]; pXTarget = &xsprite[pTarget->extra];
 
             if (pXTarget->target == pSprite->index) {

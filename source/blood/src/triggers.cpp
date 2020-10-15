@@ -1528,7 +1528,8 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
     spritetype *pSprite2 = &sprite[pXSector->marker0];
     XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
     int nId = pXSprite2->data2;
-    for (nSprite = headspritestat[kStatPathMarker]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    StatIterator it(kStatMarker);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         pSprite = &sprite[nSprite];
         if (pSprite->type == kMarkerPath)
@@ -1681,7 +1682,8 @@ void InitPath(unsigned int nSector, XSECTOR *pXSector)
     XSPRITE *pXSprite;
     assert(nSector < (unsigned int)numsectors);
     int nId = pXSector->data;
-    for (nSprite = headspritestat[kStatPathMarker]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    StatIterator it(kStatMarker);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         pSprite = &sprite[nSprite];
         if (pSprite->type == kMarkerPath)

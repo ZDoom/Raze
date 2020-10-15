@@ -639,10 +639,11 @@ void DropVoodooCb(int nSprite) // unused
             evPost(nSprite, 3, 0, kCallbackRemove);
             return;
         }
-        int nSprite2, nNextSprite;
-        for (nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nNextSprite)
+        int nSprite2;
+        StatIterator it(kStatDude);
+        while ((nSprite2 = it.NextIndex()) >= 0)
         {
-            nNextSprite = nextspritestat[nSprite2];
+            int nNextSprite = it.PeekIndex();
             if (nOwner == nSprite2)
                 continue;
             spritetype *pSprite2 = &sprite[nSprite2];

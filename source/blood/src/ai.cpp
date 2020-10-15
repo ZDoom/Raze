@@ -1418,7 +1418,10 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
             gAffectedSectors[0] = 0;
             gAffectedXWalls[0] = 0;
             GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, gAffectedSectors, va4, gAffectedXWalls);
-            for (int nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
+
+            int nSprite2;
+            StatIterator it(kStatDude);
+            while ((nSprite2 = it.NextIndex()) >= 0)
             {
                 spritetype *pSprite2 = &sprite[nSprite2];
                 int dx = pSprite2->x-pSprite->x;
@@ -1439,7 +1442,10 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
 }
 
 void aiProcessDudes(void) {
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    int nSprite;
+    StatIterator it(kStatDude);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->flags & 32) continue;
         int nXSprite = pSprite->extra;
@@ -1491,7 +1497,9 @@ void aiProcessDudes(void) {
 
 void aiInit(void)
 {
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    int nSprite;
+    StatIterator it(kStatDude);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         aiInitSprite(&sprite[nSprite]);
     }

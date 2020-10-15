@@ -125,7 +125,9 @@ static void StompSeqCallback(int, int nXSprite)
             v4 = 0;
     }
     vc <<= 4;
-    for (int nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
+    int nSprite2;
+    StatIterator it1(kStatDude);
+    while ((nSprite2 = it1.NextIndex()) >= 0)
     {
         if (nSprite != nSprite2 || v4)
         {
@@ -161,7 +163,8 @@ static void StompSeqCallback(int, int nXSprite)
             }
         }
     }
-    for (int nSprite2 = headspritestat[kStatThing]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
+    it1.Reset(kStatThing);
+    while ((nSprite2 = it1.NextIndex()) >= 0)
     {
         spritetype *pSprite2 = &sprite[nSprite2];
         if (pSprite2->flags&32)

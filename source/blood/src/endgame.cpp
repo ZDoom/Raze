@@ -219,7 +219,9 @@ void CKillMgr::AddKill(spritetype* pSprite)
 void CKillMgr::CountTotalKills(void)
 {
 	TotalKills = 0;
-	for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+	int nSprite;
+	StatIterator it(kStatDude);
+	while ((nSprite = it.NextIndex()) >= 0)
 	{
 		spritetype* pSprite = &sprite[nSprite];
 		if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)

@@ -1,0 +1,67 @@
+#pragma once
+
+
+class StatIterator
+{
+    int next;
+public:
+    StatIterator(int stat)
+    {
+        assert(stat >= 0 && stat < MAXSTATUS);
+        next = headspritestat[stat];
+    }
+    
+    void Reset(int stat)
+    {
+        assert(stat >= 0 && stat < MAXSTATUS);
+        next = headspritestat[stat];
+    }
+    
+    int NextIndex()
+    {
+        int n = next;
+        next = nextspritestat[next];
+        return n;
+    }
+
+    int PeekIndex()
+    {
+        return next;
+    }
+
+
+    // These are only used by one particularly screwy loop in Blood's nnexts.cpp.
+    static int First(int stat)
+    {
+        return headspritestat[stat];
+    }
+
+    static int NextFor(int spr)
+    {
+        return nextspritestat[spr];
+    }
+};
+
+class SectIterator
+{
+    int next;
+public:
+    SectIterator(int stat)
+    {
+        assert(stat >= 0 && stat < MAXSECTORS);
+        next = headspritesect[stat];
+    }
+    
+    void Reset(int stat)
+    {
+        assert(stat >= 0 && stat < MAXSECTORS);
+        next = headspritesect[stat];
+    }
+    
+    int NextIndex()
+    {
+        int n = next;
+        next = nextspritesect[next];
+        return n;
+    }
+};
