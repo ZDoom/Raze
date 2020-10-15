@@ -1714,7 +1714,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		}
 	}
 
-	double horiz = 0;
+	double horiz = FRACUNIT;
 	if (p->TurbCount)
 	{
 		if (p->TurbCount <= 1)
@@ -1756,7 +1756,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		p->VBumpTarget = 0;
 		p->moto_bump_fast = 0;
 	}
-	if (horiz != 0)
+	if (horiz != FRACUNIT)
 	{
 		p->horizon.addadjustment(horiz - FixedToFloat(p->horizon.horiz.asq16()));
 	}
@@ -2043,7 +2043,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		}
 	}
 
-	double horiz = 0;
+	double horiz = FRACUNIT;
 	if (p->TurbCount)
 	{
 		if (p->TurbCount <= 1)
@@ -2085,7 +2085,7 @@ static void onBoat(int snum, ESyncBits &actions)
 		p->VBumpTarget = 0;
 		p->moto_bump_fast = 0;
 	}
-	if (horiz != 0)
+	if (horiz != FRACUNIT)
 	{
 		p->horizon.addadjustment(horiz - FixedToFloat(p->horizon.horiz.asq16()));
 	}
