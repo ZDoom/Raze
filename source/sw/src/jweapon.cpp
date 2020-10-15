@@ -2114,9 +2114,10 @@ void
 DoFlagScore(int16_t pal)
 {
     SPRITEp sp;
-    int SpriteNum = 0, NextSprite = 0;
+    int SpriteNum;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[0], SpriteNum, NextSprite)
+    StatIterator it(STAT_DEFAULT);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
         sp = &sprite[SpriteNum];
 

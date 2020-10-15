@@ -454,7 +454,7 @@ void WarpCopySprite(void)
 {
     SPRITEp sp1, sp2, sp;
     int sn, sn2;
-    int spnum, next_spnum;
+    int spnum;
     int xoff,yoff,zoff;
     short match;
     short sect1, sect2;
@@ -478,7 +478,8 @@ void WarpCopySprite(void)
                 sect1 = sp1->sectnum;
                 sect2 = sp2->sectnum;
 
-                TRAVERSE_SPRITE_SECT(headspritesect[sect1], spnum, next_spnum)
+                SectIterator it(sect1);
+                while ((spnum = it.NextIndex()) >= 0)
                 {
                     if (&sprite[spnum] == sp1)
                         continue;
@@ -499,7 +500,8 @@ void WarpCopySprite(void)
                     New->sectnum = sp2->sectnum;
                 }
 
-                TRAVERSE_SPRITE_SECT(headspritesect[sect2], spnum, next_spnum)
+                it.Reset(sect2);
+                while ((spnum = it.NextIndex()) >= 0)
                 {
                     if (&sprite[spnum] == sp2)
                         continue;
@@ -1900,7 +1902,9 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
     // Draw sprites
     k = Player[screenpeek].PlayerSprite;
     for (i = 0; i < numsectors; i++)
-        for (j = headspritesect[i]; j >= 0; j = nextspritesect[j])
+    {
+        SectIterator it(i);
+        while ((j = it.NextIndex()) >= 0)
         {
             for (p = connecthead; p >= 0; p = connectpoint2[p])
             {
@@ -2074,7 +2078,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
                 }
             }
         }
-        return true;
+    }
+    return true;
 }
 
 

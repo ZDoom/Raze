@@ -1648,7 +1648,8 @@ void PreMapCombineFloors(void)
         {
             dasect = sectlist[sectlistplc++];
 
-            for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
+            SectIterator it(dasect);
+            while ((j = it.NextIndex()) >= 0)
             {
                 sprite[j].x += dx;
                 sprite[j].y += dy;
@@ -1758,14 +1759,15 @@ SpriteSetupPost(void)
 {
     SPRITEp ds;
     USERp u;
-    short SpriteNum, NextSprite;
+    int SpriteNum;
     int i;
     int cz,fz;
 
     // Post processing of some sprites after gone through the main SpriteSetup()
     // routine
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FLOOR_PAN], SpriteNum, NextSprite)
+    StatIterator it(STAT_FLOOR_PAN);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
         SectIterator it(sprite[SpriteNum].sectnum);
         while ((i = it.NextIndex()) >= 0)
@@ -1803,7 +1805,7 @@ void
 SpriteSetup(void)
 {
     SPRITEp sp;
-    short SpriteNum = 0, NextSprite;
+    int SpriteNum;
     USERp u;
     short i, num;
     int cz,fz;
@@ -1827,7 +1829,8 @@ SpriteSetup(void)
     // Call my little sprite setup routine first
     JS_SpriteSetup();
 
-    TRAVERSE_SPRITE_STAT(headspritestat[0], SpriteNum, NextSprite)
+    StatIterator it(STAT_DEFAULT);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
         sp = &sprite[SpriteNum];
 
@@ -4752,7 +4755,8 @@ getzrangepoint(int x, int y, int z, short sectnum,
     *florhit = sectnum + 16384;
 
     // Go through sprites of only the current sector
-    for (j = headspritesect[sectnum]; j >= 0; j = nextspritesect[j])
+    SectIterator it(sectnum);
+    while ((j = it.NextIndex()) >= 0)
     {
         spr = &sprite[j];
         cstat = spr->cstat;

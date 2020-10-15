@@ -1134,14 +1134,15 @@ int DoSpawnSpot(short SpriteNum)
 void
 DoSpawnSpotsForKill(short match)
 {
-    short sn, next_sn;
+    int sn;
     SPRITEp sp;
     USERp u;
 
     if (match < 0)
         return;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPAWN_SPOT], sn, next_sn)
+    StatIterator it(STAT_SPAWN_SPOT);
+    while ((sn = it.NextIndex()) >= 0)
     {
         sp = &sprite[sn];
 
@@ -1163,14 +1164,15 @@ DoSpawnSpotsForKill(short match)
 void
 DoSpawnSpotsForDamage(short match)
 {
-    short sn, next_sn;
+    int sn;
     SPRITEp sp;
     USERp u;
 
     if (match < 0)
         return;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPAWN_SPOT], sn, next_sn)
+    StatIterator it(STAT_SPAWN_SPOT);
+    while ((sn = it.NextIndex()) >= 0)
     {
         sp = &sprite[sn];
 
@@ -1191,7 +1193,7 @@ DoSpawnSpotsForDamage(short match)
 void
 DoSoundSpotMatch(short match, short sound_num, short sound_type)
 {
-    short sn, next_sn;
+    int sn;
     SPRITEp sp;
     int flags;
     short snd2play;
@@ -1202,7 +1204,8 @@ DoSoundSpotMatch(short match, short sound_num, short sound_type)
 
     ASSERT(sound_num >= 0);
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SOUND_SPOT], sn, next_sn)
+    StatIterator it(STAT_SOUND_SPOT);
+    while ((sn = it.NextIndex()) >= 0)
     {
         sp = &sprite[sn];
 
@@ -1278,10 +1281,11 @@ DoSoundSpotMatch(short match, short sound_num, short sound_type)
 void
 DoSoundSpotStopSound(short match)
 {
-    short sn, next_sn;
+    int sn;
     SPRITEp sp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SOUND_SPOT], sn, next_sn)
+    StatIterator it(STAT_SOUND_SPOT);
+    while ((sn = it.NextIndex()) >= 0)
     {
         sp = &sprite[sn];
 
@@ -1296,10 +1300,11 @@ DoSoundSpotStopSound(short match)
 void
 DoStopSoundSpotMatch(short match)
 {
-    short sn, next_sn;
+    int sn;
     SPRITEp sp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_STOP_SOUND_SPOT], sn, next_sn)
+    StatIterator it(STAT_STOP_SOUND_SPOT);
+    while ((sn = it.NextIndex()) >= 0)
     {
         sp = &sprite[sn];
 
@@ -1528,11 +1533,12 @@ void DoDeleteSpriteMatch(short match)
 void
 DoChangorMatch(short match)
 {
-    short sn, next_sn;
+    int sn;
     SPRITEp sp;
     SECTORp sectp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_CHANGOR], sn, next_sn)
+    StatIterator it(STAT_CHANGOR);
+    while ((sn = it.NextIndex()) >= 0)
     {
         sp = &sprite[sn];
         sectp = &sector[sp->sectnum];

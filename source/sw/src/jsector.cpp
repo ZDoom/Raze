@@ -170,12 +170,12 @@ void
 JS_SpriteSetup(void)
 {
     SPRITEp sp;
-    short SpriteNum = 0, NextSprite;
+    int SpriteNum;
     USERp u;
     short i;
 
-
-    TRAVERSE_SPRITE_STAT(headspritestat[0], SpriteNum, NextSprite)
+    StatIterator it(STAT_DEFAULT);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
         short tag;
 
@@ -288,7 +288,7 @@ void JS_InitMirrors(void)
 {
     short startwall, endwall;
     int i, j, s;
-    short SpriteNum = 0, NextSprite;
+    int SpriteNum;
     bool Found_Cam = false;
 
 
@@ -384,7 +384,8 @@ void JS_InitMirrors(void)
                     Found_Cam = false;
                     if (TEST_BOOL1(&sprite[mirror[mirrorcnt].camera]))
                     {
-                        TRAVERSE_SPRITE_STAT(headspritestat[0], SpriteNum, NextSprite)
+                        StatIterator it(STAT_DEFAULT);
+                        while ((SpriteNum = it.NextIndex()) >= 0)
                         {
                             sp = &sprite[SpriteNum];
                             if (sp->picnum >= CAMSPRITE && sp->picnum < CAMSPRITE + 8 &&
@@ -1390,7 +1391,7 @@ void
 UnlockKeyLock(short key_num, short hit_sprite)
 {
     SPRITEp sp;
-    int SpriteNum = 0, NextSprite = 0, color = 0;
+    int SpriteNum = 0, color = 0;
 
     // Get palette by looking at key number
     switch (key_num - 1)
@@ -1421,7 +1422,8 @@ UnlockKeyLock(short key_num, short hit_sprite)
         break;
     }
 
-    TRAVERSE_SPRITE_STAT(headspritestat[0], SpriteNum, NextSprite)
+    StatIterator it(STAT_DEFAULT);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
         sp = &sprite[SpriteNum];
 

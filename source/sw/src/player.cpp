@@ -7533,7 +7533,7 @@ InitMultiPlayerInfo(void)
     SPRITEp sp;
     short pnum, start0;
     unsigned stat;
-    short SpriteNum, NextSprite, tag;
+    int SpriteNum, tag;
     static short MultiStatList[] =
     {
         STAT_MULTI_START,
@@ -7541,7 +7541,8 @@ InitMultiPlayerInfo(void)
     };
 
     // this routine is called before SpriteSetup - process start positions NOW
-    TRAVERSE_SPRITE_STAT(headspritestat[0], SpriteNum, NextSprite)
+    StatIterator it(STAT_DEFAULT);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
         sp = &sprite[SpriteNum];
 

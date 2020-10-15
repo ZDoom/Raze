@@ -351,14 +351,15 @@ TrackClonePoint(short SpriteNum)
 
 void QuickJumpSetup(short stat, short lotag, short type)
 {
-    short SpriteNum = 0, NextSprite, ndx;
+    int SpriteNum = 0, ndx;
     TRACK_POINTp tp;
     TRACKp t;
     SPRITEp nsp;
     short start_sprite, end_sprite;
 
     // make short quick jump tracks
-    TRAVERSE_SPRITE_STAT(headspritestat[stat], SpriteNum, NextSprite)
+    StatIterator it(stat);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
 
         // find an open track
@@ -416,14 +417,15 @@ void QuickJumpSetup(short stat, short lotag, short type)
 
 void QuickScanSetup(short stat, short lotag, short type)
 {
-    short SpriteNum = 0, NextSprite, ndx;
+    int SpriteNum = 0, ndx;
     TRACK_POINTp tp;
     TRACKp t;
     SPRITEp nsp;
     short start_sprite, end_sprite;
 
     // make short quick jump tracks
-    TRAVERSE_SPRITE_STAT(headspritestat[stat], SpriteNum, NextSprite)
+    StatIterator it(stat);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
 
         // find an open track
@@ -477,13 +479,14 @@ void QuickScanSetup(short stat, short lotag, short type)
 
 void QuickExitSetup(short stat, short type)
 {
-    short SpriteNum = 0, NextSprite, ndx;
+    int SpriteNum = 0, ndx;
     TRACK_POINTp tp;
     TRACKp t;
     SPRITEp nsp;
     short start_sprite, end_sprite;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[stat], SpriteNum, NextSprite)
+    StatIterator it(stat);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
 
         // find an open track
@@ -532,13 +535,14 @@ void QuickExitSetup(short stat, short type)
 
 void QuickLadderSetup(short stat, short lotag, short type)
 {
-    short SpriteNum = 0, NextSprite, ndx;
+    int SpriteNum = 0, ndx;
     TRACK_POINTp tp;
     TRACKp t;
     SPRITEp nsp;
     short start_sprite, end_sprite;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[stat], SpriteNum, NextSprite)
+    StatIterator it(stat);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
 
         // find an open track
@@ -594,7 +598,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
 void
 TrackSetup(void)
 {
-    short SpriteNum = 0, NextSprite, ndx;
+    int SpriteNum = 0, ndx;
     TRACK_POINTp tp;
     TRACKp t;
     TRACK_POINTp New;
@@ -623,7 +627,8 @@ TrackSetup(void)
         t = &Track[ndx];
 
         // find the first point and save it
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_TRACK + ndx], SpriteNum, NextSprite)
+        StatIterator it(STAT_TRACK + ndx);
+        while ((SpriteNum = it.NextIndex()) >= 0)
         {
             if (LOW_TAG_SPRITE(SpriteNum) == TRACK_START)
             {
@@ -660,7 +665,8 @@ TrackSetup(void)
             int dist, low_dist = 999999;
 
             // find the closest point to the last point
-            TRAVERSE_SPRITE_STAT(headspritestat[STAT_TRACK + ndx], SpriteNum, NextSprite)
+            StatIterator it(STAT_TRACK + ndx);
+            while ((SpriteNum = it.NextIndex()) >= 0)
             {
                 dist = Distance((tp + t->NumPoints - 1)->x, (tp + t->NumPoints - 1)->y, sprite[SpriteNum].x, sprite[SpriteNum].y);
 
@@ -705,9 +711,10 @@ TrackSetup(void)
 SPRITEp
 FindBoundSprite(short tag)
 {
-    short sn, next_sn;
+    short sn;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ST1], sn, next_sn)
+    StatIterator it(STAT_ST1);
+    while ((sn = it.NextIndex()) >= 0)
     {
         if (sprite[sn].hitag == tag)
         {
@@ -1037,7 +1044,7 @@ SetupSectorObject(short sectnum, short tag)
 {
     SPRITEp sp;
     SECTOR_OBJECTp sop;
-    short object_num, SpriteNum, NextSprite;
+    int object_num, SpriteNum;
     short j;
     short New;
     USERp u;
@@ -1131,7 +1138,8 @@ SetupSectorObject(short sectnum, short tag)
         SET(u->Flags2, SPR2_SPRITE_FAKE_BLOCK); // for damage test
 
         // check for any ST1 sprites laying on the center sector
-        TRAVERSE_SPRITE_SECT(headspritesect[sectnum], SpriteNum, NextSprite)
+        SectIterator it(sectnum);
+        while ((SpriteNum = it.NextIndex()) >= 0)
         {
             sp = &sprite[SpriteNum];
 
@@ -2831,14 +2839,15 @@ PlaceSectorObject(SECTOR_OBJECTp sop, int newx, int newy)
 
 void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
 {
-    short SpriteNum, NextSprite;
+    short SpriteNum;
     SECTORp *sectp;
     SPRITEp sp;
     USERp u;
 
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        TRAVERSE_SPRITE_SECT(headspritesect[*sectp - sector], SpriteNum, NextSprite)
+        SectIterator it(*sectp - sector);
+        while ((SpriteNum = it.NextIndex()) >= 0)
         {
             sp = &sprite[SpriteNum];
             u = User[SpriteNum];

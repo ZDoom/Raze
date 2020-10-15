@@ -110,7 +110,7 @@ void CopySectorMatch(short match)
     int ed,ss;
     SPRITEp dest_sp, src_sp;
     SECTORp dsectp,ssectp;
-    short kill, nextkill;
+    int kill;
     SPRITEp k;
 
     StatIterator it(STAT_COPY_DEST);
@@ -130,7 +130,7 @@ void CopySectorMatch(short match)
             if (SP_TAG2(src_sp) == SPRITE_TAG2(ed) &&
                 SP_TAG3(src_sp) == SPRITE_TAG3(ed))
             {
-                short src_move, nextsrc_move;
+                int src_move;
                 ssectp = &sector[src_sp->sectnum];
 
                 // !!!!!AAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHHHH
@@ -140,7 +140,8 @@ void CopySectorMatch(short match)
 
 #if 1
                 // kill all sprites in the dest sector that need to be
-                TRAVERSE_SPRITE_SECT(headspritesect[dest_sp->sectnum], kill, nextkill)
+                SectIterator itsec(dest_sp->sectnum);
+                while ((kill = itsec.NextIndex()) >= 0)
                 {
                     k = &sprite[kill];
 
@@ -163,7 +164,8 @@ void CopySectorMatch(short match)
 
                 CopySectorWalls(dest_sp->sectnum, src_sp->sectnum);
 
-                TRAVERSE_SPRITE_SECT(headspritesect[src_sp->sectnum], src_move, nextsrc_move)
+                itsec.Reset(src_sp->sectnum);
+                while ((src_move = itsec.NextIndex()) >= 0)
                 {
                     // don't move ST1 Copy Tags
                     if (SPRITE_TAG1(src_move) != SECT_COPY_SOURCE)

@@ -89,10 +89,11 @@ int COVERinsertsprite(short sectnum, short stat)
 bool
 FAF_Sector(short sectnum)
 {
-    short SpriteNum, Next;
+    int SpriteNum;
     SPRITEp sp;
 
-    TRAVERSE_SPRITE_SECT(headspritesect[sectnum], SpriteNum, Next)
+    SectIterator it(sectnum);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
         sp = &sprite[SpriteNum];
 
@@ -687,7 +688,7 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
     int i;
     short sectorlist[16];
     int sln = 0;
-    short SpriteNum, Next;
+    int SpriteNum;
     SPRITEp sp;
 
     // keep a list of the last stacked sectors the view was in and
@@ -700,7 +701,8 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
         {
             bool found = false;
 
-            TRAVERSE_SPRITE_SECT(headspritesect[GlobStackSect[i]], SpriteNum, Next)
+            SectIterator it(GlobStackSect[i]);
+            while ((SpriteNum = it.NextIndex()) >= 0)
             {
                 sp = &sprite[SpriteNum];
 
@@ -730,7 +732,8 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
             {
                 bool found = false;
 
-                TRAVERSE_SPRITE_SECT(headspritesect[i], SpriteNum, Next)
+                SectIterator it(i);
+                while ((SpriteNum = it.NextIndex()) >= 0)
                 {
                     sp = &sprite[SpriteNum];
 
