@@ -1414,7 +1414,7 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
         }
         if (pXSprite->state)
         {
-            char va4[(kMaxSectors+7)>>3];
+            uint8_t va4[(kMaxSectors+7)>>3];
             gAffectedSectors[0] = 0;
             gAffectedXWalls[0] = 0;
             GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, gAffectedSectors, va4, gAffectedXWalls);

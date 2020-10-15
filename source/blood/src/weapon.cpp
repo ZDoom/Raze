@@ -2493,7 +2493,7 @@ void WeaponProcess(PLAYER *pPlayer) {
 
 void sub_51340(spritetype *pMissile, int a2)
 {
-    char va4[(kMaxSectors+7)>>3];
+    uint8_t va4[(kMaxSectors+7)>>3];
     int x = pMissile->x;
     int y = pMissile->y;
     int z = pMissile->z;

@@ -99,7 +99,7 @@ static void SlashSeqCallback(int, int nXSprite)
 
 static void StompSeqCallback(int, int nXSprite)
 {
-    char vb8[(kMaxSectors+7)>>3];
+    uint8_t vb8[(kMaxSectors+7)>>3];
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];

@@ -2448,7 +2448,10 @@ void actInit(bool bSaveLoad) {
     }
     #endif
     
-    for (int nSprite = headspritestat[kStatItem]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    int nSprite;
+    StatIterator it(kStatItem);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         switch (sprite[nSprite].type) {
             case kItemWeaponVoodooDoll:
                 sprite[nSprite].type = kAmmoItemVoodooDoll;
@@ -2456,7 +2459,9 @@ void actInit(bool bSaveLoad) {
         }
     }
 
-    for (int nSprite = headspritestat[kStatTraps]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    it.Reset(kStatTraps);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         spritetype *pSprite = &sprite[nSprite];
         switch (pSprite->type) {
             case kTrapExploder:
@@ -2468,7 +2473,9 @@ void actInit(bool bSaveLoad) {
         }
     }
 
-    for (int nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    it.Reset(kStatThing);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         if (sprite[nSprite].extra <= 0 || sprite[nSprite].extra >= kMaxXSprites) continue;
         spritetype* pSprite = &sprite[nSprite]; XSPRITE *pXSprite = &xsprite[pSprite->extra];
         
@@ -2511,18 +2518,24 @@ void actInit(bool bSaveLoad) {
     
     if (gGameOptions.nMonsterSettings == 0) {
         gKillMgr.SetCount(0);
-        while (headspritestat[kStatDude] >= 0) {
-            spritetype *pSprite = &sprite[headspritestat[kStatDude]];
+        int nSprite;
+        StatIterator it(kStatDude);
+        while ((nSprite = it.NextIndex()) >= 0)
+        {
+            spritetype *pSprite = &sprite[nSprite];
             if (pSprite->extra > 0 && pSprite->extra < kMaxXSprites && xsprite[pSprite->extra].key > 0) // Drop Key
                 actDropObject(pSprite, kItemKeyBase + (xsprite[pSprite->extra].key - 1));
-            DeleteSprite(headspritestat[kStatDude]);
+            DeleteSprite(nSprite);
         }
     } else {
         // by NoOne: WTF is this?
         ///////////////
         char unk[kDudeMax-kDudeBase];
         memset(unk, 0, sizeof(unk));
-        for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+        int nSprite;
+        StatIterator it(kStatDude);
+        while ((nSprite = it.NextIndex()) >= 0)
+        {
             spritetype *pSprite = &sprite[nSprite];
             if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
                 I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", nSprite);
@@ -2536,7 +2549,9 @@ void actInit(bool bSaveLoad) {
             for (int j = 0; j < 7; j++)
                 dudeInfo[i].at70[j] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j]);
 
-        for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+        it.Reset(kStatDude);
+        while ((nSprite = it.NextIndex()) >= 0)
+        {
             if (sprite[nSprite].extra <= 0 || sprite[nSprite].extra >= kMaxXSprites) continue;
             spritetype *pSprite = &sprite[nSprite]; XSPRITE *pXSprite = &xsprite[pSprite->extra];
             
@@ -2671,7 +2686,7 @@ void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7,
 {
     UNREFERENCED_PARAMETER(a12);
     UNREFERENCED_PARAMETER(a13);
-    char va0[(kMaxSectors+7)>>3];
+    uint8_t va0[(kMaxSectors+7)>>3];
     int nOwner = actSpriteIdToOwnerId(nSprite);
     gAffectedSectors[0] = 0;
     gAffectedXWalls[0] = 0;
@@ -2679,7 +2694,9 @@ void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7,
     nDist <<= 4;
     if (a10 & 2)
     {
-        for (int i = headspritestat[kStatDude]; i >= 0; i = nextspritestat[i])
+        int i;
+        StatIterator it(kStatDude);
+        while ((i = it.NextIndex()) >= 0)
         {
             if (i != nSprite || (a10 & 1))
             {
@@ -2713,7 +2730,9 @@ void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7,
     }
     if (a10 & 4)
     {
-        for (int i = headspritestat[kStatThing]; i >= 0; i = nextspritestat[i])
+        int i;
+        StatIterator it(kStatThing);
+        while ((i = it.NextIndex()) >= 0)
         {
             spritetype *pSprite2 = &sprite[i];
 
@@ -5416,7 +5435,8 @@ void actProcessSprites(void)
     if (gModernMap) nnExtProcessSuperSprites();
     #endif
 
-    for (nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    StatIterator it(kStatThing);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
 
@@ -5447,9 +5467,10 @@ void actProcessSprites(void)
                 #endif
                 
                 if (pSprite->type == kThingDroppedLifeLeech) pXSprite->target = -1;
-                for (int nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nNextSprite)
+                int nSprite2;
+                StatIterator it1(kStatDude);
+                while ((nSprite2 = it1.NextIndex()) >= 0)
                 {
-                    
                     nNextSprite = nextspritestat[nSprite2];
                     spritetype *pSprite2 = &sprite[nSprite2];
 
@@ -5511,7 +5532,9 @@ void actProcessSprites(void)
             }
         }
     }
-    for (nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+
+    it.Reset(kStatThing);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
 
@@ -5642,7 +5665,8 @@ void actProcessSprites(void)
             }
         }
     }
-    for (nSprite = headspritestat[kStatProjectile]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    it.Reset(kStatProjectile);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
 
@@ -5653,9 +5677,10 @@ void actProcessSprites(void)
         if (hit >= 0)
             actImpactMissile(pSprite, hit);
     }
-    for (nSprite = headspritestat[kStatExplosion]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    it.Reset(kStatExplosion);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
-        char v24c[(kMaxSectors+7)>>3];
+        uint8_t v24c[(kMaxSectors+7)>>3];
         spritetype *pSprite = &sprite[nSprite];
 
         if (pSprite->flags & 32)
@@ -5693,7 +5718,9 @@ void actProcessSprites(void)
             trTriggerWall(nWall, pXWall, kCmdWallImpact);
         }
         
-        for (int nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
+        int nSprite2;
+        StatIterator it1(kStatDude);
+        while ((nSprite2 = it1.NextIndex()) >= 0)
         {
             spritetype *pDude = &sprite[nSprite2];
 
@@ -5722,7 +5749,8 @@ void actProcessSprites(void)
             }
         }
         
-        for (int nSprite2 = headspritestat[kStatThing]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
+        it1.Reset(kStatThing);
+        while ((nSprite2 = it1.NextIndex()) >= 0)
         {
             spritetype *pThing = &sprite[nSprite2];
 
@@ -5811,7 +5839,9 @@ void actProcessSprites(void)
             actPostSprite(nSprite, kStatFree);
     }
    
-    for (nSprite = headspritestat[kStatTraps]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+    it.Reset(kStatTraps);
+    while ((nSprite = it.NextIndex()) >= 0)
+    {
         spritetype *pSprite = &sprite[nSprite];
 
         if (pSprite->flags & 32)
@@ -5853,7 +5883,8 @@ void actProcessSprites(void)
             break;
         }
     }
-    for (nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    it.Reset(kStatDude);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
 
@@ -5901,7 +5932,9 @@ void actProcessSprites(void)
             }
             if (pXSprite->Proximity && !pXSprite->isTriggered)
             {
-                for (int nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nNextSprite)
+                int nSprite2;
+                StatIterator it1(kStatDude);
+                while ((nSprite2 = it1.NextIndex()) >= 0)
                 {
                     nNextSprite = nextspritestat[nSprite2];
                     spritetype *pSprite2 = &sprite[nSprite2];
@@ -5955,7 +5988,8 @@ void actProcessSprites(void)
             ProcessTouchObjects(pSprite, nXSprite);
         }
     }
-    for (nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    it.Reset(kStatDude);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
 
@@ -6004,7 +6038,8 @@ void actProcessSprites(void)
             velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
             MoveDude(pSprite);
     }
-    for (nSprite = headspritestat[kStatFlare]; nSprite >= 0; nSprite = nextspritestat[nSprite])
+    it.Reset(kStatFlare);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
 
@@ -6051,7 +6086,8 @@ spritetype * actSpawnSprite(int nSector, int x, int y, int z, int nStat, char a6
         sprite[nSprite].extra = -1;
     else
     {
-        nSprite = headspritestat[kStatPurge];
+        StatIterator it(kStatPurge);
+        nSprite = it.NextIndex();
         assert(nSprite >= 0);
         assert(nSector >= 0 && nSector < kMaxSectors);
         ChangeSpriteSect(nSprite, nSector);
@@ -6142,7 +6178,8 @@ spritetype * actSpawnSprite(spritetype *pSource, int nStat)
     int nSprite = InsertSprite(pSource->sectnum, nStat);
     if (nSprite < 0)
     {
-        nSprite = headspritestat[kStatPurge];
+        StatIterator it(kStatPurge);
+        nSprite = it.NextIndex();
         assert(nSprite >= 0);
         assert(pSource->sectnum >= 0 && pSource->sectnum < kMaxSectors);
         ChangeSpriteSect(nSprite, pSource->sectnum);

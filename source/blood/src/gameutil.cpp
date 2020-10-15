@@ -832,9 +832,9 @@ int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, cha
     return n;
 }
 
-int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pSectors, char *pSectBit, short *a8)
+int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pSectors, uint8_t *pSectBit, short *a8)
 {
-    char sectbits[(kMaxSectors+7)>>3];
+    uint8_t sectbits[(kMaxSectors+7)>>3];
     assert(pSectors != NULL);
     memset(sectbits, 0, sizeof(sectbits));
     pSectors[0] = nSector;
