@@ -457,3 +457,28 @@ CCMD(restartmap)
 	}
 	ChangeLevel(currentLevel, -1);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+CUSTOM_CVAR(Float, i_timescale, 1.0f, CVAR_NOINITCALL)
+{
+	if (netgame)
+	{
+		Printf("Time scale cannot be changed in net games.\n");
+		self = 1.0f;
+	}
+	else if (self >= 0.05f)
+	{
+		I_FreezeTime(true);
+		TimeScale = self;
+		I_FreezeTime(false);
+	}
+	else
+	{
+		Printf("Time scale must be at least 0.05!\n");
+	}
+}
