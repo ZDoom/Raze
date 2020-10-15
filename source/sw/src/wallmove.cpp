@@ -168,7 +168,8 @@ bool CanSeeWallMove(SPRITEp wp, short match)
     bool found = false;
     SPRITEp sp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_WALL_MOVE_CANSEE], i, nexti)
+    StatIterator it(STAT_WALL_MOVE_CANSEE);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -196,7 +197,8 @@ int DoWallMoveMatch(short match)
     bool found = false;
 
     // just all with the same matching tags
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_WALL_MOVE], i, nexti)
+    StatIterator it(STAT_WALL_MOVE);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 

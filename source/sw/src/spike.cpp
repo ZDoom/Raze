@@ -79,7 +79,8 @@ SpikeSwitch(short match, short setting)
     short i,nexti;
     bool found = false;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
+    StatIterator it(STAT_DEFAULT);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -147,7 +148,8 @@ short DoSpikeOperate(short sectnum)
     short match;
     short i,nexti;
 
-    TRAVERSE_SPRITE_SECT(headspritesect[sectnum], i, nexti)
+    SectIterator it(sectnum);
+    while ((i = it.NextIndex()) >= 0)
     {
         fsp = &sprite[i];
 
@@ -185,7 +187,8 @@ DoSpikeMatch(short match)
 
     //SpikeSwitch(match, ON);
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPIKE], i, nexti)
+    StatIterator it(STAT_SPIKE);
+    while ((i = it.NextIndex()) >= 0)
     {
         fsp = &sprite[i];
 
@@ -218,7 +221,8 @@ TestSpikeMatchActive(short match)
 
     short i,nexti;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPIKE], i, nexti)
+    StatIterator it(STAT_SPIKE);
+    while ((i = it.NextIndex()) >= 0)
     {
         fsp = &sprite[i];
 
@@ -303,7 +307,8 @@ void MoveSpritesWithSpike(short sectnum)
     short i,nexti;
     int cz,fz;
 
-    TRAVERSE_SPRITE_SECT(headspritesect[sectnum], i, nexti)
+    SectIterator it(sectnum);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -399,7 +404,8 @@ int DoSpike(short SpriteNum)
             USERp bu;
             bool found = false;
 
-            TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
+            SectIterator it(sp->sectnum);
+            while ((i = it.NextIndex()) >= 0)
             {
                 bsp = &sprite[i];
                 bu = User[i];

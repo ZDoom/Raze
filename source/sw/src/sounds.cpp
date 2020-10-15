@@ -284,7 +284,8 @@ void StartAmbientSound(void)
     
     if (!SoundEnabled()) return;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_AMBIENT], i, nexti)
+    StatIterator it(STAT_AMBIENT);
+    while ((i = it.NextIndex()) >= 0)
     {
         SPRITEp sp = &sprite[i];
         InitAmbient(sp->lotag, sp);

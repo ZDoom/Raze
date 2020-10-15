@@ -732,7 +732,8 @@ KillSprite(int16_t SpriteNum)
 
             for (stat = 0; stat < SIZ(MissileStats); stat++)
             {
-                TRAVERSE_SPRITE_STAT(headspritestat[MissileStats[stat]], i, nexti)
+                StatIterator it(MissileStats[stat]);
+                while ((i = it.NextIndex()) >= 0)
                 {
                     mu = User[i];
 
@@ -752,7 +753,8 @@ KillSprite(int16_t SpriteNum)
             // don't bother th check if you've never had children
             for (stat = 0; stat < STAT_DONT_DRAW; stat++)
             {
-                TRAVERSE_SPRITE_STAT(headspritestat[stat], i, nexti)
+                StatIterator it(stat);
+                while ((i = it.NextIndex()) >= 0)
                 {
                     if (sprite[i].owner == SpriteNum)
                     {
@@ -1765,7 +1767,8 @@ SpriteSetupPost(void)
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_FLOOR_PAN], SpriteNum, NextSprite)
     {
-        TRAVERSE_SPRITE_SECT(headspritesect[sprite[SpriteNum].sectnum],i,nexti)
+        SectIterator it(sprite[SpriteNum].sectnum);
+        while ((i = it.NextIndex()) >= 0)
         {
             ds = &sprite[i];
 
@@ -3820,7 +3823,8 @@ bool ItemSpotClear(SPRITEp sip, short statnum, short id)
 
     if (TEST_BOOL2(sip))
     {
-        TRAVERSE_SPRITE_SECT(headspritesect[sip->sectnum],i,nexti)
+        SectIterator it(sip->sectnum);
+        while ((i = it.NextIndex()) >= 0)
         {
             if (sprite[i].statnum == statnum && User[i]->ID == id)
             {
@@ -6697,7 +6701,8 @@ SpriteControl(void)
     int tx, ty, tmin, dist;
     short StateTics;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_MISC], i, nexti)
+    StatIterator it(STAT_MISC);
+    while ((i = it.NextIndex()) >= 0)
     {
 #if INLINE_STATE
         ASSERT(User[i]);
@@ -6717,7 +6722,8 @@ SpriteControl(void)
     {
         for (stat = STAT_SKIP2_START + 1; stat <= STAT_SKIP2_END; stat++)
         {
-            TRAVERSE_SPRITE_STAT(headspritestat[stat], i, nexti)
+            StatIterator it(stat);
+            while ((i = it.NextIndex()) >= 0)
             {
 #if INLINE_STATE
                 ASSERT(User[i]);
@@ -6794,7 +6800,8 @@ SpriteControl(void)
     {
         for (stat = STAT_SKIP4_START; stat <= STAT_SKIP4_END; stat++)
         {
-            TRAVERSE_SPRITE_STAT(headspritestat[stat], i, nexti)
+            StatIterator it(stat);
+            while ((i = it.NextIndex()) >= 0)
             {
 #if INLINE_STATE
                 ASSERT(User[i]);
@@ -6811,7 +6818,8 @@ SpriteControl(void)
         }
     }
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_NO_STATE], i, nexti)
+    StatIterator it(STAT_NO_STATE);
+    while ((i = it.NextIndex()) >= 0)
     {
         if (User[i] && User[i]->ActorActionFunc)
             (*User[i]->ActorActionFunc)(i);
@@ -6820,7 +6828,8 @@ SpriteControl(void)
 
     if (MoveSkip8 == 0)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_STATIC_FIRE], i, nexti)
+        it.Reset(STAT_STATIC_FIRE);
+        while ((i = it.NextIndex()) >= 0)
         {
             extern int DoStaticFlamesDamage(short SpriteNum);
             ASSERT(User[i]);
@@ -6830,7 +6839,8 @@ SpriteControl(void)
 
     if (MoveSkip4 == 0)                 // limit to 10 times a second
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_WALLBLOOD_QUEUE], i, nexti)
+        it.Reset(STAT_WALLBLOOD_QUEUE);
+        while ((i = it.NextIndex()) >= 0)
         {
 #if INLINE_STATE
             ASSERT(User[i]);
@@ -6849,7 +6859,8 @@ SpriteControl(void)
 
     // vator/rotator/spike/slidor all have some code to
     // prevent calling of the action func()
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_VATOR], i, nexti)
+    it.Reset(STAT_VATOR);
+    while ((i = it.NextIndex()) >= 0)
     {
         u = User[i];
 
@@ -6869,7 +6880,8 @@ SpriteControl(void)
         (*User[i]->ActorActionFunc)(i);
     }
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPIKE], i, nexti)
+    it.Reset(STAT_SPIKE);
+    while ((i = it.NextIndex()) >= 0)
     {
         u = User[i];
 
@@ -6890,7 +6902,8 @@ SpriteControl(void)
         (*User[i]->ActorActionFunc)(i);
     }
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ROTATOR], i, nexti)
+    it.Reset(STAT_ROTATOR);
+    while ((i = it.NextIndex()) >= 0)
     {
         u = User[i];
 
@@ -6908,7 +6921,8 @@ SpriteControl(void)
         (*User[i]->ActorActionFunc)(i);
     }
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SLIDOR], i, nexti)
+    it.Reset(STAT_SLIDOR);
+    while ((i = it.NextIndex()) >= 0)
     {
         u = User[i];
 
@@ -6926,7 +6940,8 @@ SpriteControl(void)
         (*User[i]->ActorActionFunc)(i);
     }
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SUICIDE], i, nexti)
+    it.Reset(STAT_SUICIDE);
+    while ((i = it.NextIndex()) >= 0)
     {
         KillSprite(i);
     }
@@ -7513,36 +7528,6 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
 
     return retval;
 }
-
-/*
-int push_check(short SpriteNum)
-    {
-    switch (sprite[SpriteNum].lotag)
-        {
-        case TAG_DOOR_S,LIDING:
-            {
-            SPRITEp sp;
-            USERp u;
-            short i,nexti,sect;
-
-            //DSPRINTF(ds,"Door Closing %d",sectnum);
-            MONO_PRINT(ds);
-
-            TRAVERSE_SPRITE_SECT(headspritesect[sectnum], i, nexti)
-                {
-                sp = &sprite[i];
-                u = User[i];
-
-                sect = pushmove((vec3_t *)sp, &sp->sectnum, (((int)sp->clipdist)<<2)-8, u->ceiling_dist, u->floor_dist, CLIPMASK0);
-                if (sect == -1)
-                    {
-                    KillSprite(i);
-                    }
-                }
-            }
-        }
-    }
-*/
 
 
 #include "saveable.h"

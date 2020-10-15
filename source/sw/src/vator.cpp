@@ -84,7 +84,8 @@ VatorSwitch(short match, short setting)
     short i,nexti;
     bool found = false;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
+    StatIterator it(STAT_DEFAULT);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -152,7 +153,8 @@ short DoVatorOperate(PLAYERp pp, short sectnum)
     short match;
     short i,nexti;
 
-    TRAVERSE_SPRITE_SECT(headspritesect[sectnum], i, nexti)
+    SectIterator it(sectnum);
+    while ((i = it.NextIndex()) >= 0)
     {
         fsp = &sprite[i];
 
@@ -224,7 +226,8 @@ DoVatorMatch(PLAYERp pp, short match)
 
     //VatorSwitch(match, ON);
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_VATOR], i, nexti)
+    StatIterator it(STAT_VATOR);
+    while ((i = it.NextIndex()) >= 0)
     {
         fsp = &sprite[i];
 
@@ -295,7 +298,8 @@ TestVatorMatchActive(short match)
 
     short i,nexti;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_VATOR], i, nexti)
+    StatIterator it(STAT_VATOR);
+    while ((i = it.NextIndex()) >= 0)
     {
         fsp = &sprite[i];
 
@@ -320,7 +324,8 @@ void InterpSectorSprites(short sectnum, bool state)
     SPRITEp sp;
     short i,nexti;
 
-    TRAVERSE_SPRITE_SECT(headspritesect[sectnum], i, nexti)
+    SectIterator it(sectnum);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -349,7 +354,8 @@ void MoveSpritesWithSector(short sectnum, int z_amt, bool type)
     if (SectUser[sectnum])
         both = !!TEST(SectUser[sectnum]->flags, SECTFU_VATOR_BOTH);
 
-    TRAVERSE_SPRITE_SECT(headspritesect[sectnum], i, nexti)
+    SectIterator it(sectnum);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -540,7 +546,8 @@ int DoVator(short SpriteNum)
             USERp bu;
             bool found = false;
 
-            TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
+            SectIterator it(sp->sectnum);
+            while ((i = it.NextIndex()) >= 0)
             {
                 bsp = &sprite[i];
                 bu = User[i];
@@ -591,7 +598,8 @@ int DoVator(short SpriteNum)
             int i,nexti;
             SPRITEp bsp;
 
-            TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
+            SectIterator it(sp->sectnum);
+            while ((i = it.NextIndex()) >= 0)
             {
                 bsp = &sprite[i];
 

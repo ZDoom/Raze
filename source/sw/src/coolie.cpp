@@ -482,7 +482,8 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
         }
         else
         {
-            TRAVERSE_SPRITE_SECT(headspritesect[sectnum],i,nexti)
+            SectIterator it(sectnum);
+            while ((i = it.NextIndex()) >= 0)
             {
                 SPRITEp np = &sprite[i];
                 if (np->picnum == ST1 && np->hitag == SECT_SINK)

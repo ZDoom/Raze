@@ -75,7 +75,8 @@ SlidorSwitch(short match, short setting)
     short i,nexti;
     bool found = false;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
+    StatIterator it(STAT_DEFAULT);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -158,7 +159,8 @@ DoSlidorMatch(PLAYERp pp, short match, bool manual)
 
     //SlidorSwitch(match, ON);
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SLIDOR], i, nexti)
+    StatIterator it(STAT_SLIDOR);
+    while ((i = it.NextIndex()) >= 0)
     {
         fsp = &sprite[i];
 
@@ -234,7 +236,8 @@ TestSlidorMatchActive(short match)
 
     short i,nexti;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SLIDOR], i, nexti)
+    StatIterator it(STAT_SLIDOR);
+    while ((i = it.NextIndex()) >= 0)
     {
         fsp = &sprite[i];
 
@@ -625,7 +628,8 @@ int DoSlidorMove(short SpriteNum)
             USERp bu;
             bool found = false;
 
-            TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
+            SectIterator it(sp->sectnum);
+            while ((i = it.NextIndex()) >= 0)
             {
                 bsp = &sprite[i];
                 bu = User[i];

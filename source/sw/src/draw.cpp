@@ -1482,8 +1482,7 @@ int ConnectCopySprite(uspritetype const * tsp)
 
 void PreDrawStackedWater(void)
 {
-    short si,snexti;
-    short i,nexti;
+    int i, si;
     SPRITEp sp;
     USERp u,nu;
     short New;
@@ -1491,7 +1490,8 @@ void PreDrawStackedWater(void)
     StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while ((si = it.NextIndex()) >= 0)
     {
-        TRAVERSE_SPRITE_SECT(headspritesect[sprite[si].sectnum], i, nexti)
+        SectIterator it(sprite[si].sectnum);
+        while ((i = it.NextIndex()) >= 0)
         {
             if (User[i])
             {

@@ -4322,7 +4322,8 @@ GetOverlapSector2(int x, int y, short *over, short *under)
     // if nothing was found, check them all
     if (found == 0)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_DIVE_AREA],i,nexti)
+        StatIterator it(STAT_DIVE_AREA);
+        while ((i = it.NextIndex()) >= 0)
         {
             if (inside(x, y, sprite[i].sectnum))
             {
@@ -4334,7 +4335,8 @@ GetOverlapSector2(int x, int y, short *over, short *under)
 
         for (stat = 0; stat < SIZ(UnderStatList); stat++)
         {
-            TRAVERSE_SPRITE_STAT(headspritestat[UnderStatList[stat]],i,nexti)
+            it.Reset(UnderStatList[stat]);
+            while ((i = it.NextIndex()) >= 0)
             {
                 // ignore underwater areas with lotag of 0
                 if (sprite[i].lotag == 0)

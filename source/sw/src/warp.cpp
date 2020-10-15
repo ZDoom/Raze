@@ -55,7 +55,8 @@ WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
     if (sectnum < 0 || !TEST(sector[sectnum].extra, SECTFX_WARP_SECTOR))
         return false;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_WARP], i, nexti)
+    StatIterator it(STAT_WARP);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -172,7 +173,8 @@ WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum
         break;
     }
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_WARP], i, nexti)
+    StatIterator it(STAT_WARP);
+    while ((i = it.NextIndex()) >= 0)
     {
         SPRITEp sp = &sprite[i];
 
@@ -221,7 +223,8 @@ WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
     if (!TEST(sector[sectnum].extra, SECTFX_WARP_SECTOR))
         return false;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_WARP], i, nexti)
+    StatIterator it(STAT_WARP);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 

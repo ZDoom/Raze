@@ -2321,7 +2321,8 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     ASSERT(found);
 
-    TRAVERSE_SPRITE_SECT(headspritesect[dest_sector], i, nexti)
+    SectIterator it(dest_sector);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
         u = User[i];

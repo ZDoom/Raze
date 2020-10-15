@@ -118,7 +118,8 @@ void DiffuseLighting(SPRITEp sp)
 
     // diffused lighting
     count = 0;
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_LIGHTING_DIFFUSE],i,nexti)
+    StatIterator it(STAT_LIGHTING_DIFFUSE);
+    while ((i = it.NextIndex()) >= 0)
     {
         dsp = &sprite[i];
 
@@ -145,7 +146,8 @@ void DoLightingMatch(short match, short state)
     short i,nexti;
     SPRITEp sp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_LIGHTING],i,nexti)
+    StatIterator it(STAT_LIGHTING);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -270,7 +272,8 @@ void InitLighting(void)
 
     // processed on level startup
     // puts lights in correct state
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_LIGHTING],i,nexti)
+    StatIterator it(STAT_LIGHTING);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -287,7 +290,8 @@ void DoLighting(void)
     SPRITEp sp;
 
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_LIGHTING],i,nexti)
+    StatIterator it(STAT_LIGHTING);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 

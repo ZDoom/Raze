@@ -118,13 +118,15 @@ void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_
 
 void WallSetupDontMove(void)
 {
-    int i,j,nexti,nextj;
+    int i,j;
     SPRITEp spu, spl;
     WALLp wallp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_WALL_DONT_MOVE_UPPER],i,nexti)
+    StatIterator it(STAT_WALL_DONT_MOVE_UPPER);
+    while ((i = it.NextIndex()) >= 0)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_WALL_DONT_MOVE_LOWER],j,nextj)
+        StatIterator it1(STAT_WALL_DONT_MOVE_LOWER);
+        while ((j = it1.NextIndex()) >= 0)
         {
             spu = &sprite[i];
             spl = &sprite[j];
@@ -870,7 +872,8 @@ OperateSector(short sectnum, short player_is_operating)
         if (SectUser[sectnum] && SectUser[sectnum]->stag == SECT_LOCK_DOOR)
             return false;
 
-        TRAVERSE_SPRITE_SECT(headspritesect[sectnum], i, nexti)
+        SectIterator it(sectnum);
+        while ((i = it.NextIndex()) >= 0)
         {
             fsp = &sprite[i];
 
@@ -2076,29 +2079,6 @@ OperateTripTrigger(PLAYERp pp)
 
     SECTORp sectp = &sector[pp->cursectnum];
 
-#if 0
-    // new method
-    if (TEST(sectp->extra, SECTFX_TRIGGER))
-    {
-        SPRITEp sp;
-
-        TRAVERSE_SPRITE_SECT(headspritesect[*sectp],i,nexti)
-        {
-            sp = &sprite[i];
-
-            if (sp->statnum == STAT_TRIGGER && SP_TAG7(sp) == 0)
-            {
-                switch (SP_TAG3(sp))
-                {
-                case 1: // Secret Area
-
-                    break;
-                }
-            }
-        }
-    }
-#endif
-
     // old method
     switch (LOW_TAG(pp->cursectnum))
     {
@@ -3215,7 +3195,8 @@ DoPanning(void)
     SECTORp sectp;
     WALLp wallp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FLOOR_PAN], i, nexti)
+    StatIterator it(STAT_FLOOR_PAN);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
         sectp = &sector[sp->sectnum];
@@ -3230,7 +3211,8 @@ DoPanning(void)
         sectp->floorypanning &= 255;
     }
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_CEILING_PAN], i, nexti)
+    it.Reset(STAT_CEILING_PAN);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
         sectp = &sector[sp->sectnum];
@@ -3245,7 +3227,8 @@ DoPanning(void)
         sectp->ceilingypanning &= 255;
     }
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_WALL_PAN], i, nexti)
+    it.Reset(STAT_WALL_PAN);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
         wallp = &wall[sp->owner];

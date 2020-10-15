@@ -2772,7 +2772,8 @@ int DoLavaErupt(short SpriteNum)
             pp = Player + pnum;
             if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_TRIGGER))
             {
-                TRAVERSE_SPRITE_SECT(headspritesect[pp->cursectnum],i,nexti)
+                SectIterator it(pp->cursectnum);
+                while ((i = it.NextIndex()) >= 0)
                 {
                     tsp = &sprite[i];
 
@@ -4934,7 +4935,6 @@ DoBreakFlames(short SpriteNum)
 int
 SetSuicide(short SpriteNum)
 {
-#if 1
     USERp u = User[SpriteNum];
 
     if (u != nullptr)
@@ -4943,13 +4943,6 @@ SetSuicide(short SpriteNum)
         u->RotNum = 0;
     }
     ChangeState(SpriteNum, s_Suicide);
-#else
-    // this will NOT work because
-    // TRAVERSE_SPRITE_STAT([STAT_MISSILE], i, nexti)
-    // nexti will still be valid but will be on a different list
-    // and will have a different nextspritestat[nexti] result
-    changespritestat(SpriteNum, STAT_SUICIDE);
-#endif
     return 0;
 }
 
@@ -7537,7 +7530,8 @@ DoDamageTest(short Weapon)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
             u = User[i];
@@ -7608,7 +7602,8 @@ DoFlamesDamageTest(short Weapon)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
             u = User[i];
@@ -7797,7 +7792,8 @@ int DoExpDamageTest(short Weapon)
 
     for (stat = 0; stat < max_stat; stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
             u = User[i];
@@ -7844,7 +7840,8 @@ int DoExpDamageTest(short Weapon)
     // Breakable stuff
     for (stat = 0; stat < max_stat; stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatBreakList[stat]], i, nexti)
+        StatIterator it(StatBreakList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
             u = User[i];
@@ -7874,7 +7871,8 @@ int DoExpDamageTest(short Weapon)
         return 0;
 
     // wall damaging
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_WALL_MOVE], i, nexti)
+    StatIterator it(STAT_WALL_MOVE);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -7929,7 +7927,8 @@ int DoMineExpMine(short Weapon)
     int tmin;
     int zdist;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_MINE_STUCK], i, nexti)
+    StatIterator it(STAT_MINE_STUCK);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
         u = User[i];
@@ -9352,7 +9351,8 @@ DoMineRangeTest(short Weapon, short range)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
             u = User[i];
@@ -13725,7 +13725,8 @@ InitSwordAttack(PLAYERp pp)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
 
@@ -13902,7 +13903,8 @@ InitFistAttack(PLAYERp pp)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
 
@@ -14221,7 +14223,8 @@ InitSumoStompAttack(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             tsp = &sprite[i];
 
@@ -15992,7 +15995,8 @@ InitRipperSlash(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
             hu = User[i];
@@ -16029,7 +16033,8 @@ InitBunnySlash(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
 
@@ -16062,7 +16067,8 @@ InitSerpSlash(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
 
@@ -16129,7 +16135,8 @@ DoBladeDamage(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
 
@@ -16172,7 +16179,8 @@ DoStaticFlamesDamage(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
 
@@ -16218,7 +16226,8 @@ InitCoolgBash(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
 
@@ -16255,7 +16264,8 @@ InitSkelSlash(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
 
@@ -16288,7 +16298,8 @@ InitGoroChop(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
 
@@ -17190,7 +17201,8 @@ InitEelFire(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
             hu = User[i];
@@ -19770,7 +19782,8 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
         return false;
 
     // search for DIVE_AREA "over" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DIVE_AREA], i, nexti)
+    StatIterator it(STAT_DIVE_AREA);
+    while ((i = it.NextIndex()) >= 0)
     {
         over_sp = &sprite[i];
 
@@ -19787,7 +19800,8 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
     Found = false;
 
     // search for UNDERWATER "under" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_UNDERWATER], i, nexti)
+    StatIterator it(STAT_UNDERWATER);
+    while ((i = it.NextIndex()) >= 0)
     {
         under_sp = &sprite[i];
 
@@ -19843,7 +19857,8 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
         return false;
 
     // search for UNDERWATER "under" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_UNDERWATER], i, nexti)
+    StatIterator it(STAT_UNDERWATER);
+    while ((i = it.NextIndex()) >= 0)
     {
         under_sp = &sprite[i];
 
@@ -19860,7 +19875,8 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
     Found = false;
 
     // search for DIVE_AREA "over" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DIVE_AREA], i, nexti)
+    StatIterator it(STAT_DIVE_AREA);
+    while ((i = it.NextIndex()) >= 0)
     {
         over_sp = &sprite[i];
 
@@ -19915,7 +19931,8 @@ SpriteWarpToUnderwater(SPRITEp sp)
         return false;
 
     // search for DIVE_AREA "over" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DIVE_AREA], i, nexti)
+    StatIterator it(STAT_DIVE_AREA);
+    while ((i = it.NextIndex()) >= 0)
     {
         over_sp = &sprite[i];
 
@@ -19932,7 +19949,8 @@ SpriteWarpToUnderwater(SPRITEp sp)
     Found = false;
 
     // search for UNDERWATER "under" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_UNDERWATER], i, nexti)
+    StatIterator it(STAT_UNDERWATER);
+    while ((i = it.NextIndex()) >= 0)
     {
         under_sp = &sprite[i];
 
@@ -19994,7 +20012,8 @@ SpriteWarpToSurface(SPRITEp sp)
         return false;
 
     // search for UNDERWATER "under" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_UNDERWATER], i, nexti)
+    StatIterator it(STAT_UNDERWATER);
+    while ((i = it.NextIndex()) >= 0)
     {
         under_sp = &sprite[i];
 
@@ -20015,7 +20034,8 @@ SpriteWarpToSurface(SPRITEp sp)
     Found = false;
 
     // search for DIVE_AREA "over" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DIVE_AREA], i, nexti)
+    StatIterator it(STAT_DIVE_AREA);
+    while ((i = it.NextIndex()) >= 0)
     {
         over_sp = &sprite[i];
 

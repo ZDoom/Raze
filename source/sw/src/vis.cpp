@@ -48,7 +48,8 @@ void ProcessVisOn(void)
     short i, nexti;
     SPRITEp sp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_VIS_ON], i, nexti)
+    StatIterator it(STAT_VIS_ON);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -95,7 +96,8 @@ void VisViewChange(PLAYERp pp, int *vis)
         return;
 
     // find the closest quake - should be a strength value
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_VIS_ON], i, nexti)
+    StatIterator it(STAT_VIS_ON);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -140,7 +142,8 @@ int SpawnVis(short Parent, short sectnum, int x, int y, int z, int amt)
             return -1;
 
         // kill any others with the same parent
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_VIS_ON], i, nexti)
+        StatIterator it(STAT_VIS_ON);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
             if (sp->owner == Parent)
