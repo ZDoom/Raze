@@ -490,11 +490,11 @@ int CheckSectorSprites(short nSector, int nVal)
 
     if (nVal)
     {
-        short nSprite = headspritesect[nSector];
-
         int nZDiff = sector[nSector].floorz - sector[nSector].ceilingz;
 
-        while (nSprite != -1)
+        int nSprite;
+        SectIterator it(nSector);
+        while ((nSprite = it.NextIndex()) >= 0)
         {
             if ((sprite[nSprite].cstat & 0x101) && (nZDiff < GetSpriteHeight(nSprite)))
             {
@@ -515,12 +515,13 @@ int CheckSectorSprites(short nSector, int nVal)
                         sprite[nSprite].sectnum | 0x4000);
                 }
             }
-            nSprite = nextspritesect[nSprite];
         }
     }
     else
     {
-        for (int i = headspritesect[nSector]; i != -1; i = nextspritesect[i])
+        int i;
+        SectIterator it(nSector);
+        while ((i = it.NextIndex()) >= 0)
         {
             if (sprite[i].cstat & 0x101) {
                 return 1;
@@ -535,15 +536,13 @@ int CheckSectorSprites(short nSector, int nVal)
 // done
 void MoveSectorSprites(int nSector, int z)
 {
-    int nSprite = headspritesect[nSector];
-
-    while (nSprite != -1)
+    int nSprite;
+    SectIterator it(nSector);
+    while ((nSprite = it.NextIndex()) >= 0)
     {
         if (sprite[nSprite].statnum != 200) {
             sprite[nSprite].z += z;
         }
-
-        nSprite = nextspritesect[nSprite];
     }
 }
 
@@ -1621,7 +1620,6 @@ void KillCreatures()
 {
     signed int v0;
     signed int v1;
-    int i;
 
     v0 = 99;
     v1 = 99;
@@ -1630,7 +1628,9 @@ void KillCreatures()
     {
         if (v0 != 100)
         {
-            for (i = headspritestat[v1]; i != -1; i = nextspritestat[i])
+            int i;
+            StatIterator it(v1);
+            while ((i = it.NextIndex()) >= 0)
             {
                 runlist_DamageEnemy(i, -1, 1600);
             }

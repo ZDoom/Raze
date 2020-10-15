@@ -194,7 +194,10 @@ void ShutDown(void)
 
 void DoClockBeep()
 {
-    for (int i = headspritestat[407]; i != -1; i = nextspritestat[i]) {
+    int i;
+    StatIterator it(407);
+    while ((i = it.NextIndex()) >= 0)
+    {
         PlayFX2(StaticSound[kSound74], i);
     }
 }
@@ -207,7 +210,9 @@ void DoRedAlert(int nVal)
         nRedTicks = 30;
     }
 
-    for (int i = headspritestat[405]; i != -1; i = nextspritestat[i])
+    int i;
+    StatIterator it(405);
+    while ((i = it.NextIndex()) >= 0)
     {
         if (nVal)
         {
@@ -533,9 +538,7 @@ void GameInterface::app_init()
 
 void mychangespritesect(int nSprite, int nSector)
 {
-    DoKenTest();
     changespritesect(nSprite, nSector);
-    DoKenTest();
 }
 
 void mydeletesprite(int nSprite)

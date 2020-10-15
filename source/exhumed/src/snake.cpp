@@ -274,7 +274,9 @@ int FindSnakeEnemy(short nSnake)
 
     int nEnemy = -1;
 
-    for (int i = headspritesect[nSector]; i >= 0; i = nextspritesect[i])
+    int i;
+    SectIterator it(nSector);
+    while ((i = it.NextIndex()) >= 0)
     {
         if (sprite[i].statnum >= 90 && sprite[i].statnum < 150 && (sprite[i].cstat & 0x101))
         {

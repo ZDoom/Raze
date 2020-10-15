@@ -298,7 +298,9 @@ void AddFlash(short nSector, int x, int y, int z, int val)
             }
         }
 
-        for (short nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
+        int nSprite;
+        SectIterator it(nSector);
+        while ((nSprite = it.NextIndex()) >= 0)
         {
             if (sprite[nSprite].pal < 4)
             {

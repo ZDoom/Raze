@@ -1001,7 +1001,8 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
     // GREEN
     if (yvect || xvect)
     {
-        for (i = headspritesect[nSector]; i != -1; i = nextspritesect[i])
+        SectIterator it(nSector);
+        while ((i = it.NextIndex()) >= 0)
         {
             if (sprite[i].statnum < 99)
             {
@@ -1027,7 +1028,8 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
             }
         }
 
-        for (i = headspritesect[nNextSector]; i != -1; i = nextspritesect[i])
+        it.Reset(nNextSector);
+        while ((i = it.NextIndex()) >= 0)
         {
             if (sprite[i].statnum >= 99)
             {
@@ -1078,7 +1080,8 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
 
     if (!(nSectFlag & kSectUnderwater))
     {
-        for (i = headspritesect[nSector]; i != -1; i = nextspritesect[i])
+        SectIterator it(nSector);
+        while ((i = it.NextIndex()) >= 0)
         {
             if (sprite[i].statnum >= 99 && nZVal == sprite[i].z && !(sprite[i].cstat & 0x8000))
             {

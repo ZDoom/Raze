@@ -161,11 +161,10 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
     {
         if (nSector != -1)
         {
-            short i = headspritesect[nSector];
-
-            while (i != -1)
+            int i;
+            SectIterator it(nSector);
+            while ((i = it.NextIndex()) >= 0)
             {
-                short nNextSprite = nextspritesect[i];
                 short nStat = sprite[i].statnum;
 
                 if (nStat >= 900 && !(sprite[i].cstat & 0x8000))
@@ -193,8 +192,6 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
                         }
                     }
                 }
-
-                i = nNextSprite;
             }
         }
 
@@ -666,31 +663,6 @@ void PlayAlert(const char *str)
     PlayLocalSound(StaticSound[kSound63], 0);
 }
 
-void DoKenTest()
-{
-    int nPlayerSprite = PlayerList[0].nSprite;
-    if ((unsigned int)nPlayerSprite >= kMaxSprites)
-    {
-        return;
-    }
-    int nSector = sprite[nPlayerSprite].sectnum;
-    if ((unsigned int)nSector >= kMaxSectors)
-    {
-        Printf("DoKenTest: (unsigned int)nSector >= kMaxSectors\n");
-        return;
-    }
-
-    for (int i = headspritesect[nSector]; ; i = nextspritesect[i])
-    {
-        if (i == -1) {
-            return;
-        }
-
-        if (nextspritesect[i] == i) {
-            I_Error("ERROR in Ken's linked list!\n");
-        }
-    }
-}
 
 static void pickupMessage(int no)
 {

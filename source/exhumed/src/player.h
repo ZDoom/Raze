@@ -28,7 +28,6 @@ void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short
 void SetSavePoint(int nPlayer, int x, int y, int z, short nSector, short nAngle);
 void InitPlayer();
 void InitPlayerKeys(short nPlayer);
-void DoKenTest();
 int GrabPlayer();
 void InitPlayerInventory(short nPlayer);
 void RestartPlayer(short nPlayer);
