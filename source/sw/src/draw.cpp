@@ -453,21 +453,22 @@ void SetVoxelSprite(SPRITEp sp, short pic)
 void WarpCopySprite(void)
 {
     SPRITEp sp1, sp2, sp;
-    short sn, nsn;
-    short sn2, nsn2;
-    short spnum, next_spnum;
+    int sn, sn2;
+    int spnum, next_spnum;
     int xoff,yoff,zoff;
     short match;
     short sect1, sect2;
 
     // look for the first one
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_WARP_COPY_SPRITE1], sn, nsn)
+    StatIterator it(STAT_WARP_COPY_SPRITE1);
+    while ((sn = it.NextIndex()) >= 0)
     {
         sp1 = &sprite[sn];
         match = sp1->lotag;
 
         // look for the second one
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_WARP_COPY_SPRITE2], sn2, nsn2)
+        StatIterator it1(STAT_WARP_COPY_SPRITE2);
+        while ((sn2 = it1.NextIndex()) >= 0)
         {
             sp = &sprite[sn2];
 
@@ -1272,7 +1273,8 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, binangle
 
     if (pp == &Player[screenpeek])
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEMO_CAMERA], i, nexti)
+        StatIterator it(STAT_DEMO_CAMERA);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
 
@@ -1381,7 +1383,8 @@ PreDraw(void)
 
     PreDrawStackedWater();
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FLOOR_SLOPE_DONT_DRAW], i, nexti)
+    StatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
+    while ((i = it.NextIndex()) >= 0)
     {
         RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_SLOPE);
     }
@@ -1392,12 +1395,14 @@ PostDraw(void)
 {
     short i, nexti;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FLOOR_SLOPE_DONT_DRAW], i, nexti)
+    StatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
+    while ((i = it.NextIndex()) >= 0)
     {
         SET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_SLOPE);
     }
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FAF_COPY], i, nexti)
+    it.Reset(STAT_FAF_COPY);
+    while ((i = it.NextIndex()) >= 0)
     {
         if (User[i])
         {
@@ -1483,7 +1488,8 @@ void PreDrawStackedWater(void)
     USERp u,nu;
     short New;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_CEILING_FLOOR_PIC_OVERRIDE], si, snexti)
+    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while ((si = it.NextIndex()) >= 0)
     {
         TRAVERSE_SPRITE_SECT(headspritesect[sprite[si].sectnum], i, nexti)
         {
@@ -1542,7 +1548,8 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
 {
     short i,nexti;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_CEILING_FLOOR_PIC_OVERRIDE], i, nexti)
+    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while ((i = it.NextIndex()) >= 0)
     {
         if (SPRITE_TAG3(i) == 0)
         {
@@ -1567,7 +1574,8 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
 
     renderDrawRoomsQ16(x,y,z,q16ang,q16horiz,sectnum);
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_CEILING_FLOOR_PIC_OVERRIDE], i, nexti)
+    it.Reset(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while ((i = it.NextIndex()) >= 0)
     {
         // manually set gotpic
         if (TEST_GOTSECTOR(sprite[i].sectnum))

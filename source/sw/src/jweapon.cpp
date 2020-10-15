@@ -1598,7 +1598,8 @@ PlayerInitFlashBomb(PLAYERp pp)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
             hu = User[i];
@@ -1665,7 +1666,8 @@ InitFlashBomb(int16_t SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
             hu = User[i];
@@ -2143,7 +2145,8 @@ DoFlagRangeTest(short Weapon, short range)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
 

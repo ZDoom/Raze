@@ -490,7 +490,8 @@ TARGETACTOR:
     if (!found && TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
     {
         near_dist = MAX_ACTIVE_RANGE;
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+        StatIterator it(STAT_ENEMY);
+        while ((i = it.NextIndex()) >= 0)
         {
             if (i == SpriteNum)
                 continue;

@@ -4945,7 +4945,7 @@ SetSuicide(short SpriteNum)
     ChangeState(SpriteNum, s_Suicide);
 #else
     // this will NOT work because
-    // TRAVERSE_SPRITE_STAT(headspritestat[STAT_MISSILE], i, nexti)
+    // TRAVERSE_SPRITE_STAT([STAT_MISSILE], i, nexti)
     // nexti will still be valid but will be on a different list
     // and will have a different nextspritestat[nexti] result
     changespritestat(SpriteNum, STAT_SUICIDE);
@@ -12285,7 +12285,8 @@ DoBloodWorm(int16_t Weapon)
             InitBloodSpray(Weapon, false, 1);
 
             // Kill any old zombies you own
-            TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+            StatIterator it(STAT_ENEMY);
+            while ((i = it.NextIndex()) >= 0)
             {
                 tsp = &sprite[i];
                 tu = User[i];
@@ -12398,7 +12399,8 @@ DoBloodWorm(int16_t Weapon)
         InitBloodSpray(Weapon, false, 1);
 
         // Kill any old zombies you own
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+        StatIterator it(STAT_ENEMY);
+        while ((i = it.NextIndex()) >= 0)
         {
             tsp = &sprite[i];
             tu = User[i];

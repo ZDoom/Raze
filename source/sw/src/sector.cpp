@@ -836,7 +836,8 @@ DoSpawnActorTrigger(short match)
     short spawn_count = 0;
     SPRITEp sp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPAWN_TRIGGER], i, nexti)
+    StatIterator it(STAT_SPAWN_TRIGGER);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -1347,7 +1348,8 @@ SearchExplodeSectorMatch(short match)
     short i,nexti;
 
     // THIS IS ONLY CALLED FROM DoMatchEverything
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPRITE_HIT_MATCH], i, nexti)
+    StatIterator it(STAT_SPRITE_HIT_MATCH);
+    while ((i = it.NextIndex()) >= 0)
     {
         SPRITEp sp = &sprite[i];
 
@@ -1368,7 +1370,8 @@ KillMatchingCrackSprites(short match)
     short i,nexti;
     SPRITEp sp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPRITE_HIT_MATCH], i, nexti)
+    StatIterator it(STAT_SPRITE_HIT_MATCH);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -1392,7 +1395,8 @@ WeaponExplodeSectorInRange(short weapon)
     int dist;
     int radius;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPRITE_HIT_MATCH], i, nexti)
+    StatIterator it(STAT_SPRITE_HIT_MATCH);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -1474,7 +1478,8 @@ void DoDeleteSpriteMatch(short match)
         found = -1;
 
         // search for a DELETE_SPRITE with same match tag
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_DELETE_SPRITE], i, nexti)
+        StatIterator it(STAT_DELETE_SPRITE);
+        while ((i = it.NextIndex()) >= 0)
         {
             if (sprite[i].lotag == match)
             {
@@ -1490,7 +1495,8 @@ void DoDeleteSpriteMatch(short match)
 
         for (stat = 0; stat < SIZ(StatList); stat++)
         {
-            TRAVERSE_SPRITE_STAT(headspritestat[StatList[stat]], i, nexti)
+            StatIterator it(StatList[stat]);
+            while ((i = it.NextIndex()) >= 0)
             {
                 if (del_x == sprite[i].x && del_y == sprite[i].y)
                 {
@@ -1627,7 +1633,8 @@ bool ComboSwitchTest(short combo_type, short match)
     SPRITEp sp;
     int state;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
+    StatIterator it(STAT_DEFAULT);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -1977,7 +1984,8 @@ int DoTrapReset(short match)
     SPRITEp sp;
     USERp u;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_TRAP], i, nexti)
+    StatIterator it(STAT_TRAP);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
         u = User[i];
@@ -2008,7 +2016,8 @@ int DoTrapMatch(short match)
 
     // may need to be reset to fire immediately
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_TRAP], i, nexti)
+    StatIterator it(STAT_TRAP);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
         u = User[i];
@@ -2162,7 +2171,8 @@ OperateTripTrigger(PLAYERp pp)
 
         dist = sectp->hitag;
 
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+        StatIterator it(STAT_ENEMY);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
             u = User[i];
@@ -2235,7 +2245,8 @@ OperateContinuousTrigger(PLAYERp pp)
         SPRITEp sp;
         USERp u;
 
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_TRAP], i, nexti)
+        StatIterator it(STAT_TRAP);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
             u = User[i];

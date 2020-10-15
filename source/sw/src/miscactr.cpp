@@ -836,7 +836,8 @@ int PachinkoCheckWin(short SpriteNum)
         SET_BOOL1(sp);
 
         // Turn on the pachinko lights
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+        StatIterator it(STAT_ENEMY);
+        while ((i = it.NextIndex()) >= 0)
         {
             tsp = &sprite[i];
             tu = User[i];

@@ -107,13 +107,14 @@ void CopySectorWalls(short dest_sectnum, short src_sectnum)
 
 void CopySectorMatch(short match)
 {
-    short ed,nexted,ss,nextss;
+    int ed,ss;
     SPRITEp dest_sp, src_sp;
     SECTORp dsectp,ssectp;
     short kill, nextkill;
     SPRITEp k;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_COPY_DEST], ed, nexted)
+    StatIterator it(STAT_COPY_DEST);
+    while ((ed = it.NextIndex()) >= 0)
     {
         dest_sp = &sprite[ed];
         dsectp = &sector[dest_sp->sectnum];
@@ -121,7 +122,8 @@ void CopySectorMatch(short match)
         if (match != sprite[ed].lotag)
             continue;
 
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_COPY_SOURCE], ss, nextss)
+        StatIterator it2(STAT_COPY_SOURCE);
+        while ((ss = it2.NextIndex()) >= 0)
         {
             src_sp = &sprite[ss];
 
@@ -247,14 +249,16 @@ void CopySectorMatch(short match)
     // do this outside of processing loop for safety
 
     // kill all matching dest
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_COPY_DEST], ed, nexted)
+    it.Reset(STAT_COPY_DEST);
+    while ((ed = it.NextIndex()) >= 0)
     {
         if (match == sprite[ed].lotag)
             KillSprite(ed);
     }
 
     // kill all matching sources
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_COPY_SOURCE], ss, nextss)
+    it.Reset(STAT_COPY_SOURCE);
+    while ((ss = it.NextIndex()) >= 0)
     {
         if (match == sprite[ss].lotag)
             KillSprite(ss);

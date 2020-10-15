@@ -507,7 +507,8 @@ void TerminateLevel(void)
 
         pnum = stat - STAT_PLAYER0;
 
-        TRAVERSE_SPRITE_STAT(headspritestat[stat], i, nexti)
+        StatIterator it(stat);
+        while ((i = it.NextIndex()) >= 0)
         {
             if (User[i])
                 memcpy(&puser[pnum], User[i], sizeof(USER));
@@ -515,10 +516,10 @@ void TerminateLevel(void)
     }
 
     // Kill User memory and delete sprites
-    // for (stat = 0; stat < STAT_ALL; stat++)
     for (stat = 0; stat < MAXSTATUS; stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[stat], i, nexti)
+        StatIterator it(stat);
+        while ((i = it.NextIndex()) >= 0)
         {
             KillSprite(i);
         }

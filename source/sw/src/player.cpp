@@ -1164,7 +1164,8 @@ DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
 
     for (shp = StatDamageList; shp < &StatDamageList[SIZ(StatDamageList)]; shp++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[*shp], i, nexti)
+        StatIterator it(*shp);
+        while ((i = it.NextIndex()) >= 0)
         {
             ep = &sprite[i];
             eu = User[i];
@@ -2403,7 +2404,8 @@ void PlaySOsound(short sectnum, short sound_num)
     short i,nexti;
 
     // play idle sound - sound 1
-    TRAVERSE_SPRITE_SECT(headspritesect[sectnum], i, nexti)
+    SectIterator it(StatDamageList[sectnum]);
+    while ((i = it.NextIndex()) >= 0)
     {
         if (sprite[i].statnum == STAT_SOUND_SPOT)
         {
@@ -2418,7 +2420,8 @@ void StopSOsound(short sectnum)
     short i,nexti;
 
     // play idle sound - sound 1
-    TRAVERSE_SPRITE_SECT(headspritesect[sectnum], i, nexti)
+    SectIterator it(StatDamageList[sectnum]);
+    while ((i = it.NextIndex()) >= 0)
     {
         if (sprite[i].statnum == STAT_SOUND_SPOT)
             DoSoundSpotStopSound(sprite[i].lotag);
@@ -2531,7 +2534,8 @@ void DoTankTreads(PLAYERp pp)
 
     for (sectp = pp->sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        TRAVERSE_SPRITE_SECT(headspritesect[*sectp - sector], i, nexti)
+        SectIterator it(*sectp - sector);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
 
@@ -2650,7 +2654,8 @@ DriveCrush(PLAYERp pp, int *x, int *y)
         return;
 
     // main sector
-    TRAVERSE_SPRITE_SECT(headspritesect[sop->op_main_sector], i, nexti)
+    SectIterator it(StatDamageList[sop->op_main_sector]);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
         u = User[i];
@@ -2687,7 +2692,8 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     }
 
     // all enemys
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+    StatIterator it2(STAT_ENEMY);
+    while ((i = it2.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -2715,7 +2721,8 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     }
 
     // all dead actors
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEAD_ACTOR], i, nexti)
+    it2.Reset(STAT_DEAD_ACTOR);
+    while ((i = it2.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -2763,7 +2770,8 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     // if it ends up actually in the drivable sector kill it
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        TRAVERSE_SPRITE_SECT(headspritesect[(*sectp) - sector], i, nexti)
+        SectIterator it((*sectp) - sector);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
             u = User[i];
@@ -4390,7 +4398,8 @@ DoPlayerWarpToUnderwater(PLAYERp pp)
 
 
     // search for DIVE_AREA "over" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DIVE_AREA], i, nexti)
+    StatIterator it(STAT_DIVE_AREA);
+    while ((i = it.NextIndex()) >= 0)
     {
         over_sp = &sprite[i];
 
@@ -4407,7 +4416,8 @@ DoPlayerWarpToUnderwater(PLAYERp pp)
     Found = false;
 
     // search for UNDERWATER "under" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_UNDERWATER], i, nexti)
+    it.Reset(STAT_UNDERWATER);
+    while ((i = it.NextIndex()) >= 0)
     {
         under_sp = &sprite[i];
 
@@ -4465,7 +4475,8 @@ DoPlayerWarpToSurface(PLAYERp pp)
         return;
 
     // search for UNDERWATER "under" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_UNDERWATER], i, nexti)
+    StatIterator it(STAT_UNDERWATER);
+    while ((i = it.NextIndex()) >= 0)
     {
         under_sp = &sprite[i];
 
@@ -4482,7 +4493,8 @@ DoPlayerWarpToSurface(PLAYERp pp)
     Found = false;
 
     // search for DIVE_AREA "over" sprite for reference point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DIVE_AREA], i, nexti)
+    it.Reset(STAT_DIVE_AREA);
+    while ((i = it.NextIndex()) >= 0)
     {
         over_sp = &sprite[i];
 
@@ -5294,7 +5306,8 @@ void DoPlayerOperateMatch(PLAYERp pp, bool starting)
     if (!pp->sop)
         return;
 
-    TRAVERSE_SPRITE_SECT(headspritesect[pp->sop->mid_sector], i, nexti)
+    SectIterator it(pp->sop->mid_sector);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -6343,7 +6356,8 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
+        StatIterator it(StatDamageList[stat]);
+        while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
             hu = User[i];
@@ -6972,7 +6986,8 @@ MoveSkipSavePos(void)
 
         for (stat = STAT_SKIP4_START; stat <= STAT_SKIP4_INTERP_END; stat++)
         {
-            TRAVERSE_SPRITE_STAT(headspritestat[stat], i, nexti)
+            StatIterator it(stat);
+            while ((i = it.NextIndex()) >= 0)
             {
                 if ((unsigned)i >= MAXSPRITES)
                     continue;
@@ -6997,7 +7012,8 @@ MoveSkipSavePos(void)
 
         for (stat = STAT_SKIP2_START; stat <= STAT_SKIP2_INTERP_END; stat++)
         {
-            TRAVERSE_SPRITE_STAT(headspritestat[stat], i, nexti)
+            StatIterator it(stat);
+            while ((i = it.NextIndex()) >= 0)
             {
                 if ((unsigned)i >= MAXSPRITES)
                     continue;

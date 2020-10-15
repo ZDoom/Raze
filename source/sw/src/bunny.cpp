@@ -932,7 +932,8 @@ DoPickCloseBunny(short SpriteNum)
     int look_height = SPRITEp_TOS(sp);
     bool ICanSee = false;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+    StatIterator it(STAT_ENEMY);
+    while ((i = it.NextIndex()) >= 0)
     {
         tsp = &sprite[i];
         tu = User[i];

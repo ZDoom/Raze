@@ -835,7 +835,8 @@ BossHealthMeter(void)
         (currentLevel->levelNumber == 5 && BossSpriteNum[0] == -1) ||
         (currentLevel->levelNumber == 11 && BossSpriteNum[1] == -1))
     {
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+        StatIterator it(STAT_ENEMY);
+        while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
             u = User[i];

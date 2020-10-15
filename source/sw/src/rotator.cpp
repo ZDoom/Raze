@@ -80,7 +80,8 @@ RotatorSwitch(short match, short setting)
     short i,nexti;
     bool found = false;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
+    StatIterator it(STAT_DEFAULT);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -162,7 +163,8 @@ DoRotatorMatch(PLAYERp pp, short match, bool manual)
 
     //RotatorSwitch(match, ON);
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ROTATOR], i, nexti)
+    StatIterator it(STAT_ROTATOR);
+    while ((i = it.NextIndex()) >= 0)
     {
         fsp = &sprite[i];
 
@@ -238,7 +240,8 @@ TestRotatorMatchActive(short match)
 
     short i,nexti;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ROTATOR], i, nexti)
+    StatIterator it(STAT_ROTATOR);
+    while ((i = it.NextIndex()) >= 0)
     {
         fsp = &sprite[i];
 
@@ -390,7 +393,8 @@ int DoRotatorMove(short SpriteNum)
     }
 
     closest = 99999;
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ROTATOR_PIVOT], i, nexti)
+    StatIterator it(STAT_ROTATOR_PIVOT);
+    while ((i = it.NextIndex()) >= 0)
     {
         if (sprite[i].lotag == sp->lotag)
         {

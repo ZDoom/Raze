@@ -545,7 +545,8 @@ short FindBreakSpriteMatch(short match)
 {
     short i,nexti;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_BREAKABLE], i, nexti)
+    StatIterator it(STAT_BREAKABLE);
+    while ((i = it.NextIndex()) >= 0)
     {
         if (SPRITE_TAG2(i) == match && sprite[i].picnum == ST1)
         {
@@ -1120,7 +1121,8 @@ static void DoWallBreakSpriteMatch(short match)
 {
     short i,nexti;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+    StatIterator it(STAT_ENEMY);
+    while ((i = it.NextIndex()) >= 0)
     {
         SPRITEp sp = &sprite[i];
 

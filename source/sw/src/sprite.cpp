@@ -769,7 +769,8 @@ KillSprite(int16_t SpriteNum)
 
         if (sp->statnum == STAT_ENEMY)
         {
-            TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+            StatIterator it(STAT_ENEMY);
+            while ((i = it.NextIndex()) >= 0)
             {
                 if ((unsigned)i < MAXSPRITES && User[i] != NULL && User[i]->tgt_sp == sp)
                 {
@@ -1592,7 +1593,7 @@ void PreMapCombineFloors(void)
 #define MAX_FLOORS 32
     SPRITEp sp;
     int i, j, k;
-    int16_t SpriteNum, NextSprite;
+    int SpriteNum;
     int base_offset;
     int dx,dy;
     short sectlist[MAXSECTORS];
@@ -1608,7 +1609,8 @@ void PreMapCombineFloors(void)
 
     memset(BoundList, 0, MAX_FLOORS * sizeof(BOUND_LIST));
 
-    TRAVERSE_SPRITE_STAT(headspritestat[0], SpriteNum, NextSprite)
+    StatIterator it(0);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
         sp = &sprite[SpriteNum];
 
@@ -1689,7 +1691,8 @@ void PreMapCombineFloors(void)
     }
 
     // get rid of the sprites used
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FAF], SpriteNum, NextSprite)
+    it.Reset(STAT_FAF);
+    while ((SpriteNum = it.NextIndex()) >= 0)
     {
         KillSprite(SpriteNum);
     }
@@ -2878,7 +2881,8 @@ SpriteSetup(void)
                 {
                     int i,nexti;
                     // make sure there is only one set per level of these
-                    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FAF], i, nexti)
+                    StatIterator it(STAT_FAF);
+                    while ((i = it.NextIndex()) >= 0)
                     {
                         if (sprite[i].hitag == sp->hitag && sprite[i].lotag == sp->lotag)
                         {
@@ -6733,7 +6737,8 @@ SpriteControl(void)
     if (MoveSkip2 == 0)                 // limit to 20 times a second
     {
         // move bad guys around
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+        StatIterator it(STAT_ENEMY);
+        while ((i = it.NextIndex()) >= 0)
         {
             ASSERT(User[i]);
 

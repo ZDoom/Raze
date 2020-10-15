@@ -82,7 +82,8 @@ void DoQuakeMatch(short match)
     short i, nexti;
     SPRITEp sp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_QUAKE_SPOT], i, nexti)
+    StatIterator it(STAT_QUAKE_SPOT);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -112,7 +113,8 @@ void ProcessQuakeOn(void)
     short i, nexti;
     SPRITEp sp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_QUAKE_ON], i, nexti)
+    StatIterator it(STAT_QUAKE_ON);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -133,7 +135,8 @@ void ProcessQuakeSpot(void)
     int rand_test;
 
     // check timed quakes and random quakes
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_QUAKE_SPOT], i, nexti)
+    StatIterator it(STAT_QUAKE_SPOT);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -193,7 +196,8 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
         return;
 
     // find the closest quake - should be a strength value
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_QUAKE_ON], i, nexti)
+    StatIterator it(STAT_QUAKE_ON);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 

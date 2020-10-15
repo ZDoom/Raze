@@ -295,7 +295,8 @@ void PreCacheOverride(void)
 {
     int i,nexti;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_CEILING_FLOOR_PIC_OVERRIDE], i, nexti)
+    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while ((i = it.NextIndex()) >= 0)
     {
         ASSERT(SPRITE_TAG2(i) >= 0 && SPRITE_TAG2(i) <= MAXTILES);
         SET_GOTPIC(SPRITE_TAG2(i));

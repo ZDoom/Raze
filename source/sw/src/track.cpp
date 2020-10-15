@@ -1550,7 +1550,8 @@ PlaceActorsOnTracks(void)
     TRACK_POINTp tpoint = NULL;
 
     // place each actor on the track
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+    StatIterator it(STAT_ENEMY);
+    while ((i = it.NextIndex()) >= 0)
     {
         int low_dist = 999999, dist;
 

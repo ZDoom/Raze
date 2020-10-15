@@ -574,7 +574,8 @@ int DoCheckSwarm(short SpriteNum)
         return 0;
 
     // all enemys
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
+    StatIterator it(STAT_ENEMY);
+    while ((i = it.NextIndex()) >= 0)
     {
         tsp = &sprite[i];
         tu = User[i];

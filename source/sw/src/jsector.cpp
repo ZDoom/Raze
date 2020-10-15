@@ -486,7 +486,8 @@ JS_ProcessEchoSpot()
     bool reverb_set = false;
 
     // Process echo sprites
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ECHO], i, nexti)
+    StatIterator it(STAT_ECHO);
+    while ((i = it.NextIndex()) >= 0)
     {
         dist = 0x7fffffff;
 

@@ -355,7 +355,8 @@ GetZadjustment(short sectnum, short hitag)
     if (sectnum < 0 || !TEST(sector[sectnum].extra, SECTFX_Z_ADJUST))
         return 0L;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_ST1], i, nexti)
+    StatIterator it(STAT_ST1);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -650,10 +651,11 @@ PicInView(short tile_num, bool reset)
 void
 SetupMirrorTiles(void)
 {
-    short i, nexti;
+    int i, nexti;
     SPRITEp sp;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FAF], i, nexti)
+    StatIterator it(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -809,7 +811,8 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
 
     // Search Stat List For closest ceiling view sprite
     // Get the match, xoff, yoff from this point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FAF], i, nexti)
+    StatIterator it(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -821,7 +824,8 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
         }
     }
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FAF], i, nexti)
+    it.Reset(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -852,7 +856,8 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
     pix_diff = labs(z - sector[sp->sectnum].floorz) >> 8;
     newz = sector[sp->sectnum].floorz + ((pix_diff / 128) + 1) * Z(128);
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FAF], i, nexti)
+    it.Reset(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -896,7 +901,8 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 
     // Search Stat List For closest ceiling view sprite
     // Get the match, xoff, yoff from this point
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FAF], i, nexti)
+    StatIterator it(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -909,7 +915,8 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
     }
 
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FAF], i, nexti)
+    it.Reset(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -941,7 +948,8 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
     pix_diff = labs(z - sector[sp->sectnum].ceilingz) >> 8;
     newz = sector[sp->sectnum].ceilingz - ((pix_diff / 128) + 1) * Z(128);
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FAF], i, nexti)
+    it.Reset(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
@@ -979,7 +987,8 @@ ViewSectorInScene(short cursectnum, short level)
     SPRITEp sp;
     short match;
 
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_FAF], i, nexti)
+    StatIterator it(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
 
