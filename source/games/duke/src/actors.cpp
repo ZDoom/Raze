@@ -5108,10 +5108,9 @@ int LocateTheLocator(int n, int sn)
 
 void recordoldspritepos()
 {
-	
 	for (int statNum = 0; statNum < MAXSTATUS; statNum++)
 	{
-		StatIterator it(STAT_STANDABLE);
+		StatIterator it(statNum);
 		int j;
 		while ((j = it.NextIndex()) >= 0)
 		{
