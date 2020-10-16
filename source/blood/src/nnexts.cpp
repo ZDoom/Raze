@@ -1567,10 +1567,10 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
         case 1: // give N weapon and default ammo for it
         case 2: // give just N ammo for selected weapon
             if (weapon <= 0 || weapon > 13) {
-                Printf(PRINT_HIGH, "Weapon #%d is out of a weapons range!");
+                Printf(PRINT_HIGH, "Weapon #%d is out of a weapons range!", weapon);
                 break;
             } else if (pXSource->data2 == 2 && pXSource->data4 == 0) {
-                Printf(PRINT_HIGH, "Zero ammo for weapon #%d is specified!");
+                Printf(PRINT_HIGH, "Zero ammo for weapon #%d is specified!", weapon);
                 break;
             }
             switch (weapon) {

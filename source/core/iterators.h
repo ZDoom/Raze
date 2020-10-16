@@ -20,7 +20,7 @@ public:
     int NextIndex()
     {
         int n = next;
-        next = nextspritestat[next];
+        if (n >= 0) next = nextspritestat[next];
         return n;
     }
 
@@ -61,7 +61,12 @@ public:
     int NextIndex()
     {
         int n = next;
-        next = nextspritesect[next];
+        if (n >= 0) next = nextspritesect[next];
         return n;
     }
+	
+	int PeekIndex()
+	{
+		return next;
+	}
 };
