@@ -34,6 +34,21 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 extern FixedBitArray<MAXSPRITES> activeSprites;
 
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+template<> FSerializer& Serialize(FSerializer& arc, const char* key, Duke3d::weaponhit*& ht, Duke3d::weaponhit** def)
+{
+	size_t index = ht - Duke3d::hittype;
+	assert(index < MAXSPRITES);
+	Serialize(arc, key, index, nullptr);
+	ht = &Duke3d::hittype[index];
+	return arc;
+}
+
 BEGIN_DUKE_NS
 
 void SerializeActorGlobals(FSerializer& arc);

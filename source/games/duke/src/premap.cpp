@@ -86,7 +86,7 @@ void resetplayerstats(int snum)
     p->ftq              = 0;
     p->tipincs          = 0;
     p->buttonpalette    = 0;
-    p->actorsqu         =-1;
+    p->actorsqu         =nullptr;
     p->invdisptime      = 0;
     p->refresh_inventory= 0;
     p->last_pissed_time = 0;

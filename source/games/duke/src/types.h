@@ -207,7 +207,8 @@ struct player_struct
 	short over_shoulder_on, fist_incs;
 	short cheat_phase;
 	short dummyplayersprite, extra_extra8, quick_kick, last_quick_kick;
-	short heat_amount, actorsqu, timebeforeexit, customexitsound;
+	short heat_amount, timebeforeexit, customexitsound;
+	DDukeActor* actorsqu;//, *wackedbyactor, *on_crane, *holoduke_on, *somethingonplayer;
 
 	short weaprecs[256], weapreccnt;
 	unsigned int interface_toggle_flag;

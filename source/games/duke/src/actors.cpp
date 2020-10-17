@@ -447,7 +447,7 @@ void moveplayers(void) //Players
 							{
 								p->knee_incs = 1;
 								p->weapon_pos = -1;
-								p->actorsqu = ps[otherp].i;
+								p->actorsqu = ps[otherp].GetActor();
 							}
 						}
 					}
@@ -460,9 +460,9 @@ void moveplayers(void) //Players
 						p->jetpack_amount = 1599;
 				}
 
-				if (p->actorsqu >= 0)
+				if (p->actorsqu != nullptr)
 				{
-					p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), gethiq16angle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2));
+					p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), gethiq16angle(p->actorsqu->s.x - p->posx, p->actorsqu->s.y - p->posy)) >> 2));
 				}
 
 				if (s->extra > 0)

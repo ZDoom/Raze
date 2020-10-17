@@ -4238,12 +4238,12 @@ void move_r(int g_i, int g_p, int g_x)
 			{
 				if (hittype[g_i].bposz != g_sp->z || (ud.multimode < 2 && ud.player_skill < 2))
 				{
-					if ((g_t[0] & 1) || ps[g_p].actorsqu == g_i) return;
+					if ((g_t[0] & 1) || ps[g_p].actorsqu == &hittype[g_i]) return;
 					else daxvel <<= 1;
 				}
 				else
 				{
-					if ((g_t[0] & 3) || ps[g_p].actorsqu == g_i) return;
+					if ((g_t[0] & 3) || ps[g_p].actorsqu == &hittype[g_i]) return;
 					else daxvel <<= 2;
 				}
 			}

@@ -160,7 +160,8 @@ inline int ActorToScriptIndex(DDukeActor* a)
 
 inline DDukeActor* ScriptIndexToActor(int index)
 {
-	if (index == -1) return nullptr;
+	// only allow valid actors to get through here. Everything else gets null'ed.
+	if (index < 0 || index >= MAXSPRITES || hittype[index].s.statnum == MAXSTATUS) return nullptr;
 	return &hittype[index];
 }
 

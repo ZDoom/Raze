@@ -39,6 +39,7 @@ source as it is released.
 #include "gamestate.h"
 #include "conlabel.h"
 #include "automap.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 
@@ -666,8 +667,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_ACTORSQU:
-		if (bSet) ps[iPlayer].actorsqu = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].actorsqu, sActor, sPlayer);
+		if (bSet) ps[iPlayer].actorsqu = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ps[iPlayer].actorsqu), sActor, sPlayer);
 		break;
 
 	case PLAYER_TIMEBEFOREEXIT:
@@ -2786,7 +2787,7 @@ int ParseState::parse(void)
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)
 				ps[g_p].weapon_pos = -1;
-			ps[g_p].actorsqu = g_i;
+			ps[g_p].actorsqu = &hittype[g_i];
 		}
 		break;
 	case concmd_ifawayfromwall:
@@ -3693,8 +3694,8 @@ void LoadActor(int i, int p, int x)
 		// if player was set to squish, first stop that...
 		if (p >= 0)
 		{
-			if (ps[p].actorsqu == i)
-				ps[p].actorsqu = -1;
+			if (ps[p].actorsqu == &hittype[i])
+				ps[p].actorsqu = nullptr;
 		}
 		deletesprite(i);
 	}
@@ -3804,8 +3805,8 @@ void execute(int i,int p,int x)
 	if(s.killit_flag == 1)
 	{
 		// if player was set to squish, first stop that...
-		if(ps[p].actorsqu == i)
-			ps[p].actorsqu = -1;
+		if(ps[p].actorsqu == &hittype[i])
+			ps[p].actorsqu = nullptr;
 		killthesprite = true;
 	}
 	else

@@ -36,6 +36,7 @@ source as it is released.
 #include "ns.h"
 #include "global.h"
 #include "mapinfo.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS 
 
@@ -417,30 +418,30 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 			p->holster_weapon = 0;
 			if (p->weapon_pos < 0)
 				p->weapon_pos = -p->weapon_pos;
-			if (p->actorsqu >= 0 && dist(&sprite[pi], &sprite[p->actorsqu]) < 1400)
+			if (p->actorsqu != nullptr && dist(&sprite[pi], &p->actorsqu->s) < 1400)
 			{
-				fi.guts(&sprite[p->actorsqu], TILE_JIBS6, 7, myconnectindex);
-				fi.spawn(p->actorsqu, TILE_BLOODPOOL);
+				fi.guts(&p->actorsqu->s, TILE_JIBS6, 7, myconnectindex);
+				fi.spawn(p->actorsqu->GetIndex(), TILE_BLOODPOOL);
 				S_PlayActorSound(SQUISHED, p->actorsqu);
-				if (isIn(sprite[p->actorsqu].picnum, respawnlist))
+				if (isIn(p->actorsqu->s.picnum, respawnlist))
 				{
-					if (sprite[p->actorsqu].yvel)
-						fi.operaterespawns(sprite[p->actorsqu].yvel);
+					if (p->actorsqu->s.yvel)
+						fi.operaterespawns(p->actorsqu->s.yvel);
 				}
 
-				if (sprite[p->actorsqu].picnum == TILE_APLAYER)
+				if (p->actorsqu->s.picnum == TILE_APLAYER)
 				{
-					quickkill(&ps[sprite[p->actorsqu].yvel]);
-					ps[sprite[p->actorsqu].yvel].frag_ps = snum;
+					quickkill(&ps[p->actorsqu->s.yvel]);
+					ps[p->actorsqu->s.yvel].frag_ps = snum;
 				}
-				else if (badguy(&sprite[p->actorsqu]))
+				else if (badguy(&p->actorsqu->s))
 				{
 					deletesprite(p->actorsqu);
 					p->actors_killed++;
 				}
 				else deletesprite(p->actorsqu);
 			}
-			p->actorsqu = -1;
+			p->actorsqu = nullptr;
 		}
 	}
 
