@@ -73,7 +73,7 @@ uint8_t sectorextra[MAXSECTORS]; // move these back into the base structs!
 
 int rtsplaying;
 int tempwallptr;
-weaponhit hittype[MAXSPRITES];
+weaponhit hittype[MAXSPRITES+1];	// +1 to have a blank entry for serialization.
 bool sound445done; // this was local state inside a function, but this must be maintained globally and serialized
 uint16_t frags[MAXPLAYERS][MAXPLAYERS];
 player_struct ps[MAXPLAYERS];

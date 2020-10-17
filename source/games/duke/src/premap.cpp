@@ -684,7 +684,7 @@ void prelevel_common(int g)
     resetprestat(0, g);
     numclouds = 0;
 
-    memset(hittype, 0, sizeof(hittype));
+    for (auto& h : hittype) h.clear();
     memset(sectorextra, 0, sizeof(sectorextra));
     memset(shadedsector, 0, sizeof(shadedsector));
     memset(geosectorwarp, -1, sizeof(geosectorwarp));

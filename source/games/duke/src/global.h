@@ -59,7 +59,7 @@ extern uint8_t sectorextra[MAXSECTORS]; // these hold fields that were formerly 
 
 extern int rtsplaying;
 extern int tempwallptr;
-extern weaponhit hittype[MAXSPRITES];
+
 extern bool sound445done;
 extern uint16_t frags[MAXPLAYERS][MAXPLAYERS];
 extern player_struct ps[MAXPLAYERS];

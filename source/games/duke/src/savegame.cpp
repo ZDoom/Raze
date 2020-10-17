@@ -31,6 +31,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "duke3d.h"
 #include "gamestate.h"
 
+extern FixedBitArray<MAXSPRITES> activeSprites;
+
 
 BEGIN_DUKE_NS
 
@@ -293,8 +295,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 	return arc;
 }
 
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, weaponhit& w, weaponhit* def)
 {
+	if (!def) def = &hittype[MAXSPRITES];
 	if (arc.BeginObject(keyname))
 	{
 		arc("cgg", w.cgg, def->cgg)
@@ -327,7 +331,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 {
 	if (arc.isReading())
 	{
-		memset(hittype, 0, sizeof(hittype));
+		for (auto& h : hittype) h.clear();
 		memset(sectorextra, 0, sizeof(sectorextra));
 		memset(shadedsector, 0, sizeof(shadedsector));
 		memset(geosectorwarp, -1, sizeof(geosectorwarp));
@@ -340,42 +344,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		arc("multimode", ud.multimode);
 		if (ud.multimode > 1) arc.Array("frags", &frags[0][0], MAXPLAYERS * MAXPLAYERS);
 
-		// Here we must only save the used entries, otherwise the savegame would get too large.
-		weaponhit def = {};
-		if (arc.isWriting())
-		{
-			if (arc.BeginArray("weaponhit"))
-			{
-				// Save this in a way that's easy to read out again. RapidJSON sucks at iterating over objects. :(
-				for (int i = 0; i < MAXSPRITES; i++)
-				{
-					if (sprite[i].statnum != MAXSTATUS)
-					{
-						arc(nullptr, i);
-						arc(nullptr, hittype[i], def);
-					}
-				}
-			}
-			arc.EndArray();
-		}
-		else
-		{
-			if (arc.BeginArray("weaponhit"))
-			{
-				auto s = arc.ArraySize()/2;
-				for (unsigned i = 0; i < s; i++)
-				{
-					int ii;
-					arc(nullptr, ii);
-					arc(nullptr, hittype[ii], def);
-				}
-				arc.EndArray();
-			}
-		}
-
-
-		arc("skill", ud.player_skill)
-
+		arc.SparseArray("actors", hittype, MAXSPRITES, activeSprites)
+			("skill", ud.player_skill)
 			("from_bonus", ud.from_bonus)
 			("secretlevel", ud.secretlevel)
 			("respawn_monsters", ud.respawn_monsters)

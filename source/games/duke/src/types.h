@@ -4,6 +4,8 @@
 #include "d_net.h"
 #include "gameinput.h"
 
+extern spritetype sprite_s[];
+
 BEGIN_DUKE_NS
 
 // all the struct types from JFDuke's duke3d.h
@@ -28,16 +30,25 @@ struct weaponhit
 	short timetosleep;
 	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags;
 	int temp_data[6];
-};
+	spritetype& s;	// direct reference to the corresponding sprite.
 
-// This is how a Duke actor should later be exposed to scripting. The object definition parts are disabled for now so that this can be used already to transition the code.
-class DDukeActor //: public DBuildActor
-{
-public:
-	//DECLARE_CLASS(DDukeActor, DBuildActor)
-	spritetype s;
-	weaponhit h;
+	static weaponhit* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.
+
+	weaponhit() : s(sprite_s[this - array()]) {}			// little trick to initialize the reference automatically. ;)
+	weaponhit(const weaponhit& other) = delete;				// we also do not want to allow copies.
+	weaponhit& operator=(const weaponhit& other) = delete;
+	void clear()
+	{
+		cgg = spriteextra = 0;
+		picnum = ang = extra = owner = movflag = tempang = actorstayput = dispicnum = timetosleep = 0;
+		floorz = ceilingz = lastvx = lastvy = bposx = bposy = bposz = aflags = 0;
+		memset(temp_data, 0, sizeof(temp_data));
+	}
 };
+extern weaponhit hittype[MAXSPRITES + 1];
+inline weaponhit* weaponhit::array() { return hittype; }
+
+using DDukeActor = weaponhit; // we do not really want that stupid name in our interface (but also not rename the struct yet.)
 
 struct animwalltype
 {
