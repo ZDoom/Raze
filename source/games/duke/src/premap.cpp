@@ -149,7 +149,7 @@ void resetplayerstats(int snum)
     p->poszv             = 0;
     p->fric.x            = 0;
     p->fric.y            = 0;
-    p->somethingonplayer =-1;
+    p->somethingonplayer =nullptr;
     p->angle.spin        = bamlook(0);
 
     p->on_crane          = nullptr;

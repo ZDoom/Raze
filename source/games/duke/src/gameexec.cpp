@@ -602,8 +602,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_SOMETHINGONPLAYER:
-		if (bSet) ps[iPlayer].somethingonplayer = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].somethingonplayer, sActor, sPlayer);
+		if (bSet) ps[iPlayer].somethingonplayer = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ps[iPlayer].somethingonplayer), sActor, sPlayer);
 		break;
 
 	case PLAYER_ON_CRANE:

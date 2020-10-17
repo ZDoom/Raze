@@ -2516,8 +2516,8 @@ static void greenslime(int i)
 				}
 				ps[p].actors_killed++;
 				t[0] = -3;
-				if (ps[p].somethingonplayer == i)
-					ps[p].somethingonplayer = -1;
+				if (ps[p].somethingonplayer == &hittype[i])
+					ps[p].somethingonplayer = nullptr;
 				deletesprite(i);
 				return;
 			}
@@ -2584,9 +2584,9 @@ static void greenslime(int i)
 
 	else if (s->xvel < 64 && x < 768)
 	{
-		if (ps[p].somethingonplayer == -1)
+		if (ps[p].somethingonplayer == nullptr)
 		{
-			ps[p].somethingonplayer = i;
+			ps[p].somethingonplayer = &hittype[i];
 			if (t[0] == 3 || t[0] == 2) //Falling downward
 				t[2] = (12 << 8);
 			else t[2] = -(13 << 8); //Climbing up duke
@@ -2598,8 +2598,8 @@ static void greenslime(int i)
 	{
 		S_PlayActorSound(SLIM_DYING, i);
 
-		if (ps[p].somethingonplayer == i)
-			ps[p].somethingonplayer = -1;
+		if (ps[p].somethingonplayer == &hittype[i])
+			ps[p].somethingonplayer = nullptr;
 
 		if (j == FREEZEBLAST)
 		{
