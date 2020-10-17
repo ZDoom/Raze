@@ -44,11 +44,12 @@ struct weaponhit
 		floorz = ceilingz = lastvx = lastvy = bposx = bposy = bposz = aflags = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}
+	int GetIndex() const { return this - array(); }
 };
 extern weaponhit hittype[MAXSPRITES + 1];
 inline weaponhit* weaponhit::array() { return hittype; }
 
-using DDukeActor = weaponhit; // we do not really want that stupid name in our interface (but also not rename the struct yet.)
+using DDukeActor = weaponhit; // we do not really want that stupid name in our interface (but also not rename the struct yet.) The preceding 'D' is for the DObject interface this should be transitioned to later.
 
 struct animwalltype
 {

@@ -44,6 +44,7 @@ This file is a combination of code from the following sources:
 #include "names.h"
 #include "stats.h"
 #include "constants.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 
