@@ -503,6 +503,21 @@ CCMD (whereisini)
 FGameConfigFile* GameConfig;
 static FString GameName;
 
+//==========================================================================
+//
+// D_MultiExec
+//
+//==========================================================================
+
+FExecList *D_MultiExec (FArgs *list, FExecList *exec)
+{
+	for (int i = 0; i < list->NumArgs(); ++i)
+	{
+		exec = C_ParseExecFile(list->GetArg(i), exec);
+	}
+	return exec;
+}
+
 void G_LoadConfig()
 {
 	GameConfig = new FGameConfigFile();
@@ -513,6 +528,30 @@ void G_ReadConfig(const char* game)
 {
 	GameConfig->DoGameSetup(game);
 	GameConfig->DoKeySetup(game);
+
+	// Process automatically executed files
+	FExecList *exec;
+	FArgs *execFiles = new FArgs;
+	GameConfig->AddAutoexec(execFiles, game);
+	exec = D_MultiExec(execFiles, NULL);
+	delete execFiles;
+
+	// Process .cfg files at the start of the command line.
+	execFiles = Args->GatherFiles ("-exec");
+	exec = D_MultiExec(execFiles, exec);
+	delete execFiles;
+
+	// [RH] process all + commands on the command line
+	exec = C_ParseCmdLineParams(exec);
+
+	// Actually exec command line commands and exec files.
+	if (exec != NULL)
+	{
+		exec->ExecCommands();
+		delete exec;
+		exec = NULL;
+	}
+
 	FBaseCVar::EnableCallbacks();
 	GameName = game;
 }

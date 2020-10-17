@@ -867,9 +867,6 @@ int RunGame()
 		I_FatalError("There was a problem initializing the Build engine: %s\n", engineerrstr);
 	}
 
-	auto exec = C_ParseCmdLineParams(nullptr);
-	if (exec) exec->ExecCommands();
-
 	SetupGameButtons();
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
 	gi->app_init();
