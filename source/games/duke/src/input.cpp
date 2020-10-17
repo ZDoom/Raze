@@ -477,7 +477,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SB_TURNAROUND) && p->angle.spin.asbam() == 0 && p->on_crane < 0)
+		if (PlayerInput(snum, SB_TURNAROUND) && p->angle.spin.asbam() == 0 && p->on_crane == nullptr)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_TURNAROUND, -1, snum, -1);
@@ -827,7 +827,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 	}
 	else
 	{
-		if (p->on_crane < 0)
+		if (p->on_crane == nullptr)
 		{
 			if (!vehicle)
 			{
@@ -843,7 +843,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.svel = input.svel = 0;
 		}
 
-		if (p->on_crane < 0 && p->newowner == -1)
+		if (p->on_crane == nullptr && p->newowner == -1)
 		{
 			// input.avel already added to loc in processMovement()
 			loc.avel = clamp(loc.avel, -MAXANGVEL, MAXANGVEL);

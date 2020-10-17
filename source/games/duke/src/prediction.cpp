@@ -212,7 +212,7 @@ void fakedomovethings(void)
 
 		doubvel = TICSPERFRAME;
 
-		if(p->on_crane >= 0) goto FAKEHORIZONLY;
+		if(p->on_crane != nullptr) goto FAKEHORIZONLY;
 
 		if(p->angle.spin.asbam() < 0) myang += 128;
 

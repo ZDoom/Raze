@@ -607,8 +607,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_ON_CRANE:
-		if (bSet) ps[iPlayer].on_crane = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].on_crane, sActor, sPlayer);
+		if (bSet) ps[iPlayer].on_crane = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ps[iPlayer].on_crane), sActor, sPlayer);
 		break;
 
 	case PLAYER_I:	// This is dangerous!!!
@@ -2259,7 +2259,7 @@ int ParseState::parse(void)
 			ps[g_p].last_extra = g_sp->extra = max_player_health;
 			ps[g_p].wantweaponfire = -1;
 			ps[g_p].horizon.ohoriz = ps[g_p].horizon.horiz = q16horiz(0);
-			ps[g_p].on_crane = -1;
+			ps[g_p].on_crane = nullptr;
 			ps[g_p].frag_ps = g_p;
 			ps[g_p].horizon.ohorizoff = ps[g_p].horizon.horizoff = q16horiz(0);
 			ps[g_p].opyoff = 0;

@@ -454,7 +454,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 				goto PALONLY;
 			}
 
-			if (ps[p].on_crane == -1 && (sector[s->sectnum].lotag & 0x7ff) != 1)
+			if (ps[p].on_crane == nullptr && (sector[s->sectnum].lotag & 0x7ff) != 1)
 			{
 				l = s->z - hittype[ps[p].i].floorz + (3 << 8);
 				if (l > 1024 && s->yrepeat > 32 && s->extra > 0)

@@ -203,12 +203,12 @@ struct player_struct
 	short jumping_counter, airleft, knee_incs, access_incs;
 	short ftq, access_wallnum, access_spritenum;
 	short got_access, weapon_ang, firstaid_amount;
-	short somethingonplayer, on_crane, i, one_parallax_sectnum;
+	short somethingonplayer, i, one_parallax_sectnum;
 	short over_shoulder_on, fist_incs;
 	short cheat_phase;
 	short dummyplayersprite, extra_extra8, quick_kick, last_quick_kick;
 	short heat_amount, timebeforeexit, customexitsound;
-	DDukeActor* actorsqu;//, *wackedbyactor, *on_crane, *holoduke_on, *somethingonplayer;
+	DDukeActor* actorsqu, *on_crane;//, *wackedbyactor, *holoduke_on, *somethingonplayer;
 
 	short weaprecs[256], weapreccnt;
 	unsigned int interface_toggle_flag;

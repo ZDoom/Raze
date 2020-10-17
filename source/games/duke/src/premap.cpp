@@ -152,7 +152,7 @@ void resetplayerstats(int snum)
     p->somethingonplayer =-1;
     p->angle.spin        = bamlook(0);
 
-    p->on_crane          = -1;
+    p->on_crane          = nullptr;
 
     if(p->curr_weapon == PISTOL_WEAPON)
         p->okickback_pic = p->kickback_pic  = isRR()? 22 : 5;

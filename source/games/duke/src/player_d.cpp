@@ -2844,7 +2844,7 @@ void processinput_d(int snum)
 
 	checklook(snum,actions);
 
-	if (p->on_crane >= 0)
+	if (p->on_crane != nullptr)
 		goto HORIZONLY;
 
 	playerweaponsway(p, s);

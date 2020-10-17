@@ -369,7 +369,7 @@ void movedummyplayers(void)
 		auto hti = &hittype[i];
 		p = sprite[spri->owner].yvel;
 
-		if ((!isRR() && ps[p].on_crane >= 0) || sector[ps[p].cursectnum].lotag != 1 || sprite[ps[p].i].extra <= 0)
+		if ((!isRR() && ps[p].on_crane != nullptr) || sector[ps[p].cursectnum].lotag != 1 || sprite[ps[p].i].extra <= 0)
 		{
 			ps[p].dummyplayersprite = -1;
 			deletesprite(i);
@@ -715,8 +715,8 @@ void movecrane(int i, int crane)
 					{
 						auto p = findplayer(s, &x);
 						S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
-						if (ps[p].on_crane == i)
-							ps[p].on_crane = -1;
+						if (ps[p].on_crane == &hittype[i])
+							ps[p].on_crane = nullptr;
 					}
 					t[0]++;
 					s->owner = -1;
@@ -733,7 +733,7 @@ void movecrane(int i, int crane)
 			if (p >= 0 && ps[p].on_ground)
 			{
 				s->owner = -2;
-				ps[p].on_crane = i;
+				ps[p].on_crane = &hittype[i];
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
 				ps[p].angle.addadjustment(s->ang + 1024);
 			}
@@ -802,8 +802,8 @@ void movecrane(int i, int crane)
 		if (j >= 0)
 		{
 			if (s->owner == -2)
-				if (ps[p].on_crane == i)
-					ps[p].on_crane = -1;
+				if (ps[p].on_crane == &hittype[i])
+					ps[p].on_crane = nullptr;
 			s->owner = -1;
 			s->picnum = crane;
 			return;
