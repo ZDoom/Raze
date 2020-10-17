@@ -1612,6 +1612,63 @@ void movestandables_d(void)
 //
 //---------------------------------------------------------------------------
 
+bool movefireball(int i)
+{
+	auto s = &sprite[i];
+	auto ht = &hittype[i];
+
+	if (sector[s->sectnum].lotag == 2)
+	{
+		deletesprite(i);
+		return true;
+	}
+
+	if (sprite[s->owner].picnum != FIREBALL)
+	{
+		if (ht->temp_data[0] >= 1 && ht->temp_data[0] < 6)
+		{
+			float siz = 1.0f - (ht->temp_data[0] * 0.2f);
+			int trail = ht->temp_data[1];
+			int j = ht->temp_data[1] = fi.spawn(i, FIREBALL);
+
+			auto spr = &sprite[j];
+			spr->xvel = s->xvel;
+			spr->yvel = s->yvel;
+			spr->zvel = s->zvel;
+			if (ht->temp_data[0] > 1)
+			{
+				FireProj* proj = fire.CheckKey(trail);
+				if (proj != nullptr)
+				{
+					spr->x = proj->x;
+					spr->y = proj->y;
+					spr->z = proj->z;
+					spr->xvel = proj->xv;
+					spr->yvel = proj->yv;
+					spr->zvel = proj->zv;
+				}
+			}
+			spr->yrepeat = spr->xrepeat = (short)(sprite[i].xrepeat * siz);
+			spr->cstat = sprite[i].cstat;
+			spr->extra = 0;
+
+			FireProj proj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
+			fire.Insert(j, proj);
+			changespritestat((short)j, (short)4);
+		}
+		ht->temp_data[0]++;
+	}
+	if (s->zvel < 15000)
+		s->zvel += 200;
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void moveweapons_d(void)
 {
 	int j, k, p;
@@ -1698,52 +1755,7 @@ void moveweapons_d(void)
 					break;
 						
 				case FIREBALL:
-					if (isWorldTour())
-					{
-						if (sector[s->sectnum].lotag == 2)
-						{
-							deletesprite(i);
-							continue;
-						}
-
-						if (sprite[s->owner].picnum != FIREBALL)
-						{
-							if (hittype[i].temp_data[0] >= 1 && hittype[i].temp_data[0] < 6)
-							{
-								float siz = 1.0f - (hittype[i].temp_data[0] * 0.2f);
-								int trail = hittype[i].temp_data[1];
-								j = hittype[i].temp_data[1] = fi.spawn(i, FIREBALL);
-
-								auto spr = &sprite[j];
-								spr->xvel = sprite[i].xvel;
-								spr->yvel = sprite[i].yvel;
-								spr->zvel = sprite[i].zvel;
-								if (hittype[i].temp_data[0] > 1)
-								{
-									FireProj* proj = fire.CheckKey(trail);
-									if (proj != nullptr)
-									{
-										spr->x = proj->x;
-										spr->y = proj->y;
-										spr->z = proj->z;
-										spr->xvel = proj->xv;
-										spr->yvel = proj->yv;
-										spr->zvel = proj->zv;
-									}
-								}
-								spr->yrepeat = spr->xrepeat = (short)(sprite[i].xrepeat * siz);
-								spr->cstat = sprite[i].cstat;
-								spr->extra = 0;
-
-								FireProj proj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
-								fire.Insert(j, proj);
-								changespritestat((short)j, (short)4);
-							}
-							hittype[i].temp_data[0]++;
-						}
-						if (s->zvel < 15000)
-							s->zvel += 200;
-					}
+					if (movefireball(i)) continue;
 					break;
 			}
 
