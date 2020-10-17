@@ -40,6 +40,7 @@ set( PCH_SOURCES
 		src/whtag.cpp
 		src/wh.cpp
 		src/main.cpp
+		src/music.cpp
 	)
 
 add_game_library2( whaven )

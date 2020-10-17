@@ -447,13 +447,11 @@ inline void SND_StopLoop(int)
 inline void SND_CheckLoops()
 {}
 
+void startmusic(int);
+void startsong(int);
+void setupmidi();
+
 extern int attacktheme;
-inline void startsong(int)
-{
-}
-inline void startmusic(int)
-{
-}
 
 
 

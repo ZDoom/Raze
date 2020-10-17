@@ -228,6 +228,7 @@ void GameInterface::app_init()
 	}
 	 
 	FadeInit();
+	setupmidi();
 	//sndInit();
 	//initpaletteshifts();
 	InitOriginalEpisodes();
@@ -242,8 +243,6 @@ void GameInterface::Startup()
 		changeScreen(gMenuScreen);
 	*/
 }
-
-
 
 ::GameInterface* CreateInterface()
 {
