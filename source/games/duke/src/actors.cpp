@@ -269,7 +269,7 @@ void lotsofstuff(spritetype* s, short n, int spawntype)
 	{
 		short r1 = krand(), r2 = krand();	// using the RANDCORRECT version from RR.
 		// TRANSITIONAL RedNukem sets the spawner as owner.
-		j = EGS(s->sectnum, s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, 0, 5);
+		j = EGS(s->sectnum, s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, (short)0, 5);
 		sprite[j].cstat = krand() & 12;
 	}
 }

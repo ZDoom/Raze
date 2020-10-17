@@ -63,7 +63,7 @@ struct weaponhit
 		return owner < 0 ? nullptr : &array()[owner];
 	}
 
-	inline void SetHitOwner(DDukeActor* a)
+	inline void SetHitOwner(weaponhit* a)
 	{
 		owner = a->GetIndex();
 	}
