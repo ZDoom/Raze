@@ -470,6 +470,11 @@ namespace Exhumed
 	::GameInterface* CreateInterface();
 }
 
+namespace Witchaven
+{
+	::GameInterface* CreateInterface();
+}
+
 void CheckFrontend(int flags)
 {
 	if (flags & GAMEFLAG_BLOOD)
@@ -483,6 +488,10 @@ void CheckFrontend(int flags)
 	else if (flags & GAMEFLAG_PSEXHUMED)
 	{
 		gi = Exhumed::CreateInterface();
+	}
+	else if (flags & (GAMEFLAG_WH| GAMEFLAG_WH2))
+	{
+		gi = Witchaven::CreateInterface();
 	}
 	else
 	{

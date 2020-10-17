@@ -5,6 +5,7 @@
 #include "image.h"
 #include "i_time.h"
 #include "intvec.h"
+#include "palette.h"
 
 // picanm[].sf:
 // |bit(1<<7)

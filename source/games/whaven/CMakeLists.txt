@@ -39,6 +39,7 @@ set( PCH_SOURCES
 		src/whplr.cpp
 		src/whtag.cpp
 		src/wh.cpp
+		src/main.cpp
 	)
 
 add_game_library2( whaven )

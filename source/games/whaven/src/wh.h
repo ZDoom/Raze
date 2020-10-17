@@ -1,6 +1,7 @@
 #pragma once
 
 #include "build.h"
+#include "gamestruct.h"
 
 BEGIN_WH_NS
 
@@ -460,8 +461,46 @@ void startWh2Ending();
 void showStatisticsScreen();
 void showVictoryScreen();
 
+void InitNames();
+
 
 #include "item.h"
 
+
+struct GameInterface : public ::GameInterface
+{
+	const char* Name() override { return "Witchaven"; }
+	void app_init() override;
+	//void clearlocalinputstate() override;
+	//bool GenerateSavePic() override;
+	//void PlayHudSound() override;
+	//GameStats getStats() override;
+	//void MenuOpened() override;
+	//void MenuSound(EMenuSounds snd) override;
+	//bool CanSave() override;
+	//bool StartGame(FNewGameStartup& gs) override;
+	//FSavegameInfo GetSaveSig() override;
+	//void SerializeGameState(FSerializer& arc) override;
+	//void QuitToTitle() override;
+	FString GetCoordString() override;
+	//void ExitFromMenu() override;
+	//ReservedSpace GetReservedScreenSpace(int viewsize) override;
+	//void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
+	//void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
+	//void UpdateSounds() override;
+	void Startup() override;
+	//void DrawBackground() override;
+	//void Render() override;
+	//void Ticker() override;
+	const char* GenericCheat(int player, int cheat) override;
+	const char* CheckCheatMode() override;
+	//void NextLevel(MapRecord* map, int skill) override;
+	//void NewGame(MapRecord* map, int skill) override;
+	//void LevelCompleted(MapRecord* map, int skill) override;
+	//bool DrawAutomapPlayer(int x, int y, int z, int a) override;
+	//int playerKeyMove() override { return 40; }
+
+};
+ 
 END_WH_NS
 

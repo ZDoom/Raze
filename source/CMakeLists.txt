@@ -1075,7 +1075,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma duke blood sw exhumed )
+target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma duke blood sw exhumed whaven )
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}

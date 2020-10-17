@@ -1,6 +1,7 @@
 #include "ns.h"
 #include "gamecontrol.h"
 
+BEGIN_WH_NS
 int S_THUNDER1 = 0;
 int S_THUNDER2 = 1;
 int S_THUNDER3 = 2;
@@ -299,3 +300,4 @@ void InitSoundNames()
 		S_GRONPAINA = 142;
 	}
 }
+END_WH_NS
