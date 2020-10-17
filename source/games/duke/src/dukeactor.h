@@ -46,5 +46,163 @@ public:
 	}
 };
 
+// An interator to iterate over all sprites.
+class DukeSpriteIterator
+{
+	DukeStatIterator it;
+	int stat = STAT_DEFAULT;
+
+public:
+	DukeSpriteIterator() : it(STAT_DEFAULT) {}
+
+	DDukeActor* Next()
+	{
+		while (stat < MAXSTATUS)
+		{
+			auto ac = it.Next();
+			if (ac) return ac;
+			stat++;
+			if (stat < MAXSTATUS) it.Reset(stat);
+		}
+		return nullptr;
+	}
+};
+
+
+inline DDukeActor* player_struct::GetActor()
+{
+	return &hittype[i];
+}
+
+inline int player_struct::GetPlayerNum()
+{
+	return GetActor()->s.yvel;
+}
+
+// Refactoring helpers/intermediates
+inline void changespritestat(DDukeActor* a, int newstat)
+{
+	::changespritestat(a->GetIndex(), newstat);
+}
+
+// The int version also needs to be wrapped due to namespacing issues.
+inline void changespritestat(int i, int newstat)
+{
+	::changespritestat(i, newstat);
+}
+
+inline void changespritesect(DDukeActor* a, int newsect)
+{
+	::changespritesect(a->GetIndex(), newsect);
+}
+
+inline void changespritesect(int i, int newsect)
+{
+	::changespritesect(i, newsect);
+}
+
+inline void deletesprite(DDukeActor* i)
+{
+	deletesprite(i->GetIndex());
+}
+
+inline int setsprite(DDukeActor* a, int x, int y, int z)
+{
+	return ::setsprite(a->GetIndex(), x, y, z);
+}
+
+inline int setsprite(DDukeActor* a, const vec3_t& pos)
+{
+	return ::setsprite(a->GetIndex(), pos.x, pos.y, pos.z);
+}
+
+// see comment for changespritestat.
+inline int setsprite(int i, int x, int y, int z)
+{
+	return ::setsprite(i, x, y, z);
+}
+
+inline int S_PlayActorSound(int soundNum, DDukeActor* spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0)
+{
+	return S_PlayActorSound(soundNum, spriteNum ? spriteNum->GetIndex() : -1, channel, flags);
+}
+
+inline void S_StopSound(int sndNum, DDukeActor* actor, int flags = -1)
+{
+	S_StopSound(sndNum, actor ? actor->GetIndex() : -1, flags);
+}
+
+inline void S_RelinkActorSound(DDukeActor* from, DDukeActor* to)
+{
+	S_RelinkActorSound(from ? from->GetIndex() : -1, to ? to->GetIndex() : -1);
+}
+
+inline int S_CheckActorSoundPlaying(DDukeActor* a, int soundNum, int channel = 0)
+{
+	return S_CheckActorSoundPlaying(a->GetIndex(), soundNum, channel);
+}
+
+inline DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, DDukeActor* Owner, signed char s_ss)
+{
+	return &hittype[EGS(whatsect, s_x, s_y, s_z, s_pn, s_s, s_xr, s_yr, s_a, s_ve, s_zv, Owner ? Owner->GetIndex() : -1, s_ss)];
+}
+
+inline int ssp(DDukeActor* i, unsigned int cliptype) //The set sprite function
+{
+	return ssp(i->GetIndex(), cliptype);
+}
+
+inline int ActorToScriptIndex(DDukeActor* a)
+{
+	if (!a) return -1;
+	return a->GetIndex();
+}
+
+inline DDukeActor* ScriptIndexToActor(int index)
+{
+	if (index == -1) return nullptr;
+	return &hittype[index];
+}
+
+inline bool wallswitchcheck(DDukeActor* s)
+{
+	return !!(tileinfo[s->s.picnum].flags & TFLAG_WALLSWITCH);
+}
+
+inline DDukeActor* spawn(DDukeActor* spawner, int type)
+{
+	int i = fi.spawn(spawner ? spawner->GetIndex() : -1, type);
+	return i == -1 ? nullptr : &hittype[i];
+}
+
+inline int ldist(DDukeActor* s1, DDukeActor* s2)
+{
+	return ldist(&s1->s, &s2->s);
+}
+
+inline int dist(DDukeActor* s1, DDukeActor* s2)
+{
+	return dist(&s1->s, &s2->s);
+}
+
+inline int badguy(DDukeActor* pSprite)
+{
+	return badguypic(pSprite->s.picnum);
+}
+
+inline int bossguy(DDukeActor* pSprite)
+{
+	return bossguypic(pSprite->s.picnum);
+}
+
+inline int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
+{
+	return GetGameVarID(id, sActor->GetIndex(), sPlayer);
+}
+
+inline void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
+{
+	SetGameVarID(id, lValue, sActor->GetIndex(), sPlayer);
+}
 
 END_DUKE_NS

@@ -45,6 +45,48 @@ struct weaponhit
 		memset(temp_data, 0, sizeof(temp_data));
 	}
 	int GetIndex() const { return this - array(); }
+
+	// Wrapper around some ugliness. The 'owner' field gets abused by some actors, so better wrap its real use in access functions to keep things in order.
+	inline weaponhit* GetOwner()
+	{
+		return s.owner < 0 ? nullptr : &array()[s.owner];
+	}
+
+	inline void SetOwner(weaponhit* a)
+	{
+		s.owner = a->GetIndex();
+	}
+
+	// same for the 'hittype' owner - which is normally the shooter in an attack.
+	inline weaponhit* GetHitOwner()
+	{
+		return owner < 0 ? nullptr : &array()[owner];
+	}
+
+	inline void SetHitOwner(DDukeActor* a)
+	{
+		owner = a->GetIndex();
+	}
+
+	// The crane is a good example of an actor hijacking the 'owner' field for something other than an actual owner. Abstract this away.
+	inline bool IsActiveCrane()
+	{
+		return s.owner == -2;
+	}
+
+	inline void SetActiveCrane(bool yes)
+	{
+		s.owner = yes ? -2 : -1;
+	}
+
+	int PlayerIndex() const
+	{
+		// only valid for real players - just here to abstract yvel.
+		return s.yvel;
+	}
+
+
+
 };
 extern weaponhit hittype[MAXSPRITES + 1];
 inline weaponhit* weaponhit::array() { return hittype; }
@@ -229,6 +271,10 @@ struct player_struct
 
 	// input stuff.
 	InputPacket sync;
+
+	DDukeActor* GetActor();
+	int GetPlayerNum();
+
 };
 
 
