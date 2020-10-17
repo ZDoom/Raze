@@ -4,6 +4,14 @@
 BEGIN_WH_NS
 
 
+#define LAVASIZ 128
+#define LAVALOGSIZ 7
+#define LAVAMAXDROPS 32
+
+#define WATERSIZ 128
+#define WATERLOGSIZ 7
+#define WATERMAXDROPS 1
+
 
 short skypanlist[64], skypancnt;
 short lavadrylandsector[32];
@@ -28,21 +36,264 @@ short warpsect;
 int scarytime = -1;
 int scarysize = 0;
 
-void initlava() // XXX
-{
 
+static uint8_t lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 2)], lavainc[LAVASIZ];
+static int lavanumdrops, lavanumframes;
+static int lavadropx[LAVAMAXDROPS], lavadropy[LAVAMAXDROPS];
+static int lavadropsiz[LAVAMAXDROPS], lavadropsizlookup[LAVAMAXDROPS];
+static int lavaradx[32][128], lavarady[32][128], lavaradcnt[32];
+
+static uint8_t waterbakpic[(WATERSIZ + 2) * (WATERSIZ + 2)], waterinc[WATERSIZ];
+static int waternumdrops, waternumframes;
+static int waterdropx[WATERMAXDROPS], waterdropy[WATERMAXDROPS];
+static int waterdropsiz[WATERMAXDROPS], waterdropsizlookup[WATERMAXDROPS];
+static int waterradx[32][128], waterrady[32][128], waterradcnt[32];
+
+void initlava(void) {
+
+	int x, y, z, r;
+
+	for (x = -16; x <= 16; x++)
+		for (y = -16; y <= 16; y++)
+		{
+			r = ksqrt(x * x + y * y);
+			lavaradx[r][lavaradcnt[r]] = x;
+			lavarady[r][lavaradcnt[r]] = y;
+			lavaradcnt[r]++;
+		}
+
+	for (z = 0; z < 16; z++)
+		lavadropsizlookup[z] = 8 / (ksqrt(z) + 1);
+
+	for (z = 0; z < LAVASIZ; z++)
+		lavainc[z] = klabs((((z ^ 17) >> 4) & 7) - 4) + 12;
+
+	lavanumdrops = 0;
+	lavanumframes = 0;
 }
 
-void movelava() {
-};
+void movelava(uint8_t* dapic) {
 
-void initwater() // XXX
-{
+	uint8_t dat, * ptr;
+	int x, y, z, zx, dalavadropsiz, dadropsizlookup, offs, offs2;
+	int dalavax, dalavay;
 
+	z = 3;
+	if (lavanumdrops + z >= LAVAMAXDROPS)
+		z = LAVAMAXDROPS - lavanumdrops - 1;
+	while (z >= 0)
+	{
+		lavadropx[lavanumdrops] = (rand() & (LAVASIZ - 1));
+		lavadropy[lavanumdrops] = (rand() & (LAVASIZ - 1));
+		lavadropsiz[lavanumdrops] = 1;
+		lavanumdrops++;
+		z--;
+	}
+
+	z = lavanumdrops - 1;
+	while (z >= 0)
+	{
+		dadropsizlookup = lavadropsizlookup[lavadropsiz[z]] * (((z & 1) << 1) - 1);
+		dalavadropsiz = lavadropsiz[z];
+		dalavax = lavadropx[z]; dalavay = lavadropy[z];
+		for (zx = lavaradcnt[lavadropsiz[z]] - 1; zx >= 0; zx--)
+		{
+			offs = (((lavaradx[dalavadropsiz][zx] + dalavax) & (LAVASIZ - 1)) << LAVALOGSIZ);
+			offs += ((lavarady[dalavadropsiz][zx] + dalavay) & (LAVASIZ - 1));
+			dapic[offs] += dadropsizlookup;
+			if (dapic[offs] < 192) dapic[offs] = 192;
+		}
+
+		lavadropsiz[z]++;
+		if (lavadropsiz[z] > 10)
+		{
+			lavanumdrops--;
+			lavadropx[z] = lavadropx[lavanumdrops];
+			lavadropy[z] = lavadropy[lavanumdrops];
+			lavadropsiz[z] = lavadropsiz[lavanumdrops];
+		}
+		z--;
+	}
+
+	//Back up dapic with 1 pixel extra on each boundary
+	//(to prevent anding for wrap-around)
+	auto poffs = (dapic);
+	auto poffs2 = (LAVASIZ + 2) + 1 + (lavabakpic);
+	for (x = 0; x < LAVASIZ; x++)
+	{
+		memcpy(poffs2, poffs, LAVASIZ >> 2);
+		poffs += LAVASIZ;
+		poffs2 += LAVASIZ + 2;
+	}
+	for (y = 0; y < LAVASIZ; y++)
+	{
+		lavabakpic[y + 1] = dapic[y + ((LAVASIZ - 1) << LAVALOGSIZ)];
+		lavabakpic[y + 1 + (LAVASIZ + 1) * (LAVASIZ + 2)] = dapic[y];
+	}
+	for (x = 0; x < LAVASIZ; x++)
+	{
+		lavabakpic[(x + 1) * (LAVASIZ + 2)] = dapic[(x << LAVALOGSIZ) + (LAVASIZ - 1)];
+		lavabakpic[(x + 1) * (LAVASIZ + 2) + (LAVASIZ + 1)] = dapic[x << LAVALOGSIZ];
+	}
+	lavabakpic[0] = dapic[LAVASIZ * LAVASIZ - 1];
+	lavabakpic[LAVASIZ + 1] = dapic[LAVASIZ * (LAVASIZ - 1)];
+	lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 1)] = dapic[LAVASIZ - 1];
+	lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 2) - 1] = dapic[0];
+
+	for (z = (LAVASIZ + 2) * (LAVASIZ + 2) - 4; z >= 0; z -= 4) {
+		lavabakpic[z + 0] &= 31;
+		lavabakpic[z + 1] &= 31;
+		lavabakpic[z + 2] &= 31;
+		lavabakpic[z + 3] &= 31;
+	}
+
+
+	for (x = LAVASIZ - 1; x >= 0; x--)
+	{
+		offs = (x + 1) * (LAVASIZ + 2) + 1;
+		ptr = (uint8_t*)((x << LAVALOGSIZ) + dapic);
+
+		zx = ((x + lavanumframes) & (LAVASIZ - 1));
+
+		offs2 = LAVASIZ - 1;
+		for (y = offs; y < offs + LAVASIZ; y++)
+		{
+			dat = lavainc[(offs2--) & zx];
+			dat += lavabakpic[y - (LAVASIZ + 2) - 1];
+			dat += lavabakpic[y - (LAVASIZ + 2)];
+			dat += lavabakpic[y - (LAVASIZ + 2) + 1];
+			dat += lavabakpic[y - 1];
+			dat += lavabakpic[y + 1];
+			dat += lavabakpic[y + (LAVASIZ + 2)];
+			dat += lavabakpic[y + (LAVASIZ + 2) - 1];
+			*ptr++ = (dat >> 3) + 192;//was 192
+		}
+	}
+
+	lavanumframes++;
 }
 
-void movewater() {
-};
+void initwater(void) {
+
+	int x, y, z, r;
+
+	for (x = -16; x <= 16; x++)
+		for (y = -16; y <= 16; y++)
+		{
+			r = ksqrt(x * x + y * y);
+			waterradx[r][waterradcnt[r]] = x;
+			waterrady[r][waterradcnt[r]] = y;
+			waterradcnt[r]++;
+		}
+
+	for (z = 0; z < 16; z++)
+		waterdropsizlookup[z] = 8 / (ksqrt(z) + 1);
+
+	for (z = 0; z < WATERSIZ; z++)
+		waterinc[z] = klabs((((z ^ 17) >> 4) & 7) - 4) + 12;
+
+	waternumdrops = 0;
+	waternumframes = 0;
+}
+
+void movewater(uint8_t* dapic) {
+
+	uint8_t dat, * ptr;
+	int x, y, z, zx, dawaterdropsiz, dadropsizlookup, offs, offs2;
+	int dawaterx, dawatery;
+
+	z = 3;
+	if (waternumdrops + z >= WATERMAXDROPS)
+		z = WATERMAXDROPS - waternumdrops - 1;
+	while (z >= 0)
+	{
+		waterdropx[waternumdrops] = (rand() & (WATERSIZ - 1));
+		waterdropy[waternumdrops] = (rand() & (WATERSIZ - 1));
+		waterdropsiz[waternumdrops] = 1;
+		waternumdrops++;
+		z--;
+	}
+	z = waternumdrops - 1;
+	while (z >= 0)
+	{
+		dadropsizlookup = waterdropsizlookup[waterdropsiz[z]] * (((z & 1) << 1) - 1);
+		dawaterdropsiz = waterdropsiz[z];
+		dawaterx = waterdropx[z]; dawatery = waterdropy[z];
+		for (zx = waterradcnt[waterdropsiz[z]] - 1; zx >= 0; zx--)
+		{
+			offs = (((waterradx[dawaterdropsiz][zx] + dawaterx) & (WATERSIZ - 1)) << WATERLOGSIZ);
+			offs += ((waterrady[dawaterdropsiz][zx] + dawatery) & (WATERSIZ - 1));
+			dapic[offs] += dadropsizlookup;
+			if (dapic[offs] < 224) dapic[offs] = 224;
+		}
+
+		waterdropsiz[z]++;
+		if (waterdropsiz[z] > 10)
+		{
+			waternumdrops--;
+			waterdropx[z] = waterdropx[waternumdrops];
+			waterdropy[z] = waterdropy[waternumdrops];
+			waterdropsiz[z] = waterdropsiz[waternumdrops];
+		}
+		z--;
+	}
+
+	auto poffs = (dapic);
+	auto poffs2 = (WATERSIZ + 2) + 1 + (waterbakpic);
+	for (x = 0; x < WATERSIZ; x++)
+	{
+		memcpy(poffs2, poffs, WATERSIZ);
+		poffs += WATERSIZ;
+		poffs2 += WATERSIZ + 2;
+	}
+	for (y = 0; y < WATERSIZ; y++)
+	{
+		waterbakpic[y + 1] = dapic[y + ((WATERSIZ - 1) << WATERLOGSIZ)];
+		waterbakpic[y + 1 + (WATERSIZ + 1) * (WATERSIZ + 2)] = dapic[y];
+	}
+	for (x = 0; x < WATERSIZ; x++)
+	{
+		waterbakpic[(x + 1) * (WATERSIZ + 2)] = dapic[(x << WATERLOGSIZ) + (WATERSIZ - 1)];
+		waterbakpic[(x + 1) * (WATERSIZ + 2) + (WATERSIZ + 1)] = dapic[x << WATERLOGSIZ];
+	}
+	waterbakpic[0] = dapic[WATERSIZ * WATERSIZ - 1];
+	waterbakpic[WATERSIZ + 1] = dapic[WATERSIZ * (WATERSIZ - 1)];
+	waterbakpic[(WATERSIZ + 2) * (WATERSIZ + 1)] = dapic[WATERSIZ - 1];
+	waterbakpic[(WATERSIZ + 2) * (WATERSIZ + 2) - 1] = dapic[0];
+
+	for (z = (WATERSIZ + 2) * (WATERSIZ + 2) - 4; z >= 0; z -= 4) {
+		waterbakpic[z + 0] &= 15;
+		waterbakpic[z + 1] &= 15;
+		waterbakpic[z + 2] &= 15;
+		waterbakpic[z + 3] &= 15;
+	}
+
+
+	for (x = WATERSIZ - 1; x >= 0; x--)
+	{
+		offs = (x + 1) * (WATERSIZ + 2) + 1;
+		ptr = (uint8_t*)((x << WATERLOGSIZ) + dapic);
+
+		zx = ((x + waternumframes) & (WATERSIZ - 1));
+
+		offs2 = WATERSIZ - 1;
+		for (y = offs; y < offs + WATERSIZ; y++)
+		{
+			dat = waterinc[(offs2--) & zx];
+			dat += waterbakpic[y - (WATERSIZ + 2) - 1];
+			dat += waterbakpic[y - (WATERSIZ + 2)];
+			dat += waterbakpic[y - (WATERSIZ + 2) + 1];
+			dat += waterbakpic[y - 1];
+			dat += waterbakpic[y + 1];
+			dat += waterbakpic[y + (WATERSIZ + 2) + 1];
+			dat += waterbakpic[y + (WATERSIZ + 2)];
+			dat += waterbakpic[y + (WATERSIZ + 2) - 1];
+			*ptr++ = (dat >> 3) + 223;
+		}
+	}
+
+	waternumframes++;
+}
 
 void skypanfx() {
 	for (int i = 0; i < skypancnt; i++) {
@@ -398,13 +649,11 @@ void dofx() {
 
 	if ((gotpic[ANILAVA >> 3] & (1 << (ANILAVA & 7))) > 0) {
 		gotpic[ANILAVA >> 3] &= ~(1 << (ANILAVA & 7));
-//			if (waloff[ANILAVA] != nullptr)
-//			movelava(waloff[ANILAVA]); XXX
+		movelava(tileData(ANILAVA));
 	}
 	if ((gotpic[HEALTHWATER >> 3] & (1 << (HEALTHWATER & 7))) > 0) {
 		gotpic[HEALTHWATER >> 3] &= ~(1 << (HEALTHWATER & 7));
-//			if (waloff[HEALTHWATER] != nullptr) XXX
-//				movewater(waloff[HEALTHWATER]);
+		movelava(tileData(HEALTHWATER));
 	}
 	thesplash();
 	thunder();
