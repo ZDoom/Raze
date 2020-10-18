@@ -4973,7 +4973,7 @@ void alterang(int a, int g_i, int g_p)
 		g_sp->ang = WindDir;
 	else if (a & seekplayer)
 	{
-		j = !isRR() && ps[g_p].holoduke_on;
+		j = !isRR()? ps[g_p].holoduke_on : -1;
 
 		// NOTE: looks like 'owner' is set to target sprite ID...
 
