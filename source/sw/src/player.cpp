@@ -2405,7 +2405,7 @@ void PlaySOsound(short sectnum, short sound_num)
     int i;
 
     // play idle sound - sound 1
-    SectIterator it(StatDamageList[sectnum]);
+    SectIterator it(sectnum);
     while ((i = it.NextIndex()) >= 0)
     {
         if (sprite[i].statnum == STAT_SOUND_SPOT)
@@ -2421,7 +2421,7 @@ void StopSOsound(short sectnum)
     int i;
 
     // play idle sound - sound 1
-    SectIterator it(StatDamageList[sectnum]);
+    SectIterator it(sectnum);
     while ((i = it.NextIndex()) >= 0)
     {
         if (sprite[i].statnum == STAT_SOUND_SPOT)
