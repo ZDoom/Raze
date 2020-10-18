@@ -454,28 +454,4 @@ void displayspelltext(PLAYER& plr) {
 	}
 }
 
-void orbpic(PLAYER& plr, int currentorb) {
-	if (plr.orbammo[currentorb] < 0)
-		plr.orbammo[currentorb] = 0;
-
-#pragma message("fix orbpic")
-#if 0
-	Bitoa(plr.orbammo[currentorb], tempchar);
-
-	int y = 382;
-	if (currentorb == 2)
-		y = 381;
-	if (currentorb == 3)
-		y = 383;
-	if (currentorb == 6)
-		y = 383;
-	if (currentorb == 7)
-		y = 380;
-
-	int spellbookpage = sspellbookanim[currentorb][8].daweaponframe;
-	overwritesprite(121 << 1, y, spellbookpage, 0, 0, 0);
-	game.getFont(4).drawText(126 << 1,439, tempchar, 0, 0, TextAlign.Left, 0, false);
-#endif
-}
-
 END_WH_NS
