@@ -1403,6 +1403,43 @@ void movetongue(int i, int tongue, int jaw)
 //
 //---------------------------------------------------------------------------
 
+void rpgexplode(int i, int j, const vec3_t &pos, int EXPLOSION2, int newextra, int playsound)
+{
+	auto s = &sprite[i];
+	int k = fi.spawn(i, EXPLOSION2);
+	sprite[k].pos = pos;
+
+	if (s->xrepeat < 10)
+	{
+		sprite[k].xrepeat = 6;
+		sprite[k].yrepeat = 6;
+	}
+	else if ((j & kHitTypeMask) == kHitSector)
+	{
+		sprite[k].cstat |= 8;
+		sprite[k].z += (48 << 8);
+	}
+	if (newextra > 0) s->extra = newextra;
+	S_PlayActorSound(playsound, i);
+
+	if (s->xrepeat >= 10)
+	{
+		int x = s->extra;
+		fi.hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+	}
+	else
+	{
+		int x = s->extra + (global_random & 3);
+		fi.hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool respawnmarker(int i, int yellow, int green)
 {
 	hittype[i].temp_data[0]++;

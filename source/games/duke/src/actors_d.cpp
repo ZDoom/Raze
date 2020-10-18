@@ -1943,20 +1943,8 @@ static void weaponcommon_d(int i)
 		{
 			if (s->picnum == RPG)
 			{
-				k = fi.spawn(i, EXPLOSION2);
-				sprite[k].pos = oldpos;
-
-				if (s->xrepeat < 10)
-				{
-					sprite[k].xrepeat = 6;
-					sprite[k].yrepeat = 6;
-				}
-				else if ((j & 49152) == 16384)
-				{
-					if (s->zvel > 0)
-						fi.spawn(i, EXPLOSION2BOT);
-					else { sprite[k].cstat |= 8; sprite[k].z += (48 << 8); }
-				}
+				// j is only needed for the hit type mask.
+				rpgexplode(i, j, oldpos, EXPLOSION2, -1, RPG_EXPLODE);
 			}
 			else if (s->picnum == SHRINKSPARK)
 			{
@@ -1974,21 +1962,6 @@ static void weaponcommon_d(int i)
 					{
 						sprite[k].cstat |= 8; sprite[k].z += (72 << 8);
 					}
-				}
-			}
-			if (s->picnum == RPG)
-			{
-				S_PlayActorSound(RPG_EXPLODE, i);
-
-				if (s->xrepeat >= 10)
-				{
-					int x = s->extra;
-					fi.hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
-				}
-				else
-				{
-					int x = s->extra + (global_random & 3);
-					fi.hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
 				}
 			}
 			if (fireball)
