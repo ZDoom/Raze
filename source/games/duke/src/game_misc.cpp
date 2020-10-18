@@ -62,7 +62,7 @@ FString GameInterface::GetCoordString()
 	FString out;
 
 	out.Format("pos= %d, %d, %d - angle = %2.3f - sector = %d, lotag = %d, hitag = %d",
-		ps[snum].posx, ps[snum].posy, ps[snum].posz, ps[snum].angle.ang.asbuild(), ps[snum].cursectnum,
+		ps[snum].posx, ps[snum].posy, ps[snum].posz, ps[snum].angle.ang.asdeg(), ps[snum].cursectnum,
 		sector[ps[snum].cursectnum].lotag, sector[ps[snum].cursectnum].hitag);
 
 	return out;

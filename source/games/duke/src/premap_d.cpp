@@ -312,7 +312,7 @@ void prelevel_d(int g)
 	{
 		if (sprite[i].statnum < MAXSTATUS)
 		{
-			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 14)
+			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == SE_14_SUBWAY_CAR)
 				continue;
 			fi.spawn(-1, i);
 		}
@@ -321,7 +321,7 @@ void prelevel_d(int g)
 	for (i = 0; i < MAXSPRITES; i++)
 		if (sprite[i].statnum < MAXSTATUS)
 		{
-			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 14)
+			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == SE_14_SUBWAY_CAR)
 				fi.spawn(-1, i);
 		}
 
