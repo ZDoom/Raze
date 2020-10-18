@@ -74,6 +74,11 @@ struct PlayerHorizon
 		}
 	}
 
+	fixedhoriz osum()
+	{
+		return ohoriz + ohorizoff;
+	}
+
 	fixedhoriz sum()
 	{
 		return horiz + horizoff;
@@ -82,8 +87,8 @@ struct PlayerHorizon
 	fixedhoriz interpolatedsum(double const smoothratio)
 	{
 		double const ratio = smoothratio * (1. / FRACUNIT);
-		fixed_t const prev = (ohoriz + ohorizoff).asq16();
-		fixed_t const curr = (horiz + horizoff).asq16();
+		fixed_t const prev = osum().asq16();
+		fixed_t const curr = sum().asq16();
 		return q16horiz(prev + xs_CRoundToInt(ratio * (curr - prev)));
 	}
 };
@@ -157,6 +162,11 @@ struct PlayerAngle
 		}
 	}
 
+	binangle osum()
+	{
+		return bamang(oang.asbam() + olook_ang.asbam());
+	}
+
 	binangle sum()
 	{
 		return bamang(ang.asbam() + look_ang.asbam());
@@ -166,8 +176,8 @@ struct PlayerAngle
 	{
 		double const ratio = smoothratio * (1. / FRACUNIT);
 		uint32_t const dang = UINT32_MAX >> 1;
-		int64_t const prev = oang.asbam() + olook_ang.asbam();
-		int64_t const curr = ang.asbam() + look_ang.asbam();
+		int64_t const prev = osum().asbam();
+		int64_t const curr = sum().asbam();
 		return bamang(prev + xs_CRoundToUInt(ratio * (((curr + dang - prev) & 0xFFFFFFFF) - dang)));
 	}
 
