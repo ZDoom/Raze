@@ -1612,7 +1612,7 @@ void movestandables_d(void)
 //
 //---------------------------------------------------------------------------
 
-bool movefireball(int i)
+static bool movefireball(int i)
 {
 	auto s = &sprite[i];
 	auto ht = &hittype[i];
@@ -1663,6 +1663,65 @@ bool movefireball(int i)
 	return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static bool weaponhitsprite(int i, int j, bool fireball)
+{
+	auto s = &sprite[i];
+
+	if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
+		if (badguy(&sprite[j]) || sprite[j].picnum == APLAYER)
+		{
+			j = fi.spawn(i, TRANSPORTERSTAR);
+			sprite[j].pal = 1;
+			sprite[j].xrepeat = 32;
+			sprite[j].yrepeat = 32;
+
+			deletesprite(i);
+			return true;
+		}
+
+	if (!isWorldTour() || s->picnum != FIREBALL || fireball)
+		fi.checkhitsprite(j, i);
+
+	if (sprite[j].picnum == APLAYER)
+	{
+		int p = sprite[j].yvel;
+
+		if (ud.multimode >= 2 && fireball && sprite[s->owner].picnum == APLAYER)
+		{
+			ps[p].numloogs = -1 - sprite[i].yvel;
+		}
+
+		S_PlayActorSound(PISTOL_BODYHIT, j);
+
+		if (s->picnum == SPIT)
+		{
+			ps[p].horizon.addadjustment(32);
+			ps[p].sync.actions |= SB_CENTERVIEW;
+
+			if (ps[p].loogcnt == 0)
+			{
+				if (!S_CheckActorSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN))
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].i);
+
+				j = 3 + (krand() & 3);
+				ps[p].numloogs = j;
+				ps[p].loogcnt = 24 * 4;
+				for (int x = 0; x < j; x++)
+				{
+					ps[p].loogiex[x] = krand() % 320;
+					ps[p].loogiey[x] = krand() % 200;
+				}
+			}
+		}
+	}
+	return false;
+}
 
 //---------------------------------------------------------------------------
 //
@@ -1670,7 +1729,100 @@ bool movefireball(int i)
 //
 //---------------------------------------------------------------------------
 
-bool weaponcommon_d(int i)
+static bool weaponhitwall(int i, int j, const vec3_t &oldpos)
+{
+	auto s = &sprite[i];
+
+	if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT &&
+		(!isWorldTour() || s->picnum != FIREBALL) &&
+		(wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+	{
+		int k = getangle(
+			wall[wall[j].point2].x - wall[j].x,
+			wall[wall[j].point2].y - wall[j].y);
+		s->ang = ((k << 1) - s->ang) & 2047;
+		s->owner = i;
+		fi.spawn(i, TRANSPORTERSTAR);
+		return true;
+	}
+	else
+	{
+		setsprite(i, &oldpos);
+		fi.checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
+
+		if (s->picnum == FREEZEBLAST)
+		{
+			if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
+			{
+				s->extra >>= 1;
+				s->yvel--;
+			}
+
+			int k = getangle(
+				wall[wall[j].point2].x - wall[j].x,
+				wall[wall[j].point2].y - wall[j].y);
+			s->ang = ((k << 1) - s->ang) & 2047;
+			return true;
+		}
+	}
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static bool weaponhitsector(int i, const vec3_t& oldpos, bool fireball)
+{
+	auto s = &sprite[i];
+
+	setsprite(i, &oldpos);
+
+	if (s->zvel < 0)
+	{
+		if (sector[s->sectnum].ceilingstat & 1)
+			if (sector[s->sectnum].ceilingpal == 0)
+			{
+				deletesprite(i);
+				return true;
+			}
+
+		fi.checkhitceiling(s->sectnum);
+	}
+	else if (fireball)
+	{
+		int j = fi.spawn(i, LAVAPOOL);
+		sprite[j].owner = sprite[i].owner;
+		sprite[j].yvel = sprite[i].yvel;
+		hittype[j].owner = sprite[i].owner;
+		deletesprite(i);
+		return true;
+	}
+
+	if (s->picnum == FREEZEBLAST)
+	{
+		bounce(i);
+		ssp(i, CLIPMASK1);
+		s->extra >>= 1;
+		if (s->xrepeat > 8)
+			s->xrepeat -= 2;
+		if (s->yrepeat > 8)
+			s->yrepeat -= 2;
+		s->yvel--;
+		return true;
+	}
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void weaponcommon_d(int i)
 {
 	auto s = &sprite[i];
 
@@ -1680,6 +1832,7 @@ bool weaponcommon_d(int i)
 
 	int p = -1;
 	int k, ll;
+	auto oldpos = s->pos;
 
 	if (s->picnum == RPG && sector[s->sectnum].lotag == 2)
 	{
@@ -1692,12 +1845,7 @@ bool weaponcommon_d(int i)
 		ll = s->zvel;
 	}
 
-	int dax = s->x; 
-	int day = s->y; 
-	int daz = s->z;
-
 	getglobalz(i);
-	unsigned qq = CLIPMASK1;
 
 	switch (s->picnum)
 	{
@@ -1716,11 +1864,11 @@ bool weaponcommon_d(int i)
 
 	int j = fi.movesprite(i,
 		(k * (sintable[(s->ang + 512) & 2047])) >> 14,
-		(k * (sintable[s->ang & 2047])) >> 14, ll, qq);
+		(k * (sintable[s->ang & 2047])) >> 14, ll, CLIPMASK1);
 
 	if (s->picnum == RPG && s->yvel >= 0)
 		if (FindDistance2D(s->x - sprite[s->yvel].x, s->y - sprite[s->yvel].y) < 256)
-			j = 49152 | s->yvel;
+			j = kHitSprite | s->yvel;
 
 	if (s->sectnum < 0)
 	{
@@ -1728,18 +1876,18 @@ bool weaponcommon_d(int i)
 		return;
 	}
 
-	if ((j & 49152) != 49152 && s->picnum != FREEZEBLAST)
+	if ((j & kHitTypeMask) != kHitSprite && s->picnum != FREEZEBLAST)
 	{
 		if (s->z < hittype[i].ceilingz)
 		{
-			j = 16384 | (s->sectnum);
+			j = kHitSector | (s->sectnum);
 			s->zvel = -1;
 		}
 		else
 			if ((s->z > hittype[i].floorz && sector[s->sectnum].lotag != 1) ||
 				(s->z > hittype[i].floorz + (16 << 8) && sector[s->sectnum].lotag == 1))
 			{
-				j = 16384 | (s->sectnum);
+				j = kHitSector | (s->sectnum);
 				if (sector[s->sectnum].lotag != 1)
 					s->zvel = 1;
 			}
@@ -1766,7 +1914,7 @@ bool weaponcommon_d(int i)
 	{
 		if (s->picnum == COOLEXPLOSION1)
 		{
-			if ((j & 49152) == 49152 && sprite[j & (MAXSPRITES - 1)].picnum != APLAYER)
+			if ((j & kHitTypeMask) == kHitSprite && sprite[j & kHitIndexMask].picnum != APLAYER)
 			{
 				return;
 			}
@@ -1776,134 +1924,19 @@ bool weaponcommon_d(int i)
 
 		bool fireball = (isWorldTour() && s->picnum == FIREBALL && sprite[s->owner].picnum != FIREBALL);
 
-		if ((j & 49152) == 49152)
+		if ((j & kHitTypeMask) == kHitSprite)
 		{
-			j &= (MAXSPRITES - 1);
-
-			if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
-				if (badguy(&sprite[j]) || sprite[j].picnum == APLAYER)
-				{
-					j = fi.spawn(i, TRANSPORTERSTAR);
-					sprite[j].pal = 1;
-					sprite[j].xrepeat = 32;
-					sprite[j].yrepeat = 32;
-
-					deletesprite(i);
-					return;
-				}
-
-			if (!isWorldTour() || s->picnum != FIREBALL || fireball)
-				fi.checkhitsprite(j, i);
-
-			if (sprite[j].picnum == APLAYER)
-			{
-				p = sprite[j].yvel;
-
-				if (ud.multimode >= 2 && fireball && sprite[s->owner].picnum == APLAYER)
-				{
-					ps[p].numloogs = -1 - sprite[i].yvel;
-				}
-
-				S_PlayActorSound(PISTOL_BODYHIT, j);
-
-				if (s->picnum == SPIT)
-				{
-					ps[p].horizon.addadjustment(32);
-					ps[p].sync.actions |= SB_CENTERVIEW;
-
-					if (ps[p].loogcnt == 0)
-					{
-						if (!S_CheckActorSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN))
-							S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].i);
-
-						j = 3 + (krand() & 3);
-						ps[p].numloogs = j;
-						ps[p].loogcnt = 24 * 4;
-						for (int x = 0; x < j; x++)
-						{
-							ps[p].loogiex[x] = krand() % 320;
-							ps[p].loogiey[x] = krand() % 200;
-						}
-					}
-				}
-			}
+			j &= kHitIndexMask;
+			if (weaponhitsprite(i, j, fireball)) return;
 		}
-		else if ((j & 49152) == 32768)
+		else if ((j & kHitTypeMask) == kHitWall)
 		{
-			j &= (MAXWALLS - 1);
-
-			if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT &&
-				(!isWorldTour() || s->picnum != FIREBALL) &&
-				(wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
-			{
-				k = getangle(
-					wall[wall[j].point2].x - wall[j].x,
-					wall[wall[j].point2].y - wall[j].y);
-				s->ang = ((k << 1) - s->ang) & 2047;
-				s->owner = i;
-				fi.spawn(i, TRANSPORTERSTAR);
-				return;
-			}
-			else
-			{
-				setsprite(i, dax, day, daz);
-				fi.checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
-
-				if (s->picnum == FREEZEBLAST)
-				{
-					if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
-					{
-						s->extra >>= 1;
-						s->yvel--;
-					}
-
-					k = getangle(
-						wall[wall[j].point2].x - wall[j].x,
-						wall[wall[j].point2].y - wall[j].y);
-					s->ang = ((k << 1) - s->ang) & 2047;
-					return;
-				}
-			}
+			j &= kHitIndexMask;
+			if (weaponhitwall(i, j, oldpos)) return;
 		}
-		else if ((j & 49152) == 16384)
+		else if ((j & kHitTypeMask) == kHitSector)
 		{
-			setsprite(i, dax, day, daz);
-
-			if (s->zvel < 0)
-			{
-				if (sector[s->sectnum].ceilingstat & 1)
-					if (sector[s->sectnum].ceilingpal == 0)
-					{
-						deletesprite(i);
-						return;
-					}
-
-				fi.checkhitceiling(s->sectnum);
-			}
-			else if (fireball)
-			{
-				j = fi.spawn(i, LAVAPOOL);
-				sprite[j].owner = sprite[i].owner;
-				sprite[j].yvel = sprite[i].yvel;
-				hittype[j].owner = sprite[i].owner;
-				deletesprite(i);
-				return;
-			}
-
-			if (s->picnum == FREEZEBLAST)
-			{
-				bounce(i);
-				ssp(i, qq);
-				s->extra >>= 1;
-				if (s->xrepeat > 8)
-					s->xrepeat -= 2;
-				if (s->yrepeat > 8)
-					s->yrepeat -= 2;
-				s->yvel--;
-				return;
-			}
-
-
+			if (weaponhitsector(i, oldpos, fireball)) return;
 		}
 
 		if (s->picnum != SPIT)
@@ -1911,9 +1944,7 @@ bool weaponcommon_d(int i)
 			if (s->picnum == RPG)
 			{
 				k = fi.spawn(i, EXPLOSION2);
-				sprite[k].x = dax;
-				sprite[k].y = day;
-				sprite[k].z = daz;
+				sprite[k].pos = oldpos;
 
 				if (s->xrepeat < 10)
 				{
@@ -1937,7 +1968,7 @@ bool weaponcommon_d(int i)
 			{
 				k = fi.spawn(i, EXPLOSION2);
 				sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat >> 1;
-				if ((j & 49152) == 16384)
+				if ((j & kHitTypeMask) == kHitSector)
 				{
 					if (s->zvel < 0)
 					{

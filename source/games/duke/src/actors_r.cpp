@@ -1340,11 +1340,9 @@ void moveweapons_r(void)
 
 			if (j != 0)
 			{
-
-				//if ((j & kHitTypeMask) == kHitSprite) j &= kHitIndexMask; reminder for later.
-				if ((j & 49152) == 49152)
+				if ((j & kHitTypeMask) == kHitSprite)
 				{
-					j &= (MAXSPRITES - 1);
+					j &= kHitIndexMask;
 
 					if (isRRRA())
 					{
