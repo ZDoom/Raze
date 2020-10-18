@@ -11,8 +11,7 @@ fixed_t getincangleq16(fixed_t c, fixed_t n);
 struct PlayerHorizon
 {
 	fixedhoriz horiz, ohoriz, horizoff, ohorizoff;
-	fixed_t target;
-	double adjustment;
+	double adjustment, target;
 
 	void backup()
 	{
@@ -30,7 +29,7 @@ struct PlayerHorizon
 	{
 		if (!cl_syncinput)
 		{
-			adjustment += value;
+			adjustment += value * FRACUNIT;
 		}
 		else
 		{
@@ -47,7 +46,7 @@ struct PlayerHorizon
 	{
 		if (!cl_syncinput)
 		{
-			target = FloatToFixed(value);
+			target = value * FRACUNIT;
 			if (target == 0) target += 1;
 		}
 		else
@@ -71,7 +70,7 @@ struct PlayerHorizon
 		}
 		else if (adjustment)
 		{
-			horiz += q16horiz(FloatToFixed(scaleAdjust * adjustment));
+			horiz += q16horiz(xs_CRoundToInt(scaleAdjust * adjustment));
 		}
 	}
 
@@ -82,7 +81,7 @@ struct PlayerHorizon
 
 	fixedhoriz interpolatedsum(double const smoothratio)
 	{
-		double const ratio = smoothratio / FRACUNIT;
+		double const ratio = smoothratio * (1. / FRACUNIT);
 		fixed_t const prev = (ohoriz + ohorizoff).asq16();
 		fixed_t const curr = (horiz + horizoff).asq16();
 		return q16horiz(prev + xs_CRoundToInt(ratio * (curr - prev)));
@@ -113,7 +112,7 @@ struct PlayerAngle
 	{
 		if (!cl_syncinput)
 		{
-			adjustment += value;
+			adjustment += value * BAMUNIT;
 		}
 		else
 		{
@@ -144,9 +143,9 @@ struct PlayerAngle
 	{
 		if (target)
 		{
-			ang = bamang(ang.asbam() + xs_CRoundToInt(scaleAdjust * (target - ang.asbam())));
+			ang += bamang(xs_CRoundToUInt(scaleAdjust * (target - ang.asbam())));
 
-			if (ang.asbam() - target < BAMUNIT)
+			if (abs(ang.asbam() - target) < BAMUNIT)
 			{
 				ang = bamang(target);
 				target = 0;
@@ -154,7 +153,7 @@ struct PlayerAngle
 		}
 		else if (adjustment)
 		{
-			ang += bamang(xs_CRoundToUInt(scaleAdjust * adjustment * BAMUNIT));
+			ang += bamang(xs_CRoundToUInt(scaleAdjust * adjustment));
 		}
 	}
 
