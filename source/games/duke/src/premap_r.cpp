@@ -513,7 +513,9 @@ void prelevel_r(int g)
 			{
 				if (sector[i].hitag == sector[j].hitag && j != i)
 				{
-					addjaildoor(dist, speed, sector[i].hitag, sector[j].lotag, sound, j);
+					// & 32767 to avoid some ordering issues here. 
+					// Other code assumes that the lotag is always a sector effector type and can mask the high bit in.
+					addjaildoor(dist, speed, sector[i].hitag, sector[j].lotag & 32767, sound, j);
 				}
 			}
 			break;

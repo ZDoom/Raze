@@ -147,6 +147,12 @@ void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int j)
 	if (jaildoorcnt >= 32)
 		I_Error("Too many jaildoor sectors");
 
+	if (jlt != 10 && jlt != 20 && jlt != 30 && jlt != 40)
+	{
+		Printf(PRINT_HIGH, "Bad direction %d for jail door with tag %d\n", iht);
+		return;	// wouldn't work so let's skip it.
+	}
+
 	jaildoordist[jaildoorcnt] = p1;
 	jaildoorspeed[jaildoorcnt] = p2;
 	jaildoorsecthtag[jaildoorcnt] = iht;
@@ -283,23 +289,21 @@ void dojaildoor(void)
 				endwall = startwall + sector[jaildoorsect[i]].wallnum;
 				for (j = startwall; j < endwall; j++)
 				{
+					x = wall[j].x;
+					y = wall[j].y;
 					switch (jaildoordir[i])
 					{
 						case 10:
-							x = wall[j].x;
-							y = wall[j].y + speed;
+							y += speed;
 							break;
 						case 20:
-							x = wall[j].x - speed;
-							y = wall[j].y;
+							x -= speed;
 							break;
 						case 30:
-							x = wall[j].x;
-							y = wall[j].y - speed;
+							y -= speed;
 							break;
 						case 40:
-							x = wall[j].x + speed;
-							y = wall[j].y;
+							x += speed;
 							break;
 					}
 					dragpoint(j,x,y);
