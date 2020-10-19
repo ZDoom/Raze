@@ -22,9 +22,9 @@ inline int badguypic(int const tileNum)
 	return ((actorinfo[tileNum].flags & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY)) != 0);
 }
 
-inline int badguy(void const * const pSprite)
+inline int badguy(spritetype const * const pSprite)
 {
-	return badguypic(((uspritetype const *) pSprite)->picnum);
+	return badguypic(pSprite->picnum);
 }
 
 inline int bossguypic(int const tileNum)
@@ -32,9 +32,9 @@ inline int bossguypic(int const tileNum)
 	return ((actorinfo[tileNum].flags & (SFLAG_BOSS)) != 0);
 }
 
-inline int bossguy(void const* const pSprite)
+inline int bossguy(spritetype const* const pSprite)
 {
-	return badguypic(((uspritetype const*)pSprite)->picnum);
+	return bossguypic(pSprite->picnum);
 }
 
 inline int actorflag(int spritenum, int mask)
