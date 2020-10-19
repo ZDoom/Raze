@@ -858,7 +858,7 @@ TArray<GrpEntry> GrpScan()
 	{
 		for (unsigned j = foundGames.Size() - 1; j > i; j--)
 		{
-			if (foundGames[i].FileInfo.CRC == foundGames[j].FileInfo.CRC && foundGames[j].FileInfo.CRC != 0)
+			if (foundGames[i].FileInfo.CRC == foundGames[j].FileInfo.CRC && (foundGames[j].FileInfo.CRC != 0 || foundGames[i].FileInfo.name == foundGames[j].FileInfo.name))
 				foundGames.Delete(j);
 		}
 	}
