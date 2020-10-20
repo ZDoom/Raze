@@ -226,75 +226,6 @@ static void shootflamethrowerflame(int i, int p, int sx, int sy, int sz, int sa)
 //
 //---------------------------------------------------------------------------
 
-static void shootbloodsplat(int i, int p, int sx, int sy, int sz, int sa, int atwith)
-{
-	spritetype* const s = &sprite[i];
-	int sect = s->sectnum;
-	int zvel;
-	short hitsect, hitspr, hitwall, k;
-	int hitx, hity, hitz;
-
-	if (p >= 0)
-		sa += 64 - (krand() & 127);
-	else sa += 1024 + 64 - (krand() & 127);
-	zvel = 1024 - (krand() & 2047);
-
-
-	hitscan(sx, sy, sz, sect,
-		sintable[(sa + 512) & 2047],
-		sintable[sa & 2047], zvel << 6,
-		&hitsect, &hitwall, &hitspr, &hitx, &hity, &hitz, CLIPMASK1);
-
-	// oh my...
-	if (FindDistance2D(sx - hitx, sy - hity) < 1024 &&
-		(hitwall >= 0 && wall[hitwall].overpicnum != BIGFORCE) &&
-		((wall[hitwall].nextsector >= 0 && hitsect >= 0 &&
-			sector[wall[hitwall].nextsector].lotag == 0 &&
-			sector[hitsect].lotag == 0 &&
-			sector[wall[hitwall].nextsector].lotag == 0 &&
-			(sector[hitsect].floorz - sector[wall[hitwall].nextsector].floorz) > (16 << 8)) ||
-			(wall[hitwall].nextsector == -1 && sector[hitsect].lotag == 0)))
-	{
-		if ((wall[hitwall].cstat & 16) == 0)
-		{
-			if (wall[hitwall].nextsector >= 0)
-			{
-				SectIterator it(wall[hitwall].nextsector);
-				while ((k = it.NextIndex()) >= 0)
-				{
-					if (sprite[k].statnum == 3 && sprite[k].lotag == 13)
-						return;
-				}
-			}
-
-			if (wall[hitwall].nextwall >= 0 &&
-				wall[wall[hitwall].nextwall].hitag != 0)
-				return;
-
-			if (wall[hitwall].hitag == 0)
-			{
-				k = fi.spawn(i, atwith);
-				sprite[k].xvel = -12;
-				sprite[k].ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) + 512;
-				sprite[k].x = hitx;
-				sprite[k].y = hity;
-				sprite[k].z = hitz;
-				sprite[k].cstat |= (krand() & 4);
-				ssp(k, CLIPMASK0);
-				setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
-				if (s->picnum == OOZFILTER || s->picnum == NEWBEAST)
-					sprite[k].pal = 6;
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void shootknee(int i, int p, int sx, int sy, int sz, int sa)
 {
 	spritetype* const s = &sprite[i];
@@ -604,10 +535,8 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 				fi.spawn(k, SMALLSMOKE);
 			else sprite[k].xrepeat = sprite[k].yrepeat = 0;
 		}
-		else if (hitwall >= 0) {
-
+		else if (hitwall >= 0)
 			fi.checkhitwall(k, hitwall, hitx, hity, hitz, SHOTSPARK1);
-		}
 	}
 
 	if ((krand() & 255) < 4)
@@ -1144,7 +1073,7 @@ void shoot_d(int i, int atwith)
 	case BLOODSPLAT2:
 	case BLOODSPLAT3:
 	case BLOODSPLAT4:
-		shootbloodsplat(i, p, sx, sy, sz, sa, atwith);
+		shootbloodsplat(i, p, sx, sy, sz, sa, atwith, BIGFORCE, OOZFILTER, NEWBEAST);
 		break;
 
 	case KNEE:
