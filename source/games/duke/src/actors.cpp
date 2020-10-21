@@ -927,20 +927,17 @@ void moveflammable(DDukeActor* actor, int tire, int box, int pool)
 //
 //---------------------------------------------------------------------------
 
-void detonate(int i, int explosion)
+void detonate(DDukeActor *actor, int explosion)
 {
-	auto spri = &sprite[i];
-	auto actor = &hittype[i];
-	auto t = &hittype[i].temp_data[0];
+	auto spri = &actor->s;
+	int* t = &actor->temp_data[0];
 	earthquaketime = 16;
 
-	int j;
-	StatIterator itj(STAT_EFFECTOR);
-	while ((j = itj.NextIndex()) >= 0)
+	DukeStatIterator itj(STAT_EFFECTOR);
+	while (auto effector = itj.Next())
 	{
-		auto sj = &sprite[j];
-		auto effector = &hittype[j];
-		if (spri->hitag == sj->hitag)
+		auto sj = &effector->s;
+		if (actor->s.hitag == sj->hitag)
 		{
 			if (sj->lotag == SE_13_EXPLOSIVE)
 			{
@@ -964,15 +961,15 @@ void detonate(int i, int explosion)
 	if ((t[3] == 1 && spri->xrepeat) || spri->lotag == -99)
 	{
 		int x = spri->extra;
-		fi.spawn(i, explosion);
-		fi.hitradius(i, seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
-		S_PlayActorSound(PIPEBOMB_EXPLODE, i);
+		spawn(actor, explosion);
+		fi.hitradius(actor->GetIndex(), seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
+		S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
 	}
 
 	if (spri->xrepeat)
-		for (int x = 0; x < 8; x++) RANDOMSCRAP(spri, i);
+		for (int x = 0; x < 8; x++) RANDOMSCRAP(actor);
 
-	deletesprite(i);
+	deletesprite(actor);
 
 }
 
@@ -982,23 +979,21 @@ void detonate(int i, int explosion)
 //
 //---------------------------------------------------------------------------
 
-void movemasterswitch(int i, int spectype1, int spectype2)
+void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 {
-	auto spri = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto spri = &actor->s;
 	if (spri->yvel == 1)
 	{
 		spri->hitag--;
 		if (spri->hitag <= 0)
 		{
-			operatesectors(spri->sectnum, i);
+			operatesectors(spri->sectnum, actor);
 
-			SectIterator it(spri->sectnum);
-			int j;
-			while ((j = it.NextIndex()) >= 0)
+			DukeSectIterator it(spri->sectnum);
+			while (auto effector = it.Next())
 			{
-				auto sj = &sprite[j];
-				if (sj->statnum == 3)
+				auto sj = &effector->s;
+				if (sj->statnum == STAT_EFFECTOR)
 				{
 					switch (sj->lotag)
 					{
@@ -1007,10 +1002,10 @@ void movemasterswitch(int i, int spectype1, int spectype2)
 					case SE_31_FLOOR_RISE_FALL:
 					case SE_32_CEILING_RISE_FALL:
 					case SE_36_PROJ_SHOOTER:
-						hittype[j].temp_data[0] = 1;
+						effector->temp_data[0] = 1;
 						break;
 					case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
-						hittype[j].temp_data[4] = 1;
+						effector->temp_data[4] = 1;
 						break;
 					}
 				}
@@ -1022,7 +1017,7 @@ void movemasterswitch(int i, int spectype1, int spectype2)
 					}
 				}
 			}
-			deletesprite(i);
+			deletesprite(actor);
 		}
 	}
 }

@@ -260,4 +260,19 @@ inline int findplayer(DDukeActor* act, int* x)
 	return findplayer(&act->s, x);
 }
 
+inline void operatesectors(int s, DDukeActor* i)
+{
+	operatesectors(s, i->GetIndex());
+}
+
+inline void detonate(int i, int explosion)
+{
+	detonate(&hittype[i], explosion);
+}
+
+inline void movemasterswitch(int i, int spectype1, int spectype2)
+{
+	movemasterswitch(&hittype[i], spectype1, spectype2);
+}
+
 END_DUKE_NS
