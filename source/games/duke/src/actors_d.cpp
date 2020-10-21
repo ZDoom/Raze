@@ -3628,7 +3628,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case SE_30_TWO_WAY_TRAIN:
-			handle_se30(i, JIBS6);
+			handle_se30(&hittype[i], JIBS6);
 			break;
 
 

@@ -2998,25 +2998,26 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 //
 //---------------------------------------------------------------------------
 
-void handle_se30(int i, int JIBS6)
+void handle_se30(DDukeActor *actor, int JIBS6)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
 
-	if (s->owner == -1)
+	auto Owner = actor->GetOwner();
+	if (Owner == nullptr)
 	{
 		t[3] = !t[3];
-		hittype[i].SetOwner(LocateTheLocator(t[3], t[0]));
+		Owner = LocateTheLocator(t[3], t[0]);
+		actor->SetOwner(Owner);
 	}
 	else
 	{
-
 		if (t[4] == 1) // Starting to go
 		{
-			if (ldist(&sprite[s->owner], s) < (2048 - 128))
+			if (ldist(Owner, actor) < (2048 - 128))
 				t[4] = 2;
 			else
 			{
@@ -3028,7 +3029,7 @@ void handle_se30(int i, int JIBS6)
 		}
 		if (t[4] == 2)
 		{
-			int l = FindDistance2D(sprite[s->owner].x - s->x, sprite[s->owner].y - s->y);
+			int l = FindDistance2D(Owner->s.x - s->x, Owner->s.y - s->y);
 
 			if (l <= 128)
 				s->xvel = 0;
@@ -3039,20 +3040,18 @@ void handle_se30(int i, int JIBS6)
 			{
 				s->xvel = 0;
 				operateactivators(s->hitag + (short)t[3], -1);
-				s->owner = -1;
+				actor->SetOwner(nullptr);
 				s->ang += 1024;
 				t[4] = 0;
-				fi.operateforcefields(i, s->hitag);
+				fi.operateforcefields(actor->GetIndex(), s->hitag);
 
-				SectIterator it(s->sectnum);
-				int j;
-				while ((j = it.NextIndex()) >= 0)
+				DukeSectIterator it(s->sectnum);
+				while (auto a2 = it.Next())
 				{
-					auto sj = &sprite[j];
-					if (sj->picnum != SECTOREFFECTOR && sj->picnum != LOCATORS)
+					if (a2->s.picnum != SECTOREFFECTOR && a2->s.picnum != LOCATORS)
 					{
-						hittype[j].bposx = sj->x;
-						hittype[j].bposy = sj->y;
+						a2->bposx = a2->s.x;
+						a2->bposy = a2->s.y;
 					}
 				}
 
@@ -3068,7 +3067,9 @@ void handle_se30(int i, int JIBS6)
 		if ((sc->floorz - sc->ceilingz) < (108 << 8))
 			if (ud.clipping == 0)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
-					if (sprite[ps[p].i].extra > 0)
+					{
+					auto psp = ps[p].GetActor();
+					if (psp->s.extra > 0)
 					{
 						short k = ps[p].cursectnum;
 						updatesector(ps[p].posx, ps[p].posy, &k);
@@ -3078,14 +3079,15 @@ void handle_se30(int i, int JIBS6)
 							ps[p].posy = s->y;
 							ps[p].cursectnum = s->sectnum;
 
-							setsprite(ps[p].i, s->x, s->y, s->z);
+							setsprite(ps[p].GetActor(), s->pos);
 							quickkill(&ps[p]);
 						}
 					}
-
+				}
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			if (sprite[ps[p].i].sectnum == s->sectnum)
+			auto psp = ps[p].GetActor();
+			if (psp->s.sectnum == s->sectnum)
 			{
 				ps[p].posx += l;
 				ps[p].posy += x;
@@ -3107,12 +3109,10 @@ void handle_se30(int i, int JIBS6)
 			}
 		}
 
-		SectIterator its(s->sectnum);
-		int j;
-		while ((j = its.NextIndex()) >= 0)
+		DukeSectIterator its(s->sectnum);
+		while (auto a2 = its.Next())
 		{
-			auto spa2 = &sprite[j];
-			auto a2 = &hittype[j];
+			auto spa2 = &a2->s;
 			if (spa2->picnum != SECTOREFFECTOR && spa2->picnum != LOCATORS)
 			{
 				if (numplayers < 2)
@@ -3132,14 +3132,14 @@ void handle_se30(int i, int JIBS6)
 			}
 		}
 
-		ms(i);
-		setsprite(i, s->x, s->y, s->z);
+		ms(actor);
+		setsprite(actor, s->pos);
 
 		if ((sc->floorz - sc->ceilingz) < (108 << 8))
 		{
 			if (ud.clipping == 0)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
-					if (sprite[ps[p].i].extra > 0)
+					if (ps[p].GetActor()->s.extra > 0)
 					{
 						short k = ps[p].cursectnum;
 						updatesector(ps[p].posx, ps[p].posy, &k);
@@ -3153,32 +3153,33 @@ void handle_se30(int i, int JIBS6)
 
 							ps[p].cursectnum = s->sectnum;
 
-							setsprite(ps[p].i, s->x, s->y, s->z);
+							setsprite(ps[p].GetActor(), s->pos);
 							quickkill(&ps[p]);
 						}
 					}
 
-			SectIterator it(sprite[sprite[i].owner].sectnum);
-			while ((j = it.NextIndex()) >= 0)
+			if (Owner)
 			{
-				auto sj = &sprite[j];
-				if (sj->statnum == 1 && badguy(&sprite[j]) && sj->picnum != SECTOREFFECTOR && sj->picnum != LOCATORS)
+				DukeSectIterator it(Owner->s.sectnum);
+				while (auto a2 = it.Next())
 				{
-					//					if(sj->sectnum != s->sectnum)
+					if (a2->s.statnum == 1 && badguy(a2) && a2->s.picnum != SECTOREFFECTOR && a2->s.picnum != LOCATORS)
 					{
-						short k = sj->sectnum;
-						updatesector(sj->x, sj->y, &k);
-						if (sj->extra >= 0 && k == s->sectnum)
+						//					if(a2->s.sectnum != s->sectnum)
 						{
-							fi.gutsdir(&sprite[j], JIBS6, 24, myconnectindex);
-							S_PlayActorSound(SQUISHED, j);
-							deletesprite(j);
+							short k = a2->s.sectnum;
+							updatesector(a2->s.x, a2->s.y, &k);
+							if (a2->s.extra >= 0 && k == s->sectnum)
+							{
+								fi.gutsdir(&a2->s, JIBS6, 24, myconnectindex);
+								S_PlayActorSound(SQUISHED, a2);
+								deletesprite(a2);
 						}
 					}
-
 				}
 			}
 		}
+	}
 	}
 }
 
