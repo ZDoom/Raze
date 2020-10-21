@@ -918,7 +918,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
 	if (!cl_syncinput)
 	{
-		if (p->dead_flag == 0)
+		if (sprite[p->i].extra > 0)
 		{
 			// Do these in the same order as the old code.
 			calcviewpitch(p, scaleAdjust);
