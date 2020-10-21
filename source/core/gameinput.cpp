@@ -387,7 +387,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, 
 			w.ohoriz = w.horiz;
 			w.ohorizoff = w.horizoff;
 			w.resetadjustment();
-			w.settarget(0);
 		}
 	}
 	return arc;
