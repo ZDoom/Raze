@@ -240,6 +240,14 @@ inline void ms(short i)
 	ms(&hittype[i]);
 }
 
+inline void execute(DDukeActor* act, int a, int b)
+{
+	execute(act->GetIndex(), a, b);
+}
 
+inline void makeitfall(DDukeActor* act)
+{
+	makeitfall(act->GetIndex());
+}
 
 END_DUKE_NS

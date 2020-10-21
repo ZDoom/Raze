@@ -360,19 +360,19 @@ void movecyclers(void)
 
 void movedummyplayers(void)
 {
-	int i, p;
+	int p;
 
-	StatIterator iti(STAT_DUMMYPLAYER);
-	while ((i = iti.NextIndex()) >= 0)
+	DukeStatIterator iti(STAT_DUMMYPLAYER);
+	while (auto act = iti.Next())
 	{
-		auto spri = &sprite[i];
-		auto act = &hittype[i];
-		p = sprite[spri->owner].yvel;
+		if (!act->GetOwner()) continue;
+		p = act->GetOwner()->PlayerIndex();
+		auto spri = &act->s;
 
-		if ((!isRR() && ps[p].on_crane != nullptr) || sector[ps[p].cursectnum].lotag != 1 || sprite[ps[p].i].extra <= 0)
+		if ((!isRR() && ps[p].on_crane != nullptr) || sector[ps[p].cursectnum].lotag != 1 || ps->GetActor()->s.extra <= 0)
 		{
 			ps[p].dummyplayersprite = -1;
-			deletesprite(i);
+			deletesprite(act);
 			continue;
 		}
 		else
@@ -395,7 +395,7 @@ void movedummyplayers(void)
 
 		spri->x += (ps[p].posx - ps[p].oposx);
 		spri->y += (ps[p].posy - ps[p].oposy);
-		setsprite(i, spri->x, spri->y, spri->z);
+		setsprite(act, spri->pos);
 	}
 }
 
@@ -405,18 +405,17 @@ void movedummyplayers(void)
 //
 //---------------------------------------------------------------------------
 
-void moveplayers(void) //Players
+void moveplayers(void)
 {
-	int i;
 	int otherx;
 
-	StatIterator iti(STAT_PLAYER);
-	while ((i = iti.NextIndex()) >= 0)
+	DukeStatIterator iti(STAT_PLAYER);
+	while (auto act = iti.Next())
 	{
-		auto spri = &sprite[i];
-		auto act = &hittype[i];
-		auto p = &ps[spri->yvel];
-		if (spri->owner >= 0)
+		int pn = act->PlayerIndex();
+		auto p = &ps[pn];
+		auto spri = &act->s;
+		if (act->GetOwner())
 		{
 			if (p->newowner >= 0) //Looking thru the camera
 			{
@@ -424,24 +423,26 @@ void moveplayers(void) //Players
 				spri->y = p->oposy;
 				act->bposz = spri->z = p->oposz + PHEIGHT;
 				spri->ang = p->angle.oang.asbuild();
-				setsprite(i, spri->x, spri->y, spri->z);
+				setsprite(act, spri->pos);
 			}
 			else
 			{
 				if (ud.multimode > 1)
-					otherp = findotherplayer(spri->yvel, &otherx);
+					otherp = findotherplayer(pn, &otherx);
 				else
 				{
-					otherp = spri->yvel;
+					otherp = pn;
 					otherx = 0;
 				}
 
-				execute(i, spri->yvel, otherx);
+				execute(act, pn, otherx);
 
 				if (ud.multimode > 1)
-					if (sprite[ps[otherp].i].extra > 0)
+				{
+					auto psp = ps[otherp].GetActor();
+					if (psp->s.extra > 0)
 					{
-						if (spri->yrepeat > 32 && sprite[ps[otherp].i].yrepeat < 32)
+						if (spri->yrepeat > 32 && psp->s.yrepeat < 32)
 						{
 							if (otherx < 1400 && p->knee_incs == 0)
 							{
@@ -451,7 +452,7 @@ void moveplayers(void) //Players
 							}
 						}
 					}
-
+				}
 				if (ud.god)
 				{
 					spri->extra = max_player_health;
@@ -469,7 +470,7 @@ void moveplayers(void) //Players
 				{
 					// currently alive...
 
-					act->owner = i;
+					act->SetHitOwner(act);
 
 					if (ud.god == 0)
 						if (fi.ceilingspace(spri->sectnum) || fi.floorspace(spri->sectnum))
@@ -495,7 +496,7 @@ void moveplayers(void) //Players
 		{
 			if (p->holoduke_on == nullptr)
 			{
-				deletesprite(i);
+				deletesprite(act);
 				continue;
 			}
 
@@ -517,7 +518,7 @@ void moveplayers(void) //Players
 			{
 				spri->yrepeat = 36;
 				if (sector[spri->sectnum].lotag != ST_2_UNDERWATER)
-					makeitfall(i);
+					makeitfall(act);
 				if (spri->zvel == 0 && sector[spri->sectnum].lotag == ST_1_ABOVE_WATER)
 					spri->z += (32 << 8);
 			}
@@ -527,14 +528,12 @@ void moveplayers(void) //Players
 				spri->xvel = 128;
 				spri->ang = p->angle.ang.asbuild();
 				spri->extra++;
-				//IFMOVING;		// JBF 20040825: is really "if (ssp(i,CLIPMASK0)) ;" which is probably
-				ssp(i, CLIPMASK0);	// not the safest of ideas because a zealous optimiser probably sees
-							// it as redundant, so I'll call the "ssp(i,CLIPMASK0)" explicitly.
+				ssp(act, CLIPMASK0);
 			}
 			else
 			{
 				spri->ang = 2047 - (p->angle.ang.asbuild());
-				setsprite(i, spri->x, spri->y, spri->z);
+				setsprite(act, spri->pos);
 			}
 		}
 
