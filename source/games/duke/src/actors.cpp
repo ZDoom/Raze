@@ -794,7 +794,7 @@ void movecrane(DDukeActor *actor, int crane)
 	{
 		int p = findplayer(actor, &x);
 
-		int j = fi.ifhitbyweapon(actor->GetIndex());
+		int j = fi.ifhitbyweapon(actor);
 		if (j >= 0)
 		{
 			if (actor->IsActiveCrane())
@@ -1209,7 +1209,7 @@ void moveooz(int i, int seenine, int seeninedead, int ooz, int explosion)
 	if (s->shade != -32 && s->shade != -33)
 	{
 		if (s->xrepeat)
-			j = (fi.ifhitbyweapon(i) >= 0);
+			j = (fi.ifhitbyweapon(&hittype[i]) >= 0);
 		else
 			j = 0;
 
@@ -1286,7 +1286,7 @@ void movecanwithsomething(int i)
 {
 	auto s = &sprite[i];
 	makeitfall(i);
-	int j = fi.ifhitbyweapon(i);
+	int j = fi.ifhitbyweapon(&hittype[i]);
 	if (j >= 0)
 	{
 		S_PlayActorSound(VENT_BUST, i);
@@ -1680,7 +1680,7 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 		}
 		else if (actor_tog == 2) s->cstat = 257;
 	}
-	j = fi.ifhitbyweapon(i); if (j >= 0)
+	j = fi.ifhitbyweapon(&hittype[i]); if (j >= 0)
 	{
 		if (s->extra < 0 && t[0] != -1)
 		{
@@ -1993,7 +1993,7 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 	}
 	else
 	{
-		int j = fi.ifhitbyweapon(i);
+		int j = fi.ifhitbyweapon(&hittype[i]);
 		if (j >= 0)
 		{
 			for (x = 0; x < 32; x++)
@@ -2018,7 +2018,7 @@ void camera(int i)
 	{
 		if (camerashitable)
 		{
-			int j = fi.ifhitbyweapon(i);
+			int j = fi.ifhitbyweapon(&hittype[i]);
 			if (j >= 0)
 			{
 				t[0] = 1; // static
@@ -3471,7 +3471,7 @@ void handle_se05(int i, int FIRELASER)
 			getincangle(t[2] + 512, getangle(ps[p].posx - s->x, ps[p].posy - s->y)) >> 2;
 		sc->ceilingshade = 0;
 	}
-	j = fi.ifhitbyweapon(i);
+	j = fi.ifhitbyweapon(&hittype[i]);
 	if (j >= 0)
 	{
 		t[3]++;

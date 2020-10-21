@@ -1560,7 +1560,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_ifhitweapon:
-		parseifelse(fi.ifhitbyweapon(g_i) >= 0);
+		parseifelse(fi.ifhitbyweapon(g_ac) >= 0);
 		break;
 	case concmd_ifsquished:
 		parseifelse(ifsquished(g_i, g_p) == 1);

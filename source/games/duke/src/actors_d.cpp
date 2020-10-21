@@ -859,12 +859,11 @@ int ifhitsectors_d(int sectnum)
 //
 //---------------------------------------------------------------------------
 
-int ifhitbyweapon_d(int sn)
+int ifhitbyweapon_d(DDukeActor *actor)
 {
-	short j, p;
-	auto spri = &sprite[sn];
-	auto actor = &hittype[sn];
-	auto htowner = actor->owner < 0? nullptr : &sprite[actor->owner];
+	short p;
+	auto spri = &actor->s;
+	auto hitowner = actor->GetHitOwner();
 
 	if (actor->extra >= 0)
 	{
@@ -875,31 +874,28 @@ int ifhitbyweapon_d(int sn)
 				if (ud.god && actor->picnum != SHRINKSPARK) return -1;
 
 				p = spri->yvel;
-				j = actor->owner;
-
-				if (j >= 0 &&
-					sprite[j].picnum == APLAYER &&
+				
+				if (hitowner &&
+					hitowner->s.picnum == APLAYER &&
 					ud.coop == 1 &&
 					ud.ffire == 0)
 					return -1;
 
 				spri->extra -= actor->extra;
 
-				if (j >= 0)
+				if (hitowner)
 				{
 					if (spri->extra <= 0 && actor->picnum != FREEZEBLAST)
 					{
 						spri->extra = 0;
 
-						ps[p].wackedbyactor = &hittype[j];
+						ps[p].wackedbyactor = hitowner;
 
-						if (htowner->picnum == APLAYER && p != htowner->yvel)
+						if (hitowner->s.picnum == APLAYER && p != hitowner->PlayerIndex())
 						{
-							// yvel contains player ID
-							ps[p].frag_ps = sprite[j].yvel;
+							ps[p].frag_ps = hitowner->PlayerIndex();
 						}
-
-						actor->owner = ps[p].i;
+						actor->SetHitOwner(ps[p].GetActor());
 					}
 				}
 
@@ -938,8 +934,9 @@ int ifhitbyweapon_d(int sn)
 				}
 
 				spri->extra -= actor->extra;
-				if (spri->picnum != RECON && spri->owner >= 0 && sprite[spri->owner].statnum < MAXSTATUS)
-					spri->owner = actor->owner;
+				auto Owner = actor->GetOwner();
+				if (spri->picnum != RECON && Owner && Owner->s.statnum < MAXSTATUS)
+					actor->SetOwner(hitowner);
 			}
 
 			actor->extra = -1;
@@ -953,22 +950,22 @@ int ifhitbyweapon_d(int sn)
 		|| actor->extra >= 0
 		|| spri->extra > 0
 		|| spri->picnum != APLAYER
-		|| ps[spri->yvel].numloogs > 0
-		|| actor->owner < 0)
+		|| ps[actor->PlayerIndex()].numloogs > 0
+		|| hitowner == nullptr)
 	{
 		actor->extra = -1;
 		return -1;
 	}
 	else
 	{
-		p = spri->yvel;
+		p = actor->PlayerIndex();
 		spri->extra = 0;
-		ps[p].wackedbyactor = actor->GetHitOwner();
+		ps[p].wackedbyactor = hitowner;
 
-		if (htowner->picnum == APLAYER && p != actor->owner)
-			ps[p].frag_ps = (short)actor->owner;
+		if (hitowner->s.picnum == APLAYER && hitowner != ps[p].GetActor())
+			ps[p].frag_ps = hitowner->PlayerIndex(); // set the proper player index here - this previously set the sprite index...
 
-		actor->owner = ps[p].i;
+		actor->SetHitOwner(ps[p].GetActor());
 		actor->extra = -1;
 
 		return FLAMETHROWERFLAME;
@@ -1000,7 +997,7 @@ void movefallers_d(void)
 			s->z -= (16 << 8);
 			ht->temp_data[1] = s->ang;
 			x = s->extra;
-			j = fi.ifhitbyweapon(i);
+			j = fi.ifhitbyweapon(&hittype[i]);
 			if (j >= 0)
 			{
 				if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
@@ -1138,7 +1135,7 @@ static void movetripbomb(int i)
 		x = s->extra;
 		s->extra = 1;
 		int16_t l = s->ang;
-		j = fi.ifhitbyweapon(i);
+		j = fi.ifhitbyweapon(&hittype[i]);
 		if (j >= 0)
 		{ 
 			hittype[i].temp_data[2] = 16; 
@@ -1263,7 +1260,7 @@ static void movecrack(int i)
 	{
 		t[0] = s->cstat;
 		t[1] = s->ang;
-		int j = fi.ifhitbyweapon(i);
+		int j = fi.ifhitbyweapon(&hittype[i]);
 		if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 		{
 			StatIterator it(STAT_STANDABLE);
@@ -1293,7 +1290,7 @@ static void movecrack(int i)
 
 static void movefireext(int i)
 {
-	int j = fi.ifhitbyweapon(i);
+	int j = fi.ifhitbyweapon(&hittype[i]);
 	if (j == -1) return;
 
 	auto s = &sprite[i];
@@ -2459,7 +2456,7 @@ static void greenslime(int i)
 		s->picnum = GREENSLIME + 2;
 		s->extra = 1;
 		s->pal = 1;
-		j = fi.ifhitbyweapon(i); if (j >= 0)
+		j = fi.ifhitbyweapon(&hittype[i]); if (j >= 0)
 		{
 			if (j == FREEZEBLAST)
 				return;
@@ -2594,7 +2591,7 @@ static void greenslime(int i)
 		}
 	}
 
-	j = fi.ifhitbyweapon(i); if (j >= 0)
+	j = fi.ifhitbyweapon(&hittype[i]); if (j >= 0)
 	{
 		S_PlayActorSound(SLIM_DYING, i);
 
@@ -2934,7 +2931,7 @@ static void heavyhbomb(int i)
 
 	if (t[3] == 0)
 	{
-		j = fi.ifhitbyweapon(i);
+		j = fi.ifhitbyweapon(&hittype[i]);
 		if (j >= 0)
 		{
 			t[3] = 1;
@@ -3175,7 +3172,7 @@ void moveactors_d(void)
 			}
 			else
 			{
-				j = fi.ifhitbyweapon(i);
+				j = fi.ifhitbyweapon(&hittype[i]);
 				if (j >= 0)
 				{
 					s->cstat = 32 + 128;

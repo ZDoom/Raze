@@ -688,48 +688,43 @@ int ifhitsectors_r(int sectnum)
 //
 //---------------------------------------------------------------------------
 
-int ifhitbyweapon_r(int sn)
+int ifhitbyweapon_r(DDukeActor *actor)
 {
-	short j, p;
-	auto actor = &hittype[sn];
+	int p;
+	auto hitowner = actor->GetHitOwner();
 	auto spri = &actor->s;
 
 	if (actor->extra >= 0)
 	{
 		if (spri->extra >= 0)
 		{
-			spri = &sprite[sn];
-
 			if (spri->picnum == APLAYER)
 			{
 				if (ud.god) return -1;
 
-				p = spri->yvel;
-				j = actor->owner;
+				p = actor->PlayerIndex();
 
-				if (j >= 0 &&
-					sprite[j].picnum == APLAYER &&
+				if (hitowner &&
+					hitowner->s.picnum == APLAYER &&
 					ud.coop == 1 &&
 					ud.ffire == 0)
 					return -1;
 
 				spri->extra -= actor->extra;
 
-				if (j >= 0)
+				if (hitowner)
 				{
 					if (spri->extra <= 0 && actor->picnum != FREEZEBLAST)
 					{
 						spri->extra = 0;
 
-						ps[p].wackedbyactor = &hittype[j];
+						ps[p].wackedbyactor = hitowner;
 
-						if (sprite[actor->owner].picnum == APLAYER && p != sprite[actor->owner].yvel)
+						if (hitowner->s.picnum == APLAYER && p != hitowner->PlayerIndex())
 						{
-							// yvel contains player ID
-							ps[p].frag_ps = sprite[j].yvel;
+							ps[p].frag_ps = hitowner->PlayerIndex();
 						}
-
-						actor->owner = ps[p].i;
+						actor->SetHitOwner(ps[p].GetActor());
 					}
 				}
 
@@ -766,8 +761,8 @@ int ifhitbyweapon_r(int sn)
 						return -1;
 
 				spri->extra -= actor->extra;
-				if (spri->picnum != RECON && spri->owner >= 0 && sprite[spri->owner].statnum < MAXSTATUS)
-					spri->owner = actor->owner;
+				if (spri->picnum != RECON && actor->GetOwner() && actor->GetOwner()->s.statnum < MAXSTATUS)
+					actor->SetOwner(hitowner);
 			}
 
 			actor->extra = -1;
@@ -856,7 +851,7 @@ void movefallers_r(void)
 			s->z -= (16 << 8);
 			hittype[i].temp_data[1] = s->ang;
 			x = s->extra;
-			j = ifhitbyweapon_r(i);
+			j = fi.ifhitbyweapon(&hittype[i]);
 			if (j >= 0) 
 			{
 				if (j == RPG || (isRRRA() && j == RPG2) || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
@@ -950,7 +945,7 @@ static void movecrack(int i)
 	{
 		t[0] = s->cstat;
 		t[1] = s->ang;
-		int j = ifhitbyweapon_r(i);
+		int j = fi.ifhitbyweapon(&hittype[i]);
 		if (j == RPG || (isRRRA() && j == RPG2) || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 		{
 			StatIterator it(STAT_STANDABLE);
@@ -2629,7 +2624,7 @@ static void heavyhbomb(int i)
 
 	if (t[3] == 0)
 	{
-		j = fi.ifhitbyweapon(i);
+		j = fi.ifhitbyweapon(&hittype[i]);
 		if (j >= 0)
 		{
 			t[3] = 1;

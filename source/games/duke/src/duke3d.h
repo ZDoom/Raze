@@ -95,7 +95,7 @@ struct Dispatcher
 	void (*guts)(spritetype* s, short gtype, short n, short p);
 	void (*gutsdir)(spritetype* s, short gtype, short n, short p);
 	int  (*ifhitsectors)(int sectnum);
-	int  (*ifhitbyweapon)(int sectnum);
+	int  (*ifhitbyweapon)(DDukeActor* sectnum);
 	void (*fall)(int g_i, int g_p);
 	bool (*spawnweapondebris)(int picnum, int dnum);
 	void (*respawnhitag)(spritetype* g_sp);
