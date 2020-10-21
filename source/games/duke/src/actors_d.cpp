@@ -3248,7 +3248,7 @@ void moveactors_d(void)
 
 		case OOZ:
 		case OOZ2:
-			ooz(i);
+			ooz(&hittype[i]);
 			continue;
 
 		case GREENSLIME:
@@ -3277,11 +3277,11 @@ void moveactors_d(void)
 
 		case REACTOR:
 		case REACTOR2:
-			reactor(i, REACTOR, REACTOR2, REACTORBURNT, REACTOR2BURNT, REACTORSPARK, REACTOR2SPARK);
+			reactor(&hittype[i], REACTOR, REACTOR2, REACTORBURNT, REACTOR2BURNT, REACTORSPARK, REACTOR2SPARK);
 			continue;
 
 		case CAMERA1:
-			camera(i);
+			camera(&hittype[i]);
 			continue;
 		}
 

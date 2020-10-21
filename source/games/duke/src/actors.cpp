@@ -1837,21 +1837,20 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 //
 //---------------------------------------------------------------------------
 
-void ooz(int i)
+void ooz(DDukeActor *actor)
 {
-	getglobalz(i);
+	getglobalz(actor);
 
-	int j = (hittype[i].floorz - hittype[i].ceilingz) >> 9;
+	int j = (actor->floorz - actor->ceilingz) >> 9;
 	if (j > 255) j = 255;
 
 	int x = 25 - (j >> 1);
 	if (x < 8) x = 8;
 	else if (x > 48) x = 48;
 
-	spritetype* s = &sprite[i];
-	s->yrepeat = j;
-	s->xrepeat = x;
-	s->z = hittype[i].floorz;
+	actor->s.yrepeat = j;
+	actor->s.xrepeat = x;
+	actor->s.z = actor->floorz;
 }
 
 //---------------------------------------------------------------------------
@@ -1860,19 +1859,18 @@ void ooz(int i)
 //
 //---------------------------------------------------------------------------
 
-void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK)
+void reactor(DDukeActor* actor, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	int sect = s->sectnum;
+	spritetype* s = &actor->s;
+	int* t = &actor->temp_data[0];
+	int sect = actor->s.sectnum;
 
 	if (t[4] == 1)
 	{
-		SectIterator it(sect);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(sect);
+		while (auto act2 = it.Next())
 		{
-			auto sprj = &sprite[j];
+			auto sprj = &act2->s;
 			if (sprj->picnum == SECTOREFFECTOR)
 			{
 				if (sprj->lotag == 1)
@@ -1893,7 +1891,8 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 			{
 				sprj->cstat = (short)32768;
 			}
-		}		return;
+		}		
+		return;
 	}
 
 	if (t[1] >= 20)
@@ -1903,7 +1902,7 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 	}
 
 	int x;
-	int p = findplayer(s, &x);
+	int p = findplayer(&actor->s, &x);
 
 	t[2]++;
 	if (t[2] == 4) t[2] = 0;
@@ -1913,11 +1912,11 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 		if ((krand() & 255) < 16)
 		{
 			if (!S_CheckSoundPlaying(DUKE_LONGTERM_PAIN))
-				S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].i);
+				S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].GetActor());
 
-			S_PlayActorSound(SHORT_CIRCUIT, i);
+			S_PlayActorSound(SHORT_CIRCUIT, actor);
 
-			sprite[ps[p].i].extra--;
+			ps[p].GetActor()->s.extra--;
 			SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
 		}
 		t[0] += 128;
@@ -1928,7 +1927,6 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 
 	if (t[1])
 	{
-		int j;
 		t[1]++;
 
 		t[4] = s->z;
@@ -1939,16 +1937,15 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 		case 3:
 		{
 			//Turn on all of those flashing sectoreffector.
-			fi.hitradius(&hittype[i], 4096,
+			fi.hitradius(actor, 4096,
 				impact_damage << 2,
 				impact_damage << 2,
 				impact_damage << 2,
 				impact_damage << 2);
-			StatIterator it(STAT_STANDABLE);
-			int j;
-			while ((j = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_STANDABLE);
+			while (auto act2 = it.Next())
 			{
-				auto sj = &sprite[j];
+				auto sj = &act2->s;
 				if (sj->picnum == MASTERSWITCH)
 					if (sj->hitag == s->hitag)
 						if (sj->yvel == 0)
@@ -1961,12 +1958,12 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 		case 10:
 		case 15:
 		{
-			SectIterator it(sect);
-			while ((j = it.NextIndex()) >= 0)
+			DukeSectIterator it(sect);
+			while (auto a2 = it.Next())
 			{
-				if (j != i)
+				if (a2 != actor)
 				{
-					deletesprite(j);
+					deletesprite(a2);
 					break;
 				}
 			}
@@ -1974,7 +1971,7 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 		}
 		}
 		for (x = 0; x < 16; x++)
-			RANDOMSCRAP(s, i);
+			RANDOMSCRAP(actor);
 
 		s->z = t[4];
 		t[4] = 0;
@@ -1982,11 +1979,11 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 	}
 	else
 	{
-		int j = fi.ifhitbyweapon(&hittype[i]);
+		int j = fi.ifhitbyweapon(actor);
 		if (j >= 0)
 		{
 			for (x = 0; x < 32; x++)
-				RANDOMSCRAP(s, i);
+				RANDOMSCRAP(actor);
 			if (s->extra < 0)
 				t[1] = 1;
 		}
@@ -1999,27 +1996,27 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 //
 //---------------------------------------------------------------------------
 
-void camera(int i)
+void camera(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	spritetype* s = &actor->s;
+	int* t = &actor->temp_data[0];
 	if (t[0] == 0)
 	{
 		if (camerashitable)
 		{
-			int j = fi.ifhitbyweapon(&hittype[i]);
+			int j = fi.ifhitbyweapon(actor);
 			if (j >= 0)
 			{
 				t[0] = 1; // static
 				s->cstat = (short)32768;
 				for (int x = 0; x < 5; x++)
-					RANDOMSCRAP(s, i);
+					RANDOMSCRAP(actor);
 				return;
 			}
 		}
 
 		// backup current angle for interpolating camera angle.
-		hittype[i].tempang = s->ang;
+		actor->tempang = s->ang;
 		
 		if (s->hitag > 0)
 		{
