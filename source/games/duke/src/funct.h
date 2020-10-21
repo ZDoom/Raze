@@ -85,6 +85,7 @@ void handle_se20(DDukeActor* i);
 void handle_se21(DDukeActor* i);
 void handle_se22(DDukeActor* i);
 void handle_se24(DDukeActor* actor, int16_t* list1, int16_t* list2, int TRIPBOMB, int LASERLINE, int CRANE, int shift);
+void handle_se25(DDukeActor* a, int t_index, int snd1, int snd2);
 void handle_se26(DDukeActor* i);
 void handle_se27(DDukeActor* i);
 void handle_se32(DDukeActor* i);

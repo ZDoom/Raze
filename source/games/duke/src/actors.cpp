@@ -4613,6 +4613,44 @@ void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, int TRIPBOMB
 //
 //---------------------------------------------------------------------------
 
+void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
+{
+	int* t = &actor->temp_data[0];
+	auto sec = &sector[actor->s.sectnum];
+
+	if (sec->floorz <= sec->ceilingz)
+		actor->s.shade = 0;
+	else if (sec->ceilingz <= t[t_index])
+		actor->s.shade = 1;
+
+	if (actor->s.shade)
+	{
+		sec->ceilingz += actor->s.yvel << 4;
+		if (sec->ceilingz > sec->floorz)
+		{
+			sec->ceilingz = sec->floorz;
+			if (pistonsound && snd1 >= 0)
+				S_PlayActorSound(snd1, actor);
+		}
+	}
+	else
+	{
+		sec->ceilingz -= actor->s.yvel << 4;
+		if (sec->ceilingz < t[t_index])
+		{
+			sec->ceilingz = t[t_index];
+			if (pistonsound && snd2 >= 0)
+				S_PlayActorSound(snd2, actor);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void handle_se32(DDukeActor *actor)
 {
 	auto s = &actor->s;

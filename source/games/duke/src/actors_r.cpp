@@ -3421,7 +3421,7 @@ void moveexplosions_r(void)  // STATNUM 5
 void moveeffectors_r(void)   //STATNUM 3
 {
 	int l, x, st, j, * t;
-	int p, sh, ns, pn;
+	int sh, ns, pn;
 	short k;
 	spritetype* s;
 	sectortype* sc;
@@ -3659,35 +3659,8 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 
 		case 25: //PISTONS
-
 			if (t[4] == 0) break;
-
-			if (sc->floorz <= sc->ceilingz)
-				s->shade = 0;
-			else if (sc->ceilingz <= t[4])
-				s->shade = 1;
-
-			if (s->shade)
-			{
-				sc->ceilingz += sprite[i].yvel  << 4;
-				if (sc->ceilingz > sc->floorz)
-				{
-					sc->ceilingz = sc->floorz;
-					if (isRRRA() && pistonsound)
-						S_PlayActorSound(371, i);
-				}
-			}
-			else
-			{
-				sc->ceilingz -= sprite[i].yvel << 4;
-				if (sc->ceilingz < t[4])
-				{
-					sc->ceilingz = t[4];
-					if (isRRRA() && pistonsound)
-						S_PlayActorSound(167, i);
-				}
-			}
-
+			handle_se25(&hittype[i], 4, isRRRA() ? 371 : -1, isRRRA() ? 167 : -1);
 			break;
 
 		case 26:

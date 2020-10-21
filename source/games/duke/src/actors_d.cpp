@@ -3685,27 +3685,8 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case 25: //PISTONS
-
-			if (t[4] == 0) break;
-
-			if (sc->floorz <= sc->ceilingz)
-				s->shade = 0;
-			else if (sc->ceilingz <= t[3])
-				s->shade = 1;
-
-			if (s->shade)
-			{
-				sc->ceilingz += sprite[i].yvel  << 4;
-				if (sc->ceilingz > sc->floorz)
-					sc->ceilingz = sc->floorz;
-			}
-			else
-			{
-				sc->ceilingz -= sprite[i].yvel  << 4;
-				if (sc->ceilingz < t[3])
-					sc->ceilingz = t[3];
-			}
-
+			if (hittype[i].temp_data[4] == 0) break;
+			handle_se25(&hittype[i], 3, -1, -1);
 			break;
 
 		case 26:
