@@ -1109,10 +1109,10 @@ void movedoorshock(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void movetouchplate(int i, int plate)
+void movetouchplate(DDukeActor* actor, int plate)
 {
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	int sect = s->sectnum;
 	int x;
 	int p;
@@ -1176,14 +1176,13 @@ void movetouchplate(int i, int plate)
 
 	if (t[1] == 1)
 	{
-		StatIterator it(STAT_STANDABLE);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_STANDABLE);
+		while (auto act2 = it.Next())
 		{
-			if (j != i && sprite[j].picnum == plate && sprite[j].lotag == s->lotag)
+			if (act2 != actor && act2->s.picnum == plate && act2->s.lotag == s->lotag)
 			{
-				hittype[j].temp_data[1] = 1;
-				hittype[j].temp_data[3] = t[3];
+				act2->temp_data[1] = 1;
+				act2->temp_data[3] = t[3];
 			}
 		}
 	}
@@ -1195,15 +1194,15 @@ void movetouchplate(int i, int plate)
 //
 //---------------------------------------------------------------------------
 
-void moveooz(int i, int seenine, int seeninedead, int ooz, int explosion)
+void moveooz(DDukeActor* actor, int seenine, int seeninedead, int ooz, int explosion)
 {
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	int j;
 	if (s->shade != -32 && s->shade != -33)
 	{
 		if (s->xrepeat)
-			j = (fi.ifhitbyweapon(&hittype[i]) >= 0);
+			j = (fi.ifhitbyweapon(actor) >= 0);
 		else
 			j = 0;
 
@@ -1213,11 +1212,10 @@ void moveooz(int i, int seenine, int seeninedead, int ooz, int explosion)
 
 			t[3] = 1;
 
-			StatIterator it(STAT_STANDABLE);
-			int j;
-			while ((j = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_STANDABLE);
+			while (auto act2 = it.Next())
 			{
-				auto ss = &sprite[j];
+				auto ss = &act2->s;
 				if (s->hitag == ss->hitag && (ss->picnum == seenine || ss->picnum == ooz))
 					ss->shade = -32;
 			}
@@ -1239,18 +1237,18 @@ void moveooz(int i, int seenine, int seeninedead, int ooz, int explosion)
 		{
 			if (s->xrepeat > 0)
 			{
-				hittype[i].temp_data[2]++;
-				if (hittype[i].temp_data[2] == 3)
+				actor->temp_data[2]++;
+				if (actor->temp_data[2] == 3)
 				{
 					if (s->picnum == ooz)
 					{
-						hittype[i].temp_data[2] = 0;
-						detonate(i, explosion);
+						actor->temp_data[2] = 0;
+						detonate(actor, explosion);
 						return;
 					}
 					if (s->picnum != (seeninedead + 1))
 					{
-						hittype[i].temp_data[2] = 0;
+						actor->temp_data[2] = 0;
 
 						if (s->picnum == seeninedead) s->picnum++;
 						else if (s->picnum == seenine)
@@ -1258,13 +1256,13 @@ void moveooz(int i, int seenine, int seeninedead, int ooz, int explosion)
 					}
 					else
 					{
-						detonate(i, explosion);
+						detonate(actor, explosion);
 						return;
 					}
 				}
 				return;
 			}
-			detonate(i, explosion);
+			detonate(actor, explosion);
 			return;
 		}
 	}
@@ -1276,20 +1274,18 @@ void moveooz(int i, int seenine, int seeninedead, int ooz, int explosion)
 //
 //---------------------------------------------------------------------------
 
-void movecanwithsomething(int i)
+void movecanwithsomething(DDukeActor* actor)
 {
-	auto s = &sprite[i];
-	makeitfall(i);
-	int j = fi.ifhitbyweapon(&hittype[i]);
+	makeitfall(actor);
+	int j = fi.ifhitbyweapon(actor);
 	if (j >= 0)
 	{
-		S_PlayActorSound(VENT_BUST, i);
+		S_PlayActorSound(VENT_BUST, actor);
 		for (j = 0; j < 10; j++)
-			RANDOMSCRAP(s, i);
+			RANDOMSCRAP(actor);
 
-		if (s->lotag) fi.spawn(i, s->lotag);
-
-		deletesprite(i);
+		if (actor->s.lotag) spawn(actor, actor->s.lotag);
+		deletesprite(actor);
 	}
 }
 

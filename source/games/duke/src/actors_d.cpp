@@ -1530,7 +1530,7 @@ void movestandables_d(void)
 
 		else if (picnum == OOZFILTER || picnum == SEENINE || picnum == SEENINEDEAD || picnum == (SEENINEDEAD + 1))
 		{
-			moveooz(i, SEENINE, SEENINEDEAD, OOZFILTER, EXPLOSION2);
+			moveooz(&hittype[i], SEENINE, SEENINEDEAD, OOZFILTER, EXPLOSION2);
 		}
 
 		else if (picnum == MASTERSWITCH)
@@ -1570,12 +1570,12 @@ void movestandables_d(void)
 
 		else if (picnum == TOUCHPLATE)
 		{
-			movetouchplate(i, TOUCHPLATE);
+			movetouchplate(&hittype[i], TOUCHPLATE);
 		}
 
 		else if (isIn(picnum, CANWITHSOMETHING, CANWITHSOMETHING2, CANWITHSOMETHING3, CANWITHSOMETHING4))
 		{
-			movecanwithsomething(i);
+			movecanwithsomething(&hittype[i]);
 		}
 
 		else if (isIn(picnum,
