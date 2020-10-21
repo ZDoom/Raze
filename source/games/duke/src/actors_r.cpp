@@ -3585,7 +3585,7 @@ void moveeffectors_r(void)   //STATNUM 3
 		}
 
 		case SE_14_SUBWAY_CAR:
-			handle_se14(i, false, RPG, JIBS6);
+			handle_se14(&hittype[i], false, RPG, JIBS6);
 			break;
 
 		case SE_30_TWO_WAY_TRAIN:

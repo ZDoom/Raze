@@ -2792,9 +2792,8 @@ void handle_se01(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
+void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 {
-	auto actor = &hittype[i];
 	auto s = &actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
@@ -5138,15 +5137,12 @@ void recordoldspritepos()
 {
 	for (int statNum = 0; statNum < MAXSTATUS; statNum++)
 	{
-		StatIterator it(statNum);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeStatIterator it(statNum);
+		while (auto ac = it.Next())
 		{
-			auto s = &sprite[j];
-			auto h = &hittype[j];
-			h->bposx = s->x;
-			h->bposy = s->y;
-			h->bposz = s->z;
+			ac->bposx = ac->s.x;
+			ac->bposy = ac->s.y;
+			ac->bposz = ac->s.z;
 		}
 	}
 }
