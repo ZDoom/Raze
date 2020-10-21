@@ -48,7 +48,7 @@ This file is a combination of code from the following sources:
 
 BEGIN_DUKE_NS
 
-int adjustfall(spritetype* s, int c);
+int adjustfall(DDukeActor* s, int c);
 
 
 //---------------------------------------------------------------------------
@@ -5030,10 +5030,10 @@ void getglobalz(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void makeitfall(int i)
+void makeitfall(DDukeActor* actor)
 {
-	spritetype *s = &sprite[i];
-	int hz,lz,c;
+	auto s = &actor->s;
+	int c;
 
 	if( fi.floorspace(s->sectnum) )
 		c = 0;
@@ -5046,18 +5046,21 @@ void makeitfall(int i)
 	
 	if (isRRRA())
 	{
-		c = adjustfall(s, c); // this accesses sprite indices and cannot be in shared code. Should be done better.
+		c = adjustfall(actor, c); // this accesses sprite indices and cannot be in shared code. Should be done better.
 	}
 
-	if( ( s->statnum == STAT_ACTOR || s->statnum == STAT_PLAYER || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_STANDABLE ) )
-		getzrange(s->x,s->y,s->z-(FOURSLEIGHT),s->sectnum,&hittype[i].ceilingz,&hz,&hittype[i].floorz,&lz,127L,CLIPMASK0);
+	if ((s->statnum == STAT_ACTOR || s->statnum == STAT_PLAYER || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_STANDABLE))
+	{
+		Collision c;
+		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sectnum, &actor->ceilingz, c, &actor->floorz, c, 127, CLIPMASK0);
+	}
 	else
 	{
-		hittype[i].ceilingz = sector[s->sectnum].ceilingz;
-		hittype[i].floorz	= sector[s->sectnum].floorz;
+		actor->ceilingz = sector[s->sectnum].ceilingz;
+		actor->floorz	= sector[s->sectnum].floorz;
 	}
 
-	if( s->z < hittype[i].floorz-(FOURSLEIGHT) )
+	if( s->z < actor->floorz-(FOURSLEIGHT) )
 	{
 		if( sector[s->sectnum].lotag == 2 && s->zvel > 3122 )
 			s->zvel = 3144;
@@ -5066,9 +5069,9 @@ void makeitfall(int i)
 		else s->zvel = 6144;
 		s->z += s->zvel;
 	}
-	if( s->z >= hittype[i].floorz-(FOURSLEIGHT) )
+	if( s->z >= actor->floorz-(FOURSLEIGHT) )
 	{
-		s->z = hittype[i].floorz - FOURSLEIGHT;
+		s->z = actor->floorz - FOURSLEIGHT;
 		s->zvel = 0;
 	}
 }

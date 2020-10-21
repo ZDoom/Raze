@@ -3734,11 +3734,11 @@ void moveeffectors_r(void)   //STATNUM 3
 //
 //---------------------------------------------------------------------------
 
-int adjustfall(spritetype *s, int c)
+int adjustfall(DDukeActor *actor, int c)
 {
-	if ((s->picnum == BIKERB || s->picnum == CHEERB) && c == gc)
+	if ((actor->s.picnum == BIKERB || actor->s.picnum == CHEERB) && c == gc)
 		c = gc>>2;
-	else if (s->picnum == BIKERBV2 && c == gc)
+	else if (actor->s.picnum == BIKERBV2 && c == gc)
 		c = gc>>3;
 	return c;
 }

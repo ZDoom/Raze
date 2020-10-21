@@ -170,7 +170,7 @@ void doorders(const CompletionFunc& func);
 
 void LoadActor(int i, int p, int x);
 void execute(int s, int p, int d);
-void makeitfall(int s);
+void makeitfall(DDukeActor* s);
 int furthestangle(int snum, int angDiv);
 void getglobalz(DDukeActor* s);
 void OnEvent(int id, int pnum = -1, int snum = -1, int dist = -1);

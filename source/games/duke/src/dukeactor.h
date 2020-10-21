@@ -259,9 +259,9 @@ inline void execute(DDukeActor* act, int a, int b)
 	execute(act->GetIndex(), a, b);
 }
 
-inline void makeitfall(DDukeActor* act)
+inline void makeitfall(int act)
 {
-	makeitfall(act->GetIndex());
+	makeitfall(&hittype[act]);
 }
 
 inline void getglobalz(int act)
