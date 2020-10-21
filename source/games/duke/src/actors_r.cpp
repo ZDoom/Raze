@@ -3590,24 +3590,24 @@ void moveeffectors_r(void)   //STATNUM 3
 			handle_se10(&hittype[i], nullptr);
 			break;
 		case SE_11_SWINGING_DOOR:
-			handle_se11(i);
+			handle_se11(&hittype[i]);
 			break;
 			
 		case SE_12_LIGHT_SWITCH:
-			handle_se12(i);
+			handle_se12(&hittype[i]);
 			break;
 
 		case SE_47_LIGHT_SWITCH:
-			if (isRRRA()) handle_se12(i, 1);
+			if (isRRRA()) handle_se12(&hittype[i], 1);
 			break;
 			
 		case SE_48_LIGHT_SWITCH:
-			if (isRRRA()) handle_se12(i, 2);
+			if (isRRRA()) handle_se12(&hittype[i], 2);
 			break;
 			
 
 		case SE_13_EXPLOSIVE:
-			handle_se13(i);
+			handle_se13(&hittype[i]);
 			break;
 
 		case SE_15_SLIDING_DOOR:

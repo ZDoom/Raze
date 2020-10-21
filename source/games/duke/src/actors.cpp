@@ -3651,10 +3651,10 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 //
 //---------------------------------------------------------------------------
 
-void handle_se11(int i)
+void handle_se11(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
@@ -3673,27 +3673,26 @@ void handle_se11(int i)
 
 		for (int j = startwall; j < endwall; j++)
 		{
-			StatIterator it(STAT_ACTOR);
-			int k;
-			while ((k = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_ACTOR);
+			while (auto ac = it.Next())
 			{
-				auto sk = &sprite[k];
-				if (sk->extra > 0 && badguy(&sprite[k]) && clipinsidebox(sk->x, sk->y, j, 256L) == 1)
+				auto sk = &ac->s;
+				if (sk->extra > 0 && badguy(ac) && clipinsidebox(sk->x, sk->y, j, 256L) == 1)
 					return;
 			}
 
 			it.Reset(STAT_PLAYER);
-			while ((k = it.NextIndex()) >= 0)
+			while (auto ac = it.Next())
 			{
-				auto sk = &sprite[k];
-				if (sk->owner >= 0 && clipinsidebox(sk->x, sk->y, j, 144L) == 1)
+				auto sk = &ac->s;
+				if (ac->GetOwner() && clipinsidebox(sk->x, sk->y, j, 144L) == 1)
 				{
 					t[5] = 8; // Delay
-					k = (s->yvel >> 3) * t[3];
+					int k = (s->yvel >> 3) * t[3];
 					t[2] -= k;
 					t[4] -= k;
-					ms(i);
-					setsprite(i, s->x, s->y, s->z);
+					ms(actor);
+					setsprite(actor, s->pos);
 					return;
 				}
 			}
@@ -3702,15 +3701,15 @@ void handle_se11(int i)
 		int k = (s->yvel >> 3) * t[3];
 		t[2] += k;
 		t[4] += k;
-		ms(i);
-		setsprite(i, s->x, s->y, s->z);
+		ms(actor);
+		setsprite(actor, s->pos);
 
 		if (t[4] <= -511 || t[4] >= 512)
 		{
 			t[4] = 0;
 			t[2] &= 0xffffff00;
-			ms(i);
-			setsprite(i, s->x, s->y, s->z);
+			ms(actor);
+			setsprite(actor, s->pos);
 		}
 	}
 }
@@ -3721,10 +3720,10 @@ void handle_se11(int i)
 //
 //---------------------------------------------------------------------------
 
-void handle_se12(int i, int planeonly)
+void handle_se12(DDukeActor *actor, int planeonly)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
@@ -3745,22 +3744,20 @@ void handle_se12(int i, int planeonly)
 		sc->ceilingshade = t[2];
 		t[0] = 0;
 
-		SectIterator it(s->sectnum);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(s->sectnum);
+		while (auto a2 = it.Next())
 		{
-			auto sj = &sprite[j];
-			if (sj->cstat & 16)
+			if (a2->s.cstat & 16)
 			{
 				if (sc->ceilingstat & 1)
-					sj->shade = sc->ceilingshade;
-				else sj->shade = sc->floorshade;
+					a2->s.shade = sc->ceilingshade;
+				else a2->s.shade = sc->floorshade;
 			}
 		}
 
 		if (t[3] == 1)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 	}
@@ -3786,16 +3783,14 @@ void handle_se12(int i, int planeonly)
 		}
 		else t[0] = 2;
 
-		SectIterator it(s->sectnum);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(s->sectnum);
+		while (auto a2 = it.Next())
 		{
-			auto sj = &sprite[j];
-			if (sj->cstat & 16)
+			if (a2->s.cstat & 16)
 			{
 				if (sc->ceilingstat & 1)
-					sj->shade = sc->ceilingshade;
-				else sj->shade = sc->floorshade;
+					a2->s.shade = sc->ceilingshade;
+				else a2->s.shade = sc->floorshade;
 			}
 		}
 	}
@@ -3807,20 +3802,20 @@ void handle_se12(int i, int planeonly)
 //
 //---------------------------------------------------------------------------
 
-void handle_se13(int i)
+void handle_se13(DDukeActor* actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
 	if (t[2])
 	{
-		int j = (sprite[i].yvel << 5) | 1;
+		int j = (s->yvel << 5) | 1;
 
 		if (s->ang == 512)
 		{
-			if (s->owner)
+			if (s->owner) // hijacked!
 			{
 				if (abs(t[0] - sc->ceilingz) >= j)
 					sc->ceilingz += sgn(t[0] - sc->ceilingz) * j;
@@ -3860,24 +3855,22 @@ void handle_se13(int i)
 
 				if (ps[0].one_parallax_sectnum >= 0)
 				{
-					sc->ceilingpicnum =
-						sector[ps[0].one_parallax_sectnum].ceilingpicnum;
-					sc->ceilingshade =
-						sector[ps[0].one_parallax_sectnum].ceilingshade;
+					sc->ceilingpicnum = sector[ps[0].one_parallax_sectnum].ceilingpicnum;
+					sc->ceilingshade = sector[ps[0].one_parallax_sectnum].ceilingshade;
 				}
 			}
 		}
 		t[2]++;
 		if (t[2] > 256)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 	}
 
 
 	if (t[2] == 4 && s->ang != 512)
-		for (int x = 0; x < 7; x++) RANDOMSCRAP(s, i);
+		for (int x = 0; x < 7; x++) RANDOMSCRAP(actor);
 }
 
 //---------------------------------------------------------------------------
