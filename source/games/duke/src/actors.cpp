@@ -1295,29 +1295,27 @@ void movecanwithsomething(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void bounce(int i)
+void bounce(DDukeActor* actor)
 {
-	int k, l, daang, dax, day, daz, xvect, yvect, zvect;
-	int hitsect;
-	spritetype* s = &sprite[i];
+	auto s = &actor->s;
+	int xvect = mulscale10(s->xvel, sintable[(s->ang + 512) & 2047]);
+	int yvect = mulscale10(s->xvel, sintable[s->ang & 2047]);
+	int zvect = s->zvel;
 
-	xvect = mulscale10(s->xvel, sintable[(s->ang + 512) & 2047]);
-	yvect = mulscale10(s->xvel, sintable[s->ang & 2047]);
-	zvect = s->zvel;
+	int hitsect = s->sectnum;
 
-	hitsect = s->sectnum;
+	int k = sector[hitsect].wallptr; 
+	int l = wall[k].point2;
+	int daang = getangle(wall[l].x - wall[k].x, wall[l].y - wall[k].y);
 
-	k = sector[hitsect].wallptr; l = wall[k].point2;
-	daang = getangle(wall[l].x - wall[k].x, wall[l].y - wall[k].y);
-
-	if (s->z < (hittype[i].floorz + hittype[i].ceilingz) >> 1)
+	if (s->z < (actor->floorz + actor->ceilingz) >> 1)
 		k = sector[hitsect].ceilingheinum;
 	else
 		k = sector[hitsect].floorheinum;
 
-	dax = mulscale14(k, sintable[(daang) & 2047]);
-	day = mulscale14(k, sintable[(daang + 1536) & 2047]);
-	daz = 4096;
+	int dax = mulscale14(k, sintable[(daang) & 2047]);
+	int day = mulscale14(k, sintable[(daang + 1536) & 2047]);
+	int daz = 4096;
 
 	k = xvect * dax + yvect * day + zvect * daz;
 	l = dax * dax + day * day + daz * daz;
@@ -1340,49 +1338,57 @@ void bounce(int i)
 //
 //---------------------------------------------------------------------------
 
-void movetongue(int i, int tongue, int jaw)
+void movetongue(DDukeActor *actor, int tongue, int jaw)
 {
-	spritetype* s = &sprite[i];
-
-	hittype[i].temp_data[0] = sintable[(hittype[i].temp_data[1]) & 2047] >> 9;
-	hittype[i].temp_data[1] += 32;
-	if (hittype[i].temp_data[1] > 2047)
+	auto s = &actor->s;
+	actor->temp_data[0] = sintable[(actor->temp_data[1]) & 2047] >> 9;
+	actor->temp_data[1] += 32;
+	if (actor->temp_data[1] > 2047)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 
-	if (sprite[s->owner].statnum == MAXSTATUS)
-		if (badguy(&sprite[s->owner]) == 0)
+	auto Owner = actor->GetOwner();
+	if (!Owner) return;
+
+	if (Owner->s.statnum == MAXSTATUS)
+		if (badguy(Owner) == 0)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 
-	s->ang = sprite[s->owner].ang;
-	s->x = sprite[s->owner].x;
-	s->y = sprite[s->owner].y;
-	if (sprite[s->owner].picnum == TILE_APLAYER)
-		s->z = sprite[s->owner].z - (34 << 8);
-	for (int k = 0; k < hittype[i].temp_data[0]; k++)
+	s->ang = Owner->s.ang;
+	s->x = Owner->s.x;
+	s->y = Owner->s.y;
+	if (Owner->s.picnum == TILE_APLAYER)
+		s->z = Owner->s.z - (34 << 8);
+	for (int k = 0; k < actor->temp_data[0]; k++)
 	{
-		int q = EGS(s->sectnum,
+		auto q = EGS(s->sectnum,
 			s->x + ((k * sintable[(s->ang + 512) & 2047]) >> 9),
 			s->y + ((k * sintable[s->ang & 2047]) >> 9),
 			s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), tongue, -40 + (k << 1),
-			8, 8, 0, 0, 0, i, 5);
-		sprite[q].cstat = 128;
-		sprite[q].pal = 8;
+			8, 8, 0, 0, 0, actor, 5);
+		if (q)
+		{
+			q->s.cstat = 128;
+			q->s.pal = 8;
 	}
-	int k = hittype[i].temp_data[0];	// do not depend on the above loop counter.
-	int q = EGS(s->sectnum,
+	}
+	int k = actor->temp_data[0];	// do not depend on the above loop counter.
+	auto spawned = EGS(s->sectnum,
 		s->x + ((k * sintable[(s->ang + 512) & 2047]) >> 9),
 		s->y + ((k * sintable[s->ang & 2047]) >> 9),
 		s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), jaw, -40,
-		32, 32, 0, 0, 0, i, 5);
-	sprite[q].cstat = 128;
-	if (hittype[i].temp_data[1] > 512 && hittype[i].temp_data[1] < (1024))
-		sprite[q].picnum = jaw + 1;
+		32, 32, 0, 0, 0, actor, 5);
+	if (spawned)
+	{
+		spawned->s.cstat = 128;
+		if (actor->temp_data[1] > 512 && actor->temp_data[1] < (1024))
+			spawned->s.picnum = jaw + 1;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -1391,40 +1397,39 @@ void movetongue(int i, int tongue, int jaw)
 //
 //---------------------------------------------------------------------------
 
-void rpgexplode(int i, int j, const vec3_t &pos, int EXPLOSION2, int EXPLOSION2BOT, int newextra, int playsound)
+void rpgexplode(DDukeActor *actor, int hit, const vec3_t &pos, int EXPLOSION2, int EXPLOSION2BOT, int newextra, int playsound)
 {
-	auto act = &hittype[i];
-	auto s = &act->s;
-	auto k = spawn(act, EXPLOSION2);
-	k->s.pos = pos;
+	auto s = &actor->s;
+	auto explosion = spawn(actor, EXPLOSION2);
+	explosion->s.pos = pos;
 
 	if (s->xrepeat < 10)
 	{
-		k->s.xrepeat = 6;
-		k->s.yrepeat = 6;
+		explosion->s.xrepeat = 6;
+		explosion->s.yrepeat = 6;
 	}
-	else if ((j & kHitTypeMask) == kHitSector)
+	else if ((hit & kHitTypeMask) == kHitSector)
 	{
 		if (s->zvel > 0 && EXPLOSION2BOT >= 0)
-			fi.spawn(i, EXPLOSION2BOT);
+			spawn(actor, EXPLOSION2BOT);
 		else
 		{
-			k->s.cstat |= 8;
-			k->s.z += (48 << 8);
+			explosion->s.cstat |= 8;
+			explosion->s.z += (48 << 8);
 		}
 	}
 	if (newextra > 0) s->extra = newextra;
-	S_PlayActorSound(playsound, i);
+	S_PlayActorSound(playsound, actor);
 
 	if (s->xrepeat >= 10)
 	{
 		int x = s->extra;
-		fi.hitradius(&hittype[i], rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+		fi.hitradius(actor, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 	}
 	else
 	{
 		int x = s->extra + (global_random & 3);
-		fi.hitradius(&hittype[i], (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+		fi.hitradius(actor, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
 	}
 }
 

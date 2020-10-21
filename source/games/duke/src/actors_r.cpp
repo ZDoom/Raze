@@ -1384,7 +1384,7 @@ bool weaponhitsector(int i, const vec3_t& oldpos)
 
 	if (!isRRRA() && s->picnum == FREEZEBLAST)
 	{
-		bounce(i);
+		bounce(&hittype[i]);
 		ssp(i, CLIPMASK1);
 		s->extra >>= 1;
 		if (s->xrepeat > 8)
@@ -1528,9 +1528,9 @@ static void weaponcommon_r(int i)
 
 		if (s->picnum != SPIT)
 		{
-			if (s->picnum == RPG) rpgexplode(i, j, oldpos, EXPLOSION2, -1, -1, RPG_EXPLODE);
-			else if (isRRRA() && s->picnum == RPG2) rpgexplode(i, j, oldpos, EXPLOSION2, -1, 150, 247);
-			else if (isRRRA() && s->picnum == RRTILE1790) rpgexplode(i, j, oldpos, EXPLOSION2, -1, 160, RPG_EXPLODE);
+			if (s->picnum == RPG) rpgexplode(&hittype[i], j, oldpos, EXPLOSION2, -1, -1, RPG_EXPLODE);
+			else if (isRRRA() && s->picnum == RPG2) rpgexplode(&hittype[i], j, oldpos, EXPLOSION2, -1, 150, 247);
+			else if (isRRRA() && s->picnum == RRTILE1790) rpgexplode(&hittype[i], j, oldpos, EXPLOSION2, -1, 160, RPG_EXPLODE);
 			else if (s->picnum != FREEZEBLAST && s->picnum != FIRELASER && s->picnum != SHRINKSPARK)
 			{
 				k = fi.spawn(i, 1441);
@@ -1582,7 +1582,7 @@ void moveweapons_r(void)
 			deletesprite(i);
 			continue;
 		case TONGUE:
-			movetongue(i, TONGUE, INNERJAW);
+			movetongue(&hittype[i], TONGUE, INNERJAW);
 			continue;
 
 		case FREEZEBLAST:

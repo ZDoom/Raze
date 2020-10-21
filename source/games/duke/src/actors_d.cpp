@@ -1798,7 +1798,7 @@ static bool weaponhitsector(int i, const vec3_t& oldpos, bool fireball)
 
 	if (s->picnum == FREEZEBLAST)
 	{
-		bounce(i);
+		bounce(&hittype[i]);
 		ssp(i, CLIPMASK1);
 		s->extra >>= 1;
 		if (s->xrepeat > 8)
@@ -1939,7 +1939,7 @@ static void weaponcommon_d(int i)
 			if (s->picnum == RPG)
 			{
 				// j is only needed for the hit type mask.
-				rpgexplode(i, j, oldpos, EXPLOSION2, EXPLOSION2BOT, -1, RPG_EXPLODE);
+				rpgexplode(&hittype[i], j, oldpos, EXPLOSION2, EXPLOSION2BOT, -1, RPG_EXPLODE);
 			}
 			else if (s->picnum == SHRINKSPARK)
 			{
@@ -2015,7 +2015,7 @@ void moveweapons_d(void)
 			deletesprite(i);
 			continue;
 		case TONGUE:
-			movetongue(i, TONGUE, INNERJAW);
+			movetongue(&hittype[i], TONGUE, INNERJAW);
 			continue;
 
 		case FREEZEBLAST:
