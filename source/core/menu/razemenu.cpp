@@ -288,6 +288,7 @@ CCMD(quicksave)
 
 	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
 		{
+			M_ClearMenus();
 			G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle, true, true);
 		});
 
@@ -331,6 +332,7 @@ CCMD(quickload)
 
 	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
 		{
+			M_ClearMenus();
 			G_LoadGame(savegameManager.quickSaveSlot->Filename);
 	});
 	M_ActivateMenu(newmenu);
