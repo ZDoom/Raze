@@ -72,8 +72,6 @@ void lotsofpaper_d(DDukeActor* s, short n);
 void lotsoffeathers_r(DDukeActor* s, short n);
 void guts_d(spritetype* s, short gtype, short n, short p);
 void guts_r(spritetype* s, short gtype, short n, short p);
-void gutsdir_d(spritetype* s, short gtype, short n, short p);
-void gutsdir_r(spritetype* s, short gtype, short n, short p);
 int ifhitsectors_d(int sectnum);
 int ifhitsectors_r(int sectnum);
 int ifhitbyweapon_r(DDukeActor* sn);
@@ -155,7 +153,6 @@ void SetDispatcher()
 		lotsofmail_d,
 		lotsofpaper_d,
 		guts_d,
-		gutsdir_d,
 		ifhitsectors_d,
 		ifhitbyweapon_d,
 		fall_d,
@@ -207,7 +204,6 @@ void SetDispatcher()
 		lotsoffeathers_r,
 		lotsoffeathers_r,
 		guts_r,
-		gutsdir_r,
 		ifhitsectors_r,
 		ifhitbyweapon_r,
 		fall_r,

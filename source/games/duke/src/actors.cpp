@@ -2598,6 +2598,38 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 
 //---------------------------------------------------------------------------
 //
+// 
+//
+//---------------------------------------------------------------------------
+
+void gutsdir(DDukeActor* actor, short gtype, short n, short p)
+{
+	int sx, sy;
+
+	if (badguy(actor) && actor->s.xrepeat < 16)
+		sx = sy = 8;
+	else sx = sy = 32;
+
+	int gutz = actor->s.z - (8 << 8);
+	int floorz = getflorzofslope(actor->s.sectnum, actor->s.x, actor->s.y);
+
+	if (gutz > (floorz - (8 << 8)))
+		gutz = floorz - (8 << 8);
+
+	gutz += actorinfo[actor->s.picnum].gutsoffset;
+
+	for (int j = 0; j < n; j++)
+	{
+		int a = krand() & 2047;
+		int r1 = krand();
+		int r2 = krand();
+		// TRANSITIONAL: owned by a player???
+		EGS(actor->s.sectnum, actor->s.x, actor->s.y, gutz, gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].GetActor(), 5);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // taken out of moveeffectors
 //
 //---------------------------------------------------------------------------
@@ -2981,7 +3013,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 						updatesector(a2->s.x, a2->s.y, &k);
 						if (a2->s.extra >= 0 && k == s->sectnum)
 						{
-							fi.gutsdir(&a2->s, JIBS6, 72, myconnectindex);
+							gutsdir(a2, JIBS6, 72, myconnectindex);
 							S_PlayActorSound(SQUISHED, actor);
 							deletesprite(a2);
 						}
@@ -3171,7 +3203,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 							updatesector(a2->s.x, a2->s.y, &k);
 							if (a2->s.extra >= 0 && k == s->sectnum)
 							{
-								fi.gutsdir(&a2->s, JIBS6, 24, myconnectindex);
+								gutsdir(a2, JIBS6, 24, myconnectindex);
 								S_PlayActorSound(SQUISHED, a2);
 								deletesprite(a2);
 						}

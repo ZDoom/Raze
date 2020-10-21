@@ -40,6 +40,8 @@ BEGIN_DUKE_NS
 
 void initactorflags_d()
 {
+	actorinfo[COMMANDER].gutsoffset = -(24 << 8);
+
 	setflag(SFLAG_INTERNAL_BADGUY, {
 			SHARK,
 			RECON,

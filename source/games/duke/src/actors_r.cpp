@@ -486,6 +486,8 @@ void guts_r(spritetype* s, short gtype, short n, short p)
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
 
+	gutz += actorinfo[s->picnum].gutsoffset;
+
 	if (badguy(s) && s->pal == 6)
 		pal = 6;
 	else
@@ -510,38 +512,6 @@ void guts_r(spritetype* s, short gtype, short n, short p)
 		i = EGS(s->sectnum, s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx >> 1, sy >> 1, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].i, 5);
 		if (pal != 0)
 			sprite[i].pal = pal;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void gutsdir_r(spritetype* s, short gtype, short n, short p)
-{
-	int gutz, floorz;
-	short i, j;
-	char sx, sy;
-
-	if (badguy(s) && s->xrepeat < 16)
-		sx = sy = 8;
-	else sx = sy = 32;
-
-	gutz = s->z - (8 << 8);
-	floorz = getflorzofslope(s->sectnum, s->x, s->y);
-
-	if (gutz > (floorz - (8 << 8)))
-		gutz = floorz - (8 << 8);
-
-	for (j = 0; j < n; j++)
-	{
-		int a = krand() & 2047;
-		int r1 = krand();
-		int r2 = krand();
-		// TRANSITIONAL: owned by a player???
-		i = EGS(s->sectnum, s->x, s->y, gutz, gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].i, 5);
 	}
 }
 

@@ -93,7 +93,6 @@ struct Dispatcher
 	void (*lotsofmail)(DDukeActor *s, short n);
 	void (*lotsofpaper)(DDukeActor *s, short n);
 	void (*guts)(spritetype* s, short gtype, short n, short p);
-	void (*gutsdir)(spritetype* s, short gtype, short n, short p);
 	int  (*ifhitsectors)(int sectnum);
 	int  (*ifhitbyweapon)(DDukeActor* sectnum);
 	void (*fall)(int g_i, int g_p);

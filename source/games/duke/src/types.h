@@ -104,6 +104,7 @@ struct ActorInfo
 	uint32_t scriptaddress;
 	uint32_t flags;
 	int aimoffset;
+	int gutsoffset;
 };
 
 // for now just flags not related to actors, may get more info later.

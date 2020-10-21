@@ -666,8 +666,7 @@ void guts_d(spritetype* s, short gtype, short n, short p)
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
 
-	if (s->picnum == COMMANDER)
-		gutz -= (24 << 8);
+	gutz += actorinfo[s->picnum].gutsoffset;
 
 	if (badguy(s) && s->pal == 6)
 		pal = 6;
@@ -695,39 +694,6 @@ void guts_d(spritetype* s, short gtype, short n, short p)
 		}
 		if (pal != 0)
 			si->pal = pal;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void gutsdir_d(spritetype* s, short gtype, short n, short p)
-{
-	int sx, sy;
-
-	if (badguy(s) && s->xrepeat < 16)
-		sx = sy = 8;
-	else sx = sy = 32;
-
-	int gutz = s->z - (8 << 8);
-	int floorz = getflorzofslope(s->sectnum, s->x, s->y);
-
-	if (gutz > (floorz - (8 << 8)))
-		gutz = floorz - (8 << 8);
-
-	if (s->picnum == COMMANDER)
-		gutz -= (24 << 8);
-
-	for (int j = 0; j < n; j++)
-	{
-		int a = krand() & 2047;
-		int r1 = krand();
-		int r2 = krand();
-		// TRANSITIONAL: owned by a player???
-		EGS(s->sectnum, s->x, s->y, gutz, gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].i, 5);
 	}
 }
 
