@@ -3879,20 +3879,20 @@ void handle_se13(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se15(int i)
+void handle_se15(DDukeActor* actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	if (t[4])
 	{
 		s->xvel = 16;
 
 		if (t[4] == 1) //Opening
 		{
-			if (t[3] >= (sprite[i].yvel >> 3))
+			if (t[3] >= (s->yvel >> 3))
 			{
 				t[4] = 0; //Turn off the sliders
-				callsound(s->sectnum, i);
+				callsound(s->sectnum, actor);
 				return;
 			}
 			t[3]++;
@@ -3902,14 +3902,14 @@ void handle_se15(int i)
 			if (t[3] < 1)
 			{
 				t[4] = 0;
-				callsound(s->sectnum, i);
+				callsound(s->sectnum, actor);
 				return;
 			}
 			t[3]--;
 		}
 
-		ms(i);
-		setsprite(i, s->x, s->y, s->z);
+		ms(actor);
+		setsprite(actor, s->pos);
 	}
 }
 
@@ -3919,10 +3919,10 @@ void handle_se15(int i)
 //
 //---------------------------------------------------------------------------
 
-void handle_se16(int i, int REACTOR, int REACTOR2)
+void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 
 	t[2] += 32;
@@ -3936,17 +3936,16 @@ void handle_se16(int i, int REACTOR, int REACTOR2)
 		//If there isn't, then kill this sectoreffector
 		//itself.....
 
-		SectIterator it(s->sectnum);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(s->sectnum);
+		DDukeActor* a2;
+		while ((a2 = it.Next()))
 		{
-			auto sj = &sprite[j];
-			if (sj->picnum == REACTOR || sj->picnum == REACTOR2)
+			if (a2->s.picnum == REACTOR || a2->s.picnum == REACTOR2)
 				return;
 		}
-		if (j == -1)
+		if (a2 == nullptr)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 		else s->shade = 1;
@@ -3955,8 +3954,8 @@ void handle_se16(int i, int REACTOR, int REACTOR2)
 	if (s->shade) sc->ceilingz += 1024;
 	else sc->ceilingz -= 512;
 
-	ms(i);
-	setsprite(i, s->x, s->y, s->z);
+	ms(actor);
+	setsprite(actor, s->pos);
 }
 
 //---------------------------------------------------------------------------
@@ -3965,50 +3964,46 @@ void handle_se16(int i, int REACTOR, int REACTOR2)
 //
 //---------------------------------------------------------------------------
 
-void handle_se17(int i)
+void handle_se17(DDukeActor* actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
 
-	int q = t[0] * (sprite[i].yvel << 2);
+	int q = t[0] * (s->yvel << 2);
 
 	sc->ceilingz += q;
 	sc->floorz += q;
 
-	SectIterator it(s->sectnum);
-	int j;
-	while ((j = it.NextIndex()) >= 0)
+	DukeSectIterator it(s->sectnum);
+	while (auto act1 = it.Next())
 	{
-		auto sj = &sprite[j];
-		if (sj->statnum == 10 && sj->owner >= 0)
+		if (act1->s.statnum == STAT_PLAYER && act1->GetOwner())
 		{
-			int p = sj->yvel;
-			if (numplayers < 2)
-				ps[p].oposz = ps[p].posz;
+			int p = act1->s.yvel;
+			if (numplayers < 2) ps[p].oposz = ps[p].posz;
 			ps[p].posz += q;
 			ps[p].truefz += q;
 			ps[p].truecz += q;
-			if (numplayers > 1)
-				ps[p].oposz = ps[p].posz;
+			if (numplayers > 1)	ps[p].oposz = ps[p].posz;
 		}
-		if (sj->statnum != 3)
+		if (act1->s.statnum != 3)
 		{
-			hittype[j].bposz = sj->z;
-			sj->z += q;
+			act1->bposz = act1->s.z;
+			act1->s.z += q;
 		}
 
-		hittype[j].floorz = sc->floorz;
-		hittype[j].ceilingz = sc->ceilingz;
+		act1->floorz = sc->floorz;
+		act1->ceilingz = sc->ceilingz;
 	}
 
 	if (t[0]) //If in motion
 	{
-		if (abs(sc->floorz - t[2]) <= sprite[i].yvel)
+		if (abs(sc->floorz - t[2]) <= s->yvel)
 		{
-			activatewarpelevators(i, 0);
+			activatewarpelevators(actor->GetIndex(), 0);
 			return;
 		}
 
@@ -4022,27 +4017,23 @@ void handle_se17(int i)
 		if (t[1] == 0) return;
 		t[1] = 0;
 
-		StatIterator it(STAT_EFFECTOR);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DDukeActor* act2;
+		DukeStatIterator it(STAT_EFFECTOR);
+		while ((act2 = it.Next()))
 		{
-			if (i != j && (sprite[j].lotag) == 17)
-				if ((sc->hitag - t[0]) ==
-					(sector[sprite[j].sectnum].hitag)
-					&& sh == (sprite[j].hitag))
+			if (actor != act2 && (act2->s.lotag) == 17)
+				if ((sc->hitag - t[0]) == (sector[act2->s.sectnum].hitag) && sh == (act2->s.hitag))
 					break;
 		}
 
-		if (j == -1) return;
-		auto spr2 = &sprite[j];
+		if (act2 == nullptr) return;
+		auto spr2 = &act2->s;
 
-		SectIterator its(s->sectnum);
-		int k;
-		while ((k = its.NextIndex()) >= 0)
+		DukeSectIterator its(s->sectnum);
+		while (auto act3 = its.Next())
 		{
-			auto spr3 = &sprite[k];
-			auto act3 = &hittype[k];
-			if (spr3->statnum == 10 && spr3->owner >= 0)
+			auto spr3 = &act3->s;
+			if (spr3->statnum == STAT_PLAYER && act3->GetOwner())
 			{
 				int p = spr3->yvel;
 
@@ -4061,7 +4052,7 @@ void handle_se17(int i)
 				ps[p].truecz = act3->ceilingz;
 				ps[p].bobcounter = 0;
 
-				changespritesect(k, spr2->sectnum);
+				changespritesect(act3, spr2->sectnum);
 				ps[p].cursectnum = spr2->sectnum;
 			}
 			else if (spr3->statnum != 3)
@@ -4074,8 +4065,8 @@ void handle_se17(int i)
 				act3->bposy = spr3->y;
 				act3->bposz = spr3->z;
 
-				changespritesect(k, spr2->sectnum);
-				setsprite(k, spr3->x, spr3->y, spr3->z);
+				changespritesect(act3, spr2->sectnum);
+				setsprite(act3, spr3->pos);
 
 				act3->floorz = sector[spr2->sectnum].floorz;
 				act3->ceilingz = sector[spr2->sectnum].ceilingz;

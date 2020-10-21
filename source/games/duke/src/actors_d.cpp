@@ -3640,15 +3640,15 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case SE_15_SLIDING_DOOR:
-			handle_se15(i);
+			handle_se15(&hittype[i]);
 			break;
 
 		case SE_16_REACTOR:
-			handle_se16(i, REACTOR, REACTOR2);
+			handle_se16(&hittype[i], REACTOR, REACTOR2);
 			break;
 
 		case SE_17_WARP_ELEVATOR:
-			handle_se17(i);
+			handle_se17(&hittype[i]);
 			break;
 
 		case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
