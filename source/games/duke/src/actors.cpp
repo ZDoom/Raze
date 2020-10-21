@@ -170,16 +170,16 @@ void checkavailweapon(struct player_struct* p)
 	p->curr_weapon = weap;
 	if (isWW2GI())
 	{
-		SetGameVarID(g_iWeaponVarID, p->curr_weapon, snum, p->i);
+		SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum); // snum is playerindex!
 		if (p->curr_weapon >= 0)
 		{
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], snum, p->i);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
 		}
 		else
 		{
-			SetGameVarID(g_iWorksLikeVarID, -1, snum, p->i);
+			SetGameVarID(g_iWorksLikeVarID, -1, p->i, snum);
 		}
-		OnEvent(EVENT_CHANGEWEAPON, p->i, snum, -1);
+		OnEvent(EVENT_CHANGEWEAPON, snum, p->i, -1);
 	}
 
 	p->okickback_pic = p->kickback_pic = 0;

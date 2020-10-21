@@ -469,7 +469,7 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	spritetype* const s = &sprite[i];
 	int sect = s->sectnum;
 	int vel, zvel;
-	short l, j, scount;
+	short j, scount;
 
 	if (isRRRA())
 	{
@@ -764,7 +764,7 @@ static void shootwhip(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	spritetype* const s = &sprite[i];
 	int sect = s->sectnum;
 	int vel, zvel;
-	short l, j, scount;
+	short j, scount;
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -837,9 +837,8 @@ static void shootwhip(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 void shoot_r(int i, int atwith)
 {
-	short sect, hitsect, hitspr, hitwall, l, sa, p, j, k, scount;
-	int sx, sy, sz, vel, zvel, hitx, hity, hitz, x, oldzvel, dal;
-	uint8_t sizx, sizy;
+	short sect, sa, p, j;
+	int sx, sy, sz, vel, zvel, x;
 	spritetype* s;
 
 	s = &sprite[i];
