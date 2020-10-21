@@ -4278,10 +4278,10 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 //
 //---------------------------------------------------------------------------
 
-void handle_se20(int i)
+void handle_se20(DDukeActor* actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
@@ -4300,28 +4300,26 @@ void handle_se20(int i)
 		s->x += x;
 		s->y += l;
 
-		if (t[3] <= 0 || (t[3] >> 6) >= (sprite[i].yvel >> 6))
+		if (t[3] <= 0 || (t[3] >> 6) >= (s->yvel >> 6))
 		{
 			s->x -= x;
 			s->y -= l;
 			t[0] = 0;
-			callsound(s->sectnum, i);
+			callsound(s->sectnum, actor->GetIndex());
 			return;
 		}
 
-		SectIterator it(s->sectnum);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(s->sectnum);
+		while (auto a2 = it.Next())
 		{
-			auto sj = &sprite[j];
-			if (sj->statnum != 3 && sj->zvel == 0)
+			if (a2->s.statnum != 3 && a2->s.zvel == 0)
 			{
-				sj->x += x;
-				sj->y += l;
-				setsprite(j, sj->x, sj->y, sj->z);
-				if (sector[sj->sectnum].floorstat & 2)
-					if (sj->statnum == 2)
-						makeitfall(j);
+				a2->s.x += x;
+				a2->s.y += l;
+				setsprite(a2, a2->s.pos);
+				if (sector[a2->s.sectnum].floorstat & 2)
+					if (a2->s.statnum == 2)
+						makeitfall(a2);
 			}
 		}
 
@@ -4337,7 +4335,7 @@ void handle_se20(int i)
 				ps[p].oposx = ps[p].posx;
 				ps[p].oposy = ps[p].posy;
 
-				setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + PHEIGHT);
+				setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz + PHEIGHT);
 			}
 
 		sc->floorxpanning -= x >> 3;
@@ -4354,10 +4352,10 @@ void handle_se20(int i)
 //
 //---------------------------------------------------------------------------
 
-void handle_se21(int i)
+void handle_se21(DDukeActor* actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
@@ -4372,7 +4370,7 @@ void handle_se21(int i)
 
 	if (t[0] == 1) //Decide if the s->sectnum should go up or down
 	{
-		s->zvel = ksgn(s->z - *lp) * (sprite[i].yvel << 4);
+		s->zvel = ksgn(s->z - *lp) * (s->yvel << 4);
 		t[0]++;
 	}
 
@@ -4383,7 +4381,7 @@ void handle_se21(int i)
 		if (abs(*lp - s->z) < 1024)
 		{
 			*lp = s->z;
-			deletesprite(i);
+			deletesprite(actor);
 		}
 	}
 	else sc->extra--;
@@ -4395,11 +4393,10 @@ void handle_se21(int i)
 //
 //---------------------------------------------------------------------------
 
-void handle_se22(int i)
+void handle_se22(DDukeActor* actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	auto sc = &sector[s->sectnum];
+	int* t = &actor->temp_data[0];
+	auto sc = &sector[actor->s.sectnum];
 	if (t[1])
 	{
 		if (getanimationgoal(anim_ceilingz, t[0]) >= 0)
@@ -4414,12 +4411,12 @@ void handle_se22(int i)
 //
 //---------------------------------------------------------------------------
 
-void handle_se26(int i)
+void handle_se26(DDukeActor* actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
-	int x, j, l;
+	int x, l;
 
 	s->xvel = 32;
 	l = (s->xvel * sintable[(s->ang + 512) & 2047]) >> 14;
@@ -4436,33 +4433,32 @@ void handle_se26(int i)
 	else
 		sc->floorz += s->zvel;
 
-	SectIterator it(s->sectnum);
-	while ((j = it.NextIndex()) >= 0)
+	DukeSectIterator it(s->sectnum);
+	while (auto a2 = it.Next())
 	{
-		auto sj = &sprite[j];
-		if (sj->statnum != 3 && sj->statnum != 10)
+		if (a2->s.statnum != 3 && a2->s.statnum != 10)
 		{
-			hittype[j].bposx = sj->x;
-			hittype[j].bposy = sj->y;
+			a2->bposx = a2->s.x;
+			a2->bposy = a2->s.y;
 
-			sj->x += l;
-			sj->y += x;
+			a2->s.x += l;
+			a2->s.y += x;
 
-			sj->z += s->zvel;
-			setsprite(j, sj->x, sj->y, sj->z);
+			a2->s.z += s->zvel;
+			setsprite(a2, a2->s.pos);
 		}
 	}
 
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
-		if (sprite[ps[p].i].sectnum == s->sectnum && ps[p].on_ground)
+		if (ps[p].GetActor()->s.sectnum == s->sectnum && ps[p].on_ground)
 		{
 			ps[p].fric.x += l << 5;
 			ps[p].fric.y += x << 5;
 			ps[p].posz += s->zvel;
 		}
 
-	ms(i);
-	setsprite(i, s->x, s->y, s->z);
+	ms(actor);
+	setsprite(actor, s->pos);
 }
 
 //---------------------------------------------------------------------------

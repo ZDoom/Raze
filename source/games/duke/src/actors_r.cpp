@@ -3631,15 +3631,15 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 
 		case SE_20_STRETCH_BRIDGE:
-			handle_se20(i);
+			handle_se20(&hittype[i]);
 			break;
 
 		case SE_21_DROP_FLOOR:
-			handle_se21(i);
+			handle_se21(&hittype[i]);
 			break;
 
 		case SE_22_TEETH_DOOR:
-			handle_se22(i);
+			handle_se22(&hittype[i]);
 
 			break;
 
@@ -3761,7 +3761,7 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 
 		case 26:
-			handle_se26(i);
+			handle_se26(&hittype[i]);
 			break;
 
 		case SE_27_DEMO_CAM:
