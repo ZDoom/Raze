@@ -37,6 +37,7 @@ source as it is released.
 #include "global.h"
 #include "sounds.h"
 #include "automap.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 

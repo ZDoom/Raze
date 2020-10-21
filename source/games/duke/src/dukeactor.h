@@ -142,11 +142,6 @@ inline DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, si
 	return &hittype[EGS(whatsect, s_x, s_y, s_z, s_pn, s_s, s_xr, s_yr, s_a, s_ve, s_zv, Owner ? Owner->GetIndex() : -1, s_ss)];
 }
 
-inline int ssp(DDukeActor* i, unsigned int cliptype) //The set sprite function
-{
-	return ssp(i->GetIndex(), cliptype);
-}
-
 inline int ActorToScriptIndex(DDukeActor* a)
 {
 	if (!a) return -1;
@@ -212,5 +207,11 @@ inline void deletesprite(int num)
 {
 	deletesprite(&hittype[num]);
 }
+
+inline int ssp(int i, unsigned int cliptype) //The set sprite function
+{
+	return ssp(&hittype[i], cliptype);
+}
+
 
 END_DUKE_NS

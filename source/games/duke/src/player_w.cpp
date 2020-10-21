@@ -36,7 +36,8 @@ source as it is released.
 #include "ns.h"
 #include "global.h"
 #include "gamevar.h"
-	#include "names_d.h"
+#include "names_d.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 

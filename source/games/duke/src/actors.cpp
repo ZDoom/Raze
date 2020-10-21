@@ -210,12 +210,11 @@ void clearcamera(player_struct* ps)
 	updatesector(ps->posx, ps->posy, &ps->cursectnum);
 	setpal(ps);
 
-	StatIterator it(STAT_ACTOR);
-	int k;
-	while ((k = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_ACTOR);
+	while (auto k = it.Next())
 	{
-		if (sprite[k].picnum == TILE_CAMERA1)
-			sprite[k].yvel = 0;
+		if (k->s.picnum == TILE_CAMERA1)
+			k->s.yvel = 0;
 	}
 }
 
@@ -225,16 +224,13 @@ void clearcamera(player_struct* ps)
 //
 //---------------------------------------------------------------------------
 
-int ssp(int i, unsigned int cliptype) //The set sprite function
+int ssp(DDukeActor* const actor, unsigned int cliptype) //The set sprite function
 {
-	spritetype* s;
 	int movetype;
 
-	s = &sprite[i];
-
-	movetype = fi.movesprite(i,
-		(s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
-		(s->xvel * (sintable[s->ang & 2047])) >> 14, s->zvel,
+	movetype = fi.movesprite(actor->GetIndex(),
+		(actor->s.xvel * (sintable[(actor->s.ang + 512) & 2047])) >> 14,
+		(actor->s.xvel * (sintable[actor->s.ang & 2047])) >> 14, actor->s.zvel,
 		cliptype);
 
 	return (movetype == 0);
