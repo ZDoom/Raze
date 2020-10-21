@@ -88,6 +88,7 @@ void handle_se24(DDukeActor* actor, int16_t* list1, int16_t* list2, int TRIPBOMB
 void handle_se25(DDukeActor* a, int t_index, int snd1, int snd2);
 void handle_se26(DDukeActor* i);
 void handle_se27(DDukeActor* i);
+void handle_se31(DDukeActor* a, bool choosedir);
 void handle_se32(DDukeActor* i);
 void handle_se35(DDukeActor* i, int SMALLSMOKE, int EXPLOSION2);
 void handle_se128(DDukeActor* i);

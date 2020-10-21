@@ -4833,6 +4833,150 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 //
 //---------------------------------------------------------------------------
 
+void handle_se31(DDukeActor* actor, bool choosedir)
+{
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
+	auto sec = &sector[s->sectnum];
+
+	if (t[0] == 1)
+	{
+		// Choose dir
+
+		if (choosedir && t[3] > 0)
+		{
+			t[3]--;
+			return;
+		}
+
+		if (t[2] == 1) // Retract
+		{
+			if (s->ang != 1536)
+			{
+				if (abs(sec->floorz - s->z) < s->yvel)
+				{
+					sec->floorz = s->z;
+					t[2] = 0;
+					t[0] = 0;
+					if (choosedir) t[3] = s->hitag;
+					callsound(s->sectnum, actor->GetIndex());
+				}
+				else
+				{
+					int l = sgn(s->z - sec->floorz) * s->yvel;
+					sec->floorz += l;
+
+					DukeSectIterator it(s->sectnum);
+					while (auto a2 = it.Next())
+					{
+						if (a2->s.picnum == TILE_APLAYER && a2->GetOwner())
+							if (ps[a2->PlayerIndex()].on_ground == 1)
+								ps[a2->PlayerIndex()].posz += l;
+						if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && (!choosedir || a2->s.statnum != STAT_PROJECTILE))
+						{
+							a2->bposz = a2->s.z += l;
+							a2->floorz = sec->floorz;
+						}
+					}
+				}
+			}
+			else
+			{
+				if (abs(sec->floorz - t[1]) < s->yvel)
+				{
+					sec->floorz = t[1];
+					callsound(s->sectnum, actor->GetIndex());
+					t[2] = 0;
+					t[0] = 0;
+					if (choosedir) t[3] = s->hitag;
+				}
+				else
+				{
+					int l = sgn(t[1] - sec->floorz) * s->yvel;
+					sec->floorz += l;
+
+					DukeSectIterator it(s->sectnum);
+					while (auto a2 = it.Next())
+					{
+						if (a2->s.picnum == TILE_APLAYER && a2->GetOwner())
+							if (ps[a2->PlayerIndex()].on_ground == 1)
+								ps[a2->PlayerIndex()].posz += l;
+						if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && (!choosedir || a2->s.statnum != STAT_PROJECTILE))
+						{
+							a2->bposz = a2->s.z += l;
+							a2->floorz = sec->floorz;
+						}
+					}
+				}
+			}
+			return;
+		}
+
+		if ((s->ang & 2047) == 1536)
+		{
+			if (abs(s->z - sec->floorz) < s->yvel)
+			{
+				callsound(s->sectnum, actor->GetIndex());
+				t[0] = 0;
+				t[2] = 1;
+				if (choosedir) t[3] = s->hitag;
+			}
+			else
+			{
+				int l = sgn(s->z - sec->floorz) * s->yvel;
+				sec->floorz += l;
+
+				DukeSectIterator it(s->sectnum);
+				while (auto a2 = it.Next())
+				{
+					if (a2->s.picnum == TILE_APLAYER && a2->GetOwner())
+						if (ps[a2->PlayerIndex()].on_ground == 1)
+							ps[a2->PlayerIndex()].posz += l;
+					if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && (!choosedir || a2->s.statnum != STAT_PROJECTILE))
+					{
+						a2->bposz = a2->s.z += l;
+						a2->floorz = sec->floorz;
+					}
+				}
+			}
+		}
+		else
+		{
+			if (abs(sec->floorz - t[1]) < s->yvel)
+			{
+				t[0] = 0;
+				callsound(s->sectnum, actor->GetIndex());
+				t[2] = 1;
+				t[3] = s->hitag;
+			}
+			else
+			{
+				int l = sgn(s->z - t[1]) * s->yvel;
+				sec->floorz -= l;
+
+				DukeSectIterator it(s->sectnum);
+				while (auto a2 = it.Next())
+				{
+					if (a2->s.picnum ==TILE_APLAYER && a2->GetOwner())
+						if (ps[a2->PlayerIndex()].on_ground == 1)
+							ps[a2->PlayerIndex()].posz -= l;
+					if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && (!choosedir || a2->s.statnum != STAT_PROJECTILE))
+					{
+						a2->bposz = a2->s.z -= l;
+						a2->floorz = sec->floorz;
+					}
+				}
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void getglobalz(int i)
 {
 	int hz,lz,zr;
