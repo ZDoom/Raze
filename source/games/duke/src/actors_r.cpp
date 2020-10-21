@@ -1064,12 +1064,12 @@ void movestandables_r(void)
 
 		else if (picnum >= WATERFOUNTAIN && picnum <= WATERFOUNTAIN + 3)
 		{
-			movefountain(i, WATERFOUNTAIN);
+			movefountain(&hittype[i], WATERFOUNTAIN);
 		}
 
 		else if (AFLAMABLE(picnum))
 		{
-			moveflammable(i, TIRE, BOX, BLOODPOOL);
+			moveflammable(&hittype[i], TIRE, BOX, BLOODPOOL);
 		}
 
 

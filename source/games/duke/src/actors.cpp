@@ -837,26 +837,29 @@ void movecrane(DDukeActor *actor, int crane)
 //
 //---------------------------------------------------------------------------
 
-void movefountain(int i, int fountain)
+void movefountain(DDukeActor *actor, int fountain)
 {
-	auto t = &hittype[i].temp_data[0];
-	auto &pn = sprite[i].picnum;
+	int* t = &actor->temp_data[0];
 	int x;
 	if (t[0] > 0)
 	{
 		if (t[0] < 20)
 		{
 			t[0]++;
-			if (++pn == fountain + 3) pn = fountain + 1;
+
+			actor->s.picnum++;
+
+			if (actor->s.picnum == fountain + 3)
+				actor->s.picnum = fountain + 1;
 		}
 		else
 		{
-			findplayer(&sprite[i], &x);
+			findplayer(actor, &x);
 
 			if (x > 512)
 			{
 				t[0] = 0;
-				pn = fountain;
+				actor->s.picnum = fountain;
 			}
 			else t[0] = 1;
 		}
@@ -868,10 +871,9 @@ void movefountain(int i, int fountain)
 //
 //---------------------------------------------------------------------------
 
-void moveflammable(int i, int tire, int box, int pool)
+void moveflammable(DDukeActor* actor, int tire, int box, int pool)
 {
-	auto spri = &sprite[i];
-	auto actor = &hittype[i];
+	auto spri = &actor->s;
 	int j;
 	if (actor->temp_data[0] == 1)
 	{
@@ -881,15 +883,15 @@ void moveflammable(int i, int tire, int box, int pool)
 		if (!isRR() && spri->picnum == tire && actor->temp_data[1] == 32)
 		{
 			spri->cstat = 0;
-			j = fi.spawn(i, pool);
-			sprite[j].shade = 127;
+			auto spawned = spawn(actor, pool);
+			spawned->s.shade = 127;
 		}
 		else
 		{
 			if (spri->shade < 64) spri->shade++;
 			else
 			{
-				deletesprite(i);
+				deletesprite(actor);
 				return;
 			}
 		}
@@ -897,7 +899,7 @@ void moveflammable(int i, int tire, int box, int pool)
 		j = spri->xrepeat - (krand() & 7);
 		if (j < 10)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 
@@ -906,14 +908,14 @@ void moveflammable(int i, int tire, int box, int pool)
 		j = spri->yrepeat - (krand() & 7);
 		if (j < 4)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 		spri->yrepeat = j;
 	}
 	if (box >= 0 && spri->picnum == box)
 	{
-		makeitfall(i);
+		makeitfall(actor);
 		actor->ceilingz = sector[spri->sectnum].ceilingz;
 	}
 }
