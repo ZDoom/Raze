@@ -3221,10 +3221,10 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 //
 //---------------------------------------------------------------------------
 
-void handle_se02(int i)
+void handle_se02(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
@@ -3246,7 +3246,7 @@ void handle_se02(int i)
 		{
 			t[0] = -1; //Stop the quake
 			t[4] = -1;
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 		else
@@ -3254,7 +3254,7 @@ void handle_se02(int i)
 			if ((t[0] & 31) == 8)
 			{
 				earthquaketime = 48;
-				S_PlayActorSound(EARTHQUAKE, ps[screenpeek].i);
+				S_PlayActorSound(EARTHQUAKE, ps[screenpeek].GetActor());
 			}
 
 			if (abs(sc->floorheinum - t[5]) < 8)
@@ -3276,20 +3276,19 @@ void handle_se02(int i)
 				ps[p].bobposy += x;
 			}
 
-		SectIterator it(s->sectnum);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(s->sectnum);
+		while (auto a2 = it.Next())
 		{
-			auto sj = &sprite[j];
+			auto sj = &a2->s;
 			if (sj->picnum != SECTOREFFECTOR)
 			{
 				sj->x += m;
 				sj->y += x;
-				setsprite(j, sj->x, sj->y, sj->z);
+				setsprite(a2, sj->pos);
 			}
 		}
-		ms(i);
-		setsprite(i, s->x, s->y, s->z);
+		ms(actor);
+		setsprite(actor, s->pos);
 	}
 }
 
@@ -3299,24 +3298,26 @@ void handle_se02(int i)
 //
 //---------------------------------------------------------------------------
 
-void handle_se03(int i)
+void handle_se03(DDukeActor *actor)
 {
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
 
 	if (t[4] == 0) return;
-	int x, p = findplayer(s, &x);
+	int x, p = findplayer(&actor->s, &x);
+
+	int palvals = s->owner;	// this type hijacks the Owner field!!!
 
 	//	if(t[5] > 0) { t[5]--; break; }
 
 	if ((global_random / (sh + 1) & 31) < 4 && !t[2])
 	{
 		//	   t[5] = 4+(global_random&7);
-		sc->ceilingpal = s->owner >> 8;
-		sc->floorpal = s->owner & 0xff;
+		sc->ceilingpal = palvals >> 8;
+		sc->floorpal = palvals & 0xff;
 		t[0] = s->shade + (global_random & 15);
 	}
 	else
@@ -3351,21 +3352,23 @@ void handle_se03(int i)
 //
 //---------------------------------------------------------------------------
 
-void handle_se04(int i)
+void handle_se04(DDukeActor *actor)
 {
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
 	int j;
 
+	int palvals = s->owner;	// this type hijacks the Owner field!!!
+
 	if ((global_random / (sh + 1) & 31) < 4)
 	{
 		t[1] = s->shade + (global_random & 15);//Got really bright
 		t[0] = s->shade + (global_random & 15);
-		sc->ceilingpal = s->owner >> 8;
-		sc->floorpal = s->owner & 0xff;
+		sc->ceilingpal = palvals >> 8;
+		sc->floorpal = palvals & 0xff;
 		j = 1;
 	}
 	else
@@ -3386,7 +3389,7 @@ void handle_se04(int i)
 
 	for (int x = sc->wallnum; x > 0; x--, wal++)
 	{
-		if (j) wal->pal = (s->owner & 0xff);
+		if (j) wal->pal = (palvals & 0xff);
 		else wal->pal = s->pal;
 
 		if (wal->hitag != 1)
@@ -3397,10 +3400,10 @@ void handle_se04(int i)
 		}
 	}
 
-	SectIterator it(s->sectnum);
-	while ((j = it.NextIndex()) >= 0)
+	DukeSectIterator it(s->sectnum);
+	while (auto a2 = it.Next())
 	{
-		auto sj = &sprite[j];
+		auto sj = &a2->s;
 		if (sj->cstat & 16)
 		{
 			if (sc->ceilingstat & 1)
@@ -3410,7 +3413,7 @@ void handle_se04(int i)
 	}
 
 	if (t[4])
-		deletesprite(i);
+		deletesprite(actor);
 
 }
 

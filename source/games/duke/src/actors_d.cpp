@@ -3599,16 +3599,16 @@ void moveeffectors_d(void)   //STATNUM 3
 
 
 		case SE_2_EARTHQUAKE:
-			handle_se02(i);
+			handle_se02(&hittype[i]);
 			break;
 
 			//Flashing sector lights after reactor EXPLOSION2
 		case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
-			handle_se03(i);
+			handle_se03(&hittype[i]);
 			break;
 
 		case SE_4_RANDOM_LIGHTS:
-			handle_se04(i);
+			handle_se04(&hittype[i]);
 			break;
 
 			//BOSS
