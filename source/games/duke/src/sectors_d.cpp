@@ -37,6 +37,7 @@ source as it is released.
 #include "sounds.h"
 #include "names_d.h"
 #include "mapinfo.h"
+#include "dukeactor.h"
 
 // PRIMITIVE
 BEGIN_DUKE_NS

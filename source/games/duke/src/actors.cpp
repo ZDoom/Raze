@@ -57,11 +57,13 @@ int adjustfall(spritetype* s, int c);
 //
 //---------------------------------------------------------------------------
 
-void RANDOMSCRAP(spritetype *s, int i)
+void RANDOMSCRAP(DDukeActor* origin)
 {
 	int r1 = krand(), r2 = krand(), r3 = krand(), r4 = krand(), r5 = krand(), r6 = krand(), r7 = krand();
 	int v = isRR() ? 16 : 48;
-	EGS(s->sectnum, s->x + (r7 & 255) - 128, s->y + (r6 & 255) - 128, s->z - (8 << 8) - (r5 & 8191), TILE_SCRAP6 + (r4 & 15), -8, v, v, r3 & 2047, (r2 & 63) + 64, -512 - (r1 & 2047), i, 5); 
+	EGS(origin->s.sectnum, 
+		origin->s.x + (r7 & 255) - 128, origin->s.y + (r6 & 255) - 128, origin->s.z - (8 << 8) - (r5 & 8191), 
+		TILE_SCRAP6 + (r4 & 15), -8, v, v, r3 & 2047, (r2 & 63) + 64, -512 - (r1 & 2047), origin, 5); 
 }
 
 //---------------------------------------------------------------------------
@@ -70,13 +72,13 @@ void RANDOMSCRAP(spritetype *s, int i)
 //
 //---------------------------------------------------------------------------
 
-void deletesprite(int num)
+void deletesprite(DDukeActor *const actor)
 {
-	if (sprite[num].picnum == MUSICANDSFX && hittype[num].temp_data[0] == 1)
-		S_StopSound(sprite[num].lotag, num);
+	if (actor->s.picnum == MUSICANDSFX && actor->temp_data[0] == 1)
+		S_StopSound(actor->s.lotag, actor);
 	else
-		S_RelinkActorSound(num, -1);
-	::deletesprite(num);
+		S_RelinkActorSound(actor, nullptr);
+	::deletesprite(actor->GetIndex());
 }
 
 //---------------------------------------------------------------------------

@@ -34,6 +34,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "gamestate.h"
 #include "sbar.h"
 #include "automap.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS  
 
@@ -508,7 +509,7 @@ void resetpspritevars(int g)
     STATUSBARTYPE tsbar[MAXPLAYERS];
 
     EGS(ps[0].cursectnum, ps[0].posx, ps[0].posy, ps[0].posz,
-        TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, 0, 10);
+        TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, nullptr, 10);
 
     if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
     {

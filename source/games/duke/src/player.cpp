@@ -571,6 +571,13 @@ void footprints(int snum)
 //
 //---------------------------------------------------------------------------
 
+inline void backupplayer(player_struct* p)
+{
+	backuppos(p);
+	p->angle.backup();
+	p->horizon.backup();
+}
+
 void playerisdead(int snum, int psectlotag, int fz, int cz)
 {
 	auto p = &ps[snum];

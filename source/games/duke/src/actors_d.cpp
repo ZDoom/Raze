@@ -38,6 +38,7 @@ This file contains parts of DukeGDX by Alexander Makarov-[M210] (m210-2007@mail.
 #include "global.h"
 #include "names_d.h"
 #include "serializer.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 

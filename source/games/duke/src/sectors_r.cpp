@@ -31,6 +31,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "sounds.h"
 #include "names_r.h"
 #include "mapinfo.h"
+#include "dukeactor.h"
 
 // PRIMITIVE
 BEGIN_DUKE_NS

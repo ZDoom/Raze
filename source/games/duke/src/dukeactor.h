@@ -101,11 +101,6 @@ inline void changespritesect(int i, int newsect)
 	::changespritesect(i, newsect);
 }
 
-inline void deletesprite(DDukeActor* i)
-{
-	deletesprite(i->GetIndex());
-}
-
 inline int setsprite(DDukeActor* a, int x, int y, int z)
 {
 	return ::setsprite(a->GetIndex(), x, y, z);
@@ -204,6 +199,18 @@ inline int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 inline void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
 {
 	SetGameVarID(id, lValue, sActor->GetIndex(), sPlayer);
+}
+
+// old interface versions of already changed functions
+
+inline void RANDOMSCRAP(spritetype* s, int i)
+{
+	return RANDOMSCRAP(&hittype[s - sprite]);
+}
+
+inline void deletesprite(int num)
+{
+	deletesprite(&hittype[num]);
 }
 
 END_DUKE_NS

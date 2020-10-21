@@ -3,10 +3,13 @@
 #include "screenjob.h"
 #include "constants.h"
 #include "packet.h"
+#include "types.h"
 
 struct MapRecord;
 
 BEGIN_DUKE_NS
+
+
 
 // dumping ground for all external function prototypes to keep them out of the important headers.
 // This list is not sorted in any way.
@@ -25,7 +28,7 @@ void doanimations();
 void movefx();
 void moveclouds(double smoothratio);
 
-void RANDOMSCRAP(spritetype* s, int i);
+void RANDOMSCRAP(DDukeActor* i);
 void ms(short i);
 void movecrane(int i, int crane);
 void movefountain(int i, int fountain);
@@ -94,7 +97,7 @@ int dodge(spritetype*);
 void alterang(int a, int g_i, int g_p);
 void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(int, int), void (*falladjustz)(spritetype*));
 void checkavailweapon(struct player_struct* p);
-void deletesprite(int num);
+void deletesprite(DDukeActor* num);
 void addammo(int weapon, struct player_struct* p, int amount);
 
 int ssp(int i, unsigned int cliptype); //The set sprite function

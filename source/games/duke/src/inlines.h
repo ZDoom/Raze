@@ -187,13 +187,6 @@ inline bool playrunning()
 	return (paused == 0 || (paused == 1 && (ud.recstat == 2 || ud.multimode > 1)));
 }
 
-inline void backupplayer(player_struct* p)
-{
-	backuppos(p);
-	p->angle.backup();
-	p->horizon.backup();
-}
-
 // the weapon display code uses this.
 inline double get16thOfHoriz(int const snum, bool const interpolate, double const smoothratio)
 {
