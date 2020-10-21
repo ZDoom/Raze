@@ -1825,7 +1825,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		else s->z -= 1024;
 	}
 
-	if (roamsnd >= 0 && S_CheckSoundPlaying(actor->GetIndex(), roamsnd) < 1)
+	if (roamsnd >= 0 && S_CheckActorSoundPlaying(actor, roamsnd) < 1)
 		S_PlayActorSound(roamsnd, actor);
 
 	ssp(actor, CLIPMASK0);
@@ -2602,24 +2602,21 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 //
 //---------------------------------------------------------------------------
 
-void handle_se00(int i, int LASERLINE)
+void handle_se00(DDukeActor* actor, int LASERLINE)
 {
-	auto s = &sprite[i];
-	auto actor = &hittype[i];
-	int sectno = s->sectnum;
-	auto t = &actor->temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	sectortype *sect = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
 
 	int zchange = 0;
 
-	int j = s->owner;
-	auto sprowner = &sprite[j];
+	auto Owner = actor->GetOwner();
 
-	if (sprowner->lotag == (short)65535)
+	if (!Owner || Owner->s.lotag == (short)65535)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 
@@ -2630,13 +2627,13 @@ void handle_se00(int i, int LASERLINE)
 	{
 		q >>= 2;
 
-		if (sprite[i].extra == 1)
+		if (s->extra == 1)
 		{
 			if (actor->tempang < 256)
 			{
 				actor->tempang += 4;
 				if (actor->tempang >= 256)
-					callsound(s->sectnum, i);
+					callsound(s->sectnum, actor);
 				if (s->clipdist) l = 1;
 				else l = -1;
 			}
@@ -2658,13 +2655,13 @@ void handle_se00(int i, int LASERLINE)
 					sect->floorz = s->z;
 			}
 		}
-		else if (sprite[i].extra == 3)
+		else if (s->extra == 3)
 		{
 			if (actor->tempang > 0)
 			{
 				actor->tempang -= 4;
 				if (actor->tempang <= 0)
-					callsound(s->sectnum, i);
+					callsound(s->sectnum, actor);
 				if (s->clipdist) l = -1;
 				else l = 1;
 			}
@@ -2692,21 +2689,21 @@ void handle_se00(int i, int LASERLINE)
 	}
 	else
 	{
-		if (hittype[j].temp_data[0] == 0) return;
-		if (hittype[j].temp_data[0] == 2)
+		if (Owner->temp_data[0] == 0) return;
+		if (Owner->temp_data[0] == 2)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 
-		if (sprowner->ang > 1024)
+		if (Owner->s.ang > 1024)
 			l = -1;
 		else l = 1;
 		if (t[3] == 0)
-			t[3] = ldist(s, &sprite[j]);
+			t[3] = ldist(actor, Owner);
 		s->xvel = t[3];
-		s->x = sprowner->x;
-		s->y = sprowner->y;
+		s->x = Owner->s.x;
+		s->y = Owner->s.y;
 		s->ang += (l * q);
 		t[2] += (l * q);
 	}
@@ -2723,9 +2720,7 @@ void handle_se00(int i, int LASERLINE)
 				ps[p].posz += zchange;
 
 				int m, x;
-				rotatepoint(sprowner->x, sprowner->y,
-					ps[p].posx, ps[p].posy, (q * l),
-					&m, &x);
+				rotatepoint(Owner->s.x, Owner->s.y,	ps[p].posx, ps[p].posy, (q * l), &m, &x);
 
 				ps[p].bobposx += m - ps[p].posx;
 				ps[p].bobposy += x - ps[p].posy;
@@ -2733,21 +2728,22 @@ void handle_se00(int i, int LASERLINE)
 				ps[p].posx = m;
 				ps[p].posy = x;
 
-				if (sprite[ps[p].i].extra <= 0)
+				auto psp = ps[p].GetActor();
+				if (psp->s.extra <= 0)
 				{
-					sprite[ps[p].i].x = m;
-					sprite[ps[p].i].y = x;
+					psp->s.x = m;
+					psp->s.y = x;
 				}
 			}
 		}
-		SectIterator itp(s->sectnum);
-		while ((p = itp.NextIndex()) >= 0)
+		DukeSectIterator itp(s->sectnum);
+		while (auto ap = itp.Next())
 		{
 			auto sprp = &sprite[p];
 			if (sprp->statnum != 3 && sprp->statnum != 4)
 				if (LASERLINE < 0 || sprp->picnum != LASERLINE)
 				{
-					if (sprp->picnum == TILE_APLAYER && sprp->owner >= 0)
+					if (sprp->picnum == TILE_APLAYER && ap->GetOwner())
 					{
 						continue;
 					}
@@ -2756,16 +2752,12 @@ void handle_se00(int i, int LASERLINE)
 					sprp->ang &= 2047;
 
 					sprp->z += zchange;
-
-					rotatepoint(sprowner->x, sprowner->y,
-						sprp->x, sprp->y, (q * l),
-						&sprp->x, &sprp->y);
-
+					rotatepoint(Owner->s.x, Owner->s.y, ap->s.x, ap->s.y, (q* l), &ap->s.x, &ap->s.y);
 				}
 		}
 
 	}
-	ms(i);
+	ms(actor);
 }
 
 //---------------------------------------------------------------------------
@@ -2774,21 +2766,18 @@ void handle_se00(int i, int LASERLINE)
 //
 //---------------------------------------------------------------------------
 
-void handle_se01(int i)
+void handle_se01(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	int sh = s->hitag;
-	if (s->owner == -1) //Init
+	int* t = &actor->temp_data[0];
+	int sh = actor->s.hitag;
+	if (actor->GetOwner() == nullptr) //Init
 	{
-		s->owner = i;
+		actor->SetOwner(actor);
 
-		StatIterator it(STAT_EFFECTOR);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_EFFECTOR);
+		while (auto ac = it.Next())
 		{
-			auto ss = &sprite[j];
-			if (ss->lotag == 19 && ss->hitag == sh)
+			if (ac->s.lotag == 19 && ac->s.hitag == sh)
 			{
 				t[0] = 0;
 				break;

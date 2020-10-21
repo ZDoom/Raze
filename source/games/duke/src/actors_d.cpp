@@ -3573,11 +3573,11 @@ void moveeffectors_d(void)   //STATNUM 3
 		switch (st)
 		{
 		case SE_0_ROTATING_SECTOR:
-			handle_se00(i, LASERLINE);
+			handle_se00(&hittype[i], LASERLINE);
 			break;
 			
 		case SE_1_PIVOT: //Nothing for now used as the pivot
-			handle_se01(i);
+			handle_se01(&hittype[i]);
 			break;
 			
 		case SE_6_SUBWAY:

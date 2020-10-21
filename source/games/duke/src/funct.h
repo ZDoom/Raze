@@ -63,8 +63,8 @@ void shell(DDukeActor* i, bool morecheck);
 void glasspieces(DDukeActor* i);
 void scrap(DDukeActor* i, int SCRAP1, int SCRAP6);
 
-void handle_se00(int i, int LASERLINE);
-void handle_se01(int i);
+void handle_se00(DDukeActor* i, int LASERLINE);
+void handle_se01(DDukeActor* i);
 void handle_se14(int i, bool checkstat, int RPG, int JIBS6);
 void handle_se30(int i, int JIBS6);
 void handle_se02(int i);

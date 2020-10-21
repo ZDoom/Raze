@@ -276,4 +276,9 @@ inline void detonate(int i, int explosion)
 	detonate(&hittype[i], explosion);
 }
 
+inline void callsound(int sect, DDukeActor* a)
+{
+	callsound(sect, a->GetIndex());
+}
+
 END_DUKE_NS
