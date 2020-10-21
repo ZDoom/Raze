@@ -4467,10 +4467,10 @@ void handle_se26(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se27(int i)
+void handle_se27(DDukeActor* actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
@@ -4478,34 +4478,34 @@ void handle_se27(int i)
 
 	if (ud.recstat == 0) return;
 
-	hittype[i].tempang = s->ang;
+	actor->tempang = s->ang;
 
-	p = findplayer(s, &x);
-	if (sprite[ps[p].i].extra > 0 && myconnectindex == screenpeek)
+	p = findplayer(&actor->s, &x);
+	if (ps[p].GetActor()->s.extra > 0 && myconnectindex == screenpeek)
 	{
 		if (t[0] < 0)
 		{
-			ud.camerasprite = i;
+			ud.camerasprite = actor->GetIndex();
 			t[0]++;
 		}
 		else if (ud.recstat == 2 && ps[p].newowner == -1)
 		{
-			if (cansee(s->x, s->y, s->z, sprite[i].sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
+			if (cansee(s->x, s->y, s->z, s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
 			{
 				if (x < (unsigned)sh)
 				{
-					ud.camerasprite = i;
+					ud.camerasprite = actor->GetIndex();
 					t[0] = 999;
 					s->ang += getincangle(s->ang, getangle(ps[p].posx - s->x, ps[p].posy - s->y)) >> 3;
-					sprite[i].yvel = 100 + ((s->z - ps[p].posz) / 257);
+					s->yvel = 100 + ((s->z - ps[p].posz) / 257);
 
 				}
 				else if (t[0] == 999)
 				{
-					if (ud.camerasprite == i)
+					if (ud.camerasprite == actor->GetIndex())
 						t[0] = 0;
 					else t[0] = -10;
-					ud.camerasprite = i;
+					ud.camerasprite = actor->GetIndex();
 
 				}
 			}
@@ -4515,10 +4515,10 @@ void handle_se27(int i)
 
 				if (t[0] == 999)
 				{
-					if (ud.camerasprite == i)
+					if (ud.camerasprite == actor->GetIndex())
 						t[0] = 0;
 					else t[0] = -20;
-					ud.camerasprite = i;
+					ud.camerasprite = actor->GetIndex();
 				}
 			}
 		}
@@ -4531,10 +4531,10 @@ void handle_se27(int i)
 //
 //---------------------------------------------------------------------------
 
-void handle_se32(int i)
+void handle_se32(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 
 	if (t[0] == 1)
@@ -4543,57 +4543,51 @@ void handle_se32(int i)
 
 		if (t[2] == 1) // Retract
 		{
-			if (sprite[i].ang != 1536)
+			if (s->ang != 1536)
 			{
-				if (abs(sc->ceilingz - s->z) <
-					(sprite[i].yvel << 1))
+				if (abs(sc->ceilingz - s->z) < (s->yvel << 1))
 				{
 					sc->ceilingz = s->z;
-					callsound(s->sectnum, i);
+					callsound(s->sectnum, actor->GetIndex());
 					t[2] = 0;
 					t[0] = 0;
 				}
-				else sc->ceilingz +=
-					sgn(s->z - sc->ceilingz) * sprite[i].yvel;
+				else sc->ceilingz += sgn(s->z - sc->ceilingz) * s->yvel;
 			}
 			else
 			{
-				if (abs(sc->ceilingz - t[1]) <
-					(sprite[i].yvel << 1))
+				if (abs(sc->ceilingz - t[1]) < (s->yvel << 1))
 				{
 					sc->ceilingz = t[1];
-					callsound(s->sectnum, i);
+					callsound(s->sectnum, actor->GetIndex());
 					t[2] = 0;
 					t[0] = 0;
 				}
-				else sc->ceilingz +=
-					sgn(t[1] - sc->ceilingz) * sprite[i].yvel;
+				else sc->ceilingz += sgn(t[1] - sc->ceilingz) * s->yvel;
 			}
 			return;
 		}
 
 		if ((s->ang & 2047) == 1536)
 		{
-			if (abs(sc->ceilingz - s->z) <
-				(sprite[i].yvel << 1))
+			if (abs(sc->ceilingz - s->z) < (s->yvel << 1))
 			{
 				t[0] = 0;
 				t[2] = !t[2];
-				callsound(s->sectnum, i);
+				callsound(s->sectnum, actor->GetIndex());
 				sc->ceilingz = s->z;
 			}
-			else sc->ceilingz +=
-				sgn(s->z - sc->ceilingz) * sprite[i].yvel;
+			else sc->ceilingz += sgn(s->z - sc->ceilingz) * s->yvel;
 		}
 		else
 		{
-			if (abs(sc->ceilingz - t[1]) < (sprite[i].yvel << 1))
+			if (abs(sc->ceilingz - t[1]) < (s->yvel << 1))
 			{
 				t[0] = 0;
 				t[2] = !t[2];
-				callsound(s->sectnum, i);
+				callsound(s->sectnum, actor->GetIndex());
 			}
-			else sc->ceilingz -= sgn(s->z - t[1]) * sprite[i].yvel;
+			else sc->ceilingz -= sgn(s->z - t[1]) * s->yvel;
 		}
 	}
 
@@ -4605,22 +4599,22 @@ void handle_se32(int i)
 //
 //---------------------------------------------------------------------------
 
-void handle_se35(int i, int SMALLSMOKE, int EXPLOSION2)
+void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 
 	if (sc->ceilingz > s->z)
 		for (int j = 0; j < 8; j++)
 		{
 			s->ang += krand() & 511;
-			int k = fi.spawn(i, SMALLSMOKE);
-			sprite[k].xvel = 96 + (krand() & 127);
-			ssp(k, CLIPMASK0);
-			setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
+			auto spawned = spawn(actor, SMALLSMOKE);
+			spawned->s.xvel = 96 + (krand() & 127);
+			ssp(spawned, CLIPMASK0);
+			setsprite(spawned, spawned->s.pos);
 			if (rnd(16))
-				fi.spawn(i, EXPLOSION2);
+				spawn(actor, EXPLOSION2);
 		}
 
 	switch (t[0])
@@ -4649,11 +4643,10 @@ void handle_se35(int i, int SMALLSMOKE, int EXPLOSION2)
 //
 //---------------------------------------------------------------------------
 
-void handle_se128(int i)
+void handle_se128(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	auto sc = &sector[s->sectnum];
+	int* t = &actor->temp_data[0];
+	auto sc = &sector[actor->s.sectnum];
 
 	auto wal = &wall[t[2]];
 
@@ -4679,7 +4672,7 @@ void handle_se128(int i)
 		wal->cstat &= (128 + 32 + 8 + 4 + 2);
 		if (wal->nextwall >= 0)
 			wall[wal->nextwall].cstat &= (128 + 32 + 8 + 4 + 2);
-		deletesprite(i);
+		deletesprite(actor);
 	}
 }
 
@@ -4689,16 +4682,14 @@ void handle_se128(int i)
 //
 //---------------------------------------------------------------------------
 
-void handle_se130(int i, int countmax, int EXPLOSION2)
+void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 {
-	auto act = &hittype[i];
-	spritetype* s = &act->s;
-	auto t = &act->temp_data[0];
-	auto sc = &sector[s->sectnum];
+	int* t = &actor->temp_data[0];
+	auto sc = &sector[actor->s.sectnum];
 
 	if (t[0] > countmax)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 	else t[0]++;
@@ -4707,7 +4698,7 @@ void handle_se130(int i, int countmax, int EXPLOSION2)
 
 	if (rnd(64))
 	{
-		auto k = spawn(act, EXPLOSION2);
+		auto k = spawn(actor, EXPLOSION2);
 		k->s.xrepeat = k->s.yrepeat = 2 + (krand() & 7);
 		k->s.z = sc->floorz - (krand() % x);
 		k->s.ang += 256 - (krand() % 511);

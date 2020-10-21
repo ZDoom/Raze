@@ -3763,7 +3763,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 		}
 		case 35:
-			handle_se35(i, SMALLSMOKE, EXPLOSION2);
+			handle_se35(&hittype[i], SMALLSMOKE, EXPLOSION2);
 			break;
 
 		case 25: //PISTONS
@@ -3795,7 +3795,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case SE_27_DEMO_CAM:
-			handle_se27(i);
+			handle_se27(&hittype[i]);
 			break;
 		case 28:
 			if (t[5] > 0)
@@ -4021,7 +4021,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case 32: // True Drop Ceiling
-			handle_se32(i);
+			handle_se32(&hittype[i]);
 			break;
 
 		case 33:
@@ -4041,14 +4041,14 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case 128: //SE to control glass breakage
-			handle_se128(i);
+			handle_se128(&hittype[i]);
 			break;
 
 		case 130:
-			handle_se130(i, 80, EXPLOSION2);
+			handle_se130(&hittype[i], 80, EXPLOSION2);
 			break;
 		case 131:
-			handle_se130(i, 40, EXPLOSION2);
+			handle_se130(&hittype[i], 40, EXPLOSION2);
 			break;
 		}
 	}

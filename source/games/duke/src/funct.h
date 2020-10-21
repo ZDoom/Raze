@@ -85,11 +85,11 @@ void handle_se20(DDukeActor* i);
 void handle_se21(DDukeActor* i);
 void handle_se22(DDukeActor* i);
 void handle_se26(DDukeActor* i);
-void handle_se27(int i);
-void handle_se32(int i);
-void handle_se35(int i, int SMALLSMOKE, int EXPLOSION2);
-void handle_se128(int i);
-void handle_se130(int i, int countmax, int EXPLOSION2);
+void handle_se27(DDukeActor* i);
+void handle_se32(DDukeActor* i);
+void handle_se35(DDukeActor* i, int SMALLSMOKE, int EXPLOSION2);
+void handle_se128(DDukeActor* i);
+void handle_se130(DDukeActor* i, int countmax, int EXPLOSION2);
 
 void respawn_rrra(DDukeActor* oldact, DDukeActor* newact);
 
