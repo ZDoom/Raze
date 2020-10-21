@@ -2968,10 +2968,10 @@ void moveactors_r(void)
 			case RESPAWNMARKERRED:
 			case RESPAWNMARKERYELLOW:
 			case RESPAWNMARKERGREEN:
-				if (!respawnmarker(i, RESPAWNMARKERYELLOW, RESPAWNMARKERGREEN)) continue;
+				if (!respawnmarker(&hittype[i], RESPAWNMARKERYELLOW, RESPAWNMARKERGREEN)) continue;
 				break;
 			case RAT:
-				if (!rat(i, !isRRRA())) continue;
+				if (!rat(&hittype[i], !isRRRA())) continue;
 				break;
 			case RRTILE3190:
 			case RRTILE3191:
@@ -3099,7 +3099,7 @@ void moveactors_r(void)
 
 			case QUEBALL:
 			case STRIPEBALL:
-				if (!queball(i, POCKET, QUEBALL, STRIPEBALL)) continue;
+				if (!queball(&hittype[i], POCKET, QUEBALL, STRIPEBALL)) continue;
 				break;
 			case FORCESPHERE:
 				forcesphere(i, FORCESPHERE);

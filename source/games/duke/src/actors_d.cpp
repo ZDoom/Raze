@@ -3207,7 +3207,7 @@ void moveactors_d(void)
 		case RESPAWNMARKERRED:
 		case RESPAWNMARKERYELLOW:
 		case RESPAWNMARKERGREEN:
-			if (!respawnmarker(i, RESPAWNMARKERYELLOW, RESPAWNMARKERGREEN)) continue;
+			if (!respawnmarker(&hittype[i], RESPAWNMARKERYELLOW, RESPAWNMARKERGREEN)) continue;
 			break;
 
 		case HELECOPT:
@@ -3232,11 +3232,11 @@ void moveactors_d(void)
 			ssp(i, CLIPMASK0);
 			break;
 		case RAT:
-			if (!rat(i, true)) continue;
+			if (!rat(&hittype[i], true)) continue;
 			break;
 		case QUEBALL:
 		case STRIPEBALL:
-			if (!queball(i, POCKET, QUEBALL, STRIPEBALL)) continue;
+			if (!queball(&hittype[i], POCKET, QUEBALL, STRIPEBALL)) continue;
 			break;
 		case FORCESPHERE:
 			forcesphere(i, FORCESPHERE);

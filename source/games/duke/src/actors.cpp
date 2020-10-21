@@ -1439,19 +1439,19 @@ void rpgexplode(DDukeActor *actor, int hit, const vec3_t &pos, int EXPLOSION2, i
 //
 //---------------------------------------------------------------------------
 
-bool respawnmarker(int i, int yellow, int green)
+bool respawnmarker(DDukeActor *actor, int yellow, int green)
 {
-	hittype[i].temp_data[0]++;
-	if (hittype[i].temp_data[0] > respawnitemtime)
+	actor->temp_data[0]++;
+	if (actor->temp_data[0] > respawnitemtime)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return false;
 	}
-	if (hittype[i].temp_data[0] >= (respawnitemtime >> 1) && hittype[i].temp_data[0] < ((respawnitemtime >> 1) + (respawnitemtime >> 2)))
-		sprite[i].picnum = yellow;
-	else if (hittype[i].temp_data[0] > ((respawnitemtime >> 1) + (respawnitemtime >> 2)))
-		sprite[i].picnum = green;
-	makeitfall(i);
+	if (actor->temp_data[0] >= (respawnitemtime >> 1) && actor->temp_data[0] < ((respawnitemtime >> 1) + (respawnitemtime >> 2)))
+		actor->s.picnum = yellow;
+	else if (actor->temp_data[0] > ((respawnitemtime >> 1) + (respawnitemtime >> 2)))
+		actor->s.picnum = green;
+	makeitfall(actor);
 	return true;
 }
 
@@ -1461,21 +1461,21 @@ bool respawnmarker(int i, int yellow, int green)
 //
 //---------------------------------------------------------------------------
 
-bool rat(int i, bool makesound)
+bool rat(DDukeActor* actor, bool makesound)
 {
-	spritetype* s = &sprite[i];
-	makeitfall(i);
-	if (ssp(i, CLIPMASK0))
+	auto s = &actor->s;
+	makeitfall(actor);
+	if (ssp(actor, CLIPMASK0))
 	{
-		if (makesound && (krand() & 255) == 0) S_PlayActorSound(RATTY, i);
-		s->ang += (krand() & 31) - 15 + (sintable[(hittype[i].temp_data[0] << 8) & 2047] >> 11);
+		if (makesound && (krand() & 255) == 0) S_PlayActorSound(RATTY, actor);
+		s->ang += (krand() & 31) - 15 + (sintable[(actor->temp_data[0] << 8) & 2047] >> 11);
 	}
 	else
 	{
-		hittype[i].temp_data[0]++;
-		if (hittype[i].temp_data[0] > 1)
+		actor->temp_data[0]++;
+		if (actor->temp_data[0] > 1)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return false;
 		}
 		else s->ang = (krand() & 2047);
@@ -1492,41 +1492,40 @@ bool rat(int i, bool makesound)
 //
 //---------------------------------------------------------------------------
 
-bool queball(int i, int pocket, int queball, int stripeball)
+bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 {
-	spritetype* s = &sprite[i];
+	auto s = &actor->s;
 	if (s->xvel)
 	{
-		StatIterator it(STAT_DEFAULT);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_DEFAULT);
+		while (auto aa = it.Next())
 		{
-			if (sprite[j].picnum == pocket && ldist(&sprite[j], s) < 52)
+			if (aa->s.picnum == pocket && ldist(aa, actor) < 52)
 			{
-				deletesprite(i);
+				deletesprite(actor);
 				return false;
 			}
 		}
 
-		j = clipmove(&s->x, &s->y, &s->z, &s->sectnum,
+		int j = clipmove(&s->x, &s->y, &s->z, &s->sectnum,
 			(((s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14) * TICSPERFRAME) << 11,
 			(((s->xvel * (sintable[s->ang & 2047])) >> 14) * TICSPERFRAME) << 11,
 			24L, (4 << 8), (4 << 8), CLIPMASK1);
 
-		if (j & 49152)
+		if (j & kHitTypeMask)
 		{
-			if ((j & 49152) == 32768)
+			if ((j & kHitTypeMask) == kHitWall)
 			{
-				j &= (MAXWALLS - 1);
+				j &= kHitIndexMask;
 				int k = getangle(
 					wall[wall[j].point2].x - wall[j].x,
 					wall[wall[j].point2].y - wall[j].y);
 				s->ang = ((k << 1) - s->ang) & 2047;
 			}
-			else if ((j & 49152) == 49152)
+			else if ((j & kHitTypeMask) == kHitSprite)
 			{
-				j &= (MAXSPRITES - 1);
-				fi.checkhitsprite(i, j);
+				j &= kHitIndexMask;
+				fi.checkhitsprite(actor->GetIndex(), j);
 			}
 		}
 		s->xvel--;
@@ -1541,22 +1540,21 @@ bool queball(int i, int pocket, int queball, int stripeball)
 	else
 	{
 		int x;
-		int p = findplayer(s, &x);
+		int p = findplayer(&actor->s, &x);
 
 		if (x < 1596)
 		{
-
 			//						if(s->pal == 12)
 			{
 				int j = getincangle(ps[p].angle.ang.asbuild(), getangle(s->x - ps[p].posx, s->y - ps[p].posy));
 				if (j > -64 && j < 64 && PlayerInput(p, SB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{
-						StatIterator it(STAT_ACTOR);
-						int a;
-						while ((a = it.NextIndex()) >= 0)
+						DukeStatIterator it(STAT_ACTOR);
+						DDukeActor *act2;
+						while ((act2 = it.Next()))
 						{
-							auto sa = &sprite[a];
+							auto sa = &act2->s;
 							if (sa->picnum == queball || sa->picnum == stripeball)
 							{
 								j = getincangle(ps[p].angle.ang.asbuild(), getangle(sa->x - ps[p].posx, sa->y - ps[p].posy));
@@ -1568,7 +1566,7 @@ bool queball(int i, int pocket, int queball, int stripeball)
 								}
 							}
 						}
-						if (a == -1)
+						if (act2 == nullptr)
 						{
 							if (s->pal == 12)
 								s->xvel = 164;
