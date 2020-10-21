@@ -2063,21 +2063,22 @@ void camera(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void forcesphere(int i)
+void forcesphereexplode(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	int l = s->xrepeat;
+	int* t = &actor->temp_data[0];
+	int l = actor->s.xrepeat;
 	if (t[1] > 0)
 	{
 		t[1]--;
 		if (t[1] == 0)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 	}
-	if (hittype[s->owner].temp_data[1] == 0)
+	auto Owner = actor->GetOwner();
+	if (!Owner) return;
+	if (Owner->temp_data[1] == 0)
 	{
 		if (t[0] < 64)
 		{
@@ -2092,20 +2093,20 @@ void forcesphere(int i)
 			l -= 3;
 		}
 
-	s->x = sprite[s->owner].x;
-	s->y = sprite[s->owner].y;
-	s->z = sprite[s->owner].z;
-	s->ang += hittype[s->owner].temp_data[0];
+	actor->s.x = Owner->s.x;
+	actor->s.y = Owner->s.y;
+	actor->s.z = Owner->s.z;
+	actor->s.ang += Owner->temp_data[0];
 
 	if (l > 64) l = 64;
 	else if (l < 1) l = 1;
 
-	s->xrepeat = l;
-	s->yrepeat = l;
-	s->shade = (l >> 1) - 48;
+	actor->s.xrepeat = l;
+	actor->s.yrepeat = l;
+	actor->s.shade = (l >> 1) - 48;
 
 	for (int j = t[0]; j > 0; j--)
-		ssp(i, CLIPMASK0);
+		ssp(actor, CLIPMASK0);
 }
 
 //---------------------------------------------------------------------------
@@ -2114,21 +2115,20 @@ void forcesphere(int i)
 //
 //---------------------------------------------------------------------------
 
-void watersplash2(int i)
+void watersplash2(DDukeActor* actor)
 {
-	spritetype* s = &sprite[i];
-	int sect = s->sectnum;
-	auto t = &hittype[i].temp_data[0];
+	int sect = actor->s.sectnum;
+	int* t = &actor->temp_data[0];
 	t[0]++;
 	if (t[0] == 1)
 	{
 		if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 		if (!S_CheckSoundPlaying(ITEM_SPLASH))
-			S_PlayActorSound(ITEM_SPLASH, i);
+			S_PlayActorSound(ITEM_SPLASH, actor);
 	}
 	if (t[0] == 3)
 	{
@@ -2136,7 +2136,7 @@ void watersplash2(int i)
 		t[1]++;
 	}
 	if (t[1] == 5)
-		deletesprite(i);
+		deletesprite(actor);
 }
 
 //---------------------------------------------------------------------------
@@ -2145,25 +2145,23 @@ void watersplash2(int i)
 //
 //---------------------------------------------------------------------------
 
-void frameeffect1(int i)
+void frameeffect1(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	if (s->owner >= 0)
+	int* t = &actor->temp_data[0];
+	auto Owner = actor->GetOwner();
+	if (Owner)
 	{
 		t[0]++;
 
 		if (t[0] > 7)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
-		else if (t[0] > 4)
-			s->cstat |= 512 + 2;
-		else if (t[0] > 2)
-			s->cstat |= 2;
-		s->xoffset = sprite[s->owner].xoffset;
-		s->yoffset = sprite[s->owner].yoffset;
+		else if (t[0] > 4) actor->s.cstat |= 512 + 2;
+		else if (t[0] > 2) actor->s.cstat |= 2;
+		actor->s.xoffset = Owner->s.xoffset;
+		actor->s.yoffset = Owner->s.yoffset;
 	}
 }
 
@@ -2173,15 +2171,15 @@ void frameeffect1(int i)
 //
 //---------------------------------------------------------------------------
 
-bool money(int i, int BLOODPOOL)
+bool money(DDukeActor* actor, int BLOODPOOL)
 {
-	spritetype* s = &sprite[i];
+	auto s = &actor->s;
 	int sect = s->sectnum;
-	auto t = &hittype[i].temp_data[0];
+	int* t = &actor->temp_data[0];
 
-	s->xvel = (krand() & 7) + (sintable[hittype[i].temp_data[0] & 2047] >> 9);
-	hittype[i].temp_data[0] += (krand() & 63);
-	if ((hittype[i].temp_data[0] & 2047) > 512 && (hittype[i].temp_data[0] & 2047) < 1596)
+	s->xvel = (krand() & 7) + (sintable[actor->temp_data[0] & 2047] >> 9);
+	actor->temp_data[0] += (krand() & 63);
+	if ((actor->temp_data[0] & 2047) > 512 && (actor->temp_data[0] & 2047) < 1596)
 	{
 		if (sector[sect].lotag == 2)
 		{
@@ -2193,14 +2191,14 @@ bool money(int i, int BLOODPOOL)
 				s->zvel += (gc >> 5) + (krand() & 7);
 	}
 
-	ssp(i, CLIPMASK0);
+	ssp(actor, CLIPMASK0);
 
 	if ((krand() & 3) == 0)
-		setsprite(i, s->x, s->y, s->z);
+		setsprite(actor, s->pos);
 
 	if (s->sectnum == -1)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return false;
 	}
 	int l = getflorzofslope(s->sectnum, s->x, s->y);
@@ -2209,15 +2207,14 @@ bool money(int i, int BLOODPOOL)
 	{
 		s->z = l;
 
-		insertspriteq(&hittype[i]);
-		sprite[i].picnum++;
+		insertspriteq(actor);
+		s->picnum++;
 
-		StatIterator it(STAT_MISC);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_MISC);
+		while (auto aa = it.Next())
 		{
-			if (sprite[j].picnum == BLOODPOOL)
-				if (ldist(s, &sprite[j]) < 348)
+			if (aa->s.picnum == BLOODPOOL)
+				if (ldist(actor, aa) < 348)
 				{
 					s->pal = 2;
 					break;

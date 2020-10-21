@@ -53,10 +53,10 @@ void recon(DDukeActor* i, int explosion, int firelaser, int attacksnd, int pains
 void ooz(DDukeActor* i);
 void reactor(DDukeActor* i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK);
 void camera(DDukeActor* i);
-void forcesphere(int i);
-void watersplash2(int i);
-void frameeffect1(int i);
-bool money(int i, int BLOODPOOL);
+void forcesphereexplode(DDukeActor* i);
+void watersplash2(DDukeActor* i);
+void frameeffect1(DDukeActor* i);
+bool money(DDukeActor* i, int BLOODPOOL);
 bool jibs(int i, int JIBS6, bool timeout, bool callsetsprite, bool floorcheck, bool zcheck1, bool zcheck2);
 bool bloodpool(int i, bool puke, int TIRE);
 void shell(int i, bool morecheck);

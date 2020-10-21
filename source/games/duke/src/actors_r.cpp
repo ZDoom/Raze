@@ -3269,7 +3269,7 @@ void moveexplosions_r(void)  // STATNUM 5
 
 
 		case FORCESPHERE:
-			forcesphere(i);
+			forcesphereexplode(&hittype[i]);
 			continue;
 
 		case MUD:
@@ -3295,11 +3295,11 @@ void moveexplosions_r(void)  // STATNUM 5
 			continue;
 
 		case WATERSPLASH2:
-			watersplash2(i);
+			watersplash2(&hittype[i]);
 			continue;
 
 		case FRAMEEFFECT1:
-			frameeffect1(i);
+			frameeffect1(&hittype[i]);
 			continue;
 		case INNERJAW:
 		case INNERJAW + 1:
@@ -3335,7 +3335,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			}
 			break;
 		case MONEY:
-			if (!money(i, BLOODPOOL)) continue;
+			if (!money(&hittype[i], BLOODPOOL)) continue;
 
 			if (sector[s->sectnum].lotag == 800)
 				if (s->z >= sector[s->sectnum].floorz - (8 << 8))

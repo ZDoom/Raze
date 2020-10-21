@@ -3428,14 +3428,14 @@ void moveexplosions_d(void)  // STATNUM 5
 			continue;
 
 		case FORCESPHERE:
-			forcesphere(i);
+			forcesphereexplode(&hittype[i]);
 			continue;
 		case WATERSPLASH2:
-			watersplash2(i);
+			watersplash2(&hittype[i]);
 			continue;
 
 		case FRAMEEFFECT1:
-			frameeffect1(i);
+			frameeffect1(&hittype[i]);
 			continue;
 		case INNERJAW:
 		case INNERJAW + 1:
@@ -3467,7 +3467,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case MONEY:
 		case MAIL:
 		case PAPER:
-			money(i, BLOODPOOL);
+			money(&hittype[i], BLOODPOOL);
 
 			break;
 
