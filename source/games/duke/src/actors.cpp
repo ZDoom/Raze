@@ -1590,11 +1590,10 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 //
 //---------------------------------------------------------------------------
 
-void forcesphere(int i, int forcesphere)
+void forcesphere(DDukeActor* actor, int forcesphere)
 {
-	auto act = &hittype[i];
-	auto s = &act->s;
-	auto t = &act->temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	int sect = s->sectnum;
 	if (s->yvel == 0)
 	{
@@ -1603,13 +1602,13 @@ void forcesphere(int i, int forcesphere)
 		for (int l = 512; l < (2048 - 512); l += 128)
 			for (int j = 0; j < 2048; j += 128)
 			{
-				auto k = spawn(act, forcesphere);
+				auto k = spawn(actor, forcesphere);
 				k->s.cstat = 257 + 128;
 				k->s.clipdist = 64;
 				k->s.ang = j;
 				k->s.zvel = sintable[l & 2047] >> 5;
 				k->s.xvel = sintable[(l + 512) & 2047] >> 9;
-				k->s.owner = i;
+				k->SetOwner(actor);
 			}
 	}
 
@@ -1623,17 +1622,16 @@ void forcesphere(int i, int forcesphere)
 		t[3]--;
 		if (t[3] == 0)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 		else if (t[2] > 10)
 		{
-			StatIterator it(STAT_MISC);
-			int j;
-			while ((j = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_MISC);
+			while (auto aa = it.Next())
 			{
-				if (sprite[j].owner == i && sprite[j].picnum == forcesphere)
-					hittype[j].temp_data[1] = 1 + (krand() & 63);
+				if (aa->GetOwner() == actor && aa->s.picnum == forcesphere)
+					aa->temp_data[1] = 1 + (krand() & 63);
 			}
 			t[3] = 64;
 		}
@@ -1646,14 +1644,14 @@ void forcesphere(int i, int forcesphere)
 //
 //---------------------------------------------------------------------------
 
-void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int roamsnd, int shift, int (*getspawn)(int i))
+void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int painsnd, int roamsnd, int shift, int (*getspawn)(DDukeActor* i))
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	int sect = s->sectnum;
-	int j, a;
+	int a;
 
-	getglobalz(i);
+	getglobalz(actor);
 
 	if (sector[s->sectnum].ceilingstat & 1)
 		s->shade += (sector[s->sectnum].ceilingshade - s->shade) >> 1;
@@ -1671,47 +1669,47 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 		}
 		else if (actor_tog == 2) s->cstat = 257;
 	}
-	j = fi.ifhitbyweapon(&hittype[i]); if (j >= 0)
+	if (fi.ifhitbyweapon(actor) >= 0)
 	{
 		if (s->extra < 0 && t[0] != -1)
 		{
 			t[0] = -1;
 			s->extra = 0;
 		}
-		if (painsnd >= 0) S_PlayActorSound(painsnd, i);
-		RANDOMSCRAP(s, i);
+		if (painsnd >= 0) S_PlayActorSound(painsnd, actor);
+		RANDOMSCRAP(actor);
 	}
 
 	if (t[0] == -1)
 	{
 		s->z += 1024;
 		t[2]++;
-		if ((t[2] & 3) == 0) fi.spawn(i, explosion);
-		getglobalz(i);
+		if ((t[2] & 3) == 0) spawn(actor, explosion);
+		getglobalz(actor);
 		s->ang += 96;
 		s->xvel = 128;
-		j = ssp(i, CLIPMASK0);
-		if (j != 1 || s->z > hittype[i].floorz)
+		int j = ssp(actor, CLIPMASK0);
+		if (j != 1 || s->z > actor->floorz)
 		{
 			for (int l = 0; l < 16; l++)
-				RANDOMSCRAP(s, i);
-			S_PlayActorSound(LASERTRIP_EXPLODE, i);
-			int sp = getspawn(i);
-			if (sp >= 0) fi.spawn(i, sp);
+				RANDOMSCRAP(actor);
+			S_PlayActorSound(LASERTRIP_EXPLODE, actor);
+			int sp = getspawn(actor);
+			if (sp >= 0) spawn(actor, sp);
 			ps[myconnectindex].actors_killed++;
-			deletesprite(i);
+			deletesprite(actor);
 		}
 		return;
 	}
 	else
 	{
-		if (s->z > hittype[i].floorz - (48 << 8))
-			s->z = hittype[i].floorz - (48 << 8);
+		if (s->z > actor->floorz - (48 << 8))
+			s->z = actor->floorz - (48 << 8);
 	}
 
 	int x;
-	int p = findplayer(s, &x);
-	j = s->owner;
+	int p = findplayer(&actor->s, &x);
+	auto Owner = actor->GetOwner();
 
 	// 3 = findplayerz, 4 = shoot
 
@@ -1721,9 +1719,9 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 		if ((t[2] & 15) == 0)
 		{
 			a = s->ang;
-			s->ang = hittype[i].tempang;
-			if (attacksnd >= 0) S_PlayActorSound(attacksnd, i);
-			fi.shoot(i, firelaser);
+			s->ang = actor->tempang;
+			if (attacksnd >= 0) S_PlayActorSound(attacksnd, actor);
+			fi.shoot(actor->GetIndex(), firelaser);
 			s->ang = a;
 		}
 		if (t[2] > (26 * 3) || !cansee(s->x, s->y, s->z - (16 << 8), s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
@@ -1731,8 +1729,8 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 			t[0] = 0;
 			t[2] = 0;
 		}
-		else hittype[i].tempang +=
-			getincangle(hittype[i].tempang, getangle(ps[p].posx - s->x, ps[p].posy - s->y)) / 3;
+		else actor->tempang +=
+			getincangle(actor->tempang, getangle(ps[p].posx - s->x, ps[p].posy - s->y)) / 3;
 	}
 	else if (t[0] == 2 || t[0] == 3)
 	{
@@ -1756,26 +1754,26 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 			}
 			else if ((t[2] & 15) == 0 && attacksnd >= 0)
 			{
-				S_PlayActorSound(attacksnd, i);
-				fi.shoot(i, firelaser);
+				S_PlayActorSound(attacksnd, actor);
+				fi.shoot(actor->GetIndex(), firelaser);
 			}
 		}
 		s->ang += getincangle(s->ang, getangle(ps[p].posx - s->x, ps[p].posy - s->y)) >> 2;
 	}
 
-	if (t[0] != 2 && t[0] != 3)
+	if (t[0] != 2 && t[0] != 3 && Owner)
 	{
-		int l = ldist(&sprite[j], s);
+		int l = ldist(Owner, actor);
 		if (l <= 1524)
 		{
 			a = s->ang;
 			s->xvel >>= 1;
 		}
-		else a = getangle(sprite[j].x - s->x, sprite[j].y - s->y);
+		else a = getangle(Owner->s.x - s->x, Owner->s.y - s->y);
 
 		if (t[0] == 1 || t[0] == 4) // Found a locator and going with it
 		{
-			l = dist(&sprite[j], s);
+			l = dist(Owner, actor);
 
 			if (l <= 1524) { if (t[0] == 1) t[0] = 0; else t[0] = 5; }
 			else
@@ -1795,7 +1793,7 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 			{
 				t[0] = 2 + (krand() & 2);
 				t[2] = 0;
-				hittype[i].tempang = s->ang;
+				actor->tempang = s->ang;
 			}
 		}
 
@@ -1804,33 +1802,33 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 			if (t[0] == 0)
 				t[0] = 1;
 			else t[0] = 4;
-			j = s->owner = LocateTheLocator(s->hitag, -1);
-			if (j == -1)
+			auto NewOwner = LocateTheLocator(s->hitag, -1);
+			if (!NewOwner)
 			{
-				s->hitag = j = hittype[i].temp_data[5];
-				s->owner = LocateTheLocator(j, -1);
-				j = s->owner;
-				if (j == -1)
+				s->hitag = actor->temp_data[5];
+				NewOwner = LocateTheLocator(s->hitag, -1);
+				if (!NewOwner)
 				{
-					deletesprite(i);
+					deletesprite(actor);
 					return;
 				}
 			}
 			else s->hitag++;
+			actor->SetOwner(&hittype[NewOwner]);
 		}
 
 		t[3] = getincangle(s->ang, a);
 		s->ang += t[3] >> 3;
 
-		if (s->z < sprite[j].z)
+		if (s->z < Owner->s.z)
 			s->z += 1024;
 		else s->z -= 1024;
 	}
 
-	if (roamsnd >= 0 && S_CheckSoundPlaying(i, roamsnd) < 1)
-		S_PlayActorSound(roamsnd, i);
+	if (roamsnd >= 0 && S_CheckSoundPlaying(actor->GetIndex(), roamsnd) < 1)
+		S_PlayActorSound(roamsnd, actor);
 
-	ssp(i, CLIPMASK0);
+	ssp(actor, CLIPMASK0);
 }
 
 //---------------------------------------------------------------------------

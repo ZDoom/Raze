@@ -3239,11 +3239,11 @@ void moveactors_d(void)
 			if (!queball(&hittype[i], POCKET, QUEBALL, STRIPEBALL)) continue;
 			break;
 		case FORCESPHERE:
-			forcesphere(i, FORCESPHERE);
+			forcesphere(&hittype[i], FORCESPHERE);
 			continue;
 
 		case RECON:
-			recon(i, EXPLOSION2, FIRELASER, RECO_ATTACK, RECO_PAIN, RECO_ROAM, 10, [](int i)->int { return PIGCOP; });
+			recon(&hittype[i], EXPLOSION2, FIRELASER, RECO_ATTACK, RECO_PAIN, RECO_ROAM, 10, [](DDukeActor* i)->int { return PIGCOP; });
 			continue;
 
 		case OOZ:

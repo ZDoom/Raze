@@ -3102,7 +3102,7 @@ void moveactors_r(void)
 				if (!queball(&hittype[i], POCKET, QUEBALL, STRIPEBALL)) continue;
 				break;
 			case FORCESPHERE:
-				forcesphere(i, FORCESPHERE);
+				forcesphere(&hittype[i], FORCESPHERE);
 				continue;
 
 			case RECON:
@@ -3111,9 +3111,9 @@ void moveactors_r(void)
 			case UFO3:
 			case UFO4:
 			case UFO5:
-				recon(i, EXPLOSION2, FIRELASER, -1, -1, 457, 8, [](int i) ->int
+				recon(&hittype[i], EXPLOSION2, FIRELASER, -1, -1, 457, 8, [](DDukeActor* i) ->int
 					{
-						auto s = &sprite[i];
+						auto s = &i->s;
 						if (isRRRA() && ufospawnsminion)
 							return MINION;
 						else if (s->picnum == UFO1_RR)
