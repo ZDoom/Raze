@@ -2230,11 +2230,11 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 //
 //---------------------------------------------------------------------------
 
-bool jibs(int i, int JIBS6, bool timeout, bool callsetsprite, bool floorcheck, bool zcheck1, bool zcheck2)
+bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool floorcheck, bool zcheck1, bool zcheck2)
 {
-	spritetype* s = &sprite[i];
+	spritetype* s = &actor->s;
 	int sect = s->sectnum;
-	auto t = &hittype[i].temp_data[0];
+	int* t = &actor->temp_data[0];
 
 	if (s->xvel > 0) s->xvel--;
 	else s->xvel = 0;
@@ -2245,24 +2245,24 @@ bool jibs(int i, int JIBS6, bool timeout, bool callsetsprite, bool floorcheck, b
 			t[5]++;
 		else
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return false;
 		}
 	}
 
 	if (s->zvel > 1024 && s->zvel < 1280)
 	{
-		setsprite(i, s->x, s->y, s->z);
+		setsprite(actor, s->pos);
 		sect = s->sectnum;
 	}
 
-	if (callsetsprite) setsprite(i, s->x, s->y, s->z);
+	if (callsetsprite) setsprite(actor, s->pos);
 
 	int l = getflorzofslope(sect, s->x, s->y);
 	int x = getceilzofslope(sect, s->x, s->y);
 	if (x == l || sect < 0 || sect >= MAXSECTORS)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return false;
 	}
 
@@ -2302,7 +2302,7 @@ bool jibs(int i, int JIBS6, bool timeout, bool callsetsprite, bool floorcheck, b
 
 		if (floorcheck && s->z >= sector[s->sectnum].floorz)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return false;
 		}
 	}
@@ -2310,19 +2310,19 @@ bool jibs(int i, int JIBS6, bool timeout, bool callsetsprite, bool floorcheck, b
 	{
 		if (zcheck2)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return false;
 		}
 		if (t[2] == 0)
 		{
 			if (s->sectnum == -1)
 			{
-				deletesprite(i);
+				deletesprite(actor);
 				return false;
 			}
 			if ((sector[s->sectnum].floorstat & 2))
 			{
-				deletesprite(i);
+				deletesprite(actor);
 				return false;
 			}
 			t[2]++;
@@ -2339,7 +2339,7 @@ bool jibs(int i, int JIBS6, bool timeout, bool callsetsprite, bool floorcheck, b
 				t[0]++;
 			if (t[1] > 20)
 			{
-				deletesprite(i);
+				deletesprite(actor);
 				return false;
 			}
 		}
@@ -2354,34 +2354,34 @@ bool jibs(int i, int JIBS6, bool timeout, bool callsetsprite, bool floorcheck, b
 //
 //---------------------------------------------------------------------------
 
-bool bloodpool(int i, bool puke, int TIRE)
+bool bloodpool(DDukeActor* actor, bool puke, int TIRE)
 {
-	spritetype* s = &sprite[i];
+	spritetype* s = &actor->s;
 	int sect = s->sectnum;
-	auto t = &hittype[i].temp_data[0];
+	int* t = &actor->temp_data[0];
 
 	if (t[0] == 0)
 	{
 		t[0] = 1;
 		if (sector[sect].floorstat & 2)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return false;
 		}
-		else insertspriteq(&hittype[i]);
+		else insertspriteq(actor);
 	}
 
-	makeitfall(i);
+	makeitfall(actor);
 
 	int x;
-	int p = findplayer(s, &x);
+	int p = findplayer(&actor->s, &x);
 
-	s->z = hittype[i].floorz - (FOURSLEIGHT);
+	s->z = actor->floorz - (FOURSLEIGHT);
 
 	if (t[2] < 32)
 	{
 		t[2]++;
-		if (hittype[i].picnum == TIRE)
+		if (actor->picnum == TIRE)
 		{
 			if (s->xrepeat < 64 && s->yrepeat < 64)
 			{
@@ -2408,8 +2408,8 @@ bool bloodpool(int i, bool puke, int TIRE)
 			else
 			{
 				if (!S_CheckSoundPlaying(DUKE_LONGTERM_PAIN))
-					S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].i);
-				sprite[ps[p].i].extra--;
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].GetActor());
+				ps[p].GetActor()->s.extra--;
 				SetPlayerPal(&ps[p], PalEntry(32, 16, 0, 0));
 			}
 		}
@@ -2417,7 +2417,7 @@ bool bloodpool(int i, bool puke, int TIRE)
 		if (t[1] == 1) return false;
 		t[1] = 1;
 
-		if (hittype[i].picnum == TIRE)
+		if (actor->picnum == TIRE)
 			ps[p].footprintcount = 10;
 		else ps[p].footprintcount = 3;
 
@@ -2440,17 +2440,17 @@ bool bloodpool(int i, bool puke, int TIRE)
 //
 //---------------------------------------------------------------------------
 
-void shell(int i, bool morecheck)
+void shell(DDukeActor* actor, bool morecheck)
 {
-	spritetype* s = &sprite[i];
+	spritetype* s = &actor->s;
 	int sect = s->sectnum;
-	auto t = &hittype[i].temp_data[0];
+	int* t = &actor->temp_data[0];
 
-	ssp(i, CLIPMASK0);
+	ssp(actor, CLIPMASK0);
 
 	if (sect < 0 || morecheck)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 
@@ -2483,7 +2483,7 @@ void shell(int i, bool morecheck)
 			s->xvel--;
 		else
 		{
-			deletesprite(i);
+			deletesprite(actor);
 		}
 	}
 }
@@ -2494,22 +2494,22 @@ void shell(int i, bool morecheck)
 //
 //---------------------------------------------------------------------------
 
-void glasspieces(int i)
+void glasspieces(DDukeActor* actor)
 {
-	spritetype* s = &sprite[i];
+	spritetype* s = &actor->s;
 	int sect = s->sectnum;
-	auto t = &hittype[i].temp_data[0];
+	int* t = &actor->temp_data[0];
 
-	makeitfall(i);
+	makeitfall(actor);
 
 	if (s->zvel > 4096) s->zvel = 4096;
 	if (sect < 0)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 
-	if (s->z == hittype[i].floorz - (FOURSLEIGHT) && t[0] < 3)
+	if (s->z == actor->floorz - (FOURSLEIGHT) && t[0] < 3)
 	{
 		s->zvel = -((3 - t[0]) << 8) - (krand() & 511);
 		if (sector[sect].lotag == 2)
@@ -2517,12 +2517,12 @@ void glasspieces(int i)
 		s->xrepeat >>= 1;
 		s->yrepeat >>= 1;
 		if (rnd(96))
-			setsprite(i, s->x, s->y, s->z);
+			setsprite(actor, s->pos);
 		t[0]++;//Number of bounces
 	}
 	else if (t[0] == 3)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 
@@ -2533,7 +2533,7 @@ void glasspieces(int i)
 	}
 	else s->xvel = 0;
 
-	ssp(i, CLIPMASK0);
+	ssp(actor, CLIPMASK0);
 }
 
 //---------------------------------------------------------------------------
@@ -2542,11 +2542,11 @@ void glasspieces(int i)
 //
 //---------------------------------------------------------------------------
 
-void scrap(int i, int SCRAP1, int SCRAP6)
+void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 {
-	spritetype* s = &sprite[i];
+	spritetype* s = &actor->s;
 	int sect = s->sectnum;
-	auto t = &hittype[i].temp_data[0];
+	int* t = &actor->temp_data[0];
 
 	if (s->xvel > 0)
 		s->xvel--;
@@ -2554,7 +2554,7 @@ void scrap(int i, int SCRAP1, int SCRAP6)
 
 	if (s->zvel > 1024 && s->zvel < 1280)
 	{
-		setsprite(i, s->x, s->y, s->z);
+		setsprite(actor, s->pos);
 		sect = s->sectnum;
 	}
 
@@ -2587,12 +2587,12 @@ void scrap(int i, int SCRAP1, int SCRAP6)
 	{
 		if (s->picnum == SCRAP1 && s->yvel > 0)
 		{
-			int j = fi.spawn(i, s->yvel);
-			setsprite(j, s->x, s->y, s->z);
-			getglobalz(j);
-			sprite[j].hitag = sprite[j].lotag = 0;
+			auto spawned = spawn(actor, s->yvel);
+			setsprite(spawned, s->pos);
+			getglobalz(spawned);
+			spawned->s.hitag = spawned->s.lotag = 0;
 		}
-		deletesprite(i);
+		deletesprite(actor);
 	}
 }
 

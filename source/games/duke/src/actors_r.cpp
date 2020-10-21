@@ -3388,7 +3388,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		case DUKETORSO:
 		case DUKEGUN:
 		case DUKELEG:
-			if (!jibs(i, JIBS6, false, true, true, s->picnum == DUKELEG || s->picnum == DUKETORSO || s->picnum == DUKEGUN, 
+			if (!jibs(&hittype[i], JIBS6, false, true, true, s->picnum == DUKELEG || s->picnum == DUKETORSO || s->picnum == DUKEGUN,
 				isRRRA() && (s->picnum == RRTILE2465 || s->picnum == RRTILE2560))) continue;
 			
 			if (sector[s->sectnum].lotag == 800)
@@ -3401,7 +3401,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			continue;
 
 		case BLOODPOOL:
-			if (!bloodpool(i, false, TIRE)) continue;
+			if (!bloodpool(&hittype[i], false, TIRE)) continue;
 
 			if (sector[s->sectnum].lotag == 800)
 				if (s->z >= sector[s->sectnum].floorz - (8 << 8))
@@ -3425,20 +3425,20 @@ void moveexplosions_r(void)  // STATNUM 5
 
 		case SHELL:
 		case SHOTGUNSHELL:
-			shell(i, false);
+			shell(&hittype[i], false);
 			continue;
 
 		case GLASSPIECES:
 		case GLASSPIECES + 1:
 		case GLASSPIECES + 2:
 		case POPCORN:
-			glasspieces(i);
+			glasspieces(&hittype[i]);
 			continue;
 		}
 
 		if (s->picnum >= SCRAP6 && s->picnum <= SCRAP5 + 3)
 		{
-			scrap(i, SCRAP1, SCRAP6);
+			scrap(&hittype[i], SCRAP1, SCRAP6);
 		}
 	}
 }
