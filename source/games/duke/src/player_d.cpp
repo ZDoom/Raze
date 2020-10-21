@@ -3079,7 +3079,7 @@ HORIZONLY:
 		changespritesect(pi, p->cursectnum);
 
 	if (ud.clipping == 0)
-		j = (pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 164L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(pi, 8) < 512);
+		j = (pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 164L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 	else j = 0;
 
 	if (ud.clipping == 0)

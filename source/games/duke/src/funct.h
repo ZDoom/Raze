@@ -96,7 +96,7 @@ void handle_se130(DDukeActor* i, int countmax, int EXPLOSION2);
 
 void respawn_rrra(DDukeActor* oldact, DDukeActor* newact);
 
-int dodge(spritetype*);
+int dodge(DDukeActor*);
 void alterang(int a, int g_i, int g_p);
 void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(int, int), void (*falladjustz)(spritetype*));
 void checkavailweapon(struct player_struct* p);
@@ -171,7 +171,7 @@ void doorders(const CompletionFunc& func);
 void LoadActor(int i, int p, int x);
 void execute(int s, int p, int d);
 void makeitfall(DDukeActor* s);
-int furthestangle(int snum, int angDiv);
+int furthestangle(DDukeActor* snum, int angDiv);
 void getglobalz(DDukeActor* s);
 void OnEvent(int id, int pnum = -1, int snum = -1, int dist = -1);
 

@@ -4060,9 +4060,9 @@ HORIZONLY:
 	if (ud.clipping == 0)
 	{
 		if (s->clipdist == 64)
-			j = (pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 128L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(pi, 8) < 512);
+			j = (pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 128L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 		else
-			j = (pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 16L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(pi, 8) < 512);
+			j = (pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 16L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 	}
 	else j = 0;
 

@@ -3915,7 +3915,7 @@ void move_d(int g_i, int g_p, int g_x)
 	if (a & getv) g_sp->zvel += ((*(moveptr + 1) << 4) - g_sp->zvel) >> 1;
 
 	if (a & dodgebullet)
-		dodge(g_sp);
+		dodge(&hittype[g_i]);
 
 	if (g_sp->picnum != APLAYER)
 		alterang(a, g_i, g_p);

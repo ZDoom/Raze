@@ -80,7 +80,7 @@ struct ParseState
 	void parseifelse(int condition);
 };
 
-int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day);
+int furthestcanseepoint(DDukeActor* i, DDukeActor* ts, int* dax, int* day);
 bool ifsquished(int i, int p);
 void fakebubbaspawn(int g_i, int g_p);
 void tearitup(int sect);
@@ -1493,7 +1493,7 @@ static bool ifcansee(int g_i, int g_p)
 
 			// also modifies 'target' x&y if found..
 
-			j = furthestcanseepoint(g_i, s, &hittype[g_i].lastvx, &hittype[g_i].lastvy);
+			j = furthestcanseepoint(&hittype[g_i], ps[g_p].GetActor(), &hittype[g_i].lastvx, &hittype[g_i].lastvy);
 
 			if (j == -1) j = 0;
 			else j = 1;
@@ -2542,7 +2542,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_ifbulletnear:
-		parseifelse( dodge(g_sp) == 1);
+		parseifelse( dodge(g_ac) == 1);
 		break;
 	case concmd_ifrespawn:
 		if( badguy(g_sp) )

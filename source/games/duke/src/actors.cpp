@@ -5082,20 +5082,20 @@ void makeitfall(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int dodge(spritetype* s)
+int dodge(DDukeActor* actor)
 {
-	int i;
+	auto s = &actor->s;
 	int bx, by, mx, my, bxvect, byvect, mxvect, myvect, d;
 
 	mx = s->x;
 	my = s->y;
 	mxvect = sintable[(s->ang + 512) & 2047]; myvect = sintable[s->ang & 2047];
 
-	StatIterator it(STAT_PROJECTILE);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_PROJECTILE);
+	while (auto ac = it.Next())
 	{
-		auto si = &sprite[i];
-		if (si->owner == i || si->sectnum != s->sectnum)
+		auto si = &ac->s;
+		if (ac->GetOwner() == ac || si->sectnum != s->sectnum)
 			continue;
 
 		bx = si->x - mx;
@@ -5122,17 +5122,17 @@ int dodge(spritetype* s)
 //
 //---------------------------------------------------------------------------
 
-int furthestangle(int i, int angs)
+int furthestangle(DDukeActor *actor, int angs)
 {
+	auto s = &actor->s;
 	short j, hitsect, hitwall, hitspr, furthest_angle, angincs;
 	int hx, hy, hz, d, greatestd;
-	spritetype* s = &sprite[i];
 
 	greatestd = -(1 << 30);
 	angincs = 2048 / angs;
 
 	if (s->picnum != TILE_APLAYER)
-		if ((hittype[i].temp_data[0] & 63) > 2) return(s->ang + 1024);
+		if ((actor->temp_data[0] & 63) > 2) return(s->ang + 1024);
 
 	for (j = s->ang; j < (2048 + s->ang); j += angincs)
 	{
@@ -5158,18 +5158,19 @@ int furthestangle(int i, int angs)
 //
 //---------------------------------------------------------------------------
 
-int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day)
+int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day)
 {
+	auto s = &actor->s;
 	short j, hitsect, hitwall, hitspr, angincs;
 	int hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
-	spritetype* s = &sprite[i];
 
-	if ((hittype[i].temp_data[0] & 63)) return -1;
+	if ((actor->temp_data[0] & 63)) return -1;
 
 	if (ud.multimode < 2 && ud.player_skill < 3)
 		angincs = 2048 / 2;
 	else angincs = 2048 / (1 + (krand() & 1));
 
+	auto ts = &tosee->s;
 	for (j = ts->ang; j < (2048 + ts->ang); j += (angincs - (krand() & 511)))
 	{
 		hitscan(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum,
@@ -5258,14 +5259,14 @@ void alterang(int a, int g_i, int g_p)
 		j = 2;
 		if (a & furthestdir)
 		{
-			goalang = furthestangle(g_i, j);
+			goalang = furthestangle(&hittype[g_i], j);
 			g_sp->ang = goalang;
 			g_sp->owner = ps[g_p].i;
 		}
 
 		if (a & fleeenemy)
 		{
-			goalang = furthestangle(g_i, j);
+			goalang = furthestangle(&hittype[g_i], j);
 			g_sp->ang = goalang; // += angdif; //  = getincangle(aang,goalang)>>1;
 		}
 	}
