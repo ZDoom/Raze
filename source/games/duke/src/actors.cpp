@@ -1507,27 +1507,25 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 			}
 		}
 
-		int j = clipmove(&s->x, &s->y, &s->z, &s->sectnum,
+		Collision coll;
+		int j = clipmove_ex(&s->x, &s->y, &s->z, &s->sectnum,
 			(((s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14) * TICSPERFRAME) << 11,
 			(((s->xvel * (sintable[s->ang & 2047])) >> 14) * TICSPERFRAME) << 11,
-			24L, (4 << 8), (4 << 8), CLIPMASK1);
+			24L, (4 << 8), (4 << 8), CLIPMASK1, coll);
 
-		if (j & kHitTypeMask)
+		if (j == kHitWall)
 		{
-			if ((j & kHitTypeMask) == kHitWall)
-			{
-				j &= kHitIndexMask;
+			j = coll.index;
 				int k = getangle(
 					wall[wall[j].point2].x - wall[j].x,
 					wall[wall[j].point2].y - wall[j].y);
 				s->ang = ((k << 1) - s->ang) & 2047;
 			}
-			else if ((j & kHitTypeMask) == kHitSprite)
+		else if (j == kHitSprite)
 			{
-				j &= kHitIndexMask;
-				fi.checkhitsprite(actor->GetIndex(), j);
+			fi.checkhitsprite(actor->GetIndex(), coll.actor->GetIndex());
 			}
-		}
+
 		s->xvel--;
 		if (s->xvel < 0) s->xvel = 0;
 		if (s->picnum == stripeball)
@@ -1540,7 +1538,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 	else
 	{
 		int x;
-		int p = findplayer(&actor->s, &x);
+		int p = findplayer(actor, &x);
 
 		if (x < 1596)
 		{

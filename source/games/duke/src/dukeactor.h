@@ -235,6 +235,12 @@ inline int movesprite_ex(DDukeActor* actor, int xchange, int ychange, int zchang
 	return f(actor, xchange, ychange, zchange, cliptype, result);
 }
 
+inline int clipmove_ex(int* x, int* y, int* z, short* sect, int xv, int yv, int wal, int ceil, int flor, int ct, Collision& result)
+{
+	int res = clipmove(x, y, z, sect, xv, yv, wal, ceil, flor, ct);
+	return result.setFromEngine(res);
+}
+
 inline void ms(short i)
 {
 	ms(&hittype[i]);
