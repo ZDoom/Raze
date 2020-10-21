@@ -85,12 +85,12 @@ void deletesprite(int num)
 //
 //---------------------------------------------------------------------------
 
-void addammo(int weapon, struct player_struct* p, int amount)
+void addammo(int weapon, struct player_struct* player, int amount)
 {
-	p->ammo_amount[weapon] += amount;
+	player->ammo_amount[weapon] += amount;
 
-	if (p->ammo_amount[weapon] > max_ammo_amount[weapon])
-		p->ammo_amount[weapon] = max_ammo_amount[weapon];
+	if (player->ammo_amount[weapon] > max_ammo_amount[weapon])
+		player->ammo_amount[weapon] = max_ammo_amount[weapon];
 }
 
 //---------------------------------------------------------------------------
@@ -99,24 +99,24 @@ void addammo(int weapon, struct player_struct* p, int amount)
 //
 //---------------------------------------------------------------------------
 
-void checkavailinven(struct player_struct* p)
+void checkavailinven(struct player_struct* player)
 {
 
-	if (p->firstaid_amount > 0)
-		p->inven_icon = ICON_FIRSTAID;
-	else if (p->steroids_amount > 0)
-		p->inven_icon = ICON_STEROIDS;
-	else if (p->holoduke_amount > 0)
-		p->inven_icon = ICON_HOLODUKE;
-	else if (p->jetpack_amount > 0)
-		p->inven_icon = ICON_JETPACK;
-	else if (p->heat_amount > 0)
-		p->inven_icon = ICON_HEATS;
-	else if (p->scuba_amount > 0)
-		p->inven_icon = ICON_SCUBA;
-	else if (p->boot_amount > 0)
-		p->inven_icon = ICON_BOOTS;
-	else p->inven_icon = ICON_NONE;
+	if (player->firstaid_amount > 0)
+		player->inven_icon = ICON_FIRSTAID;
+	else if (player->steroids_amount > 0)
+		player->inven_icon = ICON_STEROIDS;
+	else if (player->holoduke_amount > 0)
+		player->inven_icon = ICON_HOLODUKE;
+	else if (player->jetpack_amount > 0)
+		player->inven_icon = ICON_JETPACK;
+	else if (player->heat_amount > 0)
+		player->inven_icon = ICON_HEATS;
+	else if (player->scuba_amount > 0)
+		player->inven_icon = ICON_SCUBA;
+	else if (player->boot_amount > 0)
+		player->inven_icon = ICON_BOOTS;
+	else player->inven_icon = ICON_NONE;
 }
 
 //---------------------------------------------------------------------------
@@ -125,29 +125,29 @@ void checkavailinven(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void checkavailweapon(struct player_struct* p)
+void checkavailweapon(struct player_struct* player)
 {
 	short i, snum;
 	int weap;
 
-	if (p->wantweaponfire >= 0)
+	if (player->wantweaponfire >= 0)
 	{
-		weap = p->wantweaponfire;
-		p->wantweaponfire = -1;
+		weap = player->wantweaponfire;
+		player->wantweaponfire = -1;
 
-		if (weap == p->curr_weapon) return;
-		else if (p->gotweapon[weap] && p->ammo_amount[weap] > 0)
+		if (weap == player->curr_weapon) return;
+		else if (player->gotweapon[weap] && player->ammo_amount[weap] > 0)
 		{
-			fi.addweapon(p, weap);
+			fi.addweapon(player, weap);
 			return;
 		}
 	}
 
-	weap = p->curr_weapon;
-	if (p->gotweapon[weap] && p->ammo_amount[weap] > 0)
+	weap = player->curr_weapon;
+	if (player->gotweapon[weap] && player->ammo_amount[weap] > 0)
 		return;
 
-	snum = sprite[p->i].yvel;
+	snum = player->GetPlayerNum();
 
 	int max = MAX_WEAPON;
 	for (i = 0; i <= max; i++)
@@ -158,7 +158,7 @@ void checkavailweapon(struct player_struct* p)
 		if (weap == 0) weap = max;
 		else weap--;
 
-		if (weap == MIN_WEAPON || (p->gotweapon[weap] && p->ammo_amount[weap] > 0))
+		if (weap == MIN_WEAPON || (player->gotweapon[weap] && player->ammo_amount[weap] > 0))
 			break;
 	}
 
@@ -166,30 +166,30 @@ void checkavailweapon(struct player_struct* p)
 
 	// Found the weapon
 
-	p->last_weapon = p->curr_weapon;
-	p->random_club_frame = 0;
-	p->curr_weapon = weap;
+	player->last_weapon = player->curr_weapon;
+	player->random_club_frame = 0;
+	player->curr_weapon = weap;
 	if (isWW2GI())
 	{
-		SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum); // snum is playerindex!
-		if (p->curr_weapon >= 0)
+		SetGameVarID(g_iWeaponVarID, player->curr_weapon, player->GetActor(), snum); // snum is playerindex!
+		if (player->curr_weapon >= 0)
 		{
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[player->curr_weapon][snum], player->GetActor(), snum);
 		}
 		else
 		{
-			SetGameVarID(g_iWorksLikeVarID, -1, p->i, snum);
+			SetGameVarID(g_iWorksLikeVarID, -1, player->GetActor(), snum);
 		}
-		OnEvent(EVENT_CHANGEWEAPON, snum, p->i, -1);
+		OnEvent(EVENT_CHANGEWEAPON, snum, player->i, -1);
 	}
 
-	p->okickback_pic = p->kickback_pic = 0;
-	if (p->holster_weapon == 1)
+	player->okickback_pic = player->kickback_pic = 0;
+	if (player->holster_weapon == 1)
 	{
-		p->holster_weapon = 0;
-		p->weapon_pos = 10;
+		player->holster_weapon = 0;
+		player->weapon_pos = 10;
 	}
-	else p->weapon_pos = -1;
+	else player->weapon_pos = -1;
 }
 
 //---------------------------------------------------------------------------
