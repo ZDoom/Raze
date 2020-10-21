@@ -241,6 +241,14 @@ inline int clipmove_ex(int* x, int* y, int* z, short* sect, int xv, int yv, int 
 	return result.setFromEngine(res);
 }
 
+inline void getzrange_ex(int x, int y, int z, int16_t sectnum, int32_t* ceilz, Collision& ceilhit, int32_t* florz, Collision& florhit, int32_t walldist, uint32_t cliptype)
+{
+	int ch, fh;
+	getzrange(x, y, z, sectnum, ceilz, &ch, florz, &fh, walldist, cliptype);
+	ceilhit.setFromEngine(ch);
+	florhit.setFromEngine(fh);
+}
+
 inline void ms(short i)
 {
 	ms(&hittype[i]);
@@ -256,9 +264,9 @@ inline void makeitfall(DDukeActor* act)
 	makeitfall(act->GetIndex());
 }
 
-inline void getglobalz(DDukeActor* act)
+inline void getglobalz(int act)
 {
-	getglobalz(act->GetIndex());
+	getglobalz(&hittype[act]);
 }
 
 inline int findplayer(DDukeActor* act, int* x)

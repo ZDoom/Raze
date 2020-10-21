@@ -172,7 +172,7 @@ void LoadActor(int i, int p, int x);
 void execute(int s, int p, int d);
 void makeitfall(int s);
 int furthestangle(int snum, int angDiv);
-void getglobalz(int s);
+void getglobalz(DDukeActor* s);
 void OnEvent(int id, int pnum = -1, int snum = -1, int dist = -1);
 
 short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss);

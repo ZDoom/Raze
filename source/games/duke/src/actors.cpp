@@ -4977,11 +4977,11 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 //
 //---------------------------------------------------------------------------
 
-void getglobalz(int i)
+void getglobalz(DDukeActor* actor)
 {
-	int hz,lz,zr;
-
-	spritetype *s = &sprite[i];
+	auto s = &actor->s;
+	int zr;
+	Collision hz, lz;
 
 	if( s->statnum == STAT_PLAYER || s->statnum == STAT_STANDABLE || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_ACTOR || s->statnum == STAT_PROJECTILE)
 	{
@@ -4989,40 +4989,38 @@ void getglobalz(int i)
 			zr = 4;
 		else zr = 127;
 
-		getzrange(s->x,s->y,s->z-(FOURSLEIGHT),s->sectnum,&hittype[i].ceilingz,&hz,&hittype[i].floorz,&lz,zr,CLIPMASK0);
+		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sectnum, &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
 
-		if( (lz&49152) == 49152 && (sprite[lz&(MAXSPRITES-1)].cstat&48) == 0 )
+		if( lz.type == kHitSprite && (lz.actor->s.cstat&48) == 0 )
 		{
-			lz &= (MAXSPRITES-1);
-			if( badguy(&sprite[lz]) && sprite[lz].pal != 1)
+			if( badguy(lz.actor) && lz.actor->s.pal != 1)
 			{
-				if( s->statnum != 4 )
+				if( s->statnum != STAT_PROJECTILE)
 				{
-					hittype[i].aflags |= SFLAG_NOFLOORSHADOW; 
-					//hittype[i].dispicnum = -4; // No shadows on actors
+					actor->aflags |= SFLAG_NOFLOORSHADOW; 
+					//actor->dispicnum = -4; // No shadows on actors
 					s->xvel = -256;
-					ssp(i,CLIPMASK0);
+					ssp(actor, CLIPMASK0);
 				}
 			}
-			else if(sprite[lz].picnum == TILE_APLAYER && badguy(s) )
+			else if(lz.actor->s.picnum == TILE_APLAYER && badguy(actor) )
 			{
-				hittype[i].aflags |= SFLAG_NOFLOORSHADOW; 
-				//hittype[i].dispicnum = -4; // No shadows on actors
+				actor->aflags |= SFLAG_NOFLOORSHADOW; 
+				//actor->dispicnum = -4; // No shadows on actors
 				s->xvel = -256;
-				ssp(i,CLIPMASK0);
+				ssp(actor, CLIPMASK0);
 			}
-			else if(s->statnum == 4 && sprite[lz].picnum == TILE_APLAYER)
-				if(s->owner == lz)
+			else if(s->statnum == STAT_PROJECTILE && lz.actor->s.picnum == TILE_APLAYER && actor->GetOwner() == actor)
 			{
-				hittype[i].ceilingz = sector[s->sectnum].ceilingz;
-				hittype[i].floorz	= sector[s->sectnum].floorz;
+				actor->ceilingz = sector[s->sectnum].ceilingz;
+				actor->floorz	= sector[s->sectnum].floorz;
 			}
 		}
 	}
 	else
 	{
-		hittype[i].ceilingz = sector[s->sectnum].ceilingz;
-		hittype[i].floorz	= sector[s->sectnum].floorz;
+		actor->ceilingz = sector[s->sectnum].ceilingz;
+		actor->floorz	= sector[s->sectnum].floorz;
 	}
 }
 
