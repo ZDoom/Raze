@@ -3675,91 +3675,9 @@ void moveeffectors_d(void)   //STATNUM 3
 		case SE_24_CONVEYOR:
 		case 34:
 		{
-			if (t[4]) break;
-
-			x = (sprite[i].yvel * sintable[(s->ang + 512) & 2047]) >> 18;
-			l = (sprite[i].yvel * sintable[s->ang & 2047]) >> 18;
-
-			k = 0;
-
-			SectIterator it(s->sectnum);
-			while ((j = it.NextIndex()) >= 0)
-			{
-				auto sprj = &sprite[j];
-				if (sprj->zvel >= 0)
-					switch (sprj->statnum)
-					{
-					case 5:
-						switch (sprj->picnum)
-						{
-						case BLOODPOOL:
-						case PUKE:
-						case FOOTPRINTS:
-						case FOOTPRINTS2:
-						case FOOTPRINTS3:
-						case FOOTPRINTS4:
-						case BULLETHOLE:
-						case BLOODSPLAT1:
-						case BLOODSPLAT2:
-						case BLOODSPLAT3:
-						case BLOODSPLAT4:
-							sprj->xrepeat = sprj->yrepeat = 0;
-							continue;
-						case LASERLINE:
-							continue;
-						}
-					case 6:
-						if (sprj->picnum == TRIPBOMB) break;
-					case 1:
-					case 0:
-						if (
-							sprj->picnum == BOLT1 ||
-							sprj->picnum == BOLT1 + 1 ||
-							sprj->picnum == BOLT1 + 2 ||
-							sprj->picnum == BOLT1 + 3 ||
-							sprj->picnum == SIDEBOLT1 ||
-							sprj->picnum == SIDEBOLT1 + 1 ||
-							sprj->picnum == SIDEBOLT1 + 2 ||
-							sprj->picnum == SIDEBOLT1 + 3 ||
-							wallswitchcheck(j)
-							)
-							break;
-
-						if (!(sprj->picnum >= CRANE && sprj->picnum <= (CRANE + 3)))
-						{
-							if (sprj->z > (hittype[j].floorz - (16 << 8)))
-							{
-								hittype[j].bposx = sprj->x;
-								hittype[j].bposy = sprj->y;
-
-								sprj->x += x >> 2;
-								sprj->y += l >> 2;
-
-								setsprite(j, sprj->x, sprj->y, sprj->z);
-
-								if (sector[sprj->sectnum].floorstat & 2)
-									if (sprj->statnum == 2)
-										makeitfall(j);
-							}
-						}
-						break;
-					}
-			}
-
-			for (p = connecthead; p >= 0; p = connectpoint2[p])
-			{
-				if (ps[p].cursectnum == s->sectnum && ps[p].on_ground)
-				{
-					if (abs(ps[p].pos.z - ps[p].truefz) < PHEIGHT + (9 << 8))
-					{
-						ps[p].fric.x += x << 3;
-						ps[p].fric.y += l << 3;
-					}
-				}
-			}
-
-			sc->floorxpanning += sprite[i].yvel >> 7;
-
+			static int16_t list1[] = { BLOODPOOL, PUKE, FOOTPRINTS, FOOTPRINTS2, FOOTPRINTS3, FOOTPRINTS4, BULLETHOLE, BLOODSPLAT1, BLOODSPLAT2, BLOODSPLAT3, BLOODSPLAT4, -1 };
+			static int16_t list2[] = { BOLT1, BOLT1 + 1,BOLT1 + 2, BOLT1 + 3, SIDEBOLT1, SIDEBOLT1 + 1, SIDEBOLT1 + 2, SIDEBOLT1 + 3, -1 };
+			handle_se24(&hittype[i], list1, list2, TRIPBOMB, LASERLINE, CRANE, 2);
 			break;
 		}
 		case 35:

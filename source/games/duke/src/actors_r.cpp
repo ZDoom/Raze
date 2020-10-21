@@ -3648,82 +3648,12 @@ void moveeffectors_r(void)   //STATNUM 3
 		case SE_24_CONVEYOR:
 		case 34:
 		{
-			if (t[4]) break;
-
-			x = (sprite[i].yvel * sintable[(s->ang + 512) & 2047]) >> 18;
-			l = (sprite[i].yvel * sintable[s->ang & 2047]) >> 18;
-
-			k = 0;
-
-			SectIterator it(s->sectnum);
-			while ((j = it.NextIndex()) >= 0)
-			{
-				auto sj = &sprite[j];
-				if (sj->zvel >= 0)
-					switch (sj->statnum)
-					{
-					case 5:
-						switch (sj->picnum)
-						{
-						case BLOODPOOL:
-						case FOOTPRINTS:
-						case FOOTPRINTS2:
-						case FOOTPRINTS3:
-							sj->xrepeat = sj->yrepeat = 0;
-							k = 1;
-							break;
-						case BULLETHOLE:
-							continue;
-						}
-					case 6:
-					case 1:
-					case 0:
-						if (
-							sj->picnum == BOLT1 ||
-							sj->picnum == BOLT1 + 1 ||
-							sj->picnum == BOLT1 + 2 ||
-							sj->picnum == BOLT1 + 3 ||
-							wallswitchcheck(j)
-							)
-							break;
-
-						if (!(sj->picnum >= CRANE && sj->picnum <= (CRANE + 3)))
-						{
-							if (sj->z > (hittype[j].floorz - (16 << 8)))
-							{
-								hittype[j].bposx = sj->x;
-								hittype[j].bposy = sj->y;
-
-								sj->x += x >> 1;
-								sj->y += l >> 1;
-
-								setsprite(j, sj->x, sj->y, sj->z);
-
-								if (sector[sj->sectnum].floorstat & 2)
-									if (sj->statnum == 2)
-										makeitfall(j);
-							}
-						}
-						break;
-					}
-			}
-
-			for (p = connecthead; p >= 0; p = connectpoint2[p])
-			{
-				if (ps[p].cursectnum == s->sectnum && ps[p].on_ground)
-				{
-					if (abs(ps[p].pos.z - ps[p].truefz) < PHEIGHT + (9 << 8))
-					{
-						ps[p].fric.x += x << 3;
-						ps[p].fric.y += l << 3;
-					}
-				}
-			}
-
-			sc->floorxpanning += sprite[i].yvel >> 7;
-
+			static int16_t list1[] = { BLOODPOOL, PUKE, FOOTPRINTS, FOOTPRINTS2, FOOTPRINTS3, -1 };
+			static int16_t list2[] = { BOLT1, BOLT1 + 1,BOLT1 + 2, BOLT1 + 3, -1 };
+			handle_se24(&hittype[i], list1, list2, BULLETHOLE, -1, CRANE, 1);
 			break;
 		}
+
 		case 35:
 			handle_se35(&hittype[i], SMALLSMOKE, EXPLOSION2);
 			break;

@@ -4531,6 +4531,88 @@ void handle_se27(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
+void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, int TRIPBOMB, int LASERLINE, int CRANE, int shift)
+{
+	int* t = &actor->temp_data[0];
+
+	auto testlist = [](int16_t* list, int val) { for (int i = 0; list[i] > 0; i++) if (list[i] == val) return true; return false; };
+
+	if (t[4]) return;
+
+	int x = (actor->s.yvel * sintable[(actor->s.ang + 512) & 2047]) >> 18;
+	int l = (actor->s.yvel * sintable[actor->s.ang & 2047]) >> 18;
+
+	DukeSectIterator it(actor->s.sectnum);
+	while (auto a2 = it.Next())
+	{
+		auto s2 = &a2->s;
+		if (s2->zvel >= 0)
+		{
+			switch (s2->statnum)
+			{
+			case 5:
+				if (testlist(list1, s2->picnum))
+				{
+					s2->xrepeat = s2->yrepeat = 0;
+					continue;
+				}
+				if (s2->picnum == LASERLINE)
+				{
+					continue;
+				}
+
+				//[[fallthrough]]
+			case 6:
+				if (s2->picnum == TRIPBOMB) break;
+				//[[fallthrough]]
+			case 1:
+			case 0:
+				if (testlist(list2, s2->picnum) ||
+					wallswitchcheck(a2))
+					break;
+
+				if (!(s2->picnum >= CRANE && s2->picnum <= (CRANE + 3)))
+				{
+					if (s2->z > (a2->floorz - (16 << 8)))
+					{
+						a2->bposx = s2->x;
+						a2->bposy = s2->y;
+
+						s2->x += x >> shift;
+						s2->y += l >> shift;
+
+						setsprite(a2, s2->pos);
+
+						if (sector[s2->sectnum].floorstat & 2)
+							if (s2->statnum == 2)
+								makeitfall(a2);
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	for (auto p = connecthead; p >= 0; p = connectpoint2[p])
+	{
+		if (ps[p].cursectnum == actor->s.sectnum && ps[p].on_ground)
+		{
+			if (abs(ps[p].pos.z - ps[p].truefz) < PHEIGHT + (9 << 8))
+			{
+				ps[p].fric.x += x << 3;
+				ps[p].fric.y += l << 3;
+			}
+		}
+	}
+	sector[actor->s.sectnum].floorxpanning += actor->s.yvel >> 7;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void handle_se32(DDukeActor *actor)
 {
 	auto s = &actor->s;
