@@ -1028,18 +1028,18 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 //
 //---------------------------------------------------------------------------
 
-void movetrash(int i)
+void movetrash(DDukeActor *actor)
 {
-	auto s = &sprite[i];
+	auto s = &actor->s;
 	if (s->xvel == 0) s->xvel = 1;
-	if (ssp(i, CLIPMASK0))
+	if (ssp(actor, CLIPMASK0))
 	{
-		makeitfall(i);
+		makeitfall(actor);
 		if (krand() & 1) s->zvel -= 256;
 		if (abs(s->xvel) < 48)
 			s->xvel += (krand() & 3);
 	}
-	else deletesprite(i);
+	else deletesprite(actor);
 }
 
 //---------------------------------------------------------------------------
@@ -1048,10 +1048,10 @@ void movetrash(int i)
 //
 //---------------------------------------------------------------------------
 
-void movewaterdrip(int i, int drip)
+void movewaterdrip(DDukeActor *actor, int drip)
 {
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	int sect = s->sectnum;
 
 	if (t[1])
@@ -1062,8 +1062,8 @@ void movewaterdrip(int i, int drip)
 	}
 	else
 	{
-		makeitfall(i);
-		ssp(i, CLIPMASK0);
+		makeitfall(actor);
+		ssp(actor, CLIPMASK0);
 		if (s->xvel > 0) s->xvel -= 2;
 
 		if (s->zvel == 0)
@@ -1071,15 +1071,16 @@ void movewaterdrip(int i, int drip)
 			s->cstat |= 32768;
 
 			if (s->pal != 2 && (isRR() || s->hitag == 0))
-				S_PlayActorSound(SOMETHING_DRIPPING, i);
+				S_PlayActorSound(SOMETHING_DRIPPING, actor);
 
-			if (sprite[s->owner].picnum != drip)
+			auto Owner = actor->GetOwner();
+			if (!Owner || Owner->s.picnum != drip)
 			{
-				deletesprite(i);
+				deletesprite(actor);
 			}
 			else
 			{
-				hittype[i].bposz = s->z = t[0];
+				actor->bposz = s->z = t[0];
 				t[1] = 48 + (krand() & 31);
 			}
 		}
@@ -1092,9 +1093,9 @@ void movewaterdrip(int i, int drip)
 //
 //---------------------------------------------------------------------------
 
-void movedoorshock(int i)
+void movedoorshock(DDukeActor* actor)
 {
-	auto s = &sprite[i];
+	auto s = &actor->s;
 	int sect = s->sectnum;
 	int j = abs(sector[sect].ceilingz - sector[sect].floorz) >> 9;
 	s->yrepeat = j + 4;

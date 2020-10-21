@@ -1535,7 +1535,7 @@ void movestandables_d(void)
 
 		else if (picnum == MASTERSWITCH)
 		{
-			movemasterswitch(i, SEENINE, OOZFILTER);
+			movemasterswitch(&hittype[i], SEENINE, OOZFILTER);
 		}
 
 		else if (picnum == VIEWSCREEN || picnum == VIEWSCREEN2)
@@ -1545,7 +1545,7 @@ void movestandables_d(void)
 
 		else if (picnum == TRASH)
 		{
-			movetrash(i);
+			movetrash(&hittype[i]);
 		}
 
 		else if (picnum >= SIDEBOLT1 && picnum <= SIDEBOLT1 + 3)
@@ -1560,12 +1560,12 @@ void movestandables_d(void)
 
 		else if (picnum == WATERDRIP)
 		{
-			movewaterdrip(i, WATERDRIP);
+			movewaterdrip(&hittype[i], WATERDRIP);
 		}
 
 		else if (picnum == DOORSHOCK)
 		{
-			movedoorshock(i);
+			movedoorshock(&hittype[i]);
 		}
 
 		else if (picnum == TOUCHPLATE)

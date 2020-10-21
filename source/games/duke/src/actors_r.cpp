@@ -1084,12 +1084,12 @@ void movestandables_r(void)
 
 		else if (picnum == MASTERSWITCH)
 		{
-			movemasterswitch(i, SEENINE, OOZFILTER);
+			movemasterswitch(&hittype[i], SEENINE, OOZFILTER);
 		}
 
 		else if (picnum == TRASH)
 		{
-			movetrash(i);
+			movetrash(&hittype[i]);
 		}
 
 		else if (picnum >= BOLT1 && picnum <= BOLT1 + 3)
@@ -1099,12 +1099,12 @@ void movestandables_r(void)
 
 		else if (picnum == WATERDRIP)
 		{
-			movewaterdrip(i, WATERDRIP);
+			movewaterdrip(&hittype[i], WATERDRIP);
 		}
 
 		else if (picnum == DOORSHOCK)
 		{
-			movedoorshock(i);
+			movedoorshock(&hittype[i]);
 		}
 
 		else if (picnum == TOUCHPLATE)
