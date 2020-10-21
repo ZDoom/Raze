@@ -3652,11 +3652,11 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
-			handle_se18(i, true);
+			handle_se18(&hittype[i], true);
 			break;
 
 		case SE_19_EXPLOSION_LOWERS_CEILING:
-			handle_se19(i, BIGFORCE);
+			handle_se19(&hittype[i], BIGFORCE);
 			break;
 
 		case SE_20_STRETCH_BRIDGE:

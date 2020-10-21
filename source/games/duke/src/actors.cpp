@@ -4082,25 +4082,24 @@ void handle_se17(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se18(int i, bool morecheck)
+void handle_se18(DDukeActor *actor, bool morecheck)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	auto sc = &sector[s->sectnum];
-	int st = s->lotag;
-	int sh = s->hitag;
+	int* t = &actor->temp_data[0];
+	auto sc = &sector[actor->s.sectnum];
+	int st = actor->s.lotag;
+	int sh = actor->s.hitag;
 
 	if (t[0])
 	{
-		if (s->pal)
+		if (actor->s.pal)
 		{
-			if (s->ang == 512)
+			if (actor->s.ang == 512)
 			{
 				sc->ceilingz -= sc->extra;
 				if (sc->ceilingz <= t[1])
 				{
 					sc->ceilingz = t[1];
-					deletesprite(i);
+					deletesprite(actor);
 					return;
 				}
 			}
@@ -4109,38 +4108,35 @@ void handle_se18(int i, bool morecheck)
 				sc->floorz += sc->extra;
 				if (morecheck)
 				{
-					SectIterator it(s->sectnum);
-					int j;
-					while ((j = it.NextIndex()) >= 0)
+					DukeSectIterator it(actor->s.sectnum);
+					while (auto a2 = it.Next())
 					{
-						auto sj = &sprite[j];
-						if (sj->picnum == TILE_APLAYER && sj->owner >= 0)
-							if (ps[sj->yvel].on_ground == 1)
-								ps[sj->yvel].posz += sc->extra;
-						if (sj->zvel == 0 && sj->statnum != STAT_EFFECTOR && sj->statnum != STAT_PROJECTILE)
+						if (a2->s.picnum == TILE_APLAYER && a2->GetOwner())
+							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].posz += sc->extra;
+						if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && a2->s.statnum != STAT_PROJECTILE)
 						{
-							hittype[j].bposz = sj->z += sc->extra;
-							hittype[j].floorz = sc->floorz;
+							a2->bposz = a2->s.z += sc->extra;
+							a2->floorz = sc->floorz;
 						}
 					}
 				}
 				if (sc->floorz >= t[1])
 				{
 					sc->floorz = t[1];
-					deletesprite(i);
+					deletesprite(actor);
 					return;
 				}
 			}
 		}
 		else
 		{
-			if (s->ang == 512)
+			if (actor->s.ang == 512)
 			{
 				sc->ceilingz += sc->extra;
-				if (sc->ceilingz >= s->z)
+				if (sc->ceilingz >= actor->s.z)
 				{
-					sc->ceilingz = s->z;
-					deletesprite(i);
+					sc->ceilingz = actor->s.z;
+					deletesprite(actor);
 					return;
 				}
 			}
@@ -4149,32 +4145,29 @@ void handle_se18(int i, bool morecheck)
 				sc->floorz -= sc->extra;
 				if (morecheck)
 				{
-					SectIterator it(s->sectnum);
-					int j;
-					while ((j = it.NextIndex()) >= 0)
+					DukeSectIterator it(actor->s.sectnum);
+					while (auto a2 = it.Next())
 					{
-						auto sj = &sprite[j];
-						if (sj->picnum == TILE_APLAYER && sj->owner >= 0)
-							if (ps[sj->yvel].on_ground == 1)
-								ps[sj->yvel].posz -= sc->extra;
-						if (sj->zvel == 0 && sj->statnum != STAT_EFFECTOR && sj->statnum != STAT_PROJECTILE)
+						if (a2->s.picnum == TILE_APLAYER && a2->GetOwner())
+							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].posz -= sc->extra;
+						if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && a2->s.statnum != STAT_PROJECTILE)
 						{
-							hittype[j].bposz = sj->z -= sc->extra;
-							hittype[j].floorz = sc->floorz;
+							a2->bposz = a2->s.z -= sc->extra;
+							a2->floorz = sc->floorz;
 						}
 					}
 				}
-				if (sc->floorz <= s->z)
+				if (sc->floorz <= actor->s.z)
 				{
-					sc->floorz = s->z;
-					deletesprite(i);
+					sc->floorz = actor->s.z;
+					deletesprite(actor);
 					return;
 				}
 			}
 		}
 
 		t[2]++;
-		if (t[2] >= s->hitag)
+		if (t[2] >= actor->s.hitag)
 		{
 			t[2] = 0;
 			t[0] = 0;
@@ -4188,13 +4181,12 @@ void handle_se18(int i, bool morecheck)
 //
 //---------------------------------------------------------------------------
 
-void handle_se19(int i, int BIGFORCE)
+void handle_se19(DDukeActor *actor, int BIGFORCE)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	auto sc = &sector[s->sectnum];
-	int st = s->lotag;
-	int sh = s->hitag;
+	int* t = &actor->temp_data[0];
+	auto sc = &sector[actor->s.sectnum];
+	int st = actor->s.lotag;
+	int sh = actor->s.hitag;
 	int j, x, q;
 
 	if (t[0])
@@ -4218,56 +4210,46 @@ void handle_se19(int i, int BIGFORCE)
 		}
 
 		if (sc->ceilingz < sc->floorz)
-			sc->ceilingz += sprite[i].yvel;
+			sc->ceilingz += actor->s.yvel;
 		else
 		{
 			sc->ceilingz = sc->floorz;
 
-			StatIterator it(STAT_EFFECTOR);
-			int j;
-			while ((j = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_EFFECTOR);
+			while (auto a2 = it.Next())
 			{
-				auto sj = &sprite[j];
-				if (sj->lotag == 0 && sj->hitag == sh)
+				auto a2Owner = a2->GetOwner();
+				if (a2->s.lotag == 0 && a2->s.hitag == sh && a2Owner)
 				{
-					q = sprite[sj->owner].sectnum;
-					sector[sj->sectnum].floorpal = sector[sj->sectnum].ceilingpal =
-						sector[q].floorpal;
-					sector[sj->sectnum].floorshade = sector[sj->sectnum].ceilingshade =
-						sector[q].floorshade;
-
-					hittype[sj->owner].temp_data[0] = 2;
+					q = a2Owner->s.sectnum; 
+					sector[a2->s.sectnum].floorpal = sector[a2->s.sectnum].ceilingpal =	sector[q].floorpal;
+					sector[a2->s.sectnum].floorshade = sector[a2->s.sectnum].ceilingshade = sector[q].floorshade;
+					a2Owner->temp_data[0] = 2;
 				}
 			}
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 	}
 	else //Not hit yet
 	{
-		j = fi.ifhitsectors(s->sectnum);
-		if (j >= 0)
+		auto hitter = fi.ifhitsectors(actor->s.sectnum);
+		if (hitter)
 		{
 			FTA(8, &ps[myconnectindex]);
 
-			StatIterator it(STAT_EFFECTOR);
-			int l;
-			while ((l = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_EFFECTOR);
+			while (auto ac = it.Next())
 			{
-				auto sl = &sprite[l];
-				x = sl->lotag & 0x7fff;
+				x = ac->s.lotag & 0x7fff;
 				switch (x)
 				{
 				case 0:
-					if (sl->hitag == sh)
+					if (ac->s.hitag == sh && ac->GetOwner())
 					{
-						q = sl->sectnum;
-						sector[q].floorshade =
-							sector[q].ceilingshade =
-							sprite[sl->owner].shade;
-						sector[q].floorpal =
-							sector[q].ceilingpal =
-							sprite[sl->owner].pal;
+						q = ac->s.sectnum;
+						sector[q].floorshade = sector[q].ceilingshade =	ac->GetOwner()->s.shade;
+						sector[q].floorpal = sector[q].ceilingpal =	ac->GetOwner()->s.pal;
 					}
 					break;
 
@@ -4276,11 +4258,11 @@ void handle_se19(int i, int BIGFORCE)
 					//case 18:
 				case 19:
 
-					if (sh == sl->hitag)
-						if (hittype[l].temp_data[0] == 0)
+					if (sh == ac->s.hitag)
+						if (ac->temp_data[0] == 0)
 						{
-							hittype[l].temp_data[0] = 1; //Shut them all on
-							sl->owner = i;
+							ac->temp_data[0] = 1; //Shut them all on
+							ac->SetOwner(actor);
 						}
 
 					break;
