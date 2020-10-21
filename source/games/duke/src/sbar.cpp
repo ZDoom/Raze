@@ -98,7 +98,7 @@ std::pair<const char*, EColorRange> DDukeCommonStatusBar::ontext(struct player_s
 	switch (p->inven_icon)
 	{
 	case ICON_HOLODUKE:
-		onstate = p->holoduke_on;
+		onstate = p->holoduke_on != nullptr;
 		break;
 	case ICON_JETPACK:
 		onstate = p->jetpack_on;

@@ -37,6 +37,7 @@ source as it is released.
 #include "global.h"
 #include "gamecontrol.h"
 #include "v_video.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 
@@ -276,18 +277,19 @@ void hud_input(int snum)
 			{
 				if (!isRR())
 				{
-					if (p->holoduke_on == -1)
+					if (p->holoduke_on == nullptr)
 					{
 						if (p->holoduke_amount > 0)
 						{
 							p->inven_icon = 3;
 
-							p->holoduke_on = i =
+							i =
 								EGS(p->cursectnum,
 									p->posx,
 									p->posy,
 									p->posz + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, -1, 10);
 							hittype[i].temp_data[3] = hittype[i].temp_data[4] = 0;
+							p->holoduke_on = &hittype[i];
 							sprite[i].yvel = snum;
 							sprite[i].extra = 0;
 							FTA(QUOTE_HOLODUKE_ON, p);
@@ -299,7 +301,7 @@ void hud_input(int snum)
 					else
 					{
 						S_PlayActorSound(TELEPORTER, p->holoduke_on);
-						p->holoduke_on = -1;
+						p->holoduke_on = nullptr;
 						FTA(QUOTE_HOLODUKE_OFF, p);
 					}
 				}

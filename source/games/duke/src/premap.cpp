@@ -136,7 +136,7 @@ void resetplayerstats(int snum)
     }
     p->heat_on =            0;
     p->jetpack_on =         0;
-    p->holoduke_on =       -1;
+    p->holoduke_on =       nullptr;
 
     p->angle.olook_ang = p->angle.look_ang = buildlook(512 - ((currentLevel->levelNumber & 1) << 10));
     p->angle.orotscrnang = p->angle.rotscrnang = buildlook(0);
@@ -320,7 +320,7 @@ void resetinventory(int snum)
     p->jetpack_on = 0;
     p->jetpack_amount = 0;
     p->shield_amount = max_armour_amount;
-    p->holoduke_on = -1;
+    p->holoduke_on = nullptr;
     p->holoduke_amount = 0;
     p->firstaid_amount = 0;
     p->steroids_amount = 0;

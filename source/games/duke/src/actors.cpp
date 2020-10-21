@@ -493,7 +493,7 @@ void moveplayers(void) //Players
 		}
 		else
 		{
-			if (p->holoduke_on == -1)
+			if (p->holoduke_on == nullptr)
 			{
 				deletesprite(i);
 				continue;
@@ -4974,7 +4974,7 @@ void alterang(int a, int g_i, int g_p)
 		g_sp->ang = WindDir;
 	else if (a & seekplayer)
 	{
-		j = !isRR()? ps[g_p].holoduke_on : -1;
+		j = !isRR()? ps[g_p].holoduke_on->GetIndex() : -1;
 
 		// NOTE: looks like 'owner' is set to target sprite ID...
 

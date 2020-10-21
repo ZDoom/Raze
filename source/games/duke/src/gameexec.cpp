@@ -732,8 +732,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_HOLODUKE_ON:
-		if (bSet) ps[iPlayer].holoduke_on = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].holoduke_on, sActor, sPlayer);
+		if (bSet) ps[iPlayer].holoduke_on = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ps[iPlayer].holoduke_on), sActor, sPlayer);
 		break;
 
 	case PLAYER_PYCOUNT:
@@ -1454,9 +1454,9 @@ static bool ifcansee(int g_i, int g_p)
 	// select sprite for monster to target
 	// if holoduke is on, let them target holoduke first.
 	// 
-	if (ps[g_p].holoduke_on >= 0 && !isRR())
+	if (ps[g_p].holoduke_on != nullptr && !isRR())
 	{
-		s = &sprite[ps[g_p].holoduke_on];
+		s = &ps[g_p].holoduke_on->s;
 		j = cansee(g_sp->x, g_sp->y, g_sp->z - (krand() & ((32 << 8) - 1)), g_sp->sectnum,
 			s->x, s->y, s->z, s->sectnum);
 

@@ -208,14 +208,14 @@ struct player_struct
 	short cheat_phase;
 	short dummyplayersprite, extra_extra8, quick_kick, last_quick_kick;
 	short heat_amount, timebeforeexit, customexitsound;
-	DDukeActor* actorsqu, *on_crane;//, *wackedbyactor, *holoduke_on, *somethingonplayer;
+	DDukeActor* actorsqu, *on_crane, *holoduke_on;//, *wackedbyactor, *somethingonplayer;
 
 	short weaprecs[256], weapreccnt;
 	unsigned int interface_toggle_flag;
 
 	short dead_flag, show_empty_weapon;	// JBF 20031220: added orotscrnang
 	short scuba_amount, jetpack_amount, steroids_amount, shield_amount;
-	short holoduke_on, pycount, frag_ps;
+	short pycount, frag_ps;
 	short transporter_hold, last_full_weapon, footprintshade, boot_amount;
 
 	unsigned char on_warping_sector, footprintcount;

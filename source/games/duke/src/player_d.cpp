@@ -1465,13 +1465,13 @@ int doincrements_d(struct player_struct* p)
 		}
 	}
 
-	if (p->holoduke_on >= 0)
+	if (p->holoduke_on != nullptr)
 	{
 		p->holoduke_amount--;
 		if (p->holoduke_amount <= 0)
 		{
 			S_PlayActorSound(TELEPORTER, p->i);
-			p->holoduke_on = -1;
+			p->holoduke_on = nullptr;
 			checkavailinven(p);
 		}
 	}

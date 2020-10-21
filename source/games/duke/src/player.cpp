@@ -594,7 +594,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 			p->dead_flag = (512 - ((krand() & 1) << 10) + (krand() & 255) - 512) & 2047;
 
 		p->jetpack_on = 0;
-		p->holoduke_on = -1;
+		p->holoduke_on = nullptr;
 
 		if (!isRR())S_StopSound(DUKE_JETPACK_IDLE, pi);
 		S_StopSound(-1, pi, CHAN_VOICE);
