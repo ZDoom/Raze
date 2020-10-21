@@ -1519,7 +1519,6 @@ static void weaponcommon_r(int i)
 	}
 	if ((s->picnum == RPG || (isRRRA() && s->picnum == RPG2)) && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(184))
 		fi.spawn(i, WATERBUBBLE);
-
 }
 
 //---------------------------------------------------------------------------
@@ -3578,17 +3577,17 @@ void moveeffectors_r(void)   //STATNUM 3
 
 			//BOSS
 		case SE_5_BOSS:
-			handle_se05(i, FIRELASER);
+			handle_se05(&hittype[i], FIRELASER);
 			break;
 
 		case SE_8_UP_OPEN_DOOR_LIGHTS:
 		case SE_9_DOWN_OPEN_DOOR_LIGHTS:
-			handle_se08(i, true);
+			handle_se08(&hittype[i], true);
 			break;
 
 		case SE_10_DOOR_AUTO_CLOSE:
 
-			handle_se10(i, nullptr);
+			handle_se10(&hittype[i], nullptr);
 			break;
 		case SE_11_SWINGING_DOOR:
 			handle_se11(i);

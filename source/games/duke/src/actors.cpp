@@ -3423,63 +3423,64 @@ void handle_se04(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se05(int i, int FIRELASER)
+void handle_se05(DDukeActor* actor, int FIRELASER)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
-	int j, l, q, m;
+	int j, l, m;
 
-	int x, p = findplayer(s, &x);
+	int x, p = findplayer(&actor->s, &x);
 	if (x < 8192)
 	{
 		j = s->ang;
 		s->ang = getangle(s->x - ps[p].posx, s->y - ps[p].posy);
-		fi.shoot(i, FIRELASER);
+		fi.shoot(actor->GetIndex(), FIRELASER);
 		s->ang = j;
 	}
 
-	if (s->owner == -1) //Start search
+	auto Owner = actor->GetOwner();
+	if (Owner == nullptr) //Start search
 	{
 		t[4] = 0;
 		l = 0x7fffffff;
 		while (1) //Find the shortest dist
 		{
-			hittype[i].SetOwner(LocateTheLocator((short)t[4], -1)); //t[0] hold sectnum
+			auto NewOwner = LocateTheLocator(t[4], -1); //t[0] hold sectnum
+			if (NewOwner == nullptr) break;
 
-			if (s->owner == -1) break;
-
-			m = ldist(&sprite[ps[p].i], &sprite[s->owner]);
+			m = ldist(ps[p].GetActor(), NewOwner);
 
 			if (l > m)
 			{
-				q = s->owner;
+				Owner = NewOwner;
 				l = m;
 			}
 
 			t[4]++;
 		}
 
-		s->owner = q;
-		s->zvel = ksgn(sprite[q].z - s->z) << 4;
+		actor->SetOwner(Owner);
+		if (!Owner) return; // Undefined case - was not checked.
+		s->zvel = ksgn(Owner->s.z - s->z) << 4;
 	}
 
-	if (ldist(&sprite[s->owner], s) < 1024)
+	if (ldist(Owner, actor) < 1024)
 	{
 		short ta;
 		ta = s->ang;
 		s->ang = getangle(ps[p].posx - s->x, ps[p].posy - s->y);
 		s->ang = ta;
-		s->owner = -1;
+		actor->SetOwner(nullptr);
 		return;
 
 	}
 	else s->xvel = 256;
 
-	x = getangle(sprite[s->owner].x - s->x, sprite[s->owner].y - s->y);
-	q = getincangle(s->ang, x) >> 3;
+	x = getangle(Owner->s.x - s->x, Owner->s.y - s->y);
+	int q = getincangle(s->ang, x) >> 3;
 	s->ang += q;
 
 	if (rnd(32))
@@ -3493,7 +3494,7 @@ void handle_se05(int i, int FIRELASER)
 			getincangle(t[2] + 512, getangle(ps[p].posx - s->x, ps[p].posy - s->y)) >> 2;
 		sc->ceilingshade = 0;
 	}
-	j = fi.ifhitbyweapon(&hittype[i]);
+	j = fi.ifhitbyweapon(actor);
 	if (j >= 0)
 	{
 		t[3]++;
@@ -3507,8 +3508,8 @@ void handle_se05(int i, int FIRELASER)
 	s->z += s->zvel;
 	sc->ceilingz += s->zvel;
 	sector[t[0]].ceilingz += s->zvel;
-	ms(i);
-	setsprite(i, s->x, s->y, s->z);
+	ms(actor);
+	setsprite(actor, s->pos);
 }
 
 //---------------------------------------------------------------------------
@@ -3517,23 +3518,23 @@ void handle_se05(int i, int FIRELASER)
 //
 //---------------------------------------------------------------------------
 
-void handle_se08(int i, bool checkhitag1)
+void handle_se08(DDukeActor *actor, bool checkhitag1)
 {
 	// work only if its moving
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
 
 	int x, j = -1;
 
-	if (hittype[i].temp_data[4])
+	if (actor->temp_data[4])
 	{
-		hittype[i].temp_data[4]++;
-		if (hittype[i].temp_data[4] > 8)
+		actor->temp_data[4]++;
+		if (actor->temp_data[4] > 8)
 		{
-			deletesprite(i);
+			deletesprite(actor);
 			return;
 		}
 		j = 1;
@@ -3544,22 +3545,21 @@ void handle_se08(int i, bool checkhitag1)
 	{
 		short sn;
 
-		if ((sc->lotag & 0x8000) || hittype[i].temp_data[4])
+		if ((sc->lotag & 0x8000) || actor->temp_data[4])
 			x = -t[3];
 		else
 			x = t[3];
 
 		if (st == 9) x = -x;
 
-		StatIterator it(STAT_EFFECTOR);
-		while ((j = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_EFFECTOR);
+		while (auto ac = it.Next())
 		{
-			auto sj = &sprite[j];
-			if (((sj->lotag) == st) && (sj->hitag) == sh)
+			if (((ac->s.lotag) == st) && (ac->s.hitag) == sh)
 			{
-				sn = sj->sectnum;
+				sn = ac->s.sectnum;
 				auto sect = &sector[sn];
-				int m = sj->shade;
+				int m = ac->s.shade;
 
 				auto wal = &wall[sect->wallptr];
 
@@ -3571,8 +3571,8 @@ void handle_se08(int i, bool checkhitag1)
 
 						if (wal->shade < m)
 							wal->shade = m;
-						else if (wal->shade > hittype[j].temp_data[2])
-							wal->shade = hittype[j].temp_data[2];
+						else if (wal->shade > ac->temp_data[2])
+							wal->shade = ac->temp_data[2];
 
 						if (wal->nextwall >= 0)
 							if (wall[wal->nextwall].hitag != 1)
@@ -3585,16 +3585,16 @@ void handle_se08(int i, bool checkhitag1)
 
 				if (sect->floorshade < m)
 					sect->floorshade = m;
-				else if (sect->floorshade > hittype[j].temp_data[0])
-					sect->floorshade = hittype[j].temp_data[0];
+				else if (sect->floorshade > ac->temp_data[0])
+					sect->floorshade = ac->temp_data[0];
 
 				if (sect->ceilingshade < m)
 					sect->ceilingshade = m;
-				else if (sect->ceilingshade > hittype[j].temp_data[1])
-					sect->ceilingshade = hittype[j].temp_data[1];
+				else if (sect->ceilingshade > ac->temp_data[1])
+					sect->ceilingshade = ac->temp_data[1];
 
 				if (checkhitag1 && sect->hitag == 1)
-					sect->ceilingshade = hittype[j].temp_data[1];
+					sect->ceilingshade = ac->temp_data[1];
 
 			}
 		}
@@ -3607,10 +3607,10 @@ void handle_se08(int i, bool checkhitag1)
 //
 //---------------------------------------------------------------------------
 
-void handle_se10(int i, const int* specialtags)
+void handle_se10(DDukeActor* actor, const int* specialtags)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
@@ -3622,7 +3622,7 @@ void handle_se10(int i, const int* specialtags)
 		if ((sc->lotag & 0xff) != 27)
 			for (int p = connecthead; p >= 0; p = connectpoint2[p])
 				if (sc->lotag != 30 && sc->lotag != 31 && sc->lotag != 0)
-					if (s->sectnum == sprite[ps[p].i].sectnum)
+					if (s->sectnum == ps[p].GetActor()->s.sectnum)
 						j = 0;
 
 		if (j == 1)
@@ -3636,7 +3636,7 @@ void handle_se10(int i, const int* specialtags)
 						return;
 					}
 				}
-				fi.activatebysector(s->sectnum, i);
+				fi.activatebysector(s->sectnum, actor->GetIndex());
 				t[0] = 0;
 			}
 			else t[0]++;

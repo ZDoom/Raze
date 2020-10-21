@@ -3613,18 +3613,18 @@ void moveeffectors_d(void)   //STATNUM 3
 
 			//BOSS
 		case SE_5_BOSS:
-			handle_se05(i, FIRELASER);
+			handle_se05(&hittype[i], FIRELASER);
 			break;
 
 		case SE_8_UP_OPEN_DOOR_LIGHTS:
 		case SE_9_DOWN_OPEN_DOOR_LIGHTS:
-			handle_se08(i, false);
+			handle_se08(&hittype[i], false);
 			break;
 
 		case SE_10_DOOR_AUTO_CLOSE:
 		{
 			static const int tags[] = { 20, 21, 22, 26, 0};
-			handle_se10(i, tags);
+			handle_se10(&hittype[i], tags);
 			break;
 		}
 		case SE_11_SWINGING_DOOR:
