@@ -42,7 +42,7 @@ extern FixedBitArray<MAXSPRITES> activeSprites;
 
 template<> FSerializer& Serialize(FSerializer& arc, const char* key, Duke3d::weaponhit*& ht, Duke3d::weaponhit** def)
 {
-	ptrdiff_t index = ht? ht - Duke3d::hittype : -1;
+	int index = ht? int(ht - Duke3d::hittype) : -1;
 	assert(index >= -1 && index < MAXSPRITES);
 	Serialize(arc, key, index, nullptr);
 	ht = index < 0? nullptr : &Duke3d::hittype[index];
