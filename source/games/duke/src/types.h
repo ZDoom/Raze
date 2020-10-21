@@ -196,7 +196,7 @@ struct player_struct
 	int aim_mode, auto_aim, ftt;
 
 	short cursectnum, last_extra, subweapon;
-	short ammo_amount[MAX_WEAPONS], wackedbyactor, frag, fraggedself;
+	short ammo_amount[MAX_WEAPONS], frag, fraggedself;
 
 	short curr_weapon, last_weapon, tipincs, wantweaponfire;
 	short holoduke_amount, newowner, hurt_delay, hbomb_hold_delay;
@@ -208,7 +208,7 @@ struct player_struct
 	short cheat_phase;
 	short dummyplayersprite, extra_extra8, quick_kick, last_quick_kick;
 	short heat_amount, timebeforeexit, customexitsound;
-	DDukeActor* actorsqu, *on_crane, *holoduke_on;//, *wackedbyactor, *somethingonplayer;
+	DDukeActor* actorsqu, *wackedbyactor, *on_crane, *holoduke_on;//, *somethingonplayer;
 
 	short weaprecs[256], weapreccnt;
 	unsigned int interface_toggle_flag;

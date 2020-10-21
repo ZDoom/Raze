@@ -717,7 +717,7 @@ int ifhitbyweapon_r(int sn)
 					{
 						npc->extra = 0;
 
-						ps[p].wackedbyactor = j;
+						ps[p].wackedbyactor = &hittype[j];
 
 						if (sprite[hittype[sn].owner].picnum == APLAYER && p != sprite[hittype[sn].owner].yvel)
 						{

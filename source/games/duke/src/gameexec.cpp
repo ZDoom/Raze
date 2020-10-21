@@ -497,8 +497,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_WACKEDBYACTOR:
-		if (bSet) ps[iPlayer].wackedbyactor = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].wackedbyactor, sActor, sPlayer);
+		if (bSet) ps[iPlayer].wackedbyactor = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ps[iPlayer].wackedbyactor), sActor, sPlayer);
 		break;
 
 	case PLAYER_FRAG:
@@ -2263,7 +2263,7 @@ int ParseState::parse(void)
 			ps[g_p].frag_ps = g_p;
 			ps[g_p].horizon.ohorizoff = ps[g_p].horizon.horizoff = q16horiz(0);
 			ps[g_p].opyoff = 0;
-			ps[g_p].wackedbyactor = -1;
+			ps[g_p].wackedbyactor = nullptr;
 			ps[g_p].shield_amount = max_armour_amount;
 			ps[g_p].dead_flag = 0;
 			ps[g_p].pals.a = 0;

@@ -483,9 +483,9 @@ void moveplayers(void) //Players
 
 					p->newowner = -1;
 
-					if (p->wackedbyactor >= 0 && sprite[p->wackedbyactor].statnum < MAXSTATUS)
+					if (p->wackedbyactor != nullptr && p->wackedbyactor->s.statnum < MAXSTATUS)
 					{
-						p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), gethiq16angle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1));
+						p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), gethiq16angle(p->wackedbyactor->s.x - p->posx, p->wackedbyactor->s.y - p->posy)) >> 1));
 					}
 				}
 				s->ang = p->angle.ang.asbuild();

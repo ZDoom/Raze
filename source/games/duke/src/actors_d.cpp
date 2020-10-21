@@ -891,7 +891,7 @@ int ifhitbyweapon_d(int sn)
 					{
 						spr->extra = 0;
 
-						ps[p].wackedbyactor = j;
+						ps[p].wackedbyactor = &hittype[j];
 
 						if (htowner->picnum == APLAYER && p != htowner->yvel)
 						{
@@ -963,7 +963,7 @@ int ifhitbyweapon_d(int sn)
 	{
 		p = spr->yvel;
 		spr->extra = 0;
-		ps[p].wackedbyactor = (short)ht->owner;
+		ps[p].wackedbyactor = ht->GetHitOwner();
 
 		if (htowner->picnum == APLAYER && p != ht->owner)
 			ps[p].frag_ps = (short)ht->owner;
