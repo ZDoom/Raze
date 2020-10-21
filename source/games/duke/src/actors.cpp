@@ -962,7 +962,7 @@ void detonate(DDukeActor *actor, int explosion)
 	{
 		int x = spri->extra;
 		spawn(actor, explosion);
-		fi.hitradius(actor->GetIndex(), seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
+		fi.hitradius(actor, seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
 	}
 
@@ -1422,12 +1422,12 @@ void rpgexplode(int i, int j, const vec3_t &pos, int EXPLOSION2, int EXPLOSION2B
 	if (s->xrepeat >= 10)
 	{
 		int x = s->extra;
-		fi.hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+		fi.hitradius(&hittype[i], rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 	}
 	else
 	{
 		int x = s->extra + (global_random & 3);
-		fi.hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+		fi.hitradius(&hittype[i], (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
 	}
 }
 
@@ -1943,7 +1943,7 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 		case 3:
 		{
 			//Turn on all of those flashing sectoreffector.
-			fi.hitradius(i, 4096,
+			fi.hitradius(&hittype[i], 4096,
 				impact_damage << 2,
 				impact_damage << 2,
 				impact_damage << 2,

@@ -2398,7 +2398,7 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	case concmd_hitradius:
-		fi.hitradius(g_i,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
+		fi.hitradius(g_ac,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
 		insptr+=6;
 		break;
 	case concmd_ifp:

@@ -1555,7 +1555,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE7879:
 		s->picnum++;
 		S_PlayActorSound(495, i);
-		fi.hitradius(i, 10, 0, 0, 1, 1);
+		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7648:
 	case RRTILE7694:
@@ -1756,17 +1756,17 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE7890:
 		s->picnum = RRTILE5045;
 		S_PlayActorSound(495, i);
-		fi.hitradius(i, 10, 0, 0, 1, 1);
+		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7886:
 		s->picnum = RRTILE5046;
 		S_PlayActorSound(495, i);
-		fi.hitradius(i, 10, 0, 0, 1, 1);
+		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7887:
 		s->picnum = RRTILE5044;
 		S_PlayActorSound(GLASS_HEAVYBREAK, i);
-		fi.hitradius(i, 10, 0, 0, 1, 1);
+		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7900:
 		s->picnum = RRTILE5047;
@@ -1890,7 +1890,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE7533:
 		s->picnum = RRTILE5035;
 		S_PlayActorSound(495, i);
-		fi.hitradius(i, 10, 0, 0, 1, 1);
+		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		break;
 	case RRTILE8394:
 		s->picnum = RRTILE5072;
@@ -1904,7 +1904,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8679:
 		s->picnum = RRTILE8680;
 		S_PlayActorSound(DUKE_SHUCKS, i);
-		fi.hitradius(i, 10, 0, 0, 1, 1);
+		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		if (s->lotag != 0)
 		{
 			short j;
@@ -1921,7 +1921,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE3584:
 		s->picnum = RRTILE8681;
 		S_PlayActorSound(495, i);
-		fi.hitradius(i, 250, 0, 0, 1, 1);
+		fi.hitradius(&hittype[i], 250, 0, 0, 1, 1);
 		break;
 	case RRTILE8682:
 		s->picnum = RRTILE8683;

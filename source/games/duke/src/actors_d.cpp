@@ -338,16 +338,16 @@ bool ifsquished(int i, int p)
 //
 //---------------------------------------------------------------------------
 
-void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
+void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 {
 	walltype* wal;
 	int d, q, x1, y1;
 	int sectcnt, sectend, dasect, startwall, endwall, nextsect;
-	short j, p, x, sect;
+	short p, x, sect;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 	short tempshort[MAXSECTORS];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
 	
-	auto spri = &sprite[i];
+	auto spri = &actor->s;
 	
 	if(spri->picnum == RPG && spri->xrepeat < 11) goto SKIPWALLCHECK;
 	
@@ -390,7 +390,7 @@ void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 					y1 = (((wal->y + wall[wal->point2].y) >> 1) + spri->y) >> 1;
 					updatesector(x1, y1, &sect);
 					if (sect >= 0 && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sectnum))
-						fi.checkhitwall(i, x, wal->x, wal->y, spri->z, spri->picnum);
+						fi.checkhitwall(actor->GetIndex(), x, wal->x, wal->y, spri->z, spri->picnum);
 				}
 		} while (sectcnt < sectend);
 	}
@@ -399,22 +399,21 @@ SKIPWALLCHECK:
 	
 	q = -(16 << 8) + (krand() & ((32 << 8) - 1));
 	
+	auto Owner = actor->GetOwner();
 	for (x = 0; x < 7; x++)
 	{
-		StatIterator itj(statlist[x]);
-		while ((j = itj.NextIndex()) >= 0)
+		DukeStatIterator itj(statlist[x]);
+		while (auto act2 = itj.Next())
 		{
-			auto spri2 = &sprite[j];
-			auto act2 = &hittype[j];
-			
-			if (isWorldTour())
+			auto spri2 = &act2->s;
+			if (isWorldTour() && Owner)
 			{
-				if (sprite[spri->owner].picnum == APLAYER && spri2->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && spri->owner != j)
+				if (Owner->s.picnum == APLAYER && spri2->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && Owner != act2)
 				{
 					continue;
 				}
 				
-				if (spri->picnum == FLAMETHROWERFLAME && ((sprite[spri->owner].picnum == FIREFLY && spri2->picnum == FIREFLY) || (sprite[spri->owner].picnum == BOSS5 && spri2->picnum == BOSS5)))
+				if (spri->picnum == FLAMETHROWERFLAME && ((Owner->s.picnum == FIREFLY && spri2->picnum == FIREFLY) || (Owner->s.picnum == BOSS5 && spri2->picnum == BOSS5)))
 				{
 					continue;
 				}
@@ -423,26 +422,26 @@ SKIPWALLCHECK:
 			if (x == 0 || x >= 5 || AFLAMABLE(spri2->picnum))
 			{
 				if (spri->picnum != SHRINKSPARK || (spri2->cstat & 257))
-					if (dist(spri, spri2) < r)
+					if (dist(actor, act2) < r)
 					{
-						if (badguy(spri2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sectnum, spri->x, spri->y, spri->z + q, spri->sectnum))
+						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sectnum, spri->x, spri->y, spri->z + q, spri->sectnum))
 							continue;
-						fi.checkhitsprite(j, i);
+						fi.checkhitsprite(act2->GetIndex(), actor->GetIndex());
 					}
 			}
-			else if (spri2->extra >= 0 && spri2 != spri && (spri2->picnum == TRIPBOMB || badguy(spri2) || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL || (spri2->cstat & 257) || spri2->picnum == DUKELYINGDEAD))
+			else if (spri2->extra >= 0 && act2 != actor && (spri2->picnum == TRIPBOMB || badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL || (spri2->cstat & 257) || spri2->picnum == DUKELYINGDEAD))
 			{
-				if (spri->picnum == SHRINKSPARK && spri2->picnum != SHARK && (j == spri->owner || spri2->xrepeat < 24))
+				if (spri->picnum == SHRINKSPARK && spri2->picnum != SHARK && (act2 == Owner || spri2->xrepeat < 24))
 				{
 					continue;
 				}
-				if (spri->picnum == MORTER && j == spri->owner)
+				if (spri->picnum == MORTER && act2 == Owner)
 				{
 					continue;
 				}
 				
 				if (spri2->picnum == APLAYER) spri2->z -= PHEIGHT;
-				d = dist(spri, spri2);
+				d = dist(actor, act2);
 				if (spri2->picnum == APLAYER) spri2->z += PHEIGHT;
 				
 				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sectnum, spri->x, spri->y, spri->z - (12 << 8), spri->sectnum))
@@ -461,7 +460,7 @@ SKIPWALLCHECK:
 					{
 						if (spri->picnum == SHRINKSPARK || spri->picnum == FLAMETHROWERFLAME)
 							act2->picnum = spri->picnum;
-						else if (spri->picnum != FIREBALL || sprite[spri->owner].picnum != APLAYER)
+						else if (spri->picnum != FIREBALL || !Owner || Owner->s.picnum != APLAYER)
 						{
 							if (spri->picnum == LAVAPOOL)
 								act2->picnum = FLAMETHROWERFLAME;
@@ -490,7 +489,7 @@ SKIPWALLCHECK:
 							act2->extra = hp1 + (krand() % (hp2 - hp1));
 						}
 						
-						if (spri2->picnum != TANK && spri2->picnum != ROTATEGUN && spri2->picnum != RECON && !bossguy(spri2))
+						if (spri2->picnum != TANK && spri2->picnum != ROTATEGUN && spri2->picnum != RECON && !bossguy(act2))
 						{
 							if (spri2->xvel < 0) spri2->xvel = 0;
 							spri2->xvel += (spri->extra << 2);
@@ -503,18 +502,17 @@ SKIPWALLCHECK:
 							spri2->picnum == FEM8 || spri2->picnum == FEM9 ||
 							spri2->picnum == FEM10 || spri2->picnum == STATUE ||
 							spri2->picnum == STATUEFLASH || spri2->picnum == SPACEMARINE || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL)
-							fi.checkhitsprite(j, i);
+							fi.checkhitsprite(act2->GetIndex(), actor->GetIndex());
 					}
 					else if (spri->extra == 0) act2->extra = 0;
 					
-					if (spri2->picnum != RADIUSEXPLOSION &&
-						spri->owner >= 0 && sprite[spri->owner].statnum < MAXSTATUS)
+					if (spri2->picnum != RADIUSEXPLOSION && Owner && Owner->s.statnum < MAXSTATUS)
 					{
 						if (spri2->picnum == APLAYER)
 						{
 							p = spri2->yvel;
 							
-							if (isWorldTour() && act2->picnum == FLAMETHROWERFLAME && sprite[spri->owner].picnum == APLAYER)
+							if (isWorldTour() && act2->picnum == FLAMETHROWERFLAME && Owner->s.picnum == APLAYER)
 							{
 								ps[p].numloogs = -1 - spri->yvel;
 							}
@@ -524,7 +522,7 @@ SKIPWALLCHECK:
 								clearcamera(&ps[p]);
 							}
 						}
-						act2->owner = spri->owner;
+						act2->SetHitOwner(actor->GetOwner());
 					}
 				}
 			}
@@ -1113,7 +1111,7 @@ static void movetripbomb(int i)
 			S_PlayActorSound(LASERTRIP_EXPLODE, i);
 			for (j = 0; j < 5; j++) RANDOMSCRAP(s, i);
 			x = s->extra;
-			fi.hitradius(i, tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(&hittype[i], tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 
 			j = fi.spawn(i, EXPLOSION2);
 			sprite[j].ang = s->ang;
@@ -1320,13 +1318,13 @@ static void movefireext(int i)
 
 		int x = s->extra;
 		fi.spawn(i, EXPLOSION2);
-		fi.hitradius(i, pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
+		fi.hitradius(&hittype[i], pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		S_PlayActorSound(PIPEBOMB_EXPLODE, i);
 		detonate(i, EXPLOSION2);
 	}
 	else
 	{
-		fi.hitradius(i, seenineblastradius, 10, 15, 20, 25);
+		fi.hitradius(&hittype[i], seenineblastradius, 10, 15, 20, 25);
 		deletesprite(i);
 	}
 }
@@ -1947,7 +1945,7 @@ static void weaponcommon_d(int i)
 			{
 				fi.spawn(i, SHRINKEREXPLOSION);
 				S_PlayActorSound(SHRINKER_HIT, i);
-				fi.hitradius(i, shrinkerblastradius, 0, 0, 0, 0);
+				fi.hitradius(&hittype[i], shrinkerblastradius, 0, 0, 0, 0);
 			}
 			else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER && (!isWorldTour() || s->picnum != FIREBALL))
 			{
@@ -2889,12 +2887,12 @@ static void flamethrowerflame(int i)
 		if (s->xrepeat >= 10)
 		{
 			x = s->extra;
-			fi.hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(&hittype[i], rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 		}
 		else
 		{
 			x = s->extra + (global_random & 3);
-			fi.hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(&hittype[i], (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
 		}
 	}
 }
@@ -3042,7 +3040,7 @@ DETONATEB:
 			case BOUNCEMINE: m = bouncemineblastradius; break;
 			}
 
-			fi.hitradius(i, m, x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(&hittype[i], m, x >> 2, x >> 1, x - (x >> 2), x);
 			fi.spawn(i, EXPLOSION2);
 			if (s->zvel == 0)
 				fi.spawn(i, EXPLOSION2BOT);

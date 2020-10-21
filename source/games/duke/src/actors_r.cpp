@@ -214,17 +214,16 @@ void addweapon_r(struct player_struct* p, int weapon)
 //
 //---------------------------------------------------------------------------
 
-void hitradius_r(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
+void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 {
-	spritetype* spri, * spri2;
 	walltype* wal;
 	int d, q, x1, y1;
 	int sectcnt, sectend, dasect, startwall, endwall, nextsect;
-	short j, p, x, sect;
+	short p, x, sect;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 	short tempshort[MAXSECTORS];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
 
-	spri = &sprite[i];
+	auto spri = &actor->s;
 
 	if (spri->xrepeat < 11)
 	{
@@ -268,7 +267,7 @@ void hitradius_r(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 				y1 = (((wal->y + wall[wal->point2].y) >> 1) + spri->y) >> 1;
 				updatesector(x1, y1, &sect);
 				if (sect >= 0 && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sectnum))
-					fi.checkhitwall(i, x, wal->x, wal->y, spri->z, spri->picnum);
+					fi.checkhitwall(actor->GetIndex(), x, wal->x, wal->y, spri->z, spri->picnum);
 			}
 	} while (sectcnt < sectend);
 
@@ -276,44 +275,43 @@ SKIPWALLCHECK:
 
 	q = -(24 << 8) + (krand() & ((32 << 8) - 1));
 
+	auto Owner = actor->GetOwner();
 	for (x = 0; x < 7; x++)
 	{
-		StatIterator it1(statlist[x]);
-		while ((j = it1.NextIndex()) >= 0)
+		DukeStatIterator it1(statlist[x]);
+		while (auto act2 = it1.Next())
 		{
-			spri2 = &sprite[j];
-			auto act2 = &hittype[j];
-
+			auto spri2 = &act2->s;
 			if (x == 0 || x >= 5 || AFLAMABLE(spri2->picnum))
 			{
 				if (spri2->cstat & 257)
-					if (dist(spri, spri2) < r)
+					if (dist(actor, act2) < r)
 					{
-						if (badguy(spri2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sectnum, spri->x, spri->y, spri->z + q, spri->sectnum))
+						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sectnum, spri->x, spri->y, spri->z + q, spri->sectnum))
 						{
 							continue;
 						}
-						fi.checkhitsprite(j, i);
+						fi.checkhitsprite(act2->GetIndex(), actor->GetIndex());
 					}
 			}
-			else if (spri2->extra >= 0 && spri2 != spri && (badguy(spri2) || spri2->picnum == QUEBALL || spri2->picnum == RRTILE3440 || spri2->picnum == STRIPEBALL || (spri2->cstat & 257) || spri2->picnum == DUKELYINGDEAD))
+			else if (spri2->extra >= 0 && act2 != actor && (badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == RRTILE3440 || spri2->picnum == STRIPEBALL || (spri2->cstat & 257) || spri2->picnum == DUKELYINGDEAD))
 			{
-				if (spri->picnum == MORTER && j == spri->owner)
+				if (spri->picnum == MORTER && act2 == Owner)
 				{
 					continue;
 				}
-				if ((isRRRA()) && spri->picnum == CHEERBOMB && j == spri->owner)
+				if ((isRRRA()) && spri->picnum == CHEERBOMB && act2 == Owner)
 				{
 					continue;
 				}
 
 				if (spri2->picnum == APLAYER) spri2->z -= PHEIGHT;
-				d = dist(spri, spri2);
+				d = dist(actor, act2);
 				if (spri2->picnum == APLAYER) spri2->z += PHEIGHT;
 
 				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sectnum, spri->x, spri->y, spri->z - (12 << 8), spri->sectnum))
 				{
-					if ((isRRRA()) && sprite[j].picnum == MINION && sprite[j].pal == 19)
+					if ((isRRRA()) && spri2->picnum == MINION && spri2->pal == 19)
 					{
 						continue;
 					}
@@ -343,31 +341,31 @@ SKIPWALLCHECK:
 						act2->extra = hp1 + (krand() % (hp2 - hp1));
 					}
 
-					int pic = sprite[j].picnum;
+					int pic = spri2->picnum;
 					if ((isRRRA())? 
 						(pic != HULK && pic != MAMA && pic != BILLYPLAY && pic != COOTPLAY && pic != MAMACLOUD) :
 						(pic != HULK && pic != SBMOVE))
 					{
-						if (sprite[j].xvel < 0) sprite[j].xvel = 0;
-						sprite[j].xvel += (sprite[j].extra << 2);
+						if (spri2->xvel < 0) spri2->xvel = 0;
+						spri2->xvel += (spri2->extra << 2);
 					}
 
 					if (spri2->picnum == STATUEFLASH || spri2->picnum == QUEBALL ||
 						spri2->picnum == STRIPEBALL || spri2->picnum == RRTILE3440)
-						fi.checkhitsprite(j, i);
+						fi.checkhitsprite(act2->GetIndex(), actor->GetIndex());
 
-					if (sprite[j].picnum != RADIUSEXPLOSION &&
-						spri->owner >= 0 && sprite[spri->owner].statnum < MAXSTATUS)
+					if (spri2->picnum != RADIUSEXPLOSION &&
+						Owner && Owner->s.statnum < MAXSTATUS)
 					{
-						if (sprite[j].picnum == APLAYER)
+						if (spri2->picnum == APLAYER)
 						{
-							p = sprite[j].yvel;
+							p = act2->PlayerIndex();
 							if (ps[p].newowner >= 0)
 							{
 								clearcamera(&ps[p]);
 							}
 						}
-						act2->owner = spri->owner;
+						act2->SetHitOwner(actor->GetOwner());
 					}
 				}
 			}
@@ -2757,7 +2755,7 @@ DETONATEB:
 
 			if (sector[s->sectnum].lotag != 800)
 			{
-				fi.hitradius(i, m, x >> 2, x >> 1, x - (x >> 2), x);
+				fi.hitradius(&hittype[i], m, x >> 2, x >> 1, x - (x >> 2), x);
 				fi.spawn(i, EXPLOSION2);
 				if (s->picnum == CHEERBOMB)
 					fi.spawn(i, BURNING);
