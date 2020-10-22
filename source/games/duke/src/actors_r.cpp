@@ -4116,9 +4116,9 @@ static int fallspecial(DDukeActor *actor, int playernum)
 //
 //---------------------------------------------------------------------------
 
-void fall_r(int g_i, int g_p)
+void fall_r(DDukeActor* ac, int g_p)
 {
-	fall_common(&hittype[g_i], g_p, JIBS6, DRONE, BLOODPOOL, SHOTSPARK1, 69, 158, fallspecial);
+	fall_common(ac, g_p, JIBS6, DRONE, BLOODPOOL, SHOTSPARK1, 69, 158, fallspecial);
 }
 
 //---------------------------------------------------------------------------
@@ -4234,12 +4234,12 @@ void destroyit(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void mamaspawn(int g_i)
+void mamaspawn(DDukeActor *actor)
 {
 	if (mamaspawn_count)
 	{
 		mamaspawn_count--;
-		fi.spawn(g_i, RABBIT);
+		spawn(actor, RABBIT);
 	}
 }
 
@@ -4248,27 +4248,26 @@ bool spawnweapondebris_r(int picnum, int dnum)
 	return dnum == SCRAP1;
 }
 
-void respawnhitag_r(spritetype* g_sp)
+void respawnhitag_r(DDukeActor *actor)
 {
-	switch (g_sp->picnum)
+	switch (actor->s.picnum)
 	{
 	case FEM10:
 	case NAKED1:
 	case STATUE:
-		if (g_sp->yvel) fi.operaterespawns(g_sp->yvel);
+		if (actor->s.yvel) fi.operaterespawns(actor->s.yvel);
 		break;
 	default:
-		if (g_sp->hitag >= 0) fi.operaterespawns(g_sp->hitag);
+		if (actor->s.hitag >= 0) fi.operaterespawns(actor->s.hitag);
 		break;
 	}
 }
 
-void checktimetosleep_r(int g_i)
+void checktimetosleep_r(DDukeActor *actor)
 {
-	auto g_sp = &sprite[g_i];
-	if (g_sp->statnum == 6)
+	if (actor->s.statnum == STAT_STANDABLE)
 	{
-		switch (g_sp->picnum)
+		switch (actor->s.picnum)
 		{
 		case RUBBERCAN:
 		case EXPLODINGBARREL:
@@ -4281,10 +4280,10 @@ void checktimetosleep_r(int g_i)
 		case NUKEBARRELLEAKED:
 		case TRIPBOMB:
 		case EGG:
-			if (hittype[g_i].timetosleep > 1)
-				hittype[g_i].timetosleep--;
-			else if (hittype[g_i].timetosleep == 1)
-				changespritestat(g_i, 2);
+			if (actor->timetosleep > 1)
+				actor->timetosleep--;
+			else if (actor->timetosleep == 1)
+				changespritestat(actor, STAT_ZOMBIEACTOR);
 			break;
 		}
 	}

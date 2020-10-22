@@ -4020,9 +4020,9 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 //
 //---------------------------------------------------------------------------
 
-void fall_d(int g_i, int g_p)
+void fall_d(DDukeActor *actor, int g_p)
 {
-	fall_common(&hittype[g_i], g_p, JIBS6, DRONE, BLOODPOOL, SHOTSPARK1, SQUISHED, THUD, nullptr);
+	fall_common(actor, g_p, JIBS6, DRONE, BLOODPOOL, SHOTSPARK1, SQUISHED, THUD, nullptr);
 }
 
 bool spawnweapondebris_d(int picnum, int dnum)
@@ -4030,9 +4030,9 @@ bool spawnweapondebris_d(int picnum, int dnum)
 	return picnum == BLIMP && dnum == SCRAP1;
 }
 
-void respawnhitag_d(spritetype* g_sp)
+void respawnhitag_d(DDukeActor* actor)
 {
-	switch (g_sp->picnum)
+	switch (actor->s.picnum)
 	{
 	case FEM1:
 	case FEM2:
@@ -4047,20 +4047,19 @@ void respawnhitag_d(spritetype* g_sp)
 	case PODFEM1:
 	case NAKED1:
 	case STATUE:
-		if (g_sp->yvel) fi.operaterespawns(g_sp->yvel);
+		if (actor->s.yvel) fi.operaterespawns(actor->s.yvel);
 		break;
 	default:
-		if (g_sp->hitag >= 0) fi.operaterespawns(g_sp->hitag);
+		if (actor->s.hitag >= 0) fi.operaterespawns(actor->s.hitag);
 		break;
 	}
 }
 
-void checktimetosleep_d(int g_i)
+void checktimetosleep_d(DDukeActor *actor)
 {
-	auto g_sp = &sprite[g_i];
-	if (g_sp->statnum == 6)
+	if (actor->s.statnum == STAT_STANDABLE)
 	{
-		switch (g_sp->picnum)
+		switch (actor->s.picnum)
 		{
 		case RUBBERCAN:
 		case EXPLODINGBARREL:
@@ -4073,10 +4072,10 @@ void checktimetosleep_d(int g_i)
 		case NUKEBARRELLEAKED:
 		case TRIPBOMB:
 		case EGG:
-			if (hittype[g_i].timetosleep > 1)
-				hittype[g_i].timetosleep--;
-			else if (hittype[g_i].timetosleep == 1)
-				changespritestat(g_i, 2);
+			if (actor->timetosleep > 1)
+				actor->timetosleep--;
+			else if (actor->timetosleep == 1)
+				changespritestat(actor, STAT_ZOMBIEACTOR);
 			break;
 		}
 	}

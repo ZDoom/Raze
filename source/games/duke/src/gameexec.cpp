@@ -85,7 +85,7 @@ bool ifsquished(DDukeActor* i, int p);
 void fakebubbaspawn(DDukeActor* g_i, int g_p);
 void tearitup(int sect);
 void destroyit(DDukeActor* actor);
-void mamaspawn(int g_i);
+void mamaspawn(DDukeActor* g_i);
 void forceplayerangle(int snum);
 
 bool killthesprite = false;
@@ -1644,7 +1644,7 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	case concmd_mamaspawn:
-		mamaspawn(g_i);
+		mamaspawn(g_ac);
 		insptr++;
 		break;
 	case concmd_mamaquake:
@@ -1864,7 +1864,7 @@ int ParseState::parse(void)
 		insptr++;
 		g_sp->xoffset = 0;
 		g_sp->yoffset = 0;
-		fi.fall(g_i, g_p);
+		fi.fall(g_ac, g_p);
 		break;
 	case concmd_enda:
 	case concmd_break:
@@ -2833,7 +2833,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_respawnhitag:
 		insptr++;
-		fi.respawnhitag(g_sp);
+		fi.respawnhitag(g_ac);
 		break;
 	case concmd_ifspritepal:
 		insptr++;
@@ -3834,7 +3834,7 @@ void execute(int i,int p,int x)
 		}
 
 		else if (g_sp->statnum == STAT_STANDABLE)
-			fi.checktimetosleep(i);
+			fi.checktimetosleep(s.g_ac);
 	}
 quit:
 	if (killthesprite) deletesprite(i);
