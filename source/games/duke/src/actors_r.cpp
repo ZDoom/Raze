@@ -2345,15 +2345,10 @@ static void rrra_specialstats()
 
 void rr_specialstats()
 {
-	int x;
-	int i, j, p, pi;
-	unsigned short pst;
-
-	StatIterator it(107);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(107);
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
-
+		auto s = &act->s;
 		if (s->hitag == 100)
 		{
 			s->z += (4 << 8);
@@ -2370,13 +2365,12 @@ void rr_specialstats()
 				s->z = sector[s->sectnum].floorz - 15168;
 				s->extra = 0;
 				s->picnum = RRTILE3410;
-				StatIterator itj(STAT_DEFAULT);
-				while ((j = itj.NextIndex()) >= 0)
+				DukeStatIterator itj(STAT_DEFAULT);
+				while (auto act2 = it.Next())
 				{
-					auto sprj = &sprite[j];
-					if (sprj->picnum == 128)
-						if (sprj->hitag == 999)
-							sprj->picnum = 127;
+					if (act2->s.picnum == 128)
+						if (act2->s.hitag == 999)
+							act2->s.picnum = 127;
 				}
 			}
 		}
@@ -2385,17 +2379,16 @@ void rr_specialstats()
 	if (chickenplant)
 	{
 		it.Reset(106);
-		while ((i = it.NextIndex()) >= 0)
+		while (auto act = it.Next())
 		{
-			auto s = &sprite[i];
+			auto s = &act->s;
 			switch (s->picnum)
 			{
 			case RRTILE285:
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					j = fi.spawn(i, RRTILE3190);
-					sprite[j].ang = s->ang;
+					spawn(act, RRTILE3190)->s.ang = s->ang;
 					s->lotag = 128;
 				}
 				break;
@@ -2403,8 +2396,7 @@ void rr_specialstats()
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					j = fi.spawn(i, RRTILE3192);
-					sprite[j].ang = s->ang;
+					spawn(act, RRTILE3192)->s.ang = s->ang;
 					s->lotag = 256;
 				}
 				break;
@@ -2412,7 +2404,7 @@ void rr_specialstats()
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					lotsoffeathers_r(&hittype[i], (krand() & 3) + 4);
+					lotsoffeathers_r(act, (krand() & 3) + 4);
 					s->lotag = 84;
 				}
 				break;
@@ -2420,7 +2412,7 @@ void rr_specialstats()
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					j = fi.spawn(i, RRTILE3132);
+					auto j = spawn(act, RRTILE3132);
 					s->lotag = 96;
 					if (!isRRRA()) S_PlayActorSound(472, j);
 				}
@@ -2429,8 +2421,7 @@ void rr_specialstats()
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					j = fi.spawn(i, RRTILE3120);
-					sprite[j].ang = s->ang;
+					spawn(act, RRTILE3120)->s.ang = s->ang;
 					s->lotag = 448;
 				}
 				break;
@@ -2438,8 +2429,7 @@ void rr_specialstats()
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					j = fi.spawn(i, RRTILE3122);
-					sprite[j].ang = s->ang;
+					spawn(act, RRTILE3122)->s.ang = s->ang;
 					s->lotag = 64;
 				}
 				break;
@@ -2447,8 +2437,7 @@ void rr_specialstats()
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					j = fi.spawn(i, RRTILE3123);
-					sprite[j].ang = s->ang;
+					spawn(act, RRTILE3123)->s.ang = s->ang;
 					s->lotag = 512;
 				}
 				break;
@@ -2456,8 +2445,7 @@ void rr_specialstats()
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					j = fi.spawn(i, RRTILE3124);
-					sprite[j].ang = s->ang;
+					spawn(act, RRTILE3124)->s.ang = s->ang;
 					s->lotag = 224;
 				}
 				break;
@@ -2465,10 +2453,10 @@ void rr_specialstats()
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					guts_r(&hittype[i], JIBS1, 1, myconnectindex);
-					guts_r(&hittype[i], JIBS2, 1, myconnectindex);
-					guts_r(&hittype[i], JIBS3, 1, myconnectindex);
-					guts_r(&hittype[i], JIBS4, 1, myconnectindex);
+					fi.guts(act, JIBS1, 1, myconnectindex);
+					fi.guts(act, JIBS2, 1, myconnectindex);
+					fi.guts(act, JIBS3, 1, myconnectindex);
+					fi.guts(act, JIBS4, 1, myconnectindex);
 					s->lotag = 256;
 				}
 				break;
@@ -2477,13 +2465,13 @@ void rr_specialstats()
 	}
 
 	it.Reset(STAT_BOWLING);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
+		auto s = &act->s;
 		if (s->picnum == RRTILE280)
 			if (s->lotag == 100)
 			{
-				pst = pinsectorresetup(s->sectnum);
+				auto pst = pinsectorresetup(s->sectnum);
 				if (pst)
 				{
 					s->lotag = 0;
@@ -2505,29 +2493,29 @@ void rr_specialstats()
 	}
 
 	it.Reset(108);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
+		auto s = &act->s;
 		if (s->picnum == RRTILE296)
 		{
-			p = findplayer(s, &x);
+			int x;
+			int p = findplayer(&act->s, &x);
 			if (x < 2047)
 			{
-				StatIterator itj(108);
-				while ((j = itj.NextIndex()) >= 0)
+				DukeStatIterator itj(108);
+				while (auto act2 = it.Next())
 				{
-					auto sprj = &sprite[j];
-					if (sprj->picnum == RRTILE297)
+					if (act2->s.picnum == RRTILE297)
 					{
-						ps[p].angle.ang = buildang(sprj->ang);
-						ps[p].bobposx = ps[p].oposx = ps[p].posx = sprj->x;
-						ps[p].bobposy = ps[p].oposy = ps[p].posy = sprj->y;
-						ps[p].oposz = ps[p].posz = sprj->z - (36 << 8);
-						pi = ps[p].i;
-						changespritesect(pi, sprj->sectnum);
-						ps[p].cursectnum = sprite[pi].sectnum;
-						S_PlayActorSound(70, j);
-						deletesprite(j);
+						ps[p].angle.ang = buildang(act2->s.ang);
+						ps[p].bobposx = ps[p].oposx = ps[p].posx = act2->s.x;
+						ps[p].bobposy = ps[p].oposy = ps[p].posy = act2->s.y;
+						ps[p].oposz = ps[p].posz = act2->s.z - (36 << 8);
+						auto pact = ps[p].GetActor();
+						changespritesect(pact, act2->s.sectnum);
+						ps[p].cursectnum = pact->s.sectnum;
+						S_PlayActorSound(70, act2);
+						deletesprite(act2);
 					}
 				}
 			}
