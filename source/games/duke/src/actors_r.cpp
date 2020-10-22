@@ -933,14 +933,14 @@ static void movecrack(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void movebolt(int i)
+static void movebolt(DDukeActor* actor)
 {
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	int x;
 	int sect = s->sectnum;
 
-	auto p = findplayer(s, &x);
+	auto p = findplayer(&actor->s, &x);
 	if (x > 20480) return;
 
 	if (t[3] == 0)
@@ -975,7 +975,7 @@ CLEAR_THE_BOLT:
 	if (l & 1) s->cstat ^= 2;
 
 	if (s->picnum == (BOLT1 + 1) && (krand() & 1) && sector[sect].floorpicnum == HURTRAIL)
-		S_PlayActorSound(SHORT_CIRCUIT, i);
+		S_PlayActorSound(SHORT_CIRCUIT, actor);
 
 	if (s->picnum == BOLT1 + 4) s->picnum = BOLT1;
 
@@ -1055,7 +1055,7 @@ void movestandables_r(void)
 
 		else if (picnum >= BOLT1 && picnum <= BOLT1 + 3)
 		{
-			movebolt(i);
+			movebolt(&hittype[i]);
 		}
 
 		else if (picnum == WATERDRIP)

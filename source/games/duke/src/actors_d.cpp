@@ -1319,14 +1319,14 @@ static void moveviewscreen(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void movesidebolt(int i)
+static void movesidebolt(DDukeActor* actor)
 {
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	int x;
 	int sect = s->sectnum;
 
-	auto p = findplayer(s, &x);
+	auto p = findplayer(&actor->s, &x);
 	if (x > 20480) return;
 
 CLEAR_THE_BOLT2:
@@ -1350,13 +1350,8 @@ CLEAR_THE_BOLT2:
 	}
 	s->picnum++;
 
-#if 0
-	// content of l was undefined.
-	if (l & 1) s->cstat ^= 2;
-#endif
-
 	if ((krand() & 1) && sector[sect].floorpicnum == HURTRAIL)
-		S_PlayActorSound(SHORT_CIRCUIT, i);
+		S_PlayActorSound(SHORT_CIRCUIT, actor);
 
 	if (s->picnum == SIDEBOLT1 + 4) s->picnum = SIDEBOLT1;
 }
@@ -1367,14 +1362,14 @@ CLEAR_THE_BOLT2:
 //
 //---------------------------------------------------------------------------
 
-static void movebolt(int i)
+static void movebolt(DDukeActor *actor)
 {
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	int x;
 	int sect = s->sectnum;
 
-	auto p = findplayer(s, &x);
+	auto p = findplayer(&actor->s, &x);
 	if (x > 20480) return;
 
 	if (t[3] == 0)
@@ -1409,7 +1404,7 @@ CLEAR_THE_BOLT:
 	if (l & 1) s->cstat ^= 2;
 
 	if (s->picnum == (BOLT1+1) && (krand()&7) == 0 && sector[sect].floorpicnum == HURTRAIL)
-		S_PlayActorSound(SHORT_CIRCUIT,i);
+		S_PlayActorSound(SHORT_CIRCUIT,actor);
 
 	if (s->picnum==BOLT1+4) s->picnum=BOLT1;
 
@@ -1503,12 +1498,12 @@ void movestandables_d(void)
 
 		else if (picnum >= SIDEBOLT1 && picnum <= SIDEBOLT1 + 3)
 		{
-			movesidebolt(i);
+			movesidebolt(&hittype[i]);
 		}
 
 		else if (picnum >= BOLT1 && picnum <= BOLT1 + 3)
 		{
-			movebolt(i);
+			movebolt(&hittype[i]);
 		}
 
 		else if (picnum == WATERDRIP)
