@@ -36,25 +36,22 @@ BEGIN_DUKE_NS
 short pinsectorresetdown(short sect);
 
 
-void ballreturn(short spr)
+void ballreturn(DDukeActor *ball)
 {
-	int j, i;
-	StatIterator it(STAT_BOWLING);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_BOWLING);
+	while (auto act = it.Next())
 	{
-		auto si = &sprite[i];
-		if (si->picnum == RRTILE281 && sprite[spr].sectnum == si->sectnum)
+		if (act->s.picnum == RRTILE281 && ball->s.sectnum == act->s.sectnum)
 		{
-			StatIterator it2(STAT_BOWLING);
-			while ((j = it2.NextIndex()) >= 0)
+			DukeStatIterator it2(STAT_BOWLING);
+			while (auto act2 = it2.Next())
 			{
-				auto sj = &sprite[j];
-				if (sj->picnum == RRTILE282 && si->hitag == sj->hitag)
-					fi.spawn(j, BOWLINGBALLSPRITE);
-				if (sj->picnum == RRTILE280 && si->hitag == sj->hitag && sj->lotag == 0)
+				if (act2->s.picnum == RRTILE282 && act->s.hitag == act2->s.hitag)
+					spawn(act2, BOWLINGBALLSPRITE);
+				if (act2->s.picnum == RRTILE280 && act->s.hitag == act2->s.hitag && act2->s.lotag == 0)
 				{
-					sj->lotag = 100;
-					sj->extra++;
+					act2->s.lotag = 100;
+					act2->s.extra++;
 				}
 			}
 		}
@@ -63,15 +60,12 @@ void ballreturn(short spr)
 
 short pinsectorresetdown(short sect)
 {
-	int vel, j;
-	
-	j = getanimationgoal(anim_ceilingz, sect);
+	int j = getanimationgoal(anim_ceilingz, sect);
 
 	if (j == -1)
 	{
 		j = sector[sect].floorz;
-		vel = 64;
-		setanimation(sect, anim_ceilingz, sect, j, vel);
+		setanimation(sect, anim_ceilingz, sect, j, 64);
 		return 1;
 	}
 	return 0;
@@ -79,15 +73,12 @@ short pinsectorresetdown(short sect)
 
 short pinsectorresetup(short sect)
 {
-	int vel, j;
-
-	j = getanimationgoal(anim_ceilingz, sect);
+	int j = getanimationgoal(anim_ceilingz, sect);
 
 	if (j == -1)
 	{
 		j = sector[nextsectorneighborz(sect, sector[sect].ceilingz, -1, -1)].ceilingz;
-		vel = 64;
-		setanimation(sect, anim_ceilingz, sect, j, vel);
+		setanimation(sect, anim_ceilingz, sect, j, 64);
 		return 1;
 	}
 	return 0;
@@ -99,76 +90,76 @@ short checkpins(short sect)
 	int  x, y;
 	short pins[10];
 	short tag;
-	
-	pin = 0;
-	for(i=0;i<10;i++) pins[i] = 0;
 
-	SectIterator it(sect);
-	while ((i = it.NextIndex()) >= 0)
+	pin = 0;
+	for (i = 0; i < 10; i++) pins[i] = 0;
+
+	DukeSectIterator it(sect);
+	while (auto a2 = it.Next())
 	{
-		if (sprite[i].picnum == RRTILE3440)
+		if (a2->s.picnum == RRTILE3440)
 		{
 			pin++;
-			pins[sprite[i].lotag] = 1;
+			pins[a2->s.lotag] = 1;
 		}
-		if (sprite[i].picnum == RRTILE280)
+		if (a2->s.picnum == RRTILE280)
 		{
-			tag = sprite[i].hitag;
+			tag = a2->s.hitag;
 		}
 	}
 
 	if (tag)
 	{
 		tag += 2024;
-		tileCopySection(2024,0,0,128,64,tag,0,0);
-		for(i=0;i<10;i++)
+		tileCopySection(2024, 0, 0, 128, 64, tag, 0, 0);
+		for (i = 0; i < 10; i++)
 		{
 			if (pins[i] == 1)
 			{
 				switch (i)
 				{
-					case 0:
-						x = 64;
-						y = 48;
-						break;
-					case 1:
-						x = 56;
-						y = 40;
-						break;
-					case 2:
-						x = 72;
-						y = 40;
-						break;
-					case 3:
-						x = 48;
-						y = 32;
-						break;
-					case 4:
-						x = 64;
-						y = 32;
-						break;
-					case 5:
-						x = 80;
-						y = 32;
-						break;
-					case 6:
-						x = 40;
-						y = 24;
-						break;
-					case 7:
-						x = 56;
-						y = 24;
-						break;
-					case 8:
-						x = 72;
-						y = 24;
-						break;
-					case 9:
-						x = 88;
-						y = 24;
-						break;
+				case 0:
+					x = 64;
+					y = 48;
+					break;
+				case 1:
+					x = 56;
+					y = 40;
+					break;
+				case 2:
+					x = 72;
+					y = 40;
+					break;
+				case 3:
+					x = 48;
+					y = 32;
+					break;
+				case 4:
+					x = 64;
+					y = 32;
+					break;
+				case 5:
+					x = 80;
+					y = 32;
+					break;
+				case 6:
+					x = 40;
+					y = 24;
+					break;
+				case 7:
+					x = 56;
+					y = 24;
+					break;
+				case 8:
+					x = 72;
+					y = 24;
+					break;
+				case 9:
+					x = 88;
+					y = 24;
+					break;
 				}
-				tileCopySection(2023,0,0,8,8,tag,x-4,y-10);
+				tileCopySection(2023, 0, 0, 8, 8, tag, x - 4, y - 10);
 			}
 		}
 	}
@@ -178,84 +169,84 @@ short checkpins(short sect)
 
 void resetpins(short sect)
 {
-	short i, j, tag;
+	int i, tag;
 	int x, y;
-	SectIterator it(sect);
-	while ((i = it.NextIndex()) >= 0)
+	DukeSectIterator it(sect);
+	while (auto a2 = it.Next())
 	{
-		if (sprite[i].picnum == 3440)
-			deletesprite(i);
+		if (a2->s.picnum == RRTILE3440)
+			deletesprite(a2);
 	}
 	it.Reset(sect);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto a2 = it.Next())
 	{
-		if (sprite[i].picnum == 283)
+		if (a2->s.picnum == 283)
 		{
-			j = fi.spawn(i,3440);
-			sprite[j].lotag = sprite[i].lotag;
-			if (sprite[j].lotag == 3 || sprite[j].lotag == 5)
+			auto spawned = spawn(a2, RRTILE3440);
+			spawned->s.lotag = a2->s.lotag;
+			if (spawned->s.lotag == 3 || spawned->s.lotag == 5)
 			{
-				sprite[j].clipdist = (1+(krand()%1))*16+32;
+				spawned->s.clipdist = (1 + (krand() % 1)) * 16 + 32;
 			}
 			else
 			{
-				sprite[j].clipdist = (1+(krand()%1))*16+32;
+				spawned->s.clipdist = (1 + (krand() % 1)) * 16 + 32;
 			}
-			sprite[j].ang -= ((krand()&32)-(krand()&64))&2047;
+			spawned->s.ang -= ((krand() & 32) - (krand() & 64)) & 2047;
 		}
-		if (sprite[i].picnum == 280)
-			tag = sprite[i].hitag;
+		if (a2->s.picnum == 280)
+			tag = a2->s.hitag;
 	}
 	if (tag)
 	{
-		tag += LANEPICS+1;
-		tileCopySection(LANEPICS+1,0,0,128,64,tag,0,0);
-		for(i=0;i<10;i++)
+		tag += LANEPICS + 1;
+		tileCopySection(LANEPICS + 1, 0, 0, 128, 64, tag, 0, 0);
+		for (i = 0; i < 10; i++)
 		{
 			switch (i)
 			{
-				case 0:
-					x = 64;
-					y = 48;
-					break;
-				case 1:
-					x = 56;
-					y = 40;
-					break;
-				case 2:
-					x = 72;
-					y = 40;
-					break;
-				case 3:
-					x = 48;
-					y = 32;
-					break;
-				case 4:
-					x = 64;
-					y = 32;
-					break;
-				case 5:
-					x = 80;
-					y = 32;
-					break;
-				case 6:
-					x = 40;
-					y = 24;
-					break;
-				case 7:
-					x = 56;
-					y = 24;
-					break;
-				case 8:
-					x = 72;
-					y = 24;
-					break;
-				case 9:
-					x = 88;
-					y = 24;
-					break;
+			case 0:
+				x = 64;
+				y = 48;
+				break;
+			case 1:
+				x = 56;
+				y = 40;
+				break;
+			case 2:
+				x = 72;
+				y = 40;
+				break;
+			case 3:
+				x = 48;
+				y = 32;
+				break;
+			case 4:
+				x = 64;
+				y = 32;
+				break;
+			case 5:
+				x = 80;
+				y = 32;
+				break;
+			case 6:
+				x = 40;
+				y = 24;
+				break;
+			case 7:
+				x = 56;
+				y = 24;
+				break;
+			case 8:
+				x = 72;
+				y = 24;
+				break;
+			case 9:
+				x = 88;
+				y = 24;
+				break;
 			}
-			tileCopySection(LANEPICS,0,0,8,8,tag,x-4,y-10);
+			tileCopySection(LANEPICS, 0, 0, 8, 8, tag, x - 4, y - 10);
 		}
 	}
 }
@@ -265,58 +256,58 @@ void resetlanepics(void)
 	int x, y;
 	short i;
 	short tag, pic;
-	for(tag=0;tag<4;tag++)
+	for (tag = 0; tag < 4; tag++)
 	{
 		pic = tag + 1;
 		if (pic == 0) continue;
-		pic += LANEPICS+1;
-		tileCopySection(LANEPICS+1,0,0,128,64, pic,0,0);
-		for(i=0;i<10;i++)
+		pic += LANEPICS + 1;
+		tileCopySection(LANEPICS + 1, 0, 0, 128, 64, pic, 0, 0);
+		for (i = 0; i < 10; i++)
 		{
 			switch (i)
 			{
-				case 0:
-					x = 64;
-					y = 48;
-					break;
-				case 1:
-					x = 56;
-					y = 40;
-					break;
-				case 2:
-					x = 72;
-					y = 40;
-					break;
-				case 3:
-					x = 48;
-					y = 32;
-					break;
-				case 4:
-					x = 64;
-					y = 32;
-					break;
-				case 5:
-					x = 80;
-					y = 32;
-					break;
-				case 6:
-					x = 40;
-					y = 24;
-					break;
-				case 7:
-					x = 56;
-					y = 24;
-					break;
-				case 8:
-					x = 72;
-					y = 24;
-					break;
-				case 9:
-					x = 88;
-					y = 24;
-					break;
+			case 0:
+				x = 64;
+				y = 48;
+				break;
+			case 1:
+				x = 56;
+				y = 40;
+				break;
+			case 2:
+				x = 72;
+				y = 40;
+				break;
+			case 3:
+				x = 48;
+				y = 32;
+				break;
+			case 4:
+				x = 64;
+				y = 32;
+				break;
+			case 5:
+				x = 80;
+				y = 32;
+				break;
+			case 6:
+				x = 40;
+				y = 24;
+				break;
+			case 7:
+				x = 56;
+				y = 24;
+				break;
+			case 8:
+				x = 72;
+				y = 24;
+				break;
+			case 9:
+				x = 88;
+				y = 24;
+				break;
 			}
-			tileCopySection(LANEPICS,0,0,8,8,pic,x-4,y-10);
+			tileCopySection(LANEPICS, 0, 0, 8, 8, pic, x - 4, y - 10);
 		}
 	}
 }

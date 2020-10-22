@@ -38,7 +38,7 @@ BEGIN_DUKE_NS
 void dojaildoor();
 void moveminecart();
 
-void ballreturn(short spr);
+void ballreturn(DDukeActor* spr);
 short pinsectorresetdown(short sect);
 short pinsectorresetup(short sect);
 short checkpins(short sect);
@@ -2767,20 +2767,19 @@ DETONATEB:
 //
 //---------------------------------------------------------------------------
 
-static int henstand(int i)
+static int henstand(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	auto t = &actor->temp_data[0];
 	int sect = s->sectnum;
-	int j;
 
 	if (s->picnum == HENSTAND || s->picnum == HENSTAND + 1)
 	{
 		s->lotag--;
 		if (s->lotag == 0)
 		{
-			fi.spawn(i, HEN);
-			deletesprite(i);
+			spawn(actor, HEN);
+			deletesprite(actor);
 			return 1;
 		}
 	}
@@ -2788,32 +2787,33 @@ static int henstand(int i)
 		s->xvel = 0;
 	if (s->xvel)
 	{
-		makeitfall(i);
-		j = fi.movesprite(i,
+		makeitfall(actor);
+		Collision coll;
+		movesprite_ex(actor,
 			(sintable[(s->ang + 512) & 2047] * s->xvel) >> 14,
 			(sintable[s->ang & 2047] * s->xvel) >> 14,
-			s->zvel, CLIPMASK0);
-		if (j & 49152)
+			s->zvel, CLIPMASK0, coll);
+		if (coll.type)
 		{
-			if ((j & 49152) == 32768)
+			if (coll.type == kHitWall)
 			{
-				j &= (MAXWALLS - 1);
+				int j = coll.index;
 				int k = getangle(
 					wall[wall[j].point2].x - wall[j].x,
 					wall[wall[j].point2].y - wall[j].y);
 				s->ang = ((k << 1) - s->ang) & 2047;
 			}
-			else if ((j & 49152) == 49152)
+			else if (coll.type == kHitSprite)
 			{
-				j &= (MAXSPRITES - 1);
-				fi.checkhitsprite(i, j);
-				if (sprite[j].picnum == HEN)
+				auto hitact = coll.actor;
+				fi.checkhitsprite(actor->GetIndex(), hitact->GetIndex());
+				if (hitact->s.picnum == HEN)
 				{
-					int ns = fi.spawn(j, HENSTAND);
-					deletesprite(j);
-					sprite[ns].xvel = 32;
-					sprite[ns].lotag = 40;
-					sprite[ns].ang = s->ang;
+					auto ns = spawn(hitact, HENSTAND);
+					deletesprite(hitact);
+					ns->s.xvel = 32;
+					ns->s.lotag = 40;
+					ns->s.ang = s->ang;
 				}
 			}
 		}
@@ -2834,18 +2834,18 @@ static int henstand(int i)
 			if (krand() & 1)
 				s->picnum = HENSTAND + 1;
 			if (!s->xvel)
-				return 2;//deletesprite(i); still needs to run a script but should not do on a deleted object
+				return 2;//deletesprite(actor); still needs to run a script but should not do on a deleted object
 		}
 		if (s->picnum == RRTILE3440 || (s->picnum == RRTILE3440 + 1 && !s->xvel))
 		{
-			return 2;//deletesprite(i); still needs to run a script but should not do on a deleted object
+			return 2;//deletesprite(actor); still needs to run a script but should not do on a deleted object
 		}
 	}
 	else if (sector[s->sectnum].lotag == 900)
 	{
 		if (s->picnum == BOWLINGBALL)
-			ballreturn(i);
-		deletesprite(i);
+			ballreturn(actor);
+		deletesprite(actor);
 		return 1;
 	}
 	return 0;
@@ -3023,7 +3023,7 @@ void moveactors_r(void)
 			case HENSTAND:
 			case HENSTAND+1:
 			{
-				int todo = henstand(i);
+				int todo = henstand(&hittype[i]);
 				if (todo == 2) deleteafterexecute = true;
 				if (todo == 1) continue;
 				break;
