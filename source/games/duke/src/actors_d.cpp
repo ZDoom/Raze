@@ -1428,102 +1428,100 @@ CLEAR_THE_BOLT:
 
 void movestandables_d(void)
 {
-	StatIterator it(STAT_STANDABLE);
-	int i;
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_STANDABLE);
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
-		int picnum = s->picnum;
+		int picnum = act->s.picnum;
 
-		if (s->sectnum < 0)
+		if (act->s.sectnum < 0)
 		{
-			deletesprite(i);
+			deletesprite(act);
 			continue;
 		}
 
-		hittype[i].bposx = s->x;
-		hittype[i].bposy = s->y;
-		hittype[i].bposz = s->z;
+		act->bposx = act->s.x;
+		act->bposy = act->s.y;
+		act->bposz = act->s.z;
 
 
 		if (picnum >= CRANE && picnum <= CRANE +3)
 		{
-			movecrane(&hittype[i], CRANE);
+			movecrane(act, CRANE);
 		}
 
 		else if (picnum >= WATERFOUNTAIN && picnum <= WATERFOUNTAIN + 3)
 		{
-			movefountain(&hittype[i], WATERFOUNTAIN);
+			movefountain(act, WATERFOUNTAIN);
 		}
 
 		else if (AFLAMABLE(picnum))
 		{
-			moveflammable(&hittype[i], TIRE, BOX, BLOODPOOL);
+			moveflammable(act, TIRE, BOX, BLOODPOOL);
 		}
 
 		else if (picnum == TRIPBOMB)
 		{
-			movetripbomb(&hittype[i]);
+			movetripbomb(act);
 		}
 
 		else if (picnum >= CRACK1 && picnum <= CRACK1 + 3)
 		{
-			movecrack(&hittype[i]);
+			movecrack(act);
 		}
 
 		else if (picnum == FIREEXT)
 		{
-			movefireext(&hittype[i]);
+			movefireext(act);
 		}
 
 		else if (picnum == OOZFILTER || picnum == SEENINE || picnum == SEENINEDEAD || picnum == (SEENINEDEAD + 1))
 		{
-			moveooz(&hittype[i], SEENINE, SEENINEDEAD, OOZFILTER, EXPLOSION2);
+			moveooz(act, SEENINE, SEENINEDEAD, OOZFILTER, EXPLOSION2);
 		}
 
 		else if (picnum == MASTERSWITCH)
 		{
-			movemasterswitch(&hittype[i], SEENINE, OOZFILTER);
+			movemasterswitch(act, SEENINE, OOZFILTER);
 		}
 
 		else if (picnum == VIEWSCREEN || picnum == VIEWSCREEN2)
 		{
-			moveviewscreen(&hittype[i]);
+			moveviewscreen(act);
 		}
 
 		else if (picnum == TRASH)
 		{
-			movetrash(&hittype[i]);
+			movetrash(act);
 		}
 
 		else if (picnum >= SIDEBOLT1 && picnum <= SIDEBOLT1 + 3)
 		{
-			movesidebolt(&hittype[i]);
+			movesidebolt(act);
 		}
 
 		else if (picnum >= BOLT1 && picnum <= BOLT1 + 3)
 		{
-			movebolt(&hittype[i]);
+			movebolt(act);
 		}
 
 		else if (picnum == WATERDRIP)
 		{
-			movewaterdrip(&hittype[i], WATERDRIP);
+			movewaterdrip(act, WATERDRIP);
 		}
 
 		else if (picnum == DOORSHOCK)
 		{
-			movedoorshock(&hittype[i]);
+			movedoorshock(act);
 		}
 
 		else if (picnum == TOUCHPLATE)
 		{
-			movetouchplate(&hittype[i], TOUCHPLATE);
+			movetouchplate(act, TOUCHPLATE);
 		}
 
 		else if (isIn(picnum, CANWITHSOMETHING, CANWITHSOMETHING2, CANWITHSOMETHING3, CANWITHSOMETHING4))
 		{
-			movecanwithsomething(&hittype[i]);
+			movecanwithsomething(act);
 		}
 
 		else if (isIn(picnum,
@@ -1543,8 +1541,8 @@ void movestandables_d(void)
 				WATERBUBBLEMAKER))
 		{
 			int x;
-			int p = findplayer(s, &x);
-			execute(i, p, x);
+			int p = findplayer(&act->s, &x);
+			execute(act, p, x);
 		}
 	}
 }
