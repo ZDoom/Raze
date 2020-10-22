@@ -1334,12 +1334,12 @@ void checkhitsprite_d(int i, int sn)
 		fi.shoot(i, BLOODSPLAT3);
 		s->ang = krand() & 2047;
 		fi.shoot(i, BLOODSPLAT4);
-		fi.guts(s, JIBS1, 1, myconnectindex);
-		fi.guts(s, JIBS2, 2, myconnectindex);
-		fi.guts(s, JIBS3, 3, myconnectindex);
-		fi.guts(s, JIBS4, 4, myconnectindex);
-		fi.guts(s, JIBS5, 1, myconnectindex);
-		fi.guts(s, JIBS3, 6, myconnectindex);
+		fi.guts(&hittype[i], JIBS1, 1, myconnectindex);
+		fi.guts(&hittype[i], JIBS2, 2, myconnectindex);
+		fi.guts(&hittype[i], JIBS3, 3, myconnectindex);
+		fi.guts(&hittype[i], JIBS4, 4, myconnectindex);
+		fi.guts(&hittype[i], JIBS5, 1, myconnectindex);
+		fi.guts(&hittype[i], JIBS3, 6, myconnectindex);
 		S_PlaySound(SQUISHED);
 		deletesprite(i);
 		break;

@@ -2466,7 +2466,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_guts:
 		insptr += 2;
-		fi.guts(g_sp,*(insptr-1),*insptr,g_p);
+		fi.guts(g_ac,*(insptr-1),*insptr,g_p);
 		insptr++;
 		break;
 	case concmd_slapplayer:

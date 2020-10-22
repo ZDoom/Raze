@@ -647,14 +647,15 @@ void lotsofpaper_d(DDukeActor *actor, short n)
 //
 //---------------------------------------------------------------------------
 
-void guts_d(spritetype* s, short gtype, short n, short p)
+void guts_d(DDukeActor* actor, short gtype, short n, short p)
 {
+	auto s = &actor->s;
 	int gutz, floorz;
 	int i=0, j;
 	int sx, sy;
 	uint8_t pal;
 
-	if (badguy(s) && s->xrepeat < 16)
+	if (badguy(actor) && s->xrepeat < 16)
 		sx = sy = 8;
 	else sx = sy = 32;
 
@@ -666,7 +667,7 @@ void guts_d(spritetype* s, short gtype, short n, short p)
 
 	gutz += actorinfo[s->picnum].gutsoffset;
 
-	if (badguy(s) && s->pal == 6)
+	if (badguy(actor) && s->pal == 6)
 		pal = 6;
 	else if (s->picnum != LIZTROOP) // EDuke32 transfers the palette unconditionally, I'm not sure that's such a good idea.
 		pal = 0;
@@ -683,15 +684,14 @@ void guts_d(spritetype* s, short gtype, short n, short p)
 		int r4 = krand();
 		int r5 = krand();
 		// TRANSITIONAL: owned by a player???
-		i = EGS(s->sectnum, s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].i, 5);
-		auto si = &sprite[i];
-		if (si->picnum == JIBS2)
+		auto spawned = EGS(s->sectnum, s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
+		if (spawned->s.picnum == JIBS2)
 		{
-			si->xrepeat >>= 2;
-			si->yrepeat >>= 2;
+			spawned->s.xrepeat >>= 2;
+			spawned->s.yrepeat >>= 2;
 		}
 		if (pal != 0)
-			si->pal = pal;
+			spawned->s.pal = pal;
 	}
 }
 

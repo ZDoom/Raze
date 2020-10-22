@@ -148,7 +148,7 @@ void quickkill(struct player_struct* p)
 
 	sprite[p->i].extra = 0;
 	sprite[p->i].cstat |= 32768;
-	if (ud.god == 0) fi.guts(&sprite[p->i], TILE_JIBS6, 8, myconnectindex);
+	if (ud.god == 0) fi.guts(&hittype[p->i], TILE_JIBS6, 8, myconnectindex);
 	return;
 }
 
@@ -420,7 +420,7 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 				p->weapon_pos = -p->weapon_pos;
 			if (p->actorsqu != nullptr && dist(&sprite[pi], &p->actorsqu->s) < 1400)
 			{
-				fi.guts(&p->actorsqu->s, TILE_JIBS6, 7, myconnectindex);
+				fi.guts(p->actorsqu, TILE_JIBS6, 7, myconnectindex);
 				fi.spawn(p->actorsqu->GetIndex(), TILE_BLOODPOOL);
 				S_PlayActorSound(SQUISHED, p->actorsqu);
 				if (isIn(p->actorsqu->s.picnum, respawnlist))

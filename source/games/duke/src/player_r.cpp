@@ -2633,12 +2633,12 @@ void onMotorcycleHit(int snum, int var60)
 					}
 				}
 			}
-			fi.guts(&sprite[var60], RRTILE2460, 12, myconnectindex);
-			fi.guts(&sprite[var60], RRTILE2465, 3, myconnectindex);
+			fi.guts(&hittype[var60], RRTILE2460, 12, myconnectindex);
+			fi.guts(&hittype[var60], RRTILE2465, 3, myconnectindex);
 		}
 		else
-			fi.guts(&sprite[var60], RRTILE2465, 3, myconnectindex);
-		fi.guts(&sprite[var60], RRTILE2465, 3, myconnectindex);
+			fi.guts(&hittype[var60], RRTILE2465, 3, myconnectindex);
+		fi.guts(&hittype[var60], RRTILE2465, 3, myconnectindex);
 		s->xrepeat = 0;
 		s->yrepeat = 0;
 	}

@@ -469,14 +469,15 @@ void lotsoffeathers_r(DDukeActor *actor, short n)
 //
 //---------------------------------------------------------------------------
 
-void guts_r(spritetype* s, short gtype, short n, short p)
+void guts_r(DDukeActor* actor, short gtype, short n, short p)
 {
+	auto s = &actor->s;
 	int gutz, floorz;
 	int i=0, j;
 	int sx, sy;
 	uint8_t pal;
 
-	if (badguy(s) && s->xrepeat < 16)
+	if (badguy(actor) && s->xrepeat < 16)
 		sx = sy = 8;
 	else sx = sy = 32;
 
@@ -488,7 +489,7 @@ void guts_r(spritetype* s, short gtype, short n, short p)
 
 	gutz += actorinfo[s->picnum].gutsoffset;
 
-	if (badguy(s) && s->pal == 6)
+	if (badguy(actor) && s->pal == 6)
 		pal = 6;
 	else
 	{
@@ -509,9 +510,9 @@ void guts_r(spritetype* s, short gtype, short n, short p)
 		int r4 = krand();
 		int r5 = krand();
 		// TRANSITIONAL: owned by a player???
-		i = EGS(s->sectnum, s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx >> 1, sy >> 1, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].i, 5);
+		auto spawned = EGS(s->sectnum, s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx >> 1, sy >> 1, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
 		if (pal != 0)
-			sprite[i].pal = pal;
+			spawned->s.pal = pal;
 	}
 }
 
@@ -1205,9 +1206,9 @@ static bool weaponhitsprite(int i, int j, const vec3_t &oldpos)
 		{
 			if (isRRRA() && sprite[s->owner].picnum == MAMA)
 			{
-				guts_r(s, RABBITJIBA, 2, myconnectindex);
-				guts_r(s, RABBITJIBB, 2, myconnectindex);
-				guts_r(s, RABBITJIBC, 2, myconnectindex);
+				guts_r(&hittype[i], RABBITJIBA, 2, myconnectindex);
+				guts_r(&hittype[i], RABBITJIBB, 2, myconnectindex);
+				guts_r(&hittype[i], RABBITJIBC, 2, myconnectindex);
 			}
 
 			ps[p].horizon.addadjustment(32);
@@ -1245,9 +1246,9 @@ static bool weaponhitwall(int i, int j, const vec3_t& oldpos)
 
 	if (isRRRA() && sprite[s->owner].picnum == MAMA)
 	{
-		guts_r(s, RABBITJIBA, 2, myconnectindex);
-		guts_r(s, RABBITJIBB, 2, myconnectindex);
-		guts_r(s, RABBITJIBC, 2, myconnectindex);
+		guts_r(&hittype[i], RABBITJIBA, 2, myconnectindex);
+		guts_r(&hittype[i], RABBITJIBB, 2, myconnectindex);
+		guts_r(&hittype[i], RABBITJIBC, 2, myconnectindex);
 	}
 
 	if (s->picnum != RPG && (!isRRRA() || s->picnum != RPG2) && s->picnum != FREEZEBLAST && s->picnum != SPIT && s->picnum != SHRINKSPARK && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
@@ -1335,9 +1336,9 @@ bool weaponhitsector(int i, const vec3_t& oldpos)
 
 	if (isRRRA() && sprite[s->owner].picnum == MAMA)
 	{
-		guts_r(s, RABBITJIBA, 2, myconnectindex);
-		guts_r(s, RABBITJIBB, 2, myconnectindex);
-		guts_r(s, RABBITJIBC, 2, myconnectindex);
+		guts_r(&hittype[i], RABBITJIBA, 2, myconnectindex);
+		guts_r(&hittype[i], RABBITJIBB, 2, myconnectindex);
+		guts_r(&hittype[i], RABBITJIBC, 2, myconnectindex);
 	}
 
 	if (s->zvel < 0)
@@ -2490,10 +2491,10 @@ void rr_specialstats()
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					guts_r(s, JIBS1, 1, myconnectindex);
-					guts_r(s, JIBS2, 1, myconnectindex);
-					guts_r(s, JIBS3, 1, myconnectindex);
-					guts_r(s, JIBS4, 1, myconnectindex);
+					guts_r(&hittype[i], JIBS1, 1, myconnectindex);
+					guts_r(&hittype[i], JIBS2, 1, myconnectindex);
+					guts_r(&hittype[i], JIBS3, 1, myconnectindex);
+					guts_r(&hittype[i], JIBS4, 1, myconnectindex);
 					s->lotag = 256;
 				}
 				break;
@@ -4098,7 +4099,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		{
 			if (s->picnum != APLAYER && badguy(actor) && s->z == actor->floorz - FOURSLEIGHT)
 			{
-				fi.guts(&actor->s, JIBS6, 5, playernum);
+				fi.guts(actor, JIBS6, 5, playernum);
 				S_PlayActorSound(SQUISHED, actor);
 				addspritetodelete();
 			}

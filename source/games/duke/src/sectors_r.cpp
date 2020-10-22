@@ -1965,7 +1965,7 @@ void checkhitsprite_r(int i, int sn)
 		break;
 	case RRTILE2455:
 		S_PlayActorSound(SQUISHED, i);
-		fi.guts(&sprite[i], RRTILE2465, 3, myconnectindex);
+		fi.guts(&hittype[i], RRTILE2465, 3, myconnectindex);
 		deletesprite(i);
 		break;
 	case RRTILE2451:
@@ -1981,8 +1981,8 @@ void checkhitsprite_r(int i, int sn)
 					{
 						if (s->lotag == sprite[j].lotag)
 						{
-							fi.guts(&sprite[i], RRTILE2460, 12, myconnectindex);
-							fi.guts(&sprite[i], RRTILE2465, 3, myconnectindex);
+							fi.guts(&hittype[i], RRTILE2460, 12, myconnectindex);
+							fi.guts(&hittype[i], RRTILE2465, 3, myconnectindex);
 							sprite[j].xrepeat = 0;
 							sprite[j].yrepeat = 0;
 							s->xrepeat = 0;
@@ -1993,8 +1993,8 @@ void checkhitsprite_r(int i, int sn)
 			}
 			else
 			{
-				fi.guts(&sprite[i], RRTILE2460, 12, myconnectindex);
-				fi.guts(&sprite[i], RRTILE2465, 3, myconnectindex);
+				fi.guts(&hittype[i], RRTILE2460, 12, myconnectindex);
+				fi.guts(&hittype[i], RRTILE2465, 3, myconnectindex);
 				s->xrepeat = 0;
 				s->yrepeat = 0;
 			}
