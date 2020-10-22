@@ -29,6 +29,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "global.h"
 #include "names_r.h"
 #include "serializer.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 
@@ -121,24 +122,24 @@ void lava_serialize(FSerializer& arc)
 		("windertime", windertime);
 }
 
-void addtorch(int i)
+void addtorch(spritetype* s)
 {
 	if (torchcnt >= 64)
 		I_Error("Too many torch effects");
 
-	torchsector[torchcnt] = sprite[i].sectnum;
-	torchsectorshade[torchcnt] = sector[sprite[i].sectnum].floorshade;
-	torchtype[torchcnt] = sprite[i].lotag;
+	torchsector[torchcnt] = s->sectnum;
+	torchsectorshade[torchcnt] = sector[s->sectnum].floorshade;
+	torchtype[torchcnt] = s->lotag;
 	torchcnt++;
 }
 
-void addlightning(int i)
+void addlightning(spritetype* s)
 {
 	if (lightnincnt >= 64)
 		I_Error("Too many lightnin effects");
 
-	lightninsector[lightnincnt] = sprite[i].sectnum;
-	lightninsectorshade[lightnincnt] = sector[sprite[i].sectnum].floorshade;
+	lightninsector[lightnincnt] = s->sectnum;
+	lightninsectorshade[lightnincnt] = sector[s->sectnum].floorshade;
 	lightnincnt++;
 }
 
@@ -149,7 +150,7 @@ void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int j)
 
 	if (jlt != 10 && jlt != 20 && jlt != 30 && jlt != 40)
 	{
-		Printf(PRINT_HIGH, "Bad direction %d for jail door with tag %d\n", iht);
+		Printf(PRINT_HIGH, "Bad direction %d for jail door with tag %d\n", jlt, iht);
 		return;	// wouldn't work so let's skip it.
 	}
 
@@ -517,12 +518,12 @@ void moveminecart(void)
 		}
 		cx = (max_x + min_x) >> 1;
 		cy = (max_y + min_y) >> 1;
-		SectIterator it(csect);
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(csect);
+		while (auto a2 = it.Next())
 		{
-			auto sj = &sprite[j];
-			if (badguy(&sprite[j]))
-				setsprite(j,cx,cy,sprite[j].z);
+			auto sj = &a2->s;
+			if (badguy(sj))
+				setsprite(a2, cx, cy, sj->z);
 		}
 	}
 }

@@ -592,12 +592,12 @@ void prelevel_r(int g)
 			break;
 
 		case RRTILE18:
-			addtorch(i);
+			addtorch(&sprite[i]);
 			deletesprite(i);
 			break;
 
 		case RRTILE35:
-			addlightning(i);
+			addlightning(&sprite[i]);
 			deletesprite(i);
 			break;
 
