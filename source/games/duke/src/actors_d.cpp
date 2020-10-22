@@ -2336,10 +2336,10 @@ void movetransports_d(void)
 //
 //---------------------------------------------------------------------------
 
-static void greenslime(int i)
+static void greenslime(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	int sect = s->sectnum;
 	int j;
 
@@ -2359,20 +2359,20 @@ static void greenslime(int i)
 
 	if (sector[sect].floorstat & 1)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 
 	int x;
-	int p = findplayer(s, &x);
+	int p = findplayer(&actor->s, &x);
 
 	if (x > 20480)
 	{
-		hittype[i].timetosleep++;
-		if (hittype[i].timetosleep > SLEEPTIME)
+		actor->timetosleep++;
+		if (actor->timetosleep > SLEEPTIME)
 		{
-			hittype[i].timetosleep = 0;
-			changespritestat(i, 2);
+			actor->timetosleep = 0;
+			changespritestat(actor, 2);
 			return;
 		}
 	}
@@ -2386,27 +2386,28 @@ static void greenslime(int i)
 			t[0] = 0;
 			return;
 		}
-		makeitfall(i);
+		makeitfall(actor);
 		s->cstat = 257;
 		s->picnum = GREENSLIME + 2;
 		s->extra = 1;
 		s->pal = 1;
-		j = fi.ifhitbyweapon(&hittype[i]); if (j >= 0)
+		j = fi.ifhitbyweapon(actor);
+		if (j >= 0)
 		{
 			if (j == FREEZEBLAST)
 				return;
 			for (j = 16; j >= 0; j--)
 			{
-				int k = EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), i, 5);
-				sprite[k].pal = 1;
+				auto k = EGS(s->sectnum, s->x, s->y, s->z, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+				k->s.pal = 1;
 			}
 			ps[p].actors_killed++;
-			S_PlayActorSound(GLASS_BREAKING, i);
-			deletesprite(i);
+			S_PlayActorSound(GLASS_BREAKING, actor);
+			deletesprite(actor);
 		}
 		else if (x < 1024 && ps[p].quick_kick == 0)
 		{
-			j = getincangle(ps[p].angle.ang.asbuild(), getangle(sprite[i].x - ps[p].posx, sprite[i].y - ps[p].posy));
+			j = getincangle(ps[p].angle.ang.asbuild(), getangle(s->x - ps[p].posx, s->y - ps[p].posy));
 			if (j > -128 && j < 128)
 				ps[p].quick_kick = 14;
 		}
@@ -2420,37 +2421,37 @@ static void greenslime(int i)
 
 	if (t[0] == -4) //On the player
 	{
-		if (sprite[ps[p].i].extra < 1)
+		if (ps[p].GetActor()->s.extra < 1)
 		{
 			t[0] = 0;
 			return;
 		}
 
-		setsprite(i, s->x, s->y, s->z);
+		setsprite(actor, s->pos);
 
 		s->ang = ps[p].angle.ang.asbuild();
 
-		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && sprite[ps[p].i].extra > 0)
+		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && ps[p].GetActor()->s.extra > 0)
 			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
 			{
 				for (x = 0; x < 8; x++)
 				{
-					j = EGS(sect, s->x, s->y, s->z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), i, 5);
-					sprite[j].pal = 6;
+					auto j = EGS(sect, s->x, s->y, s->z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), actor, 5);
+					j->s.pal = 6;
 				}
 
-				S_PlayActorSound(SLIM_DYING, i);
-				S_PlayActorSound(SQUISHED, i);
+				S_PlayActorSound(SLIM_DYING, actor);
+				S_PlayActorSound(SQUISHED, actor);
 				if ((krand() & 255) < 32)
 				{
-					j = fi.spawn(i, BLOODPOOL);
-					sprite[j].pal = 0;
+					auto j = spawn(actor, BLOODPOOL);
+					j->s.pal = 0;
 				}
 				ps[p].actors_killed++;
 				t[0] = -3;
-				if (ps[p].somethingonplayer == &hittype[i])
+				if (ps[p].somethingonplayer == actor)
 					ps[p].somethingonplayer = nullptr;
-				deletesprite(i);
+				deletesprite(actor);
 				return;
 			}
 
@@ -2475,10 +2476,10 @@ static void greenslime(int i)
 			updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
 			setpal(&ps[p]);
 
-			StatIterator it(STAT_ACTOR);
-			while ((j = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_ACTOR);
+			while (auto ac = it.Next())
 			{
-				if (sprite[j].picnum == CAMERA1) sprite[j].yvel = 0;
+				if (ac->s.picnum == CAMERA1) ac->s.yvel = 0;
 			}
 		}
 
@@ -2490,8 +2491,9 @@ static void greenslime(int i)
 
 			if (t[3] == 5)
 			{
-				sprite[ps[p].i].extra += -(5 + (krand() & 3));
-				S_PlayActorSound(SLIM_ATTACK, i);
+				auto psp = ps[p].GetActor();
+				psp->s.extra += -(5 + (krand() & 3));
+				S_PlayActorSound(SLIM_ATTACK, actor);
 			}
 
 			if (t[3] < 7) t[3]++;
@@ -2518,7 +2520,7 @@ static void greenslime(int i)
 	{
 		if (ps[p].somethingonplayer == nullptr)
 		{
-			ps[p].somethingonplayer = &hittype[i];
+			ps[p].somethingonplayer = actor;
 			if (t[0] == 3 || t[0] == 2) //Falling downward
 				t[2] = (12 << 8);
 			else t[2] = -(13 << 8); //Climbing up duke
@@ -2526,45 +2528,44 @@ static void greenslime(int i)
 		}
 	}
 
-	j = fi.ifhitbyweapon(&hittype[i]); if (j >= 0)
+	j = fi.ifhitbyweapon(actor);
+	if (j >= 0)
 	{
-		S_PlayActorSound(SLIM_DYING, i);
+		S_PlayActorSound(SLIM_DYING, actor);
 
-		if (ps[p].somethingonplayer == &hittype[i])
+		if (ps[p].somethingonplayer == actor)
 			ps[p].somethingonplayer = nullptr;
 
 		if (j == FREEZEBLAST)
 		{
-			S_PlayActorSound(SOMETHINGFROZE, i); t[0] = -5; t[3] = 0;
+			S_PlayActorSound(SOMETHINGFROZE, actor); 
+			t[0] = -5; t[3] = 0;
 			return;
 		}
 		ps[p].actors_killed++;
 
 		if ((krand() & 255) < 32)
 		{
-			j = fi.spawn(i, BLOODPOOL);
-			sprite[j].pal = 0;
+			auto j = spawn(actor, BLOODPOOL);
+			j->s.pal = 0;
 		}
 
 		for (x = 0; x < 8; x++)
 		{
-			j = EGS(sect, s->x, s->y, s->z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), i, 5);
-			sprite[j].pal = 6;
+			auto j = EGS(sect, s->x, s->y, s->z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), actor, 5);
+			j->s.pal = 6;
 		}
 		t[0] = -3;
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 	// All weap
 	if (t[0] == -1) //Shrinking down
 	{
-		makeitfall(i);
+		makeitfall(actor);
 
 		s->cstat &= 65535 - 8;
 		s->picnum = GREENSLIME + 4;
-
-		//					if(s->yrepeat > 62)
-		  //					  fi.guts(s,JIBS6,5,myconnectindex);
 
 		if (s->xrepeat > 32) s->xrepeat -= krand() & 7;
 		if (s->yrepeat > 16) s->yrepeat -= krand() & 7;
@@ -2572,24 +2573,25 @@ static void greenslime(int i)
 		{
 			s->xrepeat = 40;
 			s->yrepeat = 16;
-			t[5] = -1;
+			actor->temp_actor = nullptr;
 			t[0] = 0;
 		}
 
 		return;
 	}
-	else if (t[0] != -2) getglobalz(i);
+	else if (t[0] != -2) getglobalz(actor);
 
 	if (t[0] == -2) //On top of somebody (an enemy)
 	{
-		makeitfall(i);
-		sprite[t[5]].xvel = 0;
+		auto s5 = actor->temp_actor;
+		makeitfall(actor);
+		s5->s.xvel = 0;
 
-		int l = sprite[t[5]].ang;
+		int l = s5->s.ang;
 
-		s->z = sprite[t[5]].z;
-		s->x = sprite[t[5]].x + (sintable[(l + 512) & 2047] >> 11);
-		s->y = sprite[t[5]].y + (sintable[l & 2047] >> 11);
+		s->z = s5->s.z;
+		s->x = s5->s.x + (sintable[(l + 512) & 2047] >> 11);
+		s->y = s5->s.y + (sintable[l & 2047] >> 11);
 
 		s->picnum = GREENSLIME + 2 + (global_random & 1);
 
@@ -2600,9 +2602,9 @@ static void greenslime(int i)
 			else
 			{
 				t[0] = -1;
-				x = ldist(s, &sprite[t[5]]);
+				x = ldist(actor, s5);
 				if (x < 768) {
-					sprite[t[5]].xrepeat = 0;
+					s5->s.xrepeat = 0;
 				}
 			}
 		}
@@ -2612,18 +2614,14 @@ static void greenslime(int i)
 	//Check randomly to see of there is an actor near
 	if (rnd(32))
 	{
-		SectIterator it(sect);
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(sect);
+		while (auto a2 = it.Next())
 		{
-			switch (sprite[j].picnum)
+			if (actorinfo[a2->s.picnum].flags & SFLAG_GREENSLIMEFOOD)
 			{
-			case LIZTROOP:
-			case LIZMAN:
-			case PIGCOP:
-			case NEWBEAST:
-				if (ldist(s, &sprite[j]) < 768 && (abs(s->z - sprite[j].z) < 8192)) //Gulp them
+				if (ldist(actor, a2) < 768 && (abs(s->z - a2->s.z) < 8192)) //Gulp them
 				{
-					t[5] = j;
+					actor->temp_actor = a2;
 					t[0] = -2;
 					t[1] = 0;
 					return;
@@ -2639,14 +2637,14 @@ static void greenslime(int i)
 		s->picnum = GREENSLIME;
 
 		if ((krand() & 511) == 0)
-			S_PlayActorSound(SLIM_ROAM, i);
+			S_PlayActorSound(SLIM_ROAM, actor);
 
 		if (t[0] == 2)
 		{
 			s->zvel = 0;
 			s->cstat &= (65535 - 8);
 
-			if ((sector[sect].ceilingstat & 1) || (hittype[i].ceilingz + 6144) < s->z)
+			if ((sector[sect].ceilingstat & 1) || (actor->ceilingz + 6144) < s->z)
 			{
 				s->z += 2048;
 				t[0] = 3;
@@ -2656,10 +2654,10 @@ static void greenslime(int i)
 		else
 		{
 			s->cstat |= 8;
-			makeitfall(i);
+			makeitfall(actor);
 		}
 
-		if (everyothertime & 1) ssp(i, CLIPMASK0);
+		if (everyothertime & 1) ssp(actor, CLIPMASK0);
 
 		if (s->xvel > 96)
 		{
@@ -2680,7 +2678,7 @@ static void greenslime(int i)
 		s->yrepeat = 16 + (sintable[t[1] & 2047] >> 13);
 
 		if (rnd(4) && (sector[sect].ceilingstat & 1) == 0 &&
-			abs(hittype[i].floorz - hittype[i].ceilingz)
+			abs(actor->floorz - actor->ceilingz)
 			< (192 << 8))
 		{
 			s->zvel = 0;
@@ -2697,9 +2695,9 @@ static void greenslime(int i)
 		if (s->zvel > -(2048 + 1024))
 			s->zvel -= 348;
 		s->z += s->zvel;
-		if (s->z < hittype[i].ceilingz + 4096)
+		if (s->z < actor->ceilingz + 4096)
 		{
-			s->z = hittype[i].ceilingz + 4096;
+			s->z = actor->ceilingz + 4096;
 			s->xvel = 0;
 			t[0] = 2;
 		}
@@ -2709,9 +2707,9 @@ static void greenslime(int i)
 	{
 		s->picnum = GREENSLIME + 1;
 
-		makeitfall(i);
+		makeitfall(actor);
 
-		if (s->z > hittype[i].floorz - (8 << 8))
+		if (s->z > actor->floorz - (8 << 8))
 		{
 			s->yrepeat -= 4;
 			s->xrepeat += 2;
@@ -2722,9 +2720,9 @@ static void greenslime(int i)
 			if (s->xrepeat > 8) s->xrepeat -= 4;
 		}
 
-		if (s->z > hittype[i].floorz - 2048)
+		if (s->z > actor->floorz - 2048)
 		{
-			s->z = hittype[i].floorz - 2048;
+			s->z = actor->floorz - 2048;
 			t[0] = 0;
 			s->xvel = 0;
 		}
@@ -3196,7 +3194,7 @@ void moveactors_d(void)
 		case GREENSLIME + 5:
 		case GREENSLIME + 6:
 		case GREENSLIME + 7:
-			greenslime(i);
+			greenslime(&hittype[i]);
 			continue;
 
 		case BOUNCEMINE:
