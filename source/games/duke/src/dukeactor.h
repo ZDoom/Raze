@@ -294,4 +294,11 @@ inline int hits(DDukeActor* snum)
 	return hits(snum->GetIndex());
 }
 
+inline int hitasprite(DDukeActor* actor, DDukeActor** hit)
+{
+	short m;
+	int dist = hitasprite(actor->GetIndex(), &m);
+	if (m >= 0 && hit) *hit = &hittype[m];
+	return dist;
+}
 END_DUKE_NS

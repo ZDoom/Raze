@@ -1044,9 +1044,9 @@ void movefallers_d(void)
 //
 //---------------------------------------------------------------------------
 
-static void movetripbomb(int i)
+static void movetripbomb(DDukeActor *actor)
 {
-	auto s = &sprite[i];
+	auto s = &actor->s;
 	int j, x;
 	int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
 	if (lTripBombControl & TRIPBOMB_TIMER)
@@ -1057,33 +1057,33 @@ static void movetripbomb(int i)
 			s->extra--;
 			if (s->extra == 0)
 			{
-				hittype[i].temp_data[2] = 16;
-				S_PlayActorSound(LASERTRIP_ARMING, i);
+				actor->temp_data[2] = 16;
+				S_PlayActorSound(LASERTRIP_ARMING, actor);
 			}
 		}
 	}
-	if (hittype[i].temp_data[2] > 0)
+	if (actor->temp_data[2] > 0)
 	{
-		hittype[i].temp_data[2]--;
-		if (hittype[i].temp_data[2] == 8)
+		actor->temp_data[2]--;
+		if (actor->temp_data[2] == 8)
 		{
-			S_PlayActorSound(LASERTRIP_EXPLODE, i);
-			for (j = 0; j < 5; j++) RANDOMSCRAP(s, i);
+			S_PlayActorSound(LASERTRIP_EXPLODE, actor);
+			for (j = 0; j < 5; j++) RANDOMSCRAP(actor);
 			x = s->extra;
-			fi.hitradius(&hittype[i], tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(actor, tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 
-			j = fi.spawn(i, EXPLOSION2);
-			sprite[j].ang = s->ang;
-			sprite[j].xvel = 348;
-			ssp(j, CLIPMASK0);
+			auto spawned = spawn(actor, EXPLOSION2);
+			spawned->s.ang = s->ang;
+			spawned->s.xvel = 348;
+			ssp(spawned, CLIPMASK0);
 
-			StatIterator it(STAT_MISC);
-			while ((j = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_MISC);
+			while (auto a1 = it.Next())
 			{
-				if (sprite[j].picnum == LASERLINE && s->hitag == sprite[j].hitag)
-					sprite[j].xrepeat = sprite[j].yrepeat = 0;
+				if (a1->s.picnum == LASERLINE && s->hitag == a1->s.hitag)
+					a1->s.xrepeat = a1->s.yrepeat = 0;
 			}
-			deletesprite(i);
+			deletesprite(actor);
 		}
 		return;
 	}
@@ -1092,29 +1092,29 @@ static void movetripbomb(int i)
 		x = s->extra;
 		s->extra = 1;
 		int16_t l = s->ang;
-		j = fi.ifhitbyweapon(&hittype[i]);
+		j = fi.ifhitbyweapon(actor);
 		if (j >= 0)
 		{ 
-			hittype[i].temp_data[2] = 16; 
+			actor->temp_data[2] = 16; 
 		}
 		s->extra = x;
 		s->ang = l;
 	}
 
-	if (hittype[i].temp_data[0] < 32)
+	if (actor->temp_data[0] < 32)
 	{
-		findplayer(s, &x);
-		if (x > 768) hittype[i].temp_data[0]++;
-		else if (hittype[i].temp_data[0] > 16) hittype[i].temp_data[0]++;
+		findplayer(&actor->s, &x);
+		if (x > 768) actor->temp_data[0]++;
+		else if (actor->temp_data[0] > 16) actor->temp_data[0]++;
 	}
-	if (hittype[i].temp_data[0] == 32)
+	if (actor->temp_data[0] == 32)
 	{
 		int16_t l = s->ang;
-		s->ang = hittype[i].temp_data[5];
+		s->ang = actor->temp_data[5];
 
-		hittype[i].temp_data[3] = s->x; hittype[i].temp_data[4] = s->y;
-		s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 9;
-		s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 9;
+		actor->temp_data[3] = s->x; actor->temp_data[4] = s->y;
+		s->x += sintable[(actor->temp_data[5] + 512) & 2047] >> 9;
+		s->y += sintable[(actor->temp_data[5]) & 2047] >> 9;
 		s->z -= (3 << 8);
 
 		// Laser fix from EDuke32.
@@ -1122,12 +1122,12 @@ static void movetripbomb(int i)
 		int16_t       curSectNum = s->sectnum;
 
 		updatesectorneighbor(s->x, s->y, &curSectNum, 1024, 2048);
-		changespritesect(i, curSectNum);
+		changespritesect(actor, curSectNum);
 
-		int16_t m;
-		x = hitasprite(i, &m);
+		DDukeActor* hit;
+		x = hitasprite(actor, &hit);
 
-		hittype[i].lastvx = x;
+		actor->lastvx = x;
 
 		s->ang = l;
 
@@ -1138,67 +1138,66 @@ static void movetripbomb(int i)
 			// we're on a trip wire
 			while (x > 0)
 			{
-				j = fi.spawn(i, LASERLINE);
-				setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
-				sprite[j].hitag = s->hitag;
-				hittype[j].temp_data[1] = sprite[j].z;
+				auto spawned = spawn(actor, LASERLINE);
+				setsprite(spawned, spawned->s.pos);
+				spawned->s.hitag = s->hitag;
+				spawned->temp_data[1] = spawned->s.z;
 
 				if (x < 1024)
 				{
-					sprite[j].xrepeat = x >> 5;
+					spawned->s.xrepeat = x >> 5;
 					break;
 				}
 				x -= 1024;
 
-				s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 4;
-				s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 4;
+				s->x += sintable[(actor->temp_data[5] + 512) & 2047] >> 4;
+				s->y += sintable[(actor->temp_data[5]) & 2047] >> 4;
 				updatesectorneighbor(s->x, s->y, &curSectNum, 1024, 2048);
 
 				if (curSectNum == -1)
 					break;
 
-				changespritesect(i, curSectNum);
+				changespritesect(actor, curSectNum);
 
 				// this is a hack to work around the LASERLINE sprite's art tile offset
-				changespritesect(j, curSectNum);
+				changespritesect(spawned, curSectNum);
 
 			}
 		}
 
-		hittype[i].temp_data[0]++;
-		s->x = hittype[i].temp_data[3]; s->y = hittype[i].temp_data[4];
+		actor->temp_data[0]++;
+		s->x = actor->temp_data[3]; s->y = actor->temp_data[4];
 		s->z += (3 << 8);
-		changespritesect(i, oldSectNum);
-		hittype[i].temp_data[3] = 0;
-		if (m >= 0 && lTripBombControl & TRIPBOMB_TRIPWIRE)
+		changespritesect(actor, oldSectNum);
+		actor->temp_data[3] = 0;
+		if (hit && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
-			hittype[i].temp_data[2] = 13;
-			S_PlayActorSound(LASERTRIP_ARMING, i);
+			actor->temp_data[2] = 13;
+			S_PlayActorSound(LASERTRIP_ARMING, actor);
 		}
-		else hittype[i].temp_data[2] = 0;
+		else actor->temp_data[2] = 0;
 	}
-	if (hittype[i].temp_data[0] == 33)
+	if (actor->temp_data[0] == 33)
 	{
-		hittype[i].temp_data[1]++;
+		actor->temp_data[1]++;
 
 
-		hittype[i].temp_data[3] = s->x; hittype[i].temp_data[4] = s->y;
-		s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 9;
-		s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 9;
+		actor->temp_data[3] = s->x; actor->temp_data[4] = s->y;
+		s->x += sintable[(actor->temp_data[5] + 512) & 2047] >> 9;
+		s->y += sintable[(actor->temp_data[5]) & 2047] >> 9;
 		s->z -= (3 << 8);
-		setsprite(i, s->x, s->y, s->z);
+		setsprite(actor, s->pos);
 
-		int16_t m;
-		x = hitasprite(i, &m);
+		x = hitasprite(actor, nullptr);
 
-		s->x = hittype[i].temp_data[3]; s->y = hittype[i].temp_data[4];
+		s->x = actor->temp_data[3]; s->y = actor->temp_data[4];
 		s->z += (3 << 8);
-		setsprite(i, s->x, s->y, s->z);
+		setsprite(actor, s->x, s->y, s->z);
 
-		if (hittype[i].lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
+		if (actor->lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
-			hittype[i].temp_data[2] = 13;
-			S_PlayActorSound(LASERTRIP_ARMING, i);
+			actor->temp_data[2] = 13;
+			S_PlayActorSound(LASERTRIP_ARMING, actor);
 		}
 	}
 }
@@ -1474,7 +1473,7 @@ void movestandables_d(void)
 
 		else if (picnum == TRIPBOMB)
 		{
-			movetripbomb(i);
+			movetripbomb(&hittype[i]);
 		}
 
 		else if (picnum >= CRACK1 && picnum <= CRACK1 + 3)
