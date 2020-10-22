@@ -2837,33 +2837,34 @@ static void flamethrowerflame(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-static void heavyhbomb(int i)
+static void heavyhbomb(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	auto t = &actor->temp_data[0];
+	auto Owner = actor->GetOwner();
 	int sect = s->sectnum;
-	int x, j, l;
+	int x, l;
 
 	if ((s->cstat & 32768))
 	{
 		t[2]--;
 		if (t[2] <= 0)
 		{
-			S_PlayActorSound(TELEPORTER, i);
-			fi.spawn(i, TRANSPORTERSTAR);
+			S_PlayActorSound(TELEPORTER, actor);
+			spawn(actor, TRANSPORTERSTAR);
 			s->cstat = 257;
 		}
 		return;
 	}
 
-	int p = findplayer(s, &x);
+	int p = findplayer(&actor->s, &x);
 
 	if (x < 1220) s->cstat &= ~257;
 	else s->cstat |= 257;
 
 	if (t[3] == 0)
 	{
-		j = fi.ifhitbyweapon(&hittype[i]);
+		int j = fi.ifhitbyweapon(actor);
 		if (j >= 0)
 		{
 			t[3] = 1;
@@ -2876,41 +2877,42 @@ static void heavyhbomb(int i)
 
 	if (s->picnum != BOUNCEMINE)
 	{
-		makeitfall(i);
+		makeitfall(actor);
 
-		if (sector[sect].lotag != 1 && s->z >= hittype[i].floorz - (FOURSLEIGHT) && s->yvel < 3)
+		if (sector[sect].lotag != 1 && s->z >= actor->floorz - (FOURSLEIGHT) && s->yvel < 3)
 		{
-			if (s->yvel > 0 || (s->yvel == 0 && hittype[i].floorz == sector[sect].floorz))
-				S_PlayActorSound(PIPEBOMB_BOUNCE, i);
+			if (s->yvel > 0 || (s->yvel == 0 && actor->floorz == sector[sect].floorz))
+				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
 			s->zvel = -((4 - s->yvel) << 8);
 			if (sector[s->sectnum].lotag == 2)
 				s->zvel >>= 2;
 			s->yvel++;
 		}
-		if (s->z < hittype[i].ceilingz) // && sector[sect].lotag != 2 )
+		if (s->z < actor->ceilingz) // && sector[sect].lotag != 2 )
 		{
-			s->z = hittype[i].ceilingz + (3 << 8);
+			s->z = actor->ceilingz + (3 << 8);
 			s->zvel = 0;
 		}
 	}
 
-	j = fi.movesprite(i,
+	Collision coll;
+	movesprite_ex(actor,
 		(s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
 		(s->xvel * (sintable[s->ang & 2047])) >> 14,
-		s->zvel, CLIPMASK0);
+		s->zvel, CLIPMASK0, coll);
 
-	if (sector[sprite[i].sectnum].lotag == 1 && s->zvel == 0)
+	if (sector[s->sectnum].lotag == 1 && s->zvel == 0)
 	{
 		s->z += (32 << 8);
 		if (t[5] == 0)
 		{
 			t[5] = 1;
-			fi.spawn(i, WATERSPLASH2);
+			spawn(actor, WATERSPLASH2);
 		}
 	}
 	else t[5] = 0;
 
-	if (t[3] == 0 && (s->picnum == BOUNCEMINE || s->picnum == MORTER) && (j || x < 844))
+	if (t[3] == 0 && (s->picnum == BOUNCEMINE || s->picnum == MORTER) && (coll.type || x < 844))
 	{
 		t[3] = 1;
 		t[4] = 0;
@@ -2919,8 +2921,8 @@ static void heavyhbomb(int i)
 		goto DETONATEB;
 	}
 
-	if (sprite[s->owner].picnum == APLAYER)
-		l = sprite[s->owner].yvel;
+	if ( Owner && Owner->s.picnum == APLAYER)
+		l = Owner->PlayerIndex();
 	else l = -1;
 
 	if (s->xvel > 0)
@@ -2934,11 +2936,10 @@ static void heavyhbomb(int i)
 		if (s->xvel & 8) s->cstat ^= 4;
 	}
 
-	if ((j & 49152) == 32768)
+	if (coll.type== kHitWall)
 	{
-		j &= (MAXWALLS - 1);
-
-		fi.checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
+		int j = coll.index;
+		fi.checkhitwall(actor->GetIndex(), j, s->x, s->y, s->z, s->picnum);
 
 		int k = getangle(
 			wall[wall[j].point2].x - wall[j].x,
@@ -2974,13 +2975,12 @@ DETONATEB:
 			case BOUNCEMINE: m = bouncemineblastradius; break;
 			}
 
-			fi.hitradius(&hittype[i], m, x >> 2, x >> 1, x - (x >> 2), x);
-			fi.spawn(i, EXPLOSION2);
-			if (s->zvel == 0)
-				fi.spawn(i, EXPLOSION2BOT);
-			S_PlayActorSound(PIPEBOMB_EXPLODE, i);
+			fi.hitradius(actor, m, x >> 2, x >> 1, x - (x >> 2), x);
+			spawn(actor, EXPLOSION2);
+			if (s->zvel == 0)	spawn(actor, EXPLOSION2BOT);
+			S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
 			for (x = 0; x < 8; x++)
-				RANDOMSCRAP(s, i);
+				RANDOMSCRAP(actor);
 		}
 
 		if (s->yrepeat)
@@ -2991,15 +2991,15 @@ DETONATEB:
 
 		if (t[4] > 20)
 		{
-			if (s->owner != i || ud.respawn_items == 0)
+			if (Owner != actor || ud.respawn_items == 0)
 			{
-				deletesprite(i);
+				deletesprite(actor);
 				return;
 			}
 			else
 			{
 				t[2] = respawnitemtime;
-				fi.spawn(i, RESPAWNMARKERRED);
+				spawn(actor, RESPAWNMARKERRED);
 				s->cstat = (short)32768;
 				s->yrepeat = 9;
 				return;
@@ -3010,9 +3010,9 @@ DETONATEB:
 		if (cansee(s->x, s->y, s->z - (8 << 8), s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
 			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < max_ammo_amount[HANDBOMB_WEAPON])
 			{
-				if (ud.coop >= 1 && s->owner == i)
+				if (ud.coop >= 1 && Owner == actor)
 				{
-					for (j = 0; j < ps[p].weapreccnt; j++)
+					for (int j = 0; j < ps[p].weapreccnt; j++)
 						if (ps[p].weaprecs[j] == s->picnum)
 							continue;
 
@@ -3021,28 +3021,28 @@ DETONATEB:
 				}
 
 				addammo(HANDBOMB_WEAPON, &ps[p], 1);
-				S_PlayActorSound(DUKE_GET, ps[p].i);
+				S_PlayActorSound(DUKE_GET, ps[p].GetActor());
 
-				if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || s->owner == ps[p].i)
+				if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || Owner == ps[p].GetActor())
 					fi.addweapon(&ps[p], HANDBOMB_WEAPON);
 
-				if (sprite[s->owner].picnum != APLAYER)
+				if (!Owner || Owner->s.picnum != APLAYER)
 				{
 					SetPlayerPal(&ps[p], PalEntry(32, 0, 32, 0));
 				}
 
-				if (s->owner != i || ud.respawn_items == 0)
+				if (Owner != actor || ud.respawn_items == 0)
 				{
-					if (s->owner == i && ud.coop >= 1)
+					if (Owner == actor && ud.coop >= 1)
 						return;
 
-					deletesprite(i);
+					deletesprite(actor);
 					return;
 				}
 				else
 				{
 					t[2] = respawnitemtime;
-					fi.spawn(i, RESPAWNMARKERRED);
+					spawn(actor, RESPAWNMARKERRED);
 					s->cstat = (short)32768;
 				}
 			}
@@ -3202,7 +3202,7 @@ void moveactors_d(void)
 			hittype[j].temp_data[0] = 3;
 
 		case HEAVYHBOMB:
-			heavyhbomb(i);
+			heavyhbomb(&hittype[i]);
 			continue;
 
 		case REACTORBURNT:
