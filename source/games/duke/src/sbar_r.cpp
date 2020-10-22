@@ -352,7 +352,7 @@ public:
 		BeginStatusBar(320, 200, wh + h);
 		DrawInventory(p, 160, 154, 0);
 
-		if (hud_size < Hud_Stbar)
+		if (hud_size <= Hud_Stbar)
 			DrawWeaponBar(p, top);
 
 		if (hud_size == Hud_StbarOverlay) Set43ClipRect();
