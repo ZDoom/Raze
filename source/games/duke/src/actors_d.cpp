@@ -1208,26 +1208,25 @@ static void movetripbomb(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-static void movecrack(int i)
+static void movecrack(DDukeActor* actor)
 {
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	if (s->hitag > 0)
 	{
 		t[0] = s->cstat;
 		t[1] = s->ang;
-		int j = fi.ifhitbyweapon(&hittype[i]);
+		int j = fi.ifhitbyweapon(actor);
 		if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 		{
-			StatIterator it(STAT_STANDABLE);
-			while ((j = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_STANDABLE);
+			while (auto a1 = it.Next())
 			{
-				auto sj = &sprite[j];
-				if (s->hitag == sj->hitag && (sj->picnum == OOZFILTER || sj->picnum == SEENINE))
-					if (sj->shade != -32)
-						sj->shade = -32;
+				if (s->hitag == a1->s.hitag && (a1->s.picnum == OOZFILTER || a1->s.picnum == SEENINE))
+					if (a1->s.shade != -32)
+						a1->s.shade = -32;
 			}
-			detonate(i, EXPLOSION2);
+			detonate(actor, EXPLOSION2);
 		}
 		else
 		{
@@ -1244,46 +1243,43 @@ static void movecrack(int i)
 //
 //---------------------------------------------------------------------------
 
-static void movefireext(int i)
+static void movefireext(DDukeActor* actor)
 {
-	int j = fi.ifhitbyweapon(&hittype[i]);
+	int j = fi.ifhitbyweapon(actor);
 	if (j == -1) return;
 
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	int* t = &actor->temp_data[0];
 
 	for (int k = 0; k < 16; k++)
 	{
-		j = EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (sprite[i].zvel >> 2), i, 5);
-		sprite[j].pal = 2;
+		auto spawned = EGS(actor->s.sectnum, actor->s.x, actor->s.y, actor->s.z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->s.zvel >> 2), actor, 5);
+		spawned->s.pal = 2;
 	}
 
-	fi.spawn(i, EXPLOSION2);
-	S_PlayActorSound(PIPEBOMB_EXPLODE, i);
-	S_PlayActorSound(GLASS_HEAVYBREAK, i);
+	spawn(actor, EXPLOSION2);
+	S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
+	S_PlayActorSound(GLASS_HEAVYBREAK, actor);
 
-	if (s->hitag > 0)
+	if (actor->s.hitag > 0)
 	{
-		StatIterator it(STAT_STANDABLE);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_STANDABLE);
+		while (auto a1 = it.Next())
 		{
-			auto sj = &sprite[j];
-			if (s->hitag == sj->hitag && (sj->picnum == OOZFILTER || sj->picnum == SEENINE))
-				if (sj->shade != -32)
-					sj->shade = -32;
+			if (actor->s.hitag == a1->s.hitag && (a1->s.picnum == OOZFILTER || a1->s.picnum == SEENINE))
+				if (a1->s.shade != -32)
+					a1->s.shade = -32;
 		}
 
-		int x = s->extra;
-		fi.spawn(i, EXPLOSION2);
-		fi.hitradius(&hittype[i], pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
-		S_PlayActorSound(PIPEBOMB_EXPLODE, i);
-		detonate(i, EXPLOSION2);
+		int x = actor->s.extra;
+		spawn(actor, EXPLOSION2);
+		fi.hitradius(actor, pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
+		S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
+		detonate(actor, EXPLOSION2);
 	}
 	else
 	{
-		fi.hitradius(&hittype[i], seenineblastradius, 10, 15, 20, 25);
-		deletesprite(i);
+		fi.hitradius(actor, seenineblastradius, 10, 15, 20, 25);
+		deletesprite(actor);
 	}
 }
 
@@ -1293,27 +1289,26 @@ static void movefireext(int i)
 //
 //---------------------------------------------------------------------------
 
-static void moveviewscreen(int i)
+static void moveviewscreen(DDukeActor* actor)
 {
-	auto s = &sprite[i];
-	if (s->xrepeat == 0) deletesprite(i);
+	if (actor->s.xrepeat == 0) deletesprite(actor);
 	else
 	{
 		int x;
-		findplayer(s, &x);
+		findplayer(&actor->s, &x);
 
 		if (x < 2048)
 		{
 #if 0
-			if (sprite[i].yvel  == 1)
+			if (actor->s.yvel  == 1)
 				camsprite = i;
 #endif
 		}
-		else if (camsprite != -1 && hittype[i].temp_data[0] == 1)
+		else if (camsprite != -1 && actor->temp_data[0] == 1)
 		{
 			camsprite = -1;
-			s->yvel = 0;
-			hittype[i].temp_data[0] = 0;
+			actor->s.yvel = 0;
+			actor->temp_data[0] = 0;
 		}
 	}
 }
@@ -1478,12 +1473,12 @@ void movestandables_d(void)
 
 		else if (picnum >= CRACK1 && picnum <= CRACK1 + 3)
 		{
-			movecrack(i);
+			movecrack(&hittype[i]);
 		}
 
 		else if (picnum == FIREEXT)
 		{
-			movefireext(i);
+			movefireext(&hittype[i]);
 		}
 
 		else if (picnum == OOZFILTER || picnum == SEENINE || picnum == SEENINEDEAD || picnum == (SEENINEDEAD + 1))
@@ -1498,7 +1493,7 @@ void movestandables_d(void)
 
 		else if (picnum == VIEWSCREEN || picnum == VIEWSCREEN2)
 		{
-			moveviewscreen(i);
+			moveviewscreen(&hittype[i]);
 		}
 
 		else if (picnum == TRASH)

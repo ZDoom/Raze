@@ -898,26 +898,25 @@ void movefallers_r(void)
 //
 //---------------------------------------------------------------------------
 
-static void movecrack(int i)
+static void movecrack(DDukeActor* actor)
 {
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	if (s->hitag > 0)
 	{
 		t[0] = s->cstat;
 		t[1] = s->ang;
-		int j = fi.ifhitbyweapon(&hittype[i]);
+		int j = fi.ifhitbyweapon(actor);
 		if (j == RPG || (isRRRA() && j == RPG2) || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 		{
-			StatIterator it(STAT_STANDABLE);
-			while ((j = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_STANDABLE);
+			while (auto a1 = it.Next())
 			{
-				auto sj = &sprite[j];
-				if (s->hitag == sj->hitag && (sj->picnum == OOZFILTER || sj->picnum == SEENINE))
-					if (sj->shade != -32)
-						sj->shade = -32;
+				if (s->hitag == a1->s.hitag && (a1->s.picnum == OOZFILTER || a1->s.picnum == SEENINE))
+					if (a1->s.shade != -32)
+						a1->s.shade = -32;
 			}
-			detonate(i, EXPLOSION2);
+			detonate(actor, EXPLOSION2);
 		}
 		else
 		{
@@ -1036,7 +1035,7 @@ void movestandables_r(void)
 
 		else if (picnum >= CRACK1 && picnum <= CRACK1 + 3)
 		{
-			movecrack(i);
+			movecrack(&hittype[i]);
 		}
 
 		else if (picnum == OOZFILTER || picnum == SEENINE || picnum == SEENINEDEAD || picnum == (SEENINEDEAD + 1))
