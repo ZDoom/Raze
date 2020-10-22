@@ -3809,14 +3809,14 @@ void moveeffectors_d(void)   //STATNUM 3
 
 //---------------------------------------------------------------------------
 //
-// 
+//
 //
 //---------------------------------------------------------------------------
 
-void move_d(int g_i, int g_p, int g_x)
+void move_d(DDukeActor *actor, int g_p, int g_x)
 {
-	auto g_sp = &sprite[g_i];
-	auto g_t = hittype[g_i].temp_data;
+	auto g_sp = &actor->s;
+	auto g_t = actor->temp_data;
 	int l;
 	short goalang, angdif;
 	int daxvel;
@@ -3875,11 +3875,11 @@ void move_d(int g_i, int g_p, int g_x)
 
 	if (g_t[1] == 0 || a == 0)
 	{
-		if ((badguy(g_sp) && g_sp->extra <= 0) || (hittype[g_i].bposx != g_sp->x) || (hittype[g_i].bposy != g_sp->y))
+		if ((badguy(actor) && g_sp->extra <= 0) || (actor->bposx != g_sp->x) || (actor->bposy != g_sp->y))
 		{
-			hittype[g_i].bposx = g_sp->x;
-			hittype[g_i].bposy = g_sp->y;
-			setsprite(g_i, g_sp->x, g_sp->y, g_sp->z);
+			actor->bposx = g_sp->x;
+			actor->bposy = g_sp->y;
+			setsprite(actor, g_sp->pos);
 		}
 		return;
 	}
@@ -3890,14 +3890,14 @@ void move_d(int g_i, int g_p, int g_x)
 	if (a & getv) g_sp->zvel += ((*(moveptr + 1) << 4) - g_sp->zvel) >> 1;
 
 	if (a & dodgebullet)
-		dodge(&hittype[g_i]);
+		dodge(actor);
 
 	if (g_sp->picnum != APLAYER)
-		alterang(a, &hittype[g_i], g_p);
+		alterang(a, actor, g_p);
 
 	if (g_sp->xvel > -6 && g_sp->xvel < 6) g_sp->xvel = 0;
 
-	a = badguy(g_sp);
+	a = badguy(actor);
 
 	if (g_sp->xvel || g_sp->zvel)
 	{
@@ -3907,14 +3907,14 @@ void move_d(int g_i, int g_p, int g_x)
 			{
 				if (g_sp->picnum == COMMANDER)
 				{
-					hittype[g_i].floorz = l = getflorzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+					actor->floorz = l = getflorzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
 					if (g_sp->z > (l - (8 << 8)))
 					{
 						if (g_sp->z > (l - (8 << 8))) g_sp->z = l - (8 << 8);
 						g_sp->zvel = 0;
 					}
 
-					hittype[g_i].ceilingz = l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+					actor->ceilingz = l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
 					if ((g_sp->z - l) < (80 << 8))
 					{
 						g_sp->z = l + (80 << 8);
@@ -3925,13 +3925,13 @@ void move_d(int g_i, int g_p, int g_x)
 				{
 					if (g_sp->zvel > 0)
 					{
-						hittype[g_i].floorz = l = getflorzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+						actor->floorz = l = getflorzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
 						if (g_sp->z > (l - (30 << 8)))
 							g_sp->z = l - (30 << 8);
 					}
 					else
 					{
-						hittype[g_i].ceilingz = l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+						actor->ceilingz = l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
 						if ((g_sp->z - l) < (50 << 8))
 						{
 							g_sp->z = l + (50 << 8);
@@ -3942,8 +3942,8 @@ void move_d(int g_i, int g_p, int g_x)
 			}
 			else if (g_sp->picnum != ORGANTIC)
 			{
-				if (g_sp->zvel > 0 && hittype[g_i].floorz < g_sp->z)
-					g_sp->z = hittype[g_i].floorz;
+				if (g_sp->zvel > 0 && actor->floorz < g_sp->z)
+					g_sp->z = actor->floorz;
 				if (g_sp->zvel < 0)
 				{
 					l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
@@ -3956,8 +3956,8 @@ void move_d(int g_i, int g_p, int g_x)
 			}
 		}
 		else if (g_sp->picnum == APLAYER)
-			if ((g_sp->z - hittype[g_i].ceilingz) < (32 << 8))
-				g_sp->z = hittype[g_i].ceilingz + (32 << 8);
+			if ((g_sp->z - actor->ceilingz) < (32 << 8))
+				g_sp->z = actor->ceilingz + (32 << 8);
 
 		daxvel = g_sp->xvel;
 		angdif = g_sp->ang;
@@ -3983,22 +3983,23 @@ void move_d(int g_i, int g_p, int g_x)
 			}
 			else if (g_sp->picnum != DRONE && g_sp->picnum != SHARK && g_sp->picnum != COMMANDER)
 			{
-				if (hittype[g_i].bposz != g_sp->z || (ud.multimode < 2 && ud.player_skill < 2))
+				if (actor->bposz != g_sp->z || (ud.multimode < 2 && ud.player_skill < 2))
 				{
-					if ((g_t[0] & 1) || ps[g_p].actorsqu == &hittype[g_i]) return;
+					if ((g_t[0] & 1) || ps[g_p].actorsqu == actor) return;
 					else daxvel <<= 1;
 				}
 				else
 				{
-					if ((g_t[0] & 3) || ps[g_p].actorsqu == &hittype[g_i]) return;
+					if ((g_t[0] & 3) || ps[g_p].actorsqu == actor) return;
 					else daxvel <<= 2;
 				}
 			}
 		}
 
-		hittype[g_i].movflag = fi.movesprite(g_i,
+		Collision coll;
+		actor->movflag = movesprite_ex(actor,
 			(daxvel * (sintable[(angdif + 512) & 2047])) >> 14,
-			(daxvel * (sintable[angdif & 2047])) >> 14, g_sp->zvel, CLIPMASK0);
+			(daxvel * (sintable[angdif & 2047])) >> 14, g_sp->zvel, CLIPMASK0, coll);
 	}
 
 	if (a)
@@ -4008,9 +4009,16 @@ void move_d(int g_i, int g_p, int g_x)
 		else g_sp->shade += (sector[g_sp->sectnum].floorshade - g_sp->shade) >> 1;
 
 		if (sector[g_sp->sectnum].floorpicnum == MIRROR)
-			deletesprite(g_i);
+			deletesprite(actor);
 	}
 }
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void fall_d(int g_i, int g_p)
 {

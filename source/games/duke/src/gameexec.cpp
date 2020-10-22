@@ -82,9 +82,9 @@ struct ParseState
 
 int furthestcanseepoint(DDukeActor* i, DDukeActor* ts, int* dax, int* day);
 bool ifsquished(DDukeActor* i, int p);
-void fakebubbaspawn(int g_i, int g_p);
+void fakebubbaspawn(DDukeActor* g_i, int g_p);
 void tearitup(int sect);
-void destroyit(int g_i);
+void destroyit(DDukeActor* actor);
 void mamaspawn(int g_i);
 void forceplayerangle(int snum);
 
@@ -1631,7 +1631,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_fakebubba:
 		insptr++;
-		fakebubbaspawn(g_i, g_p);
+		fakebubbaspawn(g_ac, g_p);
 		break;
 
 	case concmd_rndmove:
@@ -2006,7 +2006,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_destroyit:
 		insptr++;
-		destroyit(g_i);
+		destroyit(g_ac);
 		break;
 	case concmd_iseat: // move out to player_r.
 		insptr++;
@@ -3705,7 +3705,7 @@ void LoadActor(int i, int p, int x)
 	}
 	else
 	{
-		fi.move(i, p, x);
+		fi.move(s.g_ac, p, x);
 
 		if (g_sp->statnum == 1)
 		{
@@ -3816,7 +3816,7 @@ void execute(int i,int p,int x)
 	}
 	else
 	{
-		fi.move(i, p, x);
+		fi.move(s.g_ac, p, x);
 
 		if (g_sp->statnum == STAT_ACTOR)
 		{

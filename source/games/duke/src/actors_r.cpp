@@ -3709,15 +3709,14 @@ int adjustfall(DDukeActor *actor, int c)
 //
 //---------------------------------------------------------------------------
 
-void move_r(int g_i, int g_p, int g_x)
+void move_r(DDukeActor *actor, int g_p, int g_x)
 {
-	auto g_sp = &sprite[g_i];
-	auto g_t = hittype[g_i].temp_data;
+	auto g_t = actor->temp_data;
 	int l;
-	short a, goalang, angdif;
+	short goalang, angdif;
 	int daxvel;
 
-	a = g_sp->hitag;
+	int a = g_sp->hitag;
 
 	if (a == -1) a = 0;
 
@@ -3832,13 +3831,13 @@ void move_r(int g_i, int g_p, int g_x)
 
 	if (g_t[1] == 0 || a == 0)
 	{
-		if ((badguy(g_sp) && g_sp->extra <= 0) || (hittype[g_i].bposx != g_sp->x) || (hittype[g_i].bposy != g_sp->y))
+		if ((badguy(actor) && g_sp->extra <= 0) || (actor->bposx != g_sp->x) || (actor->bposy != g_sp->y))
 		{
-			hittype[g_i].bposx = g_sp->x;
-			hittype[g_i].bposy = g_sp->y;
-			setsprite(g_i, g_sp->x, g_sp->y, g_sp->z);
+			actor->bposx = g_sp->x;
+			actor->bposy = g_sp->y;
+			setsprite(actor, g_sp->pos);
 		}
-		if (badguy(g_sp) && g_sp->extra <= 0)
+		if (badguy(actor) && g_sp->extra <= 0)
 		{
 			if (sector[g_sp->sectnum].ceilingstat & 1)
 			{
@@ -3865,14 +3864,14 @@ void move_r(int g_i, int g_p, int g_x)
 	if (a & getv) g_sp->zvel += ((*(moveptr + 1) << 4) - g_sp->zvel) >> 1;
 
 	if (a & dodgebullet)
-		dodge(&hittype[g_i]);
+		dodge(actor);
 
 	if (g_sp->picnum != APLAYER)
-		alterang(a, &hittype[g_i], g_p);
+		alterang(a, actor, g_p);
 
 	if (g_sp->xvel > -6 && g_sp->xvel < 6) g_sp->xvel = 0;
 
-	a = badguy(g_sp);
+	a = badguy(actor);
 
 	if (g_sp->xvel || g_sp->zvel)
 	{
@@ -3882,7 +3881,7 @@ void move_r(int g_i, int g_p, int g_x)
 			{
 				if (g_sp->zvel > 0)
 				{
-					hittype[g_i].floorz = l = getflorzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+					actor->floorz = l = getflorzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
 					if (isRRRA())
 					{
 						if (g_sp->z > (l - (28 << 8)))
@@ -3896,7 +3895,7 @@ void move_r(int g_i, int g_p, int g_x)
 				}
 				else
 				{
-					hittype[g_i].ceilingz = l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+					actor->ceilingz = l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
 					if ((g_sp->z - l) < (50 << 8))
 					{
 						g_sp->z = l + (50 << 8);
@@ -3904,8 +3903,8 @@ void move_r(int g_i, int g_p, int g_x)
 					}
 				}
 			}
-			if (g_sp->zvel > 0 && hittype[g_i].floorz < g_sp->z)
-				g_sp->z = hittype[g_i].floorz;
+			if (g_sp->zvel > 0 && actor->floorz < g_sp->z)
+				g_sp->z = actor->floorz;
 			if (g_sp->zvel < 0)
 			{
 				l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
@@ -3917,8 +3916,8 @@ void move_r(int g_i, int g_p, int g_x)
 			}
 		}
 		else if (g_sp->picnum == APLAYER)
-			if ((g_sp->z - hittype[g_i].ceilingz) < (32 << 8))
-				g_sp->z = hittype[g_i].ceilingz + (32 << 8);
+			if ((g_sp->z - actor->ceilingz) < (32 << 8))
+				g_sp->z = actor->ceilingz + (32 << 8);
 
 		daxvel = g_sp->xvel;
 		angdif = g_sp->ang;
@@ -3946,14 +3945,14 @@ void move_r(int g_i, int g_p, int g_x)
 					(!isRRRA() && g_sp->picnum != DRONE && g_sp->picnum != SHARK && g_sp->picnum != UFO1_RR
 							&& g_sp->picnum != UFO2 && g_sp->picnum != UFO3 && g_sp->picnum != UFO4 && g_sp->picnum != UFO5))
 			{
-				if (hittype[g_i].bposz != g_sp->z || (ud.multimode < 2 && ud.player_skill < 2))
+				if (actor->bposz != g_sp->z || (ud.multimode < 2 && ud.player_skill < 2))
 				{
-					if ((g_t[0] & 1) || ps[g_p].actorsqu == &hittype[g_i]) return;
+					if ((g_t[0] & 1) || ps[g_p].actorsqu == actor) return;
 					else daxvel <<= 1;
 				}
 				else
 				{
-					if ((g_t[0] & 3) || ps[g_p].actorsqu == &hittype[g_i]) return;
+					if ((g_t[0] & 3) || ps[g_p].actorsqu == actor) return;
 					else daxvel <<= 2;
 				}
 			}
@@ -3984,9 +3983,10 @@ void move_r(int g_i, int g_p, int g_x)
 			}
 		}
 
-		hittype[g_i].movflag = fi.movesprite(g_i,
+		Collision coll;
+		actor->movflag = movesprite_ex(actor,
 			(daxvel * (sintable[(angdif + 512) & 2047])) >> 14,
-			(daxvel * (sintable[angdif & 2047])) >> 14, g_sp->zvel, CLIPMASK0);
+			(daxvel * (sintable[angdif & 2047])) >> 14, g_sp->zvel, CLIPMASK0, coll);
 	}
 
 	if (a)
@@ -4005,11 +4005,11 @@ void move_r(int g_i, int g_p, int g_x)
 		else g_sp->shade += (sector[g_sp->sectnum].floorshade - g_sp->shade) >> 1;
 
 		if (sector[g_sp->sectnum].floorpicnum == MIRROR)
-			deletesprite(g_i);
+			deletesprite(actor);
 	}
 }
 
-void fakebubbaspawn(int g_i, int g_p)
+void fakebubbaspawn(DDukeActor *g_i, int g_p)
 {
 	fakebubba_spawn++;
 	switch (fakebubba_spawn)
@@ -4017,17 +4017,17 @@ void fakebubbaspawn(int g_i, int g_p)
 	default:
 		break;
 	case 1:
-		fi.spawn(g_i, PIG);
+		spawn(g_i, PIG);
 		break;
 	case 2:
-		fi.spawn(g_i, MINION);
+		spawn(g_i, MINION);
 		break;
 	case 3:
-		fi.spawn(g_i, CHEER);
+		spawn(g_i, CHEER);
 		break;
 	case 4:
-		fi.spawn(g_i, VIXEN);
-		operateactivators(666, ps[g_p].i);
+		spawn(g_i, VIXEN);
+		operateactivators(666, ps[g_p].GetActor()->GetIndex());
 		break;
 	}
 }
@@ -4126,56 +4126,51 @@ void fall_r(int g_i, int g_p)
 //
 //---------------------------------------------------------------------------
 
-void destroyit(int g_i)
+void destroyit(DDukeActor *actor)
 {
-	auto g_sp = &sprite[g_i];
-	spritetype* js;
 	int lotag, hitag;
-	int k, jj;
 	int wi, wj;
-	int spr;
+	DDukeActor* spr;
 	int wallstart2, wallend2;
 	int sectnum;
 	int wallstart, wallend;
 
 	hitag = 0;
-	SectIterator it1(g_sp->sectnum);
-	while ((k = it1.NextIndex()) >= 0)
+	DukeSectIterator it1(actor->s.sectnum);
+	while (auto a2 = it1.Next())
 	{
-		auto sj = &sprite[k];
-		if (sj->picnum == RRTILE63)
+		if (a2->s.picnum == RRTILE63)
 		{
-			lotag = sj->lotag;
-			spr = k;
-			if (sj->hitag)
-				hitag = sj->hitag;
+			lotag = a2->s.lotag;
+			spr = a2;
+			if (a2->s.hitag)
+				hitag = a2->s.hitag;
 		}
 	}
-	StatIterator it(STAT_DESTRUCT);
-	while ((jj = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_DESTRUCT);
+	while (auto a2 = it.Next())
 	{
-		js = &sprite[jj];
-		if (hitag)
-			if (hitag == js->hitag)
+		int it_sect = a2->s.sectnum;
+		if (hitag && hitag == a2->s.hitag)
+		{
+			DukeSectIterator its(it_sect);
+			while (auto a3 = its.Next())
 			{
-				SectIterator it(js->sectnum);
-				while ((k = it.NextIndex()) >= 0)
+				if (a3->s.picnum == DESTRUCTO)
 				{
-					if (sprite[k].picnum == DESTRUCTO)
-					{
-						hittype[k].picnum = SHOTSPARK1;
-						hittype[k].extra = 1;
-					}
+					a3->picnum = SHOTSPARK1;
+					a3->extra = 1;
 				}
 			}
-		if (sprite[spr].sectnum != js->sectnum)
-			if (lotag == js->lotag)
+		}
+		if (spr->s.sectnum != it_sect)
+			if (lotag == a2->s.lotag)
 			{
-				sectnum = sprite[spr].sectnum;
+				sectnum = spr->s.sectnum;
 				wallstart = sector[sectnum].wallptr;
 				wallend = wallstart + sector[sectnum].wallnum;
-				wallstart2 = sector[js->sectnum].wallptr;
-				wallend2 = wallstart2 + sector[js->sectnum].wallnum;
+				wallstart2 = sector[it_sect].wallptr;
+				wallend2 = wallstart2 + sector[it_sect].wallnum;
 				for (wi = wallstart, wj = wallstart2; wi < wallend; wi++, wj++)
 				{
 					wall[wi].picnum = wall[wj].picnum;
@@ -4191,33 +4186,33 @@ void destroyit(int g_i)
 						wall[wall[wi].nextwall].cstat = 0;
 					}
 				}
-				sector[sectnum].floorz = sector[js->sectnum].floorz;
-				sector[sectnum].ceilingz = sector[js->sectnum].ceilingz;
-				sector[sectnum].ceilingstat = sector[js->sectnum].ceilingstat;
-				sector[sectnum].floorstat = sector[js->sectnum].floorstat;
-				sector[sectnum].ceilingpicnum = sector[js->sectnum].ceilingpicnum;
-				sector[sectnum].ceilingheinum = sector[js->sectnum].ceilingheinum;
-				sector[sectnum].ceilingshade = sector[js->sectnum].ceilingshade;
-				sector[sectnum].ceilingpal = sector[js->sectnum].ceilingpal;
-				sector[sectnum].ceilingxpanning = sector[js->sectnum].ceilingxpanning;
-				sector[sectnum].ceilingypanning = sector[js->sectnum].ceilingypanning;
-				sector[sectnum].floorpicnum = sector[js->sectnum].floorpicnum;
-				sector[sectnum].floorheinum = sector[js->sectnum].floorheinum;
-				sector[sectnum].floorshade = sector[js->sectnum].floorshade;
-				sector[sectnum].floorpal = sector[js->sectnum].floorpal;
-				sector[sectnum].floorxpanning = sector[js->sectnum].floorxpanning;
-				sector[sectnum].floorypanning = sector[js->sectnum].floorypanning;
-				sector[sectnum].visibility = sector[js->sectnum].visibility;
-				sectorextra[sectnum] = sectorextra[js->sectnum]; // TRANSITIONAL: at least rename this.
-				sector[sectnum].lotag = sector[js->sectnum].lotag;
-				sector[sectnum].hitag = sector[js->sectnum].hitag;
-				sector[sectnum].extra = sector[js->sectnum].extra;
+				sector[sectnum].floorz = sector[it_sect].floorz;
+				sector[sectnum].ceilingz = sector[it_sect].ceilingz;
+				sector[sectnum].ceilingstat = sector[it_sect].ceilingstat;
+				sector[sectnum].floorstat = sector[it_sect].floorstat;
+				sector[sectnum].ceilingpicnum = sector[it_sect].ceilingpicnum;
+				sector[sectnum].ceilingheinum = sector[it_sect].ceilingheinum;
+				sector[sectnum].ceilingshade = sector[it_sect].ceilingshade;
+				sector[sectnum].ceilingpal = sector[it_sect].ceilingpal;
+				sector[sectnum].ceilingxpanning = sector[it_sect].ceilingxpanning;
+				sector[sectnum].ceilingypanning = sector[it_sect].ceilingypanning;
+				sector[sectnum].floorpicnum = sector[it_sect].floorpicnum;
+				sector[sectnum].floorheinum = sector[it_sect].floorheinum;
+				sector[sectnum].floorshade = sector[it_sect].floorshade;
+				sector[sectnum].floorpal = sector[it_sect].floorpal;
+				sector[sectnum].floorxpanning = sector[it_sect].floorxpanning;
+				sector[sectnum].floorypanning = sector[it_sect].floorypanning;
+				sector[sectnum].visibility = sector[it_sect].visibility;
+				sectorextra[sectnum] = sectorextra[it_sect]; // TRANSITIONAL: at least rename this.
+				sector[sectnum].lotag = sector[it_sect].lotag;
+				sector[sectnum].hitag = sector[it_sect].hitag;
+				sector[sectnum].extra = sector[it_sect].extra;
 			}
 	}
-	it1.Reset(g_sp->sectnum);
-	while ((k = it.NextIndex()) >= 0)
+	it1.Reset(actor->s.sectnum);
+	while (auto a2 = it.Next())
 	{
-		switch (sprite[k].picnum)
+		switch (a2->s.picnum)
 		{
 		case DESTRUCTO:
 		case RRTILE63:
@@ -4226,7 +4221,7 @@ void destroyit(int g_i)
 		case COOT:
 			break;
 		default:
-			deletesprite(k);
+			deletesprite(a2);
 			break;
 		}
 	}
