@@ -469,7 +469,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	int type = ReadByte(stream);
 	if (skip) return;
 
-	if (numplayers != 1 || gamestate != GS_LEVEL || ps[player].dead_flag != 0)
+	if (numplayers != 1 || gamestate != GS_LEVEL || sprite[ps[player].i].extra <= 0)
 	{
 		Printf("give: Cannot give while dead or not in a single-player game.\n");
 		return;
