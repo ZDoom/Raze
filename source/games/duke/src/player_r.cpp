@@ -3991,7 +3991,7 @@ HORIZONLY:
 					if (sprite[var60].picnum == BILLYRAY)
 						S_PlayActorSound(404, var60);
 					else
-						fi.check_fta_sounds(var60);
+						check_fta_sounds_r(&hittype[var60]);
 					changespritestat(var60, 1);
 				}
 			}

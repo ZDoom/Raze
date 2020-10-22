@@ -101,7 +101,6 @@ struct Dispatcher
 	void (*checktimetosleep)(int g_i);
 	void (*move)(int g_i, int g_p, int g_x);
 	int (*spawn)(int j, int pn);
-	void (*check_fta_sounds)(int i);
 
 	// player
 	void (*incur_damage)(struct player_struct* p);

@@ -73,13 +73,13 @@ void SerializeActorGlobals(FSerializer& arc)
 	{
 		fire.Clear();
 		if (!res) return;
-		auto length = arc.ArraySize() / 2;
+		int length = arc.ArraySize() / 2;
 		int key;
 		FireProj value;
 
 		for (int i = 0; i < length; i++)
 		{
-			Serialize(arc, nullptr, key, nullptr);
+			arc(nullptr, key);
 			Serialize(arc, nullptr, value, nullptr);
 			fire.Insert(key, value);
 		}
@@ -144,10 +144,9 @@ bool floorspace_d(int sectnum)
 //
 //---------------------------------------------------------------------------
 
-void check_fta_sounds_d(int i)
+void check_fta_sounds_d(DDukeActor* actor)
 {
-	auto spri = &sprite[i];
-	if (spri->extra > 0) switch (spri->picnum)
+	if (actor->s.extra > 0) switch (actor->s.picnum)
 	{
 	case LIZTROOPONTOILET:
 	case LIZTROOPJUSTSIT:
@@ -156,56 +155,56 @@ void check_fta_sounds_d(int i)
 	case LIZTROOPDUCKING:
 	case LIZTROOPRUNNING:
 	case LIZTROOP:
-		S_PlayActorSound(PRED_RECOG, i);
+		S_PlayActorSound(PRED_RECOG, actor);
 		break;
 	case LIZMAN:
 	case LIZMANSPITTING:
 	case LIZMANFEEDING:
 	case LIZMANJUMP:
-		S_PlayActorSound(CAPT_RECOG, i);
+		S_PlayActorSound(CAPT_RECOG, actor);
 		break;
 	case PIGCOP:
 	case PIGCOPDIVE:
-		S_PlayActorSound(PIG_RECOG, i);
+		S_PlayActorSound(PIG_RECOG, actor);
 		break;
 	case RECON:
-		S_PlayActorSound(RECO_RECOG, i);
+		S_PlayActorSound(RECO_RECOG, actor);
 		break;
 	case DRONE:
-		S_PlayActorSound(DRON_RECOG, i);
+		S_PlayActorSound(DRON_RECOG, actor);
 		break;
 	case COMMANDER:
 	case COMMANDERSTAYPUT:
-		S_PlayActorSound(COMM_RECOG, i);
+		S_PlayActorSound(COMM_RECOG, actor);
 		break;
 	case ORGANTIC:
-		S_PlayActorSound(TURR_RECOG, i);
+		S_PlayActorSound(TURR_RECOG, actor);
 		break;
 	case OCTABRAIN:
 	case OCTABRAINSTAYPUT:
-		S_PlayActorSound(OCTA_RECOG, i);
+		S_PlayActorSound(OCTA_RECOG, actor);
 		break;
 	case BOSS1:
 		S_PlaySound(BOS1_RECOG);
 		break;
 	case BOSS2:
-		if (spri->pal == 1)
+		if (actor->s.pal == 1)
 			S_PlaySound(BOS2_RECOG);
 		else S_PlaySound(WHIPYOURASS);
 		break;
 	case BOSS3:
-		if (spri->pal == 1)
+		if (actor->s.pal == 1)
 			S_PlaySound(BOS3_RECOG);
 		else S_PlaySound(RIPHEADNECK);
 		break;
 	case BOSS4:
 	case BOSS4STAYPUT:
-		if (spri->pal == 1)
+		if (actor->s.pal == 1)
 			S_PlaySound(BOS4_RECOG);
 		S_PlaySound(BOSS4_FIRSTSEE);
 		break;
 	case GREENSLIME:
-		S_PlayActorSound(SLIM_RECOG, i);
+		S_PlayActorSound(SLIM_RECOG, actor);
 		break;
 	}
 }
@@ -781,7 +780,7 @@ void movefta_d(void)
 
 						default:
 							ht->timetosleep = 0;
-							fi.check_fta_sounds(i);
+							check_fta_sounds_d(&hittype[i]);
 							changespritestat(i, STAT_ACTOR);
 							break;
 					}

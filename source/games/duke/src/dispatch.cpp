@@ -88,8 +88,6 @@ void move_d(int g_i, int g_p, int g_x);
 void move_r(int g_i, int g_p, int g_x);
 int spawn_d(int j, int pn);
 int spawn_r(int j, int pn);
-void check_fta_sounds_d(int i);
-void check_fta_sounds_r(int i);
 void incur_damage_d(struct player_struct* p);
 void incur_damage_r(struct player_struct* p);
 void shoot_d(int i, int atwith);
@@ -161,7 +159,6 @@ void SetDispatcher()
 		checktimetosleep_d,
 		move_d,
 		spawn_d,
-		check_fta_sounds_d,
 
 		incur_damage_d,
 		shoot_d,
@@ -212,7 +209,6 @@ void SetDispatcher()
 		checktimetosleep_r,
 		move_r,
 		spawn_r,
-		check_fta_sounds_r,
 
 		incur_damage_r,
 		shoot_r,

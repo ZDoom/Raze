@@ -106,7 +106,7 @@ int spawn_d(int j, int pn)
 
 				if (j >= 0) {
 					hittype[i].timetosleep = 0;
-					fi.check_fta_sounds(i);
+                    check_fta_sounds_d(&hittype[i]);
 					changespritestat(i, 1);
 				} else
 					changespritestat(i, 2);
@@ -879,7 +879,7 @@ int spawn_d(int j, int pn)
                     if(j >= 0)
                     {
                         hittype[i].timetosleep = 0;
-                        fi.check_fta_sounds(i);
+                        check_fta_sounds_d(&hittype[i]);
                         changespritestat(i,1);
                     }
                     else changespritestat(i,2);

@@ -92,18 +92,18 @@ bool floorspace_r(int sectnum)
 //
 //---------------------------------------------------------------------------
 
-void check_fta_sounds_r(int i)
+void check_fta_sounds_r(DDukeActor* actor)
 {
-	if (sprite[i].extra > 0) switch (sprite[i].picnum)
+	if (actor->s.extra > 0) switch (actor->s.picnum)
 	{
 	case COOT: // LIZTROOP
 		if (!isRRRA() && (krand() & 3) == 2)
-			S_PlayActorSound(PRED_RECOG, i);
+			S_PlayActorSound(PRED_RECOG, actor);
 		break;
 	case BILLYCOCK:
 	case BILLYRAY:
 	case BRAYSNIPER: // PIGCOP
-		S_PlayActorSound(PIG_RECOG, i);
+		S_PlayActorSound(PIG_RECOG, actor);
 		break;
 	}
 }
@@ -606,7 +606,7 @@ void movefta_r(void)
 						if (actorflag(spriteNum, SFLAG_USEACTIVATOR) && sector[sprite[spriteNum].sectnum].lotag & 16384) break;
 #endif
 						hittype[i].timetosleep = 0;
-						fi.check_fta_sounds(i);
+						check_fta_sounds_r(&hittype[i]);
 						changespritestat(i, STAT_ACTOR);
 						break;
 					}
@@ -624,7 +624,7 @@ void movefta_r(void)
 					if (wakeup(i, p))
 					{
 						hittype[i].timetosleep = 0;
-						fi.check_fta_sounds(i);
+						check_fta_sounds_r(&hittype[i]);
 						changespritestat(i, STAT_ACTOR);
 					}
 				}
