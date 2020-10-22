@@ -3621,122 +3621,107 @@ static void handle_se28(DDukeActor* actor)
 
 void moveeffectors_d(void)   //STATNUM 3
 {
-	int q = 0, l, x, st, j, * t;
-	int p, sh;
-	short k;
-	spritetype* s;
-	sectortype* sc;
-	walltype* wal;
+	int l;
 
 	clearfriction();
-
 	
-	StatIterator it(STAT_EFFECTOR);
-	int i;
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_EFFECTOR);
+	while (auto act = it.Next())
 	{
-		s = &sprite[i];
-
-		sc = &sector[s->sectnum];
-		st = s->lotag;
-		sh = s->hitag;
-
-		t = &hittype[i].temp_data[0];
-
-		switch (st)
+		auto sc = &sector[act->s.sectnum];
+		switch (act->s.lotag)
 		{
 		case SE_0_ROTATING_SECTOR:
-			handle_se00(&hittype[i], LASERLINE);
+			handle_se00(act, LASERLINE);
 			break;
 			
 		case SE_1_PIVOT: //Nothing for now used as the pivot
-			handle_se01(&hittype[i]);
+			handle_se01(act);
 			break;
 			
 		case SE_6_SUBWAY:
-			handle_se06_d(&hittype[i]);
+			handle_se06_d(act);
 			break;
 
 		case SE_14_SUBWAY_CAR:
-			handle_se14(&hittype[i], true, RPG, JIBS6);
+			handle_se14(act, true, RPG, JIBS6);
 			break;
 
 		case SE_30_TWO_WAY_TRAIN:
-			handle_se30(&hittype[i], JIBS6);
+			handle_se30(act, JIBS6);
 			break;
 
-
 		case SE_2_EARTHQUAKE:
-			handle_se02(&hittype[i]);
+			handle_se02(act);
 			break;
 
 			//Flashing sector lights after reactor EXPLOSION2
 		case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
-			handle_se03(&hittype[i]);
+			handle_se03(act);
 			break;
 
 		case SE_4_RANDOM_LIGHTS:
-			handle_se04(&hittype[i]);
+			handle_se04(act);
 			break;
 
 			//BOSS
 		case SE_5_BOSS:
-			handle_se05(&hittype[i], FIRELASER);
+			handle_se05(act, FIRELASER);
 			break;
 
 		case SE_8_UP_OPEN_DOOR_LIGHTS:
 		case SE_9_DOWN_OPEN_DOOR_LIGHTS:
-			handle_se08(&hittype[i], false);
+			handle_se08(act, false);
 			break;
 
 		case SE_10_DOOR_AUTO_CLOSE:
 		{
 			static const int tags[] = { 20, 21, 22, 26, 0};
-			handle_se10(&hittype[i], tags);
+			handle_se10(act, tags);
 			break;
 		}
 		case SE_11_SWINGING_DOOR:
-			handle_se11(&hittype[i]);
+			handle_se11(act);
 			break;
 			
 		case SE_12_LIGHT_SWITCH:
-			handle_se12(&hittype[i]);
+			handle_se12(act);
 			break;
 
 		case SE_13_EXPLOSIVE:
-			handle_se13(&hittype[i]);
+			handle_se13(act);
 			break;
 
 		case SE_15_SLIDING_DOOR:
-			handle_se15(&hittype[i]);
+			handle_se15(act);
 			break;
 
 		case SE_16_REACTOR:
-			handle_se16(&hittype[i], REACTOR, REACTOR2);
+			handle_se16(act, REACTOR, REACTOR2);
 			break;
 
 		case SE_17_WARP_ELEVATOR:
-			handle_se17(&hittype[i]);
+			handle_se17(act);
 			break;
 
 		case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
-			handle_se18(&hittype[i], true);
+			handle_se18(act, true);
 			break;
 
 		case SE_19_EXPLOSION_LOWERS_CEILING:
-			handle_se19(&hittype[i], BIGFORCE);
+			handle_se19(act, BIGFORCE);
 			break;
 
 		case SE_20_STRETCH_BRIDGE:
-			handle_se20(&hittype[i]);
+			handle_se20(act);
 			break;
 
 		case SE_21_DROP_FLOOR:
-			handle_se21(&hittype[i]);
+			handle_se21(act);
 			break;
 
 		case SE_22_TEETH_DOOR:
-			handle_se22(&hittype[i]);
+			handle_se22(act);
 
 			break;
 
@@ -3745,81 +3730,80 @@ void moveeffectors_d(void)   //STATNUM 3
 		{
 			static int16_t list1[] = { BLOODPOOL, PUKE, FOOTPRINTS, FOOTPRINTS2, FOOTPRINTS3, FOOTPRINTS4, BULLETHOLE, BLOODSPLAT1, BLOODSPLAT2, BLOODSPLAT3, BLOODSPLAT4, -1 };
 			static int16_t list2[] = { BOLT1, BOLT1 + 1,BOLT1 + 2, BOLT1 + 3, SIDEBOLT1, SIDEBOLT1 + 1, SIDEBOLT1 + 2, SIDEBOLT1 + 3, -1 };
-			handle_se24(&hittype[i], list1, list2, TRIPBOMB, LASERLINE, CRANE, 2);
+			handle_se24(act, list1, list2, TRIPBOMB, LASERLINE, CRANE, 2);
 			break;
 		}
 		case 35:
-			handle_se35(&hittype[i], SMALLSMOKE, EXPLOSION2);
+			handle_se35(act, SMALLSMOKE, EXPLOSION2);
 			break;
 
 		case 25: //PISTONS
-			if (hittype[i].temp_data[4] == 0) break;
-			handle_se25(&hittype[i], 3, -1, -1);
+			if (act->temp_data[4] == 0) break;
+			handle_se25(act, 3, -1, -1);
 			break;
 
 		case 26:
-			handle_se26(&hittype[i]);
+			handle_se26(act);
 			break;
 
 		case SE_27_DEMO_CAM:
-			handle_se27(&hittype[i]);
+			handle_se27(act);
 			break;
 		case 28:
-			handle_se28(&hittype[i]);
+			handle_se28(act);
 			break;
 
 		case 29:
-			s->hitag += 64;
-			l = mulscale12((int)s->yvel, sintable[s->hitag & 2047]);
-			sc->floorz = s->z + l;
+			act->s.hitag += 64;
+			l = mulscale12((int)act->s.yvel, sintable[act->s.hitag & 2047]);
+			sc->floorz = act->s.z + l;
 			break;
 		case 31: // True Drop Floor
-			handle_se31(&hittype[i], true);
+			handle_se31(act, true);
 			break;
 
 		case 32: // True Drop Ceiling
-			handle_se32(&hittype[i]);
+			handle_se32(act);
 			break;
 
 		case 33:
 			if (earthquaketime > 0 && (krand() & 7) == 0)
-				RANDOMSCRAP(s, i);
+				RANDOMSCRAP(act);
 			break;
 		case 36:
 
-			if (t[0])
+			if (act->temp_data[0])
 			{
-				if (t[0] == 1)
-					fi.shoot(i, sc->extra);
-				else if (t[0] == 26 * 5)
-					t[0] = 0;
-				t[0]++;
+				if (act->temp_data[0] == 1)
+					fi.shoot(act->GetIndex(), sc->extra);
+				else if (act->temp_data[0] == 26 * 5)
+					act->temp_data[0] = 0;
+				act->temp_data[0]++;
 			}
 			break;
 
 		case 128: //SE to control glass breakage
-			handle_se128(&hittype[i]);
+			handle_se128(act);
 			break;
 
 		case 130:
-			handle_se130(&hittype[i], 80, EXPLOSION2);
+			handle_se130(act, 80, EXPLOSION2);
 			break;
 		case 131:
-			handle_se130(&hittype[i], 40, EXPLOSION2);
+			handle_se130(act, 40, EXPLOSION2);
 			break;
 		}
 	}
 
 	//Sloped sin-wave floors!
 	it.Reset(STAT_EFFECTOR);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto act = it.Next())
 	{
-		s = &sprite[i];
-		if (s->lotag != 29) continue;
-		sc = &sector[s->sectnum];
+		if (act->s.lotag != 29) continue;
+		auto sc = &sector[act->s.sectnum];
 		if (sc->wallnum != 4) continue;
-		wal = &wall[sc->wallptr + 2];
-		alignflorslope(s->sectnum, wal->x, wal->y, sector[wal->nextsector].floorz);
+		auto wal = &wall[sc->wallptr + 2];
+		alignflorslope(act->s.sectnum, wal->x, wal->y, sector[wal->nextsector].floorz);
 	}
 }
 
