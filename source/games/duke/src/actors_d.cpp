@@ -244,16 +244,16 @@ void addweapon_d(struct player_struct *p, int weapon)
 	if(p->curr_weapon != weapon)
 	{
 		int snum;
-		snum = sprite[p->i].yvel;
+		snum = p->GetPlayerNum();
 
-		SetGameVarID(g_iWeaponVarID,weapon, snum, p->i);
+		SetGameVarID(g_iWeaponVarID,weapon, snum, p->GetActor());
 		if (p->curr_weapon >= 0)
 		{
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[weapon][snum], snum, p->i);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[weapon][snum], snum, p->GetActor());
 		}
 		else
 		{
-			SetGameVarID(g_iWorksLikeVarID, -1, snum, p->i);
+			SetGameVarID(g_iWorksLikeVarID, -1, snum, p->GetActor());
 		}
 		SetGameVarID(g_iReturnVarID, 0, snum, -1);
 		OnEvent(EVENT_CHANGEWEAPON, p->i, snum, -1);
@@ -274,13 +274,13 @@ void addweapon_d(struct player_struct *p, int weapon)
 	case HANDBOMB_WEAPON:	 
 		break;
 	case SHOTGUN_WEAPON:	  
-		S_PlayActorSound(SHOTGUN_COCK, p->i); 
+		S_PlayActorSound(SHOTGUN_COCK, p->GetActor()); 
 		break;
 	case PISTOL_WEAPON:	   
-		S_PlayActorSound(INSERT_CLIP, p->i); 
+		S_PlayActorSound(INSERT_CLIP, p->GetActor());
 		break;
 	default:	  
-		S_PlayActorSound(SELECT_WEAPON, p->i); 
+		S_PlayActorSound(SELECT_WEAPON, p->GetActor());
 		break;
 	}
 }
@@ -291,12 +291,11 @@ void addweapon_d(struct player_struct *p, int weapon)
 //
 //---------------------------------------------------------------------------
 
-bool ifsquished(int i, int p)
+bool ifsquished(DDukeActor* actor, int p)
 {
 	if (isRR()) return false;	// this function is a no-op in RR's source.
 
-	auto spri = &sprite[i];
-	auto ht = &hittype[i];
+	auto spri = &actor->s;
 	bool squishme = false;
 	if (spri->picnum == APLAYER && ud.clipping)
 		return false;
@@ -316,13 +315,13 @@ bool ifsquished(int i, int p)
 	{
 		FTA(QUOTE_SQUISHED, &ps[p]);
 
-		if (badguy(&sprite[i]))
+		if (badguy(actor))
 			spri->xvel = 0;
 
 		if (spri->pal == 1)
 		{
-			ht->picnum = SHOTSPARK1;
-			ht->extra = 1;
+			actor->picnum = SHOTSPARK1;
+			actor->extra = 1;
 			return false;
 		}
 

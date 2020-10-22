@@ -81,7 +81,7 @@ struct ParseState
 };
 
 int furthestcanseepoint(DDukeActor* i, DDukeActor* ts, int* dax, int* day);
-bool ifsquished(int i, int p);
+bool ifsquished(DDukeActor* i, int p);
 void fakebubbaspawn(int g_i, int g_p);
 void tearitup(int sect);
 void destroyit(int g_i);
@@ -1563,7 +1563,7 @@ int ParseState::parse(void)
 		parseifelse(fi.ifhitbyweapon(g_ac) >= 0);
 		break;
 	case concmd_ifsquished:
-		parseifelse(ifsquished(g_i, g_p) == 1);
+		parseifelse(ifsquished(g_ac, g_p) == 1);
 		break;
 	case concmd_ifdead:
 	{
