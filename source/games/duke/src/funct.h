@@ -98,7 +98,7 @@ void respawn_rrra(DDukeActor* oldact, DDukeActor* newact);
 
 int dodge(DDukeActor*);
 void alterang(int ang, DDukeActor* actor, int g_p);
-void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(int, int), void (*falladjustz)(spritetype*));
+void fall_common(DDukeActor* g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(DDukeActor*, int));
 void checkavailweapon(struct player_struct* p);
 void deletesprite(DDukeActor* num);
 void addammo(int weapon, struct player_struct* p, int amount);
@@ -181,7 +181,7 @@ void spriteglass(int snum, int cnt);
 void lotsofcolourglass(int snum, int wallNum, int cnt);
 void lotsofglass(int snum, int wallnum, int cnt);
 
-void addspritetodelete(int spnum);
+void addspritetodelete(int spnum=0);
 void checkavailinven(struct player_struct* p);
 int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes);
 void spawninitdefault(int j, int i);

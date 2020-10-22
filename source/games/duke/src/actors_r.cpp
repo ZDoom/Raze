@@ -4078,36 +4078,36 @@ void fakebubbaspawn(int g_i, int g_p)
 //
 //---------------------------------------------------------------------------
 
-static int fallspecial(int g_i, int g_p)
+static int fallspecial(DDukeActor *actor, int g_p)
 {
+	auto g_sp = &actor->s;
 	int sphit = 0;
-	auto g_sp = &sprite[g_i];
 	if (isRRRA())
 	{
 		if (sector[g_sp->sectnum].lotag == 801)
 		{
 			if (g_sp->picnum == ROCK)
 			{
-				fi.spawn(g_i, ROCK2);
-				fi.spawn(g_i, ROCK2);
-				addspritetodelete(g_i);
+				spawn(actor, ROCK2);
+				spawn(actor, ROCK2);
+				addspritetodelete();
 			}
 			return 0;
 		}
 		else if (sector[g_sp->sectnum].lotag == 802)
 		{
-			if (g_sp->picnum != APLAYER && badguy(g_sp) && g_sp->z == hittype[g_i].floorz - FOURSLEIGHT)
+			if (g_sp->picnum != APLAYER && badguy(actor) && g_sp->z == actor->floorz - FOURSLEIGHT)
 			{
-				fi.guts(g_sp, JIBS6, 5, g_p);
-				S_PlayActorSound(SQUISHED, g_i);
-				addspritetodelete(g_i);
+				fi.guts(&actor->s, JIBS6, 5, g_p);
+				S_PlayActorSound(SQUISHED, actor);
+				addspritetodelete();
 			}
 			return 0;
 		}
 		else if (sector[g_sp->sectnum].lotag == 803)
 		{
 			if (g_sp->picnum == ROCK2)
-				addspritetodelete(g_i);
+				addspritetodelete();
 			return 0;
 		}
 	}
@@ -4115,25 +4115,25 @@ static int fallspecial(int g_i, int g_p)
 	{
 		if (g_sp->picnum == 40)
 		{
-			addspritetodelete(g_i);
+			addspritetodelete();
 			return 0;
 		}
-		if (g_sp->picnum != APLAYER && (badguy(g_sp) || g_sp->picnum == HEN || g_sp->picnum == COW || g_sp->picnum == PIG || g_sp->picnum == DOGRUN || g_sp->picnum == RABBIT) && (!isRRRA() || hittype[g_i].spriteextra < 128))
+		if (g_sp->picnum != APLAYER && (badguy(actor) || g_sp->picnum == HEN || g_sp->picnum == COW || g_sp->picnum == PIG || g_sp->picnum == DOGRUN || g_sp->picnum == RABBIT) && (!isRRRA() || actor->spriteextra < 128))
 		{
-			g_sp->z = hittype[g_i].floorz - FOURSLEIGHT;
+			g_sp->z = actor->floorz - FOURSLEIGHT;
 			g_sp->zvel = 8000;
 			g_sp->extra = 0;
-			hittype[g_i].spriteextra++;
+			actor->spriteextra++;
 			sphit = 1;
 		}
 		else if (g_sp->picnum != APLAYER)
 		{
-			if (!hittype[g_i].spriteextra)
-				addspritetodelete(g_i);
+			if (!actor->spriteextra)
+				addspritetodelete();
 			return 0;
 		}
-		hittype[g_i].picnum = SHOTSPARK1;
-		hittype[g_i].extra = 1;
+		actor->picnum = SHOTSPARK1;
+		actor->extra = 1;
 	}
 	else if (isRRRA() && (sector[g_sp->sectnum].floorpicnum == RRTILE7820 || sector[g_sp->sectnum].floorpicnum == RRTILE7768))
 	{
@@ -4141,8 +4141,8 @@ static int fallspecial(int g_i, int g_p)
 		{
 			if ((krand() & 3) == 1)
 			{
-				hittype[g_i].picnum = SHOTSPARK1;
-				hittype[g_i].extra = 5;
+				actor->picnum = SHOTSPARK1;
+				actor->extra = 5;
 			}
 		}
 	}	
@@ -4155,28 +4155,9 @@ static int fallspecial(int g_i, int g_p)
 //
 //---------------------------------------------------------------------------
 
-static void falladjustz(spritetype* g_sp)
-{
-	if (isRRRA()) switch (g_sp->picnum)
-	{
-	case HULKBOAT:
-		g_sp->z += (12 << 8);
-		return;
-	case MINIONBOAT:
-		g_sp->z += (3 << 8);
-		return;
-	case CHEERBOAT:
-	case EMPTYBOAT:
-		g_sp->z += (6 << 8);
-		return;
-	}
-	if (g_sp->picnum != DRONE)
-		g_sp->z += (24 << 8);
-}
-
 void fall_r(int g_i, int g_p)
 {
-	fall_common(g_i, g_p, JIBS6, DRONE, BLOODPOOL, SHOTSPARK1, 69, 158, fallspecial, falladjustz);
+	fall_common(&hittype[g_i], g_p, JIBS6, DRONE, BLOODPOOL, SHOTSPARK1, 69, 158, fallspecial);
 }
 
 //---------------------------------------------------------------------------

@@ -13,7 +13,7 @@ BEGIN_DUKE_NS
 struct STATUSBARTYPE 
 {
 	short frag[MAXPLAYERS], got_access, last_extra, shield_amount, curr_weapon;
-	short ammo_amount[MAX_WEAPONS], holoduke_on;
+	short ammo_amount[MAX_WEAPONS];
 	unsigned char inven_icon, jetpack_on, heat_on;
 	short firstaid_amount, steroids_amount, holoduke_amount, jetpack_amount;
 	short heat_amount, scuba_amount, boot_amount;
@@ -104,6 +104,7 @@ struct ActorInfo
 	uint32_t scriptaddress;
 	uint32_t flags;
 	int aimoffset;
+	int falladjustz;
 	int gutsoffset;
 };
 
