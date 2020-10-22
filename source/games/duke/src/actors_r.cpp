@@ -1416,13 +1416,14 @@ static void weaponcommon_r(DDukeActor *proj)
 		break;
 	}
 
-	int j = fi.movesprite(proj->GetIndex(),
+	Collision coll;
+	movesprite_ex(proj,
 		(k * (sintable[(s->ang + 512) & 2047])) >> 14,
-		(k * (sintable[s->ang & 2047])) >> 14, ll, CLIPMASK1);
+		(k * (sintable[s->ang & 2047])) >> 14, ll, CLIPMASK1, coll);
 
 	if ((s->picnum == RPG || (isRRRA() && isIn(s->picnum, RPG2, RRTILE1790))) && proj->temp_actor != nullptr)
 		if (FindDistance2D(s->x - proj->temp_actor->s.x, s->y - proj->temp_actor->s.y) < 256)
-			j = kHitSprite | s->yvel;
+			coll.setSprite(proj->temp_actor);
 
 	if (s->sectnum < 0) // || (isRR() && sector[s->sectnum].filler == 800))
 	{
@@ -1430,17 +1431,17 @@ static void weaponcommon_r(DDukeActor *proj)
 		return;
 	}
 
-	if ((j & kHitTypeMask) != kHitSprite && s->picnum != FREEZEBLAST)
+	if (coll.type != kHitSprite && s->picnum != FREEZEBLAST)
 	{
 		if (s->z < proj->ceilingz)
 		{
-			j = kHitSector | (s->sectnum);
+			coll.setSector(s->sectnum);
 			s->zvel = -1;
 		}
 		else
 			if (s->z > proj->floorz)
 			{
-				j = kHitSector | (s->sectnum);
+				coll.setSector(s->sectnum);
 				if (sector[s->sectnum].lotag != 1)
 					s->zvel = 1;
 			}
@@ -1463,33 +1464,31 @@ static void weaponcommon_r(DDukeActor *proj)
 	else if (s->picnum == SPIT) if (s->zvel < 6144)
 		s->zvel += gc - 112;
 
-	if (j != 0)
+	if (coll.type != 0)
 	{
-		if ((j & kHitTypeMask) == kHitSprite)
+		if (coll.type == kHitSprite)
 		{
-			j &= kHitIndexMask;
-			if (weaponhitsprite(proj, &hittype[j], oldpos)) return;
+			if (weaponhitsprite(proj, coll.actor, oldpos)) return;
 		}
-		else if ((j & kHitTypeMask) == kHitWall)
+		else if (coll.type == kHitWall)
 		{
-			j &= kHitIndexMask;
-			if (weaponhitwall(proj, j, oldpos)) return;
+			if (weaponhitwall(proj, coll.index, oldpos)) return;
 		}
-		else if ((j & kHitTypeMask) == kHitSector)
+		else if (coll.type == kHitSector)
 		{
 			if (weaponhitsector(proj, oldpos)) return;
 		}
 
 		if (s->picnum != SPIT)
 		{
-			if (s->picnum == RPG) rpgexplode(proj, j, oldpos, EXPLOSION2, -1, -1, RPG_EXPLODE);
-			else if (isRRRA() && s->picnum == RPG2) rpgexplode(proj, j, oldpos, EXPLOSION2, -1, 150, 247);
-			else if (isRRRA() && s->picnum == RRTILE1790) rpgexplode(proj, j, oldpos, EXPLOSION2, -1, 160, RPG_EXPLODE);
+			if (s->picnum == RPG) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1, -1, RPG_EXPLODE);
+			else if (isRRRA() && s->picnum == RPG2) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  150, 247);
+			else if (isRRRA() && s->picnum == RRTILE1790) rpgexplode(proj, coll.type, oldpos, EXPLOSION2, -1,  160, RPG_EXPLODE);
 			else if (s->picnum != FREEZEBLAST && s->picnum != FIRELASER && s->picnum != SHRINKSPARK)
 			{
 				auto k = spawn(proj, 1441);
 				k->s.xrepeat = k->s.yrepeat = s->xrepeat >> 1;
-				if ((j & kHitTypeMask) == kHitSector)
+				if (coll.type == kHitSector)
 				{
 					if (s->zvel < 0)
 					{

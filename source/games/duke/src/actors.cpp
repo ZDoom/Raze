@@ -1408,7 +1408,7 @@ void rpgexplode(DDukeActor *actor, int hit, const vec3_t &pos, int EXPLOSION2, i
 		explosion->s.xrepeat = 6;
 		explosion->s.yrepeat = 6;
 	}
-	else if ((hit & kHitTypeMask) == kHitSector)
+	else if (hit == kHitSector)
 	{
 		if (s->zvel > 0 && EXPLOSION2BOT >= 0)
 			spawn(actor, EXPLOSION2BOT);

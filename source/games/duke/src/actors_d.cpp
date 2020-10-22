@@ -1803,13 +1803,14 @@ static void weaponcommon_d(DDukeActor* proj)
 		break;
 	}
 
-	int j = fi.movesprite(proj->GetIndex(),
+	Collision coll;
+	movesprite_ex(proj,
 		(k * (sintable[(s->ang + 512) & 2047])) >> 14,
-		(k * (sintable[s->ang & 2047])) >> 14, ll, CLIPMASK1);
+		(k * (sintable[s->ang & 2047])) >> 14, ll, CLIPMASK1, coll);
 
 	if (s->picnum == RPG && proj->temp_actor != nullptr)
 		if (FindDistance2D(s->x - proj->temp_actor->s.x, s->y - proj->temp_actor->s.y) < 256)
-			j = kHitSprite | s->yvel;
+			coll.setSprite(proj->temp_actor);
 
 	if (s->sectnum < 0)
 	{
@@ -1817,18 +1818,18 @@ static void weaponcommon_d(DDukeActor* proj)
 		return;
 	}
 
-	if ((j & kHitTypeMask) != kHitSprite && s->picnum != FREEZEBLAST)
+	if (coll.type != kHitSprite && s->picnum != FREEZEBLAST)
 	{
 		if (s->z < proj->ceilingz)
 		{
-			j = kHitSector | (s->sectnum);
+			coll.setSector(s->sectnum);
 			s->zvel = -1;
 		}
 		else
 			if ((s->z > proj->floorz && sector[s->sectnum].lotag != 1) ||
 				(s->z > proj->floorz + (16 << 8) && sector[s->sectnum].lotag == 1))
 			{
-				j = kHitSector | (s->sectnum);
+				coll.setSector(s->sectnum);
 				if (sector[s->sectnum].lotag != 1)
 					s->zvel = 1;
 			}
@@ -1851,11 +1852,11 @@ static void weaponcommon_d(DDukeActor* proj)
 	else if (s->picnum == SPIT) if (s->zvel < 6144)
 		s->zvel += gc - 112;
 
-	if (j != 0)
+	if (coll.type != 0)
 	{
 		if (s->picnum == COOLEXPLOSION1)
 		{
-			if ((j & kHitTypeMask) == kHitSprite && hittype[j & kHitIndexMask].s.picnum != APLAYER)
+			if (coll.type == kHitSprite && coll.actor->s.picnum != APLAYER)
 			{
 				return;
 			}
@@ -1865,17 +1866,15 @@ static void weaponcommon_d(DDukeActor* proj)
 
 		bool fireball = (isWorldTour() && s->picnum == FIREBALL && (!proj->GetOwner() || proj->GetOwner()->s.picnum != FIREBALL));
 
-		if ((j & kHitTypeMask) == kHitSprite)
+		if (coll.type == kHitSprite)
 		{
-			j &= kHitIndexMask;
-			if (weaponhitsprite(proj, &hittype[j], fireball)) return;
+			if (weaponhitsprite(proj, coll.actor, fireball)) return;
 		}
-		else if ((j & kHitTypeMask) == kHitWall)
+		else if (coll.type == kHitWall)
 		{
-			j &= kHitIndexMask;
-			if (weaponhitwall(proj, j, oldpos)) return;
+			if (weaponhitwall(proj, coll.index, oldpos)) return;
 		}
-		else if ((j & kHitTypeMask) == kHitSector)
+		else if (coll.type == kHitSector)
 		{
 			if (weaponhitsector(proj, oldpos, fireball)) return;
 		}
@@ -1885,7 +1884,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			if (s->picnum == RPG)
 			{
 				// j is only needed for the hit type mask.
-				rpgexplode(proj, j, oldpos, EXPLOSION2, EXPLOSION2BOT, -1, RPG_EXPLODE);
+				rpgexplode(proj, coll.type, oldpos, EXPLOSION2, EXPLOSION2BOT, -1, RPG_EXPLODE);
 			}
 			else if (s->picnum == SHRINKSPARK)
 			{
@@ -1897,7 +1896,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			{
 				auto k = spawn(proj, EXPLOSION2);
 				k->s.xrepeat = k->s.yrepeat = s->xrepeat >> 1;
-				if ((j & kHitTypeMask) == kHitSector)
+				if (coll.type == kHitSector)
 				{
 					if (s->zvel < 0)
 					{
