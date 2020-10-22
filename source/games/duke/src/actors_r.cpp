@@ -1969,12 +1969,11 @@ void movetransports_r(void)
 
 static void rrra_specialstats()
 {
-	int i, j;
-
-	StatIterator it(117);
-	while ((i = it.NextIndex()) >= 0)
+	Collision coll;
+	DukeStatIterator it(117);
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
+		auto s = &act->s;
 		if (s->hitag > 2)
 			s->hitag = 0;
 		if ((s->picnum == RRTILE8488 || s->picnum == RRTILE8490) && s->hitag != 2)
@@ -1999,17 +1998,17 @@ static void rrra_specialstats()
 			s->extra--;
 			if (s->extra <= -104)
 			{
-				fi.spawn(i, s->lotag);
-				deletesprite(i);
+				spawn(act, s->lotag);
+				deletesprite(act);
 			}
 		}
-		j = fi.movesprite(i, 0, 0, s->extra * 2, CLIPMASK0);
+		movesprite_ex(act, 0, 0, s->extra * 2, CLIPMASK0, coll);
 	}
 
 	it.Reset(118);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
+		auto s = &act->s;
 		if (s->hitag > 1)
 			s->hitag = 0;
 		if (s->hitag == 0)
@@ -2024,7 +2023,7 @@ static void rrra_specialstats()
 			if (s->extra <= -20)
 				s->hitag = 0;
 		}
-		j = fi.movesprite(i, 0, 0, s->extra, CLIPMASK0);
+		movesprite_ex(act, 0, 0, s->extra, CLIPMASK0, coll);
 	}
 
 	if (ps[screenpeek].MamaEnd > 0)
@@ -2038,11 +2037,11 @@ static void rrra_specialstats()
 
 	if (enemysizecheat > 0)
 	{
-		short ti;
-		for (ti = 0; ti < MAXSPRITES; ti++)
+		DukeSpriteIterator it;
+		while (auto act = it.Next())
 		{
-			auto tispr = &sprite[ti];
-			switch (tispr->picnum)
+			auto s = &act->s;
+			switch (s->picnum)
 			{
 				//case 4049:
 				//case 4050:
@@ -2084,15 +2083,15 @@ static void rrra_specialstats()
 			case MAMA:
 				if (enemysizecheat == 3)
 				{
-					tispr->xrepeat = tispr->xrepeat << 1;
-					tispr->yrepeat = tispr->yrepeat << 1;
-					tispr->clipdist = mulscale7(tispr->xrepeat, tilesiz[tispr->picnum].x);
+					s->xrepeat <<= 1;
+					s->yrepeat <<= 1;
+					s->clipdist = mulscale7(s->xrepeat, tilesiz[s->picnum].x);
 				}
 				else if (enemysizecheat == 2)
 				{
-					tispr->xrepeat = tispr->xrepeat >> 1;
-					tispr->yrepeat = tispr->yrepeat >> 1;
-					tispr->clipdist = mulscale7(tispr->xrepeat, tilesiz[tispr->picnum].y);
+					s->xrepeat >>= 1;
+					s->yrepeat >>= 1;
+					s->clipdist = mulscale7(s->xrepeat, tilesiz[s->picnum].y);
 				}
 				break;
 			}
@@ -2102,9 +2101,9 @@ static void rrra_specialstats()
 	}
 
 	it.Reset(121);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
+		auto s = &act->s;
 		s->extra++;
 		if (s->extra < 100)
 		{
@@ -2115,7 +2114,7 @@ static void rrra_specialstats()
 					s->picnum = PIG + 7;
 				s->extra = 1;
 			}
-			fi.movesprite(i, 0, 0, -300, CLIPMASK0);
+			movesprite_ex(act, 0, 0, -300, CLIPMASK0, coll);
 			if (sector[s->sectnum].ceilingz + (4 << 8) > s->z)
 			{
 				s->picnum = 0;
@@ -2124,51 +2123,51 @@ static void rrra_specialstats()
 		}
 		else if (s->extra == 200)
 		{
-			setsprite(i, s->x, s->y, sector[s->sectnum].floorz - 10);
+			setsprite(act, s->x, s->y, sector[s->sectnum].floorz - 10);
 			s->extra = 1;
 			s->picnum = PIG + 11;
-			fi.spawn(i, TRANSPORTERSTAR);
+			spawn(act, TRANSPORTERSTAR);
 		}
 	}
 
 	it.Reset(119);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
+		auto s = &act->s;
 		if (s->hitag > 0)
 		{
 			if (s->extra == 0)
 			{
 				s->hitag--;
 				s->extra = 150;
-				fi.spawn(i, RABBIT);
+				spawn(act, RABBIT);
 			}
 			else
 				s->extra--;
 		}
 	}
 	it.Reset(116);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
+		auto s = &act->s;
 		if (s->extra)
 		{
 			if (s->extra == s->lotag)
 				S_PlaySound(183);
 			s->extra--;
-			j = fi.movesprite(i,
+			int j = movesprite_ex(act,
 				(s->hitag * sintable[(s->ang + 512) & 2047]) >> 14,
 				(s->hitag * sintable[s->ang & 2047]) >> 14,
-				s->hitag << 1, CLIPMASK0);
+				s->hitag << 1, CLIPMASK0, coll);
 			if (j > 0)
 			{
-				S_PlayActorSound(PIPEBOMB_EXPLODE, i);
-				deletesprite(i);
+				S_PlayActorSound(PIPEBOMB_EXPLODE, act);
+				deletesprite(act);
 			}
 			if (s->extra == 0)
 			{
 				S_PlaySound(215);
-				deletesprite(i);
+				deletesprite(act);
 				earthquaketime = 32;
 				SetPlayerPal(&ps[myconnectindex], PalEntry(32, 32, 32, 48));
 			}
@@ -2176,9 +2175,9 @@ static void rrra_specialstats()
 	}
 
 	it.Reset(115);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
+		auto s = &act->s;
 		if (s->extra)
 		{
 			if (s->picnum != RRTILE8162)
@@ -2201,9 +2200,9 @@ static void rrra_specialstats()
 					else
 					{
 						s->picnum = RRTILE8162 + 2;
-						fi.spawn(i, BATTERYAMMO);
+						spawn(act, BATTERYAMMO);
 						ps[screenpeek].SlotWin |= 1;
-						S_PlayActorSound(52, i);
+						S_PlayActorSound(52, act);
 					}
 				}
 				else if (rvar < 120)
@@ -2215,9 +2214,9 @@ static void rrra_specialstats()
 					else
 					{
 						s->picnum = RRTILE8162 + 6;
-						fi.spawn(i, HEAVYHBOMB);
+						spawn(act, HEAVYHBOMB);
 						ps[screenpeek].SlotWin |= 2;
-						S_PlayActorSound(52, i);
+						S_PlayActorSound(52, act);
 					}
 				}
 				else if (rvar < 126)
@@ -2229,9 +2228,9 @@ static void rrra_specialstats()
 					else
 					{
 						s->picnum = RRTILE8162 + 5;
-						fi.spawn(i, SIXPAK);
+						spawn(act, SIXPAK);
 						ps[screenpeek].SlotWin |= 4;
-						S_PlayActorSound(52, i);
+						S_PlayActorSound(52, act);
 					}
 				}
 				else
@@ -2243,9 +2242,9 @@ static void rrra_specialstats()
 					else
 					{
 						s->picnum = RRTILE8162 + 4;
-						fi.spawn(i, ATOMICHEALTH);
+						spawn(act, ATOMICHEALTH);
 						ps[screenpeek].SlotWin |= 8;
-						S_PlayActorSound(52, i);
+						S_PlayActorSound(52, act);
 					}
 				}
 			}
@@ -2253,9 +2252,9 @@ static void rrra_specialstats()
 	}
 
 	it.Reset(122);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
+		auto s = &act->s;
 		if (s->extra)
 		{
 			if (s->picnum != RRTILE8589)
@@ -2278,9 +2277,9 @@ static void rrra_specialstats()
 					else
 					{
 						s->picnum = RRTILE8589 + 5;
-						fi.spawn(i, BATTERYAMMO);
+						spawn(act, BATTERYAMMO);
 						ps[screenpeek].SlotWin |= 1;
-						S_PlayActorSound(342, i);
+						S_PlayActorSound(342, act);
 					}
 				}
 				else if (rvar < 120)
@@ -2292,9 +2291,9 @@ static void rrra_specialstats()
 					else
 					{
 						s->picnum = RRTILE8589 + 6;
-						fi.spawn(i, HEAVYHBOMB);
+						spawn(act, HEAVYHBOMB);
 						ps[screenpeek].SlotWin |= 2;
-						S_PlayActorSound(342, i);
+						S_PlayActorSound(342, act);
 					}
 				}
 				else if (rvar < 126)
@@ -2306,9 +2305,9 @@ static void rrra_specialstats()
 					else
 					{
 						s->picnum = RRTILE8589 + 2;
-						fi.spawn(i, SIXPAK);
+						spawn(act, SIXPAK);
 						ps[screenpeek].SlotWin |= 4;
-						S_PlayActorSound(342, i);
+						S_PlayActorSound(342, act);
 					}
 				}
 				else
@@ -2320,9 +2319,9 @@ static void rrra_specialstats()
 					else
 					{
 						s->picnum = RRTILE8589 + 3;
-						fi.spawn(i, ATOMICHEALTH);
+						spawn(act, ATOMICHEALTH);
 						ps[screenpeek].SlotWin |= 8;
-						S_PlayActorSound(342, i);
+						S_PlayActorSound(342, act);
 					}
 				}
 			}
@@ -2330,12 +2329,11 @@ static void rrra_specialstats()
 	}
 
 	it.Reset(123);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
-		if (s->lotag == 5)
+		if (act->s.lotag == 5)
 			if (!S_CheckSoundPlaying(330))
-				S_PlayActorSound(330, i);
+				S_PlayActorSound(330, act);
 	}
 }
 
