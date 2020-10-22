@@ -801,55 +801,48 @@ void respawn_rrra(DDukeActor* oldact, DDukeActor* newact)
 
 void movefallers_r(void)
 {
-	short sect, j;
-	spritetype* s;
-	int x;
-
-	StatIterator it(STAT_FALLER);
-	int i;
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_FALLER);
+	while (auto act = it.Next())
 	{
-		s = &sprite[i];
+		auto s = &act->s;
+		int sect = s->sectnum;
 
-		sect = s->sectnum;
-
-		if (hittype[i].temp_data[0] == 0)
+		if (act->temp_data[0] == 0)
 		{
 			s->z -= (16 << 8);
-			hittype[i].temp_data[1] = s->ang;
-			x = s->extra;
-			j = fi.ifhitbyweapon(&hittype[i]);
-			if (j >= 0) 
+			act->temp_data[1] = s->ang;
+			int x = s->extra;
+			int j = fi.ifhitbyweapon(act);
+			if (j >= 0)
 			{
 				if (j == RPG || (isRRRA() && j == RPG2) || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 				{
 					if (s->extra <= 0)
 					{
-						hittype[i].temp_data[0] = 1;
-						StatIterator it(STAT_FALLER);
-						while ((j = it.NextIndex()) >= 0)
+						act->temp_data[0] = 1;
+						DukeStatIterator it(STAT_FALLER);
+						while (auto ac2 = it.Next())
 						{
-							auto sj = &sprite[j];
-							if (sj->hitag == sprite[i].hitag)
+							if (ac2->s.hitag == s->hitag)
 							{
-								hittype[j].temp_data[0] = 1;
-								sj->cstat &= (65535 - 64);
-								if (sj->picnum == CEILINGSTEAM || sj->picnum == STEAM)
-									sj->cstat |= 32768;
+								ac2->temp_data[0] = 1;
+								ac2->s.cstat &= (65535 - 64);
+								if (ac2->s.picnum == CEILINGSTEAM || ac2->s.picnum == STEAM)
+									ac2->s.cstat |= 32768;
 							}
 						}
 					}
 				}
 				else
 				{
-					hittype[i].extra = 0;
+					act->extra = 0;
 					s->extra = x;
 				}
 			}
-			s->ang = hittype[i].temp_data[1];
+			s->ang = act->temp_data[1];
 			s->z += (16 << 8);
 		}
-		else if (hittype[i].temp_data[0] == 1)
+		else if (act->temp_data[0] == 1)
 		{
 			if (s->lotag > 0)
 			{
@@ -862,9 +855,10 @@ void movefallers_r(void)
 				if (s->xvel > 0)
 				{
 					s->xvel -= 2;
-					ssp(i, CLIPMASK0);
+					ssp(act, CLIPMASK0);
 				}
 
+				int x;
 				if (fi.floorspace(s->sectnum)) x = 0;
 				else
 				{
@@ -883,9 +877,9 @@ void movefallers_r(void)
 				}
 				if ((sector[sect].floorz - s->z) < (16 << 8))
 				{
-					j = 1 + (krand() & 7);
-					for (x = 0; x < j; x++) RANDOMSCRAP(s, i);
-					deletesprite(i);
+					int j = 1 + (krand() & 7);
+					for (x = 0; x < j; x++) RANDOMSCRAP(act);
+					deletesprite(act);
 				}
 			}
 		}

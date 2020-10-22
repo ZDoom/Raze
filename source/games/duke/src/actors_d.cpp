@@ -942,53 +942,50 @@ int ifhitbyweapon_d(DDukeActor *actor)
 void movefallers_d(void)
 {
 	short sect;
-	int i, j, x;
+	int j, x;
 
-	StatIterator iti(STAT_FALLER);
-	while ((i = iti.NextIndex()) >= 0)
+	DukeStatIterator iti(STAT_FALLER);
+	while (auto act = iti.Next())
 	{
-		auto s = &sprite[i];
-		auto ht = &hittype[i];
-
+		auto s = &act->s;
 		sect = s->sectnum;
 
-		if (ht->temp_data[0] == 0)
+		if (act->temp_data[0] == 0)
 		{
 			s->z -= (16 << 8);
-			ht->temp_data[1] = s->ang;
+			act->temp_data[1] = s->ang;
 			x = s->extra;
-			j = fi.ifhitbyweapon(&hittype[i]);
+			j = fi.ifhitbyweapon(act);
 			if (j >= 0)
 			{
 				if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 				{
 					if (s->extra <= 0)
 					{
-						ht->temp_data[0] = 1;
-						StatIterator itj(STAT_FALLER);
-						while ((j = itj.NextIndex()) >= 0)
+						act->temp_data[0] = 1;
+						DukeStatIterator itj(STAT_FALLER);
+						while (auto a2 = itj.Next())
 						{
-							auto sj = &sprite[j];
-							if (sj->hitag == s->hitag)
+							if (a2->s.hitag == s->hitag)
 							{
-								hittype[j].temp_data[0] = 1;
-								sj->cstat &= (65535 - 64);
-								if (sj->picnum == CEILINGSTEAM || sj->picnum == STEAM)
-									sj->cstat |= 32768;
+								a2->temp_data[0] = 1;
+								a2->s.cstat &= (65535 - 64);
+								if (a2->s.picnum == CEILINGSTEAM || a2->s.picnum == STEAM)
+									a2->s.cstat |= 32768;
 							}
 						}
 					}
 				}
 				else
 				{
-					ht->extra = 0;
+					act->extra = 0;
 					s->extra = x;
 				}
 			}
-			s->ang = ht->temp_data[1];
+			s->ang = act->temp_data[1];
 			s->z += (16 << 8);
 		}
-		else if (ht->temp_data[0] == 1)
+		else if (act->temp_data[0] == 1)
 		{
 			if (s->lotag > 0)
 			{
@@ -1004,7 +1001,7 @@ void movefallers_d(void)
 				if (s->xvel > 0)
 				{
 					s->xvel -= 8;
-					ssp(i,CLIPMASK0);
+					ssp(act, CLIPMASK0);
 				}
 
 				if (fi.floorspace(s->sectnum)) x = 0;
@@ -1026,8 +1023,8 @@ void movefallers_d(void)
 				if ((sector[sect].floorz - s->z) < (16 << 8))
 				{
 					j = 1 + (krand() & 7);
-					for (x = 0; x < j; x++) RANDOMSCRAP(s, i);
-					deletesprite(i);
+					for (x = 0; x < j; x++) RANDOMSCRAP(act);
+					deletesprite(act);
 				}
 			}
 		}
