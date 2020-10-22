@@ -2860,8 +2860,8 @@ static int henstand(DDukeActor *actor)
 void moveactors_r(void)
 {
 	int x;
-	int j, sect, p;
-	spritetype *s;
+	int p;
+	Collision coll;
 	
 	dojaildoor();
 	moveminecart();
@@ -2872,27 +2872,24 @@ void moveactors_r(void)
 	}
 	rr_specialstats();
 
-	StatIterator it(STAT_ACTOR);
-	int i;
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_ACTOR);
+	while (auto act = it.Next())
 	{
+		auto s = &act->s;
 		bool deleteafterexecute = false;	// taking a cue here from RedNukem to not run scripts on deleted sprites.
-
-		s = &sprite[i];
-
-		sect = s->sectnum;
+		auto sect = s->sectnum;
 
 		if( s->xrepeat == 0 || sect < 0 || sect >= MAXSECTORS)
 		{
-			deletesprite(i);
+			deletesprite(act);
 			continue;
 		}
 
-		auto t = &hittype[i].temp_data[0];
+		auto t = &act->temp_data[0];
 
-		hittype[i].bposx = s->x;
-		hittype[i].bposy = s->y;
-		hittype[i].bposz = s->z;
+		act->bposx = s->x;
+		act->bposy = s->y;
+		act->bposz = s->z;
 
 
 		switch(s->picnum)
@@ -2900,48 +2897,48 @@ void moveactors_r(void)
 			case RESPAWNMARKERRED:
 			case RESPAWNMARKERYELLOW:
 			case RESPAWNMARKERGREEN:
-				if (!respawnmarker(&hittype[i], RESPAWNMARKERYELLOW, RESPAWNMARKERGREEN)) continue;
+				if (!respawnmarker(act, RESPAWNMARKERYELLOW, RESPAWNMARKERGREEN)) continue;
 				break;
 			case RAT:
-				if (!rat(&hittype[i], !isRRRA())) continue;
+				if (!rat(act, !isRRRA())) continue;
 				break;
 			case RRTILE3190:
 			case RRTILE3191:
 			case RRTILE3192:
-				if (!chickenplant) 
+				if (!chickenplant)
 				{
-					deletesprite(i);
+					deletesprite(act);
 					continue;
 				}
-				if (sector[sprite[i].sectnum].lotag == 903)
-					makeitfall(i);
-				j = fi.movesprite(i,
+				if (sector[sect].lotag == 903)
+					makeitfall(act);
+				movesprite_ex(act,
 					(s->xvel*sintable[(s->ang+512)&2047])>>14,
 					(s->xvel*sintable[s->ang&2047])>>14,
-					s->zvel,CLIPMASK0);
-				switch (sector[sprite[i].sectnum].lotag)
+					s->zvel,CLIPMASK0, coll);
+				switch (sector[sect].lotag)
 				{
 					case 901:
-						sprite[i].picnum = RRTILE3191;
+						s->picnum = RRTILE3191;
 						break;
 					case 902:
-						sprite[i].picnum = RRTILE3192;
+						s->picnum = RRTILE3192;
 						break;
 					case 903:
-						if (sprite[i].z >= sector[sprite[i].sectnum].floorz - (8<<8)) 
+						if (s->z >= sector[sect].floorz - (8<<8))
 						{
-							deletesprite(i);
+							deletesprite(act);
 							continue;
 						}
 						break;
 					case 904:
-						deletesprite(i);
+						deletesprite(act);
 						continue;
 						break;
 				}
-				if ((j & 32768) == 32768) 
+				if (coll.type > kHitSector)
 				{
-					deletesprite(i);
+					deletesprite(act);
 					continue;
 				}
 				break;
@@ -2950,55 +2947,55 @@ void moveactors_r(void)
 			case RRTILE3122:
 			case RRTILE3123:
 			case RRTILE3124:
-				if (!chickenplant) 
+				if (!chickenplant)
 				{
-					deletesprite(i);
+					deletesprite(act);
 					continue;
 				}
-				makeitfall(i);
-				j = fi.movesprite(i,
+				makeitfall(act);
+				movesprite_ex(act,
 					(s->xvel*(sintable[(s->ang+512)&2047]))>>14,
 					(s->xvel*(sintable[s->ang&2047]))>>14,
-					s->zvel,CLIPMASK0);
-				if ((j & 32768) == 32768) 
+					s->zvel,CLIPMASK0, coll);
+				if (coll.type > kHitSector)
 				{
-					deletesprite(i);
+					deletesprite(act);
 					continue;
 				}
-				if (sector[s->sectnum].lotag == 903)
+				if (sector[sect].lotag == 903)
 				{
-					if (sprite[i].z >= sector[sprite[i].sectnum].floorz - (4<<8))
+					if (s->z >= sector[sect].floorz - (4<<8))
 					{
-						deletesprite(i);
+						deletesprite(act);
 						continue;
 					}
 				}
-				else if (sector[s->sectnum].lotag == 904)
+				else if (sector[sect].lotag == 904)
 				{
-					deletesprite(i);
+					deletesprite(act);
 					continue;
 				}
 				break;
 
 			case RRTILE3132:
-				if (!chickenplant) 
+				if (!chickenplant)
 				{
-					deletesprite(i);
+					deletesprite(act);
 					continue;
 				}
-				makeitfall(i);
-				j = fi.movesprite(i,
+				makeitfall(act);
+				movesprite_ex(act,
 					(s->xvel*sintable[(s->ang+512)&2047])>>14,
 					(s->xvel*sintable[s->ang&2047])>>14,
-					s->zvel,CLIPMASK0);
-				if (s->z >= sector[s->sectnum].floorz - (8<<8))
+					s->zvel,CLIPMASK0, coll);
+				if (s->z >= sector[sect].floorz - (8<<8))
 				{
-					if (sector[s->sectnum].lotag == 1)
+					if (sector[sect].lotag == 1)
 					{
-						j = fi.spawn(i,WATERSPLASH2);
-						sprite[j].z = sector[sprite[j].sectnum].floorz;
+						auto j = spawn(act, WATERSPLASH2);
+						j->s.z = sector[j->s.sectnum].floorz;
 					}
-					deletesprite(i);
+					deletesprite(act);
 					continue;
 				}
 				break;
@@ -3006,12 +3003,12 @@ void moveactors_r(void)
 				if (s->xvel)
 				{
 					if(!S_CheckSoundPlaying(356))
-						S_PlayActorSound(356,i);
+						S_PlayActorSound(356,act);
 				}
 				else
 				{
-					fi.spawn(i,BOWLINGBALLSPRITE);
-					deletesprite(i);
+					spawn(act,BOWLINGBALLSPRITE);
+					deletesprite(act);
 					continue;
 				}
 				if (sector[s->sectnum].lotag == 900)
@@ -3023,7 +3020,7 @@ void moveactors_r(void)
 			case HENSTAND:
 			case HENSTAND+1:
 			{
-				int todo = henstand(&hittype[i]);
+				int todo = henstand(act);
 				if (todo == 2) deleteafterexecute = true;
 				if (todo == 1) continue;
 				break;
@@ -3031,10 +3028,10 @@ void moveactors_r(void)
 
 			case QUEBALL:
 			case STRIPEBALL:
-				if (!queball(&hittype[i], POCKET, QUEBALL, STRIPEBALL)) continue;
+				if (!queball(act, POCKET, QUEBALL, STRIPEBALL)) continue;
 				break;
 			case FORCESPHERE:
-				forcesphere(&hittype[i], FORCESPHERE);
+				forcesphere(act, FORCESPHERE);
 				continue;
 
 			case RECON:
@@ -3043,9 +3040,9 @@ void moveactors_r(void)
 			case UFO3:
 			case UFO4:
 			case UFO5:
-				recon(&hittype[i], EXPLOSION2, FIRELASER, -1, -1, 457, 8, [](DDukeActor* i) ->int
+				recon(act, EXPLOSION2, FIRELASER, -1, -1, 457, 8, [](DDukeActor* act) ->int
 					{
-						auto s = &i->s;
+						auto s = &act->s;
 						if (isRRRA() && ufospawnsminion)
 							return MINION;
 						else if (s->picnum == UFO1_RR)
@@ -3063,33 +3060,33 @@ void moveactors_r(void)
 				continue;
 
 			case OOZ:
-				ooz(&hittype[i]);
+				ooz(act);
 				continue;
 
 			case EMPTYBIKE:
 				if (!isRRRA()) break;
-				makeitfall(i);
-				getglobalz(i);
+				makeitfall(act);
+				getglobalz(act);
 				if (sector[sect].lotag == 1)
 				{
-					setsprite(i,s->x,s->y,hittype[i].floorz+(16<<8));
+					setsprite(act,s->x,s->y,act->floorz+(16<<8));
 				}
 				break;
 
 			case EMPTYBOAT:
 				if (!isRRRA()) break;
-				makeitfall(i);
-				getglobalz(i);
+				makeitfall(act);
+				getglobalz(act);
 				break;
 
 			case TRIPBOMBSPRITE:
 				if (!isRRRA() || (sector[sect].lotag != 1 && sector[sect].lotag != 160))
 					if (s->xvel)
 					{
-						j = fi.movesprite(i,
+						movesprite_ex(act,
 							(s->xvel*sintable[(s->ang+512)&2047])>>14,
 							(s->xvel*sintable[s->ang&2047])>>14,
-							s->zvel,CLIPMASK0);
+							s->zvel,CLIPMASK0, coll);
 						s->xvel--;
 					}
 				break;
@@ -3098,7 +3095,7 @@ void moveactors_r(void)
 				if (!isRRRA()) break;
 			case MORTER:
 			case HEAVYHBOMB:
-				heavyhbomb(&hittype[i]);
+				heavyhbomb(act);
 				continue;
 				
 			case REACTORBURNT:
@@ -3107,17 +3104,17 @@ void moveactors_r(void)
 
 			case REACTOR:
 			case REACTOR2:
-				reactor(&hittype[i], REACTOR, REACTOR2, REACTORBURNT, REACTOR2BURNT, REACTORSPARK, REACTOR2SPARK);
+				reactor(act, REACTOR, REACTOR2, REACTORBURNT, REACTOR2BURNT, REACTORSPARK, REACTOR2SPARK);
 				continue;
 
 			case CAMERA1:
-				camera(&hittype[i]);
+				camera(act);
 				continue;
 		}
 
 
 // #ifndef VOLOMEONE
-		if( ud.multimode < 2 && badguy(s) )
+		if( ud.multimode < 2 && badguy(act) )
 		{
 			if( actor_tog == 1)
 			{
@@ -3128,10 +3125,10 @@ void moveactors_r(void)
 		}
 // #endif
 
-		p = findplayer(s,&x);
+		p = findplayer(&act->s,&x);
 
-		execute(i,p,x);
-		if (deleteafterexecute) deletesprite(i);
+		execute(act,p,x);
+		if (deleteafterexecute) deletesprite(act);
 	}
 
 }

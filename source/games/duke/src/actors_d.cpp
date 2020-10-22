@@ -3058,36 +3058,34 @@ DETONATEB:
 
 void moveactors_d(void)
 {
-	int x, * t;
-	short j, sect, p;
-	spritetype* s;
-	unsigned short k;
+	int x;
+	int sect, p;
+	unsigned int k;
+	Collision coll;
 	
-	StatIterator it(STAT_ACTOR);
-	int i;
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_ACTOR);
+	while (auto act = it.Next())
 	{
-		s = &sprite[i];
-
+		auto s = &act->s;
 		sect = s->sectnum;
 
 		if (s->xrepeat == 0 || sect < 0 || sect >= MAXSECTORS)
 		{ 
-			deletesprite(i);
+			deletesprite(act);
 			continue;
 		}
 
-		t = &hittype[i].temp_data[0];
+		int *t = &act->temp_data[0];
 
-		hittype[i].bposx = s->x;
-		hittype[i].bposy = s->y;
-		hittype[i].bposz = s->z;
+		act->bposx = s->x;
+		act->bposy = s->y;
+		act->bposz = s->z;
 
 
 		switch (s->picnum)
 		{
 		case FLAMETHROWERFLAME:
-			if (isWorldTour()) flamethrowerflame(&hittype[i]);
+			if (isWorldTour()) flamethrowerflame(act);
 			continue;
 
 		case DUCK:
@@ -3104,22 +3102,20 @@ void moveactors_d(void)
 			}
 			else
 			{
-				j = fi.ifhitbyweapon(&hittype[i]);
+				int j = fi.ifhitbyweapon(act);
 				if (j >= 0)
 				{
 					s->cstat = 32 + 128;
 					k = 1;
 
-					StatIterator it(STAT_ACTOR);
-					int j;
-					while ((j = it.NextIndex()) >= 0)
+					DukeStatIterator it(STAT_ACTOR);
+					while (auto act2 = it.Next())
 					{
-						auto sj = &sprite[j];
-						if (sj->lotag == s->lotag &&
-							sj->picnum == s->picnum)
+						if (act2->s.lotag == s->lotag &&
+							act2->s.picnum == s->picnum)
 						{
-							if ((sj->hitag && !(sj->cstat & 32)) ||
-								(!sj->hitag && (sj->cstat & 32))
+							if ((act2->s.hitag && !(act2->s.cstat & 32)) ||
+								(!act2->s.hitag && (act2->s.cstat & 32))
 								)
 							{
 								k = 0;
@@ -3131,7 +3127,7 @@ void moveactors_d(void)
 					if (k == 1)
 					{
 						operateactivators(s->lotag, -1);
-						fi.operateforcefields(i, s->lotag);
+						fi.operateforcefields(act->GetIndex(), s->lotag);
 						operatemasterswitches(s->lotag);
 					}
 				}
@@ -3141,7 +3137,7 @@ void moveactors_d(void)
 		case RESPAWNMARKERRED:
 		case RESPAWNMARKERYELLOW:
 		case RESPAWNMARKERGREEN:
-			if (!respawnmarker(&hittype[i], RESPAWNMARKERYELLOW, RESPAWNMARKERGREEN)) continue;
+			if (!respawnmarker(act, RESPAWNMARKERYELLOW, RESPAWNMARKERGREEN)) continue;
 			break;
 
 		case HELECOPT:
@@ -3150,39 +3146,39 @@ void moveactors_d(void)
 			s->z += s->zvel;
 			t[0]++;
 
-			if (t[0] == 4) S_PlayActorSound(WAR_AMBIENCE2, i);
+			if (t[0] == 4) S_PlayActorSound(WAR_AMBIENCE2, act);
 
 			if (t[0] > (26 * 8))
 			{
 				S_PlaySound(RPG_EXPLODE);
-				for (j = 0; j < 32; j++) 
-						RANDOMSCRAP(s, i);
+				for (int j = 0; j < 32; j++) 
+						RANDOMSCRAP(act);
 				earthquaketime = 16;
-				deletesprite(i);
+				deletesprite(act);
 				continue;
 			} 
 			else if ((t[0] & 3) == 0)
-				fi.spawn(i, EXPLOSION2);
-			ssp(i, CLIPMASK0);
+				spawn(act, EXPLOSION2);
+			ssp(act, CLIPMASK0);
 			break;
 		case RAT:
-			if (!rat(&hittype[i], true)) continue;
+			if (!rat(act, true)) continue;
 			break;
 		case QUEBALL:
 		case STRIPEBALL:
-			if (!queball(&hittype[i], POCKET, QUEBALL, STRIPEBALL)) continue;
+			if (!queball(act, POCKET, QUEBALL, STRIPEBALL)) continue;
 			break;
 		case FORCESPHERE:
-			forcesphere(&hittype[i], FORCESPHERE);
+			forcesphere(act, FORCESPHERE);
 			continue;
 
 		case RECON:
-			recon(&hittype[i], EXPLOSION2, FIRELASER, RECO_ATTACK, RECO_PAIN, RECO_ROAM, 10, [](DDukeActor* i)->int { return PIGCOP; });
+			recon(act, EXPLOSION2, FIRELASER, RECO_ATTACK, RECO_PAIN, RECO_ROAM, 10, [](DDukeActor* i)->int { return PIGCOP; });
 			continue;
 
 		case OOZ:
 		case OOZ2:
-			ooz(&hittype[i]);
+			ooz(act);
 			continue;
 
 		case GREENSLIME:
@@ -3193,16 +3189,15 @@ void moveactors_d(void)
 		case GREENSLIME + 5:
 		case GREENSLIME + 6:
 		case GREENSLIME + 7:
-			greenslime(&hittype[i]);
+			greenslime(act);
 			continue;
 
 		case BOUNCEMINE:
 		case MORTER:
-			j = fi.spawn(i, FRAMEEFFECT1);
-			hittype[j].temp_data[0] = 3;
+			spawn(act, FRAMEEFFECT1)->temp_data[0] = 3;
 
 		case HEAVYHBOMB:
-			heavyhbomb(&hittype[i]);
+			heavyhbomb(act);
 			continue;
 
 		case REACTORBURNT:
@@ -3211,17 +3206,17 @@ void moveactors_d(void)
 
 		case REACTOR:
 		case REACTOR2:
-			reactor(&hittype[i], REACTOR, REACTOR2, REACTORBURNT, REACTOR2BURNT, REACTORSPARK, REACTOR2SPARK);
+			reactor(act, REACTOR, REACTOR2, REACTORBURNT, REACTOR2BURNT, REACTORSPARK, REACTOR2SPARK);
 			continue;
 
 		case CAMERA1:
-			camera(&hittype[i]);
+			camera(act);
 			continue;
 		}
 
 
 		// #ifndef VOLOMEONE
-		if (ud.multimode < 2 && badguy(s))
+		if (ud.multimode < 2 && badguy(act))
 		{
 			if (actor_tog == 1)
 			{
@@ -3232,9 +3227,9 @@ void moveactors_d(void)
 		}
 		// #endif
 
-		p = findplayer(s, &x);
+		p = findplayer(&act->s, &x);
 
-		execute(i, p, x);
+		execute(act, p, x);
 	}
 
 }
