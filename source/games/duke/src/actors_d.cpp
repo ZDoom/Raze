@@ -2735,19 +2735,19 @@ static void greenslime(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-static void flamethrowerflame(int i)
+static void flamethrowerflame(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	int sect = s->sectnum;
-	int x, j;
-	int p = findplayer(s, &x);
-	execute(i, p, x);
+	int x;
+	int p = findplayer(&actor->s, &x);
+	execute(actor, p, x);
 	t[0]++;
 	if (sector[sect].lotag == 2)
 	{
-		sprite[fi.spawn(i, EXPLOSION2)].shade = 127;
-		deletesprite(i);
+		spawn(actor, EXPLOSION2)->s.shade = 127;
+		deletesprite(actor);
 		return;
 	}
 
@@ -2757,7 +2757,7 @@ static void flamethrowerflame(int i)
 	int xvel = s->xvel;
 	int zvel = s->zvel;
 
-	getglobalz(i);
+	getglobalz(actor);
 
 	int ds = t[0] / 6;
 	if (s->xrepeat < 80)
@@ -2767,54 +2767,53 @@ static void flamethrowerflame(int i)
 		t[3] = krand() % 10;
 	if (t[0] > 30) 
 	{
-		sprite[fi.spawn(i, EXPLOSION2)].shade = 127;
-		deletesprite(i);
+		spawn(actor, EXPLOSION2)->s.shade = 127;
+		deletesprite(actor);
 		return;
 	}
 
-	j = fi.movesprite(i, (xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
-		(xvel * (sintable[s->ang & 2047])) >> 14, s->zvel, CLIPMASK1);
+	Collision coll;
+	movesprite_ex(actor, (xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
+		(xvel * (sintable[s->ang & 2047])) >> 14, s->zvel, CLIPMASK1, coll);
 
 	if (s->sectnum < 0)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 
-	if ((j & kHitTypeMask) != kHitSprite)
+	if (coll.type != kHitSprite)
 	{
-		if (s->z < hittype[i].ceilingz)
+		if (s->z < actor->ceilingz)
 		{
-			j = kHitSector | (s->sectnum);
+			coll.setSector(s->sectnum);
 			s->zvel = -1;
 		}
-		else if ((s->z > hittype[i].floorz && sector[s->sectnum].lotag != 1)
-			|| (s->z > hittype[i].floorz + (16 << 8) && sector[s->sectnum].lotag == 1))
+		else if ((s->z > actor->floorz && sector[s->sectnum].lotag != 1)
+			|| (s->z > actor->floorz + (16 << 8) && sector[s->sectnum].lotag == 1))
 		{
-			j = kHitSector | (s->sectnum);
+			coll.setSector(s->sectnum);
 			if (sector[s->sectnum].lotag != 1)
 				s->zvel = 1;
 		}
 	}
 
-	if (j != 0) {
+	if (coll.type != 0) {
 		s->xvel = s->yvel = s->zvel = 0;
-		if ((j & kHitTypeMask) == kHitSprite)
+		if (coll.type == kHitSprite)
 		{
-			j &= (MAXSPRITES - 1);
-			fi.checkhitsprite((short)j, i);
-			if (sprite[j].picnum == APLAYER)
-				S_PlayActorSound(j, PISTOL_BODYHIT);
+			fi.checkhitsprite(coll.actor->GetIndex(), actor->GetIndex());
+			if (coll.actor->s.picnum == APLAYER)
+				S_PlayActorSound(actor->GetIndex(), PISTOL_BODYHIT);
 		}
-		else if ((j & kHitTypeMask) == kHitWall)
+		else if (coll.type == kHitWall)
 		{
-			j &= (MAXWALLS - 1);
-			setsprite(i, dax, day, daz);
-			fi.checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
+			setsprite(actor, dax, day, daz);
+			fi.checkhitwall(actor->GetIndex(), coll.index, s->x, s->y, s->z, s->picnum);
 		}
-		else if ((j & kHitTypeMask) == kHitSector)
+		else if (coll.type == kHitSector)
 		{
-			setsprite(i, dax, day, daz);
+			setsprite(actor, dax, day, daz);
 			if (s->zvel < 0)
 				fi.checkhitceiling(s->sectnum);
 		}
@@ -2822,12 +2821,12 @@ static void flamethrowerflame(int i)
 		if (s->xrepeat >= 10)
 		{
 			x = s->extra;
-			fi.hitradius(&hittype[i], rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(actor, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 		}
 		else
 		{
 			x = s->extra + (global_random & 3);
-			fi.hitradius(&hittype[i], (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(actor, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
 		}
 	}
 }
@@ -3088,7 +3087,7 @@ void moveactors_d(void)
 		switch (s->picnum)
 		{
 		case FLAMETHROWERFLAME:
-			if (isWorldTour()) flamethrowerflame(i);
+			if (isWorldTour()) flamethrowerflame(&hittype[i]);
 			continue;
 
 		case DUCK:
