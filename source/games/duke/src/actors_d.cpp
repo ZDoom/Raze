@@ -3061,7 +3061,6 @@ void moveactors_d(void)
 	int x;
 	int sect, p;
 	unsigned int k;
-	Collision coll;
 	
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto act = it.Next())
@@ -3240,27 +3239,26 @@ void moveactors_d(void)
 //
 //---------------------------------------------------------------------------
 
-static void fireflyflyingeffect(int i)
+static void fireflyflyingeffect(DDukeActor *actor)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	int x, p = findplayer(s, &x);
-	execute(i, p, x);
+	auto t = &actor->temp_data[0];
+	int x, p = findplayer(&actor->s, &x);
+	execute(actor, p, x);
 
-	auto owner = &sprite[s->owner];
-	if (owner->picnum != FIREFLY) 
+	auto Owner = actor->GetOwner();
+	if (!Owner || Owner->s.picnum != FIREFLY) 
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 
-	if (owner->xrepeat >= 24 || owner->pal == 1)
-		s->cstat |= 0x8000;
+	if (Owner->s.xrepeat >= 24 || Owner->s.pal == 1)
+		actor->s.cstat |= 0x8000;
 	else
-		s->cstat &= ~0x8000;
+		actor->s.cstat &= ~0x8000;
 
-	double dx = owner->x - sprite[ps[p].i].x;
-	double dy = owner->y - sprite[ps[p].i].y;
+	double dx = Owner->s.x - ps[p].GetActor()->s.x;
+	double dy = Owner->s.y - ps[p].GetActor()->s.y;
 	double dist = sqrt(dx * dx + dy * dy);
 	if (dist != 0.0) 
 	{
@@ -3268,13 +3266,13 @@ static void fireflyflyingeffect(int i)
 		dy /= dist;
 	}
 
-	s->x = (int) (owner->x - (dx * -10.0));
-	s->y = (int) (owner->y - (dy * -10.0));
-	s->z = owner->z + 2048;
+	actor->s.x = (int) (Owner->s.x - (dx * -10.0));
+	actor->s.y = (int) (Owner->s.y - (dy * -10.0));
+	actor->s.z = Owner->s.z + 2048;
 
-	if (owner->extra <= 0) 
+	if (Owner->s.extra <= 0) 
 	{
-		deletesprite(i);
+		deletesprite(actor);
 	}
 
 }
@@ -3287,32 +3285,29 @@ static void fireflyflyingeffect(int i)
 void moveexplosions_d(void)  // STATNUM 5
 {
 	int sect, p;
-	int x, * t;
-	spritetype* s;
-
+	int x;
 	
-	StatIterator it(STAT_MISC);
-	int i;
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_MISC);
+	while (auto act = it.Next())
 	{
-		t = &hittype[i].temp_data[0];
-		s = &sprite[i];
+		auto s = &act->s;
+		int* t = &act->temp_data[0];
 		sect = s->sectnum;
 
 		if (sect < 0 || s->xrepeat == 0) 
 		{
-			deletesprite(i);
+			deletesprite(act);
 			continue;
 		}
 
-		hittype[i].bposx = s->x;
-		hittype[i].bposy = s->y;
-		hittype[i].bposz = s->z;
+		act->bposx = s->x;
+		act->bposy = s->y;
+		act->bposz = s->z;
 
 		switch (s->picnum)
 		{
 		case FIREFLYFLYINGEFFECT:
-			if (isWorldTour()) fireflyflyingeffect(i);
+			if (isWorldTour()) fireflyflyingeffect(act);
 			continue;
 			
 		case NEON1:
@@ -3345,35 +3340,36 @@ void moveexplosions_d(void)  // STATNUM 5
 			if (t[0])
 			{
 				t[0]++;
+				auto Owner = act->GetOwner();
 				if (t[0] == 8) s->picnum = NUKEBUTTON + 1;
-				else if (t[0] == 16)
+				else if (t[0] == 16 && Owner)
 				{
 					s->picnum = NUKEBUTTON + 2;
-					ps[sprite[s->owner].yvel].fist_incs = 1;
+					ps[Owner->PlayerIndex()].fist_incs = 1;
 				}
-				if (ps[sprite[s->owner].yvel].fist_incs == 26)
+				if (Owner && ps[Owner->PlayerIndex()].fist_incs == 26)
 					s->picnum = NUKEBUTTON + 3;
 			}
 			continue;
 
 		case FORCESPHERE:
-			forcesphereexplode(&hittype[i]);
+			forcesphereexplode(act);
 			continue;
 		case WATERSPLASH2:
-			watersplash2(&hittype[i]);
+			watersplash2(act);
 			continue;
 
 		case FRAMEEFFECT1:
-			frameeffect1(&hittype[i]);
+			frameeffect1(act);
 			continue;
 		case INNERJAW:
 		case INNERJAW + 1:
 
-			p = findplayer(s, &x);
+			p = findplayer(&act->s, &x);
 			if (x < 512)
 			{
 				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
-				sprite[ps[p].i].extra -= 4;
+				ps[p].GetActor()->s.extra -= 4;
 			}
 
 		case FIRELASER:
@@ -3381,23 +3377,22 @@ void moveexplosions_d(void)  // STATNUM 5
 				s->extra = 999;
 			else
 			{
-				deletesprite(i);
+				deletesprite(act);
 				continue;
 			}
 			break;
 		case TONGUE:
-			deletesprite(i);
+			deletesprite(act);
 			continue;
 		case MONEY + 1:
 		case MAIL + 1:
 		case PAPER + 1:
-			hittype[i].floorz = s->z = getflorzofslope(s->sectnum, s->x, s->y);
+			act->floorz = s->z = getflorzofslope(s->sectnum, s->x, s->y);
 			break;
 		case MONEY:
 		case MAIL:
 		case PAPER:
-			money(&hittype[i], BLOODPOOL);
-
+			money(act, BLOODPOOL);
 			break;
 
 		case JIBS1:
@@ -3415,12 +3410,12 @@ void moveexplosions_d(void)  // STATNUM 5
 		case DUKETORSO:
 		case DUKEGUN:
 		case DUKELEG:
-			jibs(&hittype[i], JIBS6, true, false, false, s->picnum == DUKELEG || s->picnum == DUKETORSO || s->picnum == DUKEGUN, false);
+			jibs(act, JIBS6, true, false, false, s->picnum == DUKELEG || s->picnum == DUKETORSO || s->picnum == DUKEGUN, false);
 
 			continue;
 		case BLOODPOOL:
 		case PUKE:
-			bloodpool(&hittype[i], s->picnum == PUKE, TIRE);
+			bloodpool(act, s->picnum == PUKE, TIRE);
 
 			continue;
 
@@ -3446,25 +3441,25 @@ void moveexplosions_d(void)  // STATNUM 5
 		case FORCERIPPLE:
 		case TRANSPORTERSTAR:
 		case TRANSPORTERBEAM:
-			p = findplayer(s, &x);
-			execute(i, p, x);
+			p = findplayer(&act->s, &x);
+			execute(act, p, x);
 			continue;
 
 		case SHELL:
 		case SHOTGUNSHELL:
-			shell(&hittype[i], (sector[sect].floorz + (24 << 8)) < s->z);
+			shell(act, (sector[sect].floorz + (24 << 8)) < s->z);
 			continue;
 
 		case GLASSPIECES:
 		case GLASSPIECES + 1:
 		case GLASSPIECES + 2:
-			glasspieces(&hittype[i]);
+			glasspieces(act);
 			continue;
 		}
 
 		if (s->picnum >= SCRAP6 && s->picnum <= SCRAP5 + 3)
 		{
-			scrap(&hittype[i], SCRAP1, SCRAP6);
+			scrap(act, SCRAP1, SCRAP6);
 		}
 	}
 }

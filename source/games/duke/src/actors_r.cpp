@@ -3143,26 +3143,24 @@ void moveexplosions_r(void)  // STATNUM 5
 {
 	int sect, p;
 	int x, * t;
-	spritetype* s;
 
 	
-	StatIterator it(STAT_MISC);
-	int i;
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_MISC);
+	while (auto act = it.Next())
 	{
-		t = &hittype[i].temp_data[0];
-		s = &sprite[i];
+		auto s = &act->s;
+		t = &act->temp_data[0];
 		sect = s->sectnum;
 
 		if (sect < 0 || s->xrepeat == 0) 
 		{
-			deletesprite(i);
+			deletesprite(act);
 			continue;
 		}
 
-		hittype[i].bposx = s->x;
-		hittype[i].bposy = s->y;
-		hittype[i].bposz = s->z;
+		act->bposx = s->x;
+		act->bposy = s->y;
+		act->bposz = s->z;
 
 		switch (s->picnum)
 		{
@@ -3170,7 +3168,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			if (sector[s->sectnum].lotag == 800)
 				if (s->z >= sector[s->sectnum].floorz - (8 << 8))
 				{
-					deletesprite(i);
+					deletesprite(act);
 					continue;
 				}
 			break;
@@ -3198,7 +3196,7 @@ void moveexplosions_r(void)  // STATNUM 5
 
 
 		case FORCESPHERE:
-			forcesphereexplode(&hittype[i]);
+			forcesphereexplode(act);
 			continue;
 
 		case MUD:
@@ -3208,11 +3206,11 @@ void moveexplosions_r(void)  // STATNUM 5
 			{
 				if (sector[sect].floorpicnum != 3073)
 				{
-					deletesprite(i);
+					deletesprite(act);
 					continue;
 				}
 				if (S_CheckSoundPlaying(22))
-					S_PlayActorSound(22, i);
+					S_PlayActorSound(22, act);
 			}
 			if (t[0] == 3)
 			{
@@ -3220,24 +3218,24 @@ void moveexplosions_r(void)  // STATNUM 5
 				t[1]++;
 			}
 			if (t[1] == 5)
-				deletesprite(i);
+				deletesprite(act);
 			continue;
 
 		case WATERSPLASH2:
-			watersplash2(&hittype[i]);
+			watersplash2(act);
 			continue;
 
 		case FRAMEEFFECT1:
-			frameeffect1(&hittype[i]);
+			frameeffect1(act);
 			continue;
 		case INNERJAW:
 		case INNERJAW + 1:
 
-			p = findplayer(s, &x);
+			p = findplayer(&act->s, &x);
 			if (x < 512)
 			{
 				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
-				sprite[ps[p].i].extra -= 4;
+				ps[p].GetActor()->s.extra -= 4;
 			}
 
 		case COOLEXPLOSION1:
@@ -3248,28 +3246,28 @@ void moveexplosions_r(void)  // STATNUM 5
 				s->extra = 999;
 			else
 			{
-				deletesprite(i);
+				deletesprite(act);
 				continue;
 			}
 			break;
 		case TONGUE:
-			deletesprite(i);
+			deletesprite(act);
 			continue;
-		case MONEY + 1:
-			hittype[i].floorz = s->z = getflorzofslope(s->sectnum, s->x, s->y);
+		case FEATHER + 1: // feather
+			act->floorz = s->z = getflorzofslope(s->sectnum, s->x, s->y);
 			if (sector[s->sectnum].lotag == 800)
 			{
-				deletesprite(i);
+				deletesprite(act);
 				continue;
 			}
 			break;
-		case MONEY:
-			if (!money(&hittype[i], BLOODPOOL)) continue;
+		case FEATHER:
+			if (!money(act, BLOODPOOL)) continue;
 
 			if (sector[s->sectnum].lotag == 800)
 				if (s->z >= sector[s->sectnum].floorz - (8 << 8))
 				{
-					deletesprite(i);
+					deletesprite(act);
 					continue;
 				}
 
@@ -3317,25 +3315,25 @@ void moveexplosions_r(void)  // STATNUM 5
 		case DUKETORSO:
 		case DUKEGUN:
 		case DUKELEG:
-			if (!jibs(&hittype[i], JIBS6, false, true, true, s->picnum == DUKELEG || s->picnum == DUKETORSO || s->picnum == DUKEGUN,
+			if (!jibs(act, JIBS6, false, true, true, s->picnum == DUKELEG || s->picnum == DUKETORSO || s->picnum == DUKEGUN,
 				isRRRA() && (s->picnum == RRTILE2465 || s->picnum == RRTILE2560))) continue;
 			
 			if (sector[s->sectnum].lotag == 800)
 				if (s->z >= sector[s->sectnum].floorz - (8 << 8))
 				{
-					deletesprite(i);
+					deletesprite(act);
 					continue;
 				}
 
 			continue;
 
 		case BLOODPOOL:
-			if (!bloodpool(&hittype[i], false, TIRE)) continue;
+			if (!bloodpool(act, false, TIRE)) continue;
 
 			if (sector[s->sectnum].lotag == 800)
 				if (s->z >= sector[s->sectnum].floorz - (8 << 8))
 				{
-					deletesprite(i);
+					deletesprite(act);
 				}
 			continue;
 
@@ -3348,26 +3346,26 @@ void moveexplosions_r(void)  // STATNUM 5
 		case FORCERIPPLE:
 		case TRANSPORTERSTAR:
 		case TRANSPORTERBEAM:
-			p = findplayer(s, &x);
-			execute(i, p, x);
+			p = findplayer(&act->s, &x);
+			execute(act, p, x);
 			continue;
 
 		case SHELL:
 		case SHOTGUNSHELL:
-			shell(&hittype[i], false);
+			shell(act, false);
 			continue;
 
 		case GLASSPIECES:
 		case GLASSPIECES + 1:
 		case GLASSPIECES + 2:
 		case POPCORN:
-			glasspieces(&hittype[i]);
+			glasspieces(act);
 			continue;
 		}
 
 		if (s->picnum >= SCRAP6 && s->picnum <= SCRAP5 + 3)
 		{
-			scrap(&hittype[i], SCRAP1, SCRAP6);
+			scrap(act, SCRAP1, SCRAP6);
 		}
 	}
 }
