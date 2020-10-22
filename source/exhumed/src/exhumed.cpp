@@ -402,13 +402,21 @@ void GameInterface::Ticker()
         int weap2 = localInput.getNewWeapon();
         if (weap2 == WeaponSel_Next)
         {
-            auto newWeap = currWeap == 6 ? 1 : currWeap + 2;
-            localInput.setNewWeapon(newWeap);
+            auto newWeap = currWeap == 6 ? 0 : currWeap + 1;
+            while (!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)))
+            {
+                newWeap++;
+            }
+            localInput.setNewWeapon(newWeap + 1);
         }
         else if (weap2 == WeaponSel_Prev)
         {
-            auto newWeap = currWeap == 0 ? 7 : currWeap;
-            localInput.setNewWeapon(newWeap);
+            auto newWeap = currWeap == 0 ? 6 : currWeap - 1;
+            while (!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)))
+            {
+                newWeap--;
+            }
+            localInput.setNewWeapon(newWeap + 1);
         }
         else if (weap2 == WeaponSel_Alt)
         {
