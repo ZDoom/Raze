@@ -3470,6 +3470,155 @@ void moveexplosions_d(void)  // STATNUM 5
 //
 //---------------------------------------------------------------------------
 
+void handle_se06_d(DDukeActor* actor)
+{
+	auto s = &actor->s;
+	auto t = &actor->temp_data[0];
+
+	auto sc = &sector[s->sectnum];
+	int st = s->lotag;
+	int sh = s->hitag;
+
+	int k = sc->extra;
+
+	if (t[4] > 0)
+	{
+		t[4]--;
+		if (t[4] >= (k - (k >> 3)))
+			s->xvel -= (k >> 5);
+		if (t[4] > ((k >> 1) - 1) && t[4] < (k - (k >> 3)))
+			s->xvel = 0;
+		if (t[4] < (k >> 1))
+			s->xvel += (k >> 5);
+		if (t[4] < ((k >> 1) - (k >> 3)))
+		{
+			t[4] = 0;
+			s->xvel = k;
+		}
+	}
+	else s->xvel = k;
+
+	DukeStatIterator it(STAT_EFFECTOR);
+	while (auto act2 = it.Next())
+	{
+		if ((act2->s.lotag == 14) && (sh == act2->s.hitag) && (act2->temp_data[0] == t[0]))
+		{
+			act2->s.xvel = s->xvel;
+			//if( t[4] == 1 )
+			{
+				if (act2->temp_data[5] == 0)
+					act2->temp_data[5] = dist(act2, actor);
+				int x = sgn(dist(act2, actor) - act2->temp_data[5]);
+				if (act2->s.extra)
+					x = -x;
+				s->xvel += x;
+			}
+			act2->temp_data[4] = t[4];
+		}
+	}
+	handle_se14(actor, true, RPG, JIBS6);
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void handle_se28(DDukeActor* actor)
+{
+	auto s = &actor->s;
+	auto sc = &sector[s->sectnum];
+	int st = s->lotag;
+	int sh = s->hitag;
+	int* t = &actor->temp_data[0];
+
+	if (t[5] > 0)
+	{
+		t[5]--;
+		return;
+	}
+
+	if (t[0] == 0)
+	{
+		int x;
+		int p = findplayer(&actor->s, &x);
+		if (x > 15500)
+			return;
+		t[0] = 1;
+		t[1] = 64 + (krand() & 511);
+		t[2] = 0;
+	}
+	else
+	{
+		t[2]++;
+		if (t[2] > t[1])
+		{
+			t[0] = 0;
+			ps[screenpeek].visibility = ud.const_visibility;
+			return;
+		}
+		else if (t[2] == (t[1] >> 1))
+			S_PlayActorSound(THUNDER, actor);
+		else if (t[2] == (t[1] >> 3))
+			S_PlayActorSound(LIGHTNING_SLAP, actor);
+		else if (t[2] == (t[1] >> 2))
+		{
+			DukeStatIterator it(STAT_DEFAULT);
+			while (auto act2 = it.Next())
+			{
+				if (act2->s.picnum == NATURALLIGHTNING && act2->s.hitag == s->hitag)
+					act2->s.cstat |= 32768;
+			}
+		}
+		else if (t[2] > (t[1] >> 3) && t[2] < (t[1] >> 2))
+		{
+			int j = !!cansee(s->x, s->y, s->z, s->sectnum, ps[screenpeek].posx, ps[screenpeek].posy, ps[screenpeek].posz, ps[screenpeek].cursectnum);
+
+			if (rnd(192) && (t[2] & 1))
+			{
+				if (j) ps[screenpeek].visibility = 0;
+			}
+			else if (j)	ps[screenpeek].visibility = ud.const_visibility;
+
+			DukeStatIterator it(STAT_DEFAULT);
+			while (auto act2 = it.Next())
+			{
+				if (act2->s.picnum == NATURALLIGHTNING && act2->s.hitag == s->hitag)
+				{
+					if (rnd(32) && (t[2] & 1))
+					{
+						act2->s.cstat &= 32767;
+						fi.spawn(j, SMALLSMOKE);
+
+						int x;
+						int p = findplayer(&actor->s, &x);
+						auto psa = ps[p].GetActor();
+						x = ldist(psa, act2);
+						if (x < 768)
+						{
+							if (S_CheckSoundPlaying(psa->GetIndex(), DUKE_LONGTERM_PAIN) < 1)
+								S_PlayActorSound(DUKE_LONGTERM_PAIN, psa);
+							S_PlayActorSound(SHORT_CIRCUIT, psa);
+							psa->s.extra -= 8 + (krand() & 7);
+							SetPlayerPal(&ps[p], PalEntry(32, 16, 0, 0));
+						}
+						return;
+					}
+					else act2->s.cstat |= 32768;
+				}
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void moveeffectors_d(void)   //STATNUM 3
 {
 	int q = 0, l, x, st, j, * t;
@@ -3505,48 +3654,9 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 			
 		case SE_6_SUBWAY:
-		{
-			k = sc->extra;
+			handle_se06_d(&hittype[i]);
+			break;
 
-			if (t[4] > 0)
-			{
-				t[4]--;
-				if (t[4] >= (k - (k >> 3)))
-					s->xvel -= (k >> 5);
-				if (t[4] > ((k >> 1) - 1) && t[4] < (k - (k >> 3)))
-					s->xvel = 0;
-				if (t[4] < (k >> 1))
-					s->xvel += (k >> 5);
-				if (t[4] < ((k >> 1) - (k >> 3)))
-				{
-					t[4] = 0;
-					s->xvel = k;
-				}
-			}
-			else s->xvel = k;
-
-			StatIterator it(STAT_EFFECTOR);
-			int j;
-			while ((j = it.NextIndex()) >= 0)
-			{
-				auto sj = &sprite[j];
-				if ((sj->lotag == 14) && (sh == sj->hitag) && (hittype[j].temp_data[0] == t[0]))
-				{
-					sj->xvel = s->xvel;
-					//						if( t[4] == 1 )
-					{
-						if (hittype[j].temp_data[5] == 0)
-							hittype[j].temp_data[5] = dist(sj, s);
-						x = sgn(dist(sj, s) - hittype[j].temp_data[5]);
-						if (sj->extra)
-							x = -x;
-						s->xvel += x;
-					}
-					hittype[j].temp_data[4] = t[4];
-				}
-			}
-			x = 0;
-		}
 		case SE_14_SUBWAY_CAR:
 			handle_se14(&hittype[i], true, RPG, JIBS6);
 			break;
@@ -3655,86 +3765,9 @@ void moveeffectors_d(void)   //STATNUM 3
 			handle_se27(&hittype[i]);
 			break;
 		case 28:
-			if (t[5] > 0)
-			{
-				t[5]--;
-				break;
-			}
-
-			if (hittype[i].temp_data[0] == 0)
-			{
-				p = findplayer(s, &x);
-				if (x > 15500)
-					break;
-				hittype[i].temp_data[0] = 1;
-				hittype[i].temp_data[1] = 64 + (krand() & 511);
-				hittype[i].temp_data[2] = 0;
-			}
-			else
-			{
-				hittype[i].temp_data[2]++;
-				if (hittype[i].temp_data[2] > hittype[i].temp_data[1])
-				{
-					hittype[i].temp_data[0] = 0;
-					ps[screenpeek].visibility = ud.const_visibility;
-					break;
-				}
-				else if (hittype[i].temp_data[2] == (hittype[i].temp_data[1] >> 1))
-					S_PlayActorSound(THUNDER, i);
-				else if (hittype[i].temp_data[2] == (hittype[i].temp_data[1] >> 3))
-					S_PlayActorSound(LIGHTNING_SLAP, i);
-				else if (hittype[i].temp_data[2] == (hittype[i].temp_data[1] >> 2))
-				{
-					StatIterator it(STAT_DEFAULT);
-					while ((j = it.NextIndex()) >= 0)
-					{
-						if (sprite[j].picnum == NATURALLIGHTNING && sprite[j].hitag == s->hitag)
-							sprite[j].cstat |= 32768;
-					}
-				}
-				else if (hittype[i].temp_data[2] > (hittype[i].temp_data[1] >> 3) && hittype[i].temp_data[2] < (hittype[i].temp_data[1] >> 2))
-				{
-					if (cansee(s->x, s->y, s->z, s->sectnum, ps[screenpeek].posx, ps[screenpeek].posy, ps[screenpeek].posz, ps[screenpeek].cursectnum))
-						j = 1;
-					else j = 0;
-
-					if (rnd(192) && (hittype[i].temp_data[2] & 1))
-					{
-						if (j)
-							ps[screenpeek].visibility = 0;
-					}
-					else if (j)
-						ps[screenpeek].visibility = ud.const_visibility;
-
-					StatIterator it(STAT_DEFAULT);
-					while ((j = it.NextIndex()) >= 0)
-					{
-						auto sj = &sprite[j];
-						if (sj->picnum == NATURALLIGHTNING && sj->hitag == s->hitag)
-						{
-							if (rnd(32) && (hittype[i].temp_data[2] & 1))
-							{
-								sj->cstat &= 32767;
-								fi.spawn(j, SMALLSMOKE);
-
-								p = findplayer(s, &x);
-								x = ldist(&sprite[ps[p].i], sj);
-								if (x < 768)
-								{
-									if (S_CheckSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN) < 1)
-										S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].i);
-									S_PlayActorSound(SHORT_CIRCUIT, ps[p].i);
-									sprite[ps[p].i].extra -= 8 + (krand() & 7);
-									SetPlayerPal(&ps[p], PalEntry(32, 16, 0, 0));
-								}
-								break;
-							}
-							else sj->cstat |= 32768;
-						}
-					}
-				}
-			}
+			handle_se28(&hittype[i]);
 			break;
+
 		case 29:
 			s->hitag += 64;
 			l = mulscale12((int)s->yvel, sintable[s->hitag & 2047]);

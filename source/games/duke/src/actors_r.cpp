@@ -3376,11 +3376,120 @@ void moveexplosions_r(void)  // STATNUM 5
 //
 //---------------------------------------------------------------------------
 
+void handle_se06_r(DDukeActor *actor)
+{
+	auto s = &actor->s;
+	auto t = &actor->temp_data[0];
+
+	auto sc = &sector[s->sectnum];
+	int st = s->lotag;
+	int sh = s->hitag;
+
+	int k = sc->extra;
+
+	if (t[4] > 0)
+	{
+		t[4]--;
+		if (t[4] >= (k - (k >> 3)))
+			s->xvel -= (k >> 5);
+		if (t[4] > ((k >> 1) - 1) && t[4] < (k - (k >> 3)))
+			s->xvel = 0;
+		if (t[4] < (k >> 1))
+			s->xvel += (k >> 5);
+		if (t[4] < ((k >> 1) - (k >> 3)))
+		{
+			t[4] = 0;
+			s->xvel = k;
+			if ((!isRRRA() || lastlevel) && hulkspawn)
+			{
+				hulkspawn--;
+				auto ns = spawn(actor, HULK);
+				ns->s.z = sector[ns->s.sectnum].ceilingz;
+				ns->s.pal = 33;
+				if (!hulkspawn)
+				{
+					ns = EGS(s->sectnum, s->x, s->y, sector[s->sectnum].ceilingz + 119428, 3677, -8, 16, 16, 0, 0, 0, actor, 5);
+					ns->s.cstat = 514;
+					ns->s.pal = 7;
+					ns->s.xrepeat = 80;
+					ns->s.yrepeat = 255;
+					ns = spawn(actor, 296);
+					ns->s.cstat = 0;
+					ns->s.cstat |= 32768;
+					ns->s.z = sector[s->sectnum].floorz - 6144;
+					deletesprite(actor);
+					return;
+				}
+			}
+		}
+	}
+	else
+	{
+		s->xvel = k;
+		DukeSectIterator it(s->sectnum);
+		while (auto a2 = it.Next())
+		{
+			if (a2->s.picnum == UFOBEAM && ufospawn && ++ufocnt == 64)
+			{
+				int pn;
+				ufocnt = 0;
+				ufospawn--;
+				if (!isRRRA())
+				{
+					switch (krand() & 3)
+					{
+					default:
+					case 0:
+						pn = UFO1_RR;
+						break;
+					case 1:
+						pn = UFO2;
+						break;
+					case 2:
+						pn = UFO3;
+						break;
+					case 3:
+						pn = UFO4;
+						break;
+					}
+				}
+				else pn = UFO1_RRRA;
+				auto ns = spawn(actor, pn);
+				ns->s.z = sector[ns->s.sectnum].ceilingz;
+			}
+		}
+	}
+
+	DukeStatIterator it(STAT_EFFECTOR);
+	while (auto act2 = it.Next())
+	{
+		if ((act2->s.lotag == 14) && (sh == act2->s.hitag) && (act2->temp_data[0] == t[0]))
+		{
+			act2->s.xvel = s->xvel;
+			//						if( t[4] == 1 )
+			{
+				if (act2->temp_data[5] == 0)
+					act2->temp_data[5] = dist(act2, actor);
+				int x = sgn(dist(act2, actor) - act2->temp_data[5]);
+				if (act2->s.extra) x = -x;
+				s->xvel += x;
+			}
+			act2->temp_data[4] = t[4];
+		}
+	}
+	handle_se14(actor, false, RPG, JIBS6);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void moveeffectors_r(void)   //STATNUM 3
 {
-	int l, x, st, j, * t;
-	int sh, ns, pn;
-	short k;
+	int l, st, * t;
+	int sh;
 	spritetype* s;
 	sectortype* sc;
 	walltype* wal;
@@ -3411,105 +3520,7 @@ void moveeffectors_r(void)   //STATNUM 3
 			break;
 			
 		case SE_6_SUBWAY:
-		{
-			k = sc->extra;
-
-			if (t[4] > 0)
-			{
-				t[4]--;
-				if (t[4] >= (k - (k >> 3)))
-					s->xvel -= (k >> 5);
-				if (t[4] > ((k >> 1) - 1) && t[4] < (k - (k >> 3)))
-					s->xvel = 0;
-				if (t[4] < (k >> 1))
-					s->xvel += (k >> 5);
-				if (t[4] < ((k >> 1) - (k >> 3)))
-				{
-					t[4] = 0;
-					s->xvel = k;
-					if ((!isRRRA() || lastlevel) && hulkspawn)
-					{
-						hulkspawn--;
-						ns = fi.spawn(i, HULK);
-						sprite[ns].z = sector[sprite[ns].sectnum].ceilingz;
-						sprite[ns].pal = 33;
-						if (!hulkspawn)
-						{
-							ns = EGS(s->sectnum, s->x, s->y, sector[s->sectnum].ceilingz + 119428, 3677, -8, 16, 16, 0, 0, 0, i, 5);
-							sprite[ns].cstat = 514;
-							sprite[ns].pal = 7;
-							sprite[ns].xrepeat = 80;
-							sprite[ns].yrepeat = 255;
-							ns = fi.spawn(i, 296);
-							sprite[ns].cstat = 0;
-							sprite[ns].cstat |= 32768;
-							sprite[ns].z = sector[s->sectnum].floorz - 6144;
-							deletesprite(i);
-							break;
-						}
-					}
-				}
-			}
-			else
-			{
-				s->xvel = k;
-				SectIterator it(s->sectnum);
-				while ((j = it.NextIndex()) >= 0)
-				{
-					if (sprite[j].picnum == UFOBEAM)
-						if (ufospawn)
-							if (++ufocnt == 64)
-							{
-								ufocnt = 0;
-								ufospawn--;
-								if (!isRRRA())
-								{
-									switch (krand() & 3)
-									{
-									default:
-									case 0:
-										pn = UFO1_RR;
-										break;
-									case 1:
-										pn = UFO2;
-										break;
-									case 2:
-										pn = UFO3;
-										break;
-									case 3:
-										pn = UFO4;
-										break;
-									}
-								}
-								else pn = UFO1_RRRA;
-								ns = fi.spawn(i, pn);
-								sprite[ns].z = sector[sprite[ns].sectnum].ceilingz;
-							}
-				}
-			}
-
-			StatIterator it(STAT_EFFECTOR);
-			while ((j = it.NextIndex()) >= 0)
-			{
-				auto sj = &sprite[j];
-				auto htj = &hittype[j];
-				if ((sj->lotag == 14) && (sh == sj->hitag) && (htj->temp_data[0] == t[0]))
-				{
-					sj->xvel = s->xvel;
-					//						if( t[4] == 1 )
-					{
-						if (htj->temp_data[5] == 0)
-							htj->temp_data[5] = dist(&sprite[j], s);
-						x = sgn(dist(&sprite[j], s) - htj->temp_data[5]);
-						if (sj->extra)
-							x = -x;
-						s->xvel += x;
-					}
-					htj->temp_data[4] = t[4];
-				}
-			}
-			x = 0;
-		}
+			handle_se06_r(&hittype[i]);
 
 		case SE_14_SUBWAY_CAR:
 			handle_se14(&hittype[i], false, RPG, JIBS6);
