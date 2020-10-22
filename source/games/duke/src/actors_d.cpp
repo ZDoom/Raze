@@ -1553,30 +1553,32 @@ void movestandables_d(void)
 //
 //---------------------------------------------------------------------------
 
-static bool movefireball(int i)
+static bool movefireball(DDukeActor* actor)
 {
-	auto s = &sprite[i];
-	auto ht = &hittype[i];
+	auto s = &actor->s;
+	auto Owner = actor->GetOwner();
 
 	if (sector[s->sectnum].lotag == 2)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return true;
 	}
 
-	if (sprite[s->owner].picnum != FIREBALL)
+	if (!Owner || Owner->s.picnum != FIREBALL)
 	{
-		if (ht->temp_data[0] >= 1 && ht->temp_data[0] < 6)
+		if (actor->temp_data[0] >= 1 && actor->temp_data[0] < 6)
 		{
-			float siz = 1.0f - (ht->temp_data[0] * 0.2f);
-			int trail = ht->temp_data[1];
-			int j = ht->temp_data[1] = fi.spawn(i, FIREBALL);
-
-			auto spr = &sprite[j];
+			float siz = 1.0f - (actor->temp_data[0] * 0.2f);
+			// This still needs work- it stores an actor reference in a general purpose integer field.
+			int trail = actor->temp_data[1];
+			auto ball = spawn(actor, FIREBALL);
+			auto spr = &ball->s;
+			actor->temp_data[1] = ball->GetIndex();
+			
 			spr->xvel = s->xvel;
 			spr->yvel = s->yvel;
 			spr->zvel = s->zvel;
-			if (ht->temp_data[0] > 1)
+			if (actor->temp_data[0] > 1)
 			{
 				FireProj* proj = fire.CheckKey(trail);
 				if (proj != nullptr)
@@ -1589,15 +1591,16 @@ static bool movefireball(int i)
 					spr->zvel = proj->zv;
 				}
 			}
-			spr->yrepeat = spr->xrepeat = (short)(sprite[i].xrepeat * siz);
-			spr->cstat = sprite[i].cstat;
+			spr->yrepeat = spr->xrepeat = (short)(s->xrepeat * siz);
+			spr->cstat = s->cstat;
 			spr->extra = 0;
 
 			FireProj proj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
-			fire.Insert(j, proj);
-			changespritestat((short)j, (short)4);
+			
+			fire.Insert(ball->GetIndex(), proj);
+			changespritestat(ball, STAT_PROJECTILE);
 		}
-		ht->temp_data[0]++;
+		actor->temp_data[0]++;
 	}
 	if (s->zvel < 15000)
 		s->zvel += 200;
@@ -1799,7 +1802,7 @@ static void weaponcommon_d(int i)
 		break;
 
 	case FIREBALL:
-		if (movefireball(i)) return;
+		if (movefireball(&hittype[i])) return;
 		break;
 	}
 

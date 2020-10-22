@@ -1103,27 +1103,27 @@ void movestandables_r(void)
 //
 //---------------------------------------------------------------------------
 
-static void chickenarrow(int i)
+static void chickenarrow(DDukeActor* actor)
 {
-	auto s = &sprite[i];
+	auto s = &actor->s;
 	s->hitag++;
-	if (hittype[i].picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
+	if (actor->picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
 	{
-		int j = fi.spawn(i, SMALLSMOKE);
-		sprite[j].z += (1 << 8);
+		auto spawned = spawn(actor, SMALLSMOKE);
+		spawned->s.z += (1 << 8);
 		if ((krand() & 15) == 2)
 		{
-			j = fi.spawn(i, 1310);
+			spawn(actor, MONEY);
 		}
 	}
-	if (sprite[s->lotag].extra <= 0)
+	auto ts = &hittype[s->lotag]; // Grrrr...
+
+	if (ts->s.extra <= 0)
 		s->lotag = 0;
 	if (s->lotag != 0 && s->hitag > 5)
 	{
-		spritetype* ts;
 		int ang, ang2, ang3;
-		ts = &sprite[s->lotag];
-		ang = getangle(ts->x - s->x, ts->y - s->y);
+		ang = getangle(ts->s.x - s->x, ts->s.y - s->y);
 		ang2 = ang - s->ang;
 		ang3 = abs(ang2);
 		if (ang2 < 100)
@@ -1401,7 +1401,7 @@ static void weaponcommon_r(int i)
 		break;
 	case RPG2:
 		if (!isRRRA()) break;
-		chickenarrow(i);
+		chickenarrow(&hittype[i]);
 		break;
 
 	case RRTILE1790:
