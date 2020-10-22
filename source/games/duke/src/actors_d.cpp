@@ -1764,17 +1764,16 @@ static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool firebal
 //
 //---------------------------------------------------------------------------
 
-static void weaponcommon_d(int i)
+static void weaponcommon_d(DDukeActor* proj)
 {
-	auto s = &sprite[i];
-
+	auto s = &proj->s;
 	if (s->picnum == COOLEXPLOSION1)
-		if (!S_CheckSoundPlaying(i, WIERDSHOT_FLY))
-			S_PlayActorSound(WIERDSHOT_FLY, i);
+		if (!S_CheckSoundPlaying(proj->GetIndex(), WIERDSHOT_FLY))
+			S_PlayActorSound(WIERDSHOT_FLY, proj);
 
 	int p = -1;
 	int k, ll;
-	auto oldpos = s->pos;
+	vec3_t oldpos = s->pos;
 
 	if (s->picnum == RPG && sector[s->sectnum].lotag == 2)
 	{
@@ -1787,47 +1786,47 @@ static void weaponcommon_d(int i)
 		ll = s->zvel;
 	}
 
-	getglobalz(i);
+	getglobalz(proj);
 
 	switch (s->picnum)
 	{
 	case RPG:
-		if (hittype[i].picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
+		if (proj->picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
 		{
-			int j = fi.spawn(i, SMALLSMOKE);
-			sprite[j].z += (1 << 8);
+			auto spawned = spawn(proj, SMALLSMOKE);
+			spawned->s.z += (1 << 8);
 		}
 		break;
 
 	case FIREBALL:
-		if (movefireball(&hittype[i])) return;
+		if (movefireball(proj)) return;
 		break;
 	}
 
-	int j = fi.movesprite(i,
+	int j = fi.movesprite(proj->GetIndex(),
 		(k * (sintable[(s->ang + 512) & 2047])) >> 14,
 		(k * (sintable[s->ang & 2047])) >> 14, ll, CLIPMASK1);
 
-	if (s->picnum == RPG && s->yvel >= 0)
-		if (FindDistance2D(s->x - sprite[s->yvel].x, s->y - sprite[s->yvel].y) < 256)
+	if (s->picnum == RPG && proj->temp_actor != nullptr)
+		if (FindDistance2D(s->x - proj->temp_actor->s.x, s->y - proj->temp_actor->s.y) < 256)
 			j = kHitSprite | s->yvel;
 
 	if (s->sectnum < 0)
 	{
-		deletesprite(i);
+		deletesprite(proj);
 		return;
 	}
 
 	if ((j & kHitTypeMask) != kHitSprite && s->picnum != FREEZEBLAST)
 	{
-		if (s->z < hittype[i].ceilingz)
+		if (s->z < proj->ceilingz)
 		{
 			j = kHitSector | (s->sectnum);
 			s->zvel = -1;
 		}
 		else
-			if ((s->z > hittype[i].floorz && sector[s->sectnum].lotag != 1) ||
-				(s->z > hittype[i].floorz + (16 << 8) && sector[s->sectnum].lotag == 1))
+			if ((s->z > proj->floorz && sector[s->sectnum].lotag != 1) ||
+				(s->z > proj->floorz + (16 << 8) && sector[s->sectnum].lotag == 1))
 			{
 				j = kHitSector | (s->sectnum);
 				if (sector[s->sectnum].lotag != 1)
@@ -1839,14 +1838,14 @@ static void weaponcommon_d(int i)
 	{
 		for (k = -3; k < 2; k++)
 		{
-			int x = EGS(s->sectnum,
+			auto spawned = EGS(s->sectnum,
 				s->x + ((k * sintable[(s->ang + 512) & 2047]) >> 9),
 				s->y + ((k * sintable[s->ang & 2047]) >> 9),
 				s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
-				s->xrepeat, s->yrepeat, 0, 0, 0, s->owner, 5);
+				s->xrepeat, s->yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
-			sprite[x].cstat = 128;
-			sprite[x].pal = s->pal;
+			spawned->s.cstat = 128;
+			spawned->s.pal = s->pal;
 		}
 	}
 	else if (s->picnum == SPIT) if (s->zvel < 6144)
@@ -1856,7 +1855,7 @@ static void weaponcommon_d(int i)
 	{
 		if (s->picnum == COOLEXPLOSION1)
 		{
-			if ((j & kHitTypeMask) == kHitSprite && sprite[j & kHitIndexMask].picnum != APLAYER)
+			if ((j & kHitTypeMask) == kHitSprite && hittype[j & kHitIndexMask].s.picnum != APLAYER)
 			{
 				return;
 			}
@@ -1864,21 +1863,21 @@ static void weaponcommon_d(int i)
 			s->zvel = 0;
 		}
 
-		bool fireball = (isWorldTour() && s->picnum == FIREBALL && sprite[s->owner].picnum != FIREBALL);
+		bool fireball = (isWorldTour() && s->picnum == FIREBALL && (!proj->GetOwner() || proj->GetOwner()->s.picnum != FIREBALL));
 
 		if ((j & kHitTypeMask) == kHitSprite)
 		{
 			j &= kHitIndexMask;
-			if (weaponhitsprite(&hittype[i], &hittype[j], fireball)) return;
+			if (weaponhitsprite(proj, &hittype[j], fireball)) return;
 		}
 		else if ((j & kHitTypeMask) == kHitWall)
 		{
 			j &= kHitIndexMask;
-			if (weaponhitwall(&hittype[i], j, oldpos)) return;
+			if (weaponhitwall(proj, j, oldpos)) return;
 		}
 		else if ((j & kHitTypeMask) == kHitSector)
 		{
-			if (weaponhitsector(&hittype[i], oldpos, fireball)) return;
+			if (weaponhitsector(proj, oldpos, fireball)) return;
 		}
 
 		if (s->picnum != SPIT)
@@ -1886,35 +1885,35 @@ static void weaponcommon_d(int i)
 			if (s->picnum == RPG)
 			{
 				// j is only needed for the hit type mask.
-				rpgexplode(&hittype[i], j, oldpos, EXPLOSION2, EXPLOSION2BOT, -1, RPG_EXPLODE);
+				rpgexplode(proj, j, oldpos, EXPLOSION2, EXPLOSION2BOT, -1, RPG_EXPLODE);
 			}
 			else if (s->picnum == SHRINKSPARK)
 			{
-				fi.spawn(i, SHRINKEREXPLOSION);
-				S_PlayActorSound(SHRINKER_HIT, i);
-				fi.hitradius(&hittype[i], shrinkerblastradius, 0, 0, 0, 0);
+				spawn(proj, SHRINKEREXPLOSION);
+				S_PlayActorSound(SHRINKER_HIT, proj);
+				fi.hitradius(proj, shrinkerblastradius, 0, 0, 0, 0);
 			}
 			else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER && (!isWorldTour() || s->picnum != FIREBALL))
 			{
-				k = fi.spawn(i, EXPLOSION2);
-				sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat >> 1;
+				auto k = spawn(proj, EXPLOSION2);
+				k->s.xrepeat = k->s.yrepeat = s->xrepeat >> 1;
 				if ((j & kHitTypeMask) == kHitSector)
 				{
 					if (s->zvel < 0)
 					{
-						sprite[k].cstat |= 8; sprite[k].z += (72 << 8);
+						k->s.cstat |= 8; k->s.z += (72 << 8);
 					}
 				}
 			}
 			if (fireball)
 			{
-				j = fi.spawn(i, EXPLOSION2);
-				sprite[j].xrepeat = sprite[j].yrepeat = (short)(s->xrepeat >> 1);
+				auto spawned = spawn(proj, EXPLOSION2);
+				spawned->s.xrepeat = spawned->s.yrepeat = (short)(s->xrepeat >> 1);
 			}
 		}
 		if (s->picnum != COOLEXPLOSION1)
 		{
-			deletesprite(i);
+			deletesprite(proj);
 			return;
 		}
 	}
@@ -1923,12 +1922,12 @@ static void weaponcommon_d(int i)
 		s->shade++;
 		if (s->shade >= 40)
 		{
-			deletesprite(i);
+			deletesprite(proj);
 			return;
 		}
 	}
 	else if (s->picnum == RPG && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(140))
-		fi.spawn(i, WATERBUBBLE);
+		spawn(proj, WATERBUBBLE);
 
 }
 //---------------------------------------------------------------------------
@@ -1939,58 +1938,55 @@ static void weaponcommon_d(int i)
 
 void moveweapons_d(void)
 {
-	StatIterator it(STAT_PROJECTILE);
-	int i;
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_PROJECTILE);
+	while (auto act = it.Next())
 	{
-		auto s = &sprite[i];
-
-		if (s->sectnum < 0)
+		if (act->s.sectnum < 0)
 		{
-			deletesprite(i);
+			deletesprite(act);
 			continue;
 		}
 
-		hittype[i].bposx = s->x;
-		hittype[i].bposy = s->y;
-		hittype[i].bposz = s->z;
+		act->bposx = act->s.x;
+		act->bposy = act->s.y;
+		act->bposz = act->s.z;
 
-		switch(s->picnum)
+		switch(act->s.picnum)
 		{
 		case RADIUSEXPLOSION:
 		case KNEE:
-			deletesprite(i);
+			deletesprite(act);
 			continue;
 		case TONGUE:
-			movetongue(&hittype[i], TONGUE, INNERJAW);
+			movetongue(act, TONGUE, INNERJAW);
 			continue;
 
 		case FREEZEBLAST:
-			if (s->yvel < 1 || s->extra < 2 || (s->xvel|s->zvel) == 0)
+			if (act->s.yvel < 1 || act->s.extra < 2 || (act->s.xvel|act->s.zvel) == 0)
 			{
-				int j = fi.spawn(i,TRANSPORTERSTAR);
-				sprite[j].pal = 1;
-				sprite[j].xrepeat = 32;
-				sprite[j].yrepeat = 32;
-				deletesprite(i);
+				auto spawned = spawn(act,TRANSPORTERSTAR);
+				spawned->s.pal = 1;
+				spawned->s.xrepeat = 32;
+				spawned->s.yrepeat = 32;
+				deletesprite(act);
 				continue;
 			}
 		case FIREBALL:
 			// Twentieth Anniversary World Tour
-			if (s->picnum == FIREBALL && !isWorldTour()) break;
+			if (act->s.picnum == FIREBALL && !isWorldTour()) break;
 		case SHRINKSPARK:
 		case RPG:
 		case FIRELASER:
 		case SPIT:
 		case COOLEXPLOSION1:
-			weaponcommon_d(i);
+			weaponcommon_d(act);
 			break;
 
 		case SHOTSPARK1:
 		{
 			int x;
-			int p = findplayer(s, &x);
-			execute(i, p, x);
+			int p = findplayer(&act->s, &x);
+			execute(act, p, x);
 			break;
 		}
 		}

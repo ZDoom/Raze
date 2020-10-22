@@ -335,6 +335,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, weaponhit& w, weap
 			("bposy", w.bposy, def->bposy)
 			("bposz", w.bposz, def->bposz)
 			("aflags", w.aflags, def->aflags)
+			("temp_actor", w.temp_actor, def->temp_actor)
 			.Array("temp_data", w.temp_data, def->temp_data, 6)
 			.EndObject();
 	}

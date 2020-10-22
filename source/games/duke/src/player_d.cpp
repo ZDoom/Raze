@@ -733,7 +733,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	auto spj = &sprite[j];
 	spj->extra += (krand() & 7);
 	if (atwith != FREEZEBLAST)
-		spj->yvel = l;
+		hittype[j].temp_actor = l >= 0? &hittype[l] : nullptr;//  sprite[j].yvel = l;
 	else
 	{
 		spj->yvel = numfreezebounces;
