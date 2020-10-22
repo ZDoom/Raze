@@ -1613,35 +1613,35 @@ static bool movefireball(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static bool weaponhitsprite(int i, int j, bool fireball)
+static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 {
-	auto s = &sprite[i];
-
-	if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
-		if (badguy(&sprite[j]) || sprite[j].picnum == APLAYER)
+	auto s = &proj->s;
+	if (s->picnum == FREEZEBLAST && targ->s.pal == 1)
+		if (badguy(targ) || targ->s.picnum == APLAYER)
 		{
-			j = fi.spawn(i, TRANSPORTERSTAR);
-			sprite[j].pal = 1;
-			sprite[j].xrepeat = 32;
-			sprite[j].yrepeat = 32;
+			auto spawned = spawn(targ, TRANSPORTERSTAR);
+			spawned->s.pal = 1;
+			spawned->s.xrepeat = 32;
+			spawned->s.yrepeat = 32;
 
-			deletesprite(i);
+			deletesprite(proj);
 			return true;
 		}
 
 	if (!isWorldTour() || s->picnum != FIREBALL || fireball)
-		fi.checkhitsprite(j, i);
+		fi.checkhitsprite(targ->GetIndex(), proj->GetIndex());
 
-	if (sprite[j].picnum == APLAYER)
+	if (targ->s.picnum == APLAYER)
 	{
-		int p = sprite[j].yvel;
+		int p = targ->s.yvel;
+		auto Owner = proj->GetOwner();
 
-		if (ud.multimode >= 2 && fireball && sprite[s->owner].picnum == APLAYER)
+		if (ud.multimode >= 2 && fireball && Owner && Owner->s.picnum == APLAYER)
 		{
-			ps[p].numloogs = -1 - sprite[i].yvel;
+			ps[p].numloogs = -1 - s->yvel;
 		}
 
-		S_PlayActorSound(PISTOL_BODYHIT, j);
+		S_PlayActorSound(PISTOL_BODYHIT, targ);
 
 		if (s->picnum == SPIT)
 		{
@@ -1650,10 +1650,10 @@ static bool weaponhitsprite(int i, int j, bool fireball)
 
 			if (ps[p].loogcnt == 0)
 			{
-				if (!S_CheckActorSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN))
-					S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].i);
+				if (!S_CheckActorSoundPlaying(ps[p].GetActor(), DUKE_LONGTERM_PAIN))
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].GetActor());
 
-				j = 3 + (krand() & 3);
+				int j = 3 + (krand() & 3);
 				ps[p].numloogs = j;
 				ps[p].loogcnt = 24 * 4;
 				for (int x = 0; x < j; x++)
@@ -1673,10 +1673,9 @@ static bool weaponhitsprite(int i, int j, bool fireball)
 //
 //---------------------------------------------------------------------------
 
-static bool weaponhitwall(int i, int j, const vec3_t &oldpos)
+static bool weaponhitwall(DDukeActor *proj, int j, const vec3_t &oldpos)
 {
-	auto s = &sprite[i];
-
+	auto s = &proj->s;
 	if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT &&
 		(!isWorldTour() || s->picnum != FIREBALL) &&
 		(wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
@@ -1685,14 +1684,14 @@ static bool weaponhitwall(int i, int j, const vec3_t &oldpos)
 			wall[wall[j].point2].x - wall[j].x,
 			wall[wall[j].point2].y - wall[j].y);
 		s->ang = ((k << 1) - s->ang) & 2047;
-		s->owner = i;
-		fi.spawn(i, TRANSPORTERSTAR);
+		proj->SetOwner(proj);
+		spawn(proj, TRANSPORTERSTAR);
 		return true;
 	}
 	else
 	{
-		setsprite(i, &oldpos);
-		fi.checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
+		setsprite(proj, oldpos);
+		fi.checkhitwall(proj->GetIndex(), j, s->x, s->y, s->z, s->picnum);
 
 		if (s->picnum == FREEZEBLAST)
 		{
@@ -1718,18 +1717,17 @@ static bool weaponhitwall(int i, int j, const vec3_t &oldpos)
 //
 //---------------------------------------------------------------------------
 
-static bool weaponhitsector(int i, const vec3_t& oldpos, bool fireball)
+static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool fireball)
 {
-	auto s = &sprite[i];
-
-	setsprite(i, &oldpos);
+	auto s = &proj->s;
+	setsprite(proj, oldpos);
 
 	if (s->zvel < 0)
 	{
 		if (sector[s->sectnum].ceilingstat & 1)
 			if (sector[s->sectnum].ceilingpal == 0)
 			{
-				deletesprite(i);
+				deletesprite(proj);
 				return true;
 			}
 
@@ -1737,18 +1735,18 @@ static bool weaponhitsector(int i, const vec3_t& oldpos, bool fireball)
 	}
 	else if (fireball)
 	{
-		int j = fi.spawn(i, LAVAPOOL);
-		sprite[j].owner = sprite[i].owner;
-		sprite[j].yvel = sprite[i].yvel;
-		hittype[j].owner = sprite[i].owner;
-		deletesprite(i);
+		auto spawned = spawn(proj, LAVAPOOL);
+		spawned->SetOwner(proj);
+		spawned->SetHitOwner(proj);
+		spawned->s.yvel = s->yvel;
+		deletesprite(proj);
 		return true;
 	}
 
 	if (s->picnum == FREEZEBLAST)
 	{
-		bounce(&hittype[i]);
-		ssp(i, CLIPMASK1);
+		bounce(proj);
+		ssp(proj, CLIPMASK1);
 		s->extra >>= 1;
 		if (s->xrepeat > 8)
 			s->xrepeat -= 2;
@@ -1871,16 +1869,16 @@ static void weaponcommon_d(int i)
 		if ((j & kHitTypeMask) == kHitSprite)
 		{
 			j &= kHitIndexMask;
-			if (weaponhitsprite(i, j, fireball)) return;
+			if (weaponhitsprite(&hittype[i], &hittype[j], fireball)) return;
 		}
 		else if ((j & kHitTypeMask) == kHitWall)
 		{
 			j &= kHitIndexMask;
-			if (weaponhitwall(i, j, oldpos)) return;
+			if (weaponhitwall(&hittype[i], j, oldpos)) return;
 		}
 		else if ((j & kHitTypeMask) == kHitSector)
 		{
-			if (weaponhitsector(i, oldpos, fireball)) return;
+			if (weaponhitsector(&hittype[i], oldpos, fireball)) return;
 		}
 
 		if (s->picnum != SPIT)

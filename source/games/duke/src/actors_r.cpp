@@ -1155,48 +1155,46 @@ static void chickenarrow(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static bool weaponhitsprite(int i, int j, const vec3_t &oldpos)
+static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const vec3_t &oldpos)
 {
-	auto s = &sprite[i];
-
+	auto s = &proj->s;
 	if (isRRRA())
 	{
-		if (sprite[j].picnum == MINION
+		if (targ->s.picnum == MINION
 			&& (s->picnum == RPG || s->picnum == RPG2)
-			&& sprite[j].pal == 19)
+			&& targ->s.pal == 19)
 		{
-			S_PlayActorSound(RPG_EXPLODE, i);
-			int k = fi.spawn(i, EXPLOSION2);
-			sprite[k].pos = oldpos;
+			S_PlayActorSound(RPG_EXPLODE, proj);
+			spawn(proj, EXPLOSION2)->s.pos = oldpos;
 			return true;
 		}
 	}
-	else if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
-		if (badguy(&sprite[j]) || sprite[j].picnum == APLAYER)
+	else if (s->picnum == FREEZEBLAST && targ->s.pal == 1)
+		if (badguy(targ) || targ->s.picnum == APLAYER)
 		{
-			j = fi.spawn(i, TRANSPORTERSTAR);
-			sprite[j].pal = 1;
-			sprite[j].xrepeat = 32;
-			sprite[j].yrepeat = 32;
+			auto star = spawn(proj, TRANSPORTERSTAR);
+			star->s.pal = 1;
+			star->s.xrepeat = 32;
+			star->s.yrepeat = 32;
 
-			deletesprite(i);
+			deletesprite(proj);
 			return true;
 		}
 
-	fi.checkhitsprite(j, i);
+	fi.checkhitsprite(targ->GetIndex(), proj->GetIndex());
 
-	if (sprite[j].picnum == APLAYER)
+	if (targ->s.picnum == APLAYER)
 	{
-		int p = sprite[j].yvel;
-		S_PlayActorSound(PISTOL_BODYHIT, j);
+		int p = targ->s.yvel;
+		S_PlayActorSound(PISTOL_BODYHIT, targ);
 
 		if (s->picnum == SPIT)
 		{
-			if (isRRRA() && sprite[s->owner].picnum == MAMA)
+			if (isRRRA() && proj->GetOwner() && proj->GetOwner()->s.picnum == MAMA)
 			{
-				guts_r(&hittype[i], RABBITJIBA, 2, myconnectindex);
-				guts_r(&hittype[i], RABBITJIBB, 2, myconnectindex);
-				guts_r(&hittype[i], RABBITJIBC, 2, myconnectindex);
+				guts_r(proj, RABBITJIBA, 2, myconnectindex);
+				guts_r(proj, RABBITJIBB, 2, myconnectindex);
+				guts_r(proj, RABBITJIBC, 2, myconnectindex);
 			}
 
 			ps[p].horizon.addadjustment(32);
@@ -1204,10 +1202,10 @@ static bool weaponhitsprite(int i, int j, const vec3_t &oldpos)
 
 			if (ps[p].loogcnt == 0)
 			{
-				if (!S_CheckActorSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN))
-					S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].i);
+				if (!S_CheckActorSoundPlaying(ps[p].GetActor(), DUKE_LONGTERM_PAIN))
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].GetActor());
 
-				j = 3 + (krand() & 3);
+				int j = 3 + (krand() & 3);
 				ps[p].numloogs = j;
 				ps[p].loogcnt = 24 * 4;
 				for (int x = 0; x < j; x++)
@@ -1227,36 +1225,34 @@ static bool weaponhitsprite(int i, int j, const vec3_t &oldpos)
 //
 //---------------------------------------------------------------------------
 
-static bool weaponhitwall(int i, int j, const vec3_t& oldpos)
+static bool weaponhitwall(DDukeActor *proj, int wal, const vec3_t& oldpos)
 {
-	auto act = &hittype[i];
-	auto s = &act->s;
-
-	if (isRRRA() && sprite[s->owner].picnum == MAMA)
+	auto s = &proj->s;
+	if (isRRRA() && proj->GetOwner() && proj->GetOwner()->s.picnum == MAMA)
 	{
-		guts_r(&hittype[i], RABBITJIBA, 2, myconnectindex);
-		guts_r(&hittype[i], RABBITJIBB, 2, myconnectindex);
-		guts_r(&hittype[i], RABBITJIBC, 2, myconnectindex);
+		guts_r(proj, RABBITJIBA, 2, myconnectindex);
+		guts_r(proj, RABBITJIBB, 2, myconnectindex);
+		guts_r(proj, RABBITJIBC, 2, myconnectindex);
 	}
 
-	if (s->picnum != RPG && (!isRRRA() || s->picnum != RPG2) && s->picnum != FREEZEBLAST && s->picnum != SPIT && s->picnum != SHRINKSPARK && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+	if (s->picnum != RPG && (!isRRRA() || s->picnum != RPG2) && s->picnum != FREEZEBLAST && s->picnum != SPIT && s->picnum != SHRINKSPARK && (wall[wal].overpicnum == MIRROR || wall[wal].picnum == MIRROR))
 	{
 		int k = getangle(
-			wall[wall[j].point2].x - wall[j].x,
-			wall[wall[j].point2].y - wall[j].y);
+			wall[wall[wal].point2].x - wall[wal].x,
+			wall[wall[wal].point2].y - wall[wal].y);
 		s->ang = ((k << 1) - s->ang) & 2047;
-		s->owner = i;
-		fi.spawn(i, TRANSPORTERSTAR);
+		proj->SetOwner(proj);
+		spawn(proj, TRANSPORTERSTAR);
 		return true;
 	}
 	else
 	{
-		setsprite(i, &oldpos);
-		fi.checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
+		setsprite(proj, oldpos);
+		fi.checkhitwall(proj->GetIndex(), wal, s->x, s->y, s->z, s->picnum);
 
 		if (!isRRRA() && s->picnum == FREEZEBLAST)
 		{
-			if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
+			if (wall[wal].overpicnum != MIRROR && wall[wal].picnum != MIRROR)
 			{
 				s->extra >>= 1;
 				if (s->xrepeat > 8)
@@ -1267,42 +1263,43 @@ static bool weaponhitwall(int i, int j, const vec3_t& oldpos)
 			}
 
 			int k = getangle(
-				wall[wall[j].point2].x - wall[j].x,
-				wall[wall[j].point2].y - wall[j].y);
+				wall[wall[wal].point2].x - wall[wal].x,
+				wall[wall[wal].point2].y - wall[wal].y);
 			s->ang = ((k << 1) - s->ang) & 2047;
 			return true;
 		}
 		if (s->picnum == SHRINKSPARK)
 		{
-			if (wall[j].picnum >= RRTILE3643 && wall[j].picnum < RRTILE3643 + 3)
+			if (wall[wal].picnum >= RRTILE3643 && wall[wal].picnum < RRTILE3643 + 3)
 			{
-				deletesprite(i);
+				deletesprite(proj);
 			}
 			if (s->extra <= 0)
 			{
 				s->x += sintable[(s->ang + 512) & 2047] >> 7;
 				s->y += sintable[s->ang & 2047] >> 7;
-				if (!isRRRA() || (sprite[s->owner].picnum != CHEER && sprite[s->owner].picnum != CHEERSTAYPUT))
+				auto Owner = proj->GetOwner();
+				if (!isRRRA() || !Owner || (Owner->s.picnum != CHEER && Owner->s.picnum != CHEERSTAYPUT))
 				{
-					auto j = spawn(act, CIRCLESTUCK);
+					auto j = spawn(proj, CIRCLESTUCK);
 					j->s.xrepeat = 8;
 					j->s.yrepeat = 8;
 					j->s.cstat = 16;
 					j->s.ang = (j->s.ang + 512) & 2047;
 					j->s.clipdist = mulscale7(s->xrepeat, tilesiz[s->picnum].x);
 				}
-				deletesprite(i);
+				deletesprite(proj);
 				return true;
 			}
-			if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
+			if (wall[wal].overpicnum != MIRROR && wall[wal].picnum != MIRROR)
 			{
 				s->extra -= 20;
 				s->yvel--;
 			}
 
 			int k = getangle(
-				wall[wall[j].point2].x - wall[j].x,
-				wall[wall[j].point2].y - wall[j].y);
+				wall[wall[wal].point2].x - wall[wal].x,
+				wall[wall[wal].point2].y - wall[wal].y);
 			s->ang = ((k << 1) - s->ang) & 2047;
 			return true;
 		}
@@ -1310,23 +1307,23 @@ static bool weaponhitwall(int i, int j, const vec3_t& oldpos)
 	return false;
 }
 
+
 //---------------------------------------------------------------------------
 //
 // 
 //
 //---------------------------------------------------------------------------
 
-bool weaponhitsector(int i, const vec3_t& oldpos)
+bool weaponhitsector(DDukeActor *proj, const vec3_t& oldpos)
 {
-	auto s = &sprite[i];
+	auto s = &proj->s;
+	setsprite(proj, oldpos);
 
-	setsprite(i, &oldpos);
-
-	if (isRRRA() && sprite[s->owner].picnum == MAMA)
+	if (isRRRA() && proj->GetOwner() && proj->GetOwner()->s.picnum == MAMA)
 	{
-		guts_r(&hittype[i], RABBITJIBA, 2, myconnectindex);
-		guts_r(&hittype[i], RABBITJIBB, 2, myconnectindex);
-		guts_r(&hittype[i], RABBITJIBC, 2, myconnectindex);
+		guts_r(proj, RABBITJIBA, 2, myconnectindex);
+		guts_r(proj, RABBITJIBB, 2, myconnectindex);
+		guts_r(proj, RABBITJIBC, 2, myconnectindex);
 	}
 
 	if (s->zvel < 0)
@@ -1334,7 +1331,7 @@ bool weaponhitsector(int i, const vec3_t& oldpos)
 		if (sector[s->sectnum].ceilingstat & 1)
 			if (sector[s->sectnum].ceilingpal == 0)
 			{
-				deletesprite(i);
+				deletesprite(proj);
 				return true;
 			}
 
@@ -1343,8 +1340,8 @@ bool weaponhitsector(int i, const vec3_t& oldpos)
 
 	if (!isRRRA() && s->picnum == FREEZEBLAST)
 	{
-		bounce(&hittype[i]);
-		ssp(i, CLIPMASK1);
+		bounce(proj);
+		ssp(proj, CLIPMASK1);
 		s->extra >>= 1;
 		if (s->xrepeat > 8)
 			s->xrepeat -= 2;
@@ -1473,16 +1470,16 @@ static void weaponcommon_r(int i)
 		if ((j & kHitTypeMask) == kHitSprite)
 		{
 			j &= kHitIndexMask;
-			if (weaponhitsprite(i, j, oldpos)) return;
+			if (weaponhitsprite(&hittype[i], &hittype[j], oldpos)) return;
 		}
 		else if ((j & kHitTypeMask) == kHitWall)
 		{
 			j &= kHitIndexMask;
-			if (weaponhitwall(i, j, oldpos)) return;
+			if (weaponhitwall(&hittype[i], j, oldpos)) return;
 		}
 		else if ((j & 49152) == 16384)
 		{
-			if (weaponhitsector(i, oldpos)) return;
+			if (weaponhitsector(&hittype[i], oldpos)) return;
 		}
 
 		if (s->picnum != SPIT)
