@@ -522,31 +522,29 @@ void guts_r(DDukeActor* actor, short gtype, short n, short p)
 //
 //---------------------------------------------------------------------------
 
+
 void movefta_r(void)
 {
 	int x, px, py, sx, sy;
 	short j, p, psect, ssect;
-	spritetype* s;
 
-
-	StatIterator it(STAT_ZOMBIEACTOR);
-	int i;
-	while((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_ZOMBIEACTOR);
+	while(auto act = it.Next())
 	{
-		s = &sprite[i];
-		p = findplayer(s, &x);
+		auto s = &act->s;
+		p = findplayer(act, &x);
 		j = 0;
 
 		ssect = psect = s->sectnum;
 
-		if (sprite[ps[p].i].extra > 0)
+		if (ps[p].GetActor()->s.extra > 0)
 		{
 			if (x < 30000)
 			{
-				hittype[i].timetosleep++;
-				if (hittype[i].timetosleep >= (x >> 8))
+				act->timetosleep++;
+				if (act->timetosleep >= (x >> 8))
 				{
-					if (badguy(s))
+					if (badguy(act))
 					{
 						px = ps[p].oposx + 64 - (krand() & 127);
 						py = ps[p].oposy + 64 - (krand() & 127);
@@ -598,23 +596,23 @@ void movefta_r(void)
 							s->shade = sector[s->sectnum].ceilingshade;
 						else s->shade = sector[s->sectnum].floorshade;
 
-						hittype[i].timetosleep = 0;
-						changespritestat(i, STAT_STANDABLE);
+						act->timetosleep = 0;
+						changespritestat(act, STAT_STANDABLE);
 						break;
 					default:
 #if 0
 						// TRANSITIONAL: RedNukem has this here. Needed?
-						if (actorflag(spriteNum, SFLAG_USEACTIVATOR) && sector[sprite[spriteNum].sectnum].lotag & 16384) break;
+						if (actorflag(spriteNum, SFLAG_USEACTIVATOR) && sector[s prite[spriteNum].sectnum].lotag & 16384) break;
 #endif
-						hittype[i].timetosleep = 0;
-						check_fta_sounds_r(&hittype[i]);
-						changespritestat(i, STAT_ACTOR);
+						act->timetosleep = 0;
+						check_fta_sounds_r(act);
+						changespritestat(act, STAT_ACTOR);
 						break;
 					}
-					else hittype[i].timetosleep = 0;
+					else act->timetosleep = 0;
 				}
 			}
-			if (/*!j &&*/ badguy(s)) // this is like RedneckGDX. j is uninitialized here, i.e. most likely not 0.
+			if (/*!j &&*/ badguy(act)) // this is like RedneckGDX. j is uninitialized here, i.e. most likely not 0.
 			{
 				if (sector[s->sectnum].ceilingstat & 1)
 					s->shade = sector[s->sectnum].ceilingshade;
@@ -622,11 +620,11 @@ void movefta_r(void)
 
 				if (s->picnum != HEN || s->picnum != COW || s->picnum != PIG || s->picnum != DOGRUN || ((isRRRA()) && s->picnum != RABBIT))
 				{
-					if (wakeup(i, p))
+					if (wakeup(act, p))
 					{
-						hittype[i].timetosleep = 0;
-						check_fta_sounds_r(&hittype[i]);
-						changespritestat(i, STAT_ACTOR);
+						act->timetosleep = 0;
+						check_fta_sounds_r(act);
+						changespritestat(act, STAT_ACTOR);
 					}
 				}
 			}
@@ -640,16 +638,15 @@ void movefta_r(void)
 //
 //---------------------------------------------------------------------------
 
-int ifhitsectors_r(int sectnum)
+DDukeActor* ifhitsectors_r(int sectnum)
 {
-	StatIterator it(STAT_MISC);
-	int i;
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_MISC);
+	while (auto a1 = it.Next())
 	{
-		if (sprite[i].picnum == EXPLOSION2 || (sprite[i].picnum == EXPLOSION3 && sectnum == sprite[i].sectnum))
-			return i;
+		if (a1->s.picnum == EXPLOSION2 || (a1->s.picnum == EXPLOSION3 && sectnum == a1->s.sectnum))
+			return a1;
 	}
-	return -1;
+	return nullptr;
 }
 
 //---------------------------------------------------------------------------

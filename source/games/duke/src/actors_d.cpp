@@ -705,26 +705,26 @@ void movefta_d(void)
 {
 	int x, px, py, sx, sy;
 	short p, psect, ssect;
-	int i, j;
+	int j;
 
-	StatIterator iti(STAT_ZOMBIEACTOR);
+	DukeStatIterator iti(STAT_ZOMBIEACTOR);
 
-	while ((i = iti.NextIndex()) >= 0)
+	while (auto act = iti.Next())
 	{
-		auto s = &sprite[i];
-		auto ht = &hittype[i];
-		p = findplayer(s, &x);
+		auto s = &act->s;
+		p = findplayer(act, &x);
 
 		ssect = psect = s->sectnum;
 
-		if (sprite[ps[p].i].extra > 0)
+		auto pa = ps[p].GetActor();
+		if (pa->s.extra > 0)
 		{
 			if (x < 30000)
 			{
-				ht->timetosleep++;
-				if (ht->timetosleep >= (x >> 8))
+				act->timetosleep++;
+				if (act->timetosleep >= (x >> 8))
 				{
-					if (badguy(s))
+					if (badguy(act))
 					{
 						px = ps[p].oposx + 64 - (krand() & 127);
 						py = ps[p].oposy + 64 - (krand() & 127);
@@ -773,20 +773,20 @@ void movefta_d(void)
 								s->shade = sector[s->sectnum].ceilingshade;
 							else s->shade = sector[s->sectnum].floorshade;
 
-							ht->timetosleep = 0;
-							changespritestat(i, STAT_STANDABLE);
+							act->timetosleep = 0;
+							changespritestat(act, STAT_STANDABLE);
 							break;
 
 						default:
-							ht->timetosleep = 0;
-							check_fta_sounds_d(&hittype[i]);
-							changespritestat(i, STAT_ACTOR);
+							act->timetosleep = 0;
+							check_fta_sounds_d(act);
+							changespritestat(act, STAT_ACTOR);
 							break;
 					}
-					else ht->timetosleep = 0;
+					else act->timetosleep = 0;
 				}
 			}
-			if (badguy(s))
+			if (badguy(act))
 			{
 				if (sector[s->sectnum].ceilingstat & 1)
 					s->shade = sector[s->sectnum].ceilingshade;
@@ -802,17 +802,15 @@ void movefta_d(void)
 //
 //---------------------------------------------------------------------------
 
-int ifhitsectors_d(int sectnum)
+DDukeActor* ifhitsectors_d(int sectnum)
 {
-	StatIterator it(STAT_MISC);
-	int i;
-	while((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_MISC);
+	while (auto a1 = it.Next())
 	{
-		auto s = &sprite[i];
-		if (s->picnum == EXPLOSION2 && sectnum == s->sectnum)
-			return i;
+		if (a1->s.picnum == EXPLOSION2 && sectnum == a1->s.sectnum)
+			return a1;
 	}
-	return -1;
+	return nullptr;
 }
 
 //---------------------------------------------------------------------------
