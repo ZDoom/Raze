@@ -289,4 +289,9 @@ inline void callsound(int sect, DDukeActor* a)
 	callsound(sect, a->GetIndex());
 }
 
+inline int hits(DDukeActor* snum)
+{
+	return hits(snum->GetIndex());
+}
+
 END_DUKE_NS

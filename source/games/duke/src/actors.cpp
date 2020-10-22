@@ -5198,38 +5198,39 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 //
 //---------------------------------------------------------------------------
 
-void alterang(int a, int g_i, int g_p)
+void alterang(int ang, DDukeActor* actor, int g_p)
 {
+	auto g_sp = &actor->s;
 	short aang, angdif, goalang, j;
 	int ticselapsed;
-	int* g_t = hittype[g_i].temp_data;
-	auto* g_sp = &sprite[g_i];
+	int* t = actor->temp_data;
 
-	auto moveptr = &ScriptCode[g_t[1]];
+	auto moveptr = &ScriptCode[t[1]];
 
-	ticselapsed = (g_t[0]) & 31;
+	ticselapsed = (t[0]) & 31;
 
 	aang = g_sp->ang;
 
 	g_sp->xvel += (*moveptr - g_sp->xvel) / 5;
 	if (g_sp->zvel < 648) g_sp->zvel += ((*(moveptr + 1) << 4) - g_sp->zvel) / 5;
 
-	if (isRRRA() && (a & windang))
+	if (isRRRA() && (ang & windang))
 		g_sp->ang = WindDir;
-	else if (a & seekplayer)
+	else if (ang & seekplayer)
 	{
-		j = !isRR()? ps[g_p].holoduke_on->GetIndex() : -1;
+		auto holoduke = !isRR()? ps[g_p].holoduke_on : nullptr;
 
 		// NOTE: looks like 'owner' is set to target sprite ID...
 
-		if (j >= 0 && cansee(sprite[j].x, sprite[j].y, sprite[j].z, sprite[j].sectnum, g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum))
-			g_sp->owner = j;
-		else g_sp->owner = ps[g_p].i;
+		if (holoduke && cansee(holoduke->s.x, holoduke->s.y, holoduke->s.z, holoduke->s.sectnum, g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum))
+			actor->SetOwner(holoduke);
+		else actor->SetOwner(ps[g_p].GetActor());
 
-		if (sprite[g_sp->owner].picnum == TILE_APLAYER)
-			goalang = getangle(hittype[g_i].lastvx - g_sp->x, hittype[g_i].lastvy - g_sp->y);
+		auto Owner = actor->GetOwner();
+		if (Owner->s.picnum == TILE_APLAYER)
+			goalang = getangle(actor->lastvx - g_sp->x, actor->lastvy - g_sp->y);
 		else
-			goalang = getangle(sprite[g_sp->owner].x - g_sp->x, sprite[g_sp->owner].y - g_sp->y);
+			goalang = getangle(Owner->s.x - g_sp->x, Owner->s.y - g_sp->y);
 
 		if (g_sp->xvel && g_sp->picnum != TILE_DRONE)
 		{
@@ -5241,7 +5242,7 @@ void alterang(int a, int g_i, int g_p)
 				{
 					j = 128 - (krand() & 256);
 					g_sp->ang += j;
-					if (hits(g_i) < 844)
+					if (hits(actor) < 844)
 						g_sp->ang -= j;
 				}
 			}
@@ -5257,16 +5258,16 @@ void alterang(int a, int g_i, int g_p)
 	if (ticselapsed < 1)
 	{
 		j = 2;
-		if (a & furthestdir)
+		if (ang & furthestdir)
 		{
-			goalang = furthestangle(&hittype[g_i], j);
+			goalang = furthestangle(actor, j);
 			g_sp->ang = goalang;
-			g_sp->owner = ps[g_p].i;
+			actor->SetOwner(ps[g_p].GetActor());
 		}
 
-		if (a & fleeenemy)
+		if (ang & fleeenemy)
 		{
-			goalang = furthestangle(&hittype[g_i], j);
+			goalang = furthestangle(actor, j);
 			g_sp->ang = goalang; // += angdif; //  = getincangle(aang,goalang)>>1;
 		}
 	}

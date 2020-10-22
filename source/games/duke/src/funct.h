@@ -97,7 +97,7 @@ void handle_se130(DDukeActor* i, int countmax, int EXPLOSION2);
 void respawn_rrra(DDukeActor* oldact, DDukeActor* newact);
 
 int dodge(DDukeActor*);
-void alterang(int a, int g_i, int g_p);
+void alterang(int ang, DDukeActor* actor, int g_p);
 void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(int, int), void (*falladjustz)(spritetype*));
 void checkavailweapon(struct player_struct* p);
 void deletesprite(DDukeActor* num);

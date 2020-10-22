@@ -3918,7 +3918,7 @@ void move_d(int g_i, int g_p, int g_x)
 		dodge(&hittype[g_i]);
 
 	if (g_sp->picnum != APLAYER)
-		alterang(a, g_i, g_p);
+		alterang(a, &hittype[g_i], g_p);
 
 	if (g_sp->xvel > -6 && g_sp->xvel < 6) g_sp->xvel = 0;
 
