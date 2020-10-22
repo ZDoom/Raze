@@ -302,10 +302,10 @@ public:
 
 		DrawGraphic(tileGetTexture(WEAPONBAR), 0, 158, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
 
-		FString format;
 		for (int i = 0; i < 9; i++) 
 		{
 			FGameTexture* img = nullptr;
+			FString format;
 
 			if ((g_gameType & GAMEFLAG_RRRA) && i == 4 && p->curr_weapon == CHICKEN_WEAPON)
 			{
@@ -326,7 +326,10 @@ public:
 				DrawGraphic(img, 18 + i * 32, top - 6.5, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
 			}
 
-			SBar_DrawString(this, &miniFont, format, 38 + i * 32, 162.75 - miniFont.mFont->GetHeight() * scale * 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale * .875, scale * .875);
+			if (format.Len())
+			{
+				SBar_DrawString(this, &miniFont, format, 38 + i * 32, 162.75 - miniFont.mFont->GetHeight() * scale * 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale * .875, scale * .875);
+			}
 		}
 	}
 
