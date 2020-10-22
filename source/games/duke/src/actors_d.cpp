@@ -2001,42 +2001,36 @@ void moveweapons_d(void)
 void movetransports_d(void)
 {
 	int warpspriteto;
-	int ll, onfloorz, q;
-	int i, j;
+	int ll;
 	
-	StatIterator iti(STAT_TRANSPORT);
-	while ((i = iti.NextIndex()) >= 0)
+	DukeStatIterator iti(STAT_TRANSPORT);
+	while (auto act = iti.Next())
 	{
-		auto spri = &sprite[i];
-		auto act1 = &hittype[i];
-		auto spriowner = spri->owner < 0? nullptr : &sprite[spri->owner];
+		auto spr = &act->s;
+		auto Owner = act->GetOwner();
 		
-		int sect = spri->sectnum;
-		int sectlotag = sector[sect].lotag;
-		
-		
-		if (spri->owner == i)
+		if (Owner == act)
 		{
 			continue;
 		}
+
+		int sect = spr->sectnum;
+		int sectlotag = sector[sect].lotag;
+		int onfloorz = act->temp_data[4];
 		
-		onfloorz = act1->temp_data[4];
+		if (act->temp_data[0] > 0) act->temp_data[0]--;
 		
-		if (act1->temp_data[0] > 0) act1->temp_data[0]--;
-		
-		SectIterator itj(sect);
-		while ((j = itj.NextIndex()) >= 0)
+		DukeSectIterator itj(sect);
+		while (auto act2 = itj.Next()) 
 		{
-			auto spr2 = &sprite[j];
-			auto act2 = &hittype[j];
-			
+			auto spr2 = &act2->s;
 			switch (spr2->statnum)
 			{
 			case STAT_PLAYER:    // Player
 				
-				if (spr2->owner != -1)
+				if (act2->GetOwner())
 				{
-					int p = spr2->yvel;
+					int p = act2->PlayerIndex();
 					
 					ps[p].on_warping_sector = 1;
 					
@@ -2044,38 +2038,38 @@ void movetransports_d(void)
 					{
 						if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
 						{
-							if (spri->pal == 0)
+							if (spr->pal == 0)
 							{
-								fi.spawn(i, TRANSPORTERBEAM);
-								S_PlayActorSound(TELEPORTER, i);
+								spawn(act, TRANSPORTERBEAM);
+								S_PlayActorSound(TELEPORTER, act);
 							}
 							
 							for (int k = connecthead; k >= 0; k = connectpoint2[k])
-							if (ps[k].cursectnum == spriowner->sectnum)
+							if (ps[k].cursectnum == Owner->s.sectnum)
 							{
 								ps[k].frag_ps = p;
-								sprite[ps[k].i].extra = 0;
+								ps[k].GetActor()->s.extra = 0;
 							}
 							
-							ps[p].angle.ang = buildang(spriowner->ang);
+							ps[p].angle.ang = buildang(Owner->s.ang);
 							
-							if (spriowner->owner != spri->owner)
+							if (Owner->GetOwner() != Owner)
 							{
-								act1->temp_data[0] = 13;
-								hittype[spri->owner].temp_data[0] = 13;
+								act->temp_data[0] = 13;
+								Owner->temp_data[0] = 13;
 								ps[p].transporter_hold = 13;
 							}
 							
-							ps[p].bobposx = ps[p].oposx = ps[p].posx = spriowner->x;
-							ps[p].bobposy = ps[p].oposy = ps[p].posy = spriowner->y;
-							ps[p].oposz = ps[p].posz = spriowner->z - PHEIGHT;
+							ps[p].bobposx = ps[p].oposx = ps[p].posx = Owner->s.x;
+							ps[p].bobposy = ps[p].oposy = ps[p].posy = Owner->s.y;
+							ps[p].oposz = ps[p].posz = Owner->s.z - PHEIGHT;
 							
-							changespritesect(j, spriowner->sectnum);
+							changespritesect(act2, Owner->s.sectnum);
 							ps[p].cursectnum = spr2->sectnum;
 							
-							if (spri->pal == 0)
+							if (spr->pal == 0)
 							{
-								int k = fi.spawn(spri->owner, TRANSPORTERBEAM);
+								auto k = spawn(Owner, TRANSPORTERBEAM);
 								S_PlayActorSound(TELEPORTER, k);
 							}
 							
@@ -2084,24 +2078,25 @@ void movetransports_d(void)
 					}
 					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
 					
-					if (onfloorz == 0 && abs(spri->z - ps[p].posz) < 6144)
+					if (onfloorz == 0 && abs(spr->z - ps[p].posz) < 6144)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && (PlayerInput(p, SB_CROUCH) ^ !!ps[p].crouch_toggle)))
 						{
-							ps[p].oposx = ps[p].posx += spriowner->x - spri->x;
-							ps[p].oposy = ps[p].posy += spriowner->y - spri->y;
+							ps[p].oposx = ps[p].posx += Owner->s.x - spr->x;
+							ps[p].oposy = ps[p].posy += Owner->s.y - spr->y;
 							
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].posz = spriowner->z - 6144;
-							else ps[p].posz = spriowner->z + 6144;
+								ps[p].posz = Owner->s.z - 6144;
+							else ps[p].posz = Owner->s.z + 6144;
 							ps[p].oposz = ps[p].posz;
 							
-							hittype[ps[p].i].bposx = ps[p].posx;
-							hittype[ps[p].i].bposy = ps[p].posy;
-							hittype[ps[p].i].bposz = ps[p].posz;
+							auto pa = ps[p].GetActor();
+							pa->bposx = ps[p].posx;
+							pa->bposy = ps[p].posy;
+							pa->bposz = ps[p].posz;
 							
-							changespritesect(j, spriowner->sectnum);
-							ps[p].cursectnum = spriowner->sectnum;
+							changespritesect(act2, Owner->s.sectnum);
+							ps[p].cursectnum = Owner->s.sectnum;
 							
 							break;
 						}
@@ -2116,10 +2111,10 @@ void movetransports_d(void)
 						{
 							FX_StopAllSounds();
 						}
-						if (sprite[ps[p].i].extra > 0)
-							S_PlayActorSound(DUKE_UNDERWATER, j);
+						if (ps[p].GetActor()->s.extra > 0)
+							S_PlayActorSound(DUKE_UNDERWATER, act2);
 						ps[p].oposz = ps[p].posz =
-						sector[spriowner->sectnum].ceilingz + (7 << 8);
+						sector[Owner->s.sectnum].ceilingz + (7 << 8);
 						
 						ps[p].posxv = 4096 - (krand() & 8192);
 						ps[p].posyv = 4096 - (krand() & 8192);
@@ -2129,15 +2124,15 @@ void movetransports_d(void)
 					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].posz < (sector[sect].ceilingz + (6 << 8)))
 					{
 						k = 1;
-						//                            if( sprj->extra <= 0) break;
+						//                            if( spr2->extra <= 0) break;
 						if (screenpeek == p)
 						{
 							FX_StopAllSounds();
 						}
-						S_PlayActorSound(DUKE_GASP, j);
+						S_PlayActorSound(DUKE_GASP, act2);
 						
 						ps[p].oposz = ps[p].posz =
-						sector[spriowner->sectnum].floorz - (7 << 8);
+						sector[Owner->s.sectnum].floorz - (7 << 8);
 						
 						ps[p].jumping_toggle = 1;
 						ps[p].jumping_counter = 0;
@@ -2145,26 +2140,26 @@ void movetransports_d(void)
 					
 					if (k == 1)
 					{
-						ps[p].oposx = ps[p].posx += spriowner->x - spri->x;
-						ps[p].oposy = ps[p].posy += spriowner->y - spri->y;
+						ps[p].oposx = ps[p].posx += Owner->s.x - spr->x;
+						ps[p].oposy = ps[p].posy += Owner->s.y - spr->y;
 						
-						if (spriowner->owner != spri->owner)
+						if (!Owner || Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
-						ps[p].cursectnum = spriowner->sectnum;
+						ps[p].cursectnum = Owner->s.sectnum;
 						
-						changespritesect(j, spriowner->sectnum);
-						setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + PHEIGHT);
+						changespritesect(act2, Owner->s.sectnum);
+						setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz + PHEIGHT);
 						
 						setpal(&ps[p]);
 						
 						if ((krand() & 255) < 32)
-							fi.spawn(j, WATERSPLASH2);
+							spawn(act2, WATERSPLASH2);
 						
 						if (sectlotag == 1)
 							for (int l = 0; l < 9; l++)
 						{
-							q = fi.spawn(ps[p].i, WATERBUBBLE);
-							sprite[q].z += krand() & 16383;
+							auto q = spawn(ps[p].GetActor(), WATERBUBBLE);
+							q->s.z += krand() & 16383;
 						}
 					}
 				}
@@ -2202,11 +2197,11 @@ void movetransports_d(void)
 					if (ll && sectlotag == 1 && spr2->z > (sector[sect].floorz - ll))
 						warpspriteto = 1;
 					
-					if (sectlotag == 0 && (onfloorz || abs(spr2->z - spri->z) < 4096))
+					if (sectlotag == 0 && (onfloorz || abs(spr2->z - spr->z) < 4096))
 					{
-						if (spriowner->owner != spri->owner && onfloorz && act1->temp_data[0] > 0 && spr2->statnum != 5)
+						if ((!Owner || Owner->GetOwner() != Owner) && onfloorz && act->temp_data[0] > 0 && spr2->statnum != STAT_MISC)
 						{
-							act1->temp_data[0]++;
+							act->temp_data[0]++;
 							goto BOLT;
 						}
 						warpspriteto = 1;
@@ -2237,16 +2232,16 @@ void movetransports_d(void)
 							break;
 						
 					case WATERBUBBLE:
-						//if( rnd(192) && sprj->picnum == WATERBUBBLE)
+						//if( rnd(192) && a2->s.picnum == WATERBUBBLE)
 						// break;
 						
 						if (sectlotag > 0)
 						{
-							int k = fi.spawn(j, WATERSPLASH2);
+							auto k = spawn(act2, WATERSPLASH2);
 							if (sectlotag == 1 && spr2->statnum == 4)
 							{
-								sprite[k].xvel = spr2->xvel >> 1;
-								sprite[k].ang = spr2->ang;
+								k->s.xvel = spr2->xvel >> 1;
+								k->s.ang = spr2->ang;
 								ssp(k, CLIPMASK0);
 							}
 						}
@@ -2256,70 +2251,70 @@ void movetransports_d(void)
 						case 0:
 							if (onfloorz)
 							{
-								if (spr2->statnum == 4 || (checkcursectnums(sect) == -1 && checkcursectnums(spriowner->sectnum) == -1))
+								if (spr2->statnum == STAT_PROJECTILE || (checkcursectnums(sect) == -1 && checkcursectnums(Owner->s.sectnum) == -1))
 								{
-									spr2->x += (spriowner->x - spri->x);
-									spr2->y += (spriowner->y - spri->y);
-									spr2->z -= spri->z - sector[spriowner->sectnum].floorz;
-									spr2->ang = spriowner->ang;
+									spr2->x += (Owner->s.x - spr->x);
+									spr2->y += (Owner->s.y - spr->y);
+									spr2->z -= spr->z - sector[Owner->s.sectnum].floorz;
+									spr2->ang = Owner->s.ang;
 									
 									act2->bposx = spr2->x;
 									act2->bposy = spr2->y;
 									act2->bposz = spr2->z;
 									
-									if (spri->pal == 0)
+									if (spr->pal == 0)
 									{
-										int k = fi.spawn(i, TRANSPORTERBEAM);
+										auto k = spawn(act, TRANSPORTERBEAM);
 										S_PlayActorSound(TELEPORTER, k);
 										
-										k = fi.spawn(spri->owner, TRANSPORTERBEAM);
+										k = spawn(Owner, TRANSPORTERBEAM);
 										S_PlayActorSound(TELEPORTER, k);
 									}
 									
-									if (spriowner->owner != spri->owner)
+									if (Owner && Owner->GetOwner() == Owner)
 									{
-										act1->temp_data[0] = 13;
-										hittype[spri->owner].temp_data[0] = 13;
+										act->temp_data[0] = 13;
+										Owner->temp_data[0] = 13;
 									}
 									
-									changespritesect(j, spriowner->sectnum);
+									changespritesect(act2, Owner->s.sectnum);
 								}
 							}
 							else
 							{
-								spr2->x += (spriowner->x - spri->x);
-								spr2->y += (spriowner->y - spri->y);
-								spr2->z = spriowner->z + 4096;
+								spr2->x += (Owner->s.x - spr->x);
+								spr2->y += (Owner->s.y - spr->y);
+								spr2->z = Owner->s.z + 4096;
 								
 								act2->bposx = spr2->x;
 								act2->bposy = spr2->y;
 								act2->bposz = spr2->z;
 								
-								changespritesect(j, spriowner->sectnum);
+								changespritesect(act2, Owner->s.sectnum);
 							}
 							break;
 						case 1:
-							spr2->x += (spriowner->x - spri->x);
-							spr2->y += (spriowner->y - spri->y);
-							spr2->z = sector[spriowner->sectnum].ceilingz + ll;
+							spr2->x += (Owner->s.x - spr->x);
+							spr2->y += (Owner->s.y - spr->y);
+							spr2->z = sector[Owner->s.sectnum].ceilingz + ll;
 							
 							act2->bposx = spr2->x;
 							act2->bposy = spr2->y;
 							act2->bposz = spr2->z;
 							
-							changespritesect(j, spriowner->sectnum);
+							changespritesect(act2, Owner->s.sectnum);
 							
 							break;
 						case 2:
-							spr2->x += (spriowner->x - spri->x);
-							spr2->y += (spriowner->y - spri->y);
-							spr2->z = sector[spriowner->sectnum].floorz - ll;
+							spr2->x += (Owner->s.x - spr->x);
+							spr2->y += (Owner->s.y - spr->y);
+							spr2->z = sector[Owner->s.sectnum].floorz - ll;
 							
 							act2->bposx = spr2->x;
 							act2->bposy = spr2->y;
 							act2->bposz = spr2->z;
 							
-							changespritesect(j, spriowner->sectnum);
+							changespritesect(act2, Owner->s.sectnum);
 							
 							break;
 						}
