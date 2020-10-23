@@ -3735,31 +3735,28 @@ void LoadActor(DDukeActor *actor, int p, int x)
 //
 //---------------------------------------------------------------------------
 
-void execute(int i,int p,int x)
+void execute(DDukeActor *actor,int p,int x)
 {
-	if (actorinfo[sprite[i].picnum].scriptaddress == 0) return;
+	if (actorinfo[actor->s.picnum].scriptaddress == 0) return;
 
 	int done;
-	spritetype* g_sp;
 
 	ParseState s;
-	s.g_i = i;	// Sprite ID
 	s.g_p = p;	// Player ID
 	s.g_x = x;	// ??
-	g_sp = s.g_sp = &sprite[i];	// Pointer to sprite structure
-	s.g_t = &hittype[i].temp_data[0];	// Sprite's 'extra' data
-	s.g_ac = &hittype[i];
+	s.g_ac = actor;
+	s.g_t = &actor->temp_data[0];	// Sprite's 'extra' data
 
-	if (actorinfo[g_sp->picnum].scriptaddress == 0) return;
-	s.insptr = &ScriptCode[4 + (actorinfo[g_sp->picnum].scriptaddress)];
+	if (actorinfo[actor->s.picnum].scriptaddress == 0) return;
+	s.insptr = &ScriptCode[4 + (actorinfo[actor->s.picnum].scriptaddress)];
 
 	s.killit_flag = 0;
 
-	if(g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+	if(actor->s.sectnum < 0 || actor->s.sectnum >= MAXSECTORS)
 	{
-		if(badguy(g_sp))
+		if(badguy(actor))
 			ps[p].actors_killed++;
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 
@@ -3771,11 +3768,11 @@ void execute(int i,int p,int x)
 		int increment = ptr[3];
 		int delay =  ptr[4];
 
-		g_sp->lotag += TICSPERFRAME;
-		if (g_sp->lotag > delay)
+		actor->s.lotag += TICSPERFRAME;
+		if (actor->s.lotag > delay)
 		{
 			s.g_t[2]++;
-			g_sp->lotag = 0;
+			actor->s.lotag = 0;
 			s.g_t[3] += increment;
 		}
 		if (abs(s.g_t[3]) >= abs(numframes * increment))
@@ -3788,35 +3785,35 @@ void execute(int i,int p,int x)
 
 	if(s.killit_flag == 1)
 	{
-		// if player was set to squish, first stop that...
-		if(ps[p].actorsqu == &hittype[i])
+		// if player was set to squish, first stop that..
+		if(ps[p].actorsqu == actor)
 			ps[p].actorsqu = nullptr;
 		killthesprite = true;
 	}
 	else
 	{
-		fi.move(s.g_ac, p, x);
+		fi.move(actor, p, x);
 
-		if (g_sp->statnum == STAT_ACTOR)
+		if (actor->s.statnum == STAT_ACTOR)
 		{
-			if (badguy(g_sp))
+			if (badguy(actor))
 			{
-				if (g_sp->xrepeat > 60) goto quit;
-				if (ud.respawn_monsters == 1 && g_sp->extra <= 0) goto quit;
+				if (actor->s.xrepeat > 60) goto quit;
+				if (ud.respawn_monsters == 1 && actor->s.extra <= 0) goto quit;
 			}
-			else if (ud.respawn_items == 1 && (g_sp->cstat & 32768)) goto quit;
+			else if (ud.respawn_items == 1 && (actor->s.cstat & 32768)) goto quit;
 
-			if (hittype[i].timetosleep > 1)
-				hittype[i].timetosleep--;
-			else if (hittype[i].timetosleep == 1)
-				changespritestat(i, STAT_ZOMBIEACTOR);
+			if (actor->timetosleep > 1)
+				actor->timetosleep--;
+			else if (actor->timetosleep == 1)
+				changespritestat(actor, STAT_ZOMBIEACTOR);
 		}
 
-		else if (g_sp->statnum == STAT_STANDABLE)
-			fi.checktimetosleep(s.g_ac);
+		else if (actor->s.statnum == STAT_STANDABLE)
+			fi.checktimetosleep(actor);
 	}
 quit:
-	if (killthesprite) deletesprite(i);
+	if (killthesprite) deletesprite(actor);
 	killthesprite = false;
 }
 

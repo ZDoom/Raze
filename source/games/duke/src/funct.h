@@ -171,7 +171,7 @@ void showtwoscreens(const CompletionFunc& func);
 void doorders(const CompletionFunc& func);
 
 void LoadActor(DDukeActor* i, int p, int x);
-void execute(int s, int p, int d);
+void execute(DDukeActor* s, int p, int d);
 void makeitfall(DDukeActor* s);
 int furthestangle(DDukeActor* snum, int angDiv);
 void getglobalz(DDukeActor* s);
