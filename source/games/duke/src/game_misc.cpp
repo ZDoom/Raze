@@ -43,6 +43,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "sbar.h"
 #include "glbackend/glbackend.h"
 #include "gamestate.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 
@@ -416,16 +417,15 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 	yvect2 = mulscale16(yvect, yxaspect);
 
 	//Draw sprites
-	k = ps[screenpeek].i;
 	for (i = 0; i < numsectors; i++)
 	{
 		if (!gFullMap || !show2dsector[i]) continue;
-		SectIterator it(i);
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(i);
+		while (auto act = it.Next())
 		{
-			spr = &sprite[j];
+			spr = &act->s;
 
-			if (j == k || (spr->cstat & 0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
+			if (act == ps[screenpeek].GetActor() || (spr->cstat & 0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
 
 			col = PalEntry(0, 170, 170);
 			if (spr->cstat & 1) col = PalEntry(170, 0, 170);
@@ -563,9 +563,10 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 
 	for (p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		ox = sprite[ps[p].i].x - cposx;
-		oy = sprite[ps[p].i].y - cposy;
-		daang = (sprite[ps[p].i].ang - cang) & 2047;
+		auto pspr = &ps[p].GetActor()->s;
+		ox = pspr->x - cposx;
+		oy = pspr->y - cposy;
+		daang = (pspr->ang - cang) & 2047;
 
 		x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
 		y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
@@ -573,19 +574,19 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 		if (p == screenpeek || ud.coop == 1)
 		{
 			auto& pp = ps[p];
-			if (sprite[pp.i].xvel > 16 && pp.on_ground)
+			if (pspr->xvel > 16 && pp.on_ground)
 				i = TILE_APLAYERTOP + ((ud.levelclock >> 4) & 3);
 			else
 				i = TILE_APLAYERTOP;
 
 			j = klabs(pp.truefz - pp.posz) >> 8;
-			j = mulscale(czoom * (sprite[pp.i].yrepeat + j), yxaspect, 16);
+			j = mulscale(czoom * (pspr->yrepeat + j), yxaspect, 16);
 
 			if (j < 22000) j = 22000;
 			else if (j > (65536 << 1)) j = (65536 << 1);
 
-			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + pp.palette, sprite[pp.i].pal), DTA_CenterOffset, true,
-				DTA_Rotate, daang * (-360./2048), DTA_Color, shadeToLight(sprite[pp.i].shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
+			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + pp.palette, pspr->pal), DTA_CenterOffset, true,
+				DTA_Rotate, daang * (-360./2048), DTA_Color, shadeToLight(pspr->shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
 		}
 	}
 	return true;
