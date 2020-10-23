@@ -1663,8 +1663,8 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	case concmd_motoloopsnd:
-		if (!S_CheckSoundPlaying(g_i, 411))
-			S_PlayActorSound(411, g_i, CHAN_VOICE);
+		if (!S_CheckActorSoundPlaying(g_ac, 411))
+			S_PlayActorSound(411, g_ac, CHAN_VOICE);
 		insptr++;
 		break;
 	case concmd_ifgotweaponce:
@@ -1678,12 +1678,12 @@ int ParseState::parse(void)
 					if (ps[g_p].weaprecs[j] == g_sp->picnum)
 						break;
 
-				parseifelse(j < ps[g_p].weapreccnt&& g_sp->owner == g_i);
+				parseifelse(j < ps[g_p].weapreccnt&& g_ac->GetOwner() == g_ac);
 			}
 			else if (ps[g_p].weapreccnt < 16)
 			{
 				ps[g_p].weaprecs[ps[g_p].weapreccnt++] = g_sp->picnum;
-				parseifelse(g_sp->owner == g_i);
+				parseifelse(g_ac->GetOwner() == g_ac);
 			}
 		}
 		else parseifelse(0);
@@ -1695,14 +1695,14 @@ int ParseState::parse(void)
 		else
 		{
 			// Copied from DukeGDX.
-			if (g_sp->picnum == TILE_EGG && hittype[g_i].temp_data[5] == TILE_EGG + 2 && g_sp->pal == 1) 
+			if (g_sp->picnum == TILE_EGG && g_ac->temp_data[5] == TILE_EGG + 2 && g_sp->pal == 1) 
 			{
 				ps[connecthead].max_actors_killed++; //revive the egg
-				hittype[g_i].temp_data[5] = 0;
+				g_ac->temp_data[5] = 0;
 			}
-			g_sp->pal = hittype[g_i].tempang;
+			g_sp->pal = g_ac->tempang;
 		}
-		hittype[g_i].tempang = 0;
+		g_ac->tempang = 0;
 		break;
 	case concmd_tossweapon:
 		insptr++;
@@ -1713,8 +1713,8 @@ int ParseState::parse(void)
 		break;
 	case concmd_mikesnd:
 		insptr++;
-		if (!S_CheckSoundPlaying(g_i, g_sp->yvel))
-			S_PlayActorSound(g_sp->yvel, g_i, CHAN_VOICE);
+		if (!S_CheckActorSoundPlaying(g_ac, g_sp->yvel))
+			S_PlayActorSound(g_sp->yvel, g_ac, CHAN_VOICE);
 		break;
 	case concmd_pkick:
 		insptr++;
@@ -1740,7 +1740,7 @@ int ParseState::parse(void)
 
 		insptr++;
 
-		if ((g_sp->picnum == TILE_APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tilesiz[g_sp->picnum].y + 8)) << 2) < (hittype[g_i].floorz - hittype[g_i].ceilingz))
+		if ((g_sp->picnum == TILE_APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tilesiz[g_sp->picnum].y + 8)) << 2) < (g_ac->floorz - g_ac->ceilingz))
 		{
 			j = ((*insptr) - g_sp->yrepeat) << 1;
 			if (abs(j)) g_sp->yrepeat += ksgn(j);
@@ -1758,7 +1758,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_shoot:
 		insptr++;
-		fi.shoot(g_i, (short)*insptr);
+		fi.shoot(g_ac->GetIndex(), (short)*insptr);
 		insptr++;
 		break;
 	case concmd_ifsoundid:
@@ -1774,28 +1774,28 @@ int ParseState::parse(void)
 		break;
 	case concmd_soundtag:
 		insptr++;
-		S_PlayActorSound(ambientlotag[g_sp->ang], g_i);
+		S_PlayActorSound(ambientlotag[g_sp->ang], g_ac);
 		break;
 	case concmd_soundtagonce:
 		insptr++;
-		if (!S_CheckSoundPlaying(g_i, ambientlotag[g_sp->ang]))
-			S_PlayActorSound(ambientlotag[g_sp->ang], g_i);
+		if (!S_CheckActorSoundPlaying(g_ac, ambientlotag[g_sp->ang]))
+			S_PlayActorSound(ambientlotag[g_sp->ang], g_ac);
 		break;
 	case concmd_soundonce:
 		insptr++;
-		if (!S_CheckSoundPlaying(g_i, *insptr++))
-			S_PlayActorSound(*(insptr - 1), g_i);
+		if (!S_CheckSoundPlaying(*insptr++))
+			S_PlayActorSound(*(insptr - 1), g_ac);
 		break;
 	case concmd_stopsound:
 		insptr++;
-		if (S_CheckSoundPlaying(g_i, *insptr))
+		if (S_CheckSoundPlaying(*insptr))
 			S_StopSound((int)*insptr);
 		insptr++;
 		break;
 	case concmd_globalsound:
 		insptr++;
 		if (g_p == screenpeek || ud.coop == 1)
-			S_PlayActorSound((int)*insptr, ps[screenpeek].i);
+			S_PlayActorSound((int)*insptr, ps[screenpeek].GetActor());
 		insptr++;
 		break;
 	case concmd_smackbubba:
@@ -1820,7 +1820,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_sound:
 		insptr++;
-		S_PlayActorSound((short) *insptr,g_i);
+		S_PlayActorSound((short) *insptr,g_ac);
 		insptr++;
 		break;
 	case concmd_tip:
@@ -1829,10 +1829,10 @@ int ParseState::parse(void)
 		break;
 	case concmd_iftipcow:
 	case concmd_ifhittruck: // both have the same code.
-		if (hittype[g_i].spriteextra == 1) // 
+		if (g_ac->spriteextra == 1) // 
 		{
 			j = 1;
-			hittype[g_i].spriteextra++;
+			g_ac->spriteextra++;
 		}
 		else
 			j = 0;
@@ -1881,7 +1881,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_sleeptime:
 		insptr++;
-		hittype[g_i].timetosleep = (short)*insptr;
+		g_ac->timetosleep = (short)*insptr;
 		insptr++;
 		break;
 	case concmd_paper:
