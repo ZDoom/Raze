@@ -891,17 +891,16 @@ static void handle_st25(int sn, DDukeActor* actor)
 
 static void handle_st27(int sn, DDukeActor* actor)
 {
-	int j;
-	StatIterator it(STAT_EFFECTOR);
-	while ((j = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_EFFECTOR);
+	while (auto act2 = it.Next())
 	{
-		if ((sprite[j].lotag & 0xff) == 20 && sprite[j].sectnum == sn) //Bridge
+		if ((act2->s.lotag & 0xff) == 20 && act2->s.sectnum == sn) //Bridge
 		{
 
 			sector[sn].lotag ^= 0x8000;
 			if (sector[sn].lotag & 0x8000) //OPENING
-				hittype[j].temp_data[0] = 1;
-			else hittype[j].temp_data[0] = 2;
+				act2->temp_data[0] = 1;
+			else act2->temp_data[0] = 2;
 			callsound(sn, actor);
 			break;
 		}
