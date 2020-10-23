@@ -1133,7 +1133,7 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short
 	}
 	return;
 }
-void DoActor(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short sPlayer, int lParm2)
+void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPlayer, int lParm2)
 {
 	int iActor;
 	int lValue;
