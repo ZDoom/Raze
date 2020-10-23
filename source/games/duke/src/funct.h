@@ -149,7 +149,7 @@ bool isablockdoor(int tileNum);
 bool activatewarpelevators(DDukeActor* s, int w);
 int check_activator_motion(int lotag);
 void operateactivators(int l, int w);
-void operateforcefields_common(int s, int low, const std::initializer_list<int>& tiles);
+void operateforcefields_common(DDukeActor* s, int low, const std::initializer_list<int>& tiles);
 void operatemasterswitches(int lotag);
 void operatesectors(int s, DDukeActor* i);
 void hud_input(int playerNum);

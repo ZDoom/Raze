@@ -1173,7 +1173,7 @@ void operatemasterswitches(int low)
 //
 //---------------------------------------------------------------------------
 
-void operateforcefields_common(int s, int low, const std::initializer_list<int> &tiles)
+void operateforcefields_common(DDukeActor *effector, int low, const std::initializer_list<int> &tiles)
 {
 	int i, p;
 
@@ -1190,8 +1190,7 @@ void operateforcefields_common(int s, int low, const std::initializer_list<int> 
 				{
 					wall[i].cstat = 0;
 
-					if (s >= 0 && sprite[s].picnum == SECTOREFFECTOR &&
-						sprite[s].lotag == 30)
+					if (effector && effector->s.picnum == SECTOREFFECTOR && effector->s.lotag == 30)
 						wall[i].lotag = 0;
 				}
 				else
@@ -1222,22 +1221,18 @@ void breakwall(short newpn, short spr, short dawallnum)
 
 void allignwarpelevators(void)
 {
-	int i, j;
-
-	StatIterator it(STAT_EFFECTOR);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_EFFECTOR);
+	while (auto act = it.Next())
 	{
-		auto si = &sprite[i];
-		if (si->lotag == SE_17_WARP_ELEVATOR && si->shade > 16)
+		if (act->s.lotag == SE_17_WARP_ELEVATOR && act->s.shade > 16)
 		{
-			StatIterator it1(STAT_EFFECTOR);
-			while ((j = it1.NextIndex()) >= 0)
+			DukeStatIterator it1(STAT_EFFECTOR);
+			while (auto act2 = it1.Next())
 			{
-				if ((sprite[j].lotag) == SE_17_WARP_ELEVATOR && i != j &&
-					(si->hitag) == (sprite[j].hitag))
+				if ((act2->s.lotag) == SE_17_WARP_ELEVATOR && act != act2 && act->s.hitag == act2->s.hitag)
 				{
-					sector[sprite[j].sectnum].floorz = sector[si->sectnum].floorz;
-					sector[sprite[j].sectnum].ceilingz = sector[si->sectnum].ceilingz;
+					sector[act2->s.sectnum].floorz = sector[act->s.sectnum].floorz;
+					sector[act2->s.sectnum].ceilingz = sector[act->s.sectnum].ceilingz;
 				}
 			}
 		}

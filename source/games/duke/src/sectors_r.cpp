@@ -334,7 +334,7 @@ void operaterespawns_r(int low)
 
 void operateforcefields_r(int s, int low)
 {
-	operateforcefields_common(s, low, { BIGFORCE });
+	operateforcefields_common(&hittype[s], low, { BIGFORCE });
 }
 
 //---------------------------------------------------------------------------
