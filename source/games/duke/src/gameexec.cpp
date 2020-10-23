@@ -2591,13 +2591,13 @@ int ParseState::parse(void)
 		}
 		else if( aGameVars[*insptr].dwFlags & GAMEVAR_FLAG_PERACTOR)
 		{
-			DPrintf(DMSG_NOTIFY, " (Per Actor. Actor=%d)",g_i);
+			DPrintf(DMSG_NOTIFY, " (Per Actor. Actor=%d)",g_ac->GetIndex());
 		}
 		else
 		{
 			DPrintf(DMSG_NOTIFY, " (Global)");
 		}
-		DPrintf(DMSG_NOTIFY, " =%d",	GetGameVarID(*insptr, g_i, g_p));
+		DPrintf(DMSG_NOTIFY, " =%d",	GetGameVarID(*insptr, g_ac, g_p));
 		insptr++;
 		break;
 	}
@@ -2605,7 +2605,7 @@ int ParseState::parse(void)
 	{	int i;
 		insptr++;
 		i=*(insptr++);	// ID of def
-		SetGameVarID(i, *insptr, g_i, g_p );
+		SetGameVarID(i, *insptr, g_ac->GetIndex(), g_p );
 		insptr++;
 		break;
 	}
@@ -2613,7 +2613,7 @@ int ParseState::parse(void)
 	{	int i;
 		insptr++;
 		i=*(insptr++);	// ID of def
-		SetGameVarID(i, GetGameVarID(*insptr, g_i, g_p), g_i, g_p );
+		SetGameVarID(i, GetGameVarID(*insptr, g_ac, g_p), g_ac->GetIndex(), g_p );
 //			aGameVars[i].lValue = aGameVars[*insptr].lValue;
 		insptr++;
 		break;
@@ -2622,9 +2622,9 @@ int ParseState::parse(void)
 	{	int i;		
 		insptr++;
 		i=*(insptr++);	// ID of def
-//sprintf(g_szBuf,"AddVar %d to Var ID=%d, g_i=%d, g_p=%d\n",*insptr, i, g_i, g_p);
+//sprintf(g_szBuf,"AddVar %d to Var ID=%d, g_ac->GetIndex()=%d, g_p=%d\n",*insptr, i, g_ac, g_p);
 //AddLog(g_szBuf);
-		SetGameVarID(i, GetGameVarID(i, g_i, g_p) + *insptr, g_i, g_p );
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) + *insptr, g_ac->GetIndex(), g_p );
 		insptr++;
 		break;
 	}
@@ -2633,7 +2633,7 @@ int ParseState::parse(void)
 	{	int i;
 		insptr++;
 		i=*(insptr++);	// ID of def
-		SetGameVarID(i, GetGameVarID(i, g_i, g_p) + GetGameVarID(*insptr, g_i, g_p), g_i, g_p );
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) + GetGameVarID(*insptr, g_ac, g_p), g_ac->GetIndex(), g_p );
 		insptr++;
 		break;
 	}
@@ -2643,7 +2643,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) == GetGameVarID(*(insptr), g_i, g_p) )
+		if(GetGameVarID(i, g_ac, g_p) == GetGameVarID(*(insptr), g_ac, g_p) )
 		{
 			j=1;
 		}
@@ -2656,7 +2656,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) > GetGameVarID(*(insptr), g_i, g_p) )
+		if(GetGameVarID(i, g_ac, g_p) > GetGameVarID(*(insptr), g_ac, g_p) )
 		{
 			j=1;
 		}
@@ -2669,7 +2669,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) < GetGameVarID(*(insptr), g_i, g_p) )
+		if(GetGameVarID(i, g_ac, g_p) < GetGameVarID(*(insptr), g_ac, g_p) )
 		{
 			j=1;
 		}
@@ -2682,7 +2682,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) == *insptr)
+		if(GetGameVarID(i, g_ac, g_p) == *insptr)
 		{
 			j=1;
 		}
@@ -2695,7 +2695,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) > *insptr)
+		if(GetGameVarID(i, g_ac, g_p) > *insptr)
 		{
 			j=1;
 		}
@@ -2708,7 +2708,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) < *insptr)
+		if(GetGameVarID(i, g_ac, g_p) < *insptr)
 		{
 			j=1;
 		}
@@ -2717,7 +2717,7 @@ int ParseState::parse(void)
 	}
 	case concmd_ifphealthl:
 		insptr++;
-		parseifelse( sprite[ps[g_p].i].extra < *insptr);
+		parseifelse( ps[g_p].GetActor()->s.extra < *insptr);
 		break;
 
 	case concmd_ifpinventory:
@@ -2768,13 +2768,13 @@ int ParseState::parse(void)
 		}
 	case concmd_pstomp:
 		insptr++;
-		if( ps[g_p].knee_incs == 0 && sprite[ps[g_p].i].xrepeat >= (isRR()? 9: 40) )
-			if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),sprite[ps[g_p].i].sectnum) )
+		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->s.xrepeat >= (isRR()? 9: 40) )
+			if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),ps[g_p].GetActor()->s.sectnum) )
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)
 				ps[g_p].weapon_pos = -1;
-			ps[g_p].actorsqu = &hittype[g_i];
+			ps[g_p].actorsqu = g_ac;
 		}
 		break;
 	case concmd_ifawayfromwall:
@@ -2813,7 +2813,7 @@ int ParseState::parse(void)
 		parseifelse( fi.floorspace(g_sp->sectnum));
 		break;
 	case concmd_ifnotmoving:
-		parseifelse( (hittype[g_i].movflag&49152) > 16384 );
+		parseifelse( (g_ac->movflag&kHitTypeMask) > kHitSprite );
 		break;
 	case concmd_respawnhitag:
 		insptr++;
@@ -2831,7 +2831,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_ifnosounds:
-		parseifelse(!S_CheckAnyActorSoundPlaying(g_i) );
+		parseifelse(!S_CheckAnyActorSoundPlaying(g_ac->GetIndex()) );
 		break;
 
 	case concmd_ifplaybackon: //Twentieth Anniversary World Tour
