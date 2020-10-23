@@ -1082,7 +1082,7 @@ void shoot_d(int i, int atwith)
 	case BLOODSPLAT2:
 	case BLOODSPLAT3:
 	case BLOODSPLAT4:
-		shootbloodsplat(i, p, sx, sy, sz, sa, atwith, BIGFORCE, OOZFILTER, NEWBEAST);
+		shootbloodsplat(actor, p, sx, sy, sz, sa, atwith, BIGFORCE, OOZFILTER, NEWBEAST);
 		break;
 
 	case KNEE:
@@ -3151,7 +3151,7 @@ HORIZONLY:
 		}
 	}
 
-	dokneeattack(snum, pi, { FEM1, FEM2, FEM3, FEM4, FEM5, FEM6, FEM7, FEM8, FEM9, FEM10, PODFEM1, NAKED1, STATUE });
+	dokneeattack(snum, { FEM1, FEM2, FEM3, FEM4, FEM5, FEM6, FEM7, FEM8, FEM9, FEM10, PODFEM1, NAKED1, STATUE });
 
 	if (fi.doincrements(p)) return;
 

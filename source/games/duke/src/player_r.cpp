@@ -888,7 +888,7 @@ void shoot_r(int i, int atwith)
 	case BLOODSPLAT2:
 	case BLOODSPLAT3:
 	case BLOODSPLAT4:
-		shootbloodsplat(i, p, sx, sy, sz, sa, atwith, BIGFORCE, OOZFILTER, -1);
+		shootbloodsplat(actor, p, sx, sy, sz, sa, atwith, BIGFORCE, OOZFILTER, -1);
 		return;
 
 	case SLINGBLADE:
@@ -4137,7 +4137,7 @@ HORIZONLY:
 		fi.addweapon(p, p->last_full_weapon);
 		return;
 	}
-	dokneeattack(snum, pi, { FEM10, NAKED1, STATUE });
+	dokneeattack(snum, { FEM10, NAKED1, STATUE });
 
 
 	if (fi.doincrements(p)) return;

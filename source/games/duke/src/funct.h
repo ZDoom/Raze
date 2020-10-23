@@ -112,7 +112,7 @@ int wakeup(DDukeActor* sn, int pn);
 
 
 int timedexit(int snum);
-void dokneeattack(int snum, int pi, const std::initializer_list<int>& respawnlist);
+void dokneeattack(int snum, const std::initializer_list<int>& respawnlist);
 int endoflevel(int snum);
 void playerisdead(int snum, int psectlotag, int fz, int cz);
 void footprints(int snum);
@@ -135,7 +135,7 @@ void quickkill(struct player_struct* p);
 void setpal(struct player_struct* p);
 int madenoise(int playerNum);
 int haskey(int sect, int snum);
-void shootbloodsplat(int i, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST);
+void shootbloodsplat(DDukeActor* i, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST);
 
 void breakwall(short newpn, short spr, short dawallnum);
 int callsound(int sectnum,DDukeActor* snum);
