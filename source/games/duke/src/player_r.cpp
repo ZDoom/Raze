@@ -4218,7 +4218,6 @@ void OnMotorcycle(struct player_struct *p, int motosprite)
 
 void OffMotorcycle(struct player_struct *p)
 {
-	short j;
 	if (p->OnMotorcycle)
 	{
 		if (S_CheckActorSoundPlaying(p->i,188))
@@ -4248,11 +4247,11 @@ void OffMotorcycle(struct player_struct *p)
 		p->posxv -= sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
 		p->posyv -= sintable[p->angle.ang.asbuild()&2047]<<7;
 		p->moto_underwater = 0;
-		j = fi.spawn(p->i, EMPTYBIKE);
-		sprite[j].ang = p->angle.ang.asbuild();
-		sprite[j].xvel += sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
-		sprite[j].yvel += sintable[p->angle.ang.asbuild()&2047]<<7;
-		sprite[j].owner = p->ammo_amount[MOTORCYCLE_WEAPON];
+		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
+		spawned->s.ang = p->angle.ang.asbuild();
+		spawned->s.xvel += sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
+		spawned->s.yvel += sintable[p->angle.ang.asbuild()&2047]<<7;
+		spawned->s.owner = p->ammo_amount[MOTORCYCLE_WEAPON];
 	}
 }
 
@@ -4262,17 +4261,17 @@ void OffMotorcycle(struct player_struct *p)
 //
 //---------------------------------------------------------------------------
 
-void OnBoat(struct player_struct *p, int boatsprite)
+void OnBoat(struct player_struct *p, DDukeActor* boat)
 {
 	if (!p->OnBoat)
 	{
-		if (boatsprite)
+		if (boat)
 		{
-			p->posx = sprite[boatsprite].x;
-			p->posy = sprite[boatsprite].y;
-			p->angle.ang = buildang(sprite[boatsprite].ang);
-			p->ammo_amount[BOAT_WEAPON] = sprite[boatsprite].owner;
-			deletesprite(boatsprite);
+			p->posx = boat->s.x;
+			p->posy = boat->s.y;
+			p->angle.ang = buildang(boat->s.ang);
+			p->ammo_amount[BOAT_WEAPON] = boat->s.owner;
+			deletesprite(boat);
 		}
 		p->over_shoulder_on = 0;
 		p->OnBoat = 1;
@@ -4293,7 +4292,6 @@ void OnBoat(struct player_struct *p, int boatsprite)
 
 void OffBoat(struct player_struct *p)
 {
-	short j;
 	if (p->OnBoat)
 	{
 		p->OnBoat = 0;
@@ -4313,11 +4311,11 @@ void OffBoat(struct player_struct *p)
 		p->posxv -= sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
 		p->posyv -= sintable[p->angle.ang.asbuild()&2047]<<7;
 		p->moto_underwater = 0;
-		j = fi.spawn(p->i, EMPTYBOAT);
-		sprite[j].ang = p->angle.ang.asbuild();
-		sprite[j].xvel += sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
-		sprite[j].yvel += sintable[p->angle.ang.asbuild()&2047]<<7;
-		sprite[j].owner = p->ammo_amount[BOAT_WEAPON];
+		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
+		spawned->s.ang = p->angle.ang.asbuild();
+		spawned->s.xvel += sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
+		spawned->s.yvel += sintable[p->angle.ang.asbuild()&2047]<<7;
+		spawned->s.owner = p->ammo_amount[BOAT_WEAPON];
 	}
 }
 

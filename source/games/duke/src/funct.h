@@ -210,7 +210,7 @@ void cacheit_r();
 void FTA(int q, struct player_struct* p);
 void OnMotorcycle(player_struct *pl, int snum);
 void OffMotorcycle(player_struct *pl);
-void OnBoat(player_struct *pl, int snum);
+void OnBoat(player_struct *pl, DDukeActor* snum);
 void OffBoat(player_struct *pl);
 
 void cameratext(int i);

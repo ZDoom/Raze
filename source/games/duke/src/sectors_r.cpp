@@ -2628,7 +2628,7 @@ void checksectors_r(int snum)
 				return;
 			case EMPTYBOAT:
 				if (!isRRRA()) return;
-				OnBoat(p, neartagsprite);
+				OnBoat(p, &hittype[neartagsprite]);
 				return;
 			case RRTILE8164:
 			case RRTILE8165:
