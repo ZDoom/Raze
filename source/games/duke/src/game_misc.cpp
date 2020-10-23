@@ -417,6 +417,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 	yvect2 = mulscale16(yvect, yxaspect);
 
 	//Draw sprites
+	auto pactor = ps[screenpeek].GetActor();
 	for (i = 0; i < numsectors; i++)
 	{
 		if (!gFullMap || !show2dsector[i]) continue;
@@ -425,7 +426,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 		{
 			spr = &act->s;
 
-			if (act == ps[screenpeek].GetActor() || (spr->cstat & 0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
+			if (act == pactor || (spr->cstat & 0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
 
 			col = PalEntry(0, 170, 170);
 			if (spr->cstat & 1) col = PalEntry(170, 0, 170);

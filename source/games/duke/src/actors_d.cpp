@@ -570,7 +570,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		{
 			if (spri->picnum == LIZMAN)
 				cd = 292;
-			else if (actorflag(actor->GetIndex(), SFLAG_BADGUY))
+			else if (actorflag(actor, SFLAG_BADGUY))
 				cd = spri->clipdist << 2;
 			else
 				cd = 192;

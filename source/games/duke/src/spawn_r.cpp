@@ -1042,7 +1042,7 @@ int spawn_r(int j, int pn)
 						sp->cstat |= 257;
 
 						if(sp->picnum != 5501)
-							if (actorfella(i))
+							if (actorfella(&hittype[i]))
 								ps[myconnectindex].max_actors_killed++;
 					}
 

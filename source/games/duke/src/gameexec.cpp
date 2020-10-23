@@ -1900,7 +1900,7 @@ int ParseState::parse(void)
 		{
 			if (g_ac->spriteextra < 1 || g_ac->spriteextra == 128)
 			{
-				if (actorfella(g_ac->GetIndex()))
+				if (actorfella(g_ac))
 					ps[g_p].actors_killed += *insptr;
 			}
 		}

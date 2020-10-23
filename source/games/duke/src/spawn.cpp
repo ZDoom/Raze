@@ -248,7 +248,7 @@ void spawninitdefault(int j, int i)
 		if (sp->xrepeat == 0 || sp->yrepeat == 0)
 			sp->xrepeat = sp->yrepeat = 1;
 
-		if (actorflag(i, SFLAG_BADGUY))
+		if (actorflag(act, SFLAG_BADGUY))
 		{
 			if (ud.monsters_off == 1)
 			{
@@ -259,10 +259,10 @@ void spawninitdefault(int j, int i)
 
 			makeitfall(i);
 
-			if (actorflag(i, SFLAG_BADGUYSTAYPUT))
+			if (actorflag(act, SFLAG_BADGUYSTAYPUT))
 				act->actorstayput = sp->sectnum;
 
-			if (!isRR() || actorflag(i, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
+			if (!isRR() || actorflag(act, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
 				ps[myconnectindex].max_actors_killed++;
 
 			sp->clipdist = 80;
@@ -568,26 +568,27 @@ void initwaterdrip(int j, int i)
 //
 //---------------------------------------------------------------------------
 
-int initreactor(int j, int i, bool isrecon)
+int initreactor(int j, int i_, bool isrecon)
 {
-	auto sp = &sprite[i];
+	auto actor = &hittype[i_];
+	auto sp = &actor->s;
 	int sect = sp->sectnum;
-	auto t = hittype[i].temp_data;
+	auto t = actor->temp_data;
 	if (isrecon)
 	{
 		if (sp->lotag > ud.player_skill)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changespritestat(i, STAT_MISC);
+			changespritestat(actor, STAT_MISC);
 			return true;
 		}
-		if (!isRR() || actorflag(i, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
+		if (!isRR() || actorflag(actor, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
 			ps[myconnectindex].max_actors_killed++;
-		hittype[i].temp_data[5] = 0;
+		actor->temp_data[5] = 0;
 		if (ud.monsters_off == 1)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changespritestat(i, STAT_MISC);
+			changespritestat(actor, STAT_MISC);
 			return false;
 		}
 		sp->extra = 130;
@@ -600,13 +601,13 @@ int initreactor(int j, int i, bool isrecon)
 	if (ud.multimode < 2 && sp->pal != 0)
 	{
 		sp->xrepeat = sp->yrepeat = 0;
-		changespritestat(i, STAT_MISC);
+		changespritestat(actor, STAT_MISC);
 		return false;
 	}
 	sp->pal = 0;
 	sp->shade = -17;
 
-	changespritestat(i, 2);
+	changespritestat(actor, 2);
 	return false;
 }
 

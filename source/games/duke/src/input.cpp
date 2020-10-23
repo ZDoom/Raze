@@ -283,15 +283,15 @@ void hud_input(int plnum)
 						{
 							p->inven_icon = 3;
 
-							i =
+							auto pactor =
 								EGS(p->cursectnum,
 									p->posx,
 									p->posy,
-									p->posz + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, -1, 10);
-							hittype[i].temp_data[3] = hittype[i].temp_data[4] = 0;
-							p->holoduke_on = &hittype[i];
-							sprite[i].yvel = plnum;
-							sprite[i].extra = 0;
+									p->posz + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, nullptr, 10);
+							pactor->temp_data[3] = pactor->temp_data[4] = 0;
+							p->holoduke_on = pactor;
+							pactor->s.yvel = plnum;
+							pactor->s.extra = 0;
 							FTA(QUOTE_HOLODUKE_ON, p);
 							S_PlayActorSound(TELEPORTER, p->holoduke_on);
 						}
@@ -918,7 +918,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
 	if (!cl_syncinput)
 	{
-		if (sprite[p->i].extra > 0)
+		if (p->GetActor()->s.extra > 0)
 		{
 			// Do these in the same order as the old code.
 			calcviewpitch(p, scaleAdjust);
