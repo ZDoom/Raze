@@ -218,13 +218,14 @@ int hits(DDukeActor* actor)
 	auto sp = &actor->s;
 	int sx, sy, sz;
 	short sect;
-	short hw, hs;
+	short hw;
 	int zoff;
+	DDukeActor* d;
 
 	if (sp->picnum == TILE_APLAYER) zoff = (40 << 8);
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, sintable[(sp->ang + 512) & 2047], sintable[sp->ang & 2047], 0, &sect, &hw, &hs, &sx, &sy, &sz, CLIPMASK1);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, sintable[(sp->ang + 512) & 2047], sintable[sp->ang & 2047], 0, &sect, &hw, &d, &sx, &sy, &sz, CLIPMASK1);
 
 	return (FindDistance2D(sx - sp->x, sy - sp->y));
 }
@@ -246,9 +247,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	else if (sp->picnum == TILE_APLAYER) zoff = (39 << 8);
 	else zoff = 0;
 
-	short hitthis = -1;
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, sintable[(sp->ang + 512) & 2047], sintable[sp->ang & 2047], 0, &sect, &hw, &hitthis, &sx, &sy, &sz, CLIPMASK1);
-	if (hitsp) *hitsp = (hitthis == -1 ? nullptr : &hittype[hitthis]);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, sintable[(sp->ang + 512) & 2047], sintable[sp->ang & 2047], 0, &sect, &hw, hitsp, &sx, &sy, &sz, CLIPMASK1);
 
 	if (hw >= 0 && (wall[hw].cstat & 16) && badguy(actor))
 		return((1 << 30));
@@ -265,10 +264,11 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 int hitawall(struct player_struct* p, int* hitw)
 {
 	int sx, sy, sz;
-	short sect, hs, hitw1;
+	short sect, hitw1;
+	DDukeActor* d;
 
 	hitscan(p->posx, p->posy, p->posz, p->cursectnum,
-		sintable[(p->angle.ang.asbuild() + 512) & 2047], sintable[p->angle.ang.asbuild() & 2047], 0, &sect, &hitw1, &hs, &sx, &sy, &sz, CLIPMASK0);
+		sintable[(p->angle.ang.asbuild() + 512) & 2047], sintable[p->angle.ang.asbuild() & 2047], 0, &sect, &hitw1, &d, &sx, &sy, &sz, CLIPMASK0);
 	*hitw = hitw1;
 
 	return (FindDistance2D(sx - p->posx, sy - p->posy));
@@ -1074,8 +1074,9 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	spritetype* const s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall;
+	short hitsect, hitwall;
 	int hitx, hity, hitz;
+	DDukeActor* d;
 
 	if (p >= 0)
 		sa += 64 - (krand() & 127);
@@ -1086,7 +1087,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	hitscan(sx, sy, sz, sect,
 		sintable[(sa + 512) & 2047],
 		sintable[sa & 2047], zvel << 6,
-		&hitsect, &hitwall, &hitspr, &hitx, &hity, &hitz, CLIPMASK1);
+		&hitsect, &hitwall, &d, &hitx, &hity, &hitz, CLIPMASK1);
 
 	// oh my...
 	if (FindDistance2D(sx - hitx, sy - hity) < 1024 &&
@@ -1143,7 +1144,8 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 {
 	spritetype* sp;
 	int i, nx, ny, nz, hx, hy, hitx, hity, hitz;
-	short bakcstat, hitsect, hitwall, hitsprite, daang;
+	short bakcstat, hitsect, hitwall, daang;
+	DDukeActor* hitsprt;
 
 	nx = (sintable[(ang + 1536) & 2047] >> 4);
 	ny = (sintable[(ang + 1024) & 2047] >> 4);
@@ -1155,7 +1157,7 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 	sp->cstat &= (short)~0x101;
 
 	updatesectorz(*vx, *vy, *vz, vsectnum);
-	hitscan(*vx, *vy, *vz, *vsectnum, nx, ny, nz, &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK1);
+	hitscan(*vx, *vy, *vz, *vsectnum, nx, ny, nz, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	if (*vsectnum < 0)
 	{
@@ -1176,7 +1178,7 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 			if (abs(nx) > abs(ny)) hx -= mulscale28(nx, i);
 			else hy -= mulscale28(ny, i);
 		}
-		else if (hitsprite < 0)
+		else if (!hitsprt)
 		{
 			if (abs(nx) > abs(ny)) hx -= (nx >> 5);
 			else hy -= (ny >> 5);

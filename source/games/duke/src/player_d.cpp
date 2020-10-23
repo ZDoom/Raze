@@ -232,8 +232,9 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall;
+	short hitsect, hitwall;
 	int hitx, hity, hitz;
+	DDukeActor* hitsprt;
 
 	if (p >= 0)
 	{
@@ -252,14 +253,14 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	hitscan(sx, sy, sz, sect,
 		sintable[(sa + 512) & 2047],
 		sintable[sa & 2047], zvel << 6,
-		&hitsect, &hitwall, &hitspr, &hitx, &hity, &hitz, CLIPMASK1);
+		&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 
 	if (hitsect < 0) return;
 
 	if ((abs(sx - hitx) + abs(sy - hity)) < 1024)
 	{
-		if (hitwall >= 0 || hitspr >= 0)
+		if (hitwall >= 0 || hitsprt)
 		{
 			auto knee = EGS(hitsect, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
 			knee->s.extra += (krand() & 7);
@@ -273,10 +274,10 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
 				knee->s.extra += (max_player_health >> 2);
 
-			if (hitspr >= 0 && sprite[hitspr].picnum != ACCESSSWITCH && sprite[hitspr].picnum != ACCESSSWITCH2)
+			if (hitsprt && hitsprt->s.picnum != ACCESSSWITCH && hitsprt->s.picnum != ACCESSSWITCH2)
 			{
-				fi.checkhitsprite(hitspr, knee->GetIndex());
-				if (p >= 0) fi.checkhitswitch(p, hitspr, 1);
+				fi.checkhitsprite(hitsprt->GetIndex(), knee->GetIndex());
+				if (p >= 0) fi.checkhitswitch(p, hitsprt->GetIndex(), 1);
 			}
 
 			else if (hitwall >= 0)
@@ -319,8 +320,9 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall, l, k;
+	short hitsect, hitwall, l, k;
 	int hitx, hity, hitz;
+	DDukeActor* hitact;
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -405,12 +407,11 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	hitscan(sx, sy, sz, sect,
 		sintable[(sa + 512) & 2047],
 		sintable[sa & 2047],
-		zvel << 6, &hitsect, &hitwall, &hitspr, &hitx, &hity, &hitz, CLIPMASK1);
+		zvel << 6, &hitsect, &hitwall, &hitact, &hitx, &hity, &hitz, CLIPMASK1);
 	s->cstat |= 257;
 
 
 	if (hitsect < 0) return;
-	auto hitact = &hittype[hitspr];
 
 	if ((krand() & 15) == 0 && sector[hitsect].lotag == 2)
 		tracers(hitx, hity, hitz, sx, sy, sz, 8 - (ud.multimode >> 1));
@@ -421,7 +422,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 		spark->s.extra = ScriptCode[actorinfo[atwith].scriptaddress];
 		spark->s.extra += (krand() % 6);
 
-		if (hitwall == -1 && hitspr == -1)
+		if (hitwall == -1 && hitact == nullptr)
 		{
 			if (zvel < 0)
 			{
@@ -437,10 +438,10 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 			spawn(spark, SMALLSMOKE);
 		}
 
-		if (hitspr >= 0)
+		if (hitact)
 		{
-			fi.checkhitsprite(hitspr, spark->GetIndex());
-			if (sprite[hitspr].picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
+			fi.checkhitsprite(hitact->GetIndex(), spark->GetIndex());
+			if (hitact->s.picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
 			{
 				auto jib = spawn(spark, JIBS6);
 				spark->s.xrepeat = spark->s.yrepeat = 0;
@@ -461,7 +462,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 				hitact->s.picnum == HANDSWITCH ||
 				hitact->s.picnum == HANDSWITCH + 1))
 			{
-				fi.checkhitswitch(p, hitspr, 1);
+				fi.checkhitswitch(p, hitact->GetIndex(), 1);
 				return;
 			}
 		}
@@ -533,10 +534,10 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 		k = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, i, 4);
 		sprite[k].extra = ScriptCode[actorinfo[atwith].scriptaddress];
 
-		if (hitspr >= 0)
+		if (hitact)
 		{
-			fi.checkhitsprite(hitspr, k);
-			if (sprite[hitspr].picnum != TILE_APLAYER)
+			fi.checkhitsprite(hitact->GetIndex(), k);
+			if (hitact->s.picnum != TILE_APLAYER)
 				fi.spawn(k, SMALLSMOKE);
 			else sprite[k].xrepeat = sprite[k].yrepeat = 0;
 		}
@@ -846,8 +847,9 @@ static void shootlaser(int i, int p, int sx, int sy, int sz, int sa)
 	spritetype* const s = &sprite[i];
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall, j, k;
+	short hitsect, hitwall, j, k;
 	int hitx, hity, hitz;
+	DDukeActor* hitsprt;
 
 	if (p >= 0)
 		zvel = -ps[p].horizon.sum().asq16() >> 11;
@@ -856,10 +858,10 @@ static void shootlaser(int i, int p, int sx, int sy, int sz, int sa)
 	hitscan(sx, sy, sz - ps[p].pyoff, sect,
 		sintable[(sa + 512) & 2047],
 		sintable[sa & 2047],
-		zvel << 6, &hitsect, &hitwall, &hitspr, &hitx, &hity, &hitz, CLIPMASK1);
+		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	j = 0;
-	if (hitspr >= 0) return;
+	if (hitsprt) return;
 
 	if (hitwall >= 0 && hitsect >= 0)
 		if (((hitx - sx) * (hitx - sx) + (hity - sy) * (hity - sy)) < (290 * 290))
@@ -914,8 +916,9 @@ static void shootgrowspark(int i, int p, int sx, int sy, int sz, int sa)
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall, k;
+	short hitsect, hitwall, k;
 	int hitx, hity, hitz;
+	DDukeActor* hitsprt;
 
 	if (p >= 0)
 	{
@@ -967,7 +970,7 @@ static void shootgrowspark(int i, int p, int sx, int sy, int sz, int sa)
 	hitscan(sx, sy, sz, sect,
 		sintable[(sa + 512) & 2047],
 		sintable[sa & 2047],
-		zvel << 6, &hitsect, &hitwall, &hitspr, &hitx, &hity, &hitz, CLIPMASK1);
+		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	s->cstat |= 257;
 
@@ -977,12 +980,12 @@ static void shootgrowspark(int i, int p, int sx, int sy, int sz, int sa)
 	sprite[j].cstat |= 130;
 	sprite[j].xrepeat = sprite[j].yrepeat = 1;
 
-	if (hitwall == -1 && hitspr == -1 && hitsect >= 0)
+	if (hitwall == -1 && hitsprt == nullptr && hitsect >= 0)
 	{
 		if (zvel < 0 && (sector[hitsect].ceilingstat & 1) == 0)
 			fi.checkhitceiling(hitsect);
 	}
-	else if (hitspr >= 0) fi.checkhitsprite(hitspr, j);
+	else if (hitsprt != nullptr) fi.checkhitsprite(hitsprt->GetIndex(), j);
 	else if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
 	{
 		fi.checkhitwall(j, hitwall, hitx, hity, hitz, GROWSPARK);
@@ -1993,14 +1996,15 @@ int operateTripbomb(int snum)
 	int pi = p->i;
 
 	int sx, sy, sz;
-	short sect, hw, hitsp;
+	short sect, hw;
+	DDukeActor* hitsprt;
 
 	hitscan(p->posx, p->posy, p->posz,
 		p->cursectnum, sintable[(p->angle.ang.asbuild() + 512) & 2047],
 		sintable[p->angle.ang.asbuild() & 2047], -p->horizon.sum().asq16() >> 11,
-		&sect, &hw, &hitsp, &sx, &sy, &sz, CLIPMASK1);
+		&sect, &hw, &hitsprt, &sx, &sy, &sz, CLIPMASK1);
 
-	if (sect < 0 || hitsp >= 0)
+	if (sect < 0 || hitsprt)
 		return 0;
 
 	if (hw >= 0 && sector[sect].lotag > 2)

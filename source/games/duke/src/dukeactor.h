@@ -274,4 +274,13 @@ inline int callsound(int sect, int a)
 	return callsound(sect, a == -1? nullptr : &hittype[a]);
 }
 
+inline int hitscan(int x, int y, int z, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
+	short* hitsect, short* hitwall, DDukeActor** hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
+{
+	short hitsprt;
+	int res = ::hitscan(x, y, z, sectnum, vx, vy, vz, hitsect, hitwall, &hitsprt, hitx, hity, hitz, cliptype);
+	if (hitspr) *hitspr = hitsprt == -1 ? nullptr : &hittype[hitsprt];
+	return res;
+}
+
 END_DUKE_NS

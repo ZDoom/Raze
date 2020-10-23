@@ -93,8 +93,9 @@ static void shootmelee(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	spritetype* const s = &sprite[i];
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall, j, k;
+	short hitsect, hitwall, j, k;
 	int hitx, hity, hitz;
+	DDukeActor* hitsprt;
 
 	if (p >= 0)
 	{
@@ -113,10 +114,10 @@ static void shootmelee(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	hitscan(sx, sy, sz, sect,
 		sintable[(sa + 512) & 2047],
 		sintable[sa & 2047], zvel << 6,
-		&hitsect, &hitwall, &hitspr, &hitx, &hity, &hitz, CLIPMASK1);
+		&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	if (isRRRA() && ((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
-		&& hitspr == -1 && hitwall == -1)
+		&& hitsprt == nullptr && hitwall == -1)
 	{
 		short ii;
 		for (ii = 0; ii < MAXSPRITES; ii++)
@@ -138,7 +139,7 @@ static void shootmelee(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 				hitscan(nx, ny, nz, sprite[sprite[ii].owner].sectnum,
 					sintable[(sa + 512) & 2047],
 					sintable[sa & 2047], zvel << 6,
-					&hitsect, &hitwall, &hitspr, &hitx, &hity, &hitz, CLIPMASK1);
+					&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 				break;
 			}
 		}
@@ -148,7 +149,7 @@ static void shootmelee(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 	if ((abs(sx - hitx) + abs(sy - hity)) < 1024)
 	{
-		if (hitwall >= 0 || hitspr >= 0)
+		if (hitwall >= 0 || hitsprt)
 		{
 			if (isRRRA() && atwith == SLINGBLADE)
 			{
@@ -173,10 +174,10 @@ static void shootmelee(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 			if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
 				sprite[j].extra += (max_player_health >> 2);
 
-			if (hitspr >= 0 && sprite[hitspr].picnum != ACCESSSWITCH && sprite[hitspr].picnum != ACCESSSWITCH2)
+			if (hitsprt && hitsprt->s.picnum != ACCESSSWITCH && hitsprt->s.picnum != ACCESSSWITCH2)
 			{
-				fi.checkhitsprite(hitspr, j);
-				if (p >= 0) fi.checkhitswitch(p, hitspr, 1);
+				fi.checkhitsprite(hitsprt->GetIndex(), j);
+				if (p >= 0) fi.checkhitswitch(p, hitsprt->GetIndex(), 1);
 			}
 			else if (hitwall >= 0)
 			{
@@ -217,8 +218,9 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall, l, k;
+	short hitsect, hitwall, l, k;
 	int hitx, hity, hitz;
+	DDukeActor* hitsprt;
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -274,10 +276,10 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	hitscan(sx, sy, sz, sect,
 		sintable[(sa + 512) & 2047],
 		sintable[sa & 2047],
-		zvel << 6, &hitsect, &hitwall, &hitspr, &hitx, &hity, &hitz, CLIPMASK1);
+		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	if (isRRRA() && (((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
-		&& hitspr == -1 && hitwall == -1))
+		&& hitsprt == nullptr && hitwall == -1))
 	{
 		short ii;
 		for (ii = 0; ii < MAXSPRITES; ii++)
@@ -299,7 +301,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 				hitscan(nx, ny, nz, sprite[sprite[ii].owner].sectnum,
 					sintable[(sa + 512) & 2047],
 					sintable[sa & 2047], zvel << 6,
-					&hitsect, &hitwall, &hitspr, &hitx, &hity, &hitz, CLIPMASK1);
+					&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 				break;
 			}
 		}
@@ -323,7 +325,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 		sprite[k].extra = ScriptCode[actorinfo[atwith].scriptaddress];
 		sprite[k].extra += (krand() % 6);
 
-		if (hitwall == -1 && hitspr == -1)
+		if (hitwall == -1 && hitsprt == nullptr)
 		{
 			if (zvel < 0)
 			{
@@ -340,12 +342,12 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 				fi.spawn(k, SMALLSMOKE);
 		}
 
-		if (hitspr >= 0)
+		if (hitsprt)
 		{
-			if (sprite[hitspr].picnum == 1930)
+			if (hitsprt->s.picnum == 1930)
 				return;
-			fi.checkhitsprite(hitspr, k);
-			if (sprite[hitspr].picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
+			fi.checkhitsprite(hitsprt->GetIndex(), k);
+			if (hitsprt->s.picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
 			{
 				l = fi.spawn(k, JIBS6);
 				sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -357,17 +359,17 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 			else fi.spawn(k, SMALLSMOKE);
 
 			if (p >= 0 && (
-				sprite[hitspr].picnum == DIPSWITCH ||
-				sprite[hitspr].picnum == DIPSWITCH + 1 ||
-				sprite[hitspr].picnum == DIPSWITCH2 ||
-				sprite[hitspr].picnum == DIPSWITCH2 + 1 ||
-				sprite[hitspr].picnum == DIPSWITCH3 ||
-				sprite[hitspr].picnum == DIPSWITCH3 + 1 ||
-				(isRRRA() && sprite[hitspr].picnum == RRTILE8660) ||
-				sprite[hitspr].picnum == HANDSWITCH ||
-				sprite[hitspr].picnum == HANDSWITCH + 1))
+				hitsprt->s.picnum == DIPSWITCH ||
+				hitsprt->s.picnum == DIPSWITCH + 1 ||
+				hitsprt->s.picnum == DIPSWITCH2 ||
+				hitsprt->s.picnum == DIPSWITCH2 + 1 ||
+				hitsprt->s.picnum == DIPSWITCH3 ||
+				hitsprt->s.picnum == DIPSWITCH3 + 1 ||
+				(isRRRA() && hitsprt->s.picnum == RRTILE8660) ||
+				hitsprt->s.picnum == HANDSWITCH ||
+				hitsprt->s.picnum == HANDSWITCH + 1))
 			{
-				fi.checkhitswitch(p, hitspr, 1);
+				fi.checkhitswitch(p, hitsprt->GetIndex(), 1);
 				return;
 			}
 		}
@@ -442,10 +444,10 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 		k = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, i, 4);
 		sprite[k].extra = ScriptCode[actorinfo[atwith].scriptaddress];
 
-		if (hitspr >= 0)
+		if (hitsprt)
 		{
-			fi.checkhitsprite(hitspr, k);
-			if (sprite[hitspr].picnum != TILE_APLAYER)
+			fi.checkhitsprite(hitsprt->GetIndex(), k);
+			if (hitsprt->s.picnum != TILE_APLAYER)
 				fi.spawn(k, SMALLSMOKE);
 			else sprite[k].xrepeat = sprite[k].yrepeat = 0;
 		}

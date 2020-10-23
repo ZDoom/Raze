@@ -5125,8 +5125,9 @@ int dodge(DDukeActor* actor)
 int furthestangle(DDukeActor *actor, int angs)
 {
 	auto s = &actor->s;
-	short j, hitsect, hitwall, hitspr, furthest_angle, angincs;
+	short j, hitsect, hitwall, furthest_angle, angincs;
 	int hx, hy, hz, d, greatestd;
+	DDukeActor* dd;
 
 	greatestd = -(1 << 30);
 	angincs = 2048 / angs;
@@ -5136,10 +5137,7 @@ int furthestangle(DDukeActor *actor, int angs)
 
 	for (j = s->ang; j < (2048 + s->ang); j += angincs)
 	{
-		hitscan(s->x, s->y, s->z - (8 << 8), s->sectnum,
-			sintable[(j + 512) & 2047],
-			sintable[j & 2047], 0,
-			&hitsect, &hitwall, &hitspr, &hx, &hy, &hz, CLIPMASK1);
+		hitscan(s->x, s->y, s->z - (8 << 8), s->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047], 0, &hitsect, &hitwall, &dd, &hx, &hy, &hz, CLIPMASK1);
 
 		d = abs(hx - s->x) + abs(hy - s->y);
 
@@ -5161,8 +5159,9 @@ int furthestangle(DDukeActor *actor, int angs)
 int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day)
 {
 	auto s = &actor->s;
-	short j, hitsect, hitwall, hitspr, angincs;
+	short j, hitsect, hitwall, angincs;
 	int hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
+	DDukeActor* dd;
 
 	if ((actor->temp_data[0] & 63)) return -1;
 
@@ -5173,10 +5172,8 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 	auto ts = &tosee->s;
 	for (j = ts->ang; j < (2048 + ts->ang); j += (angincs - (krand() & 511)))
 	{
-		hitscan(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum,
-			sintable[(j + 512) & 2047],
-			sintable[j & 2047], 16384 - (krand() & 32767),
-			&hitsect, &hitwall, &hitspr, &hx, &hy, &hz, CLIPMASK1);
+		hitscan(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047], 16384 - (krand() & 32767), 
+			&hitsect, &hitwall, &dd, &hx, &hy, &hz, CLIPMASK1);
 
 		d = abs(hx - ts->x) + abs(hy - ts->y);
 		da = abs(hx - s->x) + abs(hy - s->y);
