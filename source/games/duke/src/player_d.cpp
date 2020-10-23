@@ -87,16 +87,16 @@ void incur_damage_d(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void shootfireball(int i, int p, int sx, int sy, int sz, int sa)
+static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int sa)
 {
-	spritetype* const s = &sprite[i];
+	auto s = &actor->s;
 	int vel, zvel;
 
 	if (s->extra >= 0)
 		s->shade = -96;
 
 	sz -= (4 << 7);
-	if (sprite[i].picnum != BOSS5)
+	if (s->picnum != BOSS5)
 		vel = 840;
 	else {
 		vel = 968;
@@ -108,7 +108,7 @@ static void shootfireball(int i, int p, int sx, int sy, int sz, int sa)
 		sa += 16 - (krand() & 31);
 		int scratch;
 		int j = findplayer(s, &scratch);
-		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(&sprite[ps[j].i], s);
+		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
 	else
 	{
@@ -126,10 +126,10 @@ static void shootfireball(int i, int p, int sx, int sy, int sz, int sa)
 		sizy = 7;
 	}
 
-	int j = EGS(s->sectnum, sx, sy, sz, FIREBALL, -127, sizx, sizy, sa, vel, zvel, i, (short)4);
-	auto spr = &sprite[j];
+	auto spawned = EGS(s->sectnum, sx, sy, sz, FIREBALL, -127, sizx, sizy, sa, vel, zvel, actor, (short)4);
+	auto spr = &spawned->s;
 	spr->extra += (krand() & 7);
-	if (sprite[i].picnum == BOSS5 || p >= 0)
+	if (s->picnum == BOSS5 || p >= 0)
 	{
 		spr->xrepeat = 40;
 		spr->yrepeat = 40;
@@ -145,58 +145,57 @@ static void shootfireball(int i, int p, int sx, int sy, int sz, int sa)
 //
 //---------------------------------------------------------------------------
 
-static void shootflamethrowerflame(int i, int p, int sx, int sy, int sz, int sa)
+static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
-	spritetype* const s = &sprite[i];
+	auto s = &actor->s;
 	int vel, zvel;
 
 	if (s->extra >= 0)
 		s->shade = -96;
 	vel = 400;
 
-	int k = -1;
+	DDukeActor* spawned = nullptr;
 	if (p < 0)
 	{
 		int x;
-		int j = findplayer(s, &x);
+		int j = findplayer(actor, &x);
 		sa = getangle(ps[j].oposx - sx, ps[j].oposy - sy);
 
-		if (sprite[i].picnum == BOSS5)
+		if (s->picnum == BOSS5)
 		{
 			vel = 528;
 			sz += 6144;
 		}
-		else if (sprite[i].picnum == BOSS3)
+		else if (s->picnum == BOSS3)
 			sz -= 8192;
 
-		int l = ldist(&sprite[ps[j].i], s);
+		int l = ldist(ps[j].GetActor(), actor);
 		if (l != 0)
 			zvel = ((ps[j].oposz - sz) * vel) / l;
 
-		if (badguy(s) && (s->hitag & face_player_smart) != 0)
+		if (badguy(actor) && (s->hitag & face_player_smart) != 0)
 			sa = (short)(s->ang + (krand() & 31) - 16);
 
 		if (sector[s->sectnum].lotag == 2 && (krand() % 5) == 0)
-			k = fi.spawn(i, WATERBUBBLE);
+			spawned = spawn(actor, WATERBUBBLE);
 	}
 	else
 	{
 		zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
-		if (sprite[ps[p].i].xvel != 0)
+		if (ps[p].GetActor()->s.xvel != 0)
 			vel = (int)((((512 - (1024
 				- abs(abs(getangle(sx - ps[p].oposx, sy - ps[p].oposy) - sa) - 1024)))
-				* 0.001953125f) * sprite[ps[p].i].xvel) + 400);
+				* 0.001953125f) * ps[p].GetActor()->s.xvel) + 400);
 		if (sector[s->sectnum].lotag == 2 && (krand() % 5) == 0)
-			k = fi.spawn(i, WATERBUBBLE);
+			spawned = spawn(actor, WATERBUBBLE);
 	}
 
-	if (k == -1)
+	if (spawned == nullptr)
 	{
-		k = fi.spawn(i, FLAMETHROWERFLAME);
-		sprite[k].xvel = (short)vel;
-		sprite[k].zvel = (short)zvel;
+		spawned = spawn(actor, FLAMETHROWERFLAME);
+		spawned->s.xvel = (short)vel;
+		spawned->s.zvel = (short)zvel;
 	}
-	auto spawned = &hittype[k];
 
 	spawned->s.x = sx + sintable[(sa + 630) & 0x7FF] / 448;
 	spawned->s.y = sy + sintable[(sa + 112) & 0x7FF] / 448;
@@ -208,11 +207,11 @@ static void shootflamethrowerflame(int i, int p, int sx, int sy, int sz, int sa)
 	spawned->s.yrepeat = 2;
 	spawned->s.clipdist = 40;
 	spawned->s.yvel = p;
-	spawned->s.owner = (short)i;
+	spawned->SetOwner(actor);
 
 	if (p == -1)
 	{
-		if (sprite[i].picnum == BOSS5)
+		if (s->picnum == BOSS5)
 		{
 			spawned->s.x -= sintable[sa & 2047] / 56;
 			spawned->s.y -= sintable[(sa + 1024 + 512) & 2047] / 56;
@@ -228,12 +227,12 @@ static void shootflamethrowerflame(int i, int p, int sx, int sy, int sz, int sa)
 //
 //---------------------------------------------------------------------------
 
-static void shootknee(int i, int p, int sx, int sy, int sz, int sa)
+static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
-	spritetype* const s = &sprite[i];
+	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall, j, k;
+	short hitsect, hitspr, hitwall;
 	int hitx, hity, hitz;
 
 	if (p >= 0)
@@ -245,9 +244,9 @@ static void shootknee(int i, int p, int sx, int sy, int sz, int sa)
 	else
 	{
 		int x;
-		j = ps[findplayer(s, &x)].i;
-		zvel = ((sprite[j].z - sz) << 8) / (x + 1);
-		sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
+		auto pactor = ps[findplayer(s, &x)].GetActor();
+		zvel = ((pactor->s.z - sz) << 8) / (x + 1);
+		sa = getangle(pactor->s.x - sx, pactor->s.y - sy);
 	}
 
 	hitscan(sx, sy, sz, sect,
@@ -262,21 +261,21 @@ static void shootknee(int i, int p, int sx, int sy, int sz, int sa)
 	{
 		if (hitwall >= 0 || hitspr >= 0)
 		{
-			j = EGS(hitsect, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, i, 4);
-			sprite[j].extra += (krand() & 7);
+			auto knee = EGS(hitsect, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+			knee->s.extra += (krand() & 7);
 			if (p >= 0)
 			{
-				k = fi.spawn(j, SMALLSMOKE);
-				sprite[k].z -= (8 << 8);
-				S_PlayActorSound(KICK_HIT, j);
+				auto k = spawn(knee, SMALLSMOKE);
+				k->s.z -= (8 << 8);
+				S_PlayActorSound(KICK_HIT, knee);
 			}
 
 			if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
-				sprite[j].extra += (max_player_health >> 2);
+				knee->s.extra += (max_player_health >> 2);
 
 			if (hitspr >= 0 && sprite[hitspr].picnum != ACCESSSWITCH && sprite[hitspr].picnum != ACCESSSWITCH2)
 			{
-				fi.checkhitsprite(hitspr, j);
+				fi.checkhitsprite(hitspr, knee->GetIndex());
 				if (p >= 0) fi.checkhitswitch(p, hitspr, 1);
 			}
 
@@ -289,7 +288,7 @@ static void shootknee(int i, int p, int sx, int sy, int sz, int sa)
 
 				if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
 				{
-					fi.checkhitwall(j, hitwall, hitx, hity, hitz, KNEE);
+					fi.checkhitwall(knee->GetIndex(), hitwall, hitx, hity, hitz, KNEE);
 					if (p >= 0) fi.checkhitswitch(p, hitwall, 0);
 				}
 			}
@@ -301,7 +300,7 @@ static void shootknee(int i, int p, int sx, int sy, int sz, int sa)
 			splash->s.y = hity;
 			splash->s.ang = ps[p].angle.ang.asbuild(); // Total tweek
 			splash->s.xvel = 32;
-			ssp(i, CLIPMASK0);
+			ssp(actor, CLIPMASK0);
 			splash->s.xvel = 0;
 
 		}
@@ -998,7 +997,7 @@ static void shootgrowspark(int i, int p, int sx, int sy, int sz, int sa)
 
 void shoot_d(int i, int atwith)
 {
-	short sect, l, j, k;
+	short sect, l, j;
 	int sx, sy, sz, sa, p, vel, zvel, x, dal;
 	auto actor = &hittype[i];
 	spritetype* const s = &actor->s;
@@ -1056,23 +1055,25 @@ void shoot_d(int i, int atwith)
 		switch (atwith) 
 		{
 		case FIREBALL:
-			shootfireball(i, p, sx, sy, sz, sa);
+			shootfireball(actor, p, sx, sy, sz, sa);
 			return;
 
 		case FLAMETHROWERFLAME:
-			shootflamethrowerflame(i, p, sx, sy, sz, sa);
+			shootflamethrowerflame(actor, p, sx, sy, sz, sa);
 			return;
 
 		case FIREFLY: // BOSS5 shot
-			k = fi.spawn(i, atwith);
-			sprite[k].sectnum = sect;
-			sprite[k].x = sx;
-			sprite[k].y = sy;
-			sprite[k].z = sz;
-			sprite[k].ang = sa;
-			sprite[k].xvel = 500;
-			sprite[k].zvel = 0;
+		{
+			auto k = spawn(actor, atwith);
+			k->s.sectnum = sect;
+			k->s.x = sx;
+			k->s.y = sy;
+			k->s.z = sz;
+			k->s.ang = sa;
+			k->s.xvel = 500;
+			k->s.zvel = 0;
 			return;
+		}
 		}
 	}
 
@@ -1086,7 +1087,7 @@ void shoot_d(int i, int atwith)
 		break;
 
 	case KNEE:
-		shootknee(i, p, sx, sy, sz, sa);
+		shootknee(actor, p, sx, sy, sz, sa);
 		break;
 
 	case SHOTSPARK1:

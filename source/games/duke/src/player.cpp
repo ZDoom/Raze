@@ -355,6 +355,7 @@ int aim(spritetype* s, int aang)
 		DukeStatIterator it(aimstats[k]);
 		while (auto act = it.Next())
 		{
+			i = act->GetIndex();
 			auto sp = &act->s;
 			if (sp->xrepeat > 0 && sp->extra >= 0 && (sp->cstat & (257 + 32768)) == 257)
 				if (badguy(sp) || k < 2)
