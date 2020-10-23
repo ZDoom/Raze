@@ -1500,6 +1500,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 int ParseState::parse(void)
 {
 	int j, l, s;
+	auto g_sp = &g_ac->s;
 
 	if(killit_flag) return 1;
 
@@ -1510,7 +1511,7 @@ int ParseState::parse(void)
 		insptr++;
 		// HACK ALERT! The fire animation uses a broken ifrnd setup to delay its start because original CON has no variables.
 		// But the chosen random value of 16/255 is too low and can cause delays of a second or more.
-		int spnum = sprite[g_i].picnum;
+		int spnum = g_sp->picnum;
 		if (spnum == TILE_FIRE && g_t[4] == 0 && *insptr == 16)
 		{
 			parseifelse(rnd(64));
@@ -1523,18 +1524,18 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz/*-((krand()&41)<<8)*/, sprite[ps[g_p].i].sectnum);
+		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->s.sectnum);
 		parseifelse(j);
-		if (j) hittype[g_i].timetosleep = SLEEPTIME;
+		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz, sprite[ps[g_p].i].sectnum);
+		j = cansee(g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz, ps[g_p].GetActor()->s.sectnum);
 		parseifelse(j);
-		if (j) hittype[g_i].timetosleep = SLEEPTIME;
+		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 
 	case concmd_ifactornotstayput:
-		parseifelse(hittype[g_i].actorstayput == -1);
+		parseifelse(g_ac->actorstayput == -1);
 		break;
 	case concmd_ifcansee:
 		parseifelse(ifcansee(g_ac, g_p));
@@ -1576,14 +1577,14 @@ int ParseState::parse(void)
 	case concmd_ifpdistl:
 		insptr++;
 		parseifelse(g_x < *insptr);
-		if (g_x > MAXSLEEPDIST && hittype[g_i].timetosleep == 0)
-			hittype[g_i].timetosleep = SLEEPTIME;
+		if (g_x > MAXSLEEPDIST && g_ac->timetosleep == 0)
+			g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifpdistg:
 		insptr++;
 		parseifelse(g_x > * insptr);
-		if (g_x > MAXSLEEPDIST && hittype[g_i].timetosleep == 0)
-			hittype[g_i].timetosleep = SLEEPTIME;
+		if (g_x > MAXSLEEPDIST && g_ac->timetosleep == 0)
+			g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_else:
 		insptr = &ScriptCode[*(insptr + 1)];
@@ -1655,10 +1656,10 @@ int ParseState::parse(void)
 			{
 				banjosound = 273;
 			}
-			S_PlayActorSound(banjosound, g_i, CHAN_WEAPON);
+			S_PlayActorSound(banjosound, g_ac, CHAN_WEAPON);
 		}
-		else if (!S_CheckSoundPlaying(g_i, banjosound))
-			S_PlayActorSound(banjosound, g_i, CHAN_WEAPON);
+		else if (!S_CheckActorSoundPlaying(g_ac, banjosound))
+			S_PlayActorSound(banjosound, g_ac, CHAN_WEAPON);
 		insptr++;
 		break;
 	case concmd_motoloopsnd:
