@@ -703,21 +703,22 @@ static void handle_st29(int sn, DDukeActor* actor)
 static void handle_st20(int sn, DDukeActor* actor)
 {
 	sectortype* sptr = &sector[sn];
-	int i,j;
+	int j;
 REDODOOR:
 
 	if (sptr->lotag & 0x8000)
 	{
-		SectIterator it(sn);
-		while ((i = it.NextIndex()) >= 0)
+		DDukeActor* a2;
+		DukeSectIterator it(sn);
+		while ((a2 = it.Next()))
 		{
-			if (sprite[i].statnum == 3 && sprite[i].lotag == 9)
+			if (a2->s.statnum == 3 && a2->s.lotag == 9)
 			{
-				j = sprite[i].z;
+				j = a2->s.z;
 				break;
 			}
 		}
-		if (i == -1)
+		if (a2 == nullptr)
 			j = sptr->floorz;
 	}
 	else
