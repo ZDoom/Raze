@@ -808,36 +808,35 @@ static void handle_st22(int sn, DDukeActor* actor)
 
 static void handle_st23(int sn, DDukeActor* actor)
 {
-	int j = -1;
 	int q = 0;
-	int i;
-
-	StatIterator it(STAT_EFFECTOR);
-	while ((i = it.NextIndex()) >= 0)
+	
+	DukeStatIterator it(STAT_EFFECTOR);
+	DDukeActor* act2;
+	while ((act2 = it.Next()))
 	{
-		if (sprite[i].lotag == 11 && sprite[i].sectnum == sn && !hittype[i].temp_data[4])
+		if (act2->s.lotag == 11 && act2->s.sectnum == sn && !act2->temp_data[4])
 		{
-			j = i;
 			break;
 		}
 	}
+	if (!act2) return;
 
-	int l = sector[sprite[i].sectnum].lotag & 0x8000;
+	int l = sector[act2->s.sectnum].lotag & 0x8000;
 
-	if (j >= 0)
+	if (act2)
 	{
-		StatIterator it(STAT_EFFECTOR);
-		while ((i = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_EFFECTOR);
+		while (auto act3 = it.Next())
 		{
-			if (l == (sector[sprite[i].sectnum].lotag & 0x8000) && sprite[i].lotag == 11 && sprite[j].hitag == sprite[i].hitag && !hittype[i].temp_data[4])
+			if (l == (sector[act3->s.sectnum].lotag & 0x8000) && act3->s.lotag == 11 && act2->s.hitag == act3->s.hitag && !act3->temp_data[4])
 			{
-				if (sector[sprite[i].sectnum].lotag & 0x8000) sector[sprite[i].sectnum].lotag &= 0x7fff;
-				else sector[sprite[i].sectnum].lotag |= 0x8000;
-				hittype[i].temp_data[4] = 1;
-				hittype[i].temp_data[3] = -hittype[i].temp_data[3];
+				if (sector[act3->s.sectnum].lotag & 0x8000) sector[act3->s.sectnum].lotag &= 0x7fff;
+				else sector[act3->s.sectnum].lotag |= 0x8000;
+				act3->temp_data[4] = 1;
+				act3->temp_data[3] = -act3->temp_data[3];
 				if (q == 0)
 				{
-					callsound(sn, i);
+					callsound(sn, act3);
 					q = 1;
 				}
 			}
