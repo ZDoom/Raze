@@ -416,7 +416,6 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 
 	if (p >= 0)
 	{
-		const char* k;
 		auto spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, &hittype[i], 4);
 		spark->s.extra = ScriptCode[actorinfo[atwith].scriptaddress];
 		spark->s.extra += (krand() % 6);

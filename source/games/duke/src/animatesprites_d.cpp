@@ -55,9 +55,8 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 	{
 		t = &tsprite[j];
 		i = t->owner;
-		s = &sprite[t->owner];
-		h = &hittype[t->owner];
-		auto Owner = &sprite[s->owner];
+		h = &hittype[i];
+		s = &h->s;
 
 		switch (t->picnum)
 		{
@@ -149,9 +148,10 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 	{                             //is the perfect time to animate sprites
 		t = &tsprite[j];
 		i = t->owner;
-		s = &sprite[i];
 		h = &hittype[i];
-		auto Owner = &sprite[s->owner];
+		s = &h->s;
+		auto OwnerAc = h->GetOwner();
+		auto Owner = OwnerAc ? &OwnerAc->s : nullptr;
 
 		switch (s->picnum)
 		{
@@ -229,7 +229,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 						Owner->y - t->y);
 
 				if (abs(getincangle(sqa, sqb)) > 512)
-					if (ldist(Owner, t) < ldist(&sprite[ps[screenpeek].i], Owner))
+					if (ldist(Owner, t) < ldist(&ps[screenpeek].GetActor()->s, Owner))
 						t->xrepeat = t->yrepeat = 0;
 			}
 			continue;
@@ -237,7 +237,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 		case BURNING2:
 			if (Owner && Owner->statnum == STAT_PLAYER)
 			{
-				if (display_mirror == 0 && Owner->yvel == screenpeek && ps[Owner->yvel].over_shoulder_on == 0)
+				if (display_mirror == 0 && Owner->yvel == screenpeek && ps[screenpeek].over_shoulder_on == 0)
 					t->xrepeat = 0;
 				else
 				{
@@ -258,7 +258,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			continue;
 		case VIEWSCREEN:
 		case VIEWSCREEN2:
-			if (camsprite >= 0 && hittype[sprite[i].owner].temp_data[0] == 1)
+			if (camsprite >= 0 && h->GetOwner()->temp_data[0] == 1)
 			{
 				t->picnum = STATIC;
 				t->cstat |= (rand() & 12);
@@ -336,7 +336,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 				}
 			}
 
-			if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && ud.showweapons && sprite[ps[p].i].extra > 0 && ps[p].curr_weapon > 0)
+			if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && ud.showweapons && ps[p].GetActor()->s.extra > 0 && ps[p].curr_weapon > 0)
 			{
 				auto newtspr = &tsprite[spritesortcnt];
 				memcpy(newtspr, t, sizeof(spritetype));
@@ -410,7 +410,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 
 			if (ps[p].on_crane == nullptr && (sector[s->sectnum].lotag & 0x7ff) != 1)
 			{
-				l = s->z - hittype[ps[p].i].floorz + (3 << 8);
+				l = s->z - ps[p].GetActor()->floorz + (3 << 8);
 				if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
 					s->yoffset = (signed char)(l / (s->yrepeat << 2));
 				else s->yoffset = 0;
@@ -714,7 +714,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 						}
 				if ((Owner->cstat & 32768) == 0)
 				{
-					t->picnum = hittype[s->owner].dispicnum;
+					t->picnum = OwnerAc->dispicnum;
 					t->pal = Owner->pal;
 					t->shade = Owner->shade;
 					t->ang = Owner->ang;
