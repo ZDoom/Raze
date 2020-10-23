@@ -196,27 +196,28 @@ static void shootflamethrowerflame(int i, int p, int sx, int sy, int sz, int sa)
 		sprite[k].xvel = (short)vel;
 		sprite[k].zvel = (short)zvel;
 	}
+	auto spawned = &hittype[k];
 
-	sprite[k].x = sx + sintable[(sa + 630) & 0x7FF] / 448;
-	sprite[k].y = sy + sintable[(sa + 112) & 0x7FF] / 448;
-	sprite[k].z = sz - 256;
-	sprite[k].sectnum = s->sectnum;
-	sprite[k].cstat = 0x80;
-	sprite[k].ang = sa;
-	sprite[k].xrepeat = 2;
-	sprite[k].yrepeat = 2;
-	sprite[k].clipdist = 40;
-	sprite[k].yvel = p;
-	sprite[k].owner = (short)i;
+	spawned->s.x = sx + sintable[(sa + 630) & 0x7FF] / 448;
+	spawned->s.y = sy + sintable[(sa + 112) & 0x7FF] / 448;
+	spawned->s.z = sz - 256;
+	spawned->s.sectnum = s->sectnum;
+	spawned->s.cstat = 0x80;
+	spawned->s.ang = sa;
+	spawned->s.xrepeat = 2;
+	spawned->s.yrepeat = 2;
+	spawned->s.clipdist = 40;
+	spawned->s.yvel = p;
+	spawned->s.owner = (short)i;
 
 	if (p == -1)
 	{
 		if (sprite[i].picnum == BOSS5)
 		{
-			sprite[k].x -= sintable[sa & 2047] / 56;
-			sprite[k].y -= sintable[(sa + 1024 + 512) & 2047] / 56;
-			sprite[k].xrepeat = 10;
-			sprite[k].yrepeat = 10;
+			spawned->s.x -= sintable[sa & 2047] / 56;
+			spawned->s.y -= sintable[(sa + 1024 + 512) & 2047] / 56;
+			spawned->s.xrepeat = 10;
+			spawned->s.yrepeat = 10;
 		}
 	}
 }
@@ -725,15 +726,15 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 		l = j;
 	else l = -1;
 
-	j = EGS(sect,
+	auto spawned = EGS(sect,
 		sx + (sintable[(348 + sa + 512) & 2047] / 448),
 		sy + (sintable[(sa + 348) & 2047] / 448),
-		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, i, 4);
+		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, &hittype[i], 4);
 
-	auto spj = &sprite[j];
+	auto spj = &spawned->s;
 	spj->extra += (krand() & 7);
 	if (atwith != FREEZEBLAST)
-		hittype[j].temp_actor = l >= 0? &hittype[l] : nullptr;//  sprite[j].yvel = l;
+		spawned->temp_actor = l >= 0? &hittype[l] : nullptr;//  spawned->s.yvel = l;
 	else
 	{
 		spj->yvel = numfreezebounces;

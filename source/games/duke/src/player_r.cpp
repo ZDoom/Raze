@@ -680,76 +680,76 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 		vel <<= 1;
 	}
 
-	j = EGS(sect,
+	auto spawned = EGS(sect,
 		sx + (sintable[(348 + sa + 512) & 2047] / 448),
 		sy + (sintable[(sa + 348) & 2047] / 448),
-		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, i, 4);
+		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, &hittype[i], 4);
 
 	if (isRRRA())
 	{
 		if (atwith == RRTILE1790)
 		{
-			sprite[j].extra = 10;
-			sprite[j].zvel = -(10 << 8);
+			spawned->s.extra = 10;
+			spawned->s.zvel = -(10 << 8);
 		}
 		else if (atwith == RPG2)
 		{
-			sprite[j].lotag = var90;
-			sprite[j].hitag = 0;
-			fi.lotsofmoney(&hittype[j], (krand() & 3) + 1);
+			spawned->s.lotag = var90;
+			spawned->s.hitag = 0;
+			fi.lotsofmoney(spawned, (krand() & 3) + 1);
 		}
 	}
 
-	sprite[j].extra += (krand() & 7);
+	spawned->s.extra += (krand() & 7);
 	if (atwith != FREEZEBLAST)
-		hittype[j].temp_actor = l >= 0? &hittype[l] : nullptr;//  sprite[j].yvel = l;
+		spawned->temp_actor = l >= 0? &hittype[l] : nullptr;//  spawned->s.yvel = l;
 	else
 	{
-		sprite[j].yvel = numfreezebounces;
-		sprite[j].xrepeat >>= 1;
-		sprite[j].yrepeat >>= 1;
-		sprite[j].zvel -= (2 << 4);
+		spawned->s.yvel = numfreezebounces;
+		spawned->s.xrepeat >>= 1;
+		spawned->s.yrepeat >>= 1;
+		spawned->s.zvel -= (2 << 4);
 	}
 
 	if (p == -1)
 	{
 		if (s->picnum == HULK)
 		{
-			sprite[j].xrepeat = 8;
-			sprite[j].yrepeat = 8;
+			spawned->s.xrepeat = 8;
+			spawned->s.yrepeat = 8;
 		}
 		else if (atwith != FREEZEBLAST)
 		{
-			sprite[j].xrepeat = 30;
-			sprite[j].yrepeat = 30;
-			sprite[j].extra >>= 2;
+			spawned->s.xrepeat = 30;
+			spawned->s.yrepeat = 30;
+			spawned->s.extra >>= 2;
 		}
 	}
 	else if (ps[p].curr_weapon == TIT_WEAPON)
 	{
-		sprite[j].extra >>= 2;
-		sprite[j].ang += 16 - (krand() & 31);
-		sprite[j].zvel += 256 - (krand() & 511);
+		spawned->s.extra >>= 2;
+		spawned->s.ang += 16 - (krand() & 31);
+		spawned->s.zvel += 256 - (krand() & 511);
 
 		if (ps[p].hbomb_hold_delay)
 		{
-			sprite[j].x -= sintable[sa & 2047] / 644;
-			sprite[j].y -= sintable[(sa + 1024 + 512) & 2047] / 644;
+			spawned->s.x -= sintable[sa & 2047] / 644;
+			spawned->s.y -= sintable[(sa + 1024 + 512) & 2047] / 644;
 		}
 		else
 		{
-			sprite[j].x += sintable[sa & 2047] >> 8;
-			sprite[j].y += sintable[(sa + 1024 + 512) & 2047] >> 8;
+			spawned->s.x += sintable[sa & 2047] >> 8;
+			spawned->s.y += sintable[(sa + 1024 + 512) & 2047] >> 8;
 		}
-		sprite[j].xrepeat >>= 1;
-		sprite[j].yrepeat >>= 1;
+		spawned->s.xrepeat >>= 1;
+		spawned->s.yrepeat >>= 1;
 	}
 
-	sprite[j].cstat = 128;
+	spawned->s.cstat = 128;
 	if (atwith == RPG || (atwith == RPG2 && isRRRA()))
-		sprite[j].clipdist = 4;
+		spawned->s.clipdist = 4;
 	else
-		sprite[j].clipdist = 40;
+		spawned->s.clipdist = 40;
 
 
 }
