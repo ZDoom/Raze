@@ -35,8 +35,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 // !JIM! 09/20/95
 // NOTE: HIGHER priority numbers have the highest precedence in the play list.
 #define PRI_MAX                 100
-#define PRI_PLAYERDEATH         51
-#define PRI_PLAYERVOICE         50
+#define PRI_PLAYERDEATH         52
+#define PRI_PLAYERVOICE         51
+#define PRI_PLAYERSPEECH        50
 #define PRI_HI_PLAYERWEAP       49
 #define PRI_LOW_PLAYERWEAP      48
 #define PRI_PLAYERAMBIENT       40

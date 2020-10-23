@@ -816,7 +816,11 @@ int _PlayerSound(int num, PLAYERp pp)
     vp = &voc[num];
 
     // Not a player voice, bail.
-    if (vp->priority != PRI_PLAYERVOICE && vp->priority != PRI_PLAYERDEATH)
+    if (vp->priority != PRI_PLAYERVOICE && vp->priority != PRI_PLAYERDEATH && vp->priority != PRI_PLAYERSPEECH)
+        return 0;
+
+    // Don't talk if not allowed to.
+    if (vp->priority == PRI_PLAYERSPEECH && !snd_speech)
         return 0;
 
     // The surfacing sound should not block other player speech.

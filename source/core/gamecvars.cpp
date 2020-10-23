@@ -112,10 +112,10 @@ CUSTOM_CVARD(Bool, snd_ambience, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_N
 CVARD(Bool, snd_enabled, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables sound effects")
 CVARD(Bool, snd_tryformats, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables automatic discovery of replacement sounds and music in .flac and .ogg formats")
 
-CVARD(Bool, mus_restartonload, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "restart the music when loading a saved game with the same map or not")
+CVARD(Bool, mus_restartonload, false, CVAR_ARCHIVE, "restart the music when loading a saved game with the same map or not")
 CVARD(Bool, mus_redbook, true, CVAR_ARCHIVE, "enables/disables redbook audio") 
 
-CUSTOM_CVARD(Int, snd_speech, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables player speech")
+CUSTOM_CVARD(Int, snd_speech, 1, CVAR_ARCHIVE, "enables/disables player speech")
 {
 	if (self < 0) self = 0;
 	else if (self > 1) self = 1;
