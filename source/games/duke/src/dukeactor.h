@@ -274,18 +274,4 @@ inline int callsound(int sect, int a)
 	return callsound(sect, a == -1? nullptr : &hittype[a]);
 }
 
-inline int hits(DDukeActor* snum)
-{
-	return hits(snum->GetIndex());
-}
-
-inline int hitasprite(DDukeActor* actor, DDukeActor** hit)
-{
-	short m;
-	int dist = hitasprite(actor->GetIndex(), &m);
-	if (hit) *hit = m >= 0? &hittype[m] : nullptr;
-	else *hit = nullptr;
-	return dist;
-}
-
 END_DUKE_NS

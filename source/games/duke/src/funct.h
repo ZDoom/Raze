@@ -128,8 +128,6 @@ void playerAimUp(int snum, ESyncBits actions);
 void playerAimDown(int snum, ESyncBits actions);
 bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, fixed_t q16horiz, double smoothratio);
 void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n);
-int hits(int i);
-int hitasprite(int i, short* hitsp);
 int aim(spritetype* s, int aang);
 void checkweapons(struct player_struct* const p);
 int findotherplayer(int p, int* d);
@@ -141,7 +139,7 @@ void shootbloodsplat(int i, int p, int sx, int sy, int sz, int sa, int atwith, i
 
 void breakwall(short newpn, short spr, short dawallnum);
 int callsound(int sectnum,DDukeActor* snum);
-int hitasprite(int snum,short *hitSprite);
+int hitasprite(DDukeActor* snum,DDukeActor **hitSprite);
 int findplayer(const DDukeActor* s, int* dist);
 void operatejaildoors(int hitag);
 void allignwarpelevators(void);
@@ -160,7 +158,7 @@ int setanimation(short animsect, int animtype, int animindex, int thegoal, int t
 void dofurniture(int wallNum, int sectnum, int playerNum);
 void dotorch();
 int hitawall(struct player_struct* pl, int* hitWall);
-int hits(int snum);
+int hits(DDukeActor* snum);
 
 void   clearsectinterpolate(int sprnum);
 void   setsectinterpolate(int sprnum);

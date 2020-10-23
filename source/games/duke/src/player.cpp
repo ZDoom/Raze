@@ -58,16 +58,17 @@ void PlayerColorChanged(void)
 	if (ud.recstat != 0)
 		return;
 
+	auto& pp = ps[myconnectindex];
 	if (ud.multimode > 1)
 	{
 		//Net_SendClientInfo();
 	}
 	else
 	{
-		ps[myconnectindex].palookup = ud.user_pals[myconnectindex] = playercolor2lookup(playercolor);
+		pp.palookup = ud.user_pals[myconnectindex] = playercolor2lookup(playercolor);
 	}
-	if (sprite[ps[myconnectindex].i].picnum == TILE_APLAYER && sprite[ps[myconnectindex].i].pal != 1)
-		sprite[ps[myconnectindex].i].pal = ud.user_pals[myconnectindex];
+	if (pp.GetActor()->s.picnum == TILE_APLAYER && pp.GetActor()->s.pal != 1)
+		pp.GetActor()->s.pal = ud.user_pals[myconnectindex];
 }
 
 //---------------------------------------------------------------------------
@@ -211,9 +212,9 @@ void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n)
 //
 //---------------------------------------------------------------------------
 
-int hits(int i)
+int hits(DDukeActor* actor)
 {
-	auto sp = &sprite[i];
+	auto sp = &actor->s;
 	int sx, sy, sz;
 	short sect;
 	short hw, hs;
@@ -233,20 +234,22 @@ int hits(int i)
 //
 //---------------------------------------------------------------------------
 
-int hitasprite(int i, short* hitsp)
+int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 {
-	auto sp = &sprite[i];
+	auto sp = &actor->s;
 	int sx, sy, sz, zoff;
 	short sect, hw;
 
-	if (badguy(&sprite[i]))
+	if (badguy(actor))
 		zoff = (42 << 8);
 	else if (sp->picnum == TILE_APLAYER) zoff = (39 << 8);
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, sintable[(sp->ang + 512) & 2047], sintable[sp->ang & 2047], 0, &sect, &hw, hitsp, &sx, &sy, &sz, CLIPMASK1);
+	short hitthis = -1;
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, sintable[(sp->ang + 512) & 2047], sintable[sp->ang & 2047], 0, &sect, &hw, &hitthis, &sx, &sy, &sz, CLIPMASK1);
+	if (hitsp) *hitsp = (hitthis == -1 ? nullptr : &hittype[hitthis]);
 
-	if (hw >= 0 && (wall[hw].cstat & 16) && badguy(&sprite[i]))
+	if (hw >= 0 && (wall[hw].cstat & 16) && badguy(actor))
 		return((1 << 30));
 
 	return (FindDistance2D(sx - sp->x, sy - sp->y));

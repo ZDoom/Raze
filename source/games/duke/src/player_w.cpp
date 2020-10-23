@@ -363,7 +363,7 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 				sprite[j].z += (8 << 8);
 			}
 
-			k = hits(pi);
+			k = hits(p->GetActor());
 			if (k < 512)
 			{
 				sprite[j].ang += 1024;

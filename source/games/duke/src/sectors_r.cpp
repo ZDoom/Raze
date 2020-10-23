@@ -2585,7 +2585,9 @@ void checksectors_r(int snum)
 		if (neartagsprite == -1 && neartagwall == -1)
 			if (sector[p->cursectnum].lotag == 2)
 			{
-				oldz = hitasprite(p->i, &neartagsprite);
+				DDukeActor* hit;
+				oldz = hitasprite(p->GetActor(), &hit);
+				if (hit) neartagsprite = hit->GetIndex();
 				if (oldz > 1280) neartagsprite = -1;
 			}
 
@@ -2695,7 +2697,7 @@ void checksectors_r(int snum)
 		if (!PlayerInput(snum, SB_OPEN)) return;
 
 		if (neartagwall == -1 && neartagsector == -1 && neartagsprite == -1)
-			if (abs(hits(p->i)) < 512)
+			if (abs(hits(p->GetActor())) < 512)
 			{
 				if ((krand() & 255) < 16)
 					S_PlayActorSound(DUKE_SEARCH2, p->i);
