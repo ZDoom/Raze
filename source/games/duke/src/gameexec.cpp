@@ -75,6 +75,7 @@ struct ParseState
 	spritetype* g_sp;
 	DDukeActor *g_ac;
 	int* insptr;
+	Collision coll;
 
 	int parse(void);
 	void parseifelse(int condition);
@@ -1893,19 +1894,19 @@ int ParseState::parse(void)
 		insptr++;
 		if (isRR())
 		{
-			if (hittype[g_i].spriteextra < 1 || hittype[g_i].spriteextra == 128)
+			if (g_ac->spriteextra < 1 || g_ac->spriteextra == 128)
 			{
-				if (actorfella(g_i))
+				if (actorfella(g_ac->GetIndex()))
 					ps[g_p].actors_killed += *insptr;
 			}
 		}
 		else ps[g_p].actors_killed += *insptr;
-		hittype[g_i].actorstayput = -1;
+		g_ac->actorstayput = -1;
 		insptr++;
 		break;
 	case concmd_lotsofglass:
 		insptr++;
-		spriteglass(g_i,*insptr);
+		spriteglass(g_ac->GetIndex(),*insptr);
 		insptr++;
 		break;
 	case concmd_killit:
@@ -1942,7 +1943,7 @@ int ParseState::parse(void)
 	case concmd_isdrunk: // todo: move out to player_r.
 		insptr++;
 		ps[g_p].drink_amt += *insptr;
-		j = sprite[ps[g_p].i].extra;
+		j = ps[g_p].GetActor()->s.extra;
 		if (j > 0)
 			j += *insptr;
 		if (j > max_player_health * 2)
@@ -1961,30 +1962,30 @@ int ParseState::parse(void)
 				ps[g_p].last_extra = j;
 			}
 
-			sprite[ps[g_p].i].extra = j;
+			ps[g_p].GetActor()->s.extra = j;
 		}
 		if (ps[g_p].drink_amt > 100)
 			ps[g_p].drink_amt = 100;
 
-		if (sprite[ps[g_p].i].extra >= max_player_health)
+		if (ps[g_p].GetActor()->s.extra >= max_player_health)
 		{
-			sprite[ps[g_p].i].extra = max_player_health;
+			ps[g_p].GetActor()->s.extra = max_player_health;
 			ps[g_p].last_extra = max_player_health;
 		}
 		insptr++;
 		break;
 	case concmd_strafeleft:
 		insptr++;
-		fi.movesprite(g_i, sintable[(g_sp->ang + 1024) & 2047] >> 10, sintable[(g_sp->ang + 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0);
+		movesprite_ex(g_ac, sintable[(g_sp->ang + 1024) & 2047] >> 10, sintable[(g_sp->ang + 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0, coll);
 		break;
 	case concmd_straferight:
 		insptr++;
-		fi.movesprite(g_i, sintable[(g_sp->ang - 0) & 2047] >> 10, sintable[(g_sp->ang - 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0);
+		movesprite_ex(g_ac, sintable[(g_sp->ang - 0) & 2047] >> 10, sintable[(g_sp->ang - 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0, coll);
 		break;
 	case concmd_larrybird:
 		insptr++;
-		ps[g_p].posz = sector[sprite[ps[g_p].i].sectnum].ceilingz;
-		sprite[ps[g_p].i].z = ps[g_p].posz;
+		ps[g_p].posz = sector[ps[g_p].GetActor()->s.sectnum].ceilingz;
+		ps[g_p].GetActor()->s.z = ps[g_p].posz;
 		break;
 	case concmd_destroyit:
 		insptr++;
@@ -2000,7 +2001,7 @@ int ParseState::parse(void)
 		ps[g_p].drink_amt -= *insptr;
 		if (ps[g_p].drink_amt < 0)
 			ps[g_p].drink_amt = 0;
-		j = sprite[ps[g_p].i].extra;
+		j = ps[g_p].GetActor()->s.extra;
 		if (g_sp->picnum != TILE_ATOMICHEALTH)
 		{
 			if (j > max_player_health && *insptr > 0)
@@ -2037,7 +2038,7 @@ int ParseState::parse(void)
 				ps[g_p].last_extra = j;
 			}
 
-			sprite[ps[g_p].i].extra = j;
+			ps[g_p].GetActor()->s.extra = j;
 		}
 
 		insptr++;
@@ -2056,15 +2057,15 @@ int ParseState::parse(void)
 			updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
 			setpal(&ps[g_p]);
 
-			StatIterator it(STAT_ACTOR);
-			while ((j = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_ACTOR);
+			while (auto j = it.Next())
 			{
-				if (sprite[j].picnum == TILE_CAMERA1)
-					sprite[j].yvel = 0;
+				if (j->s.picnum == TILE_CAMERA1)
+					j->s.yvel = 0;
 			}
 		}
 
-		j = sprite[ps[g_p].i].extra;
+		j = ps[g_p].GetActor()->s.extra;
 
 		if(g_sp->picnum != TILE_ATOMICHEALTH)
 		{
@@ -2102,7 +2103,7 @@ int ParseState::parse(void)
 				ps[g_p].last_extra = j;
 			}
 
-			sprite[ps[g_p].i].extra = j;
+			ps[g_p].GetActor()->s.extra = j;
 		}
 
 		insptr++;
@@ -2133,13 +2134,13 @@ int ParseState::parse(void)
 	case concmd_spawn:
 		insptr++;
 		if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-			fi.spawn(g_i,*insptr);
+			spawn(g_ac,*insptr);
 		insptr++;
 		break;
 	case concmd_ifwasweapon:
 	case concmd_ifspawnedby:	// these two are the same
 		insptr++;
-		parseifelse( hittype[g_i].picnum == *insptr);
+		parseifelse( g_ac->picnum == *insptr);
 		break;
 	case concmd_ifai:
 		insptr++;
@@ -2173,14 +2174,14 @@ int ParseState::parse(void)
 					s = 0;
 				else s = (krand()%3);
 
-				l = EGS(g_sp->sectnum,
+				auto l = EGS(g_sp->sectnum,
 					g_sp->x + (krand() & 255) - 128, g_sp->y + (krand() & 255) - 128, g_sp->z - (8 << 8) - (krand() & 8191),
 					dnum + s, g_sp->shade, 32 + (krand() & 15), 32 + (krand() & 15),
-					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_i, 5);
+					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
 				if(weap)
-					sprite[l].yvel = weaponsandammosprites[j%14];
-				else sprite[l].yvel = -1;
-				sprite[l].pal = g_sp->pal;
+					l->s.yvel = weaponsandammosprites[j%14];
+				else l->s.yvel = -1;
+				l->s.pal = g_sp->pal;
 			}
 			insptr++;
 		}
