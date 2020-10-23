@@ -42,6 +42,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 	int l, t1, t3, t4;
 	spritetype* s;
 	tspritetype* t;
+	weaponhit* h;
 
 	int bg = 0;
 
@@ -49,7 +50,9 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 	{
 		t = &tsprite[j];
 		i = t->owner;
-		s = &sprite[t->owner];
+		s = &sprite[i];
+		h = &hittype[i];
+		auto Owner = &sprite[s->owner];
 
 		switch (t->picnum)
 		{
@@ -136,6 +139,8 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 		t = &tsprite[j];
 		i = t->owner;
 		s = &sprite[i];
+		h = &hittype[i];
+		auto Owner = & sprite[s->owner];
 
 		switch (s->picnum)
 		{
@@ -164,15 +169,15 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 		}
 		else if (s->picnum != CRANEPOLE)
 		{
-			t->x -= mulscale16(MaxSmoothRatio - smoothratio, s->x - hittype[i].bposx);
-			t->y -= mulscale16(MaxSmoothRatio - smoothratio, s->y - hittype[i].bposy);
-			t->z -= mulscale16(MaxSmoothRatio - smoothratio, s->z - hittype[i].bposz);
+			t->x -= mulscale16(MaxSmoothRatio - smoothratio, s->x - h->bposx);
+			t->y -= mulscale16(MaxSmoothRatio - smoothratio, s->y - h->bposy);
+			t->z -= mulscale16(MaxSmoothRatio - smoothratio, s->z - h->bposz);
 		}
 
 		sect = s->sectnum;
-		t1 = hittype[i].temp_data[1];
-		t3 = hittype[i].temp_data[3];
-		t4 = hittype[i].temp_data[4];
+		t1 = h->temp_data[1];
+		t3 = h->temp_data[3];
+		t4 = h->temp_data[4];
 
 		switch (s->picnum)
 		{
@@ -214,28 +219,28 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 
 				sqa =
 					getangle(
-						sprite[s->owner].x - ps[screenpeek].posx,
-						sprite[s->owner].y - ps[screenpeek].posy);
+						Owner->x - ps[screenpeek].posx,
+						Owner->y - ps[screenpeek].posy);
 				sqb =
 					getangle(
-						sprite[s->owner].x - t->x,
-						sprite[s->owner].y - t->y);
+						Owner->x - t->x,
+						Owner->y - t->y);
 
 				if (abs(getincangle(sqa, sqb)) > 512)
-					if (ldist(&sprite[s->owner], t) < ldist(&sprite[ps[screenpeek].i], &sprite[s->owner]))
+					if (ldist(Owner, t) < ldist(&sprite[ps[screenpeek].i], Owner))
 						t->xrepeat = t->yrepeat = 0;
 			}
 			continue;
 		case BURNING:
-			if (sprite[s->owner].statnum == 10)
+			if (Owner->statnum == 10)
 			{
-				if (display_mirror == 0 && sprite[s->owner].yvel == screenpeek && ps[sprite[s->owner].yvel].over_shoulder_on == 0)
+				if (display_mirror == 0 && Owner->yvel == screenpeek && ps[Owner->yvel].over_shoulder_on == 0)
 					t->xrepeat = 0;
 				else
 				{
 					t->ang = getangle(x - t->x, y - t->y);
-					t->x = sprite[s->owner].x;
-					t->y = sprite[s->owner].y;
+					t->x = Owner->x;
+					t->y = Owner->y;
 					t->x += sintable[(t->ang + 512) & 2047] >> 10;
 					t->y += sintable[t->ang & 2047] >> 10;
 				}
@@ -249,7 +254,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			t->shade = (sintable[(ud.levelclock << 4) & 2047] >> 10);
 			break;
 		case SHRINKSPARK:
-			if ((sprite[s->owner].picnum == CHEER || sprite[s->owner].picnum == CHEERSTAYPUT) && isRRRA())
+			if ((Owner->picnum == CHEER || Owner->picnum == CHEERSTAYPUT) && isRRRA())
 			{
 				t->picnum = CHEERBLADE + ((ud.levelclock >> 4) & 3);
 				t->shade = -127;
@@ -267,14 +272,14 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 		case SPIT:
 			if (isRRRA())
 			{
-				if (sprite[s->owner].picnum == MINION && sprite[s->owner].pal == 8)
+				if (Owner->picnum == MINION && Owner->pal == 8)
 					t->picnum = RRTILE3500 + ((ud.levelclock >> 4) % 6);
-				else if (sprite[s->owner].picnum == MINION && sprite[s->owner].pal == 19)
+				else if (Owner->picnum == MINION && Owner->pal == 19)
 				{
 					t->picnum = RRTILE5090 + ((ud.levelclock >> 4) & 3);
 					t->shade = -127;
 				}
-				else if (sprite[s->owner].picnum == MAMA)
+				else if (Owner->picnum == MAMA)
 				{
 					k = getangle(s->x - x, s->y - y);
 					k = (((s->ang + 3072 + 128 - k) & 2047) >> 8) & 7;
@@ -343,7 +348,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 		case RECON:
 
 			k = getangle(s->x - x, s->y - y);
-			if (hittype[i].temp_data[0] < 4)
+			if (h->temp_data[0] < 4)
 				k = (((s->ang + 3072 + 128 - k) & 2047) / 170);
 			else k = (((s->ang + 3072 + 128 - k) & 2047) / 170);
 
@@ -446,7 +451,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 				}
 
 				if (sector[t->sectnum].lotag == 2) k += 1795 - 1405;
-				else if ((hittype[i].floorz - s->z) > (64 << 8)) k += 60;
+				else if ((h->floorz - s->z) > (64 << 8)) k += 60;
 
 				t->picnum += k;
 				t->pal = ps[p].palookup;
@@ -485,8 +490,8 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 
 			if (s->owner == -1) continue;
 
-			if (t->z > hittype[i].floorz && t->xrepeat < 32)
-				t->z = hittype[i].floorz;
+			if (t->z > h->floorz && t->xrepeat < 32)
+				t->z = h->floorz;
 
 			if (ps[p].OnMotorcycle && p == screenpeek)
 			{
@@ -610,7 +615,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 
 			if (t->picnum == SCRAP1 && s->yvel >= 0)
 				t->picnum = s->yvel;
-			else t->picnum += hittype[i].temp_data[0];
+			else t->picnum += h->temp_data[0];
 
 			if (sector[sect].floorpal)
 				t->pal = sector[sect].floorpal;
@@ -704,8 +709,8 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 					while (!tileGetTexture(t->picnum)->isValid() && t->picnum > 0)
 						t->picnum -= l;       //Hack, for actors 
 
-				if (hittype[i].dispicnum >= 0)
-					hittype[i].dispicnum = t->picnum;
+				if (h->dispicnum >= 0)
+					h->dispicnum = t->picnum;
 			}
 			else if (display_mirror == 1)
 				t->cstat |= 4;
@@ -718,9 +723,9 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			if ((s->cstat & 48) == 0 && t->statnum != 99)
 				if (s->picnum != EXPLOSION2 && s->picnum != DOMELITE && s->picnum != TORNADO && s->picnum != EXPLOSION3 && (s->picnum != SBMOVE || isRRRA()))
 				{
-					if (hittype[i].dispicnum < 0)
+					if (h->dispicnum < 0)
 					{
-						hittype[i].dispicnum++;
+						h->dispicnum++;
 						continue;
 					}
 					else if (r_shadows && spritesortcnt < (MAXSPRITESONSCREEN - 2))
@@ -731,7 +736,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 						if ((sector[sect].lotag & 0xff) > 2 || s->statnum == 4 || s->statnum == 5 || s->picnum == DRONE)
 							daz = sector[sect].floorz;
 						else
-							daz = hittype[i].floorz;
+							daz = h->floorz;
 
 						if ((s->z - daz) < (8 << 8))
 							if (ps[screenpeek].posz < daz)
@@ -814,7 +819,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			break;
 		case FIRE:
 		case BURNING:
-			if (sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2)
+			if (Owner->picnum != TREE1 && Owner->picnum != TREE2)
 				t->z = sector[t->sectnum].floorz;
 			t->shade = -127;
 			break;
@@ -911,8 +916,8 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			}
 			else t->cstat &= ~4;
 
-			t->picnum = s->picnum + k + ((hittype[i].temp_data[0] < 4) * 5);
-			t->shade = sprite[s->owner].shade;
+			t->picnum = s->picnum + k + ((h->temp_data[0] < 4) * 5);
+			t->shade = Owner->shade;
 			break;
 		case MUD:
 			t->picnum = MUD + t1;
@@ -921,35 +926,35 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			t->picnum = WATERSPLASH2 + t1;
 			break;
 		case REACTOR2:
-			t->picnum = s->picnum + hittype[i].temp_data[2];
+			t->picnum = s->picnum + h->temp_data[2];
 			break;
 		case SHELL:
-			t->picnum = s->picnum + (hittype[i].temp_data[0] & 1);
+			t->picnum = s->picnum + (h->temp_data[0] & 1);
 		case SHOTGUNSHELL:
 			t->cstat |= 12;
-			if (hittype[i].temp_data[0] > 1) t->cstat &= ~4;
-			if (hittype[i].temp_data[0] > 2) t->cstat &= ~12;
+			if (h->temp_data[0] > 1) t->cstat &= ~4;
+			if (h->temp_data[0] > 2) t->cstat &= ~12;
 			break;
 		case FRAMEEFFECT1:
-			if (s->owner >= 0 && sprite[s->owner].statnum < MAXSTATUS)
+			if (s->owner >= 0 && Owner->statnum < MAXSTATUS)
 			{
-				if (sprite[s->owner].picnum == APLAYER)
+				if (Owner->picnum == APLAYER)
 					if (ud.camerasprite == -1)
-						if (screenpeek == sprite[s->owner].yvel && display_mirror == 0)
+						if (screenpeek == Owner->yvel && display_mirror == 0)
 						{
 							t->owner = -1;
 							break;
 						}
-				if ((sprite[s->owner].cstat & 32768) == 0)
+				if ((Owner->cstat & 32768) == 0)
 				{
-					if (sprite[s->owner].picnum == APLAYER)
+					if (Owner->picnum == APLAYER)
 						t->picnum = 1554;
 					else
 						t->picnum = hittype[s->owner].dispicnum;
-					t->pal = sprite[s->owner].pal;
-					t->shade = sprite[s->owner].shade;
-					t->ang = sprite[s->owner].ang;
-					t->cstat = 2 | sprite[s->owner].cstat;
+					t->pal = Owner->pal;
+					t->shade = Owner->shade;
+					t->ang = Owner->ang;
+					t->cstat = 2 | Owner->cstat;
 				}
 			}
 			break;
@@ -967,7 +972,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			break;
 		}
 
-		hittype[i].dispicnum = t->picnum;
+		h->dispicnum = t->picnum;
 		if (sector[t->sectnum].floorpicnum == MIRROR)
 			t->xrepeat = t->yrepeat = 0;
 	}
