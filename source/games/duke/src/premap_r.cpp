@@ -559,8 +559,9 @@ void prelevel_r(int g)
 	StatIterator it(STAT_DEFAULT);
 	while ((i = it.NextIndex()) >= 0)
 	{
-		auto si = &sprite[i];
-		LoadActor(i, -1, -1);
+		auto ac = &hittype[i];
+		auto si = &ac->s;
+		LoadActor(ac, -1, -1);
 
 		if (si->lotag == -1 && (si->cstat & 16))
 		{

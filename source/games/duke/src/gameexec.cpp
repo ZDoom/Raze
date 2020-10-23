@@ -3646,29 +3646,26 @@ int ParseState::parse(void)
 //
 //---------------------------------------------------------------------------
 
-void LoadActor(int i, int p, int x)
+void LoadActor(DDukeActor *actor, int p, int x)
 {
 	char done;
-	spritetype* g_sp;
 
 	ParseState s;
-	s.g_i = i;	// Sprite ID
 	s.g_p = p;	// Player ID
 	s.g_x = x;	// ??
-	g_sp = s.g_sp = &sprite[i];	// Pointer to sprite structure
-	s.g_t = &hittype[i].temp_data[0];	// Sprite's 'extra' data
-	s.g_ac = &hittype[i];
+	s.g_ac = actor;
+	s.g_t = &s.g_ac->temp_data[0];	// Sprite's 'extra' data
 
-	auto addr = tileinfo[s.g_sp->picnum].loadeventscriptptr;
+	auto addr = tileinfo[actor->s.picnum].loadeventscriptptr;
 	if (addr == 0) return;
 
 	int *insptr = &ScriptCode[addr + 1];
 
 	s.killit_flag = 0;
 
-	if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+	if (actor->s.sectnum < 0 || actor->s.sectnum >= MAXSECTORS)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 	do
@@ -3677,37 +3674,37 @@ void LoadActor(int i, int p, int x)
 
 	if (s.killit_flag == 1)
 	{
-		// if player was set to squish, first stop that...
+		// if player was set to squish, first stop that..
 		if (p >= 0)
 		{
-			if (ps[p].actorsqu == &hittype[i])
+			if (ps[p].actorsqu == actor)
 				ps[p].actorsqu = nullptr;
 		}
-		deletesprite(i);
+		deletesprite(actor);
 	}
 	else
 	{
-		fi.move(s.g_ac, p, x);
+		fi.move(actor, p, x);
 
-		if (g_sp->statnum == 1)
+		if (actor->s.statnum == STAT_ACTOR)
 		{
-			if (badguy(g_sp))
+			if (badguy(actor))
 			{
-				if (g_sp->xrepeat > 60) return;
-				if (ud.respawn_monsters == 1 && g_sp->extra <= 0) return;
+				if (actor->s.xrepeat > 60) return;
+				if (ud.respawn_monsters == 1 && actor->s.extra <= 0) return;
 			}
-			else if (ud.respawn_items == 1 && (g_sp->cstat & 32768)) return;
+			else if (ud.respawn_items == 1 && (actor->s.cstat & 32768)) return;
 
-			if (hittype[i].timetosleep > 1)
-				hittype[i].timetosleep--;
-			else if (hittype[i].timetosleep == 1)
-				changespritestat(i, 2);
+			if (actor->timetosleep > 1)
+				actor->timetosleep--;
+			else if (actor->timetosleep == 1)
+				changespritestat(actor, STAT_ZOMBIEACTOR);
 		}
 
-		else if (g_sp->statnum == 6)
+		else if (actor->s.statnum == 6)
 		{
 #if 0
-			switch (g_sp->picnum)
+			switch (actor->s.picnum)
 			{
 			case RUBBERCAN:
 			case EXPLODINGBARREL:
@@ -3720,9 +3717,9 @@ void LoadActor(int i, int p, int x)
 			case NUKEBARRELLEAKED:
 			case TRIPBOMB:
 			case EGG:
-				if (hittype[i].timetosleep > 1)
-					hittype[i].timetosleep--;
-				else if (hittype[i].timetosleep == 1)
+				if (actor->timetosleep > 1)
+					actor->timetosleep--;
+				else if (actor->timetosleep == 1)
 					changespritestat(i, 2);
 				break;
 			}
