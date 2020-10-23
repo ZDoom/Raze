@@ -523,7 +523,7 @@ void displayrooms(int snum, double smoothratio)
 	}
 	else
 	{
-		int i = divscale22(1, isRR() ? 64 : sprite[p->i].yrepeat + 28);
+		int i = divscale22(1, isRR() ? 64 : p->GetActor()->s.yrepeat + 28);
 		fixed_t dang = IntToFixed(1024);
 		if (!isRRRA() || !p->DrugMode)
 		{
@@ -615,7 +615,7 @@ void displayrooms(int snum, double smoothratio)
 			cang += buildang((2 - ((earthquaketime) & 2)) << 2);
 		}
 
-		if (sprite[p->i].pal == 1) cposz -= (18 << 8);
+		if (p->GetActor()->s.pal == 1) cposz -= (18 << 8);
 
 		else if (p->spritebridge == 0 && p->newowner < 0)
 		{

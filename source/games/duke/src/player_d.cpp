@@ -54,9 +54,9 @@ void incur_damage_d(struct player_struct* p)
 {
 	int  damage = 0L, shield_damage = 0L;
 
-	sprite[p->i].extra -= p->extra_extra8 >> 8;
+	p->GetActor()->s.extra -= p->extra_extra8 >> 8;
 
-	damage = sprite[p->i].extra - p->last_extra;
+	damage = p->GetActor()->s.extra - p->last_extra;
 
 	if (damage < 0)
 	{
@@ -76,7 +76,7 @@ void incur_damage_d(struct player_struct* p)
 			}
 		}
 
-		sprite[p->i].extra = p->last_extra + damage;
+		p->GetActor()->s.extra = p->last_extra + damage;
 	}
 }
 
@@ -1175,7 +1175,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 {
 	int i, j, k;
 	auto p = &ps[snum];
-	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
+	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->s.xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
 		{
@@ -1409,7 +1409,7 @@ int doincrements_d(struct player_struct* p)
 {
 	int snum;
 
-	snum = sprite[p->i].yvel;
+	snum = p->GetActor()->s.yvel;
 
 	p->player_par++;
 
@@ -1492,7 +1492,7 @@ int doincrements_d(struct player_struct* p)
 		}
 	}
 
-	if (p->quick_kick > 0 && sprite[p->i].pal != 1)
+	if (p->quick_kick > 0 && p->GetActor()->s.pal != 1)
 	{
 		p->last_quick_kick = p->quick_kick + 1;
 		p->quick_kick--;
@@ -1502,10 +1502,10 @@ int doincrements_d(struct player_struct* p)
 	else if (p->last_quick_kick > 0)
 		p->last_quick_kick--;
 
-	if (p->access_incs && sprite[p->i].pal != 1)
+	if (p->access_incs && p->GetActor()->s.pal != 1)
 	{
 		p->access_incs++;
-		if (sprite[p->i].extra <= 0)
+		if (p->GetActor()->s.extra <= 0)
 			p->access_incs = 12;
 		if (p->access_incs == 12)
 		{
@@ -1609,7 +1609,7 @@ void checkweapons_d(struct player_struct* p)
 
 	if (isWW2GI())
 	{
-		int snum = sprite[p->i].yvel;
+		int snum = p->GetActor()->s.yvel;
 		cw = aplWeaponWorksLike[p->curr_weapon][snum];
 	}
 	else 
@@ -2509,7 +2509,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				fi.shoot(pi, FREEZEBLAST);
 				checkavailweapon(p);
 			}
-			if (sprite[p->i].xrepeat < 32)
+			if (p->GetActor()->s.xrepeat < 32)
 			{
 				p->okickback_pic = p->kickback_pic = 0; break;
 			}
@@ -2853,7 +2853,7 @@ void processinput_d(int snum)
 	playerweaponsway(p, s);
 
 	s->xvel = clamp(ksqrt((p->posx - p->bobposx) * (p->posx - p->bobposx) + (p->posy - p->bobposy) * (p->posy - p->bobposy)), 0, 512);
-	if (p->on_ground) p->bobcounter += sprite[p->i].xvel >> 1;
+	if (p->on_ground) p->bobcounter += p->GetActor()->s.xvel >> 1;
 
 	backuppos(p, ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
 

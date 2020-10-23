@@ -77,17 +77,17 @@ void hud_input(int snum)
 	{
 		if (PlayerInput(snum, SB_QUICK_KICK) && p->last_pissed_time == 0)
 		{
-			if (!isRRRA() || sprite[p->i].extra > 0)
+			if (!isRRRA() || p->GetActor()->s.extra > 0)
 			{
 				p->last_pissed_time = 4000;
 				S_PlayActorSound(437, p->i);
-				if (sprite[p->i].extra <= max_player_health - max_player_health / 10)
+				if (p->GetActor()->s.extra <= max_player_health - max_player_health / 10)
 				{
-					sprite[p->i].extra += 2;
-					p->last_extra = sprite[p->i].extra;
+					p->GetActor()->s.extra += 2;
+					p->last_extra = p->GetActor()->s.extra;
 				}
-				else if (sprite[p->i].extra < max_player_health)
-					sprite[p->i].extra = max_player_health;
+				else if (p->GetActor()->s.extra < max_player_health)
+					p->GetActor()->s.extra = max_player_health;
 			}
 		}
 	}
@@ -115,7 +115,7 @@ void hud_input(int snum)
 
 		// Don't go on if paused or dead.
 		if (paused) return;
-		if (sprite[p->i].extra <= 0) return;
+		if (p->GetActor()->s.extra <= 0) return;
 
 		// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.
 		if (PlayerInput(snum, SB_INVUSE) && p->newowner == -1)
@@ -307,12 +307,12 @@ void hud_input(int snum)
 				}
 				else // In RR this means drinking whiskey.
 				{
-					if (p->holoduke_amount > 0 && sprite[p->i].extra < max_player_health)
+					if (p->holoduke_amount > 0 && p->GetActor()->s.extra < max_player_health)
 					{
 						p->holoduke_amount -= 400;
-						sprite[p->i].extra += 5;
-						if (sprite[p->i].extra > max_player_health)
-							sprite[p->i].extra = max_player_health;
+						p->GetActor()->s.extra += 5;
+						if (p->GetActor()->s.extra > max_player_health)
+							p->GetActor()->s.extra = max_player_health;
 
 						p->drink_amt += 5;
 						p->inven_icon = 3;
@@ -340,18 +340,18 @@ void hud_input(int snum)
 					madenoise(snum);
 					if (sector[p->cursectnum].lotag == 857)
 					{
-						if (sprite[p->i].extra <= max_player_health)
+						if (p->GetActor()->s.extra <= max_player_health)
 						{
-							sprite[p->i].extra += 10;
-							if (sprite[p->i].extra >= max_player_health)
-								sprite[p->i].extra = max_player_health;
+							p->GetActor()->s.extra += 10;
+							if (p->GetActor()->s.extra >= max_player_health)
+								p->GetActor()->s.extra = max_player_health;
 						}
 					}
 					else
 					{
-						if (sprite[p->i].extra + 1 <= max_player_health)
+						if (p->GetActor()->s.extra + 1 <= max_player_health)
 						{
-							sprite[p->i].extra++;
+							p->GetActor()->s.extra++;
 						}
 					}
 				}
@@ -364,21 +364,21 @@ void hud_input(int snum)
 			OnEvent(EVENT_USEMEDKIT, -1, snum, -1);
 			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 			{
-				if (p->firstaid_amount > 0 && sprite[p->i].extra < max_player_health)
+				if (p->firstaid_amount > 0 && p->GetActor()->s.extra < max_player_health)
 				{
 					if (!isRR())
 					{
-						int j = max_player_health - sprite[p->i].extra;
+						int j = max_player_health - p->GetActor()->s.extra;
 
 						if ((unsigned int)p->firstaid_amount > j)
 						{
 							p->firstaid_amount -= j;
-							sprite[p->i].extra = max_player_health;
+							p->GetActor()->s.extra = max_player_health;
 							p->inven_icon = 1;
 						}
 						else
 						{
-							sprite[p->i].extra += p->firstaid_amount;
+							p->GetActor()->s.extra += p->firstaid_amount;
 							p->firstaid_amount = 0;
 							checkavailinven(p);
 						}
@@ -390,19 +390,19 @@ void hud_input(int snum)
 						if (p->firstaid_amount > j)
 						{
 							p->firstaid_amount -= j;
-							sprite[p->i].extra += j;
-							if (sprite[p->i].extra > max_player_health)
-								sprite[p->i].extra = max_player_health;
+							p->GetActor()->s.extra += j;
+							if (p->GetActor()->s.extra > max_player_health)
+								p->GetActor()->s.extra = max_player_health;
 							p->inven_icon = 1;
 						}
 						else
 						{
-							sprite[p->i].extra += p->firstaid_amount;
+							p->GetActor()->s.extra += p->firstaid_amount;
 							p->firstaid_amount = 0;
 							checkavailinven(p);
 						}
-						if (sprite[p->i].extra > max_player_health)
-							sprite[p->i].extra = max_player_health;
+						if (p->GetActor()->s.extra > max_player_health)
+							p->GetActor()->s.extra = max_player_health;
 						p->drink_amt += 10;
 						if (p->drink_amt <= 100 && !S_CheckActorSoundPlaying(p->i, DUKE_USEMEDKIT))
 							S_PlayActorSound(DUKE_USEMEDKIT, p->i);
@@ -445,7 +445,7 @@ void hud_input(int snum)
 				else
 				{
 					// eat cow pie
-					if (p->jetpack_amount > 0 && sprite[p->i].extra < max_player_health)
+					if (p->jetpack_amount > 0 && p->GetActor()->s.extra < max_player_health)
 					{
 						if (!S_CheckActorSoundPlaying(p->i, 429))
 							S_PlayActorSound(429, p->i);
@@ -465,12 +465,12 @@ void hud_input(int snum)
 								p->eat = 100;
 						}
 
-						sprite[p->i].extra += 5;
+						p->GetActor()->s.extra += 5;
 
 						p->inven_icon = 4;
 
-						if (sprite[p->i].extra > max_player_health)
-							sprite[p->i].extra = max_player_health;
+						if (p->GetActor()->s.extra > max_player_health)
+							p->GetActor()->s.extra = max_player_health;
 
 						if (p->jetpack_amount <= 0)
 							checkavailinven(p);
@@ -818,7 +818,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 {
 	auto p = &ps[playerNum];
-	bool blocked = movementBlocked(playerNum) || sprite[p->i].extra <= 0 || (p->dead_flag && !ud.god);
+	bool blocked = movementBlocked(playerNum) || p->GetActor()->s.extra <= 0 || (p->dead_flag && !ud.god);
 
 	if (blocked && ps[playerNum].newowner < 0)
 	{
@@ -903,7 +903,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		processVehicleInput(p, hidInput, input, scaleAdjust);
 		FinalizeInput(myconnectindex, input, true);
 
-		if (!cl_syncinput && sprite[p->i].extra > 0)
+		if (!cl_syncinput && p->GetActor()->s.extra > 0)
 		{
 			apply_seasick(p, scaleAdjust);
 		}

@@ -146,8 +146,8 @@ void quickkill(struct player_struct* p)
 {
 	SetPlayerPal(p, PalEntry(48, 48, 48, 48));
 
-	sprite[p->i].extra = 0;
-	sprite[p->i].cstat |= 32768;
+	p->GetActor()->s.extra = 0;
+	p->GetActor()->s.cstat |= 32768;
 	if (ud.god == 0) fi.guts(&hittype[p->i], TILE_JIBS6, 8, myconnectindex);
 	return;
 }

@@ -893,7 +893,7 @@ void checkplayerhurt_d(struct player_struct* p, int j)
 		case CACTUS:
 			if (p->hurt_delay < 8)
 			{
-				sprite[p->i].extra -= 5;
+				p->GetActor()->s.extra -= 5;
 				p->hurt_delay = 16;
 				SetPlayerPal(p, PalEntry(32, 32, 0, 0));
 				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
@@ -912,7 +912,7 @@ void checkplayerhurt_d(struct player_struct* p, int j)
 	case W_FORCEFIELD:
 	case W_FORCEFIELD + 1:
 	case W_FORCEFIELD + 2:
-		sprite[p->i].extra -= 5;
+		p->GetActor()->s.extra -= 5;
 
 		p->hurt_delay = 16;
 		SetPlayerPal(p, PalEntry(32, 32, 0, 0));
@@ -1523,7 +1523,7 @@ void checksectors_d(int snum)
 
 	//After this point the the player effects the map with space
 
-	if (chatmodeon || sprite[p->i].extra <= 0) return;
+	if (chatmodeon || p->GetActor()->s.extra <= 0) return;
 
 	if (ud.cashman && PlayerInput(snum, SB_OPEN))
 		fi.lotsofmoney(&hittype[p->i], 2);
@@ -1571,17 +1571,17 @@ void checksectors_d(int snum)
 				return;
 
 		if (p->newowner >= 0)
-			neartag(p->oposx, p->oposy, p->oposz, sprite[p->i].sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 		else
 		{
-			neartag(p->posx, p->posy, p->posz, sprite[p->i].sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			neartag(p->posx, p->posy, p->posz, p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
-				neartag(p->posx, p->posy, p->posz + (8 << 8), sprite[p->i].sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+				neartag(p->posx, p->posy, p->posz + (8 << 8), p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
-				neartag(p->posx, p->posy, p->posz + (16 << 8), sprite[p->i].sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+				neartag(p->posx, p->posy, p->posz + (16 << 8), p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
 			{
-				neartag(p->posx, p->posy, p->posz + (16 << 8), sprite[p->i].sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+				neartag(p->posx, p->posy, p->posz + (16 << 8), p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 				if (neartagsprite >= 0)
 				{
 					switch (sprite[neartagsprite].picnum)
@@ -1611,8 +1611,8 @@ void checksectors_d(int snum)
 		}
 
 		if (p->newowner == -1 && neartagsprite == -1 && neartagsector == -1 && neartagwall == -1)
-			if (isanunderoperator(sector[sprite[p->i].sectnum].lotag))
-				neartagsector = sprite[p->i].sectnum;
+			if (isanunderoperator(sector[p->GetActor()->s.sectnum].lotag))
+				neartagsector = p->GetActor()->s.sectnum;
 
 		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384))
 			return;
@@ -1643,13 +1643,13 @@ void checksectors_d(int snum)
 						p->holster_weapon = 1;
 						p->weapon_pos = -1;
 					}
-					if (sprite[p->i].extra <= (max_player_health - (max_player_health / 10)))
+					if (p->GetActor()->s.extra <= (max_player_health - (max_player_health / 10)))
 					{
-						sprite[p->i].extra += max_player_health / 10;
-						p->last_extra = sprite[p->i].extra;
+						p->GetActor()->s.extra += max_player_health / 10;
+						p->last_extra = p->GetActor()->s.extra;
 					}
-					else if (sprite[p->i].extra < max_player_health)
-						sprite[p->i].extra = max_player_health;
+					else if (p->GetActor()->s.extra < max_player_health)
+						p->GetActor()->s.extra = max_player_health;
 				}
 				else if (S_CheckSoundPlaying(neartagsprite, FLUSH_TOILET) == 0)
 					S_PlayActorSound(FLUSH_TOILET, neartagsprite);
@@ -1675,16 +1675,16 @@ void checksectors_d(int snum)
 					hittype[neartagsprite].temp_data[0] = 1;
 					sprite[neartagsprite].owner = p->i;
 
-					if (sprite[p->i].extra < max_player_health)
+					if (p->GetActor()->s.extra < max_player_health)
 					{
-						sprite[p->i].extra++;
+						p->GetActor()->s.extra++;
 						S_PlayActorSound(DUKE_DRINKING, p->i);
 					}
 				}
 				return;
 			case PLUG:
 				S_PlayActorSound(SHORT_CIRCUIT, p->i);
-				sprite[p->i].extra -= 2 + (krand() & 3);
+				p->GetActor()->s.extra -= 2 + (krand() & 3);
 				SetPlayerPal(p, PalEntry(32, 48, 48, 64));
 				break;
 			case VIEWSCREEN:
@@ -1777,16 +1777,16 @@ void checksectors_d(int snum)
 			}
 			operatesectors(neartagsector, p->GetActor());
 		}
-		else if ((sector[sprite[p->i].sectnum].lotag & 16384) == 0)
+		else if ((sector[p->GetActor()->s.sectnum].lotag & 16384) == 0)
 		{
-			if (isanunderoperator(sector[sprite[p->i].sectnum].lotag))
+			if (isanunderoperator(sector[p->GetActor()->s.sectnum].lotag))
 			{
-				SectIterator it(sprite[p->i].sectnum);
+				SectIterator it(p->GetActor()->s.sectnum);
 				while ((i = it.NextIndex()) >= 0)
 				{
 					if (sprite[i].picnum == ACTIVATOR || sprite[i].picnum == MASTERSWITCH) return;
 				}
-				operatesectors(sprite[p->i].sectnum, p->GetActor());
+				operatesectors(p->GetActor()->s.sectnum, p->GetActor());
 			}
 			else fi.checkhitswitch(snum, neartagwall, 0);
 		}

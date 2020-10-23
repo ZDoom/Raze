@@ -111,8 +111,8 @@ void fakedomovethings(void)
 
 		p = &ps[myconnectindex];
 
-		backcstat = sprite[p->i].cstat;
-		sprite[p->i].cstat &= ~257;
+		backcstat = p->GetActor()->s.cstat;
+		p->GetActor()->s.cstat &= ~257;
 
 		actions = syn->actions;
 
@@ -120,7 +120,7 @@ void fakedomovethings(void)
 		psectlotag = sector[psect].lotag;
 		spritebridge = 0;
 
-		shrunk = (sprite[p->i].yrepeat < (isRR()? 8 : 32));
+		shrunk = (p->GetActor()->s.yrepeat < (isRR()? 8 : 32));
 
 		if( ud.clipping == 0 && ( sector[psect].floorpicnum == MIRROR || psect < 0 || psect >= MAXSECTORS) )
 		{
@@ -181,7 +181,7 @@ void fakedomovethings(void)
 						psectlotag = 0;
 						spritebridge = 1;
 				 }
-				 if(badguy(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(sprite[p->i].z-sprite[j].z) < (84<<8) )
+				 if(badguy(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(p->GetActor()->s.z-sprite[j].z) < (84<<8) )
 				 {
 					j = getangle( sprite[j].x-myx,sprite[j].y-myy);
 					myxvel -= sintable[(j+512)&2047]<<4;
@@ -189,7 +189,7 @@ void fakedomovethings(void)
 				}
 		}
 
-		if( sprite[p->i].extra <= 0 )
+		if( p->GetActor()->s.extra <= 0 )
 		{
 				 if( psectlotag == 2 )
 				 {
@@ -525,7 +525,7 @@ ENDFAKEPROCESSINPUT:
 		myhorizbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myhoriz;
 		fakemovefifoplc++;
 
-		sprite[p->i].cstat = backcstat;
+		p->GetActor()->s.cstat = backcstat;
 }
 #endif
 

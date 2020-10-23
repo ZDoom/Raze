@@ -46,9 +46,9 @@ void incur_damage_r(struct player_struct* p)
 	int  damage = 0, unk = 0, shield_damage = 0;
 	short gut = 0;
 
-	sprite[p->i].extra -= p->extra_extra8 >> 8;
+	p->GetActor()->s.extra -= p->extra_extra8 >> 8;
 
-	damage = sprite[p->i].extra - p->last_extra;
+	damage = p->GetActor()->s.extra - p->last_extra;
 	if (damage < 0)
 	{
 		p->extra_extra8 = 0;
@@ -78,7 +78,7 @@ void incur_damage_r(struct player_struct* p)
 			break;
 		}
 
-		sprite[p->i].extra = p->last_extra + damage;
+		p->GetActor()->s.extra = p->last_extra + damage;
 	}
 }
 
@@ -980,7 +980,7 @@ void selectweapon_r(int snum, int weap)
 {
 	int i, j, k;
 	auto p = &ps[snum];
-	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 8 && p->access_incs == 0 && p->knee_incs == 0)
+	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && p->GetActor()->s.xrepeat > 8 && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
 		{
@@ -1234,7 +1234,7 @@ int doincrements_r(struct player_struct* p)
 		}
 	}
 
-	snum = sprite[p->i].yvel;
+	snum = p->GetActor()->s.yvel;
 
 	p->player_par++;
 	if (p->yehaa_timer)
@@ -1361,10 +1361,10 @@ int doincrements_r(struct player_struct* p)
 				S_PlayActorSound(DUKE_TAKEPILLS, p->i);
 	}
 
-	if (p->access_incs && sprite[p->i].pal != 1)
+	if (p->access_incs && p->GetActor()->s.pal != 1)
 	{
 		p->access_incs++;
-		if (sprite[p->i].extra <= 0)
+		if (p->GetActor()->s.extra <= 0)
 			p->access_incs = 12;
 		if (p->access_incs == 12)
 		{
@@ -3708,7 +3708,7 @@ void processinput_r(int snum)
 	playerweaponsway(p, s);
 
 	s->xvel = clamp(ksqrt((p->posx - p->bobposx) * (p->posx - p->bobposx) + (p->posy - p->bobposy) * (p->posy - p->bobposy)), 0, 512);
-	if (p->on_ground) p->bobcounter += sprite[p->i].xvel >> 1;
+	if (p->on_ground) p->bobcounter += p->GetActor()->s.xvel >> 1;
 
 	backuppos(p, ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
 
