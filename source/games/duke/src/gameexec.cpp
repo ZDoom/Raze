@@ -3242,8 +3242,8 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		l = (*insptr);
-		lResult = GetGameVarID(i, g_i, g_p) | l;
-		SetGameVarID(i, lResult, g_i, g_p);
+		lResult = GetGameVarID(i, g_ac, g_p) | l;
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3254,10 +3254,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p); // not used for this command
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p); // not used for this command
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		lResult = mulscale(rand(), l2, 15);
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3268,10 +3268,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p); // l2 not used in this one
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p); // l2 not used in this one
 		lResult = max_ammo_amount[l1];
-		SetGameVarID(*insptr, lResult, g_i, g_p);
+		SetGameVarID(*insptr, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3281,8 +3281,8 @@ int ParseState::parse(void)
 		int l1, l2;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		max_ammo_amount[l1] = l2;
 
 		insptr++;
@@ -3295,10 +3295,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		lResult = l1 * l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3309,14 +3309,14 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		if (l2 == 0)
 		{
 			I_Error("Divide by Zero in CON");
 		}
 		lResult = l1 / l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3327,14 +3327,14 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		if (l2 == 0)
 		{
 			I_Error("Mod by Zero in CON");
 		}
 		lResult = l1 % l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3345,10 +3345,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		lResult = l1 & l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3359,10 +3359,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		lResult = l1 ^ l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3373,10 +3373,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		lResult = l1 | l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3385,7 +3385,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, GetGameVarID(i, g_i, g_p) - *insptr, g_i, g_p);
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) - *insptr, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3394,7 +3394,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, GetGameVarID(i, g_i, g_p) - GetGameVarID(*insptr, g_i, g_p), g_i, g_p);
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) - GetGameVarID(*insptr, g_ac, g_p), g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3404,9 +3404,9 @@ int ParseState::parse(void)
 		int lValue;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		lValue = GetGameVarID(*insptr, g_i, g_p);
+		lValue = GetGameVarID(*insptr, g_ac, g_p);
 		lValue = sintable[lValue & 2047];
-		SetGameVarID(i, lValue, g_i, g_p);
+		SetGameVarID(i, lValue, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3414,31 +3414,31 @@ int ParseState::parse(void)
 	case concmd_spgetlotag:
 	{
 		insptr++;
-		SetGameVarID(g_iLoTagID, g_sp->lotag, g_i, g_p);
+		SetGameVarID(g_iLoTagID, g_sp->lotag, g_ac, g_p);
 		break;
 	}
 	case concmd_spgethitag:
 	{
 		insptr++;
-		SetGameVarID(g_iHiTagID, g_sp->hitag, g_i, g_p);
+		SetGameVarID(g_iHiTagID, g_sp->hitag, g_ac, g_p);
 		break;
 	}
 	case concmd_sectgetlotag:
 	{
 		insptr++;
-		SetGameVarID(g_iLoTagID, sector[g_sp->sectnum].lotag, g_i, g_p);
+		SetGameVarID(g_iLoTagID, sector[g_sp->sectnum].lotag, g_ac, g_p);
 		break;
 	}
 	case concmd_sectgethitag:
 	{
 		insptr++;
-		SetGameVarID(g_iHiTagID, sector[g_sp->sectnum].hitag, g_i, g_p);
+		SetGameVarID(g_iHiTagID, sector[g_sp->sectnum].hitag, g_ac, g_p);
 		break;
 	}
 	case concmd_gettexturefloor:
 	{
 		insptr++;
-		SetGameVarID(g_iTextureID, sector[g_sp->sectnum].floorpicnum, g_i, g_p);
+		SetGameVarID(g_iTextureID, sector[g_sp->sectnum].floorpicnum, g_ac, g_p);
 		break;
 	}
 
@@ -3449,8 +3449,8 @@ int ParseState::parse(void)
 		int levnume;
 
 		insptr++; // skip command
-		volnume = GetGameVarID(*(insptr++), g_i, g_p);
-		levnume = GetGameVarID(*(insptr++), g_i, g_p);
+		volnume = GetGameVarID(*insptr++, g_ac, g_p);
+		levnume = GetGameVarID(*insptr++, g_ac, g_p);
 		auto level = FindMapByLevelNum(levelnum(volnume - 1, levnume - 1));
 		if (level != nullptr)
 			ChangeLevel(level, -1);
@@ -3468,14 +3468,14 @@ int ParseState::parse(void)
 		int orientation;
 		int pal;
 		int tw = *insptr++;
-		x = GetGameVarID(*insptr++, g_i, g_p);
-		y = GetGameVarID(*insptr++, g_i, g_p);
-		tilenum = GetGameVarID(*insptr++, g_i, g_p);
-		shade = GetGameVarID(*insptr++, g_i, g_p);
-		orientation = GetGameVarID(*insptr++, g_i, g_p);
+		x = GetGameVarID(*insptr++, g_ac, g_p);
+		y = GetGameVarID(*insptr++, g_ac, g_p);
+		tilenum = GetGameVarID(*insptr++, g_ac, g_p);
+		shade = GetGameVarID(*insptr++, g_ac, g_p);
+		orientation = GetGameVarID(*insptr++, g_ac, g_p);
 		if (tw == concmd_myospal)
 		{
-			pal = GetGameVarID(*insptr++, g_i, g_p);
+			pal = GetGameVarID(*insptr++, g_ac, g_p);
 			//myospal(x, y, tilenum, shade, orientation, pal);
 		}
 		else if (tw == concmd_myos)
@@ -3488,7 +3488,7 @@ int ParseState::parse(void)
 		}
 		else if (tw == concmd_myospalx)
 		{
-			pal = GetGameVarID(*insptr++, g_i, g_p);
+			pal = GetGameVarID(*insptr++, g_ac, g_p);
 			//myospal640(x, y, tilenum, shade, orientation, pal);
 		}
 		break;
@@ -3500,7 +3500,7 @@ int ParseState::parse(void)
 		insptr++;
 
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, rand(), g_i, g_p);
+		SetGameVarID(i, rand(), g_ac, g_p);
 		break;
 	}
 	case concmd_switch:
@@ -3523,7 +3523,7 @@ int ParseState::parse(void)
 		// For each case: value, ptr to code
 		insptr++; // p-code
 		lVarID = *insptr++;
-		lValue = GetGameVarID(lVarID, g_i, g_p);
+		lValue = GetGameVarID(lVarID, g_ac, g_p);
 		lEnd = *insptr++;
 		lCases = *insptr++;
 		lpDefault = insptr++;
@@ -3575,7 +3575,7 @@ int ParseState::parse(void)
 	case concmd_gettextureceiling:
 	{
 		insptr++;
-		SetGameVarID(g_iTextureID, sector[g_sp->sectnum].ceilingpicnum, g_i, g_p);
+		SetGameVarID(g_iTextureID, sector[g_sp->sectnum].ceilingpicnum, g_ac, g_p);
 		break;
 	}
 	case concmd_ifvarvarand:
@@ -3584,7 +3584,7 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		j = 0;
-		if (GetGameVarID(i, g_i, g_p) & GetGameVarID(*(insptr), g_i, g_p))
+		if (GetGameVarID(i, g_ac, g_p) & GetGameVarID(*(insptr), g_ac, g_p))
 		{
 			j = 1;
 		}
@@ -3597,7 +3597,7 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		j = 0;
-		if (GetGameVarID(i, g_i, g_p) != GetGameVarID(*(insptr), g_i, g_p))
+		if (GetGameVarID(i, g_ac, g_p) != GetGameVarID(*(insptr), g_ac, g_p))
 		{
 			j = 1;
 		}
@@ -3610,7 +3610,7 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		j = 0;
-		if (GetGameVarID(i, g_i, g_p) != *insptr)
+		if (GetGameVarID(i, g_ac, g_p) != *insptr)
 		{
 			j = 1;
 		}
@@ -3623,7 +3623,7 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		j = 0;
-		if (GetGameVarID(i, g_i, g_p) & *insptr)
+		if (GetGameVarID(i, g_ac, g_p) & *insptr)
 		{
 			j = 1;
 		}
