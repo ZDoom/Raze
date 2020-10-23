@@ -107,7 +107,7 @@ static const char* cheatUnlock()
 		{
 			if (j & (0xffff - 16384))
 				sector[i].lotag &= (0xffff - 16384);
-			operatesectors(i, ps[myconnectindex].i);
+			operatesectors(i, ps[myconnectindex].GetActor());
 		}
 	}
 	fi.operateforcefields(ps[myconnectindex].i, -1);

@@ -151,7 +151,7 @@ int check_activator_motion(int lotag);
 void operateactivators(int l, int w);
 void operateforcefields_common(int s, int low, const std::initializer_list<int>& tiles);
 void operatemasterswitches(int lotag);
-void operatesectors(int s, int i);
+void operatesectors(int s, DDukeActor* i);
 void hud_input(int playerNum);
 int getanimationgoal(int animtype, int animindex);
 bool isanearoperator(int lotag);

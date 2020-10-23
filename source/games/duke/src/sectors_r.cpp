@@ -906,7 +906,7 @@ void activatebysector_r(int sect, int j)
 	}
 
 	if (sector[sect].lotag != 22)
-		operatesectors(sect, j);
+		operatesectors(sect, &hittype[j]);
 }
 
 
@@ -2723,7 +2723,7 @@ void checksectors_r(int snum)
 					return;
 			}
 			if (haskey(neartagsector, snum))
-				operatesectors(neartagsector, p->i);
+				operatesectors(neartagsector, p->GetActor());
 			else
 			{
 				if (hittype[neartagsprite].spriteextra > 3)
@@ -2743,7 +2743,7 @@ void checksectors_r(int snum)
 					if (sprite[i].picnum == ACTIVATOR || sprite[i].picnum == MASTERSWITCH) return;
 				}
 				if (haskey(neartagsector, snum))
-					operatesectors(sprite[p->i].sectnum, p->i);
+					operatesectors(sprite[p->i].sectnum, p->GetActor());
 				else
 				{
 					if (hittype[neartagsprite].spriteextra > 3)

@@ -279,11 +279,6 @@ inline int findplayer(spritetype* act, int* x)
 	return findplayer(&hittype[act - sprite], x);
 }
 
-inline void operatesectors(int s, DDukeActor* i)
-{
-	operatesectors(s, i->GetIndex());
-}
-
 inline void detonate(int i, int explosion)
 {
 	detonate(&hittype[i], explosion);

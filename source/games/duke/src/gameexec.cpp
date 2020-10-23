@@ -2519,7 +2519,7 @@ int ParseState::parse(void)
 									break;
 							}
 							if (j == -1)
-								operatesectors(neartagsector, g_i);
+								operatesectors(neartagsector, g_ac);
 						}
 		}
 		break;

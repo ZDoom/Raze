@@ -944,9 +944,8 @@ static void handle_st28(int sn, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void operatesectors(int sn, int ii)
+void operatesectors(int sn, DDukeActor *actor)
 {
-	auto actor = &hittype[ii];
 	int j=0, startwall, endwall;
 	int i;
 	sectortype* sptr;
@@ -1064,7 +1063,7 @@ void operatesectors(int sn, int ii)
 //
 //---------------------------------------------------------------------------
 
-void operateactivators(int low, int snum)
+void operateactivators(int low, int plnum)
 {
 	int i, j, k;
 	short * p;
@@ -1086,66 +1085,65 @@ void operateactivators(int low, int snum)
 	}
 
 	k = -1;
-	StatIterator it(STAT_ACTIVATOR);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_ACTIVATOR);
+	while (auto act = it.Next())
 	{
-		auto si = &hittype[i].s;
-		if (si->lotag == low)
+		if (act->s.lotag == low)
 		{
-			if (si->picnum == ACTIVATORLOCKED)
+			if (act->s.picnum == ACTIVATORLOCKED)
 			{
-				sector[si->sectnum].lotag ^= 16384;
+				sector[act->s.sectnum].lotag ^= 16384;
 
-				if (snum >= 0)
+				if (plnum >= 0)
 				{
-					if (sector[si->sectnum].lotag & 16384)
-						FTA(4, &ps[snum]);
-					else FTA(8, &ps[snum]);
+					if (sector[act->s.sectnum].lotag & 16384)
+						FTA(4, &ps[plnum]);
+					else FTA(8, &ps[plnum]);
 				}
 			}
 			else
 			{
-				switch (si->hitag)
+				switch (act->s.hitag)
 				{
 				case 0:
 					break;
 				case 1:
-					if (sector[si->sectnum].floorz != sector[si->sectnum].ceilingz)
+					if (sector[act->s.sectnum].floorz != sector[act->s.sectnum].ceilingz)
 					{
 						continue;
 					}
 					break;
 				case 2:
-					if (sector[si->sectnum].floorz == sector[si->sectnum].ceilingz)
+					if (sector[act->s.sectnum].floorz == sector[act->s.sectnum].ceilingz)
 					{
 						continue;
 					}
 					break;
 				}
 
-				if (sector[si->sectnum].lotag < 3)
+				if (sector[act->s.sectnum].lotag < 3)
 				{
-					SectIterator it(si->sectnum);
-					while ((j = it.NextIndex()) >= 0)
+					DukeSectIterator it(act->s.sectnum);
+					while (auto a2 = it.Next())
 					{
-						if (sprite[j].statnum == 3) switch (sprite[j].lotag)
+						if (a2->s.statnum == 3) switch (a2->s.lotag)
 						{
 						case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
 							if (isRRRA()) break;
 						case SE_36_PROJ_SHOOTER:
 						case SE_31_FLOOR_RISE_FALL:
 						case SE_32_CEILING_RISE_FALL:
-							hittype[j].temp_data[0] = 1 - hittype[j].temp_data[0];
-							callsound(si->sectnum, j);
+							a2->temp_data[0] = 1 - a2->temp_data[0];
+							callsound(act->s.sectnum, a2);
 							break;
 						}
 					}
 				}
 
-				if (k == -1 && (sector[si->sectnum].lotag & 0xff) == 22)
-					k = callsound(si->sectnum, i);
+				if (k == -1 && (sector[act->s.sectnum].lotag & 0xff) == 22)
+					k = callsound(act->s.sectnum, act);
 
-				operatesectors(si->sectnum, i);
+				operatesectors(act->s.sectnum, act);
 			}
 		}
 	}
@@ -1161,13 +1159,11 @@ void operateactivators(int low, int snum)
 
 void operatemasterswitches(int low)
 {
-	int i;
-
-	StatIterator it(STAT_STANDABLE);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_STANDABLE);
+	while (auto act2 = it.Next())
 	{
-		if (sprite[i].picnum == MASTERSWITCH && sprite[i].lotag == low && sprite[i].yvel == 0)
-			sprite[i].yvel = 1;
+		if (act2->s.picnum == MASTERSWITCH && act2->s.lotag == low && act2->s.yvel == 0)
+			act2->s.yvel = 1;
 	}
 }
 
