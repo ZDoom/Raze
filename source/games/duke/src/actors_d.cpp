@@ -1103,7 +1103,7 @@ static void movetripbomb(DDukeActor *actor)
 
 	if (actor->temp_data[0] < 32)
 	{
-		findplayer(&actor->s, &x);
+		findplayer(actor, &x);
 		if (x > 768) actor->temp_data[0]++;
 		else if (actor->temp_data[0] > 16) actor->temp_data[0]++;
 	}
@@ -1295,7 +1295,7 @@ static void moveviewscreen(DDukeActor* actor)
 	else
 	{
 		int x;
-		findplayer(&actor->s, &x);
+		findplayer(actor, &x);
 
 		if (x < 2048)
 		{
@@ -1326,7 +1326,7 @@ static void movesidebolt(DDukeActor* actor)
 	int x;
 	int sect = s->sectnum;
 
-	auto p = findplayer(&actor->s, &x);
+	auto p = findplayer(actor, &x);
 	if (x > 20480) return;
 
 CLEAR_THE_BOLT2:
@@ -1369,7 +1369,7 @@ static void movebolt(DDukeActor *actor)
 	int x;
 	int sect = s->sectnum;
 
-	auto p = findplayer(&actor->s, &x);
+	auto p = findplayer(actor, &x);
 	if (x > 20480) return;
 
 	if (t[3] == 0)
@@ -1541,7 +1541,7 @@ void movestandables_d(void)
 				WATERBUBBLEMAKER))
 		{
 			int x;
-			int p = findplayer(&act->s, &x);
+			int p = findplayer(act, &x);
 			execute(act, p, x);
 		}
 	}
@@ -1984,7 +1984,7 @@ void moveweapons_d(void)
 		case SHOTSPARK1:
 		{
 			int x;
-			int p = findplayer(&act->s, &x);
+			int p = findplayer(act, &x);
 			execute(act, p, x);
 			break;
 		}
@@ -2364,7 +2364,7 @@ static void greenslime(DDukeActor *actor)
 	}
 
 	int x;
-	int p = findplayer(&actor->s, &x);
+	int p = findplayer(actor, &x);
 
 	if (x > 20480)
 	{
@@ -2741,7 +2741,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	int* t = &actor->temp_data[0];
 	int sect = s->sectnum;
 	int x;
-	int p = findplayer(&actor->s, &x);
+	int p = findplayer(actor, &x);
 	execute(actor, p, x);
 	t[0]++;
 	if (sector[sect].lotag == 2)
@@ -2857,7 +2857,7 @@ static void heavyhbomb(DDukeActor *actor)
 		return;
 	}
 
-	int p = findplayer(&actor->s, &x);
+	int p = findplayer(actor, &x);
 
 	if (x < 1220) s->cstat &= ~257;
 	else s->cstat |= 257;
@@ -3226,7 +3226,7 @@ void moveactors_d(void)
 		}
 		// #endif
 
-		p = findplayer(&act->s, &x);
+		p = findplayer(act, &x);
 
 		execute(act, p, x);
 	}
@@ -3242,7 +3242,7 @@ void moveactors_d(void)
 static void fireflyflyingeffect(DDukeActor *actor)
 {
 	auto t = &actor->temp_data[0];
-	int x, p = findplayer(&actor->s, &x);
+	int x, p = findplayer(actor, &x);
 	execute(actor, p, x);
 
 	auto Owner = actor->GetOwner();
@@ -3365,7 +3365,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case INNERJAW:
 		case INNERJAW + 1:
 
-			p = findplayer(&act->s, &x);
+			p = findplayer(act, &x);
 			if (x < 512)
 			{
 				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
@@ -3441,7 +3441,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case FORCERIPPLE:
 		case TRANSPORTERSTAR:
 		case TRANSPORTERBEAM:
-			p = findplayer(&act->s, &x);
+			p = findplayer(act, &x);
 			execute(act, p, x);
 			continue;
 
@@ -3543,7 +3543,7 @@ static void handle_se28(DDukeActor* actor)
 	if (t[0] == 0)
 	{
 		int x;
-		int p = findplayer(&actor->s, &x);
+		int p = findplayer(actor, &x);
 		if (x > 15500)
 			return;
 		t[0] = 1;
@@ -3593,7 +3593,7 @@ static void handle_se28(DDukeActor* actor)
 						fi.spawn(j, SMALLSMOKE);
 
 						int x;
-						int p = findplayer(&actor->s, &x);
+						int p = findplayer(actor, &x);
 						auto psa = ps[p].GetActor();
 						x = ldist(psa, act2);
 						if (x < 768)

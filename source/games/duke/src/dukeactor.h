@@ -274,9 +274,9 @@ inline void getglobalz(int act)
 	getglobalz(&hittype[act]);
 }
 
-inline int findplayer(DDukeActor* act, int* x)
+inline int findplayer(spritetype* act, int* x)
 {
-	return findplayer(&act->s, x);
+	return findplayer(&hittype[act - sprite], x);
 }
 
 inline void operatesectors(int s, DDukeActor* i)

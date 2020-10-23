@@ -940,7 +940,7 @@ static void movebolt(DDukeActor* actor)
 	int x;
 	int sect = s->sectnum;
 
-	auto p = findplayer(&actor->s, &x);
+	auto p = findplayer(actor, &x);
 	if (x > 20480) return;
 
 	if (t[3] == 0)
@@ -1091,7 +1091,7 @@ void movestandables_r(void)
 				CEILINGSTEAM))
 		{
 			int x;
-			int p = findplayer(&act->s, &x);
+			int p = findplayer(act, &x);
 			execute(act, p, x);
 		}
 	}
@@ -1563,7 +1563,7 @@ void moveweapons_r(void)
 		case SHOTSPARK1:
 		{
 			int x;
-			int p = findplayer(&proj->s, &x);
+			int p = findplayer(proj, &x);
 			execute(proj, p, x);
 			continue;
 		}
@@ -2499,7 +2499,7 @@ void rr_specialstats()
 		if (s->picnum == RRTILE296)
 		{
 			int x;
-			int p = findplayer(&act->s, &x);
+			int p = findplayer(act, &x);
 			if (x < 2047)
 			{
 				DukeStatIterator it2(108);
@@ -2549,7 +2549,7 @@ static void heavyhbomb(DDukeActor *actor)
 		return;
 	}
 
-	int p = findplayer(&actor->s, &x);
+	int p = findplayer(actor, &x);
 
 	if (x < 1220) s->cstat &= ~257;
 	else s->cstat |= 257;
@@ -3125,7 +3125,7 @@ void moveactors_r(void)
 		}
 // #endif
 
-		p = findplayer(&act->s,&x);
+		p = findplayer(act,&x);
 
 		execute(act,p,x);
 		if (deleteafterexecute) deletesprite(act);
@@ -3231,7 +3231,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		case INNERJAW:
 		case INNERJAW + 1:
 
-			p = findplayer(&act->s, &x);
+			p = findplayer(act, &x);
 			if (x < 512)
 			{
 				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
@@ -3346,7 +3346,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		case FORCERIPPLE:
 		case TRANSPORTERSTAR:
 		case TRANSPORTERBEAM:
-			p = findplayer(&act->s, &x);
+			p = findplayer(act, &x);
 			execute(act, p, x);
 			continue;
 

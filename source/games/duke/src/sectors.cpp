@@ -211,10 +211,11 @@ bool isanearoperator(int lotag)
 //
 //---------------------------------------------------------------------------
 
-int findplayer(const spritetype* s, int* d)
+int findplayer(const DDukeActor* actor, int* d)
 {
 	short j, closest_player;
 	int x, closest;
+	auto s = &actor->s.pos;
 
 	if (ud.multimode < 2)
 	{
@@ -228,7 +229,7 @@ int findplayer(const spritetype* s, int* d)
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 	{
 		x = abs(ps[j].oposx - s->x) + abs(ps[j].oposy - s->y) + ((abs(ps[j].oposz - s->z + (28 << 8))) >> 4);
-		if (x < closest && sprite[ps[j].i].extra > 0)
+		if (x < closest && ps[j].GetActor()->s.extra > 0)
 		{
 			closest_player = j;
 			closest = x;

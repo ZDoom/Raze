@@ -1559,7 +1559,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 								if (j > -64 && j < 64)
 								{
 									int l;
-									findplayer(sa, &l);
+									findplayer(act2, &l);
 									if (x > l) break;
 								}
 							}
@@ -1708,7 +1708,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 	}
 
 	int x;
-	int p = findplayer(&actor->s, &x);
+	int p = findplayer(actor, &x);
 	auto Owner = actor->GetOwner();
 
 	// 3 = findplayerz, 4 = shoot
@@ -1902,7 +1902,7 @@ void reactor(DDukeActor* actor, int REACTOR, int REACTOR2, int REACTORBURNT, int
 	}
 
 	int x;
-	int p = findplayer(&actor->s, &x);
+	int p = findplayer(actor, &x);
 
 	t[2]++;
 	if (t[2] == 4) t[2] = 0;
@@ -2374,7 +2374,7 @@ bool bloodpool(DDukeActor* actor, bool puke, int TIRE)
 	makeitfall(actor);
 
 	int x;
-	int p = findplayer(&actor->s, &x);
+	int p = findplayer(actor, &x);
 
 	s->z = actor->floorz - (FOURSLEIGHT);
 
@@ -2880,7 +2880,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			}
 			if ((!checkstat || !statstate) && (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat & 1) && rnd(8)))
 			{
-				int p = findplayer(&actor->s, &x);
+				int p = findplayer(actor, &x);
 				if (x < 20480)
 				{
 					j = s->ang;
@@ -3307,7 +3307,7 @@ void handle_se03(DDukeActor *actor)
 	int sh = s->hitag;
 
 	if (t[4] == 0) return;
-	int x, p = findplayer(&actor->s, &x);
+	int x, p = findplayer(actor, &x);
 
 	int palvals = s->owner;	// this type hijacks the Owner field!!!
 
@@ -3432,7 +3432,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	int sh = s->hitag;
 	int j, l, m;
 
-	int x, p = findplayer(&actor->s, &x);
+	int x, p = findplayer(actor, &x);
 	if (x < 8192)
 	{
 		j = s->ang;
@@ -4480,7 +4480,7 @@ void handle_se27(DDukeActor* actor)
 
 	actor->tempang = s->ang;
 
-	p = findplayer(&actor->s, &x);
+	p = findplayer(actor, &x);
 	if (ps[p].GetActor()->s.extra > 0 && myconnectindex == screenpeek)
 	{
 		if (t[0] < 0)

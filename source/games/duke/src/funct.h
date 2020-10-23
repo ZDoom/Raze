@@ -142,7 +142,7 @@ void shootbloodsplat(int i, int p, int sx, int sy, int sz, int sa, int atwith, i
 void breakwall(short newpn, short spr, short dawallnum);
 int callsound(int sectnum,DDukeActor* snum);
 int hitasprite(int snum,short *hitSprite);
-int findplayer(const spritetype* s, int* dist);
+int findplayer(const DDukeActor* s, int* dist);
 void operatejaildoors(int hitag);
 void allignwarpelevators(void);
 bool isablockdoor(int tileNum);
