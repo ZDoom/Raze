@@ -1064,7 +1064,8 @@ int haskey(int sect, int snum)
 
 void shootbloodsplat(int i, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST)
 {
-	spritetype* const s = &sprite[i];
+	auto actor = &hittype[i];
+	spritetype* const s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
 	short hitsect, hitspr, hitwall, k;
@@ -1109,17 +1110,17 @@ void shootbloodsplat(int i, int p, int sx, int sy, int sz, int sa, int atwith, i
 
 			if (wall[hitwall].hitag == 0)
 			{
-				k = fi.spawn(i, atwith);
-				sprite[k].xvel = -12;
-				sprite[k].ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) + 512;
-				sprite[k].x = hitx;
-				sprite[k].y = hity;
-				sprite[k].z = hitz;
-				sprite[k].cstat |= (krand() & 4);
+				auto spawned = spawn(actor, atwith);
+				spawned->s.xvel = -12;
+				spawned->s.ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) + 512;
+				spawned->s.x = hitx;
+				spawned->s.y = hity;
+				spawned->s.z = hitz;
+				spawned->s.cstat |= (krand() & 4);
 				ssp(k, CLIPMASK0);
-				setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
+				setsprite(spawned, spawned->s.pos);
 				if (s->picnum == OOZFILTER || s->picnum == NEWBEAST)
-					sprite[k].pal = 6;
+					spawned->s.pal = 6;
 			}
 		}
 	}

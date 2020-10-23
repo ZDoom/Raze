@@ -296,13 +296,13 @@ static void shootknee(int i, int p, int sx, int sy, int sz, int sa)
 		}
 		else if (p >= 0 && zvel > 0 && sector[hitsect].lotag == 1)
 		{
-			j = fi.spawn(ps[p].i, WATERSPLASH2);
-			sprite[j].x = hitx;
-			sprite[j].y = hity;
-			sprite[j].ang = ps[p].angle.ang.asbuild(); // Total tweek
-			sprite[j].xvel = 32;
+			auto splash = spawn(ps[p].GetActor(), WATERSPLASH2);
+			splash->s.x = hitx;
+			splash->s.y = hity;
+			splash->s.ang = ps[p].angle.ang.asbuild(); // Total tweek
+			splash->s.xvel = 32;
 			ssp(i, CLIPMASK0);
-			sprite[j].xvel = 0;
+			splash->s.xvel = 0;
 
 		}
 	}
@@ -407,16 +407,19 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 		zvel << 6, &hitsect, &hitwall, &hitspr, &hitx, &hity, &hitz, CLIPMASK1);
 	s->cstat |= 257;
 
+
 	if (hitsect < 0) return;
+	auto hitact = &hittype[hitspr];
 
 	if ((krand() & 15) == 0 && sector[hitsect].lotag == 2)
 		tracers(hitx, hity, hitz, sx, sy, sz, 8 - (ud.multimode >> 1));
 
 	if (p >= 0)
 	{
-		k = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, i, 4);
-		sprite[k].extra = ScriptCode[actorinfo[atwith].scriptaddress];
-		sprite[k].extra += (krand() % 6);
+		const char* k;
+		auto spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, &hittype[i], 4);
+		spark->s.extra = ScriptCode[actorinfo[atwith].scriptaddress];
+		spark->s.extra += (krand() % 6);
 
 		if (hitwall == -1 && hitspr == -1)
 		{
@@ -424,39 +427,39 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 			{
 				if (sector[hitsect].ceilingstat & 1)
 				{
-					sprite[k].xrepeat = 0;
-					sprite[k].yrepeat = 0;
+					spark->s.xrepeat = 0;
+					spark->s.yrepeat = 0;
 					return;
 				}
 				else
 					fi.checkhitceiling(hitsect);
 			}
-			fi.spawn(k, SMALLSMOKE);
+			spawn(spark, SMALLSMOKE);
 		}
 
 		if (hitspr >= 0)
 		{
-			fi.checkhitsprite(hitspr, k);
+			fi.checkhitsprite(hitspr, spark->GetIndex());
 			if (sprite[hitspr].picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
 			{
-				l = fi.spawn(k, JIBS6);
-				sprite[k].xrepeat = sprite[k].yrepeat = 0;
-				sprite[l].z += (4 << 8);
-				sprite[l].xvel = 16;
-				sprite[l].xrepeat = sprite[l].yrepeat = 24;
-				sprite[l].ang += 64 - (krand() & 127);
+				auto jib = spawn(spark, JIBS6);
+				spark->s.xrepeat = spark->s.yrepeat = 0;
+				jib->s.z += (4 << 8);
+				jib->s.xvel = 16;
+				jib->s.xrepeat = jib->s.yrepeat = 24;
+				jib->s.ang += 64 - (krand() & 127);
 			}
-			else fi.spawn(k, SMALLSMOKE);
+			else spawn(spark, SMALLSMOKE);
 
 			if (p >= 0 && (
-				sprite[hitspr].picnum == DIPSWITCH ||
-				sprite[hitspr].picnum == DIPSWITCH + 1 ||
-				sprite[hitspr].picnum == DIPSWITCH2 ||
-				sprite[hitspr].picnum == DIPSWITCH2 + 1 ||
-				sprite[hitspr].picnum == DIPSWITCH3 ||
-				sprite[hitspr].picnum == DIPSWITCH3 + 1 ||
-				sprite[hitspr].picnum == HANDSWITCH ||
-				sprite[hitspr].picnum == HANDSWITCH + 1))
+				hitact->s.picnum == DIPSWITCH ||
+				hitact->s.picnum == DIPSWITCH + 1 ||
+				hitact->s.picnum == DIPSWITCH2 ||
+				hitact->s.picnum == DIPSWITCH2 + 1 ||
+				hitact->s.picnum == DIPSWITCH3 ||
+				hitact->s.picnum == DIPSWITCH3 + 1 ||
+				hitact->s.picnum == HANDSWITCH ||
+				hitact->s.picnum == HANDSWITCH + 1))
 			{
 				fi.checkhitswitch(p, hitspr, 1);
 				return;
@@ -464,7 +467,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 		}
 		else if (hitwall >= 0)
 		{
-			fi.spawn(k, SMALLSMOKE);
+			spawn(spark, SMALLSMOKE);
 
 			if (fi.isadoorwall(wall[hitwall].picnum) == 1)
 				goto SKIPBULLETHOLE;
@@ -505,14 +508,14 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 							while ((l = it.NextIndex()) >= 0)
 							{
 								if (sprite[l].picnum == BULLETHOLE)
-									if (dist(&sprite[l], &sprite[k]) < (12 + (krand() & 7)))
+									if (dist(&sprite[l], &spark->s) < (12 + (krand() & 7)))
 										goto SKIPBULLETHOLE;
 							}
-							l = fi.spawn(k, BULLETHOLE);
-							sprite[l].xvel = -1;
-							sprite[l].ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x,
+							auto hole = spawn(spark, BULLETHOLE);
+							hole->s.xvel = -1;
+							hole->s.ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x,
 								wall[hitwall].y - wall[wall[hitwall].point2].y) + 512;
-							ssp(l, CLIPMASK0);
+							ssp(hole, CLIPMASK0);
 						}
 
 		SKIPBULLETHOLE:
@@ -522,7 +525,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 					if (hitz >= (sector[wall[hitwall].nextsector].floorz))
 						hitwall = wall[hitwall].nextwall;
 
-			fi.checkhitwall(k, hitwall, hitx, hity, hitz, SHOTSPARK1);
+			fi.checkhitwall(spark->GetIndex(), hitwall, hitx, hity, hitz, SHOTSPARK1);
 		}
 	}
 	else
