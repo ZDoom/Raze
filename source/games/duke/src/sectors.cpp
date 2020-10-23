@@ -667,23 +667,23 @@ static void handle_st18(int sn, DDukeActor* actor)
 static void handle_st29(int sn, DDukeActor* actor)
 {
 	sectortype* sptr = &sector[sn];
-	int i,j;
+	int j;
 
 	if (sptr->lotag & 0x8000)
 		j = sector[nextsectorneighborz(sn, sptr->ceilingz, 1, 1)].floorz;
 	else
 		j = sector[nextsectorneighborz(sn, sptr->ceilingz, -1, -1)].ceilingz;
 
-	StatIterator it(STAT_EFFECTOR);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_EFFECTOR);
+	while (auto act2 = it.Next())
 	{
-		if ((sprite[i].lotag == 22) &&
-			(sprite[i].hitag == sptr->hitag))
+		if ((act2->s.lotag == 22) &&
+			(act2->s.hitag == sptr->hitag))
 		{
-			sector[sprite[i].sectnum].extra = -sector[sprite[i].sectnum].extra;
+			sector[act2->s.sectnum].extra = -sector[act2->s.sectnum].extra;
 
-			hittype[i].temp_data[0] = sn;
-			hittype[i].temp_data[1] = 1;
+			act2->temp_data[0] = sn;
+			act2->temp_data[1] = 1;
 		}
 	}
 
