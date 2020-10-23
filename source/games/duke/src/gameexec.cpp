@@ -95,10 +95,9 @@ void addspritetodelete(int spnum)
 	killthesprite = true;
 }
 
-static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor_, int sPlayer, int lParm2)
+static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, int sPlayer, int lParm2)
 {
 	int lValue;
-	auto sActor = &hittype[sActor_];
 
 	lValue = GetGameVarID((int)lVar2, sActor, sPlayer);
 
@@ -263,13 +262,12 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor_
 }
 
 ///////////////////////////////////////////
-void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor_, int sPlayer, int lParm2)
+void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, int sPlayer, int lParm2)
 {
 	int iPlayer;
 	int lValue;
 	int lTemp;
 
-	auto sActor = &hittype[sActor_];
 	lValue = GetGameVarID((int)lVar2, sActor, sPlayer);
 
 	if (lVar1 == g_iThisActorID)
@@ -933,12 +931,11 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor_, int sP
 }
 
 ////////////////////
-void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, short sActor_, short sPlayer, int lParm2)
+void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, short sPlayer, int lParm2)
 {
 	int iWall;
 	int lValue;
 
-	auto sActor = &hittype[sActor_];
 	lValue = GetGameVarID((int)lVar2, sActor, sPlayer);
 
 	iWall = GetGameVarID((int)lVar1, sActor, sPlayer);
@@ -1021,12 +1018,10 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, short sActor_, short 
 	return;
 }
 
-void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, short sActor_, short sPlayer, int lParm2)
+void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, short sPlayer, int lParm2)
 {
 	int iSector;
 	int lValue;
-	auto sActor = &hittype[sActor_];
-
 
 	if (lVar1 == g_iThisActorID)
 	{
@@ -1137,24 +1132,24 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, short sActor_, shor
 	}
 	return;
 }
-void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor_, int sPlayer, int lParm2)
+void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, int sPlayer, int lParm2)
 {
 	int iActor;
 	int lValue;
 
-	auto sActor = &hittype[sActor_];
 	lValue = GetGameVarID((int)lVar2, sActor, sPlayer);
 
+	DDukeActor* act;
 	if (lVar1 == g_iThisActorID)
 	{
 		// if they've asked for 'this', then use 'this'...
-		iActor = sActor_;
+		act = sActor;
 	}
 	else
 	{
 		iActor = GetGameVarID((int)lVar1, sActor, sPlayer);
+		act = &hittype[iActor];
 	}
-	auto act = &hittype[iActor];
 	auto spr = &act->s;
 
 	if (iActor < 0 || iActor >= MAXSPRITES || spr->statnum == MAXSTATUS)
@@ -2883,7 +2878,7 @@ int ParseState::parse(void)
 		lLabelID = *(insptr++);
 		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
-		DoSector(lWhat == concmd_setsector, lVar1, lLabelID, lVar2, g_ac->GetIndex(), g_p, lParm2);
+		DoSector(lWhat == concmd_setsector, lVar1, lLabelID, lVar2, g_ac, g_p, lParm2);
 		break;
 	}
 	case concmd_sqrt:
@@ -3004,7 +2999,7 @@ int ParseState::parse(void)
 		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
-		DoPlayer(lWhat == concmd_setplayer, lVar1, lLabelID, lVar2, g_ac->GetIndex(), g_p, lParm2);
+		DoPlayer(lWhat == concmd_setplayer, lVar1, lLabelID, lVar2, g_ac, g_p, lParm2);
 		break;
 	}
 	case concmd_getuserdef:
@@ -3023,7 +3018,7 @@ int ParseState::parse(void)
 		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
-		DoUserDef(lWhat == concmd_setuserdef, lVar1, lLabelID, lVar2, g_ac->GetIndex(), g_p, lParm2);
+		DoUserDef(lWhat == concmd_setuserdef, lVar1, lLabelID, lVar2, g_ac, g_p, lParm2);
 		break;
 	}
 	case concmd_setwall:
@@ -3042,7 +3037,7 @@ int ParseState::parse(void)
 		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
-		DoWall(lWhat == concmd_setwall, lVar1, lLabelID, lVar2, g_ac->GetIndex(), g_p, lParm2);
+		DoWall(lWhat == concmd_setwall, lVar1, lLabelID, lVar2, g_ac, g_p, lParm2);
 		break;
 	}
 	case concmd_setactorvar:
@@ -3107,7 +3102,7 @@ int ParseState::parse(void)
 		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
-		DoActor(lWhat == concmd_setactor, lVar1, lLabelID, lVar2, g_ac->GetIndex(), g_p, lParm2);
+		DoActor(lWhat == concmd_setactor, lVar1, lLabelID, lVar2, g_ac, g_p, lParm2);
 		break;
 	}
 	case concmd_getangletotarget:
