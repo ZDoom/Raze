@@ -2225,11 +2225,11 @@ int ParseState::parse(void)
 		}
 		else
 		{
-			// I am not convinced this is even remotely smart to be executed from here...
+			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_sp->x = hittype[g_i].bposx = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
-			g_sp->y = hittype[g_i].bposy = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].posy;
-			g_sp->z = hittype[g_i].bposy = ps[g_p].oposz = ps[g_p].posz;
+			g_sp->x = g_ac->bposx = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
+			g_sp->y = g_ac->bposy = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].posy;
+			g_sp->z = g_ac->bposy = ps[g_p].oposz = ps[g_p].posz;
 			updatesector(ps[g_p].posx, ps[g_p].posy, &ps[g_p].cursectnum);
 			setsprite(ps[g_p].i, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz + PHEIGHT);
 			g_sp->cstat = 257;
@@ -2238,7 +2238,7 @@ int ParseState::parse(void)
 			g_sp->clipdist = 64;
 			g_sp->xrepeat = 42;
 			g_sp->yrepeat = 36;
-			g_sp->owner = g_i;
+			g_ac->SetOwner(g_ac);
 			g_sp->xoffset = 0;
 			g_sp->pal = ps[g_p].palookup;
 
@@ -2261,16 +2261,15 @@ int ParseState::parse(void)
 
 			ps[g_p].falling_counter = 0;
 
-			hittype[g_i].extra = -1;
-			hittype[g_i].owner = g_i;
+			g_ac->extra = -1;
 
-			hittype[g_i].cgg = 0;
-			hittype[g_i].movflag = 0;
-			hittype[g_i].tempang = 0;
-			hittype[g_i].actorstayput = -1;
-			hittype[g_i].dispicnum = 0;
-			hittype[g_i].owner = ps[g_p].i;
-			hittype[g_i].temp_data[4] = 0;
+			g_ac->cgg = 0;
+			g_ac->movflag = 0;
+			g_ac->tempang = 0;
+			g_ac->actorstayput = -1;
+			g_ac->dispicnum = 0;
+			g_ac->SetHitOwner(ps[g_p].GetActor());
+			g_ac->temp_data[4] = 0;
 
 			resetinventory(g_p);
 			resetweapons(g_p);
@@ -2281,7 +2280,7 @@ int ParseState::parse(void)
 		parseifelse(ud.coop || numplayers > 2);
 		break;
 	case concmd_ifonmud:
-		parseifelse(abs(g_sp->z - sector[g_sp->sectnum].floorz) < (32 << 8) && sector[g_sp->sectnum].floorpicnum == 3073); // eew, hard coded tile numbers... :?
+		parseifelse(abs(g_sp->z - sector[g_sp->sectnum].floorz) < (32 << 8) && sector[g_sp->sectnum].floorpicnum == 3073); // eew, hard coded tile numbers.. :?
 		break;
 	case concmd_ifonwater:
 		parseifelse( abs(g_sp->z-sector[g_sp->sectnum].floorz) < (32<<8) && sector[g_sp->sectnum].lotag == ST_1_ABOVE_WATER);
@@ -2381,7 +2380,7 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	case concmd_hitradius:
-		fi.hitradius(g_ac,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
+		fi.hitradius(g_ac, *(insptr + 1), *(insptr + 2), *(insptr + 3), *(insptr + 4), *(insptr + 5));
 		insptr+=6;
 		break;
 	case concmd_ifp:
@@ -2393,7 +2392,7 @@ int ParseState::parse(void)
 
 			s = g_sp->xvel;
 
-			// sigh... this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
+			// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
 			if( (l& pducking) && ps[g_p].on_ground && (PlayerInput(g_p, SB_CROUCH) ^ !!(ps[g_p].crouch_toggle) ))
 					j = 1;
 			else if( (l& pfalling) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&	ps[g_p].poszv > 2048 )
@@ -2414,7 +2413,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& pkicking) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
 					j = 1;
-			else if( (l& pshrunk) && sprite[ps[g_p].i].xrepeat < (isRR() ? 8 : 32))
+			else if( (l& pshrunk) && ps[g_p].GetActor()->s.xrepeat < (isRR() ? 8 : 32))
 					j = 1;
 			else if( (l& pjetpack) && ps[g_p].jetpack_on )
 					j = 1;
@@ -2422,9 +2421,9 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& ponground) && ps[g_p].on_ground)
 					j = 1;
-			else if( (l& palive) && sprite[ps[g_p].i].xrepeat > (isRR() ? 8 : 32) && sprite[ps[g_p].i].extra > 0 && ps[g_p].timebeforeexit == 0 )
+			else if( (l& palive) && ps[g_p].GetActor()->s.xrepeat > (isRR() ? 8 : 32) && ps[g_p].GetActor()->s.extra > 0 && ps[g_p].timebeforeexit == 0 )
 					j = 1;
-			else if( (l& pdead) && sprite[ps[g_p].i].extra <= 0)
+			else if( (l& pdead) && ps[g_p].GetActor()->s.extra <= 0)
 					j = 1;
 			else if( (l& pfacing) )
 			{
@@ -2472,7 +2471,7 @@ int ParseState::parse(void)
 		return 0;
 	case concmd_ifgapzl:
 		insptr++;
-		parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) < *insptr);
+		parseifelse( (( g_ac->floorz - g_ac->ceilingz ) >> 8 ) < *insptr);
 		break;
 	case concmd_ifhitspace:
 		parseifelse(PlayerInput(g_p, SB_OPEN));
@@ -2495,13 +2494,15 @@ int ParseState::parse(void)
 					if( (sector[neartagsector].lotag&16384) == 0 )
 						if ((sector[neartagsector].lotag & 32768) == 0)
 						{
-							SectIterator it(neartagsector);
-							while ((j = it.NextIndex()) >= 0)
+							DukeSectIterator it(neartagsector);
+							DDukeActor* a2;
+							while ((a2 = it.Next()))
 							{
-								if (sprite[j].picnum == ACTIVATOR)
+								auto sj = &a2->s;
+								if (sj->picnum == ACTIVATOR)
 									break;
 							}
-							if (j == -1)
+							if (a2 == nullptr)
 								operatesectors(neartagsector, g_ac);
 						}
 		}
@@ -2513,7 +2514,7 @@ int ParseState::parse(void)
 	case concmd_spritepal:
 		insptr++;
 		if(g_sp->picnum != TILE_APLAYER)
-			hittype[g_i].tempang = g_sp->pal;
+			g_ac->tempang = g_sp->pal;
 		g_sp->pal = *insptr;
 		insptr++;
 		break;
@@ -2528,20 +2529,20 @@ int ParseState::parse(void)
 		parseifelse( dodge(g_ac) == 1);
 		break;
 	case concmd_ifrespawn:
-		if( badguy(g_sp) )
+		if( badguy(g_ac) )
 			parseifelse( ud.respawn_monsters );
-		else if( inventory(g_sp) )
+		else if( inventory(&g_ac->s) )
 			parseifelse( ud.respawn_inventory );
 		else
 			parseifelse( ud.respawn_items );
 		break;
 	case concmd_iffloordistl:
 		insptr++;
-		parseifelse( (hittype[g_i].floorz - g_sp->z) <= ((*insptr)<<8));
+		parseifelse( (g_ac->floorz - g_sp->z) <= ((*insptr)<<8));
 		break;
 	case concmd_ifceilingdistl:
 		insptr++;
-		parseifelse( ( g_sp->z - hittype[g_i].ceilingz ) <= ((*insptr)<<8));
+		parseifelse( ( g_sp->z - g_ac->ceilingz ) <= ((*insptr)<<8));
 		break;
 	case concmd_palfrom:
 		insptr++;
@@ -2552,7 +2553,7 @@ int ParseState::parse(void)
 /*		  case 74:
 		insptr++;
 		getglobalz(g_i);
-		parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) >= *insptr);
+		parseifelse( (( g_ac->floorz - g_ac->ceilingz ) >> 8 ) >= *insptr);
 		break;
 */
 	case concmd_addlog:
