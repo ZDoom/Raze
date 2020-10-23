@@ -852,30 +852,32 @@ static void handle_st23(int sn, DDukeActor* actor)
 
 static void handle_st25(int sn, DDukeActor* actor)
 {
-	StatIterator it(STAT_EFFECTOR);
-	int i, j;
-	while ((j = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_EFFECTOR);
+	DDukeActor* act2;
+	while ((act2 = it.Next()))
 	{
-		if ((sprite[j].lotag) == 15 && sprite[j].sectnum == sn)
-			break; //Found the sectoreffector.
+		if (act2->s.lotag == 15 && act2->s.sectnum == sn)
+		{
+			break;
+		}
 	}
-
-	if (j < 0)
+	
+	if (act2 == nullptr)
 		return;
 
 	it.Reset(STAT_EFFECTOR);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto act3 = it.Next())
 	{
-		if (sprite[i].hitag == sprite[j].hitag)
+		if (act3->s.hitag == act2->s.hitag)
 		{
-			if (sprite[i].lotag == 15)
+			if (act3->s.lotag == 15)
 			{
-				sector[sprite[i].sectnum].lotag ^= 0x8000; // Toggle the open or close
-				sprite[i].ang += 1024;
-				if (hittype[i].temp_data[4]) callsound(sprite[i].sectnum, i);
-				callsound(sprite[i].sectnum, i);
-				if (sector[sprite[i].sectnum].lotag & 0x8000) hittype[i].temp_data[4] = 1;
-				else hittype[i].temp_data[4] = 2;
+				sector[act3->s.sectnum].lotag ^= 0x8000; // Toggle the open or close
+				act3->s.ang += 1024;
+				if (act3->temp_data[4]) callsound(act3->s.sectnum, act3);
+				callsound(act3->s.sectnum, act3);
+				if (sector[act3->s.sectnum].lotag & 0x8000) act3->temp_data[4] = 1;
+				else act3->temp_data[4] = 2;
 			}
 		}
 	}
