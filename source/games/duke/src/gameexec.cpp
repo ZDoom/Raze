@@ -1386,15 +1386,14 @@ void ParseState::parseifelse(int condition)
 //
 //---------------------------------------------------------------------------
 
-static int ifcanshoottarget(int g_i, int g_p, int g_x)
+static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 {
 	int j;
-	auto g_sp = &sprite[g_i];
 	if (g_x > 1024)
 	{
-		short temphit, sclip, angdif;
+		short sclip, angdif;
 
-		if (badguy(g_sp) && g_sp->xrepeat > 56)
+		if (badguy(actor) && actor->s.xrepeat > 56)
 		{
 			sclip = 3084;
 			angdif = 48;
@@ -1405,28 +1404,29 @@ static int ifcanshoottarget(int g_i, int g_p, int g_x)
 			angdif = 16;
 		}
 
-		j = hitasprite(g_i, &temphit);
+		DDukeActor* hit;
+		j = hitasprite(actor, &hit);
 		if (j == (1 << 30))
 		{
 			return 1;
 		}
 		if (j > sclip)
 		{
-			if (temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
+			if (hit != nullptr && hit->s.picnum == actor->s.picnum)
 				j = 0;
 			else
 			{
-				g_sp->ang += angdif; j = hitasprite(g_i, &temphit); g_sp->ang -= angdif;
+				actor->s.ang += angdif; j = hitasprite(actor, &hit); actor->s.ang -= angdif;
 				if (j > sclip)
 				{
-					if (temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
+					if (hit != nullptr && hit->s.picnum == actor->s.picnum)
 						j = 0;
 					else
 					{
-						g_sp->ang -= angdif; j = hitasprite(g_i, &temphit); g_sp->ang += angdif;
+						actor->s.ang -= angdif; j = hitasprite(actor, &hit); actor->s.ang += angdif;
 						if (j > 768)
 						{
-							if (temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
+							if (hit != nullptr && hit->s.picnum == actor->s.picnum)
 								j = 0;
 							else j = 1;
 						}
@@ -1539,7 +1539,7 @@ int ParseState::parse(void)
 		break;
 	}
 	case concmd_ifcanshoottarget:
-		parseifelse(ifcanshoottarget(g_i, g_p, g_x));
+		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
 		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz/*-((krand()&41)<<8)*/, sprite[ps[g_p].i].sectnum);
