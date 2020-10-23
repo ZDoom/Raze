@@ -574,30 +574,31 @@ static void handle_st09(int sn, DDukeActor* actor)
 static void handle_st15(int sn, DDukeActor* actor)
 {
 	if (actor->s.picnum != TILE_APLAYER) return;
-	int i;
 	//			if(ps[sprite[ii].yvel].select_dir == 1) return;
 
 	sectortype* sptr = &sector[sn];
-	SectIterator it(sn);
-	while ((i = it.NextIndex()) >= 0)
+	DukeSectIterator it(sn);
+	DDukeActor* a2;
+	while ((a2 = it.Next()))
 	{
-		if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 17) break;
+		if (a2->s.picnum == SECTOREFFECTOR && a2->s.lotag == ST_17_PLATFORM_UP) break;
 	}
+	if (!a2) return;
 
 	if (actor->s.sectnum == sn)
 	{
-		if (activatewarpelevators(&hittype[i], -1))
-			activatewarpelevators(&hittype[i], 1);
-		else if (activatewarpelevators(&hittype[i], 1))
-			activatewarpelevators(&hittype[i], -1);
+		if (activatewarpelevators(a2, -1))
+			activatewarpelevators(a2, 1);
+		else if (activatewarpelevators(a2, 1))
+			activatewarpelevators(a2, -1);
 		return;
 	}
 	else
 	{
-		if (sptr->floorz > sprite[i].z)
-			activatewarpelevators(&hittype[i], -1);
+		if (sptr->floorz > a2->s.z)
+			activatewarpelevators(a2, -1);
 		else
-			activatewarpelevators(&hittype[i], 1);
+			activatewarpelevators(a2, 1);
 	}
 }
 
