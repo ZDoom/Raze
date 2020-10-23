@@ -146,7 +146,7 @@ int findplayer(const DDukeActor* s, int* dist);
 void operatejaildoors(int hitag);
 void allignwarpelevators(void);
 bool isablockdoor(int tileNum);
-bool activatewarpelevators(int s, int w);
+bool activatewarpelevators(DDukeActor* s, int w);
 int check_activator_motion(int lotag);
 void operateactivators(int l, int w);
 void operateforcefields_common(int s, int low, const std::initializer_list<int>& tiles);

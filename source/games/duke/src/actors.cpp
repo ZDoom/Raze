@@ -4003,7 +4003,7 @@ void handle_se17(DDukeActor* actor)
 	{
 		if (abs(sc->floorz - t[2]) <= s->yvel)
 		{
-			activatewarpelevators(actor->GetIndex(), 0);
+			activatewarpelevators(actor, 0);
 			return;
 		}
 

@@ -431,25 +431,24 @@ int setanimation(short animsect, int animtype, int animtarget, int thegoal, int 
 //
 //---------------------------------------------------------------------------
 
-bool activatewarpelevators(int s, int d) //Parm = sectoreffectornum
+bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 {
-	int i, sn;
-
-	sn = sprite[s].sectnum;
+	int sn = actor->s.sectnum;
 
 	// See if the sector exists
 
-	StatIterator it(STAT_EFFECTOR);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_EFFECTOR);
+	DDukeActor *act2;
+	while ((act2 = it.Next()))
 	{
-		if (sprite[i].lotag == SE_17_WARP_ELEVATOR || (isRRRA() && sprite[i].lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
-			if (sprite[i].hitag == sprite[s].hitag)
-				if ((abs(sector[sn].floorz - hittype[s].temp_data[2]) > sprite[i].yvel) ||
-					(sector[sprite[i].sectnum].hitag == (sector[sn].hitag - d)))
+		if (act2->s.lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->s.lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
+			if (act2->s.hitag == actor->s.hitag)
+				if ((abs(sector[sn].floorz - actor->temp_data[2]) > act2->s.yvel) ||
+					(sector[act2->s.sectnum].hitag == (sector[sn].hitag - d)))
 					break;
 	}
 
-	if (i == -1)
+	if (act2 == nullptr)
 	{
 		d = 0;
 		return 1; // No find
@@ -457,24 +456,23 @@ bool activatewarpelevators(int s, int d) //Parm = sectoreffectornum
 	else
 	{
 		if (d == 0)
-			S_PlayActorSound(ELEVATOR_OFF, s);
-		else S_PlayActorSound(ELEVATOR_ON, s);
+			S_PlayActorSound(ELEVATOR_OFF, actor);
+		else S_PlayActorSound(ELEVATOR_ON, actor);
 	}
 
 
 	it.Reset(STAT_EFFECTOR);
-	while ((i = it.NextIndex()) >= 0)
+	while ((act2 = it.Next()))
 	{
-		if (sprite[i].lotag == SE_17_WARP_ELEVATOR || (isRRRA() && sprite[i].lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
-			if (sprite[i].hitag == sprite[s].hitag)
+		if (act2->s.lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->s.lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
+			if (act2->s.hitag == actor->s.hitag)
 			{
-				hittype[i].temp_data[0] = d;
-				hittype[i].temp_data[1] = d; //Make all check warp
+				act2->temp_data[0] = d;
+				act2->temp_data[1] = d; //Make all check warp
 			}
 	}
 	return 0;
 }
-
 //---------------------------------------------------------------------------
 //
 // 
@@ -642,18 +640,18 @@ void operatesectors(int sn, int ii)
 
 		if (sprite[ii].sectnum == sn)
 		{
-			if (activatewarpelevators(i, -1))
-				activatewarpelevators(i, 1);
-			else if (activatewarpelevators(i, 1))
-				activatewarpelevators(i, -1);
+			if (activatewarpelevators(&hittype[i], -1))
+				activatewarpelevators(&hittype[i], 1);
+			else if (activatewarpelevators(&hittype[i], 1))
+				activatewarpelevators(&hittype[i], -1);
 			return;
 		}
 		else
 		{
 			if (sptr->floorz > sprite[i].z)
-				activatewarpelevators(i, -1);
+				activatewarpelevators(&hittype[i], -1);
 			else
-				activatewarpelevators(i, 1);
+				activatewarpelevators(&hittype[i], 1);
 		}
 
 		return;
