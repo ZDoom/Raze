@@ -1448,67 +1448,48 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 //
 //---------------------------------------------------------------------------
 
-static bool ifcansee(int g_i, int g_p)
+static bool ifcansee(DDukeActor* actor, int g_p)
 {
-	auto g_sp = &sprite[g_i];
-	spritetype* s;
 	int j;
+	DDukeActor* tosee;
+	auto g_sp = &actor->s;
 
 	// select sprite for monster to target
 	// if holoduke is on, let them target holoduke first.
 	// 
 	if (ps[g_p].holoduke_on != nullptr && !isRR())
 	{
-		s = &ps[g_p].holoduke_on->s;
-		j = cansee(g_sp->x, g_sp->y, g_sp->z - (krand() & ((32 << 8) - 1)), g_sp->sectnum,
-			s->x, s->y, s->z, s->sectnum);
+		tosee = ps[g_p].holoduke_on;
+		j = cansee(g_sp->x, g_sp->y, g_sp->z - (krand() & ((32 << 8) - 1)), g_sp->sectnum, tosee->s.x, tosee->s.y, tosee->s.z, tosee->s.sectnum);
 
 		if (j == 0)
 		{
 			// they can't see player's holoduke
-			// check for player...
-			s = &sprite[ps[g_p].i];
+			// check for player..
+			tosee = ps[g_p].GetActor();
 		}
 	}
-	else s = &sprite[ps[g_p].i];	// holoduke not on. look for player
+	else tosee = ps[g_p].GetActor();	// holoduke not on. look for player
 
 	// can they see player, (or player's holoduke)
-	j = cansee(g_sp->x, g_sp->y, g_sp->z - (krand() & ((47 << 8))), g_sp->sectnum,
-		s->x, s->y, s->z - ((isRR()? 28 : 24) << 8), s->sectnum);
+	j = cansee(g_sp->x, g_sp->y, g_sp->z - (krand() & ((47 << 8))), g_sp->sectnum, tosee->s.x, tosee->s.y, tosee->s.z - ((isRR()? 28 : 24) << 8), tosee->s.sectnum);
 
 	if (j == 0)
 	{
-		// they can't see it.
-
-		// Huh?.  This does nothing....
-		// (the result is always j==0....)
-		if ((abs(hittype[g_i].lastvx - g_sp->x) + abs(hittype[g_i].lastvy - g_sp->y)) <
-			(abs(hittype[g_i].lastvx - s->x) + abs(hittype[g_i].lastvy - s->y)))
-			j = 0;
-
-		// um yeah, this if() will always fire....
-		if (j == 0)
-		{
-			// search around for target player
-
-			// also modifies 'target' x&y if found..
-
-			j = furthestcanseepoint(&hittype[g_i], ps[g_p].GetActor(), &hittype[g_i].lastvx, &hittype[g_i].lastvy);
-
-			if (j == -1) j = 0;
-			else j = 1;
-		}
+		// search around for target player
+		// also modifies 'target' x&y if found.
+		j = furthestcanseepoint(actor, tosee, &actor->lastvx, &actor->lastvy) != -1;
 	}
 	else
 	{
 		// else, they did see it.
-		// save where we were looking...
-		hittype[g_i].lastvx = s->x;
-		hittype[g_i].lastvy = s->y;
+		// save where we were looking..
+		actor->lastvx = tosee->s.x;
+		actor->lastvy = tosee->s.y;
 	}
 
-	if (j == 1 && (g_sp->statnum == 1 || g_sp->statnum == 6))
-		hittype[g_i].timetosleep = SLEEPTIME;
+	if (j == 1 && (g_sp->statnum == STAT_ACTOR || g_sp->statnum == STAT_STANDABLE))
+		actor->timetosleep = SLEEPTIME;
 
 	return j == 1;
 }
@@ -1556,7 +1537,7 @@ int ParseState::parse(void)
 		parseifelse(hittype[g_i].actorstayput == -1);
 		break;
 	case concmd_ifcansee:
-		parseifelse(ifcansee(g_i, g_p));
+		parseifelse(ifcansee(g_ac, g_p));
 		break;
 
 	case concmd_ifhitweapon:
