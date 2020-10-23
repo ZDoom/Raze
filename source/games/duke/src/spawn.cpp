@@ -172,6 +172,7 @@ int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes
 		act->actorstayput = -1;
 
 		t[0] = t[1] = t[2] = t[3] = t[4] = t[5] = 0;
+		hittype[i].temp_actor = nullptr;
 
 		if (sp->cstat & 48)
 			if (!isIn(sp->picnum, excludes) && (sp->cstat & 48))

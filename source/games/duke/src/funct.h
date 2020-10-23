@@ -140,8 +140,7 @@ int haskey(int sect, int snum);
 void shootbloodsplat(int i, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST);
 
 void breakwall(short newpn, short spr, short dawallnum);
-void callsound2(int soundNum, int playerNum);
-int callsound(int sectnum,int snum);
+int callsound(int sectnum,DDukeActor* snum);
 int hitasprite(int snum,short *hitSprite);
 int findplayer(const spritetype* s, int* dist);
 void operatejaildoors(int hitag);

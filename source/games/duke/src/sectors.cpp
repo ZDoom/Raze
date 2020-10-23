@@ -50,7 +50,7 @@ BEGIN_DUKE_NS
 //---------------------------------------------------------------------------
 static bool haltsoundhack;
 
-int callsound(int sn, int whatsprite)
+int callsound(int sn, DDukeActor* whatsprite)
 {
 	if (!isRRRA() && haltsoundhack)
 	{
@@ -58,49 +58,48 @@ int callsound(int sn, int whatsprite)
 		return -1;
 	}
 
-	int i;
-	SectIterator it(sn);
-	while ((i = it.NextIndex()) >= 0)
+	DukeSectIterator it(sn);
+	while (auto act = it.Next())
 	{
-		auto si = &sprite[i];
+		auto si = &act->s;
 		if (si->picnum == MUSICANDSFX && si->lotag < 1000)
 		{
-			if (whatsprite == -1) whatsprite = i;
+			if (whatsprite == nullptr) whatsprite = act;
 
 			int snum = si->lotag;
 			auto flags = S_GetUserFlags(snum);
 
 			// Reset if the desired actor isn't playing anything.
 			bool hival = S_IsSoundValid(si->hitag);
-			if (hittype[i].temp_data[0] == 1 && !hival)
+			if (act->temp_data[0] == 1 && !hival)
 			{
-				if (!S_CheckActorSoundPlaying(hittype[i].temp_data[5], snum))
-					hittype[i].temp_data[0] = 0;
+				if (!S_CheckActorSoundPlaying(act->temp_actor, snum))
+					act->temp_data[0] = 0;
 			}
 
-			if (hittype[i].temp_data[0] == 0)
+			if (act->temp_data[0] == 0)
 			{
 				if ((flags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL)
 				{
 					if (snum)
 					{
 						if (si->hitag && snum != si->hitag)
-							S_StopSound(si->hitag, hittype[i].temp_data[5]);
+							S_StopSound(si->hitag, act->temp_actor);
 						S_PlayActorSound(snum, whatsprite);
-						hittype[i].temp_data[5] = whatsprite;
+						act->temp_actor = whatsprite;
 					}
 
 					if ((sector[si->sectnum].lotag & 0xff) != ST_22_SPLITTING_DOOR)
-						hittype[i].temp_data[0] = 1;
+						act->temp_data[0] = 1;
 				}
 			}
 			else if (si->hitag < 1000)
 			{
 				if ((flags & SF_LOOP) || (si->hitag && si->hitag != si->lotag))
-					S_StopSound(si->lotag, hittype[i].temp_data[5]);
+					S_StopSound(si->lotag, act->temp_actor);
 				if (si->hitag) S_PlayActorSound(si->hitag, whatsprite);
-				hittype[i].temp_data[0] = 0;
-				hittype[i].temp_data[5] = whatsprite;
+				act->temp_data[0] = 0;
+				act->temp_actor = whatsprite;
 			}
 			return si->lotag;
 		}
