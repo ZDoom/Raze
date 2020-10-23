@@ -187,20 +187,18 @@ void animatewalls_d(void)
 
 void operaterespawns_d(int low)
 {
-	int i;
-
-	StatIterator it(STAT_FX);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_FX);
+	while (auto act = it.Next())
 	{
-		if (sprite[i].lotag == low) switch (sprite[i].picnum)
+		if (act->s.lotag == low) switch (act->s.picnum)
 		{
 		case RESPAWN:
-			if (badguypic(sprite[i].hitag) && ud.monsters_off) break;
+			if (badguypic(act->s.hitag) && ud.monsters_off) break;
 
-			auto j = spawn(&hittype[i], TRANSPORTERSTAR);
-			j->s.z -= (32 << 8);
+			auto star = spawn(act, TRANSPORTERSTAR);
+			star->s.z -= (32 << 8);
 
-			sprite[i].extra = 66 - 12;   // Just a way to killit
+			act->s.extra = 66 - 12;   // Just a way to killit
 			break;
 		}
 	}
