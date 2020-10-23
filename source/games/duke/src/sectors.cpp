@@ -116,29 +116,24 @@ int callsound(int sn, DDukeActor* whatsprite)
 
 int check_activator_motion(int lotag)
 {
-	int i, j;
-	spritetype* s;
-
-	StatIterator it(STAT_ACTIVATOR);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_ACTIVATOR);
+	while (auto act = it.Next())
 	{
-		if (sprite[i].lotag == lotag)
+		if (act->s.lotag == lotag)
 		{
-			s = &sprite[i];
-
-			for (j = animatecnt - 1; j >= 0; j--)
-				if (s->sectnum == animatesect[j])
+			for (int j = animatecnt - 1; j >= 0; j--)
+				if (act->s.sectnum == animatesect[j])
 					return(1);
 
-			StatIterator it1(STAT_EFFECTOR);
-			while ((j = it1.NextIndex()) >= 0)
+			DukeStatIterator it1(STAT_EFFECTOR);
+			while (auto act2 = it1.Next())
 			{
-				if (s->sectnum == sprite[j].sectnum)
-					switch (sprite[j].lotag)
+				if (act->s.sectnum == act2->s.sectnum)
+					switch (act2->s.lotag)
 					{
 					case SE_11_SWINGING_DOOR:
 					case SE_30_TWO_WAY_TRAIN:
-						if (hittype[j].temp_data[4])
+						if (act2->temp_data[4])
 							return(1);
 						break;
 					case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
@@ -146,7 +141,7 @@ int check_activator_motion(int lotag)
 					case SE_20_STRETCH_BRIDGE:
 					case SE_31_FLOOR_RISE_FALL:
 					case SE_32_CEILING_RISE_FALL:
-						if (hittype[j].temp_data[0])
+						if (act2->temp_data[0])
 							return(1);
 						break;
 					}
@@ -259,7 +254,7 @@ int findotherplayer(int p, int* d)
 	closest_player = p;
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
-		if (p != j && sprite[ps[j].i].extra > 0)
+		if (p != j && ps[j].GetActor()->s.extra > 0)
 		{
 			x = abs(ps[j].oposx - ps[p].posx) + abs(ps[j].oposy - ps[p].posy) + (abs(ps[j].oposz - ps[p].posz) >> 4);
 
@@ -312,7 +307,7 @@ int* animateptr(int i)
 
 void doanimations(void)
 {
-	int i, j, a, p, v, dasect;
+	int i, a, p, v, dasect;
 
 	for (i = animatecnt - 1; i >= 0; i--)
 	{
@@ -348,20 +343,20 @@ void doanimations(void)
 			for (p = connecthead; p >= 0; p = connectpoint2[p])
 				if (ps[p].cursectnum == dasect)
 					if ((sector[dasect].floorz - ps[p].posz) < (64 << 8))
-						if (sprite[ps[p].i].owner >= 0)
+						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{
 							ps[p].posz += v;
 							ps[p].poszv = 0;
 						}
 
-			SectIterator it(dasect);
-			while ((j = it.NextIndex()) >= 0)
+			DukeSectIterator it(dasect);
+			while (auto act = it.Next())
 			{
-				if (sprite[j].statnum != STAT_EFFECTOR)
+				if (act->s.statnum != STAT_EFFECTOR)
 				{
-					hittype[j].bposz = sprite[j].z;
-					sprite[j].z += v;
-					hittype[j].floorz = sector[dasect].floorz + v;
+					act->bposz = act->s.z;
+					act->s.z += v;
+					act->floorz = sector[dasect].floorz + v;
 				}
 			}
 		}
