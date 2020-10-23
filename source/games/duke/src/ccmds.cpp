@@ -46,7 +46,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	unsigned int cstat = 0, picnum = 0;
 	unsigned int pal = 0;
 	int ang = 0;
-	int set = 0, idx;
+	int set = 0;
 
 #if 0 // fixme - route through the network and this limitation becomes irrelevant
 	if (netgame || numplayers > 1 || !(ps[myconnectindex].gm & MODE_GAME)) {
@@ -88,14 +88,15 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		return CCMD_SHOWHELP;
 	}
 
-	idx = fi.spawn(ps[myconnectindex].i, (short)picnum);
-	if (set & 1) sprite[idx].pal = (char)pal;
-	if (set & 2) sprite[idx].cstat = (short)cstat;
-	if (set & 4) sprite[idx].ang = ang;
+	auto spawned = spawn(ps[myconnectindex].GetActor(), picnum);
+	if (set & 1) spawned->s.pal = (char)pal;
+	if (set & 2) spawned->s.cstat = (short)cstat;
+	if (set & 4) spawned->s.ang = ang;
 	if (set & 8) {
-		if (setsprite(idx, x, y, z) < 0) {
+		if (setsprite(spawned, x, y, z) < 0) 
+		{
 			Printf("spawn: Sprite can't be spawned into null space\n");
-			deletesprite(idx);
+			deletesprite(spawned);
 		}
 	}
 

@@ -118,10 +118,10 @@ static const char *cheatKfc(int player)
 {
 	for (int i = 0; i < 7; i++)
 	{
-		int spr = fi.spawn(ps[player].i, TILE_HEN);
-		sprite[spr].pal = 1;
-		sprite[spr].xrepeat = sprite[spr].xrepeat << 2;
-		sprite[spr].yrepeat = sprite[spr].yrepeat << 2;
+		auto spr = spawn(ps[player].GetActor(), TILE_HEN);
+		spr->s.pal = 1;
+		spr->s.xrepeat = spr->s.xrepeat << 2;
+		spr->s.yrepeat = spr->s.yrepeat << 2;
 	}
 	return quoteMgr.GetQuote(QUOTE_CHEAT_KFC);
 }
@@ -195,7 +195,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		ps[player].gotweapon.Zero();
 		ps[player].curr_weapon = KNEE_WEAPON;
 		ps[player].nocheat = 1;
-		sprite[ps[player].i].extra = 1;
+		ps[player].GetActor()->s.extra = 1;
 		return quoteMgr.GetQuote(QUOTE_YERFUCKED);
 
 	case CHT_AARON:
@@ -486,7 +486,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 		break;
 
 	case GIVE_HEALTH:
-		sprite[ps[player].i].extra = max_player_health << 1;
+		ps[player].GetActor()->s.extra = max_player_health << 1;
 		break;
 
 	case GIVE_WEAPONS:

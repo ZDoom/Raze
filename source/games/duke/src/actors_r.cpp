@@ -1624,7 +1624,7 @@ void movetransports_r(void)
 							spawn(act,  TRANSPORTERBEAM);
 							S_PlayActorSound(TELEPORTER, act);
 
-							for (k = connecthead; k >= 0; k = connectpoint2[k])// connectpoinhittype[i].temp_data[1][k])
+							for (k = connecthead; k >= 0; k = connectpoint2[k])
 								if (ps[k].cursectnum == Owner->s.sectnum)
 								{
 									ps[k].frag_ps = p;
