@@ -915,27 +915,27 @@ static void handle_st27(int sn, DDukeActor* actor)
 
 static void handle_st28(int sn, DDukeActor* actor)
 {
-	int j, l;
 	//activate the rest of them
-
-	SectIterator it(sn);
-	while ((j = it.NextIndex()) >= 0)
+	int j = -1;
+	DukeSectIterator it(sn);
+	while (auto a2 = it.Next())
 	{
-		if (sprite[j].statnum == 3 && (sprite[j].lotag & 0xff) == 21)
+		if (a2->s.statnum == 3 && (a2->s.lotag & 0xff) == 21)
+		{
+			j = a2->s.hitag;
 			break; //Found it
+		}
 	}
 
-	j = sprite[j].hitag;
-
-	StatIterator it1(STAT_EFFECTOR);
-	while ((l = it1.NextIndex()) >= 0)
+	if (j == -1) return;
+	DukeStatIterator it1(STAT_EFFECTOR);
+	while (auto act3 = it.Next())
 	{
-		if ((sprite[l].lotag & 0xff) == 21 && !hittype[l].temp_data[0] &&
-			(sprite[l].hitag) == j)
-			hittype[l].temp_data[0] = 1;
+		if ((act3->s.lotag & 0xff) == 21 && !act3->temp_data[0] &&
+			(act3->s.hitag) == j)
+			act3->temp_data[0] = 1;
 	}
 	callsound(sn, actor);
-
 }
 
 //---------------------------------------------------------------------------
