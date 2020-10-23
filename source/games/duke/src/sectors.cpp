@@ -972,24 +972,23 @@ void operatesectors(int sn, int ii)
 		break;
 
 	case ST_30_ROTATE_RISE_BRIDGE:
-		j = sector[sn].hitag;
-		if (hittype[j].tempang == 0 ||
-			hittype[j].tempang == 256)
-			callsound(sn, ii);
-		if (sprite[j].extra == 1)
-			sprite[j].extra = 3;
-		else sprite[j].extra = 1;
+	{
+		auto act = &hittype[sector[sn].hitag];
+		if (act->tempang == 0 || act->tempang == 256) callsound(sn, actor);
+		if (act->s.extra == 1) act->s.extra = 3;
+		else act->s.extra = 1;
 		break;
+	}
 
 	case ST_31_TWO_WAY_TRAIN:
+	{
+		auto act = &hittype[sector[sn].hitag];
+		if (act->temp_data[4] == 0)
+			act->temp_data[4] = 1;
 
-		j = sector[sn].hitag;
-		if (hittype[j].temp_data[4] == 0)
-			hittype[j].temp_data[4] = 1;
-
-		callsound(sn, ii);
+		callsound(sn, actor);
 		break;
-
+	}
 	case ST_26_SPLITTING_ST_DOOR: //The split doors
 		i = getanimationgoal(anim_ceilingz, sn);
 		if (i == -1) //if the door has stopped
@@ -997,10 +996,10 @@ void operatesectors(int sn, int ii)
 			haltsoundhack = 1;
 			sptr->lotag &= 0xff00;
 			sptr->lotag |= ST_22_SPLITTING_DOOR;
-			operatesectors(sn, ii);
+			operatesectors(sn, actor);
 			sptr->lotag &= 0xff00;
 			sptr->lotag |= ST_9_SLIDING_ST_DOOR;
-			operatesectors(sn, ii);
+			operatesectors(sn, actor);
 			sptr->lotag &= 0xff00;
 			sptr->lotag |= ST_26_SPLITTING_ST_DOOR;
 		}
