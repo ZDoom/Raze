@@ -1148,8 +1148,10 @@ void DoActor(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short 
 	{
 		iActor = GetGameVarID((int)lVar1, sActor, sPlayer);
 	}
+	auto act = &hittype[iActor];
+	auto spr = &act->s;
 
-	if (iActor < 0 || iActor >= MAXSPRITES || sprite[iActor].statnum == MAXSTATUS)
+	if (iActor < 0 || iActor >= MAXSPRITES || spr->statnum == MAXSTATUS)
 	{
 		if (!bSet) SetGameVarID((int)lVar2, 0, sActor, sPlayer);
 		return;
@@ -1158,189 +1160,189 @@ void DoActor(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short 
 	switch (lLabelID)
 	{
 	case ACTOR_X:
-		if (bSet) sprite[iActor].x = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].x, sActor, sPlayer);
+		if (bSet) spr->x = lValue;
+		else SetGameVarID((int)lVar2, spr->x, sActor, sPlayer);
 		break;
 	case ACTOR_Y:
-		if (bSet) sprite[iActor].y = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].y, sActor, sPlayer);
+		if (bSet) spr->y = lValue;
+		else SetGameVarID((int)lVar2, spr->y, sActor, sPlayer);
 		break;
 	case ACTOR_Z:
-		if (bSet) sprite[iActor].z = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].z, sActor, sPlayer);
+		if (bSet) spr->z = lValue;
+		else SetGameVarID((int)lVar2, spr->z, sActor, sPlayer);
 		break;
 	case ACTOR_CSTAT:
-		if (bSet) sprite[iActor].cstat = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].cstat, sActor, sPlayer);
+		if (bSet) spr->cstat = lValue;
+		else SetGameVarID((int)lVar2, spr->cstat, sActor, sPlayer);
 		break;
 	case ACTOR_PICNUM:
-		if (bSet) sprite[iActor].picnum = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].picnum, sActor, sPlayer);
+		if (bSet) spr->picnum = lValue;
+		else SetGameVarID((int)lVar2, spr->picnum, sActor, sPlayer);
 		break;
 	case ACTOR_SHADE:
-		if (bSet) sprite[iActor].shade = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].shade, sActor, sPlayer);
+		if (bSet) spr->shade = lValue;
+		else SetGameVarID((int)lVar2, spr->shade, sActor, sPlayer);
 		break;
 	case ACTOR_PAL:
-		if (bSet) sprite[iActor].pal = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].pal, sActor, sPlayer);
+		if (bSet) spr->pal = lValue;
+		else SetGameVarID((int)lVar2, spr->pal, sActor, sPlayer);
 		break;
 	case ACTOR_CLIPDIST:
-		if (bSet) sprite[iActor].clipdist = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].clipdist, sActor, sPlayer);
+		if (bSet) spr->clipdist = lValue;
+		else SetGameVarID((int)lVar2, spr->clipdist, sActor, sPlayer);
 		break;
 	case ACTOR_DETAIL:
-		if (bSet) hittype[iActor].spriteextra = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].spriteextra, sActor, sPlayer);
+		if (bSet) act->spriteextra = lValue;
+		else SetGameVarID((int)lVar2, act->spriteextra, sActor, sPlayer);
 		break;
 	case ACTOR_XREPEAT:
-		if (bSet) sprite[iActor].xrepeat = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].xrepeat, sActor, sPlayer);
+		if (bSet) spr->xrepeat = lValue;
+		else SetGameVarID((int)lVar2, spr->xrepeat, sActor, sPlayer);
 		break;
 	case ACTOR_YREPEAT:
-		if (bSet) sprite[iActor].yrepeat = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].yrepeat, sActor, sPlayer);
+		if (bSet) spr->yrepeat = lValue;
+		else SetGameVarID((int)lVar2, spr->yrepeat, sActor, sPlayer);
 		break;
 	case ACTOR_XOFFSET:
-		if (bSet) sprite[iActor].xoffset = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].xoffset, sActor, sPlayer);
+		if (bSet) spr->xoffset = lValue;
+		else SetGameVarID((int)lVar2, spr->xoffset, sActor, sPlayer);
 		break;
 	case ACTOR_YOFFSET:
-		if (bSet) sprite[iActor].yoffset = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].yoffset, sActor, sPlayer);
+		if (bSet) spr->yoffset = lValue;
+		else SetGameVarID((int)lVar2, spr->yoffset, sActor, sPlayer);
 		break;
 	case ACTOR_SECTNUM:
 		if (bSet) changespritesect(iActor, lValue);
-		else SetGameVarID((int)lVar2, sprite[iActor].sectnum, sActor, sPlayer);
+		else SetGameVarID((int)lVar2, spr->sectnum, sActor, sPlayer);
 		break;
 	case ACTOR_STATNUM: 
 		if (bSet) changespritestat(iActor, lValue);
-		else SetGameVarID((int)lVar2, sprite[iActor].statnum, sActor, sPlayer);
+		else SetGameVarID((int)lVar2, spr->statnum, sActor, sPlayer);
 		break;
 	case ACTOR_ANG:
-		if (bSet) sprite[iActor].ang = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].ang, sActor, sPlayer);
+		if (bSet) spr->ang = lValue;
+		else SetGameVarID((int)lVar2, spr->ang, sActor, sPlayer);
 		break;
 	case ACTOR_OWNER:
-		if (bSet) sprite[iActor].owner = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].owner, sActor, sPlayer);
+		if (bSet) spr->owner = lValue;
+		else SetGameVarID((int)lVar2, spr->owner, sActor, sPlayer);
 		break;
 	case ACTOR_XVEL:
-		if (bSet) sprite[iActor].xvel = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].xvel, sActor, sPlayer);
+		if (bSet) spr->xvel = lValue;
+		else SetGameVarID((int)lVar2, spr->xvel, sActor, sPlayer);
 		break;
 	case ACTOR_YVEL:
-		if (bSet) sprite[iActor].yvel = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].yvel, sActor, sPlayer);
+		if (bSet) spr->yvel = lValue;
+		else SetGameVarID((int)lVar2, spr->yvel, sActor, sPlayer);
 		break;
 	case ACTOR_ZVEL:
-		if (bSet) sprite[iActor].zvel = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].zvel, sActor, sPlayer);
+		if (bSet) spr->zvel = lValue;
+		else SetGameVarID((int)lVar2, spr->zvel, sActor, sPlayer);
 		break;
 	case ACTOR_LOTAG:
-		if (bSet) sprite[iActor].lotag = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].lotag, sActor, sPlayer);
+		if (bSet) spr->lotag = lValue;
+		else SetGameVarID((int)lVar2, spr->lotag, sActor, sPlayer);
 		break;
 	case ACTOR_HITAG:
-		if (bSet) sprite[iActor].hitag = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].hitag, sActor, sPlayer);
+		if (bSet) spr->hitag = lValue;
+		else SetGameVarID((int)lVar2, spr->hitag, sActor, sPlayer);
 		break;
 	case ACTOR_EXTRA:
-		if (bSet) sprite[iActor].extra = lValue;
-		else SetGameVarID((int)lVar2, sprite[iActor].extra, sActor, sPlayer);
+		if (bSet) spr->extra = lValue;
+		else SetGameVarID((int)lVar2, spr->extra, sActor, sPlayer);
 		break;
 
 	case ACTOR_HTCGG:
-		if (bSet) hittype[iActor].cgg = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].cgg, sActor, sPlayer);
+		if (bSet) act->cgg = lValue;
+		else SetGameVarID((int)lVar2, act->cgg, sActor, sPlayer);
 		break;
 	case ACTOR_HTPICNUM:
-		if (bSet) hittype[iActor].picnum = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].picnum, sActor, sPlayer);
+		if (bSet) act->picnum = lValue;
+		else SetGameVarID((int)lVar2, act->picnum, sActor, sPlayer);
 		break;
 	case ACTOR_HTANG:
-		if (bSet) hittype[iActor].ang = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].ang, sActor, sPlayer);
+		if (bSet) act->ang = lValue;
+		else SetGameVarID((int)lVar2, act->ang, sActor, sPlayer);
 		break;
 	case ACTOR_HTEXTRA:
-		if (bSet) hittype[iActor].extra = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].extra, sActor, sPlayer);
+		if (bSet) act->extra = lValue;
+		else SetGameVarID((int)lVar2, act->extra, sActor, sPlayer);
 		break;
 	case ACTOR_HTOWNER:
-		if (bSet) hittype[iActor].owner = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].owner, sActor, sPlayer);
+		if (bSet) act->owner = lValue;
+		else SetGameVarID((int)lVar2, act->owner, sActor, sPlayer);
 		break;
 	case ACTOR_HTMOVFLAG:
-		if (bSet) hittype[iActor].movflag = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].movflag, sActor, sPlayer);
+		if (bSet) act->movflag = lValue;
+		else SetGameVarID((int)lVar2, act->movflag, sActor, sPlayer);
 		break;
 	case ACTOR_HTTEMPANG:
-		if (bSet) hittype[iActor].tempang = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].tempang, sActor, sPlayer);
+		if (bSet) act->tempang = lValue;
+		else SetGameVarID((int)lVar2, act->tempang, sActor, sPlayer);
 		break;
 	case ACTOR_HTACTORSTAYPUT:
-		if (bSet) hittype[iActor].actorstayput = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].actorstayput, sActor, sPlayer);
+		if (bSet) act->actorstayput = lValue;
+		else SetGameVarID((int)lVar2, act->actorstayput, sActor, sPlayer);
 		break;
 	case ACTOR_HTDISPICNUM:
-		if (bSet) hittype[iActor].dispicnum = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].dispicnum, sActor, sPlayer);
+		if (bSet) act->dispicnum = lValue;
+		else SetGameVarID((int)lVar2, act->dispicnum, sActor, sPlayer);
 		break;
 	case ACTOR_HTTIMETOSLEEP:
-		if (bSet) hittype[iActor].timetosleep = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].timetosleep, sActor, sPlayer);
+		if (bSet) act->timetosleep = lValue;
+		else SetGameVarID((int)lVar2, act->timetosleep, sActor, sPlayer);
 		break;
 	case ACTOR_HTFLOORZ:
-		if (bSet) hittype[iActor].floorz = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].floorz, sActor, sPlayer);
+		if (bSet) act->floorz = lValue;
+		else SetGameVarID((int)lVar2, act->floorz, sActor, sPlayer);
 		break;
 	case ACTOR_HTCEILINGZ:
-		if (bSet) hittype[iActor].ceilingz = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].ceilingz, sActor, sPlayer);
+		if (bSet) act->ceilingz = lValue;
+		else SetGameVarID((int)lVar2, act->ceilingz, sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVX:
-		if (bSet) hittype[iActor].lastvx = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].lastvx, sActor, sPlayer);
+		if (bSet) act->lastvx = lValue;
+		else SetGameVarID((int)lVar2, act->lastvx, sActor, sPlayer);
 		break;
 	case ACTOR_HTLASTVY:
-		if (bSet) hittype[iActor].lastvy = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].lastvy, sActor, sPlayer);
+		if (bSet) act->lastvy = lValue;
+		else SetGameVarID((int)lVar2, act->lastvy, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSX:
-		if (bSet) hittype[iActor].bposx = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].bposx, sActor, sPlayer);
+		if (bSet) act->bposx = lValue;
+		else SetGameVarID((int)lVar2, act->bposx, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSY:
-		if (bSet) hittype[iActor].bposy = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].bposy, sActor, sPlayer);
+		if (bSet) act->bposy = lValue;
+		else SetGameVarID((int)lVar2, act->bposy, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSZ:
-		if (bSet) hittype[iActor].bposz = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].bposz, sActor, sPlayer);
+		if (bSet) act->bposz = lValue;
+		else SetGameVarID((int)lVar2, act->bposz, sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T0:
-		if (bSet) hittype[iActor].temp_data[0] = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].temp_data[0], sActor, sPlayer);
+		if (bSet) act->temp_data[0] = lValue;
+		else SetGameVarID((int)lVar2, act->temp_data[0], sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T1:
-		if (bSet) hittype[iActor].temp_data[1] = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].temp_data[1], sActor, sPlayer);
+		if (bSet) act->temp_data[1] = lValue;
+		else SetGameVarID((int)lVar2, act->temp_data[1], sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T2:
-		if (bSet) hittype[iActor].temp_data[2] = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].temp_data[2], sActor, sPlayer);
+		if (bSet) act->temp_data[2] = lValue;
+		else SetGameVarID((int)lVar2, act->temp_data[2], sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T3:
-		if (bSet) hittype[iActor].temp_data[3] = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].temp_data[3], sActor, sPlayer);
+		if (bSet) act->temp_data[3] = lValue;
+		else SetGameVarID((int)lVar2, act->temp_data[3], sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T4:
-		if (bSet) hittype[iActor].temp_data[4] = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].temp_data[4], sActor, sPlayer);
+		if (bSet) act->temp_data[4] = lValue;
+		else SetGameVarID((int)lVar2, act->temp_data[4], sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T5:
-		if (bSet) hittype[iActor].temp_data[5] = lValue;
-		else SetGameVarID((int)lVar2, hittype[iActor].temp_data[5], sActor, sPlayer);
+		if (bSet) act->temp_data[5] = lValue;
+		else SetGameVarID((int)lVar2, act->temp_data[5], sActor, sPlayer);
 		break;
 
 	default:
