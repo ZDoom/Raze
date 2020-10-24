@@ -36,6 +36,7 @@ source as it is released.
 #include "ns.h"
 #include "global.h"
 #include "sounds.h"
+#include "dukeactor.h"
 
 using std::min;
 using std::max;

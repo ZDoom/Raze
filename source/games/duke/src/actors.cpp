@@ -258,15 +258,15 @@ void insertspriteq(int i)
 //
 //---------------------------------------------------------------------------
 
-void lotsofstuff(spritetype* s, short n, int spawntype)
+void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 {
-	short i, j;
-	for (i = n; i > 0; i--)
+	auto s = &actor->s;
+	for (int i = n; i > 0; i--)
 	{
-		short r1 = krand(), r2 = krand();	// using the RANDCORRECT version from RR.
+		int r1 = krand(), r2 = krand();	// using the RANDCORRECT version from RR.
 		// TRANSITIONAL RedNukem sets the spawner as owner.
-		j = EGS(s->sectnum, s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, (short)0, 5);
-		sprite[j].cstat = krand() & 12;
+		auto j = EGS(s->sectnum, s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, actor, 5);
+		j->s.cstat = krand() & 12;
 	}
 }
 

@@ -1245,7 +1245,7 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 
 	case ATM:
 		wal->picnum = ATMBROKE;
-		fi.lotsofmoney(&sprite[spr], 1 + (krand() & 7));
+		fi.lotsofmoney(&hittype[spr], 1 + (krand() & 7));
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		break;
 
@@ -2220,7 +2220,7 @@ void checkhitsprite_r(int i, int sn)
 	case STATUEFLASH:
 	case STATUE:
 		if (s->picnum == BOTTLE10)
-			fi.lotsofmoney(&sprite[i], 4 + (krand() & 3));
+			fi.lotsofmoney(&hittype[i], 4 + (krand() & 3));
 		else if (s->picnum == STATUE || s->picnum == STATUEFLASH)
 		{
 			lotsofcolourglass(i, -1, 40);
@@ -2468,7 +2468,7 @@ void checksectors_r(int snum)
 	if (chatmodeon || sprite[p->i].extra <= 0) return;
 
 	if (ud.cashman && PlayerInput(snum, SB_OPEN))
-		fi.lotsofmoney(&sprite[p->i], 2);
+		fi.lotsofmoney(&hittype[p->i], 2);
 
 
 	if (!(PlayerInput(snum, SB_OPEN)))

@@ -73,6 +73,7 @@ struct ParseState
 	int* g_t;
 	uint8_t killit_flag;
 	spritetype* g_sp;
+	DDukeActor *g_ac;
 	int* insptr;
 
 	int parse(void);
@@ -1888,12 +1889,12 @@ int ParseState::parse(void)
 		break;
 	case concmd_money:
 		insptr++;
-		fi.lotsofmoney(g_sp,*insptr);
+		fi.lotsofmoney(g_ac,*insptr);
 		insptr++;
 		break;
 	case concmd_mail:
 		insptr++;
-		fi.lotsofmail(g_sp,*insptr);
+		fi.lotsofmail(g_ac,*insptr);
 		insptr++;
 		break;
 	case concmd_sleeptime:
@@ -1903,7 +1904,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_paper:
 		insptr++;
-		fi.lotsofpaper(g_sp,*insptr);
+		fi.lotsofpaper(g_ac,*insptr);
 		insptr++;
 		break;
 	case concmd_addkills:
@@ -3674,6 +3675,7 @@ void LoadActor(int i, int p, int x)
 	s.g_x = x;	// ??
 	g_sp = s.g_sp = &sprite[i];	// Pointer to sprite structure
 	s.g_t = &hittype[i].temp_data[0];	// Sprite's 'extra' data
+	s.g_ac = &hittype[i];
 
 	auto addr = tileinfo[s.g_sp->picnum].loadeventscriptptr;
 	if (addr == 0) return;
@@ -3767,6 +3769,7 @@ void execute(int i,int p,int x)
 	s.g_x = x;	// ??
 	g_sp = s.g_sp = &sprite[i];	// Pointer to sprite structure
 	s.g_t = &hittype[i].temp_data[0];	// Sprite's 'extra' data
+	s.g_ac = &hittype[i];
 
 	if (actorinfo[g_sp->picnum].scriptaddress == 0) return;
 	s.insptr = &ScriptCode[4 + (actorinfo[g_sp->picnum].scriptaddress)];
@@ -3864,6 +3867,7 @@ void OnEvent(int iEventID, int p, int i, int x)
 	s.g_p = p;	/// current player ID
 	s.g_x = x;	// ?
 	s.g_sp = &sprite[i];
+	s.g_ac = &hittype[i];
 	s.g_t = &hittype[i].temp_data[0];
 
 	s.insptr = &ScriptCode[apScriptGameEvent[iEventID]];

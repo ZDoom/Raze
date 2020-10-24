@@ -630,19 +630,19 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 //
 //---------------------------------------------------------------------------
 
-void lotsofmoney_d(spritetype *s, short n)
+void lotsofmoney_d(DDukeActor *actor, short n)
 {
-	lotsofstuff(s, n, MONEY);
+	lotsofstuff(actor, n, MONEY);
 }
 
-void lotsofmail_d(spritetype *s, short n)
+void lotsofmail_d(DDukeActor *actor, short n)
 {
-	lotsofstuff(s, n, MAIL);
+	lotsofstuff(actor, n, MAIL);
 }
 
-void lotsofpaper_d(spritetype *s, short n)
+void lotsofpaper_d(DDukeActor *actor, short n)
 {
-	lotsofstuff(s, n, PAPER);
+	lotsofstuff(actor, n, PAPER);
 }
 
 //---------------------------------------------------------------------------

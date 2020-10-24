@@ -696,7 +696,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 		{
 			sprite[j].lotag = var90;
 			sprite[j].hitag = 0;
-			fi.lotsofmoney(&sprite[j], (krand() & 3) + 1);
+			fi.lotsofmoney(&hittype[j], (krand() & 3) + 1);
 		}
 	}
 

@@ -453,9 +453,9 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 //
 //---------------------------------------------------------------------------
 
-void lotsoffeathers_r(spritetype *s, short n)
+void lotsoffeathers_r(DDukeActor *actor, short n)
 {
-	lotsofstuff(s, n, MONEY);
+	lotsofstuff(actor, n, MONEY);
 }
 
 
@@ -2468,7 +2468,7 @@ void rr_specialstats()
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					lotsoffeathers_r(&sprite[i], (krand() & 3) + 4);
+					lotsoffeathers_r(&hittype[i], (krand() & 3) + 4);
 					s->lotag = 84;
 				}
 				break;

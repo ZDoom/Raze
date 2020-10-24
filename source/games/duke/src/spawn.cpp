@@ -49,8 +49,8 @@ BEGIN_DUKE_NS
 
 short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss) 
 {
-	if (isRRRA() && s_ow < 0)
-		return 0;
+	//if (isRR() && s_ow < 0 && !force)	// should never happen, the only owner-less spawn outside of map start is for the Holoduke, which is Duke only
+		//return 0;
 
 	int const i = insertsprite(whatsect, s_ss);
 
