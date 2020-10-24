@@ -62,23 +62,25 @@ static const char *cheatGod(int myconnectindex, int state)
 	if (state == -1) state = !ud.god;
 	ud.god = state;
 
-	sprite[ps[myconnectindex].i].extra = max_player_health;
-	hittype[ps[myconnectindex].i].extra = 0;
+	auto act = ps[myconnectindex].GetActor();
+
+	act->s.extra = max_player_health;
+	act->extra = 0;
 	if (ud.god)
 	{
 		if (isRRRA()) S_PlaySound(218, CHAN_AUTO, CHANF_UI);
-		sprite[ps[myconnectindex].i].cstat = 257;
+		act->s.cstat = 257;
 
-		hittype[ps[myconnectindex].i].temp_data[0] = 0;
-		hittype[ps[myconnectindex].i].temp_data[1] = 0;
-		hittype[ps[myconnectindex].i].temp_data[2] = 0;
-		hittype[ps[myconnectindex].i].temp_data[3] = 0;
-		hittype[ps[myconnectindex].i].temp_data[4] = 0;
-		hittype[ps[myconnectindex].i].temp_data[5] = 0;
+		act->temp_data[0] = 0;
+		act->temp_data[1] = 0;
+		act->temp_data[2] = 0;
+		act->temp_data[3] = 0;
+		act->temp_data[4] = 0;
+		act->temp_data[5] = 0;
 
-		sprite[ps[myconnectindex].i].hitag = 0;
-		sprite[ps[myconnectindex].i].lotag = 0;
-		sprite[ps[myconnectindex].i].pal =
+		act->s.hitag = 0;
+		act->s.lotag = 0;
+		act->s.pal =
 			ps[myconnectindex].palookup;
 
 		return quoteMgr.GetQuote(QUOTE_CHEAT_GODMODE_ON);
@@ -86,8 +88,8 @@ static const char *cheatGod(int myconnectindex, int state)
 	else
 	{
 		ud.god = 0;
-		sprite[ps[myconnectindex].i].extra = max_player_health;
-		hittype[ps[myconnectindex].i].extra = -1;
+		act->s.extra = max_player_health;
+		act->extra = -1;
 		ps[myconnectindex].last_extra = max_player_health;
 		return quoteMgr.GetQuote(QUOTE_CHEAT_GODMODE_OFF);
 	}
