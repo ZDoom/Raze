@@ -49,6 +49,7 @@ int spawn_d(int j, int pn)
     if (!(i & 0x1000000)) return i;
     i &= 0xffffff;
     auto sp = &sprite[i];
+    auto spj = &sprite[j];
     auto t = hittype[i].temp_data;
     int sect = sp->sectnum;
 
@@ -65,8 +66,8 @@ int spawn_d(int j, int pn)
 		case BOSS5:
 			if (sp->picnum != FIREFLY) 
             {
-				if (j >= 0 && sprite[j].picnum == RESPAWN)
-					sp->pal = sprite[j].pal;
+				if (j >= 0 && spj->picnum == RESPAWN)
+					sp->pal = spj->pal;
 				if (sp->pal != 0) 
                 {
 					sp->clipdist = 80;
@@ -118,7 +119,7 @@ int spawn_d(int j, int pn)
 			sp->yrepeat = 16;
 			return i;
 		case LAVAPOOLBUBBLE:
-			if (sprite[j].xrepeat < 30)
+			if (spj->xrepeat < 30)
 				return i;
 			sp->owner = j;
 			changespritestat(i, STAT_MISC);
@@ -154,7 +155,7 @@ int spawn_d(int j, int pn)
             case WATERSPLASH2:
                 if(j >= 0)
                 {
-                    setsprite(i,sprite[j].x,sprite[j].y,sprite[j].z);
+                    setsprite(i,spj->x,spj->y,spj->z);
                     sp->xrepeat = sp->yrepeat = 8+(krand()&7);
                 }
                 else sp->xrepeat = sp->yrepeat = 16+(krand()&15);
@@ -163,12 +164,12 @@ int spawn_d(int j, int pn)
                 sp->cstat |= 128;
                 if(j >= 0)
                 {
-                    if(sector[sprite[j].sectnum].lotag == 2)
+                    if(sector[spj->sectnum].lotag == 2)
                     {
                         sp->z = getceilzofslope(sp->sectnum,sp->x,sp->y)+(16<<8);
                         sp->cstat |= 8;
                     }
-                    else if( sector[sprite[j].sectnum].lotag == 1)
+                    else if( sector[spj->sectnum].lotag == 1)
                         sp->z = getflorzofslope(sp->sectnum,sp->x,sp->y);
                 }
 
@@ -206,7 +207,7 @@ int spawn_d(int j, int pn)
                 break;
             case TONGUE:
                 if(j >= 0)
-                    sp->ang = sprite[j].ang;
+                    sp->ang = spj->ang;
                 sp->z -= 38<<8;
                 sp->zvel = 256-(krand()&511);
                 sp->xvel = 64-(krand()&127);
@@ -224,9 +225,9 @@ int spawn_d(int j, int pn)
             case FRAMEEFFECT1:
                 if(j >= 0)
                 {
-                    sp->xrepeat = sprite[j].xrepeat;
-                    sp->yrepeat = sprite[j].yrepeat;
-                    t[1] = sprite[j].picnum;
+                    sp->xrepeat = spj->xrepeat;
+                    sp->yrepeat = spj->yrepeat;
+                    t[1] = spj->picnum;
                 }
                 else sp->xrepeat = sp->yrepeat = 0;
 
@@ -268,7 +269,7 @@ int spawn_d(int j, int pn)
             case BLOOD:
                sp->xrepeat = sp->yrepeat = 16;
                sp->z -= (26<<8);
-               if( j >= 0 && sprite[j].pal == 6 )
+               if( j >= 0 && spj->pal == 6 )
                    sp->pal = 6;
                changespritestat(i, STAT_MISC);
                break;
@@ -282,17 +283,17 @@ int spawn_d(int j, int pn)
 
                 if(j >= 0 && sp->picnum != PUKE)
                 {
-                    if( sprite[j].pal == 1)
+                    if( spj->pal == 1)
                         sp->pal = 1;
-                    else if( sprite[j].pal != 6 && sprite[j].picnum != NUKEBARREL && sprite[j].picnum != TIRE )
+                    else if( spj->pal != 6 && spj->picnum != NUKEBARREL && spj->picnum != TIRE )
                     {
-                        if(sprite[j].picnum == FECES)
+                        if(spj->picnum == FECES)
                             sp->pal = 7; // Brown
                         else sp->pal = 2; // Red
                     }
                     else sp->pal = 0;  // green
 
-                    if(sprite[j].picnum == TIRE)
+                    if(spj->picnum == TIRE)
                         sp->shade = 127;
                 }
                 sp->cstat |= 32;
@@ -318,7 +319,7 @@ int spawn_d(int j, int pn)
                 sp->xrepeat = 7+(krand()&7);
                 sp->yrepeat = 7+(krand()&7);
                 sp->z -= (16<<8);
-                if(j >= 0 && sprite[j].pal == 6)
+                if(j >= 0 && spj->pal == 6)
                     sp->pal = 6;
                 insertspriteq(i);
                 changespritestat(i, STAT_MISC);
@@ -501,12 +502,12 @@ int spawn_d(int j, int pn)
                 break;
 
             case DUKELYINGDEAD:
-                if(j >= 0 && sprite[j].picnum == APLAYER)
+                if(j >= 0 && spj->picnum == APLAYER)
                 {
-                    sp->xrepeat = sprite[j].xrepeat;
-                    sp->yrepeat = sprite[j].yrepeat;
-                    sp->shade = sprite[j].shade;
-                    sp->pal = ps[sprite[j].yvel].palookup;
+                    sp->xrepeat = spj->xrepeat;
+                    sp->yrepeat = spj->yrepeat;
+                    sp->shade = spj->shade;
+                    sp->pal = ps[spj->yvel].palookup;
                 }
             case DUKECAR:
             case HELECOPT:
@@ -597,7 +598,7 @@ int spawn_d(int j, int pn)
 
                 if(j >= 0)
                 {
-                    sp->ang = sprite[j].ang;
+                    sp->ang = spj->ang;
                     sp->shade = -64;
                     sp->cstat = 128|(krand()&4);
                 }
@@ -648,8 +649,8 @@ int spawn_d(int j, int pn)
             case PLAYERONWATER:
                 if(j >= 0)
                 {
-                    sp->xrepeat = sprite[j].xrepeat;
-                    sp->yrepeat = sprite[j].yrepeat;
+                    sp->xrepeat = spj->xrepeat;
+                    sp->yrepeat = spj->yrepeat;
                     sp->zvel = 128;
                     if(sector[sp->sectnum].lotag != 2)
                         sp->cstat |= 32768;
@@ -668,12 +669,12 @@ int spawn_d(int j, int pn)
                     changespritestat(i, STAT_PLAYER);
                 break;
             case WATERBUBBLE:
-                if(j >= 0 && sprite[j].picnum == APLAYER)
+                if(j >= 0 && spj->picnum == APLAYER)
                     sp->z -= (16<<8);
                 if( sp->picnum == WATERBUBBLE)
                 {
                     if( j >= 0 )
-                        sp->ang = sprite[j].ang;
+                        sp->ang = spj->ang;
                     sp->xrepeat = sp->yrepeat = 4;
                 }
                 else sp->xrepeat = sp->yrepeat = 32;
@@ -816,8 +817,8 @@ int spawn_d(int j, int pn)
 
                 if( sp->picnum == BOSS4STAYPUT || sp->picnum == BOSS1 || sp->picnum == BOSS2 || sp->picnum == BOSS1STAYPUT || sp->picnum == BOSS3 || sp->picnum == BOSS4 )
                 {
-                    if(j >= 0 && sprite[j].picnum == RESPAWN)
-                        sp->pal = sprite[j].pal;
+                    if(j >= 0 && spj->picnum == RESPAWN)
+                        sp->pal = spj->pal;
                     if(sp->pal)
                     {
                         sp->clipdist = 80;
@@ -914,7 +915,7 @@ int spawn_d(int j, int pn)
 
                 if(j >= 0)
                 {
-                    if( sprite[j].picnum == NUKEBARREL )
+                    if( spj->picnum == NUKEBARREL )
                         sp->pal = 8;
                     insertspriteq(i);
                 }
@@ -1084,7 +1085,7 @@ int spawn_d(int j, int pn)
             case STEAM:
                 if(j >= 0)
                 {
-                    sp->ang = sprite[j].ang;
+                    sp->ang = spj->ang;
                     sp->cstat = 16+128+2;
                     sp->xrepeat=sp->yrepeat=1;
                     sp->xvel = -8;
