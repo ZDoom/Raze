@@ -971,7 +971,7 @@ static void lotsofpopcorn(short i, short wallnum, short n)
 //
 //---------------------------------------------------------------------------
 
-void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
+void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith)
 {
 	short j, i, sn = -1, darkestwall;
 	walltype* wal;
@@ -1018,20 +1018,24 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 					return;
 
 				case RRTILE1973:
+				{
 					updatesector(x, y, &sn); if (sn < 0) return;
 					wal->overpicnum = GLASS2;
-					lotsofpopcorn(spr, dawallnum, 64);
+					lotsofpopcorn(spr->GetIndex(), dawallnum, 64);
 					wal->cstat = 0;
 
 					if (wal->nextwall >= 0)
 						wall[wal->nextwall].cstat = 0;
 
-					i = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
-					sprite[i].lotag = 128; hittype[i].temp_data[1] = 2; hittype[i].temp_data[2] = dawallnum;
-					S_PlayActorSound(GLASS_BREAKING, i);
+					auto spawned = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
+					spawned->s.lotag = 128; 
+					spawned->temp_data[1] = 2; 
+					spawned->temp_data[2] = dawallnum;
+					S_PlayActorSound(GLASS_BREAKING, spawned);
 					return;
-
+				}
 				case GLASS:
+				{
 					updatesector(x, y, &sn); if (sn < 0) return;
 					wal->overpicnum = GLASS2;
 					lotsofglass(spr, dawallnum, 10);
@@ -1040,13 +1044,16 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 					if (wal->nextwall >= 0)
 						wall[wal->nextwall].cstat = 0;
 
-					i = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
-					sprite[i].lotag = 128; hittype[i].temp_data[1] = 2; hittype[i].temp_data[2] = dawallnum;
-					S_PlayActorSound(GLASS_BREAKING, i);
+					auto spawned = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
+					spawned->s.lotag = 128;
+					spawned->temp_data[1] = 2;
+					spawned->temp_data[2] = dawallnum;
+					S_PlayActorSound(GLASS_BREAKING, spawned);
 					return;
+				}
 				case STAINGLASS1:
 					updatesector(x, y, &sn); if (sn < 0) return;
-					lotsofcolourglass(spr, dawallnum, 80);
+					lotsofcolourglass(spr->GetIndex(), dawallnum, 80);
 					wal->cstat = 0;
 					if (wal->nextwall >= 0)
 						wall[wal->nextwall].cstat = 0;
@@ -1245,7 +1252,7 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 
 	case ATM:
 		wal->picnum = ATMBROKE;
-		fi.lotsofmoney(&hittype[spr], 1 + (krand() & 7));
+		fi.lotsofmoney(spr, 1 + (krand() & 7));
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		break;
 
@@ -1407,7 +1414,7 @@ void checkplayerhurt_r(struct player_struct* p, int j)
 	{
 	case BIGFORCE:
 		p->hurt_delay = 26;
-		fi.checkhitwall(p->i, j,
+		fi.checkhitwall(p->GetActor(), j,
 			p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 9),
 			p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 9),
 			p->posz, -1);

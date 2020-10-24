@@ -78,7 +78,7 @@ struct Dispatcher
 	void (*operateforcefields)(int s, int low);
 	bool (*checkhitswitch)(int snum, int w, int switchtype);
 	void (*activatebysector)(int sect, int j);
-	void (*checkhitwall)(int spr, int dawallnum, int x, int y, int z, int atwith);
+	void (*checkhitwall)(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith);
 	void (*checkplayerhurt)(struct player_struct* p, int j);
 	bool (*checkhitceiling)(int sn);
 	void (*checkhitsprite)(DDukeActor* i, DDukeActor* sn);

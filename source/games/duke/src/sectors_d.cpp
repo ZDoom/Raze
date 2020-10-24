@@ -639,9 +639,9 @@ void activatebysector_d(int sect, int j)
 //
 //---------------------------------------------------------------------------
 
-void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith)
+void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith)
 {
-	short j, i, sn = -1, darkestwall;
+	short j, sn = -1, darkestwall;
 	walltype* wal;
 
 	wal = &wall[dawallnum];
@@ -675,26 +675,26 @@ void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith)
 				case W_FORCEFIELD + 2:
 					wal->extra = 1; // tell the forces to animate
 				case BIGFORCE:
+				{
 					updatesector(x, y, &sn);
 					if (sn < 0) return;
-
+					DDukeActor* spawned;
 					if (atwith == -1)
-						i = EGS(sn, x, y, z, FORCERIPPLE, -127, 8, 8, 0, 0, 0, spr, 5);
+						spawned = EGS(sn, x, y, z, FORCERIPPLE, -127, 8, 8, 0, 0, 0, spr, 5);
 					else
 					{
 						if (atwith == CHAINGUN)
-							i = EGS(sn, x, y, z, FORCERIPPLE, -127, 16 + sprite[spr].xrepeat, 16 + sprite[spr].yrepeat, 0, 0, 0, spr, 5);
-						else i = EGS(sn, x, y, z, FORCERIPPLE, -127, 32, 32, 0, 0, 0, spr, 5);
+							spawned = EGS(sn, x, y, z, FORCERIPPLE, -127, 16 + spr->s.xrepeat, 16 + spr->s.yrepeat, 0, 0, 0, spr, 5);
+						else spawned = EGS(sn, x, y, z, FORCERIPPLE, -127, 32, 32, 0, 0, 0, spr, 5);
 					}
 
-					sprite[i].cstat |= 18 + 128;
-					sprite[i].ang = getangle(wal->x - wall[wal->point2].x,
-						wal->y - wall[wal->point2].y) - 512;
+					spawned->s.cstat |= 18 + 128;
+					spawned->s.ang = getangle(wal->x - wall[wal->point2].x,	wal->y - wall[wal->point2].y) - 512;
 
-					S_PlayActorSound(SOMETHINGHITFORCE, i);
+					S_PlayActorSound(SOMETHINGHITFORCE, spawned);
 
 					return;
-
+				}
 				case FANSPRITE:
 					wal->overpicnum = FANSPRITEBROKE;
 					wal->cstat &= 65535 - 65;
@@ -708,6 +708,7 @@ void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith)
 					return;
 
 				case GLASS:
+				{
 					updatesector(x, y, &sn); if (sn < 0) return;
 					wal->overpicnum = GLASS2;
 					lotsofglass(spr, dawallnum, 10);
@@ -716,13 +717,16 @@ void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith)
 					if (wal->nextwall >= 0)
 						wall[wal->nextwall].cstat = 0;
 
-					i = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
-					sprite[i].lotag = 128; hittype[i].temp_data[1] = 5; hittype[i].temp_data[2] = dawallnum;
-					S_PlayActorSound(GLASS_BREAKING, i);
+					auto spawned = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
+					spawned->s.lotag = 128; 
+					spawned->temp_data[1] = 5;
+					spawned->temp_data[2] = dawallnum;
+					S_PlayActorSound(GLASS_BREAKING, spawned);
 					return;
+				}
 				case STAINGLASS1:
 					updatesector(x, y, &sn); if (sn < 0) return;
-					lotsofcolourglass(spr, dawallnum, 80);
+					lotsofcolourglass(spr->GetIndex(), dawallnum, 80);
 					wal->cstat = 0;
 					if (wal->nextwall >= 0)
 						wall[wal->nextwall].cstat = 0;
@@ -816,7 +820,7 @@ void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith)
 
 	case ATM:
 		wal->picnum = ATMBROKE;
-		fi.lotsofmoney(&hittype[spr], 1 + (krand() & 7));
+		fi.lotsofmoney(spr, 1 + (krand() & 7));
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		break;
 
@@ -857,19 +861,19 @@ void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith)
 		darkestwall = 0;
 
 		wal = &wall[sector[sn].wallptr];
-		for (i = sector[sn].wallnum; i > 0; i--, wal++)
+		for (int i = sector[sn].wallnum; i > 0; i--, wal++)
 			if (wal->shade > darkestwall)
 				darkestwall = wal->shade;
 
 		j = krand() & 1;
-		StatIterator it(STAT_EFFECTOR);
-		while ((i = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_EFFECTOR);
+		while (auto effector = it.Next())
 		{
-			if (sprite[i].hitag == wall[dawallnum].lotag && sprite[i].lotag == 3)
+			if (effector->s.hitag == wall[dawallnum].lotag && effector->s.lotag == 3)
 			{
-				hittype[i].temp_data[2] = j;
-				hittype[i].temp_data[3] = darkestwall;
-				hittype[i].temp_data[4] = 1;
+				effector->temp_data[2] = j;
+				effector->temp_data[3] = darkestwall;
+				effector->temp_data[4] = 1;
 			}
 		}
 		break;
@@ -921,7 +925,7 @@ void checkplayerhurt_d(struct player_struct* p, int j)
 		p->posyv = -(sintable[(p->angle.ang.asbuild()) & 2047] << 8);
 		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
 
-		fi.checkhitwall(p->i, j,
+		fi.checkhitwall(p->GetActor(), j,
 			p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 9),
 			p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 9),
 			p->posz, -1);
@@ -930,7 +934,7 @@ void checkplayerhurt_d(struct player_struct* p, int j)
 
 	case BIGFORCE:
 		p->hurt_delay = 26;
-		fi.checkhitwall(p->i, j,
+		fi.checkhitwall(p->GetActor(), j,
 			p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 9),
 			p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 9),
 			p->posz, -1);

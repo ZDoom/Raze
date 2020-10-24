@@ -289,7 +289,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 
 				if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
 				{
-					fi.checkhitwall(knee->GetIndex(), hitwall, hitx, hity, hitz, KNEE);
+					fi.checkhitwall(knee, hitwall, hitx, hity, hitz, KNEE);
 					if (p >= 0) fi.checkhitswitch(p, hitwall, 0);
 				}
 			}
@@ -526,7 +526,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 					if (hitz >= (sector[wall[hitwall].nextsector].floorz))
 						hitwall = wall[hitwall].nextwall;
 
-			fi.checkhitwall(spark->GetIndex(), hitwall, hitx, hity, hitz, SHOTSPARK1);
+			fi.checkhitwall(spark, hitwall, hitx, hity, hitz, SHOTSPARK1);
 		}
 	}
 	else
@@ -542,7 +542,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 			else spark->s.xrepeat = spark->s.yrepeat = 0;
 		}
 		else if (hitwall >= 0)
-			fi.checkhitwall(spark->GetIndex(), hitwall, hitx, hity, hitz, SHOTSPARK1);
+			fi.checkhitwall(spark, hitwall, hitx, hity, hitz, SHOTSPARK1);
 	}
 
 	if ((krand() & 255) < 4)
@@ -983,7 +983,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	else if (hitsprt != nullptr) fi.checkhitsprite(hitsprt, spark);
 	else if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
 	{
-		fi.checkhitwall(spark->GetIndex(), hitwall, hitx, hity, hitz, GROWSPARK);
+		fi.checkhitwall(spark, hitwall, hitx, hity, hitz, GROWSPARK);
 	}
 }
 

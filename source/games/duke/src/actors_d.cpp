@@ -388,7 +388,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					y1 = (((wal->y + wall[wal->point2].y) >> 1) + spri->y) >> 1;
 					updatesector(x1, y1, &sect);
 					if (sect >= 0 && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sectnum))
-						fi.checkhitwall(actor->GetIndex(), x, wal->x, wal->y, spri->z, spri->picnum);
+						fi.checkhitwall(actor, x, wal->x, wal->y, spri->z, spri->picnum);
 				}
 		} while (sectcnt < sectend);
 	}
@@ -1691,7 +1691,7 @@ static bool weaponhitwall(DDukeActor *proj, int j, const vec3_t &oldpos)
 	else
 	{
 		setsprite(proj, oldpos);
-		fi.checkhitwall(proj->GetIndex(), j, s->x, s->y, s->z, s->picnum);
+		fi.checkhitwall(proj, j, s->x, s->y, s->z, s->picnum);
 
 		if (s->picnum == FREEZEBLAST)
 		{
@@ -2809,7 +2809,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		else if (coll.type == kHitWall)
 		{
 			setsprite(actor, dax, day, daz);
-			fi.checkhitwall(actor->GetIndex(), coll.index, s->x, s->y, s->z, s->picnum);
+			fi.checkhitwall(actor, coll.index, s->x, s->y, s->z, s->picnum);
 		}
 		else if (coll.type == kHitSector)
 		{
@@ -2939,7 +2939,7 @@ static void heavyhbomb(DDukeActor *actor)
 	if (coll.type== kHitWall)
 	{
 		int j = coll.index;
-		fi.checkhitwall(actor->GetIndex(), j, s->x, s->y, s->z, s->picnum);
+		fi.checkhitwall(actor, j, s->x, s->y, s->z, s->picnum);
 
 		int k = getangle(
 			wall[wall[j].point2].x - wall[j].x,

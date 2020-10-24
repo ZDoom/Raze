@@ -1205,7 +1205,7 @@ void operateforcefields_common(DDukeActor *effector, int low, const std::initial
 //
 //---------------------------------------------------------------------------
 
-void breakwall(short newpn, short spr, short dawallnum)
+void breakwall(short newpn, DDukeActor* spr, short dawallnum)
 {
 	wall[dawallnum].picnum = newpn;
 	S_PlayActorSound(VENT_BUST, spr);

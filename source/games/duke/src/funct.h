@@ -137,7 +137,7 @@ int madenoise(int playerNum);
 int haskey(int sect, int snum);
 void shootbloodsplat(DDukeActor* i, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST);
 
-void breakwall(short newpn, short spr, short dawallnum);
+void breakwall(short newpn, DDukeActor* spr, short dawallnum);
 int callsound(int sectnum,DDukeActor* snum);
 int hitasprite(DDukeActor* snum,DDukeActor **hitSprite);
 int findplayer(const DDukeActor* s, int* dist);
