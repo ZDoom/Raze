@@ -1025,10 +1025,11 @@ void checkhitsprite_d(int i, int sn)
 {
 	int j, k, p;
 	auto targ = &hittype[i];
+	auto proj = &hittype[sn];
 
 	i &= (MAXSPRITES - 1);
 	spritetype* s = &sprite[i];
-	auto tspr = &sprite[sn];
+	auto pspr = &sprite[sn];
 
 	switch (s->picnum)
 	{
@@ -1051,11 +1052,11 @@ void checkhitsprite_d(int i, int sn)
 		break;
 	case QUEBALL:
 	case STRIPEBALL:
-		if (tspr->picnum == QUEBALL || tspr->picnum == STRIPEBALL)
+		if (pspr->picnum == QUEBALL || pspr->picnum == STRIPEBALL)
 		{
-			tspr->xvel = (s->xvel >> 1) + (s->xvel >> 2);
-			tspr->ang -= (s->ang << 1) + 1024;
-			s->ang = getangle(s->x - tspr->x, s->y - tspr->y) - 512;
+			pspr->xvel = (s->xvel >> 1) + (s->xvel >> 2);
+			pspr->ang -= (s->ang << 1) + 1024;
+			s->ang = getangle(s->x - pspr->x, s->y - pspr->y) - 512;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}
@@ -1064,7 +1065,7 @@ void checkhitsprite_d(int i, int sn)
 			if (krand() & 3)
 			{
 				s->xvel = 164;
-				s->ang = sprite[sn].ang;
+				s->ang = pspr->ang;
 			}
 			else
 			{
@@ -1078,7 +1079,7 @@ void checkhitsprite_d(int i, int sn)
 	case TIRE:
 	case CONE:
 	case BOX:
-		switch (sprite[sn].picnum)
+		switch (pspr->picnum)
 		{
 		case RADIUSEXPLOSION:
 		case RPG:
@@ -1096,7 +1097,7 @@ void checkhitsprite_d(int i, int sn)
 		break;
 	case CACTUS:
 		//		case CACTUSBROKE:
-		switch (sprite[sn].picnum)
+		switch (pspr->picnum)
 		{
 		case RADIUSEXPLOSION:
 		case RPG:
@@ -1147,7 +1148,7 @@ void checkhitsprite_d(int i, int sn)
 	case FUELPOD:
 	case SOLARPANNEL:
 	case ANTENNA:
-		if (actorinfo[SHOTSPARK1].scriptaddress && sprite[sn].extra != ScriptCode[actorinfo[SHOTSPARK1].scriptaddress])
+		if (actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
 				EGS(s->sectnum, s->x, s->y, sector[s->sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
@@ -1322,7 +1323,7 @@ void checkhitsprite_d(int i, int sn)
 		S_PlayActorSound(s->lotag, targ);
 		spawn(targ, s->hitag);
 	case SPACEMARINE:
-		s->extra -= sprite[sn].extra;
+		s->extra -= pspr->extra;
 		if (s->extra > 0) break;
 		s->ang = krand() & 2047;
 		fi.shoot(i, BLOODSPLAT1);
@@ -1375,21 +1376,21 @@ void checkhitsprite_d(int i, int sn)
 		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
 			break;
 
-		if ((sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && s->statnum != 4)
+		if ((pspr->picnum == FREEZEBLAST || pspr->owner != i) && s->statnum != 4)
 		{
 			if (badguy(targ) == 1)
 			{
 				if (isWorldTour() && s->picnum == FIREFLY && s->xrepeat < 48)
 					break;
 
-				if (sprite[sn].picnum == RPG) sprite[sn].extra <<= 1;
+				if (pspr->picnum == RPG) pspr->extra <<= 1;
 
 				if ((s->picnum != DRONE) && (s->picnum != ROTATEGUN) && (s->picnum != COMMANDER) && (s->picnum < GREENSLIME || s->picnum > GREENSLIME + 7))
-					if (sprite[sn].picnum != FREEZEBLAST)
+					if (pspr->picnum != FREEZEBLAST)
 						//if (actortype[s->picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
 						{
 							j = fi.spawn(sn, JIBS6);
-							if (sprite[sn].pal == 6)
+							if (pspr->pal == 6)
 								sprite[j].pal = 6;
 							sprite[j].z += (4 << 8);
 							sprite[j].xvel = 16;
@@ -1397,7 +1398,7 @@ void checkhitsprite_d(int i, int sn)
 							sprite[j].ang += 32 - (krand() & 63);
 						}
 
-				j = sprite[sn].owner;
+				j = pspr->owner;
 
 				if (j >= 0 && sprite[j].picnum == APLAYER && s->picnum != ROTATEGUN && s->picnum != DRONE)
 					if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
@@ -1411,8 +1412,8 @@ void checkhitsprite_d(int i, int sn)
 				if (s->picnum != TANK && !bossguy(&sprite[i]) && s->picnum != RECON && s->picnum != ROTATEGUN)
 				{
 					if ((s->cstat & 48) == 0)
-						s->ang = (sprite[sn].ang + 1024) & 2047;
-					s->xvel = -(sprite[sn].extra << 2);
+						s->ang = (pspr->ang + 1024) & 2047;
+					s->xvel = -(pspr->extra << 2);
 					short j = s->sectnum;
 					pushmove(&s->x, &s->y, &s->z, &j, 128L, (4L << 8), (4L << 8), CLIPMASK0);
 					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
@@ -1424,17 +1425,17 @@ void checkhitsprite_d(int i, int sn)
 					changespritestat(targ, 1);
 					targ->timetosleep = SLEEPTIME;
 				}
-				if ((s->xrepeat < 24 || s->picnum == SHARK) && sprite[sn].picnum == SHRINKSPARK) return;
+				if ((s->xrepeat < 24 || s->picnum == SHARK) && pspr->picnum == SHRINKSPARK) return;
 			}
 
 			if (s->statnum != 2)
 			{
-				if (sprite[sn].picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (freezerhurtowner == 0 && sprite[sn].owner == i)))
+				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (freezerhurtowner == 0 && pspr->owner == i)))
 					return;
 
 
-				int hitpic = sprite[sn].picnum;
-				if (sprite[sprite[sn].owner].picnum == APLAYER)
+				int hitpic = pspr->picnum;
+				if (sprite[pspr->owner].picnum == APLAYER)
 				{
 					if (s->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0)
 						return;
@@ -1444,9 +1445,9 @@ void checkhitsprite_d(int i, int sn)
 				}
 
 				hittype[i].picnum = hitpic;
-				hittype[i].extra += sprite[sn].extra;
-				hittype[i].ang = sprite[sn].ang;
-				hittype[i].owner = sprite[sn].owner;
+				hittype[i].extra += pspr->extra;
+				hittype[i].ang = pspr->ang;
+				hittype[i].owner = pspr->owner;
 			}
 
 			if (s->statnum == 10)
@@ -1470,12 +1471,12 @@ void checkhitsprite_d(int i, int sn)
 					}
 				}
 
-				if (s->xrepeat < 24 && sprite[sn].picnum == SHRINKSPARK)
+				if (s->xrepeat < 24 && pspr->picnum == SHRINKSPARK)
 					return;
 
 				if (sprite[hittype[i].owner].picnum != APLAYER)
 					if (ud.player_skill >= 3)
-						sprite[sn].extra += (sprite[sn].extra >> 1);
+						pspr->extra += (pspr->extra >> 1);
 			}
 
 		}
