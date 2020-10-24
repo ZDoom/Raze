@@ -1021,13 +1021,11 @@ bool checkhitceiling_d(int sn)
 //
 //---------------------------------------------------------------------------
 
-void checkhitsprite_d(int i, int sn)
+void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 {
 	int j, k, p;
-	auto targ = &hittype[i];
-	auto proj = &hittype[sn];
-	spritetype* s = &sprite[i];
-	auto pspr = &sprite[sn];
+	spritetype* s = &targ->s;
+	auto pspr = &proj->s;
 
 	switch (s->picnum)
 	{
@@ -1150,9 +1148,9 @@ void checkhitsprite_d(int i, int sn)
 		{
 			for (j = 0; j < 15; j++)
 				EGS(s->sectnum, s->x, s->y, sector[s->sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
-					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, i, 5);
-			fi.spawn(i, EXPLOSION2);
-			deletesprite(i);
+					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
+			spawn(targ, EXPLOSION2);
+			deletesprite(targ);
 		}
 		break;
 	case BOTTLE1:
@@ -1184,10 +1182,10 @@ void checkhitsprite_d(int i, int sn)
 	case STATUEFLASH:
 	case STATUE:
 		if (s->picnum == BOTTLE10)
-			fi.lotsofmoney(&hittype[i], 4 + (krand() & 3));
+			fi.lotsofmoney(targ, 4 + (krand() & 3));
 		else if (s->picnum == STATUE || s->picnum == STATUEFLASH)
 		{
-			lotsofcolourglass(i, -1, 40);
+			lotsofcolourglass(targ->GetIndex(), -1, 40);
 			S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		}
 		else if (s->picnum == VASE)
@@ -1206,7 +1204,7 @@ void checkhitsprite_d(int i, int sn)
 	case FETUSBROKE:
 		for (j = 0; j < 48; j++)
 		{
-			fi.shoot(i, BLOODSPLAT1);
+			fi.shoot(targ->GetIndex(), BLOODSPLAT1);
 			s->ang += 333;
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
@@ -1321,8 +1319,10 @@ void checkhitsprite_d(int i, int sn)
 		S_PlayActorSound(s->lotag, targ);
 		spawn(targ, s->hitag);
 	case SPACEMARINE:
+	{
 		s->extra -= pspr->extra;
 		if (s->extra > 0) break;
+		int i = targ->GetIndex();
 		s->ang = krand() & 2047;
 		fi.shoot(i, BLOODSPLAT1);
 		s->ang = krand() & 2047;
@@ -1348,6 +1348,7 @@ void checkhitsprite_d(int i, int sn)
 		S_PlaySound(SQUISHED);
 		deletesprite(targ);
 		break;
+	}
 	case CHAIR1:
 	case CHAIR2:
 		s->picnum = BROKENCHAIR;
@@ -1368,15 +1369,14 @@ void checkhitsprite_d(int i, int sn)
 		deletesprite(targ);
 		break;
 	case PLAYERONWATER:
-		i = s->owner;
 		targ = targ->GetOwner();
 		if (!targ) break;
-		s = &sprite[i];
+		s = &targ->s;
 	default:
 		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
 			break;
 
-		if ((pspr->picnum == FREEZEBLAST || pspr->owner != i) && s->statnum != 4)
+		if ((pspr->picnum == FREEZEBLAST || proj->GetOwner() != targ) && s->statnum != 4)
 		{
 			if (badguy(targ) == 1)
 			{
@@ -1389,7 +1389,7 @@ void checkhitsprite_d(int i, int sn)
 					if (pspr->picnum != FREEZEBLAST)
 						//if (actortype[s->picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
 						{
-							j = fi.spawn(sn, JIBS6);
+							j = fi.spawn(proj->GetIndex(), JIBS6);
 							if (pspr->pal == 6)
 								sprite[j].pal = 6;
 							sprite[j].z += (4 << 8);
@@ -1403,13 +1403,14 @@ void checkhitsprite_d(int i, int sn)
 				if (j >= 0 && sprite[j].picnum == APLAYER && s->picnum != ROTATEGUN && s->picnum != DRONE)
 					if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
 					{
+						int i = targ->GetIndex();
 						fi.shoot(i, BLOODSPLAT3);
 						fi.shoot(i, BLOODSPLAT1);
 						fi.shoot(i, BLOODSPLAT2);
 						fi.shoot(i, BLOODSPLAT4);
 					}
 
-				if (s->picnum != TANK && !bossguy(&sprite[i]) && s->picnum != RECON && s->picnum != ROTATEGUN)
+				if (s->picnum != TANK && !bossguy(targ) && s->picnum != RECON && s->picnum != ROTATEGUN)
 				{
 					if ((s->cstat & 48) == 0)
 						s->ang = (pspr->ang + 1024) & 2047;
@@ -1417,7 +1418,7 @@ void checkhitsprite_d(int i, int sn)
 					short j = s->sectnum;
 					pushmove(&s->x, &s->y, &s->z, &j, 128L, (4L << 8), (4L << 8), CLIPMASK0);
 					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
-						changespritesect(i, j);
+						changespritesect(targ, j);
 				}
 
 				if (s->statnum == 2)
@@ -1430,7 +1431,7 @@ void checkhitsprite_d(int i, int sn)
 
 			if (s->statnum != 2)
 			{
-				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (freezerhurtowner == 0 && pspr->owner == i)))
+				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (freezerhurtowner == 0 && proj->GetOwner() == targ)))
 					return;
 
 
@@ -1444,10 +1445,10 @@ void checkhitsprite_d(int i, int sn)
 						hitpic = FLAMETHROWERFLAME;
 				}
 
-				hittype[i].picnum = hitpic;
-				hittype[i].extra += pspr->extra;
-				hittype[i].ang = pspr->ang;
-				hittype[i].owner = pspr->owner;
+				targ->picnum = hitpic;
+				targ->extra += pspr->extra;
+				targ->ang = pspr->ang;
+				targ->owner = pspr->owner;
 			}
 
 			if (s->statnum == 10)
@@ -1474,7 +1475,8 @@ void checkhitsprite_d(int i, int sn)
 				if (s->xrepeat < 24 && pspr->picnum == SHRINKSPARK)
 					return;
 
-				if (sprite[hittype[i].owner].picnum != APLAYER)
+				auto hitowner = targ->GetHitOwner();
+				if (!hitowner || hitowner->s.picnum != APLAYER)
 					if (ud.player_skill >= 3)
 						pspr->extra += (pspr->extra >> 1);
 			}
@@ -1482,6 +1484,11 @@ void checkhitsprite_d(int i, int sn)
 		}
 		break;
 	}
+}
+
+void checkhitsprite_d(int targ, int proj)
+{
+	checkhitsprite_d(&hittype[targ], &hittype[proj]);
 }
 
 //---------------------------------------------------------------------------
