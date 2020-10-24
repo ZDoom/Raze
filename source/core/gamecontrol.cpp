@@ -882,6 +882,7 @@ int RunGame()
 	videoInit();
 
 	D_CheckNetGame();
+	UpdateGenericUI(ui_generic);
 	MainLoop();
 	return 0; // this is never reached. MainLoop only exits via exception.
 }
