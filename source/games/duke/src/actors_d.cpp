@@ -347,28 +347,28 @@ void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 	short tempshort[MAXSECTORS];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
 	
-	auto s = &sprite[i];
+	auto spri = &sprite[i];
 	
-	if(s->picnum == RPG && s->xrepeat < 11) goto SKIPWALLCHECK;
+	if(spri->picnum == RPG && spri->xrepeat < 11) goto SKIPWALLCHECK;
 	
-	if(s->picnum != SHRINKSPARK)
+	if(spri->picnum != SHRINKSPARK)
 	{
-		tempshort[0] = s->sectnum;
-		dasect = s->sectnum;
+		tempshort[0] = spri->sectnum;
+		dasect = spri->sectnum;
 		sectcnt = 0; sectend = 1;
 		
 		do
 		{
 			dasect = tempshort[sectcnt++];
-			if (((sector[dasect].ceilingz - s->z) >> 8) < r)
+			if (((sector[dasect].ceilingz - spri->z) >> 8) < r)
 			{
-				d = abs(wall[sector[dasect].wallptr].x - s->x) + abs(wall[sector[dasect].wallptr].y - s->y);
+				d = abs(wall[sector[dasect].wallptr].x - spri->x) + abs(wall[sector[dasect].wallptr].y - spri->y);
 				if (d < r)
 					fi.checkhitceiling(dasect);
 				else
 				{
 					// ouch...
-					d = abs(wall[wall[wall[sector[dasect].wallptr].point2].point2].x - s->x) + abs(wall[wall[wall[sector[dasect].wallptr].point2].point2].y - s->y);
+					d = abs(wall[wall[wall[sector[dasect].wallptr].point2].point2].x - spri->x) + abs(wall[wall[wall[sector[dasect].wallptr].point2].point2].y - spri->y);
 					if (d < r)
 						fi.checkhitceiling(dasect);
 				}
@@ -377,7 +377,7 @@ void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 			startwall = sector[dasect].wallptr;
 			endwall = startwall + sector[dasect].wallnum;
 			for (x = startwall, wal = &wall[startwall]; x < endwall; x++, wal++)
-				if ((abs(wal->x - s->x) + abs(wal->y - s->y)) < r)
+				if ((abs(wal->x - spri->x) + abs(wal->y - spri->y)) < r)
 				{
 					nextsect = wal->nextsector;
 					if (nextsect >= 0)
@@ -386,11 +386,11 @@ void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 							if (tempshort[dasect] == nextsect) break;
 						if (dasect < 0) tempshort[sectend++] = nextsect;
 					}
-					x1 = (((wal->x + wall[wal->point2].x) >> 1) + s->x) >> 1;
-					y1 = (((wal->y + wall[wal->point2].y) >> 1) + s->y) >> 1;
+					x1 = (((wal->x + wall[wal->point2].x) >> 1) + spri->x) >> 1;
+					y1 = (((wal->y + wall[wal->point2].y) >> 1) + spri->y) >> 1;
 					updatesector(x1, y1, &sect);
-					if (sect >= 0 && cansee(x1, y1, s->z, sect, s->x, s->y, s->z, s->sectnum))
-						fi.checkhitwall(i, x, wal->x, wal->y, s->z, s->picnum);
+					if (sect >= 0 && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sectnum))
+						fi.checkhitwall(i, x, wal->x, wal->y, spri->z, spri->picnum);
 				}
 		} while (sectcnt < sectend);
 	}
@@ -404,119 +404,119 @@ SKIPWALLCHECK:
 		StatIterator itj(statlist[x]);
 		while ((j = itj.NextIndex()) >= 0)
 		{
-			auto sj = &sprite[j];
-			auto ht = &hittype[j];
+			auto spri2 = &sprite[j];
+			auto act2 = &hittype[j];
 			
 			if (isWorldTour())
 			{
-				if (sprite[s->owner].picnum == APLAYER && sj->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && s->owner != j)
+				if (sprite[spri->owner].picnum == APLAYER && spri2->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && spri->owner != j)
 				{
 					continue;
 				}
 				
-				if (s->picnum == FLAMETHROWERFLAME && ((sprite[s->owner].picnum == FIREFLY && sj->picnum == FIREFLY) || (sprite[s->owner].picnum == BOSS5 && sj->picnum == BOSS5)))
+				if (spri->picnum == FLAMETHROWERFLAME && ((sprite[spri->owner].picnum == FIREFLY && spri2->picnum == FIREFLY) || (sprite[spri->owner].picnum == BOSS5 && spri2->picnum == BOSS5)))
 				{
 					continue;
 				}
 			}
 			
-			if (x == 0 || x >= 5 || AFLAMABLE(sj->picnum))
+			if (x == 0 || x >= 5 || AFLAMABLE(spri2->picnum))
 			{
-				if (s->picnum != SHRINKSPARK || (sj->cstat & 257))
-					if (dist(s, sj) < r)
+				if (spri->picnum != SHRINKSPARK || (spri2->cstat & 257))
+					if (dist(spri, spri2) < r)
 					{
-						if (badguy(sj) && !cansee(sj->x, sj->y, sj->z + q, sj->sectnum, s->x, s->y, s->z + q, s->sectnum))
+						if (badguy(spri2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sectnum, spri->x, spri->y, spri->z + q, spri->sectnum))
 							continue;
 						fi.checkhitsprite(j, i);
 					}
 			}
-			else if (sj->extra >= 0 && sj != s && (sj->picnum == TRIPBOMB || badguy(sj) || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL || (sj->cstat & 257) || sj->picnum == DUKELYINGDEAD))
+			else if (spri2->extra >= 0 && spri2 != spri && (spri2->picnum == TRIPBOMB || badguy(spri2) || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL || (spri2->cstat & 257) || spri2->picnum == DUKELYINGDEAD))
 			{
-				if (s->picnum == SHRINKSPARK && sj->picnum != SHARK && (j == s->owner || sj->xrepeat < 24))
+				if (spri->picnum == SHRINKSPARK && spri2->picnum != SHARK && (j == spri->owner || spri2->xrepeat < 24))
 				{
 					continue;
 				}
-				if (s->picnum == MORTER && j == s->owner)
+				if (spri->picnum == MORTER && j == spri->owner)
 				{
 					continue;
 				}
 				
-				if (sj->picnum == APLAYER) sj->z -= PHEIGHT;
-				d = dist(s, sj);
-				if (sj->picnum == APLAYER) sj->z += PHEIGHT;
+				if (spri2->picnum == APLAYER) spri2->z -= PHEIGHT;
+				d = dist(spri, spri2);
+				if (spri2->picnum == APLAYER) spri2->z += PHEIGHT;
 				
-				if (d < r && cansee(sj->x, sj->y, sj->z - (8 << 8), sj->sectnum, s->x, s->y, s->z - (12 << 8), s->sectnum))
+				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sectnum, spri->x, spri->y, spri->z - (12 << 8), spri->sectnum))
 				{
-					ht->ang = getangle(sj->x - s->x, sj->y - s->y);
+					act2->ang = getangle(spri2->x - spri->x, spri2->y - spri->y);
 					
-					if (s->picnum == RPG && sj->extra > 0)
-						ht->picnum = RPG;
+					if (spri->picnum == RPG && spri2->extra > 0)
+						act2->picnum = RPG;
 					else if (!isWorldTour())
 					{
-						if (s->picnum == SHRINKSPARK)
-							ht->picnum = SHRINKSPARK;
-						else ht->picnum = RADIUSEXPLOSION;
+						if (spri->picnum == SHRINKSPARK)
+							act2->picnum = SHRINKSPARK;
+						else act2->picnum = RADIUSEXPLOSION;
 					}
 					else
 					{
-						if (s->picnum == SHRINKSPARK || s->picnum == FLAMETHROWERFLAME)
-							ht->picnum = s->picnum;
-						else if (s->picnum != FIREBALL || sprite[s->owner].picnum != APLAYER)
+						if (spri->picnum == SHRINKSPARK || spri->picnum == FLAMETHROWERFLAME)
+							act2->picnum = spri->picnum;
+						else if (spri->picnum != FIREBALL || sprite[spri->owner].picnum != APLAYER)
 						{
-							if (s->picnum == LAVAPOOL)
-								ht->picnum = FLAMETHROWERFLAME;
+							if (spri->picnum == LAVAPOOL)
+								act2->picnum = FLAMETHROWERFLAME;
 							else
-								ht->picnum = RADIUSEXPLOSION;
+								act2->picnum = RADIUSEXPLOSION;
 						}
 						else
-							ht->picnum = FLAMETHROWERFLAME;
+							act2->picnum = FLAMETHROWERFLAME;
 					}
 					
-					if (s->picnum != SHRINKSPARK && (!isWorldTour() || s->picnum != LAVAPOOL))
+					if (spri->picnum != SHRINKSPARK && (!isWorldTour() || spri->picnum != LAVAPOOL))
 					{
 						if (d < r / 3)
 						{
 							if (hp4 == hp3) hp4++;
-							ht->extra = hp3 + (krand() % (hp4 - hp3));
+							act2->extra = hp3 + (krand() % (hp4 - hp3));
 						}
 						else if (d < 2 * r / 3)
 						{
 							if (hp3 == hp2) hp3++;
-							ht->extra = hp2 + (krand() % (hp3 - hp2));
+							act2->extra = hp2 + (krand() % (hp3 - hp2));
 						}
 						else if (d < r)
 						{
 							if (hp2 == hp1) hp2++;
-							ht->extra = hp1 + (krand() % (hp2 - hp1));
+							act2->extra = hp1 + (krand() % (hp2 - hp1));
 						}
 						
-						if (sj->picnum != TANK && sj->picnum != ROTATEGUN && sj->picnum != RECON && !bossguy(sj))
+						if (spri2->picnum != TANK && spri2->picnum != ROTATEGUN && spri2->picnum != RECON && !bossguy(spri2))
 						{
-							if (sj->xvel < 0) sj->xvel = 0;
-							sj->xvel += (s->extra << 2);
+							if (spri2->xvel < 0) spri2->xvel = 0;
+							spri2->xvel += (spri->extra << 2);
 						}
 						
-						if (sj->picnum == PODFEM1 || sj->picnum == FEM1 ||
-							sj->picnum == FEM2 || sj->picnum == FEM3 ||
-							sj->picnum == FEM4 || sj->picnum == FEM5 ||
-							sj->picnum == FEM6 || sj->picnum == FEM7 ||
-							sj->picnum == FEM8 || sj->picnum == FEM9 ||
-							sj->picnum == FEM10 || sj->picnum == STATUE ||
-							sj->picnum == STATUEFLASH || sj->picnum == SPACEMARINE || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL)
+						if (spri2->picnum == PODFEM1 || spri2->picnum == FEM1 ||
+							spri2->picnum == FEM2 || spri2->picnum == FEM3 ||
+							spri2->picnum == FEM4 || spri2->picnum == FEM5 ||
+							spri2->picnum == FEM6 || spri2->picnum == FEM7 ||
+							spri2->picnum == FEM8 || spri2->picnum == FEM9 ||
+							spri2->picnum == FEM10 || spri2->picnum == STATUE ||
+							spri2->picnum == STATUEFLASH || spri2->picnum == SPACEMARINE || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL)
 							fi.checkhitsprite(j, i);
 					}
-					else if (s->extra == 0) ht->extra = 0;
+					else if (spri->extra == 0) act2->extra = 0;
 					
-					if (sj->picnum != RADIUSEXPLOSION &&
-						s->owner >= 0 && sprite[s->owner].statnum < MAXSTATUS)
+					if (spri2->picnum != RADIUSEXPLOSION &&
+						spri->owner >= 0 && sprite[spri->owner].statnum < MAXSTATUS)
 					{
-						if (sj->picnum == APLAYER)
+						if (spri2->picnum == APLAYER)
 						{
-							p = sj->yvel;
+							p = spri2->yvel;
 							
-							if (isWorldTour() && ht->picnum == FLAMETHROWERFLAME && sprite[s->owner].picnum == APLAYER)
+							if (isWorldTour() && act2->picnum == FLAMETHROWERFLAME && sprite[spri->owner].picnum == APLAYER)
 							{
-								ps[p].numloogs = -1 - s->yvel;
+								ps[p].numloogs = -1 - spri->yvel;
 							}
 							
 							if (ps[p].newowner >= 0)
@@ -524,7 +524,7 @@ SKIPWALLCHECK:
 								clearcamera(&ps[p]);
 							}
 						}
-						ht->owner = s->owner;
+						act2->owner = spri->owner;
 					}
 				}
 			}
