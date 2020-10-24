@@ -862,20 +862,20 @@ int ifhitsectors_d(int sectnum)
 int ifhitbyweapon_d(int sn)
 {
 	short j, p;
-	auto spr = &sprite[sn];
-	auto ht = &hittype[sn];
-	auto htowner = ht->owner < 0? nullptr : &sprite[ht->owner];
+	auto spri = &sprite[sn];
+	auto actor = &hittype[sn];
+	auto htowner = actor->owner < 0? nullptr : &sprite[actor->owner];
 
-	if (ht->extra >= 0)
+	if (actor->extra >= 0)
 	{
-		if (spr->extra >= 0)
+		if (spri->extra >= 0)
 		{
-			if (spr->picnum == APLAYER)
+			if (spri->picnum == APLAYER)
 			{
-				if (ud.god && ht->picnum != SHRINKSPARK) return -1;
+				if (ud.god && actor->picnum != SHRINKSPARK) return -1;
 
-				p = spr->yvel;
-				j = ht->owner;
+				p = spri->yvel;
+				j = actor->owner;
 
 				if (j >= 0 &&
 					sprite[j].picnum == APLAYER &&
@@ -883,13 +883,13 @@ int ifhitbyweapon_d(int sn)
 					ud.ffire == 0)
 					return -1;
 
-				spr->extra -= ht->extra;
+				spri->extra -= actor->extra;
 
 				if (j >= 0)
 				{
-					if (spr->extra <= 0 && ht->picnum != FREEZEBLAST)
+					if (spri->extra <= 0 && actor->picnum != FREEZEBLAST)
 					{
-						spr->extra = 0;
+						spri->extra = 0;
 
 						ps[p].wackedbyactor = &hittype[j];
 
@@ -899,11 +899,11 @@ int ifhitbyweapon_d(int sn)
 							ps[p].frag_ps = sprite[j].yvel;
 						}
 
-						ht->owner = ps[p].i;
+						actor->owner = ps[p].i;
 					}
 				}
 
-				switch(ht->picnum)
+				switch(actor->picnum)
 				{
 					case RADIUSEXPLOSION:
 					case RPG:
@@ -913,63 +913,63 @@ int ifhitbyweapon_d(int sn)
 					case OOZFILTER:
 					case EXPLODINGBARREL:
 						ps[p].posxv +=
-							ht->extra*(sintable[(ht->ang+512)&2047]) << 2;
+							actor->extra*(sintable[(actor->ang+512)&2047]) << 2;
 						ps[p].posyv +=
-							ht->extra*(sintable[ht->ang&2047]) << 2;
+							actor->extra*(sintable[actor->ang&2047]) << 2;
 						break;
 					default:
 						ps[p].posxv +=
-							ht->extra*(sintable[(ht->ang+512)&2047]) << 1;
+							actor->extra*(sintable[(actor->ang+512)&2047]) << 1;
 						ps[p].posyv +=
-							ht->extra*(sintable[ht->ang&2047]) << 1;
+							actor->extra*(sintable[actor->ang&2047]) << 1;
 						break;
 				}
 			}
 			else
 			{
-				if (ht->extra == 0)
-					if (ht->picnum == SHRINKSPARK && spr->xrepeat < 24)
+				if (actor->extra == 0)
+					if (actor->picnum == SHRINKSPARK && spri->xrepeat < 24)
 						return -1;
 
-				if (isWorldTour() && ht->picnum == FIREFLY && spr->xrepeat < 48)
+				if (isWorldTour() && actor->picnum == FIREFLY && spri->xrepeat < 48)
 				{
-					if (ht->picnum != RADIUSEXPLOSION && ht->picnum != RPG)
+					if (actor->picnum != RADIUSEXPLOSION && actor->picnum != RPG)
 						return -1;
 				}
 
-				spr->extra -= ht->extra;
-				if (spr->picnum != RECON && spr->owner >= 0 && sprite[spr->owner].statnum < MAXSTATUS)
-					spr->owner = ht->owner;
+				spri->extra -= actor->extra;
+				if (spri->picnum != RECON && spri->owner >= 0 && sprite[spri->owner].statnum < MAXSTATUS)
+					spri->owner = actor->owner;
 			}
 
-			ht->extra = -1;
-			return ht->picnum;
+			actor->extra = -1;
+			return actor->picnum;
 		}
 	}
 
 
 	if (ud.multimode < 2 || !isWorldTour()
-		|| ht->picnum != FLAMETHROWERFLAME
-		|| ht->extra >= 0
-		|| spr->extra > 0
-		|| spr->picnum != APLAYER
-		|| ps[spr->yvel].numloogs > 0
-		|| ht->owner < 0)
+		|| actor->picnum != FLAMETHROWERFLAME
+		|| actor->extra >= 0
+		|| spri->extra > 0
+		|| spri->picnum != APLAYER
+		|| ps[spri->yvel].numloogs > 0
+		|| actor->owner < 0)
 	{
-		ht->extra = -1;
+		actor->extra = -1;
 		return -1;
 	}
 	else
 	{
-		p = spr->yvel;
-		spr->extra = 0;
-		ps[p].wackedbyactor = ht->GetHitOwner();
+		p = spri->yvel;
+		spri->extra = 0;
+		ps[p].wackedbyactor = actor->GetHitOwner();
 
-		if (htowner->picnum == APLAYER && p != ht->owner)
-			ps[p].frag_ps = (short)ht->owner;
+		if (htowner->picnum == APLAYER && p != actor->owner)
+			ps[p].frag_ps = (short)actor->owner;
 
-		ht->owner = ps[p].i;
-		ht->extra = -1;
+		actor->owner = ps[p].i;
+		actor->extra = -1;
 
 		return FLAMETHROWERFLAME;
 	}

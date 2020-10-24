@@ -691,20 +691,21 @@ int ifhitsectors_r(int sectnum)
 int ifhitbyweapon_r(int sn)
 {
 	short j, p;
-	spritetype* npc;
+	auto actor = &hittype[sn];
+	auto spri = &actor->s;
 
-	if (hittype[sn].extra >= 0)
+	if (actor->extra >= 0)
 	{
-		if (sprite[sn].extra >= 0)
+		if (spri->extra >= 0)
 		{
-			npc = &sprite[sn];
+			spri = &sprite[sn];
 
-			if (npc->picnum == APLAYER)
+			if (spri->picnum == APLAYER)
 			{
 				if (ud.god) return -1;
 
-				p = npc->yvel;
-				j = hittype[sn].owner;
+				p = spri->yvel;
+				j = actor->owner;
 
 				if (j >= 0 &&
 					sprite[j].picnum == APLAYER &&
@@ -712,27 +713,27 @@ int ifhitbyweapon_r(int sn)
 					ud.ffire == 0)
 					return -1;
 
-				npc->extra -= hittype[sn].extra;
+				spri->extra -= actor->extra;
 
 				if (j >= 0)
 				{
-					if (npc->extra <= 0 && hittype[sn].picnum != FREEZEBLAST)
+					if (spri->extra <= 0 && actor->picnum != FREEZEBLAST)
 					{
-						npc->extra = 0;
+						spri->extra = 0;
 
 						ps[p].wackedbyactor = &hittype[j];
 
-						if (sprite[hittype[sn].owner].picnum == APLAYER && p != sprite[hittype[sn].owner].yvel)
+						if (sprite[actor->owner].picnum == APLAYER && p != sprite[actor->owner].yvel)
 						{
 							// yvel contains player ID
 							ps[p].frag_ps = sprite[j].yvel;
 						}
 
-						hittype[sn].owner = ps[p].i;
+						actor->owner = ps[p].i;
 					}
 				}
 
-				int pn = hittype[sn].picnum;
+				int pn = actor->picnum;
 				if (pn == RPG2 && !isRRRA()) pn = 0; // avoid messing around with gotos.
 				switch (pn)
 				{
@@ -746,35 +747,35 @@ int ifhitbyweapon_r(int sn)
 				case TRIPBOMBSPRITE:
 				case RPG2:
 					ps[p].posxv +=
-						hittype[sn].extra * (sintable[(hittype[sn].ang + 512) & 2047]) << 2;
+						actor->extra * (sintable[(actor->ang + 512) & 2047]) << 2;
 					ps[p].posyv +=
-						hittype[sn].extra * (sintable[hittype[sn].ang & 2047]) << 2;
+						actor->extra * (sintable[actor->ang & 2047]) << 2;
 					break;
 				default:
 					ps[p].posxv +=
-						hittype[sn].extra * (sintable[(hittype[sn].ang + 512) & 2047]) << 1;
+						actor->extra * (sintable[(actor->ang + 512) & 2047]) << 1;
 					ps[p].posyv +=
-						hittype[sn].extra * (sintable[hittype[sn].ang & 2047]) << 1;
+						actor->extra * (sintable[actor->ang & 2047]) << 1;
 					break;
 				}
 			}
 			else
 			{
-				if (hittype[sn].extra == 0)
-					if (npc->xrepeat < 24)
+				if (actor->extra == 0)
+					if (spri->xrepeat < 24)
 						return -1;
 
-				npc->extra -= hittype[sn].extra;
-				if (npc->picnum != RECON && npc->owner >= 0 && sprite[npc->owner].statnum < MAXSTATUS)
-					npc->owner = hittype[sn].owner;
+				spri->extra -= actor->extra;
+				if (spri->picnum != RECON && spri->owner >= 0 && sprite[spri->owner].statnum < MAXSTATUS)
+					spri->owner = actor->owner;
 			}
 
-			hittype[sn].extra = -1;
-			return hittype[sn].picnum;
+			actor->extra = -1;
+			return actor->picnum;
 		}
 	}
 
-	hittype[sn].extra = -1;
+	actor->extra = -1;
 	return -1;
 }
 
