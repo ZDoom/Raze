@@ -993,9 +993,8 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 //
 //---------------------------------------------------------------------------
 
-void shoot_d(int i_, int atwith)
+void shoot_d(DDukeActor* actor, int atwith)
 {
-	auto actor = &hittype[i_];
 	spritetype* const s = &actor->s;
 
 	short sect, l, j;
@@ -1128,7 +1127,7 @@ void shoot_d(int i_, int atwith)
 		EGS(sect,
 			sx + (sintable[(512 + sa + 512) & 2047] >> 8),
 			sy + (sintable[(sa + 512) & 2047] >> 8),
-			sz + (6 << 8), atwith, -64, 32, 32, sa, vel, zvel, i, 1);
+			sz + (6 << 8), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
 		break;
 
 	case GROWSPARK:
@@ -1136,10 +1135,11 @@ void shoot_d(int i_, int atwith)
 		break;
 
 	case SHRINKER:
+	{
 		if (s->extra >= 0) s->shade = -96;
 		if (p >= 0)
 		{
-			auto aimed = isNamWW2GI()? nullptr : aim(actor, AUTO_AIM_ANGLE);
+			auto aimed = isNamWW2GI() ? nullptr : aim(actor, AUTO_AIM_ANGLE);
 			if (aimed)
 			{
 				dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1);
@@ -1156,16 +1156,17 @@ void shoot_d(int i_, int atwith)
 		}
 		else zvel = 0;
 
-		j = EGS(sect,
+		auto j = EGS(sect,
 			sx + (sintable[(512 + sa + 512) & 2047] >> 12),
 			sy + (sintable[(sa + 512) & 2047] >> 12),
-			sz + (2 << 8), SHRINKSPARK, -16, 28, 28, sa, 768, zvel, i, 4);
+			sz + (2 << 8), SHRINKSPARK, -16, 28, 28, sa, 768, zvel, actor, 4);
 
-		sprite[j].cstat = 128;
-		sprite[j].clipdist = 32;
+		j->s.cstat = 128;
+		j->s.clipdist = 32;
 
 
 		return;
+	}
 	}
 	return;
 }
@@ -1502,7 +1503,7 @@ int doincrements_d(struct player_struct* p)
 		p->last_quick_kick = p->quick_kick + 1;
 		p->quick_kick--;
 		if (p->quick_kick == 8)
-			fi.shoot(p->i, KNEE);
+			fi.shoot(p->GetActor(), KNEE);
 	}
 	else if (p->last_quick_kick > 0)
 		p->last_quick_kick--;
@@ -2158,8 +2159,8 @@ static void fireweapon(int snum)
 static void operateweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
-	int pi = p->i;
-	int i, j, k;
+	auto pact = p->GetActor();
+	int i, k;
 
 	// already firing...
 
@@ -2187,29 +2188,29 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				i = -512 - mulscale16(p->horizon.sum().asq16(), 20);
 			}
 
-			j = EGS(p->cursectnum,
+			auto spawned = EGS(p->cursectnum,
 				p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 6),
 				p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 6),
 				p->posz, HEAVYHBOMB, -16, 9, 9,
-				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
+				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, pact, 1);
 
 			if (isNam())
 			{
-				sprite[j].extra = mulscale(krand(), NAM_GRENADE_LIFETIME_VAR, 14);
+				spawned->s.extra = mulscale(krand(), NAM_GRENADE_LIFETIME_VAR, 14);
 			}
 
 			if (k == 15)
 			{
-				sprite[j].yvel = 3;
-				sprite[j].z += (8 << 8);
+				spawned->s.yvel = 3;
+				spawned->s.z += (8 << 8);
 			}
 
-			k = hits(p->GetActor());
+			k = hits(pact);
 			if (k < 512)
 			{
-				sprite[j].ang += 1024;
-				sprite[j].zvel /= 3;
-				sprite[j].xvel /= 3;
+				spawned->s.ang += 1024;
+				spawned->s.zvel /= 3;
+				spawned->s.xvel /= 3;
 			}
 
 			p->hbomb_on = 1;
@@ -2257,14 +2258,14 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 	case PISTOL_WEAPON:	// m-16 in NAM
 		if (p->kickback_pic == 1)
 		{
-			fi.shoot(pi, SHOTSPARK1);
-			S_PlayActorSound(PISTOL_FIRE, pi);
+			fi.shoot(pact, SHOTSPARK1);
+			S_PlayActorSound(PISTOL_FIRE, pact);
 			lastvisinc = ud.levelclock + 32;
 			p->visibility = 0;
 		}
 
 		else if (p->kickback_pic == 2)
-			fi.spawn(pi, SHELL);
+			spawn(pact, SHELL);
 
 		p->kickback_pic++;
 
@@ -2280,14 +2281,14 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				switch (p->kickback_pic)
 				{
 				case 5:
-					S_PlayActorSound(EJECT_CLIP, pi);
+					S_PlayActorSound(EJECT_CLIP, pact);
 					break;
 					//#ifdef NAM								
 					//                            case WEAPON2_RELOAD_TIME - 15:
 					//#else
 				case 8:
 					//#endif
-					S_PlayActorSound(INSERT_CLIP, pi);
+					S_PlayActorSound(INSERT_CLIP, pact);
 					break;
 				}
 			}
@@ -2307,16 +2308,11 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 		if (p->kickback_pic == 4)
 		{
-			fi.shoot(pi, SHOTGUN);
-			fi.shoot(pi, SHOTGUN);
-			fi.shoot(pi, SHOTGUN);
-			fi.shoot(pi, SHOTGUN);
-			fi.shoot(pi, SHOTGUN);
-			fi.shoot(pi, SHOTGUN);
-			fi.shoot(pi, SHOTGUN);
+			for(int i = 0; i < 7; i++)
+				fi.shoot(pact, SHOTGUN);
 			p->ammo_amount[SHOTGUN_WEAPON]--;
 
-			S_PlayActorSound(SHOTGUN_FIRE, pi);
+			S_PlayActorSound(SHOTGUN_FIRE, pact);
 
 			lastvisinc = ud.levelclock + 32;
 			p->visibility = 0;
@@ -2329,19 +2325,21 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			checkavailweapon(p);
 			break;
 		case 15:
-			S_PlayActorSound(SHOTGUN_COCK, pi);
+			S_PlayActorSound(SHOTGUN_COCK, pact);
 			break;
 		case 17:
 		case 20:
 			p->kickback_pic++;
 			break;
 		case 24:
-			j = fi.spawn(pi, SHOTGUNSHELL);
-			sprite[j].ang += 1024;
+		{
+			auto j = spawn(pact, SHOTGUNSHELL);
+			j->s.ang += 1024;
 			ssp(j, CLIPMASK0);
-			sprite[j].ang += 1024;
+			j->s.ang += 1024;
 			p->kickback_pic++;
 			break;
+		}
 		case 31:
 			p->okickback_pic = p->kickback_pic = 0;
 			return;
@@ -2360,17 +2358,17 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 				if ((p->kickback_pic % 3) == 0)
 				{
-					j = fi.spawn(pi, SHELL);
+					auto j = spawn(pact, SHELL);
 
-					sprite[j].ang += 1024;
-					sprite[j].ang &= 2047;
-					sprite[j].xvel += 32;
-					sprite[j].z += (3 << 8);
+					j->s.ang += 1024;
+					j->s.ang &= 2047;
+					j->s.xvel += 32;
+					j->s.z += (3 << 8);
 					ssp(j, CLIPMASK0);
 				}
 
-				S_PlayActorSound(CHAINGUN_FIRE, pi);
-				fi.shoot(pi, CHAINGUN);
+				S_PlayActorSound(CHAINGUN_FIRE, pact);
+				fi.shoot(pact, CHAINGUN);
 				lastvisinc = ud.levelclock + 32;
 				p->visibility = 0;
 				checkavailweapon(p);
@@ -2414,7 +2412,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			else
 				p->okickback_pic = p->kickback_pic = 0;
 			p->ammo_amount[p->curr_weapon]--;
-			fi.shoot(pi, GROWSPARK);
+			fi.shoot(pact, GROWSPARK);
 
 			//#ifdef NAM
 			//#else
@@ -2449,7 +2447,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			else p->okickback_pic = p->kickback_pic = 0;
 
 			p->ammo_amount[SHRINKER_WEAPON]--;
-			fi.shoot(pi, SHRINKER);
+			fi.shoot(pact, SHRINKER);
 
 			if (!isNam())
 			{
@@ -2482,7 +2480,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				{
 					p->visibility = 0;
 					lastvisinc = ud.levelclock + 32;
-					fi.shoot(pi, RPG);
+					fi.shoot(pact, RPG);
 					p->ammo_amount[DEVISTATOR_WEAPON]--;
 					checkavailweapon(p);
 				}
@@ -2492,7 +2490,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			{
 				p->visibility = 0;
 				lastvisinc = ud.levelclock + 32;
-				fi.shoot(pi, RPG);
+				fi.shoot(pact, RPG);
 				p->ammo_amount[DEVISTATOR_WEAPON]--;
 				checkavailweapon(p);
 				if (p->ammo_amount[DEVISTATOR_WEAPON] <= 0) p->okickback_pic = p->kickback_pic = 0;
@@ -2512,10 +2510,10 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 				p->visibility = 0;
 				lastvisinc = ud.levelclock + 32;
-				fi.shoot(pi, FREEZEBLAST);
+				fi.shoot(pact, FREEZEBLAST);
 				checkavailweapon(p);
 			}
-			if (p->GetActor()->s.xrepeat < 32)
+			if (pact->s.xrepeat < 32)
 			{
 				p->okickback_pic = p->kickback_pic = 0; break;
 			}
@@ -2525,7 +2523,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (actions & SB_FIRE)
 			{
 				p->okickback_pic = p->kickback_pic = 1;
-				S_PlayActorSound(CAT_FIRE, pi);
+				S_PlayActorSound(CAT_FIRE, pact);
 			}
 			else p->okickback_pic = p->kickback_pic = 0;
 		}
@@ -2542,7 +2540,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				p->ammo_amount[FLAMETHROWER_WEAPON]--;
 				if (snum == screenpeek)
 					g_visibility = 0;
-				fi.shoot(pi, FIREBALL);
+				fi.shoot(pact, FIREBALL);
 			}
 			checkavailweapon(p);
 		}
@@ -2551,7 +2549,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if ((actions & SB_FIRE) != 0)
 			{
 				p->okickback_pic = p->kickback_pic = 1;
-				S_PlayActorSound(FLAMETHROWER_INTRO, pi);
+				S_PlayActorSound(FLAMETHROWER_INTRO, pact);
 			}
 			else
 				p->okickback_pic = p->kickback_pic = 0;
@@ -2564,7 +2562,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			p->posz = p->oposz;
 			p->poszv = 0;
 			if (p->kickback_pic == 3)
-				fi.shoot(pi, HANDHOLDINGLASER);
+				fi.shoot(pact, HANDHOLDINGLASER);
 		}
 		if (p->kickback_pic == 16)
 		{
@@ -2577,7 +2575,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 	case KNEE_WEAPON:
 		p->kickback_pic++;
 
-		if (p->kickback_pic == 7) fi.shoot(pi, KNEE);
+		if (p->kickback_pic == 7) fi.shoot(pact, KNEE);
 		else if (p->kickback_pic == 14)
 		{
 			if (actions & SB_FIRE)
@@ -2596,7 +2594,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			p->ammo_amount[RPG_WEAPON]--;
 			lastvisinc = ud.levelclock + 32;
 			p->visibility = 0;
-			fi.shoot(pi, RPG);
+			fi.shoot(pact, RPG);
 			checkavailweapon(p);
 		}
 		else if (p->kickback_pic == (cl_dukefixrpgrecoil ? 13 : 20))

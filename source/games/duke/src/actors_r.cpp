@@ -3656,7 +3656,7 @@ void moveeffectors_r(void)   //STATNUM 3
 			if (t[0])
 			{
 				if (t[0] == 1)
-					fi.shoot(act->GetIndex(), sc->extra);
+					fi.shoot(act, sc->extra);
 				else if (t[0] == 26 * 5)
 					t[0] = 0;
 				t[0]++;

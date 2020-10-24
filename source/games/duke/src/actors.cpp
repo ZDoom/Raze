@@ -1721,7 +1721,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			a = s->ang;
 			s->ang = actor->tempang;
 			if (attacksnd >= 0) S_PlayActorSound(attacksnd, actor);
-			fi.shoot(actor->GetIndex(), firelaser);
+			fi.shoot(actor, firelaser);
 			s->ang = a;
 		}
 		if (t[2] > (26 * 3) || !cansee(s->x, s->y, s->z - (16 << 8), s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
@@ -1755,7 +1755,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			else if ((t[2] & 15) == 0 && attacksnd >= 0)
 			{
 				S_PlayActorSound(attacksnd, actor);
-				fi.shoot(actor->GetIndex(), firelaser);
+				fi.shoot(actor, firelaser);
 			}
 		}
 		s->ang += getincangle(s->ang, getangle(ps[p].posx - s->x, ps[p].posy - s->y)) >> 2;
@@ -2885,7 +2885,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				{
 					j = s->ang;
 					s->ang = getangle(s->x - ps[p].posx, s->y - ps[p].posy);
-					fi.shoot(actor->GetIndex(), RPG);
+					fi.shoot(actor, RPG);
 					s->ang = j;
 				}
 			}
@@ -3437,7 +3437,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	{
 		j = s->ang;
 		s->ang = getangle(s->x - ps[p].posx, s->y - ps[p].posy);
-		fi.shoot(actor->GetIndex(), FIRELASER);
+		fi.shoot(actor, FIRELASER);
 		s->ang = j;
 	}
 

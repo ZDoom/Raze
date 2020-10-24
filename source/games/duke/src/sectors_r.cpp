@@ -2368,11 +2368,10 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				if (j >= 0 && sprite[j].picnum == APLAYER && s->picnum != DRONE)
 					if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
 					{
-						int i = targ->GetIndex();
-						fi.shoot(i, BLOODSPLAT3);
-						fi.shoot(i, BLOODSPLAT1);
-						fi.shoot(i, BLOODSPLAT2);
-						fi.shoot(i, BLOODSPLAT4);
+						fi.shoot(targ, BLOODSPLAT3);
+						fi.shoot(targ, BLOODSPLAT1);
+						fi.shoot(targ, BLOODSPLAT2);
+						fi.shoot(targ, BLOODSPLAT4);
 					}
 
 				if (s->statnum == 2)

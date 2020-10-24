@@ -1208,7 +1208,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case FETUSBROKE:
 		for (j = 0; j < 48; j++)
 		{
-			fi.shoot(targ->GetIndex(), BLOODSPLAT1);
+			fi.shoot(targ, BLOODSPLAT1);
 			s->ang += 333;
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
@@ -1326,23 +1326,22 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	{
 		s->extra -= pspr->extra;
 		if (s->extra > 0) break;
-		int i = targ->GetIndex();
 		s->ang = krand() & 2047;
-		fi.shoot(i, BLOODSPLAT1);
+		fi.shoot(targ, BLOODSPLAT1);
 		s->ang = krand() & 2047;
-		fi.shoot(i, BLOODSPLAT2);
+		fi.shoot(targ, BLOODSPLAT2);
 		s->ang = krand() & 2047;
-		fi.shoot(i, BLOODSPLAT3);
+		fi.shoot(targ, BLOODSPLAT3);
 		s->ang = krand() & 2047;
-		fi.shoot(i, BLOODSPLAT4);
+		fi.shoot(targ, BLOODSPLAT4);
 		s->ang = krand() & 2047;
-		fi.shoot(i, BLOODSPLAT1);
+		fi.shoot(targ, BLOODSPLAT1);
 		s->ang = krand() & 2047;
-		fi.shoot(i, BLOODSPLAT2);
+		fi.shoot(targ, BLOODSPLAT2);
 		s->ang = krand() & 2047;
-		fi.shoot(i, BLOODSPLAT3);
+		fi.shoot(targ, BLOODSPLAT3);
 		s->ang = krand() & 2047;
-		fi.shoot(i, BLOODSPLAT4);
+		fi.shoot(targ, BLOODSPLAT4);
 		fi.guts(targ, JIBS1, 1, myconnectindex);
 		fi.guts(targ, JIBS2, 2, myconnectindex);
 		fi.guts(targ, JIBS3, 3, myconnectindex);
@@ -1407,11 +1406,10 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 				if (j >= 0 && sprite[j].picnum == APLAYER && s->picnum != ROTATEGUN && s->picnum != DRONE)
 					if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
 					{
-						int i = targ->GetIndex();
-						fi.shoot(i, BLOODSPLAT3);
-						fi.shoot(i, BLOODSPLAT1);
-						fi.shoot(i, BLOODSPLAT2);
-						fi.shoot(i, BLOODSPLAT4);
+						fi.shoot(targ, BLOODSPLAT3);
+						fi.shoot(targ, BLOODSPLAT1);
+						fi.shoot(targ, BLOODSPLAT2);
+						fi.shoot(targ, BLOODSPLAT4);
 					}
 
 				if (s->picnum != TANK && !bossguy(targ) && s->picnum != RECON && s->picnum != ROTATEGUN)
