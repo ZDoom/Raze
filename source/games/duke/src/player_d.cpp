@@ -993,13 +993,13 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 //
 //---------------------------------------------------------------------------
 
-void shoot_d(int i, int atwith)
+void shoot_d(int i_, int atwith)
 {
+	auto actor = &hittype[i_];
+	spritetype* const s = &actor->s;
+
 	short sect, l, j;
 	int sx, sy, sz, sa, p, vel, zvel, x, dal;
-	auto actor = &hittype[i];
-	spritetype* const s = &actor->s;
-	auto atact = &hittype[atwith];
 	if (s->picnum == TILE_APLAYER)
 	{
 		p = s->yvel;
@@ -1009,7 +1009,7 @@ void shoot_d(int i, int atwith)
 		p = -1;
 	}
 
-	SetGameVarID(g_iAtWithVarID, 0, atact, p);
+	SetGameVarID(g_iAtWithVarID, atwith, actor, p);
 	SetGameVarID(g_iReturnVarID, 0, actor, p);
 	OnEvent(EVENT_SHOOT, p, ps[p].GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, actor, p) != 0)
