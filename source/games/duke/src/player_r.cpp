@@ -88,12 +88,12 @@ void incur_damage_r(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void shootmelee(int i, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	spritetype* const s = &sprite[i];
+	spritetype* const s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall, j, k;
+	short hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
 
@@ -106,9 +106,9 @@ static void shootmelee(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	else
 	{
 		int x;
-		j = ps[findplayer(s, &x)].i;
-		zvel = ((sprite[j].z - sz) << 8) / (x + 1);
-		sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
+		auto pspr = ps[findplayer(s, &x)].GetActor();
+		zvel = ((pspr->s.z - sz) << 8) / (x + 1);
+		sa = getangle(pspr->s.x - sx, pspr->s.y - sy);
 	}
 
 	hitscan(sx, sy, sz, sect,
@@ -119,26 +119,25 @@ static void shootmelee(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	if (isRRRA() && ((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
 		&& hitsprt == nullptr && hitwall == -1)
 	{
-		short ii;
-		for (ii = 0; ii < MAXSPRITES; ii++)
+		DukeSpriteIterator its;
+		while (auto effector = its.Next())
 		{
-			if (sprite[ii].sectnum == hitsect && sprite[ii].picnum == SECTOREFFECTOR
-				&& sprite[ii].lotag == 7)
+			// shouldn't this only check STAT_EFFECTOR?
+			if (effector->s.sectnum == hitsect && effector->s.picnum == SECTOREFFECTOR && effector->GetOwner()
+				&& effector->s.lotag == 7)
 			{
 				int nx, ny, nz;
-				nx = hitx + (sprite[sprite[ii].owner].x - sprite[ii].x);
-				ny = hity + (sprite[sprite[ii].owner].y - sprite[ii].y);
+				nx = hitx + (effector->GetOwner()->s.x - effector->s.x);
+				ny = hity + (effector->GetOwner()->s.y - effector->s.y);
 				if (sector[hitsect].lotag == 161)
 				{
-					nz = sector[sprite[sprite[ii].owner].sectnum].floorz;
+					nz = sector[effector->GetOwner()->s.sectnum].floorz;
 				}
 				else
 				{
-					nz = sector[sprite[sprite[ii].owner].sectnum].ceilingz;
+					nz = sector[effector->GetOwner()->s.sectnum].ceilingz;
 				}
-				hitscan(nx, ny, nz, sprite[sprite[ii].owner].sectnum,
-					sintable[(sa + 512) & 2047],
-					sintable[sa & 2047], zvel << 6,
+				hitscan(nx, ny, nz, effector->GetOwner()->s.sectnum, sintable[(sa + 512) & 2047], sintable[sa & 2047], zvel << 6,
 					&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 				break;
 			}
@@ -151,32 +150,31 @@ static void shootmelee(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	{
 		if (hitwall >= 0 || hitsprt)
 		{
+			DDukeActor* wpn;
 			if (isRRRA() && atwith == SLINGBLADE)
 			{
-				j = EGS(hitsect, hitx, hity, hitz, SLINGBLADE, -15, 0, 0, sa, 32, 0, i, 4);
-				sprite[j].extra += 50;
+				wpn = EGS(hitsect, hitx, hity, hitz, SLINGBLADE, -15, 0, 0, sa, 32, 0, actor, 4);
+				wpn->s.extra += 50;
 			}
 			else
 			{
-				j = EGS(hitsect, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, i, 4);
-				sprite[j].extra += (krand() & 7);
+				wpn = EGS(hitsect, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+				wpn->s.extra += (krand() & 7);
 			}
 			if (p >= 0)
 			{
-				k = fi.spawn(j, SMALLSMOKE);
-				sprite[k].z -= (8 << 8);
-				if (atwith == KNEE)
-					S_PlayActorSound(KICK_HIT, j);
-				else if (isRRRA() && atwith == SLINGBLADE)
-					S_PlayActorSound(260, j);
+				auto k = spawn(wpn, SMALLSMOKE);
+				k->s.z -= (8 << 8);
+				if (atwith == KNEE) S_PlayActorSound(KICK_HIT, wpn);
+				else if (isRRRA() && atwith == SLINGBLADE)	S_PlayActorSound(260, wpn);
 			}
 
 			if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
-				sprite[j].extra += (max_player_health >> 2);
+				wpn->s.extra += (max_player_health >> 2);
 
 			if (hitsprt && hitsprt->s.picnum != ACCESSSWITCH && hitsprt->s.picnum != ACCESSSWITCH2)
 			{
-				fi.checkhitsprite(hitsprt->GetIndex(), j);
+				fi.checkhitsprite(hitsprt->GetIndex(), wpn->GetIndex());
 				if (p >= 0) fi.checkhitswitch(p, hitsprt->GetIndex(), 1);
 			}
 			else if (hitwall >= 0)
@@ -188,20 +186,20 @@ static void shootmelee(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 				if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
 				{
-					fi.checkhitwall(j, hitwall, hitx, hity, hitz, atwith);
+					fi.checkhitwall(wpn->GetIndex(), hitwall, hitx, hity, hitz, atwith);
 					if (p >= 0) fi.checkhitswitch(p, hitwall, 0);
 				}
 			}
 		}
 		else if (p >= 0 && zvel > 0 && sector[hitsect].lotag == 1)
 		{
-			j = fi.spawn(ps[p].i, WATERSPLASH2);
-			sprite[j].x = hitx;
-			sprite[j].y = hity;
-			sprite[j].ang = ps[p].angle.ang.asbuild(); // Total tweek
-			sprite[j].xvel = 32;
-			ssp(i, 0);
-			sprite[j].xvel = 0;
+			auto splash = spawn(ps[p].GetActor(), WATERSPLASH2);
+			splash->s.x = hitx;
+			splash->s.y = hity;
+			splash->s.ang = ps[p].angle.ang.asbuild(); // Total tweek
+			splash->s.xvel = 32;
+			ssp(actor, 0);
+			splash->s.xvel = 0;
 		}
 	}
 }
@@ -899,7 +897,7 @@ void shoot_r(int i, int atwith)
 		if (!isRRRA()) break;
 	case KNEE:
 	case GROWSPARK:
-		shootmelee(i, p, sx, sy, sz, sa, atwith);
+		shootmelee(actor, p, sx, sy, sz, sa, atwith);
 		return;
 
 	case SHOTSPARK1:
