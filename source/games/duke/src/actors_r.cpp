@@ -1273,7 +1273,8 @@ static bool weaponhitsprite(int i, int j, const vec3_t &oldpos)
 
 static bool weaponhitwall(int i, int j, const vec3_t& oldpos)
 {
-	auto s = &sprite[i];
+	auto act = &hittype[i];
+	auto s = &act->s;
 
 	if (isRRRA() && sprite[s->owner].picnum == MAMA)
 	{
@@ -1327,12 +1328,12 @@ static bool weaponhitwall(int i, int j, const vec3_t& oldpos)
 				s->y += sintable[s->ang & 2047] >> 7;
 				if (!isRRRA() || (sprite[s->owner].picnum != CHEER && sprite[s->owner].picnum != CHEERSTAYPUT))
 				{
-					j = fi.spawn(i, CIRCLESTUCK);
-					sprite[j].xrepeat = 8;
-					sprite[j].yrepeat = 8;
-					sprite[j].cstat = 16;
-					sprite[j].ang = (sprite[j].ang + 512) & 2047;
-					sprite[j].clipdist = mulscale7(s->xrepeat, tilesiz[s->picnum].x);
+					auto j = spawn(act, CIRCLESTUCK);
+					j->s.xrepeat = 8;
+					j->s.yrepeat = 8;
+					j->s.cstat = 16;
+					j->s.ang = (j->s.ang + 512) & 2047;
+					j->s.clipdist = mulscale7(s->xrepeat, tilesiz[s->picnum].x);
 				}
 				deletesprite(i);
 				return true;
@@ -2523,10 +2524,10 @@ void rr_specialstats()
 				s->lotag--;
 				if (s->lotag < 0)
 				{
-					guts_r(&sprite[i], JIBS1, 1, myconnectindex);
-					guts_r(&sprite[i], JIBS2, 1, myconnectindex);
-					guts_r(&sprite[i], JIBS3, 1, myconnectindex);
-					guts_r(&sprite[i], JIBS4, 1, myconnectindex);
+					guts_r(s, JIBS1, 1, myconnectindex);
+					guts_r(s, JIBS2, 1, myconnectindex);
+					guts_r(s, JIBS3, 1, myconnectindex);
+					guts_r(s, JIBS4, 1, myconnectindex);
 					s->lotag = 256;
 				}
 				break;

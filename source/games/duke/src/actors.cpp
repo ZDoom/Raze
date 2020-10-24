@@ -1404,19 +1404,20 @@ void movetongue(int i, int tongue, int jaw)
 
 void rpgexplode(int i, int j, const vec3_t &pos, int EXPLOSION2, int newextra, int playsound)
 {
-	auto s = &sprite[i];
-	int k = fi.spawn(i, EXPLOSION2);
-	sprite[k].pos = pos;
+	auto act = &hittype[i];
+	auto s = &act->s;
+	auto k = spawn(act, EXPLOSION2);
+	k->s.pos = pos;
 
 	if (s->xrepeat < 10)
 	{
-		sprite[k].xrepeat = 6;
-		sprite[k].yrepeat = 6;
+		k->s.xrepeat = 6;
+		k->s.yrepeat = 6;
 	}
 	else if ((j & kHitTypeMask) == kHitSector)
 	{
-		sprite[k].cstat |= 8;
-		sprite[k].z += (48 << 8);
+		k->s.cstat |= 8;
+		k->s.z += (48 << 8);
 	}
 	if (newextra > 0) s->extra = newextra;
 	S_PlayActorSound(playsound, i);
@@ -1596,8 +1597,9 @@ bool queball(int i, int pocket, int queball, int stripeball)
 
 void forcesphere(int i, int forcesphere)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto act = &hittype[i];
+	auto s = &act->s;
+	auto t = &act->temp_data[0];
 	int sect = s->sectnum;
 	if (s->yvel == 0)
 	{
@@ -1606,13 +1608,13 @@ void forcesphere(int i, int forcesphere)
 		for (int l = 512; l < (2048 - 512); l += 128)
 			for (int j = 0; j < 2048; j += 128)
 			{
-				int k = fi.spawn(i, forcesphere);
-				sprite[k].cstat = 257 + 128;
-				sprite[k].clipdist = 64;
-				sprite[k].ang = j;
-				sprite[k].zvel = sintable[l & 2047] >> 5;
-				sprite[k].xvel = sintable[(l + 512) & 2047] >> 9;
-				sprite[k].owner = i;
+				auto k = spawn(act, forcesphere);
+				k->s.cstat = 257 + 128;
+				k->s.clipdist = 64;
+				k->s.ang = j;
+				k->s.zvel = sintable[l & 2047] >> 5;
+				k->s.xvel = sintable[(l + 512) & 2047] >> 9;
+				k->s.owner = i;
 			}
 	}
 
@@ -4703,8 +4705,9 @@ void handle_se128(int i)
 
 void handle_se130(int i, int countmax, int EXPLOSION2)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto act = &hittype[i];
+	spritetype* s = &act->s;
+	auto t = &act->temp_data[0];
 	auto sc = &sector[s->sectnum];
 
 	if (t[0] > countmax)
@@ -4718,11 +4721,11 @@ void handle_se130(int i, int countmax, int EXPLOSION2)
 
 	if (rnd(64))
 	{
-		int k = fi.spawn(i, EXPLOSION2);
-		sprite[k].xrepeat = sprite[k].yrepeat = 2 + (krand() & 7);
-		sprite[k].z = sc->floorz - (krand() % x);
-		sprite[k].ang += 256 - (krand() % 511);
-		sprite[k].xvel = krand() & 127;
+		auto k = spawn(act, EXPLOSION2);
+		k->s.xrepeat = k->s.yrepeat = 2 + (krand() & 7);
+		k->s.z = sc->floorz - (krand() % x);
+		k->s.ang += 256 - (krand() % 511);
+		k->s.xvel = krand() & 127;
 		ssp(k, CLIPMASK0);
 	}
 }
