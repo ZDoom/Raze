@@ -41,6 +41,7 @@ source as it is released.
 
 BEGIN_DUKE_NS
 
+
 //---------------------------------------------------------------------------
 //
 // 
@@ -412,7 +413,7 @@ void initfootprint(int j, int i)
 	if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
 		sp->xrepeat = sp->yrepeat = 32;
 
-	insertspriteq(i);
+	insertspriteq(&hittype[i]);
 	changespritestat(i, STAT_MISC);
 }
 
@@ -1083,25 +1084,6 @@ void spawneffector(int i)
 		changespritestat(i, STAT_EFFECTOR);
 }
 
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void vglass(int x, int y, int a, int wn, int n)
-{
-	int z, zincs;
-	int sect;
-
-	sect = wall[wn].nextsector;
-	if (sect == -1) return;
-	zincs = (sector[sect].floorz - sector[sect].ceilingz) / n;
-
-	for (z = sector[sect].ceilingz; z < sector[sect].floorz; z += zincs)
-		EGS(sect, x, y, z - (krand() & 8191), TILE_GLASSPIECES + (z & (krand() % 3)), -32, 36, 36, a + 128 - (krand() & 255), 16 + (krand() & 31), 0, -1, 5);
-}
 
 //---------------------------------------------------------------------------
 //

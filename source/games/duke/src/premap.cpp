@@ -388,7 +388,7 @@ void resetprestat(int snum,int g)
     p = &ps[snum];
 
     spriteqloc = 0;
-    for(i=0;i<spriteqamount;i++) spriteq[i] = -1;
+    for(i=0;i<spriteqamount;i++) spriteq[i] = nullptr;
 
     p->hbomb_on          = 0;
     p->pals.a         = 0;

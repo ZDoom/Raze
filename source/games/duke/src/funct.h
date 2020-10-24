@@ -101,7 +101,7 @@ void deletesprite(DDukeActor* num);
 void addammo(int weapon, struct player_struct* p, int amount);
 
 int ssp(DDukeActor* i, unsigned int cliptype); //The set sprite function
-void insertspriteq(int i);
+void insertspriteq(DDukeActor *i);
 int wakeup(int sn, int pn);
 
 

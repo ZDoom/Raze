@@ -362,7 +362,7 @@ int spawn_r(int j, int pn)
 				sp->z -= (16<<8);
 				if(j >= 0 && spj->pal == 6)
 					sp->pal = 6;
-				insertspriteq(i);
+				insertspriteq(&hittype[i]);
 				changespritestat(i, STAT_MISC);
 				break;
 
@@ -576,7 +576,7 @@ int spawn_r(int j, int pn)
 			case BULLETHOLE:
 				sp->xrepeat = sp->yrepeat = 3;
 				sp->cstat = 16+(krand()&12);
-				insertspriteq(i);
+				insertspriteq(&hittype[i]);
 			case MONEY:
 				if(sp->picnum == MONEY)
 				{

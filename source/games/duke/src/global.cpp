@@ -106,7 +106,7 @@ int16_t cloudx;
 int16_t cloudy;
 int cloudclock;
 
-int16_t spriteq[1024];
+DDukeActor *spriteq[1024];
 int16_t cyclers[MAXCYCLERS][6];
 int16_t mirrorsector[64];
 int16_t mirrorwall[64];

@@ -99,7 +99,7 @@ extern int16_t cloudx;
 extern int16_t cloudy;
 extern int cloudclock;
 
-extern int16_t spriteq[1024];
+extern DDukeActor *spriteq[1024];
 extern int16_t cyclers[MAXCYCLERS][6];
 extern int16_t mirrorsector[64];
 extern int16_t mirrorwall[64];

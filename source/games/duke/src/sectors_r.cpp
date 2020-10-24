@@ -1076,7 +1076,7 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 			s = &sprite[jj];
 			if (s->lotag == 6)
 			{
-				for (j = 0; j < 16; j++) RANDOMSCRAP(s, -1);
+				//for (j = 0; j < 16; j++) RANDOMSCRAP(s, -1); This never spawned anything due to the -1.
 				hittype[jj].spriteextra++;
 				if (hittype[jj].spriteextra == 25)
 				{

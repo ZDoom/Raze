@@ -240,16 +240,21 @@ int ssp(DDukeActor* const actor, unsigned int cliptype) //The set sprite functio
 //
 //---------------------------------------------------------------------------
 
-void insertspriteq(int i)
+void insertspriteq(DDukeActor* const actor)
 {
 	if (spriteqamount > 0)
 	{
-		if (spriteq[spriteqloc] >= 0)
-			sprite[spriteq[spriteqloc]].xrepeat = 0;
-		spriteq[spriteqloc] = i;
+		if (spriteq[spriteqloc] != nullptr)
+		{
+			// Why is this not deleted here?
+			// Also todo: Make list size a CVAR.
+			spriteq[spriteqloc]->s.xrepeat = 0;
+			// deletesprite(spriteq[spriteqloc]);
+		}
+		spriteq[spriteqloc] = actor;
 		spriteqloc = (spriteqloc + 1) % spriteqamount;
 	}
-	else sprite[i].xrepeat = sprite[i].yrepeat = 0;
+	else actor->s.xrepeat = actor->s.yrepeat = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -264,7 +269,6 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 	for (int i = n; i > 0; i--)
 	{
 		int r1 = krand(), r2 = krand();	// using the RANDCORRECT version from RR.
-		// TRANSITIONAL RedNukem sets the spawner as owner.
 		auto j = EGS(s->sectnum, s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, actor, 5);
 		j->s.cstat = krand() & 12;
 	}
@@ -2217,7 +2221,7 @@ bool money(int i, int BLOODPOOL)
 	{
 		s->z = l;
 
-		insertspriteq(i);
+		insertspriteq(&hittype[i]);
 		sprite[i].picnum++;
 
 		StatIterator it(STAT_MISC);
@@ -2379,7 +2383,7 @@ bool bloodpool(int i, bool puke, int TIRE)
 			deletesprite(i);
 			return false;
 		}
-		else insertspriteq(i);
+		else insertspriteq(&hittype[i]);
 	}
 
 	makeitfall(i);
