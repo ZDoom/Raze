@@ -29,7 +29,7 @@ void movefx();
 void moveclouds(double smoothratio);
 
 void RANDOMSCRAP(DDukeActor* i);
-void ms(short i);
+void ms(DDukeActor* i);
 void movecrane(int i, int crane);
 void movefountain(int i, int fountain);
 void moveflammable(int i, int tire, int box, int pool);

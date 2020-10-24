@@ -235,6 +235,11 @@ inline int movesprite_ex(DDukeActor* actor, int xchange, int ychange, int zchang
 	return f(actor, xchange, ychange, zchange, cliptype, result);
 }
 
+inline void ms(short i)
+{
+	ms(&hittype[i]);
+}
+
 
 
 END_DUKE_NS

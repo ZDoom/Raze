@@ -280,19 +280,19 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 //
 //---------------------------------------------------------------------------
 
-void ms(short i)
+void ms(DDukeActor* const actor)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
 
 	short startwall, endwall, x;
 	int tx, ty;
-	auto s = &sprite[i];
+	auto s = &actor->s;
 
 	s->x += (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14;
 	s->y += (s->xvel * (sintable[s->ang & 2047])) >> 14;
 
-	int j = hittype[i].temp_data[1];
-	int k = hittype[i].temp_data[2];
+	int j = actor->temp_data[1];
+	int k = actor->temp_data[2];
 
 	startwall = sector[s->sectnum].wallptr;
 	endwall = startwall + sector[s->sectnum].wallnum;
