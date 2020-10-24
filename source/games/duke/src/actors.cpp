@@ -366,7 +366,7 @@ void movedummyplayers(void)
 	while ((i = iti.NextIndex()) >= 0)
 	{
 		auto spri = &sprite[i];
-		auto hti = &hittype[i];
+		auto act = &hittype[i];
 		p = sprite[spri->owner].yvel;
 
 		if ((!isRR() && ps[p].on_crane != nullptr) || sector[ps[p].cursectnum].lotag != 1 || sprite[ps[p].i].extra <= 0)
@@ -382,9 +382,9 @@ void movedummyplayers(void)
 				spri->cstat = CSTAT_SPRITE_BLOCK_ALL;
 				spri->z = sector[spri->sectnum].ceilingz + (27 << 8);
 				spri->ang = ps[p].angle.ang.asbuild();
-				if (hti->temp_data[0] == 8)
-					hti->temp_data[0] = 0;
-				else hti->temp_data[0]++;
+				if (act->temp_data[0] == 8)
+					act->temp_data[0] = 0;
+				else act->temp_data[0]++;
 			}
 			else
 			{
@@ -413,35 +413,35 @@ void moveplayers(void) //Players
 	StatIterator iti(STAT_PLAYER);
 	while ((i = iti.NextIndex()) >= 0)
 	{
-		auto s = &sprite[i];
-		auto ht = &hittype[i];
-		auto p = &ps[s->yvel];
-		if (s->owner >= 0)
+		auto spri = &sprite[i];
+		auto act = &hittype[i];
+		auto p = &ps[spri->yvel];
+		if (spri->owner >= 0)
 		{
 			if (p->newowner >= 0) //Looking thru the camera
 			{
-				s->x = p->oposx;
-				s->y = p->oposy;
-				ht->bposz = s->z = p->oposz + PHEIGHT;
-				s->ang = p->angle.oang.asbuild();
-				setsprite(i, s->x, s->y, s->z);
+				spri->x = p->oposx;
+				spri->y = p->oposy;
+				act->bposz = spri->z = p->oposz + PHEIGHT;
+				spri->ang = p->angle.oang.asbuild();
+				setsprite(i, spri->x, spri->y, spri->z);
 			}
 			else
 			{
 				if (ud.multimode > 1)
-					otherp = findotherplayer(s->yvel, &otherx);
+					otherp = findotherplayer(spri->yvel, &otherx);
 				else
 				{
-					otherp = s->yvel;
+					otherp = spri->yvel;
 					otherx = 0;
 				}
 
-				execute(i, s->yvel, otherx);
+				execute(i, spri->yvel, otherx);
 
 				if (ud.multimode > 1)
 					if (sprite[ps[otherp].i].extra > 0)
 					{
-						if (s->yrepeat > 32 && sprite[ps[otherp].i].yrepeat < 32)
+						if (spri->yrepeat > 32 && sprite[ps[otherp].i].yrepeat < 32)
 						{
 							if (otherx < 1400 && p->knee_incs == 0)
 							{
@@ -454,8 +454,8 @@ void moveplayers(void) //Players
 
 				if (ud.god)
 				{
-					s->extra = max_player_health;
-					s->cstat = 257;
+					spri->extra = max_player_health;
+					spri->cstat = 257;
 					if (!isWW2GI() && !isRR())
 						p->jetpack_amount = 1599;
 				}
@@ -465,21 +465,21 @@ void moveplayers(void) //Players
 					p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), gethiq16angle(p->actorsqu->s.x - p->posx, p->actorsqu->s.y - p->posy)) >> 2));
 				}
 
-				if (s->extra > 0)
+				if (spri->extra > 0)
 				{
 					// currently alive...
 
-					ht->owner = i;
+					act->owner = i;
 
 					if (ud.god == 0)
-						if (fi.ceilingspace(s->sectnum) || fi.floorspace(s->sectnum))
+						if (fi.ceilingspace(spri->sectnum) || fi.floorspace(spri->sectnum))
 							quickkill(p);
 				}
 				else
 				{
-					p->posx = s->x;
-					p->posy = s->y;
-					p->posz = s->z - (20 << 8);
+					p->posx = spri->x;
+					p->posy = spri->y;
+					p->posz = spri->z - (20 << 8);
 
 					p->newowner = -1;
 
@@ -488,7 +488,7 @@ void moveplayers(void) //Players
 						p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), gethiq16angle(p->wackedbyactor->s.x - p->posx, p->wackedbyactor->s.y - p->posy)) >> 1));
 					}
 				}
-				s->ang = p->angle.ang.asbuild();
+				spri->ang = p->angle.ang.asbuild();
 			}
 		}
 		else
@@ -499,49 +499,49 @@ void moveplayers(void) //Players
 				continue;
 			}
 
-			ht->bposx = s->x;
-			ht->bposy = s->y;
-			ht->bposz = s->z;
+			act->bposx = spri->x;
+			act->bposy = spri->y;
+			act->bposz = spri->z;
 
-			s->cstat = 0;
+			spri->cstat = 0;
 
-			if (s->xrepeat < 42)
+			if (spri->xrepeat < 42)
 			{
-				s->xrepeat += 4;
-				s->cstat |= 2;
+				spri->xrepeat += 4;
+				spri->cstat |= 2;
 			}
-			else s->xrepeat = 42;
-			if (s->yrepeat < 36)
-				s->yrepeat += 4;
+			else spri->xrepeat = 42;
+			if (spri->yrepeat < 36)
+				spri->yrepeat += 4;
 			else
 			{
-				s->yrepeat = 36;
-				if (sector[s->sectnum].lotag != ST_2_UNDERWATER)
+				spri->yrepeat = 36;
+				if (sector[spri->sectnum].lotag != ST_2_UNDERWATER)
 					makeitfall(i);
-				if (s->zvel == 0 && sector[s->sectnum].lotag == ST_1_ABOVE_WATER)
-					s->z += (32 << 8);
+				if (spri->zvel == 0 && sector[spri->sectnum].lotag == ST_1_ABOVE_WATER)
+					spri->z += (32 << 8);
 			}
 
-			if (s->extra < 8)
+			if (spri->extra < 8)
 			{
-				s->xvel = 128;
-				s->ang = p->angle.ang.asbuild();
-				s->extra++;
+				spri->xvel = 128;
+				spri->ang = p->angle.ang.asbuild();
+				spri->extra++;
 				//IFMOVING;		// JBF 20040825: is really "if (ssp(i,CLIPMASK0)) ;" which is probably
 				ssp(i, CLIPMASK0);	// not the safest of ideas because a zealous optimiser probably sees
 							// it as redundant, so I'll call the "ssp(i,CLIPMASK0)" explicitly.
 			}
 			else
 			{
-				s->ang = 2047 - (p->angle.ang.asbuild());
-				setsprite(i, s->x, s->y, s->z);
+				spri->ang = 2047 - (p->angle.ang.asbuild());
+				setsprite(i, spri->x, spri->y, spri->z);
 			}
 		}
 
-		if (sector[s->sectnum].ceilingstat & 1)
-			s->shade += (sector[s->sectnum].ceilingshade - s->shade) >> 1;
+		if (sector[spri->sectnum].ceilingstat & 1)
+			spri->shade += (sector[spri->sectnum].ceilingshade - spri->shade) >> 1;
 		else
-			s->shade += (sector[s->sectnum].floorshade - s->shade) >> 1;
+			spri->shade += (sector[spri->sectnum].floorshade - spri->shade) >> 1;
 	}
 }
 
