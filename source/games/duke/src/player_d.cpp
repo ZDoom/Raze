@@ -730,15 +730,16 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 		sy + (sintable[(sa + 348) & 2047] / 448),
 		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, i, 4);
 
-	sprite[j].extra += (krand() & 7);
+	auto spj = &sprite[j];
+	spj->extra += (krand() & 7);
 	if (atwith != FREEZEBLAST)
-		sprite[j].yvel = l;
+		spj->yvel = l;
 	else
 	{
-		sprite[j].yvel = numfreezebounces;
-		sprite[j].xrepeat >>= 1;
-		sprite[j].yrepeat >>= 1;
-		sprite[j].zvel -= (2 << 4);
+		spj->yvel = numfreezebounces;
+		spj->xrepeat >>= 1;
+		spj->yrepeat >>= 1;
+		spj->zvel -= (2 << 4);
 	}
 
 	if (p == -1)
@@ -764,12 +765,12 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 				aoffs *= siz;
 			}
 
-			sprite[j].x += xoffs;
-			sprite[j].y += yoffs;
-			sprite[j].ang += aoffs;
+			spj->x += xoffs;
+			spj->y += yoffs;
+			spj->ang += aoffs;
 
-			sprite[j].xrepeat = 42;
-			sprite[j].yrepeat = 42;
+			spj->xrepeat = 42;
+			spj->yrepeat = 42;
 		}
 		else if (s->picnum == BOSS2)
 		{
@@ -784,50 +785,50 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 				aoffs = Scale(aoffs, siz, 80);
 			}
 
-			sprite[j].x -= xoffs;
-			sprite[j].y -= yoffs;
-			sprite[j].ang -= aoffs;
+			spj->x -= xoffs;
+			spj->y -= yoffs;
+			spj->ang -= aoffs;
 
-			sprite[j].x -= sintable[sa & 2047] / 56;
-			sprite[j].y -= sintable[(sa + 1024 + 512) & 2047] / 56;
-			sprite[j].ang -= 8 + (krand() & 255) - 128;
-			sprite[j].xrepeat = 24;
-			sprite[j].yrepeat = 24;
+			spj->x -= sintable[sa & 2047] / 56;
+			spj->y -= sintable[(sa + 1024 + 512) & 2047] / 56;
+			spj->ang -= 8 + (krand() & 255) - 128;
+			spj->xrepeat = 24;
+			spj->yrepeat = 24;
 
 
 		}
 		else if (atwith != FREEZEBLAST)
 		{
-			sprite[j].xrepeat = 30;
-			sprite[j].yrepeat = 30;
-			sprite[j].extra >>= 2;
+			spj->xrepeat = 30;
+			spj->yrepeat = 30;
+			spj->extra >>= 2;
 		}
 	}
 	else if ((isWW2GI() && aplWeaponWorksLike[ps[p].curr_weapon][p] == DEVISTATOR_WEAPON) || (!isWW2GI() && ps[p].curr_weapon == DEVISTATOR_WEAPON))
 	{
-		sprite[j].extra >>= 2;
-		sprite[j].ang += 16 - (krand() & 31);
-		sprite[j].zvel += 256 - (krand() & 511);
+		spj->extra >>= 2;
+		spj->ang += 16 - (krand() & 31);
+		spj->zvel += 256 - (krand() & 511);
 
 		if (ps[p].hbomb_hold_delay)
 		{
-			sprite[j].x -= sintable[sa & 2047] / 644;
-			sprite[j].y -= sintable[(sa + 1024 + 512) & 2047] / 644;
+			spj->x -= sintable[sa & 2047] / 644;
+			spj->y -= sintable[(sa + 1024 + 512) & 2047] / 644;
 		}
 		else
 		{
-			sprite[j].x += sintable[sa & 2047] >> 8;
-			sprite[j].y += sintable[(sa + 1024 + 512) & 2047] >> 8;
+			spj->x += sintable[sa & 2047] >> 8;
+			spj->y += sintable[(sa + 1024 + 512) & 2047] >> 8;
 		}
-		sprite[j].xrepeat >>= 1;
-		sprite[j].yrepeat >>= 1;
+		spj->xrepeat >>= 1;
+		spj->yrepeat >>= 1;
 	}
 
-	sprite[j].cstat = 128;
+	spj->cstat = 128;
 	if (atwith == RPG)
-		sprite[j].clipdist = 4;
+		spj->clipdist = 4;
 	else
-		sprite[j].clipdist = 40;
+		spj->clipdist = 40;
 
 }
 
