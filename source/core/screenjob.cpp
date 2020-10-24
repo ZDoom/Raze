@@ -486,13 +486,27 @@ public:
 //
 //---------------------------------------------------------------------------
 
+struct AudioData
+{
+	int hFx;
+	SmackerAudioInfo inf;
+
+	int16_t samples[6000 * 20]; // must be a multiple of the stream buffer size and larger than the initial chunk of audio
+
+	int nWrite;
+	int nRead;
+};
+
 class DSmkPlayer : public DScreenJob
 {
 	SmackerHandle hSMK{};
+	int numAudioTracks;
+	AudioData adata;
 	uint32_t nWidth, nHeight;
 	uint8_t palette[768];
 	AnimTextures animtex;
 	TArray<uint8_t> pFrame;
+	TArray<uint8_t> audioBuffer;
 	int nFrameRate;
 	int nFrames;
 	bool fullscreenScale;
@@ -500,9 +514,39 @@ class DSmkPlayer : public DScreenJob
 	int nFrame = 0;
 	const AnimSound* animSnd;
 	FString filename;
+	SoundStream* stream = nullptr;
 
 public:
 	bool isvalid() { return hSMK.isValid; }
+
+	static bool StreamCallbackFunc(SoundStream* stream, void* buff, int len, void* userdata)
+	{
+		DSmkPlayer* pId = (DSmkPlayer*)userdata;
+		memcpy(buff, &pId->adata.samples[pId->adata.nRead], len);
+		pId->adata.nRead += len / 2;
+		if (pId->adata.nRead >= countof(pId->adata.samples)) pId->adata.nRead = 0;
+		return true;
+	}
+
+	void copy8bitSamples(unsigned count)
+	{
+		for (unsigned i = 0; i < count; i++)
+		{
+			adata.samples[adata.nWrite] = (audioBuffer[i] - 128) << 8;
+			if (++adata.nWrite >= countof(adata.samples)) adata.nWrite = 0;
+		}
+	}
+
+	void copy16bitSamples(unsigned count)
+	{
+		auto ptr = (uint16_t*)audioBuffer.Data();
+		for (unsigned i = 0; i < count/2; i++)
+		{
+			adata.samples[adata.nWrite] = *ptr++;
+			if (++adata.nWrite >= countof(adata.samples)) adata.nWrite = 0;
+		}
+	}
+
 
 	DSmkPlayer(const char *fn, const AnimSound* ans, bool fixedviewport)
 	{
@@ -518,7 +562,30 @@ public:
 		nFrames = Smacker_GetNumFrames(hSMK);
 		Smacker_GetPalette(hSMK, palette);
 		fullscreenScale = (!fixedviewport || (nWidth <= 320 && nHeight <= 200) || nWidth >= 640 || nHeight >= 480);
-		animSnd = ans;
+
+		bool hassound = false;
+		numAudioTracks = Smacker_GetNumAudioTracks(hSMK);
+		if (numAudioTracks)
+		{
+			adata.nWrite = 0;
+			adata.nRead = 0;
+			adata.inf = Smacker_GetAudioTrackDetails(hSMK, 0);
+			if (adata.inf.idealBufferSize > 0)
+			{
+				audioBuffer.Resize(adata.inf.idealBufferSize);
+				auto read = Smacker_GetAudioData(hSMK, 0, (int16_t*)audioBuffer.Data());
+				if (adata.inf.bitsPerSample == 8) copy8bitSamples(read);
+				else copy16bitSamples(read);
+				animSnd = nullptr;
+				hassound = true;
+			}
+		}
+		if (!hassound)
+		{
+			adata.inf = {};
+			animSnd = ans;
+		}
+
 	}
 
 	//---------------------------------------------------------------------------
@@ -541,6 +608,16 @@ public:
 			Smacker_GetPalette(hSMK, palette);
 			Smacker_GetFrame(hSMK, pFrame.Data());
 			animtex.SetFrame(palette, pFrame.Data());
+			if (numAudioTracks)
+			{
+				auto read = Smacker_GetAudioData(hSMK, 0, (int16_t*)audioBuffer.Data());
+				if (adata.inf.bitsPerSample == 8) copy8bitSamples(read);
+				else copy16bitSamples(read);
+				if (!stream && read) // the sound may not start in the first frame, but the stream cannot start without any sound data present.
+					stream = S_CreateCustomStream(6000, adata.inf.sampleRate, adata.inf.nChannels, StreamCallbackFunc, this);
+
+			}
+
 		}
 		if (fullscreenScale)
 		{
@@ -554,7 +631,7 @@ public:
 		{
 			nFrame++;
 			Smacker_GetNextFrame(hSMK);
-			for (int i = 0; animSnd[i].framenum >= 0; i++)
+			if (animSnd) for (int i = 0; animSnd[i].framenum >= 0; i++)
 			{
 				if (animSnd[i].framenum == nFrame)
 				{
@@ -573,6 +650,7 @@ public:
 	void OnDestroy() override
 	{
 		Smacker_Close(hSMK);
+		if (stream) S_StopCustomStream(stream);
 		soundEngine->StopAllChannels();
 		animtex.Clean();
 	}
