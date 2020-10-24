@@ -91,7 +91,7 @@ void handle_se35(int i, int SMALLSMOKE, int EXPLOSION2);
 void handle_se128(int i);
 void handle_se130(int i, int countmax, int EXPLOSION2);
 
-void respawn_rrra(int i, int j);
+void respawn_rrra(DDukeActor* oldact, DDukeActor* newact);
 
 int dodge(spritetype*);
 void alterang(int a, int g_i, int g_p);

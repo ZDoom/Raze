@@ -552,28 +552,26 @@ void moveplayers(void)
 
 void movefx(void)
 {
-	int i, j, p;
+	int p;
 	int x, ht;
 
-	StatIterator iti(STAT_FX);
-	while ((i = iti.NextIndex()) >= 0)
+	DukeStatIterator iti(STAT_FX);
+	while (auto act = iti.Next())
 	{
-		auto spri = &sprite[i];
-		auto act = &hittype[i];
-
+		auto spri = &act->s;
 		switch (spri->picnum)
 		{
 		case RESPAWN:
 			if (spri->extra == 66)
 			{
-				j = fi.spawn(i, spri->hitag);
+				auto j = spawn(act, spri->hitag);
 				if (isRRRA())
 				{
-					respawn_rrra(i, j);
+					respawn_rrra(act, j);
 				}
 				else
 				{
-					deletesprite(i);
+					deletesprite(act);
 				}
 			}
 			else if (spri->extra > (66 - 13))
@@ -592,7 +590,7 @@ void movefx(void)
 
 			if (spri->lotag >= 1000 && spri->lotag < 2000)
 			{
-				x = ldist(&sprite[ps[screenpeek].i], spri);
+				x = ldist(ps[screenpeek].GetActor(), act);
 				if (x < ht && act->temp_data[0] == 0)
 				{
 					FX_SetReverb(spri->lotag - 1000);
@@ -607,21 +605,21 @@ void movefx(void)
 			}
 			else if (spri->lotag < 999 && (unsigned)sector[spri->sectnum].lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && sector[spri->sectnum].floorz != sector[spri->sectnum].ceilingz)
 			{
-				auto flags = S_GetUserFlags(spri->lotag);
+				int flags = S_GetUserFlags(spri->lotag);
 				if (flags & SF_MSFX)
 				{
-					int x = dist(&sprite[ps[screenpeek].i], spri);
+					int x = dist(ps[screenpeek].GetActor(), act);
 
 					if (x < ht && act->temp_data[0] == 0)
 					{
 						// Start playing an ambience sound.
-						S_PlayActorSound(spri->lotag, i, CHAN_AUTO, CHANF_LOOP);
+						S_PlayActorSound(spri->lotag, act, CHAN_AUTO, CHANF_LOOP);
 						act->temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
 					}
 					else if (x >= ht && act->temp_data[0] == 1)
 					{
 						// Stop playing ambience sound because we're out of its range.
-						S_StopSound(spri->lotag, i);
+						S_StopSound(spri->lotag, act);
 					}
 				}
 

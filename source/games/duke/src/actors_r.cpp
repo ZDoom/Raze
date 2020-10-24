@@ -784,10 +784,10 @@ int ifhitbyweapon_r(int sn)
 //
 //---------------------------------------------------------------------------
 
-void respawn_rrra(int i, int j)
+void respawn_rrra(DDukeActor* oldact, DDukeActor* newact)
 {
-	auto newspr = &sprite[j];
-	newspr->pal = sprite[i].pal;
+	auto newspr = &newact->s;
+	newspr->pal = oldact->s.pal;
 	if (newspr->picnum == MAMA)
 	{
 		if (newspr->pal == 30)
@@ -823,10 +823,10 @@ void respawn_rrra(int i, int j)
 
 	if (newspr->pal != 6)
 	{
-		deletesprite(i);
+		deletesprite(oldact);
 		return;
 	}
-	sprite[i].extra = (66 - 13);
+	oldact->s.extra = (66 - 13);
 	newspr->pal = 0;
 }
 
