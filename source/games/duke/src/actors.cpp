@@ -1404,7 +1404,7 @@ void movetongue(int i, int tongue, int jaw)
 //
 //---------------------------------------------------------------------------
 
-void rpgexplode(int i, int j, const vec3_t &pos, int EXPLOSION2, int newextra, int playsound)
+void rpgexplode(int i, int j, const vec3_t &pos, int EXPLOSION2, int EXPLOSION2BOT, int newextra, int playsound)
 {
 	auto act = &hittype[i];
 	auto s = &act->s;
@@ -1418,8 +1418,13 @@ void rpgexplode(int i, int j, const vec3_t &pos, int EXPLOSION2, int newextra, i
 	}
 	else if ((j & kHitTypeMask) == kHitSector)
 	{
-		k->s.cstat |= 8;
-		k->s.z += (48 << 8);
+		if (s->zvel > 0 && EXPLOSION2BOT >= 0)
+			fi.spawn(i, EXPLOSION2BOT);
+		else
+		{
+			k->s.cstat |= 8;
+			k->s.z += (48 << 8);
+		}
 	}
 	if (newextra > 0) s->extra = newextra;
 	S_PlayActorSound(playsound, i);

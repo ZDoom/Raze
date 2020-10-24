@@ -1528,9 +1528,9 @@ static void weaponcommon_r(int i)
 
 		if (s->picnum != SPIT)
 		{
-			if (s->picnum == RPG) rpgexplode(i, j, oldpos, EXPLOSION2, -1, RPG_EXPLODE);
-			else if (isRRRA() && s->picnum == RPG2) rpgexplode(i, j, oldpos, EXPLOSION2, 150, 247);
-			else if (isRRRA() && s->picnum == RRTILE1790) rpgexplode(i, j, oldpos, EXPLOSION2, 160, RPG_EXPLODE);
+			if (s->picnum == RPG) rpgexplode(i, j, oldpos, EXPLOSION2, -1, -1, RPG_EXPLODE);
+			else if (isRRRA() && s->picnum == RPG2) rpgexplode(i, j, oldpos, EXPLOSION2, -1, 150, 247);
+			else if (isRRRA() && s->picnum == RRTILE1790) rpgexplode(i, j, oldpos, EXPLOSION2, -1, 160, RPG_EXPLODE);
 			else if (s->picnum != FREEZEBLAST && s->picnum != FIRELASER && s->picnum != SHRINKSPARK)
 			{
 				k = fi.spawn(i, 1441);

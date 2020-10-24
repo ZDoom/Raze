@@ -1944,7 +1944,7 @@ static void weaponcommon_d(int i)
 			if (s->picnum == RPG)
 			{
 				// j is only needed for the hit type mask.
-				rpgexplode(i, j, oldpos, EXPLOSION2, -1, RPG_EXPLODE);
+				rpgexplode(i, j, oldpos, EXPLOSION2, EXPLOSION2BOT, -1, RPG_EXPLODE);
 			}
 			else if (s->picnum == SHRINKSPARK)
 			{
