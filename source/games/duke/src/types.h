@@ -278,5 +278,59 @@ struct player_struct
 
 };
 
+// Wrapper around the insane collision info mess from Build.
+struct Collision
+{
+	int type;
+	int index;
+	int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
+	DDukeActor* actor;
+
+	int setNone()
+	{
+		type = kHitNone;
+		index = -1;
+		legacyVal = 0;
+		actor = nullptr;
+		return kHitNone;
+	}
+
+	int setSector(int num)
+	{
+		type = kHitSector;
+		index = num;
+		legacyVal = type | index;
+		actor = nullptr;
+		return kHitSector;
+	}
+	int setWall(int num)
+	{
+		type = kHitWall;
+		index = num;
+		legacyVal = type | index;
+		actor = nullptr;
+		return kHitWall;
+	}
+	int setSprite(DDukeActor* num)
+	{
+		type = kHitSprite;
+		index = -1;
+		legacyVal = type | int(num - hittype);
+		actor = num;
+		return kHitSprite;
+	}
+
+	int setFromEngine(int value)
+	{
+		legacyVal = value;
+		type = value & kHitTypeMask;
+		if (type == 0) { index = -1; actor = nullptr; }
+		else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
+		else { index = -1; actor = &hittype[value & kHitIndexMask]; }
+		return type;
+	}
+};
+
+
 
 END_DUKE_NS

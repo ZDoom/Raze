@@ -538,13 +538,14 @@ SKIPWALLCHECK:
 //
 //---------------------------------------------------------------------------
 
-int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype)
+
+int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision &result)
 {
 	int daz, h, oldx, oldy;
 	short retval, dasectnum, cd;
 
-	auto spri = &sprite[spritenum];
-	int bg = badguy(spri);
+	auto spri = &actor->s;
+	int bg = badguy(actor);
 
 	if (spri->statnum == 5 || (bg && spri->xrepeat < 4))
 	{
@@ -552,14 +553,14 @@ int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigne
 		spri->y += (ychange * TICSPERFRAME) >> 2;
 		spri->z += (zchange * TICSPERFRAME) >> 2;
 		if (bg)
-			setsprite(spritenum, spri->x, spri->y, spri->z);
-		return 0;
+			setsprite(actor, spri->x, spri->y, spri->z);
+		return result.setNone();
 	}
 
 	dasectnum = spri->sectnum;
 
 	daz = spri->z;
-	h = ((tilesiz[spri->picnum].y * spri->yrepeat) << 1);
+	h = ((tileHeight(spri->picnum) * spri->yrepeat) << 1);
 	daz -= h;
 
 	if (bg)
@@ -573,7 +574,7 @@ int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigne
 		{
 			if (spri->picnum == LIZMAN)
 				cd = 292;
-			else if (actorflag(spritenum, SFLAG_BADGUY))
+			else if (actorflag(actor->GetIndex(), SFLAG_BADGUY))
 				cd = spri->clipdist << 2;
 			else
 				cd = 192;
@@ -583,7 +584,7 @@ int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigne
 
 		// conditional code from hell...
 		if (dasectnum < 0 || (dasectnum >= 0 &&
-			((hittype[spritenum].actorstayput >= 0 && hittype[spritenum].actorstayput != dasectnum) ||
+			((actor->actorstayput >= 0 && actor->actorstayput != dasectnum) ||
 			 ((spri->picnum == BOSS2) && spri->pal == 0 && sector[dasectnum].lotag != 3) ||
 			 ((spri->picnum == BOSS1 || spri->picnum == BOSS2) && sector[dasectnum].lotag == ST_1_ABOVE_WATER) ||
 			 (sector[dasectnum].lotag == ST_1_ABOVE_WATER && (spri->picnum == LIZMAN || (spri->picnum == LIZTROOP && spri->zvel == 0)))
@@ -594,17 +595,17 @@ int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigne
 			spri->y = oldy;
 			if (sector[dasectnum].lotag == ST_1_ABOVE_WATER && spri->picnum == LIZMAN)
 				spri->ang = (krand()&2047);
-			else if ((hittype[spritenum].temp_data[0]&3) == 1 && spri->picnum != COMMANDER)
+			else if ((actor->temp_data[0]&3) == 1 && spri->picnum != COMMANDER)
 				spri->ang = (krand()&2047);
-			setsprite(spritenum,oldx,oldy,spri->z);
+			setsprite(actor,oldx,oldy,spri->z);
 			if (dasectnum < 0) dasectnum = 0;
-			return (16384+dasectnum);
+			return result.setSector(dasectnum);
 		}
-		if ((retval&49152) >= 32768 && (hittype[spritenum].cgg==0)) spri->ang += 768;
+		if ((retval & kHitTypeMask) != kHitSector && (actor->cgg == 0)) spri->ang += 768;
 	}
 	else
 	{
-		if (spri->statnum == 4)
+		if (spri->statnum == STAT_PROJECTILE)
 			retval =
 			clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8L, (4 << 8), (4 << 8), cliptype);
 		else
@@ -614,17 +615,15 @@ int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigne
 
 	if (dasectnum >= 0)
 		if ((dasectnum != spri->sectnum))
-			changespritesect(spritenum, dasectnum);
+			changespritesect(actor, dasectnum);
 	daz = spri->z + ((zchange * TICSPERFRAME) >> 3);
-	if ((daz > hittype[spritenum].ceilingz) && (daz <= hittype[spritenum].floorz))
+	if ((daz > actor->ceilingz) && (daz <= actor->floorz))
 		spri->z = daz;
-	else
-		if (retval == 0)
-			return(16384 + dasectnum);
+	else if (retval == 0)
+		return result.setSector(dasectnum);
 
-	return(retval);
+	return result.setFromEngine(retval);
 }
-
 //---------------------------------------------------------------------------
 //
 //

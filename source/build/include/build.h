@@ -926,12 +926,14 @@ extern void(*PolymostProcessVoxels_Callback)(void);
 // Names taken from DukeGDX
 enum EHitBits
 {
+    kHitNone = 0,
     kHitTypeMask = 0xE000,
     kHitIndexMask = 0x1FFF,
     kHitSector = 0x4000,
     kHitWall = 0x8000,
     kHitSprite = 0xC000,
 };
+
 
 #include "iterators.h"
 

@@ -226,14 +226,12 @@ void clearcamera(player_struct* ps)
 
 int ssp(DDukeActor* const actor, unsigned int cliptype) //The set sprite function
 {
-	int movetype;
+	Collision c;
 
-	movetype = fi.movesprite(actor->GetIndex(),
+	return movesprite_ex(actor,
 		(actor->s.xvel * (sintable[(actor->s.ang + 512) & 2047])) >> 14,
 		(actor->s.xvel * (sintable[actor->s.ang & 2047])) >> 14, actor->s.zvel,
-		cliptype);
-
-	return (movetype == 0);
+		cliptype, c) == kHitNone;
 }
 
 //---------------------------------------------------------------------------

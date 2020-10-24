@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ns.h"
 #include "global.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 
@@ -65,8 +66,6 @@ void addweapon_d(struct player_struct* p, int weapon);
 void addweapon_r(struct player_struct* p, int weapon);
 void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 void hitradius_r(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
-int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
-int movesprite_r(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
 void lotsofmoney_d(spritetype* s, short n);
 void lotsofmail_d(spritetype* s, short n);
 void lotsofpaper_d(spritetype* s, short n);
