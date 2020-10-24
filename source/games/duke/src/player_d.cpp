@@ -840,12 +840,12 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 //
 //---------------------------------------------------------------------------
 
-static void shootlaser(int i, int p, int sx, int sy, int sz, int sa)
+static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
-	spritetype* const s = &sprite[i];
+	spritetype* const s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall, j, k;
+	short hitsect, hitwall, j;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
 
@@ -875,7 +875,7 @@ static void shootlaser(int i, int p, int sx, int sy, int sz, int sa)
 
 	if (j == 1)
 	{
-		k = EGS(hitsect, hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, i, 6);
+		auto bomb = EGS(hitsect, hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, 6);
 		if (isWW2GI())
 		{
 			int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1);
@@ -884,18 +884,18 @@ static void shootlaser(int i, int p, int sx, int sy, int sz, int sa)
 				int lLifetime = GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, p);
 				int lLifetimeVar = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, p);
 				// set timer.  blows up when at zero....
-				sprite[k].extra = lLifetime
+				bomb->s.extra = lLifetime
 					+ mulscale(krand(), lLifetimeVar, 14)
 					- lLifetimeVar;
 			}
 		}
 
-		sprite[k].hitag = k;
-		S_PlayActorSound(LASERTRIP_ONWALL, k);
-		sprite[k].xvel = -20;
-		ssp(k, CLIPMASK0);
-		sprite[k].cstat = 16;
-		hittype[k].temp_data[5] = sprite[k].ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) - 512;
+		bomb->s.hitag = bomb->GetIndex();	// sigh...
+		S_PlayActorSound(LASERTRIP_ONWALL, bomb);
+		bomb->s.xvel = -20;
+		ssp(bomb, CLIPMASK0);
+		bomb->s.cstat = 16;
+		bomb->temp_data[5] = bomb->s.ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) - 512;
 
 		if (p >= 0)
 			ps[p].ammo_amount[TRIPBOMB_WEAPON]--;
@@ -908,9 +908,8 @@ static void shootlaser(int i, int p, int sx, int sy, int sz, int sa)
 //
 //---------------------------------------------------------------------------
 
-static void shootgrowspark(int i, int p, int sx, int sy, int sz, int sa)
+static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
-	auto actor = &hittype[i];
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
@@ -955,7 +954,7 @@ static void shootgrowspark(int i, int p, int sx, int sy, int sz, int sa)
 		int x;
 		int j = findplayer(s, &x);
 		sz -= (4 << 8);
-		zvel = ((ps[j].posz - sz) << 8) / (ldist(&sprite[ps[j].i], s));
+		zvel = ((ps[j].posz - sz) << 8) / (ldist(ps[p].GetActor(), actor));
 		zvel += 128 - (krand() & 255);
 		sa += 32 - (krand() & 63);
 	}
@@ -965,28 +964,26 @@ static void shootgrowspark(int i, int p, int sx, int sy, int sz, int sa)
 	//            RESHOOTGROW:
 
 	s->cstat &= ~257;
-	hitscan(sx, sy, sz, sect,
-		sintable[(sa + 512) & 2047],
-		sintable[sa & 2047],
+	hitscan(sx, sy, sz, sect, sintable[(sa + 512) & 2047], sintable[sa & 2047],
 		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	s->cstat |= 257;
 
-	int j = EGS(sect, hitx, hity, hitz, GROWSPARK, -16, 28, 28, sa, 0, 0, i, 1);
+	auto spark = EGS(sect, hitx, hity, hitz, GROWSPARK, -16, 28, 28, sa, 0, 0, actor, 1);
 
-	sprite[j].pal = 2;
-	sprite[j].cstat |= 130;
-	sprite[j].xrepeat = sprite[j].yrepeat = 1;
+	spark->s.pal = 2;
+	spark->s.cstat |= 130;
+	spark->s.xrepeat = spark->s.yrepeat = 1;
 
 	if (hitwall == -1 && hitsprt == nullptr && hitsect >= 0)
 	{
 		if (zvel < 0 && (sector[hitsect].ceilingstat & 1) == 0)
 			fi.checkhitceiling(hitsect);
 	}
-	else if (hitsprt != nullptr) fi.checkhitsprite(hitsprt->GetIndex(), j);
+	else if (hitsprt != nullptr) fi.checkhitsprite(hitsprt->GetIndex(), spark->GetIndex());
 	else if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
 	{
-		fi.checkhitwall(j, hitwall, hitx, hity, hitz, GROWSPARK);
+		fi.checkhitwall(spark->GetIndex(), hitwall, hitx, hity, hitz, GROWSPARK);
 	}
 }
 
@@ -1111,7 +1108,7 @@ void shoot_d(int i, int atwith)
 		break;
 
 	case HANDHOLDINGLASER:
-		shootlaser(i, p, sx, sy, sz, sa);
+		shootlaser(actor, p, sx, sy, sz, sa);
 		return;
 
 	case BOUNCEMINE:
@@ -1135,7 +1132,7 @@ void shoot_d(int i, int atwith)
 		break;
 
 	case GROWSPARK:
-		shootgrowspark(i, p, sx, sy, sz, sa);
+		shootgrowspark(actor, p, sx, sy, sz, sa);
 		break;
 
 	case SHRINKER:
