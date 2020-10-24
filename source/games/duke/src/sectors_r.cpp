@@ -1537,7 +1537,7 @@ void checkhitsprite_r(int i, int sn)
 		break;
 	case RRTILE8487:
 	case RRTILE8489:
-		S_PlayActorSound(471, i);
+		S_PlayActorSound(471, targ);
 		s->picnum++;
 		break;
 	case RRTILE7638:
@@ -1551,11 +1551,11 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE7881:
 	case RRTILE7883:
 		s->picnum++;
-		S_PlayActorSound(VENT_BUST, i);
+		S_PlayActorSound(VENT_BUST, targ);
 		break;
 	case RRTILE7879:
 		s->picnum++;
-		S_PlayActorSound(495, i);
+		S_PlayActorSound(495, targ);
 		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7648:
@@ -1564,120 +1564,120 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE7702:
 	case RRTILE7711:
 		s->picnum++;
-		S_PlayActorSound(47, i);
+		S_PlayActorSound(47, targ);
 		break;
 	case RRTILE7636:
 		s->picnum += 3;
-		S_PlayActorSound(VENT_BUST, i);
+		S_PlayActorSound(VENT_BUST, targ);
 		break;
 	case RRTILE7875:
 		s->picnum += 3;
-		S_PlayActorSound(VENT_BUST, i);
+		S_PlayActorSound(VENT_BUST, targ);
 		break;
 	case RRTILE7640:
 		s->picnum += 2;
-		S_PlayActorSound(VENT_BUST, i);
+		S_PlayActorSound(VENT_BUST, targ);
 		break;
 	case RRTILE7595:
 	case RRTILE7704:
 		s->picnum = RRTILE7705;
-		S_PlayActorSound(495, i);
+		S_PlayActorSound(495, targ);
 		break;
 	case RRTILE8579:
 		s->picnum = RRTILE5014;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7441:
 		s->picnum = RRTILE5016;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7534:
 		s->picnum = RRTILE5029;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7545:
 		s->picnum = RRTILE5030;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7547:
 		s->picnum = RRTILE5031;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7574:
 		s->picnum = RRTILE5032;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7575:
 		s->picnum = RRTILE5033;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7578:
 		s->picnum = RRTILE5034;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7478:
 		s->picnum = RRTILE5035;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8525:
 		s->picnum = RRTILE5036;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8537:
 		s->picnum = RRTILE5062;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8215:
 		s->picnum = RRTILE5064;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8216:
 		s->picnum = RRTILE5065;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8217:
 		s->picnum = RRTILE5066;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8218:
 		s->picnum = RRTILE5067;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8220:
 		s->picnum = RRTILE5068;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8221:
 		s->picnum = RRTILE5069;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8312:
 		s->picnum = RRTILE5071;
-		S_PlayActorSound(472, i);
+		S_PlayActorSound(472, targ);
 		break;
 	case RRTILE8395:
 		s->picnum = RRTILE5072;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8423:
 		s->picnum = RRTILE5073;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE3462:
 		s->picnum = RRTILE5074;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case UWHIP:
 		s->picnum = RRTILE5075;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8608:
 		s->picnum = RRTILE5083;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8609:
 		s->picnum = RRTILE5084;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8567:
 	case RRTILE8568:
@@ -1685,23 +1685,23 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8570:
 	case RRTILE8571:
 		s->picnum = RRTILE5082;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8640:
 		s->picnum = RRTILE5085;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8611:
 		s->picnum = RRTILE5086;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case TECHLIGHTBUST2:
 		s->picnum = TECHLIGHTBUST4;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8497:
 		s->picnum = RRTILE5076;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8162:
 	case RRTILE8163:
@@ -1712,7 +1712,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8168:
 		changespritestat(i, STAT_MISC);
 		s->picnum = RRTILE5063;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8589:
 	case RRTILE8590:
@@ -1723,188 +1723,188 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8595:
 		changespritestat(i, STAT_MISC);
 		s->picnum = RRTILE8588;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE3497:
 		s->picnum = RRTILE5076;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE3498:
 		s->picnum = RRTILE5077;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE3499:
 		s->picnum = RRTILE5078;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8503:
 		s->picnum = RRTILE5079;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7901:
 		s->picnum = RRTILE5080;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7696:
 		s->picnum = RRTILE7697;
-		S_PlayActorSound(DUKE_SHUCKS, i);
+		S_PlayActorSound(DUKE_SHUCKS, targ);
 		break;
 	case RRTILE7806:
 		s->picnum = RRTILE5043;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7885:
 	case RRTILE7890:
 		s->picnum = RRTILE5045;
-		S_PlayActorSound(495, i);
+		S_PlayActorSound(495, targ);
 		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7886:
 		s->picnum = RRTILE5046;
-		S_PlayActorSound(495, i);
+		S_PlayActorSound(495, targ);
 		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7887:
 		s->picnum = RRTILE5044;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7900:
 		s->picnum = RRTILE5047;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7906:
 		s->picnum = RRTILE5048;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7912:
 	case RRTILE7913:
 		s->picnum = RRTILE5049;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8047:
 		s->picnum = RRTILE5050;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8596:
 		s->picnum = RRTILE8598;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8059:
 		s->picnum = RRTILE5051;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8060:
 		s->picnum = RRTILE5052;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8222:
 		s->picnum = RRTILE5053;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8223:
 		s->picnum = RRTILE5054;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8224:
 		s->picnum = RRTILE5055;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8370:
 		s->picnum = RRTILE5056;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8371:
 		s->picnum = RRTILE5057;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8372:
 		s->picnum = RRTILE5058;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8373:
 		s->picnum = RRTILE5059;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8396:
 		s->picnum = RRTILE5038;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8397:
 		s->picnum = RRTILE5039;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8398:
 		s->picnum = RRTILE5040;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8399:
 		s->picnum = RRTILE5041;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8385:
 		s->picnum = RRTILE8386;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8387:
 		s->picnum = RRTILE8388;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8389:
 		s->picnum = RRTILE8390;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8391:
 		s->picnum = RRTILE8392;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE7553:
 		s->picnum = RRTILE5035;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8475:
 		s->picnum = RRTILE5075;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8498:
 		s->picnum = RRTILE5077;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8499:
 		s->picnum = RRTILE5078;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE2445:
 		s->picnum = RRTILE2450;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE2123:
 		s->picnum = RRTILE2124;
-		S_PlayActorSound(GLASS_BREAKING, i);
+		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(i, -1, 10);
 		break;
 	case RRTILE3773:
 		s->picnum = RRTILE8651;
-		S_PlayActorSound(GLASS_BREAKING, i);
+		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(i, -1, 10);
 		break;
 	case RRTILE7533:
 		s->picnum = RRTILE5035;
-		S_PlayActorSound(495, i);
+		S_PlayActorSound(495, targ);
 		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		break;
 	case RRTILE8394:
 		s->picnum = RRTILE5072;
-		S_PlayActorSound(495, i);
+		S_PlayActorSound(495, targ);
 		break;
 	case RRTILE8461:
 	case RRTILE8462:
 		s->picnum = RRTILE5074;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8679:
 		s->picnum = RRTILE8680;
-		S_PlayActorSound(DUKE_SHUCKS, i);
+		S_PlayActorSound(DUKE_SHUCKS, targ);
 		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
 		if (s->lotag != 0)
 		{
@@ -1921,12 +1921,12 @@ void checkhitsprite_r(int i, int sn)
 		break;
 	case RRTILE3584:
 		s->picnum = RRTILE8681;
-		S_PlayActorSound(495, i);
+		S_PlayActorSound(495, targ);
 		fi.hitradius(&hittype[i], 250, 0, 0, 1, 1);
 		break;
 	case RRTILE8682:
 		s->picnum = RRTILE8683;
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 	case RRTILE8099:
 		if (s->lotag == 5)
@@ -1934,7 +1934,7 @@ void checkhitsprite_r(int i, int sn)
 			short j;
 			s->lotag = 0;
 			s->picnum = RRTILE5087;
-			S_PlayActorSound(340, i);
+			S_PlayActorSound(340, targ);
 			for (j = 0; j < MAXSPRITES; j++)
 			{
 				if (sprite[j].picnum == RRTILE8094)
@@ -1965,14 +1965,14 @@ void checkhitsprite_r(int i, int sn)
 			s->picnum = RRTILE2455;
 		break;
 	case RRTILE2455:
-		S_PlayActorSound(SQUISHED, i);
+		S_PlayActorSound(SQUISHED, targ);
 		fi.guts(&hittype[i], RRTILE2465, 3, myconnectindex);
 		deletesprite(i);
 		break;
 	case RRTILE2451:
 		if (s->pal != 4)
 		{
-			S_PlayActorSound(SQUISHED, i);
+			S_PlayActorSound(SQUISHED, targ);
 			if (s->lotag != 0)
 			{
 				short j;
@@ -2002,7 +2002,7 @@ void checkhitsprite_r(int i, int sn)
 		}
 		break;
 	case RRTILE2437:
-		S_PlayActorSound(439, i);
+		S_PlayActorSound(439, targ);
 		break;
 	}
 
@@ -2022,7 +2022,7 @@ void checkhitsprite_r(int i, int sn)
 		break;
 	case RRTILE2030:
 		s->picnum = RRTILE2034;
-		S_PlayActorSound(GLASS_BREAKING, i);
+		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(i, -1, 10);
 		break;
 	case RRTILE2893:
@@ -2044,7 +2044,7 @@ void checkhitsprite_r(int i, int sn)
 			s->picnum = RRTILE3216;
 			break;
 		}
-		S_PlayActorSound(GLASS_BREAKING, i);
+		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(i, -1, 10);
 		break;
 	case RRTILE2156:
@@ -2052,13 +2052,13 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE2160:
 	case RRTILE2175:
 		s->picnum++;
-		S_PlayActorSound(GLASS_BREAKING, i);
+		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(i, -1, 10);
 		break;
 	case RRTILE2137:
 	case RRTILE2151:
 	case RRTILE2152:
-		S_PlayActorSound(GLASS_BREAKING, i);
+		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(i, -1, 10);
 		s->picnum++;
 		for (k = 0; k < 6; k++)
@@ -2067,7 +2067,7 @@ void checkhitsprite_r(int i, int sn)
 	case BOWLINGBALL:
 		pspr->xvel = (s->xvel >> 1) + (s->xvel >> 2);
 		pspr->ang -= (krand() & 16);
-		S_PlayActorSound(355, i);
+		S_PlayActorSound(355, targ);
 		break;
 
 	case STRIPEBALL:
@@ -2082,21 +2082,21 @@ void checkhitsprite_r(int i, int sn)
 			pspr->ang -= (s->ang << 1) + 1024;
 			s->ang = getangle(s->x - pspr->x, s->y - pspr->y) - 512;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
-				S_PlayActorSound(POOLBALLHIT, i);
+				S_PlayActorSound(POOLBALLHIT, targ);
 		}
 		else if (pspr->picnum == RRTILE3440 || pspr->picnum == RRTILE3440 + 1)
 		{
 			pspr->xvel = (s->xvel >> 1) + (s->xvel >> 2);
 			pspr->ang -= ((s->ang << 1) + krand()) & 64;
 			s->ang = (s->ang + krand()) & 16;
-			S_PlayActorSound(355, i);
+			S_PlayActorSound(355, targ);
 		}
 		else if (pspr->picnum == HENSTAND || pspr->picnum == HENSTAND + 1)
 		{
 			pspr->xvel = (s->xvel >> 1) + (s->xvel >> 2);
 			pspr->ang -= ((s->ang << 1) + krand()) & 16;
 			s->ang = (s->ang + krand()) & 16;
-			S_PlayActorSound(355, i);
+			S_PlayActorSound(355, targ);
 		}
 		else
 		{
@@ -2168,8 +2168,8 @@ void checkhitsprite_r(int i, int sn)
 	case FANSPRITE:
 		s->picnum = FANSPRITEBROKE;
 		s->cstat &= (65535 - 257);
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
-		for (j = 0; j < 16; j++) RANDOMSCRAP(s, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
+		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
 
 		break;
 	case WATERFOUNTAIN:
@@ -2225,12 +2225,12 @@ void checkhitsprite_r(int i, int sn)
 		else if (s->picnum == STATUE || s->picnum == STATUEFLASH)
 		{
 			lotsofcolourglass(i, -1, 40);
-			S_PlayActorSound(GLASS_HEAVYBREAK, i);
+			S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		}
 		else if (s->picnum == VASE)
 			lotsofglass(i, -1, 40);
 
-		S_PlayActorSound(GLASS_BREAKING, i);
+		S_PlayActorSound(GLASS_BREAKING, targ);
 		s->ang = krand() & 2047;
 		lotsofglass(i, -1, 8);
 		deletesprite(i);
@@ -2240,7 +2240,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE3172:
 		if (!isRRRA()) break;
 	case BOTTLE7:
-		S_PlayActorSound(GLASS_BREAKING, i);
+		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(i, -1, 10);
 		deletesprite(i);
 		break;
@@ -2256,7 +2256,7 @@ void checkhitsprite_r(int i, int sn)
 		s->cstat |= (krand() & 1) << 2;
 		s->cstat &= ~257;
 		fi.spawn(i, TOILETWATER);
-		S_PlayActorSound(GLASS_BREAKING, i);
+		S_PlayActorSound(GLASS_BREAKING, targ);
 		break;
 
 	case STALL:
@@ -2264,7 +2264,7 @@ void checkhitsprite_r(int i, int sn)
 		s->cstat |= (krand() & 1) << 2;
 		s->cstat &= ~257;
 		fi.spawn(i, TOILETWATER);
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 
 	case HYDRENT:
@@ -2276,19 +2276,19 @@ void checkhitsprite_r(int i, int sn)
 			//			j = EGS(s->sectnum,s->x,s->y,s->z-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(s->zvel>>2),i,5);
 			  //		  sprite[j].pal = 2;
 				//	}
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 
 	case GRATE1:
 		s->picnum = BGRATE1;
 		s->cstat &= (65535 - 256 - 1);
-		S_PlayActorSound(VENT_BUST, i);
+		S_PlayActorSound(VENT_BUST, targ);
 		break;
 
 	case CIRCLEPANNEL:
 		s->picnum = CIRCLEPANNELBROKE;
 		s->cstat &= (65535 - 256 - 1);
-		S_PlayActorSound(VENT_BUST, i);
+		S_PlayActorSound(VENT_BUST, targ);
 		break;
 
 	case PIPE1:
@@ -2325,12 +2325,14 @@ void checkhitsprite_r(int i, int sn)
 	case POT1:
 	case POT2:
 	case POT3:
-		S_PlayActorSound(GLASS_HEAVYBREAK, i);
-		for (j = 0; j < 16; j++) RANDOMSCRAP(s, i);
+		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
+		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
 		deletesprite(i);
 		break;
 	case PLAYERONWATER:
 		i = s->owner;
+		targ = targ->GetOwner();
+		if (!targ) break;
 		s = &sprite[i];
 	default:
 		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)

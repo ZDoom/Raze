@@ -1026,8 +1026,6 @@ void checkhitsprite_d(int i, int sn)
 	int j, k, p;
 	auto targ = &hittype[i];
 	auto proj = &hittype[sn];
-
-	i &= (MAXSPRITES - 1);
 	spritetype* s = &sprite[i];
 	auto pspr = &sprite[sn];
 
@@ -1371,6 +1369,7 @@ void checkhitsprite_d(int i, int sn)
 		break;
 	case PLAYERONWATER:
 		i = s->owner;
+		targ = targ->GetOwner();
 		s = &sprite[i];
 	default:
 		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
