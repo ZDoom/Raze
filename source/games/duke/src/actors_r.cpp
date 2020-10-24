@@ -128,6 +128,7 @@ void addweapon_r(struct player_struct* p, int weapon)
 		else if (weapon == CROSSBOW_WEAPON)
 		{
 			p->gotweapon.Set(CHICKEN_WEAPON);
+			p->gotweapon.Set(DYNAMITE_WEAPON);
 		}
 		else if (weapon == SLINGBLADE_WEAPON)
 		{
@@ -154,6 +155,10 @@ void addweapon_r(struct player_struct* p, int weapon)
 			{
 				p->ammo_amount[SLINGBLADE_WEAPON] = 50;
 			}
+		}
+		if (weapon == CROSSBOW_WEAPON)
+		{
+			p->gotweapon.Set(DYNAMITE_WEAPON);
 		}
 
 		if (weapon != DYNAMITE_WEAPON)
