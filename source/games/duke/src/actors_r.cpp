@@ -1063,7 +1063,7 @@ void movestandables_r(void)
 
 		if (picnum >= CRANE && picnum <= CRANE +3)
 		{
-			movecrane(i, CRANE);
+			movecrane(&hittype[i], CRANE);
 		}
 
 		else if (picnum >= WATERFOUNTAIN && picnum <= WATERFOUNTAIN + 3)

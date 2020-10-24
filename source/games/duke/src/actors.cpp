@@ -645,32 +645,31 @@ void movefx(void)
 //
 //---------------------------------------------------------------------------
 
-void movecrane(int i, int crane)
+void movecrane(DDukeActor *actor, int crane)
 {
-	auto t = &hittype[i].temp_data[0];
-	auto spri = &sprite[i];
+	int* t = &actor->temp_data[0];
+	auto spri = &actor->s;
 	int sect = spri->sectnum;
 	int x;
 
 	//t[0] = state
 	//t[1] = checking sector number
 
-	if (spri->xvel) getglobalz(i);
+	if (spri->xvel) getglobalz(actor);
 
 	if (t[0] == 0) //Waiting to check the sector
 	{
-		SectIterator it(t[1]);
-		int j;
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(t[1]);
+		while (auto a2 = it.Next())
 		{
-			switch (sprite[j].statnum)
+			switch (a2->s.statnum)
 			{
 			case STAT_ACTOR:
 			case STAT_ZOMBIEACTOR:
 			case STAT_STANDABLE:
 			case STAT_PLAYER:
 				spri->ang = getangle(msx[t[4] + 1] - spri->x, msy[t[4] + 1] - spri->y);
-				setsprite(j, msx[t[4] + 1], msy[t[4] + 1], sprite[j].z);
+				setsprite(a2, msx[t[4] + 1], msy[t[4] + 1], a2->s.z);
 				t[0]++;
 				return;
 			}
@@ -685,7 +684,7 @@ void movecrane(int i, int crane)
 			spri->xvel += 8;
 		}
 		//IFMOVING;	// JBF 20040825: see my rant above about this
-		ssp(i, CLIPMASK0);
+		ssp(actor, CLIPMASK0);
 		if (sect == t[1])
 			t[0]++;
 	}
@@ -708,15 +707,15 @@ void movecrane(int i, int crane)
 				if (spri->picnum > crane) spri->picnum--;
 				else
 				{
-					if (spri->owner == -2)
+					if (actor->IsActiveCrane())
 					{
-						auto p = findplayer(spri, &x);
-						S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
-						if (ps[p].on_crane == &hittype[i])
+						int p = findplayer(actor, &x);
+						S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].GetActor());
+						if (ps[p].on_crane == actor)
 							ps[p].on_crane = nullptr;
 					}
 					t[0]++;
-					spri->owner = -1;
+					actor->SetOwner(nullptr);
 				}
 			}
 		}
@@ -726,25 +725,24 @@ void movecrane(int i, int crane)
 		spri->picnum++;
 		if (spri->picnum == (crane + 2))
 		{
-			auto p = checkcursectnums(t[1]);
+			int p = checkcursectnums(t[1]);
 			if (p >= 0 && ps[p].on_ground)
 			{
-				spri->owner = -2;
-				ps[p].on_crane = &hittype[i];
-				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
+				actor->SetActiveCrane(true);
+				ps[p].on_crane = actor;
+				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].GetActor());
 				ps[p].angle.addadjustment(spri->ang + 1024);
 			}
 			else
 			{
-				SectIterator it(t[1]);
-				int j;
-				while ((j = it.NextIndex()) >= 0)
+				DukeSectIterator it(t[1]);
+				while (auto a2 = it.Next())
 				{
-					switch (sprite[j].statnum)
+					switch (a2->s.statnum)
 					{
 					case 1:
 					case 6:
-						spri->owner = j;
+						actor->SetOwner(a2);
 						break;
 					}
 				}
@@ -781,7 +779,7 @@ void movecrane(int i, int crane)
 			spri->xvel += 8;
 		spri->ang = getangle(msx[t[4]] - spri->x, msy[t[4]] - spri->y);
 		//IFMOVING;	// JBF 20040825: see my rant above about this
-		ssp(i, CLIPMASK0);
+		ssp(actor, CLIPMASK0);
 		if (((spri->x - msx[t[4]]) * (spri->x - msx[t[4]]) + (spri->y - msy[t[4]]) * (spri->y - msy[t[4]])) < (128 * 128))
 			t[0]++;
 	}
@@ -791,32 +789,34 @@ void movecrane(int i, int crane)
 
 	setsprite(msy[t[4] + 2], spri->x, spri->y, spri->z - (34 << 8));
 
-	if (spri->owner != -1)
+	auto Owner = actor->GetOwner();
+	if (Owner != nullptr)
 	{
-		auto p = findplayer(spri, &x);
+		int p = findplayer(actor, &x);
 
-		int j = fi.ifhitbyweapon(i);
+		int j = fi.ifhitbyweapon(actor->GetIndex());
 		if (j >= 0)
 		{
-			if (spri->owner == -2)
-				if (ps[p].on_crane == &hittype[i])
+			if (actor->IsActiveCrane())
+				if (ps[p].on_crane == actor)
 					ps[p].on_crane = nullptr;
-			spri->owner = -1;
+			actor->SetActiveCrane(false);
 			spri->picnum = crane;
 			return;
 		}
 
-		if (spri->owner >= 0)
+		auto a_owner = actor->GetOwner();
+		if (a_owner != nullptr)
 		{
-			setsprite(spri->owner, spri->x, spri->y, spri->z);
+			setsprite(a_owner, spri->pos);
 
-			hittype[spri->owner].bposx = spri->x;
-			hittype[spri->owner].bposy = spri->y;
-			hittype[spri->owner].bposz = spri->z;
+			a_owner->bposx = spri->x;
+			a_owner->bposy = spri->y;
+			a_owner->bposz = spri->z;
 
 			spri->zvel = 0;
 		}
-		else if (spri->owner == -2)
+		else if (actor->IsActiveCrane())
 		{
 			auto ang = ps[p].angle.ang.asbuild();
 			ps[p].oposx = ps[p].posx;
@@ -825,8 +825,8 @@ void movecrane(int i, int crane)
 			ps[p].posx = spri->x - (sintable[(ang + 512) & 2047] >> 6);
 			ps[p].posy = spri->y - (sintable[ang & 2047] >> 6);
 			ps[p].posz = spri->z + (2 << 8);
-			setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
-			ps[p].cursectnum = sprite[ps[p].i].sectnum;
+			setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz);
+			ps[p].cursectnum = ps[p].GetActor()->s.sectnum;
 		}
 	}
 }

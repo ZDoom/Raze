@@ -250,4 +250,14 @@ inline void makeitfall(DDukeActor* act)
 	makeitfall(act->GetIndex());
 }
 
+inline void getglobalz(DDukeActor* act)
+{
+	getglobalz(act->GetIndex());
+}
+
+inline int findplayer(DDukeActor* act, int* x)
+{
+	return findplayer(&act->s, x);
+}
+
 END_DUKE_NS
