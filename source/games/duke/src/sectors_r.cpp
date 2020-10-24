@@ -1523,13 +1523,11 @@ bool checkhitceiling_r(int sn)
 //
 //---------------------------------------------------------------------------
 
-void checkhitsprite_r(int i, int sn)
+void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 {
 	int j, k, p;
-	auto targ = &hittype[i];
-	auto proj = &hittype[sn];
-	spritetype* s = &sprite[i];
-	auto pspr = &sprite[sn];
+	spritetype* s = &targ->s;
+	auto pspr = &proj->s;
 
 	if (isRRRA()) switch (s->picnum)
 	{
@@ -1556,7 +1554,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE7879:
 		s->picnum++;
 		S_PlayActorSound(495, targ);
-		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
+		fi.hitradius(targ, 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7648:
 	case RRTILE7694:
@@ -1710,7 +1708,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8166:
 	case RRTILE8167:
 	case RRTILE8168:
-		changespritestat(i, STAT_MISC);
+		changespritestat(targ, STAT_MISC);
 		s->picnum = RRTILE5063;
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
@@ -1721,7 +1719,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8593:
 	case RRTILE8594:
 	case RRTILE8595:
-		changespritestat(i, STAT_MISC);
+		changespritestat(targ, STAT_MISC);
 		s->picnum = RRTILE8588;
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
@@ -1757,17 +1755,17 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE7890:
 		s->picnum = RRTILE5045;
 		S_PlayActorSound(495, targ);
-		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
+		fi.hitradius(targ, 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7886:
 		s->picnum = RRTILE5046;
 		S_PlayActorSound(495, targ);
-		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
+		fi.hitradius(targ, 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7887:
 		s->picnum = RRTILE5044;
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
-		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
+		fi.hitradius(targ, 10, 0, 0, 1, 1);
 		break;
 	case RRTILE7900:
 		s->picnum = RRTILE5047;
@@ -1881,17 +1879,17 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE2123:
 		s->picnum = RRTILE2124;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(i, -1, 10);
+		lotsofglass(targ, -1, 10);
 		break;
 	case RRTILE3773:
 		s->picnum = RRTILE8651;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(i, -1, 10);
+		lotsofglass(targ, -1, 10);
 		break;
 	case RRTILE7533:
 		s->picnum = RRTILE5035;
 		S_PlayActorSound(495, targ);
-		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
+		fi.hitradius(targ, 10, 0, 0, 1, 1);
 		break;
 	case RRTILE8394:
 		s->picnum = RRTILE5072;
@@ -1905,7 +1903,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE8679:
 		s->picnum = RRTILE8680;
 		S_PlayActorSound(DUKE_SHUCKS, targ);
-		fi.hitradius(&hittype[i], 10, 0, 0, 1, 1);
+		fi.hitradius(targ, 10, 0, 0, 1, 1);
 		if (s->lotag != 0)
 		{
 			short j;
@@ -1922,7 +1920,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE3584:
 		s->picnum = RRTILE8681;
 		S_PlayActorSound(495, targ);
-		fi.hitradius(&hittype[i], 250, 0, 0, 1, 1);
+		fi.hitradius(targ, 250, 0, 0, 1, 1);
 		break;
 	case RRTILE8682:
 		s->picnum = RRTILE8683;
@@ -1966,8 +1964,8 @@ void checkhitsprite_r(int i, int sn)
 		break;
 	case RRTILE2455:
 		S_PlayActorSound(SQUISHED, targ);
-		fi.guts(&hittype[i], RRTILE2465, 3, myconnectindex);
-		deletesprite(i);
+		fi.guts(targ, RRTILE2465, 3, myconnectindex);
+		deletesprite(targ);
 		break;
 	case RRTILE2451:
 		if (s->pal != 4)
@@ -1982,8 +1980,8 @@ void checkhitsprite_r(int i, int sn)
 					{
 						if (s->lotag == sprite[j].lotag)
 						{
-							fi.guts(&hittype[i], RRTILE2460, 12, myconnectindex);
-							fi.guts(&hittype[i], RRTILE2465, 3, myconnectindex);
+							fi.guts(targ, RRTILE2460, 12, myconnectindex);
+							fi.guts(targ, RRTILE2465, 3, myconnectindex);
 							sprite[j].xrepeat = 0;
 							sprite[j].yrepeat = 0;
 							s->xrepeat = 0;
@@ -1994,8 +1992,8 @@ void checkhitsprite_r(int i, int sn)
 			}
 			else
 			{
-				fi.guts(&hittype[i], RRTILE2460, 12, myconnectindex);
-				fi.guts(&hittype[i], RRTILE2465, 3, myconnectindex);
+				fi.guts(targ, RRTILE2460, 12, myconnectindex);
+				fi.guts(targ, RRTILE2465, 3, myconnectindex);
 				s->xrepeat = 0;
 				s->yrepeat = 0;
 			}
@@ -2023,7 +2021,7 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE2030:
 		s->picnum = RRTILE2034;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(i, -1, 10);
+		lotsofglass(targ, -1, 10);
 		break;
 	case RRTILE2893:
 	case RRTILE2915:
@@ -2045,7 +2043,7 @@ void checkhitsprite_r(int i, int sn)
 			break;
 		}
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(i, -1, 10);
+		lotsofglass(targ, -1, 10);
 		break;
 	case RRTILE2156:
 	case RRTILE2158:
@@ -2053,16 +2051,16 @@ void checkhitsprite_r(int i, int sn)
 	case RRTILE2175:
 		s->picnum++;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(i, -1, 10);
+		lotsofglass(targ, -1, 10);
 		break;
 	case RRTILE2137:
 	case RRTILE2151:
 	case RRTILE2152:
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(i, -1, 10);
+		lotsofglass(targ, -1, 10);
 		s->picnum++;
 		for (k = 0; k < 6; k++)
-			EGS(s->sectnum, s->x, s->y, s->z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), i, 5);
+			EGS(s->sectnum, s->x, s->y, s->z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
 		break;
 	case BOWLINGBALL:
 		pspr->xvel = (s->xvel >> 1) + (s->xvel >> 2);
@@ -2125,11 +2123,11 @@ void checkhitsprite_r(int i, int sn)
 		case COOLEXPLOSION1:
 		case OWHIP:
 		case UWHIP:
-			if (hittype[i].temp_data[0] == 0)
+			if (targ->temp_data[0] == 0)
 			{
 				s->cstat &= ~257;
-				hittype[i].temp_data[0] = 1;
-				fi.spawn(i, BURNING);
+				targ->temp_data[0] = 1;
+				spawn(targ, BURNING);
 			}
 			break;
 		}
@@ -2152,8 +2150,8 @@ void checkhitsprite_r(int i, int sn)
 		case UWHIP:
 			for (k = 0; k < 64; k++)
 			{
-				j = EGS(s->sectnum, s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), i, 5);
-				sprite[j].pal = 8;
+				auto j = EGS(s->sectnum, s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
+				j->s.pal = 8;
 			}
 
 			if (s->picnum == CACTUS)
@@ -2176,7 +2174,7 @@ void checkhitsprite_r(int i, int sn)
 	case WATERFOUNTAIN + 1:
 	case WATERFOUNTAIN + 2:
 	case WATERFOUNTAIN + 3:
-		fi.spawn(i, TOILETWATER);
+		spawn(targ, TOILETWATER);
 		break;
 	case SATELITE:
 	case FUELPOD:
@@ -2186,9 +2184,9 @@ void checkhitsprite_r(int i, int sn)
 		{
 			for (j = 0; j < 15; j++)
 				EGS(s->sectnum, s->x, s->y, sector[s->sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
-					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, i, 5);
-			fi.spawn(i, EXPLOSION2);
-			deletesprite(i);
+					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
+			spawn(targ, EXPLOSION2);
+			deletesprite(targ);
 		}
 		break;
 	case RRTILE1824:
@@ -2221,19 +2219,19 @@ void checkhitsprite_r(int i, int sn)
 	case STATUEFLASH:
 	case STATUE:
 		if (s->picnum == BOTTLE10)
-			fi.lotsofmoney(&hittype[i], 4 + (krand() & 3));
+			fi.lotsofmoney(targ, 4 + (krand() & 3));
 		else if (s->picnum == STATUE || s->picnum == STATUEFLASH)
 		{
-			lotsofcolourglass(i, -1, 40);
+			lotsofcolourglass(targ->GetIndex(), -1, 40);
 			S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		}
 		else if (s->picnum == VASE)
-			lotsofglass(i, -1, 40);
+			lotsofglass(targ, -1, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		s->ang = krand() & 2047;
-		lotsofglass(i, -1, 8);
-		deletesprite(i);
+		lotsofglass(targ, -1, 8);
+		deletesprite(targ);
 		break;
 	case RRTILE2654:
 	case RRTILE2656:
@@ -2241,21 +2239,21 @@ void checkhitsprite_r(int i, int sn)
 		if (!isRRRA()) break;
 	case BOTTLE7:
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(i, -1, 10);
-		deletesprite(i);
+		lotsofglass(targ, -1, 10);
+		deletesprite(targ);
 		break;
 	case FORCESPHERE:
 		s->xrepeat = 0;
 		hittype[s->owner].temp_data[0] = 32;
 		hittype[s->owner].temp_data[1] = !hittype[s->owner].temp_data[1];
 		hittype[s->owner].temp_data[2] ++;
-		fi.spawn(i, EXPLOSION2);
+		spawn(targ, EXPLOSION2);
 		break;
 	case TOILET:
 		s->picnum = TOILETBROKE;
 		s->cstat |= (krand() & 1) << 2;
 		s->cstat &= ~257;
-		fi.spawn(i, TOILETWATER);
+		spawn(targ, TOILETWATER);
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		break;
 
@@ -2263,13 +2261,13 @@ void checkhitsprite_r(int i, int sn)
 		s->picnum = STALLBROKE;
 		s->cstat |= (krand() & 1) << 2;
 		s->cstat &= ~257;
-		fi.spawn(i, TOILETWATER);
+		spawn(targ, TOILETWATER);
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 
 	case HYDRENT:
 		s->picnum = BROKEFIREHYDRENT;
-		fi.spawn(i, TOILETWATER);
+		spawn(targ, TOILETWATER);
 
 		//			for(k=0;k<5;k++)
 		  //		  {
@@ -2306,9 +2304,10 @@ void checkhitsprite_r(int i, int sn)
 		case PIPE5:s->picnum = PIPE5B; break;
 		case PIPE6:s->picnum = PIPE6B; break;
 		}
-
-		j = fi.spawn(i, STEAM);
-		sprite[j].z = sector[s->sectnum].floorz - (32 << 8);
+		{
+			auto j = spawn(targ, STEAM);
+			j->s.z = sector[s->sectnum].floorz - (32 << 8);
+		}
 		break;
 
 	case CHAIR1:
@@ -2327,20 +2326,19 @@ void checkhitsprite_r(int i, int sn)
 	case POT3:
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
-		deletesprite(i);
+		deletesprite(targ);
 		break;
 	case PLAYERONWATER:
-		i = s->owner;
 		targ = targ->GetOwner();
 		if (!targ) break;
-		s = &sprite[i];
+		s = &targ->s;
 	default:
 		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
 			break;
 
-		if ((pspr->picnum == SHRINKSPARK || pspr->picnum == FREEZEBLAST || pspr->owner != i) && s->statnum != 4)
+		if ((pspr->picnum == SHRINKSPARK || pspr->picnum == FREEZEBLAST || proj->GetOwner() != targ) && s->statnum != 4)
 		{
-			if (badguy(&sprite[i]) == 1)
+			if (badguy(targ) == 1)
 			{
 				if (pspr->picnum == RPG) pspr->extra <<= 1;
 				else if (isRRRA() && pspr->picnum == RPG2) pspr->extra <<= 1;
@@ -2349,7 +2347,7 @@ void checkhitsprite_r(int i, int sn)
 					if (pspr->picnum != FREEZEBLAST)
 						//if (actortype[s->picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
 						{
-							j = fi.spawn(sn, JIBS6);
+							j = fi.spawn(proj->GetIndex(), JIBS6);
 							if (pspr->pal == 6)
 								sprite[j].pal = 6;
 							sprite[j].z += (4 << 8);
@@ -2363,6 +2361,7 @@ void checkhitsprite_r(int i, int sn)
 				if (j >= 0 && sprite[j].picnum == APLAYER && s->picnum != DRONE)
 					if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
 					{
+						int i = targ->GetIndex();
 						fi.shoot(i, BLOODSPLAT3);
 						fi.shoot(i, BLOODSPLAT1);
 						fi.shoot(i, BLOODSPLAT2);
@@ -2371,21 +2370,21 @@ void checkhitsprite_r(int i, int sn)
 
 				if (s->statnum == 2)
 				{
-					changespritestat(i, 1);
-					hittype[i].timetosleep = SLEEPTIME;
+					changespritestat(targ, 1);
+					targ->timetosleep = SLEEPTIME;
 				}
 			}
 
 			if (s->statnum != 2)
 			{
-				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (freezerhurtowner == 0 && pspr->owner == i)))
+				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (freezerhurtowner == 0 && proj->GetOwner() == targ)))
 					return;
 
-				hittype[i].picnum = pspr->picnum;
-				hittype[i].extra += pspr->extra;
+				targ->picnum = pspr->picnum;
+				targ->extra += pspr->extra;
 				if (s->picnum != COW)
-					hittype[i].ang = pspr->ang;
-				hittype[i].owner = pspr->owner;
+					targ->ang = pspr->ang;
+				targ->owner = pspr->owner;
 			}
 
 			if (s->statnum == 10)
@@ -2408,7 +2407,7 @@ void checkhitsprite_r(int i, int sn)
 					}
 				}
 
-				if (sprite[hittype[i].owner].picnum != APLAYER)
+				if (sprite[targ->owner].picnum != APLAYER)
 					if (ud.player_skill >= 3)
 						pspr->extra += (pspr->extra >> 1);
 			}
@@ -2416,6 +2415,11 @@ void checkhitsprite_r(int i, int sn)
 		}
 		break;
 	}
+}
+
+void checkhitsprite_r(int targ, int proj)
+{
+	checkhitsprite_r(&hittype[targ], &hittype[proj]);
 }
 
 //---------------------------------------------------------------------------

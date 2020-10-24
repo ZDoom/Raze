@@ -1370,6 +1370,7 @@ void checkhitsprite_d(int i, int sn)
 	case PLAYERONWATER:
 		i = s->owner;
 		targ = targ->GetOwner();
+		if (!targ) break;
 		s = &sprite[i];
 	default:
 		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
