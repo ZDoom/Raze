@@ -558,9 +558,8 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 //
 //---------------------------------------------------------------------------
 
-static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto actor = &hittype[i];
 	spritetype* const s = &actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
@@ -604,7 +603,7 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 		int j = findplayer(actor, &x);
 		//                sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		sa += 16 - (krand() & 31);
-		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(&sprite[ps[j].i], s);
+		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(ps[p].GetActor(), actor);
 	}
 
 	int oldzvel = zvel;
@@ -638,24 +637,24 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 	while (scount > 0)
 	{
-		int j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, i, 4);
-		sprite[j].extra += (krand() & 7);
+		auto spawned = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, actor, 4);
+		spawned->s.extra += (krand() & 7);
 
 		if (atwith == COOLEXPLOSION1)
 		{
-			sprite[j].shade = 0;
+			spawned->s.shade = 0;
 			if (s->picnum == BOSS2)
 			{
-				l = sprite[j].xvel;
-				sprite[j].xvel = 1024;
-				ssp(j, CLIPMASK0);
-				sprite[j].xvel = l;
-				sprite[j].ang += 128 - (krand() & 255);
+				l = spawned->s.xvel;
+				spawned->s.xvel = 1024;
+				ssp(spawned, CLIPMASK0);
+				spawned->s.xvel = l;
+				spawned->s.ang += 128 - (krand() & 255);
 			}
 		}
 
-		sprite[j].cstat = 128;
-		sprite[j].clipdist = 4;
+		spawned->s.cstat = 128;
+		spawned->s.clipdist = 4;
 
 		sa = s->ang + 32 - (krand() & 63);
 		zvel = oldzvel + 512 - (krand() & 1023);
@@ -670,9 +669,8 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 //
 //---------------------------------------------------------------------------
 
-static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto actor = &hittype[i];
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
@@ -697,7 +695,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 		}
 		else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
 		if (atwith == RPG)
-			S_PlayActorSound(RPG_SHOOT, i);
+			S_PlayActorSound(RPG_SHOOT, actor);
 
 	}
 	else
@@ -709,7 +707,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 		{
 			int zoffs = (32 << 8);
 			if (isWorldTour()) // Twentieth Anniversary World Tour
-				zoffs = (int)((sprite[i].yrepeat / 80.0f) * zoffs);
+				zoffs = (int)((actor->s.yrepeat / 80.0f) * zoffs);
 			sz -= zoffs;
 		}
 		else if (s->picnum == BOSS2)
@@ -717,14 +715,14 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 			vel += 128;
 			int zoffs = 24 << 8;
 			if (isWorldTour()) // Twentieth Anniversary World Tour
-				zoffs = (int)((sprite[i].yrepeat / 80.0f) * zoffs);
+				zoffs = (int)((actor->s.yrepeat / 80.0f) * zoffs);
 			sz += zoffs;
 		}
 
-		l = ldist(&sprite[ps[j].i], s);
+		l = ldist(ps[j].GetActor(), actor);
 		zvel = ((ps[j].oposz - sz) * vel) / l;
 
-		if (badguy(s) && (s->hitag & face_player_smart))
+		if (badguy(actor) && (s->hitag & face_player_smart))
 			sa = s->ang + (krand() & 31) - 16;
 	}
 	if (p < 0) aimed = nullptr;
@@ -732,7 +730,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	auto spawned = EGS(sect,
 		sx + (sintable[(348 + sa + 512) & 2047] / 448),
 		sy + (sintable[(sa + 348) & 2047] / 448),
-		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, &hittype[i], 4);
+		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, actor, 4);
 
 	auto spj = &spawned->s;
 	spj->extra += (krand() & 7);
@@ -763,7 +761,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 			if (isWorldTour()) // Twentieth Anniversary World Tour
 			{
-				float siz = sprite[i].yrepeat / 80.0f;
+				float siz = actor->s.yrepeat / 80.0f;
 				xoffs *= siz;
 				yoffs *= siz;
 				aoffs *= siz;
@@ -783,7 +781,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 			int aoffs = 8 + (krand() & 255) - 128;
 
 			if (isWorldTour()) { // Twentieth Anniversary World Tour
-				int siz = sprite[i].yrepeat;
+				int siz = actor->s.yrepeat;
 				xoffs = Scale(xoffs, siz, 80);
 				yoffs = Scale(yoffs, siz, 80);
 				aoffs = Scale(aoffs, siz, 80);
@@ -1102,14 +1100,14 @@ void shoot_d(int i, int atwith)
 	case FIRELASER:
 	case SPIT:
 	case COOLEXPLOSION1:
-		shootstuff(i, p, sx, sy, sz, sa, atwith);
+		shootstuff(actor, p, sx, sy, sz, sa, atwith);
 		return;
 
 	case FREEZEBLAST:
 		sz += (3 << 8);
 	case RPG:
 
-		shootrpg(i, p, sx, sy, sz, sa, atwith);
+		shootrpg(actor, p, sx, sy, sz, sa, atwith);
 		break;
 
 	case HANDHOLDINGLASER:
