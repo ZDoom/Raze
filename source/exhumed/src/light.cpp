@@ -84,6 +84,7 @@ int LoadPaletteLookups()
         lookups.tables[kPalTorch].ShadeFactor = lookups.tables[kPalTorch2].ShadeFactor = (numshades - 2) / 20.f;
         lookups.tables[kPalNoTorch].ShadeFactor = lookups.tables[kPalNoTorch2].ShadeFactor = (numshades - 2) / 4.f;
         lookups.tables[kPalBrite].ShadeFactor = lookups.tables[kPalBrite].ShadeFactor = (numshades - 2) / 128.f;
+        lookups.setFadeColor(kPalRedBrite, 255, 0, 0);
 
     }
 

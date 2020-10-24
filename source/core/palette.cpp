@@ -142,6 +142,7 @@ void LookupTableInfo::postLoadTables(void)
     // Try to detect fullbright translations. Unfortunately this cannot be used to detect fade strength because of loss of color precision in the palette map.
     for (int j = 0; j < MAXPALOOKUPS; j++)
     {
+        if (tables[j].FadeColor) continue;
         auto lookup = tables[j].Shades;
         if (lookup.Len() > 0)
         {
