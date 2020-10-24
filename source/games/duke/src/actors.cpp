@@ -840,27 +840,23 @@ void movecrane(DDukeActor *actor, int crane)
 void movefountain(int i, int fountain)
 {
 	auto t = &hittype[i].temp_data[0];
-	auto s = &sprite[i];
+	auto &pn = sprite[i].picnum;
 	int x;
 	if (t[0] > 0)
 	{
 		if (t[0] < 20)
 		{
 			t[0]++;
-
-			s->picnum++;
-
-			if (s->picnum == fountain + 3)
-				s->picnum = fountain + 1;
+			if (++pn == fountain + 3) pn = fountain + 1;
 		}
 		else
 		{
-			findplayer(s, &x);
+			findplayer(&sprite[i], &x);
 
 			if (x > 512)
 			{
 				t[0] = 0;
-				s->picnum = fountain;
+				pn = fountain;
 			}
 			else t[0] = 1;
 		}
@@ -874,23 +870,23 @@ void movefountain(int i, int fountain)
 
 void moveflammable(int i, int tire, int box, int pool)
 {
-	auto s = &sprite[i];
-	auto ht = &hittype[i];
+	auto spri = &sprite[i];
+	auto actor = &hittype[i];
 	int j;
-	if (ht->temp_data[0] == 1)
+	if (actor->temp_data[0] == 1)
 	{
-		ht->temp_data[1]++;
-		if ((ht->temp_data[1] & 3) > 0) return;
+		actor->temp_data[1]++;
+		if ((actor->temp_data[1] & 3) > 0) return;
 
-		if (!isRR() && s->picnum == tire && ht->temp_data[1] == 32)
+		if (!isRR() && spri->picnum == tire && actor->temp_data[1] == 32)
 		{
-			s->cstat = 0;
+			spri->cstat = 0;
 			j = fi.spawn(i, pool);
 			sprite[j].shade = 127;
 		}
 		else
 		{
-			if (s->shade < 64) s->shade++;
+			if (spri->shade < 64) spri->shade++;
 			else
 			{
 				deletesprite(i);
@@ -898,27 +894,27 @@ void moveflammable(int i, int tire, int box, int pool)
 			}
 		}
 
-		j = s->xrepeat - (krand() & 7);
+		j = spri->xrepeat - (krand() & 7);
 		if (j < 10)
 		{
 			deletesprite(i);
 			return;
 		}
 
-		s->xrepeat = j;
+		spri->xrepeat = j;
 
-		j = s->yrepeat - (krand() & 7);
+		j = spri->yrepeat - (krand() & 7);
 		if (j < 4)
 		{
 			deletesprite(i);
 			return;
 		}
-		s->yrepeat = j;
+		spri->yrepeat = j;
 	}
-	if (box >= 0 && s->picnum == box)
+	if (box >= 0 && spri->picnum == box)
 	{
 		makeitfall(i);
-		ht->ceilingz = sector[s->sectnum].ceilingz;
+		actor->ceilingz = sector[spri->sectnum].ceilingz;
 	}
 }
 
