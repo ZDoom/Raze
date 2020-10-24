@@ -929,8 +929,8 @@ void moveflammable(DDukeActor* actor, int tire, int box, int pool)
 
 void detonate(int i, int explosion)
 {
-	auto s = &sprite[i];
-	auto ht = &hittype[i];
+	auto spri = &sprite[i];
+	auto actor = &hittype[i];
 	auto t = &hittype[i].temp_data[0];
 	earthquaketime = 16;
 
@@ -939,38 +939,38 @@ void detonate(int i, int explosion)
 	while ((j = itj.NextIndex()) >= 0)
 	{
 		auto sj = &sprite[j];
-		auto htj = &hittype[j];
-		if (s->hitag == sj->hitag)
+		auto effector = &hittype[j];
+		if (spri->hitag == sj->hitag)
 		{
 			if (sj->lotag == SE_13_EXPLOSIVE)
 			{
-				if (htj->temp_data[2] == 0)
-					htj->temp_data[2] = 1;
+				if (effector->temp_data[2] == 0)
+					effector->temp_data[2] = 1;
 			}
 			else if (sj->lotag == SE_8_UP_OPEN_DOOR_LIGHTS)
-				htj->temp_data[4] = 1;
+				effector->temp_data[4] = 1;
 			else if (sj->lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL)
 			{
-				if (htj->temp_data[0] == 0)
-					htj->temp_data[0] = 1;
+				if (effector->temp_data[0] == 0)
+					effector->temp_data[0] = 1;
 			}
 			else if (sj->lotag == SE_21_DROP_FLOOR)
-				htj->temp_data[0] = 1;
+				effector->temp_data[0] = 1;
 		}
 	}
 
-	s->z -= (32 << 8);
+	spri->z -= (32 << 8);
 
-	if ((t[3] == 1 && s->xrepeat) || s->lotag == -99)
+	if ((t[3] == 1 && spri->xrepeat) || spri->lotag == -99)
 	{
-		int x = s->extra;
+		int x = spri->extra;
 		fi.spawn(i, explosion);
 		fi.hitradius(i, seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		S_PlayActorSound(PIPEBOMB_EXPLODE, i);
 	}
 
-	if (s->xrepeat)
-		for (int x = 0; x < 8; x++) RANDOMSCRAP(s, i);
+	if (spri->xrepeat)
+		for (int x = 0; x < 8; x++) RANDOMSCRAP(spri, i);
 
 	deletesprite(i);
 
@@ -984,16 +984,16 @@ void detonate(int i, int explosion)
 
 void movemasterswitch(int i, int spectype1, int spectype2)
 {
-	auto s = &sprite[i];
+	auto spri = &sprite[i];
 	auto t = &hittype[i].temp_data[0];
-	if (s->yvel == 1)
+	if (spri->yvel == 1)
 	{
-		s->hitag--;
-		if (s->hitag <= 0)
+		spri->hitag--;
+		if (spri->hitag <= 0)
 		{
-			operatesectors(s->sectnum, i);
+			operatesectors(spri->sectnum, i);
 
-			SectIterator it(s->sectnum);
+			SectIterator it(spri->sectnum);
 			int j;
 			while ((j = it.NextIndex()) >= 0)
 			{
