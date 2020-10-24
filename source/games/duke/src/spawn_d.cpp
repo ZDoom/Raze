@@ -1040,7 +1040,7 @@ int spawn_d(int j, int pn)
             case CONE:
             case BOX:
                 sp->cstat = 257; // Make it hitable
-                sprite[i].extra = 1;
+                sp->extra = 1;
                 changespritestat(i,6);
                 break;
 

@@ -1320,7 +1320,7 @@ int spawn_r(int j, int pn)
 			case TREE2:
 			case TIRE:
 				sp->cstat = 257; // Make it hitable
-				sprite[i].extra = 1;
+				sp->extra = 1;
 				changespritestat(i,6);
 				break;
 
