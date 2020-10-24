@@ -283,4 +283,9 @@ inline int hitscan(int x, int y, int z, int16_t sectnum, int32_t vx, int32_t vy,
 	return res;
 }
 
+inline void lotsofglass(DDukeActor *act, int wallnum, int cnt)
+{
+	lotsofglass(act ? act->GetIndex() : -1, wallnum, cnt);
+}
+
 END_DUKE_NS
