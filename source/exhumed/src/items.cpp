@@ -240,7 +240,7 @@ bool UseHeart(short nPlayer)
 // invincibility
 bool UseScarab(short nPlayer)
 {
-    if (PlayerList[nPlayer].invincibility > 0 && PlayerList[nPlayer].invincibility < 900)
+    if (PlayerList[nPlayer].invincibility >= 0 && PlayerList[nPlayer].invincibility < 900)
         PlayerList[nPlayer].invincibility = 900;
 
     if (nPlayer == nLocalPlayer)
