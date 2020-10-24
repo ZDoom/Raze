@@ -601,7 +601,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			if (dasectnum < 0) dasectnum = 0;
 			return result.setSector(dasectnum);
 		}
-		if ((retval & kHitTypeMask) != kHitSector && (actor->cgg == 0)) spri->ang += 768;
+		if ((retval & kHitTypeMask) > kHitSector && (actor->cgg == 0)) spri->ang += 768;
 	}
 	else
 	{
