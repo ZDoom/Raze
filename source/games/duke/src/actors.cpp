@@ -558,15 +558,15 @@ void movefx(void)
 	StatIterator iti(STAT_FX);
 	while ((i = iti.NextIndex()) >= 0)
 	{
-		auto s = &sprite[i];
-		auto hti = &hittype[i];
+		auto spri = &sprite[i];
+		auto act = &hittype[i];
 
-		switch (s->picnum)
+		switch (spri->picnum)
 		{
 		case RESPAWN:
-			if (s->extra == 66)
+			if (spri->extra == 66)
 			{
-				j = fi.spawn(i, s->hitag);
+				j = fi.spawn(i, spri->hitag);
 				if (isRRRA())
 				{
 					respawn_rrra(i, j);
@@ -576,63 +576,63 @@ void movefx(void)
 					deletesprite(i);
 				}
 			}
-			else if (s->extra > (66 - 13))
-				s->extra++;
+			else if (spri->extra > (66 - 13))
+				spri->extra++;
 			break;
 
 		case MUSICANDSFX:
 
-			ht = s->hitag;
+			ht = spri->hitag;
 
-			if (hti->temp_data[1] != (int)SoundEnabled())
+			if (act->temp_data[1] != (int)SoundEnabled())
 			{
-				hti->temp_data[1] = SoundEnabled();
-				hti->temp_data[0] = 0;
+				act->temp_data[1] = SoundEnabled();
+				act->temp_data[0] = 0;
 			}
 
-			if (s->lotag >= 1000 && s->lotag < 2000)
+			if (spri->lotag >= 1000 && spri->lotag < 2000)
 			{
-				x = ldist(&sprite[ps[screenpeek].i], s);
-				if (x < ht && hti->temp_data[0] == 0)
+				x = ldist(&sprite[ps[screenpeek].i], spri);
+				if (x < ht && act->temp_data[0] == 0)
 				{
-					FX_SetReverb(s->lotag - 1000);
-					hti->temp_data[0] = 1;
+					FX_SetReverb(spri->lotag - 1000);
+					act->temp_data[0] = 1;
 				}
-				if (x >= ht && hti->temp_data[0] == 1)
+				if (x >= ht && act->temp_data[0] == 1)
 				{
 					FX_SetReverb(0);
 					FX_SetReverbDelay(0);
-					hti->temp_data[0] = 0;
+					act->temp_data[0] = 0;
 				}
 			}
-			else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && sector[s->sectnum].floorz != sector[s->sectnum].ceilingz)
+			else if (spri->lotag < 999 && (unsigned)sector[spri->sectnum].lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && sector[spri->sectnum].floorz != sector[spri->sectnum].ceilingz)
 			{
-				auto flags = S_GetUserFlags(s->lotag);
+				auto flags = S_GetUserFlags(spri->lotag);
 				if (flags & SF_MSFX)
 				{
-					int x = dist(&sprite[ps[screenpeek].i], s);
+					int x = dist(&sprite[ps[screenpeek].i], spri);
 
-					if (x < ht && hti->temp_data[0] == 0)
+					if (x < ht && act->temp_data[0] == 0)
 					{
 						// Start playing an ambience sound.
-						S_PlayActorSound(s->lotag, i, CHAN_AUTO, CHANF_LOOP);
-						hti->temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
+						S_PlayActorSound(spri->lotag, i, CHAN_AUTO, CHANF_LOOP);
+						act->temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
 					}
-					else if (x >= ht && hti->temp_data[0] == 1)
+					else if (x >= ht && act->temp_data[0] == 1)
 					{
 						// Stop playing ambience sound because we're out of its range.
-						S_StopSound(s->lotag, i);
+						S_StopSound(spri->lotag, i);
 					}
 				}
 
 				if ((flags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL)
 				{
-					if (hti->temp_data[4] > 0) hti->temp_data[4]--;
+					if (act->temp_data[4] > 0) act->temp_data[4]--;
 					else for (p = connecthead; p >= 0; p = connectpoint2[p])
-						if (p == myconnectindex && ps[p].cursectnum == s->sectnum)
+						if (p == myconnectindex && ps[p].cursectnum == spri->sectnum)
 						{
-							S_PlaySound(s->lotag + (unsigned)global_random % (s->hitag + 1));
-							hti->temp_data[4] = 26 * 40 + (global_random % (26 * 40));
+							S_PlaySound(spri->lotag + (unsigned)global_random % (spri->hitag + 1));
+							act->temp_data[4] = 26 * 40 + (global_random % (26 * 40));
 						}
 				}
 			}
