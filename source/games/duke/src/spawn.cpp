@@ -49,22 +49,19 @@ BEGIN_DUKE_NS
 
 short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss) 
 {
-	int i;
-	spritetype* s;
-
 	if (isRRRA() && s_ow < 0)
 		return 0;
 
-	i = insertsprite(whatsect, s_ss);
+	int const i = insertsprite(whatsect, s_ss);
 
 	if (i < 0)
 		I_Error(" Too many sprites spawned.");
 
-	hittype[i].bposx = s_x;
-	hittype[i].bposy = s_y;
-	hittype[i].bposz = s_z;
-
-	s = &sprite[i];
+	auto act = &hittype[i];
+	auto s = &act->s;
+	act->bposx = s_x;
+	act->bposy = s_y;
+	act->bposz = s_z;
 
 	s->x = s_x;
 	s->y = s_y;
@@ -87,28 +84,28 @@ short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s
 	s->pal = 0;
 	s->lotag = 0;
 
-	hittype[i].picnum = sprite[s_ow].picnum;
+	act->picnum = sprite[s_ow].picnum;
 
-	hittype[i].lastvx = 0;
-	hittype[i].lastvy = 0;
+	act->lastvx = 0;
+	act->lastvy = 0;
 
-	hittype[i].timetosleep = 0;
-	hittype[i].actorstayput = -1;
-	hittype[i].extra = -1;
-	hittype[i].owner = s_ow;
-	hittype[i].cgg = 0;
-	hittype[i].movflag = 0;
-	hittype[i].tempang = 0;
-	hittype[i].dispicnum = 0;
-	hittype[i].floorz = hittype[s_ow].floorz;
-	hittype[i].ceilingz = hittype[s_ow].ceilingz;
-	memset(hittype[i].temp_data, 0, sizeof(hittype[i].temp_data));
+	act->timetosleep = 0;
+	act->actorstayput = -1;
+	act->extra = -1;
+	act->owner = s_ow;
+	act->cgg = 0;
+	act->movflag = 0;
+	act->tempang = 0;
+	act->dispicnum = 0;
+	act->floorz = hittype[s_ow].floorz;
+	act->ceilingz = hittype[s_ow].ceilingz;
+	memset(act->temp_data, 0, sizeof(act->temp_data));
 	if (actorinfo[s_pn].scriptaddress)
 	{
 		auto sa = &ScriptCode[actorinfo[s_pn].scriptaddress];
 		s->extra = sa[0];
-		hittype[i].temp_data[4] = sa[1];
-		hittype[i].temp_data[1] = sa[2];
+		act->temp_data[4] = sa[1];
+		act->temp_data[1] = sa[2];
 		s->hitag = sa[3];
 	}
 	else
@@ -149,28 +146,29 @@ int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes
 	else
 	{
 		i = pn;
-		sp = &sprite[i];
-		t = hittype[i].temp_data;
+		auto act = &hittype[i];
+		sp = &act->s;
+		t = act->temp_data;
 
-		hittype[i].picnum = sp->picnum;
-		hittype[i].timetosleep = 0;
-		hittype[i].extra = -1;
+		act->picnum = sp->picnum;
+		act->timetosleep = 0;
+		act->extra = -1;
 
-		hittype[i].bposx = sp->x;
-		hittype[i].bposy = sp->y;
-		hittype[i].bposz = sp->z;
+		act->bposx = sp->x;
+		act->bposy = sp->y;
+		act->bposz = sp->z;
 
-		sp->owner = hittype[i].owner = i;
-		hittype[i].cgg = 0;
-		hittype[i].movflag = 0;
-		hittype[i].tempang = 0;
-		hittype[i].dispicnum = 0;
-		hittype[i].floorz = sector[sp->sectnum].floorz;
-		hittype[i].ceilingz = sector[sp->sectnum].ceilingz;
+		sp->owner = act->owner = i;
+		act->cgg = 0;
+		act->movflag = 0;
+		act->tempang = 0;
+		act->dispicnum = 0;
+		act->floorz = sector[sp->sectnum].floorz;
+		act->ceilingz = sector[sp->sectnum].ceilingz;
 
-		hittype[i].lastvx = 0;
-		hittype[i].lastvy = 0;
-		hittype[i].actorstayput = -1;
+		act->lastvx = 0;
+		act->lastvy = 0;
+		act->actorstayput = -1;
 
 		t[0] = t[1] = t[2] = t[3] = t[4] = t[5] = 0;
 
@@ -180,18 +178,18 @@ int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes
 				if (sp->shade == 127) return i;
 				if (wallswitchcheck(i) && (sp->cstat & 16))
 				{
-					if (sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2 && sprite[i].pal)
+					if (sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2 && sp->pal)
 					{
 						if ((ud.multimode < 2) || (ud.multimode > 1 && ud.coop == 1))
 						{
-							sprite[i].xrepeat = sprite[i].yrepeat = 0;
-							sprite[i].cstat = sp->lotag = sp->hitag = 0;
+							sp->xrepeat = sp->yrepeat = 0;
+							sp->cstat = sp->lotag = sp->hitag = 0;
 							return i;
 						}
 					}
 					sp->cstat |= 257;
-					if (sprite[i].pal && sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2)
-						sprite[i].pal = 0;
+					if (sp->pal && sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2)
+						sp->pal = 0;
 					return i;
 				}
 
@@ -230,9 +228,9 @@ int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes
 
 void spawninitdefault(int j, int i)
 {
-	auto sp = &sprite[i];
+	auto act = &hittype[i];
+	auto sp = &act->s;
 	auto sect = sp->sectnum;
-	auto t = hittype[i].temp_data;
 
 	if (actorinfo[sp->picnum].scriptaddress)
 	{
@@ -260,7 +258,7 @@ void spawninitdefault(int j, int i)
 			makeitfall(i);
 
 			if (actorflag(i, SFLAG_BADGUYSTAYPUT))
-				hittype[i].actorstayput = sp->sectnum;
+				act->actorstayput = sp->sectnum;
 
 			if (!isRR() || actorflag(i, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
 				ps[myconnectindex].max_actors_killed++;
@@ -269,7 +267,7 @@ void spawninitdefault(int j, int i)
 			if (j >= 0)
 			{
 				if (sprite[j].picnum == RESPAWN)
-					hittype[i].tempang = sprite[i].pal = sprite[j].pal;
+					act->tempang = sp->pal = sprite[j].pal;
 				changespritestat(i, STAT_ACTOR);
 			}
 			else changespritestat(i, STAT_ZOMBIEACTOR);
@@ -281,7 +279,7 @@ void spawninitdefault(int j, int i)
 			changespritestat(i, STAT_ACTOR);
 		}
 
-		hittype[i].timetosleep = 0;
+		act->timetosleep = 0;
 
 		if (j >= 0)
 			sp->ang = sprite[j].ang;
@@ -428,14 +426,15 @@ void initshell(int j, int i, bool isshell)
 {
 	auto sp = &sprite[i];
 	int sect = sp->sectnum;
+	auto spj = &sprite[j];
 	auto t = hittype[i].temp_data;
 	if (j >= 0)
 	{
 		short snum, a;
 
-		if (sprite[j].picnum == TILE_APLAYER)
+		if (spj->picnum == TILE_APLAYER)
 		{
-			snum = sprite[j].yvel;
+			snum = spj->yvel;
 			a = ps[snum].angle.ang.asbuild() - (krand() & 63) + 8;  //Fine tune
 
 			t[0] = krand() & 1;
@@ -445,11 +444,11 @@ void initshell(int j, int i, bool isshell)
 		else
 		{
 			a = sp->ang;
-			sp->z = sprite[j].z - PHEIGHT + (3 << 8);
+			sp->z = spj->z - PHEIGHT + (3 << 8);
 		}
 
-		sp->x = sprite[j].x + (sintable[(a + 512) & 2047] >> 7);
-		sp->y = sprite[j].y + (sintable[a & 2047] >> 7);
+		sp->x = spj->x + (sintable[(a + 512) & 2047] >> 7);
+		sp->y = spj->y + (sintable[a & 2047] >> 7);
 
 		sp->shade = -8;
 
