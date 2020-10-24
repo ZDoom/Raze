@@ -1522,9 +1522,9 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 				s->ang = ((k << 1) - s->ang) & 2047;
 			}
 		else if (j == kHitSprite)
-			{
+		{
 			fi.checkhitsprite(actor->GetIndex(), coll.actor->GetIndex());
-			}
+		}
 
 		s->xvel--;
 		if (s->xvel < 0) s->xvel = 0;

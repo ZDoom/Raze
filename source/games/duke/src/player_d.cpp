@@ -314,13 +314,12 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 //
 //---------------------------------------------------------------------------
 
-static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto actor = &hittype[i];
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall, l, k;
+	short hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitact;
 
@@ -390,7 +389,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 		int x;
 		int j = findplayer(actor, &x);
 		sz -= (4 << 8);
-		zvel = ((ps[j].posz - sz) << 8) / (ldist(&sprite[ps[j].i], s));
+		zvel = ((ps[j].posz - sz) << 8) / (ldist(ps[j].GetActor(), actor));
 		if (s->picnum != BOSS1)
 		{
 			zvel += 128 - (krand() & 255);
@@ -416,9 +415,10 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	if ((krand() & 15) == 0 && sector[hitsect].lotag == 2)
 		tracers(hitx, hity, hitz, sx, sy, sz, 8 - (ud.multimode >> 1));
 
+	DDukeActor* spark;
 	if (p >= 0)
 	{
-		auto spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, &hittype[i], 4);
+		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
 		spark->s.extra = ScriptCode[actorinfo[atwith].scriptaddress];
 		spark->s.extra += (krand() % 6);
 
@@ -497,19 +497,19 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 						{
 							if (wall[hitwall].nextsector >= 0)
 							{
-								SectIterator it(wall[hitwall].nextsector);
-								while ((l = it.NextIndex()) >= 0)
+								DukeSectIterator it(wall[hitwall].nextsector);
+								while (auto l = it.Next())
 								{
-									if (sprite[l].statnum == 3 && sprite[l].lotag == 13)
+									if (l->s.statnum == 3 && l->s.lotag == 13)
 										goto SKIPBULLETHOLE;
 								}
 							}
 
-							StatIterator it(STAT_MISC);
-							while ((l = it.NextIndex()) >= 0)
+							DukeStatIterator it(STAT_MISC);
+							while (auto l = it.Next())
 							{
-								if (sprite[l].picnum == BULLETHOLE)
-									if (dist(&sprite[l], &spark->s) < (12 + (krand() & 7)))
+								if (l->s.picnum == BULLETHOLE)
+									if (dist(l, spark) < (12 + (krand() & 7)))
 										goto SKIPBULLETHOLE;
 							}
 							auto hole = spawn(spark, BULLETHOLE);
@@ -531,24 +531,24 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	}
 	else
 	{
-		k = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, i, 4);
-		sprite[k].extra = ScriptCode[actorinfo[atwith].scriptaddress];
+		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
+		spark->s.extra = ScriptCode[actorinfo[atwith].scriptaddress];
 
 		if (hitact)
 		{
-			fi.checkhitsprite(hitact->GetIndex(), k);
+			fi.checkhitsprite(hitact->GetIndex(), spark->GetIndex());
 			if (hitact->s.picnum != TILE_APLAYER)
-				fi.spawn(k, SMALLSMOKE);
-			else sprite[k].xrepeat = sprite[k].yrepeat = 0;
+				spawn(spark, SMALLSMOKE);
+			else spark->s.xrepeat = spark->s.yrepeat = 0;
 		}
 		else if (hitwall >= 0)
-			fi.checkhitwall(k, hitwall, hitx, hity, hitz, SHOTSPARK1);
+			fi.checkhitwall(spark->GetIndex(), hitwall, hitx, hity, hitz, SHOTSPARK1);
 	}
 
 	if ((krand() & 255) < 4)
 	{
 		vec3_t v{ hitx, hity, hitz };
-		S_PlaySound3D(PISTOL_RICOCHET, k, &v);
+		S_PlaySound3D(PISTOL_RICOCHET, spark, &v);
 	}
 }
 
@@ -1096,7 +1096,7 @@ void shoot_d(int i, int atwith)
 	case SHOTSPARK1:
 	case SHOTGUN:
 	case CHAINGUN:
-		shootweapon(i, p, sx, sy, sz, sa, atwith);
+		shootweapon(actor, p, sx, sy, sz, sa, atwith);
 		return;
 
 	case FIRELASER:
