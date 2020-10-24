@@ -210,13 +210,12 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 //
 //---------------------------------------------------------------------------
 
-static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto actor = &hittype[i];
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall, l, k;
+	short hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
 
@@ -271,34 +270,31 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	}
 
 	s->cstat &= ~257;
-	hitscan(sx, sy, sz, sect,
-		sintable[(sa + 512) & 2047],
-		sintable[sa & 2047],
+	hitscan(sx, sy, sz, sect, sintable[(sa + 512) & 2047], sintable[sa & 2047],
 		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	if (isRRRA() && (((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
 		&& hitsprt == nullptr && hitwall == -1))
 	{
-		short ii;
-		for (ii = 0; ii < MAXSPRITES; ii++)
+		DukeSpriteIterator its;
+		while (auto effector = its.Next())
 		{
-			if (sprite[ii].sectnum == hitsect && sprite[ii].picnum == SECTOREFFECTOR
-				&& sprite[ii].lotag == 7)
+			// shouldn't this only check STAT_EFFECTOR?
+			if (effector->s.sectnum == hitsect && effector->s.picnum == SECTOREFFECTOR && effector->GetOwner()
+				&& effector->s.lotag == 7)
 			{
 				int nx, ny, nz;
-				nx = hitx + (sprite[sprite[ii].owner].x - sprite[ii].x);
-				ny = hity + (sprite[sprite[ii].owner].y - sprite[ii].y);
+				nx = hitx + (effector->GetOwner()->s.x - effector->s.x);
+				ny = hity + (effector->GetOwner()->s.y - effector->s.y);
 				if (sector[hitsect].lotag == 161)
 				{
-					nz = sector[sprite[sprite[ii].owner].sectnum].floorz;
+					nz = sector[effector->GetOwner()->s.sectnum].floorz;
 				}
 				else
 				{
-					nz = sector[sprite[sprite[ii].owner].sectnum].ceilingz;
+					nz = sector[effector->GetOwner()->s.sectnum].ceilingz;
 				}
-				hitscan(nx, ny, nz, sprite[sprite[ii].owner].sectnum,
-					sintable[(sa + 512) & 2047],
-					sintable[sa & 2047], zvel << 6,
+				hitscan(nx, ny, nz, effector->GetOwner()->s.sectnum, sintable[(sa + 512) & 2047], sintable[sa & 2047], zvel << 6,
 					&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 				break;
 			}
@@ -317,11 +313,12 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	if ((krand() & 15) == 0 && sector[hitsect].lotag == 2)
 		tracers(hitx, hity, hitz, sx, sy, sz, 8 - (ud.multimode >> 1));
 
+	DDukeActor* spark;
 	if (p >= 0)
 	{
-		k = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, i, 4);
-		sprite[k].extra = ScriptCode[actorinfo[atwith].scriptaddress];
-		sprite[k].extra += (krand() % 6);
+		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
+		spark->s.extra = ScriptCode[actorinfo[atwith].scriptaddress];
+		spark->s.extra += (krand() % 6);
 
 		if (hitwall == -1 && hitsprt == nullptr)
 		{
@@ -329,32 +326,32 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 			{
 				if (sector[hitsect].ceilingstat & 1)
 				{
-					sprite[k].xrepeat = 0;
-					sprite[k].yrepeat = 0;
+					spark->s.xrepeat = 0;
+					spark->s.yrepeat = 0;
 					return;
 				}
 				else
 					fi.checkhitceiling(hitsect);
 			}
 			if (sector[hitsect].lotag != 1)
-				fi.spawn(k, SMALLSMOKE);
+				spawn(spark, SMALLSMOKE);
 		}
 
 		if (hitsprt)
 		{
 			if (hitsprt->s.picnum == 1930)
 				return;
-			fi.checkhitsprite(hitsprt->GetIndex(), k);
+			fi.checkhitsprite(hitsprt->GetIndex(), spark->GetIndex());
 			if (hitsprt->s.picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
 			{
-				l = fi.spawn(k, JIBS6);
-				sprite[k].xrepeat = sprite[k].yrepeat = 0;
-				sprite[l].z += (4 << 8);
-				sprite[l].xvel = 16;
-				sprite[l].xrepeat = sprite[l].yrepeat = 24;
-				sprite[l].ang += 64 - (krand() & 127);
+				auto l = spawn(spark, JIBS6);
+				spark->s.xrepeat = spark->s.yrepeat = 0;
+				l->s.z += (4 << 8);
+				l->s.xvel = 16;
+				l->s.xrepeat = l->s.yrepeat = 24;
+				l->s.ang += 64 - (krand() & 127);
 			}
-			else fi.spawn(k, SMALLSMOKE);
+			else spawn(spark, SMALLSMOKE);
 
 			if (p >= 0 && (
 				hitsprt->s.picnum == DIPSWITCH ||
@@ -373,7 +370,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 		}
 		else if (hitwall >= 0)
 		{
-			fi.spawn(k, SMALLSMOKE);
+			spawn(spark, SMALLSMOKE);
 
 			if (fi.isadoorwall(wall[hitwall].picnum) == 1)
 				goto SKIPBULLETHOLE;
@@ -405,24 +402,24 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 						{
 							if (wall[hitwall].nextsector >= 0)
 							{
-								SectIterator it(wall[hitwall].nextsector);
-								while ((l = it.NextIndex()) >= 0)
+								DukeSectIterator it(wall[hitwall].nextsector);
+								while (auto l = it.Next())
 								{
-									if (sprite[l].statnum == 3 && sprite[l].lotag == 13)
+									if (l->s.statnum == 3 && l->s.lotag == 13)
 										goto SKIPBULLETHOLE;
 								}
 							}
 
-							StatIterator it(STAT_MISC);
-							while ((l = it.NextIndex()) >= 0)
+							DukeStatIterator it(STAT_MISC);
+							while (auto l = it.Next())
 							{
-								if (sprite[l].picnum == BULLETHOLE)
-									if (dist(&sprite[l], &sprite[k]) < (12 + (krand() & 7)))
+								if (l->s.picnum == BULLETHOLE)
+									if (dist(l, spark) < (12 + (krand() & 7)))
 										goto SKIPBULLETHOLE;
 							}
-							l = fi.spawn(k, BULLETHOLE);
-							sprite[l].xvel = -1;
-							sprite[l].ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x,
+							auto l = spawn(spark, BULLETHOLE);
+							l->s.xvel = -1;
+							l->s.ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x,
 								wall[hitwall].y - wall[wall[hitwall].point2].y) + 512;
 							ssp(l, CLIPMASK0);
 						}
@@ -434,29 +431,29 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 					if (hitz >= (sector[wall[hitwall].nextsector].floorz))
 						hitwall = wall[hitwall].nextwall;
 
-			fi.checkhitwall(k, hitwall, hitx, hity, hitz, SHOTSPARK1);
+			fi.checkhitwall(spark->GetIndex(), hitwall, hitx, hity, hitz, SHOTSPARK1);
 		}
 	}
 	else
 	{
-		k = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, i, 4);
-		sprite[k].extra = ScriptCode[actorinfo[atwith].scriptaddress];
+		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
+		spark->s.extra = ScriptCode[actorinfo[atwith].scriptaddress];
 
 		if (hitsprt)
 		{
-			fi.checkhitsprite(hitsprt->GetIndex(), k);
+			fi.checkhitsprite(hitsprt->GetIndex(), spark->GetIndex());
 			if (hitsprt->s.picnum != TILE_APLAYER)
-				fi.spawn(k, SMALLSMOKE);
-			else sprite[k].xrepeat = sprite[k].yrepeat = 0;
+				spawn(spark, SMALLSMOKE);
+			else spark->s.xrepeat = spark->s.yrepeat = 0;
 		}
 		else if (hitwall >= 0)
-			fi.checkhitwall(k, hitwall, hitx, hity, hitz, SHOTSPARK1);
+			fi.checkhitwall(spark->GetIndex(), hitwall, hitx, hity, hitz, SHOTSPARK1);
 	}
 
 	if ((krand() & 255) < 10)
 	{
 		vec3_t v{ hitx, hity, hitz };
-		S_PlaySound3D(PISTOL_RICOCHET, k, &v);
+		S_PlaySound3D(PISTOL_RICOCHET, spark, &v);
 	}
 }
 
@@ -903,7 +900,7 @@ void shoot_r(int i, int atwith)
 	case SHOTSPARK1:
 	case SHOTGUN:
 	case CHAINGUN:
-		shootweapon(i, p, sx, sy, sz, sa, atwith);
+		shootweapon(actor, p, sx, sy, sz, sa, atwith);
 		return;
 
 	case TRIPBOMBSPRITE:
