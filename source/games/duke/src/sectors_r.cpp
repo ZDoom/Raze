@@ -781,34 +781,32 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 					picnum == MULTISWITCH2 || picnum == (MULTISWITCH2 + 1) ||
 					picnum == (MULTISWITCH2 + 2) || picnum == (MULTISWITCH2 + 3))
 				{
-					int var6c[3], var54, j;
-					short jpn, jht;
-					var54 = 0;
+					int switches[3], switchcount = 0, j;
 					S_PlaySound3D(SWITCH_ON, w, &v);
 					for (j = 0; j < MAXSPRITES; j++)
 					{
-						jpn = sprite[j].picnum;
-						jht = sprite[j].hitag;
+						int jpn = sprite[j].picnum;
+						int jht = sprite[j].hitag;
 						if ((jpn == MULTISWITCH || jpn == MULTISWITCH2) && jht == 10000)
 						{
-							if (var54 < 3)
+							if (switchcount < 3)
 							{
-								var6c[var54] = j;
-								var54++;
+								switches[switchcount] = j;
+								switchcount++;
 							}
 						}
 					}
-					if (var54 == 3)
+					if (switchcount == 3)
 					{
 						S_PlaySound3D(78, w, &v);
-						for (j = 0; j < var54; j++)
+						for (j = 0; j < switchcount; j++)
 						{
-							sprite[var6c[j]].hitag = 0;
+							sprite[switches[j]].hitag = 0;
 							if (picnum >= MULTISWITCH2)
-								sprite[var6c[j]].picnum = MULTISWITCH2 + 3;
+								sprite[switches[j]].picnum = MULTISWITCH2 + 3;
 							else
-								sprite[var6c[j]].picnum = MULTISWITCH + 3;
-							checkhitswitch_r(snum, var6c[j], 1);
+								sprite[switches[j]].picnum = MULTISWITCH + 3;
+							checkhitswitch_r(snum, switches[j], 1);
 						}
 					}
 					return 1;
