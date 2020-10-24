@@ -174,7 +174,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 
 			if (hitsprt && hitsprt->s.picnum != ACCESSSWITCH && hitsprt->s.picnum != ACCESSSWITCH2)
 			{
-				fi.checkhitsprite(hitsprt->GetIndex(), wpn->GetIndex());
+				fi.checkhitsprite(hitsprt, wpn);
 				if (p >= 0) fi.checkhitswitch(p, hitsprt->GetIndex(), 1);
 			}
 			else if (hitwall >= 0)
@@ -341,7 +341,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		{
 			if (hitsprt->s.picnum == 1930)
 				return;
-			fi.checkhitsprite(hitsprt->GetIndex(), spark->GetIndex());
+			fi.checkhitsprite(hitsprt, spark);
 			if (hitsprt->s.picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
 			{
 				auto l = spawn(spark, JIBS6);
@@ -441,7 +441,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 
 		if (hitsprt)
 		{
-			fi.checkhitsprite(hitsprt->GetIndex(), spark->GetIndex());
+			fi.checkhitsprite(hitsprt, spark);
 			if (hitsprt->s.picnum != TILE_APLAYER)
 				spawn(spark, SMALLSMOKE);
 			else spark->s.xrepeat = spark->s.yrepeat = 0;

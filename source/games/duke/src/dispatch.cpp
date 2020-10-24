@@ -53,8 +53,8 @@ void checkplayerhurt_d(struct player_struct* p, int j);
 void checkplayerhurt_r(struct player_struct* p, int j);
 bool checkhitceiling_d(int sn);
 bool checkhitceiling_r(int sn);
-void checkhitsprite_d(int i, int sn);
-void checkhitsprite_r(int i, int sn);
+void checkhitsprite_d(DDukeActor* i, DDukeActor* sn);
+void checkhitsprite_r(DDukeActor* i, DDukeActor* sn);
 void checksectors_d(int snum);
 void checksectors_r(int snum);
 

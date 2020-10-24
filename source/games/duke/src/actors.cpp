@@ -1523,7 +1523,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 			}
 		else if (j == kHitSprite)
 		{
-			fi.checkhitsprite(actor->GetIndex(), coll.actor->GetIndex());
+			fi.checkhitsprite(actor, coll.actor);
 		}
 
 		s->xvel--;

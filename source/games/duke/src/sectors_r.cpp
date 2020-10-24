@@ -2417,11 +2417,6 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	}
 }
 
-void checkhitsprite_r(int targ, int proj)
-{
-	checkhitsprite_r(&hittype[targ], &hittype[proj]);
-}
-
 //---------------------------------------------------------------------------
 //
 // 

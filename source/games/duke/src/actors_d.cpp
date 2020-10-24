@@ -424,7 +424,7 @@ SKIPWALLCHECK:
 					{
 						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sectnum, spri->x, spri->y, spri->z + q, spri->sectnum))
 							continue;
-						fi.checkhitsprite(act2->GetIndex(), actor->GetIndex());
+						fi.checkhitsprite(act2, actor);
 					}
 			}
 			else if (spri2->extra >= 0 && act2 != actor && (spri2->picnum == TRIPBOMB || badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL || (spri2->cstat & 257) || spri2->picnum == DUKELYINGDEAD))
@@ -500,7 +500,7 @@ SKIPWALLCHECK:
 							spri2->picnum == FEM8 || spri2->picnum == FEM9 ||
 							spri2->picnum == FEM10 || spri2->picnum == STATUE ||
 							spri2->picnum == STATUEFLASH || spri2->picnum == SPACEMARINE || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL)
-							fi.checkhitsprite(act2->GetIndex(), actor->GetIndex());
+							fi.checkhitsprite(act2, actor);
 					}
 					else if (spri->extra == 0) act2->extra = 0;
 					
@@ -1629,7 +1629,7 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 		}
 
 	if (!isWorldTour() || s->picnum != FIREBALL || fireball)
-		fi.checkhitsprite(targ->GetIndex(), proj->GetIndex());
+		fi.checkhitsprite(targ, proj);
 
 	if (targ->s.picnum == APLAYER)
 	{
@@ -2802,7 +2802,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		s->xvel = s->yvel = s->zvel = 0;
 		if (coll.type == kHitSprite)
 		{
-			fi.checkhitsprite(coll.actor->GetIndex(), actor->GetIndex());
+			fi.checkhitsprite(coll.actor, actor);
 			if (coll.actor->s.picnum == APLAYER)
 				S_PlayActorSound(actor->GetIndex(), PISTOL_BODYHIT);
 		}

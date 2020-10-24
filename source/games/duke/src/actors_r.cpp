@@ -291,7 +291,7 @@ SKIPWALLCHECK:
 						{
 							continue;
 						}
-						fi.checkhitsprite(act2->GetIndex(), actor->GetIndex());
+						fi.checkhitsprite(act2, actor);
 					}
 			}
 			else if (spri2->extra >= 0 && act2 != actor && (badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == RRTILE3440 || spri2->picnum == STRIPEBALL || (spri2->cstat & 257) || spri2->picnum == DUKELYINGDEAD))
@@ -352,7 +352,7 @@ SKIPWALLCHECK:
 
 					if (spri2->picnum == STATUEFLASH || spri2->picnum == QUEBALL ||
 						spri2->picnum == STRIPEBALL || spri2->picnum == RRTILE3440)
-						fi.checkhitsprite(act2->GetIndex(), actor->GetIndex());
+						fi.checkhitsprite(act2, actor);
 
 					if (spri2->picnum != RADIUSEXPLOSION &&
 						Owner && Owner->s.statnum < MAXSTATUS)
@@ -1182,7 +1182,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const vec3_t &ol
 			return true;
 		}
 
-	fi.checkhitsprite(targ->GetIndex(), proj->GetIndex());
+	fi.checkhitsprite(targ, proj);
 
 	if (targ->s.picnum == APLAYER)
 	{
@@ -2807,7 +2807,7 @@ static int henstand(DDukeActor *actor)
 			else if (coll.type == kHitSprite)
 			{
 				auto hitact = coll.actor;
-				fi.checkhitsprite(actor->GetIndex(), hitact->GetIndex());
+				fi.checkhitsprite(actor, hitact);
 				if (hitact->s.picnum == HEN)
 				{
 					auto ns = spawn(hitact, HENSTAND);

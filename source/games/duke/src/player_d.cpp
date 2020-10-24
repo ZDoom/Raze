@@ -276,7 +276,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 
 			if (hitsprt && hitsprt->s.picnum != ACCESSSWITCH && hitsprt->s.picnum != ACCESSSWITCH2)
 			{
-				fi.checkhitsprite(hitsprt->GetIndex(), knee->GetIndex());
+				fi.checkhitsprite(hitsprt, knee);
 				if (p >= 0) fi.checkhitswitch(p, hitsprt->GetIndex(), 1);
 			}
 
@@ -440,7 +440,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 
 		if (hitact)
 		{
-			fi.checkhitsprite(hitact->GetIndex(), spark->GetIndex());
+			fi.checkhitsprite(hitact, spark);
 			if (hitact->s.picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
 			{
 				auto jib = spawn(spark, JIBS6);
@@ -536,7 +536,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 
 		if (hitact)
 		{
-			fi.checkhitsprite(hitact->GetIndex(), spark->GetIndex());
+			fi.checkhitsprite(hitact, spark);
 			if (hitact->s.picnum != TILE_APLAYER)
 				spawn(spark, SMALLSMOKE);
 			else spark->s.xrepeat = spark->s.yrepeat = 0;
@@ -980,7 +980,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 		if (zvel < 0 && (sector[hitsect].ceilingstat & 1) == 0)
 			fi.checkhitceiling(hitsect);
 	}
-	else if (hitsprt != nullptr) fi.checkhitsprite(hitsprt->GetIndex(), spark->GetIndex());
+	else if (hitsprt != nullptr) fi.checkhitsprite(hitsprt, spark);
 	else if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
 	{
 		fi.checkhitwall(spark->GetIndex(), hitwall, hitx, hity, hitz, GROWSPARK);
