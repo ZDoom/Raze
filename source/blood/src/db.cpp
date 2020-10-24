@@ -856,6 +856,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSprite->xoffset = load.xoffset;
         pSprite->yoffset = load.yoffset;
         pSprite->detail = load.detail;
+        pSprite->shade = load.shade;
         pSprite->blend = 0;
 
         InsertSpriteSect(i, sprite[i].sectnum);
