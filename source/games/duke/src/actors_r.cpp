@@ -381,68 +381,69 @@ int movesprite_r(short spritenum, int xchange, int ychange, int zchange, unsigne
 	short retval, dasectnum, cd;
 	char bg;
 
+	auto spri = &sprite[spritenum];
 	bg = badguy(&sprite[spritenum]);
 
-	if (sprite[spritenum].statnum == 5 || (bg && sprite[spritenum].xrepeat < 4))
+	if (spri->statnum == 5 || (bg && spri->xrepeat < 4))
 	{
-		sprite[spritenum].x += (xchange * TICSPERFRAME) >> 2;
-		sprite[spritenum].y += (ychange * TICSPERFRAME) >> 2;
-		sprite[spritenum].z += (zchange * TICSPERFRAME) >> 2;
+		spri->x += (xchange * TICSPERFRAME) >> 2;
+		spri->y += (ychange * TICSPERFRAME) >> 2;
+		spri->z += (zchange * TICSPERFRAME) >> 2;
 		if (bg)
-			setsprite(spritenum, sprite[spritenum].x, sprite[spritenum].y, sprite[spritenum].z);
+			setsprite(spritenum, spri->x, spri->y, spri->z);
 		return 0;
 	}
 
-	dasectnum = sprite[spritenum].sectnum;
+	dasectnum = spri->sectnum;
 
-	daz = sprite[spritenum].z;
-	h = ((tilesiz[sprite[spritenum].picnum].y * sprite[spritenum].yrepeat) << 1);
+	daz = spri->z;
+	h = ((tilesiz[spri->picnum].y * spri->yrepeat) << 1);
 	daz -= h;
 
 	if (bg)
 	{
-		oldx = sprite[spritenum].x;
-		oldy = sprite[spritenum].y;
+		oldx = spri->x;
+		oldy = spri->y;
 
-		if (sprite[spritenum].xrepeat > 60)
-			retval = clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024L, (4 << 8), (4 << 8), cliptype);
+		if (spri->xrepeat > 60)
+			retval = clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024L, (4 << 8), (4 << 8), cliptype);
 		else 
 		{
 			cd = 192;
-			retval = clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), cd, (4 << 8), (4 << 8), cliptype);
+			retval = clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), cd, (4 << 8), (4 << 8), cliptype);
 		}
 
 		if (dasectnum < 0 || (dasectnum >= 0 &&
 			hittype[spritenum].actorstayput >= 0 && hittype[spritenum].actorstayput != dasectnum))
 		{
-			sprite[spritenum].x = oldx;
-			sprite[spritenum].y = oldy;
+			spri->x = oldx;
+			spri->y = oldy;
 			if (sector[dasectnum].lotag == ST_1_ABOVE_WATER)
-				sprite[spritenum].ang = (krand() & 2047);
+				spri->ang = (krand() & 2047);
 			else if ((hittype[spritenum].temp_data[0] & 3) == 1)
-				sprite[spritenum].ang = (krand() & 2047);
-			setsprite(spritenum, oldx, oldy, sprite[spritenum].z);
+				spri->ang = (krand() & 2047);
+			setsprite(spritenum, oldx, oldy, spri->z);
 			if (dasectnum < 0) dasectnum = 0;
 			return (16384 + dasectnum);
 		}
-		if ((retval & 49152) >= 32768 && (hittype[spritenum].cgg == 0)) sprite[spritenum].ang += 768;
+		if ((retval & 49152) >= 32768 && (hittype[spritenum].cgg == 0)) spri->ang += 768;
 	}
 	else
 	{
-		if (sprite[spritenum].statnum == 4)
+		if (spri->statnum == 4)
 			retval =
-			clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8L, (4 << 8), (4 << 8), cliptype);
+			clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8L, (4 << 8), (4 << 8), cliptype);
 		else
 			retval =
-			clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 128L, (4 << 8), (4 << 8), cliptype);
+			clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 128L, (4 << 8), (4 << 8), cliptype);
 	}
 
 	if (dasectnum >= 0)
-		if ((dasectnum != sprite[spritenum].sectnum))
+		if ((dasectnum != spri->sectnum))
 			changespritesect(spritenum, dasectnum);
-	daz = sprite[spritenum].z + ((zchange * TICSPERFRAME) >> 3);
+	daz = spri->z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > hittype[spritenum].ceilingz) && (daz <= hittype[spritenum].floorz))
-		sprite[spritenum].z = daz;
+		spri->z = daz;
 	else
 		if (retval == 0)
 			return(16384 + dasectnum);
