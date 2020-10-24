@@ -648,14 +648,14 @@ void movefx(void)
 void movecrane(int i, int crane)
 {
 	auto t = &hittype[i].temp_data[0];
-	auto s = &sprite[i];
-	int sect = s->sectnum;
+	auto spri = &sprite[i];
+	int sect = spri->sectnum;
 	int x;
 
 	//t[0] = state
 	//t[1] = checking sector number
 
-	if (s->xvel) getglobalz(i);
+	if (spri->xvel) getglobalz(i);
 
 	if (t[0] == 0) //Waiting to check the sector
 	{
@@ -669,7 +669,7 @@ void movecrane(int i, int crane)
 			case STAT_ZOMBIEACTOR:
 			case STAT_STANDABLE:
 			case STAT_PLAYER:
-				s->ang = getangle(msx[t[4] + 1] - s->x, msy[t[4] + 1] - s->y);
+				spri->ang = getangle(msx[t[4] + 1] - spri->x, msy[t[4] + 1] - spri->y);
 				setsprite(j, msx[t[4] + 1], msy[t[4] + 1], sprite[j].z);
 				t[0]++;
 				return;
@@ -679,10 +679,10 @@ void movecrane(int i, int crane)
 
 	else if (t[0] == 1)
 	{
-		if (s->xvel < 184)
+		if (spri->xvel < 184)
 		{
-			s->picnum = crane + 1;
-			s->xvel += 8;
+			spri->picnum = crane + 1;
+			spri->xvel += 8;
 		}
 		//IFMOVING;	// JBF 20040825: see my rant above about this
 		ssp(i, CLIPMASK0);
@@ -691,48 +691,48 @@ void movecrane(int i, int crane)
 	}
 	else if (t[0] == 2 || t[0] == 7)
 	{
-		s->z += (1024 + 512);
+		spri->z += (1024 + 512);
 
 		if (t[0] == 2)
 		{
-			if ((sector[sect].floorz - s->z) < (64 << 8))
-				if (s->picnum > crane) s->picnum--;
+			if ((sector[sect].floorz - spri->z) < (64 << 8))
+				if (spri->picnum > crane) spri->picnum--;
 
-			if ((sector[sect].floorz - s->z) < (4096 + 1024))
+			if ((sector[sect].floorz - spri->z) < (4096 + 1024))
 				t[0]++;
 		}
 		if (t[0] == 7)
 		{
-			if ((sector[sect].floorz - s->z) < (64 << 8))
+			if ((sector[sect].floorz - spri->z) < (64 << 8))
 			{
-				if (s->picnum > crane) s->picnum--;
+				if (spri->picnum > crane) spri->picnum--;
 				else
 				{
-					if (s->owner == -2)
+					if (spri->owner == -2)
 					{
-						auto p = findplayer(s, &x);
+						auto p = findplayer(spri, &x);
 						S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
 						if (ps[p].on_crane == &hittype[i])
 							ps[p].on_crane = nullptr;
 					}
 					t[0]++;
-					s->owner = -1;
+					spri->owner = -1;
 				}
 			}
 		}
 	}
 	else if (t[0] == 3)
 	{
-		s->picnum++;
-		if (s->picnum == (crane + 2))
+		spri->picnum++;
+		if (spri->picnum == (crane + 2))
 		{
 			auto p = checkcursectnums(t[1]);
 			if (p >= 0 && ps[p].on_ground)
 			{
-				s->owner = -2;
+				spri->owner = -2;
 				ps[p].on_crane = &hittype[i];
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
-				ps[p].angle.addadjustment(s->ang + 1024);
+				ps[p].angle.addadjustment(spri->ang + 1024);
 			}
 			else
 			{
@@ -744,7 +744,7 @@ void movecrane(int i, int crane)
 					{
 					case 1:
 					case 6:
-						s->owner = j;
+						spri->owner = j;
 						break;
 					}
 				}
@@ -763,68 +763,68 @@ void movecrane(int i, int crane)
 	}
 	else if (t[0] == 5 || t[0] == 8)
 	{
-		if (t[0] == 8 && s->picnum < (crane + 2))
-			if ((sector[sect].floorz - s->z) > 8192)
-				s->picnum++;
+		if (t[0] == 8 && spri->picnum < (crane + 2))
+			if ((sector[sect].floorz - spri->z) > 8192)
+				spri->picnum++;
 
-		if (s->z < msx[t[4] + 2])
+		if (spri->z < msx[t[4] + 2])
 		{
 			t[0]++;
-			s->xvel = 0;
+			spri->xvel = 0;
 		}
 		else
-			s->z -= (1024 + 512);
+			spri->z -= (1024 + 512);
 	}
 	else if (t[0] == 6)
 	{
-		if (s->xvel < 192)
-			s->xvel += 8;
-		s->ang = getangle(msx[t[4]] - s->x, msy[t[4]] - s->y);
+		if (spri->xvel < 192)
+			spri->xvel += 8;
+		spri->ang = getangle(msx[t[4]] - spri->x, msy[t[4]] - spri->y);
 		//IFMOVING;	// JBF 20040825: see my rant above about this
 		ssp(i, CLIPMASK0);
-		if (((s->x - msx[t[4]]) * (s->x - msx[t[4]]) + (s->y - msy[t[4]]) * (s->y - msy[t[4]])) < (128 * 128))
+		if (((spri->x - msx[t[4]]) * (spri->x - msx[t[4]]) + (spri->y - msy[t[4]]) * (spri->y - msy[t[4]])) < (128 * 128))
 			t[0]++;
 	}
 
 	else if (t[0] == 9)
 		t[0] = 0;
 
-	setsprite(msy[t[4] + 2], s->x, s->y, s->z - (34 << 8));
+	setsprite(msy[t[4] + 2], spri->x, spri->y, spri->z - (34 << 8));
 
-	if (s->owner != -1)
+	if (spri->owner != -1)
 	{
-		auto p = findplayer(s, &x);
+		auto p = findplayer(spri, &x);
 
 		int j = fi.ifhitbyweapon(i);
 		if (j >= 0)
 		{
-			if (s->owner == -2)
+			if (spri->owner == -2)
 				if (ps[p].on_crane == &hittype[i])
 					ps[p].on_crane = nullptr;
-			s->owner = -1;
-			s->picnum = crane;
+			spri->owner = -1;
+			spri->picnum = crane;
 			return;
 		}
 
-		if (s->owner >= 0)
+		if (spri->owner >= 0)
 		{
-			setsprite(s->owner, s->x, s->y, s->z);
+			setsprite(spri->owner, spri->x, spri->y, spri->z);
 
-			hittype[s->owner].bposx = s->x;
-			hittype[s->owner].bposy = s->y;
-			hittype[s->owner].bposz = s->z;
+			hittype[spri->owner].bposx = spri->x;
+			hittype[spri->owner].bposy = spri->y;
+			hittype[spri->owner].bposz = spri->z;
 
-			s->zvel = 0;
+			spri->zvel = 0;
 		}
-		else if (s->owner == -2)
+		else if (spri->owner == -2)
 		{
 			auto ang = ps[p].angle.ang.asbuild();
 			ps[p].oposx = ps[p].posx;
 			ps[p].oposy = ps[p].posy;
 			ps[p].oposz = ps[p].posz;
-			ps[p].posx = s->x - (sintable[(ang + 512) & 2047] >> 6);
-			ps[p].posy = s->y - (sintable[ang & 2047] >> 6);
-			ps[p].posz = s->z + (2 << 8);
+			ps[p].posx = spri->x - (sintable[(ang + 512) & 2047] >> 6);
+			ps[p].posy = spri->y - (sintable[ang & 2047] >> 6);
+			ps[p].posz = spri->z + (2 << 8);
 			setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
 			ps[p].cursectnum = sprite[ps[p].i].sectnum;
 		}
