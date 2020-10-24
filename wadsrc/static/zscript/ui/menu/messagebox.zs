@@ -89,7 +89,7 @@ class MessageBoxMenu : Menu
 		int mr2 = destWidth/2 + 10 + textFont.StringWidth(Stringtable.Localize("$TXT_NO"));
 		mMouseRight = MAX(mr1, mr2);
 		mParentMenu = parent;
-		mMessage = textFont.BreakLines(Stringtable.Localize(message), 300/NotifyFontScale);
+		mMessage = textFont.BreakLines(Stringtable.Localize(message), int(300/NotifyFontScale));
 		mMessageMode = messagemode;
 		if (playsound)
 		{
@@ -106,8 +106,9 @@ class MessageBoxMenu : Menu
 
 	override void Drawer ()
 	{
-		int i, y;
-		int fontheight = textFont.GetHeight() * NotifyFontScale;
+		int i;
+		double y;
+		let fontheight = textFont.GetHeight() * NotifyFontScale;
 
 		y = destHeight / 2;
 
@@ -124,7 +125,7 @@ class MessageBoxMenu : Menu
 		if (mMessageMode == 0)
 		{
 			y += fontheight;
-			mMouseY = y;
+			mMouseY = int(y);
 			screen.DrawText(textFont, messageSelection == 0? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColor, destWidth / 2, y, Stringtable.Localize("$TXT_YES"), DTA_VirtualWidth, destWidth, DTA_VirtualHeight, destHeight, DTA_KeepRatio, 	true, DTA_ScaleX, NotifyFontScale, DTA_ScaleY, NotifyFontScale);
 			screen.DrawText(textFont, messageSelection == 1? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColor, destWidth / 2, y + fontheight, Stringtable.Localize("$TXT_NO"), DTA_VirtualWidth, destWidth, DTA_VirtualHeight, destHeight, DTA_KeepRatio, true, DTA_ScaleX, NotifyFontScale, DTA_ScaleY, NotifyFontScale);
 
