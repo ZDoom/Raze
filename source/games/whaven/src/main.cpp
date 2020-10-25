@@ -3,6 +3,8 @@
 #include "mapinfo.h"
 #include "gamestate.h"
 #include "buildtiles.h"
+#include "v_draw.h"
+#include "menu.h"
 
 BEGIN_WH_NS 
 
@@ -250,6 +252,20 @@ void GameInterface::Startup()
 			{
 				gameaction = ga_mainmenu;
 			});
+	}
+}
+
+bool showmainmenu;
+void GameInterface::DrawBackground()
+{
+	if (isWh2()) 
+	{
+		DrawTexture(twod, tileGetTexture(VMAINBLANK), 0, 0, DTA_Fullscreen, FSMode_ScaleToFit43, TAG_DONE);
+	}
+	else
+	{
+		// This only shows the low res menu, the larger one is rather poor.
+		DrawTexture(twod, tileGetTexture(showmainmenu ? MAINMENU : TITLEPIC), 0, 0, DTA_Fullscreen, FSMode_ScaleToFit43, TAG_DONE);
 	}
 }
 

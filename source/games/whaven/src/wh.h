@@ -492,7 +492,7 @@ struct GameInterface : public ::GameInterface
 	//void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
 	//void UpdateSounds() override;
 	void Startup() override;
-	//void DrawBackground() override;
+	void DrawBackground() override;
 	//void Render() override;
 	//void Ticker() override;
 	const char* GenericCheat(int player, int cheat) override;
