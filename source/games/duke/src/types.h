@@ -204,14 +204,14 @@ struct player_struct
 	short curr_weapon, last_weapon, tipincs, wantweaponfire;
 	short holoduke_amount, newowner, hurt_delay, hbomb_hold_delay;
 	short jumping_counter, airleft, knee_incs, access_incs;
-	short ftq, access_wallnum, access_spritenum;
+	short ftq, access_wallnum;
 	short got_access, weapon_ang, firstaid_amount;
 	short i, one_parallax_sectnum;
 	short over_shoulder_on, fist_incs;
 	short cheat_phase;
 	short dummyplayersprite, extra_extra8, quick_kick, last_quick_kick;
 	short heat_amount, timebeforeexit, customexitsound;
-	DDukeActor* actorsqu, *wackedbyactor, *on_crane, *holoduke_on, *somethingonplayer;
+	DDukeActor* actorsqu, *wackedbyactor, *on_crane, *holoduke_on, *somethingonplayer, *access_spritenum;
 
 	short weaprecs[256], weapreccnt;
 	unsigned int interface_toggle_flag;

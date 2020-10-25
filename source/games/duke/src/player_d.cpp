@@ -1291,10 +1291,10 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 
 			if (j == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
 			{
-				StatIterator it(STAT_ACTOR);
-				while ((k = it.NextIndex()) >= 0)
+				DukeStatIterator it(STAT_ACTOR);
+				while (auto act = it.Next())
 				{
-					if (sprite[k].picnum == HEAVYHBOMB && sprite[k].owner == p->i)
+					if (act->s.picnum == HEAVYHBOMB && act->GetOwner() == p->GetActor())
 					{
 						p->gotweapon.Set(HANDBOMB_WEAPON);
 						j = HANDREMOTE_WEAPON;
@@ -1515,16 +1515,16 @@ int doincrements_d(struct player_struct* p)
 			p->access_incs = 12;
 		if (p->access_incs == 12)
 		{
-			if (p->access_spritenum >= 0)
+			if (p->access_spritenum != nullptr)
 			{
-				fi.checkhitswitch(snum, p->access_spritenum, 1);
-				switch (sprite[p->access_spritenum].pal)
+				fi.checkhitswitch(snum, p->access_spritenum->GetIndex(), 1);
+				switch (p->access_spritenum->s.pal)
 				{
 				case 0:p->got_access &= (0xffff - 0x1); break;
 				case 21:p->got_access &= (0xffff - 0x2); break;
 				case 23:p->got_access &= (0xffff - 0x4); break;
 				}
-				p->access_spritenum = -1;
+				p->access_spritenum = nullptr;
 			}
 			else
 			{
@@ -2613,7 +2613,8 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
-	auto s = &sprite[pi];
+	auto pact = p->GetActor();
+	auto s = &pact->s;
 	int shrunk = (s->yrepeat < 32);
 
 	// Set maximum for pistol slightly higher if playing with `cl_showmagamount 1`.
@@ -2721,7 +2722,8 @@ void processinput_d(int snum)
 
 	p = &ps[snum];
 	pi = p->i;
-	s = &sprite[pi];
+	auto pact = p->GetActor();
+	s = &pact->s;
 
 	p->horizon.resetadjustment();
 	p->angle.resetadjustment();

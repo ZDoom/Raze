@@ -353,6 +353,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 	correctdips = 1;
 	numdips = 0;
 
+	auto act = &hittype[w];
 	if (switchtype == 1) // A wall sprite
 	{
 		lotag = sprite[w].lotag; if (lotag == 0) return 0;
@@ -423,7 +424,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 				if (switchtype == 0)
 					ps[snum].access_wallnum = w;
 				else
-					ps[snum].access_spritenum = w;
+					ps[snum].access_spritenum = act;
 			}
 
 			return 0;

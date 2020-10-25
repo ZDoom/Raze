@@ -1054,10 +1054,10 @@ void selectweapon_r(int snum, int weap)
 
 			if (j == DYNAMITE_WEAPON && p->ammo_amount[DYNAMITE_WEAPON] == 0)
 			{
-				StatIterator it(STAT_ACTOR);
-				while ((k = it.NextIndex()) >= 0)
+				DukeStatIterator it(STAT_ACTOR);
+				while (auto act = it.Next())
 				{
-					if (sprite[k].picnum == HEAVYHBOMB && sprite[k].owner == p->i)
+					if (act->s.picnum == HEAVYHBOMB && act->GetOwner() == p->GetActor())
 					{
 						p->gotweapon.Set(DYNAMITE_WEAPON);
 						j = THROWINGDYNAMITE_WEAPON;
@@ -1367,16 +1367,16 @@ int doincrements_r(struct player_struct* p)
 			p->access_incs = 12;
 		if (p->access_incs == 12)
 		{
-			if (p->access_spritenum >= 0)
+			if (p->access_spritenum != nullptr)
 			{
-				fi.checkhitswitch(snum, p->access_spritenum, 1);
-				switch (sprite[p->access_spritenum].pal)
+				fi.checkhitswitch(snum, p->access_spritenum->GetIndex(), 1);
+				switch (p->access_spritenum->s.pal)
 				{
 				case 0:p->keys[1] = 1; break;
 				case 21:p->keys[2] = 1; break;
 				case 23:p->keys[3] = 1; break;
 				}
-				p->access_spritenum = -1;
+				p->access_spritenum = nullptr;
 			}
 			else
 			{

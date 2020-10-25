@@ -247,8 +247,8 @@ int animateaccess(int gs,int snum,double hard_landing,double look_anghalf,double
 	looking_arc = access_y[ps[snum].access_incs] + (fabs(look_anghalf) / 4.5);
 	looking_arc -= hard_landing * 8.;
 
-	if(ps[snum].access_spritenum >= 0)
-		p = sprite[ps[snum].access_spritenum].pal;
+	if(ps[snum].access_spritenum != nullptr)
+		p = ps[snum].access_spritenum->s.pal;
 	else p = 0;
 
 	if((ps[snum].access_incs-3) > 0 && (ps[snum].access_incs-3)>>3)

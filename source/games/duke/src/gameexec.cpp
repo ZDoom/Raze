@@ -578,8 +578,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ACCESS_SPRITENUM:
-		if (bSet) ps[iPlayer].access_spritenum = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].access_spritenum, sActor, sPlayer);
+		if (bSet) ps[iPlayer].access_spritenum = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ps[iPlayer].access_spritenum), sActor, sPlayer);
 		break;
 
 	case PLAYER_KICKBACK_PIC:

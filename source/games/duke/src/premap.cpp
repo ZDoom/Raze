@@ -121,7 +121,7 @@ void resetplayerstats(int snum)
     p->airleft          = 15*26;
     p->rapid_fire_hold  = 0;
     p->toggle_key_flag  = 0;
-    p->access_spritenum = -1;
+    p->access_spritenum = nullptr;
     if(ud.multimode > 1 && ud.coop != 1 )
         p->got_access = 7;
     else p->got_access      = 0;
