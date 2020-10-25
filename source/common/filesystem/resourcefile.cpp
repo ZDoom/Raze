@@ -241,10 +241,11 @@ FResourceFile *CheckPak(const char *filename, FileReader &file, bool quiet, Lump
 FResourceFile *CheckZip(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter);
 FResourceFile *Check7Z(const char *filename,  FileReader &file, bool quiet, LumpFilterInfo* filter);
 FResourceFile* CheckSSI(const char* filename, FileReader& file, bool quiet, LumpFilterInfo* filter);
+FResourceFile* CheckWHRes(const char* filename, FileReader& file, bool quiet, LumpFilterInfo* filter);
 FResourceFile *CheckLump(const char *filename,FileReader &file, bool quiet, LumpFilterInfo* filter);
 FResourceFile *CheckDir(const char *filename, bool quiet, bool nosub, LumpFilterInfo* filter);
 
-static CheckFunc funcs[] = { CheckWad, CheckZip, Check7Z, CheckPak, CheckGRP, CheckRFF, CheckSSI, CheckLump };
+static CheckFunc funcs[] = { CheckWad, CheckZip, Check7Z, CheckPak, CheckGRP, CheckRFF, CheckSSI, CheckWHRes, CheckLump };
 
 FResourceFile *FResourceFile::DoOpenResourceFile(const char *filename, FileReader &file, bool quiet, bool containeronly, LumpFilterInfo* filter)
 {

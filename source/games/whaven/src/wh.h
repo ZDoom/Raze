@@ -23,6 +23,7 @@ END_WH_NS
 #include "gstrings.h"
 #include "gamecontrol.h"
 #include "d_net.h"
+#include "screenjob.h"
 
 BEGIN_WH_NS
 
@@ -460,6 +461,10 @@ void showStatisticsScreen();
 void showVictoryScreen();
 
 void InitNames();
+void InitFonts();
+void sfxInit(void);
+
+void IntroMovie(const CompletionFunc& completion);
 
 
 #include "item.h"

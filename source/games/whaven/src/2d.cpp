@@ -1,7 +1,35 @@
 #include "ns.h"
 #include "wh.h"
+#include "screenjob.h"
+#include "raze_music.h"
+#include "raze_sound.h"
 
 BEGIN_WH_NS
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void IntroMovie(const CompletionFunc& completion)
+{
+	Mus_Stop();
+	FX_StopAllSounds();
+
+	if (userConfig.nologo)
+	{
+		completion(false);
+		return;
+	}
+	else
+	{
+		JobDesc job = { PlayVideo(g_gameType & GAMEFLAG_WH2? "smk/intro.smk" : "intro.smk"), nullptr };
+		RunScreenJob(&job, 1, completion, true, true);
+	}
+}
+
+
 
 void showStatisticsScreen()
 {

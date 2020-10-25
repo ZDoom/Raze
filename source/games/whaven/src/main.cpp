@@ -203,6 +203,8 @@ static void readpalettetable(void)
 void GameInterface::app_init()
 {
 	InitNames();
+	engineInit();
+
 	TileFiles.LoadArtSet("tiles%03d.art");
 	TileFiles.tileMakeWritable(ANILAVA);
 	TileFiles.tileMakeWritable(HEALTHWATER);
@@ -211,6 +213,8 @@ void GameInterface::app_init()
 	//ConsoleInit();
 	g_visibility=1024;
 	readpalettetable();
+	TileFiles.SetBackup();
+	InitFonts();
 
 	if(isWh2()) {
 		tileDelete(FLOORMIRROR);
@@ -229,6 +233,7 @@ void GameInterface::app_init()
 	 
 	FadeInit();
 	setupmidi();
+	sfxInit();
 	//sndInit();
 	//initpaletteshifts();
 	InitOriginalEpisodes();
@@ -236,12 +241,16 @@ void GameInterface::app_init()
 
 void GameInterface::Startup()
 {
-	/*
-	if (gCutsceneScreen.init("intro.smk"))
-		changeScreen(gCutsceneScreen.setSkipping(main).escSkipping(true));
+	if (userConfig.CommandMap.IsNotEmpty())
+	{
+	}
 	else
-		changeScreen(gMenuScreen);
-	*/
+	{
+		IntroMovie([](bool)
+			{
+				gameaction = ga_mainmenu;
+			});
+	}
 }
 
 ::GameInterface* CreateInterface()
