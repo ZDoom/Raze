@@ -426,6 +426,7 @@ void GameInterface::app_init()
 	levelLoadDefaults();
 	LoadDefinitions();
 	SetTileNames();
+	C_InitConback(TexMan.CheckForTexture("BACKTILE", ETextureType::Any), true, 0.25);
 
 	TileFiles.SetBackup();
 	powerupInit();
