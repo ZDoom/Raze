@@ -177,7 +177,7 @@ void OnEvent(int id, int pnum = -1, DDukeActor* snum = nullptr, int dist = -1);
 
 short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss);
 void ceilingglass(int snum, int sectnum, int cnt);
-void spriteglass(int snum, int cnt);
+void spriteglass(DDukeActor* snum, int cnt);
 void lotsofcolourglass(int snum, int wallNum, int cnt);
 void lotsofglass(int snum, int wallnum, int cnt);
 

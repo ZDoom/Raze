@@ -1148,7 +1148,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 	else
 	{
 		iActor = GetGameVarID((int)lVar1, sActor, sPlayer);
-		act = &hittype[iActor];
+		act = ScriptIndexToActor(iActor);
 	}
 	auto spr = &act->s;
 
@@ -1905,7 +1905,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_lotsofglass:
 		insptr++;
-		spriteglass(g_ac->GetIndex(),*insptr);
+		spriteglass(g_ac, *insptr);
 		insptr++;
 		break;
 	case concmd_killit:
@@ -2590,7 +2590,7 @@ int ParseState::parse(void)
 		}
 		else if( aGameVars[*insptr].dwFlags & GAMEVAR_FLAG_PERACTOR)
 		{
-			DPrintf(DMSG_NOTIFY, " (Per Actor. Actor=%d)",g_ac->GetIndex());
+			DPrintf(DMSG_NOTIFY, " (Per Actor. Actor=%p)",g_ac);
 		}
 		else
 		{
@@ -2621,8 +2621,6 @@ int ParseState::parse(void)
 	{	int i;		
 		insptr++;
 		i=*(insptr++);	// ID of def
-//sprintf(g_szBuf,"AddVar %d to Var ID=%d, g_ac->GetIndex()=%d, g_p=%d\n",*insptr, i, g_ac, g_p);
-//AddLog(g_szBuf);
 		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) + *insptr, g_ac, g_p );
 		insptr++;
 		break;
@@ -2830,7 +2828,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_ifnosounds:
-		parseifelse(!S_CheckAnyActorSoundPlaying(g_ac->GetIndex()) );
+		parseifelse(!S_CheckAnyActorSoundPlaying(g_ac));
 		break;
 
 	case concmd_ifplaybackon: //Twentieth Anniversary World Tour
@@ -2839,28 +2837,26 @@ int ParseState::parse(void)
 
 	case concmd_espawnvar:
 	{
-		int lReturn;
+		DDukeActor* lReturn = nullptr;
 		int lIn;
-		lReturn = -1;
 		insptr++;
 
 		lIn = *insptr++;
 		lIn = GetGameVarID(lIn, g_ac, g_p);
 		if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-			lReturn = fi.spawn(g_ac->GetIndex(), lIn);
+			lReturn = spawn(g_ac, lIn);
 
-		SetGameVarID(g_iReturnVarID, lReturn, g_ac, g_p);
+		SetGameVarID(g_iReturnVarID, ActorToScriptIndex(lReturn), g_ac, g_p);
 		break;
 	}
 	case concmd_espawn:
 	{
-		int lReturn;
-		lReturn = -1;
+		DDukeActor* lReturn = nullptr;
 		insptr++;
 		if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-			lReturn = fi.spawn(g_ac->GetIndex(), *insptr);
+			lReturn = spawn(g_ac, *insptr);
 		insptr++;
-		SetGameVarID(g_iReturnVarID, lReturn, g_ac, g_p);
+		SetGameVarID(g_iReturnVarID, ActorToScriptIndex(lReturn), g_ac, g_p);
 		break;
 	}
 	case concmd_setsector:
@@ -2907,7 +2903,6 @@ int ParseState::parse(void)
 		int lMaxDist;
 		int lVarID;
 		int lTemp;
-		int lFound;
 		int lDist;
 
 		insptr++;
@@ -2916,7 +2911,7 @@ int ParseState::parse(void)
 		lMaxDist = *(insptr++);
 		lVarID = *(insptr++);
 
-		lFound = -1;
+		DDukeActor* lFound = nullptr;
 		lDist = 32767;	// big number
 
 		DukeStatIterator it(STAT_ACTOR);
@@ -2929,13 +2924,13 @@ int ParseState::parse(void)
 				{
 					if (lTemp < lDist)
 					{
-						lFound = j->GetIndex();
+						lFound = j;
 					}
 				}
 
 			}
 		}
-		SetGameVarID(lVarID, lFound, g_ac, g_p);
+		SetGameVarID(lVarID, ActorToScriptIndex(lFound), g_ac, g_p);
 
 		break;
 	}
@@ -2951,7 +2946,6 @@ int ParseState::parse(void)
 		int lMaxDist;
 		int lVarID;
 		int lTemp;
-		int lFound;
 		int lDist;
 
 		insptr++;
@@ -2960,7 +2954,7 @@ int ParseState::parse(void)
 		lMaxDistVar = *(insptr++);
 		lVarID = *(insptr++);
 		lMaxDist = GetGameVarID(lMaxDistVar, g_ac, g_p);
-		lFound = -1;
+		DDukeActor* lFound;
 		lDist = 32767;	// big number
 
 		DukeStatIterator it(STAT_ACTOR);
@@ -2973,13 +2967,13 @@ int ParseState::parse(void)
 				{
 					if (lTemp < lDist)
 					{
-						lFound = j->GetIndex();
+						lFound = j;
 					}
 				}
 
 			}
 		}
-		SetGameVarID(lVarID, lFound, g_ac, g_p);
+		SetGameVarID(lVarID, ActorToScriptIndex(lFound), g_ac, g_p);
 
 		break;
 	}
@@ -3058,7 +3052,7 @@ int ParseState::parse(void)
 		if (lSprite >= 0)
 		{
 			lTemp = GetGameVarID(lVar3, g_ac, g_p);
-			SetGameVarID(lVar2, lTemp, &hittype[lSprite], g_p);
+			SetGameVarID(lVar2, lTemp, ScriptIndexToActor(lSprite), g_p);
 		}
 
 		break;
@@ -3080,7 +3074,7 @@ int ParseState::parse(void)
 		lSprite = GetGameVarID(lVar1, g_ac, g_p);
 		if (lSprite >= 0)
 		{
-			lTemp = GetGameVarID(lVar2, &hittype[lSprite], g_p);
+			lTemp = GetGameVarID(lVar2, ScriptIndexToActor(lSprite), g_p);
 			SetGameVarID(lVar3, lTemp, g_ac, g_p);
 		}
 

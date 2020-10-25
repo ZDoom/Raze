@@ -1148,17 +1148,16 @@ void lotsofglass(int i, int wallnum, int n)
 //
 //---------------------------------------------------------------------------
 
-void spriteglass(int i, int n)
+void spriteglass(DDukeActor* actor, int n)
 {
-	int j, k, a, z;
-	auto sp = &sprite[i];
+	auto sp = &actor->s;
 
-	for (j = n; j > 0; j--)
+	for (int j = n; j > 0; j--)
 	{
-		a = krand() & 2047;
-		z = sp->z - ((krand() & 16) << 8);
-		k = EGS(sp->sectnum, sp->x, sp->y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), i, 5);
-		sprite[k].pal = sprite[i].pal;
+		int a = krand() & 2047;
+		int z = sp->z - ((krand() & 16) << 8);
+		auto k = EGS(sp->sectnum, sp->x, sp->y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
+		k->s.pal = sp->pal;
 	}
 }
 

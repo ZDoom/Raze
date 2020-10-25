@@ -591,10 +591,10 @@ int S_CheckActorSoundPlaying(int spriteNum, int soundNum, int channel)
 }
 
 // Check if actor <i> is playing any sound.
-int S_CheckAnyActorSoundPlaying(int spriteNum)
+int S_CheckAnyActorSoundPlaying(DDukeActor* actor)
 {
-	if ((unsigned)spriteNum >= MAXSPRITES) return false;
-	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[spriteNum], CHAN_AUTO, 0);
+	if (!actor) return false;
+	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &actor->s, CHAN_AUTO, 0);
 }
 
 int S_CheckSoundPlaying(int soundNum)

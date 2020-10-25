@@ -50,7 +50,7 @@ void S_StopSound(int sndNum, int sprNum = -1, int flags = -1);
 int S_CheckSoundPlaying(int soundNum);
 inline int S_CheckSoundPlaying(int sprnum, int soundNum) { return S_CheckSoundPlaying(soundNum); }
 int S_CheckActorSoundPlaying(int spriteNum, int soundNum, int channel = 0);
-int S_CheckAnyActorSoundPlaying(int spriteNum);
+int S_CheckAnyActorSoundPlaying(DDukeActor* spriteNum);
 
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
 int S_GetUserFlags(int sndnum);
