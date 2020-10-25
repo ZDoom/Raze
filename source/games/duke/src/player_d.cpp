@@ -1112,11 +1112,11 @@ void shoot_d(DDukeActor* actor, int atwith)
 
 	case BOUNCEMINE:
 	case MORTER:
-
+	{
 		if (s->extra >= 0) s->shade = -96;
 
-		j = ps[findplayer(s, &x)].i;
-		x = ldist(&sprite[j], s);
+		auto j = ps[findplayer(actor, &x)].GetActor();
+		x = ldist(j, actor);
 
 		zvel = -x >> 1;
 
@@ -1129,7 +1129,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 			sy + (sintable[(sa + 512) & 2047] >> 8),
 			sz + (6 << 8), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
 		break;
-
+	}
 	case GROWSPARK:
 		shootgrowspark(actor, p, sx, sy, sz, sa);
 		break;
