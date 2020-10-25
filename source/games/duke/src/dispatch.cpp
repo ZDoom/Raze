@@ -49,8 +49,6 @@ void activatebysector_d(int sect, int j);
 void activatebysector_r(int sect, int j);
 void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith);
 void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith);
-void checkplayerhurt_d(struct player_struct* p, int j);
-void checkplayerhurt_r(struct player_struct* p, int j);
 bool checkhitceiling_d(int sn);
 bool checkhitceiling_r(int sn);
 void checkhitsprite_d(DDukeActor* i, DDukeActor* sn);
@@ -137,7 +135,6 @@ void SetDispatcher()
 		checkhitswitch_d,
 		activatebysector_d,
 		checkhitwall_d,
-		checkplayerhurt_d,
 		checkhitceiling_d,
 		checkhitsprite_d,
 		checksectors_d,
@@ -187,7 +184,6 @@ void SetDispatcher()
 		checkhitswitch_r,
 		activatebysector_r,
 		checkhitwall_r,
-		checkplayerhurt_r,
 		checkhitceiling_r,
 		checkhitsprite_r,
 		checksectors_r,

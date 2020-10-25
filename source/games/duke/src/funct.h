@@ -180,6 +180,8 @@ void ceilingglass(int snum, int sectnum, int cnt);
 void spriteglass(DDukeActor* snum, int cnt);
 void lotsofcolourglass(int snum, int wallNum, int cnt);
 void lotsofglass(int snum, int wallnum, int cnt);
+void checkplayerhurt_d(struct player_struct* p, const Collision& coll);
+void checkplayerhurt_r(struct player_struct* p, const Collision& coll);
 
 void addspritetodelete(int spnum=0);
 void checkavailinven(struct player_struct* p);

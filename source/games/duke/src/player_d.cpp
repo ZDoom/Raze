@@ -3024,24 +3024,24 @@ HORIZONLY:
 	if (sector[p->cursectnum].lotag == 2) k = 0;
 	else k = 1;
 
+	Collision clip{};
 	if (ud.clipping)
 	{
-		j = 0;
 		p->posx += p->posxv >> 14;
 		p->posy += p->posyv >> 14;
 		updatesector(p->posx, p->posy, &p->cursectnum);
 		changespritesect(pi, p->cursectnum);
 	}
 	else
-		j = clipmove(&p->posx, &p->posy,
+		clipmove_ex(&p->posx, &p->posy,
 			&p->posz, &p->cursectnum,
-			p->posxv, p->posyv, 164L, (4L << 8), i, CLIPMASK0);
+			p->posxv, p->posyv, 164L, (4L << 8), i, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->posz += 32 << 8;
 
-	if (j)
-		fi.checkplayerhurt(p, j);
+	if (clip.type != kHitNone)
+		checkplayerhurt_d(p, clip);
 
 	if (p->jetpack_on == 0)
 	{
@@ -3077,8 +3077,8 @@ HORIZONLY:
 	}
 
 	if (truefdist < PHEIGHT && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
-		if (!S_CheckActorSoundPlaying(pi, DUKE_ONWATER))
-			S_PlayActorSound(DUKE_ONWATER, pi);
+		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
+			S_PlayActorSound(DUKE_ONWATER, pact);
 
 	if (p->cursectnum != s->sectnum)
 		changespritesect(pi, p->cursectnum);

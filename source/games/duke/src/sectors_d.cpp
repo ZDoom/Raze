@@ -887,13 +887,11 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 //
 //---------------------------------------------------------------------------
 
-void checkplayerhurt_d(struct player_struct* p, int j)
+void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 {
-	if ((j & 49152) == 49152)
+	if (coll.type == kHitSprite)
 	{
-		j &= (MAXSPRITES - 1);
-
-		switch (sprite[j].picnum)
+		switch (coll.actor->s.picnum)
 		{
 		case CACTUS:
 			if (p->hurt_delay < 8)
@@ -901,15 +899,15 @@ void checkplayerhurt_d(struct player_struct* p, int j)
 				p->GetActor()->s.extra -= 5;
 				p->hurt_delay = 16;
 				SetPlayerPal(p, PalEntry(32, 32, 0, 0));
-				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
+				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 			}
 			break;
 		}
 		return;
 	}
 
-	if ((j & 49152) != 32768) return;
-	j &= (MAXWALLS - 1);
+	if (coll.type != kHitWall) return;
+	int j = coll.index;
 
 	if (p->hurt_delay > 0) p->hurt_delay--;
 	else if (wall[j].cstat & 85) switch (wall[j].overpicnum)
@@ -924,7 +922,7 @@ void checkplayerhurt_d(struct player_struct* p, int j)
 
 		p->posxv = -(sintable[(p->angle.ang.asbuild() + 512) & 2047] << 8);
 		p->posyv = -(sintable[(p->angle.ang.asbuild()) & 2047] << 8);
-		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
+		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
 		fi.checkhitwall(p->GetActor(), j,
 			p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 9),

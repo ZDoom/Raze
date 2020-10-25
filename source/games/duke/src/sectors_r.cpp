@@ -1371,13 +1371,11 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 //
 //---------------------------------------------------------------------------
 
-void checkplayerhurt_r(struct player_struct* p, int j)
+void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 {
-	if ((j & 49152) == 49152)
+	if (coll.type == kHitSprite)
 	{
-		j &= (MAXSPRITES - 1);
-
-		switch (sprite[j].picnum)
+		switch (coll.actor->s.picnum)
 		{
 		case RRTILE2430:
 		case RRTILE2431:
@@ -1391,7 +1389,7 @@ void checkplayerhurt_r(struct player_struct* p, int j)
 				p->GetActor()->s.extra -= 2;
 				p->hurt_delay2 = 16;
 				SetPlayerPal(p, PalEntry(32, 32, 0, 0));
-				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
+				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 			}
 			break;
 		case CACTUS:
@@ -1407,8 +1405,8 @@ void checkplayerhurt_r(struct player_struct* p, int j)
 		return;
 	}
 
-	if ((j & 49152) != 32768) return;
-	j &= (MAXWALLS - 1);
+	if (coll.type != kHitWall) return;
+	int j = coll.index;
 
 	if (p->hurt_delay > 0) p->hurt_delay--;
 	else if (wall[j].cstat & 85) switch (wall[j].overpicnum)

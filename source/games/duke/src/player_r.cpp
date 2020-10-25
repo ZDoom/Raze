@@ -3915,7 +3915,6 @@ HORIZONLY:
 	else k = 1;
 
 	Collision clip{};
-	int j;
 	if (ud.clipping)
 	{
 		p->posx += p->posxv >> 14;
@@ -3924,38 +3923,38 @@ HORIZONLY:
 		changespritesect(pact, p->cursectnum);
 	}
 	else
-		clipmove(&p->posx, &p->posy,
+		clipmove_ex(&p->posx, &p->posy,
 			&p->posz, &p->cursectnum,
-			p->posxv, p->posyv, 164L, (4L << 8), i, CLIPMASK0);//, clip);
+			p->posxv, p->posyv, 164L, (4L << 8), i, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->posz += 32 << 8;
 
-	if (j)
-		fi.checkplayerhurt(p, j);
+	if (clip.type != kHitNone)
+		checkplayerhurt_r(p, clip);
 	else if (isRRRA() && p->hurt_delay2 > 0)
 		p->hurt_delay2--;
 
 
-	if ((j & 49152) == 32768)
+	if (clip.type == kHitWall)
 	{
-		int var60 = wall[j & (MAXWALLS - 1)].lotag;
+		int var60 = wall[clip.index].lotag;
 
 		if (p->OnMotorcycle)
 		{
-			onMotorcycleMove(snum, psect, j & (MAXWALLS-1));
+			onMotorcycleMove(snum, psect, clip.index);
 		}
 		else if (p->OnBoat)
 		{
-			onBoatMove(snum, psect, j& (MAXWALLS - 1));
+			onBoatMove(snum, psect, clip.index);
 		}
 		else
 		{
-			if (wall[j & (MAXWALLS - 1)].lotag >= 40 && wall[j & (MAXWALLS - 1)].lotag <= 44)
+			if (wall[clip.index].lotag >= 40 && wall[clip.index].lotag <= 44)
 			{
-				if (wall[j & (MAXWALLS - 1)].lotag < 44)
+				if (wall[clip.index].lotag < 44)
 				{
-					dofurniture(j & (MAXWALLS - 1), p->cursectnum, snum);
+					dofurniture(clip.index, p->cursectnum, snum);
 					pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
 				}
 				else
@@ -3964,41 +3963,40 @@ HORIZONLY:
 		}
 	}
 
-	if ((j & 49152) == 49152)
+	if (clip.type == kHitSprite)
 	{
-		int var60 = j & (MAXSPRITES - 1);
 		if (p->OnMotorcycle)
 		{
-			onMotorcycleHit(snum, &hittype[var60]);
+			onMotorcycleHit(snum, clip.actor);
 		}
 		else if (p->OnBoat)
 		{
-			onBoatHit(snum, &hittype[var60]);
+			onBoatHit(snum, clip.actor);
 		}
 		else
-			if (badguy(&sprite[var60]))
+			if (badguy(clip.actor))
 			{
-				if (sprite[var60].statnum != 1)
+				if (clip.actor->s.statnum != 1)
 				{
-					hittype[var60].timetosleep = 0;
-					if (sprite[var60].picnum == BILLYRAY)
-						S_PlayActorSound(404, var60);
+					clip.actor->timetosleep = 0;
+					if (clip.actor->s.picnum == BILLYRAY)
+						S_PlayActorSound(404, clip.actor);
 					else
-						check_fta_sounds_r(&hittype[var60]);
-					changespritestat(var60, 1);
+						check_fta_sounds_r(clip.actor);
+					changespritestat(clip.actor, 1);
 				}
 			}
 			else
-				if (sprite[var60].picnum == RRTILE3410)
+				if (clip.actor->s.picnum == RRTILE3410)
 				{
 					quickkill(p);
 					S_PlayActorSound(446, pact);
 				}
-				else if (isRRRA() && sprite[var60].picnum == RRTILE2443 && sprite[var60].pal == 19)
+				else if (isRRRA() && clip.actor->s.picnum == RRTILE2443 && clip.actor->s.pal == 19)
 				{
-					sprite[var60].pal = 0;
+					clip.actor->s.pal = 0;
 					p->DrugMode = 5;
-					sprite[ps[snum].i].extra = max_player_health;
+					ps[snum].GetActor()->s.extra = max_player_health;
 				}
 	}
 
@@ -4050,6 +4048,7 @@ HORIZONLY:
 	if (p->cursectnum != s->sectnum)
 		changespritesect(pact, p->cursectnum);
 
+	int j;
 	if (ud.clipping == 0)
 	{
 		if (s->clipdist == 64)
