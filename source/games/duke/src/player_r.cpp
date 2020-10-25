@@ -2467,7 +2467,6 @@ void onMotorcycleMove(int snum, int psect, int j)
 
 	short var104, var108, var10c;
 	var104 = 0;
-	j &= (MAXWALLS - 1);
 	var108 = getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y);
 	var10c = abs(p->angle.ang.asbuild() - var108);
 	int ang;
@@ -2534,7 +2533,6 @@ void onBoatMove(int snum, int psect, int j)
 	int psectlotag = sector[psect].lotag;
 
 	short var114, var118;
-	j &= (MAXWALLS - 1);
 	var114 = getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y);
 	var118 = abs(p->angle.ang.asbuild() - var114);
 	int ang;
@@ -3465,7 +3463,8 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 
 void processinput_r(int snum)
 {
-	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, var60;
+	int i, k, doubvel, fz, cz, truefdist;
+	Collision chz, clz;
 	char shrunk;
 	ESyncBits actions;
 	short psect, psectlotag;
@@ -3506,11 +3505,11 @@ void processinput_r(int snum)
 
 	if (psectlotag == 867)
 	{
-		SectIterator it(psect);
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(psect);
+		while (auto act2 = it.Next())
 		{
-			if (sprite[j].picnum == RRTILE380)
-				if (sprite[j].z - (8 << 8) < p->posz)
+			if (act2->s.picnum == RRTILE380)
+				if (act2->s.z - (8 << 8) < p->posz)
 					psectlotag = 2;
 		}
 	}
@@ -3529,22 +3528,23 @@ void processinput_r(int snum)
 	p->spritebridge = 0;
 
 	shrunk = (s->yrepeat < 8);
+	int tempfz;
 	if (s->clipdist == 64)
 	{
-		getzrange(p->posx, p->posy, p->posz, psect, &cz, &hz, &fz, &lz, 163L, CLIPMASK0);
-		j = getflorzofslope(psect, p->posx, p->posy);
+		getzrange_ex(p->posx, p->posy, p->posz, psect, &cz, chz, &fz, clz, 163L, CLIPMASK0);
+		tempfz = getflorzofslope(psect, p->posx, p->posy);
 	}
 	else
 	{
-		getzrange(p->posx, p->posy, p->posz, psect, &cz, &hz, &fz, &lz, 4L, CLIPMASK0);
-		j = getflorzofslope(psect, p->posx, p->posy);
+		getzrange_ex(p->posx, p->posy, p->posz, psect, &cz, chz, &fz, clz, 4L, CLIPMASK0);
+		tempfz = getflorzofslope(psect, p->posx, p->posy);
 	}
 
-	p->truefz = j;
+	p->truefz = tempfz;
 	p->truecz = getceilzofslope(psect, p->posx, p->posy);
 
-	truefdist = abs(p->posz - j);
-	if ((lz & 49152) == 16384 && psectlotag == 1 && truefdist > PHEIGHT + (16 << 8))
+	truefdist = abs(p->posz - tempfz);
+	if (clz.type == kHitSector && psectlotag == 1 && truefdist > PHEIGHT + (16 << 8))
 		psectlotag = 0;
 
 	pact->floorz = fz;
@@ -3556,23 +3556,23 @@ void processinput_r(int snum)
 		calcviewpitch(p, 1);
 	}
 
-	if (hz >= 0 && (hz & 49152) == 49152)
+	if (chz.type == kHitSprite)
 	{
-		hz &= (MAXSPRITES - 1);
-
-		if (sprite[hz].statnum == 1 && sprite[hz].extra >= 0)
+		if (chz.actor->s.statnum == 1 && chz.actor->s.extra >= 0)
 		{
-			hz = 0;
+			chz.type = kHitNone;
+			chz.actor = nullptr;
 			cz = p->truecz;
 		}
-		if (sprite[hz].picnum == RRTILE3587)
+		else if (chz.actor->s.picnum == RRTILE3587)
 		{
 			if (!p->stairs)
 			{
 				p->stairs = 10;
 				if ((actions & SB_JUMP) && !p->OnMotorcycle)
 				{
-					hz = 0;
+					chz.type = kHitNone;
+					chz.actor = nullptr;
 					cz = p->truecz;
 				}
 			}
@@ -3581,61 +3581,58 @@ void processinput_r(int snum)
 		}
 	}
 
-	if (lz >= 0 && (lz & 49152) == 49152)
+	if (clz.type == kHitSprite)
 	{
-		j = lz & (MAXSPRITES - 1);
-
-		if (isRRRA()) var60 = j & (MAXSPRITES - 1);
-
-		if ((sprite[j].cstat & 33) == 33)
+		if ((clz.actor->s.cstat & 33) == 33)
 		{
 			psectlotag = 0;
 			p->footprintcount = 0;
 			p->spritebridge = 1;
 		}
 		if (p->OnMotorcycle)
-			if (badguy(&sprite[var60]))
+			if (badguy(clz.actor))
 			{
-				hittype[var60].picnum = MOTOHIT;
-				hittype[var60].extra = 2 + (p->MotoSpeed >> 1);
+				clz.actor->picnum = MOTOHIT;
+				clz.actor->extra = 2 + (p->MotoSpeed >> 1);
 				p->MotoSpeed -= p->MotoSpeed >> 4;
 			}
 		if (p->OnBoat)
 		{
-			if (badguy(&sprite[var60]))
+			if (badguy(clz.actor))
 			{
-				hittype[var60].picnum = MOTOHIT;
-				hittype[var60].extra = 2 + (p->MotoSpeed >> 1);
+				clz.actor->picnum = MOTOHIT;
+				clz.actor->extra = 2 + (p->MotoSpeed >> 1);
 				p->MotoSpeed -= p->MotoSpeed >> 4;
 			}
 		}
-		else if (badguy(&sprite[j]) && sprite[j].xrepeat > 24 && abs(s->z - sprite[j].z) < (84 << 8))
+		else if (badguy(clz.actor) && clz.actor->s.xrepeat > 24 && abs(s->z - clz.actor->s.z) < (84 << 8))
 		{
-			j = getangle(sprite[j].x - p->posx, sprite[j].y - p->posy);
+			int j = getangle(clz.actor->s.x - p->posx, clz.actor->s.y - p->posy);
 			p->posxv -= sintable[(j + 512) & 2047] << 4;
 			p->posyv -= sintable[j & 2047] << 4;
 		}
-		if (sprite[j].picnum == RRTILE3587)
+		if (clz.actor->s.picnum == RRTILE3587)
 		{
 			if (!p->stairs)
 			{
 				p->stairs = 10;
 				if ((actions & SB_CROUCH) && !p->OnMotorcycle)
 				{
-					cz = sprite[j].z;
-					hz = 0;
-					fz = sprite[j].z + (4 << 8);
+					cz = clz.actor->s.z;
+					chz.type = kHitNone;
+					chz.actor = nullptr;
+					fz = clz.actor->s.z + (4 << 8);
 				}
 			}
 			else
 				p->stairs--;
 		}
-		else if (sprite[j].picnum == TOILET || sprite[j].picnum == RRTILE2121)
+		else if (clz.actor->s.picnum == TOILET || clz.actor->s.picnum == RRTILE2121)
 		{
 			if ((actions & SB_CROUCH) && !p->OnMotorcycle)
 				//if (Sound[436].num == 0)
 				{
-					S_PlayActorSound(436, p->i);
+					S_PlayActorSound(436, pact);
 					p->last_pissed_time = 4000;
 					p->eat = 0;
 				}
@@ -3764,7 +3761,7 @@ void processinput_r(int snum)
 
 	if (p->spritebridge == 0)
 	{
-		j = sector[s->sectnum].floorpicnum;
+		int j = sector[s->sectnum].floorpicnum;
 		k = 0;
 
 		if (p->on_ground && truefdist <= PHEIGHT + (16 << 8))
@@ -3808,12 +3805,13 @@ void processinput_r(int snum)
 		{
 			if (p->spritebridge == 0 && p->walking_snd_toggle == 0 && p->on_ground)
 			{
+				int j;
 				switch (psectlotag)
 				{
 				case 0:
 
-					if (lz >= 0 && (lz & (MAXSPRITES - 1)) == 49152)
-						j = sprite[lz & (MAXSPRITES - 1)].picnum;
+					if (clz.type == kHitSprite)
+						j = clz.actor->s.picnum;
 					else j = sector[psect].floorpicnum;
 					break;
 				case 1:
@@ -3916,18 +3914,19 @@ HORIZONLY:
 	if (sector[p->cursectnum].lotag == 2) k = 0;
 	else k = 1;
 
+	Collision clip{};
+	int j;
 	if (ud.clipping)
 	{
-		j = 0;
 		p->posx += p->posxv >> 14;
 		p->posy += p->posyv >> 14;
 		updatesector(p->posx, p->posy, &p->cursectnum);
 		changespritesect(pact, p->cursectnum);
 	}
 	else
-		j = clipmove(&p->posx, &p->posy,
+		clipmove(&p->posx, &p->posy,
 			&p->posz, &p->cursectnum,
-			p->posxv, p->posyv, 164L, (4L << 8), i, CLIPMASK0);
+			p->posxv, p->posyv, 164L, (4L << 8), i, CLIPMASK0);//, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->posz += 32 << 8;
@@ -3937,18 +3936,18 @@ HORIZONLY:
 	else if (isRRRA() && p->hurt_delay2 > 0)
 		p->hurt_delay2--;
 
-	var60 = j & (MAXWALLS - 1);
-	var60 = wall[j & (MAXWALLS - 1)].lotag;
 
 	if ((j & 49152) == 32768)
 	{
+		int var60 = wall[j & (MAXWALLS - 1)].lotag;
+
 		if (p->OnMotorcycle)
 		{
-			onMotorcycleMove(snum, psect, j);
+			onMotorcycleMove(snum, psect, j & (MAXWALLS-1));
 		}
 		else if (p->OnBoat)
 		{
-			onBoatMove(snum, psect, j);
+			onBoatMove(snum, psect, j& (MAXWALLS - 1));
 		}
 		else
 		{
@@ -3967,7 +3966,7 @@ HORIZONLY:
 
 	if ((j & 49152) == 49152)
 	{
-		var60 = j & (MAXSPRITES - 1);
+		int var60 = j & (MAXSPRITES - 1);
 		if (p->OnMotorcycle)
 		{
 			onMotorcycleHit(snum, &hittype[var60]);
