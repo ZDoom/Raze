@@ -52,57 +52,29 @@
 #include "v_draw.h"
 #include "v_font.h"
 #include "printf.h"
-#include "inputstate.h"
 #include "i_time.h"
-#include "gamecvars.h"
-#include "i_system.h"
-#include "s_soundinternal.h"
-#include "engineerrors.h"
-#include "gamecontrol.h"
-#include "v_video.h"
-#include "v_draw.h"
-#include "g_input.h"
-#include "razemenu.h"
-#include "raze_music.h"
-#include "gstrings.h"
-#include "menustate.h"
-#include "i_interface.h"
-#include "vm.h"
-#include "gi.h"
 #include "texturemanager.h"
+#include "v_draw.h"
+#include "i_interface.h"
+#include "v_video.h"
+#include "i_system.h"
+#include "menu.h"
+#include "menustate.h"
+#include "v_2ddrawer.h"
+#include "c_notifybufferbase.h"
+#include "g_input.h"
 #include "c_commandbuffer.h"
+#include "vm.h"
 
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8
 #define BOTTOMARGIN 12
-
-extern bool hud_toggled;
-void D_ToggleHud();
-
 
 CUSTOM_CVAR(Int, con_buffersize, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
 	// ensure a minimum size
 	if (self >= 0 && self < 128) self = 128;
 }
-
-FConsoleBuffer *conbuffer;
-
-static FTextureID conback;
-static uint32_t conshade;
-static bool conline;
-
-extern bool		advancedemo;
-
-extern FBaseCVar *CVars;
-extern FConsoleCommand *Commands[FConsoleCommand::HASH_SIZE];
-
-int			ConWidth;
-bool		vidactive = false;
-bool		cursoron = false;
-int			ConBottom, ConScroll, RowAdjust;
-uint64_t	CursorTicker;
-constate_e	ConsoleState = c_up;
 
 double NotifyFontScale = 1;
 
@@ -112,6 +84,24 @@ void C_SetNotifyFontScale(double scale)
 {
 	NotifyFontScale = scale;
 }
+
+
+FConsoleBuffer *conbuffer;
+
+static FTextureID conback;
+static uint32_t conshade;
+static bool conline;
+
+extern int chatmodeon;
+extern FBaseCVar *CVars;
+extern FConsoleCommand *Commands[FConsoleCommand::HASH_SIZE];
+
+int			ConWidth;
+bool		vidactive = false;
+bool		cursoron = false;
+int			ConBottom, ConScroll, RowAdjust;
+uint64_t	CursorTicker;
+constate_e	ConsoleState = c_up;
 
 static int TopLine, InsertLine;
 
@@ -135,17 +125,6 @@ static GameAtExit *ExitCmdList;
 static char *work = NULL;
 static int worklen = 0;
 
-CVAR(Float, con_notifytime, 3.f, CVAR_ARCHIVE)
-CUSTOM_CVAR(Float, con_notifyscale, 1, CVAR_ARCHIVE)
-{
-	if (self < 0.36f) self = 0.36f;
-	if (self > 1) self = 1;
-}
-
-CVAR(Bool, con_centernotify, false, CVAR_ARCHIVE)
-CVAR(Bool, con_notify_advanced, false, CVAR_ARCHIVE)
-CVAR(Bool, con_pulsetext, false, CVAR_ARCHIVE)
-
 CUSTOM_CVAR(Int, con_scale, 0, CVAR_ARCHIVE)
 {
 	if (self < 0) self = 0;
@@ -157,12 +136,15 @@ CUSTOM_CVAR(Float, con_alpha, 0.75f, CVAR_ARCHIVE)
 	if (self > 1.f) self = 1.f;
 }
 
+// Show developer messages if true.
+CUSTOM_CVAR(Int, developer, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	FScriptPosition::Developer = self;
+}
+
+
 // Command to run when Ctrl-D is pressed at start of line
 CVAR(String, con_ctrl_d, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-
-CVAR(Int, developer, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-
-EXTERN_CVAR(Int, uiscale);
 
 
 struct History
@@ -176,40 +158,13 @@ struct History
 static struct History *HistHead = NULL, *HistTail = NULL, *HistPos = NULL;
 static int HistSize;
 
-#define NUMNOTIFIES 4
-#define NOTIFYFADETIME 6
+static FNotifyBufferBase *NotifyStrings;
 
-struct FNotifyText
+void C_SetNotifyBuffer(FNotifyBufferBase* nbb)
 {
-	int TimeOut;
-	int Ticker;
-	int PrintLevel;
-	FString Text;
-};
-
-struct FNotifyBuffer
-{
-public:
-	FNotifyBuffer();
-	void AddString(int printlevel, FString source);
-	void Shift(int maxlines);
-	void Clear() { Text.Clear(); }
-	void Tick();
-	void Draw();
-	void DrawNative();
-
-private:
-	TArray<FNotifyText> Text;
-	int Top;
-	int TopGoal;
-	enum { NEWLINE, APPENDLINE, REPLACELINE } AddType;
-};
-static FNotifyBuffer NotifyStrings;
-
-CUSTOM_CVAR(Int, con_notifylines, NUMNOTIFIES, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
-{
-	NotifyStrings.Shift(self);
+	NotifyStrings = nbb;
 }
+
 
 
 int PrintColors[PRINTLEVELS+2] = { CR_UNTRANSLATED, CR_GOLD, CR_GRAY, CR_GREEN, CR_GREEN, CR_UNTRANSLATED };
@@ -262,7 +217,7 @@ void C_InitConback()
 
 	if (!conback.isValid())
 	{
-		conback = TexMan.GetTextureID (gameinfo.TitlePage, ETextureType::MiscPatch);
+		conback.SetInvalid();
 		conshade = MAKEARGB(175,0,0,0);
 		conline = true;
 	}
@@ -421,90 +376,6 @@ static void setmsgcolor (int index, int color)
 	PrintColors[index] = color;
 }
 
-FNotifyBuffer::FNotifyBuffer()
-{
-	Top = TopGoal = 0;
-	AddType = NEWLINE;
-}
-
-void FNotifyBuffer::Shift(int maxlines)
-{
-	if (maxlines >= 0 && Text.Size() > (unsigned)maxlines)
-	{
-		Text.Delete(0, Text.Size() - maxlines);
-	}
-}
-
-void FNotifyBuffer::AddString(int printlevel, FString source)
-{
-	TArray<FBrokenLines> lines;
-	int width;
-
-	if (hud_messages == 0 ||
-		screen == nullptr ||
-		source.IsEmpty() ||
-		gamestate == GS_FULLCONSOLE ||
-		gamestate == GS_MENUSCREEN ||
-		con_notifylines == 0)
-		return;
-
-	auto screenratio = ActiveRatio(screen->GetWidth(), screen->GetHeight());
-
-	FFont* font = generic_ui ? NewSmallFont : SmallFont ? SmallFont : AlternativeSmallFont;
-	if (font == nullptr) return;	// Without an initialized font we cannot handle the message (this is for those which come here before the font system is ready.)
-	double fontscale = (generic_ui? 0.7 : NotifyFontScale) * con_notifyscale;
-
-	width = int(320 * (screenratio / 1.333) / fontscale);
-
-	if (AddType == APPENDLINE && Text.Size() > 0 && Text[Text.Size() - 1].PrintLevel == printlevel)
-	{
-		FString str = Text[Text.Size() - 1].Text + source;
-		lines = V_BreakLines (font, width, str);
-	}
-	else
-	{
-		lines = V_BreakLines (font, width, source);
-		if (AddType == APPENDLINE)
-		{
-			AddType = NEWLINE;
-		}
-	}
-
-	if (lines.Size() == 0)
-		return;
-
-	for (auto &line : lines)
-	{
-		FNotifyText newline;
-
-		newline.Text = line.Text;
-		newline.TimeOut = int(con_notifytime * GameTicRate);
-		newline.Ticker = 0;
-		newline.PrintLevel = printlevel;
-		if (AddType == NEWLINE || Text.Size() == 0)
-		{
-			if (con_notifylines > 0)
-			{
-				Shift(con_notifylines - 1);
-			}
-			Text.Push(newline);
-		}
-		else
-		{
-			Text[Text.Size() - 1] = newline;
-		}
-		AddType = NEWLINE;
-	}
-
-	switch (source[source.Len()-1])
-	{
-	case '\r':	AddType = REPLACELINE;	break;
-	case '\n':	AddType = NEWLINE;		break;
-	default:	AddType = APPENDLINE;	break;
-	}
-
-	TopGoal = 0;
-}
 
 void AddToConsole (int printlevel, const char *text)
 {
@@ -573,12 +444,9 @@ int PrintString (int iprintlevel, const char *outline)
 			I_PrintStr(outline);
 
 			conbuffer->AddText(printlevel, outline);
-			if (!(iprintlevel & PRINT_NONOTIFY))
+			if (vidactive && screen && !(iprintlevel & PRINT_NONOTIFY) && NotifyStrings)
 			{
-				if (screen && vidactive && ((iprintlevel & PRINT_NOTIFY) || con_notify_advanced))
-				{
-					NotifyStrings.AddString(printlevel, outline);
-				}
+				NotifyStrings->AddString(iprintlevel, outline);
 			}
 		}
 		if (Logfile != nullptr && !(iprintlevel & PRINT_NOLOG))
@@ -588,11 +456,6 @@ int PrintString (int iprintlevel, const char *outline)
 		return count;
 	}
 	return 0;	// Don't waste time on calculating this if nothing at all was printed...
-}
-
-void C_ClearMessages()
-{
-	NotifyStrings.Clear();
 }
 
 int VPrintf (int printlevel, const char *format, va_list parms)
@@ -646,7 +509,7 @@ int DPrintf (int level, const char *format, ...)
 
 void C_FlushDisplay ()
 {
-	NotifyStrings.Clear();
+	if (NotifyStrings) NotifyStrings->Clear();
 }
 
 void C_AdjustBottom ()
@@ -701,183 +564,7 @@ void C_Ticker()
 	}
 
 	lasttic = consoletic;
-	NotifyStrings.Tick();
-}
-
-void FNotifyBuffer::Tick()
-{
-	if (TopGoal > Top)
-	{
-		Top++;
-	}
-	else if (TopGoal < Top)
-	{
-		Top--;
-	}
-
-	// Remove lines from the beginning that have expired.
-	unsigned i;
-	for (i = 0; i < Text.Size(); ++i)
-	{
-		Text[i].Ticker++;
-	}
-	
-	for (i = 0; i < Text.Size(); ++i)
-	{
-		if (Text[i].TimeOut != 0 && Text[i].TimeOut > Text[i].Ticker)
-			break;
-	}
-	if (i > 0)
-	{
-		Text.Delete(0, i);
-		FFont* font = generic_ui ? NewSmallFont : SmallFont ? SmallFont : AlternativeSmallFont;
-		Top += font->GetHeight() / NotifyFontScale;
-	}
-}
-
-void FNotifyBuffer::DrawNative()
-{
-	// Native display is:
-	// * centered at the top and pulsing for Duke
-	// * centered shifted down and not pulsing for  Shadow Warrior
-	// * top left for Exhumed
-	// * 4 lines with the tiny font for Blood. (same mechanic as the regular one, just a different font and scale.)
-
-	bool center = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RR | GAMEFLAG_SW);
-	bool pulse = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RR);
-	unsigned topline = g_gameType & GAMEFLAG_BLOOD ? 0 : Text.Size() - 1;
-
-	FFont* font = g_gameType & GAMEFLAG_BLOOD ? SmallFont2 : SmallFont;
-
-	int line = (g_gameType & GAMEFLAG_BLOOD)? Top : (g_gameType & GAMEFLAG_SW) ? 40 : font->GetDisplacement();
-	bool canskip = (g_gameType & GAMEFLAG_BLOOD);
-	double scale = 1 / (NotifyFontScale * con_notifyscale);
-	int lineadv = font->GetHeight() / NotifyFontScale;
-
-	for (unsigned i = topline; i < Text.Size(); ++i)
-	{
-		FNotifyText& notify = Text[i];
-
-		if (notify.TimeOut == 0)
-			continue;
-
-		int j = notify.TimeOut - notify.Ticker;
-		if (j > 0)
-		{
-			double alpha = g_gameType & GAMEFLAG_BLOOD? ((j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1) : 1;
-			if (pulse)
-			{
-				alpha *= 0.7 + 0.3 * sin(I_msTime() / 100.);
-			}
-
-			if (!center)
-			{
-				DrawText(twod, font, CR_UNTRANSLATED, 0, line, notify.Text,
-					DTA_FullscreenScale, FSMode_ScaleToHeight,
-					DTA_VirtualWidthF, 320 * scale, DTA_VirtualHeightF, 200 * scale, DTA_KeepRatio, true,
-					DTA_Alpha, alpha, TAG_DONE);
-			}
-			else
-			{
-				DrawText(twod, font, CR_UNTRANSLATED, 160 * scale - font->StringWidth(notify.Text) / 2, line, notify.Text,
-					DTA_FullscreenScale, FSMode_ScaleToHeight,
-					DTA_VirtualWidthF, 320 * scale, DTA_VirtualHeightF, 200 * scale,
-					DTA_Alpha, alpha, TAG_DONE);
-			}
-			line += lineadv;
-			canskip = false;
-		}
-		else
-		{
-			notify.TimeOut = 0;
-		}
-	}
-	if (canskip)
-	{
-		Top = TopGoal;
-	}
-}
-
-static bool printNative()
-{
-	// Blood originally uses its tiny font for the notify display which does not play along well with localization because it is too small
-	if (con_notify_advanced) return false;
-	if (!(g_gameType & GAMEFLAG_BLOOD)) return true;
-	auto p = GStrings["REQUIRED_CHARACTERS"];
-	if (p && *p) return false;
-	return true;
-}
-
-void FNotifyBuffer::Draw()
-{
-	if (gamestate == GS_FULLCONSOLE || gamestate == GS_MENUSCREEN)
-		return;
-
-	if (printNative())
-	{
-		DrawNative();
-		return;
-	}
-
-	bool center = (con_centernotify != 0.f);
-	int color;
-	bool canskip = true;
-
-
-	FFont* font = generic_ui ? NewSmallFont : SmallFont? SmallFont : AlternativeSmallFont;
-	double nfscale = (generic_ui? 0.7 : NotifyFontScale);
-	double scale = 1 / ( * con_notifyscale);
-
-	int line = Top + font->GetDisplacement() / nfscale;
-	int lineadv = font->GetHeight () / nfscale;
-
-	for (unsigned i = 0; i < Text.Size(); ++ i)
-	{
-		FNotifyText &notify = Text[i];
-
-		if (notify.TimeOut == 0)
-			continue;
-
-		int j = notify.TimeOut - notify.Ticker;
-		if (j > 0)
-		{
-			double alpha = (j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1;
-			if (con_pulsetext)
-			{
-				alpha *= 0.7 + 0.3 * sin(I_msTime() / 100.);
-			}
-
-			if (notify.PrintLevel >= PRINTLEVELS)
-				color = CR_UNTRANSLATED;
-			else
-				color = PrintColors[notify.PrintLevel];
-
-			if (!center)
-				DrawText(twod, font, color, 0, line * NotifyFontScale, notify.Text,
-					DTA_FullscreenScale, FSMode_ScaleToHeight,
-					DTA_VirtualWidthF, 320. * scale,
-					DTA_VirtualHeightF, 200. * scale,
-					DTA_KeepRatio, true,
-					DTA_Alpha, alpha, TAG_DONE);
-			else
-				DrawText(twod, font, color, 160 * scale - font->StringWidth (notify.Text) / 2.,
-					line, notify.Text,
-					DTA_FullscreenScale, FSMode_ScaleToHeight,
-					DTA_VirtualWidthF, 320. * scale,
-					DTA_VirtualHeightF, 200. * scale,
-					DTA_Alpha, alpha, TAG_DONE);
-			line += lineadv;
-			canskip = false;
-		}
-		else
-		{
-			notify.TimeOut = 0;
-		}
-	}
-	if (canskip)
-	{
-		Top = TopGoal;
-	}
+	if (NotifyStrings) NotifyStrings->Tick();
 }
 
 void C_DrawConsole ()
@@ -901,9 +588,10 @@ void C_DrawConsole ()
 
 	oldbottom = ConBottom;
 
-	if (ConsoleState == c_up && gamestate != GS_INTRO && gamestate != GS_INTERMISSION)
+	if (ConsoleState == c_up && gamestate != GS_INTRO && gamestate != GS_INTERMISSION && 
+		gamestate != GS_FULLCONSOLE && gamestate != GS_MENUSCREEN)
 	{
-		NotifyStrings.Draw();
+		if (NotifyStrings) NotifyStrings->Draw();
 		return;
 	}
 	else if (ConBottom)
@@ -912,7 +600,7 @@ void C_DrawConsole ()
 
 		visheight = ConBottom;
 
-		if (conback.isValid())
+		if (conback.isValid() && gamestate != GS_FULLCONSOLE)
 		{
 			DrawTexture (twod, TexMan.GetGameTexture(conback), 0, visheight - screen->GetHeight(),
 				DTA_DestWidth, twod->GetWidth(),
@@ -927,6 +615,7 @@ void C_DrawConsole ()
 			PalEntry pe((uint8_t)(con_alpha * 255), 0, 0, 0);
 			twod->AddColorOnlyQuad(0, 0, screen->GetWidth(), visheight, pe);
 		}
+
 		if (conline && visheight < screen->GetHeight())
 		{
 			twod->AddColorOnlyQuad(0, visheight, screen->GetWidth(), 1, 0xff000000);

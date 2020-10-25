@@ -145,7 +145,7 @@ static void GameTicker()
 		switch (ga)
 		{
 		case ga_autoloadgame:
-			C_ClearMessages();
+			C_FlushDisplay();
 			if (BackupSaveGame.IsNotEmpty() && cl_resumesavegame)
 			{
 				DoLoadGame(BackupSaveGame);
@@ -191,7 +191,7 @@ static void GameTicker()
 			newGameStarted = true;
 			FX_SetReverb(0);
 			gi->FreeLevelData();
-			C_ClearMessages();
+			C_FlushDisplay();
 			gameaction = ga_level;
 			BackupSaveGame = "";
 			gi->NewGame(g_nextmap, g_nextskill);

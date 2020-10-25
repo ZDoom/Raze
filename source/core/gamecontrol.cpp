@@ -129,6 +129,7 @@ void S_ParseSndInfo();
 void I_DetectOS(void);
 void LoadScripts();
 void MainLoop();
+void SetConsoleNotifyBuffer();
 
 
 bool AppActive = true;
@@ -495,6 +496,7 @@ int GameMain()
 {
 	int r;
 
+	SetConsoleNotifyBuffer();
 	sysCallbacks =
 	{
 		System_WantGuiCapture,

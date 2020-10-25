@@ -806,6 +806,7 @@ set (PCH_SOURCES
 	core/gi.cpp
 
 	core/console/c_console.cpp
+	core/console/c_notifybuffer.cpp
 	core/console/d_event.cpp
 
 	common/audio/sound/i_sound.cpp
@@ -878,6 +879,7 @@ set (PCH_SOURCES
 	common/console/c_cvars.cpp
 	common/console/c_dispatch.cpp
 	common/console/c_commandbuffer.cpp
+	common/console/c_notifybufferbase.cpp
 	common/console/c_tabcomplete.cpp
 	common/console/c_expr.cpp
 	common/utility/engineerrors.cpp
