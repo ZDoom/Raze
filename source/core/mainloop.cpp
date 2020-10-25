@@ -244,6 +244,12 @@ static void GameTicker()
 			gamestate = GS_INTERMISSION;
 			break;
 
+		case ga_fullconsole:
+			C_FullConsole();
+			Mus_Stop();
+			gameaction = ga_nothing;
+			break;
+
 			// for later
 		// case ga_recordgame,			// start a new demo recording (later)
 		// case ga_loadgameplaydemo,	// load a savegame and play a demo.

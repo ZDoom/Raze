@@ -1012,37 +1012,25 @@ void C_DrawConsole ()
 
 void C_FullConsole ()
 {
-	/*
-	if (hud_toggled)
-		D_ToggleHud();
-	if (demoplayback)
-		G_CheckDemoStatus ();
-	D_QuitNetGame ();
-	advancedemo = false;
-	*/
 	ConsoleState = c_down;
 	HistPos = NULL;
 	TabbedLast = false;
 	TabbedList = false;
-	if (gamestate != GS_STARTUP)
-	{
-		gamestate = GS_FULLCONSOLE;
-		Mus_Stop();
-	}
+	gamestate = GS_FULLCONSOLE;
 	C_AdjustBottom ();
 }
 
-
 void C_ToggleConsole ()
 {
+	int togglestate;
 	if (gamestate == GS_INTRO) // blocked
 	{
 		return;
 	}
 	if (gamestate == GS_MENUSCREEN)
 	{
-		gamestate = GS_FULLCONSOLE;
-		C_FullConsole();
+		gameaction = ga_fullconsole;
+		togglestate = c_down;
 	}
 	else if (!chatmodeon && (ConsoleState == c_up || ConsoleState == c_rising) && menuactive == MENU_Off)
 	{
@@ -1050,13 +1038,17 @@ void C_ToggleConsole ()
 		HistPos = NULL;
 		TabbedLast = false;
 		TabbedList = false;
-	
+		togglestate = c_falling;
 	}
 	else if (gamestate != GS_FULLCONSOLE && gamestate != GS_STARTUP)
 	{
 		ConsoleState = c_rising;
-		C_FlushDisplay ();
+		C_FlushDisplay();
+		togglestate = c_rising;
 	}
+	else return;
+	// This must be done as an event callback because the client code does not control the console toggling.
+	if (sysCallbacks.ConsoleToggled) sysCallbacks.ConsoleToggled(togglestate);
 }
 
 void C_HideConsole ()
@@ -1498,42 +1490,5 @@ CCMD (echo)
 CCMD(toggleconsole)
 {
 	C_ToggleConsole();
-}
-
-/* Printing in the middle of the screen */
-
-CVAR(Float, con_midtime, 3.f, CVAR_ARCHIVE)
-
-const char *console_bar = "----------------------------------------";
-
-void C_MidPrint (FFont *font, const char *msg, bool bold)
-{
-#if 0 // The Build engine cannot do this at the moment. Q: Implement and redirect some messages here?
-	if (StatusBar == nullptr || screen == nullptr)
-		return;
-
-	// [MK] allow the status bar to take over MidPrint
-	IFVIRTUALPTR(StatusBar, DBaseStatusBar, ProcessMidPrint)
-	{
-		FString msgstr = msg;
-		VMValue params[] = { (DObject*)StatusBar, font, &msgstr, bold };
-		int rv;
-		VMReturn ret(&rv);
-		VMCall(func, params, countof(params), &ret, 1);
-		if (!!rv) return;
-	}
-
-	if (msg != nullptr)
-	{
-		auto color = (EColorRange)PrintColors[bold? PRINTLEVELS+1 : PRINTLEVELS];
-		Printf(PRINT_HIGH|PRINT_NONOTIFY, TEXTCOLOR_ESCAPESTR "%c%s\n%s\n%s\n", color, console_bar, msg, console_bar);
-
-		StatusBar->AttachMessage (Create<DHUDMessage>(font, msg, 1.5f, 0.375f, 0, 0, color, con_midtime), MAKE_ID('C','N','T','R'));
-	}
-	else
-	{
-		StatusBar->DetachMessage (MAKE_ID('C','N','T','R'));
-	}
-#endif
 }
 
