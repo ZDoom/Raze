@@ -294,7 +294,7 @@ if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 		set( CMAKE_C_FLAGS "-Wno-unused-result ${CMAKE_C_FLAGS}" )
 		set( CMAKE_CXX_FLAGS "-Wno-unused-result ${CMAKE_CXX_FLAGS}" )
 	endif()
-	if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
+	if( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
 		if( APPLE OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "3.6" )
 			set( CMAKE_CXX_FLAGS "-Wno-inconsistent-missing-override ${CMAKE_CXX_FLAGS}" )
 		endif()
@@ -313,7 +313,7 @@ if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	endif ()
 
 	if( NOT X64 AND NOT CAN_DO_MFPMATH )
-		set( CMAKE_C_FLAGS "-DNO_SSE ${CMAKE_CXX_FLAGS}" )
+		set( CMAKE_C_FLAGS "-DNO_SSE ${CMAKE_C_FLAGS}" )
 		set( CMAKE_CXX_FLAGS "-DNO_SSE ${CMAKE_CXX_FLAGS}" )
 	endif()
 
@@ -332,6 +332,10 @@ if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 		set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )
 		set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC" )
+	endif()
+	
+	if(${CMAKE_SYSTEM_NAME} MATCHES "NetBSD")
+		set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ljemalloc")
 	endif()
 
 	if( NOT NO_STRIP )
@@ -805,7 +809,6 @@ set (PCH_SOURCES
 	core/statusbar.cpp
 	core/gi.cpp
 
-	core/console/c_console.cpp
 	core/console/c_notifybuffer.cpp
 	core/console/d_event.cpp
 
@@ -879,6 +882,7 @@ set (PCH_SOURCES
 	common/console/c_cvars.cpp
 	common/console/c_dispatch.cpp
 	common/console/c_commandbuffer.cpp
+	common/console/c_console.cpp
 	common/console/c_notifybufferbase.cpp
 	common/console/c_tabcomplete.cpp
 	common/console/c_expr.cpp
