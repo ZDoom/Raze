@@ -835,7 +835,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 {
 	spritetype* const s = &actor->s;
 
-	short sect, sa, p, j;
+	short sect, sa, p;
 	int sx, sy, sz, vel, zvel, x;
 
 
@@ -876,7 +876,6 @@ void shoot_r(DDukeActor* actor, int atwith)
 		return;
 	}
 
-	int i = actor->GetIndex();
 	switch (atwith)
 	{
 	case BLOODSPLAT1:
@@ -942,11 +941,11 @@ void shoot_r(DDukeActor* actor, int atwith)
 	case CHEERBOMB:
 		if (!isRRRA()) break;
 	case MORTER:
-
+	{
 		if (s->extra >= 0) s->shade = -96;
 
-		j = ps[findplayer(s, &x)].i;
-		x = ldist(&sprite[j], s);
+		auto j = ps[findplayer(actor, &x)].GetActor();
+		x = ldist(j, actor);
 
 		zvel = -x >> 1;
 
@@ -958,13 +957,14 @@ void shoot_r(DDukeActor* actor, int atwith)
 			EGS(sect,
 				sx + (sintable[(512 + sa + 512) & 2047] >> 8),
 				sy + (sintable[(sa + 512) & 2047] >> 8),
-				sz + (6 << 8), atwith, -64, 16, 16, sa, vel, zvel, i, 1);
+				sz + (6 << 8), atwith, -64, 16, 16, sa, vel, zvel, actor, 1);
 		else
 			EGS(sect,
 				sx + (sintable[(512 + sa + 512) & 2047] >> 8),
 				sy + (sintable[(sa + 512) & 2047] >> 8),
-				sz + (6 << 8), atwith, -64, 32, 32, sa, vel, zvel, i, 1);
+				sz + (6 << 8), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
 		break;
+	}
 	}
 	return;
 }
