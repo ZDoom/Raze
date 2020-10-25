@@ -1648,7 +1648,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 {
 	int j;
 	auto p = &ps[snum];
-	int pi = p->i;
+	auto pact = p->GetActor();
 	p->on_ground = 0;
 	p->jumping_counter = 0;
 	p->hard_landing = 0;
@@ -1658,9 +1658,9 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 	p->pycount &= 2047;
 	p->pyoff = sintable[p->pycount] >> 7;
 
-	if (p->jetpack_on && S_CheckActorSoundPlaying(pi, DUKE_SCREAM))
+	if (p->jetpack_on && S_CheckActorSoundPlaying(pact, DUKE_SCREAM))
 	{
-		S_StopSound(DUKE_SCREAM, pi);
+		S_StopSound(DUKE_SCREAM, pact);
 	}
 
 	if (p->jetpack_on < 11)
@@ -1668,8 +1668,8 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 		p->jetpack_on++;
 		p->posz -= (p->jetpack_on << 7); //Goin up
 	}
-	else if (p->jetpack_on == 11 && !S_CheckActorSoundPlaying(pi, DUKE_JETPACK_IDLE))
-		S_PlayActorSound(DUKE_JETPACK_IDLE, pi);
+	else if (p->jetpack_on == 11 && !S_CheckActorSoundPlaying(pact, DUKE_JETPACK_IDLE))
+		S_PlayActorSound(DUKE_JETPACK_IDLE, pact);
 
 	if (shrunk) j = 512;
 	else j = 2048;
@@ -1707,8 +1707,8 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 
 	if (p->posz > (fz - (k << 8)))
 		p->posz += ((fz - (k << 8)) - p->posz) >> 1;
-	if (p->posz < (hittype[pi].ceilingz + (18 << 8)))
-		p->posz = hittype[pi].ceilingz + (18 << 8);
+	if (p->posz < (pact->ceilingz + (18 << 8)))
+		p->posz = pact->ceilingz + (18 << 8);
 
 }
 
@@ -1722,7 +1722,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 {
 	int j;
 	auto p = &ps[snum];
-	int pi = p->i;
+	auto pact = p->GetActor();
 
 	if (p->airleft != 15 * 26)
 		p->airleft = 15 * 26; //Aprox twenty seconds.
@@ -1748,7 +1748,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 			{
 				if (p->dummyplayersprite == -1)
 					p->dummyplayersprite =
-					fi.spawn(pi, PLAYERONWATER);
+					fi.spawn(pact->GetIndex(), PLAYERONWATER);
 
 				p->footprintcount = 6;
 				if (sector[p->cursectnum].floorpicnum == FLOORSLIME)
@@ -1777,13 +1777,13 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 			if (p->poszv > 2400 && p->falling_counter < 255)
 			{
 				p->falling_counter++;
-				if (p->falling_counter == 38 && !S_CheckActorSoundPlaying(pi, DUKE_SCREAM))
-					S_PlayActorSound(DUKE_SCREAM, pi);
+				if (p->falling_counter == 38 && !S_CheckActorSoundPlaying(pact, DUKE_SCREAM))
+					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
 			if ((p->posz + p->poszv) >= (fz - (i << 8))) // hit the ground
 			{
-				S_StopSound(DUKE_SCREAM, pi);
+				S_StopSound(DUKE_SCREAM, pact);
 				if (sector[p->cursectnum].lotag != 1)
 				{
 					if (p->falling_counter > 62) quickkill(p);
@@ -1791,21 +1791,21 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 					else if (p->falling_counter > 9)
 					{
 						j = p->falling_counter;
-						sprite[pi].extra -= j - (krand() & 3);
-						if (sprite[pi].extra <= 0)
+						pact->s.extra -= j - (krand() & 3);
+						if (pact->s.extra <= 0)
 						{
-							S_PlayActorSound(SQUISHED, pi);
+							S_PlayActorSound(SQUISHED, pact);
 							SetPlayerPal(p, PalEntry(63, 63, 0, 0));
 						}
 						else
 						{
-							S_PlayActorSound(DUKE_LAND, pi);
-							S_PlayActorSound(DUKE_LAND_HURT, pi);
+							S_PlayActorSound(DUKE_LAND, pact);
+							S_PlayActorSound(DUKE_LAND_HURT, pact);
 						}
 
 						SetPlayerPal(p, PalEntry(32, 16, 0, 0));
 					}
-					else if (p->poszv > 2048) S_PlayActorSound(DUKE_LAND, pi);
+					else if (p->poszv > 2048) S_PlayActorSound(DUKE_LAND, pact);
 				}
 			}
 		}
@@ -1814,7 +1814,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 	else
 	{
 		p->falling_counter = 0;
-		S_StopSound(-1, pi, CHAN_VOICE);
+		S_StopSound(-1, pact, CHAN_VOICE);
 
 		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->poszv > (6144 >> 1))
 			p->hard_landing = p->poszv >> 10;
@@ -2760,8 +2760,8 @@ void processinput_d(int snum)
 	if ((lz & 49152) == 16384 && psectlotag == 1 && truefdist > PHEIGHT + (16 << 8))
 		psectlotag = 0;
 
-	hittype[pi].floorz = fz;
-	hittype[pi].ceilingz = cz;
+	pact->floorz = fz;
+	pact->ceilingz = cz;
 
 	if (cl_syncinput)
 	{
@@ -3070,7 +3070,8 @@ HORIZONLY:
 		psect = s->sectnum;
 		if (ud.clipping == 0 && sector[psect].lotag == 31)
 		{
-			if (sprite[sector[psect].hitag].xvel && hittype[sector[psect].hitag].temp_data[0] == 0)
+			auto secact = &hittype[sector[psect].hitag];
+			if (secact->s.xvel && secact->temp_data[0] == 0)
 			{
 				quickkill(p);
 				return;
@@ -3091,7 +3092,7 @@ HORIZONLY:
 
 	if (ud.clipping == 0)
 	{
-		if (abs(hittype[pi].floorz - hittype[pi].ceilingz) < (48 << 8) || j)
+		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || j)
 		{
 			if (!(sector[s->sectnum].lotag & 0x8000) && (isanunderoperator(sector[s->sectnum].lotag) ||
 				isanearoperator(sector[s->sectnum].lotag)))
