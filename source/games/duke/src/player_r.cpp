@@ -1484,15 +1484,14 @@ void checkweapons_r(struct player_struct* p)
 	static const short weapon_sprites[MAX_WEAPONS] = { KNEE, FIRSTGUNSPRITE, SHOTGUNSPRITE,
 			CHAINGUNSPRITE, RPGSPRITE, HEAVYHBOMB, SHRINKERSPRITE, DEVISTATORSPRITE,
 			TRIPBOMBSPRITE, BOWLINGBALLSPRITE, FREEZEBLAST, HEAVYHBOMB };
-	short i, j;
 
 	if (isRRRA())
 	{
 		if (p->OnMotorcycle && numplayers > 1)
 		{
-			j = fi.spawn(p->i, 7220);
-			sprite[j].ang = p->angle.ang.asbuild();
-			sprite[j].owner = p->ammo_amount[MOTORCYCLE_WEAPON];
+			auto j = spawn(p->GetActor(), 7220);
+			j->s.ang = p->angle.ang.asbuild();
+			j->s.owner = p->ammo_amount[MOTORCYCLE_WEAPON];
 			p->OnMotorcycle = 0;
 			p->gotweapon.Clear(MOTORCYCLE_WEAPON);
 			p->horizon.horiz = q16horiz(0);
@@ -1506,9 +1505,9 @@ void checkweapons_r(struct player_struct* p)
 		}
 		else if (p->OnBoat && numplayers > 1)
 		{
-			j = fi.spawn(p->i, 7233);
-			sprite[j].ang = p->angle.ang.asbuild();
-			sprite[j].owner = p->ammo_amount[BOAT_WEAPON];
+			auto j = spawn(p->GetActor(), 7233);
+			j->s.ang = p->angle.ang.asbuild();
+			j->s.owner = p->ammo_amount[BOAT_WEAPON];
 			p->OnBoat = 0;
 			p->gotweapon.Clear(BOAT_WEAPON);
 			p->horizon.horiz = q16horiz(0);
@@ -1525,36 +1524,36 @@ void checkweapons_r(struct player_struct* p)
 	if (p->curr_weapon > 0)
 	{
 		if (krand() & 1)
-			fi.spawn(p->i, weapon_sprites[p->curr_weapon]);
+			spawn(p->GetActor(), weapon_sprites[p->curr_weapon]);
 		else switch (p->curr_weapon)
 		{
 		case CHICKEN_WEAPON:
 			if (!isRRRA()) break;
 		case DYNAMITE_WEAPON:
 		case CROSSBOW_WEAPON:
-			fi.spawn(p->i, EXPLOSION2);
+			spawn(p->GetActor(), EXPLOSION2);
 			break;
 		}
 	}
 
-	for (i = 0; i < 5; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		if (p->keys[i] == 1)
 		{
-			j = fi.spawn(p->i, ACCESSCARD);
+			auto j = spawn(p->GetActor(), ACCESSCARD);
 			switch (i)
 			{
 			case 1:
-				sprite[j].lotag = 100;
+				j->s.lotag = 100;
 				break;
 			case 2:
-				sprite[j].lotag = 101;
+				j->s.lotag = 101;
 				break;
 			case 3:
-				sprite[j].lotag = 102;
+				j->s.lotag = 102;
 				break;
 			case 4:
-				sprite[j].lotag = 103;
+				j->s.lotag = 103;
 				break;
 			}
 		}
