@@ -1909,7 +1909,7 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 {
 	int j;
 	auto p = &ps[snum];
-	int pi = p->i;
+	auto pact = p->GetActor();
 	int psectlotag = sector[psect].lotag;
 
 	// under water
@@ -1919,8 +1919,8 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 	p->pycount &= 2047;
 	p->pyoff = sintable[p->pycount] >> 7;
 
-	if (!S_CheckActorSoundPlaying(pi, DUKE_UNDERWATER))
-		S_PlayActorSound(DUKE_UNDERWATER, pi);
+	if (!S_CheckActorSoundPlaying(pact, DUKE_UNDERWATER))
+		S_PlayActorSound(DUKE_UNDERWATER, pact);
 
 	if (actions & SB_JUMP)
 	{
@@ -1969,14 +1969,14 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 
 	if (p->scuba_on && (krand() & 255) < 8)
 	{
-		j = fi.spawn(pi, WATERBUBBLE);
-		sprite[j].x +=
+		auto j = spawn(pact, WATERBUBBLE);
+		j->s.x +=
 			sintable[(p->angle.ang.asbuild() + 512 + 64 - (global_random & 128)) & 2047] >> 6;
-		sprite[j].y +=
+		j->s.y +=
 			sintable[(p->angle.ang.asbuild() + 64 - (global_random & 128)) & 2047] >> 6;
-		sprite[j].xrepeat = 3;
-		sprite[j].yrepeat = 2;
-		sprite[j].z = p->posz + (8 << 8);
+		j->s.xrepeat = 3;
+		j->s.yrepeat = 2;
+		j->s.z = p->posz + (8 << 8);
 	}
 }
 
