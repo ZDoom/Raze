@@ -2010,17 +2010,17 @@ int operateTripbomb(int snum)
 		if (wall[hw].overpicnum == BIGFORCE)
 			return 0;
 
-	int j;
-	SectIterator it(sect);
-	while ((j = it.NextIndex()) >= 0)
+	DDukeActor* j;
+	DukeSectIterator it(sect);
+	while (j = it.Next())
 	{
-		auto sj = &sprite[j];
+		auto sj = &j->s;
 		if (sj->picnum == TRIPBOMB &&
 			abs(sj->z - sz) < (12 << 8) && ((sj->x - sx) * (sj->x - sx) + (sj->y - sy) * (sj->y - sy)) < (290 * 290))
 			return 0;
 	}
 
-	if (j == -1 && hw >= 0 && (wall[hw].cstat & 16) == 0)
+	if (j == nullptr && hw >= 0 && (wall[hw].cstat & 16) == 0)
 		if ((wall[hw].nextsector >= 0 && sector[wall[hw].nextsector].lotag <= 2) || (wall[hw].nextsector == -1 && sector[sect].lotag <= 2))
 			if (((sx - p->posx) * (sx - p->posx) + (sy - p->posy) * (sy - p->posy)) < (290 * 290))
 			{
@@ -2713,8 +2713,9 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 
 void processinput_d(int snum)
 {
-	int j, i, k, doubvel, fz, cz, hz, lz, truefdist;
-	char shrunk;
+	int j, i, k, doubvel, fz, cz, truefdist;
+	Collision chz, clz;
+	bool shrunk;
 	ESyncBits actions;
 	short psect, psectlotag, pi;
 	struct player_struct* p;
@@ -2749,7 +2750,7 @@ void processinput_d(int snum)
 	p->spritebridge = 0;
 
 	shrunk = (s->yrepeat < 32);
-	getzrange(p->posx, p->posy, p->posz, psect, &cz, &hz, &fz, &lz, 163L, CLIPMASK0);
+	getzrange_ex(p->posx, p->posy, p->posz, psect, &cz, chz, &fz, clz, 163L, CLIPMASK0);
 
 	j = getflorzofslope(psect, p->posx, p->posy);
 
@@ -2757,7 +2758,7 @@ void processinput_d(int snum)
 	p->truecz = getceilzofslope(psect, p->posx, p->posy);
 
 	truefdist = abs(p->posz - j);
-	if ((lz & 49152) == 16384 && psectlotag == 1 && truefdist > PHEIGHT + (16 << 8))
+	if (clz.type == kHitSector && psectlotag == 1 && truefdist > PHEIGHT + (16 << 8))
 		psectlotag = 0;
 
 	pact->floorz = fz;
@@ -2769,30 +2770,27 @@ void processinput_d(int snum)
 		calcviewpitch(p, 1);
 	}
 
-	if (hz >= 0 && (hz & 49152) == 49152)
+	if (chz.type == kHitSprite)
 	{
-		hz &= (MAXSPRITES - 1);
-
-		if (sprite[hz].statnum == 1 && sprite[hz].extra >= 0)
+		if (chz.actor->s.statnum == 1 && chz.actor->s.extra >= 0)
 		{
-			hz = 0;
+			chz.type = kHitNone;
+			chz.actor = nullptr;
 			cz = p->truecz;
 		}
 	}
 
-	if (lz >= 0 && (lz & 49152) == 49152)
+	if (clz.type == kHitSprite)
 	{
-		j = lz & (MAXSPRITES - 1);
-
-		if ((sprite[j].cstat & 33) == 33)
+		if ((clz.actor->s.cstat & 33) == 33)
 		{
 			psectlotag = 0;
 			p->footprintcount = 0;
 			p->spritebridge = 1;
 		}
-		else if (badguy(&sprite[j]) && sprite[j].xrepeat > 24 && abs(s->z - sprite[j].z) < (84 << 8))
+		else if (badguy(clz.actor) && clz.actor->s.xrepeat > 24 && abs(s->z - clz.actor->s.z) < (84 << 8))
 		{
-			j = getangle(sprite[j].x - p->posx, sprite[j].y - p->posy);
+			j = getangle(clz.actor->s.x - p->posx, clz.actor->s.y - p->posy);
 			p->posxv -= sintable[(j + 512) & 2047] << 4;
 			p->posyv -= sintable[j & 2047] << 4;
 		}
@@ -2954,9 +2952,10 @@ void processinput_d(int snum)
 				{
 				case 0:
 
-					if (lz >= 0 && (lz & (MAXSPRITES - 1)) == 49152)
-						j = sprite[lz & (MAXSPRITES - 1)].picnum;
-					else j = sector[psect].floorpicnum;
+					if (clz.type == kHitSprite)
+						j = clz.actor->s.picnum;
+					else
+						j = sector[psect].floorpicnum;
 
 					switch (j)
 					{
