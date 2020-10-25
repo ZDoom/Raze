@@ -604,9 +604,8 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 //
 //---------------------------------------------------------------------------
 
-static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto actor = &hittype[i];
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
@@ -680,7 +679,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	auto spawned = EGS(sect,
 		sx + (sintable[(348 + sa + 512) & 2047] / 448),
 		sy + (sintable[(sa + 348) & 2047] / 448),
-		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, &hittype[i], 4);
+		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, actor, 4);
 
 	if (isRRRA())
 	{
@@ -757,9 +756,8 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 //
 //---------------------------------------------------------------------------
 
-static void shootwhip(int i, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto actor = &hittype[i];
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
@@ -815,11 +813,10 @@ static void shootwhip(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 	while (scount > 0)
 	{
-		int j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, i, 4);
-		sprite[j].extra += (krand() & 7);
-
-		sprite[j].cstat = 128;
-		sprite[j].clipdist = 4;
+		auto j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, actor, 4);
+		j->s.extra += (krand() & 7);
+		j->s.cstat = 128;
+		j->s.clipdist = 4;
 
 		sa = s->ang + 32 - (krand() & 63);
 		zvel = oldzvel + 512 - (krand() & 1023);
@@ -920,7 +917,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	}
 	case OWHIP:
 	case UWHIP:
-		shootwhip(i, p, sx, sy, sz, sa, atwith);
+		shootwhip(actor, p, sx, sy, sz, sa, atwith);
 		return;
 
 	case FIRELASER:
@@ -939,7 +936,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	case RPG:
 	case SHRINKSPARK:
 	rrra_rpg2:
-		shootrpg(i, p, sx, sy, sz, sa, atwith);
+		shootrpg(actor, p, sx, sy, sz, sa, atwith);
 		break;
 
 	case CHEERBOMB:
