@@ -336,6 +336,7 @@ void GameInterface::app_init()
 	LoadDefinitions();
 	SetTileNames();
 	TileFiles.SetBackup();
+	C_InitConback(TexMan.CheckForTexture("MENUSCREEN", ETextureType::Any), false, 0.75);
 
 	if (ud.multimode > 1)
 	{
