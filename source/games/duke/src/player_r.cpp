@@ -1569,8 +1569,8 @@ void checkweapons_r(struct player_struct* p)
 static void onMotorcycle(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
-	auto pi = p->i;
-	auto s = &sprite[pi];
+	auto pact = p->GetActor();
+	auto s = &pact->s;
 
 	int var64, var68, var6c, var70, var74, var78, var7c, var80;
 	short var84;
@@ -1592,42 +1592,42 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		{
 			if (p->MotoSpeed == 0 && var64)
 			{
-				if (!S_CheckActorSoundPlaying(pi, 187))
-					S_PlayActorSound(187, pi);
+				if (!S_CheckActorSoundPlaying(pact, 187))
+					S_PlayActorSound(187, pact);
 			}
-			else if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pi, 214))
+			else if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pact, 214))
 			{
-				if (S_CheckActorSoundPlaying(pi, 187))
-					S_StopSound(187, pi);
-				S_PlayActorSound(214, pi);
+				if (S_CheckActorSoundPlaying(pact, 187))
+					S_StopSound(187, pact);
+				S_PlayActorSound(214, pact);
 			}
-			else if (p->MotoSpeed >= 50 && !S_CheckActorSoundPlaying(pi, 188))
+			else if (p->MotoSpeed >= 50 && !S_CheckActorSoundPlaying(pact, 188))
 			{
-				S_PlayActorSound(188, pi);
+				S_PlayActorSound(188, pact);
 			}
-			else if (!S_CheckActorSoundPlaying(pi, 188) && !S_CheckActorSoundPlaying(pi, 214))
+			else if (!S_CheckActorSoundPlaying(pact, 188) && !S_CheckActorSoundPlaying(pact, 214))
 			{
-				S_PlayActorSound(188, pi);
+				S_PlayActorSound(188, pact);
 			}
 		}
 	}
 	else
 	{
 		var68 = 0;
-		if (S_CheckActorSoundPlaying(pi, 214))
+		if (S_CheckActorSoundPlaying(pact, 214))
 		{
-			S_StopSound(214, pi);
-			if (!S_CheckActorSoundPlaying(pi, 189))
-				S_PlayActorSound(189, pi);
+			S_StopSound(214, pact);
+			if (!S_CheckActorSoundPlaying(pact, 189))
+				S_PlayActorSound(189, pact);
 		}
-		if (S_CheckActorSoundPlaying(pi, 188))
+		if (S_CheckActorSoundPlaying(pact, 188))
 		{
-			S_StopSound(188, pi);
-			if (!S_CheckActorSoundPlaying(pi, 189))
-				S_PlayActorSound(189, pi);
+			S_StopSound(188, pact);
+			if (!S_CheckActorSoundPlaying(pact, 189))
+				S_PlayActorSound(189, pact);
 		}
-		if (!S_CheckActorSoundPlaying(pi, 189) && !S_CheckActorSoundPlaying(pi, 187))
-			S_PlayActorSound(187, pi);
+		if (!S_CheckActorSoundPlaying(pact, 189) && !S_CheckActorSoundPlaying(pact, 187))
+			S_PlayActorSound(187, pact);
 	}
 	if (p->vehicle_backwards)
 	{
@@ -1825,8 +1825,8 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 				p->posxv += (var8c >> 5) * (sintable[(var94 * -51 + var90 + 512) & 2047] << 4);
 				p->posyv += (var8c >> 5) * (sintable[(var94 * -51 + var90) & 2047] << 4);
 				ang = var98 >> 4;
-				if (!S_CheckActorSoundPlaying(pi, 220))
-					S_PlayActorSound(220, pi);
+				if (!S_CheckActorSoundPlaying(pact, 220))
+					S_PlayActorSound(220, pact);
 			}
 			else
 			{
@@ -1867,8 +1867,8 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 static void onBoat(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
-	auto pi = p->i;
-	auto s = &sprite[pi];
+	auto pact = p->GetActor();
+	auto s = &pact->s;
 
 	int vara8, varac, varb0, varb4, varb8, varbc, varc0, varc4, varc8;
 	short varcc;
@@ -1876,13 +1876,13 @@ static void onBoat(int snum, ESyncBits &actions)
 	{
 		if (p->MotoSpeed > 0)
 		{
-			if (!S_CheckActorSoundPlaying(pi, 88))
-				S_PlayActorSound(88, pi);
+			if (!S_CheckActorSoundPlaying(pact, 88))
+				S_PlayActorSound(88, pact);
 		}
 		else
 		{
-			if (!S_CheckActorSoundPlaying(pi, 87))
-				S_PlayActorSound(87, pi);
+			if (!S_CheckActorSoundPlaying(pact, 87))
+				S_PlayActorSound(87, pact);
 		}
 	}
 	if (p->MotoSpeed < 0)
@@ -1900,34 +1900,34 @@ static void onBoat(int snum, ESyncBits &actions)
 	{
 		varac = 1;
 		actions &= ~SB_JUMP;
-		if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pi, 89))
+		if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pact, 89))
 		{
-			if (S_CheckActorSoundPlaying(pi, 87))
-				S_StopSound(pi, 87);
-			S_PlayActorSound(89, pi);
+			if (S_CheckActorSoundPlaying(pact, 87))
+				S_StopSound(87, pact);
+			S_PlayActorSound(89, pact);
 		}
-		else if (p->MotoSpeed >= 50 && !S_CheckActorSoundPlaying(pi, 88))
-			S_PlayActorSound(88, pi);
-		else if (!S_CheckActorSoundPlaying(pi, 88) && !S_CheckActorSoundPlaying(pi, 89))
-			S_PlayActorSound(88, pi);
+		else if (p->MotoSpeed >= 50 && !S_CheckActorSoundPlaying(pact, 88))
+			S_PlayActorSound(88, pact);
+		else if (!S_CheckActorSoundPlaying(pact, 88) && !S_CheckActorSoundPlaying(pact, 89))
+			S_PlayActorSound(88, pact);
 	}
 	else
 	{
 		varac = 0;
-		if (S_CheckActorSoundPlaying(pi, 89))
+		if (S_CheckActorSoundPlaying(pact, 89))
 		{
-			S_StopSound(pi, 89);
-			if (!S_CheckActorSoundPlaying(pi, 90))
-				S_PlayActorSound(90, pi);
+			S_StopSound(89, pact);
+			if (!S_CheckActorSoundPlaying(pact, 90))
+				S_PlayActorSound(90, pact);
 		}
-		if (S_CheckActorSoundPlaying(pi, 88))
+		if (S_CheckActorSoundPlaying(pact, 88))
 		{
-			S_StopSound(pi, 88);
-			if (!S_CheckActorSoundPlaying(pi, 90))
-				S_PlayActorSound(90, pi);
+			S_StopSound(88, pact);
+			if (!S_CheckActorSoundPlaying(pact, 90))
+				S_PlayActorSound(90, pact);
 		}
-		if (!S_CheckActorSoundPlaying(pi, 90) && !S_CheckActorSoundPlaying(pi, 87))
-			S_PlayActorSound(87, pi);
+		if (!S_CheckActorSoundPlaying(pact, 90) && !S_CheckActorSoundPlaying(pact, 87))
+			S_PlayActorSound(87, pact);
 	}
 
 	if (actions & SB_CROUCH)
@@ -1948,8 +1948,8 @@ static void onBoat(int snum, ESyncBits &actions)
 		varb8 = 1;
 		varbc = 1;
 		p->vehicle_turnl = false;
-		if (!S_CheckActorSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
-			S_PlayActorSound(91, pi);
+		if (!S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
+			S_PlayActorSound(91, pact);
 	}
 	else
 	{
@@ -1961,8 +1961,8 @@ static void onBoat(int snum, ESyncBits &actions)
 		varc0 = 1;
 		varc4 = 1;
 		p->vehicle_turnr = false;
-		if (!S_CheckActorSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
-			S_PlayActorSound(91, pi);
+		if (!S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
+			S_PlayActorSound(91, pact);
 	}
 	else
 	{
@@ -1996,8 +1996,8 @@ static void onBoat(int snum, ESyncBits &actions)
 			if (p->MotoSpeed <= 25)
 			{
 				p->MotoSpeed++;
-				if (!S_CheckActorSoundPlaying(pi, 182))
-					S_PlayActorSound(182, pi);
+				if (!S_CheckActorSoundPlaying(pact, 182))
+					S_PlayActorSound(182, pact);
 			}
 			else
 			{
@@ -2386,7 +2386,7 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 {
 	int j;
 	auto p = &ps[snum];
-	int pi = p->i;
+	auto pact = p->GetActor();
 	int psectlotag = sector[psect].lotag;
 
 	p->jumping_counter = 0;
@@ -2395,8 +2395,8 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 	p->pycount &= 2047;
 	p->pyoff = sintable[p->pycount] >> 7;
 
-	if (!S_CheckActorSoundPlaying(pi, DUKE_UNDERWATER))
-		S_PlayActorSound(DUKE_UNDERWATER, pi);
+	if (!S_CheckActorSoundPlaying(pact, DUKE_UNDERWATER))
+		S_PlayActorSound(DUKE_UNDERWATER, pact);
 
 	if ((actions & SB_JUMP) && !p->OnMotorcycle)
 	{
@@ -2442,15 +2442,13 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 
 	if (p->scuba_on && (krand() & 255) < 8)
 	{
-		j = fi.spawn(pi, WATERBUBBLE);
-		sprite[j].x +=
-			sintable[(p->angle.ang.asbuild() + 512 + 64 - (global_random & 128) + 128) & 2047] >> 6;
-		sprite[j].y +=
-			sintable[(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128) & 2047] >> 6;
-		sprite[j].xrepeat = 3;
-		sprite[j].yrepeat = 2;
-		sprite[j].z = p->posz + (8 << 8);
-		sprite[j].cstat = 514;
+		auto j = spawn(pact, WATERBUBBLE);
+		j->s.x += sintable[(p->angle.ang.asbuild() + 512 + 64 - (global_random & 128) + 128) & 2047] >> 6;
+		j->s.y += sintable[(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128) & 2047] >> 6;
+		j->s.xrepeat = 3;
+		j->s.yrepeat = 2;
+		j->s.z = p->posz + (8 << 8);
+		j->s.cstat = 514;
 	}
 }
 
@@ -2463,8 +2461,8 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 void onMotorcycleMove(int snum, int psect, int j)
 {
 	auto p = &ps[snum];
-	int pi = p->i;
-	auto s = &sprite[pi];
+	auto pact = p->GetActor();
+	auto s = &pact->s;
 	int psectlotag = sector[psect].lotag;
 
 	short var104, var108, var10c;
@@ -2487,38 +2485,38 @@ void onMotorcycleMove(int snum, int psect, int j)
 	{
 		var104 = (p->MotoSpeed * p->MotoSpeed) >> 8;
 		p->MotoSpeed = 0;
-		if (S_CheckActorSoundPlaying(pi, 238) == 0)
-			S_PlayActorSound(238, pi);
+		if (S_CheckActorSoundPlaying(pact, 238) == 0)
+			S_PlayActorSound(238, pact);
 	}
 	else if (var10c >= 311 && var10c <= 711)
 	{
 		var104 = (p->MotoSpeed * p->MotoSpeed) >> 11;
 		p->MotoSpeed -= (p->MotoSpeed >> 1) + (p->MotoSpeed >> 2);
-		if (S_CheckActorSoundPlaying(pi, 238) == 0)
-			S_PlayActorSound(238, pi);
+		if (S_CheckActorSoundPlaying(pact, 238) == 0)
+			S_PlayActorSound(238, pact);
 	}
 	else if (var10c >= 111 && var10c <= 911)
 	{
 		var104 = (p->MotoSpeed * p->MotoSpeed) >> 14;
 		p->MotoSpeed -= (p->MotoSpeed >> 1);
-		if (S_CheckActorSoundPlaying(pi, 239) == 0)
-			S_PlayActorSound(239, pi);
+		if (S_CheckActorSoundPlaying(pact, 239) == 0)
+			S_PlayActorSound(239, pact);
 	}
 	else
 	{
 		var104 = (p->MotoSpeed * p->MotoSpeed) >> 15;
 		p->MotoSpeed -= (p->MotoSpeed >> 3);
-		if (S_CheckActorSoundPlaying(pi, 240) == 0)
-			S_PlayActorSound(240, pi);
+		if (S_CheckActorSoundPlaying(pact, 240) == 0)
+			S_PlayActorSound(240, pact);
 	}
 	s->extra -= var104;
 	if (s->extra <= 0)
 	{
-		S_PlayActorSound(SQUISHED, pi);
+		S_PlayActorSound(SQUISHED, pact);
 		SetPlayerPal(p, PalEntry(63, 63, 0, 0));
 	}
 	else if (var104)
-		S_PlayActorSound(DUKE_LAND_HURT, pi);
+		S_PlayActorSound(DUKE_LAND_HURT, pact);
 
 }
 
@@ -2531,8 +2529,8 @@ void onMotorcycleMove(int snum, int psect, int j)
 void onBoatMove(int snum, int psect, int j)
 {
 	auto p = &ps[snum];
-	int pi = p->i;
-	auto s = &sprite[pi];
+	auto pact = p->GetActor();
+	auto s = &pact->s;
 	int psectlotag = sector[psect].lotag;
 
 	short var114, var118;
