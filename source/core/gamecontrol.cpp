@@ -1347,6 +1347,8 @@ static const gamefilter games[] = {
 	{ "Plutopak", GAMEFLAG_PLUTOPAK},
 	{ "Worldtour", GAMEFLAG_WORLDTOUR},
 	{ "Shareware", GAMEFLAG_SHAREWARE},
+	{ "Witchaven", GAMEFLAG_WH},
+	{ "Witchaven2", GAMEFLAG_WH2},
 };
 
 bool validFilter(const char* str)

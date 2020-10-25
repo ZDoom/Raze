@@ -255,7 +255,12 @@ void GameInterface::Startup()
 	}
 }
 
-bool showmainmenu;
+bool GameInterface::CanSave()
+{
+	return false;// !bRecord && !bPlayback && !paused && !bInDemo && nTotalPlayers == 1;
+}
+
+
 void GameInterface::DrawBackground()
 {
 	if (isWh2()) 
@@ -264,7 +269,8 @@ void GameInterface::DrawBackground()
 	}
 	else
 	{
-		// This only shows the low res menu, the larger one is rather poor.
+		bool showmainmenu = CurrentMenu && CurrentMenu->GetClass()->TypeName == FName("WHMainMenu");
+		// This only shows the low res menu, the larger one is rather poor because it places the actual menu into a postage stamp size window.
 		DrawTexture(twod, tileGetTexture(showmainmenu ? MAINMENU : TITLEPIC), 0, 0, DTA_Fullscreen, FSMode_ScaleToFit43, TAG_DONE);
 	}
 }
