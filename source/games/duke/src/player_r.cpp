@@ -2615,9 +2615,10 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 		{
 			if (s->lotag != 0)
 			{
-				for (int j = 0; j < MAXSPRITES; j++)
+				DukeSpriteIterator it;
+				while (auto act2 = it.Next())
 				{
-					auto sprj = &sprite[j];
+					auto sprj = &act2->s;
 					if ((sprj->picnum == RRTILE2431 || sprj->picnum == RRTILE2451) && sprj->pal == 4)
 					{
 						if (s->lotag == sprj->lotag)
@@ -3404,8 +3405,8 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 static void processweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
-	int pi = p->i;
-	auto s = &sprite[pi];
+	auto pact = p->GetActor();
+	auto s = &pact->s;
 	int shrunk = (s->yrepeat < 8);
 
 	if (actions & SB_FIRE)
@@ -3467,13 +3468,11 @@ void processinput_r(int snum)
 	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, var60;
 	char shrunk;
 	ESyncBits actions;
-	short psect, psectlotag, pi;
-	struct player_struct* p;
-	spritetype* s;
+	short psect, psectlotag;
 
-	p = &ps[snum];
-	pi = p->i;
-	s = &sprite[pi];
+	auto p = &ps[snum];
+	auto pact = p->GetActor();
+	auto s = &pact->s;
 
 	p->horizon.resetadjustment();
 	p->angle.resetadjustment();
@@ -3498,7 +3497,7 @@ void processinput_r(int snum)
 		if (s->extra > 0 && ud.clipping == 0)
 		{
 			quickkill(p);
-			S_PlayActorSound(SQUISHED, pi);
+			S_PlayActorSound(SQUISHED, pact);
 		}
 		psect = 0;
 	}
@@ -3548,8 +3547,8 @@ void processinput_r(int snum)
 	if ((lz & 49152) == 16384 && psectlotag == 1 && truefdist > PHEIGHT + (16 << 8))
 		psectlotag = 0;
 
-	hittype[pi].floorz = fz;
-	hittype[pi].ceilingz = cz;
+	pact->floorz = fz;
+	pact->ceilingz = cz;
 
 	if (cl_syncinput)
 	{
@@ -3718,7 +3717,7 @@ void processinput_r(int snum)
 		if (tmp >= 0)
 		{
 			if (!S_CheckSoundPlaying(p->i, 432))
-				S_PlayActorSound(432, pi);
+				S_PlayActorSound(432, pact);
 		}
 		else
 			S_StopSound(432);
@@ -3820,7 +3819,7 @@ void processinput_r(int snum)
 				case 1:
 					if ((krand() & 1) == 0)
 						if  (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && sector[p->cursectnum].hitag != 321))
-							S_PlayActorSound(DUKE_ONWATER, pi);
+							S_PlayActorSound(DUKE_ONWATER, pact);
 					p->walking_snd_toggle = 1;
 					break;
 				}
@@ -3923,7 +3922,7 @@ HORIZONLY:
 		p->posx += p->posxv >> 14;
 		p->posy += p->posyv >> 14;
 		updatesector(p->posx, p->posy, &p->cursectnum);
-		changespritesect(pi, p->cursectnum);
+		changespritesect(pact, p->cursectnum);
 	}
 	else
 		j = clipmove(&p->posx, &p->posy,
@@ -3994,7 +3993,7 @@ HORIZONLY:
 				if (sprite[var60].picnum == RRTILE3410)
 				{
 					quickkill(p);
-					S_PlayActorSound(446, pi);
+					S_PlayActorSound(446, pact);
 				}
 				else if (isRRRA() && sprite[var60].picnum == RRTILE2443 && sprite[var60].pal == 19)
 				{
@@ -4022,7 +4021,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	setsprite(pi, p->posx, p->posy, p->posz + PHEIGHT);
+	setsprite(pact, p->posx, p->posy, p->posz + PHEIGHT);
 
 	if (psectlotag == 800 && (!isRRRA() || !p->lotag800kill))
 	{
@@ -4045,12 +4044,12 @@ HORIZONLY:
 	}
 
 	if (truefdist < PHEIGHT && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
-		if (!S_CheckActorSoundPlaying(pi, DUKE_ONWATER))
+		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && sector[p->cursectnum].hitag != 321))
-				S_PlayActorSound(DUKE_ONWATER, pi);
+				S_PlayActorSound(DUKE_ONWATER, pact);
 
 	if (p->cursectnum != s->sectnum)
-		changespritesect(pi, p->cursectnum);
+		changespritesect(pact, p->cursectnum);
 
 	if (ud.clipping == 0)
 	{
@@ -4063,11 +4062,11 @@ HORIZONLY:
 
 	if (ud.clipping == 0)
 	{
-		if (abs(hittype[pi].floorz - hittype[pi].ceilingz) < (48 << 8) || j)
+		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || j)
 		{
 			if (!(sector[s->sectnum].lotag & 0x8000) && (isanunderoperator(sector[s->sectnum].lotag) ||
 				isanearoperator(sector[s->sectnum].lotag)))
-				fi.activatebysector(s->sectnum, pi);
+				fi.activatebysector(s->sectnum, pact->GetIndex());
 			if (j)
 			{
 				quickkill(p);
@@ -4075,7 +4074,7 @@ HORIZONLY:
 			}
 		}
 		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(sector[psect].lotag))
-			fi.activatebysector(psect, pi);
+			fi.activatebysector(psect, pact->GetIndex());
 	}
 
 	if (ud.clipping == 0 && sector[p->cursectnum].ceilingz > (sector[p->cursectnum].floorz - (12 << 8)))
