@@ -101,7 +101,7 @@ void resetplayerstats(int snum)
 //    p->select_dir       = 0;
     p->extra_extra8     = 0;
     p->show_empty_weapon= 0;
-    p->dummyplayersprite=-1;
+    p->dummyplayersprite=nullptr;
     p->crack_time       = 0;
     p->hbomb_hold_delay = 0;
     p->transporter_hold = 0;

@@ -371,7 +371,7 @@ void movedummyplayers(void)
 
 		if ((!isRR() && ps[p].on_crane != nullptr) || sector[ps[p].cursectnum].lotag != 1 || ps->GetActor()->s.extra <= 0)
 		{
-			ps[p].dummyplayersprite = -1;
+			ps[p].dummyplayersprite = nullptr;
 			deletesprite(act);
 			continue;
 		}

@@ -1746,9 +1746,8 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 		{
 			if (p->on_ground == 1)
 			{
-				if (p->dummyplayersprite == -1)
-					p->dummyplayersprite =
-					fi.spawn(pact->GetIndex(), PLAYERONWATER);
+				if (p->dummyplayersprite == nullptr)
+					p->dummyplayersprite = spawn(pact, PLAYERONWATER);
 
 				p->footprintcount = 6;
 				if (sector[p->cursectnum].floorpicnum == FLOORSLIME)
@@ -1907,7 +1906,6 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 
 static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 {
-	int j;
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	int psectlotag = sector[psect].lotag;

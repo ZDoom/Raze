@@ -648,8 +648,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_DUMMYPLAYERSPRITE:
-		if (bSet) ps[iPlayer].dummyplayersprite = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].dummyplayersprite, sActor, sPlayer);
+		if (bSet) ps[iPlayer].dummyplayersprite = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ps[iPlayer].dummyplayersprite), sActor, sPlayer);
 		break;
 
 	case PLAYER_EXTRA_EXTRA8:

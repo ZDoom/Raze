@@ -1768,7 +1768,7 @@ static void weaponcommon_d(DDukeActor* proj)
 {
 	auto s = &proj->s;
 	if (s->picnum == COOLEXPLOSION1)
-		if (!S_CheckSoundPlaying(proj->GetIndex(), WIERDSHOT_FLY))
+		if (!S_CheckActorSoundPlaying(proj, WIERDSHOT_FLY))
 			S_PlayActorSound(WIERDSHOT_FLY, proj);
 
 	int p = -1;
@@ -3598,7 +3598,7 @@ static void handle_se28(DDukeActor* actor)
 						x = ldist(psa, act2);
 						if (x < 768)
 						{
-							if (S_CheckSoundPlaying(psa->GetIndex(), DUKE_LONGTERM_PAIN) < 1)
+							if (S_CheckActorSoundPlaying(psa, DUKE_LONGTERM_PAIN) < 1)
 								S_PlayActorSound(DUKE_LONGTERM_PAIN, psa);
 							S_PlayActorSound(SHORT_CIRCUIT, psa);
 							psa->s.extra -= 8 + (krand() & 7);

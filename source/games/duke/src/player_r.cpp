@@ -2157,8 +2157,8 @@ static void onBoat(int snum, ESyncBits &actions)
 static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
 {
 	auto p = &ps[snum];
-	auto pi = p->i;
-	auto s = &sprite[pi];
+	auto pact = p->GetActor();
+	auto s = &pact->s;
 
 	if (p->airleft != 15 * 26)
 		p->airleft = 15 * 26; //Aprox twenty seconds.
@@ -2182,9 +2182,8 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 		{
 			if (p->on_ground == 1)
 			{
-				if (p->dummyplayersprite == -1)
-					p->dummyplayersprite =
-					fi.spawn(pi, PLAYERONWATER);
+				if (p->dummyplayersprite == nullptr)
+					p->dummyplayersprite = spawn(pact, PLAYERONWATER);
 
 				p->footprintcount = 6;
 				if (sector[p->cursectnum].floorpicnum == FLOORSLIME)
@@ -2226,15 +2225,15 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 					p->moto_bump_fast = 1;
 					p->poszv -= gc * (p->MotoSpeed >> 4);
 					p->MotoOnGround = 0;
-					if (S_CheckActorSoundPlaying(pi, 188))
-						S_StopSound(188, pi);
-					S_PlayActorSound(189, pi);
+					if (S_CheckActorSoundPlaying(pact, 188))
+						S_StopSound(188, pact);
+					S_PlayActorSound(189, pact);
 				}
 				else
 				{
 					p->poszv += gc - 80 + (120 - p->MotoSpeed);
-					if (!S_CheckActorSoundPlaying(pi, 189) && !S_CheckActorSoundPlaying(pi, 190))
-						S_PlayActorSound(190, pi);
+					if (!S_CheckActorSoundPlaying(pact, 189) && !S_CheckActorSoundPlaying(pact, 190))
+						S_PlayActorSound(190, pact);
 				}
 			}
 			else
@@ -2244,13 +2243,13 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 			if (p->poszv > 2400 && p->falling_counter < 255)
 			{
 				p->falling_counter++;
-				if (p->falling_counter == 38 && !S_CheckActorSoundPlaying(pi, DUKE_SCREAM))
-					S_PlayActorSound(DUKE_SCREAM, pi);
+				if (p->falling_counter == 38 && !S_CheckActorSoundPlaying(pact, DUKE_SCREAM))
+					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
 			if ((p->posz + p->poszv) >= (fz - (i << 8))) // hit the ground
 			{
-				S_StopSound(DUKE_SCREAM, pi);
+				S_StopSound(DUKE_SCREAM, pact);
 				if (sector[p->cursectnum].lotag != 1)
 				{
 					if (isRRRA()) p->MotoOnGround = 1;
@@ -2263,12 +2262,12 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 						s->extra -= j - (krand() & 3);
 						if (s->extra <= 0)
 						{
-							S_PlayActorSound(SQUISHED, pi);
+							S_PlayActorSound(SQUISHED, pact);
 						}
 						else
 						{
-							S_PlayActorSound(DUKE_LAND, pi);
-							S_PlayActorSound(DUKE_LAND_HURT, pi);
+							S_PlayActorSound(DUKE_LAND, pact);
+							S_PlayActorSound(DUKE_LAND_HURT, pact);
 						}
 
 						SetPlayerPal(p, PalEntry(32, 16, 0, 0));
@@ -2277,16 +2276,16 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 					{
 						if (p->OnMotorcycle)
 						{
-							if (S_CheckActorSoundPlaying(pi, 190))
-								S_StopSound(pi, 190);
-							S_PlayActorSound(191, pi);
+							if (S_CheckActorSoundPlaying(pact, 190))
+								S_StopSound(190, pact);
+							S_PlayActorSound(191, pact);
 							p->TurbCount = 12;
 						}
-						else S_PlayActorSound(DUKE_LAND, pi);
+						else S_PlayActorSound(DUKE_LAND, pact);
 					}
 					else if (p->poszv > 1024 && p->OnMotorcycle)
 					{
-						S_PlayActorSound(DUKE_LAND, pi);
+						S_PlayActorSound(DUKE_LAND, pact);
 						p->TurbCount = 12;
 					}
 				}
@@ -2297,7 +2296,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 	else
 	{
 		p->falling_counter = 0;
-		S_StopSound(-1, pi, CHAN_VOICE);
+		S_StopSound(-1, pact, CHAN_VOICE);
 
 		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->poszv > (6144 >> 1))
 			p->hard_landing = p->poszv >> 10;
