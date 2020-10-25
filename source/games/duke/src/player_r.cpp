@@ -463,9 +463,8 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 //
 //---------------------------------------------------------------------------
 
-static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
+static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto actor = &hittype[i];
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
@@ -538,7 +537,7 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 		else if (s->picnum != UFOBEAM)
 			sa += 16 - (krand() & 31);
 
-		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(&sprite[ps[j].i], s);
+		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
 
 	int oldzvel = zvel;
@@ -581,18 +580,18 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 	while (scount > 0)
 	{
-		auto j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, i, 4);
-		sprite[j].extra += (krand() & 7);
-		sprite[j].cstat = 128;
-		sprite[j].clipdist = 4;
+		auto j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, actor, 4);
+		j->s.extra += (krand() & 7);
+		j->s.cstat = 128;
+		j->s.clipdist = 4;
 
 		sa = s->ang + 32 - (krand() & 63);
 		zvel = oldzvel + 512 - (krand() & 1023);
 
 		if (atwith == FIRELASER)
 		{
-			sprite[j].xrepeat = 8;
-			sprite[j].yrepeat = 8;
+			j->s.xrepeat = 8;
+			j->s.yrepeat = 8;
 		}
 
 		scount--;
@@ -927,7 +926,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	case FIRELASER:
 	case SPIT:
 	case COOLEXPLOSION1:
-		shootstuff(i, p, sx, sy, sz, sa, atwith);
+		shootstuff(actor, p, sx, sy, sz, sa, atwith);
 		return;
 
 	case RPG2:
