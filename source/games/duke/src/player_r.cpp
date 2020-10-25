@@ -1491,7 +1491,7 @@ void checkweapons_r(struct player_struct* p)
 		{
 			auto j = spawn(p->GetActor(), 7220);
 			j->s.ang = p->angle.ang.asbuild();
-			j->s.owner = p->ammo_amount[MOTORCYCLE_WEAPON];
+			j->s.owner = p->ammo_amount[MOTORCYCLE_WEAPON]; // hijack!
 			p->OnMotorcycle = 0;
 			p->gotweapon.Clear(MOTORCYCLE_WEAPON);
 			p->horizon.horiz = q16horiz(0);
@@ -1507,7 +1507,7 @@ void checkweapons_r(struct player_struct* p)
 		{
 			auto j = spawn(p->GetActor(), 7233);
 			j->s.ang = p->angle.ang.asbuild();
-			j->s.owner = p->ammo_amount[BOAT_WEAPON];
+			j->s.owner = p->ammo_amount[BOAT_WEAPON]; // hijack!
 			p->OnBoat = 0;
 			p->gotweapon.Clear(BOAT_WEAPON);
 			p->horizon.horiz = q16horiz(0);
@@ -2552,29 +2552,29 @@ void onBoatMove(int snum, int psect, int j)
 	{
 		p->MotoSpeed = ((p->MotoSpeed >> 1) + (p->MotoSpeed >> 2)) >> 2;
 		if (psectlotag == 1)
-			if (S_CheckActorSoundPlaying(pi, 178) == 0)
-				S_PlayActorSound(178, pi);
+			if (S_CheckActorSoundPlaying(pact, 178) == 0)
+				S_PlayActorSound(178, pact);
 	}
 	else if (var118 >= 311 && var118 <= 711)
 	{
 		p->MotoSpeed -= ((p->MotoSpeed >> 1) + (p->MotoSpeed >> 2)) >> 3;
 		if (psectlotag == 1)
-			if (S_CheckActorSoundPlaying(pi, 179) == 0)
-				S_PlayActorSound(179, pi);
+			if (S_CheckActorSoundPlaying(pact, 179) == 0)
+				S_PlayActorSound(179, pact);
 	}
 	else if (var118 >= 111 && var118 <= 911)
 	{
 		p->MotoSpeed -= (p->MotoSpeed >> 4);
 		if (psectlotag == 1)
-			if (S_CheckActorSoundPlaying(pi, 180) == 0)
-				S_PlayActorSound(180, pi);
+			if (S_CheckActorSoundPlaying(pact, 180) == 0)
+				S_PlayActorSound(180, pact);
 	}
 	else
 	{
 		p->MotoSpeed -= (p->MotoSpeed >> 6);
 		if (psectlotag == 1)
-			if (S_CheckActorSoundPlaying(pi, 181) == 0)
-				S_PlayActorSound(181, pi);
+			if (S_CheckActorSoundPlaying(pact, 181) == 0)
+				S_PlayActorSound(181, pact);
 	}
 
 }
@@ -2585,32 +2585,32 @@ void onBoatMove(int snum, int psect, int j)
 //
 //---------------------------------------------------------------------------
 
-void onMotorcycleHit(int snum, int var60)
+void onMotorcycleHit(int snum, DDukeActor* victim)
 {
 	auto p = &ps[snum];
-	auto s = &sprite[var60];
-	auto ht = &hittype[var60];
+	auto s = &victim->s;
 	if (badguy(s) || s->picnum == APLAYER)
 	{
 		if (s->picnum != APLAYER)
 		{
 			if (numplayers == 1)
 			{
-				fi.movesprite(var60, sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild() + 512) & 2047] >> 8,
-					sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild()) & 2047] >> 8, s->zvel, CLIPMASK0);
+				Collision coll;
+				movesprite_ex(victim, sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild() + 512) & 2047] >> 8,
+					sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild()) & 2047] >> 8, s->zvel, CLIPMASK0, coll);
 			}
 		}
 		else
-			ht->owner = p->i;
-		ht->picnum = MOTOHIT;
-		ht->extra = p->MotoSpeed >> 1;
+			victim->SetHitOwner(p->GetActor());
+		victim->picnum = MOTOHIT;
+		victim->extra = p->MotoSpeed >> 1;
 		p->MotoSpeed -= p->MotoSpeed >> 2;
 		p->TurbCount = 6;
 	}
 	else if ((s->picnum == RRTILE2431 || s->picnum == RRTILE2443 || s->picnum == RRTILE2451 || s->picnum == RRTILE2455)
 		&& s->picnum != ACTIVATORLOCKED && p->MotoSpeed > 45)
 	{
-		S_PlayActorSound(SQUISHED, var60);
+		S_PlayActorSound(SQUISHED, victim);
 		if (s->picnum == RRTILE2431 || s->picnum == RRTILE2451)
 		{
 			if (s->lotag != 0)
@@ -2628,12 +2628,12 @@ void onMotorcycleHit(int snum, int var60)
 					}
 				}
 			}
-			fi.guts(&hittype[var60], RRTILE2460, 12, myconnectindex);
-			fi.guts(&hittype[var60], RRTILE2465, 3, myconnectindex);
+			fi.guts(victim, RRTILE2460, 12, myconnectindex);
+			fi.guts(victim, RRTILE2465, 3, myconnectindex);
 		}
 		else
-			fi.guts(&hittype[var60], RRTILE2465, 3, myconnectindex);
-		fi.guts(&hittype[var60], RRTILE2465, 3, myconnectindex);
+			fi.guts(victim, RRTILE2465, 3, myconnectindex);
+		fi.guts(victim, RRTILE2465, 3, myconnectindex);
 		s->xrepeat = 0;
 		s->yrepeat = 0;
 	}
@@ -2645,11 +2645,10 @@ void onMotorcycleHit(int snum, int var60)
 //
 //---------------------------------------------------------------------------
 
-void onBoatHit(int snum, int var60)
+void onBoatHit(int snum, DDukeActor* victim)
 {
 	auto p = &ps[snum];
-	auto s = &sprite[var60];
-	auto ht = &hittype[var60];
+	auto s = &victim->s;
 
 	if (badguy(s) || s->picnum == APLAYER)
 	{
@@ -2657,14 +2656,15 @@ void onBoatHit(int snum, int var60)
 		{
 			if (numplayers == 1)
 			{
-				fi.movesprite(var60, sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild() + 512) & 2047] >> 9,
-					sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild()) & 2047] >> 9, s->zvel, CLIPMASK0);
+				Collision coll;
+				movesprite_ex(victim, sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild() + 512) & 2047] >> 9,
+					sintable[int(p->TiltStatus * 20 + p->angle.ang.asbuild()) & 2047] >> 9, s->zvel, CLIPMASK0, coll);
 			}
 		}
 		else
-			ht->owner = p->i;
-		ht->picnum = MOTOHIT;
-		ht->extra = p->MotoSpeed >> 2;
+			victim->SetHitOwner(p->GetActor());
+		victim->picnum = MOTOHIT;
+		victim->extra = p->MotoSpeed >> 2;
 		p->MotoSpeed -= p->MotoSpeed >> 2;
 		p->TurbCount = 6;
 	}
@@ -3971,11 +3971,11 @@ HORIZONLY:
 		var60 = j & (MAXSPRITES - 1);
 		if (p->OnMotorcycle)
 		{
-			onMotorcycleHit(snum, var60);
+			onMotorcycleHit(snum, &hittype[var60]);
 		}
 		else if (p->OnBoat)
 		{
-			onBoatHit(snum, var60);
+			onBoatHit(snum, &hittype[var60]);
 		}
 		else
 			if (badguy(&sprite[var60]))
