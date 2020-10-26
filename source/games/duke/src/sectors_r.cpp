@@ -611,14 +611,14 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 			case DIPSWITCH:
 			case TECHSWITCH:
 			case ALIENSWITCH:
-				if (switchtype == 0 && i == w) wall[x].picnum++;
+				if (switchtype == SWITCH_WALL && i == w) wall[x].picnum++;
 				else if (wall[x].hitag == 0) correctdips++;
 				numdips++;
 				break;
 			case DIPSWITCH + 1:
 			case TECHSWITCH + 1:
 			case ALIENSWITCH + 1:
-				if (switchtype == 0 && i == w) wall[x].picnum--;
+				if (switchtype == SWITCH_WALL && i == w) wall[x].picnum--;
 				else if (wall[x].hitag == 1) correctdips++;
 				numdips++;
 				break;
@@ -788,15 +788,16 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 				{
 					int switches[3], switchcount = 0, j;
 					S_PlaySound3D(SWITCH_ON, act, &v);
-					for (j = 0; j < MAXSPRITES; j++)
+					DukeSpriteIterator it;
+					while (auto actt = it.Next())
 					{
-						int jpn = sprite[j].picnum;
-						int jht = sprite[j].hitag;
+						int jpn = actt->s.picnum;
+						int jht = actt->s.hitag;
 						if ((jpn == MULTISWITCH || jpn == MULTISWITCH2) && jht == 10000)
 						{
 							if (switchcount < 3)
 							{
-								switches[switchcount] = j;
+								switches[switchcount] = actt->GetIndex();
 								switchcount++;
 							}
 						}
