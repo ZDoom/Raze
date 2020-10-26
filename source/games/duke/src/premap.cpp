@@ -426,7 +426,7 @@ void resetprestat(int snum,int g)
     fakebubba_spawn = 0;
     RRRA_ExitedLevel = 0;
     BellTime = 0;
-    BellSprite = 0;
+    BellSprite = nullptr;
 
     numinterpolations = 0;
     //startofdynamicinterpolations = 0;
@@ -677,7 +677,7 @@ void prelevel_common(int g)
     RRRA_ExitedLevel = 0;
     mamaspawn_count = 15;
     BellTime = 0;
-    BellSprite = 0;
+    BellSprite = nullptr;
 
     // RRRA E2L1 fog handling.
     fogactive = 0;

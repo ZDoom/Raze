@@ -175,7 +175,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			if (hitsprt && hitsprt->s.picnum != ACCESSSWITCH && hitsprt->s.picnum != ACCESSSWITCH2)
 			{
 				fi.checkhitsprite(hitsprt, wpn);
-				if (p >= 0) fi.checkhitswitch(p, hitsprt->GetIndex(), 1);
+				if (p >= 0) fi.checkhitswitch(p, -1, hitsprt);
 			}
 			else if (hitwall >= 0)
 			{
@@ -187,7 +187,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
 				{
 					fi.checkhitwall(wpn, hitwall, hitx, hity, hitz, atwith);
-					if (p >= 0) fi.checkhitswitch(p, hitwall, 0);
+					if (p >= 0) fi.checkhitswitch(p, hitwall, nullptr);
 				}
 			}
 		}
@@ -364,7 +364,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				hitsprt->s.picnum == HANDSWITCH ||
 				hitsprt->s.picnum == HANDSWITCH + 1))
 			{
-				fi.checkhitswitch(p, hitsprt->GetIndex(), 1);
+				fi.checkhitswitch(p, -1, hitsprt);
 				return;
 			}
 		}
@@ -387,7 +387,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				wall[hitwall].picnum == HANDSWITCH ||
 				wall[hitwall].picnum == HANDSWITCH + 1))
 			{
-				fi.checkhitswitch(p, hitwall, 0);
+				fi.checkhitswitch(p, hitwall, nullptr);
 				return;
 			}
 
@@ -1220,8 +1220,8 @@ int doincrements_r(struct player_struct* p)
 		if (BellTime > 0)
 		{
 			BellTime--;
-			if (BellTime == 0)
-				sprite[BellSprite].picnum++;
+			if (BellTime == 0 && BellSprite)
+				BellSprite->s.picnum++;
 		}
 		if (chickenphase > 0)
 			chickenphase--;
@@ -1369,7 +1369,7 @@ int doincrements_r(struct player_struct* p)
 		{
 			if (p->access_spritenum != nullptr)
 			{
-				fi.checkhitswitch(snum, p->access_spritenum->GetIndex(), 1);
+				fi.checkhitswitch(snum, -1, p->access_spritenum);
 				switch (p->access_spritenum->s.pal)
 				{
 				case 0:p->keys[1] = 1; break;
@@ -1380,7 +1380,7 @@ int doincrements_r(struct player_struct* p)
 			}
 			else
 			{
-				fi.checkhitswitch(snum, p->access_wallnum, 0);
+				fi.checkhitswitch(snum, p->access_wallnum, nullptr);
 				switch (wall[p->access_wallnum].pal)
 				{
 				case 0:p->keys[1] = 1; break;

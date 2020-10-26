@@ -54,7 +54,7 @@ BEGIN_DUKE_NS
 
 TArray<FString> specialmusic;
 static FSoundID currentCommentarySound;
-static int currentCommentarySprite;
+static DDukeActor* currentCommentarySprite; // todo: GC this once actors become objects
 
 
 class DukeSoundEngine : public SoundEngine
@@ -90,7 +90,7 @@ public:
 		{
 			UnloadSound(schan->SoundID);
 			currentCommentarySound = 0;
-			sprite[currentCommentarySprite].picnum = DEVELOPERCOMMENTARY;
+			currentCommentarySprite->s.picnum = DEVELOPERCOMMENTARY;
 			I_SetRelativeVolume(1.0f);
 		}
 		SoundEngine::SoundDone(schan);
@@ -815,7 +815,7 @@ void StopCommentary()
 	}
 }
 
-bool StartCommentary(int tag, int sprnum)
+bool StartCommentary(int tag, DDukeActor* actor)
 {
 	if (wt_commentary && Commentaries.Size() > tag && Commentaries[tag].IsNotEmpty())
 	{
@@ -833,7 +833,7 @@ bool StartCommentary(int tag, int sprnum)
 		StopCommentary();
 		soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_VOICE, CHANF_UI | CHANF_TRANSIENT | CHANF_OVERLAP, id, 1.f, 0.f);
 		currentCommentarySound = id;
-		currentCommentarySprite = sprnum;
+		currentCommentarySprite = actor;
 		I_SetRelativeVolume(0.25f);
 		return true;
 	}

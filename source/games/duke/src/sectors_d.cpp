@@ -223,20 +223,18 @@ void operateforcefields_d(int s, int low)
 //
 //---------------------------------------------------------------------------
 
-bool checkhitswitch_d(int snum, int w, int switchtype)
+bool checkhitswitch_d(int snum, int ww, DDukeActor *act)
 {
 	uint8_t switchpal;
 	int i, x, lotag, hitag, picnum, correctdips, numdips;
 	int sx, sy;
 
-	if (w < 0) return 0;
+	if (ww < 0 && act == nullptr) return 0;
 	correctdips = 1;
 	numdips = 0;
-	DDukeActor* act = nullptr;
-
-	if (switchtype == SWITCH_SPRITE) // A wall sprite
+	
+	if (act)
 	{
-		act = &hittype[w];
 		lotag = act->s.lotag;
 		if (lotag == 0) return 0;
 		hitag = act->s.hitag;
@@ -247,7 +245,7 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 	}
 	else
 	{
-		auto wal = &wall[w];
+		auto wal = &wall[ww];
 		lotag = wal->lotag;
 		if (lotag == 0) return 0;
 		hitag = wal->hitag;
@@ -267,7 +265,7 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 	case ALIENSWITCH + 1:
 		break;
 	case DEVELOPERCOMMENTARY + 1: //Twentieth Anniversary World Tour
-		if (switchtype == 1)
+		if (act)
 		{
 			StopCommentary();
 			act->s.picnum = DEVELOPERCOMMENTARY;
@@ -275,9 +273,9 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		}
 		return false;
 	case DEVELOPERCOMMENTARY: //Twentieth Anniversary World Tour
-		if (switchtype == 1)
+		if (act)
 		{
-			if (StartCommentary(lotag, w))
+			if (StartCommentary(lotag, act))
 				act->s.picnum = DEVELOPERCOMMENTARY+1;
 			return true;
 		}
@@ -309,8 +307,8 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 
 			if (ps[snum].access_incs == 1)
 			{
-				if (switchtype == SWITCH_WALL)
-					ps[snum].access_wallnum = w;
+				if (!act)
+					ps[snum].access_wallnum = ww;
 				else
 					ps[snum].access_spritenum = act;
 			}
@@ -363,14 +361,14 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		case DIPSWITCH:
 		case TECHSWITCH:
 		case ALIENSWITCH:
-			if (switchtype == SWITCH_SPRITE && act == other) si->picnum++;
+			if (act && act == other) si->picnum++;
 			else if (si->hitag == 0) correctdips++;
 			numdips++;
 			break;
 		case TECHSWITCH + 1:
 		case DIPSWITCH + 1:
 		case ALIENSWITCH + 1:
-			if (switchtype == SWITCH_SPRITE && act == other) si->picnum--;
+			if (act && act == other) si->picnum--;
 			else if (si->hitag == 1) correctdips++;
 			numdips++;
 			break;
@@ -426,14 +424,14 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 			case DIPSWITCH:
 			case TECHSWITCH:
 			case ALIENSWITCH:
-				if (switchtype == SWITCH_WALL && i == w) wall[x].picnum++;
+				if (!act && i == ww) wall[x].picnum++;
 				else if (wall[x].hitag == 0) correctdips++;
 				numdips++;
 				break;
 			case DIPSWITCH + 1:
 			case TECHSWITCH + 1:
 			case ALIENSWITCH + 1:
-				if (switchtype == SWITCH_WALL && i == w) wall[x].picnum--;
+				if (!act && i == ww) wall[x].picnum--;
 				else if (wall[x].hitag == 1) correctdips++;
 				numdips++;
 				break;
@@ -501,13 +499,13 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		{
 			if (picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1)
 			{
-				if (switchtype == SWITCH_SPRITE)
+				if (act)
 					S_PlaySound3D(ALIEN_SWITCH1, act, &v);
 				else S_PlaySound3D(ALIEN_SWITCH1, ps[snum].GetActor(), &v);
 			}
 			else
 			{
-				if (switchtype == SWITCH_SPRITE)
+				if (act)
 					S_PlaySound3D(SWITCH_ON, act, &v);
 				else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), &v);
 			}
@@ -590,7 +588,7 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 
 		if (hitag == 0 && fi.isadoorwall(picnum) == 0)
 		{
-			if (switchtype == SWITCH_SPRITE)
+			if (act)
 				S_PlaySound3D(SWITCH_ON, act, &v);
 			else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), &v);
 		}
@@ -598,7 +596,7 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		{
 			auto flags = S_GetUserFlags(hitag);
 
-			if (switchtype == SWITCH_SPRITE && (flags & SF_TALK) == 0)
+			if (act && (flags & SF_TALK) == 0)
 				S_PlaySound3D(hitag, act, &v);
 			else
 				S_PlayActorSound(hitag, ps[snum].i);
@@ -1641,7 +1639,7 @@ void checksectors_d(int snum)
 
 		if (neartagsprite >= 0)
 		{
-			if (fi.checkhitswitch(snum, neartagsprite, 1)) return;
+			if (fi.checkhitswitch(snum, -1, &hittype[neartagsprite])) return;
 
 			switch (sprite[neartagsprite].picnum)
 			{
@@ -1772,7 +1770,7 @@ void checksectors_d(int snum)
 			if (wall[neartagwall].lotag > 0 && fi.isadoorwall(wall[neartagwall].picnum))
 			{
 				if (hitscanwall == neartagwall || hitscanwall == -1)
-					fi.checkhitswitch(snum, neartagwall, 0);
+					fi.checkhitswitch(snum, neartagwall, nullptr);
 				return;
 			}
 			else if (p->newowner >= 0)
@@ -1803,7 +1801,7 @@ void checksectors_d(int snum)
 				}
 				operatesectors(p->GetActor()->s.sectnum, p->GetActor());
 			}
-			else fi.checkhitswitch(snum, neartagwall, 0);
+			else fi.checkhitswitch(snum, neartagwall, nullptr);
 		}
 	}
 }

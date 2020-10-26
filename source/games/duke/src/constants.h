@@ -288,12 +288,6 @@ enum amoveflags_t
 	antifaceplayerslow = 32768
 };
 
-enum 
-{ 
-	SWITCH_WALL, 
-	SWITCH_SPRITE 
-};
-
 enum sflags_t
 {
 	SFLAG_SHADOW        = 0x00000001,

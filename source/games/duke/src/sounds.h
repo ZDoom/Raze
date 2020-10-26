@@ -72,7 +72,7 @@ void S_ContinueLevelMusic(void);
 void S_ParseDeveloperCommentary();
 
 void StopCommentary();
-bool StartCommentary(int tag, int sprnum);
+bool StartCommentary(int tag, DDukeActor* sprnum);
 
 extern TArray<FString> specialmusic;
 
