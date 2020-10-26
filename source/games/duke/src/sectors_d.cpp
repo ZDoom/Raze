@@ -551,25 +551,25 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 			picnum == (MULTISWITCH + 2) || picnum == (MULTISWITCH + 3))
 			lotag += picnum - MULTISWITCH;
 
-		StatIterator it(STAT_EFFECTOR);
-		while ((x = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_EFFECTOR);
+		while (auto other = it.Next())
 		{
-			if (sprite[x].hitag == lotag)
+			if (other->s.hitag == lotag)
 			{
-				switch (sprite[x].lotag)
+				switch (other->s.lotag)
 				{
 				case SE_12_LIGHT_SWITCH:
-					sector[sprite[x].sectnum].floorpal = 0;
-					hittype[x].temp_data[0]++;
-					if (hittype[x].temp_data[0] == 2)
-						hittype[x].temp_data[0]++;
+					sector[other->s.sectnum].floorpal = 0;
+					other->temp_data[0]++;
+					if (other->temp_data[0] == 2)
+						other->temp_data[0]++;
 
 					break;
 				case SE_24_CONVEYOR:
 				case SE_34:
 				case SE_25_PISTON:
-					hittype[x].temp_data[4] = !hittype[x].temp_data[4];
-					if (hittype[x].temp_data[4])
+					other->temp_data[4] = !other->temp_data[4];
+					if (other->temp_data[4])
 						FTA(15, &ps[snum]);
 					else FTA(2, &ps[snum]);
 					break;
