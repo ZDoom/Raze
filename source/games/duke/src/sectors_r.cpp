@@ -552,19 +552,18 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 			if (si->picnum == DIPSWITCH3)
 				if (si->hitag == 999)
 				{
-					int j;
-					StatIterator it1(107);
-					while ((j = it1.NextIndex()) >= 0)
+					DukeStatIterator it1(107);
+					while (auto other2 = it1.Next())
 					{
-						if (sprite[j].picnum == RRTILE3410)
+						if (other2->s.picnum == RRTILE3410)
 						{
-							sprite[j].picnum++;
-							sprite[j].hitag = 100;
-							sprite[j].extra = 0;
-							S_PlayActorSound(474, j);
+							other2->s.picnum++;
+							other2->s.hitag = 100;
+							other2->s.extra = 0;
+							S_PlayActorSound(474, other2);
 						}
-						else if (sprite[j].picnum == RRTILE295)
-							deletesprite(j);
+						else if (other2->s.picnum == RRTILE295)
+							deletesprite(other2);
 					}
 					si->picnum++;
 					break;
