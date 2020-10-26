@@ -352,25 +352,29 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 	if (w < 0) return 0;
 	correctdips = 1;
 	numdips = 0;
+	DDukeActor* act = nullptr;
 
-	auto act = &hittype[w];
-	if (switchtype == 1) // A wall sprite
+	if (switchtype == SWITCH_SPRITE) // A wall sprite
 	{
-		lotag = sprite[w].lotag; if (lotag == 0) return 0;
-		hitag = sprite[w].hitag;
-		sx = sprite[w].x;
-		sy = sprite[w].y;
-		picnum = sprite[w].picnum;
-		switchpal = sprite[w].pal;
+		act = &hittype[w];
+		lotag = act->s.lotag;
+		if (lotag == 0) return 0;
+		hitag = act->s.hitag;
+		sx = act->s.x;
+		sy = act->s.y;
+		picnum = act->s.picnum;
+		switchpal = act->s.pal;
 	}
 	else
 	{
-		lotag = wall[w].lotag; if (lotag == 0) return 0;
-		hitag = wall[w].hitag;
-		sx = wall[w].x;
-		sy = wall[w].y;
-		picnum = wall[w].picnum;
-		switchpal = wall[w].pal;
+		auto wal = &wall[w];
+		lotag = wal->lotag;
+		if (lotag == 0) return 0;
+		hitag = wal->hitag;
+		sx = wal->x;
+		sy = wal->y;
+		picnum = wal->picnum;
+		switchpal = wal->pal;
 	}
 
 	switch (picnum)
@@ -697,17 +701,17 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 			if (picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1)
 			{
 				if (switchtype == SWITCH_SPRITE)
-					S_PlaySound3D(ALIEN_SWITCH1, w, &v);
-				else S_PlaySound3D(ALIEN_SWITCH1, ps[snum].i, &v);
+					S_PlaySound3D(ALIEN_SWITCH1, act, &v);
+				else S_PlaySound3D(ALIEN_SWITCH1, ps[snum].GetActor(), &v);
 			}
 			else
 			{
 				if (switchtype == SWITCH_SPRITE)
-					S_PlaySound3D(SWITCH_ON, w, &v);
-				else S_PlaySound3D(SWITCH_ON, ps[snum].i, &v);
+					S_PlaySound3D(SWITCH_ON, act, &v);
+				else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), &v);
 			}
 			if (numdips != correctdips) break;
-			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].i, &v);
+			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), &v);
 		}
 		goto goOn2;
 	case MULTISWITCH2:
@@ -760,18 +764,18 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 			{
 				BellTime = 132;
 				BellSprite = w;
-				sprite[w].picnum++;
+				act->s.picnum++;
 			}
 			else if (picnum == RRTILE8464)
 			{
-				sprite[w].picnum = sprite[w].picnum + 1;
+				act->s.picnum = act->s.picnum + 1;
 				if (hitag == 10001)
 				{
 					if (ps[snum].SeaSick == 0)
 						ps[snum].SeaSick = 350;
 					operateactivators(668, ps[snum].i);
 					operatemasterswitches(668);
-					S_PlayActorSound(328, ps[snum].i);
+					S_PlayActorSound(328, ps[snum].GetActor());
 					return 1;
 				}
 			}
@@ -783,7 +787,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 					picnum == (MULTISWITCH2 + 2) || picnum == (MULTISWITCH2 + 3))
 				{
 					int switches[3], switchcount = 0, j;
-					S_PlaySound3D(SWITCH_ON, w, &v);
+					S_PlaySound3D(SWITCH_ON, act, &v);
 					for (j = 0; j < MAXSPRITES; j++)
 					{
 						int jpn = sprite[j].picnum;
@@ -799,7 +803,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 					}
 					if (switchcount == 3)
 					{
-						S_PlaySound3D(78, w, &v);
+						S_PlaySound3D(78, act, &v);
 						for (j = 0; j < switchcount; j++)
 						{
 							sprite[switches[j]].hitag = 0;
@@ -868,17 +872,17 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 		if (hitag == 0 && fi.isadoorwall(picnum) == 0)
 		{
 			if (switchtype == SWITCH_SPRITE)
-				S_PlaySound3D(SWITCH_ON, w, &v);
-			else S_PlaySound3D(SWITCH_ON, ps[snum].i, &v);
+				S_PlaySound3D(SWITCH_ON, act, &v);
+			else S_PlaySound3D(SWITCH_ON, ps[snum].GetActor(), &v);
 		}
 		else if (hitag != 0)
 		{
 			auto flags = S_GetUserFlags(hitag);
 
 			if (switchtype == SWITCH_SPRITE && (flags & SF_TALK) == 0)
-				S_PlaySound3D(hitag, w, &v);
+				S_PlaySound3D(hitag, act, &v);
 			else
-				S_PlayActorSound(hitag, ps[snum].i);
+				S_PlayActorSound(hitag, ps[snum].GetActor());
 		}
 
 		return 1;
