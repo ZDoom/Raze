@@ -487,23 +487,23 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 		break;
 	}
 
-	StatIterator it(STAT_DEFAULT);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_DEFAULT);
+	while (auto other = it.Next())
 	{
-		auto si = &sprite[i];
+		auto si = &other->s;
 		if (lotag == si->lotag) switch (si->picnum)
 		{
 		case DIPSWITCH:
 		case TECHSWITCH:
 		case ALIENSWITCH:
-			if (switchtype == 1 && w == i) si->picnum++;
+			if (switchtype == SWITCH_SPRITE && act == other) si->picnum++;
 			else if (si->hitag == 0) correctdips++;
 			numdips++;
 			break;
 		case TECHSWITCH + 1:
 		case DIPSWITCH + 1:
 		case ALIENSWITCH + 1:
-			if (switchtype == 1 && w == i) si->picnum--;
+			if (switchtype == SWITCH_SPRITE && act == other) si->picnum--;
 			else if (si->hitag == 1) correctdips++;
 			numdips++;
 			break;
@@ -574,7 +574,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 			if (si->picnum == RRTILE8660)
 			{
 				BellTime = 132;
-				BellSprite = i;
+				BellSprite = other->GetIndex();
 			}
 			si->picnum++;
 			break;
@@ -829,29 +829,29 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 				lotag += picnum - MULTISWITCH2;
 		}
 
-		StatIterator itx(STAT_EFFECTOR);
-		while ((x = itx.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_EFFECTOR);
+		while (auto other = it.Next())
 		{
-			if (sprite[x].hitag == lotag)
+			if (other->s.hitag == lotag)
 			{
-				switch (sprite[x].lotag)
+				switch (other->s.lotag)
 				{
 				case 46:
 				case SE_47_LIGHT_SWITCH:
 				case SE_48_LIGHT_SWITCH:
 					if (!isRRRA()) break;
 				case SE_12_LIGHT_SWITCH:
-					sector[sprite[x].sectnum].floorpal = 0;
-					hittype[x].temp_data[0]++;
-					if (hittype[x].temp_data[0] == 2)
-						hittype[x].temp_data[0]++;
+					sector[other->s.sectnum].floorpal = 0;
+					other->temp_data[0]++;
+					if (other->temp_data[0] == 2)
+						other->temp_data[0]++;
 
 					break;
 				case SE_24_CONVEYOR:
 				case SE_34:
 				case SE_25_PISTON:
-					hittype[x].temp_data[4] = !hittype[x].temp_data[4];
-					if (hittype[x].temp_data[4])
+					other->temp_data[4] = !other->temp_data[4];
+					if (other->temp_data[4])
 						FTA(15, &ps[snum]);
 					else FTA(2, &ps[snum]);
 					break;
