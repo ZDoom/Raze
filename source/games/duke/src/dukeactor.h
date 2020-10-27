@@ -68,6 +68,22 @@ public:
 	}
 };
 
+class DukeLinearSpriteIterator
+{
+	int index = 0;
+public:
+
+	DDukeActor* Next()
+	{
+		while (index < MAXSPRITES)
+		{
+			auto p = &hittype[index++];
+			if (p->s.statnum != MAXSTATUS) return p;
+		}
+		return nullptr;
+	}
+};
+
 inline DDukeActor* player_struct::GetActor()
 {
 	return &hittype[i];
