@@ -2485,9 +2485,10 @@ int ParseState::parse(void)
 		insptr++;
 		if( sector[g_sp->sectnum].lotag == 0 )
 		{
-			int16_t neartagsector, neartagwall, neartagsprite;
+			int16_t neartagsector, neartagwall;
+			DDukeActor* neartagsprite;
 			int32_t neartaghitdist;
-			neartag(g_sp->x,g_sp->y,g_sp->z-(32<<8),g_sp->sectnum,g_sp->ang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,768L,1);
+			neartag(g_sp->x, g_sp->y, g_sp->z - (32 << 8), g_sp->sectnum, g_sp->ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 768L, 1);
 			if( neartagsector >= 0 && isanearoperator(sector[neartagsector].lotag) )
 				if( (sector[neartagsector].lotag&0xff) == ST_23_SWINGING_DOOR || sector[neartagsector].floorz == sector[neartagsector].ceilingz )
 					if( (sector[neartagsector].lotag&16384) == 0 )

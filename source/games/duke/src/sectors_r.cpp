@@ -571,7 +571,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 			if (si->picnum == RRTILE8660)
 			{
 				BellTime = 132;
-				BellSprite = other->GetIndex();
+				BellSprite = other;
 			}
 			si->picnum++;
 			break;
@@ -2436,7 +2436,8 @@ void checksectors_r(int snum)
 	int i = -1, oldz;
 	struct player_struct* p;
 	int hitscanwall;
-	short neartagsector, neartagwall, neartagsprite;
+	short neartagsector, neartagwall;
+	DDukeActor* neartagsprite;
 	int neartaghitdist;
 
 	p = &ps[snum];
@@ -2486,7 +2487,7 @@ void checksectors_r(int snum)
 
 	else if (!p->toggle_key_flag)
 	{
-		neartagsprite = -1;
+		neartagsprite = nullptr;
 		p->toggle_key_flag = 1;
 		hitscanwall = -1;
 
@@ -2557,16 +2558,16 @@ void checksectors_r(int snum)
 		else
 		{
 			neartag(p->posx, p->posy, p->posz, p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
+			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
 				neartag(p->posx, p->posy, p->posz + (8 << 8), p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
+			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
 				neartag(p->posx, p->posy, p->posz + (16 << 8), p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
+			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
 			{
 				neartag(p->posx, p->posy, p->posz + (16 << 8), p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 				if (neartagsprite >= 0)
 				{
-					switch (sprite[neartagsprite].picnum)
+					switch (neartagsprite->s.picnum)
 					{
 					case FEM10:
 					case NAKED1:
@@ -2574,38 +2575,38 @@ void checksectors_r(int snum)
 					case TOUGHGAL:
 						return;
 					case COW:
-						hittype[neartagsprite].spriteextra = 1;
+						neartagsprite->spriteextra = 1;
 						return;
 					}
 				}
 
-				neartagsprite = -1;
+				neartagsprite = nullptr;
 				neartagwall = -1;
 				neartagsector = -1;
 			}
 		}
 
-		if (p->newowner == -1 && neartagsprite == -1 && neartagsector == -1 && neartagwall == -1)
+		if (p->newowner == -1 && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
 			if (isanunderoperator(sector[p->GetActor()->s.sectnum].lotag))
 				neartagsector = p->GetActor()->s.sectnum;
 
 		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384))
 			return;
 
-		if (neartagsprite == -1 && neartagwall == -1)
+		if (neartagsprite == nullptr && neartagwall == -1)
 			if (sector[p->cursectnum].lotag == 2)
 			{
 				DDukeActor* hit;
 				oldz = hitasprite(p->GetActor(), &hit);
-				if (hit) neartagsprite = hit->GetIndex();
-				if (oldz > 1280) neartagsprite = -1;
+				if (hit) neartagsprite = hit;
+				if (oldz > 1280) neartagsprite = nullptr;
 			}
 
 		if (neartagsprite >= 0)
 		{
-			if (fi.checkhitswitch(snum, -1, &hittype[neartagsprite])) return;
+			if (fi.checkhitswitch(snum, -1,neartagsprite)) return;
 
-			switch (sprite[neartagsprite].picnum)
+			switch (neartagsprite->s.picnum)
 			{
 			case RRTILE8448:
 				if (!isRRRA()) return;
@@ -2617,9 +2618,10 @@ void checksectors_r(int snum)
 				if (numplayers == 1)
 				{
 					// This is from RedneckGDX - the version in RR Reconstruction looked like broken nonsense.
-					if (S_CheckSoundPlaying(neartagsprite, 445) || sound445done != 0)
+					if (S_CheckActorSoundPlaying(neartagsprite, 445) || sound445done != 0)
 					{
-						if (!S_CheckSoundPlaying(neartagsprite, 445) && !S_CheckSoundPlaying(neartagsprite, 446) && !S_CheckSoundPlaying(neartagsprite, 447) && sound445done != 0)
+						if (!S_CheckActorSoundPlaying(neartagsprite, 445) && !S_CheckActorSoundPlaying(neartagsprite, 446) && 
+							!S_CheckActorSoundPlaying(neartagsprite, 447) && sound445done != 0)
 						{
 							if ((krand() % 2) == 1)
 								S_PlayActorSound(446, neartagsprite);
@@ -2636,11 +2638,11 @@ void checksectors_r(int snum)
 				return;
 			case EMPTYBIKE:
 				if (!isRRRA()) return;
-				OnMotorcycle(p, neartagsprite);
+				OnMotorcycle(p, neartagsprite->GetIndex());
 				return;
 			case EMPTYBOAT:
 				if (!isRRRA()) return;
-				OnBoat(p, &hittype[neartagsprite]);
+				OnBoat(p, neartagsprite);
 				return;
 			case RRTILE8164:
 			case RRTILE8165:
@@ -2653,7 +2655,7 @@ void checksectors_r(int snum)
 			case RRTILE8594:
 			case RRTILE8595:
 				if (!isRRRA()) return;
-				sprite[neartagsprite].extra = 60;
+				neartagsprite->s.extra = 60;
 				S_PlayActorSound(235, neartagsprite);
 				return;
 
@@ -2684,10 +2686,10 @@ void checksectors_r(int snum)
 					S_PlayActorSound(DUKE_GRUNT, p->i);
 				return;
 			case WATERFOUNTAIN:
-				if (hittype[neartagsprite].temp_data[0] != 1)
+				if (neartagsprite->temp_data[0] != 1)
 				{
-					hittype[neartagsprite].temp_data[0] = 1;
-					sprite[neartagsprite].owner = p->i;
+					neartagsprite->temp_data[0] = 1;
+					neartagsprite->SetOwner(p->GetActor());
 
 					if (p->GetActor()->s.extra < max_player_health)
 					{
@@ -2706,7 +2708,7 @@ void checksectors_r(int snum)
 
 		if (!PlayerInput(snum, SB_OPEN)) return;
 
-		if (neartagwall == -1 && neartagsector == -1 && neartagsprite == -1)
+		if (neartagwall == -1 && neartagsector == -1 && neartagsprite == nullptr)
 			if (abs(hits(p->GetActor())) < 512)
 			{
 				if ((krand() & 255) < 16)
@@ -2738,7 +2740,7 @@ void checksectors_r(int snum)
 				operatesectors(neartagsector, p->GetActor());
 			else
 			{
-				if (hittype[neartagsprite].spriteextra > 3)
+				if (neartagsprite->spriteextra > 3)
 					S_PlayActorSound(99, p->i);
 				else
 					S_PlayActorSound(419, p->i);
@@ -2758,7 +2760,7 @@ void checksectors_r(int snum)
 					operatesectors(p->GetActor()->s.sectnum, p->GetActor());
 				else
 				{
-					if (hittype[neartagsprite].spriteextra > 3)
+					if (neartagsprite->spriteextra > 3)
 						S_PlayActorSound(99, p->i);
 					else
 						S_PlayActorSound(419, p->i);

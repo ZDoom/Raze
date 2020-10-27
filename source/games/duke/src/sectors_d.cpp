@@ -1498,7 +1498,8 @@ void checksectors_d(int snum)
 	int i = -1, oldz;
 	struct player_struct* p;
 	int j, hitscanwall;
-	short neartagsector, neartagwall, neartagsprite;
+	short neartagsector, neartagwall;
+	DDukeActor* neartagsprite;
 	int neartaghitdist;
 
 	p = &ps[snum];
@@ -1563,7 +1564,7 @@ void checksectors_d(int snum)
 			return;
 		}
 
-		neartagsprite = -1;
+		neartagsprite = nullptr;
 		p->toggle_key_flag = 1;
 		hitscanwall = -1;
 
@@ -1585,16 +1586,16 @@ void checksectors_d(int snum)
 		else
 		{
 			neartag(p->posx, p->posy, p->posz, p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
+			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
 				neartag(p->posx, p->posy, p->posz + (8 << 8), p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
+			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
 				neartag(p->posx, p->posy, p->posz + (16 << 8), p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
+			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
 			{
 				neartag(p->posx, p->posy, p->posz + (16 << 8), p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
-				if (neartagsprite >= 0)
+				if (neartagsprite != nullptr)
 				{
-					switch (sprite[neartagsprite].picnum)
+					switch (neartagsprite->s.picnum)
 					{
 					case FEM1:
 					case FEM2:
@@ -1614,40 +1615,40 @@ void checksectors_d(int snum)
 					}
 				}
 
-				neartagsprite = -1;
+				neartagsprite = nullptr;
 				neartagwall = -1;
 				neartagsector = -1;
 			}
 		}
 
-		if (p->newowner == -1 && neartagsprite == -1 && neartagsector == -1 && neartagwall == -1)
+		if (p->newowner == -1 && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
 			if (isanunderoperator(sector[p->GetActor()->s.sectnum].lotag))
 				neartagsector = p->GetActor()->s.sectnum;
 
 		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384))
 			return;
 
-		if (neartagsprite == -1 && neartagwall == -1)
+		if (neartagsprite == nullptr && neartagwall == -1)
 			if (sector[p->cursectnum].lotag == 2)
 			{
 				DDukeActor* hit;
 				oldz = hitasprite(p->GetActor(), &hit);
-				if (hit) neartagsprite = hit->GetIndex();
-				if (oldz > 1280) neartagsprite = -1;
+				if (hit) neartagsprite = hit;
+				if (oldz > 1280) neartagsprite = nullptr;
 
 			}
 
 		if (neartagsprite >= 0)
 		{
-			if (fi.checkhitswitch(snum, -1, &hittype[neartagsprite])) return;
+			if (fi.checkhitswitch(snum, -1, neartagsprite)) return;
 
-			switch (sprite[neartagsprite].picnum)
+			switch (neartagsprite->s.picnum)
 			{
 			case TOILET:
 			case STALL:
 				if (p->last_pissed_time == 0)
 				{
-					S_PlayActorSound(DUKE_URINATE, p->i);
+					S_PlayActorSound(DUKE_URINATE, p->GetActor());
 
 					p->last_pissed_time = 26 * 220;
 					p->transporter_hold = 29 * 2;
@@ -1664,7 +1665,7 @@ void checksectors_d(int snum)
 					else if (p->GetActor()->s.extra < max_player_health)
 						p->GetActor()->s.extra = max_player_health;
 				}
-				else if (S_CheckSoundPlaying(neartagsprite, FLUSH_TOILET) == 0)
+				else if (S_CheckActorSoundPlaying(neartagsprite, FLUSH_TOILET) == 0)
 					S_PlayActorSound(FLUSH_TOILET, neartagsprite);
 				return;
 
@@ -1672,26 +1673,26 @@ void checksectors_d(int snum)
 
 				hitawall(p, &j);
 				if (j >= 0 && wall[j].overpicnum == 0)
-					if (hittype[neartagsprite].temp_data[0] == 0)
+					if (neartagsprite->temp_data[0] == 0)
 					{
-						hittype[neartagsprite].temp_data[0] = 1;
-						sprite[neartagsprite].owner = p->i;
-						p->buttonpalette = sprite[neartagsprite].pal;
+						neartagsprite->temp_data[0] = 1;
+						neartagsprite->SetOwner(p->GetActor());
+						p->buttonpalette = neartagsprite->s.pal;
 						if (p->buttonpalette)
-							ud.secretlevel = sprite[neartagsprite].lotag;
+							ud.secretlevel = neartagsprite->s.lotag;
 						else ud.secretlevel = 0;
 					}
 				return;
 			case WATERFOUNTAIN:
-				if (hittype[neartagsprite].temp_data[0] != 1)
+				if (neartagsprite->temp_data[0] != 1)
 				{
-					hittype[neartagsprite].temp_data[0] = 1;
-					sprite[neartagsprite].owner = p->i;
+					neartagsprite->temp_data[0] = 1;
+					neartagsprite->SetOwner(p->GetActor());
 
 					if (p->GetActor()->s.extra < max_player_health)
 					{
 						p->GetActor()->s.extra++;
-						S_PlayActorSound(DUKE_DRINKING, p->i);
+						S_PlayActorSound(DUKE_DRINKING, p->GetActor());
 					}
 				}
 				return;
@@ -1706,14 +1707,14 @@ void checksectors_d(int snum)
 				StatIterator it(STAT_ACTOR);
 				while ((i = it.NextIndex()) >= 0)
 				{
-					if (sprite[i].picnum == CAMERA1 && sprite[i].yvel == 0 && sprite[neartagsprite].hitag == sprite[i].lotag)
+					if (sprite[i].picnum == CAMERA1 && sprite[i].yvel == 0 && neartagsprite->s.hitag == sprite[i].lotag)
 					{
 						sprite[i].yvel = 1; //Using this camera
 						if (snum == screenpeek) S_PlaySound(MONITOR_ACTIVE);
 
-						sprite[neartagsprite].owner = i;
-						sprite[neartagsprite].yvel = 1;
-						camsprite = neartagsprite;
+						neartagsprite->s.owner = i;
+						neartagsprite->s.yvel = 1;
+						camsprite = neartagsprite->GetIndex();
 
 
 						j = p->cursectnum;
@@ -1756,7 +1757,7 @@ void checksectors_d(int snum)
 		if (!PlayerInput(snum, SB_OPEN)) return;
 		else if (p->newowner >= 0) { i = -1; goto CLEARCAMERAS; }
 
-		if (neartagwall == -1 && neartagsector == -1 && neartagsprite == -1)
+		if (neartagwall == -1 && neartagsector == -1 && neartagsprite == nullptr)
 			if (abs(hits(p->GetActor())) < 512)
 			{
 				if ((krand() & 255) < 16)
