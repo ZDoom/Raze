@@ -2565,7 +2565,7 @@ void checksectors_r(int snum)
 			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
 			{
 				neartag(p->posx, p->posy, p->posz + (16 << 8), p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
-				if (neartagsprite >= 0)
+				if (neartagsprite != nullptr)
 				{
 					switch (neartagsprite->s.picnum)
 					{
@@ -2602,7 +2602,7 @@ void checksectors_r(int snum)
 				if (oldz > 1280) neartagsprite = nullptr;
 			}
 
-		if (neartagsprite >= 0)
+		if (neartagsprite != nullptr)
 		{
 			if (fi.checkhitswitch(snum, -1,neartagsprite)) return;
 
@@ -2638,7 +2638,7 @@ void checksectors_r(int snum)
 				return;
 			case EMPTYBIKE:
 				if (!isRRRA()) return;
-				OnMotorcycle(p, neartagsprite->GetIndex());
+				OnMotorcycle(p, neartagsprite);
 				return;
 			case EMPTYBOAT:
 				if (!isRRRA()) return;

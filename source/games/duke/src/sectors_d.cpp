@@ -1638,7 +1638,7 @@ void checksectors_d(int snum)
 
 			}
 
-		if (neartagsprite >= 0)
+		if (neartagsprite != nullptr)
 		{
 			if (fi.checkhitswitch(snum, -1, neartagsprite)) return;
 
