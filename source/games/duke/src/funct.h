@@ -208,7 +208,7 @@ void cacheit_d();
 void cacheit_r();
 
 void FTA(int q, struct player_struct* p);
-void OnMotorcycle(player_struct *pl, int snum);
+void OnMotorcycle(player_struct *pl, DDukeActor* snum);
 void OffMotorcycle(player_struct *pl);
 void OnBoat(player_struct *pl, DDukeActor* snum);
 void OffBoat(player_struct *pl);

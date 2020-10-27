@@ -173,7 +173,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		return cheatMonsters();
 
 	case CHT_BIKE:
-		OnMotorcycle(&ps[player], 0);
+		OnMotorcycle(&ps[player], nullptr);
 		ps[player].ammo_amount[MOTORCYCLE_WEAPON] = max_ammo_amount[MOTORCYCLE_WEAPON];
 		return quoteMgr.GetQuote(QUOTE_ON_BIKE);
 

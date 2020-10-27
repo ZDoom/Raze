@@ -4030,9 +4030,9 @@ HORIZONLY:
 	if (psectlotag < 3)
 	{
 		psect = s->sectnum;
-		if (ud.clipping == 0 && sector[psect].lotag == 31)
+		if (ud.clipping == 0 && sector[psect].lotag == ST_31_TWO_WAY_TRAIN)
 		{
-			if (sprite[sector[psect].hitag].xvel && hittype[sector[psect].hitag].temp_data[0] == 0)
+			if (sprite[sector[psect].hitag].xvel && hittype[sector[psect].hitag].temp_data[0] == 0) // hijack
 			{
 				quickkill(p);
 				return;
@@ -4177,16 +4177,16 @@ void processmove_r(int snum, ESyncBits actions, int psect, int fz, int cz, int s
 //
 //---------------------------------------------------------------------------
 
-void OnMotorcycle(struct player_struct *p, int motosprite)
+void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 {
 	if (!p->OnMotorcycle && !(sector[p->cursectnum].lotag == 2))
 	{
 		if (motosprite)
 		{
-			p->posx = sprite[motosprite].x;
-			p->posy = sprite[motosprite].y;
-			p->angle.ang = buildang(sprite[motosprite].ang);
-			p->ammo_amount[MOTORCYCLE_WEAPON] = sprite[motosprite].owner;
+			p->posx = motosprite->s.x;
+			p->posy = motosprite->s.y;
+			p->angle.ang = buildang(motosprite->s.ang);
+			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->s.owner; // hijack
 			deletesprite(motosprite);
 		}
 		p->over_shoulder_on = 0;
@@ -4198,8 +4198,8 @@ void OnMotorcycle(struct player_struct *p, int motosprite)
 		p->posyv = 0;
 		p->horizon.horiz = q16horiz(0);
 	}
-	if (!S_CheckActorSoundPlaying(p->i,186))
-		S_PlayActorSound(186, p->i);
+	if (!S_CheckActorSoundPlaying(p->GetActor(),186))
+		S_PlayActorSound(186, p->GetActor());
 }
 
 //---------------------------------------------------------------------------
