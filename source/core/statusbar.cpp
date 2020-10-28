@@ -71,6 +71,8 @@ CVAR(Float, crosshairscale, 1.0, CVAR_ARCHIVE);
 CVAR(Bool, crosshairgrow, false, CVAR_ARCHIVE);
 EXTERN_CVAR(Bool, vid_fps)
 
+EXTERN_CVAR(Float, hud_scalefactor)
+
 void ST_LoadCrosshair(int num, bool alwaysload)
 {
 	char name[16];
@@ -256,6 +258,178 @@ void DStatusBarCore::ValidateResolution(int& hres, int& vres) const
 	}
 }
 
+
+//============================================================================
+//
+//
+//
+//============================================================================
+
+void DStatusBarCore::SetSize(int reltop, int hres, int vres, int hhres, int hvres)
+{
+	ValidateResolution(hres, vres);
+
+	BaseRelTop = reltop;
+	BaseSBarHorizontalResolution = hres;
+	BaseSBarVerticalResolution = vres;
+	BaseHUDHorizontalResolution = hhres < 0 ? hres : hhres;
+	BaseHUDVerticalResolution = hvres < 0 ? vres : hvres;
+	SetDrawSize(reltop, hres, vres);
+}
+
+//============================================================================
+//
+// calculates a clean scale for the status bar
+//
+//============================================================================
+
+static void ST_CalcCleanFacs(int designwidth, int designheight, int realwidth, int realheight, int* cleanx, int* cleany)
+{
+	float ratio;
+	int cwidth;
+	int cheight;
+	int cx1, cy1, cx2, cy2;
+
+	ratio = ActiveRatio(realwidth, realheight);
+	if (AspectTallerThanWide(ratio))
+	{
+		cwidth = realwidth;
+		cheight = realheight * AspectMultiplier(ratio) / 48;
+	}
+	else
+	{
+		cwidth = realwidth * AspectMultiplier(ratio) / 48;
+		cheight = realheight;
+	}
+	// Use whichever pair of cwidth/cheight or width/height that produces less difference
+	// between CleanXfac and CleanYfac.
+	cx1 = MAX(cwidth / designwidth, 1);
+	cy1 = MAX(cheight / designheight, 1);
+	cx2 = MAX(realwidth / designwidth, 1);
+	cy2 = MAX(realheight / designheight, 1);
+	if (abs(cx1 - cy1) <= abs(cx2 - cy2) || MAX(cx1, cx2) >= 4)
+	{ // e.g. 640x360 looks better with this.
+		*cleanx = cx1;
+		*cleany = cy1;
+	}
+	else
+	{ // e.g. 720x480 looks better with this.
+		*cleanx = cx2;
+		*cleany = cy2;
+	}
+
+	if (*cleanx < *cleany)
+		*cleany = *cleanx;
+	else
+		*cleanx = *cleany;
+}
+
+//============================================================================
+//
+//
+//
+//============================================================================
+
+void DStatusBarCore::SetDrawSize(int reltop, int hres, int vres)
+{
+	ValidateResolution(hres, vres);
+
+	RelTop = reltop;
+	HorizontalResolution = hres;
+	VerticalResolution = vres;
+
+	int x, y;
+	ST_CalcCleanFacs(hres, vres, twod->GetWidth(), twod->GetHeight(), &x, &y);
+	defaultScale = { (double)x, (double)y };
+
+	SetScale();	// recalculate positioning info.
+}
+
+//---------------------------------------------------------------------------
+//
+// PROC SetScaled
+//
+//---------------------------------------------------------------------------
+
+void DStatusBarCore::SetScale()
+{
+	ValidateResolution(HorizontalResolution, VerticalResolution);
+
+	int w = twod->GetWidth();
+	int h = twod->GetHeight();
+	double refw, refh;
+
+	int horz = HorizontalResolution;
+	int vert = VerticalResolution;
+	double refaspect = horz / double(vert);
+	double screenaspect = w / double(h);
+
+	if ((horz == 320 && vert == 200) || (horz == 640 && vert == 400))
+	{
+		refaspect = 1.333;
+	}
+
+	if (screenaspect < refaspect)
+	{
+		refw = w;
+		refh = w / refaspect;
+	}
+	else
+	{
+		refh = h;
+		refw = h * refaspect;
+	}
+	refw *= hud_scalefactor;
+	refh *= hud_scalefactor;
+
+	int sby = VerticalResolution - RelTop;
+	// Use full pixels for destination size.
+
+	ST_X = xs_CRoundToInt((w - refw) / 2);
+	ST_Y = xs_CRoundToInt(h - refh);
+	SBarTop = Scale(sby, h, VerticalResolution);
+	SBarScale.X = refw / horz;
+	SBarScale.Y = refh / vert;
+}
+
+//---------------------------------------------------------------------------
+//
+// PROC GetHUDScale
+//
+//---------------------------------------------------------------------------
+
+DVector2 DStatusBarCore::GetHUDScale() const
+{
+	return SBarScale;
+}
+
+//---------------------------------------------------------------------------
+//
+//  
+//
+//---------------------------------------------------------------------------
+
+void DStatusBarCore::BeginStatusBar(int resW, int resH, int relTop, bool forceScaled)
+{
+	SetDrawSize(relTop < 0 ? BaseRelTop : relTop, resW < 0 ? BaseSBarHorizontalResolution : resW, resH < 0 ? BaseSBarVerticalResolution : resH);
+	ForcedScale = forceScaled;
+	fullscreenOffsets = false;
+}
+
+//---------------------------------------------------------------------------
+//
+//  
+//
+//---------------------------------------------------------------------------
+
+void DStatusBarCore::BeginHUD(int resW, int resH, double Alpha, bool forcescaled)
+{
+	SetDrawSize(RelTop, resW < 0 ? BaseHUDHorizontalResolution : resW, resH < 0 ? BaseHUDVerticalResolution : resH);
+	this->Alpha = Alpha;
+	ForcedScale = forcescaled;
+	CompleteBorder = false;
+	fullscreenOffsets = true;
+}
 
 //============================================================================
 //

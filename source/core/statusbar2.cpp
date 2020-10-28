@@ -90,11 +90,13 @@ extern int setblocks;
 
 void ST_Clear()
 {
+	/*
 	if (StatusBar != NULL)
 	{
 		delete StatusBar;
 		StatusBar = NULL;
 	}
+	*/
 }
 
 //---------------------------------------------------------------------------
@@ -111,114 +113,6 @@ DStatusBarCore::DStatusBarCore ()
 	Displacement = 0;
 	ShowLog = false;
 	SetSize(0);
-}
-
-void ValidateResolution(int& hres, int& vres);
-
-void DStatusBarCore::SetSize(int reltop, int hres, int vres, int hhres, int hvres)
-{
-	ValidateResolution(hres, vres);
-
-	BaseRelTop = reltop;
-	BaseSBarHorizontalResolution = hres;
-	BaseSBarVerticalResolution = vres;
-	BaseHUDHorizontalResolution = hhres < 0? hres : hhres;
-	BaseHUDVerticalResolution = hvres < 0? vres : hvres;
-	SetDrawSize(reltop, hres, vres);
-}
-
-void DStatusBarCore::SetDrawSize(int reltop, int hres, int vres)
-{
-	ValidateResolution(hres, vres);
-
-	RelTop = reltop;
-	HorizontalResolution = hres;
-	VerticalResolution = vres;
-	SetScale();	// recalculate positioning info.
-}
-
-//---------------------------------------------------------------------------
-//
-// PROC SetScaled
-//
-//---------------------------------------------------------------------------
-
-void DStatusBarCore::SetScale ()
-{
-	ValidateResolution(HorizontalResolution, VerticalResolution);
-
-	double w = SCREENWIDTH;
-	double h = SCREENHEIGHT;
-	double refw, refh;
-
-	int horz = HorizontalResolution;
-	int vert = VerticalResolution;
-	double refaspect = horz / double(vert);
-	double screenaspect = w / double(h);
-
-	if ((horz == 320 && vert == 200) || (horz == 640 && vert == 400))
-	{
-		refaspect = 1.333;
-	}
-	
-	if (screenaspect < refaspect)
-	{
-		refw = w;
-		refh = w / refaspect;
-	}
-	else
-	{
-		refh = h;
-		refw = h * refaspect;
-	}
-	refw *= hud_scale;
-	refh *= hud_scale;
-
-	int sby = VerticalResolution - RelTop;
-	// Use full pixels for destination size.
-
-	ST_X = xs_CRoundToInt((w - refw) / 2);
-	ST_Y = xs_CRoundToInt(h - refh);
-	SBarTop = Scale(sby, h, VerticalResolution);
-	SBarScale.X = refw / horz;
-	SBarScale.Y = refh / vert;
-}
-
-//---------------------------------------------------------------------------
-//
-// PROC GetHUDScale
-//
-//---------------------------------------------------------------------------
-
-DVector2 DStatusBarCore::GetHUDScale() const
-{
-	return SBarScale;
-}
-
-//---------------------------------------------------------------------------
-//
-//  
-//
-//---------------------------------------------------------------------------
-
-void DStatusBarCore::BeginStatusBar(int resW, int resH, int relTop)
-{
-	SetDrawSize(relTop < 0? BaseRelTop : relTop, resW < 0? BaseSBarHorizontalResolution : resW, resH < 0? BaseSBarVerticalResolution : resH);
-	fullscreenOffsets = false;
-}
-
-//---------------------------------------------------------------------------
-//
-//  
-//
-//---------------------------------------------------------------------------
-
-void DStatusBarCore::BeginHUD(int resW, int resH, double Alpha)
-{
-	SetDrawSize(RelTop, resW < 0? BaseHUDHorizontalResolution : resW, resH < 0? BaseHUDVerticalResolution : resH);	
-	this->Alpha = Alpha;
-	CompleteBorder = false;
-	fullscreenOffsets = true;
 }
 
 //---------------------------------------------------------------------------
@@ -407,8 +301,8 @@ void setViewport(int viewSize)
 	int ydim = screen->GetHeight();
 	if (xdim == 0 || ydim == 0) return;
 	auto reserved = gi->GetReservedScreenSpace(viewSize);
-	reserved.top = xs_CRoundToInt((reserved.top * hud_scale * ydim) / 200);
-	reserved.statusbar = xs_CRoundToInt((reserved.statusbar * hud_scale * ydim) / 200);
+	reserved.top = xs_CRoundToInt((reserved.top * hud_scalefactor * ydim) / 200);
+	reserved.statusbar = xs_CRoundToInt((reserved.statusbar * hud_scalefactor * ydim) / 200);
 
 	int xdimcorrect = std::min(Scale(ydim, 4, 3), xdim);
 	if (viewSize > Hud_Stbar)

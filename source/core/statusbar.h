@@ -188,8 +188,8 @@ public:
 	void Fill(PalEntry color, double x, double y, double w, double h, int flags = 0);
 	void ValidateResolution(int& hres, int& vres) const;
 
-	void BeginStatusBar(int resW, int resH, int relTop);
-	void BeginHUD(int resW, int resH, double Alpha);
+	void BeginStatusBar(int resW, int resH, int relTop, bool forceScaled = false);
+	void BeginHUD(int resW, int resH, double Alpha, bool forceScaled = false);
 	void StatusbarToRealCoords(double &x, double &y, double &w, double &h) const;
 	void PrintLevelStats(FLevelStats& stats);
 	void PrintAutomapInfo(FLevelStats& stats, bool forcetextfont = false);
@@ -238,6 +238,7 @@ public:
 	DVector2 drawOffset = { 0,0 };			// can be set by subclasses to offset drawing operations
 	double drawClip[4] = { 0,0,0,0 };		// defines a clipping rectangle (not used yet)
 	bool fullscreenOffsets = false;			// current screen is displayed with fullscreen behavior.
+	DVector2 defaultScale;					// factor for clean fully scaled display.
 
 private:
 	void SetDrawSize(int reltop, int hres, int vres);
