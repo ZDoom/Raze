@@ -573,8 +573,10 @@ private:
 
             short chunkFlag = ChunkFlag[nFrameBase];
 
-            if (chunkFlag & 1) flags |= DI_MIRROR;
-            if (chunkFlag & 2) flags |= DI_MIRRORY;
+            if (chunkFlag & 1) 
+                flags |= DI_MIRROR;
+            if (chunkFlag & 2) 
+                flags |= DI_MIRRORY;
 
             DrawGraphic(tileGetTexture(tile), x, y, flags, 1, -1, -1, 1, 1);
             nFrameBase++;

@@ -179,12 +179,14 @@ public:
 	void AttachToPlayer(player_t *player);
 	DVector2 GetHUDScale() const;
 	void NewGame ();
+	int GetTranslation() { return 0; }
 
 	void DrawGraphic(FGameTexture *texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color = 0xffffffff, int translation = 0, double rotate = 0, ERenderStyle style = STYLE_Translucent);
 	void DrawGraphic(FTextureID texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color = 0xffffffff, int translation = 0, double rotate = 0, ERenderStyle style = STYLE_Translucent);
 	void DrawString(FFont *font, const FString &cstring, double x, double y, int flags, double Alpha, int translation, int spacing, EMonospacing monospacing, int shadowX, int shadowY, double scaleX, double scaleY);
 	void TransformRect(double &x, double &y, double &w, double &h, int flags = 0);
 	void Fill(PalEntry color, double x, double y, double w, double h, int flags = 0);
+	void ValidateResolution(int& hres, int& vres) const;
 
 	void BeginStatusBar(int resW, int resH, int relTop);
 	void BeginHUD(int resW, int resH, double Alpha);
@@ -230,6 +232,7 @@ public:
 	double CrosshairSize;
 	double Displacement;
 	bool ShowLog;
+	bool ForcedScale = false;
 
 	double Alpha = 1.;
 	DVector2 drawOffset = { 0,0 };			// can be set by subclasses to offset drawing operations

@@ -264,8 +264,7 @@ void FormatNumber(int number, int minsize, int maxsize, int flags, const FString
 	else fmt.Format("%s%*d", prefix.GetChars(), minsize, number);
 }
 
-
-void ValidateResolution(int &hres, int &vres)
+void DStatusBarCore::ValidateResolution(int& hres, int& vres) const
 {
 	if (hres == 0)
 	{
@@ -287,12 +286,23 @@ void ValidateResolution(int &hres, int &vres)
 //
 //============================================================================
 
-void DStatusBarCore::StatusbarToRealCoords(double &x, double &y, double &w, double &h) const
+void DStatusBarCore::StatusbarToRealCoords(double& x, double& y, double& w, double& h) const
 {
-	x = ST_X + x * SBarScale.X;
-	y = ST_Y + y * SBarScale.Y;
-	w *= SBarScale.X;
-	h *= SBarScale.Y;
+	if (SBarScale.X == -1 || ForcedScale)
+	{
+		int hres = HorizontalResolution;
+		int vres = VerticalResolution;
+		ValidateResolution(hres, vres);
+
+		VirtualToRealCoords(twod, x, y, w, h, hres, vres, true, true);
+	}
+	else
+	{
+		x = ST_X + x * SBarScale.X;
+		y = ST_Y + y * SBarScale.Y;
+		w *= SBarScale.X;
+		h *= SBarScale.Y;
+	}
 }
 
 //============================================================================
@@ -314,6 +324,9 @@ void DStatusBarCore::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 {
 	double texwidth = tex->GetDisplayWidth() * scaleX;
 	double texheight = tex->GetDisplayHeight() * scaleY;
+	double texleftoffs = tex->GetDisplayLeftOffset() * scaleY;
+	double textopoffs = tex->GetDisplayTopOffset() * scaleY;
+	double boxleftoffs, boxtopoffs;
 
 	if (boxwidth > 0 || boxheight > 0)
 	{
@@ -339,12 +352,16 @@ void DStatusBarCore::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 
 			boxwidth = texwidth * scale1;
 			boxheight = texheight * scale1;
+			boxleftoffs = texleftoffs * scale1;
+			boxtopoffs = textopoffs * scale1;
 		}
 	}
 	else
 	{
 		boxwidth = texwidth;
 		boxheight = texheight;
+		boxleftoffs = texleftoffs;
+		boxtopoffs = textopoffs;
 	}
 
 	// resolve auto-alignment before making any adjustments to the position values.
@@ -361,26 +378,27 @@ void DStatusBarCore::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 	x += drawOffset.X;
 	y += drawOffset.Y;
 
-	double xo = 0, yo = 0;
 	if (flags & DI_ITEM_RELCENTER)
 	{
-		xo = tex->GetDisplayWidth() / 2 + tex->GetDisplayLeftOffset();
-		yo = tex->GetDisplayHeight() / 2 + tex->GetDisplayTopOffset();
+		if (flags & DI_MIRROR) boxleftoffs = -boxleftoffs;
+		if (flags & DI_MIRRORY)	boxtopoffs = -boxtopoffs;
+		x -= boxwidth / 2 + boxleftoffs;
+		y -= boxheight / 2 + boxtopoffs;
 	}
 	else
 	{
 		switch (flags & DI_ITEM_HMASK)
 		{
-		case DI_ITEM_HCENTER:	xo = tex->GetDisplayWidth() / 2; break;
-		case DI_ITEM_RIGHT:		xo = tex->GetDisplayWidth(); break;
-		case DI_ITEM_HOFFSET:	xo = tex->GetDisplayLeftOffset(); break;
+		case DI_ITEM_HCENTER:	x -= boxwidth / 2; break;
+		case DI_ITEM_RIGHT:		x -= boxwidth; break;
+		case DI_ITEM_HOFFSET:	x -= boxleftoffs; break;
 		}
 
 		switch (flags & DI_ITEM_VMASK)
 		{
-		case DI_ITEM_VCENTER: yo = tex->GetDisplayHeight() / 2; break;
-		case DI_ITEM_BOTTOM:  yo = tex->GetDisplayHeight(); break;
-		case DI_ITEM_VOFFSET: yo = tex->GetDisplayTopOffset(); break;
+		case DI_ITEM_VCENTER: y -= boxheight / 2; break;
+		case DI_ITEM_BOTTOM:  y -= boxheight; break;
+		case DI_ITEM_VOFFSET: y -= boxtopoffs; break;
 		}
 	}
 
@@ -418,14 +436,13 @@ void DStatusBarCore::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 		x += orgx;
 		y += orgy;
 	}
-	// Now reapply the texture offsets. We will need them
-	DrawTexture(twod, tex, x, y, 
-		DTA_TopOffsetF, yo,
-		DTA_LeftOffsetF, xo,
+	DrawTexture(twod, tex, x, y,
+		DTA_TopOffset, 0,
+		DTA_LeftOffset, 0,
 		DTA_DestWidthF, boxwidth,
 		DTA_DestHeightF, boxheight,
 		DTA_Color, color,
-		DTA_TranslationIndex, translation, // (flags & DI_TRANSLATABLE) ? GetTranslation() : 0,
+		DTA_TranslationIndex, translation? translation : (flags & DI_TRANSLATABLE) ? GetTranslation() : 0,
 		DTA_ColorOverlay, (flags & DI_DIM) ? MAKEARGB(170, 0, 0, 0) : 0,
 		DTA_Alpha, Alpha,
 		DTA_AlphaChannel, !!(flags & DI_ALPHAMAPPED),
@@ -433,7 +450,6 @@ void DStatusBarCore::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 		DTA_FlipX, !!(flags & DI_MIRROR),
 		DTA_FlipY, !!(flags& DI_MIRRORY),
 		DTA_Rotate, rotate,
-		DTA_FlipOffsets, true,
 		DTA_LegacyRenderStyle, style,
 		TAG_DONE);
 }
@@ -445,24 +461,21 @@ void DStatusBarCore::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 //
 //============================================================================
 
-void DStatusBarCore::DrawString(FFont *font, const FString &cstring, double x, double y, int flags, double Alpha, int translation, int spacing, EMonospacing monospacing, int shadowX, int shadowY, double scaleX, double scaleY)
+void DStatusBarCore::DrawString(FFont* font, const FString& cstring, double x, double y, int flags, double Alpha, int translation, int spacing, EMonospacing monospacing, int shadowX, int shadowY, double scaleX, double scaleY)
 {
 	bool monospaced = monospacing != EMonospacing::Off;
 	double dx = 0;
+	int spacingparm = monospaced ? -spacing : spacing;
 
 	switch (flags & DI_TEXT_ALIGN)
 	{
 	default:
 		break;
 	case DI_TEXT_ALIGN_RIGHT:
-		dx = monospaced
-			? static_cast<int> ((spacing)*cstring.CharacterCount()) //monospaced, so just multiply the character size
-			: static_cast<int> (font->StringWidth(cstring) + (spacing * cstring.CharacterCount()));
+		dx = font->StringWidth(cstring, spacingparm);
 		break;
 	case DI_TEXT_ALIGN_CENTER:
-		dx = monospaced
-			? static_cast<int> ((spacing)*cstring.CharacterCount()) / 2 //monospaced, so just multiply the character size
-			: static_cast<int> (font->StringWidth(cstring) + (spacing * cstring.CharacterCount())) / 2;
+		dx = font->StringWidth(cstring, spacingparm) / 2;
 		break;
 	}
 
@@ -576,7 +589,7 @@ void DStatusBarCore::DrawString(FFont *font, const FString &cstring, double x, d
 			DTA_Alpha, Alpha,
 			TAG_DONE);
 
-		dx = monospaced 
+		dx = monospaced
 			? spacing
 			: width + spacing - (c->GetDisplayLeftOffset() + 1);
 
@@ -585,10 +598,10 @@ void DStatusBarCore::DrawString(FFont *font, const FString &cstring, double x, d
 	}
 }
 
-void SBar_DrawString(DStatusBarCore *self, DHUDFont *font, const FString &string, double x, double y, int flags, int trans, double alpha, int wrapwidth, int linespacing, double scaleX, double scaleY)
+void SBar_DrawString(DStatusBarCore* self, DHUDFont* font, const FString& string, double x, double y, int flags, int trans, double alpha, int wrapwidth, int linespacing, double scaleX, double scaleY)
 {
-	//if (font == nullptr) ThrowAbortException(X_READ_NIL, nullptr);
-	//if (!screen->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
+	if (font == nullptr) ThrowAbortException(X_READ_NIL, nullptr);
+	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
 
 	// resolve auto-alignment before making any adjustments to the position values.
 	if (!(flags & DI_SCREEN_MANUAL_ALIGN))
@@ -602,7 +615,7 @@ void SBar_DrawString(DStatusBarCore *self, DHUDFont *font, const FString &string
 	if (wrapwidth > 0)
 	{
 		auto brk = V_BreakLines(font->mFont, int(wrapwidth * scaleX), string, true);
-		for (auto &line : brk)
+		for (auto& line : brk)
 		{
 			self->DrawString(font->mFont, line.Text, x, y, flags, alpha, trans, font->mSpacing, font->mMonospacing, font->mShadowX, font->mShadowY, scaleX, scaleY);
 			y += (font->mFont->GetHeight() + linespacing) * scaleY;
@@ -621,7 +634,7 @@ void SBar_DrawString(DStatusBarCore *self, DHUDFont *font, const FString &string
 //
 //============================================================================
 
-void DStatusBarCore::TransformRect(double &x, double &y, double &w, double &h, int flags)
+void DStatusBarCore::TransformRect(double& x, double& y, double& w, double& h, int flags)
 {
 	// resolve auto-alignment before making any adjustments to the position values.
 	if (!(flags & DI_SCREEN_MANUAL_ALIGN))
@@ -669,6 +682,45 @@ void DStatusBarCore::TransformRect(double &x, double &y, double &w, double &h, i
 		x += orgx;
 		y += orgy;
 	}
+}
+
+
+//============================================================================
+//
+// draw stuff
+//
+//============================================================================
+
+void DStatusBarCore::Fill(PalEntry color, double x, double y, double w, double h, int flags)
+{
+	double Alpha = color.a * this->Alpha / 255;
+	if (Alpha <= 0) return;
+
+	TransformRect(x, y, w, h, flags);
+
+	int x1 = int(x);
+	int y1 = int(y);
+	int ww = int(x + w - x1);	// account for scaling to non-integers. Truncating the values separately would fail for cases like 
+	int hh = int(y + h - y1);	// y=3.5, height = 5.5 where adding both values gives a larger integer than adding the two integers.
+
+	Dim(twod, color, float(Alpha), x1, y1, ww, hh);
+}
+
+
+//============================================================================
+//
+// draw stuff
+//
+//============================================================================
+
+void DStatusBarCore::SetClipRect(double x, double y, double w, double h, int flags)
+{
+	TransformRect(x, y, w, h, flags);
+	int x1 = int(x);
+	int y1 = int(y);
+	int ww = int(x + w - x1);	// account for scaling to non-integers. Truncating the values separately would fail for cases like 
+	int hh = int(y + h - y1); // y=3.5, height = 5.5 where adding both values gives a larger integer than adding the two integers.
+	twod->SetClipRect(x1, y1, ww, hh);
 }
 
 
