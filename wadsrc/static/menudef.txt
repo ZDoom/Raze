@@ -72,9 +72,10 @@ LISTMENU "MainMenu"
 		position 213, 60
 		Linespacing 18
 		WH1TextItem "$MNU_NEWGAME", "n", "SkillMenu"
-		WH1TextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
+		//WH1TextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
 		WH1TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		WH1TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		WH1TextItem "$MNU_Help", "l", "HelpMenu"
 		WH1TextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	/*
@@ -83,9 +84,10 @@ LISTMENU "MainMenu"
 		position 160, 50
 		Linespacing 14
 		WH2TextItem "$MNU_NEWGAME", "n", "SkillMenu"
-		WH2TextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
+		//WH2TextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
 		WH2TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		WH2TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		WH2TextItem "$MNU_Help", "l", "HelpMenu"
 		WH2TextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	*/
@@ -237,13 +239,18 @@ LISTMENU "SkillMenu"
 		Position 35, 32
 		Linespacing 17
 	}
-	/*
 	ifgame(Witchaven)
 	{
 		CaptionItem "$MNU_DIFFICULTY"
-		Position 35, 32
-		Linespacing 17
+		position 130, 50
+		Linespacing 16
+
+		WH1SkillItem "#00510", "$SKILL_EASY", "e", "StartGame 0"
+		WH1SkillItem "#00511", "$SKILL_NORMAL", "m", "StartGame 1"
+		WH1SkillItem "#00512", "$SKILL_HARD", "h", "StartGame 2"
+		WH1SkillItem "#00513", "$SKILL_VERY_HARD", "v", "StartGame 3"
 	}
+	/*
 	ifgame(Witchaven2)
 	{
 		CaptionItem "$MNU_DIFFICULTY"
@@ -297,7 +304,21 @@ ImageScroller "HelpMenu"
 		ImageItem "TileBMGLogo"
 		ImageItem "TilePIELogo"
 	}
+	ifgame(Witchaven)
+	{
+		ImageItem "#01793" //WEAPONS"
+		ImageItem "#01791" // SPELLS"
+		ImageItem "#01790" // POTIONS"
+		ImageItem "#01792" // WALKING"
+		ImageItem "#01788" // FLYING"
+		ImageItem "#01784" // CREDIT1"
+		ImageItem "#01785" // CREDIT2"
+		ImageItem "#01786" // CREDIT3"
+		ImageItem "#01787" // CREDIT4"
+		ImageItem "#02691" // BETAPAGE"
+	}
 }
+
 
 //-------------------------------------------------------------------------------------------
 //
