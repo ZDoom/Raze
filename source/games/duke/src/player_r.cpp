@@ -1491,7 +1491,7 @@ void checkweapons_r(struct player_struct* p)
 		{
 			auto j = spawn(p->GetActor(), 7220);
 			j->s.ang = p->angle.ang.asbuild();
-			j->s.owner = p->ammo_amount[MOTORCYCLE_WEAPON]; // hijack!
+			j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 			p->OnMotorcycle = 0;
 			p->gotweapon.Clear(MOTORCYCLE_WEAPON);
 			p->horizon.horiz = q16horiz(0);
@@ -1507,7 +1507,7 @@ void checkweapons_r(struct player_struct* p)
 		{
 			auto j = spawn(p->GetActor(), 7233);
 			j->s.ang = p->angle.ang.asbuild();
-			j->s.owner = p->ammo_amount[BOAT_WEAPON]; // hijack!
+			j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 			p->OnBoat = 0;
 			p->gotweapon.Clear(BOAT_WEAPON);
 			p->horizon.horiz = q16horiz(0);
@@ -2384,7 +2384,6 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 
 static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 {
-	int j;
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	int psectlotag = sector[psect].lotag;
@@ -4186,7 +4185,7 @@ void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 			p->posx = motosprite->s.x;
 			p->posy = motosprite->s.y;
 			p->angle.ang = buildang(motosprite->s.ang);
-			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->s.owner; // hijack
+			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			deletesprite(motosprite);
 		}
 		p->over_shoulder_on = 0;
@@ -4243,7 +4242,7 @@ void OffMotorcycle(struct player_struct *p)
 		spawned->s.ang = p->angle.ang.asbuild();
 		spawned->s.xvel += sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
 		spawned->s.yvel += sintable[p->angle.ang.asbuild()&2047]<<7;
-		spawned->s.owner = p->ammo_amount[MOTORCYCLE_WEAPON];
+		spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 	}
 }
 
@@ -4262,7 +4261,7 @@ void OnBoat(struct player_struct *p, DDukeActor* boat)
 			p->posx = boat->s.x;
 			p->posy = boat->s.y;
 			p->angle.ang = buildang(boat->s.ang);
-			p->ammo_amount[BOAT_WEAPON] = boat->s.owner;
+			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			deletesprite(boat);
 		}
 		p->over_shoulder_on = 0;
@@ -4307,7 +4306,7 @@ void OffBoat(struct player_struct *p)
 		spawned->s.ang = p->angle.ang.asbuild();
 		spawned->s.xvel += sintable[(p->angle.ang.asbuild()+512)&2047]<<7;
 		spawned->s.yvel += sintable[p->angle.ang.asbuild()&2047]<<7;
-		spawned->s.owner = p->ammo_amount[BOAT_WEAPON];
+		spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 	}
 }
 

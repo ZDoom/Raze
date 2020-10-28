@@ -28,7 +28,7 @@ struct weaponhit
 	short picnum, ang, extra, owner, movflag;
 	short tempang, actorstayput, dispicnum;
 	short timetosleep;
-	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags;
+	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags, saved_ammo;
 	int temp_data[6];
 	weaponhit* temp_actor, *seek_actor;
 	spritetype& s;	// direct reference to the corresponding sprite.
@@ -42,7 +42,7 @@ struct weaponhit
 	{
 		cgg = spriteextra = 0;
 		picnum = ang = extra = owner = movflag = tempang = actorstayput = dispicnum = timetosleep = 0;
-		floorz = ceilingz = lastvx = lastvy = bposx = bposy = bposz = aflags = 0;
+		floorz = ceilingz = lastvx = lastvy = bposx = bposy = bposz = aflags = saved_ammo = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}
 	int GetIndex() const { return this - array(); }

@@ -64,18 +64,19 @@ static void recreateinterpolations()
 	StatIterator it(STAT_EFFECTOR);
 	while ((k = it.NextIndex()) >= 0)
 	{
+		auto sectnum = sprite[k].sectnum;
 		switch (sprite[k].lotag)
 		{
 		case SE_31_FLOOR_RISE_FALL:
-			setinterpolation(&sector[sprite[k].sectnum].floorz);
+			setinterpolation(&sector[sectnum].floorz);
 			break;
 		case SE_32_CEILING_RISE_FALL:
-			setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+			setinterpolation(&sector[sectnum].ceilingz);
 			break;
 		case SE_17_WARP_ELEVATOR:
 		case SE_25_PISTON:
-			setinterpolation(&sector[sprite[k].sectnum].floorz);
-			setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+			setinterpolation(&sector[sectnum].floorz);
+			setinterpolation(&sector[sectnum].ceilingz);
 			break;
 		case SE_0_ROTATING_SECTOR:
 		case SE_5_BOSS:
@@ -86,7 +87,7 @@ static void recreateinterpolations()
 		case SE_16_REACTOR:
 		case SE_26:
 		case SE_30_TWO_WAY_TRAIN:
-			setsectinterpolate(sprite[k].sectnum);
+			setsectinterpolate(sectnum);
 			break;
 		}
 	}
@@ -335,6 +336,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, weaponhit& w, weap
 			("bposy", w.bposy, def->bposy)
 			("bposz", w.bposz, def->bposz)
 			("aflags", w.aflags, def->aflags)
+			("saved_ammo", w.saved_ammo, def->saved_ammo)
 			("temp_actor", w.temp_actor, def->temp_actor)
 			("seek_actor", w.seek_actor, def->seek_actor)
 			.Array("temp_data", w.temp_data, def->temp_data, 6)
