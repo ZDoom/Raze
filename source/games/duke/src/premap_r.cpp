@@ -631,30 +631,32 @@ void prelevel_r(int g)
 
 	for (i = 0; i < MAXSPRITES; i++)
 	{
-		if (sprite[i].picnum == RRTILE19)
+		auto spr = &sprite[i];
+		if (spr->picnum == RRTILE19)
 		{
 			if (geocnt > 64)
 				I_Error("Too many geometry effects");
-			if (sprite[i].hitag == 0)
+			if (spr->hitag == 0)
 			{
-				geosector[geocnt] = sprite[i].sectnum;
+				geosector[geocnt] = spr->sectnum;
 				for (j = 0; j < MAXSPRITES; j++)
 				{
-					if (sprite[i].lotag == sprite[j].lotag && j != i && sprite[j].picnum == RRTILE19)
+					auto spj = &sprite[j];
+					if (spr->lotag == spj->lotag && j != i && spj->picnum == RRTILE19)
 					{
-						if (sprite[j].hitag == 1)
+						if (spj->hitag == 1)
 						{
-							geosectorwarp[geocnt] = sprite[j].sectnum;
-							geox[geocnt] = sprite[i].x - sprite[j].x;
-							geoy[geocnt] = sprite[i].y - sprite[j].y;
-							//geoz[geocnt] = sprite[i].z - sprite[j].z;
+							geosectorwarp[geocnt] = spj->sectnum;
+							geox[geocnt] = spr->x - spj->x;
+							geoy[geocnt] = spr->y - spj->y;
+							//geoz[geocnt] = spr->z - spj->z;
 						}
-						if (sprite[j].hitag == 2)
+						if (spj->hitag == 2)
 						{
-							geosectorwarp2[geocnt] = sprite[j].sectnum;
-							geox2[geocnt] = sprite[i].x - sprite[j].x;
-							geoy2[geocnt] = sprite[i].y - sprite[j].y;
-							//geoz2[geocnt] = sprite[i].z - sprite[j].z;
+							geosectorwarp2[geocnt] = spj->sectnum;
+							geox2[geocnt] = spr->x - spj->x;
+							geoy2[geocnt] = spr->y - spj->y;
+							//geoz2[geocnt] = spr->z - spj->z;
 						}
 					}
 				}
