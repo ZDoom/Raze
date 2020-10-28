@@ -38,9 +38,9 @@ void showStatisticsScreen()
 		@Override
 		public void run() {
 			mapon++;
-			playsound_loc(S_CHAINDOOR1, plr.x, plr.y);
+			spritesound(S_CHAINDOOR1, &sprite[plr.spritenum]);
 			playertorch = 0;
-			playsound_loc(S_WARP, plr.x, plr.y);
+			spritesound(S_WARP, &sprite[plr.spritenum]);
 			loadnewlevel(mapon);
 		}
 		});

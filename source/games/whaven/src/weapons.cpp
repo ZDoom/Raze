@@ -15,7 +15,6 @@ boolean droptheshield = false;
 int dahand = 0;
 int weapondrop;
 int snakex, snakey;
-int enchantedsoundhandle = -1;
 
 boolean checkmedusadist(int i, int x, int y, int z, int lvl) {
 	int attackdist = (isWh2() ? 8192 : 1024) + (lvl << 9);
@@ -27,6 +26,12 @@ boolean checkmedusadist(int i, int x, int y, int z, int lvl) {
 		return false;
 }
 
+static void playEnchantedSound(int sndnum)
+{
+	if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, 0, CHAN_ENCHANTED) == 0)
+		playsound(sndnum, 0, 0, -1, CHAN_ENCHANTED);
+}
+
 void autoweaponchange(PLAYER& plr, int dagun) {
 	if (plr.currweaponanim > 0 || dagun == plr.selectedgun || plr.currweaponflip > 0)
 		return;
@@ -35,10 +40,7 @@ void autoweaponchange(PLAYER& plr, int dagun) {
 	plr.hasshot = 0;
 	plr.currweaponfired = 2; // drop weapon
 
-	if (enchantedsoundhandle != -1) {
-            SND_StopLoop(enchantedsoundhandle);
-            enchantedsoundhandle=-1;
-    }
+	soundEngine->StopSound(CHAN_ENCHANTED);
 	switch (plr.selectedgun) {
 	case 0:
 		weapondropgoal = 40;
@@ -48,15 +50,15 @@ void autoweaponchange(PLAYER& plr, int dagun) {
 		weapondrop = 0;
 		break;
 	case 2:
-		if (enchantedsoundhandle == -1 && plr.weapon[plr.selectedgun] == 3) {
-			enchantedsoundhandle = playsound(S_FIREWEAPONLOOP, 0, 0, -1);
+		if (plr.weapon[plr.selectedgun] == 3) {
+			playEnchantedSound(S_FIREWEAPONLOOP);
 		}
 		weapondropgoal = (isWh2() ? 40 : 100);
 		weapondrop = 0;
 		break;
 	case 3:
-		if (enchantedsoundhandle == -1 && plr.weapon[plr.selectedgun] == 3) {
-			enchantedsoundhandle = playsound(S_ENERGYWEAPONLOOP, 0, 0, -1);
+		if (plr.weapon[plr.selectedgun] == 3) {
+			playEnchantedSound(S_ENERGYWEAPONLOOP);
 		}
 		weapondropgoal = 100;
 		weapondrop = 0;
@@ -66,15 +68,15 @@ void autoweaponchange(PLAYER& plr, int dagun) {
 		weapondrop = 0;
 		break;
 	case 5:
-		if (enchantedsoundhandle == -1 && plr.weapon[plr.selectedgun] == 3) {
-			enchantedsoundhandle = playsound(S_ENERGYWEAPONLOOP, 0, 0, -1);
+		if (plr.weapon[plr.selectedgun] == 3) {
+			playEnchantedSound(S_ENERGYWEAPONLOOP);
 		}
 		weapondropgoal = 40;
 		weapondrop = 0;
 		break;
 	case 6:
-		if (enchantedsoundhandle == -1 && plr.weapon[plr.selectedgun] == 3) {
-			enchantedsoundhandle = playsound(S_FIREWEAPONLOOP, 0, 0, -1);
+		if (plr.weapon[plr.selectedgun] == 3) {
+			playEnchantedSound(S_FIREWEAPONLOOP);
 		}
 		weapondropgoal = 40;
 		weapondrop = 0;
@@ -82,8 +84,8 @@ void autoweaponchange(PLAYER& plr, int dagun) {
 			plr.ammo[6] = 0;
 		break;
 	case 7:
-		if (enchantedsoundhandle == -1 && plr.weapon[plr.selectedgun] == 3) {
-			enchantedsoundhandle = playsound(S_ENERGYWEAPONLOOP, 0, 0, -1);
+		if (plr.weapon[plr.selectedgun] == 3) {
+			playEnchantedSound(S_ENERGYWEAPONLOOP);
 		}
 		weapondropgoal = 40;
 		weapondrop = 0;
@@ -93,8 +95,8 @@ void autoweaponchange(PLAYER& plr, int dagun) {
 		}
 		break;
 	case 8:
-//			if (enchantedsoundhandle == -1 && plr.weapon[plr.selectedgun] == 3) {
-//				enchantedsoundhandle = playsound(S_FIREWEAPONLOOP, 0, 0, -1);
+//			if (plr.weapon[plr.selectedgun] == 3) {
+//						playEnchantedSound(S_FIREWEAPONLOOP);
 //			}
 		weapondropgoal = 40;
 		weapondrop = 0;
@@ -131,10 +133,7 @@ void weaponchange(int snum) {
 			int gun = key;
 			if (plr.weapon[gun] > 0) {
 				if (plr.currweaponanim <= 0 && gun != plr.selectedgun && plr.currweaponflip <= 0) {
-					if (enchantedsoundhandle != -1) {
-						SND_StopLoop(enchantedsoundhandle);
-						enchantedsoundhandle = -1;
-					}
+					soundEngine->StopSound(CHAN_ENCHANTED);
 				}
 
 				autoweaponchange(plr, gun);
@@ -173,10 +172,7 @@ void plrfireweapon(PLAYER& plr) {
 			if (plr.ammo[plr.selectedgun] == 0) {
 				plr.weapon[plr.selectedgun] = plr.preenchantedweapon[plr.selectedgun];
 				plr.ammo[plr.selectedgun] = plr.preenchantedammo[plr.selectedgun];
-				if (enchantedsoundhandle != -1) {
-					SND_StopLoop(enchantedsoundhandle);
-					enchantedsoundhandle = -1;
-				}
+				soundEngine->StopSound(CHAN_ENCHANTED);
 			}
 		}
 
@@ -331,23 +327,14 @@ void weaponsprocess(int snum) {
 
 	if (plr.shadowtime <= 0) {
 		if (plr.weapon[plr.currweapon] == 3) {
-			if (enchantedsoundhandle == -1 && plr.weapon[plr.selectedgun] == 3) {
+			if (plr.weapon[plr.selectedgun] == 3) {
 				switch (plr.selectedgun) {
 				case 2:
-					enchantedsoundhandle = playsound(S_FIREWEAPONLOOP, 0, 0, -1);
-					break;
-				case 3:
-				case 5:
-					enchantedsoundhandle = playsound(S_ENERGYWEAPONLOOP, 0, 0, -1);
-					break;
 				case 6:
-					enchantedsoundhandle = playsound(S_FIREWEAPONLOOP, 0, 0, -1);
+					playEnchantedSound(S_FIREWEAPONLOOP);
 					break;
-				case 7:
-					enchantedsoundhandle = playsound(S_ENERGYWEAPONLOOP, 0, 0, -1);
-					break;
-				case 8:
-					enchantedsoundhandle = playsound(S_ENERGYWEAPONLOOP, 0, 0, -1);
+				default:
+					playEnchantedSound(S_ENERGYWEAPONLOOP);
 					break;
 				}
 			}
@@ -1292,8 +1279,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 							if (sprite[pHitInfo.hitsprite].picnum == SKELETON
 									|| sprite[pHitInfo.hitsprite].picnum == SKELETONATTACK
 									|| sprite[pHitInfo.hitsprite].picnum == SKELETONDIE)
-								playsound_loc(S_SKELHIT1 + (krand() % 2), sprite[pHitInfo.hitsprite].x,
-										sprite[pHitInfo.hitsprite].y);
+								spritesound(S_SKELHIT1 + (krand() % 2), &sprite[pHitInfo.hitsprite]);
 						}
 
 						// HERE
@@ -1499,8 +1485,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 							if (sprite[pHitInfo.hitsprite].picnum == SKELETON
 									|| sprite[pHitInfo.hitsprite].picnum == SKELETONATTACK
 									|| sprite[pHitInfo.hitsprite].picnum == SKELETONDIE)
-								playsound_loc(S_SKELHIT1 + (krand() % 2), sprite[pHitInfo.hitsprite].x,
-										sprite[pHitInfo.hitsprite].y);
+								spritesound(S_SKELHIT1 + (krand() % 2), &sprite[pHitInfo.hitsprite]);
 						}
 						// HERE
 						switch (plr.currweapon) {
@@ -1620,8 +1605,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						if (sprite[pHitInfo.hitsprite].picnum == SKELETON
 								|| sprite[pHitInfo.hitsprite].picnum == SKELETONATTACK
 								|| sprite[pHitInfo.hitsprite].picnum == SKELETONDIE)
-							playsound_loc(S_SKELHIT1 + (krand() % 2), sprite[pHitInfo.hitsprite].x,
-									sprite[pHitInfo.hitsprite].y);
+							spritesound(S_SKELHIT1 + (krand() % 2), &sprite[pHitInfo.hitsprite]);
 					}
 					newstatus(pHitInfo.hitsprite, DIE);
 				}
@@ -1651,7 +1635,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				if (sprite[pHitInfo.hitsprite].pal == 6) {
 					// JSA_NEW
 					SND_Sound(S_SOCK1 + (krand() % 4));
-					playsound_loc(S_FREEZEDIE, pHitInfo.hitx, pHitInfo.hity);
+					playsound(S_FREEZEDIE, pHitInfo.hitx, pHitInfo.hity);
 					for (k = 0; k < 32; k++)
 						icecubes(pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 								pHitInfo.hitsprite);
@@ -1728,7 +1712,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				sprite[j].owner = sprite[plr.spritenum].owner;
 				sprite[j].lotag = 32;
 				sprite[j].hitag = 0;
-				playsound_loc(S_ARROWHIT, sprite[j].x, sprite[j].y);
+				spritesound(S_ARROWHIT, &sprite[j]);
 
 				if (isWh2() && plr.weapon[6] == 3 && plr.currweapon == 6) {
 					j = insertsprite(pHitInfo.hitsect, FIRECHUNK);
@@ -1843,7 +1827,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				if (sprite[pHitInfo.hitsprite].pal == 6) {
 					// JSA_NEW
 					SND_Sound(S_SOCK1 + (krand() % 4));
-					playsound_loc(S_FREEZEDIE, pHitInfo.hitx, pHitInfo.hity);
+					playsound(S_FREEZEDIE, pHitInfo.hitx, pHitInfo.hity);
 					for (k = 0; k < 32; k++)
 						icecubes(pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 								pHitInfo.hitsprite);
@@ -2308,7 +2292,7 @@ void swingdaweapon(PLAYER& plr) {
 				// || plr.currweaponframe == PIKEATTACK2+4
 				&& plr.weapon[7] == 2 && plr.ammo[7] > 0) {
 			shootgun(plr, daang, 10);
-			playsound_loc(S_THROWPIKE, plr.x, plr.y);
+			spritesound(S_THROWPIKE, &sprite[plr.spritenum]);
 			plr.hasshot = 1;
 			return;
 		}
@@ -2333,12 +2317,12 @@ void swingdaweapon(PLAYER& plr) {
 
 		if (plr.currweaponframe == PIKEATTACK1 + 4 && plr.weapon[7] == 2 && plr.ammo[7] > 0) {
 			shootgun(plr, daang, 10);
-			playsound_loc(S_GENTHROW, plr.x, plr.y);
+			spritesound(S_GENTHROW, &sprite[plr.spritenum]);
 			plr.hasshot = 1;
 			return;
 		} else if (plr.currweaponframe == ZPIKEATTACK + 4 && plr.weapon[7] == 3 && plr.ammo[7] > 0) {
 			lockon(plr, 3, 10);
-			playsound_loc(S_GENTHROW, plr.x, plr.y);
+			spritesound(S_GENTHROW, &sprite[plr.spritenum]);
 			plr.hasshot = 1;
 			return;
 		}
@@ -2370,15 +2354,15 @@ void swingdaweapon(PLAYER& plr) {
 		plr.hasshot = 1;
 		break;
 	case 5: // battleaxe
-		if (isWh2() && enchantedsoundhandle != -1) {
-			SND_Sound(S_ENERGYSWING);
-		}
+		if (isWh2() && soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, 0, CHAN_ENCHANTED) != 0)
+				SND_Sound(S_ENERGYSWING);
 
 		shootgun(plr, daang, 0);
 		plr.hasshot = 1;
 		break;
 	case 6: // bow
-		if (isWh2() && enchantedsoundhandle != -1) {
+		if (isWh2() && soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, 0, CHAN_ENCHANTED) != 0)
+		{
 			SND_Sound(S_FIREBALL);
 			SND_Sound(S_PLRWEAPON3);
 		}
@@ -2404,44 +2388,44 @@ void swingdacrunch(PLAYER& plr, int daweapon) {
 
 	switch (daweapon) {
 	case 0: // fist
-		playsound_loc(S_SOCK1 + (krand() % 4), plr.x, plr.y);
+		spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
 		break;
 	case 1: // dagger
 		if ((krand() % 2) != 0)
-			playsound_loc(S_GORE1 + (krand() % 4), plr.x, plr.y);
+			spritesound(S_GORE1 + (krand() % 4), &sprite[plr.spritenum]);
 		break;
 	case 2: // short sword
-		playsound_loc(S_SWORD2 + (krand() % 3), plr.x, plr.y);
+		spritesound(S_SWORD2 + (krand() % 3), &sprite[plr.spritenum]);
 		break;
 	case 3: // morningstar
-		playsound_loc(S_SOCK1 + (krand() % 4), plr.x, plr.y);
+		spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
 		break;
 	case 4: // broad sword
-		playsound_loc(S_SWORD1 + (krand() % 3), plr.x, plr.y);
+		spritesound(S_SWORD1 + (krand() % 3), &sprite[plr.spritenum]);
 		break;
 	case 5: // battle axe
 		if ((krand() % 2) != 0)
-			playsound_loc(S_SOCK1 + (krand() % 4), plr.x, plr.y);
+			spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
 		else
-			playsound_loc(S_SWORD1 + (krand() % 3), plr.x, plr.y);
+			spritesound(S_SWORD1 + (krand() % 3), &sprite[plr.spritenum]);
 		break;
 	case 6: // bow
 
 		break;
 	case 7: // pike
 		if ((krand() % 2) != 0)
-			playsound_loc(S_SOCK1 + (krand() % 4), plr.x, plr.y);
+			spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
 		else
-			playsound_loc(S_SWORD1 + (krand() % 3), plr.x, plr.y);
+			spritesound(S_SWORD1 + (krand() % 3), &sprite[plr.spritenum]);
 		break;
 	case 8: // two handed sword
-		playsound_loc(S_SWORD1 + (krand() % 2), plr.x, plr.y);
+		spritesound(S_SWORD1 + (krand() % 2), &sprite[plr.spritenum]);
 		break;
 	case 9: // halberd
 		if ((krand() % 2) != 0)
-			playsound_loc(S_SOCK1 + (krand() % 4), plr.x, plr.y);
+			spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
 		else
-			playsound_loc(S_SWORD1 + (krand() % 3), plr.x, plr.y);
+			spritesound(S_SWORD1 + (krand() % 3), &sprite[plr.spritenum]);
 		break;
 	}
 }

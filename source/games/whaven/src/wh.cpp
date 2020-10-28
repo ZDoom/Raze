@@ -4,7 +4,7 @@
 BEGIN_WH_NS 
 
 // Placeholders that will go away.
-int attacktheme, lavasnd, cartsnd, batsnd;
+int attacktheme;
 
 int killcnt, kills;
 int expgained;

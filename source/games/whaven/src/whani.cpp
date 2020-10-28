@@ -439,9 +439,8 @@ void animateobjs(PLAYER& plr) {
 			break;
 		case 2: // fly to roof and get deleted
 			if (sprite[i].lotag < 0) {
-				if (i == lastbat && batsnd != -1) {
-					stopsound(batsnd);
-					batsnd = -1;
+				if (i == lastbat) {
+					soundEngine->StopSound(CHAN_BAT);
 				}
 				deletesprite((short) i);
 				continue;
@@ -451,9 +450,8 @@ void animateobjs(PLAYER& plr) {
 						(((int) sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 				if ((movestat & 0xc000) == 16384) {// Hits a ceiling / floor
-					if (i == lastbat && batsnd != -1) {
-						stopsound(batsnd);
-						batsnd = -1;
+					if (i == lastbat) {
+						soundEngine->StopSound(CHAN_BAT);
 					}
 					deletesprite((short) i);
 					continue;
@@ -508,9 +506,8 @@ void animateobjs(PLAYER& plr) {
 			sprite[i].z -= (TICSPERFRAME << 6);
 			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 			if (sprite[i].z <= sector[sprite[i].sectnum].ceilingz + 32768) {
-				stopsound(cartsnd);
-				cartsnd = -1;
-				playsound_loc(S_CLUNK, sprite[i].x, sprite[i].y);
+				soundEngine->StopSound(CHAN_CART);
+				spritesound(S_CLUNK, &sprite[i]);
 				changespritestat(i, (short) 0);
 				sprite[i].lotag = 1820;
 				sprite[i].z = sector[sprite[i].sectnum].ceilingz + 32768;
@@ -551,9 +548,8 @@ void animateobjs(PLAYER& plr) {
 			sprite[i].z += ironbarmove;
 			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 			if (sprite[i].z >= (sector[sprite[i].sectnum].floorz - 32768)) {
-				stopsound(cartsnd);
-				cartsnd = -1;
-				playsound_loc(S_CLUNK, sprite[i].x, sprite[i].y);
+				soundEngine->StopSound(CHAN_CART);
+				spritesound(S_CLUNK, &sprite[i]);
 				changespritestat(i, (short) 0);
 				sprite[i].lotag = 1821;
 				sprite[i].z = sector[sprite[i].sectnum].floorz - 32768;
@@ -1168,7 +1164,7 @@ void animateobjs(PLAYER& plr) {
 				if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
 						sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum)) {
 					// JSA_NEW
-					playsound_loc(S_FIREBALL, sprite[i].x, sprite[i].y);
+					spritesound(S_FIREBALL, &sprite[i]);
 					castspell(plr, i);
 				}
 			}

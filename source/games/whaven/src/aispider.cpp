@@ -198,7 +198,7 @@ static void attack(PLAYER& plr, short i) {
 				spr.ang = (short)checksight_ang;
 				attack(plr, i);
 				if (krand() % 100 > ((plr.lvl * 7) + 20)) {
-					playsound_loc(S_SPIDERBITE, sprite[i].x, sprite[i].y);
+					spritesound(S_SPIDERBITE, &sprite[i]);
 					plr.poisoned = 1;
 					plr.poisontime = 7200;
 					showmessage("Poisoned", 360);

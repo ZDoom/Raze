@@ -12,7 +12,7 @@ static void chase(PLAYER& plr, short i) {
 		spr.lotag = 250;
 
 	if ((krand() % 100) > 98)
-		playsound_loc(S_KSNARL1 + (krand() % 4), sprite[i].x, sprite[i].y);
+		spritesound(S_KSNARL1 + (krand() % 4), &sprite[i]);
 
 	short osectnum = spr.sectnum;
 	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -243,7 +243,7 @@ static void resurect(PLAYER& plr, short i) {
 	
 static void search(PLAYER& plr, short i) {
 	if ((krand() % 100) > 98)
-		playsound_loc(S_KSNARL1 + (krand() % 4), sprite[i].x, sprite[i].y);
+		spritesound(S_KSNARL1 + (krand() % 4), &sprite[i]);
 	aisearch(plr, i, false);
 	if (!checksector6(i))
 		checkexpl(plr, i);

@@ -85,7 +85,7 @@ void InitItems()
 		{
 			sprite[i].detail = 0;
 			treasuresfound++;
-			playsound_loc(S_TREASURE1, sprite[i].x, sprite[i].y);
+			spritesound(S_TREASURE1, &sprite[i]);
 			int j = krand() % 8;
 			switch (j) {
 			case 0:
@@ -353,7 +353,7 @@ void InitItems()
 			case 6:
 				for (j = 0; j < 8; j++)
 					explosion(i, sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].owner);
-				playsound_loc(S_EXPLODE, sprite[i].x, sprite[i].y);
+				spritesound(S_EXPLODE, &sprite[i]);
 				deletesprite(i);
 				break;
 			default:
@@ -890,7 +890,7 @@ void InitItems()
 					addhealth(plr, -((krand() % 20) + 5)); // Inflict pain
 					// make it look and sound painful, too
 					if ((krand() % 9) == 0) {
-						playsound_loc(S_PLRPAIN1 + (rand() % 2), sprite[i].x, sprite[i].y);
+						spritesound(S_PLRPAIN1 + (rand() % 2), &sprite[i]);
 					}
 					startredflash(10);
 					deletesprite(i);
@@ -1051,7 +1051,7 @@ void InitItems()
 
 			{
 				if (plr.manatime < 1 && plr.invincibletime <= 0 && !plr.godMode) {
-					playsound_loc(S_FIREBALL, sprite[i].x, sprite[i].y);
+					spritesound(S_FIREBALL, &sprite[i]);
 					addhealth(plr, -1);
 					startredflash(30);
 				}

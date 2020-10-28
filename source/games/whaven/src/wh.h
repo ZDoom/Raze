@@ -24,6 +24,7 @@ END_WH_NS
 #include "gamecontrol.h"
 #include "d_net.h"
 #include "screenjob.h"
+#include "raze_sound.h"
 
 BEGIN_WH_NS
 
@@ -294,7 +295,6 @@ extern boolean droptheshield;
 extern int dahand;
 extern int weapondrop;
 extern int snakex, snakey;
-extern int enchantedsoundhandle;
 
 boolean checkmedusadist(int i, int x, int y, int z, int lvl);
 void autoweaponchange(PLAYER& plr, int dagun);
@@ -420,7 +420,29 @@ inline int BClampAngle(int a)
 
 // placeholders 
 
-extern int lavasnd, cartsnd, batsnd;
+// This is for the 3 sounds that get explicitly checked outside the sound code.
+enum
+{
+	CHAN_ENCHANTED = 100,
+	CHAN_CART,
+	CHAN_BAT,
+	CHAN_AMBIENT1,
+	CHAN_AMBIENT2,
+	CHAN_AMBIENT3,
+	CHAN_AMBIENT4,
+	CHAN_AMBIENT5,
+	CHAN_AMBIENT6,
+	CHAN_AMBIENT7,
+	CHAN_AMBIENT8,
+};
+
+enum
+{
+	MAX_AMB_SOUNDS = 8,
+};
+
+extern int ambsoundarray[8];
+
 inline void startredflash(int)
 {}
 inline void startwhiteflash(int)
@@ -430,23 +452,20 @@ inline void startgreenflash(int)
 inline void startblueflash(int)
 {}
 
+
+int playsound_internal(int sn, spritetype* spr, int x, int y, int loop, int chan);
+
+inline int playsound(int sn, int x, int y, int loop = 0, int channel = CHAN_AUTO) {
+	return playsound_internal(sn, nullptr, x, y, loop, channel);
+}
+
 inline int SND_Sound(int sn) {
-	return 0;
+	return playsound(sn, 0, 0);
 }
 
-inline int playsound_loc(int sn, int x, int y) {
-	return 0;
+inline int spritesound(int sn, spritetype *s, int loop = 0, int channel = CHAN_AUTO) {
+	return playsound_internal(sn, s, 0, 0, loop, channel);
 }
-
-inline int playsound(int sn, int x, int y, int loop) {
-	return 0;
-}
-inline void stopsound(int snd)
-{}
-inline void SND_StopLoop(int)
-{}
-inline void SND_CheckLoops()
-{}
 
 void startmusic(int);
 void startsong(int);

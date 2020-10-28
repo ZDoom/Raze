@@ -474,7 +474,7 @@ static void cast(PLAYER& plr, short i) {
 
 	if (spr.picnum == GONZOCSWAT) {
 		spr.extra--;
-		playsound_loc(S_GENTHROW, spr.x, spr.y);
+		spritesound(S_GENTHROW, &spr);
 		gonzopike(i, plr);
 		newstatus(i, CHASE);
 	}

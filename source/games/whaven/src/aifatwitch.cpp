@@ -233,7 +233,7 @@ static void throwspank(PLAYER& plr, int i) {
 	int j = insertsprite(sprite[i].sectnum, MISSILE);
 	if (j == -1)
 		return;
-	playsound_loc(S_WITCHTHROW, sprite[i].x, sprite[i].y);
+	spritesound(S_WITCHTHROW, &sprite[i]);
 
 	sprite[j].x = sprite[i].x;
 	sprite[j].y = sprite[i].y;

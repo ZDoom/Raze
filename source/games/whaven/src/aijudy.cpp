@@ -216,7 +216,7 @@ static void cast(PLAYER& plr, short i) {
 
 	if (spr.picnum == JUDYATTACK1 + 3) {
 		sprite[i].picnum = JUDYATTACK1;
-		playsound_loc(S_JUDY1 + krand() % 4, sprite[i].x, sprite[i].y);
+		spritesound(S_JUDY1 + krand() % 4, &sprite[i]);
 		if (krand() % 100 > 70) {
 			castspell(plr, i);
 		}
@@ -271,7 +271,7 @@ static void cast(PLAYER& plr, short i) {
 	}
 	else if (spr.picnum == JUDYATTACK2 + 8) {
 		sprite[i].picnum = JUDYATTACK2;
-		playsound_loc(S_JUDY1 + krand() % 4, sprite[i].x, sprite[i].y);
+		spritesound(S_JUDY1 + krand() % 4, &sprite[i]);
 		if (krand() % 100 > 50)
 			skullycastspell(plr, i);
 		else {

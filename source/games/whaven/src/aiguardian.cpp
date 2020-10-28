@@ -217,7 +217,7 @@ static void cast(PLAYER& plr, short i) {
 
 	if (spr.picnum == GUARDIANATTACK + 6) {
 		spr.picnum = GUARDIAN;
-		playsound_loc(S_FIREBALL, sprite[i].x, sprite[i].y);
+		spritesound(S_FIREBALL, &sprite[i]);
 		castspell(plr, i);
 		newstatus(i, CHASE);
 	}

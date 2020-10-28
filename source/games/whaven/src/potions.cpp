@@ -90,10 +90,6 @@ void usapotion(PLAYER& plr) {
 		SND_Sound(S_DRINK);
 		plr.manatime=3200;
 		startwhiteflash(10);
-		if( lavasnd != -1 ) {
-			stopsound(lavasnd);
-			lavasnd = -1;
-		}
 	break;
 	case 4: // invisi
 		SND_Sound(S_DRINK);

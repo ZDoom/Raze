@@ -132,27 +132,27 @@ static void cast(PLAYER& plr, short i) {
 	case DRAGONATTACK + 17:
 	case DRAGONATTACK + 4:
 		if ((krand() % 2) != 0)
-			playsound_loc(S_FLAME1, spr.x, spr.y);
+			spritesound(S_FLAME1, &spr);
 		else
-			playsound_loc(S_FIREBALL, spr.x, spr.y);
+			spritesound(S_FIREBALL, &spr);
 
 		firebreath(plr, i, 1, 2, LOW);
 		break;
 	case DRAGONATTACK + 18:
 	case DRAGONATTACK + 5:
 		if ((krand() % 2) != 0)
-			playsound_loc(S_FLAME1, spr.x, spr.y);
+			spritesound(S_FLAME1, &spr);
 		else
-			playsound_loc(S_FIREBALL, spr.x, spr.y);
+			spritesound(S_FIREBALL, &spr);
 
 		firebreath(plr, i, 2, 1, LOW);
 		break;
 	case DRAGONATTACK + 19:
 	case DRAGONATTACK + 6:
 		if ((krand() % 2) != 0)
-			playsound_loc(S_FLAME1, spr.x, spr.y);
+			spritesound(S_FLAME1, &spr);
 		else
-			playsound_loc(S_FIREBALL, spr.x, spr.y);
+			spritesound(S_FIREBALL, &spr);
 
 		firebreath(plr, i, 4, 0, LOW);
 		break;
@@ -167,9 +167,9 @@ static void cast(PLAYER& plr, short i) {
 
 	case DRAGONATTACK2 + 2:
 		if ((krand() % 2) != 0)
-			playsound_loc(S_FLAME1, spr.x, spr.y);
+			spritesound(S_FLAME1, &spr);
 		else
-			playsound_loc(S_FIREBALL, spr.x, spr.y);
+			spritesound(S_FIREBALL, &spr);
 
 		firebreath(plr, i, 1, -1, HIGH);
 		break;

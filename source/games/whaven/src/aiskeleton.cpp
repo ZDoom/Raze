@@ -187,7 +187,7 @@ static void stand(PLAYER& plr, short i) {
 
 			if (spr.picnum == HANGMAN) {
 				newstatus(i, CHILL);
-				playsound_loc(S_SKELSEE, spr.x, spr.y);
+				spritesound(S_SKELSEE, &spr);
 			}
 			else {
 				if (plr.shadowtime > 0) {

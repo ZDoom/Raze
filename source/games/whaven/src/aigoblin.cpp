@@ -198,7 +198,7 @@ static void stand(PLAYER& plr, short i) {
 			switch (spr.picnum) {
 			case GOBLINCHILL:
 				spr.picnum = GOBLINSURPRISE;
-				playsound_loc(S_GOBPAIN1 + (krand() % 2), spr.x, spr.y);
+				spritesound(S_GOBPAIN1 + (krand() % 2), &spr);
 				newstatus(i, CHILL);
 				break;
 			default:
@@ -425,9 +425,9 @@ static void goblinWar(PLAYER& plr, short i) {
 				// goblins are fighting
 				// JSA_DEMO
 				if (krand() % 10 > 6)
-					playsound_loc(S_GENSWING, spr.x, spr.y);
+					spritesound(S_GENSWING, &spr);
 				if (krand() % 10 > 6)
-					playsound_loc(S_SWORD1 + (krand() % 6), spr.x, spr.y);
+					spritesound(S_SWORD1 + (krand() % 6), &spr);
 
 				if (checkdist(plr, i))
 					addhealth(plr, -(krand() & 5));

@@ -665,14 +665,14 @@ void attack(PLAYER& plr, int i) {
 		short a = getangle(sprite[i].x - plr.x, sprite[i].y - plr.y);
 		if ((a < plr.ang && plr.ang - a < 128) || (a > plr.ang && (((short)plr.ang + a) & 2047) < 128)) {
 			if (krand() % 100 > 80) {
-				playsound_loc(S_SWORD1 + krand() % 3, plr.x, plr.y);
+				spritesound(S_SWORD1 + krand() % 3, &sprite[plr.spritenum]);
 				return;
 			}
 			else {
 				s = krand() % 50;
 				plr.shieldpoints -= s;
 				if (krand() % 100 > 50) {
-					playsound_loc(S_SWORD1 + krand() % 3, plr.x, plr.y);
+					spritesound(S_SWORD1 + krand() % 3, &sprite[plr.spritenum]);
 					return;
 				}
 			}
@@ -700,11 +700,11 @@ void attack(PLAYER& plr, int i) {
 		k = 3;
 		break;
 	case SKELETONTYPE:
-		playsound_loc(S_RIP1 + (krand() % 3), sprite[i].x, sprite[i].y);
+		spritesound(S_RIP1 + (krand() % 3), &sprite[i]);
 		if ((krand() % 2) != 0)
-			playsound_loc(S_GORE1 + (krand() % 4), sprite[i].x, sprite[i].y);
+			spritesound(S_GORE1 + (krand() % 4), &sprite[i]);
 		if ((krand() % 2) != 0)
-			playsound_loc(S_BREATH1 + (krand() % 6), sprite[i].x, sprite[i].y);
+			spritesound(S_BREATH1 + (krand() % 6), &sprite[i]);
 
 		if (isWh2())
 			k = (krand() % 5) + 5;
@@ -712,21 +712,21 @@ void attack(PLAYER& plr, int i) {
 			k >>= 2;
 		break;
 	case KATIETYPE: // damage 5 - 50
-		playsound_loc(S_DEMONTHROW, sprite[i].x, sprite[i].y);
+		spritesound(S_DEMONTHROW, &sprite[i]);
 		k = (krand() % 45) + 5;
 		break;
 
 	case DEVILTYPE:
-		playsound_loc(S_DEMONTHROW, sprite[i].x, sprite[i].y);
+		spritesound(S_DEMONTHROW, &sprite[i]);
 		if (!isWh2())
 			k >>= 2;
 		break;
 
 	case KOBOLDTYPE:
-		playsound_loc(S_GENSWING, sprite[i].x, sprite[i].y);
+		spritesound(S_GENSWING, &sprite[i]);
 		if ((krand() % 10) > 4) {
-			playsound_loc(S_KOBOLDHIT, plr.x, plr.y);
-			playsound_loc(S_BREATH1 + (krand() % 6), plr.x, plr.y);
+			spritesound(S_KOBOLDHIT, &sprite[plr.spritenum]);
+			spritesound(S_BREATH1 + (krand() % 6), &sprite[plr.spritenum]);
 		}
 		if (isWh2())
 			k = (krand() % 5) + 5;
@@ -736,21 +736,21 @@ void attack(PLAYER& plr, int i) {
 	case FREDTYPE:
 
 		/* Sounds for Fred (currently copied from Goblin) */
-		playsound_loc(S_GENSWING, sprite[i].x, sprite[i].y);
+		spritesound(S_GENSWING, &sprite[i]);
 		if (rand() % 10 > 4)
-			playsound_loc(S_SWORD1 + (rand() % 6), sprite[i].x, sprite[i].y);
+			spritesound(S_SWORD1 + (rand() % 6), &sprite[i]);
 
 		k >>= 3;
 		break;
 	case IMPTYPE:
 		if (!isWh2())
 			break;
-		playsound_loc(S_RIP1 + (krand() % 3), sprite[i].x, sprite[i].y);
+		spritesound(S_RIP1 + (krand() % 3), &sprite[i]);
 		if ((krand() % 2) != 0) {
-			playsound_loc(S_GORE1 + (krand() % 4), sprite[i].x, sprite[i].y);
+			spritesound(S_GORE1 + (krand() % 4), &sprite[i]);
 		}
 		if ((krand() % 2) != 0) {
-			playsound_loc(S_BREATH1 + (krand() % 6), sprite[i].x, sprite[i].y);
+			spritesound(S_BREATH1 + (krand() % 6), &sprite[i]);
 		}
 
 		k = (krand() % 5) + 5;
@@ -762,51 +762,51 @@ void attack(PLAYER& plr, int i) {
 		if (isWh2())
 			break;
 
-		playsound_loc(S_GENSWING, sprite[i].x, sprite[i].y);
+		spritesound(S_GENSWING, &sprite[i]);
 		if ((krand() % 10) > 4)
-			playsound_loc(S_SWORD1 + (krand() % 6), sprite[i].x, sprite[i].y);
+			spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
 		k >>= 2;
 		break;
 	case NEWGUYTYPE:
 		if (sprite[i].picnum == NEWGUYMACE) { // damage 5 - 20
-			playsound_loc(S_PLRWEAPON2, sprite[i].x, sprite[i].y);
+			spritesound(S_PLRWEAPON2, &sprite[i]);
 			if (krand() % 10 > 4) {
-				playsound_loc(S_KOBOLDHIT, plr.x, plr.y);
-				playsound_loc(S_BREATH1 + (krand() % 6), plr.x, plr.y);
+				spritesound(S_KOBOLDHIT, &sprite[plr.spritenum]);
+				spritesound(S_BREATH1 + (krand() % 6), &sprite[plr.spritenum]);
 			}
 			k = (krand() % 15) + 5;
 			break;
 		}
 	case KURTTYPE:
 	case GONZOTYPE:
-		playsound_loc(S_GENSWING, sprite[i].x, sprite[i].y);
+		spritesound(S_GENSWING, &sprite[i]);
 		if (sprite[i].picnum == GONZOCSWAT || sprite[i].picnum == GONZOGSWAT) { // damage 5 - 15
 			if (krand() % 10 > 6)
-				playsound_loc(S_SWORD1 + (krand() % 6), sprite[i].x, sprite[i].y);
+				spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
 			k = (krand() % 15) + 5;
 		}
 		else if (sprite[i].picnum == GONZOGHMAT) { // damage 5 - 15
 			if (krand() % 10 > 6)
-				playsound_loc(S_SWORD1 + (krand() % 6), sprite[i].x, sprite[i].y);
+				spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
 			k = (krand() % 10) + 5;
 		}
 		else if (sprite[i].picnum == GONZOGSHAT) { // damage 5 - 20
 			if (krand() % 10 > 3)
-				playsound_loc(S_SWORD1 + (krand() % 6), sprite[i].x, sprite[i].y);
+				spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
 			k = (krand() % 15) + 5;
 		}
 		else if (sprite[i].picnum == KURTAT) { // damage 5 - 15
-			playsound_loc(S_GENSWING, sprite[i].x, sprite[i].y);
+			spritesound(S_GENSWING, &sprite[i]);
 			if (krand() % 10 > 3) {
-				playsound_loc(S_SWORD1 + (krand() % 6), sprite[i].x, sprite[i].y);
+				spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
 			}
 			k = (krand() % 10) + 5;
 		}
 		else {
-			playsound_loc(S_GENSWING, sprite[i].x, sprite[i].y);
+			spritesound(S_GENSWING, &sprite[i]);
 			if (krand() % 10 > 4) {
-				playsound_loc(S_SOCK1 + (krand() % 4), plr.x, plr.y);
-				playsound_loc(S_BREATH1 + (krand() % 6), plr.x, plr.y);
+				spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
+				spritesound(S_BREATH1 + (krand() % 6), &sprite[plr.spritenum]);
 			}
 			k = (krand() % 4) + 1;
 		}
@@ -826,15 +826,15 @@ void attack(PLAYER& plr, int i) {
 			if (sprite[i].shade > 30)
 				k >>= 1;
 		}
-		playsound_loc(S_GENSWING, sprite[i].x, sprite[i].y);
+		spritesound(S_GENSWING, &sprite[i]);
 		if ((krand() % 10) > 3)
-			playsound_loc(S_SWORD1 + (krand() % 6), sprite[i].x, sprite[i].y);
+			spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
 
 		break;
 	case MINOTAURTYPE:
-		playsound_loc(S_GENSWING, sprite[i].x, sprite[i].y);
+		spritesound(S_GENSWING, &sprite[i]);
 		if (krand() % 10 > 4)
-			playsound_loc(S_SWORD1 + (krand() % 6), sprite[i].x, sprite[i].y);
+			spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
 		if (isWh2())
 			k = (krand() % 25) + 5;
 		break;

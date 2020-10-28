@@ -438,7 +438,7 @@ void teleporter() {
 			warpfxsprite(plr.spritenum);
 			plr.ang = (int) daang;
 			justwarpedfx = 48;
-			playsound_loc(S_WARP, plr.x, plr.y);
+			spritesound(S_WARP, &sprite[plr.spritenum]);
 			setsprite(plr.spritenum, plr.x, plr.y, plr.z + (32 << 8));
 		}
 	}
@@ -464,13 +464,13 @@ void teleporter() {
 					}
 						
 					mapon++;
-					playsound_loc(S_CHAINDOOR1, plr.x, plr.y);
+					spritesound(S_CHAINDOOR1, &sprite[plr.spritenum]);
 					playertorch = 0;
-					playsound_loc(S_WARP, plr.x, plr.y);
+					spritesound(S_WARP, &sprite[plr.spritenum]);
 					loadnewlevel(mapon);
 					break;
 				case 2: // ENDOFDEMO
-					playsound_loc(S_THUNDER1, plr.x, plr.y);
+					spritesound(S_THUNDER1, &sprite[plr.spritenum]);
 					justteleported = true;
 					showVictoryScreen();
 					break;
@@ -596,30 +596,29 @@ void sectorsounds() {
 	if (!SoundEnabled())
 		return;
 
-#pragma message("sectorspunds")
-#if 0
 	PLAYER& plr = player[pyrn];
 
 	int sec = sector[plr.sector].extra & 0xFFFF;
-	if (sec != 0) {
-		if ((sec & 32768) != 0) { // loop on/off sector
-			if ((sec & 1) != 0) { // turn loop on if lsb is 1
+	if (sec != 0) 
+	{
+		if ((sec & 32768) != 0) 
+		{ // loop on/off sector
+			if ((sec & 1) != 0) 
+			{ // turn loop on if lsb is 1
 				int index = (sec & ~0x8001) >> 1;
-				if (index < ambsoundarray.length && ambsoundarray[index].hsound == -1)
-					ambsoundarray[index].hsound = playsound(ambsoundarray[index].soundnum, 0, 0, -1);
+				if (index < MAX_AMB_SOUNDS && soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, 0, CHAN_AMBIENT1 + index) == 0)
+				{
+					playsound(ambsoundarray[index], 0, 0, 0, CHAN_AMBIENT1 + index);
+				}
 			} else { // turn loop off if lsb is 0 and its playing
 				int index = (sec & ~0x8000) >> 1;
-				if (index < ambsoundarray.length && ambsoundarray[index].hsound != -1) {
-					stopsound(ambsoundarray[index].hsound);
-					ambsoundarray[index].hsound = -1;
-				}
+				soundEngine->StopSound(CHAN_AMBIENT1 + index);
 			}
 		} else {
 			if (plr.z <= sector[plr.sector].floorz - (8 << 8))
-				playsound_loc(sec, plr.x, plr.y);
+				spritesound(sec, &sprite[plr.spritenum]);
 		}
 	}
-#endif
 }
 
 
@@ -829,7 +828,7 @@ void makeasplash(int picnum, PLAYER& plr) {
 		if(!isWh2() && picnum == SLIMESPLASH)
 			break;
 			
-		playsound_loc(S_SPLASH1 + (krand() % 3), sprite[j].x, sprite[j].y);
+		spritesound(S_SPLASH1 + (krand() % 3), &sprite[j]);
 		break;
 	case LAVASPLASH:
 		break;
@@ -876,14 +875,14 @@ void makemonstersplash(int picnum, int i) {
 			if ((gotpic[WATER >> 3] & (1 << (WATER & 7))) > 0) {
 				gotpic[WATER >> 3] &= ~(1 << (WATER & 7));
 					if ((krand() % 2) != 0)
-						playsound_loc(S_SPLASH1 + (krand() % 3), sprite[j].x, sprite[j].y);
+						spritesound(S_SPLASH1 + (krand() % 3), &sprite[j]);
 			}
 		}
 		if ((krand() % 2) != 0) {
 			if ((gotpic[SLIME >> 3] & (1 << (SLIME & 7))) > 0) {
 				gotpic[SLIME >> 3] &= ~(1 << (SLIME & 7));
 					if ((krand() % 2) != 0)
-						playsound_loc(S_SPLASH1 + (krand() % 3), sprite[j].x, sprite[j].y);
+						spritesound(S_SPLASH1 + (krand() % 3), &sprite[j]);
 			}
 		}
 		break;

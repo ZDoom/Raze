@@ -256,7 +256,7 @@ static void willowDrain(PLAYER& plr, short i) {
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		playsound_loc(S_FIREBALL, spr.x, spr.y);
+		spritesound(S_FIREBALL, &spr);
 		int oldz = spr.z;
 		spr.z += 6144;
 		castspell(plr, i);

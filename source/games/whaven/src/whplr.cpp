@@ -47,7 +47,7 @@ void playerdead(PLAYER& plr) {
 
 	if (plr.spiked == 1) {
 		plr.spiketics = spikeanimtics[0].daweapontics;
-		playsound_loc(S_GORE1, plr.x, plr.y);
+		spritesound(S_GORE1, &sprite[plr.spritenum]);
 		SND_Sound(S_HEARTBEAT);
 	}
 
@@ -261,7 +261,7 @@ void plruse(PLAYER& plr) {
 						showmessage("find door trigger", 360);
 				}
 			}
-			playsound_loc(S_PUSH1 + (krand() % 2), plr.x, plr.y);
+			spritesound(S_PUSH1 + (krand() % 2), &sprite[plr.spritenum]);
 		}
 	}
 	if (nt.tagsprite >= 0) {
@@ -335,10 +335,10 @@ void chunksofmeat(PLAYER& plr, int hitsprite, int hitx, int hity, int hitz, shor
 
 	if (sprite[hitsprite].picnum == SKELETON || sprite[hitsprite].picnum == SKELETONATTACK
 			|| sprite[hitsprite].picnum == SKELETONDIE) {
-		playsound_loc(S_SKELHIT1 + (krand() % 2), sprite[hitsprite].x, sprite[hitsprite].y);
+		spritesound(S_SKELHIT1 + (krand() % 2), &sprite[hitsprite]);
 	} else {
 		if (krand() % 100 > 60)
-			playsound_loc(S_GORE1 + (krand() % 4), sprite[hitsprite].x, sprite[hitsprite].y);
+			spritesound(S_GORE1 + (krand() % 4), &sprite[hitsprite]);
 	}
 
 	if ((hitsprite >= 0) && (sprite[hitsprite].statnum < MAXSTATUS)) {

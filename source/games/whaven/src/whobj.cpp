@@ -185,15 +185,15 @@ void newstatus(short sn, int seq) {
 		changespritestat(sn, BROKENVASE);
 		switch (sprite[sn].picnum) {
 		case VASEA:
-			playsound_loc(S_GLASSBREAK1 + (krand() % 3), sprite[sn].x, sprite[sn].y);
+			spritesound(S_GLASSBREAK1 + (krand() % 3), &sprite[sn]);
 			sprite[sn].picnum = SHATTERVASE;
 			break;
 		case VASEB:
-			playsound_loc(S_GLASSBREAK1 + (krand() % 3), sprite[sn].x, sprite[sn].y);
+			spritesound(S_GLASSBREAK1 + (krand() % 3), &sprite[sn]);
 			sprite[sn].picnum = SHATTERVASE2;
 			break;
 		case VASEC:
-			playsound_loc(S_GLASSBREAK1 + (krand() % 3), sprite[sn].x, sprite[sn].y);
+			spritesound(S_GLASSBREAK1 + (krand() % 3), &sprite[sn]);
 			sprite[sn].picnum = SHATTERVASE3;
 			break;
 		case STAINGLASS1:
@@ -210,7 +210,7 @@ void newstatus(short sn, int seq) {
 			break;
 		case FBARRELFALL:
 		case BARREL:
-			playsound_loc(S_BARRELBREAK, sprite[sn].x, sprite[sn].y);
+			spritesound(S_BARRELBREAK, &sprite[sn]);
 			sprite[sn].picnum = FSHATTERBARREL;
 			break;
 		}
@@ -223,27 +223,27 @@ void newstatus(short sn, int seq) {
 		sprite[sn].pal = 7;
 		break;
 	case ANIMLEVERDN:
-		playsound_loc(S_PULLCHAIN1, sprite[sn].x, sprite[sn].y);
+		spritesound(S_PULLCHAIN1, &sprite[sn]);
 		sprite[sn].picnum = LEVERUP;
 		changespritestat(sn, ANIMLEVERDN);
 		sprite[sn].lotag = 24;
 		break;
 	case ANIMLEVERUP:
-		playsound_loc(S_PULLCHAIN1, sprite[sn].x, sprite[sn].y);
+		spritesound(S_PULLCHAIN1, &sprite[sn]);
 		sprite[sn].picnum = LEVERDOWN;
 		changespritestat(sn, ANIMLEVERUP);
 		sprite[sn].lotag = 24;
 		break;
 	case SKULLPULLCHAIN1:
 	case PULLTHECHAIN:
-		playsound_loc(S_PULLCHAIN1, sprite[sn].x, sprite[sn].y);
+		spritesound(S_PULLCHAIN1, &sprite[sn]);
 		changespritestat(sn, PULLTHECHAIN);
 		SND_Sound(S_CHAIN1);
 		sprite[sn].lotag = 24;
 		break;
 	case FROZEN:
 		// JSA_NEW
-		playsound_loc(S_FREEZE, sprite[sn].x, sprite[sn].y);
+		spritesound(S_FREEZE, &sprite[sn]);
 		changespritestat(sn, FROZEN);
 		sprite[sn].lotag = 3600;
 		break;
@@ -265,7 +265,7 @@ void newstatus(short sn, int seq) {
 		switch (sprite[sn].detail) {
 		case DEMONTYPE:
 			sprite[sn].lotag = 24;
-			playsound_loc(S_GUARDIANPAIN1 + (krand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_GUARDIANPAIN1 + (krand() % 2), &sprite[sn]);
 			sprite[sn].picnum = DEMON - 1;
 			changespritestat(sn, PAIN);
 			break;
@@ -273,14 +273,14 @@ void newstatus(short sn, int seq) {
 			sprite[sn].lotag = 24;
 			sprite[sn].picnum = NEWGUYPAIN;
 			changespritestat(sn, PAIN);
-			playsound_loc(S_AGM_PAIN1, sprite[sn].x, sprite[sn].y);
+			spritesound(S_AGM_PAIN1, &sprite[sn]);
 			break;
 
 		case KURTTYPE:
 			sprite[sn].lotag = 24;
 			sprite[sn].picnum = GONZOCSWPAIN;
 			changespritestat(sn, PAIN);
-			playsound_loc(S_GRONPAINA + (krand() % 3), sprite[sn].x, sprite[sn].y);
+			spritesound(S_GRONPAINA + (krand() % 3), &sprite[sn]);
 			break;
 
 		case GONZOTYPE:
@@ -295,19 +295,19 @@ void newstatus(short sn, int seq) {
 				case KURTREADY + 1:
 				case GONZOCSW:
 					sprite[sn].picnum = GONZOCSWPAIN;
-					playsound_loc(S_GRONPAINA + (krand() % 3), sprite[sn].x, sprite[sn].y);
+					spritesound(S_GRONPAINA + (krand() % 3), &sprite[sn]);
 					break;
 				case GONZOGSW:
 					sprite[sn].picnum = GONZOGSWPAIN;
-					playsound_loc(S_GRONPAINA + (krand() % 3), sprite[sn].x, sprite[sn].y);
+					spritesound(S_GRONPAINA + (krand() % 3), &sprite[sn]);
 					break;
 				case GONZOGHM:
 					sprite[sn].picnum = GONZOGHMPAIN;
-					playsound_loc(S_GRONPAINA + (krand() % 3), sprite[sn].x, sprite[sn].y);
+					spritesound(S_GRONPAINA + (krand() % 3), &sprite[sn]);
 					break;
 				case GONZOGSH:
 					sprite[sn].picnum = GONZOGSHPAIN;
-					playsound_loc(S_GRONPAINA, sprite[sn].x, sprite[sn].y);
+					spritesound(S_GRONPAINA, &sprite[sn]);
 					break;
 				default:
 					changespritestat(sn, FLEE);
@@ -337,7 +337,7 @@ void newstatus(short sn, int seq) {
 		case GUARDIANTYPE:
 			sprite[sn].lotag = 24;
 			// sprite[sn].picnum=GUARDIANATTACK;
-			playsound_loc(S_GUARDIANPAIN1 + (krand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_GUARDIANPAIN1 + (krand() % 2), &sprite[sn]);
 			
 			if(isWh2()) sprite[sn].picnum = GUARDIAN;
 			else sprite[sn].picnum = GUARDIANCHAR;
@@ -346,7 +346,7 @@ void newstatus(short sn, int seq) {
 		case GRONTYPE:
 			sprite[sn].lotag = 24;
 			changespritestat(sn, PAIN);
-			playsound_loc(S_GRONPAINA + krand() % 3, sprite[sn].x, sprite[sn].y);
+			spritesound(S_GRONPAINA + krand() % 3, &sprite[sn]);
 			
 			if(sprite[sn].picnum == GRONHAL || sprite[sn].picnum == GRONHALATTACK)
 				sprite[sn].picnum = GRONHALPAIN;
@@ -358,10 +358,10 @@ void newstatus(short sn, int seq) {
 		case KOBOLDTYPE:
 			sprite[sn].picnum = KOBOLDDIE;
 			changespritestat(sn, PAIN);
-			playsound_loc(S_KPAIN1 + (krand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_KPAIN1 + (krand() % 2), &sprite[sn]);
 			break;
 		case DEVILTYPE:
-			playsound_loc(S_MPAIN1, sprite[sn].x, sprite[sn].y);
+			spritesound(S_MPAIN1, &sprite[sn]);
 			sprite[sn].picnum = DEVILPAIN;
 			changespritestat(sn, PAIN);
 			break;
@@ -369,7 +369,7 @@ void newstatus(short sn, int seq) {
 			sprite[sn].picnum = FREDPAIN;
 			changespritestat(sn, PAIN);
 			// EG: Sounds for Fred (currently copied from ogre)
-			playsound_loc(S_KPAIN1 + (rand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_KPAIN1 + (rand() % 2), &sprite[sn]);
 			break;
 		case GOBLINTYPE:
 		case IMPTYPE:
@@ -380,13 +380,13 @@ void newstatus(short sn, int seq) {
 			} else {
 				sprite[sn].picnum = GOBLINPAIN;
 				changespritestat(sn, PAIN);
-				playsound_loc(S_GOBPAIN1 + (krand() % 2), sprite[sn].x, sprite[sn].y);
+				spritesound(S_GOBPAIN1 + (krand() % 2), &sprite[sn]);
 			}
 			break;
 		case MINOTAURTYPE:
 			sprite[sn].picnum = MINOTAURPAIN;
 			changespritestat(sn, PAIN);
-			playsound_loc(S_MPAIN1, sprite[sn].x, sprite[sn].y);
+			spritesound(S_MPAIN1, &sprite[sn]);
 			break;
 		default:
 			changespritestat(sn, FLEE);
@@ -501,19 +501,17 @@ void newstatus(short sn, int seq) {
 		changespritestat(sn, BOB);
 		break;
 	case LIFTUP:
-		if (cartsnd == -1) {
-			playsound_loc(S_CLUNK, sprite[sn].x, sprite[sn].y);
-			cartsnd = playsound(S_CHAIN1, sprite[sn].x, sprite[sn].y, 5);
+		if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, -1, CHAN_CART) == 0) {
+			spritesound(S_CLUNK, &sprite[sn]);
+			spritesound(S_CHAIN1, &sprite[sn], 5, CHAN_CART);
 		}
-
 		changespritestat(sn, LIFTUP);
 		break;
 	case LIFTDN:
-		if (cartsnd == -1) {
-			playsound_loc(S_CLUNK, sprite[sn].x, sprite[sn].y);
-			cartsnd = playsound(S_CHAIN1, sprite[sn].x, sprite[sn].y, 5);
+		if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, -1, CHAN_CART) == 0) {
+			spritesound(S_CLUNK, &sprite[sn]);
+			spritesound(S_CHAIN1, &sprite[sn], 5, CHAN_CART);
 		}
-
 		changespritestat(sn, LIFTDN);
 		break;
 	case SHOVE:
@@ -538,7 +536,7 @@ void newstatus(short sn, int seq) {
 		sprite[sn].cstat |= 1;
 		changespritestat(sn, ATTACK2);
 		sprite[sn].picnum = DRAGONATTACK2;
-		playsound_loc(S_DRAGON1 + (krand() % 3), sprite[sn].x, sprite[sn].y);
+		spritesound(S_DRAGON1 + (krand() % 3), &sprite[sn]);
 	case ATTACK:
 		sprite[sn].lotag = 64;
 		sprite[sn].cstat |= 1;
@@ -581,12 +579,12 @@ void newstatus(short sn, int seq) {
 			break;
 		case KATIETYPE:
 			if ((krand() % 10) > 4) {
-				playsound_loc(S_JUDY1, sprite[sn].x, sprite[sn].y);
+				spritesound(S_JUDY1, &sprite[sn]);
 			}
 			sprite[sn].picnum = KATIEAT;
 			break;
 		case DEMONTYPE:
-			playsound_loc(S_GUARDIAN1 + (krand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_GUARDIAN1 + (krand() % 2), &sprite[sn]);
 			sprite[sn].picnum = DEMON;
 			break;
 		case GRONTYPE:
@@ -600,17 +598,17 @@ void newstatus(short sn, int seq) {
 		case KOBOLDTYPE:
 			sprite[sn].picnum = KOBOLDATTACK;
 			if (krand() % 10 > 4)
-				playsound_loc(S_KSNARL1 + (krand() % 4), sprite[sn].x, sprite[sn].y);
+				spritesound(S_KSNARL1 + (krand() % 4), &sprite[sn]);
 			break;
 		case DRAGONTYPE:
 			if ((krand() % 10) > 3)
-				playsound_loc(S_DRAGON1 + (krand() % 2), sprite[sn].x, sprite[sn].y);
+				spritesound(S_DRAGON1 + (krand() % 2), &sprite[sn]);
 
 			sprite[sn].picnum = DRAGONATTACK;
 			break;
 		case DEVILTYPE:
 			if ((krand() % 10) > 4)
-				playsound_loc(S_DEMON1 + (krand() % 5), sprite[sn].x, sprite[sn].y);
+				spritesound(S_DEMON1 + (krand() % 5), &sprite[sn]);
 
 			sprite[sn].picnum = DEVILATTACK;
 			break;
@@ -618,7 +616,7 @@ void newstatus(short sn, int seq) {
 			sprite[sn].picnum = FREDATTACK;
 			/* EG: Sounds for Fred (currently copied from Ogre) */
 			if (rand() % 10 > 4)
-				playsound_loc(S_KSNARL1 + (rand() % 4), sprite[sn].x, sprite[sn].y);
+				spritesound(S_KSNARL1 + (rand() % 4), &sprite[sn]);
 			break;
 		case SKELETONTYPE:
 			sprite[sn].picnum = SKELETONATTACK;
@@ -626,17 +624,17 @@ void newstatus(short sn, int seq) {
 		case IMPTYPE:
 			sprite[sn].lotag = 92;
 			if ((krand() % 10) > 5)
-				playsound_loc(S_IMPGROWL1 + (krand() % 3), sprite[sn].x, sprite[sn].y);
+				spritesound(S_IMPGROWL1 + (krand() % 3), &sprite[sn]);
 			sprite[sn].picnum = IMPATTACK;
 			break;	
 		case GOBLINTYPE:
 			if ((krand() % 10) > 5)
-				playsound_loc(S_GOBLIN1 + (krand() % 3), sprite[sn].x, sprite[sn].y);
+				spritesound(S_GOBLIN1 + (krand() % 3), &sprite[sn]);
 			sprite[sn].picnum = GOBLINATTACK;
 			break;
 		case MINOTAURTYPE:
 			if ((krand() % 10) > 4)
-				playsound_loc(S_MSNARL1 + (krand() % 3), sprite[sn].x, sprite[sn].y);
+				spritesound(S_MSNARL1 + (krand() % 3), &sprite[sn]);
 
 			sprite[sn].picnum = MINOTAURATTACK;
 			break;
@@ -645,7 +643,7 @@ void newstatus(short sn, int seq) {
 			break;
 		case FATWITCHTYPE:
 			if ((krand() % 10) > 4)
-				playsound_loc(S_FATLAUGH, sprite[sn].x, sprite[sn].y);
+				spritesound(S_FATLAUGH, &sprite[sn]);
 			sprite[sn].picnum = FATWITCHATTACK;
 			break;
 		case JUDYTYPE:
@@ -656,11 +654,11 @@ void newstatus(short sn, int seq) {
 				sprite[sn].picnum = JUDYATTACK2;
 			break;
 		case WILLOWTYPE:
-			playsound_loc(S_WISP + (krand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_WISP + (krand() % 2), &sprite[sn]);
 			sprite[sn].pal = 7;
 			break;
 		case GUARDIANTYPE:
-			playsound_loc(S_GUARDIAN1 + (krand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_GUARDIAN1 + (krand() % 2), &sprite[sn]);
 			sprite[sn].picnum = GUARDIANATTACK;
 			break;
 		}
@@ -749,14 +747,14 @@ void newstatus(short sn, int seq) {
 					sprite[sn].picnum = IMP;
 			} else {
 				if (krand() % 10 > 2)
-					playsound_loc(S_GOBLIN1 + (krand() % 3), sprite[sn].x, sprite[sn].y);
+					spritesound(S_GOBLIN1 + (krand() % 3), &sprite[sn]);
 
 				sprite[sn].picnum = GOBLIN;
 			}
 			break;
 		case MINOTAURTYPE:
 			// JSA_DEMO3
-			playsound_loc(S_MSNARL1 + (krand() % 4), sprite[sn].x, sprite[sn].y);
+			spritesound(S_MSNARL1 + (krand() % 4), &sprite[sn]);
 			sprite[sn].picnum = MINOTAUR;
 			break;
 		case SKULLYTYPE:
@@ -804,12 +802,12 @@ void newstatus(short sn, int seq) {
 		case NEWGUYTYPE:
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = NEWGUYDIE;
-			playsound_loc(S_AGM_DIE1 + (krand() % 3), sprite[sn].x, sprite[sn].y);
+			spritesound(S_AGM_DIE1 + (krand() % 3), &sprite[sn]);
 			break;
 		case KURTTYPE:
 		case GONZOTYPE:
 			sprite[sn].lotag = 20;
-			playsound_loc(S_GRONDEATHA + krand() % 3, sprite[sn].x, sprite[sn].y);
+			spritesound(S_GRONDEATHA + krand() % 3, &sprite[sn]);
 			switch (sprite[sn].picnum) {
 			case KURTSTAND:
 			case KURTKNEE:
@@ -853,12 +851,12 @@ void newstatus(short sn, int seq) {
 			}
 			break;
 		case KATIETYPE:
-			playsound_loc(S_JUDYDIE, sprite[sn].x, sprite[sn].y);
+			spritesound(S_JUDYDIE, &sprite[sn]);
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = KATIEPAIN;
 			break;
 		case DEMONTYPE:
-			playsound_loc(S_GUARDIANDIE, sprite[sn].x, sprite[sn].y);
+			spritesound(S_GUARDIANDIE, &sprite[sn]);
 			explosion(sn, sprite[sn].x, sprite[sn].y, sprite[sn].z, sprite[sn].owner);
 			deletesprite((short) sn);
 			addscore(aiGetPlayerTarget(sn), 1500);
@@ -866,7 +864,7 @@ void newstatus(short sn, int seq) {
 			return;
 		case GRONTYPE:
 			sprite[sn].lotag = 20;
-			playsound_loc(S_GRONDEATHA + krand() % 3, sprite[sn].x, sprite[sn].y);
+			spritesound(S_GRONDEATHA + krand() % 3, &sprite[sn]);
 			if(sprite[sn].picnum == GRONHAL || sprite[sn].picnum == GRONHALATTACK || sprite[sn].picnum == GRONHALPAIN)
 				sprite[sn].picnum = GRONHALDIE;
 			else if(sprite[sn].picnum == GRONSW || sprite[sn].picnum == GRONSWATTACK || sprite[sn].picnum == GRONSWPAIN)
@@ -883,18 +881,18 @@ void newstatus(short sn, int seq) {
 			sprite[sn].lotag = 20;
 			break;
 		case KOBOLDTYPE:
-			playsound_loc(S_KDIE1 + (krand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_KDIE1 + (krand() % 2), &sprite[sn]);
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = KOBOLDDIE;
 			break;
 		case DRAGONTYPE:
-			playsound_loc(S_DEMONDIE1 + (krand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_DEMONDIE1 + (krand() % 2), &sprite[sn]);
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = DRAGONDIE;
 
 			break;
 		case DEVILTYPE:
-			playsound_loc(S_DEMONDIE1 + (krand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_DEMONDIE1 + (krand() % 2), &sprite[sn]);
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = DEVILDIE;
 			break;
@@ -902,25 +900,25 @@ void newstatus(short sn, int seq) {
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = FREDDIE;
 			/* EG: Sounds for Fred (currently copied from Ogre) */
-			playsound_loc(S_KDIE1 + (rand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_KDIE1 + (rand() % 2), &sprite[sn]);
 			break;
 		case SKELETONTYPE:
-			playsound_loc(S_SKELETONDIE, sprite[sn].x, sprite[sn].y);
+			spritesound(S_SKELETONDIE, &sprite[sn]);
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = SKELETONDIE;
 			break;
 		case IMPTYPE:
-			playsound_loc(S_IMPDIE1 + (krand() % 2), sprite[sn].x, sprite[sn].y);
+			spritesound(S_IMPDIE1 + (krand() % 2), &sprite[sn]);
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = IMPDIE;
 			break;
 		case GOBLINTYPE:
-			playsound_loc(S_GOBDIE1 + (krand() % 3), sprite[sn].x, sprite[sn].y);
+			spritesound(S_GOBDIE1 + (krand() % 3), &sprite[sn]);
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = GOBLINDIE;
 			break;
 		case MINOTAURTYPE:
-			playsound_loc(S_MDEATH1, sprite[sn].x, sprite[sn].y);
+			spritesound(S_MDEATH1, &sprite[sn]);
 			sprite[sn].lotag = 10;
 			sprite[sn].picnum = MINOTAURDIE;
 			break;
@@ -931,12 +929,12 @@ void newstatus(short sn, int seq) {
 		case SKULLYTYPE:
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = SKULLYDIE;
-			playsound_loc(S_SKULLWITCHDIE, sprite[sn].x, sprite[sn].y);
+			spritesound(S_SKULLWITCHDIE, &sprite[sn]);
 			break;
 		case FATWITCHTYPE:
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = FATWITCHDIE;
-			playsound_loc(S_FATWITCHDIE, sprite[sn].x, sprite[sn].y);
+			spritesound(S_FATWITCHDIE, &sprite[sn]);
 			break;
 		case JUDYTYPE:
 			sprite[sn].lotag = 20;
@@ -947,11 +945,11 @@ void newstatus(short sn, int seq) {
 				return;
 			} else {
 				sprite[sn].picnum = JUDYDIE;
-				playsound_loc(S_JUDYDIE, sprite[sn].x, sprite[sn].y);
+				spritesound(S_JUDYDIE, &sprite[sn]);
 			}
 			break;
 		case GUARDIANTYPE:
-			playsound_loc(S_GUARDIANDIE, sprite[sn].x, sprite[sn].y);
+			spritesound(S_GUARDIANDIE, &sprite[sn]);
 			for (int j = 0; j < 4; j++)
 				explosion(sn, sprite[sn].x, sprite[sn].y, sprite[sn].z, sprite[sn].owner);
 			deletesprite((short) sn);
@@ -959,7 +957,7 @@ void newstatus(short sn, int seq) {
 			kills++;
 			return;
 		case WILLOWTYPE:
-			playsound_loc(S_WILLOWDIE, sprite[sn].x, sprite[sn].y);
+			spritesound(S_WILLOWDIE, &sprite[sn]);
 			sprite[sn].pal = 0;
 			sprite[sn].lotag = 20;
 			sprite[sn].picnum = WILLOWEXPLO;
@@ -1583,7 +1581,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 		// EG 21 Aug 2017: Move this here so as not to make ouch sounds unless pain is
 		// happening
 		if ((krand() & 9) == 0)
-			playsound_loc(S_PLRPAIN1 + (rand() % 2), sprite[i].x, sprite[i].y);
+			spritesound(S_PLRPAIN1 + (rand() % 2), &sprite[i]);
 
 		if (isWh2() && sprite[i].picnum == DART) {
 			plr.poisoned = 1;
@@ -1597,7 +1595,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 			if (sprite[i].picnum == PLASMA)
 				addhealth(plr, -((krand() & 15) + 15));
 			else if (sprite[i].picnum == FATSPANK) {
-				playsound_loc(S_GORE1A + (krand() % 3), plr.x, plr.y);
+				spritesound(S_GORE1A + (krand() % 3),  &sprite[plr.spritenum]);
 				addhealth(plr, -((krand() & 10) + 10));
 				if ((krand() % 100) > 90) {
 					plr.poisoned = 1;
@@ -1647,7 +1645,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 					sprite[j].hitag -= 30;
 					if(sprite[i].picnum == THROWPIKE) {
 						if ((krand() % 2) != 0)
-							playsound_loc(S_GORE1A + krand() % 2, sprite[i].x, sprite[i].y);
+							spritesound(S_GORE1A + krand() % 2, &sprite[i]);
 					}
 				} else {
 				switch (sprite[i].picnum) {

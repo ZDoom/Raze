@@ -203,7 +203,7 @@ static void cast(PLAYER& plr, short i) {
 
 	if (spr.picnum == SKULLYATTACK + 2) {
 		sprite[i].picnum = SKULLY;
-		playsound_loc(S_SKULLWITCH1 + krand() % 3, sprite[i].x, sprite[i].y);
+		spritesound(S_SKULLWITCH1 + krand() % 3, &sprite[i]);
 		skullycastspell(plr, i);
 		newstatus(i, CHASE);
 	}

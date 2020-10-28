@@ -363,13 +363,13 @@ static void cast(PLAYER& plr, short i) {
 	if (spr.lotag < 0) {
 		if (spr.picnum == GRONHALATTACK) {
 			spr.extra--;
-			playsound_loc(S_THROWPIKE, sprite[i].x, sprite[i].y);
+			spritesound(S_THROWPIKE, &sprite[i]);
 			throwhalberd(i);
 			newstatus(i, CHASE);
 		}
 		else if (spr.picnum == GRONMUATTACK) {
 			spr.extra--;
-			playsound_loc(S_SPELL2, sprite[i].x, sprite[i].y);
+			spritesound(S_SPELL2, &sprite[i]);
 			castspell(plr, i);
 			newstatus(i, CHASE);
 		}

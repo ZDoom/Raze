@@ -53,7 +53,7 @@ void operatesprite(PLAYER& plr, short s) {
 	case STAINSCENE:
 		switch (sprite[s].lotag) {
 		case 2:
-			playsound_loc(S_GLASSBREAK1 + (rand() % 3), sprite[s].x, sprite[s].y);
+			spritesound(S_GLASSBREAK1 + (rand() % 3), &sprite[s]);
 			for (int j = 0; j < 20; j++) {
 				shards(s, 2);
 			}
@@ -832,9 +832,10 @@ void operatesector(PLAYER& plr, int s) {
 		for (k = 0; k < MAXSPRITES; k++) {
 			if (sector[s].hitag == sprite[k].hitag && sprite[k].extra < 1) {
 				newstatus(k, FLOCKSPAWN);
-				if (batsnd == -1)
-					batsnd = playsound(S_BATSLOOP, sprite[k].x, sprite[k].y, -1);
-//					sector[s].lotag = sector[s].hitag = 0;
+				if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, -1, CHAN_BAT) == 0) {
+					spritesound(S_BATSLOOP, &sprite[k], -1, CHAN_BAT);
+					//					sector[s].lotag = sector[s].hitag = 0;
+				}
 			}
 		}
 	}

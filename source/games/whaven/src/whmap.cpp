@@ -824,7 +824,7 @@ boolean prepareboard(const char* fname) {
         // anit-missile for level only
         // dont forget to cleanup values
 		plr.treasure[TONYXRING] = 0;
-		SND_CheckLoops();
+		soundEngine->StopAllChannels();
 
 		justteleported = false;
 	} else {

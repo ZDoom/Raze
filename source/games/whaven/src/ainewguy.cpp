@@ -327,14 +327,14 @@ static void cast(PLAYER& plr, short i) {
 	if (spr.picnum == NEWGUYCAST + 2) {
 		spr.extra--;
 		spr.picnum = NEWGUY;
-		playsound_loc(S_WISP, sprite[i].x, sprite[i].y);
+		spritesound(S_WISP, &sprite[i]);
 		skullycastspell(plr, i);
 		newstatus(i, CHASE);
 	}
 	if (spr.picnum == NEWGUYBOW + 2) {
 		spr.extra--;
 		spr.picnum = NEWGUY;
-		playsound_loc(S_PLRWEAPON3, sprite[i].x, sprite[i].y);
+		spritesound(S_PLRWEAPON3, &sprite[i]);
 		newguyarrow(i, plr);
 		newstatus(i, CHASE);
 	}

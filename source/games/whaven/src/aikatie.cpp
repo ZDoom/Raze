@@ -208,7 +208,7 @@ static void cast(PLAYER& plr, short i) {
 			}
 			spr.picnum = KATIE;
 			spr.extra--;
-			playsound_loc(S_FIREBALL, spr.x, spr.y);
+			spritesound(S_FIREBALL, &spr);
 			newstatus(i, CHASE);
 		}
 	}
@@ -224,7 +224,7 @@ static void cast(PLAYER& plr, short i) {
 				}
 			}
 			spr.picnum = KATIE;
-			playsound_loc(S_FIREBALL, spr.x, spr.y);
+			spritesound(S_FIREBALL, &spr);
 			newstatus(i, CHASE);
 			spr.extra--;
 		}
@@ -232,7 +232,7 @@ static void cast(PLAYER& plr, short i) {
 
 	if (spr.picnum == KATIEAT + 16) {
 		spr.picnum = KATIE;
-		playsound_loc(S_FIREBALL, spr.x, spr.y);
+		spritesound(S_FIREBALL, &spr);
 		castspell(plr, i);
 		newstatus(i, CHASE);
 		spr.extra++;

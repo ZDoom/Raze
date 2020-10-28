@@ -244,7 +244,7 @@ static void cast(PLAYER& plr, short i) {
 
 	if (spr.picnum == DEVILATTACK + 2) {
 		spr.picnum = DEVIL;
-		playsound_loc(S_FIREBALL, sprite[i].x, sprite[i].y);
+		spritesound(S_FIREBALL, &sprite[i]);
 		castspell(plr, i);
 		newstatus(i, CHASE);
 	}
