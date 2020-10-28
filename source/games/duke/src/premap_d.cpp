@@ -52,17 +52,17 @@ inline void tloadtile(int tilenum, int palnum = 0)
 //
 //---------------------------------------------------------------------------
 
-static void cachespritenum(int i)
+static void cachespritenum(spritetype *spr)
 {
 	int maxc;
 	int j;
-	int pal = sprite[i].pal;
+	int pal = spr->pal;
 
-	if(ud.monsters_off && badguy(&sprite[i])) return;
+	if(ud.monsters_off && badguy(spr)) return;
 
 	maxc = 1;
 
-	switch(sprite[i].picnum)
+	switch(spr->picnum)
 	{
 		case HYDRENT:
 			tloadtile(BROKEFIREHYDRENT);
@@ -164,7 +164,7 @@ static void cachespritenum(int i)
 			break;
 	}
 
-	for(j = sprite[i].picnum; j < (sprite[i].picnum+maxc); j++)
+	for(j = spr->picnum; j < (spr->picnum+maxc); j++)
 			tloadtile(j, pal);
 }
 
@@ -231,7 +231,7 @@ static void cachegoodsprites(void)
 
 void cacheit_d(void)
 {
-	int i, j;
+	int i;
 
 	cachegoodsprites();
 
@@ -251,13 +251,13 @@ void cacheit_d(void)
 			tloadtile(LA + 1);
 			tloadtile(LA + 2);
 		}
-	}
 
-	SectIterator it(i);
-	while ((j = it.NextIndex()) >= 0)
-	{
-		if (sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat & 32768) == 0)
-			cachespritenum(j);
+		DukeSectIterator it(i);
+		while (auto j = it.Next())
+		{
+			if (j->s.xrepeat != 0 && j->s.yrepeat != 0 && (j->s.cstat & 32768) == 0)
+				cachespritenum(&j->s);
+		}
 	}
 
 	precacheMarkedTiles();
