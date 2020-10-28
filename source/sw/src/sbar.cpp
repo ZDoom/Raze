@@ -67,7 +67,7 @@ static const short icons[] = {
     ID_PanelCaltrops,
 };
 
-class DSWStatusBar : public DBaseStatusBar
+class DSWStatusBar : public DStatusBarCore
 {
     DHUDFont miniFont, numberFont;
 
@@ -967,7 +967,7 @@ private:
                 stats.spacing = 6;
             }
             else stats.spacing = SmallFont->GetHeight() + 1;
-            DBaseStatusBar::PrintAutomapInfo(stats, textfont);
+            DStatusBarCore::PrintAutomapInfo(stats, textfont);
 		}
         // JBF 20040124: display level stats in screen corner
         else if (hud_stats && !(CommEnabled || numplayers > 1))
@@ -984,7 +984,7 @@ private:
             stats.standardColor = CR_TAN;
             stats.completeColor = CR_FIRE;
 
-            DBaseStatusBar::PrintLevelStats(stats);
+            DStatusBarCore::PrintLevelStats(stats);
         }
     }
 

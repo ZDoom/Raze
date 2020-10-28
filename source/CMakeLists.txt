@@ -807,6 +807,7 @@ set (PCH_SOURCES
 	core/palette.cpp
 	core/zcompile.cpp
 	core/statusbar.cpp
+	core/statusbar2.cpp
 	core/gi.cpp
 
 	core/console/c_notifybuffer.cpp

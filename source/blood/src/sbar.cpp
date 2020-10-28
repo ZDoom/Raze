@@ -108,7 +108,7 @@ struct POWERUPDISPLAY
 
 
 
-class DBloodStatusBar : public DBaseStatusBar
+class DBloodStatusBar : public DStatusBarCore
 {
     enum NewRSFlags
     {
@@ -241,7 +241,7 @@ private:
                 stats.spacing = 6;
             }
             if (hud_size <= Hud_StbarOverlay) stats.screenbottomspace = 56;
-            DBaseStatusBar::PrintAutomapInfo(stats, textfont);
+            DStatusBarCore::PrintAutomapInfo(stats, textfont);
 		}
         if (automapMode == am_off && hud_stats)
         {
@@ -253,7 +253,7 @@ private:
             stats.secrets = gSecretMgr.Founds + gSecretMgr.Super;
             stats.maxsecrets = gSecretMgr.Total;
 
-            DBaseStatusBar::PrintLevelStats(stats);
+            DStatusBarCore::PrintLevelStats(stats);
         }
     }
 

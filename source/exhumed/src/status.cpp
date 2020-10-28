@@ -512,7 +512,7 @@ void MoveStatus()
 }
 
 
-class DExhumedStatusBar : public DBaseStatusBar
+class DExhumedStatusBar : public DStatusBarCore
 {
     DHUDFont textfont, numberFont;
 
@@ -936,7 +936,7 @@ private:
 
         if (automapMode == am_full)
         {
-            DBaseStatusBar::PrintAutomapInfo(stats, true);
+            DStatusBarCore::PrintAutomapInfo(stats, true);
         }
         else if (hud_stats)
         {
@@ -948,7 +948,7 @@ private:
             stats.secrets = 0;
             stats.maxsecrets = 0;
 
-            DBaseStatusBar::PrintLevelStats(stats);
+            DStatusBarCore::PrintLevelStats(stats);
         }
     }
 

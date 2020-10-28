@@ -211,7 +211,7 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 		else stats.spacing = stats.font->GetHeight() + 1;
 		stats.standardColor = (isNamWW2GI() && am_textfont)? CR_ORANGE : CR_UNTRANSLATED;
 		stats.letterColor = CR_GOLD;
-		DBaseStatusBar::PrintAutomapInfo(stats, textfont);
+		DStatusBarCore::PrintAutomapInfo(stats, textfont);
 	}
 	else if (hud_stats)
 	{
@@ -242,7 +242,7 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 			stats.standardColor =
 				stats.completeColor = CR_UNTRANSLATED;
 		}
-		DBaseStatusBar::PrintLevelStats(stats);
+		DStatusBarCore::PrintLevelStats(stats);
 	}
 }
 

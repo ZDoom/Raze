@@ -108,9 +108,9 @@ public:
 };
 
 
-class DBaseStatusBar //: public DObject
+class DStatusBarCore //: public DObject
 {
-	//DECLARE_CLASS (DBaseStatusBar, DObject)
+	//DECLARE_CLASS (DStatusBarCore, DObject)
 	//HAS_OBJECT_POINTERS
 public:
 	// Popup screens for Strife's status bar
@@ -161,8 +161,8 @@ public:
 		CENTER_BOTTOM = BOTTOM | HCENTER
 	};
 
-	DBaseStatusBar ();
-	virtual ~DBaseStatusBar() = default;
+	DStatusBarCore ();
+	virtual ~DStatusBarCore() = default;
 	void SetSize(int reltop = 32, int hres = 320, int vres = 200, int hhres = -1, int hvres = -1);
 
 	void ShowPlayerName ();
@@ -198,6 +198,8 @@ public:
 	void DoDrawAutomapHUD(int crdefault, int highlight);
 	short CalcMagazineAmount(short ammo_remaining, short clip_capacity, bool reloading);
 	void Set43ClipRect();
+
+	void SetClipRect(double x, double y, double w, double h, int flags);
 
 //protected:
 	void DrawPowerups ();
@@ -245,11 +247,11 @@ private:
 
 };
 
-extern DBaseStatusBar *StatusBar;
+extern DStatusBarCore *StatusBar;
 
 // Status bar factories -----------------------------------------------------
 
-DBaseStatusBar *CreateCustomStatusBar(int script=0);
+DStatusBarCore *CreateCustomStatusBar(int script=0);
 
 // Crosshair stuff ----------------------------------------------------------
 
@@ -343,7 +345,7 @@ enum DI_Flags
 
 };
 
-void SBar_DrawString(DBaseStatusBar* self, DHUDFont* font, const FString& string, double x, double y, int flags, int trans, double alpha, int wrapwidth, int linespacing, double scaleX, double scaleY);
+void SBar_DrawString(DStatusBarCore* self, DHUDFont* font, const FString& string, double x, double y, int flags, int trans, double alpha, int wrapwidth, int linespacing, double scaleX, double scaleY);
 void setViewport(int viewSize);
 struct MapRecord;
 void setLevelStarted(MapRecord *);

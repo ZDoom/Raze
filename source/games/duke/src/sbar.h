@@ -7,7 +7,7 @@
 BEGIN_DUKE_NS
 
 
-class DDukeCommonStatusBar : public DBaseStatusBar
+class DDukeCommonStatusBar : public DStatusBarCore
 {
 protected:
 	DHUDFont numberFont;
