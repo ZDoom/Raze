@@ -10,12 +10,13 @@ BEGIN_DUKE_NS
 class DDukeCommonStatusBar : public DBaseStatusBar
 {
 	DECLARE_ABSTRACT_CLASS(DDukeCommonStatusBar, DBaseStatusBar)
+	HAS_OBJECT_POINTERS
 
 protected:
-	DHUDFont numberFont;
-	DHUDFont indexFont;
-	DHUDFont miniFont;
-	DHUDFont digiFont;
+	TObjPtr<DHUDFont*> numberFont;
+	TObjPtr<DHUDFont*> indexFont;
+	TObjPtr<DHUDFont*> miniFont;
+	TObjPtr<DHUDFont*> digiFont;
 	double scale = 1;
 	std::array<int, MAX_WEAPONS> ammo_sprites;
 	std::array<int, 8> item_icons;

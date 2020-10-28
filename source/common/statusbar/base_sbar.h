@@ -104,10 +104,10 @@ enum DI_Flags
 //
 //============================================================================
 
-class DHUDFont //: public DObject - need to keep it POD for now.
+class DHUDFont : public DObject 
 {
 	// this blocks CreateNew on this class which is the intent here.
-	//DECLARE_ABSTRACT_CLASS(DHUDFont, DObject);
+	DECLARE_CLASS(DHUDFont, DObject);
 
 public:
 	FFont* mFont;

@@ -515,14 +515,15 @@ void MoveStatus()
 class DExhumedStatusBar : public DBaseStatusBar
 {
     DECLARE_CLASS(DExhumedStatusBar, DBaseStatusBar)
+    HAS_OBJECT_POINTERS
 
-    DHUDFont textfont, numberFont;
+    TObjPtr<DHUDFont*> textfont, numberFont;
 
 public:
     DExhumedStatusBar()
     {
-        textfont = { SmallFont, 1, Off, 1, 1 };
-        numberFont = { BigFont, 0, Off, 1, 1 };
+        textfont = Create<DHUDFont>(SmallFont, 1, Off, 1, 1 );
+        numberFont = Create<DHUDFont>(BigFont, 0, Off, 1, 1 );
     }
 
 private:
@@ -689,7 +690,7 @@ private:
                 }
 
                 sprintf(stringBuf, "%d", nPlayerScore[i]);
-                SBar_DrawString(this, &textfont, stringBuf, x, 0, DI_ITEM_TOP|DI_TEXT_ALIGN_CENTER, i != nLocalPlayer ? CR_UNTRANSLATED : CR_GOLD, 1, -1, 0, 1, 1);
+                SBar_DrawString(this, textfont, stringBuf, x, 0, DI_ITEM_TOP|DI_TEXT_ALIGN_CENTER, i != nLocalPlayer ? CR_UNTRANSLATED : CR_GOLD, 1, -1, 0, 1, 1);
                 x += xx;
                 nTile++;
             }
@@ -708,7 +709,7 @@ private:
 
                     y += 20;
                     nNetTime -= 29;
-                    SBar_DrawString(this, &textfont, stringBuf, 0, 10, DI_ITEM_TOP | DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, -1, 0, 1, 1);
+                    SBar_DrawString(this, textfont, stringBuf, 0, 10, DI_ITEM_TOP | DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, -1, 0, 1, 1);
                 }
             }
 
@@ -730,7 +731,7 @@ private:
         FString format;
         FGameTexture* img;
         double imgScale;
-        double baseScale = numberFont.mFont->GetHeight() * 0.75;
+        double baseScale = numberFont->mFont->GetHeight() * 0.75;
 
         
         //
@@ -748,7 +749,7 @@ private:
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", pp->nHealth >> 3);
-            SBar_DrawString(this, &numberFont, format, 13, -numberFont.mFont->GetHeight()+3, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+            SBar_DrawString(this, numberFont, format, 13, -numberFont->mFont->GetHeight()+3, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
         }
 		
 		//
@@ -772,7 +773,7 @@ private:
             DrawGraphic(img, 70, -1, DI_ITEM_CENTER_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
             format.Format("%d", pp->nMagic / 10);
-            SBar_DrawString(this, &numberFont, format, 79.5, -numberFont.mFont->GetHeight()+3, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+            SBar_DrawString(this, numberFont, format, 79.5, -numberFont->mFont->GetHeight()+3, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
         }
         //
         // Weapon
@@ -797,7 +798,7 @@ private:
 
             if ((!althud_flashing || leveltime & 8 || ammo > 10))// (DamageData[weapon].max_ammo / 10)))
             {
-                SBar_DrawString(this, &numberFont, format, -3, -numberFont.mFont->GetHeight()+3, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+                SBar_DrawString(this, numberFont, format, -3, -numberFont->mFont->GetHeight()+3, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
             }
 
             //DrawGraphic(img, -imgX, -1, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, imgScale, imgScale);
@@ -917,7 +918,7 @@ private:
         if (nSnakeCam >= 0)
         {
             BeginHUD(320, 200, 1);
-            SBar_DrawString(this, &textfont, "S E R P E N T   C A M", 0, 0, DI_TEXT_ALIGN_CENTER | DI_SCREEN_CENTER_TOP, CR_UNTRANSLATED, 1, -1, 0, 1, 1);
+            SBar_DrawString(this, textfont, "S E R P E N T   C A M", 0, 0, DI_TEXT_ALIGN_CENTER | DI_SCREEN_CENTER_TOP, CR_UNTRANSLATED, 1, -1, 0, 1, 1);
         }
     }
 
@@ -970,8 +971,11 @@ public:
     }
 };
 
-IMPLEMENT_CLASS(DExhumedStatusBar, false, false)
-
+IMPLEMENT_CLASS(DExhumedStatusBar, false, true)
+IMPLEMENT_POINTERS_START(DExhumedStatusBar)
+IMPLEMENT_POINTER(textfont)
+IMPLEMENT_POINTER(numberFont)
+IMPLEMENT_POINTERS_END
 
 void UpdateFrame()
 {

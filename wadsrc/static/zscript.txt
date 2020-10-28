@@ -5,6 +5,9 @@ version "4.3"
 #include "zscript/events.zs"
 #include "zscript/dictionary.zs"
 #include "zscript/gamescreen.zs"
+
+#include "zscript/engine/ui/statusbar/statusbarcore.zs"
+
 #include "zscript/razebase.zs"
 
 #include "zscript/ui/menu/colorpickermenu.zs"

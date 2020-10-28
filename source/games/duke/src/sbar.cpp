@@ -44,7 +44,14 @@ source as it is released.
 
 BEGIN_DUKE_NS
 
-IMPLEMENT_CLASS(DDukeCommonStatusBar, true, false)
+IMPLEMENT_CLASS(DDukeCommonStatusBar, true, true)
+IMPLEMENT_POINTERS_START(DDukeCommonStatusBar)
+IMPLEMENT_POINTER(miniFont)
+IMPLEMENT_POINTER(numberFont)
+IMPLEMENT_POINTER(digiFont)
+IMPLEMENT_POINTER(indexFont)
+IMPLEMENT_POINTERS_END
+
 //==========================================================================
 //
 // very much a dummy to access the methods.

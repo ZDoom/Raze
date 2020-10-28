@@ -56,12 +56,13 @@ class DDukeStatusBar : public DDukeCommonStatusBar
 {
 	DECLARE_CLASS(DDukeStatusBar, DDukeCommonStatusBar)
 public:
+
 	DDukeStatusBar()
 	{
-		numberFont = { BigFont, 0, Off, 1, 1 };
-		indexFont = { IndexFont, 4, CellRight, 1, 1 };
-		miniFont = { SmallFont2, 0, Off, 1, 1 };
-		digiFont = { DigiFont, 1, Off, 1, 1 };
+		numberFont = Create<DHUDFont>( BigFont, 0, Off, 1, 1 );
+		indexFont = Create<DHUDFont>(IndexFont, 4, CellRight, 1, 1 );
+		miniFont = Create<DHUDFont>(SmallFont2, 0, Off, 1, 1 );
+		digiFont = Create<DHUDFont>(DigiFont, 1, Off, 1, 1 );
 
 		// optionally draw at the top of the screen.
 		SetSize(tilesiz[TILE_BOTTOMSTATUSBAR].y);
@@ -120,8 +121,8 @@ public:
 		FString format;
 		FGameTexture* img;
 		double imgScale;
-		double baseScale = (scale * numberFont.mFont->GetHeight()) * (isNamWW2GI() ? 0.65 : !isPlutoPak() ? 0.75 : 0.7);
-		double texty = -numberFont.mFont->GetHeight() + (isNamWW2GI() ? 2.5 : !isPlutoPak() ? 3.5 : 4.5);
+		double baseScale = (scale * numberFont->mFont->GetHeight()) * (isNamWW2GI() ? 0.65 : !isPlutoPak() ? 0.75 : 0.7);
+		double texty = -numberFont->mFont->GetHeight() + (isNamWW2GI() ? 2.5 : !isPlutoPak() ? 3.5 : 4.5);
 
 		//
 		// Health
@@ -137,7 +138,7 @@ public:
 				s += (sintable[(I_GetBuildTime() << 5) & 2047] / 768);
 			int intens = clamp(255 - 6 * s, 0, 255);
 			format.Format("%d", p->last_extra);
-			SBar_DrawString(this, &numberFont, format, 25, texty, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, intens / 255., 0, 0, 1, 1);
+			SBar_DrawString(this, numberFont, format, 25, texty, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, intens / 255., 0, 0, 1, 1);
 		}
 
 		//
@@ -148,7 +149,7 @@ public:
 		DrawGraphic(img, 67.375, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
 		format.Format("%d", GetMoraleOrShield(p, snum));
-		SBar_DrawString(this, &numberFont, format, 85, texty, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+		SBar_DrawString(this, numberFont, format, 85, texty, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 
 		//
 		// Weapon
@@ -181,7 +182,7 @@ public:
 
 			if (weapon != KNEE_WEAPON && (!althud_flashing || ud.levelclock & 32 || ammo > (max_ammo_amount[weapon] / 10)))
 			{
-				SBar_DrawString(this, &numberFont, format, -3, texty, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+				SBar_DrawString(this, numberFont, format, -3, texty, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 			}
 
 			DrawGraphic(img, -imgX, -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, imgScale, imgScale);
@@ -205,10 +206,10 @@ public:
 			int percentv = getinvamount(p);
 			format.Format("%3d%%", percentv);
 			EColorRange color = percentv > 50 ? CR_GREEN : percentv > 25 ? CR_GOLD : CR_RED;
-			SBar_DrawString(this, &indexFont, format, x + 36.5, -indexFont.mFont->GetHeight() + 0.5, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, indexFont, format, x + 36.5, -indexFont->mFont->GetHeight() + 0.5, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
 
 			auto text = ontext(p);
-			if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 36.5, -miniFont.mFont->GetHeight() - 9.5, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
+			if (text.first) SBar_DrawString(this, miniFont, text.first, x + 36.5, -miniFont->mFont->GetHeight() - 9.5, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
 		}
 
 		//
@@ -234,7 +235,7 @@ public:
 		DrawGraphic(tileGetTexture(HEALTHBOX), 5, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
 		int health = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		FStringf format("%d", health);
-		SBar_DrawString(this, &digiFont, format, 20, -digiFont.mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+		SBar_DrawString(this, digiFont, format, 20, -digiFont->mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 		//
 		// ammo
@@ -242,7 +243,7 @@ public:
 		DrawGraphic(tileGetTexture(AMMOBOX), 37, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
 		int wp = (p->curr_weapon == HANDREMOTE_WEAPON) ? HANDBOMB_WEAPON : p->curr_weapon;
 		format.Format("%d", p->ammo_amount[wp]);
-		SBar_DrawString(this, &digiFont, format, 52, -digiFont.mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+		SBar_DrawString(this, digiFont, format, 52, -digiFont->mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 		//
 		// inventory
@@ -258,10 +259,10 @@ public:
 			int percentv = getinvamount(p);
 			format.Format("%3d%%", percentv);
 			EColorRange color = percentv > 50 ? CR_GREEN : percentv > 25 ? CR_GOLD : CR_RED;
-			SBar_DrawString(this, &indexFont, format, x + 34, -indexFont.mFont->GetHeight() - 3, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, indexFont, format, x + 34, -indexFont->mFont->GetHeight() - 3, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
 
 			auto text = ontext(p);
-			if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 34, -miniFont.mFont->GetHeight() - 14, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
+			if (text.first) SBar_DrawString(this, miniFont, text.first, x + 34, -miniFont->mFont->GetHeight() - 14, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
 		}
 	}
 
@@ -397,7 +398,7 @@ public:
 		{
 			DrawGraphic(tileGetTexture(KILLSICON), 228, top + 8, DI_ITEM_OFFSETS, 1, 0, 0, 1, 1);
 			format.Format("%d", max(p->frag - p->fraggedself, 0));
-			SBar_DrawString(this, &digiFont, format, 287, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, digiFont, format, 287, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		}
 		else
 		{
@@ -410,15 +411,15 @@ public:
 
 		int num = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		format.Format("%d", num);
-		SBar_DrawString(this, &digiFont, format, 31, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+		SBar_DrawString(this, digiFont, format, 31, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		format.Format("%d", GetMoraleOrShield(p, snum));
-		SBar_DrawString(this, &digiFont, format, 63, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+		SBar_DrawString(this, digiFont, format, 63, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 
 		if (p->curr_weapon != KNEE_WEAPON)
 		{
 			int wep = (p->curr_weapon == HANDREMOTE_WEAPON)? HANDBOMB_WEAPON : p->curr_weapon;
 			format.Format("%d", p->ammo_amount[wep]);
-			SBar_DrawString(this, &digiFont, format, 207, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, digiFont, format, 207, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		}
 
 		int icon = p->inven_icon;
@@ -431,10 +432,10 @@ public:
 			int percentv = getinvamount(p);
 			format.Format("%3d%%", percentv);
 			EColorRange color = percentv > 50 ? CR_GREEN : percentv > 25 ? CR_GOLD : CR_RED;
-			SBar_DrawString(this, &indexFont, format, x + 34, top + 24, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, indexFont, format, x + 34, top + 24, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
 
 			auto text = ontext(p);
-			if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 34, top + 14, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
+			if (text.first) SBar_DrawString(this, miniFont, text.first, x + 34, top + 14, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
 		}
 		PrintLevelStats(-1);
 	}
@@ -454,5 +455,9 @@ public:
 
 IMPLEMENT_CLASS(DDukeStatusBar, false, false)
 
+DBaseStatusBar* CreateDukeStatusBar()
+{
+	return Create<DDukeStatusBar>();
+}
 
 END_DUKE_NS

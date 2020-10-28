@@ -56,9 +56,6 @@ class RazeMenuDelegate : MenuDelegateBase
 
 // dummy definitions for the status bar. We need them to create the class descriptors
 
-class StatusBarCore native ui
-{}
-
 class BaseStatusBar : StatusBarCore native 
 {}
 

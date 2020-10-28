@@ -116,13 +116,13 @@ class DBloodStatusBar : public DBaseStatusBar
         RS_CENTERBOTTOM = 16384,
     };
 
-    DHUDFont smallf, tinyf;
+    TObjPtr<DHUDFont*> smallf, tinyf;
 
 public:
     DBloodStatusBar()
     {
-        smallf = { SmallFont, 0, Off, 0, 0 };
-        tinyf = { gFont[4], 4, CellRight, 0, 0 };
+        smallf = Create<DHUDFont>(SmallFont, 0, Off, 0, 0 );
+        tinyf = Create<DHUDFont>(gFont[4], 4, CellRight, 0, 0 );
     }
 
 private:
@@ -433,9 +433,9 @@ private:
                 gTempStr.Format("%s [%d]", name, gProfile[p].skill);
             
             int color = CR_UNDEFINED;// todo: remap the colors. (11+col)
-            SBar_DrawString(this, &tinyf, gTempStr, x + 4, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
+            SBar_DrawString(this, tinyf, gTempStr, x + 4, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
             gTempStr.Format("%2d", gPlayer[p].fragCount);
-            SBar_DrawString(this, &tinyf, gTempStr, x + 76, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
+            SBar_DrawString(this, tinyf, gTempStr, x + 76, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
         }
     }
 
@@ -461,18 +461,18 @@ private:
                 gTempStr.Format("%s [%d]", name, gProfile[p].skill);
             gTempStr.ToUpper();
             int color = CR_UNDEFINED;// todo: remap the colors.
-            SBar_DrawString(this, &tinyf, gTempStr, x + 4, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
+            SBar_DrawString(this, tinyf, gTempStr, x + 4, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
 
             gTempStr = "F";
             x += 76;
             if (gPlayer[p].hasFlag & 2)
             {
-                SBar_DrawString(this, &tinyf, gTempStr, x, y, DI_SCREEN_CENTER_TOP, CR_GREEN/*12*/, 1., -1, -1, 1, 1);
+                SBar_DrawString(this, tinyf, gTempStr, x, y, DI_SCREEN_CENTER_TOP, CR_GREEN/*12*/, 1., -1, -1, 1, 1);
                 x -= 6;
             }
 
             if (gPlayer[p].hasFlag & 1)
-                SBar_DrawString(this, &tinyf, gTempStr, x, y, DI_SCREEN_CENTER_TOP, CR_RED/*11*/, 1., -1, -1, 1, 1);
+                SBar_DrawString(this, tinyf, gTempStr, x, y, DI_SCREEN_CENTER_TOP, CR_RED/*11*/, 1., -1, -1, 1, 1);
         }
     }
 
@@ -489,16 +489,16 @@ private:
         int x = 1, y = 1;
         if (dword_21EFD0[0] == 0 || (gFrameClock & 8))
         {
-            SBar_DrawString(this, &smallf, GStrings("TXT_COLOR_BLUE"), x, y, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
+            SBar_DrawString(this, smallf, GStrings("TXT_COLOR_BLUE"), x, y, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
             gTempStr.Format("%-3d", dword_21EFB0[0]);
-            SBar_DrawString(this, &smallf, gTempStr, x, y + 10, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
+            SBar_DrawString(this, smallf, gTempStr, x, y + 10, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
         }
         x = -2;
         if (dword_21EFD0[1] == 0 || (gFrameClock & 8))
         {
-            SBar_DrawString(this, &smallf, GStrings("TXT_COLOR_RED"), x, y, DI_TEXT_ALIGN_RIGHT, CR_BRICK, 1., -1, -1, 1, 1);
+            SBar_DrawString(this, smallf, GStrings("TXT_COLOR_RED"), x, y, DI_TEXT_ALIGN_RIGHT, CR_BRICK, 1., -1, -1, 1, 1);
             gTempStr.Format("%3d", dword_21EFB0[1]);
-            SBar_DrawString(this, &smallf, gTempStr, x, y + 10, DI_TEXT_ALIGN_RIGHT, CR_BRICK, 1., -1, -1, 1, 1);
+            SBar_DrawString(this, smallf, gTempStr, x, y + 10, DI_TEXT_ALIGN_RIGHT, CR_BRICK, 1., -1, -1, 1, 1);
         }
     }
 

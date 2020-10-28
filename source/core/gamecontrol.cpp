@@ -453,6 +453,9 @@ void CheckUserMap()
 namespace Duke3d
 {
 	::GameInterface* CreateInterface();
+	DBaseStatusBar* CreateDukeStatusBar();
+	DBaseStatusBar* CreateRedneckStatusBar();
+
 }
 namespace Blood
 {
@@ -772,6 +775,7 @@ void CreateStatusBar()
 	int flags = g_gameType;
 	PClass* stbarclass = nullptr;
 
+	GC::AddMarkerFunc([]() { GC::Mark(StatusBar); });
 	if (flags & GAMEFLAG_BLOOD)
 	{
 		stbarclass = PClass::FindClass("BloodStatusBar");
@@ -786,14 +790,14 @@ void CreateStatusBar()
 	}
 	else
 	{
-		stbarclass = PClass::FindClass(isRR() ? "RedneckStatusBar" : "DukeStatusBar");
+		StatusBar = isRR() ? Duke3d::CreateRedneckStatusBar() : Duke3d::CreateDukeStatusBar();
+		return;
 	}
 	if (!stbarclass)
 	{
 		I_FatalError("No status bar defined");
 	}
 	StatusBar = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
-	GC::AddMarkerFunc([]() { GC::Mark(StatusBar); });
 }
 
 //==========================================================================

@@ -70,8 +70,9 @@ static const short icons[] = {
 class DSWStatusBar : public DBaseStatusBar
 {
     DECLARE_CLASS(DSWStatusBar, DBaseStatusBar)
+    HAS_OBJECT_POINTERS
 
-    DHUDFont miniFont, numberFont;
+    TObjPtr<DHUDFont*> miniFont, numberFont;
 
     enum
     {
@@ -149,8 +150,8 @@ class DSWStatusBar : public DBaseStatusBar
 public:
     DSWStatusBar()
     {
-        numberFont = { BigFont, 0, Off, 1, 1 };
-        miniFont = { SmallFont2, 0, Off, 1, 1 };
+        numberFont = Create<DHUDFont>( BigFont, 0, Off, 1, 1 );
+        miniFont = Create<DHUDFont>(SmallFont2, 0, Off, 1, 1 );
     }
 
 private:
@@ -241,7 +242,7 @@ private:
 
     void DisplayTinyString(double xs, double ys, const char* buffer, int pal)
     {
-        SBar_DrawString(this, &miniFont, buffer, xs, ys, DI_ITEM_LEFT_TOP, TRANSLATION(Translation_Remap, pal), 1, -1, -1, 1, 1);
+        SBar_DrawString(this, miniFont, buffer, xs, ys, DI_ITEM_LEFT_TOP, TRANSLATION(Translation_Remap, pal), 1, -1, -1, 1, 1);
     }
 
     void DisplayFragString(PLAYERp pp, double xs, double ys, const char* buffer)
@@ -789,7 +790,7 @@ private:
         FString format;
         FGameTexture* img;
         double imgScale;
-        double baseScale = numberFont.mFont->GetHeight() * 0.83125;
+        double baseScale = numberFont->mFont->GetHeight() * 0.83125;
 
         //
         // Health
@@ -806,7 +807,7 @@ private:
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", u->Health);
-            SBar_DrawString(this, &numberFont, format, 24.25, -numberFont.mFont->GetHeight() + 2, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+            SBar_DrawString(this, numberFont, format, 24.25, -numberFont->mFont->GetHeight() + 2, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
         }
 
         //
@@ -817,7 +818,7 @@ private:
         DrawGraphic(img, 80.75, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
         format.Format("%d", pp->Armor);
-        SBar_DrawString(this, &numberFont, format, 108.5, -numberFont.mFont->GetHeight() + 2, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+        SBar_DrawString(this, numberFont, format, 108.5, -numberFont->mFont->GetHeight() + 2, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 
         //
         // Weapon
@@ -862,7 +863,7 @@ private:
 
             if ((!althud_flashing || PlayClock & 32 || ammo > (DamageData[weapon].max_ammo / 10)))
             {
-                SBar_DrawString(this, &numberFont, format, -1.5, -numberFont.mFont->GetHeight() + 2, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+                SBar_DrawString(this, numberFont, format, -1.5, -numberFont->mFont->GetHeight() + 2, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
             }
 
             DrawGraphic(img, -imgX, -1, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, imgScale, imgScale);
@@ -1036,7 +1037,11 @@ public:
 
 };
 
-IMPLEMENT_CLASS(DSWStatusBar, false, false)
+IMPLEMENT_CLASS(DSWStatusBar, false, true)
+IMPLEMENT_POINTERS_START(DSWStatusBar)
+IMPLEMENT_POINTER(miniFont)
+IMPLEMENT_POINTER(numberFont)
+IMPLEMENT_POINTERS_END
 
 //---------------------------------------------------------------------------
 //
