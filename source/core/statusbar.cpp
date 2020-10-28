@@ -62,29 +62,6 @@
 #include "razemenu.h"
 #include "mapinfo.h"
 
-#include "../version.h"
-
-#define XHAIRSHRINKSIZE		(1./18)
-#define XHAIRPICKUPSIZE		(2+XHAIRSHRINKSIZE)
-#define POWERUPICONSIZE		32
-
-//IMPLEMENT_CLASS(DHUDFont, true, false);
-
-EXTERN_CVAR (Bool, am_showmonsters)
-EXTERN_CVAR (Bool, am_showsecrets)
-EXTERN_CVAR (Bool, am_showtime)
-EXTERN_CVAR (Bool, am_showtotaltime)
-EXTERN_CVAR (Bool, noisedebug)
-EXTERN_CVAR(Bool, vid_fps)
-EXTERN_CVAR(Bool, inter_subtitles)
-
-DStatusBarCore *StatusBar;
-
-extern int setblocks;
-
-CVAR (Bool, idmypos, false, 0);
-
-
 FGameTexture* CrosshairImage;
 static int CrosshairNum;
 
