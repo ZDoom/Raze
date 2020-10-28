@@ -51,17 +51,17 @@ static inline void tloadtile(int tilenum, int palnum = 0)
 //
 //---------------------------------------------------------------------------
 
-static void cachespritenum(short i)
+static void cachespritenum(spritetype *spr)
 {
 	char maxc;
 	short j;
-	int pal = sprite[i].pal;
+	int pal = spr->pal;
 
-	if (ud.monsters_off && badguy(&sprite[i])) return;
+	if (ud.monsters_off && badguy(spr)) return;
 
 	maxc = 1;
 
-	switch (sprite[i].picnum)
+	switch (spr->picnum)
 	{
 	case HYDRENT:
 		tloadtile(BROKEFIREHYDRENT);
@@ -70,7 +70,7 @@ static void cachespritenum(short i)
 		break;
 	case RRTILE2121:
 	case RRTILE2122:
-		tloadtile(sprite[i].picnum, pal);
+		tloadtile(spr->picnum, pal);
 		break;
 	case TOILET:
 		tloadtile(TOILETBROKE);
@@ -126,7 +126,7 @@ static void cachespritenum(short i)
 		break;
 	case COW:
 		maxc = 56;
-		for (j = sprite[i].picnum; j < (sprite[i].picnum + maxc); j++)
+		for (j = spr->picnum; j < (spr->picnum + maxc); j++)
 			tloadtile(j, pal);
 		maxc = 0;
 		break;
@@ -278,7 +278,7 @@ static void cachespritenum(short i)
 		break;
 	case VIXEN:
 		maxc = 214;
-		for (j = sprite[i].picnum; j < sprite[i].picnum + maxc; j++)
+		for (j = spr->picnum; j < spr->picnum + maxc; j++)
 			tloadtile(j, pal);
 		maxc = 0;
 		break;
@@ -287,7 +287,7 @@ static void cachespritenum(short i)
 		{
 
 			maxc = 54;
-			for (j = sprite[i].picnum; j < sprite[i].picnum + maxc; j++)
+			for (j = spr->picnum; j < spr->picnum + maxc; j++)
 				tloadtile(j, pal);
 			maxc = 100;
 			for (j = SBMOVE; j < SBMOVE + maxc; j++)
@@ -297,7 +297,7 @@ static void cachespritenum(short i)
 		break;
 	case HULK:
 		maxc = 40;
-		for (j = sprite[i].picnum - 41; j < sprite[i].picnum + maxc - 41; j++)
+		for (j = spr->picnum - 41; j < spr->picnum + maxc - 41; j++)
 			tloadtile(j, pal);
 		for (j = HULKJIBA; j <= HULKJIBC + 4; j++)
 			tloadtile(j, pal);
@@ -305,7 +305,7 @@ static void cachespritenum(short i)
 		break;
 	case MINION:
 		maxc = 141;
-		for (j = sprite[i].picnum; j < sprite[i].picnum + maxc; j++)
+		for (j = spr->picnum; j < spr->picnum + maxc; j++)
 			tloadtile(j, pal);
 		for (j = MINJIBA; j <= MINJIBC + 4; j++)
 			tloadtile(j, pal);
@@ -315,7 +315,7 @@ static void cachespritenum(short i)
 
 	}
 
-	for (j = sprite[i].picnum; j < (sprite[i].picnum + maxc); j++)
+	for (j = spr->picnum; j < (spr->picnum + maxc); j++)
 		tloadtile(j, pal);
 }
 
@@ -406,7 +406,7 @@ static void cachegoodsprites(void)
 
 void cacheit_r(void)
 {
-	short i,j;
+	int i;
 
 	cachegoodsprites();
 
@@ -426,13 +426,13 @@ void cacheit_r(void)
 			tloadtile(LA + 1);
 			tloadtile(LA + 2);
 		}
-	}
 
-	SectIterator it(i);
-	while ((j = it.NextIndex()) >= 0)
-	{
-		if(sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat&32768) == 0)
-				cachespritenum(j);
+		DukeSectIterator it(i);
+		while (auto j = it.Next())
+		{
+			if(j->s.xrepeat != 0 && j->s.yrepeat != 0 && (j->s.cstat&32768) == 0)
+					cachespritenum(&j->s);
+		}
 	}
 	precacheMarkedTiles();
 }
