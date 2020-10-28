@@ -44,6 +44,7 @@ source as it is released.
 
 BEGIN_DUKE_NS
 
+IMPLEMENT_CLASS(DDukeCommonStatusBar, true, false)
 //==========================================================================
 //
 // very much a dummy to access the methods.
@@ -211,7 +212,7 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 		else stats.spacing = stats.font->GetHeight() + 1;
 		stats.standardColor = (isNamWW2GI() && am_textfont)? CR_ORANGE : CR_UNTRANSLATED;
 		stats.letterColor = CR_GOLD;
-		DStatusBarCore::PrintAutomapInfo(stats, textfont);
+		DBaseStatusBar::PrintAutomapInfo(stats, textfont);
 	}
 	else if (hud_stats)
 	{
@@ -242,7 +243,7 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 			stats.standardColor =
 				stats.completeColor = CR_UNTRANSLATED;
 		}
-		DStatusBarCore::PrintLevelStats(stats);
+		DBaseStatusBar::PrintLevelStats(stats);
 	}
 }
 

@@ -108,8 +108,9 @@ struct POWERUPDISPLAY
 
 
 
-class DBloodStatusBar : public DStatusBarCore
+class DBloodStatusBar : public DBaseStatusBar
 {
+    DECLARE_CLASS(DBloodStatusBar, DBaseStatusBar)
     enum NewRSFlags
     {
         RS_CENTERBOTTOM = 16384,
@@ -241,7 +242,7 @@ private:
                 stats.spacing = 6;
             }
             if (hud_size <= Hud_StbarOverlay) stats.screenbottomspace = 56;
-            DStatusBarCore::PrintAutomapInfo(stats, textfont);
+            DBaseStatusBar::PrintAutomapInfo(stats, textfont);
 		}
         if (automapMode == am_off && hud_stats)
         {
@@ -253,7 +254,7 @@ private:
             stats.secrets = gSecretMgr.Founds + gSecretMgr.Super;
             stats.maxsecrets = gSecretMgr.Total;
 
-            DStatusBarCore::PrintLevelStats(stats);
+            DBaseStatusBar::PrintLevelStats(stats);
         }
     }
 
@@ -846,6 +847,8 @@ private:
     }
 };
 
+IMPLEMENT_CLASS(DBloodStatusBar, false, false)
+
 
 static void UpdateFrame(void)
 {
@@ -864,14 +867,12 @@ static void UpdateFrame(void)
 
 void UpdateStatusBar()
 {
-    DBloodStatusBar sbar;
-
     if (automapMode == am_off && hud_size <= Hud_Stbar)
     {
         UpdateFrame();
     }
 
-    sbar.UpdateStatusBar();
+    StatusBar->UpdateStatusBar();
 }
 
 

@@ -67,8 +67,10 @@ static const short icons[] = {
     ID_PanelCaltrops,
 };
 
-class DSWStatusBar : public DStatusBarCore
+class DSWStatusBar : public DBaseStatusBar
 {
+    DECLARE_CLASS(DSWStatusBar, DBaseStatusBar)
+
     DHUDFont miniFont, numberFont;
 
     enum
@@ -967,7 +969,7 @@ private:
                 stats.spacing = 6;
             }
             else stats.spacing = SmallFont->GetHeight() + 1;
-            DStatusBarCore::PrintAutomapInfo(stats, textfont);
+            DBaseStatusBar::PrintAutomapInfo(stats, textfont);
 		}
         // JBF 20040124: display level stats in screen corner
         else if (hud_stats && !(CommEnabled || numplayers > 1))
@@ -984,7 +986,7 @@ private:
             stats.standardColor = CR_TAN;
             stats.completeColor = CR_FIRE;
 
-            DStatusBarCore::PrintLevelStats(stats);
+            DBaseStatusBar::PrintLevelStats(stats);
         }
     }
 
@@ -1034,6 +1036,8 @@ public:
 
 };
 
+IMPLEMENT_CLASS(DSWStatusBar, false, false)
+
 //---------------------------------------------------------------------------
 //
 // 
@@ -1080,7 +1084,7 @@ void UpdateStatusBar()
         UpdateFrame();
     }
 
-    sbar.UpdateStatusBar();
+    StatusBar->UpdateStatusBar();
     PLAYERp pp = &Player[screenpeek];
     if (pp->cookieTime > 0)
     {

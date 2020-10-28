@@ -54,6 +54,7 @@ BEGIN_DUKE_NS
 
 class DDukeStatusBar : public DDukeCommonStatusBar
 {
+	DECLARE_CLASS(DDukeStatusBar, DDukeCommonStatusBar)
 public:
 	DDukeStatusBar()
 	{
@@ -438,21 +439,20 @@ public:
 		PrintLevelStats(-1);
 	}
 
-
+	void UpdateStatusBar()
+	{
+		if (hud_size >= Hud_Mini)
+		{
+			DrawHud(screenpeek, hud_size == Hud_Nothing ? 0 : hud_size == Hud_full ? 1 : 2);
+		}
+		else
+		{
+			Statusbar(screenpeek);
+		}
+	}
 };
 
+IMPLEMENT_CLASS(DDukeStatusBar, false, false)
 
-void drawstatusbar_d(int snum)
-{
-	DDukeStatusBar dsb;
-	if (hud_size >= Hud_Mini)
-	{
-		dsb.DrawHud(snum, hud_size == Hud_Nothing ? 0 : hud_size == Hud_full ? 1 : 2);
-	}
-	else
-	{
-		dsb.Statusbar(snum);
-	}
-}
 
 END_DUKE_NS

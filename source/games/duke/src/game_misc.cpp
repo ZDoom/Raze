@@ -295,8 +295,8 @@ void drawoverlays(double smoothratio)
 	}
 
 	DrawBorder();
-	if (isRR()) drawstatusbar_r(screenpeek);
-	else drawstatusbar_d(screenpeek);
+
+	StatusBar->UpdateStatusBar();
 
 	if (ps[myconnectindex].newowner == -1 && ud.camerasprite == -1)
 	{
@@ -306,6 +306,9 @@ void drawoverlays(double smoothratio)
 	if (paused == 2)
 		fi.PrintPaused();
 }
+
+
+
 
 //---------------------------------------------------------------------------
 //

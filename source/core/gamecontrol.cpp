@@ -132,6 +132,8 @@ void LoadScripts();
 void MainLoop();
 void SetConsoleNotifyBuffer();
 
+DBaseStatusBar* StatusBar;
+
 
 bool AppActive = true;
 
@@ -536,6 +538,8 @@ int GameMain()
 	}
 	DeleteScreenJob();
 	DeinitMenus();
+	if (StatusBar) StatusBar->Destroy();
+	StatusBar = nullptr;
 	if (gi)
 	{
 		gi->FreeGameData();	// Must be done before taking down any subsystems.
@@ -745,6 +749,7 @@ static TArray<GrpEntry> SetupGame()
 
 	currentGame = LumpFilter;
 	currentGame.Truncate(currentGame.IndexOf("."));
+	PClass::StaticInit();
 	CheckFrontend(g_gameType);
 	gameinfo.gametype = g_gameType;
 	return usedgroups;
@@ -759,6 +764,36 @@ static TArray<GrpEntry> SetupGame()
 void InitLanguages()
 {
 	GStrings.LoadStrings(language);
+}
+
+
+void CreateStatusBar()
+{
+	int flags = g_gameType;
+	PClass* stbarclass = nullptr;
+
+	if (flags & GAMEFLAG_BLOOD)
+	{
+		stbarclass = PClass::FindClass("BloodStatusBar");
+	}
+	else if (flags & GAMEFLAG_SW)
+	{
+		stbarclass = PClass::FindClass("SWStatusBar");
+	}
+	else if (flags & GAMEFLAG_PSEXHUMED)
+	{
+		stbarclass = PClass::FindClass("ExhumedStatusBar");
+	}
+	else
+	{
+		stbarclass = PClass::FindClass(isRR() ? "RedneckStatusBar" : "DukeStatusBar");
+	}
+	if (!stbarclass)
+	{
+		I_FatalError("No status bar defined");
+	}
+	StatusBar = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
+	GC::AddMarkerFunc([]() { GC::Mark(StatusBar); });
 }
 
 //==========================================================================
@@ -871,6 +906,7 @@ int RunGame()
 	SetupGameButtons();
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
 	gi->app_init();
+	CreateStatusBar();
 	SetDefaultMenuColors();
 	M_Init();
 	BuildGameMenus();

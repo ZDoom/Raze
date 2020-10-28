@@ -512,8 +512,10 @@ void MoveStatus()
 }
 
 
-class DExhumedStatusBar : public DStatusBarCore
+class DExhumedStatusBar : public DBaseStatusBar
 {
+    DECLARE_CLASS(DExhumedStatusBar, DBaseStatusBar)
+
     DHUDFont textfont, numberFont;
 
 public:
@@ -938,7 +940,7 @@ private:
 
         if (automapMode == am_full)
         {
-            DStatusBarCore::PrintAutomapInfo(stats, true);
+            DBaseStatusBar::PrintAutomapInfo(stats, true);
         }
         else if (hud_stats)
         {
@@ -950,7 +952,7 @@ private:
             stats.secrets = 0;
             stats.maxsecrets = 0;
 
-            DStatusBarCore::PrintLevelStats(stats);
+            DBaseStatusBar::PrintLevelStats(stats);
         }
     }
 
@@ -958,7 +960,7 @@ private:
 
 
 public:
-    void Draw()
+    void UpdateStatusBar()
     {
         if (hud_size <= Hud_full)
         {
@@ -967,6 +969,9 @@ public:
         PrintLevelStats(hud_size == Hud_Nothing ? 0 : hud_size == Hud_full? 22 : 40);
     }
 };
+
+IMPLEMENT_CLASS(DExhumedStatusBar, false, false)
+
 
 void UpdateFrame()
 {
@@ -1000,8 +1005,7 @@ void DrawStatusBar()
     {
         UpdateFrame();
     }
-    DExhumedStatusBar sbar;
-    sbar.Draw();
+    StatusBar->UpdateStatusBar();
 }
 
 

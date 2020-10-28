@@ -1,10 +1,10 @@
 /*
-** shared_sbar.cpp
+** base_sbar.cpp
 ** Base status bar implementation
 **
 **---------------------------------------------------------------------------
-** Copyright 1998-2006 Randy Heit
-** Copyright 2017 Christoph Oelckers
+** Copyright 1998-2016 Randy Heit
+** Copyright 2017-2020 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -35,35 +35,25 @@
 
 #include <assert.h>
 
-#include "build.h"
 #include "templates.h"
-#include "statusbar.h"
-#include "c_cvars.h"
-#include "c_dispatch.h"
-#include "c_console.h"
-#include "v_video.h"
-#include "filesystem.h"
-#include "s_soundinternal.h"
-#include "serializer.h"
-#include "serialize_obj.h"
+#include "base_sbar.h"
+#include "printf.h"
+#include "v_draw.h"
 #include "cmdlib.h"
-#include "vm.h"
-#include "gstrings.h"
-#include "utf8.h"
 #include "texturemanager.h"
-#include "cmdlib.h"
-#include "v_draw.h"
+#include "c_cvars.h"
 #include "v_font.h"
-#include "v_draw.h"
-#include "gamecvars.h"
-#include "m_fixed.h"
-#include "gamecontrol.h"
-#include "gamestruct.h"
-#include "razemenu.h"
-#include "mapinfo.h"
+#include "utf8.h"
+#include "v_text.h"
+#include "vm.h"
 
 FGameTexture* CrosshairImage;
 static int CrosshairNum;
+
+
+IMPLEMENT_CLASS(DStatusBarCore, true, false)
+//IMPLEMENT_CLASS(DHUDFont, true, false);
+
 
 CVAR(Color, crosshaircolor, 0xff0000, CVAR_ARCHIVE);
 CVAR(Int, crosshairhealth, 2, CVAR_ARCHIVE);

@@ -78,11 +78,11 @@ EXTERN_CVAR (Bool, noisedebug)
 EXTERN_CVAR(Bool, vid_fps)
 EXTERN_CVAR(Bool, inter_subtitles)
 
-extern DStatusBarCore *StatusBar;
+//extern DBaseStatusBar *StatusBar;
 
 extern int setblocks;
 
-
+IMPLEMENT_CLASS(DBaseStatusBar, true, false)
 //---------------------------------------------------------------------------
 // ST_Clear
 //
@@ -104,14 +104,11 @@ void ST_Clear()
 // Constructor
 //
 //---------------------------------------------------------------------------
-DStatusBarCore::DStatusBarCore ()
+DBaseStatusBar::DBaseStatusBar ()
 {
 	CompleteBorder = false;
 	Centering = false;
 	FixedOrigin = false;
-	CrosshairSize = 1.;
-	Displacement = 0;
-	ShowLog = false;
 	SetSize(0);
 }
 
@@ -121,7 +118,7 @@ DStatusBarCore::DStatusBarCore ()
 //
 //---------------------------------------------------------------------------
 
-void DStatusBarCore::Tick ()
+void DBaseStatusBar::Tick ()
 {
 }
 
@@ -139,7 +136,7 @@ static DObject *InitObject(PClass *type, int paramnum, VM_ARGS)
 //
 //============================================================================
 
-void DStatusBarCore::PrintLevelStats(FLevelStats &stats)
+void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 {
 	double y;
 	double scale = stats.fontscale * hud_statscale;
@@ -212,7 +209,7 @@ void DStatusBarCore::PrintLevelStats(FLevelStats &stats)
 //
 //============================================================================
 
-void DStatusBarCore::PrintAutomapInfo(FLevelStats& stats, bool forcetextfont)
+void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats, bool forcetextfont)
 {
 	auto lev = currentLevel;
 	FString mapname;
@@ -256,7 +253,7 @@ void DStatusBarCore::PrintAutomapInfo(FLevelStats& stats, bool forcetextfont)
 //
 //============================================================================
 
-short DStatusBarCore::CalcMagazineAmount(short ammo_remaining, short clip_capacity, bool reloading)
+short DBaseStatusBar::CalcMagazineAmount(short ammo_remaining, short clip_capacity, bool reloading)
 {
 	// Determine amount in clip.
 	short clip_amount = ammo_remaining % clip_capacity;
@@ -274,7 +271,7 @@ short DStatusBarCore::CalcMagazineAmount(short ammo_remaining, short clip_capaci
 //
 //============================================================================
 
-void DStatusBarCore::Set43ClipRect()
+void DBaseStatusBar::Set43ClipRect()
 {
 	auto GetWidth = [=]() { return twod->GetWidth(); };
 	auto GetHeight = [=]() {return twod->GetHeight(); };

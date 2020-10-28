@@ -208,8 +208,6 @@ void OffMotorcycle(player_struct *pl);
 void OnBoat(player_struct *pl, int snum);
 void OffBoat(player_struct *pl);
 
-void drawstatusbar_d(int snum);
-void drawstatusbar_r(int snum);
 void cameratext(int i);
 void dobonus(int bonusonly, const CompletionFunc& completion);
 void dobonus_d(int bonusonly, const CompletionFunc& completion);

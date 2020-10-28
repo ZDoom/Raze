@@ -7,8 +7,10 @@
 BEGIN_DUKE_NS
 
 
-class DDukeCommonStatusBar : public DStatusBarCore
+class DDukeCommonStatusBar : public DBaseStatusBar
 {
+	DECLARE_ABSTRACT_CLASS(DDukeCommonStatusBar, DBaseStatusBar)
+
 protected:
 	DHUDFont numberFont;
 	DHUDFont indexFont;

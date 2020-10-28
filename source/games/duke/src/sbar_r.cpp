@@ -46,6 +46,7 @@ BEGIN_DUKE_NS
 
 class DRedneckStatusBar : public DDukeCommonStatusBar
 {
+	DECLARE_CLASS(DRedneckStatusBar, DDukeCommonStatusBar)
 
 public:
 	DRedneckStatusBar()
@@ -448,21 +449,22 @@ public:
 		}
 		PrintLevelStats(-1);
 	}
+
+	void UpdateStatusBar()
+	{
+		if (hud_size >= Hud_Mini)
+		{
+			DrawHud(screenpeek, hud_size == Hud_Nothing ? 0 : hud_size == Hud_full ? 1 : 2);
+		}
+		else
+		{
+			Statusbar(screenpeek);
+		}
+	}
+
 };
 
-void PrintLevelName_r(double alpha);
+IMPLEMENT_CLASS(DRedneckStatusBar, false, false)
 
-void drawstatusbar_r(int snum)
-{
-	DRedneckStatusBar dsb;
-	if (hud_size >= Hud_Mini)
-	{
-		dsb.DrawHud(snum, hud_size == Hud_Nothing ? 0 : hud_size == Hud_full ? 1 : 2);
-	}
-	else
-	{
-		dsb.Statusbar(snum);
-	}
-}
 
 END_DUKE_NS

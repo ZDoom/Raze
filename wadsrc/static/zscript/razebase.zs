@@ -53,3 +53,30 @@ class RazeMenuDelegate : MenuDelegateBase
 	native override void MenuDismissed();
 	
 }
+
+// dummy definitions for the status bar. We need them to create the class descriptors
+
+class StatusBarCore native ui
+{}
+
+class BaseStatusBar : StatusBarCore native 
+{}
+
+
+class BloodStatusBar : BaseStatusBar native
+{}
+
+class DukeCommonStatusBar : BaseStatusBar native
+{}
+
+class DukeStatusBar : DukeCommonStatusBar native
+{}
+
+class RedneckStatusBar : DukeCommonStatusBar native
+{}
+
+class ExhumedStatusBar : BaseStatusBar native
+{}
+
+class SWStatusBar : BaseStatusBar native
+{}
