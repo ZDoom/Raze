@@ -451,7 +451,6 @@ void prelevel_r(int g)
 	short startwall;
 	short endwall;
 	short lotaglist;
-	short k;
 	short lotags[65];
 	int speed;
 	int dist;
@@ -667,9 +666,10 @@ void prelevel_r(int g)
 
 	for (i = 0; i < MAXSPRITES; i++)
 	{
-		if (sprite[i].statnum < MAXSTATUS)
+		auto spr = &sprite[i];
+		if (spr->statnum < MAXSTATUS)
 		{
-			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 14)
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == 14)
 				continue;
 			fi.spawn(-1, i);
 		}
@@ -677,16 +677,17 @@ void prelevel_r(int g)
 
 	for (i = 0; i < MAXSPRITES; i++)
 	{
-		if (sprite[i].statnum < MAXSTATUS)
+		auto spr = &sprite[i];
+		if (spr->statnum < MAXSTATUS)
 		{
-			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 14)
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == 14)
 				fi.spawn(-1, i);
 		}
-		if (sprite[i].picnum == RRTILE19)
+		if (spr->picnum == RRTILE19)
 			deletesprite(i);
-		if (sprite[i].picnum == RRTILE34)
+		if (spr->picnum == RRTILE34)
 		{
-			sectorextra[sprite[i].sectnum] = sprite[i].lotag;
+			sectorextra[spr->sectnum] = spr->lotag;
 			deletesprite(i);
 		}
 	}
@@ -696,7 +697,8 @@ void prelevel_r(int g)
 	it.Reset(STAT_DEFAULT);
 	while ((i = it.NextIndex()) >= 0)
 	{
-		switch (sprite[i].picnum)
+		auto spr = &sprite[i];
+		switch (spr->picnum)
 		{
 		case RRTILE8464 + 1:
 			if (!isRRRA()) break;
@@ -717,12 +719,12 @@ void prelevel_r(int g)
 		case NUKEBUTTON + 1:
 
 			for (j = 0; j < lotaglist; j++)
-				if (sprite[i].lotag == lotags[j])
+				if (spr->lotag == lotags[j])
 					break;
 
 			if (j == lotaglist)
 			{
-				lotags[lotaglist] = sprite[i].lotag;
+				lotags[lotaglist] = spr->lotag;
 				lotaglist++;
 				if (lotaglist > 64)
 					I_Error("Too many switches (64 max).");
@@ -730,7 +732,7 @@ void prelevel_r(int g)
 				StatIterator it1(STAT_EFFECTOR);
 				while ((j = it1.NextIndex()) >= 0)
 				{
-					if (sprite[j].lotag == 12 && sprite[j].hitag == sprite[i].lotag)
+					if (sprite[j].lotag == 12 && sprite[j].hitag == spr->lotag)
 						hittype[j].temp_data[0] = 1;
 				}
 			}
