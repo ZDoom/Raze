@@ -1,5 +1,4 @@
-
-struct UiEvent ui native
+struct UiEvent native ui version("2.4")
 {
     // d_gui.h
     enum EGUIEvent
@@ -68,7 +67,7 @@ struct UiEvent ui native
         Key_Back        = 30,        // browser back key
         Key_CEscape     = 31         // color escape
     }
-	
+    
     // 
     native readonly EGUIEvent Type;
     //
