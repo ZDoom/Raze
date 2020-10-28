@@ -469,18 +469,19 @@ void prelevel_r(int g)
 
 		for (j = 0; j < MAXSPRITES; j++)
 		{
-			if (sprite[j].pal == 100)
+			auto spr = &sprite[j];
+			if (spr->pal == 100)
 			{
 				if (numplayers > 1)
 					deletesprite(j);
 				else
-					sprite[j].pal = 0;
+					spr->pal = 0;
 			}
-			else if (sprite[j].pal == 101)
+			else if (spr->pal == 101)
 			{
-				sprite[j].extra = 0;
-				sprite[j].hitag = 1;
-				sprite[j].pal = 0;
+				spr->extra = 0;
+				spr->hitag = 1;
+				spr->pal = 0;
 				changespritestat(j, 118);
 			}
 		}
@@ -495,19 +496,20 @@ void prelevel_r(int g)
 		{
 		case 41:
 		{
-			SectIterator it(i);
-			while ((k = it.NextIndex()) >= 0)
+			DukeSectIterator it(i);
+			while (auto act = it.Next())
 			{
-				if (sprite[k].picnum == RRTILE11)
+				auto spr = &act->s;
+				if (spr->picnum == RRTILE11)
 				{
-					dist = sprite[k].lotag << 4;
-					speed = sprite[k].hitag;
-					deletesprite(k);
+					dist = spr->lotag << 4;
+					speed = spr->hitag;
+					deletesprite(act);
 				}
-				if (sprite[k].picnum == RRTILE38)
+				if (spr->picnum == RRTILE38)
 				{
-					sound = sprite[k].lotag;
-					deletesprite(k);
+					sound = spr->lotag;
+					deletesprite(act);
 				}
 			}
 			for (j = 0; j < numsectors; j++)
@@ -525,10 +527,10 @@ void prelevel_r(int g)
 		{
 			short ii;
 			int childsectnum = -1;
-			SectIterator it(i);
-			while ((k = it.NextIndex()) >= 0)
+			DukeSectIterator it(i);
+			while (auto act = it.Next())
 			{
-				auto sj = &sprite[k];
+				auto sj = &act->s;
 				if (sj->picnum == RRTILE64)
 				{
 					dist = sj->lotag << 4;
@@ -542,12 +544,12 @@ void prelevel_r(int g)
 								deletesprite(ii);
 							}
 					}
-					deletesprite(k);
+					deletesprite(act);
 				}
 				if (sj->picnum == RRTILE65)
 				{
 					sound = sj->lotag;
-					deletesprite(k);
+					deletesprite(act);
 				}
 			}
 			addminecart(dist, speed, i, sector[i].hitag, sound, childsectnum);
@@ -593,12 +595,12 @@ void prelevel_r(int g)
 			break;
 
 		case RRTILE18:
-			addtorch(&sprite[i]);
+			addtorch(si);
 			deletesprite(i);
 			break;
 
 		case RRTILE35:
-			addlightning(&sprite[i]);
+			addlightning(si);
 			deletesprite(i);
 			break;
 
