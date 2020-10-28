@@ -310,29 +310,34 @@ void prelevel_d(int g)
 		}
 	}
 
+
 	for (i = 0; i < MAXSPRITES; i++)
 	{
-		if (sprite[i].statnum < MAXSTATUS)
+		auto spr = &sprite[i];
+		if (spr->statnum < MAXSTATUS)
 		{
-			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == SE_14_SUBWAY_CAR)
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
 				continue;
 			fi.spawn(-1, i);
 		}
 	}
 
 	for (i = 0; i < MAXSPRITES; i++)
-		if (sprite[i].statnum < MAXSTATUS)
+	{
+		auto spr = &sprite[i];
+		if (spr->statnum < MAXSTATUS)
 		{
-			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == SE_14_SUBWAY_CAR)
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
 				fi.spawn(-1, i);
 		}
-
+	}
 	lotaglist = 0;
 
 	it.Reset(STAT_DEFAULT);
 	while ((i = it.NextIndex()) >= 0)
 	{
-		switch (sprite[i].picnum)
+		auto spr = &sprite[i];
+		switch (spr->picnum)
 		{
 		case DIPSWITCH + 1:
 		case DIPSWITCH2 + 1:
@@ -348,12 +353,12 @@ void prelevel_d(int g)
 		case LOCKSWITCH1 + 1:
 		case POWERSWITCH2 + 1:
 			for (j = 0; j < lotaglist; j++)
-				if (sprite[i].lotag == lotags[j])
+				if (spr->lotag == lotags[j])
 					break;
 
 			if (j == lotaglist)
 			{
-				lotags[lotaglist] = sprite[i].lotag;
+				lotags[lotaglist] = spr->lotag;
 				lotaglist++;
 				if (lotaglist > 64)
 					I_Error("Too many switches (64 max).");
@@ -361,7 +366,7 @@ void prelevel_d(int g)
 				StatIterator it1(STAT_EFFECTOR);
 				while ((j = it1.NextIndex()) >= 0)
 				{
-					if (sprite[j].lotag == 12 && sprite[j].hitag == sprite[i].lotag)
+					if (sprite[j].lotag == 12 && sprite[j].hitag == spr->lotag)
 						hittype[j].temp_data[0] = 1;
 				}
 			}
