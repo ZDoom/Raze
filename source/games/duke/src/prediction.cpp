@@ -102,7 +102,8 @@ void fakedomovethings(void)
 {
 		input *syn;
 		struct player_struct *p;
-		int i, j, k, doubvel, fz, cz, hz, lz, x, y;
+		int i, j, k, doubvel, fz, cz, x, y;
+		Collision clz, chz;
 		short psect, psectlotag, tempsect, backcstat;
 		uint8_t shrunk, spritebridge;
 		ESyncBits actions;
@@ -138,11 +139,11 @@ void fakedomovethings(void)
 		omyz = myz;
 		omyang = myang;
 
-		getzrange(myx,myy,myz,psect,&cz,&hz,&fz,&lz,163L,CLIPMASK0);
+		getzrange(myx,myy,myz,psect,&cz,chz,&fz,clz,163L,CLIPMASK0);
 
 		j = getflorzofslope(psect,myx,myy);
 
-		if( (lz&49152) == 16384 && psectlotag == 1 && klabs(myz-j) > PHEIGHT+(16<<8) )
+		if(clz.type == kHitSector && psectlotag == 1 && klabs(myz-j) > PHEIGHT+(16<<8) )
 			psectlotag = 0;
 
 		if( p->aim_mode == 0 && myonground && psectlotag != 2 && (sector[psect].floorstat&2) )
@@ -163,27 +164,25 @@ void fakedomovethings(void)
 		if (myhorizoff > 0) myhorizoff -= ((myhorizoff>>3)+1);
 		else if (myhorizoff < 0) myhorizoff += (((-myhorizoff)>>3)+1);
 
-		if(hz >= 0 && (hz&49152) == 49152)
+		if(chz.type == kHitSprite)
 		{
-				hz &= (MAXSPRITES-1);
-				if (sprite[hz].statnum == 1 && sprite[hz].extra >= 0)
+				if (chz.actor->s.statnum == 1 && chz.actor->s.extra >= 0)
 				{
-					hz = 0;
+					chz.type = kHitNone;
 					cz = getceilzofslope(psect,myx,myy);
 				}
 		}
 
-		if(lz >= 0 && (lz&49152) == 49152)
+		if (clz.type == kHitSprite)
 		{
-				 j = lz&(MAXSPRITES-1);
-				 if ((sprite[j].cstat&33) == 33)
+				 if ((clz.actor->s.cstat&33) == 33)
 				 {
 						psectlotag = 0;
 						spritebridge = 1;
 				 }
-				 if(badguy(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(p->GetActor()->s.z-sprite[j].z) < (84<<8) )
+				 if(badguy(chz.actor) && sprite[j].xrepeat > 24 && klabs(p->GetActor()->s.z- chz.actor->s.z) < (84<<8) )
 				 {
-					j = getangle( sprite[j].x-myx,sprite[j].y-myy);
+					j = getangle(chz.actor->s.x-myx, chz.actor->s.y-myy);
 					myxvel -= sintable[(j+512)&2047]<<4;
 					myyvel -= sintable[j&2047]<<4;
 				}

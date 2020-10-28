@@ -86,7 +86,7 @@ static void recreateinterpolations()
 		case SE_16_REACTOR:
 		case SE_26:
 		case SE_30_TWO_WAY_TRAIN:
-			setsectinterpolate(k);
+			setsectinterpolate(sprite[k].sectnum);
 			break;
 		}
 	}

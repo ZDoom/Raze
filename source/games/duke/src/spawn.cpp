@@ -956,7 +956,7 @@ void spawneffector(int i)
 					if (sp->pal) sprite[i].clipdist = 1;
 					else sprite[i].clipdist = 0;
 					t[3] = sector[sect].floorz;
-					sector[sect].hitag = i;
+					sector[sect].hitag = i; // hijack
 				}
 
 				for (j = 0; j < MAXSPRITES; j++)
@@ -1005,7 +1005,7 @@ void spawneffector(int i)
 					sp->extra = 0;
 				else sp->extra = 1;
 
-				sector[sect].hitag = i;
+				sector[sect].hitag = i; // hijack
 
 				j = 0;
 
@@ -1075,7 +1075,7 @@ void spawneffector(int i)
 		case SE_15_SLIDING_DOOR:
 		case SE_16_REACTOR:
 		case SE_26:
-			setsectinterpolate(i);
+			setsectinterpolate(sprite[i].sectnum);
 			break;
 	}
 

@@ -100,10 +100,10 @@ void restoreinterpolations()  //Stick at end of drawscreen
 }
 
 
-void setsectinterpolate(int i)
+void setsectinterpolate(int sectnum)
 {
 	int j, k, startwall,endwall;
-	auto sect = &sector[sprite[i].sectnum];
+	auto sect = &sector[sectnum];
 
 	startwall = sect->wallptr;
 	endwall = startwall+sect->wallnum;
@@ -124,10 +124,10 @@ void setsectinterpolate(int i)
 	}
 }
 
-void clearsectinterpolate(short i)
+void clearsectinterpolate(int sectnum)
 {
 	short j,startwall,endwall;
-	auto sect = &sector[sprite[i].sectnum];
+	auto sect = &sector[sectnum];
 
 	startwall = sect->wallptr;
 	endwall = startwall + sect->wallnum;
