@@ -799,6 +799,9 @@ KillSprite(int16_t SpriteNum)
         User[SpriteNum] = 0;
     }
 
+    FVector3 pos = GetSoundPos(&sprite[SpriteNum].pos);
+    soundEngine->RelinkSound(SOURCE_Actor, &sprite[SpriteNum], nullptr, &pos);
+
     deletesprite(SpriteNum);
     // shred your garbage - but not statnum
     statnum = sp->statnum;

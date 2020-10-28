@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_crc32.h"
 #include "md4.h"
 #include "automap.h"
+#include "raze_sound.h"
 
 //#include "actor.h"
 #include "globals.h"
@@ -210,6 +211,9 @@ int qinsertsprite(short nSector, short nStat) // Replace
 
 int DeleteSprite(int nSprite)
 {
+    FVector3 pos = GetSoundPos(&sprite[nSprite].pos);
+    soundEngine->RelinkSound(SOURCE_Actor, &sprite[nSprite], nullptr, &pos);
+
     if (sprite[nSprite].extra > 0)
     {
         dbDeleteXSprite(sprite[nSprite].extra);

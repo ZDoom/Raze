@@ -555,6 +555,9 @@ void mydeletesprite(int nSprite)
         I_Error("bad sprite value %d handed to mydeletesprite", nSprite);
     }
 
+    FVector3 pos = GetSoundPos(&sprite[nSprite].pos);
+    soundEngine->RelinkSound(SOURCE_Actor, &sprite[nSprite], nullptr, &pos);
+
     deletesprite(nSprite);
 
     if (nSprite == besttarget) {
