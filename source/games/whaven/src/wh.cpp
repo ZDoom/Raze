@@ -19,7 +19,6 @@ int playertorch = 0;
 uint8_t ceilingshadearray[MAXSECTORS];
 uint8_t floorshadearray[MAXSECTORS];
 uint8_t wallshadearray[MAXWALLS];
-int hours, minutes, seconds, fortieth;
 short floormirrorsector[64];
 int floormirrorcnt;
 int displaytime = -1;

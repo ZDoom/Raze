@@ -243,11 +243,6 @@ boolean prepareboard(const char* fname) {
 	damage_svel = 0;
 	damage_vel = 0;
 
-	hours = 0;
-	minutes = 0;
-	seconds = 0;
-	fortieth = 0;
-
 //		goblinwarcnt = 0;
 	treasurescnt = 0;
 	treasuresfound = 0;

@@ -5,8 +5,12 @@
 #include "buildtiles.h"
 #include "v_draw.h"
 #include "menu.h"
+#include "mmulti.h"
 
-BEGIN_WH_NS 
+BEGIN_WH_NS
+
+int followmode, followx, followy, followa;
+int followang, followvel, followsvel;
 
 const char *GameInterface::CheckCheatMode()
 {
@@ -275,9 +279,75 @@ void GameInterface::DrawBackground()
 	}
 }
 
+inline bool playrunning()
+{
+	return (paused == 0 || multiplayer/* || demoplay/record*/);
+}
+
+void GameInterface::Ticker() 
+{
+#if 0
+	// Make copies so that the originals do not have to be modified.
+	for (int i = 0; i < MAXPLAYERS; i++)
+	{
+		auto oldactions = ps[i].sync.actions;
+		ps[i].sync = playercmds[i].ucmd;
+		if (oldactions & SB_CENTERVIEW) ps[i].sync.actions |= SB_CENTERVIEW;
+	}
+#endif
+
+	if (!playrunning())
+	{
+		r_NoInterpolate = true;
+		return;
+	}
+
+	for (int i = connecthead; i >= 0; i = connectpoint2[i])
+		player[i].oldsector = player[i].sector;
+
+	PLAYER &plr = player[pyrn];
+	viewBackupPlayerLoc(pyrn);
+
+	//processinput(pyrn);
+	updateviewmap(plr);
+	//updatepaletteshifts();
+
+	processobjs(plr);
+	animateobjs(plr);
+	animatetags(pyrn);
+	doanimations();
+	dodelayitems(TICSPERFRAME);
+	dofx();
+	speelbookprocess(plr);
+	timerprocess(plr);
+	weaponsprocess(pyrn);
+
+	updatesounds();
+
+	if (followmode) {
+		followa += followang;
+
+		followx += (followvel * sintable[(512 + 2048 - followa) & 2047]) >> 10;
+		followy += (followvel * sintable[(512 + 1024 - 512 - followa) & 2047]) >> 10;
+
+		followx += (followsvel * sintable[(512 + 1024 - 512 - followa) & 2047]) >> 10;
+		followy -= (followsvel * sintable[(512 + 2048 - followa) & 2047]) >> 10;
+	}
+
+	lockclock += TICSPERFRAME;
+}
+
+void GameInterface::MenuSound(EMenuSounds snd)
+{
+	if (!isWh2()) SND_Sound(85);
+	else SND_Sound(59);
+}
+
+
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;
 }
+
 
 END_WH_NS

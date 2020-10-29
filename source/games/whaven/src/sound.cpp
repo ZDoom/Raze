@@ -144,15 +144,16 @@ int playsound_internal(int sn, spritetype *spr, int x, int y, int loop, int chan
 	sn++;
 	if (!soundEngine->isValidSoundId(sn)) return -1;
 	int sourcetype = spr ? SOURCE_Actor : x != 0 || y != 0 ? SOURCE_Unattached : SOURCE_None;
-	vec3_t pos = { x, y, 0 };
+	vec3_t pos = { x, y, 0 };	
 	auto spos = GetSoundPos(&pos);
 	float attn = sourcetype == SOURCE_None ? 0 : 1;
 	int flags = sourcetype == SOURCE_Unattached ? CHANF_LISTENERZ : CHANF_NONE;
 	if (loop != 0) flags |= CHANF_LOOP;
 	auto sfx = soundEngine->StartSound(sourcetype, spr, &spos, chan, EChanFlags::FromInt(flags), sn, 1.f, attn);
-	if (loop > 0 && sfx) sfx->UserData = IntToFixed(loop);
+	if (!sfx) return -1;
+	if (loop > 0) sfx->UserData = IntToFixed(loop);
 	else sfx->UserData = 0;
-	return sfx ? 0 : -1;
+	return 0;
 }
 
 

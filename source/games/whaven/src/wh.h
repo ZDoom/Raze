@@ -152,7 +152,6 @@ extern int playertorch;
 extern uint8_t ceilingshadearray[MAXSECTORS];
 extern uint8_t floorshadearray[MAXSECTORS];
 extern uint8_t wallshadearray[MAXWALLS];
-extern int hours, minutes, seconds, fortieth;
 extern short floormirrorsector[64];
 extern int floormirrorcnt;
 extern int displaytime;
@@ -453,6 +452,7 @@ inline void startblueflash(int)
 {}
 
 
+void updatesounds();
 int playsound_internal(int sn, spritetype* spr, int x, int y, int loop, int chan);
 
 inline int playsound(int sn, int x, int y, int loop = 0, int channel = CHAN_AUTO) {
@@ -472,6 +472,14 @@ void startsong(int);
 void setupmidi();
 
 extern int attacktheme;
+
+inline int insertsprite(int sectnum, int statnum)
+{
+	int j = ::insertsprite(sectnum, statnum);
+	if (j != -1)
+		sprite[j].detail = 0;
+	return j;
+}
 
 
 
@@ -498,7 +506,7 @@ struct GameInterface : public ::GameInterface
 	//void PlayHudSound() override;
 	//GameStats getStats() override;
 	//void MenuOpened() override;
-	//void MenuSound(EMenuSounds snd) override;
+	void MenuSound(EMenuSounds snd) override;
 	bool CanSave() override;
 	//bool StartGame(FNewGameStartup& gs) override;
 	//FSavegameInfo GetSaveSig() override;
@@ -513,7 +521,7 @@ struct GameInterface : public ::GameInterface
 	void Startup() override;
 	void DrawBackground() override;
 	//void Render() override;
-	//void Ticker() override;
+	void Ticker() override;
 	const char* GenericCheat(int player, int cheat) override;
 	const char* CheckCheatMode() override;
 	//void NextLevel(MapRecord* map, int skill) override;
