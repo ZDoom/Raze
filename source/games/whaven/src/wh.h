@@ -394,6 +394,12 @@ void shards(int i, int type);
 
 // animate
 
+struct Loc
+{
+	int x, y, z, ang;
+};
+extern Loc oldLoc[MAXSPRITES];
+
 struct ANIMATION
 {
 	short id;
@@ -491,6 +497,7 @@ inline int insertsprite(int sectnum, int statnum)
 	return j;
 }
 
+void analyzesprites(PLAYER& plr, int dasmoothratio);
 
 
 void startWh2Ending();

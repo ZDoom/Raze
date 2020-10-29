@@ -25,6 +25,7 @@ set( PCH_SOURCES
 		src/aispider.cpp
 		src/aiwillow.cpp
 		src/animate.cpp
+		src/animatesprites.cpp
 		src/items.cpp
 		src/names.cpp
 		src/potions.cpp
