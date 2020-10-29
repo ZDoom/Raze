@@ -78,11 +78,10 @@ LISTMENU "MainMenu"
 		WH1TextItem "$MNU_Help", "l", "HelpMenu"
 		WH1TextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
-	/*
 	ifgame(Witchaven2)
 	{
-		position 160, 50
-		Linespacing 14
+		position 160, 35
+		Linespacing 22
 		WH2TextItem "$MNU_NEWGAME", "n", "SkillMenu"
 		//WH2TextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
 		WH2TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
@@ -90,7 +89,6 @@ LISTMENU "MainMenu"
 		WH2TextItem "$MNU_Help", "l", "HelpMenu"
 		WH2TextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
-	*/
 }
 
 //-------------------------------------------------------------------------------------------
@@ -172,19 +170,17 @@ LISTMENU "IngameMenu"
 		WH1TextItem "$MNU_ENDGAME", "e", "EndgameMenu"
 		WH1TextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
-	/*
 	ifgame(Witchaven2)
 	{
-		position 160, 50
-		Linespacing 15
+		position 160, 40
+		Linespacing 22
 		WH2TextItem "$MNU_NEWGAME", "n", "SkillMenu"
 		WH2TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		WH2TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		WH2TextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
-		WH2TextItem "$MNU_ENDGAME", "e", ""EndgameMenu"
+		WH2TextItem "$MNU_ENDGAME", "e", "EndgameMenu"
 		WH2TextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
-	*/
 }
 
 //-------------------------------------------------------------------------------------------
@@ -250,14 +246,16 @@ LISTMENU "SkillMenu"
 		WH1SkillItem "#00512", "$SKILL_HARD", "h", "StartGame 2"
 		WH1SkillItem "#00513", "$SKILL_VERY_HARD", "v", "StartGame 3"
 	}
-	/*
 	ifgame(Witchaven2)
 	{
 		CaptionItem "$MNU_DIFFICULTY"
-		Position 35, 32
-		Linespacing 17
+		Position 120, 40
+		Linespacing 22
+		WH2SkillItem "#00510", "$SKILL_EASY", "e", "StartGame 0"
+		WH2SkillItem "#00511", "$SKILL_NORMAL", "m", "StartGame 1"
+		WH2SkillItem "#00512", "$SKILL_HARD", "h", "StartGame 2"
+		WH2SkillItem "#00513", "$SKILL_VERY_HARD", "v", "StartGame 3"
 	}
-	*/
 }
 
 //-------------------------------------------------------------------------------------------
@@ -317,8 +315,20 @@ ImageScroller "HelpMenu"
 		ImageItem "#01787" // CREDIT4"
 		ImageItem "#02691" // BETAPAGE"
 	}
+	ifgame(Witchaven2)
+	{
+		ImageItem "#01064" //WEAPONS"
+		ImageItem "#01063" // SPELLS"
+		ImageItem "#01060" // POTIONS"
+		ImageItem "#01059" // WALKING"
+		ImageItem "#01061" // FLYING"
+		ImageItem "#01055" // CREDIT1"
+		ImageItem "#01057" // CREDIT2"
+		ImageItem "#01062" // CREDIT3"
+		ImageItem "#01056" // CREDIT4"
+		ImageItem "#01058" // BETAPAGE"
+	}
 }
-
 
 //-------------------------------------------------------------------------------------------
 //
