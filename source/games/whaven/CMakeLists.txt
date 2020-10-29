@@ -46,6 +46,7 @@ set( PCH_SOURCES
 		src/sound.cpp
 		src/fonts.cpp
 		src/screenflash.cpp
+		src/precache.cpp
 	)
 
 add_game_library2( whaven )

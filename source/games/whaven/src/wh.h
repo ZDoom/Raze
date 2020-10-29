@@ -498,6 +498,7 @@ inline int insertsprite(int sectnum, int statnum)
 }
 
 void analyzesprites(PLAYER& plr, int dasmoothratio);
+void precacheTiles();
 
 
 void startWh2Ending();
