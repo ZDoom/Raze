@@ -1,5 +1,6 @@
 	#include "ns.h"
 #include "wh.h"
+#include "gamestate.h"
 
 BEGIN_WH_NS
 
@@ -581,7 +582,9 @@ void InitItems()
 
 			{
 				if (isWh2()) {
-					startWh2Ending();
+					startWh2Ending([](bool) {
+						gameaction = ga_mainmenu;
+						});
 					return;
 				}
 				plr.treasure[THORNEDSKULL] = 1;

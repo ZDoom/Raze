@@ -501,8 +501,8 @@ void analyzesprites(PLAYER& plr, int dasmoothratio);
 void precacheTiles();
 
 
-void startWh2Ending();
-void showStatisticsScreen();
+void startWh2Ending(CompletionFunc);
+void showStatisticsScreen(CompletionFunc);
 void showVictoryScreen();
 
 void InitNames();

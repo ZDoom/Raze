@@ -3,6 +3,9 @@
 #include "screenjob.h"
 #include "raze_music.h"
 #include "raze_sound.h"
+#include "v_draw.h"
+#include "v_font.h"
+#include "mapinfo.h"
 
 BEGIN_WH_NS
 
@@ -31,36 +34,96 @@ void IntroMovie(const CompletionFunc& completion)
 
 
 
-void showStatisticsScreen()
+static const char* ratings[] = { "poor", "average", "good", "perfect" };
+
+/*
+		inited = false;
+		if (init("stairs.smk"))
+			inited = true;
+*/
+class DStatisticsScreen : public DScreenJob
 {
-#if 0
-	gStatisticsScreen.show(plr, new Runnable(){
-		@Override
-		public void run() {
-			mapon++;
-			spritesound(S_CHAINDOOR1, &sprite[plr.spritenum]);
-			playertorch = 0;
-			spritesound(S_WARP, &sprite[plr.spritenum]);
-			loadnewlevel(mapon);
+
+	boolean inited = false;
+	int bonus, rating;
+
+public:
+	DStatisticsScreen(PLAYER& plr)
+	{
+		if (kills > killcnt)
+			kills = killcnt;
+		int killp = (kills * 100) / (killcnt + 1);
+		if (treasuresfound > treasurescnt)
+			treasuresfound = treasurescnt;
+		int treap = (treasuresfound * 100) / (treasurescnt + 1);
+		rating = (killp + treap) / 2;
+		if (rating >= 95) {
+			rating = 3;
 		}
-		});
-#endif
+		else if (rating >= 70)
+			rating = 2;
+		else if (rating >= 40)
+			rating = 1;
+		else rating = 0;
+		bonus = rating * 500;
+		plr.score += bonus;
+	}
+
+	void drawText(int x, int y, const char* text)
+	{
+		DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+	}
+
+	int Frame(uint64_t nsclock, bool skiprequest) override
+	{
+		if (nsclock == 0) SND_Sound(S_CHAINDOOR1);
+		DrawTexture(twod, tileGetTexture(VMAINBLANK), 0, 0, DTA_Fullscreen, FSMode_ScaleToFit43, TAG_DONE);
+
+		drawText(10, 13, currentLevel->DisplayName());
+		drawText(10, 31, GStrings("Level conquered"));
+
+		drawText(10, 64, GStrings("Enemies killed"));
+		drawText(160 + 48 + 14, 64, FStringf("%d %s %d", kills, GStrings("TXT_OF"), killcnt));
+
+		drawText(10, 64 + 18, GStrings("Treasures found"));
+		drawText(160 + 48 + 14, 64 + 18, FStringf("%d %s %d", treasuresfound, GStrings("TXT_OF"), treasurescnt));
+
+		drawText(10, 64 + 2 * 18, GStrings("Experience gained"));
+		drawText(160 + 48 + 14, 64 + 2 * 18, FStringf("%s", (expgained + bonus)));
+
+		drawText(10, 64 + 3 * 18, GStrings("Rating"));
+		drawText(160 + 48 + 14, 64 + 3 * 18, FStringf("%d", GStrings(ratings[rating])));
+
+		drawText(10, 64 + 4 * 18, GStrings("Bonus"));
+		drawText(160 + 48 + 14, 64 + 4 * 18, FStringf("%d", bonus));
+
+		return skiprequest ? -1 : 1;
+	}
+
+};
+
+
+void showStatisticsScreen(CompletionFunc completion)
+{
+	JobDesc job = { Create<DStatisticsScreen>(player[pyrn]), nullptr };
+	RunScreenJob(&job, 1, completion, true, false);
 }
 
-void startWh2Ending()
+void startWh2Ending(CompletionFunc completion)
 {
-#if 0
-					if (gCutsceneScreen.init("ending1.smk"))
-					if (gCutsceneScreen.init("ending2.smk"))
-					if (gCutsceneScreen.init("ending3.smk"))
-					game.changeScreen(gMenuScreen);
-#endif
+	JobDesc jobs[3];
+	jobs[0] = { PlayVideo("smk/ending1.smk", nullptr) };
+	jobs[1] = { PlayVideo("smk/ending2.smk", nullptr) };
+	jobs[2] = { PlayVideo("smk/ending3.smk", nullptr) };
+	RunScreenJob(jobs, 3, completion, true, false);
 }
 
 void showVictoryScreen()
 {
 	//game.changeScreen(gVictoryScreen);
 }
+
+
 
 #if 0
 void orbpic(PLAYER& plr, int currentorb) {
