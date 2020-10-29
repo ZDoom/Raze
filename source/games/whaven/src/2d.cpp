@@ -118,9 +118,13 @@ void startWh2Ending(CompletionFunc completion)
 	RunScreenJob(jobs, 3, completion, true, false);
 }
 
-void showVictoryScreen()
+void showVictoryScreen(CompletionFunc completion)
 {
-	//game.changeScreen(gVictoryScreen);
+	JobDesc jobs[3];
+	jobs[0] = { Create<DImageScreen>(VICTORYA, DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff), []() { SND_Sound(S_DROPFLAG); } };
+	jobs[1] = { Create<DImageScreen>(VICTORYB, DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff), []() { SND_Sound(S_WISP2); } };
+	jobs[2] = { Create<DImageScreen>(VICTORYC, DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff) };
+	RunScreenJob(jobs, 3, completion, true, false);
 }
 
 

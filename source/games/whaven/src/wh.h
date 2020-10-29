@@ -503,7 +503,7 @@ void precacheTiles();
 
 void startWh2Ending(CompletionFunc);
 void showStatisticsScreen(CompletionFunc);
-void showVictoryScreen();
+void showVictoryScreen(CompletionFunc);
 
 void InitNames();
 void InitFonts();

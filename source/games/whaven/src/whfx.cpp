@@ -1,5 +1,6 @@
 #include "ns.h"
 #include "wh.h"
+#include "gamestate.h"
 
 BEGIN_WH_NS
 
@@ -483,7 +484,10 @@ void teleporter() {
 				case 2: // ENDOFDEMO
 					spritesound(S_THUNDER1, &sprite[plr.spritenum]);
 					justteleported = true;
-					showVictoryScreen();
+					showVictoryScreen([=](bool)
+						{
+							gameaction = ga_mainmenu;
+						});
 					break;
 				}
 			} else {
