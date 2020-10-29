@@ -35,6 +35,7 @@ set( PCH_SOURCES
 		src/whani.cpp
 		src/whfx.cpp
 		src/whmap.cpp
+		src/whldsv.cpp
 		src/whobj.cpp
 		src/whplr.cpp
 		src/whtag.cpp

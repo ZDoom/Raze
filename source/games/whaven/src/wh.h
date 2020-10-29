@@ -138,6 +138,14 @@ struct PLOCATION {
 	float horiz;
 };
 
+extern int ihaveflag;
+extern int justplayed;
+extern int lopoint;
+extern int walktoggle;
+extern int runningtime;
+extern int oldhoriz;
+extern int gNameShowTime;
+
 
 extern int killcnt, kills;
 extern int treasurescnt, treasuresfound;
@@ -350,6 +358,9 @@ extern int warpx, warpy, warpz, warpang;
 extern short warpsect;
 extern int scarytime;
 extern int scarysize;
+extern int thunderflash;
+extern int thundertime;
+
 
 void initlava();
 void movelava();
@@ -510,7 +521,7 @@ struct GameInterface : public ::GameInterface
 	bool CanSave() override;
 	//bool StartGame(FNewGameStartup& gs) override;
 	//FSavegameInfo GetSaveSig() override;
-	//void SerializeGameState(FSerializer& arc) override;
+	void SerializeGameState(FSerializer& arc) override;
 	//void QuitToTitle() override;
 	FString GetCoordString() override;
 	//void ExitFromMenu() override;
