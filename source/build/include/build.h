@@ -92,6 +92,7 @@ enum {
     RS_ALIGN_MASK = 768,
     RS_STRETCH = 1024,
 
+    ROTATESPRITE_FULL16 = 2048,
     RS_MODELSUBST= 4096,
     // ROTATESPRITE_MAX-1 is the mask of all externally available orientation bits
     ROTATESPRITE_MAX = 8192,
@@ -497,9 +498,22 @@ void videoInit();
 void   videoClearViewableArea(int32_t dacol);
 void   videoClearScreen(int32_t dacol);
 void   renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
+void   rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                     int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+                     int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FGameTexture *pic = nullptr, int basepal = 0);
 
 class F2DDrawer;
+void twod_rotatesprite(F2DDrawer* twod, int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+    int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+    int32_t clipx1, int32_t clipy1, int32_t clipx2, int32_t clipy2, FGameTexture* pic = nullptr, int basepal = 0);
 
+////////// specialized rotatesprite wrappers for (very) often used cases //////////
+static FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                                int8_t dashade, uint8_t dapalnum, int32_t dastat,
+                                int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FGameTexture* pic = nullptr, int basepal = 0)
+{
+    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, cx1, cy1, cx2, cy2, pic, basepal);
+}
 
 void   getzrange(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
                  int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
