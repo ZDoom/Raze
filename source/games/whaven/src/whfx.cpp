@@ -36,6 +36,9 @@ short warpsect;
 int scarytime = -1;
 int scarysize = 0;
 
+int thunderflash;
+int thundertime;
+
 
 static uint8_t lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 2)], lavainc[LAVASIZ];
 static int lavanumdrops, lavanumframes;
@@ -676,9 +679,6 @@ void dofx() {
 	}
 #endif
 }
-
-static int thunderflash;
-static int thundertime;
 
 void thunder() {
 	int val;

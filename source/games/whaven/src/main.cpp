@@ -310,7 +310,7 @@ void GameInterface::Ticker()
 
 	//processinput(pyrn);
 	updateviewmap(plr);
-	//updatepaletteshifts();
+	updatepaletteshifts();
 
 	processobjs(plr);
 	animateobjs(plr);
@@ -335,6 +335,7 @@ void GameInterface::Ticker()
 	}
 
 	lockclock += TICSPERFRAME;
+	r_NoInterpolate = false;
 }
 
 void GameInterface::MenuSound(EMenuSounds snd)

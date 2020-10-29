@@ -453,14 +453,13 @@ enum
 
 extern int ambsoundarray[8];
 
-inline void startredflash(int)
-{}
-inline void startwhiteflash(int)
-{}
-inline void startgreenflash(int)
-{}
-inline void startblueflash(int)
-{}
+void startredflash(int);
+void startwhiteflash(int);
+void startgreenflash(int);
+void startblueflash(int);
+void updatepaletteshifts();
+void resetflash();
+void applyflash();
 
 
 void updatesounds();
