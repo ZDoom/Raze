@@ -116,10 +116,11 @@ void FNotifyBuffer::DrawNative()
 
 	FFont* font = g_gameType & GAMEFLAG_BLOOD ? SmallFont2 : SmallFont;
 
-	int line = (g_gameType & GAMEFLAG_BLOOD)? Top : (g_gameType & GAMEFLAG_SW) ? 40 : font->GetDisplacement();
+	int line = (g_gameType & GAMEFLAG_BLOOD)? Top : (g_gameType & GAMEFLAG_SW) ? 40 : (g_gameType & (GAMEFLAG_WH | GAMEFLAG_WH2))? 18 : font->GetDisplacement();
 	bool canskip = (g_gameType & GAMEFLAG_BLOOD);
 	double scale = 1 / (NotifyFontScale * con_notifyscale);
 	int lineadv = font->GetHeight() / NotifyFontScale;
+	int textleft = (g_gameType & (GAMEFLAG_WH | GAMEFLAG_WH2)) ? 18 : 0;
 
 	for (unsigned i = topline; i < Text.Size(); ++i)
 	{
@@ -139,7 +140,7 @@ void FNotifyBuffer::DrawNative()
 
 			if (!center)
 			{
-				DrawText(twod, font, CR_UNTRANSLATED, 0, line, notify.Text,
+				DrawText(twod, font, CR_UNTRANSLATED, textleft, line, notify.Text,
 					DTA_FullscreenScale, FSMode_ScaleToHeight,
 					DTA_VirtualWidthF, 320 * scale, DTA_VirtualHeightF, 200 * scale, DTA_KeepRatio, true,
 					DTA_Alpha, alpha, TAG_DONE);
