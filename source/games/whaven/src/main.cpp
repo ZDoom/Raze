@@ -303,15 +303,13 @@ bool playrunning()
 
 void GameInterface::Ticker() 
 {
-#if 0
 	// Make copies so that the originals do not have to be modified.
 	for (int i = 0; i < MAXPLAYERS; i++)
 	{
-		auto oldactions = ps[i].sync.actions;
-		ps[i].sync = playercmds[i].ucmd;
-		if (oldactions & SB_CENTERVIEW) ps[i].sync.actions |= SB_CENTERVIEW;
+		auto oldactions = player[i].plInput.actions;
+		player[i].plInput = playercmds[i].ucmd;
+		if (oldactions & SB_CENTERVIEW) player[i].plInput.actions |= SB_CENTERVIEW;
 	}
-#endif
 
 	if (!playrunning())
 	{
@@ -325,7 +323,7 @@ void GameInterface::Ticker()
 	PLAYER &plr = player[pyrn];
 	viewBackupPlayerLoc(pyrn);
 
-	//processinput(pyrn);
+	processinput(pyrn);
 	updateviewmap(plr);
 	updatepaletteshifts();
 

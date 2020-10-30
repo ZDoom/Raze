@@ -174,6 +174,8 @@ void processinput(int num) {
 	short onsprite = -1;
 
 	PLAYER& plr = player[num];
+	oldposx = plr.x;
+	oldposy = plr.y;
 
 	auto bits = plr.plInput.actions;
 
@@ -228,7 +230,7 @@ void processinput(int num) {
 			tics += tics >> 1;
 	}
 
-	plr.horiz = clamp(plr.horiz + plr.plInput.horz + 100, -(200 >> 1), 100 + (200 >> 1));
+	plr.horiz = clamp(plr.horiz + plr.plInput.horz, -(200 >> 1), 100 + (200 >> 1));
 
 	if ((bits & SB_AIM_DOWN) != 0) {
 		if (plr.horiz > 100 - (200 >> 1)) {
@@ -414,9 +416,6 @@ void processinput(int num) {
 		//				xvect += (plr.pInput.svel * tics * BSinAngle(plr.ang));
 		//				yvect -= (plr.pInput.svel * tics * BCosAngle(plr.ang));
 		//			}
-
-		oldposx = plr.x;
-		oldposy = plr.y;
 
 		if (plr.noclip) {
 			plr.x += xvect >> 14;
