@@ -597,4 +597,75 @@ void lockon(PLAYER& plr, int numshots, int shootguntype) {
 	}
 }
 
+
+void dophysics(PLAYER& plr, int goalz, int flyupdn, int v) {
+	if (plr.orbactive[5] > 0) {
+		if (v > 0) {
+			if (plr.horiz > 125)
+				plr.hvel -= (TICSPERFRAME << 8);
+			else if (plr.horiz < 75)
+				plr.hvel += (TICSPERFRAME << 8);
+		}
+		if (flyupdn > 0) {
+			plr.hvel -= (TICSPERFRAME << 7);
+		}
+		if (flyupdn < 0) {
+			plr.hvel += (TICSPERFRAME << 7);
+		}
+		plr.hvel += (sintable[(lockclock << 4) & 2047] >> 6);
+		plr.fallz = 0;
+
+	}
+	else if (plr.z < goalz) {
+		if (isWh2())
+			plr.hvel += (TICSPERFRAME * WH2GRAVITYCONSTANT);
+		else
+			plr.hvel += GRAVITYCONSTANT;
+		plr.onsomething &= ~(GROUNDBIT | PLATFORMBIT);
+		plr.fallz += plr.hvel;
+	}
+	else if (plr.z > goalz) {
+		plr.hvel -= ((plr.z - goalz) >> 6);
+		plr.onsomething |= GROUNDBIT;
+		plr.fallz = 0;
+	}
+	else {
+		plr.fallz = 0;
+	}
+
+	plr.z += plr.hvel;
+	if (plr.hvel > 0 && plr.z > goalz) {
+		plr.hvel >>= 2;
+	}
+	else if (plr.onsomething != 0) {
+		if (plr.hvel < 0 && plr.z < goalz) {
+			plr.hvel = 0;
+			plr.z = goalz;
+		}
+	}
+
+	if (plr.sector != -1) {
+		if (plr.z - (plr.height >> 2) < getceilzofslope(plr.sector, plr.x, plr.y)) {
+			plr.z = getceilzofslope(plr.sector, plr.x, plr.y) + (plr.height >> 2);
+			plr.hvel = 0;
+		}
+		else {
+			if (plr.orbactive[5] > 0) {
+				if (plr.z + (plr.height << 7) > getflorzofslope(plr.sector, plr.x, plr.y)) {
+					plr.z = getflorzofslope(plr.sector, plr.x, plr.y) - (plr.height << 7);
+					plr.hvel = 0;
+				}
+			}
+			else {
+				if (plr.z + (plr.height >> 4) > getflorzofslope(plr.sector, plr.x, plr.y)) {
+					plr.z = getflorzofslope(plr.sector, plr.x, plr.y) - (plr.height >> 4);
+					plr.hvel = 0;
+				}
+			}
+		}
+	}
+	plr.jumphoriz = -(plr.hvel >> 8);
+}
+
+
 END_WH_NS

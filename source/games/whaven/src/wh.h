@@ -232,6 +232,7 @@ void goesupalevel(PLAYER& plr);
 void lockon(PLAYER& plr, int numshots, int shootguntype);
 void goesupalevel1(PLAYER& plr);
 void goesupalevel2(PLAYER& plr);
+void dophysics(PLAYER& plr, int goalz, int flyupdn, int v);
 
 inline int getPlayerHeight()
 {
