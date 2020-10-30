@@ -223,6 +223,7 @@ void GameInterface::app_init()
 	readpalettetable();
 	TileFiles.SetBackup();
 	InitFonts();
+	connectpoint2[0] = -1;
 
 	if(isWh2()) {
 		tileDelete(FLOORMIRROR);
@@ -245,6 +246,19 @@ void GameInterface::app_init()
 	//sndInit();
 	//initpaletteshifts();
 	InitOriginalEpisodes();
+
+	psky_t* pSky = tileSetupSky(0);
+	pSky->tileofs[0] = 0;
+	pSky->tileofs[1] = 0;
+	pSky->tileofs[2] = 0;
+	pSky->tileofs[3] = 0;
+	pSky->yoffs = 256;
+	pSky->lognumtiles = 2;
+	pSky->horizfrac = 65536;
+	pSky->yscale = 65536;
+	parallaxtype = 2;
+	g_visibility = 2048;
+
 }
 
 void GameInterface::Startup()
@@ -400,6 +414,14 @@ void GameInterface::NewGame(MapRecord* map, int skill)
 	prepareboard(currentLevel->fileName);
 	STAT_StartNewGame(isWh2() ? "Witchaven2" : "Witchaven", skill);
 	STAT_NewLevel(currentLevel->labelName);
+}
+
+bool GameInterface::StartGame(FNewGameStartup& gs)
+{
+	auto map = FindMapByLevelNum(1);
+	DeferedStartGame(map, gs.Skill);
+	return true;
+
 }
 
 

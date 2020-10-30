@@ -41,7 +41,8 @@ void drawscreen(int num, int dasmoothratio) {
 		choriz = iHoriz;
 		cang = inAngle;
 	}
-		
+	choriz -= 100;	// make it 0-based like the rest of the engine expects.
+
 	// wango
     if ((gotpic[FLOORMIRROR >> 3] & (1 << (FLOORMIRROR & 7))) != 0) {
             int dist = 0x7fffffff;
@@ -59,7 +60,7 @@ void drawscreen(int num, int dasmoothratio) {
 			// Todo: render this with 30% light only.
 			inpreparemirror = true;
 			renderSetRollAngle(1024);
-			renderDrawRoomsQ16(cposx, cposy, cposz, FloatToFixed(cang), FloatToFixed(201 - choriz), floormirrorsector[i]);
+			renderDrawRoomsQ16(cposx, cposy, cposz, FloatToFixed(cang), FloatToFixed(101 - choriz), floormirrorsector[i]);
 			analyzesprites(plr, dasmoothratio);
 			renderDrawMasks();
 			renderSetRollAngle(0);
