@@ -349,7 +349,8 @@ static DMenuItemBase* CreateCustomListMenuItemText(double x, double y, int heigh
 	const char* classname = 
 		(g_gameType & GAMEFLAG_BLOOD) ? "ListMenuItemBloodTextItem" :
 		(g_gameType & GAMEFLAG_SW) ? "ListMenuItemSWTextItem" :
-		(g_gameType & GAMEFLAG_PSEXHUMED) ? "ListMenuItemExhumedTextItem" : "ListMenuItemDukeTextItem";
+		(g_gameType & GAMEFLAG_PSEXHUMED) ? "ListMenuItemExhumedTextItem" : 
+		"ListMenuItemDukeTextItem";
 	auto c = PClass::FindClass(classname);
 	auto p = c->CreateNew();
 	FString keystr = FString(char(hotkey));
@@ -426,7 +427,8 @@ static void BuildEpisodeMenu()
 	// Build skill menu
 	int addedSkills = 0;
 	desc = MenuDescriptors.CheckKey(NAME_Skillmenu);
-	if (desc != nullptr && (*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
+	// If the skill names list ios empty, a predefined menu is assumed
+	if (desc != nullptr && gSkillNames[0].IsNotEmpty() && (*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
 	{
 		DListMenuDescriptor* ld = static_cast<DListMenuDescriptor*>(*desc);
 		DMenuItemBase* popped = nullptr;
