@@ -6,6 +6,8 @@
 #include "v_draw.h"
 #include "menu.h"
 #include "mmulti.h"
+#include "raze_music.h"
+#include "statistics.h"
 
 BEGIN_WH_NS
 
@@ -337,6 +339,69 @@ void GameInterface::Ticker()
 	lockclock += TICSPERFRAME;
 	r_NoInterpolate = false;
 }
+
+void GameInterface::LevelCompleted(MapRecord* map, int skill)
+{
+	if (map)
+	{
+		STAT_Update(false);
+		auto pplr = &player[pyrn];
+		auto completion = [=](bool)
+		{
+			spritesound(S_CHAINDOOR1, &sprite[pplr->spritenum]);
+			playertorch = 0;
+			spritesound(S_WARP, &sprite[pplr->spritenum]);
+		};
+		if (isWh2()) {
+			showStatisticsScreen(completion);
+			return;
+		}
+		completion(false);
+	}
+	else if (!isWh2())
+	{
+		STAT_Update(true);
+		showVictoryScreen([=](bool)
+			{
+				gameaction = ga_mainmenu;
+			});
+	}
+	else
+	{
+		STAT_Update(true);
+		startWh2Ending([](bool) {
+			gameaction = ga_mainmenu;
+			});
+	}
+}
+
+void GameInterface::NextLevel(MapRecord* map, int skill)
+{
+	mapon = map->levelNumber;
+	currentLevel = map;
+	difficulty = skill;
+	nextlevel = true;
+	prepareboard(currentLevel->fileName);
+	STAT_NewLevel(currentLevel->labelName);
+}
+
+
+void GameInterface::NewGame(MapRecord* map, int skill) 
+{
+	//pNet.ready2send = false;
+	//game.nNetMode = NetMode.Single;
+
+	mapon = map->levelNumber;
+	currentLevel = map;
+	difficulty = skill;
+	justteleported = false;
+	nextlevel = false;
+	Mus_Stop();
+	prepareboard(currentLevel->fileName);
+	STAT_StartNewGame(isWh2() ? "Witchaven2" : "Witchaven", skill);
+	STAT_NewLevel(currentLevel->labelName);
+}
+
 
 void GameInterface::MenuSound(EMenuSounds snd)
 {

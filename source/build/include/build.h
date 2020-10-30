@@ -839,10 +839,6 @@ int32_t md_undefinemodel(int32_t modelid);
 
 int32_t loaddefinitionsfile(const char *fn, bool loadadds = false);
 
-// if loadboard() fails with -2 return, try loadoldboard(). if it fails with
-// -2, board is dodgy
-int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
-
 #ifdef USE_OPENGL
 # include "polymost.h"
 #endif

@@ -582,9 +582,7 @@ void InitItems()
 
 			{
 				if (isWh2()) {
-					startWh2Ending([](bool) {
-						gameaction = ga_mainmenu;
-						});
+					CompleteLevel(nullptr);
 					return;
 				}
 				plr.treasure[THORNEDSKULL] = 1;

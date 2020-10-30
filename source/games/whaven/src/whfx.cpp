@@ -1,6 +1,7 @@
 #include "ns.h"
 #include "wh.h"
 #include "gamestate.h"
+#include "mapinfo.h"
 
 BEGIN_WH_NS
 
@@ -461,33 +462,12 @@ void teleporter() {
 				switch (sector[plr.sector].hitag) {
 				case 1: // NEXTLEVEL
 					justteleported = true;
-						
-					if(isWh2()) {
-						auto pplr = &plr;
-						showStatisticsScreen([=](bool)
-							{
-								mapon++;
-								spritesound(S_CHAINDOOR1, &sprite[pplr->spritenum]);
-								playertorch = 0;
-								spritesound(S_WARP, &sprite[pplr->spritenum]);
-								loadnewlevel(mapon);
-							});
-						break;
-					}
-						
-					mapon++;
-					spritesound(S_CHAINDOOR1, &sprite[plr.spritenum]);
-					playertorch = 0;
-					spritesound(S_WARP, &sprite[plr.spritenum]);
-					loadnewlevel(mapon);
+					CompleteLevel(currentLevel);
 					break;
 				case 2: // ENDOFDEMO
 					spritesound(S_THUNDER1, &sprite[plr.spritenum]);
 					justteleported = true;
-					showVictoryScreen([=](bool)
-						{
-							gameaction = ga_mainmenu;
-						});
+					CompleteLevel(nullptr);
 					break;
 				}
 			} else {

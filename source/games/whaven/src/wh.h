@@ -273,7 +273,6 @@ void setdelayfunc(int item, int delay);
 
 extern boolean nextlevel;
 
-void loadnewlevel(int mapon);
 void preparesectors();
 boolean prepareboard(const char* fname);
 
@@ -543,9 +542,9 @@ struct GameInterface : public ::GameInterface
 	void Ticker() override;
 	const char* GenericCheat(int player, int cheat) override;
 	const char* CheckCheatMode() override;
-	//void NextLevel(MapRecord* map, int skill) override;
-	//void NewGame(MapRecord* map, int skill) override;
-	//void LevelCompleted(MapRecord* map, int skill) override;
+	void NextLevel(MapRecord* map, int skill) override;
+	void NewGame(MapRecord* map, int skill) override;
+	void LevelCompleted(MapRecord* map, int skill) override;
 	//bool DrawAutomapPlayer(int x, int y, int z, int a) override;
 	//int playerKeyMove() override { return 40; }
 

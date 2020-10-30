@@ -9,18 +9,6 @@ BEGIN_WH_NS
 
 boolean nextlevel;
 
-void loadnewlevel(int mapon) {
-#if 0
-	MapInfo nextmap;
-	if(gCurrentEpisode != nullptr && (nextmap = gCurrentEpisode.getMap(mapon)) != nullptr) {
-		boardfilename = nextmap.path;
-		Console.Println("Entering level " + boardfilename);
-		nextlevel = true;
-		gGameScreen.loadboard(boardfilename, nullptr);
-	} else game.show();
-#endif
-}
-
 void preparesectors() {
 	int endwall, j, k = 0, startwall;
 	int dax, day;

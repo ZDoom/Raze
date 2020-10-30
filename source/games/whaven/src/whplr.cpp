@@ -23,7 +23,7 @@ int damage_vel, damage_svel, damage_angvel;
 void viewBackupPlayerLoc( int nPlayer )
 {
 	SPRITE& pSprite = sprite[player[nPlayer].spritenum];
-	PLOCATION pPLocation = gPrevPlayerLoc[nPlayer];
+	PLOCATION& pPLocation = gPrevPlayerLoc[nPlayer];
 	pPLocation.x = pSprite.x;
 	pPLocation.y = pSprite.y;
 	pPLocation.z = player[nPlayer].z;
