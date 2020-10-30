@@ -468,7 +468,6 @@ void resetflash();
 void applyflash();
 
 
-void updatesounds();
 int playsound_internal(int sn, spritetype* spr, int x, int y, int loop, int chan);
 
 inline int playsound(int sn, int x, int y, int loop = 0, int channel = CHAN_AUTO) {
@@ -522,21 +521,19 @@ struct GameInterface : public ::GameInterface
 	void app_init() override;
 	//void clearlocalinputstate() override;
 	//bool GenerateSavePic() override;
-	//void PlayHudSound() override;
-	//GameStats getStats() override;
-	//void MenuOpened() override;
+	GameStats getStats() override;
+	void MenuOpened() override;
 	void MenuSound(EMenuSounds snd) override;
 	bool CanSave() override;
 	bool StartGame(FNewGameStartup& gs) override;
-	//FSavegameInfo GetSaveSig() override;
+	FSavegameInfo GetSaveSig() override;
 	void SerializeGameState(FSerializer& arc) override;
-	//void QuitToTitle() override;
+	void QuitToTitle() override;
 	FString GetCoordString() override;
 	//void ExitFromMenu() override;
-	//ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	//void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
 	//void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
-	//void UpdateSounds() override;
+	void UpdateSounds() override;
 	void Startup() override;
 	void DrawBackground() override;
 	void Render() override;

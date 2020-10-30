@@ -8,6 +8,7 @@
 #include "mmulti.h"
 #include "raze_music.h"
 #include "statistics.h"
+#include "version.h"
 
 BEGIN_WH_NS
 
@@ -338,8 +339,6 @@ void GameInterface::Ticker()
 	timerprocess(plr);
 	weaponsprocess(pyrn);
 
-	updatesounds();
-
 	if (followmode) {
 		followa += followang;
 
@@ -431,6 +430,27 @@ void GameInterface::MenuSound(EMenuSounds snd)
 	else SND_Sound(59);
 }
 
+void GameInterface::MenuOpened()
+{
+	if (!isWh2()) SND_Sound(85);
+	else SND_Sound(59);
+}
+
+FSavegameInfo GameInterface::GetSaveSig()
+{
+	return { SAVESIG_DN3D, MINSAVEVER_DN3D, SAVEVER_DN3D };
+}
+
+void GameInterface::QuitToTitle()
+{
+	Mus_Stop();
+	gameaction = ga_mainmenu;
+}
+
+::GameStats GameInterface::getStats()
+{
+	return { kills, killcnt, treasuresfound, treasurescnt, lockclock / 30, 0 };
+}
 
 ::GameInterface* CreateInterface()
 {

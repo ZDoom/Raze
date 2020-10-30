@@ -120,9 +120,11 @@ void WHSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 	}
 }
 
-void updatesounds()
+
+void GameInterface::UpdateSounds()
 {
-	// Handle timed loops.
+	SoundListener listener;
+
 	soundEngine->EnumerateChannels([](FSoundChan* channel)
 		{
 			if (channel->UserData > 0)
@@ -135,9 +137,27 @@ void updatesounds()
 			}
 			return false;
 		});
+
+	if (player[pyrn].spritenum >= 0)
+	{
+		listener.angle = -(float)player[pyrn].ang * pi::pi() / 1024; // Build uses a period of 2048.
+		listener.velocity.Zero();
+		vec3_t ppos{ player[pyrn].x, player[pyrn].y, player[pyrn].z };
+		listener.position = GetSoundPos(&ppos);
+		listener.valid = true;
+	}
+	else
+	{
+		listener.position.Zero();
+		listener.valid = false;
+	}
+	listener.underwater = false;
+	listener.Environment = 0;
+
+	listener.ListenerObject = &sprite[player[pyrn].spritenum];
+	soundEngine->SetListener(listener);
 	soundEngine->UpdateSounds(I_GetTime());
 }
-
 
 int playsound_internal(int sn, spritetype *spr, int x, int y, int loop, int chan) 
 {
