@@ -48,6 +48,7 @@ set( PCH_SOURCES
 		src/screenflash.cpp
 		src/precache.cpp
 		src/render.cpp
+		src/input.cpp
 	)
 
 add_game_library2( whaven )

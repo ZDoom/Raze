@@ -278,7 +278,7 @@ void GameInterface::Startup()
 
 bool GameInterface::CanSave()
 {
-	return false;// !bRecord && !bPlayback && !paused && !bInDemo && nTotalPlayers == 1;
+	return !player[pyrn].dead && numplayers == 1;
 }
 
 

@@ -29,22 +29,31 @@ void potiontext(PLAYER& plr) {
 void potionchange(int snum)
 {
 	PLAYER& plr = player[snum];
-		
-	int key = ((plr.plInput.actions & (SB_ITEM_BIT_1 | SB_ITEM_BIT_2 | SB_ITEM_BIT_3)) / SB_ITEM_BIT_1) - 1;
-	if(key != -1 && key < 7)
+	if (!(plr.plInput.actions & (SB_INVPREV | SB_INVNEXT | SB_ITEM_BIT_1 | SB_ITEM_BIT_2 | SB_ITEM_BIT_3 | SB_ITEM_BIT_4 | SB_ITEM_BIT_5)))
+		return;
+
+	if (plr.plInput.actions & SB_INVPREV)
 	{
-		if(key == 5 || key == 6)
-		{
-			key = ( key == 5 ? -1 : 1 );
-			plr.currentpotion += key;
-			if(plr.currentpotion < 0)
-				plr.currentpotion = 4;
-			if(plr.currentpotion >= MAXPOTIONS)
-				plr.currentpotion = 0;
-		} else plr.currentpotion = key;
-		SND_Sound(S_BOTTLES);
-		potiontext(plr);
+		if (--plr.currentpotion < 0)
+			plr.currentpotion = MAXPOTIONS - 1;
 	}
+	if (plr.plInput.actions & SB_INVNEXT)
+	{
+		if (++plr.currentpotion >= MAXPOTIONS)
+			plr.currentpotion = 0;
+	}
+	if (plr.plInput.actions & SB_ITEM_BIT_1)
+		plr.currentpotion = 0;
+	if (plr.plInput.actions & SB_ITEM_BIT_2)
+		plr.currentpotion = 1;
+	if (plr.plInput.actions & SB_ITEM_BIT_3)
+		plr.currentpotion = 2;
+	if (plr.plInput.actions & SB_ITEM_BIT_4)
+		plr.currentpotion = 3;
+	if (plr.plInput.actions & SB_ITEM_BIT_5)
+		plr.currentpotion = 4;
+	SND_Sound(S_BOTTLES);
+		potiontext(plr);
 }
 	
 void usapotion(PLAYER& plr) {
@@ -90,6 +99,7 @@ void usapotion(PLAYER& plr) {
 		SND_Sound(S_DRINK);
 		plr.manatime=3200;
 		startwhiteflash(10);
+		soundEngine->StopSound(CHAN_LAVA);
 	break;
 	case 4: // invisi
 		SND_Sound(S_DRINK);

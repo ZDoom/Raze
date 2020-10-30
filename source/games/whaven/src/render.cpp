@@ -8,7 +8,8 @@
 BEGIN_WH_NS
 
 
-void drawscreen(int num, int dasmoothratio) {
+void drawscreen(int num, int dasmoothratio, bool sceneonly)
+{
 
 	PLAYER& plr = player[num];
 
@@ -81,7 +82,7 @@ void drawscreen(int num, int dasmoothratio) {
 	analyzesprites(plr, dasmoothratio);
 	renderDrawMasks();
 
-	if (automapMode != am_off)
+	if (automapMode != am_off && !sceneonly)
 	{
 		DrawOverheadMap(cposx, cposy, int(cang));
 	}
@@ -91,12 +92,19 @@ void GameInterface::Render()
 {
 	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
 
-	drawscreen(pyrn, FloatToFixed(smoothRatio)); 
+	drawscreen(pyrn, FloatToFixed(smoothRatio), false); 
 	if (!paused && isWh2() && attacktheme && !Mus_IsPlaying())
 	{
 		startsong(krand() % 2);
     	attacktheme = 0;
 	}
 }
+
+bool GameInterface::GenerateSavePic()
+{
+	drawscreen(pyrn, FRACUNIT, true);
+	return true;
+}
+
 
 END_WH_NS

@@ -21,12 +21,15 @@ enum ESyncBits_ : uint32_t
     SB_CENTERVIEW = 1 << 14,
     SB_TURNAROUND = 1 << 15,
     SB_HOLSTER = 1 << 16,
+    SB_FLYSTOP = 1 << 16,         // WH only
     SB_OPEN = 1 << 17,
 
     SB_AIMMODE = 1 << 18,   
     SB_QUICK_KICK = 1 << 19,    // Duke only.
     SB_CROUCH_LOCK = 1 << 19,   // SW only.
-    SB_ESCAPE = 1 << 20,
+    SB_FLYDOWN = 1 << 19,       // WH only.
+    SB_ESCAPE = 1 << 20,          // Duke only
+    SB_SPELL = 1 << 20,         // WH only
 
     SB_AIM_UP = 1 << 21,
     SB_AIM_DOWN = 1 << 22,
@@ -39,6 +42,7 @@ enum ESyncBits_ : uint32_t
     SB_CROUCH = 1 << 29,
     SB_FIRE = 1 << 30,
     SB_ALTFIRE = 1u << 31,
+    SB_FLYUP = 1u << 31,      // WH only
 
     SB_WEAPONMASK_BITS = (15u * SB_FIRST_WEAPON_BIT), // Weapons take up 4 bits
     SB_ITEMUSE_BITS = (127u * SB_ITEM_BIT_1),

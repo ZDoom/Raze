@@ -7,6 +7,7 @@ BEGIN_WH_NS
 struct PLAYER {
 	
 	InputPacket plInput;
+	int spellnum;
 	int x,y,z;
 	float ang;
     float horiz, jumphoriz;

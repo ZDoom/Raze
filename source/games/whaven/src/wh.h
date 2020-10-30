@@ -138,15 +138,6 @@ struct PLOCATION {
 	float horiz;
 };
 
-extern int ihaveflag;
-extern int justplayed;
-extern int lopoint;
-extern int walktoggle;
-extern int runningtime;
-extern int oldhoriz;
-extern int gNameShowTime;
-
-
 extern int killcnt, kills;
 extern int treasurescnt, treasuresfound;
 extern int expgained;
@@ -442,6 +433,7 @@ enum
 	CHAN_ENCHANTED = 100,
 	CHAN_CART,
 	CHAN_BAT,
+	CHAN_LAVA,
 	CHAN_AMBIENT1,
 	CHAN_AMBIENT2,
 	CHAN_AMBIENT3,
@@ -519,8 +511,8 @@ struct GameInterface : public ::GameInterface
 {
 	const char* Name() override { return "Witchaven"; }
 	void app_init() override;
-	//void clearlocalinputstate() override;
-	//bool GenerateSavePic() override;
+	void clearlocalinputstate() override;
+	bool GenerateSavePic() override;
 	GameStats getStats() override;
 	void MenuOpened() override;
 	void MenuSound(EMenuSounds snd) override;
@@ -532,7 +524,7 @@ struct GameInterface : public ::GameInterface
 	FString GetCoordString() override;
 	//void ExitFromMenu() override;
 	//void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
-	//void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
+	void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
 	void UpdateSounds() override;
 	void Startup() override;
 	void DrawBackground() override;
@@ -544,7 +536,7 @@ struct GameInterface : public ::GameInterface
 	void NewGame(MapRecord* map, int skill) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
 	//bool DrawAutomapPlayer(int x, int y, int z, int a) override;
-	//int playerKeyMove() override { return 40; }
+	int playerKeyMove() override { return isWh2()? 20:15; }
 
 };
  

@@ -91,6 +91,7 @@ enum EDemoCommand
 	DEM_GENERICCHEAT,
 	DEM_GIVE,
 	DEM_CHANGEMAP,
+	DEM_SPELL,	//Witchaven
 
 	DEM_MAX
 };

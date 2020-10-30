@@ -140,7 +140,7 @@ void bookprocess(int snum) {
 	PLAYER& plr = player[snum];
 		
 	if (plr.currweaponanim == 0 && plr.currweaponflip == 0) {
-		int spell = ((plr.plInput.actions & (SB_ITEM_BIT_4 | SB_ITEM_BIT_5 | SB_ITEM_BIT_6 | SB_ITEM_BIT_7)) / SB_ITEM_BIT_4) - 1;
+		int spell = plr.spellnum;
 	
 		if(spell != -1 && spell < 10)
 		{
