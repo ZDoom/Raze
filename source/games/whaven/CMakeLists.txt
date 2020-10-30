@@ -49,6 +49,7 @@ set( PCH_SOURCES
 		src/precache.cpp
 		src/render.cpp
 		src/input.cpp
+		src/drawweapon.cpp
 	)
 
 add_game_library2( whaven )

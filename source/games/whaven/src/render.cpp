@@ -81,10 +81,13 @@ void drawscreen(int num, int dasmoothratio, bool sceneonly)
 	renderDrawRoomsQ16(cposx, cposy, cposz, FloatToFixed(cang), FloatToFixed(choriz), plr.sector);
 	analyzesprites(plr, dasmoothratio);
 	renderDrawMasks();
-
-	if (automapMode != am_off && !sceneonly)
+	if (!sceneonly)
 	{
-		DrawOverheadMap(cposx, cposy, int(cang));
+		DrawHud(dasmoothratio);
+		if (automapMode != am_off)
+		{
+			DrawOverheadMap(cposx, cposy, int(cang));
+		}
 	}
 }
 

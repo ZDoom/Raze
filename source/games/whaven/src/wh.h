@@ -195,6 +195,7 @@ void trowajavlin(int s);
 void spawnhornskull(short i);
 void spawnapentagram(int sn);
 void processinput(int num);
+void DrawHud(float smooth);
 
 
 // whplr
