@@ -128,6 +128,42 @@ void showVictoryScreen(CompletionFunc completion)
 }
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DWHLoadScreen : public DScreenJob
+{
+	MapRecord* rec;
+
+public:
+	DWHLoadScreen(MapRecord* maprec) : DScreenJob(0), rec(maprec) {}
+
+	void drawText(int x, int y, const char* text)
+	{
+		DrawText(twod, SmallFont, CR_UNTRANSLATED, x - SmallFont->StringWidth(text)/2, y, text, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+	}
+
+	int Frame(uint64_t clock, bool skiprequest)
+	{
+		twod->ClearScreen();
+		DrawTexture(twod, tileGetTexture(MAINMENU), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+
+		drawText(160, 100, GStrings("TXT_LOADING"));
+		drawText(160, 114, GStrings("please wait..."));
+		return 0;
+	}
+};
+
+void loadscreen(MapRecord* rec, CompletionFunc func)
+{
+	JobDesc job = { Create<DWHLoadScreen>(rec) };
+	RunScreenJob(&job, 1, func);
+}
+
+
 
 #if 0
 void orbpic(PLAYER& plr, int currentorb) {
