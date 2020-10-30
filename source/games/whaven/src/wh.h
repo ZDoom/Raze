@@ -510,6 +510,7 @@ void InitFonts();
 void sfxInit(void);
 
 void IntroMovie(const CompletionFunc& completion);
+bool playrunning();
 
 
 #include "item.h"
@@ -538,7 +539,7 @@ struct GameInterface : public ::GameInterface
 	//void UpdateSounds() override;
 	void Startup() override;
 	void DrawBackground() override;
-	//void Render() override;
+	void Render() override;
 	void Ticker() override;
 	const char* GenericCheat(int player, int cheat) override;
 	const char* CheckCheatMode() override;

@@ -217,6 +217,8 @@ EXTERN tspriteptr_t tsprite;
 extern sectortype sectorbackup[MAXSECTORS];
 extern walltype wallbackup[MAXWALLS];
 
+extern bool inpreparemirror;
+
 
 static inline tspriteptr_t renderMakeTSpriteFromSprite(tspriteptr_t const tspr, uint16_t const spritenum)
 {

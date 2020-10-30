@@ -211,7 +211,7 @@ int16_t searchsector, searchwall, searchstat;     //search output
 //  When aiming at a 2-sided wall, 1 if aiming at the bottom part, 0 else
 int16_t searchbottomwall, searchisbottom;
 
-char inpreparemirror = 0;
+bool inpreparemirror = 0;
 static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
 
 #define MAXSETVIEW 4

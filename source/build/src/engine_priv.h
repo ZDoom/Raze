@@ -106,8 +106,6 @@ extern int32_t searchx, searchy;
 extern int16_t searchsector, searchwall, searchstat;
 extern int16_t searchbottomwall, searchisbottom;
 
-extern char inpreparemirror;
-
 extern int16_t sectorborder[256];
 extern int32_t hitallsprites;
 

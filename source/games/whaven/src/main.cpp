@@ -281,7 +281,7 @@ void GameInterface::DrawBackground()
 	}
 }
 
-inline bool playrunning()
+bool playrunning()
 {
 	return (paused == 0 || multiplayer/* || demoplay/record*/);
 }
