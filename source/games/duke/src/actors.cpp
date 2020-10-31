@@ -2605,10 +2605,10 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 void handle_se00(int i, int LASERLINE)
 {
 	auto s = &sprite[i];
-	auto ht = &hittype[i];
-	int sect = s->sectnum;
-	auto t = &ht->temp_data[0];
-	sectortype *sc = &sector[s->sectnum];
+	auto actor = &hittype[i];
+	int sectno = s->sectnum;
+	auto t = &actor->temp_data[0];
+	sectortype *sect = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
 
@@ -2623,67 +2623,67 @@ void handle_se00(int i, int LASERLINE)
 		return;
 	}
 
-	int q = sc->extra >> 3;
+	int q = sect->extra >> 3;
 	int l = 0;
 
-	if (sc->lotag == 30)
+	if (sect->lotag == 30)
 	{
 		q >>= 2;
 
 		if (sprite[i].extra == 1)
 		{
-			if (ht->tempang < 256)
+			if (actor->tempang < 256)
 			{
-				ht->tempang += 4;
-				if (ht->tempang >= 256)
+				actor->tempang += 4;
+				if (actor->tempang >= 256)
 					callsound(s->sectnum, i);
 				if (s->clipdist) l = 1;
 				else l = -1;
 			}
-			else ht->tempang = 256;
+			else actor->tempang = 256;
 
-			if (sc->floorz > s->z) //z's are touching
+			if (sect->floorz > s->z) //z's are touching
 			{
-				sc->floorz -= 512;
+				sect->floorz -= 512;
 				zchange = -512;
-				if (sc->floorz < s->z)
-					sc->floorz = s->z;
+				if (sect->floorz < s->z)
+					sect->floorz = s->z;
 			}
 
-			else if (sc->floorz < s->z) //z's are touching
+			else if (sect->floorz < s->z) //z's are touching
 			{
-				sc->floorz += 512;
+				sect->floorz += 512;
 				zchange = 512;
-				if (sc->floorz > s->z)
-					sc->floorz = s->z;
+				if (sect->floorz > s->z)
+					sect->floorz = s->z;
 			}
 		}
 		else if (sprite[i].extra == 3)
 		{
-			if (ht->tempang > 0)
+			if (actor->tempang > 0)
 			{
-				ht->tempang -= 4;
-				if (ht->tempang <= 0)
+				actor->tempang -= 4;
+				if (actor->tempang <= 0)
 					callsound(s->sectnum, i);
 				if (s->clipdist) l = -1;
 				else l = 1;
 			}
-			else ht->tempang = 0;
+			else actor->tempang = 0;
 
-			if (sc->floorz > ht->temp_data[3]) //z's are touching
+			if (sect->floorz > actor->temp_data[3]) //z's are touching
 			{
-				sc->floorz -= 512;
+				sect->floorz -= 512;
 				zchange = -512;
-				if (sc->floorz < ht->temp_data[3])
-					sc->floorz = ht->temp_data[3];
+				if (sect->floorz < actor->temp_data[3])
+					sect->floorz = actor->temp_data[3];
 			}
 
-			else if (sc->floorz < ht->temp_data[3]) //z's are touching
+			else if (sect->floorz < actor->temp_data[3]) //z's are touching
 			{
-				sc->floorz += 512;
+				sect->floorz += 512;
 				zchange = 512;
-				if (sc->floorz > ht->temp_data[3])
-					sc->floorz = ht->temp_data[3];
+				if (sect->floorz > actor->temp_data[3])
+					sect->floorz = actor->temp_data[3];
 			}
 		}
 
@@ -2711,7 +2711,7 @@ void handle_se00(int i, int LASERLINE)
 		t[2] += (l * q);
 	}
 
-	if (l && (sc->floorstat & 64))
+	if (l && (sect->floorstat & 64))
 	{
 		int p;
 		for (p = connecthead; p >= 0; p = connectpoint2[p])
