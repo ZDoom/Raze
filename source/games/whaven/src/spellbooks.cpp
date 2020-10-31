@@ -138,10 +138,11 @@ void spellswitch(PLAYER& plr, int j)
 
 void bookprocess(int snum) {
 	PLAYER& plr = player[snum];
-		
+
+	int spell = plr.spellnum;
+	plr.spellnum = -1;
+
 	if (plr.currweaponanim == 0 && plr.currweaponflip == 0) {
-		int spell = plr.spellnum;
-	
 		if(spell != -1 && spell < 10)
 		{
 			if(spell != 9 && spell != 8) {

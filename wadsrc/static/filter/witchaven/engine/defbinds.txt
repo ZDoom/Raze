@@ -1,0 +1,10 @@
+kp1 "spell 0"		//Scare_Spell
+kp2 "spell 1"		//Nightvision_Spell
+kp3 "spell 2"		//Freeze_Spell
+kp4 "spell 3"		//Arrow_Spell
+kp5 "spell 4"		//Opendoor_Spell
+kp6 "spell 5"		//Fly_Spell
+kp7 "spell 6"		//Fire_Spell
+kp8 "spell 7"		//Nuke_Spell
+' "spell 8"
+";" "spell 9"

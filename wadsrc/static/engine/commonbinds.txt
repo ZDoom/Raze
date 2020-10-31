@@ -33,6 +33,7 @@ End "+Aim_Down"
 RCtrl "+Fire"
 Pause "pause"
 ` "toggleconsole"
+CapsLock "toggle cl_autorun"
 
 T "messagemode"
 Tab "togglemap"

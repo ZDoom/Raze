@@ -608,10 +608,16 @@ OptionMenu "ActionControlsMenu" protected
 	StaticText ""
 	Control    "$CNTRLMNU_JUMP"             , "+jump"
 	Control    "$CNTRLMNU_CROUCH"           , "+crouch"
-	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, ShadowWarrior)
 	{
 		// Fixme: Make this work in all games
 		Control    "$CNTRLMNU_TOGGLECROUCH"     , "+toggle_crouch"
+	}
+	ifgame(Witchaven, Witchaven2)
+	{
+		Control    "$CNTRLMNU_FLYUP"             , "+alt_fire"
+		Control    "$CNTRLMNU_FLYDOWN"           , "+toggle_crouch"
+		Control    "$CNTRLMNU_FLYSTOP"           , "holsterweapon"
 	}
 
 	StaticText ""
@@ -670,7 +676,10 @@ OptionMenu "WeaponsControlMenu" protected
 		Control    "$CNTRLMNU_SLOT9"          , "slot 9"
 		Control    "$CNTRLMNU_SLOT0"          , "slot 10"
 		StaticText ""
-		Control    "$CNTRLMNU_HOLSTER"        , "holsterweapon"
+		ifnotgame(Witchaven, Witchaven2)
+		{
+			Control    "$CNTRLMNU_HOLSTER"        , "holsterweapon"
+		}
 	}
 	ifgame(Duke, Nam, WW2GI)
 	{
@@ -688,6 +697,21 @@ OptionMenu "WeaponsControlMenu" protected
 		Control "$CNTRLMNU_GASBOMB"   ,"useitem 5"
 		Control "$CNTRLMNU_FLASHBOMB","useitem 6"
 		Control "$CNTRLMNU_CALTROPS"   ,"useitem 7"
+	}
+	ifgame(Witchaven, Witchaven2)
+	{
+		StaticText "CNTRLMNU_SPELLS"
+		Control    "$CNTRLMNU_SPELL0"          , "spell 0"
+		Control    "$CNTRLMNU_SPELL1"          , "spell 1"
+		Control    "$CNTRLMNU_SPELL2"          , "spell 2"
+		Control    "$CNTRLMNU_SPELL3"          , "spell 3"
+		Control    "$CNTRLMNU_SPELL4"          , "spell 4"
+		Control    "$CNTRLMNU_SPELL5"          , "spell 5"
+		Control    "$CNTRLMNU_SPELL6"          , "spell 6"
+		Control    "$CNTRLMNU_SPELL7"          , "spell 7"
+		StaticText ""
+		Control    "$CNTRLMNU_SPELL8"          , "spell 8"
+		Control    "$CNTRLMNU_SPELL9"          , "spell 9"
 	}
 
 }
@@ -765,6 +789,15 @@ OptionMenu "InventoryControlsMenu" protected
 		Control    "$TXT_EX_USEINV4" , "useitem 4"
 		Control    "$TXT_EX_USEINV5" , "useitem 5"
 		Control    "$TXT_EX_USEINV6" , "useitem 6"
+	}
+	ifgame(Witchaven, Witchaven2)
+	{
+		StaticText ""
+		Control    "$TXT_WH_POTION1" , "useitem 1"
+		Control    "$TXT_WH_POTION2" , "useitem 2"
+		Control    "$TXT_WH_POTION3" , "useitem 3"
+		Control    "$TXT_WH_POTION4" , "useitem 4"
+		Control    "$TXT_WH_POTION5" , "useitem 5"
 	}
 }
 

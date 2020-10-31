@@ -1,0 +1,10 @@
+// This is unfortunately a bit limited because for this config both the function keys and the numpad are blocked.
+q "spell 0"		//Scare_Spell
+w "spell 1"		//Nightvision_Spell
+e "spell 2"		//Freeze_Spell
+r "spell 3"		//Arrow_Spell
+// t is already reserved.
+y "spell 4"		//Opendoor_Spell
+u "spell 5"		//Fly_Spell
+i "spell 6"		//Fire_Spell
+o "spell 7"		//Nuke_Spell

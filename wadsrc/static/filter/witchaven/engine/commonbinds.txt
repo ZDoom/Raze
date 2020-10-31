@@ -1,0 +1,4 @@
+Ins "+alt_fire" // fly up
+Del "+toggle_crouch" // fly down
+End "holsterweapon" // end flying
+unbind "c"

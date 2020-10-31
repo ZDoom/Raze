@@ -1,0 +1,9 @@
+` "backoff"	// i.e. cast spell
+F1 "spell 1"
+F2 "spell 2"
+F3 "spell 3"
+F4 "spell 4"
+F5 "spell 5"
+F6 "spell 6"
+F7 "spell 7"
+F8 "spell 8"
