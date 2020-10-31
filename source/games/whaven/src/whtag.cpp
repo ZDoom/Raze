@@ -658,7 +658,7 @@ void operatesector(PLAYER& plr, int s) {
 	// IVORY KEY
 
 	if (datag >= 2000 && datag <= 2999) {
-		Printf("WHTAG.java: 683 check this place keychecking"); //XXX
+		//Printf("WHTAG.java: 683 check this place keychecking"); //XXX
 		doorkey = (sector[s].lotag - 2000) / 100;
 		doorantic = (sector[s].lotag - (2000 + (doorkey * 100))) / 10;
 		doortype = sector[s].lotag - (2000 + (doorkey * 100) + (doorantic * 10));
