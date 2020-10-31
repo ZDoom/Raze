@@ -8,7 +8,7 @@
 BEGIN_WH_NS
 
 
-void drawscreen(int num, int dasmoothratio, bool sceneonly)
+void drawscreen(int num, double dasmoothratio, bool sceneonly)
 {
 
 	PLAYER& plr = player[num];
@@ -95,7 +95,7 @@ void GameInterface::Render()
 {
 	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
 
-	drawscreen(pyrn, FloatToFixed(smoothRatio), false); 
+	drawscreen(pyrn, smoothRatio, false); 
 	if (!paused && isWh2() && attacktheme && !Mus_IsPlaying())
 	{
 		startsong(krand() % 2);
