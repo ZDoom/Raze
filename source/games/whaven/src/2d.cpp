@@ -94,7 +94,7 @@ public:
 		drawText(10, 64 + 3 * 18, GStrings("Rating"));
 		drawText(160 + 48 + 14, 64 + 3 * 18, FStringf("%d", GStrings(ratings[rating])));
 
-		drawText(10, 64 + 4 * 18, GStrings("Bonus"));
+		drawText(10, 64 + 4 * 18, GStrings("TXT_Bonus"));
 		drawText(160 + 48 + 14, 64 + 4 * 18, FStringf("%d", bonus));
 
 		return skiprequest ? -1 : 1;
@@ -152,7 +152,7 @@ public:
 		DrawTexture(twod, tileGetTexture(MAINMENU), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
 		drawText(160, 100, GStrings("TXT_LOADING"));
-		drawText(160, 114, GStrings("please wait..."));
+		drawText(160, 114, GStrings("TXTB_PLSWAIT"));
 		return 0;
 	}
 };

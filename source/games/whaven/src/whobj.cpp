@@ -91,34 +91,6 @@ void timerprocess(PLAYER& plr) {
 	
 	if(plr.spiked != 0)
 		plr.spiketics -= TICSPERFRAME;
-
-#pragma message("displaytext")
-#if 0
-	if (displaytime > 0)
-		displaytime -= TICSPERFRAME;
-
-	if (displaytime <= 0) {
-		if (plr.manatime > 0) {
-			if (plr.manatime < 512) {
-				if ((plr.manatime % 64) > 32) {
-					return;
-				}
-			}
-			drawText(1, 18,24,  "FIRE RESISTANCE", 0, 0, TextAlign.Left, 2, false);
-		} else if (plr.poisoned == 1) {
-			drawText(1, 18,24,  "POISONED", 0, 0, TextAlign.Left, 2, false);
-		} else if (plr.orbactive[5] > 0) {
-			if (plr.orbactive[5] < 512) {
-				if ((plr.orbactive[5] % 64) > 32) {
-					return;
-				}
-			}
-			drawText(1, 18,24, "FLYING", 0, 0, TextAlign.Left, 2, false);
-		} else if (plr.vampiretime > 0) {
-			drawText(1, 18,24,  "ORNATE HORN", 0, 0, TextAlign.Left, 2, false);
-		}
-	}
-#endif
 }
 
 int getPickHeight() {
