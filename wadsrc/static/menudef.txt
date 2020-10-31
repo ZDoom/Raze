@@ -241,22 +241,22 @@ LISTMENU "SkillMenu"
 		position 130, 50
 		Linespacing 16
 
-		WH1SkillItem "#01933", "$SKILL_EASY", "e", "StartGame", 0
-		WH1SkillItem "#01934", "$SKILL_NORMAL", "m", "StartGame", 1
+		WH1SkillItem "#00510", "$SKILL_EASY", "e", "StartGame", 0
+		WH1SkillItem "#00511", "$SKILL_NORMAL", "m", "StartGame", 1
 		selecteditem
-		WH1SkillItem "#01935", "$SKILL_HARD", "h", "StartGame", 2
-		WH1SkillItem "#01936", "$SKILL_VERY_HARD", "v", "StartGame", 3
+		WH1SkillItem "#00512", "$SKILL_HARD", "h", "StartGame", 2
+		WH1SkillItem "#00513", "$SKILL_VERY_HARD", "v", "StartGame", 3
 	}
 	ifgame(Witchaven2)
 	{
 		CaptionItem "$MNU_DIFFICULTY"
 		Position 120, 40
 		Linespacing 22
-		WH2SkillItem "#01932", "$SKILL_EASY", "e", "StartGame", 0
-		WH2SkillItem "#01933", "$SKILL_NORMAL", "m", "StartGame", 1
+		WH2SkillItem "#00510", "$SKILL_EASY", "e", "StartGame", 0
+		WH2SkillItem "#00511", "$SKILL_NORMAL", "m", "StartGame", 1
 		selecteditem
-		WH2SkillItem "#01934", "$SKILL_HARD", "h", "StartGame", 2
-		WH2SkillItem "#01935", "$SKILL_VERY_HARD", "v", "StartGame", 3
+		WH2SkillItem "#00512", "$SKILL_HARD", "h", "StartGame", 2
+		WH2SkillItem "#00513", "$SKILL_VERY_HARD", "v", "StartGame", 3
 	}
 }
 

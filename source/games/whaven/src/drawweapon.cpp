@@ -400,10 +400,6 @@ void drawscary() {
 
 
 	void DrawHud(float smooth) {
-		/*
-		if(pMenu.gShowMenu && !(pMenu.getCurrentMenu() instanceof MenuInterfaceSet)) 
-			return;
-		
 		if (!player[pyrn].dead)
 			drawweapons(pyrn);
 		if (player[pyrn].spiked == 1)
@@ -411,8 +407,7 @@ void drawscary() {
 		if (scarytime >= 0)
 			drawscary();
 
-		drawInterface(player[pyrn]);
-		*/
+		//drawInterface(player[pyrn]);
 	}
 	
 END_WH_NS
