@@ -2867,7 +2867,9 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 		{
 			if (ud.clipping == 0 && s->xvel >= 192)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
-					if (sprite[ps[p].i].extra > 0)
+				{
+					auto psp = ps[p].GetActor();
+					if (psp->s.extra > 0)
 					{
 						short k = ps[p].cursectnum;
 						updatesector(ps[p].posx, ps[p].posy, &k);
@@ -2881,12 +2883,15 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 							quickkill(&ps[p]);
 						}
 					}
+				}
 		}
 
 		int m = (s->xvel * sintable[(s->ang + 512) & 2047]) >> 14;
 		x = (s->xvel * sintable[s->ang & 2047]) >> 14;
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
+		{
+			auto psp = ps[p].GetActor();
 			if (sector[ps[p].cursectnum].lotag != 2)
 			{
 				if (po[p].os == s->sectnum)
@@ -2895,7 +2900,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 					po[p].oy += x;
 				}
 
-				if (s->sectnum == sprite[ps[p].i].sectnum)
+				if (s->sectnum == psp->s.sectnum)
 				{
 					rotatepoint(s->x, s->y, ps[p].posx, ps[p].posy, q, &ps[p].posx, &ps[p].posy);
 
@@ -2912,17 +2917,18 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 						ps[p].oposx = ps[p].posx;
 						ps[p].oposy = ps[p].posy;
 					}
-					if (sprite[ps[p].i].extra <= 0)
+					if (psp->s.extra <= 0)
 					{
-						sprite[ps[p].i].x = ps[p].posx;
-						sprite[ps[p].i].y = ps[p].posy;
+						psp->s.x = ps[p].posx;
+						psp->s.y = ps[p].posy;
 					}
 				}
 			}
-		SectIterator it(s->sectnum);
-		while ((j = it.NextIndex()) >= 0)
+		}
+		DukeSectIterator it(s->sectnum);
+		while (auto a2 = it.Next())
 		{
-			auto sj = &sprite[j];
+			auto sj = &a2->s;
 			if (sj->statnum != 10 && sector[sj->sectnum].lotag != 2 && sj->picnum != SECTOREFFECTOR && sj->picnum != LOCATORS)
 			{
 				rotatepoint(s->x, s->y,
@@ -2936,8 +2942,8 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 
 				if (numplayers > 1)
 				{
-					hittype[j].bposx = sj->x;
-					hittype[j].bposy = sj->y;
+					a2->bposx = sj->x;
+					a2->bposy = sj->y;
 				}
 			}
 		}
@@ -2949,7 +2955,8 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 		{
 			if (ud.clipping == 0 && s->xvel >= 192)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
-					if (sprite[ps[p].i].extra > 0)
+				{
+					if (ps[p].GetActor()->s.extra > 0)
 					{
 						short k = ps[p].cursectnum;
 						updatesector(ps[p].posx, ps[p].posy, &k);
@@ -2959,10 +2966,11 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 							ps[p].oposy = ps[p].posy = s->y;
 							ps[p].cursectnum = s->sectnum;
 
-							setsprite(ps[p].i, s->x, s->y, s->z);
+							setsprite(ps[p].GetActor(), s->pos);
 							quickkill(&ps[p]);
 						}
 					}
+				}
 
 			SectIterator itr(sprite[s->owner].sectnum);
 			while ((j = itr.NextIndex()) >= 0)
