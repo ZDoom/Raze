@@ -1814,7 +1814,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 				}
 			}
 			else s->hitag++;
-			actor->SetOwner(&hittype[NewOwner]);
+			actor->SetOwner(NewOwner);
 		}
 
 		t[3] = getincangle(s->ang, a);
@@ -2801,33 +2801,39 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 	int st = s->lotag;
 	int sh = s->hitag;
 
-	if (s->owner == -1)
-		s->owner = LocateTheLocator(t[3], t[0]);
-
-	if (s->owner == -1)
+	if (actor->GetOwner() == nullptr)
 	{
-		I_Error("Could not find any locators for SE# 6 and 14 with a hitag of %d.", t[3]);
+		auto NewOwner = LocateTheLocator(t[3], t[0]);
+
+		if (NewOwner == nullptr)
+		{
+			I_Error("Could not find any locators for SE# 6 and 14 with a hitag of %d.", t[3]);
+		}
+		actor->SetOwner(NewOwner);
 	}
 
-	int j = ldist(&sprite[s->owner], s);
+	auto Owner = actor->GetOwner();
+	int j = ldist(Owner, actor);
 
-	if (j < 1024L)
+	if (j < 1024)
 	{
 		if (st == 6)
-			if (sprite[s->owner].hitag & 1)
+			if (Owner->s.hitag & 1)
 				t[4] = sc->extra; //Slow it down
 		t[3]++;
-		s->owner = LocateTheLocator(t[3], t[0]);
-		if (s->owner == -1)
+		auto NewOwner = LocateTheLocator(t[3], t[0]);
+		if (NewOwner == nullptr)
 		{
 			t[3] = 0;
-			s->owner = LocateTheLocator(0, t[0]);
+			NewOwner = LocateTheLocator(0, t[0]);
 		}
+		if (NewOwner) actor->SetOwner(NewOwner);
 	}
 
+	Owner = actor->GetOwner();
 	if (s->xvel)
 	{
-		int x = getangle(sprite[s->owner].x - s->x, sprite[s->owner].y - s->y);
+		int x = getangle(Owner->s.x - s->x, Owner->s.y - s->y);
 		int q = getincangle(s->ang, x) >> 3;
 
 		t[2] += q;
@@ -2996,7 +3002,7 @@ void handle_se30(int i, int JIBS6)
 	if (s->owner == -1)
 	{
 		t[3] = !t[3];
-		s->owner = LocateTheLocator(t[3], t[0]);
+		hittype[i].SetOwner(LocateTheLocator(t[3], t[0]));
 	}
 	else
 	{
@@ -3398,7 +3404,7 @@ void handle_se05(int i, int FIRELASER)
 		l = 0x7fffffff;
 		while (1) //Find the shortest dist
 		{
-			s->owner = LocateTheLocator((short)t[4], -1); //t[0] hold sectnum
+			hittype[i].SetOwner(LocateTheLocator((short)t[4], -1)); //t[0] hold sectnum
 
 			if (s->owner == -1) break;
 
@@ -5103,17 +5109,15 @@ void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOT
 //
 //---------------------------------------------------------------------------
 
-int LocateTheLocator(int n, int sn)
+DDukeActor *LocateTheLocator(int n, int sectnum)
 {
-	int i;
-
-	StatIterator it(STAT_LOCATOR);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_LOCATOR);
+	while (auto ac = it.Next())
 	{
-		if ((sn == -1 || sn == sprite[i].sectnum) && n == sprite[i].lotag)
-			return i;
+		if ((sectnum == -1 || sectnum == ac->s.sectnum) && n == ac->s.lotag)
+			return ac;
 	}
-	return -1;
+	return nullptr;
 }
 
 //---------------------------------------------------------------------------

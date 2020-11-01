@@ -159,7 +159,7 @@ int hits(int snum);
 
 void   clearsectinterpolate(int sprnum);
 void   setsectinterpolate(int sprnum);
-int LocateTheLocator(int const tag, int const sectnum);
+DDukeActor* LocateTheLocator(int n, int sectnum);
 void clearcamera(player_struct* ps);
 
 void showtwoscreens(const CompletionFunc& func);
