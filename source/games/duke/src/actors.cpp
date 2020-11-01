@@ -2931,9 +2931,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 			auto sj = &a2->s;
 			if (sj->statnum != 10 && sector[sj->sectnum].lotag != 2 && sj->picnum != SECTOREFFECTOR && sj->picnum != LOCATORS)
 			{
-				rotatepoint(s->x, s->y,
-					sj->x, sj->y, q,
-					&sj->x, &sj->y);
+				rotatepoint(s->x, s->y, sj->x, sj->y, q, &sj->x, &sj->y);
 
 				sj->x += m;
 				sj->y += x;
