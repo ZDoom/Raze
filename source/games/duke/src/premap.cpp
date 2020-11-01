@@ -297,7 +297,7 @@ void resetweapons(int snum)
         p->gotweapon.Set(SLINGBLADE_WEAPON);
         p->ammo_amount[SLINGBLADE_WEAPON] = 1;
     }
-    OnEvent(EVENT_RESETWEAPONS, -1, snum, -1);
+    OnEvent(EVENT_RESETWEAPONS, snum, nullptr, -1);
 }
 
 //---------------------------------------------------------------------------
@@ -370,7 +370,7 @@ void resetinventory(int snum)
         ufocnt = 0;
         hulkspawn = 2;
     }
-    OnEvent(EVENT_RESETINVENTORY, snum, p->i);
+    OnEvent(EVENT_RESETINVENTORY, snum, p->GetActor());
 }
 
 

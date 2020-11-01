@@ -101,7 +101,7 @@ void check_fta_sounds_r(DDukeActor* i);
 
 int dodge(DDukeActor*);
 void alterang(int ang, DDukeActor* actor, int g_p);
-void fall_common(DDukeActor* g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(DDukeActor*, int));
+void fall_common(DDukeActor* actor, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(DDukeActor*, int));
 void checkavailweapon(struct player_struct* p);
 void deletesprite(DDukeActor* num);
 void addammo(int weapon, struct player_struct* p, int amount);
@@ -175,7 +175,7 @@ void execute(DDukeActor* s, int p, int d);
 void makeitfall(DDukeActor* s);
 int furthestangle(DDukeActor* snum, int angDiv);
 void getglobalz(DDukeActor* s);
-void OnEvent(int id, int pnum = -1, int snum = -1, int dist = -1);
+void OnEvent(int id, int pnum = -1, DDukeActor* snum = nullptr, int dist = -1);
 
 short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss);
 void ceilingglass(int snum, int sectnum, int cnt);

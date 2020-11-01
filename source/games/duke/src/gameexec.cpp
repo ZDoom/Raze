@@ -68,11 +68,10 @@ enum playeraction_t {
 
 struct ParseState
 {
-	int g_i, g_p;
+	int g_p;
 	int g_x;
 	int* g_t;
 	uint8_t killit_flag;
-	spritetype* g_sp;
 	DDukeActor *g_ac;
 	int* insptr;
 	Collision coll;
@@ -83,10 +82,10 @@ struct ParseState
 
 int furthestcanseepoint(DDukeActor* i, DDukeActor* ts, int* dax, int* day);
 bool ifsquished(DDukeActor* i, int p);
-void fakebubbaspawn(DDukeActor* g_i, int g_p);
+void fakebubbaspawn(DDukeActor* actor, int g_p);
 void tearitup(int sect);
 void destroyit(DDukeActor* actor);
-void mamaspawn(DDukeActor* g_i);
+void mamaspawn(DDukeActor* actor);
 void forceplayerangle(int snum);
 
 bool killthesprite = false;
@@ -2552,7 +2551,7 @@ int ParseState::parse(void)
 
 /*		  case 74:
 		insptr++;
-		getglobalz(g_i);
+		getglobalz(g_ac);
 		parseifelse( (( g_ac->floorz - g_ac->ceilingz ) >> 8 ) >= *insptr);
 		break;
 */
@@ -3824,7 +3823,7 @@ quit:
 //
 //---------------------------------------------------------------------------
 
-void OnEvent(int iEventID, int p, int i, int x)
+void OnEvent(int iEventID, int p, DDukeActor *actor, int x)
 {
 	char done;
 
@@ -3839,12 +3838,10 @@ void OnEvent(int iEventID, int p, int i, int x)
 	}
 
 	ParseState s;
-	s.g_i = i;	// current sprite ID
 	s.g_p = p;	/// current player ID
 	s.g_x = x;	// ?
-	s.g_sp = &sprite[i];
-	s.g_ac = &hittype[i];
-	s.g_t = &hittype[i].temp_data[0];
+	s.g_ac = actor;
+	s.g_t = actor->temp_data;
 
 	s.insptr = &ScriptCode[apScriptGameEvent[iEventID]];
 

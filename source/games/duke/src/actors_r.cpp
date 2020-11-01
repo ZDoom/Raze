@@ -4010,7 +4010,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	}
 }
 
-void fakebubbaspawn(DDukeActor *g_i, int g_p)
+void fakebubbaspawn(DDukeActor *actor, int g_p)
 {
 	fakebubba_spawn++;
 	switch (fakebubba_spawn)
@@ -4018,16 +4018,16 @@ void fakebubbaspawn(DDukeActor *g_i, int g_p)
 	default:
 		break;
 	case 1:
-		spawn(g_i, PIG);
+		spawn(actor, PIG);
 		break;
 	case 2:
-		spawn(g_i, MINION);
+		spawn(actor, MINION);
 		break;
 	case 3:
-		spawn(g_i, CHEER);
+		spawn(actor, CHEER);
 		break;
 	case 4:
-		spawn(g_i, VIXEN);
+		spawn(actor, VIXEN);
 		operateactivators(666, ps[g_p].GetActor()->GetIndex());
 		break;
 	}

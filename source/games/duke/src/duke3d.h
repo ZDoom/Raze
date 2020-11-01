@@ -95,10 +95,10 @@ struct Dispatcher
 	void (*guts)(DDukeActor* s, short gtype, short n, short p);
 	DDukeActor* (*ifhitsectors)(int sectnum);
 	int  (*ifhitbyweapon)(DDukeActor* sectnum);
-	void (*fall)(DDukeActor* g_i, int g_p);
+	void (*fall)(DDukeActor* actor, int g_p);
 	bool (*spawnweapondebris)(int picnum, int dnum);
 	void (*respawnhitag)(DDukeActor* g_sp);
-	void (*checktimetosleep)(DDukeActor* g_i);
+	void (*checktimetosleep)(DDukeActor* actor);
 	void (*move)(DDukeActor* i, int g_p, int g_x);
 	int (*spawn)(int j, int pn);
 

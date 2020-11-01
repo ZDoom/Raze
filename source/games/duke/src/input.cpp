@@ -55,7 +55,7 @@ static InputPacket loc; // input accumulation buffer.
 //
 //---------------------------------------------------------------------------
 
-void hud_input(int snum)
+void hud_input(int plnum)
 {
 	int i, k;
 	uint8_t dainv;
@@ -63,10 +63,10 @@ void hud_input(int snum)
 	short unk;
 
 	unk = 0;
-	p = &ps[snum];
+	p = &ps[plnum];
 
 	i = p->aim_mode;
-	p->aim_mode = !PlayerInput(snum, SB_AIMMODE);
+	p->aim_mode = !PlayerInput(plnum, SB_AIMMODE);
 	if (p->aim_mode < i)
 		p->sync.actions |= SB_CENTERVIEW;
 
@@ -75,7 +75,7 @@ void hud_input(int snum)
 
 	if (isRR())
 	{
-		if (PlayerInput(snum, SB_QUICK_KICK) && p->last_pissed_time == 0)
+		if (PlayerInput(plnum, SB_QUICK_KICK) && p->last_pissed_time == 0)
 		{
 			if (!isRRRA() || p->GetActor()->s.extra > 0)
 			{
@@ -93,21 +93,21 @@ void hud_input(int snum)
 	}
 	else
 	{
-		if (PlayerInput(snum, SB_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
+		if (PlayerInput(plnum, SB_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, snum);
-			OnEvent(EVENT_QUICKKICK, -1, snum, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			OnEvent(EVENT_QUICKKICK, plnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
 			{
 				p->quick_kick = 14;
-				if (!p->quick_kick_msg && snum == screenpeek) FTA(QUOTE_MIGHTY_FOOT, p);
+				if (!p->quick_kick_msg && plnum == screenpeek) FTA(QUOTE_MIGHTY_FOOT, p);
 				p->quick_kick_msg = true;
 			}
 		}
 	}
-	if (!PlayerInput(snum, SB_QUICK_KICK)) p->quick_kick_msg = false;
+	if (!PlayerInput(plnum, SB_QUICK_KICK)) p->quick_kick_msg = false;
 
-	if (!PlayerInputBits(snum, SB_INTERFACE_BITS))
+	if (!PlayerInputBits(plnum, SB_INTERFACE_BITS))
 		p->interface_toggle_flag = 0;
 	else if (p->interface_toggle_flag == 0)
 	{
@@ -118,21 +118,21 @@ void hud_input(int snum)
 		if (p->GetActor()->s.extra <= 0) return;
 
 		// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.
-		if (PlayerInput(snum, SB_INVUSE) && p->newowner == -1)
+		if (PlayerInput(plnum, SB_INVUSE) && p->newowner == -1)
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, snum);
-			OnEvent(EVENT_INVENTORY, -1, snum, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			OnEvent(EVENT_INVENTORY, plnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
 			{
-				if (p->inven_icon > ICON_NONE && p->inven_icon <= ICON_HEATS) PlayerSetItemUsed(snum, p->inven_icon);
+				if (p->inven_icon > ICON_NONE && p->inven_icon <= ICON_HEATS) PlayerSetItemUsed(plnum, p->inven_icon);
 			}
 		}
 
-		if (!isRR() && PlayerUseItem(snum, ICON_HEATS))
+		if (!isRR() && PlayerUseItem(plnum, ICON_HEATS))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, snum);
-			OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0 && p->heat_amount > 0)
+			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			OnEvent(EVENT_USENIGHTVISION, plnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0 && p->heat_amount > 0)
 			{
 				p->heat_on = !p->heat_on;
 				setpal(p);
@@ -142,11 +142,11 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerUseItem(snum, ICON_STEROIDS))
+		if (PlayerUseItem(plnum, ICON_STEROIDS))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, snum);
-			OnEvent(EVENT_USESTEROIDS, -1, snum, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			OnEvent(EVENT_USESTEROIDS, plnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
 			{
 				if (p->steroids_amount == 400)
 				{
@@ -159,11 +159,11 @@ void hud_input(int snum)
 			return;
 		}
 
-		if (PlayerInput(snum, SB_INVPREV) || PlayerInput(snum, SB_INVNEXT))
+		if (PlayerInput(plnum, SB_INVPREV) || PlayerInput(plnum, SB_INVNEXT))
 		{
 			p->invdisptime = 26 * 2;
 
-			if (PlayerInput(snum, SB_INVNEXT)) k = 1;
+			if (PlayerInput(plnum, SB_INVNEXT)) k = 1;
 			else k = 0;
 
 			dainv = p->inven_icon;
@@ -225,17 +225,17 @@ void hud_input(int snum)
 			else dainv = 0;
 
 			// These events force us to keep the inventory selector in the playsim as opposed to the UI where it really belongs.
-			if (PlayerInput(snum, SB_INVPREV))
+			if (PlayerInput(plnum, SB_INVPREV))
 			{
-				SetGameVarID(g_iReturnVarID, dainv, -1, snum);
-				OnEvent(EVENT_INVENTORYLEFT, -1, snum, -1);
-				dainv = GetGameVarID(g_iReturnVarID, -1, snum);
+				SetGameVarID(g_iReturnVarID, dainv, -1, plnum);
+				OnEvent(EVENT_INVENTORYLEFT, plnum, nullptr, -1);
+				dainv = GetGameVarID(g_iReturnVarID, -1, plnum);
 			}
-			if (PlayerInput(snum, SB_INVNEXT))
+			if (PlayerInput(plnum, SB_INVNEXT))
 			{
-				SetGameVarID(g_iReturnVarID, dainv, -1, snum);
-				OnEvent(EVENT_INVENTORYRIGHT, -1, snum, -1);
-				dainv = GetGameVarID(g_iReturnVarID, -1, snum);
+				SetGameVarID(g_iReturnVarID, dainv, -1, plnum);
+				OnEvent(EVENT_INVENTORYRIGHT, plnum, nullptr, -1);
+				dainv = GetGameVarID(g_iReturnVarID, -1, plnum);
 			}
 			p->inven_icon = dainv;
 			// Someone must have really hated constant data, doing this with a switch/case (and of course also with literal numbers...)
@@ -243,14 +243,14 @@ void hud_input(int snum)
 			if (dainv >= 1 && dainv < 8) FTA(invquotes[dainv - 1], p);
 		}
 
-		int weap = PlayerNewWeapon(snum);
+		int weap = PlayerNewWeapon(plnum);
 		if (weap > 1 && p->kickback_pic > 0)
 			p->wantweaponfire = weap - 1;
 
 		// Here we have to be extra careful that the weapons do not get mixed up, so let's keep the code for Duke and RR completely separate.
-		fi.selectweapon(snum, weap);
+		fi.selectweapon(plnum, weap);
 
-		if (PlayerInput(snum, SB_HOLSTER))
+		if (PlayerInput(plnum, SB_HOLSTER))
 		{
 			if (p->curr_weapon > KNEE_WEAPON)
 			{
@@ -269,11 +269,11 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerUseItem(snum, ICON_HOLODUKE) && (isRR() || p->newowner == -1))
+		if (PlayerUseItem(plnum, ICON_HOLODUKE) && (isRR() || p->newowner == -1))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, snum);
-			OnEvent(EVENT_HOLODUKEON, -1, snum, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			OnEvent(EVENT_HOLODUKEON, plnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
 			{
 				if (!isRR())
 				{
@@ -290,7 +290,7 @@ void hud_input(int snum)
 									p->posz + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, -1, 10);
 							hittype[i].temp_data[3] = hittype[i].temp_data[4] = 0;
 							p->holoduke_on = &hittype[i];
-							sprite[i].yvel = snum;
+							sprite[i].yvel = plnum;
 							sprite[i].extra = 0;
 							FTA(QUOTE_HOLODUKE_ON, p);
 							S_PlayActorSound(TELEPORTER, p->holoduke_on);
@@ -326,18 +326,18 @@ void hud_input(int snum)
 			}
 		}
 
-		if (isRR() && PlayerUseItem(snum, ICON_HEATS) && p->newowner == -1)
+		if (isRR() && PlayerUseItem(plnum, ICON_HEATS) && p->newowner == -1)
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, snum);
-			OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			OnEvent(EVENT_USENIGHTVISION, plnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
 			{
 				if (p->yehaa_timer == 0)
 				{
 					p->yehaa_timer = 126;
 					S_PlayActorSound(390, p->i);
 					p->noise_radius = 16384;
-					madenoise(snum);
+					madenoise(plnum);
 					if (sector[p->cursectnum].lotag == 857)
 					{
 						if (p->GetActor()->s.extra <= max_player_health)
@@ -358,11 +358,11 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerUseItem(snum, ICON_FIRSTAID))
+		if (PlayerUseItem(plnum, ICON_FIRSTAID))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, snum);
-			OnEvent(EVENT_USEMEDKIT, -1, snum, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			OnEvent(EVENT_USEMEDKIT, plnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
 			{
 				if (p->firstaid_amount > 0 && p->GetActor()->s.extra < max_player_health)
 				{
@@ -411,11 +411,11 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerUseItem(snum, ICON_JETPACK) && (isRR() || p->newowner == -1))
+		if (PlayerUseItem(plnum, ICON_JETPACK) && (isRR() || p->newowner == -1))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, snum);
-			OnEvent(EVENT_USEJETPACK, -1, snum, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			OnEvent(EVENT_USEJETPACK, plnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
 			{
 				if (!isRR())
 				{
@@ -479,11 +479,11 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SB_TURNAROUND) && p->angle.spin.asbam() == 0 && p->on_crane == nullptr)
+		if (PlayerInput(plnum, SB_TURNAROUND) && p->angle.spin.asbam() == 0 && p->on_crane == nullptr)
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, snum);
-			OnEvent(EVENT_TURNAROUND, -1, snum, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, snum) != 0)
+			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			OnEvent(EVENT_TURNAROUND, plnum, nullptr, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, plnum) != 0)
 			{
 				p->sync.actions &= ~SB_TURNAROUND;
 			}

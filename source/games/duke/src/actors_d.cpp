@@ -256,7 +256,7 @@ void addweapon_d(struct player_struct *p, int weapon)
 			SetGameVarID(g_iWorksLikeVarID, -1, snum, p->GetActor());
 		}
 		SetGameVarID(g_iReturnVarID, 0, snum, -1);
-		OnEvent(EVENT_CHANGEWEAPON, p->i, snum, -1);
+		OnEvent(EVENT_CHANGEWEAPON, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 		{
 			p->curr_weapon = weapon;

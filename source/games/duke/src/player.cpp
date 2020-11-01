@@ -742,7 +742,7 @@ void playerCrouch(int snum)
 	auto p = &ps[snum];
 	// crouching
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
-	OnEvent(EVENT_CROUCH, p->i, snum, -1);
+	OnEvent(EVENT_CROUCH, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->posz += (2048 + 768);
@@ -758,7 +758,7 @@ void playerJump(int snum, int fz, int cz)
 		if ((fz - cz) > (56 << 8))
 		{
 			SetGameVarID(g_iReturnVarID, 0, p->i, snum);
-			OnEvent(EVENT_JUMP, p->i, snum, -1);
+			OnEvent(EVENT_JUMP, snum, p->GetActor(), -1);
 			if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 			{
 				p->jumping_counter = 1;
@@ -905,7 +905,7 @@ void checklook(int snum, ESyncBits actions)
 	if ((actions & SB_LOOK_LEFT) && !p->OnMotorcycle)
 	{
 		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
-		OnEvent(EVENT_LOOKLEFT, p->i, snum, -1);
+		OnEvent(EVENT_LOOKLEFT, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 		{
 			actions &= ~SB_LOOK_LEFT;
@@ -915,7 +915,7 @@ void checklook(int snum, ESyncBits actions)
 	if ((actions & SB_LOOK_RIGHT) && !p->OnMotorcycle)
 	{
 		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
-		OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
+		OnEvent(EVENT_LOOKRIGHT, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 		{
 			actions &= ~SB_LOOK_RIGHT;
@@ -934,7 +934,7 @@ void playerCenterView(int snum)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
-	OnEvent(EVENT_RETURNTOCENTER, p->i, snum, -1);
+	OnEvent(EVENT_RETURNTOCENTER, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->sync.actions |= SB_CENTERVIEW;
@@ -949,7 +949,7 @@ void playerLookUp(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
-	OnEvent(EVENT_LOOKUP, p->i, snum, -1);
+	OnEvent(EVENT_LOOKUP, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->sync.actions |= SB_CENTERVIEW;
@@ -964,7 +964,7 @@ void playerLookDown(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
-	OnEvent(EVENT_LOOKDOWN, p->i, snum, -1);
+	OnEvent(EVENT_LOOKDOWN, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->sync.actions |= SB_CENTERVIEW;
@@ -979,7 +979,7 @@ void playerAimUp(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
-	OnEvent(EVENT_AIMUP, p->i, snum, -1);
+	OnEvent(EVENT_AIMUP, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 	{
 		p->sync.actions &= ~SB_AIM_UP;
@@ -990,7 +990,7 @@ void playerAimDown(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
-	OnEvent(EVENT_AIMDOWN, p->i, snum, -1);
+	OnEvent(EVENT_AIMDOWN, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) != 0)
 	{
 		p->sync.actions &= ~SB_AIM_DOWN;

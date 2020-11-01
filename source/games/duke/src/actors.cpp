@@ -182,7 +182,7 @@ void checkavailweapon(struct player_struct* player)
 		{
 			SetGameVarID(g_iWorksLikeVarID, -1, player->GetActor(), snum);
 		}
-		OnEvent(EVENT_CHANGEWEAPON, snum, player->i, -1);
+		OnEvent(EVENT_CHANGEWEAPON, snum, player->GetActor(), -1);
 	}
 
 	player->okickback_pic = player->kickback_pic = 0;

@@ -297,4 +297,5 @@ inline int hitasprite(DDukeActor* actor, DDukeActor** hit)
 	else *hit = nullptr;
 	return dist;
 }
+
 END_DUKE_NS

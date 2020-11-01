@@ -327,7 +327,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	if (p >= 0)
 	{
 		SetGameVarID(g_iAimAngleVarID, AUTO_AIM_ANGLE, i, p);
-		OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1);
+		OnEvent(EVENT_GETAUTOAIMANGLE, p, ps[p].GetActor(), -1);
 		j = -1;
 		if (GetGameVarID(g_iAimAngleVarID, i, p) > 0)
 		{
@@ -361,7 +361,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 			int zRange = 256;
 			SetGameVarID(g_iAngRangeVarID, 32, i, p);
 			SetGameVarID(g_iZRangeVarID, 256, i, p);
-			OnEvent(EVENT_GETSHOTRANGE, i, p, -1);
+			OnEvent(EVENT_GETSHOTRANGE, p, ps[p].GetActor(), -1);
 			angRange = GetGameVarID(g_iAngRangeVarID, i, p);
 			zRange = GetGameVarID(g_iZRangeVarID, i, p);
 
@@ -1010,7 +1010,7 @@ void shoot_d(int i, int atwith)
 
 	SetGameVarID(g_iAtWithVarID, 0, p, atwith);
 	SetGameVarID(g_iReturnVarID, 0, p, i);
-	OnEvent(EVENT_SHOOT, i, p, -1);
+	OnEvent(EVENT_SHOOT, p, ps[p].GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p, i) != 0)
 	{
 		return;
@@ -1674,7 +1674,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 	{
 		// jump
 		SetGameVarID(g_iReturnVarID, 0, pi, snum);
-		OnEvent(EVENT_SOARUP, pi, snum, -1);
+		OnEvent(EVENT_SOARUP, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
 		{
 			p->posz -= j;
@@ -1686,7 +1686,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 	{
 		// crouch
 		SetGameVarID(g_iReturnVarID, 0, pi, snum);
-		OnEvent(EVENT_SOARDOWN, pi, snum, -1);
+		OnEvent(EVENT_SOARDOWN, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
 		{
 			p->posz += j;
@@ -2642,7 +2642,7 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 			SetGameVarID(g_iReturnVarID, 0, pi, snum);
 			SetGameVarID(g_iWeaponVarID, p->curr_weapon, pi, snum);
 			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], pi, snum);
-			OnEvent(EVENT_HOLSTER, pi, snum, -1);
+			OnEvent(EVENT_HOLSTER, snum, p->GetActor(), -1);
 			if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
 			{
 				// now it uses the game definitions...

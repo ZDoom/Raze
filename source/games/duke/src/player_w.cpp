@@ -161,7 +161,7 @@ void fireweapon_ww(int snum)
 		SetGameVarID(g_iReturnVarID, 0, pi, snum);
 		SetGameVarID(g_iWeaponVarID, p->curr_weapon, pi, snum);
 		SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], pi, snum);
-		OnEvent(EVENT_FIRE, pi, snum, -1);
+		OnEvent(EVENT_FIRE, snum, p->GetActor(), -1);
 		if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
 		{
 			switch (aplWeaponWorksLike[p->curr_weapon][snum])
