@@ -2365,8 +2365,8 @@ void rr_specialstats()
 				s->z = sector[s->sectnum].floorz - 15168;
 				s->extra = 0;
 				s->picnum = RRTILE3410;
-				DukeStatIterator itj(STAT_DEFAULT);
-				while (auto act2 = it.Next())
+				DukeStatIterator it2(STAT_DEFAULT);
+				while (auto act2 = it2.Next())
 				{
 					if (act2->s.picnum == 128)
 						if (act2->s.hitag == 999)
@@ -2502,8 +2502,8 @@ void rr_specialstats()
 			int p = findplayer(&act->s, &x);
 			if (x < 2047)
 			{
-				DukeStatIterator itj(108);
-				while (auto act2 = it.Next())
+				DukeStatIterator it2(108);
+				while (auto act2 = it2.Next())
 				{
 					if (act2->s.picnum == RRTILE297)
 					{
