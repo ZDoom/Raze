@@ -3709,111 +3709,112 @@ int adjustfall(DDukeActor *actor, int c)
 //
 //---------------------------------------------------------------------------
 
-void move_r(DDukeActor *actor, int g_p, int g_x)
+void move_r(DDukeActor *actor, int pnum, int xvel)
 {
-	auto g_t = actor->temp_data;
+	auto spr = &actor->s;
+	auto t = actor->temp_data;
 	int l;
 	short goalang, angdif;
 	int daxvel;
 
-	int a = g_sp->hitag;
+	int a = spr->hitag;
 
 	if (a == -1) a = 0;
 
-	g_t[0]++;
+	t[0]++;
 
 	if (a & face_player)
 	{
-		if (ps[g_p].newowner >= 0)
-			goalang = getangle(ps[g_p].oposx - g_sp->x, ps[g_p].oposy - g_sp->y);
-		else goalang = getangle(ps[g_p].posx - g_sp->x, ps[g_p].posy - g_sp->y);
-		angdif = getincangle(g_sp->ang, goalang) >> 2;
+		if (ps[pnum].newowner >= 0)
+			goalang = getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y);
+		else goalang = getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y);
+		angdif = getincangle(spr->ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
-		g_sp->ang += angdif;
+		spr->ang += angdif;
 	}
 
 	if (a & spin)
-		g_sp->ang += sintable[((g_t[0] << 3) & 2047)] >> 6;
+		spr->ang += sintable[((t[0] << 3) & 2047)] >> 6;
 
 	if (a & face_player_slow)
 	{
-		if (ps[g_p].newowner >= 0)
-			goalang = getangle(ps[g_p].oposx - g_sp->x, ps[g_p].oposy - g_sp->y);
-		else goalang = getangle(ps[g_p].posx - g_sp->x, ps[g_p].posy - g_sp->y);
-		angdif = ksgn(getincangle(g_sp->ang, goalang)) << 5;
+		if (ps[pnum].newowner >= 0)
+			goalang = getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y);
+		else goalang = getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y);
+		angdif = ksgn(getincangle(spr->ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
 		{
 			angdif = 0;
-			g_sp->ang = goalang;
+			spr->ang = goalang;
 		}
-		g_sp->ang += angdif;
+		spr->ang += angdif;
 	}
 
 	if (isRRRA())
 	{
 		if (a & antifaceplayerslow)
 		{
-			if (ps[g_p].newowner >= 0)
-				goalang = (getangle(ps[g_p].oposx - g_sp->x, ps[g_p].oposy - g_sp->y) + 1024) & 2047;
-			else goalang = (getangle(ps[g_p].posx - g_sp->x, ps[g_p].posy - g_sp->y) + 1024) & 2047;
-			angdif = ksgn(getincangle(g_sp->ang, goalang)) << 5;
+			if (ps[pnum].newowner >= 0)
+				goalang = (getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y) + 1024) & 2047;
+			else goalang = (getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y) + 1024) & 2047;
+			angdif = ksgn(getincangle(spr->ang, goalang)) << 5;
 			if (angdif > -32 && angdif < 0)
 			{
 				angdif = 0;
-				g_sp->ang = goalang;
+				spr->ang = goalang;
 			}
-			g_sp->ang += angdif;
+			spr->ang += angdif;
 		}
 
 		if ((a & jumptoplayer) == jumptoplayer)
 		{
-			if (g_sp->picnum == CHEER)
+			if (spr->picnum == CHEER)
 			{
-				if (g_t[0] < 16)
-					g_sp->zvel -= (sintable[(512 + (g_t[0] << 4)) & 2047] / 40);
+				if (t[0] < 16)
+					spr->zvel -= (sintable[(512 + (t[0] << 4)) & 2047] / 40);
 			}
 			else
 			{
-				if (g_t[0] < 16)
-					g_sp->zvel -= (sintable[(512 + (g_t[0] << 4)) & 2047] >> 5);
+				if (t[0] < 16)
+					spr->zvel -= (sintable[(512 + (t[0] << 4)) & 2047] >> 5);
 			}
 		}
 		if (a & justjump1)
 		{
-			if (g_sp->picnum == RABBIT)
+			if (spr->picnum == RABBIT)
 			{
-				if (g_t[0] < 8)
-					g_sp->zvel -= (sintable[(512 + (g_t[0] << 4)) & 2047] / 30);
+				if (t[0] < 8)
+					spr->zvel -= (sintable[(512 + (t[0] << 4)) & 2047] / 30);
 			}
-			else if (g_sp->picnum == MAMA)
+			else if (spr->picnum == MAMA)
 			{
-				if (g_t[0] < 8)
-					g_sp->zvel -= (sintable[(512 + (g_t[0] << 4)) & 2047] / 35);
+				if (t[0] < 8)
+					spr->zvel -= (sintable[(512 + (t[0] << 4)) & 2047] / 35);
 			}
 		}
 		if (a & justjump2)
 		{
-			if (g_sp->picnum == RABBIT)
+			if (spr->picnum == RABBIT)
 			{
-				if (g_t[0] < 8)
-					g_sp->zvel -= (sintable[(512 + (g_t[0] << 4)) & 2047] / 24);
+				if (t[0] < 8)
+					spr->zvel -= (sintable[(512 + (t[0] << 4)) & 2047] / 24);
 			}
-			else if (g_sp->picnum == MAMA)
+			else if (spr->picnum == MAMA)
 			{
-				if (g_t[0] < 8)
-					g_sp->zvel -= (sintable[(512 + (g_t[0] << 4)) & 2047] / 28);
+				if (t[0] < 8)
+					spr->zvel -= (sintable[(512 + (t[0] << 4)) & 2047] / 28);
 			}
 		}
 		if (a & windang)
 		{
-			if (g_t[0] < 8)
-				g_sp->zvel -= (sintable[(512 + (g_t[0] << 4)) & 2047] / 24);
+			if (t[0] < 8)
+				spr->zvel -= (sintable[(512 + (t[0] << 4)) & 2047] / 24);
 		}
 	}
 	else if ((a & jumptoplayer) == jumptoplayer)
 	{
-		if (g_t[0] < 16)
-			g_sp->zvel -= (sintable[(512 + (g_t[0] << 4)) & 2047] >> 5);
+		if (t[0] < 16)
+			spr->zvel -= (sintable[(512 + (t[0] << 4)) & 2047] >> 5);
 	}
 
 
@@ -3821,147 +3822,147 @@ void move_r(DDukeActor *actor, int g_p, int g_x)
 	{
 		int newx, newy;
 
-		newx = ps[g_p].posx + (ps[g_p].posxv / 768);
-		newy = ps[g_p].posy + (ps[g_p].posyv / 768);
-		goalang = getangle(newx - g_sp->x, newy - g_sp->y);
-		angdif = getincangle(g_sp->ang, goalang) >> 2;
+		newx = ps[pnum].posx + (ps[pnum].posxv / 768);
+		newy = ps[pnum].posy + (ps[pnum].posyv / 768);
+		goalang = getangle(newx - spr->x, newy - spr->y);
+		angdif = getincangle(spr->ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
-		g_sp->ang += angdif;
+		spr->ang += angdif;
 	}
 
-	if (g_t[1] == 0 || a == 0)
+	if (t[1] == 0 || a == 0)
 	{
-		if ((badguy(actor) && g_sp->extra <= 0) || (actor->bposx != g_sp->x) || (actor->bposy != g_sp->y))
+		if ((badguy(actor) && spr->extra <= 0) || (actor->bposx != spr->x) || (actor->bposy != spr->y))
 		{
-			actor->bposx = g_sp->x;
-			actor->bposy = g_sp->y;
-			setsprite(actor, g_sp->pos);
+			actor->bposx = spr->x;
+			actor->bposy = spr->y;
+			setsprite(actor, spr->pos);
 		}
-		if (badguy(actor) && g_sp->extra <= 0)
+		if (badguy(actor) && spr->extra <= 0)
 		{
-			if (sector[g_sp->sectnum].ceilingstat & 1)
+			if (sector[spr->sectnum].ceilingstat & 1)
 			{
-				if (shadedsector[g_sp->sectnum] == 1)
+				if (shadedsector[spr->sectnum] == 1)
 				{
-					g_sp->shade += (16 - g_sp->shade) >> 1;
+					spr->shade += (16 - spr->shade) >> 1;
 				}
 				else
 				{
-					g_sp->shade += (sector[g_sp->sectnum].ceilingshade - g_sp->shade) >> 1;
+					spr->shade += (sector[spr->sectnum].ceilingshade - spr->shade) >> 1;
 				}
 			}
 			else
 			{
-				g_sp->shade += (sector[g_sp->sectnum].floorshade - g_sp->shade) >> 1;
+				spr->shade += (sector[spr->sectnum].floorshade - spr->shade) >> 1;
 			}
 		}
 		return;
 	}
 
-	auto moveptr = &ScriptCode[g_t[1]];
+	auto moveptr = &ScriptCode[t[1]];
 
-	if (a & geth) g_sp->xvel += (*moveptr - g_sp->xvel) >> 1;
-	if (a & getv) g_sp->zvel += ((*(moveptr + 1) << 4) - g_sp->zvel) >> 1;
+	if (a & geth) spr->xvel += (*moveptr - spr->xvel) >> 1;
+	if (a & getv) spr->zvel += ((*(moveptr + 1) << 4) - spr->zvel) >> 1;
 
 	if (a & dodgebullet)
 		dodge(actor);
 
-	if (g_sp->picnum != APLAYER)
-		alterang(a, actor, g_p);
+	if (spr->picnum != APLAYER)
+		alterang(a, actor, pnum);
 
-	if (g_sp->xvel > -6 && g_sp->xvel < 6) g_sp->xvel = 0;
+	if (spr->xvel > -6 && spr->xvel < 6) spr->xvel = 0;
 
 	a = badguy(actor);
 
-	if (g_sp->xvel || g_sp->zvel)
+	if (spr->xvel || spr->zvel)
 	{
 		if (a)
 		{
-			if (g_sp->picnum == DRONE && g_sp->extra > 0)
+			if (spr->picnum == DRONE && spr->extra > 0)
 			{
-				if (g_sp->zvel > 0)
+				if (spr->zvel > 0)
 				{
-					actor->floorz = l = getflorzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+					actor->floorz = l = getflorzofslope(spr->sectnum, spr->x, spr->y);
 					if (isRRRA())
 					{
-						if (g_sp->z > (l - (28 << 8)))
-							g_sp->z = l - (28 << 8);
+						if (spr->z > (l - (28 << 8)))
+							spr->z = l - (28 << 8);
 					}
 					else
 					{
-						if (g_sp->z > (l - (30 << 8)))
-							g_sp->z = l - (30 << 8);
+						if (spr->z > (l - (30 << 8)))
+							spr->z = l - (30 << 8);
 					}
 				}
 				else
 				{
-					actor->ceilingz = l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
-					if ((g_sp->z - l) < (50 << 8))
+					actor->ceilingz = l = getceilzofslope(spr->sectnum, spr->x, spr->y);
+					if ((spr->z - l) < (50 << 8))
 					{
-						g_sp->z = l + (50 << 8);
-						g_sp->zvel = 0;
+						spr->z = l + (50 << 8);
+						spr->zvel = 0;
 					}
 				}
 			}
-			if (g_sp->zvel > 0 && actor->floorz < g_sp->z)
-				g_sp->z = actor->floorz;
-			if (g_sp->zvel < 0)
+			if (spr->zvel > 0 && actor->floorz < spr->z)
+				spr->z = actor->floorz;
+			if (spr->zvel < 0)
 			{
-				l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
-				if ((g_sp->z - l) < (66 << 8))
+				l = getceilzofslope(spr->sectnum, spr->x, spr->y);
+				if ((spr->z - l) < (66 << 8))
 				{
-					g_sp->z = l + (66 << 8);
-					g_sp->zvel >>= 1;
+					spr->z = l + (66 << 8);
+					spr->zvel >>= 1;
 				}
 			}
 		}
-		else if (g_sp->picnum == APLAYER)
-			if ((g_sp->z - actor->ceilingz) < (32 << 8))
-				g_sp->z = actor->ceilingz + (32 << 8);
+		else if (spr->picnum == APLAYER)
+			if ((spr->z - actor->ceilingz) < (32 << 8))
+				spr->z = actor->ceilingz + (32 << 8);
 
-		daxvel = g_sp->xvel;
-		angdif = g_sp->ang;
+		daxvel = spr->xvel;
+		angdif = spr->ang;
 
 		if (a)
 		{
-			if (g_x < 960 && g_sp->xrepeat > 16)
+			if (xvel < 960 && spr->xrepeat > 16)
 			{
 
-				daxvel = -(1024 - g_x);
-				angdif = getangle(ps[g_p].posx - g_sp->x, ps[g_p].posy - g_sp->y);
+				daxvel = -(1024 - xvel);
+				angdif = getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y);
 
-				if (g_x < 512)
+				if (xvel < 512)
 				{
-					ps[g_p].posxv = 0;
-					ps[g_p].posyv = 0;
+					ps[pnum].posxv = 0;
+					ps[pnum].posyv = 0;
 				}
 				else
 				{
-					ps[g_p].posxv = mulscale(ps[g_p].posxv, dukefriction - 0x2000, 16);
-					ps[g_p].posyv = mulscale(ps[g_p].posyv, dukefriction - 0x2000, 16);
+					ps[pnum].posxv = mulscale(ps[pnum].posxv, dukefriction - 0x2000, 16);
+					ps[pnum].posyv = mulscale(ps[pnum].posyv, dukefriction - 0x2000, 16);
 				}
 			}
-			else if ((isRRRA() && g_sp->picnum != DRONE && g_sp->picnum != SHARK && g_sp->picnum != UFO1_RRRA) ||
-					(!isRRRA() && g_sp->picnum != DRONE && g_sp->picnum != SHARK && g_sp->picnum != UFO1_RR
-							&& g_sp->picnum != UFO2 && g_sp->picnum != UFO3 && g_sp->picnum != UFO4 && g_sp->picnum != UFO5))
+			else if ((isRRRA() && spr->picnum != DRONE && spr->picnum != SHARK && spr->picnum != UFO1_RRRA) ||
+					(!isRRRA() && spr->picnum != DRONE && spr->picnum != SHARK && spr->picnum != UFO1_RR
+							&& spr->picnum != UFO2 && spr->picnum != UFO3 && spr->picnum != UFO4 && spr->picnum != UFO5))
 			{
-				if (actor->bposz != g_sp->z || (ud.multimode < 2 && ud.player_skill < 2))
+				if (actor->bposz != spr->z || (ud.multimode < 2 && ud.player_skill < 2))
 				{
-					if ((g_t[0] & 1) || ps[g_p].actorsqu == actor) return;
+					if ((t[0] & 1) || ps[pnum].actorsqu == actor) return;
 					else daxvel <<= 1;
 				}
 				else
 				{
-					if ((g_t[0] & 3) || ps[g_p].actorsqu == actor) return;
+					if ((t[0] & 3) || ps[pnum].actorsqu == actor) return;
 					else daxvel <<= 2;
 				}
 			}
 		}
 		if (isRRRA())
 		{
-			if (sector[g_sp->sectnum].lotag != 1)
+			if (sector[spr->sectnum].lotag != 1)
 			{
-				switch (g_sp->picnum)
+				switch (spr->picnum)
 				{
 				case MINIONBOAT:
 				case HULKBOAT:
@@ -3970,9 +3971,9 @@ void move_r(DDukeActor *actor, int g_p, int g_x)
 					break;
 				}
 			}
-			else if (sector[g_sp->sectnum].lotag == 1)
+			else if (sector[spr->sectnum].lotag == 1)
 			{
-				switch (g_sp->picnum)
+				switch (spr->picnum)
 				{
 				case BIKERB:
 				case BIKERBV2:
@@ -3986,25 +3987,25 @@ void move_r(DDukeActor *actor, int g_p, int g_x)
 		Collision coll;
 		actor->movflag = movesprite_ex(actor,
 			(daxvel * (sintable[(angdif + 512) & 2047])) >> 14,
-			(daxvel * (sintable[angdif & 2047])) >> 14, g_sp->zvel, CLIPMASK0, coll);
+			(daxvel * (sintable[angdif & 2047])) >> 14, spr->zvel, CLIPMASK0, coll);
 	}
 
 	if (a)
 	{
-		if (sector[g_sp->sectnum].ceilingstat & 1)
+		if (sector[spr->sectnum].ceilingstat & 1)
 		{
-			if (shadedsector[g_sp->sectnum] == 1)
+			if (shadedsector[spr->sectnum] == 1)
 			{
-				g_sp->shade += (16 - g_sp->shade) >> 1;
+				spr->shade += (16 - spr->shade) >> 1;
 			}
 			else
 			{
-				g_sp->shade += (sector[g_sp->sectnum].ceilingshade - g_sp->shade) >> 1;
+				spr->shade += (sector[spr->sectnum].ceilingshade - spr->shade) >> 1;
 			}
 		}
-		else g_sp->shade += (sector[g_sp->sectnum].floorshade - g_sp->shade) >> 1;
+		else spr->shade += (sector[spr->sectnum].floorshade - spr->shade) >> 1;
 
-		if (sector[g_sp->sectnum].floorpicnum == MIRROR)
+		if (sector[spr->sectnum].floorpicnum == MIRROR)
 			deletesprite(actor);
 	}
 }
