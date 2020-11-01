@@ -2008,7 +2008,7 @@ void movetransports_d(void)
 	while ((i = iti.NextIndex()) >= 0)
 	{
 		auto spri = &sprite[i];
-		auto hiti = &hittype[i];
+		auto act1 = &hittype[i];
 		auto spriowner = spri->owner < 0? nullptr : &sprite[spri->owner];
 		
 		int sect = spri->sectnum;
@@ -2020,23 +2020,23 @@ void movetransports_d(void)
 			continue;
 		}
 		
-		onfloorz = hiti->temp_data[4];
+		onfloorz = act1->temp_data[4];
 		
-		if (hiti->temp_data[0] > 0) hiti->temp_data[0]--;
+		if (act1->temp_data[0] > 0) act1->temp_data[0]--;
 		
 		SectIterator itj(sect);
 		while ((j = itj.NextIndex()) >= 0)
 		{
-			auto sprj = &sprite[j];
-			auto hitj = &hittype[j];
+			auto spr2 = &sprite[j];
+			auto act2 = &hittype[j];
 			
-			switch (sprj->statnum)
+			switch (spr2->statnum)
 			{
 			case STAT_PLAYER:    // Player
 				
-				if (sprj->owner != -1)
+				if (spr2->owner != -1)
 				{
-					int p = sprj->yvel;
+					int p = spr2->yvel;
 					
 					ps[p].on_warping_sector = 1;
 					
@@ -2061,7 +2061,7 @@ void movetransports_d(void)
 							
 							if (spriowner->owner != spri->owner)
 							{
-								hiti->temp_data[0] = 13;
+								act1->temp_data[0] = 13;
 								hittype[spri->owner].temp_data[0] = 13;
 								ps[p].transporter_hold = 13;
 							}
@@ -2071,7 +2071,7 @@ void movetransports_d(void)
 							ps[p].oposz = ps[p].posz = spriowner->z - PHEIGHT;
 							
 							changespritesect(j, spriowner->sectnum);
-							ps[p].cursectnum = sprj->sectnum;
+							ps[p].cursectnum = spr2->sectnum;
 							
 							if (spri->pal == 0)
 							{
@@ -2171,7 +2171,7 @@ void movetransports_d(void)
 				break;
 				
 			case STAT_ACTOR:
-				switch (sprj->picnum)
+				switch (spr2->picnum)
 				{
 				case SHARK:
 				case COMMANDER:
@@ -2184,7 +2184,7 @@ void movetransports_d(void)
 				case GREENSLIME + 5:
 				case GREENSLIME + 6:
 				case GREENSLIME + 7:
-					if (sprj->extra > 0)
+					if (spr2->extra > 0)
 						continue;
 				}
 			case STAT_PROJECTILE:
@@ -2192,27 +2192,27 @@ void movetransports_d(void)
 			case STAT_FALLER:
 			case STAT_DUMMYPLAYER:
 				
-				ll = abs(sprj->zvel);
+				ll = abs(spr2->zvel);
 				
 				{
 					warpspriteto = 0;
-					if (ll && sectlotag == 2 && sprj->z < (sector[sect].ceilingz + ll))
+					if (ll && sectlotag == 2 && spr2->z < (sector[sect].ceilingz + ll))
 						warpspriteto = 1;
 					
-					if (ll && sectlotag == 1 && sprj->z > (sector[sect].floorz - ll))
+					if (ll && sectlotag == 1 && spr2->z > (sector[sect].floorz - ll))
 						warpspriteto = 1;
 					
-					if (sectlotag == 0 && (onfloorz || abs(sprj->z - spri->z) < 4096))
+					if (sectlotag == 0 && (onfloorz || abs(spr2->z - spri->z) < 4096))
 					{
-						if (spriowner->owner != spri->owner && onfloorz && hiti->temp_data[0] > 0 && sprj->statnum != 5)
+						if (spriowner->owner != spri->owner && onfloorz && act1->temp_data[0] > 0 && spr2->statnum != 5)
 						{
-							hiti->temp_data[0]++;
+							act1->temp_data[0]++;
 							goto BOLT;
 						}
 						warpspriteto = 1;
 					}
 					
-					if (warpspriteto) switch (sprj->picnum)
+					if (warpspriteto) switch (spr2->picnum)
 					{
 					case TRANSPORTERSTAR:
 					case TRANSPORTERBEAM:
@@ -2229,11 +2229,11 @@ void movetransports_d(void)
 					case PLAYERONWATER:
 						if (sectlotag == 2)
 						{
-							sprj->cstat &= 32767;
+							spr2->cstat &= 32767;
 							break;
 						}
 					default:
-						if (sprj->statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
+						if (spr2->statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
 							break;
 						
 					case WATERBUBBLE:
@@ -2243,10 +2243,10 @@ void movetransports_d(void)
 						if (sectlotag > 0)
 						{
 							int k = fi.spawn(j, WATERSPLASH2);
-							if (sectlotag == 1 && sprj->statnum == 4)
+							if (sectlotag == 1 && spr2->statnum == 4)
 							{
-								sprite[k].xvel = sprj->xvel >> 1;
-								sprite[k].ang = sprj->ang;
+								sprite[k].xvel = spr2->xvel >> 1;
+								sprite[k].ang = spr2->ang;
 								ssp(k, CLIPMASK0);
 							}
 						}
@@ -2256,16 +2256,16 @@ void movetransports_d(void)
 						case 0:
 							if (onfloorz)
 							{
-								if (sprj->statnum == 4 || (checkcursectnums(sect) == -1 && checkcursectnums(spriowner->sectnum) == -1))
+								if (spr2->statnum == 4 || (checkcursectnums(sect) == -1 && checkcursectnums(spriowner->sectnum) == -1))
 								{
-									sprj->x += (spriowner->x - spri->x);
-									sprj->y += (spriowner->y - spri->y);
-									sprj->z -= spri->z - sector[spriowner->sectnum].floorz;
-									sprj->ang = spriowner->ang;
+									spr2->x += (spriowner->x - spri->x);
+									spr2->y += (spriowner->y - spri->y);
+									spr2->z -= spri->z - sector[spriowner->sectnum].floorz;
+									spr2->ang = spriowner->ang;
 									
-									hitj->bposx = sprj->x;
-									hitj->bposy = sprj->y;
-									hitj->bposz = sprj->z;
+									act2->bposx = spr2->x;
+									act2->bposy = spr2->y;
+									act2->bposz = spr2->z;
 									
 									if (spri->pal == 0)
 									{
@@ -2278,7 +2278,7 @@ void movetransports_d(void)
 									
 									if (spriowner->owner != spri->owner)
 									{
-										hiti->temp_data[0] = 13;
+										act1->temp_data[0] = 13;
 										hittype[spri->owner].temp_data[0] = 13;
 									}
 									
@@ -2287,37 +2287,37 @@ void movetransports_d(void)
 							}
 							else
 							{
-								sprj->x += (spriowner->x - spri->x);
-								sprj->y += (spriowner->y - spri->y);
-								sprj->z = spriowner->z + 4096;
+								spr2->x += (spriowner->x - spri->x);
+								spr2->y += (spriowner->y - spri->y);
+								spr2->z = spriowner->z + 4096;
 								
-								hitj->bposx = sprj->x;
-								hitj->bposy = sprj->y;
-								hitj->bposz = sprj->z;
+								act2->bposx = spr2->x;
+								act2->bposy = spr2->y;
+								act2->bposz = spr2->z;
 								
 								changespritesect(j, spriowner->sectnum);
 							}
 							break;
 						case 1:
-							sprj->x += (spriowner->x - spri->x);
-							sprj->y += (spriowner->y - spri->y);
-							sprj->z = sector[spriowner->sectnum].ceilingz + ll;
+							spr2->x += (spriowner->x - spri->x);
+							spr2->y += (spriowner->y - spri->y);
+							spr2->z = sector[spriowner->sectnum].ceilingz + ll;
 							
-							hitj->bposx = sprj->x;
-							hitj->bposy = sprj->y;
-							hitj->bposz = sprj->z;
+							act2->bposx = spr2->x;
+							act2->bposy = spr2->y;
+							act2->bposz = spr2->z;
 							
 							changespritesect(j, spriowner->sectnum);
 							
 							break;
 						case 2:
-							sprj->x += (spriowner->x - spri->x);
-							sprj->y += (spriowner->y - spri->y);
-							sprj->z = sector[spriowner->sectnum].floorz - ll;
+							spr2->x += (spriowner->x - spri->x);
+							spr2->y += (spriowner->y - spri->y);
+							spr2->z = sector[spriowner->sectnum].floorz - ll;
 							
-							hitj->bposx = sprj->x;
-							hitj->bposy = sprj->y;
-							hitj->bposz = sprj->z;
+							act2->bposx = spr2->x;
+							act2->bposy = spr2->y;
+							act2->bposz = spr2->z;
 							
 							changespritesect(j, spriowner->sectnum);
 							
