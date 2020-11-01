@@ -1448,31 +1448,31 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 //
 //---------------------------------------------------------------------------
 
-static bool ifcansee(DDukeActor* actor, int g_p)
+static bool ifcansee(DDukeActor* actor, int pnum)
 {
 	int j;
 	DDukeActor* tosee;
-	auto g_sp = &actor->s;
+	auto spr = &actor->s;
 
 	// select sprite for monster to target
 	// if holoduke is on, let them target holoduke first.
 	// 
-	if (ps[g_p].holoduke_on != nullptr && !isRR())
+	if (ps[pnum].holoduke_on != nullptr && !isRR())
 	{
-		tosee = ps[g_p].holoduke_on;
-		j = cansee(g_sp->x, g_sp->y, g_sp->z - (krand() & ((32 << 8) - 1)), g_sp->sectnum, tosee->s.x, tosee->s.y, tosee->s.z, tosee->s.sectnum);
+		tosee = ps[pnum].holoduke_on;
+		j = cansee(spr->x, spr->y, spr->z - (krand() & ((32 << 8) - 1)), spr->sectnum, tosee->s.x, tosee->s.y, tosee->s.z, tosee->s.sectnum);
 
 		if (j == 0)
 		{
 			// they can't see player's holoduke
 			// check for player..
-			tosee = ps[g_p].GetActor();
+			tosee = ps[pnum].GetActor();
 		}
 	}
-	else tosee = ps[g_p].GetActor();	// holoduke not on. look for player
+	else tosee = ps[pnum].GetActor();	// holoduke not on. look for player
 
 	// can they see player, (or player's holoduke)
-	j = cansee(g_sp->x, g_sp->y, g_sp->z - (krand() & ((47 << 8))), g_sp->sectnum, tosee->s.x, tosee->s.y, tosee->s.z - ((isRR()? 28 : 24) << 8), tosee->s.sectnum);
+	j = cansee(spr->x, spr->y, spr->z - (krand() & ((47 << 8))), spr->sectnum, tosee->s.x, tosee->s.y, tosee->s.z - ((isRR()? 28 : 24) << 8), tosee->s.sectnum);
 
 	if (j == 0)
 	{
@@ -1488,7 +1488,7 @@ static bool ifcansee(DDukeActor* actor, int g_p)
 		actor->lastvy = tosee->s.y;
 	}
 
-	if (j == 1 && (g_sp->statnum == STAT_ACTOR || g_sp->statnum == STAT_STANDABLE))
+	if (j == 1 && (spr->statnum == STAT_ACTOR || spr->statnum == STAT_STANDABLE))
 		actor->timetosleep = SLEEPTIME;
 
 	return j == 1;
