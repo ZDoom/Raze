@@ -3111,23 +3111,23 @@ void handle_se30(int i, int JIBS6)
 		int j;
 		while ((j = its.NextIndex()) >= 0)
 		{
-			auto sprj = &sprite[j];
-			auto htj = &hittype[j];
-			if (sprj->picnum != SECTOREFFECTOR && sprj->picnum != LOCATORS)
+			auto spa2 = &sprite[j];
+			auto a2 = &hittype[j];
+			if (spa2->picnum != SECTOREFFECTOR && spa2->picnum != LOCATORS)
 			{
 				if (numplayers < 2)
 				{
-					htj->bposx = sprj->x;
-					htj->bposy = sprj->y;
+					a2->bposx = spa2->x;
+					a2->bposy = spa2->y;
 				}
 
-				sprj->x += l;
-				sprj->y += x;
+				spa2->x += l;
+				spa2->y += x;
 
 				if (numplayers > 1)
 				{
-					htj->bposx = sprj->x;
-					htj->bposy = sprj->y;
+					a2->bposx = spa2->x;
+					a2->bposy = spa2->y;
 				}
 			}
 		}
