@@ -2972,20 +2972,22 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 					}
 				}
 
-			SectIterator itr(sprite[s->owner].sectnum);
-			while ((j = itr.NextIndex()) >= 0)
+			auto Owner = actor->GetOwner();
+			if (Owner)
 			{
-				auto spj = &sprite[j];
-
-				if (spj->statnum == 1 && badguy(spj) && spj->picnum != SECTOREFFECTOR && spj->picnum != LOCATORS)
+				DukeSectIterator itr(Owner->s.sectnum);
+				while (auto a2 = itr.Next())
 				{
-					short k = spj->sectnum;
-					updatesector(spj->x, spj->y, &k);
-					if (spj->extra >= 0 && k == s->sectnum)
+					if (a2->s.statnum == 1 && badguy(a2) && a2->s.picnum != SECTOREFFECTOR && a2->s.picnum != LOCATORS)
 					{
-						fi.gutsdir(&sprite[j], JIBS6, 72, myconnectindex);
-						S_PlayActorSound(SQUISHED, i);
-						deletesprite(j);
+						short k = a2->s.sectnum;
+						updatesector(a2->s.x, a2->s.y, &k);
+						if (a2->s.extra >= 0 && k == s->sectnum)
+						{
+							fi.gutsdir(&a2->s, JIBS6, 72, myconnectindex);
+							S_PlayActorSound(SQUISHED, actor);
+							deletesprite(a2);
+						}
 					}
 				}
 			}
