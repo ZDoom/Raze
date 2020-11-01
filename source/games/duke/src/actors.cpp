@@ -2771,7 +2771,7 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 		DukeSectIterator itp(s->sectnum);
 		while (auto ap = itp.Next())
 		{
-			auto sprp = &sprite[p];
+			auto sprp = &ap->s;
 			if (sprp->statnum != 3 && sprp->statnum != 4)
 				if (LASERLINE < 0 || sprp->picnum != LASERLINE)
 				{
