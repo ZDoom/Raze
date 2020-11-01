@@ -136,6 +136,11 @@ inline int S_CheckActorSoundPlaying(DDukeActor* a, int soundNum, int channel = 0
 	return S_CheckActorSoundPlaying(a->GetIndex(), soundNum, channel);
 }
 
+inline int S_PlaySound3D(int num, DDukeActor * spriteNum, const vec3_t* pos, int channel = CHAN_AUTO, EChanFlags flags = 0)
+{
+	return S_PlaySound3D(num, spriteNum ? spriteNum->GetIndex() : -1, pos, channel, flags);
+}
+
 inline DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, DDukeActor* Owner, signed char s_ss)
 {
 	return &hittype[EGS(whatsect, s_x, s_y, s_z, s_pn, s_s, s_xr, s_yr, s_a, s_ve, s_zv, Owner ? Owner->GetIndex() : -1, s_ss)];
@@ -299,6 +304,7 @@ inline int hitasprite(DDukeActor* actor, DDukeActor** hit)
 	short m;
 	int dist = hitasprite(actor->GetIndex(), &m);
 	if (m >= 0 && hit) *hit = &hittype[m];
+	else *hit = nullptr;
 	return dist;
 }
 END_DUKE_NS
