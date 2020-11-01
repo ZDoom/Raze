@@ -628,11 +628,11 @@ void spawneffector(int i)
 
 	switch (sp->lotag)
 	{
-		case 28:
+		case SE_28_LIGHTNING:
 			if (!isRR()) t[5] = 65;// Delay for lightning
 			break;
-		case 7: // Transporters!!!!
-		case 23:// XPTR END
+		case SE_7_TELEPORT: // Transporters!!!!
+		case SE_23_ONE_WAY_TELEPORT:// XPTR END
 			if (sp->lotag != 23)
 			{
 				for (j = 0; j < MAXSPRITES; j++)
@@ -648,11 +648,11 @@ void spawneffector(int i)
 			sp->cstat = 0;
 			changespritestat(i, 9);
 			return;
-		case 1:
+		case SE_1_PIVOT:
 			sp->owner = -1;
 			t[0] = 1;
 			break;
-		case 18:
+		case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
 
 			if (sp->ang == 512)
 			{
@@ -670,10 +670,10 @@ void spawneffector(int i)
 			sp->hitag <<= 2;
 			break;
 
-		case 19:
+		case SE_19_EXPLOSION_LOWERS_CEILING:
 			sp->owner = -1;
 			break;
-		case 25: // Pistons
+		case SE_25_PISTON: // Pistons
 			if (!isRR())
 			{
 				t[3] = sector[sect].ceilingz;
@@ -685,26 +685,26 @@ void spawneffector(int i)
 			sector[sect].ceilingz = sp->z;
 			setinterpolation(&sector[sect].ceilingz);
 			break;
-		case 35:
+		case SE_35:
 			sector[sect].ceilingz = sp->z;
 			break;
-		case 27:
+		case SE_27_DEMO_CAM:
 			if (ud.recstat == 1)
 			{
 				sp->xrepeat = sp->yrepeat = 64;
 				sp->cstat &= 32767;
 			}
 			break;
-		case 47:
-		case 48:
+		case SE_47_LIGHT_SWITCH:
+		case SE_48_LIGHT_SWITCH:
 			if (!isRRRA()) break;
-		case 12:
+		case SE_12_LIGHT_SWITCH:
 
 			t[1] = sector[sect].floorshade;
 			t[2] = sector[sect].ceilingshade;
 			break;
 
-		case 13:
+		case SE_13_EXPLOSIVE:
 
 			t[0] = sector[sect].ceilingz;
 			t[1] = sector[sect].floorz;
@@ -759,7 +759,7 @@ void spawneffector(int i)
 
 			break;
 
-		case 17:
+		case SE_17_WARP_ELEVATOR:
 
 			t[2] = sector[sect].floorz; //Stopping loc
 
@@ -777,12 +777,12 @@ void spawneffector(int i)
 
 			break;
 
-		case 24:
+		case SE_24_CONVEYOR:
 			sp->yvel <<= 1;
-		case 36:
+		case SE_36_PROJ_SHOOTER:
 			break;
 
-		case 20:
+		case SE_20_STRETCH_BRIDGE:
 		{
 			int q;
 
@@ -827,7 +827,7 @@ void spawneffector(int i)
 		}
 
 
-		case 3:
+		case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
 
 			t[3] = sector[sect].floorshade;
 
@@ -851,7 +851,7 @@ void spawneffector(int i)
 			}
 			break;
 
-		case 31:
+		case SE_31_FLOOR_RISE_FALL:
 			t[1] = sector[sect].floorz;
 			//	t[2] = sp->hitag;
 			if (sp->ang != 1536) sector[sect].floorz = sp->z;
@@ -865,7 +865,7 @@ void spawneffector(int i)
 			setinterpolation(&sector[sect].floorz);
 
 			break;
-		case 32:
+		case SE_32_CEILING_RISE_FALL:
 			t[1] = sector[sect].ceilingz;
 			t[2] = sp->hitag;
 			if (sp->ang != 1536) sector[sect].ceilingz = sp->z;
@@ -880,7 +880,7 @@ void spawneffector(int i)
 
 			break;
 
-		case 4: //Flashing lights
+		case SE_4_RANDOM_LIGHTS: //Flashing lights
 
 			t[2] = sector[sect].floorshade;
 
@@ -896,11 +896,11 @@ void spawneffector(int i)
 
 			break;
 
-		case 9:
+		case SE_9_DOWN_OPEN_DOOR_LIGHTS:
 			if (sector[sect].lotag &&
 				labs(sector[sect].ceilingz - sp->z) > 1024)
 				sector[sect].lotag |= 32768; //If its open
-		case 8:
+		case SE_8_UP_OPEN_DOOR_LIGHTS:
 			//First, get the ceiling-floor shade
 
 			t[0] = sector[sect].floorshade;
@@ -934,18 +934,18 @@ void spawneffector(int i)
 			t[3] = 1; //Take Out;
 			break;
 
-		case 11://Pivitor rotater
+		case SE_11_SWINGING_DOOR://Pivitor rotater
 			if (sp->ang > 1024) t[3] = 2;
 			else t[3] = -2;
-		case 0:
-		case 2://Earthquakemakers
-		case 5://Boss Creature
-		case 6://Subway
-		case 14://Caboos
-		case 15://Subwaytype sliding door
-		case 16://That rotating blocker reactor thing
-		case 26://ESCELATOR
-		case 30://No rotational subways
+		case SE_0_ROTATING_SECTOR:
+		case SE_2_EARTHQUAKE://Earthquakemakers
+		case SE_5_BOSS://Boss Creature
+		case SE_6_SUBWAY://Subway
+		case SE_14_SUBWAY_CAR://Caboos
+		case SE_15_SLIDING_DOOR://Subwaytype sliding door
+		case SE_16_REACTOR://That rotating blocker reactor thing
+		case SE_26://ESCELATOR
+		case SE_30_TWO_WAY_TRAIN://No rotational subways
 
 			if (sp->lotag == 0)
 			{
@@ -1054,8 +1054,8 @@ void spawneffector(int i)
 
 	switch (sp->lotag)
 	{
-		case 6:
-		case 14:
+		case SE_6_SUBWAY:
+		case SE_14_SUBWAY_CAR:
 			j = callsound(sect, i);
 			if (j == -1)
 			{
@@ -1064,15 +1064,15 @@ void spawneffector(int i)
 				else j = 75;
 			}
 			hittype[i].lastvx = j;
-		case 30:
+		case SE_30_TWO_WAY_TRAIN:
 			if (numplayers > 1) break;
-		case 0:
-		case 1:
-		case 5:
-		case 11:
-		case 15:
-		case 16:
-		case 26:
+		case SE_0_ROTATING_SECTOR:
+		case SE_1_PIVOT:
+		case SE_5_BOSS:
+		case SE_11_SWINGING_DOOR:
+		case SE_15_SLIDING_DOOR:
+		case SE_16_REACTOR:
+		case SE_26:
 			setsectinterpolate(i);
 			break;
 	}
