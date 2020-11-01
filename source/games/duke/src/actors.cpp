@@ -2794,8 +2794,9 @@ void handle_se01(DDukeActor *actor)
 
 void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 {
-	spritetype* s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
+	auto actor = &hittype[i];
+	auto s = &actor->s;
+	int* t = &actor->temp_data[0];
 	auto sc = &sector[s->sectnum];
 	int st = s->lotag;
 	int sh = s->hitag;
@@ -2837,24 +2838,24 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 		{
 			if (statstate)
 			{
-				if (!S_CheckSoundPlaying(hittype[i].lastvx))
-					S_PlayActorSound(hittype[i].lastvx, i);
+				if (!S_CheckSoundPlaying(actor->lastvx))
+					S_PlayActorSound(actor->lastvx, actor);
 			}
 			if ((!checkstat || !statstate) && (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat & 1) && rnd(8)))
 			{
-				int p = findplayer(s, &x);
+				int p = findplayer(&actor->s, &x);
 				if (x < 20480)
 				{
 					j = s->ang;
 					s->ang = getangle(s->x - ps[p].posx, s->y - ps[p].posy);
-					fi.shoot(i, RPG);
+					fi.shoot(actor->GetIndex(), RPG);
 					s->ang = j;
 				}
 			}
 		}
 
 		if (s->xvel <= 64 && statstate)
-			S_StopSound(hittype[i].lastvx, i);
+			S_StopSound(actor->lastvx, actor);
 
 		if ((sc->floorz - sc->ceilingz) < (108 << 8))
 		{
@@ -2870,7 +2871,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 							ps[p].posy = s->y;
 							ps[p].cursectnum = s->sectnum;
 
-							setsprite(ps[p].i, s->x, s->y, s->z);
+							setsprite(ps[p].GetActor(), s->pos);
 							quickkill(&ps[p]);
 						}
 					}
@@ -2935,8 +2936,8 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 			}
 		}
 
-		ms(i);
-		setsprite(i, s->x, s->y, s->z);
+		ms(actor);
+		setsprite(actor, s->pos);
 
 		if ((sc->floorz - sc->ceilingz) < (108 << 8))
 		{
