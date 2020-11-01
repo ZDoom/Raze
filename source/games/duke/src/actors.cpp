@@ -5279,60 +5279,60 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 //
 //---------------------------------------------------------------------------
 
-void fall_common(DDukeActor *actor, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(DDukeActor*, int))
+void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(DDukeActor*, int))
 {
-	auto g_sp = &actor->s;
-	g_sp->xoffset = 0;
-	g_sp->yoffset = 0;
+	auto s = &actor->s;
+	s->xoffset = 0;
+	s->yoffset = 0;
 	//			  if(!gotz)
 	{
 		int c;
 
-		int sphit = fallspecial? fallspecial(actor, g_p) : 0;
-		if (fi.floorspace(g_sp->sectnum))
+		int sphit = fallspecial? fallspecial(actor, playernum) : 0;
+		if (fi.floorspace(s->sectnum))
 			c = 0;
 		else
 		{
-			if (fi.ceilingspace(g_sp->sectnum) || sector[g_sp->sectnum].lotag == 2)
+			if (fi.ceilingspace(s->sectnum) || sector[s->sectnum].lotag == 2)
 				c = gc / 6;
 			else c = gc;
 		}
 
-		if (actor->cgg <= 0 || (sector[g_sp->sectnum].floorstat & 2))
+		if (actor->cgg <= 0 || (sector[s->sectnum].floorstat & 2))
 		{
 			getglobalz(actor);
 			actor->cgg = 6;
 		}
 		else actor->cgg--;
 
-		if (g_sp->z < (actor->floorz - FOURSLEIGHT))
+		if (s->z < (actor->floorz - FOURSLEIGHT))
 		{
-			g_sp->zvel += c;
-			g_sp->z += g_sp->zvel;
+			s->zvel += c;
+			s->z += s->zvel;
 
-			if (g_sp->zvel > 6144) g_sp->zvel = 6144;
+			if (s->zvel > 6144) s->zvel = 6144;
 		}
 		else
 		{
-			g_sp->z = actor->floorz - FOURSLEIGHT;
+			s->z = actor->floorz - FOURSLEIGHT;
 
-			if (badguy(actor) || (g_sp->picnum == TILE_APLAYER && actor->GetOwner()))
+			if (badguy(actor) || (s->picnum == TILE_APLAYER && actor->GetOwner()))
 			{
 
-				if (g_sp->zvel > 3084 && g_sp->extra <= 1)
+				if (s->zvel > 3084 && s->extra <= 1)
 				{
-					if (g_sp->pal != 1 && g_sp->picnum != DRONE)
+					if (s->pal != 1 && s->picnum != DRONE)
 					{
-						if (g_sp->picnum == TILE_APLAYER && g_sp->extra > 0)
+						if (s->picnum == TILE_APLAYER && s->extra > 0)
 							goto SKIPJIBS;
 						if (sphit)
 						{
-							fi.guts(&actor->s, JIBS6, 5, g_p);
+							fi.guts(&actor->s, JIBS6, 5, playernum);
 							S_PlayActorSound(squished, actor);
 						}
 						else
 						{
-							fi.guts(&actor->s, JIBS6, 15, g_p);
+							fi.guts(&actor->s, JIBS6, 15, playernum);
 							S_PlayActorSound(squished, actor);
 							spawn(actor, BLOODPOOL);
 						}
@@ -5342,24 +5342,24 @@ void fall_common(DDukeActor *actor, int g_p, int JIBS6, int DRONE, int BLOODPOOL
 
 					actor->picnum = SHOTSPARK1;
 					actor->extra = 1;
-					g_sp->zvel = 0;
+					s->zvel = 0;
 				}
-				else if (g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != 1)
+				else if (s->zvel > 2048 && sector[s->sectnum].lotag != 1)
 				{
 
-					short j = g_sp->sectnum;
-					int x = g_sp->x, y = g_sp->y, z = g_sp->z;
+					short j = s->sectnum;
+					int x = s->x, y = s->y, z = s->z;
 					pushmove(&x, &y, &z, &j, 128, (4 << 8), (4 << 8), CLIPMASK0);
 					setspritepos(actor->GetIndex(), x, y, z);	// wrap this for safety. The renderer may need processing of the new position.
-					if (j != g_sp->sectnum && j >= 0 && j < MAXSECTORS)
+					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
 						changespritesect(actor, j);
 
 					S_PlayActorSound(thud, actor);
 				}
 			}
-			if (sector[g_sp->sectnum].lotag == 1)
-				g_sp->z += actorinfo[g_sp->picnum].falladjustz;
-			else g_sp->zvel = 0;
+			if (sector[s->sectnum].lotag == 1)
+				s->z += actorinfo[s->picnum].falladjustz;
+			else s->zvel = 0;
 		}
 	}
 }

@@ -4078,15 +4078,15 @@ void fakebubbaspawn(int g_i, int g_p)
 //
 //---------------------------------------------------------------------------
 
-static int fallspecial(DDukeActor *actor, int g_p)
+static int fallspecial(DDukeActor *actor, int playernum)
 {
-	auto g_sp = &actor->s;
+	auto s = &actor->s;
 	int sphit = 0;
 	if (isRRRA())
 	{
-		if (sector[g_sp->sectnum].lotag == 801)
+		if (sector[s->sectnum].lotag == 801)
 		{
-			if (g_sp->picnum == ROCK)
+			if (s->picnum == ROCK)
 			{
 				spawn(actor, ROCK2);
 				spawn(actor, ROCK2);
@@ -4094,39 +4094,39 @@ static int fallspecial(DDukeActor *actor, int g_p)
 			}
 			return 0;
 		}
-		else if (sector[g_sp->sectnum].lotag == 802)
+		else if (sector[s->sectnum].lotag == 802)
 		{
-			if (g_sp->picnum != APLAYER && badguy(actor) && g_sp->z == actor->floorz - FOURSLEIGHT)
+			if (s->picnum != APLAYER && badguy(actor) && s->z == actor->floorz - FOURSLEIGHT)
 			{
-				fi.guts(&actor->s, JIBS6, 5, g_p);
+				fi.guts(&actor->s, JIBS6, 5, playernum);
 				S_PlayActorSound(SQUISHED, actor);
 				addspritetodelete();
 			}
 			return 0;
 		}
-		else if (sector[g_sp->sectnum].lotag == 803)
+		else if (sector[s->sectnum].lotag == 803)
 		{
-			if (g_sp->picnum == ROCK2)
+			if (s->picnum == ROCK2)
 				addspritetodelete();
 			return 0;
 		}
 	}
-	if (sector[g_sp->sectnum].lotag == 800)
+	if (sector[s->sectnum].lotag == 800)
 	{
-		if (g_sp->picnum == 40)
+		if (s->picnum == 40)
 		{
 			addspritetodelete();
 			return 0;
 		}
-		if (g_sp->picnum != APLAYER && (badguy(actor) || g_sp->picnum == HEN || g_sp->picnum == COW || g_sp->picnum == PIG || g_sp->picnum == DOGRUN || g_sp->picnum == RABBIT) && (!isRRRA() || actor->spriteextra < 128))
+		if (s->picnum != APLAYER && (badguy(actor) || s->picnum == HEN || s->picnum == COW || s->picnum == PIG || s->picnum == DOGRUN || s->picnum == RABBIT) && (!isRRRA() || actor->spriteextra < 128))
 		{
-			g_sp->z = actor->floorz - FOURSLEIGHT;
-			g_sp->zvel = 8000;
-			g_sp->extra = 0;
+			s->z = actor->floorz - FOURSLEIGHT;
+			s->zvel = 8000;
+			s->extra = 0;
 			actor->spriteextra++;
 			sphit = 1;
 		}
-		else if (g_sp->picnum != APLAYER)
+		else if (s->picnum != APLAYER)
 		{
 			if (!actor->spriteextra)
 				addspritetodelete();
@@ -4135,9 +4135,9 @@ static int fallspecial(DDukeActor *actor, int g_p)
 		actor->picnum = SHOTSPARK1;
 		actor->extra = 1;
 	}
-	else if (isRRRA() && (sector[g_sp->sectnum].floorpicnum == RRTILE7820 || sector[g_sp->sectnum].floorpicnum == RRTILE7768))
+	else if (isRRRA() && (sector[s->sectnum].floorpicnum == RRTILE7820 || sector[s->sectnum].floorpicnum == RRTILE7768))
 	{
-		if (g_sp->picnum != MINION && g_sp->pal != 19)
+		if (s->picnum != MINION && s->pal != 19)
 		{
 			if ((krand() & 3) == 1)
 			{
