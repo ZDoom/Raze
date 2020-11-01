@@ -4034,53 +4034,51 @@ void handle_se17(int i)
 		}
 
 		if (j == -1) return;
+		auto spr2 = &sprite[j];
 
 		SectIterator its(s->sectnum);
 		int k;
 		while ((k = its.NextIndex()) >= 0)
 		{
-			auto sk = &sprite[k];
-			auto htk = &hittype[k];
-			if (sk->statnum == 10 && sk->owner >= 0)
+			auto spr3 = &sprite[k];
+			auto act3 = &hittype[k];
+			if (spr3->statnum == 10 && spr3->owner >= 0)
 			{
-				int p = sk->yvel;
+				int p = spr3->yvel;
 
-				ps[p].posx += sprite[j].x - s->x;
-				ps[p].posy += sprite[j].y - s->y;
-				ps[p].posz = sector[sprite[j].sectnum].floorz - (sc->floorz - ps[p].posz);
+				ps[p].posx += spr2->x - s->x;
+				ps[p].posy += spr2->y - s->y;
+				ps[p].posz = sector[spr2->sectnum].floorz - (sc->floorz - ps[p].posz);
 
-				htk->floorz = sector[sprite[j].sectnum].floorz;
-				htk->ceilingz = sector[sprite[j].sectnum].ceilingz;
+				act3->floorz = sector[spr2->sectnum].floorz;
+				act3->ceilingz = sector[spr2->sectnum].ceilingz;
 
 				ps[p].bobposx = ps[p].oposx = ps[p].posx;
 				ps[p].bobposy = ps[p].oposy = ps[p].posy;
 				ps[p].oposz = ps[p].posz;
 
-				ps[p].truefz = htk->floorz;
-				ps[p].truecz = htk->ceilingz;
+				ps[p].truefz = act3->floorz;
+				ps[p].truecz = act3->ceilingz;
 				ps[p].bobcounter = 0;
 
-				changespritesect(k, sprite[j].sectnum);
-				ps[p].cursectnum = sprite[j].sectnum;
+				changespritesect(k, spr2->sectnum);
+				ps[p].cursectnum = spr2->sectnum;
 			}
-			else if (sk->statnum != 3)
+			else if (spr3->statnum != 3)
 			{
-				sk->x +=
-					sprite[j].x - s->x;
-				sk->y +=
-					sprite[j].y - s->y;
-				sk->z = sector[sprite[j].sectnum].floorz -
-					(sc->floorz - sk->z);
+				spr3->x += spr2->x - s->x;
+				spr3->y += spr2->y - s->y;
+				spr3->z = sector[spr2->sectnum].floorz - (sc->floorz - spr3->z);
 
-				htk->bposx = sk->x;
-				htk->bposy = sk->y;
-				htk->bposz = sk->z;
+				act3->bposx = spr3->x;
+				act3->bposy = spr3->y;
+				act3->bposz = spr3->z;
 
-				changespritesect(k, sprite[j].sectnum);
-				setsprite(k, sk->x, sk->y, sk->z);
+				changespritesect(k, spr2->sectnum);
+				setsprite(k, spr3->x, spr3->y, spr3->z);
 
-				htk->floorz = sector[sprite[j].sectnum].floorz;
-				htk->ceilingz = sector[sprite[j].sectnum].ceilingz;
+				act3->floorz = sector[spr2->sectnum].floorz;
+				act3->ceilingz = sector[spr2->sectnum].ceilingz;
 
 			}
 		}
