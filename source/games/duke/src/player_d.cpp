@@ -319,7 +319,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall, l, j, k = -1;
+	short hitsect, hitspr, hitwall, l, k;
 	int hitx, hity, hitz;
 
 	if (s->extra >= 0) s->shade = -96;
@@ -329,16 +329,16 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 		SetGameVarID(g_iAimAngleVarID, AUTO_AIM_ANGLE, actor, p);
 		OnEvent(EVENT_GETAUTOAIMANGLE, p, ps[p].GetActor(), -1);
 		int varval = GetGameVarID(g_iAimAngleVarID, actor, p);
-		j = -1;
+		DDukeActor* aimed = nullptr;
 		if (varval > 0)
 		{
-			j = aim(s, varval);
+			aimed = aim(actor, varval);
 		}
 
-		if (j >= 0)
+		if (aimed)
 		{
-			int dal = ((sprite[j].xrepeat * tilesiz[sprite[j].picnum].y) << 1) + (5 << 8);
-			switch (sprite[j].picnum)
+			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) + (5 << 8);
+			switch (aimed->s.picnum)
 			{
 			case GREENSLIME:
 			case GREENSLIME + 1:
@@ -352,8 +352,8 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 				dal -= (8 << 8);
 				break;
 			}
-			zvel = ((sprite[j].z - sz - dal) << 8) / ldist(&sprite[ps[p].i], &sprite[j]);
-			sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
+			zvel = ((aimed->s.z - sz - dal) << 8) / ldist(ps[p].GetActor(), aimed);
+			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
 
 		if (isWW2GI())
@@ -367,14 +367,14 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 			zRange = GetGameVarID(g_iZRangeVarID, actor, p);
 
 			sa += (angRange / 2) - (krand() & (angRange - 1));
-			if (j == -1)
+			if (aimed == nullptr)
 			{
 				// no target
 				zvel = -ps[p].horizon.sum().asq16() >> 11;
 			}
 			zvel += (zRange / 2) - (krand() & (zRange - 1));
 		}
-		else if (j == -1)
+		else if (aimed == nullptr)
 		{
 			sa += 16 - (krand() & 31);
 			zvel = -ps[p].horizon.sum().asq16() >> 11;
@@ -386,7 +386,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	else
 	{
 		int x;
-		j = findplayer(s, &x);
+		int j = findplayer(actor, &x);
 		sz -= (4 << 8);
 		zvel = ((ps[j].posz - sz) << 8) / (ldist(&sprite[ps[j].i], s));
 		if (s->picnum != BOSS1)
@@ -559,10 +559,11 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 
 static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	spritetype* const s = &sprite[i];
+	auto actor = &hittype[i];
+	spritetype* const s = &actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
-	short l, j, scount;
+	short l, scount;
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -585,13 +586,13 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 	if (p >= 0)
 	{
-		j = aim(s, AUTO_AIM_ANGLE);
+		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 
-		if (j >= 0)
+		if (aimed)
 		{
-			int dal = ((sprite[j].xrepeat * tilesiz[sprite[j].picnum].y) << 1) - (12 << 8);
-			zvel = ((sprite[j].z - sz - dal) * vel) / ldist(&sprite[ps[p].i], &sprite[j]);
-			sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
+			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) - (12 << 8);
+			zvel = ((aimed->s.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
 		else
 			zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
@@ -599,7 +600,7 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	else
 	{
 		int x;
-		j = findplayer(s, &x);
+		int j = findplayer(actor, &x);
 		//                sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		sa += 16 - (krand() & 31);
 		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(&sprite[ps[j].i], s);
@@ -636,7 +637,7 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 	while (scount > 0)
 	{
-		j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, i, 4);
+		int j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, i, 4);
 		sprite[j].extra += (krand() & 7);
 
 		if (atwith == COOLEXPLOSION1)
@@ -670,27 +671,28 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	spritetype* const s = &sprite[i];
+	auto actor = &hittype[i];
+	auto s = &actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
-	short l, j, scount;
+	short l, scount;
 
 	if (s->extra >= 0) s->shade = -96;
 
 	scount = 1;
 	vel = 644;
 
-	j = -1;
+	DDukeActor* aimed = nullptr;
 
 	if (p >= 0)
 	{
-		j = aim(s, 48);
-		if (j >= 0)
+		aimed = aim(actor, 48);
+		if (aimed)
 		{
-			int dal = ((sprite[j].xrepeat * tilesiz[sprite[j].picnum].y) << 1) + (8 << 8);
-			zvel = ((sprite[j].z - sz - dal) * vel) / ldist(&sprite[ps[p].i], &sprite[j]);
-			if (sprite[j].picnum != RECON)
-				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
+			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) + (8 << 8);
+			zvel = ((aimed->s.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			if (aimed->s.picnum != RECON)
+				sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
 		else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
 		if (atwith == RPG)
@@ -700,7 +702,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	else
 	{
 		int x;
-		j = findplayer(s, &x);
+		int j = findplayer(actor, &x);
 		sa = getangle(ps[j].oposx - sx, ps[j].oposy - sy);
 		if (s->picnum == BOSS3)
 		{
@@ -724,10 +726,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 		if (badguy(s) && (s->hitag & face_player_smart))
 			sa = s->ang + (krand() & 31) - 16;
 	}
-
-	if (p >= 0 && j >= 0)
-		l = j;
-	else l = -1;
+	if (p < 0) aimed = nullptr;
 
 	auto spawned = EGS(sect,
 		sx + (sintable[(348 + sa + 512) & 2047] / 448),
@@ -737,7 +736,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	auto spj = &spawned->s;
 	spj->extra += (krand() & 7);
 	if (atwith != FREEZEBLAST)
-		spawned->temp_actor = l >= 0? &hittype[l] : nullptr;//  spawned->s.yvel = l;
+		spawned->temp_actor = aimed;
 	else
 	{
 		spj->yvel = numfreezebounces;
@@ -911,19 +910,20 @@ static void shootlaser(int i, int p, int sx, int sy, int sz, int sa)
 
 static void shootgrowspark(int i, int p, int sx, int sy, int sz, int sa)
 {
-	spritetype* const s = &sprite[i];
+	auto actor = &hittype[i];
+	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall, j, k;
+	short hitsect, hitspr, hitwall, k;
 	int hitx, hity, hitz;
 
 	if (p >= 0)
 	{
-		j = aim(s, AUTO_AIM_ANGLE);
-		if (j >= 0)
+		auto aimed = aim(actor, AUTO_AIM_ANGLE);
+		if (aimed)
 		{
-			int dal = ((sprite[j].xrepeat * tilesiz[sprite[j].picnum].y) << 1) + (5 << 8);
-			switch (sprite[j].picnum)
+			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) + (5 << 8);
+			switch (aimed->s.picnum)
 			{
 			case GREENSLIME:
 			case GREENSLIME + 1:
@@ -937,8 +937,8 @@ static void shootgrowspark(int i, int p, int sx, int sy, int sz, int sa)
 				dal -= (8 << 8);
 				break;
 			}
-			zvel = ((sprite[j].z - sz - dal) << 8) / (ldist(&sprite[ps[p].i], &sprite[j]));
-			sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
+			zvel = ((aimed->s.z - sz - dal) << 8) / (ldist(ps[p].GetActor(), aimed));
+			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
 		else
 		{
@@ -952,7 +952,7 @@ static void shootgrowspark(int i, int p, int sx, int sy, int sz, int sa)
 	else
 	{
 		int x;
-		j = findplayer(s, &x);
+		int j = findplayer(s, &x);
 		sz -= (4 << 8);
 		zvel = ((ps[j].posz - sz) << 8) / (ldist(&sprite[ps[j].i], s));
 		zvel += 128 - (krand() & 255);
@@ -971,7 +971,7 @@ static void shootgrowspark(int i, int p, int sx, int sy, int sz, int sa)
 
 	s->cstat |= 257;
 
-	j = EGS(sect, hitx, hity, hitz, GROWSPARK, -16, 28, 28, sa, 0, 0, i, 1);
+	int j = EGS(sect, hitx, hity, hitz, GROWSPARK, -16, 28, 28, sa, 0, 0, i, 1);
 
 	sprite[j].pal = 2;
 	sprite[j].cstat |= 130;
@@ -1141,19 +1141,19 @@ void shoot_d(int i, int atwith)
 		if (s->extra >= 0) s->shade = -96;
 		if (p >= 0)
 		{
-			j = isNamWW2GI()? -1 : aim(s, AUTO_AIM_ANGLE);
-			if (j >= 0)
+			auto aimed = isNamWW2GI()? nullptr : aim(actor, AUTO_AIM_ANGLE);
+			if (aimed)
 			{
-				dal = ((sprite[j].xrepeat * tilesiz[sprite[j].picnum].y) << 1);
-				zvel = ((sprite[j].z - sz - dal - (4 << 8)) * 768) / (ldist(&sprite[ps[p].i], &sprite[j]));
-				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
+				dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1);
+				zvel = ((aimed->s.z - sz - dal - (4 << 8)) * 768) / (ldist(ps[p].GetActor(), aimed));
+				sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 			}
 			else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
 		}
 		else if (s->statnum != 3)
 		{
-			j = findplayer(s, &x);
-			l = ldist(&sprite[ps[j].i], s);
+			j = findplayer(actor, &x);
+			l = ldist(ps[j].GetActor(), actor);
 			zvel = ((ps[j].oposz - sz) * 512) / l;
 		}
 		else zvel = 0;

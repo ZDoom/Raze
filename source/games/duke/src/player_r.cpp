@@ -213,27 +213,28 @@ static void shootmelee(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	spritetype* const s = &sprite[i];
+	auto actor = &hittype[i];
+	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall, l, j, k;
+	short hitsect, hitspr, hitwall, l, k;
 	int hitx, hity, hitz;
 
 	if (s->extra >= 0) s->shade = -96;
 
 	if (p >= 0)
 	{
-		j = aim(s, AUTO_AIM_ANGLE);
-		if (j >= 0)
+		auto aimed = aim(actor, AUTO_AIM_ANGLE);
+		if (aimed)
 		{
-			int dal = ((sprite[j].xrepeat * tilesiz[sprite[j].picnum].y) << 1) + (5 << 8);
-			zvel = ((sprite[j].z - sz - dal) << 8) / ldist(&sprite[ps[p].i], &sprite[j]);
-			sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
+			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) + (5 << 8);
+			zvel = ((aimed->s.z - sz - dal) << 8) / ldist(ps[p].GetActor(), aimed);
+			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
 
 		if (atwith == SHOTSPARK1)
 		{
-			if (j == -1)
+			if (aimed == nullptr)
 			{
 				sa += 16 - (krand() & 31);
 				zvel = -ps[p].horizon.sum().asq16() >> 11;
@@ -246,7 +247,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 				sa += 64 - (krand() & 127);
 			else
 				sa += 16 - (krand() & 31);
-			if (j == -1) zvel = -ps[p].horizon.sum().asq16() >> 11;
+			if (aimed == nullptr) zvel = -ps[p].horizon.sum().asq16() >> 11;
 			zvel += 128 - (krand() & 255);
 		}
 		sz -= (2 << 8);
@@ -254,9 +255,9 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	else
 	{
 		int x;
-		j = findplayer(s, &x);
+		int j = findplayer(actor, &x);
 		sz -= (4 << 8);
-		zvel = ((ps[j].posz - sz) << 8) / (ldist(&sprite[ps[j].i], s));
+		zvel = ((ps[j].posz - sz) << 8) / (ldist(ps[j].GetActor(), actor));
 		if (s->picnum != BOSS1)
 		{
 			zvel += 128 - (krand() & 255);
@@ -467,10 +468,11 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 
 static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	spritetype* const s = &sprite[i];
+	auto actor = &hittype[i];
+	auto s = &actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
-	short j, scount;
+	short scount;
 
 	if (isRRRA())
 	{
@@ -510,15 +512,15 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 	if (p >= 0)
 	{
-		j = aim(s, AUTO_AIM_ANGLE);
+		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 
-		if (j >= 0)
+		if (aimed)
 		{
 			sx += sintable[(s->ang + 512 + 160) & 2047] >> 7;
 			sy += sintable[(s->ang + 160) & 2047] >> 7;
-			int dal = ((sprite[j].xrepeat * tilesiz[sprite[j].picnum].y) << 1) - (12 << 8);
-			zvel = ((sprite[j].z - sz - dal) * vel) / ldist(&sprite[ps[p].i], &sprite[j]);
-			sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
+			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) - (12 << 8);
+			zvel = ((aimed->s.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
 		else
 		{
@@ -530,7 +532,7 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	else
 	{
 		int x;
-		j = findplayer(s, &x);
+		int j = findplayer(s, &x);
 		//                sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		if (s->picnum == HULK)
 			sa -= (krand() & 31);
@@ -582,7 +584,7 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 	while (scount > 0)
 	{
-		j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, i, 4);
+		auto j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, i, 4);
 		sprite[j].extra += (krand() & 7);
 		sprite[j].cstat = 128;
 		sprite[j].clipdist = 4;
@@ -608,52 +610,53 @@ static void shootstuff(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	spritetype* const s = &sprite[i];
+	auto actor = &hittype[i];
+	auto s = &actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
-	short l, j, scount;
+	short l, scount;
 
-	short var90 = 0;
+	DDukeActor* act90 = nullptr;
 	if (s->extra >= 0) s->shade = -96;
 
 	scount = 1;
 	vel = 644;
 
-	j = -1;
+	DDukeActor* aimed = nullptr;
 
 	if (p >= 0)
 	{
-		j = aim(s, 48);
-		if (j >= 0)
+		aimed = aim(actor, 48);
+		if (aimed)
 		{
 			if (isRRRA() && atwith == RPG2)
 			{
-				if (sprite[j].picnum == HEN || sprite[j].picnum == HENSTAYPUT)
-					var90 = ps[screenpeek].i;
+				if (aimed->s.picnum == HEN || aimed->s.picnum == HENSTAYPUT)
+					act90 = ps[screenpeek].GetActor();
 				else
-					var90 = j;
+					act90 = aimed;
 			}
-			int dal = ((sprite[j].xrepeat * tilesiz[sprite[j].picnum].y) << 1) + (8 << 8);
-			zvel = ((sprite[j].z - sz - dal) * vel) / ldist(&sprite[ps[p].i], &sprite[j]);
-			if (sprite[j].picnum != RECON)
-				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
+			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) + (8 << 8);
+			zvel = ((aimed->s.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			if (aimed->s.picnum != RECON)
+				sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
 		else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
 		if (atwith == RPG)
-			S_PlayActorSound(RPG_SHOOT, i);
+			S_PlayActorSound(RPG_SHOOT, actor);
 		else if (isRRRA())
 		{
 			if (atwith == RPG2)
-				S_PlayActorSound(244, i);
+				S_PlayActorSound(244, actor);
 			else if (atwith == RRTILE1790)
-				S_PlayActorSound(94, i);
+				S_PlayActorSound(94, actor);
 		}
 
 	}
 	else
 	{
 		int x;
-		j = findplayer(s, &x);
+		int j = findplayer(s, &x);
 		sa = getangle(ps[j].oposx - sx, ps[j].oposy - sy);
 		if (s->picnum == BOSS3)
 			sz -= (32 << 8);
@@ -663,16 +666,14 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 			sz += 24 << 8;
 		}
 
-		l = ldist(&sprite[ps[j].i], s);
+		l = ldist(ps[j].GetActor(), actor);
 		zvel = ((ps[j].oposz - sz) * vel) / l;
 
 		if (badguy(s) && (s->hitag & face_player_smart))
 			sa = s->ang + (krand() & 31) - 16;
 	}
 
-	if (p >= 0 && j >= 0)
-		l = j;
-	else l = -1;
+	if (p < 0) aimed = nullptr;
 
 	if (isRRRA() && atwith == RRTILE1790)
 	{
@@ -694,7 +695,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 		}
 		else if (atwith == RPG2)
 		{
-			spawned->s.lotag = var90;
+			spawned->seek_actor = act90;
 			spawned->s.hitag = 0;
 			fi.lotsofmoney(spawned, (krand() & 3) + 1);
 		}
@@ -702,7 +703,7 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 	spawned->s.extra += (krand() & 7);
 	if (atwith != FREEZEBLAST)
-		spawned->temp_actor = l >= 0? &hittype[l] : nullptr;//  spawned->s.yvel = l;
+		spawned->temp_actor = aimed;
 	else
 	{
 		spawned->s.yvel = numfreezebounces;
@@ -762,10 +763,11 @@ static void shootrpg(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 static void shootwhip(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	spritetype* const s = &sprite[i];
+	auto actor = &hittype[i];
+	auto s = &actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
-	short j, scount;
+	short scount;
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -785,13 +787,13 @@ static void shootwhip(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 	if (p >= 0)
 	{
-		j = aim(s, AUTO_AIM_ANGLE);
+		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 
-		if (j >= 0)
+		if (aimed)
 		{
-			int dal = ((sprite[j].xrepeat * tilesiz[sprite[j].picnum].y) << 1) - (12 << 8);
-			zvel = ((sprite[j].z - sz - dal) * vel) / ldist(&sprite[ps[p].i], &sprite[j]);
-			sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
+			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) - (12 << 8);
+			zvel = ((aimed->s.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
+			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
 		else
 			zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
@@ -799,13 +801,13 @@ static void shootwhip(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 	else
 	{
 		int x;
-		j = findplayer(s, &x);
+		int j = findplayer(s, &x);
 		//                sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		if (s->picnum == VIXEN)
 			sa -= (krand() & 16);
 		else
 			sa += 16 - (krand() & 31);
-		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(&sprite[ps[j].i], s);
+		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
 
 	int oldzvel = zvel;
@@ -817,7 +819,7 @@ static void shootwhip(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 
 	while (scount > 0)
 	{
-		j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, i, 4);
+		int j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, i, 4);
 		sprite[j].extra += (krand() & 7);
 
 		sprite[j].cstat = 128;

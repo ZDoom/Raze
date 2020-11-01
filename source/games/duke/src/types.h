@@ -30,7 +30,7 @@ struct weaponhit
 	short timetosleep;
 	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags;
 	int temp_data[6];
-	weaponhit* temp_actor;
+	weaponhit* temp_actor, *seek_actor;
 	spritetype& s;	// direct reference to the corresponding sprite.
 
 	static weaponhit* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.

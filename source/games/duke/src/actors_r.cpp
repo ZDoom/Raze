@@ -1116,11 +1116,12 @@ static void chickenarrow(DDukeActor* actor)
 			spawn(actor, MONEY);
 		}
 	}
-	auto ts = &hittype[s->lotag]; // Grrrr...
+	auto ts = actor->seek_actor;
+	if (!ts) return;
 
 	if (ts->s.extra <= 0)
-		s->lotag = 0;
-	if (s->lotag != 0 && s->hitag > 5)
+		actor->seek_actor = nullptr;
+	if (actor->seek_actor && s->hitag > 5)
 	{
 		int ang, ang2, ang3;
 		ang = getangle(ts->s.x - s->x, ts->s.y - s->y);

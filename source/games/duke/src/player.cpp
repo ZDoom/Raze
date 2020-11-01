@@ -281,13 +281,14 @@ int hitawall(struct player_struct* p, int* hitw)
 //
 //---------------------------------------------------------------------------
 
-int aim(spritetype* s, int aang)
+DDukeActor* aim(DDukeActor* actor, int aang)
 {
 	char gotshrinker, gotfreezer;
-	int i, j, a, k, cans;
+	int a, k, cans;
 	int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
 	int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
 	int xv, yv;
+	auto s = &actor->s;
 
 	a = s->ang;
 
@@ -298,7 +299,7 @@ int aim(spritetype* s, int aang)
 		{
 			// The chickens in RRRA are homing and must always autoaim.
 			if (!isRRRA() || ps[s->yvel].curr_weapon != CHICKEN_WEAPON)
-				return -1;
+				return nullptr;
 		}
 		else if (ps[s->yvel].auto_aim == 2)
 		{
@@ -313,12 +314,12 @@ int aim(spritetype* s, int aang)
 			}
 			if (weap > CHAINGUN_WEAPON || weap == KNEE_WEAPON)
 			{
-				return -1;
+				return nullptr;
 			}
 
 		}
 	}
-	j = -1;
+	DDukeActor* aimed = nullptr;
 	//	  if(s->picnum == TILE_APLAYER && ps[s->yvel].aim_mode) return -1;
 
 	if (isRR())
@@ -349,13 +350,12 @@ int aim(spritetype* s, int aang)
 
 	for (k = 0; k < 4; k++)
 	{
-		if (j >= 0)
+		if (aimed)
 			break;
 
 		DukeStatIterator it(aimstats[k]);
 		while (auto act = it.Next())
 		{
-			i = act->GetIndex();
 			auto sp = &act->s;
 			if (sp->xrepeat > 0 && sp->extra >= 0 && (sp->cstat & (257 + 32768)) == 257)
 				if (badguy(sp) || k < 2)
@@ -391,7 +391,7 @@ int aim(spritetype* s, int aang)
 								if (a && cans)
 								{
 									smax = sdist;
-									j = int(act-hittype);
+									aimed = act;
 								}
 							}
 						}
@@ -399,7 +399,7 @@ int aim(spritetype* s, int aang)
 		}
 	}
 
-	return j;
+	return aimed;
 }
 
 //---------------------------------------------------------------------------

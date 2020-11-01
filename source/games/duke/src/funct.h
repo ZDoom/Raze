@@ -128,7 +128,7 @@ void playerAimUp(int snum, ESyncBits actions);
 void playerAimDown(int snum, ESyncBits actions);
 bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, fixed_t q16horiz, double smoothratio);
 void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n);
-int aim(spritetype* s, int aang);
+DDukeActor* aim(DDukeActor* s, int aang);
 void checkweapons(struct player_struct* const p);
 int findotherplayer(int p, int* d);
 void quickkill(struct player_struct* p);
