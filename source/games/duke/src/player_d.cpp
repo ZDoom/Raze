@@ -316,7 +316,8 @@ static void shootknee(int i, int p, int sx, int sy, int sz, int sa)
 
 static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	spritetype* const s = &sprite[i];
+	auto actor = &hittype[i];
+	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
 	short hitsect, hitspr, hitwall, l, j, k;
@@ -326,12 +327,13 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 
 	if (p >= 0)
 	{
-		SetGameVarID(g_iAimAngleVarID, AUTO_AIM_ANGLE, i, p);
+		SetGameVarID(g_iAimAngleVarID, AUTO_AIM_ANGLE, actor, p);
 		OnEvent(EVENT_GETAUTOAIMANGLE, p, ps[p].GetActor(), -1);
+		int varval = GetGameVarID(g_iAimAngleVarID, actor, p);
 		j = -1;
-		if (GetGameVarID(g_iAimAngleVarID, i, p) > 0)
+		if (varval > 0)
 		{
-			j = aim(s, GetGameVarID(g_iAimAngleVarID, i, p));
+			j = aim(s, varval);
 		}
 
 		if (j >= 0)
@@ -359,11 +361,11 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 		{
 			int angRange = 32;
 			int zRange = 256;
-			SetGameVarID(g_iAngRangeVarID, 32, i, p);
-			SetGameVarID(g_iZRangeVarID, 256, i, p);
+			SetGameVarID(g_iAngRangeVarID, 32, actor, p);
+			SetGameVarID(g_iZRangeVarID, 256, actor, p);
 			OnEvent(EVENT_GETSHOTRANGE, p, ps[p].GetActor(), -1);
-			angRange = GetGameVarID(g_iAngRangeVarID, i, p);
-			zRange = GetGameVarID(g_iZRangeVarID, i, p);
+			angRange = GetGameVarID(g_iAngRangeVarID, actor, p);
+			zRange = GetGameVarID(g_iZRangeVarID, actor, p);
 
 			sa += (angRange / 2) - (krand() & (angRange - 1));
 			if (j == -1)
@@ -878,11 +880,11 @@ static void shootlaser(int i, int p, int sx, int sy, int sz, int sa)
 		k = EGS(hitsect, hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, i, 6);
 		if (isWW2GI())
 		{
-			int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
+			int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1);
 			if (lTripBombControl & TRIPBOMB_TIMER)
 			{
-				int lLifetime = GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, -1, p);
-				int lLifetimeVar = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, p);
+				int lLifetime = GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, p);
+				int lLifetimeVar = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, p);
 				// set timer.  blows up when at zero....
 				sprite[k].extra = lLifetime
 					+ mulscale(krand(), lLifetimeVar, 14)
@@ -998,7 +1000,9 @@ void shoot_d(int i, int atwith)
 {
 	short sect, l, j, k;
 	int sx, sy, sz, sa, p, vel, zvel, x, dal;
-	spritetype* const s = &sprite[i];
+	auto actor = &hittype[i];
+	spritetype* const s = &actor->s;
+	auto atact = &hittype[atwith];
 	if (s->picnum == TILE_APLAYER)
 	{
 		p = s->yvel;
@@ -1008,10 +1012,10 @@ void shoot_d(int i, int atwith)
 		p = -1;
 	}
 
-	SetGameVarID(g_iAtWithVarID, 0, p, atwith);
-	SetGameVarID(g_iReturnVarID, 0, p, i);
+	SetGameVarID(g_iAtWithVarID, 0, atact, p);
+	SetGameVarID(g_iReturnVarID, 0, actor, p);
 	OnEvent(EVENT_SHOOT, p, ps[p].GetActor(), -1);
-	if (GetGameVarID(g_iReturnVarID, p, i) != 0)
+	if (GetGameVarID(g_iReturnVarID, actor, p) != 0)
 	{
 		return;
 	}
@@ -1673,9 +1677,9 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 	if (actions & SB_JUMP)                            //A (soar high)
 	{
 		// jump
-		SetGameVarID(g_iReturnVarID, 0, pi, snum);
+		SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
 		OnEvent(EVENT_SOARUP, snum, p->GetActor(), -1);
-		if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
+		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum) == 0)
 		{
 			p->posz -= j;
 			p->crack_time = CRACK_TIME;
@@ -1685,9 +1689,9 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 	if (actions & SB_CROUCH)                            //Z (soar low)
 	{
 		// crouch
-		SetGameVarID(g_iReturnVarID, 0, pi, snum);
+		SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
 		OnEvent(EVENT_SOARDOWN, snum, p->GetActor(), -1);
-		if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
+		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum) == 0)
 		{
 			p->posz += j;
 			p->crack_time = CRACK_TIME;
@@ -2639,11 +2643,11 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 	{
 		if (isWW2GI())
 		{
-			SetGameVarID(g_iReturnVarID, 0, pi, snum);
-			SetGameVarID(g_iWeaponVarID, p->curr_weapon, pi, snum);
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], pi, snum);
+			SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
+			SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->GetActor(), snum);
 			OnEvent(EVENT_HOLSTER, snum, p->GetActor(), -1);
-			if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
+			if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum) == 0)
 			{
 				// now it uses the game definitions...
 				if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_HOLSTER_CLEARS_CLIP)

@@ -190,16 +190,6 @@ inline int bossguy(DDukeActor* pSprite)
 	return bossguypic(pSprite->s.picnum);
 }
 
-inline int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
-{
-	return GetGameVarID(id, sActor->GetIndex(), sPlayer);
-}
-
-inline void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
-{
-	SetGameVarID(id, lValue, sActor->GetIndex(), sPlayer);
-}
-
 // old interface versions of already changed functions
 
 inline void RANDOMSCRAP(spritetype* s, int i)

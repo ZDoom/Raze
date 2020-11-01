@@ -95,9 +95,9 @@ void hud_input(int plnum)
 	{
 		if (PlayerInput(plnum, SB_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_QUICKKICK, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
 			{
 				p->quick_kick = 14;
 				if (!p->quick_kick_msg && plnum == screenpeek) FTA(QUOTE_MIGHTY_FOOT, p);
@@ -120,9 +120,9 @@ void hud_input(int plnum)
 		// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.
 		if (PlayerInput(plnum, SB_INVUSE) && p->newowner == -1)
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_INVENTORY, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
 			{
 				if (p->inven_icon > ICON_NONE && p->inven_icon <= ICON_HEATS) PlayerSetItemUsed(plnum, p->inven_icon);
 			}
@@ -130,9 +130,9 @@ void hud_input(int plnum)
 
 		if (!isRR() && PlayerUseItem(plnum, ICON_HEATS))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USENIGHTVISION, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0 && p->heat_amount > 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0 && p->heat_amount > 0)
 			{
 				p->heat_on = !p->heat_on;
 				setpal(p);
@@ -144,9 +144,9 @@ void hud_input(int plnum)
 
 		if (PlayerUseItem(plnum, ICON_STEROIDS))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USESTEROIDS, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
 			{
 				if (p->steroids_amount == 400)
 				{
@@ -227,15 +227,15 @@ void hud_input(int plnum)
 			// These events force us to keep the inventory selector in the playsim as opposed to the UI where it really belongs.
 			if (PlayerInput(plnum, SB_INVPREV))
 			{
-				SetGameVarID(g_iReturnVarID, dainv, -1, plnum);
+				SetGameVarID(g_iReturnVarID, dainv, nullptr, plnum);
 				OnEvent(EVENT_INVENTORYLEFT, plnum, nullptr, -1);
-				dainv = GetGameVarID(g_iReturnVarID, -1, plnum);
+				dainv = GetGameVarID(g_iReturnVarID, nullptr, plnum);
 			}
 			if (PlayerInput(plnum, SB_INVNEXT))
 			{
-				SetGameVarID(g_iReturnVarID, dainv, -1, plnum);
+				SetGameVarID(g_iReturnVarID, dainv, nullptr, plnum);
 				OnEvent(EVENT_INVENTORYRIGHT, plnum, nullptr, -1);
-				dainv = GetGameVarID(g_iReturnVarID, -1, plnum);
+				dainv = GetGameVarID(g_iReturnVarID, nullptr, plnum);
 			}
 			p->inven_icon = dainv;
 			// Someone must have really hated constant data, doing this with a switch/case (and of course also with literal numbers...)
@@ -271,9 +271,9 @@ void hud_input(int plnum)
 
 		if (PlayerUseItem(plnum, ICON_HOLODUKE) && (isRR() || p->newowner == -1))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_HOLODUKEON, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
 			{
 				if (!isRR())
 				{
@@ -328,9 +328,9 @@ void hud_input(int plnum)
 
 		if (isRR() && PlayerUseItem(plnum, ICON_HEATS) && p->newowner == -1)
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USENIGHTVISION, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
 			{
 				if (p->yehaa_timer == 0)
 				{
@@ -360,9 +360,9 @@ void hud_input(int plnum)
 
 		if (PlayerUseItem(plnum, ICON_FIRSTAID))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USEMEDKIT, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
 			{
 				if (p->firstaid_amount > 0 && p->GetActor()->s.extra < max_player_health)
 				{
@@ -413,9 +413,9 @@ void hud_input(int plnum)
 
 		if (PlayerUseItem(plnum, ICON_JETPACK) && (isRR() || p->newowner == -1))
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USEJETPACK, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
 			{
 				if (!isRR())
 				{
@@ -481,9 +481,9 @@ void hud_input(int plnum)
 
 		if (PlayerInput(plnum, SB_TURNAROUND) && p->angle.spin.asbam() == 0 && p->on_crane == nullptr)
 		{
-			SetGameVarID(g_iReturnVarID, 0, -1, plnum);
+			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_TURNAROUND, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, -1, plnum) != 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) != 0)
 			{
 				p->sync.actions &= ~SB_TURNAROUND;
 			}

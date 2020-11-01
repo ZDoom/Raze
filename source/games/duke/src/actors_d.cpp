@@ -257,7 +257,7 @@ void addweapon_d(struct player_struct *p, int weapon)
 		}
 		SetGameVarID(g_iReturnVarID, 0, snum, -1);
 		OnEvent(EVENT_CHANGEWEAPON, snum, p->GetActor(), -1);
-		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+		if (GetGameVarID(g_iReturnVarID, nullptr, snum) == 0)
 		{
 			p->curr_weapon = weapon;
 		}
@@ -1048,7 +1048,7 @@ static void movetripbomb(DDukeActor *actor)
 {
 	auto s = &actor->s;
 	int j, x;
-	int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
+	int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1);
 	if (lTripBombControl & TRIPBOMB_TIMER)
 	{
 		// we're on a timer....

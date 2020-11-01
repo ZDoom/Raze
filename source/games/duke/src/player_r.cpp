@@ -840,9 +840,11 @@ void shoot_r(int i, int atwith)
 {
 	short sect, sa, p, j;
 	int sx, sy, sz, vel, zvel, x;
-	spritetype* s;
 
-	s = &sprite[i];
+	auto actor = &hittype[i];
+	spritetype* const s = &actor->s;
+	auto atact = &hittype[atwith];
+
 	sect = s->sectnum;
 	zvel = 0;
 
@@ -872,10 +874,10 @@ void shoot_r(int i, int atwith)
 		}
 	}
 
-	SetGameVarID(g_iAtWithVarID, 0, p, atwith);
-	SetGameVarID(g_iReturnVarID, 0, p, i);
-	OnEvent(EVENT_SHOOT, p, &hittype[i], -1);
-	if (GetGameVarID(g_iReturnVarID, p, i) != 0)
+	SetGameVarID(g_iAtWithVarID, 0, atact, p);
+	SetGameVarID(g_iReturnVarID, 0, actor, p);
+	OnEvent(EVENT_SHOOT, p, ps[p].GetActor(), -1);
+	if (GetGameVarID(g_iReturnVarID, actor, p) != 0)
 	{
 		return;
 	}

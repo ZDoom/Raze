@@ -95,9 +95,10 @@ void addspritetodelete(int spnum)
 	killthesprite = true;
 }
 
-static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPlayer, int lParm2)
+static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor_, int sPlayer, int lParm2)
 {
 	int lValue;
+	auto sActor = &hittype[sActor_];
 
 	lValue = GetGameVarID((int)lVar2, sActor, sPlayer);
 
@@ -262,12 +263,13 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor,
 }
 
 ///////////////////////////////////////////
-void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPlayer, int lParm2)
+void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor_, int sPlayer, int lParm2)
 {
 	int iPlayer;
 	int lValue;
 	int lTemp;
 
+	auto sActor = &hittype[sActor_];
 	lValue = GetGameVarID((int)lVar2, sActor, sPlayer);
 
 	if (lVar1 == g_iThisActorID)
@@ -931,11 +933,12 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 }
 
 ////////////////////
-void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short sPlayer, int lParm2)
+void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, short sActor_, short sPlayer, int lParm2)
 {
 	int iWall;
 	int lValue;
 
+	auto sActor = &hittype[sActor_];
 	lValue = GetGameVarID((int)lVar2, sActor, sPlayer);
 
 	iWall = GetGameVarID((int)lVar1, sActor, sPlayer);
@@ -1018,16 +1021,17 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short s
 	return;
 }
 
-void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short sPlayer, int lParm2)
+void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, short sActor_, short sPlayer, int lParm2)
 {
 	int iSector;
 	int lValue;
+	auto sActor = &hittype[sActor_];
 
 
 	if (lVar1 == g_iThisActorID)
 	{
 		// if they've asked for 'this', then use 'this'...
-		iSector = sprite[sActor].sectnum;
+		iSector = sActor->s.sectnum;
 	}
 	else
 	{
@@ -1133,17 +1137,18 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short
 	}
 	return;
 }
-void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPlayer, int lParm2)
+void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor_, int sPlayer, int lParm2)
 {
 	int iActor;
 	int lValue;
 
+	auto sActor = &hittype[sActor_];
 	lValue = GetGameVarID((int)lVar2, sActor, sPlayer);
 
 	if (lVar1 == g_iThisActorID)
 	{
 		// if they've asked for 'this', then use 'this'...
-		iActor = sActor;
+		iActor = sActor_;
 	}
 	else
 	{
@@ -2604,7 +2609,7 @@ int ParseState::parse(void)
 	{	int i;
 		insptr++;
 		i=*(insptr++);	// ID of def
-		SetGameVarID(i, *insptr, g_ac->GetIndex(), g_p );
+		SetGameVarID(i, *insptr, g_ac, g_p );
 		insptr++;
 		break;
 	}
@@ -2612,7 +2617,7 @@ int ParseState::parse(void)
 	{	int i;
 		insptr++;
 		i=*(insptr++);	// ID of def
-		SetGameVarID(i, GetGameVarID(*insptr, g_ac, g_p), g_ac->GetIndex(), g_p );
+		SetGameVarID(i, GetGameVarID(*insptr, g_ac, g_p), g_ac, g_p );
 //			aGameVars[i].lValue = aGameVars[*insptr].lValue;
 		insptr++;
 		break;
@@ -2623,7 +2628,7 @@ int ParseState::parse(void)
 		i=*(insptr++);	// ID of def
 //sprintf(g_szBuf,"AddVar %d to Var ID=%d, g_ac->GetIndex()=%d, g_p=%d\n",*insptr, i, g_ac, g_p);
 //AddLog(g_szBuf);
-		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) + *insptr, g_ac->GetIndex(), g_p );
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) + *insptr, g_ac, g_p );
 		insptr++;
 		break;
 	}
@@ -2632,7 +2637,7 @@ int ParseState::parse(void)
 	{	int i;
 		insptr++;
 		i=*(insptr++);	// ID of def
-		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) + GetGameVarID(*insptr, g_ac, g_p), g_ac->GetIndex(), g_p );
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) + GetGameVarID(*insptr, g_ac, g_p), g_ac, g_p );
 		insptr++;
 		break;
 	}
@@ -3058,7 +3063,7 @@ int ParseState::parse(void)
 		if (lSprite >= 0)
 		{
 			lTemp = GetGameVarID(lVar3, g_ac, g_p);
-			SetGameVarID(lVar2, lTemp, lSprite, g_p);
+			SetGameVarID(lVar2, lTemp, &hittype[lSprite], g_p);
 		}
 
 		break;
@@ -3080,7 +3085,7 @@ int ParseState::parse(void)
 		lSprite = GetGameVarID(lVar1, g_ac, g_p);
 		if (lSprite >= 0)
 		{
-			lTemp = GetGameVarID(lVar2, lSprite, g_p);
+			lTemp = GetGameVarID(lVar2, &hittype[lSprite], g_p);
 			SetGameVarID(lVar3, lTemp, g_ac, g_p);
 		}
 

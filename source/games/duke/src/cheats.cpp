@@ -241,11 +241,11 @@ static bool cheatInventory(int player)
 {
 	auto invGet = [=](int defvalue, int evtype, int16_t &dest)
 	{
-		SetGameVarID(g_iReturnVarID, defvalue, -1, player);
+		SetGameVarID(g_iReturnVarID, defvalue, nullptr, player);
 		OnEvent(evtype, player, nullptr, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, player) >= 0)
+		if (GetGameVarID(g_iReturnVarID, nullptr, player) >= 0)
 		{
-			dest = GetGameVarID(g_iReturnVarID, -1, player);
+			dest = GetGameVarID(g_iReturnVarID, nullptr, player);
 		}
 	};
 

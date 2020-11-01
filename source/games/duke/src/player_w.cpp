@@ -63,8 +63,8 @@ void DoFire(struct player_struct *p, short snum)
 		S_PlayActorSound(aplWeaponFireSound[p->curr_weapon][snum],p->i);
 	}
 	
-	SetGameVarID(g_iWeaponVarID,p->curr_weapon,p->i,snum);
-	SetGameVarID(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
+	SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
+	SetGameVarID(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum], p->GetActor(), snum);
 	fi.shoot(p->i,aplWeaponShoots[p->curr_weapon][snum]);
 	for(i=1;i<aplWeaponShotsPerBurst[p->curr_weapon][snum];i++)
 	{
@@ -158,11 +158,11 @@ void fireweapon_ww(int snum)
 	}
 	else
 	{
-		SetGameVarID(g_iReturnVarID, 0, pi, snum);
-		SetGameVarID(g_iWeaponVarID, p->curr_weapon, pi, snum);
-		SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], pi, snum);
+		SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
+		SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
+		SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->GetActor(), snum);
 		OnEvent(EVENT_FIRE, snum, p->GetActor(), -1);
-		if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
+		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum) == 0)
 		{
 			switch (aplWeaponWorksLike[p->curr_weapon][snum])
 			{
@@ -349,8 +349,8 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
 
 			{
-				int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
-				int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
+				int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, snum);
+				int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, snum);
 				// set timer.  blows up when at zero....
 				sprite[j].extra = lGrenadeLifetime
 					+ mulscale(krand(), lGrenadeLifetimeVar, 14)
@@ -404,8 +404,8 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 					lastvisinc = ud.levelclock + 32;
 					p->visibility = 0;
 				}
-				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
+				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
+				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->GetActor(), snum);
 				fi.shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
 			}
 		}

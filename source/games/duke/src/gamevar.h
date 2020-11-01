@@ -124,9 +124,11 @@ int GetDefID(const char *szGameLabel);
 void ClearGameVars(void);
 void AddSystemVars();
 void ResetGameVars(void);
-int GetGameVarID(int id, int sActor, int sPlayer);
-void SetGameVarID(int id, int lValue, int sActor, int sPlayer);
-int GetGameVar(const char* szGameLabel, int lDefault, int sActor, int sPlayer);
+struct weaponhit;
+using DDukeActor = weaponhit;
+int GetGameVarID(int id, DDukeActor* sActor, int sPlayer);
+void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer);
+int GetGameVar(const char* szGameLabel, int lDefault, DDukeActor* sActor, int sPlayer);
 
 void ClearGameEvents();
 bool IsGameEvent(int i);

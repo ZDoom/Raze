@@ -104,7 +104,7 @@ public:
 	int GetMoraleOrShield(struct player_struct *p, int snum)
 	{
 		// special handling for WW2GI
-		int lAmount = GetGameVar("PLR_MORALE", -1, p->i, snum);
+		int lAmount = GetGameVar("PLR_MORALE", -1, p->GetActor(), snum);
 		if (lAmount == -1) lAmount = p->shield_amount;
 		return lAmount;
 	}
