@@ -259,7 +259,7 @@ void GameInterface::app_init()
 	pSky->yscale = 65536;
 	parallaxtype = 2;
 	g_visibility = 2048;
-
+	enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 }
 
 void GameInterface::Startup()
