@@ -1076,27 +1076,26 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 	{
 		int sect;
 		int unk = 0;
-		int jj;
 		int startwall, endwall;
 		sect = wall[wal->nextwall].nextsector;
-		SectIterator it(sect);
-		while ((jj = it.NextIndex()) >= 0)
+		DukeSectIterator it(sect);
+		while (auto act = it.Next())
 		{
-			s = &sprite[jj];
+			s = &act->s;
 			if (s->lotag == 6)
 			{
 				//for (j = 0; j < 16; j++) RANDOMSCRAP(s, -1); This never spawned anything due to the -1.
-				hittype[jj].spriteextra++;
-				if (hittype[jj].spriteextra == 25)
+				act->spriteextra++;
+				if (act->spriteextra == 25)
 				{
 					startwall = sector[s->sectnum].wallptr;
 					endwall = startwall + sector[s->sectnum].wallnum;
 					for (i = startwall; i < endwall; i++)
 						sector[wall[i].nextsector].lotag = 0;
 					sector[s->sectnum].lotag = 0;
-					S_StopSound(sprite[jj].lotag);
-					S_PlayActorSound(400, jj);
-					deletesprite(jj);
+					S_StopSound(act->s.lotag);
+					S_PlayActorSound(400, act);
+					deletesprite(act);
 				}
 			}
 		}
@@ -1352,14 +1351,14 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 				darkestwall = wal->shade;
 
 		j = krand() & 1;
-		StatIterator it(STAT_EFFECTOR);
-		while ((i = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_EFFECTOR);
+		while (auto act = it.Next())
 		{
-			if (sprite[i].hitag == wall[dawallnum].lotag && sprite[i].lotag == 3)
+			if (act->s.hitag == wall[dawallnum].lotag && act->s.lotag == 3)
 			{
-				hittype[i].temp_data[2] = j;
-				hittype[i].temp_data[3] = darkestwall;
-				hittype[i].temp_data[4] = 1;
+				act->temp_data[2] = j;
+				act->temp_data[3] = darkestwall;
+				act->temp_data[4] = 1;
 			}
 		}
 		break;
@@ -1431,7 +1430,7 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 
 bool checkhitceiling_r(int sn)
 {
-	short i, j;
+	short j;
 
 	switch (sector[sn].ceilingpicnum)
 	{
@@ -1491,16 +1490,17 @@ bool checkhitceiling_r(int sn)
 
 		if (!sector[sn].hitag)
 		{
-			SectIterator it(sn);
-			while ((i = it.NextIndex()) >= 0)
+			DukeSectIterator it(sn);
+			while (auto act1 = it.Next())
 			{
-				if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || (isRRRA() && (sprite[i].lotag == 47 || sprite[i].lotag == 48))))
+				auto spr1 = &act1->s;
+				if (spr1->picnum == SECTOREFFECTOR && (spr1->lotag == 12 || (isRRRA() && (spr1->lotag == 47 || spr1->lotag == 48))))
 				{
-					StatIterator it(STAT_EFFECTOR);
-					while ((j = it.NextIndex()) >= 0)
+					DukeStatIterator it(STAT_EFFECTOR);
+					while (auto act2 = it.Next())
 					{
-						if (sprite[j].hitag == sprite[i].hitag)
-							hittype[j].temp_data[3] = 1;
+						if (act2->s.hitag == spr1->hitag)
+							act2->temp_data[3] = 1;
 					}
 					break;
 				}
@@ -1508,13 +1508,14 @@ bool checkhitceiling_r(int sn)
 		}
 
 		j = krand() & 1;
-		StatIterator it(STAT_EFFECTOR);
-		while ((i = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_EFFECTOR);
+		while (auto act1 = it.Next())
 		{
-			if (sprite[i].hitag == (sector[sn].hitag) && sprite[i].lotag == 3)
+			auto spr1 = &act1->s;
+			if (spr1->hitag == (sector[sn].hitag) && spr1->lotag == 3)
 			{
-				hittype[i].temp_data[2] = j;
-				hittype[i].temp_data[4] = 1;
+				act1->temp_data[2] = j;
+				act1->temp_data[4] = 1;
 			}
 		}
 
@@ -2250,12 +2251,18 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		deletesprite(targ);
 		break;
 	case FORCESPHERE:
+	{
 		s->xrepeat = 0;
-		hittype[s->owner].temp_data[0] = 32;
-		hittype[s->owner].temp_data[1] = !hittype[s->owner].temp_data[1];
-		hittype[s->owner].temp_data[2] ++;
+		auto Owner = targ->GetOwner();
+		if (Owner)
+		{
+			Owner->temp_data[0] = 32;
+			Owner->temp_data[1] = !Owner->temp_data[1];
+			Owner->temp_data[2] ++;
+		}
 		spawn(targ, EXPLOSION2);
 		break;
+	}
 	case TOILET:
 		s->picnum = TOILETBROKE;
 		s->cstat |= (krand() & 1) << 2;
@@ -2897,14 +2904,13 @@ void dofurniture(int wl, int sect, int snum)
 
 void tearitup(int sect)
 {
-	int j;
-	SectIterator it(sect);
-	while ((j = it.NextIndex()) >= 0)
+	DukeSectIterator it(sect);
+	while (auto act = it.Next())
 	{
-		if (sprite[j].picnum == DESTRUCTO)
+		if (act->s.picnum == DESTRUCTO)
 		{
-			hittype[j].picnum = SHOTSPARK1;
-			hittype[j].extra = 1;
+			act->picnum = SHOTSPARK1;
+			act->extra = 1;
 		}
 	}
 }
