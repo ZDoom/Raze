@@ -778,7 +778,6 @@ void movecrane(DDukeActor *actor, int crane)
 		if (spri->xvel < 192)
 			spri->xvel += 8;
 		spri->ang = getangle(msx[t[4]] - spri->x, msy[t[4]] - spri->y);
-		//IFMOVING;	// JBF 20040825: see my rant above about this
 		ssp(actor, CLIPMASK0);
 		if (((spri->x - msx[t[4]]) * (spri->x - msx[t[4]]) + (spri->y - msy[t[4]]) * (spri->y - msy[t[4]])) < (128 * 128))
 			t[0]++;
@@ -787,7 +786,7 @@ void movecrane(DDukeActor *actor, int crane)
 	else if (t[0] == 9)
 		t[0] = 0;
 
-	setsprite(msy[t[4] + 2], spri->x, spri->y, spri->z - (34 << 8));
+	setsprite(ScriptIndexToActor(msy[t[4] + 2]), spri->x, spri->y, spri->z - (34 << 8));
 
 	auto Owner = actor->GetOwner();
 	if (Owner != nullptr)

@@ -45,12 +45,12 @@ int spawn_d(int j, int pn)
 {
     int x;
 
-	int i = initspriteforspawn(j, pn, { CRACK1, CRACK2, CRACK3, CRACK4, SPEAKER, LETTER, DUCK, TARGET, TRIPBOMB, VIEWSCREEN, VIEWSCREEN2 });
+    auto actj = j < 0 ? nullptr : &hittype[j];
+    int i = initspriteforspawn(actj, pn, { CRACK1, CRACK2, CRACK3, CRACK4, SPEAKER, LETTER, DUCK, TARGET, TRIPBOMB, VIEWSCREEN, VIEWSCREEN2 });
     if (!(i & 0x1000000)) return i;
     i &= 0xffffff;
     auto act = &hittype[i];
     auto sp = &act->s;
-    auto actj = j < 0 ? nullptr : &hittype[j];
     auto spj = j < 0 ? nullptr : &actj->s;
     auto t = act->temp_data;
     int sect = sp->sectnum;
@@ -569,7 +569,7 @@ int spawn_d(int j, int pn)
 
             case SHELL: //From the player
             case SHOTGUNSHELL:
-				initshell(j, i, sp->picnum == SHELL);
+				initshell(actj, act, sp->picnum == SHELL);
                 break;
 
             case RESPAWN:
@@ -685,11 +685,11 @@ int spawn_d(int j, int pn)
                 break;
 
             case CRANE:
-				initcrane(j, i, CRANEPOLE);
+				initcrane(actj, act, CRANEPOLE);
                 break;
 
             case WATERDRIP:
-                initwaterdrip(j, i);
+                initwaterdrip(actj, act);
                 break;
             case TRASH:
 
@@ -943,7 +943,7 @@ int spawn_d(int j, int pn)
             case REACTOR2:
             case REACTOR:
             case RECON:
-				if (initreactor(j, i, sp->picnum == RECON)) return i;
+				if (initreactor(actj, act, sp->picnum == RECON)) return i;
                 break;
 
             case FLAMETHROWERSPRITE:

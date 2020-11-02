@@ -103,6 +103,10 @@ DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed ch
 		act->floorz = s_ow->floorz;
 		act->ceilingz = s_ow->ceilingz;
 	}
+	else
+	{
+
+	}
 
 	memset(act->temp_data, 0, sizeof(act->temp_data));
 	if (actorinfo[s_pn].scriptaddress)
@@ -135,16 +139,16 @@ DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed ch
 //
 //---------------------------------------------------------------------------
 
-int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes)
+int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int> &excludes)
 {
 	spritetype* sp;
 	int* t;
 	int i;
 
-	if (j >= 0)
+	if (actj)
 	{
-		auto spawned = EGS(sprite[j].sectnum, sprite[j].x, sprite[j].y, sprite[j].z, pn, 0, 0, 0, 0, 0, 0, &hittype[j], 0);
-		spawned->picnum = sprite[j].picnum;
+		auto spawned = EGS(actj->s.sectnum, actj->s.x, actj->s.y, actj->s.z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
+		spawned->picnum = actj->s.picnum;
 		sp = &spawned->s;
 		t = spawned->temp_data;
 		i = spawned->GetIndex();
@@ -429,14 +433,14 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 //
 //---------------------------------------------------------------------------
 
-void initshell(int j, int i, bool isshell)
+void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 {
-	auto sp = &sprite[i];
+	auto sp = &acti->s;
 	int sect = sp->sectnum;
-	auto spj = &sprite[j];
-	auto t = hittype[i].temp_data;
-	if (j >= 0)
+	auto t = acti->temp_data;
+	if (actj)
 	{
+		auto spj = &actj->s;
 		short snum, a;
 
 		if (spj->picnum == TILE_APLAYER)
@@ -473,7 +477,7 @@ void initshell(int j, int i, bool isshell)
 
 		sp->xrepeat = sp->yrepeat = isRR() && isshell? 2 : 4;
 
-		changespritestat(i, STAT_MISC);
+		changespritestat(acti, STAT_MISC);
 	}
 }
 
@@ -483,11 +487,11 @@ void initshell(int j, int i, bool isshell)
 //
 //---------------------------------------------------------------------------
 
-void initcrane(int j, int i, int CRANEPOLE)
+void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 {
-	auto sp = &sprite[i];
+	auto sp = &acti->s;
 	int sect = sp->sectnum;
-	auto t = hittype[i].temp_data;
+	auto t = acti->temp_data;
 	sp->cstat |= 64 | 257;
 
 	sp->picnum += 2;
@@ -498,14 +502,13 @@ void initcrane(int j, int i, int CRANEPOLE)
 	msy[tempwallptr] = sp->y;
 	msx[tempwallptr + 2] = sp->z;
 
-	int s;
-	StatIterator it(STAT_DEFAULT);
-	while ((s = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_DEFAULT);
+	while (auto act = it.Next())
 	{
-		auto ss = &sprite[s];
+		auto ss = &act->s;
 		if (ss->picnum == CRANEPOLE && sp->hitag == (ss->hitag))
 		{
-			msy[tempwallptr + 2] = s;
+			msy[tempwallptr + 2] = ActorToScriptIndex(act);
 
 			t[1] = ss->sectnum;
 
@@ -520,7 +523,7 @@ void initcrane(int j, int i, int CRANEPOLE)
 			ss->z = sp->z;
 			ss->shade = sp->shade;
 
-			setsprite(s, ss->x, ss->y, ss->z);
+			setsprite(act, ss->pos);
 			break;
 		}
 	}
@@ -528,7 +531,7 @@ void initcrane(int j, int i, int CRANEPOLE)
 	tempwallptr += 3;
 	sp->owner = -1;
 	sp->extra = 8;
-	changespritestat(i, 6);
+	changespritestat(acti, STAT_STANDABLE);
 }
 
 //---------------------------------------------------------------------------
@@ -537,15 +540,15 @@ void initcrane(int j, int i, int CRANEPOLE)
 //
 //---------------------------------------------------------------------------
 
-void initwaterdrip(int j, int i)
+void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 {
-	auto sp = &sprite[i];
+	auto sp = &actor->s;
 	int sect = sp->sectnum;
-	auto t = hittype[i].temp_data;
-	if (j >= 0 && (sprite[j].statnum == 10 || sprite[j].statnum == 1))
+	auto t = actor->temp_data;
+	if (actj && (actj->s.statnum == 10 || actj->s.statnum == 1))
 	{
 		sp->shade = 32;
-		if (sprite[j].pal != 1)
+		if (actj->s.pal != 1)
 		{
 			sp->pal = 2;
 			sp->z -= (18 << 8);
@@ -553,9 +556,9 @@ void initwaterdrip(int j, int i)
 		else sp->z -= (13 << 8);
 		sp->ang = getangle(ps[connecthead].posx - sp->x, ps[connecthead].posy - sp->y);
 		sp->xvel = 48 - (krand() & 31);
-		ssp(i, CLIPMASK0);
+		ssp(actor, CLIPMASK0);
 	}
-	else if (j == -1)
+	else if (!actj)
 	{
 		sp->z += (4 << 8);
 		t[0] = sp->z;
@@ -563,7 +566,7 @@ void initwaterdrip(int j, int i)
 	}
 	sp->xrepeat = 24;
 	sp->yrepeat = 24;
-	changespritestat(i, 6);
+	changespritestat(actor, STAT_STANDABLE);
 }
 
 
@@ -573,9 +576,8 @@ void initwaterdrip(int j, int i)
 //
 //---------------------------------------------------------------------------
 
-int initreactor(int j, int i_, bool isrecon)
+int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 {
-	auto actor = &hittype[i_];
 	auto sp = &actor->s;
 	int sect = sp->sectnum;
 	auto t = actor->temp_data;
