@@ -155,7 +155,6 @@ void SetDispatcher()
 		respawnhitag_d,
 		checktimetosleep_d,
 		move_d,
-		spawn_d,
 
 		incur_damage_d,
 		shoot_d,
@@ -204,7 +203,6 @@ void SetDispatcher()
 		respawnhitag_r,
 		checktimetosleep_r,
 		move_r,
-		spawn_r,
 
 		incur_damage_r,
 		shoot_r,

@@ -670,7 +670,7 @@ void prelevel_r(int g)
 		{
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == 14)
 				continue;
-			fi.spawn(-1, i);
+			spawn(nullptr, i);
 		}
 	}
 
@@ -680,7 +680,7 @@ void prelevel_r(int g)
 		if (spr->statnum < MAXSTATUS)
 		{
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == 14)
-				fi.spawn(-1, i);
+				spawn(nullptr, i);
 		}
 		if (spr->picnum == RRTILE19)
 			deletesprite(i);
