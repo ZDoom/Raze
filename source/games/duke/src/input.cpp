@@ -64,6 +64,7 @@ void hud_input(int plnum)
 
 	unk = 0;
 	p = &ps[plnum];
+	auto pact = p->GetActor();
 
 	i = p->aim_mode;
 	p->aim_mode = !PlayerInput(plnum, SB_AIMMODE);
@@ -80,7 +81,7 @@ void hud_input(int plnum)
 			if (!isRRRA() || p->GetActor()->s.extra > 0)
 			{
 				p->last_pissed_time = 4000;
-				S_PlayActorSound(437, p->i);
+				S_PlayActorSound(437, pact);
 				if (p->GetActor()->s.extra <= max_player_health - max_player_health / 10)
 				{
 					p->GetActor()->s.extra += 2;
@@ -137,7 +138,7 @@ void hud_input(int plnum)
 				p->heat_on = !p->heat_on;
 				setpal(p);
 				p->inven_icon = 5;
-				S_PlayActorSound(NITEVISION_ONOFF, p->i);
+				S_PlayActorSound(NITEVISION_ONOFF, pact);
 				FTA(106 + (!p->heat_on), p);
 			}
 		}
@@ -151,7 +152,7 @@ void hud_input(int plnum)
 				if (p->steroids_amount == 400)
 				{
 					p->steroids_amount--;
-					S_PlayActorSound(DUKE_TAKEPILLS, p->i);
+					S_PlayActorSound(DUKE_TAKEPILLS, pact);
 					p->inven_icon = ICON_STEROIDS;
 					FTA(12, p);
 				}
@@ -319,8 +320,8 @@ void hud_input(int plnum)
 						if (p->holoduke_amount == 0)
 							checkavailinven(p);
 
-						if (p->drink_amt < 99 && !S_CheckActorSoundPlaying(p->i, 425))
-							S_PlayActorSound(425, p->i);
+						if (p->drink_amt < 99 && !S_CheckActorSoundPlaying(pact, 425))
+							S_PlayActorSound(425, pact);
 					}
 				}
 			}
@@ -335,7 +336,7 @@ void hud_input(int plnum)
 				if (p->yehaa_timer == 0)
 				{
 					p->yehaa_timer = 126;
-					S_PlayActorSound(390, p->i);
+					S_PlayActorSound(390, pact);
 					p->noise_radius = 16384;
 					madenoise(plnum);
 					if (sector[p->cursectnum].lotag == 857)
@@ -382,7 +383,7 @@ void hud_input(int plnum)
 							p->firstaid_amount = 0;
 							checkavailinven(p);
 						}
-						S_PlayActorSound(DUKE_USEMEDKIT, p->i);
+						S_PlayActorSound(DUKE_USEMEDKIT, pact);
 					}
 					else
 					{
@@ -404,8 +405,8 @@ void hud_input(int plnum)
 						if (p->GetActor()->s.extra > max_player_health)
 							p->GetActor()->s.extra = max_player_health;
 						p->drink_amt += 10;
-						if (p->drink_amt <= 100 && !S_CheckActorSoundPlaying(p->i, DUKE_USEMEDKIT))
-							S_PlayActorSound(DUKE_USEMEDKIT, p->i);
+						if (p->drink_amt <= 100 && !S_CheckActorSoundPlaying(pact, DUKE_USEMEDKIT))
+							S_PlayActorSound(DUKE_USEMEDKIT, pact);
 					}
 				}
 			}
@@ -426,17 +427,17 @@ void hud_input(int plnum)
 						{
 							p->inven_icon = 4;
 
-							S_StopSound(-1, p->i, CHAN_VOICE);	// this will stop the falling scream
-							S_PlayActorSound(DUKE_JETPACK_ON, p->i);
+							S_StopSound(-1, pact, CHAN_VOICE);	// this will stop the falling scream
+							S_PlayActorSound(DUKE_JETPACK_ON, pact);
 							FTA(QUOTE_JETPACK_ON, p);
 						}
 						else
 						{
 							p->hard_landing = 0;
 							p->poszv = 0;
-							S_PlayActorSound(DUKE_JETPACK_OFF, p->i);
-							S_StopSound(DUKE_JETPACK_IDLE, p->i);
-							S_StopSound(DUKE_JETPACK_ON, p->i);
+							S_PlayActorSound(DUKE_JETPACK_OFF, pact);
+							S_StopSound(DUKE_JETPACK_IDLE, pact);
+							S_StopSound(DUKE_JETPACK_ON, pact);
 							FTA(QUOTE_JETPACK_OFF, p);
 						}
 					}
@@ -447,8 +448,8 @@ void hud_input(int plnum)
 					// eat cow pie
 					if (p->jetpack_amount > 0 && p->GetActor()->s.extra < max_player_health)
 					{
-						if (!S_CheckActorSoundPlaying(p->i, 429))
-							S_PlayActorSound(429, p->i);
+						if (!S_CheckActorSoundPlaying(pact, 429))
+							S_PlayActorSound(429, pact);
 
 						p->jetpack_amount -= 100;
 						if (p->drink_amt > 0)
