@@ -624,12 +624,12 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 //
 //---------------------------------------------------------------------------
 
-void spawneffector(int i)
+void spawneffector(DDukeActor* actor)
 {
-	auto sp = &sprite[i];
+	auto sp = &actor->s;
 	int sect = sp->sectnum;
-	auto t = hittype[i].temp_data;
-	int j, startwall, endwall, x, y, d, s, clostest;
+	auto t = actor->temp_data;
+	int startwall, endwall, x, y, d, s, clostest;
 
 	sp->yvel = sector[sect].extra;
 	sp->cstat |= 32768;
@@ -644,18 +644,21 @@ void spawneffector(int i)
 		case SE_23_ONE_WAY_TELEPORT:// XPTR END
 			if (sp->lotag != 23)
 			{
-				for (j = 0; j < MAXSPRITES; j++)
-					if (sprite[j].statnum < MAXSTATUS && sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 7 || sprite[j].lotag == 23) && i != j && sprite[j].hitag == sp->hitag)
+				DukeSpriteIterator it;
+				while (auto act2 = it.Next())
 					{
-						sp->owner = j;
+					if (act2->s.statnum < MAXSTATUS && act2->s.picnum == SECTOREFFECTOR && (act2->s.lotag == 7 || act2->s.lotag == 23) && actor != act2 && act2->s.hitag == sp->hitag)
+					{
+						actor->SetOwner(act2);
 						break;
 					}
 			}
-			else sp->owner = i;
+			}
+			else actor->SetOwner(actor);
 
 			t[4] = sector[sect].floorz == sp->z;
 			sp->cstat = 0;
-			changespritestat(i, 9);
+			changespritestat(actor, STAT_TRANSPORT);
 			return;
 		case SE_1_PIVOT:
 			sp->owner = -1;
@@ -750,7 +753,7 @@ void spawneffector(int i)
 				{
 					startwall = sector[sect].wallptr;
 					endwall = startwall + sector[sect].wallnum;
-					for (j = startwall; j < endwall; j++)
+					for (int j = startwall; j < endwall; j++)
 					{
 						int x = wall[j].nextsector;
 						if (x >= 0)
@@ -769,10 +772,10 @@ void spawneffector(int i)
 			break;
 
 		case SE_17_WARP_ELEVATOR:
-
+		{
 			t[2] = sector[sect].floorz; //Stopping loc
 
-			j = nextsectorneighborz(sect, sector[sect].floorz, -1, -1);
+			int j = nextsectorneighborz(sect, sector[sect].floorz, -1, -1);
 			t[3] = sector[j].ceilingz;
 
 			j = nextsectorneighborz(sect, sector[sect].ceilingz, 1, 1);
@@ -785,7 +788,7 @@ void spawneffector(int i)
 			}
 
 			break;
-
+		}
 		case SE_24_CONVEYOR:
 			sp->yvel <<= 1;
 		case SE_36_PROJ_SHOOTER:
@@ -960,18 +963,20 @@ void spawneffector(int i)
 			{
 				if (sector[sect].lotag == 30)
 				{
-					if (sp->pal) sprite[i].clipdist = 1;
-					else sprite[i].clipdist = 0;
+					if (sp->pal) sp->clipdist = 1;
+					else sp->clipdist = 0;
 					t[3] = sector[sect].floorz;
-					sector[sect].hitag = i; // hijack
+					sector[sect].hitag = actor->GetIndex(); // hijack
 				}
 
-				for (j = 0; j < MAXSPRITES; j++)
+				DukeSpriteIterator it;
+				bool found = false;
+				while (auto act2 = it.Next())
 				{
-					auto spr = &sprite[j];
+					auto spr = &act2->s;
 					if (spr->statnum < MAXSTATUS)
 						if (spr->picnum == SECTOREFFECTOR &&
-							spr->lotag == 1 &&
+							spr->lotag == SE_1_PIVOT &&
 							spr->hitag == sp->hitag)
 						{
 							if (sp->ang == 512)
@@ -979,14 +984,15 @@ void spawneffector(int i)
 								sp->x = spr->x;
 								sp->y = spr->y;
 							}
+							found = true;
+							actor->SetOwner(act2);
 							break;
 						}
 				}
-				if (j == MAXSPRITES)
+				if (!found)
 				{
 					I_Error("Found lonely Sector Effector (lotag 0) at (%d,%d)\n", sp->x, sp->y);
 				}
-				sp->owner = j;
 			}
 
 			startwall = sector[sect].wallptr;
@@ -1013,9 +1019,9 @@ void spawneffector(int i)
 					sp->extra = 0;
 				else sp->extra = 1;
 
-				sector[sect].hitag = i; // hijack
+				sector[sect].hitag = actor->GetIndex(); // hijack
 
-				j = 0;
+				int j = 0;
 
 				for (s = startwall; s < endwall; s++)
 				{
@@ -1066,14 +1072,16 @@ void spawneffector(int i)
 	{
 		case SE_6_SUBWAY:
 		case SE_14_SUBWAY_CAR:
-			j = callsound(sect, i);
+		{
+			int j = callsound(sect, actor);
 			if (j == -1)
 			{
 				if (!isRR()) j = SUBWAY;	// Duke
 				else if (sector[sp->sectnum].floorpal == 7) j = 456;
 				else j = 75;
 			}
-			hittype[i].lastvx = j;
+			actor->lastvx = j;
+		}
 		case SE_30_TWO_WAY_TRAIN:
 			if (numplayers > 1) break;
 		case SE_0_ROTATING_SECTOR:
@@ -1083,15 +1091,15 @@ void spawneffector(int i)
 		case SE_15_SLIDING_DOOR:
 		case SE_16_REACTOR:
 		case SE_26:
-			setsectinterpolate(sprite[i].sectnum);
+			setsectinterpolate(actor->s.sectnum);
 			break;
 	}
 
-	if ((!isRR() && sprite[i].lotag >= 40 && sprite[i].lotag <= 45) ||
-		(isRRRA() && sprite[i].lotag >= 150 && sprite[i].lotag <= 155))
-		changespritestat(i, STAT_RAROR);
+	if ((!isRR() && actor->s.lotag >= 40 && actor->s.lotag <= 45) ||
+		(isRRRA() && actor->s.lotag >= 150 && actor->s.lotag <= 155))
+		changespritestat(actor, STAT_RAROR);
 	else
-		changespritestat(i, STAT_EFFECTOR);
+		changespritestat(actor, STAT_EFFECTOR);
 }
 
 

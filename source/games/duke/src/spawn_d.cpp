@@ -1094,11 +1094,11 @@ int spawn_d(int j, int pn)
                     ssp(i,CLIPMASK0);
                 }
             case CEILINGSTEAM:
-                changespritestat(i,6);
+                changespritestat(i,STAT_STANDABLE);
                 break;
 
             case SECTOREFFECTOR:
-				spawneffector(i);
+				spawneffector(act);
 
                 break;
 
