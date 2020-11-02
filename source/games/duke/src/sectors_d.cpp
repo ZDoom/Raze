@@ -950,7 +950,7 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 
 bool checkhitceiling_d(int sn)
 {
-	int i, j;
+	int j;
 
 	switch (sector[sn].ceilingpicnum)
 	{
@@ -985,16 +985,16 @@ bool checkhitceiling_d(int sn)
 
 		if (!sector[sn].hitag)
 		{
-			SectIterator it(sn);
-			while ((i = it.NextIndex()) >= 0)
+			DukeSectIterator it(sn);
+			while (auto act = it.Next())
 			{
-				if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 12)
+				if (act->s.picnum == SECTOREFFECTOR && act->s.lotag == 12)
 				{
-					StatIterator it1(STAT_EFFECTOR);
-					while ((j = it1.NextIndex()) >= 0)
+					DukeStatIterator it1(STAT_EFFECTOR);
+					while (auto act2 = it1.Next())
 					{
-						if (sprite[j].hitag == sprite[i].hitag)
-							hittype[j].temp_data[3] = 1;
+						if (act2->s.hitag == act->s.hitag)
+							act2->temp_data[3] = 1;
 					}
 					break;
 				}
@@ -1002,13 +1002,13 @@ bool checkhitceiling_d(int sn)
 		}
 
 		j = krand() & 1;
-		StatIterator it(STAT_EFFECTOR);
-		while ((i = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_EFFECTOR);
+		while (auto act = it.Next())
 		{
-			if (sprite[i].hitag == (sector[sn].hitag) && sprite[i].lotag == 3)
+			if (act->s.hitag == (sector[sn].hitag) && act->s.lotag == 3)
 			{
-				hittype[i].temp_data[2] = j;
-				hittype[i].temp_data[4] = 1;
+				act->temp_data[2] = j;
+				act->temp_data[4] = 1;
 			}
 		}
 
@@ -1263,12 +1263,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case HYDRENT:
 		s->picnum = BROKEFIREHYDRENT;
 		spawn(targ, TOILETWATER);
-
-		//			for(k=0;k<5;k++)
-		  //		  {
-			//			j = EGS(s->sectnum,s->x,s->y,s->z-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(s->zvel>>2),i,5);
-			  //		  sprite[j].pal = 2;
-				//	}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 
@@ -1391,19 +1385,19 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					if (pspr->picnum != FREEZEBLAST)
 						//if (actortype[s->picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
 						{
-							j = fi.spawn(proj->GetIndex(), JIBS6);
+							auto spawned = spawn(proj, JIBS6);
 							if (pspr->pal == 6)
-								sprite[j].pal = 6;
-							sprite[j].z += (4 << 8);
-							sprite[j].xvel = 16;
-							sprite[j].xrepeat = sprite[j].yrepeat = 24;
-							sprite[j].ang += 32 - (krand() & 63);
+								spawned->s.pal = 6;
+							spawned->s.z += (4 << 8);
+							spawned->s.xvel = 16;
+							spawned->s.xrepeat = spawned->s.yrepeat = 24;
+							spawned->s.ang += 32 - (krand() & 63);
 						}
 
-				j = pspr->owner;
+				auto Owner = proj->GetOwner();
 
-				if (j >= 0 && sprite[j].picnum == APLAYER && s->picnum != ROTATEGUN && s->picnum != DRONE)
-					if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
+				if (Owner && Owner->s.picnum == APLAYER && s->picnum != ROTATEGUN && s->picnum != DRONE)
+					if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 					{
 						fi.shoot(targ, BLOODSPLAT3);
 						fi.shoot(targ, BLOODSPLAT1);
@@ -1417,7 +1411,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 						s->ang = (pspr->ang + 1024) & 2047;
 					s->xvel = -(pspr->extra << 2);
 					short j = s->sectnum;
-					pushmove(&s->x, &s->y, &s->z, &j, 128L, (4L << 8), (4L << 8), CLIPMASK0);
+					pushmove(&s->x, &s->y, &s->z, &j, 128L, (4 << 8), (4 << 8), CLIPMASK0);
 					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
 						changespritesect(targ, j);
 				}
@@ -1437,19 +1431,21 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 
 				int hitpic = pspr->picnum;
-				if (sprite[pspr->owner].picnum == APLAYER)
+				auto Owner = proj->GetOwner();
+				if (Owner && Owner->s.picnum == APLAYER)
 				{
 					if (s->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0)
 						return;
 
-					if (isWorldTour() && hitpic == FIREBALL && sprite[s->owner].picnum != FIREBALL)
+					auto tOwner = targ->GetOwner();
+					if (isWorldTour() && hitpic == FIREBALL && tOwner && tOwner->s.picnum != FIREBALL)
 						hitpic = FLAMETHROWERFLAME;
 				}
 
 				targ->picnum = hitpic;
 				targ->extra += pspr->extra;
 				targ->ang = pspr->ang;
-				targ->owner = pspr->owner;
+				targ->SetHitOwner(Owner);
 			}
 
 			if (s->statnum == 10)
@@ -1704,12 +1700,13 @@ void checksectors_d(int snum)
 			case VIEWSCREEN:
 			case VIEWSCREEN2:
 			{
-				StatIterator it(STAT_ACTOR);
-				while ((i = it.NextIndex()) >= 0)
+				DukeStatIterator it(STAT_ACTOR);
+				while (auto acti = it.Next())
 				{
-					if (sprite[i].picnum == CAMERA1 && sprite[i].yvel == 0 && neartagsprite->s.hitag == sprite[i].lotag)
+					auto spr = &acti->s;
+					if (spr->picnum == CAMERA1 && spr->yvel == 0 && neartagsprite->s.hitag == spr->lotag)
 					{
-						sprite[i].yvel = 1; //Using this camera
+						spr->yvel = 1; //Using this camera
 						if (snum == screenpeek) S_PlaySound(MONITOR_ACTIVE);
 
 						neartagsprite->s.owner = i;
@@ -1718,7 +1715,7 @@ void checksectors_d(int snum)
 
 
 						j = p->cursectnum;
-						p->cursectnum = sprite[i].sectnum;
+						p->cursectnum = spr->sectnum;
 						setpal(p);
 						p->cursectnum = j;
 
@@ -1741,10 +1738,10 @@ void checksectors_d(int snum)
 				updatesector(p->posx, p->posy, &p->cursectnum);
 				setpal(p);
 
-				StatIterator it(STAT_ACTOR);
-				while ((i = it.NextIndex()) >= 0)
+				DukeStatIterator it(STAT_ACTOR);
+				while (auto act = it.Next())
 				{
-					if (sprite[i].picnum == CAMERA1) sprite[i].yvel = 0;
+					if (act->s.picnum == CAMERA1) act->s.yvel = 0;
 				}
 			}
 			else if (p->newowner >= 0)
@@ -1783,10 +1780,10 @@ void checksectors_d(int snum)
 
 		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384) == 0 && isanearoperator(sector[neartagsector].lotag))
 		{
-			SectIterator it(neartagsector);
-			while ((i = it.NextIndex()) >= 0)
+			DukeSectIterator it(neartagsector);
+			while (auto act = it.Next())
 			{
-				if (sprite[i].picnum == ACTIVATOR || sprite[i].picnum == MASTERSWITCH)
+				if (act->s.picnum == ACTIVATOR || act->s.picnum == MASTERSWITCH)
 					return;
 			}
 			operatesectors(neartagsector, p->GetActor());
@@ -1795,10 +1792,10 @@ void checksectors_d(int snum)
 		{
 			if (isanunderoperator(sector[p->GetActor()->s.sectnum].lotag))
 			{
-				SectIterator it(p->GetActor()->s.sectnum);
-				while ((i = it.NextIndex()) >= 0)
+				DukeSectIterator it(p->GetActor()->s.sectnum);
+				while (auto act = it.Next())
 				{
-					if (sprite[i].picnum == ACTIVATOR || sprite[i].picnum == MASTERSWITCH) return;
+					if (act->s.picnum == ACTIVATOR || act->s.picnum == MASTERSWITCH) return;
 				}
 				operatesectors(p->GetActor()->s.sectnum, p->GetActor());
 			}
