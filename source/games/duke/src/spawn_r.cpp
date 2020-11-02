@@ -154,17 +154,17 @@ int spawn_r(int j, int pn)
 				if (!isRRRA()) goto default_case;
 				sp->lotag = 1;
 				sp->clipdist = 0;
-				sp->owner = i;
+				act->SetOwner(act);
 				sp->extra = 0;
-				changespritestat(i,115);
+				changespritestat(act,115);
 				break;
 			case RRTILE8593:
 				if (!isRRRA()) goto default_case;
 				sp->lotag = 1;
 				sp->clipdist = 0;
-				sp->owner = i;
+				act->SetOwner(act);
 				sp->extra = 0;
-				changespritestat(i,122);
+				changespritestat(act,122);
 				break;
 			case RRTILE285:
 			case RRTILE286:
@@ -1100,7 +1100,7 @@ int spawn_r(int j, int pn)
 				break;
 
 			case HEAVYHBOMB:
-				sp->owner = i;
+				act->SetOwner(act);
 				sp->xrepeat = sp->yrepeat = 9;
 				sp->yvel = 4;
 			case REACTOR2:
@@ -1165,7 +1165,7 @@ int spawn_r(int j, int pn)
 				}
 				else
 				{
-					sp->owner = i;
+					act->SetOwner(act);
 					sp->cstat = 0;
 				}
 
@@ -1375,9 +1375,8 @@ int spawn_r(int j, int pn)
 				}
 				else sp->cstat = 1+256;
 				sp->extra = impact_damage<<2;
-				sp->owner = i;
-
-				changespritestat(i,6);
+				act->SetOwner(act);
+				changespritestat(act, STAT_STANDABLE);
 				break;
 
 			case CRACK1:
@@ -1394,8 +1393,8 @@ int spawn_r(int j, int pn)
 				}
 
 				sp->pal = 0;
-				sp->owner = i;
-				changespritestat(i,6);
+				act->SetOwner(act);
+				changespritestat(act, STAT_STANDABLE);
 				sp->xvel = 8;
 				ssp(act, CLIPMASK0);
 				break;
@@ -1411,10 +1410,10 @@ int spawn_r(int j, int pn)
 				sp->xrepeat = 18;
 				sp->yrepeat = 18;
 				sp->clipdist = mulscale7(sp->xrepeat,tilesiz[sp->picnum].x);
-				sp->owner = 100;
+				act->saved_ammo = 100;
 				sp->cstat = 257;
 				sp->lotag = 1;
-				changespritestat(i,1);
+				changespritestat(act, STAT_ACTOR);
 				break;
 			case EMPTYBOAT:
 				if (!isRRRA()) goto default_case;
@@ -1427,7 +1426,7 @@ int spawn_r(int j, int pn)
 				sp->xrepeat = 32;
 				sp->yrepeat = 32;
 				sp->clipdist = mulscale7(sp->xrepeat,tilesiz[sp->picnum].x);
-				sp->owner = 20;
+				act->saved_ammo = 20;
 				sp->cstat = 257;
 				sp->lotag = 1;
 				changespritestat(i,1);

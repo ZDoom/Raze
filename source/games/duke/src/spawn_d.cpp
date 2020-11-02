@@ -115,7 +115,7 @@ int spawn_d(int j, int pn)
 			}
 			return i;
 		case FIREFLYFLYINGEFFECT:
-			sp->owner = j;
+            act->SetOwner(actj);
 			changespritestat(i, STAT_MISC);
 			sp->xrepeat = 16;
 			sp->yrepeat = 16;
@@ -123,8 +123,8 @@ int spawn_d(int j, int pn)
 		case LAVAPOOLBUBBLE:
 			if (spj->xrepeat < 30)
 				return i;
-			sp->owner = j;
-			changespritestat(i, STAT_MISC);
+            act->SetOwner(actj);
+            changespritestat(i, STAT_MISC);
 			sp->x += krand() % 512 - 256;
 			sp->y += krand() % 512 - 256;
 			sp->xrepeat = 16;
@@ -338,8 +338,8 @@ int spawn_d(int j, int pn)
                 sp->xrepeat=4;
                 sp->yrepeat=5;
 
-                sp->owner = i;
-                sp->hitag = i;
+                act->SetOwner(act);
+                sp->hitag = i; // hijack
 
                 sp->xvel = 16;
                 ssp(act, CLIPMASK0);
@@ -561,7 +561,7 @@ int spawn_d(int j, int pn)
 
             case VIEWSCREEN:
             case VIEWSCREEN2:
-                sp->owner = i;
+                act->SetOwner(act);
                 sp->lotag = 1;
                 sp->extra = 1;
                 changespritestat(i,6);
@@ -935,9 +935,9 @@ int spawn_d(int j, int pn)
                 break;
 
             case HEAVYHBOMB:
-                if(j >= 0)
-                    sp->owner = j;
-                else sp->owner = i;
+                if(j >= 0) act->SetOwner(actj);
+                else act->SetOwner(act);
+
                 sp->xrepeat = sp->yrepeat = 9;
                 sp->yvel = 4;
             case REACTOR2:
@@ -992,7 +992,7 @@ int spawn_d(int j, int pn)
                 }
                 else
                 {
-                    sp->owner = i;
+                    act->SetOwner(act);
                     sp->cstat = 0;
                 }
 
@@ -1043,21 +1043,21 @@ int spawn_d(int j, int pn)
             case BOX:
                 sp->cstat = 257; // Make it hitable
                 sp->extra = 1;
-                changespritestat(i,6);
+                changespritestat(act, STAT_STANDABLE);
                 break;
 
             case FLOORFLAME:
                 sp->shade = -127;
-                changespritestat(i,6);
+                changespritestat(act, STAT_STANDABLE);
                 break;
 
             case BOUNCEMINE:
-                sp->owner = i;
+                act->SetOwner(act);
                 sp->cstat |= 1+256; //Make it hitable
                 sp->xrepeat = sp->yrepeat = 24;
                 sp->shade = -127;
                 sp->extra = impact_damage<<2;
-                changespritestat(i,2);
+                changespritestat(act, STAT_ZOMBIEACTOR);
                 break;
 
             case CAMERA1:
@@ -1114,9 +1114,9 @@ int spawn_d(int j, int pn)
                 }
                 else sp->cstat = 1+256;
                 sp->extra = impact_damage<<2;
-                sp->owner = i;
+                act->SetOwner(act);
 
-                changespritestat(i,6);
+                changespritestat(act, STAT_STANDABLE);
                 break;
 
             case CRACK1:
