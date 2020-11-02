@@ -119,7 +119,7 @@ void hud_input(int plnum)
 		if (p->GetActor()->s.extra <= 0) return;
 
 		// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.
-		if (PlayerInput(plnum, SB_INVUSE) && p->newowner == -1)
+		if (PlayerInput(plnum, SB_INVUSE) && p->newOwner == nullptr)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_INVENTORY, plnum, nullptr, -1);
@@ -270,7 +270,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (PlayerUseItem(plnum, ICON_HOLODUKE) && (isRR() || p->newowner == -1))
+		if (PlayerUseItem(plnum, ICON_HOLODUKE) && (isRR() || p->newOwner == nullptr))
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_HOLODUKEON, plnum, nullptr, -1);
@@ -327,7 +327,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (isRR() && PlayerUseItem(plnum, ICON_HEATS) && p->newowner == -1)
+		if (isRR() && PlayerUseItem(plnum, ICON_HEATS) && p->newOwner == nullptr)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USENIGHTVISION, plnum, nullptr, -1);
@@ -412,7 +412,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (PlayerUseItem(plnum, ICON_JETPACK) && (isRR() || p->newowner == -1))
+		if (PlayerUseItem(plnum, ICON_JETPACK) && (isRR() || p->newOwner == nullptr))
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USEJETPACK, plnum, nullptr, -1);
@@ -821,7 +821,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 	auto p = &ps[playerNum];
 	bool blocked = movementBlocked(playerNum) || p->GetActor()->s.extra <= 0 || (p->dead_flag && !ud.god);
 
-	if (blocked && ps[playerNum].newowner < 0)
+	if (blocked && ps[playerNum].newOwner == nullptr)
 	{
 		// neutralize all movement when blocked or in automap follow mode
 		loc.fvel = loc.svel = 0;
@@ -846,7 +846,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.svel = input.svel = 0;
 		}
 
-		if (p->on_crane == nullptr && p->newowner == -1)
+		if (p->on_crane == nullptr && p->newOwner == nullptr)
 		{
 			// input.avel already added to loc in processMovement()
 			loc.avel = clamp(loc.avel, -MAXANGVEL, MAXANGVEL);
@@ -860,7 +860,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.avel = input.avel = 0;
 		}
 
-		if (p->newowner == -1 && !(p->sync.actions & SB_CENTERVIEW))
+		if (p->newOwner == nullptr && !(p->sync.actions & SB_CENTERVIEW))
 		{
 			// input.horz already added to loc in processMovement()
 			loc.horz = clamp(loc.horz, -MAXHORIZVEL, MAXHORIZVEL);

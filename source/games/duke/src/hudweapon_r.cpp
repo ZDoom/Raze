@@ -136,7 +136,7 @@ void displayweapon_r(int snum, double smoothratio)
 		gs = p->GetActor()->s.shade;
 	if(gs > 24) gs = 24;
 
-	if(p->newowner >= 0 || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s.pal != 1 && p->GetActor()->s.extra <= 0))
+	if(p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s.pal != 1 && p->GetActor()->s.extra <= 0))
 		return;
 
 	int opos = p->oweapon_pos * p->oweapon_pos;

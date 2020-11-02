@@ -142,7 +142,7 @@ void resetplayerstats(int snum)
     p->angle.olook_ang = p->angle.look_ang = buildlook(512 - ((currentLevel->levelNumber & 1) << 10));
     p->angle.orotscrnang = p->angle.rotscrnang = buildlook(0);
 
-    p->newowner          =-1;
+    p->newOwner          =nullptr;
     p->jumping_counter   = 0;
     p->hard_landing      = 0;
     p->posxv             = 0;                           //!!

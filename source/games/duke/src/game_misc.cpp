@@ -253,8 +253,8 @@ void drawoverlays(double smoothratio)
 	{
 		if (automapMode != am_full)
 		{
-			if (!isRR() && pp->newowner >= 0)
-				cameratext(pp->newowner);
+			if (!isRR() && pp->newOwner != nullptr)
+				cameratext(pp->newOwner);
 			else
 			{
 				fi.displayweapon(screenpeek, smoothratio);
@@ -269,7 +269,7 @@ void drawoverlays(double smoothratio)
 		{
 			dointerpolations(smoothratio);
 
-			if (pp->newowner == -1 && playrunning())
+			if (pp->newOwner == nullptr && playrunning())
 			{
 				if (screenpeek == myconnectindex && numplayers > 1)
 				{
@@ -299,7 +299,7 @@ void drawoverlays(double smoothratio)
 
 	StatusBar->UpdateStatusBar();
 
-	if (ps[myconnectindex].newowner == -1 && ud.cameraactor == nullptr)
+	if (ps[myconnectindex].newOwner == nullptr && ud.cameraactor == nullptr)
 	{
 		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -getHalfLookAng(pp->angle.olook_ang.asq16(), pp->angle.look_ang.asq16(), cl_syncinput, smoothratio), pp->over_shoulder_on ? 2.5 : 0, isRR() ? 0.5 : 1);
 	}
@@ -317,14 +317,14 @@ void drawoverlays(double smoothratio)
 //
 //---------------------------------------------------------------------------
 
-void cameratext(int i)
+void cameratext(DDukeActor *cam)
 {
 	auto drawitem = [=](int tile, double x, double y, bool flipx, bool flipy)
 	{
 		DrawTexture(twod, tileGetTexture(tile), x, y, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_CenterOffsetRel, true,
 			DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 	};
-	if (!hittype[i].temp_data[0])
+	if (!cam->temp_data[0])
 	{
 		drawitem(TILE_CAMCORNER, 24, 33, false, false);
 		drawitem(TILE_CAMCORNER + 1, 320 - 26, 33, false, false);

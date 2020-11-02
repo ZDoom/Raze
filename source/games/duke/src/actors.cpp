@@ -202,7 +202,7 @@ void checkavailweapon(struct player_struct* player)
 
 void clearcamera(player_struct* ps)
 {
-	ps->newowner = -1;
+	ps->newOwner = nullptr;
 	ps->posx = ps->oposx;
 	ps->posy = ps->oposy;
 	ps->posz = ps->oposz;
@@ -417,7 +417,7 @@ void moveplayers(void)
 		auto spri = &act->s;
 		if (act->GetOwner())
 		{
-			if (p->newowner >= 0) //Looking thru the camera
+			if (p->newOwner != nullptr) //Looking thru the camera
 			{
 				spri->x = p->oposx;
 				spri->y = p->oposy;
@@ -482,7 +482,7 @@ void moveplayers(void)
 					p->posy = spri->y;
 					p->posz = spri->z - (20 << 8);
 
-					p->newowner = -1;
+					p->newOwner = nullptr;
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->s.statnum < MAXSTATUS)
 					{
@@ -4487,7 +4487,7 @@ void handle_se27(DDukeActor* actor)
 			ud.cameraactor = actor;
 			t[0]++;
 		}
-		else if (ud.recstat == 2 && ps[p].newowner == -1)
+		else if (ud.recstat == 2 && ps[p].newOwner == nullptr)
 		{
 			if (cansee(s->x, s->y, s->z, s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
 			{

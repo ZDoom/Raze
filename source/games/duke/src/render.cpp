@@ -258,9 +258,9 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 //
 //---------------------------------------------------------------------------
 
-static inline int16_t getcamspriteang(short const newowner, double const smoothratio)
+static inline int16_t getcamspriteang(DDukeActor* newOwner, double const smoothratio)
 {
-	return hittype[newowner].tempang + xs_CRoundToInt(fmulscale16(((sprite[newowner].ang - hittype[newowner].tempang + 1024) & 2047) - 1024, smoothratio));
+	return newOwner->tempang + xs_CRoundToInt(fmulscale16(((newOwner->s.ang - newOwner->tempang + 1024) & 2047) - 1024, smoothratio));
 }
 
 //---------------------------------------------------------------------------
@@ -282,9 +282,9 @@ void animatecamsprite(double smoothratio)
 	auto act = &hittype[spriteNum];
 	auto sp = &act->s;
 
-	if (p->newowner >= 0) sp->owner = p->newowner;
+	if (p->newOwner != nullptr) act->SetOwner(p->newOwner);
 
-	if (sp->owner >= 0 && dist(p->GetActor(), act) < VIEWSCREEN_ACTIVE_DISTANCE)
+	if (act->GetOwner() && dist(p->GetActor(), act) < VIEWSCREEN_ACTIVE_DISTANCE)
 	{
 		auto tex = tileGetTexture(sp->picnum);
 		TileFiles.MakeCanvas(TILE_VIEWSCR, tex->GetDisplayWidth(), tex->GetDisplayHeight());
@@ -294,8 +294,8 @@ void animatecamsprite(double smoothratio)
 
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
-				auto camera = &sprite[sp->owner];
-				auto ang = getcamspriteang(sp->owner, smoothratio);
+				auto camera = &act->GetOwner()->s;
+				auto ang = getcamspriteang(act->GetOwner(), smoothratio);
 				// Note: no ROR or camera here for now - the current setup has no means to detect these things before rendering the scene itself.
 				drawrooms(camera->x, camera->y, camera->z, ang, 100 + camera->shade, camera->sectnum); // why 'shade'...?
 				display_mirror = 1; // should really be 'display external view'.
@@ -592,10 +592,10 @@ void displayrooms(int snum, double smoothratio)
 			}
 		}
 
-		if (p->newowner >= 0)
+		if (p->newOwner != nullptr)
 		{
-			auto spr = &sprite[p->newowner];
-			cang = buildang(getcamspriteang(p->newowner, smoothratio));
+			auto spr = &p->newOwner->s;
+			cang = buildang(getcamspriteang(p->newOwner, smoothratio));
 			choriz = buildhoriz(spr->shade);
 			cposx = spr->pos.x;
 			cposy = spr->pos.y;
@@ -633,7 +633,7 @@ void displayrooms(int snum, double smoothratio)
 
 		if (p->GetActor()->s.pal == 1) cposz -= (18 << 8);
 
-		else if (p->spritebridge == 0 && p->newowner < 0)
+		else if (p->spritebridge == 0 && p->newOwner == nullptr)
 		{
 			if (cposz < (p->truecz + (4 << 8))) cposz = cz + (4 << 8);
 			else if (cposz > (p->truefz - (4 << 8))) cposz = fz - (4 << 8);

@@ -2710,7 +2710,7 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 
 void processinput_d(int snum)
 {
-	int j, i, k, doubvel, fz, cz, truefdist;
+	int j, k, doubvel, fz, cz, truefdist;
 	Collision chz, clz;
 	bool shrunk;
 	ESyncBits actions;
@@ -2831,9 +2831,8 @@ void processinput_d(int snum)
 	if (p->transporter_hold < 0)
 		p->transporter_hold++;
 
-	if (p->newowner >= 0)
+	if (p->newOwner != nullptr)
 	{
-		i = p->newowner;
 		p->posxv = p->posyv = s->xvel = 0;
 
 		fi.doincrements(p);
@@ -2846,6 +2845,7 @@ void processinput_d(int snum)
 	doubvel = TICSPERFRAME;
 
 	checklook(snum,actions);
+	int ii = 40;
 
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
@@ -2858,8 +2858,6 @@ void processinput_d(int snum)
 	backuppos(p, ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
 
 	// Shrinking code
-
-	i = 40;
 
 	if (psectlotag == ST_2_UNDERWATER)
 	{
@@ -3016,8 +3014,8 @@ void processinput_d(int snum)
 
 HORIZONLY:
 
-	if (psectlotag == 1 || p->spritebridge == 1) i = (4L << 8);
-	else i = (20L << 8);
+	if (psectlotag == 1 || p->spritebridge == 1) ii = (4L << 8);
+	else ii = (20L << 8);
 
 	if (sector[p->cursectnum].lotag == 2) k = 0;
 	else k = 1;
@@ -3033,7 +3031,7 @@ HORIZONLY:
 	else
 		clipmove_ex(&p->posx, &p->posy,
 			&p->posz, &p->cursectnum,
-			p->posxv, p->posyv, 164L, (4L << 8), i, CLIPMASK0, clip);
+			p->posxv, p->posyv, 164L, (4L << 8), ii, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->posz += 32 << 8;

@@ -515,7 +515,7 @@ SKIPWALLCHECK:
 								ps[p].numloogs = -1 - spri->yvel;
 							}
 							
-							if (ps[p].newowner >= 0)
+							if (ps[p].newOwner != nullptr)
 							{
 								clearcamera(&ps[p]);
 							}
@@ -2465,9 +2465,9 @@ static void greenslime(DDukeActor *actor)
 		if (t[2] < 348)
 			t[2] += 128;
 
-		if (ps[p].newowner >= 0)
+		if (ps[p].newOwner != nullptr)
 		{
-			ps[p].newowner = -1;
+			ps[p].newOwner = nullptr;
 			ps[p].posx = ps[p].oposx;
 			ps[p].posy = ps[p].oposy;
 			ps[p].posz = ps[p].oposz;
@@ -3829,7 +3829,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (a & face_player)
 	{
-		if (ps[playernum].newowner >= 0)
+		if (ps[playernum].newOwner != nullptr)
 			goalang = getangle(ps[playernum].oposx - spr->x, ps[playernum].oposy - spr->y);
 		else goalang = getangle(ps[playernum].posx - spr->x, ps[playernum].posy - spr->y);
 		angdif = getincangle(spr->ang, goalang) >> 2;
@@ -3842,7 +3842,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (a & face_player_slow)
 	{
-		if (ps[playernum].newowner >= 0)
+		if (ps[playernum].newOwner != nullptr)
 			goalang = getangle(ps[playernum].oposx - spr->x, ps[playernum].oposy - spr->y);
 		else goalang = getangle(ps[playernum].posx - spr->x, ps[playernum].posy - spr->y);
 		angdif = ksgn(getincangle(spr->ang, goalang)) << 5;

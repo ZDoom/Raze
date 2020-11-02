@@ -538,8 +538,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_NEWOWNER:
-		if (bSet) ps[iPlayer].newowner = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].newowner, sActor, sPlayer);
+		if (bSet) ps[iPlayer].newOwner = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ps[iPlayer].newOwner), sActor, sPlayer);
 		break;
 
 	case PLAYER_HURT_DELAY:
@@ -2046,9 +2046,9 @@ int ParseState::parse(void)
 	case concmd_addphealth: // todo: move out to player.
 		insptr++;
 
-		if(!isRR() && ps[g_p].newowner >= 0)
+		if(!isRR() && ps[g_p].newOwner != nullptr)
 		{
-			ps[g_p].newowner = -1;
+			ps[g_p].newOwner = nullptr;
 			ps[g_p].posx = ps[g_p].oposx;
 			ps[g_p].posy = ps[g_p].oposy;
 			ps[g_p].posz = ps[g_p].oposz;

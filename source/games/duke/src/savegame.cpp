@@ -173,7 +173,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("tipincs", w.tipincs)
 			("wantweaponfire", w.wantweaponfire)
 			("holoduke_amount", w.holoduke_amount)
-			("newowner", w.newowner)
+			("newowner", w.newOwner)
 			("hurt_delay", w.hurt_delay)
 			("hbomb_hold_delay", w.hbomb_hold_delay)
 			("jumping_counter", w.jumping_counter)

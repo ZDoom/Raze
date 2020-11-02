@@ -360,7 +360,7 @@ SKIPWALLCHECK:
 						if (spri2->picnum == APLAYER)
 						{
 							p = act2->PlayerIndex();
-							if (ps[p].newowner >= 0)
+							if (ps[p].newOwner != nullptr)
 							{
 								clearcamera(&ps[p]);
 							}
@@ -3727,7 +3727,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a & face_player)
 	{
-		if (ps[pnum].newowner >= 0)
+		if (ps[pnum].newOwner != nullptr)
 			goalang = getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y);
 		else goalang = getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y);
 		angdif = getincangle(spr->ang, goalang) >> 2;
@@ -3740,7 +3740,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a & face_player_slow)
 	{
-		if (ps[pnum].newowner >= 0)
+		if (ps[pnum].newOwner != nullptr)
 			goalang = getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y);
 		else goalang = getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y);
 		angdif = ksgn(getincangle(spr->ang, goalang)) << 5;
@@ -3756,7 +3756,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		if (a & antifaceplayerslow)
 		{
-			if (ps[pnum].newowner >= 0)
+			if (ps[pnum].newOwner != nullptr)
 				goalang = (getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y) + 1024) & 2047;
 			else goalang = (getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y) + 1024) & 2047;
 			angdif = ksgn(getincangle(spr->ang, goalang)) << 5;

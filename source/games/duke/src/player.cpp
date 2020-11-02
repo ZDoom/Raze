@@ -1032,7 +1032,7 @@ bool movementBlocked(int snum)
 		p->hard_landing ||
 		p->access_incs > 0 ||
 		p->knee_incs > 0 ||
-		p->newowner >= 0 ||
+		p->newOwner != nullptr ||
 		(blockingweapon() && p->kickback_pic > 1 && p->kickback_pic < weapondelay()));
 }
 

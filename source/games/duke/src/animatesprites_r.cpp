@@ -159,7 +159,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 		}
 
 		if (t->statnum == 99) continue;
-		if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && ps[s->yvel].newowner == -1 && h->GetOwner())
+		if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && ps[s->yvel].newOwner == nullptr && h->GetOwner())
 		{
 			t->x -= mulscale16(MaxSmoothRatio - smoothratio, ps[s->yvel].posx - ps[s->yvel].oposx);
 			t->y -= mulscale16(MaxSmoothRatio - smoothratio, ps[s->yvel].posy - ps[s->yvel].oposy);
@@ -371,7 +371,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 
 			if (t->pal == 1) t->z -= (18 << 8);
 
-			if (ps[p].over_shoulder_on > 0 && ps[p].newowner < 0)
+			if (ps[p].over_shoulder_on > 0 && ps[p].newOwner == nullptr)
 			{
 				t->cstat |= 2;
 				if (screenpeek == myconnectindex && numplayers >= 2)
@@ -468,14 +468,14 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 				else s->yoffset = 0;
 			}
 
-			if (ps[p].newowner > -1)
+			if (ps[p].newOwner != nullptr)
 			{
 				t4 = ScriptCode[actorinfo[APLAYER].scriptaddress + 1];
 				t3 = 0;
 				t1 = ScriptCode[actorinfo[APLAYER].scriptaddress + 2];
 			}
 
-			if (ud.cameraactor == nullptr && ps[p].newowner == -1)
+			if (ud.cameraactor == nullptr && ps[p].newOwner == nullptr)
 				if (h->GetOwner() && display_mirror == 0 && ps[p].over_shoulder_on == 0)
 					if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
 					{

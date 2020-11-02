@@ -213,7 +213,7 @@ void OffMotorcycle(player_struct *pl);
 void OnBoat(player_struct *pl, DDukeActor* snum);
 void OffBoat(player_struct *pl);
 
-void cameratext(int i);
+void cameratext(DDukeActor* i);
 void dobonus(int bonusonly, const CompletionFunc& completion);
 void dobonus_d(int bonusonly, const CompletionFunc& completion);
 void dobonus_r(int bonusonly, const CompletionFunc& completion);

@@ -3677,9 +3677,8 @@ void processinput_r(int snum)
 	if (p->transporter_hold < 0)
 		p->transporter_hold++;
 
-	if (p->newowner >= 0)
+	if (p->newOwner != nullptr)
 	{
-		i = p->newowner;
 		p->posxv = p->posyv = s->xvel = 0;
 
 		fi.doincrements(p);

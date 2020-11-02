@@ -291,7 +291,7 @@ void displayweapon_d(int snum, double smoothratio)
 	gs = p->GetActor()->s.shade;
 	if(gs > 24) gs = 24;
 
-	bool playerVars  = p->newowner >= 0 || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s.pal != 1 && p->GetActor()->s.extra <= 0);
+	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s.pal != 1 && p->GetActor()->s.extra <= 0);
 	bool playerAnims = animatefist(gs,snum,look_anghalf) || animateknuckles(gs,snum,hard_landing,look_anghalf,horiz16th) ||
 					   animatetip(gs,snum,hard_landing,look_anghalf,horiz16th) || animateaccess(gs,snum,hard_landing,look_anghalf,horiz16th);
 

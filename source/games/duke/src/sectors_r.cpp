@@ -2400,9 +2400,9 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			if (s->statnum == 10)
 			{
 				p = s->yvel;
-				if (ps[p].newowner >= 0)
+				if (ps[p].newOwner != nullptr)
 				{
-					ps[p].newowner = -1;
+					ps[p].newOwner = nullptr;
 					ps[p].posx = ps[p].oposx;
 					ps[p].posy = ps[p].oposy;
 					ps[p].posz = ps[p].oposz;
@@ -2556,7 +2556,7 @@ void checksectors_r(int snum)
 			neartag(p->posx, p->posy, p->posz, p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 		}
 
-		if (p->newowner >= 0)
+		if (p->newOwner != nullptr)
 			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 		else
 		{
@@ -2589,7 +2589,7 @@ void checksectors_r(int snum)
 			}
 		}
 
-		if (p->newowner == -1 && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
+		if (p->newOwner == nullptr && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
 			if (isanunderoperator(sector[p->GetActor()->s.sectnum].lotag))
 				neartagsector = p->GetActor()->s.sectnum;
 

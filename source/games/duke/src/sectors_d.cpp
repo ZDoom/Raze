@@ -1451,9 +1451,9 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			if (s->statnum == 10)
 			{
 				p = s->yvel;
-				if (ps[p].newowner >= 0)
+				if (ps[p].newOwner != nullptr)
 				{
-					ps[p].newowner = -1;
+					ps[p].newOwner = nullptr;
 					ps[p].posx = ps[p].oposx;
 					ps[p].posy = ps[p].oposy;
 					ps[p].posz = ps[p].oposz;
@@ -1536,7 +1536,7 @@ void checksectors_d(int snum)
 	if (ud.cashman && PlayerInput(snum, SB_OPEN))
 		fi.lotsofmoney(p->GetActor(), 2);
 
-	if (p->newowner >= 0)
+	if (p->newOwner != nullptr)
 	{
 		if (abs(PlayerInputSideVel(snum)) > 768 || abs(PlayerInputForwardVel(snum)) > 768)
 		{
@@ -1553,7 +1553,7 @@ void checksectors_d(int snum)
 
 		if (PlayerInput(snum, SB_ESCAPE))
 		{
-			if (p->newowner >= 0)
+			if (p->newOwner != nullptr)
 			{
 				i = -1;
 				goto CLEARCAMERAS;
@@ -1578,7 +1578,7 @@ void checksectors_d(int snum)
 			if (wall[hitscanwall].lotag)
 				return;
 
-		if (p->newowner >= 0)
+		if (p->newOwner != nullptr)
 			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->s.sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 		else
 		{
@@ -1618,7 +1618,7 @@ void checksectors_d(int snum)
 			}
 		}
 
-		if (p->newowner == -1 && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
+		if (p->newOwner == nullptr && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
 			if (isanunderoperator(sector[p->GetActor()->s.sectnum].lotag))
 				neartagsector = p->GetActor()->s.sectnum;
 
@@ -1721,7 +1721,7 @@ void checksectors_d(int snum)
 						p->cursectnum = j;
 
 						// parallaxtype = 2;
-						p->newowner = acti->GetIndex();
+						p->newOwner = acti;
 						return;
 					}
 				}
@@ -1734,7 +1734,7 @@ void checksectors_d(int snum)
 				p->posx = p->oposx;
 				p->posy = p->oposy;
 				p->posz = p->oposz;
-				p->newowner = -1;
+				p->newOwner = nullptr;
 
 				updatesector(p->posx, p->posy, &p->cursectnum);
 				setpal(p);
@@ -1745,15 +1745,15 @@ void checksectors_d(int snum)
 					if (act->s.picnum == CAMERA1) act->s.yvel = 0;
 				}
 			}
-			else if (p->newowner >= 0)
-				p->newowner = -1;
+			else if (p->newOwner != nullptr)
+				p->newOwner = nullptr;
 
 			return;
 			}
 		}
 
 		if (!PlayerInput(snum, SB_OPEN)) return;
-		else if (p->newowner >= 0) { i = -1; goto CLEARCAMERAS; }
+		else if (p->newOwner != nullptr) { i = -1; goto CLEARCAMERAS; }
 
 		if (neartagwall == -1 && neartagsector == -1 && neartagsprite == nullptr)
 			if (abs(hits(p->GetActor())) < 512)
@@ -1772,7 +1772,7 @@ void checksectors_d(int snum)
 					fi.checkhitswitch(snum, neartagwall, nullptr);
 				return;
 			}
-			else if (p->newowner >= 0)
+			else if (p->newOwner != nullptr)
 			{
 				i = -1;
 				goto CLEARCAMERAS;
