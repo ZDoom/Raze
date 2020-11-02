@@ -770,7 +770,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 				{
 					if (ps[snum].SeaSick == 0)
 						ps[snum].SeaSick = 350;
-					operateactivators(668, ps[snum].i);
+					operateactivators(668, snum);
 					operatemasterswitches(668);
 					S_PlayActorSound(328, ps[snum].GetActor());
 					return 1;

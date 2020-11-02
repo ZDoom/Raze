@@ -3075,7 +3075,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				actor->SetOwner(nullptr);
 				s->ang += 1024;
 				t[4] = 0;
-				fi.operateforcefields(actor->GetIndex(), s->hitag);
+				fi.operateforcefields(actor, s->hitag);
 
 				DukeSectIterator it(s->sectnum);
 				while (auto a2 = it.Next())

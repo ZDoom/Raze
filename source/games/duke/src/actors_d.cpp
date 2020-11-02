@@ -2804,7 +2804,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		{
 			fi.checkhitsprite(coll.actor, actor);
 			if (coll.actor->s.picnum == APLAYER)
-				S_PlayActorSound(actor->GetIndex(), PISTOL_BODYHIT);
+				S_PlayActorSound(PISTOL_BODYHIT, coll.actor);
 		}
 		else if (coll.type == kHitWall)
 		{
@@ -3126,7 +3126,7 @@ void moveactors_d(void)
 					if (k == 1)
 					{
 						operateactivators(s->lotag, -1);
-						fi.operateforcefields(act->GetIndex(), s->lotag);
+						fi.operateforcefields(act, s->lotag);
 						operatemasterswitches(s->lotag);
 					}
 				}

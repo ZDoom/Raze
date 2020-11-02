@@ -110,7 +110,7 @@ static const char* cheatUnlock()
 			operatesectors(i, ps[myconnectindex].GetActor());
 		}
 	}
-	fi.operateforcefields(ps[myconnectindex].i, -1);
+	fi.operateforcefields(ps[myconnectindex].GetActor(), -1);
 	return quoteMgr.GetQuote(QUOTE_CHEAT_UNLOCK);
 }
 

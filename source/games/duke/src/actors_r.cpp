@@ -4030,7 +4030,7 @@ void fakebubbaspawn(DDukeActor *actor, int g_p)
 		break;
 	case 4:
 		spawn(actor, VIXEN);
-		operateactivators(666, ps[g_p].GetActor()->GetIndex());
+		operateactivators(666, g_p);
 		break;
 	}
 }

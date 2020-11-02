@@ -75,7 +75,7 @@ struct Dispatcher
 	bool (*isadoorwall)(int dapic);
 	void (*animatewalls)();
 	void (*operaterespawns)(int low);
-	void (*operateforcefields)(int s, int low);
+	void (*operateforcefields)(DDukeActor* act, int low);
 	bool (*checkhitswitch)(int snum, int w, DDukeActor* act);
 	void (*activatebysector)(int sect, DDukeActor* j);
 	void (*checkhitwall)(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith);
