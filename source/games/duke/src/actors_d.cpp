@@ -3590,7 +3590,7 @@ static void handle_se28(DDukeActor* actor)
 					if (rnd(32) && (t[2] & 1))
 					{
 						act2->s.cstat &= 32767;
-						fi.spawn(j, SMALLSMOKE);
+						spawn(act2, SMALLSMOKE);
 
 						int x;
 						int p = findplayer(actor, &x);
