@@ -1439,7 +1439,7 @@ int spawn_r(int j, int pn)
 				sp->lotag = 1;
 				sp->cstat |= 257;
 				sp->clipdist = 8;
-				sp->owner = i;
+				act->SetOwner(act);
 				break;
 			case CANWITHSOMETHING:
 			case RUBBERCAN:
@@ -1457,9 +1457,9 @@ int spawn_r(int j, int pn)
 					sp->xrepeat = sp->yrepeat = 32;
 				sp->clipdist = 72;
 				makeitfall(act);
-				if(j >= 0)
-					sp->owner = j;
-				else sp->owner = i;
+				if(j >= 0) act->SetOwner(actj);
+				else act->SetOwner(act);
+
 			case EGG:
 				if( ud.monsters_off == 1 && sp->picnum == EGG )
 				{

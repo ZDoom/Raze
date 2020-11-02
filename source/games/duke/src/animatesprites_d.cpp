@@ -174,7 +174,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 		}
 
 		if (t->statnum == 99) continue;
-		if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && ps[s->yvel].newowner == -1 && s->owner >= 0)
+		if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && ps[s->yvel].newowner == -1 && h->GetOwner())
 		{
 			t->x -= mulscale16(MaxSmoothRatio - smoothratio, ps[s->yvel].posx - ps[s->yvel].oposx);
 			t->y -= mulscale16(MaxSmoothRatio - smoothratio, ps[s->yvel].posy - ps[s->yvel].oposy);
@@ -337,7 +337,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 				}
 			}
 
-			if ((display_mirror == 1 || screenpeek != p || s->owner == -1) && ud.multimode > 1 && ud.showweapons && ps[p].GetActor()->s.extra > 0 && ps[p].curr_weapon > 0)
+			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && ud.showweapons && ps[p].GetActor()->s.extra > 0 && ps[p].curr_weapon > 0)
 			{
 				auto newtspr = &tsprite[spritesortcnt];
 				memcpy(newtspr, t, sizeof(spritetype));
@@ -368,7 +368,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 				case DEVISTATOR_WEAPON:  newtspr->picnum = DEVISTATORSPRITE;     break;
 				}
 
-				if (s->owner >= 0)
+				if (h->GetOwner())
 					newtspr->z = ps[p].posz - (12 << 8);
 				else newtspr->z = s->z - (51 << 8);
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
@@ -385,7 +385,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 				spritesortcnt++;
 			}
 
-			if (s->owner == -1)
+			if (!h->GetOwner())
 			{
 				/*if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
 					k = 0;
@@ -425,7 +425,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			}
 
 			if (ud.cameraactor == nullptr && ps[p].newowner == -1)
-				if (s->owner >= 0 && display_mirror == 0 && ps[p].over_shoulder_on == 0)
+				if (h->GetOwner() && display_mirror == 0 && ps[p].over_shoulder_on == 0)
 					if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
 					{
 						t->owner = -1;
@@ -438,7 +438,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			if (sector[sect].floorpal)
 				t->pal = sector[sect].floorpal;
 
-			if (s->owner == -1) continue;
+			if (!h->GetOwner()) continue;
 
 			if (t->z > h->floorz && t->xrepeat < 32)
 				t->z = h->floorz;
@@ -565,7 +565,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 				t->cstat |= 4;
 		}
 
-		if (s->statnum == STAT_DUMMYPLAYER || badguy(s) || (s->picnum == APLAYER && s->owner >= 0))
+		if (s->statnum == STAT_DUMMYPLAYER || badguy(s) || (s->picnum == APLAYER && h->GetOwner()))
 			if (t->statnum != 99 && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE)
 				if (s->picnum != HOTMEAT)
 				{

@@ -145,11 +145,6 @@ inline DDukeActor* ScriptIndexToActor(int index)
 	return &hittype[index];
 }
 
-inline bool wallswitchcheck(DDukeActor* s)
-{
-	return !!(tileinfo[s->s.picnum].flags & TFLAG_WALLSWITCH);
-}
-
 int spawn_d(int j, int pn);
 int spawn_r(int j, int pn);
 

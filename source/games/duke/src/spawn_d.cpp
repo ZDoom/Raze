@@ -1115,7 +1115,6 @@ int spawn_d(int j, int pn)
                 else sp->cstat = 1+256;
                 sp->extra = impact_damage<<2;
                 act->SetOwner(act);
-
                 changespritestat(act, STAT_STANDABLE);
                 break;
 
@@ -1143,8 +1142,8 @@ int spawn_d(int j, int pn)
                 }
 
                 sp->pal = 0;
-                sp->owner = i;
-                changespritestat(i,6);
+                act->SetOwner(act);
+                changespritestat(act, STAT_STANDABLE);
                 sp->xvel = 8;
                 ssp(act, CLIPMASK0);
                 break;
@@ -1154,7 +1153,7 @@ int spawn_d(int j, int pn)
                 sp->lotag = 1;
                 sp->cstat |= 257;
                 sp->clipdist = 8;
-                sp->owner = i;
+                act->SetOwner(act);
                 break;
             case CANWITHSOMETHING:
             case CANWITHSOMETHING2:
@@ -1175,9 +1174,9 @@ int spawn_d(int j, int pn)
                     sp->xrepeat = sp->yrepeat = 32;
                 sp->clipdist = 72;
                 makeitfall(act);
-                if(j >= 0)
-                    sp->owner = j;
-                else sp->owner = i;
+                if(j >= 0) act->SetOwner(actj);
+                else act->SetOwner(act);
+
             case EGG:
                 if( ud.monsters_off == 1 && sp->picnum == EGG )
                 {
