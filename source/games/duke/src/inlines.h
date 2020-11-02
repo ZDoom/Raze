@@ -77,7 +77,7 @@ inline int checkcursectnums(int se)
 {
 	int i;
 	for(i=connecthead;i>=0;i=connectpoint2[i])
-		if((unsigned)ps[i].i < MAXSPRITES && ps[i].GetActor()->s.sectnum == se ) return i;
+		if(ps[i].GetActor() && ps[i].GetActor()->s.sectnum == se ) return i;
 	return -1;
 }
 

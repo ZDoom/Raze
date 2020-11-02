@@ -1956,7 +1956,7 @@ int ParseState::parse(void)
 			{
 				if ((j - *insptr) < (max_player_health >> 2) &&
 					j >= (max_player_health >> 2))
-					S_PlayActorSound(DUKE_GOTHEALTHATLOW, ps[g_p].i);
+					S_PlayActorSound(DUKE_GOTHEALTHATLOW, ps[g_p].GetActor());
 
 				ps[g_p].last_extra = j;
 			}
@@ -2032,7 +2032,7 @@ int ParseState::parse(void)
 			{
 				if ((j - *insptr) < (max_player_health >> 2) &&
 					j >= (max_player_health >> 2))
-					S_PlayActorSound(229, ps[g_p].i);
+					S_PlayActorSound(229, ps[g_p].GetActor());
 
 				ps[g_p].last_extra = j;
 			}
@@ -2097,7 +2097,7 @@ int ParseState::parse(void)
 			{
 				if( ( j - *insptr ) < (max_player_health>>2) &&
 					j >= (max_player_health>>2) )
-						S_PlayActorSound(isRR()? 229 : DUKE_GOTHEALTHATLOW,ps[g_p].i);
+						S_PlayActorSound(isRR()? 229 : DUKE_GOTHEALTHATLOW,ps[g_p].GetActor());
 
 				ps[g_p].last_extra = j;
 			}
@@ -2230,7 +2230,7 @@ int ParseState::parse(void)
 			g_sp->y = g_ac->bposy = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].posy;
 			g_sp->z = g_ac->bposy = ps[g_p].oposz = ps[g_p].posz;
 			updatesector(ps[g_p].posx, ps[g_p].posy, &ps[g_p].cursectnum);
-			setsprite(ps[g_p].i, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz + PHEIGHT);
+			setsprite(ps[g_p].GetActor(), ps[g_p].posx, ps[g_p].posy, ps[g_p].posz + PHEIGHT);
 			g_sp->cstat = 257;
 
 			g_sp->shade = -12;

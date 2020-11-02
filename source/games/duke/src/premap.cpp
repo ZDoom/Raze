@@ -950,7 +950,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        int pn = sector[sprite[ps[i].i].sectnum].floorpicnum;
+        int pn = sector[ps[i].GetActor()->s.sectnum].floorpicnum;
         if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
         {
             resetweapons(i);

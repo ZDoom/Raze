@@ -279,11 +279,12 @@ void animatecamsprite(double smoothratio)
 	int spriteNum = camsprite;
 
 	auto p = &ps[screenpeek];
-	auto sp = &sprite[spriteNum];
+	auto act = &hittype[spriteNum];
+	auto sp = &act->s;
 
 	if (p->newowner >= 0) sp->owner = p->newowner;
 
-	if (sp->owner >= 0 && dist(&sprite[p->i], sp) < VIEWSCREEN_ACTIVE_DISTANCE)
+	if (sp->owner >= 0 && dist(p->GetActor(), act) < VIEWSCREEN_ACTIVE_DISTANCE)
 	{
 		auto tex = tileGetTexture(sp->picnum);
 		TileFiles.MakeCanvas(TILE_VIEWSCR, tex->GetDisplayWidth(), tex->GetDisplayHeight());
@@ -621,8 +622,8 @@ void displayrooms(int snum, double smoothratio)
 		// do screen rotation.
 		renderSetRollAngle(rotscrnang.asbam() / (double)(BAMUNIT));
 
-		cz = hittype[p->i].ceilingz;
-		fz = hittype[p->i].floorz;
+		cz = p->GetActor()->ceilingz;
+		fz = p->GetActor()->floorz;
 
 		if (earthquaketime > 0 && p->on_ground == 1)
 		{

@@ -539,14 +539,14 @@ void operatejaildoors(int hitag)
 				jaildooropen[i] = 1;
 				jaildoordrag[i] = jaildoordist[i];
 				if (!isRRRA() || jaildoorsound[i] != 0)
-					S_PlayActorSound(jaildoorsound[i], ps[screenpeek].i);
+					S_PlayActorSound(jaildoorsound[i], ps[screenpeek].GetActor());
 			}
 			if (jaildooropen[i] == 2)
 			{
 				jaildooropen[i] = 3;
 				jaildoordrag[i] = jaildoordist[i];
 				if (!isRRRA() || jaildoorsound[i] != 0)
-					S_PlayActorSound(jaildoorsound[i], ps[screenpeek].i);
+					S_PlayActorSound(jaildoorsound[i], ps[screenpeek].GetActor());
 			}
 		}
 	}

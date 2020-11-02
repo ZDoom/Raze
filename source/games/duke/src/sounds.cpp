@@ -444,7 +444,6 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 		if (ud.multimode == 1)
 		{
 			spriteNum = pl->i;
-			auto sp = &sprite[spriteNum];
 		}
 	}
 

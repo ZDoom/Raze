@@ -197,13 +197,13 @@ void addweapon_r(struct player_struct* p, int weapon)
 	case THROWINGDYNAMITE_WEAPON:
 		break;
 	case SHOTGUN_WEAPON:	  
-		S_PlayActorSound(SHOTGUN_COCK, p->i); 
+		S_PlayActorSound(SHOTGUN_COCK, p->GetActor()); 
 		break;
 	case PISTOL_WEAPON:	   
-		S_PlayActorSound(INSERT_CLIP, p->i); 
+		S_PlayActorSound(INSERT_CLIP, p->GetActor());
 		break;
 	default:	  
-		S_PlayActorSound(EJECT_CLIP, p->i); 
+		S_PlayActorSound(EJECT_CLIP, p->GetActor());
 		break;
 	}
 }
