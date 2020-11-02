@@ -99,7 +99,6 @@ struct Dispatcher
 	void (*respawnhitag)(DDukeActor* g_sp);
 	void (*checktimetosleep)(DDukeActor* actor);
 	void (*move)(DDukeActor* i, int g_p, int g_x);
-	int (*spawn)(int j, int pn);
 
 	// player
 	void (*incur_damage)(struct player_struct* p);

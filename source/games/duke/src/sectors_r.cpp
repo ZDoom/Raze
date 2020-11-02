@@ -302,7 +302,7 @@ void animatewalls_r(void)
 
 void operaterespawns_r(int low)
 {
-	int i, j;
+	int i;
 
 	StatIterator it(STAT_FX);
 	while ((i = it.NextIndex()) >= 0)
@@ -310,13 +310,15 @@ void operaterespawns_r(int low)
 		if (sprite[i].lotag == low) switch (sprite[i].picnum)
 		{
 		case RESPAWN:
+		{
 			if (badguypic(sprite[i].hitag) && ud.monsters_off) break;
 
-			j = fi.spawn(i, TRANSPORTERSTAR);
-			sprite[j].z -= (32 << 8);
+			auto j = spawn(&hittype[i], TRANSPORTERSTAR);
+			j->s.z -= (32 << 8);
 
 			sprite[i].extra = 66 - 12;   // Just a way to killit
 			break;
+		}
 		case RRTILE7424:
 			if (isRRRA() && !ud.monsters_off)
 				changespritestat(i, 119);

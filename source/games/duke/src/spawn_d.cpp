@@ -221,7 +221,7 @@ int spawn_d(int j, int pn)
                 break;
             case TRANSPORTERSTAR:
             case TRANSPORTERBEAM:
-				spawntransporter(j, i, sp->picnum == TRANSPORTERBEAM);
+				spawntransporter(actj, act, sp->picnum == TRANSPORTERBEAM);
                 break;
 
             case FRAMEEFFECT1:
@@ -281,7 +281,7 @@ int spawn_d(int j, int pn)
 
             case BLOODPOOL:
             case PUKE:
-				if (spawnbloodpoolpart1(j, i)) break;
+				if (spawnbloodpoolpart1(actj, act)) break;
 
                 if(j >= 0 && sp->picnum != PUKE)
                 {
@@ -464,7 +464,7 @@ int spawn_d(int j, int pn)
             case FOOTPRINTS2:
             case FOOTPRINTS3:
             case FOOTPRINTS4:
-				initfootprint(j, i);
+				initfootprint(actj, act);
                 break;
 
             case FEM1:

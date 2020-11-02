@@ -187,7 +187,7 @@ void animatewalls_d(void)
 
 void operaterespawns_d(int low)
 {
-	int i, j;
+	int i;
 
 	StatIterator it(STAT_FX);
 	while ((i = it.NextIndex()) >= 0)
@@ -197,8 +197,8 @@ void operaterespawns_d(int low)
 		case RESPAWN:
 			if (badguypic(sprite[i].hitag) && ud.monsters_off) break;
 
-			j = fi.spawn(i, TRANSPORTERSTAR);
-			sprite[j].z -= (32 << 8);
+			auto j = spawn(&hittype[i], TRANSPORTERSTAR);
+			j->s.z -= (32 << 8);
 
 			sprite[i].extra = 66 - 12;   // Just a way to killit
 			break;

@@ -157,11 +157,6 @@ inline int S_PlaySound3D(int num, DDukeActor * spriteNum, const vec3_t* pos, int
 	return S_PlaySound3D(num, spriteNum ? spriteNum->GetIndex() : -1, pos, channel, flags);
 }
 
-inline DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, DDukeActor* Owner, signed char s_ss)
-{
-	return &hittype[EGS(whatsect, s_x, s_y, s_z, s_pn, s_s, s_xr, s_yr, s_a, s_ve, s_zv, Owner ? Owner->GetIndex() : -1, s_ss)];
-}
-
 inline int ActorToScriptIndex(DDukeActor* a)
 {
 	if (!a) return -1;
@@ -180,9 +175,12 @@ inline bool wallswitchcheck(DDukeActor* s)
 	return !!(tileinfo[s->s.picnum].flags & TFLAG_WALLSWITCH);
 }
 
+int spawn_d(int j, int pn);
+int spawn_r(int j, int pn);
+
 inline DDukeActor* spawn(DDukeActor* spawner, int type)
 {
-	int i = fi.spawn(spawner ? spawner->GetIndex() : -1, type);
+	int i = (isRR()? spawn_r : spawn_d)(spawner ? spawner->GetIndex() : -1, type);
 	return i == -1 ? nullptr : &hittype[i];
 }
 

@@ -84,8 +84,6 @@ void checktimetosleep_d(DDukeActor* actor);
 void checktimetosleep_r(DDukeActor* actor);
 void move_d(DDukeActor* i, int g_p, int g_x);
 void move_r(DDukeActor* i, int g_p, int g_x);
-int spawn_d(int j, int pn);
-int spawn_r(int j, int pn);
 void incur_damage_d(struct player_struct* p);
 void incur_damage_r(struct player_struct* p);
 void shoot_d(DDukeActor* i, int atwith);

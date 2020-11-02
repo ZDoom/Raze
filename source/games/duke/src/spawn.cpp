@@ -48,7 +48,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss) 
+DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, DDukeActor* s_ow, signed char s_ss) 
 {
 	//if (isRR() && s_ow < 0 && !force)	// should never happen, the only owner-less spawn outside of map start is for the Holoduke, which is Duke only
 		//return 0;
@@ -77,7 +77,6 @@ short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s
 	s->ang = s_a;
 	s->xvel = s_ve;
 	s->zvel = s_zv;
-	s->owner = s_ow;
 	s->xoffset = 0;
 	s->yoffset = 0;
 	s->yvel = 0;
@@ -85,21 +84,26 @@ short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s
 	s->pal = 0;
 	s->lotag = 0;
 
-	act->picnum = sprite[s_ow].picnum;
-
 	act->lastvx = 0;
 	act->lastvy = 0;
 
 	act->timetosleep = 0;
 	act->actorstayput = -1;
 	act->extra = -1;
-	act->owner = s_ow;
 	act->cgg = 0;
 	act->movflag = 0;
 	act->tempang = 0;
 	act->dispicnum = 0;
-	act->floorz = hittype[s_ow].floorz;
-	act->ceilingz = hittype[s_ow].ceilingz;
+	act->SetHitOwner(s_ow);
+	act->SetOwner(s_ow);
+
+	if (s_ow)
+	{
+		act->picnum = s_ow->s.picnum;
+		act->floorz = s_ow->floorz;
+		act->ceilingz = s_ow->ceilingz;
+	}
+
 	memset(act->temp_data, 0, sizeof(act->temp_data));
 	if (actorinfo[s_pn].scriptaddress)
 	{
@@ -121,7 +125,7 @@ short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s
 	spriteext[i] = {};
 	spritesmooth[i] = {};
 
-	return(i);
+	return act;
 }
 
 
@@ -133,16 +137,17 @@ short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s
 
 int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes)
 {
-	int i;
 	spritetype* sp;
 	int* t;
+	int i;
 
 	if (j >= 0)
 	{
-		i = EGS(sprite[j].sectnum, sprite[j].x, sprite[j].y, sprite[j].z, pn, 0, 0, 0, 0, 0, 0, j, 0);
-		hittype[i].picnum = sprite[j].picnum;
-		sp = &sprite[i];
-		t = hittype[i].temp_data;
+		auto spawned = EGS(sprite[j].sectnum, sprite[j].x, sprite[j].y, sprite[j].z, pn, 0, 0, 0, 0, 0, 0, &hittype[j], 0);
+		spawned->picnum = sprite[j].picnum;
+		sp = &spawned->s;
+		t = spawned->temp_data;
+		i = spawned->GetIndex();
 	}
 	else
 	{
@@ -293,11 +298,11 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 //
 //---------------------------------------------------------------------------
 
-void spawntransporter(int j, int i, bool beam)
+void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 {
-	if (j == -1) return;
-	auto sp = &sprite[i];
-	auto spj = &sprite[j];
+	if (actj == nullptr) return;
+	auto sp = &acti->s;
+	auto spj = &actj->s;
 	if (beam)
 	{
 		sp->xrepeat = 31;
@@ -325,9 +330,9 @@ void spawntransporter(int j, int i, bool beam)
 	sp->ang = spj->ang;
 
 	sp->xvel = 128;
-	changespritestat(i, STAT_MISC);
-	ssp(i, CLIPMASK0);
-	setsprite(i, sp->x, sp->y, sp->z);
+	changespritestat(acti, STAT_MISC);
+	ssp(acti, CLIPMASK0);
+	setsprite(acti, sp->x, sp->y, sp->z);
 }
 
 //---------------------------------------------------------------------------
@@ -336,9 +341,9 @@ void spawntransporter(int j, int i, bool beam)
 //
 //---------------------------------------------------------------------------
 
-int spawnbloodpoolpart1(int j, int i)
+int spawnbloodpoolpart1(DDukeActor *actj, DDukeActor* acti)
 {
-	auto sp = &sprite[i];
+	auto sp = &acti->s;
 	short s1 = sp->sectnum;
 
 	updatesector(sp->x + 108, sp->y + 108, &s1);
@@ -353,18 +358,18 @@ int spawnbloodpoolpart1(int j, int i)
 				updatesector(sp->x - 108, sp->y + 108, &s1);
 				if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
 				{
-					sp->xrepeat = sp->yrepeat = 0; changespritestat(i, STAT_MISC); return true;
+					sp->xrepeat = sp->yrepeat = 0; changespritestat(acti, STAT_MISC); return true;
 				}
 			}
-			else { sp->xrepeat = sp->yrepeat = 0; changespritestat(i, STAT_MISC); return true; }
+			else { sp->xrepeat = sp->yrepeat = 0; changespritestat(acti, STAT_MISC); return true; }
 		}
-		else { sp->xrepeat = sp->yrepeat = 0; changespritestat(i, STAT_MISC); return true; }
+		else { sp->xrepeat = sp->yrepeat = 0; changespritestat(acti, STAT_MISC); return true; }
 	}
-	else { sp->xrepeat = sp->yrepeat = 0; changespritestat(i, STAT_MISC); return true; }
+	else { sp->xrepeat = sp->yrepeat = 0; changespritestat(acti, STAT_MISC); return true; }
 
 	if (sector[sp->sectnum].lotag == 1)
 	{
-		changespritestat(i, STAT_MISC);
+		changespritestat(acti, STAT_MISC);
 		return true;
 	}
 	return false;
@@ -376,11 +381,11 @@ int spawnbloodpoolpart1(int j, int i)
 //
 //---------------------------------------------------------------------------
 
-void initfootprint(int j, int i)
+void initfootprint(DDukeActor* actj, DDukeActor* acti)
 {
-	auto sp = &sprite[i];
+	auto sp = &acti->s;
 	int sect = sp->sectnum;
-	if (j >= 0)
+	if (actj)
 	{
 		short s1;
 		s1 = sp->sectnum;
@@ -397,7 +402,7 @@ void initfootprint(int j, int i)
 					updatesector(sp->x - 84, sp->y + 84, &s1);
 					if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
 					{
-						sp->xrepeat = sp->yrepeat = 0; changespritestat(i, STAT_MISC); return;
+						sp->xrepeat = sp->yrepeat = 0; changespritestat(acti, STAT_MISC); return;
 					}
 				}
 				else { sp->xrepeat = sp->yrepeat = 0; return; }
@@ -406,16 +411,16 @@ void initfootprint(int j, int i)
 		}
 		else { sp->xrepeat = sp->yrepeat = 0; return; }
 
-		sp->cstat = 32 + ((ps[sprite[j].yvel].footprintcount & 1) << 2);
-		sp->ang = sprite[j].ang;
+		sp->cstat = 32 + ((ps[actj->s.yvel].footprintcount & 1) << 2);
+		sp->ang = actj->s.ang;
 	}
 
 	sp->z = sector[sect].floorz;
 	if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
 		sp->xrepeat = sp->yrepeat = 32;
 
-	insertspriteq(&hittype[i]);
-	changespritestat(i, STAT_MISC);
+	insertspriteq(acti);
+	changespritestat(acti, STAT_MISC);
 }
 
 //---------------------------------------------------------------------------
@@ -1107,7 +1112,7 @@ void lotsofglass(int i, int wallnum, int n)
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = sp->ang - 256 + (krand() & 511) + 1024;
-			EGS(sp->sectnum, sp->x, sp->y, sp->z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), i, 5);
+			EGS(sp->sectnum, sp->x, sp->y, sp->z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), &hittype[j], 5);
 		}
 		return;
 	}
@@ -1138,7 +1143,7 @@ void lotsofglass(int i, int wallnum, int n)
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 			a = sp->ang - 1024;
-			EGS(sp->sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), i, 5);
+			EGS(sp->sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), &hittype[i], 5);
 		}
 	}
 }

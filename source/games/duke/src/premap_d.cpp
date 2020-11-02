@@ -317,7 +317,7 @@ void prelevel_d(int g)
 		{
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
 				continue;
-			fi.spawn(-1, i);
+			spawn(nullptr, i);
 		}
 	}
 
@@ -327,7 +327,7 @@ void prelevel_d(int g)
 		if (spr->statnum < MAXSTATUS)
 		{
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
-				fi.spawn(-1, i);
+				spawn(nullptr, i);
 		}
 	}
 	lotaglist = 0;
