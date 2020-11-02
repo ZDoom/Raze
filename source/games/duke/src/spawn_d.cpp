@@ -96,12 +96,12 @@ int spawn_d(int j, int pn)
 			if ((sp->lotag > ud.player_skill) || ud.monsters_off) 
             {
 				sp->xrepeat = sp->yrepeat = 0;
-				changespritestat(i, STAT_MISC);
+				changespritestat(act, STAT_MISC);
 				break;
 			} 
             else 
             {
-				makeitfall(i);
+				makeitfall(act);
 
 				sp->cstat |= 257;
 				ps[connecthead].max_actors_killed++;
@@ -860,7 +860,7 @@ int spawn_d(int j, int pn)
                 }
                 else
                 {
-                    makeitfall(i);
+                    makeitfall(act);
 
                     if(sp->picnum == RAT)
                     {
@@ -924,7 +924,7 @@ int spawn_d(int j, int pn)
 
                 changespritestat(i,1);
 
-                getglobalz(i);
+                getglobalz(act);
 
                 j = (act->floorz-act->ceilingz)>>9;
 
@@ -1025,11 +1025,11 @@ int spawn_d(int j, int pn)
 
                 sp->shade = -17;
 
-                if(j >= 0) changespritestat(i,1);
+                if(j >= 0) changespritestat(act, STAT_ACTOR);
                 else
                 {
-                    changespritestat(i,2);
-                    makeitfall(i);
+                    changespritestat(act, STAT_ZOMBIEACTOR);
+                    makeitfall(act);
                 }
                 break;
 
@@ -1174,7 +1174,7 @@ int spawn_d(int j, int pn)
                 if(j >= 0)
                     sp->xrepeat = sp->yrepeat = 32;
                 sp->clipdist = 72;
-                makeitfall(i);
+                makeitfall(act);
                 if(j >= 0)
                     sp->owner = j;
                 else sp->owner = i;
@@ -1182,7 +1182,7 @@ int spawn_d(int j, int pn)
                 if( ud.monsters_off == 1 && sp->picnum == EGG )
                 {
                     sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i, STAT_MISC);
+                    changespritestat(act, STAT_MISC);
                 }
                 else
                 {
@@ -1192,12 +1192,12 @@ int spawn_d(int j, int pn)
                         ps[connecthead].max_actors_killed++;
                     }
                     sp->cstat = 257|(krand()&4);
-                    changespritestat(i,2);
+                    changespritestat(act, STAT_ZOMBIEACTOR);
                 }
                 break;
             case TOILETWATER:
                 sp->shade = -16;
-                changespritestat(i,6);
+                changespritestat(act, STAT_STANDABLE);
                 break;
     }
     return i;

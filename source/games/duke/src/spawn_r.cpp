@@ -1031,7 +1031,7 @@ int spawn_r(int j, int pn)
 				}
 				else
 				{
-					makeitfall(i);
+					makeitfall(act);
 
 					if(sp->picnum == RAT)
 					{
@@ -1052,10 +1052,10 @@ int spawn_r(int j, int pn)
 					{
 						act->timetosleep = 0;
 						check_fta_sounds_r(act);
-						changespritestat(i,1);
+						changespritestat(act, STAT_ACTOR);
 						sp->shade = spj->shade;
 					}
-					else changespritestat(i,2);
+					else changespritestat(act, STAT_ZOMBIEACTOR);
 
 				}
 
@@ -1063,7 +1063,7 @@ int spawn_r(int j, int pn)
 			case LOCATORS:
 //                sp->xrepeat=sp->yrepeat=0;
 				sp->cstat |= 32768;
-				changespritestat(i,7);
+				changespritestat(act, STAT_LOCATOR);
 				break;
 				
 			case ACTIVATORLOCKED:
@@ -1072,13 +1072,13 @@ int spawn_r(int j, int pn)
 				sp->cstat |= 32768;
 				if (sp->picnum == ACTIVATORLOCKED)
 					sector[sect].lotag ^= 16384;
-				changespritestat(i,8);
+				changespritestat(act, STAT_ACTIVATOR);
 				break;
 			case DOORSHOCK:
 				sp->cstat |= 1+256;
 				sp->shade = -12;
 
-				changespritestat(i,6);
+				changespritestat(act, STAT_STANDABLE);
 				break;
 
 			case OOZ:
@@ -1088,9 +1088,9 @@ int spawn_r(int j, int pn)
 					if( spj->picnum == NUKEBARREL )
 						sp->pal = 8;
 
-				changespritestat(i,1);
+				changespritestat(act, STAT_STANDABLE);
 
-				getglobalz(i);
+				getglobalz(act);
 
 				j = (act->floorz-act->ceilingz)>>9;
 
@@ -1198,11 +1198,11 @@ int spawn_r(int j, int pn)
 
 				sp->shade = -17;
 
-				if(j >= 0) changespritestat(i,1);
+				if(j >= 0) changespritestat(act, STAT_ACTOR);
 				else
 				{
-					changespritestat(i,2);
-					makeitfall(i);
+					changespritestat(act, STAT_ZOMBIEACTOR);
+					makeitfall(act);
 				}
 				switch (sp->picnum)
 				{
@@ -1457,7 +1457,7 @@ int spawn_r(int j, int pn)
 				if(j >= 0)
 					sp->xrepeat = sp->yrepeat = 32;
 				sp->clipdist = 72;
-				makeitfall(i);
+				makeitfall(act);
 				if(j >= 0)
 					sp->owner = j;
 				else sp->owner = i;
@@ -1465,19 +1465,19 @@ int spawn_r(int j, int pn)
 				if( ud.monsters_off == 1 && sp->picnum == EGG )
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(i, STAT_MISC);
+					changespritestat(act, STAT_MISC);
 				}
 				else
 				{
 					if(sp->picnum == EGG)
 						sp->clipdist = 24;
 					sp->cstat = 257|(krand()&4);
-					changespritestat(i,2);
+					changespritestat(act, STAT_ZOMBIEACTOR);
 				}
 				break;
 			case TOILETWATER:
 				sp->shade = -16;
-				changespritestat(i,6);
+				changespritestat(act, STAT_STANDABLE);
 				break;
 			case RRTILE63:
 				sp->cstat |= 32768;

@@ -233,34 +233,9 @@ inline void getzrange_ex(int x, int y, int z, int16_t sectnum, int32_t* ceilz, C
 	florhit.setFromEngine(fh);
 }
 
-inline void ms(short i)
-{
-	ms(&hittype[i]);
-}
-
-inline void makeitfall(int act)
-{
-	makeitfall(&hittype[act]);
-}
-
-inline void getglobalz(int act)
-{
-	getglobalz(&hittype[act]);
-}
-
 inline int findplayer(spritetype* act, int* x)
 {
 	return findplayer(&hittype[act - sprite], x);
-}
-
-inline void detonate(int i, int explosion)
-{
-	detonate(&hittype[i], explosion);
-}
-
-inline int callsound(int sect, int a)
-{
-	return callsound(sect, a == -1? nullptr : &hittype[a]);
 }
 
 inline int hitscan(int x, int y, int z, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,

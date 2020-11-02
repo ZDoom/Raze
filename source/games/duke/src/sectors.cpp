@@ -331,7 +331,7 @@ void doanimations(void)
 					continue;
 
 			if ((sector[dasect].lotag & 0xff) != ST_22_SPLITTING_DOOR)
-				callsound(dasect, -1);
+				callsound(dasect, nullptr);
 
 			continue;
 		}
