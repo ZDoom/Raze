@@ -332,9 +332,9 @@ void operaterespawns_r(int low)
 //
 //---------------------------------------------------------------------------
 
-void operateforcefields_r(int s, int low)
+void operateforcefields_r(DDukeActor* act, int low)
 {
-	operateforcefields_common(&hittype[s], low, { BIGFORCE });
+	operateforcefields_common(act, low, { BIGFORCE });
 }
 
 //---------------------------------------------------------------------------
@@ -861,7 +861,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 		}
 
 		operateactivators(lotag, snum);
-		fi.operateforcefields(ps[snum].i, lotag);
+		fi.operateforcefields(ps[snum].GetActor(), lotag);
 		operatemasterswitches(lotag);
 
 		if (picnum == DIPSWITCH || picnum == DIPSWITCH + 1 ||
@@ -2477,7 +2477,7 @@ void checksectors_r(int snum)
 	if (chatmodeon || p->GetActor()->s.extra <= 0) return;
 
 	if (ud.cashman && PlayerInput(snum, SB_OPEN))
-		fi.lotsofmoney(&hittype[p->i], 2);
+		fi.lotsofmoney(p->GetActor(), 2);
 
 
 	if (!(PlayerInput(snum, SB_OPEN)))
