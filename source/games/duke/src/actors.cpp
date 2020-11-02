@@ -3636,7 +3636,7 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 						return;
 					}
 				}
-				fi.activatebysector(s->sectnum, actor->GetIndex());
+				fi.activatebysector(s->sectnum, actor);
 				t[0] = 0;
 			}
 			else t[0]++;

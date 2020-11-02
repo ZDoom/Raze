@@ -895,22 +895,20 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 //
 //---------------------------------------------------------------------------
 
-void activatebysector_r(int sect, int j)
+void activatebysector_r(int sect, DDukeActor* activator)
 {
-	short i;
-
-	SectIterator it(sect);
-	while ((i = it.NextIndex()) >= 0)
+	DukeSectIterator it(sect);
+	while (auto act = it.Next())
 	{
-		if (sprite[i].picnum == ACTIVATOR)
+		if (act->s.picnum == ACTIVATOR)
 		{
-			operateactivators(sprite[i].lotag, -1);
+			operateactivators(act->s.lotag, -1);
 			//			return;
 		}
 	}
 
 	if (sector[sect].lotag != 22)
-		operatesectors(sect, &hittype[j]);
+		operatesectors(sect, activator);
 }
 
 

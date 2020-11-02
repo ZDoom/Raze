@@ -4063,7 +4063,7 @@ HORIZONLY:
 		{
 			if (!(sector[s->sectnum].lotag & 0x8000) && (isanunderoperator(sector[s->sectnum].lotag) ||
 				isanearoperator(sector[s->sectnum].lotag)))
-				fi.activatebysector(s->sectnum, pact->GetIndex());
+				fi.activatebysector(s->sectnum, pact);
 			if (j)
 			{
 				quickkill(p);
@@ -4071,7 +4071,7 @@ HORIZONLY:
 			}
 		}
 		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(sector[psect].lotag))
-			fi.activatebysector(psect, pact->GetIndex());
+			fi.activatebysector(psect, pact);
 	}
 
 	if (ud.clipping == 0 && sector[p->cursectnum].ceilingz > (sector[p->cursectnum].floorz - (12 << 8)))

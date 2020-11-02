@@ -613,25 +613,25 @@ bool checkhitswitch_d(int snum, int ww, DDukeActor *act)
 //
 //---------------------------------------------------------------------------
 
-void activatebysector_d(int sect, int j)
+void activatebysector_d(int sect, DDukeActor* activator)
 {
-	short i, didit;
+	short didit;
 
 	didit = 0;
 
-	SectIterator it(sect);
-	while ((i = it.NextIndex()) >= 0)
+	DukeSectIterator it(sect);
+	while (auto act = it.Next())
 	{
-		if (sprite[i].picnum == ACTIVATOR)
+		if (act->s.picnum == ACTIVATOR)
 		{
-			operateactivators(sprite[i].lotag, -1);
+			operateactivators(act->s.lotag, -1);
 			didit = 1;
 			//			return;
 		}
 	}
 
 	if (didit == 0)
-		operatesectors(sect, &hittype[j]);
+		operatesectors(sect, activator);
 }
 
 //---------------------------------------------------------------------------

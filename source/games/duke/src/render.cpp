@@ -404,7 +404,6 @@ void setdrugmode(player_struct *p, int oyrepeat)
 static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixedhoriz choriz, int sect, int smoothratio)
 {
 	short gs, tgsect, geosect, geoid = 0;
-	int spr;
 	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
 	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
 	renderDrawMasks();
