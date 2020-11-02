@@ -1415,7 +1415,8 @@ int doincrements_d(struct player_struct* p)
 {
 	int snum;
 
-	snum = p->GetActor()->s.yvel;
+	auto pact = p->GetActor();
+	snum = pact->s.yvel;
 
 	p->player_par++;
 
@@ -1430,9 +1431,9 @@ int doincrements_d(struct player_struct* p)
 
 		if (p->last_pissed_time == (26 * 219))
 		{
-			S_PlayActorSound(FLUSH_TOILET, p->i);
+			S_PlayActorSound(FLUSH_TOILET, pact);
 			if (snum == screenpeek || ud.coop == 1)
-				S_PlayActorSound(DUKE_PISSRELIEF, p->i);
+				S_PlayActorSound(DUKE_PISSRELIEF, pact);
 		}
 
 		if (p->last_pissed_time == (26 * 218))
@@ -1459,7 +1460,7 @@ int doincrements_d(struct player_struct* p)
 			checkavailinven(p);
 		if (!(p->steroids_amount & 7))
 			if (snum == screenpeek || ud.coop == 1)
-				S_PlayActorSound(DUKE_HARTBEAT, p->i);
+				S_PlayActorSound(DUKE_HARTBEAT, pact);
 	}
 
 	if (p->heat_on && p->heat_amount > 0)
@@ -1469,7 +1470,7 @@ int doincrements_d(struct player_struct* p)
 		{
 			p->heat_on = 0;
 			checkavailinven(p);
-			S_PlayActorSound(NITEVISION_ONOFF, p->i);
+			S_PlayActorSound(NITEVISION_ONOFF, pact);
 			setpal(p);
 		}
 	}
@@ -1479,7 +1480,7 @@ int doincrements_d(struct player_struct* p)
 		p->holoduke_amount--;
 		if (p->holoduke_amount <= 0)
 		{
-			S_PlayActorSound(TELEPORTER, p->i);
+			S_PlayActorSound(TELEPORTER, pact);
 			p->holoduke_on = nullptr;
 			checkavailinven(p);
 		}
@@ -1492,9 +1493,9 @@ int doincrements_d(struct player_struct* p)
 		{
 			p->jetpack_on = 0;
 			checkavailinven(p);
-			S_PlayActorSound(DUKE_JETPACK_OFF, p->i);
-			S_StopSound(DUKE_JETPACK_IDLE, p->i);
-			S_StopSound(DUKE_JETPACK_ON, p->i);
+			S_PlayActorSound(DUKE_JETPACK_OFF, pact);
+			S_StopSound(DUKE_JETPACK_IDLE, pact);
+			S_StopSound(DUKE_JETPACK_ON, pact);
 		}
 	}
 
@@ -1562,7 +1563,7 @@ int doincrements_d(struct player_struct* p)
 			{
 				p->extra_extra8 += 32;
 				if (p->last_extra < (max_player_health >> 1) && (p->last_extra & 3) == 0)
-					S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
 			}
 		}
 	}
@@ -1585,10 +1586,10 @@ int doincrements_d(struct player_struct* p)
 				if (snum == screenpeek || ud.coop == 1)
 				{
 					if (rand() & 1)
-						S_PlayActorSound(DUKE_CRACK, p->i);
-					else S_PlayActorSound(DUKE_CRACK2, p->i);
+						S_PlayActorSound(DUKE_CRACK, pact);
+					else S_PlayActorSound(DUKE_CRACK2, pact);
 				}
-			S_PlayActorSound(DUKE_CRACK_FIRST, p->i);
+			S_PlayActorSound(DUKE_CRACK_FIRST, pact);
 		}
 		else if (p->knuckle_incs == 22 || PlayerInput(snum, SB_FIRE))
 			p->knuckle_incs = 0;
@@ -1627,12 +1628,12 @@ void checkweapons_d(struct player_struct* p)
 	if (cw)
 	{
 		if (krand() & 1)
-			fi.spawn(p->i, weapon_sprites[cw]);
+			spawn(p->GetActor(), weapon_sprites[cw]);
 		else switch (cw)
 		{
 		case RPG_WEAPON:
 		case HANDBOMB_WEAPON:
-			fi.spawn(p->i, EXPLOSION2);
+			spawn(p->GetActor(), EXPLOSION2);
 			break;
 		}
 	}
@@ -1987,7 +1988,6 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 int operateTripbomb(int snum)
 {
 	auto p = &ps[snum];
-	int pi = p->i;
 
 	int sx, sy, sz;
 	short sect, hw;
@@ -2039,7 +2039,7 @@ int operateTripbomb(int snum)
 static void fireweapon(int snum)
 {
 	auto p = &ps[snum];
-	int pi = p->i;
+	auto pact = p->GetActor();
 
 	p->crack_time = CRACK_TIME;
 
@@ -2097,13 +2097,13 @@ static void fireweapon(int snum)
 			if (p->ammo_amount[GROW_WEAPON] > 0)
 			{
 				p->kickback_pic = 1;
-				S_PlayActorSound(EXPANDERSHOOT, pi);
+				S_PlayActorSound(EXPANDERSHOOT, pact);
 			}
 		}
 		else if (p->ammo_amount[SHRINKER_WEAPON] > 0)
 		{
 			p->kickback_pic = 1;
-			S_PlayActorSound(SHRINKER_FIRE, pi);
+			S_PlayActorSound(SHRINKER_FIRE, pact);
 		}
 		break;
 
@@ -2111,7 +2111,7 @@ static void fireweapon(int snum)
 		if (p->ammo_amount[FREEZE_WEAPON] > 0)
 		{
 			p->kickback_pic = 1;
-			S_PlayActorSound(CAT_FIRE, pi);
+			S_PlayActorSound(CAT_FIRE, pact);
 		}
 		break;
 	case DEVISTATOR_WEAPON:
@@ -2119,7 +2119,7 @@ static void fireweapon(int snum)
 		{
 			p->kickback_pic = 1;
 			p->hbomb_hold_delay = !p->hbomb_hold_delay;
-			S_PlayActorSound(CAT_FIRE, pi);
+			S_PlayActorSound(CAT_FIRE, pact);
 		}
 		break;
 
@@ -2135,7 +2135,7 @@ static void fireweapon(int snum)
 		{
 			p->kickback_pic = 1;
 			if (sector[p->cursectnum].lotag != 2)
-				S_PlayActorSound(FLAMETHROWER_INTRO, pi);
+				S_PlayActorSound(FLAMETHROWER_INTRO, pact);
 		}
 		break;
 
@@ -2610,7 +2610,6 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 static void processweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
-	int pi = p->i;
 	auto pact = p->GetActor();
 	auto s = &pact->s;
 	int shrunk = (s->yrepeat < 32);
@@ -2715,12 +2714,11 @@ void processinput_d(int snum)
 	Collision chz, clz;
 	bool shrunk;
 	ESyncBits actions;
-	short psect, psectlotag, pi;
+	short psect, psectlotag;
 	struct player_struct* p;
 	spritetype* s;
 
 	p = &ps[snum];
-	pi = p->i;
 	auto pact = p->GetActor();
 	s = &pact->s;
 
@@ -2739,7 +2737,7 @@ void processinput_d(int snum)
 		if (s->extra > 0 && ud.clipping == 0)
 		{
 			quickkill(p);
-			S_PlayActorSound(SQUISHED, pi);
+			S_PlayActorSound(SQUISHED, pact);
 		}
 		psect = 0;
 	}
@@ -2912,8 +2910,8 @@ void processinput_d(int snum)
 			}
 			else
 			{
-				if (!S_CheckActorSoundPlaying(p->i, DUKE_LONGTERM_PAIN))
-					S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
+				if (!S_CheckActorSoundPlaying(pact, DUKE_LONGTERM_PAIN))
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
 				SetPlayerPal(p, PalEntry(32, 0, 8, 0));
 				s->extra--;
 			}
@@ -2959,14 +2957,14 @@ void processinput_d(int snum)
 					{
 					case PANNEL1:
 					case PANNEL2:
-						S_PlayActorSound(DUKE_WALKINDUCTS, pi);
+						S_PlayActorSound(DUKE_WALKINDUCTS, pact);
 						p->walking_snd_toggle = 1;
 						break;
 					}
 					break;
 				case 1:
 					if ((krand() & 1) == 0)
-						S_PlayActorSound(DUKE_ONWATER, pi);
+						S_PlayActorSound(DUKE_ONWATER, pact);
 					p->walking_snd_toggle = 1;
 					break;
 				}
@@ -3030,7 +3028,7 @@ HORIZONLY:
 		p->posx += p->posxv >> 14;
 		p->posy += p->posyv >> 14;
 		updatesector(p->posx, p->posy, &p->cursectnum);
-		changespritesect(pi, p->cursectnum);
+		changespritesect(pact, p->cursectnum);
 	}
 	else
 		clipmove_ex(&p->posx, &p->posy,
@@ -3060,7 +3058,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	setsprite(pi, p->posx, p->posy, p->posz + PHEIGHT);
+	setsprite(pact, p->posx, p->posy, p->posz + PHEIGHT);
 
 	if (psectlotag < 3)
 	{
@@ -3081,7 +3079,7 @@ HORIZONLY:
 			S_PlayActorSound(DUKE_ONWATER, pact);
 
 	if (p->cursectnum != s->sectnum)
-		changespritesect(pi, p->cursectnum);
+		changespritesect(pact, p->cursectnum);
 
 	if (ud.clipping == 0)
 		j = (pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 164L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);

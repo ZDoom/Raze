@@ -1134,7 +1134,7 @@ void selectweapon_r(int snum, int weap)
 			case SLINGBLADE_WEAPON:
 				if (isRRRA())
 				{
-					S_PlayActorSound(496, ps[screenpeek].i);
+					S_PlayActorSound(496, ps[screenpeek].GetActor());
 					fi.addweapon(p, j);
 				}
 				break;
@@ -1206,6 +1206,7 @@ void selectweapon_r(int snum, int weap)
 int doincrements_r(struct player_struct* p)
 {
 	int snum;
+	auto pact = p->GetActor();
 
 	if (isRRRA())
 	{
@@ -1263,8 +1264,8 @@ int doincrements_r(struct player_struct* p)
 	}
 	if (p->drink_amt >= 100)
 	{
-		if (!S_CheckActorSoundPlaying(p->i, 420))
-			S_PlayActorSound(420, p->i);
+		if (!S_CheckActorSoundPlaying(pact, 420))
+			S_PlayActorSound(420, pact);
 		p->drink_amt -= 9;
 		p->eat >>= 1;
 	}
@@ -1278,16 +1279,16 @@ int doincrements_r(struct player_struct* p)
 		switch (krand() & 3)
 		{
 		case 0:
-			S_PlayActorSound(404, p->i);
+			S_PlayActorSound(404, pact);
 			break;
 		case 1:
-			S_PlayActorSound(422, p->i);
+			S_PlayActorSound(422, pact);
 			break;
 		case 2:
-			S_PlayActorSound(423, p->i);
+			S_PlayActorSound(423, pact);
 			break;
 		case 3:
-			S_PlayActorSound(424, p->i);
+			S_PlayActorSound(424, pact);
 			break;
 		}
 		if (numplayers < 2)
@@ -1316,17 +1317,17 @@ int doincrements_r(struct player_struct* p)
 
 		{
 			if (p->last_pissed_time == 5662)
-				S_PlayActorSound(434, p->i);
+				S_PlayActorSound(434, pact);
 			else if (p->last_pissed_time == 5567)
-				S_PlayActorSound(434, p->i);
+				S_PlayActorSound(434, pact);
 			else if (p->last_pissed_time == 5472)
-				S_PlayActorSound(433, p->i);
+				S_PlayActorSound(433, pact);
 			else if (p->last_pissed_time == 5072)
-				S_PlayActorSound(435, p->i);
+				S_PlayActorSound(435, pact);
 			else if (p->last_pissed_time == 5014)
-				S_PlayActorSound(434, p->i);
+				S_PlayActorSound(434, pact);
 			else if (p->last_pissed_time == 4919)
-				S_PlayActorSound(433, p->i);
+				S_PlayActorSound(433, pact);
 		}
 
 		if (p->last_pissed_time == 5668)
@@ -1357,7 +1358,7 @@ int doincrements_r(struct player_struct* p)
 		}
 		if (!(p->steroids_amount & 14))
 			if (snum == screenpeek || ud.coop == 1)
-				S_PlayActorSound(DUKE_TAKEPILLS, p->i);
+				S_PlayActorSound(DUKE_TAKEPILLS, pact);
 	}
 
 	if (p->access_incs && p->GetActor()->s.pal != 1)
@@ -1414,7 +1415,7 @@ int doincrements_r(struct player_struct* p)
 			{
 				p->extra_extra8 += 32;
 				if (p->last_extra < (max_player_health >> 1) && (p->last_extra & 3) == 0)
-					S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
 			}
 		}
 	}
@@ -1455,14 +1456,14 @@ int doincrements_r(struct player_struct* p)
 				case levelnum(1, 5): snd = 255; break;
 				case levelnum(1, 6): snd = 283; break;
 				}
-				S_PlayActorSound(snd, p->i);
+				S_PlayActorSound(snd, pact);
 			}
 			else if (ud.levelclock > 1024)
 				if (snum == screenpeek || ud.coop == 1)
 				{
 					if (rand() & 1)
-						S_PlayActorSound(DUKE_CRACK, p->i);
-					else S_PlayActorSound(DUKE_CRACK2, p->i);
+						S_PlayActorSound(DUKE_CRACK, pact);
+					else S_PlayActorSound(DUKE_CRACK2, pact);
 				}
 		}
 		else if (p->knuckle_incs == 22 || PlayerInput(snum, SB_FIRE))
@@ -2677,7 +2678,6 @@ void onBoatHit(int snum, DDukeActor* victim)
 static void fireweapon(int snum)
 {
 	auto p = &ps[snum];
-	int pi = p->i;
 
 	p->crack_time = CRACK_TIME;
 
@@ -2739,13 +2739,13 @@ static void fireweapon(int snum)
 				if (p->ammo_amount[BUZZSAW_WEAPON] > 0)
 				{
 					p->kickback_pic = 1;
-					S_PlayActorSound(431, pi);
+					S_PlayActorSound(431, p->GetActor());
 				}
 			}
 			else if (p->ammo_amount[THROWSAW_WEAPON] > 0)
 			{
 				p->kickback_pic = 1;
-				S_PlayActorSound(SHRINKER_FIRE, pi);
+				S_PlayActorSound(SHRINKER_FIRE, p->GetActor());
 			}
 			break;
 
@@ -3712,7 +3712,7 @@ void processinput_r(int snum)
 		tmp = getanimationgoal(anim_floorz, p->cursectnum);
 		if (tmp >= 0)
 		{
-			if (!S_CheckSoundPlaying(p->i, 432))
+			if (!S_CheckActorSoundPlaying(pact, 432))
 				S_PlayActorSound(432, pact);
 		}
 		else
@@ -4209,18 +4209,19 @@ void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 
 void OffMotorcycle(struct player_struct *p)
 {
+	auto pact = p->GetActor();
 	if (p->OnMotorcycle)
 	{
-		if (S_CheckActorSoundPlaying(p->i,188))
-			S_StopSound(188,p->i);
-		if (S_CheckActorSoundPlaying(p->i,187))
-			S_StopSound(187,p->i);
-		if (S_CheckActorSoundPlaying(p->i,186))
-			S_StopSound(186,p->i);
-		if (S_CheckActorSoundPlaying(p->i,214))
-			S_StopSound(214,p->i);
-		if (!S_CheckActorSoundPlaying(p->i,42))
-			S_PlayActorSound(42, p->i);
+		if (S_CheckActorSoundPlaying(pact,188))
+			S_StopSound(188,pact);
+		if (S_CheckActorSoundPlaying(pact,187))
+			S_StopSound(187,pact);
+		if (S_CheckActorSoundPlaying(pact,186))
+			S_StopSound(186,pact);
+		if (S_CheckActorSoundPlaying(pact,214))
+			S_StopSound(214,pact);
+		if (!S_CheckActorSoundPlaying(pact,42))
+			S_PlayActorSound(42, pact);
 		p->OnMotorcycle = 0;
 		p->gotweapon.Clear(MOTORCYCLE_WEAPON);
 		p->curr_weapon = p->last_full_weapon;
