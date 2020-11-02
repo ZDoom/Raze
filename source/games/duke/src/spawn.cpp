@@ -530,7 +530,7 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 	}
 
 	tempwallptr += 3;
-	sp->owner = -1;
+	acti->SetOwner(nullptr);
 	sp->extra = 8;
 	changespritestat(acti, STAT_STANDABLE);
 }
@@ -1107,11 +1107,11 @@ void spawneffector(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void lotsofglass(int i, int wallnum, int n)
+void lotsofglass(DDukeActor *actor, int wallnum, int n)
 {
 	int j, xv, yv, z, x1, y1, a;
 	short sect;
-	auto sp = &sprite[i];
+	auto sp = &actor->s;
 
 	sect = -1;
 
@@ -1151,7 +1151,7 @@ void lotsofglass(int i, int wallnum, int n)
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 			a = sp->ang - 1024;
-			EGS(sp->sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), &hittype[i], 5);
+			EGS(sp->sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
 }

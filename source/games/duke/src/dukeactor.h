@@ -227,9 +227,4 @@ inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16
 	*neartagsprite = nts == -1 ? nullptr : &hittype[nts];
 }
 
-inline void lotsofglass(DDukeActor *act, int wallnum, int cnt)
-{
-	lotsofglass(act ? act->GetIndex() : -1, wallnum, cnt);
-}
-
 END_DUKE_NS

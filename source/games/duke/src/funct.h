@@ -179,7 +179,7 @@ DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed ch
 void ceilingglass(DDukeActor* snum, int sectnum, int cnt);
 void spriteglass(DDukeActor* snum, int cnt);
 void lotsofcolourglass(DDukeActor* snum, int wallNum, int cnt);
-void lotsofglass(int snum, int wallnum, int cnt);
+void lotsofglass(DDukeActor* snum, int wallnum, int cnt);
 void checkplayerhurt_d(struct player_struct* p, const Collision& coll);
 void checkplayerhurt_r(struct player_struct* p, const Collision& coll);
 
