@@ -106,7 +106,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 	else
 	{
 		int x;
-		auto pspr = ps[findplayer(s, &x)].GetActor();
+		auto pspr = ps[findplayer(actor, &x)].GetActor();
 		zvel = ((pspr->s.z - sz) << 8) / (x + 1);
 		sa = getangle(pspr->s.x - sx, pspr->s.y - sy);
 	}
@@ -528,7 +528,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	else
 	{
 		int x;
-		int j = findplayer(s, &x);
+		int j = findplayer(actor, &x);
 		//                sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		if (s->picnum == HULK)
 			sa -= (krand() & 31);
@@ -651,7 +651,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	else
 	{
 		int x;
-		int j = findplayer(s, &x);
+		int j = findplayer(actor, &x);
 		sa = getangle(ps[j].oposx - sx, ps[j].oposy - sy);
 		if (s->picnum == BOSS3)
 			sz -= (32 << 8);
@@ -795,7 +795,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 	else
 	{
 		int x;
-		int j = findplayer(s, &x);
+		int j = findplayer(actor, &x);
 		//                sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		if (s->picnum == VIXEN)
 			sa -= (krand() & 16);

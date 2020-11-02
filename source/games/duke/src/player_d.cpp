@@ -107,7 +107,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 	{
 		sa += 16 - (krand() & 31);
 		int scratch;
-		int j = findplayer(s, &scratch);
+		int j = findplayer(actor, &scratch);
 		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
 	else
@@ -245,7 +245,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	else
 	{
 		int x;
-		auto pactor = ps[findplayer(s, &x)].GetActor();
+		auto pactor = ps[findplayer(actor, &x)].GetActor();
 		zvel = ((pactor->s.z - sz) << 8) / (x + 1);
 		sa = getangle(pactor->s.x - sx, pactor->s.y - sy);
 	}
@@ -952,7 +952,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	else
 	{
 		int x;
-		int j = findplayer(s, &x);
+		int j = findplayer(actor, &x);
 		sz -= (4 << 8);
 		zvel = ((ps[j].posz - sz) << 8) / (ldist(ps[p].GetActor(), actor));
 		zvel += 128 - (krand() & 255);

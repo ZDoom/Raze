@@ -87,7 +87,6 @@ struct Dispatcher
 	bool (*floorspace)(int sectnum);
 	void (*addweapon)(struct player_struct *p, int weapon);
 	void (*hitradius)(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
-	int  (*movesprite)(int spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
 	void (*lotsofmoney)(DDukeActor *s, short n);
 	void (*lotsofmail)(DDukeActor *s, short n);
 	void (*lotsofpaper)(DDukeActor *s, short n);

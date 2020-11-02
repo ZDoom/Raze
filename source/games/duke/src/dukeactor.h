@@ -199,20 +199,6 @@ inline int ssp(int i, unsigned int cliptype) //The set sprite function
 int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result);
 int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result);
 
-inline int movesprite_d(int actor, int xchange, int ychange, int zchange, unsigned int cliptype)
-{
-	Collision c;
-	movesprite_ex_d(&hittype[actor], xchange, ychange, zchange, cliptype, c);
-	return c.legacyVal;
-}
-
-inline int movesprite_r(int actor, int xchange, int ychange, int zchange, unsigned int cliptype)
-{
-	Collision c;
-	movesprite_ex_r(&hittype[actor], xchange, ychange, zchange, cliptype, c);
-	return c.legacyVal;
-}
-
 inline int movesprite_ex(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result)
 {
 	auto f = isRR() ? movesprite_ex_r : movesprite_ex_d;
@@ -231,11 +217,6 @@ inline void getzrange_ex(int x, int y, int z, int16_t sectnum, int32_t* ceilz, C
 	getzrange(x, y, z, sectnum, ceilz, &ch, florz, &fh, walldist, cliptype);
 	ceilhit.setFromEngine(ch);
 	florhit.setFromEngine(fh);
-}
-
-inline int findplayer(spritetype* act, int* x)
-{
-	return findplayer(&hittype[act - sprite], x);
 }
 
 inline int hitscan(int x, int y, int z, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
