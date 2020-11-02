@@ -574,7 +574,6 @@ static void handle_st09(int sn, DDukeActor* actor)
 static void handle_st15(int sn, DDukeActor* actor)
 {
 	if (actor->s.picnum != TILE_APLAYER) return;
-	//			if(ps[sprite[ii].yvel].select_dir == 1) return;
 
 	sectortype* sptr = &sector[sn];
 	DukeSectIterator it(sn);

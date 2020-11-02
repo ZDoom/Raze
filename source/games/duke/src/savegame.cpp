@@ -30,6 +30,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "mapinfo.h"
 #include "duke3d.h"
 #include "gamestate.h"
+#include "dukeactor.h"
 
 extern FixedBitArray<MAXSPRITES> activeSprites;
 
@@ -60,12 +61,11 @@ static void recreateinterpolations()
 {
 	numinterpolations = 0;
 
-	int k;
-	StatIterator it(STAT_EFFECTOR);
-	while ((k = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_EFFECTOR);
+	while (auto k = it.Next())
 	{
-		auto sectnum = sprite[k].sectnum;
-		switch (sprite[k].lotag)
+		auto sectnum = k->s.sectnum;
+		switch (k->s.lotag)
 		{
 		case SE_31_FLOOR_RISE_FALL:
 			setinterpolation(&sector[sectnum].floorz);

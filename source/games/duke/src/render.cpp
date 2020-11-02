@@ -412,11 +412,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	{
 		tgsect = geosector[gs];
 
-		SectIterator it(tgsect);
-		while ((spr = it.NextIndex()) >= 0)
+		DukeSectIterator it(tgsect);
+		while (auto act = it.Next())
 		{
-			changespritesect((short)spr, geosectorwarp[gs]);
-			setsprite((short)spr, sprite[spr].x -= geox[gs], sprite[spr].y -= geoy[gs], sprite[spr].z);
+			changespritesect(act, geosectorwarp[gs]);
+			setsprite(act, act->s.x -= geox[gs], act->s.y -= geoy[gs], act->s.z);
 		}
 		if (geosector[gs] == sect)
 		{
@@ -432,11 +432,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosectorwarp[gs];
-		SectIterator it(tgsect);
-		while ((spr = it.NextIndex()) >= 0)
+		DukeSectIterator it(tgsect);
+		while (auto act = it.Next())
 		{
-			changespritesect((short)spr, geosector[gs]);
-			setsprite((short)spr, sprite[spr].x += geox[gs], sprite[spr].y += geoy[gs], sprite[spr].z);
+			changespritesect(act, geosector[gs]);
+			setsprite(act, act->s.x += geox[gs], act->s.y += geoy[gs], act->s.z);
 		}
 	}
 	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
@@ -444,11 +444,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosector[gs];
-		SectIterator it(tgsect);
-		while ((spr = it.NextIndex()) >= 0)
+		DukeSectIterator it(tgsect);
+		while (auto act = it.Next())
 		{
-			changespritesect((short)spr, geosectorwarp2[gs]);
-			setsprite((short)spr, sprite[spr].x -= geox2[gs], sprite[spr].y -= geoy2[gs], sprite[spr].z);
+			changespritesect(act, geosectorwarp2[gs]);
+			setsprite(act, act->s.x -= geox2[gs], act->s.y -= geoy2[gs], act->s.z);
 		}
 		if (geosector[gs] == sect)
 		{
@@ -464,11 +464,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosectorwarp2[gs];
-		SectIterator it(tgsect);
-		while ((spr = it.NextIndex()) >= 0)
+		DukeSectIterator it(tgsect);
+		while (auto act = it.Next())
 		{
-			changespritesect((short)spr, geosector[gs]);
-			setsprite((short)spr, sprite[spr].x += geox2[gs], sprite[spr].y += geoy2[gs], sprite[spr].z);
+			changespritesect(act, geosector[gs]);
+			setsprite(act, act->s.x += geox2[gs], act->s.y += geoy2[gs], act->s.z);
 		}
 	}
 	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
@@ -594,12 +594,13 @@ void displayrooms(int snum, double smoothratio)
 
 		if (p->newowner >= 0)
 		{
+			auto spr = &sprite[p->newowner];
 			cang = buildang(getcamspriteang(p->newowner, smoothratio));
-			choriz = buildhoriz(sprite[p->newowner].shade);
-			cposx = sprite[p->newowner].pos.x;
-			cposy = sprite[p->newowner].pos.y;
-			cposz = sprite[p->newowner].pos.z;
-			sect = sprite[p->newowner].sectnum;
+			choriz = buildhoriz(spr->shade);
+			cposx = spr->pos.x;
+			cposy = spr->pos.y;
+			cposz = spr->pos.z;
+			sect = spr->sectnum;
 			rotscrnang = buildlook(0);
 			smoothratio = MaxSmoothRatio;
 		}
