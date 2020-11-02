@@ -661,7 +661,7 @@ void spawneffector(DDukeActor* actor)
 			changespritestat(actor, STAT_TRANSPORT);
 			return;
 		case SE_1_PIVOT:
-			sp->owner = -1;
+			actor->SetOwner(nullptr);
 			t[0] = 1;
 			break;
 		case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
@@ -683,7 +683,7 @@ void spawneffector(DDukeActor* actor)
 			break;
 
 		case SE_19_EXPLOSION_LOWERS_CEILING:
-			sp->owner = -1;
+			actor->SetOwner(nullptr);
 			break;
 		case SE_25_PISTON: // Pistons
 			if (!isRR())
@@ -717,17 +717,16 @@ void spawneffector(DDukeActor* actor)
 			break;
 
 		case SE_13_EXPLOSIVE:
-
+		{
 			t[0] = sector[sect].ceilingz;
 			t[1] = sector[sect].floorz;
 
-			if (abs(t[0] - sp->z) < abs(t[1] - sp->z))
-				sp->owner = 1;
-			else sp->owner = 0;
+			bool ceiling = (abs(t[0] - sp->z) < abs(t[1] - sp->z));
+			sp->owner = ceiling; // hijack
 
 			if (sp->ang == 512)
 			{
-				if (sp->owner)
+				if (ceiling)
 					sector[sect].ceilingz = sp->z;
 				else
 					sector[sect].floorz = sp->z;
@@ -740,7 +739,7 @@ void spawneffector(DDukeActor* actor)
 				sector[sect].ceilingstat ^= 1;
 				t[3] = 1;
 
-				if (!sp->owner && sp->ang == 512)
+				if (!ceiling && sp->ang == 512)
 				{
 					sector[sect].ceilingstat ^= 1;
 					t[3] = 0;
@@ -770,7 +769,7 @@ void spawneffector(DDukeActor* actor)
 			}
 
 			break;
-
+		}
 		case SE_17_WARP_ELEVATOR:
 		{
 			t[2] = sector[sect].floorz; //Stopping loc
@@ -846,8 +845,7 @@ void spawneffector(DDukeActor* actor)
 			sector[sect].floorshade = sp->shade;
 			sector[sect].ceilingshade = sp->shade;
 
-			sp->owner = sector[sect].ceilingpal << 8;
-			sp->owner |= sector[sect].floorpal;
+			sp->owner = (sector[sect].ceilingpal << 8) | sector[sect].floorpal; // hijack
 
 			//fix all the walls;
 
@@ -899,8 +897,7 @@ void spawneffector(DDukeActor* actor)
 			startwall = sector[sect].wallptr;
 			endwall = startwall + sector[sect].wallnum;
 
-			sp->owner = sector[sect].ceilingpal << 8;
-			sp->owner |= sector[sect].floorpal;
+			sp->owner = (sector[sect].ceilingpal << 8) | sector[sect].floorpal; // hijack
 
 			for (s = startwall; s < endwall; s++)
 				if (wall[s].shade > t[3])
@@ -1040,7 +1037,7 @@ void spawneffector(DDukeActor* actor)
 					I_Error("Subway found no zero'd sectors with locators\nat (%d,%d).\n", sp->x, sp->y);
 				}
 
-				sp->owner = -1;
+				actor->SetOwner(nullptr);
 				t[0] = s;
 
 				if (sp->lotag != 30)

@@ -5216,7 +5216,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 	{
 		auto holoduke = !isRR()? ps[playernum].holoduke_on : nullptr;
 
-		// NOTE: looks like 'owner' is set to target sprite ID...
+		// NOTE: looks like 'Owner' is set to target sprite ID...
 
 		if (holoduke && cansee(holoduke->s.x, holoduke->s.y, holoduke->s.z, holoduke->s.sectnum, s->x, s->y, s->z, s->sectnum))
 			actor->SetOwner(holoduke);
