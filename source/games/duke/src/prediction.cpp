@@ -180,7 +180,7 @@ void fakedomovethings(void)
 						psectlotag = 0;
 						spritebridge = 1;
 				 }
-				 if(badguy(chz.actor) && sprite[j].xrepeat > 24 && klabs(p->GetActor()->s.z- chz.actor->s.z) < (84<<8) )
+				 if(badguy(chz.actor) && chz.actor->s.xrepeat > 24 && klabs(p->GetActor()->s.z- chz.actor->s.z) < (84<<8) )
 				 {
 					j = getangle(chz.actor->s.x-myx, chz.actor->s.y-myy);
 					myxvel -= sintable[(j+512)&2047]<<4;
