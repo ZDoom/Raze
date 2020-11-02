@@ -1399,7 +1399,7 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 				p->GetActor()->s.extra -= 5;
 				p->hurt_delay = 16;
 				SetPlayerPal(p, PalEntry(32, 32, 0, 0));
-				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
+				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 			}
 			break;
 		}
@@ -1449,8 +1449,8 @@ bool checkhitceiling_r(int sn)
 	case RRTILE2898:
 
 
-		ceilingglass(ps[myconnectindex].i, sn, 10);
-		S_PlayActorSound(GLASS_BREAKING, ps[screenpeek].i);
+		ceilingglass(ps[myconnectindex].GetActor(), sn, 10);
+		S_PlayActorSound(GLASS_BREAKING, ps[screenpeek].GetActor());
 
 		if (sector[sn].ceilingpicnum == WALLLIGHT1)
 			sector[sn].ceilingpicnum = WALLLIGHTBUST1;
@@ -2439,6 +2439,7 @@ void checksectors_r(int snum)
 	int neartaghitdist;
 
 	p = &ps[snum];
+	auto pact = p->GetActor();
 
 	switch (sector[p->cursectnum].lotag)
 	{
@@ -2465,7 +2466,7 @@ void checksectors_r(int snum)
 		if (sector[p->cursectnum].lotag >= 10000)
 		{
 			if (snum == screenpeek || ud.coop == 1)
-				S_PlayActorSound(sector[p->cursectnum].lotag - 10000, p->i);
+				S_PlayActorSound(sector[p->cursectnum].lotag - 10000, pact);
 			sector[p->cursectnum].lotag = 0;
 		}
 		break;
@@ -2496,20 +2497,20 @@ void checksectors_r(int snum)
 			if (hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR && snum == screenpeek)
 				if (numplayers == 1)
 				{
-					if (S_CheckActorSoundPlaying(p->i, 27) == 0 && S_CheckActorSoundPlaying(p->i, 28) == 0 && S_CheckActorSoundPlaying(p->i, 29) == 0
-						&& S_CheckActorSoundPlaying(p->i, 257) == 0 && S_CheckActorSoundPlaying(p->i, 258) == 0)
+					if (S_CheckActorSoundPlaying(pact, 27) == 0 && S_CheckActorSoundPlaying(pact, 28) == 0 && S_CheckActorSoundPlaying(pact, 29) == 0
+						&& S_CheckActorSoundPlaying(pact, 257) == 0 && S_CheckActorSoundPlaying(pact, 258) == 0)
 					{
 						short snd = krand() % 5;
 						if (snd == 0)
-							S_PlayActorSound(27, p->i);
+							S_PlayActorSound(27, pact);
 						else if (snd == 1)
-							S_PlayActorSound(28, p->i);
+							S_PlayActorSound(28, pact);
 						else if (snd == 2)
-							S_PlayActorSound(29, p->i);
+							S_PlayActorSound(29, pact);
 						else if (snd == 3)
-							S_PlayActorSound(257, p->i);
+							S_PlayActorSound(257, pact);
 						else if (snd == 4)
-							S_PlayActorSound(258, p->i);
+							S_PlayActorSound(258, pact);
 					}
 					return;
 				}
@@ -2517,9 +2518,9 @@ void checksectors_r(int snum)
 		else
 		{
 			if (hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR)
-		  		if (wall[hitscanwall].lotag > 0 && S_CheckActorSoundPlaying(p->i, wall[hitscanwall].lotag) == 0 && snum == screenpeek)
+		  		if (wall[hitscanwall].lotag > 0 && S_CheckActorSoundPlaying(pact, wall[hitscanwall].lotag) == 0 && snum == screenpeek)
 				{
-					S_PlayActorSound(wall[hitscanwall].lotag, p->i);
+					S_PlayActorSound(wall[hitscanwall].lotag, pact);
 					return;
 				}
 		}
@@ -2663,7 +2664,7 @@ void checksectors_r(int snum)
 			case RRTILE2122:
 				if (p->last_pissed_time == 0)
 				{
-					S_PlayActorSound(435, p->i);
+					S_PlayActorSound(435, pact);
 
 					p->last_pissed_time = 26 * 220;
 					p->transporter_hold = 29 * 2;
@@ -2680,8 +2681,8 @@ void checksectors_r(int snum)
 					else if (p->GetActor()->s.extra < max_player_health)
 						p->GetActor()->s.extra = max_player_health;
 				}
-				else if (S_CheckActorSoundPlaying(p->i, DUKE_GRUNT) == 0)
-					S_PlayActorSound(DUKE_GRUNT, p->i);
+				else if (S_CheckActorSoundPlaying(pact, DUKE_GRUNT) == 0)
+					S_PlayActorSound(DUKE_GRUNT, pact);
 				return;
 			case WATERFOUNTAIN:
 				if (neartagsprite->temp_data[0] != 1)
@@ -2692,12 +2693,12 @@ void checksectors_r(int snum)
 					if (p->GetActor()->s.extra < max_player_health)
 					{
 						p->GetActor()->s.extra++;
-						S_PlayActorSound(DUKE_DRINKING, p->i);
+						S_PlayActorSound(DUKE_DRINKING, pact);
 					}
 				}
 				return;
 			case PLUG:
-				S_PlayActorSound(SHORT_CIRCUIT, p->i);
+				S_PlayActorSound(SHORT_CIRCUIT, pact);
 				p->GetActor()->s.extra -= 2 + (krand() & 3);
 				SetPlayerPal(p, PalEntry(32, 48, 48, 64));
 				break;
@@ -2710,8 +2711,8 @@ void checksectors_r(int snum)
 			if (abs(hits(p->GetActor())) < 512)
 			{
 				if ((krand() & 255) < 16)
-					S_PlayActorSound(DUKE_SEARCH2, p->i);
-				else S_PlayActorSound(DUKE_SEARCH, p->i);
+					S_PlayActorSound(DUKE_SEARCH2, pact);
+				else S_PlayActorSound(DUKE_SEARCH, pact);
 				return;
 			}
 
@@ -2739,9 +2740,9 @@ void checksectors_r(int snum)
 			else
 			{
 				if (neartagsprite->spriteextra > 3)
-					S_PlayActorSound(99, p->i);
+					S_PlayActorSound(99, pact);
 				else
-					S_PlayActorSound(419, p->i);
+					S_PlayActorSound(419, pact);
 				FTA(41, p);
 			}
 		}
@@ -2759,9 +2760,9 @@ void checksectors_r(int snum)
 				else
 				{
 					if (neartagsprite->spriteextra > 3)
-						S_PlayActorSound(99, p->i);
+						S_PlayActorSound(99, pact);
 					else
-						S_PlayActorSound(419, p->i);
+						S_PlayActorSound(419, pact);
 					FTA(41, p);
 				}
 			}
@@ -2832,8 +2833,8 @@ void dofurniture(int wl, int sect, int snum)
 		var_C = 0;
 	if (var_C)
 	{
-		if (S_CheckActorSoundPlaying(ps[snum].i, 389) == 0)
-			S_PlayActorSound(389, ps[snum].i);
+		if (S_CheckActorSoundPlaying(ps[snum].GetActor(), 389) == 0)
+			S_PlayActorSound(389, ps[snum].GetActor());
 		for (i = startwall; i < endwall; i++)
 		{
 			x = wall[i].x;

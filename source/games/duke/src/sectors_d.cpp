@@ -599,7 +599,7 @@ bool checkhitswitch_d(int snum, int ww, DDukeActor *act)
 			if (act && (flags & SF_TALK) == 0)
 				S_PlaySound3D(hitag, act, &v);
 			else
-				S_PlayActorSound(hitag, ps[snum].i);
+				S_PlayActorSound(hitag, ps[snum].GetActor());
 		}
 
 		return 1;
@@ -961,8 +961,8 @@ bool checkhitceiling_d(int sn)
 	case TECHLIGHT2:
 	case TECHLIGHT4:
 
-		ceilingglass(ps[myconnectindex].i, sn, 10);
-		S_PlayActorSound(GLASS_BREAKING, ps[screenpeek].i);
+		ceilingglass(ps[myconnectindex].GetActor(), sn, 10);
+		S_PlayActorSound(GLASS_BREAKING, ps[screenpeek].GetActor());
 
 		if (sector[sn].ceilingpicnum == WALLLIGHT1)
 			sector[sn].ceilingpicnum = WALLLIGHTBUST1;
@@ -1499,6 +1499,7 @@ void checksectors_d(int snum)
 	int neartaghitdist;
 
 	p = &ps[snum];
+	auto pact = p->GetActor();
 
 	switch (sector[p->cursectnum].lotag)
 	{
@@ -1521,7 +1522,7 @@ void checksectors_d(int snum)
 		if (sector[p->cursectnum].lotag >= 10000 && sector[p->cursectnum].lotag < 16383)
 		{
 			if (snum == screenpeek || ud.coop == 1)
-				S_PlayActorSound(sector[p->cursectnum].lotag - 10000, p->i);
+				S_PlayActorSound(sector[p->cursectnum].lotag - 10000, pact);
 			sector[p->cursectnum].lotag = 0;
 		}
 		break;
@@ -1569,7 +1570,7 @@ void checksectors_d(int snum)
 		if (i < 1280 && hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR)
 			if (wall[hitscanwall].lotag > 0 && S_CheckSoundPlaying(wall[hitscanwall].lotag) == 0 && snum == screenpeek)
 			{
-				S_PlayActorSound(wall[hitscanwall].lotag, p->i);
+				S_PlayActorSound(wall[hitscanwall].lotag, pact);
 				return;
 			}
 
@@ -1693,7 +1694,7 @@ void checksectors_d(int snum)
 				}
 				return;
 			case PLUG:
-				S_PlayActorSound(SHORT_CIRCUIT, p->i);
+				S_PlayActorSound(SHORT_CIRCUIT, pact);
 				p->GetActor()->s.extra -= 2 + (krand() & 3);
 				SetPlayerPal(p, PalEntry(32, 48, 48, 64));
 				break;
@@ -1758,8 +1759,8 @@ void checksectors_d(int snum)
 			if (abs(hits(p->GetActor())) < 512)
 			{
 				if ((krand() & 255) < 16)
-					S_PlayActorSound(DUKE_SEARCH2, p->i);
-				else S_PlayActorSound(DUKE_SEARCH, p->i);
+					S_PlayActorSound(DUKE_SEARCH2, pact);
+				else S_PlayActorSound(DUKE_SEARCH, pact);
 				return;
 			}
 
