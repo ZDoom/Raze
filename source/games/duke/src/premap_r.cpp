@@ -536,10 +536,11 @@ void prelevel_r(int g)
 					speed = sj->hitag;
 					for (ii = 0; ii < MAXSPRITES; ii++)
 					{
-						if (sprite[ii].picnum == RRTILE66)
-							if (sprite[ii].lotag == sj->sectnum)
+						auto spr = &sprite[ii];
+						if (spr->picnum == RRTILE66)
+							if (spr->lotag == sj->sectnum)
 							{
-								childsectnum = sprite[ii].sectnum;
+								childsectnum = spr->sectnum;
 								deletesprite(ii);
 							}
 					}
@@ -728,11 +729,11 @@ void prelevel_r(int g)
 				if (lotaglist > 64)
 					I_Error("Too many switches (64 max).");
 
-				StatIterator it1(STAT_EFFECTOR);
-				while ((j = it1.NextIndex()) >= 0)
+				DukeStatIterator it1(STAT_EFFECTOR);
+				while (auto j = it1.Next())
 				{
-					if (sprite[j].lotag == 12 && sprite[j].hitag == spr->lotag)
-						hittype[j].temp_data[0] = 1;
+					if (j->s.lotag == 12 && j->s.hitag == spr->lotag)
+						j->temp_data[0] = 1;
 				}
 			}
 			break;

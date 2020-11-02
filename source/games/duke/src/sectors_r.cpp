@@ -2394,7 +2394,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				targ->extra += pspr->extra;
 				if (s->picnum != COW)
 					targ->ang = pspr->ang;
-				targ->owner = pspr->owner;
+				targ->SetHitOwner(proj->GetOwner());
 			}
 
 			if (s->statnum == 10)

@@ -74,7 +74,7 @@ struct weaponhit
 		owner = a->GetIndex();
 	}
 
-	// This used the owner field - better move this to something more safe.
+	// This used the Owner field - better move this to something more safe.
 	inline bool IsActiveCrane()
 	{
 		return palvals == -2;
@@ -131,7 +131,6 @@ struct user_defs
 	unsigned char user_pals[MAXPLAYERS];
 
 	short from_bonus;
-	short camerasprite, last_camsprite;
 	short last_level, secretlevel;
 
 	int const_visibility;
@@ -147,6 +146,8 @@ struct user_defs
 	int m_ffire, ffire, m_player_skill, multimode;
 	int player_skill, marker;
 	//MapRecord* nextLevel;
+
+	DDukeActor* cameraactor;
 
 };
 

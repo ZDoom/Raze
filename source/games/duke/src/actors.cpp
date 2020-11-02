@@ -4484,7 +4484,7 @@ void handle_se27(DDukeActor* actor)
 	{
 		if (t[0] < 0)
 		{
-			ud.camerasprite = actor->GetIndex();
+			ud.cameraactor = actor;
 			t[0]++;
 		}
 		else if (ud.recstat == 2 && ps[p].newowner == -1)
@@ -4493,7 +4493,7 @@ void handle_se27(DDukeActor* actor)
 			{
 				if (x < (unsigned)sh)
 				{
-					ud.camerasprite = actor->GetIndex();
+					ud.cameraactor = actor;
 					t[0] = 999;
 					s->ang += getincangle(s->ang, getangle(ps[p].posx - s->x, ps[p].posy - s->y)) >> 3;
 					s->yvel = 100 + ((s->z - ps[p].posz) / 257);
@@ -4501,10 +4501,10 @@ void handle_se27(DDukeActor* actor)
 				}
 				else if (t[0] == 999)
 				{
-					if (ud.camerasprite == actor->GetIndex())
+					if (ud.cameraactor == actor)
 						t[0] = 0;
 					else t[0] = -10;
-					ud.camerasprite = actor->GetIndex();
+					ud.cameraactor = actor;
 
 				}
 			}
@@ -4514,10 +4514,10 @@ void handle_se27(DDukeActor* actor)
 
 				if (t[0] == 999)
 				{
-					if (ud.camerasprite == actor->GetIndex())
+					if (ud.cameraactor == actor)
 						t[0] = 0;
 					else t[0] = -20;
-					ud.camerasprite = actor->GetIndex();
+					ud.cameraactor = actor;
 				}
 			}
 		}

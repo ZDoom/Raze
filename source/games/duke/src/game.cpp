@@ -291,7 +291,7 @@ void GameInterface::app_init()
 	ud.multimode = 1;
 	ud.m_monsters_off = userConfig.nomonsters;
 	ps[0].aim_mode = 1;
-	ud.camerasprite = -1;
+	ud.cameraactor = nullptr;
 
 	if (fileSystem.FileExists("DUKESW.BIN"))
 		g_gameType |= GAMEFLAG_SHAREWARE;

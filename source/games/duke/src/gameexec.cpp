@@ -136,8 +136,8 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor*
 		break;
 
 	case USERDEFS_CAMERASPRITE:
-		if (bSet) ud.camerasprite = lValue;
-		else SetGameVarID((int)lVar2, ud.camerasprite, sActor, sPlayer);
+		if (bSet) ud.cameraactor = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ud.cameraactor), sActor, sPlayer);
 		break;
 
 	case USERDEFS_LAST_CAMSPRITE:

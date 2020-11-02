@@ -416,7 +416,7 @@ void resetprestat(int snum,int g)
     parallaxtype            = 0;
     randomseed              = 17L;
     paused             = 0;
-    ud.camerasprite         =-1;
+    ud.cameraactor =nullptr;
     tempwallptr             = 0;
     camsprite               =-1;
     earthquaketime          = 0;

@@ -50,9 +50,6 @@ BEGIN_DUKE_NS
 
 DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, DDukeActor* s_ow, signed char s_ss) 
 {
-	//if (isRR() && s_ow < 0 && !force)	// should never happen, the only owner-less spawn outside of map start is for the Holoduke, which is Duke only
-		//return 0;
-
 	int const i = insertsprite(whatsect, s_ss);
 
 	if (i < 0)
@@ -188,7 +185,7 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 			if (!isIn(sp->picnum, excludes) && (sp->cstat & 48))
 			{
 				if (sp->shade == 127) return i;
-				if (wallswitchcheck(i) && (sp->cstat & 16))
+				if (wallswitchcheck(act) && (sp->cstat & 16))
 				{
 					if (sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2 && sp->pal)
 					{

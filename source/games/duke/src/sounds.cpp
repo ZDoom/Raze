@@ -293,7 +293,7 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, int sectNum,
 
 void S_GetCamera(vec3_t** c, int32_t* ca, int32_t* cs)
 {
-	if (ud.camerasprite == -1)
+	if (ud.cameraactor == nullptr)
 	{
 		auto p = &ps[screenpeek];
 		if (c) *c = &p->pos;
@@ -302,9 +302,9 @@ void S_GetCamera(vec3_t** c, int32_t* ca, int32_t* cs)
 	}
 	else
 	{
-		if (c) *c = &sprite[ud.camerasprite].pos;
-		if (cs) *cs = sprite[ud.camerasprite].sectnum;
-		if (ca) *ca = sprite[ud.camerasprite].ang;
+		if (c) *c =  &ud.cameraactor->s.pos;
+		if (cs) *cs = ud.cameraactor->s.sectnum;
+		if (ca) *ca = ud.cameraactor->s.ang;
 	}
 }
 
@@ -396,7 +396,7 @@ void GameInterface::UpdateSounds(void)
 		listener.Environment = nullptr;
 		listener.valid = false;
 	}
-	listener.ListenerObject = ud.camerasprite == -1 ? nullptr : &sprite[ud.camerasprite];
+	listener.ListenerObject = ud.cameraactor == nullptr ? nullptr : &ud.cameraactor->s;
 	soundEngine->SetListener(listener);
 }
 

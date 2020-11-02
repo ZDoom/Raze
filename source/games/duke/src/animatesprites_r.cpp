@@ -475,7 +475,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 				t1 = ScriptCode[actorinfo[APLAYER].scriptaddress + 2];
 			}
 
-			if (ud.camerasprite == -1 && ps[p].newowner == -1)
+			if (ud.cameraactor == nullptr && ps[p].newowner == -1)
 				if (s->owner >= 0 && display_mirror == 0 && ps[p].over_shoulder_on == 0)
 					if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
 					{
@@ -940,7 +940,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			if (Owner && Owner->statnum < MAXSTATUS)
 			{
 				if (Owner->picnum == APLAYER)
-					if (ud.camerasprite == -1)
+					if (ud.cameraactor == nullptr)
 						if (screenpeek == Owner->yvel && display_mirror == 0)
 						{
 							t->owner = -1;

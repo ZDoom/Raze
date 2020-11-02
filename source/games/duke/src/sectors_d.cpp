@@ -1710,7 +1710,7 @@ void checksectors_d(int snum)
 						spr->yvel = 1; //Using this camera
 						if (snum == screenpeek) S_PlaySound(MONITOR_ACTIVE);
 
-						neartagsprite->s.owner = i;
+						neartagsprite->SetOwner(acti);
 						neartagsprite->s.yvel = 1;
 						camsprite = neartagsprite->GetIndex();
 

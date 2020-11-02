@@ -518,16 +518,16 @@ void displayrooms(int snum, double smoothratio)
 	// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
 	// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
 	setgamepalette(p->palette);
-	if (ud.camerasprite >= 0)
+	if (ud.cameraactor)
 	{
 		spritetype* s;
 
-		s = &sprite[ud.camerasprite];
+		s = &ud.cameraactor->s;
 
 		if (s->yvel < 0) s->yvel = -100;
 		else if (s->yvel > 199) s->yvel = 300;
 
-		cang = buildang(hittype[ud.camerasprite].tempang + xs_CRoundToInt(fmulscale16(((s->ang + 1024 - hittype[ud.camerasprite].tempang) & 2047) - 1024, smoothratio)));
+		cang = buildang(ud.cameraactor->tempang + xs_CRoundToInt(fmulscale16(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio)));
 
 		auto bh = buildhoriz(s->yvel);
 		se40code(s->x, s->y, s->z, cang, bh, smoothratio);
