@@ -228,19 +228,18 @@ int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes
 //
 //---------------------------------------------------------------------------
 
-void spawninitdefault(int j, int i)
+void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 {
-	auto act = &hittype[i];
 	auto sp = &act->s;
 	auto sect = sp->sectnum;
 
 	if (actorinfo[sp->picnum].scriptaddress)
 	{
-		if (j == -1 && sp->lotag > ud.player_skill)
+		if (actj == nullptr && sp->lotag > ud.player_skill)
 		{
 			// make it go away...
 			sp->xrepeat = sp->yrepeat = 0;
-			changespritestat(i, STAT_MISC);
+			changespritestat(act, STAT_MISC);
 			return;
 		}
 
@@ -253,11 +252,11 @@ void spawninitdefault(int j, int i)
 			if (ud.monsters_off == 1)
 			{
 				sp->xrepeat = sp->yrepeat = 0;
-				changespritestat(i, STAT_MISC);
+				changespritestat(act, STAT_MISC);
 				return;
 			}
 
-			makeitfall(i);
+			makeitfall(act);
 
 			if (actorflag(act, SFLAG_BADGUYSTAYPUT))
 				act->actorstayput = sp->sectnum;
@@ -266,25 +265,25 @@ void spawninitdefault(int j, int i)
 				ps[myconnectindex].max_actors_killed++;
 
 			sp->clipdist = 80;
-			if (j >= 0)
+			if (actj)
 			{
-				if (sprite[j].picnum == RESPAWN)
-					act->tempang = sp->pal = sprite[j].pal;
-				changespritestat(i, STAT_ACTOR);
+				if (actj->s.picnum == RESPAWN)
+					act->tempang = sp->pal = actj->s.pal;
+				changespritestat(act, STAT_ACTOR);
 			}
-			else changespritestat(i, STAT_ZOMBIEACTOR);
+			else changespritestat(act, STAT_ZOMBIEACTOR);
 		}
 		else
 		{
 			sp->clipdist = 40;
-			sp->owner = i;
-			changespritestat(i, STAT_ACTOR);
+			act->SetOwner(act);
+			changespritestat(act, STAT_ACTOR);
 		}
 
 		act->timetosleep = 0;
 
-		if (j >= 0)
-			sp->ang = sprite[j].ang;
+		if (actj)
+			sp->ang = actj->s.ang;
 	}
 }
 
@@ -298,15 +297,16 @@ void spawntransporter(int j, int i, bool beam)
 {
 	if (j == -1) return;
 	auto sp = &sprite[i];
+	auto spj = &sprite[j];
 	if (beam)
 	{
 		sp->xrepeat = 31;
 		sp->yrepeat = 1;
-		sp->z = sector[sprite[j].sectnum].floorz - (40 << 8);
+		sp->z = sector[spj->sectnum].floorz - (40 << 8);
 	}
 	else
 	{
-		if (sprite[j].statnum == 4)
+		if (spj->statnum == 4)
 		{
 			sp->xrepeat = 8;
 			sp->yrepeat = 8;
@@ -315,14 +315,14 @@ void spawntransporter(int j, int i, bool beam)
 		{
 			sp->xrepeat = 48;
 			sp->yrepeat = 64;
-			if (sprite[j].statnum == 10 || badguy(&sprite[j]))
+			if (spj->statnum == 10 || badguy(spj))
 				sp->z -= (32 << 8);
 		}
 	}
 
 	sp->shade = -127;
 	sp->cstat = 128 | 2;
-	sp->ang = sprite[j].ang;
+	sp->ang = spj->ang;
 
 	sp->xvel = 128;
 	changespritestat(i, STAT_MISC);
@@ -961,15 +961,16 @@ void spawneffector(int i)
 
 				for (j = 0; j < MAXSPRITES; j++)
 				{
-					if (sprite[j].statnum < MAXSTATUS)
-						if (sprite[j].picnum == SECTOREFFECTOR &&
-							sprite[j].lotag == 1 &&
-							sprite[j].hitag == sp->hitag)
+					auto spr = &sprite[j];
+					if (spr->statnum < MAXSTATUS)
+						if (spr->picnum == SECTOREFFECTOR &&
+							spr->lotag == 1 &&
+							spr->hitag == sp->hitag)
 						{
 							if (sp->ang == 512)
 							{
-								sp->x = sprite[j].x;
-								sp->y = sprite[j].y;
+								sp->x = spr->x;
+								sp->y = spr->y;
 							}
 							break;
 						}

@@ -43,16 +43,18 @@ int spawn_r(int j, int pn)
 	int i = initspriteforspawn(j, pn, { CRACK1, CRACK2, CRACK3, CRACK4 });
 	if (!(i & 0x1000000)) return i;
 	i &= 0xffffff;
-	auto sp = &sprite[i];
-	auto spj = &sprite[j];
-	auto t = hittype[i].temp_data;
+	auto act = &hittype[i];
+	auto sp = &act->s;
+	auto actj = j <0? nullptr : &hittype[j];
+	auto spj = j < 0? nullptr : &actj->s;
+	auto t = act->temp_data;
 	int sect = sp->sectnum;
 
 	switch(sp->picnum)
 	{
 			default:
 			default_case:
-				spawninitdefault(j, i);
+				spawninitdefault(actj, act);
 				break;
 			case RRTILE280:
 			case RRTILE281:
@@ -1051,10 +1053,10 @@ int spawn_r(int j, int pn)
 						hittype[i].timetosleep = 0;
 						check_fta_sounds_r(&hittype[i]);
 						changespritestat(i,1);
+						sp->shade = spj->shade;
 					}
 					else changespritestat(i,2);
 
-					sp->shade = spj->shade;
 				}
 
 				break;

@@ -186,7 +186,7 @@ void checkplayerhurt_r(struct player_struct* p, const Collision& coll);
 void addspritetodelete(int spnum=0);
 void checkavailinven(struct player_struct* p);
 int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes);
-void spawninitdefault(int j, int i);
+void spawninitdefault(DDukeActor* actj, DDukeActor* act);
 void spawntransporter(int j, int i, bool beam);
 int spawnbloodpoolpart1(int j, int i);
 void initfootprint(int j, int i);

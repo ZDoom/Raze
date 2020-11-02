@@ -48,9 +48,11 @@ int spawn_d(int j, int pn)
 	int i = initspriteforspawn(j, pn, { CRACK1, CRACK2, CRACK3, CRACK4, SPEAKER, LETTER, DUCK, TARGET, TRIPBOMB, VIEWSCREEN, VIEWSCREEN2 });
     if (!(i & 0x1000000)) return i;
     i &= 0xffffff;
-    auto sp = &sprite[i];
-    auto spj = &sprite[j];
-    auto t = hittype[i].temp_data;
+    auto act = &hittype[i];
+    auto sp = &act->s;
+    auto actj = &hittype[j];
+    auto spj = &actj->s;
+    auto t = act->temp_data;
     int sect = sp->sectnum;
 
 
@@ -146,7 +148,7 @@ int spawn_d(int j, int pn)
     switch(sp->picnum)
     {
             default:
-				spawninitdefault(j, i);
+				spawninitdefault(actj, act);
                 break;
             case FOF:
                 sp->xrepeat = sp->yrepeat = 0;
