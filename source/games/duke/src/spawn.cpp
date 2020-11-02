@@ -168,7 +168,8 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 		act->bposy = sp->y;
 		act->bposz = sp->z;
 
-		sp->owner = act->owner = i;
+		act->SetOwner(act);
+		act->SetHitOwner(act);
 		act->cgg = 0;
 		act->movflag = 0;
 		act->tempang = 0;
@@ -722,7 +723,7 @@ void spawneffector(DDukeActor* actor)
 			t[1] = sector[sect].floorz;
 
 			bool ceiling = (abs(t[0] - sp->z) < abs(t[1] - sp->z));
-			sp->owner = ceiling; // hijack
+			actor->spriteextra = ceiling;
 
 			if (sp->ang == 512)
 			{
@@ -845,7 +846,7 @@ void spawneffector(DDukeActor* actor)
 			sector[sect].floorshade = sp->shade;
 			sector[sect].ceilingshade = sp->shade;
 
-			sp->owner = (sector[sect].ceilingpal << 8) | sector[sect].floorpal; // hijack
+			actor->palvals = (sector[sect].ceilingpal << 8) | sector[sect].floorpal;
 
 			//fix all the walls;
 
@@ -897,7 +898,7 @@ void spawneffector(DDukeActor* actor)
 			startwall = sector[sect].wallptr;
 			endwall = startwall + sector[sect].wallnum;
 
-			sp->owner = (sector[sect].ceilingpal << 8) | sector[sect].floorpal; // hijack
+			actor->palvals = (sector[sect].ceilingpal << 8) | sector[sect].floorpal;
 
 			for (s = startwall; s < endwall; s++)
 				if (wall[s].shade > t[3])

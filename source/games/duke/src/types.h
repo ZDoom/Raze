@@ -28,7 +28,12 @@ struct weaponhit
 	short picnum, ang, extra, owner, movflag;
 	short tempang, actorstayput, dispicnum;
 	short timetosleep;
-	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags, saved_ammo;
+	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags;
+	union
+	{
+		int saved_ammo;
+		int palvals;
+	};
 	int temp_data[6];
 	weaponhit* temp_actor, *seek_actor;
 	spritetype& s;	// direct reference to the corresponding sprite.
@@ -69,15 +74,15 @@ struct weaponhit
 		owner = a->GetIndex();
 	}
 
-	// The crane is a good example of an actor hijacking the 'owner' field for something other than an actual owner. Abstract this away.
+	// This used the owner field - better move this to something more safe.
 	inline bool IsActiveCrane()
 	{
-		return s.owner == -2;
+		return palvals == -2;
 	}
 
 	inline void SetActiveCrane(bool yes)
 	{
-		s.owner = yes ? -2 : -1;
+		palvals = yes ? -2 : -1;
 	}
 
 	int PlayerIndex() const

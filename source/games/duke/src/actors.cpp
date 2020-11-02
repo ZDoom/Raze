@@ -3308,7 +3308,7 @@ void handle_se03(DDukeActor *actor)
 	if (t[4] == 0) return;
 	int x, p = findplayer(actor, &x);
 
-	int palvals = s->owner;	// this type hijacks the Owner field!!!
+	int palvals = actor->palvals;
 
 	//	if(t[5] > 0) { t[5]--; break; }
 
@@ -3360,7 +3360,7 @@ void handle_se04(DDukeActor *actor)
 	int sh = s->hitag;
 	int j;
 
-	int palvals = s->owner;	// this type hijacks the Owner field!!!
+	int palvals = actor->palvals;
 
 	if ((global_random / (sh + 1) & 31) < 4)
 	{
@@ -3814,7 +3814,7 @@ void handle_se13(DDukeActor* actor)
 
 		if (s->ang == 512)
 		{
-			if (s->owner) // hijacked!
+			if (actor->spriteextra)
 			{
 				if (abs(t[0] - sc->ceilingz) >= j)
 					sc->ceilingz += sgn(t[0] - sc->ceilingz) * j;
