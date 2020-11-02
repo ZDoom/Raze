@@ -727,7 +727,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 				}
 				case STAINGLASS1:
 					updatesector(x, y, &sn); if (sn < 0) return;
-					lotsofcolourglass(spr->GetIndex(), dawallnum, 80);
+					lotsofcolourglass(spr, dawallnum, 80);
 					wal->cstat = 0;
 					if (wal->nextwall >= 0)
 						wall[wal->nextwall].cstat = 0;
@@ -1188,7 +1188,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 			fi.lotsofmoney(targ, 4 + (krand() & 3));
 		else if (s->picnum == STATUE || s->picnum == STATUEFLASH)
 		{
-			lotsofcolourglass(targ->GetIndex(), -1, 40);
+			lotsofcolourglass(targ, -1, 40);
 			S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		}
 		else if (s->picnum == VASE)

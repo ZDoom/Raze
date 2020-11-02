@@ -1202,20 +1202,20 @@ void ceilingglass(int i, int sectnum, int n)
 //
 //---------------------------------------------------------------------------
 
-void lotsofcolourglass(int i, int wallnum, int n)
+void lotsofcolourglass(DDukeActor* actor, int wallnum, int n)
 {
 	int j, xv, yv, z, x1, y1;
 	short sect = -1;
-	int a, k;
-	auto sp = &sprite[i];
+	int a;;
+	auto sp = &actor->s;
 
 	if (wallnum < 0)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = krand() & 2047;
-			k = EGS(sp->sectnum, sp->x, sp->y, sp->z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), i, 5);
-			sprite[k].pal = krand() & 15;
+			auto k = EGS(sp->sectnum, sp->x, sp->y, sp->z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
+			k->s.pal = krand() & 15;
 		}
 		return;
 	}
@@ -1237,8 +1237,8 @@ void lotsofcolourglass(int i, int wallnum, int n)
 		if (z < -(32 << 8) || z >(32 << 8))
 			z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 		a = sp->ang - 1024;
-		k = EGS(sp->sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 2047), i, 5);
-		sprite[k].pal = krand() & 7;
+		auto k = EGS(sp->sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 2047), actor, 5);
+		k->s.pal = krand() & 7;
 	}
 }
 

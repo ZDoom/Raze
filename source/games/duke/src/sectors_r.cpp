@@ -918,20 +918,20 @@ void activatebysector_r(int sect, DDukeActor* activator)
 //
 //---------------------------------------------------------------------------
 
-static void lotsofpopcorn(short i, short wallnum, short n)
+static void lotsofpopcorn(DDukeActor *actor, short wallnum, short n)
 {
 	int j, xv, yv, z, x1, y1;
 	short sect, a;
 
 	sect = -1;
-	auto sp = &sprite[i];
+	auto sp = &actor->s;
 
 	if (wallnum < 0)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = sp->ang - 256 + (krand() & 511) + 1024;
-			EGS(sp->sectnum, sp->x, sp->y, sp->z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), i, 5);
+			EGS(sp->sectnum, sp->x, sp->y, sp->z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
 	}
@@ -962,7 +962,7 @@ static void lotsofpopcorn(short i, short wallnum, short n)
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 			a = sp->ang - 1024;
-			EGS(sp->sectnum, x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), i, 5);
+			EGS(sp->sectnum, x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
 }
@@ -1023,7 +1023,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 				{
 					updatesector(x, y, &sn); if (sn < 0) return;
 					wal->overpicnum = GLASS2;
-					lotsofpopcorn(spr->GetIndex(), dawallnum, 64);
+					lotsofpopcorn(spr, dawallnum, 64);
 					wal->cstat = 0;
 
 					if (wal->nextwall >= 0)
@@ -1055,7 +1055,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 				}
 				case STAINGLASS1:
 					updatesector(x, y, &sn); if (sn < 0) return;
-					lotsofcolourglass(spr->GetIndex(), dawallnum, 80);
+					lotsofcolourglass(spr, dawallnum, 80);
 					wal->cstat = 0;
 					if (wal->nextwall >= 0)
 						wall[wal->nextwall].cstat = 0;
@@ -2229,7 +2229,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			fi.lotsofmoney(targ, 4 + (krand() & 3));
 		else if (s->picnum == STATUE || s->picnum == STATUEFLASH)
 		{
-			lotsofcolourglass(targ->GetIndex(), -1, 40);
+			lotsofcolourglass(targ, -1, 40);
 			S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		}
 		else if (s->picnum == VASE)
@@ -2354,13 +2354,13 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 					if (pspr->picnum != FREEZEBLAST)
 						//if (actortype[s->picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
 						{
-							j = fi.spawn(proj->GetIndex(), JIBS6);
+							auto spawned = spawn(proj, JIBS6);
 							if (pspr->pal == 6)
-								sprite[j].pal = 6;
-							sprite[j].z += (4 << 8);
-							sprite[j].xvel = 16;
-							sprite[j].xrepeat = sprite[j].yrepeat = 24;
-							sprite[j].ang += 32 - (krand() & 63);
+								spawned->s.pal = 6;
+							spawned->s.z += (4 << 8);
+							spawned->s.xvel = 16;
+							spawned->s.xrepeat = spawned->s.yrepeat = 24;
+							spawned->s.ang += 32 - (krand() & 63);
 						}
 
 				j = pspr->owner;
