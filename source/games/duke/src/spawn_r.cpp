@@ -364,7 +364,7 @@ int spawn_r(int j, int pn)
 				sp->z -= (16<<8);
 				if(j >= 0 && spj->pal == 6)
 					sp->pal = 6;
-				insertspriteq(&hittype[i]);
+				insertspriteq(act);
 				changespritestat(i, STAT_MISC);
 				break;
 
@@ -558,7 +558,7 @@ int spawn_r(int j, int pn)
 				if(sp->picnum == RESPAWNMARKERRED)
 				{
 					sp->xrepeat = sp->yrepeat = 8;
-					if(j >= 0) sp->z = hittype[j].floorz;
+					if(j >= 0) sp->z = actj->floorz;
 				}
 				else
 				{
@@ -578,11 +578,11 @@ int spawn_r(int j, int pn)
 			case BULLETHOLE:
 				sp->xrepeat = sp->yrepeat = 3;
 				sp->cstat = 16+(krand()&12);
-				insertspriteq(&hittype[i]);
+				insertspriteq(act);
 			case MONEY:
 				if(sp->picnum == MONEY)
 				{
-					hittype[i].temp_data[0] = krand()&2047;
+					act->temp_data[0] = krand()&2047;
 					sp->cstat = krand()&12;
 					sp->xrepeat = sp->yrepeat = 8;
 					sp->ang = krand()&2047;
@@ -785,7 +785,7 @@ int spawn_r(int j, int pn)
 			case MINIONSTAYPUT:
 			case COOTSTAYPUT:
 			rrra_stayput:
-				hittype[i].actorstayput = sp->sectnum;
+				act->actorstayput = sp->sectnum;
 			case BOULDER:
 			case BOULDER1:
 			case RAT:
@@ -1044,14 +1044,14 @@ int spawn_r(int j, int pn)
 						sp->cstat |= 257;
 
 						if(sp->picnum != 5501)
-							if (actorfella(&hittype[i]))
+							if (actorfella(act))
 								ps[myconnectindex].max_actors_killed++;
 					}
 
 					if(j >= 0)
 					{
-						hittype[i].timetosleep = 0;
-						check_fta_sounds_r(&hittype[i]);
+						act->timetosleep = 0;
+						check_fta_sounds_r(act);
 						changespritestat(i,1);
 						sp->shade = spj->shade;
 					}
@@ -1092,7 +1092,7 @@ int spawn_r(int j, int pn)
 
 				getglobalz(i);
 
-				j = (hittype[i].floorz-hittype[i].ceilingz)>>9;
+				j = (act->floorz-act->ceilingz)>>9;
 
 				sp->yrepeat = j;
 				sp->xrepeat = 25-(j>>1);

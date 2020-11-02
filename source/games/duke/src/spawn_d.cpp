@@ -50,8 +50,8 @@ int spawn_d(int j, int pn)
     i &= 0xffffff;
     auto act = &hittype[i];
     auto sp = &act->s;
-    auto actj = j == -1 ? nullptr : &hittype[j];
-    auto spj = j == -1 ? nullptr : &actj->s;
+    auto actj = j < 0 ? nullptr : &hittype[j];
+    auto spj = j < 0 ? nullptr : &actj->s;
     auto t = act->temp_data;
     int sect = sp->sectnum;
 
@@ -63,7 +63,7 @@ int spawn_d(int j, int pn)
         case BOSS2STAYPUT:
         case BOSS3STAYPUT:
         case BOSS5STAYPUT:
-			hittype[i].actorstayput = sp->sectnum;
+			act->actorstayput = sp->sectnum;
 		case FIREFLY:
 		case BOSS5:
 			if (sp->picnum != FIREFLY) 
@@ -107,8 +107,8 @@ int spawn_d(int j, int pn)
 				ps[connecthead].max_actors_killed++;
 
 				if (j >= 0) {
-					hittype[i].timetosleep = 0;
-                    check_fta_sounds_d(&hittype[i]);
+					act->timetosleep = 0;
+                    check_fta_sounds_d(act);
 					changespritestat(i, 1);
 				} else
 					changespritestat(i, 2);
@@ -251,7 +251,7 @@ int spawn_d(int j, int pn)
                     sp->yrepeat = 0;
                 }
 
-                if(j >= 0) sp->ang = hittype[j].temp_data[5]+512;
+                if(j >= 0) sp->ang = actj->temp_data[5]+512;
                 changespritestat(i, STAT_MISC);
                 break;
 
@@ -323,7 +323,7 @@ int spawn_d(int j, int pn)
                 sp->z -= (16<<8);
                 if(j >= 0 && spj->pal == 6)
                     sp->pal = 6;
-                insertspriteq(&hittype[i]);
+                insertspriteq(act);
                 changespritestat(i, STAT_MISC);
                 break;
 
@@ -343,9 +343,9 @@ int spawn_d(int j, int pn)
 
                 sp->xvel = 16;
                 ssp(i,CLIPMASK0);
-                hittype[i].temp_data[0] = 17;
-                hittype[i].temp_data[2] = 0;
-                hittype[i].temp_data[5] = sp->ang;
+                act->temp_data[0] = 17;
+                act->temp_data[2] = 0;
+                act->temp_data[5] = sp->ang;
 
             case SPACEMARINE:
                 if(sp->picnum == SPACEMARINE)
@@ -524,7 +524,7 @@ int spawn_d(int j, int pn)
                 if(sp->picnum == RESPAWNMARKERRED)
                 {
                     sp->xrepeat = sp->yrepeat = 24;
-                    if(j >= 0) sp->z = hittype[j].floorz; // -(1<<4);
+                    if(j >= 0) sp->z = actj->floorz; // -(1<<4);
                 }
                 else
                 {
@@ -545,13 +545,13 @@ int spawn_d(int j, int pn)
             case BULLETHOLE:
                 sp->xrepeat = sp->yrepeat = 3;
                 sp->cstat = 16+(krand()&12);
-                insertspriteq(&hittype[i]);
+                insertspriteq(act);
             case MONEY:
             case MAIL:
             case PAPER:
                 if( sp->picnum == MONEY || sp->picnum == MAIL || sp->picnum == PAPER )
                 {
-                    hittype[i].temp_data[0] = krand()&2047;
+                    act->temp_data[0] = krand()&2047;
                     sp->cstat = krand()&12;
                     sp->xrepeat = sp->yrepeat = 8;
                     sp->ang = krand()&2047;
@@ -772,7 +772,7 @@ int spawn_d(int j, int pn)
             case PIGCOPDIVE:
             case COMMANDERSTAYPUT:
             case BOSS4STAYPUT:
-                hittype[i].actorstayput = sp->sectnum;
+                act->actorstayput = sp->sectnum;
             case BOSS1:
             case BOSS2:
             case BOSS3:
@@ -880,8 +880,8 @@ int spawn_d(int j, int pn)
 
                     if(j >= 0)
                     {
-                        hittype[i].timetosleep = 0;
-                        check_fta_sounds_d(&hittype[i]);
+                        act->timetosleep = 0;
+                        check_fta_sounds_d(act);
                         changespritestat(i,1);
                     }
                     else changespritestat(i,2);
@@ -919,14 +919,14 @@ int spawn_d(int j, int pn)
                 {
                     if( spj->picnum == NUKEBARREL )
                         sp->pal = 8;
-                    insertspriteq(&hittype[i]);
+                    insertspriteq(act);
                 }
 
                 changespritestat(i,1);
 
                 getglobalz(i);
 
-                j = (hittype[i].floorz-hittype[i].ceilingz)>>9;
+                j = (act->floorz-act->ceilingz)>>9;
 
                 sp->yrepeat = j;
                 sp->xrepeat = 25-(j>>1);
