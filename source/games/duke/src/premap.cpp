@@ -640,7 +640,7 @@ void resetpspritevars(int g)
             j = connectpoint2[j];
 
         }
-        else deletesprite(i);
+        else deletesprite(act);
     }
 }
 

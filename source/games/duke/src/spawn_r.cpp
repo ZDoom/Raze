@@ -1160,7 +1160,7 @@ int spawn_r(int j, int pn)
 					{
 						sp->zvel = 0;
 					}
-					ssp(i,CLIPMASK0);
+					ssp(act, CLIPMASK0);
 					sp->cstat = krand()&4;
 				}
 				else
@@ -1172,7 +1172,7 @@ int spawn_r(int j, int pn)
 				if( ( ud.multimode < 2 && sp->pal != 0) || (sp->lotag > ud.player_skill) )
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(i, STAT_MISC);
+					changespritestat(act, STAT_MISC);
 					break;
 				}
 
@@ -1355,10 +1355,10 @@ int spawn_r(int j, int pn)
 					sp->cstat = 16+128+2;
 					sp->xrepeat=sp->yrepeat=1;
 					sp->xvel = -8;
-					ssp(i,CLIPMASK0);
+					ssp(act, CLIPMASK0);
 				}
 			case CEILINGSTEAM:
-				changespritestat(i,STAT_STANDABLE);
+				changespritestat(act, STAT_STANDABLE);
 				break;
 			case SECTOREFFECTOR:
 				spawneffector(act);
@@ -1397,7 +1397,7 @@ int spawn_r(int j, int pn)
 				sp->owner = i;
 				changespritestat(i,6);
 				sp->xvel = 8;
-				ssp(i,CLIPMASK0);
+				ssp(act, CLIPMASK0);
 				break;
 
 			case EMPTYBIKE:

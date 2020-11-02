@@ -342,7 +342,7 @@ int spawn_d(int j, int pn)
                 sp->hitag = i;
 
                 sp->xvel = 16;
-                ssp(i,CLIPMASK0);
+                ssp(act, CLIPMASK0);
                 act->temp_data[0] = 17;
                 act->temp_data[2] = 0;
                 act->temp_data[5] = sp->ang;
@@ -987,7 +987,7 @@ int spawn_d(int j, int pn)
                     sp->lotag = 0;
                     sp->z -= (32<<8);
                     sp->zvel = -1024;
-                    ssp(i,CLIPMASK0);
+                    ssp(act, CLIPMASK0);
                     sp->cstat = krand()&4;
                 }
                 else
@@ -1091,7 +1091,7 @@ int spawn_d(int j, int pn)
                     sp->cstat = 16+128+2;
                     sp->xrepeat=sp->yrepeat=1;
                     sp->xvel = -8;
-                    ssp(i,CLIPMASK0);
+                    ssp(act, CLIPMASK0);
                 }
             case CEILINGSTEAM:
                 changespritestat(i,STAT_STANDABLE);
@@ -1146,7 +1146,7 @@ int spawn_d(int j, int pn)
                 sp->owner = i;
                 changespritestat(i,6);
                 sp->xvel = 8;
-                ssp(i,CLIPMASK0);
+                ssp(act, CLIPMASK0);
                 break;
 
             case TOILET:

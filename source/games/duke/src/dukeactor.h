@@ -181,19 +181,9 @@ inline int bossguy(DDukeActor* pSprite)
 
 // old interface versions of already changed functions
 
-inline void RANDOMSCRAP(spritetype* s, int i)
-{
-	return RANDOMSCRAP(&hittype[s - sprite]);
-}
-
 inline void deletesprite(int num)
 {
 	deletesprite(&hittype[num]);
-}
-
-inline int ssp(int i, unsigned int cliptype) //The set sprite function
-{
-	return ssp(&hittype[i], cliptype);
 }
 
 int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result);
