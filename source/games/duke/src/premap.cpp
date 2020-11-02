@@ -572,10 +572,10 @@ void resetpspritevars(int g)
 
     which_palookup = 9;
     j = connecthead;
-    StatIterator it(STAT_PLAYER);
-    while ((i = it.NextIndex()) >= 0)
+    DukeStatIterator it(STAT_PLAYER);
+    while (auto act = it.Next())
     {
-        s = &sprite[i];
+        s = &act->s;
 
         if (numplayersprites == MAXPLAYERS)
             I_Error("Too many player sprites (max 16.)");
@@ -595,7 +595,7 @@ void resetpspritevars(int g)
         numplayersprites++;
         if (j >= 0)
         {
-            s->owner = i;
+            act->SetOwner(act);
             s->shade = 0;
             s->xrepeat = isRR() ? 24 : 42;
             s->yrepeat = isRR() ? 17 : 36;
@@ -626,13 +626,13 @@ void resetpspritevars(int g)
             else
                 s->pal = ps[j].palookup = ud.user_pals[j];
 
-            ps[j].i = i;
+            ps[j].i = act->GetIndex();
             ps[j].frag_ps = j;
-            hittype[i].owner = i;
+            act->SetOwner(act);
 
-            hittype[i].bposx = ps[j].bobposx = ps[j].oposx = ps[j].posx = s->x;
-            hittype[i].bposy = ps[j].bobposy = ps[j].oposy = ps[j].posy = s->y;
-            hittype[i].bposz = ps[j].oposz = ps[j].posz = s->z;
+            act->bposx = ps[j].bobposx = ps[j].oposx = ps[j].posx = s->x;
+            act->bposy = ps[j].bobposy = ps[j].oposy = ps[j].posy = s->y;
+            act->bposz = ps[j].oposz = ps[j].posz = s->z;
             ps[j].angle.oang = ps[j].angle.ang = buildang(s->ang);
 
             updatesector(s->x, s->y, &ps[j].cursectnum);

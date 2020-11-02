@@ -557,10 +557,9 @@ void prelevel_r(int g)
 		}
 	}
 
-	StatIterator it(STAT_DEFAULT);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_DEFAULT);
+	while (auto ac = it.Next())
 	{
-		auto ac = &hittype[i];
 		auto si = &ac->s;
 		LoadActor(ac, -1, -1);
 
@@ -577,7 +576,7 @@ void prelevel_r(int g)
 
 		case GPSPEED:
 			sector[si->sectnum].extra = si->lotag;
-			deletesprite(i);
+			deletesprite(ac);
 			break;
 
 		case CYCLER:
@@ -590,22 +589,22 @@ void prelevel_r(int g)
 			cyclers[numcyclers][4] = si->hitag;
 			cyclers[numcyclers][5] = (si->ang == 1536);
 			numcyclers++;
-			deletesprite(i);
+			deletesprite(ac);
 			break;
 
 		case RRTILE18:
 			addtorch(si);
-			deletesprite(i);
+			deletesprite(ac);
 			break;
 
 		case RRTILE35:
 			addlightning(si);
-			deletesprite(i);
+			deletesprite(ac);
 			break;
 
 		case RRTILE68:
 			shadedsector[si->sectnum] = 1;
-			deletesprite(i);
+			deletesprite(ac);
 			break;
 
 		case RRTILE67:
@@ -695,9 +694,9 @@ void prelevel_r(int g)
 	lotaglist = 0;
 
 	it.Reset(STAT_DEFAULT);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto ac = it.Next())
 	{
-		auto spr = &sprite[i];
+		auto spr = &ac->s;
 		switch (spr->picnum)
 		{
 		case RRTILE8464 + 1:

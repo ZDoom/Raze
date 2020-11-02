@@ -276,10 +276,9 @@ void prelevel_d(int g)
 
 	prelevel_common(g);
 
-	StatIterator it(STAT_DEFAULT);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_DEFAULT);
+	while (auto ac = it.Next())
 	{
-		auto ac = &hittype[i];
 		auto si = &ac->s;
 		LoadActor(ac, -1, -1);
 
@@ -292,7 +291,7 @@ void prelevel_d(int g)
 		{
 		case GPSPEED:
 			sector[si->sectnum].extra = si->lotag;
-			deletesprite(i);
+			deletesprite(ac);
 			break;
 
 		case CYCLER:
@@ -305,7 +304,7 @@ void prelevel_d(int g)
 			cyclers[numcyclers][4] = si->hitag;
 			cyclers[numcyclers][5] = (si->ang == 1536);
 			numcyclers++;
-			deletesprite(i);
+			deletesprite(ac);
 			break;
 		}
 	}
@@ -363,11 +362,11 @@ void prelevel_d(int g)
 				if (lotaglist > 64)
 					I_Error("Too many switches (64 max).");
 
-				StatIterator it1(STAT_EFFECTOR);
-				while ((j = it1.NextIndex()) >= 0)
+				DukeStatIterator it1(STAT_EFFECTOR);
+				while (auto ac = it1.Next())
 				{
-					if (sprite[j].lotag == 12 && sprite[j].hitag == spr->lotag)
-						hittype[j].temp_data[0] = 1;
+					if (ac->s.lotag == 12 && ac->s.hitag == spr->lotag)
+						ac->temp_data[0] = 1;
 				}
 			}
 			break;
