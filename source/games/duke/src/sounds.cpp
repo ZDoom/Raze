@@ -220,9 +220,9 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 }
 
 
-inline bool S_IsAmbientSFX(int spriteNum)
+inline bool S_IsAmbientSFX(DDukeActor* actor)
 {
-	return (sprite[spriteNum].picnum == MUSICANDSFX && sprite[spriteNum].lotag < 999);
+	return (actor->s.picnum == MUSICANDSFX && actor->s.lotag < 999);
 }
 
 //==========================================================================
@@ -231,13 +231,13 @@ inline bool S_IsAmbientSFX(int spriteNum)
 //
 //==========================================================================
 
-static int GetPositionInfo(int spriteNum, int soundNum, int sectNum,
+static int GetPositionInfo(DDukeActor* actor, int soundNum, int sectNum,
 							 const vec3_t *cam, const vec3_t *pos, int *distPtr, FVector3 *sndPos)
 {
 	// There's a lot of hackery going on here that could be mapped to rolloff and attenuation parameters.
 	// However, ultimately rolloff would also just reposition the sound source so this can remain as it is.
 
-	auto sp = &sprite[spriteNum];
+	auto sp = &actor->s;
 	int orgsndist = 0, sndang = 0, sndist = 0, explosion = 0;
 	auto const* snd = soundEngine->GetUserData(soundNum + 1);
 	int userflags = snd ? snd[kFlags] : 0;
@@ -334,11 +334,12 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
 		}
 		else if (type == SOURCE_Actor)
 		{
-			auto actor = (spritetype*)source;
+			auto aactor = (DDukeActor*)source;
+			auto actor = aactor ? &aactor->s : nullptr;
 			assert(actor != nullptr);
 			if (actor != nullptr)
 			{
-				GetPositionInfo(int(actor - sprite), chanSound - 1, camsect, campos, &actor->pos, nullptr, pos);
+				GetPositionInfo(aactor, chanSound - 1, camsect, campos, &actor->pos, nullptr, pos);
 				/*
 				if (vel) // DN3D does not properly maintain this.
 				{
@@ -406,20 +407,18 @@ void GameInterface::UpdateSounds(void)
 //
 //==========================================================================
 
-int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, EChanFlags flags)
+int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel, EChanFlags flags)
 {
 	if (sndnum == GENERIC_AMBIENCE1 || sndnum == DUMPSTER_MOVE)
 	{
 		int a = 0;
 	}
 	auto const pl = &ps[myconnectindex];
-	if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled() || (unsigned)spriteNum >= MAXSPRITES || !playrunning() ||
+	if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled() || actor == nullptr || !playrunning() ||
 		(pl->timebeforeexit > 0 && pl->timebeforeexit <= REALGAMETICSPERSEC * 3)) return -1;
 
 	sndnum = GetReplacementSound(sndnum);
 	int userflags = S_GetUserFlags(sndnum);
-
-	auto sp = &sprite[spriteNum];
 
 	if ((userflags & (SF_DTAG | SF_GLOBAL)) == SF_DTAG)
 	{
@@ -429,7 +428,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 
 	if (userflags & SF_TALK)
 	{
-		if (snd_speech == 0 || (ud.multimode > 1 && sp->picnum == TILE_APLAYER && sp->yvel != screenpeek && ud.coop != 1)) return -1;
+		if (snd_speech == 0 || (ud.multimode > 1 && actor->s.picnum == TILE_APLAYER && actor->s.yvel != screenpeek && ud.coop != 1)) return -1;
 		bool foundone =  soundEngine->EnumerateChannels([&](FSoundChan* chan)
 			{
 				auto sid = chan->OrgID;
@@ -443,7 +442,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 		// Fixes a problem with quake06.voc in E3L4.
 		if (ud.multimode == 1)
 		{
-			spriteNum = pl->i;
+			actor = pl->GetActor();
 		}
 	}
 
@@ -454,7 +453,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 	int32_t camsect;
 
 	S_GetCamera(&campos, nullptr, &camsect);
-	GetPositionInfo(spriteNum, sndnum, camsect, campos, pos, &sndist, &sndpos);
+	GetPositionInfo(actor, sndnum, camsect, campos, pos, &sndist, &sndpos);
 	int pitch = S_GetPitch(sndnum);
 
 	bool explosion = ((userflags & (SF_GLOBAL | SF_DTAG)) == (SF_GLOBAL | SF_DTAG)) || ((sndnum == PIPEBOMB_EXPLODE || sndnum == LASERTRIP_EXPLODE || sndnum == RPG_EXPLODE));
@@ -467,7 +466,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 	}
 	else
 	{
-		if (sndist > 32767 && sp->picnum != MUSICANDSFX && (userflags & (SF_LOOP | SF_MSFX)) == 0)
+		if (sndist > 32767 && actor->s.picnum != MUSICANDSFX && (userflags & (SF_LOOP | SF_MSFX)) == 0)
 			return -1;
 
 		if (underwater && (userflags & SF_TALK) == 0)
@@ -475,8 +474,8 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 	}
 
 	bool is_playing = soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, sndnum+1);
-	if (is_playing && sp->picnum != MUSICANDSFX)
-		S_StopSound(sndnum, spriteNum);
+	if (is_playing && actor->s.picnum != MUSICANDSFX)
+		S_StopSound(sndnum, actor);
 
 	int const repeatp = (userflags & SF_LOOP);
 
@@ -493,7 +492,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 	else attenuation = (userflags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL ? ATTN_NONE : ATTN_NORM;
 
 	if (userflags & SF_LOOP) flags |= CHANF_LOOP;
-	auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, CHAN_AUTO, flags, sndnum+1, attenuation == ATTN_NONE? 0.8f : 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
+	auto chan = soundEngine->StartSound(SOURCE_Actor, actor, &sndpos, CHAN_AUTO, flags, sndnum+1, attenuation == ATTN_NONE? 0.8f : 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
 	return chan ? 0 : -1;
 }
 
@@ -526,51 +525,46 @@ int S_PlaySound(int sndnum, int channel, EChanFlags flags, float vol)
 //
 //==========================================================================
 
-int S_PlayActorSound(int soundNum, int spriteNum, int channel, EChanFlags flags)
+int S_PlayActorSound(int soundNum, DDukeActor* actor, int channel, EChanFlags flags)
 {
-	return (unsigned)spriteNum >= MAXSPRITES ? S_PlaySound(soundNum, channel, flags) :
-		S_PlaySound3D(soundNum, spriteNum, &sprite[spriteNum].pos, channel, flags);
+	return (actor == nullptr ? S_PlaySound(soundNum, channel, flags) :
+		S_PlaySound3D(soundNum, actor, &actor->s.pos, channel, flags));
 }
 
-void S_RelinkActorSound(int from, int to)
+void S_RelinkActorSound(DDukeActor* from, DDukeActor* to)
 {
-	FVector3 pos = GetSoundPos(&sprite[from].pos);
-	soundEngine->RelinkSound(SOURCE_Actor, &sprite[from], to == -1 ? nullptr : &sprite[to], &pos);
+	FVector3 pos = GetSoundPos(&from->s.pos);
+	soundEngine->RelinkSound(SOURCE_Actor, from, to, &pos);
 }
 
-void S_StopSound(int sndNum, int sprNum, int channel)
+void S_StopSound(int sndNum, DDukeActor* actor, int channel)
 {
-	if (sprNum < -1 || sprNum >= MAXSPRITES) return;
-	
 	sndNum = GetReplacementSound(sndNum);
 
-
-	if (sprNum == -1) soundEngine->StopSoundID(sndNum+1);
+	if (!actor) soundEngine->StopSoundID(sndNum+1);
 	else
 	{
-		if (channel == -1) soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], -1, sndNum + 1);
-		else soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], channel, -1);
+		if (channel == -1) soundEngine->StopSound(SOURCE_Actor, actor, -1, sndNum + 1);
+		else soundEngine->StopSound(SOURCE_Actor, actor, channel, -1);
 
 		// StopSound kills the actor reference so this cannot be delayed until ChannelEnded gets called. At that point the actor may also not be valid anymore.
-		if (S_IsAmbientSFX(sprNum) && sector[sprite[sprNum].sectnum].lotag < 3)  // ST_2_UNDERWATER
-			hittype[sprNum].temp_data[0] = 0;
+		if (S_IsAmbientSFX(actor) && sector[actor->s.sectnum].lotag < 3)  // ST_2_UNDERWATER
+			actor->temp_data[0] = 0;
 	}
 }
 
-void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset)
+void S_ChangeSoundPitch(int soundNum, DDukeActor* actor, int pitchoffset)
 {
-	if (spriteNum < -1 || spriteNum >= MAXSPRITES) return;
-	
 	soundNum = GetReplacementSound(soundNum);
 
 	double expitch = pow(2, pitchoffset / 1200.);   // I hope I got this right that ASS uses a linear scale where 1200 is a full octave.
-	if (spriteNum == -1)
+	if (!actor)
 	{
 		soundEngine->ChangeSoundPitch(SOURCE_Unattached, nullptr, CHAN_AUTO, expitch, soundNum+1);
 	}
 	else
 	{
-		soundEngine->ChangeSoundPitch(SOURCE_Actor, &sprite[spriteNum], CHAN_AUTO, expitch, soundNum+1);
+		soundEngine->ChangeSoundPitch(SOURCE_Actor, actor, CHAN_AUTO, expitch, soundNum+1);
 	}
 }
 
@@ -580,13 +574,12 @@ void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset)
 //
 //==========================================================================
 
-int S_CheckActorSoundPlaying(int spriteNum, int soundNum, int channel)
+int S_CheckActorSoundPlaying(DDukeActor* actor, int soundNum, int channel)
 {
 	soundNum = GetReplacementSound(soundNum);
 
-	if (spriteNum == -1) return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundNum+1);
-	if ((unsigned)spriteNum >= MAXSPRITES) return false;
-	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[spriteNum], channel, soundNum+1);
+	if (actor == nullptr) return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundNum+1);
+	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, actor, channel, soundNum+1);
 }
 
 // Check if actor <i> is playing any sound.

@@ -3014,7 +3014,7 @@ void moveactors_r(void)
 				}
 				if (sector[s->sectnum].lotag == 900)
 				{
-					S_StopSound(356, -1);
+					S_StopSound(356, nullptr);
 				}
 			case RRTILE3440:
 			case RRTILE3440+1:

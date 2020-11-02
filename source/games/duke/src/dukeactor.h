@@ -132,31 +132,6 @@ inline int setsprite(int i, int x, int y, int z)
 	return ::setsprite(i, x, y, z);
 }
 
-inline int S_PlayActorSound(int soundNum, DDukeActor* spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0)
-{
-	return S_PlayActorSound(soundNum, spriteNum ? spriteNum->GetIndex() : -1, channel, flags);
-}
-
-inline void S_StopSound(int sndNum, DDukeActor* actor, int flags = -1)
-{
-	S_StopSound(sndNum, actor ? actor->GetIndex() : -1, flags);
-}
-
-inline void S_RelinkActorSound(DDukeActor* from, DDukeActor* to)
-{
-	S_RelinkActorSound(from ? from->GetIndex() : -1, to ? to->GetIndex() : -1);
-}
-
-inline int S_CheckActorSoundPlaying(DDukeActor* a, int soundNum, int channel = 0)
-{
-	return S_CheckActorSoundPlaying(a->GetIndex(), soundNum, channel);
-}
-
-inline int S_PlaySound3D(int num, DDukeActor * spriteNum, const vec3_t* pos, int channel = CHAN_AUTO, EChanFlags flags = 0)
-{
-	return S_PlaySound3D(num, spriteNum ? spriteNum->GetIndex() : -1, pos, channel, flags);
-}
-
 inline int ActorToScriptIndex(DDukeActor* a)
 {
 	if (!a) return -1;
