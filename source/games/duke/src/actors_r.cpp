@@ -2724,11 +2724,11 @@ DETONATEB:
 					if (ud.coop >= 1)
 					{
 						for (int j = 0; j < ps[p].weapreccnt; j++)
-							if (ps[p].weaprecs[j] == actor->GetIndex())
+							if (ps[p].weaprecs[j] == s->picnum)
 								return;
 
 						if (ps[p].weapreccnt < 255)
-							ps[p].weaprecs[ps[p].weapreccnt++] = actor->GetIndex();
+							ps[p].weaprecs[ps[p].weapreccnt++] = s->picnum;
 					}
 
 					addammo(DYNAMITE_WEAPON, &ps[p], 1);
