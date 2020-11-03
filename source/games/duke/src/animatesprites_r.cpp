@@ -213,7 +213,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 		case TRIPBOMBSPRITE:
 			continue;
 		case FORCESPHERE:
-			if (t->statnum == 5)
+			if (t->statnum == STAT_MISC && Owner)
 			{
 				short sqa, sqb;
 
@@ -232,7 +232,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			}
 			continue;
 		case BURNING:
-			if (Owner->statnum == 10)
+			if (Owner && Owner->statnum == STAT_PLAYER)
 			{
 				if (display_mirror == 0 && Owner->yvel == screenpeek && ps[Owner->yvel].over_shoulder_on == 0)
 					t->xrepeat = 0;
@@ -254,7 +254,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			t->shade = (sintable[(ud.levelclock << 4) & 2047] >> 10);
 			break;
 		case SHRINKSPARK:
-			if ((Owner->picnum == CHEER || Owner->picnum == CHEERSTAYPUT) && isRRRA())
+			if (Owner && (Owner->picnum == CHEER || Owner->picnum == CHEERSTAYPUT) && isRRRA())
 			{
 				t->picnum = CHEERBLADE + ((ud.levelclock >> 4) & 3);
 				t->shade = -127;
@@ -270,7 +270,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			}
 			else goto default_case;
 		case SPIT:
-			if (isRRRA())
+			if (isRRRA() && Owner)
 			{
 				if (Owner->picnum == MINION && Owner->pal == 8)
 					t->picnum = RRTILE3500 + ((ud.levelclock >> 4) % 6);
@@ -819,7 +819,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			break;
 		case FIRE:
 		case BURNING:
-			if (Owner->picnum != TREE1 && Owner->picnum != TREE2)
+			if (Owner && Owner->picnum != TREE1 && Owner->picnum != TREE2)
 				t->z = sector[t->sectnum].floorz;
 			t->shade = -127;
 			break;
@@ -917,7 +917,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			else t->cstat &= ~4;
 
 			t->picnum = s->picnum + k + ((h->temp_data[0] < 4) * 5);
-			t->shade = Owner->shade;
+			if (Owner) t->shade = Owner->shade;
 			break;
 		case MUD:
 			t->picnum = MUD + t1;
@@ -936,7 +936,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			if (h->temp_data[0] > 2) t->cstat &= ~12;
 			break;
 		case FRAMEEFFECT1:
-			if (s->owner >= 0 && Owner->statnum < MAXSTATUS)
+			if (Owner && Owner->statnum < MAXSTATUS)
 			{
 				if (Owner->picnum == APLAYER)
 					if (ud.camerasprite == -1)

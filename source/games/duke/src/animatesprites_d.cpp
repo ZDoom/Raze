@@ -215,7 +215,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 		case TRIPBOMB:
 			continue;
 		case FORCESPHERE:
-			if (t->statnum == 5)
+			if (t->statnum == STAT_MISC && Owner)
 			{
 				short sqa, sqb;
 
@@ -235,7 +235,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			continue;
 		case BURNING:
 		case BURNING2:
-			if (Owner->statnum == 10)
+			if (Owner && Owner->statnum == STAT_PLAYER)
 			{
 				if (display_mirror == 0 && Owner->yvel == screenpeek && ps[Owner->yvel].over_shoulder_on == 0)
 					t->xrepeat = 0;
@@ -633,6 +633,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 		switch (s->picnum)
 		{
 		case LASERLINE:
+			if (!Owner) break;
 			if (sector[t->sectnum].lotag == 2) t->pal = 8;
 			t->z = Owner->z - (3 << 8);
 			if (lasermode == 2 && ps[screenpeek].heat_on == 0)
@@ -660,6 +661,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			t->cstat |= 128;
 		case BURNING:
 		case BURNING2:
+			if (!Owner) break;
 			if (Owner->picnum != TREE1 && Owner->picnum != TREE2)
 				t->z = sector[t->sectnum].floorz;
 			t->shade = -127;
@@ -683,7 +685,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 		}
 
 			t->picnum = s->picnum + k + ((h->temp_data[0] < 4) * 5);
-			t->shade = Owner->shade;
+			if (Owner) t->shade = Owner->shade;
 
 			break;
 
@@ -701,7 +703,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			if (h->temp_data[0] > 2) t->cstat &= ~12;
 			break;
 		case FRAMEEFFECT1:
-			if (s->owner >= 0 && Owner->statnum < MAXSTATUS)
+			if (Owner && Owner->statnum < MAXSTATUS)
 			{
 				if (Owner->picnum == APLAYER)
 					if (ud.camerasprite == -1)
