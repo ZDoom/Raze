@@ -890,7 +890,10 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			}
 		}
 
-		bomb->s.hitag = bomb->GetIndex();	// sigh...
+		// this originally used the sprite index as tag to link the laser segments.
+		// This value is never used again to reference an actor by index. Decouple this for robustness.
+		ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
+		bomb->s.hitag = ud.bomb_tag;
 		S_PlayActorSound(LASERTRIP_ONWALL, bomb);
 		bomb->s.xvel = -20;
 		ssp(bomb, CLIPMASK0);

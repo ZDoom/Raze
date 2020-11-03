@@ -339,7 +339,8 @@ int spawn_d(int j, int pn)
                 sp->yrepeat=5;
 
                 act->SetOwner(act);
-                sp->hitag = i; // hijack
+                ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
+                sp->hitag = ud.bomb_tag;
 
                 sp->xvel = 16;
                 ssp(act, CLIPMASK0);

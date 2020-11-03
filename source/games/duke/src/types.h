@@ -132,6 +132,7 @@ struct user_defs
 
 	short from_bonus;
 	short last_level, secretlevel;
+	short bomb_tag;
 
 	int const_visibility;
 

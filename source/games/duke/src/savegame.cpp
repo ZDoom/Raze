@@ -379,6 +379,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("marker", ud.marker)
 			("ffire", ud.ffire)
 			("levelclock", ud.levelclock)
+			("bomb_tag", ud.bomb_tag)
 
 			.Array("sectorextra", sectorextra, numsectors)
 			("rtsplaying", rtsplaying)
