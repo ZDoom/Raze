@@ -303,7 +303,7 @@ inline int hitasprite(DDukeActor* actor, DDukeActor** hit)
 {
 	short m;
 	int dist = hitasprite(actor->GetIndex(), &m);
-	if (m >= 0 && hit) *hit = &hittype[m];
+	if (hit) *hit = m >= 0? &hittype[m] : nullptr;
 	else *hit = nullptr;
 	return dist;
 }
