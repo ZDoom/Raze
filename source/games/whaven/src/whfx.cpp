@@ -380,7 +380,7 @@ void revolvefx() {
 		}
 
 		if (plr.sector == revolvesector[i]) {
-			revolvesyncang = (short) plr.ang;
+			revolvesyncang = plr.angle.ang.asbuild();
 			revolvesyncrotang = 0;
 			revolvesyncx = plr.x;
 			revolvesyncy = plr.y;
@@ -390,7 +390,7 @@ void revolvefx() {
 			viewBackupPlayerLoc(pyrn);
 			plr.x = out.getX();
 			plr.y = out.getY();
-			plr.ang = ((revolvesyncang + revolvesyncrotang) & 2047);
+			plr.angle.settarget((revolvesyncang + revolvesyncrotang) & 2047);
 		}
 	}
 }
@@ -431,7 +431,7 @@ void teleporter() {
 
 	if (sector[plr.sector].lotag == 10) {
 		if (plr.sector != plr.oldsector) {
-			daang = (short) plr.ang;
+			daang = plr.angle.ang.asbuild();
 			warpfxsprite(plr.spritenum);
 			warp(plr.x, plr.y, plr.z, daang, plr.sector);
 			viewBackupPlayerLoc(pyrn);
@@ -441,7 +441,7 @@ void teleporter() {
 			daang = (short) warpang;
 			plr.sector = (short) warpsect;
 			warpfxsprite(plr.spritenum);
-			plr.ang = (int) daang;
+			plr.angle.settarget(daang);
 			justwarpedfx = 48;
 			spritesound(S_WARP, &sprite[plr.spritenum]);
 			setsprite(plr.spritenum, plr.x, plr.y, plr.z + (32 << 8));
@@ -997,7 +997,7 @@ void warpfxsprite(int s) {
 	sprite[j].picnum = ANNIHILATE;
 	short daang;
 	if (s == plr.spritenum) {
-		daang = (short) plr.ang;
+		daang = plr.angle.ang.asbuild();
 		sprite[j].ang = daang;
 	} else {
 		daang = sprite[s].ang;

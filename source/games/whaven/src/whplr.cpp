@@ -26,7 +26,7 @@ void viewBackupPlayerLoc( int nPlayer )
 	pPLocation.x = pSprite.x;
 	pPLocation.y = pSprite.y;
 	pPLocation.z = player[nPlayer].z;
-	pPLocation.ang = player[nPlayer].ang;
+	player[nPlayer].angle.backup();
 	player[nPlayer].horizon.backup();
 }
 	
@@ -103,7 +103,7 @@ void initplayersprite(PLAYER& plr) {
 	sprite[plr.spritenum].shade = 0;
 	sprite[plr.spritenum].xrepeat = 36;
 	sprite[plr.spritenum].yrepeat = 36;
-	sprite[plr.spritenum].ang = (short) plr.ang;
+	sprite[plr.spritenum].ang = plr.angle.ang.asbuild();
 	sprite[plr.spritenum].xvel = 0;
 	sprite[plr.spritenum].yvel = 0;
 	sprite[plr.spritenum].zvel = 0;
@@ -237,13 +237,13 @@ void updateviewmap(PLAYER& plr) {
 
 void plruse(PLAYER& plr) {
 	Neartag nt;
-	neartag(plr.x, plr.y, plr.z, (short) plr.sector, (short) plr.ang, nt, 1024, 3);
+	neartag(plr.x, plr.y, plr.z, (short) plr.sector, plr.angle.ang.asbuild(), nt, 1024, 3);
 
 	if (nt.tagsector >= 0) {
 		if (sector[nt.tagsector].hitag == 0) {
 			operatesector(plr, nt.tagsector);
 		} else {
-			short daang = (short) plr.ang;
+			short daang = plr.angle.ang.asbuild();
 			int daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
 			Hitscan pHitInfo;
 			hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
@@ -581,7 +581,7 @@ void lockon(PLAYER& plr, int numshots, int shootguntype) {
 		}
 	}
 
-	daang = (short) (plr.ang - ((numshots * (128 / numshots)) >> 1));
+	daang = plr.angle.ang.asbuild() - ((numshots * (128 / numshots)) >> 1);
 	for (k = 0, s = 0; k < numshots; k++) {
 		if (n > 0) {
 			auto &spr = tspritelist[monsterlist[s]];

@@ -1609,7 +1609,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					}
 					newstatus(pHitInfo.hitsprite, DIE);
 				}
-				sprite[pHitInfo.hitsprite].ang = (short) (plr.ang + ((krand() & 32) - 64));
+				sprite[pHitInfo.hitsprite].ang = plr.angle.ang.asbuild() + ((krand() & 32) - 64);
 				if (sprite[pHitInfo.hitsprite].hitag > 0)
 					newstatus(pHitInfo.hitsprite, PAIN);
 				break;
@@ -1966,11 +1966,11 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						sprite[j].z = plr.z + (24 << 8);
 						sprite[j].cstat = 21;
 						sprite[j].picnum = THROWPIKE;
-						sprite[j].ang = (short) ((((int) plr.ang + 2048 + 96) - 512) & 2047);
+						sprite[j].ang = ((plr.angle.ang.asbuild() + 2048 + 96) - 512) & 2047;
 						sprite[j].xrepeat = 24;
 						sprite[j].yrepeat = 24;
 						sprite[j].clipdist = 32;
-						sprite[j].extra = (short) plr.ang;
+						sprite[j].extra = plr.angle.ang.asbuild();
 						sprite[j].shade = -15;
 						sprite[j].xvel = (short) ((krand() & 256) - 128);
 						sprite[j].yvel = (short) ((krand() & 256) - 128);
@@ -1991,12 +1991,12 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					sprite[j].cstat = 21;
 
 					sprite[j].picnum = THROWPIKE;
-					sprite[j].ang = (short) BClampAngle((plr.ang + 96) - 512);
+					sprite[j].ang = BClampAngle((plr.angle.ang.asbuild() + 96) - 512);
 					sprite[j].xrepeat = 24;
 					sprite[j].yrepeat = 24;
 					sprite[j].clipdist = 24;
 
-					sprite[j].extra = (short) plr.ang;
+					sprite[j].extra = plr.angle.ang.asbuild();
 					sprite[j].shade = -15;
 					sprite[j].xvel = (short) ((krand() & 256) - 128);
 					sprite[j].yvel = (short) ((krand() & 256) - 128);
@@ -2055,11 +2055,11 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						sprite[j].z = plr.z + (24 << 8);
 						sprite[j].cstat = 21;
 						sprite[j].picnum = THROWPIKE;
-						sprite[j].ang = (short) ((((int) plr.ang + 2048 + 96) - 512) & 2047);
+						sprite[j].ang = ((plr.angle.ang.asbuild() + 2048 + 96) - 512) & 2047;
 						sprite[j].xrepeat = 24;
 						sprite[j].yrepeat = 24;
 						sprite[j].clipdist = 32;
-						sprite[j].extra = (short) plr.ang;
+						sprite[j].extra = plr.angle.ang.asbuild();
 						sprite[j].shade = -15;
 						sprite[j].xvel = (short) ((krand() & 256) - 128);
 						sprite[j].yvel = (short) ((krand() & 256) - 128);
@@ -2079,12 +2079,12 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					sprite[j].cstat = 21;
 
 					sprite[j].picnum = THROWPIKE;
-					sprite[j].ang = (short) BClampAngle((plr.ang) - 512);
+					sprite[j].ang = BClampAngle(plr.angle.ang.asbuild() - 512);
 					sprite[j].xrepeat = 24;
 					sprite[j].yrepeat = 24;
 					sprite[j].clipdist = 24;
 
-					sprite[j].extra = (short) plr.ang;
+					sprite[j].extra = plr.angle.ang.asbuild();
 					sprite[j].shade = -15;
 					sprite[j].xvel = (short) ((krand() & 256) - 128);
 					sprite[j].yvel = (short) ((krand() & 256) - 128);
@@ -2151,7 +2151,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		sprite[j].pal = 0;
 		sprite[j].xrepeat = 64;
 		sprite[j].yrepeat = 64;
-		sprite[j].ang = (short) plr.ang;
+		sprite[j].ang = plr.angle.ang.asbuild();
 		sprite[j].xvel = (short) (sintable[(daang + 2560) & 2047] >> 7);
 		sprite[j].yvel = (short) (sintable[(daang) & 2047] >> 7);
 
@@ -2275,7 +2275,7 @@ void swingdapunch(PLAYER& plr, int daweapon) {
 }
 
 void swingdaweapon(PLAYER& plr) {
-	float daang = plr.ang;
+	float daang = FixedToFloat(plr.angle.ang.asq16());
 
 	if (plr.currweaponframe == BOWWALK + 5 && plr.ammo[6] > 0) {
 		plr.currweaponfired = 5;

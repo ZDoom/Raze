@@ -210,7 +210,7 @@ void aiProcess() {
 
 	PLAYER& plr = player[0];
 
-	//		short daang = (short) plr.ang;
+	//		short daang = plr.angle.ang.asbuild();
 	//		int daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
 	//		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
 	//				sintable[(daang + 2560) & 2047], // X vector of 3D ang
@@ -663,7 +663,8 @@ void attack(PLAYER& plr, int i) {
 
 	if (!droptheshield && plr.shieldpoints > 0 && plr.selectedgun > 0 && plr.selectedgun < 5) {
 		short a = getangle(sprite[i].x - plr.x, sprite[i].y - plr.y);
-		if ((a < plr.ang && plr.ang - a < 128) || (a > plr.ang && (((short)plr.ang + a) & 2047) < 128)) {
+		auto ang = plr.angle.ang.asbuild();
+		if ((a < ang && ang - a < 128) || (a > ang && ((ang + a) & 2047) < 128)) {
 			if (krand() % 100 > 80) {
 				spritesound(S_SWORD1 + krand() % 3, &sprite[plr.spritenum]);
 				return;

@@ -62,7 +62,7 @@ void castaorb(PLAYER& plr) {
 			spritesound(S_GENERALMAGIC3, &sprite[plr.spritenum]);
 		else
 			spritesound(S_SPELL1, &sprite[plr.spritenum]);
-		daang = plr.ang;
+		daang = plr.angle.ang.asbuild();
 		shootgun(plr, daang, 6);
 		break;
 	case 3: // MAGIC ARROW
@@ -71,7 +71,7 @@ void castaorb(PLAYER& plr) {
 			spritesound(S_GENERALMAGIC2, &sprite[plr.spritenum]);
 		}
 		else {
-			daang = BClampAngle(plr.ang - 36);
+			daang = BClampAngle(plr.angle.ang.asbuild() - 36);
 			for (k = 0; k < 10; k++) {
 				daang = BClampAngle(daang + (k << 1));
 				shootgun(plr, daang, 2);
@@ -80,7 +80,7 @@ void castaorb(PLAYER& plr) {
 		}
 		break;
 	case 4: // OPEN DOORS
-		daang = plr.ang;
+		daang = plr.angle.ang.asbuild();
 		shootgun(plr, daang, 7);
 		if (isWh2())
 			spritesound(S_DOORSPELL, &sprite[plr.spritenum]);
@@ -100,13 +100,13 @@ void castaorb(PLAYER& plr) {
 			spritesound(S_FIRESPELL, &sprite[plr.spritenum]);
 		}
 		else {
-			daang = plr.ang;
+			daang = plr.angle.ang.asbuild();
 			shootgun(plr, daang, 3);
 			spritesound(S_SPELL1, &sprite[plr.spritenum]);
 		}
 		break;
 	case 7: // NUKE
-		daang = plr.ang;
+		daang = plr.angle.ang.asbuild();
 		shootgun(plr, daang, 4);
 		if (isWh2())
 			spritesound(S_NUKESPELL, &sprite[plr.spritenum]);
@@ -255,7 +255,7 @@ void nukespell(PLAYER& plr, short j) {
 		sprite[j].cstat &= ~3;
 		sprite[j].shade = 6;
 		sprite[j].lotag = 360;
-		sprite[j].ang = (short) plr.ang;
+		sprite[j].ang = plr.angle.ang.asbuild();
 		sprite[j].hitag = 0;
 		addscore(&plr, 150);
 

@@ -298,7 +298,7 @@ static void pain(PLAYER& plr, short i) {
 			spr.picnum = GONZOGSH;
 			break;
 		}
-		spr.ang = (short)plr.ang;
+		spr.ang = plr.angle.ang.asbuild();
 		newstatus(i, FLEE);
 	}
 

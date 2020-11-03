@@ -226,7 +226,7 @@ static void pain(PLAYER& plr, short i) {
 		else if (sprite[i].picnum == GRONMUPAIN)
 			sprite[i].picnum = GRONMU;
 
-		spr.ang = (short)plr.ang;
+		spr.ang = plr.angle.ang.asbuild();
 		newstatus(i, FLEE);
 	}
 

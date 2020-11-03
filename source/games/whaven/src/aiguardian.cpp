@@ -190,7 +190,7 @@ static void pain(PLAYER& plr, short i) {
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = GUARDIAN;
-		spr.ang = (short)plr.ang;
+		spr.ang = plr.angle.ang.asbuild();
 		newstatus(i, FLEE);
 	}
 

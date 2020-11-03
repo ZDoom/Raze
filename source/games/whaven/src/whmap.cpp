@@ -212,7 +212,7 @@ boolean prepareboard(const char* fname) {
 	plr.x = pos.x;
 	plr.y = pos.y;
 	plr.z = pos.z;
-	plr.ang = ang;
+	plr.angle.ang = buildang(ang);
 
 //		int ratcnt = 0;
 	swingcnt = 0;
@@ -786,7 +786,7 @@ boolean prepareboard(const char* fname) {
 		sprite[plr.spritenum].shade = 0;
 		sprite[plr.spritenum].xrepeat = 36;
 		sprite[plr.spritenum].yrepeat = 36;
-		sprite[plr.spritenum].ang = (short) plr.ang;
+		sprite[plr.spritenum].ang = plr.angle.ang.asbuild();
 		sprite[plr.spritenum].xvel = 0;
 		sprite[plr.spritenum].yvel = 0;
 		sprite[plr.spritenum].zvel = 0;

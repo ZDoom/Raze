@@ -10,7 +10,7 @@ struct PLAYER {
 	InputPacket plInput;
 	int spellnum;
 	int x,y,z;
-	float ang;
+	PlayerAngle angle;
     PlayerHorizon horizon;
     int height;
     int hvel;               
@@ -36,7 +36,6 @@ struct PLAYER {
     int fallz;
     
     boolean dead;
-    short turnAround;
     
 	int shadowtime;
 	int helmettime;

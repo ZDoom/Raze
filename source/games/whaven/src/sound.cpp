@@ -140,7 +140,7 @@ void GameInterface::UpdateSounds()
 
 	if (player[pyrn].spritenum >= 0)
 	{
-		listener.angle = -(float)player[pyrn].ang * pi::pi() / 1024; // Build uses a period of 2048.
+		listener.angle = -FixedToFloat(player[pyrn].angle.ang.asq16()) * pi::pi() / 1024; // Build uses a period of 2048.
 		listener.velocity.Zero();
 		vec3_t ppos{ player[pyrn].x, player[pyrn].y, player[pyrn].z };
 		listener.position = GetSoundPos(&ppos);

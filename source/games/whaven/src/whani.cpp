@@ -282,8 +282,8 @@ void animateobjs(PLAYER& plr) {
 				wall[k].shade = (byte) ((wall[k].shade + j) >> 1);
 			}
 			movestat = (short) movesprite((short) i,
-					((sintable[((short) plr.ang + 512) & 2047]) << TICSPERFRAME) << 8,
-					((sintable[(short) plr.ang & 2047]) << TICSPERFRAME) << 8, 0, 4 << 8, 4 << 8, 0);
+					(plr.angle.ang.bcos() << TICSPERFRAME) << 8,
+					(plr.angle.ang.bsin() << TICSPERFRAME) << 8, 0, 4 << 8, 4 << 8, 0);
 
 			spr.cstat |= 0x8000;
 			show2dsprite.Set(i);

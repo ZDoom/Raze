@@ -91,7 +91,6 @@ int32_t registerosdcommands(void)
 	for (int i = 0; i < 10; i++) if (ctrlGetInputKey(whcfg.keymap[i + WhKeys.Weapon_1.getNum()], true)) loc.bits |= (i + 1) << 8; //1 << 12 // weaponsel
 	loc.bits |= whcfg.gMouseAim ? CtrlMouseAim : 0; ~SB_AIMMODE
 	loc.bits |= ctrlGetInputKey(GameKeys.Open, true) ? CtrlOpen : 0;	SB_OPEN
-	loc.bits |= ctrlGetInputKey(GameKeys.Turn_Around, true) ? CtrlTurnAround : 0; SB_TURNAROUND
 	loc.bits |= ctrlGetInputKey(WhKeys.Inventory_Use, true) ? CtrlInventory_Use : 0; SB_INVUSE
 	loc.bits |= ctrlGetInputKey(WhKeys.Fly_up, false) ? CtrlFlyup : 0; // SB_FLYUP
 	loc.bits |= ctrlGetInputKey(WhKeys.Fly_down, false) ? CtrlFlydown : 0; // SB_FLYDOWN
@@ -114,6 +113,10 @@ void GameInterface::clearlocalinputstate()
 	lPlayerXVel = lPlayerYVel = 0;
 }
 
+static void UpdatePlayerSpriteAngle(PLAYER& plr)
+{
+	sprite[plr.spritenum].ang = plr.angle.ang.asbuild();
+}
 
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
@@ -164,8 +167,8 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     if (packet)
     {
 		double k = 0.92;
-		double sin = calcSinTableValue(plr.ang);
-		double cos = calcSinTableValue(plr.ang + 512);
+		double sin = plr.angle.ang.fsin() * 16384.;
+		double cos = plr.angle.ang.fcos() * 16384.;
 		double xvel = (localInput.fvel * cos) + (localInput.svel * sin);
 		double yvel = (localInput.fvel * sin) - (localInput.svel * cos);
 		double len = sqrt(xvel * xvel + yvel * yvel);
@@ -207,6 +210,7 @@ void processinput(int num) {
 	oldposx = plr.x;
 	oldposy = plr.y;
 
+	plr.angle.resetadjustment();
 	plr.horizon.resetadjustment();
 
 	auto& bits = plr.plInput.actions;
@@ -230,7 +234,7 @@ void processinput(int num) {
 
 	plr.plInput.fvel += (tics * damage_vel) << 14;
 	plr.plInput.svel += (tics * damage_svel) << 14;
-	plr.plInput.avel += damage_angvel;
+	plr.angle.addadjustment(damage_angvel);
 
 
 	if (damage_vel != 0)
@@ -303,16 +307,9 @@ void processinput(int num) {
 		}
 	}
 
-	if ((bits & SB_TURNAROUND) != 0)
+	if (cl_syncinput)
 	{
-		if (plr.turnAround == 0)
-			plr.turnAround = -1024;
-	}
-
-	if (plr.turnAround < 0)
-	{
-		plr.turnAround = (short)std::min(plr.turnAround + 64, 0);
-		plr.ang = BClampAngle(plr.ang + 64);
+		applylook(&plr.angle, plr.plInput.avel, &bits, 1, bits & SB_CROUCH);
 	}
 
 	if (plr.sector != -1 && ((sector[plr.sector].floorpicnum != LAVA || sector[plr.sector].floorpicnum != SLIME
@@ -431,13 +428,13 @@ void processinput(int num) {
 		yvect = plr.plInput.svel;
 
 		//			xvect = yvect = 0;
-		//			if (plr.pInput.fvel != 0) {
-		//				xvect = (int) (plr.pInput.fvel * tics * BCosAngle(plr.ang));
-		//				yvect = (int) (plr.pInput.fvel * tics * BSinAngle(plr.ang));
+		//			if (plr.plInput.fvel != 0) {
+		//				xvect = (int) (plr.plInput.fvel * tics * plr.angle.ang.bcos());
+		//				yvect = (int) (plr.plInput.fvel * tics * plr.angle.ang.bsin());
 		//			}
-		//			if (plr.pInput.svel != 0) {
-		//				xvect += (plr.pInput.svel * tics * BSinAngle(plr.ang));
-		//				yvect -= (plr.pInput.svel * tics * BCosAngle(plr.ang));
+		//			if (plr.plInput.svel != 0) {
+		//				xvect += (plr.plInput.svel * tics * plr.angle.ang.bsin());
+		//				yvect -= (plr.plInput.svel * tics * plr.angle.ang.bcos());
 		//			}
 
 		if (plr.noclip) {
@@ -586,14 +583,10 @@ void processinput(int num) {
 			runningtime = 0;
 		}
 	}
-	if (plr.plInput.avel != 0) {
-		plr.ang += plr.plInput.avel * TICSPERFRAME / 16.0f;
-		plr.ang = BClampAngle(plr.ang);
-	}
 
 	//game.pInt.setsprinterpolate(plr.spritenum, sprite[plr.spritenum]);
 	setsprite(plr.spritenum, plr.x, plr.y, plr.z + (plr.height << 8));
-	sprite[plr.spritenum].ang = (short)plr.ang;
+	UpdatePlayerSpriteAngle(plr);
 
 	if (plr.sector >= 0 && getceilzofslope(plr.sector, plr.x, plr.y) > getflorzofslope(plr.sector, plr.x, plr.y) - (8 << 8))
 		addhealth(plr, -10);

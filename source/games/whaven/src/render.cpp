@@ -16,8 +16,9 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	int cposx = plr.x;
 	int cposy = plr.y;
 	int cposz = plr.z;
-	float cang = plr.ang;
+	binangle cang = plr.angle.sum();
 	fixedhoriz choriz = plr.horizon.horiz + plr.horizon.interpolatedoff(dasmoothratio);
+	lookangle crotscrnang = plr.angle.rotscrnang;
 
 	if (!paused)
 	{
@@ -27,15 +28,12 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 		cposy = prevloc.y + mulscale16(cposy - prevloc.y, dasmoothratio);
 		cposz = prevloc.z + mulscale16(cposz - prevloc.z, dasmoothratio);
 
-		float inAngle = prevloc.ang;
-		inAngle += ((BClampAngle(cang - prevloc.ang + 1024) - 1024) * dasmoothratio) / 65536.0f;
-
 		if (cl_syncinput)
 		{
+			cang = plr.angle.interpolatedsum(dasmoothratio);
 			choriz = plr.horizon.interpolatedsum(dasmoothratio);
+			crotscrnang = plr.angle.interpolatedrotscrn(dasmoothratio);
 		}
-
-		cang = inAngle;
 	}
 
 	// wango
@@ -55,7 +53,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 			// Todo: render this with 30% light only.
 			inpreparemirror = true;
 			renderSetRollAngle(1024);
-			renderDrawRoomsQ16(cposx, cposy, cposz, FloatToFixed(cang), choriz.asq16(), floormirrorsector[i]);
+			renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), floormirrorsector[i]);
 			analyzesprites(plr, dasmoothratio);
 			renderDrawMasks();
 			renderSetRollAngle(0);
@@ -72,7 +70,10 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	if (cposz > floorz - lz)
 		cposz = floorz - lz;
 
-	renderDrawRoomsQ16(cposx, cposy, cposz, FloatToFixed(cang), choriz.asq16(), plr.sector);
+	// do screen rotation.
+	renderSetRollAngle(crotscrnang.asbam() / (double)(BAMUNIT));
+
+	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), plr.sector);
 	analyzesprites(plr, dasmoothratio);
 	renderDrawMasks();
 	if (!sceneonly)
@@ -80,7 +81,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 		DrawHud(dasmoothratio);
 		if (automapMode != am_off)
 		{
-			DrawOverheadMap(cposx, cposy, int(cang));
+			DrawOverheadMap(cposx, cposy, cang.asbuild());
 		}
 	}
 }
