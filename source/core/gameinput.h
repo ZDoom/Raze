@@ -91,6 +91,12 @@ struct PlayerHorizon
 		fixed_t const curr = sum().asq16();
 		return q16horiz(prev + xs_CRoundToInt(ratio * (curr - prev)));
 	}
+
+	fixedhoriz interpolatedoff(double const smoothratio)
+	{
+		double const ratio = smoothratio * (1. / FRACUNIT);
+		return q16horiz(ohorizoff.asq16() + xs_CRoundToInt(ratio * (horizoff - ohorizoff).asq16()));
+	}
 };
 
 struct PlayerAngle

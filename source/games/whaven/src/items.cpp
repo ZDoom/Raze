@@ -1062,7 +1062,7 @@ void InitItems()
 			{
 				if (plr.invincibletime <= 0 && !plr.godMode && !justteleported) {
 					addhealth(plr, -plr.health);
-					plr.horiz = 200;
+					plr.horizon.settarget(100);
 					plr.spiked = 1;
 				}
 			});
@@ -1071,7 +1071,7 @@ void InitItems()
 			{
 				if (plr.invincibletime <= 0 && !plr.godMode && !justteleported) {
 					addhealth(plr, -plr.health);
-					plr.horiz = 200;
+					plr.horizon.settarget(100);
 					plr.spiked = 1;
 				}
 			});
@@ -1080,7 +1080,7 @@ void InitItems()
 			{
 				if (plr.invincibletime <= 0 && !plr.godMode && !justteleported) {
 					addhealth(plr, -plr.health);
-					plr.horiz = 200;
+					plr.horizon.settarget(100);
 					plr.spiked = 1;
 				}
 			});

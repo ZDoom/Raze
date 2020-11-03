@@ -17,32 +17,26 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	int cposy = plr.y;
 	int cposz = plr.z;
 	float cang = plr.ang;
-	float choriz = plr.horiz + plr.jumphoriz;
+	fixedhoriz choriz = plr.horizon.horiz + plr.horizon.interpolatedoff(dasmoothratio);
 
 	if (!paused)
 	{
 		auto& prevloc = gPrevPlayerLoc[num];
 
-		int ix = prevloc.x;
-		int iy = prevloc.y;
-		int iz = prevloc.z;
-		float iHoriz = prevloc.horiz;
-		float inAngle = prevloc.ang;
+		cposx = prevloc.x + mulscale16(cposx - prevloc.x, dasmoothratio);
+		cposy = prevloc.y + mulscale16(cposy - prevloc.y, dasmoothratio);
+		cposz = prevloc.z + mulscale16(cposz - prevloc.z, dasmoothratio);
 
-		ix += mulscale(cposx - prevloc.x, dasmoothratio, 16);
-		iy += mulscale(cposy - prevloc.y, dasmoothratio, 16);
-		iz += mulscale(cposz - prevloc.z, dasmoothratio, 16);
-		iHoriz += ((choriz - prevloc.horiz) * dasmoothratio) / 65536.0f;
+		float inAngle = prevloc.ang;
 		inAngle += ((BClampAngle(cang - prevloc.ang + 1024) - 1024) * dasmoothratio) / 65536.0f;
 
-		cposx = ix;
-		cposy = iy;
-		cposz = iz;
+		if (cl_syncinput)
+		{
+			choriz = plr.horizon.interpolatedsum(dasmoothratio);
+		}
 
-		choriz = iHoriz;
 		cang = inAngle;
 	}
-	choriz -= 100;	// make it 0-based like the rest of the engine expects.
 
 	// wango
     if ((gotpic[FLOORMIRROR >> 3] & (1 << (FLOORMIRROR & 7))) != 0) {
@@ -61,7 +55,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 			// Todo: render this with 30% light only.
 			inpreparemirror = true;
 			renderSetRollAngle(1024);
-			renderDrawRoomsQ16(cposx, cposy, cposz, FloatToFixed(cang), FloatToFixed(101 - choriz), floormirrorsector[i]);
+			renderDrawRoomsQ16(cposx, cposy, cposz, FloatToFixed(cang), choriz.asq16(), floormirrorsector[i]);
 			analyzesprites(plr, dasmoothratio);
 			renderDrawMasks();
 			renderSetRollAngle(0);
@@ -78,7 +72,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	if (cposz > floorz - lz)
 		cposz = floorz - lz;
 
-	renderDrawRoomsQ16(cposx, cposy, cposz, FloatToFixed(cang), FloatToFixed(choriz), plr.sector);
+	renderDrawRoomsQ16(cposx, cposy, cposz, FloatToFixed(cang), choriz.asq16(), plr.sector);
 	analyzesprites(plr, dasmoothratio);
 	renderDrawMasks();
 	if (!sceneonly)

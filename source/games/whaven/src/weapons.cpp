@@ -901,7 +901,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 	Hitscan pHitInfo;
 	switch (guntype) {
 	case 0:
-		daz2 = (int) (100 - plr.horiz) * 2000;
+		daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
 
 		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
 				sintable[(daang + 2560) & 2047], // X vector of 3D ang
@@ -1673,7 +1673,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		}
 		break;
 	case 1: //bow's arrow
-		daz2 = (int) (100 - plr.horiz) * 2000;
+		daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
 
 		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
 				sintable[(daang + 2560) & 2047], // X vector of 3D ang
@@ -1887,7 +1887,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		break;
 	case 7: // KNOCKSPELL
 	{
-		daz2 = (int)(100 - plr.horiz) * 2000;
+		daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
 
 		Neartag ntag;
 		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
@@ -1949,7 +1949,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 							sprite[j].zvel = (short) shootgunzvel;
 							shootgunzvel = 0;
 						} else {
-							sprite[j].zvel = (short) ((100 - (int) plr.horiz) << 4);
+							sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
 						}
 						sprite[j].owner = sprite[plr.spritenum].owner;
 						sprite[j].lotag = 1024;
@@ -1974,7 +1974,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						sprite[j].shade = -15;
 						sprite[j].xvel = (short) ((krand() & 256) - 128);
 						sprite[j].yvel = (short) ((krand() & 256) - 128);
-						sprite[j].zvel = (short) ((100 - (int) plr.horiz) << 4);
+						sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
 						sprite[j].owner = sprite[plr.spritenum].owner;
 						sprite[j].lotag = 1024;
 						sprite[j].hitag = 0;
@@ -2001,7 +2001,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					sprite[j].xvel = (short) ((krand() & 256) - 128);
 					sprite[j].yvel = (short) ((krand() & 256) - 128);
 					// sprite[j].zvel=((krand()&256)-128);
-					sprite[j].zvel = (short) ((int) (100 - plr.horiz) << 4);
+					sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
 					sprite[j].owner = sprite[plr.spritenum].owner;
 					sprite[j].lotag = 1024;
 					sprite[j].hitag = 0;
@@ -2039,7 +2039,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						sprite[j].shade = -15;
 						sprite[j].xvel = (short) ((krand() & 256) - 128);
 						sprite[j].yvel = (short) ((krand() & 256) - 128);
-						sprite[j].zvel = (short) ((100 - (int) plr.horiz) << 4);
+						sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
 						sprite[j].owner = sprite[plr.spritenum].owner;
 						sprite[j].lotag = 1024;
 						sprite[j].hitag = 0;
@@ -2063,7 +2063,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						sprite[j].shade = -15;
 						sprite[j].xvel = (short) ((krand() & 256) - 128);
 						sprite[j].yvel = (short) ((krand() & 256) - 128);
-						sprite[j].zvel = (short) ((100 - (int) plr.horiz) << 4);
+						sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
 						sprite[j].owner = sprite[plr.spritenum].owner;
 						sprite[j].lotag = 1024;
 						sprite[j].hitag = 0;
@@ -2122,7 +2122,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			sprite[j].zvel = (short) shootgunzvel;
 			shootgunzvel = 0;
 		} else {
-			sprite[j].zvel = (short) ((int) (100 - plr.horiz) << 4);
+			sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
 		}
 
 		sprite[j].owner = sprite[plr.spritenum].owner;
@@ -2159,7 +2159,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			sprite[j].zvel = (short) shootgunzvel;
 			shootgunzvel = 0;
 		} else {
-			sprite[j].zvel = (short) ((int) (100 - plr.horiz) << 4);
+			sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
 		}
 
 		sprite[j].owner = sprite[plr.spritenum].owner;

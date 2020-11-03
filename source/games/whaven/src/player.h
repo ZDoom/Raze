@@ -1,6 +1,7 @@
 #pragma once
 
 #include "packet.h"
+#include "gameinput.h"
 
 BEGIN_WH_NS
 
@@ -10,7 +11,7 @@ struct PLAYER {
 	int spellnum;
 	int x,y,z;
 	float ang;
-    float horiz, jumphoriz;
+    PlayerHorizon horizon;
     int height;
     int hvel;               
     short sector;

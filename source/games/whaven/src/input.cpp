@@ -207,7 +207,9 @@ void processinput(int num) {
 	oldposx = plr.x;
 	oldposy = plr.y;
 
-	auto bits = plr.plInput.actions;
+	plr.horizon.resetadjustment();
+
+	auto& bits = plr.plInput.actions;
 
 	if ((bits & SB_JUMP) == 0)
 		plr.keytoggle = false;
@@ -217,8 +219,8 @@ void processinput(int num) {
 	if (plr.health <= 0) {
 		playerdead(plr);
 		if (plr.dead) {
-			if (plr.horiz < 100 + (200 >> 1))
-				plr.horiz += (TICSPERFRAME << 1);
+			if (plr.horizon.horiz.asbuild() < gi->playerHorizMax())
+				plr.horizon.addadjustment(TICSPERFRAME << 1);
 		}
 		return;
 	}
@@ -260,18 +262,9 @@ void processinput(int num) {
 			tics += tics >> 1;
 	}
 
-	plr.horiz = clamp(plr.horiz + plr.plInput.horz, -(200 >> 1), 100 + (200 >> 1));
-
-	if ((bits & SB_AIM_DOWN) != 0) {
-		if (plr.horiz > 100 - (200 >> 1)) {
-			plr.horiz -= (TICSPERFRAME << 1);
-			autohoriz = 0;
-		}
-	}
-	else if ((bits & SB_AIM_UP) != 0) {
-		if (plr.horiz < 100 + (200 >> 1))
-			plr.horiz += (TICSPERFRAME << 1);
-		autohoriz = 0;
+	if (cl_syncinput)
+	{
+		sethorizon(&plr.horizon.horiz, plr.plInput.horz, &bits, 1);
 	}
 
 	if ((bits & SB_FLYSTOP) != 0)
@@ -483,7 +476,7 @@ void processinput(int num) {
 		}
 
 		// walking on sprite
-		plr.horiz -= oldhoriz;
+		plr.horizon.addadjustment(-oldhoriz);
 
 		dist = ksqrt((plr.x - oldposx) * (plr.x - oldposx) + (plr.y - oldposy) * (plr.y - oldposy));
 
@@ -492,12 +485,10 @@ void processinput(int num) {
 
 		if (dist > 0 && feetoffground <= (plr.height << 8) || onsprite != -1) {
 			oldhoriz = ((dist * sintable[(lockclock << 5) & 2047]) >> 19) >> 2;
-			plr.horiz += oldhoriz;
+			plr.horizon.addadjustment(oldhoriz);
 		}
 		else
 			oldhoriz = 0;
-
-		plr.horiz = clamp(plr.horiz, -(200 >> 1), 100 + (200 >> 1));
 
 		if (onsprite != -1 && dist > 50 && lopoint == 1 && justplayed == 0) {
 
@@ -607,19 +598,6 @@ void processinput(int num) {
 	if (plr.sector >= 0 && getceilzofslope(plr.sector, plr.x, plr.y) > getflorzofslope(plr.sector, plr.x, plr.y) - (8 << 8))
 		addhealth(plr, -10);
 
-	if ((bits & SB_CENTERVIEW) != 0) {
-		autohoriz = 1;
-	}
-
-	if (autohoriz == 1)
-	{
-		if (plr.horiz < 100)
-			plr.horiz = std::min<float>(plr.horiz + (TICSPERFRAME << 2), 100);
-		if (plr.horiz > 100)
-			plr.horiz = std::max<float>(plr.horiz - (TICSPERFRAME << 2), 100);
-		if (plr.horiz == 100)
-			autohoriz = 0;
-	}
 	if (plr.currweaponfired != 1 && plr.currweaponfired != 6)
 		plr.hasshot = 0;
 	weaponchange(num);

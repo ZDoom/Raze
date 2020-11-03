@@ -211,7 +211,7 @@ void aiProcess() {
 	PLAYER& plr = player[0];
 
 	//		short daang = (short) plr.ang;
-	//		int daz2 = (int) (100 - plr.horiz) * 2000;
+	//		int daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
 	//		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
 	//				sintable[(daang + 2560) & 2047], // X vector of 3D ang
 	//				sintable[(daang + 2048) & 2047], // Y vector of 3D ang

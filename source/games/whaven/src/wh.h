@@ -135,7 +135,6 @@ struct PLOCATION {
 	int y;
 	int z;
 	float ang;
-	float horiz;
 };
 
 extern int killcnt, kills;
@@ -206,7 +205,6 @@ extern short monsterangle[MAXSPRITESONSCREEN], monsterlist[MAXSPRITESONSCREEN];
 extern int shootgunzvel;
 extern boolean justteleported;
 extern int victor;
-extern int autohoriz; // XXX NOT FOR MULTIPLAYER
 
 extern int pyrn;
 extern int mapon;
@@ -539,6 +537,8 @@ struct GameInterface : public ::GameInterface
 	void LevelCompleted(MapRecord* map, int skill) override;
 	//bool DrawAutomapPlayer(int x, int y, int z, int a) override;
 	int playerKeyMove() override { return isWh2()? 20:15; }
+	fixed_t playerHorizMin() override { return IntToFixed(-145); }
+	fixed_t playerHorizMax() override { return IntToFixed(145); }
 
 };
  

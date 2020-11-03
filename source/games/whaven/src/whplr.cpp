@@ -14,7 +14,6 @@ int shootgunzvel;
 boolean justteleported;
 
 int victor = 0;
-int autohoriz = 0; // XXX NOT FOR MULTIPLAYER
 
 int pyrn;
 int mapon;
@@ -28,7 +27,7 @@ void viewBackupPlayerLoc( int nPlayer )
 	pPLocation.y = pSprite.y;
 	pPLocation.z = player[nPlayer].z;
 	pPLocation.ang = player[nPlayer].ang;
-	pPLocation.horiz = player[nPlayer].horiz + player[nPlayer].jumphoriz;
+	player[nPlayer].horizon.backup();
 }
 	
 void playerdead(PLAYER& plr) {
@@ -88,7 +87,7 @@ void initplayersprite(PLAYER& plr) {
 	plr.poisontime = -1;
 
 	plr.oldsector = plr.sector;
-	plr.horiz = 100;
+	plr.horizon.horiz = q16horiz(0);
 	plr.height = getPlayerHeight();
 	plr.z = sector[plr.sector].floorz - (plr.height << 8);
 
@@ -245,7 +244,7 @@ void plruse(PLAYER& plr) {
 			operatesector(plr, nt.tagsector);
 		} else {
 			short daang = (short) plr.ang;
-			int daz2 = (int) (100 - plr.horiz) * 2000;
+			int daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
 			Hitscan pHitInfo;
 			hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
 					sintable[(daang + 2560) & 2047], // X vector of 3D ang
@@ -601,9 +600,10 @@ void lockon(PLAYER& plr, int numshots, int shootguntype) {
 void dophysics(PLAYER& plr, int goalz, int flyupdn, int v) {
 	if (plr.orbactive[5] > 0) {
 		if (v > 0) {
-			if (plr.horiz > 125)
+			auto horiz = plr.horizon.horiz.asbuild();
+			if (horiz > 25)
 				plr.hvel -= (TICSPERFRAME << 8);
-			else if (plr.horiz < 75)
+			else if (horiz < -25)
 				plr.hvel += (TICSPERFRAME << 8);
 		}
 		if (flyupdn > 0) {
@@ -664,7 +664,7 @@ void dophysics(PLAYER& plr, int goalz, int flyupdn, int v) {
 			}
 		}
 	}
-	plr.jumphoriz = -(plr.hvel >> 8);
+	plr.horizon.horizoff = q16horiz(-plr.hvel << 8);
 }
 
 
