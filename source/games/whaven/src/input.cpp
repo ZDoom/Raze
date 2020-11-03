@@ -150,19 +150,15 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         processMovement(&input, &localInput, hidInput, scaleAdjust);
     }
 
-	/*
     if (!cl_syncinput)
     {
-        auto plr = &player[myconnectindex];
-		PlayerAngle ang;
-        applylook(&ang, input.avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust, eyelevel[nLocalPlayer] > -14080);
-            sethorizon(&pPlayer->horizon.horiz, input.horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
+        applylook(&plr.angle, input.avel, &plr.plInput.actions, scaleAdjust, plr.plInput.actions & SB_CROUCH);
+        sethorizon(&plr.horizon.horiz, input.horz, &plr.plInput.actions, scaleAdjust);
 
-        pPlayer->angle.processhelpers(scaleAdjust);
-        pPlayer->horizon.processhelpers(scaleAdjust);
-        UpdatePlayerSpriteAngle(pPlayer);
+        plr.angle.processhelpers(scaleAdjust);
+        plr.horizon.processhelpers(scaleAdjust);
+        UpdatePlayerSpriteAngle(plr);
     }
-	*/
 
     if (packet)
     {
