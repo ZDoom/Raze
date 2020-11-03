@@ -3513,6 +3513,7 @@ void moveeffectors_r(void)   //STATNUM 3
 			
 		case SE_6_SUBWAY:
 			handle_se06_r(act);
+			break;
 
 		case SE_14_SUBWAY_CAR:
 			handle_se14(act, false, RPG, JIBS6);
