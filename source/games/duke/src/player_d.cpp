@@ -320,7 +320,7 @@ static void shootweapon(int i, int p, int sx, int sy, int sz, int sa, int atwith
 	auto s = &actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitspr, hitwall, l, j, k;
+	short hitsect, hitspr, hitwall, l, j, k = -1;
 	int hitx, hity, hitz;
 
 	if (s->extra >= 0) s->shade = -96;

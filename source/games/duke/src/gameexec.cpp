@@ -1505,7 +1505,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 int ParseState::parse(void)
 {
 	int j, l, s;
-	auto g_sp = &g_ac->s;
+	auto g_sp = g_ac? &g_ac->s : nullptr;
 
 	if(killit_flag) return 1;
 

@@ -1117,7 +1117,7 @@ void shootbloodsplat(int i, int p, int sx, int sy, int sz, int sa, int atwith, i
 				spawned->s.y = hity;
 				spawned->s.z = hitz;
 				spawned->s.cstat |= (krand() & 4);
-				ssp(k, CLIPMASK0);
+				ssp(spawned, CLIPMASK0);
 				setsprite(spawned, spawned->s.pos);
 				if (s->picnum == OOZFILTER || s->picnum == NEWBEAST)
 					spawned->s.pal = 6;
