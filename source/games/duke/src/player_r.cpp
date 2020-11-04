@@ -4030,7 +4030,8 @@ HORIZONLY:
 		psect = s->sectnum;
 		if (ud.clipping == 0 && sector[psect].lotag == ST_31_TWO_WAY_TRAIN)
 		{
-			if (sprite[sector[psect].hitag].xvel && hittype[sector[psect].hitag].temp_data[0] == 0) // hijack
+			auto act = ScriptIndexToActor(sector[psect].hitag);
+			if (act && act->s.xvel && act->temp_data[0] == 0)
 			{
 				quickkill(p);
 				return;

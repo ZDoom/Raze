@@ -961,7 +961,7 @@ void spawneffector(DDukeActor* actor)
 					if (sp->pal) sp->clipdist = 1;
 					else sp->clipdist = 0;
 					t[3] = sector[sect].floorz;
-					sector[sect].hitag = actor->GetIndex(); // hijack
+					sector[sect].hitag = ActorToScriptIndex(actor);
 				}
 
 				DukeSpriteIterator it;
@@ -1014,7 +1014,7 @@ void spawneffector(DDukeActor* actor)
 					sp->extra = 0;
 				else sp->extra = 1;
 
-				sector[sect].hitag = actor->GetIndex(); // hijack
+				sector[sect].hitag = ActorToScriptIndex(actor);
 
 				int j = 0;
 
