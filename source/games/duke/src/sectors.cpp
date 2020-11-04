@@ -971,7 +971,8 @@ void operatesectors(int sn, DDukeActor *actor)
 
 	case ST_30_ROTATE_RISE_BRIDGE:
 	{
-		auto act = &hittype[sector[sn].hitag];
+		auto act = ScriptIndexToActor(sector[sn].hitag);
+		if (!act) break;
 		if (act->tempang == 0 || act->tempang == 256) callsound(sn, actor);
 		if (act->s.extra == 1) act->s.extra = 3;
 		else act->s.extra = 1;
@@ -980,7 +981,8 @@ void operatesectors(int sn, DDukeActor *actor)
 
 	case ST_31_TWO_WAY_TRAIN:
 	{
-		auto act = &hittype[sector[sn].hitag];
+		auto act = ScriptIndexToActor(sector[sn].hitag);
+		if (!act) break;
 		if (act->temp_data[4] == 0)
 			act->temp_data[4] = 1;
 
