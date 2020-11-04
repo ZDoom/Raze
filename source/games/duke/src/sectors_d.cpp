@@ -1723,6 +1723,7 @@ void checksectors_d(int snum)
 						return;
 					}
 				}
+				i = -1;
 			}
 
 		CLEARCAMERAS:
