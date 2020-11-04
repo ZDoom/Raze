@@ -50,8 +50,8 @@ int spawn_d(int j, int pn)
     i &= 0xffffff;
     auto act = &hittype[i];
     auto sp = &act->s;
-    auto actj = &hittype[j];
-    auto spj = &actj->s;
+    auto actj = j == -1 ? nullptr : &hittype[j];
+    auto spj = j == -1 ? nullptr : &actj->s;
     auto t = act->temp_data;
     int sect = sp->sectnum;
 

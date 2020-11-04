@@ -1720,7 +1720,7 @@ void checksectors_d(int snum)
 						p->cursectnum = j;
 
 						// parallaxtype = 2;
-						p->newowner = i;
+						p->newowner = acti->GetIndex();
 						return;
 					}
 				}
