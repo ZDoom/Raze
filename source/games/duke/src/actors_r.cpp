@@ -4213,7 +4213,7 @@ void destroyit(DDukeActor *actor)
 			}
 	}
 	it1.Reset(actor->s.sectnum);
-	while (auto a2 = it.Next())
+	while (auto a2 = it1.Next())
 	{
 		switch (a2->s.picnum)
 		{
