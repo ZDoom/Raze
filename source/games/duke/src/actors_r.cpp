@@ -433,10 +433,10 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	{
 		if (spri->statnum == STAT_PROJECTILE)
 			retval =
-			clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8L, (4 << 8), (4 << 8), cliptype);
+			clipmove_ex(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8L, (4 << 8), (4 << 8), cliptype, result);
 		else
 			retval =
-			clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 128, (4 << 8), (4 << 8), cliptype);
+			clipmove_ex(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 128, (4 << 8), (4 << 8), cliptype, result);
 	}
 
 	if (dasectnum >= 0)
@@ -448,7 +448,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	else if (retval == 0)
 		return result.setSector(dasectnum);
 
-	return result.setFromEngine(retval);
+	return retval;
 }
 
 //---------------------------------------------------------------------------

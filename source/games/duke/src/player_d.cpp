@@ -3066,8 +3066,8 @@ HORIZONLY:
 		psect = s->sectnum;
 		if (ud.clipping == 0 && sector[psect].lotag == 31)
 		{
-			auto secact = &hittype[sector[psect].hitag];
-			if (secact->s.xvel && secact->temp_data[0] == 0)
+			auto secact = ScriptIndexToActor(sector[psect].hitag);
+			if (secact && secact->s.xvel && secact->temp_data[0] == 0)
 			{
 				quickkill(p);
 				return;
