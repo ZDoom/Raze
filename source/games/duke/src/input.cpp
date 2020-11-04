@@ -586,7 +586,7 @@ int getticssincelastupdate()
 //
 //---------------------------------------------------------------------------
 
-static double motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor)
+static double motoApplyTurn(player_struct* p, bool turnl, bool turnr, int bike_turn, bool goback, double factor)
 {
 	int turnvel = 0;
 	p->oTiltStatus = p->TiltStatus;
@@ -673,7 +673,7 @@ static double motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_tur
 //
 //---------------------------------------------------------------------------
 
-static double boatApplyTurn(player_struct *p, int turnl, int turnr, int boat_turn, double factor)
+static double boatApplyTurn(player_struct *p, bool turnl, bool turnr, int boat_turn, double factor)
 {
 	int turnvel = 0;
 	int tics = getticssincelastupdate();
@@ -761,15 +761,15 @@ static double boatApplyTurn(player_struct *p, int turnl, int turnr, int boat_tur
 static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, InputPacket& input, double scaleAdjust)
 {
 	auto turnspeed = hidInput->mouseturnx + scaleAdjust * hidInput->dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
-	int turnl = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
-	int turnr = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
+	bool turnl = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
+	bool turnr = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
 
 	// Cancel out micro-movement
 	const double turn_threshold = 1 / 65536.;
 	if (turnspeed < -turn_threshold)
-		turnl = 1;
+		turnl = true;
 	else if (turnspeed > turn_threshold)
-		turnr = 1;
+		turnr = true;
 	else
 		turnspeed = 0;
 
@@ -782,8 +782,8 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 			loc.actions |= SB_CROUCH;
 	}
 
-	if (turnl) p->vehicle_turnl = true;
-	if (turnr) p->vehicle_turnr = true;
+	p->vehTurnLeft = turnl;
+	p->vehTurnRight = turnr;
 
 	double turnvel;
 

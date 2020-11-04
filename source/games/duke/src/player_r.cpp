@@ -1573,7 +1573,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	auto pact = p->GetActor();
 	auto s = &pact->s;
 
-	int braking, turnLeft, turnRight;
+	int braking;
 	short rng;
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
@@ -1626,24 +1626,6 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		}
 		if (!S_CheckActorSoundPlaying(pact, 189) && !S_CheckActorSoundPlaying(pact, 187))
 			S_PlayActorSound(187, pact);
-	}
-	if (p->vehicle_turnl)
-	{
-		turnLeft = 1;
-		p->vehicle_turnl = false;
-	}
-	else
-	{
-		turnLeft = 0;
-	}
-	if (p->vehicle_turnr)
-	{
-		turnRight = 1;
-		p->vehicle_turnr = false;
-	}
-	else
-	{
-		turnRight = 0;
 	}
 	if (p->drink_amt > 88 && p->moto_drink == 0)
 	{
@@ -1698,12 +1680,12 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		}
 		if (p->vehReverseScale != 0 && p->MotoSpeed <= 0 && !braking)
 		{
-			int temp;
+			bool temp;
 			p->MotoSpeed = -15 * p->vehReverseScale;
 			p->vehReverseScale = 0;
-			temp = turnRight;
-			turnRight = turnLeft;
-			turnLeft = temp;
+			temp = p->vehTurnRight;
+			p->vehTurnRight = p->vehTurnLeft;
+			p->vehTurnLeft = temp;
 		}
 	}
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
@@ -1711,12 +1693,12 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		if (!p->VBumpNow)
 			if ((krand() & 3) == 2)
 				p->VBumpTarget = (p->MotoSpeed / 16.) * ((krand() & 7) - 4);
-		if (turnLeft || p->moto_drink < 0)
+		if (p->vehTurnLeft || p->moto_drink < 0)
 		{
 			if (p->moto_drink < 0)
 				p->moto_drink++;
 		}
-		else if (turnRight || p->moto_drink > 0)
+		else if (p->vehTurnRight || p->moto_drink > 0)
 		{
 			if (p->moto_drink > 0)
 				p->moto_drink--;
@@ -1772,9 +1754,9 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 
 	double currSpeed = p->MotoSpeed;
 	short currAngle = p->angle.ang.asbuild(), velAdjustment, angAdjustment;
-	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (turnLeft || turnRight))
+	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
-		if (turnLeft)
+		if (p->vehTurnLeft)
 			velAdjustment = -10;
 		else
 			velAdjustment = 10;
@@ -1844,6 +1826,8 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 	p->moto_on_mud = 0;
 	p->moto_on_oil = 0;
+	p->vehTurnLeft = false;
+	p->vehTurnRight = false;
 }
 
 //---------------------------------------------------------------------------
@@ -1858,7 +1842,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	auto pact = p->GetActor();
 	auto s = &pact->s;
 
-	int heeltoe, braking, turnLeft, turnRight;
+	int heeltoe, braking;
 	short rng;
 	if (p->NotOnWater)
 	{
@@ -1922,27 +1906,15 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	else
 		braking = 0;
-	if (p->vehicle_turnl)
+	if (p->vehTurnLeft)
 	{
-		turnLeft = 1;
-		p->vehicle_turnl = false;
 		if (!S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 			S_PlayActorSound(91, pact);
 	}
-	else
+	if (p->vehTurnRight)
 	{
-		turnLeft = 0;
-	}
-	if (p->vehicle_turnr)
-	{
-		turnRight = 1;
-		p->vehicle_turnr = false;
 		if (!S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 			S_PlayActorSound(91, pact);
-	}
-	else
-	{
-		turnRight = 0;
 	}
 	if (!p->NotOnWater)
 	{
@@ -2012,12 +1984,12 @@ static void onBoat(int snum, ESyncBits &actions)
 		}
 		if (p->vehReverseScale != 0 && p->MotoSpeed == 0 && !braking)
 		{
-			int temp;
+			bool temp;
 			p->MotoSpeed = -(!p->NotOnWater ? 25 : 20) * p->vehReverseScale;
 			p->vehReverseScale = 0;
-			temp = turnRight;
-			turnRight = turnLeft;
-			turnLeft = temp;
+			temp = p->vehTurnRight;
+			p->vehTurnRight = p->vehTurnLeft;
+			p->vehTurnLeft = temp;
 		}
 	}
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
@@ -2025,12 +1997,12 @@ static void onBoat(int snum, ESyncBits &actions)
 		if (!p->VBumpNow)
 			if ((krand() & 15) == 14)
 				p->VBumpTarget = (p->MotoSpeed / 16.) * ((krand() & 3) - 2);
-		if (turnLeft || p->moto_drink < 0)
+		if (p->vehTurnLeft || p->moto_drink < 0)
 		{
 			if (p->moto_drink < 0)
 				p->moto_drink++;
 		}
-		else if (turnRight || p->moto_drink > 0)
+		else if (p->vehTurnRight || p->moto_drink > 0)
 		{
 			if (p->moto_drink > 0)
 				p->moto_drink--;
@@ -2084,11 +2056,11 @@ static void onBoat(int snum, ESyncBits &actions)
 		p->horizon.addadjustment(horiz - FixedToFloat(p->horizon.horiz.asq16()));
 	}
 
-	if (p->MotoSpeed > 0 && p->on_ground == 1 && (turnLeft || turnRight))
+	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
 		double currSpeed = p->MotoSpeed;
 		short currAngle = p->angle.ang.asbuild(), velAdjustment, angAdjustment;
-		if (turnLeft)
+		if (p->vehTurnLeft)
 			velAdjustment = -10;
 		else
 			velAdjustment = 10;
@@ -2118,6 +2090,8 @@ static void onBoat(int snum, ESyncBits &actions)
 		if (p->MotoSpeed > 50)
 			p->MotoSpeed -= (p->MotoSpeed / 2.);
 
+	p->vehTurnLeft = false;
+	p->vehTurnRight = false;
 }
 
 //---------------------------------------------------------------------------
