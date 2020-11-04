@@ -69,8 +69,6 @@ int32_t voxscale[MAXVOXELS];
 
 static int32_t beforedrawrooms = 1;
 
-static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
-
 int32_t globalflags;
 
 static int8_t tempbuf[MAXWALLS];
@@ -398,49 +396,6 @@ static inline void initksqrt(void)
         sqrtable_old[i] = root;
     }
 }
-
-
-//
-// dosetaspect
-//
-static void dosetaspect(void)
-{
-    int32_t i, j;
-
-    if (xyaspect != oxyaspect)
-    {
-        oxyaspect = xyaspect;
-        j = xyaspect*320;
-    }
-
-    if (xdimen != oxdimen || viewingrange != oviewingrange)
-    {
-        int32_t k, x, xinc;
-
-        no_radarang2 = 0;
-        oviewingrange = viewingrange;
-
-        xinc = mulscale32(viewingrange*2560,xdimenrecip);
-        x = IntToFixed(5120)-mulscale1(xinc,xdimen);
-
-        for (i=0; i<xdimen; i++)
-        {
-            j = (x&65535); k = FixedToInt(x); x += xinc;
-
-            if (k < 0 || k >= (int32_t)countof(qradarang)-1)
-            {
-                no_radarang2 = 1;
-                break;
-            }
-
-            if (j != 0)
-                j = mulscale16(qradarang[k+1]-qradarang[k], j);
-        }
-
-        oxdimen = xdimen;
-    }
-}
-
 
 static int32_t engineLoadTables(void)
 {
@@ -1091,9 +1046,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     qglobalhoriz = mulscale16(dahoriz, divscale16(xdimenscale, viewingrange))+IntToFixed(ydimen>>1);
 
     globalcursectnum = dacursectnum;
-
-    if ((xyaspect != oxyaspect) || (xdimen != oxdimen) || (viewingrange != oviewingrange))
-        dosetaspect();
 
     memset(gotsector, 0, sizeof(gotsector));
 
@@ -1921,9 +1873,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             renderFillPolygon(npoints);
         }
     }
-
-
-        renderSetAspect(oviewingrange, oyxaspect);
 }
 
 //
@@ -1956,9 +1905,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 #endif
 
     j = ydim*4;  //Leave room for horizlookup&horizlookup2
-
-    //Force drawrooms to call dosetaspect & recalculate stuff
-    oxyaspect = oxdimen = oviewingrange = -1;
 
     videoSetViewableArea(0L,0L,xdim-1,ydim-1);
     videoClearScreen(0L);
