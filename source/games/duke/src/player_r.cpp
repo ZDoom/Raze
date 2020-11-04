@@ -1573,17 +1573,17 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	auto pact = p->GetActor();
 	auto s = &pact->s;
 
-	int braking;
+	bool braking;
 	short rng;
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
 	if (actions & SB_CROUCH)
 	{
-		braking = 1;
+		braking = true;
 		actions &= ~SB_CROUCH;
 	}
 	else
-		braking = 0;
+		braking = false;
 
 	if (p->vehForwardScale != 0)
 	{
@@ -1842,7 +1842,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	auto pact = p->GetActor();
 	auto s = &pact->s;
 
-	int heeltoe, braking;
+	bool heeltoe, braking;
 	short rng;
 	if (p->NotOnWater)
 	{
@@ -1861,13 +1861,13 @@ static void onBoat(int snum, ESyncBits &actions)
 		p->MotoSpeed = 0;
 	if ((actions & SB_CROUCH) && (p->vehForwardScale != 0))
 	{
-		heeltoe = 1;
-		braking = 0;
+		heeltoe = true;
+		braking = false;
 		p->vehForwardScale = 0;
 		actions &= ~SB_CROUCH;
 	}
 	else
-		heeltoe = 0;
+		heeltoe = false;
 	if (p->vehForwardScale != 0)
 	{
 		if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pact, 89))
@@ -1901,11 +1901,11 @@ static void onBoat(int snum, ESyncBits &actions)
 
 	if (actions & SB_CROUCH)
 	{
-		braking = 1;
+		braking = true;
 		actions &= ~SB_CROUCH;
 	}
 	else
-		braking = 0;
+		braking = false;
 	if (p->vehTurnLeft)
 	{
 		if (!S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
