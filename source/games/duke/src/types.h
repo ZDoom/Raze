@@ -77,12 +77,12 @@ struct weaponhit
 	// This used the Owner field - better move this to something more safe.
 	inline bool IsActiveCrane()
 	{
-		return palvals == -2;
+		return s.owner == -2;
 	}
 
 	inline void SetActiveCrane(bool yes)
 	{
-		palvals = yes ? -2 : -1;
+		s.owner = yes ? -2 : -1;
 	}
 
 	int PlayerIndex() const

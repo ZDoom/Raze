@@ -715,7 +715,7 @@ void movecrane(DDukeActor *actor, int crane)
 							ps[p].on_crane = nullptr;
 					}
 					t[0]++;
-					actor->SetOwner(nullptr);
+					actor->SetActiveCrane(false);
 				}
 			}
 		}
@@ -789,7 +789,7 @@ void movecrane(DDukeActor *actor, int crane)
 	setsprite(ScriptIndexToActor(msy[t[4] + 2]), spri->x, spri->y, spri->z - (34 << 8));
 
 	auto Owner = actor->GetOwner();
-	if (Owner != nullptr)
+	if (Owner != nullptr || actor->IsActiveCrane())
 	{
 		int p = findplayer(actor, &x);
 
@@ -804,14 +804,13 @@ void movecrane(DDukeActor *actor, int crane)
 			return;
 		}
 
-		auto a_owner = actor->GetOwner();
-		if (a_owner != nullptr)
+		if (Owner != nullptr)
 		{
-			setsprite(a_owner, spri->pos);
+			setsprite(Owner, spri->pos);
 
-			a_owner->bposx = spri->x;
-			a_owner->bposy = spri->y;
-			a_owner->bposz = spri->z;
+			Owner->bposx = spri->x;
+			Owner->bposy = spri->y;
+			Owner->bposz = spri->z;
 
 			spri->zvel = 0;
 		}
