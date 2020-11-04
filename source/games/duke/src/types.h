@@ -266,7 +266,7 @@ struct player_struct
 	int drug_timer;
 	int SeaSick;
 	short MamaEnd; // raat609
-	short MotoSpeed, moto_drink;
+	short moto_drink;
 	float TiltStatus, oTiltStatus;
 	short VBumpNow, VBumpTarget, TurbCount;
 	short drug_stat[3]; // raat5f1..5
@@ -275,6 +275,7 @@ struct player_struct
 	uint8_t hurt_delay2, nocheat;
 	uint8_t OnMotorcycle, OnBoat, moto_underwater, NotOnWater, MotoOnGround;
 	uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
+	double MotoSpeed;
 	bool vehicle_turnl, vehicle_turnr, vehicle_backwards;
 
 	int8_t crouch_toggle;

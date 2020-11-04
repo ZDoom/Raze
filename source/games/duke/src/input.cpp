@@ -804,7 +804,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 	if (turnspeed)
 		turnvel *= clamp(turnspeed * turnspeed, 0., 1.);
 
-	input.fvel = p->MotoSpeed;
+	input.fvel = xs_CRoundToInt(p->MotoSpeed);
 	input.avel = turnvel * (45. / 256.);
 	loc.avel = clamp(loc.avel + input.avel, -MAXANGVEL, MAXANGVEL);
 }
