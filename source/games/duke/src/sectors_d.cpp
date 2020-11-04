@@ -1710,7 +1710,7 @@ void checksectors_d(int snum)
 
 						neartagsprite->SetOwner(acti);
 						neartagsprite->s.yvel = 1;
-						camsprite = neartagsprite->GetIndex();
+						camsprite = neartagsprite;
 
 
 						j = p->cursectnum;

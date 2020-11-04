@@ -84,7 +84,7 @@ animwalltype animwall[MAXANIMWALLS];
 int numanimwalls;
 int animatecnt;
 int numclouds;
-int camsprite;
+DDukeActor* camsprite;
 int numcyclers;
 int earthquaketime;
 int freezerhurtowner;

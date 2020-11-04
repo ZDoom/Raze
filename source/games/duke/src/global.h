@@ -70,7 +70,7 @@ extern animwalltype animwall[MAXANIMWALLS];
 extern int numanimwalls;
 extern int animatecnt;
 extern int numclouds;
-extern int camsprite;
+extern DDukeActor* camsprite;
 extern int numcyclers;
 extern int earthquaketime;
 extern int freezerhurtowner;

@@ -418,7 +418,7 @@ void resetprestat(int snum,int g)
     paused             = 0;
     ud.cameraactor =nullptr;
     tempwallptr             = 0;
-    camsprite               =-1;
+    camsprite               =nullptr;
     earthquaketime          = 0;
 
     WindTime = 0;
@@ -742,8 +742,8 @@ void resettimevars(void)
 {
     cloudclock = 0;
 	ud.levelclock = 0;
-    if (camsprite >= 0)
-        hittype[camsprite].temp_data[0] = 0;
+    if (camsprite != nullptr)
+        camsprite->temp_data[0] = 0;
 }
 
 //---------------------------------------------------------------------------

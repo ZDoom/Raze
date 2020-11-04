@@ -1301,12 +1301,12 @@ static void moveviewscreen(DDukeActor* actor)
 		{
 #if 0
 			if (actor->s.yvel  == 1)
-				camsprite = i;
+				camsprite = actor;
 #endif
 		}
-		else if (camsprite != -1 && actor->temp_data[0] == 1)
+		else if (camsprite != nullptr && actor->temp_data[0] == 1)
 		{
-			camsprite = -1;
+			camsprite = nullptr;
 			actor->s.yvel = 0;
 			actor->temp_data[0] = 0;
 		}

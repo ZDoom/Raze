@@ -259,14 +259,14 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			continue;
 		case VIEWSCREEN:
 		case VIEWSCREEN2:
-			if (camsprite >= 0 && h->GetOwner()->temp_data[0] == 1)
+			if (camsprite != nullptr && h->GetOwner()->temp_data[0] == 1)
 			{
 				t->picnum = STATIC;
 				t->cstat |= (rand() & 12);
 				t->xrepeat += 8;
 				t->yrepeat += 8;
 			}
-			else if (camsprite >= 0)
+			else if (camsprite != nullptr)
 			{
 				t->picnum = TILE_VIEWSCR;
 			}

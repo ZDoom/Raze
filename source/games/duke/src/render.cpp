@@ -273,18 +273,15 @@ void animatecamsprite(double smoothratio)
 {
 	const int VIEWSCREEN_ACTIVE_DISTANCE = 8192;
 
-	if (camsprite < 0)
+	if (camsprite == nullptr)
 		return;
 
-	int spriteNum = camsprite;
-
 	auto p = &ps[screenpeek];
-	auto act = &hittype[spriteNum];
-	auto sp = &act->s;
+	auto sp = &camsprite->s;
 
-	if (p->newOwner != nullptr) act->SetOwner(p->newOwner);
+	if (p->newOwner != nullptr) camsprite->SetOwner(p->newOwner);
 
-	if (act->GetOwner() && dist(p->GetActor(), act) < VIEWSCREEN_ACTIVE_DISTANCE)
+	if (camsprite->GetOwner() && dist(p->GetActor(), camsprite) < VIEWSCREEN_ACTIVE_DISTANCE)
 	{
 		auto tex = tileGetTexture(sp->picnum);
 		TileFiles.MakeCanvas(TILE_VIEWSCR, tex->GetDisplayWidth(), tex->GetDisplayHeight());
@@ -294,8 +291,8 @@ void animatecamsprite(double smoothratio)
 
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
-				auto camera = &act->GetOwner()->s;
-				auto ang = getcamspriteang(act->GetOwner(), smoothratio);
+				auto camera = &camsprite->GetOwner()->s;
+				auto ang = getcamspriteang(camsprite->GetOwner(), smoothratio);
 				// Note: no ROR or camera here for now - the current setup has no means to detect these things before rendering the scene itself.
 				drawrooms(camera->x, camera->y, camera->z, ang, 100 + camera->shade, camera->sectnum); // why 'shade'...?
 				display_mirror = 1; // should really be 'display external view'.
