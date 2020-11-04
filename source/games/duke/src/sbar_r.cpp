@@ -34,6 +34,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "v_draw.h"
 #include "names_r.h"
 #include "texturemanager.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 

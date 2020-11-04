@@ -31,6 +31,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "v_video.h"
 #include "prediction.h"
 #include "automap.h"
+#include "dukeactor.h"
 
 
 BEGIN_DUKE_NS

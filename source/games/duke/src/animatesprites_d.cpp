@@ -37,6 +37,7 @@ source as it is released.
 #include "global.h"
 #include "prediction.h"
 #include "names_d.h"
+#include "dukeactor.h"
 
 EXTERN_CVAR(Bool, wt_commentary)
 

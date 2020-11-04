@@ -42,6 +42,7 @@ source as it is released.
 #include "v_draw.h"
 #include "names_d.h"
 #include "texturemanager.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 

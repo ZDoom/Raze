@@ -31,6 +31,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "global.h"
 #include "names_r.h"
 #include "prediction.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 
