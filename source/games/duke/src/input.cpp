@@ -775,10 +775,9 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 
 	if (p->OnBoat || !p->moto_underwater)
 	{
-		if (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe))
-			loc.actions |= SB_JUMP;
-		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-			p->vehicle_backwards = true;
+		p->vehForwardScale = (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) + hidInput->dz; 
+		p->vehReverseScale = buttonMap.ButtonDown(gamefunc_Move_Backward) + -hidInput->dz;
+
 		if (loc.actions & SB_RUN)
 			loc.actions |= SB_CROUCH;
 	}

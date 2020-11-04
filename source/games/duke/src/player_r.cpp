@@ -1573,7 +1573,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	auto pact = p->GetActor();
 	auto s = &pact->s;
 
-	int braking, moveForward, moveBackward, turnLeft, turnRight;
+	int braking, turnLeft, turnRight;
 	short rng;
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
@@ -1585,10 +1585,8 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	else
 		braking = 0;
 
-	if (actions & SB_JUMP)
+	if (p->vehForwardScale != 0)
 	{
-		moveForward = 1;
-		actions &= ~SB_JUMP;
 		if (p->on_ground)
 		{
 			if (p->MotoSpeed == 0 && braking)
@@ -1614,7 +1612,6 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 	else
 	{
-		moveForward = 0;
 		if (S_CheckActorSoundPlaying(pact, 214))
 		{
 			S_StopSound(214, pact);
@@ -1630,13 +1627,6 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		if (!S_CheckActorSoundPlaying(pact, 189) && !S_CheckActorSoundPlaying(pact, 187))
 			S_PlayActorSound(187, pact);
 	}
-	if (p->vehicle_backwards)
-	{
-		moveBackward = 1;
-		p->vehicle_backwards = false;
-	}
-	else
-		moveBackward = 0;
 	if (p->vehicle_turnl)
 	{
 		turnLeft = 1;
@@ -1684,14 +1674,15 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->VBumpTarget = -30;
 			p->moto_do_bump = 1;
 		}
-		else if (moveForward && !braking)
+		else if (p->vehForwardScale != 0 && !braking)
 		{
 			if (p->MotoSpeed < 40)
 			{
 				p->VBumpTarget = 70;
 				p->moto_bump_fast = 1;
 			}
-			p->MotoSpeed += 2;
+			p->MotoSpeed += 2 * p->vehForwardScale;
+			p->vehForwardScale = 0;
 			if (p->MotoSpeed > 120)
 				p->MotoSpeed = 120;
 			if (!p->NotOnWater)
@@ -1705,10 +1696,11 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->VBumpTarget = 0;
 			p->moto_do_bump = 0;
 		}
-		if (moveBackward && p->MotoSpeed <= 0 && !braking)
+		if (p->vehReverseScale != 0 && p->MotoSpeed <= 0 && !braking)
 		{
 			int temp;
-			p->MotoSpeed = -15;
+			p->MotoSpeed = -15 * p->vehReverseScale;
+			p->vehReverseScale = 0;
 			temp = turnRight;
 			turnRight = turnLeft;
 			turnLeft = temp;
@@ -1866,7 +1858,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	auto pact = p->GetActor();
 	auto s = &pact->s;
 
-	int heeltoe, braking, moveForward, moveBackward, turnLeft, turnRight;
+	int heeltoe, braking, turnLeft, turnRight;
 	short rng;
 	if (p->NotOnWater)
 	{
@@ -1883,19 +1875,17 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
-	if ((actions & SB_CROUCH) && (actions & SB_JUMP))
+	if ((actions & SB_CROUCH) && (p->vehForwardScale != 0))
 	{
 		heeltoe = 1;
-		moveForward = 0;
 		braking = 0;
-		actions &= ~(SB_JUMP|SB_CROUCH);
+		p->vehForwardScale = 0;
+		actions &= ~SB_CROUCH;
 	}
 	else
 		heeltoe = 0;
-	if (actions & SB_JUMP)
+	if (p->vehForwardScale != 0)
 	{
-		moveForward = 1;
-		actions &= ~SB_JUMP;
 		if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pact, 89))
 		{
 			if (S_CheckActorSoundPlaying(pact, 87))
@@ -1909,7 +1899,6 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	else
 	{
-		moveForward = 0;
 		if (S_CheckActorSoundPlaying(pact, 89))
 		{
 			S_StopSound(89, pact);
@@ -1933,12 +1922,6 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	else
 		braking = 0;
-	if (p->vehicle_backwards)
-	{
-		moveBackward = 1;
-		p->vehicle_backwards = false;
-	}
-	else moveBackward = 0;
 	if (p->vehicle_turnl)
 	{
 		turnLeft = 1;
@@ -2007,7 +1990,7 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->VBumpTarget = 30;
 			p->moto_do_bump = 1;
 		}
-		else if (moveForward)
+		else if (p->vehForwardScale != 0)
 		{
 			if (p->MotoSpeed < 40)
 				if (!p->NotOnWater)
@@ -2015,7 +1998,8 @@ static void onBoat(int snum, ESyncBits &actions)
 					p->VBumpTarget = -30;
 					p->moto_bump_fast = 1;
 				}
-			p->MotoSpeed++;
+			p->MotoSpeed += 1 * p->vehForwardScale;
+			p->vehForwardScale = 0;
 			if (p->MotoSpeed > 120)
 				p->MotoSpeed = 120;
 		}
@@ -2026,13 +2010,11 @@ static void onBoat(int snum, ESyncBits &actions)
 			p->VBumpTarget = 0;
 			p->moto_do_bump = 0;
 		}
-		if (moveBackward && p->MotoSpeed == 0 && !braking)
+		if (p->vehReverseScale != 0 && p->MotoSpeed == 0 && !braking)
 		{
 			int temp;
-			if (!p->NotOnWater)
-				p->MotoSpeed = -25;
-			else
-				p->MotoSpeed = -20;
+			p->MotoSpeed = -(!p->NotOnWater ? 25 : 20) * p->vehReverseScale;
+			p->vehReverseScale = 0;
 			temp = turnRight;
 			turnRight = turnLeft;
 			turnLeft = temp;

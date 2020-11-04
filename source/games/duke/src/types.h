@@ -275,8 +275,8 @@ struct player_struct
 	uint8_t hurt_delay2, nocheat;
 	uint8_t OnMotorcycle, OnBoat, moto_underwater, NotOnWater, MotoOnGround;
 	uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
-	double MotoSpeed;
-	bool vehicle_turnl, vehicle_turnr, vehicle_backwards;
+	double vehForwardScale, vehReverseScale, MotoSpeed;
+	bool vehicle_turnl, vehicle_turnr;
 
 	int8_t crouch_toggle;
 
