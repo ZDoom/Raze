@@ -1571,12 +1571,13 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	auto s = &pact->s;
 
 	bool braking;
 	short rng;
+
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
+
 	if (actions & SB_CROUCH)
 	{
 		braking = true;
@@ -1627,6 +1628,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		if (!S_CheckActorSoundPlaying(pact, 189) && !S_CheckActorSoundPlaying(pact, 187))
 			S_PlayActorSound(187, pact);
 	}
+
 	if (p->drink_amt > 88 && p->moto_drink == 0)
 	{
 		rng = krand() & 63;
@@ -1643,14 +1645,12 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		else if (rng == 2)
 			p->moto_drink = 20;
 	}
+
 	if (p->on_ground == 1)
 	{
 		if (braking && p->MotoSpeed > 0)
 		{
-			if (p->moto_on_oil)
-				p->MotoSpeed -= 2;
-			else
-				p->MotoSpeed -= 4;
+			p->MotoSpeed -= p->moto_on_oil ? 2 : 4;
 			if (p->MotoSpeed < 0)
 				p->MotoSpeed = 0;
 			p->VBumpTarget = -30;
@@ -1663,36 +1663,39 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 				p->VBumpTarget = 70;
 				p->moto_bump_fast = 1;
 			}
+
 			p->MotoSpeed += 2 * p->vehForwardScale;
 			p->vehForwardScale = 0;
+
 			if (p->MotoSpeed > 120)
 				p->MotoSpeed = 120;
-			if (!p->NotOnWater)
-				if (p->MotoSpeed > 80)
-					p->MotoSpeed = 80;
+
+			if (!p->NotOnWater && p->MotoSpeed > 80)
+				p->MotoSpeed = 80;
 		}
 		else if (p->MotoSpeed > 0)
 			p->MotoSpeed--;
+
 		if (p->moto_do_bump && (!braking || p->MotoSpeed == 0))
 		{
 			p->VBumpTarget = 0;
 			p->moto_do_bump = 0;
 		}
+
 		if (p->vehReverseScale != 0 && p->MotoSpeed <= 0 && !braking)
 		{
-			bool temp;
-			p->MotoSpeed = -15 * p->vehReverseScale;
-			p->vehReverseScale = 0;
-			temp = p->vehTurnRight;
+			bool temp = p->vehTurnRight;
 			p->vehTurnRight = p->vehTurnLeft;
 			p->vehTurnLeft = temp;
+			p->MotoSpeed = -15 * p->vehReverseScale;
+			p->vehReverseScale = 0;
 		}
 	}
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
 	{
-		if (!p->VBumpNow)
-			if ((krand() & 3) == 2)
-				p->VBumpTarget = (p->MotoSpeed / 16.) * ((krand() & 7) - 4);
+		if (!p->VBumpNow && (krand() & 3) == 2)
+			p->VBumpTarget = (p->MotoSpeed / 16.) * ((krand() & 7) - 4);
+
 		if (p->vehTurnLeft || p->moto_drink < 0)
 		{
 			if (p->moto_drink < 0)
@@ -1724,20 +1727,14 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
 	{
-		if (p->moto_bump_fast)
-			p->VBumpNow += 6;
-		else
-			p->VBumpNow++;
+		p->VBumpNow += p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
 		horiz = p->VBumpNow / 3.;
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
-		if (p->moto_bump_fast)
-			p->VBumpNow -= 6;
-		else
-			p->VBumpNow--;
+		p->VBumpNow -= p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
 		horiz = p->VBumpNow / 3.;
@@ -1753,38 +1750,28 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 
 	double currSpeed = p->MotoSpeed;
-	short currAngle = p->angle.ang.asbuild(), velAdjustment, angAdjustment;
+	short currAngle = p->angle.ang.asbuild(), velAdjustment;
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
-		if (p->vehTurnLeft)
-			velAdjustment = -10;
-		else
-			velAdjustment = 10;
-		if (velAdjustment < 0)
-			angAdjustment = 350;
-		else
-			angAdjustment = -350;
+		velAdjustment = p->vehTurnLeft ? -10 : 10;
+		short angAdjustAmt = 350;
+		short angAdjustment = velAdjustment < 0 ? angAdjustAmt : -angAdjustAmt;
 
 		if (p->moto_on_mud || p->moto_on_oil || !p->NotOnWater)
 		{
-			if (p->moto_on_oil)
-				currSpeed *= 8;
-			else
-				currSpeed *= 4;
+			currSpeed *= p->moto_on_oil ? 8 : 4;
+
 			if (p->moto_do_bump)
 			{
 				currSpeed /= 32.;
-				p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
-				p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
 				angAdjustment >>= 2;
 			}
 			else
 			{
 				currSpeed /= 128.;
-				p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
-				p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
 				angAdjustment >>= 6;
 			}
+
 			p->moto_on_mud = 0;
 			p->moto_on_oil = 0;
 		}
@@ -1793,8 +1780,6 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			if (p->moto_do_bump)
 			{
 				currSpeed /= 32.;
-				p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
-				p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
 				angAdjustment >>= 4;
 				if (!S_CheckActorSoundPlaying(pact, 220))
 					S_PlayActorSound(220, pact);
@@ -1802,28 +1787,23 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			else
 			{
 				currSpeed /= 128.;
-				p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
-				p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
 				angAdjustment >>= 7;
 			}
 		}
+
+		p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
+		p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
 		p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), IntToFixed(currAngle - angAdjustment))));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
 		rng = krand() & 1;
-		if (rng == 0)
-			velAdjustment = -10;
-		else if (rng == 1)
-			velAdjustment = 10;
-		if (p->moto_on_oil)
-			currSpeed *= 10;
-		else
-			currSpeed *= 5;
-		currSpeed /= 128.;
+		velAdjustment = rng == 0 ? -10 : 10;
+		currSpeed = fmulscale7(currSpeed, p->moto_on_oil ? 10 : 5);
 		p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
 		p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
 	}
+
 	p->moto_on_mud = 0;
 	p->moto_on_oil = 0;
 	p->vehTurnLeft = false;
@@ -1840,10 +1820,10 @@ static void onBoat(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	auto s = &pact->s;
 
 	bool heeltoe, braking;
 	short rng;
+
 	if (p->NotOnWater)
 	{
 		if (p->MotoSpeed > 0)
@@ -1857,8 +1837,10 @@ static void onBoat(int snum, ESyncBits &actions)
 				S_PlayActorSound(87, pact);
 		}
 	}
+
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
+
 	if ((actions & SB_CROUCH) && (p->vehForwardScale != 0))
 	{
 		heeltoe = true;
@@ -1868,6 +1850,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	else
 		heeltoe = false;
+
 	if (p->vehForwardScale != 0)
 	{
 		if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pact, 89))
@@ -1906,16 +1889,13 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	else
 		braking = false;
-	if (p->vehTurnLeft)
-	{
-		if (!S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
-			S_PlayActorSound(91, pact);
-	}
-	if (p->vehTurnRight)
-	{
-		if (!S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
-			S_PlayActorSound(91, pact);
-	}
+
+	if (p->vehTurnLeft && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
+		S_PlayActorSound(91, pact);
+
+	if (p->vehTurnRight && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
+		S_PlayActorSound(91, pact);
+
 	if (!p->NotOnWater)
 	{
 		if (p->drink_amt > 88 && p->moto_drink == 0)
@@ -1935,6 +1915,7 @@ static void onBoat(int snum, ESyncBits &actions)
 				p->moto_drink = 20;
 		}
 	}
+
 	if (p->on_ground == 1)
 	{
 		if (heeltoe)
@@ -1964,12 +1945,11 @@ static void onBoat(int snum, ESyncBits &actions)
 		}
 		else if (p->vehForwardScale != 0)
 		{
-			if (p->MotoSpeed < 40)
-				if (!p->NotOnWater)
-				{
-					p->VBumpTarget = -30;
-					p->moto_bump_fast = 1;
-				}
+			if (p->MotoSpeed < 40 && !p->NotOnWater)
+			{
+				p->VBumpTarget = -30;
+				p->moto_bump_fast = 1;
+			}
 			p->MotoSpeed += 1 * p->vehForwardScale;
 			p->vehForwardScale = 0;
 			if (p->MotoSpeed > 120)
@@ -1977,35 +1957,34 @@ static void onBoat(int snum, ESyncBits &actions)
 		}
 		else if (p->MotoSpeed > 0)
 			p->MotoSpeed--;
+
 		if (p->moto_do_bump && (!braking || p->MotoSpeed == 0))
 		{
 			p->VBumpTarget = 0;
 			p->moto_do_bump = 0;
 		}
+
 		if (p->vehReverseScale != 0 && p->MotoSpeed == 0 && !braking)
 		{
-			bool temp;
-			p->MotoSpeed = -(!p->NotOnWater ? 25 : 20) * p->vehReverseScale;
-			p->vehReverseScale = 0;
-			temp = p->vehTurnRight;
+			bool temp = p->vehTurnRight;
 			p->vehTurnRight = p->vehTurnLeft;
 			p->vehTurnLeft = temp;
+			p->MotoSpeed = -(!p->NotOnWater ? 25 : 20) * p->vehReverseScale;
+			p->vehReverseScale = 0;
 		}
 	}
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
 	{
-		if (!p->VBumpNow)
-			if ((krand() & 15) == 14)
-				p->VBumpTarget = (p->MotoSpeed / 16.) * ((krand() & 3) - 2);
-		if (p->vehTurnLeft || p->moto_drink < 0)
+		if (!p->VBumpNow && (krand() & 15) == 14)
+			p->VBumpTarget = (p->MotoSpeed / 16.) * ((krand() & 3) - 2);
+
+		if (p->vehTurnLeft && p->moto_drink < 0)
 		{
-			if (p->moto_drink < 0)
-				p->moto_drink++;
+			p->moto_drink++;
 		}
-		else if (p->vehTurnRight || p->moto_drink > 0)
+		else if (p->vehTurnRight && p->moto_drink > 0)
 		{
-			if (p->moto_drink > 0)
-				p->moto_drink--;
+			p->moto_drink--;
 		}
 	}
 
@@ -2028,20 +2007,14 @@ static void onBoat(int snum, ESyncBits &actions)
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
 	{
-		if (p->moto_bump_fast)
-			p->VBumpNow += 6;
-		else
-			p->VBumpNow++;
+		p->VBumpNow += p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
 		horiz = p->VBumpNow / 3.;
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
-		if (p->moto_bump_fast)
-			p->VBumpNow -= 6;
-		else
-			p->VBumpNow--;
+		p->VBumpNow -= p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
 		horiz = p->VBumpNow / 3.;
@@ -2058,37 +2031,29 @@ static void onBoat(int snum, ESyncBits &actions)
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
-		double currSpeed = p->MotoSpeed;
-		short currAngle = p->angle.ang.asbuild(), velAdjustment, angAdjustment;
-		if (p->vehTurnLeft)
-			velAdjustment = -10;
-		else
-			velAdjustment = 10;
-		if (velAdjustment < 0)
-			angAdjustment = 350;
-		else
-			angAdjustment = -350;
-		currSpeed *= 4;
+		short angAdjustAmt = 350;
+		double currSpeed = p->MotoSpeed * 4.;
+		short currAngle = p->angle.ang.asbuild();
+		short velAdjustment = p->vehTurnLeft ? -10 : 10;
+		short angAdjustment = velAdjustment < 0 ? angAdjustAmt : -angAdjustAmt;
 
 		if (p->moto_do_bump)
 		{
 			currSpeed /= 64.;
-			p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
-			p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
 			angAdjustment >>= 5;
 		}
 		else
 		{
 			currSpeed /= 128.;
-			p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
-			p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
 			angAdjustment >>= 6;
 		}
+
+		p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
+		p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
 		p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), IntToFixed(currAngle - angAdjustment))));
 	}
-	if (p->NotOnWater)
-		if (p->MotoSpeed > 50)
-			p->MotoSpeed -= (p->MotoSpeed / 2.);
+	if (p->NotOnWater && p->MotoSpeed > 50)
+		p->MotoSpeed -= (p->MotoSpeed / 2.);
 
 	p->vehTurnLeft = false;
 	p->vehTurnRight = false;
@@ -2410,22 +2375,11 @@ void onMotorcycleMove(int snum, int psect, int j)
 	auto pact = p->GetActor();
 	auto s = &pact->s;
 	int psectlotag = sector[psect].lotag;
+	short angleDelta = abs(p->angle.ang.asbuild() - getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y));
+	short damageAmount;
 
-	short damageAmount, wallAngle, angleDelta;
-	damageAmount = 0;
-	wallAngle = getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y);
-	angleDelta = abs(p->angle.ang.asbuild() - wallAngle);
-	double ang;
-	switch (krand() & 1)
-	{
-	case 0:
-		ang = p->MotoSpeed / 2.;
-		break;
-	case 1:
-		ang = -p->MotoSpeed / 2.;
-		break;
-	}
-	p->angle.addadjustment(ang);
+	p->angle.addadjustment(p->MotoSpeed / (krand() & 1 ? -2 : 2));
+
 	if (angleDelta >= 441 && angleDelta <= 581)
 	{
 		damageAmount = xs_CRoundToInt((p->MotoSpeed * p->MotoSpeed) / 256.);
@@ -2475,50 +2429,34 @@ void onBoatMove(int snum, int psect, int j)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	auto s = &pact->s;
 	int psectlotag = sector[psect].lotag;
+	short angleDelta = abs(p->angle.ang.asbuild() - getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y));
 
-	short wallAngle, angleDelta;
-	wallAngle = getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y);
-	angleDelta = abs(p->angle.ang.asbuild() - wallAngle);
-	int ang;
-	switch (krand() & 1)
-	{
-	case 0:
-		ang = p->MotoSpeed / 4.;
-		break;
-	case 1:
-		ang = -p->MotoSpeed / 4.;
-		break;
-	}
-	p->angle.addadjustment(ang);
+	p->angle.addadjustment(p->MotoSpeed / (krand() & 1 ? -4 : 4));
+
 	if (angleDelta >= 441 && angleDelta <= 581)
 	{
 		p->MotoSpeed = ((p->MotoSpeed / 2.) + (p->MotoSpeed / 4.)) / 4.;
-		if (psectlotag == 1)
-			if (S_CheckActorSoundPlaying(pact, 178) == 0)
-				S_PlayActorSound(178, pact);
+		if (psectlotag == 1 && S_CheckActorSoundPlaying(pact, 178) == 0)
+			S_PlayActorSound(178, pact);
 	}
 	else if (angleDelta >= 311 && angleDelta <= 711)
 	{
 		p->MotoSpeed -= ((p->MotoSpeed / 2.) + (p->MotoSpeed / 4.)) / 8.;
-		if (psectlotag == 1)
-			if (S_CheckActorSoundPlaying(pact, 179) == 0)
-				S_PlayActorSound(179, pact);
+		if (psectlotag == 1 && S_CheckActorSoundPlaying(pact, 179) == 0)
+			S_PlayActorSound(179, pact);
 	}
 	else if (angleDelta >= 111 && angleDelta <= 911)
 	{
 		p->MotoSpeed -= p->MotoSpeed / 16.;
-		if (psectlotag == 1)
-			if (S_CheckActorSoundPlaying(pact, 180) == 0)
-				S_PlayActorSound(180, pact);
+		if (psectlotag == 1 && S_CheckActorSoundPlaying(pact, 180) == 0)
+			S_PlayActorSound(180, pact);
 	}
 	else
 	{
 		p->MotoSpeed -= p->MotoSpeed / 64.;
-		if (psectlotag == 1)
-			if (S_CheckActorSoundPlaying(pact, 181) == 0)
-				S_PlayActorSound(181, pact);
+		if (psectlotag == 1 && S_CheckActorSoundPlaying(pact, 181) == 0)
+			S_PlayActorSound(181, pact);
 	}
 
 }
