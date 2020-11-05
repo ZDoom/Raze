@@ -3971,33 +3971,38 @@ HORIZONLY:
 		{
 			onBoatHit(snum, clip.actor);
 		}
-		else
-			if (badguy(clip.actor))
+		else if (badguy(clip.actor))
+		{
+			if (clip.actor->s.statnum != 1)
 			{
-				if (clip.actor->s.statnum != 1)
-				{
-					clip.actor->timetosleep = 0;
-					if (clip.actor->s.picnum == BILLYRAY)
-						S_PlayActorSound(404, clip.actor);
-					else
-						check_fta_sounds_r(clip.actor);
-					changespritestat(clip.actor, 1);
-				}
+				clip.actor->timetosleep = 0;
+				if (clip.actor->s.picnum == BILLYRAY)
+					S_PlayActorSound(404, clip.actor);
+				else
+					check_fta_sounds_r(clip.actor);
+				changespritestat(clip.actor, 1);
 			}
-			else
-				if (clip.actor->s.picnum == RRTILE3410)
-				{
-					quickkill(p);
-					S_PlayActorSound(446, pact);
-				}
-				else if (isRRRA() && clip.actor->s.picnum == RRTILE2443 && clip.actor->s.pal == 19)
-				{
-					clip.actor->s.pal = 0;
-					p->DrugMode = 5;
-					ps[snum].GetActor()->s.extra = max_player_health;
-				}
+		}
+		else if (!isRRRA() && clip.actor->s.picnum == RRTILE3410)
+		{
+			quickkill(p);
+			S_PlayActorSound(446, pact);
+		}
+		if (isRRRA())
+		{
+			if (clip.actor->s.picnum == RRTILE3410)
+			{
+				quickkill(p);
+				S_PlayActorSound(446, pact);
+			}
+			else if (clip.actor->s.picnum == RRTILE2443 && clip.actor->s.pal == 19)
+			{
+				clip.actor->s.pal = 0;
+				p->DrugMode = 5;
+				ps[snum].GetActor()->s.extra = max_player_health;
+			}
+		}
 	}
-
 
 	if (p->jetpack_on == 0)
 	{
