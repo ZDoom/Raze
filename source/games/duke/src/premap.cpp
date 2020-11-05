@@ -128,7 +128,6 @@ void resetplayerstats(int snum)
     p->random_club_frame= 0;
     p->on_warping_sector = 0;
     p->spritebridge      = 0;
-    p->palette = 0;
 
     if(p->steroids_amount < 400 )
     {
@@ -166,7 +165,6 @@ void resetplayerstats(int snum)
     p->knuckle_incs      = 1;
     p->fist_incs = 0;
     p->knee_incs         = 0;
-    setpal(p);
     p->stairs = 0;
     p->noise_x = 0;
     p->noise_y = 0;
@@ -962,7 +960,6 @@ void enterlevel(MapRecord *mi, int gamemode)
         }
     }
     resetmys();
-    setpal(&ps[myconnectindex]);
 
     everyothertime = 0;
     global_random = 0;
@@ -1063,7 +1060,6 @@ void exitlevel(MapRecord *nextlevel)
 {
     bool endofgame = nextlevel == nullptr;
     STAT_Update(endofgame);
-    setpal(&ps[myconnectindex]);
     StopCommentary();
 
     dobonus(endofgame? -1 : 0, [=](bool)

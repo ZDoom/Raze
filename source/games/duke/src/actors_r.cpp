@@ -1735,8 +1735,6 @@ void movetransports_r(void)
 
 						changespritesect(act2, Owner->s.sectnum);
 
-						setpal(&ps[p]);
-
 						if ((krand() & 255) < 32)
 							spawn(ps[p].GetActor(), WATERSPLASH2);
 					}

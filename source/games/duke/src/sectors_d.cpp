@@ -1458,7 +1458,6 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					ps[p].angle.restore();
 
 					updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
-					setpal(&ps[p]);
 
 					DukeStatIterator it(STAT_ACTOR);
 					while (auto j = it.Next())
@@ -1715,7 +1714,6 @@ void checksectors_d(int snum)
 
 						j = p->cursectnum;
 						p->cursectnum = spr->sectnum;
-						setpal(p);
 						p->cursectnum = j;
 
 						// parallaxtype = 2;
@@ -1736,7 +1734,6 @@ void checksectors_d(int snum)
 				p->newOwner = nullptr;
 
 				updatesector(p->posx, p->posy, &p->cursectnum);
-				setpal(p);
 
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto act = it.Next())

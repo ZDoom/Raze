@@ -136,7 +136,6 @@ void hud_input(int plnum)
 			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0 && p->heat_amount > 0)
 			{
 				p->heat_on = !p->heat_on;
-				setpal(p);
 				p->inven_icon = 5;
 				S_PlayActorSound(NITEVISION_ONOFF, pact);
 				FTA(106 + (!p->heat_on), p);

@@ -133,7 +133,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("angle", w.angle)
 			("horizon", w.horizon)
 			("gotweapon", w.gotweapon)
-			("palette", w.palette)
 			("pals", w.pals)
 			("fricx", w.fric.x)
 			("fricy", w.fric.y)
@@ -476,7 +475,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 				cameraclock = 0;
 				ps[myconnectindex].over_shoulder_on = 1;
 			}
-			setpal(&ps[myconnectindex]);
 
 			memset(gotpic, 0, sizeof(gotpic));
 			if (isRR()) cacheit_r(); else cacheit_d();

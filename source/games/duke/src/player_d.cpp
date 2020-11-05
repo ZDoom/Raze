@@ -1474,7 +1474,6 @@ int doincrements_d(struct player_struct* p)
 			p->heat_on = 0;
 			checkavailinven(p);
 			S_PlayActorSound(NITEVISION_ONOFF, pact);
-			setpal(p);
 		}
 	}
 

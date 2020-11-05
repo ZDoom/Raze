@@ -586,7 +586,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 			if (j < 22000) j = 22000;
 			else if (j > (65536 << 1)) j = (65536 << 1);
 
-			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + pp.palette, pspr->pal), DTA_CenterOffset, true,
+			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), pspr->pal), DTA_CenterOffset, true,
 				DTA_Rotate, daang * (-360./2048), DTA_Color, shadeToLight(pspr->shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
 		}
 	}

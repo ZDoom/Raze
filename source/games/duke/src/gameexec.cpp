@@ -2054,7 +2054,6 @@ int ParseState::parse(void)
 			ps[g_p].posz = ps[g_p].oposz;
 			ps[g_p].angle.restore();
 			updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
-			setpal(&ps[g_p]);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto j = it.Next())
@@ -2273,7 +2272,6 @@ int ParseState::parse(void)
 			resetinventory(g_p);
 			resetweapons(g_p);
 		}
-		setpal(&ps[g_p]);
 		break;
 	case concmd_ifcoop:
 		parseifelse(ud.coop || numplayers > 2);

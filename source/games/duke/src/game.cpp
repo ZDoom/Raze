@@ -325,7 +325,6 @@ void GameInterface::app_init()
 	registerosdcommands();
 
 	screenpeek = myconnectindex;
-	ps[myconnectindex].palette = BASEPAL;
 
 	for (int j = numplayers; j < ud.multimode; j++)
 	{

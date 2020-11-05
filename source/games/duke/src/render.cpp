@@ -323,16 +323,13 @@ void setdrugmode(player_struct *p, int oyrepeat)
 				var_8c = oyrepeat + p->drug_stat[1] * 5000;
 				if (oyrepeat * 3 < var_8c)
 				{
-					renderSetAspect(oyrepeat * 3, yxaspect);
 					p->drug_aspect = oyrepeat * 3;
 					p->drug_stat[0] = 2;
 				}
 				else
 				{
-					renderSetAspect(var_8c, yxaspect);
 					p->drug_aspect = var_8c;
 				}
-				setpal(p);
 			}
 			else if (p->drug_stat[0] == 3)
 			{
@@ -340,7 +337,6 @@ void setdrugmode(player_struct *p, int oyrepeat)
 				var_8c = oyrepeat + p->drug_stat[1] * 5000;
 				if (var_8c < oyrepeat)
 				{
-					renderSetAspect(oyrepeat, yxaspect);
 					p->DrugMode = 0;
 					p->drug_stat[0] = 0;
 					p->drug_stat[2] = 0;
@@ -348,10 +344,8 @@ void setdrugmode(player_struct *p, int oyrepeat)
 				}
 				else
 				{
-					renderSetAspect(var_8c, yxaspect);
 					p->drug_aspect = var_8c;
 				}
-				setpal(p);
 			}
 			else if (p->drug_stat[0] == 2)
 			{
@@ -362,9 +356,7 @@ void setdrugmode(player_struct *p, int oyrepeat)
 				else
 				{
 					p->drug_stat[2]++;
-					renderSetAspect(p->drug_stat[2] * 500 + oyrepeat * 3, yxaspect);
 					p->drug_aspect = oyrepeat * 3 + p->drug_stat[2] * 500;
-					setpal(p);
 				}
 			}
 			else
@@ -379,17 +371,14 @@ void setdrugmode(player_struct *p, int oyrepeat)
 				else
 				{
 					p->drug_stat[2]--;
-					renderSetAspect(p->drug_stat[2] * 500 + oyrepeat * 3, yxaspect);
 					p->drug_aspect = oyrepeat * 3 + p->drug_stat[2] * 500;
-					setpal(p);
 				}
 			}
 		}
 	}
-	else if (p->DrugMode > 0)
+	if (p->DrugMode > 0)
 	{
 		renderSetAspect(p->drug_aspect, yxaspect);
-		setpal(p);
 	}
 }
 
@@ -514,7 +503,7 @@ void displayrooms(int snum, double smoothratio)
 
 	// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
 	// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
-	setgamepalette(p->palette);
+	setgamepalette(setpal(p));
 	if (ud.cameraactor)
 	{
 		spritetype* s;

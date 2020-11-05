@@ -125,7 +125,7 @@ void calcviewpitch(player_struct *p, double factor)
 //
 //---------------------------------------------------------------------------
 
-void setpal(struct player_struct* p)
+int setpal(struct player_struct* p)
 {
 	int palette;
 	if (p->DrugMode) palette = DRUGPAL;
@@ -134,7 +134,7 @@ void setpal(struct player_struct* p)
 	else if (sector[p->cursectnum].ceilingpicnum >= TILE_FLOORSLIME && sector[p->cursectnum].ceilingpicnum <= TILE_FLOORSLIME + 2) palette = SLIMEPAL;
 	else if (sector[p->cursectnum].lotag == ST_2_UNDERWATER) palette = WATERPAL;
 	else palette = BASEPAL;
-	p->palette = palette;
+	return palette;
 }
 
 //---------------------------------------------------------------------------

@@ -208,7 +208,6 @@ void clearcamera(player_struct* ps)
 	ps->posz = ps->oposz;
 	ps->angle.restore();
 	updatesector(ps->posx, ps->posy, &ps->cursectnum);
-	setpal(ps);
 
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto k = it.Next())

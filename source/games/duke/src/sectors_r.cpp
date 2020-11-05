@@ -2406,7 +2406,6 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 					ps[p].posz = ps[p].oposz;
 
 					updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
-					setpal(&ps[p]);
 
 					DukeStatIterator it(STAT_EFFECTOR);
 					while (auto act = it.Next())

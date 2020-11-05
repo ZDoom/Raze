@@ -177,7 +177,6 @@ struct player_struct
 	FixedBitArray<MAX_WEAPONS> gotweapon;
 
 	// Palette management uses indices into the engine's palette table now.
-	unsigned int palette;
 	PalEntry pals;
 
 	// this was a global variable originally.

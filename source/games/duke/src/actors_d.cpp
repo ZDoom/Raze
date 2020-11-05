@@ -2150,8 +2150,6 @@ void movetransports_d(void)
 						changespritesect(act2, Owner->s.sectnum);
 						setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz + PHEIGHT);
 						
-						setpal(&ps[p]);
-						
 						if ((krand() & 255) < 32)
 							spawn(act2, WATERSPLASH2);
 						
@@ -2474,7 +2472,6 @@ static void greenslime(DDukeActor *actor)
 			ps[p].angle.restore();
 
 			updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
-			setpal(&ps[p]);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
