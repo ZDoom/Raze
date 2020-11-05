@@ -39,6 +39,7 @@ source as it is released.
 #include "g_input.h"
 
 #include "duke3d.h"
+#include "dukeactor.h"
 #include "raze_music.h"
 #include "mapinfo.h"
 #include "raze_sound.h"
