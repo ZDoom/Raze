@@ -309,13 +309,17 @@ void animatecamsprite(double smoothratio)
 // RRRA's drug distortion effect
 //
 //---------------------------------------------------------------------------
+int DrugTimer;
 
 void setdrugmode(player_struct *p, int oyrepeat)
 {
-	if (playrunning())
+	int now = I_GetBuildTime() >> 1;	// this function works on a 60 fps setup.
+	if (playrunning() && p->DrugMode > 0)
 	{
-		if (p->DrugMode > 0)
+		if (now - DrugTimer > 4 || now - DrugTimer < 0) DrugTimer = now - 1;
+		while (DrugTimer < now)
 		{
+			DrugTimer++;
 			int var_8c;
 			if (p->drug_stat[0] == 0)
 			{
@@ -376,6 +380,7 @@ void setdrugmode(player_struct *p, int oyrepeat)
 			}
 		}
 	}
+	else DrugTimer = now;
 	if (p->DrugMode > 0)
 	{
 		renderSetAspect(p->drug_aspect, yxaspect);
@@ -501,9 +506,6 @@ void displayrooms(int snum, double smoothratio)
 	setgamepalette(BASEPAL);
 	animatecamsprite(smoothratio);
 
-	// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
-	// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
-	setgamepalette(setpal(p));
 	if (ud.cameraactor)
 	{
 		spritetype* s;
@@ -536,6 +538,10 @@ void displayrooms(int snum, double smoothratio)
 		{
 			setdrugmode(p, i);
 		}
+
+		// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
+		// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
+		setgamepalette(setpal(p));
 
 		// set screen rotation.
 		rotscrnang = !cl_syncinput ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio);
