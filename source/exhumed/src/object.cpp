@@ -1347,7 +1347,7 @@ int BuildSpark(int nSprite, int nVal)
     if (var_14 < 0) {
         return -1;
     }
-    auto spr = &sprite[nSprite];
+    auto spr = &sprite[var_14];
 
     assert(var_14 < kMaxSprites);
 
