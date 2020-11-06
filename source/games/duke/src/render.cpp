@@ -311,7 +311,7 @@ void animatecamsprite(double smoothratio)
 //---------------------------------------------------------------------------
 int DrugTimer;
 
-void setdrugmode(player_struct *p, int oyrepeat)
+static int getdrugmode(player_struct *p, int oyrepeat)
 {
 	int now = I_GetBuildTime() >> 1;	// this function works on a 60 fps setup.
 	if (playrunning() && p->DrugMode > 0)
@@ -345,6 +345,7 @@ void setdrugmode(player_struct *p, int oyrepeat)
 					p->drug_stat[0] = 0;
 					p->drug_stat[2] = 0;
 					p->drug_stat[1] = 0;
+					p->drug_aspect = oyrepeat;
 				}
 				else
 				{
@@ -379,11 +380,12 @@ void setdrugmode(player_struct *p, int oyrepeat)
 				}
 			}
 		}
+		return p->drug_aspect;
 	}
-	else DrugTimer = now;
-	if (p->DrugMode > 0)
+	else
 	{
-		renderSetAspect(p->drug_aspect, yxaspect);
+		DrugTimer = now;
+		return oyrepeat;
 	}
 }
 
@@ -526,18 +528,10 @@ void displayrooms(int snum, double smoothratio)
 	}
 	else
 	{
+		// Fixme: This should get the aspect ratio from the backend, not the current viewport size.
 		int i = divscale22(1, isRR() ? 64 : p->GetActor()->s.yrepeat + 28);
-		fixed_t dang = IntToFixed(1024);
-		if (!isRRRA() || !p->DrugMode)
-		{
-			// Fixme: This should get the aspect ratio from the backend, not the current viewport size.
-			int viewingRange = xs_CRoundToInt(double(i) * tan(r_fov * (pi::pi() / 360.)));
-			renderSetAspect(mulscale16(viewingRange, viewingrange), yxaspect);
-		}
-		else
-		{
-			setdrugmode(p, i);
-		}
+		int viewingaspect = !isRRRA() || !p->DrugMode ? xs_CRoundToInt(double(i) * tan(r_fov * (pi::pi() / 360.))) : getdrugmode(p, i);
+		renderSetAspect(mulscale16(viewingaspect, viewingrange), yxaspect);
 
 		// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
 		// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
