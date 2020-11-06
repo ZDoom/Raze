@@ -701,7 +701,7 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 						p->TiltStatus = -10;
 				}
 
-				if (kbdRight)
+				if (kbdLeft)
 					turnvel -= turnheldtime >= TURBOTURNTIME ? baseVel : baseVel * velScale;
 
 				if (hidInput->mouseturnx < 0)
