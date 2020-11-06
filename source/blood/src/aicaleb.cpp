@@ -38,17 +38,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "seq.h"
 #include "sound.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
-static void calebThinkSearch(spritetype *, XSPRITE *);
-static void calebThinkGoto(spritetype *, XSPRITE *);
-static void calebThinkChase(spritetype *, XSPRITE *);
-static void calebThinkSwimGoto(spritetype *, XSPRITE *);
-static void calebThinkSwimChase(spritetype *, XSPRITE *);
-static void sub_65D04(spritetype *, XSPRITE *);
-static void sub_65F44(spritetype *, XSPRITE *);
-static void sub_661E0(spritetype *, XSPRITE *);
+static void calebThinkSearch(DBloodActor *);
+static void calebThinkGoto(DBloodActor *);
+static void calebThinkChase(DBloodActor *);
+static void calebThinkSwimGoto(DBloodActor *);
+static void calebThinkSwimChase(DBloodActor *);
+static void sub_65D04(DBloodActor *);
+static void sub_65F44(DBloodActor *);
+static void sub_661E0(DBloodActor *);
 
 AISTATE tinycalebIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE tinycalebChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveForward, calebThinkChase, NULL };
@@ -94,14 +95,18 @@ void SeqAttackCallback(int, int nXSprite)
         sfxPlay3DSound(pSprite, 1002, -1, 0);
 }
 
-static void calebThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void calebThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void calebThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void calebThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     XSECTOR *pXSector;
@@ -122,11 +127,13 @@ static void calebThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
         else
             aiNewState(pSprite, pXSprite, &tinycalebSearch);
     }
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void calebThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void calebThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         XSECTOR *pXSector;
@@ -253,8 +260,10 @@ static void calebThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     pXSprite->target = -1;
 }
 
-static void calebThinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void calebThinkSwimGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -264,11 +273,13 @@ static void calebThinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void calebThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void calebThinkSwimChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         aiNewState(pSprite, pXSprite, &tinycalebSwimGoto);
@@ -316,8 +327,10 @@ static void calebThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
     pXSprite->target = -1;
 }
 
-static void sub_65D04(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_65D04(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -348,8 +361,10 @@ static void sub_65D04(spritetype *pSprite, XSPRITE *pXSprite)
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void sub_65F44(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_65F44(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -383,8 +398,10 @@ static void sub_65F44(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = -dz;
 }
 
-static void sub_661E0(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_661E0(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);

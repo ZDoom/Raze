@@ -39,12 +39,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "seq.h"
 #include "sound.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
-static void ratThinkSearch(spritetype *, XSPRITE *);
-static void ratThinkGoto(spritetype *, XSPRITE *);
-static void ratThinkChase(spritetype *, XSPRITE *);
+static void ratThinkSearch(DBloodActor *);
+static void ratThinkGoto(DBloodActor *);
+static void ratThinkChase(DBloodActor *);
 
 AISTATE ratIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE ratSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, ratThinkSearch, &ratIdle };
@@ -68,14 +69,18 @@ void ratBiteSeqCallback(int, int nXSprite)
         actFireVector(pSprite, 0, 0, dx, dy, pTarget->z-pSprite->z, VECTOR_TYPE_16);
 }
 
-static void ratThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void ratThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void ratThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void ratThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -85,11 +90,13 @@ static void ratThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(pSprite, pXSprite, &ratSearch);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void ratThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void ratThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         aiNewState(pSprite, pXSprite, &ratGoto);

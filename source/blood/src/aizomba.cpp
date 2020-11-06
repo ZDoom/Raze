@@ -40,18 +40,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "seq.h"
 #include "sound.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
-static void zombaThinkSearch(spritetype *, XSPRITE *);
-static void zombaThinkGoto(spritetype *, XSPRITE *);
-static void zombaThinkChase(spritetype *, XSPRITE *);
-static void zombaThinkPonder(spritetype *, XSPRITE *);
-static void myThinkTarget(spritetype *, XSPRITE *);
-static void myThinkSearch(spritetype *, XSPRITE *);
-static void entryEZombie(spritetype *, XSPRITE *);
-static void entryAIdle(spritetype *, XSPRITE *);
-static void entryEStand(spritetype *, XSPRITE *);
+static void zombaThinkSearch(DBloodActor *);
+static void zombaThinkGoto(DBloodActor *);
+static void zombaThinkChase(DBloodActor *);
+static void zombaThinkPonder(DBloodActor *);
+static void myThinkTarget(DBloodActor *);
+static void myThinkSearch(DBloodActor *);
+static void entryEZombie(DBloodActor *);
+static void entryAIdle(DBloodActor *);
+static void entryEStand(DBloodActor *);
 
 
 AISTATE zombieAIdle = { kAiStateIdle, 0, -1, 0, entryAIdle, NULL, aiThinkTarget, NULL };
@@ -99,14 +100,18 @@ void StandSeqCallback(int, int nXSprite)
     sfxPlay3DSound(&sprite[nSprite], 1102, -1, 0);
 }
 
-static void zombaThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombaThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     sub_5F15C(pSprite, pXSprite);
 }
 
-static void zombaThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombaThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -116,11 +121,13 @@ static void zombaThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 921 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(pSprite, pXSprite, &zombieASearch);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void zombaThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombaThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         aiNewState(pSprite, pXSprite, &zombieASearch);
@@ -169,8 +176,10 @@ static void zombaThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     pXSprite->target = -1;
 }
 
-static void zombaThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombaThinkPonder(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         aiNewState(pSprite, pXSprite, &zombieASearch);
@@ -220,8 +229,10 @@ static void zombaThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
     aiNewState(pSprite, pXSprite, &zombieAChase);
 }
 
-static void myThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void myThinkTarget(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -245,12 +256,12 @@ static void myThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
         if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
         {
             aiSetTarget(pXSprite, pPlayer->nSprite);
-            aiActivateDude(pSprite, pXSprite);
+            aiActivateDude(&bloodActors[pXSprite->reference]);
         }
         else if (nDist < pDudeInfo->hearDist)
         {
             aiSetTarget(pXSprite, x, y, z);
-            aiActivateDude(pSprite, pXSprite);
+            aiActivateDude(&bloodActors[pXSprite->reference]);
         }
         else
             continue;
@@ -258,27 +269,32 @@ static void myThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void myThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void myThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    myThinkTarget(pSprite, pXSprite);
+    myThinkTarget(actor);
 }
 
-static void entryEZombie(spritetype *pSprite, XSPRITE *pXSprite)
+static void entryEZombie(DBloodActor* actor)
 {
-    UNREFERENCED_PARAMETER(pXSprite);
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     pSprite->type = kDudeZombieAxeNormal;
     pSprite->flags |= 1;
 }
 
-static void entryAIdle(spritetype *pSprite, XSPRITE *pXSprite)
+static void entryAIdle(DBloodActor* actor)
 {
-    UNREFERENCED_PARAMETER(pSprite);
+    auto pXSprite = &actor->x();
     pXSprite->target = -1;
 }
 
-static void entryEStand(spritetype *pSprite, XSPRITE *pXSprite)
+static void entryEStand(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     sfxPlay3DSound(pSprite, 1100, -1, 0);
     pSprite->ang = getangle(pXSprite->targetX-pSprite->x, pXSprite->targetY-pSprite->y);
 }

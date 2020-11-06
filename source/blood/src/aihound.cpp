@@ -41,12 +41,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "seq.h"
 #include "sound.h"
 #include "nnexts.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
-static void houndThinkSearch(spritetype *, XSPRITE *);
-static void houndThinkGoto(spritetype *, XSPRITE *);
-static void houndThinkChase(spritetype *, XSPRITE *);
+static void houndThinkSearch(DBloodActor *);
+static void houndThinkGoto(DBloodActor *);
+static void houndThinkChase(DBloodActor *);
 
 AISTATE houndIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE houndSearch = { kAiStateMove, 8, -1, 1800, NULL, aiMoveForward, houndThinkSearch, &houndIdle };
@@ -93,14 +94,18 @@ void houndBurnSeqCallback(int, int nXSprite)
     actFireMissile(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFlameHound);
 }
 
-static void houndThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void houndThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void houndThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void houndThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -115,11 +120,13 @@ static void houndThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(pSprite, pXSprite, &houndSearch);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void houndThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void houndThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         aiNewState(pSprite, pXSprite, &houndGoto);

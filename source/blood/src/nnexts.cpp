@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "seq.h"
 #include "ai.h"
 #include "savegamehelp.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -2123,7 +2124,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
 
         if (target >= 0) {
             pXDude->targetX = x; pXDude->targetY = y; pXDude->targetZ = z;
-            pXDude->target = target; aiActivateDude(pSprite, pXDude);
+            pXDude->target = target; aiActivateDude(&bloodActors[pXDude->reference]);
         }
     }
 
@@ -3612,7 +3613,7 @@ void aiFightAlarmDudesInSight(spritetype* pSprite, int max) {
                 continue;
 
             aiSetTarget(pXDude, pDude->x, pDude->y, pDude->z);
-            aiActivateDude(pDude, pXDude);
+            aiActivateDude(&bloodActors[pXDude->reference]);
             if (max-- < 1)
                 break;
         }
@@ -3696,7 +3697,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 switch (pXSprite->aiState->stateType) {
                     case kAiStateIdle:
                     case kAiStateGenIdle:
-                        aiActivateDude(pSprite, pXSprite);
+                        aiActivateDude(&bloodActors[pXSprite->reference]);
                         break;
                 }
                 break;
@@ -3735,10 +3736,10 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                         pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
                         pXSpawn->burnTime = 10;
                         pXSpawn->target = -1;
-                        aiActivateDude(pSpawn, pXSpawn);
+                        aiActivateDude(&bloodActors[pXSpawn->reference]);
                         break;
                     default:
-                        if (pSprite->flags & kModernTypeFlag3) aiActivateDude(pSpawn, pXSpawn);
+                        if (pSprite->flags & kModernTypeFlag3) aiActivateDude(&bloodActors[pXSpawn->reference]);
                         break;
                 }
             }
@@ -4635,7 +4636,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
 
         int mDist = 3; if (aiFightIsMeleeUnit(pSprite)) mDist = 2;
         if (pXSprite->target >= 0 && aiFightGetTargetDist(pSprite, pDudeInfo, &sprite[pXSprite->target]) < mDist) {
-            if (!isActive(pSprite->index)) aiActivateDude(pSprite, pXSprite);
+            if (!isActive(pSprite->index)) aiActivateDude(&bloodActors[pXSprite->reference]);
             return;
         }
         // lets try to look for target that fits better by distance
@@ -4649,19 +4650,19 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                     spritetype* prvTarget = &sprite[pXSprite->target];
                     aiSetTarget(&xsprite[prvTarget->extra], prvTarget->x, prvTarget->y, prvTarget->z);
                     if (!isActive(pTarget->index))
-                        aiActivateDude(pTarget, pXTarget);
+                        aiActivateDude(&bloodActors[pXTarget->reference]);
                 }
 
                 // Change target for dude
                 aiSetTarget(pXSprite, pTarget->index);
                 if (!isActive(pSprite->index))
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
 
                 // ...and change target of target to dude to force it fight
                 if (pXSource->data3 > 0 && pXTarget->target != pSprite->index) {
                     aiSetTarget(pXTarget, pSprite->index);
                     if (!isActive(pTarget->index))
-                        aiActivateDude(pTarget, pXTarget);
+                        aiActivateDude(&bloodActors[pXTarget->reference]);
                 }
 
                 return;
@@ -4697,13 +4698,13 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                 // Change target for dude
                 aiSetTarget(pXSprite, pTarget->index);
                 if (!isActive(pSprite->index))
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
 
                 // ...and change target of target to dude to force it fight
                 if (pXSource->data3 > 0 && pXTarget->target != pSprite->index) {
                     aiSetTarget(pXTarget, pSprite->index);
                     if (pPlayer == NULL && !isActive(pTarget->index))
-                        aiActivateDude(pTarget, pXTarget);
+                        aiActivateDude(&bloodActors[pXTarget->reference]);
 
                     if (pXSource->data3 == 2)
                         aiFightAlarmDudesInSight(pTarget, maxAlarmDudes);
@@ -4725,12 +4726,12 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                 if (pXMateTarget->target < 0) {
                     aiSetTarget(pXMateTarget, pSprite->index);
                     if (IsDudeSprite(pMateTarget) && !isActive(pMateTarget->index))
-                        aiActivateDude(pMateTarget, pXMateTarget);
+                        aiActivateDude(&bloodActors[pXMateTarget->reference]);
                 }
 
                 aiSetTarget(pXSprite, pMateTarget->index);
                 if (!isActive(pSprite->index))
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
 
                 // try walk in mate direction in case if not see the target
@@ -4741,7 +4742,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                 pXSprite->targetY = pMate->y;
                 pXSprite->targetZ = pMate->z;
                 if (!isActive(pSprite->index))
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
         }

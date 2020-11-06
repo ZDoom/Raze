@@ -39,12 +39,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "seq.h"
 #include "sound.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
-static void zombfThinkSearch(spritetype *pSprite, XSPRITE *pXSprite);
-static void zombfThinkGoto(spritetype *pSprite, XSPRITE *pXSprite);
-static void zombfThinkChase(spritetype *pSprite, XSPRITE *pXSprite);
+static void zombfThinkSearch(DBloodActor *actor);
+static void zombfThinkGoto(DBloodActor *actor);
+static void zombfThinkChase(DBloodActor *actor);
 
 
 AISTATE zombieFIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
@@ -104,14 +105,18 @@ void ThrowSeqCallback(int, int nXSprite)
     actFireMissile(pSprite, 0, -getDudeInfo(pSprite->type)->eyeHeight, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileButcherKnife);
 }
 
-static void zombfThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombfThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void zombfThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombfThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -121,11 +126,13 @@ static void zombfThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(pSprite, pXSprite, &zombieFSearch);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void zombfThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void zombfThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         aiNewState(pSprite, pXSprite, &zombieFGoto);

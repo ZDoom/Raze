@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "triggers.h"
 #include "view.h"
 #include "nnexts.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -98,7 +99,7 @@ void aiNewState(spritetype *pSprite, XSPRITE *pXSprite, AISTATE *pAIState)
     }
     
     if (pAIState->enterFunc) 
-        pAIState->enterFunc(pSprite, pXSprite);
+        pAIState->enterFunc(&bloodActors[pXSprite->reference]);
 }
 
 bool isImmune(spritetype* pSprite, int dmgType, int minScale) {
@@ -270,9 +271,10 @@ void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
     }
 }
 
-void aiMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+void aiMoveForward(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -280,12 +282,14 @@ void aiMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     if (klabs(nAng) > 341)
         return;
-    xvel[nSprite] += mulscale30(pDudeInfo->frontSpeed, Cos(pSprite->ang));
-    yvel[nSprite] += mulscale30(pDudeInfo->frontSpeed, Sin(pSprite->ang));
+    actor->xvel() += mulscale30(pDudeInfo->frontSpeed, Cos(pSprite->ang));
+    actor->yvel() += mulscale30(pDudeInfo->frontSpeed, Sin(pSprite->ang));
 }
 
-void aiMoveTurn(spritetype *pSprite, XSPRITE *pXSprite)
+void aiMoveTurn(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -293,9 +297,10 @@ void aiMoveTurn(spritetype *pSprite, XSPRITE *pXSprite)
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
 }
 
-void aiMoveDodge(spritetype *pSprite, XSPRITE *pXSprite)
+void aiMoveDodge(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -305,8 +310,8 @@ void aiMoveDodge(spritetype *pSprite, XSPRITE *pXSprite)
     {
         int nCos = Cos(pSprite->ang);
         int nSin = Sin(pSprite->ang);
-        int dx = xvel[nSprite];
-        int dy = yvel[nSprite];
+        int dx = actor->xvel();
+        int dy = actor->yvel();
         int t1 = dmulscale30(dx, nCos, dy, nSin);
         int t2 = dmulscale30(dx, nSin, -dy, nCos);
         if (pXSprite->dodgeDir > 0)
@@ -314,13 +319,15 @@ void aiMoveDodge(spritetype *pSprite, XSPRITE *pXSprite)
         else
             t2 -= pDudeInfo->sideSpeed;
 
-        xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-        yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+        actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+        actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
     }
 }
 
-void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
+void aiActivateDude(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!pXSprite->state) {
         aiChooseDirection(pSprite, pXSprite, getangle(pXSprite->targetX-pSprite->x, pXSprite->targetY-pSprite->y));
@@ -905,7 +912,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
         if (pXSprite->target == -1 || (nSource != pXSprite->target && Chance(pSprite->type == pSource->type ? nDamage*pDudeInfo->changeTargetKin : nDamage*pDudeInfo->changeTarget)))
         {
             aiSetTarget(pXSprite, nSource);
-            aiActivateDude(pSprite, pXSprite);
+            aiActivateDude(&bloodActors[pXSprite->reference]);
         }
         if (nDmgType == DAMAGE_TYPE_6)
         {
@@ -1091,8 +1098,10 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
     return nDamage;
 }
 
-void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
+void RecoilDude(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     char v4 = Chance(0x8000);
     DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
     if (pSprite->statnum == kStatDude && (pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -1337,8 +1346,10 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-void aiThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+void aiThinkTarget(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (Chance(pDudeInfo->alertChance))
@@ -1363,13 +1374,13 @@ void aiThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
             else if (nDist < pDudeInfo->hearDist)
             {
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
         }
@@ -1402,13 +1413,13 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
             else if (nDist < pDudeInfo->hearDist)
             {
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
         }
@@ -1431,7 +1442,7 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
                     if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
                         continue;
                     aiSetTarget(pXSprite, pSprite2->index);
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
                     return;
                 }
             }
@@ -1452,10 +1463,10 @@ void aiProcessDudes(void) {
         pXSprite->stateTimer = ClipLow(pXSprite->stateTimer-4, 0);
 
         if (pXSprite->aiState->moveFunc)
-            pXSprite->aiState->moveFunc(pSprite, pXSprite);
+            pXSprite->aiState->moveFunc(&bloodActors[pXSprite->reference]);
 
         if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (nSprite & 3))
-            pXSprite->aiState->thinkFunc(pSprite, pXSprite);
+            pXSprite->aiState->thinkFunc(&bloodActors[pXSprite->reference]);
 
         switch (pSprite->type) {
             #ifdef NOONE_EXTENSIONS
@@ -1471,7 +1482,7 @@ void aiProcessDudes(void) {
                 int hinder = ((pExtra->isMelee) ? 25 : 5) << 4;
                 if (pXSprite->health <= 0 || hinder > cumulDamage[pSprite->extra]) break;
                 pXSprite->data3 = cumulDamage[pSprite->extra];
-                RecoilDude(pSprite, pXSprite);
+                RecoilDude(&bloodActors[pXSprite->reference]);
                 break;
             }
             #endif
@@ -1485,7 +1496,7 @@ void aiProcessDudes(void) {
 
                 if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage << 4) <= cumulDamage[nXSprite])) {
                     pXSprite->data3 = cumulDamage[nXSprite];
-                    RecoilDude(pSprite, pXSprite);
+                    RecoilDude(&bloodActors[pXSprite->reference]);
                 }
                 break;
         }

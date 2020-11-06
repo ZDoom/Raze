@@ -40,12 +40,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "seq.h"
 #include "sound.h"
 #include "nnexts.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
-static void burnThinkSearch(spritetype*, XSPRITE*);
-static void burnThinkGoto(spritetype*, XSPRITE*);
-static void burnThinkChase(spritetype*, XSPRITE*);
+static void burnThinkSearch(DBloodActor*);
+static void burnThinkGoto(DBloodActor*);
+static void burnThinkChase(DBloodActor*);
 
 AISTATE cultistBurnIdle = { kAiStateIdle, 3, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE cultistBurnChase = { kAiStateChase, 3, -1, 0, NULL, aiMoveForward, burnThinkChase, NULL };
@@ -88,14 +89,18 @@ void BurnSeqCallback(int, int)
 {
 }
 
-static void burnThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void burnThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void burnThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void burnThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -132,11 +137,13 @@ static void burnThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
         #endif
         }
     }
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void burnThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void burnThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         switch (pSprite->type)

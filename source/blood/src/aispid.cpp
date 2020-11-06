@@ -40,12 +40,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "seq.h"
 #include "sound.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
-static void spidThinkSearch(spritetype *, XSPRITE *);
-static void spidThinkGoto(spritetype *, XSPRITE *);
-static void spidThinkChase(spritetype *, XSPRITE *);
+static void spidThinkSearch(DBloodActor *);
+static void spidThinkGoto(DBloodActor *);
+static void spidThinkChase(DBloodActor *);
 
 
 AISTATE spidIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
@@ -190,14 +191,18 @@ void sub_71370(int, int nXSprite)
 
 }
 
-static void spidThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void spidThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void spidThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void spidThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -207,11 +212,13 @@ static void spidThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(pSprite, pXSprite, &spidSearch);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void spidThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void spidThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         aiNewState(pSprite, pXSprite, &spidGoto);

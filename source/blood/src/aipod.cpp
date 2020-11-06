@@ -41,12 +41,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "seq.h"
 #include "sound.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
-static void aiPodSearch(spritetype *, XSPRITE *);
-static void aiPodMove(spritetype *, XSPRITE *);
-static void aiPodChase(spritetype *, XSPRITE *);
+static void aiPodSearch(DBloodActor* actor);
+static void aiPodMove(DBloodActor* actor);
+static void aiPodChase(DBloodActor* actor);
 
 AISTATE podIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE podMove = { kAiStateMove, 7, -1, 3600, NULL, aiMoveTurn, aiPodMove, &podSearch };
@@ -160,14 +161,18 @@ void sub_70284(int, int nXSprite)
     sub_2A620(nSprite, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nDist, 1, 5*(1+gGameOptions.nDifficulty), dmgType, 2, nBurn, 0, 0);
 }
 
-static void aiPodSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void aiPodSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void aiPodMove(spritetype *pSprite, XSPRITE *pXSprite)
+static void aiPodMove(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -192,11 +197,13 @@ static void aiPodMove(spritetype *pSprite, XSPRITE *pXSprite)
                 break;
         }
     }
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void aiPodChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void aiPodChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1) {
         switch (pSprite->type) {
             case kDudePodGreen:

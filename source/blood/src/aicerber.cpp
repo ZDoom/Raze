@@ -38,13 +38,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "seq.h"
 #include "sound.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
-static void cerberusThinkSearch(spritetype *pSprite, XSPRITE *pXSprite);
-static void cerberusThinkTarget(spritetype *pSprite, XSPRITE *pXSprite);
-static void cerberusThinkGoto(spritetype *pSprite, XSPRITE *pXSprite);
-static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite);
+static void cerberusThinkSearch(DBloodActor *actor);
+static void cerberusThinkTarget(DBloodActor *actor);
+static void cerberusThinkGoto(DBloodActor *actor);
+static void cerberusThinkChase(DBloodActor *actor);
 
 
 AISTATE cerberusIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, cerberusThinkTarget, NULL };
@@ -262,14 +263,18 @@ void cerberusBurnSeqCallback2(int, int nXSprite)
     }
 }
 
-static void cerberusThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void cerberusThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkTarget(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -313,13 +318,13 @@ static void cerberusThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 pDudeExtraE->xval1 = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
                 pDudeExtraE->xval1 = 0;
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else
                 continue;
@@ -328,8 +333,10 @@ static void cerberusThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void cerberusThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -352,11 +359,13 @@ static void cerberusThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
                 break;
         }
     }
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1) {
         switch (pSprite->type) {
             case kDudeCerberusTwoHead:

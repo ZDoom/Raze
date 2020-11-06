@@ -40,13 +40,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "seq.h"
 #include "sound.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
-static void sub_72580(spritetype *, XSPRITE *);
-static void sub_725A4(spritetype *, XSPRITE *);
-static void sub_72850(spritetype *, XSPRITE *);
-static void sub_72934(spritetype *, XSPRITE *);
+static void sub_72580(DBloodActor *);
+static void sub_725A4(DBloodActor *);
+static void sub_72850(DBloodActor *);
+static void sub_72934(DBloodActor *);
 
 
 AISTATE tchernobogIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, sub_725A4, NULL };
@@ -231,14 +232,18 @@ void sub_720AC(int, int nXSprite)
     actFireMissile(pSprite, -350, 0, ax, ay, az, kMissileFireballTchernobog);
 }
 
-static void sub_72580(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_72580(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void sub_725A4(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_725A4(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -279,13 +284,13 @@ static void sub_725A4(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 pDudeExtraE->xval1 = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
                 pDudeExtraE->xval1 = 0;
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else
                 continue;
@@ -294,8 +299,10 @@ static void sub_725A4(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void sub_72850(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_72850(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -309,11 +316,13 @@ static void sub_72850(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(pSprite, pXSprite, &tchernobogSearch);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void sub_72934(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_72934(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         aiNewState(pSprite, pXSprite, &tcherno13A9B8);

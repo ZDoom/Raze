@@ -50,6 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "messages.h"
 #include "nnexts.h"
 #include "d_net.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -349,7 +350,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             case kCmdSpritePush:
             case kCmdSpriteTouch:
                 if (!pXSprite->state) SetSpriteState(nSprite, pXSprite, 1);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 break;
         }
 
@@ -507,7 +508,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                         pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
                         pXSpawn->burnTime = 10;
                         pXSpawn->target = -1;
-                        aiActivateDude(pSpawn, pXSpawn);
+                        aiActivateDude(&bloodActors[pXSpawn->reference]);
                         break;
                     default:
                         break;
@@ -625,15 +626,15 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         switch (event.cmd) {
             case kCmdOff:
                 if (!SetSpriteState(nSprite, pXSprite, 0)) break;
-                actActivateGibObject(pSprite, pXSprite);
+                actActivateGibObject(&bloodActors[pXSprite->reference]);
                 break;
             case kCmdOn:
                 if (!SetSpriteState(nSprite, pXSprite, 1)) break;
-                actActivateGibObject(pSprite, pXSprite);
+                actActivateGibObject(&bloodActors[pXSprite->reference]);
                 break;
             default:
                 if (!SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1)) break;
-                actActivateGibObject(pSprite, pXSprite);
+                actActivateGibObject(&bloodActors[pXSprite->reference]);
                 break;
         }
         break;

@@ -10,7 +10,7 @@
 
 BEGIN_BLD_NS
 
-// Due to the messed up array storage of all the game data we cannot do any direct referenced here yet. We have to access everything via wrapper functions for now.
+// Due to the messed up array storage of all the game data we cannot do any direct references here yet. We have to access everything via wrapper functions for now.
 // Note that the indexing is very inconsistent - partially by sprite index, partially by xsprite index.
 class DBloodActor
 {

@@ -54,6 +54,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "nnexts.h"
 #include "player.h"
 #include "misc.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -2743,8 +2744,10 @@ void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7,
     }
 }
 
-void sub_2AA94(spritetype *pSprite, XSPRITE *pXSprite)
+void sub_2AA94(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int nSprite = actOwnerIdToSpriteId(pSprite->owner);
     actPostSprite(pSprite->index, kStatDecoration);
     seqSpawn(9, 3, pSprite->extra);
@@ -4093,7 +4096,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                                 if (!IsPlayerSprite(pSprite)) {
                                     actDamageSprite(pSprite2->index, pSprite, DAMAGE_TYPE_0, dmg);
                                     if (xspriRangeIsFine(pSprite->extra) && !isActive(pSprite->index))
-                                        aiActivateDude(pSprite, &xsprite[pSprite->extra]);
+                                        aiActivateDude(&bloodActors[pSprite->index]);
                                 }
                                 else if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpJumpBoots) > 0) actDamageSprite(pSprite2->index, pSprite, DAMAGE_TYPE_3, dmg);
                                 else actDamageSprite(pSprite2->index, pSprite, DAMAGE_TYPE_0, dmg);
@@ -4444,7 +4447,7 @@ int MoveThing(spritetype *pSprite)
             
             switch (pSprite->type) {
                 case kThingNapalmBall:
-                    if (zvel[nSprite] == 0 || Chance(0xA000)) sub_2AA94(pSprite, pXSprite);
+                    if (zvel[nSprite] == 0 || Chance(0xA000)) sub_2AA94(&bloodActors[pXSprite->reference]);
                     break;
                 case kThingZombieHead:
                     if (klabs(zvel[nSprite]) > 0x80000) {
@@ -5373,8 +5376,10 @@ void actExplodeSprite(spritetype *pSprite)
     xsprite[nXSprite].data3 = pExplodeInfo->flashEffect;
 }
 
-void actActivateGibObject(spritetype *pSprite, XSPRITE *pXSprite)
+void actActivateGibObject(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int vdx = ClipRange(pXSprite->data1, 0, 31);
     int vc = ClipRange(pXSprite->data2, 0, 31);
     int v4 = ClipRange(pXSprite->data3, 0, 31);
@@ -5405,7 +5410,7 @@ bool IsUnderWater(spritetype *pSprite)
     return 0;
 }
 
-void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite);
+void MakeSplash(DBloodActor *actor);
 
 void actProcessSprites(void)
 {
@@ -5588,7 +5593,7 @@ void actProcessSprites(void)
                         switch (pSprite->type) {
                         case kThingDripWater:
                         case kThingDripBlood:
-                            MakeSplash(pSprite, pXSprite);
+                            MakeSplash(&bloodActors[pXSprite->reference]);
                             break;
                         #ifdef NOONE_EXTENSIONS
                         case kModernThingThrowableRock:
@@ -5907,7 +5912,7 @@ void actProcessSprites(void)
                     pSprite->type = kDudeCerberusOneHead;
                     if (pXSprite->target != -1)
                         aiSetTarget(pXSprite, pXSprite->target);
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
                 }
             }
             if (pXSprite->Proximity && !pXSprite->isTriggered)
@@ -6909,9 +6914,10 @@ void actPostProcess(void)
     gPostCount = 0;
 }
 
-void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite)
+void MakeSplash(DBloodActor* actor)
 {
-    UNREFERENCED_PARAMETER(pXSprite);
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     pSprite->flags &= ~2;
     int nXSprite = pSprite->extra;
     pSprite->z -= 4 << 8;
