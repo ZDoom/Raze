@@ -1749,26 +1749,25 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		p->horizon.addadjustment(horiz - FixedToFloat(p->horizon.horiz.asq16()));
 	}
 
-	double currSpeed = p->MotoSpeed;
+	int currSpeed = p->MotoSpeed;
 	short currAngle = p->angle.ang.asbuild(), velAdjustment;
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
 		velAdjustment = p->vehTurnLeft ? -10 : 10;
-		short angAdjustAmt = 350;
-		short angAdjustment = velAdjustment < 0 ? angAdjustAmt : -angAdjustAmt;
+		short angAdjustment = velAdjustment < 0 ? 350 : -350;
 
 		if (p->moto_on_mud || p->moto_on_oil || !p->NotOnWater)
 		{
-			currSpeed *= p->moto_on_oil ? 8 : 4;
+			currSpeed <<= p->moto_on_oil ? 3 : 2;
 
 			if (p->moto_do_bump)
 			{
-				currSpeed /= 32.;
+				currSpeed >>= 5;
 				angAdjustment >>= 2;
 			}
 			else
 			{
-				currSpeed /= 128.;
+				currSpeed >>= 7;
 				angAdjustment >>= 6;
 			}
 
@@ -1779,29 +1778,29 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		{
 			if (p->moto_do_bump)
 			{
-				currSpeed /= 32.;
+				currSpeed >>= 5;
 				angAdjustment >>= 4;
 				if (!S_CheckActorSoundPlaying(pact, 220))
 					S_PlayActorSound(220, pact);
 			}
 			else
 			{
-				currSpeed /= 128.;
+				currSpeed >>= 7;
 				angAdjustment >>= 7;
 			}
 		}
 
-		p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
-		p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
+		p->posxv += currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4);
+		p->posyv += currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4);
 		p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), IntToFixed(currAngle - angAdjustment))));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
 		rng = krand() & 1;
 		velAdjustment = rng == 0 ? -10 : 10;
-		currSpeed = fmulscale7(currSpeed, p->moto_on_oil ? 10 : 5);
-		p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
-		p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
+		currSpeed = mulscale7(currSpeed, p->moto_on_oil ? 10 : 5);
+		p->posxv += currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4);
+		p->posyv += currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4);
 	}
 
 	p->moto_on_mud = 0;
@@ -2031,25 +2030,24 @@ static void onBoat(int snum, ESyncBits &actions)
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
-		short angAdjustAmt = 350;
-		double currSpeed = p->MotoSpeed * 4.;
+		int currSpeed = p->MotoSpeed * 4.;
 		short currAngle = p->angle.ang.asbuild();
 		short velAdjustment = p->vehTurnLeft ? -10 : 10;
-		short angAdjustment = velAdjustment < 0 ? angAdjustAmt : -angAdjustAmt;
+		short angAdjustment = velAdjustment < 0 ? 350 : -350;
 
 		if (p->moto_do_bump)
 		{
-			currSpeed /= 64.;
+			currSpeed >>= 6;
 			angAdjustment >>= 5;
 		}
 		else
 		{
-			currSpeed /= 128.;
+			currSpeed >>= 7;
 			angAdjustment >>= 6;
 		}
 
-		p->posxv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4));
-		p->posyv += xs_CRoundToInt(currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4));
+		p->posxv += currSpeed * (sintable[(velAdjustment * -51 + currAngle + 512) & 2047] << 4);
+		p->posyv += currSpeed * (sintable[(velAdjustment * -51 + currAngle) & 2047] << 4);
 		p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), IntToFixed(currAngle - angAdjustment))));
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
