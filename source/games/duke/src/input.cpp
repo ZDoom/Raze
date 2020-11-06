@@ -626,10 +626,10 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 					p->TiltStatus = -10;
 
 				if (kbdLeft)
-					turnvel += turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0 ? -baseVel : -baseVel * (3. / 10.);
+					turnvel -= turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.);
 
 				if (hidInput->mouseturnx < 0)
-					turnvel -= sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * -(hidInput->mouseturnx / factor));
+					turnvel -= sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * -(hidInput->mouseturnx / factor) * 2.);
 
 				if (hidInput->dyaw < 0)
 					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * hidInput->dyaw;
@@ -647,7 +647,7 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 					turnvel += turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.);
 
 				if (hidInput->mouseturnx > 0)
-					turnvel += sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * (hidInput->mouseturnx / factor));
+					turnvel += sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * (hidInput->mouseturnx / factor) * 2.);
 
 				if (hidInput->dyaw > 0)
 					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * hidInput->dyaw;
@@ -705,7 +705,7 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 					turnvel -= turnheldtime >= TURBOTURNTIME ? baseVel : baseVel * velScale;
 
 				if (hidInput->mouseturnx < 0)
-					turnvel -= sqrt(baseVel * -(hidInput->mouseturnx / factor));
+					turnvel -= sqrt(baseVel * -(hidInput->mouseturnx / factor) * 2.);
 
 				if (hidInput->dyaw < 0)
 					turnvel += baseVel * hidInput->dyaw;
@@ -726,7 +726,7 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 					turnvel += turnheldtime >= TURBOTURNTIME ? baseVel : baseVel * velScale;
 
 				if (hidInput->mouseturnx > 0)
-					turnvel += sqrt(baseVel * (hidInput->mouseturnx / factor));
+					turnvel += sqrt(baseVel * (hidInput->mouseturnx / factor) * 2.);
 
 				if (hidInput->dyaw > 0)
 					turnvel += baseVel * hidInput->dyaw;
