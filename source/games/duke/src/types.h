@@ -60,7 +60,7 @@ struct weaponhit
 
 	inline void SetOwner(weaponhit* a)
 	{
-		s.owner = a->GetIndex();
+		s.owner = a? a->GetIndex() : -1;
 	}
 
 	// same for the 'hittype' owner - which is normally the shooter in an attack.
@@ -71,7 +71,7 @@ struct weaponhit
 
 	inline void SetHitOwner(weaponhit* a)
 	{
-		owner = a->GetIndex();
+		owner = a ? a->GetIndex() : -1;
 	}
 
 	// This used the Owner field - better move this to something more safe.
