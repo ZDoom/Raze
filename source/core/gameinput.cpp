@@ -133,8 +133,8 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 
 	// process remaining controller input.
 	currInput->horz -= scaleAdjust * hidInput->dpitch * hidspeed;
-	currInput->svel -= xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * cntrlvelscale);
-	currInput->fvel -= xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * cntrlvelscale);
+	currInput->svel += xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * cntrlvelscale);
+	currInput->fvel += xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * cntrlvelscale);
 
 	// process keyboard turning keys.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)

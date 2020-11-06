@@ -182,8 +182,8 @@ ControlInfo CONTROL_GetInput()
 		I_GetAxes(joyaxes);
 
 		hidInput.dyaw += -joyaxes[JOYAXIS_Yaw];
-		hidInput.dx += -joyaxes[JOYAXIS_Side] * .5f;
-		hidInput.dz += -joyaxes[JOYAXIS_Forward] * .5f;
+		hidInput.dx += joyaxes[JOYAXIS_Side] * .5f;
+		hidInput.dz += joyaxes[JOYAXIS_Forward] * .5f;
 		hidInput.dpitch += -joyaxes[JOYAXIS_Pitch];
 	}
 
