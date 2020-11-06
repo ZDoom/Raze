@@ -510,7 +510,8 @@ enum
 	MAXANGVEL     = 1024, // 127
 	MAXHORIZVEL   = 256,  // 127
 
-	MAXVELMOTO    = 120
+	MAXVELMOTO    = 120,
+	VEHICLETURN   = 20
 };
 
 //---------------------------------------------------------------------------
@@ -586,67 +587,70 @@ int getticssincelastupdate()
 //
 //---------------------------------------------------------------------------
 
-static double motoApplyTurn(player_struct* p, bool turnl, bool turnr, int bike_turn, bool goback, double factor)
+static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool const kbdLeft, bool const kbdRight, double const factor)
 {
-	int turnvel = 0;
+	double turnvel = 0;
 	p->oTiltStatus = p->TiltStatus;
 
 	if (p->MotoSpeed == 0 || !p->on_ground)
 	{
 		turnheldtime = 0;
 		lastcontroltime = 0;
-		if (turnl)
+
+		if (kbdLeft || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 		{
-			p->TiltStatus -= (float)factor;
+			p->TiltStatus -= factor;
 			if (p->TiltStatus < -10)
 				p->TiltStatus = -10;
 		}
-		else if (turnr)
+		else if (kbdRight || hidInput->mouseturnx > 0 || hidInput->dyaw > 0)
 		{
-			p->TiltStatus += (float)factor;
+			p->TiltStatus += factor;
 			if (p->TiltStatus > 10)
 				p->TiltStatus = 10;
 		}
 	}
 	else
 	{
-		int tics = getticssincelastupdate();
-		if (turnl || turnr || p->moto_drink != 0)
+		if (kbdLeft || kbdRight || p->moto_drink || hidInput->mouseturnx || hidInput->dyaw)
 		{
-			if (turnl || p->moto_drink < 0)
+			auto const baseVel = (buttonMap.ButtonDown(gamefunc_Move_Backward) || hidInput->dz < 0) && p->MotoSpeed <= 0 ? -VEHICLETURN : VEHICLETURN;
+			int tics = getticssincelastupdate();
+
+			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 			{
 				turnheldtime += tics;
-				p->TiltStatus -= (float)factor;
+				p->TiltStatus -= factor;
+
 				if (p->TiltStatus < -10)
 					p->TiltStatus = -10;
-				if (turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0)
-				{
-					if (goback) turnvel += bike_turn ? 40 : 20;
-					else turnvel += bike_turn ? -40 : -20;
-				}
-				else
-				{
-					if (goback) turnvel += bike_turn ? 20 : 6;
-					else turnvel += bike_turn ? -20 : -6;
-				}
+
+				if (kbdLeft)
+					turnvel += turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0 ? -baseVel : -baseVel * (3. / 10.);
+
+				if (hidInput->mouseturnx < 0)
+					turnvel -= sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * -(hidInput->mouseturnx / factor));
+
+				if (hidInput->dyaw < 0)
+					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * hidInput->dyaw;
 			}
 
-			if (turnr || p->moto_drink > 0)
+			if (kbdRight || p->moto_drink > 0 || hidInput->mouseturnx > 0 || hidInput->dyaw > 0)
 			{
 				turnheldtime += tics;
-				p->TiltStatus += (float)factor;
+				p->TiltStatus += factor;
+
 				if (p->TiltStatus > 10)
 					p->TiltStatus = 10;
-				if (turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0)
-				{
-					if (goback) turnvel += bike_turn ? -40 : -20;
-					else turnvel += bike_turn ? 40 : 20;
-				}
-				else
-				{
-					if (goback) turnvel += bike_turn ? -20 : -6;
-					else turnvel += bike_turn ? 20 : 6;
-				}
+
+				if (kbdRight)
+					turnvel += turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.);
+
+				if (hidInput->mouseturnx > 0)
+					turnvel += sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * (hidInput->mouseturnx / factor));
+
+				if (hidInput->dyaw > 0)
+					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * hidInput->dyaw;
 			}
 		}
 		else
@@ -655,9 +659,9 @@ static double motoApplyTurn(player_struct* p, bool turnl, bool turnr, int bike_t
 			lastcontroltime = 0;
 
 			if (p->TiltStatus > 0)
-				p->TiltStatus -= (float)factor;
+				p->TiltStatus -= factor;
 			else if (p->TiltStatus < 0)
-				p->TiltStatus += (float)factor;
+				p->TiltStatus += factor;
 		}
 	}
 
@@ -673,55 +677,59 @@ static double motoApplyTurn(player_struct* p, bool turnl, bool turnr, int bike_t
 //
 //---------------------------------------------------------------------------
 
-static double boatApplyTurn(player_struct *p, bool turnl, bool turnr, int boat_turn, double factor)
+static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool const kbdLeft, bool const kbdRight, double const factor)
 {
-	int turnvel = 0;
-	int tics = getticssincelastupdate();
+	double turnvel = 0;
+	p->oTiltStatus = p->TiltStatus;
 
 	if (p->MotoSpeed)
 	{
-		if (turnl || turnr || p->moto_drink != 0)
+		if (kbdLeft || kbdRight || p->moto_drink || hidInput->mouseturnx || hidInput->dyaw)
 		{
-			if (turnl || p->moto_drink < 0)
+			double const velScale = 6. / 19.;
+			auto const baseVel = !p->NotOnWater ? VEHICLETURN : VEHICLETURN * velScale;
+			int tics = getticssincelastupdate();
+
+			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 			{
 				turnheldtime += tics;
+
 				if (!p->NotOnWater)
 				{
-					p->TiltStatus -= (float)factor;
+					p->TiltStatus -= factor;
 					if (p->TiltStatus < -10)
 						p->TiltStatus = -10;
 				}
-				if (turnheldtime >= TURBOTURNTIME)
-				{
-					if (p->NotOnWater) turnvel += boat_turn ? -12 : -6;
-					else turnvel += boat_turn ? -40 : -20;
-				}
-				else
-				{
-					if (p->NotOnWater) turnvel += boat_turn ? -4 : -2;
-					else turnvel += boat_turn ? -12 : -6;
-				}
+
+				if (kbdRight)
+					turnvel -= turnheldtime >= TURBOTURNTIME ? baseVel : baseVel * velScale;
+
+				if (hidInput->mouseturnx < 0)
+					turnvel -= sqrt(baseVel * -(hidInput->mouseturnx / factor));
+
+				if (hidInput->dyaw < 0)
+					turnvel += baseVel * hidInput->dyaw;
 			}
 
-			if (turnr || p->moto_drink > 0)
+			if (kbdRight || p->moto_drink > 0 || hidInput->mouseturnx > 0 || hidInput->dyaw > 0)
 			{
 				turnheldtime += tics;
+
 				if (!p->NotOnWater)
 				{
-					p->TiltStatus += (float)factor;
+					p->TiltStatus += factor;
 					if (p->TiltStatus > 10)
 						p->TiltStatus = 10;
 				}
-				if (turnheldtime >= TURBOTURNTIME)
-				{
-					if (p->NotOnWater) turnvel += boat_turn ? 12 : 6;
-					else turnvel += boat_turn ? 40 : 20;
-				}
-				else
-				{
-					if (p->NotOnWater) turnvel += boat_turn ? 4 : 2;
-					else turnvel += boat_turn ? 12 : 6;
-				}
+
+				if (kbdRight)
+					turnvel += turnheldtime >= TURBOTURNTIME ? baseVel : baseVel * velScale;
+
+				if (hidInput->mouseturnx > 0)
+					turnvel += sqrt(baseVel * (hidInput->mouseturnx / factor));
+
+				if (hidInput->dyaw > 0)
+					turnvel += baseVel * hidInput->dyaw;
 			}
 		}
 		else if (!p->NotOnWater)
@@ -730,9 +738,9 @@ static double boatApplyTurn(player_struct *p, bool turnl, bool turnr, int boat_t
 			lastcontroltime = 0;
 
 			if (p->TiltStatus > 0)
-				p->TiltStatus -= (float)factor;
+				p->TiltStatus -= factor;
 			else if (p->TiltStatus < 0)
-				p->TiltStatus += (float)factor;
+				p->TiltStatus += factor;
 		}
 	}
 	else if (!p->NotOnWater)
@@ -741,9 +749,9 @@ static double boatApplyTurn(player_struct *p, bool turnl, bool turnr, int boat_t
 		lastcontroltime = 0;
 
 		if (p->TiltStatus > 0)
-			p->TiltStatus -= (float)factor;
+			p->TiltStatus -= factor;
 		else if (p->TiltStatus < 0)
-			p->TiltStatus += (float)factor;
+			p->TiltStatus += factor;
 	}
 
 	if (fabs(p->TiltStatus) < factor)
@@ -758,20 +766,12 @@ static double boatApplyTurn(player_struct *p, bool turnl, bool turnr, int boat_t
 //
 //---------------------------------------------------------------------------
 
-static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, InputPacket& input, double scaleAdjust)
+static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, InputPacket& input, double const scaleAdjust)
 {
-	auto turnspeed = hidInput->mouseturnx + scaleAdjust * hidInput->dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
-	bool turnl = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
-	bool turnr = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
-
-	// Cancel out micro-movement
-	const double turn_threshold = 1 / 65536.;
-	if (turnspeed < -turn_threshold)
-		turnl = true;
-	else if (turnspeed > turn_threshold)
-		turnr = true;
-	else
-		turnspeed = 0;
+	bool const kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
+	bool const kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
+	p->vehTurnLeft = kbdLeft || hidInput->mouseturnx < 0 || hidInput->dyaw < 0;
+	p->vehTurnRight = kbdRight || hidInput->mouseturnx > 0 || hidInput->dyaw > 0;
 
 	if (p->OnBoat || !p->moto_underwater)
 	{
@@ -782,30 +782,19 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 			loc.actions |= SB_CROUCH;
 	}
 
-	p->vehTurnLeft = turnl;
-	p->vehTurnRight = turnr;
-
-	double turnvel;
-
 	if (p->OnMotorcycle)
 	{
-		bool backward = buttonMap.ButtonDown(gamefunc_Move_Backward) && p->MotoSpeed <= 0;
-
-		turnvel = motoApplyTurn(p, turnl, turnr, turnspeed, backward, scaleAdjust);
+		input.avel = motoApplyTurn(p, hidInput, kbdLeft, kbdRight, scaleAdjust);
 		if (p->moto_underwater) p->MotoSpeed = 0;
 	}
 	else
 	{
-		turnvel = boatApplyTurn(p, turnl, turnr, turnspeed != 0, scaleAdjust);
+		input.avel = boatApplyTurn(p, hidInput, kbdLeft, kbdRight, scaleAdjust);
 	}
 
-	// What is this? Optimization for playing with a mouse which the original did not have?
-	if (turnspeed)
-		turnvel *= clamp(turnspeed * turnspeed, 0., 1.);
-
 	input.fvel = xs_CRoundToInt(p->MotoSpeed);
-	input.avel = turnvel * (45. / 256.);
-	loc.avel = clamp(loc.avel + input.avel, -MAXANGVEL, MAXANGVEL);
+	input.avel *= (45. / 256.);
+	loc.avel += input.avel;
 }
 
 //---------------------------------------------------------------------------
