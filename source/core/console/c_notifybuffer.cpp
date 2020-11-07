@@ -110,8 +110,8 @@ void FNotifyBuffer::DrawNative()
 	// * top left for Exhumed
 	// * 4 lines with the tiny font for Blood. (same mechanic as the regular one, just a different font and scale.)
 
-	bool center = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RR | GAMEFLAG_SW);
-	bool pulse = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RR);
+	bool center = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RRALL | GAMEFLAG_SW);
+	bool pulse = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RRALL);
 	unsigned topline = g_gameType & GAMEFLAG_BLOOD ? 0 : Text.Size() - 1;
 
 	FFont* font = g_gameType & GAMEFLAG_BLOOD ? SmallFont2 : SmallFont;
