@@ -120,7 +120,7 @@ static void zombaThinkGoto(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 921 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &zombieASearch);
+        aiNewState(actor, &zombieASearch);
     aiThinkTarget(actor);
 }
 
@@ -130,7 +130,7 @@ static void zombaThinkChase(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &zombieASearch);
+        aiNewState(actor, &zombieASearch);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -143,12 +143,12 @@ static void zombaThinkChase(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &zombieASearch);
+        aiNewState(actor, &zombieASearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && (powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0 || powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpDeathMaskUseless) > 0))
     {
-        aiNewState(pSprite, pXSprite, &zombieAGoto);
+        aiNewState(actor, &zombieAGoto);
         return;
     }
     // If the zombie gets whacked while rising from the grave it never executes this change and if it isn't done here at the very latest, will just aimlessly run around.
@@ -166,13 +166,13 @@ static void zombaThinkChase(DBloodActor* actor)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &zombieAHack);
+                    aiNewState(actor, &zombieAHack);
                 return;
             }
         }
     }
 
-    aiNewState(pSprite, pXSprite, &zombieAGoto);
+    aiNewState(actor, &zombieAGoto);
     pXSprite->target = -1;
 }
 
@@ -182,7 +182,7 @@ static void zombaThinkPonder(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &zombieASearch);
+        aiNewState(actor, &zombieASearch);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -195,12 +195,12 @@ static void zombaThinkPonder(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &zombieASearch);
+        aiNewState(actor, &zombieASearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && (powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0 || powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpDeathMaskUseless) > 0))
     {
-        aiNewState(pSprite, pXSprite, &zombieAGoto);
+        aiNewState(actor, &zombieAGoto);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -218,7 +218,7 @@ static void zombaThinkPonder(DBloodActor* actor)
                     if (klabs(nDeltaAngle) < 85)
                     {
                         sfxPlay3DSound(pSprite, 1101, 1, 0);
-                        aiNewState(pSprite, pXSprite, &zombieAHack);
+                        aiNewState(actor, &zombieAHack);
                     }
                     return;
                 }
@@ -226,7 +226,7 @@ static void zombaThinkPonder(DBloodActor* actor)
         }
     }
 
-    aiNewState(pSprite, pXSprite, &zombieAChase);
+    aiNewState(actor, &zombieAChase);
 }
 
 static void myThinkTarget(DBloodActor* actor)

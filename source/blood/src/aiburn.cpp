@@ -113,26 +113,26 @@ static void burnThinkGoto(DBloodActor* actor)
         switch (pSprite->type)
         {
         case kDudeBurningCultist:
-            aiNewState(pSprite, pXSprite, &cultistBurnSearch);
+            aiNewState(actor, &cultistBurnSearch);
             break;
         case kDudeBurningZombieAxe:
-            aiNewState(pSprite, pXSprite, &zombieABurnSearch);
+            aiNewState(actor, &zombieABurnSearch);
             break;
         case kDudeBurningZombieButcher:
-            aiNewState(pSprite, pXSprite, &zombieFBurnSearch);
+            aiNewState(actor, &zombieFBurnSearch);
             break;
         case kDudeBurningInnocent:
-            aiNewState(pSprite, pXSprite, &innocentBurnSearch);
+            aiNewState(actor, &innocentBurnSearch);
             break;
         case kDudeBurningBeast:
-            aiNewState(pSprite, pXSprite, &beastBurnSearch);
+            aiNewState(actor, &beastBurnSearch);
             break;
         case kDudeBurningTinyCaleb:
-            aiNewState(pSprite, pXSprite, &tinycalebBurnSearch);
+            aiNewState(actor, &tinycalebBurnSearch);
             break;
         #ifdef NOONE_EXTENSIONS
         case kDudeModernCustomBurning:
-            aiNewState(pSprite, pXSprite, &genDudeBurnSearch);
+            aiNewState(actor, &genDudeBurnSearch);
             break;
         #endif
         }
@@ -149,26 +149,26 @@ static void burnThinkChase(DBloodActor* actor)
         switch (pSprite->type)
         {
         case kDudeBurningCultist:
-            aiNewState(pSprite, pXSprite, &cultistBurnGoto);
+            aiNewState(actor, &cultistBurnGoto);
             break;
         case kDudeBurningZombieAxe:
-            aiNewState(pSprite, pXSprite, &zombieABurnGoto);
+            aiNewState(actor, &zombieABurnGoto);
             break;
         case kDudeBurningZombieButcher:
-            aiNewState(pSprite, pXSprite, &zombieFBurnGoto);
+            aiNewState(actor, &zombieFBurnGoto);
             break;
         case kDudeBurningInnocent:
-            aiNewState(pSprite, pXSprite, &innocentBurnGoto);
+            aiNewState(actor, &innocentBurnGoto);
             break;
         case kDudeBurningBeast:
-            aiNewState(pSprite, pXSprite, &beastBurnGoto);
+            aiNewState(actor, &beastBurnGoto);
             break;
         case kDudeBurningTinyCaleb:
-            aiNewState(pSprite, pXSprite, &tinycalebBurnGoto);
+            aiNewState(actor, &tinycalebBurnGoto);
             break;
         #ifdef NOONE_EXTENSIONS
         case kDudeModernCustomBurning:
-            aiNewState(pSprite, pXSprite, &genDudeBurnGoto);
+            aiNewState(actor, &genDudeBurnGoto);
             break;
         #endif
         }
@@ -187,26 +187,26 @@ static void burnThinkChase(DBloodActor* actor)
         switch (pSprite->type)
         {
         case kDudeBurningCultist:
-            aiNewState(pSprite, pXSprite, &cultistBurnSearch);
+            aiNewState(actor, &cultistBurnSearch);
             break;
         case kDudeBurningZombieAxe:
-            aiNewState(pSprite, pXSprite, &zombieABurnSearch);
+            aiNewState(actor, &zombieABurnSearch);
             break;
         case kDudeBurningZombieButcher:
-            aiNewState(pSprite, pXSprite, &zombieFBurnSearch);
+            aiNewState(actor, &zombieFBurnSearch);
             break;
         case kDudeBurningInnocent:
-            aiNewState(pSprite, pXSprite, &innocentBurnSearch);
+            aiNewState(actor, &innocentBurnSearch);
             break;
         case kDudeBurningBeast:
-            aiNewState(pSprite, pXSprite, &beastBurnSearch);
+            aiNewState(actor, &beastBurnSearch);
             break;
         case kDudeBurningTinyCaleb:
-            aiNewState(pSprite, pXSprite, &tinycalebBurnSearch);
+            aiNewState(actor, &tinycalebBurnSearch);
             break;
         #ifdef NOONE_EXTENSIONS
         case kDudeModernCustomBurning:
-            aiNewState(pSprite, pXSprite, &genDudeBurnSearch);
+            aiNewState(actor, &genDudeBurnSearch);
             break;
         #endif
         }
@@ -227,26 +227,26 @@ static void burnThinkChase(DBloodActor* actor)
                     switch (pSprite->type)
                     {
                     case kDudeBurningCultist:
-                        aiNewState(pSprite, pXSprite, &cultistBurnAttack);
+                        aiNewState(actor, &cultistBurnAttack);
                         break;
                     case kDudeBurningZombieAxe:
-                        aiNewState(pSprite, pXSprite, &zombieABurnAttack);
+                        aiNewState(actor, &zombieABurnAttack);
                         break;
                     case kDudeBurningZombieButcher:
-                        aiNewState(pSprite, pXSprite, &zombieFBurnAttack);
+                        aiNewState(actor, &zombieFBurnAttack);
                         break;
                     case kDudeBurningInnocent:
-                        aiNewState(pSprite, pXSprite, &innocentBurnAttack);
+                        aiNewState(actor, &innocentBurnAttack);
                         break;
                     case kDudeBurningBeast:
-                        aiNewState(pSprite, pXSprite, &beastBurnAttack);
+                        aiNewState(actor, &beastBurnAttack);
                         break;
                     case kDudeBurningTinyCaleb:
-                        aiNewState(pSprite, pXSprite, &tinycalebBurnAttack);
+                        aiNewState(actor, &tinycalebBurnAttack);
                         break;
                     #ifdef NOONE_EXTENSIONS
                     case kDudeModernCustomBurning:
-                        aiNewState(pSprite, pXSprite, &genDudeBurnSearch);
+                        aiNewState(actor, &genDudeBurnSearch);
                         break;
                     #endif
                     }
@@ -259,26 +259,26 @@ static void burnThinkChase(DBloodActor* actor)
     switch (pSprite->type)
     {
     case kDudeBurningCultist:
-        aiNewState(pSprite, pXSprite, &cultistBurnGoto);
+        aiNewState(actor, &cultistBurnGoto);
         break;
     case kDudeBurningZombieAxe:
-        aiNewState(pSprite, pXSprite, &zombieABurnGoto);
+        aiNewState(actor, &zombieABurnGoto);
         break;
     case 242:
-        aiNewState(pSprite, pXSprite, &zombieFBurnGoto);
+        aiNewState(actor, &zombieFBurnGoto);
         break;
     case kDudeBurningInnocent:
-        aiNewState(pSprite, pXSprite, &innocentBurnGoto);
+        aiNewState(actor, &innocentBurnGoto);
         break;
     case kDudeBurningBeast:
-        aiNewState(pSprite, pXSprite, &beastBurnGoto);
+        aiNewState(actor, &beastBurnGoto);
         break;
     case kDudeBurningTinyCaleb:
-        aiNewState(pSprite, pXSprite, &tinycalebBurnGoto);
+        aiNewState(actor, &tinycalebBurnGoto);
         break;
     #ifdef NOONE_EXTENSIONS
     case kDudeModernCustomBurning:
-        aiNewState(pSprite, pXSprite, &genDudeBurnSearch);
+        aiNewState(actor, &genDudeBurnSearch);
         break;
     #endif
     }

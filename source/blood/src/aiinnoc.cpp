@@ -74,7 +74,7 @@ static void innocThinkGoto(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &innocentSearch);
+        aiNewState(actor, &innocentSearch);
     aiThinkTarget(actor);
 }
 
@@ -84,7 +84,7 @@ static void innocThinkChase(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &innocentGoto);
+        aiNewState(actor, &innocentGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -97,12 +97,12 @@ static void innocThinkChase(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &innocentSearch);
+        aiNewState(actor, &innocentSearch);
         return;
     }
     if (IsPlayerSprite(pTarget))
     {
-        aiNewState(pSprite, pXSprite, &innocentSearch);
+        aiNewState(actor, &innocentSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -116,14 +116,14 @@ static void innocThinkChase(DBloodActor* actor)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x666 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &innocentIdle);
+                    aiNewState(actor, &innocentIdle);
                 return;
             }
         }
     }
 
     aiPlay3DSound(pSprite, 7000+Random(6), AI_SFX_PRIORITY_1, -1);
-    aiNewState(pSprite, pXSprite, &innocentGoto);
+    aiNewState(actor, &innocentGoto);
     pXSprite->target = -1;
 }
 

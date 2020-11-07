@@ -223,9 +223,9 @@ static void beastThinkGoto(DBloodActor* actor)
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
     {
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &beastSwimSearch);
+            aiNewState(actor, &beastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &beastSearch);
+            aiNewState(actor, &beastSearch);
     }
     aiThinkTarget(actor);
 }
@@ -243,9 +243,9 @@ static void beastThinkChase(DBloodActor* actor)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &beastSwimSearch);
+            aiNewState(actor, &beastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &beastSearch);
+            aiNewState(actor, &beastSearch);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -265,9 +265,9 @@ static void beastThinkChase(DBloodActor* actor)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &beastSwimSearch);
+            aiNewState(actor, &beastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &beastSearch);
+            aiNewState(actor, &beastSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
@@ -279,9 +279,9 @@ static void beastThinkChase(DBloodActor* actor)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &beastSwimSearch);
+            aiNewState(actor, &beastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &beastSearch);
+            aiNewState(actor, &beastSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -312,25 +312,25 @@ static void beastThinkChase(DBloodActor* actor)
                         {
                         case -1:
                             if (!pXSector || !pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &beastStomp);
+                                aiNewState(actor, &beastStomp);
                             break;
                         case 3:
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type)
                             {
                                 if (!pXSector || !pXSector->Underwater)
-                                    aiNewState(pSprite, pXSprite, &beastStomp);
+                                    aiNewState(actor, &beastStomp);
                             }
                             else
                             {
                                 if (pXSector && pXSector->Underwater)
-                                    aiNewState(pSprite, pXSprite, &beastSwimDodge);
+                                    aiNewState(actor, &beastSwimDodge);
                                 else
-                                    aiNewState(pSprite, pXSprite, &beastDodge);
+                                    aiNewState(actor, &beastDodge);
                             }
                             break;
                         default:
                             if (!pXSector || !pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &beastStomp);
+                                aiNewState(actor, &beastStomp);
                             break;
                         }
                     }
@@ -348,31 +348,31 @@ static void beastThinkChase(DBloodActor* actor)
                     {
                     case -1:
                         if (pXSector && pXSector->Underwater)
-                            aiNewState(pSprite, pXSprite, &beastSwimSlash);
+                            aiNewState(actor, &beastSwimSlash);
                         else
-                            aiNewState(pSprite, pXSprite, &beastSlash);
+                            aiNewState(actor, &beastSlash);
                         break;
                     case 3:
                         if (pSprite->type != sprite[gHitInfo.hitsprite].type)
                         {
                             if (pXSector && pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &beastSwimSlash);
+                                aiNewState(actor, &beastSwimSlash);
                             else
-                                aiNewState(pSprite, pXSprite, &beastSlash);
+                                aiNewState(actor, &beastSlash);
                         }
                         else
                         {
                             if (pXSector && pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &beastSwimDodge);
+                                aiNewState(actor, &beastSwimDodge);
                             else
-                                aiNewState(pSprite, pXSprite, &beastDodge);
+                                aiNewState(actor, &beastDodge);
                         }
                         break;
                     default:
                         if (pXSector && pXSector->Underwater)
-                            aiNewState(pSprite, pXSprite, &beastSwimSlash);
+                            aiNewState(actor, &beastSwimSlash);
                         else
-                            aiNewState(pSprite, pXSprite, &beastSlash);
+                            aiNewState(actor, &beastSlash);
                         break;
                     }
                 }
@@ -388,9 +388,9 @@ static void beastThinkChase(DBloodActor* actor)
     else
         pXSector = NULL;
     if (pXSector && pXSector->Underwater)
-        aiNewState(pSprite, pXSprite, &beastSwimGoto);
+        aiNewState(actor, &beastSwimGoto);
     else
-        aiNewState(pSprite, pXSprite, &beastGoto);
+        aiNewState(actor, &beastGoto);
     pXSprite->target = -1;
 }
 
@@ -406,7 +406,7 @@ static void beastThinkSwimGoto(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &beastSwimSearch);
+        aiNewState(actor, &beastSwimSearch);
     aiThinkTarget(actor);
 }
 
@@ -416,7 +416,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &beastSwimGoto);
+        aiNewState(actor, &beastSwimGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -429,12 +429,12 @@ static void beastThinkSwimChase(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &beastSwimSearch);
+        aiNewState(actor, &beastSwimSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &beastSwimSearch);
+        aiNewState(actor, &beastSwimSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -450,19 +450,19 @@ static void beastThinkSwimChase(DBloodActor* actor)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &beastSwimSlash);
+                    aiNewState(actor, &beastSwimSlash);
                 else
                 {
                     aiPlay3DSound(pSprite, 9009+Random(2), AI_SFX_PRIORITY_1, -1);
-                    aiNewState(pSprite, pXSprite, &beast138FD0);
+                    aiNewState(actor, &beast138FD0);
                 }
             }
         }
         else
-            aiNewState(pSprite, pXSprite, &beast138FD0);
+            aiNewState(actor, &beast138FD0);
         return;
     }
-    aiNewState(pSprite, pXSprite, &beastSwimGoto);
+    aiNewState(actor, &beastSwimGoto);
     pXSprite->target = -1;
 }
 

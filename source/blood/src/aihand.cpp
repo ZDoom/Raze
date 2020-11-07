@@ -92,7 +92,7 @@ static void handThinkGoto(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &handSearch);
+        aiNewState(actor, &handSearch);
     aiThinkTarget(actor);
 }
 
@@ -102,7 +102,7 @@ static void handThinkChase(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &handGoto);
+        aiNewState(actor, &handGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -115,12 +115,12 @@ static void handThinkChase(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &handSearch);
+        aiNewState(actor, &handSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &handSearch);
+        aiNewState(actor, &handSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -134,13 +134,13 @@ static void handThinkChase(DBloodActor* actor)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x233 && klabs(nDeltaAngle) < 85 && gGameOptions.nGameType == 0)
-                    aiNewState(pSprite, pXSprite, &handJump);
+                    aiNewState(actor, &handJump);
                 return;
             }
         }
     }
 
-    aiNewState(pSprite, pXSprite, &handGoto);
+    aiNewState(actor, &handGoto);
     pXSprite->target = -1;
 }
 

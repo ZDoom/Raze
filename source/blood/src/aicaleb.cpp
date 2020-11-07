@@ -123,9 +123,9 @@ static void calebThinkGoto(DBloodActor* actor)
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
     {
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+            aiNewState(actor, &tinycalebSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &tinycalebSearch);
+            aiNewState(actor, &tinycalebSearch);
     }
     aiThinkTarget(actor);
 }
@@ -143,9 +143,9 @@ static void calebThinkChase(DBloodActor* actor)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+            aiNewState(actor, &tinycalebSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &tinycalebSearch);
+            aiNewState(actor, &tinycalebSearch);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -165,11 +165,11 @@ static void calebThinkChase(DBloodActor* actor)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+            aiNewState(actor, &tinycalebSwimSearch);
         else
         {
             aiPlay3DSound(pSprite, 11000+Random(4), AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &tinycalebSearch);
+            aiNewState(actor, &tinycalebSearch);
         }
         return;
     }
@@ -182,9 +182,9 @@ static void calebThinkChase(DBloodActor* actor)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+            aiNewState(actor, &tinycalebSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &tinycalebSearch);
+            aiNewState(actor, &tinycalebSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -212,31 +212,31 @@ static void calebThinkChase(DBloodActor* actor)
                     {
                     case -1:
                         if (pXSector && pXSector->Underwater)
-                            aiNewState(pSprite, pXSprite, &tinycalebSwimAttack);
+                            aiNewState(actor, &tinycalebSwimAttack);
                         else
-                            aiNewState(pSprite, pXSprite, &tinycalebAttack);
+                            aiNewState(actor, &tinycalebAttack);
                         break;
                     case 3:
                         if (pSprite->type != sprite[gHitInfo.hitsprite].type)
                         {
                             if (pXSector && pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &tinycalebSwimAttack);
+                                aiNewState(actor, &tinycalebSwimAttack);
                             else
-                                aiNewState(pSprite, pXSprite, &tinycalebAttack);
+                                aiNewState(actor, &tinycalebAttack);
                         }
                         else
                         {
                             if (pXSector && pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &tinycalebSwimDodge);
+                                aiNewState(actor, &tinycalebSwimDodge);
                             else
-                                aiNewState(pSprite, pXSprite, &tinycalebDodge);
+                                aiNewState(actor, &tinycalebDodge);
                         }
                         break;
                     default:
                         if (pXSector && pXSector->Underwater)
-                            aiNewState(pSprite, pXSprite, &tinycalebSwimAttack);
+                            aiNewState(actor, &tinycalebSwimAttack);
                         else
-                            aiNewState(pSprite, pXSprite, &tinycalebAttack);
+                            aiNewState(actor, &tinycalebAttack);
                         break;
                     }
                 }
@@ -252,9 +252,9 @@ static void calebThinkChase(DBloodActor* actor)
     else
         pXSector = NULL;
     if (pXSector && pXSector->Underwater)
-        aiNewState(pSprite, pXSprite, &tinycalebSwimGoto);
+        aiNewState(actor, &tinycalebSwimGoto);
     else
-        aiNewState(pSprite, pXSprite, &tinycalebGoto);
+        aiNewState(actor, &tinycalebGoto);
     if (Chance(0x2000))
         sfxPlay3DSound(pSprite, 10000 + Random(5), -1, 0);
     pXSprite->target = -1;
@@ -272,7 +272,7 @@ static void calebThinkSwimGoto(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+        aiNewState(actor, &tinycalebSwimSearch);
     aiThinkTarget(actor);
 }
 
@@ -282,7 +282,7 @@ static void calebThinkSwimChase(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &tinycalebSwimGoto);
+        aiNewState(actor, &tinycalebSwimGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -295,12 +295,12 @@ static void calebThinkSwimChase(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+        aiNewState(actor, &tinycalebSwimSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+        aiNewState(actor, &tinycalebSwimSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -316,14 +316,14 @@ static void calebThinkSwimChase(DBloodActor* actor)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &tinycalebSwimAttack);
+                    aiNewState(actor, &tinycalebSwimAttack);
                 else
-                    aiNewState(pSprite, pXSprite, &tinycaleb13967C);
+                    aiNewState(actor, &tinycaleb13967C);
             }
         }
         return;
     }
-    aiNewState(pSprite, pXSprite, &tinycalebSwimGoto);
+    aiNewState(actor, &tinycalebSwimGoto);
     pXSprite->target = -1;
 }
 

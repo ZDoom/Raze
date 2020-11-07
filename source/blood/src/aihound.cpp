@@ -119,7 +119,7 @@ static void houndThinkGoto(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &houndSearch);
+        aiNewState(actor, &houndSearch);
     aiThinkTarget(actor);
 }
 
@@ -129,7 +129,7 @@ static void houndThinkChase(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &houndGoto);
+        aiNewState(actor, &houndGoto);
         return;
     }
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -150,12 +150,12 @@ static void houndThinkChase(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &houndSearch);
+        aiNewState(actor, &houndSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &houndSearch);
+        aiNewState(actor, &houndSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -169,15 +169,15 @@ static void houndThinkChase(DBloodActor* actor)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0xb00 && nDist > 0x500 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &houndBurn);
+                    aiNewState(actor, &houndBurn);
                 else if(nDist < 0x266 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &houndBite);
+                    aiNewState(actor, &houndBite);
                 return;
             }
         }
     }
 
-    aiNewState(pSprite, pXSprite, &houndGoto);
+    aiNewState(actor, &houndGoto);
     pXSprite->target = -1;
 }
 

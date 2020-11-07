@@ -125,7 +125,7 @@ static void zombfThinkGoto(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &zombieFSearch);
+        aiNewState(actor, &zombieFSearch);
     aiThinkTarget(actor);
 }
 
@@ -135,7 +135,7 @@ static void zombfThinkChase(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &zombieFGoto);
+        aiNewState(actor, &zombieFGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -148,12 +148,12 @@ static void zombfThinkChase(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &zombieFSearch);
+        aiNewState(actor, &zombieFSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && (powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0 || powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpDeathMaskUseless) > 0))
     {
-        aiNewState(pSprite, pXSprite, &zombieFSearch);
+        aiNewState(actor, &zombieFSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -172,16 +172,16 @@ static void zombfThinkChase(DBloodActor* actor)
                     switch (hit)
                     {
                     case -1:
-                        aiNewState(pSprite, pXSprite, &zombieFThrow);
+                        aiNewState(actor, &zombieFThrow);
                         break;
                     case 3:
                         if (pSprite->type != sprite[gHitInfo.hitsprite].type)
-                            aiNewState(pSprite, pXSprite, &zombieFThrow);
+                            aiNewState(actor, &zombieFThrow);
                         else
-                            aiNewState(pSprite, pXSprite, &zombieFDodge);
+                            aiNewState(actor, &zombieFDodge);
                         break;
                     default:
-                        aiNewState(pSprite, pXSprite, &zombieFThrow);
+                        aiNewState(actor, &zombieFThrow);
                         break;
                     }
                 }
@@ -191,16 +191,16 @@ static void zombfThinkChase(DBloodActor* actor)
                     switch (hit)
                     {
                     case -1:
-                        aiNewState(pSprite, pXSprite, &zombieFPuke);
+                        aiNewState(actor, &zombieFPuke);
                         break;
                     case 3:
                         if (pSprite->type != sprite[gHitInfo.hitsprite].type)
-                            aiNewState(pSprite, pXSprite, &zombieFPuke);
+                            aiNewState(actor, &zombieFPuke);
                         else
-                            aiNewState(pSprite, pXSprite, &zombieFDodge);
+                            aiNewState(actor, &zombieFDodge);
                         break;
                     default:
-                        aiNewState(pSprite, pXSprite, &zombieFPuke);
+                        aiNewState(actor, &zombieFPuke);
                         break;
                     }
                 }
@@ -210,16 +210,16 @@ static void zombfThinkChase(DBloodActor* actor)
                     switch (hit)
                     {
                     case -1:
-                        aiNewState(pSprite, pXSprite, &zombieFHack);
+                        aiNewState(actor, &zombieFHack);
                         break;
                     case 3:
                         if (pSprite->type != sprite[gHitInfo.hitsprite].type)
-                            aiNewState(pSprite, pXSprite, &zombieFHack);
+                            aiNewState(actor, &zombieFHack);
                         else
-                            aiNewState(pSprite, pXSprite, &zombieFDodge);
+                            aiNewState(actor, &zombieFDodge);
                         break;
                     default:
-                        aiNewState(pSprite, pXSprite, &zombieFHack);
+                        aiNewState(actor, &zombieFHack);
                         break;
                     }
                 }
@@ -228,7 +228,7 @@ static void zombfThinkChase(DBloodActor* actor)
         }
     }
 
-    aiNewState(pSprite, pXSprite, &zombieFSearch);
+    aiNewState(actor, &zombieFSearch);
     pXSprite->target = -1;
 }
 

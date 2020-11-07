@@ -3009,7 +3009,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == kMediumNormal)
         {
             pSprite->type = kDudeBurningCultist;
-            aiNewState(pSprite, pXSprite, &cultistBurnGoto);
+            aiNewState(&bloodActors[pXSprite->reference], &cultistBurnGoto);
             actHealDude(pXSprite, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
             return;
         }
@@ -3019,7 +3019,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == kMediumNormal)
         {
             pSprite->type = kDudeBurningBeast;
-            aiNewState(pSprite, pXSprite, &beastBurnGoto);
+            aiNewState(&bloodActors[pXSprite->reference], &beastBurnGoto);
             actHealDude(pXSprite, dudeInfo[53].startHealth, dudeInfo[53].startHealth);
             return;
         }
@@ -3029,7 +3029,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == kMediumNormal)
         {
             pSprite->type = kDudeBurningInnocent;
-            aiNewState(pSprite, pXSprite, &innocentBurnGoto);
+            aiNewState(&bloodActors[pXSprite->reference], &innocentBurnGoto);
             actHealDude(pXSprite, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
             return;
         }
@@ -4758,10 +4758,10 @@ void MoveDude(spritetype *pSprite)
                 switch (pSprite->type) {
                     case kDudeCultistTommy:
                     case kDudeCultistShotgun:
-                        aiNewState(pSprite, pXSprite, &cultistGoto);
+                        aiNewState(&bloodActors[pXSprite->reference], &cultistGoto);
                         break;
                     case kDudeGillBeast:
-                        aiNewState(pSprite, pXSprite, &gillBeastGoto);
+                        aiNewState(&bloodActors[pXSprite->reference], &gillBeastGoto);
                         pSprite->flags |= 6;
                         break;
                     case kDudeBoneEel:
@@ -4805,7 +4805,7 @@ void MoveDude(spritetype *pSprite)
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                    aiNewState(&bloodActors[pXSprite->reference], &cultistSwimGoto);
                     break;
                 case kDudeBurningCultist:
                 {
@@ -4815,7 +4815,7 @@ void MoveDude(spritetype *pSprite)
                         pXSprite->burnTime = 0;
                         evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                         sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                        aiNewState(&bloodActors[pXSprite->reference], &cultistSwimGoto);
                     }
                     else
                     {
@@ -4823,7 +4823,7 @@ void MoveDude(spritetype *pSprite)
                         pXSprite->burnTime = 0;
                         evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                         sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                        aiNewState(&bloodActors[pXSprite->reference], &cultistSwimGoto);
                     }
                     break;
                 }
@@ -4831,19 +4831,19 @@ void MoveDude(spritetype *pSprite)
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &zombieAGoto);
+                    aiNewState(&bloodActors[pXSprite->reference], &zombieAGoto);
                     break;
                 case kDudeZombieButcher:
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &zombieFGoto);
+                    aiNewState(&bloodActors[pXSprite->reference], &zombieFGoto);
                     break;
                 case kDudeGillBeast:
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &gillBeastSwimGoto);
+                    aiNewState(&bloodActors[pXSprite->reference], &gillBeastSwimGoto);
 
                     pSprite->flags &= ~6;
                     break;
@@ -4887,7 +4887,7 @@ void MoveDude(spritetype *pSprite)
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                    aiNewState(actor, &cultistSwimGoto);
                     break;
                 case kDudeBurningCultist:
                     if (Chance(0x400))
@@ -4896,7 +4896,7 @@ void MoveDude(spritetype *pSprite)
                         pXSprite->burnTime = 0;
                         evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                         sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                        aiNewState(actor, &cultistSwimGoto);
                     }
                     else
                     {
@@ -4904,26 +4904,26 @@ void MoveDude(spritetype *pSprite)
                         pXSprite->burnTime = 0;
                         evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                         sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                        aiNewState(actor, &cultistSwimGoto);
                     }
                     break;
                 case kDudeZombieAxeNormal:
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &zombieAGoto);
+                    aiNewState(actor, &zombieAGoto);
                     break;
                 case kDudeZombieButcher:
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &zombieFGoto);
+                    aiNewState(actor, &zombieFGoto);
                     break;
                 case kDudeGillBeast:
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &gillBeastSwimGoto);
+                    aiNewState(actor, &gillBeastSwimGoto);
                     pSprite->flags &= ~6;
                     break;
                 case kDudeGargoyleFlesh:

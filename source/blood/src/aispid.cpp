@@ -211,7 +211,7 @@ static void spidThinkGoto(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &spidSearch);
+        aiNewState(actor, &spidSearch);
     aiThinkTarget(actor);
 }
 
@@ -221,7 +221,7 @@ static void spidThinkChase(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &spidGoto);
+        aiNewState(actor, &spidGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -234,12 +234,12 @@ static void spidThinkChase(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &spidSearch);
+        aiNewState(actor, &spidSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &spidSearch);
+        aiNewState(actor, &spidSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -253,20 +253,20 @@ static void spidThinkChase(DBloodActor* actor)
                 switch (pSprite->type) {
                     case kDudeSpiderRed:
                         if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
-                            aiNewState(pSprite, pXSprite, &spidBite);
+                            aiNewState(actor, &spidBite);
                         break;
                     case kDudeSpiderBrown:
                     case kDudeSpiderBlack:
                         if (nDist < 0x733 && nDist > 0x399 && klabs(nDeltaAngle) < 85)
-                            aiNewState(pSprite, pXSprite, &spidJump);
+                            aiNewState(actor, &spidJump);
                         else if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
-                            aiNewState(pSprite, pXSprite, &spidBite);
+                            aiNewState(actor, &spidBite);
                         break;
                     case kDudeSpiderMother:
                         if (nDist < 0x733 && nDist > 0x399 && klabs(nDeltaAngle) < 85)
-                            aiNewState(pSprite, pXSprite, &spidJump);
+                            aiNewState(actor, &spidJump);
                         else if (Chance(0x8000))
-                            aiNewState(pSprite, pXSprite, &spid13A92C);
+                            aiNewState(actor, &spid13A92C);
                         break;
                 }
 
@@ -275,7 +275,7 @@ static void spidThinkChase(DBloodActor* actor)
         }
     }
 
-    aiNewState(pSprite, pXSprite, &spidGoto);
+    aiNewState(actor, &spidGoto);
     pXSprite->target = -1;
 }
 

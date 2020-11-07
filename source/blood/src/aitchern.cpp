@@ -63,6 +63,7 @@ AISTATE tcherno13AA28 = { kAiStateChase, 8, -1, 60, NULL, aiMoveTurn, NULL, &tch
 void sub_71A90(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
+    auto actor = &bloodActors[pXSprite->reference];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
     spritetype *pTarget = &sprite[pXSprite->target];
@@ -73,7 +74,7 @@ void sub_71A90(int, int nXSprite)
         evPost(nTarget, 3, 0, kCallbackFXFlameLick);
     actBurnSprite(nOwner, pXTarget, 40);
     if (Chance(0x6000))
-        aiNewState(pSprite, pXSprite, &tcherno13A9D4);
+        aiNewState(actor, &tcherno13A9D4);
 }
 
 void sub_71BD4(int, int nXSprite)
@@ -258,7 +259,7 @@ static void sub_725A4(DBloodActor* actor)
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
-        aiNewState(pSprite, pXSprite, &tcherno13AA28);
+        aiNewState(actor, &tcherno13AA28);
         return;
     }
     if (Chance(pDudeInfo->alertChance))
@@ -315,7 +316,7 @@ static void sub_72850(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &tchernobogSearch);
+        aiNewState(actor, &tchernobogSearch);
     aiThinkTarget(actor);
 }
 
@@ -325,7 +326,7 @@ static void sub_72934(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &tcherno13A9B8);
+        aiNewState(actor, &tcherno13A9B8);
         return;
     }
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -346,12 +347,12 @@ static void sub_72934(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &tchernobogSearch);
+        aiNewState(actor, &tchernobogSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &tchernobogSearch);
+        aiNewState(actor, &tchernobogSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -365,17 +366,17 @@ static void sub_72934(DBloodActor* actor)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x1f00 && nDist > 0xd00 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &tcherno13AA0C);
+                    aiNewState(actor, &tcherno13AA0C);
                 else if (nDist < 0xd00 && nDist > 0xb00 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &tcherno13A9D4);
+                    aiNewState(actor, &tcherno13A9D4);
                 else if (nDist < 0xb00 && nDist > 0x500 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &tcherno13A9F0);
+                    aiNewState(actor, &tcherno13A9F0);
                 return;
             }
         }
     }
 
-    aiNewState(pSprite, pXSprite, &tcherno13A9B8);
+    aiNewState(actor, &tcherno13A9B8);
     pXSprite->target = -1;
 }
 

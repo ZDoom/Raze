@@ -218,7 +218,7 @@ static void ghostThinkTarget(DBloodActor* actor)
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
-        aiNewState(pSprite, pXSprite, &ghostTurn);
+        aiNewState(actor, &ghostTurn);
         return;
     }
     if (Chance(pDudeInfo->alertChance))
@@ -282,7 +282,7 @@ static void ghostThinkGoto(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &ghostSearch);
+        aiNewState(actor, &ghostSearch);
     aiThinkTarget(actor);
 }
 
@@ -354,7 +354,7 @@ static void ghostThinkChase(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &ghostGoto);
+        aiNewState(actor, &ghostGoto);
         return;
     }
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -375,12 +375,12 @@ static void ghostThinkChase(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &ghostSearch);
+        aiNewState(actor, &ghostSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &ghostSearch);
+        aiNewState(actor, &ghostSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -405,17 +405,17 @@ static void ghostThinkChase(DBloodActor* actor)
                         switch (hit)
                         {
                         case -1:
-                            aiNewState(pSprite, pXSprite, &ghostBlast);
+                            aiNewState(actor, &ghostBlast);
                             break;
                         case 0:
                         case 4:
                             break;
                         case 3:
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudePhantasm)
-                                aiNewState(pSprite, pXSprite, &ghostBlast);
+                                aiNewState(actor, &ghostBlast);
                             break;
                         default:
-                            aiNewState(pSprite, pXSprite, &ghostBlast);
+                            aiNewState(actor, &ghostBlast);
                             break;
                         }
                     }
@@ -425,24 +425,24 @@ static void ghostThinkChase(DBloodActor* actor)
                         switch (hit)
                         {
                         case -1:
-                            aiNewState(pSprite, pXSprite, &ghostSlash);
+                            aiNewState(actor, &ghostSlash);
                             break;
                         case 0:
                         case 4:
                             break;
                         case 3:
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudePhantasm)
-                                aiNewState(pSprite, pXSprite, &ghostSlash);
+                                aiNewState(actor, &ghostSlash);
                             break;
                         default:
-                            aiNewState(pSprite, pXSprite, &ghostSlash);
+                            aiNewState(actor, &ghostSlash);
                             break;
                         }
                     }
                     else if ((height2-height > 0x2000 || floorZ-bottom > 0x2000) && nDist < 0x1400 && nDist > 0x800)
                     {
                         aiPlay3DSound(pSprite, 1600, AI_SFX_PRIORITY_1, -1);
-                        aiNewState(pSprite, pXSprite, &ghostSwoop);
+                        aiNewState(actor, &ghostSwoop);
                     }
                     else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && klabs(nDeltaAngle) < 85)
                         aiPlay3DSound(pSprite, 1600, AI_SFX_PRIORITY_1, -1);
@@ -453,12 +453,12 @@ static void ghostThinkChase(DBloodActor* actor)
         }
         else
         {
-            aiNewState(pSprite, pXSprite, &ghostFly);
+            aiNewState(actor, &ghostFly);
             return;
         }
     }
 
-    aiNewState(pSprite, pXSprite, &ghostGoto);
+    aiNewState(actor, &ghostGoto);
     pXSprite->target = -1;
 }
 

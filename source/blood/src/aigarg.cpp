@@ -242,7 +242,7 @@ static void gargThinkTarget(DBloodActor* actor)
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
-        aiNewState(pSprite, pXSprite, &gargoyleTurn);
+        aiNewState(actor, &gargoyleTurn);
         return;
     }
     if (Chance(pDudeInfo->alertChance))
@@ -307,7 +307,7 @@ static void gargThinkGoto(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &gargoyleFSearch);
+        aiNewState(actor, &gargoyleFSearch);
     aiThinkTarget(actor);
 }
 
@@ -377,7 +377,7 @@ static void gargThinkChase(DBloodActor* actor)
     auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &gargoyleFGoto);
+        aiNewState(actor, &gargoyleFGoto);
         return;
     }
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -398,12 +398,12 @@ static void gargThinkChase(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &gargoyleFSearch);
+        aiNewState(actor, &gargoyleFSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &gargoyleFSearch);
+        aiNewState(actor, &gargoyleFSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -430,7 +430,7 @@ static void gargThinkChase(DBloodActor* actor)
                         {
                         case -1:
                             sfxPlay3DSound(pSprite, 1408, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleFThrow);
+                            aiNewState(actor, &gargoyleFThrow);
                             break;
                         case 0:
                         case 4:
@@ -439,12 +439,12 @@ static void gargThinkChase(DBloodActor* actor)
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleStone)
                             {
                                 sfxPlay3DSound(pSprite, 1408, 0, 0);
-                                aiNewState(pSprite, pXSprite, &gargoyleFThrow);
+                                aiNewState(actor, &gargoyleFThrow);
                             }
                             break;
                         default:
                             sfxPlay3DSound(pSprite, 1408, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleFThrow);
+                            aiNewState(actor, &gargoyleFThrow);
                             break;
                         }
                     }
@@ -455,7 +455,7 @@ static void gargThinkChase(DBloodActor* actor)
                         {
                         case -1:
                             sfxPlay3DSound(pSprite, 1406, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                            aiNewState(actor, &gargoyleFSlash);
                             break;
                         case 0:
                         case 4:
@@ -464,19 +464,19 @@ static void gargThinkChase(DBloodActor* actor)
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleStone)
                             {
                                 sfxPlay3DSound(pSprite, 1406, 0, 0);
-                                aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                                aiNewState(actor, &gargoyleFSlash);
                             }
                             break;
                         default:
                             sfxPlay3DSound(pSprite, 1406, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                            aiNewState(actor, &gargoyleFSlash);
                             break;
                         }
                     }
                     else if ((height2-height > 0x2000 || floorZ-bottom > 0x2000) && nDist < 0x1400 && nDist > 0xa00)
                     {
                         aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
-                        aiNewState(pSprite, pXSprite, &gargoyleSwoop);
+                        aiNewState(actor, &gargoyleSwoop);
                     }
                     else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && klabs(nDeltaAngle) < 85)
                         aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
@@ -489,7 +489,7 @@ static void gargThinkChase(DBloodActor* actor)
                         {
                         case -1:
                             sfxPlay3DSound(pSprite, 1457, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleSBlast);
+                            aiNewState(actor, &gargoyleSBlast);
                             break;
                         case 0:
                         case 4:
@@ -498,12 +498,12 @@ static void gargThinkChase(DBloodActor* actor)
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleFlesh)
                             {
                                 sfxPlay3DSound(pSprite, 1457, 0, 0);
-                                aiNewState(pSprite, pXSprite, &gargoyleSBlast);
+                                aiNewState(actor, &gargoyleSBlast);
                             }
                             break;
                         default:
                             sfxPlay3DSound(pSprite, 1457, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleSBlast);
+                            aiNewState(actor, &gargoyleSBlast);
                             break;
                         }
                     }
@@ -513,17 +513,17 @@ static void gargThinkChase(DBloodActor* actor)
                         switch (hit)
                         {
                         case -1:
-                            aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                            aiNewState(actor, &gargoyleFSlash);
                             break;
                         case 0:
                         case 4:
                             break;
                         case 3:
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleFlesh)
-                                aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                                aiNewState(actor, &gargoyleFSlash);
                             break;
                         default:
-                            aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                            aiNewState(actor, &gargoyleFSlash);
                             break;
                         }
                     }
@@ -533,7 +533,7 @@ static void gargThinkChase(DBloodActor* actor)
                             aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
                         else
                             aiPlay3DSound(pSprite, 1450, AI_SFX_PRIORITY_1, -1);
-                        aiNewState(pSprite, pXSprite, &gargoyleSwoop);
+                        aiNewState(actor, &gargoyleSwoop);
                     }
                     else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && klabs(nDeltaAngle) < 85)
                         aiPlay3DSound(pSprite, 1450, AI_SFX_PRIORITY_1, -1);
@@ -544,12 +544,12 @@ static void gargThinkChase(DBloodActor* actor)
         }
         else
         {
-            aiNewState(pSprite, pXSprite, &gargoyleFly);
+            aiNewState(actor, &gargoyleFly);
             return;
         }
     }
 
-    aiNewState(pSprite, pXSprite, &gargoyleFGoto);
+    aiNewState(actor, &gargoyleFGoto);
     pXSprite->target = -1;
 }
 

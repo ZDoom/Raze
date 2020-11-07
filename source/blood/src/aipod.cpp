@@ -189,11 +189,11 @@ static void aiPodMove(DBloodActor* actor)
         switch (pSprite->type) {
             case kDudePodGreen:
             case kDudePodFire:
-                aiNewState(pSprite, pXSprite, &podSearch);
+                aiNewState(actor, &podSearch);
                 break;
             case kDudeTentacleGreen:
             case kDudeTentacleFire:
-                aiNewState(pSprite, pXSprite, &tentacleSearch);
+                aiNewState(actor, &tentacleSearch);
                 break;
         }
     }
@@ -208,11 +208,11 @@ static void aiPodChase(DBloodActor* actor)
         switch (pSprite->type) {
             case kDudePodGreen:
             case kDudePodFire:
-                aiNewState(pSprite, pXSprite, &podMove);
+                aiNewState(actor, &podMove);
                 break;
             case kDudeTentacleGreen:
             case kDudeTentacleFire:
-                aiNewState(pSprite, pXSprite, &tentacleMove);
+                aiNewState(actor, &tentacleMove);
                 break;
         }
         return;
@@ -238,11 +238,11 @@ static void aiPodChase(DBloodActor* actor)
         switch (pSprite->type) {
             case kDudePodGreen:
             case kDudePodFire:
-                aiNewState(pSprite, pXSprite, &podSearch);
+                aiNewState(actor, &podSearch);
                 break;
             case kDudeTentacleGreen:
             case kDudeTentacleFire:
-                aiNewState(pSprite, pXSprite, &tentacleSearch);
+                aiNewState(actor, &tentacleSearch);
                 break;
         }
         return;
@@ -261,11 +261,11 @@ static void aiPodChase(DBloodActor* actor)
                     switch (pSprite->type) {
                         case kDudePodGreen:
                         case kDudePodFire:
-                            aiNewState(pSprite, pXSprite, &podStartChase);
+                            aiNewState(actor, &podStartChase);
                             break;
                         case kDudeTentacleGreen:
                         case kDudeTentacleFire:
-                            aiNewState(pSprite, pXSprite, &tentacleStartChase);
+                            aiNewState(actor, &tentacleStartChase);
                             break;
                     }
                 }
@@ -277,11 +277,11 @@ static void aiPodChase(DBloodActor* actor)
     switch (pSprite->type) {
         case kDudePodGreen:
         case kDudePodFire:
-            aiNewState(pSprite, pXSprite, &podMove);
+            aiNewState(actor, &podMove);
             break;
         case kDudeTentacleGreen:
         case kDudeTentacleFire:
-            aiNewState(pSprite, pXSprite, &tentacleMove);
+            aiNewState(actor, &tentacleMove);
             break;
     }
     pXSprite->target = -1;

@@ -1268,14 +1268,16 @@ bool ceilIsTooLow(spritetype* pSprite) {
     return false;
 }
 
-void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite) {
+void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite) 
+{
+    auto actor = &bloodActors[pXSprite->reference];
     switch (pSprite->type) {
     case kDudeModernCustom:
     case kDudeModernCustomBurning:
         aiGenDudeNewState(pSprite, &genIdle);
         break;
     default:
-        aiNewState(pSprite, pXSprite, &genIdle);
+        aiNewState(actor, &genIdle);
         break;
     }
 }
