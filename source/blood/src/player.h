@@ -183,6 +183,7 @@ struct PLAYER
     int                 player_par;
     int                 nWaterPal;
     POSTURE             pPosture[kModeMax][kPostureMax];
+    bool                crouch_toggle;
 };
 
 struct PROFILE

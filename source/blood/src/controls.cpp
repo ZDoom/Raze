@@ -42,16 +42,30 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         return;
     }
 
+    PLAYER* pPlayer = &gPlayer[myconnectindex];
     double const scaleAdjust = InputScale();
     InputPacket input {};
 
     ApplyGlobalInput(gInput, hidInput);
     processMovement(&input, &gInput, hidInput, scaleAdjust);
 
+    // Handle crouch toggling.
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle)
+    {
+        gInput.actions |= SB_CROUCH;
+    }
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+    {
+        pPlayer->crouch_toggle = !pPlayer->crouch_toggle;
+        buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+    }
+    if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump))
+    {
+        pPlayer->crouch_toggle = false;
+    }
+
     if (!cl_syncinput && gamestate == GS_LEVEL)
     {
-        PLAYER* pPlayer = &gPlayer[myconnectindex];
-
         // Perform unsynchronised angle/horizon if not dead.
         if (gView->pXSprite->health != 0)
         {
