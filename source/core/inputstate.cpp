@@ -46,7 +46,7 @@ static int WeaponToSend = 0;
 ESyncBits ActionsToSend = 0;
 static int dpad_lock = 0;
 bool sendPause;
-
+bool crouch_toggle;
 static double lastCheck;
 
 CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)		// Mouse speeds
@@ -120,6 +120,7 @@ void InputState::ClearAllInput()
 	WeaponToSend = 0;
 	dpad_lock = 0;
 	lastCheck = 0;
+	crouch_toggle = false;
 	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
 	gi->clearlocalinputstate();		// also clear game local input state.
 }
@@ -326,8 +327,6 @@ CCMD(pause)
 	sendPause = true;
 }
 
-
-static bool crouch_toggle;
 
 void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput, bool const crouchable, bool const disableToggle)
 {
