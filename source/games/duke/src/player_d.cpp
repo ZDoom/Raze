@@ -2892,7 +2892,7 @@ void processinput_d(int snum)
 		// may still be needed later for demo recording
 
 		processavel(p, &sb_avel);
-		applylook(&p->angle, sb_avel, &p->sync.actions, 1, actions & SB_CROUCH);
+		applylook(&p->angle, sb_avel, &p->sync.actions);
 	}
 
 	if (p->spritebridge == 0)
@@ -3126,7 +3126,7 @@ HORIZONLY:
 
 	if (cl_syncinput)
 	{
-		sethorizon(&p->horizon.horiz, PlayerHorizon(snum), &p->sync.actions, 1);
+		sethorizon(&p->horizon.horiz, PlayerHorizon(snum), &p->sync.actions);
 	}
 
 	checkhardlanding(p);

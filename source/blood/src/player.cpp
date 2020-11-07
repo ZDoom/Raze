@@ -1445,7 +1445,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        applylook(&pPlayer->angle, pInput->avel, &pInput->actions, 1, pPlayer->posture != 0);
+        applylook(&pPlayer->angle, pInput->avel, &pInput->actions);
         UpdatePlayerSpriteAngle(pPlayer);
     }
 
@@ -1569,7 +1569,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (cl_syncinput)
     {
-        sethorizon(&pPlayer->horizon.horiz, pInput->horz, &pInput->actions, 1);
+        sethorizon(&pPlayer->horizon.horiz, pInput->horz, &pInput->actions);
     }
 
     int nSector = pSprite->sectnum;

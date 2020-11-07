@@ -887,7 +887,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 			// Do these in the same order as the old code.
 			calcviewpitch(p, scaleAdjust);
 			processavel(p, &input.avel);
-			applylook(&p->angle, input.avel, &p->sync.actions, scaleAdjust, p->sync.actions & SB_CROUCH);
+			applylook(&p->angle, input.avel, &p->sync.actions, scaleAdjust);
 			sethorizon(&p->horizon.horiz, input.horz, &p->sync.actions, scaleAdjust);
 		}
 
