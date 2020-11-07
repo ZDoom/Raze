@@ -1004,6 +1004,7 @@ struct PLAYERstruct
     int cookieTime;
 
     char WpnReloadState;
+    bool crouch_toggle;
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

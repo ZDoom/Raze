@@ -99,11 +99,8 @@ static void processInputBits(PLAYERp const pp, ControlInfo* const hidInput)
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
-    {
-        // this shares a bit with another function so cannot be in the common code.
-        loc.actions |= SB_CROUCH_LOCK;
-    }
+    // Handle crouch toggling.
+    checkCrouchToggle(&loc, &pp->crouch_toggle);
 }
 
 //---------------------------------------------------------------------------
