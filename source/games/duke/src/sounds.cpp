@@ -53,6 +53,18 @@ CVAR(Bool, wt_commentary, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 BEGIN_DUKE_NS
 
+// These are needed until real objects can be used for actors.
+inline void* sndActor(DDukeActor* actor)
+{
+	return actor ? &actor->s : nullptr;
+}
+
+inline DDukeActor* getSndActor(const void* source)
+{
+	// transitional conversation voodoo
+	return source ? &hittype[((spritetype*)source) - sprite] : nullptr;
+}
+
 TArray<FString> specialmusic;
 static FSoundID currentCommentarySound;
 static DDukeActor* currentCommentarySprite; // todo: GC this once actors become objects
@@ -335,7 +347,7 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
 		}
 		else if (type == SOURCE_Actor)
 		{
-			auto aactor = (DDukeActor*)source;
+			auto aactor = getSndActor(source);
 			auto actor = aactor ? &aactor->s : nullptr;
 			assert(actor != nullptr);
 			if (actor != nullptr)
@@ -493,7 +505,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 	else attenuation = (userflags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL ? ATTN_NONE : ATTN_NORM;
 
 	if (userflags & SF_LOOP) flags |= CHANF_LOOP;
-	auto chan = soundEngine->StartSound(SOURCE_Actor, actor, &sndpos, CHAN_AUTO, flags, sndnum+1, attenuation == ATTN_NONE? 0.8f : 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
+	auto chan = soundEngine->StartSound(SOURCE_Actor, sndActor(actor), &sndpos, CHAN_AUTO, flags, sndnum+1, attenuation == ATTN_NONE? 0.8f : 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
 	return chan ? 0 : -1;
 }
 
@@ -535,7 +547,7 @@ int S_PlayActorSound(int soundNum, DDukeActor* actor, int channel, EChanFlags fl
 void S_RelinkActorSound(DDukeActor* from, DDukeActor* to)
 {
 	FVector3 pos = GetSoundPos(&from->s.pos);
-	soundEngine->RelinkSound(SOURCE_Actor, from, to, &pos);
+	soundEngine->RelinkSound(SOURCE_Actor, sndActor(from), sndActor(to), &pos);
 }
 
 void S_StopSound(int sndNum, DDukeActor* actor, int channel)
@@ -545,7 +557,7 @@ void S_StopSound(int sndNum, DDukeActor* actor, int channel)
 	if (!actor) soundEngine->StopSoundID(sndNum+1);
 	else
 	{
-		if (channel == -1) soundEngine->StopSound(SOURCE_Actor, actor, -1, sndNum + 1);
+		if (channel == -1) soundEngine->StopSound(SOURCE_Actor, sndActor(actor), -1, sndNum + 1);
 		else soundEngine->StopSound(SOURCE_Actor, actor, channel, -1);
 
 		// StopSound kills the actor reference so this cannot be delayed until ChannelEnded gets called. At that point the actor may also not be valid anymore.
@@ -565,7 +577,7 @@ void S_ChangeSoundPitch(int soundNum, DDukeActor* actor, int pitchoffset)
 	}
 	else
 	{
-		soundEngine->ChangeSoundPitch(SOURCE_Actor, actor, CHAN_AUTO, expitch, soundNum+1);
+		soundEngine->ChangeSoundPitch(SOURCE_Actor, sndActor(actor), CHAN_AUTO, expitch, soundNum+1);
 	}
 }
 
@@ -580,14 +592,14 @@ int S_CheckActorSoundPlaying(DDukeActor* actor, int soundNum, int channel)
 	soundNum = GetReplacementSound(soundNum);
 
 	if (actor == nullptr) return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundNum+1);
-	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, actor, channel, soundNum+1);
+	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, sndActor(actor), channel, soundNum+1);
 }
 
 // Check if actor <i> is playing any sound.
 int S_CheckAnyActorSoundPlaying(DDukeActor* actor)
 {
 	if (!actor) return false;
-	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &actor->s, CHAN_AUTO, 0);
+	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, sndActor(actor), CHAN_AUTO, 0);
 }
 
 int S_CheckSoundPlaying(int soundNum)
