@@ -121,19 +121,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     }
 
     // Handle crouch toggling.
-    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle)
-    {
-        localInput.actions |= SB_CROUCH;
-    }
-    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
-    {
-        pPlayer->crouch_toggle = !pPlayer->crouch_toggle;
-        buttonMap.ClearButton(gamefunc_Toggle_Crouch);
-    }
-    if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump))
-    {
-        pPlayer->crouch_toggle = false;
-    }
+    checkCrouchToggle(&localInput, &pPlayer->crouch_toggle);
 
     if (!cl_syncinput)
     {

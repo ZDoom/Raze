@@ -353,6 +353,31 @@ void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double 
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// Crouch toggle functionality used within Duke/RR, Blood and Exhumed.
+//
+//---------------------------------------------------------------------------
+
+void checkCrouchToggle(InputPacket* inputBuffer, bool* crouch_toggle, bool const crouchable, bool const forceoff)
+{
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || *crouch_toggle)
+    {
+        inputBuffer->actions |= SB_CROUCH;
+    }
+
+	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+	{
+		*crouch_toggle = !*crouch_toggle && crouchable;
+
+		if (crouchable)
+			buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+	}
+
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || forceoff)
+		*crouch_toggle = false;
+}
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def)
 {
 	if (arc.BeginObject(keyname))

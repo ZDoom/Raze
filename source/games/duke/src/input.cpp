@@ -536,36 +536,9 @@ static void processInputBits(player_struct *p, ControlInfo* const hidInput)
 		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) // this shares a bit with another function so cannot be in the common code.
 			loc.actions |= SB_QUICK_KICK;
 
-		if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || p->crouch_toggle)
-		{
-			loc.actions |= SB_CROUCH;
-		}
 		if ((isRR() && p->drink_amt > 88)) loc.actions |= SB_LOOK_LEFT;
 		if ((isRR() && p->drink_amt > 99)) loc.actions |= SB_LOOK_DOWN;
 	}
-}
-
-//---------------------------------------------------------------------------
-//
-// split off so that it can later be integrated into the other games more easily.
-//
-//---------------------------------------------------------------------------
-
-static void checkCrouchToggle(player_struct* p)
-{
-	int const sectorLotag = p->cursectnum != -1 ? sector[p->cursectnum].lotag : 0;
-	int const crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
-
-	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
-	{
-		p->crouch_toggle = !p->crouch_toggle && crouchable;
-
-		if (crouchable)
-			buttonMap.ClearButton(gamefunc_Toggle_Crouch);
-	}
-
-	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || p->jetpack_on || (!crouchable && p->on_ground))
-		p->crouch_toggle = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -900,7 +873,12 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 	{
 		processInputBits(p, hidInput);
 		processMovement(&input, &loc, hidInput, scaleAdjust, p->drink_amt);
-		checkCrouchToggle(p);
+
+		// Handle crouch toggling.
+		int const sectorLotag = p->cursectnum != -1 ? sector[p->cursectnum].lotag : 0;
+		bool const crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
+		checkCrouchToggle(&loc, &p->crouch_toggle, crouchable, p->jetpack_on || (!crouchable && p->on_ground));
+
 		FinalizeInput(myconnectindex, input, false);
 	}
 
