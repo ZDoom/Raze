@@ -100,7 +100,7 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
 
 void ghostThrowSeqCallback(int, DBloodActor* actor)
 {
-    actFireThing(&actor->s(), 0, 0, actor->dudeSlope() - 7500, kThingBone, 0xeeeee);
+    actFireThing(&actor->s(), 0, 0, actor->dudeSlope - 7500, kThingBone, 0xeeeee);
 }
 
 void ghostBlastSeqCallback(int, DBloodActor* actor)
@@ -119,7 +119,7 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
     Aim aim;
     aim.dx = CosScale16(pSprite->ang);
     aim.dy = SinScale16(pSprite->ang);
-    aim.dz = actor->dudeSlope();
+    aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
     int nSprite2;
     StatIterator it(kStatDude);
@@ -143,7 +143,7 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(actor->dudeSlope(), nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);

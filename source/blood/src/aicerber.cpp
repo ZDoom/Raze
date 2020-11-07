@@ -109,7 +109,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
     Aim aim;
     aim.dx = CosScale16(pSprite->ang);
     aim.dy = SinScale16(pSprite->ang);
-    aim.dz = actor->dudeSlope();
+    aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
     int nSprite2;
     StatIterator it(kStatDude);
@@ -133,7 +133,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(actor->dudeSlope(), nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
@@ -193,7 +193,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
     int ax, ay, az;
     aim.dx = ax = CosScale16(pSprite->ang);
     aim.dy = ay = SinScale16(pSprite->ang);
-    aim.dz = actor->dudeSlope();
+    aim.dz = actor->dudeSlope;
     az = 0;
     int nClosest = 0x7fffffff;
     int nSprite2;
@@ -218,7 +218,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(actor->dudeSlope(), nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);

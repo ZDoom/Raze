@@ -117,7 +117,7 @@ void ThrowFSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    actFireThing(&actor->s(), 0, 0, actor->dudeSlope()-7500, kThingBone, 0xeeeee);
+    actFireThing(&actor->s(), 0, 0, actor->dudeSlope-7500, kThingBone, 0xeeeee);
 }
 
 void BlastSSeqCallback(int, DBloodActor* actor)
@@ -136,7 +136,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
     Aim aim;
     aim.dx = CosScale16(pSprite->ang);
     aim.dy = SinScale16(pSprite->ang);
-    aim.dz = actor->dudeSlope();
+    aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
     int nSprite2;
     StatIterator it(kStatDude);
@@ -160,7 +160,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(actor->dudeSlope(), nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
@@ -217,7 +217,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 void ThrowSSeqCallback(int, DBloodActor* actor)
 {
     spritetype* pSprite = &actor->s();
-    actFireThing(pSprite, 0, 0, actor->dudeSlope() - 7500, kThingBone, Chance(0x6000) ? 0x133333 : 0x111111);
+    actFireThing(pSprite, 0, 0, actor->dudeSlope - 7500, kThingBone, Chance(0x6000) ? 0x133333 : 0x111111);
 }
 
 static void gargThinkTarget(DBloodActor* actor)

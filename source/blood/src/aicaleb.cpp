@@ -75,7 +75,7 @@ void SeqAttackCallback(int, DBloodActor* actor)
     spritetype *pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    int dz = actor->dudeSlope();
+    int dz = actor->dudeSlope;
     dx += Random2(1500);
     dy += Random2(1500);
     dz += Random2(1500);
@@ -196,7 +196,7 @@ static void calebThinkChase(DBloodActor* actor)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                actor->dudeSlope() = divscale(pTarget->z-pSprite->z, nDist, 10);
+                actor->dudeSlope = divscale(pTarget->z-pSprite->z, nDist, 10);
                 if (nDist < 0x599 && klabs(nDeltaAngle) < 28)
                 {
                     XSECTOR *pXSector;

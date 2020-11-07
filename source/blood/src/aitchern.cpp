@@ -93,7 +93,7 @@ void sub_71BD4(int, DBloodActor* actor)
     Aim aim;
     aim.dx = CosScale16(pSprite->ang);
     aim.dy = SinScale16(pSprite->ang);
-    aim.dz = actor->dudeSlope();
+    aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
     int nSprite2;
     StatIterator it(kStatDude);
@@ -117,7 +117,7 @@ void sub_71BD4(int, DBloodActor* actor)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(actor->dudeSlope(), nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
@@ -171,7 +171,7 @@ void sub_720AC(int, DBloodActor* actor)
     Aim aim;
     aim.dx = ax;
     aim.dy = ay;
-    aim.dz = actor->dudeSlope();
+    aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
     az = 0;
     int nSprite2;
@@ -196,7 +196,7 @@ void sub_720AC(int, DBloodActor* actor)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(actor->dudeSlope(), nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);

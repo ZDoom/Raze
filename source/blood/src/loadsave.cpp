@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "gamestate.h"
 #include "d_net.h"
+#include "bloodactor.h"
 
 #include "aistate.h"
 #include "aiunicult.h"
@@ -436,6 +437,28 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 	return arc;
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DBloodActor* def)
+{
+	static DBloodActor nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+
+	if (arc.BeginObject(keyname))
+	{
+
+		// The rest is only relevant if the actor has an xsprite.
+		if (w.s().extra > 0)
+		{
+			arc("dudeslope", w.dudeSlope, def->dudeSlope);
+		}
+		arc.EndObject();
+	}
+	return arc;
+}
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* def)
 {
 	static XWALL nul;
@@ -646,6 +669,7 @@ void SerializeState(FSerializer& arc)
 			.SparseArray("xvel", xvel, kMaxSprites, activeSprites)
 			.SparseArray("yvel", yvel, kMaxSprites, activeSprites)
 			.SparseArray("zvel", zvel, kMaxSprites, activeSprites)
+			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites)
 			.EndObject();
 	}
 }

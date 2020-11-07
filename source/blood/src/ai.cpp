@@ -52,7 +52,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 int cumulDamage[kMaxXSprites];
-int gDudeSlope[kMaxXSprites];
 DUDEEXTRA gDudeExtra[kMaxXSprites];
 
 AISTATE genIdle = {kAiStateGenIdle, 0, -1, 0, NULL, NULL, NULL, NULL };
@@ -1793,8 +1792,7 @@ void SerializeAI(FSerializer& arc)
 {
 	if (arc.BeginObject("ai"))
 	{
-		arc.SparseArray("dudeslope", gDudeSlope, kMaxSprites, activeXSprites)
-			.SparseArray("dudeextra", gDudeExtra, kMaxSprites, activeXSprites)
+		arc.SparseArray("dudeextra", gDudeExtra, kMaxSprites, activeXSprites)
 		    .EndObject();
 	}
 }

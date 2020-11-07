@@ -93,7 +93,7 @@ void TommySeqCallback(int, DBloodActor* actor)
     spritetype* pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    int dz = actor->dudeSlope();
+    int dz = actor->dudeSlope;
     dx += Random3((5-gGameOptions.nDifficulty)*1000);
     dy += Random3((5-gGameOptions.nDifficulty)*1000);
     dz += Random3((5-gGameOptions.nDifficulty)*500);
@@ -109,7 +109,7 @@ void TeslaSeqCallback(int, DBloodActor* actor)
     {
         int dx = CosScale16(pSprite->ang);
         int dy = SinScale16(pSprite->ang);
-        int dz = actor->dudeSlope();
+        int dz = actor->dudeSlope;
         dx += Random3((5-gGameOptions.nDifficulty)*1000);
         dy += Random3((5-gGameOptions.nDifficulty)*1000);
         dz += Random3((5-gGameOptions.nDifficulty)*500);
@@ -124,7 +124,7 @@ void ShotSeqCallback(int, DBloodActor* actor)
     spritetype* pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    int dz = actor->dudeSlope();
+    int dz = actor->dudeSlope;
     dx += Random2((5-gGameOptions.nDifficulty)*1000-500);
     dy += Random2((5-gGameOptions.nDifficulty)*1000-500);
     dz += Random2((5-gGameOptions.nDifficulty)*500);
@@ -175,7 +175,7 @@ void sub_68170(int, DBloodActor* actor)
     if (gGameOptions.nDifficulty > 2)
         nMissile = kThingArmedTNTBundle;
     sfxPlay3DSound(pSprite, 455, -1, 0);
-    spritetype* pMissile = actFireThing(pSprite, 0, 0, actor->dudeSlope() - 9460, nMissile, 0x133333);
+    spritetype* pMissile = actFireThing(pSprite, 0, 0, actor->dudeSlope - 9460, nMissile, 0x133333);
     evPost(pMissile->index, 3, 120*(2+Random(2)), kCmdOn);
 }
 
@@ -314,7 +314,7 @@ static void cultThinkChase(DBloodActor* actor)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                actor->dudeSlope() = divscale(pTarget->z-pSprite->z, nDist, 10);
+                actor->dudeSlope = divscale(pTarget->z-pSprite->z, nDist, 10);
                 switch (pSprite->type) {
                 case kDudeCultistTommy:
                     if (nDist < 0x1e00 && nDist > 0xe00 && klabs(nDeltaAngle) < 85 && !TargetNearExplosion(pTarget)

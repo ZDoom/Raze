@@ -166,12 +166,12 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
         {
             if (weaponType == kGenDudeWeaponHitscan)
             {
-                actor->dudeSlope() = fStart - ((fStart - fEnd) >> 2);
+                actor->dudeSlope = fStart - ((fStart - fEnd) >> 2);
             }
             else if (weaponType == kGenDudeWeaponMissile) 
             {
                 const MissileType* pMissile = &missileInfo[pExtra->curWeapon - kMissileBase];
-                actor->dudeSlope() = (fStart - ((fStart - fEnd) >> 2)) - (pMissile->clipDist << 1);
+                actor->dudeSlope = (fStart - ((fStart - fEnd) >> 2)) - (pMissile->clipDist << 1);
             }
 
             return true;
@@ -234,7 +234,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 
     if (pExtra->weaponType == kGenDudeWeaponHitscan) {
 
-        dx = CosScale16(pSprite->ang); dy = SinScale16(pSprite->ang); dz = actor->dudeSlope();
+        dx = CosScale16(pSprite->ang); dy = SinScale16(pSprite->ang); dz = actor->dudeSlope;
         // dispersal modifiers here in case if non-melee enemy
         if (!dudeIsMelee(pXSprite)) {
             dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion);
@@ -266,7 +266,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 
     } else if (pExtra->weaponType == kGenDudeWeaponMissile) {
 
-        dx = CosScale16(pSprite->ang); dy = SinScale16(pSprite->ang); dz = actor->dudeSlope();
+        dx = CosScale16(pSprite->ang); dy = SinScale16(pSprite->ang); dz = actor->dudeSlope;
 
         // dispersal modifiers here
         dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion >> 1);
@@ -513,7 +513,7 @@ static void unicultThinkChase(DBloodActor* actor)
         if ((gFrameClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(pSprite, false))
             playGenDudeSound(pSprite, kGenDudeSndChasing);
 
-        actor->dudeSlope() = divscale(pTarget->z - pSprite->z, dist, 10);
+        actor->dudeSlope = divscale(pTarget->z - pSprite->z, dist, 10);
 
         short curWeapon = gGenDudeExtra[pSprite->index].curWeapon; short weaponType = gGenDudeExtra[pSprite->index].weaponType;
         spritetype* pLeech = leechIsDropped(pSprite); const VECTORDATA* meleeVector = &gVectorData[22];
@@ -682,9 +682,9 @@ static void unicultThinkChase(DBloodActor* actor)
                 if (pExtra->canWalk) {
                     int objDist = -1; int targetDist = -1; int hit = -1;
                     if (weaponType == kGenDudeWeaponHitscan)
-                        hit = HitScan(pSprite, pSprite->z, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope(), CLIPMASK1, dist);
+                        hit = HitScan(pSprite, pSprite->z, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope, CLIPMASK1, dist);
                     else if (weaponType == kGenDudeWeaponMissile)
-                        hit = HitScan(pSprite, pSprite->z, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope(), CLIPMASK0, dist);
+                        hit = HitScan(pSprite, pSprite->z, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope, CLIPMASK0, dist);
                     
                     if (hit >= 0) {
                         targetDist = dist - (pTarget->clipdist << 2);
@@ -787,7 +787,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             else if (weaponType == kGenDudeWeaponHitscan && hscn) 
                             {
                                 if (genDudeAdjustSlope(actor, dist, weaponType)) break;
-                                VectorScan(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope(), dist, 1);
+                                VectorScan(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope, dist, 1);
                                 if (pXSprite->target == gHitInfo.hitsprite) break;
                                 
                                 bool immune = nnExtIsImmune(pHSprite, gVectorData[curWeapon].dmgType);
@@ -839,7 +839,7 @@ static void unicultThinkChase(DBloodActor* actor)
                         case 4:
                             if (hit == 4 && weaponType == kGenDudeWeaponHitscan && hscn) {
                                 bool masked = (pHWall->cstat & CSTAT_WALL_MASKED);
-                                if (masked) VectorScan(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope(), dist, 1);
+                                if (masked) VectorScan(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope, dist, 1);
 
                                 //viewSetSystemMessage("WALL VHIT: %d", gHitInfo.hitwall);
                                 if ((pXSprite->target != gHitInfo.hitsprite) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked)) {
