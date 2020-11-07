@@ -1493,14 +1493,20 @@ void ProcessInput(PLAYER *pPlayer)
                 if (pXSector->locked && pPlayer == gMe)
                 {
                     viewSetMessage(GStrings("TXTB_LOCKED"));
-                    sndStartSample(3062, 255, 2, 0);
+                    auto snd = 3062;
+                    if (sndCheckPlaying(snd))
+                        sndStopSample(snd);
+                    sndStartSample(snd, 255, 2, 0);
                 }
                 if (!key || pPlayer->hasKey[key])
                     trTriggerSector(a2, pXSector, kCmdSpritePush);
                 else if (pPlayer == gMe)
                 {
                     viewSetMessage(GStrings("TXTB_KEY"));
-                    sndStartSample(3063, 255, 2, 0);
+                    auto snd = 3063;
+                    if (sndCheckPlaying(snd))
+                        sndStopSample(snd);
+                    sndStartSample(snd, 255, 2, 0);
                 }
             }
             break;
@@ -1511,14 +1517,20 @@ void ProcessInput(PLAYER *pPlayer)
             if (pXWall->locked && pPlayer == gMe)
             {
                 viewSetMessage(GStrings("TXTB_LOCKED"));
-                sndStartSample(3062, 255, 2, 0);
+                auto snd = 3062;
+                if (sndCheckPlaying(snd))
+                    sndStopSample(snd);
+                sndStartSample(snd, 255, 2, 0);
             }
             if (!key || pPlayer->hasKey[key])
                 trTriggerWall(a2, pXWall, kCmdWallPush);
             else if (pPlayer == gMe)
             {
                 viewSetMessage(GStrings("TXTB_KEY"));
-                sndStartSample(3063, 255, 2, 0);
+                auto snd = 3063;
+                if (sndCheckPlaying(snd))
+                    sndStopSample(snd);
+                sndStartSample(snd, 255, 2, 0);
             }
             break;
         }

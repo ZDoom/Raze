@@ -144,6 +144,22 @@ void SoundCallback(intptr_t val)
     pChannel->TotalKills = 0;
 }
 
+bool sndCheckPlaying(unsigned int nSound)
+{
+    auto snd = soundEngine->FindSoundByResID(nSound);
+    return snd > 0 ? soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, snd) : false;
+}
+
+void sndStopSample(unsigned int nSound)
+{
+    auto snd = soundEngine->FindSoundByResID(nSound);
+
+    if (snd > 0)
+    {
+        soundEngine->StopSoundID(snd);
+    }
+}
+
 void sndStartSample(const char *pzSound, int nVolume, int nChannel)
 {
     if (!SoundEnabled())
