@@ -3040,7 +3040,7 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
     UNREFERENCED_PARAMETER(PUSH);
-    
+    auto actor = &bloodActors[pXCond->reference];
     int var = -1; PLAYER* pPlayer = NULL; bool retn = false;
     int cond = pXCond->data1 - kCondSpriteBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; int arg3 = pXCond->data4;
@@ -3094,7 +3094,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
                     var = HitScan(pSpr, pPlayer->zWeapon - pSpr->z, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
                 else if (IsDudeSprite(pSpr))
-                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), gDudeSlope[pSpr->extra], arg1, arg3 << 1);
+                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), actor->dudeSlope(), arg1, arg3 << 1);
                 else
                     var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), 0, arg1, arg3 << 1);
 

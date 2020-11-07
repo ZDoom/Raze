@@ -233,7 +233,6 @@ int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp);
 void scaleDamage(XSPRITE* pXSprite);
 bool genDudePrepare(spritetype* pSprite, int propId);
 void genDudeUpdate(spritetype* pSprite);
-bool genDudeAdjustSlope(spritetype* pSprite, XSPRITE* pXSprite, int dist, int weaponType, int by = 64);
 void genDudePostDeath(spritetype* pSprite, DAMAGE_TYPE damageType, int damage);
 void aiGenDudeInitSprite(spritetype* pSprite, XSPRITE* pXSprite);
 #endif
