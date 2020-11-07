@@ -98,9 +98,6 @@ static void processInputBits(PLAYERp const pp, ControlInfo* const hidInput)
         else
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
     }
-
-    // Handle crouch toggling.
-    checkCrouchToggle(&loc, &pp->crouch_toggle);
 }
 
 //---------------------------------------------------------------------------

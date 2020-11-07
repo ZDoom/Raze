@@ -278,8 +278,6 @@ struct player_struct
 	double vehForwardScale, vehReverseScale, MotoSpeed;
 	bool vehTurnLeft, vehTurnRight;
 
-	bool crouch_toggle;
-
 	// input stuff.
 	InputPacket sync;
 

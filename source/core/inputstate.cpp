@@ -327,8 +327,9 @@ CCMD(pause)
 }
 
 
+static bool crouch_toggle;
 
-void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput)
+void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput, bool const crouchable, bool const disableToggle)
 {
 	if (WeaponToSend != 0) input.setNewWeapon(WeaponToSend);
 	WeaponToSend = 0;
@@ -366,8 +367,17 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput)
 	if (buttonMap.ButtonDown(gamefunc_Jump))
 		input.actions |= SB_JUMP;
 
-	if (buttonMap.ButtonDown(gamefunc_Crouch))
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || crouch_toggle)
 		input.actions |= SB_CROUCH;
+
+	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+	{
+		crouch_toggle = !crouch_toggle && crouchable;
+		if (crouchable)	buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+	}
+
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || disableToggle)
+		crouch_toggle = false;
 
 	if (buttonMap.ButtonDown(gamefunc_Fire))
 		input.actions |= SB_FIRE;

@@ -2892,7 +2892,7 @@ void processinput_d(int snum)
 		// may still be needed later for demo recording
 
 		processavel(p, &sb_avel);
-		applylook(&p->angle, sb_avel, &p->sync.actions, 1, p->crouch_toggle || actions & SB_CROUCH);
+		applylook(&p->angle, sb_avel, &p->sync.actions, 1, actions & SB_CROUCH);
 	}
 
 	if (p->spritebridge == 0)

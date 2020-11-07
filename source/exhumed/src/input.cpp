@@ -120,9 +120,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         processMovement(&input, &localInput, hidInput, scaleAdjust);
     }
 
-    // Handle crouch toggling.
-    checkCrouchToggle(&localInput, &pPlayer->crouch_toggle);
-
     if (!cl_syncinput)
     {
         if (!nFreeze)

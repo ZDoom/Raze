@@ -49,9 +49,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     ApplyGlobalInput(gInput, hidInput);
     processMovement(&input, &gInput, hidInput, scaleAdjust);
 
-    // Handle crouch toggling.
-    checkCrouchToggle(&gInput, &pPlayer->crouch_toggle);
-
     if (!cl_syncinput && gamestate == GS_LEVEL)
     {
         // Perform unsynchronised angle/horizon if not dead.

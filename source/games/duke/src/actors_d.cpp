@@ -2080,7 +2080,7 @@ void movetransports_d(void)
 					
 					if (onfloorz == 0 && abs(spr->z - ps[p].posz) < 6144)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
-							(ps[p].jetpack_on && (PlayerInput(p, SB_CROUCH) ^ !!ps[p].crouch_toggle)))
+							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
 							ps[p].oposx = ps[p].posx += Owner->s.x - spr->x;
 							ps[p].oposy = ps[p].posy += Owner->s.y - spr->y;

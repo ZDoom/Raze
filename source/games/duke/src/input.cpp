@@ -522,7 +522,12 @@ enum
 
 static void processInputBits(player_struct *p, ControlInfo* const hidInput)
 {
-	ApplyGlobalInput(loc, hidInput);
+	// Set-up crouch bools.
+	int const sectorLotag = p->cursectnum != -1 ? sector[p->cursectnum].lotag : 0;
+	bool const crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
+	bool const disableToggle = p->jetpack_on || (!crouchable && p->on_ground) || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
+
+	ApplyGlobalInput(loc, hidInput, crouchable, disableToggle);
 	if (isRR() && (loc.actions & SB_CROUCH)) loc.actions &= ~SB_JUMP;
 
 	if (p->OnMotorcycle || p->OnBoat)
@@ -859,7 +864,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
-		p->crouch_toggle = 0;
 		processInputBits(p, hidInput);
 		processVehicleInput(p, hidInput, input, scaleAdjust);
 		FinalizeInput(myconnectindex, input, true);
@@ -873,12 +877,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 	{
 		processInputBits(p, hidInput);
 		processMovement(&input, &loc, hidInput, scaleAdjust, p->drink_amt);
-
-		// Handle crouch toggling.
-		int const sectorLotag = p->cursectnum != -1 ? sector[p->cursectnum].lotag : 0;
-		bool const crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
-		checkCrouchToggle(&loc, &p->crouch_toggle, crouchable, p->jetpack_on || (!crouchable && p->on_ground));
-
 		FinalizeInput(myconnectindex, input, false);
 	}
 
@@ -889,7 +887,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 			// Do these in the same order as the old code.
 			calcviewpitch(p, scaleAdjust);
 			processavel(p, &input.avel);
-			applylook(&p->angle, input.avel, &p->sync.actions, scaleAdjust, p->crouch_toggle || p->sync.actions & SB_CROUCH);
+			applylook(&p->angle, input.avel, &p->sync.actions, scaleAdjust, p->sync.actions & SB_CROUCH);
 			sethorizon(&p->horizon.horiz, input.horz, &p->sync.actions, scaleAdjust);
 		}
 

@@ -2390,7 +2390,7 @@ int ParseState::parse(void)
 			s = g_sp->xvel;
 
 			// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
-			if( (l& pducking) && ps[g_p].on_ground && (PlayerInput(g_p, SB_CROUCH) ^ !!(ps[g_p].crouch_toggle) ))
+			if( (l& pducking) && ps[g_p].on_ground && PlayerInput(g_p, SB_CROUCH))
 					j = 1;
 			else if( (l& pfalling) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&	ps[g_p].poszv > 2048 )
 					j = 1;

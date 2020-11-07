@@ -1521,7 +1521,7 @@ UpdatePlayerSpriteAngle(PLAYERp pp)
 void
 DoPlayerTurn(PLAYERp pp, float const avel, double const scaleAdjust)
 {
-    applylook(&pp->angle, avel, &pp->input.actions, scaleAdjust, pp->input.actions & SB_CROUCH || pp->crouch_toggle);
+    applylook(&pp->angle, avel, &pp->input.actions, scaleAdjust, pp->input.actions & SB_CROUCH);
     UpdatePlayerSpriteAngle(pp);
 }
 
