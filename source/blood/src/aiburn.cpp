@@ -85,7 +85,7 @@ AISTATE genDudeBurnGoto = { kAiStateMove, 3, -1, 3600, NULL, aiMoveForward, burn
 AISTATE genDudeBurnSearch = { kAiStateSearch, 3, -1, 3600, NULL, aiMoveForward, burnThinkSearch, &genDudeBurnSearch };
 AISTATE genDudeBurnAttack = { kAiStateChase, 3, nBurnClient, 120, NULL, NULL, NULL, &genDudeBurnChase };
 
-void BurnSeqCallback(int, int)
+void BurnSeqCallback(int, DBloodActor*)
 {
 }
 

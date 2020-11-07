@@ -73,11 +73,10 @@ AISTATE eelDodgeDown = { kAiStateMove, 0, -1, 120, NULL, eelMoveDodgeDown, NULL,
 AISTATE eelDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 AISTATE eelDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 
-void eelBiteSeqCallback(int, int nXSprite)
+void eelBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    auto actor = &bloodActors[pXSprite->reference];
-    spritetype *pSprite = &sprite[pXSprite->reference];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);

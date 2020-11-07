@@ -279,7 +279,6 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
 int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec);
 void voodooTarget(PLAYER *pPlayer);
 void playerLandingSound(PLAYER *pPlayer);
-void PlayerSurvive(int, int nXSprite);
-void PlayerKneelsOver(int, int nXSprite);
+void PlayerSurvive(int, DBloodActor*);
 
 END_BLD_NS

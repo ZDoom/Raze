@@ -75,11 +75,10 @@ AISTATE beast138FB4 = { kAiStateOther, 9, -1, 120, NULL, sub_62AE0, beastThinkSw
 AISTATE beast138FD0 = { kAiStateOther, 9, -1, 0, NULL, sub_62D7C, beastThinkSwimChase, &beastSwimChase };
 AISTATE beast138FEC = { kAiStateOther, 9, -1, 120, NULL, aiMoveTurn, NULL, &beastSwimChase };
 
-void SlashSeqCallback(int, int nXSprite)
+void SlashSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
@@ -93,12 +92,12 @@ void SlashSeqCallback(int, int nXSprite)
     sfxPlay3DSound(pSprite, 9012+Random(2), -1, 0);
 }
 
-void StompSeqCallback(int, int nXSprite)
+void StompSeqCallback(int, DBloodActor* actor)
 {
     uint8_t vb8[(kMaxSectors+7)>>3];
-    XSPRITE *pXSprite = &xsprite[nXSprite];
+    XSPRITE* pXSprite = &actor->x();
     int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype *pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     int x = pSprite->x;

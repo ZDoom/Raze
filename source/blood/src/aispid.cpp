@@ -80,11 +80,10 @@ static char sub_70D30(XSPRITE *pXDude, int a2, int a3)
     return 0;
 }
 
-void SpidBiteSeqCallback(int, int nXSprite)
+void SpidBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     dx += Random2(2000);
@@ -130,11 +129,10 @@ void SpidBiteSeqCallback(int, int nXSprite)
     }
 }
 
-void SpidJumpSeqCallback(int, int nXSprite)
+void SpidJumpSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     dx += Random2(200);
@@ -149,19 +147,18 @@ void SpidJumpSeqCallback(int, int nXSprite)
             case kDudeSpiderBrown:
             case kDudeSpiderRed:
             case kDudeSpiderBlack:
-                xvel[nSprite] = IntToFixed(dx);
-                yvel[nSprite] = IntToFixed(dy);
-                zvel[nSprite] = IntToFixed(dz);
+                actor->xvel() = IntToFixed(dx);
+                actor->yvel() = IntToFixed(dy);
+                actor->zvel() = IntToFixed(dz);
                 break;
         }
     }
 }
 
-void sub_71370(int, int nXSprite)
+void sub_71370(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
@@ -184,7 +181,7 @@ void sub_71370(int, int nXSprite)
         
         if (pSpawn) {
             pDudeExtraE->xval2++;
-            pSpawn->owner = nSprite;
+            pSpawn->owner = pSprite->index;
             gKillMgr.AddNewKill(1);
         }
     }

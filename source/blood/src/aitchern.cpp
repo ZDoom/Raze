@@ -60,16 +60,14 @@ AISTATE tcherno13A9F0 = { kAiStateChase, 6, dword_279B58, 60, NULL, NULL, NULL, 
 AISTATE tcherno13AA0C = { kAiStateChase, 7, dword_279B5C, 60, NULL, NULL, NULL, &tchernobogChase };
 AISTATE tcherno13AA28 = { kAiStateChase, 8, -1, 60, NULL, aiMoveTurn, NULL, &tchernobogChase };
 
-void sub_71A90(int, int nXSprite)
+void sub_71A90(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    auto actor = &bloodActors[pXSprite->reference];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int nTarget = pTarget->index;
-    int nOwner = actSpriteIdToOwnerId(nSprite);
+    int nOwner = actSpriteIdToOwnerId(pSprite->index);
     if (pXTarget->burnTime == 0)
         evPost(nTarget, 3, 0, kCallbackFXFlameLick);
     actBurnSprite(nOwner, pXTarget, 40);
@@ -77,11 +75,10 @@ void sub_71A90(int, int nXSprite)
         aiNewState(actor, &tcherno13A9D4);
 }
 
-void sub_71BD4(int, int nXSprite)
+void sub_71BD4(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pSprite->yrepeat*pDudeInfo->eyeHeight;
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
@@ -96,7 +93,7 @@ void sub_71BD4(int, int nXSprite)
     Aim aim;
     aim.dx = CosScale16(pSprite->ang);
     aim.dy = SinScale16(pSprite->ang);
-    aim.dz = gDudeSlope[nXSprite];
+    aim.dz = actor->dudeSlope();
     int nClosest = 0x7fffffff;
     int nSprite2;
     StatIterator it(kStatDude);
@@ -120,7 +117,7 @@ void sub_71BD4(int, int nXSprite)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(gDudeSlope[nXSprite], nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope(), nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
@@ -153,11 +150,10 @@ void sub_71BD4(int, int nXSprite)
     actFireMissile(pSprite, 350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
 }
 
-void sub_720AC(int, int nXSprite)
+void sub_720AC(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
         Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
@@ -175,7 +171,7 @@ void sub_720AC(int, int nXSprite)
     Aim aim;
     aim.dx = ax;
     aim.dy = ay;
-    aim.dz = gDudeSlope[nXSprite];
+    aim.dz = actor->dudeSlope();
     int nClosest = 0x7fffffff;
     az = 0;
     int nSprite2;
@@ -200,7 +196,7 @@ void sub_720AC(int, int nXSprite)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(gDudeSlope[nXSprite], nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope(), nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);

@@ -6758,71 +6758,66 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         sfxPlay3DSound(x, y, z, pVectorData->surfHit[nSurf].fxSnd, nSector);
 }
 
-void FireballSeqCallback(int, int nXSprite)
+void FireballSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
+    XSPRITE* pXSprite = &actor->x();
     int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype *pSprite = &actor->s();
     spritetype *pFX = gFX.fxSpawn(FX_11, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
         int nFX = pFX->index;
-        xvel[nFX] = xvel[nSprite];
-        yvel[nFX] = yvel[nSprite];
-        zvel[nFX] = zvel[nSprite];
+        xvel[nFX] = actor->xvel();
+        yvel[nFX] = actor->yvel();
+        zvel[nFX] = actor->zvel();
     }
 }
 
-void NapalmSeqCallback(int, int nXSprite)
+
+void NapalmSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     spritetype *pFX = gFX.fxSpawn(FX_12, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
         int nFX = pFX->index;
-        xvel[nFX] = xvel[nSprite];
-        yvel[nFX] = yvel[nSprite];
-        zvel[nFX] = zvel[nSprite];
+        xvel[nFX] = actor->xvel();
+        yvel[nFX] = actor->yvel();
+        zvel[nFX] = actor->zvel();
     }
 }
 
-void sub_3888C(int, int nXSprite)
+void sub_3888C(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype* pSprite = &actor->s();
     spritetype *pFX = gFX.fxSpawn(FX_32, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
         int nFX = pFX->index;
-        xvel[nFX] = xvel[nSprite];
-        yvel[nFX] = yvel[nSprite];
-        zvel[nFX] = zvel[nSprite];
+        xvel[nFX] = actor->xvel();
+        yvel[nFX] = actor->yvel();
+        zvel[nFX] = actor->zvel();
     }
 }
 
-void sub_38938(int, int nXSprite)
+void sub_38938(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype *pSprite = &actor->s();
     spritetype *pFX = gFX.fxSpawn(FX_33, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
         int nFX = pFX->index;
-        xvel[nFX] = xvel[nSprite];
-        yvel[nFX] = yvel[nSprite];
-        zvel[nFX] = zvel[nSprite];
+        xvel[nFX] = actor->xvel();
+        yvel[nFX] = actor->yvel();
+        zvel[nFX] = actor->zvel();
     }
 }
 
-void TreeToGibCallback(int, int nXSprite)
+void TreeToGibCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     pSprite->type = kThingObjectExplode;
     pXSprite->state = 1;
     pXSprite->data1 = 15;
@@ -6833,11 +6828,10 @@ void TreeToGibCallback(int, int nXSprite)
     pSprite->cstat |= 257;
 }
 
-void DudeToGibCallback1(int, int nXSprite)
+void DudeToGibCallback1(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     pSprite->type = kThingBloodChunks;
     pXSprite->data1 = 8;
     pXSprite->data2 = 0;
@@ -6851,11 +6845,10 @@ void DudeToGibCallback1(int, int nXSprite)
     pXSprite->state = 1;
 }
 
-void DudeToGibCallback2(int, int nXSprite)
+void DudeToGibCallback2(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     pSprite->type = kThingBloodChunks;
     pXSprite->data1 = 3;
     pXSprite->data2 = 0;

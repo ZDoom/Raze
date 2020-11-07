@@ -58,11 +58,10 @@ AISTATE houndGoto = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, houndThinkG
 AISTATE houndBite = { kAiStateChase, 6, nHoundBiteClient, 60, NULL, NULL, NULL, &houndChase };
 AISTATE houndBurn = { kAiStateChase, 7, nHoundBurnClient, 60, NULL, NULL, NULL, &houndChase };
 
-void houndBiteSeqCallback(int, int nXSprite)
+void houndBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -86,11 +85,9 @@ void houndBiteSeqCallback(int, int nXSprite)
     #endif
 }
 
-void houndBurnSeqCallback(int, int nXSprite)
+void houndBurnSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype* pSprite = &actor->s();
     actFireMissile(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFlameHound);
 }
 

@@ -72,10 +72,10 @@ AISTATE batDodgeDown = {kAiStateMove, 6, -1, 120, NULL, batMoveDodgeDown, 0, &ba
 AISTATE batDodgeDownRight = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 AISTATE batDodgeDownLeft = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 
-void batBiteSeqCallback(int, int nXSprite)
+void batBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    spritetype *pSprite = &sprite[pXSprite->reference];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);

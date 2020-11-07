@@ -66,25 +66,20 @@ AISTATE tentacleStartChase = { kAiStateOther, 6, nTentacleStartSearchClient, 120
 AISTATE tentacleRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &tentacleChase };
 AISTATE tentacleChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveTurn, aiPodChase, NULL };
 
-void sub_6FF08(int, int nXSprite)
+void sub_6FF08(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    sfxPlay3DSound(&sprite[nSprite], 2503, -1, 0);
+    sfxPlay3DSound(&actor->s(), 2503, -1, 0);
 }
 
-void sub_6FF54(int, int nXSprite)
+void sub_6FF54(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    sfxPlay3DSound(&sprite[nSprite], 2500, -1, 0);
+    sfxPlay3DSound(&actor->s(), 2500, -1, 0);
 }
 
-void podAttack(int, int nXSprite)
+void podAttack(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
         Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
@@ -137,11 +132,10 @@ void podAttack(int, int nXSprite)
         sub_746D4(pSprite, 240);
 }
 
-void sub_70284(int, int nXSprite)
+void sub_70284(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     sfxPlay3DSound(pSprite, 2502, -1, 0);
     int nDist, nBurn;
     DAMAGE_TYPE dmgType;
@@ -158,7 +152,7 @@ void sub_70284(int, int nXSprite)
             nDist = 75;
             break;
     }
-    sub_2A620(nSprite, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nDist, 1, 5*(1+gGameOptions.nDifficulty), dmgType, 2, nBurn, 0, 0);
+    sub_2A620(pSprite->index, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nDist, 1, 5*(1+gGameOptions.nDifficulty), dmgType, 2, nBurn, 0, 0);
 }
 
 static void aiPodSearch(DBloodActor* actor)

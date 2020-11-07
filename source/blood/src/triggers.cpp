@@ -2259,7 +2259,7 @@ void ActivateGenerator(int nSprite)
         case kGenMissileFireball:
             switch (pXSprite->data2) {
                 case 0:
-                    FireballTrapSeqCallback(3, nXSprite);
+                    FireballTrapSeqCallback(3, &bloodActors[nSprite]);
                     break;
                 case 1:
                     seqSpawn(35, 3, nXSprite, nFireballTrapClient);
@@ -2281,11 +2281,9 @@ void ActivateGenerator(int nSprite)
     }
 }
 
-void FireballTrapSeqCallback(int, int nXSprite)
+void FireballTrapSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype* pSprite = &actor->s();
     if (pSprite->cstat&32)
         actFireMissile(pSprite, 0, 0, 0, 0, (pSprite->cstat&8) ? 0x4000 : -0x4000, kMissileFireball);
     else
@@ -2293,18 +2291,17 @@ void FireballTrapSeqCallback(int, int nXSprite)
 }
 
 
-void MGunFireSeqCallback(int, int nXSprite)
+void MGunFireSeqCallback(int, DBloodActor* actor)
 {
-    int nSprite = xsprite[nXSprite].reference;
-    spritetype *pSprite = &sprite[nSprite];
-    XSPRITE *pXSprite = &xsprite[nXSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     if (pXSprite->data2 > 0 || pXSprite->data1 == 0)
     {
         if (pXSprite->data2 > 0)
         {
             pXSprite->data2--;
             if (pXSprite->data2 == 0)
-                evPost(nSprite, 3, 1, kCmdOff);
+                evPost(pXSprite->reference, 3, 1, kCmdOff);
         }
         int dx = CosScale16(pSprite->ang)+Random2(1000);
         int dy = SinScale16(pSprite->ang)+Random2(1000);
@@ -2314,9 +2311,9 @@ void MGunFireSeqCallback(int, int nXSprite)
     }
 }
 
-void MGunOpenSeqCallback(int, int nXSprite)
+void MGunOpenSeqCallback(int, DBloodActor* actor)
 {
-    seqSpawn(39, 3, nXSprite, nMGunFireClient);
+    seqSpawn(39, 3, actor->s().extra, nMGunFireClient);
 }
 
 

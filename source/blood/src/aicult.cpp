@@ -87,14 +87,13 @@ AISTATE cultistTSwimFire = { kAiStateChase, 8, nTommyClient, 0, NULL, aiMoveTurn
 AISTATE cultistTsSwimFire = { kAiStateChase, 8, nTeslaClient, 0, NULL, aiMoveTurn, cultThinkChase, &cultistTsSwimFire };
 AISTATE cultistSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &cultistSwimDodge };
 
-void TommySeqCallback(int, int nXSprite)
+void TommySeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    int dz = gDudeSlope[nXSprite];
+    int dz = actor->dudeSlope();
     dx += Random3((5-gGameOptions.nDifficulty)*1000);
     dy += Random3((5-gGameOptions.nDifficulty)*1000);
     dz += Random3((5-gGameOptions.nDifficulty)*500);
@@ -102,16 +101,15 @@ void TommySeqCallback(int, int nXSprite)
     sfxPlay3DSound(pSprite, 4001, -1, 0);
 }
 
-void TeslaSeqCallback(int, int nXSprite)
+void TeslaSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     if (Chance(dword_138BB0[gGameOptions.nDifficulty]))
     {
         int dx = CosScale16(pSprite->ang);
         int dy = SinScale16(pSprite->ang);
-        int dz = gDudeSlope[nXSprite];
+        int dz = actor->dudeSlope();
         dx += Random3((5-gGameOptions.nDifficulty)*1000);
         dy += Random3((5-gGameOptions.nDifficulty)*1000);
         dz += Random3((5-gGameOptions.nDifficulty)*500);
@@ -120,14 +118,13 @@ void TeslaSeqCallback(int, int nXSprite)
     }
 }
 
-void ShotSeqCallback(int, int nXSprite)
+void ShotSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    int dz = gDudeSlope[nXSprite];
+    int dz = actor->dudeSlope();
     dx += Random2((5-gGameOptions.nDifficulty)*1000-500);
     dy += Random2((5-gGameOptions.nDifficulty)*1000-500);
     dz += Random2((5-gGameOptions.nDifficulty)*500);
@@ -144,11 +141,10 @@ void ShotSeqCallback(int, int nXSprite)
         sfxPlay3DSound(pSprite, 1002, -1, 0);
 }
 
-void cultThrowSeqCallback(int, int nXSprite)
+void cultThrowSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int nMissile = kThingArmedTNTStick;
     if (gGameOptions.nDifficulty > 2)
         nMissile = kThingArmedTNTBundle;
@@ -171,24 +167,22 @@ void cultThrowSeqCallback(int, int nXSprite)
         evPost(pMissile->index, 3, 120*(1+Random(2)), kCmdOn);
 }
 
-void sub_68170(int, int nXSprite)
+void sub_68170(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int nMissile = kThingArmedTNTStick;
     if (gGameOptions.nDifficulty > 2)
         nMissile = kThingArmedTNTBundle;
     sfxPlay3DSound(pSprite, 455, -1, 0);
-    spritetype *pMissile = actFireThing(pSprite, 0, 0, gDudeSlope[nXSprite]-9460, nMissile, 0x133333);
+    spritetype* pMissile = actFireThing(pSprite, 0, 0, actor->dudeSlope() - 9460, nMissile, 0x133333);
     evPost(pMissile->index, 3, 120*(2+Random(2)), kCmdOn);
 }
 
-void sub_68230(int, int nXSprite)
+void sub_68230(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int nMissile = kThingArmedTNTStick;
     if (gGameOptions.nDifficulty > 2)
         nMissile = kThingArmedTNTBundle;

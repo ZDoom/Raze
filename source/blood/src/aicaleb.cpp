@@ -70,13 +70,12 @@ AISTATE tinycaleb139660 = { kAiStateOther, 8, -1, 120, NULL, sub_65F44, calebThi
 AISTATE tinycaleb13967C = { kAiStateOther, 8, -1, 0, NULL, sub_661E0, calebThinkSwimChase, &tinycalebSwimChase };
 AISTATE tinycaleb139698 = { kAiStateOther, 8, -1, 120, NULL, aiMoveTurn, NULL, &tinycalebSwimChase };
 
-void SeqAttackCallback(int, int nXSprite)
+void SeqAttackCallback(int, DBloodActor* actor)
 {
-    int nSprite = xsprite[nXSprite].reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype *pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    int dz = gDudeSlope[nXSprite];
+    int dz = actor->dudeSlope();
     dx += Random2(1500);
     dy += Random2(1500);
     dz += Random2(1500);

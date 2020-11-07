@@ -73,11 +73,10 @@ AISTATE zombie2Search = { kAiStateSearch, 8, -1, 1800, NULL, NULL, myThinkSearch
 AISTATE zombieSIdle = { kAiStateIdle, 10, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE zombie13AC2C = { kAiStateOther, 11, nStandClient, 0, entryEZombie, NULL, NULL, &zombieAPonder };
 
-void HackSeqCallback(int, int nXSprite)
+void HackSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
@@ -93,11 +92,9 @@ void HackSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_10);
 }
 
-void StandSeqCallback(int, int nXSprite)
+void StandSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    sfxPlay3DSound(&sprite[nSprite], 1102, -1, 0);
+    sfxPlay3DSound(&actor->s(), 1102, -1, 0);
 }
 
 static void zombaThinkSearch(DBloodActor* actor)

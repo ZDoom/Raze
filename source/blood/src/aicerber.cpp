@@ -68,11 +68,10 @@ AISTATE cerberus4Burn = { kAiStateChase, 6, nCerberusBurnClient2, 60, NULL, NULL
 AISTATE cerberus139890 = { kAiStateOther, 7, -1, 120, NULL, aiMoveTurn, NULL, &cerberusChase };
 AISTATE cerberus1398AC = { kAiStateOther, 7, -1, 120, NULL, aiMoveTurn, NULL, &cerberusChase };
 
-void cerberusBiteSeqCallback(int, int nXSprite)
+void cerberusBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -92,11 +91,10 @@ void cerberusBiteSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_14);
 }
 
-void cerberusBurnSeqCallback(int, int nXSprite)
+void cerberusBurnSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pDudeInfo->eyeHeight*pSprite->yrepeat;
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
@@ -111,7 +109,7 @@ void cerberusBurnSeqCallback(int, int nXSprite)
     Aim aim;
     aim.dx = CosScale16(pSprite->ang);
     aim.dy = SinScale16(pSprite->ang);
-    aim.dz = gDudeSlope[nXSprite];
+    aim.dz = actor->dudeSlope();
     int nClosest = 0x7fffffff;
     int nSprite2;
     StatIterator it(kStatDude);
@@ -135,7 +133,7 @@ void cerberusBurnSeqCallback(int, int nXSprite)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(gDudeSlope[nXSprite], nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope(), nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
@@ -175,11 +173,10 @@ void cerberusBurnSeqCallback(int, int nXSprite)
     }
 }
 
-void cerberusBurnSeqCallback2(int, int nXSprite)
+void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
         Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
@@ -196,7 +193,7 @@ void cerberusBurnSeqCallback2(int, int nXSprite)
     int ax, ay, az;
     aim.dx = ax = CosScale16(pSprite->ang);
     aim.dy = ay = SinScale16(pSprite->ang);
-    aim.dz = gDudeSlope[nXSprite];
+    aim.dz = actor->dudeSlope();
     az = 0;
     int nClosest = 0x7fffffff;
     int nSprite2;
@@ -221,7 +218,7 @@ void cerberusBurnSeqCallback2(int, int nXSprite)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(gDudeSlope[nXSprite], nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope(), nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);

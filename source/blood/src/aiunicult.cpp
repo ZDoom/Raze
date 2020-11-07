@@ -55,7 +55,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gib.h"
 
 BEGIN_BLD_NS
-static void ThrowThing(int, bool);
+static void ThrowThing(DBloodActor*, bool);
 static void unicultThinkSearch(DBloodActor*);
 static void unicultThinkGoto(DBloodActor*);
 static void unicultThinkChase(DBloodActor*);
@@ -132,7 +132,7 @@ static void forcePunch(DBloodActor* actor)
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
     if (gGenDudeExtra[pSprite->index].forcePunch && seqGetStatus(3, pSprite->extra) == -1)
-        punchCallback(0,pSprite->extra);
+        punchCallback(0, actor);
 }
 
 /*bool sameFamily(spritetype* pDude1, spritetype* pDude2) {
@@ -179,12 +179,12 @@ void genDudeUpdate(spritetype* pSprite) {
     }
 }
 
-void punchCallback(int, int nXIndex) {
-    XSPRITE* pXSprite = &xsprite[nXIndex];
-    if (pXSprite->target != -1) {
-        int nSprite = pXSprite->reference;
-        spritetype* pSprite = &sprite[nSprite];
-
+void punchCallback(int, DBloodActor* actor)
+{
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
+    if (pXSprite->target != -1) 
+    {
         int nZOffset1 = getDudeInfo(pSprite->type)->eyeHeight * pSprite->yrepeat << 2;
         int nZOffset2 = 0;
         
@@ -203,20 +203,14 @@ void punchCallback(int, int nXIndex) {
     }
 }
 
-void genDudeAttack1(int, int nXIndex) {
-    if (!(nXIndex >= 0 && nXIndex < kMaxXSprites)) {
-        Printf(PRINT_HIGH, "nXIndex >= 0 && nXIndex < kMaxXSprites");
-        return;
-    }
-    
-    XSPRITE* pXSprite = &xsprite[nXIndex]; int nSprite = pXSprite->reference;
-    if (pXSprite->target < 0) return;
-    else if (!(nSprite >= 0 && nSprite < kMaxSprites)) {
-        Printf(PRINT_HIGH, "nIndex >= 0 && nIndex < kMaxSprites");
-        return;
-    }
+void genDudeAttack1(int, DBloodActor* actor)
+{
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
 
-    int dx, dy, dz; spritetype* pSprite = &sprite[nSprite];
+    if (pXSprite->target < 0) return;
+
+    int dx, dy, dz;
     xvel[pSprite->index] = yvel[pSprite->index] = 0;
     
     GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
@@ -226,7 +220,7 @@ void genDudeAttack1(int, int nXIndex) {
 
     if (pExtra->weaponType == kGenDudeWeaponHitscan) {
 
-        dx = CosScale16(pSprite->ang); dy = SinScale16(pSprite->ang); dz = gDudeSlope[nXIndex];
+        dx = CosScale16(pSprite->ang); dy = SinScale16(pSprite->ang); dz = actor->dudeSlope();
         // dispersal modifiers here in case if non-melee enemy
         if (!dudeIsMelee(pXSprite)) {
             dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion);
@@ -241,7 +235,7 @@ void genDudeAttack1(int, int nXIndex) {
         spritetype* pSpawned = NULL; int dist = pSprite->clipdist << 4; 
         if (pExtra->slaveCount <= gGameOptions.nDifficulty) {
             if ((pSpawned = actSpawnDude(pSprite, pExtra->curWeapon, dist + Random(dist), 0)) != NULL) {
-                pSpawned->owner = nSprite;
+                pSpawned->owner = pSprite->index;
 
                 if (xspriRangeIsFine(pSpawned->extra)) {
                     xsprite[pSpawned->extra].target = pXSprite->target;
@@ -258,7 +252,7 @@ void genDudeAttack1(int, int nXIndex) {
 
     } else if (pExtra->weaponType == kGenDudeWeaponMissile) {
 
-        dx = CosScale16(pSprite->ang); dy = SinScale16(pSprite->ang); dz = gDudeSlope[nXIndex];
+        dx = CosScale16(pSprite->ang); dy = SinScale16(pSprite->ang); dz = actor->dudeSlope();
 
         // dispersal modifiers here
         dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion >> 1);
@@ -269,16 +263,20 @@ void genDudeAttack1(int, int nXIndex) {
     }
 }
 
-void ThrowCallback1(int, int nXIndex) {
-    ThrowThing(nXIndex, true);
+void ThrowCallback1(int, DBloodActor* actor)
+{
+    ThrowThing(actor, true);
 }
 
-void ThrowCallback2(int, int nXIndex) {
-    ThrowThing(nXIndex, false);
+void ThrowCallback2(int, DBloodActor* actor)
+{
+    ThrowThing(actor, false);
 }
 
-static void ThrowThing(int nXIndex, bool impact) {
-    XSPRITE* pXSprite = &xsprite[nXIndex]; spritetype* pSprite = &sprite[pXSprite->reference];
+static void ThrowThing(DBloodActor* actor, bool impact) 
+{
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
 
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites))
         return;

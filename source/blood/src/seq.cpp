@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "raze_sound.h"
 #include "actor.h"
 #include "seq.h"
+#include "bloodactor.h"
 
 
 #include "files.h"
@@ -49,7 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void (*seqClientCallback[])(int, int) = {
+static void (*seqClientCallback[])(int, DBloodActor*) = {
 	FireballSeqCallback,
 	sub_38938,
 	NapalmSeqCallback,
@@ -428,8 +429,14 @@ void SEQINST::Update()
 		UpdateMasked(index, &pSequence->frames[frameIndex]);
 		break;
 	}
+
+	// all seq callbacks are for sprites, but there's no sanity checks here that what gets passed is meant to be for a sprite...
 	if (pSequence->frames[frameIndex].trigger && callback != -1)
-		seqClientCallback[callback](type, index);
+	{
+		assert(type == 3);
+		seqClientCallback[callback](type, &bloodActors[xsprite[index].reference]);
+	}
+
 }
 
 //---------------------------------------------------------------------------

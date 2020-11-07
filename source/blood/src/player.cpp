@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "gamestate.h"
 #include "automap.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -2125,12 +2126,11 @@ void playerLandingSound(PLAYER *pPlayer)
     }
 }
 
-void PlayerSurvive(int, int nXSprite)
+void PlayerSurvive(int, DBloodActor* actor)
 {
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     char buffer[80];
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
     actHealDude(pXSprite, 1, 2);
     if (gGameOptions.nGameType > 0 && numplayers > 1)
     {
@@ -2150,9 +2150,9 @@ void PlayerSurvive(int, int nXSprite)
     }
 }
 
-void PlayerKneelsOver(int, int nXSprite)
+void PlayerKneelsOver(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
+    XSPRITE* pXSprite = &actor->x();
     for (int p = connecthead; p >= 0; p = connectpoint2[p])
     {
         if (gPlayer[p].pXSprite == pXSprite)

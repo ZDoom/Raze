@@ -76,11 +76,10 @@ AISTATE ghostDodgeDown = { kAiStateMove, 0, -1, 120, NULL, ghostMoveDodgeDown, N
 AISTATE ghostDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
 AISTATE ghostDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
 
-void ghostSlashSeqCallback(int, int nXSprite)
+void ghostSlashSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
@@ -99,18 +98,15 @@ void ghostSlashSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx-r2, dy+r1, dz, VECTOR_TYPE_12);
 }
 
-void ghostThrowSeqCallback(int, int nXSprite)
+void ghostThrowSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    actFireThing(&sprite[nSprite], 0, 0, gDudeSlope[nXSprite]-7500, kThingBone, 0xeeeee);
+    actFireThing(&actor->s(), 0, 0, actor->dudeSlope() - 7500, kThingBone, 0xeeeee);
 }
 
-void ghostBlastSeqCallback(int, int nXSprite)
+void ghostBlastSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     wrand(); // ???
     spritetype *pTarget = &sprite[pXSprite->target];
     int height = (pSprite->yrepeat*getDudeInfo(pSprite->type)->eyeHeight) << 2;
@@ -123,7 +119,7 @@ void ghostBlastSeqCallback(int, int nXSprite)
     Aim aim;
     aim.dx = CosScale16(pSprite->ang);
     aim.dy = SinScale16(pSprite->ang);
-    aim.dz = gDudeSlope[nXSprite];
+    aim.dz = actor->dudeSlope();
     int nClosest = 0x7fffffff;
     int nSprite2;
     StatIterator it(kStatDude);
@@ -147,7 +143,7 @@ void ghostBlastSeqCallback(int, int nXSprite)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(gDudeSlope[nXSprite], nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope(), nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);

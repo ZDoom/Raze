@@ -59,15 +59,10 @@ AISTATE zombieFSearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, zomb
 AISTATE zombieFRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &zombieFChase };
 AISTATE zombieFTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &zombieFChase };
 
-void zombfHackSeqCallback(int, int nXSprite)
+void zombfHackSeqCallback(int, DBloodActor* actor)
 {
-    if (nXSprite <= 0 || nXSprite >= kMaxXSprites)
-        return;
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    if (nXSprite < 0 || nXSprite >= kMaxSprites)
-        return;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     if (pSprite->type != kDudeZombieButcher)
         return;
     spritetype *pTarget = &sprite[pXSprite->target];
@@ -78,11 +73,10 @@ void zombfHackSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), height-height2, VECTOR_TYPE_11);
 }
 
-void PukeSeqCallback(int, int nXSprite)
+void PukeSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
@@ -97,11 +91,9 @@ void PukeSeqCallback(int, int nXSprite)
     actFireMissile(pSprite, 0, -(height-height2), dx, dy, 0, kMissilePukeGreen);
 }
 
-void ThrowSeqCallback(int, int nXSprite)
+void ThrowSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype* pSprite = &actor->s();
     actFireMissile(pSprite, 0, -getDudeInfo(pSprite->type)->eyeHeight, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileButcherKnife);
 }
 
