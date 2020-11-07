@@ -106,6 +106,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
     }
 
+    Player* pPlayer = &PlayerList[nLocalPlayer];
     double const scaleAdjust = InputScale();
     InputPacket input {};
 
@@ -119,10 +120,23 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         processMovement(&input, &localInput, hidInput, scaleAdjust);
     }
 
+    // Handle crouch toggling.
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle)
+    {
+        localInput.actions |= SB_CROUCH;
+    }
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+    {
+        pPlayer->crouch_toggle = !pPlayer->crouch_toggle;
+        buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+    }
+    if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump))
+    {
+        pPlayer->crouch_toggle = false;
+    }
+
     if (!cl_syncinput)
     {
-        Player* pPlayer = &PlayerList[nLocalPlayer];
-
         if (!nFreeze)
         {
             applylook(&pPlayer->angle, input.avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust, eyelevel[nLocalPlayer] > -14080);

@@ -75,6 +75,8 @@ struct Player
     PlayerHorizon horizon;
     PlayerAngle angle;
     vec3_t opos;
+
+    bool crouch_toggle;
 };
 
 extern short PlayerCount;
