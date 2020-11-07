@@ -2740,7 +2740,7 @@ void checksectors_r(int snum)
 				operatesectors(neartagsector, p->GetActor());
 			else
 			{
-				if (neartagsprite->spriteextra > 3)
+				if (neartagsprite && neartagsprite->spriteextra > 3)
 					S_PlayActorSound(99, pact);
 				else
 					S_PlayActorSound(419, pact);
@@ -2761,7 +2761,7 @@ void checksectors_r(int snum)
 					operatesectors(p->GetActor()->s.sectnum, p->GetActor());
 				else
 				{
-					if (neartagsprite->spriteextra > 3)
+					if (neartagsprite && neartagsprite->spriteextra > 3)
 						S_PlayActorSound(99, pact);
 					else
 						S_PlayActorSound(419, pact);
