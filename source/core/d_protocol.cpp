@@ -164,9 +164,9 @@ int UnpackUserCmd (InputPacket *ucmd, const InputPacket *basis, uint8_t **stream
 		if (flags & UCMDF_YAW)
 			ucmd->avel = ReadFloat(stream);
 		if (flags & UCMDF_FORWARDMOVE)
-			ucmd->fvel = ReadWord (stream);
+			ucmd->fvel = ReadLong (stream);
 		if (flags & UCMDF_SIDEMOVE)
-			ucmd->svel = ReadWord (stream);
+			ucmd->svel = ReadLong (stream);
 	}
 
 	return int(*stream - start);
@@ -206,12 +206,12 @@ int PackUserCmd (const InputPacket *ucmd, const InputPacket *basis, uint8_t **st
 	if (ucmd->fvel != basis->fvel)
 	{
 		flags |= UCMDF_FORWARDMOVE;
-		WriteWord (ucmd->fvel, stream);
+		WriteLong (ucmd->fvel, stream);
 	}
 	if (ucmd->svel != basis->svel)
 	{
 		flags |= UCMDF_SIDEMOVE;
-		WriteWord (ucmd->svel, stream);
+		WriteLong (ucmd->svel, stream);
 	}
 
 	// Write the packing bits

@@ -74,8 +74,8 @@ enum
 
 struct InputPacket
 {
-    int16_t svel;
-    int16_t fvel;
+    int32_t svel;
+    int32_t fvel;
     float avel;
     float horz;
     ESyncBits actions;
