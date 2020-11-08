@@ -106,7 +106,7 @@ int32_t registerosdcommands(void)
 */
 
 InputPacket localInput;
-int lPlayerXVel, lPlayerYVel;
+static double lPlayerXVel, lPlayerYVel;
 
 void GameInterface::clearlocalinputstate()
 {
@@ -120,20 +120,24 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     if (paused || M_Active())
     {
         localInput = {};
+        lPlayerYVel = 0;
+        lPlayerXVel = 0;
         return;
     }
+
+    PLAYER& plr = player[myconnectindex];
 
     if (packet != nullptr)
     {
         localInput = {};
         ApplyGlobalInput(localInput, hidInput);
-        if (player[myconnectindex].dead) localInput.actions &= SB_OPEN;
+        if (plr.dead) localInput.actions &= SB_OPEN;
     }
 
     double const scaleAdjust = InputScale();
     InputPacket input{};
 
-    if (player[myconnectindex].dead)
+    if (plr.dead)
     {
         lPlayerYVel = 0;
         lPlayerXVel = 0;
@@ -159,7 +163,33 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
     if (packet)
     {
-        *packet = localInput;
+		double k = 0.92;
+		double sin = calcSinTableValue(plr.ang);
+		double cos = calcSinTableValue(plr.ang + 512);
+		double xvel = (localInput.fvel * cos) + (localInput.svel * sin);
+		double yvel = (localInput.fvel * sin) - (localInput.svel * cos);
+		double len = sqrt(xvel * xvel + yvel * yvel);
+		auto keymove = localInput.actions & SB_RUN ? gi->playerKeyMove() << 1 : gi->playerKeyMove();
+
+		if (len > (keymove << 14))
+		{
+			xvel = (xvel / len) * (keymove << 14);
+			yvel = (yvel / len) * (keymove << 14);
+		}
+
+		lPlayerXVel = fmulscale16(lPlayerXVel + (xvel * k), 0xD000);
+		lPlayerYVel = fmulscale16(lPlayerYVel + (yvel * k), 0xD000);
+
+		if (abs(lPlayerXVel) < 2048 && abs(lPlayerYVel) < 2048)
+		{
+			lPlayerXVel = lPlayerYVel = 0;
+		}
+
+		localInput.fvel = xs_CRoundToInt(lPlayerXVel);
+		localInput.svel = xs_CRoundToInt(lPlayerYVel);
+
+		*packet = localInput;
+		localInput = {};
     }
 }
 
