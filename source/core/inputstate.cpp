@@ -389,7 +389,7 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput, bool const crou
 
 	if (buttonMap.ButtonDown(gamefunc_Open))
 	{
-		if (g_gameType & GAMEFLAG_BLOOD) buttonMap.ClearButton(gamefunc_Open);
+		if (g_gameType & (GAMEFLAG_BLOOD | GAMEFLAG_WHALL)) buttonMap.ClearButton(gamefunc_Open);
 		input.actions |= SB_OPEN;
 	}
 	if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run)))
