@@ -40,19 +40,19 @@ int S_DefineSound(unsigned index, const char* filename, int ps, int pe, int pr, 
 void S_WorldTourMappingsForOldSounds();
 
 int S_PlaySound(int num, int channel = CHAN_AUTO, EChanFlags flags = 0, float vol =0.8f);
-int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int channel = CHAN_AUTO, EChanFlags flags = 0);
-int S_PlayActorSound(int soundNum, int spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0);
-void S_RelinkActorSound(int from, int to);
+int S_PlaySound3D(int num, DDukeActor* spriteNum, const vec3_t* pos, int channel = CHAN_AUTO, EChanFlags flags = 0);
+int S_PlayActorSound(int soundNum, DDukeActor* spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0);
+void S_RelinkActorSound(DDukeActor* from, DDukeActor* to);
 void S_MenuSound(void);
 
-void S_StopSound(int sndNum, int sprNum = -1, int flags = -1);
+void S_StopSound(int sndNum, DDukeActor* spr = nullptr, int flags = -1);
 
 int S_CheckSoundPlaying(int soundNum);
 inline int S_CheckSoundPlaying(int sprnum, int soundNum) { return S_CheckSoundPlaying(soundNum); }
-int S_CheckActorSoundPlaying(int spriteNum, int soundNum, int channel = 0);
-int S_CheckAnyActorSoundPlaying(int spriteNum);
+int S_CheckActorSoundPlaying(DDukeActor* spriteNum, int soundNum, int channel = 0);
+int S_CheckAnyActorSoundPlaying(DDukeActor* spriteNum);
 
-void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
+void S_ChangeSoundPitch(int soundNum, DDukeActor* spriteNum, int pitchoffset);
 int S_GetUserFlags(int sndnum);
 
 inline bool S_IsSoundValid(int num)
@@ -72,7 +72,7 @@ void S_ContinueLevelMusic(void);
 void S_ParseDeveloperCommentary();
 
 void StopCommentary();
-bool StartCommentary(int tag, int sprnum);
+bool StartCommentary(int tag, DDukeActor* sprnum);
 
 extern TArray<FString> specialmusic;
 

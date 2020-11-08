@@ -46,7 +46,7 @@ static int WeaponToSend = 0;
 ESyncBits ActionsToSend = 0;
 static int dpad_lock = 0;
 bool sendPause;
-
+bool crouch_toggle;
 static double lastCheck;
 
 CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)		// Mouse speeds
@@ -120,6 +120,7 @@ void InputState::ClearAllInput()
 	WeaponToSend = 0;
 	dpad_lock = 0;
 	lastCheck = 0;
+	crouch_toggle = false;
 	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
 	gi->clearlocalinputstate();		// also clear game local input state.
 }
@@ -182,8 +183,8 @@ ControlInfo CONTROL_GetInput()
 		I_GetAxes(joyaxes);
 
 		hidInput.dyaw += -joyaxes[JOYAXIS_Yaw];
-		hidInput.dx += -joyaxes[JOYAXIS_Side] * .5f;
-		hidInput.dz += -joyaxes[JOYAXIS_Forward] * .5f;
+		hidInput.dx += joyaxes[JOYAXIS_Side] * .5f;
+		hidInput.dz += joyaxes[JOYAXIS_Forward] * .5f;
 		hidInput.dpitch += -joyaxes[JOYAXIS_Pitch];
 	}
 
@@ -327,8 +328,7 @@ CCMD(pause)
 }
 
 
-
-void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput)
+void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput, bool const crouchable, bool const disableToggle)
 {
 	if (WeaponToSend != 0) input.setNewWeapon(WeaponToSend);
 	WeaponToSend = 0;
@@ -366,8 +366,17 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput)
 	if (buttonMap.ButtonDown(gamefunc_Jump))
 		input.actions |= SB_JUMP;
 
-	if (buttonMap.ButtonDown(gamefunc_Crouch))
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || crouch_toggle)
 		input.actions |= SB_CROUCH;
+
+	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+	{
+		crouch_toggle = !crouch_toggle && crouchable;
+		if (crouchable)	buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+	}
+
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || disableToggle)
+		crouch_toggle = false;
 
 	if (buttonMap.ButtonDown(gamefunc_Fire))
 		input.actions |= SB_FIRE;

@@ -31,6 +31,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "v_video.h"
 #include "prediction.h"
 #include "automap.h"
+#include "dukeactor.h"
 
 
 BEGIN_DUKE_NS
@@ -57,104 +58,118 @@ static int tempsectorz[MAXSECTORS];
 static int tempsectorpicnum[MAXSECTORS];
 //short tempcursectnum;
 
-void SE40_Draw(int tag, int spnum, int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
+void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 {
 	int i, j = 0, k = 0;
-	int floor1, floor2 = 0, ok = 0, fofmode = 0;
+	int ok = 0, fofmode = 0;
 	int offx, offy;
+	spritetype* floor1, *floor2 = nullptr;
 
-	if (sprite[spnum].ang != 512) return;
+	if (spr->ang != 512) return;
 
 	i = FOF;    //Effect TILE
 	tileDelete(FOF);
 	if (!(gotpic[i >> 3] & (1 << (i & 7)))) return;
 	gotpic[i >> 3] &= ~(1 << (i & 7));
 
-	floor1 = spnum;
+	floor1 = spr;
 
-	if (sprite[spnum].lotag == tag + 2) fofmode = tag + 0;
-	if (sprite[spnum].lotag == tag + 3) fofmode = tag + 1;
-	if (sprite[spnum].lotag == tag + 4) fofmode = tag + 0;
-	if (sprite[spnum].lotag == tag + 5) fofmode = tag + 1;
+	if (spr->lotag == tag + 2) fofmode = tag + 0;
+	if (spr->lotag == tag + 3) fofmode = tag + 1;
+	if (spr->lotag == tag + 4) fofmode = tag + 0;
+	if (spr->lotag == tag + 5) fofmode = tag + 1;
 
 	ok++;
 
-	for (j = 0; j < MAXSPRITES; j++)
+	DukeStatIterator it(STAT_RAROR);
+	while (auto act = it.Next())
 	{
+		auto spr = &act->s;
 		if (
-			sprite[j].picnum == 1 &&
-			sprite[j].lotag == fofmode &&
-			sprite[j].hitag == sprite[floor1].hitag
-			) {
-			floor1 = j; fofmode = sprite[j].lotag; ok++; break;
+			spr->picnum == SECTOREFFECTOR &&
+			spr->lotag == fofmode &&
+			spr->hitag == floor1->hitag
+			) 
+		{
+			floor1 = spr; 
+			fofmode = spr->lotag; 
+			ok++; 
+			break;
 		}
 	}
 	// if(ok==1) { Message("no floor1",RED); return; }
 
 	if (fofmode == tag + 0) k = tag + 1; else k = tag + 0;
 
-	for (j = 0; j < MAXSPRITES; j++)
+	it.Reset(STAT_RAROR);
+	while (auto act = it.Next())
 	{
+		auto spr = &act->s;
 		if (
-			sprite[j].picnum == 1 &&
-			sprite[j].lotag == k &&
-			sprite[j].hitag == sprite[floor1].hitag
-			) {
-			floor2 = j; ok++; break;
+			spr->picnum == SECTOREFFECTOR &&
+			spr->lotag == k &&
+			spr->hitag == floor1->hitag
+			) 
+		{
+			floor2 = spr; 
+			ok++; 
+			break;
 		}
 	}
 
 	// if(ok==2) { Message("no floor2",RED); return; }
 
-	for (j = 0; j < MAXSPRITES; j++)  // raise ceiling or floor
+	it.Reset(STAT_RAROR);
+	while (auto act = it.Next())
 	{
-		if (sprite[j].picnum == 1 &&
-			sprite[j].lotag == k + 2 &&
-			sprite[j].hitag == sprite[floor1].hitag
+		auto spr = &act->s;
+		if (spr->picnum == SECTOREFFECTOR &&
+			spr->lotag == k + 2 &&
+			spr->hitag == floor1->hitag
 			)
 		{
 			if (k == tag + 0)
 			{
-				tempsectorz[sprite[j].sectnum] = sector[sprite[j].sectnum].floorz;
-				sector[sprite[j].sectnum].floorz += (((z - sector[sprite[j].sectnum].floorz) / 32768) + 1) * 32768;
-				tempsectorpicnum[sprite[j].sectnum] = sector[sprite[j].sectnum].floorpicnum;
-				sector[sprite[j].sectnum].floorpicnum = 13;
+				tempsectorz[spr->sectnum] = sector[spr->sectnum].floorz;
+				sector[spr->sectnum].floorz += (((z - sector[spr->sectnum].floorz) / 32768) + 1) * 32768;
+				tempsectorpicnum[spr->sectnum] = sector[spr->sectnum].floorpicnum;
+				sector[spr->sectnum].floorpicnum = 13;
 			}
 			if (k == tag + 1)
 			{
-				tempsectorz[sprite[j].sectnum] = sector[sprite[j].sectnum].ceilingz;
-				sector[sprite[j].sectnum].ceilingz += (((z - sector[sprite[j].sectnum].ceilingz) / 32768) - 1) * 32768;
-				tempsectorpicnum[sprite[j].sectnum] = sector[sprite[j].sectnum].ceilingpicnum;
-				sector[sprite[j].sectnum].ceilingpicnum = 13;
+				tempsectorz[spr->sectnum] = sector[spr->sectnum].ceilingz;
+				sector[spr->sectnum].ceilingz += (((z - sector[spr->sectnum].ceilingz) / 32768) - 1) * 32768;
+				tempsectorpicnum[spr->sectnum] = sector[spr->sectnum].ceilingpicnum;
+				sector[spr->sectnum].ceilingpicnum = 13;
 			}
 		}
 	}
 
-	i = floor1;
-	offx = x - sprite[i].x;
-	offy = y - sprite[i].y;
-	i = floor2;
+	offx = x - floor1->x;
+	offy = y - floor1->y;
 
-	renderDrawRoomsQ16(sprite[i].x + offx, sprite[i].y + offy, z, a.asq16(), h.asq16(), sprite[i].sectnum);
-	fi.animatesprites(offx + sprite[i].x, offy + sprite[i].y, a.asbuild(), smoothratio);
+	renderDrawRoomsQ16(floor2->x + offx, floor2->y + offy, z, a.asq16(), h.asq16(), floor2->sectnum);
+	fi.animatesprites(offx + floor2->x, offy + floor2->y, a.asbuild(), smoothratio);
 	renderDrawMasks();
 
-	for (j = 0; j < MAXSPRITES; j++)  // restore ceiling or floor
+	it.Reset(STAT_RAROR);
+	while (auto act = it.Next())
 	{
-		if (sprite[j].picnum == 1 &&
-			sprite[j].lotag == k + 2 &&
-			sprite[j].hitag == sprite[floor1].hitag
+		auto spr = &act->s;
+		if (spr->picnum == 1 &&
+			spr->lotag == k + 2 &&
+			spr->hitag == floor1->hitag
 			)
 		{
 			if (k == tag + 0)
 			{
-				sector[sprite[j].sectnum].floorz = tempsectorz[sprite[j].sectnum];
-				sector[sprite[j].sectnum].floorpicnum = tempsectorpicnum[sprite[j].sectnum];
+				sector[spr->sectnum].floorz = tempsectorz[spr->sectnum];
+				sector[spr->sectnum].floorpicnum = tempsectorpicnum[spr->sectnum];
 			}
 			if (k == tag + 1)
 			{
-				sector[sprite[j].sectnum].ceilingz = tempsectorz[sprite[j].sectnum];
-				sector[sprite[j].sectnum].ceilingpicnum = tempsectorpicnum[sprite[j].sectnum];
+				sector[spr->sectnum].ceilingz = tempsectorz[spr->sectnum];
+				sector[spr->sectnum].ceilingpicnum = tempsectorpicnum[spr->sectnum];
 			}
 		}// end if
 	}// end for
@@ -170,15 +185,15 @@ void SE40_Draw(int tag, int spnum, int x, int y, int z, binangle a, fixedhoriz h
 
 void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 {
-	int i, tag;
+	int tag;
 	if (!isRR()) tag = 40;
 	else if (isRRRA()) tag = 150;
 	else return;
 
-	StatIterator it(STAT_RAROR);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_RAROR);
+	while (auto act = it.Next())
 	{
-		switch (sprite[i].lotag - tag + 40)
+		switch (act->s.lotag - tag + 40)
 		{
 			//            case 40:
 			//            case 41:
@@ -188,8 +203,8 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 		case 43:
 		case 44:
 		case 45:
-			if (ps[screenpeek].cursectnum == sprite[i].sectnum)
-				SE40_Draw(tag, i, x, y, z, a, h, smoothratio);
+			if (ps[screenpeek].cursectnum == act->s.sectnum)
+				SE40_Draw(tag, &act->s, x, y, z, a, h, smoothratio);
 			break;
 		}
 	}
@@ -243,9 +258,9 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 //
 //---------------------------------------------------------------------------
 
-static inline int16_t getcamspriteang(short const newowner, double const smoothratio)
+static inline int16_t getcamspriteang(DDukeActor* newOwner, double const smoothratio)
 {
-	return hittype[newowner].tempang + xs_CRoundToInt(fmulscale16(((sprite[newowner].ang - hittype[newowner].tempang + 1024) & 2047) - 1024, smoothratio));
+	return newOwner->tempang + xs_CRoundToInt(fmulscale16(((newOwner->s.ang - newOwner->tempang + 1024) & 2047) - 1024, smoothratio));
 }
 
 //---------------------------------------------------------------------------
@@ -258,17 +273,15 @@ void animatecamsprite(double smoothratio)
 {
 	const int VIEWSCREEN_ACTIVE_DISTANCE = 8192;
 
-	if (camsprite < 0)
+	if (camsprite == nullptr)
 		return;
 
-	int spriteNum = camsprite;
-
 	auto p = &ps[screenpeek];
-	auto sp = &sprite[spriteNum];
+	auto sp = &camsprite->s;
 
-	if (p->newowner >= 0) sp->owner = p->newowner;
+	if (p->newOwner != nullptr) camsprite->SetOwner(p->newOwner);
 
-	if (sp->owner >= 0 && dist(&sprite[p->i], sp) < VIEWSCREEN_ACTIVE_DISTANCE)
+	if (camsprite->GetOwner() && dist(p->GetActor(), camsprite) < VIEWSCREEN_ACTIVE_DISTANCE)
 	{
 		auto tex = tileGetTexture(sp->picnum);
 		TileFiles.MakeCanvas(TILE_VIEWSCR, tex->GetDisplayWidth(), tex->GetDisplayHeight());
@@ -278,8 +291,8 @@ void animatecamsprite(double smoothratio)
 
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
-				auto camera = &sprite[sp->owner];
-				auto ang = getcamspriteang(sp->owner, smoothratio);
+				auto camera = &camsprite->GetOwner()->s;
+				auto ang = getcamspriteang(camsprite->GetOwner(), smoothratio);
 				// Note: no ROR or camera here for now - the current setup has no means to detect these things before rendering the scene itself.
 				drawrooms(camera->x, camera->y, camera->z, ang, 100 + camera->shade, camera->sectnum); // why 'shade'...?
 				display_mirror = 1; // should really be 'display external view'.
@@ -296,13 +309,17 @@ void animatecamsprite(double smoothratio)
 // RRRA's drug distortion effect
 //
 //---------------------------------------------------------------------------
+int DrugTimer;
 
-void setdrugmode(player_struct *p, int oyrepeat)
+static int getdrugmode(player_struct *p, int oyrepeat)
 {
-	if (playrunning())
+	int now = I_GetBuildTime() >> 1;	// this function works on a 60 fps setup.
+	if (playrunning() && p->DrugMode > 0)
 	{
-		if (p->DrugMode > 0)
+		if (now - DrugTimer > 4 || now - DrugTimer < 0) DrugTimer = now - 1;
+		while (DrugTimer < now)
 		{
+			DrugTimer++;
 			int var_8c;
 			if (p->drug_stat[0] == 0)
 			{
@@ -310,16 +327,13 @@ void setdrugmode(player_struct *p, int oyrepeat)
 				var_8c = oyrepeat + p->drug_stat[1] * 5000;
 				if (oyrepeat * 3 < var_8c)
 				{
-					renderSetAspect(oyrepeat * 3, yxaspect);
 					p->drug_aspect = oyrepeat * 3;
 					p->drug_stat[0] = 2;
 				}
 				else
 				{
-					renderSetAspect(var_8c, yxaspect);
 					p->drug_aspect = var_8c;
 				}
-				setpal(p);
 			}
 			else if (p->drug_stat[0] == 3)
 			{
@@ -327,18 +341,16 @@ void setdrugmode(player_struct *p, int oyrepeat)
 				var_8c = oyrepeat + p->drug_stat[1] * 5000;
 				if (var_8c < oyrepeat)
 				{
-					renderSetAspect(oyrepeat, yxaspect);
 					p->DrugMode = 0;
 					p->drug_stat[0] = 0;
 					p->drug_stat[2] = 0;
 					p->drug_stat[1] = 0;
+					p->drug_aspect = oyrepeat;
 				}
 				else
 				{
-					renderSetAspect(var_8c, yxaspect);
 					p->drug_aspect = var_8c;
 				}
-				setpal(p);
 			}
 			else if (p->drug_stat[0] == 2)
 			{
@@ -349,9 +361,7 @@ void setdrugmode(player_struct *p, int oyrepeat)
 				else
 				{
 					p->drug_stat[2]++;
-					renderSetAspect(p->drug_stat[2] * 500 + oyrepeat * 3, yxaspect);
 					p->drug_aspect = oyrepeat * 3 + p->drug_stat[2] * 500;
-					setpal(p);
 				}
 			}
 			else
@@ -366,17 +376,16 @@ void setdrugmode(player_struct *p, int oyrepeat)
 				else
 				{
 					p->drug_stat[2]--;
-					renderSetAspect(p->drug_stat[2] * 500 + oyrepeat * 3, yxaspect);
 					p->drug_aspect = oyrepeat * 3 + p->drug_stat[2] * 500;
-					setpal(p);
 				}
 			}
 		}
+		return p->drug_aspect;
 	}
-	else if (p->DrugMode > 0)
+	else
 	{
-		renderSetAspect(p->drug_aspect, yxaspect);
-		setpal(p);
+		DrugTimer = now;
+		return oyrepeat;
 	}
 }
 
@@ -389,7 +398,6 @@ void setdrugmode(player_struct *p, int oyrepeat)
 static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixedhoriz choriz, int sect, int smoothratio)
 {
 	short gs, tgsect, geosect, geoid = 0;
-	int spr;
 	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
 	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
 	renderDrawMasks();
@@ -397,11 +405,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	{
 		tgsect = geosector[gs];
 
-		SectIterator it(tgsect);
-		while ((spr = it.NextIndex()) >= 0)
+		DukeSectIterator it(tgsect);
+		while (auto act = it.Next())
 		{
-			changespritesect((short)spr, geosectorwarp[gs]);
-			setsprite((short)spr, sprite[spr].x -= geox[gs], sprite[spr].y -= geoy[gs], sprite[spr].z);
+			changespritesect(act, geosectorwarp[gs]);
+			setsprite(act, act->s.x -= geox[gs], act->s.y -= geoy[gs], act->s.z);
 		}
 		if (geosector[gs] == sect)
 		{
@@ -417,11 +425,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosectorwarp[gs];
-		SectIterator it(tgsect);
-		while ((spr = it.NextIndex()) >= 0)
+		DukeSectIterator it(tgsect);
+		while (auto act = it.Next())
 		{
-			changespritesect((short)spr, geosector[gs]);
-			setsprite((short)spr, sprite[spr].x += geox[gs], sprite[spr].y += geoy[gs], sprite[spr].z);
+			changespritesect(act, geosector[gs]);
+			setsprite(act, act->s.x += geox[gs], act->s.y += geoy[gs], act->s.z);
 		}
 	}
 	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
@@ -429,11 +437,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosector[gs];
-		SectIterator it(tgsect);
-		while ((spr = it.NextIndex()) >= 0)
+		DukeSectIterator it(tgsect);
+		while (auto act = it.Next())
 		{
-			changespritesect((short)spr, geosectorwarp2[gs]);
-			setsprite((short)spr, sprite[spr].x -= geox2[gs], sprite[spr].y -= geoy2[gs], sprite[spr].z);
+			changespritesect(act, geosectorwarp2[gs]);
+			setsprite(act, act->s.x -= geox2[gs], act->s.y -= geoy2[gs], act->s.z);
 		}
 		if (geosector[gs] == sect)
 		{
@@ -449,11 +457,11 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	for (gs = 0; gs < geocnt; gs++)
 	{
 		tgsect = geosectorwarp2[gs];
-		SectIterator it(tgsect);
-		while ((spr = it.NextIndex()) >= 0)
+		DukeSectIterator it(tgsect);
+		while (auto act = it.Next())
 		{
-			changespritesect((short)spr, geosector[gs]);
-			setsprite((short)spr, sprite[spr].x += geox2[gs], sprite[spr].y += geoy2[gs], sprite[spr].z);
+			changespritesect(act, geosector[gs]);
+			setsprite(act, act->s.x += geox2[gs], act->s.y += geoy2[gs], act->s.z);
 		}
 	}
 	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
@@ -500,19 +508,16 @@ void displayrooms(int snum, double smoothratio)
 	setgamepalette(BASEPAL);
 	animatecamsprite(smoothratio);
 
-	// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
-	// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
-	setgamepalette(p->palette);
-	if (ud.camerasprite >= 0)
+	if (ud.cameraactor)
 	{
 		spritetype* s;
 
-		s = &sprite[ud.camerasprite];
+		s = &ud.cameraactor->s;
 
 		if (s->yvel < 0) s->yvel = -100;
 		else if (s->yvel > 199) s->yvel = 300;
 
-		cang = buildang(hittype[ud.camerasprite].tempang + xs_CRoundToInt(fmulscale16(((s->ang + 1024 - hittype[ud.camerasprite].tempang) & 2047) - 1024, smoothratio)));
+		cang = buildang(ud.cameraactor->tempang + xs_CRoundToInt(fmulscale16(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio)));
 
 		auto bh = buildhoriz(s->yvel);
 		se40code(s->x, s->y, s->z, cang, bh, smoothratio);
@@ -523,18 +528,14 @@ void displayrooms(int snum, double smoothratio)
 	}
 	else
 	{
-		int i = divscale22(1, isRR() ? 64 : sprite[p->i].yrepeat + 28);
-		fixed_t dang = IntToFixed(1024);
-		if (!isRRRA() || !p->DrugMode)
-		{
-			// Fixme: This should get the aspect ratio from the backend, not the current viewport size.
-			int viewingRange = xs_CRoundToInt(double(i) * tan(r_fov * (pi::pi() / 360.)));
-			renderSetAspect(mulscale16(viewingRange, viewingrange), yxaspect);
-		}
-		else
-		{
-			setdrugmode(p, i);
-		}
+		// Fixme: This should get the aspect ratio from the backend, not the current viewport size.
+		int i = divscale22(1, isRR() ? 64 : p->GetActor()->s.yrepeat + 28);
+		int viewingaspect = !isRRRA() || !p->DrugMode ? xs_CRoundToInt(double(i) * tan(r_fov * (pi::pi() / 360.))) : getdrugmode(p, i);
+		renderSetAspect(mulscale16(viewingaspect, viewingrange), yxaspect);
+
+		// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
+		// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
+		setgamepalette(setpal(p));
 
 		// set screen rotation.
 		rotscrnang = !cl_syncinput ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio);
@@ -577,14 +578,15 @@ void displayrooms(int snum, double smoothratio)
 			}
 		}
 
-		if (p->newowner >= 0)
+		if (p->newOwner != nullptr)
 		{
-			cang = buildang(getcamspriteang(p->newowner, smoothratio));
-			choriz = buildhoriz(sprite[p->newowner].shade);
-			cposx = sprite[p->newowner].pos.x;
-			cposy = sprite[p->newowner].pos.y;
-			cposz = sprite[p->newowner].pos.z;
-			sect = sprite[p->newowner].sectnum;
+			auto spr = &p->newOwner->s;
+			cang = buildang(getcamspriteang(p->newOwner, smoothratio));
+			choriz = buildhoriz(spr->shade);
+			cposx = spr->pos.x;
+			cposy = spr->pos.y;
+			cposz = spr->pos.z;
+			sect = spr->sectnum;
 			rotscrnang = buildlook(0);
 			smoothratio = MaxSmoothRatio;
 		}
@@ -606,8 +608,8 @@ void displayrooms(int snum, double smoothratio)
 		// do screen rotation.
 		renderSetRollAngle(rotscrnang.asbam() / (double)(BAMUNIT));
 
-		cz = hittype[p->i].ceilingz;
-		fz = hittype[p->i].floorz;
+		cz = p->GetActor()->ceilingz;
+		fz = p->GetActor()->floorz;
 
 		if (earthquaketime > 0 && p->on_ground == 1)
 		{
@@ -615,9 +617,9 @@ void displayrooms(int snum, double smoothratio)
 			cang += buildang((2 - ((earthquaketime) & 2)) << 2);
 		}
 
-		if (sprite[p->i].pal == 1) cposz -= (18 << 8);
+		if (p->GetActor()->s.pal == 1) cposz -= (18 << 8);
 
-		else if (p->spritebridge == 0 && p->newowner < 0)
+		else if (p->spritebridge == 0 && p->newOwner == nullptr)
 		{
 			if (cposz < (p->truecz + (4 << 8))) cposz = cz + (4 << 8);
 			else if (cposz > (p->truefz - (4 << 8))) cposz = fz - (4 << 8);

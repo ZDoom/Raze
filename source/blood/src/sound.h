@@ -45,6 +45,8 @@ struct SFX
 };
 
 int sndGetRate(int format);
+bool sndCheckPlaying(unsigned int nSound);
+void sndStopSample(unsigned int nSound);
 void sndStartSample(const char *pzSound, int nVolume, int nChannel = -1);
 void sndStartSample(unsigned int nSound, int nVolume, int nChannel = -1, bool bLoop = false, EChanFlags soundflags = CHANF_NONE);
 void sndStartWavID(unsigned int nSound, int nVolume, int nChannel = -1);

@@ -21,6 +21,7 @@ extern bool GUICapture;
 extern bool AppActive;
 extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
 extern bool r_NoInterpolate;
+extern bool crouch_toggle;
 
 struct MapRecord;
 extern MapRecord* g_nextmap;

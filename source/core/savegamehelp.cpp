@@ -75,6 +75,21 @@ CVAR(String, cl_savedir, "", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 //
 //=============================================================================
 
+static void SerializeGlobals(FSerializer& arc)
+{
+	if (arc.BeginObject("globals"))
+	{
+		arc("crouch_toggle", crouch_toggle)
+		.EndObject();
+	}
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
 static void SerializeSession(FSerializer& arc)
 {
 	SerializeMap(arc);
@@ -85,6 +100,7 @@ static void SerializeSession(FSerializer& arc)
 	S_SerializeSounds(arc);
 	SerializeAutomap(arc);
 	SerializeHud(arc);
+	SerializeGlobals(arc);
 }
 
 //=============================================================================

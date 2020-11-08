@@ -450,6 +450,8 @@ if( VPX_FOUND )
 	add_definitions( "-DUSE_LIBVPX=1" )
 	include_directories( "${VPX_INCLUDE_DIR}" )
 	set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} ${VPX_LIBRARIES} )
+else()
+	message( SEND_ERROR "Could not find libvpx" )
 endif()
 
 

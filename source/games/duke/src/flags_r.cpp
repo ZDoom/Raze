@@ -34,6 +34,19 @@ BEGIN_DUKE_NS
 
 void initactorflags_r()
 {
+	for (auto &fa : actorinfo)
+	{
+		fa.falladjustz = 24 << 8;
+	}
+	if (isRRRA())
+	{
+		actorinfo[HULKBOAT].falladjustz = 12 << 8;
+		actorinfo[MINIONBOAT].falladjustz = 3 << 8;
+		actorinfo[CHEERBOAT].falladjustz = actorinfo[EMPTYBOAT].falladjustz = 6 << 8;
+	}
+	actorinfo[DRONE].falladjustz = 0;
+
+
 	setflag(SFLAG_INTERNAL_BADGUY|SFLAG_KILLCOUNT, {
 		BOULDER,
 		BOULDER1,

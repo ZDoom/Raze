@@ -13,7 +13,7 @@ BEGIN_DUKE_NS
 struct STATUSBARTYPE 
 {
 	short frag[MAXPLAYERS], got_access, last_extra, shield_amount, curr_weapon;
-	short ammo_amount[MAX_WEAPONS], holoduke_on;
+	short ammo_amount[MAX_WEAPONS];
 	unsigned char inven_icon, jetpack_on, heat_on;
 	short firstaid_amount, steroids_amount, holoduke_amount, jetpack_amount;
 	short heat_amount, scuba_amount, boot_amount;
@@ -29,7 +29,13 @@ struct weaponhit
 	short tempang, actorstayput, dispicnum;
 	short timetosleep;
 	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags;
+	union
+	{
+		int saved_ammo;
+		int palvals;
+	};
 	int temp_data[6];
+	weaponhit* temp_actor, *seek_actor;
 	spritetype& s;	// direct reference to the corresponding sprite.
 
 	static weaponhit* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.
@@ -41,7 +47,7 @@ struct weaponhit
 	{
 		cgg = spriteextra = 0;
 		picnum = ang = extra = owner = movflag = tempang = actorstayput = dispicnum = timetosleep = 0;
-		floorz = ceilingz = lastvx = lastvy = bposx = bposy = bposz = aflags = 0;
+		floorz = ceilingz = lastvx = lastvy = bposx = bposy = bposz = aflags = saved_ammo = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}
 	int GetIndex() const { return this - array(); }
@@ -54,7 +60,7 @@ struct weaponhit
 
 	inline void SetOwner(weaponhit* a)
 	{
-		s.owner = a->GetIndex();
+		s.owner = a? a->GetIndex() : -1;
 	}
 
 	// same for the 'hittype' owner - which is normally the shooter in an attack.
@@ -65,10 +71,10 @@ struct weaponhit
 
 	inline void SetHitOwner(weaponhit* a)
 	{
-		owner = a->GetIndex();
+		owner = a ? a->GetIndex() : -1;
 	}
 
-	// The crane is a good example of an actor hijacking the 'owner' field for something other than an actual owner. Abstract this away.
+	// This used the Owner field - better move this to something more safe.
 	inline bool IsActiveCrane()
 	{
 		return s.owner == -2;
@@ -104,6 +110,8 @@ struct ActorInfo
 	uint32_t scriptaddress;
 	uint32_t flags;
 	int aimoffset;
+	int falladjustz;
+	int gutsoffset;
 };
 
 // for now just flags not related to actors, may get more info later.
@@ -123,8 +131,8 @@ struct user_defs
 	unsigned char user_pals[MAXPLAYERS];
 
 	short from_bonus;
-	short camerasprite, last_camsprite;
 	short last_level, secretlevel;
+	short bomb_tag;
 
 	int const_visibility;
 
@@ -139,6 +147,8 @@ struct user_defs
 	int m_ffire, ffire, m_player_skill, multimode;
 	int player_skill, marker;
 	//MapRecord* nextLevel;
+
+	DDukeActor* cameraactor;
 
 };
 
@@ -167,7 +177,6 @@ struct player_struct
 	FixedBitArray<MAX_WEAPONS> gotweapon;
 
 	// Palette management uses indices into the engine's palette table now.
-	unsigned int palette;
 	PalEntry pals;
 
 	// this was a global variable originally.
@@ -199,16 +208,16 @@ struct player_struct
 	short ammo_amount[MAX_WEAPONS], frag, fraggedself;
 
 	short curr_weapon, last_weapon, tipincs, wantweaponfire;
-	short holoduke_amount, newowner, hurt_delay, hbomb_hold_delay;
+	short holoduke_amount, hurt_delay, hbomb_hold_delay;
 	short jumping_counter, airleft, knee_incs, access_incs;
-	short ftq, access_wallnum, access_spritenum;
+	short ftq, access_wallnum;
 	short got_access, weapon_ang, firstaid_amount;
 	short i, one_parallax_sectnum;
 	short over_shoulder_on, fist_incs;
 	short cheat_phase;
-	short dummyplayersprite, extra_extra8, quick_kick, last_quick_kick;
+	short extra_extra8, quick_kick, last_quick_kick;
 	short heat_amount, timebeforeexit, customexitsound;
-	DDukeActor* actorsqu, *wackedbyactor, *on_crane, *holoduke_on, *somethingonplayer;
+	DDukeActor* actorsqu, *wackedbyactor, *on_crane, *holoduke_on, *somethingonplayer, *access_spritenum, *dummyplayersprite, *newOwner;
 
 	short weaprecs[256], weapreccnt;
 	unsigned int interface_toggle_flag;
@@ -257,7 +266,7 @@ struct player_struct
 	int drug_timer;
 	int SeaSick;
 	short MamaEnd; // raat609
-	short MotoSpeed, moto_drink;
+	short moto_drink;
 	float TiltStatus, oTiltStatus;
 	short VBumpNow, VBumpTarget, TurbCount;
 	short drug_stat[3]; // raat5f1..5
@@ -266,9 +275,8 @@ struct player_struct
 	uint8_t hurt_delay2, nocheat;
 	uint8_t OnMotorcycle, OnBoat, moto_underwater, NotOnWater, MotoOnGround;
 	uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
-	bool vehicle_turnl, vehicle_turnr, vehicle_backwards;
-
-	int8_t crouch_toggle;
+	double vehForwardScale, vehReverseScale, MotoSpeed;
+	bool vehTurnLeft, vehTurnRight;
 
 	// input stuff.
 	InputPacket sync;

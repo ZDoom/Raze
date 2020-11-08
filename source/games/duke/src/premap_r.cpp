@@ -51,17 +51,17 @@ static inline void tloadtile(int tilenum, int palnum = 0)
 //
 //---------------------------------------------------------------------------
 
-static void cachespritenum(short i)
+static void cachespritenum(spritetype *spr)
 {
 	char maxc;
 	short j;
-	int pal = sprite[i].pal;
+	int pal = spr->pal;
 
-	if (ud.monsters_off && badguy(&sprite[i])) return;
+	if (ud.monsters_off && badguy(spr)) return;
 
 	maxc = 1;
 
-	switch (sprite[i].picnum)
+	switch (spr->picnum)
 	{
 	case HYDRENT:
 		tloadtile(BROKEFIREHYDRENT);
@@ -70,7 +70,7 @@ static void cachespritenum(short i)
 		break;
 	case RRTILE2121:
 	case RRTILE2122:
-		tloadtile(sprite[i].picnum, pal);
+		tloadtile(spr->picnum, pal);
 		break;
 	case TOILET:
 		tloadtile(TOILETBROKE);
@@ -126,7 +126,7 @@ static void cachespritenum(short i)
 		break;
 	case COW:
 		maxc = 56;
-		for (j = sprite[i].picnum; j < (sprite[i].picnum + maxc); j++)
+		for (j = spr->picnum; j < (spr->picnum + maxc); j++)
 			tloadtile(j, pal);
 		maxc = 0;
 		break;
@@ -278,7 +278,7 @@ static void cachespritenum(short i)
 		break;
 	case VIXEN:
 		maxc = 214;
-		for (j = sprite[i].picnum; j < sprite[i].picnum + maxc; j++)
+		for (j = spr->picnum; j < spr->picnum + maxc; j++)
 			tloadtile(j, pal);
 		maxc = 0;
 		break;
@@ -287,7 +287,7 @@ static void cachespritenum(short i)
 		{
 
 			maxc = 54;
-			for (j = sprite[i].picnum; j < sprite[i].picnum + maxc; j++)
+			for (j = spr->picnum; j < spr->picnum + maxc; j++)
 				tloadtile(j, pal);
 			maxc = 100;
 			for (j = SBMOVE; j < SBMOVE + maxc; j++)
@@ -297,7 +297,7 @@ static void cachespritenum(short i)
 		break;
 	case HULK:
 		maxc = 40;
-		for (j = sprite[i].picnum - 41; j < sprite[i].picnum + maxc - 41; j++)
+		for (j = spr->picnum - 41; j < spr->picnum + maxc - 41; j++)
 			tloadtile(j, pal);
 		for (j = HULKJIBA; j <= HULKJIBC + 4; j++)
 			tloadtile(j, pal);
@@ -305,7 +305,7 @@ static void cachespritenum(short i)
 		break;
 	case MINION:
 		maxc = 141;
-		for (j = sprite[i].picnum; j < sprite[i].picnum + maxc; j++)
+		for (j = spr->picnum; j < spr->picnum + maxc; j++)
 			tloadtile(j, pal);
 		for (j = MINJIBA; j <= MINJIBC + 4; j++)
 			tloadtile(j, pal);
@@ -315,7 +315,7 @@ static void cachespritenum(short i)
 
 	}
 
-	for (j = sprite[i].picnum; j < (sprite[i].picnum + maxc); j++)
+	for (j = spr->picnum; j < (spr->picnum + maxc); j++)
 		tloadtile(j, pal);
 }
 
@@ -406,7 +406,7 @@ static void cachegoodsprites(void)
 
 void cacheit_r(void)
 {
-	short i,j;
+	int i;
 
 	cachegoodsprites();
 
@@ -426,13 +426,13 @@ void cacheit_r(void)
 			tloadtile(LA + 1);
 			tloadtile(LA + 2);
 		}
-	}
 
-	SectIterator it(i);
-	while ((j = it.NextIndex()) >= 0)
-	{
-		if(sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat&32768) == 0)
-				cachespritenum(j);
+		DukeSectIterator it(i);
+		while (auto j = it.Next())
+		{
+			if(j->s.xrepeat != 0 && j->s.yrepeat != 0 && (j->s.cstat&32768) == 0)
+					cachespritenum(&j->s);
+		}
 	}
 	precacheMarkedTiles();
 }
@@ -451,7 +451,6 @@ void prelevel_r(int g)
 	short startwall;
 	short endwall;
 	short lotaglist;
-	short k;
 	short lotags[65];
 	int speed;
 	int dist;
@@ -469,18 +468,19 @@ void prelevel_r(int g)
 
 		for (j = 0; j < MAXSPRITES; j++)
 		{
-			if (sprite[j].pal == 100)
+			auto spr = &sprite[j];
+			if (spr->pal == 100)
 			{
 				if (numplayers > 1)
 					deletesprite(j);
 				else
-					sprite[j].pal = 0;
+					spr->pal = 0;
 			}
-			else if (sprite[j].pal == 101)
+			else if (spr->pal == 101)
 			{
-				sprite[j].extra = 0;
-				sprite[j].hitag = 1;
-				sprite[j].pal = 0;
+				spr->extra = 0;
+				spr->hitag = 1;
+				spr->pal = 0;
 				changespritestat(j, 118);
 			}
 		}
@@ -495,19 +495,20 @@ void prelevel_r(int g)
 		{
 		case 41:
 		{
-			SectIterator it(i);
-			while ((k = it.NextIndex()) >= 0)
+			DukeSectIterator it(i);
+			while (auto act = it.Next())
 			{
-				if (sprite[k].picnum == RRTILE11)
+				auto spr = &act->s;
+				if (spr->picnum == RRTILE11)
 				{
-					dist = sprite[k].lotag << 4;
-					speed = sprite[k].hitag;
-					deletesprite(k);
+					dist = spr->lotag << 4;
+					speed = spr->hitag;
+					deletesprite(act);
 				}
-				if (sprite[k].picnum == RRTILE38)
+				if (spr->picnum == RRTILE38)
 				{
-					sound = sprite[k].lotag;
-					deletesprite(k);
+					sound = spr->lotag;
+					deletesprite(act);
 				}
 			}
 			for (j = 0; j < numsectors; j++)
@@ -525,29 +526,30 @@ void prelevel_r(int g)
 		{
 			short ii;
 			int childsectnum = -1;
-			SectIterator it(i);
-			while ((k = it.NextIndex()) >= 0)
+			DukeSectIterator it(i);
+			while (auto act = it.Next())
 			{
-				auto sj = &sprite[k];
+				auto sj = &act->s;
 				if (sj->picnum == RRTILE64)
 				{
 					dist = sj->lotag << 4;
 					speed = sj->hitag;
 					for (ii = 0; ii < MAXSPRITES; ii++)
 					{
-						if (sprite[ii].picnum == RRTILE66)
-							if (sprite[ii].lotag == sj->sectnum)
+						auto spr = &sprite[ii];
+						if (spr->picnum == RRTILE66)
+							if (spr->lotag == sj->sectnum)
 							{
-								childsectnum = sprite[ii].sectnum;
+								childsectnum = spr->sectnum;
 								deletesprite(ii);
 							}
 					}
-					deletesprite(k);
+					deletesprite(act);
 				}
 				if (sj->picnum == RRTILE65)
 				{
 					sound = sj->lotag;
-					deletesprite(k);
+					deletesprite(act);
 				}
 			}
 			addminecart(dist, speed, i, sector[i].hitag, sound, childsectnum);
@@ -556,11 +558,11 @@ void prelevel_r(int g)
 		}
 	}
 
-	StatIterator it(STAT_DEFAULT);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_DEFAULT);
+	while (auto ac = it.Next())
 	{
-		auto si = &sprite[i];
-		LoadActor(i, -1, -1);
+		auto si = &ac->s;
+		LoadActor(ac, -1, -1);
 
 		if (si->lotag == -1 && (si->cstat & 16))
 		{
@@ -575,7 +577,7 @@ void prelevel_r(int g)
 
 		case GPSPEED:
 			sector[si->sectnum].extra = si->lotag;
-			deletesprite(i);
+			deletesprite(ac);
 			break;
 
 		case CYCLER:
@@ -588,22 +590,22 @@ void prelevel_r(int g)
 			cyclers[numcyclers][4] = si->hitag;
 			cyclers[numcyclers][5] = (si->ang == 1536);
 			numcyclers++;
-			deletesprite(i);
+			deletesprite(ac);
 			break;
 
 		case RRTILE18:
-			addtorch(i);
-			deletesprite(i);
+			addtorch(si);
+			deletesprite(ac);
 			break;
 
 		case RRTILE35:
-			addlightning(i);
-			deletesprite(i);
+			addlightning(si);
+			deletesprite(ac);
 			break;
 
 		case RRTILE68:
 			shadedsector[si->sectnum] = 1;
-			deletesprite(i);
+			deletesprite(ac);
 			break;
 
 		case RRTILE67:
@@ -628,30 +630,32 @@ void prelevel_r(int g)
 
 	for (i = 0; i < MAXSPRITES; i++)
 	{
-		if (sprite[i].picnum == RRTILE19)
+		auto spr = &sprite[i];
+		if (spr->picnum == RRTILE19)
 		{
 			if (geocnt > 64)
 				I_Error("Too many geometry effects");
-			if (sprite[i].hitag == 0)
+			if (spr->hitag == 0)
 			{
-				geosector[geocnt] = sprite[i].sectnum;
+				geosector[geocnt] = spr->sectnum;
 				for (j = 0; j < MAXSPRITES; j++)
 				{
-					if (sprite[i].lotag == sprite[j].lotag && j != i && sprite[j].picnum == RRTILE19)
+					auto spj = &sprite[j];
+					if (spr->lotag == spj->lotag && j != i && spj->picnum == RRTILE19)
 					{
-						if (sprite[j].hitag == 1)
+						if (spj->hitag == 1)
 						{
-							geosectorwarp[geocnt] = sprite[j].sectnum;
-							geox[geocnt] = sprite[i].x - sprite[j].x;
-							geoy[geocnt] = sprite[i].y - sprite[j].y;
-							//geoz[geocnt] = sprite[i].z - sprite[j].z;
+							geosectorwarp[geocnt] = spj->sectnum;
+							geox[geocnt] = spr->x - spj->x;
+							geoy[geocnt] = spr->y - spj->y;
+							//geoz[geocnt] = spr->z - spj->z;
 						}
-						if (sprite[j].hitag == 2)
+						if (spj->hitag == 2)
 						{
-							geosectorwarp2[geocnt] = sprite[j].sectnum;
-							geox2[geocnt] = sprite[i].x - sprite[j].x;
-							geoy2[geocnt] = sprite[i].y - sprite[j].y;
-							//geoz2[geocnt] = sprite[i].z - sprite[j].z;
+							geosectorwarp2[geocnt] = spj->sectnum;
+							geox2[geocnt] = spr->x - spj->x;
+							geoy2[geocnt] = spr->y - spj->y;
+							//geoz2[geocnt] = spr->z - spj->z;
 						}
 					}
 				}
@@ -662,26 +666,28 @@ void prelevel_r(int g)
 
 	for (i = 0; i < MAXSPRITES; i++)
 	{
-		if (sprite[i].statnum < MAXSTATUS)
+		auto spr = &sprite[i];
+		if (spr->statnum < MAXSTATUS)
 		{
-			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 14)
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == 14)
 				continue;
-			fi.spawn(-1, i);
+			spawn(nullptr, i);
 		}
 	}
 
 	for (i = 0; i < MAXSPRITES; i++)
 	{
-		if (sprite[i].statnum < MAXSTATUS)
+		auto spr = &sprite[i];
+		if (spr->statnum < MAXSTATUS)
 		{
-			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 14)
-				fi.spawn(-1, i);
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == 14)
+				spawn(nullptr, i);
 		}
-		if (sprite[i].picnum == RRTILE19)
+		if (spr->picnum == RRTILE19)
 			deletesprite(i);
-		if (sprite[i].picnum == RRTILE34)
+		if (spr->picnum == RRTILE34)
 		{
-			sectorextra[sprite[i].sectnum] = sprite[i].lotag;
+			sectorextra[spr->sectnum] = spr->lotag;
 			deletesprite(i);
 		}
 	}
@@ -689,9 +695,10 @@ void prelevel_r(int g)
 	lotaglist = 0;
 
 	it.Reset(STAT_DEFAULT);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto ac = it.Next())
 	{
-		switch (sprite[i].picnum)
+		auto spr = &ac->s;
+		switch (spr->picnum)
 		{
 		case RRTILE8464 + 1:
 			if (!isRRRA()) break;
@@ -712,21 +719,21 @@ void prelevel_r(int g)
 		case NUKEBUTTON + 1:
 
 			for (j = 0; j < lotaglist; j++)
-				if (sprite[i].lotag == lotags[j])
+				if (spr->lotag == lotags[j])
 					break;
 
 			if (j == lotaglist)
 			{
-				lotags[lotaglist] = sprite[i].lotag;
+				lotags[lotaglist] = spr->lotag;
 				lotaglist++;
 				if (lotaglist > 64)
 					I_Error("Too many switches (64 max).");
 
-				StatIterator it1(STAT_EFFECTOR);
-				while ((j = it1.NextIndex()) >= 0)
+				DukeStatIterator it1(STAT_EFFECTOR);
+				while (auto j = it1.Next())
 				{
-					if (sprite[j].lotag == 12 && sprite[j].hitag == sprite[i].lotag)
-						hittype[j].temp_data[0] = 1;
+					if (j->s.lotag == 12 && j->s.hitag == spr->lotag)
+						j->temp_data[0] = 1;
 				}
 			}
 			break;

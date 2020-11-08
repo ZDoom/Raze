@@ -43,6 +43,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "sbar.h"
 #include "glbackend/glbackend.h"
 #include "gamestate.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 
@@ -248,12 +249,12 @@ void drawoverlays(double smoothratio)
 
 	MarkSectorSeen(pp->cursectnum);
 
-	if (ud.camerasprite == -1)
+	if (ud.cameraactor == nullptr)
 	{
 		if (automapMode != am_full)
 		{
-			if (!isRR() && pp->newowner >= 0)
-				cameratext(pp->newowner);
+			if (!isRR() && pp->newOwner != nullptr)
+				cameratext(pp->newOwner);
 			else
 			{
 				fi.displayweapon(screenpeek, smoothratio);
@@ -268,7 +269,7 @@ void drawoverlays(double smoothratio)
 		{
 			dointerpolations(smoothratio);
 
-			if (pp->newowner == -1 && playrunning())
+			if (pp->newOwner == nullptr && playrunning())
 			{
 				if (screenpeek == myconnectindex && numplayers > 1)
 				{
@@ -298,7 +299,7 @@ void drawoverlays(double smoothratio)
 
 	StatusBar->UpdateStatusBar();
 
-	if (ps[myconnectindex].newowner == -1 && ud.camerasprite == -1)
+	if (ps[myconnectindex].newOwner == nullptr && ud.cameraactor == nullptr)
 	{
 		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -getHalfLookAng(pp->angle.olook_ang.asq16(), pp->angle.look_ang.asq16(), cl_syncinput, smoothratio), pp->over_shoulder_on ? 2.5 : 0, isRR() ? 0.5 : 1);
 	}
@@ -316,14 +317,14 @@ void drawoverlays(double smoothratio)
 //
 //---------------------------------------------------------------------------
 
-void cameratext(int i)
+void cameratext(DDukeActor *cam)
 {
 	auto drawitem = [=](int tile, double x, double y, bool flipx, bool flipy)
 	{
 		DrawTexture(twod, tileGetTexture(tile), x, y, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_CenterOffsetRel, true,
 			DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 	};
-	if (!hittype[i].temp_data[0])
+	if (!cam->temp_data[0])
 	{
 		drawitem(TILE_CAMCORNER, 24, 33, false, false);
 		drawitem(TILE_CAMCORNER + 1, 320 - 26, 33, false, false);
@@ -416,16 +417,16 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 	yvect2 = mulscale16(yvect, yxaspect);
 
 	//Draw sprites
-	k = ps[screenpeek].i;
+	auto pactor = ps[screenpeek].GetActor();
 	for (i = 0; i < numsectors; i++)
 	{
 		if (!gFullMap || !show2dsector[i]) continue;
-		SectIterator it(i);
-		while ((j = it.NextIndex()) >= 0)
+		DukeSectIterator it(i);
+		while (auto act = it.Next())
 		{
-			spr = &sprite[j];
+			spr = &act->s;
 
-			if (j == k || (spr->cstat & 0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
+			if (act == pactor || (spr->cstat & 0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
 
 			col = PalEntry(0, 170, 170);
 			if (spr->cstat & 1) col = PalEntry(170, 0, 170);
@@ -563,9 +564,10 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 
 	for (p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		ox = sprite[ps[p].i].x - cposx;
-		oy = sprite[ps[p].i].y - cposy;
-		daang = (sprite[ps[p].i].ang - cang) & 2047;
+		auto pspr = &ps[p].GetActor()->s;
+		ox = pspr->x - cposx;
+		oy = pspr->y - cposy;
+		daang = (pspr->ang - cang) & 2047;
 
 		x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
 		y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
@@ -573,19 +575,19 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 		if (p == screenpeek || ud.coop == 1)
 		{
 			auto& pp = ps[p];
-			if (sprite[pp.i].xvel > 16 && pp.on_ground)
+			if (pspr->xvel > 16 && pp.on_ground)
 				i = TILE_APLAYERTOP + ((ud.levelclock >> 4) & 3);
 			else
 				i = TILE_APLAYERTOP;
 
 			j = klabs(pp.truefz - pp.posz) >> 8;
-			j = mulscale(czoom * (sprite[pp.i].yrepeat + j), yxaspect, 16);
+			j = mulscale(czoom * (pspr->yrepeat + j), yxaspect, 16);
 
 			if (j < 22000) j = 22000;
 			else if (j > (65536 << 1)) j = (65536 << 1);
 
-			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + pp.palette, sprite[pp.i].pal), DTA_CenterOffset, true,
-				DTA_Rotate, daang * (-360./2048), DTA_Color, shadeToLight(sprite[pp.i].shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
+			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), pspr->pal), DTA_CenterOffset, true,
+				DTA_Rotate, daang * (-360./2048), DTA_Color, shadeToLight(pspr->shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
 		}
 	}
 	return true;

@@ -107,10 +107,10 @@ static const char* cheatUnlock()
 		{
 			if (j & (0xffff - 16384))
 				sector[i].lotag &= (0xffff - 16384);
-			operatesectors(i, ps[myconnectindex].i);
+			operatesectors(i, ps[myconnectindex].GetActor());
 		}
 	}
-	fi.operateforcefields(ps[myconnectindex].i, -1);
+	fi.operateforcefields(ps[myconnectindex].GetActor(), -1);
 	return quoteMgr.GetQuote(QUOTE_CHEAT_UNLOCK);
 }
 
@@ -118,10 +118,10 @@ static const char *cheatKfc(int player)
 {
 	for (int i = 0; i < 7; i++)
 	{
-		int spr = fi.spawn(ps[player].i, TILE_HEN);
-		sprite[spr].pal = 1;
-		sprite[spr].xrepeat = sprite[spr].xrepeat << 2;
-		sprite[spr].yrepeat = sprite[spr].yrepeat << 2;
+		auto spr = spawn(ps[player].GetActor(), TILE_HEN);
+		spr->s.pal = 1;
+		spr->s.xrepeat = spr->s.xrepeat << 2;
+		spr->s.yrepeat = spr->s.yrepeat << 2;
 	}
 	return quoteMgr.GetQuote(QUOTE_CHEAT_KFC);
 }
@@ -173,7 +173,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		return cheatMonsters();
 
 	case CHT_BIKE:
-		OnMotorcycle(&ps[player], 0);
+		OnMotorcycle(&ps[player], nullptr);
 		ps[player].ammo_amount[MOTORCYCLE_WEAPON] = max_ammo_amount[MOTORCYCLE_WEAPON];
 		return quoteMgr.GetQuote(QUOTE_ON_BIKE);
 
@@ -195,7 +195,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		ps[player].gotweapon.Zero();
 		ps[player].curr_weapon = KNEE_WEAPON;
 		ps[player].nocheat = 1;
-		sprite[ps[player].i].extra = 1;
+		ps[player].GetActor()->s.extra = 1;
 		return quoteMgr.GetQuote(QUOTE_YERFUCKED);
 
 	case CHT_AARON:
@@ -241,11 +241,11 @@ static bool cheatInventory(int player)
 {
 	auto invGet = [=](int defvalue, int evtype, int16_t &dest)
 	{
-		SetGameVarID(g_iReturnVarID, defvalue, -1, player);
-		OnEvent(evtype, -1, player, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, player) >= 0)
+		SetGameVarID(g_iReturnVarID, defvalue, nullptr, player);
+		OnEvent(evtype, player, nullptr, -1);
+		if (GetGameVarID(g_iReturnVarID, nullptr, player) >= 0)
 		{
-			dest = GetGameVarID(g_iReturnVarID, -1, player);
+			dest = GetGameVarID(g_iReturnVarID, nullptr, player);
 		}
 	};
 
@@ -472,7 +472,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	int type = ReadByte(stream);
 	if (skip) return;
 
-	if (numplayers != 1 || gamestate != GS_LEVEL || sprite[ps[player].i].extra <= 0)
+	if (numplayers != 1 || gamestate != GS_LEVEL || ps[player].GetActor()->s.extra <= 0)
 	{
 		Printf("give: Cannot give while dead or not in a single-player game.\n");
 		return;
@@ -486,7 +486,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 		break;
 
 	case GIVE_HEALTH:
-		sprite[ps[player].i].extra = max_player_health << 1;
+		ps[player].GetActor()->s.extra = max_player_health << 1;
 		break;
 
 	case GIVE_WEAPONS:

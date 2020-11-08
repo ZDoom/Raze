@@ -29,6 +29,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 #include "global.h"
 #include "names_r.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 
@@ -68,7 +69,7 @@ void displaymasks_r(int snum, double smoothratio)
 {
 	short p;
 
-	if (sprite[ps[snum].i].pal == 1)
+	if (ps[snum].GetActor()->s.pal == 1)
 		p = 1;
 	else
 		p = sector[ps[snum].cursectnum].floorpal;
@@ -132,10 +133,10 @@ void displayweapon_r(int snum, double smoothratio)
 	if (shadedsector[p->cursectnum] == 1)
 		gs = 16;
 	else
-		gs = sprite[p->i].shade;
+		gs = p->GetActor()->s.shade;
 	if(gs > 24) gs = 24;
 
-	if(p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0))
+	if(p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s.pal != 1 && p->GetActor()->s.extra <= 0))
 		return;
 
 	int opos = p->oweapon_pos * p->oweapon_pos;
@@ -145,7 +146,7 @@ void displayweapon_r(int snum, double smoothratio)
 	weapon_xoffset =  (160)-90;
 	weapon_xoffset -= calcSinTableValue((weapon_sway / 2.) + 512) / (1024. + 512.);
 	weapon_xoffset -= 58 + p->weapon_ang;
-	if( sprite[p->i].xrepeat < 8 )
+	if( p->GetActor()->s.xrepeat < 8 )
 		gun_pos -= fabs(calcSinTableValue(weapon_sway * 4.) / 512.);
 	else gun_pos -= fabs(calcSinTableValue(weapon_sway / 2.) / 1024.);
 
@@ -158,7 +159,7 @@ void displayweapon_r(int snum, double smoothratio)
 	j = 14-p->quick_kick;
 	if(j != 14)
 	{
-		if(sprite[p->i].pal == 1)
+		if(p->GetActor()->s.pal == 1)
 			pal = 1;
 		else
 			pal = p->palookup;
@@ -213,7 +214,7 @@ void displayweapon_r(int snum, double smoothratio)
 			else
 				temp_kb = MOTOHIT;
 		}
-		if (sprite[p->i].pal == 1)
+		if (p->GetActor()->s.pal == 1)
 			pal = 1;
 		else
 			pal = sector[p->cursectnum].floorpal;
@@ -280,7 +281,7 @@ void displayweapon_r(int snum, double smoothratio)
 				temp_kb = BOATHIT;
 		}
 
-		if (sprite[p->i].pal == 1)
+		if (p->GetActor()->s.pal == 1)
 			pal = 1;
 		else
 			pal = sector[p->cursectnum].floorpal;
@@ -300,12 +301,12 @@ void displayweapon_r(int snum, double smoothratio)
 		return;
 	}
 
-	if( sprite[p->i].xrepeat < 8 )
+	if( p->GetActor()->s.xrepeat < 8 )
 	{
 		static int fistsign;
 		if(p->jetpack_on == 0 )
 		{
-			i = sprite[p->i].xvel;
+			i = p->GetActor()->s.xvel;
 			looking_arc += 32-(i>>1);
 			fistsign += i>>1;
 		}
@@ -324,7 +325,7 @@ void displayweapon_r(int snum, double smoothratio)
 	{
 		int pin = 0;
 
-		if (sprite[p->i].pal == 1)
+		if (p->GetActor()->s.pal == 1)
 			pal = 1;
 		else
 			pal = sector[p->cursectnum].floorpal;
@@ -480,7 +481,7 @@ void displayweapon_r(int snum, double smoothratio)
 					}
 					else if ((krand() & 15) == 5)
 					{
-						S_PlayActorSound(327, p->i);
+						S_PlayActorSound(327, p->GetActor());
 						rdmyospal((weapon_xoffset + 210) - look_anghalf,
 							looking_arc + 222 - gun_pos, RPGGUN2 + 7, gs, o |  pin, pal);
 						chickenphase = 6;
@@ -509,7 +510,7 @@ void displayweapon_r(int snum, double smoothratio)
 		{
 			weapon_xoffset -= 8;
 
-			if (sprite[p->i].pal == 1)
+			if (p->GetActor()->s.pal == 1)
 				pal = 1;
 			else
 				pal = sector[p->cursectnum].floorpal;
@@ -624,7 +625,7 @@ void displayweapon_r(int snum, double smoothratio)
 			if (*kb > 0)
 				gun_pos -= calcSinTableValue((*kb) << 7) / 4096.;
 
-			if (*kb > 0 && sprite[p->i].pal != 1) weapon_xoffset += 1 - (rand() & 3);
+			if (*kb > 0 && p->GetActor()->s.pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
 			switch (*kb)
 			{
@@ -837,7 +838,7 @@ void displayweapon_r(int snum, double smoothratio)
 			}
 			else
 			{
-				if (sprite[p->i].pal != 1)
+				if (p->GetActor()->s.pal != 1)
 				{
 					weapon_xoffset += rand() & 3;
 					gun_pos += (rand() & 3);

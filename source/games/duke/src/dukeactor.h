@@ -68,6 +68,22 @@ public:
 	}
 };
 
+class DukeLinearSpriteIterator
+{
+	int index = 0;
+public:
+
+	DDukeActor* Next()
+	{
+		while (index < MAXSPRITES)
+		{
+			auto p = &hittype[index++];
+			if (p->s.statnum != MAXSTATUS) return p;
+		}
+		return nullptr;
+	}
+};
+
 inline DDukeActor* player_struct::GetActor()
 {
 	return &hittype[i];
@@ -116,31 +132,6 @@ inline int setsprite(int i, int x, int y, int z)
 	return ::setsprite(i, x, y, z);
 }
 
-inline int S_PlayActorSound(int soundNum, DDukeActor* spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0)
-{
-	return S_PlayActorSound(soundNum, spriteNum ? spriteNum->GetIndex() : -1, channel, flags);
-}
-
-inline void S_StopSound(int sndNum, DDukeActor* actor, int flags = -1)
-{
-	S_StopSound(sndNum, actor ? actor->GetIndex() : -1, flags);
-}
-
-inline void S_RelinkActorSound(DDukeActor* from, DDukeActor* to)
-{
-	S_RelinkActorSound(from ? from->GetIndex() : -1, to ? to->GetIndex() : -1);
-}
-
-inline int S_CheckActorSoundPlaying(DDukeActor* a, int soundNum, int channel = 0)
-{
-	return S_CheckActorSoundPlaying(a->GetIndex(), soundNum, channel);
-}
-
-inline DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, DDukeActor* Owner, signed char s_ss)
-{
-	return &hittype[EGS(whatsect, s_x, s_y, s_z, s_pn, s_s, s_xr, s_yr, s_a, s_ve, s_zv, Owner ? Owner->GetIndex() : -1, s_ss)];
-}
-
 inline int ActorToScriptIndex(DDukeActor* a)
 {
 	if (!a) return -1;
@@ -154,14 +145,12 @@ inline DDukeActor* ScriptIndexToActor(int index)
 	return &hittype[index];
 }
 
-inline bool wallswitchcheck(DDukeActor* s)
-{
-	return !!(tileinfo[s->s.picnum].flags & TFLAG_WALLSWITCH);
-}
+int spawn_d(int j, int pn);
+int spawn_r(int j, int pn);
 
 inline DDukeActor* spawn(DDukeActor* spawner, int type)
 {
-	int i = fi.spawn(spawner ? spawner->GetIndex() : -1, type);
+	int i = (isRR()? spawn_r : spawn_d)(spawner ? spawner->GetIndex() : -1, type);
 	return i == -1 ? nullptr : &hittype[i];
 }
 
@@ -185,49 +174,15 @@ inline int bossguy(DDukeActor* pSprite)
 	return bossguypic(pSprite->s.picnum);
 }
 
-inline int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
-{
-	return GetGameVarID(id, sActor->GetIndex(), sPlayer);
-}
-
-inline void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
-{
-	SetGameVarID(id, lValue, sActor->GetIndex(), sPlayer);
-}
-
 // old interface versions of already changed functions
-
-inline void RANDOMSCRAP(spritetype* s, int i)
-{
-	return RANDOMSCRAP(&hittype[s - sprite]);
-}
 
 inline void deletesprite(int num)
 {
 	deletesprite(&hittype[num]);
 }
 
-inline int ssp(int i, unsigned int cliptype) //The set sprite function
-{
-	return ssp(&hittype[i], cliptype);
-}
-
 int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result);
 int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result);
-
-inline int movesprite_d(int actor, int xchange, int ychange, int zchange, unsigned int cliptype)
-{
-	Collision c;
-	movesprite_ex_d(&hittype[actor], xchange, ychange, zchange, cliptype, c);
-	return c.legacyVal;
-}
-
-inline int movesprite_r(int actor, int xchange, int ychange, int zchange, unsigned int cliptype)
-{
-	Collision c;
-	movesprite_ex_r(&hittype[actor], xchange, ychange, zchange, cliptype, c);
-	return c.legacyVal;
-}
 
 inline int movesprite_ex(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result)
 {
@@ -235,29 +190,36 @@ inline int movesprite_ex(DDukeActor* actor, int xchange, int ychange, int zchang
 	return f(actor, xchange, ychange, zchange, cliptype, result);
 }
 
-inline void ms(short i)
+inline int clipmove_ex(int* x, int* y, int* z, short* sect, int xv, int yv, int wal, int ceil, int flor, int ct, Collision& result)
 {
-	ms(&hittype[i]);
+	int res = clipmove(x, y, z, sect, xv, yv, wal, ceil, flor, ct);
+	return result.setFromEngine(res);
 }
 
-inline void execute(DDukeActor* act, int a, int b)
+inline void getzrange_ex(int x, int y, int z, int16_t sectnum, int32_t* ceilz, Collision& ceilhit, int32_t* florz, Collision& florhit, int32_t walldist, uint32_t cliptype)
 {
-	execute(act->GetIndex(), a, b);
+	int ch, fh;
+	getzrange(x, y, z, sectnum, ceilz, &ch, florz, &fh, walldist, cliptype);
+	ceilhit.setFromEngine(ch);
+	florhit.setFromEngine(fh);
 }
 
-inline void makeitfall(DDukeActor* act)
+inline int hitscan(int x, int y, int z, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
+	short* hitsect, short* hitwall, DDukeActor** hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
 {
-	makeitfall(act->GetIndex());
+	short hitsprt;
+	int res = ::hitscan(x, y, z, sectnum, vx, vy, vz, hitsect, hitwall, &hitsprt, hitx, hity, hitz, cliptype);
+	if (hitspr) *hitspr = hitsprt == -1 ? nullptr : &hittype[hitsprt];
+	return res;
 }
 
-inline void getglobalz(DDukeActor* act)
+inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
+	int16_t* neartagsector, int16_t* neartagwall, DDukeActor** neartagsprite,
+	int32_t* neartaghitdist, int32_t neartagrange, uint8_t tagsearch)
 {
-	getglobalz(act->GetIndex());
-}
-
-inline int findplayer(DDukeActor* act, int* x)
-{
-	return findplayer(&act->s, x);
+	int16_t nts;
+	::neartag(xs, ys, zs, sectnum, ange, neartagsector, neartagwall, &nts, neartaghitdist, neartagrange, tagsearch);
+	*neartagsprite = nts == -1 ? nullptr : &hittype[nts];
 }
 
 END_DUKE_NS

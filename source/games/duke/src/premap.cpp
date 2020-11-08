@@ -101,7 +101,7 @@ void resetplayerstats(int snum)
 //    p->select_dir       = 0;
     p->extra_extra8     = 0;
     p->show_empty_weapon= 0;
-    p->dummyplayersprite=-1;
+    p->dummyplayersprite=nullptr;
     p->crack_time       = 0;
     p->hbomb_hold_delay = 0;
     p->transporter_hold = 0;
@@ -121,14 +121,13 @@ void resetplayerstats(int snum)
     p->airleft          = 15*26;
     p->rapid_fire_hold  = 0;
     p->toggle_key_flag  = 0;
-    p->access_spritenum = -1;
+    p->access_spritenum = nullptr;
     if(ud.multimode > 1 && ud.coop != 1 )
         p->got_access = 7;
     else p->got_access      = 0;
     p->random_club_frame= 0;
     p->on_warping_sector = 0;
     p->spritebridge      = 0;
-    p->palette = 0;
 
     if(p->steroids_amount < 400 )
     {
@@ -142,7 +141,7 @@ void resetplayerstats(int snum)
     p->angle.olook_ang = p->angle.look_ang = buildlook(512 - ((currentLevel->levelNumber & 1) << 10));
     p->angle.orotscrnang = p->angle.rotscrnang = buildlook(0);
 
-    p->newowner          =-1;
+    p->newOwner          =nullptr;
     p->jumping_counter   = 0;
     p->hard_landing      = 0;
     p->posxv             = 0;                           //!!
@@ -166,7 +165,6 @@ void resetplayerstats(int snum)
     p->knuckle_incs      = 1;
     p->fist_incs = 0;
     p->knee_incs         = 0;
-    setpal(p);
     p->stairs = 0;
     p->noise_x = 0;
     p->noise_y = 0;
@@ -297,7 +295,7 @@ void resetweapons(int snum)
         p->gotweapon.Set(SLINGBLADE_WEAPON);
         p->ammo_amount[SLINGBLADE_WEAPON] = 1;
     }
-    OnEvent(EVENT_RESETWEAPONS, -1, snum, -1);
+    OnEvent(EVENT_RESETWEAPONS, snum, nullptr, -1);
 }
 
 //---------------------------------------------------------------------------
@@ -370,7 +368,7 @@ void resetinventory(int snum)
         ufocnt = 0;
         hulkspawn = 2;
     }
-    OnEvent(EVENT_RESETINVENTORY, snum, p->i);
+    OnEvent(EVENT_RESETINVENTORY, snum, p->GetActor());
 }
 
 
@@ -416,9 +414,9 @@ void resetprestat(int snum,int g)
     parallaxtype            = 0;
     randomseed              = 17L;
     paused             = 0;
-    ud.camerasprite         =-1;
+    ud.cameraactor =nullptr;
     tempwallptr             = 0;
-    camsprite               =-1;
+    camsprite               =nullptr;
     earthquaketime          = 0;
 
     WindTime = 0;
@@ -426,7 +424,7 @@ void resetprestat(int snum,int g)
     fakebubba_spawn = 0;
     RRRA_ExitedLevel = 0;
     BellTime = 0;
-    BellSprite = 0;
+    BellSprite = nullptr;
 
     numinterpolations = 0;
     //startofdynamicinterpolations = 0;
@@ -572,10 +570,10 @@ void resetpspritevars(int g)
 
     which_palookup = 9;
     j = connecthead;
-    StatIterator it(STAT_PLAYER);
-    while ((i = it.NextIndex()) >= 0)
+    DukeStatIterator it(STAT_PLAYER);
+    while (auto act = it.Next())
     {
-        s = &sprite[i];
+        s = &act->s;
 
         if (numplayersprites == MAXPLAYERS)
             I_Error("Too many player sprites (max 16.)");
@@ -595,7 +593,7 @@ void resetpspritevars(int g)
         numplayersprites++;
         if (j >= 0)
         {
-            s->owner = i;
+            act->SetOwner(act);
             s->shade = 0;
             s->xrepeat = isRR() ? 24 : 42;
             s->yrepeat = isRR() ? 17 : 36;
@@ -626,13 +624,13 @@ void resetpspritevars(int g)
             else
                 s->pal = ps[j].palookup = ud.user_pals[j];
 
-            ps[j].i = i;
+            ps[j].i = act->GetIndex();
             ps[j].frag_ps = j;
-            hittype[i].owner = i;
+            act->SetOwner(act);
 
-            hittype[i].bposx = ps[j].bobposx = ps[j].oposx = ps[j].posx = s->x;
-            hittype[i].bposy = ps[j].bobposy = ps[j].oposy = ps[j].posy = s->y;
-            hittype[i].bposz = ps[j].oposz = ps[j].posz = s->z;
+            act->bposx = ps[j].bobposx = ps[j].oposx = ps[j].posx = s->x;
+            act->bposy = ps[j].bobposy = ps[j].oposy = ps[j].posy = s->y;
+            act->bposz = ps[j].oposz = ps[j].posz = s->z;
             ps[j].angle.oang = ps[j].angle.ang = buildang(s->ang);
 
             updatesector(s->x, s->y, &ps[j].cursectnum);
@@ -640,7 +638,7 @@ void resetpspritevars(int g)
             j = connectpoint2[j];
 
         }
-        else deletesprite(i);
+        else deletesprite(act);
     }
 }
 
@@ -677,7 +675,7 @@ void prelevel_common(int g)
     RRRA_ExitedLevel = 0;
     mamaspawn_count = 15;
     BellTime = 0;
-    BellSprite = 0;
+    BellSprite = nullptr;
 
     // RRRA E2L1 fog handling.
     fogactive = 0;
@@ -742,8 +740,8 @@ void resettimevars(void)
 {
     cloudclock = 0;
 	ud.levelclock = 0;
-    if (camsprite >= 0)
-        hittype[camsprite].temp_data[0] = 0;
+    if (camsprite != nullptr)
+        camsprite->temp_data[0] = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -950,7 +948,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        int pn = sector[sprite[ps[i].i].sectnum].floorpicnum;
+        int pn = sector[ps[i].GetActor()->s.sectnum].floorpicnum;
         if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
         {
             resetweapons(i);
@@ -962,7 +960,6 @@ void enterlevel(MapRecord *mi, int gamemode)
         }
     }
     resetmys();
-    setpal(&ps[myconnectindex]);
 
     everyothertime = 0;
     global_random = 0;
@@ -1063,7 +1060,6 @@ void exitlevel(MapRecord *nextlevel)
 {
     bool endofgame = nextlevel == nullptr;
     STAT_Update(endofgame);
-    setpal(&ps[myconnectindex]);
     StopCommentary();
 
     dobonus(endofgame? -1 : 0, [=](bool)

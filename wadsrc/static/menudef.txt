@@ -1,3 +1,9 @@
+DEFAULTLISTMENU
+{
+	Font "BigFont", "Untranslated"
+	LineSpacing 20
+}
+
 //-------------------------------------------------------------------------------------------
 //
 // Main Memu
@@ -608,11 +614,7 @@ OptionMenu "ActionControlsMenu" protected
 	StaticText ""
 	Control    "$CNTRLMNU_JUMP"             , "+jump"
 	Control    "$CNTRLMNU_CROUCH"           , "+crouch"
-	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, ShadowWarrior)
-	{
-		// Fixme: Make this work in all games
-		Control    "$CNTRLMNU_TOGGLECROUCH"     , "+toggle_crouch"
-	}
+	Control    "$CNTRLMNU_TOGGLECROUCH"     , "+toggle_crouch"
 	ifgame(Witchaven, Witchaven2)
 	{
 		Control    "$CNTRLMNU_FLYUP"             , "+alt_fire"

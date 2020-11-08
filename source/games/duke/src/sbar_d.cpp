@@ -42,6 +42,7 @@ source as it is released.
 #include "v_draw.h"
 #include "names_d.h"
 #include "texturemanager.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 
@@ -68,7 +69,7 @@ public:
 		SetSize(tilesiz[TILE_BOTTOMSTATUSBAR].y);
 		scale = 1;
 
-		ammo_sprites = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO, TRIPBOMBSPRITE, FREEZEAMMO + 1, HBOMBAMMO, GROWAMMO/*, FLAMETHROWERAMMO + 1*/ };
+		ammo_sprites = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO, TRIPBOMBSPRITE, FREEZEAMMO + 1, HBOMBAMMO, GROWAMMO, FLAMETHROWERAMMO + 1 };
 		item_icons = { 0, FIRSTAID_ICON, STEROIDS_ICON, HOLODUKE_ICON, JETPACK_ICON, HEAT_ICON, AIRTANK_ICON, BOOT_ICON };
 	}
 
@@ -104,7 +105,7 @@ public:
 	int GetMoraleOrShield(struct player_struct *p, int snum)
 	{
 		// special handling for WW2GI
-		int lAmount = GetGameVar("PLR_MORALE", -1, p->i, snum);
+		int lAmount = GetGameVar("PLR_MORALE", -1, p->GetActor(), snum);
 		if (lAmount == -1) lAmount = p->shield_amount;
 		return lAmount;
 	}
@@ -131,7 +132,7 @@ public:
 		imgScale = baseScale / img->GetDisplayHeight();
 		DrawGraphic(img, 2, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
-		if (!althud_flashing || p->last_extra > (max_player_health >> 2) || (ud.levelclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
+		if (!althud_flashing || p->last_extra > (max_player_health >> 2) || (ud.levelclock & 32) || (p->GetActor()->s.pal == 1 && p->last_extra < 2))
 		{
 			int s = -8;
 			if (althud_flashing && p->last_extra > max_player_health)
@@ -233,7 +234,7 @@ public:
 		// health
 		//
 		DrawGraphic(tileGetTexture(HEALTHBOX), 5, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
-		int health = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
+		int health = (p->GetActor()->s.pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		FStringf format("%d", health);
 		SBar_DrawString(this, digiFont, format, 20, -digiFont->mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
@@ -409,7 +410,7 @@ public:
 		}
 		DrawWeaponAmounts(p, 96, top + 15.5);
 
-		int num = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
+		int num = (p->GetActor()->s.pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		format.Format("%d", num);
 		SBar_DrawString(this, digiFont, format, 31, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		format.Format("%d", GetMoraleOrShield(p, snum));

@@ -496,7 +496,7 @@ HITWALL:
                         }
 
                         // draws bullet puff on walls when they're shot
-                        BuildAnim(-1, pBulletInfo->field_C, 0, x2, y2, z2 + zOffset, hitsect, 40, pBulletInfo->nFlags);
+                        BuildAnim(-1, pBulletInfo->field_C, 0, x2, y2, z2 + zOffset + -4096, hitsect, 40, pBulletInfo->nFlags);
                     }
                 }
                 else

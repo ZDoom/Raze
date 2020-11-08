@@ -66,7 +66,7 @@ void GameInterface::Ticker()
 	{
 		if (earthquaketime > 0) earthquaketime--;
 
-		ud.camerasprite = -1;
+		ud.cameraactor = nullptr;
 		everyothertime++;
 
 		global_random = krand();

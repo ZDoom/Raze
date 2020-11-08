@@ -52,17 +52,17 @@ inline void tloadtile(int tilenum, int palnum = 0)
 //
 //---------------------------------------------------------------------------
 
-static void cachespritenum(int i)
+static void cachespritenum(spritetype *spr)
 {
 	int maxc;
 	int j;
-	int pal = sprite[i].pal;
+	int pal = spr->pal;
 
-	if(ud.monsters_off && badguy(&sprite[i])) return;
+	if(ud.monsters_off && badguy(spr)) return;
 
 	maxc = 1;
 
-	switch(sprite[i].picnum)
+	switch(spr->picnum)
 	{
 		case HYDRENT:
 			tloadtile(BROKEFIREHYDRENT);
@@ -164,7 +164,7 @@ static void cachespritenum(int i)
 			break;
 	}
 
-	for(j = sprite[i].picnum; j < (sprite[i].picnum+maxc); j++)
+	for(j = spr->picnum; j < (spr->picnum+maxc); j++)
 			tloadtile(j, pal);
 }
 
@@ -231,7 +231,7 @@ static void cachegoodsprites(void)
 
 void cacheit_d(void)
 {
-	int i, j;
+	int i;
 
 	cachegoodsprites();
 
@@ -251,13 +251,13 @@ void cacheit_d(void)
 			tloadtile(LA + 1);
 			tloadtile(LA + 2);
 		}
-	}
 
-	SectIterator it(i);
-	while ((j = it.NextIndex()) >= 0)
-	{
-		if (sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat & 32768) == 0)
-			cachespritenum(j);
+		DukeSectIterator it(i);
+		while (auto j = it.Next())
+		{
+			if (j->s.xrepeat != 0 && j->s.yrepeat != 0 && (j->s.cstat & 32768) == 0)
+				cachespritenum(&j->s);
+		}
 	}
 
 	precacheMarkedTiles();
@@ -276,11 +276,11 @@ void prelevel_d(int g)
 
 	prelevel_common(g);
 
-	StatIterator it(STAT_DEFAULT);
-	while ((i = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_DEFAULT);
+	while (auto ac = it.Next())
 	{
-		auto si = &sprite[i];
-		LoadActor(i, -1, -1);
+		auto si = &ac->s;
+		LoadActor(ac, -1, -1);
 
 		if (si->lotag == -1 && (si->cstat & 16))
 		{
@@ -291,7 +291,7 @@ void prelevel_d(int g)
 		{
 		case GPSPEED:
 			sector[si->sectnum].extra = si->lotag;
-			deletesprite(i);
+			deletesprite(ac);
 			break;
 
 		case CYCLER:
@@ -304,34 +304,39 @@ void prelevel_d(int g)
 			cyclers[numcyclers][4] = si->hitag;
 			cyclers[numcyclers][5] = (si->ang == 1536);
 			numcyclers++;
-			deletesprite(i);
+			deletesprite(ac);
 			break;
+		}
+	}
+
+
+	for (i = 0; i < MAXSPRITES; i++)
+	{
+		auto spr = &sprite[i];
+		if (spr->statnum < MAXSTATUS)
+		{
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
+				continue;
+			spawn(nullptr, i);
 		}
 	}
 
 	for (i = 0; i < MAXSPRITES; i++)
 	{
-		if (sprite[i].statnum < MAXSTATUS)
+		auto spr = &sprite[i];
+		if (spr->statnum < MAXSTATUS)
 		{
-			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == SE_14_SUBWAY_CAR)
-				continue;
-			fi.spawn(-1, i);
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
+				spawn(nullptr, i);
 		}
 	}
-
-	for (i = 0; i < MAXSPRITES; i++)
-		if (sprite[i].statnum < MAXSTATUS)
-		{
-			if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == SE_14_SUBWAY_CAR)
-				fi.spawn(-1, i);
-		}
-
 	lotaglist = 0;
 
 	it.Reset(STAT_DEFAULT);
 	while ((i = it.NextIndex()) >= 0)
 	{
-		switch (sprite[i].picnum)
+		auto spr = &sprite[i];
+		switch (spr->picnum)
 		{
 		case DIPSWITCH + 1:
 		case DIPSWITCH2 + 1:
@@ -347,21 +352,21 @@ void prelevel_d(int g)
 		case LOCKSWITCH1 + 1:
 		case POWERSWITCH2 + 1:
 			for (j = 0; j < lotaglist; j++)
-				if (sprite[i].lotag == lotags[j])
+				if (spr->lotag == lotags[j])
 					break;
 
 			if (j == lotaglist)
 			{
-				lotags[lotaglist] = sprite[i].lotag;
+				lotags[lotaglist] = spr->lotag;
 				lotaglist++;
 				if (lotaglist > 64)
 					I_Error("Too many switches (64 max).");
 
-				StatIterator it1(STAT_EFFECTOR);
-				while ((j = it1.NextIndex()) >= 0)
+				DukeStatIterator it1(STAT_EFFECTOR);
+				while (auto ac = it1.Next())
 				{
-					if (sprite[j].lotag == 12 && sprite[j].hitag == sprite[i].lotag)
-						hittype[j].temp_data[0] = 1;
+					if (ac->s.lotag == 12 && ac->s.hitag == spr->lotag)
+						ac->temp_data[0] = 1;
 				}
 			}
 			break;

@@ -41,20 +41,18 @@ void animatewalls_d(void);
 void animatewalls_r(void);
 void operaterespawns_d(int low);
 void operaterespawns_r(int low);
-void operateforcefields_r(int s, int low);
-void operateforcefields_d(int s, int low);
-bool checkhitswitch_d(int snum, int w, int switchtype);
-bool checkhitswitch_r(int snum, int w, int switchtype);
-void activatebysector_d(int sect, int j);
-void activatebysector_r(int sect, int j);
-void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith);
-void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith);
-void checkplayerhurt_d(struct player_struct* p, int j);
-void checkplayerhurt_r(struct player_struct* p, int j);
+void operateforcefields_r(DDukeActor* act, int low);
+void operateforcefields_d(DDukeActor* act, int low);
+bool checkhitswitch_d(int snum, int w, DDukeActor *act);
+bool checkhitswitch_r(int snum, int w, DDukeActor* act);
+void activatebysector_d(int sect, DDukeActor* j);
+void activatebysector_r(int sect, DDukeActor* j);
+void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith);
+void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith);
 bool checkhitceiling_d(int sn);
 bool checkhitceiling_r(int sn);
-void checkhitsprite_d(int i, int sn);
-void checkhitsprite_r(int i, int sn);
+void checkhitsprite_d(DDukeActor* i, DDukeActor* sn);
+void checkhitsprite_r(DDukeActor* i, DDukeActor* sn);
 void checksectors_d(int snum);
 void checksectors_r(int snum);
 
@@ -64,38 +62,32 @@ bool floorspace_d(int sectnum);
 bool floorspace_r(int sectnum);
 void addweapon_d(struct player_struct* p, int weapon);
 void addweapon_r(struct player_struct* p, int weapon);
-void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
-void hitradius_r(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
+void hitradius_d(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
+void hitradius_r(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 void lotsofmoney_d(DDukeActor* s, short n);
 void lotsofmail_d(DDukeActor* s, short n);
 void lotsofpaper_d(DDukeActor* s, short n);
 void lotsoffeathers_r(DDukeActor* s, short n);
-void guts_d(spritetype* s, short gtype, short n, short p);
-void guts_r(spritetype* s, short gtype, short n, short p);
-void gutsdir_d(spritetype* s, short gtype, short n, short p);
-void gutsdir_r(spritetype* s, short gtype, short n, short p);
-int ifhitsectors_d(int sectnum);
-int ifhitsectors_r(int sectnum);
+void guts_d(DDukeActor* s, short gtype, short n, short p);
+void guts_r(DDukeActor* s, short gtype, short n, short p);
+DDukeActor* ifhitsectors_d(int sectnum);
+DDukeActor* ifhitsectors_r(int sectnum);
 int ifhitbyweapon_r(DDukeActor* sn);
 int ifhitbyweapon_d(DDukeActor* sn);
-void fall_d(int g_i, int g_p);
-void fall_r(int g_i, int g_p);
+void fall_d(DDukeActor* i, int g_p);
+void fall_r(DDukeActor* i, int g_p);
 bool spawnweapondebris_d(int picnum, int dnum);
 bool spawnweapondebris_r(int picnum, int dnum);
-void respawnhitag_d(spritetype* g_sp);
-void respawnhitag_r(spritetype* g_sp);
-void checktimetosleep_d(int g_i);
-void checktimetosleep_r(int g_i);
-void move_d(int g_i, int g_p, int g_x);
-void move_r(int g_i, int g_p, int g_x);
-int spawn_d(int j, int pn);
-int spawn_r(int j, int pn);
-void check_fta_sounds_d(int i);
-void check_fta_sounds_r(int i);
+void respawnhitag_d(DDukeActor* g_sp);
+void respawnhitag_r(DDukeActor* g_sp);
+void checktimetosleep_d(DDukeActor* actor);
+void checktimetosleep_r(DDukeActor* actor);
+void move_d(DDukeActor* i, int g_p, int g_x);
+void move_r(DDukeActor* i, int g_p, int g_x);
 void incur_damage_d(struct player_struct* p);
 void incur_damage_r(struct player_struct* p);
-void shoot_d(int i, int atwith);
-void shoot_r(int i, int atwith);
+void shoot_d(DDukeActor* i, int atwith);
+void shoot_r(DDukeActor* i, int atwith);
 void selectweapon_d(int snum, int j);
 void selectweapon_r(int snum, int j);
 int doincrements_d(struct player_struct* p);
@@ -141,7 +133,6 @@ void SetDispatcher()
 		checkhitswitch_d,
 		activatebysector_d,
 		checkhitwall_d,
-		checkplayerhurt_d,
 		checkhitceiling_d,
 		checkhitsprite_d,
 		checksectors_d,
@@ -150,12 +141,10 @@ void SetDispatcher()
 		floorspace_d,
 		addweapon_d,
 		hitradius_d,
-		movesprite_d,
 		lotsofmoney_d,
 		lotsofmail_d,
 		lotsofpaper_d,
 		guts_d,
-		gutsdir_d,
 		ifhitsectors_d,
 		ifhitbyweapon_d,
 		fall_d,
@@ -163,8 +152,6 @@ void SetDispatcher()
 		respawnhitag_d,
 		checktimetosleep_d,
 		move_d,
-		spawn_d,
-		check_fta_sounds_d,
 
 		incur_damage_d,
 		shoot_d,
@@ -193,7 +180,6 @@ void SetDispatcher()
 		checkhitswitch_r,
 		activatebysector_r,
 		checkhitwall_r,
-		checkplayerhurt_r,
 		checkhitceiling_r,
 		checkhitsprite_r,
 		checksectors_r,
@@ -202,12 +188,10 @@ void SetDispatcher()
 		floorspace_r,
 		addweapon_r,
 		hitradius_r,
-		movesprite_r,
 		lotsoffeathers_r,
 		lotsoffeathers_r,
 		lotsoffeathers_r,
 		guts_r,
-		gutsdir_r,
 		ifhitsectors_r,
 		ifhitbyweapon_r,
 		fall_r,
@@ -215,8 +199,6 @@ void SetDispatcher()
 		respawnhitag_r,
 		checktimetosleep_r,
 		move_r,
-		spawn_r,
-		check_fta_sounds_r,
 
 		incur_damage_r,
 		shoot_r,

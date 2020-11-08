@@ -921,7 +921,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
             if (cl_syncinput)
             {
                 Player* pPlayer = &PlayerList[nPlayer];
-                applylook(&pPlayer->angle, sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions, 1, eyelevel[nLocalPlayer] > -14080);
+                applylook(&pPlayer->angle, sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
                 UpdatePlayerSpriteAngle(pPlayer);
             }
 
@@ -2640,7 +2640,7 @@ loc_1BD2E:
                 if (cl_syncinput)
                 {
                     Player* pPlayer = &PlayerList[nPlayer];
-                    sethorizon(&pPlayer->horizon.horiz, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions, 1);
+                    sethorizon(&pPlayer->horizon.horiz, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
                 }
             }
             else // else, player's health is less than 0

@@ -133,8 +133,8 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 
 	// process remaining controller input.
 	currInput->horz -= scaleAdjust * hidInput->dpitch * hidspeed;
-	currInput->svel -= xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * cntrlvelscale);
-	currInput->fvel -= xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * cntrlvelscale);
+	currInput->svel += xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * cntrlvelscale);
+	currInput->fvel += xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * cntrlvelscale);
 
 	// process keyboard turning keys.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
@@ -298,7 +298,7 @@ void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double 
 //
 //---------------------------------------------------------------------------
 
-void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double const scaleAdjust, bool const crouching)
+void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a unit
 	angle->rotscrnang -= bamlook(xs_CRoundToInt(scaleAdjust * angle->rotscrnang.asbam() * (15. / GameTicRate)));
@@ -335,7 +335,7 @@ void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double 
 	if (angle->spin.asbam() < 0)
 	{
 		// return spin to 0
-		lookangle add = bamlook(xs_CRoundToUInt(scaleAdjust * ((!crouching ? 3840. : 1920.) / GameTicRate) * BAMUNIT));
+		lookangle add = bamlook(xs_CRoundToUInt(scaleAdjust * ((!(*actions & SB_CROUCH) ? 3840. : 1920.) / GameTicRate) * BAMUNIT));
 		angle->spin += add;
 		if (angle->spin.asbam() > 0)
 		{

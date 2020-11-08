@@ -37,14 +37,14 @@ inline int bossguy(spritetype const* const pSprite)
 	return bossguypic(pSprite->picnum);
 }
 
-inline int actorflag(int spritenum, int mask)
+inline int actorflag(DDukeActor * actor, int mask)
 {
-	return (((actorinfo[sprite[spritenum].picnum].flags/* ^ hittype[spritenum].flags*/) & mask) != 0);
+	return (((actorinfo[actor->s.picnum].flags) & mask) != 0);
 }
 
-inline int actorfella(int spnum)
+inline int actorfella(DDukeActor* actor)
 {
-	return actorflag(spnum, SFLAG_KILLCOUNT);
+	return actorflag(actor, SFLAG_KILLCOUNT);
 }
 
 inline void setflag(int flag, const std::initializer_list<short>& types)
@@ -68,16 +68,16 @@ inline void settileflag(int flag, const std::initializer_list<short>& types)
 	}
 }
 
-inline bool wallswitchcheck(int s)
+inline bool wallswitchcheck(DDukeActor* s)
 {
-	return !!(tileinfo[sprite[s].picnum].flags & TFLAG_WALLSWITCH);
+	return !!(tileinfo[s->s.picnum].flags & TFLAG_WALLSWITCH);
 }
 
 inline int checkcursectnums(int se)
 {
 	int i;
 	for(i=connecthead;i>=0;i=connectpoint2[i])
-		if((unsigned)ps[i].i < MAXSPRITES && sprite[ps[i].i].sectnum == se ) return i;
+		if(ps[i].GetActor() && ps[i].GetActor()->s.sectnum == se ) return i;
 	return -1;
 }
 

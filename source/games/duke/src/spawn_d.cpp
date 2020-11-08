@@ -45,12 +45,14 @@ int spawn_d(int j, int pn)
 {
     int x;
 
-	int i = initspriteforspawn(j, pn, { CRACK1, CRACK2, CRACK3, CRACK4, SPEAKER, LETTER, DUCK, TARGET, TRIPBOMB, VIEWSCREEN, VIEWSCREEN2 });
+    auto actj = j < 0 ? nullptr : &hittype[j];
+    int i = initspriteforspawn(actj, pn, { CRACK1, CRACK2, CRACK3, CRACK4, SPEAKER, LETTER, DUCK, TARGET, TRIPBOMB, VIEWSCREEN, VIEWSCREEN2 });
     if (!(i & 0x1000000)) return i;
     i &= 0xffffff;
-    auto sp = &sprite[i];
-    auto spj = &sprite[j];
-    auto t = hittype[i].temp_data;
+    auto act = &hittype[i];
+    auto sp = &act->s;
+    auto spj = j < 0 ? nullptr : &actj->s;
+    auto t = act->temp_data;
     int sect = sp->sectnum;
 
 
@@ -61,7 +63,7 @@ int spawn_d(int j, int pn)
         case BOSS2STAYPUT:
         case BOSS3STAYPUT:
         case BOSS5STAYPUT:
-			hittype[i].actorstayput = sp->sectnum;
+			act->actorstayput = sp->sectnum;
 		case FIREFLY:
 		case BOSS5:
 			if (sp->picnum != FIREFLY) 
@@ -94,26 +96,26 @@ int spawn_d(int j, int pn)
 			if ((sp->lotag > ud.player_skill) || ud.monsters_off) 
             {
 				sp->xrepeat = sp->yrepeat = 0;
-				changespritestat(i, STAT_MISC);
+				changespritestat(act, STAT_MISC);
 				break;
 			} 
             else 
             {
-				makeitfall(i);
+				makeitfall(act);
 
 				sp->cstat |= 257;
 				ps[connecthead].max_actors_killed++;
 
 				if (j >= 0) {
-					hittype[i].timetosleep = 0;
-					fi.check_fta_sounds(i);
+					act->timetosleep = 0;
+                    check_fta_sounds_d(act);
 					changespritestat(i, 1);
 				} else
 					changespritestat(i, 2);
 			}
 			return i;
 		case FIREFLYFLYINGEFFECT:
-			sp->owner = j;
+            act->SetOwner(actj);
 			changespritestat(i, STAT_MISC);
 			sp->xrepeat = 16;
 			sp->yrepeat = 16;
@@ -121,8 +123,8 @@ int spawn_d(int j, int pn)
 		case LAVAPOOLBUBBLE:
 			if (spj->xrepeat < 30)
 				return i;
-			sp->owner = j;
-			changespritestat(i, STAT_MISC);
+            act->SetOwner(actj);
+            changespritestat(i, STAT_MISC);
 			sp->x += krand() % 512 - 256;
 			sp->y += krand() % 512 - 256;
 			sp->xrepeat = 16;
@@ -146,7 +148,7 @@ int spawn_d(int j, int pn)
     switch(sp->picnum)
     {
             default:
-				spawninitdefault(j, i);
+				spawninitdefault(actj, act);
                 break;
             case FOF:
                 sp->xrepeat = sp->yrepeat = 0;
@@ -219,7 +221,7 @@ int spawn_d(int j, int pn)
                 break;
             case TRANSPORTERSTAR:
             case TRANSPORTERBEAM:
-				spawntransporter(j, i, sp->picnum == TRANSPORTERBEAM);
+				spawntransporter(actj, act, sp->picnum == TRANSPORTERBEAM);
                 break;
 
             case FRAMEEFFECT1:
@@ -249,7 +251,7 @@ int spawn_d(int j, int pn)
                     sp->yrepeat = 0;
                 }
 
-                if(j >= 0) sp->ang = hittype[j].temp_data[5]+512;
+                if(j >= 0) sp->ang = actj->temp_data[5]+512;
                 changespritestat(i, STAT_MISC);
                 break;
 
@@ -279,7 +281,7 @@ int spawn_d(int j, int pn)
 
             case BLOODPOOL:
             case PUKE:
-				if (spawnbloodpoolpart1(j, i)) break;
+				if (spawnbloodpoolpart1(actj, act)) break;
 
                 if(j >= 0 && sp->picnum != PUKE)
                 {
@@ -321,7 +323,7 @@ int spawn_d(int j, int pn)
                 sp->z -= (16<<8);
                 if(j >= 0 && spj->pal == 6)
                     sp->pal = 6;
-                insertspriteq(&hittype[i]);
+                insertspriteq(act);
                 changespritestat(i, STAT_MISC);
                 break;
 
@@ -336,14 +338,15 @@ int spawn_d(int j, int pn)
                 sp->xrepeat=4;
                 sp->yrepeat=5;
 
-                sp->owner = i;
-                sp->hitag = i;
+                act->SetOwner(act);
+                ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
+                sp->hitag = ud.bomb_tag;
 
                 sp->xvel = 16;
-                ssp(i,CLIPMASK0);
-                hittype[i].temp_data[0] = 17;
-                hittype[i].temp_data[2] = 0;
-                hittype[i].temp_data[5] = sp->ang;
+                ssp(act, CLIPMASK0);
+                act->temp_data[0] = 17;
+                act->temp_data[2] = 0;
+                act->temp_data[5] = sp->ang;
 
             case SPACEMARINE:
                 if(sp->picnum == SPACEMARINE)
@@ -462,7 +465,7 @@ int spawn_d(int j, int pn)
             case FOOTPRINTS2:
             case FOOTPRINTS3:
             case FOOTPRINTS4:
-				initfootprint(j, i);
+				initfootprint(actj, act);
                 break;
 
             case FEM1:
@@ -522,7 +525,7 @@ int spawn_d(int j, int pn)
                 if(sp->picnum == RESPAWNMARKERRED)
                 {
                     sp->xrepeat = sp->yrepeat = 24;
-                    if(j >= 0) sp->z = hittype[j].floorz; // -(1<<4);
+                    if(j >= 0) sp->z = actj->floorz; // -(1<<4);
                 }
                 else
                 {
@@ -543,13 +546,13 @@ int spawn_d(int j, int pn)
             case BULLETHOLE:
                 sp->xrepeat = sp->yrepeat = 3;
                 sp->cstat = 16+(krand()&12);
-                insertspriteq(&hittype[i]);
+                insertspriteq(act);
             case MONEY:
             case MAIL:
             case PAPER:
                 if( sp->picnum == MONEY || sp->picnum == MAIL || sp->picnum == PAPER )
                 {
-                    hittype[i].temp_data[0] = krand()&2047;
+                    act->temp_data[0] = krand()&2047;
                     sp->cstat = krand()&12;
                     sp->xrepeat = sp->yrepeat = 8;
                     sp->ang = krand()&2047;
@@ -559,7 +562,7 @@ int spawn_d(int j, int pn)
 
             case VIEWSCREEN:
             case VIEWSCREEN2:
-                sp->owner = i;
+                act->SetOwner(act);
                 sp->lotag = 1;
                 sp->extra = 1;
                 changespritestat(i,6);
@@ -567,7 +570,7 @@ int spawn_d(int j, int pn)
 
             case SHELL: //From the player
             case SHOTGUNSHELL:
-				initshell(j, i, sp->picnum == SHELL);
+				initshell(actj, act, sp->picnum == SHELL);
                 break;
 
             case RESPAWN:
@@ -683,11 +686,11 @@ int spawn_d(int j, int pn)
                 break;
 
             case CRANE:
-				initcrane(j, i, CRANEPOLE);
+				initcrane(actj, act, CRANEPOLE);
                 break;
 
             case WATERDRIP:
-                initwaterdrip(j, i);
+                initwaterdrip(actj, act);
                 break;
             case TRASH:
 
@@ -770,7 +773,7 @@ int spawn_d(int j, int pn)
             case PIGCOPDIVE:
             case COMMANDERSTAYPUT:
             case BOSS4STAYPUT:
-                hittype[i].actorstayput = sp->sectnum;
+                act->actorstayput = sp->sectnum;
             case BOSS1:
             case BOSS2:
             case BOSS3:
@@ -858,7 +861,7 @@ int spawn_d(int j, int pn)
                 }
                 else
                 {
-                    makeitfall(i);
+                    makeitfall(act);
 
                     if(sp->picnum == RAT)
                     {
@@ -878,8 +881,8 @@ int spawn_d(int j, int pn)
 
                     if(j >= 0)
                     {
-                        hittype[i].timetosleep = 0;
-                        fi.check_fta_sounds(i);
+                        act->timetosleep = 0;
+                        check_fta_sounds_d(act);
                         changespritestat(i,1);
                     }
                     else changespritestat(i,2);
@@ -917,14 +920,14 @@ int spawn_d(int j, int pn)
                 {
                     if( spj->picnum == NUKEBARREL )
                         sp->pal = 8;
-                    insertspriteq(&hittype[i]);
+                    insertspriteq(act);
                 }
 
                 changespritestat(i,1);
 
-                getglobalz(i);
+                getglobalz(act);
 
-                j = (hittype[i].floorz-hittype[i].ceilingz)>>9;
+                j = (act->floorz-act->ceilingz)>>9;
 
                 sp->yrepeat = j;
                 sp->xrepeat = 25-(j>>1);
@@ -933,15 +936,15 @@ int spawn_d(int j, int pn)
                 break;
 
             case HEAVYHBOMB:
-                if(j >= 0)
-                    sp->owner = j;
-                else sp->owner = i;
+                if(j >= 0) act->SetOwner(actj);
+                else act->SetOwner(act);
+
                 sp->xrepeat = sp->yrepeat = 9;
                 sp->yvel = 4;
             case REACTOR2:
             case REACTOR:
             case RECON:
-				if (initreactor(j, i, sp->picnum == RECON)) return i;
+				if (initreactor(actj, act, sp->picnum == RECON)) return i;
                 break;
 
             case FLAMETHROWERSPRITE:
@@ -985,12 +988,12 @@ int spawn_d(int j, int pn)
                     sp->lotag = 0;
                     sp->z -= (32<<8);
                     sp->zvel = -1024;
-                    ssp(i,CLIPMASK0);
+                    ssp(act, CLIPMASK0);
                     sp->cstat = krand()&4;
                 }
                 else
                 {
-                    sp->owner = i;
+                    act->SetOwner(act);
                     sp->cstat = 0;
                 }
 
@@ -1023,11 +1026,11 @@ int spawn_d(int j, int pn)
 
                 sp->shade = -17;
 
-                if(j >= 0) changespritestat(i,1);
+                if(j >= 0) changespritestat(act, STAT_ACTOR);
                 else
                 {
-                    changespritestat(i,2);
-                    makeitfall(i);
+                    changespritestat(act, STAT_ZOMBIEACTOR);
+                    makeitfall(act);
                 }
                 break;
 
@@ -1041,21 +1044,21 @@ int spawn_d(int j, int pn)
             case BOX:
                 sp->cstat = 257; // Make it hitable
                 sp->extra = 1;
-                changespritestat(i,6);
+                changespritestat(act, STAT_STANDABLE);
                 break;
 
             case FLOORFLAME:
                 sp->shade = -127;
-                changespritestat(i,6);
+                changespritestat(act, STAT_STANDABLE);
                 break;
 
             case BOUNCEMINE:
-                sp->owner = i;
+                act->SetOwner(act);
                 sp->cstat |= 1+256; //Make it hitable
                 sp->xrepeat = sp->yrepeat = 24;
                 sp->shade = -127;
                 sp->extra = impact_damage<<2;
-                changespritestat(i,2);
+                changespritestat(act, STAT_ZOMBIEACTOR);
                 break;
 
             case CAMERA1:
@@ -1089,14 +1092,14 @@ int spawn_d(int j, int pn)
                     sp->cstat = 16+128+2;
                     sp->xrepeat=sp->yrepeat=1;
                     sp->xvel = -8;
-                    ssp(i,CLIPMASK0);
+                    ssp(act, CLIPMASK0);
                 }
             case CEILINGSTEAM:
-                changespritestat(i,6);
+                changespritestat(i,STAT_STANDABLE);
                 break;
 
             case SECTOREFFECTOR:
-				spawneffector(i);
+				spawneffector(act);
 
                 break;
 
@@ -1112,9 +1115,8 @@ int spawn_d(int j, int pn)
                 }
                 else sp->cstat = 1+256;
                 sp->extra = impact_damage<<2;
-                sp->owner = i;
-
-                changespritestat(i,6);
+                act->SetOwner(act);
+                changespritestat(act, STAT_STANDABLE);
                 break;
 
             case CRACK1:
@@ -1141,10 +1143,10 @@ int spawn_d(int j, int pn)
                 }
 
                 sp->pal = 0;
-                sp->owner = i;
-                changespritestat(i,6);
+                act->SetOwner(act);
+                changespritestat(act, STAT_STANDABLE);
                 sp->xvel = 8;
-                ssp(i,CLIPMASK0);
+                ssp(act, CLIPMASK0);
                 break;
 
             case TOILET:
@@ -1152,7 +1154,7 @@ int spawn_d(int j, int pn)
                 sp->lotag = 1;
                 sp->cstat |= 257;
                 sp->clipdist = 8;
-                sp->owner = i;
+                act->SetOwner(act);
                 break;
             case CANWITHSOMETHING:
             case CANWITHSOMETHING2:
@@ -1172,15 +1174,15 @@ int spawn_d(int j, int pn)
                 if(j >= 0)
                     sp->xrepeat = sp->yrepeat = 32;
                 sp->clipdist = 72;
-                makeitfall(i);
-                if(j >= 0)
-                    sp->owner = j;
-                else sp->owner = i;
+                makeitfall(act);
+                if(j >= 0) act->SetOwner(actj);
+                else act->SetOwner(act);
+
             case EGG:
                 if( ud.monsters_off == 1 && sp->picnum == EGG )
                 {
                     sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i, STAT_MISC);
+                    changespritestat(act, STAT_MISC);
                 }
                 else
                 {
@@ -1190,12 +1192,12 @@ int spawn_d(int j, int pn)
                         ps[connecthead].max_actors_killed++;
                     }
                     sp->cstat = 257|(krand()&4);
-                    changespritestat(i,2);
+                    changespritestat(act, STAT_ZOMBIEACTOR);
                 }
                 break;
             case TOILETWATER:
                 sp->shade = -16;
-                changespritestat(i,6);
+                changespritestat(act, STAT_STANDABLE);
                 break;
     }
     return i;

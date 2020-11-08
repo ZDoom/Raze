@@ -266,7 +266,7 @@ private:
 
 	void *operator new(size_t len, nonew&)
 	{
-		return M_Malloc(len);
+		return M_Calloc(len, 1);
 	}
 public:
 

@@ -26,6 +26,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "duke3d.h"
+#include "dukeactor.h"
 
 BEGIN_DUKE_NS
 
@@ -39,20 +40,21 @@ int madenoise(int snum)
 	return 1;
 }
 
-int wakeup(int i, int snum)
+int wakeup(DDukeActor* ac, int snum)
 {
 	player_struct *p;
 	int radius;
 	p = &ps[snum];
+	auto spr = &ac->s;
 	if (!p->donoise)
 		return 0;
-	if (sprite[i].pal == 30 || sprite[i].pal == 32 || sprite[i].pal == 33 || (isRRRA() && sprite[i].pal == 8))
+	if (spr->pal == 30 || spr->pal == 32 || spr->pal == 33 || (isRRRA() && spr->pal == 8))
 		return 0;
 
 	radius = p->noise_radius;
 
-	if (p->noise_x - radius < sprite[i].x && p->noise_x + radius > sprite[i].x
-		&& p->noise_y - radius < sprite[i].y && p->noise_y + radius > sprite[i].y)
+	if (p->noise_x - radius < spr->x && p->noise_x + radius > spr->x
+		&& p->noise_y - radius < spr->y && p->noise_y + radius > spr->y)
 		return 1;
 	return 0;
 }

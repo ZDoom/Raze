@@ -106,6 +106,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
     }
 
+    Player* pPlayer = &PlayerList[nLocalPlayer];
     double const scaleAdjust = InputScale();
     InputPacket input {};
 
@@ -121,11 +122,9 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
     if (!cl_syncinput)
     {
-        Player* pPlayer = &PlayerList[nLocalPlayer];
-
         if (!nFreeze)
         {
-            applylook(&pPlayer->angle, input.avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust, eyelevel[nLocalPlayer] > -14080);
+            applylook(&pPlayer->angle, input.avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
             sethorizon(&pPlayer->horizon.horiz, input.horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
         }
 

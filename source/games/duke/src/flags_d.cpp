@@ -40,6 +40,14 @@ BEGIN_DUKE_NS
 
 void initactorflags_d()
 {
+	actorinfo[COMMANDER].gutsoffset = -(24 << 8);
+
+	for (auto &fa : actorinfo)
+	{
+		fa.falladjustz = 24 << 8;
+	}
+	actorinfo[OCTABRAIN].falladjustz = actorinfo[COMMANDER].falladjustz = actorinfo[DRONE].falladjustz = 0;
+
 	setflag(SFLAG_INTERNAL_BADGUY, {
 			SHARK,
 			RECON,

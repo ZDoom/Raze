@@ -68,24 +68,24 @@ enum playeraction_t {
 
 struct ParseState
 {
-	int g_i, g_p;
+	int g_p;
 	int g_x;
 	int* g_t;
 	uint8_t killit_flag;
-	spritetype* g_sp;
 	DDukeActor *g_ac;
 	int* insptr;
+	Collision coll;
 
 	int parse(void);
 	void parseifelse(int condition);
 };
 
-int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day);
-bool ifsquished(int i, int p);
-void fakebubbaspawn(int g_i, int g_p);
+int furthestcanseepoint(DDukeActor* i, DDukeActor* ts, int* dax, int* day);
+bool ifsquished(DDukeActor* i, int p);
+void fakebubbaspawn(DDukeActor* actor, int g_p);
 void tearitup(int sect);
-void destroyit(int g_i);
-void mamaspawn(int g_i);
+void destroyit(DDukeActor* actor);
+void mamaspawn(DDukeActor* actor);
 void forceplayerangle(int snum);
 
 bool killthesprite = false;
@@ -95,7 +95,7 @@ void addspritetodelete(int spnum)
 	killthesprite = true;
 }
 
-static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPlayer, int lParm2)
+static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, int sPlayer, int lParm2)
 {
 	int lValue;
 
@@ -136,8 +136,8 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor,
 		break;
 
 	case USERDEFS_CAMERASPRITE:
-		if (bSet) ud.camerasprite = lValue;
-		else SetGameVarID((int)lVar2, ud.camerasprite, sActor, sPlayer);
+		if (bSet) ud.cameraactor = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ud.cameraactor), sActor, sPlayer);
 		break;
 
 	case USERDEFS_LAST_CAMSPRITE:
@@ -262,7 +262,7 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor,
 }
 
 ///////////////////////////////////////////
-void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPlayer, int lParm2)
+void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, int sPlayer, int lParm2)
 {
 	int iPlayer;
 	int lValue;
@@ -538,8 +538,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_NEWOWNER:
-		if (bSet) ps[iPlayer].newowner = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].newowner, sActor, sPlayer);
+		if (bSet) ps[iPlayer].newOwner = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ps[iPlayer].newOwner), sActor, sPlayer);
 		break;
 
 	case PLAYER_HURT_DELAY:
@@ -578,8 +578,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_ACCESS_SPRITENUM:
-		if (bSet) ps[iPlayer].access_spritenum = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].access_spritenum, sActor, sPlayer);
+		if (bSet) ps[iPlayer].access_spritenum = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ps[iPlayer].access_spritenum), sActor, sPlayer);
 		break;
 
 	case PLAYER_KICKBACK_PIC:
@@ -648,8 +648,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 		break;
 
 	case PLAYER_DUMMYPLAYERSPRITE:
-		if (bSet) ps[iPlayer].dummyplayersprite = lValue;
-		else SetGameVarID((int)lVar2, ps[iPlayer].dummyplayersprite, sActor, sPlayer);
+		if (bSet) ps[iPlayer].dummyplayersprite = ScriptIndexToActor(lValue);
+		else SetGameVarID((int)lVar2, ActorToScriptIndex(ps[iPlayer].dummyplayersprite), sActor, sPlayer);
 		break;
 
 	case PLAYER_EXTRA_EXTRA8:
@@ -931,7 +931,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, int sActor, int sPl
 }
 
 ////////////////////
-void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short sPlayer, int lParm2)
+void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, short sPlayer, int lParm2)
 {
 	int iWall;
 	int lValue;
@@ -1018,16 +1018,15 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short s
 	return;
 }
 
-void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short sPlayer, int lParm2)
+void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, short sPlayer, int lParm2)
 {
 	int iSector;
 	int lValue;
 
-
 	if (lVar1 == g_iThisActorID)
 	{
 		// if they've asked for 'this', then use 'this'...
-		iSector = sprite[sActor].sectnum;
+		iSector = sActor->s.sectnum;
 	}
 	else
 	{
@@ -1133,23 +1132,24 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short
 	}
 	return;
 }
-void DoActor(char bSet, int lVar1, int lLabelID, int lVar2, short sActor, short sPlayer, int lParm2)
+void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, int sPlayer, int lParm2)
 {
 	int iActor;
 	int lValue;
 
 	lValue = GetGameVarID((int)lVar2, sActor, sPlayer);
 
+	DDukeActor* act;
 	if (lVar1 == g_iThisActorID)
 	{
 		// if they've asked for 'this', then use 'this'...
-		iActor = sActor;
+		act = sActor;
 	}
 	else
 	{
 		iActor = GetGameVarID((int)lVar1, sActor, sPlayer);
+		act = ScriptIndexToActor(iActor);
 	}
-	auto act = &hittype[iActor];
 	auto spr = &act->s;
 
 	if (iActor < 0 || iActor >= MAXSPRITES || spr->statnum == MAXSTATUS)
@@ -1386,15 +1386,14 @@ void ParseState::parseifelse(int condition)
 //
 //---------------------------------------------------------------------------
 
-static int ifcanshoottarget(int g_i, int g_p, int g_x)
+static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 {
 	int j;
-	auto g_sp = &sprite[g_i];
 	if (g_x > 1024)
 	{
-		short temphit, sclip, angdif;
+		short sclip, angdif;
 
-		if (badguy(g_sp) && g_sp->xrepeat > 56)
+		if (badguy(actor) && actor->s.xrepeat > 56)
 		{
 			sclip = 3084;
 			angdif = 48;
@@ -1405,28 +1404,29 @@ static int ifcanshoottarget(int g_i, int g_p, int g_x)
 			angdif = 16;
 		}
 
-		j = hitasprite(g_i, &temphit);
+		DDukeActor* hit;
+		j = hitasprite(actor, &hit);
 		if (j == (1 << 30))
 		{
 			return 1;
 		}
 		if (j > sclip)
 		{
-			if (temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
+			if (hit != nullptr && hit->s.picnum == actor->s.picnum)
 				j = 0;
 			else
 			{
-				g_sp->ang += angdif; j = hitasprite(g_i, &temphit); g_sp->ang -= angdif;
+				actor->s.ang += angdif; j = hitasprite(actor, &hit); actor->s.ang -= angdif;
 				if (j > sclip)
 				{
-					if (temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
+					if (hit != nullptr && hit->s.picnum == actor->s.picnum)
 						j = 0;
 					else
 					{
-						g_sp->ang -= angdif; j = hitasprite(g_i, &temphit); g_sp->ang += angdif;
+						actor->s.ang -= angdif; j = hitasprite(actor, &hit); actor->s.ang += angdif;
 						if (j > 768)
 						{
-							if (temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
+							if (hit != nullptr && hit->s.picnum == actor->s.picnum)
 								j = 0;
 							else j = 1;
 						}
@@ -1448,67 +1448,48 @@ static int ifcanshoottarget(int g_i, int g_p, int g_x)
 //
 //---------------------------------------------------------------------------
 
-static bool ifcansee(int g_i, int g_p)
+static bool ifcansee(DDukeActor* actor, int pnum)
 {
-	auto g_sp = &sprite[g_i];
-	spritetype* s;
 	int j;
+	DDukeActor* tosee;
+	auto spr = &actor->s;
 
 	// select sprite for monster to target
 	// if holoduke is on, let them target holoduke first.
 	// 
-	if (ps[g_p].holoduke_on != nullptr && !isRR())
+	if (ps[pnum].holoduke_on != nullptr && !isRR())
 	{
-		s = &ps[g_p].holoduke_on->s;
-		j = cansee(g_sp->x, g_sp->y, g_sp->z - (krand() & ((32 << 8) - 1)), g_sp->sectnum,
-			s->x, s->y, s->z, s->sectnum);
+		tosee = ps[pnum].holoduke_on;
+		j = cansee(spr->x, spr->y, spr->z - (krand() & ((32 << 8) - 1)), spr->sectnum, tosee->s.x, tosee->s.y, tosee->s.z, tosee->s.sectnum);
 
 		if (j == 0)
 		{
 			// they can't see player's holoduke
-			// check for player...
-			s = &sprite[ps[g_p].i];
+			// check for player..
+			tosee = ps[pnum].GetActor();
 		}
 	}
-	else s = &sprite[ps[g_p].i];	// holoduke not on. look for player
+	else tosee = ps[pnum].GetActor();	// holoduke not on. look for player
 
 	// can they see player, (or player's holoduke)
-	j = cansee(g_sp->x, g_sp->y, g_sp->z - (krand() & ((47 << 8))), g_sp->sectnum,
-		s->x, s->y, s->z - ((isRR()? 28 : 24) << 8), s->sectnum);
+	j = cansee(spr->x, spr->y, spr->z - (krand() & ((47 << 8))), spr->sectnum, tosee->s.x, tosee->s.y, tosee->s.z - ((isRR()? 28 : 24) << 8), tosee->s.sectnum);
 
 	if (j == 0)
 	{
-		// they can't see it.
-
-		// Huh?.  This does nothing....
-		// (the result is always j==0....)
-		if ((abs(hittype[g_i].lastvx - g_sp->x) + abs(hittype[g_i].lastvy - g_sp->y)) <
-			(abs(hittype[g_i].lastvx - s->x) + abs(hittype[g_i].lastvy - s->y)))
-			j = 0;
-
-		// um yeah, this if() will always fire....
-		if (j == 0)
-		{
-			// search around for target player
-
-			// also modifies 'target' x&y if found..
-
-			j = furthestcanseepoint(g_i, s, &hittype[g_i].lastvx, &hittype[g_i].lastvy);
-
-			if (j == -1) j = 0;
-			else j = 1;
-		}
+		// search around for target player
+		// also modifies 'target' x&y if found.
+		j = furthestcanseepoint(actor, tosee, &actor->lastvx, &actor->lastvy) != -1;
 	}
 	else
 	{
 		// else, they did see it.
-		// save where we were looking...
-		hittype[g_i].lastvx = s->x;
-		hittype[g_i].lastvy = s->y;
+		// save where we were looking..
+		actor->lastvx = tosee->s.x;
+		actor->lastvy = tosee->s.y;
 	}
 
-	if (j == 1 && (g_sp->statnum == 1 || g_sp->statnum == 6))
-		hittype[g_i].timetosleep = SLEEPTIME;
+	if (j == 1 && (spr->statnum == STAT_ACTOR || spr->statnum == STAT_STANDABLE))
+		actor->timetosleep = SLEEPTIME;
 
 	return j == 1;
 }
@@ -1519,6 +1500,7 @@ static bool ifcansee(int g_i, int g_p)
 int ParseState::parse(void)
 {
 	int j, l, s;
+	auto g_sp = g_ac? &g_ac->s : nullptr;
 
 	if(killit_flag) return 1;
 
@@ -1529,7 +1511,7 @@ int ParseState::parse(void)
 		insptr++;
 		// HACK ALERT! The fire animation uses a broken ifrnd setup to delay its start because original CON has no variables.
 		// But the chosen random value of 16/255 is too low and can cause delays of a second or more.
-		int spnum = sprite[g_i].picnum;
+		int spnum = g_sp->picnum;
 		if (spnum == TILE_FIRE && g_t[4] == 0 && *insptr == 16)
 		{
 			parseifelse(rnd(64));
@@ -1539,31 +1521,31 @@ int ParseState::parse(void)
 		break;
 	}
 	case concmd_ifcanshoottarget:
-		parseifelse(ifcanshoottarget(g_i, g_p, g_x));
+		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz/*-((krand()&41)<<8)*/, sprite[ps[g_p].i].sectnum);
+		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->s.sectnum);
 		parseifelse(j);
-		if (j) hittype[g_i].timetosleep = SLEEPTIME;
+		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz, sprite[ps[g_p].i].sectnum);
+		j = cansee(g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz, ps[g_p].GetActor()->s.sectnum);
 		parseifelse(j);
-		if (j) hittype[g_i].timetosleep = SLEEPTIME;
+		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 
 	case concmd_ifactornotstayput:
-		parseifelse(hittype[g_i].actorstayput == -1);
+		parseifelse(g_ac->actorstayput == -1);
 		break;
 	case concmd_ifcansee:
-		parseifelse(ifcansee(g_i, g_p));
+		parseifelse(ifcansee(g_ac, g_p));
 		break;
 
 	case concmd_ifhitweapon:
 		parseifelse(fi.ifhitbyweapon(g_ac) >= 0);
 		break;
 	case concmd_ifsquished:
-		parseifelse(ifsquished(g_i, g_p) == 1);
+		parseifelse(ifsquished(g_ac, g_p) == 1);
 		break;
 	case concmd_ifdead:
 	{
@@ -1595,14 +1577,14 @@ int ParseState::parse(void)
 	case concmd_ifpdistl:
 		insptr++;
 		parseifelse(g_x < *insptr);
-		if (g_x > MAXSLEEPDIST && hittype[g_i].timetosleep == 0)
-			hittype[g_i].timetosleep = SLEEPTIME;
+		if (g_x > MAXSLEEPDIST && g_ac->timetosleep == 0)
+			g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifpdistg:
 		insptr++;
 		parseifelse(g_x > * insptr);
-		if (g_x > MAXSLEEPDIST && hittype[g_i].timetosleep == 0)
-			hittype[g_i].timetosleep = SLEEPTIME;
+		if (g_x > MAXSLEEPDIST && g_ac->timetosleep == 0)
+			g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_else:
 		insptr = &ScriptCode[*(insptr + 1)];
@@ -1631,7 +1613,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_fakebubba:
 		insptr++;
-		fakebubbaspawn(g_i, g_p);
+		fakebubbaspawn(g_ac, g_p);
 		break;
 
 	case concmd_rndmove:
@@ -1640,11 +1622,11 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	case concmd_mamatrigger:
-		operateactivators(667, ps[g_p].i);
+		operateactivators(667, g_p);
 		insptr++;
 		break;
 	case concmd_mamaspawn:
-		mamaspawn(g_i);
+		mamaspawn(g_ac);
 		insptr++;
 		break;
 	case concmd_mamaquake:
@@ -1674,15 +1656,15 @@ int ParseState::parse(void)
 			{
 				banjosound = 273;
 			}
-			S_PlayActorSound(banjosound, g_i, CHAN_WEAPON);
+			S_PlayActorSound(banjosound, g_ac, CHAN_WEAPON);
 		}
-		else if (!S_CheckSoundPlaying(g_i, banjosound))
-			S_PlayActorSound(banjosound, g_i, CHAN_WEAPON);
+		else if (!S_CheckActorSoundPlaying(g_ac, banjosound))
+			S_PlayActorSound(banjosound, g_ac, CHAN_WEAPON);
 		insptr++;
 		break;
 	case concmd_motoloopsnd:
-		if (!S_CheckSoundPlaying(g_i, 411))
-			S_PlayActorSound(411, g_i, CHAN_VOICE);
+		if (!S_CheckActorSoundPlaying(g_ac, 411))
+			S_PlayActorSound(411, g_ac, CHAN_VOICE);
 		insptr++;
 		break;
 	case concmd_ifgotweaponce:
@@ -1696,12 +1678,12 @@ int ParseState::parse(void)
 					if (ps[g_p].weaprecs[j] == g_sp->picnum)
 						break;
 
-				parseifelse(j < ps[g_p].weapreccnt&& g_sp->owner == g_i);
+				parseifelse(j < ps[g_p].weapreccnt&& g_ac->GetOwner() == g_ac);
 			}
 			else if (ps[g_p].weapreccnt < 16)
 			{
 				ps[g_p].weaprecs[ps[g_p].weapreccnt++] = g_sp->picnum;
-				parseifelse(g_sp->owner == g_i);
+				parseifelse(g_ac->GetOwner() == g_ac);
 			}
 		}
 		else parseifelse(0);
@@ -1713,14 +1695,14 @@ int ParseState::parse(void)
 		else
 		{
 			// Copied from DukeGDX.
-			if (g_sp->picnum == TILE_EGG && hittype[g_i].temp_data[5] == TILE_EGG + 2 && g_sp->pal == 1) 
+			if (g_sp->picnum == TILE_EGG && g_ac->temp_data[5] == TILE_EGG + 2 && g_sp->pal == 1) 
 			{
 				ps[connecthead].max_actors_killed++; //revive the egg
-				hittype[g_i].temp_data[5] = 0;
+				g_ac->temp_data[5] = 0;
 			}
-			g_sp->pal = hittype[g_i].tempang;
+			g_sp->pal = g_ac->tempang;
 		}
-		hittype[g_i].tempang = 0;
+		g_ac->tempang = 0;
 		break;
 	case concmd_tossweapon:
 		insptr++;
@@ -1731,8 +1713,8 @@ int ParseState::parse(void)
 		break;
 	case concmd_mikesnd:
 		insptr++;
-		if (!S_CheckSoundPlaying(g_i, g_sp->yvel))
-			S_PlayActorSound(g_sp->yvel, g_i, CHAN_VOICE);
+		if (!S_CheckActorSoundPlaying(g_ac, g_sp->yvel))
+			S_PlayActorSound(g_sp->yvel, g_ac, CHAN_VOICE);
 		break;
 	case concmd_pkick:
 		insptr++;
@@ -1758,7 +1740,7 @@ int ParseState::parse(void)
 
 		insptr++;
 
-		if ((g_sp->picnum == TILE_APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tilesiz[g_sp->picnum].y + 8)) << 2) < (hittype[g_i].floorz - hittype[g_i].ceilingz))
+		if ((g_sp->picnum == TILE_APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tilesiz[g_sp->picnum].y + 8)) << 2) < (g_ac->floorz - g_ac->ceilingz))
 		{
 			j = ((*insptr) - g_sp->yrepeat) << 1;
 			if (abs(j)) g_sp->yrepeat += ksgn(j);
@@ -1776,7 +1758,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_shoot:
 		insptr++;
-		fi.shoot(g_i, (short)*insptr);
+		fi.shoot(g_ac, (short)*insptr);
 		insptr++;
 		break;
 	case concmd_ifsoundid:
@@ -1792,28 +1774,28 @@ int ParseState::parse(void)
 		break;
 	case concmd_soundtag:
 		insptr++;
-		S_PlayActorSound(ambientlotag[g_sp->ang], g_i);
+		S_PlayActorSound(ambientlotag[g_sp->ang], g_ac);
 		break;
 	case concmd_soundtagonce:
 		insptr++;
-		if (!S_CheckSoundPlaying(g_i, ambientlotag[g_sp->ang]))
-			S_PlayActorSound(ambientlotag[g_sp->ang], g_i);
+		if (!S_CheckActorSoundPlaying(g_ac, ambientlotag[g_sp->ang]))
+			S_PlayActorSound(ambientlotag[g_sp->ang], g_ac);
 		break;
 	case concmd_soundonce:
 		insptr++;
-		if (!S_CheckSoundPlaying(g_i, *insptr++))
-			S_PlayActorSound(*(insptr - 1), g_i);
+		if (!S_CheckSoundPlaying(*insptr++))
+			S_PlayActorSound(*(insptr - 1), g_ac);
 		break;
 	case concmd_stopsound:
 		insptr++;
-		if (S_CheckSoundPlaying(g_i, *insptr))
+		if (S_CheckSoundPlaying(*insptr))
 			S_StopSound((int)*insptr);
 		insptr++;
 		break;
 	case concmd_globalsound:
 		insptr++;
 		if (g_p == screenpeek || ud.coop == 1)
-			S_PlayActorSound((int)*insptr, ps[screenpeek].i);
+			S_PlayActorSound((int)*insptr, ps[screenpeek].GetActor());
 		insptr++;
 		break;
 	case concmd_smackbubba:
@@ -1838,7 +1820,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_sound:
 		insptr++;
-		S_PlayActorSound((short) *insptr,g_i);
+		S_PlayActorSound((short) *insptr,g_ac);
 		insptr++;
 		break;
 	case concmd_tip:
@@ -1847,10 +1829,10 @@ int ParseState::parse(void)
 		break;
 	case concmd_iftipcow:
 	case concmd_ifhittruck: // both have the same code.
-		if (hittype[g_i].spriteextra == 1) // 
+		if (g_ac->spriteextra == 1) // 
 		{
 			j = 1;
-			hittype[g_i].spriteextra++;
+			g_ac->spriteextra++;
 		}
 		else
 			j = 0;
@@ -1864,7 +1846,7 @@ int ParseState::parse(void)
 		insptr++;
 		g_sp->xoffset = 0;
 		g_sp->yoffset = 0;
-		fi.fall(g_i, g_p);
+		fi.fall(g_ac, g_p);
 		break;
 	case concmd_enda:
 	case concmd_break:
@@ -1899,7 +1881,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_sleeptime:
 		insptr++;
-		hittype[g_i].timetosleep = (short)*insptr;
+		g_ac->timetosleep = (short)*insptr;
 		insptr++;
 		break;
 	case concmd_paper:
@@ -1911,19 +1893,19 @@ int ParseState::parse(void)
 		insptr++;
 		if (isRR())
 		{
-			if (hittype[g_i].spriteextra < 1 || hittype[g_i].spriteextra == 128)
+			if (g_ac->spriteextra < 1 || g_ac->spriteextra == 128)
 			{
-				if (actorfella(g_i))
+				if (actorfella(g_ac))
 					ps[g_p].actors_killed += *insptr;
 			}
 		}
 		else ps[g_p].actors_killed += *insptr;
-		hittype[g_i].actorstayput = -1;
+		g_ac->actorstayput = -1;
 		insptr++;
 		break;
 	case concmd_lotsofglass:
 		insptr++;
-		spriteglass(g_i,*insptr);
+		spriteglass(g_ac, *insptr);
 		insptr++;
 		break;
 	case concmd_killit:
@@ -1960,7 +1942,7 @@ int ParseState::parse(void)
 	case concmd_isdrunk: // todo: move out to player_r.
 		insptr++;
 		ps[g_p].drink_amt += *insptr;
-		j = sprite[ps[g_p].i].extra;
+		j = ps[g_p].GetActor()->s.extra;
 		if (j > 0)
 			j += *insptr;
 		if (j > max_player_health * 2)
@@ -1974,39 +1956,39 @@ int ParseState::parse(void)
 			{
 				if ((j - *insptr) < (max_player_health >> 2) &&
 					j >= (max_player_health >> 2))
-					S_PlayActorSound(DUKE_GOTHEALTHATLOW, ps[g_p].i);
+					S_PlayActorSound(DUKE_GOTHEALTHATLOW, ps[g_p].GetActor());
 
 				ps[g_p].last_extra = j;
 			}
 
-			sprite[ps[g_p].i].extra = j;
+			ps[g_p].GetActor()->s.extra = j;
 		}
 		if (ps[g_p].drink_amt > 100)
 			ps[g_p].drink_amt = 100;
 
-		if (sprite[ps[g_p].i].extra >= max_player_health)
+		if (ps[g_p].GetActor()->s.extra >= max_player_health)
 		{
-			sprite[ps[g_p].i].extra = max_player_health;
+			ps[g_p].GetActor()->s.extra = max_player_health;
 			ps[g_p].last_extra = max_player_health;
 		}
 		insptr++;
 		break;
 	case concmd_strafeleft:
 		insptr++;
-		fi.movesprite(g_i, sintable[(g_sp->ang + 1024) & 2047] >> 10, sintable[(g_sp->ang + 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0);
+		movesprite_ex(g_ac, sintable[(g_sp->ang + 1024) & 2047] >> 10, sintable[(g_sp->ang + 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0, coll);
 		break;
 	case concmd_straferight:
 		insptr++;
-		fi.movesprite(g_i, sintable[(g_sp->ang - 0) & 2047] >> 10, sintable[(g_sp->ang - 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0);
+		movesprite_ex(g_ac, sintable[(g_sp->ang - 0) & 2047] >> 10, sintable[(g_sp->ang - 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0, coll);
 		break;
 	case concmd_larrybird:
 		insptr++;
-		ps[g_p].posz = sector[sprite[ps[g_p].i].sectnum].ceilingz;
-		sprite[ps[g_p].i].z = ps[g_p].posz;
+		ps[g_p].posz = sector[ps[g_p].GetActor()->s.sectnum].ceilingz;
+		ps[g_p].GetActor()->s.z = ps[g_p].posz;
 		break;
 	case concmd_destroyit:
 		insptr++;
-		destroyit(g_i);
+		destroyit(g_ac);
 		break;
 	case concmd_iseat: // move out to player_r.
 		insptr++;
@@ -2018,7 +2000,7 @@ int ParseState::parse(void)
 		ps[g_p].drink_amt -= *insptr;
 		if (ps[g_p].drink_amt < 0)
 			ps[g_p].drink_amt = 0;
-		j = sprite[ps[g_p].i].extra;
+		j = ps[g_p].GetActor()->s.extra;
 		if (g_sp->picnum != TILE_ATOMICHEALTH)
 		{
 			if (j > max_player_health && *insptr > 0)
@@ -2050,12 +2032,12 @@ int ParseState::parse(void)
 			{
 				if ((j - *insptr) < (max_player_health >> 2) &&
 					j >= (max_player_health >> 2))
-					S_PlayActorSound(229, ps[g_p].i);
+					S_PlayActorSound(229, ps[g_p].GetActor());
 
 				ps[g_p].last_extra = j;
 			}
 
-			sprite[ps[g_p].i].extra = j;
+			ps[g_p].GetActor()->s.extra = j;
 		}
 
 		insptr++;
@@ -2064,25 +2046,24 @@ int ParseState::parse(void)
 	case concmd_addphealth: // todo: move out to player.
 		insptr++;
 
-		if(!isRR() && ps[g_p].newowner >= 0)
+		if(!isRR() && ps[g_p].newOwner != nullptr)
 		{
-			ps[g_p].newowner = -1;
+			ps[g_p].newOwner = nullptr;
 			ps[g_p].posx = ps[g_p].oposx;
 			ps[g_p].posy = ps[g_p].oposy;
 			ps[g_p].posz = ps[g_p].oposz;
 			ps[g_p].angle.restore();
 			updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
-			setpal(&ps[g_p]);
 
-			StatIterator it(STAT_ACTOR);
-			while ((j = it.NextIndex()) >= 0)
+			DukeStatIterator it(STAT_ACTOR);
+			while (auto j = it.Next())
 			{
-				if (sprite[j].picnum == TILE_CAMERA1)
-					sprite[j].yvel = 0;
+				if (j->s.picnum == TILE_CAMERA1)
+					j->s.yvel = 0;
 			}
 		}
 
-		j = sprite[ps[g_p].i].extra;
+		j = ps[g_p].GetActor()->s.extra;
 
 		if(g_sp->picnum != TILE_ATOMICHEALTH)
 		{
@@ -2115,12 +2096,12 @@ int ParseState::parse(void)
 			{
 				if( ( j - *insptr ) < (max_player_health>>2) &&
 					j >= (max_player_health>>2) )
-						S_PlayActorSound(isRR()? 229 : DUKE_GOTHEALTHATLOW,ps[g_p].i);
+						S_PlayActorSound(isRR()? 229 : DUKE_GOTHEALTHATLOW,ps[g_p].GetActor());
 
 				ps[g_p].last_extra = j;
 			}
 
-			sprite[ps[g_p].i].extra = j;
+			ps[g_p].GetActor()->s.extra = j;
 		}
 
 		insptr++;
@@ -2151,13 +2132,13 @@ int ParseState::parse(void)
 	case concmd_spawn:
 		insptr++;
 		if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-			fi.spawn(g_i,*insptr);
+			spawn(g_ac,*insptr);
 		insptr++;
 		break;
 	case concmd_ifwasweapon:
 	case concmd_ifspawnedby:	// these two are the same
 		insptr++;
-		parseifelse( hittype[g_i].picnum == *insptr);
+		parseifelse( g_ac->picnum == *insptr);
 		break;
 	case concmd_ifai:
 		insptr++;
@@ -2191,14 +2172,14 @@ int ParseState::parse(void)
 					s = 0;
 				else s = (krand()%3);
 
-				l = EGS(g_sp->sectnum,
+				auto l = EGS(g_sp->sectnum,
 					g_sp->x + (krand() & 255) - 128, g_sp->y + (krand() & 255) - 128, g_sp->z - (8 << 8) - (krand() & 8191),
 					dnum + s, g_sp->shade, 32 + (krand() & 15), 32 + (krand() & 15),
-					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_i, 5);
+					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
 				if(weap)
-					sprite[l].yvel = weaponsandammosprites[j%14];
-				else sprite[l].yvel = -1;
-				sprite[l].pal = g_sp->pal;
+					l->s.yvel = weaponsandammosprites[j%14];
+				else l->s.yvel = -1;
+				l->s.pal = g_sp->pal;
 			}
 			insptr++;
 		}
@@ -2242,20 +2223,20 @@ int ParseState::parse(void)
 		}
 		else
 		{
-			// I am not convinced this is even remotely smart to be executed from here...
+			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_sp->x = hittype[g_i].bposx = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
-			g_sp->y = hittype[g_i].bposy = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].posy;
-			g_sp->z = hittype[g_i].bposy = ps[g_p].oposz = ps[g_p].posz;
+			g_sp->x = g_ac->bposx = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
+			g_sp->y = g_ac->bposy = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].posy;
+			g_sp->z = g_ac->bposy = ps[g_p].oposz = ps[g_p].posz;
 			updatesector(ps[g_p].posx, ps[g_p].posy, &ps[g_p].cursectnum);
-			setsprite(ps[g_p].i, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz + PHEIGHT);
+			setsprite(ps[g_p].GetActor(), ps[g_p].posx, ps[g_p].posy, ps[g_p].posz + PHEIGHT);
 			g_sp->cstat = 257;
 
 			g_sp->shade = -12;
 			g_sp->clipdist = 64;
 			g_sp->xrepeat = 42;
 			g_sp->yrepeat = 36;
-			g_sp->owner = g_i;
+			g_ac->SetOwner(g_ac);
 			g_sp->xoffset = 0;
 			g_sp->pal = ps[g_p].palookup;
 
@@ -2278,27 +2259,25 @@ int ParseState::parse(void)
 
 			ps[g_p].falling_counter = 0;
 
-			hittype[g_i].extra = -1;
-			hittype[g_i].owner = g_i;
+			g_ac->extra = -1;
 
-			hittype[g_i].cgg = 0;
-			hittype[g_i].movflag = 0;
-			hittype[g_i].tempang = 0;
-			hittype[g_i].actorstayput = -1;
-			hittype[g_i].dispicnum = 0;
-			hittype[g_i].owner = ps[g_p].i;
-			hittype[g_i].temp_data[4] = 0;
+			g_ac->cgg = 0;
+			g_ac->movflag = 0;
+			g_ac->tempang = 0;
+			g_ac->actorstayput = -1;
+			g_ac->dispicnum = 0;
+			g_ac->SetHitOwner(ps[g_p].GetActor());
+			g_ac->temp_data[4] = 0;
 
 			resetinventory(g_p);
 			resetweapons(g_p);
 		}
-		setpal(&ps[g_p]);
 		break;
 	case concmd_ifcoop:
 		parseifelse(ud.coop || numplayers > 2);
 		break;
 	case concmd_ifonmud:
-		parseifelse(abs(g_sp->z - sector[g_sp->sectnum].floorz) < (32 << 8) && sector[g_sp->sectnum].floorpicnum == 3073); // eew, hard coded tile numbers... :?
+		parseifelse(abs(g_sp->z - sector[g_sp->sectnum].floorz) < (32 << 8) && sector[g_sp->sectnum].floorpicnum == 3073); // eew, hard coded tile numbers.. :?
 		break;
 	case concmd_ifonwater:
 		parseifelse( abs(g_sp->z-sector[g_sp->sectnum].floorz) < (32<<8) && sector[g_sp->sectnum].lotag == ST_1_ABOVE_WATER);
@@ -2398,7 +2377,7 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	case concmd_hitradius:
-		fi.hitradius(g_i,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
+		fi.hitradius(g_ac, *(insptr + 1), *(insptr + 2), *(insptr + 3), *(insptr + 4), *(insptr + 5));
 		insptr+=6;
 		break;
 	case concmd_ifp:
@@ -2410,8 +2389,8 @@ int ParseState::parse(void)
 
 			s = g_sp->xvel;
 
-			// sigh... this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
-			if( (l& pducking) && ps[g_p].on_ground && (PlayerInput(g_p, SB_CROUCH) ^ !!(ps[g_p].crouch_toggle) ))
+			// sigh.. this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
+			if( (l& pducking) && ps[g_p].on_ground && PlayerInput(g_p, SB_CROUCH))
 					j = 1;
 			else if( (l& pfalling) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&	ps[g_p].poszv > 2048 )
 					j = 1;
@@ -2431,7 +2410,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& pkicking) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
 					j = 1;
-			else if( (l& pshrunk) && sprite[ps[g_p].i].xrepeat < (isRR() ? 8 : 32))
+			else if( (l& pshrunk) && ps[g_p].GetActor()->s.xrepeat < (isRR() ? 8 : 32))
 					j = 1;
 			else if( (l& pjetpack) && ps[g_p].jetpack_on )
 					j = 1;
@@ -2439,9 +2418,9 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& ponground) && ps[g_p].on_ground)
 					j = 1;
-			else if( (l& palive) && sprite[ps[g_p].i].xrepeat > (isRR() ? 8 : 32) && sprite[ps[g_p].i].extra > 0 && ps[g_p].timebeforeexit == 0 )
+			else if( (l& palive) && ps[g_p].GetActor()->s.xrepeat > (isRR() ? 8 : 32) && ps[g_p].GetActor()->s.extra > 0 && ps[g_p].timebeforeexit == 0 )
 					j = 1;
-			else if( (l& pdead) && sprite[ps[g_p].i].extra <= 0)
+			else if( (l& pdead) && ps[g_p].GetActor()->s.extra <= 0)
 					j = 1;
 			else if( (l& pfacing) )
 			{
@@ -2466,7 +2445,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_guts:
 		insptr += 2;
-		fi.guts(g_sp,*(insptr-1),*insptr,g_p);
+		fi.guts(g_ac,*(insptr-1),*insptr,g_p);
 		insptr++;
 		break;
 	case concmd_slapplayer:
@@ -2489,7 +2468,7 @@ int ParseState::parse(void)
 		return 0;
 	case concmd_ifgapzl:
 		insptr++;
-		parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) < *insptr);
+		parseifelse( (( g_ac->floorz - g_ac->ceilingz ) >> 8 ) < *insptr);
 		break;
 	case concmd_ifhitspace:
 		parseifelse(PlayerInput(g_p, SB_OPEN));
@@ -2504,22 +2483,25 @@ int ParseState::parse(void)
 		insptr++;
 		if( sector[g_sp->sectnum].lotag == 0 )
 		{
-			int16_t neartagsector, neartagwall, neartagsprite;
+			int16_t neartagsector, neartagwall;
+			DDukeActor* neartagsprite;
 			int32_t neartaghitdist;
-			neartag(g_sp->x,g_sp->y,g_sp->z-(32<<8),g_sp->sectnum,g_sp->ang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,768L,1);
+			neartag(g_sp->x, g_sp->y, g_sp->z - (32 << 8), g_sp->sectnum, g_sp->ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 768L, 1);
 			if( neartagsector >= 0 && isanearoperator(sector[neartagsector].lotag) )
 				if( (sector[neartagsector].lotag&0xff) == ST_23_SWINGING_DOOR || sector[neartagsector].floorz == sector[neartagsector].ceilingz )
 					if( (sector[neartagsector].lotag&16384) == 0 )
 						if ((sector[neartagsector].lotag & 32768) == 0)
 						{
-							SectIterator it(neartagsector);
-							while ((j = it.NextIndex()) >= 0)
+							DukeSectIterator it(neartagsector);
+							DDukeActor* a2;
+							while ((a2 = it.Next()))
 							{
-								if (sprite[j].picnum == ACTIVATOR)
+								auto sj = &a2->s;
+								if (sj->picnum == ACTIVATOR)
 									break;
 							}
-							if (j == -1)
-								operatesectors(neartagsector, g_i);
+							if (a2 == nullptr)
+								operatesectors(neartagsector, g_ac);
 						}
 		}
 		break;
@@ -2530,7 +2512,7 @@ int ParseState::parse(void)
 	case concmd_spritepal:
 		insptr++;
 		if(g_sp->picnum != TILE_APLAYER)
-			hittype[g_i].tempang = g_sp->pal;
+			g_ac->tempang = g_sp->pal;
 		g_sp->pal = *insptr;
 		insptr++;
 		break;
@@ -2542,23 +2524,23 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_ifbulletnear:
-		parseifelse( dodge(g_sp) == 1);
+		parseifelse( dodge(g_ac) == 1);
 		break;
 	case concmd_ifrespawn:
-		if( badguy(g_sp) )
+		if( badguy(g_ac) )
 			parseifelse( ud.respawn_monsters );
-		else if( inventory(g_sp) )
+		else if( inventory(&g_ac->s) )
 			parseifelse( ud.respawn_inventory );
 		else
 			parseifelse( ud.respawn_items );
 		break;
 	case concmd_iffloordistl:
 		insptr++;
-		parseifelse( (hittype[g_i].floorz - g_sp->z) <= ((*insptr)<<8));
+		parseifelse( (g_ac->floorz - g_sp->z) <= ((*insptr)<<8));
 		break;
 	case concmd_ifceilingdistl:
 		insptr++;
-		parseifelse( ( g_sp->z - hittype[g_i].ceilingz ) <= ((*insptr)<<8));
+		parseifelse( ( g_sp->z - g_ac->ceilingz ) <= ((*insptr)<<8));
 		break;
 	case concmd_palfrom:
 		insptr++;
@@ -2568,8 +2550,8 @@ int ParseState::parse(void)
 
 /*		  case 74:
 		insptr++;
-		getglobalz(g_i);
-		parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) >= *insptr);
+		getglobalz(g_ac);
+		parseifelse( (( g_ac->floorz - g_ac->ceilingz ) >> 8 ) >= *insptr);
 		break;
 */
 	case concmd_addlog:
@@ -2607,13 +2589,13 @@ int ParseState::parse(void)
 		}
 		else if( aGameVars[*insptr].dwFlags & GAMEVAR_FLAG_PERACTOR)
 		{
-			DPrintf(DMSG_NOTIFY, " (Per Actor. Actor=%d)",g_i);
+			DPrintf(DMSG_NOTIFY, " (Per Actor. Actor=%p)",g_ac);
 		}
 		else
 		{
 			DPrintf(DMSG_NOTIFY, " (Global)");
 		}
-		DPrintf(DMSG_NOTIFY, " =%d",	GetGameVarID(*insptr, g_i, g_p));
+		DPrintf(DMSG_NOTIFY, " =%d",	GetGameVarID(*insptr, g_ac, g_p));
 		insptr++;
 		break;
 	}
@@ -2621,7 +2603,7 @@ int ParseState::parse(void)
 	{	int i;
 		insptr++;
 		i=*(insptr++);	// ID of def
-		SetGameVarID(i, *insptr, g_i, g_p );
+		SetGameVarID(i, *insptr, g_ac, g_p );
 		insptr++;
 		break;
 	}
@@ -2629,7 +2611,7 @@ int ParseState::parse(void)
 	{	int i;
 		insptr++;
 		i=*(insptr++);	// ID of def
-		SetGameVarID(i, GetGameVarID(*insptr, g_i, g_p), g_i, g_p );
+		SetGameVarID(i, GetGameVarID(*insptr, g_ac, g_p), g_ac, g_p );
 //			aGameVars[i].lValue = aGameVars[*insptr].lValue;
 		insptr++;
 		break;
@@ -2638,9 +2620,7 @@ int ParseState::parse(void)
 	{	int i;		
 		insptr++;
 		i=*(insptr++);	// ID of def
-//sprintf(g_szBuf,"AddVar %d to Var ID=%d, g_i=%d, g_p=%d\n",*insptr, i, g_i, g_p);
-//AddLog(g_szBuf);
-		SetGameVarID(i, GetGameVarID(i, g_i, g_p) + *insptr, g_i, g_p );
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) + *insptr, g_ac, g_p );
 		insptr++;
 		break;
 	}
@@ -2649,7 +2629,7 @@ int ParseState::parse(void)
 	{	int i;
 		insptr++;
 		i=*(insptr++);	// ID of def
-		SetGameVarID(i, GetGameVarID(i, g_i, g_p) + GetGameVarID(*insptr, g_i, g_p), g_i, g_p );
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) + GetGameVarID(*insptr, g_ac, g_p), g_ac, g_p );
 		insptr++;
 		break;
 	}
@@ -2659,7 +2639,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) == GetGameVarID(*(insptr), g_i, g_p) )
+		if(GetGameVarID(i, g_ac, g_p) == GetGameVarID(*(insptr), g_ac, g_p) )
 		{
 			j=1;
 		}
@@ -2672,7 +2652,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) > GetGameVarID(*(insptr), g_i, g_p) )
+		if(GetGameVarID(i, g_ac, g_p) > GetGameVarID(*(insptr), g_ac, g_p) )
 		{
 			j=1;
 		}
@@ -2685,7 +2665,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) < GetGameVarID(*(insptr), g_i, g_p) )
+		if(GetGameVarID(i, g_ac, g_p) < GetGameVarID(*(insptr), g_ac, g_p) )
 		{
 			j=1;
 		}
@@ -2698,7 +2678,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) == *insptr)
+		if(GetGameVarID(i, g_ac, g_p) == *insptr)
 		{
 			j=1;
 		}
@@ -2711,7 +2691,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) > *insptr)
+		if(GetGameVarID(i, g_ac, g_p) > *insptr)
 		{
 			j=1;
 		}
@@ -2724,7 +2704,7 @@ int ParseState::parse(void)
 		insptr++;
 		i=*(insptr++);	// ID of def
 		j=0;
-		if(GetGameVarID(i, g_i, g_p) < *insptr)
+		if(GetGameVarID(i, g_ac, g_p) < *insptr)
 		{
 			j=1;
 		}
@@ -2733,7 +2713,7 @@ int ParseState::parse(void)
 	}
 	case concmd_ifphealthl:
 		insptr++;
-		parseifelse( sprite[ps[g_p].i].extra < *insptr);
+		parseifelse( ps[g_p].GetActor()->s.extra < *insptr);
 		break;
 
 	case concmd_ifpinventory:
@@ -2784,13 +2764,13 @@ int ParseState::parse(void)
 		}
 	case concmd_pstomp:
 		insptr++;
-		if( ps[g_p].knee_incs == 0 && sprite[ps[g_p].i].xrepeat >= (isRR()? 9: 40) )
-			if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),sprite[ps[g_p].i].sectnum) )
+		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->s.xrepeat >= (isRR()? 9: 40) )
+			if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),ps[g_p].GetActor()->s.sectnum) )
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)
 				ps[g_p].weapon_pos = -1;
-			ps[g_p].actorsqu = &hittype[g_i];
+			ps[g_p].actorsqu = g_ac;
 		}
 		break;
 	case concmd_ifawayfromwall:
@@ -2829,11 +2809,11 @@ int ParseState::parse(void)
 		parseifelse( fi.floorspace(g_sp->sectnum));
 		break;
 	case concmd_ifnotmoving:
-		parseifelse( (hittype[g_i].movflag&49152) > 16384 );
+		parseifelse( (g_ac->movflag&kHitTypeMask) > kHitSprite );
 		break;
 	case concmd_respawnhitag:
 		insptr++;
-		fi.respawnhitag(g_sp);
+		fi.respawnhitag(g_ac);
 		break;
 	case concmd_ifspritepal:
 		insptr++;
@@ -2847,7 +2827,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_ifnosounds:
-		parseifelse(!S_CheckAnyActorSoundPlaying(g_i) );
+		parseifelse(!S_CheckAnyActorSoundPlaying(g_ac));
 		break;
 
 	case concmd_ifplaybackon: //Twentieth Anniversary World Tour
@@ -2856,28 +2836,26 @@ int ParseState::parse(void)
 
 	case concmd_espawnvar:
 	{
-		int lReturn;
+		DDukeActor* lReturn = nullptr;
 		int lIn;
-		lReturn = -1;
 		insptr++;
 
 		lIn = *insptr++;
-		lIn = GetGameVarID(lIn, g_i, g_p);
+		lIn = GetGameVarID(lIn, g_ac, g_p);
 		if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-			lReturn = fi.spawn(g_i, lIn);
+			lReturn = spawn(g_ac, lIn);
 
-		SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
+		SetGameVarID(g_iReturnVarID, ActorToScriptIndex(lReturn), g_ac, g_p);
 		break;
 	}
 	case concmd_espawn:
 	{
-		int lReturn;
-		lReturn = -1;
+		DDukeActor* lReturn = nullptr;
 		insptr++;
 		if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-			lReturn = fi.spawn(g_i, *insptr);
+			lReturn = spawn(g_ac, *insptr);
 		insptr++;
-		SetGameVarID(g_iReturnVarID, lReturn, g_i, g_p);
+		SetGameVarID(g_iReturnVarID, ActorToScriptIndex(lReturn), g_ac, g_p);
 		break;
 	}
 	case concmd_setsector:
@@ -2895,7 +2873,7 @@ int ParseState::parse(void)
 		lLabelID = *(insptr++);
 		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
-		DoSector(lWhat == concmd_setsector, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
+		DoSector(lWhat == concmd_setsector, lVar1, lLabelID, lVar2, g_ac, g_p, lParm2);
 		break;
 	}
 	case concmd_sqrt:
@@ -2909,8 +2887,8 @@ int ParseState::parse(void)
 		insptr++;
 		lInVarID = *(insptr++);
 		lOutVarID = *(insptr++);
-		lIn = GetGameVarID(lInVarID, g_i, g_p);
-		SetGameVarID(lOutVarID, ksqrt(lIn), g_i, g_p);
+		lIn = GetGameVarID(lInVarID, g_ac, g_p);
+		SetGameVarID(lOutVarID, ksqrt(lIn), g_ac, g_p);
 		break;
 	}
 	case concmd_findnearactor:
@@ -2924,9 +2902,7 @@ int ParseState::parse(void)
 		int lMaxDist;
 		int lVarID;
 		int lTemp;
-		int lFound;
 		int lDist;
-		short j;
 
 		insptr++;
 
@@ -2934,15 +2910,15 @@ int ParseState::parse(void)
 		lMaxDist = *(insptr++);
 		lVarID = *(insptr++);
 
-		lFound = -1;
+		DDukeActor* lFound = nullptr;
 		lDist = 32767;	// big number
 
-		StatIterator it(STAT_ACTOR);
-		while ((j = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_ACTOR);
+		while (auto j = it.Next())
 		{
-			if (sprite[j].picnum == lType)
+			if (j->s.picnum == lType)
 			{
-				lTemp = ldist(&sprite[g_i], &sprite[j]);
+				lTemp = ldist(g_ac, j);
 				if (lTemp < lMaxDist)
 				{
 					if (lTemp < lDist)
@@ -2953,7 +2929,7 @@ int ParseState::parse(void)
 
 			}
 		}
-		SetGameVarID(lVarID, lFound, g_i, g_p);
+		SetGameVarID(lVarID, ActorToScriptIndex(lFound), g_ac, g_p);
 
 		break;
 	}
@@ -2969,25 +2945,23 @@ int ParseState::parse(void)
 		int lMaxDist;
 		int lVarID;
 		int lTemp;
-		int lFound;
 		int lDist;
-		short j;
 
 		insptr++;
 
 		lType = *(insptr++);
 		lMaxDistVar = *(insptr++);
 		lVarID = *(insptr++);
-		lMaxDist = GetGameVarID(lMaxDistVar, g_i, g_p);
-		lFound = -1;
+		lMaxDist = GetGameVarID(lMaxDistVar, g_ac, g_p);
+		DDukeActor* lFound;
 		lDist = 32767;	// big number
 
-		StatIterator it(STAT_ACTOR);
-		while ((j = it.NextIndex()) >= 0)
+		DukeStatIterator it(STAT_ACTOR);
+		while (auto j = it.Next())
 		{
-			if (sprite[j].picnum == lType)
+			if (j->s.picnum == lType)
 			{
-				lTemp = ldist(&sprite[g_i], &sprite[j]);
+				lTemp = ldist(g_ac, j);
 				if (lTemp < lMaxDist)
 				{
 					if (lTemp < lDist)
@@ -2998,7 +2972,7 @@ int ParseState::parse(void)
 
 			}
 		}
-		SetGameVarID(lVarID, lFound, g_i, g_p);
+		SetGameVarID(lVarID, ActorToScriptIndex(lFound), g_ac, g_p);
 
 		break;
 	}
@@ -3018,7 +2992,7 @@ int ParseState::parse(void)
 		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
-		DoPlayer(lWhat == concmd_setplayer, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
+		DoPlayer(lWhat == concmd_setplayer, lVar1, lLabelID, lVar2, g_ac, g_p, lParm2);
 		break;
 	}
 	case concmd_getuserdef:
@@ -3037,7 +3011,7 @@ int ParseState::parse(void)
 		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
-		DoUserDef(lWhat == concmd_setuserdef, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
+		DoUserDef(lWhat == concmd_setuserdef, lVar1, lLabelID, lVar2, g_ac, g_p, lParm2);
 		break;
 	}
 	case concmd_setwall:
@@ -3056,7 +3030,7 @@ int ParseState::parse(void)
 		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
-		DoWall(lWhat == concmd_setwall, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
+		DoWall(lWhat == concmd_setwall, lVar1, lLabelID, lVar2, g_ac, g_p, lParm2);
 		break;
 	}
 	case concmd_setactorvar:
@@ -3073,11 +3047,11 @@ int ParseState::parse(void)
 		lVar2 = *(insptr++);
 		lVar3 = *(insptr++);
 
-		lSprite = GetGameVarID(lVar1, g_i, g_p);
+		lSprite = GetGameVarID(lVar1, g_ac, g_p);
 		if (lSprite >= 0)
 		{
-			lTemp = GetGameVarID(lVar3, g_i, g_p);
-			SetGameVarID(lVar2, lTemp, lSprite, g_p);
+			lTemp = GetGameVarID(lVar3, g_ac, g_p);
+			SetGameVarID(lVar2, lTemp, ScriptIndexToActor(lSprite), g_p);
 		}
 
 		break;
@@ -3096,11 +3070,11 @@ int ParseState::parse(void)
 		lVar2 = *(insptr++);
 		lVar3 = *(insptr++);
 
-		lSprite = GetGameVarID(lVar1, g_i, g_p);
+		lSprite = GetGameVarID(lVar1, g_ac, g_p);
 		if (lSprite >= 0)
 		{
-			lTemp = GetGameVarID(lVar2, lSprite, g_p);
-			SetGameVarID(lVar3, lTemp, g_i, g_p);
+			lTemp = GetGameVarID(lVar2, ScriptIndexToActor(lSprite), g_p);
+			SetGameVarID(lVar3, lTemp, g_ac, g_p);
 		}
 
 		break;
@@ -3121,7 +3095,7 @@ int ParseState::parse(void)
 		lParm2 = *(insptr++);
 		lVar2 = *(insptr++);
 
-		DoActor(lWhat == concmd_setactor, lVar1, lLabelID, lVar2, g_i, g_p, lParm2);
+		DoActor(lWhat == concmd_setactor, lVar1, lLabelID, lVar2, g_ac, g_p, lParm2);
 		break;
 	}
 	case concmd_getangletotarget:
@@ -3132,9 +3106,9 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 
-		// hittype[g_i].lastvx and lastvy are last known location of target.
-		ang = getangle(hittype[g_i].lastvx - g_sp->x, hittype[g_i].lastvy - g_sp->y);
-		SetGameVarID(i, ang, g_i, g_p);
+		// g_ac->lastvx and lastvy are last known location of target.
+		ang = getangle(g_ac->lastvx - g_sp->x, g_ac->lastvy - g_sp->y);
+		SetGameVarID(i, ang, g_ac, g_p);
 		break;
 	}
 	case concmd_lockplayer:
@@ -3142,7 +3116,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		ps[g_p].transporter_hold = GetGameVarID(i, g_i, g_p);
+		ps[g_p].transporter_hold = GetGameVarID(i, g_ac, g_p);
 		break;
 	}
 	case concmd_getplayerangle:
@@ -3150,7 +3124,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, ps[g_p].angle.ang.asbuild(), g_i, g_p);
+		SetGameVarID(i, ps[g_p].angle.ang.asbuild(), g_ac, g_p);
 		break;
 	}
 	case concmd_setplayerangle:
@@ -3158,7 +3132,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		ps[g_p].angle.ang = buildang(GetGameVarID(i, g_i, g_p) & 2047);
+		ps[g_p].angle.ang = buildang(GetGameVarID(i, g_ac, g_p) & 2047);
 		break;
 	}
 	case concmd_getactorangle:
@@ -3166,7 +3140,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, g_sp->ang, g_i, g_p);
+		SetGameVarID(i, g_sp->ang, g_ac, g_p);
 		break;
 	}
 	case concmd_setactorangle:
@@ -3174,7 +3148,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		g_sp->ang = GetGameVarID(i, g_i, g_p);
+		g_sp->ang = GetGameVarID(i, g_ac, g_p);
 		g_sp->ang &= 2047;
 		break;
 	}
@@ -3183,7 +3157,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, mulscale(rand(), *insptr, 15), g_i, g_p);
+		SetGameVarID(i, mulscale(rand(), *insptr, 15), g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3192,7 +3166,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, GetGameVarID(i, g_i, g_p) * (*insptr), g_i, g_p);
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) * (*insptr), g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3205,7 +3179,7 @@ int ParseState::parse(void)
 		{
 			I_Error("Divide by Zero in CON.");
 		}
-		SetGameVarID(i, GetGameVarID(i, g_i, g_p) / (*insptr), g_i, g_p);
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) / (*insptr), g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3221,8 +3195,8 @@ int ParseState::parse(void)
 		{
 			I_Error("Divide by Zero in CON");
 		}
-		lResult = GetGameVarID(i, g_i, g_p) % l;
-		SetGameVarID(i, lResult, g_i, g_p);
+		lResult = GetGameVarID(i, g_ac, g_p) % l;
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3234,8 +3208,8 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		l = (*insptr);
-		lResult = GetGameVarID(i, g_i, g_p) & l;
-		SetGameVarID(i, lResult, g_i, g_p);
+		lResult = GetGameVarID(i, g_ac, g_p) & l;
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3247,8 +3221,8 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		l = (*insptr);
-		lResult = GetGameVarID(i, g_i, g_p) ^ l;
-		SetGameVarID(i, lResult, g_i, g_p);
+		lResult = GetGameVarID(i, g_ac, g_p) ^ l;
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3260,8 +3234,8 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		l = (*insptr);
-		lResult = GetGameVarID(i, g_i, g_p) | l;
-		SetGameVarID(i, lResult, g_i, g_p);
+		lResult = GetGameVarID(i, g_ac, g_p) | l;
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3272,10 +3246,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p); // not used for this command
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p); // not used for this command
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		lResult = mulscale(rand(), l2, 15);
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3286,10 +3260,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p); // l2 not used in this one
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p); // l2 not used in this one
 		lResult = max_ammo_amount[l1];
-		SetGameVarID(*insptr, lResult, g_i, g_p);
+		SetGameVarID(*insptr, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3299,8 +3273,8 @@ int ParseState::parse(void)
 		int l1, l2;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		max_ammo_amount[l1] = l2;
 
 		insptr++;
@@ -3313,10 +3287,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		lResult = l1 * l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3327,14 +3301,14 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		if (l2 == 0)
 		{
 			I_Error("Divide by Zero in CON");
 		}
 		lResult = l1 / l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3345,14 +3319,14 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		if (l2 == 0)
 		{
 			I_Error("Mod by Zero in CON");
 		}
 		lResult = l1 % l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3363,10 +3337,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		lResult = l1 & l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3377,10 +3351,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		lResult = l1 ^ l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3391,10 +3365,10 @@ int ParseState::parse(void)
 		int lResult;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		l1 = GetGameVarID(i, g_i, g_p);
-		l2 = GetGameVarID(*insptr, g_i, g_p);
+		l1 = GetGameVarID(i, g_ac, g_p);
+		l2 = GetGameVarID(*insptr, g_ac, g_p);
 		lResult = l1 | l2;
-		SetGameVarID(i, lResult, g_i, g_p);
+		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3403,7 +3377,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, GetGameVarID(i, g_i, g_p) - *insptr, g_i, g_p);
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) - *insptr, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3412,7 +3386,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, GetGameVarID(i, g_i, g_p) - GetGameVarID(*insptr, g_i, g_p), g_i, g_p);
+		SetGameVarID(i, GetGameVarID(i, g_ac, g_p) - GetGameVarID(*insptr, g_ac, g_p), g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3422,9 +3396,9 @@ int ParseState::parse(void)
 		int lValue;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		lValue = GetGameVarID(*insptr, g_i, g_p);
+		lValue = GetGameVarID(*insptr, g_ac, g_p);
 		lValue = sintable[lValue & 2047];
-		SetGameVarID(i, lValue, g_i, g_p);
+		SetGameVarID(i, lValue, g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3432,31 +3406,31 @@ int ParseState::parse(void)
 	case concmd_spgetlotag:
 	{
 		insptr++;
-		SetGameVarID(g_iLoTagID, g_sp->lotag, g_i, g_p);
+		SetGameVarID(g_iLoTagID, g_sp->lotag, g_ac, g_p);
 		break;
 	}
 	case concmd_spgethitag:
 	{
 		insptr++;
-		SetGameVarID(g_iHiTagID, g_sp->hitag, g_i, g_p);
+		SetGameVarID(g_iHiTagID, g_sp->hitag, g_ac, g_p);
 		break;
 	}
 	case concmd_sectgetlotag:
 	{
 		insptr++;
-		SetGameVarID(g_iLoTagID, sector[g_sp->sectnum].lotag, g_i, g_p);
+		SetGameVarID(g_iLoTagID, sector[g_sp->sectnum].lotag, g_ac, g_p);
 		break;
 	}
 	case concmd_sectgethitag:
 	{
 		insptr++;
-		SetGameVarID(g_iHiTagID, sector[g_sp->sectnum].hitag, g_i, g_p);
+		SetGameVarID(g_iHiTagID, sector[g_sp->sectnum].hitag, g_ac, g_p);
 		break;
 	}
 	case concmd_gettexturefloor:
 	{
 		insptr++;
-		SetGameVarID(g_iTextureID, sector[g_sp->sectnum].floorpicnum, g_i, g_p);
+		SetGameVarID(g_iTextureID, sector[g_sp->sectnum].floorpicnum, g_ac, g_p);
 		break;
 	}
 
@@ -3467,8 +3441,8 @@ int ParseState::parse(void)
 		int levnume;
 
 		insptr++; // skip command
-		volnume = GetGameVarID(*(insptr++), g_i, g_p);
-		levnume = GetGameVarID(*(insptr++), g_i, g_p);
+		volnume = GetGameVarID(*insptr++, g_ac, g_p);
+		levnume = GetGameVarID(*insptr++, g_ac, g_p);
 		auto level = FindMapByLevelNum(levelnum(volnume - 1, levnume - 1));
 		if (level != nullptr)
 			ChangeLevel(level, -1);
@@ -3486,14 +3460,14 @@ int ParseState::parse(void)
 		int orientation;
 		int pal;
 		int tw = *insptr++;
-		x = GetGameVarID(*insptr++, g_i, g_p);
-		y = GetGameVarID(*insptr++, g_i, g_p);
-		tilenum = GetGameVarID(*insptr++, g_i, g_p);
-		shade = GetGameVarID(*insptr++, g_i, g_p);
-		orientation = GetGameVarID(*insptr++, g_i, g_p);
+		x = GetGameVarID(*insptr++, g_ac, g_p);
+		y = GetGameVarID(*insptr++, g_ac, g_p);
+		tilenum = GetGameVarID(*insptr++, g_ac, g_p);
+		shade = GetGameVarID(*insptr++, g_ac, g_p);
+		orientation = GetGameVarID(*insptr++, g_ac, g_p);
 		if (tw == concmd_myospal)
 		{
-			pal = GetGameVarID(*insptr++, g_i, g_p);
+			pal = GetGameVarID(*insptr++, g_ac, g_p);
 			//myospal(x, y, tilenum, shade, orientation, pal);
 		}
 		else if (tw == concmd_myos)
@@ -3506,7 +3480,7 @@ int ParseState::parse(void)
 		}
 		else if (tw == concmd_myospalx)
 		{
-			pal = GetGameVarID(*insptr++, g_i, g_p);
+			pal = GetGameVarID(*insptr++, g_ac, g_p);
 			//myospal640(x, y, tilenum, shade, orientation, pal);
 		}
 		break;
@@ -3518,7 +3492,7 @@ int ParseState::parse(void)
 		insptr++;
 
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, rand(), g_i, g_p);
+		SetGameVarID(i, rand(), g_ac, g_p);
 		break;
 	}
 	case concmd_switch:
@@ -3541,7 +3515,7 @@ int ParseState::parse(void)
 		// For each case: value, ptr to code
 		insptr++; // p-code
 		lVarID = *insptr++;
-		lValue = GetGameVarID(lVarID, g_i, g_p);
+		lValue = GetGameVarID(lVarID, g_ac, g_p);
 		lEnd = *insptr++;
 		lCases = *insptr++;
 		lpDefault = insptr++;
@@ -3593,7 +3567,7 @@ int ParseState::parse(void)
 	case concmd_gettextureceiling:
 	{
 		insptr++;
-		SetGameVarID(g_iTextureID, sector[g_sp->sectnum].ceilingpicnum, g_i, g_p);
+		SetGameVarID(g_iTextureID, sector[g_sp->sectnum].ceilingpicnum, g_ac, g_p);
 		break;
 	}
 	case concmd_ifvarvarand:
@@ -3602,7 +3576,7 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		j = 0;
-		if (GetGameVarID(i, g_i, g_p) & GetGameVarID(*(insptr), g_i, g_p))
+		if (GetGameVarID(i, g_ac, g_p) & GetGameVarID(*(insptr), g_ac, g_p))
 		{
 			j = 1;
 		}
@@ -3615,7 +3589,7 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		j = 0;
-		if (GetGameVarID(i, g_i, g_p) != GetGameVarID(*(insptr), g_i, g_p))
+		if (GetGameVarID(i, g_ac, g_p) != GetGameVarID(*(insptr), g_ac, g_p))
 		{
 			j = 1;
 		}
@@ -3628,7 +3602,7 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		j = 0;
-		if (GetGameVarID(i, g_i, g_p) != *insptr)
+		if (GetGameVarID(i, g_ac, g_p) != *insptr)
 		{
 			j = 1;
 		}
@@ -3641,7 +3615,7 @@ int ParseState::parse(void)
 		insptr++;
 		i = *(insptr++);	// ID of def
 		j = 0;
-		if (GetGameVarID(i, g_i, g_p) & *insptr)
+		if (GetGameVarID(i, g_ac, g_p) & *insptr)
 		{
 			j = 1;
 		}
@@ -3664,29 +3638,26 @@ int ParseState::parse(void)
 //
 //---------------------------------------------------------------------------
 
-void LoadActor(int i, int p, int x)
+void LoadActor(DDukeActor *actor, int p, int x)
 {
 	char done;
-	spritetype* g_sp;
 
 	ParseState s;
-	s.g_i = i;	// Sprite ID
 	s.g_p = p;	// Player ID
 	s.g_x = x;	// ??
-	g_sp = s.g_sp = &sprite[i];	// Pointer to sprite structure
-	s.g_t = &hittype[i].temp_data[0];	// Sprite's 'extra' data
-	s.g_ac = &hittype[i];
+	s.g_ac = actor;
+	s.g_t = &s.g_ac->temp_data[0];	// Sprite's 'extra' data
 
-	auto addr = tileinfo[s.g_sp->picnum].loadeventscriptptr;
+	auto addr = tileinfo[actor->s.picnum].loadeventscriptptr;
 	if (addr == 0) return;
 
 	int *insptr = &ScriptCode[addr + 1];
 
 	s.killit_flag = 0;
 
-	if (g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+	if (actor->s.sectnum < 0 || actor->s.sectnum >= MAXSECTORS)
 	{
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 	do
@@ -3695,37 +3666,37 @@ void LoadActor(int i, int p, int x)
 
 	if (s.killit_flag == 1)
 	{
-		// if player was set to squish, first stop that...
+		// if player was set to squish, first stop that..
 		if (p >= 0)
 		{
-			if (ps[p].actorsqu == &hittype[i])
+			if (ps[p].actorsqu == actor)
 				ps[p].actorsqu = nullptr;
 		}
-		deletesprite(i);
+		deletesprite(actor);
 	}
 	else
 	{
-		fi.move(i, p, x);
+		fi.move(actor, p, x);
 
-		if (g_sp->statnum == 1)
+		if (actor->s.statnum == STAT_ACTOR)
 		{
-			if (badguy(g_sp))
+			if (badguy(actor))
 			{
-				if (g_sp->xrepeat > 60) return;
-				if (ud.respawn_monsters == 1 && g_sp->extra <= 0) return;
+				if (actor->s.xrepeat > 60) return;
+				if (ud.respawn_monsters == 1 && actor->s.extra <= 0) return;
 			}
-			else if (ud.respawn_items == 1 && (g_sp->cstat & 32768)) return;
+			else if (ud.respawn_items == 1 && (actor->s.cstat & 32768)) return;
 
-			if (hittype[i].timetosleep > 1)
-				hittype[i].timetosleep--;
-			else if (hittype[i].timetosleep == 1)
-				changespritestat(i, 2);
+			if (actor->timetosleep > 1)
+				actor->timetosleep--;
+			else if (actor->timetosleep == 1)
+				changespritestat(actor, STAT_ZOMBIEACTOR);
 		}
 
-		else if (g_sp->statnum == 6)
+		else if (actor->s.statnum == 6)
 		{
 #if 0
-			switch (g_sp->picnum)
+			switch (actor->s.picnum)
 			{
 			case RUBBERCAN:
 			case EXPLODINGBARREL:
@@ -3738,9 +3709,9 @@ void LoadActor(int i, int p, int x)
 			case NUKEBARRELLEAKED:
 			case TRIPBOMB:
 			case EGG:
-				if (hittype[i].timetosleep > 1)
-					hittype[i].timetosleep--;
-				else if (hittype[i].timetosleep == 1)
+				if (actor->timetosleep > 1)
+					actor->timetosleep--;
+				else if (actor->timetosleep == 1)
 					changespritestat(i, 2);
 				break;
 			}
@@ -3756,31 +3727,28 @@ void LoadActor(int i, int p, int x)
 //
 //---------------------------------------------------------------------------
 
-void execute(int i,int p,int x)
+void execute(DDukeActor *actor,int p,int x)
 {
-	if (actorinfo[sprite[i].picnum].scriptaddress == 0) return;
+	if (actorinfo[actor->s.picnum].scriptaddress == 0) return;
 
 	int done;
-	spritetype* g_sp;
 
 	ParseState s;
-	s.g_i = i;	// Sprite ID
 	s.g_p = p;	// Player ID
 	s.g_x = x;	// ??
-	g_sp = s.g_sp = &sprite[i];	// Pointer to sprite structure
-	s.g_t = &hittype[i].temp_data[0];	// Sprite's 'extra' data
-	s.g_ac = &hittype[i];
+	s.g_ac = actor;
+	s.g_t = &actor->temp_data[0];	// Sprite's 'extra' data
 
-	if (actorinfo[g_sp->picnum].scriptaddress == 0) return;
-	s.insptr = &ScriptCode[4 + (actorinfo[g_sp->picnum].scriptaddress)];
+	if (actorinfo[actor->s.picnum].scriptaddress == 0) return;
+	s.insptr = &ScriptCode[4 + (actorinfo[actor->s.picnum].scriptaddress)];
 
 	s.killit_flag = 0;
 
-	if(g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
+	if(actor->s.sectnum < 0 || actor->s.sectnum >= MAXSECTORS)
 	{
-		if(badguy(g_sp))
+		if(badguy(actor))
 			ps[p].actors_killed++;
-		deletesprite(i);
+		deletesprite(actor);
 		return;
 	}
 
@@ -3792,11 +3760,11 @@ void execute(int i,int p,int x)
 		int increment = ptr[3];
 		int delay =  ptr[4];
 
-		g_sp->lotag += TICSPERFRAME;
-		if (g_sp->lotag > delay)
+		actor->s.lotag += TICSPERFRAME;
+		if (actor->s.lotag > delay)
 		{
 			s.g_t[2]++;
-			g_sp->lotag = 0;
+			actor->s.lotag = 0;
 			s.g_t[3] += increment;
 		}
 		if (abs(s.g_t[3]) >= abs(numframes * increment))
@@ -3809,35 +3777,35 @@ void execute(int i,int p,int x)
 
 	if(s.killit_flag == 1)
 	{
-		// if player was set to squish, first stop that...
-		if(ps[p].actorsqu == &hittype[i])
+		// if player was set to squish, first stop that..
+		if(ps[p].actorsqu == actor)
 			ps[p].actorsqu = nullptr;
 		killthesprite = true;
 	}
 	else
 	{
-		fi.move(i, p, x);
+		fi.move(actor, p, x);
 
-		if (g_sp->statnum == STAT_ACTOR)
+		if (actor->s.statnum == STAT_ACTOR)
 		{
-			if (badguy(g_sp))
+			if (badguy(actor))
 			{
-				if (g_sp->xrepeat > 60) goto quit;
-				if (ud.respawn_monsters == 1 && g_sp->extra <= 0) goto quit;
+				if (actor->s.xrepeat > 60) goto quit;
+				if (ud.respawn_monsters == 1 && actor->s.extra <= 0) goto quit;
 			}
-			else if (ud.respawn_items == 1 && (g_sp->cstat & 32768)) goto quit;
+			else if (ud.respawn_items == 1 && (actor->s.cstat & 32768)) goto quit;
 
-			if (hittype[i].timetosleep > 1)
-				hittype[i].timetosleep--;
-			else if (hittype[i].timetosleep == 1)
-				changespritestat(i, STAT_ZOMBIEACTOR);
+			if (actor->timetosleep > 1)
+				actor->timetosleep--;
+			else if (actor->timetosleep == 1)
+				changespritestat(actor, STAT_ZOMBIEACTOR);
 		}
 
-		else if (g_sp->statnum == STAT_STANDABLE)
-			fi.checktimetosleep(i);
+		else if (actor->s.statnum == STAT_STANDABLE)
+			fi.checktimetosleep(actor);
 	}
 quit:
-	if (killthesprite) deletesprite(i);
+	if (killthesprite) deletesprite(actor);
 	killthesprite = false;
 }
 
@@ -3848,7 +3816,7 @@ quit:
 //
 //---------------------------------------------------------------------------
 
-void OnEvent(int iEventID, int p, int i, int x)
+void OnEvent(int iEventID, int p, DDukeActor *actor, int x)
 {
 	char done;
 
@@ -3863,12 +3831,10 @@ void OnEvent(int iEventID, int p, int i, int x)
 	}
 
 	ParseState s;
-	s.g_i = i;	// current sprite ID
 	s.g_p = p;	/// current player ID
 	s.g_x = x;	// ?
-	s.g_sp = &sprite[i];
-	s.g_ac = &hittype[i];
-	s.g_t = &hittype[i].temp_data[0];
+	s.g_ac = actor;
+	s.g_t = actor->temp_data;
 
 	s.insptr = &ScriptCode[apScriptGameEvent[iEventID]];
 

@@ -1521,7 +1521,7 @@ UpdatePlayerSpriteAngle(PLAYERp pp)
 void
 DoPlayerTurn(PLAYERp pp, float const avel, double const scaleAdjust)
 {
-    applylook(&pp->angle, avel, &pp->input.actions, scaleAdjust, pp->input.actions & (SB_CROUCH|SB_CROUCH_LOCK));
+    applylook(&pp->angle, avel, &pp->input.actions, scaleAdjust);
     UpdatePlayerSpriteAngle(pp);
 }
 
@@ -3788,53 +3788,14 @@ DoPlayerCrawl(PLAYERp pp)
 //#define PLAYER_STANDING_ROOM(pp) ((pp)->posz + PLAYER_CRAWL_HEIGHT - PLAYER_HEIGHT - PLAYER_RUN_CEILING_DIST)
 #define PLAYER_STANDING_ROOM Z(68)
 
-    if (TEST(pp->Flags, PF_LOCK_CRAWL))
+    // Let off of crawl to get up
+    if (!(pp->input.actions & SB_CROUCH))
     {
-        if (pp->input.actions & SB_CROUCH_LOCK)
+        if (labs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
         {
-            if (pp->KeyPressBits & SB_CROUCH_LOCK)
-            {
-                //if (pp->hiz < PLAYER_STANDING_ROOM(pp))
-                if (labs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
-                {
-                    pp->KeyPressBits&= ~SB_CROUCH_LOCK;
-
-                    RESET(pp->Flags, PF_CRAWLING);
-                    DoPlayerBeginRun(pp);
-                    return;
-                }
-            }
-        }
-        else
-        {
-            pp->KeyPressBits |= SB_CROUCH_LOCK;
-        }
-
-        // Jump to get up
-        if (pp->input.actions & SB_JUMP)
-        {
-            if (labs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
-            {
-                //pp->posz = pp->loz - PLAYER_HEIGHT;
-
-                RESET(pp->Flags, PF_CRAWLING);
-                DoPlayerBeginRun(pp);
-                return;
-            }
-        }
-
-    }
-    else
-    {
-        // Let off of crawl to get up
-        if (!(pp->input.actions & SB_CROUCH))
-        {
-            if (labs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
-            {
-                RESET(pp->Flags, PF_CRAWLING);
-                DoPlayerBeginRun(pp);
-                return;
-            }
+            RESET(pp->Flags, PF_CRAWLING);
+            DoPlayerBeginRun(pp);
+            return;
         }
     }
 
@@ -6783,22 +6744,6 @@ DoPlayerRun(PLAYERp pp)
     else
     {
         pp->KeyPressBits |= SB_JUMP;
-    }
-
-    // Crawl lock
-    if (pp->input.actions & SB_CROUCH_LOCK)
-    {
-        if (pp->KeyPressBits & SB_CROUCH_LOCK)
-        {
-            pp->KeyPressBits &= ~SB_CROUCH_LOCK;
-            SET(pp->Flags, PF_LOCK_CRAWL);
-            DoPlayerBeginCrawl(pp);
-            return;
-        }
-    }
-    else
-    {
-        pp->KeyPressBits |= SB_CROUCH_LOCK;
     }
 
     if (PlayerFlyKey())

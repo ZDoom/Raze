@@ -403,7 +403,7 @@ void GameInterface::Ticker()
         if (weap2 == WeaponSel_Next)
         {
             auto newWeap = currWeap == 6 ? 0 : currWeap + 1;
-            while (!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)))
+            while (!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)) || (nPlayerWeapons[nLocalPlayer] & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0))
             {
                 newWeap++;
             }
@@ -412,7 +412,7 @@ void GameInterface::Ticker()
         else if (weap2 == WeaponSel_Prev)
         {
             auto newWeap = currWeap == 0 ? 6 : currWeap - 1;
-            while (!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)))
+            while (!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)) || (nPlayerWeapons[nLocalPlayer] & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0))
             {
                 newWeap--;
             }

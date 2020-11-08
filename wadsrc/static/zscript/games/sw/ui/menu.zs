@@ -88,6 +88,11 @@ class ListMenuItemSWTextItem : ListMenuItemTextItem
 		if (child == 'none') mEnabled = -1;
 	}
 	
+	override bool Selectable()
+	{
+		return super.Selectable() && mFont == BigFont;
+	}
+	
 	void InitDirect(double x, double y, int height, String hotkey, String text, Font font, int color, int color2, Name child, int param = 0)
 	{
 		Super.InitDirect(x, y, height, hotkey, text, font, color, color2, child, param);
@@ -95,10 +100,9 @@ class ListMenuItemSWTextItem : ListMenuItemTextItem
 	
 	override void Draw(bool selected, ListMenuDescriptor desc)
 	{
-		let gamefont = generic_ui ? NewSmallFont : BigFont;
-		int cr = generic_ui? Font.CR_RED : Font.CR_UNDEFINED;
-		double scalex = 1.;
-
+		let gamefont = generic_ui ? NewSmallFont : mFont;
+		int cr = mColor != Font.CR_UNDEFINED? mColor : generic_ui? Font.CR_RED : Font.CR_UNDEFINED;
+		double scalex = generic_ui && mFont == SmallFont? 0.5 : 1.;
 
 		// The font here is very bulky and may cause problems with localized content. Account for that by squashing the text if needed.
 		int length = gamefont.StringWidth(mText);
@@ -107,7 +111,7 @@ class ListMenuItemSWTextItem : ListMenuItemTextItem
 			scalex = (315. - mXpos) / length;
 		}
 
-		Screen.DrawText(BigFont, cr, mXpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, !Selectable()? 0xff505050 : 0xffffffff, DTA_ScaleX, scalex);
+		Screen.DrawText(gamefont, cr, mXpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, !super.Selectable()? 0xff505050 : 0xffffffff, DTA_ScaleX, scalex);
 	}
 }
 

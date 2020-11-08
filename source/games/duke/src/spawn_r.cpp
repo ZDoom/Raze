@@ -40,19 +40,21 @@ int spawn_r(int j, int pn)
 {
 	int x;
 	
-	int i = initspriteforspawn(j, pn, { CRACK1, CRACK2, CRACK3, CRACK4 });
+	auto actj = j < 0 ? nullptr : &hittype[j];
+	int i = initspriteforspawn(actj, pn, { CRACK1, CRACK2, CRACK3, CRACK4 });
 	if (!(i & 0x1000000)) return i;
 	i &= 0xffffff;
-	auto sp = &sprite[i];
-	auto spj = &sprite[j];
-	auto t = hittype[i].temp_data;
+	auto act = &hittype[i];
+	auto sp = &act->s;
+	auto spj = j < 0? nullptr : &actj->s;
+	auto t = act->temp_data;
 	int sect = sp->sectnum;
 
 	switch(sp->picnum)
 	{
 			default:
 			default_case:
-				spawninitdefault(j, i);
+				spawninitdefault(actj, act);
 				break;
 			case RRTILE280:
 			case RRTILE281:
@@ -152,17 +154,17 @@ int spawn_r(int j, int pn)
 				if (!isRRRA()) goto default_case;
 				sp->lotag = 1;
 				sp->clipdist = 0;
-				sp->owner = i;
+				act->SetOwner(act);
 				sp->extra = 0;
-				changespritestat(i,115);
+				changespritestat(act,115);
 				break;
 			case RRTILE8593:
 				if (!isRRRA()) goto default_case;
 				sp->lotag = 1;
 				sp->clipdist = 0;
-				sp->owner = i;
+				act->SetOwner(act);
 				sp->extra = 0;
-				changespritestat(i,122);
+				changespritestat(act,122);
 				break;
 			case RRTILE285:
 			case RRTILE286:
@@ -298,7 +300,7 @@ int spawn_r(int j, int pn)
 				break;
 			case TRANSPORTERSTAR:
 			case TRANSPORTERBEAM:
-				spawntransporter(j, i, sp->picnum == TRANSPORTERBEAM);
+				spawntransporter(actj, act, sp->picnum == TRANSPORTERBEAM);
 				break;
 
 			case FRAMEEFFECT1:
@@ -335,7 +337,7 @@ int spawn_r(int j, int pn)
 				changespritestat(i, STAT_MISC);
 				break;
 			case BLOODPOOL:
-				if (spawnbloodpoolpart1(j, i)) break;
+				if (spawnbloodpoolpart1(actj, act)) break;
 
 				if(j >= 0)
 				{
@@ -362,7 +364,7 @@ int spawn_r(int j, int pn)
 				sp->z -= (16<<8);
 				if(j >= 0 && spj->pal == 6)
 					sp->pal = 6;
-				insertspriteq(&hittype[i]);
+				insertspriteq(act);
 				changespritestat(i, STAT_MISC);
 				break;
 
@@ -436,7 +438,7 @@ int spawn_r(int j, int pn)
 			case FOOTPRINTS2:
 			case FOOTPRINTS3:
 			case FOOTPRINTS4:
-				initfootprint(j, i);
+				initfootprint(actj, act);
 				break;
 			case FEM10:
 			case NAKED1:
@@ -556,7 +558,7 @@ int spawn_r(int j, int pn)
 				if(sp->picnum == RESPAWNMARKERRED)
 				{
 					sp->xrepeat = sp->yrepeat = 8;
-					if(j >= 0) sp->z = hittype[j].floorz;
+					if(j >= 0) sp->z = actj->floorz;
 				}
 				else
 				{
@@ -576,11 +578,11 @@ int spawn_r(int j, int pn)
 			case BULLETHOLE:
 				sp->xrepeat = sp->yrepeat = 3;
 				sp->cstat = 16+(krand()&12);
-				insertspriteq(&hittype[i]);
+				insertspriteq(act);
 			case MONEY:
 				if(sp->picnum == MONEY)
 				{
-					hittype[i].temp_data[0] = krand()&2047;
+					act->temp_data[0] = krand()&2047;
 					sp->cstat = krand()&12;
 					sp->xrepeat = sp->yrepeat = 8;
 					sp->ang = krand()&2047;
@@ -590,7 +592,7 @@ int spawn_r(int j, int pn)
 
 			case SHELL: //From the player
 			case SHOTGUNSHELL:
-				initshell(j, i, sp->picnum == SHELL);
+				initshell(actj, act, sp->picnum == SHELL);
 				break;
 			case RESPAWN:
 				sp->extra = 66-13;
@@ -697,10 +699,10 @@ int spawn_r(int j, int pn)
 				changespritestat(i, STAT_MISC);
 				break;
 			case CRANE:
-				initcrane(j, i, CRANEPOLE);
+				initcrane(actj, act, CRANEPOLE);
 				break;
 			case WATERDRIP:
-				initwaterdrip(j, i);
+				initwaterdrip(actj, act);
 				break;
 			case TRASH:
 
@@ -783,7 +785,7 @@ int spawn_r(int j, int pn)
 			case MINIONSTAYPUT:
 			case COOTSTAYPUT:
 			rrra_stayput:
-				hittype[i].actorstayput = sp->sectnum;
+				act->actorstayput = sp->sectnum;
 			case BOULDER:
 			case BOULDER1:
 			case RAT:
@@ -1029,7 +1031,7 @@ int spawn_r(int j, int pn)
 				}
 				else
 				{
-					makeitfall(i);
+					makeitfall(act);
 
 					if(sp->picnum == RAT)
 					{
@@ -1042,26 +1044,26 @@ int spawn_r(int j, int pn)
 						sp->cstat |= 257;
 
 						if(sp->picnum != 5501)
-							if (actorfella(i))
+							if (actorfella(act))
 								ps[myconnectindex].max_actors_killed++;
 					}
 
 					if(j >= 0)
 					{
-						hittype[i].timetosleep = 0;
-						fi.check_fta_sounds(i);
-						changespritestat(i,1);
+						act->timetosleep = 0;
+						check_fta_sounds_r(act);
+						changespritestat(act, STAT_ACTOR);
+						sp->shade = spj->shade;
 					}
-					else changespritestat(i,2);
+					else changespritestat(act, STAT_ZOMBIEACTOR);
 
-					sp->shade = spj->shade;
 				}
 
 				break;
 			case LOCATORS:
 //                sp->xrepeat=sp->yrepeat=0;
 				sp->cstat |= 32768;
-				changespritestat(i,7);
+				changespritestat(act, STAT_LOCATOR);
 				break;
 				
 			case ACTIVATORLOCKED:
@@ -1070,13 +1072,13 @@ int spawn_r(int j, int pn)
 				sp->cstat |= 32768;
 				if (sp->picnum == ACTIVATORLOCKED)
 					sector[sect].lotag ^= 16384;
-				changespritestat(i,8);
+				changespritestat(act, STAT_ACTIVATOR);
 				break;
 			case DOORSHOCK:
 				sp->cstat |= 1+256;
 				sp->shade = -12;
 
-				changespritestat(i,6);
+				changespritestat(act, STAT_STANDABLE);
 				break;
 
 			case OOZ:
@@ -1086,11 +1088,11 @@ int spawn_r(int j, int pn)
 					if( spj->picnum == NUKEBARREL )
 						sp->pal = 8;
 
-				changespritestat(i,1);
+				changespritestat(act, STAT_STANDABLE);
 
-				getglobalz(i);
+				getglobalz(act);
 
-				j = (hittype[i].floorz-hittype[i].ceilingz)>>9;
+				j = (act->floorz-act->ceilingz)>>9;
 
 				sp->yrepeat = j;
 				sp->xrepeat = 25-(j>>1);
@@ -1098,13 +1100,13 @@ int spawn_r(int j, int pn)
 				break;
 
 			case HEAVYHBOMB:
-				sp->owner = i;
+				act->SetOwner(act);
 				sp->xrepeat = sp->yrepeat = 9;
 				sp->yvel = 4;
 			case REACTOR2:
 			case REACTOR:
 			case RECON:
-				if (initreactor(j, i, sp->picnum == RECON)) return i;
+				if (initreactor(actj, act, sp->picnum == RECON)) return i;
 				break;
 
 			case RPG2SPRITE:
@@ -1158,19 +1160,19 @@ int spawn_r(int j, int pn)
 					{
 						sp->zvel = 0;
 					}
-					ssp(i,CLIPMASK0);
+					ssp(act, CLIPMASK0);
 					sp->cstat = krand()&4;
 				}
 				else
 				{
-					sp->owner = i;
+					act->SetOwner(act);
 					sp->cstat = 0;
 				}
 
 				if( ( ud.multimode < 2 && sp->pal != 0) || (sp->lotag > ud.player_skill) )
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(i, STAT_MISC);
+					changespritestat(act, STAT_MISC);
 					break;
 				}
 
@@ -1196,11 +1198,11 @@ int spawn_r(int j, int pn)
 
 				sp->shade = -17;
 
-				if(j >= 0) changespritestat(i,1);
+				if(j >= 0) changespritestat(act, STAT_ACTOR);
 				else
 				{
-					changespritestat(i,2);
-					makeitfall(i);
+					changespritestat(act, STAT_ZOMBIEACTOR);
+					makeitfall(act);
 				}
 				switch (sp->picnum)
 				{
@@ -1353,14 +1355,13 @@ int spawn_r(int j, int pn)
 					sp->cstat = 16+128+2;
 					sp->xrepeat=sp->yrepeat=1;
 					sp->xvel = -8;
-					ssp(i,CLIPMASK0);
+					ssp(act, CLIPMASK0);
 				}
 			case CEILINGSTEAM:
-				changespritestat(i,6);
+				changespritestat(act, STAT_STANDABLE);
 				break;
 			case SECTOREFFECTOR:
-				spawneffector(i);
-
+				spawneffector(act);
 				break;
 
 			case SEENINE:
@@ -1374,9 +1375,8 @@ int spawn_r(int j, int pn)
 				}
 				else sp->cstat = 1+256;
 				sp->extra = impact_damage<<2;
-				sp->owner = i;
-
-				changespritestat(i,6);
+				act->SetOwner(act);
+				changespritestat(act, STAT_STANDABLE);
 				break;
 
 			case CRACK1:
@@ -1393,10 +1393,10 @@ int spawn_r(int j, int pn)
 				}
 
 				sp->pal = 0;
-				sp->owner = i;
-				changespritestat(i,6);
+				act->SetOwner(act);
+				changespritestat(act, STAT_STANDABLE);
 				sp->xvel = 8;
-				ssp(i,CLIPMASK0);
+				ssp(act, CLIPMASK0);
 				break;
 
 			case EMPTYBIKE:
@@ -1410,10 +1410,10 @@ int spawn_r(int j, int pn)
 				sp->xrepeat = 18;
 				sp->yrepeat = 18;
 				sp->clipdist = mulscale7(sp->xrepeat,tilesiz[sp->picnum].x);
-				sp->owner = 100;
+				act->saved_ammo = 100;
 				sp->cstat = 257;
 				sp->lotag = 1;
-				changespritestat(i,1);
+				changespritestat(act, STAT_ACTOR);
 				break;
 			case EMPTYBOAT:
 				if (!isRRRA()) goto default_case;
@@ -1426,7 +1426,7 @@ int spawn_r(int j, int pn)
 				sp->xrepeat = 32;
 				sp->yrepeat = 32;
 				sp->clipdist = mulscale7(sp->xrepeat,tilesiz[sp->picnum].x);
-				sp->owner = 20;
+				act->saved_ammo = 20;
 				sp->cstat = 257;
 				sp->lotag = 1;
 				changespritestat(i,1);
@@ -1439,7 +1439,7 @@ int spawn_r(int j, int pn)
 				sp->lotag = 1;
 				sp->cstat |= 257;
 				sp->clipdist = 8;
-				sp->owner = i;
+				act->SetOwner(act);
 				break;
 			case CANWITHSOMETHING:
 			case RUBBERCAN:
@@ -1456,27 +1456,27 @@ int spawn_r(int j, int pn)
 				if(j >= 0)
 					sp->xrepeat = sp->yrepeat = 32;
 				sp->clipdist = 72;
-				makeitfall(i);
-				if(j >= 0)
-					sp->owner = j;
-				else sp->owner = i;
+				makeitfall(act);
+				if(j >= 0) act->SetOwner(actj);
+				else act->SetOwner(act);
+
 			case EGG:
 				if( ud.monsters_off == 1 && sp->picnum == EGG )
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(i, STAT_MISC);
+					changespritestat(act, STAT_MISC);
 				}
 				else
 				{
 					if(sp->picnum == EGG)
 						sp->clipdist = 24;
 					sp->cstat = 257|(krand()&4);
-					changespritestat(i,2);
+					changespritestat(act, STAT_ZOMBIEACTOR);
 				}
 				break;
 			case TOILETWATER:
 				sp->shade = -16;
-				changespritestat(i,6);
+				changespritestat(act, STAT_STANDABLE);
 				break;
 			case RRTILE63:
 				sp->cstat |= 32768;

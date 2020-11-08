@@ -25,8 +25,7 @@ enum ESyncBits_ : uint32_t
     SB_OPEN = 1 << 17,
 
     SB_AIMMODE = 1 << 18,   
-    SB_QUICK_KICK = 1 << 19,    // Duke only.
-    SB_CROUCH_LOCK = 1 << 19,   // SW only.
+    SB_QUICK_KICK = 1 << 19,
     SB_FLYDOWN = 1 << 19,       // WH only.
     SB_ESCAPE = 1 << 20,          // Duke only
     SB_SPELL = 1 << 20,         // WH only

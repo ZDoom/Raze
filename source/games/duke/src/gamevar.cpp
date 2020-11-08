@@ -278,7 +278,7 @@ void ResetGameVars(void)
 //
 //---------------------------------------------------------------------------
 
-int GetGameVarID(int id, int sActor, int sPlayer)
+int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 {
 	if(id<0 || id >= iGameVarCount)
 	{
@@ -287,7 +287,7 @@ int GetGameVarID(int id, int sActor, int sPlayer)
 	}
 	if (id == g_iThisActorID)
 	{
-		return sActor;
+		return sActor->GetIndex();
 	}
 	if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER )
 	{
@@ -304,9 +304,9 @@ int GetGameVarID(int id, int sActor, int sPlayer)
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR )
 	{
 		// for the current actor
-		if(sActor >= 0 && sActor <=MAXSPRITES)
+		if(sActor != nullptr)
 		{
-			return aGameVars[id].plArray[sActor];
+			return aGameVars[id].plArray[sActor->GetIndex()];
 		}
 		else
 		{
@@ -344,7 +344,7 @@ int GetGameVarID(int id, int sActor, int sPlayer)
 //
 //---------------------------------------------------------------------------
 
-void SetGameVarID(int id, int lValue, int sActor, int sPlayer)
+void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
 {
 	if(id<0 || id >= iGameVarCount)
 	{
@@ -360,7 +360,7 @@ void SetGameVarID(int id, int lValue, int sActor, int sPlayer)
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR )
 	{
 		// for the current actor
-		if (sActor >= 0) aGameVars[id].plArray[sActor]=lValue;
+		if (sActor != nullptr) aGameVars[id].plArray[sActor->GetIndex()]=lValue;
 		else for (auto& i : aGameVars[id].plArray) i = lValue; // -1 sets all actors - was undefined OOB access in WW2GI.
 	}
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG )
@@ -381,7 +381,7 @@ void SetGameVarID(int id, int lValue, int sActor, int sPlayer)
 //
 //---------------------------------------------------------------------------
 
-int GetGameVar(const char *szGameLabel, int lDefault, int sActor, int sPlayer)
+int GetGameVar(const char *szGameLabel, int lDefault, DDukeActor* sActor, int sPlayer)
 {
 	for (int i = 0; i < iGameVarCount; i++)
 	{
@@ -1171,49 +1171,49 @@ void ResetSystemDefaults(void)
 		for(i=0;i<12/*MAX_WEAPONS*/;i++)
 		{
 			sprintf(aszBuf,"WEAPON%d_CLIP",i);
-			aplWeaponClip[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponClip[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 		
 			sprintf(aszBuf,"WEAPON%d_RELOAD",i);
-			aplWeaponReload[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponReload[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 
 			sprintf(aszBuf,"WEAPON%d_FIREDELAY",i);
-			aplWeaponFireDelay[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponFireDelay[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 
 			sprintf(aszBuf,"WEAPON%d_TOTALTIME",i);
-			aplWeaponTotalTime[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponTotalTime[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 		
 			sprintf(aszBuf,"WEAPON%d_HOLDDELAY",i);
-			aplWeaponHoldDelay[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponHoldDelay[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 
 			sprintf(aszBuf,"WEAPON%d_FLAGS",i);
-			aplWeaponFlags[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponFlags[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 		
 			sprintf(aszBuf,"WEAPON%d_SHOOTS",i);
-			aplWeaponShoots[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponShoots[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 		
 			sprintf(aszBuf,"WEAPON%d_SPAWNTIME",i);
-			aplWeaponSpawnTime[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponSpawnTime[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 		
 			sprintf(aszBuf,"WEAPON%d_SPAWN",i);
-			aplWeaponSpawn[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponSpawn[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 		
 			sprintf(aszBuf,"WEAPON%d_SHOTSPERBURST",i);
-			aplWeaponShotsPerBurst[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponShotsPerBurst[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 		
 			sprintf(aszBuf,"WEAPON%d_WORKSLIKE",i);
-			aplWeaponWorksLike[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponWorksLike[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 		
 			sprintf(aszBuf,"WEAPON%d_INITIALSOUND",i);
-			aplWeaponInitialSound[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponInitialSound[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 		
 			sprintf(aszBuf,"WEAPON%d_FIRESOUND",i);
-			aplWeaponFireSound[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponFireSound[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 
 			sprintf(aszBuf,"WEAPON%d_SOUND2TIME",i);
-			aplWeaponSound2Time[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponSound2Time[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 
 			sprintf(aszBuf,"WEAPON%d_SOUND2SOUND",i);
-			aplWeaponSound2Sound[i][j]=GetGameVar(aszBuf,0, -1, j);
+			aplWeaponSound2Sound[i][j]=GetGameVar(aszBuf,0, nullptr, j);
 	
 		}
 	}

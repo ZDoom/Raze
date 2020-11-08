@@ -30,6 +30,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "mapinfo.h"
 #include "duke3d.h"
 #include "gamestate.h"
+#include "dukeactor.h"
 
 extern FixedBitArray<MAXSPRITES> activeSprites;
 
@@ -60,22 +61,22 @@ static void recreateinterpolations()
 {
 	numinterpolations = 0;
 
-	int k;
-	StatIterator it(STAT_EFFECTOR);
-	while ((k = it.NextIndex()) >= 0)
+	DukeStatIterator it(STAT_EFFECTOR);
+	while (auto k = it.Next())
 	{
-		switch (sprite[k].lotag)
+		auto sectnum = k->s.sectnum;
+		switch (k->s.lotag)
 		{
 		case SE_31_FLOOR_RISE_FALL:
-			setinterpolation(&sector[sprite[k].sectnum].floorz);
+			setinterpolation(&sector[sectnum].floorz);
 			break;
 		case SE_32_CEILING_RISE_FALL:
-			setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+			setinterpolation(&sector[sectnum].ceilingz);
 			break;
 		case SE_17_WARP_ELEVATOR:
 		case SE_25_PISTON:
-			setinterpolation(&sector[sprite[k].sectnum].floorz);
-			setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+			setinterpolation(&sector[sectnum].floorz);
+			setinterpolation(&sector[sectnum].ceilingz);
 			break;
 		case SE_0_ROTATING_SECTOR:
 		case SE_5_BOSS:
@@ -86,7 +87,7 @@ static void recreateinterpolations()
 		case SE_16_REACTOR:
 		case SE_26:
 		case SE_30_TWO_WAY_TRAIN:
-			setsectinterpolate(k);
+			setsectinterpolate(sectnum);
 			break;
 		}
 	}
@@ -132,7 +133,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("angle", w.angle)
 			("horizon", w.horizon)
 			("gotweapon", w.gotweapon)
-			("palette", w.palette)
 			("pals", w.pals)
 			("fricx", w.fric.x)
 			("fricy", w.fric.y)
@@ -172,7 +172,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("tipincs", w.tipincs)
 			("wantweaponfire", w.wantweaponfire)
 			("holoduke_amount", w.holoduke_amount)
-			("newowner", w.newowner)
+			("newowner", w.newOwner)
 			("hurt_delay", w.hurt_delay)
 			("hbomb_hold_delay", w.hbomb_hold_delay)
 			("jumping_counter", w.jumping_counter)
@@ -291,7 +291,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("moto_on_oil", w.moto_on_oil)
 			("moto_on_mud", w.moto_on_mud)
 			// new stuff
-			("crouch_toggle", w.crouch_toggle)
 			("actions", w.sync.actions)
 			.EndObject();
 
@@ -305,7 +304,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		w.okickback_pic = w.kickback_pic;
 		w.orandom_club_frame = w.random_club_frame;
 		w.ohard_landing = w.hard_landing;
-		w.sync.actions &= SB_CENTERVIEW; // this is the only bit we need to preserve.
+		w.sync.actions &= SB_CENTERVIEW|SB_CROUCH; // these are the only bits we need to preserve.
 	}
 	return arc;
 }
@@ -335,6 +334,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, weaponhit& w, weap
 			("bposy", w.bposy, def->bposy)
 			("bposz", w.bposz, def->bposz)
 			("aflags", w.aflags, def->aflags)
+			("saved_ammo", w.saved_ammo, def->saved_ammo)
+			("temp_actor", w.temp_actor, def->temp_actor)
+			("seek_actor", w.seek_actor, def->seek_actor)
 			.Array("temp_data", w.temp_data, def->temp_data, 6)
 			.EndObject();
 	}
@@ -375,6 +377,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("marker", ud.marker)
 			("ffire", ud.ffire)
 			("levelclock", ud.levelclock)
+			("bomb_tag", ud.bomb_tag)
 
 			.Array("sectorextra", sectorextra, numsectors)
 			("rtsplaying", rtsplaying)
@@ -471,7 +474,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 				cameraclock = 0;
 				ps[myconnectindex].over_shoulder_on = 1;
 			}
-			setpal(&ps[myconnectindex]);
 
 			memset(gotpic, 0, sizeof(gotpic));
 			if (isRR()) cacheit_r(); else cacheit_d();
