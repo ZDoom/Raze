@@ -538,9 +538,6 @@ static void processInputBits(player_struct *p, ControlInfo* const hidInput)
 	}
 	else
 	{
-		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) // this shares a bit with another function so cannot be in the common code.
-			loc.actions |= SB_QUICK_KICK;
-
 		if ((isRR() && p->drink_amt > 88)) loc.actions |= SB_LOOK_LEFT;
 		if ((isRR() && p->drink_amt > 99)) loc.actions |= SB_LOOK_DOWN;
 	}

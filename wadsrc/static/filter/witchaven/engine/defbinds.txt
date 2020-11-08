@@ -1,3 +1,8 @@
+Ins "+alt_fire" // fly up
+Del "+quick_kick" // fly down
+End "holsterweapon" // end flying
+unbind "c"
+
 kp1 "spell 0"		//Scare_Spell
 kp2 "spell 1"		//Nightvision_Spell
 kp3 "spell 2"		//Freeze_Spell

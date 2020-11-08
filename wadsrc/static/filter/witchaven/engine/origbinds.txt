@@ -1,3 +1,8 @@
+Ins "+alt_fire" // fly up
+Del "+quick_kick" // fly down
+End "holsterweapon" // end flying
+unbind "c"
+
 ` "backoff"	// i.e. cast spell
 F1 "spell 1"
 F2 "spell 2"

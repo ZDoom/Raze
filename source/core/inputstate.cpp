@@ -369,6 +369,9 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput, bool const crou
 	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || crouch_toggle)
 		input.actions |= SB_CROUCH;
 
+	if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) // doubles as 'fly' in Witchaven
+		input.actions |= SB_QUICK_KICK;
+
 	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
 	{
 		crouch_toggle = !crouch_toggle && crouchable;

@@ -1,3 +1,8 @@
+Ins "+alt_fire" // fly up
+Del "+quick_kick" // fly down
+End "holsterweapon" // end flying
+unbind "c"
+
 // This is unfortunately a bit limited because for this config both the function keys and the numpad are blocked.
 q "spell 0"		//Scare_Spell
 w "spell 1"		//Nightvision_Spell
