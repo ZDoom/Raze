@@ -40,7 +40,7 @@ public:
     virtual void Save(void);
     virtual void Load(void);
     void Read(void *, int);
-    void Write(void *, int);
+    void Write(const void *, int);
 };
 
 void LoadSaveSetup(void);

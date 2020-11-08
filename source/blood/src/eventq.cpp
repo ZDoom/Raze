@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <set>
 #include "build.h"
 #include "common_game.h"
 
@@ -34,7 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "eventq.h"
 #include "globals.h"
 #include "loadsave.h"
-#include "pqueue.h"
 #include "triggers.h"
 #include "view.h"
 #include "nnexts.h"
@@ -42,41 +42,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+
+struct queueItem
+{
+    uint32_t priority;
+    EVENT data;
+
+    bool operator<(const queueItem& other) const
+    {
+        return priority < other.priority;
+    }
+};
+
 class EventQueue
 {
 public:
-    PriorityQueue<EVENT>* PQueue;
-    EventQueue()
-    {
-        PQueue = NULL;
-    }
-    ~EventQueue()
-    {
-        if (PQueue) delete PQueue;
-    }
+    std::multiset<queueItem> set;
+
     bool IsNotEmpty(unsigned int nTime)
     {
-        return PQueue->Size() > 0 && nTime >= PQueue->LowestPriority();
+        return set.size() > 0 && nTime >= set.begin()->priority;
     }
     EVENT ERemove(void)
     {
-        return PQueue->Remove();
+        assert(set.size() > 0);
+        EVENT data = set.begin()->data;
+        set.erase(set.begin());
+        return data;
     }
-    void Kill(int, int);
-    void Kill(int, int, CALLBACK_ID);
+
+    template<class func>
+    void Kill(func pMatch)
+    {
+        for (auto i = set.begin(); i != set.end();)
+        {
+            if (pMatch(i->data))
+                i = set.erase(i);
+            else
+                i++;
+        }
+    }
 };
 
 EventQueue eventQ;
-void EventQueue::Kill(int a1, int a2)
-{
-    PQueue->Kill([=](EVENT nItem)->bool {return nItem.index == a1 && nItem.type == a2; });
-}
-
-void EventQueue::Kill(int a1, int a2, CALLBACK_ID a3)
-{
-    EVENT evn = { (unsigned int)a1, (unsigned int)a2, kCmdCallback, (unsigned int)a3 };
-    PQueue->Kill([=](EVENT nItem)->bool {return !memcmp(&nItem, &evn, sizeof(EVENT)); });
-}
 
 RXBUCKET rxBucket[kChannelMax+1];
 
@@ -265,13 +273,7 @@ unsigned short bucketHead[1024+1];
 
 void evInit(void)
 {
-    if (eventQ.PQueue)
-        delete eventQ.PQueue;
-    if (VanillaMode())
-        eventQ.PQueue = new VanillaPriorityQueue<EVENT>();
-    else
-        eventQ.PQueue = new StdPriorityQueue<EVENT>();
-    eventQ.PQueue->Clear();
+    eventQ.set.clear();
     int nCount = 0;
     for (int i = 0; i < numsectors; i++)
     {
@@ -501,7 +503,7 @@ void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command) {
     evn.index = nIndex;
     evn.type = nType;
     evn.cmd = command;
-    eventQ.PQueue->Insert(gFrameClock+nDelta, evn);
+    eventQ.set.insert({ gFrameClock + nDelta, evn });
 }
 
 void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback) {
@@ -510,23 +512,11 @@ void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback) {
     evn.type = nType;
     evn.cmd = kCmdCallback;
     evn.funcID = callback;
-    eventQ.PQueue->Insert(gFrameClock+nDelta, evn);
+    eventQ.set.insert({ gFrameClock + nDelta, evn });
 }
 
 void evProcess(unsigned int nTime)
 {
-#if 0
-    while (1)
-    {
-        // Inlined?
-        char bDone;
-        if (eventQ.fNodeCount > 0 && nTime >= eventQ.queueItems[1])
-            bDone = 1;
-        else
-            bDone = 0;
-        if (!bDone)
-            break;
-#endif
     while(eventQ.IsNotEmpty(nTime))
     {
         EVENT event = eventQ.ERemove();
@@ -556,12 +546,13 @@ void evProcess(unsigned int nTime)
 
 void evKill(int a1, int a2)
 {
-    eventQ.Kill(a1, a2);
+    eventQ.Kill([=](EVENT nItem)->bool {return nItem.index == a1 && nItem.type == a2; });
 }
 
 void evKill(int a1, int a2, CALLBACK_ID a3)
 {
-    eventQ.Kill(a1, a2, a3);
+    EVENT evn = { (unsigned int)a1, (unsigned int)a2, kCmdCallback, (unsigned int)a3 };
+    eventQ.Kill([=](EVENT nItem)->bool {return !memcmp(&nItem, &evn, sizeof(EVENT)); });
 }
 
 class EventQLoadSave : public LoadSave
@@ -573,22 +564,14 @@ public:
 
 void EventQLoadSave::Load()
 {
-    if (eventQ.PQueue)
-        delete eventQ.PQueue;
-    Read(&eventQ, sizeof(eventQ));
-    if (VanillaMode())
-        eventQ.PQueue = new VanillaPriorityQueue<EVENT>();
-    else
-        eventQ.PQueue = new StdPriorityQueue<EVENT>();
+    eventQ.set.clear();
     int nEvents;
     Read(&nEvents, sizeof(nEvents));
     for (int i = 0; i < nEvents; i++)
     {
-        EVENT event = {};
-        unsigned int eventtime;
-        Read(&eventtime, sizeof(eventtime));
+        queueItem event = {};
         Read(&event, sizeof(event));
-        eventQ.PQueue->Insert(eventtime, event);
+        eventQ.set.insert(event);
     }
     Read(rxBucket, sizeof(rxBucket));
     Read(bucketHead, sizeof(bucketHead));
@@ -596,22 +579,11 @@ void EventQLoadSave::Load()
 
 void EventQLoadSave::Save()
 {
-    EVENT events[1024];
-    unsigned int eventstime[1024];
-    Write(&eventQ, sizeof(eventQ));
-    int nEvents = eventQ.PQueue->Size();
+    int nEvents = eventQ.set.size();
     Write(&nEvents, sizeof(nEvents));
-    for (int i = 0; i < nEvents; i++)
+    for (auto &item : eventQ.set)
     {
-        eventstime[i] = eventQ.PQueue->LowestPriority();
-        events[i] = eventQ.ERemove();
-        Write(&eventstime[i], sizeof(eventstime[i]));
-        Write(&events[i], sizeof(events[i]));
-    }
-    assert(eventQ.PQueue->Size() == 0);
-    for (int i = 0; i < nEvents; i++)
-    {
-        eventQ.PQueue->Insert(eventstime[i], events[i]);
+        Write(&item, sizeof(item));
     }
     Write(rxBucket, sizeof(rxBucket));
     Write(bucketHead, sizeof(bucketHead));

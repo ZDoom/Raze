@@ -465,7 +465,7 @@ void LoadSave::Read(void *pData, int nSize)
         I_Error("Error reading save file.");
 }
 
-void LoadSave::Write(void *pData, int nSize)
+void LoadSave::Write(const void *pData, int nSize)
 {
     dword_27AA38 += nSize;
     dword_27AA3C += nSize;
