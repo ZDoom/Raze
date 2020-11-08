@@ -1,3 +1,9 @@
+DEFAULTLISTMENU
+{
+	Font "BigFont", "Untranslated"
+	LineSpacing 20
+}
+
 //-------------------------------------------------------------------------------------------
 //
 // Main Memu
