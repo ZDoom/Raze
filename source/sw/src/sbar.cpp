@@ -1082,8 +1082,6 @@ void DrawConString(int x, int y, const char* string, double alpha)
 
 void UpdateStatusBar()
 {
-    DSWStatusBar sbar;
-
     if (hud_size <= Hud_Stbar)
     {
         UpdateFrame();
