@@ -398,7 +398,8 @@ static void BuildEpisodeMenu()
 				addedVolumes++;
 				if (gVolumeSubtitles[i].IsNotEmpty())
 				{
-					auto it = CreateListMenuItemStaticText(ld->mXpos, y, gVolumeSubtitles[i], SmallFont, CR_GRAY, false);
+					auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing * 6 / 10, 1,
+						gVolumeSubtitles[i], SmallFont, CR_GRAY, false, NAME_None, i);
 					y += ld->mLinespacing * 6 / 10;
 					ld->mItems.Push(it);
 				}
