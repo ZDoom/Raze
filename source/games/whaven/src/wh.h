@@ -389,7 +389,7 @@ struct Loc
 {
 	int x, y, z, ang;
 };
-extern Loc oldLoc[MAXSPRITES];
+extern Loc oldLocs[MAXSPRITES];
 
 struct ANIMATION
 {

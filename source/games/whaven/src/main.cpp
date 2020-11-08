@@ -301,6 +301,19 @@ bool playrunning()
 	return (paused == 0 || multiplayer/* || demoplay/record*/);
 }
 
+static void recordoldspritepos()
+{
+	for (int i = 0; i < MAXSPRITES; i++)
+	{
+		SPRITE* spr = &sprite[i];
+		Loc* oldLoc = &oldLocs[i];
+		oldLoc->x = spr->x;
+		oldLoc->y = spr->y;
+		oldLoc->z = spr->z;
+		oldLoc->ang = spr->ang;
+	}
+}
+
 void GameInterface::Ticker() 
 {
 	// Make copies so that the originals do not have to be modified.
@@ -322,6 +335,8 @@ void GameInterface::Ticker()
 
 	PLAYER &plr = player[pyrn];
 	viewBackupPlayerLoc(pyrn);
+
+	recordoldspritepos();
 
 	processinput(pyrn);
 	updateviewmap(plr);
