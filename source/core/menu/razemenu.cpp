@@ -589,7 +589,7 @@ void SetDefaultMenuColors()
 		gameinfo.mSliderColor = "Yellow";
 		cls = PClass::FindClass("ExhumedMenuDelegate");
 	}
-	else if (g_gameType & (GAMEFLAG_WH | GAMEFLAG_WH2))
+	else if (g_gameType & GAMEFLAG_WHALL)
 	{
 		OptionSettings.mFontColorHeader = CR_DARKGREEN;
 		OptionSettings.mFontColorHighlight = CR_GRAY;

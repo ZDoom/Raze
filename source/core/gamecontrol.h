@@ -124,6 +124,7 @@ enum
 	GAMEFLAG_DUKEDC = 0x00010000,
 	GAMEFLAG_WH			= 0x00020000,
 	GAMEFLAG_WH2		= 0x00040000,
+	GAMEFLAG_WHALL      = GAMEFLAG_WH | GAMEFLAG_WH2,
 	GAMEFLAGMASK        = 0x0000FFFF, // flags allowed from grpinfo
 
 	// We still need these for the parsers.

@@ -489,7 +489,7 @@ void CheckFrontend(int flags)
 	{
 		gi = Exhumed::CreateInterface();
 	}
-	else if (flags & (GAMEFLAG_WH| GAMEFLAG_WH2))
+	else if (flags & GAMEFLAG_WHALL)
 	{
 		gi = Witchaven::CreateInterface();
 	}

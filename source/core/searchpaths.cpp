@@ -562,7 +562,7 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 				else sc.ScriptError(nullptr);
 			}
 			if (grp.dependencyCRC == 0 && (grp.flags & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI | GAMEFLAG_RRALL | 
-					GAMEFLAG_BLOOD | GAMEFLAG_SW | GAMEFLAG_PSEXHUMED | GAMEFLAG_WH | GAMEFLAG_WH2)) == 0)
+					GAMEFLAG_BLOOD | GAMEFLAG_SW | GAMEFLAG_PSEXHUMED | GAMEFLAG_WHALL)) == 0)
 			{
 				sc.ScriptMessage("Warning: GRP without game defined. Ignoring");
 				groups.Pop();
