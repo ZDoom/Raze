@@ -261,6 +261,7 @@ void GameInterface::app_init()
 	g_visibility = 2048;
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 	initAI();
+	InitItems();
 }
 
 void GameInterface::Startup()
