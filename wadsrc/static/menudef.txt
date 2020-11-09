@@ -1165,7 +1165,7 @@ OptionMenu "HUDOptions" protected
 	}
 	StaticText ""
 	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
-	Slider "$DSPLYMNU_CROSSHAIRSCALE",			"cl_crosshairscale",		50, 100, 10, 1
+	Slider "$DSPLYMNU_CROSSHAIRSCALE",			"crosshairscale",		0.25, 1.0, 0.125, 2
 	Option "$HUDMNU_CROSSHAIR",				"crosshair", "Crosshairs"
 	//ColorPicker "$HUDMNU_CROSSHAIRCOLOR", 	"crosshaircolor" fixme: Does not exist yet in Raze.
 	Option "$HUDMNU_CROSSHAIRHEALTH",		"crosshairhealth", "CrosshairHealthTypes"
