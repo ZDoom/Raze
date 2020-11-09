@@ -1146,7 +1146,7 @@ OptionMenu "HUDOptions" protected
 	Title "$OPTMNU_HUD"
 
 	Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 9.0, 1.0, -1
-	Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				0.36, 1.0, 0.04, 2
+	Slider "$DSPLYMNU_SBSCALE",					"hud_scalefactor",			0.36, 1.0, 0.04, 2
 	StaticText ""
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
 	Slider "$DSPLYMNU_STATSCALE",				"hud_statscale",			0.36, 1.0, 0.04, 2
