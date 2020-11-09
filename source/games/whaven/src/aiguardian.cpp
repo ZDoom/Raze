@@ -91,7 +91,7 @@ static void nuked(PLAYER& plr, short i) {
 	}
 }
 	
-static void attack(PLAYER& plr, short i) {
+static void attackfunc(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (plr.z < spr.z) {
@@ -230,7 +230,7 @@ void createGuardianAI() {
 	e.info.Init(isWh2() ? 35 : 32, isWh2() ? 35 : 32, 4096, 120, 0, 64, true, isWh2() ? 100 : 200, 0);
 	e.chase = chase;
 	e.nuked = nuked;
-	e.attack = attack;
+	e.attack = attackfunc;
 	e.face = face;
 	e.search = search;
 	e.flee = flee;

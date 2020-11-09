@@ -192,7 +192,7 @@ static void flee(PLAYER& plr, short i) {
 	checkexpl(plr, i);
 }
 	
-static void attack(PLAYER& plr, short i) {
+static void attackfunc(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -339,7 +339,7 @@ void createKoboldAI() {
 	e.pain = pain;
 	e.face = face;
 	e.flee = flee;
-	e.attack = attack;
+	e.attack = attackfunc;
 	e.resurect = resurect;
 	e.search = search;
 	e.frozen = frozen;

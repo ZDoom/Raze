@@ -190,7 +190,7 @@ static void cast(PLAYER& plr, short i) {
 	checksector6(i);
 }
 
-static void attack(PLAYER& plr, short i) {
+static void attackfunc(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -370,7 +370,7 @@ void createDragonAI() {
 	e.flee = flee;
 	e.die = die;
 	e.cast = cast;
-	e.attack = attack;
+	e.attack = attackfunc;
 	e.resurect = resurect;
 	e.search = search;
 	e.frozen = frozen;

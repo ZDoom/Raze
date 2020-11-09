@@ -216,7 +216,7 @@ static void stand(PLAYER& plr, short i) {
 	checksector6(i);
 }
 		
-static void attack(PLAYER& plr, short i) {
+static void attackfunc(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -535,7 +535,7 @@ void createGoblinAI() {
 	e.face = face;
 	e.flee = flee;
 	e.stand = stand;
-	e.attack = attack;
+	e.attack = attackfunc;
 	e.resurect = resurect;
 	e.search = search;
 	e.frozen = frozen;

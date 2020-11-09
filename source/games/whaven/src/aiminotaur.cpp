@@ -196,7 +196,7 @@ static void face(PLAYER& plr, short i) {
 	checkexpl(plr, i);
 }
 	
-static void attack(PLAYER& plr, short i) {
+static void attackfunc(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -340,7 +340,7 @@ void createMinotaurAI() {
 	e.nuked = nuked;
 	e.pain = pain;
 	e.face = face;
-	e.attack = attack;
+	e.attack = attackfunc;
 	e.die = die;
 	e.flee = flee;
 	e.frozen = frozen;

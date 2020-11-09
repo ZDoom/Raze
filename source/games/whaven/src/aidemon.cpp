@@ -120,7 +120,7 @@ static void face(PLAYER& plr, short i) {
 }
 
 
-static void attack(PLAYER& plr, short i) {
+static void attackfunc(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (plr.z < spr.z) {
@@ -211,7 +211,7 @@ void createDemonAI() {
 	e.frozen;
 	e.pain = pain;
 	e.face = face;
-	e.attack = attack;
+	e.attack = attackfunc;
 	e.flee = flee;
 	e.cast = cast;
 	e.die;

@@ -121,7 +121,7 @@ static void face(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void attack(PLAYER& plr, short i) {
+static void attackfunc(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -267,7 +267,7 @@ void createKatieAI() {
 	e.search = search;
 	e.pain = pain;
 	e.face = face;
-	e.attack = attack;
+	e.attack = attackfunc;
 	e.flee = flee;
 	e.cast = cast;
 	e.die = die;

@@ -80,7 +80,7 @@ static void die(PLAYER& plr, short i) {
 	deletesprite(i);
 }
 	
-static void attack(PLAYER& plr, short i) {
+static void attackfunc(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.z = sector[sprite[i].sectnum].floorz;
@@ -179,7 +179,7 @@ void createFishAI() {
 	e.info.Init(1, 1, 512, 120, 0, 32, false, 10, 0);
 	e.chase = chase;
 	e.die = die;
-	e.attack = attack;
+	e.attack = attackfunc;
 	e.skirmish = skirmish;
 	e.search = search;
 	e.face = face;

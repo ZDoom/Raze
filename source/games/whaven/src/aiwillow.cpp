@@ -67,7 +67,7 @@ static void chase(PLAYER& plr, short i) {
 	}
 }
 	
-static void attack(PLAYER& plr, short i) {
+static void attackfunc(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -269,7 +269,7 @@ void createWillowAI() {
 	auto& e = enemy[WILLOWTYPE];
 	e.info.Init(32, 32, 512, 120, 0, 64, true, isWh2() ? 5 : 400, 0);
 	e.chase = chase;
-	e.attack = attack;
+	e.attack = attackfunc;
 	e.face = face;
 	e.search = search;
 	e.flee = flee;
