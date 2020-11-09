@@ -481,26 +481,6 @@ inline int tileTopOffset(int num)
 	return (int)TileFiles.tiledata[num].texture->GetDisplayTopOffset();
 }
 
-inline int widthBits(int num)
-{
-	int w = tileWidth(num);
-	int j = 15;
-
-	while ((j > 1) && ((1 << j) > w))
-		j--;
-	return j;
-}
-
-inline int heightBits(int num)
-{
-	int w = tileHeight(num);
-	int j = 15;
-
-	while ((j > 1) && ((1 << j) > w))
-		j--;
-	return j;
-}
-
 inline rottile_t& RotTile(int tile)
 {
 	assert(tile < MAXTILES);

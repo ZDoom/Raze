@@ -245,4 +245,25 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
     *y3 = *y2 + ofs.y, *y4 = *y1 + ofs.y;
 }
 
+inline int widthBits(int num)
+{
+    int w = tileWidth(num);
+    int j = 15;
+
+    while ((j > 1) && ((1 << j) > w))
+        j--;
+    return j;
+}
+
+inline int heightBits(int num)
+{
+    int w = tileHeight(num);
+    int j = 15;
+
+    while ((j > 1) && ((1 << j) > w))
+        j--;
+    return j;
+}
+
+
 #endif	/* ENGINE_PRIV_H */
