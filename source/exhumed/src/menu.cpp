@@ -214,7 +214,7 @@ void DoEnergyTile()
         for (i = 0; i < 4096; i++)
         {
             if (ptrW[i] == 96) {
-                ptrW[i] = 255; // -1?
+                ptrW[i] = 0; // -1?
             }
         }
 
