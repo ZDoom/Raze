@@ -308,6 +308,7 @@ void swingdasound(int daweapon, boolean enchanted);
 
 boolean isItemSprite(int i);
 void InitItems();
+void wepdatainit();
 
 // spellbook
 

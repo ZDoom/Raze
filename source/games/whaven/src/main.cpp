@@ -262,6 +262,7 @@ void GameInterface::app_init()
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 	initAI();
 	InitItems();
+	wepdatainit();
 }
 
 void GameInterface::Startup()
