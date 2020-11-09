@@ -260,6 +260,7 @@ void GameInterface::app_init()
 	parallaxtype = 2;
 	g_visibility = 2048;
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
+	initAI();
 }
 
 void GameInterface::Startup()
