@@ -391,7 +391,7 @@ static void BuildEpisodeMenu()
 			{
 				int isShareware = ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && i > 0);
 				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, gVolumeNames[i][0],
-					gVolumeNames[i], ld->mFont, 0, isShareware, NAME_Skillmenu, i); // font colors are not used, so hijack one for the shareware flag.
+					gVolumeNames[i], ld->mFont, CR_UNTRANSLATED, isShareware, NAME_Skillmenu, i); // font colors are not used, so hijack one for the shareware flag.
 
 				y += ld->mLinespacing;
 				ld->mItems.Push(it);
@@ -443,7 +443,7 @@ static void BuildEpisodeMenu()
 		{
 			if (gSkillNames[i].IsNotEmpty())
 			{
-				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, gSkillNames[i][0], gSkillNames[i], ld->mFont, 0, 0, NAME_Startgame, i);
+				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, gSkillNames[i][0], gSkillNames[i], ld->mFont, CR_UNTRANSLATED, 0, NAME_Startgame, i);
 				y += ld->mLinespacing;
 				ld->mItems.Push(it);
 				addedSkills++;
