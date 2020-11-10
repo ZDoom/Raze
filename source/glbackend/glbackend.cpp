@@ -58,16 +58,6 @@ static int BufferLock = 0;
 TArray<VSMatrix> matrixArray;
 void Draw2D(F2DDrawer* drawer, FRenderState& state);
 
-FileReader GetResource(const char* fn)
-{
-	auto fr = fileSystem.OpenFileReader(fn);
-	if (!fr.isOpen())
-	{
-		I_Error("Fatal: '%s' not found", fn);
-	}
-	return fr;
-}
-
 GLInstance GLInterface;
 
 GLInstance::GLInstance()
@@ -76,10 +66,6 @@ GLInstance::GLInstance()
 	VSMatrix mat(0);
 	matrixArray.Push(mat);
 }
-
-//void ImGui_Init_Backend();
-//ImGuiContext* im_ctx;
-TArray<uint8_t> ttf;
 
 IHardwareTexture *setpalettelayer(int layer, int translation)
 {
@@ -171,7 +157,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	else
 	{
 		state.EnableTexture(gl_texture);
-		state.SetMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
+		state.SetMaterial(mMaterial.mTexture, mMaterial.uFlags, mMaterial.mScaleFlags, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
 	}
 
 	state.SetColor(Color[0], Color[1], Color[2], Color[3]);
@@ -262,7 +248,6 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	FVector4 blendcol(0, 0, 0, 0);
 	int flags = 0;
 
-	if (Flags & RF_ShadeInterpolate) flags |= 16384;	// hijack a free bit in here.
 	if (fullscreenTint != 0xffffff) flags |= 16;
 	if (hictint_flags != -1)
 	{
@@ -274,7 +259,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 			modcol.Z *= hictint.b / 64.f;
 		}
 		if (hictint_flags & TINTF_GRAYSCALE)
-			modcol.W = 1.f;
+			modcol.W = 1.f; 
 
 		if (hictint_flags & TINTF_INVERT)
 			flags |= TextureManipulation::InvertBit;
@@ -286,6 +271,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		}
 	}
 	addcol.W = flags;
+	if (Flags & RF_ShadeInterpolate) addcol.W += 16384;	// hijack a free bit in here.
 	state.SetTextureColors(&modcol.X, &addcol.X, &blendcol.X);
 
 	if (matrixIndex[Matrix_Model] != -1)

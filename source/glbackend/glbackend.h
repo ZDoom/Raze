@@ -269,22 +269,16 @@ public:
 		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
 	}
 
-	void SetMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader)
+	void SetMaterial(FGameTexture* tex, EUpscaleFlags upscalemask, int scaleflags, int clampmode, int translation, int overrideshader)
 	{
-		assert(mat);
-		renderState.mMaterial.mMaterial = mat;
+		assert(tex);
+		renderState.mMaterial.mTexture = tex;
+		renderState.mMaterial.uFlags = upscalemask;
+		renderState.mMaterial.mScaleFlags = scaleflags;
 		renderState.mMaterial.mClampMode = clampmode;
 		renderState.mMaterial.mTranslation = translation;
 		renderState.mMaterial.mOverrideShader = overrideshader;
 		renderState.mMaterial.mChanged = true;
-		//mTextureModeFlags = mat->GetLayerFlags();
-	}
-
-	void SetMaterial(FGameTexture* tex, EUpscaleFlags upscalemask, int scaleflags, int clampmode, int translation, int overrideshader)
-	{
-		assert(tex);
-		if (shouldUpscale(tex, upscalemask)) scaleflags |= CTF_Upscale;
-		SetMaterial(FMaterial::ValidateTexture(tex, scaleflags), clampmode, translation, overrideshader);
 	}
 
 	void UseColorOnly(bool yes)

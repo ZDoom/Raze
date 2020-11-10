@@ -43,6 +43,28 @@ enum PRSFlags
 	STF_SCISSORSET = 8192,
 };
 
+struct PolymostTextureState
+{
+	FGameTexture* mTexture = nullptr;
+	EUpscaleFlags uFlags;
+	int mScaleFlags;
+	int mClampMode;
+	int mTranslation;
+	int mOverrideShader;
+	bool mChanged;
+
+	void Reset()
+	{
+		mTexture = nullptr;
+		uFlags = UF_None;
+		mScaleFlags = 0;
+		mTranslation = 0;
+		mClampMode = CLAMP_NONE;
+		mOverrideShader = -1;
+		mChanged = false;
+	}
+};
+
 struct PolymostRenderState
 {
 	int vindex, vcount, primtype;
@@ -59,7 +81,7 @@ struct PolymostRenderState
 	PalEntry fullscreenTint = 0xffffff, hictint = 0xffffff, hictint_overlay = 0xffffff;
 	int hictint_flags = -1;
 	FDepthBiasState mBias{ };
-	FMaterialState mMaterial;
+	PolymostTextureState mMaterial;
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
 	FRenderStyle Style{};

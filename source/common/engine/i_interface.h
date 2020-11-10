@@ -4,6 +4,9 @@
 #include "intrect.h"
 
 struct event_t;
+class FRenderState;
+class FGameTexture;
+enum EUpscaleFlags;
 
 struct SystemCallbacks
 {
@@ -27,6 +30,7 @@ struct SystemCallbacks
 	void (*MenuClosed)();
 	bool (*CheckMenudefOption)(const char* opt);
 	void (*ConsoleToggled)(int state);
+	bool (*PreBindTexture)(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& clampmode, int& translation, int& overrideshader);
 };
 
 extern SystemCallbacks sysCallbacks;
