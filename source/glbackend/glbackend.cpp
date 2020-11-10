@@ -106,6 +106,8 @@ void GLInstance::DoDraw()
 
 	if (rendercommands.Size() > 0)
 	{
+		if (!useMapFog) hw_int_useindexedcolortextures = hw_useindexedcolortextures;
+
 		lastState.Flags = ~rendercommands[0].StateFlags;	// Force ALL flags to be considered 'changed'.
 		lastState.DepthFunc = INT_MIN;						// Something totally invalid.
 		screen->RenderState()->EnableMultisampling(true);
@@ -117,6 +119,7 @@ void GLInstance::DoDraw()
 		}
 		renderState.Apply(*screen->RenderState(), lastState);	// apply any pending change before returning.
 		rendercommands.Clear();
+		hw_int_useindexedcolortextures = false;
 	}
 	matrixArray.Resize(1);
 }
@@ -242,37 +245,6 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 
 	state.SetNpotEmulation(NPOTEmulation.Y, NPOTEmulation.X);
 	state.AlphaFunc(Alpha_Greater, AlphaTest ? AlphaThreshold : -1.f);
-
-	FVector4 addcol(0, 0, 0, 0);
-	FVector4 modcol(fullscreenTint.r / 255.f, fullscreenTint.g / 255.f, fullscreenTint.b / 255.f, 1);
-	FVector4 blendcol(0, 0, 0, 0);
-	int flags = 0;
-
-	if (fullscreenTint != 0xffffff) flags |= 16;
-	if (hictint_flags != -1)
-	{
-		flags |= TextureManipulation::ActiveBit;
-		if (hictint_flags & TINTF_COLORIZE)
-		{
-			modcol.X *= hictint.r / 64.f;
-			modcol.Y *= hictint.g / 64.f;
-			modcol.Z *= hictint.b / 64.f;
-		}
-		if (hictint_flags & TINTF_GRAYSCALE)
-			modcol.W = 1.f; 
-
-		if (hictint_flags & TINTF_INVERT)
-			flags |= TextureManipulation::InvertBit;
-
-		if (hictint_flags & TINTF_BLENDMASK)
-		{
-			blendcol = modcol;	// WTF???, but the tinting code really uses the same color for both!
-			flags |= (((hictint_flags & TINTF_BLENDMASK) >> 6) + 1) & TextureManipulation::BlendMask;
-		}
-	}
-	addcol.W = flags;
-	if (Flags & RF_ShadeInterpolate) addcol.W += 16384;	// hijack a free bit in here.
-	state.SetTextureColors(&modcol.X, &addcol.X, &blendcol.X);
 
 	if (matrixIndex[Matrix_Model] != -1)
 	{

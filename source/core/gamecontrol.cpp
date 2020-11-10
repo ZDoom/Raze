@@ -131,6 +131,7 @@ void I_DetectOS(void);
 void LoadScripts();
 void MainLoop();
 void SetConsoleNotifyBuffer();
+bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader);
 
 DBaseStatusBar* StatusBar;
 
@@ -521,7 +522,9 @@ int GameMain()
 		validFilter,
 		StrTable_GetGender,
 		System_MenuClosed,
-		nullptr
+		nullptr,
+		nullptr,
+		PreBindTexture
 	};
 
 	try

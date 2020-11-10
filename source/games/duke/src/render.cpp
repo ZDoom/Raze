@@ -502,7 +502,6 @@ void displayrooms(int snum, double smoothratio)
 	if (sect < 0 || sect >= MAXSECTORS) return;
 
 	GLInterface.SetMapFog(fogactive != 0);
-	if (fogactive) hw_int_useindexedcolortextures = false;
 	dointerpolations(smoothratio);
 
 	setgamepalette(BASEPAL);
@@ -659,7 +658,6 @@ void displayrooms(int snum, double smoothratio)
 		}
 		else p->visibility = ud.const_visibility;
 	}
-	if (fogactive) hw_int_useindexedcolortextures = hw_useindexedcolortextures;
 }
 
 bool GameInterface::GenerateSavePic()

@@ -293,12 +293,6 @@ public:
 		renderState.NPOTEmulation.X = xOffset;
 	}
 
-	void SetShadeInterpolate(int32_t yes)
-	{
-		if (yes) renderState.Flags |= RF_ShadeInterpolate;
-		else renderState.Flags &= ~RF_ShadeInterpolate;
-	}
-
 	void SetFadeDisable(bool yes)
 	{
 		if (yes) renderState.Flags |= RF_FogDisabled;
@@ -324,18 +318,6 @@ public:
 		renderState.Flags &= ~RF_MapFog;
 	}
 
-	void SetTinting(int flags, PalEntry color, PalEntry overlayColor)
-	{
-		renderState.hictint = color;
-		renderState.hictint_overlay = overlayColor;
-		renderState.hictint_flags = flags;
-	}
-
-	void SetBasepalTint(PalEntry color)
-	{
-		renderState.fullscreenTint = color;
-	}
-
 	void EnableAlphaTest(bool on)
 	{
 		renderState.AlphaTest = on;
@@ -346,7 +328,7 @@ public:
 		renderState.AlphaThreshold = al;
 	}
 
-	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int sampleroverride, bool notindexed = false);
+	bool SetTexture(FGameTexture* tex, int palette, int sampleroverride, bool notindexed = false);
 };
 
 extern GLInstance GLInterface;

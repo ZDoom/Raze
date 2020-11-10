@@ -48,6 +48,10 @@
 #include "sc_man.h"
 #include "gamestruct.h"
 
+#include "hw_renderstate.h"
+
+CVARD(Bool, hw_shadeinterpolate, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable shade interpolation")
+
 enum
 {
 	MAXARTFILES_BASE = 200,
@@ -1237,3 +1241,52 @@ DEFINE_ACTION_FUNCTION_NATIVE(_TileFiles, GetTexture, GetTexture)
 	ACTION_RETURN_INT(GetTexture(tile, animate));
 }
 #endif
+
+
+bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader)
+{
+	TexturePick pick;
+	auto t = tex;
+
+	if (PickTexture(-1, tex, translation, pick))
+	{
+		int TextureType = (pick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
+		int lookuppal = pick.translation & 0x7fffffff;
+
+		if (pick.translation & 0x80000000) scaleflags |= CTF_Indexed;
+		tex = pick.texture;
+		translation = lookuppal;
+
+		FVector4 addcol(0, 0, 0, 0);
+		FVector4 modcol(pick.basepalTint.r * (1.f / 255.f), pick.basepalTint.g * (1.f / 255.f), pick.basepalTint.b * (1.f / 255.f), 1);
+		FVector4 blendcol(0, 0, 0, 0);
+		int flags = 0;
+
+		if (pick.basepalTint != 0xffffff) flags |= TextureManipulation::ActiveBit;
+		if (pick.tintFlags != -1)
+		{
+			flags |= TextureManipulation::ActiveBit;
+			if (pick.tintFlags & TINTF_COLORIZE)
+			{
+				modcol.X *= pick.tintColor.r  * (1.f / 64.f);
+				modcol.Y *= pick.tintColor.g * (1.f / 64.f);
+				modcol.Z *= pick.tintColor.b * (1.f / 64.f);
+			}
+			if (pick.tintFlags & TINTF_GRAYSCALE)
+				modcol.W = 1.f;
+
+			if (pick.tintFlags & TINTF_INVERT)
+				flags |= TextureManipulation::InvertBit;
+
+			if (pick.tintFlags & TINTF_BLENDMASK)
+			{
+				blendcol = modcol;	// WTF???, but the tinting code really uses the same color for both!
+				flags |= (((pick.tintFlags & TINTF_BLENDMASK) >> 6) + 1) & TextureManipulation::BlendMask;
+			}
+		}
+		addcol.W = flags;
+		if ((pick.translation & 0x80000000) && hw_shadeinterpolate) addcol.W += 16384;	// hijack a free bit in here.
+		state->SetTextureColors(&modcol.X, &addcol.X, &blendcol.X);
+	}
+	return tex->GetTexelWidth() > t->GetTexelWidth() && tex->GetTexelHeight() > t->GetTexelHeight();	// returning 'true' means to disable programmatic upscaling.
+}

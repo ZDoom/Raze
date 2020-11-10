@@ -29,12 +29,10 @@ CVARD(Bool, hw_animsmoothing, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/di
 CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
 CVARD(Bool, hw_models, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model rendering")
 CVARD(Bool, hw_parallaxskypanning, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky")
-CVARD(Bool, hw_shadeinterpolate, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable shade interpolation")
 CVARD(Float, hw_shadescale, 1.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "multiplier for shading")
 bool hw_int_useindexedcolortextures;
 CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
 {
-    hw_int_useindexedcolortextures = self;
     if (screen) screen->SetTextureFilterMode();
 }
 
@@ -379,7 +377,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
     GLInterface.SetFade(globalfloorpal);
-	bool success = GLInterface.SetTexture(globalpicnum, tileGetTexture(globalpicnum), palid, sampleroverride);
+	bool success = GLInterface.SetTexture(tileGetTexture(globalpicnum), palid, sampleroverride);
 	if (!success)
 	{
 		tsiz.x = tsiz.y = 1;
@@ -461,7 +459,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
 	GLInterface.Draw(DT_TriangleFan, data.second, npoints);
 
-    GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
 	GLInterface.SetNpotEmulation(0.f, 0.f);
     GLInterface.SetTextureMode(TM_NORMAL);
 
@@ -2489,8 +2486,6 @@ void polymost_drawrooms()
     ghoriz = FixedToFloat(qglobalhoriz);
     ghorizcorrect = FixedToFloat(divscale16(xdimenscale, viewingrange));
 
-    GLInterface.SetShadeInterpolate(hw_shadeinterpolate);
-
     //global cos/sin height angle
     if (r_yshearing)
     {
@@ -3604,7 +3599,9 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
     int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
-    GLInterface.SetTexture(dapicnum, tileGetTexture(dapicnum), palid, CLAMP_NONE);
+    auto tex = tileGetTexture(dapicnum);
+    if (tex->isValid())
+        GLInterface.SetTexture(tex, palid, CLAMP_NONE);
     hicprecaching = 0;
 
     if (datype == 0 || !hw_models) return;
@@ -3619,7 +3616,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 	{
         auto tex = mdloadskin((md2model_t *)models[mid], 0, dapalnum, i, nullptr);
         int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
-        if (tex) GLInterface.SetTexture(-1, tex, palid, CLAMP_NONE);
+        if (tex) GLInterface.SetTexture(tex, palid, CLAMP_NONE);
 	}
 }
 

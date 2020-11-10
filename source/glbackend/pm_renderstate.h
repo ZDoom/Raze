@@ -16,7 +16,6 @@ enum EMatrixType
 enum PRSFlags
 {
 	RF_ColorOnly = 1,
-	RF_ShadeInterpolate = 64,
 	RF_FogDisabled = 128,
 	RF_MapFog = 256,	// RRRA E2L1.
 
@@ -78,8 +77,6 @@ struct PolymostRenderState
 	bool AlphaTest = true;
 	float Color[4] = { 1,1,1,1 };
 	short matrixIndex[NUMMATRICES] = { -1 };
-	PalEntry fullscreenTint = 0xffffff, hictint = 0xffffff, hictint_overlay = 0xffffff;
-	int hictint_flags = -1;
 	FDepthBiasState mBias{ };
 	PolymostTextureState mMaterial;
 

@@ -30,7 +30,7 @@ struct SystemCallbacks
 	void (*MenuClosed)();
 	bool (*CheckMenudefOption)(const char* opt);
 	void (*ConsoleToggled)(int state);
-	bool (*PreBindTexture)(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& clampmode, int& translation, int& overrideshader);
+	bool (*PreBindTexture)(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader);
 };
 
 extern SystemCallbacks sysCallbacks;
