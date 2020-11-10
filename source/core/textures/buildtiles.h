@@ -465,9 +465,6 @@ inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 bool tileEqualTo(int me, int other);
 void tileUpdateAnimations();
 
-bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick);
-
-
 bool ValidateTileRange(const char* cmd, int& begin, int& end, FScriptPosition pos, bool allowswap = true);
 bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos);
 
