@@ -29,6 +29,7 @@
 #include "gamestate.h"
 #include "inputstate.h"
 #include "printf.h"
+#include "gamecontrol.h"
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
@@ -878,8 +879,6 @@ int32_t enginePreInit(void)
 }
 
 
-void (*paletteLoadFromDisk_replace)(void) = NULL;   // replacement hook for Blood.
-
 //
 // initengine
 //
@@ -915,14 +914,7 @@ int32_t engineInit(void)
     maxspritesonscreen = MAXSPRITESONSCREEN;
 
     GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
-    if (paletteLoadFromDisk_replace)
-    {
-        paletteLoadFromDisk_replace();
-    }
-    else
-    {
-        paletteLoadFromDisk();
-    }
+    gi->loadPalette();
 
 #ifdef USE_OPENGL
     if (!mdinited) mdinit();

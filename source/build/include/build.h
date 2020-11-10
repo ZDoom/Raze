@@ -910,7 +910,6 @@ void markTileForPrecache(int tilenum, int palnum);
 void precacheMarkedTiles();
 
 extern int32_t(*animateoffs_replace)(int const tilenum, int fakevar);
-extern void(*paletteLoadFromDisk_replace)(void);
 extern int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade);
 extern void(*initspritelists_replace)(void);
 extern int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum);

@@ -407,6 +407,74 @@ static void SetTileNames()
 
 void ReadAllRFS();
 
+void GameInterface::loadPalette(void)
+{
+	// in nearly typical Blood fashion it had to use an inverse of the original translucency settings...
+	static glblend_t const bloodglblend =
+	{
+		{
+			{ 1.f / 3.f, STYLEALPHA_Src, STYLEALPHA_InvSrc, 0 },
+			{ 2.f / 3.f, STYLEALPHA_Src, STYLEALPHA_InvSrc, 0 },
+		},
+	};
+
+	static const char* PLU[15] = {
+		"NORMAL.PLU",
+		"SATURATE.PLU",
+		"BEAST.PLU",
+		"TOMMY.PLU",
+		"SPIDER3.PLU",
+		"GRAY.PLU",
+		"GRAYISH.PLU",
+		"SPIDER1.PLU",
+		"SPIDER2.PLU",
+		"FLAME.PLU",
+		"COLD.PLU",
+		"P1.PLU",
+		"P2.PLU",
+		"P3.PLU",
+		"P4.PLU"
+	};
+
+	static const char* PAL[5] = {
+		"BLOOD.PAL",
+		"WATER.PAL",
+		"BEAST.PAL",
+		"SEWER.PAL",
+		"INVULN1.PAL"
+	};
+
+	for (auto& x : glblend) x = bloodglblend;
+
+	for (int i = 0; i < 5; i++)
+	{
+		auto pal = fileSystem.LoadFile(PAL[i]);
+		if (pal.Size() < 768) I_FatalError("%s: file too small", PAL[i]);
+		paletteSetColorTable(i, pal.Data(), false, false);
+	}
+
+	numshades = 64;
+	for (int i = 0; i < MAXPALOOKUPS; i++)
+	{
+		int lump = i < 15 ? fileSystem.FindFile(PLU[i]) : fileSystem.FindResource(i, "PLU");
+		if (lump < 0)
+		{
+			if (i < 15) I_FatalError("%s: file not found", PLU[i]);
+			else continue;
+		}
+		auto data = fileSystem.GetFileData(lump);
+		if (data.Size() != 64 * 256)
+		{
+			if (i < 15) I_FatalError("%s: Incorrect PLU size", PLU[i]);
+			else continue;
+		}
+		lookups.setTable(i, data.Data());
+	}
+
+	lookups.setFadeColor(1, 255, 255, 255);
+	paletteloaded = PALETTE_SHADE | PALETTE_TRANSLUC | PALETTE_MAIN;
+}
+
 void GameInterface::app_init()
 {
 	InitCheats();

@@ -1235,6 +1235,11 @@ CCMD(taunt)
 	}
 }
 
+
+void GameInterface::loadPalette()
+{
+	paletteLoadFromDisk();
+}
 //---------------------------------------------------------------------------
 //
 // 

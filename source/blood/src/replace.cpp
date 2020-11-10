@@ -80,7 +80,6 @@ int32_t qchangespritestat(int16_t nSprite, int16_t nStatus);
 void HookReplaceFunctions(void)
 {
     animateoffs_replace = qanimateoffs;
-    paletteLoadFromDisk_replace = scrLoadPalette;
     getpalookup_replace = qgetpalookup;
     initspritelists_replace = qinitspritelists;
     insertsprite_replace = qinsertsprite;

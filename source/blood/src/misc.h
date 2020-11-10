@@ -142,6 +142,4 @@ void tilePrecacheTile(int nTile, int nType, HitList& hits);
 
 char tileGetSurfType(int hit);
 
-void scrLoadPalette(void);
-
 END_BLD_NS

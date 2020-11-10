@@ -56,7 +56,6 @@ set( PCH_SOURCES
 	src/qav.cpp
 	src/replace.cpp
 	src/sbar.cpp
-	src/screen.cpp
 	src/sectorfx.cpp
 	src/seq.cpp
 	src/sfx.cpp
