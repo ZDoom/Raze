@@ -408,6 +408,7 @@ void LookupTableInfo::setPaletteTint(int palnum, int r, int g, int b, int sr, in
     auto &lookup = tables[palnum];
     lookup.tintColor = PalEntry(r, g, b);
     lookup.tintShade = PalEntry(sr, sg, sb);
+    if (flags == 0) flags = TINTF_COLORIZE;
     lookup.tintFlags = flags | TINTF_ENABLE;
 }
 
