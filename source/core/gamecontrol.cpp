@@ -132,6 +132,7 @@ void LoadScripts();
 void MainLoop();
 void SetConsoleNotifyBuffer();
 bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader);
+void PostLoadSetup();
 
 DBaseStatusBar* StatusBar;
 
@@ -922,7 +923,7 @@ int RunGame()
 
 	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
 	lookups.postLoadTables();
-	TileFiles.PostLoadSetup();
+	PostLoadSetup();
 	videoInit();
 
 	D_CheckNetGame();

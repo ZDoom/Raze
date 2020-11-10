@@ -23,6 +23,8 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "hw_renderstate.h"
 #include "printf.h"
 
+int checkTranslucentReplacement(FTextureID picnum, int pal);
+
 CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVARD(Bool, hw_animsmoothing, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model animation smoothing")
@@ -201,11 +203,7 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
     if (wall->cstat & CSTAT_WALL_TRANSLUCENT)
         return true;
 
-	auto tex = tileGetTexture(wall->picnum);
-	auto si = TileFiles.FindReplacement(wall->picnum, wall->pal);
-	if (si && hw_hightile) tex = si->faces[0];
-	if (tex->GetTexelWidth() == 0 || tex->GetTexelHeight() == 0) return false;
-	return tex && tex->GetTranslucency();
+    return checkTranslucentReplacement(tileGetTexture(wall->picnum)->GetID(), wall->pal);
 }
 
 int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
@@ -214,11 +212,7 @@ int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
         ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
         return true;
 
-	auto tex = tileGetTexture(tspr->picnum);
-	auto si = TileFiles.FindReplacement(tspr->picnum, tspr->shade, 0);
-	if (si && hw_hightile) tex = si->faces[0];
-    if (tex->GetTexelWidth() == 0 || tex->GetTexelHeight() == 0) return false;
-    return tex && tex->GetTranslucency();
+    return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
 }
 
 int32_t polymost_spriteIsModelOrVoxel(tspritetype const * const tspr)

@@ -18,6 +18,10 @@
 #include "palettecontainer.h"
 #include "mapinfo.h"
 
+int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
+int tileSetSkybox(int picnum, int palnum, const char** facenames, int flags);
+void tileRemoveReplacement(int num);
+
 
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 {

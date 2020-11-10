@@ -999,6 +999,7 @@ set (PCH_SOURCES
 
 
 	core/textures/buildtiles.cpp
+	core/textures/hightile.cpp
 	core/music/s_advsound.cpp
 
 	core/menu/loadsavemenu.cpp

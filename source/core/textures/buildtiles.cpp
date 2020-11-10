@@ -50,8 +50,6 @@
 
 #include "hw_renderstate.h"
 
-CVARD(Bool, hw_shadeinterpolate, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable shade interpolation")
-
 enum
 {
 	MAXARTFILES_BASE = 200,
@@ -60,6 +58,8 @@ enum
 
 
 BuildTiles TileFiles;
+
+int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
 
 //==========================================================================
 //
@@ -213,57 +213,6 @@ void BuildTiles::AddTiles (int firsttile, TArray<uint8_t>& RawData, const char *
 
 //===========================================================================
 //
-// Replacement textures
-//
-//===========================================================================
-
-void BuildTiles::AddReplacement(int picnum, const HightileReplacement& replace)
-{
-	auto& Hightiles = tiledata[picnum].Hightiles;
-	for (auto& ht : Hightiles)
-	{
-		if (replace.palnum == ht.palnum && (replace.faces[1] == nullptr) == (ht.faces[1] == nullptr))
-		{
-			ht = replace;
-			return;
-		}
-	}
-	Hightiles.Push(replace);
-}
-
-void BuildTiles::DeleteReplacement(int picnum, int palnum)
-{
-	auto& Hightiles = tiledata[picnum].Hightiles;
-	for (int i = Hightiles.Size() - 1; i >= 0; i--)
-	{
-		if (Hightiles[i].palnum == palnum) Hightiles.Delete(i);
-	}
-}
-
-//===========================================================================
-//
-//
-//
-//===========================================================================
-
-HightileReplacement* BuildTiles::FindReplacement(int picnum, int palnum, bool skybox)
-{
-	auto& Hightiles = tiledata[picnum].Hightiles;
-	for (;;)
-	{
-		for (auto& rep : Hightiles)
-		{
-			if (rep.palnum == palnum && (rep.faces[1] != nullptr) == skybox) return &rep;
-		}
-		if (!palnum || palnum >= MAXPALOOKUPS - RESERVEDPALS) break;
-		palnum = 0;
-	}
-	return nullptr;	// no replacement found
-}
-
-
-//===========================================================================
-//
 // CountTiles
 //
 // Returns the number of tiles provided by an artfile
@@ -308,13 +257,6 @@ void BuildTiles::InvalidateTile(int num)
 	{
 		auto tex = tiledata[num].texture;
 		tex->GetTexture()->SystemTextures.Clean();
-		for (auto &rep : tiledata[num].Hightiles)
-		{
-			for (auto &reptex : rep.faces)
-			{
-				if (reptex) reptex->GetTexture()->SystemTextures.Clean();
-			}
-		}
 		tiledata[num].rawCache.data.Clear();
 	}
 }
@@ -343,8 +285,6 @@ void BuildTiles::MakeCanvas(int tilenum, int width, int height)
 // Returns the number of tiles found.
 //
 // let's load everything into memory on startup.
-// Even for Ion Fury this will merely add 80 MB, because the engine already needs to cache the data, albeit in a compressed-per-lump form,
-// so its 100MB art file will only have a partial impact on memory.
 //
 //===========================================================================
 
@@ -504,61 +444,6 @@ uint8_t* BuildTiles::tileMakeWritable(int num)
 
 //==========================================================================
 //
-// Processes data from .def files into the textures
-//
-//==========================================================================
-
-void BuildTiles::PostLoadSetup()
-{
-	SetupReverseTileMap();
-
-	for (auto& tile : tiledata)
-	{
-		FGameTexture* detailTex = nullptr, * glowTex = nullptr, * normalTex = nullptr, *specTex = nullptr;
-		float scalex = 1.f, scaley = 1.f;
-		for (auto& rep : tile.Hightiles)
-		{
-			if (rep.palnum == GLOWPAL)
-			{
-				glowTex = rep.faces[0];
-			}
-			if (rep.palnum == NORMALPAL)
-			{
-				normalTex = rep.faces[0];
-			}
-			if (rep.palnum == SPECULARPAL)
-			{
-				specTex = rep.faces[0];
-			}
-			if (rep.palnum == DETAILPAL)
-			{
-				detailTex = rep.faces[0];
-				scalex = rep.scale.X;
-				scaley = rep.scale.Y;
-			}
-		}
-		if (!detailTex && !glowTex && !normalTex && !specTex) continue; // if there's no layers there's nothing to do.
-		for (auto& rep : tile.Hightiles)
-		{
-			if (rep.faces[1]) continue;	// do not muck around with skyboxes (yet)
-			if (rep.palnum < NORMALPAL)
-			{
-				auto tex = rep.faces[0];
-				// Make a copy so that multiple appearances of the same texture can be handled. They will all refer to the same internal texture anyway.
-				tex = MakeGameTexture(tex->GetTexture(), "", ETextureType::Any);
-				if (glowTex) tex->SetGlowmap(glowTex->GetTexture());
-				if (detailTex) tex->SetDetailmap(detailTex->GetTexture());
-				if (normalTex) tex->SetNormalmap(normalTex->GetTexture());
-				if (specTex) tex->SetSpecularmap(specTex->GetTexture());
-				tex->SetDetailScale(scalex, scaley);
-				rep.faces[0] = tex;
-			}
-		}
-	}
-}
-
-//==========================================================================
-//
 // Returns checksum for a given tile
 //
 //==========================================================================
@@ -702,7 +587,6 @@ void artClearMapArt(void)
 		td.texture = td.backup;
 		td.picanm = td.picanmbackup;
 	}
-	TileFiles.SetupReverseTileMap();
 	currentMapArt = "";
 }
 
@@ -753,7 +637,6 @@ void artSetupMapArt(const char* filename)
 		FStringf fullname("%s_%02d.art", filename, i);
 		TileFiles.LoadArtFile(fullname, filename);
 	}
-	TileFiles.SetupReverseTileMap();
 }
 
 //==========================================================================
@@ -764,23 +647,9 @@ void artSetupMapArt(const char* filename)
 
 void tileDelete(int tile)
 {
-	TileFiles.TextureToTile.Remove(tileGetTexture(tile));
 	TileFiles.tiledata[tile].texture = TileFiles.tiledata[tile].backup = TexMan.GameByIndex(0);
 	vox_undefine(tile);
 	md_undefinetile(tile);
-	tileRemoveReplacement(tile);
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void tileRemoveReplacement(int tile)
-{
-	if ((unsigned)tile >= MAXTILES) return;
-	TileFiles.DeleteReplacements(tile);
 }
 
 //==========================================================================
@@ -872,95 +741,6 @@ void BuildTiles::CloseAll()
 
 //==========================================================================
 //
-//   Specifies a replacement texture for an ART tile.
-//
-//==========================================================================
-
-int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags)
-{
-	if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
-	if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
-
-	auto tex = tileGetTexture(picnum);
-	if (tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0)
-	{
-		Printf("Warning: defined hightile replacement for empty tile %d.", picnum);
-		return -1;	// cannot add replacements to empty tiles, must create one beforehand
-	}
-	HightileReplacement replace = {};
-
-	FTextureID texid = TexMan.CheckForTexture(filename, ETextureType::Any);
-	if (!texid.isValid()) 
-	{
-		Printf("%s: Replacement for tile %d does not exist or is invalid\n", filename, picnum);
-		return -1;
-	}
-
-	replace.faces[0] = TexMan.GetGameTexture(texid);
-	if (replace.faces[0] == nullptr)
-    replace.alphacut = min(alphacut,1.f);
-	replace.scale = { xscale, yscale };
-	replace.specpower = specpower; // currently unused
-	replace.specfactor = specfactor; // currently unused
-	replace.flags = flags;
-	replace.palnum = (uint16_t)palnum;
-	TileFiles.AddReplacement(picnum, replace);
-	return 0;
-}
-
-
-//==========================================================================
-//
-//  Define the faces of a skybox
-//
-//==========================================================================
-
-int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
-{
-    if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
-    if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
-
-	auto tex = tileGetTexture(picnum);
-	if (tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0)
-	{
-		Printf("Warning: defined skybox replacement for empty tile %d.", picnum);
-		return -1;	// cannot add replacements to empty tiles, must create one beforehand
-	}
-	HightileReplacement replace = {};
-	
-	for (auto &face : replace.faces)
-	{
-		FTextureID texid = TexMan.CheckForTexture(*facenames, ETextureType::Any);
-		if (!texid.isValid())
-		{
-			Printf("%s: Skybox image for tile %d does not exist or is invalid\n", *facenames, picnum);
-			return -1;
-		}
-		face = TexMan.GetGameTexture(texid);
-	}
-    replace.flags = flags;
-	replace.palnum = (uint16_t)palnum;
-	TileFiles.AddReplacement(picnum, replace);
-	return 0;
-}
-
-//==========================================================================
-//
-//  Remove a replacement
-//
-//==========================================================================
-
-int tileDeleteReplacement(int picnum, int palnum)
-{
-    if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
-    if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
-	TileFiles.DeleteReplacement(picnum, palnum);
-    return 0;
-}
-
-
-//==========================================================================
-//
 //  Copy a block of a tile.
 //  Only used by RR's bowling lane.
 //
@@ -1048,78 +828,6 @@ void tileUpdateAnimations()
 			TexMan.SetTranslation(id1, id2);
 		}
 	}
-}
-
-//===========================================================================
-// 
-//	Picks a texture for rendering for a given tilenum/palette combination
-//
-//===========================================================================
-
-
-bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick)
-{
-	if (!tex) tex = tileGetTexture(picnum);
-	if (picnum == -1) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
-
-	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
-	int usepalette = GetTranslationType(paletteid) - Translation_Remap;
-	int usepalswap = GetTranslationIndex(paletteid);
-	int TextureType = hw_int_useindexedcolortextures && picnum >= 0 ? TT_INDEXED : TT_TRUECOLOR;
-
-	pick.translation = paletteid;
-	pick.basepalTint = 0xffffff;
-
-	auto& h = lookups.tables[usepalswap];
-	bool applytint = false;
-	// Canvas textures must be treated like hightile replacements in the following code.
-	if (picnum < 0) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
-	auto rep = (picnum >= 0 && hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, usepalswap) : nullptr;
-	if (rep || tex->GetTexture()->isHardwareCanvas())
-	{
-		if (usepalette != 0)
-		{
-			// This is a global setting for the entire scene, so let's do it here, right at the start. (Fixme: Store this in a static table instead of reusing the same entry for all palettes.)
-			auto& hh = lookups.tables[MAXPALOOKUPS - 1];
-			// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
-			pick.basepalTint = hh.tintColor;
-		}
-
-		if (rep)
-		{
-			tex = rep->faces[0];
-		}
-		if (!rep || rep->palnum != usepalswap || (h.tintFlags & TINTF_APPLYOVERALTPAL)) applytint = true;
-		pick.translation = 0;
-	}
-	else
-	{
-		// Only look up the palette if we really want to use it (i.e. when creating a true color texture of an ART tile.)
-		if (TextureType == TT_TRUECOLOR)
-		{
-			if (h.tintFlags & (TINTF_ALWAYSUSEART | TINTF_USEONART))
-			{
-				applytint = true;
-				if (!(h.tintFlags & TINTF_APPLYOVERPALSWAP)) usepalswap = 0;
-			}
-			pick.translation = TRANSLATION(usepalette + Translation_Remap, usepalswap);
-		}
-		else pick.translation |= 0x80000000;
-	}
-
-	if (applytint && h.tintFlags)
-	{
-		pick.tintFlags = h.tintFlags;
-		pick.tintColor = h.tintColor;
-	}
-	else
-	{
-		pick.tintFlags = -1;
-		pick.tintColor = 0xffffff;
-	}
-	pick.texture = tex;
-
-	return true;
 }
 
 //===========================================================================
@@ -1243,50 +951,3 @@ DEFINE_ACTION_FUNCTION_NATIVE(_TileFiles, GetTexture, GetTexture)
 #endif
 
 
-bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader)
-{
-	TexturePick pick;
-	auto t = tex;
-
-	if (PickTexture(-1, tex, translation, pick))
-	{
-		int TextureType = (pick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
-		int lookuppal = pick.translation & 0x7fffffff;
-
-		if (pick.translation & 0x80000000) scaleflags |= CTF_Indexed;
-		tex = pick.texture;
-		translation = lookuppal;
-
-		FVector4 addcol(0, 0, 0, 0);
-		FVector4 modcol(pick.basepalTint.r * (1.f / 255.f), pick.basepalTint.g * (1.f / 255.f), pick.basepalTint.b * (1.f / 255.f), 1);
-		FVector4 blendcol(0, 0, 0, 0);
-		int flags = 0;
-
-		if (pick.basepalTint != 0xffffff) flags |= TextureManipulation::ActiveBit;
-		if (pick.tintFlags != -1)
-		{
-			flags |= TextureManipulation::ActiveBit;
-			if (pick.tintFlags & TINTF_COLORIZE)
-			{
-				modcol.X *= pick.tintColor.r  * (1.f / 64.f);
-				modcol.Y *= pick.tintColor.g * (1.f / 64.f);
-				modcol.Z *= pick.tintColor.b * (1.f / 64.f);
-			}
-			if (pick.tintFlags & TINTF_GRAYSCALE)
-				modcol.W = 1.f;
-
-			if (pick.tintFlags & TINTF_INVERT)
-				flags |= TextureManipulation::InvertBit;
-
-			if (pick.tintFlags & TINTF_BLENDMASK)
-			{
-				blendcol = modcol;	// WTF???, but the tinting code really uses the same color for both!
-				flags |= (((pick.tintFlags & TINTF_BLENDMASK) >> 6) + 1) & TextureManipulation::BlendMask;
-			}
-		}
-		addcol.W = flags;
-		if ((pick.translation & 0x80000000) && hw_shadeinterpolate) addcol.W += 16384;	// hijack a free bit in here.
-		state->SetTextureColors(&modcol.X, &addcol.X, &blendcol.X);
-	}
-	return tex->GetTexelWidth() > t->GetTexelWidth() && tex->GetTexelHeight() > t->GetTexelHeight();	// returning 'true' means to disable programmatic upscaling.
-}
