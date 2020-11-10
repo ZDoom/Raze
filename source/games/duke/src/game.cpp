@@ -317,7 +317,6 @@ void GameInterface::app_init()
 	//Net_SendClientInfo();
 
 	initTiles();
-	fi.InitFonts();
 	genspriteremaps();
 	SetupGameButtons();
 	InitCheats();
@@ -333,6 +332,7 @@ void GameInterface::app_init()
 	}
 
 	LoadDefinitions();
+	fi.InitFonts();
 	SetTileNames();
 	TileFiles.SetBackup();
 	C_InitConback(TexMan.CheckForTexture("MENUSCREEN", ETextureType::Any), false, 0.75);

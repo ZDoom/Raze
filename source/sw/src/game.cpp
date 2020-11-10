@@ -221,7 +221,6 @@ void GameInterface::app_init()
     }
 
     TileFiles.LoadArtSet("tiles%03d.art");
-    InitFonts();
 
     //Connect();
     SortBreakInfo();
@@ -240,6 +239,7 @@ void GameInterface::app_init()
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
  
     LoadDefinitions();
+    InitFonts();
     SetTileNames();
     TileFiles.SetBackup();
     userConfig.AddDefs.reset();

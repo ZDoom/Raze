@@ -133,6 +133,7 @@ void MainLoop();
 void SetConsoleNotifyBuffer();
 bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader);
 void PostLoadSetup();
+void FontCharCreated(FGameTexture* base, FGameTexture* untranslated, FGameTexture* translated);
 
 DBaseStatusBar* StatusBar;
 
@@ -525,7 +526,8 @@ int GameMain()
 		System_MenuClosed,
 		nullptr,
 		nullptr,
-		PreBindTexture
+		PreBindTexture,
+		FontCharCreated
 	};
 
 	try

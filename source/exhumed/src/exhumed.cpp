@@ -82,7 +82,6 @@ void InstallEngine()
     }
     uploadCinemaPalettes();
     LoadPaletteLookups();
-    InitFonts();
 }
 
 void RemoveEngine()
@@ -527,6 +526,7 @@ void GameInterface::app_init()
     // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
     InstallEngine();
     LoadDefinitions();
+    InitFonts();
     SetTileNames();
 
     TileFiles.SetBackup();
