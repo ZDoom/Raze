@@ -6,7 +6,7 @@
 struct event_t;
 class FRenderState;
 class FGameTexture;
-enum EUpscaleFlags;
+enum EUpscaleFlags : int;
 
 struct SystemCallbacks
 {
