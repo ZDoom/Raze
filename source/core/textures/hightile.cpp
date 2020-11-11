@@ -388,7 +388,7 @@ bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flag
 		translation = lookuppal;
 
 		FVector4 addcol(0, 0, 0, 0);
-		FVector4 modcol(pick.basepalTint.r * (1.f / 255.f), pick.basepalTint.g * (1.f / 255.f), pick.basepalTint.b * (1.f / 255.f), 1);
+		FVector4 modcol(pick.basepalTint.r * (1.f / 255.f), pick.basepalTint.g * (1.f / 255.f), pick.basepalTint.b * (1.f / 255.f), 0);
 		FVector4 blendcol(0, 0, 0, 0);
 		int flags = 0;
 
