@@ -242,7 +242,7 @@ private:
 
     void DisplayTinyString(double xs, double ys, const char* buffer, int pal)
     {
-        SBar_DrawString(this, miniFont, buffer, xs, ys, DI_ITEM_LEFT_TOP, TRANSLATION(Translation_Remap, pal), 1, -1, -1, 1, 1);
+        SBar_DrawString(this, miniFont, buffer, xs, ys, DI_ITEM_LEFT_TOP, CR_UNTRANSLATED, 1, -1, -1, 1, 1);
     }
 
     void DisplayFragString(PLAYERp pp, double xs, double ys, const char* buffer)

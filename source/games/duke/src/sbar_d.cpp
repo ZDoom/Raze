@@ -44,6 +44,7 @@ source as it is released.
 #include "texturemanager.h"
 #include "dukeactor.h"
 
+
 BEGIN_DUKE_NS
 
 //==========================================================================
@@ -206,11 +207,12 @@ public:
 
 			int percentv = getinvamount(p);
 			format.Format("%3d%%", percentv);
-			EColorRange color = percentv > 50 ? CR_GREEN : percentv > 25 ? CR_GOLD : CR_RED;
-			SBar_DrawString(this, indexFont, format, x + 36.5, -indexFont->mFont->GetHeight() + 0.5, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
+			int color = percentv > 50 ? 11 : percentv > 25 ? 23 : 2;
+			SBar_DrawString(this, miniFont, format, x + 36.5, -indexFont->mFont->GetHeight() + 0.5, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1, TRANSLATION(Translation_Remap, color));
 
 			auto text = ontext(p);
-			if (text.first) SBar_DrawString(this, miniFont, text.first, x + 36.5, -miniFont->mFont->GetHeight() - 9.5, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
+			if (text.first) SBar_DrawString(this, miniFont, text.first, x + 36.5, -miniFont->mFont->GetHeight() - 9.5, DI_TEXT_ALIGN_RIGHT, 
+				CR_UNDEFINED, 1, 0, 0, 1, 1, TRANSLATION(Translation_Remap, text.second));
 		}
 
 		//
@@ -259,11 +261,11 @@ public:
 
 			int percentv = getinvamount(p);
 			format.Format("%3d%%", percentv);
-			EColorRange color = percentv > 50 ? CR_GREEN : percentv > 25 ? CR_GOLD : CR_RED;
-			SBar_DrawString(this, indexFont, format, x + 34, -indexFont->mFont->GetHeight() - 3, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
+			int color = percentv > 50 ? 11 : percentv > 25 ? 23 : 2;
+			SBar_DrawString(this, miniFont, format, x + 34, -indexFont->mFont->GetHeight() - 3, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1, TRANSLATION(Translation_Remap, color));
 
 			auto text = ontext(p);
-			if (text.first) SBar_DrawString(this, miniFont, text.first, x + 34, -miniFont->mFont->GetHeight() - 14, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
+			if (text.first) SBar_DrawString(this, miniFont, text.first, x + 34, -miniFont->mFont->GetHeight() - 14, DI_TEXT_ALIGN_RIGHT, CR_UNDEFINED, 1, 0, 0, 1, 1, TRANSLATION(Translation_Remap, text.second));
 		}
 	}
 
@@ -432,11 +434,11 @@ public:
 
 			int percentv = getinvamount(p);
 			format.Format("%3d%%", percentv);
-			EColorRange color = percentv > 50 ? CR_GREEN : percentv > 25 ? CR_GOLD : CR_RED;
-			SBar_DrawString(this, indexFont, format, x + 34, top + 24, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
+			int color = percentv > 50 ? 11 : percentv > 25 ? 23 : 2;
+			SBar_DrawString(this, miniFont, format, x + 34, top + 24, DI_TEXT_ALIGN_RIGHT, CR_UNDEFINED, 1, 0, 0, 1, 1, TRANSLATION(Translation_Remap, color));
 
 			auto text = ontext(p);
-			if (text.first) SBar_DrawString(this, miniFont, text.first, x + 34, top + 14, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
+			if (text.first) SBar_DrawString(this, miniFont, text.first, x + 34, top + 14, DI_TEXT_ALIGN_RIGHT, CR_UNDEFINED, 1, 0, 0, 1, 1, TRANSLATION(Translation_Remap, text.second));
 		}
 		PrintLevelStats(-1);
 	}
