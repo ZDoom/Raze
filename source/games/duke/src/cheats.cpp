@@ -63,8 +63,10 @@ static const char *cheatGod(int myconnectindex, int state)
 	if (state == -1) state = !ud.god;
 	ud.god = state;
 
-	auto act = ps[myconnectindex].GetActor();
+	auto* p = &ps[myconnectindex];
+	auto act = p->GetActor();
 
+	p->dead_flag = 0;
 	act->s.extra = max_player_health;
 	act->extra = 0;
 	if (ud.god)
