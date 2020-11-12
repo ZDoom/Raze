@@ -234,6 +234,7 @@ bool GameInterface::SaveGame()
     MWRITE(&myconnectindex,sizeof(myconnectindex),1,fil);
     MWRITE(&connecthead,sizeof(connecthead),1,fil);
     MWRITE(connectpoint2,sizeof(connectpoint2),1,fil);
+    MWRITE(&crouch_toggle,sizeof(crouch_toggle),1,fil);
 
     //save players info
     pp = &tp;
@@ -464,7 +465,7 @@ bool GameInterface::SaveGame()
             MWRITE(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
     }
 
-    // MWRITE(&loc,sizeof(loc),1,fil);
+    MWRITE(&Player[myconnectindex].input,sizeof(Player[myconnectindex].input),1,fil);
     MWRITE(&screenpeek,sizeof(screenpeek),1,fil);
     MWRITE(&randomseed, sizeof(randomseed), 1, fil);
 
@@ -669,6 +670,7 @@ bool GameInterface::LoadGame()
     MREAD(&myconnectindex,sizeof(myconnectindex),1,fil);
     MREAD(&connecthead,sizeof(connecthead),1,fil);
     MREAD(connectpoint2,sizeof(connectpoint2),1,fil);
+    MREAD(&crouch_toggle,sizeof(crouch_toggle),1,fil);
 
     //save players
     //MREAD(Player,sizeof(PLAYER), numplayers,fil);
@@ -847,7 +849,7 @@ bool GameInterface::LoadGame()
         }
     }
 
-    // MREAD(&loc,sizeof(loc),1,fil);
+    MREAD(&Player[myconnectindex].input,sizeof(Player[myconnectindex].input),1,fil);
 
     MREAD(&screenpeek,sizeof(screenpeek),1,fil);
     MREAD(&randomseed, sizeof(randomseed), 1, fil);

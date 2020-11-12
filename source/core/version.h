@@ -71,12 +71,12 @@ const char *GetVersionString();
 
 #define MINSAVEVER_DN3D 10
 #define MINSAVEVER_BLD 10
-#define MINSAVEVER_SW 10
+#define MINSAVEVER_SW 11
 #define MINSAVEVER_PS 10
 
 #define SAVEVER_DN3D 10
 #define SAVEVER_BLD 10
-#define SAVEVER_SW 10
+#define SAVEVER_SW 11
 #define SAVEVER_PS 10
 
 #define NETGAMEVERSION 1
