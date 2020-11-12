@@ -786,7 +786,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 					DDukeActor* switches[3];
 					int switchcount = 0, j;
 					S_PlaySound3D(SWITCH_ON, act, &v);
-					DukeSpriteIterator it;
+					DukeLinearSpriteIterator it;
 					while (auto actt = it.Next())
 					{
 						int jpn = actt->s.picnum;

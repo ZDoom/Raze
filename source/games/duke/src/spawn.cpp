@@ -640,12 +640,13 @@ void spawneffector(DDukeActor* actor)
 			break;
 		case SE_7_TELEPORT: // Transporters!!!!
 		case SE_23_ONE_WAY_TELEPORT:// XPTR END
-			if (sp->lotag != 23)
+			if (sp->lotag != SE_23_ONE_WAY_TELEPORT)
 			{
-				DukeSpriteIterator it;
+				DukeLinearSpriteIterator it;
 				while (auto act2 = it.Next())
 					{
-					if (act2->s.statnum < MAXSTATUS && act2->s.picnum == SECTOREFFECTOR && (act2->s.lotag == 7 || act2->s.lotag == 23) && actor != act2 && act2->s.hitag == sp->hitag)
+					if (act2->s.statnum < MAXSTATUS && act2->s.picnum == SECTOREFFECTOR && (act2->s.lotag == SE_7_TELEPORT || act2->s.lotag == SE_23_ONE_WAY_TELEPORT) && 
+						actor != act2 && act2->s.hitag == sp->hitag)
 					{
 						actor->SetOwner(act2);
 						break;
@@ -964,7 +965,7 @@ void spawneffector(DDukeActor* actor)
 					sector[sect].hitag = ActorToScriptIndex(actor);
 				}
 
-				DukeSpriteIterator it;
+				DukeLinearSpriteIterator it;
 				bool found = false;
 				while (auto act2 = it.Next())
 				{

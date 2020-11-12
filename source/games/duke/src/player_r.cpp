@@ -119,7 +119,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 	if (isRRRA() && ((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
 		&& hitsprt == nullptr && hitwall == -1)
 	{
-		DukeSpriteIterator its;
+		DukeLinearSpriteIterator its;
 		while (auto effector = its.Next())
 		{
 			// shouldn't this only check STAT_EFFECTOR?
@@ -276,7 +276,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	if (isRRRA() && (((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
 		&& hitsprt == nullptr && hitwall == -1))
 	{
-		DukeSpriteIterator its;
+		DukeLinearSpriteIterator its;
 		while (auto effector = its.Next())
 		{
 			// shouldn't this only check STAT_EFFECTOR?
