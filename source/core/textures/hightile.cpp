@@ -382,6 +382,8 @@ bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flag
 	TexturePick pick;
 	auto t = tex;
 
+	if (tex->GetUseType() == ETextureType::Special) return true;
+
 	if (PickTexture(tex, translation, pick))
 	{
 		int TextureType = (pick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
