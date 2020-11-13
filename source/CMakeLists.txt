@@ -1005,9 +1005,6 @@ set (PCH_SOURCES
 
 	core/menu/loadsavemenu.cpp
 	core/menu/razemenu.cpp
-	
-	exhumed/src/d_menu.cpp
-	blood/src/d_menu.cpp
 )
 
 if( ${HAVE_VM_JIT} )

@@ -48,7 +48,7 @@ set( PCH_SOURCES
 	src/trigdat.cpp
 	src/view.cpp
 	src/wasp.cpp
-	#src/d_menu.cpp
+	src/d_menu.cpp
 )
 
 add_game_library( exhumed )
