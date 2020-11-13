@@ -57,7 +57,7 @@ IMPLEMENT_CLASS(DHUDFont, false, false);
 
 CVAR(Color, crosshaircolor, 0xff0000, CVAR_ARCHIVE);
 CVAR(Int, crosshairhealth, 2, CVAR_ARCHIVE);
-CVARD(Float, crosshairscale, 0.3, CVAR_ARCHIVE, "changes the size of the crosshair");
+CVARD(Float, crosshairscale, 0.5, CVAR_ARCHIVE, "changes the size of the crosshair");
 CVAR(Bool, crosshairgrow, false, CVAR_ARCHIVE);
 EXTERN_CVAR(Bool, vid_fps)
 

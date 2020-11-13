@@ -1271,7 +1271,7 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 			auto tile = tileGetTexture(deftile);
 			if (tile)
 			{
-				double crosshair_scale = cl_crosshairscale * .01 * scale;
+				double crosshair_scale = crosshairscale * scale;
 				DrawTexture(twod, tile, 160 + xdelta, 100 + ydelta, DTA_Color, color,
 					DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
 					DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
