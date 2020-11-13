@@ -1029,8 +1029,9 @@ FString GameInterface::GetCoordString()
 
 bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a)
 {
-    int nCos = z * sintable[(0 - a) & 2047];
-    int nSin = z * sintable[(1536 - a) & 2047];
+    // [MR]: Confirm that this is correct as math doesn't match the variable names.
+    int nCos = z * -bsin(a);
+    int nSin = z * -bcos(a);
     int nCos2 = mulscale16(nCos, yxaspect);
     int nSin2 = mulscale16(nSin, yxaspect);
     int nPSprite = gView->pSprite->index;
