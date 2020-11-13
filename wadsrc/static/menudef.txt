@@ -159,7 +159,7 @@ LISTMENU "EpisodeMenu"
 		captionItem "$MNU_SELECTEPISODE"
 		animatedtransition
 	}
-	ifgame(blood)
+	ifgame(Blood)
 	{
 		position 160, 45
 		Linespacing 20
@@ -1162,10 +1162,15 @@ OptionMenu "HUDOptions" protected
 	{
 		StaticText ""
 		Option "$DSPLYMNU_CLIPAMT",				"cl_showmagamt",	OnOff
+		Slider "$DSPLYMNU_CROSSHAIRSCALE",		"cl_crosshairscale",		50, 100, 10, 1
 	}
+	
+	ifgame(Exhumed)
+	{
+	Slider "$DSPLYMNU_CROSSHAIRSCALE",    "crosshairscale",   0.3, 1.0, 0.125, 2
+    }	
 	StaticText ""
 	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
-	Slider "$DSPLYMNU_CROSSHAIRSCALE",			"crosshairscale",		0.25, 1.0, 0.125, 2
 	Option "$HUDMNU_CROSSHAIR",				"crosshair", "Crosshairs"
 	//ColorPicker "$HUDMNU_CROSSHAIRCOLOR", 	"crosshaircolor" fixme: Does not exist yet in Raze.
 	Option "$HUDMNU_CROSSHAIRHEALTH",		"crosshairhealth", "CrosshairHealthTypes"
