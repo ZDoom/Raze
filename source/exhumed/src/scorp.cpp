@@ -274,8 +274,8 @@ void FuncScorp(int a, int nDamage, int nRun)
                                 D3PlayFX(StaticSound[kSound41], nSprite);
 
                                 scorpion[nScorp].nFrame = 0;
-                                sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                                sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                                sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                                sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
 
                                 scorpion[nScorp].nAction = 1;
                                 scorpion[nScorp].nTarget = nTarget;
@@ -359,8 +359,8 @@ void FuncScorp(int a, int nDamage, int nRun)
                         {
                             scorpion[nScorp].nAction = 1;
 
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
 
                             scorpion[nScorp].nFrame = 0;
                             return;
@@ -430,8 +430,8 @@ void FuncScorp(int a, int nDamage, int nRun)
 
                         int nVel = RandomSize(5) + 1;
 
-                        sprite[nSpiderSprite].xvel = (Cos(sprite[nSpiderSprite].ang) >> 8) * nVel;
-                        sprite[nSpiderSprite].yvel = (Sin(sprite[nSpiderSprite].ang) >> 8) * nVel;
+                        sprite[nSpiderSprite].xvel = bcos(sprite[nSpiderSprite].ang, -8) * nVel;
+                        sprite[nSpiderSprite].yvel = bsin(sprite[nSpiderSprite].ang, -8) * nVel;
                         sprite[nSpiderSprite].zvel = (-(RandomSize(5) + 3)) << 8;
                     }
 
@@ -464,8 +464,8 @@ FS_Pink_A:
     sprite[nSprite].ang += RandomSize(7) - 63;
     sprite[nSprite].ang &= kAngleMask;
 
-    sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-    sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+    sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+    sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
 
 FS_Pink_B:
     if (scorpion[nScorp].g)

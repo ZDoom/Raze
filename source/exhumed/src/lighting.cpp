@@ -632,8 +632,8 @@ void AddFlow(int nSprite, int nSpeed, int b)
 
         sFlowInfo[nFlow].field_14 = (tilesiz[nPic].x << 14) - 1;
         sFlowInfo[nFlow].field_18 = (tilesiz[nPic].y << 14) - 1;
-        sFlowInfo[nFlow].field_C  = -Cos(nAngle) * nSpeed;
-        sFlowInfo[nFlow].field_10 = Sin(nAngle) * nSpeed;
+        sFlowInfo[nFlow].field_C  = -bcos(nAngle) * nSpeed;
+        sFlowInfo[nFlow].field_10 = bsin(nAngle) * nSpeed;
     }
     else
     {
@@ -651,8 +651,8 @@ void AddFlow(int nSprite, int nSpeed, int b)
 
         sFlowInfo[nFlow].field_14 = (tilesiz[nPic].x * wall[var_18].xrepeat) << 8;
         sFlowInfo[nFlow].field_18 = (tilesiz[nPic].y * wall[var_18].yrepeat) << 8;
-        sFlowInfo[nFlow].field_C = -Cos(nAngle) * nSpeed;
-        sFlowInfo[nFlow].field_10 = Sin(nAngle) * nSpeed;
+        sFlowInfo[nFlow].field_C = -bcos(nAngle) * nSpeed;
+        sFlowInfo[nFlow].field_10 = bsin(nAngle) * nSpeed;
     }
 
     sFlowInfo[nFlow].field_8 = 0;

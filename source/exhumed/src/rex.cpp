@@ -266,8 +266,8 @@ void FuncRex(int a, int nDamage, int nRun)
                             RexList[nRex].nAction = 1;
                             RexList[nRex].nFrame  = 0;
 
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 2;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
 
                             D3PlayFX(StaticSound[kSound48], nSprite);
 
@@ -300,8 +300,8 @@ void FuncRex(int a, int nDamage, int nRun)
                             if (((PlotCourseToSprite(nSprite, nTarget) >> 8) >= 60) || RexList[nRex].field_A > 0)
                             {
                                 int nAngle = sprite[nSprite].ang & 0xFFF8;
-                                sprite[nSprite].xvel = Cos(nAngle) >> 2;
-                                sprite[nSprite].yvel = Sin(nAngle) >> 2;
+                                sprite[nSprite].xvel = bcos(nAngle, -2);
+                                sprite[nSprite].yvel = bsin(nAngle, -2);
                             }
                             else
                             {
@@ -332,8 +332,8 @@ void FuncRex(int a, int nDamage, int nRun)
                         case 0x8000:
                         {
                             sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 2;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
                             RexList[nRex].nAction = 1;
                             RexList[nRex].nFrame  = 0;
                             nAction = 1;
@@ -351,8 +351,8 @@ void FuncRex(int a, int nDamage, int nRun)
                     {
                         PlotCourseToSprite(nSprite, nTarget);
 
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
 
                         int nMov = MoveCreatureWithCaution(nSprite);
 
@@ -364,8 +364,8 @@ void FuncRex(int a, int nDamage, int nRun)
                             RexList[nRex].field_A = 60;
 
                             sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 2;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
                             RexList[nRex].nAction = 1;
                                 RexList[nRex].nFrame  = 0;
                             nAction = 1;
@@ -384,8 +384,8 @@ void FuncRex(int a, int nDamage, int nRun)
 
                                 runlist_DamageEnemy(nSprite2, nSprite, 15);
 
-                                    int xVel = Cos(nAngle) * 15;
-                                    int yVel = Sin(nAngle) * 15;
+                                    int xVel = bcos(nAngle) * 15;
+                                    int yVel = bsin(nAngle) * 15;
 
                                 if (sprite[nSprite2].statnum == 100)
                                 {

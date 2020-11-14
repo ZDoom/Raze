@@ -1582,8 +1582,8 @@ int runlist_CheckRadialDamage(short nSprite)
             {
                 int nAngle = GetMyAngle(x, y);
 
-                sprite[nSprite].xvel += (edi * Cos(nAngle)) >> 3;
-                sprite[nSprite].yvel += (edi * Sin(nAngle)) >> 3;
+                sprite[nSprite].xvel += (edi * bcos(nAngle)) >> 3;
+                sprite[nSprite].yvel += (edi * bsin(nAngle)) >> 3;
                 sprite[nSprite].zvel -= edi * 24;
 
                 if (sprite[nSprite].zvel < -3584) {

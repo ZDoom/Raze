@@ -137,7 +137,7 @@ int BuildSnake(short nPlayer, short zVal)
 
     vec3_t pos = { x, y, z };
     hitdata_t hitData;
-    hitscan(&pos, sprite[nPlayerSprite].sectnum, Cos(nAngle), Sin(nAngle), 0, &hitData, CLIPMASK1);
+    hitscan(&pos, sprite[nPlayerSprite].sectnum, bcos(nAngle), bsin(nAngle), 0, &hitData, CLIPMASK1);
 
     hitx = hitData.pos.x;
     hity = hitData.pos.y;
@@ -333,9 +333,9 @@ void FuncSnake(int a, int, int nRun)
             {
 SEARCH_ENEMY:
                 nMov = movesprite(nSprite,
-                    600 * Cos(sprite[nSprite].ang),
-                    600 * Sin(sprite[nSprite].ang),
-                    Sin(SnakeList[nSnake].sE) >> 5,
+                    600 * bcos(sprite[nSprite].ang),
+                    600 * bsin(sprite[nSprite].ang),
+                    bsin(SnakeList[nSnake].sE, -5),
                     0, 0, CLIPMASK1);
 
                 FindSnakeEnemy(nSnake);
@@ -370,8 +370,8 @@ SEARCH_ENEMY:
             else
             {
                 short nAngle = sprite[nSprite].ang;
-                int var_30 = -(64 * Cos(nAngle));
-                int var_34 = -(64 * Sin(nAngle));
+                int var_30 = -bcos(nAngle, 6);
+                int var_34 = -bsin(nAngle, 6);
 
                 int var_20 = SnakeList[nSnake].sE;
 
@@ -395,9 +395,9 @@ SEARCH_ENEMY:
 
                     mychangespritesect(nSprite2, nSector);
 
-                    int eax = (Sin(var_20) * SnakeList[nSnake].c[i]) >> 9;
+                    int eax = (bsin(var_20) * SnakeList[nSnake].c[i]) >> 9;
 
-                    movesprite(nSprite2, var_30 + var_30 * i + eax * Cos(var_28), var_30 + var_34 * i + eax * Sin(var_28),
+                    movesprite(nSprite2, var_30 + var_30 * i + eax * bcos(var_28), var_30 + var_34 * i + eax * bsin(var_28),
                         -zVal*(i-1), 0, 0, CLIPMASK1);
 
                     var_20 = (var_20 + 128) & kAngleMask;

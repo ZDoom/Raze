@@ -135,8 +135,8 @@ int BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int a
 
 void GoRoach(short nSprite)
 {
-    sprite[nSprite].xvel = (Cos(sprite[nSprite].ang) >> 1) - (Cos(sprite[nSprite].ang) >> 3);
-    sprite[nSprite].yvel = (Sin(sprite[nSprite].ang) >> 1) - (Sin(sprite[nSprite].ang) >> 3);
+    sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1) - bcos(sprite[nSprite].ang, -3);
+    sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1) - bsin(sprite[nSprite].ang, -3);
 }
 
 void FuncRoach(int a, int nDamage, int nRun)

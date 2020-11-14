@@ -1383,13 +1383,13 @@ int BuildSpark(int nSprite, int nVal)
 
         if (nVal)
         {
-            spr->xvel = Cos(nAngle) >> 5;
-            spr->yvel = Sin(nAngle) >> 5;
+            spr->xvel = bcos(nAngle, -5);
+            spr->yvel = bsin(nAngle, -5);
         }
         else
         {
-            spr->xvel = Cos(nAngle) >> 6;
-            spr->yvel = Sin(nAngle) >> 6;
+            spr->xvel = bcos(nAngle, -6);
+            spr->yvel = bsin(nAngle, -6);
         }
 
         spr->zvel = -(RandomSize(4) << 7);
@@ -2173,7 +2173,7 @@ void DoDrips()
     {
         sBob[i].field_2 += 4;
 
-        int edx = Sin(sBob[i].field_2 << 3) >> 4;
+        int edx = bsin(sBob[i].field_2 << 3, -4);
         short nSector = sBob[i].nSector;
 
         if (sBob[i].field_3)
@@ -2426,8 +2426,8 @@ void DoMovingSects()
         // loc_23872:
         int nAngle = GetMyAngle(sTrailPoint[nTrail].x - pBlockInfo->x, sTrailPoint[nTrail].y - pBlockInfo->y);
 
-        int nXVel = (Sin(nAngle + 512) << 4) * sMoveSect[i].field_10;
-        int nYVel = (Sin(nAngle) << 4) * sMoveSect[i].field_10;
+        int nXVel = bcos(nAngle, 4) * sMoveSect[i].field_10;
+        int nYVel = bsin(nAngle, 4) * sMoveSect[i].field_10;
 
         int ebx = (sTrailPoint[nTrail].x - pBlockInfo->x) << 14;
 

@@ -192,7 +192,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                                 SpiderList[nSpider].nFrame = 0;
                             SpiderList[nSpider].nTarget = nTarget;
 
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
                             sprite[nSprite].yvel = sintable[sprite[nSprite].ang]; // NOTE - not angle masking here in original code
                             return;
                         }
@@ -243,8 +243,8 @@ void FuncSpider(int a, int nDamage, int nRun)
 
                         if (RandomSize(3))
                         {
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
                         }
                         else
                         {
@@ -350,8 +350,8 @@ void FuncSpider(int a, int nDamage, int nRun)
                 case 0x8000:
                 {
                     sprite[nSprite].ang = (sprite[nSprite].ang + 256) & 0x7EF;
-                    sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                    sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                    sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                    sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
                     return;
                 }
                 case 0xC000:

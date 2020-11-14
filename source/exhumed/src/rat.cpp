@@ -84,8 +84,8 @@ void InitRats()
 
 void SetRatVel(short nSprite)
 {
-    sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 2;
-    sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
+    sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
+    sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
 }
 
 int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)

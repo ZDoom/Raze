@@ -282,8 +282,8 @@ void IdleFish(short nFish, short edx)
     sprite[nSprite].ang += (256 - RandomSize(9)) + 1024;
     sprite[nSprite].ang &= kAngleMask;
 
-    sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 8;
-    sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 8;
+    sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -8);
+    sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -8);
 
     FishList[nFish].nAction = 0;
     FishList[nFish].nFrame = 0;
@@ -440,7 +440,7 @@ void FuncFish(int a, int nDamage, int nRun)
                             FishList[nFish].nFrame = 0;
 
                             int nAngle = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].z - sprite[nSprite].z);
-                            sprite[nSprite].zvel = Sin(nAngle) >> 5;
+                            sprite[nSprite].zvel = bsin(nAngle, -5);
 
                             FishList[nFish].field_C = RandomSize(6) + 90;
                         }
@@ -474,8 +474,8 @@ void FuncFish(int a, int nDamage, int nRun)
 
                         if (z <= nHeight)
                         {
-                            sprite[nSprite].xvel = (Cos(sprite[nSprite].ang) >> 5) - (Cos(sprite[nSprite].ang) >> 7);
-                            sprite[nSprite].yvel = (Sin(sprite[nSprite].ang) >> 5) - (Sin(sprite[nSprite].ang) >> 7);
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -5) - bcos(sprite[nSprite].ang, -7);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -5) - bsin(sprite[nSprite].ang, -7);
                         }
                         else
                         {

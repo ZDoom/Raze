@@ -227,16 +227,8 @@ void SetHeadVel(short nSprite)
 {
     short nAngle = sprite[nSprite].ang;
 
-    if (nVelShift >= 0)
-    {
-        sprite[nSprite].xvel = Cos(nAngle) >> (int8_t)(nVelShift);
-        sprite[nSprite].yvel = Sin(nAngle) >> (int8_t)(nVelShift);
-    }
-    else
-    {
-        sprite[nSprite].xvel = Cos(nAngle) << (int8_t)(-nVelShift);
-        sprite[nSprite].yvel = Sin(nAngle) << (int8_t)(-nVelShift);
-    }
+    sprite[nSprite].xvel = bcos(nAngle, nVelShift);
+    sprite[nSprite].yvel = bsin(nAngle, nVelShift);
 }
 
 int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
@@ -298,10 +290,10 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
     pSprite->ang = nAngle;
 
     int da = pSprite->zvel;
-    int x = klabs(Cos(da));
+    int x = klabs(bcos(da));
 
-    int v26 = x * ((val1 * Cos(nAngle)) >> 14);
-    int v27 = x * ((val1 * Sin(nAngle)) >> 14);
+    int v26 = x * ((val1 * bcos(nAngle)) >> 14);
+    int v27 = x * ((val1 * bsin(nAngle)) >> 14);
 
     uint32_t xDiff = klabs((int32_t)(v26 >> 8));
     uint32_t yDiff = klabs((int32_t)(v27 >> 8));
@@ -314,9 +306,9 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
         sqrtNum = INT_MAX;
     }
 
-    int nSqrt = ksqrt(sqrtNum) * Sin(da);
+    int nSqrt = ksqrt(sqrtNum) * bsin(da);
 
-    return movesprite(nSprite, v26 >> 2, v27 >> 2, (Sin(bobangle) >> 5) + (nSqrt >> 13), 0, 0, CLIPMASK1);
+    return movesprite(nSprite, v26 >> 2, v27 >> 2, bsin(bobangle, -5) + (nSqrt >> 13), 0, 0, CLIPMASK1);
 }
 
 int DestroyTailPart()
@@ -424,8 +416,8 @@ int BuildQueenEgg(short nQueen, int nVal)
     {
         sprite[nSprite2].xrepeat = 30;
         sprite[nSprite2].yrepeat = 30;
-        sprite[nSprite2].xvel = Cos(sprite[nSprite2].ang);
-        sprite[nSprite2].yvel = Sin(sprite[nSprite2].ang);
+        sprite[nSprite2].xvel = bcos(sprite[nSprite2].ang);
+        sprite[nSprite2].yvel = bsin(sprite[nSprite2].ang);
         sprite[nSprite2].zvel = -6000;
         sprite[nSprite2].cstat = 0;
     }
@@ -567,8 +559,8 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                         }
 
                         sprite[nSprite].ang = nAngle;
-                        sprite[nSprite].xvel = Cos(nAngle) >> 1;
-                        sprite[nSprite].yvel = Sin(nAngle) >> 1;
+                        sprite[nSprite].xvel = bcos(nAngle, -1);
+                        sprite[nSprite].yvel = bsin(nAngle, -1);
                     }
 
                     break;
@@ -600,8 +592,8 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                     case 0x8000:
                         sprite[nSprite].ang += (RandomSize(9) + 768);
                         sprite[nSprite].ang &= kAngleMask;
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 3;
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 3;
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -3);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -3);
                         sprite[nSprite].zvel = -RandomSize(5);
                         break;
                     }
@@ -975,8 +967,8 @@ __MOVEQS:
                                 // DEMO-TODO: in disassembly angle was used without masking and thus causing OOB issue.
                                 // This behavior probably would be needed emulated for demo compatibility
                                 // int dx = sintable[nAngle + 512] << 10;
-                                int dx = Cos(nAngle) << 10;
-                                int dy = Sin(nAngle) << 10;
+                                int dx = bcos(nAngle, 10);
+                                int dy = bsin(nAngle, 10);
                                 int dz = (RandomSize(5) - RandomSize(5)) << 7;
 
                                 movesprite(nSprite, dx, dy, dz, 0, 0, CLIPMASK1);
@@ -1167,8 +1159,8 @@ int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nC
 
 void SetQueenSpeed(short nSprite, int nSpeed)
 {
-    sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> (2 - nSpeed);
-    sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> (2 - nSpeed);
+    sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -(2 - nSpeed));
+    sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -(2 - nSpeed));
 }
 
 void FuncQueen(int a, int nDamage, int nRun)

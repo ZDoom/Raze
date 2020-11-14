@@ -711,7 +711,7 @@ public:
 			
 			if (nLevelNew == i)
 			{
-				shade = (Sin(16 * currentclock) + 31) >> 8;
+				shade = (bsin(16 * currentclock) + 31) >> 8;
 			}
 			else if (nLevelBest >= i)
 			{

@@ -170,8 +170,8 @@ static void analyzesprites()
                 int xval = pSprite->x - x;
                 int yval = pSprite->y - y;
 
-                int vcos = Cos(nAngle);
-                int vsin = Sin(nAngle);
+                int vcos = bcos(nAngle);
+                int vsin = bsin(nAngle);
 
 
                 int edx = ((vcos * yval) + (xval * vsin)) >> 14;
@@ -242,7 +242,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     fixed_t dang = IntToFixed(1024);
 
-    zbob = Sin(2 * bobangle) >> 3;
+    zbob = bsin(2 * bobangle, -3);
 
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
     int nPlayerOldCstat = sprite[nPlayerSprite].cstat;
@@ -333,8 +333,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     else
     {
         clipmove_old((int32_t*)&playerX, (int32_t*)&playerY, (int32_t*)&playerZ, &nSector,
-            -2000 * Sin(inita + 512),
-            -2000 * Sin(inita),
+            -2000 * bcos(inita),
+            -2000 * bsin(inita),
             4, 0, 0, CLIPMASK1);
 
         pan = q16horiz(0);

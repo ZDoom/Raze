@@ -289,8 +289,8 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
 
     short nSprite = PlayerList[nPlayer].nSprite;
 
-    int xVect = Sin(sprite[nSprite].ang + 512);
-    int yVect = Sin(sprite[nSprite].ang);
+    int xVect = bcos(sprite[nSprite].ang);
+    int yVect = bsin(sprite[nSprite].ang);
 
     vec3_t startPos = { *x, *y, *z };
     hitdata_t hitData;
@@ -697,8 +697,8 @@ loc_flag:
             int theY = sprite[nPlayerSprite].y;
             int theZ = sprite[nPlayerSprite].z;
 
-            int ebp = Cos(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
-            int ebx = Sin(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
+            int ebp = bcos(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
+            int ebx = bsin(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
 
             if (WeaponInfo[nWeapon].c)
             {
@@ -711,8 +711,8 @@ loc_flag:
                     ecx = theVal;
 
                 int var_44 = (nAngle + 512) & kAngleMask;
-                ebp += (Cos(var_44) >> 11) * ecx;
-                ebx += (Sin(var_44) >> 11) * ecx;
+                ebp += bcos(var_44, -11) * ecx;
+                ebx += bsin(var_44, -11) * ecx;
             }
 
             int nHeight = (-GetSpriteHeight(nPlayerSprite)) >> 1;
@@ -867,8 +867,8 @@ loc_flag:
                     BuildSnake(nPlayer, nHeight);
                     nQuake[nPlayer] = 512;
 
-                    nXDamage[nPlayer] -= Sin(sprite[nPlayerSprite].ang + 512) << 9;
-                    nYDamage[nPlayer] -= Sin(sprite[nPlayerSprite].ang) << 9;
+                    nXDamage[nPlayer] -= bcos(sprite[nPlayerSprite].ang, 9);
+                    nYDamage[nPlayer] -= bsin(sprite[nPlayerSprite].ang, 9);
                     break;
                 }
                 case kWeaponRing:

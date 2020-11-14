@@ -218,8 +218,8 @@ void FuncAnubis(int a, int nDamage, int nRun)
                             AnubisList[nAnubis].nFrame = 0;
                             AnubisList[nAnubis].nTarget = nTarget;
 
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 2;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
                         }
                     }
                     return;
@@ -231,8 +231,8 @@ void FuncAnubis(int a, int nDamage, int nRun)
                         PlotCourseToSprite(nSprite, nTarget);
 
                         int nAngle = sprite[nSprite].ang & 0xFFF8;
-                        sprite[nSprite].xvel = Cos(nAngle) >> 2;
-                        sprite[nSprite].yvel = Sin(nAngle) >> 2;
+                        sprite[nSprite].xvel = bcos(nAngle, -2);
+                        sprite[nSprite].yvel = bsin(nAngle, -2);
                     }
 
                     switch (nMov & 0xC000)
@@ -257,8 +257,8 @@ void FuncAnubis(int a, int nDamage, int nRun)
                         case 0x8000:
                         {
                             sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 2;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
                             break;
                         }
 
@@ -321,8 +321,8 @@ void FuncAnubis(int a, int nDamage, int nRun)
                     {
                         AnubisList[nAnubis].nAction = 1;
 
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 2;
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
                         AnubisList[nAnubis].nFrame = 0;
                     }
                     else
