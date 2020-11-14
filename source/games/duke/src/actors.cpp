@@ -228,8 +228,8 @@ int ssp(DDukeActor* const actor, unsigned int cliptype) //The set sprite functio
 	Collision c;
 
 	return movesprite_ex(actor,
-		(actor->s.xvel * (sintable[(actor->s.ang + 512) & 2047])) >> 14,
-		(actor->s.xvel * (sintable[actor->s.ang & 2047])) >> 14, actor->s.zvel,
+		mulscale14(actor->s.xvel, bcos(actor->s.ang)),
+		mulscale14(actor->s.xvel, bsin(actor->s.ang)), actor->s.zvel,
 		cliptype, c) == kHitNone;
 }
 
@@ -287,8 +287,8 @@ void ms(DDukeActor* const actor)
 	int tx, ty;
 	auto s = &actor->s;
 
-	s->x += (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14;
-	s->y += (s->xvel * (sintable[s->ang & 2047])) >> 14;
+	s->x += mulscale14(s->xvel, bcos(s->ang));
+	s->y += mulscale14(s->xvel, bsin(s->ang));
 
 	int j = actor->temp_data[1];
 	int k = actor->temp_data[2];
@@ -327,7 +327,7 @@ void movecyclers(void)
 		s = c[0];
 
 		t = c[3];
-		j = t + (sintable[c[1] & 2047] >> 10);
+		j = t + bsin(c[1], -10);
 		cshade = c[2];
 
 		if (j < cshade) j = cshade;
@@ -819,8 +819,8 @@ void movecrane(DDukeActor *actor, int crane)
 			ps[p].oposx = ps[p].posx;
 			ps[p].oposy = ps[p].posy;
 			ps[p].oposz = ps[p].posz;
-			ps[p].posx = spri->x - (sintable[(ang + 512) & 2047] >> 6);
-			ps[p].posy = spri->y - (sintable[ang & 2047] >> 6);
+			ps[p].posx = spri->x - bcos(ang, -6);
+			ps[p].posy = spri->y - bsin(ang, -6);
 			ps[p].posz = spri->z + (2 << 8);
 			setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz);
 			ps[p].cursectnum = ps[p].GetActor()->s.sectnum;
@@ -1295,8 +1295,8 @@ void movecanwithsomething(DDukeActor* actor)
 void bounce(DDukeActor* actor)
 {
 	auto s = &actor->s;
-	int xvect = mulscale10(s->xvel, sintable[(s->ang + 512) & 2047]);
-	int yvect = mulscale10(s->xvel, sintable[s->ang & 2047]);
+	int xvect = mulscale10(s->xvel, bcos(s->ang));
+	int yvect = mulscale10(s->xvel, bsin(s->ang));
 	int zvect = s->zvel;
 
 	int hitsect = s->sectnum;
@@ -1310,8 +1310,8 @@ void bounce(DDukeActor* actor)
 	else
 		k = sector[hitsect].floorheinum;
 
-	int dax = mulscale14(k, sintable[(daang) & 2047]);
-	int day = mulscale14(k, sintable[(daang + 1536) & 2047]);
+	int dax = mulscale14(k, bsin(daang));
+	int day = mulscale14(k, -bcos(daang));
 	int daz = 4096;
 
 	k = xvect * dax + yvect * day + zvect * daz;
@@ -1338,7 +1338,7 @@ void bounce(DDukeActor* actor)
 void movetongue(DDukeActor *actor, int tongue, int jaw)
 {
 	auto s = &actor->s;
-	actor->temp_data[0] = sintable[(actor->temp_data[1]) & 2047] >> 9;
+	actor->temp_data[0] = bsin(actor->temp_data[1], -9);
 	actor->temp_data[1] += 32;
 	if (actor->temp_data[1] > 2047)
 	{
@@ -1364,8 +1364,8 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	for (int k = 0; k < actor->temp_data[0]; k++)
 	{
 		auto q = EGS(s->sectnum,
-			s->x + ((k * sintable[(s->ang + 512) & 2047]) >> 9),
-			s->y + ((k * sintable[s->ang & 2047]) >> 9),
+			s->x + mulscale9(k, bcos(s->ang)),
+			s->y + mulscale9(k, bsin(s->ang)),
 			s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), tongue, -40 + (k << 1),
 			8, 8, 0, 0, 0, actor, 5);
 		if (q)
@@ -1376,8 +1376,8 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	}
 	int k = actor->temp_data[0];	// do not depend on the above loop counter.
 	auto spawned = EGS(s->sectnum,
-		s->x + ((k * sintable[(s->ang + 512) & 2047]) >> 9),
-		s->y + ((k * sintable[s->ang & 2047]) >> 9),
+		s->x + mulscale9(k, bcos(s->ang)),
+		s->y + mulscale9(k, bsin(s->ang)),
 		s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), jaw, -40,
 		32, 32, 0, 0, 0, actor, 5);
 	if (spawned)
@@ -1465,7 +1465,7 @@ bool rat(DDukeActor* actor, bool makesound)
 	if (ssp(actor, CLIPMASK0))
 	{
 		if (makesound && (krand() & 255) == 0) S_PlayActorSound(RATTY, actor);
-		s->ang += (krand() & 31) - 15 + (sintable[(actor->temp_data[0] << 8) & 2047] >> 11);
+		s->ang += (krand() & 31) - 15 + bsin(actor->temp_data[0] << 8, -11);
 	}
 	else
 	{
@@ -1506,8 +1506,8 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 
 		Collision coll;
 		int j = clipmove_ex(&s->x, &s->y, &s->z, &s->sectnum,
-			(((s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14) * TICSPERFRAME) << 11,
-			(((s->xvel * (sintable[s->ang & 2047])) >> 14) * TICSPERFRAME) << 11,
+			(mulscale14(s->xvel, bcos(s->ang)) * TICSPERFRAME) << 11,
+			(mulscale14(s->xvel, bsin(s->ang)) * TICSPERFRAME) << 11,
 			24L, (4 << 8), (4 << 8), CLIPMASK1, coll);
 
 		if (j == kHitWall)
@@ -1603,8 +1603,8 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 				k->s.cstat = 257 + 128;
 				k->s.clipdist = 64;
 				k->s.ang = j;
-				k->s.zvel = sintable[l & 2047] >> 5;
-				k->s.xvel = sintable[(l + 512) & 2047] >> 9;
+				k->s.zvel = bsin(l, -5);
+				k->s.xvel = bcos(l, -9);
 				k->SetOwner(actor);
 			}
 	}
@@ -2174,7 +2174,7 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 	int sect = s->sectnum;
 	int* t = &actor->temp_data[0];
 
-	s->xvel = (krand() & 7) + (sintable[actor->temp_data[0] & 2047] >> 9);
+	s->xvel = (krand() & 7) + bsin(actor->temp_data[0], -9);
 	actor->temp_data[0] += (krand() & 63);
 	if ((actor->temp_data[0] & 2047) > 512 && (actor->temp_data[0] & 2047) < 1596)
 	{
@@ -2293,8 +2293,8 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			else s->zvel += gc - 50;
 		}
 
-		s->x += (s->xvel * sintable[(s->ang + 512) & 2047]) >> 14;
-		s->y += (s->xvel * sintable[s->ang & 2047]) >> 14;
+		s->x += mulscale14(s->xvel, bcos(s->ang));
+		s->y += mulscale14(s->xvel, bsin(s->ang));
 		s->z += s->zvel;
 
 		if (floorcheck && s->z >= sector[s->sectnum].floorz)
@@ -2576,8 +2576,8 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 			}
 		}
 		if (s->zvel < 4096) s->zvel += gc - 50;
-		s->x += (s->xvel * sintable[(s->ang + 512) & 2047]) >> 14;
-		s->y += (s->xvel * sintable[s->ang & 2047]) >> 14;
+		s->x += mulscale14(s->xvel, bcos(s->ang));
+		s->y += mulscale14(s->xvel, bsin(s->ang));
 		s->z += s->zvel;
 	}
 	else
@@ -2914,8 +2914,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				}
 		}
 
-		int m = (s->xvel * sintable[(s->ang + 512) & 2047]) >> 14;
-		x = (s->xvel * sintable[s->ang & 2047]) >> 14;
+		int m = mulscale14(s->xvel, bcos(s->ang));
+		x = mulscale14(s->xvel, bsin(s->ang));
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
@@ -3090,8 +3090,8 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 	if (s->xvel)
 	{
-		int l = (s->xvel * sintable[(s->ang + 512) & 2047]) >> 14;
-		int x = (s->xvel * sintable[s->ang & 2047]) >> 14;
+		int l = mulscale14(s->xvel, bcos(s->ang));
+		int x = mulscale14(s->xvel, bsin(s->ang));
 
 		if ((sc->floorz - sc->ceilingz) < (108 << 8))
 			if (ud.clipping == 0)
@@ -3259,8 +3259,8 @@ void handle_se02(DDukeActor *actor)
 			else sc->floorheinum += (sgn(t[5] - sc->floorheinum) << 4);
 		}
 
-		int m = (s->xvel * sintable[(s->ang + 512) & 2047]) >> 14;
-		int x = (s->xvel * sintable[s->ang & 2047]) >> 14;
+		int m = mulscale14(s->xvel, bcos(s->ang));
+		int x = mulscale14(s->xvel, bsin(s->ang));
 
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -4289,8 +4289,8 @@ void handle_se20(DDukeActor* actor)
 
 	if (s->xvel) //Moving
 	{
-		int x = (s->xvel * sintable[(s->ang + 512) & 2047]) >> 14;
-		int l = (s->xvel * sintable[s->ang & 2047]) >> 14;
+		int x = mulscale14(s->xvel, bcos(s->ang));
+		int l = mulscale14(s->xvel, bsin(s->ang));
 
 		t[3] += s->xvel;
 
@@ -4416,8 +4416,8 @@ void handle_se26(DDukeActor* actor)
 	int x, l;
 
 	s->xvel = 32;
-	l = (s->xvel * sintable[(s->ang + 512) & 2047]) >> 14;
-	x = (s->xvel * sintable[s->ang & 2047]) >> 14;
+	l = mulscale14(s->xvel, bcos(s->ang));
+	x = mulscale14(s->xvel, bsin(s->ang));
 
 	s->shade++;
 	if (s->shade > 7)
@@ -4536,8 +4536,8 @@ void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, int TRIPBOMB
 
 	if (t[4]) return;
 
-	int x = (actor->s.yvel * sintable[(actor->s.ang + 512) & 2047]) >> 18;
-	int l = (actor->s.yvel * sintable[actor->s.ang & 2047]) >> 18;
+	int x = mulscale18(actor->s.yvel, bcos(actor->s.ang));
+	int l = mulscale18(actor->s.yvel, bsin(actor->s.ang));
 
 	DukeSectIterator it(actor->s.sectnum);
 	while (auto a2 = it.Next())
@@ -5082,11 +5082,10 @@ void makeitfall(DDukeActor* actor)
 int dodge(DDukeActor* actor)
 {
 	auto s = &actor->s;
-	int bx, by, mx, my, bxvect, byvect, mxvect, myvect, d;
+	int bx, by, mx, my, bxvect, byvect, d;
 
 	mx = s->x;
 	my = s->y;
-	mxvect = sintable[(s->ang + 512) & 2047]; myvect = sintable[s->ang & 2047];
 
 	DukeStatIterator it(STAT_PROJECTILE);
 	while (auto ac = it.Next())
@@ -5097,9 +5096,10 @@ int dodge(DDukeActor* actor)
 
 		bx = si->x - mx;
 		by = si->y - my;
-		bxvect = sintable[(si->ang + 512) & 2047]; byvect = sintable[si->ang & 2047];
+		bxvect = bcos(si->ang);
+		byvect = bsin(si->ang);
 
-		if (mxvect * bx + myvect * by >= 0)
+		if (bcos(s->ang) * bx + bsin(s->ang) * by >= 0)
 			if (bxvect * bx + byvect * by < 0)
 			{
 				d = bxvect * by - byvect * bx;
@@ -5134,7 +5134,7 @@ int furthestangle(DDukeActor *actor, int angs)
 
 	for (j = s->ang; j < (2048 + s->ang); j += angincs)
 	{
-		hitscan(s->x, s->y, s->z - (8 << 8), s->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047], 0, &hitsect, &hitwall, &dd, &hx, &hy, &hz, CLIPMASK1);
+		hitscan(s->x, s->y, s->z - (8 << 8), s->sectnum, bcos(j), bsin(j), 0, &hitsect, &hitwall, &dd, &hx, &hy, &hz, CLIPMASK1);
 
 		d = abs(hx - s->x) + abs(hy - s->y);
 
@@ -5169,7 +5169,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 	auto ts = &tosee->s;
 	for (j = ts->ang; j < (2048 + ts->ang); j += (angincs - (krand() & 511)))
 	{
-		hitscan(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047], 16384 - (krand() & 32767), 
+		hitscan(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum, bcos(j), bsin(j), 16384 - (krand() & 32767), 
 			&hitsect, &hitwall, &dd, &hx, &hy, &hz, CLIPMASK1);
 
 		d = abs(hx - ts->x) + abs(hy - ts->y);
