@@ -745,7 +745,7 @@ private:
         {
             int s = -8;
             if (althud_flashing && pp->nHealth > 800)
-                s += (sintable[(leveltime << 7) & 2047] >> 10);
+                s += bsin(leveltime << 7, -10);
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", pp->nHealth >> 3);

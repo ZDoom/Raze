@@ -240,7 +240,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                                 MummyList[nMummy].G = 90;
 
                                 sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
-                                sprite[nSprite].yvel = sintable[sprite[nSprite].ang] >> 2; // NOTE no angle masking in original code
+                                sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
                             }
                         }
                     }
