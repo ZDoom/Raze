@@ -1975,11 +1975,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_strafeleft:
 		insptr++;
-		movesprite_ex(g_ac, sintable[(g_sp->ang + 1024) & 2047] >> 10, sintable[(g_sp->ang + 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0, coll);
+		movesprite_ex(g_ac, -bsin(g_sp->ang, -10), bcos(g_sp->ang, -10), g_sp->zvel, CLIPMASK0, coll);
 		break;
 	case concmd_straferight:
 		insptr++;
-		movesprite_ex(g_ac, sintable[(g_sp->ang - 0) & 2047] >> 10, sintable[(g_sp->ang - 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0, coll);
+		movesprite_ex(g_ac, bsin(g_sp->ang, -10), -bcos(g_sp->ang, -10), g_sp->zvel, CLIPMASK0, coll);
 		break;
 	case concmd_larrybird:
 		insptr++;
@@ -2451,8 +2451,8 @@ int ParseState::parse(void)
 	case concmd_slapplayer:
 		insptr++;
 		forceplayerangle(g_p);
-		ps[g_p].posxv -= sintable[(ps[g_p].angle.ang.asbuild() + 512) & 2047] << 7;
-		ps[g_p].posyv -= sintable[ps[g_p].angle.ang.asbuild() & 2047] << 7;
+		ps[g_p].posxv -= ps[g_p].angle.ang.bcos(7);
+		ps[g_p].posyv -= ps[g_p].angle.ang.bsin(7);
 		return 0;
 	case concmd_wackplayer:
 		insptr++;
@@ -2460,8 +2460,8 @@ int ParseState::parse(void)
 			forceplayerangle(g_p);
 		else
 		{
-			ps[g_p].posxv -= sintable[(ps[g_p].angle.ang.asbuild() + 512) & 2047] << 10;
-			ps[g_p].posyv -= sintable[ps[g_p].angle.ang.asbuild() & 2047] << 10;
+			ps[g_p].posxv -= ps[g_p].angle.ang.bcos(10);
+			ps[g_p].posyv -= ps[g_p].angle.ang.bsin(10);
 			ps[g_p].jumping_counter = 767;
 			ps[g_p].jumping_toggle = 1;
 		}
@@ -3396,8 +3396,7 @@ int ParseState::parse(void)
 		int lValue;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		lValue = GetGameVarID(*insptr, g_ac, g_p);
-		lValue = sintable[lValue & 2047];
+		lValue = bsin(GetGameVarID(*insptr, g_ac, g_p));
 		SetGameVarID(i, lValue, g_ac, g_p);
 		insptr++;
 		break;
