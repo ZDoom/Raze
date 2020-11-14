@@ -193,7 +193,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                             SpiderList[nSpider].nTarget = nTarget;
 
                             sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
-                            sprite[nSprite].yvel = sintable[sprite[nSprite].ang]; // NOTE - not angle masking here in original code
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
                             return;
                         }
                     }

@@ -158,7 +158,7 @@ int BuildSnake(short nPlayer, short zVal)
 
     int nSqrt = ksqrt(sqrtNum);
 
-    if (nSqrt < (sintable[512] >> 4))
+    if (nSqrt < bsin(512, -4))
     {
         BackUpBullet(&hitx, &hity, nAngle);
         nSprite = insertsprite(hitsect, 202);

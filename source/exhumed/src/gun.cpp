@@ -302,7 +302,7 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
     hitSect = hitData.sect;
     hitWall = hitData.wall;
 
-    int ecx = sintable[150] >> 3;
+    int ecx = bsin(150, -3);
 
     uint32_t xDiff = klabs(hitX - *x);
     uint32_t yDiff = klabs(hitY - *y);

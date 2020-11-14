@@ -966,7 +966,6 @@ __MOVEQS:
 
                                 // DEMO-TODO: in disassembly angle was used without masking and thus causing OOB issue.
                                 // This behavior probably would be needed emulated for demo compatibility
-                                // int dx = sintable[nAngle + 512] << 10;
                                 int dx = bcos(nAngle, 10);
                                 int dy = bsin(nAngle, 10);
                                 int dz = (RandomSize(5) - RandomSize(5)) << 7;
