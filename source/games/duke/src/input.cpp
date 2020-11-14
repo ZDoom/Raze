@@ -897,18 +897,12 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
 	if (packet)
 	{
-		auto const pPlayer = &ps[myconnectindex];
-		auto const ang = pPlayer->angle.ang.asbuild();
+		auto cos = p->angle.ang.bcos();
+		auto sin = p->angle.ang.bsin();
 
 		*packet = loc;
-		auto fvel = loc.fvel;
-		auto svel = loc.svel;
-		packet->fvel = mulscale9(fvel, sintable[(ang + 2560) & 2047]) +
-			mulscale9(svel, sintable[(ang + 2048) & 2047]) +
-			pPlayer->fric.x;
-		packet->svel = mulscale9(fvel, sintable[(ang + 2048) & 2047]) +
-			mulscale9(svel, sintable[(ang + 1536) & 2047]) +
-			pPlayer->fric.y;
+		packet->fvel = mulscale9(loc.fvel, cos) + mulscale9(loc.svel, sin) + p->fric.x;
+		packet->svel = mulscale9(loc.fvel, sin) - mulscale9(loc.svel, cos) + p->fric.y;
 		loc = {};
 	}
 }
