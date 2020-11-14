@@ -95,8 +95,8 @@ void calcviewpitch(player_struct *p, double factor)
 	int psectlotag = sector[psect].lotag;
 	if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
 	{
-		int x = p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 5);
-		int y = p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 5);
+		int x = p->posx + p->angle.ang.bcos(-5);
+		int y = p->posy + p->angle.ang.bsin(-5);
 		short tempsect = psect;
 		updatesector(x, y, &tempsect);
 
@@ -225,7 +225,7 @@ int hits(DDukeActor* actor)
 	if (sp->picnum == TILE_APLAYER) zoff = (40 << 8);
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, sintable[(sp->ang + 512) & 2047], sintable[sp->ang & 2047], 0, &sect, &hw, &d, &sx, &sy, &sz, CLIPMASK1);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, &sect, &hw, &d, &sx, &sy, &sz, CLIPMASK1);
 
 	return (FindDistance2D(sx - sp->x, sy - sp->y));
 }
@@ -247,7 +247,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	else if (sp->picnum == TILE_APLAYER) zoff = (39 << 8);
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, sintable[(sp->ang + 512) & 2047], sintable[sp->ang & 2047], 0, &sect, &hw, hitsp, &sx, &sy, &sz, CLIPMASK1);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, &sect, &hw, hitsp, &sx, &sy, &sz, CLIPMASK1);
 
 	if (hw >= 0 && (wall[hw].cstat & 16) && badguy(actor))
 		return((1 << 30));
@@ -268,7 +268,7 @@ int hitawall(struct player_struct* p, int* hitw)
 	DDukeActor* d;
 
 	hitscan(p->posx, p->posy, p->posz, p->cursectnum,
-		sintable[(p->angle.ang.asbuild() + 512) & 2047], sintable[p->angle.ang.asbuild() & 2047], 0, &sect, &hitw1, &d, &sx, &sy, &sz, CLIPMASK0);
+		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, &sect, &hitw1, &d, &sx, &sy, &sz, CLIPMASK0);
 	*hitw = hitw1;
 
 	return (FindDistance2D(sx - p->posx, sy - p->posy));
@@ -340,13 +340,13 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 
 	smax = 0x7fffffff;
 
-	dx1 = sintable[(a + 512 - aang) & 2047];
-	dy1 = sintable[(a - aang) & 2047];
-	dx2 = sintable[(a + 512 + aang) & 2047];
-	dy2 = sintable[(a + aang) & 2047];
+	dx1 = bcos(a - aang);
+	dy1 = bsin(a - aang);
+	dx2 = bcos(a + aang);
+	dy2 = bsin(a + aang);
 
-	dx3 = sintable[(a + 512) & 2047];
-	dy3 = sintable[a & 2047];
+	dx3 = bcos(a);
+	dy3 = bsin(a);
 
 	for (k = 0; k < 4; k++)
 	{
@@ -1085,8 +1085,8 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 
 
 	hitscan(sx, sy, sz, sect,
-		sintable[(sa + 512) & 2047],
-		sintable[sa & 2047], zvel << 6,
+		bcos(sa),
+		bsin(sa), zvel << 6,
 		&hitsect, &hitwall, &d, &hitx, &hity, &hitz, CLIPMASK1);
 
 	// oh my...
@@ -1147,8 +1147,8 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 	short bakcstat, hitsect, hitwall, daang;
 	DDukeActor* hitsprt;
 
-	nx = (sintable[(ang + 1536) & 2047] >> 4);
-	ny = (sintable[(ang + 1024) & 2047] >> 4);
+	nx = -bcos(ang, -4);
+	ny = -bsin(ang, -4);
 	nz = q16horiz >> 9;
 
 	sp = &pp->GetActor()->s;
@@ -1174,7 +1174,7 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 			daang = getangle(wall[wall[hitwall].point2].x - wall[hitwall].x,
 				wall[wall[hitwall].point2].y - wall[hitwall].y);
 
-			i = nx * sintable[daang] + ny * sintable[(daang + 1536) & 2047];
+			i = nx * bsin(daang) + ny * -bcos(daang);
 			if (abs(nx) > abs(ny)) hx -= mulscale28(nx, i);
 			else hy -= mulscale28(ny, i);
 		}
