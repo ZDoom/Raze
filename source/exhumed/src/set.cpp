@@ -196,9 +196,9 @@ void FuncSoul(int a, int, int nRun)
             sprite[nSprite].extra += (nSprite & 0x0F) + 5;
             sprite[nSprite].extra &= kAngleMask;
 
-            int nVel = (Cos(sprite[nSprite].extra) >> 7);
+            int nVel = bcos(sprite[nSprite].extra, -7);
 
-            if (movesprite(nSprite, Cos(sprite[nSprite].ang) * nVel, Sin(sprite[nSprite].ang) * nVel, sprite[nSprite].zvel, 5120, 0, CLIPMASK0) & 0x10000)
+            if (movesprite(nSprite, bcos(sprite[nSprite].ang) * nVel, bsin(sprite[nSprite].ang) * nVel, sprite[nSprite].zvel, 5120, 0, CLIPMASK0) & 0x10000)
             {
                 int nSet = sprite[nSprite].hitag;
                 int nSetSprite = SetList[nSet].nSprite;
@@ -363,8 +363,8 @@ void FuncSet(int a, int nDamage, int nRun)
                             SetList[nSet].nFrame  = 0;
                             SetList[nSet].nTarget = nTarget;
 
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
                         }
                     }
 
@@ -457,8 +457,8 @@ void FuncSet(int a, int nDamage, int nRun)
 
                         // loc_338E2
                         int nAngle = sprite[nSprite].ang & 0xFFF8;
-                        sprite[nSprite].xvel = Cos(nAngle) >> 1;
-                        sprite[nSprite].yvel = Sin(nAngle) >> 1;
+                        sprite[nSprite].xvel = bcos(nAngle, -1);
+                        sprite[nSprite].yvel = bsin(nAngle, -1);
 
                         if (SetList[nSet].field_D)
                         {
@@ -488,8 +488,8 @@ void FuncSet(int a, int nDamage, int nRun)
                             }
 
                             sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
                             break;
                         }
                         else if ((nMov & 0xC000) == 0xC000)
@@ -591,8 +591,8 @@ void FuncSet(int a, int nDamage, int nRun)
                         SetList[nSet].nAction = 8;
                         SetList[nSet].nFrame  = 0;
 
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
                     }
                     return;
                 }

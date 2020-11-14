@@ -88,8 +88,8 @@ void BounceGrenade(short nGrenade, short nAngle)
 {
     GrenadeList[nGrenade].field_10 >>= 1;
 
-    GrenadeList[nGrenade].x = (Cos(nAngle) >> 5) * GrenadeList[nGrenade].field_10;
-    GrenadeList[nGrenade].y = (Sin(nAngle) >> 5) * GrenadeList[nGrenade].field_10;
+    GrenadeList[nGrenade].x = bcos(nAngle, -5) * GrenadeList[nGrenade].field_10;
+    GrenadeList[nGrenade].y = bsin(nAngle, -5) * GrenadeList[nGrenade].field_10;
 
     D3PlayFX(StaticSound[kSound3], GrenadeList[nGrenade].nSprite);
 }
@@ -126,7 +126,7 @@ int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
         GrenadeList[nGrenade].field_10 = ((90 - GrenadeList[nGrenade].field_E) * (90 - GrenadeList[nGrenade].field_E)) + nVel;
         sprite[nGrenadeSprite].zvel = (-64 * push1) - 4352;
 
-        int nMov = movesprite(nGrenadeSprite, Cos(nAngle) * (sprite[nPlayerSprite].clipdist << 3), Sin(nAngle) * (sprite[nPlayerSprite].clipdist << 3), ecx, 0, 0, CLIPMASK1);
+        int nMov = movesprite(nGrenadeSprite, bcos(nAngle) * (sprite[nPlayerSprite].clipdist << 3), bsin(nAngle) * (sprite[nPlayerSprite].clipdist << 3), ecx, 0, 0, CLIPMASK1);
         if (nMov & 0x8000)
         {
             nAngle = GetWallNormal(nMov & 0x3FFF);
@@ -139,11 +139,8 @@ int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
         sprite[nGrenadeSprite].zvel = sprite[nPlayerSprite].zvel;
     }
 
-    GrenadeList[nGrenade].x = Cos(nAngle) >> 4;
-    GrenadeList[nGrenade].x *= GrenadeList[nGrenade].field_10;
-
-    GrenadeList[nGrenade].y = Sin(nAngle) >> 4;
-    GrenadeList[nGrenade].y *= GrenadeList[nGrenade].field_10;
+    GrenadeList[nGrenade].x = bcos(nAngle, -4) * GrenadeList[nGrenade].field_10;
+    GrenadeList[nGrenade].y = bsin(nAngle, -4) * GrenadeList[nGrenade].field_10;
 
     nPlayerGrenade[nPlayer] = -1;
 
@@ -240,8 +237,8 @@ void ExplodeGrenade(short nGrenade)
         short nAngle = sprite[nPlayerSprite].ang;
 
         sprite[nGrenadeSprite].z = sprite[nPlayerSprite].z;
-        sprite[nGrenadeSprite].x = (Cos(nAngle) >> 5) + sprite[nPlayerSprite].x;
-        sprite[nGrenadeSprite].y = (Sin(nAngle) >> 5) + sprite[nPlayerSprite].y;
+        sprite[nGrenadeSprite].x = bcos(nAngle, -5) + sprite[nPlayerSprite].x;
+        sprite[nGrenadeSprite].y = bsin(nAngle, -5) + sprite[nPlayerSprite].y;
 
         changespritesect(nGrenadeSprite, sprite[nPlayerSprite].sectnum);
 

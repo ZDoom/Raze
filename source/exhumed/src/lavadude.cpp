@@ -329,8 +329,8 @@ void FuncLava(int a, int nDamage, int nRun)
 
                         PlotCourseToSprite(nSprite, nTarget);
 
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
 
                         if (nTarget >= 0 && !RandomSize(1))
                         {
@@ -357,8 +357,8 @@ void FuncLava(int a, int nDamage, int nRun)
                         sprite[nSprite].z = z;
 
                         sprite[nSprite].ang = (sprite[nSprite].ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
                         break;
                     }
 
@@ -369,8 +369,8 @@ void FuncLava(int a, int nDamage, int nRun)
                     if ((nVal & 0xC000) == 0x8000)
                     {
                         sprite[nSprite].ang = (sprite[nSprite].ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
                         break;
                     }
                     else if ((nVal & 0xC000) == 0xC000)
@@ -419,7 +419,7 @@ void FuncLava(int a, int nDamage, int nRun)
                         int nHeight = GetSpriteHeight(nSprite);
                         GetUpAngle(nSprite, -64000, nTarget, (-(nHeight >> 1)));
 
-                        BuildBullet(nSprite, 10, Cos(sprite[nSprite].ang) << 8, Sin(sprite[nSprite].ang) << 8, -1, sprite[nSprite].ang, nTarget + 10000, 1);
+                        BuildBullet(nSprite, 10, bcos(sprite[nSprite].ang, 8), bsin(sprite[nSprite].ang, 8), -1, sprite[nSprite].ang, nTarget + 10000, 1);
                     }
                     else if (var_1C)
                     {

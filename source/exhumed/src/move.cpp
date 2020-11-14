@@ -661,8 +661,8 @@ int MoveCreatureWithCaution(int nSprite)
             mychangespritesect(nSprite, nSectorPre);
 
             sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-            sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512) >> 2;
-            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
+            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
+            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
             return 0;
         }
     }
@@ -770,13 +770,13 @@ void CheckSectorFloor(short nSector, int z, int *x, int *y)
 
     if (z >= sector[nSector].floorz)
     {
-        *x += (Cos(nAng) << 3) * nSpeed;
-        *y += (sintable[nAng] << 3) * nSpeed; // no anglemask in original code
+        *x += bcos(nAng, 3) * nSpeed;
+        *y += bsin(nAng, 3) * nSpeed;
     }
     else if (nFlag & 0x800)
     {
-        *x += (Cos(nAng) << 4) * nSpeed;
-        *y += (sintable[nAng] << 4) * nSpeed; // no anglemask in original code
+        *x += bcos(nAng, 4) * nSpeed;
+        *y += bsin(nAng, 4) * nSpeed;
     }
 }
 
@@ -891,8 +891,8 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
     }
     else
     {
-        nXVect = Sin(nAngle + 512) << 6;
-        nYVect = Sin(nAngle) << 6;
+        nXVect = bcos(nAngle, 6);
+        nYVect = bsin(nAngle, 6);
     }
 
     short nBlock = sector[nSector].extra;
@@ -1039,8 +1039,8 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
                 nSectorB = nNextSector;
 
                 clipmove_old((int32_t*)&x, (int32_t*)&y, (int32_t*)&z, &nSectorB,
-                    -xvect - (Sin(nAngle + 512) * (4 * sprite[i].clipdist)),
-                    -yvect - (Sin(nAngle) * (4 * sprite[i].clipdist)),
+                    -xvect - (bcos(nAngle) * (4 * sprite[i].clipdist)),
+                    -yvect - (bsin(nAngle) * (4 * sprite[i].clipdist)),
                     4 * sprite[i].clipdist, 0, 0, CLIPMASK0);
 
 
@@ -1055,8 +1055,8 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
                     else
                     {
                         movesprite(i,
-                            (xvect << 14) + Sin(nAngle + 512) * sprite[i].clipdist,
-                            (yvect << 14) + Sin(nAngle) * sprite[i].clipdist,
+                            (xvect << 14) + bcos(nAngle) * sprite[i].clipdist,
+                            (yvect << 14) + bsin(nAngle) * sprite[i].clipdist,
                             0, 0, 0, CLIPMASK0);
                     }
                 }
@@ -1235,10 +1235,10 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
     sprite[nSprite].ang = nAngle;
 
-    int eax = klabs(Cos(sprite[nSprite].zvel));
+    int eax = klabs(bcos(sprite[nSprite].zvel));
 
-    int x = ((Cos(nAngle) * ebx) >> 14) * eax;
-    int y = ((Sin(nAngle) * ebx) >> 14) * eax;
+    int x = ((bcos(nAngle) * ebx) >> 14) * eax;
+    int y = ((bsin(nAngle) * ebx) >> 14) * eax;
 
     int xshift = x >> 8;
     int yshift = y >> 8;
@@ -1251,9 +1251,9 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
         sqrtNum = INT_MAX;
     }
 
-    int z = Sin(sprite[nSprite].zvel) * ksqrt(sqrtNum);
+    int z = bsin(sprite[nSprite].zvel) * ksqrt(sqrtNum);
 
-    return movesprite(nSprite, x >> 2, y >> 2, (z >> 13) + (Sin(ecx) >> 5), 0, 0, nClipType);
+    return movesprite(nSprite, x >> 2, y >> 2, (z >> 13) + bsin(ecx, -5), 0, 0, nClipType);
 }
 
 int GetWallNormal(short nWall)
@@ -1279,8 +1279,8 @@ void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum)
     *sectnum = sprite[nSprite].sectnum;
 
     clipmove_old((int32_t*)x, (int32_t*)y, (int32_t*)z, sectnum,
-        Cos(sprite[nSprite].ang) << 7,
-        Sin(sprite[nSprite].ang) << 7,
+        bcos(sprite[nSprite].ang, 7),
+        bsin(sprite[nSprite].ang, 7),
         5120, 1280, 1280, CLIPMASK1);
 }
 
@@ -1512,8 +1512,8 @@ void FuncCreatureChunk(int a, int, int nRun)
             int nSqrt = lsqrt(((sprite[nSprite].yvel >> 10) * (sprite[nSprite].yvel >> 10)
                 + (sprite[nSprite].xvel >> 10) * (sprite[nSprite].xvel >> 10)) >> 8);
 
-            sprite[nSprite].xvel = Cos(nAngle) * (nSqrt >> 1);
-            sprite[nSprite].yvel = Sin(nAngle) * (nSqrt >> 1);
+            sprite[nSprite].xvel = bcos(nAngle) * (nSqrt >> 1);
+            sprite[nSprite].yvel = bsin(nAngle) * (nSqrt >> 1);
             return;
         }
     }

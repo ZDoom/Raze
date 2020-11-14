@@ -213,8 +213,8 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
             {
                 short nAngle = (pSprite->ang + 256) - RandomSize(9);
 
-                pHitSprite->xvel = Cos(nAngle) << 1;
-                pHitSprite->yvel = Sin(nAngle) << 1;
+                pHitSprite->xvel = bcos(nAngle, 1);
+                pHitSprite->yvel = bsin(nAngle, 1);
                 pHitSprite->zvel = (-(RandomSize(3) + 1)) << 8;
             }
             else
@@ -222,8 +222,8 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
                 int xVel = pHitSprite->xvel;
                 int yVel = pHitSprite->yvel;
 
-                pHitSprite->xvel = Cos(pSprite->ang) >> 2;
-                pHitSprite->yvel = Sin(pSprite->ang) >> 2;
+                pHitSprite->xvel = bcos(pSprite->ang, -2);
+                pHitSprite->yvel = bsin(pSprite->ang, -2);
 
                 MoveCreature(nHitSprite);
 
@@ -276,8 +276,8 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
 
 void BackUpBullet(int *x, int *y, short nAngle)
 {
-    *x -= Cos(nAngle) >> 11;
-    *y -= Sin(nAngle) >> 11;
+    *x -= bcos(nAngle, -11);
+    *y -= bsin(nAngle, -11);
 }
 
 int MoveBullet(short nBullet)
@@ -409,10 +409,10 @@ MOVEEND:
             hitdata_t hitData;
             int dz;
             if (bVanilla)
-                dz = -Sin(pBullet->field_C) * 8;
+                dz = -bsin(pBullet->field_C, 3);
             else
                 dz = -pBullet->field_C * 512;
-            hitscan(&startPos, pSprite->sectnum, Cos(pSprite->ang), Sin(pSprite->ang), dz, &hitData, CLIPMASK1);
+            hitscan(&startPos, pSprite->sectnum, bcos(pSprite->ang), bsin(pSprite->ang), dz, &hitData, CLIPMASK1);
             x2 = hitData.pos.x;
             y2 = hitData.pos.y;
             z2 = hitData.pos.z;
@@ -691,7 +691,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
 
     if (val2 < 10000)
     {
-        var_18 = ((-Sin(val2)) * pBulletInfo->field_4) >> 11;
+        var_18 = (-bsin(val2) * pBulletInfo->field_4) >> 11;
     }
     else
     {
@@ -766,8 +766,8 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     }
 
     pBullet->z = 0;
-    pBullet->x = (sprite[nSprite].clipdist << 2) * Cos(nAngle);
-    pBullet->y = (sprite[nSprite].clipdist << 2) * Sin(nAngle);
+    pBullet->x = (sprite[nSprite].clipdist << 2) * bcos(nAngle);
+    pBullet->y = (sprite[nSprite].clipdist << 2) * bsin(nAngle);
     nBulletEnemy[nBullet] = -1;
 
     if (MoveBullet(nBullet))
@@ -777,8 +777,8 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     else
     {
         pBullet->field_10 = pBulletInfo->field_4;
-        pBullet->x = (Cos(nAngle) >> 3) * pBulletInfo->field_4;
-        pBullet->y = (Sin(nAngle) >> 3) * pBulletInfo->field_4;
+        pBullet->x = bcos(nAngle, -3) * pBulletInfo->field_4;
+        pBullet->y = bsin(nAngle, -3) * pBulletInfo->field_4;
         pBullet->z = var_18 >> 3;
     }
 

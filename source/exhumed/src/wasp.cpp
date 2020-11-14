@@ -71,16 +71,8 @@ void InitWasps()
 
 void SetWaspVel(short nSprite)
 {
-    if (nWaspVelShift < 0)
-    {
-        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) << -nWaspVelShift;
-        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) << -nWaspVelShift;
-    }
-    else
-    {
-        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> nWaspVelShift;
-        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> nWaspVelShift;
-    }
+    sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -nWaspVelShift);
+    sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -nWaspVelShift);
 }
 
 int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
@@ -284,7 +276,7 @@ void FuncWasp(int a, int nDamage, int nRun)
 
                 case 0:
                 {
-                    sprite[nSprite].zvel = Sin(WaspList[nWasp].field_E) >> 4;
+                    sprite[nSprite].zvel = bsin(WaspList[nWasp].field_E, -4);
 
                     WaspList[nWasp].field_E += WaspList[nWasp].field_10;
                     WaspList[nWasp].field_E &= kAngleMask;

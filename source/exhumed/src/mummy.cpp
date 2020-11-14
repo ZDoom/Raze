@@ -239,7 +239,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                                 MummyList[nMummy].nAction = 1;
                                 MummyList[nMummy].G = 90;
 
-                                sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 2;
+                                sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
                                 sprite[nSprite].yvel = sintable[sprite[nSprite].ang] >> 2; // NOTE no angle masking in original code
                             }
                         }
@@ -281,8 +281,8 @@ void FuncMummy(int a, int nDamage, int nRun)
                     // loc_2B5A8
                     if (!MummyList[nMummy].B)
                     {
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
                     }
 
                     if (sprite[nSprite].xvel || sprite[nSprite].yvel)
@@ -325,8 +325,8 @@ void FuncMummy(int a, int nDamage, int nRun)
                             case 0x8000:
                             {
                                 sprite[nSprite].ang = (sprite[nSprite].ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-                                sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 2;
-                                sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
+                                sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
+                                sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
                                 return;
                             }
 
