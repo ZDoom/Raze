@@ -1647,9 +1647,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     zoome <<= 8;
 
-    vec2_t const bakgvect = { divscale28(sintable[(1536 - ang) & 2047], zoome),
-                        divscale28(sintable[(2048 - ang) & 2047], zoome) };
-    vec2_t const vect = { mulscale8(sintable[(2048 - ang) & 2047], zoome), mulscale8(sintable[(1536 - ang) & 2047], zoome) };
+    vec2_t const bakgvect = { divscale28(-bcos(ang), zoome), divscale28(-bsin(ang), zoome) };
+    vec2_t const vect = { mulscale8(-bsin(ang), zoome), mulscale8(-bcos(ang), zoome) };
     vec2_t const vect2 = { mulscale16(vect.x, yxaspect), mulscale16(vect.y, yxaspect) };
 
     int32_t sortnum = 0;
@@ -2396,8 +2395,8 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 {
     int16_t tempshortcnt, tempshortnum;
 
-    const int32_t vx = mulscale14(sintable[(ange+2560)&2047],neartagrange);
-    const int32_t vy = mulscale14(sintable[(ange+2048)&2047],neartagrange);
+    const int32_t vx = mulscale14(bcos(ange), neartagrange);
+    const int32_t vy = mulscale14(bsin(ange), neartagrange);
     vec3_t hitv = { xs+vx, ys+vy, 0 };
     const vec3_t sv = { xs, ys, zs };
 
@@ -2445,7 +2444,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
                 {
                     if (good&1) *neartagsector = nextsector;
                     if (good&2) *neartagwall = z;
-                    *neartaghitdist = dmulscale14(intx-xs,sintable[(ange+2560)&2047],inty-ys,sintable[(ange+2048)&2047]);
+                    *neartaghitdist = dmulscale14(intx-xs, bcos(ange), inty-ys, bsin(ange));
                     hitv.x = intx; hitv.y = inty; hitv.z = intz;
                 }
 
@@ -2477,8 +2476,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
                 if (try_facespr_intersect(spr, sv, vx, vy, 0, &hitv, 1))
                 {
                     *neartagsprite = z;
-                    *neartaghitdist = dmulscale14(hitv.x-xs, sintable[(ange+2560)&2047],
-                                                  hitv.y-ys, sintable[(ange+2048)&2047]);
+                    *neartaghitdist = dmulscale14(hitv.x-xs, bcos(ange), hitv.y-ys, bsin(ange));
                 }
             }
         }
@@ -2884,8 +2882,8 @@ void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, in
 //
 void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * const p2)
 {
-    int const dacos = sintable[(daang+2560)&2047];
-    int const dasin = sintable[(daang+2048)&2047];
+    int const dacos = bcos(daang);
+    int const dasin = bsin(daang);
     p.x -= pivot.x;
     p.y -= pivot.y;
     p2->x = dmulscale14(p.x, dacos, -p.y, dasin) + pivot.x;

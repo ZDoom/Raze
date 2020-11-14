@@ -2235,7 +2235,7 @@ void polymost_scansector(int32_t sectnum)
             {
                 if ((spr->cstat&(64+48))!=(64+16) ||
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
-                    dmulscale6(sintable[(spr->ang+512)&2047],-s.x, sintable[spr->ang&2047],-s.y) > 0)
+                    dmulscale6(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y) > 0)
                     if (renderAddTsprite(z, sectnum))
                         break;
             }
@@ -3088,13 +3088,13 @@ void polymost_drawsprite(int32_t snum)
 
     if (spriteext[spritenum].flags & SPREXT_AWAY1)
     {
-        pos.x += (sintable[(tspr->ang + 512) & 2047] >> 13);
-        pos.y += (sintable[(tspr->ang) & 2047] >> 13);
+        pos.x += bcos(tspr->ang, -13);
+        pos.y += bsin(tspr->ang, -13);
     }
     else if (spriteext[spritenum].flags & SPREXT_AWAY2)
     {
-        pos.x -= (sintable[(tspr->ang + 512) & 2047] >> 13);
-        pos.y -= (sintable[(tspr->ang) & 2047] >> 13);
+        pos.x -= bcos(tspr->ang, -13);
+        pos.y -= bsin(tspr->ang, -13);
     }
 
     vec2_t tsiz;
@@ -3125,7 +3125,7 @@ void polymost_drawsprite(int32_t snum)
             float foffs2 = TSPR_OFFSET(tspr);
 			if (fabs(foffs2) < fabs(foffs)) foffs = foffs2;
 
-            vec2f_t const offs = { (float)(sintable[(ang + 512) & 2047] >> 6)* foffs,  (float) (sintable[(ang) & 2047] >> 6) * foffs };
+            vec2f_t const offs = { float(bcosf(ang, -6) * foffs), float(bsinf(ang, -6) * foffs) };
 
             vec2f_t s0 = { (float)(tspr->x - globalposx) + offs.x,
                            (float)(tspr->y - globalposy) + offs.y};
@@ -3227,8 +3227,8 @@ void polymost_drawsprite(int32_t snum)
             if (globalorientation & 8)
                 off.y = -off.y;
 
-            vec2f_t const extent = { (float)tspr->xrepeat * (float)sintable[(tspr->ang) & 2047] * (1.0f / 65536.f),
-                                     (float)tspr->xrepeat * (float)sintable[(tspr->ang + 1536) & 2047] * (1.0f / 65536.f) };
+            vec2f_t const extent = { float(tspr->xrepeat * bsinf(tspr->ang, -16)),
+                                     float(tspr->xrepeat * -bcosf(tspr->ang, -16)) };
 
             float f = (float)(tsiz.x >> 1) + (float)off.x;
 
@@ -3273,8 +3273,7 @@ void polymost_drawsprite(int32_t snum)
                 {
                     int32_t const ang = getangle(wall[w].x - POINT2(w).x, wall[w].y - POINT2(w).y);
                     float const foffs = TSPR_OFFSET(tspr);
-                    vec2f_t const offs = { (float)(sintable[(ang + 1024) & 2047] >> 6) * foffs,
-                                     (float)(sintable[(ang + 512) & 2047] >> 6) * foffs};
+                    vec2d_t const offs = { -bsinf(ang, -6) * foffs, bcosf(ang, -6) * foffs };
 
                     vec0.x -= offs.x;
                     vec0.y -= offs.y;
@@ -3423,8 +3422,8 @@ void polymost_drawsprite(int32_t snum)
                               p1 = { (float)((tsiz.x >> 1) + off.x) * tspr->xrepeat,
                                      (float)((tsiz.y >> 1) + off.y) * tspr->yrepeat };
 
-                float const c = sintable[(tspr->ang + 512) & 2047] * (1.0f / 65536.f);
-                float const s = sintable[tspr->ang & 2047] * (1.0f / 65536.f);
+                float const c = bcosf(tspr->ang, -16);
+                float const s = bsinf(tspr->ang, -16);
 
                 vec2f_t pxy[6];
 

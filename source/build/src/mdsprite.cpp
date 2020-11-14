@@ -1197,8 +1197,8 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float
 
     k0 = ((float)(tspr->x+spriteext[tspr->owner].position_offset.x-globalposx))*f*(1.f/1024.f);
     k1 = ((float)(tspr->y+spriteext[tspr->owner].position_offset.y-globalposy))*f*(1.f/1024.f);
-    k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] * (1.f/16384.f);
-    k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] * (1.f/16384.f);
+    k4 = -bsinf(tspr->ang+spriteext[tspr->owner].angoff, -14);
+    k5 = bcosf(tspr->ang+spriteext[tspr->owner].angoff, -14);
     k2 = k0*(1-k4)+k1*k5;
     k3 = k1*(1-k4)-k0*k5;
     k6 = - gsinang; 
@@ -1403,10 +1403,10 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         if ((sext->pivot_offset.z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
             a0.z = (float)sext->pivot_offset.z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.z+m1.z));
 
-        k0 = (float)sintable[(sext->pitch+512)&2047] * (1.f/16384.f);
-        k1 = (float)sintable[sext->pitch&2047] * (1.f/16384.f);
-        k2 = (float)sintable[(sext->roll+512)&2047] * (1.f/16384.f);
-        k3 = (float)sintable[sext->roll&2047] * (1.f/16384.f);
+        k0 = bcosf(sext->pitch, -14);
+        k1 = bsinf(sext->pitch, -14);
+        k2 = bcosf(sext->roll, -14);
+        k3 = bsinf(sext->roll, -14);
     }
 
     VSMatrix imat = 0;

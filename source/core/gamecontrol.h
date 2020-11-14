@@ -12,7 +12,6 @@
 #include "i_time.h"
 #include "palentry.h"
 #include "pragmas.h"
-#include "binaryangle.h"
 
 extern FString currentGame;
 extern FString LumpFilter;
