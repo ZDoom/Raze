@@ -411,8 +411,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 	PalEntry col;
 	spritetype* spr;
 
-	xvect = sintable[(-cang) & 2047] * czoom;
-	yvect = sintable[(1536 - cang) & 2047] * czoom;
+	xvect = -bsin(cang) * czoom;
+	yvect = -bcos(cang) * czoom;
 	xvect2 = mulscale16(xvect, yxaspect);
 	yvect2 = mulscale16(yvect, yxaspect);
 
@@ -444,8 +444,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 				x1 = dmulscale16(ox, xvect, -oy, yvect);
 				y1 = dmulscale16(oy, xvect2, ox, yvect2);
 
-				ox = (sintable[(spr->ang + 512) & 2047] >> 7);
-				oy = (sintable[(spr->ang) & 2047] >> 7);
+				ox = bcos(spr->ang, -7);
+				oy = bsin(spr->ang, -7);
 				x2 = dmulscale16(ox, xvect, -oy, yvect);
 				y2 = dmulscale16(oy, xvect, ox, yvect);
 
@@ -470,8 +470,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 					if ((spr->cstat & 4) > 0) xoff = -xoff;
 					k = spr->ang;
 					l = spr->xrepeat;
-					dax = sintable[k & 2047] * l;
-					day = sintable[(k + 1536) & 2047] * l;
+					dax = bsin(k) * l;
+					day = -bcos(k) * l;
 					l = tileWidth(tilenum);
 					k = (l >> 1) + xoff;
 					x1 -= mulscale16(dax, k);
@@ -503,8 +503,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 				if ((spr->cstat & 8) > 0) yoff = -yoff;
 
 				k = spr->ang;
-				cosang = sintable[(k + 512) & 2047];
-				sinang = sintable[k & 2047];
+				cosang = bcos(k);
+				sinang = bsin(k);
 				xspan = tileWidth(tilenum);
 				xrepeat = spr->xrepeat;
 				yspan = tileHeight(tilenum);
