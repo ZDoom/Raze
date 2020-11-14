@@ -868,16 +868,12 @@ int ifhitbyweapon_d(DDukeActor *actor)
 					case SEENINE:
 					case OOZFILTER:
 					case EXPLODINGBARREL:
-						ps[p].posxv +=
-							actor->extra*(sintable[(actor->ang+512)&2047]) << 2;
-						ps[p].posyv +=
-							actor->extra*(sintable[actor->ang&2047]) << 2;
+						ps[p].posxv += actor->extra * bcos(actor->ang, 2);
+						ps[p].posyv += actor->extra * bsin(actor->ang, 2);
 						break;
 					default:
-						ps[p].posxv +=
-							actor->extra*(sintable[(actor->ang+512)&2047]) << 1;
-						ps[p].posyv +=
-							actor->extra*(sintable[actor->ang&2047]) << 1;
+						ps[p].posxv += actor->extra * bcos(actor->ang, 1);
+						ps[p].posyv += actor->extra * bsin(actor->ang, 1);
 						break;
 				}
 			}
@@ -1113,8 +1109,8 @@ static void movetripbomb(DDukeActor *actor)
 		s->ang = actor->temp_data[5];
 
 		actor->temp_data[3] = s->x; actor->temp_data[4] = s->y;
-		s->x += sintable[(actor->temp_data[5] + 512) & 2047] >> 9;
-		s->y += sintable[(actor->temp_data[5]) & 2047] >> 9;
+		s->x += bcos(actor->temp_data[5], -9);
+		s->y += bsin(actor->temp_data[5], -9);
 		s->z -= (3 << 8);
 
 		// Laser fix from EDuke32.
@@ -1150,8 +1146,8 @@ static void movetripbomb(DDukeActor *actor)
 				}
 				x -= 1024;
 
-				s->x += sintable[(actor->temp_data[5] + 512) & 2047] >> 4;
-				s->y += sintable[(actor->temp_data[5]) & 2047] >> 4;
+				s->x += bcos(actor->temp_data[5], -4);
+				s->y += bsin(actor->temp_data[5], -4);
 				updatesectorneighbor(s->x, s->y, &curSectNum, 1024, 2048);
 
 				if (curSectNum == -1)
@@ -1183,8 +1179,8 @@ static void movetripbomb(DDukeActor *actor)
 
 
 		actor->temp_data[3] = s->x; actor->temp_data[4] = s->y;
-		s->x += sintable[(actor->temp_data[5] + 512) & 2047] >> 9;
-		s->y += sintable[(actor->temp_data[5]) & 2047] >> 9;
+		s->x += bcos(actor->temp_data[5], -9);
+		s->y += bsin(actor->temp_data[5], -9);
 		s->z -= (3 << 8);
 		setsprite(actor, s->pos);
 
@@ -1805,8 +1801,8 @@ static void weaponcommon_d(DDukeActor* proj)
 
 	Collision coll;
 	movesprite_ex(proj,
-		(k * (sintable[(s->ang + 512) & 2047])) >> 14,
-		(k * (sintable[s->ang & 2047])) >> 14, ll, CLIPMASK1, coll);
+		mulscale14(k, bcos(s->ang)),
+		mulscale14(k, bsin(s->ang)), ll, CLIPMASK1, coll);
 
 	if (s->picnum == RPG && proj->temp_actor != nullptr)
 		if (FindDistance2D(s->x - proj->temp_actor->s.x, s->y - proj->temp_actor->s.y) < 256)
@@ -1840,8 +1836,8 @@ static void weaponcommon_d(DDukeActor* proj)
 		for (k = -3; k < 2; k++)
 		{
 			auto spawned = EGS(s->sectnum,
-				s->x + ((k * sintable[(s->ang + 512) & 2047]) >> 9),
-				s->y + ((k * sintable[s->ang & 2047]) >> 9),
+				s->x + mulscale9(k, bcos(s->ang)),
+				s->y + mulscale9(k, bsin(s->ang)),
 				s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
 				s->xrepeat, s->yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
@@ -2504,11 +2500,11 @@ static void greenslime(DDukeActor *actor)
 				t[3] = 1;
 		}
 
-		s->xrepeat = 20 + (sintable[t[1] & 2047] >> 13);
-		s->yrepeat = 15 + (sintable[t[1] & 2047] >> 13);
+		s->xrepeat = 20 + bsin(t[1], -13);
+		s->yrepeat = 15 + bsin(t[1], -13);
 
-		s->x = ps[p].posx + (sintable[(ps[p].angle.ang.asbuild() + 512) & 2047] >> 7);
-		s->y = ps[p].posy + (sintable[ps[p].angle.ang.asbuild() & 2047] >> 7);
+		s->x = ps[p].posx + ps[p].angle.ang.bcos(-7);
+		s->y = ps[p].posy + ps[p].angle.ang.bsin(-7);
 
 		return;
 	}
@@ -2587,8 +2583,8 @@ static void greenslime(DDukeActor *actor)
 		int l = s5->s.ang;
 
 		s->z = s5->s.z;
-		s->x = s5->s.x + (sintable[(l + 512) & 2047] >> 11);
-		s->y = s5->s.y + (sintable[l & 2047] >> 11);
+		s->x = s5->s.x + bcos(l, -11);
+		s->y = s5->s.y + bsin(l, -11);
 
 		s->picnum = GREENSLIME + 2 + (global_random & 1);
 
@@ -2664,15 +2660,15 @@ static void greenslime(DDukeActor *actor)
 		else
 		{
 			if (s->xvel < 32) s->xvel += 4;
-			s->xvel = 64 - (sintable[(t[1] + 512) & 2047] >> 9);
+			s->xvel = 64 - bcos(t[1], -9);
 
 			s->ang += getincangle(s->ang,
 				getangle(ps[p].posx - s->x, ps[p].posy - s->y)) >> 3;
 			// TJR
 		}
 
-		s->xrepeat = 36 + (sintable[(t[1] + 512) & 2047] >> 11);
-		s->yrepeat = 16 + (sintable[t[1] & 2047] >> 13);
+		s->xrepeat = 36 + bcos(t[1], -11);
+		s->yrepeat = 16 + bsin(t[1], -13);
 
 		if (rnd(4) && (sector[sect].ceilingstat & 1) == 0 &&
 			abs(actor->floorz - actor->ceilingz)
@@ -2770,8 +2766,8 @@ static void flamethrowerflame(DDukeActor *actor)
 	}
 
 	Collision coll;
-	movesprite_ex(actor, (xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
-		(xvel * (sintable[s->ang & 2047])) >> 14, s->zvel, CLIPMASK1, coll);
+	movesprite_ex(actor, mulscale14(xvel, bcos(s->ang)),
+		mulscale14(xvel, bsin(s->ang)), s->zvel, CLIPMASK1, coll);
 
 	if (s->sectnum < 0)
 	{
@@ -2894,8 +2890,8 @@ static void heavyhbomb(DDukeActor *actor)
 
 	Collision coll;
 	movesprite_ex(actor,
-		(s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
-		(s->xvel * (sintable[s->ang & 2047])) >> 14,
+		mulscale14(s->xvel, bcos(s->ang)),
+		mulscale14(s->xvel, bsin(s->ang)),
 		s->zvel, CLIPMASK0, coll);
 
 	if (sector[s->sectnum].lotag == 1 && s->zvel == 0)
@@ -3752,7 +3748,7 @@ void moveeffectors_d(void)   //STATNUM 3
 
 		case 29:
 			act->s.hitag += 64;
-			l = mulscale12((int)act->s.yvel, sintable[act->s.hitag & 2047]);
+			l = mulscale12(act->s.yvel, bsin(act->s.hitag));
 			sc->floorz = act->s.z + l;
 			break;
 		case 31: // True Drop Floor
@@ -3835,7 +3831,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	}
 
 	if (a & spin)
-		spr->ang += sintable[((t[0] << 3) & 2047)] >> 6;
+		spr->ang += bsin(t[0] << 3, -6);
 
 	if (a & face_player_slow)
 	{
@@ -3855,7 +3851,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	if ((a & jumptoplayer) == jumptoplayer)
 	{
 		if (t[0] < 16)
-			spr->zvel -= (sintable[(512 + (t[0] << 4)) & 2047] >> 5);
+			spr->zvel -= bcos(t[0] << 4, -5);
 	}
 
 	if (a & face_player_smart)
@@ -3995,8 +3991,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 		Collision coll;
 		actor->movflag = movesprite_ex(actor,
-			(daxvel * (sintable[(angdif + 512) & 2047])) >> 14,
-			(daxvel * (sintable[angdif & 2047])) >> 14, spr->zvel, CLIPMASK0, coll);
+			mulscale14(daxvel, bcos(angdif)),
+			mulscale14(daxvel, bsin(angdif)), spr->zvel, CLIPMASK0, coll);
 	}
 
 	if (a)
