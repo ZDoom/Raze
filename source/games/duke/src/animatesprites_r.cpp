@@ -242,8 +242,8 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 					t->ang = getangle(x - t->x, y - t->y);
 					t->x = Owner->x;
 					t->y = Owner->y;
-					t->x += sintable[(t->ang + 512) & 2047] >> 10;
-					t->y += sintable[t->ang & 2047] >> 10;
+					t->x += bcos(t->ang, -10);
+					t->y += bsin(t->ang, -10);
 				}
 			}
 			break;
@@ -252,7 +252,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			t->z -= (4 << 8);
 			break;
 		case CRYSTALAMMO:
-			t->shade = (sintable[(ud.levelclock << 4) & 2047] >> 10);
+			t->shade = bsin(ud.levelclock << 4, -10);
 			break;
 		case SHRINKSPARK:
 			if (Owner && (Owner->picnum == CHEER || Owner->picnum == CHEERSTAYPUT) && isRRRA())
@@ -776,8 +776,8 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 									{
 										// Alter the shadow's position so that it appears behind the sprite itself.
 										int look = getangle(shadowspr->x - ps[screenpeek].posx, shadowspr->y - ps[screenpeek].posy);
-										shadowspr->x += sintable[(look + 2560) & 2047] >> 9;
-										shadowspr->y += sintable[(look + 2048) & 2047] >> 9;
+										shadowspr->x += bcos(look, -9);
+										shadowspr->y += bsin(look, -9);
 									}
 								}
 								spritesortcnt++;
