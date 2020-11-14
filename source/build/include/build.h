@@ -23,11 +23,20 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 #include "palette.h"
 #include "pragmas.h"
 
+    //Make all variables in BUILD.H defined in the ENGINE,
+    //and externed in GAME
+#ifdef engine_c_
+#  define EXTERN
+#else
+#  define EXTERN extern
+#endif
+
+EXTERN int16_t sintable[2048];
 
 #include "buildtiles.h"
 #include "c_cvars.h"
 #include "cmdlib.h"
-#include "m_fixed.h"
+#include "binaryangle.h"
 #include "mathutil.h"
 
 typedef int64_t coord_t;
@@ -101,14 +110,6 @@ enum {
     RS_CENTER = (1<<29),    // proper center align.
     RS_CENTERORIGIN = (1<<30),
 };
-
-    //Make all variables in BUILD.H defined in the ENGINE,
-    //and externed in GAME
-#ifdef engine_c_
-#  define EXTERN
-#else
-#  define EXTERN extern
-#endif
 
 
 enum {
@@ -264,7 +265,6 @@ EXTERN int16_t numsectors, numwalls;
 EXTERN int32_t display_mirror;
 
 EXTERN int32_t randomseed;
-EXTERN int16_t sintable[2048];
 
 EXTERN int16_t numshades;
 EXTERN uint8_t paletteloaded;
