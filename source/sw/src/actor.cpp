@@ -304,8 +304,8 @@ DoDebrisCurrent(SPRITEp sp)
 
     //sp->clipdist = (256+128)>>2;
 
-    nx = DIV4(sectu->speed) * (int) sintable[NORM_ANGLE(sectu->ang + 512)] >> 14;
-    ny = DIV4(sectu->speed) * (int) sintable[sectu->ang] >> 14;
+    nx = mulscale14(DIV4(sectu->speed), bcos(sectu->ang));
+    ny = mulscale14(DIV4(sectu->speed), bsin(sectu->ang));
 
     // faster than move_sprite
     //move_missile(sp-sprite, nx, ny, 0, Z(2), Z(0), 0, ACTORMOVETICS);
@@ -316,8 +316,8 @@ DoDebrisCurrent(SPRITEp sp)
     {
         short rang = RANDOM_P2(2048);
 
-        nx = DIV4(sectu->speed) * (int) sintable[NORM_ANGLE(sectu->ang + rang + 512)] >> 14;
-        ny = DIV4(sectu->speed) * (int) sintable[NORM_ANGLE(sectu->ang + rang)] >> 14;
+        nx = mulscale14(DIV4(sectu->speed), bcos(sectu->ang + rang));
+        nx = mulscale14(DIV4(sectu->speed), bsin(sectu->ang + rang));
 
         move_sprite(sp-sprite, nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
     }
@@ -442,10 +442,10 @@ DoActorDebris(short SpriteNum)
         }
         else
         {
-            //nx = sp->xvel * ACTORMOVETICS * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-            //ny = sp->xvel * ACTORMOVETICS * (int) sintable[sp->ang] >> 14;
-            nx = ACTORMOVETICS * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-            ny = ACTORMOVETICS * (int) sintable[sp->ang] >> 14;
+            //nx = sp->xvel * ACTORMOVETICS * bcos(sp->ang) >> 14;
+            //ny = sp->xvel * ACTORMOVETICS * bsin(sp->ang) >> 14;
+            nx = mulscale14(ACTORMOVETICS, bcos(sp->ang));
+            ny = mulscale14(ACTORMOVETICS, bsin(sp->ang));
 
             //sp->clipdist = (256+128)>>2;
 
@@ -458,8 +458,8 @@ DoActorDebris(short SpriteNum)
         if (SectUser[sp->sectnum] && SectUser[sp->sectnum]->depth > 10) // JBF: added null check
         {
             u->WaitTics = (u->WaitTics + (ACTORMOVETICS << 3)) & 1023;
-            //sp->z = Z(2) + u->loz + ((Z(4) * (int) sintable[u->WaitTics]) >> 14);
-            sp->z = u->loz - ((Z(2) * (int) sintable[u->WaitTics]) >> 14);
+            //sp->z = Z(2) + u->loz + ((Z(4) * (int) bsin(u->WaitTics)) >> 14);
+            sp->z = u->loz - mulscale14(Z(2), bsin(u->WaitTics));
         }
     }
     else
@@ -478,8 +478,8 @@ DoFireFly(short SpriteNum)
     USERp u = User[SpriteNum];
     int nx, ny;
 
-    nx = 4 * ACTORMOVETICS * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = 4 * ACTORMOVETICS * (int) sintable[sp->ang] >> 14;
+    nx = 4 * ACTORMOVETICS * bcos(sp->ang) >> 14;
+    ny = 4 * ACTORMOVETICS * bsin(sp->ang) >> 14;
 
     sp->clipdist = 256>>2;
     if (!move_actor(SpriteNum, nx, ny, 0L))
@@ -489,7 +489,7 @@ DoFireFly(short SpriteNum)
 
     u->WaitTics = (u->WaitTics + (ACTORMOVETICS << 1)) & 2047;
 
-    sp->z = u->sz + ((Z(32) * (int) sintable[u->WaitTics]) >> 14);
+    sp->z = u->sz + mulscale14(Z(32), bsin(u->WaitTics));
     return 0;
 }
 
@@ -635,8 +635,8 @@ DoActorSlide(short SpriteNum)
     USERp u = User[SpriteNum];
     int nx, ny;
 
-    nx = u->slide_vel * (int) sintable[NORM_ANGLE(u->slide_ang + 512)] >> 14;
-    ny = u->slide_vel * (int) sintable[u->slide_ang] >> 14;
+    nx = mulscale14(u->slide_vel, bcos(u->slide_ang));
+    ny = mulscale14(u->slide_vel, bsin(u->slide_ang));
 
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {
@@ -853,8 +853,8 @@ DoActorDeathMove(short SpriteNum)
             DoActorFall(SpriteNum);
     }
 
-    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+    nx = mulscale14(sp->xvel, bcos(sp->ang));
+    ny = mulscale14(sp->xvel, bsin(sp->ang));
 
     sp->clipdist = (128+64)>>2;
     move_actor(SpriteNum, nx, ny, 0);
