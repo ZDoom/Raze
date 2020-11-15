@@ -290,8 +290,8 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     ang = getangle(xe - xs, ye - ys);
 
     // get x,y,z, vectors
-    xvect = sintable[NORM_ANGLE(ang + 512)];
-    yvect = sintable[NORM_ANGLE(ang)];
+    xvect = bcos(ang);
+    yvect = bsin(ang);
 
     // find the distance to the target
     dist = ksqrt(SQ(xe - xs) + SQ(ye - ys));
