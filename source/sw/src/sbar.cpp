@@ -803,7 +803,7 @@ private:
         {
             int s = -8;
             if (althud_flashing && u->Health > u->MaxHealth)
-                s += (sintable[(PlayClock << 5) & 2047] >> 10);
+                s += bsin(PlayClock << 5, -10);
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", u->Health);
