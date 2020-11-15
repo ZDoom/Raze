@@ -409,7 +409,7 @@ int DoHornetMatchPlayerZ(short SpriteNum)
     u->sz = max(u->sz, hiz + u->ceiling_dist);    
 
     u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    sp->z = u->sz + ((HORNET_BOB_AMT * (int)sintable[u->Counter]) >> 14);
+    sp->z = u->sz + mulscale14(HORNET_BOB_AMT, bsin(u->Counter));
 
     bound = u->hiz + u->ceiling_dist + HORNET_BOB_AMT;
     if (sp->z < bound)
@@ -461,8 +461,8 @@ int DoHornetCircle(short SpriteNum)
 
     sp->ang = NORM_ANGLE(sp->ang + u->Counter2);
 
-    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+    nx = mulscale14(sp->xvel, bcos(sp->ang));
+    ny = mulscale14(sp->xvel, bsin(sp->ang));
 
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {
@@ -471,8 +471,8 @@ int DoHornetCircle(short SpriteNum)
         // try moving in the opposite direction
         u->Counter2 = -u->Counter2;
         sp->ang = NORM_ANGLE(sp->ang + 1024);
-        nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-        ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+        nx = mulscale14(sp->xvel, bcos(sp->ang));
+        ny = mulscale14(sp->xvel, bsin(sp->ang));
 
         if (!move_actor(SpriteNum, nx, ny, 0L))
         {
@@ -531,8 +531,8 @@ DoHornetDeath(short SpriteNum)
         DoActorSlide(SpriteNum);
 
     // slide while falling
-    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+    nx = mulscale14(sp->xvel, bcos(sp->ang));
+    ny = mulscale14(sp->xvel, bsin(sp->ang));
 
     u->ret = move_sprite(SpriteNum, nx, ny, 0L, u->ceiling_dist, u->floor_dist, 1, ACTORMOVETICS);
 
