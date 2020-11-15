@@ -65,8 +65,8 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
         xs = pp->posx;
         ys = pp->posy;
 
-        xvect = (sop->clipbox_vdist[i] * sintable[NORM_ANGLE(ang + 512)]);
-        yvect = (sop->clipbox_vdist[i] * sintable[ang]);
+        xvect = sop->clipbox_vdist[i] * bcos(ang);
+        yvect = sop->clipbox_vdist[i] * bsin(ang);
         clipmoveboxtracenum = 1;
         ret_start = clipmove_old(&xs, &ys, &z, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
         clipmoveboxtracenum = 3;
@@ -77,8 +77,8 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
             min_dist = 0;
             min_ndx = i;
             // ox is where it should be
-            ox[i] = x[i] = pp->posx + (sop->clipbox_vdist[i] * sintable[NORM_ANGLE(ang + 512)] >> 14);
-            oy[i] = y[i] = pp->posy + (sop->clipbox_vdist[i] * sintable[ang] >> 14);
+            ox[i] = x[i] = pp->posx + mulscale14(sop->clipbox_vdist[i], bcos(ang));
+            oy[i] = y[i] = pp->posy + mulscale14(sop->clipbox_vdist[i], bsin(ang));
 
             // xs is where it hit
             x[i] = xs;
@@ -144,8 +144,8 @@ short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
         x = pp->posx;
         y = pp->posy;
 
-        xvect = (sop->clipbox_vdist[i] * sintable[NORM_ANGLE(ang + 512)]);
-        yvect = (sop->clipbox_vdist[i] * sintable[ang]);
+        xvect = sop->clipbox_vdist[i] * bcos(ang);
+        yvect = sop->clipbox_vdist[i] * bsin(ang);
 
         // move the box
         ret = clipmove_old(&x, &y, &z, &cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
@@ -156,8 +156,8 @@ short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
         {
             // attempt to move a bit when turning against a wall
             //ang = NORM_ANGLE(ang + 1024);
-            //pp->xvect += 20 * sintable[NORM_ANGLE(ang + 512)];
-            //pp->yvect += 20 * sintable[ang];
+            //pp->xvect += 20 * bcos(ang);
+            //pp->yvect += 20 * bsin(ang);
             return false;
         }
     }
