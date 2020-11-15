@@ -1665,8 +1665,8 @@ void SlipSlope(PLAYERp pp)
 
     ang = NORM_ANGLE(ang + 512);
 
-    pp->xvect += mulscale(sintable[NORM_ANGLE(ang + 512)], sector[pp->cursectnum].floorheinum, sectu->speed);
-    pp->yvect += mulscale(sintable[ang], sector[pp->cursectnum].floorheinum, sectu->speed);
+    pp->xvect += mulscale(bcos(ang), sector[pp->cursectnum].floorheinum, sectu->speed);
+    pp->yvect += mulscale(bsin(ang), sector[pp->cursectnum].floorheinum, sectu->speed);
 }
 
 void
@@ -1680,9 +1680,8 @@ PlayerAutoLook(PLAYERp pp, double const scaleAdjust)
         if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
         {
             // Get a point, 512 units ahead of player's position
-            auto const ang = pp->angle.ang.asbuild();
-            x = pp->posx + (sintable[(ang + 512) & 2047] >> 5);
-            y = pp->posy + (sintable[ang & 2047] >> 5);
+            x = pp->posx + pp->angle.ang.bcos(-5);
+            y = pp->posy + pp->angle.ang.bsin(-5);
             tempsect = pp->cursectnum;
             COVERupdatesector(x, y, &tempsect);
 
@@ -1757,34 +1756,24 @@ DoPlayerBob(PLAYERp pp)
         //amt = 10;
         amt = 12;
         amt = mulscale16(amt, dist<<8);
-
         dist = mulscale16(dist, 26000);
-        // controls how fast you move through the sin table
-        pp->bcnt += dist;
-
-        // wrap bcnt
-        pp->bcnt &= 2047;
-
-        // move pp->q16horiz up and down from 100 using sintable
-        //pp->bob_z = Z((8 * sintable[pp->bcnt]) >> 14);
-        pp->bob_z = mulscale14(Z(amt),sintable[pp->bcnt]);
     }
     else
     {
         amt = 5;
         amt = mulscale16(amt, dist<<9);
-
         dist = mulscale16(dist, 32000);
-        // controls how fast you move through the sin table
-        pp->bcnt += dist;
-
-        // wrap bcnt
-        pp->bcnt &= 2047;
-
-        // move pp->q16horiz up and down from 100 using sintable
-        //pp->bob_z = Z((4 * sintable[pp->bcnt]) >> 14);
-        pp->bob_z = mulscale14(Z(amt),sintable[pp->bcnt]);
     }
+
+    // controls how fast you move through the sin table
+    pp->bcnt += dist;
+
+    // wrap bcnt
+    pp->bcnt &= 2047;
+
+    // move pp->q16horiz up and down from 100 using sintable
+    //pp->bob_z = Z((8 * bsin(pp->bcnt)) >> 14);
+    pp->bob_z = mulscale14(Z(amt), bsin(pp->bcnt));
 }
 
 void
@@ -1804,7 +1793,7 @@ DoPlayerRecoil(PLAYERp pp)
     // controls how fast you move through the sin table
     pp->recoil_ndx += pp->recoil_speed;
 
-    if (sintable[pp->recoil_ndx] < 0)
+    if (bsin(pp->recoil_ndx) < 0)
     {
         RESET(pp->Flags, PF_RECOIL);
         pp->recoil_horizoff = 0;
@@ -1812,7 +1801,7 @@ DoPlayerRecoil(PLAYERp pp)
     }
 
     // move pp->q16horiz up and down
-    pp->recoil_horizoff = (pp->recoil_amt * sintable[pp->recoil_ndx]) << 2;
+    pp->recoil_horizoff = pp->recoil_amt * bsin(pp->recoil_ndx, 2);
 }
 
 
@@ -1825,7 +1814,7 @@ DoPlayerSpriteBob(PLAYERp pp, short player_height, short bob_amt, short bob_spee
 
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
 
-    pp->bob_amt = ((bob_amt * (int) sintable[pp->bob_ndx]) >> 14);
+    pp->bob_amt = mulscale14(bob_amt, bsin(pp->bob_ndx));
 
     sp->z = (pp->posz + player_height) + pp->bob_amt;
 }
@@ -2529,7 +2518,7 @@ void DoTankTreads(PLAYERp pp)
         return;
 
     vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->angle.ang.asbuild()+512)], sintable[pp->angle.ang.asbuild()]);
+    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
     if (dot < 0)
         reverse = true;
 
@@ -3470,7 +3459,7 @@ DoPlayerClimb(PLAYERp pp)
         pp->xvect = pp->yvect = 0;
 
     climbvel = FindDistance2D(pp->xvect, pp->yvect)>>9;
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->angle.ang.asbuild()+512)], sintable[pp->angle.ang.asbuild()]);
+    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
     if (dot < 0)
         climbvel = -climbvel;
 
@@ -3590,7 +3579,7 @@ DoPlayerClimb(PLAYERp pp)
 
         pp->climb_ndx &= 1023;
 
-        // pp->posz += (climb_amt * sintable[pp->climb_ndx]) >> 14;
+        // pp->posz += mulscale14(climb_amt, bsin(pp->climb_ndx));
         pp->posz += climb_amt;
 
         // if you are touching the floor
@@ -3692,10 +3681,9 @@ DoPlayerWadeSuperJump(PLAYERp pp)
     for (i = 0; i < SIZ(angs); i++)
     {
         FAFhitscan(pp->posx, pp->posy, zh, pp->cursectnum,    // Start position
-                   sintable[NORM_ANGLE(pp->angle.ang.asbuild() + angs[i] + 512)],       // X vector of 3D ang
-                   sintable[NORM_ANGLE(pp->angle.ang.asbuild() + angs[i])],         // Y vector of 3D ang
-                   0,                          // Z vector of 3D ang
-                   &hitinfo, CLIPMASK_MISSILE);
+                   bcos(pp->angle.ang.asbuild() + angs[i]),   // X vector of 3D ang
+                   bsin(pp->angle.ang.asbuild() + angs[i]),   // Y vector of 3D ang
+                   0, &hitinfo, CLIPMASK_MISSILE);            // Z vector of 3D ang
 
         if (hitinfo.wall >= 0 && hitinfo.sect >= 0)
         {
@@ -4015,7 +4003,7 @@ PlayerOnLadder(PLAYERp pp)
             &neartagsector, &neartagwall, &neartagsprite,
             &neartaghitdist, 1024L+768L, NTAG_SEARCH_LO_HI, NULL);
 
-    dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->angle.ang.asbuild()+512)], sintable[pp->angle.ang.asbuild()]);
+    dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
 
     if (dir < 0)
         return false;
@@ -4033,8 +4021,8 @@ PlayerOnLadder(PLAYERp pp)
             return false;
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,
-                   sintable[NORM_ANGLE(pp->angle.ang.asbuild()  + angles[i] + 512)],
-                   sintable[NORM_ANGLE(pp->angle.ang.asbuild() + angles[i])],
+                   bcos(pp->angle.ang.asbuild() + angles[i]),
+                   bsin(pp->angle.ang.asbuild() + angles[i]),
                    0,
                    &hitinfo, CLIPMASK_MISSILE);
 
@@ -4934,8 +4922,8 @@ DoPlayerCurrent(PLAYERp pp)
     if (!sectu)
         return;
 
-    xvect = sectu->speed * synctics * (int) sintable[NORM_ANGLE(sectu->ang + 512)] >> 4;
-    yvect = sectu->speed * synctics * (int) sintable[sectu->ang] >> 4;
+    xvect = sectu->speed * synctics * bcos(sectu->ang) >> 4;
+    yvect = sectu->speed * synctics * bsin(sectu->ang) >> 4;
 
     push_ret = pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
