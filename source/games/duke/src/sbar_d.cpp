@@ -137,7 +137,7 @@ public:
 		{
 			int s = -8;
 			if (althud_flashing && p->last_extra > max_player_health)
-				s += (sintable[(I_GetBuildTime() << 5) & 2047] / 768);
+				s += bsin(I_GetBuildTime() << 5) / 768;
 			int intens = clamp(255 - 6 * s, 0, 255);
 			format.Format("%d", p->last_extra);
 			SBar_DrawString(this, numberFont, format, 25, texty, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, intens / 255., 0, 0, 1, 1);
