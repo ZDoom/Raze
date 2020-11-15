@@ -231,12 +231,13 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 
     if (packet)
     {
-        auto const ang = pp->angle.ang.asbuild();
+        auto const cos = pp->angle.ang.bcos();
+        auto const sin = pp->angle.ang.bsin();
 
         *packet = loc;
 
-        packet->fvel = mulscale9(loc.fvel, sintable[NORM_ANGLE(ang + 512)]) + mulscale9(loc.svel, sintable[NORM_ANGLE(ang)]);
-        packet->svel = mulscale9(loc.fvel, sintable[NORM_ANGLE(ang)]) + mulscale9(loc.svel, sintable[NORM_ANGLE(ang + 1536)]);
+        packet->fvel = mulscale9(loc.fvel, cos) + mulscale9(loc.svel, sin);
+        packet->svel = mulscale9(loc.fvel, sin) - mulscale9(loc.svel, cos);
 
         loc = {};
     }
