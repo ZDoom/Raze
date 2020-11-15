@@ -350,7 +350,7 @@ DoShadows(tspriteptr_t tsp, int viewz, bool mirror)
     else
     {
         int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
-        vec2_t const ofs = { sintable[NORM_ANGLE(camang+512)]>>11, sintable[NORM_ANGLE(camang)]>>11};
+        vec2_t const ofs = { bcos(camang, -11), bsin(camang, -11) };
 
         New->x += ofs.x;
         New->y += ofs.y;
@@ -947,8 +947,8 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
     ang = nang->asbuild() + pp->view_outside_dang;
 
     // Calculate the vector (nx,ny,nz) to shoot backwards
-    vx = (sintable[NORM_ANGLE(ang + 1536)] >> 3);
-    vy = (sintable[NORM_ANGLE(ang + 1024)] >> 3);
+    vx = -bcos(ang, -3);
+    vy = -bsin(ang, -3);
     vz = q16horiz >> 8;
 
     // Player sprite of current view
@@ -986,7 +986,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
             daang = getangle(wall[wall[hitinfo.wall].point2].x - wall[hitinfo.wall].x,
                              wall[wall[hitinfo.wall].point2].y - wall[hitinfo.wall].y);
 
-            i = vx * sintable[daang] + vy * sintable[NORM_ANGLE(daang + 1536)];
+            i = vx * bsin(daang) + vy * -bcos(daang);
             if (klabs(vx) > klabs(vy))
                 hx -= mulscale28(vx, i);
             else
@@ -1021,7 +1021,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
                 // same as wall calculation
                 daang = NORM_ANGLE(sp->ang-512);
 
-                i = vx * sintable[daang] + vy * sintable[NORM_ANGLE(daang + 1536)];
+                i = vx * bsin(daang) + vy * -bcos(daang);
                 if (klabs(vx) > klabs(vy))
                     hx -= mulscale28(vx, i);
                 else
@@ -1071,8 +1071,8 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q1
     ang = *nang + buildang(pp->circle_camera_ang);
 
     // Calculate the vector (nx,ny,nz) to shoot backwards
-    vx = (sintable[NORM_ANGLE(ang.asbuild() + 1536)] >> 4);
-    vy = (sintable[NORM_ANGLE(ang.asbuild() + 1024)] >> 4);
+    vx = -ang.bcos(-4);
+    vy = -ang.bsin(-4);
 
     // lengthen the vector some
     vx += DIV2(vx);
@@ -1108,7 +1108,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q1
             daang = getangle(wall[wall[hitinfo.wall].point2].x - wall[hitinfo.wall].x,
                              wall[wall[hitinfo.wall].point2].y - wall[hitinfo.wall].y);
 
-            i = vx * sintable[daang] + vy * sintable[NORM_ANGLE(daang + 1536)];
+            i = vx * bsin(daang) + vy * -bcos(daang);
             if (klabs(vx) > klabs(vy))
                 hx -= mulscale28(vx, i);
             else
@@ -1315,8 +1315,8 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, binangle
 
                     pp->last_camera_sp = sp;
 
-                    xvect = sintable[NORM_ANGLE(ang.asbuild() + 512)] >> 3;
-                    yvect = sintable[NORM_ANGLE(ang.asbuild())] >> 3;
+                    xvect = ang.bcos(-3);
+                    yvect = ang.bsin(-3);
 
                     zdiff = sp->z - *tz;
                     if (labs(sp->x - *tx) > 1000)
@@ -1893,8 +1893,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
     bool sprisplayer = false;
     short txt_x, txt_y;
 
-    xvect = sintable[(2048 - cang) & 2047] * czoom;
-    yvect = sintable[(1536 - cang) & 2047] * czoom;
+    xvect = -bsin(cang) * czoom;
+    yvect = -bcos(cang) * czoom;
     xvect2 = mulscale16(xvect, yxaspect);
     yvect2 = mulscale16(yvect, yxaspect);
 
@@ -1984,8 +1984,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
                         xoff = -xoff;
                     k = spr->ang;
                     l = spr->xrepeat;
-                    dax = sintable[k & 2047] * l;
-                    day = sintable[(k + 1536) & 2047] * l;
+                    dax = bsin(k) * l;
+                    day = -bcos(k) * l;
                     l = tileWidth(tilenum);
                     k = (l >> 1) + xoff;
                     x1 -= mulscale16(dax, k);
@@ -2019,8 +2019,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
                             yoff = -yoff;
 
                         k = spr->ang;
-                        cosang = sintable[(k + 512) & 2047];
-                        sinang = sintable[k];
+                        cosang = bcos(k);
+                        sinang = bsin(k);
                         xspan = tileWidth(tilenum);
                         xrepeat = spr->xrepeat;
                         yspan = tileHeight(tilenum);
