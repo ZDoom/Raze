@@ -456,8 +456,8 @@ void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 			sp->z = spj->z - PHEIGHT + (3 << 8);
 		}
 
-		sp->x = spj->x + (sintable[(a + 512) & 2047] >> 7);
-		sp->y = spj->y + (sintable[a & 2047] >> 7);
+		sp->x = spj->x + bcos(a, -7);
+		sp->y = spj->y + bsin(a, -7);
 
 		sp->shade = -8;
 
