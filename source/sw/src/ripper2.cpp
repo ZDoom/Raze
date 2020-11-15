@@ -953,9 +953,9 @@ InitRipper2Hang(short SpriteNum)
         tang = NORM_ANGLE(sp->ang + dang);
 
         FAFhitscan(sp->x, sp->y, sp->z - SPRITEp_SIZE_Z(sp), sp->sectnum,  // Start position
-                   sintable[NORM_ANGLE(tang + 512)],   // X vector of 3D ang
-                   sintable[tang],             // Y vector of 3D ang
-                   0,                          // Z vector of 3D ang
+                   bcos(tang),   // X vector of 3D ang
+                   bsin(tang),   // Y vector of 3D ang
+                   0,            // Z vector of 3D ang
                    &hitinfo, CLIPMASK_MISSILE);
 
         if (hitinfo.sect < 0)
@@ -1020,8 +1020,8 @@ DoRipper2MoveHang(short SpriteNum)
     int nx, ny;
 
     // Move while jumping
-    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+    nx = mulscale14(sp->xvel, bcos(sp->ang));
+    ny = mulscale14(sp->xvel, bsin(sp->ang));
 
     // if cannot move the sprite
     if (!move_actor(SpriteNum, nx, ny, 0L))
@@ -1103,7 +1103,7 @@ DoRipper2BeginJumpAttack(short SpriteNum)
     // Always jump at player if mad.
     //if(u->speed < FAST_SPEED)
     //{
-    if (move_sprite(SpriteNum, sintable[NORM_ANGLE(tang+512)] >> 7, sintable[tang] >> 7,
+    if (move_sprite(SpriteNum, bcos(tang, -7), bsin(tang, -7),
                     0L, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS))
         sp->ang = NORM_ANGLE((sp->ang + 1024) + (RANDOM_NEG(256, 6) >> 6));
     else
