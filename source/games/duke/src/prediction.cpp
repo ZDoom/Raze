@@ -148,8 +148,8 @@ void fakedomovethings(void)
 
 		if( p->aim_mode == 0 && myonground && psectlotag != 2 && (sector[psect].floorstat&2) )
 		{
-				x = myx+(sintable[(myang+512)&2047]>>5);
-				y = myy+(sintable[myang&2047]>>5);
+				x = myx + bcos(myang, -5);
+				y = myy + bsin(myang, -5);
 				tempsect = psect;
 				updatesector(x,y,&tempsect);
 				if (tempsect >= 0)
@@ -183,8 +183,8 @@ void fakedomovethings(void)
 				 if(badguy(chz.actor) && chz.actor->s.xrepeat > 24 && klabs(p->GetActor()->s.z- chz.actor->s.z) < (84<<8) )
 				 {
 					j = getangle(chz.actor->s.x-myx, chz.actor->s.y-myy);
-					myxvel -= sintable[(j+512)&2047]<<4;
-					myyvel -= sintable[j&2047]<<4;
+					myxvel -= bcos(j, 4);
+					myyvel -= bsin(j, 4);
 				}
 		}
 
@@ -368,7 +368,7 @@ void fakedomovethings(void)
 									 }
 									 else
 									 {
-											 myzvel -= (sintable[(2048-128+myjumpingcounter)&2047])/12;
+											 myzvel -= bsin(128 + myjumpingcounter) / 12;
 											 myjumpingcounter += 180;
 
 											 myonground = 0;
