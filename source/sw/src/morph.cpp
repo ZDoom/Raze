@@ -288,8 +288,8 @@ void ScaleRandomPoint(SECTOR_OBJECTp sop, short k, short ang, int x, int y, int 
     xmul = (sop->scale_point_dist[k] * sop->scale_x_mult)>>8;
     ymul = (sop->scale_point_dist[k] * sop->scale_y_mult)>>8;
 
-    *dx = x + ((xmul * sintable[NORM_ANGLE(ang+512)]) >> 14);
-    *dy = y + ((ymul * sintable[ang]) >> 14);
+    *dx = x + mulscale14(xmul, bcos(ang));
+    *dy = y + mulscale14(ymul, bsin(ang));
 }
 
 //
@@ -322,8 +322,8 @@ MorphTornado(SECTOR_OBJECTp sop)
     sy = y;
 
     // move it from last x,y
-    mx = x + (((sop->morph_speed) * sintable[NORM_ANGLE(sop->morph_ang+512)]) >> 14);
-    my = y + (((sop->morph_speed) * sintable[sop->morph_ang]) >> 14);
+    mx = x + mulscale14(sop->morph_speed, bcos(sop->morph_ang));
+    my = y + mulscale14(sop->morph_speed, bsin(sop->morph_ang));
 
     // bound check radius
     if (ksqrt(SQ(sop->xmid - mx) + SQ(sop->ymid - my)) > sop->morph_dist_max + sop->scale_dist)
@@ -334,8 +334,8 @@ MorphTornado(SECTOR_OBJECTp sop)
         sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024);
 
         // move back some from last point
-        mx = sx + (((sop->morph_speed*2) * sintable[NORM_ANGLE(sop->morph_ang+512)]) >> 14);
-        my = sy + (((sop->morph_speed*2) * sintable[sop->morph_ang]) >> 14);
+        mx = sx + mulscale14(sop->morph_speed << 1, bcos(sop->morph_ang));
+        my = sy + mulscale14(sop->morph_speed << 1, bsin(sop->morph_ang));
 
         sop->morph_xoff = sop->xmid - mx;
         sop->morph_yoff = sop->ymid - my;
@@ -400,8 +400,8 @@ MorphFloor(SECTOR_OBJECTp sop)
     y = sop->ymid - sop->morph_yoff;
 
     // move it from last x,y
-    mx = x + (((sop->morph_speed) * sintable[NORM_ANGLE(sop->morph_ang+512)]) >> 14);
-    my = y + (((sop->morph_speed) * sintable[sop->morph_ang]) >> 14);
+    mx = x + mulscale14(sop->morph_speed, bcos(sop->morph_ang));
+    my = y + mulscale14(sop->morph_speed, bsin(sop->morph_ang));
 
     // save x,y back as offset info
     sop->morph_xoff = sop->xmid - mx;
@@ -415,8 +415,8 @@ MorphFloor(SECTOR_OBJECTp sop)
         sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024);
 
         // back it up and save it off
-        mx = x + (((sop->morph_speed) * sintable[NORM_ANGLE(sop->morph_ang+512)]) >> 14);
-        my = y + (((sop->morph_speed) * sintable[sop->morph_ang]) >> 14);
+        mx = x + mulscale14(sop->morph_speed, bcos(sop->morph_ang));
+        my = y + mulscale14(sop->morph_speed, bsin(sop->morph_ang));
         sop->morph_xoff = sop->xmid - mx;
         sop->morph_yoff = sop->ymid - my;
 
