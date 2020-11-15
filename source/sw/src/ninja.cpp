@@ -2067,8 +2067,8 @@ NinjaJumpActionFunc(short SpriteNum)
     int nx, ny;
 
     // Move while jumping
-    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+    nx = mulscale14(sp->xvel, bcos(sp->ang));
+    ny = mulscale14(sp->xvel, bsin(sp->ang));
 
     // if cannot move the sprite
     if (!move_actor(SpriteNum, nx, ny, 0L))
