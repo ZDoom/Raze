@@ -113,8 +113,8 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 	else
 	{
 		zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
-		sx += sintable[(sa + 860) & 0x7FF] / 448;
-		sy += sintable[(sa + 348) & 0x7FF] / 448;
+		sx += bcos(sa + 348) / 448;
+		sy += bsin(sa + 348) / 448;
 		sz += (3 << 8);
 	}
 
@@ -197,8 +197,8 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 		spawned->s.zvel = (short)zvel;
 	}
 
-	spawned->s.x = sx + sintable[(sa + 630) & 0x7FF] / 448;
-	spawned->s.y = sy + sintable[(sa + 112) & 0x7FF] / 448;
+	spawned->s.x = sx + bsin(sa + 630) / 448;
+	spawned->s.y = sy + bsin(sa + 112) / 448;
 	spawned->s.z = sz - 256;
 	spawned->s.sectnum = s->sectnum;
 	spawned->s.cstat = 0x80;
@@ -213,8 +213,8 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	{
 		if (s->picnum == BOSS5)
 		{
-			spawned->s.x -= sintable[sa & 2047] / 56;
-			spawned->s.y -= sintable[(sa + 1024 + 512) & 2047] / 56;
+			spawned->s.x -= bsin(sa) / 56;
+			spawned->s.y += bcos(sa) / 56;
 			spawned->s.xrepeat = 10;
 			spawned->s.yrepeat = 10;
 		}
@@ -251,8 +251,8 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	}
 
 	hitscan(sx, sy, sz, sect,
-		sintable[(sa + 512) & 2047],
-		sintable[sa & 2047], zvel << 6,
+		bcos(sa),
+		bsin(sa), zvel << 6,
 		&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 
@@ -404,8 +404,8 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 
 	s->cstat &= ~257;
 	hitscan(sx, sy, sz, sect,
-		sintable[(sa + 512) & 2047],
-		sintable[sa & 2047],
+		bcos(sa),
+		bsin(sa),
 		zvel << 6, &hitsect, &hitwall, &hitact, &hitx, &hity, &hitz, CLIPMASK1);
 	s->cstat |= 257;
 
@@ -728,8 +728,8 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 	if (p < 0) aimed = nullptr;
 
 	auto spawned = EGS(sect,
-		sx + (sintable[(348 + sa + 512) & 2047] / 448),
-		sy + (sintable[(sa + 348) & 2047] / 448),
+		sx + (bcos(sa + 348) / 448),
+		sy + (bsin(sa + 348) / 448),
 		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, actor, 4);
 
 	auto spj = &spawned->s;
@@ -748,8 +748,8 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 	{
 		if (s->picnum == BOSS3)
 		{
-			int xoffs = sintable[sa & 2047] >> 6;
-			int yoffs = sintable[(sa + 1024 + 512) & 2047] >> 6;
+			int xoffs = bsin(sa, -6);
+			int yoffs = -bcos(sa, -6);
 			int aoffs = 4;
 
 			if ((krand() & 1) != 0)
@@ -776,8 +776,8 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		}
 		else if (s->picnum == BOSS2)
 		{
-			int xoffs = sintable[sa & 2047] / 56;
-			int yoffs = sintable[(sa + 1024 + 512) & 2047] / 56;
+			int xoffs = bsin(sa) / 56;
+			int yoffs = -bcos(sa) / 56;
 			int aoffs = 8 + (krand() & 255) - 128;
 
 			if (isWorldTour()) { // Twentieth Anniversary World Tour
@@ -791,8 +791,8 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 			spj->y -= yoffs;
 			spj->ang -= aoffs;
 
-			spj->x -= sintable[sa & 2047] / 56;
-			spj->y -= sintable[(sa + 1024 + 512) & 2047] / 56;
+			spj->x -= bsin(sa) / 56;
+			spj->y += bcos(sa) / 56;
 			spj->ang -= 8 + (krand() & 255) - 128;
 			spj->xrepeat = 24;
 			spj->yrepeat = 24;
@@ -814,13 +814,13 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 
 		if (ps[p].hbomb_hold_delay)
 		{
-			spj->x -= sintable[sa & 2047] / 644;
-			spj->y -= sintable[(sa + 1024 + 512) & 2047] / 644;
+			spj->x -= bsin(sa) / 644;
+			spj->y += bcos(sa) / 644;
 		}
 		else
 		{
-			spj->x += sintable[sa & 2047] >> 8;
-			spj->y += sintable[(sa + 1024 + 512) & 2047] >> 8;
+			spj->x += bsin(sa, -8);
+			spj->y -= bcos(sa, -8);
 		}
 		spj->xrepeat >>= 1;
 		spj->yrepeat >>= 1;
@@ -854,8 +854,8 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	else zvel = 0;
 
 	hitscan(sx, sy, sz - ps[p].pyoff, sect,
-		sintable[(sa + 512) & 2047],
-		sintable[sa & 2047],
+		bcos(sa),
+		bsin(sa),
 		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	j = 0;
@@ -967,7 +967,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	//            RESHOOTGROW:
 
 	s->cstat &= ~257;
-	hitscan(sx, sy, sz, sect, sintable[(sa + 512) & 2047], sintable[sa & 2047],
+	hitscan(sx, sy, sz, sect, bcos(sa), bsin(sa),
 		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	s->cstat |= 257;
@@ -1044,8 +1044,8 @@ void shoot_d(DDukeActor* actor, int atwith)
 			sz -= (7 << 8);
 			if (badguy(s) && s->picnum != COMMANDER)
 			{
-				sx += (sintable[(sa + 1024 + 96) & 2047] >> 7);
-				sy += (sintable[(sa + 512 + 96) & 2047] >> 7);
+				sx -= bsin(sa + 96, -7);
+				sy += bcos(sa + 96, -7);
 			}
 		}
 	}
@@ -1128,8 +1128,8 @@ void shoot_d(DDukeActor* actor, int atwith)
 		vel = x >> 4;
 
 		EGS(sect,
-			sx + (sintable[(512 + sa + 512) & 2047] >> 8),
-			sy + (sintable[(sa + 512) & 2047] >> 8),
+			sx - bsin(sa, -8),
+			sy + bcos(sa, -8),
 			sz + (6 << 8), atwith, -64, 32, 32, sa, vel, zvel, actor, 1);
 		break;
 	}
@@ -1160,8 +1160,8 @@ void shoot_d(DDukeActor* actor, int atwith)
 		else zvel = 0;
 
 		auto j = EGS(sect,
-			sx + (sintable[(512 + sa + 512) & 2047] >> 12),
-			sy + (sintable[(sa + 512) & 2047] >> 12),
+			sx - bsin(sa, -12),
+			sy + bcos(sa, -12),
 			sz + (2 << 8), SHRINKSPARK, -16, 28, 28, sa, 768, zvel, actor, 4);
 
 		j->s.cstat = 128;
@@ -1659,7 +1659,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 
 	p->pycount += 32;
 	p->pycount &= 2047;
-	p->pyoff = sintable[p->pycount] >> 7;
+	p->pyoff = bsin(p->pycount, -7);
 
 	if (p->jetpack_on && S_CheckActorSoundPlaying(pact, DUKE_SCREAM))
 	{
@@ -1741,7 +1741,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 			i = 34;
 			p->pycount += 32;
 			p->pycount &= 2047;
-			p->pyoff = sintable[p->pycount] >> 6;
+			p->pyoff = bsin(p->pycount, -6);
 		}
 		else i = 12;
 
@@ -1877,7 +1877,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 			}
 			else
 			{
-				p->poszv -= (sintable[(2048 - 128 + p->jumping_counter) & 2047]) / 12;
+				p->poszv -= bsin(128 + p->jumping_counter) / 12;
 				p->jumping_counter += 180;
 				p->on_ground = 0;
 			}
@@ -1918,7 +1918,7 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 
 	p->pycount += 32;
 	p->pycount &= 2047;
-	p->pyoff = sintable[p->pycount] >> 7;
+	p->pyoff = bsin(p->pycount, -7);
 
 	if (!S_CheckActorSoundPlaying(pact, DUKE_UNDERWATER))
 		S_PlayActorSound(DUKE_UNDERWATER, pact);
@@ -1971,10 +1971,8 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 	if (p->scuba_on && (krand() & 255) < 8)
 	{
 		auto j = spawn(pact, WATERBUBBLE);
-		j->s.x +=
-			sintable[(p->angle.ang.asbuild() + 512 + 64 - (global_random & 128)) & 2047] >> 6;
-		j->s.y +=
-			sintable[(p->angle.ang.asbuild() + 64 - (global_random & 128)) & 2047] >> 6;
+		j->s.x += bcos(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
+		j->s.y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
 		j->s.xrepeat = 3;
 		j->s.yrepeat = 2;
 		j->s.z = p->posz + (8 << 8);
@@ -1996,8 +1994,8 @@ int operateTripbomb(int snum)
 	DDukeActor* hitsprt;
 
 	hitscan(p->posx, p->posy, p->posz,
-		p->cursectnum, sintable[(p->angle.ang.asbuild() + 512) & 2047],
-		sintable[p->angle.ang.asbuild() & 2047], -p->horizon.sum().asq16() >> 11,
+		p->cursectnum, p->angle.ang.bcos(),
+		p->angle.ang.bsin(), -p->horizon.sum().asq16() >> 11,
 		&sect, &hw, &hitsprt, &sx, &sy, &sz, CLIPMASK1);
 
 	if (sect < 0 || hitsprt)
@@ -2189,8 +2187,8 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			}
 
 			auto spawned = EGS(p->cursectnum,
-				p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 6),
-				p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 6),
+				p->posx + p->angle.ang.bcos(-6),
+				p->posy + p->angle.ang.bsin(-6),
 				p->posz, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, pact, 1);
 
@@ -2789,8 +2787,8 @@ void processinput_d(int snum)
 		else if (badguy(clz.actor) && clz.actor->s.xrepeat > 24 && abs(s->z - clz.actor->s.z) < (84 << 8))
 		{
 			j = getangle(clz.actor->s.x - p->posx, clz.actor->s.y - p->posy);
-			p->posxv -= sintable[(j + 512) & 2047] << 4;
-			p->posyv -= sintable[j & 2047] << 4;
+			p->posxv -= bcos(j, 4);
+			p->posyv -= bsin(j, 4);
 		}
 	}
 
@@ -2938,7 +2936,7 @@ void processinput_d(int snum)
 	{
 		p->crack_time = CRACK_TIME;
 
-		k = sintable[p->bobcounter & 2047] >> 12;
+		k = bsin(p->bobcounter, -12);
 
 		if (truefdist < PHEIGHT + (8 << 8) && (k == 1 || k == 3))
 		{
@@ -3049,8 +3047,7 @@ HORIZONLY:
 			{
 				p->pycount += 52;
 				p->pycount &= 2047;
-				p->pyoff =
-					abs(s->xvel * sintable[p->pycount]) / 1596;
+				p->pyoff = abs(s->xvel * bsin(p->pycount)) / 1596;
 			}
 		}
 		else if (psectlotag != 2 && psectlotag != 1)
