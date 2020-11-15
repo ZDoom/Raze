@@ -2137,9 +2137,9 @@ SpriteSetup(void)
                     hitdata_t hitinfo;
 
                     hitscan(&hit_pos, sp->sectnum,    // Start position
-                            sintable[NORM_ANGLE(sp->ang + 512)],    // X vector of 3D ang
-                            sintable[sp->ang],      // Y vector of 3D ang
-                            0,      // Z vector of 3D ang
+                            bcos(sp->ang),    // X vector of 3D ang
+                            bsin(sp->ang),    // Y vector of 3D ang
+                            0,                // Z vector of 3D ang
                             &hitinfo, CLIPMASK_MISSILE);
 
                     if (hitinfo.wall == -1)
@@ -2167,9 +2167,9 @@ SpriteSetup(void)
                     hitdata_t hitinfo;
 
                     hitscan(&hit_pos, sp->sectnum,    // Start position
-                            sintable[NORM_ANGLE(sp->ang + 512)],    // X vector of 3D ang
-                            sintable[sp->ang],      // Y vector of 3D ang
-                            0,      // Z vector of 3D ang
+                            bcos(sp->ang),    // X vector of 3D ang
+                            bcos(sp->ang),    // Y vector of 3D ang
+                            0,                // Z vector of 3D ang
                             &hitinfo, CLIPMASK_MISSILE);
 
                     if (hitinfo.wall == -1)
@@ -4785,8 +4785,8 @@ getzrangepoint(int x, int y, int z, short sectnum,
         // Calculate all 4 points of the floor sprite.
         // (x1,y1),(x2,y2),(x3,y3),(x4,y4)
         // These points will already have (x,y) subtracted from them
-        cosang = sintable[NORM_ANGLE(spr->ang + 512)];
-        sinang = sintable[spr->ang];
+        cosang = bcos(spr->ang);
+        sinang = bsin(spr->ang);
         xspan = tileWidth(tilenum);
         dax = ((xspan >> 1) + xoff) * spr->xrepeat;
         yspan = tileHeight(tilenum);
