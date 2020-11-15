@@ -342,8 +342,8 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 			}
 
 			auto j = EGS(p->cursectnum,
-				p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 6),
-				p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 6),
+				p->posx + p->angle.ang.bcos(-6),
+				p->posy + p->angle.ang.bsin(-6),
 				p->posz, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, p->GetActor(), 1);
 
