@@ -607,11 +607,11 @@ int ConCompiler::transword(void)
 	l = 0;
 	while (isaltok(*(textptr + l)) && !(*(textptr + l) == '.'))
 	{
-		if (l < 31)
+		if (l < 1023)
 		{
 			parsebuf[l] = textptr[l];
-			l++;
 		}
+		l++;
 	}
 	parsebuf[l] = 0;
 
@@ -665,11 +665,11 @@ int ConCompiler::transnum(int type)
 	l = 0;
 	while (isaltok(*(textptr + l)))
 	{
-		if (l < 31)
+		if (l < 1023)
 		{
 			parsebuf[l] = textptr[l];
-			l++;
 		}
+		l++;
 	}
 	parsebuf[l] = 0;
 
