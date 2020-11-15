@@ -149,8 +149,8 @@ void animatewalls_d(void)
 
 				if (wall[i].cstat & 254)
 				{
-					wall[i].xpanning -= t >> 10; // sintable[(t+512)&2047]>>12;
-					wall[i].ypanning -= t >> 10; // sintable[t&2047]>>12;
+					wall[i].xpanning -= t >> 10; // bcos(t, -12);
+					wall[i].ypanning -= t >> 10; // bsin(t, -12);
 
 					if (wall[i].extra == 1)
 					{
@@ -918,13 +918,13 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 		p->hurt_delay = 16;
 		SetPlayerPal(p, PalEntry(32, 32, 0, 0));
 
-		p->posxv = -(sintable[(p->angle.ang.asbuild() + 512) & 2047] << 8);
-		p->posyv = -(sintable[(p->angle.ang.asbuild()) & 2047] << 8);
+		p->posxv = -p->angle.ang.bcos(8);
+		p->posyv = -p->angle.ang.bsin(8);
 		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
 		fi.checkhitwall(p->GetActor(), j,
-			p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 9),
-			p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 9),
+			p->posx + p->angle.ang.bcos(-9),
+			p->posy + p->angle.ang.bsin(-9),
 			p->posz, -1);
 
 		break;
@@ -932,8 +932,8 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 	case BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->GetActor(), j,
-			p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 9),
-			p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 9),
+			p->posx + p->angle.ang.bcos(-9),
+			p->posy + p->angle.ang.bsin(-9),
 			p->posz, -1);
 		break;
 
