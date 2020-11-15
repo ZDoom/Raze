@@ -264,8 +264,8 @@ void animatewalls_r(void)
 
 				if (wall[i].cstat & 254)
 				{
-					wall[i].xpanning -= t >> 10; // sintable[(t+512)&2047]>>12;
-					wall[i].ypanning -= t >> 10; // sintable[t&2047]>>12;
+					wall[i].xpanning -= t >> 10; // bcos(t, -12);
+					wall[i].ypanning -= t >> 10; // bsin(t, -12);
 
 					if (wall[i].extra == 1)
 					{
@@ -1414,8 +1414,8 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 	case BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->GetActor(), j,
-			p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 9),
-			p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 9),
+			p->posx + p->angle.ang.bcos(-9),
+			p->posy + p->angle.ang.bsin(-9),
 			p->posz, -1);
 		break;
 
