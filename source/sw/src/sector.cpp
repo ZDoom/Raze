@@ -2351,9 +2351,9 @@ bool NearThings(PLAYERp pp)
         short dang = pp->angle.ang.asbuild();
 
         FAFhitscan(pp->posx, pp->posy, pp->posz - Z(30), pp->cursectnum,    // Start position
-                   sintable[NORM_ANGLE(dang + 512)],  // X vector of 3D ang
-                   sintable[NORM_ANGLE(dang)],        // Y vector of 3D ang
-                   0,                                 // Z vector of 3D ang
+                   bcos(dang),  // X vector of 3D ang
+                   bsin(dang),  // Y vector of 3D ang
+                   0,           // Z vector of 3D ang
                    &hitinfo, CLIPMASK_MISSILE);
 
         if (hitinfo.sect < 0)
@@ -2760,13 +2760,13 @@ DoSineWaveFloor(void)
 
             if (TEST(flags, SINE_FLOOR))
             {
-                newz = swf->floor_origz + ((swf->range * sintable[swf->sintable_ndx]) >> 14);
+                newz = swf->floor_origz + mulscale14(swf->range, bsin(swf->sintable_ndx));
                 sector[swf->sector].floorz = newz;
             }
 
             if (TEST(flags, SINE_CEILING))
             {
-                newz = swf->ceiling_origz + ((swf->range * sintable[swf->sintable_ndx]) >> 14);
+                newz = swf->ceiling_origz + mulscale14(swf->range, bsin(swf->sintable_ndx));
                 sector[swf->sector].ceilingz = newz;
             }
 
@@ -2824,13 +2824,13 @@ DoSineWaveWall(void)
 
             if (!sw->type)
             {
-                New = sw->orig_xy + ((sw->range * sintable[sw->sintable_ndx]) >> 14);
+                New = sw->orig_xy + mulscale14(sw->range, bsin(sw->sintable_ndx));
                 // wall[sw->wall].y = New;
                 dragpoint(sw->wall, wall[sw->wall].x, New, 0);
             }
             else
             {
-                New = sw->orig_xy + ((sw->range * sintable[sw->sintable_ndx]) >> 14);
+                New = sw->orig_xy + mulscale14(sw->range, bsin(sw->sintable_ndx));
                 // wall[sw->wall].x = New;
                 dragpoint(sw->wall, New, wall[sw->wall].y, 0);
             }
@@ -3207,8 +3207,8 @@ DoPanning(void)
         sp = &sprite[i];
         sectp = &sector[sp->sectnum];
 
-        nx = (((int) sintable[NORM_ANGLE(sp->ang + 512)]) * sp->xvel) >> 20;
-        ny = (((int) sintable[sp->ang]) * sp->xvel) >> 20;
+        nx = mulscale20(sp->xvel, bcos(sp->ang));
+        ny = mulscale20(sp->xvel, bsin(sp->ang));
 
         sectp->floorxpanning += nx;
         sectp->floorypanning += ny;
@@ -3223,8 +3223,8 @@ DoPanning(void)
         sp = &sprite[i];
         sectp = &sector[sp->sectnum];
 
-        nx = (((int) sintable[NORM_ANGLE(sp->ang + 512)]) * sp->xvel) >> 20;
-        ny = (((int) sintable[sp->ang]) * sp->xvel) >> 20;
+        nx = mulscale20(sp->xvel, bcos(sp->ang));
+        ny = mulscale20(sp->xvel, bsin(sp->ang));
 
         sectp->ceilingxpanning += nx;
         sectp->ceilingypanning += ny;
@@ -3239,8 +3239,8 @@ DoPanning(void)
         sp = &sprite[i];
         wallp = &wall[sp->owner];
 
-        nx = (((int) sintable[NORM_ANGLE(sp->ang + 512)]) * sp->xvel) >> 20;
-        ny = (((int) sintable[sp->ang]) * sp->xvel) >> 20;
+        nx = mulscale20(sp->xvel, bcos(sp->ang));
+        ny = mulscale20(sp->xvel, bsin(sp->ang));
 
         wallp->xpanning += nx;
         wallp->ypanning += ny;
