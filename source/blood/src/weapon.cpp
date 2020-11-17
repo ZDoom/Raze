@@ -85,50 +85,79 @@ void FireBeast(int nTrigger, PLAYER * pPlayer);
 
 typedef void(*QAVTypeCast)(int, void *);
 
-int nClientFirePitchfork = qavRegisterClient((QAVTypeCast)FirePitchfork);
-int nClientFireSpray = qavRegisterClient((QAVTypeCast)FireSpray);
-int nClientThrowCan = qavRegisterClient((QAVTypeCast)ThrowCan);
-int nClientDropCan = qavRegisterClient((QAVTypeCast)DropCan);
-int nClientExplodeCan = qavRegisterClient((QAVTypeCast)ExplodeCan);
-int nClientThrowBundle = qavRegisterClient((QAVTypeCast)ThrowBundle);
-int nClientDropBundle = qavRegisterClient((QAVTypeCast)DropBundle);
-int nClientExplodeBundle = qavRegisterClient((QAVTypeCast)ExplodeBundle);
-int nClientThrowProx = qavRegisterClient((QAVTypeCast)ThrowProx);
-int nClientDropProx = qavRegisterClient((QAVTypeCast)DropProx);
-int nClientThrowRemote = qavRegisterClient((QAVTypeCast)ThrowRemote);
-int nClientDropRemote = qavRegisterClient((QAVTypeCast)DropRemote);
-int nClientFireRemote = qavRegisterClient((QAVTypeCast)FireRemote);
-int nClientFireShotgun = qavRegisterClient((QAVTypeCast)FireShotgun);
-int nClientEjectShell = qavRegisterClient((QAVTypeCast)EjectShell);
-int nClientFireTommy = qavRegisterClient((QAVTypeCast)FireTommy);
-int nClientAltFireSpread2 = qavRegisterClient((QAVTypeCast)AltFireSpread2);
-int nClientFireSpread = qavRegisterClient((QAVTypeCast)FireSpread);
-int nClientAltFireSpread = qavRegisterClient((QAVTypeCast)AltFireSpread);
-int nClientFireFlare = qavRegisterClient((QAVTypeCast)FireFlare);
-int nClientAltFireFlare = qavRegisterClient((QAVTypeCast)AltFireFlare);
-int nClientFireVoodoo = qavRegisterClient((QAVTypeCast)FireVoodoo);
-int nClientAltFireVoodoo = qavRegisterClient((QAVTypeCast)AltFireVoodoo);
-int nClientFireTesla = qavRegisterClient((QAVTypeCast)FireTesla);
-int nClientAltFireTesla = qavRegisterClient((QAVTypeCast)AltFireTesla);
-int nClientFireNapalm = qavRegisterClient((QAVTypeCast)FireNapalm);
-int nClientFireNapalm2 = qavRegisterClient((QAVTypeCast)FireNapalm2);
-int nClientFireLifeLeech = qavRegisterClient((QAVTypeCast)FireLifeLeech);
-int nClientFireBeast = qavRegisterClient((QAVTypeCast)FireBeast);
-int nClientAltFireLifeLeech = qavRegisterClient((QAVTypeCast)AltFireLifeLeech);
-int nClientDropVoodoo = qavRegisterClient((QAVTypeCast)DropVoodoo);
-int nClientAltFireNapalm = qavRegisterClient((QAVTypeCast)AltFireNapalm);
+void (*qavClientCallback[])(int, void*) =
+{
+(QAVTypeCast)FirePitchfork,
+(QAVTypeCast)FireSpray,
+(QAVTypeCast)ThrowCan,
+(QAVTypeCast)DropCan,
+(QAVTypeCast)ExplodeCan,
+(QAVTypeCast)ThrowBundle,
+(QAVTypeCast)DropBundle,
+(QAVTypeCast)ExplodeBundle,
+(QAVTypeCast)ThrowProx,
+(QAVTypeCast)DropProx,
+(QAVTypeCast)ThrowRemote,
+(QAVTypeCast)DropRemote,
+(QAVTypeCast)FireRemote,
+(QAVTypeCast)FireShotgun,
+(QAVTypeCast)EjectShell,
+(QAVTypeCast)FireTommy,
+(QAVTypeCast)AltFireSpread2,
+(QAVTypeCast)FireSpread,
+(QAVTypeCast)AltFireSpread,
+(QAVTypeCast)FireFlare,
+(QAVTypeCast)AltFireFlare,
+(QAVTypeCast)FireVoodoo,
+(QAVTypeCast)AltFireVoodoo,
+(QAVTypeCast)FireTesla,
+(QAVTypeCast)AltFireTesla,
+(QAVTypeCast)FireNapalm,
+(QAVTypeCast)FireNapalm2,
+(QAVTypeCast)FireLifeLeech,
+(QAVTypeCast)FireBeast,
+(QAVTypeCast)AltFireLifeLeech,
+(QAVTypeCast)DropVoodoo,
+(QAVTypeCast)AltFireNapalm,
+};
+
+enum
+{
+    nClientFirePitchfork,
+    nClientFireSpray,
+    nClientThrowCan,
+    nClientDropCan,
+    nClientExplodeCan,
+    nClientThrowBundle,
+    nClientDropBundle,
+    nClientExplodeBundle,
+    nClientThrowProx,
+    nClientDropProx,
+    nClientThrowRemote,
+    nClientDropRemote,
+    nClientFireRemote,
+    nClientFireShotgun,
+    nClientEjectShell,
+    nClientFireTommy,
+    nClientAltFireSpread2,
+    nClientFireSpread,
+    nClientAltFireSpread,
+    nClientFireFlare,
+    nClientAltFireFlare,
+    nClientFireVoodoo,
+    nClientAltFireVoodoo,
+    nClientFireTesla,
+    nClientAltFireTesla,
+    nClientFireNapalm,
+    nClientFireNapalm2,
+    nClientFireLifeLeech,
+    nClientFireBeast,
+    nClientAltFireLifeLeech,
+    nClientDropVoodoo,
+    nClientAltFireNapalm,
+};
 
 QAV *weaponQAV[kQAVEnd];
-
-void QAV::PlaySound(int nSound)
-{
-    sndStartSample(nSound, -1, -1, 0);
-}
-
-void QAV::PlaySound3D(spritetype *pSprite, int nSound, int a3, int a4)
-{
-    sfxPlay3DSound(pSprite, nSound, a3, a4);
-}
 
 char sub_4B1A4(PLAYER *pPlayer)
 {

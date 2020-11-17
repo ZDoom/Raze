@@ -87,14 +87,10 @@ struct QAV
     void Play(int, int, int, void *);
     void Preload(void);
     void Precache(HitList &hits);
-
-    void PlaySound(int nSound);
-    void PlaySound3D(spritetype *pSprite, int nSound, int a3, int a4);
 };
 
 #pragma pack(pop)
 
-int qavRegisterClient(void(*pClient)(int, void *));
 QAV* getQAV(int res_id);
 
 END_BLD_NS

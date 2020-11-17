@@ -33,18 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-enum { kMaxQavClients = 64 };
-static void (*qavClientCallback[kMaxQavClients])(int, void *);
-static int nQavClients;
+extern void (*qavClientCallback[])(int, void *);
 
-
-int qavRegisterClient(void(*pClient)(int, void *))
-{
-    assert(nQavClients < kMaxQavClients);
-    qavClientCallback[nQavClients] = pClient;
-
-    return nQavClients++;
-}
 
 void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int palnum, bool to3dview)
 {
@@ -147,8 +137,8 @@ void QAV::Play(int start, int end, int nCallback, void *pData)
                 if (pSound->sndRange > 0 && !VanillaMode()) 
                     sound += Random((pSound->sndRange == 1) ? 2 : pSound->sndRange);
                 
-                if (nSprite == -1) PlaySound(sound);
-                else PlaySound3D(&sprite[nSprite], sound, 16+pSound->priority, 6);
+                if (nSprite == -1) sndStartSample(sound, -1, -1, 0);
+                else sfxPlay3DSound(&sprite[nSprite], sound, 16+pSound->priority, 6);
             }
             
             if (pFrame->nCallbackId > 0 && nCallback != -1) {
