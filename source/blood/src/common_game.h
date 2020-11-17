@@ -534,15 +534,6 @@ inline int ClipRange(int a, int b, int c)
     return a;
 }
 
-inline float ClipRangeF(float a, float b, float c)
-{
-    if (a < b)
-        return b;
-    if (a > c)
-        return c;
-    return a;
-}
-
 inline int interpolate(int a, int b, int c)
 {
     return a+mulscale16(b-a,c);
