@@ -226,7 +226,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) + (5 << 8);
+			int dal = ((aimed->s.xrepeat * tileHeight(aimed->s.picnum)) << 1) + (5 << 8);
 			zvel = ((aimed->s.z - sz - dal) << 8) / ldist(ps[p].GetActor(), aimed);
 			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
@@ -514,7 +514,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		{
 			sx += sintable[(s->ang + 512 + 160) & 2047] >> 7;
 			sy += sintable[(s->ang + 160) & 2047] >> 7;
-			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) - (12 << 8);
+			int dal = ((aimed->s.xrepeat * tileHeight(aimed->s.picnum)) << 1) - (12 << 8);
 			zvel = ((aimed->s.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
 			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
@@ -631,7 +631,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 				else
 					act90 = aimed;
 			}
-			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) + (8 << 8);
+			int dal = ((aimed->s.xrepeat * tileHeight(aimed->s.picnum)) << 1) + (8 << 8);
 			zvel = ((aimed->s.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
 			if (aimed->s.picnum != RECON)
 				sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
@@ -785,7 +785,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 
 		if (aimed)
 		{
-			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) - (12 << 8);
+			int dal = ((aimed->s.xrepeat * tileHeight(aimed->s.picnum)) << 1) - (12 << 8);
 			zvel = ((aimed->s.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
 			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}

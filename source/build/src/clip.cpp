@@ -1476,11 +1476,11 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                         if (tileLoad(tilenum))
                         {
                             // daz-intz > 0 && daz-intz < k
-                            int32_t xtex = mulscale16(ucoefup16, tilesiz[tilenum].x);
+                            int32_t xtex = mulscale16(ucoefup16, tileWidth(tilenum));
                             int32_t vcoefup16 = 65536-divscale16(daz-intz, k);
-                            int32_t ytex = mulscale16(vcoefup16, tilesiz[tilenum].y);
+                            int32_t ytex = mulscale16(vcoefup16, tileHeight(tilenum));
 
-                            auto texel = (tilePtr(tilenum) + tilesiz[tilenum].y*xtex + ytex);
+                            auto texel = (tilePtr(tilenum) + tileHeight(tilenum)*xtex + ytex);
                             if (*texel == TRANSPARENT_INDEX)
                                 continue;
                         }

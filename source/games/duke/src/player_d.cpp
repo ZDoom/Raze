@@ -338,7 +338,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 
 		if (aimed)
 		{
-			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) + (5 << 8);
+			int dal = ((aimed->s.xrepeat * tileHeight(aimed->s.picnum)) << 1) + (5 << 8);
 			switch (aimed->s.picnum)
 			{
 			case GREENSLIME:
@@ -590,7 +590,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 
 		if (aimed)
 		{
-			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) - (12 << 8);
+			int dal = ((aimed->s.xrepeat * tileHeight(aimed->s.picnum)) << 1) - (12 << 8);
 			zvel = ((aimed->s.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
 			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
@@ -688,7 +688,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		aimed = aim(actor, 48);
 		if (aimed)
 		{
-			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) + (8 << 8);
+			int dal = ((aimed->s.xrepeat * tileHeight(aimed->s.picnum)) << 1) + (8 << 8);
 			zvel = ((aimed->s.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
 			if (aimed->s.picnum != RECON)
 				sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
@@ -925,7 +925,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 		if (aimed)
 		{
-			int dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1) + (5 << 8);
+			int dal = ((aimed->s.xrepeat * tileHeight(aimed->s.picnum)) << 1) + (5 << 8);
 			switch (aimed->s.picnum)
 			{
 			case GREENSLIME:
@@ -1145,7 +1145,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 			auto aimed = isNamWW2GI() ? nullptr : aim(actor, AUTO_AIM_ANGLE);
 			if (aimed)
 			{
-				dal = ((aimed->s.xrepeat * tilesiz[aimed->s.picnum].y) << 1);
+				dal = ((aimed->s.xrepeat * tileHeight(aimed->s.picnum)) << 1);
 				zvel = ((aimed->s.z - sz - dal - (4 << 8)) * 768) / (ldist(ps[p].GetActor(), aimed));
 				sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 			}

@@ -1986,7 +1986,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
                     l = spr->xrepeat;
                     dax = sintable[k & 2047] * l;
                     day = sintable[(k + 1536) & 2047] * l;
-                    l = tilesiz[tilenum].x;
+                    l = tileWidth(tilenum);
                     k = (l >> 1) + xoff;
                     x1 -= mulscale16(dax, k);
                     x2 = x1 + mulscale16(dax, l);
@@ -2021,9 +2021,9 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
                         k = spr->ang;
                         cosang = sintable[(k + 512) & 2047];
                         sinang = sintable[k];
-                        xspan = tilesiz[tilenum].x;
+                        xspan = tileWidth(tilenum);
                         xrepeat = spr->xrepeat;
-                        yspan = tilesiz[tilenum].y;
+                        yspan = tileHeight(tilenum);
                         yrepeat = spr->yrepeat;
 
                         dax = ((xspan >> 1) + xoff) * xrepeat;

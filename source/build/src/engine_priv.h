@@ -199,7 +199,7 @@ static inline void get_wallspr_points(T const * const spr, int32_t *x1, int32_t 
     dax = sintable[ang&2047]*xrepeat;
     day = sintable[(ang+1536)&2047]*xrepeat;
 
-    l = tilesiz[tilenum].x;
+    l = tileWidth(tilenum);
     k = (l>>1)+xoff;
 
     *x1 -= mulscale16(dax,k);
@@ -220,7 +220,7 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
     const int32_t cosang = sintable[(spr->ang+512)&2047];
     const int32_t sinang = sintable[spr->ang&2047];
 
-    vec2_t const span = { tilesiz[tilenum].x, tilesiz[tilenum].y};
+    vec2_t const span = { tileWidth(tilenum), tileHeight(tilenum)};
     vec2_t const repeat = { spr->xrepeat, spr->yrepeat };
 
     vec2_t adjofs = { tileLeftOffset(tilenum) + spr->xoffset, tileTopOffset(tilenum) + spr->yoffset };
