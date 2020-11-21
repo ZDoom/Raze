@@ -44,18 +44,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void sub_6FF08(int, int);
-static void sub_6FF54(int, int);
-static void sub_6FFA0(int, int);
-static void sub_70284(int, int);
 static void sub_7034C(spritetype *, XSPRITE *);
 static void sub_70380(spritetype *, XSPRITE *);
 static void sub_704D8(spritetype *, XSPRITE *);
-
-static int dword_279B34 = seqRegisterClient(sub_6FFA0);
-static int dword_279B38 = seqRegisterClient(sub_70284);
-static int dword_279B3C = seqRegisterClient(sub_6FF08);
-static int dword_279B40 = seqRegisterClient(sub_6FF54);
 
 AISTATE podIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE pod13A600 = { kAiStateMove, 7, -1, 3600, NULL, aiMoveTurn, sub_70380, &podSearch };
@@ -74,21 +65,21 @@ AISTATE tentacle13A750 = { kAiStateOther, 6, dword_279B38, 120, NULL, NULL, NULL
 AISTATE tentacleRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &tentacleChase };
 AISTATE tentacleChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveTurn, sub_704D8, NULL };
 
-static void sub_6FF08(int, int nXSprite)
+void sub_6FF08(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     sfxPlay3DSound(&sprite[nSprite], 2503, -1, 0);
 }
 
-static void sub_6FF54(int, int nXSprite)
+void sub_6FF54(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     sfxPlay3DSound(&sprite[nSprite], 2500, -1, 0);
 }
 
-static void sub_6FFA0(int, int nXSprite)
+void sub_6FFA0(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -145,7 +136,7 @@ static void sub_6FFA0(int, int nXSprite)
         sub_746D4(pSprite, 240);
 }
 
-static void sub_70284(int, int nXSprite)
+void sub_70284(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;

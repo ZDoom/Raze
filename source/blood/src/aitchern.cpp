@@ -43,17 +43,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void sub_71A90(int, int);
-static void sub_71BD4(int, int);
-static void sub_720AC(int, int);
 static void sub_72580(spritetype *, XSPRITE *);
 static void sub_725A4(spritetype *, XSPRITE *);
 static void sub_72850(spritetype *, XSPRITE *);
 static void sub_72934(spritetype *, XSPRITE *);
 
-static int dword_279B54 = seqRegisterClient(sub_71BD4);
-static int dword_279B58 = seqRegisterClient(sub_720AC);
-static int dword_279B5C = seqRegisterClient(sub_71A90);
 
 AISTATE tchernobogIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, sub_725A4, NULL };
 AISTATE tchernobogSearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, sub_72580, &tchernobogIdle };
@@ -65,7 +59,7 @@ AISTATE tcherno13A9F0 = { kAiStateChase, 6, dword_279B58, 60, NULL, NULL, NULL, 
 AISTATE tcherno13AA0C = { kAiStateChase, 7, dword_279B5C, 60, NULL, NULL, NULL, &tchernobogChase };
 AISTATE tcherno13AA28 = { kAiStateChase, 8, -1, 60, NULL, aiMoveTurn, NULL, &tchernobogChase };
 
-static void sub_71A90(int, int nXSprite)
+void sub_71A90(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -81,7 +75,7 @@ static void sub_71A90(int, int nXSprite)
         aiNewState(pSprite, pXSprite, &tcherno13A9D4);
 }
 
-static void sub_71BD4(int, int nXSprite)
+void sub_71BD4(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -157,7 +151,7 @@ static void sub_71BD4(int, int nXSprite)
     actFireMissile(pSprite, 350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
 }
 
-static void sub_720AC(int, int nXSprite)
+void sub_720AC(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;

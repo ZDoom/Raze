@@ -44,9 +44,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void ghostSlashSeqCallback(int, int);
-static void ghostThrowSeqCallback(int, int);
-static void ghostBlastSeqCallback(int, int);
 static void ghostThinkTarget(spritetype *, XSPRITE *);
 static void ghostThinkSearch(spritetype *, XSPRITE *);
 static void ghostThinkGoto(spritetype *, XSPRITE *);
@@ -58,9 +55,6 @@ static void ghostMoveSlow(spritetype *, XSPRITE *);
 static void ghostMoveSwoop(spritetype *, XSPRITE *);
 static void ghostMoveFly(spritetype *, XSPRITE *);
 
-static int nGhostSlashClient = seqRegisterClient(ghostSlashSeqCallback);
-static int nGhostThrowClient = seqRegisterClient(ghostThrowSeqCallback);
-static int nGhostBlastClient = seqRegisterClient(ghostBlastSeqCallback);
 
 AISTATE ghostIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, ghostThinkTarget, NULL };
 AISTATE ghostChase = { kAiStateChase, 0, -1, 0, NULL, ghostMoveForward, ghostThinkChase, &ghostIdle };
@@ -81,7 +75,7 @@ AISTATE ghostDodgeDown = { kAiStateMove, 0, -1, 120, NULL, ghostMoveDodgeDown, N
 AISTATE ghostDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
 AISTATE ghostDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
 
-static void ghostSlashSeqCallback(int, int nXSprite)
+void ghostSlashSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -104,14 +98,14 @@ static void ghostSlashSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx-r2, dy+r1, dz, VECTOR_TYPE_12);
 }
 
-static void ghostThrowSeqCallback(int, int nXSprite)
+void ghostThrowSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     actFireThing(&sprite[nSprite], 0, 0, gDudeSlope[nXSprite]-7500, kThingBone, 0xeeeee);
 }
 
-static void ghostBlastSeqCallback(int, int nXSprite)
+void ghostBlastSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;

@@ -43,22 +43,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void TommySeqCallback(int, int);
-static void TeslaSeqCallback(int, int);
-static void ShotSeqCallback(int, int);
-static void cultThrowSeqCallback(int, int);
-static void sub_68170(int, int);
-static void sub_68230(int, int);
 static void cultThinkSearch(spritetype *, XSPRITE *);
 static void cultThinkGoto(spritetype *, XSPRITE *);
 static void cultThinkChase(spritetype *, XSPRITE *);
-
-static int nTommyClient = seqRegisterClient(TommySeqCallback);
-static int nTeslaClient = seqRegisterClient(TeslaSeqCallback);
-static int nShotClient = seqRegisterClient(ShotSeqCallback);
-static int nThrowClient = seqRegisterClient(cultThrowSeqCallback);
-static int n68170Client = seqRegisterClient(sub_68170);
-static int n68230Client = seqRegisterClient(sub_68230);
 
 AISTATE cultistIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE cultistProneIdle = { kAiStateIdle, 17, -1, 0, NULL, NULL, aiThinkTarget, NULL };
@@ -99,7 +86,7 @@ AISTATE cultistTSwimFire = { kAiStateChase, 8, nTommyClient, 0, NULL, aiMoveTurn
 AISTATE cultistTsSwimFire = { kAiStateChase, 8, nTeslaClient, 0, NULL, aiMoveTurn, cultThinkChase, &cultistTsSwimFire };
 AISTATE cultistSwimRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &cultistSwimDodge };
 
-static void TommySeqCallback(int, int nXSprite)
+void TommySeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -114,7 +101,7 @@ static void TommySeqCallback(int, int nXSprite)
     sfxPlay3DSound(pSprite, 4001, -1, 0);
 }
 
-static void TeslaSeqCallback(int, int nXSprite)
+void TeslaSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -132,7 +119,7 @@ static void TeslaSeqCallback(int, int nXSprite)
     }
 }
 
-static void ShotSeqCallback(int, int nXSprite)
+void ShotSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -156,7 +143,7 @@ static void ShotSeqCallback(int, int nXSprite)
         sfxPlay3DSound(pSprite, 1002, -1, 0);
 }
 
-static void cultThrowSeqCallback(int, int nXSprite)
+void cultThrowSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -183,7 +170,7 @@ static void cultThrowSeqCallback(int, int nXSprite)
         evPost(pMissile->index, 3, 120*(1+Random(2)), kCmdOn);
 }
 
-static void sub_68170(int, int nXSprite)
+void sub_68170(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -196,7 +183,7 @@ static void sub_68170(int, int nXSprite)
     evPost(pMissile->index, 3, 120*(2+Random(2)), kCmdOn);
 }
 
-static void sub_68230(int, int nXSprite)
+void sub_68230(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;

@@ -42,12 +42,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void HandJumpSeqCallback(int, int);
 static void handThinkSearch(spritetype *, XSPRITE *);
 static void handThinkGoto(spritetype *, XSPRITE *);
 static void handThinkChase(spritetype *, XSPRITE *);
-
-static int nJumpClient = seqRegisterClient(HandJumpSeqCallback);
 
 AISTATE handIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE hand13A3B4 = { kAiStateOther, 0, -1, 0, NULL, NULL, NULL, NULL };
@@ -57,7 +54,7 @@ AISTATE handRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &handSearch }
 AISTATE handGoto = { kAiStateMove, 6, -1, 1800, NULL, aiMoveForward, handThinkGoto, &handIdle };
 AISTATE handJump = { kAiStateChase, 7, nJumpClient, 120, NULL, NULL, NULL, &handChase };
 
-static void HandJumpSeqCallback(int, int nXSprite)
+void HandJumpSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;

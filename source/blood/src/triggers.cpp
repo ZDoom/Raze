@@ -56,15 +56,6 @@ BEGIN_BLD_NS
 
 int basePath[kMaxSectors];
 
-void FireballTrapSeqCallback(int, int);
-void MGunFireSeqCallback(int, int);
-void MGunOpenSeqCallback(int, int);
-
-int nFireballTrapClient = seqRegisterClient(FireballTrapSeqCallback);
-int nMGunFireClient = seqRegisterClient(MGunFireSeqCallback);
-int nMGunOpenClient = seqRegisterClient(MGunOpenSeqCallback);
-
-
 
 unsigned int GetWaveValue(unsigned int nPhase, int nType)
 {

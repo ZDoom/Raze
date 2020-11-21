@@ -453,6 +453,7 @@ int32_t animateoffs(int const tilenum, int fakevar);
 inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 {
 	assert(tile < MAXTILES);
+	if (tile < 0 || tile >= MAXTILES) return nullptr;
 	if (animate)
 	{
 		if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)

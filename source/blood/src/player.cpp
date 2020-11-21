@@ -180,11 +180,7 @@ ARMORDATA armorData[5] = {
     { 0xc80, 0xc80, 0xc80, 0xc80, 0xc80, 0xc80 }
 };
 
-void PlayerSurvive(int, int);
-void PlayerKneelsOver(int, int);
 
-int nPlayerSurviveClient = seqRegisterClient(PlayerSurvive);
-int nPlayerKneelClient = seqRegisterClient(PlayerKneelsOver);
 
 struct VICTORY {
     const char *TotalKills;

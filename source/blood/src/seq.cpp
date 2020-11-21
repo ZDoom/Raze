@@ -38,8 +38,70 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "actor.h"
 #include "view.h"
 #include "raze_sound.h"
+#include "seqcb.h"
 
 BEGIN_BLD_NS
+
+static void (*seqClientCallback[])(int, int) = {
+    FireballSeqCallback,
+    sub_38938,
+    NapalmSeqCallback,
+    sub_3888C,
+    TreeToGibCallback,
+    DudeToGibCallback1,
+    DudeToGibCallback2,
+    batBiteSeqCallback,
+    SlashSeqCallback,
+    StompSeqCallback,
+    eelBiteSeqCallback,
+    BurnSeqCallback,
+    SeqAttackCallback,
+    cerberusBiteSeqCallback,
+    cerberusBurnSeqCallback,
+    cerberusBurnSeqCallback2,
+    TommySeqCallback,
+    TeslaSeqCallback,
+    ShotSeqCallback,
+    cultThrowSeqCallback,
+    sub_68170,
+    sub_68230,
+    SlashFSeqCallback,
+    ThrowFSeqCallback,
+    ThrowSSeqCallback,
+    BlastSSeqCallback,
+    ghostSlashSeqCallback,
+    ghostThrowSeqCallback,
+    ghostBlastSeqCallback,
+    GillBiteSeqCallback,
+    HandJumpSeqCallback,
+    houndBiteSeqCallback,
+    houndBurnSeqCallback,
+    sub_6FFA0,
+    sub_70284,
+    sub_6FF08,
+    sub_6FF54,
+    ratBiteSeqCallback,
+    SpidBiteSeqCallback,
+    SpidJumpSeqCallback,
+    sub_71370,
+    sub_71BD4,
+    sub_720AC,
+    sub_71A90,
+    genDudeAttack1,
+    punchCallback,
+    ThrowCallback1,
+    ThrowCallback2,
+    HackSeqCallback,
+    StandSeqCallback,
+    zombfHackSeqCallback,
+    PukeSeqCallback,
+    ThrowSeqCallback,
+    PlayerSurvive,
+    PlayerKneelsOver,
+    FireballTrapSeqCallback,
+    MGunFireSeqCallback,
+    MGunOpenSeqCallback,
+};
 
 enum
 {
@@ -49,15 +111,6 @@ enum
 
 static ACTIVE activeList[kMaxSequences];
 static int seqActiveCount = 0;
-static int nSeqClients = 0;
-static void(*seqClientCallback[kMaxSeqClients])(int, int);
-
-int seqRegisterClient(void(*pClient)(int, int))
-{
-    assert(nSeqClients < kMaxSeqClients);
-    seqClientCallback[nSeqClients] = pClient;
-    return nSeqClients++;
-}
 
 void Seq::Preload(void)
 {

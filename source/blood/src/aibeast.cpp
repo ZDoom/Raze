@@ -41,8 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void SlashSeqCallback(int, int);
-static void StompSeqCallback(int, int);
 static void MorphToBeast(spritetype *, XSPRITE *);
 static void beastThinkSearch(spritetype *, XSPRITE *);
 static void beastThinkGoto(spritetype *, XSPRITE *);
@@ -53,9 +51,6 @@ static void beastMoveForward(spritetype *, XSPRITE *);
 static void sub_628A0(spritetype *, XSPRITE *);
 static void sub_62AE0(spritetype *, XSPRITE *);
 static void sub_62D7C(spritetype *, XSPRITE *);
-
-static int nSlashClient = seqRegisterClient(SlashSeqCallback);
-static int nStompClient = seqRegisterClient(StompSeqCallback);
 
 AISTATE beastIdle = {kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE beastChase = {kAiStateChase, 8, -1, 0, NULL, beastMoveForward, beastThinkChase, NULL };
@@ -79,7 +74,7 @@ AISTATE beast138FB4 = { kAiStateOther, 9, -1, 120, NULL, sub_62AE0, beastThinkSw
 AISTATE beast138FD0 = { kAiStateOther, 9, -1, 0, NULL, sub_62D7C, beastThinkSwimChase, &beastSwimChase };
 AISTATE beast138FEC = { kAiStateOther, 9, -1, 120, NULL, aiMoveTurn, NULL, &beastSwimChase };
 
-static void SlashSeqCallback(int, int nXSprite)
+void SlashSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -97,7 +92,7 @@ static void SlashSeqCallback(int, int nXSprite)
     sfxPlay3DSound(pSprite, 9012+Random(2), -1, 0);
 }
 
-static void StompSeqCallback(int, int nXSprite)
+void StompSeqCallback(int, int nXSprite)
 {
     uint8_t vb8[(kMaxSectors+7)>>3];
     XSPRITE *pXSprite = &xsprite[nXSprite];

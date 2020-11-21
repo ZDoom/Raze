@@ -44,10 +44,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void SlashFSeqCallback(int, int);
-static void ThrowFSeqCallback(int, int);
-static void BlastSSeqCallback(int, int);
-static void ThrowSSeqCallback(int, int);
 static void gargThinkTarget(spritetype *, XSPRITE *);
 static void gargThinkSearch(spritetype *, XSPRITE *);
 static void gargThinkGoto(spritetype *, XSPRITE *);
@@ -61,11 +57,6 @@ static void gargMoveSlow(spritetype *, XSPRITE *);
 static void gargMoveSwoop(spritetype *, XSPRITE *);
 static void gargMoveFly(spritetype *, XSPRITE *);
 static void playStatueBreakSnd(spritetype*,XSPRITE*);
-
-static int nSlashFClient = seqRegisterClient(SlashFSeqCallback);
-static int nThrowFClient = seqRegisterClient(ThrowFSeqCallback);
-static int nThrowSClient = seqRegisterClient(ThrowSSeqCallback);
-static int nBlastSClient = seqRegisterClient(BlastSSeqCallback);
 
 AISTATE gargoyleFIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, gargThinkTarget, NULL };
 AISTATE gargoyleStatueIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, NULL, NULL };
@@ -99,7 +90,7 @@ static void playStatueBreakSnd(spritetype* pSprite, XSPRITE* pXSprite) {
     aiPlay3DSound(pSprite, 313, AI_SFX_PRIORITY_1, -1);
 }
 
-static void SlashFSeqCallback(int, int nXSprite)
+void SlashFSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -121,14 +112,14 @@ static void SlashFSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx-r2, dy+r1, dz, VECTOR_TYPE_13);
 }
 
-static void ThrowFSeqCallback(int, int nXSprite)
+void ThrowFSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     actFireThing(&sprite[nSprite], 0, 0, gDudeSlope[nXSprite]-7500, kThingBone, 0xeeeee);
 }
 
-static void BlastSSeqCallback(int, int nXSprite)
+void BlastSSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -223,7 +214,7 @@ static void BlastSSeqCallback(int, int nXSprite)
 
 }
 
-static void ThrowSSeqCallback(int, int nXSprite)
+void ThrowSSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;

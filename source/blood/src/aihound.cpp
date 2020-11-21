@@ -44,14 +44,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void houndBiteSeqCallback(int, int);
-static void houndBurnSeqCallback(int, int);
 static void houndThinkSearch(spritetype *, XSPRITE *);
 static void houndThinkGoto(spritetype *, XSPRITE *);
 static void houndThinkChase(spritetype *, XSPRITE *);
-
-static int nHoundBiteClient = seqRegisterClient(houndBiteSeqCallback);
-static int nHoundBurnClient = seqRegisterClient(houndBurnSeqCallback);
 
 AISTATE houndIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE houndSearch = { kAiStateMove, 8, -1, 1800, NULL, aiMoveForward, houndThinkSearch, &houndIdle };
@@ -62,7 +57,7 @@ AISTATE houndGoto = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, houndThinkG
 AISTATE houndBite = { kAiStateChase, 6, nHoundBiteClient, 60, NULL, NULL, NULL, &houndChase };
 AISTATE houndBurn = { kAiStateChase, 7, nHoundBurnClient, 60, NULL, NULL, NULL, &houndChase };
 
-static void houndBiteSeqCallback(int, int nXSprite)
+void houndBiteSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -90,7 +85,7 @@ static void houndBiteSeqCallback(int, int nXSprite)
     #endif
 }
 
-static void houndBurnSeqCallback(int, int nXSprite)
+void houndBurnSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;

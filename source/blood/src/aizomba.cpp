@@ -43,8 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void HackSeqCallback(int, int);
-static void StandSeqCallback(int, int);
 static void zombaThinkSearch(spritetype *, XSPRITE *);
 static void zombaThinkGoto(spritetype *, XSPRITE *);
 static void zombaThinkChase(spritetype *, XSPRITE *);
@@ -55,8 +53,6 @@ static void entryEZombie(spritetype *, XSPRITE *);
 static void entryAIdle(spritetype *, XSPRITE *);
 static void entryEStand(spritetype *, XSPRITE *);
 
-static int nHackClient = seqRegisterClient(HackSeqCallback);
-static int nStandClient = seqRegisterClient(StandSeqCallback);
 
 AISTATE zombieAIdle = { kAiStateIdle, 0, -1, 0, entryAIdle, NULL, aiThinkTarget, NULL };
 AISTATE zombieAChase = { kAiStateChase, 8, -1, 0, NULL, aiMoveForward, zombaThinkChase, NULL };
@@ -76,7 +72,7 @@ AISTATE zombie2Search = { kAiStateSearch, 8, -1, 1800, NULL, NULL, myThinkSearch
 AISTATE zombieSIdle = { kAiStateIdle, 10, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE zombie13AC2C = { kAiStateOther, 11, nStandClient, 0, entryEZombie, NULL, NULL, &zombieAPonder };
 
-static void HackSeqCallback(int, int nXSprite)
+void HackSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -96,7 +92,7 @@ static void HackSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_10);
 }
 
-static void StandSeqCallback(int, int nXSprite)
+void StandSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;

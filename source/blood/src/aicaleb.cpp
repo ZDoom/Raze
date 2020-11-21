@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void SeqAttackCallback(int, int);
 static void calebThinkSearch(spritetype *, XSPRITE *);
 static void calebThinkGoto(spritetype *, XSPRITE *);
 static void calebThinkChase(spritetype *, XSPRITE *);
@@ -50,8 +49,6 @@ static void calebThinkSwimChase(spritetype *, XSPRITE *);
 static void sub_65D04(spritetype *, XSPRITE *);
 static void sub_65F44(spritetype *, XSPRITE *);
 static void sub_661E0(spritetype *, XSPRITE *);
-
-static int nAttackClient = seqRegisterClient(SeqAttackCallback);
 
 AISTATE tinycalebIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE tinycalebChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveForward, calebThinkChase, NULL };
@@ -72,7 +69,7 @@ AISTATE tinycaleb139660 = { kAiStateOther, 8, -1, 120, NULL, sub_65F44, calebThi
 AISTATE tinycaleb13967C = { kAiStateOther, 8, -1, 0, NULL, sub_661E0, calebThinkSwimChase, &tinycalebSwimChase };
 AISTATE tinycaleb139698 = { kAiStateOther, 8, -1, 120, NULL, aiMoveTurn, NULL, &tinycalebSwimChase };
 
-static void SeqAttackCallback(int, int nXSprite)
+void SeqAttackCallback(int, int nXSprite)
 {
     int nSprite = xsprite[nXSprite].reference;
     spritetype *pSprite = &sprite[nSprite];

@@ -43,16 +43,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void SpidBiteSeqCallback(int, int);
-static void SpidJumpSeqCallback(int, int);
-static void sub_71370(int, int);
 static void spidThinkSearch(spritetype *, XSPRITE *);
 static void spidThinkGoto(spritetype *, XSPRITE *);
 static void spidThinkChase(spritetype *, XSPRITE *);
 
-static int nSpidBiteClient = seqRegisterClient(SpidBiteSeqCallback);
-static int nSpidJumpClient = seqRegisterClient(SpidJumpSeqCallback);
-static int dword_279B50 = seqRegisterClient(sub_71370);
 
 AISTATE spidIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE spidChase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, spidThinkChase, NULL };
@@ -85,7 +79,7 @@ static char sub_70D30(XSPRITE *pXDude, int a2, int a3)
     return 0;
 }
 
-static void SpidBiteSeqCallback(int, int nXSprite)
+void SpidBiteSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -135,7 +129,7 @@ static void SpidBiteSeqCallback(int, int nXSprite)
     }
 }
 
-static void SpidJumpSeqCallback(int, int nXSprite)
+void SpidJumpSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
@@ -162,7 +156,7 @@ static void SpidJumpSeqCallback(int, int nXSprite)
     }
 }
 
-static void sub_71370(int, int nXSprite)
+void sub_71370(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;

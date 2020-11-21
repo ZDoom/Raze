@@ -39,7 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void batBiteSeqCallback(int, int);
 static void batThinkTarget(spritetype *, XSPRITE *);
 static void batThinkSearch(spritetype *, XSPRITE *);
 static void batThinkGoto(spritetype *, XSPRITE *);
@@ -52,7 +51,6 @@ static void batMoveSwoop(spritetype *, XSPRITE *);
 static void batMoveFly(spritetype *, XSPRITE *);
 static void batMoveToCeil(spritetype *, XSPRITE *);
 
-static int nBatBiteClient = seqRegisterClient(batBiteSeqCallback);
 
 AISTATE batIdle = {kAiStateIdle, 0, -1, 0, NULL, NULL, batThinkTarget, NULL };
 AISTATE batFlyIdle = {kAiStateIdle, 6, -1, 0, NULL, NULL, batThinkTarget, NULL };
@@ -73,7 +71,7 @@ AISTATE batDodgeDown = {kAiStateMove, 6, -1, 120, NULL, batMoveDodgeDown, 0, &ba
 AISTATE batDodgeDownRight = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 AISTATE batDodgeDownLeft = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 
-static void batBiteSeqCallback(int, int nXSprite)
+void batBiteSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     spritetype *pSprite = &sprite[pXSprite->reference];

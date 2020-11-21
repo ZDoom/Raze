@@ -43,12 +43,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void BurnSeqCallback(int, int);
 static void burnThinkSearch(spritetype*, XSPRITE*);
 static void burnThinkGoto(spritetype*, XSPRITE*);
 static void burnThinkChase(spritetype*, XSPRITE*);
-
-static int nBurnClient = seqRegisterClient(BurnSeqCallback);
 
 AISTATE cultistBurnIdle = { kAiStateIdle, 3, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE cultistBurnChase = { kAiStateChase, 3, -1, 0, NULL, aiMoveForward, burnThinkChase, NULL };
@@ -87,7 +84,7 @@ AISTATE genDudeBurnGoto = { kAiStateMove, 3, -1, 3600, NULL, aiMoveForward, burn
 AISTATE genDudeBurnSearch = { kAiStateSearch, 3, -1, 3600, NULL, aiMoveForward, burnThinkSearch, &genDudeBurnSearch };
 AISTATE genDudeBurnAttack = { kAiStateChase, 3, nBurnClient, 120, NULL, NULL, NULL, &genDudeBurnChase };
 
-static void BurnSeqCallback(int, int)
+void BurnSeqCallback(int, int)
 {
 }
 

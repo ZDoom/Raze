@@ -42,12 +42,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void ratBiteSeqCallback(int, int);
 static void ratThinkSearch(spritetype *, XSPRITE *);
 static void ratThinkGoto(spritetype *, XSPRITE *);
 static void ratThinkChase(spritetype *, XSPRITE *);
-
-static int nRatBiteClient = seqRegisterClient(ratBiteSeqCallback);
 
 AISTATE ratIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE ratSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, ratThinkSearch, &ratIdle };
@@ -57,7 +54,7 @@ AISTATE ratRecoil = { kAiStateRecoil, 7, -1, 0, NULL, NULL, NULL, &ratDodge };
 AISTATE ratGoto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, ratThinkGoto, &ratIdle };
 AISTATE ratBite = { kAiStateChase, 6, nRatBiteClient, 120, NULL, NULL, NULL, &ratChase };
 
-static void ratBiteSeqCallback(int, int nXSprite)
+void ratBiteSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;

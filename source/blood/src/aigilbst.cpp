@@ -42,7 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void GillBiteSeqCallback(int, int);
 static void gillThinkSearch(spritetype *, XSPRITE *);
 static void gillThinkGoto(spritetype *, XSPRITE *);
 static void gillThinkChase(spritetype *, XSPRITE *);
@@ -52,7 +51,6 @@ static void sub_6CB00(spritetype *, XSPRITE *);
 static void sub_6CD74(spritetype *, XSPRITE *);
 static void sub_6D03C(spritetype *, XSPRITE *);
 
-static int nGillBiteClient = seqRegisterClient(GillBiteSeqCallback);
 
 AISTATE gillBeastIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE gillBeastChase = { kAiStateChase, 9, -1, 0, NULL, aiMoveForward, gillThinkChase, NULL };
@@ -72,7 +70,7 @@ AISTATE gillBeast13A138 = { kAiStateOther, 10, -1, 120, NULL, sub_6CD74, gillThi
 AISTATE gillBeast13A154 = { kAiStateOther, 10, -1, 0, NULL, sub_6D03C, gillThinkSwimChase, &gillBeastSwimChase };
 AISTATE gillBeast13A170 = { kAiStateOther, 10, -1, 120, NULL, NULL, aiMoveTurn, &gillBeastSwimChase };
 
-static void GillBiteSeqCallback(int, int nXSprite)
+void GillBiteSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;

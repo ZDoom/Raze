@@ -54,20 +54,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gib.h"
 
 BEGIN_BLD_NS
-static void genDudeAttack1(int, int);
-static void punchCallback(int, int);
-static void ThrowCallback1(int, int);
-static void ThrowCallback2(int, int);
 static void ThrowThing(int, bool);
 static void unicultThinkSearch(spritetype*, XSPRITE*);
 static void unicultThinkGoto(spritetype*, XSPRITE*);
 static void unicultThinkChase(spritetype*, XSPRITE*);
 static void forcePunch(spritetype*, XSPRITE*);
-
-static int nGenDudeAttack1 = seqRegisterClient(genDudeAttack1);
-static int nGenDudePunch = seqRegisterClient(punchCallback);
-static int nGenDudeThrow1 = seqRegisterClient(ThrowCallback1);
-static int nGenDudeThrow2 = seqRegisterClient(ThrowCallback2);
 
 AISTATE genDudeIdleL = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE genDudeIdleW = { kAiStateIdle, 13, -1, 0, NULL, NULL, aiThinkTarget, NULL };
@@ -135,7 +126,7 @@ const GENDUDESND gCustomDudeSnd[] = {
 
 GENDUDEEXTRA gGenDudeExtra[kMaxSprites]; // savegame handling in ai.cpp
 
-static void forcePunch(spritetype* pSprite, XSPRITE*) {
+void forcePunch(spritetype* pSprite, XSPRITE*) {
     if (gGenDudeExtra[pSprite->index].forcePunch && seqGetStatus(3, pSprite->extra) == -1)
         punchCallback(0,pSprite->extra);
 }
@@ -184,7 +175,7 @@ void genDudeUpdate(spritetype* pSprite) {
     }
 }
 
-static void punchCallback(int, int nXIndex) {
+void punchCallback(int, int nXIndex) {
     XSPRITE* pXSprite = &xsprite[nXIndex];
     if (pXSprite->target != -1) {
         int nSprite = pXSprite->reference;
@@ -208,7 +199,7 @@ static void punchCallback(int, int nXIndex) {
     }
 }
 
-static void genDudeAttack1(int, int nXIndex) {
+void genDudeAttack1(int, int nXIndex) {
     if (!(nXIndex >= 0 && nXIndex < kMaxXSprites)) {
         Printf(PRINT_HIGH, "nXIndex >= 0 && nXIndex < kMaxXSprites");
         return;
@@ -274,11 +265,11 @@ static void genDudeAttack1(int, int nXIndex) {
     }
 }
 
-static void ThrowCallback1(int, int nXIndex) {
+void ThrowCallback1(int, int nXIndex) {
     ThrowThing(nXIndex, true);
 }
 
-static void ThrowCallback2(int, int nXIndex) {
+void ThrowCallback2(int, int nXIndex) {
     ThrowThing(nXIndex, false);
 }
 

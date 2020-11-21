@@ -2343,21 +2343,6 @@ static const short gPlayerGibThingComments[] = {
     734, 735, 736, 737, 738, 739, 740, 741, 3038, 3049
 };
 
-void FireballSeqCallback(int, int);
-void sub_38938(int, int);
-void NapalmSeqCallback(int, int);
-void sub_3888C(int, int);
-void TreeToGibCallback(int, int);
-void DudeToGibCallback1(int, int);
-void DudeToGibCallback2(int, int);
-
-const int nFireballClient = seqRegisterClient(FireballSeqCallback);
-const int dword_2192D8 = seqRegisterClient(sub_38938); // fireball smoke
-const int nNapalmClient = seqRegisterClient(NapalmSeqCallback);
-const int dword_2192E0 = seqRegisterClient(sub_3888C); // flame lick
-const int nTreeToGibClient = seqRegisterClient(TreeToGibCallback);
-const int nDudeToGibClient1 = seqRegisterClient(DudeToGibCallback1);
-const int nDudeToGibClient2 = seqRegisterClient(DudeToGibCallback2);
 
 int gPostCount = 0;
 

@@ -40,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void eelBiteSeqCallback(int, int);
 static void eelThinkTarget(spritetype *, XSPRITE *);
 static void eelThinkSearch(spritetype *, XSPRITE *);
 static void eelThinkGoto(spritetype *, XSPRITE *);
@@ -53,7 +52,6 @@ static void eelMoveSwoop(spritetype *, XSPRITE *);
 static void eelMoveAscend(spritetype *pSprite, XSPRITE *pXSprite);
 static void eelMoveToCeil(spritetype *, XSPRITE *);
 
-static int nEelBiteClient = seqRegisterClient(eelBiteSeqCallback);
 
 AISTATE eelIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, eelThinkTarget, NULL };
 AISTATE eelFlyIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, eelThinkTarget, NULL };
@@ -74,7 +72,7 @@ AISTATE eelDodgeDown = { kAiStateMove, 0, -1, 120, NULL, eelMoveDodgeDown, NULL,
 AISTATE eelDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 AISTATE eelDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 
-static void eelBiteSeqCallback(int, int nXSprite)
+void eelBiteSeqCallback(int, int nXSprite)
 {
     XSPRITE *pXSprite = &xsprite[nXSprite];
     spritetype *pSprite = &sprite[pXSprite->reference];
