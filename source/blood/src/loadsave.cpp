@@ -51,6 +51,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+FixedBitArray<MAXSPRITES> activeXSprites;
+
 // All AI states for assigning an index.
 static AISTATE* allAIStates[] =
 {
@@ -720,8 +722,6 @@ void MyLoadSave::Save(void)
     Write(skyInfo, sizeof(*skyInfo));
 }
 
-void ActorLoadSaveConstruct(void);
-void AILoadSaveConstruct(void);
 void EndGameLoadSaveConstruct(void);
 void LevelsLoadSaveConstruct(void);
 void MessagesLoadSaveConstruct(void);
@@ -736,7 +736,6 @@ void LoadSaveSetup(void)
 {
     new MyLoadSave();
 
-    AILoadSaveConstruct();
     EndGameLoadSaveConstruct();
     LevelsLoadSaveConstruct();
     MessagesLoadSaveConstruct();
@@ -754,6 +753,7 @@ void SerializeSequences(FSerializer& arc);
 void SerializeWarp(FSerializer& arc);
 void SerializeTriggers(FSerializer& arc);
 void SerializeActor(FSerializer& arc);
+void SerializeAI(FSerializer& arc);
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
@@ -761,16 +761,29 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     sfxKillAllSounds();
     ambKillAll();
     seqKillAll();
-    if (gamestate != GS_LEVEL)
-    {
-        memset(xsprite, 0, sizeof(xsprite));
-    }
 
+    if (arc.isWriting())
+    {
+        activeXSprites.Zero();
+        for (int i = 0; i < kMaxSprites; i++)
+        {
+            if (activeSprites[i] && sprite[i].extra > 0) activeXSprites.Set(sprite[i].extra);
+        }
+    }
+    else
+    {
+        if (gamestate != GS_LEVEL)
+        {
+            memset(xsprite, 0, sizeof(xsprite));
+        }
+    }
+    arc.SerializeMemory("activexsprites", activeXSprites.Storage(), activeXSprites.StorageSize());
+    SerializeActor(arc);
+    SerializeAI(arc);
     SerializeEvents(arc);
     SerializeSequences(arc);
     SerializeWarp(arc);
     SerializeTriggers(arc);
-    SerializeActor(arc);
 }
 
 

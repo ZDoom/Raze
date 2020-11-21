@@ -44,5 +44,6 @@ public:
 };
 
 void LoadSaveSetup(void);
+extern FixedBitArray<MAXSPRITES> activeXSprites;
 
 END_BLD_NS
