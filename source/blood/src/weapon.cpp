@@ -189,39 +189,39 @@ char BannedUnderwater(int nWeapon)
     return nWeapon == 7 || nWeapon == 6;
 }
 
-char sub_4B1FC(PLAYER *pPlayer, int a2, int a3, int a4)
+char CheckWeaponAmmo(PLAYER *pPlayer, int weapon, int ammotype, int count)
 {
     if (gInfiniteAmmo)
         return 1;
-    if (a3 == -1)
+    if (ammotype == -1)
         return 1;
-    if (a2 == 12 && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
+    if (weapon == 12 && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
         return 1;
-    if (a2 == 9 && pPlayer->pXSprite->health > 0)
+    if (weapon == 9 && pPlayer->pXSprite->health > 0)
         return 1;
-    return pPlayer->ammoCount[a3] >= a4;
+    return pPlayer->ammoCount[ammotype] >= count;
 }
 
-char CheckAmmo(PLAYER *pPlayer, int a2, int a3)
+char CheckAmmo(PLAYER *pPlayer, int ammotype, int count)
 {
     if (gInfiniteAmmo)
         return 1;
-    if (a2 == -1)
+    if (ammotype == -1)
         return 1;
     if (pPlayer->curWeapon == 12 && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
         return 1;
-    if (pPlayer->curWeapon == 9 && pPlayer->pXSprite->health >= (a3<<4))
+    if (pPlayer->curWeapon == 9 && pPlayer->pXSprite->health >= (count<<4))
         return 1;
-    return pPlayer->ammoCount[a2] >= a3;
+    return pPlayer->ammoCount[ammotype] >= count;
 }
 
-char checkAmmo2(PLAYER *pPlayer, int a2, int a3)
+char checkAmmo2(PLAYER *pPlayer, int ammotype, int amount)
 {
     if (gInfiniteAmmo)
         return 1;
-    if (a2 == -1)
+    if (ammotype == -1)
         return 1;
-    return pPlayer->ammoCount[a2] >= a3;
+    return pPlayer->ammoCount[ammotype] >= amount;
 }
 
 void SpawnBulletEject(PLAYER *pPlayer, int a2, int a3)
@@ -261,27 +261,27 @@ void WeaponPrecache(HitList &hits)
     }
 }
 
-void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5, int smoothratio)
+void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum, int smoothratio)
 {
     assert(pPlayer != NULL);
     if (pPlayer->weaponQav == -1)
         return;
     QAV * pQAV = weaponQAV[pPlayer->weaponQav];
-    int v4;
+    int duration;
     if (pPlayer->weaponTimer == 0)
-        v4 = (gFrameClock + mulscale16(4, smoothratio)) % pQAV->duration;
+        duration = (gFrameClock + mulscale16(4, smoothratio)) % pQAV->duration;
     else
-        v4 = pQAV->duration - pPlayer->weaponTimer;
-    pQAV->x = int(a3);
-    pQAV->y = int(a4);
+        duration = pQAV->duration - pPlayer->weaponTimer;
+    pQAV->x = int(xpos);
+    pQAV->y = int(ypos);
     int flags = 2;
     int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
     if (nInv >= 120 * 8 || (nInv != 0 && (gFrameClock & 32)))
     {
-        a2 = -128;
+        shade = -128;
         flags |= 1;
     }
-    pQAV->Draw(a3, a4, v4, flags, a2, a5, true);
+    pQAV->Draw(xpos, ypos, duration, flags, shade, palnum, true);
 }
 
 void WeaponPlay(PLAYER *pPlayer)
@@ -295,13 +295,13 @@ void WeaponPlay(PLAYER *pPlayer)
     pQAV->Play(nTicks-4, nTicks, pPlayer->qavCallback, pPlayer);
 }
 
-void StartQAV(PLAYER *pPlayer, int nWeaponQAV, int a3, char a4)
+static void StartQAV(PLAYER *pPlayer, int nWeaponQAV, int callback, bool looped = false)
 {
     assert(nWeaponQAV < kQAVEnd);
     pPlayer->weaponQav = nWeaponQAV;
     pPlayer->weaponTimer = weaponQAV[nWeaponQAV]->duration;
-    pPlayer->qavCallback = a3;
-    pPlayer->qavLoop = a4;
+    pPlayer->qavCallback = callback;
+    pPlayer->qavLoop = looped;
     weaponQAV[nWeaponQAV]->Preload();
     WeaponPlay(pPlayer);
     pPlayer->weaponTimer -= 4;
@@ -476,8 +476,8 @@ void UpdateAimVector(PLAYER * pPlayer)
 
 struct t_WeaponModes
 {
-    int TotalKills;
-    int Kills;
+    int update;
+    int ammoType;
 };
 
 t_WeaponModes weaponModes[] = {
@@ -503,7 +503,7 @@ void WeaponRaise(PLAYER *pPlayer)
     int prevWeapon = pPlayer->curWeapon;
     pPlayer->curWeapon = pPlayer->newWeapon;
     pPlayer->newWeapon = 0;
-    pPlayer->weaponAmmo = weaponModes[pPlayer->curWeapon].Kills;
+    pPlayer->weaponAmmo = weaponModes[pPlayer->curWeapon].ammoType;
     switch (pPlayer->curWeapon)
     {
     case 1: // pitchfork
@@ -1728,23 +1728,23 @@ char WeaponFindNext(PLAYER *pPlayer, int *a2, char bDir)
             weapon = OrderNext[weapon];
         else
             weapon = OrderPrev[weapon];
-        if (weaponModes[weapon].TotalKills && pPlayer->hasWeapon[weapon])
+        if (weaponModes[weapon].update && pPlayer->hasWeapon[weapon])
         {
             if (weapon == 9)
             {
-                if (CheckAmmo(pPlayer, weaponModes[weapon].Kills, 1))
+                if (CheckAmmo(pPlayer, weaponModes[weapon].ammoType, 1))
                     break;
             }
             else
             {
-                if (checkAmmo2(pPlayer, weaponModes[weapon].Kills, 1))
+                if (checkAmmo2(pPlayer, weaponModes[weapon].ammoType, 1))
                     break;
             }
         }
     } while (weapon != pPlayer->curWeapon);
     if (weapon == pPlayer->curWeapon)
     {
-        if (!weaponModes[weapon].TotalKills || !CheckAmmo(pPlayer, weaponModes[weapon].Kills, 1))
+        if (!weaponModes[weapon].update || !CheckAmmo(pPlayer, weaponModes[weapon].ammoType, 1))
             weapon = 1;
     }
     if (a2)
@@ -1756,11 +1756,11 @@ char WeaponFindLoaded(PLAYER *pPlayer, int *a2)
 {
     char v4 = 1;
     int v14 = 0;
-    if (weaponModes[pPlayer->curWeapon].TotalKills > 1)
+    if (weaponModes[pPlayer->curWeapon].update > 1)
     {
-        for (int i = 0; i < weaponModes[pPlayer->curWeapon].TotalKills; i++)
+        for (int i = 0; i < weaponModes[pPlayer->curWeapon].update; i++)
         {
-            if (CheckAmmo(pPlayer, weaponModes[pPlayer->curWeapon].Kills, 1))
+            if (CheckAmmo(pPlayer, weaponModes[pPlayer->curWeapon].ammoType, 1))
             {
                 v14 = i;
                 v4 = pPlayer->curWeapon;
@@ -1776,9 +1776,9 @@ char WeaponFindLoaded(PLAYER *pPlayer, int *a2)
             int weapon = pPlayer->weaponOrder[vc][i];
             if (pPlayer->hasWeapon[weapon])
             {
-                for (int j = 0; j < weaponModes[weapon].TotalKills; j++)
+                for (int j = 0; j < weaponModes[weapon].update; j++)
                 {
-                    if (sub_4B1FC(pPlayer, weapon, weaponModes[weapon].Kills, 1))
+                    if (CheckWeaponAmmo(pPlayer, weapon, weaponModes[weapon].ammoType, 1))
                     {
                         if (a2)
                             *a2 = j;
@@ -2181,10 +2181,10 @@ void WeaponProcess(PLAYER *pPlayer) {
             return;
         }
         int nWeapon = pPlayer->newWeapon;
-        int v4c = weaponModes[nWeapon].TotalKills;
+        int v4c = weaponModes[nWeapon].update;
         if (!pPlayer->curWeapon)
         {
-            int nAmmoType = weaponModes[nWeapon].Kills;
+            int nAmmoType = weaponModes[nWeapon].ammoType;
             if (v4c > 1)
             {
                 if (CheckAmmo(pPlayer, nAmmoType, 1) || nAmmoType == 11)
@@ -2193,7 +2193,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             }
             else
             {
-                if (sub_4B1FC(pPlayer, nWeapon, nAmmoType, 1))
+                if (CheckWeaponAmmo(pPlayer, nWeapon, nAmmoType, 1))
                     WeaponRaise(pPlayer);
                 else
                 {
@@ -2223,7 +2223,7 @@ void WeaponProcess(PLAYER *pPlayer) {
         for (; i <= v4c; i++)
         {
             int v6c = (pPlayer->weaponMode[nWeapon]+i)%v4c;
-            if (sub_4B1FC(pPlayer, nWeapon, weaponModes[nWeapon].Kills, 1))
+            if (CheckWeaponAmmo(pPlayer, nWeapon, weaponModes[nWeapon].ammoType, 1))
             {
                 WeaponLower(pPlayer);
                 pPlayer->weaponMode[nWeapon] = v6c;
@@ -2523,7 +2523,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     WeaponUpdateState(pPlayer);
 }
 
-void sub_51340(spritetype *pMissile, int a2)
+void teslaHit(spritetype *pMissile, int a2)
 {
     uint8_t va4[(kMaxSectors+7)>>3];
     int x = pMissile->x;

@@ -3736,7 +3736,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
 
             break;
         case kMissileTeslaAlt:
-            sub_51340(pMissile, hitCode);
+            teslaHit(pMissile, hitCode);
             switch (hitCode) {
                 case 0:
                 case 4:
