@@ -1460,9 +1460,9 @@ int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp)
     int disp = 1;
     if (pSeq != nullptr) 
     {
-        int nFrames = pSeq->nFrames; int ticks = pSeq->at8; int shots = 0;
+        int nFrames = pSeq->nFrames; int ticks = pSeq->ticksPerFrame; int shots = 0;
         for (int i = 0; i <= pSeq->nFrames; i++) {
-            if (pSeq->frames[i].at5_5) shots++;
+            if (pSeq->frames[i].trigger) shots++;
         }
         
         disp = (((shots * 1000) / nFrames) / ticks) * 20;
@@ -2040,7 +2040,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
                         {
                             pExtra->forcePunch = true; // required for those who don't have fire trigger in punch seq and for default animation
                             for (int i = 0; i < pSeq->nFrames; i++) {
-                                if (!pSeq->frames[i].at5_5) continue;
+                                if (!pSeq->frames[i].trigger) continue;
                                 pExtra->forcePunch = false;
                                 break;
                             }

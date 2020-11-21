@@ -476,14 +476,6 @@ void LoadSave::Write(const void *pData, int nSize)
 
 bool GameInterface::LoadGame()
 {
-    sndKillAllSounds();
-    sfxKillAllSounds();
-    ambKillAll();
-    seqKillAll();
-    if (gamestate != GS_LEVEL)
-    {
-        memset(xsprite, 0, sizeof(xsprite));
-    }
     LoadSave::hLFile = ReadSavegameChunk("snapshot.bld");
 	if (!LoadSave::hLFile.isOpen())
 		return false;
@@ -735,7 +727,6 @@ void LevelsLoadSaveConstruct(void);
 void MessagesLoadSaveConstruct(void);
 void MirrorLoadSaveConstruct(void);
 void PlayerLoadSaveConstruct(void);
-void SeqLoadSaveConstruct(void);
 void TriggersLoadSaveConstruct(void);
 void ViewLoadSaveConstruct(void);
 void WarpLoadSaveConstruct(void);
@@ -754,7 +745,6 @@ void LoadSaveSetup(void)
     MessagesLoadSaveConstruct();
     MirrorLoadSaveConstruct();
     PlayerLoadSaveConstruct();
-    SeqLoadSaveConstruct();
     TriggersLoadSaveConstruct();
     ViewLoadSaveConstruct();
     WarpLoadSaveConstruct();
@@ -765,10 +755,21 @@ void LoadSaveSetup(void)
 
 
 void SerializeEvents(FSerializer& arc);
+void SerializeSequences(FSerializer& arc);
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
+    sndKillAllSounds();
+    sfxKillAllSounds();
+    ambKillAll();
+    seqKillAll();
+    if (gamestate != GS_LEVEL)
+    {
+        memset(xsprite, 0, sizeof(xsprite));
+    }
+
     SerializeEvents(arc);
+    SerializeSequences(arc);
 }
 
 

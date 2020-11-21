@@ -2488,10 +2488,10 @@ void actInit(bool bSaveLoad) {
                 break;
             case kThingBloodChunks: {
                 SEQINST *pInst = GetInstance(3, pSprite->extra);
-                if (pInst && pInst->at13) {
-                    auto seq = getSequence(pInst->at8);
+                if (pInst) {
+                    auto seq = getSequence(pInst->nSeqID);
                     if (!seq) break;
-                    seqSpawn(pInst->at8, 3, pSprite->extra);
+                    seqSpawn(pInst->nSeqID, 3, pSprite->extra);
                 }
                 break;
             }
