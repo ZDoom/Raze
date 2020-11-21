@@ -189,7 +189,7 @@ void ByteSwapQAV(void* p)
     QAV* qav = (QAV*)p;
     qav->nFrames = LittleLong(qav->nFrames);
     qav->ticksPerFrame = LittleLong(qav->ticksPerFrame);
-    qav->at10 = LittleLong(qav->at10);
+    qav->version = LittleLong(qav->version);
     qav->x = LittleLong(qav->x);
     qav->y = LittleLong(qav->y);
     qav->nSprite = LittleLong(qav->nSprite);

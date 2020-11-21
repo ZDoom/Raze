@@ -75,7 +75,7 @@ struct QAV
     char pad1[8]; // 0
     int nFrames; // 8
     int ticksPerFrame; // C
-    int at10; // 10
+    int duration; // 10
     int x; // 14
     int y; // 18
     int nSprite; // 1c

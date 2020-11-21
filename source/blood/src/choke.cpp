@@ -37,49 +37,48 @@ BEGIN_BLD_NS
 
 void CChoke::init(int a1, void(*a2)(PLAYER*))
 {
-    TotalKills = NULL;
-    at1c = a2;
-    if (!at8 && a1 != -1)
-    {
-        at8 = getQAV(a1);
-        if (!at8)
-            I_Error("Could not load QAV %d\n", a1);
-        at8->nSprite = -1;
-        at8->x = at14;
-        at8->y = at18;
-        //at8->Preload();
-		atc = at8->at10;
-		at10 = 0;
-    }
+	TotalKills = nullptr;
+	callback = a2;
+	if (!qav && a1 != -1)
+	{
+		qav = getQAV(a1);
+		if (!qav)
+			I_Error("Could not load QAV %d\n", a1);
+		qav->nSprite = -1;
+		qav->x = x;
+		qav->y = y;
+		duration = qav->duration;
+		time = 0;
+	}
 }
 
 void CChoke::animateChoke(int x, int y, int smoothratio)
 {
-    if (!at8)
-        return;
-	int myclock = gFrameClock +  mulscale16(4, smoothratio);
-    at8->x = x;
-    at8->y = y;
-    int vd = myclock-at10;
-    at10 = myclock;
-    atc -= vd;
-    if (atc <= 0 || atc > at8->at10)
-        atc = at8->at10;
-    int vdi = at8->at10-atc;
-    at8->Play(vdi-vd, vdi, -1, NULL);
+	if (!qav)
+		return;
+	int myclock = gFrameClock + mulscale16(4, smoothratio);
+	qav->x = x;
+	qav->y = y;
+	int vd = myclock - time;
+	time = myclock;
+	duration -= vd;
+	if (duration <= 0 || duration > qav->duration)
+		duration = qav->duration;
+	int vdi = qav->duration - duration;
+	qav->Play(vdi - vd, vdi, -1, nullptr);
 	// This originally overlaid the HUD but that simply doesn't work right with the HUD being a genuine overlay.
 	// It also never adjusted for a reduced 3D view
-    at8->Draw(vdi, 10, 0, 0, true);
+	qav->Draw(vdi, 10, 0, 0, true);
 }
 
 
-void sub_84230(PLAYER *pPlayer)
+void sub_84230(PLAYER* pPlayer)
 {
-    int t = gGameOptions.nDifficulty+2;
-    if (pPlayer->handTime < 64)
-        pPlayer->handTime = ClipHigh(pPlayer->handTime+t, 64);
-    if (pPlayer->handTime > (7-gGameOptions.nDifficulty)*5)
-        pPlayer->blindEffect = ClipHigh(pPlayer->blindEffect+t*4, 128);
+	int t = gGameOptions.nDifficulty + 2;
+	if (pPlayer->handTime < 64)
+		pPlayer->handTime = min(pPlayer->handTime + t, 64);
+	if (pPlayer->handTime > (7 - gGameOptions.nDifficulty) * 5)
+		pPlayer->blindEffect = min(pPlayer->blindEffect + t * 4, 128);
 }
 
 CChoke gChoke;

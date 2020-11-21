@@ -49,7 +49,7 @@ class CGameMenuItemQAV
 public:
 	int m_nX, m_nY;
 	TArray<uint8_t> raw;
-	int at2c;
+	int duration;
 	int lastTick;
 	bool bWideScreen;
 	bool bClearBackground;
@@ -75,7 +75,7 @@ CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widesc
 			data->x = m_nX;
 			data->y = m_nY;
 			data->Preload();
-			at2c = data->at10;
+			duration = data->duration;
 			lastTick = I_GetBuildTime();
 		}
 	}
@@ -94,12 +94,12 @@ void CGameMenuItemQAV::Draw(void)
 		gFrameClock = currentclock;
 		int nTicks = currentclock - lastTick;
 		lastTick = currentclock;
-		at2c -= nTicks;
-		if (at2c <= 0 || at2c > data->at10)
+		duration -= nTicks;
+		if (duration <= 0 || duration > data->duration)
 		{
-			at2c = data->at10;
+			duration = data->duration;
 		}
-		data->Play(data->at10 - at2c - nTicks, data->at10 - at2c, -1, NULL);
+		data->Play(data->duration - duration - nTicks, data->duration - duration, -1, NULL);
 
 		if (bWideScreen)
 		{
@@ -108,13 +108,13 @@ void CGameMenuItemQAV::Draw(void)
 			int backX = data->x;
 			for (int i = 0; i < nCount; i++)
 			{
-				data->Draw(data->at10 - at2c, 10 + kQavOrientationLeft, 0, 0, false);
+				data->Draw(data->duration - duration, 10 + kQavOrientationLeft, 0, 0, false);
 				data->x += 320;
 			}
 			data->x = backX;
 		}
 		else
-			data->Draw(data->at10 - at2c, 10, 0, 0, false);
+			data->Draw(data->duration - duration, 10, 0, 0, false);
 
 		gFrameClock = backFC;
 	}

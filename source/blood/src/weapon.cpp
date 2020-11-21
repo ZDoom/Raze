@@ -240,9 +240,9 @@ void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5, int smoot
     QAV * pQAV = weaponQAV[pPlayer->weaponQav];
     int v4;
     if (pPlayer->weaponTimer == 0)
-        v4 = (gFrameClock + mulscale16(4, smoothratio)) % pQAV->at10;
+        v4 = (gFrameClock + mulscale16(4, smoothratio)) % pQAV->duration;
     else
-        v4 = pQAV->at10 - pPlayer->weaponTimer;
+        v4 = pQAV->duration - pPlayer->weaponTimer;
     pQAV->x = int(a3);
     pQAV->y = int(a4);
     int flags = 2;
@@ -262,7 +262,7 @@ void WeaponPlay(PLAYER *pPlayer)
         return;
     QAV *pQAV = weaponQAV[pPlayer->weaponQav];
     pQAV->nSprite = pPlayer->pSprite->index;
-    int nTicks = pQAV->at10 - pPlayer->weaponTimer;
+    int nTicks = pQAV->duration - pPlayer->weaponTimer;
     pQAV->Play(nTicks-4, nTicks, pPlayer->qavCallback, pPlayer);
 }
 
@@ -270,7 +270,7 @@ void StartQAV(PLAYER *pPlayer, int nWeaponQAV, int a3, char a4)
 {
     assert(nWeaponQAV < kQAVEnd);
     pPlayer->weaponQav = nWeaponQAV;
-    pPlayer->weaponTimer = weaponQAV[nWeaponQAV]->at10;
+    pPlayer->weaponTimer = weaponQAV[nWeaponQAV]->duration;
     pPlayer->qavCallback = a3;
     pPlayer->qavLoop = a4;
     weaponQAV[nWeaponQAV]->Preload();
@@ -1977,7 +1977,7 @@ void WeaponProcess(PLAYER *pPlayer) {
         if (bShoot && CheckAmmo(pPlayer, pPlayer->weaponAmmo, 1))
         {
             while (pPlayer->weaponTimer <= 0)
-                pPlayer->weaponTimer += weaponQAV[pPlayer->weaponQav]->at10;
+                pPlayer->weaponTimer += weaponQAV[pPlayer->weaponQav]->duration;
         }
         else
         {

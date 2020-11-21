@@ -330,7 +330,7 @@ void GameInterface::Ticker()
 			gChokeCounter += CHOKERATE;
 			while (gChokeCounter >= COUNTRATE)
 			{
-				gChoke.at1c(gMe);
+				gChoke.callback(gMe);
 				gChokeCounter -= COUNTRATE;
 			}
 		}

@@ -31,26 +31,26 @@ BEGIN_BLD_NS
 class CChoke
 {
 public:
-    CChoke()
-    {
-        TotalKills = NULL;
-        at8 = NULL;
-        atc = 0;
-        at10 = 0;
-        at1c = NULL;
-        at14 = 0;
-        at18 = 0;
-    };
-    void init(int a1, void(*a2)(PLAYER*));
-    void animateChoke(int x, int y, int smoothratio);
-	void reset() { at10 = 0; }
-    char *TotalKills;
-    QAV *at8;
-    int atc;
-    int at10;
-    int at14;
-    int at18;
-    void(*at1c)(PLAYER *);
+	CChoke()
+	{
+		TotalKills = nullptr;
+		qav = nullptr;
+		duration = 0;
+		time = 0;
+		callback = nullptr;
+		x = 0;
+		y = 0;
+	};
+	void init(int a1, void(*a2)(PLAYER*));
+	void animateChoke(int x, int y, int smoothratio);
+	void reset() { time = 0; }
+	char* TotalKills;
+	QAV* qav;
+	int duration;
+	int time;
+	int x;
+	int y;
+	void(*callback)(PLAYER*);
 };
 
 void sub_84230(PLAYER*);

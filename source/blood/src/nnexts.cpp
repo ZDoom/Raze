@@ -1328,7 +1328,7 @@ void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force) {
         if (nIndex < 0)
             WeaponLower(pPlayer);
 
-        pXSource->sysData1 = ClipLow((pQav->at10 * pXSource->waitTime) / 4, 0); // how many times animation should be played
+        pXSource->sysData1 = ClipLow((pQav->duration * pXSource->waitTime) / 4, 0); // how many times animation should be played
 
         pCtrl->qavScene.index = nSource;
         pCtrl->qavScene.qavResrc = pQav;
@@ -1337,7 +1337,7 @@ void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force) {
         pCtrl->qavScene.qavResrc->Preload();
 
         pPlayer->sceneQav = pXSource->data2;
-        pPlayer->weaponTimer = pCtrl->qavScene.qavResrc->at10;
+        pPlayer->weaponTimer = pCtrl->qavScene.qavResrc->duration;
         pPlayer->qavCallback = (pXSource->data3 > 0) ? ClipRange(pXSource->data3 - 1, 0, 32) : -1;
         pPlayer->qavLoop = false;
 
@@ -4843,7 +4843,7 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, i
     if (pQavScene->qavResrc != NULL) {
 
         QAV* pQAV = pQavScene->qavResrc;
-        int v4 = (pPlayer->weaponTimer == 0) ? ((gFrameClock + mulscale16(4, smoothratio)) % pQAV->at10) : pQAV->at10 - pPlayer->weaponTimer;
+        int v4 = (pPlayer->weaponTimer == 0) ? ((gFrameClock + mulscale16(4, smoothratio)) % pQAV->duration) : pQAV->duration - pPlayer->weaponTimer;
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
         if (nInv >= 120 * 8 || (nInv != 0 && (gFrameClock & 32))) {
@@ -4877,7 +4877,7 @@ void playerQavScenePlay(PLAYER* pPlayer) {
     if (pQavScene->qavResrc != NULL) {
         QAV* pQAV = pQavScene->qavResrc;
         pQAV->nSprite = pPlayer->pSprite->index;
-        int nTicks = pQAV->at10 - pPlayer->weaponTimer;
+        int nTicks = pQAV->duration - pPlayer->weaponTimer;
         pQAV->Play(nTicks - 4, nTicks, pPlayer->qavCallback, pPlayer);
     }
 }
