@@ -302,6 +302,40 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ZONE& w, ZONE* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("x", w.x)
+			("y", w.y)
+			("z", w.z)
+			("sector", w.sectnum)
+			("angle", w.ang)
+			.EndObject();
+	}
+	return arc;
+}
+
+void SerializeWarp(FSerializer& arc)
+{
+	if (arc.BeginObject("warp"))
+	{
+		arc.Array("startzone", gStartZone, kMaxPlayers)
+			.Array("upperlink", gUpperLink, numsectors)
+			.Array("lowerlink", gLowerLink, numsectors)
+			.EndObject();
+	}
+}
+
+
+
+
 class WarpLoadSave : public LoadSave
 {
 public:

@@ -729,7 +729,6 @@ void MirrorLoadSaveConstruct(void);
 void PlayerLoadSaveConstruct(void);
 void TriggersLoadSaveConstruct(void);
 void ViewLoadSaveConstruct(void);
-void WarpLoadSaveConstruct(void);
 #ifdef NOONE_EXTENSIONS
 void NNLoadSaveConstruct(void);
 #endif
@@ -747,7 +746,6 @@ void LoadSaveSetup(void)
     PlayerLoadSaveConstruct();
     TriggersLoadSaveConstruct();
     ViewLoadSaveConstruct();
-    WarpLoadSaveConstruct();
 #ifdef NOONE_EXTENSIONS
     NNLoadSaveConstruct();
 #endif
@@ -756,6 +754,7 @@ void LoadSaveSetup(void)
 
 void SerializeEvents(FSerializer& arc);
 void SerializeSequences(FSerializer& arc);
+void SerializeWarp(FSerializer& arc);
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
@@ -770,6 +769,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
     SerializeEvents(arc);
     SerializeSequences(arc);
+    SerializeWarp(arc);
 }
 
 
