@@ -518,7 +518,7 @@ void GameInterface::app_init()
 	sndInit();
 	registerosdcommands();
 
-	gChoke.init(518, sub_84230);
+	gChoke.init(518, chokeCallback);
 	UpdateDacs(0, true);
 
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;

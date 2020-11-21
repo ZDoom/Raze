@@ -415,7 +415,7 @@ void fxBloodBits(int nSprite) // 14
         if (pFX)
             pFX->ang = nAngle;
     }
-    gFX.sub_73FFC(nSprite);
+    gFX.remove(nSprite);
 }
 
 
@@ -569,7 +569,7 @@ void fxPodBloodSplat(int nSprite) // 19
         if (pFX)
             pFX->ang = nAngle;
     }
-    gFX.sub_73FFC(nSprite);
+    gFX.remove(nSprite);
 }
 
 

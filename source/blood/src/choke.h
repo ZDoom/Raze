@@ -53,7 +53,7 @@ public:
 	void(*callback)(PLAYER*);
 };
 
-void sub_84230(PLAYER*);
+void chokeCallback(PLAYER*);
 
 extern CChoke gChoke;
 

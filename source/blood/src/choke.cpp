@@ -72,7 +72,7 @@ void CChoke::animateChoke(int x, int y, int smoothratio)
 }
 
 
-void sub_84230(PLAYER* pPlayer)
+void chokeCallback(PLAYER* pPlayer)
 {
 	int t = gGameOptions.nDifficulty + 2;
 	if (pPlayer->handTime < 64)

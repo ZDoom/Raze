@@ -84,7 +84,7 @@ static void (*seqClientCallback[])(int, int) = {
 	HandJumpSeqCallback,
 	houndBiteSeqCallback,
 	houndBurnSeqCallback,
-	sub_6FFA0,
+	podAttack,
 	sub_70284,
 	sub_6FF08,
 	sub_6FF54,

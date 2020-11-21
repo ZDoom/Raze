@@ -37,7 +37,7 @@ void houndBiteSeqCallback(int, int);
 void houndBurnSeqCallback(int, int);
 void sub_6FF08(int, int);
 void sub_6FF54(int, int);
-void sub_6FFA0(int, int);
+void podAttack(int, int);
 void sub_70284(int, int);
 void ratBiteSeqCallback(int, int);
 void SpidBiteSeqCallback(int, int);
