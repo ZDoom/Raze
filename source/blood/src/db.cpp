@@ -534,38 +534,38 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 
     MAPHEADER mapHeader;
     fr.Read(&mapHeader,37/* sizeof(mapHeader)*/);
-    if (mapHeader.at16 != 0 && mapHeader.at16 != 0x7474614d && mapHeader.at16 != 0x4d617474) {
+    if (mapHeader.mattid != 0 && mapHeader.mattid != 0x7474614d && mapHeader.mattid != 0x4d617474) {
         dbCrypt((char*)&mapHeader, sizeof(mapHeader), 0x7474614d);
         byte_1A76C7 = 1;
     }
 
-    mapHeader.TotalKills = LittleLong(mapHeader.TotalKills);
-    mapHeader.Kills = LittleLong(mapHeader.Kills);
-    mapHeader.at8 = LittleLong(mapHeader.at8);
-    mapHeader.atc = LittleShort(mapHeader.atc);
-    mapHeader.ate = LittleShort(mapHeader.ate);
-    mapHeader.at10 = LittleShort(mapHeader.at10);
-    mapHeader.at12 = LittleLong(mapHeader.at12);
-    mapHeader.at16 = LittleLong(mapHeader.at16);
-    mapHeader.at1b = LittleLong(mapHeader.at1b);
-    mapHeader.at1f = LittleShort(mapHeader.at1f);
-    mapHeader.at21 = LittleShort(mapHeader.at21);
-    mapHeader.at23 = LittleShort(mapHeader.at23);
+    mapHeader.x = LittleLong(mapHeader.x);
+    mapHeader.y = LittleLong(mapHeader.y);
+    mapHeader.z = LittleLong(mapHeader.z);
+    mapHeader.ang = LittleShort(mapHeader.ang);
+    mapHeader.sect = LittleShort(mapHeader.sect);
+    mapHeader.pskybits = LittleShort(mapHeader.pskybits);
+    mapHeader.visibility = LittleLong(mapHeader.visibility);
+    mapHeader.mattid = LittleLong(mapHeader.mattid);
+    mapHeader.revision = LittleLong(mapHeader.revision);
+    mapHeader.numsectors = LittleShort(mapHeader.numsectors);
+    mapHeader.numwalls = LittleShort(mapHeader.numwalls);
+    mapHeader.numsprites = LittleShort(mapHeader.numsprites);
 
-    *pX = mapHeader.TotalKills;
-    *pY = mapHeader.Kills;
-    *pZ = mapHeader.at8;
-    *pAngle = mapHeader.atc;
-    *pSector = mapHeader.ate;
-    gVisibility = g_visibility = mapHeader.at12;
-    gSongId = mapHeader.at16;
+    *pX = mapHeader.x;
+    *pY = mapHeader.y;
+    *pZ = mapHeader.z;
+    *pAngle = mapHeader.ang;
+    *pSector = mapHeader.sect;
+    gVisibility = g_visibility = mapHeader.visibility;
+    gSongId = mapHeader.mattid;
     if (byte_1A76C8)
     {
-        if (mapHeader.at16 == 0x7474614d || mapHeader.at16 == 0x4d617474)
+        if (mapHeader.mattid == 0x7474614d || mapHeader.mattid == 0x4d617474)
         {
             byte_1A76C6 = 1;
         }
-        else if (!mapHeader.at16)
+        else if (!mapHeader.mattid)
         {
             byte_1A76C6 = 0;
         }
@@ -574,14 +574,14 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             I_Error("%s: Corrupted Map file", mapname.GetChars());
         }
     }
-    else if (mapHeader.at16)
+    else if (mapHeader.mattid)
     {
         I_Error("%s: Corrupted Map file", mapname.GetChars());
     }
-    parallaxtype = mapHeader.at1a;
-    gMapRev = mapHeader.at1b;
-    numsectors = mapHeader.at1f;
-    numwalls = mapHeader.at21;
+    parallaxtype = mapHeader.parallax;
+    gMapRev = mapHeader.revision;
+    numsectors = mapHeader.numsectors;
+    numwalls = mapHeader.numwalls;
     dbInit();
     if (byte_1A76C8)
     {
@@ -596,7 +596,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     {
         memset(&byte_19AE44, 0, 128);
     }
-    gSkyCount = 1<< mapHeader.at10;
+    gSkyCount = 1<< mapHeader.pskybits;
     fr.Read(tpskyoff, gSkyCount*sizeof(tpskyoff[0]));
     if (byte_1A76C8)
     {
@@ -605,7 +605,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 
     psky_t* pSky = tileSetupSky(DEFAULTPSKY);
     pSky->horizfrac = 65536;
-    pSky->lognumtiles = mapHeader.at10;
+    pSky->lognumtiles = mapHeader.pskybits;
     for (int i = 0; i < ClipHigh(gSkyCount, MAXPSKYTILES); i++)
     {
         pSky->tileofs[i] = LittleShort(tpskyoff[i]);
@@ -827,7 +827,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         }
     }
     initspritelists();
-    for (int i = 0; i < mapHeader.at23; i++)
+    for (int i = 0; i < mapHeader.numsprites; i++)
     {
         RemoveSpriteStat(i);
         spritetypedisk load;

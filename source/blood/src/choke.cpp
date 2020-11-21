@@ -37,7 +37,6 @@ BEGIN_BLD_NS
 
 void CChoke::init(int a1, void(*a2)(PLAYER*))
 {
-	TotalKills = nullptr;
 	callback = a2;
 	if (!qav && a1 != -1)
 	{

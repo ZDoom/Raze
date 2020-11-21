@@ -1524,12 +1524,12 @@ void DropVoodoo(int nTrigger, PLAYER *pPlayer)
 
 struct TeslaMissile
 {
-    int TotalKills; // offset
-    int Kills; // id
-    int at8; // ammo use
-    int atc; // sound
-    int at10; // light
-    int at14; // weapon flash
+    int offset; // offset
+    int id; // id
+    int ammouse; // ammo use
+    int sound; // sound
+    int light; // light
+    int flash; // weapon flash
 };
 
 void FireTesla(int nTrigger, PLAYER *pPlayer)
@@ -1548,10 +1548,10 @@ void FireTesla(int nTrigger, PLAYER *pPlayer)
         nTrigger--;
         spritetype *pSprite = pPlayer->pSprite;
         TeslaMissile *pMissile = &teslaMissile[nTrigger];
-        if (!checkAmmo2(pPlayer, 7, pMissile->at8))
+        if (!checkAmmo2(pPlayer, 7, pMissile->ammouse))
         {
             pMissile = &teslaMissile[0];
-            if (!checkAmmo2(pPlayer, 7, pMissile->at8))
+            if (!checkAmmo2(pPlayer, 7, pMissile->ammouse))
             {
                 pPlayer->weaponState = -1;
                 pPlayer->weaponQav = 76;
@@ -1559,11 +1559,11 @@ void FireTesla(int nTrigger, PLAYER *pPlayer)
                 return;
             }
         }
-        playerFireMissile(pPlayer, pMissile->TotalKills, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, pMissile->Kills);
-        UseAmmo(pPlayer, 7, pMissile->at8);
-        sfxPlay3DSound(pSprite, pMissile->atc, 1, 0);
-        pPlayer->visibility = pMissile->at10;
-        pPlayer->flashEffect = pMissile->at14;
+        playerFireMissile(pPlayer, pMissile->offset, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, pMissile->id);
+        UseAmmo(pPlayer, 7, pMissile->ammouse);
+        sfxPlay3DSound(pSprite, pMissile->sound, 1, 0);
+        pPlayer->visibility = pMissile->light;
+        pPlayer->flashEffect = pMissile->flash;
     }
 }
 

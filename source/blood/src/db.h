@@ -267,19 +267,19 @@ struct MAPSIGNATURE {
 };
 
 struct MAPHEADER  {
-    int TotalKills; // x
-    int Kills; // y
-    int at8; // z
-    short atc; // ang
-    short ate; // sect
-    short at10; // pskybits
-    int at12; // visibility
-    int at16; // song id, Matt
-    char at1a; // parallaxtype
-    int at1b; // map revision
-    short at1f; // numsectors
-    short at21; // numwalls
-    short at23; // numsprites
+    int x; // x
+    int y; // y
+    int z; // z
+    short ang; // ang
+    short sect; // sect
+    short pskybits; // pskybits
+    int visibility; // visibility
+    int mattid; // song id, Matt
+    char parallax; // parallaxtype
+    int revision; // map revision
+    short numsectors; // numsectors
+    short numwalls; // numwalls
+    short numsprites; // numsprites
 };
 
 struct MAPHEADER2 {
