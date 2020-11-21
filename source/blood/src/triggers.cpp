@@ -167,10 +167,10 @@ enum BUSYID {
 };
 
 struct BUSY {
-    int TotalKills;
-    int Kills;
-    int at8;
-    BUSYID atc;
+    int index;
+    int delta;
+    int busy;
+    int type;
 };
 
 BUSY gBusy[128];
@@ -181,19 +181,19 @@ void AddBusy(int a1, BUSYID a2, int nDelta)
     int i;
     for (i = 0; i < gBusyCount; i++)
     {
-        if (gBusy[i].TotalKills == a1 && gBusy[i].atc == a2)
+        if (gBusy[i].index == a1 && gBusy[i].type == a2)
             break;
     }
     if (i == gBusyCount)
     {
         if (gBusyCount == 128)
             return;
-        gBusy[i].TotalKills = a1;
-        gBusy[i].atc = a2;
-        gBusy[i].at8 = nDelta > 0 ? 0 : 65536;
+        gBusy[i].index = a1;
+        gBusy[i].type = a2;
+        gBusy[i].busy = nDelta > 0 ? 0 : 65536;
         gBusyCount++;
     }
-    gBusy[i].Kills = nDelta;
+    gBusy[i].delta = nDelta;
 }
 
 void ReverseBusy(int a1, BUSYID a2)
@@ -201,9 +201,9 @@ void ReverseBusy(int a1, BUSYID a2)
     int i;
     for (i = 0; i < gBusyCount; i++)
     {
-        if (gBusy[i].TotalKills == a1 && gBusy[i].atc == a2)
+        if (gBusy[i].index == a1 && gBusy[i].type == a2)
         {
-            gBusy[i].Kills = -gBusy[i].Kills;
+            gBusy[i].delta = -gBusy[i].delta;
             break;
         }
     }
@@ -2005,16 +2005,16 @@ void trProcessBusy(void)
     memset(velCeil, 0, sizeof(velCeil));
     for (int i = gBusyCount-1; i >= 0; i--)
     {
-        int oldBusy = gBusy[i].at8;
-        gBusy[i].at8 = ClipRange(oldBusy+gBusy[i].Kills*4, 0, 65536);
-        int nStatus = gBusyProc[gBusy[i].atc](gBusy[i].TotalKills, gBusy[i].at8);
+        int oldBusy = gBusy[i].busy;
+        gBusy[i].busy = ClipRange(oldBusy+gBusy[i].delta*4, 0, 65536);
+        int nStatus = gBusyProc[gBusy[i].type](gBusy[i].index, gBusy[i].busy);
         switch (nStatus) {
             case 1:
-                gBusy[i].at8 = oldBusy;
+                gBusy[i].busy = oldBusy;
                 break;
             case 2:
-                gBusy[i].at8 = oldBusy;
-                gBusy[i].Kills = -gBusy[i].Kills;
+                gBusy[i].busy = oldBusy;
+                gBusy[i].delta = -gBusy[i].delta;
                 break;
             case 3:
                 gBusy[i] = gBusy[--gBusyCount];
@@ -2317,30 +2317,35 @@ void MGunOpenSeqCallback(int, int nXSprite)
     seqSpawn(39, 3, nXSprite, nMGunFireClient);
 }
 
-class TriggersLoadSave : public LoadSave
-{
-public:
-    virtual void Load();
-    virtual void Save();
-};
 
-void TriggersLoadSave::Load()
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, BUSY& w, BUSY* def)
 {
-    Read(&gBusyCount, sizeof(gBusyCount));
-    Read(gBusy, sizeof(gBusy));
-    Read(basePath, sizeof(basePath));
+	if (arc.BeginObject(keyname))
+	{
+		arc("index", w.index)
+			("type", w.type)
+			("delta", w.delta)
+			("busy", w.busy)
+			.EndObject();
+	}
+	return arc;
 }
 
-void TriggersLoadSave::Save()
+void SerializeTriggers(FSerializer& arc)
 {
-    Write(&gBusyCount, sizeof(gBusyCount));
-    Write(gBusy, sizeof(gBusy));
-    Write(basePath, sizeof(basePath));
-}
-
-void TriggersLoadSaveConstruct(void)
-{
-    new TriggersLoadSave();
+	if (arc.BeginObject("triggers"))
+	{
+		arc("busycount", gBusyCount)
+			.Array("busy", gBusy, gBusyCount)
+			.Array("basepath", basePath, numsectors)
+			.EndObject();
+	}
 }
 
 END_BLD_NS
