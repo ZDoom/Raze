@@ -250,28 +250,5 @@ void levelTryPlayMusic()
     }
 }
 
-class LevelsLoadSave : public LoadSave
-{
-    virtual void Load(void);
-    virtual void Save(void);
-};
-
-
-void LevelsLoadSave::Load(void)
-{
-    Read(&gNextLevel, sizeof(gNextLevel));
-    Read(&gGameOptions, sizeof(gGameOptions));
-}
-
-void LevelsLoadSave::Save(void)
-{
-    Write(&gNextLevel, sizeof(gNextLevel));
-    Write(&gGameOptions, sizeof(gGameOptions));
-}
-
-void LevelsLoadSaveConstruct(void)
-{
-    new LevelsLoadSave();
-}
 
 END_BLD_NS

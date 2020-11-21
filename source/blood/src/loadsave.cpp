@@ -638,6 +638,9 @@ void MyLoadSave::Load(void)
     Read(skyInfo, sizeof(*skyInfo));
     skyInfo->combinedtile = -1;
     cheatReset();
+    Read(&bPlayerCheated, sizeof(bPlayerCheated));
+    Read(&gNextLevel, sizeof(gNextLevel));
+    Read(&gGameOptions, sizeof(gGameOptions));
 
 }
 
@@ -720,11 +723,12 @@ void MyLoadSave::Save(void)
 #endif
     psky_t *skyInfo = tileSetupSky(DEFAULTPSKY);
     Write(skyInfo, sizeof(*skyInfo));
+    Write(&bPlayerCheated, sizeof(bPlayerCheated));
+    Write(&gNextLevel, sizeof(gNextLevel));
+    Write(&gGameOptions, sizeof(gGameOptions));
 }
 
 void EndGameLoadSaveConstruct(void);
-void LevelsLoadSaveConstruct(void);
-void MessagesLoadSaveConstruct(void);
 void MirrorLoadSaveConstruct(void);
 void PlayerLoadSaveConstruct(void);
 void ViewLoadSaveConstruct(void);
@@ -737,8 +741,6 @@ void LoadSaveSetup(void)
     new MyLoadSave();
 
     EndGameLoadSaveConstruct();
-    LevelsLoadSaveConstruct();
-    MessagesLoadSaveConstruct();
     MirrorLoadSaveConstruct();
     PlayerLoadSaveConstruct();
     ViewLoadSaveConstruct();

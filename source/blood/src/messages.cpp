@@ -551,28 +551,6 @@ static void cmd_Give(int player, uint8_t **stream, bool skip)
 }
 
 
-class MessagesLoadSave : public LoadSave
-{
-public:
-    virtual void Load();
-    virtual void Save();
-};
-
-void MessagesLoadSave::Load()
-{
-    Read(&bPlayerCheated, sizeof(bPlayerCheated));
-}
-
-void MessagesLoadSave::Save()
-{
-    Write(&bPlayerCheated, sizeof(bPlayerCheated));
-}
-
-void MessagesLoadSaveConstruct(void)
-{
-    new MessagesLoadSave();
-}
-
 void InitCheats()
 {
     SetCheats(s_CheatInfo, countof(s_CheatInfo));
