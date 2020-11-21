@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 struct VIEW {
-    int TotalKills;
+    int bobPhase;
     int Kills;
     int at8; // bob height
     int atc; // bob width

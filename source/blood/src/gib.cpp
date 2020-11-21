@@ -53,7 +53,7 @@ struct GIBFX
 
 struct GIBTHING
 {
-    int TotalKills;
+    int type;
     int Kills;
     int chance;
     int atc;
@@ -362,7 +362,7 @@ void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *p
 void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVelocity *pVel)
 {
     if (adult_lockout && gGameOptions.nGameType <= 0)
-        switch (pGThing->TotalKills) {
+        switch (pGThing->type) {
             case kThingBloodBits:
             case kThingZombieHead:
                 return;
@@ -391,7 +391,7 @@ void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVe
         getzsofslope(nSector, x, y, &ceilZ, &floorZ);
         int dz1 = floorZ-z;
         int dz2 = z-ceilZ;
-        spritetype *pGib = actSpawnThing(nSector, x, y, z, pGThing->TotalKills);
+        spritetype *pGib = actSpawnThing(nSector, x, y, z, pGThing->type);
         assert(pGib != NULL);
         if (pGThing->Kills > -1)
             pGib->picnum = pGThing->Kills;

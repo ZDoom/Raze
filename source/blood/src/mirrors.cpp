@@ -38,12 +38,12 @@ int mirrorcnt, mirrorsector, mirrorwall[4];
 
 typedef struct
 {
-    int TotalKills;
-    int Kills;
+    int type;
+    int link;
     int at8;
     int atc;
     int at10;
-    int at14;
+    int wallnum;
 } MIRROR;
 
 MIRROR mirror[16];
@@ -70,8 +70,8 @@ void InitMirrors(void)
             if (wall[i].extra > 0 && GetWallType(i) == kWallStack)
             {
                 wall[i].overpicnum = nTile;
-                mirror[mirrorcnt].at14 = i;
-                mirror[mirrorcnt].TotalKills = 0;
+                mirror[mirrorcnt].wallnum = i;
+                mirror[mirrorcnt].type = 0;
                 wall[i].cstat |= 32;
                 int tmp = xwall[wall[i].extra].data;
                 int j;
@@ -85,7 +85,7 @@ void InitMirrors(void)
                             continue;
                         wall[i].hitag = j;
                         wall[j].hitag = i;
-                        mirror[mirrorcnt].Kills = j;
+                        mirror[mirrorcnt].link = j;
                         break;
                     }
                 }
@@ -97,10 +97,10 @@ void InitMirrors(void)
         }
         if (wall[i].picnum == 504)
         {
-            mirror[mirrorcnt].Kills = i;
-            mirror[mirrorcnt].at14 = i;
+            mirror[mirrorcnt].link = i;
+            mirror[mirrorcnt].wallnum = i;
             wall[i].picnum = nTile;
-            mirror[mirrorcnt].TotalKills = 0;
+            mirror[mirrorcnt].type = 0;
             wall[i].cstat |= 32;
             mirrorcnt++;
             continue;
@@ -120,20 +120,20 @@ void InitMirrors(void)
             int j = sprite[nLink2].sectnum;
             if (sector[j].ceilingpicnum != 504)
                 I_Error("Lower link sector %d doesn't have mirror picnum\n", j);
-            mirror[mirrorcnt].TotalKills = 2;
+            mirror[mirrorcnt].type = 2;
             mirror[mirrorcnt].at8 = sprite[nLink2].x-sprite[nLink].x;
             mirror[mirrorcnt].atc = sprite[nLink2].y-sprite[nLink].y;
             mirror[mirrorcnt].at10 = sprite[nLink2].z-sprite[nLink].z;
-            mirror[mirrorcnt].at14 = i;
-            mirror[mirrorcnt].Kills = j;
+            mirror[mirrorcnt].wallnum = i;
+            mirror[mirrorcnt].link = j;
             sector[i].floorpicnum = 4080+mirrorcnt;
             mirrorcnt++;
-            mirror[mirrorcnt].TotalKills = 1;
+            mirror[mirrorcnt].type = 1;
             mirror[mirrorcnt].at8 = sprite[nLink].x-sprite[nLink2].x;
             mirror[mirrorcnt].atc = sprite[nLink].y-sprite[nLink2].y;
             mirror[mirrorcnt].at10 = sprite[nLink].z-sprite[nLink2].z;
-            mirror[mirrorcnt].at14 = j;
-            mirror[mirrorcnt].Kills = i;
+            mirror[mirrorcnt].wallnum = j;
+            mirror[mirrorcnt].link = i;
             sector[j].ceilingpicnum = 4080+mirrorcnt;
             mirrorcnt++;
         }
@@ -167,19 +167,19 @@ void sub_5571C(char mode)
         int nTile = 4080+i;
         if (TestBitString(gotpic, nTile))
         {
-            switch (mirror[i].TotalKills)
+            switch (mirror[i].type)
             {
                 case 1:
                     if (mode)
-                        sector[mirror[i].at14].ceilingstat |= 1;
+                        sector[mirror[i].wallnum].ceilingstat |= 1;
                     else
-                        sector[mirror[i].at14].ceilingstat &= ~1;
+                        sector[mirror[i].wallnum].ceilingstat &= ~1;
                     break;
                 case 2:
                     if (mode)
-                        sector[mirror[i].at14].floorstat |= 1;
+                        sector[mirror[i].wallnum].floorstat |= 1;
                     else
-                        sector[mirror[i].at14].floorstat &= ~1;
+                        sector[mirror[i].wallnum].floorstat &= ~1;
                     break;
             }
         }
@@ -200,10 +200,10 @@ void sub_557C4(int x, int y, int interpolation)
         int nTile = 4080+i;
         if (TestBitString(gotpic, nTile))
         {
-            if (mirror[i].TotalKills == 1 || mirror[i].TotalKills == 2)
+            if (mirror[i].type == 1 || mirror[i].type == 2)
             {
-                int nSector = mirror[i].Kills;
-                int nSector2 = mirror[i].at14;
+                int nSector = mirror[i].link;
+                int nSector2 = mirror[i].wallnum;
                 int nSprite;
                 SectIterator it(nSector);
                 while ((nSprite = it.NextIndex()) >= 0)
@@ -218,7 +218,7 @@ void sub_557C4(int x, int y, int interpolation)
                     if (pSprite->statnum == kStatDude && (top < zCeil || bottom > zFloor))
                     {
                         int j = i;
-                        if (mirror[i].TotalKills == 2)
+                        if (mirror[i].type == 2)
                             j++;
                         else
                             j--;
@@ -307,11 +307,11 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
         if (TestBitString(gotpic, nTile))
         {
             ClearBitString(gotpic, nTile);
-            switch (mirror[i].TotalKills)
+            switch (mirror[i].type)
             {
             case 0:
             {
-                int nWall = mirror[i].Kills;
+                int nWall = mirror[i].link;
                 int nSector = sectorofwall(nWall);
                 walltype *pWall = &wall[nWall];
                 int nNextWall = pWall->nextwall;
@@ -355,7 +355,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             case 1:
             {
                 r_rorphase = 1;
-                int nSector = mirror[i].Kills;
+                int nSector = mirror[i].link;
                 int bakCstat;
                 if (viewPlayer >= 0)
                 {
@@ -387,7 +387,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             case 2:
             {
                 r_rorphase = 1;
-                int nSector = mirror[i].Kills;
+                int nSector = mirror[i].link;
                 int bakCstat;
                 if (viewPlayer >= 0)
                 {

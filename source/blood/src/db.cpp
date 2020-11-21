@@ -588,9 +588,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         fr.Read(&byte_19AE44, 128);
         dbCrypt((char*)&byte_19AE44, 128, numwalls);
 
-        byte_19AE44.at40 = LittleLong(byte_19AE44.at40);
-        byte_19AE44.at44 = LittleLong(byte_19AE44.at44);
-        byte_19AE44.at48 = LittleLong(byte_19AE44.at48);
+        byte_19AE44.numxsprites = LittleLong(byte_19AE44.numxsprites);
+        byte_19AE44.numxwalls = LittleLong(byte_19AE44.numxwalls);
+        byte_19AE44.numxsectors = LittleLong(byte_19AE44.numxsectors);
     }
     else
     {
@@ -658,7 +658,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             }
             else
             {
-                nCount = byte_19AE44.at48;
+                nCount = byte_19AE44.numxsectors;
             }
             assert(nCount <= nXSectorSize);
             fr.Read(pBuffer, nCount);
@@ -785,7 +785,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             }
             else
             {
-                nCount = byte_19AE44.at44;
+                nCount = byte_19AE44.numxwalls;
             }
             assert(nCount <= nXWallSize);
             fr.Read(pBuffer, nCount);
@@ -880,7 +880,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             }
             else
             {
-                nCount = byte_19AE44.at40;
+                nCount = byte_19AE44.numxsprites;
             }
             assert(nCount <= nXSpriteSize);
             fr.Read(pBuffer, nCount);

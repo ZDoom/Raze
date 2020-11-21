@@ -283,10 +283,10 @@ struct MAPHEADER  {
 };
 
 struct MAPHEADER2 {
-    char TotalKills[64];
-    int at40; // xsprite size
-    int at44; // xwall size
-    int at48; // xsector size
+    char name[64];
+    int numxsprites; // xsprite size
+    int numxwalls; // xwall size
+    int numxsectors; // xsector size
     char pad[52];
 };
 

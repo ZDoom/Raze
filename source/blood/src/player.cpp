@@ -165,12 +165,12 @@ AMMOINFO gAmmoInfo[] = {
 };
 
 struct ARMORDATA {
-    int TotalKills;
-    int Kills;
-    int at8;
-    int atc;
-    int at10;
-    int at14;
+    int armor0;
+    int armor0max;
+    int armor1;
+    int armor1max;
+    int armor2;
+    int armor2max;
 };
 ARMORDATA armorData[5] = {
     { 0x320, 0x640, 0x320, 0x640, 0x320, 0x640 },
@@ -183,7 +183,7 @@ ARMORDATA armorData[5] = {
 
 
 struct VICTORY {
-    const char *TotalKills;
+    const char *message;
     int Kills;
 };
 
@@ -216,7 +216,7 @@ VICTORY gVictory[] = {
 };
 
 struct SUICIDE {
-    const char *TotalKills;
+    const char *message;
     int Kills;
 };
 
@@ -229,7 +229,7 @@ SUICIDE gSuicide[] = {
 };
 
 struct DAMAGEINFO {
-    int TotalKills;
+    int armorType;
     int Kills[3];
     int at10[3];
 };
@@ -1030,18 +1030,18 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
         case kItemArmorSpirit:
         case kItemArmorSuper: {
             ARMORDATA *pArmorData = &armorData[pItem->type - kItemArmorBasic]; bool pickedUp = false;
-            if (pPlayer->armor[1] < pArmorData->atc) {
-                pPlayer->armor[1] = ClipHigh(pPlayer->armor[1]+pArmorData->at8, pArmorData->atc);
+            if (pPlayer->armor[1] < pArmorData->armor1max) {
+                pPlayer->armor[1] = ClipHigh(pPlayer->armor[1]+pArmorData->armor1, pArmorData->armor1max);
                 pickedUp = true;
             }
         
-            if (pPlayer->armor[0] < pArmorData->Kills) {
-                pPlayer->armor[0] = ClipHigh(pPlayer->armor[0]+pArmorData->TotalKills, pArmorData->Kills);
+            if (pPlayer->armor[0] < pArmorData->armor0max) {
+                pPlayer->armor[0] = ClipHigh(pPlayer->armor[0]+pArmorData->armor0, pArmorData->armor0max);
                 pickedUp = true;
             }
 
-            if (pPlayer->armor[2] < pArmorData->at14) {
-                pPlayer->armor[2] = ClipHigh(pPlayer->armor[2]+pArmorData->at10, pArmorData->at14);
+            if (pPlayer->armor[2] < pArmorData->armor2max) {
+                pPlayer->armor[2] = ClipHigh(pPlayer->armor[2]+pArmorData->armor2, pArmorData->armor2max);
                 pickedUp = true;
             }
         
@@ -1814,7 +1814,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         }
         else
         {
-            sprintf(buffer, gSuicide[nMessage].TotalKills, gProfile[nVictim].name);
+            sprintf(buffer, gSuicide[nMessage].message, gProfile[nVictim].name);
         }
     }
     else
@@ -1836,7 +1836,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         }
         int nMessage = Random(25);
         int nSound = gVictory[nMessage].Kills;
-        const char* pzMessage = gVictory[nMessage].TotalKills;
+        const char* pzMessage = gVictory[nMessage].message;
         sprintf(buffer, pzMessage, gProfile[nKiller].name, gProfile[nVictim].name);
         if (gGameOptions.nGameType > 0 && nSound >= 0 && pKiller == gMe)
             sndStartSample(nSound, 255, 2, 0);
@@ -1875,7 +1875,7 @@ void FragPlayer(PLAYER *pPlayer, int nSprite)
 int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
 {
     DAMAGEINFO *pDamageInfo = &damageInfo[nType];
-    int nArmorType = pDamageInfo->TotalKills;
+    int nArmorType = pDamageInfo->armorType;
     if (nArmorType >= 0 && pPlayer->armor[nArmorType])
     {
 #if 0

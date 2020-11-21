@@ -138,12 +138,6 @@ int sndGetRate(int format)
 
 
 
-void SoundCallback(intptr_t val)
-{
-    SAMPLE2D *pChannel = (SAMPLE2D*)val;
-    pChannel->TotalKills = 0;
-}
-
 bool sndCheckPlaying(unsigned int nSound)
 {
     auto snd = soundEngine->FindSoundByResID(nSound);
