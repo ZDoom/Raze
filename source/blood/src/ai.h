@@ -53,22 +53,23 @@ enum AI_SFX_PRIORITY {
 
 struct DUDEEXTRA_at6_u1
 {
-    int TotalKills;
-    int Kills;
-    char at8;
+    int xval1;
+    int xval2;
+    char xval3;
 };
 
 struct DUDEEXTRA_at6_u2
 {
-    int TotalKills;
-    char Kills;
+    int xval1;
+    char xval2;
 };
 
 struct DUDEEXTRA
 {
-    int TotalKills;
-    char Kills;
-    AI_SFX_PRIORITY at5;
+    int time;
+    int recoil;
+    int prio;
+    // Broken by design... :?
     union
     {
         DUDEEXTRA_at6_u1 u1;

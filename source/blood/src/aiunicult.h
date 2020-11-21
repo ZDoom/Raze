@@ -157,7 +157,8 @@ struct GENDUDESND
 extern const GENDUDESND gCustomDudeSnd[];
 
 // temporary, until normal DUDEEXTRA gets refactored
-struct GENDUDEEXTRA {
+struct GENDUDEEXTRA 
+{
     unsigned short initVals[3];             // xrepeat, yrepeat, clipdist
     unsigned short availDeaths[kDamageMax]; // list of seqs with deaths for each damage type
     unsigned int moveSpeed;
@@ -172,17 +173,24 @@ struct GENDUDEEXTRA {
     signed short slave[kGenDudeMaxSlaves];  // index of the ones dude is summon
     signed short dmgControl[kDamageMax];    // depends of current weapon, drop armor item, sprite yrepeat and surface type
     bool updReq[kGenDudePropertyMax]; // update requests
-    bool sndPlaying;                        // indicate if sound of AISTATE currently playing
-    bool forcePunch;                        // indicate if there is no fire trigger in punch state seq
-    bool isMelee;
-    bool canBurn;                           // can turn in Burning dude or not
-    bool canElectrocute;
-    bool canAttack;
-    bool canRecoil;
-    bool canWalk;
-    bool canDuck;
-    bool canSwim;
-    bool canFly;
+    union
+    {
+        struct
+        {
+            bool sndPlaying : 1;                        // indicate if sound of AISTATE currently playing
+            bool forcePunch : 1;                        // indicate if there is no fire trigger in punch state seq
+            bool isMelee : 1;
+            bool canBurn : 1;                           // can turn in Burning dude or not
+            bool canElectrocute : 1;
+            bool canAttack : 1;
+            bool canRecoil : 1;
+            bool canWalk : 1;
+            bool canDuck : 1;
+            bool canSwim : 1;
+            bool canFly : 1;
+        };
+        int flags;
+    };
 };
 
 extern GENDUDEEXTRA gGenDudeExtra[kMaxSprites];

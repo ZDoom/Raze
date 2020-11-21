@@ -2195,7 +2195,7 @@ void aiGenDudeInitSprite(spritetype* pSprite, XSPRITE* pXSprite) {
     switch (pSprite->type) {
         case kDudeModernCustom: {
             DUDEEXTRA_at6_u1* pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-            pDudeExtraE->at8 = pDudeExtraE->TotalKills = 0;
+            pDudeExtraE->xval3 = pDudeExtraE->xval1 = 0;
             aiGenDudeNewState(pSprite, &genDudeIdleL);
             break;
         }

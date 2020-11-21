@@ -2938,7 +2938,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
                         aiGenDudeNewState(pSprite, &genDudeBurnGoto);
                         actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
                         if (pXSprite->burnTime <= 0) pXSprite->burnTime = 1200;
-                        gDudeExtra[pSprite->extra].TotalKills = gFrameClock + 360;
+                        gDudeExtra[pSprite->extra].time = gFrameClock + 360;
                         return;
                     }
 
@@ -3328,7 +3328,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     case kDudeSpiderBrown:
         if (pSprite->owner != -1) {
             spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.Kills--;
+            gDudeExtra[pOwner->extra].at6.u1.xval2--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -3338,7 +3338,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     case kDudeSpiderRed:
         if (pSprite->owner != -1) {
             spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.Kills--;
+            gDudeExtra[pOwner->extra].at6.u1.xval2--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -3348,7 +3348,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     case kDudeSpiderBlack:
         if (pSprite->owner != -1) {
             spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.Kills--;
+            gDudeExtra[pOwner->extra].at6.u1.xval2--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -6954,12 +6954,24 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, POSTPONE& w, POSTP
 	return arc;
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEHIT& w, SPRITEHIT* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("hit", w.hit)
+            ("ceilhit", w.ceilhit)
+            ("florhit", w.florhit)
+            .EndObject();
+    }
+    return arc;
+}
+
 void SerializeActor(FSerializer& arc)
 {
 	if (arc.BeginObject("actor"))
 	{
 		arc("maxdist20", gVectorData[VECTOR_TYPE_20].maxDist)    // The code messes around with this field so better save it.
-			.SparseArray("spritehit", gSpriteHit, kMaxSprites, activeSprites)
+			.SparseArray("spritehit", gSpriteHit, kMaxSprites, activeXSprites)
 			("postcount", gPostCount)
 			.Array("post", gPost, gPostCount)
 			.EndObject();

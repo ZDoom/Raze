@@ -172,7 +172,7 @@ void sub_71370(int, int nXSprite)
     int nDist = approxDist(dx, dy);
     
     spritetype *pSpawn = NULL;
-    if (IsPlayerSprite(pTarget) && pDudeExtraE->Kills < 10) {
+    if (IsPlayerSprite(pTarget) && pDudeExtraE->xval2 < 10) {
         
         if (nDist < 0x1a00 && nDist > 0x1400 && klabs(pSprite->ang-nAngle) < pDudeInfo->periphery)
             pSpawn = actSpawnDude(pSprite, kDudeSpiderRed, pSprite->clipdist, 0);
@@ -182,7 +182,7 @@ void sub_71370(int, int nXSprite)
             pSpawn = actSpawnDude(pSprite, kDudeSpiderBrown, pSprite->clipdist, 0);
         
         if (pSpawn) {
-            pDudeExtraE->Kills++;
+            pDudeExtraE->xval2++;
             pSpawn->owner = nSprite;
             gKillMgr.AddNewKill(1);
         }
