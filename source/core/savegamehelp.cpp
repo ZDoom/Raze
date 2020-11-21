@@ -101,6 +101,7 @@ static void SerializeSession(FSerializer& arc)
 	SerializeAutomap(arc);
 	SerializeHud(arc);
 	SerializeGlobals(arc);
+	gi->SerializeGameState(arc);
 }
 
 //=============================================================================
@@ -156,7 +157,6 @@ bool OpenSaveGameForRead(const char *name)
 		// Load system-side data from savegames.
 		loadMapBackup(currentLevel->fileName);
 		SerializeSession(arc);
-		gi->SerializeGameState(arc);
 	}
 	return savereader != nullptr;
 }
@@ -250,7 +250,6 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	// Handle system-side modules that need to persist data in savegames here, in a central place.
 	savegamesession.OpenWriter(save_formatted);
 	SerializeSession(savegamesession);
-	gi->SerializeGameState(savegamesession);
 	buff = savegamesession.GetCompressedOutput();
 	AddCompressedSavegameChunk("session.json", buff);
 

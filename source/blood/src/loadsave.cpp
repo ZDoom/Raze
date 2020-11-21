@@ -731,7 +731,6 @@ void MyLoadSave::Save(void)
 void ActorLoadSaveConstruct(void);
 void AILoadSaveConstruct(void);
 void EndGameLoadSaveConstruct(void);
-void EventQLoadSaveConstruct(void);
 void LevelsLoadSaveConstruct(void);
 void MessagesLoadSaveConstruct(void);
 void MirrorLoadSaveConstruct(void);
@@ -751,7 +750,6 @@ void LoadSaveSetup(void)
     ActorLoadSaveConstruct();
     AILoadSaveConstruct();
     EndGameLoadSaveConstruct();
-    EventQLoadSaveConstruct();
     LevelsLoadSaveConstruct();
     MessagesLoadSaveConstruct();
     MirrorLoadSaveConstruct();
@@ -764,5 +762,15 @@ void LoadSaveSetup(void)
     NNLoadSaveConstruct();
 #endif
 }
+
+
+void SerializeEvents(FSerializer& arc);
+
+void GameInterface::SerializeGameState(FSerializer& arc)
+{
+    SerializeEvents(arc);
+}
+
+
 
 END_BLD_NS

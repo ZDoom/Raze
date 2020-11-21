@@ -27,48 +27,48 @@ BEGIN_BLD_NS
 
 
 enum {
-kChannelZero                        = 0,
-kChannelSetTotalSecrets,
-kChannelSecretFound,
-kChannelTextOver,
-kChannelLevelExitNormal,
-kChannelLevelExitSecret,
-kChannelModernEndLevelCustom, // custom level end
-kChannelLevelStart,
-kChannelLevelStartMatch, // DM and TEAMS
-kChannelLevelStartCoop,
-kChannelLevelStartTeamsOnly,
-kChannelPlayerDeathTeamA            = 15,
-kChannelPlayerDeathTeamB,
-/////////////////////////////
-// channels of players to send commands on
-kChannelPlayer0                     = 30,
-kChannelPlayer1,
-kChannelPlayer2,
-kChannelPlayer3,
-kChannelPlayer4,
-kChannelPlayer5,
-kChannelPlayer6,
-kChannelPlayer7,
-kChannelAllPlayers                  = kChannelPlayer0 + kMaxPlayers,
-// channel of event causer
-kChannelEventCauser                 = 50,
-// map requires modern features to work properly
-kChannelMapModernize                = 60,
-/////////////////////////////
-kChannelTeamAFlagCaptured           = 80,
-kChannelTeamBFlagCaptured,
-kChannelRemoteBomb0                 = 90,
-kChannelRemoteBomb1,
-kChannelRemoteBomb2,
-kChannelRemoteBomb3,
-kChannelRemoteBomb4,
-kChannelRemoteBomb5,
-kChannelRemoteBomb6,
-kChannelRemoteBomb7,
-kChannelUser                        = 100,
-kChannelUserMax                     = 1024,
-kChannelMax                         = 4096,
+	kChannelZero = 0,
+	kChannelSetTotalSecrets,
+	kChannelSecretFound,
+	kChannelTextOver,
+	kChannelLevelExitNormal,
+	kChannelLevelExitSecret,
+	kChannelModernEndLevelCustom, // custom level end
+	kChannelLevelStart,
+	kChannelLevelStartMatch, // DM and TEAMS
+	kChannelLevelStartCoop,
+	kChannelLevelStartTeamsOnly,
+	kChannelPlayerDeathTeamA = 15,
+	kChannelPlayerDeathTeamB,
+	/////////////////////////////
+	// channels of players to send commands on
+	kChannelPlayer0 = 30,
+	kChannelPlayer1,
+	kChannelPlayer2,
+	kChannelPlayer3,
+	kChannelPlayer4,
+	kChannelPlayer5,
+	kChannelPlayer6,
+	kChannelPlayer7,
+	kChannelAllPlayers = kChannelPlayer0 + kMaxPlayers,
+	// channel of event causer
+	kChannelEventCauser = 50,
+	// map requires modern features to work properly
+	kChannelMapModernize = 60,
+	/////////////////////////////
+	kChannelTeamAFlagCaptured = 80,
+	kChannelTeamBFlagCaptured,
+	kChannelRemoteBomb0 = 90,
+	kChannelRemoteBomb1,
+	kChannelRemoteBomb2,
+	kChannelRemoteBomb3,
+	kChannelRemoteBomb4,
+	kChannelRemoteBomb5,
+	kChannelRemoteBomb6,
+	kChannelRemoteBomb7,
+	kChannelUser = 100,
+	kChannelUserMax = 1024,
+	kChannelMax = 4096,
 };
 
 struct RXBUCKET
@@ -76,6 +76,7 @@ struct RXBUCKET
     uint16_t index;
     uint8_t type;
 };
+extern void (*gCallback[])(int);
 extern RXBUCKET rxBucket[];
 extern unsigned short bucketHead[];
 
@@ -120,6 +121,17 @@ kCmdModernFeaturesDisable   = 200, // must be in object with kChannelMapModerniz
 kCmdNumbericMax             = 255,
 };
 
+enum SSType
+{
+	SS_WALL = 0,
+	SS_CEILING = 1,
+	SS_FLOOR = 2,
+	SS_SPRITE = 3,
+	SS_MASKED = 4,
+
+	SS_SECTOR = 6,
+};
+
 inline bool playerRXRngIsFine(int rx) {
     return (rx >= kChannelPlayer0 && rx < kChannelPlayer7);
 }
@@ -128,15 +140,21 @@ inline bool channelRangeIsFine(int channel) {
     return (channel >= kChannelUser && channel < kChannelUserMax);
 }
 
-struct EVENT {
-    unsigned int index:     14; // index
-    unsigned int type:      3; // type
-    unsigned int cmd:       8; // cmd
-    unsigned int funcID:    8; // callback
+struct EVENT
+{
+	int16_t index;
+	int8_t type;
+	int8_t cmd;
+	int16_t funcID;
+	int priority;
+
+	bool operator<(const EVENT& other) const
+	{
+		return priority < other.priority;
+	}
 };
 
 void evInit(void);
-char evGetSourceState(int nType, int nIndex);
 void evSend(int nIndex, int nType, int rxId, COMMAND_ID command);
 void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command);
 void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback);
