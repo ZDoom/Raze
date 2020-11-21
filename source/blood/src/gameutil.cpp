@@ -832,10 +832,10 @@ int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, cha
     return n;
 }
 
-int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pSectors, uint8_t *pSectBit, short *a8)
+int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSectBit, short *walls)
 {
+    static short pSectors[kMaxSectors];
     uint8_t sectbits[(kMaxSectors+7)>>3];
-    assert(pSectors != NULL);
     memset(sectbits, 0, sizeof(sectbits));
     pSectors[0] = nSector;
     SetBitString(sectbits, nSector);
@@ -865,21 +865,17 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pSector
                 if (pSectBit)
                     SetBitString(pSectBit, nNextSector);
                 pSectors[n++] = nNextSector;
-                if (a8 && pWall->extra > 0)
+                if (walls && pWall->extra > 0)
                 {
                     XWALL *pXWall = &xwall[pWall->extra];
                     if (pXWall->triggerVector && !pXWall->isTriggered && !pXWall->state)
-                        a8[m++] = j;
+                        walls[m++] = j;
                 }
             }
         }
         i++;
     }
-    pSectors[n] = -1;
-    if (a8)
-    {
-        a8[m] = -1;
-    }
+    walls[m] = -1;
     return n;
 }
 

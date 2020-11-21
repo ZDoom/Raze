@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "pragmas.h"
 #include "mmulti.h"
+#include "savegamehelp.h"
 #include "common_game.h"
 
 #include "actor.h"
@@ -2337,8 +2338,6 @@ const EXPLOSION explodeInfo[] = {
     },
 };
 
-short gAffectedSectors[kMaxSectors];
-short gAffectedXWalls[kMaxXWalls];
 static const short gPlayerGibThingComments[] = {
     734, 735, 736, 737, 738, 739, 740, 741, 3038, 3049
 };
@@ -2347,8 +2346,8 @@ static const short gPlayerGibThingComments[] = {
 int gPostCount = 0;
 
 struct POSTPONE {
-    short TotalKills;
-    short at2;
+    short sprite;
+    short status;
 };
 
 POSTPONE gPost[kMaxSprites];
@@ -2673,9 +2672,7 @@ void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7,
     UNREFERENCED_PARAMETER(a13);
     uint8_t va0[(kMaxSectors+7)>>3];
     int nOwner = actSpriteIdToOwnerId(nSprite);
-    gAffectedSectors[0] = 0;
-    gAffectedXWalls[0] = 0;
-    GetClosestSpriteSectors(nSector, x, y, nDist, gAffectedSectors, va0, gAffectedXWalls);
+    GetClosestSpriteSectors(nSector, x, y, nDist, va0);
     nDist <<= 4;
     if (a10 & 2)
     {
@@ -5681,8 +5678,6 @@ void actProcessSprites(void)
         int y = pSprite->y;
         int z = pSprite->z;
         int nSector = pSprite->sectnum;
-        gAffectedSectors[0] = -1;
-        gAffectedXWalls[0] = -1;
         int radius = pExplodeInfo->radius;
 
         #ifdef NOONE_EXTENSIONS
@@ -5692,7 +5687,8 @@ void actProcessSprites(void)
             radius = pXSprite->data4;
         #endif
         
-        GetClosestSpriteSectors(nSector, x, y, radius, gAffectedSectors, v24c, gAffectedXWalls);
+        short gAffectedXWalls[kMaxXWalls];
+        GetClosestSpriteSectors(nSector, x, y, radius, v24c, gAffectedXWalls);
         
         for (int i = 0; i < kMaxXWalls; i++)
         {
@@ -6878,7 +6874,7 @@ void actPostSprite(int nSprite, int nStatus)
     if (sprite[nSprite].flags&32)
     {
         for (n = 0; n < gPostCount; n++)
-            if (gPost[n].TotalKills == nSprite)
+            if (gPost[n].sprite == nSprite)
                 break;
         assert(n < gPostCount);
     }
@@ -6888,8 +6884,8 @@ void actPostSprite(int nSprite, int nStatus)
         sprite[nSprite].flags |= 32;
         gPostCount++;
     }
-    gPost[n].TotalKills = nSprite;
-    gPost[n].at2 = nStatus;
+    gPost[n].sprite = nSprite;
+    gPost[n].status = nStatus;
 }
 
 void actPostProcess(void)
@@ -6897,10 +6893,10 @@ void actPostProcess(void)
     for (int i = 0; i < gPostCount; i++)
     {
         POSTPONE *pPost = &gPost[i];
-        int nSprite = pPost->TotalKills;
+        int nSprite = pPost->sprite;
         spritetype *pSprite = &sprite[nSprite];
         pSprite->flags &= ~32;
-        int nStatus = pPost->at2;
+        int nStatus = pPost->status;
         if (nStatus == kStatFree)
         {
             evKill(nSprite, 3);
@@ -6941,41 +6937,41 @@ void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-class ActorLoadSave : public LoadSave
-{
-    virtual void Load(void);
-    virtual void Save(void);
-};
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-void ActorLoadSave::Load(void)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, POSTPONE& w, POSTPONE* def)
 {
-    Read(&gVectorData[VECTOR_TYPE_20].maxDist, sizeof(gVectorData[VECTOR_TYPE_20].maxDist));    // The code messes around with this field so better save it.
-    Read(gSpriteHit, sizeof(gSpriteHit));
-    Read(gAffectedSectors, sizeof(gAffectedSectors));
-    Read(gAffectedXWalls, sizeof(gAffectedXWalls));
-    Read(&gPostCount, sizeof(gPostCount));
-    Read(gPost, sizeof(gPost));
-    if (gGameOptions.nMonsterSettings != 0) {
-        for (int i = 0; i < kDudeMax - kDudeBase; i++)
-            for (int j = 0; j < 7; j++)
-                dudeInfo[i].at70[j] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j]);
-    }
+	if (arc.BeginObject(keyname))
+	{
+		arc("sprite", w.sprite)
+			("status", w.status)
+			.EndObject();
+	}
+	return arc;
 }
 
-void ActorLoadSave::Save(void)
+void SerializeActor(FSerializer& arc)
 {
-    Write(&gVectorData[VECTOR_TYPE_20].maxDist, sizeof(gVectorData[VECTOR_TYPE_20].maxDist));
-    Write(gSpriteHit, sizeof(gSpriteHit));
-    Write(gAffectedSectors, sizeof(gAffectedSectors));
-    Write(gAffectedXWalls, sizeof(gAffectedXWalls));
-    Write(&gPostCount, sizeof(gPostCount));
-    Write(gPost, sizeof(gPost));
+	if (arc.BeginObject("actor"))
+	{
+		arc("maxdist20", gVectorData[VECTOR_TYPE_20].maxDist)    // The code messes around with this field so better save it.
+			.SparseArray("spritehit", gSpriteHit, kMaxSprites, activeSprites)
+			("postcount", gPostCount)
+			.Array("post", gPost, gPostCount)
+			.EndObject();
+
+		if (arc.isReading() && gGameOptions.nMonsterSettings != 0) 
+		{
+			for (int i = 0; i < kDudeMax - kDudeBase; i++)
+				for (int j = 0; j < 7; j++)
+					dudeInfo[i].at70[j] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j]);
+		}
+	}
 }
 
-
-void ActorLoadSaveConstruct(void)
-{
-    new ActorLoadSave();
-}
 
 END_BLD_NS

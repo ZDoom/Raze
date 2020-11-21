@@ -736,7 +736,6 @@ void LoadSaveSetup(void)
 {
     new MyLoadSave();
 
-    ActorLoadSaveConstruct();
     AILoadSaveConstruct();
     EndGameLoadSaveConstruct();
     LevelsLoadSaveConstruct();
@@ -754,6 +753,7 @@ void SerializeEvents(FSerializer& arc);
 void SerializeSequences(FSerializer& arc);
 void SerializeWarp(FSerializer& arc);
 void SerializeTriggers(FSerializer& arc);
+void SerializeActor(FSerializer& arc);
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
@@ -770,6 +770,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     SerializeSequences(arc);
     SerializeWarp(arc);
     SerializeTriggers(arc);
+    SerializeActor(arc);
 }
 
 

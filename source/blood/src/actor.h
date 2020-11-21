@@ -176,8 +176,6 @@ extern const THINGINFO thingInfo[];
 extern VECTORDATA gVectorData[];
 
 const int gDudeDrag = 0x2a00;
-extern short gAffectedSectors[kMaxSectors];
-extern short gAffectedXWalls[kMaxXWalls];
 
 template<typename T> bool IsPlayerSprite(T const * const pSprite)
 {
