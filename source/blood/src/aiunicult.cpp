@@ -909,9 +909,9 @@ static void unicultThinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
 
 int checkAttackState(spritetype* pSprite, XSPRITE* pXSprite) {
     UNREFERENCED_PARAMETER(pXSprite);
-    if (sub_5BDA8(pSprite, 14) || spriteIsUnderwater(pSprite,false))
+    if (dudeIsPlayingSeq(pSprite, 14) || spriteIsUnderwater(pSprite,false))
     {
-        if ( !sub_5BDA8(pSprite, 14) || spriteIsUnderwater(pSprite,false))
+        if ( !dudeIsPlayingSeq(pSprite, 14) || spriteIsUnderwater(pSprite,false))
         {
             if (spriteIsUnderwater(pSprite,false))
             {

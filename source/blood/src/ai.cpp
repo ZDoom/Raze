@@ -59,7 +59,7 @@ AISTATE genRecoil = {kAiStateRecoil, 5, -1, 20, NULL, NULL, NULL, &genIdle };
 
 const int dword_138BB0[5] = {0x2000, 0x4000, 0x8000, 0xa000, 0xe000};
 
-bool sub_5BDA8(spritetype *pSprite, int nSeq)
+bool dudeIsPlayingSeq(spritetype *pSprite, int nSeq)
 {
     if (pSprite->statnum == kStatDude && pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
     {
@@ -920,11 +920,11 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
         case kDudeCultistTNT:
             if (nDmgType != DAMAGE_TYPE_1)
             {
-                if (!sub_5BDA8(pSprite, 14) && !pXSprite->medium)
+                if (!dudeIsPlayingSeq(pSprite, 14) && !pXSprite->medium)
                     aiNewState(pSprite, pXSprite, &cultistDodge);
-                else if (sub_5BDA8(pSprite, 14) && !pXSprite->medium)
+                else if (dudeIsPlayingSeq(pSprite, 14) && !pXSprite->medium)
                     aiNewState(pSprite, pXSprite, &cultistProneDodge);
-                else if (sub_5BDA8(pSprite, 13) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
+                else if (dudeIsPlayingSeq(pSprite, 13) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
                     aiNewState(pSprite, pXSprite, &cultistSwimDodge);
             }
             else if (nDmgType == DAMAGE_TYPE_1 && pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth/* && (pXSprite->at17_6 != 1 || pXSprite->at17_6 != 2)*/)
@@ -1048,13 +1048,13 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                 if (!dudeIsMelee(pXSprite)) {
                     if (inIdle(pXSprite->aiState) ||  Chance(getDodgeChance(pSprite))) {
                         if (!spriteIsUnderwater(pSprite, false)) {
-                            if (!canDuck(pSprite) || !sub_5BDA8(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
+                            if (!canDuck(pSprite) || !dudeIsPlayingSeq(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
                             else aiGenDudeNewState(pSprite, &genDudeDodgeShortD);
 
                             if (Chance(0x0200))
                                 playGenDudeSound(pSprite, kGenDudeSndGotHit);
 
-                        } else if (sub_5BDA8(pSprite, 13)) {
+                        } else if (dudeIsPlayingSeq(pSprite, 13)) {
                             aiGenDudeNewState(pSprite, &genDudeDodgeShortW);
                         }
                     }

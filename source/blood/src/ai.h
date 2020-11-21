@@ -90,7 +90,7 @@ extern DUDEEXTRA gDudeExtra[];
 extern int gDudeSlope[];
 extern int cumulDamage[];
 
-bool sub_5BDA8(spritetype *pSprite, int nSeq);
+bool dudeIsPlayingSeq(spritetype *pSprite, int nSeq);
 void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
 void aiNewState(spritetype *pSprite, XSPRITE *pXSprite, AISTATE *pAIState);
 void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3);

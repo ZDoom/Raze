@@ -1793,7 +1793,7 @@ char WeaponFindLoaded(PLAYER *pPlayer, int *a2)
     return v4;
 }
 
-int sub_4F0E0(PLAYER *pPlayer)
+int processSprayCan(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {
@@ -1831,7 +1831,7 @@ int sub_4F0E0(PLAYER *pPlayer)
     return 0;
 }
 
-char sub_4F200(PLAYER *pPlayer)
+char processTNT(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {
@@ -1869,7 +1869,7 @@ char sub_4F200(PLAYER *pPlayer)
     return 0;
 }
 
-char sub_4F320(PLAYER *pPlayer)
+char processProxy(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {
@@ -1886,7 +1886,7 @@ char sub_4F320(PLAYER *pPlayer)
     return 0;
 }
 
-char sub_4F3A0(PLAYER *pPlayer)
+char processRemote(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {
@@ -1902,7 +1902,7 @@ char sub_4F3A0(PLAYER *pPlayer)
     return 0;
 }
 
-char sub_4F414(PLAYER *pPlayer)
+char processLeech(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {
@@ -1926,7 +1926,7 @@ char sub_4F414(PLAYER *pPlayer)
     return 0;
 }
 
-char sub_4F484(PLAYER *pPlayer)
+char processTesla(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {
@@ -2019,19 +2019,19 @@ void WeaponProcess(PLAYER *pPlayer) {
     switch (pPlayer->curWeapon)
     {
     case 7:
-        if (sub_4F0E0(pPlayer))
+        if (processSprayCan(pPlayer))
             return;
         break;
     case 6:
-        if (sub_4F200(pPlayer))
+        if (processTNT(pPlayer))
             return;
         break;
     case 11:
-        if (sub_4F320(pPlayer))
+        if (processProxy(pPlayer))
             return;
         break;
     case 12:
-        if (sub_4F3A0(pPlayer))
+        if (processRemote(pPlayer))
             return;
         break;
     }
@@ -2042,11 +2042,11 @@ void WeaponProcess(PLAYER *pPlayer) {
     switch (pPlayer->curWeapon)
     {
     case 9:
-        if (sub_4F414(pPlayer))
+        if (processLeech(pPlayer))
             return;
         break;
     case 8:
-        if (sub_4F484(pPlayer))
+        if (processTesla(pPlayer))
             return;
         break;
     }
