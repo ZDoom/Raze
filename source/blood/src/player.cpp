@@ -51,8 +51,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-PROFILE gProfile[kMaxPlayers];
-
 PLAYER gPlayer[kMaxPlayers];
 PLAYER *gMe, *gView;
 
@@ -603,7 +601,7 @@ void playerSetRace(PLAYER *pPlayer, int nLifeMode)
     pPlayer->pSprite->clipdist = pDudeInfo->clipdist;
     
     for (int i = 0; i < 7; i++)
-        pDudeInfo->at70[i] = mulscale8(Handicap[gProfile[pPlayer->nPlayer].skill], pDudeInfo->startDamage[i]);
+        pDudeInfo->at70[i] = mulscale8(Handicap[gSkill], pDudeInfo->startDamage[i]);
 }
 
 void playerSetGodMode(PLAYER *pPlayer, bool bGodMode)
@@ -2175,7 +2173,6 @@ void PlayerLoadSave::Load(void)
 
     Read(team_score, sizeof(team_score));
     Read(&gNetPlayers, sizeof(gNetPlayers));
-    Read(&gProfile, sizeof(gProfile));
     Read(&gPlayer, sizeof(gPlayer));
     #ifdef NOONE_EXTENSIONS
         Read(&gPlayerCtrl, sizeof(gPlayerCtrl));
@@ -2209,7 +2206,6 @@ void PlayerLoadSave::Save(void)
 {
     Write(team_score, sizeof(team_score));
     Write(&gNetPlayers, sizeof(gNetPlayers));
-    Write(&gProfile, sizeof(gProfile));
     Write(&gPlayer, sizeof(gPlayer));
     
     #ifdef NOONE_EXTENSIONS

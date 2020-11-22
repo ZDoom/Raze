@@ -429,11 +429,7 @@ private:
             int y = 9 * (i / 4);
             int col = gPlayer[p].teamId & 3;
             const char* name = PlayerName(p);
-            if (gProfile[p].skill == 2)
-                gTempStr.Format("%s", name);
-            else
-                gTempStr.Format("%s [%d]", name, gProfile[p].skill);
-            
+            gTempStr.Format("%s", name);
             int color = CR_UNDEFINED;// todo: remap the colors. (11+col)
             SBar_DrawString(this, tinyf, gTempStr, x + 4, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
             gTempStr.Format("%2d", gPlayer[p].fragCount);
@@ -457,10 +453,7 @@ private:
             int y = 9 * (i / 4);
             int col = gPlayer[p].teamId & 3;
             const char* name = PlayerName(p);
-            if (gProfile[p].skill == 2)
-                gTempStr.Format("%s", name);
-            else
-                gTempStr.Format("%s [%d]", name, gProfile[p].skill);
+            gTempStr.Format("%s", name);
             gTempStr.ToUpper();
             int color = CR_UNDEFINED;// todo: remap the colors.
             SBar_DrawString(this, tinyf, gTempStr, x + 4, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);

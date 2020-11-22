@@ -198,10 +198,6 @@ void StartLevel(MapRecord* level)
 	{
 		if (!(gGameOptions.uGameFlags & GF_AdvanceLevel))
 		{
-			if (numplayers == 1)
-			{
-				gProfile[i].skill = gSkill;
-			}
 			playerInit(i, 0);
 		}
 		playerStart(i, 1);
@@ -529,9 +525,6 @@ static void gameInit()
 	//RESTART:
 	gViewIndex = myconnectindex;
 	gMe = gView = &gPlayer[myconnectindex];
-
-	PROFILE* pProfile = &gProfile[myconnectindex];
-	pProfile->skill = gSkill;
 
 	UpdateNetworkMenus();
 	if (gGameOptions.nGameType > 0)

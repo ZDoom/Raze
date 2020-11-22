@@ -185,12 +185,6 @@ struct PLAYER
     POSTURE             pPosture[kModeMax][kPostureMax];
 };
 
-struct PROFILE
-{
-    int skill;
-    //char name[MAXPLAYERNAME];
-};
-
 struct AMMOINFO
 {
     int max;
@@ -212,8 +206,6 @@ extern PLAYER *gMe, *gView;
 
 extern bool gBlueFlagDropped;
 extern bool gRedFlagDropped;
-
-extern PROFILE gProfile[kMaxPlayers];
 
 extern int team_score[kMaxPlayers];
 extern int team_ticker[kMaxPlayers];
