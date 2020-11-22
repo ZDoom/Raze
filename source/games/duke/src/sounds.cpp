@@ -70,6 +70,28 @@ static FSoundID currentCommentarySound;
 static DDukeActor* currentCommentarySprite; // todo: GC this once actors become objects
 
 
+void UnmuteSounds()
+{
+	soundEngine->EnumerateChannels([](FSoundChan* chan)
+		{
+			if (chan->UserData == 1)
+				soundEngine->SetVolume(chan, chan->Volume * 4.f);
+			chan->UserData = 0;
+			return 0;
+		});
+}
+
+void MuteSounds()
+{
+	soundEngine->EnumerateChannels([](FSoundChan* chan)
+		{
+			if (chan->UserData == 0)
+				soundEngine->SetVolume(chan, chan->Volume * 0.25f);
+			chan->UserData = 1;
+			return 0;
+		});
+}
+
 class DukeSoundEngine : public SoundEngine
 {
 	// client specific parts of the sound engine go in this class.
@@ -85,7 +107,7 @@ public:
 	}
 
 	void StopChannel(FSoundChan* chan) override
-	{
+ 	{
 		if (chan && chan->SysChannel != NULL && !(chan->ChanFlags & CHANF_EVICTED) && chan->SourceType == SOURCE_Actor)
 		{
 			chan->Source = NULL;
@@ -105,6 +127,7 @@ public:
 			currentCommentarySound = 0;
 			currentCommentarySprite->s.picnum = DEVELOPERCOMMENTARY;
 			I_SetRelativeVolume(1.0f);
+			UnmuteSounds();
 		}
 		SoundEngine::SoundDone(schan);
 	}
@@ -505,7 +528,10 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 	else attenuation = (userflags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL ? ATTN_NONE : ATTN_NORM;
 
 	if (userflags & SF_LOOP) flags |= CHANF_LOOP;
-	auto chan = soundEngine->StartSound(SOURCE_Actor, sndActor(actor), &sndpos, CHAN_AUTO, flags, sndnum+1, attenuation == ATTN_NONE? 0.8f : 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
+	float vol = attenuation == ATTN_NONE ? 0.8f : 1.f;
+	if (currentCommentarySound != 0) vol *= 0.25f;
+	auto chan = soundEngine->StartSound(SOURCE_Actor, sndActor(actor), &sndpos, CHAN_AUTO, flags, sndnum+1, vol, attenuation, nullptr, S_ConvertPitch(pitch));
+	if (chan) chan->UserData = (currentCommentarySound != 0);
 	return chan ? 0 : -1;
 }
 
@@ -528,7 +554,9 @@ int S_PlaySound(int sndnum, int channel, EChanFlags flags, float vol)
 	int const pitch = S_GetPitch(sndnum);
 
 	if (userflags & SF_LOOP) flags |= CHANF_LOOP;
+	if (currentCommentarySound != 0) vol *= 0.25f;
 	auto chan = soundEngine->StartSound(SOURCE_None, nullptr, nullptr, channel, flags, sndnum + 1, vol, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
+	if (chan) chan->UserData = (currentCommentarySound != 0);
 	return chan ? 0 : -1;
 }
 
@@ -836,6 +864,7 @@ bool StartCommentary(int tag, DDukeActor* actor)
 			id = FSoundID(soundEngine->AddSoundLump(Commentaries[tag], lump, 0));
 		}
 		StopCommentary();
+		MuteSounds();
 		soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_VOICE, CHANF_UI | CHANF_TRANSIENT | CHANF_OVERLAP, id, 1.f, 0.f);
 		currentCommentarySound = id;
 		currentCommentarySprite = actor;
