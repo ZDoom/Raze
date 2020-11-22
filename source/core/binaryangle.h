@@ -141,6 +141,25 @@ public:
 	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
 	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
 
+	bool operator< (binangle other) const
+	{
+		return value < other.value;
+	}
+
+	bool operator> (binangle other) const
+	{
+		return value > other.value;
+	}
+
+	bool operator<= (binangle other) const
+	{
+		return value <= other.value;
+	}
+
+	bool operator>= (binangle other) const
+	{
+		return value >= other.value;
+	}
 	constexpr bool operator== (binangle other) const
 	{
 		return value == other.value;
@@ -171,6 +190,28 @@ public:
 	constexpr binangle operator- (binangle other) const
 	{
 		return binangle(value - other.value);
+	}
+
+	constexpr binangle &operator<<= (const uint8_t& shift)
+	{
+		value <<= shift;
+		return *this;
+	}
+
+	constexpr binangle &operator>>= (const uint8_t& shift)
+	{
+		value >>= shift;
+		return *this;
+	}
+
+	constexpr binangle operator<< (const uint8_t& shift) const
+	{
+		return binangle(value << shift);
+	}
+
+	constexpr binangle operator>> (const uint8_t& shift) const
+	{
+		return binangle(value >> shift);
 	}
 
 };
@@ -223,6 +264,25 @@ public:
 	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
 	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
 
+	bool operator< (lookangle other) const
+	{
+		return value < other.value;
+	}
+
+	bool operator> (lookangle other) const
+	{
+		return value > other.value;
+	}
+
+	bool operator<= (lookangle other) const
+	{
+		return value <= other.value;
+	}
+
+	bool operator>= (lookangle other) const
+	{
+		return value >= other.value;
+	}
 	constexpr bool operator== (lookangle other) const
 	{
 		return value == other.value;
@@ -253,6 +313,28 @@ public:
 	constexpr lookangle operator- (lookangle other) const
 	{
 		return lookangle(value - other.value);
+	}
+
+	constexpr lookangle &operator<<= (const uint8_t& shift)
+	{
+		value <<= shift;
+		return *this;
+	}
+
+	constexpr lookangle &operator>>= (const uint8_t& shift)
+	{
+		value >>= shift;
+		return *this;
+	}
+
+	constexpr lookangle operator<< (const uint8_t& shift) const
+	{
+		return lookangle(value << shift);
+	}
+
+	constexpr lookangle operator>> (const uint8_t& shift) const
+	{
+		return lookangle(value >> shift);
 	}
 
 };
@@ -375,6 +457,28 @@ public:
 	constexpr fixedhoriz operator- (fixedhoriz other) const
 	{
 		return fixedhoriz(value - other.value);
+	}
+
+	constexpr fixedhoriz &operator<<= (const uint8_t& shift)
+	{
+		value <<= shift;
+		return *this;
+	}
+
+	constexpr fixedhoriz &operator>>= (const uint8_t& shift)
+	{
+		value >>= shift;
+		return *this;
+	}
+
+	constexpr fixedhoriz operator<< (const uint8_t& shift) const
+	{
+		return fixedhoriz(value << shift);
+	}
+
+	constexpr fixedhoriz operator>> (const uint8_t& shift) const
+	{
+		return fixedhoriz(value >> shift);
 	}
 
 };
