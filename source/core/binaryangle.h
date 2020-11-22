@@ -46,8 +46,57 @@ class FSerializer;
 
 enum
 {
-	BAMUNIT = 1 << 21
+	BAMUNIT = 1 << 21,
+	SINSHIFT = 14
 };
+
+//---------------------------------------------------------------------------
+//
+// Constants used for Build sine/cosine functions.
+//
+//---------------------------------------------------------------------------
+
+constexpr double BAngRadian = pi::pi() * (1. / 1024.);
+constexpr double BRadAngScale = 1. / BAngRadian;
+
+
+//---------------------------------------------------------------------------
+//
+// Build sine inline functions.
+//
+//---------------------------------------------------------------------------
+
+inline int32_t bsin(const int16_t& ang, const int8_t& shift = 0)
+{
+	return shift < 0 ? sintable[ang & 2047] >> abs(shift) : sintable[ang & 2047] << shift;
+}
+inline double bsinf(const double& ang, const int8_t& shift = 0)
+{
+	return sin(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
+}
+
+
+//---------------------------------------------------------------------------
+//
+// Build cosine inline functions.
+//
+//---------------------------------------------------------------------------
+
+inline int32_t bcos(const int16_t& ang, const int8_t& shift = 0)
+{
+	return shift < 0 ? sintable[(ang + 512) & 2047] >> abs(shift) : sintable[(ang + 512) & 2047] << shift;
+}
+inline double bcosf(const double& ang, const int8_t& shift = 0)
+{
+	return cos(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
+}
+
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 class binangle
 {
@@ -76,8 +125,8 @@ public:
 	double fsin() const { return sin(asrad()); }
 	double fcos() const { return cos(asrad()); }
 	double ftan() const { return tan(asrad()); }
-	int bsin() const { return sintable[asbuild()]; }
-	int bcos() const { return sintable[(asbuild() + 512) & 2047]; }
+	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
+	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
 
 	constexpr bool operator== (binangle other) const
 	{
@@ -113,6 +162,24 @@ public:
 
 };
 
+inline constexpr binangle bamang(uint32_t v) { return binangle(v); }
+inline constexpr binangle q16ang(uint32_t v) { return binangle(v << 5); }
+inline constexpr binangle buildang(uint32_t v) { return binangle(v << 21); }
+inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
+inline binangle degang(double v) { return binangle(FloatToAngle(v)); }
+
+inline FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval)
+{
+	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
+}
+
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 class lookangle
 {
 	int32_t value;
@@ -140,6 +207,8 @@ public:
 	double fsin() const { return sin(asrad()); }
 	double fcos() const { return cos(asrad()); }
 	double ftan() const { return tan(asrad()); }
+	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
+	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
 
 	constexpr bool operator== (lookangle other) const
 	{
@@ -175,6 +244,18 @@ public:
 
 };
 
+inline constexpr lookangle bamlook(int32_t v) { return lookangle(v); }
+inline constexpr lookangle q16look(int32_t v) { return lookangle(v << 5); }
+inline constexpr lookangle buildlook(int32_t v) { return lookangle(v << 21); }
+inline lookangle radlook(double v) { return lookangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
+inline lookangle deglook(double v) { return lookangle(FloatToAngle(v)); }
+
+inline FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval)
+{
+	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
+}
+
+
 //---------------------------------------------------------------------------
 //
 // Constants and functions for use with fixedhoriz and friendly functions.
@@ -197,6 +278,12 @@ inline fixed_t PitchToHoriz(double horizAngle) { return xs_CRoundToInt(horizDiff
 inline int32_t PitchToBAM(double horizAngle) { return xs_CRoundToInt(clamp(horizAngle * (1073741823.5 / 45.), -INT32_MAX, INT32_MAX)); }
 inline constexpr double BAMToPitch(int32_t bam) { return bam * (45. / 1073741823.5); }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 class fixedhoriz
 {
@@ -279,35 +366,67 @@ public:
 
 };
 
-
-inline constexpr binangle bamang(uint32_t v) { return binangle(v); }
-inline constexpr binangle q16ang(uint32_t v) { return binangle(v << 5); }
-inline constexpr binangle buildang(uint32_t v) { return binangle(v << 21); }
-inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
-inline binangle degang(double v) { return binangle(FloatToAngle(v)); }
-
-inline constexpr lookangle bamlook(int32_t v) { return lookangle(v); }
-inline constexpr lookangle q16look(int32_t v) { return lookangle(v << 5); }
-inline constexpr lookangle buildlook(int32_t v) { return lookangle(v << 21); }
-inline lookangle radlook(double v) { return lookangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
-inline lookangle deglook(double v) { return lookangle(FloatToAngle(v)); }
-
 inline constexpr fixedhoriz q16horiz(fixed_t v) { return fixedhoriz(v); }
 inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(IntToFixed(v)); }
 inline fixedhoriz pitchhoriz(double v) { return fixedhoriz(PitchToHoriz(v)); }
 inline fixedhoriz bamhoriz(int32_t v) { return pitchhoriz(BAMToPitch(v)); }
 
-inline FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval)
-{
-	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
-}
-
-inline FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval)
-{
-	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
-}
-
 inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj, fixedhoriz *defval)
 {
 	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
+}
+
+
+//---------------------------------------------------------------------------
+//
+// Double-precision implementation of `getangle()` with associated wrappers and helper functions.
+//
+//---------------------------------------------------------------------------
+
+inline double bradarangf(const double& vect)
+{
+	return atan(vect) * BRadAngScale;
+}
+inline double bvectangf(const int32_t& x, const int32_t& y)
+{
+	if ((x | y) == 0)
+	{
+		return 0;
+	}
+	else if (x == 0)
+	{
+		return 512 + ((y < 0) << 10);
+	}
+	else if (y == 0)
+	{
+		return ((x < 0) << 10);
+	}
+	else if (x == y)
+	{
+		return 256 + ((x < 0) << 10);
+	}
+	else if (x == -y)
+	{
+		return 768 + ((x > 0) << 10);
+	}
+	else if (abs(x) > abs(y))
+	{
+		return fmod(bradarangf(double(y) / x) + ((x < 0) << 10), 2048.);
+	}
+	else
+	{
+		return fmod(bradarangf(double(x) / -y) + 512 + ((y < 0) << 10), 2048.);
+	}
+}
+inline int32_t bvectang(const int32_t& x, const int32_t& y)
+{
+	return xs_CRoundToInt(bvectangf(x, y));
+}
+inline fixed_t bvectangq16(const int32_t& x, const int32_t& y)
+{
+	return FloatToFixed(bvectangf(x, y));
+}
+inline binangle bvectangbam(const int32_t& x, const int32_t& y)
+{
+	return bamang(xs_CRoundToUInt(bvectangf(x, y) * BAMUNIT));
 }
