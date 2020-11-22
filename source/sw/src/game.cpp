@@ -348,6 +348,13 @@ void InitLevel(MapRecord *maprec)
     int16_t ang;
     engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, (vec3_t*)&Player[0], &ang, &Player[0].cursectnum);
     currentLevel = maprec;
+
+    // Fixme. This needs to be done better.
+    if (!maprec->labelName.CompareNoCase("$hidtemp") && !maprec->name.CompareNoCase("$TXTS_T_MAP10"))
+    {
+        // flip the inverted card reader in TD's level 10.
+        if (sprite[179].picnum == 1852 && sprite[179].cstat == 92) sprite[179].cstat &= ~12;
+    }
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     Player[0].angle.ang = buildang(ang);
