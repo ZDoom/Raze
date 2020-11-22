@@ -1495,7 +1495,7 @@ int getRangeAttackDist(spritetype* pSprite, int minDist, int maxDist) {
     }
     
     dist = ClipRange(dist, minDist, maxDist);
-    //viewSetSystemMessage("DIST: %d, SPRHEIGHT: %d: YREPEAT: %d PIC: %d", dist, tilesiz[pSprite->picnum].y, yrepeat, picnum);
+    //viewSetSystemMessage("DIST: %d, SPRHEIGHT: %d: YREPEAT: %d PIC: %d", dist, tileHeight(pSprite->picnum), yrepeat, picnum);
     return dist;
 }
 

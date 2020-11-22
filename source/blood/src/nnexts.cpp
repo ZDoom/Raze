@@ -1053,7 +1053,7 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) {
         int dx = pSprite->x - x; int dy = pSprite->y - y; int dz = (pSprite->z - z) >> 4;
         dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
 
-        int size = (tilesiz[pSprite->picnum].x * pSprite->xrepeat * tilesiz[pSprite->picnum].y * pSprite->yrepeat) >> 1;
+        int size = (tileWidth(pSprite->picnum) * pSprite->xrepeat * tileHeight(pSprite->picnum) * pSprite->yrepeat) >> 1;
         if (xsprite[pSprite->extra].physAttr & kPhysDebrisExplode) {
             if (gSpriteMass[pSprite->extra].mass > 0) {
                 int t = scale(dmg, size, gSpriteMass[pSprite->extra].mass);
@@ -2165,7 +2165,7 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
                 pos = bottom;
                 break;
             case 2: // middle
-                pos = pSprite->z + (tilesiz[pSprite->picnum].y / 2 + tileTopOffset(pSprite->picnum));
+                pos = pSprite->z + (tileHeight(pSprite->picnum) / 2 + tileTopOffset(pSprite->picnum));
                 break;
             case 3:
             case 4:

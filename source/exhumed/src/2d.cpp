@@ -136,7 +136,6 @@ void DrawRel(int tile, double x, double y, int shade)
 // this might be static within the DoPlasma function?
 static uint8_t* PlasmaBuffer;
 static int nPlasmaTile = kTile4092;
-static int nLogoTile;
 static unsigned int nSmokeBottom;
 static unsigned int nSmokeRight;
 static unsigned int nSmokeTop;
@@ -161,14 +160,15 @@ enum
 
 void menu_DoPlasma()
 {
+    auto nLogoTile = GameLogo();
+    int lw = tileWidth(nLogoTile);
+    int lh = tileHeight(nLogoTile);
+
     int ptile = nPlasmaTile;
     int pclock = I_GetBuildTime();
     if (pclock >= nextPlasmaTic || !PlasmaBuffer)
     {
         nextPlasmaTic = pclock + 4;
-
-        if (!nLogoTile)
-            nLogoTile = GameLogo();
 
         if (!PlasmaBuffer)
         {
@@ -178,15 +178,16 @@ void menu_DoPlasma()
             PlasmaBuffer = TileFiles.tileCreate(kTile4093, kPlasmaWidth, kPlasmaHeight);
             memset(PlasmaBuffer, 96, kPlasmaWidth * kPlasmaHeight);
 
-            nSmokeLeft = 160 - tilesiz[nLogoTile].x / 2;
-            nSmokeRight = nSmokeLeft + tilesiz[nLogoTile].x;
 
-            nSmokeTop = 40 - tilesiz[nLogoTile].y / 2;
-            nSmokeBottom = nSmokeTop + tilesiz[nLogoTile].y - 1;
+            nSmokeLeft = 160 - lw / 2;
+            nSmokeRight = nSmokeLeft + lw;
+
+            nSmokeTop = 40 - lh / 2;
+            nSmokeBottom = nSmokeTop + lh - 1;
 
             for (int i = 0; i < 5; i++)
             {
-                int logoWidth = tilesiz[nLogoTile].x;
+                int logoWidth = lw;
                 plasma_C[i] = IntToFixed(nSmokeLeft + rand() % logoWidth);
                 plasma_B[i] = (rnd_plasma.GenRand32() % 327680) + 0x10000;
 
@@ -297,7 +298,7 @@ void menu_DoPlasma()
             int pC = plasma_C[j];
             int badOffset = FixedToInt(pC) < nSmokeLeft || FixedToInt(pC) >= nSmokeRight;
 
-            const uint8_t* ptr3 = (logopix + (FixedToInt(pC) - nSmokeLeft) * tilesiz[nLogoTile].y);
+            const uint8_t* ptr3 = (logopix + (FixedToInt(pC) - nSmokeLeft) * lh);
 
             plasma_C[j] += plasma_B[j];
 
@@ -332,7 +333,7 @@ void menu_DoPlasma()
             {
                 nSmokeOffset = nSmokeBottom;
 
-                ptr3 += tilesiz[nLogoTile].y - 1;
+                ptr3 += lh - 1;
 
                 while (nSmokeOffset > nSmokeTop)
                 {

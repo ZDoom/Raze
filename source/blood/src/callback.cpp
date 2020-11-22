@@ -57,7 +57,7 @@ void fxFlameLick(int nSprite) // 0
     GetSpriteExtents(pSprite, &top, &bottom);
     for (int i = 0; i < 3; i++)
     {
-        int nDist = (pSprite->xrepeat*(tilesiz[pSprite->picnum].x/2))>>3;
+        int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>3;
         int nAngle = Random(2048);
         int dx = mulscale30(nDist, Cos(nAngle));
         int dy = mulscale30(nDist, Sin(nAngle));
@@ -208,7 +208,7 @@ void fxDynPuff(int nSprite) // 8
     spritetype *pSprite = &sprite[nSprite];
     if (zvel[nSprite])
     {
-        int nDist = (pSprite->xrepeat*(tilesiz[pSprite->picnum].x/2))>>2;
+        int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
         int x = pSprite->x + mulscale30(nDist, Cos(pSprite->ang-512));
         int y = pSprite->y + mulscale30(nDist, Sin(pSprite->ang-512));
         int z = pSprite->z;
@@ -313,7 +313,7 @@ void PlayerBubble(int nSprite) // 10
         GetSpriteExtents(pSprite, &top, &bottom);
         for (int i = 0; i < (pPlayer->bubbleTime>>6); i++)
         {
-            int nDist = (pSprite->xrepeat*(tilesiz[pSprite->picnum].x/2))>>2;
+            int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
             int nAngle = Random(2048);
             int x = pSprite->x + mulscale30(nDist, Cos(nAngle));
             int y = pSprite->y + mulscale30(nDist, Sin(nAngle));
@@ -337,7 +337,7 @@ void EnemyBubble(int nSprite) // 11
     GetSpriteExtents(pSprite, &top, &bottom);
     for (int i = 0; i < (klabs(zvel[nSprite])>>18); i++)
     {
-        int nDist = (pSprite->xrepeat*(tilesiz[pSprite->picnum].x/2))>>2;
+        int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
         int nAngle = Random(2048);
         int x = pSprite->x + mulscale30(nDist, Cos(nAngle));
         int y = pSprite->y + mulscale30(nDist, Sin(nAngle));

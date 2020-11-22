@@ -1707,7 +1707,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
             tileUpdatePicnum(&globalpicnum, s);
             setgotpic(globalpicnum);
-            if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
+            if ((tileWidth(globalpicnum) <= 0) || (tileHeight(globalpicnum) <= 0)) continue;
 
 			globalshade = max(min<int>(sec->floorshade, numshades - 1), 0);
             if ((globalorientation&64) == 0)
@@ -1820,7 +1820,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
             tileUpdatePicnum(&globalpicnum, s);
             setgotpic(globalpicnum);
-            if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
+            if ((tileWidth(globalpicnum) <= 0) || (tileHeight(globalpicnum) <= 0)) continue;
 
             if ((sector[spr->sectnum].ceilingstat&1) > 0)
                 globalshade = ((int32_t)sector[spr->sectnum].ceilingshade);

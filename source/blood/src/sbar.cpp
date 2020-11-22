@@ -200,8 +200,9 @@ private:
 
     void TileHGauge(int nTile, double x, double y, int nMult, int nDiv, int nStat = 0, int nScale = 65536)
     {
-        int bx = scale(mulscale16(tilesiz[nTile].x, nScale), nMult, nDiv) + x;
-        double scale = double(bx - x) / tileWidth(nTile);
+        int w = tileWidth(nTile);
+        int bx = scale(mulscale16(w, nScale), nMult, nDiv) + x;
+        double scale = double(bx - x) / w;
         double sc = nScale / 65536.;
         DrawGraphic(tileGetTexture(nTile, true), x, y, DI_ITEM_LEFT_TOP, 1., -1, -1, scale*sc, sc, 0xffffffff, 0, 0);
     }
@@ -346,7 +347,7 @@ private:
                 if (pPlayer->packSlots[i].curAmount)
                 {
                     packs[nPacks++] = i;
-                    width += tilesiz[gPackIcons[i]].x + 1;
+                    width += tileWidth(gPackIcons[i]) + 1;
                 }
             }
             width /= 2;
@@ -365,7 +366,7 @@ private:
                 else
                     nShade = 24;
                 DrawStatNumber("%3d", pPlayer->packSlots[nPack].curAmount, 2250, x - 4, y - 13, nShade, 0);
-                x += tilesiz[gPackIcons[nPack]].x + 1;
+                x += tileWidth(gPackIcons[nPack]) + 1;
             }
         }
     }
@@ -577,7 +578,7 @@ private:
 
     void DrawStatusBar(int nPalette)
     {
-        BeginStatusBar(320, 200, tilesiz[2200].y);
+        BeginStatusBar(320, 200, tileHeight(2200));
 
         PLAYER* pPlayer = gView;
         XSPRITE* pXSprite = pPlayer->pXSprite;
@@ -640,7 +641,7 @@ private:
         {
             TileHGauge(2260, 124, 175.5, pPlayer->throwPower, 65536);
         }
-        drawInventory(pPlayer, 166, 200 - tilesiz[2200].y);
+        drawInventory(pPlayer, 166, 200 - tileHeight(2200));
         // Depending on the scale we can lower the stats display. This needs some tweaking but this catches the important default case already.
         PrintLevelStats(pPlayer, (hud_statscale <= 0.501f || hud_scalefactor < 0.7) && double(xdim)/ydim > 1.6? 28 : 56);
 
@@ -775,7 +776,7 @@ private:
         if (pPlayer->throwPower)
             TileHGauge(2260, 124, 175, pPlayer->throwPower, 65536);
         else
-            drawInventory(pPlayer, 166, 200-tilesiz[2201].y / 2 - 30);
+            drawInventory(pPlayer, 166, 200-tileHeight(2201) / 2 - 30);
         PrintLevelStats(pPlayer, 28);
     }
 
@@ -810,7 +811,7 @@ private:
             if (pPlayer->throwPower)
                 TileHGauge(2260, 124, 175, pPlayer->throwPower, 65536);
             else
-                drawInventory(pPlayer, 166, 200 - tilesiz[2201].y / 2);
+                drawInventory(pPlayer, 166, 200 - tileHeight(2201) / 2);
         }
         if (hud_size == Hud_Mini)
         {

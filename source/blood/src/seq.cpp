@@ -291,7 +291,7 @@ void UpdateSprite(int nXSprite, SEQFRAME* pFrame)
 	assert(pSprite->extra == nXSprite);
 	if (pSprite->flags & 2)
 	{
-		if (tilesiz[pSprite->picnum].y != tilesiz[seqGetTile(pFrame)].y || tileTopOffset(pSprite->picnum) != tileTopOffset(seqGetTile(pFrame))
+		if (tileHeight(pSprite->picnum) != tileHeight(seqGetTile(pFrame)) || tileTopOffset(pSprite->picnum) != tileTopOffset(seqGetTile(pFrame))
 			|| (pFrame->yrepeat && pFrame->yrepeat != pSprite->yrepeat))
 			pSprite->flags |= 4;
 	}

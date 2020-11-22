@@ -261,7 +261,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         pNSprite->z = pTSprite->z;
         pNSprite->picnum = 908;
         pNSprite->statnum = kStatDecoration;
-        pNSprite->xrepeat = pNSprite->yrepeat = (tilesiz[pTSprite->picnum].x*pTSprite->xrepeat)/64;
+        pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum)*pTSprite->xrepeat)/64;
         break;
     }
     case VIEW_EFFECT_6:
@@ -304,7 +304,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         pNSprite->z = top;
         pNSprite->picnum = 2101;
         pNSprite->shade = -128;
-        pNSprite->xrepeat = pNSprite->yrepeat = (tilesiz[pTSprite->picnum].x*pTSprite->xrepeat)/32;
+        pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum)*pTSprite->xrepeat)/32;
         break;
     }
     case VIEW_EFFECT_5:
@@ -315,7 +315,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         pNSprite->z = bottom;
         pNSprite->picnum = 2101;
         pNSprite->shade = -128;
-        pNSprite->xrepeat = pNSprite->yrepeat = (tilesiz[pTSprite->picnum].x*pTSprite->xrepeat)/32;
+        pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum)*pTSprite->xrepeat)/32;
         break;
     }
     case VIEW_EFFECT_0:
@@ -330,7 +330,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
             pNSprite->yrepeat = pTSprite->yrepeat >> 2;
             pNSprite->picnum = pTSprite->picnum;
             pNSprite->pal = 5;
-            int height = tilesiz[pNSprite->picnum].y;
+            int height = tileHeight(pNSprite->picnum);
             int center = height / 2 + tileTopOffset(pNSprite->picnum);
             pNSprite->z -= (pNSprite->yrepeat << 2) * (height - center);
         }

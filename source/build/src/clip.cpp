@@ -1198,7 +1198,7 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
     vec2_t  const off  = { scale(vx, topu, bot), scale(vy, topu, bot) };
     int32_t const dist = off.x * off.x + off.y * off.y;
 
-    siz = tilesiz[spr->picnum].x * spr->xrepeat;
+    siz = tileWidth(spr->picnum) * spr->xrepeat;
 
     if (dist > mulscale7(siz, siz)) return 0;
 

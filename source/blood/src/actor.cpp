@@ -2612,7 +2612,7 @@ void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6)
             return;
         }
 
-        int size = (tilesiz[pSprite->picnum].x*pSprite->xrepeat*tilesiz[pSprite->picnum].y*pSprite->yrepeat)>>1;
+        int size = (tileWidth(pSprite->picnum)*pSprite->xrepeat*tileHeight(pSprite->picnum)*pSprite->yrepeat)>>1;
         assert(mass > 0);
 
         int t = scale(a6, size, mass);
