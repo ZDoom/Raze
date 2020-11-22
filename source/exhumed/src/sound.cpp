@@ -456,7 +456,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         else if (type == SOURCE_Swirly)
         {
             int which = *(int*)source;
-            float phase = (leveltime << (6 + which)) * (M_PI / 1024);
+            float phase = (leveltime << (6 + which)) * BAngRadian;
             pos->X = fcampos.X + 256 * cos(phase);
             pos->Z = fcampos.Z + 256 * sin(phase);
         }
@@ -519,7 +519,7 @@ void GameInterface::UpdateSounds()
     }
     auto fv = GetSoundPos(&pos);
     SoundListener listener;
-    listener.angle = -(float)ang * pi::pi() / 1024; // Build uses a period of 2048.
+    listener.angle = -ang * BAngRadian; // Build uses a period of 2048.
     listener.velocity.Zero();
     listener.position = GetSoundPos(&pos);
     listener.underwater = false;

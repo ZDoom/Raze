@@ -375,7 +375,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         static uint8_t sectorCeilingPal[MAXSECTORS];
         static uint8_t wallPal[MAXWALLS];
         int const viewingRange = viewingrange;
-        int const vr = xs_CRoundToInt(65536.f * tanf(r_fov * (fPI / 360.f)));
+        int const vr = xs_CRoundToInt(65536.f * tanf(r_fov * (pi::pi() / 360.f)));
 
 
         videoSetCorrectedAspect();

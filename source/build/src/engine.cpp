@@ -412,19 +412,19 @@ static int32_t engineLoadTables(void)
             reciptable[i] = divscale30(2048, i+2048);
 
         for (i=0; i<=512; i++)
-            sintable[i] = (int16_t)(16384.f * sinf((float)i * BANG2RAD) + 0.0001f);
+            sintable[i] = bsinf(i);
         for (i=513; i<1024; i++)
             sintable[i] = sintable[1024-i];
         for (i=1024; i<2048; i++)
             sintable[i] = -sintable[i-1024];
 
         for (i=0; i<640; i++)
-            radarang[i] = (int16_t)(atanf(((float)(640-i)-0.5f) * (1.f/160.f)) * (-64.f * (1.f/BANG2RAD)) + 0.0001f);
+            radarang[i] = atan((639.5 - i) / 160.) * (-64. / BAngRadian);
         for (i=0; i<640; i++)
             radarang[1279-i] = -radarang[i];
 
         for (i=0; i<5120; i++)
-            qradarang[i] = FloatToFixed(atanf(((float)(5120-i)-0.5f) * (1.f/1280.f)) * (-64.f * (1.f/BANG2RAD)));
+            qradarang[i] = FloatToFixed(atan((5119.5 - i) / 1280.) * (-64. / BAngRadian));
         for (i=0; i<5120; i++)
             qradarang[10239-i] = -qradarang[i];
 
@@ -1000,10 +1000,8 @@ void set_globalang(fixed_t const ang)
     qglobalang = ang & 0x7FFFFFF;
 
     float const f_ang = FixedToFloat(ang);
-    float const f_ang_radians = f_ang * M_PI * (1.f/1024.f);
-
-    float const fcosang = cosf(f_ang_radians) * 16384.f;
-    float const fsinang = sinf(f_ang_radians) * 16384.f;
+    float const fcosang = bcosf(f_ang);
+    float const fsinang = bsinf(f_ang);
 
 #ifdef USE_OPENGL
     fcosglobalang = fcosang;
@@ -3195,7 +3193,7 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 #ifdef USE_OPENGL
 void renderSetRollAngle(float rolla)
 {
-    gtang = rolla * (fPI * (1.f/1024.f));
+    gtang = rolla * BAngRadian;
 }
 #endif
 

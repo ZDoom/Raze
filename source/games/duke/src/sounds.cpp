@@ -413,7 +413,7 @@ void GameInterface::UpdateSounds(void)
 
 	if (c != nullptr)
 	{
-		listener.angle = -(float)ca * pi::pi() / 1024; // Build uses a period of 2048.
+		listener.angle = -ca * BAngRadian; // Build uses a period of 2048.
 		listener.velocity.Zero();
 		listener.position = GetSoundPos(c);
 		listener.underwater = false; 
