@@ -823,7 +823,7 @@ public:
 		GameText(10, 59 + 9, GStrings("TXT_YourTime"), 0);
 		GameText(10, 69 + 9, GStrings("TXT_ParTime"), 0);
 		if (!isNamWW2GI())
-			GameText(10, 78 + 9, GStrings("TXT_3DRTIME"), 0);
+			GameText(10, 79 + 9, GStrings("TXT_3DRTIME"), 0);
 
 		if (bonuscnt == 0)
 			bonuscnt++;
@@ -836,7 +836,7 @@ public:
 				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
 			}
 			FormatTime(ps[myconnectindex].player_par, tempbuf);
-			GameText((320 >> 2) + 71, 60 + 9, tempbuf, 0);
+			GameText((320 >> 2) + 71, 59 + 9, tempbuf, 0);
 
 			FormatTime(currentLevel->parTime, tempbuf);
 			GameText((320 >> 2) + 71, 69 + 9, tempbuf, 0);
@@ -844,7 +844,7 @@ public:
 			if (!isNamWW2GI())
 			{
 				FormatTime(currentLevel->designerTime, tempbuf);
-				GameText((320 >> 2) + 71, 78 + 9, tempbuf, 0);
+				GameText((320 >> 2) + 71, 79 + 9, tempbuf, 0);
 			}
 		}
 	}
@@ -853,7 +853,7 @@ public:
 	{
 		char tempbuf[32];
 		GameText(10, 94 + 9, GStrings("TXT_EnemiesKilled"), 0);
-		GameText(10, 99 + 4 + 9, GStrings("TXT_EnemiesLeft"), 0);
+		GameText(10, 104 + 9, GStrings("TXT_EnemiesLeft"), 0);
 
 		if (bonuscnt == 2)
 		{
@@ -869,27 +869,28 @@ public:
 				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
 			}
 			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].actors_killed);
-			GameText((320 >> 2) + 70, 93 + 9, tempbuf, 0);
+			GameText((320 >> 2) + 70, 94 + 9, tempbuf, 0);
+
 			if (ud.player_skill > 3)
 			{
 				mysnprintf(tempbuf, 32, "%s", GStrings("TXT_N_A"));
-				GameText((320 >> 2) + 70, 99 + 4 + 9, tempbuf, 0);
 			}
 			else
 			{
 				if ((ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed) < 0)
 					mysnprintf(tempbuf, 32, "%-3d", 0);
 				else mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed);
-				GameText((320 >> 2) + 70, 99 + 4 + 9, tempbuf, 0);
+				
 			}
+			GameText((320 >> 2) + 70, 104 + 9, tempbuf, 0);
 		}
 	}
 
 	void PrintSecrets(int currentclock)
 	{
 		char tempbuf[32];
-		GameText(10, 120 + 9, GStrings("TXT_SECFND"), 0);
-		GameText(10, 130 + 9, GStrings("TXT_SECMISS"), 0);
+		GameText(10, 119 + 9, GStrings("TXT_SECFND"), 0);
+		GameText(10, 129 + 9, GStrings("TXT_SECMISS"), 0);
 		if (bonuscnt == 4) bonuscnt++;
 
 		if (currentclock > (60 * 10))
@@ -900,11 +901,11 @@ public:
 				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
 			}
 			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].secret_rooms);
-			GameText((320 >> 2) + 70, 120 + 9, tempbuf, 0);
+			GameText((320 >> 2) + 70, 119 + 9, tempbuf, 0);
 			if (ps[myconnectindex].secret_rooms > 0)
 				sprintf(tempbuf, "%-3d", (100 * ps[myconnectindex].secret_rooms / ps[myconnectindex].max_secret_rooms));
 			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].max_secret_rooms - ps[myconnectindex].secret_rooms);
-			GameText((320 >> 2) + 70, 130 + 9, tempbuf, 0);
+			GameText((320 >> 2) + 70, 129 + 9, tempbuf, 0);
 		}
 	}
 
