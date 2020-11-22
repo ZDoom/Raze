@@ -195,6 +195,20 @@ struct PlayerAngle
 		}
 	}
 
+	void settarget(binangle value, bool backup = false)
+	{
+		if (!cl_syncinput)
+		{
+			target = value.asbam();
+			if (target == 0) target += 1;
+		}
+		else
+		{
+			ang = value;
+			if (backup) oang = ang;
+		}
+	}
+
 	void processhelpers(double const scaleAdjust)
 	{
 		if (target)
