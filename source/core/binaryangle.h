@@ -111,129 +111,6 @@ inline constexpr uint32_t BAngToBAM(int ang)
 //
 //---------------------------------------------------------------------------
 
-class binangle
-{
-	uint32_t value;
-	
-	constexpr binangle(uint32_t v) : value(v) {}
-	
-	friend constexpr binangle bamang(uint32_t v);
-	friend constexpr binangle q16ang(uint32_t v);
-	friend constexpr binangle buildang(uint32_t v);
-	friend binangle radang(double v);
-	friend binangle degang(double v);
-
-	friend FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval);
-	
-public:
-	binangle() = default;
-	binangle(const binangle &other) = default;
-	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
-	constexpr short asbuild() const { return value >> 21; }
-	constexpr fixed_t asq16() const { return value >> 5; }
-	constexpr double asrad() const { return value * (pi::pi() / 0x80000000u); }
-	constexpr double asdeg() const { return AngleToFloat(value); }
-	constexpr uint32_t asbam() const { return value; }
-	
-	double fsin() const { return sin(asrad()); }
-	double fcos() const { return cos(asrad()); }
-	double ftan() const { return tan(asrad()); }
-	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
-	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
-
-	bool operator< (binangle other) const
-	{
-		return value < other.value;
-	}
-
-	bool operator> (binangle other) const
-	{
-		return value > other.value;
-	}
-
-	bool operator<= (binangle other) const
-	{
-		return value <= other.value;
-	}
-
-	bool operator>= (binangle other) const
-	{
-		return value >= other.value;
-	}
-	constexpr bool operator== (binangle other) const
-	{
-		return value == other.value;
-	}
-
-	constexpr bool operator!= (binangle other) const
-	{
-		return value != other.value;
-	}
-
-	constexpr binangle &operator+= (binangle other)
-	{
-		value += other.value;
-		return *this;
-	}
-
-	constexpr binangle &operator-= (binangle other)
-	{
-		value -= other.value;
-		return *this;
-	}
-
-	constexpr binangle operator+ (binangle other) const
-	{
-		return binangle(value + other.value);
-	}
-
-	constexpr binangle operator- (binangle other) const
-	{
-		return binangle(value - other.value);
-	}
-
-	constexpr binangle &operator<<= (const uint8_t& shift)
-	{
-		value <<= shift;
-		return *this;
-	}
-
-	constexpr binangle &operator>>= (const uint8_t& shift)
-	{
-		value >>= shift;
-		return *this;
-	}
-
-	constexpr binangle operator<< (const uint8_t& shift) const
-	{
-		return binangle(value << shift);
-	}
-
-	constexpr binangle operator>> (const uint8_t& shift) const
-	{
-		return binangle(value >> shift);
-	}
-
-};
-
-inline constexpr binangle bamang(uint32_t v) { return binangle(v); }
-inline constexpr binangle q16ang(uint32_t v) { return binangle(v << 5); }
-inline constexpr binangle buildang(uint32_t v) { return binangle(v << BAMBITS); }
-inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
-inline binangle degang(double v) { return binangle(FloatToAngle(v)); }
-
-inline FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval)
-{
-	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
-}
-
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 class lookangle
 {
 	int32_t value;
@@ -247,6 +124,8 @@ class lookangle
 	friend lookangle deglook(double v);
 
 	friend FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval);
+
+	friend class binangle;
 	
 public:
 	lookangle() = default;
@@ -346,6 +225,151 @@ inline lookangle radlook(double v) { return lookangle(xs_CRoundToUInt(v * (0x800
 inline lookangle deglook(double v) { return lookangle(FloatToAngle(v)); }
 
 inline FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval)
+{
+	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
+}
+
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class binangle
+{
+	uint32_t value;
+	
+	constexpr binangle(uint32_t v) : value(v) {}
+	
+	friend constexpr binangle bamang(uint32_t v);
+	friend constexpr binangle q16ang(uint32_t v);
+	friend constexpr binangle buildang(uint32_t v);
+	friend binangle radang(double v);
+	friend binangle degang(double v);
+
+	friend FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval);
+	
+public:
+	binangle() = default;
+	binangle(const binangle &other) = default;
+	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
+	constexpr short asbuild() const { return value >> 21; }
+	constexpr fixed_t asq16() const { return value >> 5; }
+	constexpr double asrad() const { return value * (pi::pi() / 0x80000000u); }
+	constexpr double asdeg() const { return AngleToFloat(value); }
+	constexpr uint32_t asbam() const { return value; }
+	
+	double fsin() const { return sin(asrad()); }
+	double fcos() const { return cos(asrad()); }
+	double ftan() const { return tan(asrad()); }
+	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
+	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
+
+	bool operator< (binangle other) const
+	{
+		return value < other.value;
+	}
+
+	bool operator> (binangle other) const
+	{
+		return value > other.value;
+	}
+
+	bool operator<= (binangle other) const
+	{
+		return value <= other.value;
+	}
+
+	bool operator>= (binangle other) const
+	{
+		return value >= other.value;
+	}
+	constexpr bool operator== (binangle other) const
+	{
+		return value == other.value;
+	}
+
+	constexpr bool operator!= (binangle other) const
+	{
+		return value != other.value;
+	}
+
+	constexpr binangle &operator+= (binangle other)
+	{
+		value += other.value;
+		return *this;
+	}
+
+	constexpr binangle &operator-= (binangle other)
+	{
+		value -= other.value;
+		return *this;
+	}
+
+	constexpr binangle operator+ (binangle other) const
+	{
+		return binangle(value + other.value);
+	}
+
+	constexpr binangle operator- (binangle other) const
+	{
+		return binangle(value - other.value);
+	}
+
+	constexpr binangle &operator+= (lookangle other)
+	{
+		value += other.value;
+		return *this;
+	}
+
+	constexpr binangle &operator-= (lookangle other)
+	{
+		value -= other.value;
+		return *this;
+	}
+
+	constexpr binangle operator+ (lookangle other) const
+	{
+		return binangle(value + other.value);
+	}
+
+	constexpr binangle operator- (lookangle other) const
+	{
+		return binangle(value - other.value);
+	}
+
+	constexpr binangle &operator<<= (const uint8_t& shift)
+	{
+		value <<= shift;
+		return *this;
+	}
+
+	constexpr binangle &operator>>= (const uint8_t& shift)
+	{
+		value >>= shift;
+		return *this;
+	}
+
+	constexpr binangle operator<< (const uint8_t& shift) const
+	{
+		return binangle(value << shift);
+	}
+
+	constexpr binangle operator>> (const uint8_t& shift) const
+	{
+		return binangle(value >> shift);
+	}
+
+};
+
+inline constexpr binangle bamang(uint32_t v) { return binangle(v); }
+inline constexpr binangle q16ang(uint32_t v) { return binangle(v << 5); }
+inline constexpr binangle buildang(uint32_t v) { return binangle(v << BAMBITS); }
+inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
+inline binangle degang(double v) { return binangle(FloatToAngle(v)); }
+
+inline FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval)
 {
 	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
 }
