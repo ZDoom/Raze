@@ -300,6 +300,8 @@ void StartAmbientSound(void)
 
 static void RestartAmbient(AmbientSound* amb)
 {
+    if (!SoundEnabled()) return;
+
     auto& vp = voc[amb->vocIndex];
     auto rolloff = GetRolloff(vp.voc_distance);
     int pitch = 0;
@@ -368,6 +370,8 @@ static void DoTimedSound(AmbientSound* amb)
 
 static void UpdateAmbients()
 {
+    if (!SoundEnabled()) return;
+
     for (auto& amb : ambients)
     {
         auto sp = amb->sp;
@@ -807,7 +811,7 @@ int _PlayerSound(int num, PLAYERp pp)
         return 0;
     }
 
-    if (num < 0 || num >= DIGI_MAX || !soundEngine->isValidSoundId(num))
+    if (num < 0 || num >= DIGI_MAX || !soundEngine->isValidSoundId(num) || !SoundEnabled())
         return 0;
 
     if (TEST(pp->Flags, PF_DEAD)) return 0; // You're dead, no talking!
