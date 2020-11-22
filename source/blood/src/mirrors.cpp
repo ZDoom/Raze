@@ -40,9 +40,9 @@ typedef struct
 {
     int type;
     int link;
-    int at8;
-    int atc;
-    int at10;
+    int dx;
+    int dy;
+    int dz;
     int wallnum;
 } MIRROR;
 
@@ -121,17 +121,17 @@ void InitMirrors(void)
             if (sector[j].ceilingpicnum != 504)
                 I_Error("Lower link sector %d doesn't have mirror picnum\n", j);
             mirror[mirrorcnt].type = 2;
-            mirror[mirrorcnt].at8 = sprite[nLink2].x-sprite[nLink].x;
-            mirror[mirrorcnt].atc = sprite[nLink2].y-sprite[nLink].y;
-            mirror[mirrorcnt].at10 = sprite[nLink2].z-sprite[nLink].z;
+            mirror[mirrorcnt].dx = sprite[nLink2].x-sprite[nLink].x;
+            mirror[mirrorcnt].dy = sprite[nLink2].y-sprite[nLink].y;
+            mirror[mirrorcnt].dz = sprite[nLink2].z-sprite[nLink].z;
             mirror[mirrorcnt].wallnum = i;
             mirror[mirrorcnt].link = j;
             sector[i].floorpicnum = 4080+mirrorcnt;
             mirrorcnt++;
             mirror[mirrorcnt].type = 1;
-            mirror[mirrorcnt].at8 = sprite[nLink].x-sprite[nLink2].x;
-            mirror[mirrorcnt].atc = sprite[nLink].y-sprite[nLink2].y;
-            mirror[mirrorcnt].at10 = sprite[nLink].z-sprite[nLink2].z;
+            mirror[mirrorcnt].dx = sprite[nLink].x-sprite[nLink2].x;
+            mirror[mirrorcnt].dy = sprite[nLink].y-sprite[nLink2].y;
+            mirror[mirrorcnt].dz = sprite[nLink].z-sprite[nLink2].z;
             mirror[mirrorcnt].wallnum = j;
             mirror[mirrorcnt].link = i;
             sector[j].ceilingpicnum = 4080+mirrorcnt;
@@ -222,9 +222,9 @@ void sub_557C4(int x, int y, int interpolation)
                             j++;
                         else
                             j--;
-                        int dx = mirror[j].at8;
-                        int dy = mirror[j].atc;
-                        int dz = mirror[j].at10;
+                        int dx = mirror[j].dx;
+                        int dy = mirror[j].dy;
+                        int dz = mirror[j].dz;
                         tspritetype *pTSprite = &tsprite[spritesortcnt];
                         memset(pTSprite, 0, sizeof(tspritetype));
                         pTSprite->type = pSprite->type;
@@ -369,8 +369,8 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                         gPlayer[viewPlayer].pSprite->cstat |= 514;
                     }
                 }
-                renderDrawRoomsQ16(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, a, horiz, nSector|MAXSECTORS);
-                viewProcessSprites(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, FixedToInt(a), smooth);
+                renderDrawRoomsQ16(x+mirror[i].dx, y+mirror[i].dy, z+mirror[i].dz, a, horiz, nSector|MAXSECTORS);
+                viewProcessSprites(x+mirror[i].dx, y+mirror[i].dy, z+mirror[i].dz, FixedToInt(a), smooth);
                 short fstat = sector[nSector].floorstat;
                 sector[nSector].floorstat |= 1;
                 renderDrawMasks();
@@ -401,8 +401,8 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                         gPlayer[viewPlayer].pSprite->cstat |= 514;
                     }
                 }
-                renderDrawRoomsQ16(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, a, horiz, nSector|MAXSECTORS);
-                viewProcessSprites(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, FixedToInt(a), smooth);
+                renderDrawRoomsQ16(x+mirror[i].dx, y+mirror[i].dy, z+mirror[i].dz, a, horiz, nSector|MAXSECTORS);
+                viewProcessSprites(x+mirror[i].dx, y+mirror[i].dy, z+mirror[i].dz, FixedToInt(a), smooth);
                 short cstat = sector[nSector].ceilingstat;
                 sector[nSector].ceilingstat |= 1;
                 renderDrawMasks();
@@ -421,56 +421,68 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
     }
 }
 
-class MirrorLoadSave : public LoadSave {
-public:
-    void Load(void);
-    void Save(void);
-};
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-void MirrorLoadSave::Load(void)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, MIRROR& w, MIRROR* def)
 {
+	if (arc.BeginObject(keyname))
+	{
+		arc ("type", w.type)
+			("link", w.link)
+			("dx", w.dx)
+			("dy", w.dy)
+			("dz", w.dz)
+			("wallnum", w.wallnum)
+			.EndObject();
+	}
+	return arc;
+}
+
+void SerializeMirrors(FSerializer& arc)
+{
+	if (arc.BeginObject("mirror"))
+	{
+		arc("mirrorcnt", mirrorcnt)
+			("mirrorsector", mirrorsector)
+			.Array("mirror", mirror, countof(mirror))
+			.Array("mirrorwall", mirrorwall, countof(mirrorwall))
+			.EndObject();
+	}
+
+	if (arc.isReading())
+	{
+
+		tileDelete(504);
+
 #ifdef USE_OPENGL
-    r_rortexture = 4080;
-    r_rortexturerange = 16;
+		r_rortexture = 4080;
+		r_rortexturerange = 16;
 
 #endif
-    Read(&mirrorcnt,sizeof(mirrorcnt));
-    Read(&mirrorsector,sizeof(mirrorsector));
-    Read(mirror, sizeof(mirror));
-    Read(mirrorwall, sizeof(mirrorwall));
-	tileDelete(504);
 
-	for (int i = 0; i < 16; i++)
-	{
-		tileDelete(4080 + i);
+		for (int i = 0; i < 16; i++)
+		{
+			tileDelete(4080 + i);
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			wall[mirrorwall[i]].picnum = 504;
+			wall[mirrorwall[i]].overpicnum = 504;
+			wall[mirrorwall[i]].cstat = 0;
+			wall[mirrorwall[i]].nextsector = -1;
+			wall[mirrorwall[i]].nextwall = -1;
+			wall[mirrorwall[i]].point2 = numwalls + i + 1;
+		}
+		wall[mirrorwall[3]].point2 = mirrorwall[0];
+		sector[mirrorsector].ceilingpicnum = 504;
+		sector[mirrorsector].floorpicnum = 504;
+		sector[mirrorsector].wallptr = mirrorwall[0];
+		sector[mirrorsector].wallnum = 4;
 	}
-    for (int i = 0; i < 4; i++)
-    {
-        wall[mirrorwall[i]].picnum = 504;
-        wall[mirrorwall[i]].overpicnum = 504;
-        wall[mirrorwall[i]].cstat = 0;
-        wall[mirrorwall[i]].nextsector = -1;
-        wall[mirrorwall[i]].nextwall = -1;
-        wall[mirrorwall[i]].point2 = numwalls+i+1;
-    }
-    wall[mirrorwall[3]].point2 = mirrorwall[0];
-    sector[mirrorsector].ceilingpicnum = 504;
-    sector[mirrorsector].floorpicnum = 504;
-    sector[mirrorsector].wallptr = mirrorwall[0];
-    sector[mirrorsector].wallnum = 4;
-}
-
-void MirrorLoadSave::Save(void)
-{
-    Write(&mirrorcnt,sizeof(mirrorcnt));
-    Write(&mirrorsector,sizeof(mirrorsector));
-    Write(mirror, sizeof(mirror));
-    Write(mirrorwall, sizeof(mirrorwall));
-}
-
-void MirrorLoadSaveConstruct(void)
-{
-    new MirrorLoadSave();
 }
 
 END_BLD_NS

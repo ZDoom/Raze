@@ -728,7 +728,6 @@ void MyLoadSave::Save(void)
     Write(&gGameOptions, sizeof(gGameOptions));
 }
 
-void MirrorLoadSaveConstruct(void);
 void PlayerLoadSaveConstruct(void);
 void ViewLoadSaveConstruct(void);
 #ifdef NOONE_EXTENSIONS
@@ -739,7 +738,6 @@ void LoadSaveSetup(void)
 {
     new MyLoadSave();
 
-    MirrorLoadSaveConstruct();
     PlayerLoadSaveConstruct();
     ViewLoadSaveConstruct();
 #ifdef NOONE_EXTENSIONS
