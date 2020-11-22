@@ -234,7 +234,7 @@ void drawoverlays(double smoothratio)
 	// this does pain tinting etc from the CON
 	V_AddBlend(pp->pals.r, pp->pals.g, pp->pals.b, pp->pals.a, blend);
 	// loogies courtesy of being snotted on
-	if (pp->loogcnt > 0)
+	if (pp->loogcnt > 0 && !isRR())
 	{
 		V_AddBlend(0, 63, 0, (pp->loogcnt >> 1), blend);
 	}
