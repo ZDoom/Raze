@@ -1753,7 +1753,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
 		velAdjustment = p->vehTurnLeft ? -10 : 10;
-		auto angAdjustment = buildang(velAdjustment < 0 ? 350 : -350);
+		auto angAdjustment = buildlook(velAdjustment < 0 ? 350 : -350);
 
 		if (p->moto_on_mud || p->moto_on_oil || !p->NotOnWater)
 		{
@@ -2031,7 +2031,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	{
 		int currSpeed = p->MotoSpeed * 4.;
 		short velAdjustment = p->vehTurnLeft ? -10 : 10;
-		auto angAdjustment = buildang(velAdjustment < 0 ? 350 : -350);
+		auto angAdjustment = buildlook(velAdjustment < 0 ? 350 : -350);
 
 		if (p->moto_do_bump)
 		{
