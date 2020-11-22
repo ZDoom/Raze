@@ -51,7 +51,7 @@ bool playCDtrack(int nTrack, bool bLoop)
     if (!Mus_Play(nullptr, filename, true))
     {
         // try ogg vorbis now from GOG MUSIC subdirectory.
-        sprintf(filename, "MUSIC/Track%02d.ogg", nTrack);
+        sprintf(filename, "track%02d.ogg", nTrack);
         Mus_Play(nullptr, filename, true);
     }
     return true;
