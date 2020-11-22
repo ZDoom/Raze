@@ -41,6 +41,7 @@
 #include "xs_Float.h"	// needed for reliably overflowing float->int conversions.
 #include "serializer.h"
 #include "build.h"
+#include "math/cmath.h"
 
 class FSerializer;
 
@@ -67,13 +68,13 @@ constexpr double BRadAngScale = 1. / BAngRadian;
 //
 //---------------------------------------------------------------------------
 
-inline int32_t bsin(const int16_t& ang, const int8_t& shift = 0)
+inline int32_t bsin(const int ang, const int8_t shift = 0)
 {
 	return shift < 0 ? sintable[ang & 2047] >> abs(shift) : sintable[ang & 2047] << shift;
 }
-inline double bsinf(const double& ang, const int8_t& shift = 0)
+inline double bsinf(const double ang, const int8_t shift = 0)
 {
-	return sin(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
+	return g_sin(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
 }
 
 
@@ -83,13 +84,13 @@ inline double bsinf(const double& ang, const int8_t& shift = 0)
 //
 //---------------------------------------------------------------------------
 
-inline int32_t bcos(const int16_t& ang, const int8_t& shift = 0)
+inline int32_t bcos(const int ang, const int8_t shift = 0)
 {
 	return shift < 0 ? sintable[(ang + 512) & 2047] >> abs(shift) : sintable[(ang + 512) & 2047] << shift;
 }
-inline double bcosf(const double& ang, const int8_t& shift = 0)
+inline double bcosf(const double ang, const int8_t shift = 0)
 {
-	return cos(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
+	return g_cos(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
 }
 
 
@@ -195,24 +196,24 @@ public:
 		return lookangle(value - other.value);
 	}
 
-	constexpr lookangle &operator<<= (const uint8_t& shift)
+	constexpr lookangle &operator<<= (const uint8_t shift)
 	{
 		value <<= shift;
 		return *this;
 	}
 
-	constexpr lookangle &operator>>= (const uint8_t& shift)
+	constexpr lookangle &operator>>= (const uint8_t shift)
 	{
 		value >>= shift;
 		return *this;
 	}
 
-	constexpr lookangle operator<< (const uint8_t& shift) const
+	constexpr lookangle operator<< (const uint8_t shift) const
 	{
 		return lookangle(value << shift);
 	}
 
-	constexpr lookangle operator>> (const uint8_t& shift) const
+	constexpr lookangle operator>> (const uint8_t shift) const
 	{
 		return lookangle(value >> shift);
 	}
@@ -268,25 +269,6 @@ public:
 	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
 	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
 
-	bool operator< (binangle other) const
-	{
-		return value < other.value;
-	}
-
-	bool operator> (binangle other) const
-	{
-		return value > other.value;
-	}
-
-	bool operator<= (binangle other) const
-	{
-		return value <= other.value;
-	}
-
-	bool operator>= (binangle other) const
-	{
-		return value >= other.value;
-	}
 	constexpr bool operator== (binangle other) const
 	{
 		return value == other.value;
@@ -341,24 +323,24 @@ public:
 		return binangle(value - other.value);
 	}
 
-	constexpr binangle &operator<<= (const uint8_t& shift)
+	constexpr binangle &operator<<= (const uint8_t shift)
 	{
 		value <<= shift;
 		return *this;
 	}
 
-	constexpr binangle &operator>>= (const uint8_t& shift)
+	constexpr binangle &operator>>= (const uint8_t shift)
 	{
 		value >>= shift;
 		return *this;
 	}
 
-	constexpr binangle operator<< (const uint8_t& shift) const
+	constexpr binangle operator<< (const uint8_t shift) const
 	{
 		return binangle(value << shift);
 	}
 
-	constexpr binangle operator>> (const uint8_t& shift) const
+	constexpr binangle operator>> (const uint8_t shift) const
 	{
 		return binangle(value >> shift);
 	}
@@ -486,24 +468,24 @@ public:
 		return fixedhoriz(value - other.value);
 	}
 
-	constexpr fixedhoriz &operator<<= (const uint8_t& shift)
+	constexpr fixedhoriz &operator<<= (const uint8_t shift)
 	{
 		value <<= shift;
 		return *this;
 	}
 
-	constexpr fixedhoriz &operator>>= (const uint8_t& shift)
+	constexpr fixedhoriz &operator>>= (const uint8_t shift)
 	{
 		value >>= shift;
 		return *this;
 	}
 
-	constexpr fixedhoriz operator<< (const uint8_t& shift) const
+	constexpr fixedhoriz operator<< (const uint8_t shift) const
 	{
 		return fixedhoriz(value << shift);
 	}
 
-	constexpr fixedhoriz operator>> (const uint8_t& shift) const
+	constexpr fixedhoriz operator>> (const uint8_t shift) const
 	{
 		return fixedhoriz(value >> shift);
 	}
