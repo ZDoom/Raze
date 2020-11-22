@@ -98,7 +98,7 @@ MapRecord *FindMapByLevelNum(int num)
 
 MapRecord *FindNextMap(MapRecord *thismap)
 {
-	if (thismap->nextLevel != -1) return &mapList[thismap->nextLevel];
+	if (thismap->nextLevel != -1) return FindMapByLevelNum(thismap->nextLevel);
 	return FindMapByLevelNum(thismap->levelNumber+1);
 }
 
