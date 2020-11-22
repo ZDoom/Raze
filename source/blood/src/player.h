@@ -114,7 +114,7 @@ struct PLAYER
     int                 slope;
     bool                isUnderwater;
     bool                hasKey[8];
-    char                hasFlag;
+    int8_t              hasFlag;
     short               used2[8];  // ??
     int                 damageControl[7];
     int8_t              curWeapon;
@@ -147,11 +147,7 @@ struct PLAYER
     int                 teamId;
     int                 fraggerId;
     int                 underwaterTime;
-    int                 bloodTime;  // --> useless
-    int                 gooTime;    // --> useless
-    int                 wetTime;    // --> useless
     int                 bubbleTime;
-    int                 at306;  // --> useless
     int                 restTime;
     int                 kickPower;
     int                 laughCount;

@@ -724,7 +724,6 @@ void MyLoadSave::Save(void)
     Write(&gGameOptions, sizeof(gGameOptions));
 }
 
-void PlayerLoadSaveConstruct(void);
 void ViewLoadSaveConstruct(void);
 #ifdef NOONE_EXTENSIONS
 void NNLoadSaveConstruct(void);
@@ -734,7 +733,6 @@ void LoadSaveSetup(void)
 {
     new MyLoadSave();
 
-    PlayerLoadSaveConstruct();
     ViewLoadSaveConstruct();
 #ifdef NOONE_EXTENSIONS
     NNLoadSaveConstruct();
@@ -749,6 +747,7 @@ void SerializeTriggers(FSerializer& arc);
 void SerializeActor(FSerializer& arc);
 void SerializeAI(FSerializer& arc);
 void SerializeGameStats(FSerializer& arc);
+void SerializePlayers(FSerializer& arc);
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
@@ -775,6 +774,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     arc.SerializeMemory("activexsprites", activeXSprites.Storage(), activeXSprites.StorageSize());
     SerializeActor(arc);
     SerializeAI(arc);
+    SerializePlayers(arc);
     SerializeEvents(arc);
     SerializeGameStats(arc);
     SerializeSequences(arc);

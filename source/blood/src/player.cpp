@@ -722,11 +722,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->slope = 0;
     pPlayer->fraggerId = -1;
     pPlayer->underwaterTime = 1200;
-    pPlayer->bloodTime = 0;
-    pPlayer->gooTime = 0;
-    pPlayer->wetTime = 0;
     pPlayer->bubbleTime = 0;
-    pPlayer->at306 = 0;
     pPlayer->restTime = 0;
     pPlayer->kickPower = 0;
     pPlayer->laughCount = 0;
@@ -2161,61 +2157,212 @@ void PlayerKneelsOver(int, int nXSprite)
     }
 }
 
-class PlayerLoadSave : public LoadSave
-{
-public:
-    virtual void Load(void);
-    virtual void Save(void);
-};
 
-void PlayerLoadSave::Load(void)
-{
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-    Read(team_score, sizeof(team_score));
-    Read(&gNetPlayers, sizeof(gNetPlayers));
-    Read(&gPlayer, sizeof(gPlayer));
-    #ifdef NOONE_EXTENSIONS
-        Read(&gPlayerCtrl, sizeof(gPlayerCtrl));
-    #endif
-    for (int i = 0; i < gNetPlayers; i++) {
-        gPlayer[i].pSprite = &sprite[gPlayer[i].nSprite];
-        gPlayer[i].pXSprite = &xsprite[gPlayer[i].pSprite->extra];
-        gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].pSprite->type-kDudeBase];
-        
-    #ifdef NOONE_EXTENSIONS
-        // load qav scene
-        if (gPlayer[i].sceneQav != -1) {
-            if (gPlayerCtrl[i].qavScene.qavResrc == NULL) 
-                gPlayer[i].sceneQav = -1;
-            else {
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Aim& w, Aim* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("x", w.dx)
+            ("y", w.dx)
+            ("z", w.dx)
+            .EndObject();
+    }
+    return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PACKINFO& w, PACKINFO* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("isactive", w.isActive)
+            ("curamount", w.curAmount)
+            .EndObject();
+    }
+    return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, POSTURE& w, POSTURE* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("frontaccel", w.frontAccel, def->frontAccel)
+            ("sideaccel", w.sideAccel, def->sideAccel)
+            ("backaccel", w.backAccel, def->backAccel)
+            ("pace0", w.pace[0], def->pace[0])
+            ("pace1", w.pace[1], def->pace[1])
+            ("bobv", w.bobV, def->bobV)
+            ("bobh", w.bobH, def->bobH)
+            ("swayv", w.swayV, def->swayV)
+            ("swayh", w.swayH, def->swayH)
+            ("eyeabovez", w.eyeAboveZ, def->eyeAboveZ)
+            ("weaponabovez", w.weaponAboveZ, def->weaponAboveZ)
+            ("xoffset", w.xOffset, def->xOffset)
+            ("zoffset", w.zOffset, def->zOffset)
+            ("normaljumpz", w.normalJumpZ, def->normalJumpZ)
+            ("pwupjumpz", w.pwupJumpZ, def->pwupJumpZ)
+            .EndObject();
+    }
+    return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER* def)
+{
+    if (arc.isReading()) playerResetPosture(&w);
+    if (arc.BeginObject(keyname))
+    {
+        arc("spritenum", w.nSprite)
+            ("horizon", w.horizon)
+            ("angle", w.angle)
+            ("newweapon", w.newWeapon)
+            ("used1", w.used1)
+            ("weaponqav", w.weaponQav)
+            ("qavcallback", w.qavCallback)
+            ("isrunning", w.isRunning)
+            ("posture", w.posture)
+            ("sceneqav", w.sceneQav)
+            ("bobphase", w.bobPhase)
+            ("bobamp", w.bobAmp)
+            ("bobheight", w.bobHeight)
+            ("bobwidth", w.bobWidth)
+            ("swayphase", w.swayPhase)
+            ("swayamp", w.swayAmp)
+            ("swayheight", w.swayHeight)
+            ("swaywidth", w.swayWidth)
+            ("nplayer", w.nPlayer)
+            ("lifemode", w.lifeMode)
+            ("bloodlust", w.bloodlust)
+            ("zview", w.zView)
+            ("zviewvel", w.zViewVel)
+            ("zweapon", w.zWeapon)
+            ("zweaponvel", w.zWeaponVel)
+            ("slope", w.slope)
+            ("underwater", w.isUnderwater)
+            .Array("haskey", w.hasKey, 8)
+            ("hasflag", w.hasFlag)
+            .Array("used2", w.used2, 8)
+            .Array("dmgcontrol", w.damageControl, 7)
+            ("curweapon", w.curWeapon)
+            ("nextweapon", w.nextWeapon)
+            ("weapontimer", w.weaponTimer)
+            ("weaponstate", w.weaponState)
+            ("weaponammo", w.weaponAmmo)
+            .Array("hasweapon", w.hasWeapon, countof(w.hasWeapon))
+            .Array("weaponmode", w.weaponMode, countof(w.weaponMode))
+            .Array("weaponorder", &w.weaponOrder[0][0], 14*2)
+            .Array("ammocount", w.ammoCount, countof(w.ammoCount))
+            ("qavloop", w.qavLoop)
+            ("fusetime", w.fuseTime)
+            ("throwtime", w.throwTime)
+            ("throwpower", w.throwPower)
+            ("aim", w.aim)
+            ("relaim", w.relAim)
+            ("aimtarget", w.aimTarget)
+            ("aimtargetscount", w.aimTargetsCount)
+            .Array("aimtargets", w.aimTargets, countof(w.aimTargets))
+            ("deathtime", w.deathTime)
+            .Array("pwuptime", w.pwUpTime, countof(w.pwUpTime))
+            ("fragcount", w.fragCount)
+            .Array("fraginfo", w.fragInfo, countof(w.fragInfo))
+            ("teamid", w.teamId)
+            ("fraggerid", w.fraggerId)
+            ("undserwatertime", w.underwaterTime)
+            ("bubbletime", w.bubbleTime)
+            ("resttime", w.restTime)
+            ("kickpower", w.kickPower)
+            ("laughcount", w.laughCount)
+            ("godmode", w.godMode)
+            ("fallscream", w.fallScream)
+            ("cantjump", w.cantJump)
+            ("packitemtime", w.packItemTime)
+            ("packitemid", w.packItemId)
+            .Array("packslots", w.packSlots, countof(w.packSlots))
+            .Array("armor", w.armor, countof(w.armor))
+            ("voodootarget", w.voodooTarget)
+            ("voodootargets", w.voodooTargets)
+            ("voodoovar1", w.voodooVar1)
+            ("voodoovar2", w.vodooVar2)
+            ("flickereffect", w.flickerEffect)
+            ("tilteffect", w.tiltEffect)
+            ("visibility", w.visibility)
+            ("paineffect", w.painEffect)
+            ("blindeffect", w.blindEffect)
+            ("chokeeffect", w.chokeEffect)
+            ("handtime", w.handTime)
+            ("hand", w.hand)
+            ("pickupeffect", w.pickupEffect)
+            ("flasheffect", w.flashEffect)
+            ("quakeeffect", w.quakeEffect)
+            ("angold", w.angold)
+            ("player_par", w.player_par)
+            ("waterpal", w.nWaterPal)
+            .Array("posture", &w.pPosture[0][0], &gPostureDefaults[0][0], kModeMax * kPostureMax) // only save actual changes in this.
+            .EndObject();
+    }
+    return arc;
+}
+
+#ifdef NOONE_EXTENSIONS
+FSerializer& Serialize(FSerializer& arc, const char* keyname, TRPLAYERCTRL& w, TRPLAYERCTRL* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("index", w.qavScene.index)
+            ("dummy", w.qavScene.dummy)
+            .EndObject();
+    }
+    if (arc.isReading()) w.qavScene.qavResrc = nullptr;
+    return arc;
+}
+#endif
+
+
+void SerializePlayers(FSerializer& arc)
+{
+    if (arc.BeginObject("players"))
+    {
+        arc("numplayers", gNetPlayers)
+            .Array("teamscore", team_score, gNetPlayers)
+            .Array("players", gPlayer, gNetPlayers)
+#ifdef NOONE_EXTENSIONS
+            .Array("playerctrl", gPlayerCtrl, gNetPlayers)
+#endif
+            .EndObject();
+    }
+
+    if (arc.isReading())
+    {
+        for (int i = 0; i < gNetPlayers; i++) 
+        {
+            gPlayer[i].pSprite = &sprite[gPlayer[i].nSprite];
+            gPlayer[i].pXSprite = &xsprite[gPlayer[i].pSprite->extra];
+            gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].pSprite->type - kDudeBase];
+
+#ifdef NOONE_EXTENSIONS
+            // load qav scene
+            if (gPlayer[i].sceneQav != -1) 
+            {
                 QAV* pQav = playerQavSceneLoad(gPlayer[i].sceneQav);
-                if (pQav) {
+                if (pQav) 
+                {
                     gPlayerCtrl[i].qavScene.qavResrc = pQav;
                     gPlayerCtrl[i].qavScene.qavResrc->Preload();
-                } else {
+                }
+                else 
+                {
                     gPlayer[i].sceneQav = -1;
                 }
             }
+#endif
         }
-    #endif
-
     }
 }
 
-void PlayerLoadSave::Save(void)
-{
-    Write(team_score, sizeof(team_score));
-    Write(&gNetPlayers, sizeof(gNetPlayers));
-    Write(&gPlayer, sizeof(gPlayer));
-    
-    #ifdef NOONE_EXTENSIONS
-    Write(&gPlayerCtrl, sizeof(gPlayerCtrl));
-    #endif
-}
 
-void PlayerLoadSaveConstruct(void)
-{
-    new PlayerLoadSave();
-}
 
 END_BLD_NS
