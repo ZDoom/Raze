@@ -355,6 +355,21 @@ void InitLevel(MapRecord *maprec)
         // flip the inverted card reader in TD's level 10.
         if (sprite[179].picnum == 1852 && sprite[179].cstat == 92) sprite[179].cstat &= ~12;
     }
+    if (!maprec->labelName.CompareNoCase("$subbase") && !maprec->name.CompareNoCase("$TXTS_MAP16"))
+    {
+        // clear accidental one-sided flag off a key card.
+        if (sprite[492].picnum == 1770 && sprite[492].cstat == 80) sprite[492].cstat &= ~64;
+    }
+    if (!maprec->labelName.CompareNoCase("$bath") && !maprec->name.CompareNoCase("$TXTS_T_MAP12"))
+    {
+        // clear accidental one-sided flag off another key card.
+        if (sprite[212].picnum == 1778 && sprite[212].cstat == 80) sprite[212].cstat &= ~64;
+    }
+    if (!maprec->labelName.CompareNoCase("$bath") && !maprec->name.CompareNoCase("$TXTS_W_MAP08"))
+    {
+        // clear accidental one-sided flag off yet another key card.
+        if (sprite[333].picnum == 1774 && sprite[333].cstat == 81) sprite[333].cstat &= ~64;
+    }
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     Player[0].angle.ang = buildang(ang);
