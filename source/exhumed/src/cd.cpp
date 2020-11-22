@@ -46,9 +46,14 @@ bool playCDtrack(int nTrack, bool bLoop)
 
     char filename[128];
 
-    // try ogg vorbis now
+    // try ogg vorbis now from root directory.
     sprintf(filename, "exhumed%02d.ogg", nTrack);
-    Mus_Play(nullptr, filename, true);
+    if (!Mus_Play(nullptr, filename, true))
+    {
+        // try ogg vorbis now from GOG MUSIC subdirectory.
+        sprintf(filename, "MUSIC/Track%02d.ogg", nTrack);
+        Mus_Play(nullptr, filename, true);
+    }
     return true;
 }
 
