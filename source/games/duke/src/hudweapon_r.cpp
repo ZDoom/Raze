@@ -146,7 +146,7 @@ void displayweapon_r(int snum, double smoothratio)
 	weapon_xoffset =  (160)-90;
 	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
 	weapon_xoffset -= 58 + p->weapon_ang;
-	if( p->GetActor()->s.xrepeat < 32 )
+	if( p->GetActor()->s.xrepeat < 8 )
 		gun_pos -= fabs(bsinf(weapon_sway * 4., -9));
 	else gun_pos -= fabs(bsinf(weapon_sway * 0.5, -10));
 
