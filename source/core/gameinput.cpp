@@ -40,17 +40,13 @@ int getincangle(int a, int na)
 	a &= 2047;
 	na &= 2047;
 
-	if(abs(a-na) < 1024)
-		return (na-a);
-	else
+	if(abs(a-na) >= 1024)
 	{
 		if(na > 1024) na -= 2048;
 		if(a > 1024) a -= 2048;
-
-		na -= 2048;
-		a -= 2048;
-		return (na-a);
 	}
+
+	return na-a;
 }
 
 fixed_t getincangleq16(fixed_t a, fixed_t na)
@@ -58,17 +54,27 @@ fixed_t getincangleq16(fixed_t a, fixed_t na)
 	a &= 0x7FFFFFF;
 	na &= 0x7FFFFFF;
 
-	if(abs(a-na) < IntToFixed(1024))
-		return (na-a);
-	else
+	if(abs(a-na) >= IntToFixed(1024))
 	{
 		if(na > IntToFixed(1024)) na -= IntToFixed(2048);
 		if(a > IntToFixed(1024)) a -= IntToFixed(2048);
-
-		na -= IntToFixed(2048);
-		a -= IntToFixed(2048);
-		return (na-a);
 	}
+
+	return na-a;
+}
+
+lookangle getincanglebam(binangle a, binangle na)
+{
+	int64_t cura = a.asbam() & 0xFFFFFFFF;
+	int64_t newa = na.asbam() & 0xFFFFFFFF;
+
+	if(abs(cura-newa) >= BAngToBAM(1024))
+	{
+		if(newa > BAngToBAM(1024)) newa -= BAngToBAM(2048);
+		if(cura > BAngToBAM(1024)) cura -= BAngToBAM(2048);
+	}
+
+	return bamlook(newa-cura);
 }
 
 //---------------------------------------------------------------------------

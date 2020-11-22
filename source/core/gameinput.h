@@ -5,8 +5,9 @@
 #include "gamecvars.h"
 #include "packet.h"
 
-int getincangle(int c, int n);
-fixed_t getincangleq16(fixed_t c, fixed_t n);
+int getincangle(int a, int na);
+fixed_t getincangleq16(fixed_t a, fixed_t na);
+lookangle getincanglebam(binangle a, binangle na);
 
 struct PlayerHorizon
 {

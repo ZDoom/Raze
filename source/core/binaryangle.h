@@ -46,7 +46,8 @@ class FSerializer;
 
 enum
 {
-	BAMUNIT = 1 << 21,
+	BAMBITS = 21,
+	BAMUNIT = 1 << BAMBITS,
 	SINSHIFT = 14
 };
 
@@ -89,6 +90,18 @@ inline int32_t bcos(const int16_t& ang, const int8_t& shift = 0)
 inline double bcosf(const double& ang, const int8_t& shift = 0)
 {
 	return cos(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
+}
+
+
+//---------------------------------------------------------------------------
+//
+// Shift a Build angle left by 21 bits.
+//
+//---------------------------------------------------------------------------
+
+inline constexpr uint32_t BAngToBAM(int ang)
+{
+	return ang << BAMBITS;
 }
 
 
@@ -164,7 +177,7 @@ public:
 
 inline constexpr binangle bamang(uint32_t v) { return binangle(v); }
 inline constexpr binangle q16ang(uint32_t v) { return binangle(v << 5); }
-inline constexpr binangle buildang(uint32_t v) { return binangle(v << 21); }
+inline constexpr binangle buildang(uint32_t v) { return binangle(v << BAMBITS); }
 inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
 inline binangle degang(double v) { return binangle(FloatToAngle(v)); }
 
@@ -246,7 +259,7 @@ public:
 
 inline constexpr lookangle bamlook(int32_t v) { return lookangle(v); }
 inline constexpr lookangle q16look(int32_t v) { return lookangle(v << 5); }
-inline constexpr lookangle buildlook(int32_t v) { return lookangle(v << 21); }
+inline constexpr lookangle buildlook(int32_t v) { return lookangle(v << BAMBITS); }
 inline lookangle radlook(double v) { return lookangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
 inline lookangle deglook(double v) { return lookangle(FloatToAngle(v)); }
 
