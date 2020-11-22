@@ -101,6 +101,12 @@ EXTERN_CVAR(Int, m_ffire)
 EXTERN_CVAR(Int, m_noexits)
 EXTERN_CVAR(Int, playercolor)
 
+inline const char* PlayerName(int pindex)
+{
+	// Todo: proper implementation of user CVARs.
+	return playername;
+}
+
 extern bool gNoAutoLoad;
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.
 bool G_CheckAutorun(bool button);

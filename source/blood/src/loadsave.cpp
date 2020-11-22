@@ -523,7 +523,6 @@ bool GameInterface::LoadGame()
 	Mus_ResumeSaved();
 
     PROFILE* pProfile = &gProfile[myconnectindex];
-    strcpy(pProfile->name, playername);
     pProfile->skill = gSkill;
     return true;
 }

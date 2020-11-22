@@ -242,8 +242,8 @@ void viewDrawAimedPlayerName(void)
         spritetype* pSprite = &sprite[gHitInfo.hitsprite];
         if (IsPlayerSprite(pSprite))
         {
-            char nPlayer = pSprite->type-kDudePlayer1;
-            char* szName = gProfile[nPlayer].name;
+            int nPlayer = pSprite->type-kDudePlayer1;
+            const char* szName = PlayerName(nPlayer);
             int nPalette = (gPlayer[nPlayer].teamId&3)+11;
             viewDrawText(4, szName, 160, 125, -128, nPalette, 1, 1);
         }
@@ -1001,7 +1001,7 @@ void viewDrawScreen(bool sceneonly)
     }
     else if (gView != gMe)
     {
-        FStringf gTempStr("] %s [", gProfile[gView->nPlayer].name);
+        FStringf gTempStr("] %s [", PlayerName(gView->nPlayer));
         viewDrawText(0, gTempStr, 160, 10, 0, 0, 1, 0);
     }
     if (cl_interpolate)

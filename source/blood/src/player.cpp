@@ -942,7 +942,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->hasFlag |= 1;
                         pPlayer->used2[0] = pItem->index;
                         trTriggerSprite(pItem->index, pXItem, kCmdOff);
-                        sprintf(buffer, "%s stole Blue Flag", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8007, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -954,7 +954,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->hasFlag &= ~1;
                         pPlayer->used2[0] = -1;
                         trTriggerSprite(pItem->index, pXItem, kCmdOn);
-                        sprintf(buffer, "%s returned Blue Flag", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8003, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -965,7 +965,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         team_score[pPlayer->teamId] += 10;
                         team_ticker[pPlayer->teamId] += 240;
                         evSend(0, 0, 81, kCmdOn);
-                        sprintf(buffer, "%s captured Red Flag!", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s captured Red Flag!", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8001, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -979,7 +979,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->hasFlag |= 2;
                         pPlayer->used2[1] = pItem->index;
                         trTriggerSprite(pItem->index, pXItem, kCmdOff);
-                        sprintf(buffer, "%s stole Red Flag", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8006, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -991,7 +991,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->hasFlag &= ~2;
                         pPlayer->used2[1] = -1;
                         trTriggerSprite(pItem->index, pXItem, kCmdOn);
-                        sprintf(buffer, "%s returned Red Flag", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8002, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -1002,7 +1002,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         team_score[pPlayer->teamId] += 10;
                         team_ticker[pPlayer->teamId] += 240;
                         evSend(0, 0, 80, kCmdOn);
-                        sprintf(buffer, "%s captured Blue Flag!", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s captured Blue Flag!", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8000, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -1814,7 +1814,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         }
         else
         {
-            sprintf(buffer, gSuicide[nMessage].message, gProfile[nVictim].name);
+            sprintf(buffer, gSuicide[nMessage].message, PlayerName(nVictim));
         }
     }
     else
@@ -1837,7 +1837,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         int nMessage = Random(25);
         int nSound = gVictory[nMessage].Kills;
         const char* pzMessage = gVictory[nMessage].message;
-        sprintf(buffer, pzMessage, gProfile[nKiller].name, gProfile[nVictim].name);
+        sprintf(buffer, pzMessage, PlayerName(nKiller), PlayerName(nVictim));
         if (gGameOptions.nGameType > 0 && nSound >= 0 && pKiller == gMe)
             sndStartSample(nSound, 255, 2, 0);
     }
@@ -1905,7 +1905,7 @@ spritetype *flagDropped(PLAYER *pPlayer, int a2)
         if (pSprite)
             pSprite->owner = pPlayer->used2[0];
         gBlueFlagDropped = true;
-        sprintf(buffer, "%s dropped Blue Flag", gProfile[pPlayer->nPlayer].name);
+        sprintf(buffer, "%s dropped Blue Flag", PlayerName(pPlayer->nPlayer));
         sndStartSample(8005, 255, 2, 0);
         viewSetMessage(buffer);
         break;
@@ -1915,7 +1915,7 @@ spritetype *flagDropped(PLAYER *pPlayer, int a2)
         if (pSprite)
             pSprite->owner = pPlayer->used2[1];
         gRedFlagDropped = true;
-        sprintf(buffer, "%s dropped Red Flag", gProfile[pPlayer->nPlayer].name);
+        sprintf(buffer, "%s dropped Red Flag", PlayerName(pPlayer->nPlayer));
         sndStartSample(8004, 255, 2, 0);
         viewSetMessage(buffer);
         break;
@@ -2141,7 +2141,7 @@ void PlayerSurvive(int, int nXSprite)
                 viewSetMessage(GStrings("TXT_LIVEAGAIM"));
             else
             {
-                sprintf(buffer, "%s lives again!", gProfile[pPlayer->nPlayer].name);
+                sprintf(buffer, "%s lives again!", PlayerName(pPlayer->nPlayer));
                 viewSetMessage(buffer);
             }
             pPlayer->newWeapon = 1;

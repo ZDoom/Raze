@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statusbar.h"
 #include "automap.h"
 #include "v_draw.h"
+#include "gamecvars.h"
 
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE/*|CVAR_FRONTEND_BLOOD*/, "enable/disable displaying the remaining seconds for power-ups")
 
@@ -427,7 +428,7 @@ private:
             int x = -160 + 80 * (i & 3);
             int y = 9 * (i / 4);
             int col = gPlayer[p].teamId & 3;
-            char* name = gProfile[p].name;
+            const char* name = PlayerName(p);
             if (gProfile[p].skill == 2)
                 gTempStr.Format("%s", name);
             else
@@ -455,7 +456,7 @@ private:
             int x = -160 + 80 * (i & 3);
             int y = 9 * (i / 4);
             int col = gPlayer[p].teamId & 3;
-            char* name = gProfile[p].name;
+            const char* name = PlayerName(p);
             if (gProfile[p].skill == 2)
                 gTempStr.Format("%s", name);
             else

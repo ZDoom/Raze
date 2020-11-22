@@ -531,7 +531,6 @@ static void gameInit()
 	gMe = gView = &gPlayer[myconnectindex];
 
 	PROFILE* pProfile = &gProfile[myconnectindex];
-	strcpy(pProfile->name, playername);
 	pProfile->skill = gSkill;
 
 	UpdateNetworkMenus();

@@ -126,7 +126,7 @@ class DBloodSummaryScreen : public DScreenJob
 			{
 				mysnprintf(pBuffer, 40, "%-2d", i);
 				viewDrawText(3, pBuffer, 85, 50 + 8 * i, -128, 0, 0, 1);
-				mysnprintf(pBuffer, 40, "%s", gProfile[i].name);
+				mysnprintf(pBuffer, 40, "%s", PlayerName(i));
 				viewDrawText(3, pBuffer, 100, 50 + 8 * i, -128, 0, 0, 1);
 				mysnprintf(pBuffer, 40, "%d", gPlayer[i].fragCount);
 				viewDrawText(3, pBuffer, 210, 50 + 8 * i, -128, 0, 0, 1);

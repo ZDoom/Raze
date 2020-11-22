@@ -188,7 +188,7 @@ struct PLAYER
 struct PROFILE
 {
     int skill;
-    char name[MAXPLAYERNAME];
+    //char name[MAXPLAYERNAME];
 };
 
 struct AMMOINFO
