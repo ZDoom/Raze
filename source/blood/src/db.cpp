@@ -47,6 +47,9 @@ XSPRITE xsprite[kMaxXSprites];
 XSECTOR xsector[kMaxXSectors];
 XWALL xwall[kMaxXWalls];
 
+XSECTOR xsectorbackup[kMaxXSectors];
+XWALL xwallbackup[kMaxXWalls];
+
 SPRITEHIT gSpriteHit[kMaxXSprites];
 
 int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
@@ -274,6 +277,20 @@ void InitFreeList(unsigned short *pList, int nCount)
     pList[0] = nCount - 1;
 }
 
+void InitFreeList(unsigned short* pList, int nCount, FixedBitArray<MAXSPRITES>&used)
+{
+    int lastfree = 0;
+    for (int i = 1; i < nCount; i++)
+    {
+        if (!used[i])
+        {
+            pList[i] = lastfree;
+            lastfree = i;
+        }
+    }
+    pList[0] = lastfree;
+}
+
 void InsertFree(unsigned short *pList, int nIndex)
 {
     pList[nIndex] = pList[0];
@@ -391,14 +408,13 @@ void PropagateMarkerReferences(void)
     }
 }
 
-bool byte_1A76C6, byte_1A76C7, byte_1A76C8;
+bool drawtile2048, encrypted;
 
 MAPHEADER2 byte_19AE44;
 
 unsigned int dbReadMapCRC(const char *pPath)
 {
-    byte_1A76C7 = 0;
-    byte_1A76C8 = 0;
+    encrypted = 0;
 
     FString mapname = pPath;
     DefaultExtension(mapname, ".map");
@@ -422,7 +438,7 @@ unsigned int dbReadMapCRC(const char *pPath)
     }
     else if ((ver & 0xff00) == 0x700)
     {
-        byte_1A76C8 = 1;
+        encrypted = 1;
     }
     else
     {
@@ -432,7 +448,7 @@ unsigned int dbReadMapCRC(const char *pPath)
     return fr.ReadInt32();
 }
 
-int gMapRev, gSongId, gSkyCount;
+int gMapRev, gMattId, gSkyCount;
 //char byte_19AE44[128];
 const int nXSectorSize = 60;
 const int nXSpriteSize = 56;
@@ -517,9 +533,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     {
         I_Error("%s: Map file corrupted", mapname.GetChars());
     }
-    byte_1A76C8 = 0;
+    encrypted = 0;
     if ((LittleShort(header.version) & 0xff00) == 0x700) {
-        byte_1A76C8 = 1;
+        encrypted = 1;
         
         #ifdef NOONE_EXTENSIONS
         // indicate if the map requires modern features to work properly
@@ -536,7 +552,6 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     fr.Read(&mapHeader,37/* sizeof(mapHeader)*/);
     if (mapHeader.mattid != 0 && mapHeader.mattid != 0x7474614d && mapHeader.mattid != 0x4d617474) {
         dbCrypt((char*)&mapHeader, sizeof(mapHeader), 0x7474614d);
-        byte_1A76C7 = 1;
     }
 
     mapHeader.x = LittleLong(mapHeader.x);
@@ -558,16 +573,16 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     *pAngle = mapHeader.ang;
     *pSector = mapHeader.sect;
     gVisibility = g_visibility = mapHeader.visibility;
-    gSongId = mapHeader.mattid;
-    if (byte_1A76C8)
+    gMattId = mapHeader.mattid;
+    if (encrypted)
     {
         if (mapHeader.mattid == 0x7474614d || mapHeader.mattid == 0x4d617474)
         {
-            byte_1A76C6 = 1;
+            drawtile2048 = 1;
         }
         else if (!mapHeader.mattid)
         {
-            byte_1A76C6 = 0;
+            drawtile2048 = 0;
         }
         else
         {
@@ -583,7 +598,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     numsectors = mapHeader.numsectors;
     numwalls = mapHeader.numwalls;
     dbInit();
-    if (byte_1A76C8)
+    if (encrypted)
     {
         fr.Read(&byte_19AE44, 128);
         dbCrypt((char*)&byte_19AE44, 128, numwalls);
@@ -598,7 +613,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     }
     gSkyCount = 1<< mapHeader.pskybits;
     fr.Read(tpskyoff, gSkyCount*sizeof(tpskyoff[0]));
-    if (byte_1A76C8)
+    if (encrypted)
     {
         dbCrypt((char*)tpskyoff, gSkyCount*sizeof(tpskyoff[0]), gSkyCount*2);
     }
@@ -616,7 +631,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         sectortype *pSector = &sector[i];
         sectortypedisk load;
         fr.Read(&load, sizeof(sectortypedisk));
-        if (byte_1A76C8)
+        if (encrypted)
         {
             dbCrypt((char*)&load, sizeof(sectortypedisk), gMapRev*sizeof(sectortypedisk));
         }
@@ -652,7 +667,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             XSECTOR *pXSector = &xsector[nXSector];
             memset(pXSector, 0, sizeof(XSECTOR));
             int nCount;
-            if (!byte_1A76C8)
+            if (!encrypted)
             {
                 nCount = nXSectorSize;
             }
@@ -750,7 +765,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         walltype *pWall = &wall[i];
         walltypedisk load;
         fr.Read(&load, sizeof(walltypedisk));
-        if (byte_1A76C8)
+        if (encrypted)
         {
             dbCrypt((char*)&load, sizeof(walltypedisk), (gMapRev*sizeof(sectortypedisk)) | 0x7474614d);
         }
@@ -779,7 +794,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             XWALL *pXWall = &xwall[nXWall];
             memset(pXWall, 0, sizeof(XWALL));
             int nCount;
-            if (!byte_1A76C8)
+            if (!encrypted)
             {
                 nCount = nXWallSize;
             }
@@ -833,7 +848,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         spritetypedisk load;
         spritetype *pSprite = &sprite[i];
         fr.Read(&load, sizeof(spritetypedisk)); // load into an intermediate buffer so that spritetype is no longer bound by file formats.
-        if (byte_1A76C8) // What were these people thinking? :(
+        if (encrypted) // What were these people thinking? :(
         {
             dbCrypt((char*)&load, sizeof(spritetypedisk), (gMapRev*sizeof(spritetypedisk)) | 0x7474614d);
         }
@@ -874,7 +889,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             XSPRITE *pXSprite = &xsprite[nXSprite];
             memset(pXSprite, 0, sizeof(XSPRITE));
             int nCount;
-            if (!byte_1A76C8)
+            if (!encrypted)
             {
                 nCount = nXSpriteSize;
             }
@@ -948,7 +963,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             bitReader.skipBits(32);
             xsprite[sprite[i].extra].reference = i;
             xsprite[sprite[i].extra].busy = IntToFixed(xsprite[sprite[i].extra].state);
-            if (!byte_1A76C8) {
+            if (!encrypted) {
                 xsprite[sprite[i].extra].lT |= xsprite[sprite[i].extra].lB;
             }
 
@@ -978,22 +993,22 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     if (pCRC)
         *pCRC = nCRC;
     PropagateMarkerReferences();
-    if (byte_1A76C8)
+    if (encrypted)
     {
-        if (gSongId == 0x7474614d || gSongId == 0x4d617474)
+        if (gMattId == 0x7474614d || gMattId == 0x4d617474)
         {
-            byte_1A76C6 = 1;
+            drawtile2048 = 1;
         }
-        else if (!gSongId)
+        else if (!gMattId)
         {
-            byte_1A76C6 = 0;
+            drawtile2048 = 0;
         }
         else
         {
             I_Error("%s: Corrupted Map file", mapname.GetChars());
         }
     }
-    else if (gSongId != 0)
+    else if (gMattId != 0)
     {
         I_Error("%s: Corrupted Map file", mapname.GetChars());
     }

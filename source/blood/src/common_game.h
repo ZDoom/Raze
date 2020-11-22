@@ -463,13 +463,8 @@ struct LOCATION {
     int ang;
 };
 
-struct POINT2D {
-    int x, y;
-};
-
-struct POINT3D {
-    int x, y, z;
-};
+using POINT2D = vec2_t;
+using POINT3D = vec3_t;
 
 struct VECTOR2D {
     int dx, dy;

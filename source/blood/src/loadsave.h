@@ -27,23 +27,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 struct FSavegameNode;
 BEGIN_BLD_NS
 
-class LoadSave {
-public:
-    static LoadSave head;
-    static FileWriter *hSFile;
-    static FileReader hLFile;
-    static TDeletingArray<LoadSave*> loadSaves;
-    LoadSave() {
-        loadSaves.Push(this);
-    }
-	virtual ~LoadSave() = default;
-    virtual void Save(void);
-    virtual void Load(void);
-    void Read(void *, int);
-    void Write(const void *, int);
-};
-
-void LoadSaveSetup(void);
-extern FixedBitArray<MAXSPRITES> activeXSprites;
 
 END_BLD_NS

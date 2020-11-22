@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "gameutil.h"
 #include "levels.h"
-#include "loadsave.h"
 #include "view.h"
 #include "nnexts.h"
 
@@ -331,35 +330,6 @@ void SerializeWarp(FSerializer& arc)
 			.Array("lowerlink", gLowerLink, numsectors)
 			.EndObject();
 	}
-}
-
-
-
-
-class WarpLoadSave : public LoadSave
-{
-public:
-    virtual void Load();
-    virtual void Save();
-};
-
-void WarpLoadSave::Load()
-{
-    Read(gStartZone, sizeof(gStartZone));
-    Read(gUpperLink, sizeof(gUpperLink));
-    Read(gLowerLink, sizeof(gLowerLink));
-}
-
-void WarpLoadSave::Save()
-{
-    Write(gStartZone, sizeof(gStartZone));
-    Write(gUpperLink, sizeof(gUpperLink));
-    Write(gLowerLink, sizeof(gLowerLink));
-}
-
-void WarpLoadSaveConstruct(void)
-{
-    new WarpLoadSave();
 }
 
 END_BLD_NS

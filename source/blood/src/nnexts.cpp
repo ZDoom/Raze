@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "nnexts.h"
 #ifdef NOONE_EXTENSIONS
 #include <random>
-#include "loadsave.h"
 #include "player.h"
 #include "aiunicult.h"
 #include "triggers.h"
@@ -45,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "seq.h"
 #include "ai.h"
+#include "savegamehelp.h"
 
 BEGIN_BLD_NS
 
@@ -5286,43 +5286,83 @@ void callbackGenDudeUpdate(int nSprite) // 24
 }
 
 
-class NNLoadSave : public LoadSave
-{
-    virtual void Load(void);
-    virtual void Save(void);
-};
 
-void NNLoadSave::Load(void)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, GENDUDEEXTRA& w, GENDUDEEXTRA* def)
 {
-    Read(gSpriteMass, sizeof(gSpriteMass));
-    Read(&gProxySpritesCount, sizeof(gProxySpritesCount));
-    Read(gProxySpritesList, sizeof(gProxySpritesList));
-    Read(&gSightSpritesCount, sizeof(gSightSpritesCount));
-    Read(gSightSpritesList, sizeof(gSightSpritesList));
-    Read(&gPhysSpritesCount, sizeof(gPhysSpritesCount));
-    Read(gPhysSpritesList, sizeof(gPhysSpritesList));
-	Read(&gImpactSpritesCount, sizeof(gImpactSpritesCount));
-	Read(gImpactSpritesList, sizeof(gImpactSpritesList));
-	Read(&gEventRedirectsUsed, sizeof(gEventRedirectsUsed));
+    if (arc.BeginObject(keyname))
+    {
+        arc.Array("initvals", w.initVals, 3)
+            .Array("availdeaths", w.availDeaths, kDamageMax)
+            ("movespeed", w.moveSpeed)
+            ("firedist", w.fireDist)
+            ("throwdist", w.throwDist)
+            ("curweapon", w.curWeapon)
+            ("weapontype", w.weaponType)
+            ("basedispersion", w.baseDispersion)
+            ("slavecount", w.slaveCount)
+            ("lifeleech", w.nLifeLeech)
+            .Array("slaves", w.slave, w.slaveCount)
+            .Array("dmgcontrol", w.dmgControl, kDamageMax)
+            .Array("updreq", w.updReq, kGenDudePropertyMax)
+            ("flags", w.flags)
+            .EndObject();
+    }
+    return arc;
 }
 
-void NNLoadSave::Save(void)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEMASS& w, SPRITEMASS* def)
 {
-    Write(gSpriteMass, sizeof(gSpriteMass));
-    Write(&gProxySpritesCount, sizeof(gProxySpritesCount));
-    Write(gProxySpritesList, sizeof(gProxySpritesList));
-    Write(&gSightSpritesCount, sizeof(gSightSpritesCount));
-    Write(gSightSpritesList, sizeof(gSightSpritesList));
-    Write(&gPhysSpritesCount, sizeof(gPhysSpritesCount));
-    Write(gPhysSpritesList, sizeof(gPhysSpritesList));
-	Write(&gImpactSpritesCount, sizeof(gImpactSpritesCount));
-	Write(gImpactSpritesList, sizeof(gImpactSpritesList));
-	Write(&gEventRedirectsUsed, sizeof(gEventRedirectsUsed));
+    static SPRITEMASS nul;
+    if (arc.isReading()) w = {};
+    if (arc.BeginObject(keyname))
+    {
+        arc ("seq", w.seqId, &nul.seqId)
+            ("picnum", w.picnum, &nul.picnum)
+            ("xrepeat", w.xrepeat, &nul.xrepeat)
+            ("yrepeat", w.yrepeat, &nul.yrepeat)
+            ("clipdist", w.clipdist)
+            ("mass", w.mass)
+            ("airvel", w.airVel)
+            ("fraction", w.fraction)
+            .EndObject();
+    }
+    return arc;
 }
 
-void NNLoadSaveConstruct(void)
+void SerializeNNExts(FSerializer& arc)
 {
-    new NNLoadSave();
+    if (arc.BeginObject("nnexts"))
+    {
+        // the GenDudeArray only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save the relevant entries as these are not small.
+        bool foundsome = false;
+        for (int i = 0; i < kMaxSprites; i++)
+        {
+            if (activeSprites[i] && (sprite[i].type == kDudeModernCustom || sprite[i].type == kDudeModernCustomBurning))
+            {
+                if (!foundsome) arc.BeginArray("gendudeextra");
+                foundsome = true;
+                arc(nullptr, gGenDudeExtra[i]);
+            }
+        }
+        if (foundsome) arc.EndArray();
+        arc.SparseArray("spritemass", gSpriteMass, kMaxSprites, activeXSprites)
+            ("proxyspritescount", gProxySpritesCount)
+            .Array("proxyspriteslist", gProxySpritesList, gProxySpritesCount)
+            ("sightspritescount", gSightSpritesCount)
+            .Array("sightspriteslist", gSightSpritesList, gSightSpritesCount)
+            ("physspritescount", gPhysSpritesCount)
+            .Array("physspriteslist", gPhysSpritesList, gPhysSpritesCount)
+            ("impactspritescount", gImpactSpritesCount)
+            .Array("impactspriteslist", gImpactSpritesList, gImpactSpritesCount)
+            ("eventredirects", gEventRedirectsUsed)
+            .EndObject();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////

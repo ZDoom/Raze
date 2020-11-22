@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "endgame.h"
 #include "aistate.h"
-#include "loadsave.h"
 #include "sectorfx.h"
 #include "choke.h"
 #include "view.h"
@@ -481,8 +480,8 @@ void UpdateBlend()
     videoTintBlood(nRed, nGreen, nBlue);
 }
 
-char otherMirrorGotpic[2];
-char bakMirrorGotpic[2];
+uint8_t otherMirrorGotpic[2];
+uint8_t bakMirrorGotpic[2];
 // int gVisibility;
 
 int deliriumTilt, deliriumTurn, deliriumPitch;
@@ -988,7 +987,7 @@ void viewDrawScreen(bool sceneonly)
         gChoke.animateChoke(160, zn, (int)gInterpolate);
     }
 #if 0
-    if (byte_1A76C6)
+    if (drawtile_2048)
     {
         DrawStatSprite(2048, xdim-15, 20);
     }
@@ -1065,36 +1064,17 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a)
     return true;
 }
 
-
-class ViewLoadSave : public LoadSave {
-public:
-    void Load(void);
-    void Save(void);
-};
-
-void ViewLoadSave::Load(void)
+void SerializeView(FSerializer& arc)
 {
-    Read(otherMirrorGotpic, sizeof(otherMirrorGotpic));
-    Read(bakMirrorGotpic, sizeof(bakMirrorGotpic));
-    Read(&gScreenTilt, sizeof(gScreenTilt));
-    Read(&deliriumTilt, sizeof(deliriumTilt));
-    Read(&deliriumTurn, sizeof(deliriumTurn));
-    Read(&deliriumPitch, sizeof(deliriumPitch));
+    if (arc.BeginObject("view"))
+    {
+        arc("screentilt", gScreenTilt)
+            ("deliriumtilt", deliriumTilt)
+            ("deliriumturn", deliriumTurn)
+            ("deliriumpitch", deliriumPitch)
+            .EndObject();
+    }
 }
 
-void ViewLoadSave::Save(void)
-{
-    Write(otherMirrorGotpic, sizeof(otherMirrorGotpic));
-    Write(bakMirrorGotpic, sizeof(bakMirrorGotpic));
-    Write(&gScreenTilt, sizeof(gScreenTilt));
-    Write(&deliriumTilt, sizeof(deliriumTilt));
-    Write(&deliriumTurn, sizeof(deliriumTurn));
-    Write(&deliriumPitch, sizeof(deliriumPitch));
-}
-
-void ViewLoadSaveConstruct(void)
-{
-    new ViewLoadSave();
-}
 
 END_BLD_NS

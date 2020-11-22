@@ -298,12 +298,16 @@ struct SPRITEHIT {
 
 extern unsigned short gStatCount[kMaxStatus + 1];;
 
-extern bool byte_1A76C6, byte_1A76C7, byte_1A76C8;
+extern bool drawtile2048, encrypted;
 extern MAPHEADER2 byte_19AE44;
 
 extern XSPRITE xsprite[kMaxXSprites];
 extern XSECTOR xsector[kMaxXSectors];
 extern XWALL xwall[kMaxXWalls];
+
+extern XSECTOR xsectorbackup[kMaxXSectors];
+extern XWALL xwallbackup[kMaxXWalls];
+extern FixedBitArray<MAXSPRITES> activeXSprites;
 
 extern SPRITEHIT gSpriteHit[kMaxXSprites];
 
@@ -312,7 +316,7 @@ extern char qsector_filler[kMaxSectors];
 extern int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 
 extern int gVisibility;
-extern int gMapRev, gSongId, gSkyCount;
+extern int gMapRev, gMattId, gSkyCount;
 extern const char *gItemText[];
 extern const char *gAmmoText[];
 extern const char *gWeaponText[];
@@ -366,6 +370,7 @@ int qchangespritesect(short nSprite, short nSector);
 int ChangeSpriteStat(int nSprite, int nStatus);
 int qchangespritestat(short nSprite, short nStatus);
 void InitFreeList(unsigned short *pList, int nCount);
+void InitFreeList(unsigned short* pList, int nCount, FixedBitArray<MAXSPRITES>& activeXSprites);
 void InsertFree(unsigned short *pList, int nIndex);
 unsigned short dbInsertXSprite(int nSprite);
 void dbDeleteXSprite(int nXSprite);

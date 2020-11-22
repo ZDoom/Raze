@@ -40,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gib.h"
 #include "globals.h"
 #include "levels.h"
-#include "loadsave.h"
 #include "sectorfx.h"
 #include "seq.h"
 #include "sound.h"
@@ -502,7 +501,6 @@ void GameInterface::app_init()
 	FireInit();
 	Printf(PRINT_NONOTIFY, "Initializing weapon animations\n");
 	WeaponInit();
-	LoadSaveSetup();
 
 	myconnectindex = connecthead = 0;
 	gNetPlayers = numplayers = 1;

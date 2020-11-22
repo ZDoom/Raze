@@ -49,8 +49,6 @@ enum EGameFlag
 struct GAMEOPTIONS {
     unsigned char nGameType;
     unsigned char nDifficulty;
-    short nSaveGameSlot;
-    int picEntry;
     char nMonsterSettings;
     int uGameFlags;
     int uNetGameFlags;

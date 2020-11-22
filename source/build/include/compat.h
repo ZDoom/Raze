@@ -243,18 +243,29 @@ void bfirst_search_try(T *const list, uint8_t *const bitmap, T *const eltnumptr,
 
 /* End dependence on compat.o object. */
 
-inline FSerializer& Serialize(FSerializer& arc, const char* key, vec3_t& c, vec3_t* def)
+inline FSerializer& Serialize(FSerializer& arc, const char* key, vec2_t& c, vec2_t* def)
 {
     if (def && !memcmp(&c, def, sizeof(c))) return arc;
     if (arc.BeginObject(key))
     {
         arc("x", c.x, def? &def->x : nullptr)
             ("y", c.y, def ? &def->y : nullptr)
-            ("z", c.z, def ? &def->z : nullptr)
             .EndObject();
     }
     return arc;
 }
 
+inline FSerializer& Serialize(FSerializer& arc, const char* key, vec3_t& c, vec3_t* def)
+{
+    if (def && !memcmp(&c, def, sizeof(c))) return arc;
+    if (arc.BeginObject(key))
+    {
+        arc("x", c.x, def ? &def->x : nullptr)
+            ("y", c.y, def ? &def->y : nullptr)
+            ("z", c.z, def ? &def->z : nullptr)
+            .EndObject();
+    }
+    return arc;
+}
 
 #endif // compat_h_

@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gib.h"
 #include "globals.h"
 #include "levels.h"
-#include "loadsave.h"
 #include "player.h"
 #include "seq.h"
 #include "sound.h"
@@ -1773,56 +1772,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDE
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, GENDUDEEXTRA& w, GENDUDEEXTRA* def)
-{
-	if (arc.BeginObject(keyname))
-	{
-		arc.Array("initvals", w.initVals, 3)
-			.Array("availdeaths", w.availDeaths, kDamageMax)
-			("movespeed", w.moveSpeed)
-			("firedist", w.fireDist)
-			("throwdist", w.throwDist)
-			("curweapon", w.curWeapon)
-			("weapontype", w.weaponType)
-			("basedispersion", w.baseDispersion)
-			("slavecount", w.slaveCount)
-			("lifeleech", w.nLifeLeech)
-			.Array("slaves", w.slave, w.slaveCount)
-			.Array("dmgcontrol", w.dmgControl, kDamageMax)
-			.Array("updreq", w.updReq, kGenDudePropertyMax)
-			("flags", w.flags)
-			.EndObject();
-	}
-	return arc;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void SerializeAI(FSerializer& arc)
 {
 	if (arc.BeginObject("ai"))
 	{
 		arc.SparseArray("dudeslope", gDudeSlope, kMaxSprites, activeXSprites)
-			.SparseArray("dudeextra", gDudeExtra, kMaxSprites, activeXSprites);
-
-		// the GenDudeArray only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save the relevant entries as these are not small.
-		bool foundsome = false;
-		for (int i = 0; i < kMaxSprites; i++)
-		{
-			if (activeSprites[i] && (sprite[i].type == kDudeModernCustom || sprite[i].type == kDudeModernCustomBurning))
-			{
-				if (!foundsome) arc.BeginArray("gendudeextra");
-				foundsome = true;
-				arc(nullptr, gGenDudeExtra[i]);
-			}
-		}
-		if (foundsome) arc.EndArray();
-
-		arc.EndObject();
+			.SparseArray("dudeextra", gDudeExtra, kMaxSprites, activeXSprites)
+		    .EndObject();
 	}
 }
 

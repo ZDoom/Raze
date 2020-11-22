@@ -808,14 +808,12 @@ psky_t * tileSetupSky(int32_t const tilenum)
     for (auto& sky : multipskies)
         if (tilenum == sky.tilenum)
         {
-            sky.combinedtile = -1;  // invalidate the old content
             return &sky;
         }
 
     multipskies.Reserve(1);
     multipskies.Last() = {};
     multipskies.Last().tilenum = tilenum;
-    multipskies.Last().combinedtile = -1;
     multipskies.Last().yscale = 65536;
     return &multipskies.Last();
 }
