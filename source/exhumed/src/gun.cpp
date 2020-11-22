@@ -962,8 +962,8 @@ void DrawWeapons(double smooth)
     {
         // CHECKME - not & 0x7FF?
         double nBobAngle = obobangle + fmulscale16(((bobangle + 1024 - obobangle) & 2047) - 1024, smooth);
-        double nVal = (ototalvel[nLocalPlayer] + fmulscale16(totalvel[nLocalPlayer] - ototalvel[nLocalPlayer], smooth)) / 2.;
-        yOffset = (nVal * (calcSinTableValue(fmod(nBobAngle, 1024)) / 256.)) / 512.;
+        double nVal = (ototalvel[nLocalPlayer] + fmulscale16(totalvel[nLocalPlayer] - ototalvel[nLocalPlayer], smooth)) * 0.5;
+        yOffset = fmulscale9(nVal, bsinf(fmod(nBobAngle, 1024.), -8));
 
         if (var_34 == 1)
         {
