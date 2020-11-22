@@ -546,10 +546,10 @@ void displayrooms(int snum, double smoothratio)
 			cposz = omyz + xs_CRoundToInt(fmulscale16(myz - omyz, smoothratio));
 			if (cl_syncinput)
 			{
-				fixed_t ohorz = (omyhoriz.asq16() + omyhorizoff.asq16());
-				fixed_t horz = (myhoriz.asq16() + myhorizoff.asq16());
+				fixed_t ohorz = (omyhoriz + omyhorizoff).asq16();
+				fixed_t horz = (myhoriz + myhorizoff).asq16();
 				choriz = q16horiz(ohorz + xs_CRoundToInt(fmulscale16(horz - ohorz, smoothratio)));
-				cang = bamang(xs_CRoundToUInt(omyang.asbam() + fmulscale16(myang.asbam() - omyang.asbam(), smoothratio)));
+				cang = bamang(xs_CRoundToUInt(omyang.asbam() + fmulscale16((myang - omyang).asbam(), smoothratio)));
 			}
 			else
 			{
@@ -605,7 +605,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 
 		// do screen rotation.
-		renderSetRollAngle(rotscrnang.asbam() / (double)(BAMUNIT));
+		renderSetRollAngle(rotscrnang.asbuildf());
 
 		cz = p->GetActor()->ceilingz;
 		fz = p->GetActor()->floorz;

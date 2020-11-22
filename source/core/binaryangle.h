@@ -132,6 +132,7 @@ public:
 	lookangle(const lookangle &other) = default;
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
 	constexpr short asbuild() const { return value >> 21; }
+	constexpr double asbuildf() const { return value * (1. / BAMUNIT); }
 	constexpr fixed_t asq16() const { return value >> 5; }
 	constexpr double asrad() const { return value * (pi::pi() / 0x80000000u); }
 	constexpr double asdeg() const { return AngleToFloat(value); }
@@ -255,6 +256,7 @@ public:
 	binangle(const binangle &other) = default;
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
 	constexpr short asbuild() const { return value >> 21; }
+	constexpr double asbuildf() const { return value * (1. / BAMUNIT); }
 	constexpr fixed_t asq16() const { return value >> 5; }
 	constexpr double asrad() const { return value * (pi::pi() / 0x80000000u); }
 	constexpr double asdeg() const { return AngleToFloat(value); }
@@ -423,6 +425,7 @@ public:
 
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
 	constexpr short asbuild() const { return FixedToInt(value); }
+	constexpr double asbuildf() const { return FixedToFloat(value); }
 	constexpr fixed_t asq16() const { return value; }
 	double aspitch() const { return HorizToPitch(value); }
 	int32_t asbam() const { return PitchToBAM(aspitch()); }

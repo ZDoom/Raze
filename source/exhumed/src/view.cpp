@@ -298,7 +298,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
 
-        renderSetRollAngle(rotscrnang.asbam() / (double)BAMUNIT);
+        renderSetRollAngle(rotscrnang.asbuildf());
     }
 
     nCameraa = nAngle;
