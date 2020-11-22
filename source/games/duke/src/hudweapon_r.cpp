@@ -80,7 +80,7 @@ void displaymasks_r(int snum, double smoothratio)
 		// to get the proper clock value with regards to interpolation we have add a smoothratio based offset to the value.
 		double interpclock = ud.levelclock + (TICSPERFRAME/65536.) * smoothratio;
 		int pin = RS_STRETCH;
-		hud_drawsprite((320 - (tilesiz[SCUBAMASK].x >> 1) - 15), (200 - (tilesiz[SCUBAMASK].y >> 1) + (calcSinTableValue(interpclock) / 1024.)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
+		hud_drawsprite((320 - (tilesiz[SCUBAMASK].x >> 1) - 15), (200 - (tilesiz[SCUBAMASK].y >> 1) + bsinf(interpclock, -10)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
 		hud_drawsprite((320 - tilesiz[SCUBAMASK + 4].x), (200 - tilesiz[SCUBAMASK + 4].y), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
 		hud_drawsprite(tilesiz[SCUBAMASK + 4].x, (200 - tilesiz[SCUBAMASK + 4].y), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
 		hud_drawsprite(35, (-1), 65536, 0, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
@@ -144,11 +144,11 @@ void displayweapon_r(int snum, double smoothratio)
 	gun_pos = 80 - (opos + fmulscale16(npos - opos, smoothratio));
 
 	weapon_xoffset =  (160)-90;
-	weapon_xoffset -= calcSinTableValue((weapon_sway / 2.) + 512) / (1024. + 512.);
+	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
 	weapon_xoffset -= 58 + p->weapon_ang;
-	if( p->GetActor()->s.xrepeat < 8 )
-		gun_pos -= fabs(calcSinTableValue(weapon_sway * 4.) / 512.);
-	else gun_pos -= fabs(calcSinTableValue(weapon_sway / 2.) / 1024.);
+	if( p->GetActor()->s.xrepeat < 32 )
+		gun_pos -= fabs(bsinf(weapon_sway * 4., -9));
+	else gun_pos -= fabs(bsinf(weapon_sway * 0.5, -10));
 
 	gun_pos -= (p->ohard_landing + fmulscale16(p->hard_landing - p->ohard_landing, smoothratio)) * 8.;
 
@@ -311,14 +311,14 @@ void displayweapon_r(int snum, double smoothratio)
 			fistsign += i>>1;
 		}
 		cw = weapon_xoffset;
-		weapon_xoffset += calcSinTableValue(fistsign) / 1024.;
+		weapon_xoffset += bsinf(fistsign, -10);
 		hud_draw(weapon_xoffset+250-look_anghalf,
-			 looking_arc+258-abs(calcSinTableValue(fistsign) / 256.),
+			 looking_arc+258-abs(bsinf(fistsign, -8)),
 			 FIST,gs,o);
 		weapon_xoffset = cw;
-		weapon_xoffset -= calcSinTableValue(fistsign) / 1024.;
+		weapon_xoffset -= bsinf(fistsign, -10);
 		hud_draw(weapon_xoffset+40-look_anghalf,
-			 looking_arc+200+abs(calcSinTableValue(fistsign) / 256.),
+			 looking_arc+200+abs(bsinf(fistsign, -8)),
 			 FIST,gs,o|4);
 	}
 	else
@@ -623,7 +623,7 @@ void displayweapon_r(int snum, double smoothratio)
 		auto displayrifle = [&]
 		{
 			if (*kb > 0)
-				gun_pos -= calcSinTableValue((*kb) << 7) / 4096.;
+				gun_pos -= bsinf((*kb) << 7, -12);
 
 			if (*kb > 0 && p->GetActor()->s.pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
