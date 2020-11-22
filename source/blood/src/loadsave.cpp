@@ -728,7 +728,6 @@ void MyLoadSave::Save(void)
     Write(&gGameOptions, sizeof(gGameOptions));
 }
 
-void EndGameLoadSaveConstruct(void);
 void MirrorLoadSaveConstruct(void);
 void PlayerLoadSaveConstruct(void);
 void ViewLoadSaveConstruct(void);
@@ -740,7 +739,6 @@ void LoadSaveSetup(void)
 {
     new MyLoadSave();
 
-    EndGameLoadSaveConstruct();
     MirrorLoadSaveConstruct();
     PlayerLoadSaveConstruct();
     ViewLoadSaveConstruct();
@@ -756,6 +754,7 @@ void SerializeWarp(FSerializer& arc);
 void SerializeTriggers(FSerializer& arc);
 void SerializeActor(FSerializer& arc);
 void SerializeAI(FSerializer& arc);
+void SerializeGameStats(FSerializer& arc);
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
@@ -783,6 +782,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     SerializeActor(arc);
     SerializeAI(arc);
     SerializeEvents(arc);
+    SerializeGameStats(arc);
     SerializeSequences(arc);
     SerializeWarp(arc);
     SerializeTriggers(arc);

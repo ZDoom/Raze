@@ -265,38 +265,22 @@ void CSecretMgr::Clear(void)
 	Total = Founds = Super = 0;
 }
 
-class EndGameLoadSave : public LoadSave {
-public:
-	virtual void Load(void);
-	virtual void Save(void);
-};
-
-void EndGameLoadSave::Load(void)
+void SerializeGameStats(FSerializer& arc)
 {
-	Read(&gSecretMgr.Total, 4);
-	Read(&gSecretMgr.Founds, 4);
-	Read(&gSecretMgr.Super, 4);
-	Read(&gKillMgr.TotalKills, 4);
-	Read(&gKillMgr.Kills, 4);
+	if (arc.BeginObject("gamestats"))
+	{
+		arc("secrets", gSecretMgr.Total)
+			("secretsfound", gSecretMgr.Founds)
+			("super", gSecretMgr.Super)
+			("totalkills", gKillMgr.TotalKills)
+			("kills", gKillMgr.Kills)
+			.EndObject();
+	}
 }
 
-void EndGameLoadSave::Save(void)
-{
-	Write(&gSecretMgr.Total, 4);
-	Write(&gSecretMgr.Founds, 4);
-	Write(&gSecretMgr.Super, 4);
-	Write(&gKillMgr.TotalKills, 4);
-	Write(&gKillMgr.Kills, 4);
-}
 
 CSecretMgr gSecretMgr;
 CKillMgr gKillMgr;
-
-void EndGameLoadSaveConstruct(void)
-{
-	new EndGameLoadSave();
-}
-
 
 class DBloodLoadScreen : public DScreenJob
 {
