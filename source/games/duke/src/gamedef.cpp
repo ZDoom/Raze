@@ -3191,7 +3191,17 @@ void loadcons()
 	InitGameVarPointers();
 	ResetSystemDefaults();
 	S_WorldTourMappingsForOldSounds(); // create a sound mapping for World Tour.
-	if (isRRRA())
+	if (isWorldTour())
+	{
+		int num = fileSystem.CheckNumForName("e1l7.map");
+		int file = fileSystem.GetFileContainer(num);
+		if (file <= fileSystem.GetMaxIwadNum())
+		{
+			auto maprec = FindMapByName("e1l7");
+			if (maprec) maprec->nextLevel = levelnum(0, 4);
+		}
+	}
+	else if (isRRRA())
 	{
 		// RRRA goes directly to the second episode after E1L7 to continue the game.
 		int num = fileSystem.CheckNumForName("e1l7.map");
