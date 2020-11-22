@@ -229,12 +229,12 @@ struct PlayerAngle
 
 	binangle osum()
 	{
-		return bamang(oang.asbam() + olook_ang.asbam());
+		return oang + olook_ang;
 	}
 
 	binangle sum()
 	{
-		return bamang(ang.asbam() + look_ang.asbam());
+		return ang + look_ang;
 	}
 
 	binangle interpolatedsum(double const smoothratio)
@@ -248,8 +248,8 @@ struct PlayerAngle
 
 	lookangle interpolatedrotscrn(double const smoothratio)
 	{
-		double const ratio = smoothratio / FRACUNIT;
-		return bamlook(orotscrnang.asbam() + xs_CRoundToInt(ratio * (rotscrnang.asbam() - orotscrnang.asbam())));
+		double const ratio = smoothratio * (1. / FRACUNIT);
+		return bamlook(orotscrnang.asbam() + xs_CRoundToInt(ratio * (rotscrnang - orotscrnang).asbam()));
 	}
 };
 

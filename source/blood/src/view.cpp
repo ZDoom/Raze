@@ -740,7 +740,7 @@ void viewDrawScreen(bool sceneonly)
         //int tiltcs, tiltdim;
         uint8_t v4 = powerupCheck(gView, kPwUpCrystalBall) > 0;
 #ifdef USE_OPENGL
-        renderSetRollAngle(rotscrnang.asbam() / (double)(BAMUNIT));
+        renderSetRollAngle(rotscrnang.asbuildf());
 #endif
         if (v78 || bDelirium)
         {

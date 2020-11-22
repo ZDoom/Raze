@@ -1667,7 +1667,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     }
     tsectnum = camerapp->cursectnum;
 
-    renderSetRollAngle(trotscrnang.asbam() / (double)BAMUNIT);
+    renderSetRollAngle(trotscrnang.asbuildf());
 
     COVERupdatesector(tx, ty, &tsectnum);
 
