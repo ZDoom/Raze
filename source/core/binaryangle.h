@@ -139,9 +139,9 @@ public:
 	constexpr double asdeg() const { return AngleToFloat(value); }
 	constexpr int32_t asbam() const { return value; }
 	
-	double fsin() const { return sin(asrad()); }
-	double fcos() const { return cos(asrad()); }
-	double ftan() const { return tan(asrad()); }
+	double fsin() const { return g_sin(asrad()); }
+	double fcos() const { return g_cos(asrad()); }
+	double ftan() const { return g_tan(asrad()); }
 	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
 	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
 
@@ -263,9 +263,9 @@ public:
 	constexpr double asdeg() const { return AngleToFloat(value); }
 	constexpr uint32_t asbam() const { return value; }
 	
-	double fsin() const { return sin(asrad()); }
-	double fcos() const { return cos(asrad()); }
-	double ftan() const { return tan(asrad()); }
+	double fsin() const { return g_sin(asrad()); }
+	double fcos() const { return g_cos(asrad()); }
+	double ftan() const { return g_tan(asrad()); }
 	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
 	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
 
