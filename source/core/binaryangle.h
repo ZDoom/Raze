@@ -100,7 +100,7 @@ inline double bcosf(const double ang, const int8_t shift = 0)
 //
 //---------------------------------------------------------------------------
 
-inline constexpr uint32_t BAngToBAM(int ang)
+inline constexpr int64_t BAngToBAM(int ang)
 {
 	return ang << BAMBITS;
 }
