@@ -1998,7 +1998,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
 
         case kGenDudePropertyMass: {
             // to ensure mass gets updated, let's clear all cache
-            SPRITEMASS* pMass = &gSpriteMass[pSprite->index];
+            SPRITEMASS* pMass = &gSpriteMass[pSprite->extra];
             pMass->seqId = pMass->picnum = pMass->xrepeat = pMass->yrepeat = pMass->clipdist = 0;
             pMass->mass = pMass->airVel = pMass->fraction = 0;
             getSpriteMassBySize(pSprite);

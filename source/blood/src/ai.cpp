@@ -1750,14 +1750,18 @@ void aiInitSprite(spritetype *pSprite)
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDEEXTRA* def)
 {
+    int empty = 0;
+    char empty2 = 0;
+    if (arc.isReading()) w = {};
+
 	if (arc.BeginObject(keyname))
 	{
-		arc("time", w.time)
-			("recoil", w.recoil)
-			("prio", w.prio)
-			("x1", w.at6.u1.xval1)
-			("x2", w.at6.u1.xval2)
-			("x3", w.at6.u1.xval3)
+		arc("time", w.time, &empty)
+			("recoil", w.recoil, &empty)
+			("prio", w.prio, &empty)
+			("x1", w.at6.u1.xval1, &empty)
+			("x2", w.at6.u1.xval2, &empty)
+			("x3", w.at6.u1.xval3, &empty2)
 			.EndObject();
 	}
 	return arc;

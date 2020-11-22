@@ -6956,11 +6956,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, POSTPONE& w, POSTP
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEHIT& w, SPRITEHIT* def)
 {
+    int empty = 0;
+    if (arc.isReading()) w = {};
     if (arc.BeginObject(keyname))
     {
-        arc("hit", w.hit)
-            ("ceilhit", w.ceilhit)
-            ("florhit", w.florhit)
+        arc("hit", w.hit, &empty)
+            ("ceilhit", w.ceilhit, &empty)
+            ("florhit", w.florhit, &empty)
             .EndObject();
     }
     return arc;
