@@ -89,16 +89,6 @@ inline int Cos(int ang)
     return costable[ang & 2047];
 }
 
-inline double Sinf(double ang)
-{
-    return (1 << 30) * sin(BANG2RAD * ang);
-}
-
-inline double Cosf(double ang)
-{
-    return (1 << 30) * sin(BANG2RAD * (ang + 512.));
-}
-
 inline int SinScale16(int ang)
 {
     return FixedToInt(costable[(ang - 512) & 2047]);

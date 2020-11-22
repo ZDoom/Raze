@@ -1755,7 +1755,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
 
     videoSetCorrectedAspect();
-    renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov* (PI / 360.))), yxaspect);
+    renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov * (pi::pi() / 360.))), yxaspect);
     OverlapDraw = true;
     DrawOverlapRoom(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
     OverlapDraw = false;

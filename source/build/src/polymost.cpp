@@ -2458,7 +2458,7 @@ void polymost_drawrooms()
     {
         // calculates the extend of the zenith glitch
         float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
-        float verticalfov = atanf(verticalfovtan) * (2.f / fPI);
+        float verticalfov = atanf(verticalfovtan) * (2.f / pi::pi());
         static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
         float zenglitch = verticalfov + maxhorizangle - 0.95f; // less than 1 because the zenith glitch extends a bit
         if (zenglitch > 0.f)
@@ -2850,7 +2850,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
     {
         // calculates the extend of the zenith glitch
         float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
-        float verticalfov = atanf(verticalfovtan) * (2.f / fPI);
+        float verticalfov = atanf(verticalfovtan) * (2.f / pi::pi());
         static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
         float zenglitch = verticalfov + maxhorizangle - 0.95f; // less than 1 because the zenith glitch extends a bit
         if (zenglitch > 0.f)

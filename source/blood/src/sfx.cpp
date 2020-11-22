@@ -127,7 +127,7 @@ void GameInterface::UpdateSounds()
 
     if (gMe->pSprite)
     {
-        listener.angle = -(float)gMe->pSprite->ang * pi::pi() / 1024; // Build uses a period of 2048.
+        listener.angle = -gMe->pSprite->ang * BAngRadian; // Build uses a period of 2048.
         listener.velocity.Zero();
         listener.position = GetSoundPos(&gMe->pSprite->pos);
         listener.valid = true;

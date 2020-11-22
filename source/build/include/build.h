@@ -47,11 +47,6 @@ enum rendmode_t {
     REND_POLYMER
 };
 
-#define PI 3.14159265358979323846
-#define fPI 3.14159265358979323846f
-
-#define BANG2RAD (PI * (1./1024.))
-
 enum
 {
     MAXSECTORS = 4096,
@@ -716,14 +711,6 @@ int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum);
 #ifdef USE_OPENGL
 void    renderSetRollAngle(float rolla);
 #endif
-
-//
-// Calculates and returns a sintable[] value of the equivilent index (and supports fractional indexes also)
-//
-inline double calcSinTableValue(double index)
-{
-    return 16384. * sin(BANG2RAD * index);
-}
 
 void PrecacheHardwareTextures(int nTile);
 void Polymost_Startup();
