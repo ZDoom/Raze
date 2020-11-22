@@ -462,7 +462,7 @@ void moveplayers(void)
 
 				if (p->actorsqu != nullptr)
 				{
-					p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), gethiq16angle(p->actorsqu->s.x - p->posx, p->actorsqu->s.y - p->posy)) >> 2));
+					p->angle.addadjustment(getincanglebam(p->angle.ang, bvectangbam(p->actorsqu->s.x - p->posx, p->actorsqu->s.y - p->posy)) >> 2);
 				}
 
 				if (spri->extra > 0)
@@ -485,7 +485,7 @@ void moveplayers(void)
 
 					if (p->wackedbyactor != nullptr && p->wackedbyactor->s.statnum < MAXSTATUS)
 					{
-						p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), gethiq16angle(p->wackedbyactor->s.x - p->posx, p->wackedbyactor->s.y - p->posy)) >> 1));
+						p->angle.addadjustment(getincanglebam(p->angle.ang, bvectangbam(p->wackedbyactor->s.x - p->posx, p->wackedbyactor->s.y - p->posy)) >> 1);
 					}
 				}
 				spri->ang = p->angle.ang.asbuild();
