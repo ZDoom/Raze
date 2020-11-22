@@ -167,6 +167,20 @@ struct PlayerAngle
 		adjustment = 0;
 	}
 
+	void settarget(int value, bool backup = false)
+	{
+		if (!cl_syncinput)
+		{
+			target = value << BAMBITS;
+			if (target == 0) target += 1;
+		}
+		else
+		{
+			ang = buildang(value);
+			if (backup) oang = ang;
+		}
+	}
+
 	void settarget(double value, bool backup = false)
 	{
 		if (!cl_syncinput)
