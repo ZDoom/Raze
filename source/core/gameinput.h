@@ -114,6 +114,18 @@ struct PlayerAngle
 		rotscrnang = orotscrnang;
 	}
 
+	void addadjustment(int value)
+	{
+		if (!cl_syncinput)
+		{
+			adjustment += BAngToBAM(value);
+		}
+		else
+		{
+			ang += buildang(value);
+		}
+	}
+
 	void addadjustment(double value)
 	{
 		if (!cl_syncinput)
@@ -123,6 +135,30 @@ struct PlayerAngle
 		else
 		{
 			ang += bamang(xs_CRoundToUInt(value * BAMUNIT));
+		}
+	}
+
+	void addadjustment(lookangle value)
+	{
+		if (!cl_syncinput)
+		{
+			adjustment += value.asbam();
+		}
+		else
+		{
+			ang += bamang(value.asbam());
+		}
+	}
+
+	void addadjustment(binangle value)
+	{
+		if (!cl_syncinput)
+		{
+			adjustment += value.asbam();
+		}
+		else
+		{
+			ang += value;
 		}
 	}
 
