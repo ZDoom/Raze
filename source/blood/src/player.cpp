@@ -1353,9 +1353,9 @@ void ProcessInput(PLAYER *pPlayer)
         char bSeqStat = playerSeqPlaying(pPlayer, 16);
         if (pPlayer->fraggerId != -1)
         {
-            fixed_t fraggerAng = gethiq16angle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
-            pPlayer->angold = pSprite->ang = FixedToInt(fraggerAng);
-            pPlayer->angle.addadjustment(FixedToFloat(getincangleq16(pPlayer->angle.ang.asq16(), fraggerAng)));
+            auto fraggerAng = bvectangbam(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
+            pPlayer->angold = pSprite->ang = fraggerAng.asbuild();
+            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, fraggerAng));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)

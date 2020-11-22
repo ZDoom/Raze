@@ -1749,11 +1749,11 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 
 	int currSpeed = p->MotoSpeed;
-	short currAngle = p->angle.ang.asbuild(), velAdjustment;
+	short velAdjustment;
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
 		velAdjustment = p->vehTurnLeft ? -10 : 10;
-		short angAdjustment = velAdjustment < 0 ? 350 : -350;
+		auto angAdjustment = buildang(velAdjustment < 0 ? 350 : -350);
 
 		if (p->moto_on_mud || p->moto_on_oil || !p->NotOnWater)
 		{
@@ -1789,17 +1789,17 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			}
 		}
 
-		p->posxv += currSpeed * bcos(velAdjustment * -51 + currAngle, 4);
-		p->posyv += currSpeed * bsin(velAdjustment * -51 + currAngle, 4);
-		p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), IntToFixed(currAngle - angAdjustment))));
+		p->posxv += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
+		p->posyv += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
+		p->angle.addadjustment(getincanglebam(p->angle.ang, p->angle.ang - angAdjustment));
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
 		rng = krand() & 1;
 		velAdjustment = rng == 0 ? -10 : 10;
 		currSpeed = mulscale7(currSpeed, p->moto_on_oil ? 10 : 5);
-		p->posxv += currSpeed * bcos(velAdjustment * -51 + currAngle, 4);
-		p->posyv += currSpeed * bsin(velAdjustment * -51 + currAngle, 4);
+		p->posxv += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
+		p->posyv += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
 	}
 
 	p->moto_on_mud = 0;
@@ -2030,9 +2030,8 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
 		int currSpeed = p->MotoSpeed * 4.;
-		short currAngle = p->angle.ang.asbuild();
 		short velAdjustment = p->vehTurnLeft ? -10 : 10;
-		short angAdjustment = velAdjustment < 0 ? 350 : -350;
+		auto angAdjustment = buildang(velAdjustment < 0 ? 350 : -350);
 
 		if (p->moto_do_bump)
 		{
@@ -2045,9 +2044,9 @@ static void onBoat(int snum, ESyncBits &actions)
 			angAdjustment >>= 6;
 		}
 
-		p->posxv += currSpeed * bcos(velAdjustment * -51 + currAngle, 4);
-		p->posyv += currSpeed * bsin(velAdjustment * -51 + currAngle, 4);
-		p->angle.addadjustment(FixedToFloat(getincangleq16(p->angle.ang.asq16(), IntToFixed(currAngle - angAdjustment))));
+		p->posxv += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
+		p->posyv += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
+		p->angle.addadjustment(getincanglebam(p->angle.ang, p->angle.ang - angAdjustment));
 	}
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed -= (p->MotoSpeed / 2.);
