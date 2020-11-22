@@ -967,7 +967,7 @@ void DrawWeapons(double smooth)
 
         if (var_34 == 1)
         {
-            xOffset = ((FSin(nBobAngle + 512) / 256.) * nVal) / 256.;
+            xOffset = fmulscale8(bcosf(nBobAngle, -8), nVal);
         }
     }
     else
