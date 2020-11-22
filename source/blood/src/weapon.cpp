@@ -261,6 +261,15 @@ void WeaponPrecache(HitList &hits)
     }
 }
 
+bool isOriginalQAV()
+{
+    static int cached = -1;
+    if (cached != -1) return cached;
+    int lump = fileSystem.FindResource(60, "QAV");
+    cached = lump >= 0 && fileSystem.GetFileContainer(lump) < fileSystem.GetMaxIwadNum();
+    return cached;
+}
+
 void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum, int smoothratio)
 {
     assert(pPlayer != NULL);
@@ -268,6 +277,17 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
         return;
     QAV * pQAV = weaponQAV[pPlayer->weaponQav];
     int duration;
+
+    if (pPlayer->weaponTimer == 0) // playing idle QAV?
+    { 
+        // Double shotgun fix from BloodGDX.
+        if (/*!IsOriginalDemo() &&*/ (pPlayer->weaponState == -1 || (pPlayer->curWeapon == 3 && pPlayer->weaponState == 7)) && isOriginalQAV())
+            duration = pQAV->duration - 1;
+        else duration = (gFrameClock + mulscale16(4, smoothratio)) % pQAV->duration;
+    }
+    else duration = pQAV->duration - pPlayer->weaponTimer;
+
+
     if (pPlayer->weaponTimer == 0)
         duration = (gFrameClock + mulscale16(4, smoothratio)) % pQAV->duration;
     else

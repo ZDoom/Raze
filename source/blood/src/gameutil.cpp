@@ -875,7 +875,7 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSect
         }
         i++;
     }
-    walls[m] = -1;
+    if (walls) walls[m] = -1;
     return n;
 }
 
