@@ -342,9 +342,9 @@ void GameInterface::Ticker()
 
 		for (int i = 0; i < 8; i++)
 		{
-			dword_21EFD0[i] = dword_21EFD0[i] -= 4;
-			if (dword_21EFD0[i] < 0)
-				dword_21EFD0[i] = 0;
+			team_ticker[i] = team_ticker[i] -= 4;
+			if (team_ticker[i] < 0)
+				team_ticker[i] = 0;
 		}
 
 		if ((gGameOptions.uGameFlags & GF_AdvanceLevel) != 0)

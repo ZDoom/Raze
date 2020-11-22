@@ -488,17 +488,17 @@ private:
     {
         FString gTempStr;
         int x = 1, y = 1;
-        if (dword_21EFD0[0] == 0 || (gFrameClock & 8))
+        if (team_ticker[0] == 0 || (gFrameClock & 8))
         {
             SBar_DrawString(this, smallf, GStrings("TXT_COLOR_BLUE"), x, y, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
-            gTempStr.Format("%-3d", dword_21EFB0[0]);
+            gTempStr.Format("%-3d", team_score[0]);
             SBar_DrawString(this, smallf, gTempStr, x, y + 10, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
         }
         x = -2;
-        if (dword_21EFD0[1] == 0 || (gFrameClock & 8))
+        if (team_ticker[1] == 0 || (gFrameClock & 8))
         {
             SBar_DrawString(this, smallf, GStrings("TXT_COLOR_RED"), x, y, DI_TEXT_ALIGN_RIGHT, CR_BRICK, 1., -1, -1, 1, 1);
-            gTempStr.Format("%3d", dword_21EFB0[1]);
+            gTempStr.Format("%3d", team_score[1]);
             SBar_DrawString(this, smallf, gTempStr, x, y + 10, DI_TEXT_ALIGN_RIGHT, CR_BRICK, 1., -1, -1, 1, 1);
         }
     }
@@ -513,10 +513,10 @@ private:
     {
         assert(0 == team || 1 == team); // 0: blue, 1: red
 
-        if (dword_21EFD0[team] == 0 || (gFrameClock & 8))
+        if (team_ticker[team] == 0 || (gFrameClock & 8))
         {
              if (show)
-                DrawStatNumber("%d", dword_21EFB0[team], kSBarNumberInv, -30, team ? 25 : -10, 0, team ? 2 : 10, 512, 65536 * 0.75, DI_SCREEN_RIGHT_CENTER);
+                DrawStatNumber("%d", team_score[team], kSBarNumberInv, -30, team ? 25 : -10, 0, team ? 2 : 10, 512, 65536 * 0.75, DI_SCREEN_RIGHT_CENTER);
         }
     }
 

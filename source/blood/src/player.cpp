@@ -864,8 +864,8 @@ void playerReset(PLAYER *pPlayer)
 
 }
 
-int dword_21EFB0[8];
-int dword_21EFD0[8];
+int team_score[8];
+int team_ticker[8];
 
 void playerInit(int nPlayer, unsigned int a2)
 {
@@ -877,8 +877,8 @@ void playerInit(int nPlayer, unsigned int a2)
     if (gGameOptions.nGameType == 3)
         pPlayer->teamId = nPlayer&1;
     pPlayer->fragCount = 0;
-    memset(dword_21EFB0, 0, sizeof(dword_21EFB0));
-    memset(dword_21EFD0, 0, sizeof(dword_21EFD0));
+    memset(team_score, 0, sizeof(team_score));
+    memset(team_ticker, 0, sizeof(team_ticker));
     memset(pPlayer->fragInfo, 0, sizeof(pPlayer->fragInfo));
 
     if (!(a2&1))
@@ -962,8 +962,8 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                     if ((pPlayer->hasFlag & 2) != 0 && pXItem->state) {
                         pPlayer->hasFlag &= ~2;
                         pPlayer->used2[1] = -1;
-                        dword_21EFB0[pPlayer->teamId] += 10;
-                        dword_21EFD0[pPlayer->teamId] += 240;
+                        team_score[pPlayer->teamId] += 10;
+                        team_ticker[pPlayer->teamId] += 240;
                         evSend(0, 0, 81, kCmdOn);
                         sprintf(buffer, "%s captured Red Flag!", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8001, 255, 2, 0);
@@ -999,8 +999,8 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                     {
                         pPlayer->hasFlag &= ~1;
                         pPlayer->used2[0] = -1;
-                        dword_21EFB0[pPlayer->teamId] += 10;
-                        dword_21EFD0[pPlayer->teamId] += 240;
+                        team_score[pPlayer->teamId] += 10;
+                        team_ticker[pPlayer->teamId] += 240;
                         evSend(0, 0, 80, kCmdOn);
                         sprintf(buffer, "%s captured Blue Flag!", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8000, 255, 2, 0);
@@ -1803,7 +1803,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
             pVictim->fragInfo[nVictim]--;
         }
         if (gGameOptions.nGameType == 3)
-            dword_21EFB0[pVictim->teamId]--;
+            team_score[pVictim->teamId]--;
         int nMessage = Random(5);
         int nSound = gSuicide[nMessage].Kills;
         if (pVictim == gMe && gMe->handTime <= 0)
@@ -1827,11 +1827,11 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         if (gGameOptions.nGameType == 3)
         {
             if (pKiller->teamId == pVictim->teamId)
-                dword_21EFB0[pKiller->teamId]--;
+                team_score[pKiller->teamId]--;
             else
             {
-                dword_21EFB0[pKiller->teamId]++;
-                dword_21EFD0[pKiller->teamId]+=120;
+                team_score[pKiller->teamId]++;
+                team_ticker[pKiller->teamId]+=120;
             }
         }
         int nMessage = Random(25);
@@ -2173,7 +2173,7 @@ public:
 void PlayerLoadSave::Load(void)
 {
 
-    Read(dword_21EFB0, sizeof(dword_21EFB0));
+    Read(team_score, sizeof(team_score));
     Read(&gNetPlayers, sizeof(gNetPlayers));
     Read(&gProfile, sizeof(gProfile));
     Read(&gPlayer, sizeof(gPlayer));
@@ -2207,7 +2207,7 @@ void PlayerLoadSave::Load(void)
 
 void PlayerLoadSave::Save(void)
 {
-    Write(dword_21EFB0, sizeof(dword_21EFB0));
+    Write(team_score, sizeof(team_score));
     Write(&gNetPlayers, sizeof(gNetPlayers));
     Write(&gProfile, sizeof(gProfile));
     Write(&gPlayer, sizeof(gPlayer));
