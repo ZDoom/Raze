@@ -440,6 +440,8 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         auto fcampos = GetSoundPos(&campos);
 
+        if (vel) vel->Zero();
+
         if (type == SOURCE_Ambient)
         {
             *pos = *(FVector3*)source;
