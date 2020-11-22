@@ -143,7 +143,7 @@ void addweapon_r(struct player_struct* p, int weapon)
 		if (weapon == THROWSAW_WEAPON)
 		{
 			p->gotweapon.Set(BUZZSAW_WEAPON);
-			if (isRRRA()) p->ammo_amount[BUZZSAW_WEAPON] = 1;
+			p->ammo_amount[BUZZSAW_WEAPON] = 1;
 		}
 		if (isRRRA())
 		{
