@@ -2300,7 +2300,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
             ("angold", w.angold)
             ("player_par", w.player_par)
             ("waterpal", w.nWaterPal)
-            .Array("posture", &w.pPosture[0][0], &gPostureDefaults[0][0], kModeMax * kPostureMax) // only save actual changes in this.
+            .Array("posturedata", &w.pPosture[0][0], &gPostureDefaults[0][0], kModeMax * kPostureMax) // only save actual changes in this.
             .EndObject();
     }
     return arc;

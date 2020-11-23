@@ -410,6 +410,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 	int i = 0;
 	if (arc.isWriting())
 	{
+		if (def && w == *def) return arc;
 		for (auto cstate : allAIStates)
 		{
 			if (w == cstate)
@@ -509,9 +510,16 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTO
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRITE* def)
 {
+	static XSPRITE nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
 	if (arc.BeginObject(keyname))
 	{
 		arc("flags", w.flags, def->flags)
+			("aistate", w.aiState, def->aiState)
 			("busy", w.busy, def->busy)
 			("reference", w.reference, def->reference)
 			("txid", w.txID, def->txID)
