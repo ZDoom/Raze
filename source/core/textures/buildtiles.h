@@ -395,17 +395,6 @@ inline const uint8_t* tileRawData(int num)
 }
 
 // Some hacks to allow accessing the no longer existing arrays as if they still were arrays to avoid changing hundreds of lines of code.
-struct TileSiz
-{
-	const vec2_16_t operator[](size_t index)
-	{
-		assert(index < MAXTILES);
-		vec2_16_t v = { (int16_t)TileFiles.tiledata[index].texture->GetDisplayWidth(), (int16_t)TileFiles.tiledata[index].texture->GetDisplayHeight() };
-		return v;
-	}
-};
-extern TileSiz tilesiz;
-
 struct PicAnm
 {
 	picanm_t& operator[](size_t index)
@@ -416,7 +405,6 @@ struct PicAnm
 };
 extern PicAnm picanm;
 
-// Helpers to read the refactored tilesiz array.
 inline int tileWidth(int num)
 {
 	assert(num < MAXTILES);

@@ -217,7 +217,7 @@ private:
 
             font_pic = font_base[color] + (ch - '0');
             DrawGraphic(tileGetTexture(font_pic), x, ys, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, shadeToLight(shade));
-            x += tilesiz[font_pic].x + 1;
+            x += tileWidth(font_pic) + 1;
         }
     }
 
@@ -449,7 +449,7 @@ private:
         };
 
 
-        xsize = tilesiz[PANEL_KEY_RED].x + 1;
+        xsize = tileWidth(PANEL_KEY_RED) + 1;
         ysize = tileHeight(PANEL_KEY_RED) + 2;
 
         i = 0;
@@ -607,7 +607,7 @@ private:
         auto NORM_CANG = [](int ang) { return (((ang)+32) & 31); };
 
         int start_ang, ang;
-        int x_size = tilesiz[COMPASS_NORTH].x;
+        int x_size = tileWidth(COMPASS_NORTH);
         int x;
         int i;
 
@@ -669,7 +669,7 @@ private:
         BeginStatusBar(320, 200, tileHeight(STATUS_BAR));
 
         if (hud_size == Hud_StbarOverlay) Set43ClipRect();
-        int left = (320 - tilesiz[STATUS_BAR].x) / 2;
+        int left = (320 - tileWidth(STATUS_BAR)) / 2;
         DrawGraphic(tileGetTexture(STATUS_BAR), left, 200, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 1, 1);
         twod->ClearClipRect();
         DisplayPanelNumber(PANEL_HEALTH_BOX_X + PANEL_HEALTH_XOFF, PANEL_BOX_Y + PANEL_HEALTH_YOFF, u->Health);

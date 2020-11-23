@@ -1775,7 +1775,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
         auto const spr = (uspritetype * )&sprite[tsprite[s].owner];
         if ((spr->cstat&48) == 32)
         {
-            const int32_t xspan = tilesiz[spr->picnum].x;
+            const int32_t xspan = tileWidth(spr->picnum);
 
             int32_t npoints = 0;
             vec2_t v1 = { spr->x, spr->y }, v2, v3, v4;

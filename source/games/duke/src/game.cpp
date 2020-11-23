@@ -210,11 +210,11 @@ static void setupbackdrop()
 	{
 		for (int i = 0; i < MAXUSERTILES; i++)
 		{
-			if (tilesiz[i].x == 512)
+			if (tileWidth(i) == 512)
 			{
 				defineSky(i, 32768, 1, pskyoff);
 			}
-			else if (tilesiz[i].x == 1024)
+			else if (tileWidth(i) == 1024)
 			{
 				defineSky(i, 32768, 0, pskyoff);
 			}

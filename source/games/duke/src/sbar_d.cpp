@@ -388,7 +388,7 @@ public:
 		auto p = &ps[snum];
 		int h = tileHeight(BOTTOMSTATUSBAR);
 		int top = 200 - h;
-		int left = (320 - tilesiz[BOTTOMSTATUSBAR].x) / 2;
+		int left = (320 - tileWidth(BOTTOMSTATUSBAR)) / 2;
 		BeginStatusBar(320, 200, h);
 		DrawInventory(p, 160, 154, 0);
 		if (hud_size == Hud_StbarOverlay) Set43ClipRect();

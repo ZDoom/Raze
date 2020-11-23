@@ -333,7 +333,7 @@ void seq_LoadSequences()
 #endif
 
     nShadowPic = seq_GetFirstSeqPicnum(kSeqShadow);
-    nShadowWidth = tilesiz[nShadowPic].x;
+    nShadowWidth = tileWidth(nShadowPic);
 
     nFlameHeight = tileHeight(seq_GetFirstSeqPicnum(kSeqFirePoof));
 
@@ -618,7 +618,7 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
         {
             pTSprite->picnum = nShadowPic;
 
-            int edx = ((tilesiz[nPict].x << 5) / nShadowWidth) - ((nFloorZ - pTSprite->z) >> 10);
+            int edx = ((tileWidth(nPict) << 5) / nShadowWidth) - ((nFloorZ - pTSprite->z) >> 10);
             if (edx < 1) {
                 edx = 1;
             }

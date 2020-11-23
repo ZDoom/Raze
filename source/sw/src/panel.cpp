@@ -4024,7 +4024,7 @@ SpawnOnFire(PLAYERp pp)
     {
         fire = pSpawnSprite(pp, &ps_OnFire[RANDOM_P2(8<<8)>>8], PRI_FRONT, x, ON_FIRE_Y_BOT);
         SET(fire->flags, PANF_WEAPON_SPRITE);
-        x += tilesiz[fire->picndx].x;
+        x += tileWidth(fire->picndx);
     }
 }
 

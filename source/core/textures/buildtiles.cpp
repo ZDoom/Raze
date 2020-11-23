@@ -928,7 +928,6 @@ void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp)
 	TileFiles.setAnim(imp.tile1, imp.type, imp.speed, count);
 }
 
-TileSiz tilesiz;
 PicAnm picanm;
 
 #if 0 // this only gets in if unavoidable. It'd be preferable if the script side can solely operate on texture names.

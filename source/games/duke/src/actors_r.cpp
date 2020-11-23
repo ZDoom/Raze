@@ -1283,7 +1283,7 @@ static bool weaponhitwall(DDukeActor *proj, int wal, const vec3_t& oldpos)
 					j->s.yrepeat = 8;
 					j->s.cstat = 16;
 					j->s.ang = (j->s.ang + 512) & 2047;
-					j->s.clipdist = mulscale7(s->xrepeat, tilesiz[s->picnum].x);
+					j->s.clipdist = mulscale7(s->xrepeat, tileWidth(s->picnum));
 				}
 				deletesprite(proj);
 				return true;
@@ -2080,7 +2080,7 @@ static void rrra_specialstats()
 				{
 					s->xrepeat <<= 1;
 					s->yrepeat <<= 1;
-					s->clipdist = mulscale7(s->xrepeat, tilesiz[s->picnum].x);
+					s->clipdist = mulscale7(s->xrepeat, tileWidth(s->picnum));
 				}
 				else if (enemysizecheat == 2)
 				{

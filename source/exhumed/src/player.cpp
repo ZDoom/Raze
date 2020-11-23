@@ -243,7 +243,7 @@ void InitPlayerInventory(short nPlayer)
 
     auto pixels = tilePtr(kTile3571 + nPlayer);
 
-    nPlayerColor[nPlayer] = pixels[tilesiz[nPlayer + kTile3571].x * tileHeight(nPlayer + kTile3571) / 2];
+    nPlayerColor[nPlayer] = pixels[tileWidth(nPlayer + kTile3571) * tileHeight(nPlayer + kTile3571) / 2];
 }
 
 // done

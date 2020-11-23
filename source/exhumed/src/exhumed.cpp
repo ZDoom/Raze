@@ -242,7 +242,7 @@ void DrawClock()
         int v2 = nVal & 0xF;
         int yPos = 32 - tileHeight(v2 + kClockSymbol1) / 2;
 
-        CopyTileToBitmap(v2 + kClockSymbol1, kTile3603, ebp - tilesiz[v2 + kClockSymbol1].x / 2, yPos);
+        CopyTileToBitmap(v2 + kClockSymbol1, kTile3603, ebp - tileWidth(v2 + kClockSymbol1) / 2, yPos);
 
         ebp -= 15;
 
@@ -583,7 +583,7 @@ void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
 
     const uint8_t *pSrc = tilePtr(nSrcTile);
 
-    for (int x = 0; x < tilesiz[nSrcTile].x; x++)
+    for (int x = 0; x < tileWidth(nSrcTile); x++)
     {
         pDest += destYSize;
 
@@ -667,11 +667,11 @@ void SaveTextureState()
     fw->Write(&loaded, 1);
     if (Worktile) fw->Write(Worktile, WorktileSize);
     auto pixels = TileFiles.tileMakeWritable(kTile3603);
-    fw->Write(pixels, tilesiz[kTile3603].x * tilesiz[kTile3603].y);
+    fw->Write(pixels, tileWidth(kTile3603) * tileHeight(kTile3603));
     pixels = TileFiles.tileMakeWritable(kEnergy1);
-    fw->Write(pixels, tilesiz[kEnergy1].x * tilesiz[kEnergy1].y);
+    fw->Write(pixels, tileWidth(kEnergy1) * tileHeight(kEnergy1));
     pixels = TileFiles.tileMakeWritable(kEnergy2);
-    fw->Write(pixels, tilesiz[kEnergy2].x * tilesiz[kEnergy2].y);
+    fw->Write(pixels, tileWidth(kEnergy2) * tileHeight(kEnergy2));
     
 }
 
@@ -689,11 +689,11 @@ void LoadTextureState()
         fr.Read(Worktile, WorktileSize);
     }
     auto pixels = TileFiles.tileMakeWritable(kTile3603);
-    fr.Read(pixels, tilesiz[kTile3603].x * tilesiz[kTile3603].y);
+    fr.Read(pixels, tileWidth(kTile3603) * tileHeight(kTile3603));
     pixels = TileFiles.tileMakeWritable(kEnergy1);
-    fr.Read(pixels, tilesiz[kEnergy1].x * tilesiz[kEnergy1].y);
+    fr.Read(pixels, tileWidth(kEnergy1) * tileHeight(kEnergy1));
     pixels = TileFiles.tileMakeWritable(kEnergy2);
-    fr.Read(pixels, tilesiz[kEnergy2].x * tilesiz[kEnergy2].y);
+    fr.Read(pixels, tileWidth(kEnergy2) * tileHeight(kEnergy2));
     TileFiles.InvalidateTile(kTileRamsesWorkTile);
     TileFiles.InvalidateTile(kTile3603);
     TileFiles.InvalidateTile(kEnergy1);

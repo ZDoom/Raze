@@ -348,7 +348,7 @@ public:
 		double h = tileHeight(BOTTOMSTATUSBAR) * scale;
 		double wh = 0;
 		if (hud_size < Hud_Stbar) wh = tileHeight(WEAPONBAR) * scale;
-		double left = (320 - tilesiz[BOTTOMSTATUSBAR].x * scale) / 2;
+		double left = (320 - tileWidth(BOTTOMSTATUSBAR) * scale) / 2;
 
 		double top = 200 - h;
 		BeginStatusBar(320, 200, wh + h);

@@ -630,7 +630,7 @@ void AddFlow(int nSprite, int nSpeed, int b)
         short nPic = sector[var_18].floorpicnum;
         short nAngle = sprite[nSprite].ang;
 
-        sFlowInfo[nFlow].field_14 = (tilesiz[nPic].x << 14) - 1;
+        sFlowInfo[nFlow].field_14 = (tileWidth(nPic) << 14) - 1;
         sFlowInfo[nFlow].field_18 = (tileHeight(nPic) << 14) - 1;
         sFlowInfo[nFlow].field_C  = -bcos(nAngle) * nSpeed;
         sFlowInfo[nFlow].field_10 = bsin(nAngle) * nSpeed;
@@ -649,7 +649,7 @@ void AddFlow(int nSprite, int nSpeed, int b)
         var_18 = nSprite;
         short nPic = wall[var_18].picnum;
 
-        sFlowInfo[nFlow].field_14 = (tilesiz[nPic].x * wall[var_18].xrepeat) << 8;
+        sFlowInfo[nFlow].field_14 = (tileWidth(nPic) * wall[var_18].xrepeat) << 8;
         sFlowInfo[nFlow].field_18 = (tileHeight(nPic) * wall[var_18].yrepeat) << 8;
         sFlowInfo[nFlow].field_C = -bcos(nAngle) * nSpeed;
         sFlowInfo[nFlow].field_10 = bsin(nAngle) * nSpeed;

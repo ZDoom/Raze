@@ -16108,7 +16108,7 @@ WallSpriteInsideSprite(SPRITEp wsp, SPRITEp sp)
     // y delta
     day = -bcos(wsp->ang) * wsp->xrepeat;
 
-    xsiz = tilesiz[wsp->picnum].x;
+    xsiz = tileWidth(wsp->picnum);
     mid_dist = DIV2(xsiz) + xoff;
 
     // starting from the center find the first point
