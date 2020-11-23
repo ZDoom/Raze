@@ -75,3 +75,18 @@ KP-Enter "invuse"
 ' "weapnext"
 ; "weapprev"
 
+
+// Xbox 360 / PS2 controllers
+pad_a +open
+pad_y +jump
+rtrigger +attack
+ltrigger +altattack
+lshoulder weapprev
+rshoulder weapnext
+dpadleft invprev
+dpadright invnext
+dpaddown invuse
+dpadup togglemap
+pad_start pause
+pad_back menu_main
+lthumb crouch 
