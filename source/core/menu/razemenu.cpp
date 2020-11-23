@@ -562,6 +562,7 @@ void SetDefaultMenuColors()
 	OptionSettings.mFontColorHighlight = CR_YELLOW;
 	OptionSettings.mFontColorSelection = CR_BRICK;
 	gameinfo.mSliderColor = "Orange";
+	gameinfo.mSliderBackColor = "White";
 
 	if (g_gameType & GAMEFLAG_BLOOD)
 	{

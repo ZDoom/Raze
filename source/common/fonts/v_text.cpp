@@ -242,27 +242,6 @@ DEFINE_ACTION_FUNCTION(FFont, BreakLines)
 	ACTION_RETURN_OBJECT(Create<DBrokenLines>(broken));
 }
 
-DEFINE_ACTION_FUNCTION(FFont, BreakLines2)
-{
-	PARAM_SELF_STRUCT_PROLOGUE(FFont);
-	PARAM_STRING(text);
-	PARAM_INT(maxwidth);
-
-	auto broken = V_BreakLines(self, maxwidth, text, true);
-	ACTION_RETURN_OBJECT(Create<DBrokenLines>(broken));
-}
-
-DEFINE_ACTION_FUNCTION(_Hugohaft, BreakLines)
-{
-	PARAM_SELF_STRUCT_PROLOGUE(FFont);
-	PARAM_STRING(text);
-	PARAM_INT(maxwidth);
-
-	auto broken = V_BreakLines(self, maxwidth, text, true);
-	ACTION_RETURN_OBJECT(Create<DBrokenLines>(broken));
-}
-
-
 
 bool generic_ui;
 EXTERN_CVAR(String, language)
