@@ -1637,7 +1637,7 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
     runlist_SendMessageToRunRec(nRun, (nSprite2 & 0xFFFF) | 0x80000, nDamage * 4);
 
     // is there now one less creature? (has one died)
-    if (nPreCreaturesKilled > nCreaturesKilled && nSprite2 > -1)
+    if (nPreCreaturesKilled < nCreaturesKilled && nSprite2 > -1)
     {
         if (sprite[nSprite2].statnum != 100) {
             return;
