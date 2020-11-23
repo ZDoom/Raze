@@ -6304,7 +6304,8 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
     SPRITEp sp = pp->SpriteP, hp;
     USERp u = User[pp->PlayerSprite], hu;
     int i;
-    unsigned stat,dist;
+    unsigned stat;
+    int dist;
     int a,b,c;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
@@ -6324,7 +6325,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
 
             DISTANCE(hp->x, hp->y, sp->x, sp->y, dist, a, b, c);
 
-            if (dist < hu->Radius + 100)
+            if (unsigned(dist) < hu->Radius + 100)
             {
                 pp->Killer = i;
 

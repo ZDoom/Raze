@@ -272,67 +272,54 @@ int StdRandomRange(int range);
 
 #define DIST(x1, y1, x2, y2) ksqrt( SQ((x1) - (x2)) + SQ((y1) - (y2)) )
 
-#define PIC_SIZX(sn) (tilesiz[sprite[sn].picnum].x)
-#define PIC_SIZY(sn) (tilesiz[sprite[sn].picnum].y)
+inline int PIC_SIZY(int sn) 
+{ 
+	return tileHeight(sprite[sn].picnum); 
+}
 
 // Distance macro - tx, ty, tmin are holding vars that must be declared in the routine
 // that uses this macro
-#define DISTANCE(x1, y1, x2, y2, dist, tx, ty, tmin) \
-    {                                    \
-        tx = abs(x2-x1);                    \
-        ty = abs(y2-y1);                    \
-        tmin = min(tx,ty);                   \
-        dist = tx + ty - DIV2(tmin);         \
-    }
+inline void DISTANCE(int x1, int y1, int x2, int y2, int& dist, int& tx, int& ty, int& tmin)
+{
+	tx = abs(x2 - x1);
+	ty = abs(y2 - y1);
+	tmin = min(tx, ty);
+	dist = tx + ty - (tmin >> 1);
+}
 
-#define SPRITE_SIZE_X(sp_num)   ((sprite[sp_num].xrepeat == 64) ?                         \
-                                 tilesiz[sprite[sp_num].picnum].x :                   \
-                                 ((sprite[sp_num].xrepeat * tilesiz[sprite[sp_num].picnum].x) >> 6) \
-                                 )
+inline int SPRITEp_SIZE_X(const spritetype* sp)
+{
+	return mulscale6(tileWidth(sp->picnum), sp->xrepeat);
+}
 
-#define SPRITE_SIZE_Y(sp_num)   ((sprite[sp_num].yrepeat == 64) ?                          \
-                                 tilesiz[sprite[sp_num].picnum].y :                    \
-                                 ((sprite[sp_num].yrepeat * tilesiz[sprite[sp_num].picnum].y) >> 6) \
-                                 )
+inline int SPRITEp_SIZE_Y(const spritetype* sp)
+{
+	return mulscale6(tileHeight(sp->picnum), sp->yrepeat);
+}
 
-#define SPRITE_SIZE_Z(sp_num)   ((sprite[sp_num].yrepeat == 64) ?                          \
-                                 Z(tilesiz[sprite[sp_num].picnum].y) :                 \
-                                 ((sprite[sp_num].yrepeat * tilesiz[sprite[sp_num].picnum].y) << 2) \
-                                 )
+inline int SPRITEp_SIZE_Z(const spritetype* sp)
+{
+	return (tileHeight(sp->picnum) * sp->yrepeat) << 2;
+}
 
-#define SPRITEp_SIZE_X(sp)   (((sp)->xrepeat == 64) ?                         \
-                              tilesiz[(sp)->picnum].x :                   \
-                              (((sp)->xrepeat * tilesiz[(sp)->picnum].x) >> 6) \
-                              )
 
-#define SPRITEp_SIZE_Y(sp)   (((sp)->yrepeat == 64) ?                          \
-                              tilesiz[(sp)->picnum].y :                    \
-                              (((sp)->yrepeat * tilesiz[(sp)->picnum].y) >> 6) \
-                              )
-
-#define SPRITEp_SIZE_Z(sp)   (((sp)->yrepeat == 64) ?                          \
-                              Z(tilesiz[(sp)->picnum].y) :                 \
-                              (((sp)->yrepeat * tilesiz[(sp)->picnum].y) << 2) \
-                              )
-
-// Given a z height and sprite return the correct x repeat value
-#define SPRITEp_SIZE_X_2_XREPEAT(sp, x) (((x)*64)/tilesiz[(sp)->picnum].x)
 // Given a z height and sprite return the correct y repeat value
-#define SPRITEp_SIZE_Z_2_YREPEAT(sp, zh) ((zh)/(4*tilesiz[(sp)->picnum].y))
-#define SPRITEp_SIZE_Y_2_YREPEAT(sp, y) (((y)*64)/tilesiz[(sp)->picnum].y)
+inline int SPRITEp_SIZE_Z_2_YREPEAT(const spritetype* sp, int zh)
+{
+	return zh / (4 * tileHeight(sp->picnum));
+}
 
-
-// x & y offset of tile
-#define TILE_XOFF(picnum) (tileLeftOffset(picnum))
-#define TILE_YOFF(picnum) (tileTopOffset(picnum))
-
-// x & y offset of current sprite tile
-#define SPRITEp_XOFF(sp) (tileLeftOffset((sp)->picnum))
-#define SPRITEp_YOFF(sp) (tileTopOffset((sp)->picnum))
 
 // Z size of top (TOS) and bottom (BOS) part of sprite
-#define SPRITEp_SIZE_TOS(sp) (DIV2(SPRITEp_SIZE_Z(sp)) + Z(SPRITEp_YOFF(sp)))
-#define SPRITEp_SIZE_BOS(sp) (DIV2(SPRITEp_SIZE_Z(sp)) - Z(SPRITEp_YOFF(sp)))
+inline int SPRITEp_SIZE_TOS(const spritetype* sp)
+{
+    return (DIV2(SPRITEp_SIZE_Z(sp)) + (tileTopOffset(sp->picnum) << 8));
+}
+
+inline int SPRITEp_SIZE_BOS(const spritetype* sp)
+{
+    return (DIV2(SPRITEp_SIZE_Z(sp)) - (tileTopOffset(sp->picnum) << 8));
+}
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
 #define SPRITEp_TOS(sp) (TEST((sp)->cstat, CSTAT_SPRITE_YCENTER) ? \

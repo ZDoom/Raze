@@ -245,7 +245,7 @@ SetupSkull(short SpriteNum)
 
     if (SPRITEp_BOS(sp) > u->loz - Z(16))
     {
-        sp->z = u->loz + Z(SPRITEp_YOFF(sp));
+        sp->z = u->loz + Z(tileTopOffset(sp->picnum));
 
         u->loz = sp->z;
         // leave 8 pixels above the ground
@@ -663,7 +663,7 @@ SetupBetty(short SpriteNum)
 
     if (SPRITEp_BOS(sp) > u->loz - Z(16))
     {
-        sp->z = u->loz + Z(SPRITEp_YOFF(sp));
+        sp->z = u->loz + Z(tileTopOffset(sp->picnum));
 
         u->loz = sp->z;
         // leave 8 pixels above the ground
