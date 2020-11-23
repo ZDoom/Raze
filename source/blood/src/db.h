@@ -305,8 +305,6 @@ extern XSPRITE xsprite[kMaxXSprites];
 extern XSECTOR xsector[kMaxXSectors];
 extern XWALL xwall[kMaxXWalls];
 
-extern XSECTOR xsectorbackup[kMaxXSectors];
-extern XWALL xwallbackup[kMaxXWalls];
 extern FixedBitArray<MAXSPRITES> activeXSprites;
 
 extern SPRITEHIT gSpriteHit[kMaxXSprites];

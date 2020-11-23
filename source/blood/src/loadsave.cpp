@@ -438,6 +438,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* def)
 {
+	static XWALL nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+
 	if (arc.BeginObject(keyname))
 	{
 		arc("flags", w.flags, def->flags)
@@ -461,6 +468,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* d
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTOR* def)
 {
+	static XSECTOR nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+
 	if (arc.BeginObject(keyname))
 	{
 		arc("flags", w.flags, def->flags)
@@ -632,8 +646,8 @@ void SerializeState(FSerializer& arc)
 			("numtiles", pSky->lognumtiles)
 			("gameoptions", gGameOptions)
 
-			.Array("xwall", xwall, xwallbackup, XWallsUsed)  // todo
-			.Array("xsector", xsector, xsectorbackup, XSectorsUsed)
+			.Array("xwall", xwall, XWallsUsed)  // todo
+			.Array("xsector", xsector, XSectorsUsed)
 			.SparseArray("xsprite", xsprite, kMaxXSprites, activeXSprites)
 			.SparseArray("xvel", xvel, kMaxSprites, activeSprites)
 			.SparseArray("yvel", yvel, kMaxSprites, activeSprites)

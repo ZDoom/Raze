@@ -47,9 +47,6 @@ XSPRITE xsprite[kMaxXSprites];
 XSECTOR xsector[kMaxXSectors];
 XWALL xwall[kMaxXWalls];
 
-XSECTOR xsectorbackup[kMaxXSectors];
-XWALL xwallbackup[kMaxXWalls];
-
 SPRITEHIT gSpriteHit[kMaxXSprites];
 
 int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
@@ -1063,7 +1060,6 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 
     memcpy(wallbackup, wall, sizeof(wallbackup));
     memcpy(sectorbackup, sector, sizeof(sectorbackup));
-    // todo: back up xsector and xwall as well
 }
 
 
