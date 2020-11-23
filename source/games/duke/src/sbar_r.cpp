@@ -57,7 +57,7 @@ public:
 		digiFont = Create<DHUDFont>(DigiFont, 2, Off, 1, 1 );
 
 		// optionally draw at the top of the screen.
-		SetSize(tilesiz[BOTTOMSTATUSBAR].y);
+		SetSize(tileHeight(BOTTOMSTATUSBAR));
 		scale = 0.5;
 		ammo_sprites = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO, HBOMBAMMO, HBOMBAMMO, SAWAMMO, DEVISTATORAMMO, TRIPBOMBSPRITE, GROWSPRITEICON, HBOMBAMMO, -1, BOWLINGBALLSPRITE, MOTOAMMO, BOATAMMO, -1, RPG2SPRITE };
 		item_icons = { 0, FIRSTAID_ICON, STEROIDS_ICON, HOLODUKE_ICON, JETPACK_ICON, HEAT_ICON, AIRTANK_ICON, BOOT_ICON };
@@ -277,13 +277,13 @@ public:
 				y -= 4;
 			DrawInventory(p, 0, y, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD1(p, snum);
-			PrintLevelStats(scale * tilesiz[BIGALPHANUM].y + 10);
+			PrintLevelStats(scale * tileHeight(BIGALPHANUM) + 10);
 		}
 		else if (style == 2)
 		{
 			DrawInventory(p, 56, -20, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD2(p);
-			PrintLevelStats(scale * tilesiz[HEALTHBOX].y + 4);
+			PrintLevelStats(scale * tileHeight(HEALTHBOX) + 4);
 		}
 		else
 		{
@@ -345,9 +345,9 @@ public:
 	void Statusbar(int snum)
 	{
 		auto p = &ps[snum];
-		double h = tilesiz[BOTTOMSTATUSBAR].y * scale;
+		double h = tileHeight(BOTTOMSTATUSBAR) * scale;
 		double wh = 0;
-		if (hud_size < Hud_Stbar) wh = tilesiz[WEAPONBAR].y * scale;
+		if (hud_size < Hud_Stbar) wh = tileHeight(WEAPONBAR) * scale;
 		double left = (320 - tilesiz[BOTTOMSTATUSBAR].x * scale) / 2;
 
 		double top = 200 - h;

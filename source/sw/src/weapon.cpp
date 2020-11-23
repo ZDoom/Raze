@@ -16098,7 +16098,7 @@ WallSpriteInsideSprite(SPRITEp wsp, SPRITEp sp)
     x1 = wsp->x;
     y1 = wsp->y;
 
-    xoff = (int) TILE_XOFF(wsp->picnum) + (int) wsp->xoffset;
+    xoff = (int) tileLeftOffset(wsp->picnum) + (int) wsp->xoffset;
 
     if (TEST(wsp->cstat, CSTAT_SPRITE_XFLIP))
         xoff = -xoff;

@@ -1740,7 +1740,7 @@ int ParseState::parse(void)
 
 		insptr++;
 
-		if ((g_sp->picnum == TILE_APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tilesiz[g_sp->picnum].y + 8)) << 2) < (g_ac->floorz - g_ac->ceilingz))
+		if ((g_sp->picnum == TILE_APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tileHeight(g_sp->picnum) + 8)) << 2) < (g_ac->floorz - g_ac->ceilingz))
 		{
 			j = ((*insptr) - g_sp->yrepeat) << 1;
 			if (abs(j)) g_sp->yrepeat += ksgn(j);

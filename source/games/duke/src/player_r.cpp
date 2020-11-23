@@ -858,7 +858,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		sa = s->ang;
 		sx = s->x;
 		sy = s->y;
-		sz = s->z - ((s->yrepeat * tilesiz[s->picnum].y) << 1) + (4 << 8);
+		sz = s->z - ((s->yrepeat * tileHeight(s->picnum)) << 1) + (4 << 8);
 		sz -= (7 << 8);
 		if (badguy(s))
 		{

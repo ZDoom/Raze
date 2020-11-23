@@ -244,7 +244,7 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
     else
     {
         spritetype *pSprite2 = &sprite[nSprite2];
-        int nTileY = (tilesiz[pSprite2->picnum].y * pSprite2->yrepeat) * 2;
+        int nTileY = (tileHeight(pSprite2->picnum) * pSprite2->yrepeat) * 2;
 
         int nMyAngle = GetMyAngle(pSprite2->x - pSprite->x, pSprite2->y - pSprite->y);
 

@@ -277,7 +277,7 @@ void DoSpiritHead()
             int srctile = nMouthTile + 598;
             auto src = tilePtr(srctile);
             int sizx = tilesiz[srctile].x;
-            int sizy = tilesiz[srctile].y;
+            int sizy = tileHeight(srctile);
             int workptr = 212 * (97 - sizx / 2) + 159 - sizy;
             int srcptr = 0;
             while (sizx > 0) 

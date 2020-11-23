@@ -124,7 +124,7 @@ void InitStatus()
     nMagicFrame = 0;
     nHealthLevel = 0;
     nMagicLevel = 0;
-    nMeterRange = tilesiz[nPicNum].y;
+    nMeterRange = tileHeight(nPicNum);
     magicperline = 1000 / nMeterRange;
     healthperline = 800 / nMeterRange;
     nAirFrames = SeqSize[nStatusSeqOffset + 133];

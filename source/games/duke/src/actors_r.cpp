@@ -2086,7 +2086,7 @@ static void rrra_specialstats()
 				{
 					s->xrepeat >>= 1;
 					s->yrepeat >>= 1;
-					s->clipdist = mulscale7(s->xrepeat, tilesiz[s->picnum].y);
+					s->clipdist = mulscale7(s->xrepeat, tileHeight(s->picnum));
 				}
 				break;
 			}

@@ -1198,7 +1198,7 @@ static void sortsprites(int const start, int const end)
                 if ((s->cstat&48) != 32)
                 {
                     int32_t yoff = tileTopOffset(s->picnum) + s->yoffset;
-                    int32_t yspan = (tilesiz[s->picnum].y*s->yrepeat<<2);
+                    int32_t yspan = (tileHeight(s->picnum) * s->yrepeat << 2);
 
                     spritesxyz[k].z -= (yoff*s->yrepeat)<<2;
 

@@ -148,7 +148,7 @@ void IgniteSprite(int nSprite)
     sprite[nAnimSprite].hitag = nSprite;
     changespritestat(nAnimSprite, kStatIgnited);
 
-    short yRepeat = (tilesiz[sprite[nAnimSprite].picnum].y * 32) / nFlameHeight;
+    short yRepeat = (tileHeight(sprite[nAnimSprite].picnum) * 32) / nFlameHeight;
     if (yRepeat < 1)
         yRepeat = 1;
 

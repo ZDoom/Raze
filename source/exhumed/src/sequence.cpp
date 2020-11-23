@@ -335,7 +335,7 @@ void seq_LoadSequences()
     nShadowPic = seq_GetFirstSeqPicnum(kSeqShadow);
     nShadowWidth = tilesiz[nShadowPic].x;
 
-    nFlameHeight = tilesiz[seq_GetFirstSeqPicnum(kSeqFirePoof)].y;
+    nFlameHeight = tileHeight(seq_GetFirstSeqPicnum(kSeqFirePoof));
 
     nBackgroundPic = seq_GetFirstSeqPicnum(kSeqBackgrnd);
 

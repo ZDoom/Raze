@@ -274,7 +274,7 @@ private:
             // frag bar 0 or 1
             frag_bar = ((pnum) / 4);
             // move y down according to frag bar number
-            ys = ys + (tilesiz[FRAG_BAR].y - 2) * frag_bar;
+            ys = ys + (tileHeight(FRAG_BAR) - 2) * frag_bar;
 
             // move x over according to the number of players
             xs = xoffs[MOD4(pnum)];
@@ -308,7 +308,7 @@ private:
             // frag bar 0 or 1
             frag_bar = ((pnum) / 4);
             // move y down according to frag bar number
-            ys = ys + (tilesiz[FRAG_BAR].y - 2) * frag_bar;
+            ys = ys + (tileHeight(FRAG_BAR) - 2) * frag_bar;
 
             // move x over according to the number of players
             xs = xoffs[MOD4(pnum)];
@@ -345,14 +345,14 @@ private:
 
         for (i = windowxy1.x; i <= windowxy2.x; i++)
         {
-            y = (tilesiz[FRAG_BAR].y * num_frag_bars) - (2 * (num_frag_bars - 1));
+            y = (tileHeight(FRAG_BAR) * num_frag_bars) - (2 * (num_frag_bars - 1));
             y = y * (ydim / 200.0);
         }
 
         for (i = 0, y = 0; i < num_frag_bars; i++)
         {
             DrawGraphic(tileGetTexture(FRAG_BAR), 0, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
-            y += tilesiz[FRAG_BAR].y - 2;
+            y += tileHeight(FRAG_BAR) - 2;
         }
         DisplayFragNames();
         DisplayFragNumbers();
@@ -450,7 +450,7 @@ private:
 
 
         xsize = tilesiz[PANEL_KEY_RED].x + 1;
-        ysize = tilesiz[PANEL_KEY_RED].y + 2;
+        ysize = tileHeight(PANEL_KEY_RED) + 2;
 
         i = 0;
         for (row = 0; row < 2; row++)

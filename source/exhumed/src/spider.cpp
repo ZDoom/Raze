@@ -225,7 +225,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                     if (sprite[nSprite].cstat & 8)
                     {
                         sprite[nSprite].zvel = 0;
-                        sprite[nSprite].z = sector[nSector].ceilingz + (tilesiz[sprite[nSprite].picnum].y << 5);
+                        sprite[nSprite].z = sector[nSector].ceilingz + (tileHeight(sprite[nSprite].picnum) << 5);
 
                         if (sector[nSector].ceilingstat & 1)
                         {

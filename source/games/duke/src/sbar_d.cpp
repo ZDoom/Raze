@@ -67,7 +67,7 @@ public:
 		digiFont = Create<DHUDFont>(DigiFont, 1, Off, 1, 1 );
 
 		// optionally draw at the top of the screen.
-		SetSize(tilesiz[TILE_BOTTOMSTATUSBAR].y);
+		SetSize(tileHeight(TILE_BOTTOMSTATUSBAR));
 		scale = 1;
 
 		ammo_sprites = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO, TRIPBOMBSPRITE, FREEZEAMMO + 1, HBOMBAMMO, GROWAMMO, FLAMETHROWERAMMO + 1 };
@@ -283,13 +283,13 @@ public:
 		{
 			DrawInventory(p, 0, -46, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD1(p, snum);
-			PrintLevelStats(tilesiz[BIGALPHANUM].y +10);
+			PrintLevelStats(tileHeight(BIGALPHANUM) +10);
 		}
 		else if (style == 2)
 		{
 			DrawInventory(p, (ud.multimode > 1) ? 56 : 65, -28, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD2(p);
-			PrintLevelStats(tilesiz[HEALTHBOX].y + 4);
+			PrintLevelStats(tileHeight(HEALTHBOX) + 4);
 		}
 		else
 		{
@@ -386,7 +386,7 @@ public:
 	void Statusbar(int snum)
 	{
 		auto p = &ps[snum];
-		int h = tilesiz[BOTTOMSTATUSBAR].y;
+		int h = tileHeight(BOTTOMSTATUSBAR);
 		int top = 200 - h;
 		int left = (320 - tilesiz[BOTTOMSTATUSBAR].x) / 2;
 		BeginStatusBar(320, 200, h);

@@ -500,7 +500,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
 
 int GetSpriteHeight(int nSprite)
 {
-    return tilesiz[sprite[nSprite].picnum].y * sprite[nSprite].yrepeat * 4;
+    return tileHeight(sprite[nSprite].picnum) * sprite[nSprite].yrepeat * 4;
 }
 
 int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigned int clipmask)
@@ -1184,7 +1184,7 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
     }
     else
     {
-        int nHeight = tilesiz[sprite[nSprite2].picnum].y * sprite[nSprite2].yrepeat * 2;
+        int nHeight = tileHeight(sprite[nSprite2].picnum) * sprite[nSprite2].yrepeat * 2;
 
         int nMyAngle = GetMyAngle(sprite[nSprite2].x - sprite[nSprite].x, sprite[nSprite2].y - sprite[nSprite].y);
 

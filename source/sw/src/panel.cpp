@@ -876,7 +876,7 @@ void SpecialUziRetractFunc(PANEL_SPRITEp psp)
     psp->oy = psp->y;
     psp->y += 4 * synctics;
 
-    if (psp->y >= 200 + tilesiz[psp->picnum].y)
+    if (psp->y >= 200 + tileHeight(psp->picnum))
     {
         pKillSprite(psp);
     }
@@ -1983,7 +1983,7 @@ pUziReloadRetract(PANEL_SPRITEp nclip)
     gun->yfract = LSW(ygun);
     gun->y = ygun / FRACUNIT;
 
-    if (gun->y > UZI_RELOAD_YOFF + tilesiz[gun->picndx].y)
+    if (gun->y > UZI_RELOAD_YOFF + tileHeight(gun->picndx))
     {
         pSetState(gun, ps_UziDoneReload);
         pKillSprite(nclip);
@@ -2193,7 +2193,7 @@ InitWeaponUzi2(PANEL_SPRITEp uzi_orig)
     pp->WpnUziType = 0; // 0 is up, 1 is retract
 
     New = pSpawnSprite(pp, ps_PresentUzi2, PRI_MID, 160 - UZI_XOFF, UZI_YOFF);
-    New->y += tilesiz[New->picndx].y;
+    New->y += tileHeight(New->picndx);
     New->oy = New->y;
     uzi_orig->sibling = New;
 
@@ -2219,7 +2219,7 @@ InitWeaponUziSecondaryReload(PANEL_SPRITEp uzi_orig)
     PLAYERp pp = uzi_orig->PlayerP;
 
     New = pSpawnSprite(pp, ps_PresentUzi, PRI_MID, 160 - UZI_XOFF, UZI_YOFF);
-    New->y += tilesiz[New->picndx].y;
+    New->y += tileHeight(New->picndx);
     New->oy = New->y;
 
     SET(New->flags, PANF_XFLIP);

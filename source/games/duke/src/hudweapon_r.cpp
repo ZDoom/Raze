@@ -80,9 +80,9 @@ void displaymasks_r(int snum, double smoothratio)
 		// to get the proper clock value with regards to interpolation we have add a smoothratio based offset to the value.
 		double interpclock = ud.levelclock + (TICSPERFRAME/65536.) * smoothratio;
 		int pin = RS_STRETCH;
-		hud_drawsprite((320 - (tilesiz[SCUBAMASK].x >> 1) - 15), (200 - (tilesiz[SCUBAMASK].y >> 1) + bsinf(interpclock, -10)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
-		hud_drawsprite((320 - tilesiz[SCUBAMASK + 4].x), (200 - tilesiz[SCUBAMASK + 4].y), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
-		hud_drawsprite(tilesiz[SCUBAMASK + 4].x, (200 - tilesiz[SCUBAMASK + 4].y), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
+		hud_drawsprite((320 - (tilesiz[SCUBAMASK].x >> 1) - 15), (200 - (tileHeight(SCUBAMASK) >> 1) + bsinf(interpclock, -10)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
+		hud_drawsprite((320 - tilesiz[SCUBAMASK + 4].x), (200 - tileHeight(SCUBAMASK + 4)), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
+		hud_drawsprite(tilesiz[SCUBAMASK + 4].x, (200 - tileHeight(SCUBAMASK + 4)), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
 		hud_drawsprite(35, (-1), 65536, 0, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
 		hud_drawsprite(285, 200, 65536, 1024, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
 	}

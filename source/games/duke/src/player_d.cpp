@@ -1038,7 +1038,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 		sa = s->ang;
 		sx = s->x;
 		sy = s->y;
-		sz = s->z - ((s->yrepeat * tilesiz[s->picnum].y) << 1) + (4 << 8);
+		sz = s->z - (s->yrepeat * tileHeight(s->picnum) << 1) + (4 << 8);
 		if (s->picnum != ROTATEGUN)
 		{
 			sz -= (7 << 8);

@@ -381,8 +381,8 @@ int startrts(int lumpNum, int localPlayer)
 
 ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 {
-	// todo: factor in the frag bar: tilesiz[TILE_FRAGBAR].y
-	int sbar = tilesiz[TILE_BOTTOMSTATUSBAR].y;
+	// todo: factor in the frag bar: tileHeight(TILE_FRAGBAR)
+	int sbar = tileHeight(TILE_BOTTOMSTATUSBAR);
 	if (isRR())
 	{
 		sbar >>= 1;

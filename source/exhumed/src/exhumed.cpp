@@ -240,7 +240,7 @@ void DrawClock()
     while (nVal)
     {
         int v2 = nVal & 0xF;
-        int yPos = 32 - tilesiz[v2 + kClockSymbol1].y / 2;
+        int yPos = 32 - tileHeight(v2 + kClockSymbol1) / 2;
 
         CopyTileToBitmap(v2 + kClockSymbol1, kTile3603, ebp - tilesiz[v2 + kClockSymbol1].x / 2, yPos);
 
@@ -570,7 +570,7 @@ void mydeletesprite(int nSprite)
 
 void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
 {
-    int nOffs = tilesiz[nDestTile].y * xPos;
+    int nOffs = tileHeight(nDestTile) * xPos;
 
 	auto pixels = TileFiles.tileMakeWritable(nDestTile);
     uint8_t *pDest = pixels + nOffs + yPos;
@@ -578,8 +578,8 @@ void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
 
     tileLoad(nSrcTile);
 
-    int destYSize = tilesiz[nDestTile].y;
-    int srcYSize = tilesiz[nSrcTile].y;
+    int destYSize = tileHeight(nDestTile);
+    int srcYSize = tileHeight(nSrcTile);
 
     const uint8_t *pSrc = tilePtr(nSrcTile);
 
