@@ -150,6 +150,23 @@ void InitStatus()
     statusy = ydim - 200;
 }
 
+int ItemTimer(int num, int plr) 
+{
+    switch (num) {
+    case 1: //Scarab item
+        return (PlayerList[plr].invincibility * 100) / 900;
+    case 3: //Hand item
+        return (nPlayerDouble[plr] * 100) / 1350;
+    case 5: //Mask
+        return (PlayerList[plr].nMaskAmount * 100) / 1350;
+    case 4: //Invisible
+        return (nPlayerInvisible[plr] * 100) / 900;
+    case 2: //Torch
+        return (nPlayerTorch[plr] * 100) / 900;
+    }
+
+    return -1;
+}
 
 int BuildStatusAnim(int val, int nFlags)
 {
@@ -773,7 +790,14 @@ private:
             DrawGraphic(img, 70, -1, DI_ITEM_CENTER_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
             format.Format("%d", pp->nMagic / 10);
-            SBar_DrawString(this, numberFont, format, 79.5, -numberFont->mFont->GetHeight()+3, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+
+            short nItem = nPlayerItem[nLocalPlayer];
+            int timer = ItemTimer(nItem, nLocalPlayer);
+            if (timer > 0)
+            {
+                format.AppendFormat("/%d", timer);
+            }
+            SBar_DrawString(this, numberFont, format, 79.5, -numberFont->mFont->GetHeight() + 3, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
         }
         //
         // Weapon
