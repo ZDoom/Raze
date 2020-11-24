@@ -372,7 +372,7 @@ void InitLevel(MapRecord *maprec)
     }
     if (!maprec->labelName.CompareNoCase("$outpost") && !maprec->name.CompareNoCase("$TXTS_MAP09"))
     {
-        // clear accidental one-sided flag off yet another key card.
+        // silence a misplaced and *very* annoying ambient sound.
         if (sprite[442].picnum == ST1 && sprite[442].hitag == 1002 && sprite[442].lotag == 31) sprite[442].lotag = -1;
     }
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
