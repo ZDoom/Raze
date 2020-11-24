@@ -249,8 +249,11 @@ void InitAmbient(int num, SPRITEp sp)
     // Ambient sounds need special treatment
     if (num < 0 || num > MAX_AMBIENT_SOUNDS)
     {
-        sprintf(ds, "Invalid or out of range ambient sound number %d\n", num);
-        PutStringInfo(Player + screenpeek, ds);
+        if (num != -1) // skip message for -1 to allow using it for silencing buggy ambient sound sprites (there is one in SW level 9.)
+        {
+            sprintf(ds, "Invalid or out of range ambient sound number %d\n", num);
+            PutStringInfo(Player + screenpeek, ds);
+        }
         return;
     }
     auto vnum = ambarray[num].diginame;

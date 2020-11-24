@@ -370,6 +370,11 @@ void InitLevel(MapRecord *maprec)
         // clear accidental one-sided flag off yet another key card.
         if (sprite[333].picnum == 1774 && sprite[333].cstat == 81) sprite[333].cstat &= ~64;
     }
+    if (!maprec->labelName.CompareNoCase("$outpost") && !maprec->name.CompareNoCase("$TXTS_MAP09"))
+    {
+        // clear accidental one-sided flag off yet another key card.
+        if (sprite[442].picnum == ST1 && sprite[442].hitag == 1002 && sprite[442].lotag == 31) sprite[442].lotag = -1;
+    }
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     Player[0].angle.ang = buildang(ang);
