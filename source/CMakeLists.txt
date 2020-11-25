@@ -792,6 +792,7 @@ set (PCH_SOURCES
 	core/gamecvars.cpp
 	core/gamecontrol.cpp
 	core/gameinput.cpp
+	core/interpolate.cpp
 	core/inputstate.cpp
 	core/maphack.cpp
 	core/mapinfo.cpp

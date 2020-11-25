@@ -55,6 +55,7 @@
 #include "statusbar.h"
 #include "gamestate.h"
 #include "razemenu.h"
+#include "interpolate.h"
 
 
 sectortype sectorbackup[MAXSECTORS];
@@ -643,6 +644,8 @@ void SerializeMap(FSerializer& arc)
 			("parallaxys", parallaxyscale_override)
 			("pskybits", pskybits_override)
 			("numsprites", Numsprites);
+
+		SerializeInterpolations(arc);
 
 		if (arc.BeginArray("picanm")) // write this in the most compact form available.
 		{
