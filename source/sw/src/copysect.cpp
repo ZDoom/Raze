@@ -233,11 +233,11 @@ void CopySectorMatch(short match)
                 dsectp->floorpal = ssectp->floorpal;
                 dsectp->ceilingpal = ssectp->ceilingpal;
 
-                dsectp->floorxpanning = ssectp->floorxpanning;
-                dsectp->ceilingxpanning = ssectp->ceilingxpanning;
+                dsectp->floorxpan_ = ssectp->floorxpan_;
+                dsectp->ceilingxpan_ = ssectp->ceilingxpan_;
 
-                dsectp->floorypanning = ssectp->floorypanning;
-                dsectp->ceilingypanning = ssectp->ceilingypanning;
+                dsectp->floorypan_ = ssectp->floorypan_;
+                dsectp->ceilingypan_ = ssectp->ceilingypan_;
 
                 dsectp->floorstat = ssectp->floorstat;
                 dsectp->ceilingstat = ssectp->ceilingstat;

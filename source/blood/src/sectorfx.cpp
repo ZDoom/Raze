@@ -280,34 +280,26 @@ void DoSectorPanning(void)
             if (pXSector->panFloor) // Floor
             {
                 int nTile = pSector->floorpicnum;
-                int px = (pSector->floorxpanning << 8) + pXSector->floorXPanFrac;
-                int py = (pSector->floorypanning << 8) + pXSector->floorYPanFrac;
                 if (pSector->floorstat & 64)
                     angle -= 512;
                 int xBits = tileWidth(nTile) >> int((pSector->floorstat & 8) != 0);
-                px += mulscale30(speed << 2, Cos(angle)) / xBits;
+                int px = mulscale30(speed << 2, Cos(angle)) / xBits;
                 int yBits = tileHeight(nTile) >> int((pSector->floorstat & 8) != 0);
-                py -= mulscale30(speed << 2, Sin(angle)) / yBits;
-                pSector->floorxpanning = px >> 8;
-                pSector->floorypanning = py >> 8;
-                pXSector->floorXPanFrac = px & 255;
-                pXSector->floorYPanFrac = py & 255;
+                int py = mulscale30(speed << 2, Sin(angle)) / yBits;
+                pSector->addfloorxpan(px * (1. / 256));
+                pSector->addfloorypan(-py * (1. / 256));
             }
             if (pXSector->panCeiling) // Ceiling
             {
                 int nTile = pSector->ceilingpicnum;
-                int px = (pSector->ceilingxpanning << 8) + pXSector->ceilXPanFrac;
-                int py = (pSector->ceilingypanning << 8) + pXSector->ceilYPanFrac;
                 if (pSector->ceilingstat & 64)
                     angle -= 512;
-                int xBits = tileWidth(nTile) >> int((pSector->floorstat & 8) != 0);
-                px += mulscale30(speed << 2, Cos(angle)) / xBits;
-                int yBits = tileHeight(nTile) >> int((pSector->floorstat & 8) != 0);
-                py -= mulscale30(speed << 2, Sin(angle)) / yBits;
-                pSector->ceilingxpanning = px >> 8;
-                pSector->ceilingypanning = py >> 8;
-                pXSector->ceilXPanFrac = px & 255;
-                pXSector->ceilYPanFrac = py & 255;
+                int xBits = tileWidth(nTile) >> int((pSector->ceilingstat & 8) != 0);
+                int px = mulscale30(speed << 2, Cos(angle)) / xBits;
+                int yBits = tileHeight(nTile) >> int((pSector->ceilingstat & 8) != 0);
+                int py = mulscale30(speed << 2, Sin(angle)) / yBits;
+                pSector->addceilingxpan(px * (1. / 256));
+                pSector->addceilingypan(-py * (1. / 256));
             }
         }
     }

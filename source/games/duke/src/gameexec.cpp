@@ -1083,8 +1083,12 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID((int)lVar2, sector[iSector].ceilingpal, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGXPANNING:
-		if (bSet) sector[iSector].ceilingxpanning = lValue;
-		else SetGameVarID((int)lVar2, sector[iSector].ceilingypanning, sActor, sPlayer);
+		if (bSet) sector[iSector].ceilingxpan_ = lValue;
+		else SetGameVarID((int)lVar2, sector[iSector].ceilingxpan(), sActor, sPlayer);
+		break;
+	case SECTOR_CEILINGYPANNING:
+		if (bSet) sector[iSector].ceilingypan_ = lValue;
+		else SetGameVarID((int)lVar2, sector[iSector].ceilingypan(), sActor, sPlayer);
 		break;
 	case SECTOR_FLOORPICNUM:
 		if (bSet) sector[iSector].floorpicnum = lValue;
@@ -1103,12 +1107,12 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID((int)lVar2, sector[iSector].floorpal, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORXPANNING:
-		if (bSet) sector[iSector].floorxpanning = lValue;
-		else SetGameVarID((int)lVar2, sector[iSector].floorxpanning, sActor, sPlayer);
+		if (bSet) sector[iSector].floorxpan_ = lValue;
+		else SetGameVarID((int)lVar2, sector[iSector].floorxpan(), sActor, sPlayer);
 		break;
 	case SECTOR_FLOORYPANNING:
-		if (bSet) sector[iSector].floorypanning = lValue;
-		else SetGameVarID((int)lVar2, sector[iSector].floorypanning, sActor, sPlayer);
+		if (bSet) sector[iSector].floorypan_ = lValue;
+		else SetGameVarID((int)lVar2, sector[iSector].floorypan(), sActor, sPlayer);
 		break;
 	case SECTOR_VISIBILITY:
 		if (bSet) sector[iSector].visibility = lValue;

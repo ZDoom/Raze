@@ -676,8 +676,8 @@ void DoFlows()
                 sFlowInfo[i].field_8 &= sFlowInfo[i].field_18;
 
                 short nSector = sFlowInfo[i].field_0;
-                sector[nSector].floorxpanning = sFlowInfo[i].field_4 >> 14;
-                sector[nSector].floorypanning = sFlowInfo[i].field_8 >> 14;
+                sector[nSector].addfloorxpan(sFlowInfo[i].field_4 / 16384.f);
+                sector[nSector].addfloorypan(sFlowInfo[i].field_8 / 16384.f);
                 break;
             }
 
@@ -685,8 +685,8 @@ void DoFlows()
             {
                 short nSector = sFlowInfo[i].field_0;
 
-                sector[nSector].ceilingxpanning = sFlowInfo[i].field_4 >> 14;
-                sector[nSector].ceilingypanning = sFlowInfo[i].field_8 >> 14;
+                sector[nSector].addceilingxpan(sFlowInfo[i].field_4 / 16384.f);
+                sector[nSector].addceilingypan(sFlowInfo[i].field_8 / 16384.f);
 
                 sFlowInfo[i].field_4 &= sFlowInfo[i].field_14;
                 sFlowInfo[i].field_8 &= sFlowInfo[i].field_18;

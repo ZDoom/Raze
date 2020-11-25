@@ -1578,7 +1578,9 @@ static void polymost_drawalls(int32_t const bunch)
 
         global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->floorshade, global_cf_pal = sec->floorpal; global_cf_z = sec->floorz;  // REFACT
-        global_cf_xpanning = sec->floorxpanning; global_cf_ypanning = sec->floorypanning, global_cf_heinum = sec->floorheinum;
+        global_cf_xpanning = sec->floorxpan_;
+        global_cf_ypanning = sec->floorypan_;
+        global_cf_heinum = sec->floorheinum;
         global_getzofslope_func = &fgetflorzofslope;
 
         if (globalpicnum >= r_rortexture && globalpicnum < r_rortexture + r_rortexturerange && r_rorphase == 0)
@@ -1818,7 +1820,9 @@ static void polymost_drawalls(int32_t const bunch)
 
         global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT
-        global_cf_xpanning = sec->ceilingxpanning; global_cf_ypanning = sec->ceilingypanning, global_cf_heinum = sec->ceilingheinum;
+        global_cf_xpanning = sec->ceilingxpan_; 
+        global_cf_ypanning = sec->ceilingypan_, 
+            global_cf_heinum = sec->ceilingheinum;
         global_getzofslope_func = &fgetceilzofslope;
         
         if (globalpicnum >= r_rortexture && globalpicnum < r_rortexture + r_rortexturerange && r_rorphase == 0)

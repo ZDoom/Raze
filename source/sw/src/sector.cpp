@@ -3210,11 +3210,8 @@ DoPanning(void)
         nx = mulscale20(sp->xvel, bcos(sp->ang));
         ny = mulscale20(sp->xvel, bsin(sp->ang));
 
-        sectp->floorxpanning += nx;
-        sectp->floorypanning += ny;
-
-        sectp->floorxpanning &= 255;
-        sectp->floorypanning &= 255;
+        sectp->addfloorxpan(nx);
+        sectp->addfloorypan(ny);
     }
 
     it.Reset(STAT_CEILING_PAN);
@@ -3226,11 +3223,8 @@ DoPanning(void)
         nx = mulscale20(sp->xvel, bcos(sp->ang));
         ny = mulscale20(sp->xvel, bsin(sp->ang));
 
-        sectp->ceilingxpanning += nx;
-        sectp->ceilingypanning += ny;
-
-        sectp->ceilingxpanning &= 255;
-        sectp->ceilingypanning &= 255;
+        sectp->addceilingxpan(nx);
+        sectp->addceilingypan(ny);
     }
 
     it.Reset(STAT_WALL_PAN);

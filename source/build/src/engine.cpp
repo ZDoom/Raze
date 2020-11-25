@@ -1749,8 +1749,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             asm2 = (globalx2<<globalyshift);
             globalx1 <<= globalxshift;
             globaly2 <<= globalyshift;
-            set_globalpos(((int64_t) globalposx<<(20+globalxshift))+(((uint32_t) sec->floorxpanning)<<24),
-                ((int64_t) globalposy<<(20+globalyshift))-(((uint32_t) sec->floorypanning)<<24),
+            set_globalpos(((int64_t) globalposx<<(20+globalxshift))+(((uint32_t) sec->floorxpan())<<24),
+                ((int64_t) globalposy<<(20+globalyshift))-(((uint32_t) sec->floorypan())<<24),
                 globalposz);
             renderFillPolygon(npoints);
         }

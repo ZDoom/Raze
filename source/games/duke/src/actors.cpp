@@ -4335,11 +4335,11 @@ void handle_se20(DDukeActor* actor)
 				setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz + PHEIGHT);
 			}
 
-		sc->floorxpanning -= x >> 3;
-		sc->floorypanning -= l >> 3;
+		sc->addfloorxpan(-x / 8.f);
+		sc->addfloorypan(-l / 8.f);
 
-		sc->ceilingxpanning -= x >> 3;
-		sc->ceilingypanning -= l >> 3;
+		sc->addceilingxpan(-x / 8.f);
+		sc->addceilingypan(-l / 8.f);
 	}
 }
 
@@ -4601,7 +4601,7 @@ void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, int TRIPBOMB
 			}
 		}
 	}
-	sector[actor->s.sectnum].floorxpanning += actor->s.yvel >> 7;
+	sector[actor->s.sectnum].addfloorxpan(actor->s.yvel / 128.f);
 }
 
 //---------------------------------------------------------------------------

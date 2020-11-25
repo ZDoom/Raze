@@ -213,12 +213,8 @@ struct XSECTOR {
     uint8_t Depth;             // Depth
     uint8_t Key;               // Key
     uint8_t ceilpal;           // Ceil pal2
-    uint8_t ceilXPanFrac;      // Ceiling x panning frac
-    uint8_t ceilYPanFrac;      // Ceiling y panning frac
-    uint8_t floorXPanFrac;     // Floor x panning frac
     uint8_t damageType;        // DamageType
     uint8_t floorpal;          // Floor pal2
-    uint8_t floorYPanFrac;     // Floor y panning frac
     uint8_t bobZRange;         // Motion Z range
 };
 

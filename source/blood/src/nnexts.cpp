@@ -1648,16 +1648,16 @@ void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
     // for sectors
     case 6:
         if (valueIsBetween(pXSource->data1, -1, 32767))
-            sector[objIndex].floorxpanning = ClipRange(pXSource->data1, 0, 255);
+            sector[objIndex].floorxpan_ = ClipRange(pXSource->data1, 0, 255);
 
         if (valueIsBetween(pXSource->data2, -1, 32767))
-            sector[objIndex].floorypanning = ClipRange(pXSource->data2, 0, 255);
+            sector[objIndex].floorypan_ = ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            sector[objIndex].ceilingxpanning = ClipRange(pXSource->data3, 0, 255);
+            sector[objIndex].ceilingxpan_ = ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            sector[objIndex].ceilingypanning = ClipRange(pXSource->data4, 0, 255);
+            sector[objIndex].ceilingypan_ = ClipRange(pXSource->data4, 0, 255);
         break;
     // for sprites
     case 3:
@@ -2627,10 +2627,10 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
                             }
                             break;
                         case 29: return (pObj->hitag & arg1);
-                        case 30: return condCmp(pObj->floorxpanning, arg1, arg2, cmpOp);
-                        case 31: return condCmp(pObj->ceilingxpanning, arg1, arg2, cmpOp);
-                        case 32: return condCmp(pObj->floorypanning, arg1, arg2, cmpOp);
-                        case 33: return condCmp(pObj->ceilingypanning, arg1, arg2, cmpOp);
+                        case 30: return condCmp(pObj->floorxpan(), arg1, arg2, cmpOp);
+                        case 31: return condCmp(pObj->ceilingxpan(), arg1, arg2, cmpOp);
+                        case 32: return condCmp(pObj->floorypan(), arg1, arg2, cmpOp);
+                        case 33: return condCmp(pObj->ceilingypan(), arg1, arg2, cmpOp);
                     }
                     break;
                 }
