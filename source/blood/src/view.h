@@ -141,7 +141,7 @@ extern LOCATION gPrevSpriteLoc[kMaxSprites];
 extern int gLastPal;
 extern double gInterpolate;
 
-void hudDraw(PLAYER* gView, VIEW *pView, int nSectnum, double bobx, double boby, double zDelta, int basepal, double smoothratio);
+void hudDraw(PLAYER* gView, int nSectnum, double bobx, double boby, double zDelta, int basepal, double smoothratio);
 void viewInitializePrediction(void);
 void viewUpdatePrediction(InputPacket *pInput);
 void viewCorrectPrediction(void);

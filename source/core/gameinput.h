@@ -246,10 +246,21 @@ struct PlayerAngle
 		return bamang(prev + xs_CRoundToUInt(ratio * (((curr + dang - prev) & 0xFFFFFFFF) - dang)));
 	}
 
+	lookangle interpolatedlookang(double const smoothratio)
+	{
+		double const ratio = smoothratio * (1. / FRACUNIT);
+		return bamlook(olook_ang.asbam() + xs_CRoundToInt(ratio * (look_ang - olook_ang).asbam()));
+	}
+
 	lookangle interpolatedrotscrn(double const smoothratio)
 	{
 		double const ratio = smoothratio * (1. / FRACUNIT);
 		return bamlook(orotscrnang.asbam() + xs_CRoundToInt(ratio * (rotscrnang - orotscrnang).asbam()));
+	}
+
+	double look_anghalf(double const smoothratio)
+	{
+		return (!cl_syncinput ? look_ang : interpolatedlookang(smoothratio)).asbam() * (0.5 / BAMUNIT); // Used within draw code for weapon and crosshair when looking left/right.
 	}
 };
 

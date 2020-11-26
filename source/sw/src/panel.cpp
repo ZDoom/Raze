@@ -6929,8 +6929,8 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
     short ang;
     int flags;
 
-    double look_anghalf = getHalfLookAng(pp->angle.olook_ang.asq16(), pp->angle.look_ang.asq16(), cl_syncinput, smoothratio);
-    double looking_arc = fabs(look_anghalf) / 4.5;
+    double const look_anghalf = pp->angle.look_anghalf(smoothratio);
+    double const looking_arc = fabs(look_anghalf) / 4.5;
 
     TRAVERSE(&pp->PanelSpriteList, psp, next)
     {

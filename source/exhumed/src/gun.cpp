@@ -983,7 +983,7 @@ void DrawWeapons(double smooth)
         nShade = sprite[PlayerList[nLocalPlayer].nSprite].shade;
     }
 
-    double const look_anghalf = getHalfLookAng(PlayerList[nLocalPlayer].angle.olook_ang.asq16(), PlayerList[nLocalPlayer].angle.look_ang.asq16(), cl_syncinput, smooth);
+    double const look_anghalf = PlayerList[nLocalPlayer].angle.look_anghalf(smooth);
     double const looking_arc = fabs(look_anghalf) / 4.5;
 
     xOffset -= look_anghalf;

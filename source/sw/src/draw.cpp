@@ -1259,7 +1259,7 @@ void DrawCrosshair(PLAYERp pp)
     if (!(CameraTestMode))
     {
         USERp u = User[pp->PlayerSprite];
-        ::DrawCrosshair(2326, u->Health, -getHalfLookAng(pp->angle.olook_ang.asq16(), pp->angle.look_ang.asq16(), cl_syncinput, smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
+        ::DrawCrosshair(2326, u->Health, -pp->angle.look_anghalf(smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
     }
 }
 
