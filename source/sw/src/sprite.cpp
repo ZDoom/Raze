@@ -2114,6 +2114,8 @@ SpriteSetup(void)
                     else
                         sp->xvel = sp->lotag;
 
+                    StartInterpolation(sp->sectnum, Interp_Sect_FloorPanX);
+                    StartInterpolation(sp->sectnum, Interp_Sect_FloorPanY);
                     change_sprite_stat(SpriteNum, STAT_FLOOR_PAN);
                     break;
                 }
@@ -2125,6 +2127,8 @@ SpriteSetup(void)
                         sp->xvel = 0;
                     else
                         sp->xvel = sp->lotag;
+                    StartInterpolation(sp->sectnum, Interp_Sect_CeilingPanX);
+                    StartInterpolation(sp->sectnum, Interp_Sect_CeilingPanY);
                     change_sprite_stat(SpriteNum, STAT_CEILING_PAN);
                     break;
                 }
@@ -2155,6 +2159,8 @@ SpriteSetup(void)
                     sp->ang = SP_TAG6(sp);
                     // attach to the sector that contains the wall
                     changespritesect(SpriteNum, hitinfo.sect);
+                    StartInterpolation(hitinfo.wall, Interp_Wall_PanX);
+                    StartInterpolation(hitinfo.wall, Interp_Wall_PanY);
                     change_sprite_stat(SpriteNum, STAT_WALL_PAN);
                     break;
                 }
