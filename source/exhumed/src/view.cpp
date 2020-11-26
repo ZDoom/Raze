@@ -121,8 +121,24 @@ void viewRestoreInterpolations(void)  //Stick at end of drawscreen
 }
 
 // NOTE - not to be confused with Ken's analyzesprites()
-static void analyzesprites()
+static void analyzesprites(double const smoothratio)
 {
+    tspritetype *pTSprite;
+
+    for (int i = 0; i < spritesortcnt; i++) {
+        pTSprite = &tsprite[i];
+
+        if (pTSprite->owner != -1)
+        {
+            // interpolate sprite position
+            Loc* oldLoc = &oldLocs[pTSprite->owner];
+            pTSprite->x = oldLoc->x + MulScale(pTSprite->x - oldLoc->x, smoothratio, 16);
+            pTSprite->y = oldLoc->y + MulScale(pTSprite->y - oldLoc->y, smoothratio, 16);
+            pTSprite->z = oldLoc->z + MulScale(pTSprite->z - oldLoc->z, smoothratio, 16);
+            pTSprite->ang = oldLoc->ang + MulScale(((pTSprite->ang - oldLoc->ang + 1024) & 0x7FF) - 1024, smoothratio, 16);
+        }
+    }
+
     short nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
 
     int var_38 = 20;
@@ -142,7 +158,6 @@ static void analyzesprites()
     int nAngle = (2048 - pPlayerSprite->ang) & kAngleMask;
 
     int nTSprite;
-    tspritetype *pTSprite;
 
 //	int var_20 = var_24;
 
@@ -398,7 +413,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         }
 
         renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
-        analyzesprites();
+        analyzesprites(smoothRatio);
         renderDrawMasks();
 
         if (HavePLURemap())

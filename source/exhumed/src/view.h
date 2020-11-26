@@ -46,6 +46,12 @@ extern short bTouchFloor;
 extern short nChunkTotal;
 extern int gFov;
 
+struct Loc
+{
+	int x, y, z, ang;
+};
+extern Loc oldLocs[MAXSPRITES];
+
 static inline int angle_interpolate16(int a, int b, int smooth)
 {
     return a + mulscale16(((b+1024-a)&2047)-1024, smooth);
