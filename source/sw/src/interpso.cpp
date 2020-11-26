@@ -30,13 +30,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pragmas.h"
 
 #include "game.h"
-#include "interp.h"
 #include "interpso.h"
 #include "names2.h"
 
 BEGIN_SW_NS
 
-#define SO_MAXINTERPOLATIONS MAXINTERPOLATIONS
+#define SO_MAXINTERPOLATIONS 1024
 
 static struct so_interp
 {

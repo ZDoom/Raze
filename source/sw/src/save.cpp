@@ -35,7 +35,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "game.h"
 #include "tags.h"
 #include "lists.h"
-#include "interp.h"
+#include "interpolate.h"
 #include "interpso.h"
 
 #include "network.h"
@@ -560,26 +560,6 @@ bool GameInterface::SaveGame()
     MWRITE(&MoveSkip4,sizeof(MoveSkip4),1,fil);
     MWRITE(&MoveSkip8,sizeof(MoveSkip8),1,fil);
 
-    // long interpolations
-    MWRITE(&numinterpolations,sizeof(numinterpolations),1,fil);
-    MWRITE(oldipos,sizeof(oldipos),1,fil);
-    MWRITE(bakipos,sizeof(bakipos),1,fil);
-    for (i = numinterpolations - 1; i >= 0; i--)
-    {
-        saveisshot |= SaveSymDataInfo(fil, curipos[i]);
-        assert(!saveisshot);
-    }
-
-    // short interpolations
-    MWRITE(&short_numinterpolations,sizeof(short_numinterpolations),1,fil);
-    MWRITE(short_oldipos,sizeof(short_oldipos),1,fil);
-    MWRITE(short_bakipos,sizeof(short_bakipos),1,fil);
-    for (i = short_numinterpolations - 1; i >= 0; i--)
-    {
-        saveisshot |= SaveSymDataInfo(fil, short_curipos[i]);
-        assert(!saveisshot);
-    }
-
     // SO interpolations
 	saveisshot |= so_writeinterpolations(fil);
 	assert(!saveisshot);
@@ -918,22 +898,6 @@ bool GameInterface::LoadGame()
     MREAD(&MoveSkip2,sizeof(MoveSkip2),1,fil);
     MREAD(&MoveSkip4,sizeof(MoveSkip4),1,fil);
     MREAD(&MoveSkip8,sizeof(MoveSkip8),1,fil);
-
-    // long interpolations
-    MREAD(&numinterpolations,sizeof(numinterpolations),1,fil);
-    MREAD(oldipos,sizeof(oldipos),1,fil);
-    MREAD(bakipos,sizeof(bakipos),1,fil);
-    for (i = numinterpolations - 1; i >= 0; i--)
-        saveisshot |= LoadSymDataInfo(fil, (void **)&curipos[i]);
-    if (saveisshot) { MCLOSE_READ(fil); return false; }
-
-    // short interpolations
-    MREAD(&short_numinterpolations,sizeof(short_numinterpolations),1,fil);
-    MREAD(short_oldipos,sizeof(short_oldipos),1,fil);
-    MREAD(short_bakipos,sizeof(short_bakipos),1,fil);
-    for (i = short_numinterpolations - 1; i >= 0; i--)
-        saveisshot |= LoadSymDataInfo(fil, (void **)&short_curipos[i]);
-    if (saveisshot) { MCLOSE_READ(fil); return false; }
 
     // SO interpolations
     saveisshot |= so_readinterpolations(fil);

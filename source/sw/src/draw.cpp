@@ -48,7 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "misc.h"
 
 #include "menus.h"
-#include "interp.h"
+#include "interpolate.h"
 #include "interpso.h"
 #include "sector.h"
 #include "razemenu.h"
@@ -1634,8 +1634,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if (!ScreenSavePic)
     {
-        dointerpolations(smoothratio);                      // Stick at beginning of drawscreen
-        short_dointerpolations(smoothratio);                      // Stick at beginning of drawscreen
+        DoInterpolations(smoothratio / 65536.);                      // Stick at beginning of drawscreen
         if (cl_sointerpolation)
             so_dointerpolations(smoothratio);                           // Stick at beginning of drawscreen
     }
@@ -1847,8 +1846,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     SyncStatMessage();
 #endif
 
-    restoreinterpolations();                 // Stick at end of drawscreen
-    short_restoreinterpolations();                 // Stick at end of drawscreen
+    RestoreInterpolations();                 // Stick at end of drawscreen
     if (cl_sointerpolation)
         so_restoreinterpolations();                       // Stick at end of drawscreen
 

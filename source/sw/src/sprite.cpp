@@ -38,7 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 
 #include "sounds.h"
-#include "interp.h"
+#include "interpolate.h"
 #include "interpso.h"
 #include "sprite.h"
 #include "weapon.h"
@@ -656,9 +656,7 @@ KillSprite(int16_t SpriteNum)
         // any Anims attached
         AnimDelete(&u->sz);
         AnimDelete(&sp->z);
-        stopinterpolation(&sp->x);
-        stopinterpolation(&sp->y);
-        stopinterpolation(&sp->z);
+        StopInterpolation(SpriteNum, Interp_Sprite_Z);
 
         //if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
         //    Zombies--;

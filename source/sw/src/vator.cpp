@@ -32,7 +32,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "network.h"
 #include "tags.h"
 #include "sector.h"
-#include "interp.h"
+#include "interpolate.h"
 #include "misc.h"
 #include "sprite.h"
 #include "weapon.h"
@@ -106,9 +106,9 @@ void SetVatorActive(short SpriteNum)
     SECTORp sectp = &sector[sp->sectnum];
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-        setinterpolation(&sectp->ceilingz);
+        StartInterpolation(sp->sectnum, Interp_Sect_Ceilingz);
     else
-        setinterpolation(&sectp->floorz);
+        StartInterpolation(sp->sectnum, Interp_Sect_Floorz);
 
     InterpSectorSprites(sp->sectnum, true);
 
@@ -134,9 +134,9 @@ void SetVatorInactive(short SpriteNum)
     SECTORp sectp = &sector[sp->sectnum];
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-        stopinterpolation(&sectp->ceilingz);
+        StopInterpolation(sp->sectnum, Interp_Sect_Ceilingz);
     else
-        stopinterpolation(&sectp->floorz);
+        StopInterpolation(sp->sectnum, Interp_Sect_Floorz);
 
     InterpSectorSprites(sp->sectnum, false);
 
@@ -339,9 +339,9 @@ void InterpSectorSprites(short sectnum, bool state)
         }
 
         if (state)
-            setinterpolation(&sp->z);
+            StartInterpolation(i, Interp_Sprite_Z);
         else
-            stopinterpolation(&sp->z);
+            StopInterpolation(i, Interp_Sprite_Z);
     }
 }
 

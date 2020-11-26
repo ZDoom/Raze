@@ -32,7 +32,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
-#include "interp.h"
 #include "interpso.h"
 #include "tags.h"
 #include "sector.h"
@@ -79,6 +78,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamestate.h"
 #include "d_net.h"
 #include "v_draw.h"
+#include "interpolate.h"
 
 //#include "crc32.h"
 
@@ -283,7 +283,7 @@ void InitLevelGlobals(void)
     AnimCnt = 0;
     left_foot = false;
     screenpeek = myconnectindex;
-    numinterpolations = short_numinterpolations = 0;
+    ClearInterpolations();
 
     gNet.TimeLimitClock = gNet.TimeLimit;
 
