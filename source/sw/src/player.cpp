@@ -129,8 +129,6 @@ int ChopTics;
 
 PLAYER Player[MAX_SW_PLAYERS_REG + 1];
 
-//short snum = 0;
-
 // These are a bunch of kens variables for the player
 
 short NormalVisibility;

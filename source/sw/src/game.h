@@ -1973,9 +1973,6 @@ extern int GodMode;
 
 extern bool ReloadPrompt;
 
-//extern unsigned char synctics, lastsynctics;
-extern short snum;
-
 extern int lockspeed;
 
 #define synctics 3
