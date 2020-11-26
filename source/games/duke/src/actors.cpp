@@ -730,8 +730,7 @@ void movecrane(DDukeActor *actor, int crane)
 				actor->SetActiveCrane(true);
 				ps[p].on_crane = actor;
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].GetActor());
-				auto ang = ps[p].angle.ang;
-				ps[p].angle.settarget(ang + getincanglebam(ang, buildang(spri->ang + 1024)));
+				ps[p].angle.settarget(spri->ang + 1024);
 			}
 			else
 			{

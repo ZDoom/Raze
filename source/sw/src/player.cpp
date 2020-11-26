@@ -3651,8 +3651,7 @@ DoPlayerClimb(PLAYERp pp)
             nx = MOVEx(100, lsp->ang);
             ny = MOVEy(100, lsp->ang);
 
-            // set angle player is supposed to face.
-            pp->LadderAngle = buildang(lsp->ang + 1024);
+            // set ladder sector
             pp->LadderSector = wall[wal].nextsector;
 
             // set players "view" distance from the ladder - needs to be farther than
@@ -3661,8 +3660,7 @@ DoPlayerClimb(PLAYERp pp)
             pp->lx = lsp->x + nx * 5;
             pp->ly = lsp->y + ny * 5;
 
-            auto& PlayerAngle = pp->angle.ang;
-            pp->angle.settarget(PlayerAngle + getincanglebam(PlayerAngle, pp->LadderAngle));
+            pp->angle.settarget(lsp->ang + 1024);
         }
     }
 }
@@ -4058,9 +4056,6 @@ PlayerOnLadder(PLAYERp pp)
     nx = MOVEx(100, lsp->ang);
     ny = MOVEy(100, lsp->ang);
 
-    // set angle player is supposed to face.
-    pp->LadderAngle = buildang(lsp->ang + 1024);
-
 #if DEBUG
     if (wall[wal].nextsector < 0)
     {
@@ -4078,8 +4073,7 @@ PlayerOnLadder(PLAYERp pp)
     pp->lx = lsp->x + nx * 5;
     pp->ly = lsp->y + ny * 5;
 
-    auto& PlayerAngle = pp->angle.ang;
-    pp->angle.settarget(PlayerAngle + getincanglebam(PlayerAngle, pp->LadderAngle));
+    pp->angle.settarget(lsp->ang + 1024);
 
     return true;
 }

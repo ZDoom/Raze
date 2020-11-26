@@ -885,7 +885,6 @@ struct PLAYERstruct
     short pnum; // carry along the player number
 
     short LadderSector;
-    binangle LadderAngle;
     int lx,ly; // ladder x and y
     short JumpDuration;
     short WadeDepth;

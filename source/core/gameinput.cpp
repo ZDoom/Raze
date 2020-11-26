@@ -49,6 +49,20 @@ int getincangle(int a, int na)
 	return na-a;
 }
 
+double getincanglef(double a, double na)
+{
+	a = fmod(a, 2048.);
+	na = fmod(na, 2048.);
+
+	if(fabs(a-na) >= 1024)
+	{
+		if(na > 1024) na -= 2048;
+		if(a > 1024) a -= 2048;
+	}
+
+	return na-a;
+}
+
 fixed_t getincangleq16(fixed_t a, fixed_t na)
 {
 	a &= 0x7FFFFFF;

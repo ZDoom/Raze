@@ -6,6 +6,7 @@
 #include "packet.h"
 
 int getincangle(int a, int na);
+double getincanglef(double a, double na);
 fixed_t getincangleq16(fixed_t a, fixed_t na);
 lookangle getincanglebam(binangle a, binangle na);
 
@@ -171,7 +172,7 @@ struct PlayerAngle
 	{
 		if (!cl_syncinput && !backup)
 		{
-			target = value << BAMBITS;
+			target = (ang + getincanglebam(ang, buildang(value))).asbam();
 			if (target == 0) target += 1;
 		}
 		else
@@ -185,12 +186,12 @@ struct PlayerAngle
 	{
 		if (!cl_syncinput && !backup)
 		{
-			target = value * BAMUNIT;
+			target = (ang + getincanglebam(ang, buildfang(value))).asbam();
 			if (target == 0) target += 1;
 		}
 		else
 		{
-			ang = bamang(xs_CRoundToUInt(value * BAMUNIT));
+			ang = buildfang(value);
 			if (backup) oang = ang;
 		}
 	}
@@ -199,7 +200,7 @@ struct PlayerAngle
 	{
 		if (!cl_syncinput && !backup)
 		{
-			target = value.asbam();
+			target = (ang + getincanglebam(ang, value)).asbam();
 			if (target == 0) target += 1;
 		}
 		else
