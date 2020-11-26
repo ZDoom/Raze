@@ -60,66 +60,6 @@ short enemy;
 
 short nEnemyPal = 0;
 
-enum { MAXINTERPOLATIONS = MAXSPRITES };
-int32_t g_interpolationCnt;
-int32_t oldipos[MAXINTERPOLATIONS];
-int32_t* curipos[MAXINTERPOLATIONS];
-int32_t bakipos[MAXINTERPOLATIONS];
-
-int viewSetInterpolation(int32_t *const posptr)
-{
-    if (g_interpolationCnt >= MAXINTERPOLATIONS)
-        return 1;
-
-    for (int i = 0; i < g_interpolationCnt; ++i)
-        if (curipos[i] == posptr)
-            return 0;
-
-    curipos[g_interpolationCnt] = posptr;
-    oldipos[g_interpolationCnt] = *posptr;
-    g_interpolationCnt++;
-    return 0;
-}
-
-void viewStopInterpolation(const int32_t * const posptr)
-{
-    for (int i = 0; i < g_interpolationCnt; ++i)
-        if (curipos[i] == posptr)
-        {
-            g_interpolationCnt--;
-            oldipos[i] = oldipos[g_interpolationCnt];
-            bakipos[i] = bakipos[g_interpolationCnt];
-            curipos[i] = curipos[g_interpolationCnt];
-        }
-}
-
-void viewDoInterpolations(int smoothRatio)
-{
-    int32_t ndelta = 0;
-
-    for (int i = 0, j = 0; i < g_interpolationCnt; ++i)
-    {
-        int32_t const odelta = ndelta;
-        bakipos[i] = *curipos[i];
-        ndelta = (*curipos[i]) - oldipos[i];
-        if (odelta != ndelta)
-            j = mulscale16(ndelta, smoothRatio);
-        *curipos[i] = oldipos[i] + j;
-    }
-}
-
-void viewUpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
-{
-    for (int i=g_interpolationCnt-1; i>=0; i--) oldipos[i] = *curipos[i];
-}
-
-void viewRestoreInterpolations(void)  //Stick at end of drawscreen
-{
-    int32_t i=g_interpolationCnt-1;
-
-    for (; i>=0; i--) *curipos[i] = bakipos[i];
-}
-
 // NOTE - not to be confused with Ken's analyzesprites()
 static void analyzesprites(double const smoothratio)
 {
@@ -538,10 +478,6 @@ static SavegameHelper sghview("view",
     SV(nEnemyPal),
     SA(dVertPan),
     SA(nQuake),
-    SV(g_interpolationCnt),
-    SA(oldipos),
-    SA(curipos),
-    SA(bakipos),
     nullptr);
 
 END_PS_NS

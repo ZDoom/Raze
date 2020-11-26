@@ -31,12 +31,6 @@ void ResetView();
 void NoClip();
 void Clip();
 
-int viewSetInterpolation(int32_t *const posptr);
-void viewStopInterpolation(const int32_t * const posptr);
-void viewDoInterpolations(int smoothRatio);
-void viewUpdateInterpolations(void);
-void viewRestoreInterpolations(void);
-
 extern short dVertPan[];
 extern short nQuake[];
 extern int nCamerax;
