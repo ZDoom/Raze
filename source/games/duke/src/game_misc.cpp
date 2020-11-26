@@ -44,6 +44,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "glbackend/glbackend.h"
 #include "gamestate.h"
 #include "dukeactor.h"
+#include "interpolate.h"
 
 BEGIN_DUKE_NS
 
@@ -267,7 +268,7 @@ void drawoverlays(double smoothratio)
 
 		if (automapMode != am_off)
 		{
-			dointerpolations(smoothratio);
+			DoInterpolations(smoothratio / 65536.);
 
 			if (pp->newOwner == nullptr && playrunning())
 			{
@@ -291,7 +292,7 @@ void drawoverlays(double smoothratio)
 				cang = pp->angle.oang.asbuild();
 			}
 			DrawOverheadMap(cposx, cposy, cang);
-			restoreinterpolations();
+			RestoreInterpolations();
 		}
 	}
 

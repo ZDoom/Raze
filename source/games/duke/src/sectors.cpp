@@ -37,11 +37,14 @@ source as it is released.
 #include "global.h"
 #include "sounds.h"
 #include "dukeactor.h"
+#include "interpolate.h"
 
 using std::min;
 using std::max;
 // PRIMITIVE
 BEGIN_DUKE_NS
+
+static int interptype[] = { Interp_Sect_Floorz, Interp_Sect_Ceilingz, Interp_Wall_X, Interp_Wall_Y };
 
 //---------------------------------------------------------------------------
 //
@@ -318,7 +321,7 @@ void doanimations(void)
 
 		if (a == animategoal[i])
 		{
-			stopinterpolation(animateptr(i));
+			StopInterpolation(animatetarget[i], interptype[animatetype[i]]);
 
 			animatecnt--;
 			animatetype[i] = animatetype[animatecnt];
@@ -419,8 +422,7 @@ int setanimation(short animsect, int animtype, int animtarget, int thegoal, int 
 
 	if (j == animatecnt) animatecnt++;
 
-	setinterpolation(animptr);
-
+	StartInterpolation(animatetarget[i], interptype[animatetype[i]]);
 	return(j);
 }
 

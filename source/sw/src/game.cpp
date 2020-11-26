@@ -287,7 +287,7 @@ void InitLevelGlobals(void)
 
     gNet.TimeLimitClock = gNet.TimeLimit;
 
-    serpwasseen = false;
+    serpwasseen = false; 
     sumowasseen = false;
     zillawasseen = false;
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));

@@ -38,6 +38,7 @@ source as it is released.
 #include "sounds.h"
 #include "automap.h"
 #include "dukeactor.h"
+#include "interpolate.h"
 
 BEGIN_DUKE_NS
 
@@ -694,7 +695,7 @@ void spawneffector(DDukeActor* actor)
 				t[4] = sector[sect].ceilingz;
 
 			sector[sect].ceilingz = sp->z;
-			setinterpolation(&sector[sect].ceilingz);
+			StartInterpolation(sect, Interp_Sect_Ceilingz);
 			break;
 		case SE_35:
 			sector[sect].ceilingz = sp->z;
@@ -781,13 +782,20 @@ void spawneffector(DDukeActor* actor)
 
 			if (numplayers < 2)
 			{
-				setinterpolation(&sector[sect].floorz);
-				setinterpolation(&sector[sect].ceilingz);
+				StartInterpolation(sect, Interp_Sect_Floorz);
+				StartInterpolation(sect, Interp_Sect_Ceilingz);
 			}
 
 			break;
 		}
+		case 156:
+			if (!isRRRA()) break;
+		case 34:
+			StartInterpolation(sect, Interp_Sect_FloorPanX);
+			break;
+
 		case SE_24_CONVEYOR:
+			StartInterpolation(sect, Interp_Sect_FloorPanX);
 			sp->yvel <<= 1;
 		case SE_36_PROJ_SHOOTER:
 			break;
@@ -833,6 +841,8 @@ void spawneffector(DDukeActor* actor)
 			}
 
 			t[2] = clostest;
+			StartInterpolation(sect, Interp_Sect_FloorPanX);
+			StartInterpolation(sect, Interp_Sect_FloorPanY);
 			break;
 		}
 
@@ -871,7 +881,7 @@ void spawneffector(DDukeActor* actor)
 			for (s = startwall; s < endwall; s++)
 				if (wall[s].hitag == 0) wall[s].hitag = 9999;
 
-			setinterpolation(&sector[sect].floorz);
+			StartInterpolation(sect, Interp_Sect_Floorz);
 
 			break;
 		case SE_32_CEILING_RISE_FALL:
@@ -885,7 +895,7 @@ void spawneffector(DDukeActor* actor)
 			for (s = startwall; s < endwall; s++)
 				if (wall[s].hitag == 0) wall[s].hitag = 9999;
 
-			setinterpolation(&sector[sect].ceilingz);
+			StartInterpolation(sect, Interp_Sect_Ceilingz);
 
 			break;
 

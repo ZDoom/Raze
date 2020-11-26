@@ -35,6 +35,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "sbar.h"
 #include "automap.h"
 #include "dukeactor.h"
+#include "interpolate.h"
 
 BEGIN_DUKE_NS  
 
@@ -425,9 +426,6 @@ void resetprestat(int snum,int g)
     RRRA_ExitedLevel = 0;
     BellTime = 0;
     BellSprite = nullptr;
-
-    numinterpolations = 0;
-    //startofdynamicinterpolations = 0;
 
     if(p->curr_weapon == HANDREMOTE_WEAPON)
     {
@@ -965,11 +963,18 @@ void enterlevel(MapRecord *mi, int gamemode)
     global_random = 0;
 
     ud.last_level = currentLevel->levelNumber;
-    for (int i=numinterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
     ps[myconnectindex].over_shoulder_on = 0;
     clearfrags();
     resettimevars();  // Here we go
 	setLevelStarted(mi);
+    if (isRRRA() && ps[screenpeek].sea_sick_stat == 1)
+    {
+        for (int i = 0; i < MAXWALLS; i++)
+        {
+            if (wall[i].picnum == 7873 || wall[i].picnum == 7870)
+                StartInterpolation(i, Interp_Wall_PanX);
+        }
+    }
 }
 
 //---------------------------------------------------------------------------

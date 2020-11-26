@@ -34,6 +34,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "m_argv.h"
 #include "mapinfo.h"
 #include "texturemanager.h"
+#include "interpolate.h"
 #include "glbackend/glbackend.h"
 
 BEGIN_DUKE_NS
@@ -60,7 +61,7 @@ void GameInterface::Ticker()
 		show_shareware--;
 	}
 
-	updateinterpolations();
+	UpdateInterpolations();
 
 	if (playrunning())
 	{

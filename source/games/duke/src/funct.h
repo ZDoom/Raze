@@ -241,11 +241,6 @@ bool movementBlocked(int snum);
 void loadcons();
 void recordoldspritepos();
 
-void updateinterpolations();
-void restoreinterpolations();
-void setinterpolation(int* posptr);
-void stopinterpolation(int* posptr);
-void dointerpolations(int smoothratio);
 int* animateptr(int i);
 
 void backuppos(player_struct* p, bool noclipping = false);

@@ -32,6 +32,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "prediction.h"
 #include "automap.h"
 #include "dukeactor.h"
+#include "interpolate.h"
 
 
 BEGIN_DUKE_NS
@@ -502,7 +503,7 @@ void displayrooms(int snum, double smoothratio)
 	if (sect < 0 || sect >= MAXSECTORS) return;
 
 	GLInterface.SetMapFog(fogactive != 0);
-	dointerpolations(smoothratio);
+	DoInterpolations(smoothratio / 65536.);
 
 	setgamepalette(BASEPAL);
 	animatecamsprite(smoothratio);
@@ -647,7 +648,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 	}
 	//GLInterface.SetMapFog(false);
-	restoreinterpolations();
+	RestoreInterpolations();
 
 	if (!isRRRA() || !fogactive)
 	{
