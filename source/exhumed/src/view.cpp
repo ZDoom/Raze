@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "mapinfo.h"
 #include "v_video.h"
+#include "interpolate.h"
 #include "glbackend/glbackend.h"
 #include "v_draw.h"
 #include <string.h>
@@ -198,6 +199,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     fixed_t dang = IntToFixed(1024);
 
     zbob = bsin(2 * bobangle, -3);
+
+    DoInterpolations(smoothRatio / 65536.);
 
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
     int nPlayerOldCstat = sprite[nPlayerSprite].cstat;
@@ -445,6 +448,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     sprite[nPlayerSprite].cstat = nPlayerOldCstat;
     sprite[nDoppleSprite[nLocalPlayer]].cstat = nDoppleOldCstat;
+    RestoreInterpolations();
 
     flash = 0;
 }

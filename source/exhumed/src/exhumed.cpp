@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "texturemanager.h"
 #include "razemenu.h"
 #include "v_draw.h"
+#include "interpolate.h"
 
 BEGIN_PS_NS
 
@@ -355,6 +356,7 @@ void GameInterface::Ticker()
             lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
             lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
         }
+        UpdateInterpolations();
 
         if (localInput.actions & SB_INVPREV)
         {

@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "sound.h"
+#include "interpolate.h"
 #include <string.h>
 #include <assert.h>
 
@@ -59,14 +60,14 @@ struct Flicker
 
 struct Flow
 {
-    short field_0;
-    short field_2;
-    int field_4;
-    int field_8;
+    short objindex;
+    short type;
+    int xdelta;
+    int ydelta;
     int field_C;
     int field_10;
-    int field_14;
-    int field_18;
+    int xacc;
+    int yacc;
 };
 
 Flash sFlash[kMaxFlashes];
@@ -614,7 +615,7 @@ void DoFlickers()
 }
 
 // nWall can also be passed in here via nSprite parameter - TODO - rename nSprite parameter :)
-void AddFlow(int nSprite, int nSpeed, int b)
+void AddFlow(int nIndex, int nSpeed, int b)
 {
     if (nFlowCount >= kMaxFlows)
         return;
@@ -626,17 +627,23 @@ void AddFlow(int nSprite, int nSpeed, int b)
 
     if (b < 2)
     {
-        var_18 = sprite[nSprite].sectnum;
+        var_18 = sprite[nIndex].sectnum;
         short nPic = sector[var_18].floorpicnum;
-        short nAngle = sprite[nSprite].ang;
+        short nAngle = sprite[nIndex].ang;
 
-        sFlowInfo[nFlow].field_14 = (tileWidth(nPic) << 14) - 1;
-        sFlowInfo[nFlow].field_18 = (tileHeight(nPic) << 14) - 1;
+        sFlowInfo[nFlow].xacc = (tileWidth(nPic) << 14) - 1;
+        sFlowInfo[nFlow].yacc = (tileHeight(nPic) << 14) - 1;
         sFlowInfo[nFlow].field_C  = -bcos(nAngle) * nSpeed;
         sFlowInfo[nFlow].field_10 = bsin(nAngle) * nSpeed;
+
+        StartInterpolation(nIndex, b ? Interp_Sect_CeilingPanX : Interp_Sect_FloorPanX);
+        StartInterpolation(nIndex, b ? Interp_Sect_CeilingPanY : Interp_Sect_FloorPanY);
     }
     else
     {
+        StartInterpolation(nIndex, Interp_Wall_PanX);
+        StartInterpolation(nIndex, Interp_Wall_PanY);
+
         short nAngle;
 
         if (b == 2) {
@@ -646,68 +653,68 @@ void AddFlow(int nSprite, int nSpeed, int b)
             nAngle = 1536;
         }
 
-        var_18 = nSprite;
+        var_18 = nIndex;
         short nPic = wall[var_18].picnum;
 
-        sFlowInfo[nFlow].field_14 = (tileWidth(nPic) * wall[var_18].xrepeat) << 8;
-        sFlowInfo[nFlow].field_18 = (tileHeight(nPic) * wall[var_18].yrepeat) << 8;
+        sFlowInfo[nFlow].xacc = (tileWidth(nPic) * wall[var_18].xrepeat) << 8;
+        sFlowInfo[nFlow].yacc = (tileHeight(nPic) * wall[var_18].yrepeat) << 8;
         sFlowInfo[nFlow].field_C = -bcos(nAngle) * nSpeed;
         sFlowInfo[nFlow].field_10 = bsin(nAngle) * nSpeed;
     }
 
-    sFlowInfo[nFlow].field_8 = 0;
-    sFlowInfo[nFlow].field_4 = 0;
-    sFlowInfo[nFlow].field_0 = var_18;
-    sFlowInfo[nFlow].field_2 = b;
+    sFlowInfo[nFlow].ydelta = 0;
+    sFlowInfo[nFlow].xdelta = 0;
+    sFlowInfo[nFlow].objindex = var_18;
+    sFlowInfo[nFlow].type = b;
 }
 
 void DoFlows()
 {
     for (int i = 0; i < nFlowCount; i++)
     {
-        sFlowInfo[i].field_4 += sFlowInfo[i].field_C;
-        sFlowInfo[i].field_8 += sFlowInfo[i].field_10;
+        sFlowInfo[i].xdelta += sFlowInfo[i].field_C;
+        sFlowInfo[i].ydelta += sFlowInfo[i].field_10;
 
-        switch (sFlowInfo[i].field_2)
+        switch (sFlowInfo[i].type)
         {
             case 0:
             {
-                sFlowInfo[i].field_4 &= sFlowInfo[i].field_14;
-                sFlowInfo[i].field_8 &= sFlowInfo[i].field_18;
+                sFlowInfo[i].xdelta &= sFlowInfo[i].xacc;
+                sFlowInfo[i].ydelta &= sFlowInfo[i].yacc;
 
-                short nSector = sFlowInfo[i].field_0;
-                sector[nSector].addfloorxpan(sFlowInfo[i].field_4 / 16384.f);
-                sector[nSector].addfloorypan(sFlowInfo[i].field_8 / 16384.f);
+                short nSector = sFlowInfo[i].objindex;
+                sector[nSector].addfloorxpan(sFlowInfo[i].xdelta / 16384.f);
+                sector[nSector].addfloorypan(sFlowInfo[i].ydelta / 16384.f);
                 break;
             }
 
             case 1:
             {
-                short nSector = sFlowInfo[i].field_0;
+                short nSector = sFlowInfo[i].objindex;
 
-                sector[nSector].addceilingxpan(sFlowInfo[i].field_4 / 16384.f);
-                sector[nSector].addceilingypan(sFlowInfo[i].field_8 / 16384.f);
+                sector[nSector].addceilingxpan(sFlowInfo[i].xdelta / 16384.f);
+                sector[nSector].addceilingypan(sFlowInfo[i].ydelta / 16384.f);
 
-                sFlowInfo[i].field_4 &= sFlowInfo[i].field_14;
-                sFlowInfo[i].field_8 &= sFlowInfo[i].field_18;
+                sFlowInfo[i].xdelta &= sFlowInfo[i].xacc;
+                sFlowInfo[i].ydelta &= sFlowInfo[i].yacc;
                 break;
             }
 
             case 2:
             {
-                short nWall = sFlowInfo[i].field_0;
+                short nWall = sFlowInfo[i].objindex;
 
-                wall[nWall].addxpan(sFlowInfo[i].field_4 / 16384.f);
-                wall[nWall].addypan(sFlowInfo[i].field_8 / 16384.f);
+                wall[nWall].addxpan(sFlowInfo[i].xdelta / 16384.f);
+                wall[nWall].addypan(sFlowInfo[i].ydelta / 16384.f);
 
-                if (sFlowInfo[i].field_4 < 0)
+                if (sFlowInfo[i].xdelta < 0)
                 {
-                    sFlowInfo[i].field_4 += sFlowInfo[i].field_14;
+                    sFlowInfo[i].xdelta += sFlowInfo[i].xacc;
                 }
 
-                if (sFlowInfo[i].field_8 < 0)
+                if (sFlowInfo[i].ydelta < 0)
                 {
-                    sFlowInfo[i].field_8 += sFlowInfo[i].field_18;
+                    sFlowInfo[i].ydelta += sFlowInfo[i].yacc;
                 }
 
                 break;
@@ -715,19 +722,19 @@ void DoFlows()
 
             case 3:
             {
-                short nWall = sFlowInfo[i].field_0;
+                short nWall = sFlowInfo[i].objindex;
 
-                wall[nWall].addxpan(sFlowInfo[i].field_4 / 16384.f);
-                wall[nWall].addypan(sFlowInfo[i].field_8 / 16384.f);
+                wall[nWall].addxpan(sFlowInfo[i].xdelta / 16384.f);
+                wall[nWall].addypan(sFlowInfo[i].ydelta / 16384.f);
 
-                if (sFlowInfo[i].field_4 >= sFlowInfo[i].field_14)
+                if (sFlowInfo[i].xdelta >= sFlowInfo[i].xacc)
                 {
-                    sFlowInfo[i].field_4 -= sFlowInfo[i].field_14;
+                    sFlowInfo[i].xdelta -= sFlowInfo[i].xacc;
                 }
 
-                if (sFlowInfo[i].field_8 >= sFlowInfo[i].field_18)
+                if (sFlowInfo[i].ydelta >= sFlowInfo[i].yacc)
                 {
-                    sFlowInfo[i].field_8 -= sFlowInfo[i].field_18;
+                    sFlowInfo[i].ydelta -= sFlowInfo[i].yacc;
                 }
 
                 break;
