@@ -76,7 +76,7 @@ struct FLevelStats
 	int time; // in milliseconds
 	int frags;
 	int kills, maxkills;	// set maxkills to -1 to ignore, or to -2 to only print kills
-	int secrets, maxsecrets;	// set maxsecrets to -1 to ignore
+	int secrets, maxsecrets, supersecrets;	// set maxsecrets to -1 to ignore
 	int spacing; // uses fontheight if 0 or less.
 	EColorRange letterColor, standardColor, completeColor;
 	double fontscale;

@@ -192,8 +192,13 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 
 	if (stats.maxsecrets > 0)	// don't bother if there are no secrets.
 	{
-		text.Format(TEXTCOLOR_ESCAPESTR "%cS: " TEXTCOLOR_ESCAPESTR "%c%d/%d",
-			stats.letterColor + 'A', stats.secrets == stats.maxsecrets ? stats.completeColor + 'A' : stats.standardColor + 'A', stats.secrets, stats.maxsecrets);
+		if (stats.supersecrets <= 0)
+			text.Format(TEXTCOLOR_ESCAPESTR "%cS: " TEXTCOLOR_ESCAPESTR "%c%d/%d",
+				stats.letterColor + 'A', stats.secrets >= stats.maxsecrets ? stats.completeColor + 'A' : stats.standardColor + 'A', stats.secrets, stats.maxsecrets);
+		else
+			text.Format(TEXTCOLOR_ESCAPESTR "%cS: " TEXTCOLOR_ESCAPESTR "%c%d/%d+%d",
+				stats.letterColor + 'A', stats.secrets >= stats.maxsecrets ? stats.completeColor + 'A' : stats.standardColor + 'A', stats.secrets, stats.maxsecrets, stats.supersecrets);
+
 
 		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale + scale, y1 + scale, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_LegacyRenderStyle, STYLE_TranslucentStencil, DTA_Color, black, TAG_DONE);

@@ -252,8 +252,9 @@ private:
             stats.kills = gKillMgr.Kills;
             stats.maxkills = gKillMgr.TotalKills;
             stats.frags = gGameOptions.nGameType == 3? pPlayer->fragCount : -1;
-            stats.secrets = gSecretMgr.Founds + gSecretMgr.Super;
-            stats.maxsecrets = gSecretMgr.Total;
+            stats.secrets = gSecretMgr.Founds;
+            stats.supersecrets = gSecretMgr.Super;
+            stats.maxsecrets = max(gSecretMgr.Founds, gSecretMgr.Total); // If we found more than there are, increase the total. Some levels have a bugged counter.
 
             DBaseStatusBar::PrintLevelStats(stats);
         }
