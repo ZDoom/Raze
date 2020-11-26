@@ -55,47 +55,6 @@ void lava_serialize(FSerializer& arc);
 void SerializeGameVars(FSerializer &arc);
 
 
-static void recreateinterpolations()
-{
-	numinterpolations = 0;
-
-	DukeStatIterator it(STAT_EFFECTOR);
-	while (auto k = it.Next())
-	{
-		auto sectnum = k->s.sectnum;
-		switch (k->s.lotag)
-		{
-		case SE_31_FLOOR_RISE_FALL:
-			setinterpolation(&sector[sectnum].floorz);
-			break;
-		case SE_32_CEILING_RISE_FALL:
-			setinterpolation(&sector[sectnum].ceilingz);
-			break;
-		case SE_17_WARP_ELEVATOR:
-		case SE_25_PISTON:
-			setinterpolation(&sector[sectnum].floorz);
-			setinterpolation(&sector[sectnum].ceilingz);
-			break;
-		case SE_0_ROTATING_SECTOR:
-		case SE_5_BOSS:
-		case SE_6_SUBWAY:
-		case SE_11_SWINGING_DOOR:
-		case SE_14_SUBWAY_CAR:
-		case SE_15_SLIDING_DOOR:
-		case SE_16_REACTOR:
-		case SE_26:
-		case SE_30_TWO_WAY_TRAIN:
-			setsectinterpolate(sectnum);
-			break;
-		}
-	}
-
-	for (int i = numinterpolations - 1; i >= 0; i--) bakipos[i] = *curipos[i];
-	for (int i = animatecnt - 1; i >= 0; i--)
-		setinterpolation(animateptr(i));
-}
-
-
 FSerializer& Serialize(FSerializer& arc, const char* keyname, animwalltype& w, animwalltype* def)
 {
 	if (arc.BeginObject(keyname))
@@ -480,7 +439,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			Mus_SetPaused(false);
 
 			FX_SetReverb(0);
-			recreateinterpolations();
 			show_shareware = 0;
 			everyothertime = 0;
 
