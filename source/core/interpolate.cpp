@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "interpolate.h"
 #include "xs_Float.h"
 #include "serializer.h"
+#include "gamecvars.h"
 
 
 struct Interpolation
@@ -50,8 +51,8 @@ double Get(int index, int type)
 
 	case Interp_Wall_X:					return wall[index].x;
 	case Interp_Wall_Y:					return wall[index].y;
-	case Interp_Wall_PanX:				return 0/*wall[index].panx_*/;	// later
-	case Interp_Wall_PanY:				return 0/*wall[index].pany_*/;	// later
+	case Interp_Wall_PanX:				return wall[index].xpan_;
+	case Interp_Wall_PanY:				return wall[index].ypan_;
 
 	case Interp_Sprite_Z:				return sprite[index].z;
 	default: return 0;
@@ -73,14 +74,14 @@ void Set(int index, int type, double val)
                                         
 	case Interp_Wall_X:                 wall[index].x = xs_CRoundToInt(val); break;
 	case Interp_Wall_Y:                 wall[index].y = xs_CRoundToInt(val); break;
-	case Interp_Wall_PanX:              break;
-	case Interp_Wall_PanY:              break;
+	case Interp_Wall_PanX:              wall[index].xpan_ = float(val);  break;
+	case Interp_Wall_PanY:              wall[index].ypan_ = float(val);  break;
                                         
 	case Interp_Sprite_Z:               sprite[index].z = xs_CRoundToInt(val); break;
 	}
 }
 
-void SetInterpolation(int index, int type)
+void StartInterpolation(int index, int type)
 {
     for (unsigned i = 0; i < interpolations.Size(); i++)
     {
@@ -115,23 +116,65 @@ void UpdateInterpolations()
 	}		
 }
 
-void Dointerpolations(float smoothratio)
+void DoInterpolations(double smoothratio)
 {
+	if (!cl_interpolate) return;
     for (unsigned i = 0; i < interpolations.Size(); i++)
     {
 		double bak;
 		interpolations[i].bak = bak = Get(interpolations[i].index, interpolations[i].type);
 		double old = interpolations[i].old;
-		Set(interpolations[i].index, interpolations[i].type, old + (bak - old) * smoothratio);
+		if (interpolations[i].type < Interp_Pan_First || fabs(bak-old) < 128.)
+		{
+			Set(interpolations[i].index, interpolations[i].type, old + (bak - old) * smoothratio);
+		}
+		else
+		{
+			// with the panning types we need to check for potential wraparound.
+			if (bak < old) bak += 256.;
+			else old += 256;
+			double cur = old + (bak - old) * smoothratio;
+			if (cur >= 256.) cur -= 256.;
+			Set(interpolations[i].index, interpolations[i].type, cur);
+		}
 	}
 }
 
 void RestoreInterpolations()
 {
-    for (unsigned i = 0; i < interpolations.Size(); i++)
+	if (!cl_interpolate) return;
+	for (unsigned i = 0; i < interpolations.Size(); i++)
     {
 		Set(interpolations[i].index, interpolations[i].type, interpolations[i].bak);
 	}		
+}
+
+void ClearInterpolations()
+{
+	interpolations.Clear();
+}
+
+void ClearMovementInterpolations()
+{
+	// This clears all movement interpolations. Needed for Blood which destroys its interpolations each frame.
+	for (unsigned i = 0; i < interpolations.Size();)
+	{
+		switch (interpolations[i].type)
+		{
+		case Interp_Sect_Floorz:
+		case Interp_Sect_Ceilingz:
+		case Interp_Sect_Floorheinum:
+		case Interp_Sect_Ceilingheinum:
+		case Interp_Wall_X:
+		case Interp_Wall_Y:
+			interpolations[i] = interpolations.Last();
+			interpolations.Pop();
+			break;
+		default:
+			i++;
+			break;
+		}
+	}
 }
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Interpolation& w, Interpolation* def)

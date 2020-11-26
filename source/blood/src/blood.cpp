@@ -290,7 +290,9 @@ void GameInterface::Ticker()
 		if (newweap > 0 && newweap < WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;
 	}
 
-	viewClearInterpolations();
+	gInterpolateSprite.Zero();
+	ClearMovementInterpolations();
+	UpdateInterpolations();
 
 	if (!(paused || (gGameOptions.nGameType == 0 && M_Active())))
 	{

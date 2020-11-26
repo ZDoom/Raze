@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "messages.h"
 #include "player.h"
+#include "interpolate.h"
 
 BEGIN_BLD_NS
 
@@ -101,11 +102,6 @@ enum VIEWPOS {
     VIEWPOS_1
 };
 
-enum INTERPOLATE_TYPE {
-    INTERPOLATE_TYPE_INT = 0,
-    INTERPOLATE_TYPE_SHORT,
-};
-
 enum
 {
     kBackTile = 253,
@@ -134,9 +130,7 @@ extern int gScreenTilt;
 extern int deliriumTilt, deliriumTurn, deliriumPitch;
 extern int gScreenTiltO, deliriumTurnO, deliriumPitchO;
 extern int gShowFrameRate;
-extern char gInterpolateSprite[];
-extern char gInterpolateWall[];
-extern char gInterpolateSector[];
+extern FixedBitArray<kMaxSprites> gInterpolateSprite;
 extern LOCATION gPrevSpriteLoc[kMaxSprites];
 extern int gLastPal;
 extern double gInterpolate;
@@ -147,10 +141,6 @@ void viewUpdatePrediction(InputPacket *pInput);
 void viewCorrectPrediction(void);
 void viewBackupView(int nPlayer);
 void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos);
-void viewClearInterpolations(void);
-void viewAddInterpolation(void *data, INTERPOLATE_TYPE type);
-void CalcInterpolations(void);
-void RestoreInterpolations(void);
 void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat = 0, uint8_t alpha = 255);
 void InitStatusBar(void);
 void UpdateStatusBar();
@@ -169,35 +159,27 @@ void viewSetSystemMessage(const char* pMessage, ...);
 
 inline void viewInterpolateSector(int nSector, sectortype *pSector)
 {
-    if (!TestBitString(gInterpolateSector, nSector))
-    {
-        viewAddInterpolation(&pSector->floorz, INTERPOLATE_TYPE_INT);
-        viewAddInterpolation(&pSector->ceilingz, INTERPOLATE_TYPE_INT);
-        viewAddInterpolation(&pSector->floorheinum, INTERPOLATE_TYPE_SHORT);
-        SetBitString(gInterpolateSector, nSector);
-    }
+    StartInterpolation(nSector, Interp_Sect_Floorz);
+    StartInterpolation(nSector, Interp_Sect_Ceilingz);
+    StartInterpolation(nSector, Interp_Sect_Floorheinum);
 }
 
 inline void viewInterpolateWall(int nWall, walltype *pWall)
 {
-    if (!TestBitString(gInterpolateWall, nWall))
-    {
-        viewAddInterpolation(&pWall->x, INTERPOLATE_TYPE_INT);
-        viewAddInterpolation(&pWall->y, INTERPOLATE_TYPE_INT);
-        SetBitString(gInterpolateWall, nWall);
-    }
+    StartInterpolation(nWall, Interp_Wall_X);
+    StartInterpolation(nWall, Interp_Wall_Y);
 }
 
 inline void viewBackupSpriteLoc(int nSprite, spritetype *pSprite)
 {
-    if (!TestBitString(gInterpolateSprite, nSprite))
+    if (!gInterpolateSprite[nSprite])
     {
         LOCATION *pPrevLoc = &gPrevSpriteLoc[nSprite];
         pPrevLoc->x = pSprite->x;
         pPrevLoc->y = pSprite->y;
         pPrevLoc->z = pSprite->z;
         pPrevLoc->ang = pSprite->ang;
-        SetBitString(gInterpolateSprite, nSprite);
+        gInterpolateSprite.Set(nSprite);
     }
 }
 

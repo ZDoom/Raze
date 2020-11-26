@@ -1497,7 +1497,7 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 ChangeSpriteSect(nSprite, pDest->sectnum);
                 sfxPlay3DSound(pDest, 201, -1, 0);
                 xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
-                ClearBitString(gInterpolateSprite, nSprite);
+                gInterpolateSprite.Clear(nSprite);
                 viewBackupSpriteLoc(nSprite, pSprite);
                 if (pPlayer)
                 {

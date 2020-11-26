@@ -2269,6 +2269,16 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
             pXSector->panCeiling = true;
             break;
         }
+        if (pXSector->panCeiling)
+        {
+            StartInterpolation(pXSector->reference, Interp_Sect_CeilingPanX);
+            StartInterpolation(pXSector->reference, Interp_Sect_CeilingPanY);
+        }
+        if (pXSector->panFloor)
+        {
+            StartInterpolation(pXSector->reference, Interp_Sect_FloorPanX);
+            StartInterpolation(pXSector->reference, Interp_Sect_FloorPanY);
+        }
 
         short oldPan = pXSector->panVel;
         pXSector->panAngle = pXSector->windAng;
@@ -2284,7 +2294,9 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
             }
 
             if (i == panCount)
+            {
                 panList[panCount++] = nXSector;
+            }
         }
 
     }

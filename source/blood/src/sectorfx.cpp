@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameutil.h"
 #include "globals.h"
 #include "sectorfx.h"
+#include "interpolate.h"
 
 BEGIN_BLD_NS
 
@@ -342,7 +343,21 @@ void InitSectorFX(void)
             if (pXSector->amplitude)
                 shadeList[shadeCount++] = nXSector;
             if (pXSector->panVel)
+            {
                 panList[panCount++] = nXSector;
+
+                if (pXSector->panCeiling)
+                {
+                    StartInterpolation(i, Interp_Sect_CeilingPanX);
+                    StartInterpolation(i, Interp_Sect_CeilingPanY);
+                }
+                if (pXSector->panFloor)
+                {
+                    StartInterpolation(i, Interp_Sect_FloorPanX);
+                    StartInterpolation(i, Interp_Sect_FloorPanY);
+                }
+
+            }
         }
     }
     for (int i = 0; i < numwalls; i++)
@@ -352,7 +367,11 @@ void InitSectorFX(void)
         {
             XWALL *pXWall = &xwall[nXWall];
             if (pXWall->panXVel || pXWall->panYVel)
+            {
                 wallPanList[wallPanCount++] = nXWall;
+                if (pXWall->panXVel) StartInterpolation(i, Interp_Wall_PanX);
+                if (pXWall->panXVel) StartInterpolation(i, Interp_Wall_PanY);
+            }
         }
     }
 }

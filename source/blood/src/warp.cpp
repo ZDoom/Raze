@@ -208,7 +208,7 @@ int CheckLink(spritetype *pSprite)
             else
                 z2 = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
             pSprite->z += z2-z;
-            ClearBitString(gInterpolateSprite, pSprite->index);
+            gInterpolateSprite.Clear(pSprite->index);
             return pUpper->type;
         }
     }
@@ -235,7 +235,7 @@ int CheckLink(spritetype *pSprite)
             else
                 z2 = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
             pSprite->z += z2-z;
-            ClearBitString(gInterpolateSprite, pSprite->index);
+            gInterpolateSprite.Clear(pSprite->index);
             return pLower->type;
         }
     }

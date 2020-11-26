@@ -50,27 +50,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-
+FixedBitArray<kMaxSprites> gInterpolateSprite;
 VIEW gPrevView[kMaxPlayers];
 VIEWPOS gViewPos;
 int gViewIndex;
 
-struct INTERPOLATE {
-    void *pointer;
-    int value;
-    int value2;
-    INTERPOLATE_TYPE type;
-};
-
 double gInterpolate;
-int nInterpolations;
-char gInterpolateSprite[(kMaxSprites+7)>>3];
-char gInterpolateWall[(kMaxWalls+7)>>3];
-char gInterpolateSector[(kMaxSectors+7)>>3];
-
-enum { kMaxInterpolations = 16384 };
-
-INTERPOLATE gInterpolation[kMaxInterpolations];
 
 int gScreenTilt;
 
@@ -129,76 +114,6 @@ void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
     pView->at50 += pPlayer->pSprite->x-oldpos->x;
     pView->at54 += pPlayer->pSprite->y-oldpos->y;
     pView->at38 += pPlayer->pSprite->z-oldpos->z;
-}
-
-void viewClearInterpolations(void)
-{
-    nInterpolations = 0;
-    memset(gInterpolateSprite, 0, sizeof(gInterpolateSprite));
-    memset(gInterpolateWall, 0, sizeof(gInterpolateWall));
-    memset(gInterpolateSector, 0, sizeof(gInterpolateSector));
-}
-
-void viewAddInterpolation(void *data, INTERPOLATE_TYPE type)
-{
-    if (nInterpolations == kMaxInterpolations)
-        I_Error("Too many interpolations");
-    INTERPOLATE *pInterpolate = &gInterpolation[nInterpolations++];
-    pInterpolate->pointer = data;
-    pInterpolate->type = type;
-    switch (type)
-    {
-    case INTERPOLATE_TYPE_INT:
-        pInterpolate->value = *((int*)data);
-        break;
-    case INTERPOLATE_TYPE_SHORT:
-        pInterpolate->value = *((short*)data);
-        break;
-    }
-}
-
-void CalcInterpolations(void)
-{
-    int i;
-    INTERPOLATE *pInterpolate = gInterpolation;
-    for (i = 0; i < nInterpolations; i++, pInterpolate++)
-    {
-        switch (pInterpolate->type)
-        {
-        case INTERPOLATE_TYPE_INT:
-        {
-            pInterpolate->value2 = *((int*)pInterpolate->pointer);
-            int newValue = interpolate(pInterpolate->value, *((int*)pInterpolate->pointer), gInterpolate);
-            *((int*)pInterpolate->pointer) = newValue;
-            break;
-        }
-        case INTERPOLATE_TYPE_SHORT:
-        {
-            pInterpolate->value2 = *((short*)pInterpolate->pointer);
-            int newValue = interpolate(pInterpolate->value, *((short*)pInterpolate->pointer), gInterpolate);
-            *((short*)pInterpolate->pointer) = newValue;
-            break;
-        }
-        }
-    }
-}
-
-void RestoreInterpolations(void)
-{
-    int i;
-    INTERPOLATE *pInterpolate = gInterpolation;
-    for (i = 0; i < nInterpolations; i++, pInterpolate++)
-    {
-        switch (pInterpolate->type)
-        {
-        case INTERPOLATE_TYPE_INT:
-            *((int*)pInterpolate->pointer) = pInterpolate->value2;
-            break;
-        case INTERPOLATE_TYPE_SHORT:
-            *((short*)pInterpolate->pointer) = pInterpolate->value2;
-            break;
-        }
-    }
 }
 
 void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat, uint8_t alpha)
@@ -603,7 +518,7 @@ void viewDrawScreen(bool sceneonly)
 
     if (cl_interpolate)
     {
-        CalcInterpolations();
+        DoInterpolations(gInterpolate / MaxSmoothRatio);
     }
 
     if (automapMode != am_full)
