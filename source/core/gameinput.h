@@ -45,7 +45,7 @@ struct PlayerHorizon
 
 	void settarget(double value, bool backup = false)
 	{
-		if (!cl_syncinput)
+		if (!cl_syncinput && !backup)
 		{
 			target = value * FRACUNIT;
 			if (target == 0) target += 1;
@@ -169,7 +169,7 @@ struct PlayerAngle
 
 	void settarget(int value, bool backup = false)
 	{
-		if (!cl_syncinput)
+		if (!cl_syncinput && !backup)
 		{
 			target = value << BAMBITS;
 			if (target == 0) target += 1;
@@ -183,7 +183,7 @@ struct PlayerAngle
 
 	void settarget(double value, bool backup = false)
 	{
-		if (!cl_syncinput)
+		if (!cl_syncinput && !backup)
 		{
 			target = value * BAMUNIT;
 			if (target == 0) target += 1;
@@ -197,7 +197,7 @@ struct PlayerAngle
 
 	void settarget(binangle value, bool backup = false)
 	{
-		if (!cl_syncinput)
+		if (!cl_syncinput && !backup)
 		{
 			target = value.asbam();
 			if (target == 0) target += 1;
