@@ -459,8 +459,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* d
 			("panxvel", w.panXVel, def->panXVel)
 			("panyvel", w.panYVel, def->panYVel)
 			("key", w.key, def->key)
-			("xpanfrac", w.xpanFrac, def->xpanFrac)
-			("ypanfrac", w.ypanFrac, def->ypanFrac)
 			.EndObject();
 	}
 	return arc;

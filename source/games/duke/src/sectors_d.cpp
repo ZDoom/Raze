@@ -149,8 +149,8 @@ void animatewalls_d(void)
 
 				if (wall[i].cstat & 254)
 				{
-					wall[i].xpanning -= t >> 10; // bcos(t, -12);
-					wall[i].ypanning -= t >> 10; // bsin(t, -12);
+					wall[i].addxpan(-t / 4096.f); // bcos(t, -12);
+					wall[i].addypan(-t / 4096.f); // bsin(t, -12);
 
 					if (wall[i].extra == 1)
 					{

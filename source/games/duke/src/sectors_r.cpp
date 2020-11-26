@@ -204,9 +204,9 @@ void animatewalls_r(void)
 		for (i = 0; i < MAXWALLS; i++)
 		{
 			if (wall[i].picnum == RRTILE7873)
-				wall[i].xpanning += 6;
+				wall[i].addxpan(6);
 			else if (wall[i].picnum == RRTILE7870)
-				wall[i].xpanning += 6;
+				wall[i].addxpan(6);
 		}
 	}
 
@@ -264,8 +264,8 @@ void animatewalls_r(void)
 
 				if (wall[i].cstat & 254)
 				{
-					wall[i].xpanning -= t >> 10; // bcos(t, -12);
-					wall[i].ypanning -= t >> 10; // bsin(t, -12);
+					wall[i].addxpan(-t / 4096.f); // bcos(t, -12);
+					wall[i].addypan(-t / 4096.f); // bsin(t, -12);
 
 					if (wall[i].extra == 1)
 					{

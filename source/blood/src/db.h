@@ -253,8 +253,6 @@ struct XWALL {
     int8_t panXVel;           // panX
     int8_t panYVel;           // panY
     uint8_t key;               // Key
-    uint8_t xpanFrac;          // x panning frac
-    uint8_t ypanFrac;          // y panning frac
 };
 
 struct MAPSIGNATURE {

@@ -60,8 +60,8 @@ void CopySectorWalls(short dest_sectnum, short src_sectnum)
         wall[dest_wall_num].pal =           wall[src_wall_num].pal;
         wall[dest_wall_num].cstat =         wall[src_wall_num].cstat;
         wall[dest_wall_num].shade =         wall[src_wall_num].shade;
-        wall[dest_wall_num].xpanning =      wall[src_wall_num].xpanning;
-        wall[dest_wall_num].ypanning =      wall[src_wall_num].ypanning;
+        wall[dest_wall_num].xpan_ =      wall[src_wall_num].xpan_;
+        wall[dest_wall_num].ypan_ =      wall[src_wall_num].ypan_;
         wall[dest_wall_num].hitag =         wall[src_wall_num].hitag;
         wall[dest_wall_num].lotag =         wall[src_wall_num].lotag;
         wall[dest_wall_num].extra =         wall[src_wall_num].extra;
@@ -78,8 +78,8 @@ void CopySectorWalls(short dest_sectnum, short src_sectnum)
             wall[dest_nextwall].pal = wall[src_nextwall].pal;
             wall[dest_nextwall].cstat = wall[src_nextwall].cstat;
             wall[dest_nextwall].shade = wall[src_nextwall].shade;
-            wall[dest_nextwall].xpanning = wall[src_nextwall].xpanning;
-            wall[dest_nextwall].ypanning = wall[src_nextwall].ypanning;
+            wall[dest_nextwall].xpan_ = wall[src_nextwall].xpan_;
+            wall[dest_nextwall].ypan_ = wall[src_nextwall].ypan_;
             wall[dest_nextwall].hitag = wall[src_nextwall].hitag;
             wall[dest_nextwall].lotag = wall[src_nextwall].lotag;
             wall[dest_nextwall].extra = wall[src_nextwall].extra;

@@ -319,14 +319,11 @@ void DoSectorPanning(void)
                 psy = mulscale16(psy, pXWall->busy);
             }
             int nTile = wall[nWall].picnum;
-            int px = (wall[nWall].xpanning<<8)+pXWall->xpanFrac;
-            int py = (wall[nWall].ypanning<<8)+pXWall->ypanFrac;
-            px += (psx << 2) / tileWidth(nTile);
-            py += (psy << 2) / tileHeight(nTile);
-            wall[nWall].xpanning = px>>8;
-            wall[nWall].ypanning = py>>8;
-            pXWall->xpanFrac = px&255;
-            pXWall->ypanFrac = py&255;
+            int px = (psx << 2) / tileWidth(nTile);
+            int py = (psy << 2) / tileHeight(nTile);
+
+            wall[nWall].addxpan(px * (1. / 256));
+            wall[nWall].addypan(py * (1. / 256));
         }
     }
 }

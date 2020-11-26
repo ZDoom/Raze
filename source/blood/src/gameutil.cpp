@@ -558,7 +558,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 return 0;
 
             nOffset = (nOffset*pWall->yrepeat) / 8;
-            nOffset += (nSizY*pWall->ypanning) / 256;
+            nOffset += int((nSizY*pWall->ypan_) / 256);
             int nLength = approxDist(pWall->x - wall[pWall->point2].x, pWall->y - wall[pWall->point2].y);
             int nHOffset;
             if (pWall->cstat & 8)
@@ -566,7 +566,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
             else
                 nHOffset = approxDist(gHitInfo.hitx - pWall->x, gHitInfo.hity - pWall->y);
 
-            nHOffset = pWall->xpanning + ((nHOffset*pWall->xrepeat) << 3) / nLength;
+            nHOffset = pWall->xpan() + ((nHOffset*pWall->xrepeat) << 3) / nLength;
             nHOffset %= nSizX;
             nOffset %= nSizY;
             auto pData = tilePtr(nPicnum);

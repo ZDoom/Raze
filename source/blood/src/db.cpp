@@ -780,9 +780,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pWall->shade = load.shade;
         pWall->pal = load.pal;
         pWall->xrepeat = load.xrepeat;
-        pWall->xpanning = load.xpanning;
+        pWall->xpan_ = load.xpanning;
         pWall->yrepeat = load.yrepeat;
-        pWall->ypanning = load.ypanning;
+        pWall->ypan_ = load.ypanning;
 
         if (wall[i].extra > 0)
         {
@@ -827,8 +827,8 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXWall->triggerVector = bitReader.readUnsigned(1);
             pXWall->triggerTouch = bitReader.readUnsigned(1);
             bitReader.readUnsigned(2);
-            pXWall->xpanFrac = bitReader.readUnsigned(8);
-            pXWall->ypanFrac = bitReader.readUnsigned(8);
+            pWall->xpan_ += bitReader.readUnsigned(8) / 256.f;
+            pWall->ypan_ += bitReader.readUnsigned(8) / 256.f;
             pXWall->locked = bitReader.readUnsigned(1);
             pXWall->dudeLockout = bitReader.readUnsigned(1);
             bitReader.readUnsigned(4);

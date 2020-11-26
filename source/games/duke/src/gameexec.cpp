@@ -993,12 +993,12 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, s
 		else SetGameVarID((int)lVar2, wall[iWall].yrepeat, sActor, sPlayer);
 		break;
 	case WALL_XPANNING:
-		if (bSet) wall[iWall].xpanning = lValue;
-		else SetGameVarID((int)lVar2, wall[iWall].xpanning, sActor, sPlayer);
+		if (bSet) wall[iWall].xpan_ = lValue;
+		else SetGameVarID((int)lVar2, wall[iWall].xpan(), sActor, sPlayer);
 		break;
 	case WALL_YPANNING:
-		if (bSet) wall[iWall].ypanning = lValue;
-		else SetGameVarID((int)lVar2, wall[iWall].ypanning, sActor, sPlayer);
+		if (bSet) wall[iWall].ypan_ = lValue;
+		else SetGameVarID((int)lVar2, wall[iWall].ypan(), sActor, sPlayer);
 		break;
 	case WALL_LOTAG:
 		if (bSet) wall[iWall].lotag = lValue;

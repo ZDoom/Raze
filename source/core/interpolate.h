@@ -23,6 +23,7 @@ enum EInterpolationType
 void StartInterpolation(int index, int type);
 void StopInterpolation(int index, int type);
 void UpdateInterpolations();
+void ClearInterpolations();
 void DoInterpolations(double smoothratio);
 void RestoreInterpolations();
 void SerializeInterpolations(FSerializer& arc);

@@ -1163,7 +1163,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
 }
 
 static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
-                          float x0, float x1, uint8_t ypan, uint8_t yrepeat,
+                          float x0, float x1, float ypan, uint8_t yrepeat,
                           int32_t dopancor, const vec2_16_t &tilesize)
 {
     float const t0 = ((float)(refposz-globalposz))*ryp0 + ghoriz;
@@ -1331,7 +1331,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     }
 
     int const npot = (1<<(widthBits(globalpicnum))) != tileWidth(globalpicnum);
-    int const xpanning = (hw_parallaxskypanning?global_cf_xpanning:0);
+    int const xPanning = (hw_parallaxskypanning?global_cf_xpanning:0);
 
     int picnumbak = globalpicnum;
     ti = globalpicnum;
@@ -1350,10 +1350,10 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
         {
             fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
             int tang = (y<<(11-dapskybits))&2047;
-            otex.u = otex.d*(t*((float)(tang)) * (1.f/2048.f) + xpanning) - xtex.u*fx;
+            otex.u = otex.d*(t*((float)(tang)) * (1.f/2048.f) + xPanning) - xtex.u*fx;
         }
         else
-            otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + xpanning) - xtex.u*ghalfx;
+            otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + xPanning) - xtex.u*ghalfx;
         y++;
         o.x = fx; fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
 
@@ -2055,8 +2055,8 @@ static void polymost_drawalls(int32_t const bunch)
 
         xtex.u = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)wal->xrepeat*8.f / (x0-x1);
         otex.u = t0*ryp0*gxyaspect*wal->xrepeat*8.0 - xtex.u*x0;
-        otex.u += (float)wal->xpanning*otex.d;
-        xtex.u += (float)wal->xpanning*xtex.d;
+        otex.u += (float)wal->xpan_*otex.d;
+        xtex.u += (float)wal->xpan_*xtex.d;
         ytex.u = 0;
 
         float const ogux = xtex.u, oguy = ytex.u, oguo = otex.u;
@@ -2085,11 +2085,11 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (!(wal->cstat&4)) ? sector[nextsectnum].ceilingz : sec->ceilingz;
 
                 // over
-                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, wal->cstat&4, tileSize(globalpicnum));
+                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypan_, wal->yrepeat, wal->cstat&4, tileSize(globalpicnum));
 
                 if (wal->cstat&8) //xflip
                 {
-                    float const t = (float)(wal->xrepeat*8 + wal->xpanning*2);
+                    float const t = (float)(wal->xrepeat*8 + wal->xpan_*2);
                     xtex.u = xtex.d*t - xtex.u;
                     ytex.u = ytex.d*t - ytex.u;
                     otex.u = otex.d*t - otex.u;
@@ -2108,9 +2108,9 @@ static void polymost_drawalls(int32_t const bunch)
                 else
                 {
                     nwal = (uwallptr_t)&wall[wal->nextwall];
-                    otex.u += (float)(nwal->xpanning - wal->xpanning) * otex.d;
-                    xtex.u += (float)(nwal->xpanning - wal->xpanning) * xtex.d;
-                    ytex.u += (float)(nwal->xpanning - wal->xpanning) * ytex.d;
+                    otex.u += (float)(nwal->xpan_ - wal->xpan_) * otex.d;
+                    xtex.u += (float)(nwal->xpan_ - wal->xpan_) * xtex.d;
+                    ytex.u += (float)(nwal->xpan_ - wal->xpan_) * ytex.d;
                 }
                 globalpicnum = nwal->picnum; globalshade = nwal->shade; globalfloorpal = globalpal = (int32_t)((uint8_t)nwal->pal);
                 GLInterface.SetVisibility(sectorVisibility(sectnum));
@@ -2120,11 +2120,11 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (!(nwal->cstat&4)) ? sector[nextsectnum].floorz : sec->ceilingz;
 
                 // under
-                calc_ypanning(i, ryp0, ryp1, x0, x1, nwal->ypanning, wal->yrepeat, !(nwal->cstat&4), tileSize(globalpicnum));
+                calc_ypanning(i, ryp0, ryp1, x0, x1, nwal->ypan_, wal->yrepeat, !(nwal->cstat&4), tileSize(globalpicnum));
 
                 if (wal->cstat&8) //xflip
                 {
-                    float const t = (float)(wal->xrepeat*8 + nwal->xpanning*2);
+                    float const t = (float)(wal->xrepeat*8 + nwal->xpan_*2);
                     xtex.u = xtex.d*t - xtex.u;
                     ytex.u = ytex.d*t - ytex.u;
                     otex.u = otex.d*t - otex.u;
@@ -2165,11 +2165,11 @@ static void polymost_drawalls(int32_t const bunch)
                 else { i = nwcs4 ? sec->ceilingz : sec->floorz; }
 
                 // white / 1-way
-                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, nwcs4 && !maskingOneWay, tileSize(globalpicnum));
+                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypan_, wal->yrepeat, nwcs4 && !maskingOneWay, tileSize(globalpicnum));
 
                 if (wal->cstat&8) //xflip
                 {
-                    float const t = (float) (wal->xrepeat*8 + wal->xpanning*2);
+                    float const t = (float) (wal->xrepeat*8 + wal->xpan_*2);
                     xtex.u = xtex.d*t - xtex.u;
                     ytex.u = ytex.d*t - ytex.u;
                     otex.u = otex.d*t - otex.u;
@@ -2729,17 +2729,17 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     //gux*x1 + guo = t1*wal->xrepeat*8*yp1
     xtex.u = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)wal->xrepeat*8.f / (x0-x1);
     otex.u = t0*ryp0*gxyaspect*(float)wal->xrepeat*8.f - xtex.u*x0;
-    otex.u += (float)wal->xpanning*otex.d;
-    xtex.u += (float)wal->xpanning*xtex.d;
+    otex.u += (float)wal->xpan_*otex.d;
+    xtex.u += (float)wal->xpan_*xtex.d;
     ytex.u = 0;
 
     // mask
     calc_ypanning((!(wal->cstat & 4)) ? max(nsec->ceilingz, sec->ceilingz) : min(nsec->floorz, sec->floorz), ryp0, ryp1,
-                  x0, x1, wal->ypanning, wal->yrepeat, 0, tileSize(globalpicnum));
+                  x0, x1, wal->ypan_, wal->yrepeat, 0, tileSize(globalpicnum));
 
     if (wal->cstat&8) //xflip
     {
-        float const t = (float)(wal->xrepeat*8 + wal->xpanning*2);
+        float const t = (float)(wal->xrepeat*8 + wal->xpan_*2);
         xtex.u = xtex.d*t - xtex.u;
         ytex.u = ytex.d*t - ytex.u;
         otex.u = otex.d*t - otex.u;

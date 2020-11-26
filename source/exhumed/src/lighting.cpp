@@ -697,8 +697,8 @@ void DoFlows()
             {
                 short nWall = sFlowInfo[i].field_0;
 
-                wall[nWall].xpanning = sFlowInfo[i].field_4 >> 14;
-                wall[nWall].ypanning = sFlowInfo[i].field_8 >> 14;
+                wall[nWall].addxpan(sFlowInfo[i].field_4 / 16384.f);
+                wall[nWall].addypan(sFlowInfo[i].field_8 / 16384.f);
 
                 if (sFlowInfo[i].field_4 < 0)
                 {
@@ -717,8 +717,8 @@ void DoFlows()
             {
                 short nWall = sFlowInfo[i].field_0;
 
-                wall[nWall].xpanning = sFlowInfo[i].field_4 >> 14;
-                wall[nWall].ypanning = sFlowInfo[i].field_8 >> 14;
+                wall[nWall].addxpan(sFlowInfo[i].field_4 / 16384.f);
+                wall[nWall].addypan(sFlowInfo[i].field_8 / 16384.f);
 
                 if (sFlowInfo[i].field_4 >= sFlowInfo[i].field_14)
                 {

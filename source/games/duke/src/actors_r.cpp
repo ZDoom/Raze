@@ -4175,8 +4175,8 @@ void destroyit(DDukeActor *actor)
 					wall[wi].shade = wall[wj].shade;
 					wall[wi].xrepeat = wall[wj].xrepeat;
 					wall[wi].yrepeat = wall[wj].yrepeat;
-					wall[wi].xpanning = wall[wj].xpanning;
-					wall[wi].ypanning = wall[wj].ypanning;
+					wall[wi].xpan_ = wall[wj].xpan_;
+					wall[wi].ypan_ = wall[wj].ypan_;
 					if (isRRRA() && wall[wi].nextwall != -1)
 					{
 						wall[wi].cstat = 0;

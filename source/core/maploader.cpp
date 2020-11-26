@@ -139,8 +139,8 @@ static void ReadWallV7(FileReader& fr, walltype& wall)
 	wall.pal = fr.ReadUInt8();
 	wall.xrepeat = fr.ReadUInt8();
 	wall.yrepeat = fr.ReadUInt8();
-	wall.xpanning = fr.ReadUInt8();
-	wall.ypanning = fr.ReadUInt8();
+	wall.xpan_ = fr.ReadUInt8();
+	wall.ypan_ = fr.ReadUInt8();
 	wall.lotag = fr.ReadInt16();
 	wall.hitag = fr.ReadInt16();
 	wall.extra = fr.ReadInt16();
@@ -160,8 +160,8 @@ static void ReadWallV6(FileReader& fr, walltype& wall)
 	wall.cstat = fr.ReadUInt16();
 	wall.xrepeat = fr.ReadUInt8();
 	wall.yrepeat = fr.ReadUInt8();
-	wall.xpanning = fr.ReadUInt8();
-	wall.ypanning = fr.ReadUInt8();
+	wall.xpan_ = fr.ReadUInt8();
+	wall.ypan_ = fr.ReadUInt8();
 	wall.lotag = fr.ReadInt16();
 	wall.hitag = fr.ReadInt16();
 	wall.extra = fr.ReadInt16();
@@ -178,8 +178,8 @@ static void ReadWallV5(FileReader& fr, walltype& wall)
 	wall.cstat = fr.ReadUInt16();
 	wall.xrepeat = fr.ReadUInt8();
 	wall.yrepeat = fr.ReadUInt8();
-	wall.xpanning = fr.ReadUInt8();
-	wall.ypanning = fr.ReadUInt8();
+	wall.xpan_ = fr.ReadUInt8();
+	wall.ypan_ = fr.ReadUInt8();
 
 	wall.nextsector = fr.ReadInt16();
 	wall.nextwall = fr.ReadInt16();

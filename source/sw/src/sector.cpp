@@ -3236,11 +3236,8 @@ DoPanning(void)
         nx = mulscale20(sp->xvel, bcos(sp->ang));
         ny = mulscale20(sp->xvel, bsin(sp->ang));
 
-        wallp->xpanning += nx;
-        wallp->ypanning += ny;
-
-        wallp->xpanning &= 255;
-        wallp->ypanning &= 255;
+        wallp->addxpan(nx);
+        wallp->addypan(ny);
     }
 }
 

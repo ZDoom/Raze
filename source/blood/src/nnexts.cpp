@@ -1708,10 +1708,10 @@ void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
             wall[objIndex].yrepeat = ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            wall[objIndex].xpanning = ClipRange(pXSource->data3, 0, 255);
+            wall[objIndex].xpan_ = ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            wall[objIndex].ypanning = ClipRange(pXSource->data4, 0, 255);
+            wall[objIndex].ypan_ = ClipRange(pXSource->data4, 0, 255);
         break;
     }
 
@@ -2573,9 +2573,9 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
                         case 28: return (pObj->cstat & arg1);
                         case 29: return (pObj->hitag & arg1);
                         case 30: return condCmp(pObj->xrepeat, arg1, arg2, cmpOp);
-                        case 31: return condCmp(pObj->xpanning, arg1, arg2, cmpOp);
+                        case 31: return condCmp(pObj->xpan(), arg1, arg2, cmpOp);
                         case 32: return condCmp(pObj->yrepeat, arg1, arg2, cmpOp);
-                        case 33: return condCmp(pObj->ypanning, arg1, arg2, cmpOp);
+                        case 33: return condCmp(pObj->ypan(), arg1, arg2, cmpOp);
                     }
                     break;
                 }

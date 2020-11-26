@@ -80,12 +80,18 @@ struct walltype
     uint16_t cstat;
     int16_t picnum, overpicnum;
     int8_t shade;
-    uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
+    uint8_t pal, xrepeat, yrepeat;
     union {
         int16_t lotag, type;
     };
     int16_t hitag;
     int16_t extra;
+    float xpan_, ypan_;
+
+    int xpan() const { return int(xpan_); }
+    int ypan() const { return int(ypan_); }
+    void addxpan(float add) { xpan_ = fmod(xpan_ + add + 512, 256); } // +512 is for handling negative offsets
+    void addypan(float add) { ypan_ = fmod(ypan_ + add + 512, 256); } // +512 is for handling negative offsets
 
 #if 0
     // make sure we do not accidentally copy this
