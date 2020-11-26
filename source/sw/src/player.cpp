@@ -1611,7 +1611,7 @@ DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 void
 DoPlayerTurnTurret(PLAYERp pp, float avel)
 {
-    fixed_t diff;
+    lookangle diff;
     binangle new_ang;
     SECTOR_OBJECTp sop = pp->sop;
 
@@ -1633,11 +1633,11 @@ DoPlayerTurnTurret(PLAYERp pp, float avel)
 
         if (sop->limit_ang_center >= 0)
         {
-            diff = getincangleq16(IntToFixed(sop->limit_ang_center), new_ang.asq16());
+            diff = getincanglebam(buildang(sop->limit_ang_center), new_ang);
 
-            if (labs(diff) >= IntToFixed(sop->limit_ang_delta))
+            if (labs(diff.asbuild()) >= sop->limit_ang_delta)
             {
-                if (diff < 0)
+                if (diff.asbam() < 0)
                     new_ang = buildang(sop->limit_ang_center - sop->limit_ang_delta);
                 else
                     new_ang = buildang(sop->limit_ang_center + sop->limit_ang_delta);
