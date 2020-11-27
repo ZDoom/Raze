@@ -703,16 +703,16 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SEQINST& w, SEQINS
 			("frameindex", w.frameIndex)
 			.EndObject();
 	}
-	if (arc.isReading())
-	{
-		w.pSequence = getSequence(w.nSeqID);
-	}
 	return arc;
 }
 
 void SerializeSequences(FSerializer& arc)
 {
 	arc("sequences", activeList.list);
+	if (arc.isReading()) for (unsigned i = 0; i < activeList.list.Size(); i++)
+	{
+		activeList.list[i].pSequence = getSequence(activeList.list[i].nSeqID);
+	}
 }
 
 END_BLD_NS
