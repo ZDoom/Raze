@@ -1048,7 +1048,7 @@ IconSpawn(SPRITEp sp)
         if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
             return false;
     }
-
+    sp->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_FLOOR);
     return true;
 }
 
@@ -3151,7 +3151,7 @@ KeyMain:
                 RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
                 RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
                 change_sprite_stat(SpriteNum, STAT_ITEM);
-                RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+                RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDED);
                 u->Radius = 500;
                 sp->hitag = LUMINOUS; //Set so keys over ride colored lighting
 
