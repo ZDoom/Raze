@@ -632,7 +632,8 @@ void SerializeEvents(FSerializer& arc)
 	if (arc.BeginObject("events"))
 	{
 		arc("bucketcount", bucketCount)
-			.Array("buckets", rxBucket, bucketCount);
+			.Array("buckets", rxBucket, bucketCount)
+			.Array("buckethead", bucketHead, countof(bucketHead));
 
 		if (arc.isReading()) createBucketHeads();
 		int numEvents = (int)queue.size();
