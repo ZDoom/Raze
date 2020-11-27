@@ -1015,7 +1015,7 @@ void spawneffector(DDukeActor* actor)
 					I_Error("Too many moving sectors at (%d,%d).\n", wall[s].x, wall[s].y);
 				}
 			}
-			if (sp->lotag == 30 || sp->lotag == 6 || sp->lotag == 14 || sp->lotag == 5)
+			if (sp->lotag == SE_30_TWO_WAY_TRAIN || sp->lotag == SE_6_SUBWAY || sp->lotag == SE_14_SUBWAY_CAR || sp->lotag == SE_5_BOSS)
 			{
 
 				startwall = sector[sect].wallptr;
@@ -1049,14 +1049,14 @@ void spawneffector(DDukeActor* actor)
 				actor->SetOwner(nullptr);
 				t[0] = s;
 
-				if (sp->lotag != 30)
+				if (sp->lotag != SE_30_TWO_WAY_TRAIN)
 					t[3] = sp->hitag;
 			}
 
-			else if (sp->lotag == 16)
+			else if (sp->lotag == SE_16_REACTOR)
 				t[3] = sector[sect].ceilingz;
 
-			else if (sp->lotag == 26)
+			else if (sp->lotag == SE_26)
 			{
 				t[3] = sp->x;
 				t[4] = sp->y;
@@ -1067,7 +1067,7 @@ void spawneffector(DDukeActor* actor)
 
 				sp->shade = 0;
 			}
-			else if (sp->lotag == 2)
+			else if (sp->lotag == SE_2_EARTHQUAKE)
 			{
 				t[5] = sector[sp->sectnum].floorheinum;
 				sector[sp->sectnum].floorheinum = 0;
@@ -1098,6 +1098,11 @@ void spawneffector(DDukeActor* actor)
 		case SE_16_REACTOR:
 		case SE_26:
 			setsectinterpolate(actor->s.sectnum);
+			break;
+
+		case SE_29_WAVES:
+			//This does not work. Why?
+			//StartInterpolation(actor->s.sectnum, Interp_Sect_Floorheinum);
 			break;
 	}
 

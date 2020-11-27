@@ -3719,51 +3719,51 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case SE_24_CONVEYOR:
-		case 34:
+		case SE_34:
 		{
 			static int16_t list1[] = { BLOODPOOL, PUKE, FOOTPRINTS, FOOTPRINTS2, FOOTPRINTS3, FOOTPRINTS4, BULLETHOLE, BLOODSPLAT1, BLOODSPLAT2, BLOODSPLAT3, BLOODSPLAT4, -1 };
 			static int16_t list2[] = { BOLT1, BOLT1 + 1,BOLT1 + 2, BOLT1 + 3, SIDEBOLT1, SIDEBOLT1 + 1, SIDEBOLT1 + 2, SIDEBOLT1 + 3, -1 };
 			handle_se24(act, list1, list2, TRIPBOMB, LASERLINE, CRANE, 2);
 			break;
 		}
-		case 35:
+		case SE_35:
 			handle_se35(act, SMALLSMOKE, EXPLOSION2);
 			break;
 
-		case 25: //PISTONS
+		case SE_25_PISTON: //PISTONS
 			if (act->temp_data[4] == 0) break;
 			handle_se25(act, 3, -1, -1);
 			break;
 
-		case 26:
+		case SE_26:
 			handle_se26(act);
 			break;
 
 		case SE_27_DEMO_CAM:
 			handle_se27(act);
 			break;
-		case 28:
+		case SE_28_LIGHTNING:
 			handle_se28(act);
 			break;
 
-		case 29:
+		case SE_29_WAVES:
 			act->s.hitag += 64;
 			l = mulscale12(act->s.yvel, bsin(act->s.hitag));
 			sc->floorz = act->s.z + l;
 			break;
-		case 31: // True Drop Floor
+		case SE_31_FLOOR_RISE_FALL: // True Drop Floor
 			handle_se31(act, true);
 			break;
 
-		case 32: // True Drop Ceiling
+		case SE_32_CEILING_RISE_FALL: // True Drop Ceiling
 			handle_se32(act);
 			break;
 
-		case 33:
+		case SE_33_QUAKE_DEBRIS:
 			if (earthquaketime > 0 && (krand() & 7) == 0)
 				RANDOMSCRAP(act);
 			break;
-		case 36:
+		case SE_36_PROJ_SHOOTER:
 
 			if (act->temp_data[0])
 			{
@@ -3792,7 +3792,7 @@ void moveeffectors_d(void)   //STATNUM 3
 	it.Reset(STAT_EFFECTOR);
 	while (auto act = it.Next())
 	{
-		if (act->s.lotag != 29) continue;
+		if (act->s.lotag != SE_29_WAVES) continue;
 		auto sc = &sector[act->s.sectnum];
 		if (sc->wallnum != 4) continue;
 		auto wal = &wall[sc->wallptr + 2];
