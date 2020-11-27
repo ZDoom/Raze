@@ -664,11 +664,6 @@ void SerializeNNExts(FSerializer& arc);
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
-	sndKillAllSounds();
-	sfxKillAllSounds();
-	ambKillAll();
-	seqKillAll();
-
 	if (arc.isWriting())
 	{
 		activeXSprites.Zero();
@@ -679,6 +674,10 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	}
 	else
 	{
+		sndKillAllSounds();
+		sfxKillAllSounds();
+		ambKillAll();
+		seqKillAll();
 		if (gamestate != GS_LEVEL)
 		{
 			memset(xsprite, 0, sizeof(xsprite));
