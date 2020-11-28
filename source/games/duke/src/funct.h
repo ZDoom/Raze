@@ -195,7 +195,6 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE);
 void initwaterdrip(DDukeActor* actj, DDukeActor* acti);
 int initreactor(DDukeActor* actj, DDukeActor* acti, bool isrecon);
 void spawneffector(DDukeActor* actor);
-void gameexitfrommenu();
 int startrts(int lumpNum, int localPlayer);
 
 void pickrandomspot(int pn);

@@ -84,27 +84,6 @@ GameStats GameInterface::getStats()
 //
 //---------------------------------------------------------------------------
 
-template<class func>
-void runbonus(func completion)
-{
-	// MP scoreboard
-	if (playerswhenstarted > 1 && !ud.coop)
-	{
-		dobonus(1, completion);
-	}
-	else completion(false);
-
-}
-
-template <class func>
-void runtwoscreens(func completion)
-{
-	// shareware and TEN screens
-	if (isShareware() && !isRR())
-		showtwoscreens(completion);
-	else completion(false);
-}
-
 static void endthegame(bool)
 {
 	endoomName = isRR() ? "redneck.bin" : !isShareware() ? "duke3d.bin" : "dukesw.bin";
@@ -112,14 +91,27 @@ static void endthegame(bool)
 }
 
 
-void gameexitfrommenu()
-{
-	runbonus([](bool aborted) { runtwoscreens(endthegame); });
-}
-
 void GameInterface::ExitFromMenu() 
 { 
-	gameexitfrommenu();
+	auto runbonus = [=](auto completion)
+	{
+	// MP scoreboard
+		if (playerswhenstarted > 1 && !ud.coop)
+	{
+			dobonus(1, completion);
+	}
+	else completion(false);
+	};
+
+	auto runtwoscreens = [](auto completion)
+	{
+	// shareware and TEN screens
+	if (isShareware() && !isRR())
+		showtwoscreens(completion);
+	else completion(false);
+	};
+
+	runbonus([=](bool aborted) { runtwoscreens(endthegame); });
 }
 
 //---------------------------------------------------------------------------
