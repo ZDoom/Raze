@@ -32,9 +32,7 @@ struct Anubis
     short nAction;
     short nSprite;
     short nTarget;
-    short f;
-    short g;
-    short h;
+    short nCount;
 };
 
 static TArray<Anubis> AnubisList;
@@ -67,9 +65,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Anubis& w, Anubis*
             ("action", w.nAction)
             ("sprite", w.nSprite)
             ("target", w.nTarget)
-            ("f", w.f)
-            ("g", w.g)
-            ("h", w.h)
+            ("count", w.nCount)
             .EndObject();
     }
     return arc;
@@ -151,7 +147,7 @@ int BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8
     ap->nFrame  = 0;
     ap->nSprite = nSprite;
     ap->nTarget = -1;
-    ap->g = 0;
+    ap->nCount = 0;
 
     sp->owner = runlist_AddRunRec(sp->lotag - 1, nAnubis | 0x90000);
 
@@ -276,13 +272,13 @@ void FuncAnubis(int a, int nDamage, int nRun)
 
                         default:
                         {
-                            if (ap->g)
+                            if (ap->nCount)
                             {
-                                ap->g--;
+                                ap->nCount--;
                             }
                             else
                             {
-                                ap->g = 60;
+                                ap->nCount = 60;
 
                                 if (nTarget > -1) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
                                 {
@@ -308,7 +304,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
                     if (nTarget == -1)
                     {
                         ap->nAction = 0;
-                        ap->g = 50;
+                        ap->nCount = 50;
                     }
                     else
                     {
@@ -405,7 +401,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
                 {
                     ap->nAction = 0;
                     ap->nFrame = 0;
-                    ap->g = 100;
+                    ap->nCount = 100;
                     ap->nTarget = -1;
 
                     sp->xvel = 0;

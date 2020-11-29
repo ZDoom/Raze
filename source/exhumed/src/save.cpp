@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 void SerializeAnubis(FSerializer& arc);
+void SerializeFish(FSerializer& arc);
 void SerializeSpider(FSerializer& arc);
 
 
@@ -48,6 +49,7 @@ bool GameInterface::SaveGame()
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
     SerializeAnubis(arc);
+    SerializeFish(arc);
     SerializeSpider(arc);
 }
 

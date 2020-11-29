@@ -52,8 +52,8 @@ struct Lion
     short nAction;
     short nSprite;
     short nTarget;
-    short _f;
-    short _g;
+    short nIndex;
+    short nCount;
 };
 
 Lion LionList[kMaxLions];
@@ -121,8 +121,8 @@ int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
     LionList[nLion].nFrame = 0;
     LionList[nLion].nSprite = nSprite;
     LionList[nLion].nTarget = -1;
-    LionList[nLion]._g = 0;
-    LionList[nLion]._f = nLion;
+    LionList[nLion].nCount = 0;
+    LionList[nLion].nIndex = nLion;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nLion | 0x130000);
 
@@ -220,7 +220,7 @@ void FuncLion(int a, int nDamage, int nRun)
                             {
                                 PlotCourseToSprite(nSprite, nTarget);
                                 LionList[nLion].nAction = 5;
-                                LionList[nLion]._g = RandomSize(3);
+                                LionList[nLion].nCount = RandomSize(3);
                                 sprite[nSprite].ang = (sprite[nSprite].ang - (RandomSize(1) << 8)) + (RandomSize(1) << 8); // NOTE: no angle mask in original code
                             }
                             else
@@ -271,7 +271,7 @@ void FuncLion(int a, int nDamage, int nRun)
                 case 0:
                 case 1:
                 {
-                    if ((LionList[nLion]._f & 0x1F) == (totalmoves & 0x1F))
+                    if ((LionList[nLion].nIndex & 0x1F) == (totalmoves & 0x1F))
                     {
                         if (nTarget < 0)
                         {
@@ -292,8 +292,8 @@ void FuncLion(int a, int nDamage, int nRun)
 
                     if (nAction)
                     {
-                        LionList[nLion]._g--;
-                        if (LionList[nLion]._g <= 0)
+                        LionList[nLion].nCount--;
+                        if (LionList[nLion].nCount <= 0)
                         {
                             if (RandomBit())
                             {
@@ -307,7 +307,7 @@ void FuncLion(int a, int nDamage, int nRun)
                                 sprite[nSprite].yvel = 0;
                             }
 
-                            LionList[nLion]._g = 100;
+                            LionList[nLion].nCount = 100;
                         }
                     }
 
@@ -316,7 +316,7 @@ void FuncLion(int a, int nDamage, int nRun)
 
                 case 2:
                 {
-                    if ((totalmoves & 0x1F) == (LionList[nLion]._f & 0x1F))
+                    if ((totalmoves & 0x1F) == (LionList[nLion].nIndex & 0x1F))
                     {
                         PlotCourseToSprite(nSprite, nTarget);
 
@@ -388,7 +388,7 @@ void FuncLion(int a, int nDamage, int nRun)
                     if (nTarget == -1)
                     {
                         LionList[nLion].nAction = 1;
-                        LionList[nLion]._g = 50;
+                        LionList[nLion].nCount = 50;
                     }
                     else
                     {
@@ -424,11 +424,11 @@ void FuncLion(int a, int nDamage, int nRun)
 
                 case 5: // Jump away when damaged
                 {
-                    LionList[nLion]._g--;
-                    if (LionList[nLion]._g <= 0)
+                    LionList[nLion].nCount--;
+                    if (LionList[nLion].nCount <= 0)
                     {
                         sprite[nSprite].zvel = -4000;
-                        LionList[nLion]._g = 0;
+                        LionList[nLion].nCount = 0;
 
                         int x = sprite[nSprite].x;
                         int y = sprite[nSprite].y;
@@ -492,7 +492,7 @@ void FuncLion(int a, int nDamage, int nRun)
                     {
                         LionList[nLion].nAction = 7;
                         sprite[nSprite].ang = (GetWallNormal(nMov & 0x3FFF) + 1024) & kAngleMask;
-                        LionList[nLion]._g = RandomSize(4);
+                        LionList[nLion].nCount = RandomSize(4);
                         return;
                     }
                     else if ((nMov & 0xC000) == 0xC000)
@@ -521,11 +521,11 @@ void FuncLion(int a, int nDamage, int nRun)
 
                 case 7:
                 {
-                    LionList[nLion]._g--;
+                    LionList[nLion].nCount--;
 
-                    if (LionList[nLion]._g <= 0)
+                    if (LionList[nLion].nCount <= 0)
                     {
-                        LionList[nLion]._g = 0;
+                        LionList[nLion].nCount = 0;
                         if (nTarget > -1)
                         {
                             PlotCourseToSprite(nSprite, nTarget);
@@ -588,7 +588,7 @@ void FuncLion(int a, int nDamage, int nRun)
                 {
                     LionList[nLion].nAction = 1;
                     LionList[nLion].nFrame = 0;
-                    LionList[nLion]._g = 100;
+                    LionList[nLion].nCount = 100;
                     LionList[nLion].nTarget = -1;
                     sprite[nSprite].xvel = 0;
                     sprite[nSprite].yvel = 0;
