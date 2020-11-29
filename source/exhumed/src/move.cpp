@@ -53,21 +53,38 @@ BlockInfo sBlockInfo[kMaxPushBlocks];
 
 short nChunkSprite[kMaxMoveChunks];
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, BlockInfo& w, BlockInfo* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("at8", w.field_8)
+            ("sprite", w.nSprite)
+            ("x", w.x)
+            ("y", w.y)
+            .EndObject();
+    }
+    return arc;
+}
 
-static SavegameHelper sghmove("move",
-    SV(nPushBlocks),
-    SV(overridesect),
-    SV(NearCount),
-    SV(hihit),
-    SV(sprceiling),
-    SV(sprfloor),
-    SV(lohit),
-    SA(nBodySprite),
-    SA(NearSector),
-    SA(sBlockInfo),
-    SA(nChunkSprite),
-    nullptr);
-
+void SerializeMove(FSerializer& arc)
+{
+    if (arc.BeginObject("move"))
+    {
+        arc("nearcount", NearCount)
+            .Array("nearsector", NearSector, NearCount)
+            ("pushcount", nPushBlocks)
+            .Array("blocks", sBlockInfo, nPushBlocks)
+            ("chunkcount", nCurChunkNum)
+            .Array("chunks", nChunkSprite, kMaxMoveChunks)
+            ("overridesect", overridesect)
+            ("hihit", hihit)
+            ("lohit", lohit)
+            ("sprceiling", sprceiling)
+            ("sprfloor", sprfloor)
+            .Array("bodysprite", nBodySprite, 50)
+            .EndObject();
+    }
+}
 
 signed int lsqrt(int a1)
 {
