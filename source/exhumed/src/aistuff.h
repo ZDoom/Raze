@@ -513,7 +513,7 @@ int BuildSwPressWall(short nChannel, short nLink, short nWall);
 
 // wasp
 
-extern short nWaspCount;
+int WaspCount();
 
 void InitWasps();
 int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle);

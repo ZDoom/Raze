@@ -1284,7 +1284,7 @@ void FuncQueen(int a, int nDamage, int nRun)
                         {
                             if (QueenList[nQueen].field_C <= 0)
                             {
-                                if (nWaspCount < 100)
+                                if (WaspCount() < 100)
                                 {
                                     QueenList[nQueen].nAction = 6;
                                     QueenList[nQueen].nFrame  = 0;

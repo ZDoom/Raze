@@ -40,7 +40,7 @@ void SerializeRoach(FSerializer& arc);
 void SerializeScorpion(FSerializer& arc);
 void SerializeSet(FSerializer& arc);
 void SerializeSpider(FSerializer& arc);
-
+void SerializeWasp(FSerializer& arc);
 
 void SaveTextureState();
 void LoadTextureState();
@@ -67,8 +67,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     SerializeScorpion(arc);
     SerializeSet(arc);
     SerializeSpider(arc);
+    SerializeWasp(arc);
 }
-
 
 bool GameInterface::LoadGame()
 {
