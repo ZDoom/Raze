@@ -30,20 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum
-{
-	kMaxBobs		= 200,
-	kMaxDrips		= 50,
-	kMaxMoveSects	= 50,
-	kMaxObjects		= 128,
-	kMaxWallFace	= 4096,
-	kMaxSlideData	= 128,
-	kMaxTraps		= 40,
-	kMaxTrails		= 20,
-	kMaxTrailPoints	= 100,
-};
-
-
 static short ObjectSeq[] = {
     46, -1, 72, -1
 };
@@ -57,13 +43,16 @@ struct Trail
     short field_0;
     short field_2;
     short field_4;
-    short pad;
 };
 
 struct TrailPoint
 {
     int x;
     int y;
+    char nTrailPointVal;
+    short nTrailPointPrev;
+    short nTrailPointNext;
+
 };
 
 struct Bob
@@ -72,6 +61,8 @@ struct Bob
     char field_2;
     char field_3;
     int z;
+    short sBobID;
+
 };
 
 struct Drip
@@ -106,6 +97,8 @@ struct MoveSect
     short field_8; // nSector?
     int field_10;
     short field_14; // nChannel?
+    short sMoveDir;
+
 };
 
 struct Object
@@ -127,19 +120,14 @@ struct wallFace
     short field_6[8];
 };
 
-// TODO - rename
-struct slideData2
-{
-    short nChannel;
-    short field_2;
-    short field_4;
-    short field_6;
-    short field_8;
-    uint8_t field_A[6]; // pad?
-};
-
 struct slideData
 {
+    short nChannel;
+    short field_2a;
+    short field_4a;
+    short field_6a;
+    short field_8a;
+
     int field_0;
     int field_4;
     int field_8;
@@ -180,71 +168,240 @@ struct Trap
     short field_A;
     short field_C;
     short field_E;
+    short nTrapInterval;
+
 };
 
-Trap sTrap[kMaxTraps];
 
-Bob sBob[kMaxBobs];
-Trail sTrail[kMaxTrails];
-TrailPoint sTrailPoint[kMaxTrailPoints];
-Elev Elevator[kMaxElevs];
-Object ObjectList[kMaxObjects];
-MoveSect sMoveSect[kMaxMoveSects];
-slideData SlideData[kMaxSlideData];
-short sMoveDir[kMaxMoveSects];
-wallFace WallFace[kMaxWallFace];
-slideData2 SlideData2[kMaxSlideData];
-Point PointList[kMaxPoints];
-
-short nTrapInterval[kMaxTraps];
-
-short sBobID[kMaxBobs];
-
-short PointCount;
-short PointFree[kMaxPoints];
-
-short SlideCount = 0;
-short SlideFree[kMaxSlides];
-
-char nTrailPointVal[kMaxTrailPoints];
-short nTrailPointPrev[kMaxTrailPoints];
-short nTrailPointNext[kMaxTrailPoints];
-
-Drip sDrip[kMaxDrips];
-
-short ElevCount = -1;
-
-short WallFaceCount = -1;
+TArray<Point> PointList;
+TArray<Trap> sTrap;
+TArray<Bob> sBob;
+TArray<Trail> sTrail;
+TArray<TrailPoint> sTrailPoint;
+TArray<Elev> Elevator;
+TArray<Object> ObjectList;
+TArray<MoveSect> sMoveSect;
+TArray<slideData> SlideData;
+TArray<wallFace> WallFace;
+TArray<Drip> sDrip;
 
 int lFinaleStart;
 
-short nTrailPoints;
-
 short nEnergyBlocks;
-short nMoveSects;
 short nFinaleStage;
-short nTrails;
-short nTraps;
 short nFinaleSpr;
-short ObjectCount;
-short nDrips;
 
-short nBobs = 0;
 short nDronePitch = 0;
 short nSmokeSparks = 0;
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Trail& w, Trail* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("at0", w.field_0)
+			("at2", w.field_2)
+			("at4", w.field_4)
+			.EndObject();
+	}
+	return arc;
+}
+FSerializer& Serialize(FSerializer& arc, const char* keyname, TrailPoint& w, TrailPoint* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("x", w.x)
+			("y", w.y)
+			("val", w.nTrailPointVal)
+			("next", w.nTrailPointNext)
+			("prev", w.nTrailPointPrev)
+			.EndObject();
+	}
+	return arc;
+}
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Bob& w, Bob* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("sector", w.nSector)
+			("at2", w.field_2)
+			("at3", w.field_3)
+			("z", w.z)
+			("id", w.sBobID)
+			.EndObject();
+	}
+	return arc;
+}
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Drip& w, Drip* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("sprite", w.nSprite)
+			("at2", w.field_2)
+			.EndObject();
+	}
+	return arc;
+}
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Elev& w, Elev* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("at0", w.field_0)
+			("channel", w.nChannel)
+			("sector", w.nSector)
+			("at6", w.field_6)
+			("ata", w.field_A)
+			("countz", w.nCountZOffsets)
+			("curz", w.nCurZOffset)
+			.Array("zofs", w.zOffsets, 8)
+			("at32", w.field_32)
+			("sprite", w.nSprite)
+			("at36", w.field_36)
+			.EndObject();
+	}
+	return arc;
+}
+FSerializer& Serialize(FSerializer& arc, const char* keyname, MoveSect& w, MoveSect* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("sector", w.nSector)
+			("trail", w.nTrail)
+			("trailpoint", w.nTrailPoint)
+			("at6", w.field_6)
+			("at8", w.field_8)
+			("at10", w.field_10)
+			("at14", w.field_14)
+			("movedir", w.sMoveDir)
+			.EndObject();
+	}
+	return arc;
+}
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Object& w, Object* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("at0", w.field_0)
+			("health", w.nHealth)
+			("at4", w.field_4)
+			("at8", w.field_8)
+			("sprite", w.nSprite)
+			("at8", w.field_8)
+			("at10", w.field_10)
+			("at12", w.field_12)
+			.EndObject();
+	}
+	return arc;
+}
+FSerializer& Serialize(FSerializer& arc, const char* keyname, wallFace& w, wallFace* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("channel", w.nChannel)
+			("wall", w.nWall)
+			("at4", w.field_4)
+			.Array("at6", w.field_6, 8)
+			.EndObject();
+	}
+	return arc;
+}
+FSerializer& Serialize(FSerializer& arc, const char* keyname, slideData& w, slideData* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("at0", w.field_0)
+			("at4", w.field_4)
+			("at8", w.field_8)
+			("atc", w.field_C)
+			("x1", w.x1)
+			("y1", w.y1)
+			("x2", w.x2)
+			("y2", w.y2)
+			("at20", w.field_20)
+			("at24", w.field_24)
+			("at28", w.field_28)
+			("at2c", w.field_2C)
+			("at30", w.field_30)
+			("at34", w.field_34)
+			("at38", w.field_38)
+			("at3c", w.field_3C)
+			("channel", w.nChannel)
+			("at2a", w.field_2a)
+			("at4a", w.field_4a)
+			("at6a", w.field_6a)
+			("at8a", w.field_8a)
+			.EndObject();
+	}
+	return arc;
+}
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Point& w, Point* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("at0", w.field_0)
+			("at2", w.field_2)
+			("at4", w.field_4)
+			("at6", w.field_6)
+			("at8", w.field_8)
+			("ata", w.field_A)
+			("atc", w.field_C)
+			("ate", w.field_E)
+			.EndObject();
+	}
+	return arc;
+}
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Trap& w, Trap* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("at0", w.field_0)
+			("sprite", w.nSprite)
+			("type", w.nType)
+			("at6", w.field_6)
+			("at8", w.field_8)
+			("ata", w.field_A)
+			("atc", w.field_C)
+			("ate", w.field_E)
+			("interval", w.nTrapInterval)
+			.EndObject();
+	}
+	return arc;
+}
+
+void SerializeObjects(FSerializer& arc)
+{
+	if (arc.BeginObject("objects"))
+	{
+		arc("points", PointList)
+			("traps", sTrap)
+			("bob", sBob)
+			("trails", sTrail)
+			("trailpoints", sTrailPoint)
+			("elevators", Elevator)
+			("objects", ObjectList)
+			("movesect", sMoveSect)
+			("slides", SlideData)
+			("wallface", WallFace)
+			("drips", sDrip)
+			("finalestart", lFinaleStart)
+			("energyblocks", nEnergyBlocks)
+			("finalestage", nFinaleStage)
+			("finalespr", nFinaleSpr)
+			("dronepitch", nDronePitch)
+			("smokesparks", nSmokeSparks)
+			.EndObject();
+	}
+}
 
 // done
 void InitObjects()
 {
-    ObjectCount = 0;
-    nTraps = 0;
-    nDrips = 0;
-    nBobs = 0;
-    nTrails = 0;
-    nTrailPoints = 0;
-    nMoveSects = 0;
-
-    memset(sTrail, -1, sizeof(sTrail));
+    sTrap.Clear();
+    sBob.Clear();
+    sTrail.Clear();
+    sTrailPoint.Clear();
+    ObjectList.Clear();
+    sMoveSect.Clear();
+    sDrip.Clear();
 
     nEnergyBlocks = 0;
     nDronePitch = 0;
@@ -256,7 +413,7 @@ void InitObjects()
 // done
 void InitElev()
 {
-    ElevCount = kMaxElevs;
+    Elevator.Clear();
 }
 
 // done
@@ -358,13 +515,7 @@ short FindWallSprites(short nSector)
 
 int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5, int nCount, ...)
 {
-    assert(ElevCount > 0);
-
-    if (ElevCount <= 0) {
-        return -1;
-    }
-
-    ElevCount--;
+    auto ElevCount = Elevator.Reserve(1);
 
     Elevator[ElevCount].field_0 = 2;
     Elevator[ElevCount].field_6 = arg_4;
@@ -406,12 +557,7 @@ int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, i
 {
     int edi = arg5;
 
-    assert(ElevCount > 0);
-    if (ElevCount <= 0) {
-        return -1;
-    }
-
-    ElevCount--;
+    auto ElevCount = Elevator.Reserve(1);
 
     Elevator[ElevCount].field_0 = arg1;
 
@@ -563,7 +709,7 @@ void StartElevSound(short nSprite, int nVal)
 void FuncElev(int a, int, int nRun)
 {
     short nElev = RunData[nRun].nVal;
-    assert(nElev >= 0 && nElev < kMaxElevs);
+    assert(nElev >= 0 && nElev < (int)Elevator.Size());
 
     short nChannel = Elevator[nElev].nChannel;
     short var_18 = Elevator[nElev].field_0;
@@ -782,16 +928,12 @@ void FuncElev(int a, int, int nRun)
 // done
 void InitWallFace()
 {
-    WallFaceCount = kMaxWallFace;
+    WallFace.Clear();
 }
 
 int BuildWallFace(short nChannel, short nWall, int nCount, ...)
 {
-    if (WallFaceCount <= 0) {
-        I_Error("Too many wall faces!\n");
-    }
-
-    WallFaceCount--;
+    auto WallFaceCount = WallFace.Reserve(1);
 
     WallFace[WallFaceCount].field_4 = 0;
     WallFace[WallFaceCount].nWall = nWall;
@@ -819,7 +961,7 @@ int BuildWallFace(short nChannel, short nWall, int nCount, ...)
 void FuncWallFace(int a, int, int nRun)
 {
     int nWallFace = RunData[nRun].nVal;
-    assert(nWallFace >= 0 && nWallFace < kMaxWallFace);
+    assert(nWallFace >= 0 && nWallFace < (int)WallFace.Size());
 
     short nChannel = WallFace[nWallFace].nChannel;
 
@@ -837,27 +979,19 @@ void FuncWallFace(int a, int, int nRun)
 // done
 void InitPoint()
 {
-    PointCount = 0;
-
-    for (int i = 0; i < kMaxPoints; i++) {
-        PointFree[i] = i;
-    }
+    PointList.Clear();
 }
 
 // done
 int GrabPoint()
 {
-    return PointFree[PointCount++];
+    return PointList.Reserve(1);
 }
 
 // done
 void InitSlide()
 {
-    SlideCount = kMaxSlides;
-
-    for (int i = 0; i < kMaxSlides; i++) {
-        SlideFree[i] = i;
-    }
+    SlideData.Clear();
 }
 
 int IdentifySector(int nVal)
@@ -883,24 +1017,17 @@ int IdentifySector(int nVal)
 
 int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int nWall3, int nWall4)
 {
-    if (SlideCount <= 0) {
-        I_Error("Too many slides!\n");
-        return -1;
-    }
-
-    SlideCount--;
-
-    int nSlide = SlideCount;
+    auto nSlide = SlideData.Reserve(1);
 
     short nSector = IdentifySector(nStartWall);
 
-    SlideData2[nSlide].field_4 = -1;
-    SlideData2[nSlide].nChannel = nChannel;
-    SlideData2[nSlide].field_2 = -1;
+    SlideData[nSlide].field_4a = -1;
+    SlideData[nSlide].nChannel = nChannel;
+    SlideData[nSlide].field_2a = -1;
 
     int nPoint = GrabPoint();
 
-    SlideData2[nSlide].field_2 = nPoint;
+    SlideData[nSlide].field_2a = nPoint;
 
     PointList[nPoint].field_E = -1;
     PointList[nPoint].field_0 = nSector;
@@ -910,7 +1037,7 @@ int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int n
 
     for (int nWall = startwall; nWall < endwall; nWall++)
     {
-        short ax = SlideData2[nSlide].field_2;
+        short ax = SlideData[nSlide].field_2a;
 
         if (ax >= 0)
         {
@@ -929,10 +1056,10 @@ int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int n
             {
                 nPoint = GrabPoint();
 
-                PointList[nPoint].field_E = SlideData2[nSlide].field_2;
+                PointList[nPoint].field_E = SlideData[nSlide].field_2a;
                 PointList[nPoint].field_0 = wall[nWall].nextsector;
 
-                SlideData2[nSlide].field_2 = nPoint;
+                SlideData[nSlide].field_2a = nPoint;
             }
         }
     }
@@ -962,13 +1089,13 @@ int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int n
 
     int nSprite = insertsprite(nSector, 899);
 
-    SlideData2[nSlide].field_6 = nSprite;
+    SlideData[nSlide].field_6a = nSprite;
     sprite[nSprite].cstat = 0x8000;
     sprite[nSprite].x = wall[nStartWall].x;
     sprite[nSprite].y = wall[nStartWall].y;
     sprite[nSprite].z = sector[nSector].floorz;
 
-    SlideData2[nSlide].field_8 = 0;
+    SlideData[nSlide].field_8a = 0;
 
     return nSlide | 0x80000;
 }
@@ -976,9 +1103,9 @@ int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int n
 void FuncSlide(int a, int, int nRun)
 {
     int nSlide = RunData[nRun].nVal;
-    assert(nSlide >= 0 && nSlide < kMaxSlides);
+    assert(nSlide >= 0 && nSlide < (int)SlideData.Size());
 
-    short nChannel = SlideData2[nSlide].nChannel;
+    short nChannel = SlideData[nSlide].nChannel;
 
     int nMessage = a & 0x7F0000;
 
@@ -990,22 +1117,22 @@ void FuncSlide(int a, int, int nRun)
     {
         case 0x10000:
         {
-            if (SlideData2[nSlide].field_4 >= 0)
+            if (SlideData[nSlide].field_4a >= 0)
             {
-                runlist_SubRunRec(SlideData2[nSlide].field_4);
-                SlideData2[nSlide].field_4 = -1;
+                runlist_SubRunRec(SlideData[nSlide].field_4a);
+                SlideData[nSlide].field_4a = -1;
             }
 
             if (sRunChannels[nChannel].c && sRunChannels[nChannel].c != 1) {
                 return;
             }
 
-            SlideData2[nSlide].field_4 = runlist_AddRunRec(NewRun, RunData[nRun].nMoves);
+            SlideData[nSlide].field_4a = runlist_AddRunRec(NewRun, RunData[nRun].nMoves);
 
-            if (SlideData2[nSlide].field_8 != sRunChannels[nChannel].c)
+            if (SlideData[nSlide].field_8a != sRunChannels[nChannel].c)
             {
-                D3PlayFX(StaticSound[kSound23], SlideData2[nSlide].field_6);
-                SlideData2[nSlide].field_8 = sRunChannels[nChannel].c;
+                D3PlayFX(StaticSound[kSound23], SlideData[nSlide].field_6a);
+                SlideData[nSlide].field_8a = sRunChannels[nChannel].c;
             }
 
             return;
@@ -1030,7 +1157,7 @@ void FuncSlide(int a, int, int nRun)
                 int var_24 = nSeekB;
 
                 dragpoint(SlideData[nSlide].field_4, x, y, 0);
-                movesprite(SlideData2[nSlide].field_6, var_34 << 14, var_2C << 14, 0, 0, 0, CLIPMASK1);
+                movesprite(SlideData[nSlide].field_6a, var_34 << 14, var_2C << 14, 0, 0, 0, CLIPMASK1);
 
                 if (var_34 == 0)
                 {
@@ -1130,10 +1257,10 @@ void FuncSlide(int a, int, int nRun)
             // loc_21A51:
             if (ebp >= 2)
             {
-                runlist_SubRunRec(SlideData2[nSlide].field_4);
+                runlist_SubRunRec(SlideData[nSlide].field_4a);
 
-                SlideData2[nSlide].field_4 = -1;
-                D3PlayFX(StaticSound[nStopSound], SlideData2[nSlide].field_6);
+                SlideData[nSlide].field_4a = -1;
+                D3PlayFX(StaticSound[nStopSound], SlideData[nSlide].field_6a);
 
                 runlist_ReadyChannel(nChannel);
             }
@@ -1149,12 +1276,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     int var_18 = ebx;
     int var_10 = ecx;
 
-    if (nTraps >= kMaxTraps) {
-        I_Error("Too many traps!\n");
-    }
-
-    short nTrap = nTraps;
-    nTraps++;
+    int nTrap = sTrap.Reserve(1);
 
     changespritestat(nSprite, 0);
 
@@ -1174,9 +1296,9 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     sTrap[nTrap].nType = (var_14 == 0) + 14;
     sTrap[nTrap].field_0 = -1;
 
-    nTrapInterval[nTrap] = 64 - (2 * var_10);
-    if (nTrapInterval[nTrap] < 5) {
-        nTrapInterval[nTrap] = 5;
+    sTrap[nTrap].nTrapInterval = 64 - (2 * var_10);
+    if (sTrap[nTrap].nTrapInterval < 5) {
+        sTrap[nTrap].nTrapInterval = 5;
     }
 
     sTrap[nTrap].field_C = 0;
@@ -1258,7 +1380,7 @@ void FuncTrap(int a, int, int nRun)
 
                 if (sTrap[nTrap].field_0 == 0)
                 {
-                    sTrap[nTrap].field_0 = nTrapInterval[nTrap];
+                    sTrap[nTrap].field_0 = sTrap[nTrap].nTrapInterval;
 
                     if (nType == 14)
                     {
@@ -1821,13 +1943,9 @@ void FuncEnergyBlock(int a, int nDamage, int nRun)
 
 int BuildObject(int const nSprite, int nOjectType, int nHitag)
 {
-    if (ObjectCount >= kMaxObjects) {
-        I_Error("Too many objects!\n");
-    }
     auto spr = &sprite[nSprite];
 
-    short nObject = ObjectCount;
-    ObjectCount++;
+    auto nObject = ObjectList.Reserve(1);
 
     changespritestat(nSprite, ObjectStatnum[nOjectType]);
 
@@ -2134,23 +2252,15 @@ FUNCOBJECT_GOTO:
 
 void BuildDrip(int nSprite)
 {
-    if (nDrips >= kMaxDrips) {
-        I_Error("Too many drips!\n");
-    }
-
+    auto nDrips = sDrip.Reserve(1);
     sDrip[nDrips].nSprite = nSprite;
     sDrip[nDrips].field_2 = RandomSize(8) + 90;
-
-    nDrips++;
-
     sprite[nSprite].cstat = 0x8000u;
 }
 
 void DoDrips()
 {
-    int i;
-
-    for (i = 0; i < nDrips; i++)
+    for (unsigned i = 0; i < sDrip.Size(); i++)
     {
         sDrip[i].field_2--;
         if (sDrip[i].field_2 <= 0)
@@ -2169,7 +2279,7 @@ void DoDrips()
         }
     }
 
-    for (i = 0; i < nBobs; i++)
+    for (unsigned i = 0; i < sBob.Size(); i++)
     {
         sBob[i].field_2 += 4;
 
@@ -2198,7 +2308,7 @@ void SnapBobs(short nSectorA, short nSectorB)
 //	int var_14 = nSector;
 //	int edi = edx;
 
-    for (int i = 0; i < nBobs; i++)
+    for (unsigned i = 0; i < sBob.Size(); i++)
     {
         int esi = sBob[i].nSector;
 
@@ -2234,10 +2344,7 @@ void SnapBobs(short nSectorA, short nSectorB)
 
 void AddSectorBob(int nSector, int nHitag, int bx)
 {
-    if (nBobs >= kMaxBobs) {
-        I_Error("Too many bobs!\n");
-    }
-
+    auto nBobs = sBob.Reserve(1);
     sBob[nBobs].field_3 = bx;
 
     int z;
@@ -2251,39 +2358,32 @@ void AddSectorBob(int nSector, int nHitag, int bx)
 
     sBob[nBobs].z = z;
     sBob[nBobs].field_2 = nHitag << 4;
-    sBobID[nBobs] = nHitag;
+    sBob[nBobs].sBobID = nHitag;
 
     sBob[nBobs].nSector = nSector;
 
     SectFlag[nSector] |= 0x0010;
-
-    nBobs++;
 }
 
-// Confirmed 100% correct with original .exe
 int FindTrail(int nVal)
 {
-    for (int i = 0; i < nTrails; i++)
+    for (unsigned i = 0; i < sTrail.Size(); i++)
     {
         if (sTrail[i].field_2 == nVal)
             return i;
     }
 
+    auto nTrails = sTrail.Reserve(1);
     sTrail[nTrails].field_2 = nVal;
     sTrail[nTrails].field_0 = -1;
-
-    return nTrails++;
+    sTrail[nTrails].field_4 = -1;
+    return nTrails;
 }
 
 // ok ?
 void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
 {
-    if (nTrailPoints >= 100) {
-        I_Error("Too many trail point sprites (900-949)... increase MAX_TRAILPOINTS\n");
-    }
-
-    short nPoint = nTrailPoints;
-    nTrailPoints++;
+    auto nPoint = sTrailPoint.Reserve(1);
 
     sTrailPoint[nPoint].x = sprite[nSprite].x;
     sTrailPoint[nPoint].y = sprite[nSprite].y;
@@ -2292,7 +2392,7 @@ void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
 
     int var_14 = nLotag - 900;
 
-    nTrailPointVal[nPoint] = var_14;
+    sTrailPoint[nPoint].nTrailPointVal = var_14;
 
     int field0 = sTrail[nTrail].field_0;
 
@@ -2301,8 +2401,8 @@ void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
         sTrail[nTrail].field_0 = nPoint;
         sTrail[nTrail].field_4 = nPoint;
 
-        nTrailPointNext[nPoint] = -1;
-        nTrailPointPrev[nPoint] = -1;
+        sTrailPoint[nPoint].nTrailPointNext = -1;
+        sTrailPoint[nPoint].nTrailPointPrev = -1;
     }
     else
     {
@@ -2310,11 +2410,11 @@ void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
 
         while (field0 != -1)
         {
-            if (nTrailPointVal[field0] > var_14)
+            if (sTrailPoint[field0].nTrailPointVal > var_14)
             {
-                nTrailPointPrev[nPoint] = nTrailPointPrev[field0];
-                nTrailPointPrev[field0] = nPoint;
-                nTrailPointNext[nPoint] = field0;
+                sTrailPoint[nPoint].nTrailPointPrev = sTrailPoint[field0].nTrailPointPrev;
+                sTrailPoint[field0].nTrailPointPrev = nPoint;
+                sTrailPoint[nPoint].nTrailPointNext = field0;
 
                 if (field0 == sTrail[nTrail].field_0) {
                     sTrail[nTrail].field_0 = nPoint;
@@ -2324,14 +2424,14 @@ void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
             }
 
             ecx = field0;
-            field0 = nTrailPointNext[field0];
+            field0 = sTrailPoint[field0].nTrailPointNext;
         }
 
         if (field0 == -1)
         {
-            nTrailPointNext[ecx] = nPoint;
-            nTrailPointPrev[nPoint] = ecx;
-            nTrailPointNext[nPoint] = -1;
+            sTrailPoint[ecx].nTrailPointNext = nPoint;
+            sTrailPoint[nPoint].nTrailPointPrev = ecx;
+            sTrailPoint[nPoint].nTrailPointNext = -1;
             sTrail[nTrail].field_4 = nPoint;
         }
     }
@@ -2342,19 +2442,15 @@ void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
 // ok?
 void AddMovingSector(int nSector, int edx, int ebx, int ecx)
 {
-    if (nMoveSects >= kMaxMoveSects) {
-        I_Error("Too many moving sectors\n");
-    }
-
     CreatePushBlock(nSector);
 
     short nTrail = FindTrail(ebx);
 
-    sMoveDir[nMoveSects] = 1;
 
+    auto nMoveSects = sMoveSect.Reserve(1);
     MoveSect *pMoveSect = &sMoveSect[nMoveSects];
-    nMoveSects++;
 
+    pMoveSect->sMoveDir = 1;
     pMoveSect->nTrail = nTrail;
     pMoveSect->nTrailPoint = -1;
     pMoveSect->field_8 = -1;
@@ -2376,7 +2472,7 @@ void AddMovingSector(int nSector, int edx, int ebx, int ecx)
 
 void DoMovingSects()
 {
-    for (int i = 0; i < nMoveSects; i++)
+    for (unsigned i = 0; i < sMoveSect.Size(); i++)
     {
         if (sMoveSect[i].nSector == -1) {
             continue;
@@ -2402,8 +2498,8 @@ void DoMovingSects()
 
             if (sMoveSect[i].field_6 & 0x10)
             {
-                sMoveDir[i] = -sMoveDir[i];
-                if (sMoveDir[i] > 0)
+                sMoveSect[i].sMoveDir = -sMoveSect[i].sMoveDir;
+                if (sMoveSect[i].sMoveDir > 0)
                 {
                     ax = sTrail[sMoveSect[i].nTrail].field_0;
                 }
@@ -2466,13 +2562,13 @@ void DoMovingSects()
                 nYVel = ecx;
                 nXVel = ebx;
 
-                if (sMoveDir[i] > 0)
+                if (sMoveSect[i].sMoveDir > 0)
                 {
-                    sMoveSect[i].nTrailPoint = nTrailPointNext[sMoveSect[i].nTrailPoint];
+                    sMoveSect[i].nTrailPoint = sTrailPoint[sMoveSect[i].nTrailPoint].nTrailPointNext;
                 }
                 else
                 {
-                    sMoveSect[i].nTrailPoint = nTrailPointPrev[sMoveSect[i].nTrailPoint];
+                    sMoveSect[i].nTrailPoint = sTrailPoint[sMoveSect[i].nTrailPoint].nTrailPointPrev;
                 }
             }
         }
@@ -2482,13 +2578,13 @@ void DoMovingSects()
             nYVel = ecx;
             nXVel = ebx;
 
-            if (sMoveDir[i] > 0)
+            if (sMoveSect[i].sMoveDir > 0)
             {
-                sMoveSect[i].nTrailPoint = nTrailPointNext[sMoveSect[i].nTrailPoint];
+                sMoveSect[i].nTrailPoint = sTrailPoint[sMoveSect[i].nTrailPoint].nTrailPointNext;
             }
             else
             {
-                sMoveSect[i].nTrailPoint = nTrailPointPrev[sMoveSect[i].nTrailPoint];
+                sMoveSect[i].nTrailPoint = sTrailPoint[sMoveSect[i].nTrailPoint].nTrailPointPrev;
             }
         }
 
@@ -2513,9 +2609,9 @@ void DoMovingSects()
 
 void PostProcess()
 {
-    int i, j;
+    int i,j;
 
-    for (i = 0; i < nMoveSects; i++)
+    for (unsigned i = 0; i < sMoveSect.Size(); i++)
     {
         int nTrail = sMoveSect[i].nTrail;
         sMoveSect[i].nTrailPoint = sTrail[nTrail].field_0;
@@ -2531,7 +2627,7 @@ void PostProcess()
             sector[nSector].ceilingstat |= 0x40;
             sector[nSector].floorstat &= 0xBFFF;
 
-            for (j = 0; j < nMoveSects; j++)
+            for (unsigned j = 0; j < sMoveSect.Size(); j++)
             {
                 if (j != i && sMoveSect[i].nTrail == sMoveSect[j].nTrail)
                 {
@@ -2544,17 +2640,17 @@ void PostProcess()
         }
     }
 
-    for (i = 0; i < nBobs; i++)
+    for (unsigned i = 0; i < sBob.Size(); i++)
     {
         if (sBob[i].field_3 == 0)
         {
-            int bobID = sBobID[i];
+            int bobID = sBob[i].sBobID;
 
-            for (j = 0; j < nBobs; j++)
+            for (unsigned j = 0; j < sBob.Size(); j++)
             {
                 if (j != i)
                 {
-                    if (sBob[i].field_3 != 0 && sBobID[j] == bobID) {
+                    if (sBob[i].field_3 != 0 && sBob[j].sBobID == bobID) {
                         SnapSectors(i, j, 0);
                     }
                 }
@@ -2642,8 +2738,7 @@ void PostProcess()
         }
     }
 
-    // esi is i
-    for (i = 0; i < ObjectCount; i++)
+    for (unsigned i = 0; i < ObjectList.Size(); i++)
     {
         int nObjectSprite = ObjectList[i].nSprite;
 
@@ -2657,8 +2752,7 @@ void PostProcess()
                 int edi = ObjectList[i].field_10;
                 ObjectList[i].field_10 = -1;
 
-                // ecx, ebx is j
-                for (j = 0; j < ObjectCount; j++)
+                for (unsigned j = 0; j < ObjectList.Size(); j++)
                 {
                     if (i != j && sprite[ObjectList[j].nSprite].statnum == kStatExplodeTarget && edi == ObjectList[j].field_10)
                     {
@@ -2670,47 +2764,6 @@ void PostProcess()
         }
     }
 }
-
-
-static SavegameHelper sghobj("objects",
-    SA(sTrap),
-    SA(sBob),
-    SA(sTrail),
-    SA(sTrailPoint),
-    SA(Elevator),
-    SA(ObjectList),
-    SA(sMoveSect),
-    SA(SlideData),
-    SA(sMoveDir),
-    SA(WallFace),
-    SA(SlideData2),
-    SA(PointList),
-    SA(nTrapInterval),
-    SA(sBobID),
-    SA(PointFree),
-    SA(SlideFree),
-    SA(nTrailPointVal),
-    SA(nTrailPointPrev),
-    SA(nTrailPointNext),
-    SA(sDrip),
-    SV(PointCount),
-    SV(SlideCount),
-    SV(ElevCount),
-    SV(WallFaceCount),
-    SV(lFinaleStart),
-    SV(nTrailPoints),
-    SV(nEnergyBlocks),
-    SV(nMoveSects),
-    SV(nFinaleStage),
-    SV(nTrails),
-    SV(nTraps),
-    SV(nFinaleSpr),
-    SV(ObjectCount),
-    SV(nDrips),
-    SV(nBobs),
-    SV(nDronePitch),
-    SV(nSmokeSparks),
-    nullptr);
 
 END_PS_NS
 
