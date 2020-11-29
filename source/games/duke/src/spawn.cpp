@@ -1101,8 +1101,8 @@ void spawneffector(DDukeActor* actor)
 			break;
 
 		case SE_29_WAVES:
-			//This does not work. Why?
-			//StartInterpolation(actor->s.sectnum, Interp_Sect_Floorheinum);
+			StartInterpolation(actor->s.sectnum, Interp_Sect_Floorheinum);
+			StartInterpolation(actor->s.sectnum, Interp_Sect_Floorz);
 			break;
 	}
 
