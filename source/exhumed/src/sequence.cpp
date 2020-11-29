@@ -635,12 +635,17 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
     return nPict;
 }
 
-static SavegameHelper sghseq("sequence",
-    SV(nPilotLightFrame),
-    SV(nPilotLightCount),
-    SV(nPilotLightBase),
-    SV(nShadowWidth),
-    SV(nFlameHeight),
-    nullptr);
+void SerializeSequence(FSerializer& arc)
+{
+    if (arc.BeginObject("sequence"))
+    {
+        arc("pilotlightframe", nPilotLightFrame)
+            ("pilotlightcount", nPilotLightCount)
+            ("pilotlightbase", nPilotLightBase)
+            ("shadowwidth", nShadowWidth)
+            ("flameheight", nFlameHeight)
+            .EndObject();
+    }
+}
 
 END_PS_NS

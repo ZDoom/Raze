@@ -29,42 +29,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum { kMaxSnakes	= 50 };
+FreeListArray<Snake, kMaxSnakes> SnakeList;
 
-int nSnakeCount = 0;
-int nSnakesFree;
-
-short SnakeFree[kMaxSnakes];
 short nPlayerSnake[kMaxPlayers];
 
-Snake SnakeList[kMaxSnakes];
-short nSnakePlayer[kMaxSnakes];
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Snake& w, Snake* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("enemy", w.nEnemy)
+            .Array("sprites", w.nSprites, kSnakeSprites)
+            ("sc", w.sC)
+            ("run", w.nRun)
+            .Array("c", w.c, countof(w.c))
+            ("se", w.sE)
+            ("player", w.nSnakePlayer)
+            .EndObject();
+    }
+    return arc;
+}
 
-static SavegameHelper sghsnake("snake",
-    SV(nSnakeCount),
-    SV(nSnakesFree),
-    SA(SnakeFree),
-    SA(nPlayerSnake),
-    SA(SnakeList),
-    SA(nSnakePlayer),
-    nullptr);
+void SerializeSnake(FSerializer& arc)
+{
+    arc("snake", SnakeList);
+    arc.Array("playersnake", nPlayerSnake, PlayerCount);
+}
+
 
 void InitSnakes()
 {
-    nSnakeCount = 0;
-
-    for (int i = 0; i < kMaxSnakes; i++) {
-        SnakeFree[i] = i;
-    }
-
-    nSnakesFree = kMaxSnakes;
+    SnakeList.Clear();
     memset(nPlayerSnake, 0, sizeof(nPlayerSnake));
 }
 
 short GrabSnake()
 {
-    nSnakesFree--;
-    return SnakeFree[nSnakesFree];
+    return SnakeList.Get();
 }
 
 void DestroySnake(int nSnake)
@@ -82,8 +82,7 @@ void DestroySnake(int nSnake)
         mydeletesprite(nSprite);
     }
 
-    SnakeFree[nSnakesFree] = nSnake;
-    nSnakesFree++;
+    SnakeList.Release(nSnake);
 
     if (nSnake == nSnakeCam)
     {
@@ -116,8 +115,6 @@ void ExplodeSnakeSprite(int nSprite, short nPlayer)
 
 int BuildSnake(short nPlayer, short zVal)
 {
-    if (!nSnakesFree)
-        return -1;
 
     zVal -= 1280;
 
@@ -182,6 +179,7 @@ int BuildSnake(short nPlayer, short zVal)
         }
 
         short nSnake = GrabSnake();
+        if (nSnake == -1) return -1;
 
 //		GrabTimeSlot(3);
 
@@ -244,7 +242,7 @@ int BuildSnake(short nPlayer, short zVal)
         SnakeList[nSnake].nEnemy = nTarget;
         SnakeList[nSnake].sC = 1200;
         SnakeList[nSnake].sE = 0;
-        nSnakePlayer[nSnake] = nPlayer;
+        SnakeList[nSnake].nSnakePlayer = nPlayer;
         nPlayerSnake[nPlayer] = nSnake;
 
         if (bSnakeCam)
@@ -262,7 +260,7 @@ int BuildSnake(short nPlayer, short zVal)
 
 int FindSnakeEnemy(short nSnake)
 {
-    short nPlayer = nSnakePlayer[nSnake];
+    short nPlayer = SnakeList[nSnake].nSnakePlayer;
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
 
     short nSprite = SnakeList[nSnake].nSprites[0]; // CHECKME
@@ -359,11 +357,11 @@ SEARCH_ENEMY:
 
             if (nMov)
             {
-                short nPlayer = nSnakePlayer[nSnake];
+                short nPlayer = SnakeList[nSnake].nSnakePlayer;
                 ExplodeSnakeSprite(SnakeList[nSnake].nSprites[0], nPlayer);
 
                 nPlayerSnake[nPlayer] = -1;
-                nSnakePlayer[nSnake] = -1;
+                SnakeList[nSnake].nSnakePlayer = -1;
 
                 DestroySnake(nSnake);
             }

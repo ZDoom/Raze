@@ -456,23 +456,14 @@ struct Snake
     short sC;
     short nRun;
 
-    // array?
     char c[8];
-    /*
-    char c1;
-    char c2;
-    char c3;
-    char c4;
-    char c5;
-    char c6;
-    char c7;
-    char c8;
-    */
-
     short sE;
+    short nSnakePlayer;
 };
 
-extern Snake SnakeList[];
+enum { kMaxSnakes = 50 };
+
+extern FreeListArray<Snake, kMaxSnakes> SnakeList;
 
 void InitSnakes();
 short GrabSnake();
