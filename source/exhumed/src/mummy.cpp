@@ -25,21 +25,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-short nMummies = -1;
-
 struct Mummy
 {
     short nHealth;
-    short B;
+    short nFrame;
     short nAction;
     short nSprite;
     short nTarget;
-    short F;
-    short G;
-    short H;
+    short nIndex;
+    short nCount;
+    short nRun;
 };
 
-Mummy MummyList[kMaxMummies];
+TArray<Mummy> MummyList;
 
 static actionSeq MummySeq[] = {
     {8, 0},
@@ -53,24 +51,37 @@ static actionSeq MummySeq[] = {
 };
 
 
-static SavegameHelper sghmummy("mummy",
-    SV(nMummies),
-    SA(MummyList),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Mummy& w, Mummy* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("index", w.nIndex)
+            ("count", w.nCount)
+            ("run", w.nRun)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializeMummy(FSerializer& arc)
+{
+    arc("mummy", MummyList);
+}
 
 
 void InitMummy()
 {
-    nMummies = 0;
+    MummyList.Clear();
 }
 
 int BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
 {
-    if (nMummies >= kMaxMummies) {
-        return -1;
-    }
-
-    short nMummy = nMummies++;
+    auto nMummy = MummyList.Reserve(1);
 
     if (nSprite == -1)
     {
@@ -112,15 +123,15 @@ int BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
 
     MummyList[nMummy].nAction = 0;
     MummyList[nMummy].nHealth = 640;
-    MummyList[nMummy].B = 0;
+    MummyList[nMummy].nFrame = 0;
     MummyList[nMummy].nSprite = nSprite;
     MummyList[nMummy].nTarget = -1;
-    MummyList[nMummy].F = nMummy;
-    MummyList[nMummy].G = 0;
+    MummyList[nMummy].nIndex = nMummy;
+    MummyList[nMummy].nCount = 0;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nMummy | 0xE0000);
 
-    MummyList[nMummy].H = runlist_AddRunRec(NewRun, nMummy | 0xE0000);
+    MummyList[nMummy].nRun = runlist_AddRunRec(NewRun, nMummy | 0xE0000);
 
     nCreaturesTotal++;
 
@@ -131,7 +142,7 @@ void CheckMummyRevive(short nMummy)
 {
     short nSprite = MummyList[nMummy].nSprite;
 
-    for (int i = 0; i < nMummies; i++)
+    for (unsigned i = 0; i < MummyList.Size(); i++)
     {
         if (i != nMummy)
         {
@@ -154,7 +165,7 @@ void CheckMummyRevive(short nMummy)
                 {
                     sprite[nSprite2].cstat = 0;
                     MummyList[i].nAction = 6;
-                    MummyList[i].B = 0;
+                    MummyList[i].nFrame = 0;
                 }
             }
         }
@@ -187,19 +198,19 @@ void FuncMummy(int a, int nDamage, int nRun)
 
             int nSeq = SeqOffsets[kSeqMummy] + MummySeq[nAction].a;
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, MummyList[nMummy].B);
+            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, MummyList[nMummy].nFrame);
 
-            short nFrame = SeqBase[nSeq] + MummyList[nMummy].B;
+            short nFrame = SeqBase[nSeq] + MummyList[nMummy].nFrame;
             short nFrameFlag = FrameFlag[nFrame];
 
-            seq_MoveSequence(nSprite, nSeq, MummyList[nMummy].B);
+            seq_MoveSequence(nSprite, nSeq, MummyList[nMummy].nFrame);
 
             bool bVal = false;
 
-            MummyList[nMummy].B++;
-            if (MummyList[nMummy].B >= SeqSize[nSeq])
+            MummyList[nMummy].nFrame++;
+            if (MummyList[nMummy].nFrame >= SeqSize[nSeq])
             {
-                MummyList[nMummy].B = 0;
+                MummyList[nMummy].nFrame = 0;
 
                 bVal = true;
             }
@@ -209,7 +220,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                 if ((!sprite[nTarget].cstat) && nAction)
                 {
                     MummyList[nMummy].nAction = 0;
-                    MummyList[nMummy].B = 0;
+                    MummyList[nMummy].nFrame = 0;
                     sprite[nSprite].xvel = 0;
                     sprite[nSprite].yvel = 0;
                 }
@@ -224,7 +235,7 @@ void FuncMummy(int a, int nDamage, int nRun)
             {
                 case 0:
                 {
-                    if ((MummyList[nMummy].F & 0x1F) == (totalmoves & 0x1F))
+                    if ((MummyList[nMummy].nIndex & 0x1F) == (totalmoves & 0x1F))
                     {
                         sprite[nSprite].cstat = 0x101;
 
@@ -234,10 +245,10 @@ void FuncMummy(int a, int nDamage, int nRun)
                             if (nTarget >= 0)
                             {
                                 D3PlayFX(StaticSound[kSound7], nSprite);
-                                MummyList[nMummy].B = 0;
+                                MummyList[nMummy].nFrame = 0;
                                 MummyList[nMummy].nTarget = nTarget;
                                 MummyList[nMummy].nAction = 1;
-                                MummyList[nMummy].G = 90;
+                                MummyList[nMummy].nCount = 90;
 
                                 sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
                                 sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
@@ -249,12 +260,12 @@ void FuncMummy(int a, int nDamage, int nRun)
 
                 case 1:
                 {
-                    if (MummyList[nMummy].G > 0)
+                    if (MummyList[nMummy].nCount > 0)
                     {
-                        MummyList[nMummy].G--;
+                        MummyList[nMummy].nCount--;
                     }
 
-                    if ((MummyList[nMummy].F & 0x1F) == (totalmoves & 0x1F))
+                    if ((MummyList[nMummy].nIndex & 0x1F) == (totalmoves & 0x1F))
                     {
                         sprite[nSprite].cstat = 0x101;
 
@@ -268,7 +279,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                                     sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
                                 {
                                     MummyList[nMummy].nAction = 3;
-                                    MummyList[nMummy].B = 0;
+                                    MummyList[nMummy].nFrame = 0;
 
                                     sprite[nSprite].xvel = 0;
                                     sprite[nSprite].yvel = 0;
@@ -279,7 +290,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                     }
 
                     // loc_2B5A8
-                    if (!MummyList[nMummy].B)
+                    if (!MummyList[nMummy].nFrame)
                     {
                         sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
                         sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
@@ -338,7 +349,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                                     if (AngleDiff(sprite[nSprite].ang, nAngle) < 64)
                                     {
                                         MummyList[nMummy].nAction = 2;
-                                        MummyList[nMummy].B = 0;
+                                        MummyList[nMummy].nFrame = 0;
 
                                         sprite[nSprite].xvel = 0;
                                         sprite[nSprite].yvel = 0;
@@ -357,14 +368,14 @@ void FuncMummy(int a, int nDamage, int nRun)
                     if (nTarget == -1)
                     {
                         MummyList[nMummy].nAction = 0;
-                        MummyList[nMummy].B = 0;
+                        MummyList[nMummy].nFrame = 0;
                     }
                     else
                     {
                         if (PlotCourseToSprite(nSprite, nTarget) >= 1024)
                         {
                             MummyList[nMummy].nAction = 1;
-                            MummyList[nMummy].B = 0;
+                            MummyList[nMummy].nFrame = 0;
                         }
                         else if (nFrameFlag & 0x80)
                         {
@@ -378,9 +389,9 @@ void FuncMummy(int a, int nDamage, int nRun)
                 {
                     if (bVal)
                     {
-                        MummyList[nMummy].B = 0;
+                        MummyList[nMummy].nFrame = 0;
                         MummyList[nMummy].nAction = 0;
-                        MummyList[nMummy].G = 100;
+                        MummyList[nMummy].nCount = 100;
                         MummyList[nMummy].nTarget = -1;
                         return;
                     }
@@ -410,7 +421,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                 {
                     if (bVal)
                     {
-                        MummyList[nMummy].B = 0;
+                        MummyList[nMummy].nFrame = 0;
                         MummyList[nMummy].nAction = 5;
                     }
                     return;
@@ -418,7 +429,7 @@ void FuncMummy(int a, int nDamage, int nRun)
 
                 case 5:
                 {
-                    MummyList[nMummy].B = 0;
+                    MummyList[nMummy].nFrame = 0;
                     return;
                 }
 
@@ -452,7 +463,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                         sprite[nSprite].cstat = 0x101;
 
                         MummyList[nMummy].nAction = 0;
-                        MummyList[nMummy].B = 0;
+                        MummyList[nMummy].nFrame = 0;
                         MummyList[nMummy].nTarget = -1;
                     }
 
@@ -465,7 +476,7 @@ void FuncMummy(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, MummyList[nMummy].B, MummySeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, MummyList[nMummy].nFrame, MummySeq[nAction].b);
             return;
         }
 
@@ -497,7 +508,7 @@ void FuncMummy(int a, int nDamage, int nRun)
 
                 DropMagic(nSprite);
 
-                MummyList[nMummy].B = 0;
+                MummyList[nMummy].nFrame = 0;
                 MummyList[nMummy].nAction = 4;
 
                 sprite[nSprite].xvel = 0;
@@ -510,7 +521,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                 if (!RandomSize(2))
                 {
                     MummyList[nMummy].nAction = 7;
-                    MummyList[nMummy].B = 0;
+                    MummyList[nMummy].nFrame = 0;
 
                     sprite[nSprite].xvel = 0;
                     sprite[nSprite].yvel = 0;
