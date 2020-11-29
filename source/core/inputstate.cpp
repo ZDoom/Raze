@@ -336,7 +336,7 @@ CCMD(warptocoords)
 		Printf("warptocoords cannot be used in multiplayer.\n");
 		return;
 	}
-	if (argv.argc() <= 4)
+	if (argv.argc() < 4)
 	{
 		Printf("warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates\n");
 		return;
