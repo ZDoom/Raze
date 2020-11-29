@@ -25,37 +25,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum { kMaxAnims = 400 };
-
 short nMagicSeq = -1;
 short nPreMagicSeq  = -1;
 short nSavePointSeq = -1;
-short nAnimsFree = 0;
+FreeListArray<Anim, kMaxAnims> AnimList;
 
-short AnimRunRec[kMaxAnims];
-short AnimsFree[kMaxAnims];
-Anim AnimList[kMaxAnims];
-uint8_t AnimFlags[kMaxAnims];
 
-static SavegameHelper sghanims("anims",
-    SV(nMagicSeq),
-    SV(nPreMagicSeq),
-    SV(nSavePointSeq),
-    SV(nAnimsFree),
-    SA(AnimRunRec),
-    SA(AnimsFree),
-    SA(AnimList),
-    SA(AnimFlags),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Anim& w, Anim* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("seq", w.nSeq)
+            ("val1", w.field_2)
+            ("val2", w.field_4)
+            ("sprite", w.nSprite)
+            ("runrec", w.AnimRunRec)
+            ("flags", w.AnimFlags)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializeAnim(FSerializer& arc)
+{
+    if (arc.BeginObject("anims"))
+    {
+        arc("magic", nMagicSeq)
+            ("premagic", nPreMagicSeq)
+            ("savepoint", nSavePointSeq)
+            ("list", AnimList)
+            .EndObject();
+    }
+}
 
 void InitAnims()
 {
-    for (int i = 0; i < kMaxAnims; i++) {
-        AnimsFree[i] = i;
-    }
-
-    nAnimsFree = kMaxAnims;
-
+    AnimList.Clear();
     nMagicSeq     = SeqOffsets[kSeqItems] + 21;
     nPreMagicSeq  = SeqOffsets[kSeqMagic2];
     nSavePointSeq = SeqOffsets[kSeqItems] + 12;
@@ -68,24 +73,20 @@ void DestroyAnim(int nAnim)
     if (nSprite >= 0)
     {
         StopSpriteSound(nSprite);
-        runlist_SubRunRec(AnimRunRec[nAnim]);
+        runlist_SubRunRec(AnimList[nAnim].AnimRunRec);
         runlist_DoSubRunRec(sprite[nSprite].extra);
         runlist_FreeRun(sprite[nSprite].lotag - 1);
     }
 
-    AnimsFree[nAnimsFree] = nAnim;
-    nAnimsFree++;
+    AnimList.Release(nAnim);
 }
 
 int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, int nRepeat, int nFlag)
 {
-	if (!nAnimsFree) {
+    int nAnim = AnimList.Get();
+	if (nAnim < 0) {
 		return -1;
 	}
-
-    nAnimsFree--;
-
-    short nAnim = AnimsFree[nAnimsFree];
 
     if (nSprite == -1) {
         nSprite = insertsprite(nSector, 500);
@@ -127,9 +128,9 @@ int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, 
     sprite[nSprite].owner = -1;
     sprite[nSprite].extra = runlist_AddRunRec(sprite[nSprite].lotag - 1, nAnim | 0x100000);
 
-    AnimRunRec[nAnim] = runlist_AddRunRec(NewRun, nAnim | 0x100000);
+    AnimList[nAnim].AnimRunRec = runlist_AddRunRec(NewRun, nAnim | 0x100000);
     AnimList[nAnim].nSprite = nSprite;
-    AnimFlags[nAnim] = nFlag;
+    AnimList[nAnim].AnimFlags = nFlag;
     AnimList[nAnim].field_2 = 0;
     AnimList[nAnim].nSeq = SeqOffsets[val] + val2;
     AnimList[nAnim].field_4 = 256;
@@ -236,7 +237,7 @@ void FuncAnim(int a, int, int nRun)
             AnimList[nAnim].field_2++;
             if (AnimList[nAnim].field_2 >= SeqSize[nSeq])
             {
-                if (AnimFlags[nAnim] & 0x10)
+                if (AnimList[nAnim].AnimFlags & 0x10)
                 {
                     AnimList[nAnim].field_2 = 0;
                 }
@@ -245,14 +246,14 @@ void FuncAnim(int a, int, int nRun)
                     AnimList[nAnim].field_2 = 0;
                     AnimList[nAnim].nSeq = nMagicSeq;
                     short nAnimSprite = AnimList[nAnim].nSprite;
-                    AnimFlags[nAnim] |= 0x10;
+                    AnimList[nAnim].AnimFlags |= 0x10;
                     sprite[nAnimSprite].cstat |= 2;
                 }
                 else if (nSeq == nSavePointSeq)
                 {
                     AnimList[nAnim].field_2 = 0;
                     AnimList[nAnim].nSeq++;
-                    AnimFlags[nAnim] |= 0x10;
+                    AnimList[nAnim].AnimFlags |= 0x10;
                 }
                 else
                 {

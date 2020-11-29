@@ -31,10 +31,14 @@ struct Anim
     short field_2;
     short field_4;
     short nSprite;
+
+    short AnimRunRec;
+    uint8_t AnimFlags;
+
 };
 
-extern Anim AnimList[];
-extern uint8_t AnimFlags[];
+enum { kMaxAnims = 400 };
+extern FreeListArray<Anim, kMaxAnims> AnimList;
 
 void InitAnims();
 void DestroyAnim(int nAnim);

@@ -90,12 +90,10 @@ short nPlayerScore[kMaxPlayers];
 short nPlayerColor[kMaxPlayers];
 int nPlayerDY[kMaxPlayers];
 int nPlayerDX[kMaxPlayers];
-char playerNames[kMaxPlayers][11];
 short nPistolClip[kMaxPlayers];
 int nXDamage[kMaxPlayers];
 int nYDamage[kMaxPlayers];
 short nDoppleSprite[kMaxPlayers];
-short namelen[kMaxPlayers];
 short nPlayerOldWeapon[kMaxPlayers];
 short nPlayerClip[kMaxPlayers];
 short nPlayerPushSound[kMaxPlayers];
@@ -460,9 +458,6 @@ void RestartPlayer(short nPlayer)
 		SetMagicFrame();
 		RestoreGreenPal();
 	}
-
-	sprintf(playerNames[nPlayer], "JOE%d", nPlayer);
-	namelen[nPlayer] = strlen(playerNames[nPlayer]);
 
 	ototalvel[nPlayer] = totalvel[nPlayer] = 0;
 
@@ -2418,7 +2413,7 @@ do_default_b:
                                 {
                                     short nAnim = sprite[nValB].owner;
                                     AnimList[nAnim].nSeq++;
-                                    AnimFlags[nAnim] &= 0xEF;
+                                    AnimList[nAnim].AnimFlags &= 0xEF;
                                     AnimList[nAnim].field_2 = 0;
 
                                     changespritestat(nValB, 899);
@@ -2809,50 +2804,98 @@ loc_1BD2E:
     }
 }
 
-static SavegameHelper sghplayer("player",
-    SV(lPlayerXVel),
-    SV(lPlayerYVel),
-    SV(obobangle),
-    SV(bobangle),
-    SV(nStandHeight),
-    SV(PlayerCount),
-    SV(nNetStartSprites),
-    SV(nCurStartSprite),
-    SV(nLocalPlayer),
-    SA(nBreathTimer),
-    SA(nPlayerSwear),
-    SA(nPlayerPushSect),
-    SA(nDeathType),
-    SA(nPlayerScore),
-    SA(nPlayerColor),
-    SA(nPlayerDY),
-    SA(nPlayerDX),
-    SA(playerNames),
-    SA(nPistolClip),
-    SA(nXDamage),
-    SA(nYDamage),
-    SA(nDoppleSprite),
-    SA(namelen),
-    SA(nPlayerOldWeapon),
-    SA(nPlayerClip),
-    SA(nPlayerPushSound),
-    SA(nTauntTimer),
-    SA(nPlayerTorch),
-    SA(nPlayerWeapons),
-    SA(nPlayerLives),
-    SA(nPlayerItem),
-    SA(PlayerList),
-    SA(nPlayerInvisible),
-    SA(nPlayerDouble),
-    SA(nPlayerViewSect),
-    SA(nPlayerFloorSprite),
-    SA(sPlayerSave),
-    SA(totalvel),
-    SA(eyelevel),
-    SA(nNetStartSprite),
-    SA(nPlayerGrenade),
-    SA(nGrenadePlayer),
-    SA(word_D282A),
-    nullptr);
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("at2", w.field_2)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("mummy", w.bIsMummified)
+            ("invincible", w.invincibility)
+            ("air", w.nAir)
+            ("seq", w.nSeq)
+            ("maskamount", w.nMaskAmount)
+            ("keys", w.keys)
+            ("magic", w.nMagic)
+            .Array("items", w.items, countof(w.items))
+            .Array("ammo", w.nAmmo, countof(w.nAmmo))
+            ("weapon", w.nCurrentWeapon)
+            ("isfiring", w.bIsFiring)
+            ("field3f", w.field_3FOUR)
+            ("field38", w.field_38)
+            ("field3a", w.field_3A)
+            ("field3c", w.field_3C)
+            ("seq", w.nSeq)
+            ("horizon", w.horizon)
+            ("angle", w.angle)
+            .EndObject();
+    }
+    return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerSave& w, PlayerSave* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("x", w.x)
+            ("y", w.y)
+            ("z", w.z)
+            ("sector", w.nSector)
+            ("angle", w.nAngle)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializePlayer(FSerializer& arc)
+{
+    if (arc.BeginObject("player"))
+    {
+        arc("lxvel", lPlayerXVel)
+            ("lyvel", lPlayerYVel)
+            ("bobangle", bobangle)
+            ("standheight", nStandHeight)
+            ("playercount", PlayerCount)
+            ("netstartsprites", nNetStartSprites)
+            ("localplayer", nLocalPlayer)
+            .Array("grenadeplayer", nGrenadePlayer, countof(nGrenadePlayer))
+            .Array("curstartsprite", nNetStartSprite, PlayerCount)
+            .Array("breathtimer", nBreathTimer, PlayerCount)
+            .Array("playerswear", nPlayerSwear, PlayerCount)
+            .Array("pushsect", nPlayerPushSect, PlayerCount)
+            .Array("deathtype", nDeathType, PlayerCount)
+            .Array("score", nPlayerScore, PlayerCount)
+            .Array("color", nPlayerColor, PlayerCount)
+            .Array("dx", nPlayerDX, PlayerCount)
+            .Array("dy", nPlayerDY, PlayerCount)
+            .Array("pistolclip", nPistolClip, PlayerCount)
+            .Array("xdamage", nXDamage, PlayerCount)
+            .Array("ydamage", nYDamage, PlayerCount)
+            .Array("dopplesprite", nDoppleSprite, PlayerCount)
+            .Array("oldweapon", nPlayerOldWeapon, PlayerCount)
+            .Array("clip", nPlayerClip, PlayerCount)
+            .Array("pushsound", nPlayerPushSound, PlayerCount)
+            .Array("taunttimer", nTauntTimer, PlayerCount)
+            .Array("torch", nPlayerTorch, PlayerCount)
+            .Array("weapons", nPlayerWeapons, PlayerCount)
+            .Array("lives", nPlayerLives, PlayerCount)
+            .Array("item", nPlayerItem, PlayerCount)
+            .Array("list", PlayerList, PlayerCount)
+            .Array("invisible", nPlayerInvisible, PlayerCount)
+            .Array("double", nPlayerDouble, PlayerCount)
+            .Array("viewsect", nPlayerViewSect, PlayerCount)
+            .Array("floorspr", nPlayerFloorSprite, PlayerCount)
+            .Array("save", sPlayerSave, PlayerCount)
+            .Array("totalvel", totalvel, PlayerCount)
+            .Array("eyelevel", eyelevel, PlayerCount)
+            .Array("netstartsprite", nNetStartSprite, PlayerCount)
+            .Array("grenade", nPlayerGrenade, PlayerCount)
+            .Array("d282a", word_D282A, PlayerCount)
+            .EndObject();
+    }
+}
 
 END_PS_NS
