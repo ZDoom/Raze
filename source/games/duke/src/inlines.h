@@ -19,7 +19,7 @@ inline bool AFLAMABLE(int X)
 
 inline int badguypic(int const tileNum)
 {
-	return ((actorinfo[tileNum].flags & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY)) != 0);
+	return ((gs.actorinfo[tileNum].flags & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY)) != 0);
 }
 
 inline int badguy(spritetype const * const pSprite)
@@ -29,7 +29,7 @@ inline int badguy(spritetype const * const pSprite)
 
 inline int bossguypic(int const tileNum)
 {
-	return ((actorinfo[tileNum].flags & (SFLAG_BOSS)) != 0);
+	return ((gs.actorinfo[tileNum].flags & (SFLAG_BOSS)) != 0);
 }
 
 inline int bossguy(spritetype const* const pSprite)
@@ -39,7 +39,7 @@ inline int bossguy(spritetype const* const pSprite)
 
 inline int actorflag(DDukeActor * actor, int mask)
 {
-	return (((actorinfo[actor->s.picnum].flags) & mask) != 0);
+	return (((gs.actorinfo[actor->s.picnum].flags) & mask) != 0);
 }
 
 inline int actorfella(DDukeActor* actor)
@@ -51,26 +51,26 @@ inline void setflag(int flag, const std::initializer_list<short>& types)
 {
 	for (auto val : types)
 	{
-		actorinfo[val].flags |= flag;
+		gs.actorinfo[val].flags |= flag;
 	}
 }
 
 inline bool inventory(spritetype* S)
 {
-	return !!(actorinfo[S->picnum].flags & SFLAG_INVENTORY);
+	return !!(gs.actorinfo[S->picnum].flags & SFLAG_INVENTORY);
 }
 
 inline void settileflag(int flag, const std::initializer_list<short>& types)
 {
 	for (auto val : types)
 	{
-		tileinfo[val].flags |= flag;
+		gs.tileinfo[val].flags |= flag;
 	}
 }
 
 inline bool wallswitchcheck(DDukeActor* s)
 {
-	return !!(tileinfo[s->s.picnum].flags & TFLAG_WALLSWITCH);
+	return !!(gs.tileinfo[s->s.picnum].flags & TFLAG_WALLSWITCH);
 }
 
 inline int checkcursectnums(int se)

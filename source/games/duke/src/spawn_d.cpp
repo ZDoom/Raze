@@ -241,9 +241,9 @@ int spawn_d(int j, int pn)
                 sp->yrepeat = 6;
                 sp->xrepeat = 32;
 
-                if(lasermode == 1)
+                if(gs.lasermode == 1)
                     sp->cstat = 16 + 2;
-                else if(lasermode == 0 || lasermode == 2)
+                else if(gs.lasermode == 0 || gs.lasermode == 2)
                     sp->cstat = 16;
                 else
                 {
@@ -1069,7 +1069,7 @@ int spawn_d(int j, int pn)
             case CAMERAPOLE:
                 sp->extra = 1;
 
-                if(camerashitable) sp->cstat = 257;
+                if(gs.camerashitable) sp->cstat = 257;
                 else sp->cstat = 0;
 
             case GENERICPOLE:

@@ -305,9 +305,9 @@ SKIPWALLCHECK:
 					continue;
 				}
 
-				if (spri2->picnum == APLAYER) spri2->z -= PHEIGHT;
+				if (spri2->picnum == APLAYER) spri2->z -= gs.playerheight;
 				d = dist(actor, act2);
-				if (spri2->picnum == APLAYER) spri2->z += PHEIGHT;
+				if (spri2->picnum == APLAYER) spri2->z += gs.playerheight;
 
 				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sectnum, spri->x, spri->y, spri->z - (12 << 8), spri->sectnum))
 				{
@@ -487,7 +487,7 @@ void guts_r(DDukeActor* actor, short gtype, short n, short p)
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
 
-	gutz += actorinfo[s->picnum].gutsoffset;
+	gutz += gs.actorinfo[s->picnum].gutsoffset;
 
 	if (badguy(actor) && s->pal == 6)
 		pal = 6;
@@ -859,9 +859,9 @@ void movefallers_r(void)
 				else
 				{
 					if (fi.ceilingspace(s->sectnum))
-						x = gc / 6;
+						x = gs.gravity / 6;
 					else
-						x = gc;
+						x = gs.gravity;
 				}
 
 				if (s->z < (sector[sect].floorz - FOURSLEIGHT))
@@ -1459,7 +1459,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		}
 	}
 	else if (s->picnum == SPIT) if (s->zvel < 6144)
-		s->zvel += gc - 112;
+		s->zvel += gs.gravity - 112;
 
 	if (coll.type != 0)
 	{
@@ -1639,7 +1639,7 @@ void movetransports_r(void)
 
 							ps[p].bobposx = ps[p].oposx = ps[p].posx = Owner->s.x;
 							ps[p].bobposy = ps[p].oposy = ps[p].posy = Owner->s.y;
-							ps[p].oposz = ps[p].posz = Owner->s.z - (PHEIGHT - (4 << 8));
+							ps[p].oposz = ps[p].posz = Owner->s.z - (gs.playerheight - (4 << 8));
 
 							changespritesect(act2, Owner->s.sectnum);
 							ps[p].cursectnum = spr2->sectnum;
@@ -2674,11 +2674,11 @@ DETONATEB:
 			int m = 0;
 			switch (s->picnum)
 			{
-			case TRIPBOMBSPRITE: m = tripbombblastradius; break;	// powder keg
-			case HEAVYHBOMB: m = pipebombblastradius; break;
-			case HBOMBAMMO: m = pipebombblastradius; break;
-			case MORTER: m = morterblastradius; break;
-			case CHEERBOMB: m = morterblastradius; break;
+			case TRIPBOMBSPRITE: m = gs.tripbombblastradius; break;	// powder keg
+			case HEAVYHBOMB: m = gs.pipebombblastradius; break;
+			case HBOMBAMMO: m = gs.pipebombblastradius; break;
+			case MORTER: m = gs.morterblastradius; break;
+			case CHEERBOMB: m = gs.morterblastradius; break;
 			}
 
 			if (sector[s->sectnum].lotag != 800)
@@ -2713,7 +2713,7 @@ DETONATEB:
 	}
 	else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
 		if (cansee(s->x, s->y, s->z - (8 << 8), s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
-			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < max_ammo_amount[DYNAMITE_WEAPON])
+			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (s->pal == 0)
 				{
 					if (ud.coop >= 1)
@@ -2747,7 +2747,7 @@ DETONATEB:
 					}
 					else
 					{
-						t[2] = respawnitemtime;
+						t[2] = gs.respawnitemtime;
 						spawn(actor, RESPAWNMARKERRED);
 						s->cstat = (short)32768;
 					}
@@ -3692,10 +3692,10 @@ void moveeffectors_r(void)   //STATNUM 3
 
 int adjustfall(DDukeActor *actor, int c)
 {
-	if ((actor->s.picnum == BIKERB || actor->s.picnum == CHEERB) && c == gc)
-		c = gc>>2;
-	else if (actor->s.picnum == BIKERBV2 && c == gc)
-		c = gc>>3;
+	if ((actor->s.picnum == BIKERB || actor->s.picnum == CHEERB) && c == gs.gravity)
+		c = gs.gravity>>2;
+	else if (actor->s.picnum == BIKERBV2 && c == gs.gravity)
+		c = gs.gravity>>3;
 	return c;
 }
 
@@ -3934,8 +3934,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				}
 				else
 				{
-					ps[pnum].posxv = mulscale(ps[pnum].posxv, dukefriction - 0x2000, 16);
-					ps[pnum].posyv = mulscale(ps[pnum].posyv, dukefriction - 0x2000, 16);
+					ps[pnum].posxv = mulscale(ps[pnum].posxv, gs.playerfriction - 0x2000, 16);
+					ps[pnum].posyv = mulscale(ps[pnum].posyv, gs.playerfriction - 0x2000, 16);
 				}
 			}
 			else if ((isRRRA() && spr->picnum != DRONE && spr->picnum != SHARK && spr->picnum != UFO1_RRRA) ||

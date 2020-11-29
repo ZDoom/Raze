@@ -419,9 +419,9 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 
 			if (ps[p].newOwner != nullptr)
 			{
-				t4 = ScriptCode[actorinfo[APLAYER].scriptaddress + 1];
+				t4 = ScriptCode[gs.actorinfo[APLAYER].scriptaddress + 1];
 				t3 = 0;
-				t1 = ScriptCode[actorinfo[APLAYER].scriptaddress + 2];
+				t1 = ScriptCode[gs.actorinfo[APLAYER].scriptaddress + 2];
 			}
 
 			if (ud.cameraactor == nullptr && ps[p].newOwner == nullptr)
@@ -498,7 +498,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			break;
 		}
 
-		if (actorinfo[s->picnum].scriptaddress)
+		if (gs.actorinfo[s->picnum].scriptaddress)
 		{
 			if (t4)
 			{
@@ -637,7 +637,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			if (!Owner) break;
 			if (sector[t->sectnum].lotag == 2) t->pal = 8;
 			t->z = Owner->z - (3 << 8);
-			if (lasermode == 2 && ps[screenpeek].heat_on == 0)
+			if (gs.lasermode == 2 && ps[screenpeek].heat_on == 0)
 				t->yrepeat = 0;
 		case EXPLOSION2:
 		case EXPLOSION2BOT:

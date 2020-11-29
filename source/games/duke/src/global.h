@@ -14,36 +14,41 @@ BEGIN_DUKE_NS
 
 extern user_defs ud;
 
-// Variables that do not need to be saved.
-extern int respawnactortime;
-extern int bouncemineblastradius;
-extern int respawnitemtime;
-extern int morterblastradius;
-extern int numfreezebounces;
-extern int pipebombblastradius;
-extern int dukefriction;
-extern int rpgblastradius;
-extern int seenineblastradius;
-extern int shrinkerblastradius;
-extern int gc;
-extern int tripbombblastradius;
-extern int camerashitable;
-extern int max_player_health;
-extern int max_armour_amount;
-extern int lasermode;
+struct DukeGameInfo
+{
+	// Static constant global state
+	int respawnactortime		= 768;
+	int bouncemineblastradius	= 2500;
+	int respawnitemtime			= 768;
+	int morterblastradius		= 2500;
+	int numfreezebounces		= 3;
+	int pipebombblastradius		= 2500;
+	int playerfriction			= 0xCFD0;
+	int rpgblastradius			= 1780;
+	int seenineblastradius		= 2048;
+	int shrinkerblastradius		= 650;
+	int gravity						= 176;
+	int tripbombblastradius		= 3880;
+	int camerashitable			= 0;
+	int max_player_health		= 0;
+	int max_armour_amount		= 0;
+	int lasermode				= 0;
+	TileInfo tileinfo[MAXTILES] = {}; // This is not from EDuke32.
+	ActorInfo actorinfo[MAXTILES] = {};
+	int16_t max_ammo_amount[MAX_WEAPONS] = {};
+	int16_t weaponsandammosprites[15] = {};
+	int playerheight					= PHEIGHT_DUKE;
+	int displayflags		= 0;
+};
+
+extern DukeGameInfo gs;
 
 extern int cameraclock;
 extern int cameradist;
 extern int otherp; // transient helper, MP only
-extern TileInfo tileinfo[MAXTILES]; // static state
-extern ActorInfo actorinfo[MAXTILES]; // static state
 extern int actor_tog; // cheat state
 extern intptr_t apScriptGameEvent[];
 extern TArray<int> ScriptCode;
-extern int16_t max_ammo_amount[MAX_WEAPONS];
-extern int16_t weaponsandammosprites[15];
-extern int32_t PHEIGHT;
-extern int duke3d_globalflags;
 extern int playerswhenstarted;
 extern int show_shareware;
 extern int screenpeek;

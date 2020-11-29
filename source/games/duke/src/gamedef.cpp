@@ -1181,14 +1181,14 @@ int ConCompiler::parsecommand()
 		transnum(LABEL_DEFINE);
 		lnum = popscriptvalue();
 
-		actorinfo[lnum].scriptaddress = parsing_actor;	// TRANSITIONAL should only store an index
+		gs.actorinfo[lnum].scriptaddress = parsing_actor;	// TRANSITIONAL should only store an index
 		if (tw == concmd_useractor)
 		{
 			if (j & 1)
-				actorinfo[lnum].flags |= SFLAG_BADGUY;
+				gs.actorinfo[lnum].flags |= SFLAG_BADGUY;
 
 			if (j & 2)
-				actorinfo[lnum].flags |= (SFLAG_BADGUY | SFLAG_BADGUYSTAYPUT);
+				gs.actorinfo[lnum].flags |= (SFLAG_BADGUY | SFLAG_BADGUYSTAYPUT);
 		}
 
 		for (j = 0; j < 4; j++)
@@ -1888,45 +1888,45 @@ int ConCompiler::parsecommand()
 
 		ud.const_visibility = parseone();
 		impact_damage = parseone();
-		max_player_health = parseone();
-		max_armour_amount = parseone();
-		respawnactortime = parseone();
-		respawnitemtime = parseone();
-		dukefriction = parseone();
-		if (isPlutoPak() || isRR()) gc = parseone();
-		rpgblastradius = parseone();
-		pipebombblastradius = parseone();
-		shrinkerblastradius = parseone();
-		tripbombblastradius = parseone();
-		morterblastradius = parseone();
-		bouncemineblastradius = parseone();
-		seenineblastradius = parseone();
+		gs.max_player_health = parseone();
+		gs.max_armour_amount = parseone();
+		gs.respawnactortime = parseone();
+		gs.respawnitemtime = parseone();
+		gs.playerfriction = parseone();
+		if (isPlutoPak() || isRR()) gs.gravity = parseone();
+		gs.rpgblastradius = parseone();
+		gs.pipebombblastradius = parseone();
+		gs.shrinkerblastradius = parseone();
+		gs.tripbombblastradius = parseone();
+		gs.morterblastradius = parseone();
+		gs.bouncemineblastradius = parseone();
+		gs.seenineblastradius = parseone();
 
-		max_ammo_amount[1] = parseone();
-		max_ammo_amount[2] = parseone();
-		max_ammo_amount[3] = parseone();
-		max_ammo_amount[4] = parseone();
-		max_ammo_amount[5] = parseone();
-		max_ammo_amount[6] = parseone();
-		max_ammo_amount[7] = parseone();
-		max_ammo_amount[8] = parseone();
-		max_ammo_amount[9] = parseone();
-		if (isPlutoPak() || isRR()) max_ammo_amount[11] = parseone();
-		if (isRR()) max_ammo_amount[12] = parseone();
-		camerashitable = parseone();
-		numfreezebounces = parseone();
+		gs.max_ammo_amount[1] = parseone();
+		gs.max_ammo_amount[2] = parseone();
+		gs.max_ammo_amount[3] = parseone();
+		gs.max_ammo_amount[4] = parseone();
+		gs.max_ammo_amount[5] = parseone();
+		gs.max_ammo_amount[6] = parseone();
+		gs.max_ammo_amount[7] = parseone();
+		gs.max_ammo_amount[8] = parseone();
+		gs.max_ammo_amount[9] = parseone();
+		if (isPlutoPak() || isRR()) gs.max_ammo_amount[11] = parseone();
+		if (isRR()) gs.max_ammo_amount[12] = parseone();
+		gs.camerashitable = parseone();
+		gs.numfreezebounces = parseone();
 		freezerhurtowner = parseone();
 		if (isPlutoPak() || isRR())
 		{
 			spriteqamount = clamp(parseone(), 0, 1024);
-			lasermode = parseone();
+			gs.lasermode = parseone();
 		}
-		if (isWorldTour()) max_ammo_amount[12] = parseone();
+		if (isWorldTour()) gs.max_ammo_amount[12] = parseone();
 		if (isRRRA())
 		{
-			max_ammo_amount[13] = parseone();
-			max_ammo_amount[14] = parseone();
-			max_ammo_amount[16] = parseone();
+			gs.max_ammo_amount[13] = parseone();
+			gs.max_ammo_amount[14] = parseone();
+			gs.max_ammo_amount[16] = parseone();
 		}
 		return 0;
 	}
@@ -1951,7 +1951,7 @@ int ConCompiler::parsecommand()
 
 		transnum(LABEL_DEFINE);
 		int n = popscriptvalue();
-		tileinfo[n].loadeventscriptptr = parsing_actor;
+		gs.tileinfo[n].loadeventscriptptr = parsing_actor;
 		checking_ifelse = 0;
 		return 0;
 	}
@@ -3146,7 +3146,7 @@ void ConCompiler::setmusic()
 
 void loadcons()
 {
-	memset(&actorinfo, 0, sizeof(actorinfo));
+	memset(&gs.actorinfo, 0, sizeof(gs.actorinfo));
 
 	ScriptCode.Clear();
 	labels.Clear();

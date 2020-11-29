@@ -34,17 +34,17 @@ BEGIN_DUKE_NS
 
 void initactorflags_r()
 {
-	for (auto &fa : actorinfo)
+	for (auto &fa : gs.actorinfo)
 	{
 		fa.falladjustz = 24 << 8;
 	}
 	if (isRRRA())
 	{
-		actorinfo[HULKBOAT].falladjustz = 12 << 8;
-		actorinfo[MINIONBOAT].falladjustz = 3 << 8;
-		actorinfo[CHEERBOAT].falladjustz = actorinfo[EMPTYBOAT].falladjustz = 6 << 8;
+		gs.actorinfo[HULKBOAT].falladjustz = 12 << 8;
+		gs.actorinfo[MINIONBOAT].falladjustz = 3 << 8;
+		gs.actorinfo[CHEERBOAT].falladjustz = gs.actorinfo[EMPTYBOAT].falladjustz = 6 << 8;
 	}
-	actorinfo[DRONE].falladjustz = 0;
+	gs.actorinfo[DRONE].falladjustz = 0;
 
 
 	setflag(SFLAG_INTERNAL_BADGUY|SFLAG_KILLCOUNT, {
@@ -100,11 +100,11 @@ void initactorflags_r()
 		UFO5});
 
 	// Why does the pig count as kill? Let's undo that.
-	actorinfo[PIG].flags &= ~SFLAG_KILLCOUNT;
-	actorinfo[HEN].flags &= ~SFLAG_KILLCOUNT;
+	gs.actorinfo[PIG].flags &= ~SFLAG_KILLCOUNT;
+	gs.actorinfo[HEN].flags &= ~SFLAG_KILLCOUNT;
 
-	actorinfo[DRONE].flags |= SFLAG_NOWATERDIP;
-	actorinfo[VIXEN].flags |= SFLAG_NOCANSEECHECK;
+	gs.actorinfo[DRONE].flags |= SFLAG_NOWATERDIP;
+	gs.actorinfo[VIXEN].flags |= SFLAG_NOCANSEECHECK;
 	if (isRRRA()) 
 	{
 		setflag(SFLAG_KILLCOUNT, { ROCK, ROCK2 });	//???
@@ -198,23 +198,23 @@ void initactorflags_r()
 		DOLPHIN2,
 		TOUGHGAL });
 
-	actorinfo[RPG2].flags |= SFLAG_FORCEAUTOAIM;
+	gs.actorinfo[RPG2].flags |= SFLAG_FORCEAUTOAIM;
 
-	weaponsandammosprites[0] = RPGSPRITE;
-	weaponsandammosprites[1] = CHAINGUNSPRITE;
-	weaponsandammosprites[2] = DEVISTATORAMMO;
-	weaponsandammosprites[3] = RPGAMMO;
-	weaponsandammosprites[4] = RPGAMMO;
-	weaponsandammosprites[5] = JETPACK;
-	weaponsandammosprites[6] = SHIELD;
-	weaponsandammosprites[7] = FIRSTAID;
-	weaponsandammosprites[8] = STEROIDS;
-	weaponsandammosprites[9] = RPGAMMO;
-	weaponsandammosprites[10] = RPGAMMO;
-	weaponsandammosprites[11] = RPGSPRITE;
-	weaponsandammosprites[12] = RPGAMMO;
-	weaponsandammosprites[13] = FREEZESPRITE;
-	weaponsandammosprites[14] = FREEZEAMMO;
+	gs.weaponsandammosprites[0] = RPGSPRITE;
+	gs.weaponsandammosprites[1] = CHAINGUNSPRITE;
+	gs.weaponsandammosprites[2] = DEVISTATORAMMO;
+	gs.weaponsandammosprites[3] = RPGAMMO;
+	gs.weaponsandammosprites[4] = RPGAMMO;
+	gs.weaponsandammosprites[5] = JETPACK;
+	gs.weaponsandammosprites[6] = SHIELD;
+	gs.weaponsandammosprites[7] = FIRSTAID;
+	gs.weaponsandammosprites[8] = STEROIDS;
+	gs.weaponsandammosprites[9] = RPGAMMO;
+	gs.weaponsandammosprites[10] = RPGAMMO;
+	gs.weaponsandammosprites[11] = RPGSPRITE;
+	gs.weaponsandammosprites[12] = RPGAMMO;
+	gs.weaponsandammosprites[13] = FREEZESPRITE;
+	gs.weaponsandammosprites[14] = FREEZEAMMO;
 
 	TILE_BOX = BOX;
 	TILE_TREE1 = TREE1;
@@ -267,7 +267,7 @@ void initactorflags_r()
 	TILE_FLOORPLASMA = FLOORPLASMA;
 	TILE_EGG = EGG;
 
-	PHEIGHT = PHEIGHT_RR;
+	gs.playerheight = PHEIGHT_RR;
 }
 
 END_DUKE_NS

@@ -170,7 +170,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			}
 
 			if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
-				wpn->s.extra += (max_player_health >> 2);
+				wpn->s.extra += (gs.max_player_health >> 2);
 
 			if (hitsprt && hitsprt->s.picnum != ACCESSSWITCH && hitsprt->s.picnum != ACCESSSWITCH2)
 			{
@@ -317,7 +317,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	if (p >= 0)
 	{
 		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
-		spark->s.extra = ScriptCode[actorinfo[atwith].scriptaddress];
+		spark->s.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->s.extra += (krand() % 6);
 
 		if (hitwall == -1 && hitsprt == nullptr)
@@ -437,7 +437,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	else
 	{
 		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
-		spark->s.extra = ScriptCode[actorinfo[atwith].scriptaddress];
+		spark->s.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 
 		if (hitsprt)
 		{
@@ -700,7 +700,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		spawned->temp_actor = aimed;
 	else
 	{
-		spawned->s.yvel = numfreezebounces;
+		spawned->s.yvel = gs.numfreezebounces;
 		spawned->s.xrepeat >>= 1;
 		spawned->s.yrepeat >>= 1;
 		spawned->s.zvel -= (2 << 4);
@@ -1413,7 +1413,7 @@ int doincrements_r(struct player_struct* p)
 			else
 			{
 				p->extra_extra8 += 32;
-				if (p->last_extra < (max_player_health >> 1) && (p->last_extra & 3) == 0)
+				if (p->last_extra < (gs.max_player_health >> 1) && (p->last_extra & 3) == 0)
 					S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
 			}
 		}
@@ -2085,7 +2085,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 		}
 		else i = 12;
 
-		if (shrunk == 0 && truefdist <= PHEIGHT)
+		if (shrunk == 0 && truefdist <= gs.playerheight)
 		{
 			if (p->on_ground == 1)
 			{
@@ -2130,7 +2130,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 				{
 					p->VBumpTarget = 80;
 					p->moto_bump_fast = 1;
-					p->poszv -= xs_CRoundToInt(gc * (p->MotoSpeed / 16.));
+					p->poszv -= xs_CRoundToInt(gs.gravity * (p->MotoSpeed / 16.));
 					p->MotoOnGround = 0;
 					if (S_CheckActorSoundPlaying(pact, 188))
 						S_StopSound(188, pact);
@@ -2138,13 +2138,13 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 				}
 				else
 				{
-					p->poszv += gc - 80 + (120 - p->MotoSpeed);
+					p->poszv += gs.gravity - 80 + (120 - p->MotoSpeed);
 					if (!S_CheckActorSoundPlaying(pact, 189) && !S_CheckActorSoundPlaying(pact, 190))
 						S_PlayActorSound(190, pact);
 				}
 			}
 			else
-				p->poszv += (gc + 80); // (TICSPERFRAME<<6);
+				p->poszv += (gs.gravity + 80); // (TICSPERFRAME<<6);
 
 			if (p->poszv >= (4096 + 2048)) p->poszv = (4096 + 2048);
 			if (p->poszv > 2400 && p->falling_counter < 255)
@@ -3423,7 +3423,7 @@ void processinput_r(int snum)
 	p->truecz = getceilzofslope(psect, p->posx, p->posy);
 
 	truefdist = abs(p->posz - tempfz);
-	if (clz.type == kHitSector && psectlotag == 1 && truefdist > PHEIGHT + (16 << 8))
+	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + (16 << 8))
 		psectlotag = 0;
 
 	pact->floorz = fz;
@@ -3639,7 +3639,7 @@ void processinput_r(int snum)
 		int j = sector[s->sectnum].floorpicnum;
 		k = 0;
 
-		if (p->on_ground && truefdist <= PHEIGHT + (16 << 8))
+		if (p->on_ground && truefdist <= gs.playerheight + (16 << 8))
 		{
 			int whichsound = j == HURTRAIL ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 2 :
 				(isRRRA() && (j == RRTILE7768 || j == RRTILE7820) ? 3 : -1);
@@ -3676,7 +3676,7 @@ void processinput_r(int snum)
 				p->NotOnWater = 1;
 		}
 
-		if (truefdist < PHEIGHT + (8 << 8) && (k == 1 || k == 3))
+		if (truefdist < gs.playerheight + (8 << 8) && (k == 1 || k == 3))
 		{
 			if (p->spritebridge == 0 && p->walking_snd_toggle == 0 && p->on_ground)
 			{
@@ -3709,20 +3709,20 @@ void processinput_r(int snum)
 
 		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
-			p->posxv = mulscale(p->posxv, dukefriction - 0x2000, 16);
-			p->posyv = mulscale(p->posyv, dukefriction - 0x2000, 16);
+			p->posxv = mulscale(p->posxv, gs.playerfriction - 0x2000, 16);
+			p->posyv = mulscale(p->posyv, gs.playerfriction - 0x2000, 16);
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->posxv = mulscale(p->posxv, dukefriction - 0x1400, 16);
-				p->posyv = mulscale(p->posyv, dukefriction - 0x1400, 16);
+				p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1400, 16);
+				p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1400, 16);
 			}
 			else
 			{
-				p->posxv = mulscale(p->posxv, dukefriction, 16);
-				p->posyv = mulscale(p->posyv, dukefriction, 16);
+				p->posxv = mulscale(p->posxv, gs.playerfriction, 16);
+				p->posyv = mulscale(p->posyv, gs.playerfriction, 16);
 			}
 		}
 
@@ -3743,8 +3743,8 @@ void processinput_r(int snum)
 				p->boot_amount--;
 			else
 			{
-				p->posxv = mulscale(p->posxv, dukefriction, 16);
-				p->posyv = mulscale(p->posyv, dukefriction, 16);
+				p->posxv = mulscale(p->posxv, gs.playerfriction, 16);
+				p->posyv = mulscale(p->posyv, gs.playerfriction, 16);
 			}
 		}
 		else
@@ -3755,8 +3755,8 @@ void processinput_r(int snum)
 				{
 					if (p->on_ground)
 					{
-						p->posxv = mulscale(p->posxv, dukefriction - 0x1800, 16);
-						p->posyv = mulscale(p->posyv, dukefriction - 0x1800, 16);
+						p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1800, 16);
+						p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1800, 16);
 					}
 				}
 				else
@@ -3764,8 +3764,8 @@ void processinput_r(int snum)
 						p->boot_amount--;
 					else
 					{
-						p->posxv = mulscale(p->posxv, dukefriction - 0x1800, 16);
-						p->posyv = mulscale(p->posyv, dukefriction - 0x1800, 16);
+						p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1800, 16);
+						p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1800, 16);
 					}
 			}
 
@@ -3775,9 +3775,9 @@ void processinput_r(int snum)
 		if (shrunk)
 		{
 			p->posxv =
-				mulscale16(p->posxv, dukefriction - (dukefriction >> 1) + (dukefriction >> 2));
+				mulscale16(p->posxv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2));
 			p->posyv =
-				mulscale16(p->posyv, dukefriction - (dukefriction >> 1) + (dukefriction >> 2));
+				mulscale16(p->posyv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2));
 		}
 	}
 
@@ -3876,7 +3876,7 @@ HORIZONLY:
 			{
 				clip.actor->s.pal = 0;
 				p->DrugMode = 5;
-				ps[snum].GetActor()->s.extra = max_player_health;
+				ps[snum].GetActor()->s.extra = gs.max_player_health;
 			}
 		}
 	}
@@ -3898,7 +3898,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	setsprite(pact, p->posx, p->posy, p->posz + PHEIGHT);
+	setsprite(pact, p->posx, p->posy, p->posz + gs.playerheight);
 
 	if (psectlotag == 800 && (!isRRRA() || !p->lotag800kill))
 	{
@@ -3921,7 +3921,7 @@ HORIZONLY:
 		}
 	}
 
-	if (truefdist < PHEIGHT && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
+	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && sector[p->cursectnum].hitag != 321))
 				S_PlayActorSound(DUKE_ONWATER, pact);

@@ -107,9 +107,9 @@ DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed ch
 	}
 
 	memset(act->temp_data, 0, sizeof(act->temp_data));
-	if (actorinfo[s_pn].scriptaddress)
+	if (gs.actorinfo[s_pn].scriptaddress)
 	{
-		auto sa = &ScriptCode[actorinfo[s_pn].scriptaddress];
+		auto sa = &ScriptCode[gs.actorinfo[s_pn].scriptaddress];
 		s->extra = sa[0];
 		act->temp_data[4] = sa[1];
 		act->temp_data[1] = sa[2];
@@ -216,12 +216,12 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 
 		if (sp->cstat & 1) sp->cstat |= 256;
 
-		if (actorinfo[s].scriptaddress)
+		if (gs.actorinfo[s].scriptaddress)
 		{
-			sp->extra = ScriptCode[actorinfo[s].scriptaddress];
-			t[4] = ScriptCode[actorinfo[s].scriptaddress+1];
-			t[1] = ScriptCode[actorinfo[s].scriptaddress+2];
-			int s3 = ScriptCode[actorinfo[s].scriptaddress+3];
+			sp->extra = ScriptCode[gs.actorinfo[s].scriptaddress];
+			t[4] = ScriptCode[gs.actorinfo[s].scriptaddress+1];
+			t[1] = ScriptCode[gs.actorinfo[s].scriptaddress+2];
+			int s3 = ScriptCode[gs.actorinfo[s].scriptaddress+3];
 			if (s3 && sp->hitag == 0)
 				sp->hitag = s3;
 		}
@@ -241,7 +241,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 	auto sp = &act->s;
 	auto sect = sp->sectnum;
 
-	if (actorinfo[sp->picnum].scriptaddress)
+	if (gs.actorinfo[sp->picnum].scriptaddress)
 	{
 		if (actj == nullptr && sp->lotag > ud.player_skill)
 		{
@@ -454,7 +454,7 @@ void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 		else
 		{
 			a = sp->ang;
-			sp->z = spj->z - PHEIGHT + (3 << 8);
+			sp->z = spj->z - gs.playerheight + (3 << 8);
 		}
 
 		sp->x = spj->x + bcos(a, -7);

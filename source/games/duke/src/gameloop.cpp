@@ -187,7 +187,7 @@ void GameInterface::NextLevel(MapRecord* map, int skill)
 void GameInterface::NewGame(MapRecord* map, int skill)
 {
 	// Hmm... What about the other players?
-	ps[0].last_extra = max_player_health;
+	ps[0].last_extra = gs.max_player_health;
 	resetweapons(0);
 	resetinventory(0);
 	if (skill != -1) skill = skill + 1;

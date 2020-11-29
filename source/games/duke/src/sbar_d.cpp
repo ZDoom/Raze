@@ -133,10 +133,10 @@ public:
 		imgScale = baseScale / img->GetDisplayHeight();
 		DrawGraphic(img, 2, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
-		if (!althud_flashing || p->last_extra > (max_player_health >> 2) || (ud.levelclock & 32) || (p->GetActor()->s.pal == 1 && p->last_extra < 2))
+		if (!althud_flashing || p->last_extra > (gs.max_player_health >> 2) || (ud.levelclock & 32) || (p->GetActor()->s.pal == 1 && p->last_extra < 2))
 		{
 			int s = -8;
-			if (althud_flashing && p->last_extra > max_player_health)
+			if (althud_flashing && p->last_extra > gs.max_player_health)
 				s += bsin(I_GetBuildTime() << 5) / 768;
 			int intens = clamp(255 - 6 * s, 0, 255);
 			format.Format("%d", p->last_extra);
@@ -182,7 +182,7 @@ public:
 				imgX += (imgX * 0.6) * (strlen - 1);
 			}
 
-			if (weapon != KNEE_WEAPON && (!althud_flashing || ud.levelclock & 32 || ammo > (max_ammo_amount[weapon] / 10)))
+			if (weapon != KNEE_WEAPON && (!althud_flashing || ud.levelclock & 32 || ammo > (gs.max_ammo_amount[weapon] / 10)))
 			{
 				SBar_DrawString(this, numberFont, format, -3, texty, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 			}
@@ -363,18 +363,18 @@ public:
 			return (((!p->ammo_amount[weapon]) | (!p->gotweapon[weapon])) * 9) + 12 - 18 * ((cw == weapon) || (optweapon != -1 && cw == optweapon));
 		};
 
-		DrawWeaponNum(2, x, y, p->ammo_amount[PISTOL_WEAPON], max_ammo_amount[PISTOL_WEAPON], 12 - 20 * (cw == PISTOL_WEAPON), 3);
-		DrawWeaponNum(3, x, y + 6, p->ammo_amount[SHOTGUN_WEAPON], max_ammo_amount[SHOTGUN_WEAPON], ShadeForWeapon(SHOTGUN_WEAPON), 3);
-		DrawWeaponNum(4, x, y + 12, p->ammo_amount[CHAINGUN_WEAPON], max_ammo_amount[CHAINGUN_WEAPON], ShadeForWeapon(CHAINGUN_WEAPON), 3);
-		DrawWeaponNum(5, x + 39, y, p->ammo_amount[RPG_WEAPON], max_ammo_amount[RPG_WEAPON], ShadeForWeapon(RPG_WEAPON), 2);
-		DrawWeaponNum(6, x + 39, y + 6, p->ammo_amount[HANDBOMB_WEAPON], max_ammo_amount[HANDBOMB_WEAPON], ShadeForWeapon(HANDBOMB_WEAPON, HANDREMOTE_WEAPON), 2);
+		DrawWeaponNum(2, x, y, p->ammo_amount[PISTOL_WEAPON], gs.max_ammo_amount[PISTOL_WEAPON], 12 - 20 * (cw == PISTOL_WEAPON), 3);
+		DrawWeaponNum(3, x, y + 6, p->ammo_amount[SHOTGUN_WEAPON], gs.max_ammo_amount[SHOTGUN_WEAPON], ShadeForWeapon(SHOTGUN_WEAPON), 3);
+		DrawWeaponNum(4, x, y + 12, p->ammo_amount[CHAINGUN_WEAPON], gs.max_ammo_amount[CHAINGUN_WEAPON], ShadeForWeapon(CHAINGUN_WEAPON), 3);
+		DrawWeaponNum(5, x + 39, y, p->ammo_amount[RPG_WEAPON], gs.max_ammo_amount[RPG_WEAPON], ShadeForWeapon(RPG_WEAPON), 2);
+		DrawWeaponNum(6, x + 39, y + 6, p->ammo_amount[HANDBOMB_WEAPON], gs.max_ammo_amount[HANDBOMB_WEAPON], ShadeForWeapon(HANDBOMB_WEAPON, HANDREMOTE_WEAPON), 2);
 		if (p->subweapon & (1 << GROW_WEAPON)) // original code says: if(!p->ammo_amount[SHRINKER_WEAPON] || cw == GROW_WEAPON)
-			DrawWeaponNum(7, x + 39, y + 12, p->ammo_amount[GROW_WEAPON], max_ammo_amount[GROW_WEAPON], ShadeForWeapon(GROW_WEAPON), 2);
+			DrawWeaponNum(7, x + 39, y + 12, p->ammo_amount[GROW_WEAPON], gs.max_ammo_amount[GROW_WEAPON], ShadeForWeapon(GROW_WEAPON), 2);
 		else
-			DrawWeaponNum(7, x + 39, y + 12, p->ammo_amount[SHRINKER_WEAPON], max_ammo_amount[SHRINKER_WEAPON], ShadeForWeapon(SHRINKER_WEAPON), 2);
-		DrawWeaponNum(8, x + 70, y, p->ammo_amount[DEVISTATOR_WEAPON], max_ammo_amount[DEVISTATOR_WEAPON], ShadeForWeapon(DEVISTATOR_WEAPON), 2);
-		DrawWeaponNum(9, x + 70, y + 6, p->ammo_amount[TRIPBOMB_WEAPON], max_ammo_amount[TRIPBOMB_WEAPON], ShadeForWeapon(TRIPBOMB_WEAPON), 2);
-		DrawWeaponNum(0, x + 70, y + 12, p->ammo_amount[FREEZE_WEAPON], max_ammo_amount[FREEZE_WEAPON], ShadeForWeapon(FREEZE_WEAPON), 2);
+			DrawWeaponNum(7, x + 39, y + 12, p->ammo_amount[SHRINKER_WEAPON], gs.max_ammo_amount[SHRINKER_WEAPON], ShadeForWeapon(SHRINKER_WEAPON), 2);
+		DrawWeaponNum(8, x + 70, y, p->ammo_amount[DEVISTATOR_WEAPON], gs.max_ammo_amount[DEVISTATOR_WEAPON], ShadeForWeapon(DEVISTATOR_WEAPON), 2);
+		DrawWeaponNum(9, x + 70, y + 6, p->ammo_amount[TRIPBOMB_WEAPON], gs.max_ammo_amount[TRIPBOMB_WEAPON], ShadeForWeapon(TRIPBOMB_WEAPON), 2);
+		DrawWeaponNum(0, x + 70, y + 12, p->ammo_amount[FREEZE_WEAPON], gs.max_ammo_amount[FREEZE_WEAPON], ShadeForWeapon(FREEZE_WEAPON), 2);
 	}
 
 	//==========================================================================

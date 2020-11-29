@@ -91,8 +91,8 @@ void addammo(int weapon, struct player_struct* player, int amount)
 {
 	player->ammo_amount[weapon] += amount;
 
-	if (player->ammo_amount[weapon] > max_ammo_amount[weapon])
-		player->ammo_amount[weapon] = max_ammo_amount[weapon];
+	if (player->ammo_amount[weapon] > gs.max_ammo_amount[weapon])
+		player->ammo_amount[weapon] = gs.max_ammo_amount[weapon];
 }
 
 //---------------------------------------------------------------------------
@@ -420,7 +420,7 @@ void moveplayers(void)
 			{
 				spri->x = p->oposx;
 				spri->y = p->oposy;
-				act->bposz = spri->z = p->oposz + PHEIGHT;
+				act->bposz = spri->z = p->oposz + gs.playerheight;
 				spri->ang = p->angle.oang.asbuild();
 				setsprite(act, spri->pos);
 			}
@@ -454,7 +454,7 @@ void moveplayers(void)
 				}
 				if (ud.god)
 				{
-					spri->extra = max_player_health;
+					spri->extra = gs.max_player_health;
 					spri->cstat = 257;
 					if (!isWW2GI() && !isRR())
 						p->jetpack_amount = 1599;
@@ -959,7 +959,7 @@ void detonate(DDukeActor *actor, int explosion)
 	{
 		int x = spri->extra;
 		spawn(actor, explosion);
-		fi.hitradius(actor, seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
+		fi.hitradius(actor, gs.seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
 	}
 
@@ -1421,12 +1421,12 @@ void rpgexplode(DDukeActor *actor, int hit, const vec3_t &pos, int EXPLOSION2, i
 	if (s->xrepeat >= 10)
 	{
 		int x = s->extra;
-		fi.hitradius(actor, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+		fi.hitradius(actor, gs.rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 	}
 	else
 	{
 		int x = s->extra + (global_random & 3);
-		fi.hitradius(actor, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+		fi.hitradius(actor, (gs.rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
 	}
 }
 
@@ -1439,14 +1439,14 @@ void rpgexplode(DDukeActor *actor, int hit, const vec3_t &pos, int EXPLOSION2, i
 bool respawnmarker(DDukeActor *actor, int yellow, int green)
 {
 	actor->temp_data[0]++;
-	if (actor->temp_data[0] > respawnitemtime)
+	if (actor->temp_data[0] > gs.respawnitemtime)
 	{
 		deletesprite(actor);
 		return false;
 	}
-	if (actor->temp_data[0] >= (respawnitemtime >> 1) && actor->temp_data[0] < ((respawnitemtime >> 1) + (respawnitemtime >> 2)))
+	if (actor->temp_data[0] >= (gs.respawnitemtime >> 1) && actor->temp_data[0] < ((gs.respawnitemtime >> 1) + (gs.respawnitemtime >> 2)))
 		actor->s.picnum = yellow;
-	else if (actor->temp_data[0] > ((respawnitemtime >> 1) + (respawnitemtime >> 2)))
+	else if (actor->temp_data[0] > ((gs.respawnitemtime >> 1) + (gs.respawnitemtime >> 2)))
 		actor->s.picnum = green;
 	makeitfall(actor);
 	return true;
@@ -1999,7 +1999,7 @@ void camera(DDukeActor *actor)
 	int* t = &actor->temp_data[0];
 	if (t[0] == 0)
 	{
-		if (camerashitable)
+		if (gs.camerashitable)
 		{
 			int j = fi.ifhitbyweapon(actor);
 			if (j >= 0)
@@ -2181,11 +2181,11 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 		if (sector[sect].lotag == 2)
 		{
 			if (s->zvel < 64)
-				s->zvel += (gc >> 5) + (krand() & 7);
+				s->zvel += (gs.gravity >> 5) + (krand() & 7);
 		}
 		else
 			if (s->zvel < 144)
-				s->zvel += (gc >> 5) + (krand() & 7);
+				s->zvel += (gs.gravity >> 5) + (krand() & 7);
 	}
 
 	ssp(actor, CLIPMASK0);
@@ -2290,7 +2290,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 					s->zvel += 48;
 				else s->zvel = 1024;
 			}
-			else s->zvel += gc - 50;
+			else s->zvel += gs.gravity - 50;
 		}
 
 		s->x += mulscale14(s->xvel, bcos(s->ang));
@@ -2460,7 +2460,7 @@ void shell(DDukeActor* actor, bool morecheck)
 			t[0]++;
 			t[0] &= 3;
 		}
-		if (s->zvel < 128) s->zvel += (gc / 13); // 8
+		if (s->zvel < 128) s->zvel += (gs.gravity / 13); // 8
 		else s->zvel -= 64;
 		if (s->xvel > 0)
 			s->xvel -= 4;
@@ -2475,7 +2475,7 @@ void shell(DDukeActor* actor, bool morecheck)
 			t[0]++;
 			t[0] &= 3;
 		}
-		if (s->zvel < 512) s->zvel += (gc / 3); // 52;
+		if (s->zvel < 512) s->zvel += (gs.gravity / 3); // 52;
 		if (s->xvel > 0)
 			s->xvel--;
 		else
@@ -2575,7 +2575,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 				else t[0]++;
 			}
 		}
-		if (s->zvel < 4096) s->zvel += gc - 50;
+		if (s->zvel < 4096) s->zvel += gs.gravity - 50;
 		s->x += mulscale14(s->xvel, bcos(s->ang));
 		s->y += mulscale14(s->xvel, bsin(s->ang));
 		s->z += s->zvel;
@@ -2613,7 +2613,7 @@ void gutsdir(DDukeActor* actor, short gtype, short n, short p)
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
 
-	gutz += actorinfo[actor->s.picnum].gutsoffset;
+	gutz += gs.actorinfo[actor->s.picnum].gutsoffset;
 
 	for (int j = 0; j < n; j++)
 	{
@@ -4332,7 +4332,7 @@ void handle_se20(DDukeActor* actor)
 				ps[p].oposx = ps[p].posx;
 				ps[p].oposy = ps[p].posy;
 
-				setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz + PHEIGHT);
+				setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz + gs.playerheight);
 			}
 
 		sc->addfloorxpan(-x / 8.f);
@@ -4594,7 +4594,7 @@ void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, int TRIPBOMB
 	{
 		if (ps[p].cursectnum == actor->s.sectnum && ps[p].on_ground)
 		{
-			if (abs(ps[p].pos.z - ps[p].truefz) < PHEIGHT + (9 << 8))
+			if (abs(ps[p].pos.z - ps[p].truefz) < gs.playerheight + (9 << 8))
 			{
 				ps[p].fric.x += x << 3;
 				ps[p].fric.y += l << 3;
@@ -5037,8 +5037,8 @@ void makeitfall(DDukeActor* actor)
 	else
 	{
 		if( fi.ceilingspace(s->sectnum) || sector[s->sectnum].lotag == ST_2_UNDERWATER)
-			c = gc/6;
-		else c = gc;
+			c = gs.gravity/6;
+		else c = gs.gravity;
 	}
 	
 	if (isRRRA())
@@ -5288,8 +5288,8 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 		else
 		{
 			if (fi.ceilingspace(s->sectnum) || sector[s->sectnum].lotag == 2)
-				c = gc / 6;
-			else c = gc;
+				c = gs.gravity / 6;
+			else c = gs.gravity;
 		}
 
 		if (actor->cgg <= 0 || (sector[s->sectnum].floorstat & 2))
@@ -5352,7 +5352,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 				}
 			}
 			if (sector[s->sectnum].lotag == 1)
-				s->z += actorinfo[s->picnum].falladjustz;
+				s->z += gs.actorinfo[s->picnum].falladjustz;
 			else s->zvel = 0;
 		}
 	}

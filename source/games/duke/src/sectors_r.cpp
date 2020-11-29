@@ -2188,7 +2188,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case FUELPOD:
 	case SOLARPANNEL:
 	case ANTENNA:
-		if (actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[actorinfo[SHOTSPARK1].scriptaddress])
+		if (gs.actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
 				EGS(s->sectnum, s->x, s->y, sector[s->sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
@@ -2674,13 +2674,13 @@ void checksectors_r(int snum)
 						p->holster_weapon = 1;
 						p->weapon_pos = -1;
 					}
-					if (p->GetActor()->s.extra <= (max_player_health - (max_player_health / 10)))
+					if (p->GetActor()->s.extra <= (gs.max_player_health - (gs.max_player_health / 10)))
 					{
-						p->GetActor()->s.extra += max_player_health / 10;
+						p->GetActor()->s.extra += gs.max_player_health / 10;
 						p->last_extra = p->GetActor()->s.extra;
 					}
-					else if (p->GetActor()->s.extra < max_player_health)
-						p->GetActor()->s.extra = max_player_health;
+					else if (p->GetActor()->s.extra < gs.max_player_health)
+						p->GetActor()->s.extra = gs.max_player_health;
 				}
 				else if (S_CheckActorSoundPlaying(pact, DUKE_GRUNT) == 0)
 					S_PlayActorSound(DUKE_GRUNT, pact);
@@ -2691,7 +2691,7 @@ void checksectors_r(int snum)
 					neartagsprite->temp_data[0] = 1;
 					neartagsprite->SetOwner(p->GetActor());
 
-					if (p->GetActor()->s.extra < max_player_health)
+					if (p->GetActor()->s.extra < gs.max_player_health)
 					{
 						p->GetActor()->s.extra++;
 						S_PlayActorSound(DUKE_DRINKING, pact);

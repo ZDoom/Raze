@@ -82,13 +82,13 @@ void hud_input(int plnum)
 			{
 				p->last_pissed_time = 4000;
 				S_PlayActorSound(437, pact);
-				if (p->GetActor()->s.extra <= max_player_health - max_player_health / 10)
+				if (p->GetActor()->s.extra <= gs.max_player_health - gs.max_player_health / 10)
 				{
 					p->GetActor()->s.extra += 2;
 					p->last_extra = p->GetActor()->s.extra;
 				}
-				else if (p->GetActor()->s.extra < max_player_health)
-					p->GetActor()->s.extra = max_player_health;
+				else if (p->GetActor()->s.extra < gs.max_player_health)
+					p->GetActor()->s.extra = gs.max_player_health;
 			}
 		}
 	}
@@ -307,12 +307,12 @@ void hud_input(int plnum)
 				}
 				else // In RR this means drinking whiskey.
 				{
-					if (p->holoduke_amount > 0 && p->GetActor()->s.extra < max_player_health)
+					if (p->holoduke_amount > 0 && p->GetActor()->s.extra < gs.max_player_health)
 					{
 						p->holoduke_amount -= 400;
 						p->GetActor()->s.extra += 5;
-						if (p->GetActor()->s.extra > max_player_health)
-							p->GetActor()->s.extra = max_player_health;
+						if (p->GetActor()->s.extra > gs.max_player_health)
+							p->GetActor()->s.extra = gs.max_player_health;
 
 						p->drink_amt += 5;
 						p->inven_icon = 3;
@@ -340,16 +340,16 @@ void hud_input(int plnum)
 					madenoise(plnum);
 					if (sector[p->cursectnum].lotag == 857)
 					{
-						if (p->GetActor()->s.extra <= max_player_health)
+						if (p->GetActor()->s.extra <= gs.max_player_health)
 						{
 							p->GetActor()->s.extra += 10;
-							if (p->GetActor()->s.extra >= max_player_health)
-								p->GetActor()->s.extra = max_player_health;
+							if (p->GetActor()->s.extra >= gs.max_player_health)
+								p->GetActor()->s.extra = gs.max_player_health;
 						}
 					}
 					else
 					{
-						if (p->GetActor()->s.extra + 1 <= max_player_health)
+						if (p->GetActor()->s.extra + 1 <= gs.max_player_health)
 						{
 							p->GetActor()->s.extra++;
 						}
@@ -364,16 +364,16 @@ void hud_input(int plnum)
 			OnEvent(EVENT_USEMEDKIT, plnum, nullptr, -1);
 			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
 			{
-				if (p->firstaid_amount > 0 && p->GetActor()->s.extra < max_player_health)
+				if (p->firstaid_amount > 0 && p->GetActor()->s.extra < gs.max_player_health)
 				{
 					if (!isRR())
 					{
-						int j = max_player_health - p->GetActor()->s.extra;
+						int j = gs.max_player_health - p->GetActor()->s.extra;
 
 						if ((unsigned int)p->firstaid_amount > j)
 						{
 							p->firstaid_amount -= j;
-							p->GetActor()->s.extra = max_player_health;
+							p->GetActor()->s.extra = gs.max_player_health;
 							p->inven_icon = 1;
 						}
 						else
@@ -391,8 +391,8 @@ void hud_input(int plnum)
 						{
 							p->firstaid_amount -= j;
 							p->GetActor()->s.extra += j;
-							if (p->GetActor()->s.extra > max_player_health)
-								p->GetActor()->s.extra = max_player_health;
+							if (p->GetActor()->s.extra > gs.max_player_health)
+								p->GetActor()->s.extra = gs.max_player_health;
 							p->inven_icon = 1;
 						}
 						else
@@ -401,8 +401,8 @@ void hud_input(int plnum)
 							p->firstaid_amount = 0;
 							checkavailinven(p);
 						}
-						if (p->GetActor()->s.extra > max_player_health)
-							p->GetActor()->s.extra = max_player_health;
+						if (p->GetActor()->s.extra > gs.max_player_health)
+							p->GetActor()->s.extra = gs.max_player_health;
 						p->drink_amt += 10;
 						if (p->drink_amt <= 100 && !S_CheckActorSoundPlaying(pact, DUKE_USEMEDKIT))
 							S_PlayActorSound(DUKE_USEMEDKIT, pact);
@@ -445,7 +445,7 @@ void hud_input(int plnum)
 				else
 				{
 					// eat cow pie
-					if (p->jetpack_amount > 0 && p->GetActor()->s.extra < max_player_health)
+					if (p->jetpack_amount > 0 && p->GetActor()->s.extra < gs.max_player_health)
 					{
 						if (!S_CheckActorSoundPlaying(pact, 429))
 							S_PlayActorSound(429, pact);
@@ -469,8 +469,8 @@ void hud_input(int plnum)
 
 						p->inven_icon = 4;
 
-						if (p->GetActor()->s.extra > max_player_health)
-							p->GetActor()->s.extra = max_player_health;
+						if (p->GetActor()->s.extra > gs.max_player_health)
+							p->GetActor()->s.extra = gs.max_player_health;
 
 						if (p->jetpack_amount <= 0)
 							checkavailinven(p);

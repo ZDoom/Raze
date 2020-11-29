@@ -275,7 +275,7 @@ void resetweapons(int snum)
     p->curr_weapon = PISTOL_WEAPON;
     p->gotweapon.Set(PISTOL_WEAPON);
     p->gotweapon.Set(KNEE_WEAPON);
-    p->ammo_amount[PISTOL_WEAPON] = std::min<int16_t>(max_ammo_amount[PISTOL_WEAPON], 48);
+    p->ammo_amount[PISTOL_WEAPON] = std::min<int16_t>(gs.max_ammo_amount[PISTOL_WEAPON], 48);
     p->gotweapon.Set(HANDREMOTE_WEAPON);
     p->last_weapon = -1;
 
@@ -319,7 +319,7 @@ void resetinventory(int snum)
     p->heat_on = 0;
     p->jetpack_on = 0;
     p->jetpack_amount = 0;
-    p->shield_amount = max_armour_amount;
+    p->shield_amount = gs.max_armour_amount;
     p->holoduke_on = nullptr;
     p->holoduke_amount = 0;
     p->firstaid_amount = 0;
@@ -599,8 +599,8 @@ void resetpspritevars(int g)
 
             if (ps[j].last_extra == 0)
             {
-                ps[j].last_extra = max_player_health;
-                s->extra = max_player_health;
+                ps[j].last_extra = gs.max_player_health;
+                s->extra = gs.max_player_health;
             }
             else s->extra = ps[j].last_extra;
 

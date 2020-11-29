@@ -438,9 +438,9 @@ SKIPWALLCHECK:
 					continue;
 				}
 				
-				if (spri2->picnum == APLAYER) spri2->z -= PHEIGHT;
+				if (spri2->picnum == APLAYER) spri2->z -= gs.playerheight;
 				d = dist(actor, act2);
-				if (spri2->picnum == APLAYER) spri2->z += PHEIGHT;
+				if (spri2->picnum == APLAYER) spri2->z += gs.playerheight;
 				
 				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sectnum, spri->x, spri->y, spri->z - (12 << 8), spri->sectnum))
 				{
@@ -665,7 +665,7 @@ void guts_d(DDukeActor* actor, short gtype, short n, short p)
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
 
-	gutz += actorinfo[s->picnum].gutsoffset;
+	gutz += gs.actorinfo[s->picnum].gutsoffset;
 
 	if (badguy(actor) && s->pal == 6)
 		pal = 6;
@@ -1004,9 +1004,9 @@ void movefallers_d(void)
 				else
 				{
 					if (fi.ceilingspace(s->sectnum))
-						x = gc / 6;
+						x = gs.gravity / 6;
 					else
-						x = gc;
+						x = gs.gravity;
 				}
 
 				if (s->z < (sector[sect].floorz - FOURSLEIGHT))
@@ -1066,7 +1066,7 @@ static void movetripbomb(DDukeActor *actor)
 			S_PlayActorSound(LASERTRIP_EXPLODE, actor);
 			for (j = 0; j < 5; j++) RANDOMSCRAP(actor);
 			x = s->extra;
-			fi.hitradius(actor, tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(actor, gs.tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 
 			auto spawned = spawn(actor, EXPLOSION2);
 			spawned->s.ang = s->ang;
@@ -1268,13 +1268,13 @@ static void movefireext(DDukeActor* actor)
 
 		int x = actor->s.extra;
 		spawn(actor, EXPLOSION2);
-		fi.hitradius(actor, pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
+		fi.hitradius(actor, gs.pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
 		detonate(actor, EXPLOSION2);
 	}
 	else
 	{
-		fi.hitradius(actor, seenineblastradius, 10, 15, 20, 25);
+		fi.hitradius(actor, gs.seenineblastradius, 10, 15, 20, 25);
 		deletesprite(actor);
 	}
 }
@@ -1846,7 +1846,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		}
 	}
 	else if (s->picnum == SPIT) if (s->zvel < 6144)
-		s->zvel += gc - 112;
+		s->zvel += gs.gravity - 112;
 
 	if (coll.type != 0)
 	{
@@ -1886,7 +1886,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			{
 				spawn(proj, SHRINKEREXPLOSION);
 				S_PlayActorSound(SHRINKER_HIT, proj);
-				fi.hitradius(proj, shrinkerblastradius, 0, 0, 0, 0);
+				fi.hitradius(proj, gs.shrinkerblastradius, 0, 0, 0, 0);
 			}
 			else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER && (!isWorldTour() || s->picnum != FIREBALL))
 			{
@@ -2058,7 +2058,7 @@ void movetransports_d(void)
 							
 							ps[p].bobposx = ps[p].oposx = ps[p].posx = Owner->s.x;
 							ps[p].bobposy = ps[p].oposy = ps[p].posy = Owner->s.y;
-							ps[p].oposz = ps[p].posz = Owner->s.z - PHEIGHT;
+							ps[p].oposz = ps[p].posz = Owner->s.z - gs.playerheight;
 							
 							changespritesect(act2, Owner->s.sectnum);
 							ps[p].cursectnum = spr2->sectnum;
@@ -2144,7 +2144,7 @@ void movetransports_d(void)
 						ps[p].cursectnum = Owner->s.sectnum;
 						
 						changespritesect(act2, Owner->s.sectnum);
-						setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz + PHEIGHT);
+						setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz + gs.playerheight);
 						
 						if ((krand() & 255) < 32)
 							spawn(act2, WATERSPLASH2);
@@ -2610,7 +2610,7 @@ static void greenslime(DDukeActor *actor)
 		DukeSectIterator it(sect);
 		while (auto a2 = it.Next())
 		{
-			if (actorinfo[a2->s.picnum].flags & SFLAG_GREENSLIMEFOOD)
+			if (gs.actorinfo[a2->s.picnum].flags & SFLAG_GREENSLIMEFOOD)
 			{
 				if (ldist(actor, a2) < 768 && (abs(s->z - a2->s.z) < 8192)) //Gulp them
 				{
@@ -2814,12 +2814,12 @@ static void flamethrowerflame(DDukeActor *actor)
 		if (s->xrepeat >= 10)
 		{
 			x = s->extra;
-			fi.hitradius(actor, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(actor, gs.rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 		}
 		else
 		{
 			x = s->extra + (global_random & 3);
-			fi.hitradius(actor, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(actor, (gs.rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
 		}
 	}
 }
@@ -2963,9 +2963,9 @@ DETONATEB:
 			int m = 0;
 			switch (s->picnum)
 			{
-			case HEAVYHBOMB: m = pipebombblastradius; break;
-			case MORTER: m = morterblastradius; break;
-			case BOUNCEMINE: m = bouncemineblastradius; break;
+			case HEAVYHBOMB: m = gs.pipebombblastradius; break;
+			case MORTER: m = gs.morterblastradius; break;
+			case BOUNCEMINE: m = gs.bouncemineblastradius; break;
 			}
 
 			fi.hitradius(actor, m, x >> 2, x >> 1, x - (x >> 2), x);
@@ -2991,7 +2991,7 @@ DETONATEB:
 			}
 			else
 			{
-				t[2] = respawnitemtime;
+				t[2] = gs.respawnitemtime;
 				spawn(actor, RESPAWNMARKERRED);
 				s->cstat = (short)32768;
 				s->yrepeat = 9;
@@ -3001,7 +3001,7 @@ DETONATEB:
 	}
 	else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
 		if (cansee(s->x, s->y, s->z - (8 << 8), s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
-			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < max_ammo_amount[HANDBOMB_WEAPON])
+			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < gs.max_ammo_amount[HANDBOMB_WEAPON])
 			{
 				if (ud.coop >= 1 && Owner == actor)
 				{
@@ -3034,7 +3034,7 @@ DETONATEB:
 				}
 				else
 				{
-					t[2] = respawnitemtime;
+					t[2] = gs.respawnitemtime;
 					spawn(actor, RESPAWNMARKERRED);
 					s->cstat = (short)32768;
 				}
@@ -3970,8 +3970,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 				}
 				else
 				{
-					ps[playernum].posxv = mulscale(ps[playernum].posxv, dukefriction - 0x2000, 16);
-					ps[playernum].posyv = mulscale(ps[playernum].posyv, dukefriction - 0x2000, 16);
+					ps[playernum].posxv = mulscale(ps[playernum].posxv, gs.playerfriction - 0x2000, 16);
+					ps[playernum].posyv = mulscale(ps[playernum].posyv, gs.playerfriction - 0x2000, 16);
 				}
 			}
 			else if (spr->picnum != DRONE && spr->picnum != SHARK && spr->picnum != COMMANDER)

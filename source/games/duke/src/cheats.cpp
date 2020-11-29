@@ -67,7 +67,7 @@ static const char *cheatGod(int myconnectindex, int state)
 	auto act = p->GetActor();
 
 	p->dead_flag = 0;
-	act->s.extra = max_player_health;
+	act->s.extra = gs.max_player_health;
 	act->extra = 0;
 	if (ud.god)
 	{
@@ -91,9 +91,9 @@ static const char *cheatGod(int myconnectindex, int state)
 	else
 	{
 		ud.god = 0;
-		act->s.extra = max_player_health;
+		act->s.extra = gs.max_player_health;
 		act->extra = -1;
-		ps[myconnectindex].last_extra = max_player_health;
+		ps[myconnectindex].last_extra = gs.max_player_health;
 		return quoteMgr.GetQuote(QUOTE_CHEAT_GODMODE_OFF);
 	}
 }
@@ -176,12 +176,12 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 
 	case CHT_BIKE:
 		OnMotorcycle(&ps[player], nullptr);
-		ps[player].ammo_amount[MOTORCYCLE_WEAPON] = max_ammo_amount[MOTORCYCLE_WEAPON];
+		ps[player].ammo_amount[MOTORCYCLE_WEAPON] = gs.max_ammo_amount[MOTORCYCLE_WEAPON];
 		return quoteMgr.GetQuote(QUOTE_ON_BIKE);
 
 	case CHT_BOAT:
 		OnBoat(&ps[player], 0);
-		ps[player].ammo_amount[BOAT_WEAPON] = max_ammo_amount[BOAT_WEAPON];
+		ps[player].ammo_amount[BOAT_WEAPON] = gs.max_ammo_amount[BOAT_WEAPON];
 		return quoteMgr.GetQuote(QUOTE_ON_BOAT);
 
 	case CHT_TONY:
@@ -230,7 +230,7 @@ static bool cheatWeapons(int player)
 
 	for (int weapon = PISTOL_WEAPON; weapon < weaponLimit; weapon++ )
 	{
-		addammo( weapon, &ps[player], max_ammo_amount[weapon] );
+		addammo( weapon, &ps[player], gs.max_ammo_amount[weapon] );
 		ps[player].gotweapon.Set(weapon);
 	}
 	if (isRRRA())
@@ -258,7 +258,7 @@ static bool cheatInventory(int player)
 	invGet(6400, EVENT_CHEATGETSCUBA, ps[player].scuba_amount);
 	invGet(2400, EVENT_CHEATGETHOLODUKE, ps[player].holoduke_amount);
 	invGet(isRR() ? 600 : 1600, EVENT_CHEATGETJETPACK, ps[player].jetpack_amount);
-	invGet(max_player_health, EVENT_CHEATGETFIRSTAID, ps[player].firstaid_amount);
+	invGet(gs.max_player_health, EVENT_CHEATGETFIRSTAID, ps[player].firstaid_amount);
 	return true;
 }
 
@@ -487,7 +487,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 		break;
 
 	case GIVE_HEALTH:
-		ps[player].GetActor()->s.extra = max_player_health << 1;
+		ps[player].GetActor()->s.extra = gs.max_player_health << 1;
 		break;
 
 	case GIVE_WEAPONS:
@@ -499,7 +499,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	{
 		int maxw = isShareware() ? SHRINKER_WEAPON : MAX_WEAPONS;
 		for (int i = maxw; i >= PISTOL_WEAPON; i--)
-			addammo(i, &ps[player], max_ammo_amount[i]);
+			addammo(i, &ps[player], gs.max_ammo_amount[i]);
 		break;
 	}
 

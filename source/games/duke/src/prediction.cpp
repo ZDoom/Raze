@@ -143,7 +143,7 @@ void fakedomovethings(void)
 
 		j = getflorzofslope(psect,myx,myy);
 
-		if(clz.type == kHitSector && psectlotag == 1 && klabs(myz-j) > PHEIGHT+(16<<8) )
+		if(clz.type == kHitSector && psectlotag == 1 && klabs(myz-j) > gs.playerheight+(16<<8) )
 			psectlotag = 0;
 
 		if( p->aim_mode == 0 && myonground && psectlotag != 2 && (sector[psect].floorstat&2) )
@@ -194,7 +194,7 @@ void fakedomovethings(void)
 				 {
 							if(p->on_warping_sector == 0)
 							{
-									 if( klabs(myz-fz) > (PHEIGHT>>1))
+									 if( klabs(myz-fz) > (gs.playerheight>>1))
 											 myz += 348;
 							}
 							clipmove(&myx,&myy,&myz,&mycursectnum,0,0,164L,(4L<<8),(4L<<8),CLIPMASK0);
@@ -303,7 +303,7 @@ void fakedomovethings(void)
 							{
 									 myonground = 0;
 
-									 myzvel += (gc+80);
+									 myzvel += (gs.gravity+80);
 
 									 if(myzvel >= (4096+2048)) myzvel = (4096+2048);
 							}
@@ -421,20 +421,20 @@ void fakedomovethings(void)
 
 				 if( ( p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && myonground ) || ( myonground && (sb_snum&2) && !(p->OnMotorcycle || p->OnBoat)) )
 				 {
-							myxvel = mulscale16(myxvel,dukefriction-0x2000);
-							myyvel = mulscale16(myyvel,dukefriction-0x2000);
+							myxvel = mulscale16(myxvel,gs.playerfriction-0x2000);
+							myyvel = mulscale16(myyvel,gs.playerfriction-0x2000);
 				 }
 				 else
 				 {
 					if(psectlotag == 2)
 					{
-						myxvel = mulscale16(myxvel,dukefriction-0x1400);
-						myyvel = mulscale16(myyvel,dukefriction-0x1400);
+						myxvel = mulscale16(myxvel,gs.playerfriction-0x1400);
+						myyvel = mulscale16(myyvel,gs.playerfriction-0x1400);
 					}
 					else
 					{
-						myxvel = mulscale16(myxvel,dukefriction);
-						myyvel = mulscale16(myyvel,dukefriction);
+						myxvel = mulscale16(myxvel,gs.playerfriction);
+						myyvel = mulscale16(myyvel,gs.playerfriction);
 					}
 				 }
 
@@ -444,9 +444,9 @@ void fakedomovethings(void)
 				 if( shrunk )
 				 {
 					 myxvel =
-						 mulscale16(myxvel,(dukefriction)-(dukefriction>>1)+(dukefriction>>2));
+						 mulscale16(myxvel,(gs.playerfriction)-(gs.playerfriction>>1)+(gs.playerfriction>>2));
 					 myyvel =
-						 mulscale16(myyvel,(dukefriction)-(dukefriction>>1)+(dukefriction>>2));
+						 mulscale16(myyvel,(gs.playerfriction)-(gs.playerfriction>>1)+(gs.playerfriction>>2));
 				 }
 		}
 

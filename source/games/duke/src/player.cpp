@@ -358,7 +358,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 							s != sp)
 							continue;
 
-						if (gotshrinker && sp->xrepeat < 30 && !(actorinfo[sp->picnum].flags & SFLAG_SHRINKAUTOAIM)) continue;
+						if (gotshrinker && sp->xrepeat < 30 && !(gs.actorinfo[sp->picnum].flags & SFLAG_SHRINKAUTOAIM)) continue;
 						if (gotfreezer && sp->pal == 1) continue;
 					}
 
@@ -375,7 +375,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 									a = (abs(scale(sp->z - s->z, 10, sdist) - ps[s->yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
-								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + actorinfo[sp->picnum].aimoffset, sp->sectnum, s->x, s->y, s->z - (32 << 8), s->sectnum);
+								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + gs.actorinfo[sp->picnum].aimoffset, sp->sectnum, s->x, s->y, s->z - (32 << 8), s->sectnum);
 
 								if (a && cans)
 								{
@@ -644,7 +644,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->posz - fz) > (PHEIGHT >> 1))
+			if (abs(p->posz - fz) > (gs.playerheight >> 1))
 				p->posz += 348;
 		}
 		else

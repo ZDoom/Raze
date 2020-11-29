@@ -1334,7 +1334,7 @@ int spawn_r(int j, int pn)
 			case CAMERAPOLE:
 				sp->extra = 1;
 
-				if(camerashitable) sp->cstat = 257;
+				if(gs.camerashitable) sp->cstat = 257;
 				else sp->cstat = 0;
 
 				if( ud.multimode < 2 && sp->pal != 0 )

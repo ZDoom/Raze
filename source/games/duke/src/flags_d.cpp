@@ -40,13 +40,13 @@ BEGIN_DUKE_NS
 
 void initactorflags_d()
 {
-	actorinfo[COMMANDER].gutsoffset = -(24 << 8);
+	gs.actorinfo[COMMANDER].gutsoffset = -(24 << 8);
 
-	for (auto &fa : actorinfo)
+	for (auto &fa : gs.actorinfo)
 	{
 		fa.falladjustz = 24 << 8;
 	}
-	actorinfo[OCTABRAIN].falladjustz = actorinfo[COMMANDER].falladjustz = actorinfo[DRONE].falladjustz = 0;
+	gs.actorinfo[OCTABRAIN].falladjustz = gs.actorinfo[COMMANDER].falladjustz = gs.actorinfo[DRONE].falladjustz = 0;
 
 	setflag(SFLAG_INTERNAL_BADGUY, {
 			SHARK,
@@ -223,24 +223,24 @@ void initactorflags_d()
 		GREENSLIME + 7,
 		});
 
-	actorinfo[ORGANTIC].aimoffset = 32 << 8;
-	actorinfo[ROTATEGUN].aimoffset = 32 << 8;
+	gs.actorinfo[ORGANTIC].aimoffset = 32 << 8;
+	gs.actorinfo[ROTATEGUN].aimoffset = 32 << 8;
 
-	weaponsandammosprites[0] = RPGSPRITE;
-	weaponsandammosprites[1] = CHAINGUNSPRITE;
-	weaponsandammosprites[2] = DEVISTATORAMMO;
-	weaponsandammosprites[3] = RPGAMMO;
-	weaponsandammosprites[4] = RPGAMMO;
-	weaponsandammosprites[5] = JETPACK;
-	weaponsandammosprites[6] = SHIELD;
-	weaponsandammosprites[7] = FIRSTAID;
-	weaponsandammosprites[8] = STEROIDS;
-	weaponsandammosprites[9] = RPGAMMO;
-	weaponsandammosprites[10] = RPGAMMO;
-	weaponsandammosprites[11] = RPGSPRITE;
-	weaponsandammosprites[12] = RPGAMMO;
-	weaponsandammosprites[13] = FREEZESPRITE;
-	weaponsandammosprites[14] = FREEZEAMMO;
+	gs.weaponsandammosprites[0] = RPGSPRITE;
+	gs.weaponsandammosprites[1] = CHAINGUNSPRITE;
+	gs.weaponsandammosprites[2] = DEVISTATORAMMO;
+	gs.weaponsandammosprites[3] = RPGAMMO;
+	gs.weaponsandammosprites[4] = RPGAMMO;
+	gs.weaponsandammosprites[5] = JETPACK;
+	gs.weaponsandammosprites[6] = SHIELD;
+	gs.weaponsandammosprites[7] = FIRSTAID;
+	gs.weaponsandammosprites[8] = STEROIDS;
+	gs.weaponsandammosprites[9] = RPGAMMO;
+	gs.weaponsandammosprites[10] = RPGAMMO;
+	gs.weaponsandammosprites[11] = RPGSPRITE;
+	gs.weaponsandammosprites[12] = RPGAMMO;
+	gs.weaponsandammosprites[13] = FREEZESPRITE;
+	gs.weaponsandammosprites[14] = FREEZEAMMO;
 
 	TILE_BOX = BOX;
 	TILE_TREE1 = TREE1;

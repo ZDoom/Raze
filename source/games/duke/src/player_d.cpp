@@ -272,7 +272,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			}
 
 			if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
-				knee->s.extra += (max_player_health >> 2);
+				knee->s.extra += (gs.max_player_health >> 2);
 
 			if (hitsprt && hitsprt->s.picnum != ACCESSSWITCH && hitsprt->s.picnum != ACCESSSWITCH2)
 			{
@@ -419,7 +419,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	if (p >= 0)
 	{
 		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
-		spark->s.extra = ScriptCode[actorinfo[atwith].scriptaddress];
+		spark->s.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->s.extra += (krand() % 6);
 
 		if (hitwall == -1 && hitact == nullptr)
@@ -532,7 +532,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	else
 	{
 		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
-		spark->s.extra = ScriptCode[actorinfo[atwith].scriptaddress];
+		spark->s.extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 
 		if (hitact)
 		{
@@ -738,7 +738,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		spawned->temp_actor = aimed;
 	else
 	{
-		spj->yvel = numfreezebounces;
+		spj->yvel = gs.numfreezebounces;
 		spj->xrepeat >>= 1;
 		spj->yrepeat >>= 1;
 		spj->zvel -= (2 << 4);
@@ -1564,7 +1564,7 @@ int doincrements_d(struct player_struct* p)
 			else
 			{
 				p->extra_extra8 += 32;
-				if (p->last_extra < (max_player_health >> 1) && (p->last_extra & 3) == 0)
+				if (p->last_extra < (gs.max_player_health >> 1) && (p->last_extra & 3) == 0)
 					S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
 			}
 		}
@@ -1745,7 +1745,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 		}
 		else i = 12;
 
-		if (shrunk == 0 && truefdist <= PHEIGHT)
+		if (shrunk == 0 && truefdist <= gs.playerheight)
 		{
 			if (p->on_ground == 1)
 			{
@@ -1774,7 +1774,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 		else
 		{
 			p->on_ground = 0;
-			p->poszv += (gc + 80); // (TICSPERFRAME<<6);
+			p->poszv += (gs.gravity + 80); // (TICSPERFRAME<<6);
 			if (p->poszv >= (4096 + 2048)) p->poszv = (4096 + 2048);
 			if (p->poszv > 2400 && p->falling_counter < 255)
 			{
@@ -2620,19 +2620,19 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 		if (p->ammo_amount[PISTOL_WEAPON] > PISTOL_MAXDEFAULT)
 			p->ammo_amount[PISTOL_WEAPON] = PISTOL_MAXDEFAULT;
 
-		if (max_ammo_amount[PISTOL_WEAPON] != PISTOL_MAXDEFAULT)
-			max_ammo_amount[PISTOL_WEAPON] = PISTOL_MAXDEFAULT;
+		if (gs.max_ammo_amount[PISTOL_WEAPON] != PISTOL_MAXDEFAULT)
+			gs.max_ammo_amount[PISTOL_WEAPON] = PISTOL_MAXDEFAULT;
 	}
 	else
 	{
 		short pistolAddition = 4;
 		short pistolNewMaximum = PISTOL_MAXDEFAULT + pistolAddition;
 
-		if (p->ammo_amount[PISTOL_WEAPON] == PISTOL_MAXDEFAULT && max_ammo_amount[PISTOL_WEAPON] == PISTOL_MAXDEFAULT)
+		if (p->ammo_amount[PISTOL_WEAPON] == PISTOL_MAXDEFAULT && gs.max_ammo_amount[PISTOL_WEAPON] == PISTOL_MAXDEFAULT)
 			p->ammo_amount[PISTOL_WEAPON] += pistolAddition;
 
-		if (max_ammo_amount[PISTOL_WEAPON] != pistolNewMaximum)
-			max_ammo_amount[PISTOL_WEAPON] = pistolNewMaximum;
+		if (gs.max_ammo_amount[PISTOL_WEAPON] != pistolNewMaximum)
+			gs.max_ammo_amount[PISTOL_WEAPON] = pistolNewMaximum;
 	}
 
 	if (isNamWW2GI() && (actions & SB_HOLSTER)) // 'Holster Weapon
@@ -2754,7 +2754,7 @@ void processinput_d(int snum)
 	p->truecz = getceilzofslope(psect, p->posx, p->posy);
 
 	truefdist = abs(p->posz - j);
-	if (clz.type == kHitSector && psectlotag == 1 && truefdist > PHEIGHT + (16 << 8))
+	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + (16 << 8))
 		psectlotag = 0;
 
 	pact->floorz = fz;
@@ -2917,7 +2917,7 @@ void processinput_d(int snum)
 
 		k = 0;
 
-		if (p->on_ground && truefdist <= PHEIGHT + (16 << 8))
+		if (p->on_ground && truefdist <= gs.playerheight + (16 << 8))
 		{
 			int whichsound = j == HURTRAIL ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 2 : -1;
 			if (j >= 0) k = makepainsounds(snum, whichsound);
@@ -2938,7 +2938,7 @@ void processinput_d(int snum)
 
 		k = bsin(p->bobcounter, -12);
 
-		if (truefdist < PHEIGHT + (8 << 8) && (k == 1 || k == 3))
+		if (truefdist < gs.playerheight + (8 << 8) && (k == 1 || k == 3))
 		{
 			if (p->spritebridge == 0 && p->walking_snd_toggle == 0 && p->on_ground)
 			{
@@ -2983,20 +2983,20 @@ void processinput_d(int snum)
 		else check = ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
 		if (check)
 		{
-			p->posxv = mulscale(p->posxv, dukefriction - 0x2000, 16);
-			p->posyv = mulscale(p->posyv, dukefriction - 0x2000, 16);
+			p->posxv = mulscale(p->posxv, gs.playerfriction - 0x2000, 16);
+			p->posyv = mulscale(p->posyv, gs.playerfriction - 0x2000, 16);
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->posxv = mulscale(p->posxv, dukefriction - 0x1400, 16);
-				p->posyv = mulscale(p->posyv, dukefriction - 0x1400, 16);
+				p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1400, 16);
+				p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1400, 16);
 			}
 			else
 			{
-				p->posxv = mulscale(p->posxv, dukefriction, 16);
-				p->posyv = mulscale(p->posyv, dukefriction, 16);
+				p->posxv = mulscale(p->posxv, gs.playerfriction, 16);
+				p->posyv = mulscale(p->posyv, gs.playerfriction, 16);
 			}
 		}
 
@@ -3006,9 +3006,9 @@ void processinput_d(int snum)
 		if (shrunk)
 		{
 			p->posxv =
-				mulscale16(p->posxv, dukefriction - (dukefriction >> 1) + (dukefriction >> 2));
+				mulscale16(p->posxv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2));
 			p->posyv =
-				mulscale16(p->posyv, dukefriction - (dukefriction >> 1) + (dukefriction >> 2));
+				mulscale16(p->posyv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2));
 		}
 	}
 
@@ -3055,7 +3055,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	setsprite(pact, p->posx, p->posy, p->posz + PHEIGHT);
+	setsprite(pact, p->posx, p->posy, p->posz + gs.playerheight);
 
 	if (psectlotag < 3)
 	{
@@ -3071,7 +3071,7 @@ HORIZONLY:
 		}
 	}
 
-	if (truefdist < PHEIGHT && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
+	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			S_PlayActorSound(DUKE_ONWATER, pact);
 

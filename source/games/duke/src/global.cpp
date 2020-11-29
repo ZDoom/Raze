@@ -35,33 +35,11 @@ BEGIN_DUKE_NS
 
 user_defs ud;
 
-// Variables that do not need to be saved.
-int respawnactortime		= 768;
-int bouncemineblastradius	= 2500;
-int respawnitemtime			= 768;
-int morterblastradius		= 2500;
-int numfreezebounces		= 3;
-int pipebombblastradius		= 2500;
-int dukefriction			= 0xCFD0;
-int rpgblastradius			= 1780;
-int seenineblastradius		= 2048;
-int shrinkerblastradius		= 650;
-int gc						= 176;
-int tripbombblastradius		= 3880;
-int camerashitable;
-int max_player_health;
-int max_armour_amount;
-int lasermode;
+DukeGameInfo gs;
 
 int cameradist = 0, cameraclock = 0;
 int otherp;	
-TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
-ActorInfo actorinfo[MAXTILES];
 int actor_tog;
-int16_t max_ammo_amount[MAX_WEAPONS];
-int16_t weaponsandammosprites[15];
-int PHEIGHT = PHEIGHT_DUKE;
-int duke3d_globalflags;
 int playerswhenstarted;
 int show_shareware;
 int screenpeek;
