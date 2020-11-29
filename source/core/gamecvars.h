@@ -107,6 +107,12 @@ inline const char* PlayerName(int pindex)
 	return playername;
 }
 
+inline bool Autoaim(int player)
+{
+	// Todo: proper implementation of user CVARs.
+	return cl_autoaim;
+}
+
 extern bool gNoAutoLoad;
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.
 bool G_CheckAutorun(bool button);

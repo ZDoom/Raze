@@ -325,12 +325,6 @@ void GameInterface::app_init()
 
 	screenpeek = myconnectindex;
 
-	for (int j = numplayers; j < ud.multimode; j++)
-	{
-		mysnprintf(ud.user_name[j], sizeof(ud.user_name[j]), "%s %d", GStrings("PLAYER"), j + 1);
-		ps[j].auto_aim = 0;
-	}
-
 	LoadDefinitions();
 	fi.InitFonts();
 	SetTileNames();

@@ -72,7 +72,7 @@ void hud_input(int plnum)
 		p->sync.actions |= SB_CENTERVIEW;
 
 	// Backup weapon here as hud_input() is the first function where any one of the weapon variables can change.
-	backupweapon(p);
+	p->backupweapon();
 
 	if (isRR())
 	{
@@ -854,11 +854,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
 	auto const p = &ps[myconnectindex];
 
-	if (numplayers == 1)
-	{
-		setlocalplayerinput(p);
-	}
-
 	double const scaleAdjust = InputScale();
 	InputPacket input{};
 
@@ -870,7 +865,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
 		if (!cl_syncinput && p->GetActor()->s.extra > 0)
 		{
-			apply_seasick(p, scaleAdjust);
+			p->apply_seasick(scaleAdjust);
 		}
 	}
 	else
@@ -886,7 +881,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		{
 			// Do these in the same order as the old code.
 			calcviewpitch(p, scaleAdjust);
-			processavel(p, &input.avel);
+			input.avel = p->adjustavel(input.avel);
 			applylook(&p->angle, input.avel, &p->sync.actions, scaleAdjust);
 			sethorizon(&p->horizon.horiz, input.horz, &p->sync.actions, scaleAdjust);
 		}

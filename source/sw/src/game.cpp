@@ -424,7 +424,7 @@ void InitPlayerGameSettings(void)
         // everyone gets the same Auto Aim
         TRAVERSE_CONNECT(pnum)
         {
-            if (gNet.AutoAim)
+            if (Autoaim(pnum))
                 SET(Player[pnum].Flags, PF_AUTO_AIM);
             else
                 RESET(Player[pnum].Flags, PF_AUTO_AIM);
@@ -432,7 +432,7 @@ void InitPlayerGameSettings(void)
     }
     else
     {
-        if (cl_autoaim)
+        if (Autoaim(myconnectindex))
             SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
         else
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);

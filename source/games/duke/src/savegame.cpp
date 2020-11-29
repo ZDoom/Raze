@@ -115,7 +115,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("randomflamex", w.randomflamex)
 			("crack_time", w.crack_time)
 			("aim.mode", w.aim_mode)
-			("auto_aim", w.auto_aim)
 			("psectlotag", w.psectlotag)
 			("cursectnum", w.cursectnum)
 			("last_extra", w.last_extra)

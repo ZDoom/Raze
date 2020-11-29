@@ -2850,12 +2850,12 @@ void processinput_d(int snum)
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
 
-	playerweaponsway(p, s);
+	p->playerweaponsway(s->xvel);
 
 	s->xvel = clamp(ksqrt((p->posx - p->bobposx) * (p->posx - p->bobposx) + (p->posy - p->bobposy) * (p->posy - p->bobposy)), 0, 512);
 	if (p->on_ground) p->bobcounter += p->GetActor()->s.xvel >> 1;
 
-	backuppos(p, ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
+	p->backuppos(ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
 
 	// Shrinking code
 
@@ -2889,7 +2889,7 @@ void processinput_d(int snum)
 		//ENGINE calculates angvel for you
 		// may still be needed later for demo recording
 
-		processavel(p, &sb_avel);
+		sb_avel = p->adjustavel(sb_avel);
 		applylook(&p->angle, sb_avel, &p->sync.actions);
 	}
 
@@ -3126,7 +3126,7 @@ HORIZONLY:
 		sethorizon(&p->horizon.horiz, PlayerHorizon(snum), &p->sync.actions);
 	}
 
-	checkhardlanding(p);
+	p->checkhardlanding();
 
 	//Shooting code/changes
 

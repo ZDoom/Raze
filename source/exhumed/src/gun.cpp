@@ -847,9 +847,9 @@ loc_flag:
                     int var_50 = PlayerList[nLocalPlayer].horizon.horiz.asq16() >> 14;
                     nHeight -= var_50;
 
-                    if (sPlayerInput[nPlayer].nTarget >= 0 && cl_autoaim)
+                    if (sPlayerInput[nPlayer].nTarget >= 0 && Autoaim(nPlayer))
                     {
-                                                assert(sprite[sPlayerInput[nPlayer].nTarget].sectnum < kMaxSectors);
+                        assert(sprite[sPlayerInput[nPlayer].nTarget].sectnum < kMaxSectors);
                         var_50 = sPlayerInput[nPlayer].nTarget + 10000;
                     }
 

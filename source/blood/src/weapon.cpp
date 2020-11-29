@@ -368,7 +368,8 @@ void UpdateAimVector(PLAYER * pPlayer)
     WEAPONTRACK *pWeaponTrack = &gWeaponTrack[pPlayer->curWeapon];
     int nTarget = -1;
     pPlayer->aimTargetsCount = 0;
-    if (cl_autoaim == 1 || (cl_autoaim == 2 && !pWeaponTrack->bIsProjectile) || pPlayer->curWeapon == 10 || pPlayer->curWeapon == 9)
+    int autoaim = Autoaim(pPlayer->nPlayer);
+    if (autoaim == 1 || (autoaim == 2 && !pWeaponTrack->bIsProjectile) || pPlayer->curWeapon == 10 || pPlayer->curWeapon == 9)
     {
         int nClosest = 0x7fffffff;
         int nSprite;

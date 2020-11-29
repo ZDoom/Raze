@@ -93,7 +93,7 @@ static void processInputBits(PLAYERp const pp, ControlInfo* const hidInput)
         else
             RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
 
-        if (cl_autoaim)
+        if (Autoaim(myconnectindex))
             SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
         else
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
