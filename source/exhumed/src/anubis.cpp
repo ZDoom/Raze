@@ -163,11 +163,11 @@ int BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8
 
 void FuncAnubis(int a, int nDamage, int nRun)
 {
-    short nAnubis = RunData[nRun].nVal;
+    int nAnubis = RunData[nRun].nVal;
     auto ap = &AnubisList[nAnubis];
     assert(nAnubis >= 0 && nAnubis < (int)AnubisList.Size());
 
-    short nSprite = ap->nSprite;
+    int nSprite = ap->nSprite;
     auto sp = &sprite[nSprite];
     short nAction = ap->nAction;
 
