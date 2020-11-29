@@ -29,6 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+void SerializeAnubis(FSerializer& arc);
+
+
 void SaveTextureState();
 void LoadTextureState();
 
@@ -40,6 +43,12 @@ bool GameInterface::SaveGame()
     SaveTextureState();
     return 1; // CHECKME
 }
+
+void GameInterface::SerializeGameState(FSerializer& arc)
+{
+    SerializeAnubis(arc);
+}
+
 
 bool GameInterface::LoadGame()
 {

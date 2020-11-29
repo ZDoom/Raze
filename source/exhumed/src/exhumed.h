@@ -247,6 +247,7 @@ struct GameInterface : ::GameInterface
     void MenuSound(EMenuSounds snd) override;
     bool StartGame(FNewGameStartup& gs) override;
     FSavegameInfo GetSaveSig() override;
+    void SerializeGameState(FSerializer& arc);
     bool LoadGame() override;
     bool SaveGame() override;
     bool CanSave() override;
