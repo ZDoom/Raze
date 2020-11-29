@@ -38,6 +38,7 @@ void SerializeRat(FSerializer& arc);
 void SerializeRex(FSerializer& arc);
 void SerializeRoach(FSerializer& arc);
 void SerializeScorpion(FSerializer& arc);
+void SerializeSet(FSerializer& arc);
 void SerializeSpider(FSerializer& arc);
 
 
@@ -64,6 +65,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     SerializeRex(arc);
     SerializeRoach(arc);
     SerializeScorpion(arc);
+    SerializeSet(arc);
     SerializeSpider(arc);
 }
 
