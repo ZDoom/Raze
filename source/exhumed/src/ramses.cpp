@@ -451,34 +451,4 @@ void DoSpiritHead()
     }
 }
 
-// This is only the static global data.
-static SavegameHelper sghramses("ramses",
-    SA(cPupData),
-    SV(nPupData),
-    SV(nPixels),
-    SA(curx),
-    SA(cury),
-    SA(destvelx),
-    SA(destvely),
-    SA(pixelval),
-    SA(origy),
-    SA(origx),
-    SA(velx),
-    SA(vely),
-    SV(nMouthTile),
-    SV(nSpiritSprite),
-    SV(word_964E8),
-    SV(word_964EA),
-    SV(word_964EC),
-    SV(nSpiritRepeatX),
-    SV(nSpiritRepeatY),
-    SV(nPixelsToShow),
-    SV(nTalkTime),
-    SV(lHeadStartClock),
-    SV(lNextStateChange),
-    SV(nHeadStage),
-    SV(nHeadTimeStart),
-    nullptr
-    );
-
 END_PS_NS

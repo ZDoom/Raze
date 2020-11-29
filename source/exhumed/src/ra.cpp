@@ -29,7 +29,6 @@ BEGIN_PS_NS
 /* bjd - the content of the ra.* files originally resided in gun.c I think... */
 
 RA Ra[kMaxPlayers]; // one Ra for each player
-short RaCount;
 
 static actionSeq RaSeq[] = {
     {2, 1},
@@ -38,11 +37,28 @@ static actionSeq RaSeq[] = {
     {2, 0}
 };
 
-static SavegameHelper sghra("ra",
-    SA(Ra),
-    SV(RaCount),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, RA& w, RA* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("run", w.nRun)
+            ("ata", w.field_A)
+            ("atc", w.field_C)
+            ("player", w.nPlayer)
+            .EndObject();
+    }
+    return arc;
+}
 
+
+void SerializeRa(FSerializer& arc)
+{
+    arc.Array("ra", Ra, PlayerCount);
+}
 
 void FreeRa(short nPlayer)
 {
@@ -93,7 +109,6 @@ int BuildRa(short nPlayer)
 
 void InitRa()
 {
-    RaCount = 0;
     memset(Ra, 0, sizeof(RA) * kMaxPlayers);
 }
 
