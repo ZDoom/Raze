@@ -38,7 +38,7 @@ struct DukeGameInfo
 	int16_t max_ammo_amount[MAX_WEAPONS] = {};
 	int16_t weaponsandammosprites[15] = {};
 	int playerheight					= PHEIGHT_DUKE;
-	int displayflags		= 0;
+	int displayflags		= DUKE3D_NO_WIDESCREEN_PINNING;
 };
 
 extern DukeGameInfo gs;
