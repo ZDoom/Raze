@@ -41,6 +41,8 @@
 #include"packet.h"
 #include "gamecontrol.h"
 #include "gamestruct.h"
+#include "d_net.h"
+#include "gamestate.h"
 
 static int WeaponToSend = 0;
 ESyncBits ActionsToSend = 0;
@@ -327,6 +329,53 @@ CCMD(pause)
 	sendPause = true;
 }
 
+CCMD(warptocoords)
+{
+	if (netgame)
+	{
+		Printf("warptocoords cannot be used in multiplayer.\n");
+		return;
+	}
+	if (argv.argc() <= 4)
+	{
+		Printf("warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates\n");
+		return;
+	}
+	if (gamestate != GS_LEVEL)
+	{
+		Printf("warptocoords: must be in a level\n");
+		return;
+	}
+	int x = atoi(argv[1]);
+	int y = atoi(argv[2]);
+	int z = atoi(argv[3]);
+	int ang = INT_MIN, horiz = INT_MIN;
+	if (argv.argc() > 4)
+	{
+		ang = atoi(argv[4]);
+	}
+	if (argv.argc() > 5)
+	{
+		horiz = atoi(argv[5]);
+	}
+
+	gi->WarpToCoords(x, y, z, ang, horiz);
+}
+
+CCMD(third_person_view)
+{
+	gi->ToggleThirdPerson();
+}
+
+CCMD(coop_view)
+{
+	gi->SwitchCoopView();
+}
+
+CCMD(show_weapon)
+{
+	gi->ToggleShowWeapon();
+}
 
 void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput, bool const crouchable, bool const disableToggle)
 {

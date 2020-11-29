@@ -267,6 +267,8 @@ struct GameInterface : ::GameInterface
     fixed_t playerHorizMin() override { return IntToFixed(-150); }
     fixed_t playerHorizMax() override { return IntToFixed(150); }
     int playerKeyMove() override { return 6; }
+    void WarpToCoords(int x, int y, int z, int a, int h) override;
+    void ToggleThirdPerson() override;
 
 	::GameStats getStats() override;
 };

@@ -126,8 +126,8 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor*
 		break;
 
 	case USERDEFS_SHOWWEAPONS:
-		if (bSet) ud.showweapons = lValue;
-		else SetGameVarID((int)lVar2, ud.showweapons, sActor, sPlayer);
+		// Read-only user state.
+		if (!bSet) SetGameVarID((int)lVar2, cl_showweapon, sActor, sPlayer);
 		break;
 
 	case USERDEFS_FROM_BONUS:

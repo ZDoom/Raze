@@ -36,29 +36,24 @@ BEGIN_PS_NS
 
 static bool gamesetinput = false;
 
-static int osdcmd_warptocoords(CCmdFuncPtr parm)
+void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
-    if (parm->numparms < 3 || parm->numparms > 5)
-        return CCMD_SHOWHELP;
-
     Player     *nPlayer = &PlayerList[nLocalPlayer];
     spritetype *pSprite = &sprite[nPlayer->nSprite]; 
 
-    nPlayer->opos.x = pSprite->x = atoi(parm->parms[0]);
-    nPlayer->opos.y = pSprite->y = atoi(parm->parms[1]);
-    nPlayer->opos.z = pSprite->z = atoi(parm->parms[2]);
+    nPlayer->opos.x = pSprite->x = x;
+    nPlayer->opos.y = pSprite->y = y;
+    nPlayer->opos.z = pSprite->z = z;
 
-    if (parm->numparms >= 4)
+    if (ang != INT_MIN)
     {
-        nPlayer->angle.oang = nPlayer->angle.ang = buildang(atoi(parm->parms[3]));
+        nPlayer->angle.oang = nPlayer->angle.ang = buildang(ang);
     }
 
-    if (parm->numparms == 5)
+    if (horz != INT_MIN)
     {
-        nPlayer->horizon.ohoriz = nPlayer->horizon.horiz = buildhoriz(atoi(parm->parms[4]));
+        nPlayer->horizon.ohoriz = nPlayer->horizon.horiz = buildhoriz(horz);
     }
-
-    return CCMD_OK;
 }
 
 static int osdcmd_doors(CCmdFuncPtr parm)
@@ -105,9 +100,9 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
-static int osdcmd_third_person_view(CCmdFuncPtr parm)
+void GameInterface::ToggleThirdPerson()
 {
-    if (gamestate != GS_LEVEL) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return;
     if (!nFreeze)
     {
         bCamera = !bCamera;
@@ -122,25 +117,14 @@ static int osdcmd_third_person_view(CCmdFuncPtr parm)
     {
         gamesetinput = cl_syncinput = false;
     }
-    return CCMD_OK;
 }
 
-
-static int osdcmd_noop(CCmdFuncPtr parm)
-{
-	// this is for silencing key bindings only.
-	return CCMD_OK;
-}
 
 int32_t registerosdcommands(void)
 {
     //if (VOLUMEONE)
     C_RegisterFunction("doors", "opens/closes doors", osdcmd_doors);
     C_RegisterFunction("spawn","spawn <creaturetype>: spawns a creature",osdcmd_spawn);
-    C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
-    C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
-	C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_noop);
-	C_RegisterFunction("show_weapon", "Show opponents' weapons", osdcmd_noop);
 
     return 0;
 }

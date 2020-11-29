@@ -919,6 +919,7 @@ void enterlevel(MapRecord *mi, int gamemode)
     ud.monsters_off = ud.m_monsters_off;
     ud.coop = ud.m_coop;
     ud.ffire = ud.m_ffire;
+    lastlevel = 0;
 
     OnEvent(EVENT_ENTERLEVEL);
 
@@ -994,7 +995,6 @@ void startnewgame(MapRecord* map, int skill)
     newgame(map, skill, [=](bool)
         {
             enterlevel(map, 0);
-            ud.showweapons = cl_showweapon;
             PlayerColorChanged();
             inputState.ClearAllInput();
             gameaction = ga_level;

@@ -126,7 +126,6 @@ struct user_defs
 	int levelclock;
 	unsigned char god, cashman, eog;
 	unsigned char clipping;
-	unsigned char showweapons;
 	unsigned char user_pals[MAXPLAYERS];
 
 	short from_bonus;

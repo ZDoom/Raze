@@ -384,7 +384,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 				}
 			}
 
-			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && ud.showweapons && ps[p].GetActor()->s.extra > 0 && ps[p].curr_weapon > 0)
+			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->s.extra > 0 && ps[p].curr_weapon > 0)
 			{
 				auto newtspr = &tsprite[spritesortcnt];
 				memcpy(newtspr, t, sizeof(spritetype));

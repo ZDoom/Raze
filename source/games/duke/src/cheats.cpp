@@ -291,7 +291,6 @@ static bool cheatItems(int player)
 
 static bool cheatLevel(cheatseq_t *s)
 {
-	lastlevel = 0;
 	int volnume,levnume;
 	volnume = s->Args[0] - '0' - 1;
 	levnume = (s->Args[1] - '0')*10+(s->Args[2]-'0') - 1;

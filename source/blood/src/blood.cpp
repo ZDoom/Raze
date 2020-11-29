@@ -512,7 +512,6 @@ void GameInterface::app_init()
 
 	Printf(PRINT_NONOTIFY, "Initializing sound system\n");
 	sndInit();
-	registerosdcommands();
 
 	gChoke.init(518, chokeCallback);
 	UpdateDacs(0, true);
