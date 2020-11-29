@@ -42,9 +42,6 @@ BEGIN_PS_NS
 // All this must be moved into the status bar once it is made persistent!
 const int kMaxStatusAnims = 50;
 
-short word_9AD54[kMaxPlayers] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-int dword_9AD64[kMaxPlayers] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
 short nStatusSeqOffset;
 short nHealthFrames;
 short nMagicFrames;
@@ -55,11 +52,7 @@ short nHealthFrame;
 short nMagicFrame;
 
 short nMaskY;
-static short nStatusFree = 0;
 
-short statusmask[MAXXDIM];
-
-char message_text[80];
 int magicperline;
 int airperline;
 int healthperline;
@@ -99,12 +92,10 @@ struct statusAnim
 //    int16_t nPage;
     int8_t nPrevAnim;
     int8_t nNextAnim;
+    uint8_t StatusAnimFlags;
 };
 
-
-statusAnim StatusAnim[kMaxStatusAnims];
-uint8_t StatusAnimsFree[kMaxStatusAnims];
-uint8_t StatusAnimFlags[kMaxStatusAnims];
+FreeListArray<statusAnim, kMaxStatusAnims> StatusAnim;
 
 short nItemSeqOffset[] = {91, 72, 76, 79, 68, 87, 83};
 
@@ -112,6 +103,20 @@ void SetCounterDigits();
 void SetItemSeq();
 void SetItemSeq2(int nSeqOffset);
 void DestroyStatusAnim(short nAnim);
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, statusAnim& w, statusAnim* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("s1", w.s1)
+            ("s2", w.s2)
+            ("prev", w.nPrevAnim)
+            ("next", w.nNextAnim)
+            ("flags", w.StatusAnimFlags)
+            .EndObject();
+    }
+    return arc;
+}
 
 
 void InitStatus()
@@ -138,14 +143,11 @@ void InitStatus()
     SetHealthFrame(0);
     SetMagicFrame();
 
-    for (int i = 0; i < kMaxStatusAnims; i++) {
-        StatusAnimsFree[i] = i;
-    }
+    StatusAnim.Clear();
 
     nLastAnim = -1;
     nFirstAnim = -1;
     nItemSeq = -1;
-    nStatusFree = kMaxStatusAnims;
     statusx = xdim - 320;
     statusy = ydim - 200;
 }
@@ -179,13 +181,7 @@ int BuildStatusAnim(int val, int nFlags)
         }
     }
 
-    if (nStatusFree <= 0) {
-        return -1;
-    }
-
-    nStatusFree--;
-
-    uint8_t nStatusAnim = StatusAnimsFree[nStatusFree];
+    int nStatusAnim = StatusAnim.Get();
 
     StatusAnim[nStatusAnim].nPrevAnim = -1;
     StatusAnim[nStatusAnim].nNextAnim = nLastAnim;
@@ -201,7 +197,7 @@ int BuildStatusAnim(int val, int nFlags)
 
     StatusAnim[nStatusAnim].s1 = val;
     StatusAnim[nStatusAnim].s2 = 0;
-    StatusAnimFlags[nStatusAnim] = nFlags;
+    StatusAnim[nStatusAnim].StatusAnimFlags = nFlags;
     return nStatusAnim;
 }
 
@@ -248,7 +244,7 @@ void MoveStatusAnims()
 
         if (StatusAnim[i].s2 >= nSize)
         {
-            if (StatusAnimFlags[i] & 0x10) {
+            if (StatusAnim[i].StatusAnimFlags & 0x10) {
                 StatusAnim[i].s2 = 0;
             }
             else {
@@ -279,8 +275,7 @@ void DestroyStatusAnim(short nAnim)
         nLastAnim = nNext;
     }
 
-    StatusAnimsFree[nStatusFree] = (uint8_t)nAnim;
-    nStatusFree++;
+    StatusAnim.Release(nAnim);
 }
 
 void SetMagicFrame()
@@ -686,20 +681,6 @@ private:
 
             for (int i = 0; i < nTotalPlayers; i++)
             {
-                int nScore = nPlayerScore[i];
-                if (word_9AD54[i] == nScore)
-                {
-                    int v9 = dword_9AD64[i];
-                    if (v9 && v9 <= leveltime*4) {
-                        dword_9AD64[i] = 0;
-                    }
-                }
-                else
-                {
-                    word_9AD54[i] = nScore;
-                    dword_9AD64[i] = leveltime*4 + 30;
-                }
-
                 DrawGraphic(tileGetTexture(nTile), x, 7, DI_ITEM_CENTER, 1, -1, -1, 1, 1);
 
                 if (i != nLocalPlayer) {
@@ -1037,43 +1018,41 @@ void DrawStatusBar()
 }
 
 
-// I'm not sure this really needs to be saved.
-static SavegameHelper sghstatus("status",
-    SV(nMaskY),
-    SV(nStatusFree),
-    SV(magicperline),
-    SV(airperline),
-    SV(healthperline),
-    SV(nAirFrames),
-    SV(nCounter),
-    SV(nCounterDest),
-    SV(nItemFrames),
-    SV(nItemSeq),
-    SV(nMagicFrames),
-    SV(nHealthLevel),
-    SV(nItemFrame),
-    SV(nMeterRange),
-    SV(nMagicLevel),
-    SV(nHealthFrame),
-    SV(nMagicFrame),
-    SV(statusx),
-    SV(statusy),
-    SV(airframe),
-    SV(nFirstAnim),
-    SV(nLastAnim),
-    SV(nItemAltSeq),
-    SV(airpages),
-    SV(ammodelay),
-    SV(nCounterBullet),
-    SA(statusmask),
-    SA(message_text),
-    SA(nDigit),
-    SA(StatusAnim),
-    SA(StatusAnimsFree),
-    SA(StatusAnimFlags),
-    SA(nItemSeqOffset),
-    SA(word_9AD54),
-    SA(dword_9AD64),
-    nullptr);
+// This should not be necessary but the game only lazily updates the statusbar data.
+void SerializeStatus(FSerializer& arc)
+{
+    if (arc.BeginObject("status"))
+    {
+        arc("masky", nMaskY)
+            ("magicperline", magicperline)
+            ("airperline", airperline)
+            ("healthperline", healthperline)
+            ("airframes", nAirFrames)
+            ("counter", nCounter)
+            ("counterdest", nCounterDest)
+            ("itemframes", nItemFrames)
+            ("itemseq", nItemSeq)
+            ("magicframes", nMagicFrames)
+            ("healthlevel", nHealthLevel)
+            ("itemframe", nItemFrame)
+            ("meterrange", nMeterRange)
+            ("magiclevel", nMagicLevel)
+            ("healthframe", nHealthFrame)
+            ("magicframe", nMagicFrame)
+            ("statusx", statusx)
+            ("statusy", statusy)
+            ("airframe", airframe)
+            ("firstanim", nFirstAnim)
+            ("lastanim", nLastAnim)
+            ("itemaltseq", nItemAltSeq)
+            ("airpages", airpages)
+            ("ammodelay", ammodelay)
+            ("counterbullet", nCounterBullet)
+            .Array("digit", nDigit, 3)
+            .Array("itemseqoffset", nItemSeqOffset, countof(nItemSeqOffset))
+            ("statusanim", StatusAnim)
+            .EndObject();
+    }
+}
 
 END_PS_NS
