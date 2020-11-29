@@ -29,10 +29,6 @@ BEGIN_PS_NS
     Selkis Boss AI code
 */
 
-enum { kMaxScorpions = 5 };
-
-short ScorpCount = -1;
-
 struct Scorpion
 {
     short nHealth;
@@ -40,14 +36,14 @@ struct Scorpion
     short nAction;
     short nSprite;
     short nTarget;
-    short f;
-    short g;
-    int8_t h;
-    int8_t i;
+    short nRun;
+    short nCount;
+    short nIndex;
+    int8_t nIndex2;
+    short nChannel;
 };
 
-Scorpion scorpion[kMaxScorpions];
-short ScorpChan[kMaxScorpions];
+TArray<Scorpion> scorpion;
 
 static actionSeq ScorpSeq[] = {
     {0, 0},
@@ -62,25 +58,38 @@ static actionSeq ScorpSeq[] = {
     {53, 1}
 };
 
-static SavegameHelper sghscorp("scorp",
-    SV(ScorpCount),
-    SA(scorpion),
-    SA(ScorpChan),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Scorpion& w, Scorpion* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("run", w.nRun)
+            ("count", w.nCount)
+            ("index", w.nIndex)
+            ("index2", w.nIndex2)
+            ("chan", w.nChannel)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializeScorpion(FSerializer& arc)
+{
+    arc("scorpion", scorpion);
+}
 
 void InitScorp()
 {
-    ScorpCount = kMaxScorpions;
+    scorpion.Clear();
 }
 
 int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
 {
-    ScorpCount--;
-    if (ScorpCount < 0) {
-        return -1;
-    }
-
-    short nScorp = ScorpCount;
+    auto nScorp = scorpion.Reserve(1);
 
     if (nSprite == -1)
     {
@@ -125,13 +134,13 @@ int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, 
     scorpion[nScorp].nAction = 0;
     scorpion[nScorp].nSprite = nSprite;
     scorpion[nScorp].nTarget = -1;
-    scorpion[nScorp].g = 0;
-    scorpion[nScorp].i = 1;
+    scorpion[nScorp].nCount = 0;
+    scorpion[nScorp].nIndex2 = 1;
 
-    ScorpChan[nScorp] = nChannel;
+    scorpion[nScorp].nChannel = nChannel;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nScorp | 0x220000);
-    scorpion[nScorp].f = runlist_AddRunRec(NewRun, nScorp | 0x220000);
+    scorpion[nScorp].nRun = runlist_AddRunRec(NewRun, nScorp | 0x220000);
 
     nCreaturesTotal++;
 
@@ -141,7 +150,7 @@ int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, 
 void FuncScorp(int a, int nDamage, int nRun)
 {
     short nScorp = RunData[nRun].nVal;
-    assert(nScorp >= 0 && nScorp < kMaxScorpions);
+    assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
 
     short nSprite = scorpion[nScorp].nSprite;
     short nAction = scorpion[nScorp].nAction;
@@ -189,7 +198,7 @@ void FuncScorp(int a, int nDamage, int nRun)
                 scorpion[nScorp].nHealth = 0;
                 scorpion[nScorp].nAction = 4;
                 scorpion[nScorp].nFrame = 0;
-                scorpion[nScorp].g = 10;
+                scorpion[nScorp].nCount = 10;
 
                 sprite[nSprite].xvel = 0;
                 sprite[nSprite].yvel = 0;
@@ -257,9 +266,9 @@ void FuncScorp(int a, int nDamage, int nRun)
 
                 case 0:
                 {
-                    if (scorpion[nScorp].g > 0)
+                    if (scorpion[nScorp].nCount > 0)
                     {
-                        scorpion[nScorp].g--;
+                        scorpion[nScorp].nCount--;
                         return;
                     }
 
@@ -288,11 +297,11 @@ void FuncScorp(int a, int nDamage, int nRun)
 
                 case 1:
                 {
-                    scorpion[nScorp].i--;
+                    scorpion[nScorp].nIndex2--;
 
-                    if (scorpion[nScorp].i <= 0)
+                    if (scorpion[nScorp].nIndex2 <= 0)
                     {
-                        scorpion[nScorp].i = RandomSize(5);
+                        scorpion[nScorp].nIndex2 = RandomSize(5);
                         // GOTO FS_Pink_A:
                         goto FS_Pink_A;
                     }
@@ -333,7 +342,7 @@ void FuncScorp(int a, int nDamage, int nRun)
                     if (nTarget == -1)
                     {
                         scorpion[nScorp].nAction = 0;
-                        scorpion[nScorp].g = 5;
+                        scorpion[nScorp].nCount = 5;
                     }
                     else
                     {
@@ -354,8 +363,8 @@ void FuncScorp(int a, int nDamage, int nRun)
                 {
                     if (bVal)
                     {
-                        scorpion[nScorp].h--;
-                        if (scorpion[nScorp].h <= 0)
+                        scorpion[nScorp].nIndex--;
+                        if (scorpion[nScorp].nIndex <= 0)
                         {
                             scorpion[nScorp].nAction = 1;
 
@@ -393,12 +402,12 @@ void FuncScorp(int a, int nDamage, int nRun)
                     {
                         scorpion[nScorp].nAction = 1;
                         scorpion[nScorp].nFrame = 0;
-                        scorpion[nScorp].g = 0;
+                        scorpion[nScorp].nCount = 0;
                         return;
                     }
 
-                    scorpion[nScorp].g--;
-                    if (scorpion[nScorp].g <= 0)
+                    scorpion[nScorp].nCount--;
+                    if (scorpion[nScorp].nCount <= 0)
                     {
                         scorpion[nScorp].nAction = 8;
                     }
@@ -417,7 +426,7 @@ void FuncScorp(int a, int nDamage, int nRun)
                         scorpion[nScorp].nAction++; // set to 9
                         scorpion[nScorp].nFrame = 0;
 
-                        runlist_ChangeChannel(ScorpChan[nScorp], 1);
+                        runlist_ChangeChannel(scorpion[nScorp].nChannel, 1);
                         return;
                     }
 
@@ -444,7 +453,7 @@ void FuncScorp(int a, int nDamage, int nRun)
 
                     if (bVal)
                     {
-                        runlist_SubRunRec(scorpion[nScorp].f);
+                        runlist_SubRunRec(scorpion[nScorp].nRun);
                         runlist_DoSubRunRec(sprite[nSprite].owner);
                         runlist_FreeRun(sprite[nSprite].lotag - 1);
 
@@ -468,13 +477,13 @@ FS_Pink_A:
     sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
 
 FS_Pink_B:
-    if (scorpion[nScorp].g)
+    if (scorpion[nScorp].nCount)
     {
-        scorpion[nScorp].g--;
+        scorpion[nScorp].nCount--;
     }
     else
     {
-        scorpion[nScorp].g = 45;
+        scorpion[nScorp].nCount = 45;
 
         if (cansee(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - GetSpriteHeight(nSprite), sprite[nSprite].sectnum,
             sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
@@ -483,10 +492,10 @@ FS_Pink_B:
             sprite[nSprite].yvel = 0;
             sprite[nSprite].ang = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
 
-            scorpion[nScorp].h = RandomSize(2) + RandomSize(3);
+            scorpion[nScorp].nIndex = RandomSize(2) + RandomSize(3);
 
-            if (!scorpion[nScorp].h) {
-                scorpion[nScorp].g = RandomSize(5);
+            if (!scorpion[nScorp].nIndex) {
+                scorpion[nScorp].nCount = RandomSize(5);
             }
             else
             {
@@ -505,7 +514,7 @@ FS_Red:
     {
         scorpion[nScorp].nAction = 0;
         scorpion[nScorp].nFrame = 0;
-        scorpion[nScorp].g = 30;
+        scorpion[nScorp].nCount = 30;
         scorpion[nScorp].nTarget = -1;
 
         sprite[nSprite].xvel = 0;
