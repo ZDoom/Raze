@@ -34,6 +34,7 @@ void SerializeFish(FSerializer& arc);
 void SerializeLavadude(FSerializer& arc);
 void SerializeLion(FSerializer& arc);
 void SerializeMummy(FSerializer& arc);
+void SerializeRat(FSerializer& arc);
 void SerializeSpider(FSerializer& arc);
 
 
@@ -56,6 +57,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     SerializeLavadude(arc);
     SerializeLion(arc);
     SerializeMummy(arc);
+    SerializeRat(arc);
     SerializeSpider(arc);
 }
 

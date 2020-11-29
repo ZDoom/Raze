@@ -25,11 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum { kMaxRats	= 50 };
-
 short nMinChunk;
 short nPlayerPic;
-short nRatCount;
 short nMaxChunk;
 
 struct Rat
@@ -39,11 +36,12 @@ struct Rat
     short nSprite;
     short nRun;
     short nTarget;
-    short f;
-    short g;
+    short nCount;
+    short nIndex;
 };
 
-Rat RatList[kMaxRats];
+
+TArray<Rat> RatList;
 
 static actionSeq RatSeq[] = {
     {0, 1},
@@ -53,18 +51,37 @@ static actionSeq RatSeq[] = {
     {0, 1}
 };
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Rat& w, Rat* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("run", w.nRun)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("count", w.nCount)
+            ("index", w.nIndex)
+            .EndObject();
+    }
+    return arc;
+}
 
-static SavegameHelper sgh("rat",
-    SV(nMinChunk),
-    SV(nPlayerPic),
-    SV(nRatCount),
-    SV(nMaxChunk),
-    SA(RatList),
-    nullptr);
+void SerializeRat(FSerializer& arc)
+{
+    if (arc.BeginObject("rat"))
+    {
+        arc("minchunk", nMinChunk)
+            ("maxchunk", nMaxChunk)
+            ("playerpic", nPlayerPic)
+            ("list", RatList)
+            .EndObject();
+    }
+}
 
 void InitRats()
 {
-    nRatCount = 0;
+    RatList.Clear();
     nMinChunk = 9999;
     nMaxChunk = -1;
 
@@ -90,11 +107,7 @@ void SetRatVel(short nSprite)
 
 int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
 {
-    if (nRatCount >= kMaxRats) {
-        return -1;
-    }
-
-    short nRat = nRatCount++;
+    auto nRat = RatList.Reserve(1);
 
     if (nSprite < 0)
     {
@@ -138,8 +151,8 @@ int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
     RatList[nRat].nFrame = 0;
     RatList[nRat].nSprite = nSprite;
     RatList[nRat].nTarget = -1;
-    RatList[nRat].f = RandomSize(5);
-    RatList[nRat].g = RandomSize(3);
+    RatList[nRat].nCount = RandomSize(5);
+    RatList[nRat].nIndex = RandomSize(3);
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nRat | 0x240000);
 
@@ -253,8 +266,8 @@ void FuncRat(int a, int nDamage, int nRun)
 
                 case 0:
                 {
-                    RatList[nRat].f--;
-                    if (RatList[nRat].f > 0) {
+                    RatList[nRat].nCount--;
+                    if (RatList[nRat].nCount > 0) {
                         return;
                     }
 
@@ -273,10 +286,10 @@ void FuncRat(int a, int nDamage, int nRun)
                     }
 
                     RatList[nRat].nFrame ^= 1;
-                    RatList[nRat].f = RandomSize(5) + 4;
-                    RatList[nRat].g--;
+                    RatList[nRat].nCount = RandomSize(5) + 4;
+                    RatList[nRat].nIndex--;
 
-                    if (RatList[nRat].g <= 0)
+                    if (RatList[nRat].nIndex <= 0)
                     {
                         short nFoodSprite = FindFood(nSprite);
                         if (nFoodSprite == -1) {
@@ -289,7 +302,7 @@ void FuncRat(int a, int nDamage, int nRun)
                         SetRatVel(nSprite);
 
                         RatList[nRat].nAction = 1;
-                        RatList[nRat].g = 900;
+                        RatList[nRat].nIndex = 900;
                         RatList[nRat].nFrame = 0;
                     }
 
@@ -297,9 +310,9 @@ void FuncRat(int a, int nDamage, int nRun)
                 }
                 case 1:
                 {
-                    RatList[nRat].g--;
+                    RatList[nRat].nIndex--;
 
-                    if (RatList[nRat].g <= 0)
+                    if (RatList[nRat].nIndex <= 0)
                     {
                         RatList[nRat].nAction = 2;
                         RatList[nRat].nFrame = 0;
@@ -316,13 +329,13 @@ void FuncRat(int a, int nDamage, int nRun)
 
                     if (xVal >= 50 || yVal >= 50)
                     {
-                        RatList[nRat].f--;
-                        if (RatList[nRat].f < 0)
+                        RatList[nRat].nCount--;
+                        if (RatList[nRat].nCount < 0)
                         {
                             PlotCourseToSprite(nSprite, nTarget);
                             SetRatVel(nSprite);
 
-                            RatList[nRat].f = 32;
+                            RatList[nRat].nCount = 32;
                         }
 
                         return;
@@ -330,7 +343,7 @@ void FuncRat(int a, int nDamage, int nRun)
 
                     RatList[nRat].nAction = 0;
                     RatList[nRat].nFrame  = 0;
-                    RatList[nRat].g = RandomSize(3);
+                    RatList[nRat].nIndex = RandomSize(3);
 
                     sprite[nSprite].xvel = 0;
                     sprite[nSprite].yvel = 0;
@@ -342,14 +355,14 @@ void FuncRat(int a, int nDamage, int nRun)
                         MoveCreature(nSprite);
                     }
 
-                    RatList[nRat].f--;
-                    if (RatList[nRat].f <= 0)
+                    RatList[nRat].nCount--;
+                    if (RatList[nRat].nCount <= 0)
                     {
                         RatList[nRat].nTarget = FindFood(nSprite);
 
                         if (RatList[nRat].nTarget <= -1)
                         {
-                            RatList[nRat].f = RandomSize(6);
+                            RatList[nRat].nCount = RandomSize(6);
                             if (sprite[nSprite].xvel || sprite[nSprite].yvel)
                             {
                                 sprite[nSprite].xvel = 0;
@@ -366,7 +379,7 @@ void FuncRat(int a, int nDamage, int nRun)
                             PlotCourseToSprite(nSprite, RatList[nRat].nTarget);
                             SetRatVel(nSprite);
                             RatList[nRat].nAction = 1;
-                            RatList[nRat].g = 900;
+                            RatList[nRat].nIndex = 900;
                             RatList[nRat].nFrame = 0;
                             return;
                         }
