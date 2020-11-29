@@ -467,21 +467,22 @@ void Clip()
 {
 }
 
-
-static SavegameHelper sghview("view",
-    SV(nCamerax),
-    SV(nCameray),
-    SV(nCameraz),
-    SV(bTouchFloor),
-    SV(nChunkTotal),
-    SV(nCameraa),
-    SV(nCamerapan),
-    SV(bCamera),
-    SV(viewz),
-    SV(enemy),
-    SV(nEnemyPal),
-    SA(dVertPan),
-    SA(nQuake),
-    nullptr);
+void SerializeView(FSerializer& arc)
+{
+    arc("camerax", nCamerax)
+        ("cameray", nCameray)
+        ("cameraz", nCameraz)
+        ("touchfloor", bTouchFloor)
+        ("chunktotal", nChunkTotal)
+        ("cameraa", nCameraa)
+        ("camerapan", nCamerapan)
+        ("camera", bCamera)
+        ("viewz", viewz)
+        ("enemy", enemy)
+        ("enemypal", nEnemyPal)
+        .Array("vertpan", dVertPan, countof(dVertPan))
+        .Array("quake", nQuake, countof(nQuake))
+        .EndObject();
+}
 
 END_PS_NS
