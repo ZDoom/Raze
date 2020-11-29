@@ -383,8 +383,13 @@ struct RunStruct
         int nMoves;
         struct
         {
+#if B_BIG_ENDIAN == 1
+            short nRef;
+            short nVal;
+#else
             short nVal;
             short nRef;
+#endif
         };
     };
 
@@ -402,7 +407,7 @@ struct RunChannel
 
 typedef void(*AiFunc)(int, int, int nRun);
 
-extern RunStruct RunData[kMaxRuns];
+extern FreeListArray<RunStruct, kMaxRuns> RunData;
 extern RunChannel sRunChannels[kMaxChannels];
 extern short NewRun;
 extern int nRadialOwner;

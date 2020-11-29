@@ -32,7 +32,6 @@ enum
 };
 
 
-short RunCount = -1;
 short nRadialSpr = -1;
 short nStackCount = 0;
 short word_966BE = 0;
@@ -46,9 +45,42 @@ short RunChain;
 short NewRun;
 
 int sRunStack[kMaxRunStack];
-short RunFree[kMaxRuns];
 RunChannel sRunChannels[kMaxChannels];
-RunStruct RunData[kMaxRuns];
+FreeListArray<RunStruct, kMaxRuns> RunData;
+
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, RunStruct& w, RunStruct* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("moves", w.nMoves)
+            ("_4", w._4)
+            ("_6", w._6)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializeRunList(FSerializer& arc)
+{
+    if (arc.BeginObject("runlist"))
+    {
+        arc("data", RunData)
+            ("radialspr", nRadialSpr)
+            ("stackcount", nStackCount)
+            ("w966be", word_966BE)
+            ("list", ChannelList)
+            ("last", ChannelLast)
+            ("radialowner", nRadialOwner)
+            ("damageradius", nDamageRadius)
+            ("radialdamage", nRadialDamage)
+            ("runchain", RunChain)
+            ("newrun", NewRun)
+            .Array("runstack", sRunStack, nStackCount)
+            .Array("runchannels", &sRunChannels[0].a, 4 * kMaxChannels) // save this in a more compact form than an array of structs.
+            .EndObject();
+    }
+}
 
 AiFunc aiFunctions[kFuncMax] = {
     FuncElev,
@@ -95,25 +127,17 @@ AiFunc aiFunctions[kFuncMax] = {
 
 int runlist_GrabRun()
 {
-    assert(RunCount > 0 && RunCount <= kMaxRuns);
-
-    RunCount--;
-
-    return RunFree[RunCount];
+    return RunData.Get();
 }
 
 int runlist_FreeRun(int nRun)
 {
-    assert(RunCount >= 0 && RunCount < kMaxRuns);
     assert(nRun >= 0 && nRun < kMaxRuns);
-
-    RunFree[RunCount] = nRun;
-    RunCount++;
 
     RunData[nRun]._6 = -1;
     RunData[nRun].nMoves = -1;
     RunData[nRun]._4 = RunData[nRun]._6;
-
+    RunData.Release(nRun);
     return 1;
 }
 
@@ -131,14 +155,13 @@ void runlist_InitRun()
 {
     int i;
 
-    RunCount = kMaxRuns;
+    RunData.Clear();
     nStackCount = 0;
 
     for (i = 0; i < kMaxRuns; i++)
     {
         RunData[i].nMoves = -1;
         RunData[i]._6 = -1;
-        RunFree[i] = i;
         RunData[i]._4 = -1;
     }
 
@@ -1669,22 +1692,5 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
     }
 }
 
-static SavegameHelper sghrunlist("runlist",
-    SV(RunCount),
-    SV(nRadialSpr),
-    SV(nStackCount),
-    SV(word_966BE),
-    SV(ChannelList),
-    SV(ChannelLast),
-    SV(nRadialOwner),
-    SV(nDamageRadius),
-    SV(nRadialDamage),
-    SV(RunChain),
-    SV(NewRun),
-    SA(sRunStack),
-    SA(RunFree),
-    SA(sRunChannels),
-    SA(RunData),
-    nullptr);
 
 END_PS_NS

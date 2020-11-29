@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+void SerializeRand(FSerializer& arc);
+void SerializeRunList(FSerializer& arc);
 void SerializeSequence(FSerializer& arc);
 void SerializeSnake(FSerializer& arc);
 void SerializeSwitch(FSerializer& arc);
@@ -63,6 +65,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 {
     if (arc.BeginObject("exhumed"))
     {
+    SerializeRand(arc);
+    SerializeRunList(arc);
     SerializeSequence(arc);
     SerializeSnake(arc);
     SerializeSwitch(arc);

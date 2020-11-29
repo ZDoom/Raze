@@ -25,12 +25,16 @@ int randA = 0;
 int randB = 0x11111111;
 int randC = 0x1010101;
 
-static SavegameHelper sghrandom("rand",
-    SV(randA),
-    SV(randB),
-    SV(randC),
-    nullptr);
-
+void SerializeRand(FSerializer& arc)
+{
+    if (arc.BeginObject("rand"))
+    {
+        arc("a", randA)
+            ("b", randB)
+            ("c", randC)
+            .EndObject();
+    }
+}
 
 void InitRandom()
 {
