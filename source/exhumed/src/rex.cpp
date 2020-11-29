@@ -26,11 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum { kMaxRex	= 50 };
-
-short RexCount = 0;
-short RexChan[kMaxRex];
-
 struct Rex
 {
     short nHealth;
@@ -38,10 +33,12 @@ struct Rex
     short nAction;
     short nSprite;
     short nTarget;
-    short field_A;
+    short nCount;
+    short nChannel;
 };
 
-Rex RexList[kMaxRex];
+
+TArray<Rex> RexList;
 
 static actionSeq RexSeq[] = {
     {29, 0},
@@ -54,27 +51,35 @@ static actionSeq RexSeq[] = {
     {28, 1}
 };
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Rex& w, Rex* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("count", w.nCount)
+            ("channel", w.nChannel)
+            .EndObject();
+    }
+    return arc;
+}
 
-static SavegameHelper sghrex("rex",
-    SV(RexCount),
-    SA(RexChan),
-    SA(RexList),
-    nullptr);
-
+void SerializeRex(FSerializer& arc)
+{
+    arc("rex", RexList);
+}
 
 void InitRexs()
 {
-    RexCount = kMaxRex;
+    RexList.Clear();
 }
 
 int BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
 {
-    RexCount--;
-
-    int nRex = RexCount;
-    if (nRex < 0) {
-        return -1;
-    }
+    int nRex = RexList.Reserve(1);
 
     if (nSprite == -1)
     {
@@ -118,9 +123,9 @@ int BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, in
     RexList[nRex].nFrame  = 0;
     RexList[nRex].nSprite = nSprite;
     RexList[nRex].nTarget = -1;
-    RexList[nRex].field_A = 0;
+    RexList[nRex].nCount = 0;
 
-    RexChan[nRex] = nChannel;
+    RexList[nRex].nChannel = nChannel;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nRex | 0x180000);
 
@@ -135,7 +140,7 @@ int BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, in
 void FuncRex(int a, int nDamage, int nRun)
 {
     short nRex = RunData[nRun].nVal;
-    assert(nRex >= 0 && nRex < kMaxRex);
+    assert(nRex >= 0 && nRex < (int)RexList.Size());
 
     short nAction = RexList[nRex].nAction;
     short nSprite = RexList[nRex].nSprite;
@@ -242,7 +247,7 @@ void FuncRex(int a, int nDamage, int nRun)
 
                 case 0:
                 {
-                    if (!RexList[nRex].field_A)
+                    if (!RexList[nRex].nCount)
                     {
                         if ((nRex & 0x1F) == (totalmoves & 0x1F))
                         {
@@ -254,14 +259,14 @@ void FuncRex(int a, int nDamage, int nRun)
                             }
                             else
                             {
-                                RexList[nRex].field_A = 60;
+                                RexList[nRex].nCount = 60;
                             }
                         }
                     }
                     else
                     {
-                        RexList[nRex].field_A--;
-                        if (RexList[nRex].field_A <= 0)
+                        RexList[nRex].nCount--;
+                        if (RexList[nRex].nCount <= 0)
                         {
                             RexList[nRex].nAction = 1;
                             RexList[nRex].nFrame  = 0;
@@ -271,7 +276,7 @@ void FuncRex(int a, int nDamage, int nRun)
 
                             D3PlayFX(StaticSound[kSound48], nSprite);
 
-                            RexList[nRex].field_A = 30;
+                            RexList[nRex].nCount = 30;
                         }
                     }
 
@@ -280,9 +285,9 @@ void FuncRex(int a, int nDamage, int nRun)
 
                 case 1:
                 {
-                    if (RexList[nRex].field_A > 0)
+                    if (RexList[nRex].nCount > 0)
                     {
-                        RexList[nRex].field_A--;
+                        RexList[nRex].nCount--;
                     }
 
                     if ((nRex & 0x0F) == (totalmoves & 0x0F))
@@ -297,7 +302,7 @@ void FuncRex(int a, int nDamage, int nRun)
                         }
                         else
                         {
-                            if (((PlotCourseToSprite(nSprite, nTarget) >> 8) >= 60) || RexList[nRex].field_A > 0)
+                            if (((PlotCourseToSprite(nSprite, nTarget) >> 8) >= 60) || RexList[nRex].nCount > 0)
                             {
                                 int nAngle = sprite[nSprite].ang & 0xFFF8;
                                 sprite[nSprite].xvel = bcos(nAngle, -2);
@@ -306,7 +311,7 @@ void FuncRex(int a, int nDamage, int nRun)
                             else
                             {
                                 RexList[nRex].nAction = 2;
-                                RexList[nRex].field_A = 240;
+                                RexList[nRex].nCount = 240;
                                 D3PlayFX(StaticSound[kSound48], nSprite);
                                 RexList[nRex].nFrame = 0;
                                 return;
@@ -346,8 +351,8 @@ void FuncRex(int a, int nDamage, int nRun)
 
                 case 2:
                 {
-                    RexList[nRex].field_A--;
-                    if (RexList[nRex].field_A > 0)
+                    RexList[nRex].nCount--;
+                    if (RexList[nRex].nCount > 0)
                     {
                         PlotCourseToSprite(nSprite, nTarget);
 
@@ -361,7 +366,7 @@ void FuncRex(int a, int nDamage, int nRun)
                         case 0x8000:
                             {
                             SetQuake(nSprite, 25);
-                            RexList[nRex].field_A = 60;
+                            RexList[nRex].nCount = 60;
 
                             sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
                             sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
@@ -402,7 +407,7 @@ void FuncRex(int a, int nDamage, int nRun)
                                 }
                             }
 
-                            RexList[nRex].field_A >>= 2;
+                            RexList[nRex].nCount >>= 2;
                             return;
                         }
                     }
@@ -411,7 +416,7 @@ void FuncRex(int a, int nDamage, int nRun)
                     {
                         RexList[nRex].nAction = 1;
                         RexList[nRex].nFrame  = 0;
-                        RexList[nRex].field_A = 90;
+                        RexList[nRex].nCount = 90;
                     }
 
                     return;
@@ -450,7 +455,7 @@ void FuncRex(int a, int nDamage, int nRun)
                     if (bVal)
                     {
                         RexList[nRex].nAction = 1;
-                        RexList[nRex].field_A = 15;
+                        RexList[nRex].nCount = 15;
                     }
                     return;
                 }
@@ -461,7 +466,7 @@ void FuncRex(int a, int nDamage, int nRun)
                     {
                         RexList[nRex].nAction = 7;
                         RexList[nRex].nFrame  = 0;
-                        runlist_ChangeChannel(RexChan[nRex], 1);
+                        runlist_ChangeChannel(RexList[nRex].nChannel, 1);
                     }
                     return;
                 }
@@ -480,7 +485,7 @@ void FuncRex(int a, int nDamage, int nRun)
                 {
                     RexList[nRex].nAction = 0;
                     RexList[nRex].nFrame  = 0;
-                    RexList[nRex].field_A = 0;
+                    RexList[nRex].nCount = 0;
                     RexList[nRex].nTarget = -1;
                     sprite[nSprite].xvel = 0;
                     sprite[nSprite].yvel = 0;
