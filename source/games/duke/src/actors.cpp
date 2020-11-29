@@ -1935,10 +1935,10 @@ void reactor(DDukeActor* actor, int REACTOR, int REACTOR2, int REACTORBURNT, int
 		{
 			//Turn on all of those flashing sectoreffector.
 			fi.hitradius(actor, 4096,
-				impact_damage << 2,
-				impact_damage << 2,
-				impact_damage << 2,
-				impact_damage << 2);
+				gs.impact_damage << 2,
+				gs.impact_damage << 2,
+				gs.impact_damage << 2,
+				gs.impact_damage << 2);
 			DukeStatIterator it(STAT_STANDABLE);
 			while (auto act2 = it.Next())
 			{

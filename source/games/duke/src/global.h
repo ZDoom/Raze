@@ -33,6 +33,9 @@ struct DukeGameInfo
 	int max_player_health		= 0;
 	int max_armour_amount		= 0;
 	int lasermode				= 0;
+	int freezerhurtowner		= 0;
+	int impact_damage			= 0;
+
 	TileInfo tileinfo[MAXTILES] = {}; // This is not from EDuke32.
 	ActorInfo actorinfo[MAXTILES] = {};
 	int16_t max_ammo_amount[MAX_WEAPONS] = {};
@@ -71,9 +74,7 @@ extern int numclouds;
 extern DDukeActor* camsprite;
 extern int numcyclers;
 extern int earthquaketime;
-extern int freezerhurtowner;
 extern int global_random;
-extern int impact_damage;
 extern int mirrorcnt;
 extern int numplayersprites;
 extern int spriteqloc;

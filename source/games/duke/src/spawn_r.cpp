@@ -1374,7 +1374,7 @@ int spawn_r(int j, int pn)
 					sp->xrepeat=sp->yrepeat=0;
 				}
 				else sp->cstat = 1+256;
-				sp->extra = impact_damage<<2;
+				sp->extra = gs.impact_damage<<2;
 				act->SetOwner(act);
 				changespritestat(act, STAT_STANDABLE);
 				break;

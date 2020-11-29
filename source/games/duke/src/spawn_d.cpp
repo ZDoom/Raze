@@ -1057,7 +1057,7 @@ int spawn_d(int j, int pn)
                 sp->cstat |= 1+256; //Make it hitable
                 sp->xrepeat = sp->yrepeat = 24;
                 sp->shade = -127;
-                sp->extra = impact_damage<<2;
+                sp->extra = gs.impact_damage<<2;
                 changespritestat(act, STAT_ZOMBIEACTOR);
                 break;
 
@@ -1114,7 +1114,7 @@ int spawn_d(int j, int pn)
                     sp->xrepeat=sp->yrepeat=0;
                 }
                 else sp->cstat = 1+256;
-                sp->extra = impact_damage<<2;
+                sp->extra = gs.impact_damage<<2;
                 act->SetOwner(act);
                 changespritestat(act, STAT_STANDABLE);
                 break;
@@ -1127,7 +1127,7 @@ int spawn_d(int j, int pn)
                 if(sp->picnum == FIREEXT)
                 {
                     sp->cstat = 257;
-                    sp->extra = impact_damage<<2;
+                    sp->extra = gs.impact_damage<<2;
                 }
                 else
                 {

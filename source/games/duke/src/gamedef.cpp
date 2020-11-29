@@ -1887,7 +1887,7 @@ int ConCompiler::parsecommand()
 		auto parseone = [&]() { return params[pget++]; };
 
 		ud.const_visibility = parseone();
-		impact_damage = parseone();
+		gs.impact_damage = parseone();
 		gs.max_player_health = parseone();
 		gs.max_armour_amount = parseone();
 		gs.respawnactortime = parseone();
@@ -1915,7 +1915,7 @@ int ConCompiler::parsecommand()
 		if (isRR()) gs.max_ammo_amount[12] = parseone();
 		gs.camerashitable = parseone();
 		gs.numfreezebounces = parseone();
-		freezerhurtowner = parseone();
+		gs.freezerhurtowner = parseone();
 		if (isPlutoPak() || isRR())
 		{
 			spriteqamount = clamp(parseone(), 0, 1024);

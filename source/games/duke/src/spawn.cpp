@@ -207,7 +207,7 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 				{
 					changespritestat(i, 12);
 					sp->cstat |= 257;
-					sp->extra = impact_damage;
+					sp->extra = gs.impact_damage;
 					return i;
 				}
 			}
@@ -600,7 +600,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 		sp->extra = 130;
 	}
 	else
-		sp->extra = impact_damage;
+		sp->extra = gs.impact_damage;
 
 	sp->cstat |= 257; // Make it hitable
 

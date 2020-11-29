@@ -2385,7 +2385,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 
 			if (s->statnum != 2)
 			{
-				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (freezerhurtowner == 0 && proj->GetOwner() == targ)))
+				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 					return;
 
 				targ->picnum = pspr->picnum;
