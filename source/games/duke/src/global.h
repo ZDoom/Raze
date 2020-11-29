@@ -17,31 +17,31 @@ extern user_defs ud;
 struct DukeGameInfo
 {
 	// Static constant global state
-	int respawnactortime		= 768;
-	int bouncemineblastradius	= 2500;
-	int respawnitemtime			= 768;
-	int morterblastradius		= 2500;
-	int numfreezebounces		= 3;
-	int pipebombblastradius		= 2500;
-	int playerfriction			= 0xCFD0;
-	int rpgblastradius			= 1780;
-	int seenineblastradius		= 2048;
-	int shrinkerblastradius		= 650;
-	int gravity						= 176;
-	int tripbombblastradius		= 3880;
-	int camerashitable			= 0;
-	int max_player_health		= 0;
-	int max_armour_amount		= 0;
-	int lasermode				= 0;
-	int freezerhurtowner		= 0;
-	int impact_damage			= 0;
+	int respawnactortime;
+	int bouncemineblastradius;
+	int respawnitemtime;
+	int morterblastradius;
+	int numfreezebounces;
+	int pipebombblastradius;
+	int playerfriction;
+	int rpgblastradius;
+	int seenineblastradius;
+	int shrinkerblastradius;
+	int gravity;
+	int tripbombblastradius;
+	int camerashitable;
+	int max_player_health;
+	int max_armour_amount;
+	int lasermode;
+	int freezerhurtowner;
+	int impact_damage;
 
-	TileInfo tileinfo[MAXTILES] = {}; // This is not from EDuke32.
-	ActorInfo actorinfo[MAXTILES] = {};
-	int16_t max_ammo_amount[MAX_WEAPONS] = {};
-	int16_t weaponsandammosprites[15] = {};
-	int playerheight					= PHEIGHT_DUKE;
-	int displayflags		= DUKE3D_NO_WIDESCREEN_PINNING;
+	TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
+	ActorInfo actorinfo[MAXTILES];
+	int16_t max_ammo_amount[MAX_WEAPONS];
+	int16_t weaponsandammosprites[15];
+	int playerheight;
+	int displayflags;
 };
 
 extern DukeGameInfo gs;

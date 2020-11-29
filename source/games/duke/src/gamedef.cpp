@@ -3146,7 +3146,22 @@ void ConCompiler::setmusic()
 
 void loadcons()
 {
-	memset(&gs.actorinfo, 0, sizeof(gs.actorinfo));
+	gs = {};
+	gs.respawnactortime = 768;
+	gs.bouncemineblastradius = 2500;
+	gs.respawnitemtime = 768;
+	gs.morterblastradius = 2500;
+	gs.numfreezebounces = 3;
+	gs.pipebombblastradius = 2500;
+	gs.playerfriction = 0xCFD0;
+	gs.rpgblastradius = 1780;
+	gs.seenineblastradius = 2048;
+	gs.shrinkerblastradius = 650;
+	gs.gravity = 176;
+	gs.tripbombblastradius = 3880;
+	gs.playerheight = PHEIGHT_DUKE;
+	gs.displayflags = DUKE3D_NO_WIDESCREEN_PINNING;
+
 
 	ScriptCode.Clear();
 	labels.Clear();
