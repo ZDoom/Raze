@@ -632,7 +632,7 @@ void EraseScreen(int nVal)
 
 bool GameInterface::CanSave()
 {
-    return !bRecord && !bPlayback && !paused && !bInDemo && nTotalPlayers == 1;
+    return gamestate == GS_LEVEL && !bRecord && !bPlayback && !paused && !bInDemo && nTotalPlayers == 1;
 }
 
 ::GameStats GameInterface::getStats()

@@ -304,7 +304,7 @@ static MapRecord* levelwarp_common(FCommandLine& argv, const char *cmdname, cons
 
 CCMD(levelwarp)
 {
-	if (gamestate != GS_LEVEL)
+	if (!gi->CanSave())
 	{
 		Printf("Use the startgame command when not in a game.\n");
 		return;
@@ -359,7 +359,7 @@ CCMD(changemap)
 		Printf(PRINT_BOLD, "changemap <mapname>: warp to the given map, identified by its name.\n");
 		return;
 	}
-	if (gamestate != GS_LEVEL)
+	if (!gi->CanSave())
 	{
 		Printf("Use the map command when not in a game.\n");
 		return;
