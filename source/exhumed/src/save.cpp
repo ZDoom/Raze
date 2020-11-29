@@ -31,6 +31,7 @@ BEGIN_PS_NS
 
 void SerializeAnubis(FSerializer& arc);
 void SerializeFish(FSerializer& arc);
+void SerializeLion(FSerializer& arc);
 void SerializeSpider(FSerializer& arc);
 
 
@@ -50,6 +51,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 {
     SerializeAnubis(arc);
     SerializeFish(arc);
+    SerializeLion(arc);
     SerializeSpider(arc);
 }
 

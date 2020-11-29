@@ -25,11 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum { kMaxLions = 40 };
-
-short LionCount = -1;
-short MoveHook[kMaxLions];
-
 static actionSeq LionSeq[] = {
     {54, 1},
     {18, 0},
@@ -54,30 +49,41 @@ struct Lion
     short nTarget;
     short nIndex;
     short nCount;
+    short nRun;
 };
 
-Lion LionList[kMaxLions];
+TArray<Lion> LionList;
 
-static SavegameHelper sghlion("lion",
-    SV(LionCount),
-    SA(MoveHook),
-    SA(LionList),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Lion& w, Lion* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("index", w.nIndex)
+            ("count", w.nCount)
+            ("run", w.nRun)
+            .EndObject();
+    }
+    return arc;
+}
 
+void SerializeLion(FSerializer& arc)
+{
+    arc("lion", LionList);
+}
 
 void InitLion()
 {
-    LionCount = kMaxLions;
+    LionList.Clear();
 }
 
 int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
 {
-    LionCount--;
-    short nLion = LionCount;
-
-    if (LionCount < 0) {
-        return -1;
-    }
+    auto nLion = LionList.Reserve(1);
 
     if (nSprite == -1)
     {
@@ -126,7 +132,7 @@ int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nLion | 0x130000);
 
-    MoveHook[nLion] = runlist_AddRunRec(NewRun, nLion | 0x130000);
+    LionList[nLion].nRun = runlist_AddRunRec(NewRun, nLion | 0x130000);
 
     nCreaturesTotal++;
 
@@ -136,7 +142,7 @@ int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
 void FuncLion(int a, int nDamage, int nRun)
 {
     short nLion = RunData[nRun].nVal;
-    assert(nLion >= 0 && nLion < kMaxLions);
+    assert(nLion >= 0 && nLion < (int)LionList.Size());
 
     short nSprite = LionList[nLion].nSprite;
     short nAction = LionList[nLion].nAction;
@@ -574,7 +580,7 @@ void FuncLion(int a, int nDamage, int nRun)
                     if (bVal)
                     {
                         runlist_SubRunRec(sprite[nSprite].owner);
-                        runlist_SubRunRec(MoveHook[nLion]);
+                        runlist_SubRunRec(LionList[nLion].nRun);
                         sprite[nSprite].cstat = 0x8000;
                     }
                     return;
