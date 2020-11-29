@@ -171,6 +171,8 @@ struct player_struct
 	PlayerHorizon horizon;
 	PlayerAngle angle;
 
+	uint16_t frags[MAXPLAYERS];
+
 	// using a bit field for this to save a bit of space.
 	FixedBitArray<MAX_WEAPONS> gotweapon;
 

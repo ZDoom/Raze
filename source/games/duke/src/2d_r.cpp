@@ -300,7 +300,7 @@ public:
 
 			for (int y = 0; y < playerswhenstarted; y++)
 			{
-				int frag = frags[i][y];
+				int frag = ps[i].frags[y];
 				if (i == y)
 				{
 					mysnprintf(tempbuf, 32, "%-4d", ps[y].fraggedself);
@@ -335,7 +335,7 @@ public:
 			{
 				if (i == y)
 					yfragtotal += ps[i].fraggedself;
-				int frag = frags[i][y];
+				int frag = ps[i].frags[y];
 				yfragtotal += frag;
 			}
 			mysnprintf(tempbuf, 32, "%-4d", yfragtotal);

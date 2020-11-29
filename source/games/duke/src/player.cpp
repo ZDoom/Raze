@@ -612,7 +612,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 			if (p->frag_ps != snum)
 			{
 				ps[p->frag_ps].frag++;
-				frags[p->frag_ps][snum]++;
+				ps[p->frag_ps].frags[snum]++;
 
 				auto pname = PlayerName(p->frag_ps);
 				if (snum == screenpeek)

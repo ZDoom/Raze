@@ -248,6 +248,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("moto_on_mud", w.moto_on_mud)
 			// new stuff
 			("actions", w.sync.actions)
+			.Array("frags", w.frags, MAXPLAYERS)
 			.EndObject();
 
 		w.invdisptime = 0;
@@ -315,7 +316,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	if (arc.BeginObject("duke.gamestate"))
 	{
 		arc("multimode", ud.multimode);
-		if (ud.multimode > 1) arc.Array("frags", &frags[0][0], MAXPLAYERS * MAXPLAYERS);
 
 		arc.SparseArray("actors", hittype, MAXSPRITES, activeSprites)
 			("skill", ud.player_skill)

@@ -898,8 +898,8 @@ static void clearfrags(void)
     for (int i = 0; i < ud.multimode; i++)
     {
         ps[i].frag = ps[i].fraggedself = 0;
+        memset(ps[i].frags, 0, sizeof(ps[i].frags));
     }
-    memset(frags, 0, sizeof(frags));
 }
 
 //---------------------------------------------------------------------------
