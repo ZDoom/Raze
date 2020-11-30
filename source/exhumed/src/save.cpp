@@ -32,6 +32,7 @@ BEGIN_PS_NS
 void SerializeAnim(FSerializer& arc);
 void SerializeItems(FSerializer& arc);
 void SerializeMove(FSerializer& arc);
+void SerializeLighting(FSerializer& arc);
 void SerializeObjects(FSerializer& arc);
 void SerializePlayer(FSerializer& arc);
 void SerializeRa(FSerializer& arc);
@@ -75,6 +76,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     SerializeAnim(arc);
     SerializeItems(arc);
     SerializeMove(arc);
+    SerializeLighting(arc);
     SerializeObjects(arc);
     SerializePlayer(arc);
     SerializeRa(arc);

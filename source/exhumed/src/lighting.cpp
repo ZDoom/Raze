@@ -39,8 +39,9 @@ enum
 struct Flash
 {
     char field_0;
-    short field_1;
     int8_t shade;
+    short field_1;
+    int next;
 };
 
 struct Glow
@@ -70,12 +71,11 @@ struct Flow
     int yacc;
 };
 
-Flash sFlash[kMaxFlashes];
+
+FreeListArray<Flash, kMaxFlashes> sFlash;
 
 Glow sGlow[kMaxGlows];
-short nNextFlash[kMaxFlashes];
 Flicker sFlicker[kMaxFlickers];
-short nFreeFlash[kMaxFlashes];
 Flow sFlowInfo[kMaxFlows];
 int flickermask[kMaxFlickerMask];
 
@@ -83,7 +83,6 @@ short bTorch = 0;
 short nFirstFlash = -1;
 short nLastFlash = -1;
 short nFlashDepth = 2;
-short nFlashes;
 short nFlowCount;
 short nFlickerCount;
 short nGlowCount;
@@ -92,38 +91,92 @@ int bDoFlicks = 0;
 int bDoGlows = 0;
 
 
-static SavegameHelper sghlighnting("lightning",
-    SA(sFlash),
-    SA(sGlow),
-    SA(nNextFlash),
-    SA(sFlicker),
-    SA(nFreeFlash),
-    SA(sFlowInfo),
-    SA(flickermask),
-    SV(bTorch),
-    SV(nFirstFlash),
-    SV(nLastFlash),
-    SV(nFlashDepth),
-    SV(nFlashes),
-    SV(nFlowCount),
-    SV(nFlickerCount),
-    SV(nGlowCount),
-    SV(bDoFlicks),
-    SV(bDoGlows),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Flash& w, Flash* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("at0", w.field_0)
+            ("shade", w.shade)
+            ("at1", w.field_1)
+            ("next", w.next)
+            .EndObject();
+    }
+    return arc;
+}
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Glow& w, Glow* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("at0", w.field_0)
+            ("at2", w.field_2)
+            ("sector", w.nSector)
+            ("at6", w.field_6)
+            .EndObject();
+    }
+    return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Flicker& w, Flicker* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("at0", w.field_0)
+            ("sector", w.nSector)
+            ("at4", w.field_4)
+            .EndObject();
+    }
+    return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Flow& w, Flow* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("objindex", w.objindex)
+            ("type", w.type)
+            ("xdelta", w.xdelta)
+            ("ydelta", w.ydelta)
+            ("atc", w.field_C)
+            ("at10", w.field_10)
+            ("xacc", w.xacc)
+            ("yacc", w.yacc)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializeLighting(FSerializer& arc)
+{
+    if (arc.BeginObject("lighting"))
+    {
+        arc("flash", sFlash)
+            ("glowcount", nGlowCount)
+            .Array("glow", sGlow, nGlowCount)
+            ("flickercount", nFlickerCount)
+            .Array("flicker", sFlicker, nFlickerCount)
+            ("flowcount", nFlowCount)
+            .Array("flow", sFlowInfo, nFlowCount)
+            .Array("flickermask", flickermask, countof(flickermask))
+            ("torch", bTorch)
+            ("firstflash", nFirstFlash)
+            ("lastflash", nLastFlash)
+            ("flashdepth", nFlashDepth)
+            ("doflicks", bDoFlicks)
+            ("doglows", bDoGlows)
+            .EndObject();
+    }
+}
 
 // done
 int GrabFlash()
 {
-    if (nFlashes >= kMaxFlashes) {
+    int nFlash = sFlash.Get();
+    if (nFlash < 0) {
         return -1;
     }
 
-    short nFlash = nFreeFlash[nFlashes];
-    nNextFlash[nFlash] = -1;
-
-    nFlashes++;
+    sFlash[nFlash].next = -1;
 
     if (nLastFlash <= -1)
     {
@@ -131,11 +184,10 @@ int GrabFlash()
     }
     else
     {
-        nNextFlash[nLastFlash] = nFlash;
+        sFlash[nLastFlash].next = nFlash;
     }
 
     nLastFlash = nFlash;
-
     return nLastFlash;
 }
 
@@ -150,13 +202,10 @@ void InitLights()
 
     nGlowCount = 0;
     nFlowCount = 0;
-    nFlashes  = 0;
     bDoFlicks = false;
     bDoGlows  = false;
 
-    for (i = 0; i < kMaxFlashes; i++) {
-        nFreeFlash[i] = i;
-    }
+    sFlash.Clear();
 
     nFirstFlash = -1;
     nLastFlash  = -1;
@@ -348,15 +397,11 @@ void AddFlash(short nSector, int x, int y, int z, int val)
 
 void UndoFlashes()
 {
-    if (!nFlashes) {
-        return;
-    }
-
     int var_24 = 0; // CHECKME - Watcom error "initializer for variable var_24 may not execute
 
     int edi = -1;
 
-    for (short nFlash = nFirstFlash; nFlash >= 0; nFlash = nNextFlash[nFlash])
+    for (short nFlash = nFirstFlash; nFlash >= 0; nFlash = sFlash[nFlash].next)
     {
         assert(nFlash < 2000 && nFlash >= 0);
 
@@ -472,25 +517,21 @@ void UndoFlashes()
 
 loc_1868A:
 
-        nFlashes--;
-        assert(nFlashes >= 0);
-
-        nFreeFlash[nFlashes] = nFlash;
-
         if (edi != -1)
         {
-            nNextFlash[edi] = nNextFlash[nFlash];
+            sFlash[edi].next = sFlash[nFlash].next;
         }
 
         if (nFlash == nFirstFlash)
         {
-            nFirstFlash = nNextFlash[nFirstFlash];
+            nFirstFlash = sFlash[nFirstFlash].next;
         }
 
         if (nFlash == nLastFlash)
         {
             nLastFlash = edi;
         }
+        sFlash.Release(nFlash);
     }
 }
 
