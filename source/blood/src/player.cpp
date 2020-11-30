@@ -1435,8 +1435,11 @@ void ProcessInput(PLAYER *pPlayer)
     if (cl_syncinput)
     {
         applylook(&pPlayer->angle, pInput->avel, &pInput->actions);
-        UpdatePlayerSpriteAngle(pPlayer);
     }
+
+    // unconditionally update the player's sprite angle
+    // in case game is forcing synchronised input.
+    UpdatePlayerSpriteAngle(pPlayer);
 
     if (!(pInput->actions & SB_JUMP))
         pPlayer->cantJump = 0;
@@ -1647,6 +1650,10 @@ void playerProcess(PLAYER *pPlayer)
     int nXSprite = pSprite->extra;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
+
+    // disable synchronised input if set by game.
+    resetForcedSyncInput();
+
     powerupProcess(pPlayer);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);

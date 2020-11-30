@@ -1714,6 +1714,8 @@ void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
             break;
         case kSectorRotateMarked:
         case kSectorRotate:
+            // force synchronised input here for now.
+            setForcedSyncInput();
             RDoorBusy(nSector, nBusy);
             break;
         default:
