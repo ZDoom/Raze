@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+void SerializeState(FSerializer& arc);
 void SerializeAnim(FSerializer& arc);
 void SerializeBubbles(FSerializer& arc);
 void SerializeBullet(FSerializer& arc);
@@ -62,15 +63,11 @@ void SerializeSet(FSerializer& arc);
 void SerializeSpider(FSerializer& arc);
 void SerializeWasp(FSerializer& arc);
 
-void SaveTextureState();
-void LoadTextureState();
-
 static TArray<SavegameHelper*> sghelpers(TArray<SavegameHelper*>::NoInit);
 
 bool GameInterface::SaveGame()
 {
     for (auto sgh : sghelpers) sgh->Save();
-    SaveTextureState();
     return 1; // CHECKME
 }
 
@@ -78,6 +75,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 {
     if (arc.BeginObject("exhumed"))
     {
+    SerializeState(arc);
     SerializeAnim(arc);
     SerializeBubbles(arc);
     SerializeBullet(arc);
@@ -117,7 +115,6 @@ bool GameInterface::LoadGame()
 {
 
     for (auto sgh : sghelpers) sgh->Load();
-    LoadTextureState();
     FinishSavegameRead();
 
     // reset the sky in case it hasn't been done yet.

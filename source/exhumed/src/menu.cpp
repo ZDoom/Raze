@@ -238,11 +238,4 @@ void DoEnergyTile()
     }
 }
 
-static SavegameHelper sghmenu("menu",
-    SA(nCinemaSeen),
-    SA(energytile),
-    SV(nButtonColor),
-    SV(word_9AB5B),
-    nullptr);
-
 END_PS_NS
