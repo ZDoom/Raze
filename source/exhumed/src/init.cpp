@@ -909,25 +909,28 @@ void LoadObjects()
     nCameraz = initz;
 }
 
-
-static SavegameHelper sghinit("init",
-    SV(initx),
-    SV(inity),
-    SV(initz),
-    SV(inita),
-    SV(initsect),
-    SV(nCurChunkNum),
-    SA(nBodyGunSprite),
-    SV(nCurBodyGunNum),
-    SA(SectSoundSect),
-    SA(SectSound),
-    SA(SectFlag),
-    SA(SectDepth),
-    SA(SectAbove),
-    SA(SectDamage),
-    SA(SectSpeed),
-    SA(SectBelow),
-    nullptr);
-
+void SerializeInit(FSerializer& arc)
+{
+    if (arc.BeginObject("init"))
+    {
+        arc("initx", initx)
+            ("inity", inity)
+            ("initz", initz)
+            ("inita", inita)
+            ("initsect", initsect)
+            ("curchunk", nCurChunkNum)
+            .Array("bodygunsprite", nBodyGunSprite, countof(nBodyGunSprite))
+            ("curbodygun", nCurBodyGunNum)
+            .Array("soundsect", SectSoundSect, numsectors)
+            .Array("sectsound", SectSound, numsectors)
+            .Array("sectflag", SectFlag, numsectors)
+            .Array("sectdepth", SectDepth, numsectors)
+            .Array("sectabove", SectAbove, numsectors)
+            .Array("sectdamage", SectDamage, numsectors)
+            .Array("sectspeed", SectSpeed, numsectors)
+            .Array("sectbelow", SectBelow, numsectors)
+            .EndObject();
+    }
+}
 
 END_PS_NS
