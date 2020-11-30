@@ -31,6 +31,8 @@ BEGIN_PS_NS
 
 void SerializeAnim(FSerializer& arc);
 void SerializeBubbles(FSerializer& arc);
+void SerializeBullet(FSerializer& arc);
+void SerializeGrenade(FSerializer& arc);
 void SerializeGun(FSerializer& arc);
 void SerializeInit(FSerializer& arc);
 void SerializeItems(FSerializer& arc);
@@ -78,6 +80,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     {
     SerializeAnim(arc);
     SerializeBubbles(arc);
+    SerializeBullet(arc);
+    SerializeGrenade(arc);
     SerializeGun(arc);
     SerializeInit(arc);
     SerializeItems(arc);

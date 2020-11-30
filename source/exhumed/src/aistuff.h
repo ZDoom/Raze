@@ -88,7 +88,7 @@ extern int lasthitx;
 extern int lasthity;
 
 void InitBullets();
-short GrabBullet();
+int GrabBullet();
 void DestroyBullet(short nRun);
 int MoveBullet(short nBullet);
 void SetBulletEnemy(short nBullet, short nEnemy);

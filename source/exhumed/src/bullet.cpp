@@ -36,7 +36,6 @@ BEGIN_PS_NS
 
 enum { kMaxBullets		= 500 };
 
-short BulletFree[kMaxBullets];
 
 // 32 bytes
 struct Bullet
@@ -55,32 +54,60 @@ struct Bullet
     int x;
     int y;
     int z;
+    int enemy;
 };
 
-Bullet BulletList[kMaxBullets];
-short nBulletEnemy[kMaxBullets];
-int nBulletsFree;
+FreeListArray<Bullet, kMaxBullets> BulletList;
 int lasthitz, lasthitx, lasthity;
 short lasthitsect, lasthitsprite, lasthitwall;
 
-int nBulletCount = 0;
 short nRadialBullet = 0;
 
-static SavegameHelper sghbullet("bullet",
-    SV(BulletFree),
-    SA(BulletList),
-    SA(nBulletEnemy),
-    SV(nBulletsFree),
-    SV(lasthitz),
-    SV(lasthitx),
-    SV(lasthity),
-    SV(lasthitsect),
-    SV(lasthitsprite),
-    SV(lasthitwall),
-    SV(nBulletCount),
-    SV(nRadialBullet),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Bullet& w, Bullet* def)
+{
+    static Bullet nul;
+    if (!def)
+    {
+        def = &nul;
+        if (arc.isReading()) w = {};
+    }
+    if (arc.BeginObject(keyname))
+    {
+        arc("seq", w.nSeq, def->nSeq)
+            ("frame", w.nFrame, def->nFrame)
+            ("sprite", w.nSprite, def->nSprite)
+            ("type", w.nType, def->nType)
+            ("x", w.x, def->x)
+            ("y", w.y, def->y)
+            ("z", w.z, def->z)
+            ("at6", w.field_6, def->field_6)
+            ("at8", w.field_8, def->field_8)
+            ("atc", w.field_C, def->field_C)
+            ("ate", w.field_E, def->field_E)
+            ("at10", w.field_10, def->field_10)
+            ("at12", w.field_12, def->field_12)
+            ("at13", w.field_13, def->field_13)
+            ("enemy", w.enemy, def->enemy)
+            .EndObject();
+    }
+    return arc;
+}
 
+void SerializeBullet(FSerializer& arc)
+{
+    if (arc.BeginObject("bullets"))
+    {
+        arc ("list", BulletList)
+            ("lasthitx", lasthitx)
+            ("lasthity", lasthity)
+            ("lasthitz", lasthitz)
+            ("lasthitsect", lasthitsect)
+            ("lasthitspr", lasthitsprite)
+            ("lasthitwall", lasthitwall)
+            ("radialbullet", nRadialBullet)
+            .EndObject();
+    }
+}
 
 bulletInfo BulletInfo[] = {
     { 25,   1,    20, -1, -1, 13, 0,  0, -1 },
@@ -105,21 +132,15 @@ bulletInfo BulletInfo[] = {
 
 void InitBullets()
 {
-    nBulletCount = 0;
-
-    for (int i = 0; i < kMaxBullets; i++) {
-        BulletFree[i] = i;
-    }
-
-    nBulletsFree = kMaxBullets;
-
-    memset(nBulletEnemy, -1, sizeof(nBulletEnemy));
+    BulletList.Clear();
 }
 
-short GrabBullet()
+int GrabBullet()
 {
-    nBulletsFree--;
-    return BulletFree[nBulletsFree];
+    int grabbed = BulletList.Get();
+    if (grabbed < 0) return -1;
+    BulletList[grabbed].enemy = -1;
+    return grabbed;
 }
 
 void DestroyBullet(short nBullet)
@@ -133,9 +154,7 @@ void DestroyBullet(short nBullet)
     StopSpriteSound(nSprite);
 
     mydeletesprite(nSprite);
-
-    BulletFree[nBulletsFree] = nBullet;
-    nBulletsFree++;
+    BulletList.Release(nBullet);
 }
 
 void IgniteSprite(int nSprite)
@@ -304,11 +323,11 @@ int MoveBullet(short nBullet)
 
     if (pBullet->field_10 < 30000)
     {
-        short nEnemySprite = nBulletEnemy[nBullet];
+        short nEnemySprite = BulletList[nBullet].enemy;
         if (nEnemySprite > -1)
         {
             if (!(sprite[nEnemySprite].cstat & 0x101))
-                nBulletEnemy[nBullet] = -1;
+                BulletList[nBullet].enemy = -1;
             else
             {
                 nVal = AngleChase(nSprite, nEnemySprite, pBullet->field_10, 0, 16);
@@ -395,9 +414,9 @@ MOVEEND:
     {
         nVal = 1;
 
-        if (nBulletEnemy[nBullet] > -1)
+        if (BulletList[nBullet].enemy > -1)
         {
-            hitsprite = nBulletEnemy[nBullet];
+            hitsprite = BulletList[nBullet].enemy;
             x2 = sprite[hitsprite].x;
             y2 = sprite[hitsprite].y;
             z2 = sprite[hitsprite].z - (GetSpriteHeight(hitsprite) >> 1);
@@ -530,7 +549,7 @@ HITWALL:
 void SetBulletEnemy(short nBullet, short nEnemy)
 {
     if (nBullet >= 0) {
-        nBulletEnemy[nBullet] = nEnemy;
+        BulletList[nBullet].enemy = nEnemy;
     }
 }
 
@@ -573,7 +592,8 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         }
     }
 
-    if (!nBulletsFree) {
+    int nBullet = GrabBullet();
+    if (nBullet < 0) {
         return -1;
     }
 
@@ -603,10 +623,9 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     // why is this done here???
     assert(nBulletSprite >= 0 && nBulletSprite < kMaxSprites);
 
-    short nBullet = GrabBullet();
     Bullet *pBullet = &BulletList[nBullet];
 
-    nBulletEnemy[nBullet] = -1;
+    pBullet->enemy = -1;
 
     sprite[nBulletSprite].cstat = 0;
     sprite[nBulletSprite].shade = -64;
@@ -701,7 +720,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
 
         if ((unsigned int)pBulletInfo->field_4 > 30000)
         {
-            nBulletEnemy[nBullet] = nTargetSprite;
+            BulletList[nBullet].enemy = nTargetSprite;
         }
         else
         {
@@ -768,7 +787,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     pBullet->z = 0;
     pBullet->x = (sprite[nSprite].clipdist << 2) * bcos(nAngle);
     pBullet->y = (sprite[nSprite].clipdist << 2) * bsin(nAngle);
-    nBulletEnemy[nBullet] = -1;
+    BulletList[nBullet].enemy = -1;
 
     if (MoveBullet(nBullet))
     {
