@@ -152,6 +152,8 @@ extern int hud_size_max;
 int paused;
 bool pausedWithKey;
 
+bool gamesetinput = false;
+
 CUSTOM_CVAR(Int, cl_gender, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
 	if (self < 0 || self > 3) self = 0;

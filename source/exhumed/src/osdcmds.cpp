@@ -34,8 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-static bool gamesetinput = false;
-
 void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
     Player     *nPlayer = &PlayerList[nLocalPlayer];
@@ -107,15 +105,15 @@ void GameInterface::ToggleThirdPerson()
     {
         bCamera = !bCamera;
 
-        if (bCamera && !cl_syncinput)
+        if (bCamera)
         {
-            gamesetinput = cl_syncinput = true;
+            setForcedSyncInput();
             GrabPalette();
         }
     }
-    if (gamesetinput && !bCamera)
+    if (!bCamera)
     {
-        gamesetinput = cl_syncinput = false;
+        resetForcedSyncInput();
     }
 }
 
