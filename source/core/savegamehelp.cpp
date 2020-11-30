@@ -630,7 +630,7 @@ void SerializeMap(FSerializer& arc)
 			.Array("headspritesect", headspritesect, MAXSECTORS + 1)
 			.Array("nextspritesect", nextspritesect, MAXSPRITES)
 			.Array("prevspritesect", prevspritesect, MAXSPRITES)
-			
+
 			("tailspritefree", tailspritefree)
 			("myconnectindex", myconnectindex)
 			("connecthead", connecthead)
@@ -643,7 +643,8 @@ void SerializeMap(FSerializer& arc)
 			("parallaxyo", parallaxyoffs_override)
 			("parallaxys", parallaxyscale_override)
 			("pskybits", pskybits_override)
-			("numsprites", Numsprites);
+			("numsprites", Numsprites)
+			("gamesetinput", gamesetinput);
 
 		SerializeInterpolations(arc);
 

@@ -228,18 +228,3 @@ extern bool sendPause;
 extern int lastTic;
 
 
-//---------------------------------------------------------------------------
-//
-// Inline functions to help with edge cases where synchronised input is needed.
-//
-//---------------------------------------------------------------------------
-
-extern bool gamesetinput;
-inline void setForcedSyncInput()
-{
-    if (!cl_syncinput) gamesetinput = cl_syncinput = true;
-}
-inline void resetForcedSyncInput()
-{
-    if (gamesetinput) gamesetinput = cl_syncinput = false;
-}
