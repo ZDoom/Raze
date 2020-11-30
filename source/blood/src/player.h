@@ -175,7 +175,7 @@ struct PLAYER
     int                 pickupEffect;
     bool                flashEffect;  // if true, reduce pPlayer->visibility counter
     int                 quakeEffect;
-    int                 angold;
+    binangle            angold;
     int                 player_par;
     int                 nWaterPal;
     POSTURE             pPosture[kModeMax][kPostureMax];

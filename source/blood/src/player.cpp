@@ -707,8 +707,8 @@ void playerStart(int nPlayer, int bNewLevel)
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z -= bottom - pSprite->z;
     pSprite->pal = 11+(pPlayer->teamId&3);
-    pPlayer->angold = pSprite->ang = pStartZone->ang;
-    pPlayer->angle.ang = buildang(pSprite->ang);
+    pSprite->ang = pStartZone->ang;
+    pPlayer->angold = pPlayer->angle.ang = buildang(pSprite->ang);
     pSprite->type = kDudePlayer1+nPlayer;
     pSprite->clipdist = pDudeInfo->clipdist;
     pSprite->flags = 15;
@@ -1312,8 +1312,9 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 {
     spritetype *pSprite = pPlayer->pSprite;
 
-    pPlayer->angle.ang += buildang(pSprite->ang - pPlayer->angold);
-    pPlayer->angold = pSprite->ang = pPlayer->angle.ang.asbuild();
+    pPlayer->angle.ang += buildang(pSprite->ang) - pPlayer->angold;
+    pPlayer->angold = pPlayer->angle.ang;
+    pSprite->ang = pPlayer->angle.ang.asbuild();
 }
 
 void ProcessInput(PLAYER *pPlayer)
@@ -1346,9 +1347,9 @@ void ProcessInput(PLAYER *pPlayer)
         char bSeqStat = playerSeqPlaying(pPlayer, 16);
         if (pPlayer->fraggerId != -1)
         {
-            auto fraggerAng = bvectangbam(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
-            pPlayer->angold = pSprite->ang = fraggerAng.asbuild();
-            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, fraggerAng));
+            pPlayer->angold = bvectangbam(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
+            pSprite->ang = pPlayer->angold.asbuild();
+            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, pPlayer->angold));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
