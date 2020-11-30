@@ -47,34 +47,51 @@ struct machine
     short _4;
 };
 
-short BubbleCount = 0;
-
-short nFreeCount;
 short nMachineCount;
-
-uint8_t nBubblesFree[kMaxBubbles];
 machine Machine[kMaxMachines];
-Bubble BubbleList[kMaxBubbles];
 
-static SavegameHelper sghbubbles("bubbles",
-    SV(BubbleCount),
-    SV(nFreeCount),
-    SV(nMachineCount),
-    SA(nBubblesFree),
-    SA(Machine),
-    SA(BubbleList),
-    nullptr);
+FreeListArray<Bubble, kMaxBubbles> BubbleList;
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Bubble& w, Bubble* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("seq", w.nSeq)
+            ("frame", w.nFrame)
+            ("run", w.nRun)
+            ("sprite", w.nSprite)
+            .EndObject();
+    }
+    return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, machine& w, machine* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("at0", w._0)
+            ("at4", w._4)
+            ("sprite", w.nSprite)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializeBubbles(FSerializer& arc)
+{
+    if (arc.BeginObject("bubbles"))
+    {
+        arc ("machinecount", nMachineCount)
+            ("list", BubbleList)
+            .Array("machines", Machine, nMachineCount)
+            .EndObject();
+    }
+}
 
 void InitBubbles()
 {
-    BubbleCount = 0;
     nMachineCount = 0;
-
-    for (int i = 0; i < kMaxBubbles; i++) {
-        nBubblesFree[i] = i;
-    }
-
-    nFreeCount = kMaxBubbles;
+    BubbleList.Clear();
 }
 
 void DestroyBubble(short nBubble)
@@ -87,14 +104,12 @@ void DestroyBubble(short nBubble)
 
     mydeletesprite(nSprite);
 
-    nBubblesFree[nFreeCount] = nBubble;
-
-    nFreeCount++;
+    BubbleList.Release(nBubble);
 }
 
-short GetBubbleSprite(short nBubble)
+short GetBubbleSprite(int nBubble)
 {
-    return BubbleList[nBubble].nSprite;
+    return BubbleList[nBubble & 0xffff].nSprite;
 }
 
 int BuildBubble(int x, int y, int z, short nSector)
@@ -104,13 +119,10 @@ int BuildBubble(int x, int y, int z, short nSector)
         nSize -= 4;
     }
 
-    if (nFreeCount <= 0) {
+    int nBubble = BubbleList.Get();
+    if (nBubble < 0) {
         return -1;
     }
-
-    nFreeCount--;
-
-    uint8_t nBubble = nBubblesFree[nFreeCount];
 
     int nSprite = insertsprite(nSector, 402);
     assert(nSprite >= 0 && nSprite < kMaxSprites);

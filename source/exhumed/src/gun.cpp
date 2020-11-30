@@ -59,13 +59,19 @@ Weapon WeaponInfo[] = {
 
 short nTemperature[kMaxPlayers];
 short nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
-short word_96E26 = 0;
+short isRed = 0;
 
-static SavegameHelper sghgun("gun",
-    SA(nTemperature),
-    SV(word_96E26),
-    nullptr);
 
+void SerializeGun(FSerializer& arc)
+{
+    if (arc.BeginObject("gun"))
+    {
+        arc.Array("temperature", nTemperature, kMaxPlayers)
+            ("isred", isRed)
+            .EndObject();
+            
+    }
+}
 
 void RestoreMinAmmo(short nPlayer)
 {
@@ -947,11 +953,11 @@ void DrawWeapons(double smooth)
 
     if (nDouble)
     {
-        if (word_96E26) {
+        if (isRed) {
             nPal = kPalRedBrite;
         }
 
-        word_96E26 = word_96E26 == 0;
+        isRed = isRed == 0;
     }
 
     nPal = RemapPLU(nPal);
