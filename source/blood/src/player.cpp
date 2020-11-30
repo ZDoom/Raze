@@ -1433,7 +1433,7 @@ void ProcessInput(PLAYER *pPlayer)
         }
     }
 
-    if (cl_syncinput)
+    if (SyncInput())
     {
         applylook(&pPlayer->angle, pInput->avel, &pInput->actions);
     }
@@ -1560,7 +1560,7 @@ void ProcessInput(PLAYER *pPlayer)
         pInput->actions &= ~SB_OPEN;
     }
 
-    if (cl_syncinput)
+    if (SyncInput())
     {
         sethorizon(&pPlayer->horizon.horiz, pInput->horz, &pInput->actions);
     }

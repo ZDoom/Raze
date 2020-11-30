@@ -252,7 +252,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
     {
-        bool skip = !cl_syncinput && (sop->track == SO_TURRET);
+        bool skip = !SyncInput() && (sop->track == SO_TURRET);
         if (SO_EMPTY(sop) || skip)
             continue;
         if (interp->tic < interp->lasttic)
@@ -291,7 +291,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
     {
-        bool skip = !cl_syncinput && (sop->track == SO_TURRET);
+        bool skip = !SyncInput() && (sop->track == SO_TURRET);
         if (SO_EMPTY(sop) || skip)
             continue;
 
@@ -318,7 +318,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
     {
-        bool skip = !cl_syncinput && (sop->track == SO_TURRET);
+        bool skip = !SyncInput() && (sop->track == SO_TURRET);
         if (SO_EMPTY(sop) || skip)
             continue;
 
@@ -378,7 +378,7 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
     {
-        bool skip = !cl_syncinput && (sop->track == SO_TURRET);
+        bool skip = !SyncInput() && (sop->track == SO_TURRET);
         if (SO_EMPTY(sop) || skip)
             continue;
 

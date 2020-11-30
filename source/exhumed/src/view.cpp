@@ -239,7 +239,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         nSector = nPlayerViewSect[nLocalPlayer];
         updatesector(playerX, playerY, &nSector);
 
-        if (!cl_syncinput)
+        if (!SyncInput())
         {
             nAngle = PlayerList[nLocalPlayer].angle.sum();
             rotscrnang = PlayerList[nLocalPlayer].angle.rotscrnang;
@@ -273,7 +273,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             viewz = playerZ + nQuake[nLocalPlayer];
             int floorZ = sector[sprite[nPlayerSprite].sectnum].floorz;
 
-            if (!cl_syncinput)
+            if (!SyncInput())
             {
                 pan = PlayerList[nLocalPlayer].horizon.sum();
             }

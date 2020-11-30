@@ -519,7 +519,7 @@ void TryRunTics (void)
 			gi->Predict(myconnectindex);
 #endif
 		}
-		if (!cl_syncinput)
+		if (!SyncInput())
 		{
 			I_GetEvent();
 			auto input = CONTROL_GetInput();

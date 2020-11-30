@@ -49,7 +49,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     ApplyGlobalInput(gInput, hidInput);
     processMovement(&input, &gInput, hidInput, scaleAdjust);
 
-    if (!cl_syncinput && gamestate == GS_LEVEL)
+    if (!SyncInput() && gamestate == GS_LEVEL)
     {
         // Perform unsynchronised angle/horizon if not dead.
         if (gView->pXSprite->health != 0)

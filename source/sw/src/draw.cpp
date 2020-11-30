@@ -1652,7 +1652,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
-    if (cl_syncinput || pp != Player+myconnectindex)
+    if (SyncInput() || pp != Player+myconnectindex)
     {
         tang = camerapp->angle.interpolatedsum(smoothratio);
         thoriz = camerapp->horizon.interpolatedsum(smoothratio);

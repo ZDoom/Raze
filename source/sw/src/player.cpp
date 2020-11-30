@@ -2142,7 +2142,7 @@ DoPlayerMove(PLAYERp pp)
 
     SlipSlope(pp);
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL);
     }
@@ -2270,7 +2270,7 @@ DoPlayerMove(PLAYERp pp)
 
     DoPlayerSetWadeDepth(pp);
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     }
@@ -2433,7 +2433,7 @@ DoPlayerMoveBoat(PLAYERp pp)
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_TURN_BOAT);
     }
@@ -2488,7 +2488,7 @@ DoPlayerMoveBoat(PLAYERp pp)
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     }
@@ -2939,7 +2939,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
     }
     else
     {
-        if (!cl_syncinput)
+        if (!SyncInput())
         {
             SET(pp->Flags2, PF2_INPUT_CAN_TURN_VEHICLE);
         }
@@ -2984,7 +2984,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     }
@@ -3007,7 +3007,7 @@ DoPlayerMoveTurret(PLAYERp pp)
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
     }
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET);
     }
@@ -3021,7 +3021,7 @@ DoPlayerMoveTurret(PLAYERp pp)
     else
         SET(pp->Flags, PF_PLAYER_MOVED);
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     }
@@ -3600,7 +3600,7 @@ DoPlayerClimb(PLAYERp pp)
     sp->z = pp->posz + PLAYER_HEIGHT;
     changespritesect(pp->PlayerSprite, pp->cursectnum);
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     }
@@ -6169,7 +6169,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     // allow turning
     if (TEST(pp->Flags, PF_DEAD_HEAD|PF_HEAD_CONTROL))
     {  
-        if (!cl_syncinput)
+        if (!SyncInput())
         {
             SET(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL);
         }

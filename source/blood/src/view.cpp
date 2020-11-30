@@ -568,7 +568,7 @@ void viewDrawScreen(bool sceneonly)
             v4c = finterpolate(predictOld.at1c, predict.at1c, gInterpolate);
             v48 = finterpolate(predictOld.at18, predict.at18, gInterpolate);
 
-            if (!cl_syncinput)
+            if (!SyncInput())
             {
                 cA = bamang(predict.at30.asbam() + predict.look_ang.asbam());
                 cH = predict.at24;
@@ -596,7 +596,7 @@ void viewDrawScreen(bool sceneonly)
             v4c = finterpolate(pView->at1c, gView->swayWidth, gInterpolate);
             v48 = finterpolate(pView->at18, gView->swayHeight, gInterpolate);
 
-            if (!cl_syncinput)
+            if (!SyncInput())
             {
                 cA = gView->angle.sum();
                 cH = gView->horizon.horiz;

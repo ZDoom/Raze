@@ -815,7 +815,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 		{
 			// input.avel already added to loc in processMovement()
 			loc.avel = clamp(loc.avel, -MAXANGVEL, MAXANGVEL);
-			if (!cl_syncinput && input.avel)
+			if (!SyncInput() && input.avel)
 			{
 				p->angle.spin = bamlook(0);
 			}
@@ -863,7 +863,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		processVehicleInput(p, hidInput, input, scaleAdjust);
 		FinalizeInput(myconnectindex, input, true);
 
-		if (!cl_syncinput && p->GetActor()->s.extra > 0)
+		if (!SyncInput() && p->GetActor()->s.extra > 0)
 		{
 			p->apply_seasick(scaleAdjust);
 		}
@@ -875,7 +875,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		FinalizeInput(myconnectindex, input, false);
 	}
 
-	if (!cl_syncinput)
+	if (!SyncInput())
 	{
 		if (p->GetActor()->s.extra > 0)
 		{

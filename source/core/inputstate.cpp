@@ -460,7 +460,7 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput, bool const crou
 
 double InputScale()
 {
-	if (!cl_syncinput)
+	if (!SyncInput())
 	{
 		double now = I_msTimeF();
 		double elapsedInputTicks = lastCheck > 0 ? min(now - lastCheck, 1000.0 / GameTicRate) : 1;

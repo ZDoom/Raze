@@ -105,3 +105,8 @@ void SetupGameButtons();
 void ApplyGlobalInput(InputPacket& input, ControlInfo* const hidInput, bool const crouchable = true, bool const disableToggle = false);
 extern ESyncBits ActionsToSend;
 double InputScale();
+
+inline bool SyncInput()
+{
+	return cl_syncinput;
+}

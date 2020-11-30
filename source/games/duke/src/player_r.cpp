@@ -3429,7 +3429,7 @@ void processinput_r(int snum)
 	pact->floorz = fz;
 	pact->ceilingz = cz;
 
-	if (cl_syncinput)
+	if (SyncInput())
 	{
 		p->horizon.backup();
 		calcviewpitch(p, 1);
@@ -3623,7 +3623,7 @@ void processinput_r(int snum)
 		p->posxv = 0;
 		p->posyv = 0;
 	}
-	else if (cl_syncinput)
+	else if (SyncInput())
 	{
 		//p->ang += syncangvel * constant
 		//ENGINE calculates angvel for you
@@ -3991,7 +3991,7 @@ HORIZONLY:
 		p->horizon.addadjustment(-d);
 	}
 
-	if (cl_syncinput)
+	if (SyncInput())
 	{
 		sethorizon(&p->horizon.horiz, PlayerHorizon(snum), &p->sync.actions);
 	}

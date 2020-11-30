@@ -538,14 +538,14 @@ void displayrooms(int snum, double smoothratio)
 		setgamepalette(setpal(p));
 
 		// set screen rotation.
-		rotscrnang = !cl_syncinput ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio);
+		rotscrnang = !SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio);
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
 			cposx = omyx + xs_CRoundToInt(fmulscale16(myx - omyx, smoothratio));
 			cposy = omyy + xs_CRoundToInt(fmulscale16(myy - omyy, smoothratio));
 			cposz = omyz + xs_CRoundToInt(fmulscale16(myz - omyz, smoothratio));
-			if (cl_syncinput)
+			if (SyncInput())
 			{
 				fixed_t ohorz = (omyhoriz + omyhorizoff).asq16();
 				fixed_t horz = (myhoriz + myhorizoff).asq16();
@@ -564,7 +564,7 @@ void displayrooms(int snum, double smoothratio)
 			cposx = p->oposx + xs_CRoundToInt(fmulscale16(p->posx - p->oposx, smoothratio));
 			cposy = p->oposy + xs_CRoundToInt(fmulscale16(p->posy - p->oposy, smoothratio));
 			cposz = p->oposz + xs_CRoundToInt(fmulscale16(p->posz - p->oposz, smoothratio));
-			if (cl_syncinput)
+			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct
 				choriz = p->horizon.interpolatedsum(smoothratio);

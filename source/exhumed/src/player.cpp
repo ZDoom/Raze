@@ -918,7 +918,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
             }
 
             // loc_1A494:
-            if (cl_syncinput)
+            if (SyncInput())
             {
                 Player* pPlayer = &PlayerList[nPlayer];
                 applylook(&pPlayer->angle, sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
@@ -2637,7 +2637,7 @@ loc_1BD2E:
                     PlayerList[nPlayer].field_2 = 0;
                 }
 
-                if (cl_syncinput)
+                if (SyncInput())
                 {
                     Player* pPlayer = &PlayerList[nPlayer];
                     sethorizon(&pPlayer->horizon.horiz, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);

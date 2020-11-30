@@ -203,7 +203,7 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
     processMovement(&input, &loc, hidInput, scaleAdjust, 0, !pp->sop, pp->sop_control ? 3. / 1.40625 : 1.);
     processWeapon(pp);
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
         {

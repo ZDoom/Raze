@@ -128,7 +128,7 @@ void displayweapon_r(int snum, double smoothratio)
 	look_anghalf = p->angle.look_anghalf(smoothratio);
 	looking_arc = fabs(look_anghalf) / 4.5;
 	weapon_sway = p->oweapon_sway + fmulscale16((p->weapon_sway - p->oweapon_sway), smoothratio);
-	TiltStatus = !cl_syncinput ? p->TiltStatus : p->oTiltStatus + fmulscale16((p->TiltStatus - p->oTiltStatus), smoothratio);
+	TiltStatus = !SyncInput() ? p->TiltStatus : p->oTiltStatus + fmulscale16((p->TiltStatus - p->oTiltStatus), smoothratio);
 
 	if (shadedsector[p->cursectnum] == 1)
 		shade = 16;

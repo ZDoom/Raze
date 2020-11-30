@@ -29,7 +29,7 @@ struct PlayerHorizon
 
 	void addadjustment(double value)
 	{
-		if (!cl_syncinput)
+		if (!SyncInput())
 		{
 			adjustment += value * FRACUNIT;
 		}
@@ -46,7 +46,7 @@ struct PlayerHorizon
 
 	void settarget(double value, bool backup = false)
 	{
-		if (!cl_syncinput && !backup)
+		if (!SyncInput() && !backup)
 		{
 			target = value * FRACUNIT;
 			if (target == 0) target += 1;
@@ -117,7 +117,7 @@ struct PlayerAngle
 
 	void addadjustment(int value)
 	{
-		if (!cl_syncinput)
+		if (!SyncInput())
 		{
 			adjustment += BAngToBAM(value);
 		}
@@ -129,7 +129,7 @@ struct PlayerAngle
 
 	void addadjustment(double value)
 	{
-		if (!cl_syncinput)
+		if (!SyncInput())
 		{
 			adjustment += value * BAMUNIT;
 		}
@@ -141,7 +141,7 @@ struct PlayerAngle
 
 	void addadjustment(lookangle value)
 	{
-		if (!cl_syncinput)
+		if (!SyncInput())
 		{
 			adjustment += value.asbam();
 		}
@@ -153,7 +153,7 @@ struct PlayerAngle
 
 	void addadjustment(binangle value)
 	{
-		if (!cl_syncinput)
+		if (!SyncInput())
 		{
 			adjustment += value.asbam();
 		}
@@ -170,7 +170,7 @@ struct PlayerAngle
 
 	void settarget(int value, bool backup = false)
 	{
-		if (!cl_syncinput && !backup)
+		if (!SyncInput() && !backup)
 		{
 			target = (ang + getincanglebam(ang, buildang(value))).asbam();
 			if (target == 0) target += 1;
@@ -184,7 +184,7 @@ struct PlayerAngle
 
 	void settarget(double value, bool backup = false)
 	{
-		if (!cl_syncinput && !backup)
+		if (!SyncInput() && !backup)
 		{
 			target = (ang + getincanglebam(ang, buildfang(value))).asbam();
 			if (target == 0) target += 1;
@@ -198,7 +198,7 @@ struct PlayerAngle
 
 	void settarget(binangle value, bool backup = false)
 	{
-		if (!cl_syncinput && !backup)
+		if (!SyncInput() && !backup)
 		{
 			target = (ang + getincanglebam(ang, value)).asbam();
 			if (target == 0) target += 1;
@@ -261,7 +261,7 @@ struct PlayerAngle
 
 	double look_anghalf(double const smoothratio)
 	{
-		return (!cl_syncinput ? look_ang : interpolatedlookang(smoothratio)).asbam() * (0.5 / BAMUNIT); // Used within draw code for weapon and crosshair when looking left/right.
+		return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).asbam() * (0.5 / BAMUNIT); // Used within draw code for weapon and crosshair when looking left/right.
 	}
 };
 
