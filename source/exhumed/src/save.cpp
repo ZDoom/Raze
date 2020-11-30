@@ -63,60 +63,44 @@ void SerializeSet(FSerializer& arc);
 void SerializeSpider(FSerializer& arc);
 void SerializeWasp(FSerializer& arc);
 
-static TArray<SavegameHelper*> sghelpers(TArray<SavegameHelper*>::NoInit);
-
-bool GameInterface::SaveGame()
-{
-    for (auto sgh : sghelpers) sgh->Save();
-    return 1; // CHECKME
-}
-
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
     if (arc.BeginObject("exhumed"))
     {
-    SerializeState(arc);
-    SerializeAnim(arc);
-    SerializeBubbles(arc);
-    SerializeBullet(arc);
-    SerializeGrenade(arc);
-    SerializeGun(arc);
-    SerializeInit(arc);
-    SerializeItems(arc);
-    SerializeMove(arc);
-    SerializeLighting(arc);
-    SerializeObjects(arc);
-    SerializePlayer(arc);
-    SerializeRa(arc);
-    SerializeRand(arc);
-    SerializeRunList(arc);
-    SerializeSequence(arc);
-    SerializeSnake(arc);
-    SerializeSwitch(arc);
-    SerializeView(arc);
+	    SerializeState(arc);
+	    SerializeAnim(arc);
+	    SerializeBubbles(arc);
+	    SerializeBullet(arc);
+	    SerializeGrenade(arc);
+	    SerializeGun(arc);
+	    SerializeInit(arc);
+	    SerializeItems(arc);
+	    SerializeMove(arc);
+	    SerializeLighting(arc);
+	    SerializeObjects(arc);
+	    SerializePlayer(arc);
+	    SerializeRa(arc);
+	    SerializeRand(arc);
+	    SerializeRunList(arc);
+	    SerializeSequence(arc);
+	    SerializeSnake(arc);
+	    SerializeSwitch(arc);
+	    SerializeView(arc);
 
-    SerializeAnubis(arc);
-    SerializeFish(arc);
-    SerializeLavadude(arc);
-    SerializeLion(arc);
-    SerializeMummy(arc);
-    SerializeQueen(arc);
-    SerializeRat(arc);
-    SerializeRex(arc);
-    SerializeRoach(arc);
-    SerializeScorpion(arc);
-    SerializeSet(arc);
-    SerializeSpider(arc);
-    SerializeWasp(arc);
+	    SerializeAnubis(arc);
+	    SerializeFish(arc);
+	    SerializeLavadude(arc);
+	    SerializeLion(arc);
+	    SerializeMummy(arc);
+	    SerializeQueen(arc);
+	    SerializeRat(arc);
+	    SerializeRex(arc);
+	    SerializeRoach(arc);
+	    SerializeScorpion(arc);
+	    SerializeSet(arc);
+	    SerializeSpider(arc);
+	    SerializeWasp(arc);
     }
-}
-
-bool GameInterface::LoadGame()
-{
-
-    for (auto sgh : sghelpers) sgh->Load();
-    FinishSavegameRead();
-
     // reset the sky in case it hasn't been done yet.
     psky_t* pSky = tileSetupSky(DEFAULTPSKY);
     pSky->tileofs[0] = 0;
@@ -146,43 +130,6 @@ bool GameInterface::LoadGame()
     }
 
     Mus_ResumeSaved();
-    return 1; // CHECKME
-}
-
-
-SavegameHelper::SavegameHelper(const char* name, ...)
-{
-    Name = name;
-    sghelpers.Push(this);
-    va_list ap;
-    va_start(ap, name);
-    for(;;)
-    {
-        void* addr = va_arg(ap, void*);
-        if (!addr) break;
-        size_t size = va_arg(ap, size_t);
-        Elements.Push(std::make_pair(addr, size));
-    }
-}
-
-void SavegameHelper::Load()
-{
-    auto fr = ReadSavegameChunk(Name);
-    if (!fr.isOpen()) return;
-    for (auto& entry : Elements)
-    {
-        auto read = fr.Read(entry.first, entry.second);
-        if (read != entry.second) I_Error("Save game read error in %s", Name.GetChars());
-    }
-}
-void SavegameHelper::Save()
-{
-    auto fw = WriteSavegameChunk(Name);
-    for (auto& entry : Elements)
-    {
-        auto write = fw->Write(entry.first, entry.second);
-        if (write != entry.second) I_Error("Save game write error in %s", Name.GetChars());
-    }
 }
 
 END_PS_NS

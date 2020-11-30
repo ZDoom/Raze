@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statistics.h"
 #include "v_draw.h"
 #include <string>
+#include "mapinfo.h"
 
 #include <assert.h>
 
@@ -75,6 +76,7 @@ unsigned int menu_RandomBit2()
 
 void InitEnergyTile()
 {
+    word_9AB5B = 0;
     memset(energytile, 96, sizeof(energytile));
 }
 

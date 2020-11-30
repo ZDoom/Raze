@@ -223,19 +223,6 @@ const uint32_t kSpiritX = 106;
 const uint32_t kSpiritY = 97;
 const uint32_t WorktileSize = kSpiritX * 2 * kSpiritY * 2;
 
-struct SavegameHelper
-{
-    FString Name;
-    TArray<std::pair<void*, size_t>> Elements;
-    SavegameHelper(const char* name, ...);
-    void Load();
-    void Save();
-};
-
-#define SV(v) &v, sizeof(v)
-#define SA(a) &a, sizeof(a)
-
-
 
 struct GameInterface : ::GameInterface
 {
@@ -248,8 +235,6 @@ struct GameInterface : ::GameInterface
     bool StartGame(FNewGameStartup& gs) override;
     FSavegameInfo GetSaveSig() override;
     void SerializeGameState(FSerializer& arc);
-    bool LoadGame() override;
-    bool SaveGame() override;
     bool CanSave() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override { return { 0, 24 }; }
 	void QuitToTitle() override;

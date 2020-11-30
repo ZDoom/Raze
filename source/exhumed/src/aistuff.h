@@ -268,13 +268,6 @@ void FuncMummy(int nSector, int edx, int nRun);
 
 // object
 
-enum
-{
-	kMaxPoints	= 1024,
-	kMaxSlides	= 128,
-	kMaxElevs	= 1024
-};
-
 enum kStatus
 {
     kStatDestructibleSprite = 97,
@@ -486,12 +479,6 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle);
 void FuncSpider(int a, int b, int nRun);
 
 // switch
-
-enum
-{
-	kMaxLinks		= 1024,
-	kMaxSwitches	= 1024
-};
 
 void InitLink();
 void InitSwitch();
