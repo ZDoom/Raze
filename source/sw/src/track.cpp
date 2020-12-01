@@ -1881,7 +1881,7 @@ PlayerPart:
             // Does not necessarily move with the sector so must accout for
             // moving across sectors
             if (sop->xmid < MAXSO) // special case for operating SO's
-                setspritez(sop->sp_num[i], (vec3_t *)sp);
+                setspritez(sop->sp_num[i], &sp->pos);
         }
 
         u->oangdiff += getincangle(oldang, sp->ang);
@@ -2058,7 +2058,7 @@ void UpdateSectorObjectSprites(SECTOR_OBJECTp sop)
     {
         sp = &sprite[sop->sp_num[i]];
 
-        setspritez(sop->sp_num[i], (vec3_t *)sp);
+        setspritez(sop->sp_num[i], &sp->pos);
     }
 }
 

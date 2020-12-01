@@ -5178,7 +5178,7 @@ DoGrating(short SpriteNum)
         }
     }
 
-    setspritez(SpriteNum, (vec3_t *)sp);
+    setspritez(SpriteNum, &sp->pos);
 
     return 0;
 }
@@ -7308,7 +7308,7 @@ move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildis
     }
 
     if (FAF_ConnectArea(sp->sectnum))
-        setspritez(spritenum, (vec3_t *)sp);
+        setspritez(spritenum, &sp->pos);
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
     {
@@ -7508,7 +7508,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     //MissileWaterAdjust(spritenum);
 
     //if (FAF_ConnectArea(sp->sectnum))
-    //    setspritez(spritenum, (vec3_t *)sp);
+    //    setspritez(spritenum, &sp->pos);
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
     {

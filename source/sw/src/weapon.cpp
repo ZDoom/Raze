@@ -4681,7 +4681,7 @@ WeaponMoveHit(short SpriteNum)
         // clipmove does not correctly return the sprite for WALL sprites
         // on walls, so look with hitscan
 
-        hitscan((vec3_t *)sp, sp->sectnum,   // Start position
+        hitscan(&sp->pos, sp->sectnum,   // Start position
                 bcos(sp->ang),    // X vector of 3D ang
                 bsin(sp->ang),    // Y vector of 3D ang
                 sp->zvel,         // Z vector of 3D ang
@@ -12831,7 +12831,7 @@ DoRing(int16_t Weapon)
     //sp->ang = NORM_ANGLE(sp->ang + 512);
     //updatesector(sp->x, sp->y);
 
-    setsprite(Weapon, (vec3_t *)sp);
+    setsprite(Weapon, &sp->pos);
 
     ASSERT(sp->sectnum >= 0);
 
@@ -12976,7 +12976,7 @@ DoSerpRing(int16_t Weapon)
     sp->x += mulscale14(u->Dist, bcos(u->slide_ang));
     sp->y += mulscale14(u->Dist, bsin(u->slide_ang));
 
-    setsprite(Weapon, (vec3_t *)sp);
+    setsprite(Weapon, &sp->pos);
 
     ASSERT(sp->sectnum >= 0);
 
@@ -17773,8 +17773,7 @@ HitscanSpriteAdjust(short SpriteNum, short hit_wall)
 
     // must have this
     sectnum = sp->sectnum;
-    clipmove((vec3_t *)sp, &sectnum, xvect, yvect,
-             4L, 4L<<8, 4L<<8, CLIPMASK_MISSILE);
+    clipmove(&sp->pos, &sectnum, xvect, yvect, 4L, 4L<<8, 4L<<8, CLIPMASK_MISSILE);
     clipmoveboxtracenum = 3;
 
     if (sp->sectnum != sectnum)
@@ -19109,7 +19108,7 @@ InitEnemyUzi(short SpriteNum)
     // Make sprite shade brighter
     u->Vis = 128;
 
-    setspritez(SpriteNum, (vec3_t *)sp);
+    setspritez(SpriteNum, &sp->pos);
 
     if (u->ID == ZILLA_RUN_R0)
     {
@@ -20635,8 +20634,7 @@ int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
     sectnum = sp->sectnum;
 
     clipmoveboxtracenum = 1;
-    clipmove((vec3_t *)sp, &sectnum, nx, ny,
-             0L, 0L, 0L, CLIPMASK_MISSILE);
+    clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE);
     clipmoveboxtracenum = 3;
 
     if (sp->sectnum != sectnum)
@@ -20954,8 +20952,7 @@ int QueueWallBlood(short hit_sprite, short ang)
     sectnum = sp->sectnum;
 
     clipmoveboxtracenum = 1;
-    clipmove((vec3_t *)sp, &sectnum, nx, ny,
-             0L, 0L, 0L, CLIPMASK_MISSILE);
+    clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE);
     clipmoveboxtracenum = 3;
 
     if (sp->sectnum != sectnum)
@@ -21092,7 +21089,7 @@ int QueueGeneric(short SpriteNum, short pic)
     {
         // move old sprite to new sprite's place
         osp = &sprite[GenericQueue[GenericQueueHead]];
-        //setspritez(GenericQueue[GenericQueueHead], (vec3_t *)sp);
+        //setspritez(GenericQueue[GenericQueueHead], &sp->pos);
         osp->x = sp->x;
         osp->y = sp->y;
         osp->z = sp->z;
@@ -21645,7 +21642,7 @@ int QueueLoWangs(short SpriteNum)
     else
     {
         // move old sprite to new sprite's place
-        setspritez(LoWangsQueue[LoWangsQueueHead], (vec3_t *)sp);
+        setspritez(LoWangsQueue[LoWangsQueueHead], &sp->pos);
         NewSprite = LoWangsQueue[LoWangsQueueHead];
         ASSERT(sprite[NewSprite].statnum != MAXSTATUS);
     }

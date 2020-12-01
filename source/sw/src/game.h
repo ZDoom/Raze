@@ -813,7 +813,12 @@ typedef struct
 struct PLAYERstruct
 {
     // variable that fit in the sprite or user structure
-    int32_t posx, posy, posz;
+    union
+    {
+        struct { int32_t posx, posy, posz; };
+        vec3_t pos;
+    };
+    
     // interpolation
     int oposx, oposy, oposz;
 

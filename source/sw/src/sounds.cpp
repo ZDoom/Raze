@@ -599,7 +599,7 @@ void GameInterface::UpdateSounds(void)
 
     listener.angle = -pp->angle.ang.asbuild() * BAngRadian; // Build uses a period of 2048.
     listener.velocity.Zero();
-    listener.position = GetSoundPos((vec3_t*)&pp->posx);
+    listener.position = GetSoundPos(&pp->pos);
     listener.underwater = false;
     // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
     // listenactor->waterlevel == 3;
@@ -649,7 +649,7 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
         }
         else if (pp && !pos)
         {
-            pos = (vec3_t*)&pp->posx;
+            pos = &pp->pos;
             pp = nullptr;
         }
     }

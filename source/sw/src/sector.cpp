@@ -1046,7 +1046,7 @@ SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
 
     // setup vars needed by SectorExp
     changespritesect(SpriteNum, sectnum);
-    //setspritez(SpriteNum, (vec3_t *)sp);
+    //setspritez(SpriteNum, &sp->pos);
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
 
     // spawn explosion
@@ -1154,7 +1154,7 @@ DoSpawnSpotsForKill(short match)
             change_sprite_stat(sn, STAT_NO_STATE);
             u->ActorActionFunc = DoSpawnSpot;
             u->WaitTics = SP_TAG5(sp) * 15;
-            setspritez(sn, (vec3_t *)sp);
+            setspritez(sn, &sp->pos);
             // setting for Killed
             u->LastDamage = 1;
         }
