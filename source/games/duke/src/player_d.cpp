@@ -1190,22 +1190,38 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 		{
 			if (weap == WeaponSel_Alt)
 			{
+				j = p->curr_weapon;
 				switch (p->curr_weapon)
 				{
 					case SHRINKER_WEAPON:
-						j = isPlutoPak() ? GROW_WEAPON : p->curr_weapon;
+						if (p->ammo_amount[GROW_WEAPON] > 0 && p->gotweapon[GROW_WEAPON] && isPlutoPak())
+						{
+							j = GROW_WEAPON;
+							p->subweapon |= (1 << GROW_WEAPON);
+						}
 						break;
 					case GROW_WEAPON:
-						j = SHRINKER_WEAPON;
+						if (p->ammo_amount[SHRINKER_WEAPON] > 0 && p->gotweapon[SHRINKER_WEAPON])
+						{
+							j = SHRINKER_WEAPON;
+							p->subweapon &= ~(1 << GROW_WEAPON);
+						}
 						break;
 					case FREEZE_WEAPON:
-						j = isWorldTour() ? FLAMETHROWER_WEAPON : p->curr_weapon;
+						if (p->ammo_amount[FLAMETHROWER_WEAPON] > 0 && p->gotweapon[FLAMETHROWER_WEAPON] && isWorldTour())
+						{
+							j = FLAMETHROWER_WEAPON;
+							p->subweapon |= (1 << FLAMETHROWER_WEAPON);
+						}
 						break;
 					case FLAMETHROWER_WEAPON:
-						j = FREEZE_WEAPON;
+						if (p->ammo_amount[FREEZE_WEAPON] > 0 && p->gotweapon[FREEZE_WEAPON])
+						{
+							j = FREEZE_WEAPON;
+							p->subweapon &= ~(1 << FLAMETHROWER_WEAPON);
+						}
 						break;
 					default:
-						j = p->curr_weapon;
 						break;
 				}
 			}

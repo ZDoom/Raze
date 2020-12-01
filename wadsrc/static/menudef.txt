@@ -498,10 +498,6 @@ OptionMenu "ActionControlsMenu" protected
 	{
 		Control    "$CNTRLMNU_ALTATTACK"        , "+alt_fire"
 	}
-	ifnotgame(Exhumed)
-	{
-		Control    "$CNTRLMNU_ALTWEAPON"        , "weapalt"
-	}
 
 	StaticText ""
 	Control    "$CNTRLMNU_USE"              , "+open"
@@ -563,6 +559,10 @@ OptionMenu "WeaponsControlMenu" protected
 	StaticText ""
 	Control    "$CNTRLMNU_NEXTWEAPON"     , "weapnext"
 	Control    "$CNTRLMNU_PREVIOUSWEAPON" , "weapprev"
+	ifnotgame(Exhumed)
+	{
+		Control    "$CNTRLMNU_ALTWEAPON"        , "weapalt"
+	}
 
 	StaticText ""
 	Control    "$CNTRLMNU_SLOT1"          , "slot 1"

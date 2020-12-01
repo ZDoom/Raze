@@ -984,34 +984,63 @@ void selectweapon_r(int snum, int weap)
 		{
 			if (weap == WeaponSel_Alt)
 			{
+				j = p->curr_weapon;
 				switch (p->curr_weapon)
 				{
 					case THROWSAW_WEAPON:
-						j = BUZZSAW_WEAPON;
+						if (p->ammo_amount[BUZZSAW_WEAPON] > 0)
+						{
+							j = BUZZSAW_WEAPON;
+							p->subweapon = 1 << BUZZSAW_WEAPON;
+						}
 						break;
 					case BUZZSAW_WEAPON:
-						j = THROWSAW_WEAPON;
+						if (p->ammo_amount[THROWSAW_WEAPON] > 0)
+						{
+							j = THROWSAW_WEAPON;
+							p->subweapon = 0;
+						}
 						break;
 					case POWDERKEG_WEAPON:
-						j = BOWLING_WEAPON;
+						if (p->ammo_amount[BOWLING_WEAPON] > 0)
+						{
+							j = BOWLING_WEAPON;
+							p->subweapon = 1 << BOWLING_WEAPON;
+						}
 						break;
 					case BOWLING_WEAPON:
-						j = POWDERKEG_WEAPON;
+						if (p->ammo_amount[POWDERKEG_WEAPON] > 0)
+						{
+							j = POWDERKEG_WEAPON;
+							p->subweapon = 0;
+						}
 						break;
 					case KNEE_WEAPON:
-						j = isRRRA() ? SLINGBLADE_WEAPON : p->curr_weapon;
+						if (isRRRA())
+						{
+							j = SLINGBLADE_WEAPON;
+							p->subweapon = 2;
+						}
 						break;
 					case SLINGBLADE_WEAPON:
 						j = KNEE_WEAPON;
+						p->subweapon = 0;
 						break;
 					case DYNAMITE_WEAPON:
-						j = isRRRA() ? CHICKEN_WEAPON : p->curr_weapon;
+						if (p->ammo_amount[CHICKEN_WEAPON] > 0 && isRRRA())
+						{
+							j = CHICKEN_WEAPON;
+							p->subweapon = 4;
+						}
 						break;
 					case CHICKEN_WEAPON:
-						j = DYNAMITE_WEAPON;
+						if (p->ammo_amount[DYNAMITE_WEAPON] > 0)
+						{
+							j = DYNAMITE_WEAPON;
+							p->subweapon = 0;
+						}
 						break;
 					default:
-						j = p->curr_weapon;
 						break;
 				}
 			}
