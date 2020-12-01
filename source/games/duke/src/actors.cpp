@@ -592,7 +592,7 @@ void movefx(void)
 				x = ldist(ps[screenpeek].GetActor(), act);
 				if (x < ht && act->temp_data[0] == 0)
 				{
-					FX_SetReverb(spri->lotag - 1000);
+					FX_SetReverb(spri->lotag - 1100);
 					act->temp_data[0] = 1;
 				}
 				if (x >= ht && act->temp_data[0] == 1)
