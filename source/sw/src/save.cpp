@@ -747,7 +747,7 @@ bool GameInterface::LoadGame()
     MREAD(&SpriteNum, sizeof(SpriteNum),1,fil);
     while (SpriteNum != -1)
     {
-        User[SpriteNum] = u = (USERp)CallocMem(sizeof(USER), 1);
+        User[SpriteNum] = u = NewUser();
         MREAD(u,sizeof(USER),1,fil);
 
         if (u->WallShade)

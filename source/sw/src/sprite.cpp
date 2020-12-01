@@ -793,8 +793,7 @@ KillSprite(int16_t SpriteNum)
             FreeMem(u->rotator);
         }
 
-        FreeMem(User[SpriteNum]);
-        User[SpriteNum] = 0;
+        FreeUser(SpriteNum);
     }
 
     FVector3 pos = GetSoundPos(&sprite[SpriteNum].pos);
@@ -887,7 +886,7 @@ SpawnUser(short SpriteNum, short id, STATEp state)
 
     ASSERT(!Prediction);
 
-    User[SpriteNum] = u = (USERp) CallocMem(sizeof(USER), 1);
+    User[SpriteNum] = u = NewUser();
 
     PRODUCTION_ASSERT(u != NULL);
 
@@ -5175,8 +5174,7 @@ DoGrating(short SpriteNum)
         change_sprite_stat(SpriteNum, STAT_DEFAULT);
         if (User[SpriteNum])
         {
-            FreeMem(User[SpriteNum]);
-            User[SpriteNum] = 0;
+            FreeUser(SpriteNum);
         }
     }
 

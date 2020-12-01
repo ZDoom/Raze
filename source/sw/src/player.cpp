@@ -7495,11 +7495,7 @@ InitMultiPlayerInfo(void)
 
         start0 = SpawnSprite(MultiStatList[stat], ST1, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
         ASSERT(start0 >= 0);
-        if (User[start0])
-        {
-            FreeMem(User[start0]);
-            User[start0] = NULL;
-        }
+        FreeUser(start0);
         sprite[start0].picnum = ST1;
     }
 

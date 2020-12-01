@@ -1404,12 +1404,7 @@ PostDraw(void)
     it.Reset(STAT_FAF_COPY);
     while ((i = it.NextIndex()) >= 0)
     {
-        if (User[i])
-        {
-            FreeMem(User[i]);
-            User[i] = NULL;
-        }
-
+        FreeUser(i);
         deletesprite(i);
     }
 }
@@ -1512,7 +1507,7 @@ void PreDrawStackedWater(void)
                 if (New >= 0)
                 {
                     // spawn a user
-                    User[New] = nu = (USERp)CallocMem(sizeof(USER), 1);
+                    User[New] = nu = NewUser();
                     ASSERT(nu != NULL);
 
                     nu->xchange = -989898;

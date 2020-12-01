@@ -491,12 +491,7 @@ void TerminateLevel(void)
     // Free any track points
     for (ndx = 0; ndx < MAX_TRACKS; ndx++)
     {
-        if (Track[ndx].TrackPoint)
-        {
-            FreeMem(Track[ndx].TrackPoint);
-            // !JIM! I added null assigner
-            Track[ndx].TrackPoint = NULL;
-        }
+        Track[ndx].FreeTrackPoints();
     }
 
     // Clear the tracks

@@ -1441,6 +1441,26 @@ typedef struct
 } RANGE,*RANGEp;
 
 
+inline void ClearUser(USER* user)
+{
+    *user = {};
+}
+
+inline USER* NewUser()
+{
+    auto u = (USER*)M_Calloc(sizeof(USER), 1);// new USER;
+    ClearUser(u);
+    return u;
+}
+
+inline void FreeUser(int num)
+{
+    if (User[num]) M_Free(User[num]);// delete User[num];
+    User[num] = nullptr;
+}
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
 // Sector Stuff - Sector Objects and Tracks
@@ -1644,19 +1664,37 @@ extern ANIM Anim[MAXANIM];
 extern short AnimCnt;
 
 
-typedef struct
+typedef struct TRACK_POINT
 {
     int x,y,z;
     short ang, tag_low, tag_high, filler;
-} TRACK_POINT, *TRACK_POINTp;
+} *TRACK_POINTp;
 
-typedef struct
+typedef struct TRACK
 {
     TRACK_POINTp TrackPoint;
     int ttflags;
     short flags;
     short NumPoints;
-} TRACK, *TRACKp;
+
+    void FreeTrackPoints()
+    {
+        if (TrackPoint)
+        {
+            M_Free(TrackPoint);
+            // !JIM! I added null assigner
+            TrackPoint = nullptr;
+        }
+    }
+
+    TRACK_POINTp SetTrackSize(unsigned newsize)
+    {
+        FreeTrackPoints();
+        TrackPoint = (TRACK_POINTp)M_Calloc((newsize * sizeof(TRACK_POINT)), 1);
+        return TrackPoint;
+    }
+
+}*TRACKp;
 
 // Most track type flags are in tags.h
 

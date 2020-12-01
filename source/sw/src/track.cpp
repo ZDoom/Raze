@@ -374,8 +374,7 @@ void QuickJumpSetup(short stat, short lotag, short type)
         ////DSPRINTF(ds,"1 ndx = %d, numpoints = %d\n", ndx, Track[ndx].NumPoints);
         //MONO_PRINT(ds);
 
-        FreeMem(Track[ndx].TrackPoint);
-        Track[ndx].TrackPoint = (TRACK_POINTp)CallocMem((4 * sizeof(TRACK_POINT)), 1);
+        Track[ndx].SetTrackSize(4);
 
         tp = Track[ndx].TrackPoint;
         t = &Track[ndx];
@@ -438,8 +437,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         ASSERT(ndx < MAX_TRACKS);
 
         // save space for 3 points
-        FreeMem(Track[ndx].TrackPoint);
-        Track[ndx].TrackPoint = (TRACK_POINTp)CallocMem((4 * sizeof(TRACK_POINT)), 1);
+        Track[ndx].SetTrackSize(4);
 
         ASSERT(Track[ndx].TrackPoint != NULL);
 
@@ -499,8 +497,7 @@ void QuickExitSetup(short stat, short type)
         ASSERT(ndx < MAX_TRACKS);
 
         // save space for 3 points
-        FreeMem(Track[ndx].TrackPoint);
-        Track[ndx].TrackPoint = (TRACK_POINTp)CallocMem((4 * sizeof(TRACK_POINT)), 1);
+        Track[ndx].SetTrackSize(4);
 
         ASSERT(Track[ndx].TrackPoint != NULL);
 
@@ -555,8 +552,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         ASSERT(ndx < MAX_TRACKS);
 
         // save space for 3 points
-        FreeMem(Track[ndx].TrackPoint);
-        Track[ndx].TrackPoint = (TRACK_POINTp)CallocMem((4 * sizeof(TRACK_POINT)), 1);
+        Track[ndx].SetTrackSize(4);
 
         ASSERT(Track[ndx].TrackPoint != NULL);
 

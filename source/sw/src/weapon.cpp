@@ -20565,8 +20565,7 @@ int QueueStar(short SpriteNum)
         // new star
         if (User[SpriteNum])
         {
-            FreeMem(User[SpriteNum]);
-            User[SpriteNum] = NULL;
+            FreeUser(SpriteNum);
         }
         change_sprite_stat(SpriteNum, STAT_STAR_QUEUE);
         StarQueue[StarQueueHead] = SpriteNum;
@@ -21084,8 +21083,7 @@ int QueueGeneric(short SpriteNum, short pic)
     {
         if (User[SpriteNum])
         {
-            FreeMem(User[SpriteNum]);
-            User[SpriteNum] = NULL;
+            FreeUser(SpriteNum);
         }
         change_sprite_stat(SpriteNum, STAT_GENERIC_QUEUE);
         GenericQueue[GenericQueueHead] = SpriteNum;
