@@ -2444,10 +2444,8 @@ InitPlayerSprite(PLAYERp pp)
     }
     else
     {
-        // save stuff from last level
-        u->WeaponNum = puser[pnum].WeaponNum;
-        u->LastWeaponNum = puser[pnum].LastWeaponNum;
-        u->Health = puser[pnum].Health;
+        // restore stuff from last level
+        puser[pnum].CopyToUser(u);
         PlayerLevelReset(pp);
     }
 

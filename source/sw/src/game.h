@@ -1272,6 +1272,28 @@ typedef struct
     uint8_t filler;
 } USER,*USERp;
 
+struct USERSAVE
+{
+    short Health;
+    int8_t WeaponNum;
+    int8_t LastWeaponNum;
+
+    void CopyFromUser(USER* u)
+    {
+        Health = u->Health;
+        WeaponNum = u->WeaponNum;
+        LastWeaponNum = u->LastWeaponNum;
+    }
+
+    void CopyToUser(USER* u)
+    {
+        u->Health = Health;
+        u->WeaponNum = WeaponNum;
+        u->LastWeaponNum = LastWeaponNum;
+    }
+
+};
+
 // sprite->extra flags
 // BUILD AND GAME - DO NOT MOVE THESE
 #define SPRX_SKILL              (BIT(0) | BIT(1) | BIT(2))
@@ -1991,8 +2013,8 @@ extern short connecthead, connectpoint2[MAXPLAYERS];
 */
 extern int *lastpacket2clock;
 
-// save player info when moving to a new level
-extern USER puser[MAX_SW_PLAYERS_REG];
+// save player info when moving to a new level (shortened to only cover the fields that actually are copied back.(
+extern USERSAVE puser[MAX_SW_PLAYERS_REG];
 
 ///////////////////////////
 //

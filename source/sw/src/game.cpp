@@ -514,10 +514,9 @@ void TerminateLevel(void)
         pnum = stat - STAT_PLAYER0;
 
         StatIterator it(stat);
-        while ((i = it.NextIndex()) >= 0)
+        if ((i = it.NextIndex()) >= 0)
         {
-            if (User[i])
-                memcpy(&puser[pnum], User[i], sizeof(USER));
+            if (User[i]) puser[pnum].CopyFromUser(User[i]);
         }
     }
 

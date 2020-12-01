@@ -78,7 +78,7 @@ extern bool NoMeters;
 #define PLAYER_MIN_HEIGHT (Z(20))
 #define PLAYER_CRAWL_WADE_DEPTH (30)
 
-USER puser[MAX_SW_PLAYERS_REG];
+USERSAVE puser[MAX_SW_PLAYERS_REG];
 
 //int16_t gNet.MultiGameType = MULTI_GAME_NONE;
 bool NightVision = false;
