@@ -1565,6 +1565,9 @@ void ProcessInput(PLAYER *pPlayer)
         sethorizon(&pPlayer->horizon.horiz, pInput->horz, &pInput->actions);
     }
 
+    // disable synchronised input if set by game.
+    resetForcedSyncInput();
+
     int nSector = pSprite->sectnum;
     int florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
     char va;
@@ -1651,10 +1654,6 @@ void playerProcess(PLAYER *pPlayer)
     int nXSprite = pSprite->extra;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-
-    // disable synchronised input if set by game.
-    resetForcedSyncInput();
-
     powerupProcess(pPlayer);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
