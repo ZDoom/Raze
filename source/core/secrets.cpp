@@ -127,10 +127,13 @@ void SECRET_SetMapName(const char *filename, const char *_maptitle)
 	maptitle = _maptitle;
 }
 
-void  SECRET_Trigger(int num)
+bool SECRET_Trigger(int num)
 {
-	if (secret_notify) Printf(PRINT_NONOTIFY, "Secret #%d found\n", num);
 	if (discovered_secrets.Find(num) == discovered_secrets.Size())
+	{
 		discovered_secrets.Push(num);
+		if (secret_notify) Printf(PRINT_NONOTIFY, "Secret #%d found\n", num);
+		return true;
+	}
+	return false;
 }
-
