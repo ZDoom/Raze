@@ -38,6 +38,7 @@ source as it is released.
 #include "names_d.h"
 #include "mapinfo.h"
 #include "dukeactor.h"
+#include "secrets.h"
 
 // PRIMITIVE
 BEGIN_DUKE_NS
@@ -1505,6 +1506,7 @@ void checksectors_d(int snum)
 		sector[p->cursectnum].lotag = 0;
 		FTA(9, p);
 		p->secret_rooms++;
+		SECRET_Trigger(p->cursectnum);
 		return;
 	case -1:
 		sector[p->cursectnum].lotag = 0;

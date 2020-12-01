@@ -32,6 +32,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "names_r.h"
 #include "mapinfo.h"
 #include "dukeactor.h"
+#include "secrets.h"
 
 // PRIMITIVE
 BEGIN_DUKE_NS
@@ -2449,6 +2450,7 @@ void checksectors_r(int snum)
 		sector[p->cursectnum].lotag = 0;
 		FTA(9, p);
 		p->secret_rooms++;
+		SECRET_Trigger(p->cursectnum);
 		return;
 	case -1:
 		sector[p->cursectnum].lotag = 0;
