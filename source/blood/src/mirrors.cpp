@@ -298,8 +298,6 @@ void sub_557C4(int x, int y, int interpolation)
 
 void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int viewPlayer)
 {
-    if (videoGetRenderMode() == REND_POLYMER)
-        return;
     for (int i = mirrorcnt - 1; i >= 0; i--)
     {
         int nTile = 4080+i;

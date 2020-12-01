@@ -1045,7 +1045,7 @@ JAnalyzeSprites(tspriteptr_t tspr)
     // Take care of autosizing
     DoAutoSize(tspr);
 
-    if (videoGetRenderMode() >= REND_POLYMOST && md_tilehasmodel(tspr->picnum, 0) >= 0 && hw_models) return;
+    if (md_tilehasmodel(tspr->picnum, 0) >= 0 && hw_models) return;
 
     // Check for voxels
     //if (bVoxelsOn)

@@ -94,11 +94,8 @@ template<typename T> tspritetype* viewInsertTSprite(int nSector, int nStatnum, T
         pTSprite->owner = pSprite->owner;
         pTSprite->ang = pSprite->ang;
     }
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        pTSprite->x += Cos(gCameraAng)>>25;
-        pTSprite->y += Sin(gCameraAng)>>25;
-    }
+    pTSprite->x += Cos(gCameraAng)>>25;
+    pTSprite->y += Sin(gCameraAng)>>25;
     return pTSprite;
 }
 
@@ -573,7 +570,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             nAnim--;
         }
 
-        if ((pTSprite->cstat&48) != 48 && r_voxels && videoGetRenderMode() != REND_POLYMER && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+        if ((pTSprite->cstat&48) != 48 && r_voxels && !(spriteext[nSprite].flags&SPREXT_NOTMD))
         {
             int const nRootTile = pTSprite->picnum;
             int nAnimTile = pTSprite->picnum + animateoffs_replace(pTSprite->picnum, 32768+pTSprite->owner);

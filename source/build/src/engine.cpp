@@ -40,8 +40,6 @@
 #endif
 
 
-int32_t rendmode=0;
-int32_t glrendmode = REND_POLYMOST;
 int32_t r_rortexture = 0;
 int32_t r_rortexturerange = 0;
 int32_t r_rorphase = 0;
@@ -327,10 +325,7 @@ static void renderDrawSprite(int32_t snum)
 //
 static void renderDrawMaskedWall(int16_t damaskwallcnt)
 {
-    if (videoGetRenderMode() == REND_POLYMOST) 
-    { 
-        polymost_drawmaskwall(damaskwallcnt); return; 
-    }
+    polymost_drawmaskwall(damaskwallcnt); return; 
 }
 
 
@@ -1130,16 +1125,12 @@ static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, c
 
 static inline int comparetsprites(int const k, int const l)
 {
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
-    {
-        if ((tspriteptr[k]->cstat & 48) != (tspriteptr[l]->cstat & 48))
-            return (tspriteptr[k]->cstat & 48) - (tspriteptr[l]->cstat & 48);
+    if ((tspriteptr[k]->cstat & 48) != (tspriteptr[l]->cstat & 48))
+        return (tspriteptr[k]->cstat & 48) - (tspriteptr[l]->cstat & 48);
 
-        if ((tspriteptr[k]->cstat & 48) == 16 && tspriteptr[k]->ang != tspriteptr[l]->ang)
-            return tspriteptr[k]->ang - tspriteptr[l]->ang;
-    }
-#endif
+    if ((tspriteptr[k]->cstat & 48) == 16 && tspriteptr[k]->ang != tspriteptr[l]->ang)
+        return tspriteptr[k]->ang - tspriteptr[l]->ang;
+
     if (tspriteptr[k]->statnum != tspriteptr[l]->statnum)
         return tspriteptr[k]->statnum - tspriteptr[l]->statnum;
 
@@ -1230,29 +1221,18 @@ void renderDrawMasks(void)
     int32_t i = spritesortcnt-1;
     int32_t numSprites = spritesortcnt;
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
+    spritesortcnt = 0;
+    int32_t back = i;
+    for (; i >= 0; --i)
     {
-        spritesortcnt = 0;
-        int32_t back = i;
-        for (; i >= 0; --i)
+        if (polymost_spriteHasTranslucency(&tsprite[i]))
         {
-            if (polymost_spriteHasTranslucency(&tsprite[i]))
-            {
-                tspriteptr[spritesortcnt] = &tsprite[i];
-                ++spritesortcnt;
-            } else
-            {
-                tspriteptr[back] = &tsprite[i];
-                --back;
-            }
-        }
-    } else
-#endif
-    {
-        for (; i >= 0; --i)
+            tspriteptr[spritesortcnt] = &tsprite[i];
+            ++spritesortcnt;
+        } else
         {
-            tspriteptr[i] = &tsprite[i];
+            tspriteptr[back] = &tsprite[i];
+            --back;
         }
     }
 
@@ -1260,9 +1240,7 @@ void renderDrawMasks(void)
     {
         const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
         const int32_t yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
-#ifdef USE_OPENGL
         const int32_t modelp = polymost_spriteIsModelOrVoxel(tspriteptr[i]);
-#endif
 
         if (yp > (4<<8))
         {
@@ -1276,9 +1254,7 @@ void renderDrawMasks(void)
         else if ((tspriteptr[i]->cstat&48) == 0)
         {
 killsprite:
-#ifdef USE_OPENGL
             if (!modelp)
-#endif
             {
                 //Delete face sprite if on wrong side!
                 if (i >= spritesortcnt)
@@ -1315,81 +1291,76 @@ killsprite:
     sortsprites(spritesortcnt, numSprites);
     renderBeginScene();
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
+    GLInterface.EnableBlend(false);
+    GLInterface.EnableAlphaTest(true);
+    GLInterface.SetDepthBias(-2, -256);
+
+    if (spritesortcnt < numSprites)
     {
-        GLInterface.EnableBlend(false);
-        GLInterface.EnableAlphaTest(true);
-        GLInterface.SetDepthBias(-2, -256);
-
-        if (spritesortcnt < numSprites)
+        i = spritesortcnt;
+        for (bssize_t i = spritesortcnt; i < numSprites;)
         {
-            i = spritesortcnt;
-            for (bssize_t i = spritesortcnt; i < numSprites;)
+            int32_t py = spritesxyz[i].y;
+            int32_t pcstat = tspriteptr[i]->cstat & 48;
+            int32_t pangle = tspriteptr[i]->ang;
+            int j = i + 1;
+            if (!polymost_spriteIsModelOrVoxel(tspriteptr[i]))
             {
-                int32_t py = spritesxyz[i].y;
-                int32_t pcstat = tspriteptr[i]->cstat & 48;
-                int32_t pangle = tspriteptr[i]->ang;
-                int j = i + 1;
-                if (!polymost_spriteIsModelOrVoxel(tspriteptr[i]))
+                while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
+                    && !polymost_spriteIsModelOrVoxel(tspriteptr[j]))
                 {
-                    while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
-                        && !polymost_spriteIsModelOrVoxel(tspriteptr[j]))
-                    {
-                        j++;
-                    }
+                    j++;
                 }
-                if (j - i == 1)
-                {
-                    debugmask_add(i | 32768, tspriteptr[i]->owner);
-                    renderDrawSprite(i);
-                    tspriteptr[i] = NULL;
-                }
-                else
-                {
-					GLInterface.SetDepthMask(false);
-
-                    for (bssize_t k = j-1; k >= i; k--)
-                    {
-                        debugmask_add(k | 32768, tspriteptr[k]->owner);
-                        renderDrawSprite(k);
-                    }
-
-					GLInterface.SetDepthMask(true);
-
-					GLInterface.SetColorMask(false);
-                    
-                    for (bssize_t k = j-1; k >= i; k--)
-                    {
-                        renderDrawSprite(k);
-                        tspriteptr[k] = NULL;
-                    }
-
-					GLInterface.SetColorMask(true);
-
-                }
-                i = j;
             }
-        }
-
-		int32_t numMaskWalls = maskwallcnt;
-        maskwallcnt = 0;
-        for (i = 0; i < numMaskWalls; i++)
-        {
-            if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[i]]]))
+            if (j - i == 1)
             {
-                maskwall[maskwallcnt] = maskwall[i];
-                maskwallcnt++;
+                debugmask_add(i | 32768, tspriteptr[i]->owner);
+                renderDrawSprite(i);
+                tspriteptr[i] = NULL;
             }
             else
-                renderDrawMaskedWall(i);
-        }
+            {
+				GLInterface.SetDepthMask(false);
 
-        GLInterface.EnableBlend(true);
-        GLInterface.EnableAlphaTest(true);
-		GLInterface.SetDepthMask(false);
+                for (bssize_t k = j-1; k >= i; k--)
+                {
+                    debugmask_add(k | 32768, tspriteptr[k]->owner);
+                    renderDrawSprite(k);
+                }
+
+				GLInterface.SetDepthMask(true);
+
+				GLInterface.SetColorMask(false);
+                    
+                for (bssize_t k = j-1; k >= i; k--)
+                {
+                    renderDrawSprite(k);
+                    tspriteptr[k] = NULL;
+                }
+
+				GLInterface.SetColorMask(true);
+
+            }
+            i = j;
+        }
     }
-#endif
+
+	int32_t numMaskWalls = maskwallcnt;
+    maskwallcnt = 0;
+    for (i = 0; i < numMaskWalls; i++)
+    {
+        if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[i]]]))
+        {
+            maskwall[maskwallcnt] = maskwall[i];
+            maskwallcnt++;
+        }
+        else
+            renderDrawMaskedWall(i);
+    }
+
+    GLInterface.EnableBlend(true);
+    GLInterface.EnableAlphaTest(true);
+	GLInterface.SetDepthMask(false);
 
     vec2f_t pos;
 
@@ -1401,8 +1372,7 @@ killsprite:
     while (maskwallcnt)
     {
         // PLAG: sorting stuff
-        const int32_t w = (videoGetRenderMode()==REND_POLYMER) ?
-            maskwall[maskwallcnt-1] : thewall[maskwall[maskwallcnt-1]];
+        const int32_t w =  thewall[maskwall[maskwallcnt-1]];
 
         maskwallcnt--;
 
@@ -1877,8 +1847,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 
     strcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
            "  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
-
-    rendmode = REND_POLYMOST;
 
     upscalefactor = 1;
     xdim = daupscaledxdim;

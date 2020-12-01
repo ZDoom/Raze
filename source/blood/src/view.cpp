@@ -841,7 +841,7 @@ void viewDrawScreen(bool sceneonly)
 
         if ((v78 || bDelirium) && !sceneonly)
         {
-            if (videoGetRenderMode() == REND_POLYMOST && gDeliriumBlur)
+            if (gDeliriumBlur)
             {
                 // todo: Implement using modern techniques instead of relying on deprecated old stuff that isn't well supported anymore.
                 /* names broken up so that searching for GL keywords won't find them anymore

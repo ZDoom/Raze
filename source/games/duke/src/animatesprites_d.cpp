@@ -81,12 +81,11 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 				t->xrepeat = t->yrepeat = 0;
 			continue;
 		case CHAIR3:
-			/*
-			if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum) >= 0) {
+			if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0) 
+			{
 				t->cstat &= ~4;
 				break;
 			}
-			*/
 
 			k = (((t->ang + 3072 + 128 - a) & 2047) >> 8) & 7;
 			if (k > 4)
@@ -279,10 +278,11 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			t->picnum = GROWSPARK + ((ud.levelclock >> 4) & 3);
 			break;
 		case RPG:
-			/*if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
+			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+			{
 				t->cstat &= ~4;
 				break;
-			}*/
+			}
 
 			k = getangle(s->x - x, s->y - y);
 			k = (((s->ang + 3072 + 128 - k) & 2047) / 170);
@@ -296,10 +296,11 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			break;
 
 		case RECON:
-			/*if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
+			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+			{
 				t->cstat &= ~4;
 				break;
-			}*/
+			}
 
 			k = getangle(s->x - x, s->y - y);
 			if (h->temp_data[0] < 4)
@@ -387,10 +388,13 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 
 			if (!h->GetOwner())
 			{
-				/*if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
+				if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+				{
 					k = 0;
 					t->cstat &= ~4;
-				} else*/ {
+				}
+				else
+				{
 					k = (((s->ang + 3072 + 128 - a) & 2047) >> 8) & 7;
 					if (k > 4)
 					{
@@ -504,10 +508,13 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			{
 				l = ScriptCode[t4 + 2];
 
-				/*if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
+				if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+				{
 					k = 0;
 					t->cstat &= ~4;
-				} else*/ switch (l) {
+				}
+				else switch (l) 
+				{
 				case 2:
 					k = (((s->ang + 3072 + 128 - a) & 2047) >> 8) & 1;
 					break;
@@ -599,25 +606,20 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 							shadowspr->z = daz;
 							shadowspr->pal = 4;
 
-							if (videoGetRenderMode() >= REND_POLYMOST)
+							if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0)
 							{
-								/*
-								if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0)
-								{
-									shadowspr->yrepeat = 0;
-									// 512:trans reverse
-									//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
-									shadowspr->clipdist |= TSPR_FLAGS_MDHACK;
-									shadowspr->cstat |= 512;
-								}
-								else
-								*/
-								{
-									// Alter the shadow's position so that it appears behind the sprite itself.
-									int look = getangle(shadowspr->x - ps[screenpeek].posx, shadowspr->y - ps[screenpeek].posy);
-									shadowspr->x += bcos(look, -9);
-									shadowspr->y += bsin(look, -9);
-								}
+								shadowspr->yrepeat = 0;
+								// 512:trans reverse
+								//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
+								shadowspr->clipdist |= TSPR_FLAGS_MDHACK;
+								shadowspr->cstat |= 512;
+							}
+							else
+							{
+								// Alter the shadow's position so that it appears behind the sprite itself.
+								int look = getangle(shadowspr->x - ps[screenpeek].posx, shadowspr->y - ps[screenpeek].posy);
+								shadowspr->x += bcos(look, -9);
+								shadowspr->y += bsin(look, -9);
 							}
 							spritesortcnt++;
 						}
@@ -672,10 +674,13 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			t->picnum += (s->shade >> 1);
 			break;
 		case PLAYERONWATER:
-			/*if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
+			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+			{
 				k = 0;
 				t->cstat &= ~4;
-			} else*/ {
+			}
+			else
+			{
 			k = (((t->ang + 3072 + 128 - a) & 2047) >> 8) & 7;
 			if (k > 4)
 			{
@@ -726,10 +731,11 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 
 		case CAMERA1:
 		case RAT:
-			/*if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
+			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+			{
 				t->cstat &= ~4;
 				break;
-			}*/
+			}
 
 			k = (((t->ang + 3072 + 128 - a) & 2047) >> 8) & 7;
 			if (k > 4)

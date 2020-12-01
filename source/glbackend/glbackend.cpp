@@ -366,7 +366,6 @@ void renderSetVisibility(float vis)
 
 void renderBeginScene()
 {
-	if (videoGetRenderMode() < REND_POLYMOST) return;
 	assert(BufferLock == 0);
 
 	vp.mPalLightLevels = numshades | (static_cast<int>(gl_fogmode) << 8) | ((int)5 << 16);
@@ -380,7 +379,6 @@ void renderBeginScene()
 
 void renderFinishScene()
 {
-	if (videoGetRenderMode() < REND_POLYMOST) return;
 	assert(BufferLock == 1);
 	if (--BufferLock == 0)
 	{

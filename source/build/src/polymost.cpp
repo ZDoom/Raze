@@ -2452,8 +2452,6 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
 
 void polymost_drawrooms()
 {
-    if (videoGetRenderMode() == REND_CLASSIC) return;
-
     polymost_outputGLDebugMessage(3, "polymost_drawrooms()");
 
 	GLInterface.ClearDepth();
@@ -3596,7 +3594,6 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     //    basically this just means walls are repeating
     //    while sprites are clamped
 
-    if (videoGetRenderMode() < REND_POLYMOST) return;
    if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (!lookups.checkTable(dapalnum))) return;//dapalnum = 0;
 
     //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);

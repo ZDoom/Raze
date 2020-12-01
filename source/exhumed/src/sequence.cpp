@@ -624,7 +624,7 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
             }
 
             pTSprite->cstat = 0x22; // transluscence, floor sprite
-            pTSprite->z = videoGetRenderMode() >= REND_POLYMOST ? nFloorZ : nFloorZ + 1;
+            pTSprite->z = nFloorZ;
             pTSprite->yrepeat = (uint8_t)edx;
             pTSprite->xrepeat = (uint8_t)edx;
             pTSprite->statnum = -3;

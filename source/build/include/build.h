@@ -41,12 +41,6 @@ EXTERN int16_t sintable[2048];
 
 typedef int64_t coord_t;
 
-enum rendmode_t {
-    REND_CLASSIC,
-    REND_POLYMOST = 3,
-    REND_POLYMER
-};
-
 enum
 {
     MAXSECTORS = 4096,
@@ -350,9 +344,6 @@ extern int16_t tiletovox[MAXTILES];
 extern int32_t voxscale[MAXVOXELS];
 extern char g_haveVoxels;
 
-#ifdef USE_OPENGL
-extern int32_t rendmode;
-#endif
 extern uint8_t globalr, globalg, globalb;
 
 enum {
@@ -366,15 +357,6 @@ extern int32_t globalflags;
 extern const char *engineerrstr;
 
 EXTERN int32_t editorzrange[2];
-
-static FORCE_INLINE int32_t videoGetRenderMode(void)
-{
-#ifndef USE_OPENGL
-    return REND_CLASSIC;
-#else
-    return rendmode;
-#endif
-}
 
 enum {
     ENGINECOMPATIBILITY_NONE = 0,
@@ -744,7 +726,6 @@ EXTERN_CVAR(Bool, r_voxels)
 
 extern int32_t r_downsize;
 extern int32_t mdtims, omdtims;
-extern int32_t glrendmode;
 
 extern int32_t r_rortexture;
 extern int32_t r_rortexturerange;
