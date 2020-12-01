@@ -1676,7 +1676,7 @@ static void mdfree(mdmodel_t *vm)
     if (vm->mdnum == 2 || vm->mdnum == 3) { md3free((md3model_t *)vm); return; }
 }
 
-static void updateModelInterpolation()
+void updateModelInterpolation()
 {
 	// sigh...
 	omdtims = mdtims;

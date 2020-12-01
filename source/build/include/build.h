@@ -900,6 +900,8 @@ enum EHitBits
     kHitSprite = 0xC000,
 };
 
+void updateModelInterpolation();
+
 
 #include "iterators.h"
 

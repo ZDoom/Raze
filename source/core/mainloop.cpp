@@ -376,6 +376,7 @@ void Display()
 			screen->FrameTime = I_msTimeFS();
 			screen->BeginFrame();
 			screen->SetSceneRenderTarget(gl_ssao != 0);
+			updateModelInterpolation();
 			gi->Render();
 			DrawFullscreenBlends();
 			drawMapTitle();
