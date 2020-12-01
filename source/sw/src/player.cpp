@@ -1344,7 +1344,7 @@ DoSpawnTeleporterEffect(SPRITEp sp)
 
     ep = &sprite[effect];
 
-    setspritez(effect, (vec3_t *)ep);
+    setspritez(effect, &ep->pos);
 
     ep->shade = -40;
     ep->xrepeat = ep->yrepeat = 42;
@@ -1368,7 +1368,7 @@ DoSpawnTeleporterEffectPlace(SPRITEp sp)
 
     ep = &sprite[effect];
 
-    setspritez(effect, (vec3_t *)ep);
+    setspritez(effect, &ep->pos);
 
     ep->shade = -40;
     ep->xrepeat = ep->yrepeat = 42;

@@ -4347,7 +4347,6 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
             nu->jump_speed += RANDOM_RANGE(p->max_jspeed - p->min_jspeed);
             nu->jump_speed = -nu->jump_speed;
 
-            //setspritez(New, (vec3_t *)np);
             nu->xchange = MOVEx(np->xvel, np->ang);
             nu->ychange = MOVEy(np->xvel, np->ang);
 
@@ -8638,7 +8637,7 @@ DoPlasmaFountain(int16_t Weapon)
         ap = &sprite[u->Attach];
 
         // move with sprite
-        setspritez(Weapon, (vec3_t *)ap);
+        setspritez(Weapon, &ap->pos);
         sp->ang = ap->ang;
 
         u->Counter++;
@@ -10364,7 +10363,7 @@ DoMicro(int16_t Weapon)
         // last smoke
         if ((u->WaitTics -= MISSILEMOVETICS) <= 0)
         {
-            setspritez(New, (vec3_t *)np);
+            setspritez(New, &np->pos);
             NewStateGroup(Weapon, &sg_MicroMini[0]);
             sp->xrepeat = sp->yrepeat = 10;
             RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
@@ -14612,10 +14611,6 @@ InitStar(PLAYERp pp)
     w = SpawnSprite(STAT_MISSILE, STAR1, s_Star, pp->cursectnum, nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
     wp = &sprite[w];
     wu = User[w];
-
-    // Attach sound to moving shuriken  (* Screw off, yucky sound! *)
-//    PlaySound(DIGI_STARWIZ, &wp->x, &wp->y, &wp->z, v3df_follow);
-//    Set3DSoundOwner(w);
 
     //SET(wp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
     SetOwner(pp->PlayerSprite, w);
@@ -18940,7 +18935,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
     SPRITEp sp;
     int xvect,yvect,zvect;
 
-    PlaySound(DIGI_BOATFIRE, (vec3_t*)sop, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_BOATFIRE, &sop->pmid, v3df_dontpan|v3df_doppler);
 
     for (i = 0; sop->sp_num[i] != -1; i++)
     {

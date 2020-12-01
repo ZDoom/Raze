@@ -7066,7 +7066,7 @@ move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist
 
     // extra processing for Stacks and warping
     if (FAF_ConnectArea(spr->sectnum))
-        setspritez(spritenum, (vec3_t *)spr);
+        setspritez(spritenum, &spr->pos);
 
     if (TEST(sector[spr->sectnum].extra, SECTFX_WARP_SECTOR))
     {

@@ -289,7 +289,7 @@ short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy
         vec2_t const p = { ox[i], oy[i] };
         rotatepoint(pp->pos.vec2, p, rot_ang, &xy[i]);
         // cannot use sop->xmid and ymid because the SO is off the map at this point
-        //rotatepoint(*(vec2_t *)&sop->xmid, p, rot_ang, &xy[i]);
+        //rotatepoint(&sop->xmid, p, rot_ang, &xy[i]);
     }
 
     //Given the 4 points: x[4], y[4]

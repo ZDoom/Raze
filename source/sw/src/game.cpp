@@ -346,7 +346,7 @@ void InitLevel(MapRecord *maprec)
     }
 
     int16_t ang;
-    engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, (vec3_t*)&Player[0], &ang, &Player[0].cursectnum);
+    engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].pos, &ang, &Player[0].cursectnum);
     currentLevel = maprec;
 
     if (!maprec->labelName.CompareNoCase("$outpost") && !maprec->name.CompareNoCase("$TXTS_MAP09"))

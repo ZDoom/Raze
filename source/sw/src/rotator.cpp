@@ -417,7 +417,7 @@ int DoRotatorMove(short SpriteNum)
     for (w = startwall, ndx = 0; w <= endwall; w++)
     {
         vec2_t const orig = { r->origx[ndx], r->origy[ndx] };
-        rotatepoint(*(vec2_t *)&pivot->x, orig, r->pos, &nxy);
+        rotatepoint(pivot->pos.vec2, orig, r->pos, &nxy);
 
         dragpoint(w, nxy.x, nxy.y, 0);
         ndx++;

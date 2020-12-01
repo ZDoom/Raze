@@ -1730,8 +1730,13 @@ struct SECTOR_OBJECTstruct
 
     SPRITEp sp_child;  // child sprite that holds info for the sector object
 
-    int    xmid,ymid,zmid, // midpoints of the sector object
-           vel,            // velocity
+    union
+    {
+        struct { int xmid, ymid, zmid; };  // midpoints of the sector object
+        vec3_t pmid;
+    };
+    
+    int    vel,            // velocity
            vel_tgt,        // target velocity
            player_xoff,    // player x offset from the xmid
            player_yoff,    // player y offset from the ymid
