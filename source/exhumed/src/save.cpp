@@ -59,6 +59,8 @@ bool GameInterface::SaveGame()
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
+    if (arc.BeginObject("exhumed"))
+    {
     SerializeSwitch(arc);
     SerializeView(arc);
 
@@ -74,6 +76,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     SerializeSet(arc);
     SerializeSpider(arc);
     SerializeWasp(arc);
+    }
 }
 
 bool GameInterface::LoadGame()
