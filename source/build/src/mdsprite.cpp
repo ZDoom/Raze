@@ -1238,7 +1238,7 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
 
             vt->SetTexCoord(s->uv[k].u, s->uv[k].v);
 
-            vt->SetVertex(vertlist[k].x, vertlist[k].y);
+            vt->SetVertex(vertlist[k].x, vertlist[k].y, vertlist[k].z);
         }
     }
 	GLInterface.Draw(DT_Triangles, data.second, s->numtris *3);
