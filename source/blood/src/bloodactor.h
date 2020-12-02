@@ -25,10 +25,10 @@ public:
     DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
     DBloodActor& operator=(const DBloodActor& other) = default;
 	
-    void Clear()
-    {
-        dudeSlope = 0;
-    }
+	void Clear()
+	{
+		dudeSlope = 0;
+	}
     bool hasX() { return sprite[index].extra > 0; }
 	spritetype& s() { return sprite[index]; }
 	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
@@ -42,6 +42,43 @@ public:
     SPRITEMASS& spriteMass() { return gSpriteMass[sprite[index].extra]; }
     GENDUDEEXTRA& genDudeExtra() { return Blood::gGenDudeExtra[index]; }
     POINT3D& basePoint() { return Blood::baseSprite[index]; }
+
+	void SetOwner(DBloodActor* own)
+	{
+		s().owner = own? own->s().index : -1;
+	}
+
+	DBloodActor* GetOwner()
+	{
+		if (s().owner == -1) return nullptr;
+		return base() + s().owner;
+	}
+
+	bool IsPlayerActor()
+	{
+		return s().type >= kDudePlayer1 && s().type <= kDudePlayer8;
+	}
+
+	bool IsDudeActor()
+	{
+		return s().type >= kDudeBase && s().type < kDudeMax;
+	}
+
+	bool IsItemActor()
+	{
+		return s().type >= kItemBase && s().type < kItemMax;
+	}
+
+	bool IsWeaponActor()
+	{
+		return s().type >= kItemWeaponBase && s().type < kItemWeaponMax;
+	}
+
+	bool IsAmmoActor()
+	{
+		return s().type >= kItemAmmoBase && s().type < kItemAmmoMax;
+	}
+
 };
 
 extern DBloodActor bloodActors[kMaxSprites];
