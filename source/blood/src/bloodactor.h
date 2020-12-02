@@ -89,5 +89,11 @@ public:
 	}
 };
 
+inline int DeleteSprite(DBloodActor* nSprite)
+{
+	if (nSprite) return DeleteSprite(nSprite->s().index);
+	return 0;
+}
+
 
 END_BLD_NS

@@ -216,8 +216,6 @@ void actDoLight(int spriteNum);
 #endif
 
 bool IsUnderwaterSector(int nSector);
-bool actTypeInSector(int nSector, int nType);
-void actAllocateSpares(void);
 void actInit(bool bSaveLoad);
 void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6);
 int actWallBounceVector(int *x, int *y, int nWall, int a4);
