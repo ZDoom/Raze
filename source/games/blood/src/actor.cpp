@@ -2350,7 +2350,7 @@ bool IsUnderwaterSector(int nSector)
 //
 //---------------------------------------------------------------------------
 
-void actInitTraps()
+static void actInitTraps()
 {
 	BloodStatIterator it(kStatTraps);
 	while (auto act = it.Next())
@@ -2374,7 +2374,7 @@ void actInitTraps()
 //
 //---------------------------------------------------------------------------
 
-void actInitThings()
+static void actInitThings()
 {
 	BloodStatIterator it(kStatThing);
 	while (auto act = it.Next())
@@ -2428,7 +2428,7 @@ void actInitThings()
 //
 //---------------------------------------------------------------------------
 
-void actInitDudes()
+static void actInitDudes()
 {
 	if (gGameOptions.nMonsterSettings == 0)
 	{
@@ -2552,53 +2552,57 @@ void actInit(bool bSaveLoad)
 //
 //---------------------------------------------------------------------------
 
-void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6)
+static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y, int z, int damage)
 {
-    assert(pSprite != NULL);
-    int dx = pSprite->x-x;
-    int dy = pSprite->y-y;
-    int dz = (pSprite->z-z)>>4;
-    int dist2 = 0x40000+dx*dx+dy*dy+dz*dz;
-    assert(dist2 > 0);
-    a6 = scale(0x40000, a6, dist2);
+	auto pSprite = &actor->s();
+	int dx = pSprite->x - x;
+	int dy = pSprite->y - y;
+	int dz = (pSprite->z - z) >> 4;
+	int dist2 = 0x40000 + dx * dx + dy * dy + dz * dz;
+	assert(dist2 > 0);
+	damage = scale(0x40000, damage, dist2);
 
-    if (pSprite->flags & kPhysMove) {
-        int mass = 0;
-        if (IsDudeSprite(pSprite)) {
+	if (pSprite->flags & kPhysMove)
+	{
+		int mass = 0;
+		if (actor->IsDudeActor())
+		{
+			mass = getDudeInfo(pSprite->type)->mass;
+#ifdef NOONE_EXTENSIONS
+			if (pSprite->type == kDudeModernCustom || pSprite->type == kDudeModernCustomBurning)
+			{
+				mass = getSpriteMassBySize(pSprite);
+			}
+#endif
+		}
+		else if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
+		{
+			mass = thingInfo[pSprite->type - kThingBase].mass;
+		}
+		else
+		{
+			Printf(PRINT_HIGH, "Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", (int)pSprite->index, (int)pSprite->type, (int)pSprite->statnum);
+			return;
+		}
 
-            mass = getDudeInfo(pSprite->type)->mass;
-            #ifdef NOONE_EXTENSIONS
-            switch (pSprite->type) {
-            case kDudeModernCustom:
-            case kDudeModernCustomBurning:
-                mass = getSpriteMassBySize(pSprite);
-                break;
-            }
-            #endif
-
-        } else if (pSprite->type >= kThingBase && pSprite->type < kThingMax) {
-            mass = thingInfo[pSprite->type - kThingBase].mass;
-        } else {
-            Printf(PRINT_HIGH, "Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", (int)pSprite->index, (int)pSprite->type, (int)pSprite->statnum);
-            return;
-        }
-
-        int size = (tileWidth(pSprite->picnum)*pSprite->xrepeat*tileHeight(pSprite->picnum)*pSprite->yrepeat)>>1;
-        assert(mass > 0);
-
-        int t = scale(a6, size, mass);
-        dx = MulScale(t, dx, 16);
-        dy = MulScale(t, dy, 16);
-        dz = MulScale(t, dz, 16);
-        int nSprite = pSprite->index;
-        assert(nSprite >= 0 && nSprite < kMaxSprites);
-        xvel[nSprite] += dx;
-        yvel[nSprite] += dy;
-        zvel[nSprite] += dz;
-    }
-
-    actDamageSprite(a1, pSprite, DAMAGE_TYPE_3, a6);
+		if (mass > 0)
+		{
+			int size = (tileWidth(pSprite->picnum) * pSprite->xrepeat * tileHeight(pSprite->picnum) * pSprite->yrepeat) >> 1;
+			int t = scale(damage, size, mass);
+			int nSprite = pSprite->index;
+			actor->xvel() += MulScale(t, dx, 16);
+			actor->yvel() += MulScale(t, dy, 16);
+			actor->zvel() += MulScale(t, dz, 16);
+		}
+	}
+	actDamageSprite(source, actor, DAMAGE_TYPE_3, damage);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int actWallBounceVector(int *x, int *y, int nWall, int a4)
 {
@@ -3591,6 +3595,11 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
     }
     
     return damage >> 4;
+}
+
+int actDamageSprite(DBloodActor* pSource, DBloodActor* pTarget, DAMAGE_TYPE damageType, int damage)
+{
+    return actDamageSprite(pSource->s().index, &pTarget->s(), damageType, damage);
 }
 
 void actHitcodeToData(int a1, HITINFO *pHitInfo, int *a3, spritetype **a4, XSPRITE **a5, int *a6, walltype **a7, XWALL **a8, int *a9, sectortype **a10, XSECTOR **a11)
@@ -5646,6 +5655,7 @@ void actProcessSprites(void)
         if (pSprite->flags & 32)
             continue;
         int nOwner = pSprite->owner;
+        auto pOwner = nOwner == -1? nullptr : &bloodActors[pSprite->owner];
         int nType = pSprite->type;
         assert(nType >= 0 && nType < kExplodeMax);
         const EXPLOSION *pExplodeInfo = &explodeInfo[nType];
@@ -5681,7 +5691,8 @@ void actProcessSprites(void)
         StatIterator it1(kStatDude);
         while ((nSprite2 = it1.NextIndex()) >= 0)
         {
-            spritetype *pDude = &sprite[nSprite2];
+            DBloodActor* act2 = &bloodActors[nSprite2];
+            spritetype *pDude = &act2->s();
 
             if (pDude->flags & 32)
                 continue;
@@ -5695,7 +5706,7 @@ void actProcessSprites(void)
                         actDamageSprite(nOwner, pDude, DAMAGE_TYPE_0, (pExplodeInfo->dmg+Random(pExplodeInfo->dmgRng))<<4);
                     }
                     if (pExplodeInfo->dmgType)
-                        ConcussSprite(nOwner, pDude, x, y, z, pExplodeInfo->dmgType);
+                        ConcussSprite(pOwner, act2, x, y, z, pExplodeInfo->dmgType);
                     if (pExplodeInfo->burnTime)
                     {
                         assert(pDude->extra > 0 && pDude->extra < kMaxXSprites);
@@ -5711,6 +5722,7 @@ void actProcessSprites(void)
         it1.Reset(kStatThing);
         while ((nSprite2 = it1.NextIndex()) >= 0)
         {
+            auto act2 = &bloodActors[nSprite2];
             spritetype *pThing = &sprite[nSprite2];
 
             if (pThing->flags & 32)
@@ -5723,7 +5735,7 @@ void actProcessSprites(void)
                     if (!pXSprite2->locked)
                     {
                         if (pExplodeInfo->dmgType)
-                            ConcussSprite(nOwner, pThing, x, y, z, pExplodeInfo->dmgType);
+                            ConcussSprite(pOwner, act2, x, y, z, pExplodeInfo->dmgType);
                         if (pExplodeInfo->burnTime)
                         {
                             assert(pThing->extra > 0 && pThing->extra < kMaxXSprites);

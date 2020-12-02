@@ -211,7 +211,6 @@ void actDoLight(int spriteNum);
 
 bool IsUnderwaterSector(int nSector);
 void actInit(bool bSaveLoad);
-void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6);
 int actWallBounceVector(int *x, int *y, int nWall, int a4);
 int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5);
 void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11, int a12, int a13);
@@ -226,6 +225,7 @@ spritetype *actDropObject(spritetype *pSprite, int nType);
 bool actHealDude(XSPRITE *pXDude, int a2, int a3);
 void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4);
 int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4);
+int actDamageSprite(DBloodActor* pSource, DBloodActor* pTarget, DAMAGE_TYPE damageType, int damage);
 void actHitcodeToData(int a1, HITINFO *pHitInfo, int *a3, spritetype **a4, XSPRITE **a5, int *a6, walltype **a7, XWALL **a8, int *a9, sectortype **a10, XSECTOR **a11);
 void actImpactMissile(spritetype *pMissile, int hitCode);
 void actKickObject(spritetype *pSprite1, spritetype *pSprite2);
