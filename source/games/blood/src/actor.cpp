@@ -2718,41 +2718,53 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 	}
 }
 
-void sub_2AA94(DBloodActor* actor)
-{
-    auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
-    int nOwner = pSprite->owner;
-    actPostSprite(pSprite->index, kStatDecoration);
-    seqSpawn(9, 3, pSprite->extra);
-    if (Chance(0x8000))
-        pSprite->cstat |= 4;
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-    sfxPlay3DSound(pSprite, 303, 24+(pSprite->flags&3), 1);
-    actRadiusDamage(actor->GetOwner(), pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128, 0, 60, DAMAGE_TYPE_3, 15, 120);
-    if (pXSprite->data4 > 1)
-    {
-        GibSprite(pSprite, GIBTYPE_5, NULL, NULL);
-        int v14[2];
-        v14[0] = pXSprite->data4>>1;
-        v14[1] = pXSprite->data4-v14[0];
-        int v4 = pSprite->ang;
-        xvel[pSprite->index] = 0;
-        yvel[pSprite->index] = 0;
-        zvel[pSprite->index] = 0;
-        for (int i = 0; i < 2; i++)
-        {
-            int t1 = Random(0x33333)+0x33333;
-            int t2 = Random2(0x71);
-            pSprite->ang = (t2+v4+2048)&2047;
-            spritetype *pSprite2 = actFireThing(pSprite, 0, 0, -0x93d0, kThingNapalmBall, t1);
-            XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
-            pSprite2->owner = pSprite->owner;
-            seqSpawn(61, 3, pSprite2->extra, nNapalmClient);
-            pXSprite2->data4 = v14[i];
-        }
-    }
+static void actNapalmMove(DBloodActor* actor)
+{
+	auto pXSprite = &actor->x();
+	auto pSprite = &actor->s();
+	auto pOwner = actor->GetOwner();
+
+	actPostSprite(actor, kStatDecoration);
+	seqSpawn(9, actor);
+	if (Chance(0x8000)) pSprite->cstat |= 4;
+
+	sfxPlay3DSound(pSprite, 303, 24 + (pSprite->flags & 3), 1);
+	actRadiusDamage(pOwner, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128, 0, 60, DAMAGE_TYPE_3, 15, 120);
+
+	if (pXSprite->data4 > 1)
+	{
+		GibSprite(pSprite, GIBTYPE_5, NULL, NULL);
+		int spawnparam[2];
+		spawnparam[0] = pXSprite->data4 >> 1;
+		spawnparam[1] = pXSprite->data4 - spawnparam[0];
+		int ang = pSprite->ang;
+		actor->xvel() = 0;
+		actor->yvel() = 0;
+		actor->zvel() = 0;
+		for (int i = 0; i < 2; i++)
+		{
+			int t1 = Random(0x33333) + 0x33333;
+			int rndang = Random2(0x71);
+			pSprite->ang = (rndang + ang + 2048) & 2047;
+			auto spawned = actFireThing(actor, 0, 0, -0x93d0, kThingNapalmBall, t1);
+			spawned->SetOwner(actor->GetOwner());
+			seqSpawn(61, spawned, nNapalmClient);
+			spawned->x().data4 = spawnparam[i];
+		}
+	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 spritetype *actSpawnFloor(spritetype *pSprite)
 {
@@ -4431,7 +4443,7 @@ int MoveThing(spritetype *pSprite)
             
             switch (pSprite->type) {
                 case kThingNapalmBall:
-                    if (zvel[nSprite] == 0 || Chance(0xA000)) sub_2AA94(&bloodActors[pXSprite->reference]);
+                    if (zvel[nSprite] == 0 || Chance(0xA000)) actNapalmMove(&bloodActors[pXSprite->reference]);
                     break;
                 case kThingZombieHead:
                     if (abs(zvel[nSprite]) > 0x80000) {
@@ -6258,7 +6270,7 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
     return pSprite;
 }
 
-spritetype * actFireThing(spritetype *pSprite, int a2, int a3, int a4, int thingType, int a6)
+spritetype * actFireThing_(spritetype *pSprite, int a2, int a3, int a4, int thingType, int a6)
 {
     assert(thingType >= kThingBase && thingType < kThingMax);
     int x = pSprite->x+MulScale(a2, Cos(pSprite->ang+512), 30);
@@ -6281,6 +6293,12 @@ spritetype * actFireThing(spritetype *pSprite, int a2, int a3, int a4, int thing
     yvel[pThing->index] += yvel[pSprite->index]/2;
     zvel[pThing->index] += zvel[pSprite->index]/2;
     return pThing;
+}
+
+DBloodActor* actFireThing(DBloodActor* pSprite, int a2, int a3, int a4, int thingType, int a6)
+{
+    auto spr = actFireThing_(&pSprite->s(), a2, a3, a4, thingType, a6);
+    return &bloodActors[spr->index];
 }
 
 spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, int a6, int nType)
@@ -6870,6 +6888,11 @@ void actPostSprite(int nSprite, int nStatus)
     }
     gPost[n].sprite = nSprite;
     gPost[n].status = nStatus;
+}
+
+void actPostSprite(DBloodActor* actor, int status)
+{
+    actPostSprite(actor->s().index, status);
 }
 
 void actPostProcess(void)

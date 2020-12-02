@@ -586,6 +586,11 @@ void seqSpawn(int nSeqID, int type, int nXIndex, int callback)
 	pInst->Update();
 }
 
+void seqSpawn(int a1, DBloodActor* actor, int a4)
+{
+	seqSpawn(a1, 3, actor->s().extra, a4);
+}
+
 //---------------------------------------------------------------------------
 //
 //

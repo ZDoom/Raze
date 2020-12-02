@@ -102,7 +102,7 @@ void ThrowFSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    actFireThing(&actor->s(), 0, 0, actor->dudeSlope-7500, kThingBone, 0xeeeee);
+    actFireThing_(&actor->s(), 0, 0, actor->dudeSlope-7500, kThingBone, 0xeeeee);
 }
 
 void BlastSSeqCallback(int, DBloodActor* actor)
@@ -202,7 +202,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 void ThrowSSeqCallback(int, DBloodActor* actor)
 {
     spritetype* pSprite = &actor->s();
-    actFireThing(pSprite, 0, 0, actor->dudeSlope - 7500, kThingBone, Chance(0x6000) ? 0x133333 : 0x111111);
+    actFireThing_(pSprite, 0, 0, actor->dudeSlope - 7500, kThingBone, Chance(0x6000) ? 0x133333 : 0x111111);
 }
 
 static void gargThinkTarget(DBloodActor* actor)

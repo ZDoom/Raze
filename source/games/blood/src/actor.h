@@ -214,7 +214,6 @@ void actInit(bool bSaveLoad);
 int actWallBounceVector(int *x, int *y, int nWall, int a4);
 int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5);
 void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11);
-void sub_2AA94(DBloodActor *actor);
 spritetype *actSpawnFloor(spritetype *pSprite);
 spritetype *actDropAmmo(spritetype *pSprite, int nType);
 spritetype *actDropWeapon(spritetype *pSprite, int nType);
@@ -243,13 +242,16 @@ spritetype * actSpawnSprite(int nSector, int x, int y, int z, int nStat, char a6
 spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4);
 spritetype * actSpawnSprite(spritetype *pSource, int nStat);
 spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType);
-spritetype * actFireThing(spritetype *pSprite, int a2, int a3, int a4, int thingType, int a6);
+spritetype * actFireThing_(spritetype *pSprite, int a2, int a3, int a4, int thingType, int a6);
+DBloodActor* actFireThing(DBloodActor* pSprite, int a2, int a3, int a4, int thingType, int a6);
+
 spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, int a6, int nType);
 int actGetRespawnTime(spritetype *pSprite);
 bool actCheckRespawn(spritetype *pSprite);
 bool actCanSplatWall(int nWall);
 void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType);
 void actPostSprite(int nSprite, int nStatus);
+void actPostSprite(DBloodActor* actor, int status);
 void actPostProcess(void);
 void MakeSplash(DBloodActor *actor);
 void actBuildMissile(spritetype* pMissile, int nXSprite, int nSprite);

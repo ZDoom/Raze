@@ -1740,7 +1740,7 @@ spritetype *playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, i
 spritetype * playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5)
 {
     assert(thingType >= kThingBase && thingType < kThingMax);
-    return actFireThing(pPlayer->pSprite, a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
+    return actFireThing_(pPlayer->pSprite, a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
 }
 
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
