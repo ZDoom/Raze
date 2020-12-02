@@ -2360,36 +2360,7 @@ bool IsUnderwaterSector(int nSector)
     return 0;
 }
 
-int actSpriteOwnerToSpriteId(spritetype *pSprite)
-{
-    assert(pSprite != NULL);
-    if (pSprite->owner == -1)
-        return -1;
-    int nSprite = pSprite->owner & (kMaxSprites-1);
-    if (pSprite->owner & kMaxSprites)
-        nSprite = gPlayer[nSprite].pSprite->index;
-    return nSprite;
-}
-
-void actPropagateSpriteOwner(spritetype *pTarget, spritetype *pSource)
-{
-    assert(pTarget != NULL && pSource != NULL);
-    if (IsPlayerSprite(pSource))
-        pTarget->owner = (pSource->type - kDudePlayer1) | kMaxSprites;
-    else
-        pTarget->owner = pSource->index;
-}
-
-int actSpriteIdToOwnerId(int nSprite)
-{
-    if (nSprite == -1)
-        return -1;
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    spritetype *pSprite = &sprite[nSprite];
-    if (IsPlayerSprite(pSprite))
-        nSprite = (pSprite->type - kDudePlayer1) | kMaxSprites;
-    return nSprite;
-}
+// Let's better forget that this shit ever existed. It will be a lot easier to substitute player owners upon respawn, if needed.
 
 int actOwnerIdToSpriteId(int nSprite)
 {
@@ -2689,7 +2660,7 @@ void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7,
     UNREFERENCED_PARAMETER(a12);
     UNREFERENCED_PARAMETER(a13);
     uint8_t va0[(kMaxSectors+7)>>3];
-    int nOwner = actSpriteIdToOwnerId(nSprite);
+    int nOwner = sprite[nSprite].owner;
     GetClosestSpriteSectors(nSector, x, y, nDist, va0);
     nDist <<= 4;
     if (a10 & 2)
@@ -2766,14 +2737,14 @@ void sub_2AA94(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    int nSprite = actOwnerIdToSpriteId(pSprite->owner);
+    int nOwner = pSprite->owner;
     actPostSprite(pSprite->index, kStatDecoration);
     seqSpawn(9, 3, pSprite->extra);
     if (Chance(0x8000))
         pSprite->cstat |= 4;
 
     sfxPlay3DSound(pSprite, 303, 24+(pSprite->flags&3), 1);
-    sub_2A620(nSprite, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128, 0, 60, DAMAGE_TYPE_3, 15, 120, 0, 0);
+    sub_2A620(nOwner, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128, 0, 60, DAMAGE_TYPE_3, 15, 120, 0, 0);
     if (pXSprite->data4 > 1)
     {
         GibSprite(pSprite, GIBTYPE_5, NULL, NULL);
@@ -3347,7 +3318,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         break;
     case kDudeSpiderBrown:
         if (pSprite->owner != -1) {
-            spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
+            spritetype *pOwner = &sprite[pSprite->owner];
             gDudeExtra[pOwner->extra].at6.u1.xval2--;
         }
         
@@ -3357,7 +3328,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         break;
     case kDudeSpiderRed:
         if (pSprite->owner != -1) {
-            spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
+            spritetype *pOwner = &sprite[pSprite->owner];
             gDudeExtra[pOwner->extra].at6.u1.xval2--;
         }
         
@@ -3367,7 +3338,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         break;
     case kDudeSpiderBlack:
         if (pSprite->owner != -1) {
-            spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
+            spritetype *pOwner = &sprite[pSprite->owner];
             gDudeExtra[pOwner->extra].at6.u1.xval2--;
         }
         
@@ -3581,7 +3552,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
 
                 default:
                     if (!(pSprite->flags & kHitagRespawn))
-                        actPropagateSpriteOwner(pSprite, &sprite[nSource]);
+                        pSprite->owner = nSource;
                     break;
             }
 
@@ -3724,7 +3695,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
     switch (pMissile->type) {
         case kMissileLifeLeechRegular:
             if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo)) {
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 DAMAGE_TYPE rand1 = (DAMAGE_TYPE)Random(7);
                 int rand2 = (7 + Random(7)) << 4;
                 int nDamage = actDamageSprite(nOwner, pSpriteHit, rand1, rand2);
@@ -3770,7 +3741,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             seqKill(3, nXMissile);
             if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
             {
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDamage = (15+Random(7))<<4;
                 actDamageSprite(nOwner, pSpriteHit, DAMAGE_TYPE_2, nDamage);
             }
@@ -3782,7 +3753,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             GibSprite(pMissile, GIBTYPE_6, NULL, NULL);
             if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
             {
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDamage = (25+Random(20))<<4;
                 actDamageSprite(nOwner, pSpriteHit, DAMAGE_TYPE_5, nDamage);
             }
@@ -3793,7 +3764,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             sfxKill3DSound(pMissile, -1, -1);
             sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 306, pMissile->sectnum);
             if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo)) {
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDmgMul = (pMissile->type == kMissileLifeLeechAltSmall) ? 6 : 3;
                 int nDamage = (nDmgMul+Random(nDmgMul))<<4;
                 actDamageSprite(nOwner, pSpriteHit, DAMAGE_TYPE_5, nDamage);
@@ -3806,7 +3777,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             {
                 if (pThingInfo && pSpriteHit->type == kThingTNTBarrel && pXSpriteHit->burnTime == 0)
                     evPost(nSpriteHit, 3, 0, kCallbackFXFlameLick);
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDamage = (50+Random(50))<<4;
                 actDamageSprite(nOwner, pSpriteHit, DAMAGE_TYPE_2, nDamage);
             }
@@ -3819,7 +3790,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
         case kMissileFlareRegular:
             sfxKill3DSound(pMissile, -1, -1);
             if ((hitCode == 3 && pSpriteHit) && (pThingInfo || pDudeInfo)) {
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 if ((pThingInfo && pThingInfo->dmgControl[DAMAGE_TYPE_1] != 0) || (pDudeInfo && pDudeInfo->at70[DAMAGE_TYPE_1] != 0)) {
                     if (pThingInfo && pSpriteHit->type == kThingTNTBarrel && pXSpriteHit->burnTime == 0)
                         evPost(nSpriteHit, 3, 0, kCallbackFXFlameLick);
@@ -3863,7 +3834,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                     XSPRITE *pXObject = &xsprite[pObject->extra];
                     if ((pObject->statnum == kStatThing || pObject->statnum == kStatDude) && pXObject->burnTime == 0)
                         evPost(nObject, 3, 0, kCallbackFXFlameLick);
-                    int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                    int nOwner = pMissile->owner;
                     actBurnSprite(pMissile->owner, pXObject, (4+gGameOptions.nDifficulty)<<2);
                     actDamageSprite(nOwner, pObject, DAMAGE_TYPE_1, 8);
                 }
@@ -3881,7 +3852,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                     XSPRITE *pXObject = &xsprite[pObject->extra];
                     if ((pObject->statnum == kStatThing || pObject->statnum == kStatDude) && pXObject->burnTime == 0)
                         evPost(nObject, 3, 0, kCallbackFXFlameLick);
-                    int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                    int nOwner = pMissile->owner;
                     actBurnSprite(pMissile->owner, pXObject, (4+gGameOptions.nDifficulty)<<2);
                     actDamageSprite(nOwner, pObject, DAMAGE_TYPE_1, 8);
                     int nDamage = (25+Random(10))<<4;
@@ -3902,7 +3873,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                     XSPRITE *pXObject = &xsprite[pObject->extra];
                     if ((pObject->statnum == kStatThing || pObject->statnum == kStatDude) && pXObject->burnTime == 0)
                         evPost(nObject, 3, 0, kCallbackFXFlameLick);
-                    int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                    int nOwner = pMissile->owner;
                     actBurnSprite(pMissile->owner, pXObject, 32);
                     actDamageSprite(nOwner, pObject, DAMAGE_TYPE_5, 12);
                     int nDamage = (25+Random(10))<<4;
@@ -3923,7 +3894,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                 spritetype *pObject = &sprite[nObject];
                 if (pObject->statnum == kStatDude)
                 {
-                    int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                    int nOwner = pMissile->owner;
                     int nDamage = (25+Random(10))<<4;
                     actDamageSprite(nOwner, pObject, DAMAGE_TYPE_5, nDamage);
                 }
@@ -3941,7 +3912,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                 spritetype *pObject = &sprite[nObject];
                 if (pObject->statnum == kStatDude)
                 {
-                    int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                    int nOwner = pMissile->owner;
                     int nDamage = (10+Random(10))<<4;
                     actDamageSprite(nOwner, pObject, DAMAGE_TYPE_5, nDamage);
                     spritetype *pOwner = &sprite[nOwner];
@@ -3964,7 +3935,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                 int nObject = gHitInfo.hitsprite;
                 assert(nObject >= 0 && nObject < kMaxSprites);
                 spritetype *pObject = &sprite[nObject];
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDamage = (15+Random(10))<<4;
                 actDamageSprite(nOwner, pObject, DAMAGE_TYPE_6, nDamage);
             }
@@ -3977,7 +3948,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                 int nObject = gHitInfo.hitsprite;
                 assert(nObject >= 0 && nObject < kMaxSprites);
                 spritetype *pObject = &sprite[nObject];
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDamage = (10+Random(10))<<4;
                 actDamageSprite(nOwner, pObject, DAMAGE_TYPE_0, nDamage);
             }
@@ -4188,7 +4159,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                 case kDudeBurningZombieButcher:
                     // This does not make sense
                     pXSprite->burnTime = ClipLow(pXSprite->burnTime-4, 0);
-                    actDamageSprite(actOwnerIdToSpriteId(pXSprite->burnSource), pSprite, DAMAGE_TYPE_1, 8);
+                    actDamageSprite(pXSprite->burnSource, pSprite, DAMAGE_TYPE_1, 8);
                     break;
             }
         }
@@ -4605,7 +4576,7 @@ void MoveDude(spritetype *pSprite)
             // Should be pHitSprite here
             if (pSprite->extra > 0)
                 pHitXSprite = &xsprite[pHitSprite->extra];
-            int nOwner = actSpriteOwnerToSpriteId(pHitSprite);
+            int nOwner = pHitSprite->owner;
 
             if (pHitSprite->statnum == kStatProjectile && !(pHitSprite->flags&32) && pSprite->index != nOwner)
             {
@@ -5088,7 +5059,7 @@ int MoveMissile(spritetype *pSprite)
     int bakCstat = 0;
     if (pSprite->owner >= 0)
     {
-        int nOwner = actSpriteOwnerToSpriteId(pSprite);
+        int nOwner = pSprite->owner;
         pOwner = &sprite[nOwner];
         if (IsDudeSprite(pOwner))
         {
@@ -5460,7 +5431,7 @@ void actProcessSprites(void)
             if (pXSprite->burnTime > 0)
             {
                 pXSprite->burnTime = ClipLow(pXSprite->burnTime-4,0);
-                actDamageSprite(actOwnerIdToSpriteId(pXSprite->burnSource), pSprite, DAMAGE_TYPE_1, 8);
+                actDamageSprite(pXSprite->burnSource, pSprite, DAMAGE_TYPE_1, 8);
             }
                                        
             if (pXSprite->Proximity) {
@@ -5493,7 +5464,7 @@ void actProcessSprites(void)
                         if (pSprite->type == kModernThingEnemyLifeLeech) proxyDist = 512;
                         #endif
                             if (pSprite->type == kThingDroppedLifeLeech && pXSprite->target == -1)  {
-                            int nOwner = actOwnerIdToSpriteId(pSprite->owner);
+                            int nOwner = pSprite->owner;
                             spritetype *pOwner = &sprite[nOwner];
                             if (!IsPlayerSprite(pOwner))
                                 continue;
@@ -5528,7 +5499,7 @@ void actProcessSprites(void)
                                     break;
                                 #endif
                             }
-                            if (pSprite->owner == -1) actPropagateSpriteOwner(pSprite, pSprite2);
+                            if (pSprite->owner == -1) pSprite->owner = pSprite2->index;
                             trTriggerSprite(nSprite, pXSprite, kCmdSpriteProximity);
                         }
                     }
@@ -5623,7 +5594,7 @@ void actProcessSprites(void)
                                 int nObject = hit & 0x3fff;
                                 assert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype * pObject = &sprite[nObject];
-                                actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, pXSprite->data1);
+                                actDamageSprite(pSprite->owner, pObject, DAMAGE_TYPE_0, pXSprite->data1);
                             }
                             break;
                         #endif
@@ -5634,13 +5605,13 @@ void actProcessSprites(void)
                                 int nObject = hit & 0x3fff;
                                 assert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype *pObject = &sprite[nObject];
-                                actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, 12);
+                                actDamageSprite(pSprite->owner, pObject, DAMAGE_TYPE_0, 12);
                             }
                             break;
                         case kThingPodGreenBall:
                             if ((hit&0xc000) == 0x4000)
                             {
-                                sub_2A620(actSpriteOwnerToSpriteId(pSprite), pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 200, 1, 20, DAMAGE_TYPE_3, 6, 0, 0, 0);
+                                sub_2A620(pSprite->owner, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 200, 1, 20, DAMAGE_TYPE_3, 6, 0, 0, 0);
                                 evPost(pSprite->index, 3, 0, kCallbackFXPodBloodSplat);
                             }
                             else
@@ -5650,7 +5621,7 @@ void actProcessSprites(void)
                                     break;
                                 assert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype *pObject = &sprite[nObject];
-                                actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, 12);
+                                actDamageSprite(pSprite->owner, pObject, DAMAGE_TYPE_0, 12);
                                 evPost(pSprite->index, 3, 0, kCallbackFXPodBloodSplat);
                             }
                             break;
@@ -5689,7 +5660,7 @@ void actProcessSprites(void)
 
         if (pSprite->flags & 32)
             continue;
-        int nOwner = actSpriteOwnerToSpriteId(pSprite);
+        int nOwner = pSprite->owner;
         int nType = pSprite->type;
         assert(nType >= 0 && nType < kExplodeMax);
         const EXPLOSION *pExplodeInfo = &explodeInfo[nType];
@@ -5905,11 +5876,11 @@ void actProcessSprites(void)
                 case kDudeBurningCultist:
                 case kDudeBurningZombieAxe:
                 case kDudeBurningZombieButcher:
-                    actDamageSprite(actOwnerIdToSpriteId(pXSprite->burnSource), pSprite, DAMAGE_TYPE_1, 8);
+                    actDamageSprite(pXSprite->burnSource, pSprite, DAMAGE_TYPE_1, 8);
                     break;
                 default:
                     pXSprite->burnTime = ClipLow(pXSprite->burnTime-4, 0);
-                    actDamageSprite(actOwnerIdToSpriteId(pXSprite->burnSource), pSprite, DAMAGE_TYPE_1, 8);
+                    actDamageSprite(pXSprite->burnSource, pSprite, DAMAGE_TYPE_1, 8);
                     break;
                 }
             }
@@ -6303,7 +6274,7 @@ spritetype * actFireThing(spritetype *pSprite, int a2, int a3, int a4, int thing
         y = gHitInfo.hity-mulscale28(pSprite->clipdist<<1, Sin(pSprite->ang));
     }
     spritetype *pThing = actSpawnThing(pSprite->sectnum, x, y, z, thingType);
-    actPropagateSpriteOwner(pThing, pSprite);
+    pThing->owner = pSprite->index;
     pThing->ang = pSprite->ang;
     xvel[pThing->index] = mulscale30(a6, Cos(pThing->ang));
     yvel[pThing->index] = mulscale30(a6, Sin(pThing->ang));
@@ -6357,7 +6328,7 @@ spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, 
     xvel[nMissile] = mulscale(pMissileInfo->velocity, a4, 14);
     yvel[nMissile] = mulscale(pMissileInfo->velocity, a5, 14);
     zvel[nMissile] = mulscale(pMissileInfo->velocity, a6, 14);
-    actPropagateSpriteOwner(pMissile, pSprite);
+    pMissile->owner = pSprite->index;
     pMissile->cstat |= 1;
     int nXSprite = pMissile->extra;
     assert(nXSprite > 0 && nXSprite < kMaxXSprites);
@@ -6670,7 +6641,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                     XSPRITE *pXSprite = &xsprite[nXSprite];
                     if (!pXSprite->burnTime)
                         evPost(nSprite, 3, 0, kCallbackFXFlameLick);
-                    actBurnSprite(actSpriteIdToOwnerId(nShooter), pXSprite, pVectorData->burnTime);
+                    actBurnSprite(sprite[nShooter].owner, pXSprite, pVectorData->burnTime);
                 }
             }
             if (pSprite->statnum == kStatDude)
@@ -6700,7 +6671,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                     XSPRITE *pXSprite = &xsprite[nXSprite];
                     if (!pXSprite->burnTime)
                         evPost(nSprite, 3, 0, kCallbackFXFlameLick);
-                    actBurnSprite(actSpriteIdToOwnerId(nShooter), pXSprite, pVectorData->burnTime);
+                    actBurnSprite(sprite[nShooter].owner, pXSprite, pVectorData->burnTime);
                 }
                 if (Chance(pVectorData->fxChance))
                 {
@@ -6754,7 +6725,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
 
                     if (pVectorData->burnTime != 0) {
                         if (!xsprite[nXSprite].burnTime) evPost(nSprite, 3, 0, kCallbackFXFlameLick);
-                        actBurnSprite(actSpriteIdToOwnerId(nShooter), &xsprite[nXSprite], pVectorData->burnTime);
+                        actBurnSprite(sprite[nShooter].owner, &xsprite[nXSprite], pVectorData->burnTime);
                     }
 
                     //if (pSprite->type >= kThingBase && pSprite->type < kThingMax)

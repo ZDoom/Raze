@@ -216,10 +216,6 @@ void actDoLight(int spriteNum);
 #endif
 
 bool IsUnderwaterSector(int nSector);
-int actSpriteOwnerToSpriteId(spritetype *pSprite);
-void actPropagateSpriteOwner(spritetype *pTarget, spritetype *pSource);
-int actSpriteIdToOwnerId(int nSprite);
-int actOwnerIdToSpriteId(int nSprite);
 bool actTypeInSector(int nSector, int nType);
 void actAllocateSpares(void);
 void actInit(bool bSaveLoad);

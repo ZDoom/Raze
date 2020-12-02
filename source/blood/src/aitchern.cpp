@@ -67,7 +67,7 @@ void sub_71A90(int, DBloodActor* actor)
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int nTarget = pTarget->index;
-    int nOwner = actSpriteIdToOwnerId(pSprite->index);
+    int nOwner = pSprite->owner;
     if (pXTarget->burnTime == 0)
         evPost(nTarget, 3, 0, kCallbackFXFlameLick);
     actBurnSprite(nOwner, pXTarget, 40);

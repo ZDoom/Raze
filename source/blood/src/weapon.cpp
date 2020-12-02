@@ -1639,7 +1639,7 @@ void AltFireNapalm(int nTrigger, PLAYER *pPlayer)
         pXSprite->data4 = ClipHigh(pPlayer->ammoCount[4], 12);
         UseAmmo(pPlayer, 4, pXSprite->data4);
         seqSpawn(22, 3, pMissile->extra, -1);
-        actBurnSprite(actSpriteIdToOwnerId(pPlayer->pSprite->index), pXSprite, 600);
+        actBurnSprite(pPlayer->pSprite->index, pXSprite, 600);
         evPost(pMissile->index, 3, 0, kCallbackFXFlameLick);
         sfxPlay3DSound(pMissile, 480, 2, 0);
         pPlayer->visibility = 30;
@@ -2551,7 +2551,7 @@ void teslaHit(spritetype *pMissile, int a2)
     int z = pMissile->z;
     int nDist = 300;
     int nSector = pMissile->sectnum;
-    int nOwner = actSpriteOwnerToSpriteId(pMissile);
+    int nOwner = pMissile->owner;
     GetClosestSpriteSectors(nSector, x, y, nDist, va4);
     char v4 = 1;
     int v24 = -1;

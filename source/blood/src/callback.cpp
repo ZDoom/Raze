@@ -612,7 +612,7 @@ void sub_76A08(spritetype *pSprite, spritetype *pSprite2, PLAYER *pPlayer) // ??
 void DropVoodooCb(int nSprite) // unused
 {
     spritetype *pSprite = &sprite[nSprite];
-    int nOwner = actSpriteOwnerToSpriteId(pSprite);
+    int nOwner = pSprite->owner;
     if (nOwner < 0 || nOwner >= kMaxSprites)
     {
         evPost(nSprite, 3, 0, kCallbackRemove);

@@ -877,7 +877,7 @@ char findDroppedLeech(PLAYER *a1, spritetype *a2)
         if (a2 && a2->index == nSprite)
             continue;
         spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->type == kThingDroppedLifeLeech && actOwnerIdToSpriteId(pSprite->owner) == a1->nSprite)
+        if (pSprite->type == kThingDroppedLifeLeech && pSprite->owner == a1->nSprite)
             return 1;
     }
     return 0;

@@ -887,7 +887,7 @@ void aiSetTarget(XSPRITE *pXSprite, int nTarget)
     spritetype *pTarget = &sprite[nTarget];
     if (pTarget->type >= kDudeBase && pTarget->type < kDudeMax)
     {
-        if (actSpriteOwnerToSpriteId(&sprite[pXSprite->reference]) != nTarget)
+        if (sprite[pXSprite->reference].owner != nTarget)
         {
             pXSprite->target = nTarget;
             DUDEINFO *pDudeInfo = getDudeInfo(pTarget->type);
