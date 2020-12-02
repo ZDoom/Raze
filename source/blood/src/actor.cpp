@@ -2420,48 +2420,57 @@ const int DudeDifficulty[5] = {
     512, 384, 256, 208, 160
 };
 
-void actInit(bool bSaveLoad) {
+void actInit(bool bSaveLoad) 
+{
     
     #ifdef NOONE_EXTENSIONS
-    if (!gModernMap) {
+    if (!gModernMap) 
+    {
         //Printf("> This map *does not* provides modern features.\n");
         nnExtResetGlobals();
-    } else {
-            //Printf("> This map provides modern features.\n");
-            nnExtInitModernStuff(bSaveLoad);
+    } 
+    else 
+    {
+        //Printf("> This map provides modern features.\n");
+        nnExtInitModernStuff(bSaveLoad);
     }
     #endif
     
     int nSprite;
-    StatIterator it(kStatItem);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatItem);
+    while (auto act = it.Next())
     {
-        switch (sprite[nSprite].type) {
+        switch (act->s().type) 
+        {
             case kItemWeaponVoodooDoll:
-                sprite[nSprite].type = kAmmoItemVoodooDoll;
+                act->s().type = kAmmoItemVoodooDoll;
                 break;
         }
     }
 
     it.Reset(kStatTraps);
-    while ((nSprite = it.NextIndex()) >= 0)
+    while (auto act = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
-        switch (pSprite->type) {
+        spritetype *pSprite = &act->s();
+        auto x = &act->x();
+        switch (pSprite->type) 
+        {
             case kTrapExploder:
-                pSprite->cstat &= ~1; pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+                pSprite->cstat &= ~1;
+                pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
                 if (pSprite->extra <= 0 || pSprite->extra >= kMaxXSprites) continue;
-                xsprite[pSprite->extra].waitTime = ClipLow(xsprite[pSprite->extra].waitTime, 1);
-                xsprite[pSprite->extra].state = 0;
+                x->waitTime = ClipLow(x->waitTime, 1);
+                x->state = 0;
                 break;
         }
     }
 
     it.Reset(kStatThing);
-    while ((nSprite = it.NextIndex()) >= 0)
+    while (auto act = it.Next())
     {
-        if (sprite[nSprite].extra <= 0 || sprite[nSprite].extra >= kMaxXSprites) continue;
-        spritetype* pSprite = &sprite[nSprite]; XSPRITE *pXSprite = &xsprite[pSprite->extra];
+        if (!act->hasX()) continue;
+        spritetype* pSprite = &act->s();
+        XSPRITE* pXSprite = &act->x();
         
         int nType = pSprite->type - kThingBase;
         pXSprite->health = thingInfo[nType].startHealth << 4;
@@ -2475,7 +2484,7 @@ void actInit(bool bSaveLoad) {
         
         pSprite->flags = thingInfo[nType].flags;
         if (pSprite->flags & kPhysGravity) pSprite->flags |= kPhysFalling;
-        xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
+        act->xvel() = act->yvel() = act->zvel() = 0;
         
         switch (pSprite->type) {
             case kThingArmedProxBomb:
@@ -2487,7 +2496,8 @@ void actInit(bool bSaveLoad) {
                 break;
             case kThingBloodChunks: {
                 SEQINST *pInst = GetInstance(3, pSprite->extra);
-                if (pInst) {
+                if (pInst) 
+                {
                     auto seq = getSequence(pInst->nSeqID);
                     if (!seq) break;
                     seqSpawn(pInst->nSeqID, 3, pSprite->extra);
@@ -2500,29 +2510,32 @@ void actInit(bool bSaveLoad) {
         }
     }
     
-    if (gGameOptions.nMonsterSettings == 0) {
+    if (gGameOptions.nMonsterSettings == 0) 
+    {
         gKillMgr.SetCount(0);
         int nSprite;
-        StatIterator it(kStatDude);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodStatIterator it(kStatDude);
+        while (auto act = it.Next())
         {
-            spritetype *pSprite = &sprite[nSprite];
-            if (pSprite->extra > 0 && pSprite->extra < kMaxXSprites && xsprite[pSprite->extra].key > 0) // Drop Key
-                actDropObject(pSprite, kItemKeyBase + (xsprite[pSprite->extra].key - 1));
+            spritetype *pSprite = &act->s();
+            if (act->hasX() && act->x().key > 0) // Drop Key
+                actDropObject(pSprite, kItemKeyBase + (act->x().key - 1));
             DeleteSprite(nSprite);
         }
-    } else {
+    } 
+    else 
+    {
         // by NoOne: WTF is this?
         ///////////////
         char unk[kDudeMax-kDudeBase];
         memset(unk, 0, sizeof(unk));
         int nSprite;
-        StatIterator it(kStatDude);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodStatIterator it(kStatDude);
+        while (auto act = it.Next())
         {
-            spritetype *pSprite = &sprite[nSprite];
+            spritetype *pSprite = &act->s();
             if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
-                I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", nSprite);
+                I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", pSprite->index);
             unk[pSprite->type - kDudeBase] = 1;
         }
         
@@ -2534,22 +2547,27 @@ void actInit(bool bSaveLoad) {
                 dudeInfo[i].at70[j] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j]);
 
         it.Reset(kStatDude);
-        while ((nSprite = it.NextIndex()) >= 0)
+        while (auto act = it.Next())
         {
-            if (sprite[nSprite].extra <= 0 || sprite[nSprite].extra >= kMaxXSprites) continue;
-            spritetype *pSprite = &sprite[nSprite]; XSPRITE *pXSprite = &xsprite[pSprite->extra];
+            if (!act->hasX()) continue;
+            spritetype *pSprite = &act->s();
+            XSPRITE *pXSprite = &act->x();
             
-            int nType = pSprite->type - kDudeBase; int seqStartId = dudeInfo[nType].seqStartID;
-            if (!IsPlayerSprite(pSprite)) {
+            int nType = pSprite->type - kDudeBase; 
+            int seqStartId = dudeInfo[nType].seqStartID;
+            if (!IsPlayerSprite(pSprite)) 
+            {
                 #ifdef NOONE_EXTENSIONS
-                switch (pSprite->type) {
+                switch (pSprite->type) 
+                {
                     case kDudeModernCustom:
                     case kDudeModernCustomBurning:
                         pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
-                            seqStartId = genDudeSeqStartId(pXSprite); //  Custom Dude stores it's SEQ in data2
+                            seqStartId = genDudeSeqStartId(pXSprite); //  Custom Dude stores its SEQ in data2
                             pXSprite->sysData1 = pXSprite->data3; // move sndStartId to sysData1, because data3 used by the game;
                         pXSprite->data3 = 0;
                         break;
+
                         case kDudePodMother:  // FakeDude type (no seq, custom flags, clipdist and cstat)
                         if (gModernMap) break;
                         fallthrough__;
@@ -2563,8 +2581,8 @@ void actInit(bool bSaveLoad) {
                     pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
                 #endif
 
-                xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
-                
+                act->xvel() = act->yvel() = act->zvel() = 0;
+
                 #ifdef NOONE_EXTENSIONS
                     // add a way to set custom hp for every enemy - should work only if map just started and not loaded.
                     if (!gModernMap || pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[nType].startHealth << 4;

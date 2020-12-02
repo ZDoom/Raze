@@ -48,4 +48,46 @@ extern DBloodActor bloodActors[kMaxSprites];
 
 inline DBloodActor* DBloodActor::base() { return bloodActors; }
 
+// Iterator wrappers that return an actor pointer, not an index.
+class BloodStatIterator : public StatIterator
+{
+public:
+	BloodStatIterator(int stat) : StatIterator(stat)
+	{
+	}
+
+	DBloodActor* Next()
+	{
+		int n = NextIndex();
+		return n >= 0 ? &bloodActors[n] : nullptr;
+	}
+
+	DBloodActor* Peek()
+	{
+		int n = PeekIndex();
+		return n >= 0 ? &bloodActors[n] : nullptr;
+	}
+};
+
+class BloodSectIterator : public SectIterator
+{
+public:
+	BloodSectIterator(int stat) : SectIterator(stat)
+	{
+	}
+
+	DBloodActor* Next()
+	{
+		int n = NextIndex();
+		return n >= 0 ? &bloodActors[n] : nullptr;
+	}
+
+	DBloodActor* Peek()
+	{
+		int n = PeekIndex();
+		return n >= 0 ? &bloodActors[n] : nullptr;
+	}
+};
+
+
 END_BLD_NS
