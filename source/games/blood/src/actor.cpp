@@ -2766,122 +2766,156 @@ static void actNapalmMove(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-spritetype *actSpawnFloor(spritetype *pSprite)
+static DBloodActor *actSpawnFloor(DBloodActor *actor)
 {
-    short nSector = pSprite->sectnum;
-    int x = pSprite->x;
-    int y = pSprite->y;
-    updatesector(x, y, &nSector);
-    int zFloor = getflorzofslope(nSector, x, y);
-    spritetype *pSprite2 = actSpawnSprite(nSector, x, y, zFloor, 3, 0);
-    if (pSprite2)
-        pSprite2->cstat &= ~257;
-    return pSprite2;
+	auto pSprite = &actor->s();
+	short sector = pSprite->sectnum;
+	int x = pSprite->x;
+	int y = pSprite->y;
+	updatesector(x, y, &sector);
+	int zFloor = getflorzofslope(sector, x, y);
+	auto *spawned = actSpawnSprite(sector, x, y, zFloor, 3, 0);
+	if (spawned) spawned->s().cstat &= ~257;
+	return spawned;
 }
 
-spritetype *actDropAmmo(spritetype *pSprite, int nType)
+static DBloodActor *actDropAmmo(DBloodActor *actor, int nType)
 {
-    spritetype *pSprite2 = NULL;
-    if (pSprite && pSprite->statnum < kMaxStatus && nType >= kItemAmmoBase && nType < kItemAmmoMax)
-    {
-        pSprite2 = actSpawnFloor(pSprite);
-        const AMMOITEMDATA *pAmmo = &gAmmoItemData[nType - kItemAmmoBase];
-        pSprite2->type = nType;
-        pSprite2->picnum = pAmmo->picnum;
-        pSprite2->shade = pAmmo->shade;
-        pSprite2->xrepeat = pAmmo->xrepeat;
-        pSprite2->yrepeat = pAmmo->yrepeat;
-    }
-    return pSprite2;
+	if (!actor) return nullptr;
+	auto pSprite = &actor->s();
+	if (pSprite->statnum < kMaxStatus && nType >= kItemAmmoBase && nType < kItemAmmoMax)
+	{
+		auto act2 = actSpawnFloor(actor);
+		const AMMOITEMDATA *pAmmo = &gAmmoItemData[nType - kItemAmmoBase];
+		auto pSprite2 = &act2->s();
+		pSprite2->type = nType;
+		pSprite2->picnum = pAmmo->picnum;
+		pSprite2->shade = pAmmo->shade;
+		pSprite2->xrepeat = pAmmo->xrepeat;
+		pSprite2->yrepeat = pAmmo->yrepeat;
+		return act2;
+	}
+	return nullptr;
 }
 
-spritetype *actDropWeapon(spritetype *pSprite, int nType)
+static DBloodActor *actDropWeapon(DBloodActor *actor, int nType)
 {
-    spritetype *pSprite2 = NULL;
-    if (pSprite && pSprite->statnum < kMaxStatus && nType >= kItemWeaponBase && nType < kItemWeaponMax)
-    {
-        pSprite2 = actSpawnFloor(pSprite);
-        const WEAPONITEMDATA *pWeapon = &gWeaponItemData[nType - kItemWeaponBase];
-        pSprite2->type = nType;
-        pSprite2->picnum = pWeapon->picnum;
-        pSprite2->shade = pWeapon->shade;
-        pSprite2->xrepeat = pWeapon->xrepeat;
-        pSprite2->yrepeat = pWeapon->yrepeat;
-    }
-    return pSprite2;
+	if (!actor) return nullptr;
+	auto pSprite = &actor->s();
+	if (pSprite->statnum < kMaxStatus && nType >= kItemWeaponBase && nType < kItemWeaponMax)
+	{
+		auto act2 = actSpawnFloor(actor);
+		const WEAPONITEMDATA *pWeapon = &gWeaponItemData[nType - kItemWeaponBase];
+		auto pSprite2 = &act2->s();
+		pSprite2->type = nType;
+		pSprite2->picnum = pWeapon->picnum;
+		pSprite2->shade = pWeapon->shade;
+		pSprite2->xrepeat = pWeapon->xrepeat;
+		pSprite2->yrepeat = pWeapon->yrepeat;
+		return act2;
+	}
+	return nullptr;
 }
 
-spritetype *actDropItem(spritetype *pSprite, int nType)
+static DBloodActor* actDropItem(DBloodActor* actor, int nType)
 {
-    spritetype *pSprite2 = NULL;
-    if (pSprite && pSprite->statnum < kMaxStatus && nType >= kItemBase && nType < kItemMax)
-    {
-        pSprite2 = actSpawnFloor(pSprite);
-        const ITEMDATA *pItem = &gItemData[nType - kItemBase];
-        pSprite2->type = nType;
-        pSprite2->picnum = pItem->picnum;
-        pSprite2->shade = pItem->shade;
-        pSprite2->xrepeat = pItem->xrepeat;
-        pSprite2->yrepeat = pItem->yrepeat;
-    }
-    return pSprite2;
+	if (!actor) return nullptr;
+	auto pSprite = &actor->s();
+	if (pSprite->statnum < kMaxStatus && nType >= kItemBase && nType < kItemMax)
+	{
+		auto act2 = actSpawnFloor(actor);
+		const ITEMDATA *pItem = &gItemData[nType - kItemBase];
+		auto pSprite2 = &act2->s();
+		pSprite2->type = nType;
+		pSprite2->picnum = pItem->picnum;
+		pSprite2->shade = pItem->shade;
+		pSprite2->xrepeat = pItem->xrepeat;
+		pSprite2->yrepeat = pItem->yrepeat;
+		return act2;
+	}
+	return nullptr;
 }
 
-spritetype *actDropKey(spritetype *pSprite, int nType)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static DBloodActor *actDropKey(DBloodActor *actor, int nType)
 {
-    spritetype *pSprite2 = NULL;
-    if (pSprite && pSprite->statnum < kMaxStatus && nType >= kItemKeyBase && nType < kItemKeyMax)
-    {
-        pSprite2 = actDropItem(pSprite, nType);
-        if (pSprite2 && gGameOptions.nGameType == 1)
-        {
-            if (pSprite2->extra == -1)
-                dbInsertXSprite(pSprite2->index);
-            xsprite[pSprite2->extra].respawn = 3;
-            gSpriteHit[pSprite2->extra].florhit = 0;
-            gSpriteHit[pSprite2->extra].ceilhit = 0;
-        }
-    }
-    return pSprite2;
+	if (!actor) return nullptr;
+	auto pSprite = &actor->s();
+	if (pSprite->statnum < kMaxStatus && nType >= kItemKeyBase && nType < kItemKeyMax)
+	{
+		auto act2 = actDropItem(actor, nType);
+		if (act2 && gGameOptions.nGameType == 1)
+		{
+			act2->addX();
+			auto pSprite2 = &act2->s();
+			act2->x().respawn = 3;
+			act2->hit().florhit = 0;
+			act2->hit().ceilhit = 0;
+		}
+		return act2;
+	}
+	return nullptr;
 }
 
-spritetype *actDropFlag(spritetype *pSprite, int nType)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static DBloodActor*actDropFlag(DBloodActor* actor, int nType)
 {
-    spritetype *pSprite2 = NULL;
-    if (pSprite && pSprite->statnum < kMaxStatus && (nType == 147 || nType == 148))
-    {
-        pSprite2 = actDropItem(pSprite, nType);
-        if (pSprite2 && gGameOptions.nGameType == 3)
-        {
-            evPost(pSprite2->index, 3, 1800, kCallbackReturnFlag);
-        }
-    }
-    return pSprite2;
+	if (!actor) return nullptr;
+	auto pSprite = &actor->s();
+	if (pSprite->statnum < kMaxStatus && (nType == 147 || nType == 148))
+	{
+		auto act2 = actDropItem(actor, nType);
+		if (act2 && gGameOptions.nGameType == 3)
+		{
+			evPost(act2->s().index, 3, 1800, kCallbackReturnFlag);
+		}
+		return act2;
+	}
+	return nullptr;
 }
 
-spritetype *actDropObject(spritetype *pSprite, int nType) {
-    spritetype *pSprite2 = NULL;
-    
-    if (nType >= kItemKeyBase && nType < kItemKeyMax) pSprite2 = actDropKey(pSprite, nType);
-    else if (nType == kItemFlagA || nType == kItemFlagB) pSprite2 = actDropFlag(pSprite, nType);
-    else if (nType >= kItemBase && nType < kItemMax) pSprite2 = actDropItem(pSprite, nType);
-    else if (nType >= kItemAmmoBase && nType < kItemAmmoMax) pSprite2 = actDropAmmo(pSprite, nType);
-    else if (nType >= kItemWeaponBase && nType < kItemWeaponMax) pSprite2 = actDropWeapon(pSprite, nType);
-    
-    if (pSprite2) {
-        if (pSprite2->picnum == -1)
-        {
-            DeleteSprite(pSprite2 - sprite);
-            return nullptr;
-        }
-        int top, bottom;
-        GetSpriteExtents(pSprite2, &top, &bottom);
-        if (bottom >= pSprite2->z)
-            pSprite2->z -= bottom - pSprite2->z;
-    }
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-    return pSprite2;
+static DBloodActor* actDropObject(DBloodActor* pSprite, int nType)
+{
+	DBloodActor *act2 = nullptr;
+	
+	if (nType >= kItemKeyBase && nType < kItemKeyMax) act2 = actDropKey(pSprite, nType);
+	else if (nType == kItemFlagA || nType == kItemFlagB) act2 = actDropFlag(pSprite, nType);
+	else if (nType >= kItemBase && nType < kItemMax) act2 = actDropItem(pSprite, nType);
+	else if (nType >= kItemAmmoBase && nType < kItemAmmoMax) act2 = actDropAmmo(pSprite, nType);
+	else if (nType >= kItemWeaponBase && nType < kItemWeaponMax) act2 = actDropWeapon(pSprite, nType);
+	
+	if (act2) 
+	{
+		int top, bottom;
+		GetActorExtents(act2, &top, &bottom);
+		if (bottom >= act2->s().z)
+			act2->s().z -= bottom - act2->s().z;
+	}
+
+	return act2;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool actHealDude(XSPRITE *pXDude, int a2, int a3)
 {
@@ -5287,7 +5321,7 @@ void actExplodeSprite(spritetype *pSprite)
         break;
     case kThingTNTBarrel:
     {
-        spritetype *pSprite2 = actSpawnSprite(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0, 1);
+        spritetype *pSprite2 = actSpawnSprite_(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0, 1);
         pSprite2->owner = pSprite->owner;
         if (actCheckRespawn(pSprite))
         {
@@ -6063,7 +6097,7 @@ void actProcessSprites(void)
     gFX.fxProcess();
 }
 
-spritetype * actSpawnSprite(int nSector, int x, int y, int z, int nStat, char a6)
+spritetype * actSpawnSprite_(int nSector, int x, int y, int z, int nStat, char a6)
 {
     int nSprite = InsertSprite(nSector, nStat);
     if (nSprite >= 0)
@@ -6090,6 +6124,12 @@ spritetype * actSpawnSprite(int nSector, int x, int y, int z, int nStat, char a6
             xsprite[nXSprite].target = -1;
     }
     return pSprite;
+}
+
+DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool a6)
+{
+    auto spr = actSpawnSprite_(nSector, x, y, z, nStat, a6);
+    return &bloodActors[spr->index];
 }
 
 spritetype * actSpawnSprite(spritetype *pSource, int nStat);
@@ -6188,7 +6228,7 @@ spritetype * actSpawnSprite(spritetype *pSource, int nStat)
 spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
 {
     assert(nThingType >= kThingBase && nThingType < kThingMax);
-    spritetype *pSprite = actSpawnSprite(nSector, x, y, z, 4, 1);
+    spritetype *pSprite = actSpawnSprite_(nSector, x, y, z, 4, 1);
     int nType = nThingType-kThingBase;
     int nThing = pSprite->index;
     int nXThing = pSprite->extra;
@@ -6329,7 +6369,7 @@ spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, 
             y = gHitInfo.hity-MulScale(pMissileInfo->clipDist<<1, Sin(pSprite->ang), 28);
         }
     }
-    spritetype *pMissile = actSpawnSprite(pSprite->sectnum, x, y, z, 5, 1);
+    spritetype *pMissile = actSpawnSprite_(pSprite->sectnum, x, y, z, 5, 1);
     int nMissile = pMissile->index;
     show2dsprite.Set(nMissile);
     pMissile->type = nType;
@@ -6993,6 +7033,12 @@ void SerializeActor(FSerializer& arc)
 					dudeInfo[i].at70[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j], 8);
 		}
 	}
+}
+
+spritetype* actDropObject(spritetype* pSprite, int nType)
+{
+    auto act = actDropObject(&bloodActors[pSprite->index], nType);
+    return act ? &act->s() : nullptr;
 }
 
 

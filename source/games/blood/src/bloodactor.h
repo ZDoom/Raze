@@ -22,6 +22,10 @@ public:
 		dudeSlope = 0;
 	}
     bool hasX() { return sprite[index].extra > 0; }
+	void addX()
+	{
+		if (s().extra == -1) dbInsertXSprite(s().index);
+	}
 	spritetype& s() { return sprite[index]; }
 	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
     SPRITEHIT& hit() { return gSpriteHit[sprite[index].extra]; }
@@ -130,5 +134,11 @@ inline void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
 	pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, sprite[pXSprite->reference].statnum == kStatDude ? 2400 : 1200);
 	pXSprite->burnSource = pSource->s().index;
 }
+
+inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
+{
+	GetSpriteExtents(&actor->s(), top, bottom);
+}
+
 
 END_BLD_NS
