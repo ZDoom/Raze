@@ -37,8 +37,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "eventq.h"
 #include "nnexts.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
+
+DBloodActor bloodActors[kMaxSprites];
+
 
 bool gModernMap = false;
 unsigned short gStatCount[kMaxStatus + 1];
