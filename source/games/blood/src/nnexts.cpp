@@ -126,7 +126,7 @@ bool nnExtIsImmune(spritetype* pSprite, int dmgType, int minScale) {
         else if (IsDudeSprite(pSprite)) {
             if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType]);
             else if (pSprite->type == kDudeModernCustom) return (gGenDudeExtra[pSprite->index].dmgControl[dmgType] <= minScale);
-            else return (getDudeInfo(pSprite->type)->at70[dmgType] <= minScale);
+            else return (getDudeInfo(pSprite->type)->damageVal[dmgType] <= minScale);
         }
     }
 
@@ -2335,11 +2335,11 @@ void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
 
         }
         else if (!pPlayer) actKillDude(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
-        else playerDamageSprite(pSource->index, pPlayer, (DAMAGE_TYPE)dmgType, dmg);
+        else playerDamageSprite(&bloodActors[pSource->index], pPlayer, (DAMAGE_TYPE)dmgType, dmg);
     }
     else if ((pXSprite->health = ClipLow(pXSprite->health - dmg, 1)) > 16) return;
     else if (!pPlayer) actKillDude(pSource->index, pSprite, DAMAGE_TYPE_2, dmg);
-    else playerDamageSprite(pSource->index, pPlayer, DAMAGE_TYPE_2, dmg);
+    else playerDamageSprite(&bloodActors[pSource->index], pPlayer, DAMAGE_TYPE_2, dmg);
     return;
 }
 

@@ -46,8 +46,18 @@ public:
 
 	DBloodActor* GetOwner()
 	{
-		if (s().owner == -1) return nullptr;
+		if (s().owner == -1 || s().owner == kMaxSprites-1) return nullptr;
 		return base() + s().owner;
+	}
+
+	void SetSpecialOwner() // nnext hackery
+	{
+		s().owner = kMaxSprites - 1;
+	}
+
+	bool GetSpecialOwner()
+	{
+		return (s().owner == kMaxSprites - 1);
 	}
 
 	bool IsPlayerActor()

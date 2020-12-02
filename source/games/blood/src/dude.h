@@ -49,7 +49,7 @@ struct DUDEINFO {
     int angSpeed; // turn speed
     int nGibType[3]; // which gib used when explode dude
     int startDamage[7]; // start damage shift
-    int at70[7]; // real damage? Hmm?
+    int damageVal[7]; // real damage? Hmm?
     int at8c; // unused ?
     int at90; // unused ?
 };
