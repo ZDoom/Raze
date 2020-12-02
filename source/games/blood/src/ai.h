@@ -88,7 +88,6 @@ struct TARGETTRACK {
 
 extern const int dword_138BB0[5];
 extern DUDEEXTRA gDudeExtra[];
-extern int gDudeSlope[];
 
 bool dudeIsPlayingSeq(spritetype *pSprite, int nSeq);
 void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
@@ -100,7 +99,7 @@ void aiMoveDodge(DBloodActor *actor);
 void aiActivateDude(DBloodActor *actor);
 void aiSetTarget(XSPRITE *pXSprite, int x, int y, int z);
 void aiSetTarget(XSPRITE *pXSprite, int nTarget);
-int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_TYPE nDmgType, int nDamage);
+int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType, int nDamage);
 void aiThinkTarget(DBloodActor* actor);
 void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite);
 void aiProcessDudes(void);

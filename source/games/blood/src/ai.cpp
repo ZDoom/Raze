@@ -92,7 +92,7 @@ bool isImmune(spritetype* pSprite, int dmgType, int minScale)
         else if (IsDudeSprite(pSprite)) 
         {
             if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].godMode || gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType] <= minScale);
-            else return (dudeInfo[pSprite->type - kDudeBase].at70[dmgType] <= minScale);
+            else return (dudeInfo[pSprite->type - kDudeBase].damageVal[dmgType] <= minScale);
         }
     }
 
@@ -878,19 +878,21 @@ void aiSetTarget(XSPRITE *pXSprite, int nTarget)
 }
 
 
-int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_TYPE nDmgType, int nDamage)
+int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType, int nDamage)
 {
-    assert(nSource < kMaxSprites);
+    auto pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
+
     if (!pXSprite->health)
         return 0;
-    auto actor = &bloodActors[pXSprite->reference];
     pXSprite->health = ClipLow(pXSprite->health - nDamage, 0);
     cumulDamage[pSprite->extra] += nDamage;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nSprite = pXSprite->reference;
-    if (nSource >= 0)
+    if (source)
     {
-        spritetype *pSource = &sprite[nSource];
+        spritetype *pSource = &source->s();
+        int nSource = pSource->index;
         if (pSprite == pSource)
             return 0;
         if (pXSprite->target == -1 || (nSource != pXSprite->target && Chance(pSprite->type == pSource->type ? nDamage*pDudeInfo->changeTargetKin : nDamage*pDudeInfo->changeTarget)))

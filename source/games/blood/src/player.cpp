@@ -581,7 +581,7 @@ void playerSetRace(PLAYER *pPlayer, int nLifeMode)
     pPlayer->pSprite->clipdist = pDudeInfo->clipdist;
     
     for (int i = 0; i < 7; i++)
-        pDudeInfo->at70[i] = MulScale(Handicap[gSkill], pDudeInfo->startDamage[i], 8);
+        pDudeInfo->damageVal[i] = MulScale(Handicap[gSkill], pDudeInfo->startDamage[i], 8);
 }
 
 void playerSetGodMode(PLAYER *pPlayer, bool bGodMode)
@@ -1882,9 +1882,9 @@ spritetype *flagDropped(PLAYER *pPlayer, int a2)
     return pSprite;
 }
 
-int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage)
+int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage)
 {
-    assert(nSource < kMaxSprites);
+    int nSource = source ? source->s().index : -1;
     assert(pPlayer != NULL);
     if (pPlayer->damageControl[nDamageType] || pPlayer->godMode)
         return 0;
@@ -2115,7 +2115,7 @@ void PlayerKneelsOver(int, DBloodActor* actor)
         if (gPlayer[p].pXSprite == pXSprite)
         {
             PLAYER *pPlayer = &gPlayer[p];
-            playerDamageSprite(pPlayer->fraggerId, pPlayer, DAMAGE_TYPE_5, 500<<4);
+            playerDamageSprite(pPlayer->fragger(), pPlayer, DAMAGE_TYPE_5, 500<<4);
             return;
         }
     }
