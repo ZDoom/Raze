@@ -140,4 +140,14 @@ inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 	GetSpriteExtents(&actor->s(), top, bottom);
 }
 
+inline DBloodActor *PLAYER::fragger()
+{
+	return fraggerId == -1? nullptr : &bloodActors[fraggerId];
+}
+
+inline void PLAYER::setFragger(DBloodActor* actor)
+{
+	fraggerId = actor == nullptr ? -1 : actor->s().index;
+}
+
 END_BLD_NS
