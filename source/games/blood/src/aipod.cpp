@@ -119,8 +119,7 @@ void podAttack(int, DBloodActor* actor)
 
 void sub_70284(int, DBloodActor* actor)
 {
-    XSPRITE* pXSprite = &actor->x();
-    spritetype* pSprite = &actor->s();
+    auto pSprite = &actor->s();
     sfxPlay3DSound(pSprite, 2502, -1, 0);
     int nDist, nBurn;
     DAMAGE_TYPE dmgType;
@@ -137,7 +136,7 @@ void sub_70284(int, DBloodActor* actor)
             nDist = 75;
             break;
     }
-    sub_2A620(pSprite->index, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nDist, 1, 5*(1+gGameOptions.nDifficulty), dmgType, 2, nBurn, 0, 0);
+    actRadiusDamage(actor, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nDist, 1, 5*(1+gGameOptions.nDifficulty), dmgType, 2, nBurn);
 }
 
 static void aiPodSearch(DBloodActor* actor)

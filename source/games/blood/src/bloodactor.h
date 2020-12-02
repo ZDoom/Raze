@@ -124,5 +124,11 @@ inline int DeleteSprite(DBloodActor* nSprite)
 	return 0;
 }
 
+inline void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
+{
+	auto pXSprite = &pTarget->x();
+	pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, sprite[pXSprite->reference].statnum == kStatDude ? 2400 : 1200);
+	pXSprite->burnSource = pSource->s().index;
+}
 
 END_BLD_NS

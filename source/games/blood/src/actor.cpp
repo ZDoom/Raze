@@ -2606,115 +2606,116 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y,
 
 int actWallBounceVector(int *x, int *y, int nWall, int a4)
 {
-    int wx, wy;
-    GetWallNormal(nWall, &wx, &wy);
-    int t = DMulScale(*x, wx, *y, wy, 16);
-    int t2 = mulscale16r(t, a4+0x10000);
-    *x -= MulScale(wx, t2, 16);
-    *y -= MulScale(wy, t2, 16);
-    return mulscale16r(t, 0x10000-a4);
+	int wx, wy;
+	GetWallNormal(nWall, &wx, &wy);
+	int t = DMulScale(*x, wx, *y, wy, 16);
+	int t2 = mulscale16r(t, a4+0x10000);
+	*x -= MulScale(wx, t2, 16);
+	*y -= MulScale(wy, t2, 16);
+	return mulscale16r(t, 0x10000-a4);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5)
 {
-    int t = 0x10000-a5;
-    if (sector[nSector].floorheinum == 0)
-    {
-        int t2 = MulScale(*z, t, 16);
-        *z = -(*z-t2);
-        return t2;
-    }
-    walltype *pWall = &wall[sector[nSector].wallptr];
-    walltype *pWall2 = &wall[pWall->point2];
-    int angle = getangle(pWall2->x-pWall->x, pWall2->y-pWall->y)+512;
-    int t2 = sector[nSector].floorheinum<<4;
-    int t3 = approxDist(-0x10000, t2);
-    int t4 = DivScale(-0x10000, t3, 16);
-    int t5 = DivScale(t2, t3, 16);
-    int t6 = MulScale(t5, Cos(angle), 30);
-    int t7 = MulScale(t5, Sin(angle), 30);
-    int t8 = TMulScale(*x, t6, *y, t7, *z, t4, 16);
-    int t9 = MulScale(t8, 0x10000+a5, 16);
-    *x -= MulScale(t6, t9, 16);
-    *y -= MulScale(t7, t9, 16);
-    *z -= MulScale(t4, t9, 16);
-    return mulscale16r(t8, t);
+	int t = 0x10000-a5;
+	if (sector[nSector].floorheinum == 0)
+	{
+		int t2 = MulScale(*z, t, 16);
+		*z = -(*z-t2);
+		return t2;
+	}
+	walltype *pWall = &wall[sector[nSector].wallptr];
+	walltype *pWall2 = &wall[pWall->point2];
+	int angle = getangle(pWall2->x-pWall->x, pWall2->y-pWall->y)+512;
+	int t2 = sector[nSector].floorheinum<<4;
+	int t3 = approxDist(-0x10000, t2);
+	int t4 = DivScale(-0x10000, t3, 16);
+	int t5 = DivScale(t2, t3, 16);
+	int t6 = MulScale(t5, Cos(angle), 30);
+	int t7 = MulScale(t5, Sin(angle), 30);
+	int t8 = TMulScale(*x, t6, *y, t7, *z, t4, 16);
+	int t9 = MulScale(t8, 0x10000+a5, 16);
+	*x -= MulScale(t6, t9, 16);
+	*y -= MulScale(t7, t9, 16);
+	*z -= MulScale(t4, t9, 16);
+	return mulscale16r(t8, t);
 }
 
-void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11, int , int )
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int nDist, int baseDmg, int distDmg, DAMAGE_TYPE dmgType, int flags, int burn)
 {
-    uint8_t va0[(kMaxSectors+7)>>3];
-    int nOwner = sprite[nSprite].owner;
-    GetClosestSpriteSectors(nSector, x, y, nDist, va0);
-    nDist <<= 4;
-    if (a10 & 2)
-    {
-        int i;
-        StatIterator it(kStatDude);
-        while ((i = it.NextIndex()) >= 0)
-        {
-            if (i != nSprite || (a10 & 1))
-            {
-                spritetype *pSprite2 = &sprite[i];
-                if (pSprite2->extra > 0 && pSprite2->extra < kMaxXSprites)
-                {
+	uint8_t sectmap[(kMaxSectors + 7) >> 3];
+	auto pOwner = source->GetOwner();
+	GetClosestSpriteSectors(nSector, x, y, nDist, sectmap);
+	nDist <<= 4;
+	if (flags & 2)
+	{
+		BloodStatIterator it(kStatDude);
+		while (auto act2 = it.Next())
+		{
+			if (act2 != source || (flags & 1))
+			{
+				auto pSprite2 = &act2->s();
+				if (act2->hasX())
+				{
+					if (pSprite2->flags & 0x20) continue;
+					if (!TestBitString(sectmap, pSprite2->sectnum)) continue;
+					if (!CheckProximity(pSprite2, x, y, z, nSector, nDist)) continue;
 
-                    if (pSprite2->flags & 0x20)
-                        continue;
-                    if (!TestBitString(va0, pSprite2->sectnum))
-                        continue;
-                    if (!CheckProximity(pSprite2, x, y, z, nSector, nDist))
-                        continue;
-                    int dx = abs(x-pSprite2->x);
-                    int dy = abs(y-pSprite2->y);
-                    int dz = abs(z-pSprite2->z)>>4;
-                    int dist = ksqrt(dx*dx+dy*dy+dz*dz);
-                    if (dist > nDist)
-                        continue;
-                    int vcx;
-                    if (dist != 0)
-                        vcx = a7+((nDist-dist)*a8)/nDist;
-                    else
-                        vcx = a7+a8;
-                    actDamageSprite(nSprite, pSprite2, a9, vcx<<4);
-                    if (a11)
-                        actBurnSprite(nOwner, &xsprite[pSprite2->extra], a11);
-                }
-            }
-        }
-    }
-    if (a10 & 4)
-    {
-        int i;
-        StatIterator it(kStatThing);
-        while ((i = it.NextIndex()) >= 0)
-        {
-            spritetype *pSprite2 = &sprite[i];
+					int dx = abs(x - pSprite2->x);
+					int dy = abs(y - pSprite2->y);
+					int dz = abs(z - pSprite2->z) >> 4;
+					int dist = ksqrt(dx * dx + dy * dy + dz * dz);
+					if (dist > nDist) continue;
 
-            if (pSprite2->flags&0x20)
-                continue;
-            if (!TestBitString(va0, pSprite2->sectnum))
-                continue;
-            if (!CheckProximity(pSprite2, x, y, z, nSector, nDist))
-                continue;
-            XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
-            if (pXSprite2->locked)
-                continue;
-            int dx = abs(x-pSprite2->x);
-            int dy = abs(y-pSprite2->y);
-            int dist = ksqrt(dx*dx+dy*dy);
-            if (dist > nDist)
-                continue;
-            int vcx;
-            if (dist != 0)
-                vcx = a7+((nDist-dist)*a8)/nDist;
-            else
-                vcx = a7+a8;
-            actDamageSprite(nSprite, pSprite2, a9, vcx<<4);
-            if (a11)
-                actBurnSprite(nOwner, pXSprite2, a11);
-        }
-    }
+					int totaldmg;
+					if (dist != 0) totaldmg = baseDmg + ((nDist - dist) * distDmg) / nDist;
+					else totaldmg = baseDmg + distDmg;
+
+					actDamageSprite(source, act2, dmgType, totaldmg << 4);
+					if (burn) actBurnSprite(pOwner, act2, burn);
+				}
+			}
+		}
+	}
+	if (flags & 4)
+	{
+		BloodStatIterator it(kStatDude);
+		while (auto act2 = it.Next())
+		{
+			auto pSprite2 = &act2->s();
+
+			if (pSprite2->flags & 0x20) continue;
+			if (!TestBitString(sectmap, pSprite2->sectnum)) continue;
+			if (!CheckProximity(pSprite2, x, y, z, nSector, nDist)) continue;
+
+			XSPRITE* pXSprite2 = &act2->x();
+			if (pXSprite2->locked) continue;
+
+			int dx = abs(x - pSprite2->x);
+			int dy = abs(y - pSprite2->y);
+			int dist = ksqrt(dx * dx + dy * dy);
+			if (dist > nDist) continue;
+
+			int totaldmg;
+			if (dist != 0) totaldmg = baseDmg + ((nDist - dist) * distDmg) / nDist;
+			else totaldmg = baseDmg + distDmg;
+
+			actDamageSprite(source, act2, dmgType, totaldmg << 4);
+			if (burn) actBurnSprite(pOwner, act2, burn);
+		}
+	}
 }
 
 void sub_2AA94(DBloodActor* actor)
@@ -2728,7 +2729,7 @@ void sub_2AA94(DBloodActor* actor)
         pSprite->cstat |= 4;
 
     sfxPlay3DSound(pSprite, 303, 24+(pSprite->flags&3), 1);
-    sub_2A620(nOwner, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128, 0, 60, DAMAGE_TYPE_3, 15, 120, 0, 0);
+    actRadiusDamage(actor->GetOwner(), pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128, 0, 60, DAMAGE_TYPE_3, 15, 120);
     if (pXSprite->data4 > 1)
     {
         GibSprite(pSprite, GIBTYPE_5, NULL, NULL);
@@ -3599,7 +3600,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
 
 int actDamageSprite(DBloodActor* pSource, DBloodActor* pTarget, DAMAGE_TYPE damageType, int damage)
 {
-    return actDamageSprite(pSource->s().index, &pTarget->s(), damageType, damage);
+    return actDamageSprite(pSource? pSource->s().index : -1, &pTarget->s(), damageType, damage);
 }
 
 void actHitcodeToData(int a1, HITINFO *pHitInfo, int *a3, spritetype **a4, XSPRITE **a5, int *a6, walltype **a7, XWALL **a8, int *a9, sectortype **a10, XSECTOR **a11)
@@ -3790,7 +3791,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                         evPost(nSpriteHit, 3, 0, kCallbackFXFlameLick);
                 
                     actBurnSprite(pMissile->owner, pXSpriteHit, 480);
-                    sub_2A620(nOwner, pMissile->x, pMissile->y, pMissile->z, pMissile->sectnum, 16, 20, 10, DAMAGE_TYPE_2, 6, 480, 0, 0);
+                    actRadiusDamage(&bloodActors[nOwner], pMissile->x, pMissile->y, pMissile->z, pMissile->sectnum, 16, 20, 10, DAMAGE_TYPE_2, 6, 480);
 
                     // by NoOne: allow additional bullet damage for Flare Gun
                     if (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) {
@@ -5605,7 +5606,7 @@ void actProcessSprites(void)
                         case kThingPodGreenBall:
                             if ((hit&0xc000) == 0x4000)
                             {
-                                sub_2A620(pSprite->owner, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 200, 1, 20, DAMAGE_TYPE_3, 6, 0, 0, 0);
+                                actRadiusDamage(&bloodActors[pSprite->owner], pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 200, 1, 20, DAMAGE_TYPE_3, 6, 0);
                                 evPost(pSprite->index, 3, 0, kCallbackFXPodBloodSplat);
                             }
                             else

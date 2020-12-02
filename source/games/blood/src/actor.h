@@ -213,7 +213,7 @@ bool IsUnderwaterSector(int nSector);
 void actInit(bool bSaveLoad);
 int actWallBounceVector(int *x, int *y, int nWall, int a4);
 int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5);
-void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11, int a12, int a13);
+void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11);
 void sub_2AA94(DBloodActor *actor);
 spritetype *actSpawnFloor(spritetype *pSprite);
 spritetype *actDropAmmo(spritetype *pSprite, int nType);
