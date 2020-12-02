@@ -140,5 +140,4 @@ inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 	GetSpriteExtents(&actor->s(), top, bottom);
 }
 
-
 END_BLD_NS

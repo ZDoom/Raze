@@ -487,6 +487,12 @@ void seqKillAll()
 	activeList.clear();
 }
 
+void seqKill(DBloodActor* actor)
+{
+	activeList.remove(4, actor->s().extra);
+}
+
+
 //---------------------------------------------------------------------------
 //
 //

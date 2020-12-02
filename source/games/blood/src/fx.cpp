@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "blood.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -351,6 +352,13 @@ void fxPrecache()
         if (gFXData[i].seq)
             seqPrecacheId(gFXData[i].seq, 0);
     }
+}
+
+
+DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsigned int a6)
+{
+    auto spr = fxSpawn(nFx, nSector, x, y, z, a6);
+    return spr ? &bloodActors[spr->index] : nullptr;
 }
 
 END_BLD_NS

@@ -103,6 +103,7 @@ void seqSpawn(int a1, int a2, int a3, int a4 = -1);
 void seqSpawn(int a1, DBloodActor* actor, int a4 = -1);
 
 void seqKill(int a1, int a2);
+void seqKill(DBloodActor* actor);
 void seqKillAll(void);
 int seqGetStatus(int a1, int a2);
 int seqGetID(int a1, int a2);

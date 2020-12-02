@@ -215,6 +215,7 @@ int actWallBounceVector(int *x, int *y, int nWall, int a4);
 int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5);
 void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11);
 spritetype *actDropObject(spritetype *pSprite, int nType);
+bool actHealDude(DBloodActor* pXDude, int a2, int a3);
 bool actHealDude(XSPRITE *pXDude, int a2, int a3);
 void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4);
 int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4);
