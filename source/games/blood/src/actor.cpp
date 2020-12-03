@@ -2408,13 +2408,14 @@ static void actInitThings()
 #endif
 			pXSprite->state = 0;
 			break;
-		case kThingBloodChunks: {
+		case kThingBloodChunks: 
+		{
 			SEQINST* pInst = GetInstance(3, pSprite->extra);
 			if (pInst)
 			{
 				auto seq = getSequence(pInst->nSeqID);
 				if (!seq) break;
-				seqSpawn(pInst->nSeqID, 3, pSprite->extra);
+				seqSpawn(pInst->nSeqID, act);
 			}
 			break;
 		}
@@ -4217,312 +4218,375 @@ static void actTouchFloor(DBloodActor* actor, int nSector)
 //
 //---------------------------------------------------------------------------
 
-static void ProcessTouchObjects(DBloodActor* actor)
+static void checkCeilHit(DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-    auto pXSprite = &actor->x();
-	SPRITEHIT* pSpriteHit = &actor->hit();
-    PLAYER *pPlayer = nullptr;
-    if (actor->IsPlayerActor()) pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
+	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
 
-    int nHitSprite = pSpriteHit->ceilhit & 0x3fff;
-    switch (pSpriteHit->ceilhit&0xc000)
-    {
-    case 0x8000:
-        break;
-    case 0xc000:
-        if (sprite[nHitSprite].extra > 0)
-        {
-            spritetype *pSprite2 = &sprite[nHitSprite];
-			auto actor2 = &bloodActors[nHitSprite];
-            XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
-            if ((pSprite2->statnum == kStatThing || pSprite2->statnum == kStatDude) && (actor->xvel() != 0 || actor->yvel() != 0 || actor->zvel() != 0))
-            {
-                if (pSprite2->statnum == kStatThing)
-                {
-                    int nType = pSprite2->type-kThingBase;
-                    const THINGINFO *pThingInfo = &thingInfo[nType];
-                    if (pThingInfo->flags&1)
-
-                        pSprite2->flags |= 1;
-                    if (pThingInfo->flags&2)
-
-                        pSprite2->flags |= 4;
-                    // Inlined ?
-                    xvel[pSprite2->index] += MulScale(4, pSprite2->x-pSprite->x, 2);
-                    yvel[pSprite2->index] += MulScale(4, pSprite2->y-pSprite->y, 2);
-                }
-                else
-                {
-
-                    pSprite2->flags |= 5;
-                    xvel[pSprite2->index] += MulScale(4, pSprite2->x-pSprite->x, 2);
-                    yvel[pSprite2->index] += MulScale(4, pSprite2->y-pSprite->y, 2);
-                    
-                    #ifdef NOONE_EXTENSIONS
-                    // add size shroom abilities
-                    if ((IsPlayerSprite(pSprite) && isShrinked(pSprite)) || (IsPlayerSprite(pSprite2) && isGrown(pSprite2))) {
-
-                        int mass1 = getDudeInfo(pSprite2->type)->mass;
-                        int mass2 = getDudeInfo(pSprite->type)->mass;
-                        switch (pSprite->type) {
-                            case kDudeModernCustom:
-                            case kDudeModernCustomBurning:
-                                mass2 = getSpriteMassBySize(pSprite);
-                                break;
-                        }
-                        if (mass1 > mass2) {
-                            int dmg = abs((mass1 - mass2) * (pSprite2->clipdist - pSprite->clipdist));
-                            if (IsDudeSprite(pSprite2)) {
-                                if (dmg > 0)
-                                    actDamageSprite(pSprite2->index, pSprite, (Chance(0x2000)) ? DAMAGE_TYPE_0 : (Chance(0x4000)) ? DAMAGE_TYPE_3 : DAMAGE_TYPE_2, dmg);
-
-                                if (Chance(0x0200))
-                                    actKickObject(actor2, actor);
-                            }
-                        }
-                    }
-                    #endif
-                    if (!IsPlayerSprite(pSprite) || gPlayer[pSprite->type - kDudePlayer1].godMode == 0) {
-                        switch (pSprite2->type) {
-                            case kDudeTchernobog:
-                                actDamageSprite(pSprite2->index, pSprite, DAMAGE_TYPE_3, pXSprite->health << 2);
-                                break;
-                            #ifdef NOONE_EXTENSIONS
-                            case kDudeModernCustom:
-                            case kDudeModernCustomBurning:
-                                int dmg = 0;
-                                if (!IsDudeSprite(pSprite) || (dmg = ClipLow((getSpriteMassBySize(pSprite2) - getSpriteMassBySize(pSprite)) >> 1, 0)) == 0)
-                                    break;
-
-                                if (!IsPlayerSprite(pSprite)) {
-                                    actDamageSprite(pSprite2->index, pSprite, DAMAGE_TYPE_0, dmg);
-                                    if (xspriRangeIsFine(pSprite->extra) && !isActive(pSprite->index))
-                                        aiActivateDude(&bloodActors[pSprite->index]);
-                                }
-                                else if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpJumpBoots) > 0) actDamageSprite(pSprite2->index, pSprite, DAMAGE_TYPE_3, dmg);
-                                else actDamageSprite(pSprite2->index, pSprite, DAMAGE_TYPE_0, dmg);
-                                break;
-                            #endif
-
-                        }
-                            
-                    }
-                }
-            }
-            
-            if (pSprite2->type == kTrapSawCircular) {
-                if (!pXSprite2->state) actDamageSprite(actor, actor, DAMAGE_TYPE_2, 1);
-                else {
-                    pXSprite2->data1 = 1;
-                    pXSprite2->data2 = ClipHigh(pXSprite2->data2+8, 600);
-                    actDamageSprite(actor, actor, DAMAGE_TYPE_2, 16);
-                }
-            }
-
-        }
-        break;
-    }
-    nHitSprite = pSpriteHit->hit & 0x3fff;
-    switch (pSpriteHit->hit&0xc000)
-    {
-    case 0x8000:
-        break;
-    case 0xc000:
-        if (sprite[nHitSprite].extra > 0)
-        {
-            spritetype *pSprite2 = &sprite[nHitSprite];
-			auto actor2 = &bloodActors[nHitSprite];
-            //XSPRITE *pXSprite2 = &Xsprite[pSprite2->extra];
-            
-            #ifdef NOONE_EXTENSIONS
-            // add size shroom abilities
-            if ((IsPlayerSprite(pSprite2) && isShrinked(pSprite2)) || (IsPlayerSprite(pSprite) && isGrown(pSprite))) {
-                if (xvel[pSprite->xvel] != 0 && IsDudeSprite(pSprite2)) {
-                    int mass1 = getDudeInfo(pSprite->type)->mass;
-                    int mass2 = getDudeInfo(pSprite2->type)->mass;
-                    switch (pSprite2->type) {
-                        case kDudeModernCustom:
-                        case kDudeModernCustomBurning:
-                            mass2 = getSpriteMassBySize(pSprite2);
-                            break;
-                    }
-                    if (mass1 > mass2) {
-                        actKickObject(actor, actor2);
-                        sfxPlay3DSound(pSprite, 357, -1, 1);
-                        int dmg = (mass1 - mass2) + abs(FixedToInt(xvel[pSprite->index]));
-                        if (dmg > 0)
-                            actDamageSprite(actor, actor2, (Chance(0x2000)) ? DAMAGE_TYPE_0 : DAMAGE_TYPE_2, dmg);
-                    }
-                }
-            }
-            #endif
-            
-            switch (pSprite2->type) {
-                case kThingKickablePail:
-                    actKickObject(actor, actor2);
-                    break;
-                case kThingZombieHead:
-                    sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
-                    actKickObject(actor, actor2);
-                    actDamageSprite(nullptr, actor2, DAMAGE_TYPE_0, 80);
-                    break;
-                case kDudeBurningInnocent:
-                case kDudeBurningCultist:
-                case kDudeBurningZombieAxe:
-                case kDudeBurningZombieButcher:
-                    // This does not make sense
-                    pXSprite->burnTime = ClipLow(pXSprite->burnTime-4, 0);
-                    actDamageSprite(pXSprite->burnSource, pSprite, DAMAGE_TYPE_1, 8);
-                    break;
-            }
-        }
-        break;
-    }
-    nHitSprite = pSpriteHit->florhit & 0x3fff;
-    switch (pSpriteHit->florhit & 0xc000) {
-    case 0x8000:
-        break;
-    case 0x4000:
-        actTouchFloor(actor,nHitSprite);
-        break;
-    case 0xc000:
-        if (sprite[nHitSprite].extra > 0)
-        {
-            spritetype *pSprite2 = &sprite[nHitSprite];
-            XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
-			auto actor2 = &bloodActors[nHitSprite];
-
-            #ifdef NOONE_EXTENSIONS
-            // add size shroom abilities
-            if ((IsPlayerSprite(pSprite2) && isShrinked(pSprite2)) || (IsPlayerSprite(pSprite) && isGrown(pSprite))) {
-                
-                int mass1 = getDudeInfo(pSprite->type)->mass;
-                int mass2 = getDudeInfo(pSprite2->type)->mass;
-                switch (pSprite2->type) {
-                    case kDudeModernCustom:
-                    case kDudeModernCustomBurning:
-                        mass2 = getSpriteMassBySize(pSprite2);
-                        break;
-                }
-                if (mass1 > mass2 && IsDudeSprite(pSprite2)) {
-                    if ((IsPlayerSprite(pSprite2) && Chance(0x500)) || !IsPlayerSprite(pSprite2))
-                        actKickObject(actor, actor2);
-
-                    int dmg = (mass1 - mass2) + pSprite->clipdist;
-                    if (dmg > 0)
-                        actDamageSprite(actor, actor2, (Chance(0x2000)) ? DAMAGE_TYPE_0 : DAMAGE_TYPE_2, dmg);
-                }
-            }
-            #endif
-
-            switch (pSprite2->type) {
-            case kThingKickablePail:
-                if (pPlayer) {
-                    if (pPlayer->kickPower > PlayClock) return;
-                    pPlayer->kickPower = PlayClock+60;
-                }
-                actKickObject(actor, actor2);
-                sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
-                sfxPlay3DSound(pSprite, 374, 0, 0);
-                break;
-            case kThingZombieHead:
-                if (pPlayer) {
-                    if (pPlayer->kickPower > PlayClock) return;
-                    pPlayer->kickPower = PlayClock+60;
-                }
-                actKickObject(actor, actor2);
-                sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
-                actDamageSprite(-1, pSprite2, DAMAGE_TYPE_0, 80);
-                break;
-            case kTrapSawCircular:
-                if (!pXSprite2->state) actDamageSprite(actor, actor, DAMAGE_TYPE_2, 1);
-                else {
-                    pXSprite2->data1 = 1;
-                    pXSprite2->data2 = ClipHigh(pXSprite2->data2+8, 600);
-                    actDamageSprite(actor, actor, DAMAGE_TYPE_2, 16);
-                }
-                break;
-            case kDudeCultistTommy:
-            case kDudeCultistShotgun:
-            case kDudeZombieAxeNormal:
-            case kDudeZombieButcher:
-            case kDudeZombieAxeBuried:
-            case kDudeGargoyleFlesh:
-            case kDudeGargoyleStone:
-            case kDudePhantasm:
-            case kDudeHellHound:
-            case kDudeHand:
-            case kDudeSpiderBrown:
-            case kDudeSpiderRed:
-            case kDudeSpiderBlack:
-            case kDudeGillBeast:
-            case kDudeBat:
-            case kDudeRat:
-            case kDudePodGreen:
-            case kDudeTentacleGreen:
-            case kDudePodFire:
-            case kDudeTentacleFire:
-            case kDudePodMother:
-            case kDudeTentacleMother:
-            case kDudeCerberusTwoHead:
-            case kDudeCerberusOneHead:
-            case kDudeTchernobog:
-            case kDudePlayer1:
-            case kDudePlayer2:
-            case kDudePlayer3:
-            case kDudePlayer4:
-            case kDudePlayer5:
-            case kDudePlayer6:
-            case kDudePlayer7:
-            case kDudePlayer8:
-            #ifdef NOONE_EXTENSIONS
-                if (pPlayer && !isShrinked(pSprite))
-            #else
-                if (pPlayer)
-            #endif
-                    actDamageSprite(actor, actor2,DAMAGE_TYPE_2, 8);
-                break;
-            }
-        }
-        break;
-    }
-
-    #ifdef NOONE_EXTENSIONS
-    // add more trigger statements for Touch flag
-    if (gModernMap && IsDudeSprite(pSprite)) {
-        
-        // Touch sprites
-        int nHSprite = -1;
-        if ((pSpriteHit->hit & 0xc000) == 0xc000) nHSprite = pSpriteHit->hit & 0x3fff;
-        else if ((pSpriteHit->florhit & 0xc000) == 0xc000) nHSprite = pSpriteHit->florhit & 0x3fff;
-        else if ((pSpriteHit->ceilhit & 0xc000) == 0xc000) nHSprite = pSpriteHit->ceilhit & 0x3fff;
-
-        if (spriRangeIsFine(nHSprite) && xspriRangeIsFine(sprite[nHSprite].extra)) {
-            XSPRITE* pXHSprite = &xsprite[sprite[nHSprite].extra];
-            if (pXHSprite->Touch && !pXHSprite->isTriggered && (!pXHSprite->DudeLockout || IsPlayerSprite(pSprite)))
-                trTriggerSprite(nHSprite, pXHSprite, kCmdSpriteTouch);
-        }
-
-        // Touch walls
-        int nHWall = -1;
-        if ((pSpriteHit->hit & 0xc000) == 0x8000)
+	Collision coll(actor->hit().ceilhit);
+	switch (coll.type)
+	{
+	case kHitWall:
+		break;
+	case kHitSprite:
+		if (coll.actor->hasX())
 		{
-            nHWall = pSpriteHit->hit & 0x3fff;
-            if (wallRangeIsFine(nHWall) && xwallRangeIsFine(wall[nHWall].extra)) 
+			auto actor2 = coll.actor;
+			spritetype* pSprite2 = &actor2->s();
+			XSPRITE* pXSprite2 = &actor2->x();
+			if ((pSprite2->statnum == kStatThing || pSprite2->statnum == kStatDude) && (actor->xvel() != 0 || actor->yvel() != 0 || actor->zvel() != 0))
 			{
-                XWALL* pXHWall = &xwall[wall[nHWall].extra];
-                if (pXHWall->triggerTouch && !pXHWall->isTriggered && (!pXHWall->dudeLockout || IsPlayerSprite(pSprite)))
-                    trTriggerWall(nHWall, pXHWall, kCmdWallTouch);
-            }
-        }
+				if (pSprite2->statnum == kStatThing)
+				{
+					int nType = pSprite2->type - kThingBase;
+					const THINGINFO* pThingInfo = &thingInfo[nType];
+					if (pThingInfo->flags & 1) pSprite2->flags |= 1;
+					if (pThingInfo->flags & 2) pSprite2->flags |= 4;
+					// Inlined ?
+					actor2->xvel() += MulScale(4, pSprite2->x - pSprite->x, 2);
+					actor2->yvel() += MulScale(4, pSprite2->y - pSprite->y, 2);
+				}
+				else
+				{
+					pSprite2->flags |= 5;
+					actor2->xvel() += MulScale(4, pSprite2->x - pSprite->x, 2);
+					actor2->yvel() += MulScale(4, pSprite2->y - pSprite->y, 2);
 
-        // enough to reset SpriteHit values
-        if (nHWall != -1 || nHSprite != -1) actor->xvel() += 5;
+#ifdef NOONE_EXTENSIONS
+					// add size shroom abilities
+					if ((actor->IsPlayerActor() && isShrinked(pSprite)) || (IsPlayerSprite(pSprite2) && isGrown(pSprite2))) {
 
-    }
-    #endif
+						int mass1 = getDudeInfo(pSprite2->type)->mass;
+						int mass2 = getDudeInfo(pSprite->type)->mass;
+						switch (pSprite->type)
+						{
+						case kDudeModernCustom:
+						case kDudeModernCustomBurning:
+							mass2 = getSpriteMassBySize(pSprite);
+							break;
+						}
+						if (mass1 > mass2)
+						{
+							int dmg = abs((mass1 - mass2) * (pSprite2->clipdist - pSprite->clipdist));
+							if (actor2->IsDudeActor())
+							{
+								if (dmg > 0) actDamageSprite(pSprite2->index, pSprite, (Chance(0x2000)) ? DAMAGE_TYPE_0 : (Chance(0x4000)) ? DAMAGE_TYPE_3 : DAMAGE_TYPE_2, dmg);
+								if (Chance(0x0200)) actKickObject(actor2, actor);
+							}
+						}
+					}
+#endif
+					if (!actor->IsPlayerActor() || gPlayer[pSprite->type - kDudePlayer1].godMode == 0)
+					{
+						switch (pSprite2->type)
+						{
+						case kDudeTchernobog:
+							actDamageSprite(actor2, actor, DAMAGE_TYPE_3, pXSprite->health << 2);
+							break;
+#ifdef NOONE_EXTENSIONS
+						case kDudeModernCustom:
+						case kDudeModernCustomBurning:
+							int dmg = 0;
+							if (!actor->IsDudeActor() || (dmg = ClipLow((getSpriteMassBySize(pSprite2) - getSpriteMassBySize(pSprite)) >> 1, 0)) == 0)
+								break;
+
+							if (!actor->IsPlayerActor())
+							{
+								actDamageSprite(actor2, actor, DAMAGE_TYPE_0, dmg);
+								if (pXSprite && !actor->isActive()) aiActivateDude(actor);
+							}
+							else if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpJumpBoots) > 0) actDamageSprite(actor2, actor, DAMAGE_TYPE_3, dmg);
+							else actDamageSprite(actor2, actor, DAMAGE_TYPE_0, dmg);
+							break;
+#endif
+
+						}
+
+					}
+				}
+			}
+
+			if (pSprite2->type == kTrapSawCircular)
+			{
+				if (!pXSprite2->state) actDamageSprite(actor, actor, DAMAGE_TYPE_2, 1);
+				else {
+					pXSprite2->data1 = 1;
+					pXSprite2->data2 = ClipHigh(pXSprite2->data2 + 8, 600);
+					actDamageSprite(actor, actor, DAMAGE_TYPE_2, 16);
+				}
+			}
+		}
+		break;
+	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void checkHit(DBloodActor* actor)
+{
+	auto pSprite = &actor->s();
+	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
+
+	Collision coll(actor->hit().hit);
+	switch (coll.type)
+	{
+	case kHitWall:
+		break;
+	case kHitSprite:
+		if (coll.actor->hasX())
+		{
+			auto actor2 = coll.actor;
+			spritetype* pSprite2 = &actor2->s();
+			//XSPRITE *pXSprite2 = &Xsprite[pSprite2->extra];
+
+#ifdef NOONE_EXTENSIONS
+			// add size shroom abilities
+			if ((actor2->IsPlayerActor() && isShrinked(pSprite2)) || (actor->IsPlayerActor() && isGrown(pSprite)))
+			{
+				if (actor->xvel() != 0 && actor2->IsDudeActor())
+				{
+					int mass1 = getDudeInfo(pSprite->type)->mass;
+					int mass2 = getDudeInfo(pSprite2->type)->mass;
+					switch (pSprite2->type)
+					{
+					case kDudeModernCustom:
+					case kDudeModernCustomBurning:
+						mass2 = getSpriteMassBySize(pSprite2);
+						break;
+					}
+					if (mass1 > mass2)
+					{
+						actKickObject(actor, actor2);
+						sfxPlay3DSound(pSprite, 357, -1, 1);
+						int dmg = (mass1 - mass2) + abs(FixedToInt(actor->xvel()));
+						if (dmg > 0) actDamageSprite(actor, actor2, (Chance(0x2000)) ? DAMAGE_TYPE_0 : DAMAGE_TYPE_2, dmg);
+					}
+				}
+			}
+#endif
+
+			switch (pSprite2->type)
+			{
+			case kThingKickablePail:
+				actKickObject(actor, actor2);
+				break;
+
+			case kThingZombieHead:
+				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
+				actKickObject(actor, actor2);
+				actDamageSprite(nullptr, actor2, DAMAGE_TYPE_0, 80);
+				break;
+
+			case kDudeBurningInnocent:
+			case kDudeBurningCultist:
+			case kDudeBurningZombieAxe:
+			case kDudeBurningZombieButcher:
+				// This does not make sense
+				pXSprite->burnTime = ClipLow(pXSprite->burnTime - 4, 0);
+				actDamageSprite(actor->GetBurnSource(), actor, DAMAGE_TYPE_1, 8);
+				break;
+			}
+		}
+		break;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void checkFloorHit(DBloodActor* actor)
+{
+	auto pSprite = &actor->s();
+	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
+
+	Collision coll(actor->hit().florhit);
+	switch (coll.type)
+	{
+	case kHitWall:
+		break;
+	case kHitSector:
+		actTouchFloor(actor, coll.index);
+		break;
+	case kHitSprite:
+		if (coll.actor->hasX())
+		{
+			auto actor2 = coll.actor;
+			spritetype* pSprite2 = &actor2->s();
+			XSPRITE* pXSprite2 = &actor2->x();
+
+#ifdef NOONE_EXTENSIONS
+			// add size shroom abilities
+			if ((actor2->IsPlayerActor() && isShrinked(pSprite2)) || (actor->IsPlayerActor() && isGrown(pSprite)))
+			{
+
+				int mass1 = getDudeInfo(pSprite->type)->mass;
+				int mass2 = getDudeInfo(pSprite2->type)->mass;
+				switch (pSprite2->type)
+				{
+				case kDudeModernCustom:
+				case kDudeModernCustomBurning:
+					mass2 = getSpriteMassBySize(pSprite2);
+					break;
+				}
+
+				if (mass1 > mass2 && IsDudeSprite(pSprite2))
+				{
+					if ((IsPlayerSprite(pSprite2) && Chance(0x500)) || !IsPlayerSprite(pSprite2))
+						actKickObject(actor, actor2);
+
+					int dmg = (mass1 - mass2) + pSprite->clipdist;
+					if (dmg > 0) actDamageSprite(actor, actor2, (Chance(0x2000)) ? DAMAGE_TYPE_0 : DAMAGE_TYPE_2, dmg);
+				}
+			}
+#endif
+
+			PLAYER* pPlayer = nullptr;
+			if (actor->IsPlayerActor()) pPlayer = &gPlayer[pSprite->type - kDudePlayer1];
+
+			switch (pSprite2->type)
+			{
+			case kThingKickablePail:
+				if (pPlayer)
+				{
+					if (pPlayer->kickPower > PlayClock) return;
+					pPlayer->kickPower = PlayClock + 60;
+				}
+				actKickObject(actor, actor2);
+				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
+				sfxPlay3DSound(pSprite, 374, 0, 0);
+				break;
+			case kThingZombieHead:
+				if (pPlayer)
+				{
+					if (pPlayer->kickPower > PlayClock) return;
+					pPlayer->kickPower = PlayClock + 60;
+				}
+				actKickObject(actor, actor2);
+				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
+				actDamageSprite(-1, pSprite2, DAMAGE_TYPE_0, 80);
+				break;
+			case kTrapSawCircular:
+				if (!pXSprite2->state) actDamageSprite(actor, actor, DAMAGE_TYPE_2, 1);
+				else
+				{
+					pXSprite2->data1 = 1;
+					pXSprite2->data2 = ClipHigh(pXSprite2->data2 + 8, 600);
+					actDamageSprite(actor, actor, DAMAGE_TYPE_2, 16);
+				}
+				break;
+			case kDudeCultistTommy:
+			case kDudeCultistShotgun:
+			case kDudeZombieAxeNormal:
+			case kDudeZombieButcher:
+			case kDudeZombieAxeBuried:
+			case kDudeGargoyleFlesh:
+			case kDudeGargoyleStone:
+			case kDudePhantasm:
+			case kDudeHellHound:
+			case kDudeHand:
+			case kDudeSpiderBrown:
+			case kDudeSpiderRed:
+			case kDudeSpiderBlack:
+			case kDudeGillBeast:
+			case kDudeBat:
+			case kDudeRat:
+			case kDudePodGreen:
+			case kDudeTentacleGreen:
+			case kDudePodFire:
+			case kDudeTentacleFire:
+			case kDudePodMother:
+			case kDudeTentacleMother:
+			case kDudeCerberusTwoHead:
+			case kDudeCerberusOneHead:
+			case kDudeTchernobog:
+			case kDudePlayer1:
+			case kDudePlayer2:
+			case kDudePlayer3:
+			case kDudePlayer4:
+			case kDudePlayer5:
+			case kDudePlayer6:
+			case kDudePlayer7:
+			case kDudePlayer8:
+#ifdef NOONE_EXTENSIONS
+				if (pPlayer && !isShrinked(pSprite))
+#else
+				if (pPlayer)
+#endif
+					actDamageSprite(actor, actor2, DAMAGE_TYPE_2, 8);
+				break;
+			}
+		}
+		break;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void ProcessTouchObjects(DBloodActor* actor)
+{
+	checkCeilHit(actor);
+	checkHit(actor);
+	checkFloorHit(actor);
+
+#ifdef NOONE_EXTENSIONS
+	// add more trigger statements for Touch flag
+	if (gModernMap && actor->IsDudeActor())
+	{
+		DBloodActor* actor2 = nullptr;
+		for (int i : { actor->hit().hit, actor->hit().florhit, actor->hit().ceilhit})
+		{
+			Collision coll = i;
+			if (coll.type == kHitSprite)
+			{
+				actor2 = coll.actor;
+				break;
+			}
+		}
+
+		if (actor2->hasX())
+		{
+			XSPRITE* pXHSprite = &actor2->x();
+			if (pXHSprite->Touch && !pXHSprite->isTriggered && (!pXHSprite->DudeLockout || actor->IsPlayerActor()))
+				trTriggerSprite(actor2, kCmdSpriteTouch);
+		}
+
+		// Touch walls
+		Collision coll = actor->hit().hit;
+		int nHWall = -1;
+		if (coll.type == kHitWall)
+		{
+			nHWall = coll.index;
+			if (wallRangeIsFine(nHWall) && xwallRangeIsFine(wall[nHWall].extra))
+			{
+				XWALL* pXHWall = &xwall[wall[nHWall].extra];
+				if (pXHWall->triggerTouch && !pXHWall->isTriggered && (!pXHWall->dudeLockout || actor->IsPlayerActor()))
+					trTriggerWall(nHWall, pXHWall, kCmdWallTouch);
+			}
+		}
+
+		// enough to reset SpriteHit values
+		if (nHWall != -1 || actor2) actor->xvel() += 5;
+
+	}
+#endif
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void actAirDrag(spritetype *pSprite, int a2)
 {

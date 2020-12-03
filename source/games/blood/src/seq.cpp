@@ -477,6 +477,11 @@ SEQINST* GetInstance(int type, int nXIndex)
 	return activeList.get(type, nXIndex);
 }
 
+SEQINST* GetInstance(DBloodActor* actor)
+{
+	return activeList.get(3, actor->s().index);
+}
+
 void seqKill(int type, int nXIndex)
 {
 	activeList.remove(type, nXIndex);
@@ -650,7 +655,7 @@ void seqProcess(int nTicks)
 							short nSprite = (short)xsprite[index].reference;
 							assert(nSprite >= 0 && nSprite < kMaxSprites);
 							evKill(nSprite, SS_SPRITE);
-							if ((sprite[nSprite].hitag & kAttrRespawn) != 0 && (sprite[nSprite].zvel >= kDudeBase && sprite[nSprite].zvel < kDudeMax))
+							if ((sprite[nSprite].hitag & kAttrRespawn) != 0 && (sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax))
 								evPost(nSprite, 3, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
 							else deletesprite(nSprite);	// safe to not use actPostSprite here
 						}
