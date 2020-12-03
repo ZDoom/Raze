@@ -284,7 +284,8 @@ struct MAPHEADER2 {
     char pad[52];
 };
 
-struct SPRITEHIT {
+struct SPRITEHIT 
+{
     int hit, ceilhit, florhit;
 };
 

@@ -4163,57 +4163,68 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	pMissile->cstat &= ~257;
 }
 
-void actKickObject(spritetype *pSprite1, spritetype *pSprite2)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void actKickObject(DBloodActor* kicker, DBloodActor* kicked)
 {
-    int nSprite1 = pSprite1->index;
-    int nSprite2 = pSprite2->index;
-    int nSpeed = ClipLow(approxDist(xvel[nSprite1], yvel[nSprite1])*2, 0xaaaaa);
-    xvel[nSprite2] = MulScale(nSpeed, Cos(pSprite1->ang+Random2(85)), 30);
-    yvel[nSprite2] = MulScale(nSpeed, Sin(pSprite1->ang+Random2(85)), 30);
-    zvel[nSprite2] = MulScale(nSpeed, -0x2000, 14);
-    pSprite2->flags = 7;
+	int nSpeed = ClipLow(approxDist(kicker->xvel(), kicker->yvel()) * 2, 0xaaaaa);
+	kicked->xvel() = MulScale(nSpeed, Cos(kicker->s().ang + Random2(85)), 30);
+	kicked->yvel() = MulScale(nSpeed, Sin(kicker->s().ang + Random2(85)), 30);
+	kicked->zvel() = MulScale(nSpeed, -0x2000, 14);
+	kicked->s().flags = 7;
 }
 
-void actTouchFloor(spritetype *pSprite, int nSector)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void actTouchFloor(DBloodActor* actor, int nSector)
 {
-    assert(pSprite != NULL);
-    assert(nSector >= 0 && nSector < kMaxSectors);
-    sectortype * pSector = &sector[nSector];
-    XSECTOR * pXSector = NULL;
-    if (pSector->extra > 0)
-        pXSector = &xsector[pSector->extra];
+	assert(actor != nullptr);
+	assert(nSector >= 0 && nSector < kMaxSectors);
+	sectortype* pSector = &sector[nSector];
+	XSECTOR* pXSector = nullptr;
+	if (pSector->extra > 0) pXSector = &xsector[pSector->extra];
 
+	if (pXSector && (pSector->type == kSectorDamage || pXSector->damageType > 0))
+	{
+		DAMAGE_TYPE nDamageType;
+		if (pSector->type == kSectorDamage) nDamageType = (DAMAGE_TYPE)ClipRange(pXSector->damageType, DAMAGE_TYPE_0, DAMAGE_TYPE_6);
+		else nDamageType = (DAMAGE_TYPE)ClipRange(pXSector->damageType - 1, DAMAGE_TYPE_0, DAMAGE_TYPE_6);
 
-    if (pXSector && (pSector->type == kSectorDamage || pXSector->damageType > 0))
-    {
-        DAMAGE_TYPE nDamageType;
+		int nDamage;
+		if (pXSector->data) nDamage = ClipRange(pXSector->data, 0, 1000);
+		else nDamage = 1000;
 
-        if (pSector->type == kSectorDamage)
-            nDamageType = (DAMAGE_TYPE)ClipRange(pXSector->damageType, DAMAGE_TYPE_0, DAMAGE_TYPE_6);
-        else
-            nDamageType = (DAMAGE_TYPE)ClipRange(pXSector->damageType - 1, DAMAGE_TYPE_0, DAMAGE_TYPE_6);
-        int nDamage;
-        if (pXSector->data)
-            nDamage = ClipRange(pXSector->data, 0, 1000);
-        else
-            nDamage = 1000;
-        actDamageSprite(pSprite->index, pSprite, nDamageType, scale(4, nDamage, 120) << 4);
-    }
-    if (tileGetSurfType(nSector + 0x4000) == kSurfLava)
-    {
-        actDamageSprite(pSprite->index, pSprite, DAMAGE_TYPE_1, 16);
-        sfxPlay3DSound(pSprite, 352, 5, 2);
-    }
+		actDamageSprite(actor, actor, nDamageType, scale(4, nDamage, 120) << 4);
+	}
+	if (tileGetSurfType(nSector + 0x4000) == kSurfLava)
+	{
+		actDamageSprite(actor, actor, DAMAGE_TYPE_1, 16);
+		sfxPlay3DSound(&actor->s(), 352, 5, 2);
+	}
 }
 
-void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void ProcessTouchObjects(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    SPRITEHIT *pSpriteHit = &gSpriteHit[nXSprite];
-    PLAYER *pPlayer = NULL;
-    if (IsPlayerSprite(pSprite))
-        pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
+	auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+	SPRITEHIT* pSpriteHit = &actor->hit();
+    PLAYER *pPlayer = nullptr;
+    if (actor->IsPlayerActor()) pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
+
     int nHitSprite = pSpriteHit->ceilhit & 0x3fff;
     switch (pSpriteHit->ceilhit&0xc000)
     {
@@ -4223,8 +4234,9 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
         if (sprite[nHitSprite].extra > 0)
         {
             spritetype *pSprite2 = &sprite[nHitSprite];
+			auto actor2 = &bloodActors[nHitSprite];
             XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
-            if ((pSprite2->statnum == kStatThing || pSprite2->statnum == kStatDude) && (xvel[nSprite] != 0 || yvel[nSprite] != 0 || zvel[nSprite] != 0))
+            if ((pSprite2->statnum == kStatThing || pSprite2->statnum == kStatDude) && (actor->xvel() != 0 || actor->yvel() != 0 || actor->zvel() != 0))
             {
                 if (pSprite2->statnum == kStatThing)
                 {
@@ -4237,15 +4249,15 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
 
                         pSprite2->flags |= 4;
                     // Inlined ?
-                    xvel[pSprite2->index] += MulScale(4, pSprite2->x-sprite[nSprite].x, 2);
-                    yvel[pSprite2->index] += MulScale(4, pSprite2->y-sprite[nSprite].y, 2);
+                    xvel[pSprite2->index] += MulScale(4, pSprite2->x-pSprite->x, 2);
+                    yvel[pSprite2->index] += MulScale(4, pSprite2->y-pSprite->y, 2);
                 }
                 else
                 {
 
                     pSprite2->flags |= 5;
-                    xvel[pSprite2->index] += MulScale(4, pSprite2->x-sprite[nSprite].x, 2);
-                    yvel[pSprite2->index] += MulScale(4, pSprite2->y-sprite[nSprite].y, 2);
+                    xvel[pSprite2->index] += MulScale(4, pSprite2->x-pSprite->x, 2);
+                    yvel[pSprite2->index] += MulScale(4, pSprite2->y-pSprite->y, 2);
                     
                     #ifdef NOONE_EXTENSIONS
                     // add size shroom abilities
@@ -4266,7 +4278,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                                     actDamageSprite(pSprite2->index, pSprite, (Chance(0x2000)) ? DAMAGE_TYPE_0 : (Chance(0x4000)) ? DAMAGE_TYPE_3 : DAMAGE_TYPE_2, dmg);
 
                                 if (Chance(0x0200))
-                                    actKickObject(pSprite2, pSprite);
+                                    actKickObject(actor2, actor);
                             }
                         }
                     }
@@ -4300,11 +4312,11 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
             }
             
             if (pSprite2->type == kTrapSawCircular) {
-                if (!pXSprite2->state) actDamageSprite(nSprite, pSprite, DAMAGE_TYPE_2, 1);
+                if (!pXSprite2->state) actDamageSprite(actor, actor, DAMAGE_TYPE_2, 1);
                 else {
                     pXSprite2->data1 = 1;
                     pXSprite2->data2 = ClipHigh(pXSprite2->data2+8, 600);
-                    actDamageSprite(nSprite, pSprite, DAMAGE_TYPE_2, 16);
+                    actDamageSprite(actor, actor, DAMAGE_TYPE_2, 16);
                 }
             }
 
@@ -4320,6 +4332,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
         if (sprite[nHitSprite].extra > 0)
         {
             spritetype *pSprite2 = &sprite[nHitSprite];
+			auto actor2 = &bloodActors[nHitSprite];
             //XSPRITE *pXSprite2 = &Xsprite[pSprite2->extra];
             
             #ifdef NOONE_EXTENSIONS
@@ -4335,11 +4348,11 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                             break;
                     }
                     if (mass1 > mass2) {
-                        actKickObject(pSprite, pSprite2);
+                        actKickObject(actor, actor2);
                         sfxPlay3DSound(pSprite, 357, -1, 1);
                         int dmg = (mass1 - mass2) + abs(FixedToInt(xvel[pSprite->index]));
                         if (dmg > 0)
-                            actDamageSprite(nSprite, pSprite2, (Chance(0x2000)) ? DAMAGE_TYPE_0 : DAMAGE_TYPE_2, dmg);
+                            actDamageSprite(actor, actor2, (Chance(0x2000)) ? DAMAGE_TYPE_0 : DAMAGE_TYPE_2, dmg);
                     }
                 }
             }
@@ -4347,12 +4360,12 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
             
             switch (pSprite2->type) {
                 case kThingKickablePail:
-                    actKickObject(pSprite, pSprite2);
+                    actKickObject(actor, actor2);
                     break;
                 case kThingZombieHead:
                     sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
-                    actKickObject(pSprite, pSprite2);
-                    actDamageSprite(-1, pSprite2, DAMAGE_TYPE_0, 80);
+                    actKickObject(actor, actor2);
+                    actDamageSprite(nullptr, actor2, DAMAGE_TYPE_0, 80);
                     break;
                 case kDudeBurningInnocent:
                 case kDudeBurningCultist:
@@ -4371,14 +4384,15 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
     case 0x8000:
         break;
     case 0x4000:
-        actTouchFloor(pSprite, nHitSprite);
+        actTouchFloor(actor,nHitSprite);
         break;
     case 0xc000:
         if (sprite[nHitSprite].extra > 0)
         {
             spritetype *pSprite2 = &sprite[nHitSprite];
             XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
-            
+			auto actor2 = &bloodActors[nHitSprite];
+
             #ifdef NOONE_EXTENSIONS
             // add size shroom abilities
             if ((IsPlayerSprite(pSprite2) && isShrinked(pSprite2)) || (IsPlayerSprite(pSprite) && isGrown(pSprite))) {
@@ -4393,11 +4407,11 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                 }
                 if (mass1 > mass2 && IsDudeSprite(pSprite2)) {
                     if ((IsPlayerSprite(pSprite2) && Chance(0x500)) || !IsPlayerSprite(pSprite2))
-                        actKickObject(pSprite, pSprite2);
+                        actKickObject(actor, actor2);
 
                     int dmg = (mass1 - mass2) + pSprite->clipdist;
                     if (dmg > 0)
-                        actDamageSprite(nSprite, pSprite2, (Chance(0x2000)) ? DAMAGE_TYPE_0 : DAMAGE_TYPE_2, dmg);
+                        actDamageSprite(actor, actor2, (Chance(0x2000)) ? DAMAGE_TYPE_0 : DAMAGE_TYPE_2, dmg);
                 }
             }
             #endif
@@ -4408,7 +4422,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                     if (pPlayer->kickPower > PlayClock) return;
                     pPlayer->kickPower = PlayClock+60;
                 }
-                actKickObject(pSprite, pSprite2);
+                actKickObject(actor, actor2);
                 sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
                 sfxPlay3DSound(pSprite, 374, 0, 0);
                 break;
@@ -4417,16 +4431,16 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                     if (pPlayer->kickPower > PlayClock) return;
                     pPlayer->kickPower = PlayClock+60;
                 }
-                actKickObject(pSprite, pSprite2);
+                actKickObject(actor, actor2);
                 sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
                 actDamageSprite(-1, pSprite2, DAMAGE_TYPE_0, 80);
                 break;
             case kTrapSawCircular:
-                if (!pXSprite2->state) actDamageSprite(nSprite, pSprite, DAMAGE_TYPE_2, 1);
+                if (!pXSprite2->state) actDamageSprite(actor, actor, DAMAGE_TYPE_2, 1);
                 else {
                     pXSprite2->data1 = 1;
                     pXSprite2->data2 = ClipHigh(pXSprite2->data2+8, 600);
-                    actDamageSprite(nSprite, pSprite, DAMAGE_TYPE_2, 16);
+                    actDamageSprite(actor, actor, DAMAGE_TYPE_2, 16);
                 }
                 break;
             case kDudeCultistTommy:
@@ -4467,7 +4481,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
             #else
                 if (pPlayer)
             #endif
-                    actDamageSprite(nSprite, pSprite2,DAMAGE_TYPE_2, 8);
+                    actDamageSprite(actor, actor2,DAMAGE_TYPE_2, 8);
                 break;
             }
         }
@@ -4480,12 +4494,9 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
         
         // Touch sprites
         int nHSprite = -1;
-        if ((gSpriteHit[nXSprite].hit & 0xc000) == 0xc000)
-            nHSprite = gSpriteHit[nXSprite].hit & 0x3fff;
-        else if ((gSpriteHit[nXSprite].florhit & 0xc000) == 0xc000)
-            nHSprite = gSpriteHit[nXSprite].florhit & 0x3fff;
-        else if ((gSpriteHit[nXSprite].ceilhit & 0xc000) == 0xc000)
-            nHSprite = gSpriteHit[nXSprite].ceilhit & 0x3fff;
+        if ((pSpriteHit->hit & 0xc000) == 0xc000) nHSprite = pSpriteHit->hit & 0x3fff;
+        else if ((pSpriteHit->florhit & 0xc000) == 0xc000) nHSprite = pSpriteHit->florhit & 0x3fff;
+        else if ((pSpriteHit->ceilhit & 0xc000) == 0xc000) nHSprite = pSpriteHit->ceilhit & 0x3fff;
 
         if (spriRangeIsFine(nHSprite) && xspriRangeIsFine(sprite[nHSprite].extra)) {
             XSPRITE* pXHSprite = &xsprite[sprite[nHSprite].extra];
@@ -4495,17 +4506,19 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
 
         // Touch walls
         int nHWall = -1;
-        if ((gSpriteHit[nXSprite].hit & 0xc000) == 0x8000) {
-            nHWall = gSpriteHit[nXSprite].hit & 0x3fff;
-            if (wallRangeIsFine(nHWall) && xwallRangeIsFine(wall[nHWall].extra)) {
+        if ((pSpriteHit->hit & 0xc000) == 0x8000)
+		{
+            nHWall = pSpriteHit->hit & 0x3fff;
+            if (wallRangeIsFine(nHWall) && xwallRangeIsFine(wall[nHWall].extra)) 
+			{
                 XWALL* pXHWall = &xwall[wall[nHWall].extra];
                 if (pXHWall->triggerTouch && !pXHWall->isTriggered && (!pXHWall->dudeLockout || IsPlayerSprite(pSprite)))
                     trTriggerWall(nHWall, pXHWall, kCmdWallTouch);
             }
         }
 
-        // enough to reset gSpriteHit values
-        if (nHWall != -1 || nHSprite != -1) xvel[nSprite] += 5;
+        // enough to reset SpriteHit values
+        if (nHWall != -1 || nHSprite != -1) actor->xvel() += 5;
 
     }
     #endif
@@ -4615,7 +4628,7 @@ int MoveThing(spritetype *pSprite)
     GetSpriteExtents(pSprite, &top, &bottom);
     if (bottom >= floorZ)
     {
-        actTouchFloor(pSprite, pSprite->sectnum);
+        actTouchFloor(&bloodActors[pSprite->index], pSprite->sectnum);
         gSpriteHit[nXSprite].florhit = floorHit;
         pSprite->z += floorZ-bottom;
         int v20 = zvel[nSprite]-velFloor[pSprite->sectnum];
@@ -6163,7 +6176,7 @@ void actProcessSprites(void)
                     }
                 }
             }
-            ProcessTouchObjects(pSprite, nXSprite);
+            ProcessTouchObjects(&bloodActors[pSprite->index]);
         }
     }
     it.Reset(kStatDude);
