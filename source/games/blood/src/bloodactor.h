@@ -50,6 +50,17 @@ public:
 		return base() + s().owner;
 	}
 
+	void SetTarget(DBloodActor* own)
+	{
+		x().target = own ? own->s().index : -1;
+	}
+
+	DBloodActor* GetTarget()
+	{
+		if (x().target == -1 || x().target == kMaxSprites - 1) return nullptr;
+		return base() + x().target;
+	}
+
 	void SetSpecialOwner() // nnext hackery
 	{
 		s().owner = kMaxSprites - 1;

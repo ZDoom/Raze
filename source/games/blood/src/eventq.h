@@ -158,8 +158,12 @@ void evInit(void);
 void evSend(int nIndex, int nType, int rxId, COMMAND_ID command);
 void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command);
 void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback);
+void evPost(DBloodActor*, unsigned int nDelta, COMMAND_ID command);
+void evPost(DBloodActor*, unsigned int nDelta, CALLBACK_ID callback);
+
 void evProcess(unsigned int nTime);
 void evKill(int a1, int a2);
 void evKill(int a1, int a2, CALLBACK_ID a3);
+void evKill(DBloodActor*);
 
 END_BLD_NS

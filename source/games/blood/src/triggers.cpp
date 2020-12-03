@@ -1802,6 +1802,10 @@ void trTriggerSprite(unsigned int nSprite, XSPRITE *pXSprite, int command) {
     }
 }
 
+void trTriggerSprite(DBloodActor* actor, int command) {
+    trTriggerSprite(actor->s().index, &actor->x(), command);
+}
+
 
 void trMessageSector(unsigned int nSector, EVENT event) {
     assert(nSector < (unsigned int)numsectors);

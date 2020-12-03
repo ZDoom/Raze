@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 
 #include "blood.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -2591,9 +2592,9 @@ void teslaHit(spritetype *pMissile, int a2)
     int nOwner = pMissile->owner;
     GetClosestSpriteSectors(nSector, x, y, nDist, va4);
     bool v4 = true;
-    int v24 = -1;
-    actHitcodeToData(a2, &gHitInfo, &v24, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-    if (a2 == 3 && v24 >= 0 && sprite[v24].statnum == kStatDude)
+    DBloodActor* actor = nullptr;
+    actHitcodeToData(a2, &gHitInfo, &actor);
+    if (a2 == 3 && actor && actor->s().statnum == kStatDude)
         v4 = false;
     int nSprite;
     StatIterator it(kStatDude);
