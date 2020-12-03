@@ -1707,9 +1707,10 @@ void playerProcess(PLAYER *pPlayer)
     {
         if (pXSprite->height < 256)
         {
-            pPlayer->bobAmp = (pPlayer->bobAmp+pPosture->pace[pPlayer->isRunning]*4) & 2047;
-            pPlayer->swayAmp = (pPlayer->swayAmp+(pPosture->pace[pPlayer->isRunning]*4)/2) & 2047;
-            if (pPlayer->isRunning)
+            bool running = pPlayer->isRunning && pPlayer->restTime <= 10;
+            pPlayer->bobAmp = (pPlayer->bobAmp+pPosture->pace[running]*4) & 2047;
+            pPlayer->swayAmp = (pPlayer->swayAmp+(pPosture->pace[running]*4)/2) & 2047;
+            if (running)
             {
                 if (pPlayer->bobPhase < 60)
                     pPlayer->bobPhase = ClipHigh(pPlayer->bobPhase+nSpeed, 60);
