@@ -1286,7 +1286,7 @@ void nnExtProcessSuperSprites() {
                 
                 }
 
-            actAirDrag(pDebris, airVel);
+            actAirDrag(&bloodActors[pDebris->index], airVel);
 
             if (pXDebris->physAttr & kPhysDebrisTouch) {
                 PLAYER* pPlayer = NULL;

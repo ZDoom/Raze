@@ -4607,69 +4607,81 @@ static void ProcessTouchObjects(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void actAirDrag(spritetype *pSprite, int a2)
+void actAirDrag(DBloodActor* actor, int a2)
 {
-    int vbp = 0;
-    int v4 = 0;
+	auto pSprite = &actor->s();
+
+	int wind_x = 0;
+	int wind_y = 0;
     int nSector = pSprite->sectnum;
     assert(nSector >= 0 && nSector < kMaxSectors);
-    sectortype *pSector = &sector[nSector];
+	sectortype* pSector = &sector[nSector];
     int nXSector = pSector->extra;
     if (nXSector > 0)
     {
         assert(nXSector < kMaxXSectors);
-        XSECTOR *pXSector = &xsector[nXSector];
+		XSECTOR* pXSector = &xsector[nXSector];
         if (pXSector->windVel && (pXSector->windAlways || pXSector->busy))
         {
-            int vcx = pXSector->windVel<<12;
-            if (!pXSector->windAlways && pXSector->busy)
-                vcx = MulScale(vcx, pXSector->busy, 16);
-            vbp = MulScale(vcx, Cos(pXSector->windAng), 30);
-            v4 = MulScale(vcx, Sin(pXSector->windAng), 30);
+			int wind = pXSector->windVel << 12;
+			if (!pXSector->windAlways && pXSector->busy) wind = MulScale(wind, pXSector->busy, 16);
+			wind_x = MulScale(wind, Cos(pXSector->windAng), 30);
+			wind_y = MulScale(wind, Sin(pXSector->windAng), 30);
         }
     }
-    xvel[pSprite->index] += MulScale(vbp-xvel[pSprite->index], a2, 16);
-    yvel[pSprite->index] += MulScale(v4-yvel[pSprite->index], a2, 16);
-    zvel[pSprite->index] -= MulScale(zvel[pSprite->index], a2, 16);
+	actor->xvel() += MulScale(wind_x - actor->xvel(), a2, 16);
+	actor->yvel() += MulScale(wind_y - actor->yvel(), a2, 16);
+	actor->zvel() -= MulScale(actor->zvel(), a2, 16);
 }
 
-int MoveThing(spritetype *pSprite)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int MoveThing(DBloodActor* actor)
 {
-    int nXSprite = pSprite->extra;
-    assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pSprite->index;
-    int v8 = 0;
+	auto pSprite = &actor->s();
+	assert(actor->hasX());
+	XSPRITE* pXSprite = &actor->x();
+	int lhit = 0;
     assert(pSprite->type >= kThingBase && pSprite->type < kThingMax);
-    const THINGINFO *pThingInfo = &thingInfo[pSprite->type-kThingBase];
+	const THINGINFO* pThingInfo = &thingInfo[pSprite->type - kThingBase];
     int nSector = pSprite->sectnum;
     assert(nSector >= 0 && nSector < kMaxSectors);
     int top, bottom;
-    GetSpriteExtents(pSprite, &top, &bottom);
+
+	GetActorExtents(actor, &top, &bottom);
     const int bakCompat = enginecompatibility_mode;
-    if (xvel[nSprite] || yvel[nSprite])
+	if (actor->xvel() || actor->yvel())
     {
         short bakCstat = pSprite->cstat;
         pSprite->cstat &= ~257;
         if ((pSprite->owner >= 0) && !cl_bloodvanillaexplosions && !VanillaMode())
             enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-        v8 = gSpriteHit[nXSprite].hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, xvel[nSprite]>>12, yvel[nSprite]>>12, pSprite->clipdist<<2, (pSprite->z-top)/4, (bottom-pSprite->z)/4, CLIPMASK0);
+		lhit = actor->hit().hit = ClipMove(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, actor->xvel() >> 12, actor->yvel() >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0);
         enginecompatibility_mode = bakCompat; // restore
         pSprite->cstat = bakCstat;
         assert(nSector >= 0);
         if (pSprite->sectnum != nSector)
         {
             assert(nSector >= 0 && nSector < kMaxSectors);
-            ChangeSpriteSect(nSprite, nSector);
+			ChangeSpriteSect(pSprite->index, nSector);
         }
-        if ((gSpriteHit[nXSprite].hit&0xc000) == 0x8000) {
-            int nHitWall = gSpriteHit[nXSprite].hit&0x3fff;
-            actWallBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], nHitWall, pThingInfo->elastic);
-            switch (pSprite->type) {
+
+		Collision coll(actor->hit().hit);
+		if (coll.type == kHitWall)
+		{
+			int nHitWall = coll.index;
+			actWallBounceVector(&actor->xvel(), &actor->yvel(), nHitWall, pThingInfo->elastic);
+			switch (pSprite->type)
+			{
                 case kThingZombieHead:
                     sfxPlay3DSound(pSprite, 607, 0, 0);
-                    actDamageSprite(-1, pSprite, kDamageFall, 80);
+				actDamageSprite(nullptr, actor, kDamageFall, 80);
                     break;
+
                 case kThingKickablePail:
                     sfxPlay3DSound(pSprite, 374, 0, 0);
                     break;
@@ -4681,139 +4693,156 @@ int MoveThing(spritetype *pSprite)
         assert(nSector >= 0 && nSector < kMaxSectors);
         FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector);
     }
-    if (zvel[nSprite])
-        pSprite->z += zvel[nSprite]>>8;
+
+	pSprite->z += actor->zvel() >> 8;
+
     int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, CLIPMASK0);
-    GetSpriteExtents(pSprite, &top, &bottom);
+	GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist << 2, CLIPMASK0);
+	GetActorExtents(actor, &top, &bottom);
+
     if ((pSprite->flags & 2) && bottom < floorZ)
     {
         pSprite->z += 455;
-        zvel[nSprite] += 58254;
+		actor->zvel() += 58254;
         if (pSprite->type == kThingZombieHead)
         {
-            spritetype *pFX = gFX.fxSpawn(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
-            if (pFX)
+			auto* fxActor = gFX.fxSpawnActor(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+			if (fxActor)
             {
-                int v34 = (PlayClock*3)&2047;
-                int v30 = (PlayClock*5)&2047;
-                int vbx = (PlayClock*11)&2047;
+				int v34 = (PlayClock * 3) & 2047;
+				int v30 = (PlayClock * 5) & 2047;
+				int vbx = (PlayClock * 11) & 2047;
                 int v2c = 0x44444;
                 int v28 = 0;
                 int v24 = 0;
-                RotateVector(&v2c,&v28,vbx);
-                RotateVector(&v2c,&v24,v30);
-                RotateVector(&v28,&v24,v34);
-                xvel[pFX->index] = xvel[pSprite->index]+v2c;
-                yvel[pFX->index] = yvel[pSprite->index]+v28;
-                zvel[pFX->index] = zvel[pSprite->index]+v24;
+				RotateVector(&v2c, &v28, vbx);
+				RotateVector(&v2c, &v24, v30);
+				RotateVector(&v28, &v24, v34);
+				fxActor->xvel() = actor->xvel() + v2c;
+				fxActor->yvel() = actor->yvel() + v28;
+				fxActor->zvel() = actor->zvel() + v24;
             }
         }
     }
-    if (CheckLink(pSprite))
-        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, CLIPMASK0);
-    GetSpriteExtents(pSprite, &top, &bottom);
+	if (CheckLink(pSprite)) GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist << 2, CLIPMASK0);
+
+	GetActorExtents(actor, &top, &bottom);
     if (bottom >= floorZ)
     {
-        actTouchFloor(&bloodActors[pSprite->index], pSprite->sectnum);
-        gSpriteHit[nXSprite].florhit = floorHit;
-        pSprite->z += floorZ-bottom;
-        int v20 = zvel[nSprite]-velFloor[pSprite->sectnum];
+		actTouchFloor(actor, pSprite->sectnum);
+		actor->hit().florhit = floorHit;
+		pSprite->z += floorZ - bottom;
+
+		int v20 = actor->zvel() - velFloor[pSprite->sectnum];
         if (v20 > 0)
         {
 
             pSprite->flags |= 4;
-            int vax = actFloorBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], (int*)&v20, pSprite->sectnum, pThingInfo->elastic);
-            int nDamage = MulScale(vax, vax, 30)-pThingInfo->dmgResist;
-            if (nDamage > 0)
-                actDamageSprite(nSprite, pSprite, kDamageFall, nDamage);
-            zvel[nSprite] = v20;
-            if (velFloor[pSprite->sectnum] == 0 && abs(zvel[nSprite]) < 0x10000)
-            {
-                zvel[nSprite] = 0;
+			int vax = actFloorBounceVector(&actor->xvel(), &actor->yvel(), (int*)&v20, pSprite->sectnum, pThingInfo->elastic);
+			int nDamage = MulScale(vax, vax, 30) - pThingInfo->dmgResist;
+			if (nDamage > 0) actDamageSprite(actor, actor, kDamageFall, nDamage);
 
+			actor->zvel() = v20;
+			if (velFloor[pSprite->sectnum] == 0 && abs(actor->zvel()) < 0x10000)
+            {
+				actor->zvel() = 0;
                 pSprite->flags &= ~4;
             }
-            
-            switch (pSprite->type) {
+
+			switch (pSprite->type)
+			{
                 case kThingNapalmBall:
-                    if (zvel[nSprite] == 0 || Chance(0xA000)) actNapalmMove(&bloodActors[pXSprite->reference]);
+				if (actor->zvel() == 0 || Chance(0xA000)) actNapalmMove(actor);
                     break;
+
                 case kThingZombieHead:
-                    if (abs(zvel[nSprite]) > 0x80000) {
+				if (abs(actor->zvel()) > 0x80000)
+				{
                         sfxPlay3DSound(pSprite, 607, 0, 0);
-                        actDamageSprite(-1, pSprite, kDamageFall, 80);
+					actDamageSprite(nullptr, actor, kDamageFall, 80);
                     }
                     break;
+
                 case kThingKickablePail:
-                    if (abs(zvel[nSprite]) > 0x80000)
+				if (abs(actor->zvel()) > 0x80000)
                         sfxPlay3DSound(pSprite, 374, 0, 0);
                     break;
             }
 
-            v8 = 0x4000|nSector;
+			lhit = kHitSector | nSector;
         }
-        else if (zvel[nSprite] == 0)
+		else if (actor->zvel() == 0)
 
             pSprite->flags &= ~4;
     }
     else
     {
-        gSpriteHit[nXSprite].florhit = 0;
+		actor->hit().florhit = 0;
 
-        if (pSprite->flags&2)
+		if (pSprite->flags & 2)
             pSprite->flags |= 4;
     }
+
     if (top <= ceilZ)
     {
-        gSpriteHit[nXSprite].ceilhit = ceilHit;
-        pSprite->z += ClipLow(ceilZ-top, 0);
-        if (zvel[nSprite] < 0)
+		actor->hit().ceilhit = ceilHit;
+		pSprite->z += ClipLow(ceilZ - top, 0);
+		if (actor->zvel() < 0)
         {
-            xvel[nSprite] = MulScale(xvel[nSprite], 0xc000, 16);
-            yvel[nSprite] = MulScale(yvel[nSprite], 0xc000, 16);
-            zvel[nSprite] = MulScale(-zvel[nSprite], 0x4000, 16);
-            switch (pSprite->type) {
+			actor->xvel() = MulScale(actor->xvel(), 0xc000, 16);
+			actor->yvel() = MulScale(actor->yvel(), 0xc000, 16);
+			actor->zvel() = MulScale(-actor->zvel(), 0x4000, 16);
+
+			switch (pSprite->type)
+			{
                 case kThingZombieHead:
-                    if (abs(zvel[nSprite]) > 0x80000) {
+				if (abs(actor->zvel()) > 0x80000)
+				{
                         sfxPlay3DSound(pSprite, 607, 0, 0);
-                        actDamageSprite(-1, pSprite, kDamageFall, 80);
+					actDamageSprite(nullptr, actor, kDamageFall, 80);
                     }
                     break;
+
                 case kThingKickablePail:
-                    if (abs(zvel[nSprite]) > 0x80000)
+				if (abs(actor->zvel()) > 0x80000)
                         sfxPlay3DSound(pSprite, 374, 0, 0);
                     break;
             }
         }
     }
-    else
-        gSpriteHit[nXSprite].ceilhit = 0;
+	else actor->hit().ceilhit = 0;
+
     if (bottom >= floorZ)
     {
-        int nVel = approxDist(xvel[nSprite], yvel[nSprite]);
+		int nVel = approxDist(actor->xvel(), actor->yvel());
         int nVelClipped = ClipHigh(nVel, 0x11111);
         if ((floorHit & 0xc000) == 0xc000)
         {
             int nHitSprite = floorHit & 0x3fff;
             if ((sprite[nHitSprite].cstat & 0x30) == 0)
             {
-                xvel[nSprite] += MulScale(4, pSprite->x - sprite[nHitSprite].x, 2);
-                yvel[nSprite] += MulScale(4, pSprite->y - sprite[nHitSprite].y, 2);
-                v8 = gSpriteHit[nXSprite].hit;
+				actor->xvel() += MulScale(4, pSprite->x - sprite[nHitSprite].x, 2);
+				actor->yvel() += MulScale(4, pSprite->y - sprite[nHitSprite].y, 2);
+				lhit = actor->hit().hit;
             }
         }
         if (nVel > 0)
         {
             int t = DivScale(nVelClipped, nVel, 16);
-            xvel[nSprite] -= MulScale(t, xvel[nSprite], 16);
-            yvel[nSprite] -= MulScale(t, yvel[nSprite], 16);
+			actor->xvel() -= MulScale(t, actor->xvel(), 16);
+			actor->yvel() -= MulScale(t, actor->yvel(), 16);
         }
     }
-    if (xvel[nSprite] || yvel[nSprite])
-        pSprite->ang = getangle(xvel[nSprite], yvel[nSprite]);
-    return v8;
+	if (actor->xvel() || actor->yvel())
+		pSprite->ang = getangle(actor->xvel(), actor->yvel());
+	return lhit;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void MoveDude(spritetype *pSprite)
 {
@@ -5396,7 +5425,7 @@ int MoveMissile(spritetype *pSprite)
     gHitInfo.hitwall = -1;
     gHitInfo.hitsprite = -1;
     if (pSprite->type == kMissileFlameSpray)
-        actAirDrag(pSprite, 0x1000);
+        actAirDrag(&bloodActors[pSprite->index], 0x1000);
     int nSprite = pSprite->index;
     if (pXSprite->target != -1 && (xvel[nSprite] || yvel[nSprite] || zvel[nSprite]))
     {
@@ -5896,14 +5925,14 @@ void actProcessSprites(void)
                     yvel[nSprite] += dy;
                 }
             }
-            actAirDrag(pSprite, 128);
+            actAirDrag(&bloodActors[pSprite->index], 128);
 
             if (((pSprite->index>>8)&15) == (gFrameCount&15) && (pSprite->flags&2))
                 pSprite->flags |= 4;
             if ((pSprite->flags&4) || xvel[nSprite] || yvel[nSprite] || zvel[nSprite] ||
                 velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
             {
-                int hit = MoveThing(pSprite);
+                int hit = MoveThing(&bloodActors[pSprite->index]);
                 if (hit)
                 {
                     int nXSprite = pSprite->extra;
@@ -6348,9 +6377,9 @@ void actProcessSprites(void)
             }
         }
         if (pXSector && pXSector->Underwater)
-            actAirDrag(pSprite, 5376);
+            actAirDrag(&bloodActors[pSprite->index], 5376);
         else
-            actAirDrag(pSprite, 128);
+            actAirDrag(&bloodActors[pSprite->index], 128);
 
         if ((pSprite->flags&4) || xvel[nSprite] || yvel[nSprite] || zvel[nSprite] ||
             velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])

@@ -204,7 +204,7 @@ void CFX::fxProcess(void)
         assert(nSector >= 0 && nSector < kMaxSectors);
         assert(pSprite->type < kFXMax);
         FXDATA *pFXData = &gFXData[pSprite->type];
-        actAirDrag(pSprite, pFXData->drag);
+        actAirDrag(&bloodActors[pSprite->index], pFXData->drag);
         if (xvel[nSprite])
             pSprite->x += xvel[nSprite]>>12;
         if (yvel[nSprite])

@@ -228,7 +228,7 @@ void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4);
 int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4);
 int actDamageSprite(DBloodActor* pSource, DBloodActor* pTarget, DAMAGE_TYPE damageType, int damage);
 void actHitcodeToData(int a1, HITINFO *pHitInfo, DBloodActor **actor, walltype **a7 = nullptr);
-void actAirDrag(spritetype *pSprite, int a2);
+void actAirDrag(DBloodActor *pSprite, int a2);
 int MoveThing(spritetype *pSprite);
 void MoveDude(spritetype *pSprite);
 int MoveMissile(spritetype *pSprite);
