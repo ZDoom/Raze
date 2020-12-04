@@ -2985,6 +2985,7 @@ void useSpriteDamager(XSPRITE* pXSource, int objType, int objIndex) {
 }
 
 void damageSprites(XSPRITE* pXSource, spritetype* pSprite) {
+    auto actor = &bloodActors[pSprite->index];
     spritetype* pSource = &sprite[pXSource->reference];
     if (!IsDudeSprite(pSprite) || !xspriRangeIsFine(pSprite->extra) || xsprite[pSprite->extra].health <= 0 || pXSource->data3 < 0)
         return;
@@ -3078,7 +3079,7 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite) {
         if (forceRecoil && !pPlayer) {
 
             pXSprite->data3 = 32767;
-            gDudeExtra[pSprite->extra].recoil = (dmgType == kDmgElectric) ? 1 : 0;
+            actor->dudeExtra.recoil = (dmgType == kDmgElectric) ? 1 : 0;
             if (pXSprite->aiState->stateType != kAiStateRecoil)
                 RecoilDude(&bloodActors[pXSprite->reference]);
         }

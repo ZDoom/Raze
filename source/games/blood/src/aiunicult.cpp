@@ -2215,10 +2215,12 @@ void genDudePostDeath(spritetype* pSprite, DAMAGE_TYPE damageType, int damage) {
     actPostSprite(pSprite->index, kStatThing);
 }
 
-void aiGenDudeInitSprite(spritetype* pSprite, XSPRITE* pXSprite) {
+void aiGenDudeInitSprite(spritetype* pSprite, XSPRITE* pXSprite) 
+{
+    auto actor = &bloodActors[pSprite->index];
     switch (pSprite->type) {
         case kDudeModernCustom: {
-            DUDEEXTRA_at6_u1* pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
+            DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
             pDudeExtraE->xval3 = pDudeExtraE->xval1 = 0;
             aiGenDudeNewState(pSprite, &genDudeIdleL);
             break;

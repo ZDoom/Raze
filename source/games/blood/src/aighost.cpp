@@ -191,7 +191,7 @@ static void ghostThinkTarget(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
+    DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
     if (pDudeExtraE->xval3 && pDudeExtraE->xval2 < 10)
         pDudeExtraE->xval2++;
     else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)

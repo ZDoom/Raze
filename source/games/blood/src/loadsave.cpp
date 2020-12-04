@@ -423,6 +423,32 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 	return arc;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDEEXTRA* def)
+{
+	int empty = 0;
+	char empty2 = 0;
+	if (arc.isReading()) w = {};
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("time", w.time, &empty)
+			("recoil", w.recoil, &empty)
+			("prio", w.prio, &empty)
+			("x1", w.at6.u1.xval1, &empty)
+			("x2", w.at6.u1.xval2, &empty)
+			("x3", w.at6.u1.xval3, &empty2)
+			.EndObject();
+	}
+	return arc;
+}
+
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DBloodActor* def)
 {
 	static DBloodActor nul;
@@ -437,7 +463,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 		// The rest is only relevant if the actor has an xsprite.
 		if (w.s().extra > 0)
 		{
-			arc("dudeslope", w.dudeSlope, def->dudeSlope);
+			arc("dudeslope", w.dudeSlope, def->dudeSlope)
+				("dudeextra", w.dudeExtra, def->dudeExtra);
 		}
 		arc.EndObject();
 	}
@@ -668,7 +695,6 @@ void SerializeSequences(FSerializer& arc);
 void SerializeWarp(FSerializer& arc);
 void SerializeTriggers(FSerializer& arc);
 void SerializeActor(FSerializer& arc);
-void SerializeAI(FSerializer& arc);
 void SerializeGameStats(FSerializer& arc);
 void SerializePlayers(FSerializer& arc);
 void SerializeView(FSerializer& arc);
@@ -700,7 +726,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	SerializeState(arc);
 	InitFreeList(nextXSprite, kMaxXSprites, activeXSprites);
 	SerializeActor(arc);
-	SerializeAI(arc);
 	SerializePlayers(arc);
 	SerializeEvents(arc);
 	SerializeGameStats(arc);

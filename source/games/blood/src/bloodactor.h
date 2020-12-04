@@ -4,6 +4,8 @@ BEGIN_BLD_NS
 
 extern int cumulDamage[kMaxXSprites];
 
+
+
 // Due to the messed up array storage of all the game data we cannot do any direct references here yet. We have to access everything via wrapper functions for now.
 // Note that the indexing is very inconsistent - partially by sprite index, partially by xsprite index.
 class DBloodActor
@@ -13,6 +15,7 @@ class DBloodActor
 
 public:
     int dudeSlope;
+	DUDEEXTRA dudeExtra;
 
     DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
     DBloodActor& operator=(const DBloodActor& other) = default;
@@ -20,6 +23,7 @@ public:
 	void Clear()
 	{
 		dudeSlope = 0;
+		dudeExtra = {};
 	}
     bool hasX() { return sprite[index].extra > 0; }
 	void addX()
@@ -34,7 +38,6 @@ public:
     int& zvel() { return Blood::zvel[index]; }
 
     int& cumulDamage() { return Blood::cumulDamage[sprite[index].extra]; }
-    DUDEEXTRA& dudeExtra() { return gDudeExtra[sprite[index].extra]; }
     SPRITEMASS& spriteMass() { return gSpriteMass[sprite[index].extra]; }
     GENDUDEEXTRA& genDudeExtra() { return Blood::gGenDudeExtra[index]; }
     POINT3D& basePoint() { return Blood::baseSprite[index]; }

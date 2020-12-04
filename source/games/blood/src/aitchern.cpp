@@ -233,7 +233,7 @@ static void sub_725A4(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u2;
+    DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
     if (pDudeExtraE->xval2 && pDudeExtraE->xval1 < 10)
         pDudeExtraE->xval1++;
     else if (pDudeExtraE->xval1 >= 10 && pDudeExtraE->xval2)

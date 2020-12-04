@@ -2972,7 +2972,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 					aiGenDudeNewState(pSprite, &genDudeBurnGoto);
 					actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
 					if (pXSprite->burnTime <= 0) pXSprite->burnTime = 1200;
-					actor->dudeExtra().time = PlayClock + 360;
+					actor->dudeExtra.time = PlayClock + 360;
 					return true;
 				}
 
@@ -3484,7 +3484,8 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 		return;
 	}
 
-	switch (pSprite->type)
+	auto Owner = actor->GetOwner();
+	switch (pSprite->type) 
 	{
 	case kDudeZombieAxeNormal:
 		zombieAxeNormalDeath(actor, nSeq);
@@ -3554,29 +3555,17 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 		break;
 
 	case kDudeSpiderBrown:
-		if (pSprite->owner != -1)
-		{
-			spritetype* pOwner = &sprite[pSprite->owner];
-			gDudeExtra[pOwner->extra].at6.u1.xval2--;
-		}
+		if (Owner) Owner->dudeExtra.at6.u1.xval2--;
 		genericDeath(actor, nSeq, 1803, dudeInfo[nType].seqStartID + nSeq);
 		break;
 
 	case kDudeSpiderRed:
-		if (pSprite->owner != -1)
-		{
-			spritetype* pOwner = &sprite[pSprite->owner];
-			gDudeExtra[pOwner->extra].at6.u1.xval2--;
-		}
+		if (Owner) Owner->dudeExtra.at6.u1.xval2--;
 		genericDeath(actor, nSeq, 1803, dudeInfo[nType].seqStartID + nSeq);
 		break;
 
 	case kDudeSpiderBlack:
-		if (pSprite->owner != -1)
-		{
-			spritetype* pOwner = &sprite[pSprite->owner];
-			gDudeExtra[pOwner->extra].at6.u1.xval2--;
-		}
+		if (Owner) Owner->dudeExtra.at6.u1.xval2--;
 		genericDeath(actor, nSeq, 1803, dudeInfo[nType].seqStartID + nSeq);
 		break;
 

@@ -87,7 +87,6 @@ struct TARGETTRACK {
 };
 
 extern const int dword_138BB0[5];
-extern DUDEEXTRA gDudeExtra[];
 
 bool dudeIsPlayingSeq(spritetype *pSprite, int nSeq);
 void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
