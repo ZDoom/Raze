@@ -323,7 +323,7 @@ EXTERN char parallaxtype;
 EXTERN int32_t parallaxyoffs_override, parallaxyscale_override;
 extern int16_t pskybits_override;
 
-// last sprite in the freelist, that is the spritenum for which
+// last sprite in the freelist, that is the spritenum for which 
 //   .statnum==MAXSTATUS && nextspritestat[spritenum]==-1
 // (or -1 if freelist is empty):
 EXTERN int16_t tailspritefree;

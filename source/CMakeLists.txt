@@ -1001,6 +1001,7 @@ set (PCH_SOURCES
 
 
 	core/textures/buildtiles.cpp
+	core/textures/skytexture.cpp
 	core/textures/hightile.cpp
 	core/music/s_advsound.cpp
 

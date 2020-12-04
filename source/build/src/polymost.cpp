@@ -103,6 +103,9 @@ static int32_t hicprecaching = 0;
 
 static hitdata_t polymost_hitdata;
 
+FGameTexture* globalskytex = nullptr;
+FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap);
+
 void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)
 {
 }
@@ -194,7 +197,7 @@ static void resizeglcheck(void)
 //    +4 means it's a sprite, so wraparound isn't needed
 
 // drawpoly's hack globals
-static int32_t pow2xsplit = 0, skyclamphack = 0, skyzbufferhack = 0, flatskyrender = 0;
+static int32_t pow2xsplit = 0, skyzbufferhack = 0, flatskyrender = 0;
 static float drawpoly_alpha = 0.f;
 static uint8_t drawpoly_blend = 0;
 
@@ -331,38 +334,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     float usub = 0;
     float vsub = 0;
-#if 0
-    if (skyclamphack)
-    {
-        drawpoly_srepeat = false;
-        drawpoly_trepeat = false;
-        method = DAMETH_CLAMPED;
-
-        vec2f_t const scale = { 1.f / tsiz.x, 1.f / tsiz.y };
-
-#if 0
-        usub = FLT_MAX;
-        vsub = FLT_MAX;
-        for (int i = 0; i < npoints; i++)
-        {
-            float const r = 1.f / dd[i];
-            float u = floor(uu[i] * r * scale.x);
-            float v = floor(vv[i] * r * scale.y);
-            if (u < usub) usub = u;
-            if (v < vsub) vsub = v;
-        }
-#endif
-
-        for (int i = 0; i < npoints; i++)
-        {
-            float const r = 1.f / dd[i];
-            float u = uu[i] * r * scale.x - usub;
-            float v = vv[i] * r * scale.y - vsub;
-            if (u < -FLT_EPSILON || u > 1 + FLT_EPSILON) drawpoly_srepeat = true;
-            if (v < -FLT_EPSILON || v > 1 + FLT_EPSILON) drawpoly_trepeat = true;
-        }
-    }
-#endif
 
     polymost_outputGLDebugMessage(3, "polymost_drawpoly(dpxy:%p, n:%d, method_:%X), method: %X", dpxy, n, method_, method);
 
@@ -377,7 +348,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
     GLInterface.SetFade(globalfloorpal);
-	bool success = GLInterface.SetTexture(tileGetTexture(globalpicnum), palid, sampleroverride);
+	bool success = GLInterface.SetTexture(globalskytex? globalskytex : tileGetTexture(globalpicnum), palid, sampleroverride);
 	if (!success)
 	{
 		tsiz.x = tsiz.y = 1;
@@ -1301,6 +1272,8 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     float const fglobalang = FixedToFloat(qglobalang);
     int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
     int16_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
+    globalskytex = skytile? nullptr : GetSkyTexture(globalpicnum, dapskybits, dapskyoff);
+    if (globalskytex) dapskybits = 0;
 
     ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyscale*(1.f/65536.f)+float(ydimen>>1)+ghorizcorrect;
 
@@ -1311,8 +1284,6 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     vv[0] = dd*((float)((tilesize.y>>1)+dapyoffs)) - vv[1]*ghoriz;
     int ti = (1<<(heightBits(globalpicnum))); if (ti != tilesize.y) ti += ti;
     vec3f_t o;
-
-    skyclamphack = 0;
 
     xtex.d = xtex.v = 0;
     ytex.d = ytex.u = 0;
@@ -1340,7 +1311,6 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
     float fx = x0;
 
-	skyclamphack = true;	// Hack to make Blood's skies show properly.
     do
     {
         globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+ti;
@@ -1466,8 +1436,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
         otex = otexbak, xtex = xtexbak, ytex = ytexbak;
     }
     while (ti >= 0);
-    skyclamphack = false;
-
+    globalskytex = nullptr;
     globalpicnum = picnumbak;
 
     flatskyrender = 1;
@@ -1601,19 +1570,12 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
         {
-            //Use clamping for tiled sky textures
-            //(don't wrap around edges if the sky use multiple panels)
-            for (bssize_t i=(1<<dapskybits)-1; i>0; i--)
-                if (dapskyoff[i] != dapskyoff[i-1])
-                    { skyclamphack = r_parallaxskyclamping; break; }
-
             skyzbufferhack = 1;
 
             //if (!hw_hightile || !hicfindskybox(globalpicnum, globalpal))
             {
                 float const ghorizbak = ghoriz;
 				pow2xsplit = 0;
-                skyclamphack = 0;
                 flatskyrender = 1;
 				GLInterface.SetVisibility(0.f);
                 polymost_domost(x0,fy0,x1,fy1);
@@ -1629,7 +1591,6 @@ static void polymost_drawalls(int32_t const bunch)
                 static vec2f_t const skywal[4] = { { -512, -512 }, { 512, -512 }, { 512, 512 }, { -512, 512 } };
 
                 pow2xsplit = 0;
-                skyclamphack = 1;
 
                 for (bssize_t i=0; i<4; i++)
                 {
@@ -1796,13 +1757,10 @@ static void polymost_drawalls(int32_t const bunch)
 
                 polymost_domost(x0,fy0,x1,fy1);
 
-                skyclamphack = 0;
                 drawingskybox = 0;
             }
 #endif
 
-            skyclamphack = 0;
-            skyzbufferhack = 0;
         }
 
         // Ceiling
@@ -1843,19 +1801,12 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
         {
-            //Use clamping for tiled sky textures
-            //(don't wrap around edges if the sky use multiple panels)
-            for (bssize_t i=(1<<dapskybits)-1; i>0; i--)
-                if (dapskyoff[i] != dapskyoff[i-1])
-                    { skyclamphack = r_parallaxskyclamping; break; }
-
             skyzbufferhack = 1;
 
 			//if (!hw_hightile || !hicfindskybox(globalpicnum, globalpal))
 			{
 				float const ghorizbak = ghoriz;
 				pow2xsplit = 0;
-				skyclamphack = 0;
 				flatskyrender = 1;
 				GLInterface.SetVisibility(0.f);
 				polymost_domost(x1, cy1, x0, cy0);
@@ -1871,7 +1822,6 @@ static void polymost_drawalls(int32_t const bunch)
                 static vec2f_t const skywal[4] = { { -512, -512 }, { 512, -512 }, { 512, 512 }, { -512, 512 } };
 
                 pow2xsplit = 0;
-                skyclamphack = 1;
 
                 for (bssize_t i=0; i<4; i++)
                 {
@@ -2038,12 +1988,10 @@ static void polymost_drawalls(int32_t const bunch)
                 xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; //y-flip skybox floor
                 polymost_domost(x1,cy1,x0,cy0);
 
-                skyclamphack = 0;
                 drawingskybox = 0;
             }
 #endif
 
-            skyclamphack = 0;
             skyzbufferhack = 0;
         }
 
@@ -2837,7 +2785,6 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
         return;
 
     pow2xsplit = 0;
-    skyclamphack = 0;
 
     polymost_drawpoly(dpxy, n, method, tileSize(globalpicnum));
 }
