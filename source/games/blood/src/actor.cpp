@@ -4844,21 +4844,21 @@ int MoveThing(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void MoveDude(spritetype *pSprite)
+void MoveDude(DBloodActor *actor)
 {
-    int nXSprite = pSprite->extra;
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pSprite->index;
-    PLAYER *pPlayer = NULL;
-    if (IsPlayerSprite(pSprite))
-        pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+	auto const pSprite = &actor->s();
+	auto const pXSprite = &actor->x();
+    PLAYER *pPlayer = nullptr;
+    if (actor->IsPlayerActor()) pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) 
+	{
+        Printf(PRINT_HIGH, "%d: pSprite->type >= kDudeBase && pSprite->type < kDudeMax", pSprite->type);
         return;
     }
+
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int top, bottom;
-    GetSpriteExtents(pSprite, &top, &bottom);
+    GetActorExtents(actor, &top, &bottom);
     int bz = (bottom-pSprite->z)/4;
     int tz = (pSprite->z-top)/4;
     int wd = pSprite->clipdist<<2;
@@ -4866,12 +4866,13 @@ void MoveDude(spritetype *pSprite)
     int nAiStateType = (pXSprite->aiState) ? pXSprite->aiState->stateType : -1;
 
     assert(nSector >= 0 && nSector < kMaxSectors);
-    if (xvel[nSprite] || yvel[nSprite])
+
+    if (actor->xvel() || actor->yvel())
     {
         if (pPlayer && gNoClip)
         {
-            pSprite->x += xvel[nSprite]>>12;
-            pSprite->y += yvel[nSprite]>>12;
+            pSprite->x += actor->xvel()>>12;
+            pSprite->y += actor->yvel()>>12;
             if (!FindSector(pSprite->x, pSprite->y, &nSector))
                 nSector = pSprite->sectnum;
         }
@@ -4879,7 +4880,7 @@ void MoveDude(spritetype *pSprite)
         {
             short bakCstat = pSprite->cstat;
             pSprite->cstat &= ~257;
-            gSpriteHit[nXSprite].hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, xvel[nSprite]>>12, yvel[nSprite]>>12, wd, tz, bz, CLIPMASK0);
+            actor->hit().hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, actor->xvel()>>12, actor->yvel()>>12, wd, tz, bz, CLIPMASK0);
             if (nSector == -1)
             {
                 nSector = pSprite->sectnum;
@@ -4891,68 +4892,69 @@ void MoveDude(spritetype *pSprite)
             {
                 short nSector2 = nSector;
                 if (pushmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &nSector2, wd, tz, bz, CLIPMASK0) == -1)
-                    actDamageSprite(nSprite, pSprite, kDamageFall, 1000 << 4);
+                    actDamageSprite(actor, actor, kDamageFall, 1000 << 4);
                 if (nSector2 != -1)
                     nSector = nSector2;
             }
             assert(nSector >= 0);
             pSprite->cstat = bakCstat;
         }
-        switch (gSpriteHit[nXSprite].hit&0xc000)
+		Collision coll = actor->hit().hit;
+        switch (actor->hit().hit&0xc000)
         {
-        case 0xc000:
+        case kHitSprite:
         {
-            int nHitSprite = gSpriteHit[nXSprite].hit&0x3fff;
-            spritetype *pHitSprite = &sprite[nHitSprite];
-            XSPRITE *pHitXSprite = NULL;
-            // Should be pHitSprite here
-            if (pSprite->extra > 0)
-                pHitXSprite = &xsprite[pHitSprite->extra];
-            int nOwner = pHitSprite->owner;
+			spritetype* pHitSprite = &coll.actor->s();
+			XSPRITE* pHitXSprite = coll.actor->hasX() ? &coll.actor->x() : nullptr;;
 
-            if (pHitSprite->statnum == kStatProjectile && !(pHitSprite->flags&32) && pSprite->index != nOwner)
+			auto Owner = coll.actor->GetOwner();
+
+            if (pHitSprite->statnum == kStatProjectile && !(pHitSprite->flags&32) && actor != Owner)
             {
                 HITINFO hitInfo = gHitInfo;
-                gHitInfo.hitsprite = nSprite;
-                actImpactMissile(&bloodActors[nHitSprite], 3);
+                gHitInfo.hitsprite = pSprite->index;
+                actImpactMissile(actor, 3);
                 gHitInfo = hitInfo;
             }
             #ifdef NOONE_EXTENSIONS
             if (!gModernMap && pHitXSprite && pHitXSprite->Touch && !pHitXSprite->state && !pHitXSprite->isTriggered)
-                trTriggerSprite(nHitSprite, pHitXSprite, kCmdSpriteTouch);
+                trTriggerSprite(coll.actor, kCmdSpriteTouch);
             #else
                 if (pHitXSprite && pHitXSprite->Touch && !pHitXSprite->state && !pHitXSprite->isTriggered)
-                    trTriggerSprite(nHitSprite, pHitXSprite, kCmdSpriteTouch);
+                    trTriggerSprite(coll.actor, kCmdSpriteTouch);
             #endif
 
             if (pDudeInfo->lockOut && pHitXSprite && pHitXSprite->Push && !pHitXSprite->key && !pHitXSprite->DudeLockout && !pHitXSprite->state && !pHitXSprite->busy && !pPlayer)
-                trTriggerSprite(nHitSprite, pHitXSprite, kCmdSpritePush);
+                trTriggerSprite(coll.actor, kCmdSpritePush);
 
             break;
         }
-        case 0x8000:
+        case kHitWall:
         {
-            int nHitWall = gSpriteHit[nXSprite].hit&0x3fff;
+            int nHitWall = coll.index;
             walltype *pHitWall = &wall[nHitWall];
             XWALL *pHitXWall = NULL;
             if (pHitWall->extra > 0)
                 pHitXWall = &xwall[pHitWall->extra];
             if (pDudeInfo->lockOut && pHitXWall && pHitXWall->triggerPush && !pHitXWall->key && !pHitXWall->dudeLockout && !pHitXWall->state && !pHitXWall->busy && !pPlayer)
                 trTriggerWall(nHitWall, pHitXWall, kCmdWallPush);
+
             if (pHitWall->nextsector != -1)
             {
                 sectortype *pHitSector = &sector[pHitWall->nextsector];
                 XSECTOR *pHitXSector = NULL;
                 if (pHitSector->extra > 0)
                     pHitXSector = &xsector[pHitSector->extra];
+
                 if (pDudeInfo->lockOut && pHitXSector && pHitXSector->Wallpush && !pHitXSector->Key && !pHitXSector->dudeLockout && !pHitXSector->state && !pHitXSector->busy && !pPlayer)
                     trTriggerSector(pHitWall->nextsector, pHitXSector, kCmdSectorPush);
+
                 if (top < pHitSector->ceilingz || bottom > pHitSector->floorz)
                 {
                     // ???
                 }
             }
-            actWallBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], nHitWall, 0);
+            actWallBounceVector((int*)&actor->xvel(), (int*)&actor->yvel(), nHitWall, 0);
             break;
         }
         }
@@ -4973,14 +4975,14 @@ void MoveDude(spritetype *pSprite)
             pXSector = NULL;
         if (pXSector && pXSector->Exit && (pPlayer || !pXSector->dudeLockout))
             trTriggerSector(pSprite->sectnum, pXSector, kCmdSectorExit);
-        ChangeSpriteSect(nSprite, nSector);
+        ChangeSpriteSect(pSprite->index, nSector);
         
         nXSector = sector[nSector].extra;
         pXSector = (nXSector > 0) ? &xsector[nXSector] : NULL;
-        if (pXSector && pXSector->Enter && (pPlayer || !pXSector->dudeLockout)) {
-
+        if (pXSector && pXSector->Enter && (pPlayer || !pXSector->dudeLockout)) 
+		{
             if (sector[nSector].type == kSectorTeleport)
-                pXSector->data = pPlayer ? nSprite : -1;
+                pXSector->data = pPlayer ? pSprite->index : -1;
             trTriggerSector(nSector, pXSector, kCmdSectorEnter);
         }
 
@@ -5004,11 +5006,11 @@ void MoveDude(spritetype *pSprite)
         bDepth = 1;
     if (pPlayer)
         wd += 16;
-    if (zvel[nSprite])
-        pSprite->z += zvel[nSprite]>>8;
+    if (actor->zvel())
+        pSprite->z += actor->zvel()>>8;
     int ceilZ, ceilHit, floorZ, floorHit;
     GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
-    GetSpriteExtents(pSprite, &top, &bottom);
+    GetActorExtents(actor, &top, &bottom);
 
     if (pSprite->flags & 2)
     {
@@ -5040,10 +5042,10 @@ void MoveDude(spritetype *pSprite)
         if (vc)
         {
             pSprite->z += ((vc*4)/2)>>8;
-            zvel[nSprite] += vc;
+            actor->zvel() += vc;
         }
     }
-    if (pPlayer && zvel[nSprite] > 0x155555 && !pPlayer->fallScream && pXSprite->height > 0)
+    if (pPlayer && actor->zvel() > 0x155555 && !pPlayer->fallScream && pXSprite->height > 0)
     {
         const bool playerAlive = (pXSprite->health > 0) || VanillaMode(); // only trigger falling scream if player is alive or vanilla mode
         if (playerAlive)
@@ -5059,7 +5061,8 @@ void MoveDude(spritetype *pSprite)
         GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
         if (pPlayer)
             playerCorrectInertia(pPlayer, &oldpos);
-        switch (nLink) {
+        switch (nLink) 
+		{
         case kMarkerLowStack:
             if (pPlayer == gView)
                 setgotpic(sector[pSprite->sectnum].floorpicnum);
@@ -5071,17 +5074,21 @@ void MoveDude(spritetype *pSprite)
         case kMarkerLowWater:
         case kMarkerLowGoo:
             pXSprite->medium = kMediumNormal;
-            if (pPlayer) {
+            if (pPlayer) 
+			{
                 pPlayer->posture = 0;
                 pPlayer->bubbleTime = 0;
-                if (!pPlayer->cantJump && (pPlayer->input.actions & SB_JUMP)) {
-                    zvel[nSprite] = -0x6aaaa;
+                if (!pPlayer->cantJump && (pPlayer->input.actions & SB_JUMP)) 
+				{
+                    actor->zvel() = -0x6aaaa;
                     pPlayer->cantJump = 1;
                 }
                 sfxPlay3DSound(pSprite, 721, -1, 0);
-            } else {
-
-                switch (pSprite->type) {
+            } 
+			else 
+			{
+                switch (pSprite->type) 
+				{
                     case kDudeCultistTommy:
                     case kDudeCultistShotgun:
                         aiNewState(&bloodActors[pXSprite->reference], &cultistGoto);
@@ -5126,20 +5133,20 @@ void MoveDude(spritetype *pSprite)
 
                 pPlayer->posture = 1;
                 pXSprite->burnTime = 0;
-                pPlayer->bubbleTime = abs(zvel[nSprite]) >> 12;
-                evPost(nSprite, 3, 0, kCallbackPlayerBubble);
+                pPlayer->bubbleTime = abs(actor->zvel()) >> 12;
+                evPost(actor, 0, kCallbackPlayerBubble);
                 sfxPlay3DSound(pSprite, 720, -1, 0);
             }
             else
             {
-
-                switch (pSprite->type) {
+                switch (pSprite->type) 
+				{
                 case kDudeCultistTommy:
                 case kDudeCultistShotgun:
                     pXSprite->burnTime = 0;
-                    evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
+                    evPost(actor, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(&bloodActors[pXSprite->reference], &cultistSwimGoto);
+                    aiNewState(actor, &cultistSwimGoto);
                     break;
                 case kDudeBurningCultist:
                 {
@@ -5151,28 +5158,28 @@ void MoveDude(spritetype *pSprite)
                     if (fixRandomCultist) // fix burning cultists randomly switching types underwater
                         pSprite->type = pSprite->inittype; // restore back to spawned cultist type
                     pXSprite->burnTime = 0;
-                    evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
+                        evPost(actor, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(&bloodActors[pXSprite->reference], &cultistSwimGoto);
+                        aiNewState(actor, &cultistSwimGoto);
                     break;
                 }
                 case kDudeZombieAxeNormal:
                     pXSprite->burnTime = 0;
-                    evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
+                    evPost(actor, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(&bloodActors[pXSprite->reference], &zombieAGoto);
+                    aiNewState(actor, &zombieAGoto);
                     break;
                 case kDudeZombieButcher:
                     pXSprite->burnTime = 0;
-                    evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
+                    evPost(actor, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(&bloodActors[pXSprite->reference], &zombieFGoto);
+                    aiNewState(actor, &zombieFGoto);
                     break;
                 case kDudeGillBeast:
                     pXSprite->burnTime = 0;
-                    evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
+                    evPost(actor, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(&bloodActors[pXSprite->reference], &gillBeastSwimGoto);
+                    aiNewState(actor, &gillBeastSwimGoto);
 
                     pSprite->flags &= ~6;
                     break;
@@ -5192,11 +5199,10 @@ void MoveDude(spritetype *pSprite)
                 if (gModernMap) {
 
                     if (pSprite->type == kDudeModernCustom) {
-                        
-                        evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
-                        if (!canSwim(pSprite))
-                            actKillDude(pSprite->index, pSprite, kDamageFall, 1000 << 4);
 
+						evPost(actor, 0, kCallbackEnemeyBubble);
+						if (!canSwim(pSprite)) actKillDude(actor, actor, kDamageFall, 1000 << 4);
+						break;
                     }
 
                     // continue patrol when fall into water
@@ -5209,80 +5215,9 @@ void MoveDude(spritetype *pSprite)
             }
             break;
         }
-        /*case 13:
-            pXSprite->medium = kMediumGoo;
-            if (pPlayer)
-            {
-                pPlayer->changeTargetKin = 1;
-                pXSprite->burnTime = 0;
-                pPlayer->bubbleTime = abs(zvel[nSprite])>>12;
-                evPost(nSprite, 3, 0, kCallbackPlayerBubble);
-                sfxPlay3DSound(pSprite, 720, -1, 0);
             }
-            else
-            {
-                switch (pSprite->type)
-                {
-                case kDudeCultistTommy:
-                case kDudeCultistShotgun:
-                    pXSprite->burnTime = 0;
-                    evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
-                    sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(actor, &cultistSwimGoto);
-                    break;
-                case kDudeBurningCultist:
-                    if (Chance(0x400))
-                    {
-                        pSprite->type = kDudeCultistTommy;
-                        pXSprite->burnTime = 0;
-                        evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
-                        sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(actor, &cultistSwimGoto);
                     }
-                    else
-                    {
-                        pSprite->type = kDudeCultistShotgun;
-                        pXSprite->burnTime = 0;
-                        evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
-                        sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(actor, &cultistSwimGoto);
-                    }
-                    break;
-                case kDudeZombieAxeNormal:
-                    pXSprite->burnTime = 0;
-                    evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
-                    sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(actor, &zombieAGoto);
-                    break;
-                case kDudeZombieButcher:
-                    pXSprite->burnTime = 0;
-                    evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
-                    sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(actor, &zombieFGoto);
-                    break;
-                case kDudeGillBeast:
-                    pXSprite->burnTime = 0;
-                    evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
-                    sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(actor, &gillBeastSwimGoto);
-                    pSprite->flags &= ~6;
-                    break;
-                case kDudeGargoyleFlesh:
-                case kDudeHellHound:
-                case kDudeSpiderBrown:
-                case kDudeSpiderRed:
-                case kDudeSpiderBlack:
-                case kDudeBat:
-                case kDudeRat:
-                case kDudeBurningInnocent:
-                    actKillDude(pSprite->index, pSprite, kDamageFall, 1000<<4);
-                    break;
-                }
-            }
-            break;*/
-        }
-    }
-    GetSpriteExtents(pSprite, &top, &bottom);
+    GetActorExtents(actor, &top, &bottom);
     if (pPlayer && bottom >= floorZ)
     {
         int floorZ2 = floorZ;
@@ -5296,12 +5231,12 @@ void MoveDude(spritetype *pSprite)
     }
     if (floorZ <= bottom)
     {
-        gSpriteHit[nXSprite].florhit = floorHit;
+        actor->hit().florhit = floorHit;
         pSprite->z += floorZ-bottom;
-        int v30 = zvel[nSprite]-velFloor[pSprite->sectnum];
+        int v30 = actor->zvel()-velFloor[pSprite->sectnum];
         if (v30 > 0)
         {
-            int vax = actFloorBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], (int*)&v30, pSprite->sectnum, 0);
+            int vax = actFloorBounceVector((int*)&actor->xvel(), (int*)&actor->yvel(), (int*)&v30, pSprite->sectnum, 0);
             int nDamage = MulScale(vax, vax, 30);
             if (pPlayer)
             {
@@ -5314,11 +5249,11 @@ void MoveDude(spritetype *pSprite)
             }
             nDamage -= 100<<4;
             if (nDamage > 0)
-                actDamageSprite(nSprite, pSprite, kDamageFall, nDamage);
-            zvel[nSprite] = v30;
-            if (abs(zvel[nSprite]) < 0x10000)
+                actDamageSprite(actor, actor, kDamageFall, nDamage);
+            actor->zvel() = v30;
+            if (abs(actor->zvel()) < 0x10000)
             {
-                zvel[nSprite] = velFloor[pSprite->sectnum];
+                actor->zvel() = velFloor[pSprite->sectnum];
 
                 pSprite->flags &= ~4;
             }
@@ -5337,12 +5272,12 @@ void MoveDude(spritetype *pSprite)
                 {
                     for (int i = 0; i < 7; i++)
                     {
-                        spritetype *pFX2 = gFX.fxSpawn(FX_14, pFX->sectnum, pFX->x, pFX->y, pFX->z, 0);
+                        auto pFX2 = gFX.fxSpawnActor(FX_14, pFX->sectnum, pFX->x, pFX->y, pFX->z, 0);
                         if (pFX2)
                         {
-                            xvel[pFX2->index] = Random2(0x6aaaa);
-                            yvel[pFX2->index] = Random2(0x6aaaa);
-                            zvel[pFX2->index] = -(int)Random(0xd5555);
+                            pFX2->xvel() = Random2(0x6aaaa);
+							pFX2->yvel() = Random2(0x6aaaa);
+							pFX2->zvel() = -(int)Random(0xd5555);
                         }
                     }
                 }
@@ -5350,39 +5285,39 @@ void MoveDude(spritetype *pSprite)
             }
             }
         }
-        else if (zvel[nSprite] == 0)
+        else if (actor->zvel() == 0)
 
             pSprite->flags &= ~4;
     }
     else
     {
-        gSpriteHit[nXSprite].florhit = 0;
+        actor->hit().florhit = 0;
 
         if (pSprite->flags&2)
             pSprite->flags |= 4;
     }
     if (top <= ceilZ)
     {
-        gSpriteHit[nXSprite].ceilhit = ceilHit;
+        actor->hit().ceilhit = ceilHit;
         pSprite->z += ClipLow(ceilZ-top, 0);
 
-        if (zvel[nSprite] <= 0 && (pSprite->flags&4))
-            zvel[nSprite] = MulScale(-zvel[nSprite], 0x2000, 16);
+        if (actor->zvel() <= 0 && (pSprite->flags&4))
+            actor->zvel() = MulScale(-actor->zvel(), 0x2000, 16);
     }
     else
-        gSpriteHit[nXSprite].ceilhit = 0;
-    GetSpriteExtents(pSprite,&top,&bottom);
+        actor->hit().ceilhit = 0;
+    GetActorExtents(actor,&top,&bottom);
 
     pXSprite->height = ClipLow(floorZ-bottom, 0)>>8;
-    if (xvel[nSprite] || yvel[nSprite])
+    if (actor->xvel() || actor->yvel())
     {
         if ((floorHit & 0xc000) == 0xc000)
         {
             int nHitSprite = floorHit & 0x3fff;
             if ((sprite[nHitSprite].cstat & 0x30) == 0)
             {
-                xvel[nSprite] += MulScale(4, pSprite->x - sprite[nHitSprite].x, 2);
-                yvel[nSprite] += MulScale(4, pSprite->y - sprite[nHitSprite].y, 2);
+                actor->xvel() += MulScale(4, pSprite->x - sprite[nHitSprite].x, 2);
+                actor->yvel() += MulScale(4, pSprite->y - sprite[nHitSprite].y, 2);
                 return;
             }
         }
@@ -5394,11 +5329,11 @@ void MoveDude(spritetype *pSprite)
         int nDrag = gDudeDrag;
         if (pXSprite->height > 0)
             nDrag -= scale(gDudeDrag, pXSprite->height, 0x100);
-        xvel[nSprite] -= mulscale16r(xvel[nSprite], nDrag);
-        yvel[nSprite] -= mulscale16r(yvel[nSprite], nDrag);
+        actor->xvel() -= mulscale16r(actor->xvel(), nDrag);
+        actor->yvel() -= mulscale16r(actor->yvel(), nDrag);
 
-        if (approxDist(xvel[nSprite], yvel[nSprite]) < 0x1000)
-            xvel[nSprite] = yvel[nSprite] = 0;
+        if (approxDist(actor->xvel(), actor->yvel()) < 0x1000)
+            actor->xvel() = actor->yvel() = 0;
     }
 }
 
@@ -6383,7 +6318,7 @@ void actProcessSprites(void)
 
         if ((pSprite->flags&4) || xvel[nSprite] || yvel[nSprite] || zvel[nSprite] ||
             velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
-            MoveDude(pSprite);
+            MoveDude(&bloodActors[pSprite->index]);
     }
     it.Reset(kStatFlare);
     while ((nSprite = it.NextIndex()) >= 0)
