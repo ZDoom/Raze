@@ -261,4 +261,16 @@ struct Collision
 };
 
 
+inline DBloodActor* getUpperLink(int sect)
+{
+	auto l = gUpperLink[sect];
+	return l == -1 ? nullptr : &bloodActors[l];
+}
+
+inline DBloodActor* getLowerLink(int sect)
+{
+	auto l = gLowerLink[sect];
+	return l == -1 ? nullptr : &bloodActors[l];
+}
+
 END_BLD_NS

@@ -4349,7 +4349,6 @@ static void checkHit(DBloodActor* actor)
 		{
 			auto actor2 = coll.actor;
 			spritetype* pSprite2 = &actor2->s();
-			//XSPRITE *pXSprite2 = &Xsprite[pSprite2->extra];
 
 #ifdef NOONE_EXTENSIONS
 			// add size shroom abilities
@@ -4805,13 +4804,16 @@ int MoveThing(DBloodActor* actor)
     {
 		int nVel = approxDist(actor->xvel(), actor->yvel());
         int nVelClipped = ClipHigh(nVel, 0x11111);
-        if ((floorHit & 0xc000) == 0xc000)
+		Collision coll(floorHit);
+
+		if (coll.type == kHitSprite)
         {
-            int nHitSprite = floorHit & 0x3fff;
-            if ((sprite[nHitSprite].cstat & 0x30) == 0)
+			auto hitActor = coll.actor;
+			auto hitSpr = &hitActor->s();
+			if ((hitSpr->cstat & 0x30) == 0)
             {
-				actor->xvel() += MulScale(4, pSprite->x - sprite[nHitSprite].x, 2);
-				actor->yvel() += MulScale(4, pSprite->y - sprite[nHitSprite].y, 2);
+				actor->xvel() += MulScale(4, pSprite->x - hitSpr->x, 2);
+				actor->yvel() += MulScale(4, pSprite->y - hitSpr->y, 2);
 				lhit = actor->hit().hit;
             }
         }
@@ -4869,7 +4871,7 @@ void MoveDude(DBloodActor *actor)
         {
             short bakCstat = pSprite->cstat;
             pSprite->cstat &= ~257;
-            actor->hit().hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, actor->xvel()>>12, actor->yvel()>>12, wd, tz, bz, CLIPMASK0);
+            actor->hit().hit = ClipMove(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, actor->xvel()>>12, actor->yvel()>>12, wd, tz, bz, CLIPMASK0);
             if (nSector == -1)
             {
                 nSector = pSprite->sectnum;
@@ -4922,16 +4924,16 @@ void MoveDude(DBloodActor *actor)
         {
             int nHitWall = coll.index;
             walltype *pHitWall = &wall[nHitWall];
-            XWALL *pHitXWall = NULL;
-            if (pHitWall->extra > 0)
-                pHitXWall = &xwall[pHitWall->extra];
+            XWALL *pHitXWall = nullptr;
+            if (pHitWall->extra > 0) pHitXWall = &xwall[pHitWall->extra];
+
             if (pDudeInfo->lockOut && pHitXWall && pHitXWall->triggerPush && !pHitXWall->key && !pHitXWall->dudeLockout && !pHitXWall->state && !pHitXWall->busy && !pPlayer)
                 trTriggerWall(nHitWall, pHitXWall, kCmdWallPush);
 
             if (pHitWall->nextsector != -1)
             {
                 sectortype *pHitSector = &sector[pHitWall->nextsector];
-                XSECTOR *pHitXSector = NULL;
+                XSECTOR *pHitXSector = nullptr;
                 if (pHitSector->extra > 0)
                     pHitXSector = &xsector[pHitSector->extra];
 
@@ -4961,13 +4963,13 @@ void MoveDude(DBloodActor *actor)
         if (nXSector > 0)
             pXSector = &xsector[nXSector];
         else
-            pXSector = NULL;
+            pXSector = nullptr;
         if (pXSector && pXSector->Exit && (pPlayer || !pXSector->dudeLockout))
             trTriggerSector(pSprite->sectnum, pXSector, kCmdSectorExit);
         ChangeSpriteSect(pSprite->index, nSector);
         
         nXSector = sector[nSector].extra;
-        pXSector = (nXSector > 0) ? &xsector[nXSector] : NULL;
+        pXSector = (nXSector > 0) ? &xsector[nXSector] : nullptr;
         if (pXSector && pXSector->Enter && (pPlayer || !pXSector->dudeLockout)) 
 		{
             if (sector[nSector].type == kSectorTeleport)
@@ -4977,26 +4979,21 @@ void MoveDude(DBloodActor *actor)
 
         nSector = pSprite->sectnum;
     }
-    char bUnderwater = 0;
-    char bDepth = 0;
+    int bUnderwater = 0;
+    int bDepth = 0;
     if (sector[nSector].extra > 0)
     {
         XSECTOR *pXSector = &xsector[sector[nSector].extra];
-        if (pXSector->Underwater)
-            bUnderwater = 1;
-        if (pXSector->Depth)
-            bDepth = 1;
+        if (pXSector->Underwater) bUnderwater = 1;
+        if (pXSector->Depth) bDepth = 1;
     }
-    int nUpperLink = gUpperLink[nSector];
-    int nLowerLink = gLowerLink[nSector];
-    if (nUpperLink >= 0 && (sprite[nUpperLink].type == kMarkerUpWater || sprite[nUpperLink].type == kMarkerUpGoo))
-        bDepth = 1;
-    if (nLowerLink >= 0 && (sprite[nLowerLink].type == kMarkerLowWater || sprite[nLowerLink].type == kMarkerLowGoo))
-        bDepth = 1;
-    if (pPlayer)
-        wd += 16;
-    if (actor->zvel())
-        pSprite->z += actor->zvel()>>8;
+    auto pUpperLink = getUpperLink(nSector);
+    auto pLowerLink = getLowerLink(nSector);
+    if (pUpperLink && (pUpperLink->s().type == kMarkerUpWater || pUpperLink->s().type == kMarkerUpGoo)) bDepth = 1;
+    if (pLowerLink && (pLowerLink->s().type == kMarkerLowWater || pLowerLink->s().type == kMarkerLowGoo)) bDepth = 1;
+    if (pPlayer) wd += 16;
+    if (actor->zvel()) pSprite->z += actor->zvel()>>8;
+
     int ceilZ, ceilHit, floorZ, floorHit;
     GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
     GetActorExtents(actor, &top, &bottom);
@@ -5114,9 +5111,8 @@ void MoveDude(DBloodActor *actor)
                 // look for palette in data2 of marker. If value <= 0, use default ones.
                 if (gModernMap) {
                     pPlayer->nWaterPal = 0;
-                    int nXUpper = sprite[gUpperLink[nSector]].extra;
-                    if (nXUpper >= 0)
-                        pPlayer->nWaterPal = xsprite[nXUpper].data2;
+                auto pUpper = getUpperLink(nSector);
+                if (pUpper && pUpper->hasX()) pPlayer->nWaterPal = pUpper->x().data2;
                 }
                 #endif
 
@@ -5295,18 +5291,20 @@ void MoveDude(DBloodActor *actor)
     }
     else
         actor->hit().ceilhit = 0;
+
     GetActorExtents(actor,&top,&bottom);
 
     pXSprite->height = ClipLow(floorZ-bottom, 0)>>8;
     if (actor->xvel() || actor->yvel())
     {
-        if ((floorHit & 0xc000) == 0xc000)
+		Collision coll = floorHit;
+        if (coll.type == kHitSprite)
         {
-            int nHitSprite = floorHit & 0x3fff;
-            if ((sprite[nHitSprite].cstat & 0x30) == 0)
+            auto hitAct = coll.actor;
+            if ((hitAct->s().cstat & 0x30) == 0)
             {
-                actor->xvel() += MulScale(4, pSprite->x - sprite[nHitSprite].x, 2);
-                actor->yvel() += MulScale(4, pSprite->y - sprite[nHitSprite].y, 2);
+                actor->xvel() += MulScale(4, pSprite->x - hitAct->s().x, 2);
+                actor->yvel() += MulScale(4, pSprite->y - hitAct->s().y, 2);
                 return;
             }
         }
