@@ -6534,33 +6534,31 @@ DBloodActor* actSpawnDude(DBloodActor* source, short nType, int a3, int a4)
 //
 //---------------------------------------------------------------------------
 
-spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
+DBloodActor* actSpawnThing(int nSector, int x, int y, int z, int nThingType)
 {
     assert(nThingType >= kThingBase && nThingType < kThingMax);
 	auto actor = actSpawnSprite(nSector, x, y, z, 4, 1);
 	spritetype* pSprite = &actor->s();
-    int nType = nThingType-kThingBase;
+	int nType = nThingType - kThingBase;
     int nThing = pSprite->index;
     int nXThing = pSprite->extra;
     pSprite->type = nThingType;
     assert(nXThing > 0 && nXThing < kMaxXSprites);
-    XSPRITE *pXThing = &xsprite[nXThing];
-    const THINGINFO *pThingInfo = &thingInfo[nType];
-    pXThing->health = pThingInfo->startHealth<<4;
+	XSPRITE* pXThing = &xsprite[nXThing];
+	const THINGINFO* pThingInfo = &thingInfo[nType];
+	pXThing->health = pThingInfo->startHealth << 4;
     pSprite->clipdist = pThingInfo->clipdist;
     pSprite->flags = pThingInfo->flags;
-    if (pSprite->flags & 2)
-        pSprite->flags |= 4;
+	if (pSprite->flags & 2) pSprite->flags |= 4;
     pSprite->cstat |= pThingInfo->cstat;
     pSprite->picnum = pThingInfo->picnum;
     pSprite->shade = pThingInfo->shade;
     pSprite->pal = pThingInfo->pal;
-    if (pThingInfo->xrepeat)
-        pSprite->xrepeat = pThingInfo->xrepeat;
-    if (pThingInfo->yrepeat)
-        pSprite->yrepeat = pThingInfo->yrepeat;
+	if (pThingInfo->xrepeat) pSprite->xrepeat = pThingInfo->xrepeat;
+	if (pThingInfo->yrepeat) pSprite->yrepeat = pThingInfo->yrepeat;
     show2dsprite.Set(pSprite->index);
-    switch (nThingType) {
+	switch (nThingType)
+	{
     case kThingVoodooHead:
         pXThing->data1 = 0;
         pXThing->data2 = 0;
@@ -6570,10 +6568,11 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
         pXThing->triggerOnce = 1;
         pXThing->isTriggered = 0;
         break;
+
     case kThingDroppedLifeLeech:
-    #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
     case kModernThingEnemyLifeLeech:
-    #endif
+#endif
         pXThing->data1 = 0;
         pXThing->data2 = 0;
         pXThing->data3 = 0;
@@ -6582,74 +6581,87 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
         pXThing->triggerOnce = 0;
         pXThing->isTriggered = 0;
         break;
+
     case kThingZombieHead:
         pXThing->data1 = 8;
         pXThing->data2 = 0;
         pXThing->data3 = 0;
         pXThing->data4 = 318;
-        pXThing->targetX = PlayClock+180;
+        pXThing->targetX = PlayClock + 180;
         pXThing->locked = 1;
         pXThing->state = 1;
         pXThing->triggerOnce = 0;
         pXThing->isTriggered = 0;
         break;
+
     case kThingBloodBits:
     case kThingBloodChunks:
         pXThing->data1 = (nThingType == kThingBloodBits) ? 19 : 8;
         pXThing->data2 = 0;
         pXThing->data3 = 0;
         pXThing->data4 = 318;
-        pXThing->targetX = PlayClock+180;
+        pXThing->targetX = PlayClock + 180;
         pXThing->locked = 1;
         pXThing->state = 1;
         pXThing->triggerOnce = 0;
         pXThing->isTriggered = 0;
         break;
+
     case kThingArmedTNTStick:
         evPost(nThing, 3, 0, kCallbackFXDynPuff);
         sfxPlay3DSound(pSprite, 450, 0, 0);
         break;
+
     case kThingArmedTNTBundle:
         sfxPlay3DSound(pSprite, 450, 0, 0);
         evPost(nThing, 3, 0, kCallbackFXDynPuff);
         break;
+
     case kThingArmedSpray:
         evPost(nThing, 3, 0, kCallbackFXDynPuff);
         break;
     }
-    return pSprite;
+	return actor;
 }
 
-spritetype * actFireThing_(spritetype *pSprite, int a2, int a3, int a4, int thingType, int a6)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingType, int a6)
 {
+	auto pSprite = &actor->s();
     assert(thingType >= kThingBase && thingType < kThingMax);
     int x = pSprite->x+MulScale(a2, Cos(pSprite->ang+512), 30);
     int y = pSprite->y+MulScale(a2, Sin(pSprite->ang+512), 30);
     int z = pSprite->z+a3;
     x += MulScale(pSprite->clipdist, Cos(pSprite->ang), 28);
     y += MulScale(pSprite->clipdist, Sin(pSprite->ang), 28);
-    if (HitScan(pSprite, z, x-pSprite->x, y-pSprite->y, 0, CLIPMASK0, pSprite->clipdist) != -1)
+	if (HitScan(pSprite, z, x - pSprite->x, y - pSprite->y, 0, CLIPMASK0, pSprite->clipdist) != -1)
     {
         x = gHitInfo.hitx-MulScale(pSprite->clipdist<<1, Cos(pSprite->ang), 28);
         y = gHitInfo.hity-MulScale(pSprite->clipdist<<1, Sin(pSprite->ang), 28);
     }
-    spritetype *pThing = actSpawnThing(pSprite->sectnum, x, y, z, thingType);
+	auto fired = actSpawnThing(pSprite->sectnum, x, y, z, thingType);
+	spritetype* pThing = &fired->s();
     pThing->owner = pSprite->index;
     pThing->ang = pSprite->ang;
-    xvel[pThing->index] = MulScale(a6, Cos(pThing->ang), 30);
-    yvel[pThing->index] = MulScale(a6, Sin(pThing->ang), 30);
-    zvel[pThing->index] = MulScale(a6, a4, 14);
-    xvel[pThing->index] += xvel[pSprite->index]/2;
-    yvel[pThing->index] += yvel[pSprite->index]/2;
-    zvel[pThing->index] += zvel[pSprite->index]/2;
-    return pThing;
+	fired->xvel() = MulScale(a6, Cos(pThing->ang), 30);
+	fired->yvel() = MulScale(a6, Sin(pThing->ang), 30);
+	fired->zvel() = MulScale(a6, a4, 14);
+	fired->xvel() += actor->xvel() / 2;
+	fired->yvel() += actor->yvel() / 2;
+	fired->zvel() += actor->zvel() / 2;
+	return fired;
 }
 
-DBloodActor* actFireThing(DBloodActor* pSprite, int a2, int a3, int a4, int thingType, int a6)
-{
-    auto spr = actFireThing_(&pSprite->s(), a2, a3, a4, thingType, a6);
-    return &bloodActors[spr->index];
-}
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, int a6, int nType)
 {
