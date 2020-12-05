@@ -5679,28 +5679,19 @@ void actActivateGibObject(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void MakeSplash(DBloodActor *actor);
-
-void actProcessSprites(void)
+static void actCheckProximity()
 {
-    int nSprite;
-    int nNextSprite;
-    
-    #ifdef NOONE_EXTENSIONS
-    if (gModernMap) nnExtProcessSuperSprites();
-    #endif
+	BloodStatIterator it(kStatThing);
+	while (auto actor = it.Next())
+	{
+		spritetype* pSprite = &actor->s();
+		if (pSprite->flags & 32) continue;
 
-    StatIterator it(kStatThing);
-    while ((nSprite = it.NextIndex()) >= 0)
+		if (actor->hasX())
     {
-        spritetype *pSprite = &sprite[nSprite];
-
-        if (pSprite->flags&32)
-            continue;
-        int nXSprite = pSprite->extra;
-        if (nXSprite > 0) {
-            XSPRITE *pXSprite = &xsprite[nXSprite];
-            switch (pSprite->type) {
+			XSPRITE* pXSprite = &actor->x();
+			switch (pSprite->type)
+			{
                 case kThingBloodBits:
                 case kThingBloodChunks:
                 case kThingZombieHead:
@@ -5710,96 +5701,108 @@ void actProcessSprites(void)
 
             if (pXSprite->burnTime > 0)
             {
-                pXSprite->burnTime = ClipLow(pXSprite->burnTime-4,0);
-                actDamageSprite(pXSprite->burnSource, pSprite, kDamageBurn, 8);
+				pXSprite->burnTime = ClipLow(pXSprite->burnTime - 4, 0);
+				actDamageSprite(actor->GetBurnSource(), actor, kDamageFall, 8);
             }
-                                       
-            if (pXSprite->Proximity) {
-                #ifdef NOONE_EXTENSIONS
+
+			if (pXSprite->Proximity)
+			{
+#ifdef NOONE_EXTENSIONS
                 // don't process locked or 1-shot things for proximity
-                if (gModernMap && (pXSprite->locked || pXSprite->isTriggered)) 
+				if (gModernMap && (pXSprite->locked || pXSprite->isTriggered))
                     continue;
-                #endif
-                
+#endif
+
                 if (pSprite->type == kThingDroppedLifeLeech) pXSprite->target = -1;
-                int nSprite2;
-                StatIterator it1(kStatDude);
-                while ((nSprite2 = it1.NextIndex()) >= 0)
+				BloodStatIterator it1(kStatDude);
+				while (auto dudeactor = it1.Next())
                 {
-                    nNextSprite = it1.PeekIndex();
-                    spritetype *pSprite2 = &sprite[nSprite2];
+					auto nextdude = it1.Peek();
+					spritetype* pSprite2 = &dudeactor->s();
 
-                    if (pSprite2->flags&32) continue;
-                    XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
-                    if ((unsigned int)pXSprite2->health > 0) {
-                   
-                        #ifdef NOONE_EXTENSIONS
+					if (pSprite2->flags & 32 || !dudeactor->hasX()) continue;
+
+					XSPRITE* pXSprite2 = &dudeactor->x();
+					if ((unsigned int)pXSprite2->health > 0)
+					{
+						int proxyDist = 96;
+#ifdef NOONE_EXTENSIONS
                         // allow dudeLockout for proximity flag
-                        if (gModernMap && pSprite->type != kThingDroppedLifeLeech && pXSprite->DudeLockout && !IsPlayerSprite(pSprite2))
+						if (gModernMap && pSprite->type != kThingDroppedLifeLeech && pXSprite->DudeLockout && !dudeactor->IsPlayerActor())
                             continue;
-                        #endif
 
-                        int proxyDist = 96;
-                        #ifdef NOONE_EXTENSIONS
                         if (pSprite->type == kModernThingEnemyLifeLeech) proxyDist = 512;
-                        #endif
-                            if (pSprite->type == kThingDroppedLifeLeech && pXSprite->target == -1)  {
-                            int nOwner = pSprite->owner;
-                            spritetype *pOwner = &sprite[nOwner];
-                            if (!IsPlayerSprite(pOwner))
-                                continue;
-                            PLAYER *pPlayer = &gPlayer[pOwner->type - kDudePlayer1];
-                            PLAYER *pPlayer2 = NULL;
-                            if (IsPlayerSprite(pSprite2))
-                                pPlayer2 = &gPlayer[pSprite2->type - kDudePlayer1];
-                            if (nSprite2 == nOwner || pSprite2->type == kDudeZombieAxeBuried || pSprite2->type == kDudeRat || pSprite2->type == kDudeBat)
-                                continue;
-                            if (gGameOptions.nGameType == 3 && pPlayer2 && pPlayer->teamId == pPlayer2->teamId)
-                                continue;
-                            if (gGameOptions.nGameType == 1 && pPlayer2)
-                                continue;
+#endif
+						if (pSprite->type == kThingDroppedLifeLeech && pXSprite->target == -1)
+						{
+							auto Owner = actor->GetOwner();
+							if (!Owner->IsPlayerActor()) continue;
+
+							spritetype* pOwner = &Owner->s();
+							PLAYER* pPlayer = &gPlayer[pOwner->type - kDudePlayer1];
+							PLAYER* pPlayer2 = dudeactor->IsPlayerActor() ? &gPlayer[pSprite2->type - kDudePlayer1] : nullptr;
+
+							if (dudeactor == Owner || pSprite2->type == kDudeZombieAxeBuried || pSprite2->type == kDudeRat || pSprite2->type == kDudeBat) continue;
+							if (gGameOptions.nGameType == 3 && pPlayer2 && pPlayer->teamId == pPlayer2->teamId) continue;
+							if (gGameOptions.nGameType == 1 && pPlayer2) continue;
                             proxyDist = 512;
                         }
-                        
-                        if (CheckProximity(pSprite2, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, proxyDist)) {
 
-                            switch (pSprite->type) {
+						if (CheckProximity(pSprite2, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, proxyDist))
+						{
+							switch (pSprite->type)
+							{
                                 case kThingDroppedLifeLeech:
-                                    if (!Chance(0x4000) && nNextSprite >= 0) continue;
+								if (!Chance(0x4000) && nextdude) continue;
                                     if (pSprite2->cstat & CLIPMASK0) pXSprite->target = pSprite2->index;
                                     else continue;
                                     break;
-                                #ifdef NOONE_EXTENSIONS
+
+#ifdef NOONE_EXTENSIONS
                                 case kModernThingTNTProx:
-                                    if (!IsPlayerSprite(pSprite2)) continue;
+								if (!dudeactor->IsPlayerActor()) continue;
                                     pSprite->pal = 0;
                                     break;
+
                                 case kModernThingEnemyLifeLeech:
                                     if (pXSprite->target != pSprite2->index) continue;
                                     break;
-                                #endif
+#endif
+
+							default:
+								break;
                             }
                             if (pSprite->owner == -1) pSprite->owner = pSprite2->index;
-                            trTriggerSprite(nSprite, pXSprite, kCmdSpriteProximity);
+							trTriggerSprite(actor, kCmdSpriteProximity);
                         }
                     }
                 }
             }
         }
     }
+}
 
-    it.Reset(kStatThing);
-    while ((nSprite = it.NextIndex()) >= 0)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void actCheckThings()
+{
+	BloodStatIterator it(kStatThing);
+	while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+		spritetype* pSprite = &actor->s();
 
-        if (pSprite->flags & 32)
-            continue;
+		if (pSprite->flags & 32) continue;
+		if (!actor->hasX()) continue;
+
+		auto pXSprite = &actor->x();
         int nSector = pSprite->sectnum;
-        int nXSprite = pSprite->extra;
-        assert(nXSprite > 0 && nXSprite < kMaxXSprites);
+
         int nXSector = sector[nSector].extra;
-        XSECTOR *pXSector = NULL;
+		XSECTOR* pXSector = NULL;
         if (nXSector > 0)
         {
             assert(nXSector > 0 && nXSector < kMaxXSectors);
@@ -5809,22 +5812,18 @@ void actProcessSprites(void)
         if (pXSector && pXSector->panVel && (pXSector->panAlways || pXSector->state || pXSector->busy))
         {
             int nType = pSprite->type - kThingBase;
-            const THINGINFO *pThingInfo = &thingInfo[nType];
-            if (pThingInfo->flags & 1)
-
-                pSprite->flags |= 1;
-            if (pThingInfo->flags & 2)
-
-                pSprite->flags |= 4;
+			const THINGINFO* pThingInfo = &thingInfo[nType];
+			if (pThingInfo->flags & 1) pSprite->flags |= 1;
+			if (pThingInfo->flags & 2) pSprite->flags |= 4;
         }
 
-        if (pSprite->flags&3)
+		if (pSprite->flags & 3)
         {
-            viewBackupSpriteLoc(nSprite, pSprite);
+			viewBackupSpriteLoc(actor);
             if (pXSector && pXSector->panVel)
             {
                 int top, bottom;
-                GetSpriteExtents(pSprite, &top, &bottom);
+				GetActorExtents(actor, &top, &bottom);
                 if (getflorzofslope(nSector, pSprite->x, pSprite->y) <= bottom)
                 {
                     int angle = pXSector->panAngle;
@@ -5832,95 +5831,91 @@ void actProcessSprites(void)
                     if (pXSector->panAlways || pXSector->state || pXSector->busy)
                     {
                         speed = pXSector->panVel << 9;
-                        if (!pXSector->panAlways && pXSector->busy)
-                            speed = MulScale(speed, pXSector->busy, 16);
+						if (!pXSector->panAlways && pXSector->busy) speed = MulScale(speed, pXSector->busy, 16);
                     }
-                    if (sector[nSector].floorstat&64)
-                        angle = (angle+GetWallAngle(sector[nSector].wallptr)+512)&2047;
-                    int dx = MulScale(speed, Cos(angle), 30);
-                    int dy = MulScale(speed, Sin(angle), 30);
-                    xvel[nSprite] += dx;
-                    yvel[nSprite] += dy;
+					if (sector[nSector].floorstat & 64) angle = (angle + GetWallAngle(sector[nSector].wallptr) + 512) & 2047;
+
+					actor->xvel() += MulScale(speed, Cos(angle), 30);
+					actor->yvel() += MulScale(speed, Sin(angle), 30);
                 }
             }
-            actAirDrag(&bloodActors[pSprite->index], 128);
+			actAirDrag(actor, 128);
 
-            if (((pSprite->index>>8)&15) == (gFrameCount&15) && (pSprite->flags&2))
-                pSprite->flags |= 4;
-            if ((pSprite->flags&4) || xvel[nSprite] || yvel[nSprite] || zvel[nSprite] ||
-                velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
+			if (((pSprite->index >> 8) & 15) == (gFrameCount & 15) && (pSprite->flags & 2))	pSprite->flags |= 4;
+			if ((pSprite->flags & 4) || actor->xvel() || actor->yvel() || actor->zvel() || velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
             {
-                int hit = MoveThing(&bloodActors[pSprite->index]);
-                if (hit)
+				Collision hit = MoveThing(actor);
+				if (hit.type)
                 {
-                    int nXSprite = pSprite->extra;
-                    if (nXSprite)
+					if (pXSprite->Impact) trTriggerSprite(actor, kCmdOff);
+
+					switch (pSprite->type)
                     {
-                        XSPRITE *pXSprite = &xsprite[nXSprite];
-                        if (pXSprite->Impact)
-                            trTriggerSprite(nSprite, pXSprite, kCmdOff);
-                        switch (pSprite->type) {
                         case kThingDripWater:
                         case kThingDripBlood:
                             MakeSplash(&bloodActors[pXSprite->reference]);
                             break;
-                        #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
                         case kModernThingThrowableRock:
-                            seqSpawn(24, 3, nXSprite, -1);
-                            if ((hit & 0xc000) == 0xc000)
+						seqSpawn(24, actor, -1);
+						if (hit.type = kHitSprite)
                             {
                                 pSprite->xrepeat = 32;
                                 pSprite->yrepeat = 32;
-                                int nObject = hit & 0x3fff;
-                                assert(nObject >= 0 && nObject < kMaxSprites);
-                                spritetype * pObject = &sprite[nObject];
-                                actDamageSprite(pSprite->owner, pObject, kDamageFall, pXSprite->data1);
+							actDamageSprite(actor->GetOwner(), hit.actor, kDamageFall, pXSprite->data1);
                             }
                             break;
-                        #endif
+#endif
                         case kThingBone:
-                            seqSpawn(24, 3, nXSprite, -1);
-                            if ((hit&0xc000) == 0xc000)
+						seqSpawn(24, actor, -1);
+						if (hit.type = kHitSprite)
                             {
-                                int nObject = hit & 0x3fff;
-                                assert(nObject >= 0 && nObject < kMaxSprites);
-                                spritetype *pObject = &sprite[nObject];
-                                actDamageSprite(pSprite->owner, pObject, kDamageFall, 12);
+							actDamageSprite(actor->GetOwner(), hit.actor, kDamageFall, 12);
                             }
                             break;
+
                         case kThingPodGreenBall:
-                            if ((hit&0xc000) == 0x4000)
+						if (hit.type == kHitSector)
                             {
-                                actRadiusDamage(&bloodActors[pSprite->owner], pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 200, 1, 20, kDamageExplode, 6, 0);
-                                evPost(pSprite->index, 3, 0, kCallbackFXPodBloodSplat);
+							actRadiusDamage(actor->GetOwner(), pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 200, 1, 20, kDamageExplode, 6, 0);
+							evPost(actor, 0, kCallbackFXPodBloodSplat);
                             }
-                            else
+						else if (hit.type == kHitSprite)
                             {
-                                int nObject = hit & 0x3fff;
-                                if ((hit&0xc000) != 0xc000 && (nObject < 0 || nObject >= 4096))
-                                    break;
-                                assert(nObject >= 0 && nObject < kMaxSprites);
-                                spritetype *pObject = &sprite[nObject];
-                                actDamageSprite(pSprite->owner, pObject, kDamageFall, 12);
-                                evPost(pSprite->index, 3, 0, kCallbackFXPodBloodSplat);
+							actDamageSprite(actor->GetOwner(), hit.actor, kDamageFall, 12);
+							evPost(actor, 0, kCallbackFXPodBloodSplat);
                             }
                             break;
+
                         case kThingPodFireBall:
-                        {
-                            int nObject = hit & 0x3fff;
-                            if ((hit&0xc000) != 0xc000 && (nObject < 0 || nObject >= 4096))
+						if (hit.type == kHitSprite)	actExplodeSprite(actor);
                                 break;
-                            assert(nObject >= 0 && nObject < kMaxSprites);
-                            actExplodeSprite(&bloodActors[pSprite->index]);
-                            break;
                         }
                         }
                     }
                 }
             }
-        }
-    }
-    it.Reset(kStatProjectile);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void MakeSplash(DBloodActor *actor);
+
+void actProcessSprites(void)
+{
+    #ifdef NOONE_EXTENSIONS
+    if (gModernMap) nnExtProcessSuperSprites();
+    #endif
+
+	actCheckProximity();
+	actCheckThings();
+
+	int nSprite;
+	BloodStatIterator it(kStatProjectile);
     while ((nSprite = it.NextIndex()) >= 0)
     {
         spritetype *pSprite = &sprite[nSprite];
@@ -6201,7 +6196,6 @@ void actProcessSprites(void)
                 StatIterator it1(kStatDude);
                 while ((nSprite2 = it1.NextIndex()) >= 0)
                 {
-                    nNextSprite = it1.PeekIndex();
                     spritetype *pSprite2 = &sprite[nSprite2];
 
                     if (pSprite2->flags&32)

@@ -273,4 +273,9 @@ inline DBloodActor* getLowerLink(int sect)
 	return l == -1 ? nullptr : &bloodActors[l];
 }
 
+inline void viewBackupSpriteLoc(DBloodActor* actor)
+{
+	viewBackupSpriteLoc(actor->s().index, &actor->s());
+}
+
 END_BLD_NS

@@ -177,4 +177,6 @@ inline void viewBackupSpriteLoc(int nSprite, spritetype *pSprite)
     }
 }
 
+void viewBackupSpriteLoc(DBloodActor* actor);
+
 END_BLD_NS
