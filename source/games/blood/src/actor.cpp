@@ -5903,167 +5903,165 @@ static void actCheckThings()
 //
 //---------------------------------------------------------------------------
 
-void MakeSplash(DBloodActor *actor);
-
-void actProcessSprites(void)
+static void actCheckProjectiles()
 {
-    #ifdef NOONE_EXTENSIONS
-    if (gModernMap) nnExtProcessSuperSprites();
-    #endif
-
-	actCheckProximity();
-	actCheckThings();
-
-	int nSprite;
 	BloodStatIterator it(kStatProjectile);
-    while ((nSprite = it.NextIndex()) >= 0)
+	while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+		spritetype* pSprite = &actor->s();
 
         if (pSprite->flags & 32)
             continue;
-        viewBackupSpriteLoc(nSprite, pSprite);
-        int hit = MoveMissile(&bloodActors[nSprite]);
-        if (hit >= 0)
-            actImpactMissile(&bloodActors[pSprite->index], hit);
+		viewBackupSpriteLoc(actor);
+		int hit = MoveMissile(actor);
+		if (hit >= 0) actImpactMissile(&bloodActors[pSprite->index], hit);
     }
-    it.Reset(kStatExplosion);
-    while ((nSprite = it.NextIndex()) >= 0)
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void actCheckExplosion()
+{
+	BloodStatIterator it(kStatExplosion);
+	while (auto actor = it.Next())
     {
-        uint8_t sectmap[(kMaxSectors+7)>>3];
-        spritetype *pSprite = &sprite[nSprite];
+		spritetype* pSprite = &actor->s();
 
         if (pSprite->flags & 32)
             continue;
-        int nOwner = pSprite->owner;
-        auto pOwner = nOwner == -1? nullptr : &bloodActors[pSprite->owner];
+
+		if (!actor->hasX()) continue;
+		XSPRITE* pXSprite = &actor->x();
+
+		auto Owner = actor->GetOwner();
+		auto pOwner = Owner ? &Owner->s() : nullptr;
         int nType = pSprite->type;
         assert(nType >= 0 && nType < kExplodeMax);
-        const EXPLOSION *pExplodeInfo = &explodeInfo[nType];
-        int nXSprite = pSprite->extra;
-        assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-        XSPRITE *pXSprite = &xsprite[nXSprite];
+		const EXPLOSION* pExplodeInfo = &explodeInfo[nType];
         int x = pSprite->x;
         int y = pSprite->y;
         int z = pSprite->z;
         int nSector = pSprite->sectnum;
         int radius = pExplodeInfo->radius;
 
-        #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
         // Allow to override explosion radius by data4 field of any sprite which have statnum 2 set in editor
         // or of Hidden Exploder.
         if (gModernMap && pXSprite->data4 > 0)
             radius = pXSprite->data4;
-        #endif
+#endif
+
+		uint8_t sectormap[(kMaxSectors + 7) >> 3];
 
         // GetClosestSpriteSectors() has issues checking some sectors due to optimizations
         // the new flag newSectCheckMethod for GetClosestSpriteSectors() does rectify these issues, but this may cause unintended side effects for level scripted explosions
         // so only allow this new checking method for dude spawned explosions
         short gAffectedXWalls[kMaxXWalls];
         const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
-        GetClosestSpriteSectors(nSector, x, y, radius, sectmap, gAffectedXWalls, newSectCheckMethod);
+        GetClosestSpriteSectors(nSector, x, y, radius, sectormap, gAffectedXWalls, newSectCheckMethod);
         
         for (int i = 0; i < kMaxXWalls; i++)
         {
             int nWall = gAffectedXWalls[i];
             if (nWall == -1)
                 break;
-            XWALL *pXWall = &xwall[wall[nWall].extra];
+			XWALL* pXWall = &xwall[wall[nWall].extra];
             trTriggerWall(nWall, pXWall, kCmdWallImpact);
         }
-        
-        int nSprite2;
-        StatIterator it1(kStatDude);
-        while ((nSprite2 = it1.NextIndex()) >= 0)
-        {
-            DBloodActor* act2 = &bloodActors[nSprite2];
-            spritetype *pDude = &act2->s();
 
-            if (pDude->flags & 32)
-                continue;
-            if (TestBitString(sectmap, pDude->sectnum))
+		BloodStatIterator it1(kStatDude);
+		while (auto dudeactor = it1.Next())
+        {
+			spritetype* pDude = &dudeactor->s();
+
+			if (pDude->flags & 32) continue;
+
+			if (TestBitString(sectormap, pDude->sectnum))
             {
                 if (pXSprite->data1 && CheckProximity(pDude, x, y, z, nSector, radius))
                 {
                     if (pExplodeInfo->dmg && pXSprite->target == 0)
                     {
                         pXSprite->target = 1;
-                        actDamageSprite(nOwner, pDude, kDamageFall, (pExplodeInfo->dmg+Random(pExplodeInfo->dmgRng))<<4);
+						actDamageSprite(Owner, dudeactor, kDamageFall, (pExplodeInfo->dmg + Random(pExplodeInfo->dmgRng)) << 4);
                     }
-                    if (pExplodeInfo->dmgType)
-                        ConcussSprite(pOwner, act2, x, y, z, pExplodeInfo->dmgType);
+					if (pExplodeInfo->dmgType) ConcussSprite(actor, dudeactor, x, y, z, pExplodeInfo->dmgType);
+
                     if (pExplodeInfo->burnTime)
                     {
-                        assert(pDude->extra > 0 && pDude->extra < kMaxXSprites);
-                        XSPRITE *pXDude = &xsprite[pDude->extra];
-                        if (!pXDude->burnTime)
-                            evPost(nSprite2, 3, 0, kCallbackFXFlameLick);
-                        actBurnSprite(pSprite->owner, pXDude, pExplodeInfo->burnTime<<2);
+						assert(dudeactor->hasX());
+						XSPRITE* pXDude = &xsprite[pDude->extra];
+						if (!pXDude->burnTime) evPost(dudeactor, 0, kCallbackFXFlameLick);
+						actBurnSprite(Owner, dudeactor, pExplodeInfo->burnTime << 2);
                     }
                 }
             }
         }
-        
-        it1.Reset(kStatThing);
-        while ((nSprite2 = it1.NextIndex()) >= 0)
-        {
-            auto act2 = &bloodActors[nSprite2];
-            spritetype *pThing = &sprite[nSprite2];
 
-            if (pThing->flags & 32)
-                continue;
-            if (TestBitString(sectmap, pThing->sectnum))
+        it1.Reset(kStatThing);
+		while (auto thingactor = it1.Next())
+        {
+			spritetype* pThing = &thingactor->s();
+
+			if (pThing->flags & 32) continue;
+
+			if (TestBitString(sectormap, pThing->sectnum))
             {
-                if (pXSprite->data1 && CheckProximity(pThing, x, y, z, nSector, radius))
+				if (pXSprite->data1 && CheckProximity(pThing, x, y, z, nSector, radius) && thingactor->hasX())
                 {
-                    XSPRITE *pXSprite2 = &xsprite[pThing->extra];
-                    if (!pXSprite2->locked)
+					XSPRITE* pXThing = &thingactor->x();
+					if (!pXThing->locked)
                     {
-                        if (pExplodeInfo->dmgType)
-                            ConcussSprite(pOwner, act2, x, y, z, pExplodeInfo->dmgType);
+						if (pExplodeInfo->dmgType) ConcussSprite(Owner, thingactor, x, y, z, pExplodeInfo->dmgType);
+
                         if (pExplodeInfo->burnTime)
                         {
-                            assert(pThing->extra > 0 && pThing->extra < kMaxXSprites);
-                            XSPRITE *pXThing = &xsprite[pThing->extra];
                             if (pThing->type == kThingTNTBarrel && !pXThing->burnTime)
-                                evPost(nSprite2, 3, 0, kCallbackFXFlameLick);
-                            actBurnSprite(pSprite->owner, pXThing, pExplodeInfo->burnTime<<2);
+								evPost(thingactor, 0, kCallbackFXFlameLick);
+							actBurnSprite(Owner, thingactor, pExplodeInfo->burnTime << 2);
                         }
                     }
                 }
             }
         }
-        
+
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
-            spritetype *pSprite2 = gPlayer[p].pSprite;
-            int dx = (x - pSprite2->x)>>4;
-            int dy = (y - pSprite2->y)>>4;
-            int dz = (z - pSprite2->z)>>8;
-            int nDist = dx*dx+dy*dy+dz*dz+0x40000;
+			spritetype* pSprite2 = gPlayer[p].pSprite;
+			int dx = (x - pSprite2->x) >> 4;
+			int dy = (y - pSprite2->y) >> 4;
+			int dz = (z - pSprite2->z) >> 8;
+			int nDist = dx * dx + dy * dy + dz * dz + 0x40000;
             int t = DivScale(pXSprite->data2, nDist, 16);
             gPlayer[p].flickerEffect += t;
         }
 
-        #ifdef NOONE_EXTENSIONS
-        if (pXSprite->data1 != 0) {
-            
+#ifdef NOONE_EXTENSIONS
+		if (pXSprite->data1 != 0)
+		{
         // add impulse for sprites from physics list
-            if (gPhysSpritesCount > 0 && pExplodeInfo->dmgType != 0) {
-            for (int i = 0; i < gPhysSpritesCount; i++) {
+			if (gPhysSpritesCount > 0 && pExplodeInfo->dmgType != 0)
+			{
+				for (int i = 0; i < gPhysSpritesCount; i++)
+				{
                 if (gPhysSpritesList[i] == -1) continue;
-                else if (sprite[gPhysSpritesList[i]].sectnum < 0 || (sprite[gPhysSpritesList[i]].flags & kHitagFree) != 0)
-                    continue;
+					auto physactor = &bloodActors[gPhysSpritesList[i]];
+					spritetype* pDebris = &physactor->s();
+					if (pDebris->sectnum < 0 || (pDebris->flags & kHitagFree) != 0) continue;
 
-                spritetype* pDebris = &sprite[gPhysSpritesList[i]];
-                if (!TestBitString(sectmap, pDebris->sectnum) || !CheckProximity(pDebris, x, y, z, nSector, radius)) continue;
-                else debrisConcuss(nOwner, i, x, y, z, pExplodeInfo->dmgType);
+					if (!TestBitString(sectormap, pDebris->sectnum) || !CheckProximity(pDebris, x, y, z, nSector, radius)) continue;
+					else debrisConcuss(Owner ? Owner->s().index : -1, i, x, y, z, pExplodeInfo->dmgType);
             }
         }
 
             // trigger sprites from impact list
             if (gImpactSpritesCount > 0) {
-                for (int i = 0; i < gImpactSpritesCount; i++) {
+				for (int i = 0; i < gImpactSpritesCount; i++)
+				{
                     if (gImpactSpritesList[i] == -1) continue;
                     else if (sprite[gImpactSpritesList[i]].sectnum < 0 || (sprite[gImpactSpritesList[i]].flags & kHitagFree) != 0)
                         continue;
@@ -6072,87 +6070,105 @@ void actProcessSprites(void)
                     if (pImpact->extra <= 0)
                         continue;
                     XSPRITE* pXImpact = &xsprite[pImpact->extra];
-                    if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(sectmap, pImpact->sectnum) || !CheckProximity(pImpact, x, y, z, nSector, radius))
+					if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(sectormap, pImpact->sectnum) || !CheckProximity(pImpact, x, y, z, nSector, radius))
                         continue;
-                    
+
                     trTriggerSprite(pImpact->index, pXImpact, kCmdSpriteImpact);
         }
             }
 
         }
-        
-        if (!gModernMap || !(pSprite->flags & kModernTypeFlag1)) {
-            // if data4 > 0, do not remove explosion. This can be useful when designer wants put explosion generator in map manually
-	    // via sprite statnum 2.
+
+		if (!gModernMap || !(pSprite->flags & kModernTypeFlag1))
+		{
+			// if data4 > 0, do not remove explosion. This can be useful when designer wants put explosion generator in map manually via sprite statnum 2.
             pXSprite->data1 = ClipLow(pXSprite->data1 - 4, 0);
             pXSprite->data2 = ClipLow(pXSprite->data2 - 4, 0);
             pXSprite->data3 = ClipLow(pXSprite->data3 - 4, 0);
         }
-        #else
+#else
         pXSprite->data1 = ClipLow(pXSprite->data1 - 4, 0);
         pXSprite->data2 = ClipLow(pXSprite->data2 - 4, 0);
         pXSprite->data3 = ClipLow(pXSprite->data3 - 4, 0);
-        #endif
+#endif
 
-        if (pXSprite->data1 == 0 && pXSprite->data2 == 0 && pXSprite->data3 == 0 && seqGetStatus(3, nXSprite) < 0)
-            actPostSprite(nSprite, kStatFree);
+		if (pXSprite->data1 == 0 && pXSprite->data2 == 0 && pXSprite->data3 == 0 && seqGetStatus(actor) < 0)
+			actPostSprite(actor, kStatFree);
     }
-   
-    it.Reset(kStatTraps);
-    while ((nSprite = it.NextIndex()) >= 0)
-    {
-        spritetype *pSprite = &sprite[nSprite];
+}
 
-        if (pSprite->flags & 32)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void actCheckTraps()
+{
+	BloodStatIterator it(kStatTraps);
+	while (auto actor = it.Next())
+    {
+		spritetype* pSprite = &actor->s();
+
+		if ((pSprite->flags & 32) || !actor->hasX())
             continue;
-        int nXSprite = pSprite->extra;
-        //assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-        if (nXSprite <= 0 || nXSprite >= kMaxXSprites)
-            continue;
-        XSPRITE *pXSprite = &xsprite[nXSprite];
+
+		XSPRITE* pXSprite = &actor->x();
         switch (pSprite->type) {
         case kTrapSawCircular:
-            pXSprite->data2 = ClipLow(pXSprite->data2-4, 0);
+			pXSprite->data2 = ClipLow(pXSprite->data2 - 4, 0);
             break;
+
         case kTrapFlame:
-            if (pXSprite->state && seqGetStatus(3, nXSprite) < 0) {
+			if (pXSprite->state && seqGetStatus(actor) < 0)
+			{
                 int x = pSprite->x;
                 int y = pSprite->y;
                 int z = pSprite->z;
-                int t = (pXSprite->data1<<23)/120;
+				int t = (pXSprite->data1 << 23) / 120;
                 int dx = MulScale(t, Cos(pSprite->ang), 30);
                 int dy = MulScale(t, Sin(pSprite->ang), 30);
                 for (int i = 0; i < 2; i++)
                 {
-                    spritetype *pFX = gFX.fxSpawn(FX_32, pSprite->sectnum, x, y, z, 0);
+					auto pFX = gFX.fxSpawnActor(FX_32, pSprite->sectnum, x, y, z, 0);
                     if (pFX)
                     {
-                        xvel[pFX->index] = dx + Random2(0x8888);
-                        yvel[pFX->index] = dy + Random2(0x8888);
-                        zvel[pFX->index] = Random2(0x8888);
+						pFX->xvel() = dx + Random2(0x8888);
+						pFX->yvel() = dy + Random2(0x8888);
+						pFX->zvel() = Random2(0x8888);
                     }
-                    x += (dx/2)>>12;
-                    y += (dy/2)>>12;
+					x += (dx / 2) >> 12;
+					y += (dy / 2) >> 12;
                 }
                 dy = SinScale16(pSprite->ang);
                 dx = CosScale16(pSprite->ang);
-                gVectorData[kVectorTchernobogBurn].maxDist = pXSprite->data1<<9;
+				gVectorData[kVectorTchernobogBurn].maxDist = pXSprite->data1 << 9;
                 actFireVector(pSprite, 0, 0, dx, dy, Random2(0x8888), kVectorTchernobogBurn);
             }
             break;
         }
     }
-    it.Reset(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void actCheckDudes()
+{
+	BloodStatIterator it(kStatDude);
+	while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+		spritetype* pSprite = &actor->s();
 
         if (pSprite->flags & 32)
             continue;
-        int nXSprite = pSprite->extra;
-        if (nXSprite > 0)
+
+		if (actor->hasX())
         {
-            XSPRITE *pXSprite = &xsprite[nXSprite];
+			XSPRITE* pXSprite = &actor->x();
             const bool fixBurnGlitch = !cl_bloodvanillaenemies && IsBurningDude(pSprite) && !VanillaMode(); // if enemies are burning, always apply burning damage per tick
             if ((pXSprite->burnTime > 0) || fixBurnGlitch)
             {
@@ -6162,104 +6178,105 @@ void actProcessSprites(void)
                 case kDudeBurningCultist:
                 case kDudeBurningZombieAxe:
                 case kDudeBurningZombieButcher:
-                    actDamageSprite(pXSprite->burnSource, pSprite, kDamageBurn, 8);
+					actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
                     break;
+
                 default:
-                    pXSprite->burnTime = ClipLow(pXSprite->burnTime-4, 0);
-                    actDamageSprite(pXSprite->burnSource, pSprite, kDamageBurn, 8);
+					pXSprite->burnTime = ClipLow(pXSprite->burnTime - 4, 0);
+					actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
                     break;
                 }
             }
 
-            #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
             // handle incarnations of custom dude
-            if (pSprite->type == kDudeModernCustom && pXSprite->txID > 0 && pXSprite->sysData1 == kGenDudeTransformStatus) {
-                xvel[pSprite->index] = yvel[pSprite->index] =  0;
-                if (seqGetStatus(3, nXSprite) < 0)
-                    genDudeTransform(pSprite);
+			if (pSprite->type == kDudeModernCustom && pXSprite->txID > 0 && pXSprite->sysData1 == kGenDudeTransformStatus)
+			{
+				actor->xvel() = actor->yvel() = 0;
+				if (seqGetStatus(actor) < 0) genDudeTransform(pSprite);
                     }
-            #endif
+#endif
             if (pSprite->type == kDudeCerberusTwoHead)
             {
-                if (pXSprite->health <= 0 && seqGetStatus(3, nXSprite) < 0)
+				if (pXSprite->health <= 0 && seqGetStatus(actor) < 0)
                 {
-                    pXSprite->health = dudeInfo[28].startHealth<<4;
+					pXSprite->health = dudeInfo[28].startHealth << 4;
                     pSprite->type = kDudeCerberusOneHead;
-                    if (pXSprite->target != -1)
-                        aiSetTarget(pXSprite, pXSprite->target);
-                    aiActivateDude(&bloodActors[pXSprite->reference]);
+					if (pXSprite->target != -1) aiSetTarget(pXSprite, pXSprite->target);
+					aiActivateDude(actor);
                 }
             }
             if (pXSprite->Proximity && !pXSprite->isTriggered)
             {
-                int nSprite2;
-                StatIterator it1(kStatDude);
-                while ((nSprite2 = it1.NextIndex()) >= 0)
+				BloodStatIterator it1(kStatDude);
+				while (auto actor2 = it1.Next())
                 {
-                    spritetype *pSprite2 = &sprite[nSprite2];
+					spritetype* pSprite2 = &actor->s();
+					if (pSprite2->flags & 32) continue;
 
-                    if (pSprite2->flags&32)
-                        continue;
-                    XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
-                    if ((unsigned int)pXSprite2->health > 0 && IsPlayerSprite(pSprite2)) {
+					XSPRITE* pXSprite2 = &actor->x();
+
+					if ((unsigned int)pXSprite2->health > 0 && IsPlayerSprite(pSprite2))
+					{
                         if (CheckProximity(pSprite2, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128))
-                            trTriggerSprite(nSprite, pXSprite, kCmdSpriteProximity);
+							trTriggerSprite(actor, kCmdSpriteProximity);
                     }
                 }
             }
-            if (IsPlayerSprite(pSprite))
+			if (actor->IsPlayerActor())
             {
-                PLAYER *pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
-                if (pPlayer->voodooTargets)
-                    voodooTarget(pPlayer);
-                if (pPlayer->hand && Chance(0x8000))
-                    actDamageSprite(nSprite, pSprite, kDamageDrown, 12);
+				PLAYER* pPlayer = &gPlayer[pSprite->type - kDudePlayer1];
+				if (pPlayer->voodooTargets) voodooTarget(pPlayer);
+				if (pPlayer->hand && Chance(0x8000)) actDamageSprite(actor, actor, kDamageDrown, 12);
+
                 if (pPlayer->isUnderwater)
                 {
                     char bActive = packItemActive(pPlayer, 1);
-                    if (bActive || pPlayer->godMode)
-                        pPlayer->underwaterTime = 1200;
-                    else
-                        pPlayer->underwaterTime = ClipLow(pPlayer->underwaterTime-4, 0);
+
+					if (bActive || pPlayer->godMode) pPlayer->underwaterTime = 1200;
+					else pPlayer->underwaterTime = ClipLow(pPlayer->underwaterTime - 4, 0);
+
                     if (pPlayer->underwaterTime < 1080 && packCheckItem(pPlayer, 1) && !bActive)
                         packUseItem(pPlayer, 1);
+
                     if (!pPlayer->underwaterTime)
                     {
                         pPlayer->chokeEffect += 4;
                         if (Chance(pPlayer->chokeEffect))
-                            actDamageSprite(nSprite, pSprite, kDamageDrown, 3<<4);
+							actDamageSprite(actor, actor, kDamageDrown, 3 << 4);
                     }
                     else
                         pPlayer->chokeEffect = 0;
-                    if (xvel[nSprite] || yvel[nSprite])
+
+					if (actor->xvel() || actor->yvel())
                         sfxPlay3DSound(pSprite, 709, 100, 2);
-                    pPlayer->bubbleTime = ClipLow(pPlayer->bubbleTime-4, 0);
+
+					pPlayer->bubbleTime = ClipLow(pPlayer->bubbleTime - 4, 0);
                 }
                 else if (gGameOptions.nGameType == 0)
                 {
                     if (pPlayer->pXSprite->health > 0 && pPlayer->restTime >= 1200 && Chance(0x200))
                     {
                         pPlayer->restTime = -1;
-                        sfxPlay3DSound(pSprite, 3100+Random(11), 0, 2);
+						sfxPlay3DSound(pSprite, 3100 + Random(11), 0, 2);
                     }
                 }
             }
-            ProcessTouchObjects(&bloodActors[pSprite->index]);
+			ProcessTouchObjects(actor);
         }
     }
-    it.Reset(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
-    {
-        spritetype *pSprite = &sprite[nSprite];
 
-        if (pSprite->flags & 32)
-            continue;
-        int nXSprite = pSprite->extra;
-        assert(nXSprite > 0 && nXSprite < kMaxXSprites);
+    it.Reset(kStatDude);
+	while (auto actor = it.Next())
+    {
+		spritetype* pSprite = &actor->s();
+		if (pSprite->flags & 32 || !actor->hasX()) continue;
+
         int nSector = pSprite->sectnum;
-        viewBackupSpriteLoc(nSprite, pSprite);
+		viewBackupSpriteLoc(actor);
         int nXSector = sector[nSector].extra;
-        XSECTOR *pXSector = NULL;
+		XSECTOR* pXSector = NULL;
+
         if (nXSector > 0)
         {
             assert(nXSector > 0 && nXSector < kMaxXSectors);
@@ -6269,7 +6286,7 @@ void actProcessSprites(void)
         if (pXSector)
         {
             int top, bottom;
-            GetSpriteExtents(pSprite, &top, &bottom);
+			GetActorExtents(actor, &top, &bottom);
             if (getflorzofslope(nSector, pSprite->x, pSprite->y) <= bottom)
             {
                 int angle = pXSector->panAngle;
@@ -6280,63 +6297,94 @@ void actProcessSprites(void)
                     if (!pXSector->panAlways && pXSector->busy)
                         speed = MulScale(speed, pXSector->busy, 16);
                 }
-                if (sector[nSector].floorstat&64)
-                    angle = (angle+GetWallAngle(sector[nSector].wallptr)+512)&2047;
+				if (sector[nSector].floorstat & 64)
+					angle = (angle + GetWallAngle(sector[nSector].wallptr) + 512) & 2047;
                 int dx = MulScale(speed, Cos(angle), 30);
                 int dy = MulScale(speed, Sin(angle), 30);
-                xvel[nSprite] += dx;
-                yvel[nSprite] += dy;
+				actor->xvel() += dx;
+				actor->yvel() += dy;
             }
         }
-        if (pXSector && pXSector->Underwater)
-            actAirDrag(&bloodActors[pSprite->index], 5376);
-        else
-            actAirDrag(&bloodActors[pSprite->index], 128);
+		if (pXSector && pXSector->Underwater) actAirDrag(actor, 5376);
+		else actAirDrag(actor, 128);
 
-        if ((pSprite->flags&4) || xvel[nSprite] || yvel[nSprite] || zvel[nSprite] ||
-            velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
-            MoveDude(&bloodActors[pSprite->index]);
+		if ((pSprite->flags & 4) || actor->xvel() || actor->yvel() || actor->zvel() || velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
+			MoveDude(actor);
     }
-    it.Reset(kStatFlare);
-    while ((nSprite = it.NextIndex()) >= 0)
-    {
-        spritetype *pSprite = &sprite[nSprite];
+}
 
-        if (pSprite->flags & 32)
-            continue;
-        int nXSprite = pSprite->extra;
-        assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-        XSPRITE *pXSprite = &xsprite[nXSprite];
-        int nTarget = pXSprite->target;
-        assert(nTarget >= 0);
-        viewBackupSpriteLoc(nSprite, pSprite);
-        assert(nTarget < kMaxSprites);
-        spritetype *pTarget = &sprite[nTarget];
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void actCheckFlares()
+{
+	BloodStatIterator it(kStatFlare);
+	while (auto actor = it.Next())
+    {
+		spritetype* pSprite = &actor->s();
+		if ((pSprite->flags & 32) || !actor->hasX()) continue;
+
+		XSPRITE* pXSprite = &actor->x();
+		auto target = actor->GetTarget();
+		if (!target) continue;
+
+		viewBackupSpriteLoc(actor);
+		spritetype* pTarget = &target->s();
         if (pTarget->statnum == kMaxStatus)
         {
             GibSprite(pSprite, GIBTYPE_17, NULL, NULL);
-            actPostSprite(pSprite->index, kStatFree);
+			actPostSprite(actor, kStatFree);
         }
         if (pTarget->extra > 0 && xsprite[pTarget->extra].health > 0)
         {
-            int x = pTarget->x+mulscale30r(Cos(pXSprite->goalAng+pTarget->ang), pTarget->clipdist*2);
-            int y = pTarget->y+mulscale30r(Sin(pXSprite->goalAng+pTarget->ang), pTarget->clipdist*2);
-            int z = pTarget->z+pXSprite->targetZ;
+			int x = pTarget->x + mulscale30r(Cos(pXSprite->goalAng + pTarget->ang), pTarget->clipdist * 2);
+			int y = pTarget->y + mulscale30r(Sin(pXSprite->goalAng + pTarget->ang), pTarget->clipdist * 2);
+			int z = pTarget->z + pXSprite->targetZ;
             vec3_t pos = { x, y, z };
-            setsprite(nSprite,&pos);
-            xvel[nSprite] = xvel[nTarget];
-            yvel[nSprite] = yvel[nTarget];
-            zvel[nSprite] = zvel[nTarget];
+			setsprite(pSprite->index, &pos);
+			actor->xvel() = target->xvel();
+			actor->yvel() = target->yvel();
+			actor->zvel() = target->zvel();
         }
         else
         {
             GibSprite(pSprite, GIBTYPE_17, NULL, NULL);
-            actPostSprite(pSprite->index, kStatFree);
+			actPostSprite(actor, kStatFree);
         }
     }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void actProcessSprites(void)
+{
+#ifdef NOONE_EXTENSIONS
+	if (gModernMap) nnExtProcessSuperSprites();
+#endif
+
+	actCheckProximity();
+	actCheckThings();
+	actCheckProjectiles();
+	actCheckExplosion();
+	actCheckTraps();
+	actCheckDudes();
+	actCheckFlares();
     aiProcessDudes();
     gFX.fxProcess();
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 spritetype * actSpawnSprite_(int nSector, int x, int y, int z, int nStat, char a6)
 {

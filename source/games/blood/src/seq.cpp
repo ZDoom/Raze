@@ -482,6 +482,11 @@ SEQINST* GetInstance(DBloodActor* actor)
 	return activeList.get(3, actor->s().index);
 }
 
+int seqGetStatus(DBloodActor* actor)
+{
+	return seqGetStatus(3, actor->s().index);
+}
+
 void seqKill(int type, int nXIndex)
 {
 	activeList.remove(type, nXIndex);
