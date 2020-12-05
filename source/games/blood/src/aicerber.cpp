@@ -144,11 +144,11 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 	}
 	switch (pSprite->type) {
 	case kDudeCerberusTwoHead:
-		actFireMissile(pSprite, -350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
-		actFireMissile(pSprite, 350, -100, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
+            actFireMissile(actor, -350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
+            actFireMissile(actor, 350, -100, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
 		break;
 	case kDudeCerberusOneHead:
-		actFireMissile(pSprite, 350, -100, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
+            actFireMissile(actor, 350, -100, aim.dx, aim.dy, aim.dz, kMissileFireballCerberus);
 		break;
 	}
 }
@@ -226,11 +226,11 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 	}
 	switch (pSprite->type) {
 	case kDudeCerberusTwoHead:
-		actFireMissile(pSprite, 350, -100, aim.dx, aim.dy, -aim.dz, kMissileFlameHound);
-		actFireMissile(pSprite, -350, 0, ax, ay, az, kMissileFlameHound);
+            actFireMissile(actor, 350, -100, aim.dx, aim.dy, -aim.dz, kMissileFlameHound);
+            actFireMissile(actor, -350, 0, ax, ay, az, kMissileFlameHound);
 		break;
 	case kDudeCerberusOneHead:
-		actFireMissile(pSprite, 350, -100, aim.dx, aim.dy, -aim.dz, kMissileFlameHound);
+            actFireMissile(actor, 350, -100, aim.dx, aim.dy, -aim.dz, kMissileFlameHound);
 		break;
 	}
 }

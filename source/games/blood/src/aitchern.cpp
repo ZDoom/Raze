@@ -128,8 +128,8 @@ void sub_71BD4(int, DBloodActor* actor)
 			}
 		}
 	}
-	actFireMissile(pSprite, -350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
-	actFireMissile(pSprite, 350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
+    actFireMissile(actor, -350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
+    actFireMissile(actor, 350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
 }
 
 void sub_720AC(int, DBloodActor* actor)
@@ -203,8 +203,8 @@ void sub_720AC(int, DBloodActor* actor)
 			}
 		}
 	}
-	actFireMissile(pSprite, 350, 0, aim.dx, aim.dy, -aim.dz, kMissileFireballTchernobog);
-	actFireMissile(pSprite, -350, 0, ax, ay, az, kMissileFireballTchernobog);
+    actFireMissile(actor, 350, 0, aim.dx, aim.dy, -aim.dz, kMissileFireballTchernobog);
+    actFireMissile(actor, -350, 0, ax, ay, az, kMissileFireballTchernobog);
 }
 
 static void sub_72580(DBloodActor* actor)

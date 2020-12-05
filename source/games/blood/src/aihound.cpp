@@ -69,7 +69,7 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 void houndBurnSeqCallback(int, DBloodActor* actor)
 {
 	spritetype* pSprite = &actor->s();
-	actFireMissile(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFlameHound);
+    actFireMissile(actor, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFlameHound);
 }
 
 static void houndThinkSearch(DBloodActor* actor)

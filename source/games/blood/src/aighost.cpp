@@ -172,12 +172,12 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 	// allow fire missile in non-player targets if not a demo
 	if (IsPlayerSprite(pTarget) || gModernMap) {
 		sfxPlay3DSound(actor, 489, 0, 0);
-		actFireMissile(pSprite, 0, 0, aim.dx, aim.dy, aim.dz, kMissileEctoSkull);
+            actFireMissile(actor, 0, 0, aim.dx, aim.dy, aim.dz, kMissileEctoSkull);
 	}
 #else
 	if (IsPlayerSprite(pTarget)) {
 		sfxPlay3DSound(actor, 489, 0, 0);
-		actFireMissile(pSprite, 0, 0, aim.dx, aim.dy, aim.dz, kMissileEctoSkull);
+            actFireMissile(actor, 0, 0, aim.dx, aim.dy, aim.dz, kMissileEctoSkull);
 	}
 #endif
 }

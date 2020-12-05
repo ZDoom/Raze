@@ -5482,6 +5482,7 @@ void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite) {
     spritetype* pSource = &sprite[pXSource->reference];
     if (pSprite == NULL)
         pSprite = pSource;
+    auto actor = &bloodActors[pSprite->index];
 
     if (pXSource->data1 < kMissileBase || pXSource->data1 >= kMissileMax)
         return;
@@ -5497,9 +5498,9 @@ void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite) {
         else if (dz < -0x10000) dz = -0x10000;
     }
 
-    spritetype* pMissile = NULL;
-    if ((pMissile = actFireMissile(pSprite, 0, 0, dx, dy, dz, pXSource->data1)) != NULL) {
-
+    auto missile = actFireMissile(actor, 0, 0, dx, dy, dz, actor->x().data1);
+    if (missile != NULL) {
+        auto pMissile = &missile->s();
         int from; // inherit some properties of the generator
         if ((from = (pSource->flags & kModernTypeFlag3)) > 0) {
 
@@ -7832,7 +7833,7 @@ void callbackUniMissileBurst(int nSprite) // 22
         pBurst->ang = ((pSprite->ang + missileInfo[pSprite->type - kMissileBase].angleOfs) & 2047);
         pBurst->owner = pSprite->owner;
 
-        actBuildMissile(pBurst, pBurst->extra, pSprite->index);
+        actBuildMissile(&bloodActors[pBurst->index], &bloodActors[pSprite->index]);
 
         int nAngle2 = (i << 11) / 8;
         int dx = 0;

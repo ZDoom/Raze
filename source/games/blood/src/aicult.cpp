@@ -99,7 +99,7 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 		dx += Random3((5 - gGameOptions.nDifficulty) * 1000);
 		dy += Random3((5 - gGameOptions.nDifficulty) * 1000);
 		dz += Random3((5 - gGameOptions.nDifficulty) * 500);
-		actFireMissile(pSprite, 0, 0, dx, dy, dz, kMissileTeslaRegular);
+        actFireMissile(actor, 0, 0, dx, dy, dz, kMissileTeslaRegular);
 		sfxPlay3DSound(actor, 470, -1, 0);
 	}
 }

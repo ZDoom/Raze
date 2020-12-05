@@ -288,7 +288,7 @@ void genDudeAttack1(int, DBloodActor* actor)
         // dispersal modifiers here
         dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion >> 1);
 
-        actFireMissile(pSprite, 0, 0, dx, dy, dz, pExtra->curWeapon);
+        actFireMissile(actor, 0, 0, dx, dy, dz, pExtra->curWeapon);
         if (!playGenDudeSound(pSprite, kGenDudeSndAttackNormal))
             sfxPlayMissileSound(pSprite, pExtra->curWeapon);
     }
@@ -1648,6 +1648,7 @@ void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT event)
         actPostSprite(pSprite->index, kStatFree);
         return;
     }
+    auto actor = &bloodActors[pSprite->index];
 
     int nTarget = pXSprite->target_i;
     if (spriRangeIsFine(nTarget) && nTarget != pSprite->owner) {
@@ -1682,10 +1683,10 @@ void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT event)
                 if (!pXSprite->data3) t2 = 120 / 10;
                 else t2 = (3 * 120) / 10;
 
-                spritetype * pMissile = actFireMissile(pSprite, 0, z1, dx, dy, dz, nMissileType);
-                if (pMissile)
+                auto missile = actFireMissile(actor, 0, z1, dx, dy, dz, nMissileType);
+                if (missile)
                 {
-                    pMissile->owner = pSprite->owner;
+                    missile->SetOwner(actor);
                     pXSprite->stateTimer = 1;
                     evPost(pSprite->index, 3, t2, kCallbackLeechStateTimer);
                     pXSprite->data3 = ClipLow(pXSprite->data3 - 1, 0);
