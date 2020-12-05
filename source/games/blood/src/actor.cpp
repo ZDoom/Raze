@@ -2779,7 +2779,7 @@ static DBloodActor* actSpawnFloor(DBloodActor* actor)
 	int y = pSprite->y;
 	updatesector(x, y, &sector);
 	int zFloor = getflorzofslope(sector, x, y);
-	auto* spawned = actSpawnSprite(sector, x, y, zFloor, 3, 0);
+	auto spawned = actSpawnSprite(sector, x, y, zFloor, 3, 0);
 	if (spawned) spawned->s().cstat &= ~257;
 	return spawned;
 }
@@ -6388,42 +6388,40 @@ void actProcessSprites(void)
 //
 //---------------------------------------------------------------------------
 
-spritetype * actSpawnSprite_(int nSector, int x, int y, int z, int nStat, char a6)
+DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool setextra)
 {
     int nSprite = InsertSprite(nSector, nStat);
-    if (nSprite >= 0)
-        sprite[nSprite].extra = -1;
+	if (nSprite >= 0) sprite[nSprite].extra = -1;
     else
     {
-        StatIterator it(kStatPurge);
+		BloodStatIterator it(kStatPurge);
         nSprite = it.NextIndex();
         assert(nSprite >= 0);
         assert(nSector >= 0 && nSector < kMaxSectors);
         ChangeSpriteSect(nSprite, nSector);
         actPostSprite(nSprite, nStat);
     }
+	DBloodActor* actor = &bloodActors[nSprite];
+
     vec3_t pos = { x, y, z };
     setsprite(nSprite, &pos);
-    spritetype *pSprite = &sprite[nSprite];
+	spritetype* pSprite = &actor->s();
     pSprite->type = kSpriteDecoration;
-    if (a6 && pSprite->extra == -1)
+	if (setextra && !actor->hasX())
     {
-        int nXSprite = dbInsertXSprite(nSprite);
-        gSpriteHit[nXSprite].florhit = 0;
-        gSpriteHit[nXSprite].ceilhit = 0;
-        if (!VanillaMode())
-            xsprite[nXSprite].target = -1;
+		actor->addExtra();
+		actor->hit().florhit = 0;
+		actor->hit().ceilhit = 0;
+		if (!VanillaMode()) actor->SetTarget(nullptr);
     }
-    return pSprite;
+	return actor;
 }
 
-DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool a6)
-{
-    auto spr = actSpawnSprite_(nSector, x, y, z, nStat, a6);
-    return &bloodActors[spr->index];
-}
-
-spritetype * actSpawnSprite(spritetype *pSource, int nStat);
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4)
 {
@@ -6520,7 +6518,8 @@ spritetype * actSpawnSprite(spritetype *pSource, int nStat)
 spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
 {
     assert(nThingType >= kThingBase && nThingType < kThingMax);
-    spritetype *pSprite = actSpawnSprite_(nSector, x, y, z, 4, 1);
+	auto actor = actSpawnSprite(nSector, x, y, z, 4, 1);
+	spritetype* pSprite = &actor->s();
     int nType = nThingType-kThingBase;
     int nThing = pSprite->index;
     int nXThing = pSprite->extra;
@@ -6661,7 +6660,8 @@ spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, 
             y = gHitInfo.hity-MulScale(pMissileInfo->clipDist<<1, Sin(pSprite->ang), 28);
         }
     }
-    spritetype *pMissile = actSpawnSprite_(pSprite->sectnum, x, y, z, 5, 1);
+	auto actor = actSpawnSprite(pSprite->sectnum, x, y, z, 5, 1);
+	spritetype* pMissile = &actor->s();
     int nMissile = pMissile->index;
     show2dsprite.Set(nMissile);
     pMissile->type = nType;

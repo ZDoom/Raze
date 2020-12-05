@@ -165,7 +165,8 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
             return NULL;
         destroy(nSprite);
     }
-    spritetype *pSprite = actSpawnSprite_(nSector, x, y, z, 1, 0);
+    auto actor = actSpawnSprite(nSector, x, y, z, 1, 0);
+    spritetype* pSprite = &actor->s();
     pSprite->type = nFx;
     pSprite->picnum = pFX->picnum;
     pSprite->cstat |= pFX->cstat;

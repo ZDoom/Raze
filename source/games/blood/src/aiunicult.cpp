@@ -1593,8 +1593,10 @@ void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT event)
     }
 }
 
-bool doExplosion(spritetype* pSprite, int nType) {
-    spritetype* pExplosion = actSpawnSprite_(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, kStatExplosion, true);
+bool doExplosion(spritetype* pSprite, int nType) 
+{
+    auto actor = actSpawnSprite(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, kStatExplosion, true);
+    spritetype* pExplosion = &actor->s();
     if (pExplosion->extra < 0 || pExplosion->extra >= kMaxXSprites) 
         return false;
 
