@@ -6423,14 +6423,52 @@ DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool se
 //
 //---------------------------------------------------------------------------
 
-spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4)
+DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 {
-    XSPRITE* pXSource = &xsprite[pSource->extra];
-    spritetype *pSprite2 = actSpawnSprite(pSource, kStatDude);
-    if (!pSprite2) return NULL;
-    XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
+	auto pSource = &source->s();
+	int nSprite = InsertSprite(pSource->sectnum, nStat);
+	if (nSprite < 0)
+	{
+		StatIterator it(kStatPurge);
+		nSprite = it.NextIndex();
+		assert(nSprite >= 0);
+		assert(pSource->sectnum >= 0 && pSource->sectnum < kMaxSectors);
+		ChangeSpriteSect(nSprite, pSource->sectnum);
+		actPostSprite(nSprite, nStat);
+	}
+	auto actor = &bloodActors[nSprite];
+
+	spritetype* pSprite = &actor->s();
+	pSprite->x = pSource->x;
+	pSprite->y = pSource->y;
+	pSprite->z = pSource->z;
+	actor->xvel() = source->xvel();
+	actor->yvel() = source->yvel();
+	actor->zvel() = source->zvel();
+	pSprite->flags = 0;
+	actor->addX();
+	actor->hit().florhit = 0;
+	actor->hit().ceilhit = 0;
+	if (!VanillaMode()) actor->SetTarget(nullptr);
+	return actor;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* actSpawnDude(DBloodActor* source, short nType, int a3, int a4)
+{
+	auto pSource = &source->s();
+	XSPRITE* pXSource = &source->x();
+	auto spawned = actSpawnSprite(source, kStatDude);
+	if (!spawned) return NULL;
+	spritetype* pSprite2 = &spawned->s();
+	XSPRITE* pXSprite2 = &spawned->x();
     int angle = pSource->ang;
-    int nDude = nType-kDudeBase;
+	int nDude = nType - kDudeBase;
     int x, y, z;
     z = a4 + pSource->z;
     if (a3 < 0)
@@ -6440,25 +6478,28 @@ spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4)
     }
     else
     {
-        x = pSource->x+mulscale30r(Cos(angle), a3);
-        y = pSource->y+mulscale30r(Sin(angle), a3);
+		x = pSource->x + mulscale30r(Cos(angle), a3);
+		y = pSource->y + mulscale30r(Sin(angle), a3);
     }
     pSprite2->type = nType;
     pSprite2->ang = angle;
     vec3_t pos = { x, y, z };
     setsprite(pSprite2->index, &pos);
     pSprite2->cstat |= 0x1101;
-    pSprite2->clipdist = getDudeInfo(nDude+kDudeBase)->clipdist;
-    pXSprite2->health = getDudeInfo(nDude+kDudeBase)->startHealth<<4;
+	pSprite2->clipdist = getDudeInfo(nDude + kDudeBase)->clipdist;
+	pXSprite2->health = getDudeInfo(nDude + kDudeBase)->startHealth << 4;
     pXSprite2->respawn = 1;
-    if (getSequence(getDudeInfo(nDude+kDudeBase)->seqStartID))
-        seqSpawn(getDudeInfo(nDude+kDudeBase)->seqStartID, 3, pSprite2->extra, -1);
-    
-    #ifdef NOONE_EXTENSIONS
+	if (getSequence(getDudeInfo(nDude + kDudeBase)->seqStartID))
+		seqSpawn(getDudeInfo(nDude + kDudeBase)->seqStartID, spawned, -1);
+
+#ifdef NOONE_EXTENSIONS
     // add a way to inherit some values of spawner type 18 by dude.
     // This way designer can count enemies via switches and do many other interesting things.
-    if (gModernMap && pSource->flags & kModernTypeFlag1) {
-        switch (pSource->type) { // allow inheriting only for selected source types
+	if (gModernMap && pSource->flags & kModernTypeFlag1)
+	{
+		// allow inheriting only for selected source types
+		switch (pSource->type)
+		{
             case kMarkerDudeSpawn:
                 //inherit pal?
                 if (pSprite2->pal <= 0) pSprite2->pal = pSource->pal;
@@ -6481,39 +6522,17 @@ spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4)
                 break;
         }
     }
-    #endif
+#endif
 
     aiInitSprite(pSprite2);
-    return pSprite2;
+	return spawned;
 }
 
-spritetype * actSpawnSprite(spritetype *pSource, int nStat)
-{
-    int nSprite = InsertSprite(pSource->sectnum, nStat);
-    if (nSprite < 0)
-    {
-        StatIterator it(kStatPurge);
-        nSprite = it.NextIndex();
-        assert(nSprite >= 0);
-        assert(pSource->sectnum >= 0 && pSource->sectnum < kMaxSectors);
-        ChangeSpriteSect(nSprite, pSource->sectnum);
-        actPostSprite(nSprite, nStat);
-    }
-    spritetype *pSprite = &sprite[nSprite];
-    pSprite->x = pSource->x;
-    pSprite->y = pSource->y;
-    pSprite->z = pSource->z;
-    xvel[nSprite] = xvel[pSource->index];
-    yvel[nSprite] = yvel[pSource->index];
-    zvel[nSprite] = zvel[pSource->index];
-    pSprite->flags = 0;
-    int nXSprite = dbInsertXSprite(nSprite);
-    gSpriteHit[nXSprite].florhit = 0;
-    gSpriteHit[nXSprite].ceilhit = 0;
-    if (!VanillaMode())
-        xsprite[nXSprite].target = -1;
-    return pSprite;
-}
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
 {

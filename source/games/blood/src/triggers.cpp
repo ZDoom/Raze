@@ -456,8 +456,10 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
 
         break;
     case kMarkerDudeSpawn:
-        if (gGameOptions.nMonsterSettings && pXSprite->data1 >= kDudeBase && pXSprite->data1 < kDudeMax) {
-            spritetype* pSpawn = actSpawnDude(pSprite, pXSprite->data1, -1, 0);
+        if (gGameOptions.nMonsterSettings && pXSprite->data1 >= kDudeBase && pXSprite->data1 < kDudeMax) 
+        {
+            auto actor = &bloodActors[pSprite->index];
+            spritetype* pSpawn = &actSpawnDude(actor, pXSprite->data1, -1, 0)->s();
             if (pSpawn) {
                 XSPRITE *pXSpawn = &xsprite[pSpawn->extra];
                 gKillMgr.AddNewKill(1);

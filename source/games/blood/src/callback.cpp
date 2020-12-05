@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "blood.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -70,12 +71,13 @@ void Remove(int nSprite) // 1
 void FlareBurst(int nSprite) // 2
 {
     assert(nSprite >= 0 && nSprite < kMaxSprites);
+    auto actor = &bloodActors[nSprite];
     spritetype *pSprite = &sprite[nSprite];
     int nAngle = getangle(xvel[nSprite], yvel[nSprite]);
     int nRadius = 0x55555;
     for (int i = 0; i < 8; i++)
     {
-        spritetype *pSpawn = actSpawnSprite(pSprite, 5);
+        spritetype *pSpawn = &actSpawnSprite(actor, 5)->s();
         pSpawn->picnum = 2424;
         pSpawn->shade = -128;
         pSpawn->xrepeat = pSpawn->yrepeat = 32;

@@ -152,19 +152,20 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     
-    spritetype *pSpawn = NULL;
-    if (IsPlayerSprite(pTarget) && pDudeExtraE->xval2 < 10) {
-        
+    DBloodActor* spawned = nullptr;
+    if (IsPlayerSprite(pTarget) && pDudeExtraE->xval2 < 10) 
+    {
         if (nDist < 0x1a00 && nDist > 0x1400 && abs(pSprite->ang-nAngle) < pDudeInfo->periphery)
-            pSpawn = actSpawnDude(pSprite, kDudeSpiderRed, pSprite->clipdist, 0);
+            spawned = actSpawnDude(actor, kDudeSpiderRed, pSprite->clipdist, 0);
         else if (nDist < 0x1400 && nDist > 0xc00 && abs(pSprite->ang-nAngle) < pDudeInfo->periphery)
-            pSpawn = actSpawnDude(pSprite, kDudeSpiderBrown, pSprite->clipdist, 0);
+            spawned = actSpawnDude(actor, kDudeSpiderBrown, pSprite->clipdist, 0);
         else if (nDist < 0xc00 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-            pSpawn = actSpawnDude(pSprite, kDudeSpiderBrown, pSprite->clipdist, 0);
-        
-        if (pSpawn) {
+            spawned = actSpawnDude(actor, kDudeSpiderBrown, pSprite->clipdist, 0);
+
+        if (spawned) 
+        {
             pDudeExtraE->xval2++;
-            pSpawn->owner = pSprite->index;
+            spawned->SetOwner(spawned);
             gKillMgr.AddNewKill(1);
         }
     }
