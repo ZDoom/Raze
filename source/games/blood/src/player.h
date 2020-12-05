@@ -81,6 +81,7 @@ extern POSTURE gPostureDefaults[kModeMax][kPostureMax];
 
 struct PLAYER
 {
+    DBloodActor*        actor();
     spritetype*         pSprite;
     XSPRITE*            pXSprite;
     DUDEINFO*           pDudeInfo;

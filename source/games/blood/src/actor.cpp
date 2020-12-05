@@ -33,9 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static DBloodActor* actDropObject(DBloodActor* actor, int nType);
-
-
 VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].maxDist. What were they thinking... 
 	
 	// Tine
@@ -2894,7 +2891,7 @@ static DBloodActor* actDropFlag(DBloodActor* actor, int nType)
 //
 //---------------------------------------------------------------------------
 
-static DBloodActor* actDropObject(DBloodActor* actor, int nType)
+DBloodActor* actDropObject(DBloodActor* actor, int nType)
 {
 	DBloodActor* act2 = nullptr;
 
@@ -2969,7 +2966,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 						pSprite->pal = 0;
 
 					aiGenDudeNewState(pSprite, &genDudeBurnGoto);
-					actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
+					actHealDude(actor, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
 					if (pXSprite->burnTime <= 0) pXSprite->burnTime = 1200;
 					actor->dudeExtra.time = PlayClock + 360;
 					return true;
@@ -2991,10 +2988,10 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 		aiSetGenIdleState(pSprite, pXSprite); // set idle state
 
 		if (pXSprite->key > 0) // drop keys
-			actDropObject(pSprite, kItemKeyBase + pXSprite->key - 1);
+			actDropObject(actor, kItemKeyBase + pXSprite->key - 1);
 
 		if (pXSprite->dropMsg > 0) // drop items
-			actDropObject(pSprite, pXSprite->dropMsg);
+			actDropObject(actor, pXSprite->dropMsg);
 
 		pSprite->flags &= ~kPhysMove; xvel[pSprite->index] = yvel[pSprite->index] = 0;
 
@@ -5076,14 +5073,14 @@ void MoveDude(DBloodActor* actor)
 				{
 				case kDudeCultistTommy:
 				case kDudeCultistShotgun:
-					aiNewState(&bloodActors[pXSprite->reference], &cultistGoto);
+						aiNewState(actor, &cultistGoto);
 					break;
 				case kDudeGillBeast:
-					aiNewState(&bloodActors[pXSprite->reference], &gillBeastGoto);
+						aiNewState(actor, &gillBeastGoto);
 					pSprite->flags |= 6;
 					break;
 				case kDudeBoneEel:
-					actKillDude(pSprite->index, pSprite, kDamageFall, 1000 << 4);
+						actKillDude(actor, actor, kDamageFall, 1000 << 4);
 					break;
 				}
 
@@ -5176,7 +5173,7 @@ void MoveDude(DBloodActor* actor)
 				case kDudeBat:
 				case kDudeRat:
 				case kDudeBurningInnocent:
-					actKillDude(pSprite->index, pSprite, kDamageFall, 1000 << 4);
+					actKillDude(actor, actor, kDamageFall, 1000 << 4);
 					break;
 				}
 
@@ -5667,7 +5664,7 @@ void actActivateGibObject(DBloodActor* actor)
 	if (gib2 > 0) GibSprite(pSprite, (GIBTYPE)(gib2 - 1), nullptr, nullptr);
 	if (gib3 > 0 && pXSprite->burnTime > 0) GibSprite(pSprite, (GIBTYPE)(gib3 - 1), nullptr, nullptr);
 	if (sound > 0) sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, sound, pSprite->sectnum);
-	if (dropmsg > 0) actDropObject(pSprite, dropmsg);
+	if (dropmsg > 0) actDropObject(actor, dropmsg);
 
 	if (!(pSprite->cstat & 32768) && !(pSprite->flags & kHitagRespawn))
 		actPostSprite(actor, kStatFree);
@@ -7414,22 +7411,6 @@ void SerializeActor(FSerializer& arc)
 					dudeInfo[i].damageVal[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j], 8);
 		}
 	}
-}
-
-spritetype* actDropObject(spritetype* pSprite, int nType)
-{
-    auto act = actDropObject(&bloodActors[pSprite->index], nType);
-    return act ? &act->s() : nullptr;
-}
-
-bool actHealDude(XSPRITE* pXDude, int a2, int a3)
-{
-    return actHealDude(&bloodActors[pXDude->reference], a2, a3);
-}
-
-void actKillDude(int a1, spritetype* pSprite, DAMAGE_TYPE a3, int a4)
-{
-    actKillDude(&bloodActors[a1], &bloodActors[pSprite->index], a3, a4);
 }
 
 int actDamageSprite(int nSource, spritetype* pSprite, DAMAGE_TYPE damageType, int damage)

@@ -486,7 +486,7 @@ void packUseItem(PLAYER *pPlayer, int nPack)
             if (health < 100)
             {
                 int heal = ClipHigh(100-health, pPlayer->packSlots[0].curAmount);
-                actHealDude(pXSprite, heal, 100);
+                actHealDude(pPlayer->actor(), heal, 100);
                 pPlayer->packSlots[0].curAmount -= heal;
             }
             break;
@@ -1078,7 +1078,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                 addPower = xsprite[sprite[pItem->index].extra].data1;
             #endif
         
-            if (!actHealDude(pXSprite, addPower, gPowerUpInfo[nType].maxTime)) return 0;
+            if (!actHealDude(pPlayer->actor(), addPower, gPowerUpInfo[nType].maxTime)) return 0;
             return 1;
         }
         case kItemHealthDoctorBag:
@@ -1903,13 +1903,14 @@ int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
 
 spritetype *flagDropped(PLAYER *pPlayer, int a2)
 {
+    auto actor = &bloodActors[pPlayer->pSprite->index];
     char buffer[80];
     spritetype *pSprite = NULL;
     switch (a2)
     {
     case kItemFlagA:
         pPlayer->hasFlag &= ~1;
-        pSprite = actDropObject(pPlayer->pSprite, kItemFlagA);
+        pSprite = &actDropObject(actor, kItemFlagA)->s();
         if (pSprite)
             pSprite->owner = pPlayer->used2[0];
         gBlueFlagDropped = true;
@@ -1919,7 +1920,7 @@ spritetype *flagDropped(PLAYER *pPlayer, int a2)
         break;
     case kItemFlagB:
         pPlayer->hasFlag &= ~2;
-        pSprite = actDropObject(pPlayer->pSprite, kItemFlagB);
+        pSprite = &actDropObject(actor, kItemFlagB)->s();
         if (pSprite)
             pSprite->owner = pPlayer->used2[1];
         gRedFlagDropped = true;
@@ -2165,7 +2166,7 @@ void PlayerSurvive(int, DBloodActor* actor)
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
     char buffer[80];
-    actHealDude(pXSprite, 1, 2);
+    actHealDude(actor, 1, 2);
     if (gGameOptions.nGameType > 0 && numplayers > 1)
     {
         sfxPlay3DSound(pSprite, 3009, 0, 6);
