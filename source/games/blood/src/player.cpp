@@ -1570,7 +1570,9 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->handTime = ClipLow(pPlayer->handTime-4*(6-gGameOptions.nDifficulty), 0);
         if (pPlayer->handTime <= 0 && pPlayer->hand)
         {
-            spritetype *pSprite2 = actSpawnDude(pPlayer->pSprite, kDudeHand, pPlayer->pSprite->clipdist<<1, 0);
+            auto pactor = &bloodActors[pPlayer->pSprite->index];
+            auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->pSprite->clipdist<<1, 0);
+            spritetype* pSprite2 = &spawned->s();
             pSprite2->ang = (pPlayer->pSprite->ang+1024)&2047;
             int nSprite = pPlayer->pSprite->index;
             int x = CosScale16(pPlayer->pSprite->ang);

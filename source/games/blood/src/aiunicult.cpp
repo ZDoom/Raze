@@ -232,9 +232,12 @@ void genDudeAttack1(int, DBloodActor* actor)
             
     } else if (pExtra->weaponType == kGenDudeWeaponSummon) {
 
-        spritetype* pSpawned = NULL; int dist = pSprite->clipdist << 4; 
+        DBloodActor* spawned = nullptr;
+        int dist = pSprite->clipdist << 4; 
         if (pExtra->slaveCount <= gGameOptions.nDifficulty) {
-            if ((pSpawned = actSpawnDude(pSprite, pExtra->curWeapon, dist + Random(dist), 0)) != NULL) {
+            if ((spawned = actSpawnDude(actor, pExtra->curWeapon, dist + Random(dist), 0)) != NULL) 
+            {
+                spritetype* pSpawned = &spawned->s();
                 pSpawned->owner = pSprite->index;
 
                 if (xspriRangeIsFine(pSpawned->extra)) {
@@ -1630,8 +1633,11 @@ bool doExplosion(spritetype* pSprite, int nType)
 // so custom dude can have different weapons, hp and so on...
 spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist) {
 
-    spritetype* pSource = &sprite[pXSource->reference]; 
-    spritetype* pDude = actSpawnSprite(pSprite, kStatDude); XSPRITE* pXDude = &xsprite[pDude->extra];
+    DBloodActor* actor = &bloodActors[pSprite->index];
+    spritetype* pSource = &sprite[pXSource->reference];
+    auto spawned = actSpawnSprite(actor, kStatDude); 
+    spritetype* pDude = &spawned->s();
+    XSPRITE* pXDude = &spawned->x();
 
     int x, y, z = pSprite->z, nAngle = pSprite->ang, nType = kDudeModernCustom;
 

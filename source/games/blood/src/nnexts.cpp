@@ -271,12 +271,13 @@ void nnExResetPatrolBonkles() {
 spritetype* nnExtSpawnDude(XSPRITE* pXSource, spritetype* pSprite, short nType, int a3, int a4)
 {
 
-    spritetype* pDude = NULL;
+    DBloodActor* pDudeActor = nullptr;
     spritetype* pSource = &sprite[pXSource->reference];
-    if (nType < kDudeBase || nType >= kDudeMax || (pDude = actSpawnSprite(pSprite, kStatDude)) == NULL)
+    if (nType < kDudeBase || nType >= kDudeMax || (pDudeActor = actSpawnSprite(&bloodActors[pSprite->index], kStatDude)) == NULL)
         return NULL;
 
-    XSPRITE* pXDude = &xsprite[pDude->extra];
+    spritetype* pDude = &pDudeActor->s();
+    XSPRITE* pXDude = &pDudeActor->x();
 
     int angle = pSprite->ang;
     int x, y, z = a4 + pSprite->z;
@@ -970,16 +971,12 @@ spritetype* randomDropPickupObject(spritetype* pSource, short prevItem) {
 }
 
 // this function spawns random dude using dudeSpawn
-spritetype* randomSpawnDude(XSPRITE* pXSource, spritetype* pSprite, int a3, int a4) {
-    
+spritetype* randomSpawnDude(XSPRITE* pXSource, spritetype* pSprite, int a3, int a4)
+{
     spritetype* pSprite2 = NULL; int selected = -1;
-    spritetype* pSource = &sprite[pXSource->reference];
     
-    if (xspriRangeIsFine(pSource->extra)) {
-        XSPRITE* pXSource = &xsprite[pSource->extra];
-        if ((selected = randomGetDataValue(pXSource, kRandomizeDude)) > 0)
-            pSprite2 = nnExtSpawnDude(pXSource, pSprite, selected, a3, 0);
-    }
+    if ((selected = randomGetDataValue(pXSource, kRandomizeDude)) > 0)
+        pSprite2 = nnExtSpawnDude(pXSource, pSprite, selected, a3, 0);
 
     return pSprite2;
 }
@@ -7787,6 +7784,7 @@ void levelEndLevelCustom(int nLevel) {
 
 void callbackUniMissileBurst(int nSprite) // 22
 {
+    auto actor = &bloodActors[nSprite];
     assert(nSprite >= 0 && nSprite < kMaxSprites);
     if (sprite[nSprite].statnum != kStatProjectile) return;
     spritetype* pSprite = &sprite[nSprite];
@@ -7795,7 +7793,7 @@ void callbackUniMissileBurst(int nSprite) // 22
 
     for (int i = 0; i < 8; i++)
     {
-        spritetype* pBurst = actSpawnSprite(pSprite, 5);
+        spritetype* pBurst = &actSpawnSprite(actor, 5)->s();
 
         pBurst->type = pSprite->type;
         pBurst->shade = pSprite->shade;
