@@ -62,4 +62,12 @@ void ambProcess(void);
 void ambKillAll(void);
 void ambInit(void);
 
+enum EPlayFlags
+{
+    FX_GlobalChannel = 1,
+    FX_SoundMatch = 2,
+    FX_ChannelMatch = 4,
+};
+
+
 END_BLD_NS

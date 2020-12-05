@@ -495,7 +495,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
     case kThingArmedTNTStick:
     case kThingArmedTNTBundle:
     case kThingArmedSpray:
-        actExplodeSprite(pSprite);
+        actExplodeSprite(&bloodActors[pSprite->index]);
         break;
     case kTrapExploder:
         switch (event.cmd) {
@@ -504,13 +504,13 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 break;
             default:
                 pSprite->cstat &= (unsigned short)~CSTAT_SPRITE_INVISIBLE;
-                actExplodeSprite(pSprite);
+                actExplodeSprite(&bloodActors[pSprite->index]);
                 break;
         }
         break;
     case kThingArmedRemoteBomb:
         if (pSprite->statnum != kStatRespawn) {
-            if (event.cmd != kCmdOn) actExplodeSprite(pSprite);
+            if (event.cmd != kCmdOn) actExplodeSprite(&bloodActors[pSprite->index]);
             else {
                 sfxPlay3DSound(pSprite, 454, 0, 0);
                 evPost(nSprite, 3, 18, kCmdOff);
@@ -531,7 +531,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                     pXSprite->Proximity = 1;
                     break;
                 default:
-                    actExplodeSprite(pSprite);
+                    actExplodeSprite(&bloodActors[pSprite->index]);
                     break;
             }
         }

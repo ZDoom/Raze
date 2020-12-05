@@ -169,14 +169,7 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
     if (chan) chan->UserData = nSector;
 }
 
-enum EPlayFlags
-{
-    FX_GlobalChannel = 1,
-    FX_SoundMatch = 2,
-    FX_ChannelMatch = 4,
-};
-
-void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitch, int volume)
+void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int playchannel, int playflags, int pitch, int volume)
 {
     if (!SoundEnabled() || soundId < 0 || !pSprite) return;
     auto sid = soundEngine->FindSoundByResID(soundId);
@@ -188,17 +181,17 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
     sid = getSfx(sid, attenuation, pitch, volume);
     if (volume == -1) volume = 80;
 
-    if (a3 >= 0)
+    if (playchannel >= 0)
     {
-        a3++;   // This is to make 0 a valid channel value.
+        playchannel++;   // This is to make 0 a valid channel value.
         if (soundEngine->EnumerateChannels([=](FSoundChan* chan) -> int
             {
                 if (chan->SourceType != SOURCE_Actor) return false; // other source types are not our business.
-                if (chan->EntChannel == a3 && (chan->Source == pSprite || (a4 & FX_GlobalChannel) != 0))
+                if (chan->EntChannel == playchannel && (chan->Source == pSprite || (playflags & FX_GlobalChannel) != 0))
                 {
-                    if ((a4 & FX_ChannelMatch) != 0 && chan->EntChannel == a3)
+                    if ((playflags & FX_ChannelMatch) != 0 && chan->EntChannel == playchannel)
                         return true;
-                    if ((a4 & FX_SoundMatch) != 0 && chan->OrgID == sid)
+                    if ((playflags & FX_SoundMatch) != 0 && chan->OrgID == sid)
                         return true;
                     soundEngine->StopChannel(chan);
                     return -1;
@@ -209,10 +202,10 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
     }
 
     auto sfx = soundEngine->GetSfx(sid);
-    EChanFlags flags = a3 == -1 ? CHANF_OVERLAP : CHANF_NONE;
+    EChanFlags flags = playchannel == -1 ? CHANF_OVERLAP : CHANF_NONE;
     if (sfx && sfx->LoopStart >= 0) flags |= CHANF_LOOP;
 
-    soundEngine->StartSound(SOURCE_Actor, pSprite, &svec, a3, flags, sid, volume * (0.8f / 80.f), attenuation, nullptr, pitch / 65536.f);
+    soundEngine->StartSound(SOURCE_Actor, pSprite, &svec, playchannel, flags, sid, volume * (0.8f / 80.f), attenuation, nullptr, pitch / 65536.f);
 }
 
 void sfxPlay3DSound(spritetype* pSprite, int soundId, int a3, int a4)

@@ -5042,7 +5042,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     pXSprite->Proximity = 1;
                     break;
                 default:
-                    actExplodeSprite(pSprite);
+                    actExplodeSprite(&bloodActors[pSprite->index]);
                     break;
                 }
             }
