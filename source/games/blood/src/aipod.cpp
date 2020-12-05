@@ -86,7 +86,7 @@ void podAttack(int, DBloodActor* actor)
     y += Random2(1000);
     int nDist = approxDist(x, y);
     int nDist2 = nDist / 540;
-    spritetype *pMissile = NULL;
+    DBloodActor* pMissile = nullptr;
     switch (pSprite->type)
     {
     case kDudePodGreen:
@@ -97,20 +97,20 @@ void podAttack(int, DBloodActor* actor)
                 sfxPlay3DSound(pSprite, 2474, -1, 0);
             else
                 sfxPlay3DSound(pSprite, 2475, -1, 0);
-            pMissile = actFireThing_(pSprite, 0, -8000, dz/128-14500, kThingPodGreenBall, (nDist2<<23)/120);
+            pMissile = actFireThing(actor, 0, -8000, dz/128-14500, kThingPodGreenBall, (nDist2<<23)/120);
         }
         if (pMissile)
-            seqSpawn(68, 3, pMissile->extra, -1);
+            seqSpawn(68, pMissile, -1);
         break;
     case kDudePodFire:
         dz += 8000;
         if (pDudeInfo->seeDist*0.1 < nDist)
         {
             sfxPlay3DSound(pSprite, 2454, -1, 0);
-            pMissile = actFireThing_(pSprite, 0, -8000, dz/128-14500, kThingPodFireBall, (nDist2<<23)/120);
+            pMissile = actFireThing(actor, 0, -8000, dz/128-14500, kThingPodFireBall, (nDist2<<23)/120);
         }
         if (pMissile)
-            seqSpawn(22, 3, pMissile->extra, -1);
+            seqSpawn(22, actor, -1);
         break;
     }
     for (int i = 0; i < 4; i++)

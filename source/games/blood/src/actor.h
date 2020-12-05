@@ -235,7 +235,7 @@ void actProcessSprites(void);
 DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool a6);
 DBloodActor* actSpawnDude(DBloodActor* pSource, short nType, int a3, int a4);
 DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat);
-spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType);
+DBloodActor * actSpawnThing(int nSector, int x, int y, int z, int nThingType);
 spritetype * actFireThing_(spritetype *pSprite, int a2, int a3, int a4, int thingType, int a6);
 DBloodActor* actFireThing(DBloodActor* pSprite, int a2, int a3, int a4, int thingType, int a6);
 

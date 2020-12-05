@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 
 #include "blood.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -381,7 +382,7 @@ void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVe
         getzsofslope(nSector, x, y, &ceilZ, &floorZ);
         int dz1 = floorZ-z;
         int dz2 = z-ceilZ;
-        spritetype *pGib = actSpawnThing(nSector, x, y, z, pGThing->type);
+        spritetype *pGib = &actSpawnThing(nSector, x, y, z, pGThing->type)->s();
         assert(pGib != NULL);
         if (pGThing->Kills > -1)
             pGib->picnum = pGThing->Kills;

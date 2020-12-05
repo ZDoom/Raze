@@ -146,11 +146,11 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
     int nDist2 = nDist / 540;
     if (nDist > 0x1e00)
         v4 = 0;
-    spritetype *pMissile = actFireThing_(pSprite, 0, 0, dz/128-14500, nMissile, (nDist2<<23)/120);
+    auto* pMissile = actFireThing(actor, 0, 0, dz/128-14500, nMissile, (nDist2<<23)/120);
     if (v4)
-        xsprite[pMissile->extra].Impact = 1;
+        pMissile->x().Impact = 1;
     else
-        evPost(pMissile->index, 3, 120*(1+Random(2)), kCmdOn);
+        evPost(actor, 120*(1+Random(2)), kCmdOn);
 }
 
 void sub_68170(int, DBloodActor* actor)
@@ -161,8 +161,8 @@ void sub_68170(int, DBloodActor* actor)
     if (gGameOptions.nDifficulty > 2)
         nMissile = kThingArmedTNTBundle;
     sfxPlay3DSound(pSprite, 455, -1, 0);
-    spritetype* pMissile = actFireThing_(pSprite, 0, 0, actor->dudeSlope - 9460, nMissile, 0x133333);
-    evPost(pMissile->index, 3, 120*(2+Random(2)), kCmdOn);
+    auto pMissile = actFireThing(actor, 0, 0, actor->dudeSlope - 9460, nMissile, 0x133333);
+    evPost(actor, 120*(2+Random(2)), kCmdOn);
 }
 
 void sub_68230(int, DBloodActor* actor)
@@ -181,8 +181,8 @@ void sub_68230(int, DBloodActor* actor)
     int dz = pTarget->z - pSprite->z;
     int nDist = approxDist(dx, dy);
     int nDist2 = nDist / 540;
-    spritetype *pMissile = actFireThing_(pSprite, 0, 0, dz/128-14500, nMissile, (nDist2<<17)/120);
-    xsprite[pMissile->extra].Impact = 1;
+    auto pMissile = actFireThing(actor, 0, 0, dz/128-14500, nMissile, (nDist2<<17)/120);
+    pMissile->x().Impact = 1;
 }
 
 static char TargetNearExplosion(spritetype *pSprite)

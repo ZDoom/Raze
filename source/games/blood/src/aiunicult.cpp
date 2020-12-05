@@ -315,9 +315,11 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             break;
     }
 
-    spritetype* pThing = NULL;
-    if ((pThing = actFireThing_(pSprite, 0, 0, (dz / 128) - zThrow, curWeapon, DivScale(dist / 540, 120, 23))) == NULL) return;
-    else if (pThinkInfo->picnum < 0 && pThing->type != kModernThingThrowableRock) pThing->picnum = 0;
+    DBloodActor* spawned = nullptr;
+    if ((spawned = actFireThing(actor, 0, 0, (dz / 128) - zThrow, curWeapon, DivScale(dist / 540, 120, 23))) == nullptr) return;
+            
+    spritetype* pThing = &spawned->s();
+    if (pThinkInfo->picnum < 0 && pThing->type != kModernThingThrowableRock) pThing->picnum = 0;
             
     pThing->owner = pSprite->index;
             
