@@ -991,14 +991,14 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                                 pSprite->pal = 0;
 
                             aiGenDudeNewState(pSprite, &genDudeBurnGoto);
-                            actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
+                            actHealDude(actor, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
                             actor->dudeExtra.time = PlayClock + 360;
                             evKill(nSprite, 3, kCallbackFXFlameLick);
 
                         }
 
                     } else {
-                        actKillDude(nSource, pSprite, kDamageFall, 65535);
+                        actKillDude(actor, actor, kDamageFall, 65535);
                     }
 
                 } else if (canWalk(pSprite) && !inDodge(pXSprite->aiState) && !inRecoil(pXSprite->aiState)) {
@@ -1056,7 +1056,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
                 aiPlay3DSound(pSprite, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
                 actor->dudeExtra.time = PlayClock+360;
-                actHealDude(pXSprite, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
+                actHealDude(actor, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
             break;
@@ -1067,7 +1067,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 aiNewState(actor, &cultistBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
                 actor->dudeExtra.time = PlayClock+360;
-                actHealDude(pXSprite, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
+                actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
             break;
@@ -1103,7 +1103,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 aiPlay3DSound(pSprite, 1202, AI_SFX_PRIORITY_2, -1);
                 pSprite->type = kDudeBurningZombieButcher;
                 aiNewState(actor, &zombieFBurnGoto);
-                actHealDude(pXSprite, dudeInfo[42].startHealth, dudeInfo[42].startHealth);
+                actHealDude(actor, dudeInfo[42].startHealth, dudeInfo[42].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
             break;
@@ -1122,7 +1122,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 }
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
                 actor->dudeExtra.time = PlayClock+360;
-                actHealDude(pXSprite, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
+                actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
             break;
@@ -1132,7 +1132,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 pSprite->type = kDudeBeast;
                 aiPlay3DSound(pSprite, 9008, AI_SFX_PRIORITY_1, -1);
                 aiNewState(actor, &beastMorphFromCultist);
-                actHealDude(pXSprite, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
+                actHealDude(actor, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
             }
             break;
         case kDudeZombieAxeNormal:
@@ -1143,7 +1143,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 aiPlay3DSound(pSprite, 1106, AI_SFX_PRIORITY_2, -1);
                 pSprite->type = kDudeBurningZombieAxe;
                 aiNewState(actor, &zombieABurnGoto);
-                actHealDude(pXSprite, dudeInfo[41].startHealth, dudeInfo[41].startHealth);
+                actHealDude(actor, dudeInfo[41].startHealth, dudeInfo[41].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
             break;

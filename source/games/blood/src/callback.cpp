@@ -602,6 +602,7 @@ void sub_76A08(spritetype *pSprite, spritetype *pSprite2, PLAYER *pPlayer) // ??
 
 void DropVoodooCb(int nSprite) // unused
 {
+    auto actor = &bloodActors[nSprite];
     spritetype *pSprite = &sprite[nSprite];
     int nOwner = pSprite->owner;
     if (nOwner < 0 || nOwner >= kMaxSprites)
@@ -637,6 +638,7 @@ void DropVoodooCb(int nSprite) // unused
             int nNextSprite = it.PeekIndex();
             if (nOwner == nSprite2)
                 continue;
+            auto actor2 = &bloodActors[nSprite2];
             spritetype *pSprite2 = &sprite[nSprite2];
             int nXSprite2 = pSprite2->extra;
             if (nXSprite2 > 0 && nXSprite2 < kMaxXSprites)
@@ -660,7 +662,7 @@ void DropVoodooCb(int nSprite) // unused
                             t += ((3200-pPlayer2->armor[2])<<15)/3200;
                         if (Chance(t) || nNextSprite < 0)
                         {
-                            int nDmg = actDamageSprite(nOwner, pSprite2, kDamageSpirit, pXSprite->data1<<4);
+                            int nDmg = actDamageSprite(actor, actor2, kDamageSpirit, pXSprite->data1<<4);
                             pXSprite->data1 = ClipLow(pXSprite->data1-nDmg, 0);
                             sub_76A08(pSprite2, pSprite, pPlayer2);
                             evPost(nSprite, 3, 0, kCallbackRemove);

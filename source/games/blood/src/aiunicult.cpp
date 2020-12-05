@@ -656,7 +656,7 @@ static void unicultThinkChase(DBloodActor* actor)
                 if (CheckProximity(pSprite, pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pExpl->radius >> 1)) {
                     xvel[pSprite->index] = zvel[pSprite->index] = yvel[pSprite->index] = 0;
                     if (doExplosion(pSprite, nType) && pXSprite->health > 0)
-                            actDamageSprite(pSprite->index, pSprite, kDamageExplode, 65535);
+                            actDamageSprite(&bloodActors[pSprite->index], &bloodActors[pSprite->index], kDamageExplode, 65535);
                 }
                 return;
                 }
@@ -1228,7 +1228,7 @@ void removeDudeStuff(spritetype* pSprite) {
     while ((nSprite = it.NextIndex()) >= 0)
     {
         if (sprite[nSprite].owner != pSprite->index) continue;
-        actDamageSprite(sprite[nSprite].owner, &sprite[nSprite], (DAMAGE_TYPE) 0, 65535);
+        actDamageSprite(&bloodActors[sprite[nSprite].owner], &bloodActors[nSprite], (DAMAGE_TYPE) 0, 65535);
     }
 }
     
@@ -1259,7 +1259,7 @@ void removeLeech(spritetype* pLeech, bool delSprite) {
     
 void killDudeLeech(spritetype* pLeech) {
     if (pLeech != NULL) {
-        actDamageSprite(pLeech->owner, pLeech, kDamageExplode, 65535);
+        actDamageSprite(&bloodActors[pLeech->owner], &bloodActors[pLeech->index], kDamageExplode, 65535);
         sfxPlay3DSoundCP(pLeech, 522, -1, 0, 60000);
 
         if (pLeech->owner >= 0 && pLeech->owner < kMaxSprites)

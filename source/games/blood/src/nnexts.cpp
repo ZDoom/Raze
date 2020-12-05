@@ -936,14 +936,19 @@ int randomGetDataValue(XSPRITE* pXSprite, int randType) {
 }
 
 // this function drops random item using random pickup generator(s)
-spritetype* randomDropPickupObject(spritetype* pSource, short prevItem) {
+spritetype* randomDropPickupObject(spritetype* pSource, short prevItem) 
+{
+    auto actor = &bloodActors[pSource->index];
+
     spritetype* pSprite2 = NULL; int selected = -1; int maxRetries = 9;
     if (xspriRangeIsFine(pSource->extra)) {
         XSPRITE* pXSource = &xsprite[pSource->extra];
         while ((selected = randomGetDataValue(pXSource, kRandomizeItem)) == prevItem) if (maxRetries-- <= 0) break;
-        if (selected > 0) {
-            pSprite2 = actDropObject(pSource, selected);
-            if (pSprite2 != NULL) {
+        if (selected > 0) 
+        {
+            DBloodActor* spawned = actDropObject(actor, selected);
+            if (spawned) {
+                pSprite2 = &spawned->s();
 
                 pXSource->dropMsg = uint8_t(pSprite2->type); // store dropped item type in dropMsg
                 pSprite2->x = pSource->x;
@@ -3006,7 +3011,7 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite) {
 
     if (dmgType >= kDmgFall) {
         if (dmg < (int)pXSprite->health << 4) {
-            
+
             if (!nnExtIsImmune(pSprite, dmgType, 0)) {
 
                 if (pPlayer) {
@@ -3016,24 +3021,25 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite) {
                     actDamageSprite(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
                     for (int i = 0; i < 3; pPlayer->armor[i] = armor[i], i++);
 
-                } else {
+                }
+                else {
 
                     actDamageSprite(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
 
                 }
 
-            } else {
-                
-                Printf(PRINT_HIGH, "Dude type %d is immune to damage type %d!", pSprite->type, dmgType);
-            
             }
+            else {
+
+                Printf(PRINT_HIGH, "Dude type %d is immune to damage type %d!", pSprite->type, dmgType);
 
         }
-        else if (!pPlayer) actKillDude(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
+        }
+        else if (!pPlayer) actKillDude(&bloodActors[pSource->index], &bloodActors[pSprite->index], (DAMAGE_TYPE)dmgType, dmg);
         else playerDamageSprite(&bloodActors[pSource->index], pPlayer, (DAMAGE_TYPE)dmgType, dmg);
     }
     else if ((pXSprite->health = ClipLow(health, 1)) > 16);
-    else if (!pPlayer) actKillDude(pSource->index, pSprite, kDamageBullet, dmg);
+    else if (!pPlayer) actKillDude(&bloodActors[pSource->index], &bloodActors[pSprite->index], kDamageBullet, dmg);
     else playerDamageSprite(&bloodActors[pSource->index], pPlayer, kDamageBullet, dmg);
 
     if (pXSprite->health > 0) {
@@ -5061,7 +5067,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                         
                 switch (cmd) {
                     case 36:
-                        actHealDude(pPlayer->pXSprite, ((pXSprite->data2 > 0) ? ClipHigh(pXSprite->data2, 200) : getDudeInfo(pPlayer->pSprite->type)->startHealth), 200);
+                        actHealDude(pPlayer->actor(), ((pXSprite->data2 > 0) ? ClipHigh(pXSprite->data2, 200) : getDudeInfo(pPlayer->pSprite->type)->startHealth), 200);
                         pPlayer->curWeapon = kWeapPitchFork;
                         break;
                 }
@@ -5874,7 +5880,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                     
                     // heal dude a bit in case of friendly fire
                     int startHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
-                    if (pXSprite->health < (unsigned)startHp) actHealDude(pXSprite, receiveHp, startHp);
+                    if (pXSprite->health < (unsigned)startHp) actHealDude(&bloodActors[pXSprite->reference], receiveHp, startHp);
                 } else if (xsprite[pBurnSource->extra].health <= 0) {
                     pXSprite->burnTime = 0;
                 }
@@ -5934,11 +5940,11 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
 
             // heal dude
             int startHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
-            if (pXSprite->health < (unsigned)startHp) actHealDude(pXSprite, receiveHp, startHp);
+            if (pXSprite->health < (unsigned)startHp) actHealDude(&bloodActors[pXSprite->reference], receiveHp, startHp);
 
             // heal mate
             startHp = (pXMate->sysData2 > 0) ? ClipRange(pXMate->sysData2 << 4, 1, 65535) : getDudeInfo(pMate->type)->startHealth << 4;
-            if (pXMate->health < (unsigned)startHp) actHealDude(pXMate, receiveHp, startHp);
+            if (pXMate->health < (unsigned)startHp) actHealDude(&bloodActors[pXMate->reference], receiveHp, startHp);
 
             if (pXMate->target > -1 && sprite[pXMate->target].extra >= 0) {
                 pTarget = &sprite[pXMate->target];

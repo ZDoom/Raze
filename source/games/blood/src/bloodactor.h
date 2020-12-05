@@ -208,6 +208,11 @@ inline void PLAYER::setFragger(DBloodActor* actor)
 	fraggerId = actor == nullptr ? -1 : actor->s().index;
 }
 
+inline DBloodActor* PLAYER::actor()
+{
+	return &bloodActors[pSprite->index];
+}
+
 
 // Wrapper around the insane collision info mess from Build.
 struct Collision

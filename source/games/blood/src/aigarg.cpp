@@ -535,19 +535,17 @@ static void gargThinkChase(DBloodActor* actor)
 
 static void entryFStatue(DBloodActor* actor)
 {
-    auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
     DUDEINFO *pDudeInfo = &dudeInfo[6];
-    actHealDude(pXSprite, pDudeInfo->startHealth, pDudeInfo->startHealth);
+    actHealDude(actor, pDudeInfo->startHealth, pDudeInfo->startHealth);
     pSprite->type = kDudeGargoyleFlesh;
 }
 
 static void entrySStatue(DBloodActor* actor)
 {
-    auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
     DUDEINFO *pDudeInfo = &dudeInfo[7];
-    actHealDude(pXSprite, pDudeInfo->startHealth, pDudeInfo->startHealth);
+    actHealDude(actor, pDudeInfo->startHealth, pDudeInfo->startHealth);
     pSprite->type = kDudeGargoyleStone;
 }
 
