@@ -4835,24 +4835,24 @@ int MoveThing(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void MoveDude(DBloodActor *actor)
+void MoveDude(DBloodActor* actor)
 {
 	auto const pSprite = &actor->s();
 	auto const pXSprite = &actor->x();
-    PLAYER *pPlayer = nullptr;
-    if (actor->IsPlayerActor()) pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) 
+	PLAYER* pPlayer = nullptr;
+	if (actor->IsPlayerActor()) pPlayer = &gPlayer[pSprite->type - kDudePlayer1];
+	if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
 	{
         Printf(PRINT_HIGH, "%d: pSprite->type >= kDudeBase && pSprite->type < kDudeMax", pSprite->type);
         return;
     }
 
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
     int top, bottom;
     GetActorExtents(actor, &top, &bottom);
-    int bz = (bottom-pSprite->z)/4;
-    int tz = (pSprite->z-top)/4;
-    int wd = pSprite->clipdist<<2;
+	int bz = (bottom - pSprite->z) / 4;
+	int tz = (pSprite->z - top) / 4;
+	int wd = pSprite->clipdist << 2;
     int nSector = pSprite->sectnum;
     int nAiStateType = (pXSprite->aiState) ? pXSprite->aiState->stateType : -1;
 
@@ -4862,8 +4862,8 @@ void MoveDude(DBloodActor *actor)
     {
         if (pPlayer && gNoClip)
         {
-            pSprite->x += actor->xvel()>>12;
-            pSprite->y += actor->yvel()>>12;
+			pSprite->x += actor->xvel() >> 12;
+			pSprite->y += actor->yvel() >> 12;
             if (!FindSector(pSprite->x, pSprite->y, &nSector))
                 nSector = pSprite->sectnum;
         }
@@ -4871,12 +4871,12 @@ void MoveDude(DBloodActor *actor)
         {
             short bakCstat = pSprite->cstat;
             pSprite->cstat &= ~257;
-            actor->hit().hit = ClipMove(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, actor->xvel()>>12, actor->yvel()>>12, wd, tz, bz, CLIPMASK0);
+			actor->hit().hit = ClipMove(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, actor->xvel() >> 12, actor->yvel() >> 12, wd, tz, bz, CLIPMASK0);
             if (nSector == -1)
             {
                 nSector = pSprite->sectnum;
                 if (pSprite->statnum == kStatDude || pSprite->statnum == kStatThing)
-                    actDamageSprite(pSprite->index, pSprite, kDamageFall, 1000<<4);
+					actDamageSprite(pSprite->index, pSprite, kDamageFall, 1000 << 4);
             }
 
             if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate)
@@ -4891,7 +4891,7 @@ void MoveDude(DBloodActor *actor)
             pSprite->cstat = bakCstat;
         }
 		Collision coll = actor->hit().hit;
-        switch (actor->hit().hit&0xc000)
+		switch (actor->hit().hit & 0xc000)
         {
         case kHitSprite:
         {
@@ -4900,20 +4900,20 @@ void MoveDude(DBloodActor *actor)
 
 			auto Owner = coll.actor->GetOwner();
 
-            if (pHitSprite->statnum == kStatProjectile && !(pHitSprite->flags&32) && actor != Owner)
+			if (pHitSprite->statnum == kStatProjectile && !(pHitSprite->flags & 32) && actor != Owner)
             {
                 HITINFO hitInfo = gHitInfo;
                 gHitInfo.hitsprite = pSprite->index;
                 actImpactMissile(actor, 3);
                 gHitInfo = hitInfo;
             }
-            #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
             if (!gModernMap && pHitXSprite && pHitXSprite->Touch && !pHitXSprite->state && !pHitXSprite->isTriggered)
                 trTriggerSprite(coll.actor, kCmdSpriteTouch);
-            #else
+#else
                 if (pHitXSprite && pHitXSprite->Touch && !pHitXSprite->state && !pHitXSprite->isTriggered)
                     trTriggerSprite(coll.actor, kCmdSpriteTouch);
-            #endif
+#endif
 
             if (pDudeInfo->lockOut && pHitXSprite && pHitXSprite->Push && !pHitXSprite->key && !pHitXSprite->DudeLockout && !pHitXSprite->state && !pHitXSprite->busy && !pPlayer)
                 trTriggerSprite(coll.actor, kCmdSpritePush);
@@ -4923,8 +4923,8 @@ void MoveDude(DBloodActor *actor)
         case kHitWall:
         {
             int nHitWall = coll.index;
-            walltype *pHitWall = &wall[nHitWall];
-            XWALL *pHitXWall = nullptr;
+			walltype* pHitWall = &wall[nHitWall];
+			XWALL* pHitXWall = nullptr;
             if (pHitWall->extra > 0) pHitXWall = &xwall[pHitWall->extra];
 
             if (pDudeInfo->lockOut && pHitXWall && pHitXWall->triggerPush && !pHitXWall->key && !pHitXWall->dudeLockout && !pHitXWall->state && !pHitXWall->busy && !pPlayer)
@@ -4932,8 +4932,8 @@ void MoveDude(DBloodActor *actor)
 
             if (pHitWall->nextsector != -1)
             {
-                sectortype *pHitSector = &sector[pHitWall->nextsector];
-                XSECTOR *pHitXSector = nullptr;
+				sectortype* pHitSector = &sector[pHitWall->nextsector];
+				XSECTOR* pHitXSector = nullptr;
                 if (pHitSector->extra > 0)
                     pHitXSector = &xsector[pHitSector->extra];
 
@@ -4958,7 +4958,7 @@ void MoveDude(DBloodActor *actor)
     if (pSprite->sectnum != nSector)
     {
         assert(nSector >= 0 && nSector < kMaxSectors);
-        XSECTOR *pXSector;
+		XSECTOR* pXSector;
         int nXSector = sector[pSprite->sectnum].extra;
         if (nXSector > 0)
             pXSector = &xsector[nXSector];
@@ -4967,10 +4967,10 @@ void MoveDude(DBloodActor *actor)
         if (pXSector && pXSector->Exit && (pPlayer || !pXSector->dudeLockout))
             trTriggerSector(pSprite->sectnum, pXSector, kCmdSectorExit);
         ChangeSpriteSect(pSprite->index, nSector);
-        
+
         nXSector = sector[nSector].extra;
         pXSector = (nXSector > 0) ? &xsector[nXSector] : nullptr;
-        if (pXSector && pXSector->Enter && (pPlayer || !pXSector->dudeLockout)) 
+		if (pXSector && pXSector->Enter && (pPlayer || !pXSector->dudeLockout))
 		{
             if (sector[nSector].type == kSectorTeleport)
                 pXSector->data = pPlayer ? pSprite->index : -1;
@@ -4983,7 +4983,7 @@ void MoveDude(DBloodActor *actor)
     int bDepth = 0;
     if (sector[nSector].extra > 0)
     {
-        XSECTOR *pXSector = &xsector[sector[nSector].extra];
+		XSECTOR* pXSector = &xsector[sector[nSector].extra];
         if (pXSector->Underwater) bUnderwater = 1;
         if (pXSector->Depth) bDepth = 1;
     }
@@ -4992,10 +4992,10 @@ void MoveDude(DBloodActor *actor)
     if (pUpperLink && (pUpperLink->s().type == kMarkerUpWater || pUpperLink->s().type == kMarkerUpGoo)) bDepth = 1;
     if (pLowerLink && (pLowerLink->s().type == kMarkerLowWater || pLowerLink->s().type == kMarkerLowGoo)) bDepth = 1;
     if (pPlayer) wd += 16;
-    if (actor->zvel()) pSprite->z += actor->zvel()>>8;
+	if (actor->zvel()) pSprite->z += actor->zvel() >> 8;
 
     int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
+	GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
     GetActorExtents(actor, &top, &bottom);
 
     if (pSprite->flags & 2)
@@ -5007,7 +5007,7 @@ void MoveDude(DBloodActor *actor)
             {
                 int cz = getceilzofslope(nSector, pSprite->x, pSprite->y);
                 if (cz > top)
-                    vc += ((bottom-cz)*-80099) / (bottom-top);
+					vc += ((bottom - cz) * -80099) / (bottom - top);
                 else
                     vc = 0;
             }
@@ -5015,7 +5015,7 @@ void MoveDude(DBloodActor *actor)
             {
                 int fz = getflorzofslope(nSector, pSprite->x, pSprite->y);
                 if (fz < bottom)
-                    vc += ((bottom-fz)*-80099) / (bottom-top);
+					vc += ((bottom - fz) * -80099) / (bottom - top);
             }
         }
         else
@@ -5027,7 +5027,7 @@ void MoveDude(DBloodActor *actor)
         }
         if (vc)
         {
-            pSprite->z += ((vc*4)/2)>>8;
+			pSprite->z += ((vc * 4) / 2) >> 8;
             actor->zvel() += vc;
         }
     }
@@ -5044,10 +5044,10 @@ void MoveDude(DBloodActor *actor)
     int nLink = CheckLink(pSprite);
     if (nLink)
     {
-        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
+		GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
         if (pPlayer)
             playerCorrectInertia(pPlayer, &oldpos);
-        switch (nLink) 
+		switch (nLink)
 		{
         case kMarkerLowStack:
             if (pPlayer == gView)
@@ -5060,31 +5060,31 @@ void MoveDude(DBloodActor *actor)
         case kMarkerLowWater:
         case kMarkerLowGoo:
             pXSprite->medium = kMediumNormal;
-            if (pPlayer) 
+			if (pPlayer)
 			{
                 pPlayer->posture = 0;
                 pPlayer->bubbleTime = 0;
-                if (!pPlayer->cantJump && (pPlayer->input.actions & SB_JUMP)) 
+				if (!pPlayer->cantJump && (pPlayer->input.actions & SB_JUMP))
 				{
                     actor->zvel() = -0x6aaaa;
                     pPlayer->cantJump = 1;
                 }
                 sfxPlay3DSound(pSprite, 721, -1, 0);
-            } 
-			else 
+			}
+			else
 			{
-                switch (pSprite->type) 
+				switch (pSprite->type)
 				{
-                    case kDudeCultistTommy:
-                    case kDudeCultistShotgun:
-                        aiNewState(&bloodActors[pXSprite->reference], &cultistGoto);
-                        break;
-                    case kDudeGillBeast:
-                        aiNewState(&bloodActors[pXSprite->reference], &gillBeastGoto);
-                        pSprite->flags |= 6;
-                        break;
-                    case kDudeBoneEel:
-                        actKillDude(pSprite->index, pSprite, kDamageFall, 1000<<4);
+				case kDudeCultistTommy:
+				case kDudeCultistShotgun:
+					aiNewState(&bloodActors[pXSprite->reference], &cultistGoto);
+					break;
+				case kDudeGillBeast:
+					aiNewState(&bloodActors[pXSprite->reference], &gillBeastGoto);
+					pSprite->flags |= 6;
+					break;
+				case kDudeBoneEel:
+					actKillDude(pSprite->index, pSprite, kDamageFall, 1000 << 4);
                         break;
                 }
 
@@ -5098,7 +5098,7 @@ void MoveDude(DBloodActor *actor)
         case kMarkerUpGoo:
         {
             int chance = 0xa00; int medium = kMediumWater;
-            if (nLink == kMarkerUpGoo){
+			if (nLink == kMarkerUpGoo) {
                 medium = kMediumGoo;
                 chance = 0x400;
             }
@@ -5107,9 +5107,10 @@ void MoveDude(DBloodActor *actor)
 
             if (pPlayer)
             {
-                #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
                 // look for palette in data2 of marker. If value <= 0, use default ones.
-                if (gModernMap) {
+                if (gModernMap) 
+				{
                     pPlayer->nWaterPal = 0;
                 auto pUpper = getUpperLink(nSector);
                 if (pUpper && pUpper->hasX()) pPlayer->nWaterPal = pUpper->x().data2;
@@ -5124,7 +5125,7 @@ void MoveDude(DBloodActor *actor)
             }
             else
             {
-                switch (pSprite->type) 
+				switch (pSprite->type)
 				{
                 case kDudeCultistTommy:
                 case kDudeCultistShotgun:
@@ -5207,7 +5208,7 @@ void MoveDude(DBloodActor *actor)
     {
         int floorZ2 = floorZ;
         int floorHit2 = floorHit;
-        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
+		GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist << 2, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
         if (bottom <= floorZ && pSprite->z - floorZ2 < bz)
         {
             floorZ = floorZ2;
@@ -5217,8 +5218,8 @@ void MoveDude(DBloodActor *actor)
     if (floorZ <= bottom)
     {
         actor->hit().florhit = floorHit;
-        pSprite->z += floorZ-bottom;
-        int v30 = actor->zvel()-velFloor[pSprite->sectnum];
+		pSprite->z += floorZ - bottom;
+		int v30 = actor->zvel() - velFloor[pSprite->sectnum];
         if (v30 > 0)
         {
             int vax = actFloorBounceVector((int*)&actor->xvel(), (int*)&actor->yvel(), (int*)&v30, pSprite->sectnum, 0);
@@ -5227,12 +5228,12 @@ void MoveDude(DBloodActor *actor)
             {
                 pPlayer->fallScream = 0;
 
-                if (nDamage > (15<<4) && (pSprite->flags&4))
+				if (nDamage > (15 << 4) && (pSprite->flags & 4))
                     playerLandingSound(pPlayer);
-                if (nDamage > (30<<4))
+				if (nDamage > (30 << 4))
                     sfxPlay3DSound(pSprite, 701, 0, 0);
             }
-            nDamage -= 100<<4;
+			nDamage -= 100 << 4;
             if (nDamage > 0)
                 actDamageSprite(actor, actor, kDamageFall, nDamage);
             actor->zvel() = v30;
@@ -5252,7 +5253,7 @@ void MoveDude(DBloodActor *actor)
                 break;
             case kSurfLava:
             {
-                spritetype *pFX = gFX.fxSpawn(FX_10, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
+				spritetype* pFX = gFX.fxSpawn(FX_10, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
                 if (pFX)
                 {
                     for (int i = 0; i < 7; i++)
@@ -5278,23 +5279,23 @@ void MoveDude(DBloodActor *actor)
     {
         actor->hit().florhit = 0;
 
-        if (pSprite->flags&2)
+		if (pSprite->flags & 2)
             pSprite->flags |= 4;
     }
     if (top <= ceilZ)
     {
         actor->hit().ceilhit = ceilHit;
-        pSprite->z += ClipLow(ceilZ-top, 0);
+		pSprite->z += ClipLow(ceilZ - top, 0);
 
-        if (actor->zvel() <= 0 && (pSprite->flags&4))
+		if (actor->zvel() <= 0 && (pSprite->flags & 4))
             actor->zvel() = MulScale(-actor->zvel(), 0x2000, 16);
     }
     else
         actor->hit().ceilhit = 0;
 
-    GetActorExtents(actor,&top,&bottom);
+	GetActorExtents(actor, &top, &bottom);
 
-    pXSprite->height = ClipLow(floorZ-bottom, 0)>>8;
+	pXSprite->height = ClipLow(floorZ - bottom, 0) >> 8;
     if (actor->xvel() || actor->yvel())
     {
 		Collision coll = floorHit;
@@ -5323,6 +5324,12 @@ void MoveDude(DBloodActor *actor)
             actor->xvel() = actor->yvel() = 0;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int MoveMissile(spritetype *pSprite)
 {
