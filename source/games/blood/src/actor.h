@@ -236,10 +236,9 @@ DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool a6
 DBloodActor* actSpawnDude(DBloodActor* pSource, short nType, int a3, int a4);
 DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat);
 DBloodActor * actSpawnThing(int nSector, int x, int y, int z, int nThingType);
-spritetype * actFireThing_(spritetype *pSprite, int a2, int a3, int a4, int thingType, int a6);
 DBloodActor* actFireThing(DBloodActor* pSprite, int a2, int a3, int a4, int thingType, int a6);
+DBloodActor* actFireMissile(DBloodActor *pSprite, int a2, int a3, int a4, int a5, int a6, int nType);
 
-spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, int a6, int nType);
 int actGetRespawnTime(spritetype *pSprite);
 bool actCheckRespawn(spritetype *pSprite);
 bool actCanSplatWall(int nWall);
@@ -248,7 +247,7 @@ void actPostSprite(int nSprite, int nStatus);
 void actPostSprite(DBloodActor* actor, int status);
 void actPostProcess(void);
 void MakeSplash(DBloodActor *actor);
-void actBuildMissile(spritetype* pMissile, int nXSprite, int nSprite);
+void actBuildMissile(DBloodActor* spawned, DBloodActor* actor);
 
 extern const int DudeDifficulty[];
 

@@ -1778,13 +1778,15 @@ void playerProcess(PLAYER *pPlayer)
 
 spritetype *playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6)
 {
-    return actFireMissile(pPlayer->pSprite, a2, pPlayer->zWeapon-pPlayer->pSprite->z, a3, a4, a5, a6);
+    auto misl = actFireMissile(&bloodActors[pPlayer->pSprite->index], a2, pPlayer->zWeapon-pPlayer->pSprite->z, a3, a4, a5, a6);
+    return misl ? &misl->s() : nullptr;
 }
 
 spritetype * playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5)
 {
     assert(thingType >= kThingBase && thingType < kThingMax);
-    return &actFireThing(&bloodActors[pPlayer->pSprite->index], a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5)->s();
+    auto misl = actFireThing(&bloodActors[pPlayer->pSprite->index], a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
+    return misl ? &misl->s() : nullptr;
 }
 
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim)

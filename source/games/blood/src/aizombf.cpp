@@ -75,13 +75,13 @@ void PukeSeqCallback(int, DBloodActor* actor)
     int dx = CosScale16(nAngle);
     int dy = SinScale16(nAngle);
     sfxPlay3DSound(pSprite, 1203, 1, 0);
-    actFireMissile(pSprite, 0, -(height-height2), dx, dy, 0, kMissilePukeGreen);
+    actFireMissile(actor, 0, -(height-height2), dx, dy, 0, kMissilePukeGreen);
 }
 
 void ThrowSeqCallback(int, DBloodActor* actor)
 {
     spritetype* pSprite = &actor->s();
-    actFireMissile(pSprite, 0, -getDudeInfo(pSprite->type)->eyeHeight, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileButcherKnife);
+    actFireMissile(actor, 0, -getDudeInfo(pSprite->type)->eyeHeight, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileButcherKnife);
 }
 
 static void zombfThinkSearch(DBloodActor* actor)

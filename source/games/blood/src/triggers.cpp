@@ -198,6 +198,8 @@ unsigned int GetSourceBusy(EVENT a1)
 
 void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
 {
+    auto actor = &bloodActors[pSprite->index];
+
     switch (event.cmd) {
     case kCmdSpritePush:
     {
@@ -257,10 +259,10 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                             t2 = 120 / 10;
                         else
                             t2 = (3*120) / 10;
-                        spritetype *pMissile = actFireMissile(pSprite, 0, z1, dx, dy, dz, nMissileType);
-                        if (pMissile)
+                        auto missile = actFireMissile(actor, 0, z1, dx, dy, dz, nMissileType);
+                        if (missile)
                         {
-                            pMissile->owner = pSprite->owner;
+                            missile->SetOwner(actor);
                             pXSprite->stateTimer = 1;
                             evPost(pSprite->index, 3, t2, kCallbackLeechStateTimer);
                             pXSprite->data3 = ClipLow(pXSprite->data3-1, 0);
@@ -459,9 +461,9 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         if (gGameOptions.nMonsterSettings && pXSprite->data1 >= kDudeBase && pXSprite->data1 < kDudeMax) 
         {
             auto actor = &bloodActors[pSprite->index];
-            spritetype* pSpawn = &actSpawnDude(actor, pXSprite->data1, -1, 0)->s();
-            if (pSpawn) {
-                XSPRITE *pXSpawn = &xsprite[pSpawn->extra];
+            auto spawned = actSpawnDude(actor, pXSprite->data1, -1, 0);
+            if (spawned) {
+                XSPRITE *pXSpawn = &spawned->x();
                 gKillMgr.AddNewKill(1);
                 switch (pXSprite->data1) {
                     case kDudeBurningInnocent:
@@ -472,7 +474,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                         pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
                         pXSpawn->burnTime = 10;
                         pXSpawn->target = -1;
-                        aiActivateDude(&bloodActors[pXSpawn->reference]);
+                        aiActivateDude(spawned);
                         break;
                     default:
                         break;
@@ -2254,9 +2256,9 @@ void FireballTrapSeqCallback(int, DBloodActor* actor)
 {
     spritetype* pSprite = &actor->s();
     if (pSprite->cstat&32)
-        actFireMissile(pSprite, 0, 0, 0, 0, (pSprite->cstat&8) ? 0x4000 : -0x4000, kMissileFireball);
+        actFireMissile(actor, 0, 0, 0, 0, (pSprite->cstat&8) ? 0x4000 : -0x4000, kMissileFireball);
     else
-        actFireMissile(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFireball);
+        actFireMissile(actor, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFireball);
 }
 
 
