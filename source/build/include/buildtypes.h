@@ -46,6 +46,10 @@ struct sectortype
     int ceilingypan() const { return int(ceilingypan_); }
     int floorxpan() const { return int(floorxpan_); }
     int floorypan() const { return int(floorypan_); }
+    void setfloorxpan(float val) { floorxpan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
+    void setfloorypan(float val) { floorypan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
+    void setceilingxpan(float val) { ceilingxpan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
+    void setceilingypan(float val) { ceilingypan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
     void addfloorxpan(float add) { floorxpan_ = fmod(floorxpan_ + add + 512, 256); } // +512 is for handling negative offsets
     void addfloorypan(float add) { floorypan_ = fmod(floorypan_ + add + 512, 256); } // +512 is for handling negative offsets
     void addceilingxpan(float add) { ceilingxpan_ = fmod(ceilingxpan_ + add + 512, 256); } // +512 is for handling negative offsets
