@@ -25,7 +25,11 @@ public:
     DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
     DBloodActor& operator=(const DBloodActor& other) = default;
 	
-	bool hasX() { return sprite[index].extra > 0; }
+    void Clear()
+    {
+        dudeSlope = 0;
+    }
+    bool hasX() { return sprite[index].extra > 0; }
 	spritetype& s() { return sprite[index]; }
 	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
     SPRITEHIT& hit() { return gSpriteHit[sprite[index].extra]; }

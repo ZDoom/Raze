@@ -443,12 +443,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 	if (!def)
 	{
 		def = &nul;
-		if (arc.isReading()) w = {};
+		if (arc.isReading()) w.Clear();
 	}
 
 	if (arc.BeginObject(keyname))
 	{
-
 		// The rest is only relevant if the actor has an xsprite.
 		if (w.s().extra > 0)
 		{
