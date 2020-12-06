@@ -606,17 +606,6 @@ void playerSetRace(PLAYER *pPlayer, int nLifeMode)
 
 void playerSetGodMode(PLAYER *pPlayer, bool bGodMode)
 {
-    if (pPlayer->godMode == bGodMode) return;
-    if (bGodMode)
-    {
-        for (int i = 0; i < 7; i++)
-            pPlayer->damageControl[i]++;
-    }
-    else
-    {
-        for (int i = 0; i < 7; i++)
-            pPlayer->damageControl[i]--;
-    }
     pPlayer->godMode = bGodMode;
 }
 
@@ -1929,7 +1918,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
 {
     assert(nSource < kMaxSprites);
     assert(pPlayer != NULL);
-    if (pPlayer->damageControl[nDamageType])
+    if (pPlayer->damageControl[nDamageType] || pPlayer->godMode)
         return 0;
     nDamage = playerDamageArmor(pPlayer, nDamageType, nDamage);
     pPlayer->painEffect = ClipHigh(pPlayer->painEffect+(nDamage>>3), 600);

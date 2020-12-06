@@ -103,13 +103,16 @@ void aiNewState(DBloodActor* actor, AISTATE *pAIState)
         pAIState->enterFunc(&bloodActors[pXSprite->reference]);
 }
 
-bool isImmune(spritetype* pSprite, int dmgType, int minScale) {
+bool isImmune(spritetype* pSprite, int dmgType, int minScale) 
+{
 
-    if (dmgType >= kDmgFall && dmgType < kDmgMax && pSprite->extra >= 0 && xsprite[pSprite->extra].locked != 1) {
+    if (dmgType >= kDmgFall && dmgType < kDmgMax && pSprite->extra >= 0 && xsprite[pSprite->extra].locked != 1) 
+    {
         if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
             return (thingInfo[pSprite->type - kThingBase].dmgControl[dmgType] <= minScale);
-        else if (IsDudeSprite(pSprite)) {
-            if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType] <= minScale);
+        else if (IsDudeSprite(pSprite)) 
+        {
+            if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].godMode || gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType] <= minScale);
             else return (dudeInfo[pSprite->type - kDudeBase].at70[dmgType] <= minScale);
         }
     }

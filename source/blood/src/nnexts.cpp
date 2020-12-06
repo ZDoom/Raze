@@ -2317,8 +2317,7 @@ void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
     int dmgType = (pXSource->data2 >= kDmgFall) ? ClipHigh(pXSource->data2, kDmgElectric) : -1;
     int dmg = pXSprite->health << 4; int armor[3];
 
-    bool godMode = (pPlayer && ((dmgType >= 0 && pPlayer->damageControl[dmgType]) || powerupCheck(pPlayer, kPwUpDeathMask) || pPlayer->godMode
-                            /*|| seqGetID(3, pSprite->extra) == getDudeInfo(pSprite->type)->seqStartID + 16*/)); // kneeling
+    bool godMode = (pPlayer && ((dmgType >= 0 && pPlayer->damageControl[dmgType]) || powerupCheck(pPlayer, kPwUpDeathMask) || pPlayer->godMode)); // kneeling
 
     if (godMode || pXSprite->locked) return;
     else if (pXSource->data3) {
