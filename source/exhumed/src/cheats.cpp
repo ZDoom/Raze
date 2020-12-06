@@ -112,7 +112,7 @@ static bool LiteCheat(cheatseq_t* c)
 {
 	Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_FLASHES"));
 	bDoFlashes = !bDoFlashes;
-	g_visibility = 2048 + 512 - g_visibility;	// let there be light - for real!
+	g_visibility = 1024 + 512 - g_visibility;	// let there be light - for real!
 	return true;
 }
 
