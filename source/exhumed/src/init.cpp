@@ -164,7 +164,7 @@ uint8_t LoadLevel(int nMap)
     pSky->horizfrac = 65536;
     pSky->yscale = 65536;
     parallaxtype = 2;
-    g_visibility = 2048;
+    g_visibility = 1024;
     flash = 0;
     precache();
 

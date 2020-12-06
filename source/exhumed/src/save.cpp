@@ -112,7 +112,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     pSky->horizfrac = 65536;
     pSky->yscale = 65536;
     parallaxtype = 2;
-    g_visibility = 2048;
+    g_visibility = 1024;
 
     if (currentLevel->levelNumber > 15)
     {
