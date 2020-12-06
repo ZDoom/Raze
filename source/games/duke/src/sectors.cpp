@@ -1257,12 +1257,12 @@ void moveclouds(double smoothratio)
 		cloudclock = myclock + 6;
 
 		// cloudx/y were an array, but all entries were always having the same value so a single pair is enough.
-		cloudx += ps[screenpeek].angle.ang.bcos(-9);
-		cloudy += ps[screenpeek].angle.ang.bsin(-9);
+		cloudx += ps[screenpeek].angle.ang.fcos() * 0.5f;
+		cloudy += ps[screenpeek].angle.ang.fsin() * 0.5f;
 		for (int i = 0; i < numclouds; i++)
 		{
-			sector[clouds[i]].setceilingxpan(cloudx / 64.f);
-			sector[clouds[i]].setceilingypan(cloudy / 64.f);
+			sector[clouds[i]].setceilingxpan(cloudx);
+			sector[clouds[i]].setceilingypan(cloudy);
 		}
 	}
 }
