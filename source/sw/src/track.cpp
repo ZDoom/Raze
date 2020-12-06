@@ -1874,7 +1874,7 @@ PlayerPart:
             if (!TEST(sop->flags, SOBJ_DONT_ROTATE))
             {
                 // NOT part of a sector - independant of any sector
-                rotatepoint(sop->pmid.vec2, sp->pos.vec2, -delta_ang, &sp->pos.vec2);
+                rotatepoint(sop->pmid.vec2, sp->pos.vec2, delta_ang, &sp->pos.vec2);
                 sp->ang = NORM_ANGLE(sp->ang + delta_ang);
             }
 
