@@ -94,8 +94,8 @@ extern int animategoal[MAXANIMATES];
 extern int animatevel[MAXANIMATES];
 
 extern int16_t clouds[256];
-extern int16_t cloudx;
-extern int16_t cloudy;
+extern float cloudx;
+extern float cloudy;
 extern int cloudclock;
 
 extern DDukeActor *spriteq[1024];

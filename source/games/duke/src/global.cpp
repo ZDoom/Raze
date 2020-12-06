@@ -107,8 +107,8 @@ int animategoal[MAXANIMATES];
 int animatevel[MAXANIMATES];
 int numclouds;								// cloudy skies
 int16_t clouds[256];
-int16_t cloudx;
-int16_t cloudy;
+float cloudx;
+float cloudy;
 int cloudclock;
 int numcyclers;								// sector lighting effects
 int16_t cyclers[MAXCYCLERS][6];
