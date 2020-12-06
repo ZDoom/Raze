@@ -29,7 +29,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "dude.h"
 #include "player.h"
 
-BEGIN_BLD_NS
+enum BUSYID {
+    BUSYID_0 = 0,
+    BUSYID_1,
+    BUSYID_2,
+    BUSYID_3,
+    BUSYID_4,
+    BUSYID_5,
+    BUSYID_6,
+    BUSYID_7,
+};
+
+#define kMaxBusyCount 128
+struct BUSY {
+    int index;
+    int delta;
+    int busy;
+/*    int at0;
+    int at4;
+    int at8;*/
+    BUSYID atc;
+};
+
+extern BUSY gBusy[kMaxBusyCount];
+extern int gBusyCount;
+
 void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command);
 void trMessageSector(unsigned int nSector, EVENT event);
 void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command);
@@ -42,6 +66,9 @@ void trInit(void);
 void trTextOver(int nId);
 char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState);
 char SetWallState(int nWall, XWALL* pXWall, int nState);
+char SetSectorState(int nSector, XSECTOR* pXSector, int nState);
 void TeleFrag(int nKiller, int nSector);
+void SectorStartSound(int nSector, int nState);
+void SectorEndSound(int nSector, int nState);
 
 END_BLD_NS

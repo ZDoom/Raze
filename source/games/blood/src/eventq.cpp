@@ -458,7 +458,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 		PLAYER* pPlayer = NULL;
 		if (playerRXRngIsFine(rxId)) 
 		{
-			if ((pPlayer = getPlayerById((kChannelPlayer0 - kChannelPlayer7) + kMaxPlayers)) != nullptr)
+			if ((pPlayer = getPlayerById((rxId - kChannelPlayer7) + kMaxPlayers)) != nullptr)
 				trMessageSprite(pPlayer->nSprite, event);
 		}
 		else if (rxId == kChannelAllPlayers) 
@@ -468,6 +468,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 				if ((pPlayer = getPlayerById(i)) != nullptr)
 					trMessageSprite(pPlayer->nSprite, event);
 			}
+            return;
 		}
 
 	}

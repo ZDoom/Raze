@@ -132,26 +132,7 @@ char SetSectorState(int nSector, XSECTOR *pXSector, int nState)
 }
 
 int gBusyCount = 0;
-
-enum BUSYID {
-    BUSYID_0 = 0,
-    BUSYID_1,
-    BUSYID_2,
-    BUSYID_3,
-    BUSYID_4,
-    BUSYID_5,
-    BUSYID_6,
-    BUSYID_7,
-};
-
-struct BUSY {
-    int index;
-    int delta;
-    int busy;
-    int type;
-};
-
-BUSY gBusy[128];
+BUSY gBusy[];
 
 void AddBusy(int a1, BUSYID a2, int nDelta)
 {
@@ -164,7 +145,7 @@ void AddBusy(int a1, BUSYID a2, int nDelta)
     }
     if (i == gBusyCount)
     {
-        if (gBusyCount == 128)
+        if (gBusyCount == kMaxBusyCount)
             return;
         gBusy[i].index = a1;
         gBusy[i].type = a2;
@@ -1544,22 +1525,10 @@ void OperateSector(unsigned int nSector, XSECTOR *pXSector, EVENT event)
     sectortype *pSector = &sector[nSector];
     
     #ifdef NOONE_EXTENSIONS
-    if (gModernMap) {
-        switch (pSector->type) {
-            // reset counter sector state and make it work again after unlock, so it can be used again.
-            case kSectorCounter:
-                switch (event.cmd) {
-                    case kCmdUnlock:
-                    case kCmdToggleLock:
-                        if (pXSector->locked != 1) break;
-                        SetSectorState(nSector, pXSector, 0);
-                        evPost(nSector, 6, 0, kCallbackCounterCheck);
-                        break;
-                }
-                break;
-        }
-    }
+    if (gModernMap && modernTypeOperateSector(nSector, pSector, pXSector, event))
+        return;
     #endif
+
     switch (event.cmd) {
         case kCmdLock:
             pXSector->locked = 1;
@@ -1583,6 +1552,9 @@ void OperateSector(unsigned int nSector, XSECTOR *pXSector, EVENT event)
             pXSector->stopOff = 1;
             break;
         default:
+        #ifdef NOONE_EXTENSIONS
+        if (gModernMap && pXSector->unused1) break;
+        #endif
             switch (pSector->type) {
                 case kSectorZMotionSprite:
                     OperateDoor(nSector, pXSector, event, BUSYID_1);
@@ -1992,9 +1964,15 @@ void trProcessBusy(void)
     memset(velCeil, 0, sizeof(velCeil));
     for (int i = gBusyCount-1; i >= 0; i--)
     {
-        int oldBusy = gBusy[i].busy;
-        gBusy[i].busy = ClipRange(oldBusy+gBusy[i].delta*4, 0, 65536);
-        int nStatus = gBusyProc[gBusy[i].type](gBusy[i].index, gBusy[i].busy);
+        int nStatus;
+        int oldBusy = gBusy[i].at8;
+        gBusy[i].at8 = ClipRange(oldBusy+gBusy[i].at4*4, 0, 65536);
+        #ifdef NOONE_EXTENSIONS
+            if (!gModernMap || !xsector[sector[gBusy[i].at0].extra].unused1) nStatus = gBusyProc[gBusy[i].atc](gBusy[i].at0, gBusy[i].at8);
+            else nStatus = 3; // allow to pause/continue motion for sectors any time by sending special command
+        #else
+            nStatus = gBusyProc[gBusy[i].atc](gBusy[i].at0, gBusy[i].at8);
+        #endif
         switch (nStatus) {
             case 1:
                 gBusy[i].busy = oldBusy;

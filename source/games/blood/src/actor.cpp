@@ -4193,8 +4193,14 @@ static void actTouchFloor(DBloodActor* actor, int nSector)
 	XSECTOR* pXSector = nullptr;
 	if (pSector->extra > 0) pXSector = &xsector[pSector->extra];
 
-	if (pXSector && (pSector->type == kSectorDamage || pXSector->damageType > 0))
-	{
+	bool doDamage = (pXSector && (pSector->type == kSectorDamage || pXSector->damageType > 0));
+	// don't allow damage for damage sectors if they are not enabled
+	#ifdef NOONE_EXTENSIONS
+	if (gModernMap && doDamage && pSector->type == kSectorDamage && !pXSector->state)
+		doDamage = false;
+	#endif
+
+	if (doDamage) {
 		DAMAGE_TYPE nDamageType;
 		if (pSector->type == kSectorDamage) nDamageType = (DAMAGE_TYPE)ClipRange(pXSector->damageType, DAMAGE_TYPE_0, DAMAGE_TYPE_6);
 		else nDamageType = (DAMAGE_TYPE)ClipRange(pXSector->damageType - 1, DAMAGE_TYPE_0, DAMAGE_TYPE_6);
