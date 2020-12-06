@@ -1864,7 +1864,7 @@ PlayerPart:
             }
             else
             {
-                rotatepoint(sop->pmid.vec2, sp->pos.vec2, -delta_ang, &sp->pos.vec2);
+                rotatepoint(sop->pmid.vec2, sp->pos.vec2, delta_ang, &sp->pos.vec2);
                 sp->ang = NORM_ANGLE(sp->ang + delta_ang);
             }
 
