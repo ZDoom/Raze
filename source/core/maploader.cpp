@@ -52,13 +52,13 @@ static void ReadSectorV7(FileReader& fr, sectortype& sect)
 	sect.ceilingstat = fr.ReadUInt16();
 	sect.floorstat = fr.ReadUInt16();
 	sect.ceilingpicnum = fr.ReadUInt16();
-	sect.ceilingheinum = fr.ReadUInt16();
+	sect.ceilingheinum = fr.ReadInt16();
 	sect.ceilingshade = fr.ReadInt8();
 	sect.ceilingpal = fr.ReadUInt8();
 	sect.ceilingxpan_ = fr.ReadUInt8();
 	sect.ceilingypan_ = fr.ReadUInt8();
 	sect.floorpicnum = fr.ReadUInt16();
-	sect.floorheinum = fr.ReadUInt16();
+	sect.floorheinum = fr.ReadInt16();
 	sect.floorshade = fr.ReadInt8();
 	sect.floorpal = fr.ReadUInt8();
 	sect.floorxpan_ = fr.ReadUInt8();
@@ -76,8 +76,8 @@ static void ReadSectorV6(FileReader& fr, sectortype& sect)
 	sect.wallnum = fr.ReadUInt16();
 	sect.ceilingpicnum = fr.ReadUInt16();
 	sect.floorpicnum = fr.ReadUInt16();
-	sect.ceilingheinum = fr.ReadUInt16();
-	sect.floorheinum = fr.ReadUInt16();
+	sect.ceilingheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
+	sect.floorheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
 	sect.ceilingz = fr.ReadInt32();
 	sect.floorz = fr.ReadInt32();
 	sect.ceilingshade = fr.ReadInt8();
@@ -103,8 +103,8 @@ static void ReadSectorV5(FileReader& fr, sectortype& sect)
 	sect.wallnum = fr.ReadInt16();
 	sect.ceilingpicnum = fr.ReadUInt16();
 	sect.floorpicnum = fr.ReadUInt16();
-	sect.ceilingheinum = clamp(fr.ReadUInt16(), -32768, 32767);
-	sect.floorheinum = clamp(fr.ReadUInt16(), -32768, 32767);
+	sect.ceilingheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
+	sect.floorheinum = clamp(fr.ReadInt16() << 5, -32768, 32767);
 	sect.ceilingz = fr.ReadInt32();
 	sect.floorz = fr.ReadInt32();
 	sect.ceilingshade = fr.ReadInt8();
