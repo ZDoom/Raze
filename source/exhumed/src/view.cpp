@@ -118,10 +118,10 @@ static void analyzesprites(double const smoothratio)
         pTSprite->pal = RemapPLU(pTSprite->pal);
 
         // PowerSlaveGDX: Torch bouncing fix
-        if ((pTSprite->picnum == kTile338 || pTSprite->picnum == kTile350) && (pTSprite->cstat & 0x80) == 0)
+        if ((pTSprite->picnum == kTorch1 || pTSprite->picnum == kTorch2) && (pTSprite->cstat & 0x80) == 0)
         {
             pTSprite->cstat |= 0x80;
-            int nTileY = (tilesiz[pTSprite->picnum].y * pTSprite->yrepeat) * 2;
+            int nTileY = (tileHeight(pTSprite->picnum) * pTSprite->yrepeat) * 2;
             pTSprite->z -= nTileY;
         }
 
