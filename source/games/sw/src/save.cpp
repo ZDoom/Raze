@@ -1229,104 +1229,15 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
 
 
-int SaveSymDataInfo(MFILE_WRITE fil, void *ptr)
-{
-    saveddatasym sym;
-
-    if (Saveable_FindDataSym(ptr, &sym))
-    {
-        FILE *fp;
-
-        assert(false);
-        fp = fopen("savegame symbols missing.txt", "a");
-        if (fp)
-        {
-            fprintf(fp,"data %p - reference variable xdim at %p\n",ptr, &xdim);
-            fclose(fp);
-        }
-        return 1;
-    }
-
-    MWRITE(&sym, sizeof(sym), 1, fil);
-
-    return 0;
-}
-
-static int SaveSymCodeInfo_raw(MFILE_WRITE fil, void *ptr)
-{
-    savedcodesym sym;
-
-    if (Saveable_FindCodeSym(ptr, &sym))
-    {
-        FILE *fp;
-
-        assert(false);
-        fp = fopen("savegame symbols missing.txt", "a");
-        if (fp)
-        {
-            fprintf(fp,"code %p - reference function SaveSymDataInfo at %p\n",ptr, SaveSymDataInfo);
-            fclose(fp);
-        }
-        return 1;
-    }
-
-    MWRITE(&sym, sizeof(sym), 1, fil);
-
-    return 0;
-}
-template <typename T>
-static int SaveSymCodeInfo(MFILE_WRITE fil, T * ptr)
-{
-    return SaveSymCodeInfo_raw(fil, (void *)ptr);
-}
-
-int LoadSymDataInfo(MFILE_READ fil, void **ptr)
-{
-    saveddatasym sym;
-
-    MREAD(&sym, sizeof(sym), 1, fil);
-
-    return Saveable_RestoreDataSym(&sym, ptr);
-}
-int LoadSymCodeInfo(MFILE_READ fil, void **ptr)
-{
-    savedcodesym sym;
-
-    MREAD(&sym, sizeof(sym), 1, fil);
-
-    return Saveable_RestoreCodeSym(&sym, ptr);
-}
-
-
-
 bool GameInterface::SaveGame()
 {
-    MFILE_WRITE fil;
-    int i,j;
-    short ndx;
-    PLAYER tp;
-    PLAYERp pp;
-    SECT_USERp sectu;
-    USER tu;
-    USERp u;
-    ANIM tanim;
-    ANIMp a;
-    PANEL_SPRITE tpanel_sprite;
-    PANEL_SPRITEp psp,cur,next;
-    SECTOR_OBJECTp sop;
-    int saveisshot=0;
-
-    Saveable_Init();
-	
 	
     // workaround until the level info here has been transitioned.
-	fil = WriteSavegameChunk("snapshot.sw");
-
-
+	auto fil = WriteSavegameChunk("snapshot.sw");
 
 
     MWRITE(Track, sizeof(Track),1,fil);
-    for (i = 0; i < MAX_TRACKS; i++)
+    for (int i = 0; i < MAX_TRACKS; i++)
     {
         ASSERT(Track[i].TrackPoint);
         if (Track[i].NumPoints == 0)
@@ -1335,95 +1246,7 @@ bool GameInterface::SaveGame()
             MWRITE(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
     }
 
-    MWRITE(&Player[myconnectindex].input,sizeof(Player[myconnectindex].input),1,fil);
-
-    // do all sector manipulation structures
-
-#if ANIM_SAVE
-#if 1
-    MWRITE(&AnimCnt,sizeof(AnimCnt),1,fil);
-
-    for (i = 0, a = &tanim; i < AnimCnt; i++)
-    {
-        intptr_t offset;
-        memcpy(a,&Anim[i],sizeof(ANIM));
-
-        // maintain compatibility with sinking boat which points to user data
-        for (j=0; j<MAXSPRITES; j++)
-        {
-            if (User[j].Data())
-            {
-                uint8_t* bp = (uint8_t*)User[j].Data();
-
-                if ((uint8_t*)a->ptr >= bp && (uint8_t*)a->ptr < bp + sizeof(USER))
-                {
-                    offset = (intptr_t)((uint8_t*)a->ptr - bp); // offset from user data
-                    a->ptr = (int *)-2;
-                    break;
-                }
-            }
-        }
-
-        if ((intptr_t)a->ptr != -2)
-        {
-            for (j=0; j<numsectors; j++)
-            {
-                if (SectUser[j].Data())
-                {
-                    uint8_t* bp = (uint8_t*)SectUser[j].Data();
-
-                    if ((uint8_t*)a->ptr >= bp && (uint8_t*)a->ptr < bp + sizeof(SECT_USER))
-                    {
-                        offset = (intptr_t)((uint8_t*)a->ptr - bp); // offset from user data
-                        a->ptr = (int *)-3;
-                        break;
-                    }
-                }
-            }
-        }
-        MWRITE(a,sizeof(ANIM),1,fil);
-
-        if ((intptr_t)a->ptr == -2 || (intptr_t)a->ptr == -3)
-        {
-            MWRITE(&j, sizeof(j),1,fil);
-            MWRITE(&offset, sizeof(offset),1,fil);
-        }
-        else
-        {
-            saveisshot |= SaveSymDataInfo(fil, a->ptr);
-            assert(!saveisshot);
-        }
-
-        saveisshot |= SaveSymCodeInfo(fil, a->callback);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, a->callbackdata);
-        assert(!saveisshot);
-    }
-
-#else
-    ndx = 0;
-    for (i = AnimCnt - 1, a = &tanim; i >= 0; i--)
-    {
-        // write header
-        MWRITE(&ndx,sizeof(ndx),1,fil);
-
-        memcpy(a,&Anim[i],sizeof(ANIM));
-        MWRITE(a,sizeof(ANIM),1,fil);
-
-        saveisshot |= SaveSymDataInfo(fil, a->ptr);
-        saveisshot |= SaveSymCodeInfo(fil, a->callback);
-        saveisshot |= SaveSymDataInfo(fil, a->callbackdata);
-
-        ndx++;
-    }
-
-    // write trailer
-    ndx = -1;
-    MWRITE(&ndx,sizeof(ndx),1,fil);
-#endif
-#endif
-
-    return !saveisshot;
+    return true;
 }
 
 
@@ -1439,8 +1262,6 @@ bool GameInterface::LoadGame()
     ANIMp a;
     PANEL_SPRITEp psp,next;
 
-
-    Saveable_Init();
 
 	auto filr = ReadSavegameChunk("snapshot.sw");
 	if (!filr.isOpen()) return false;
@@ -1460,70 +1281,6 @@ bool GameInterface::LoadGame()
             MREAD(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
         }
     }
-
-    MREAD(&Player[myconnectindex].input,sizeof(Player[myconnectindex].input),1,fil);
-
-    // do all sector manipulation structures
-
-#if ANIM_SAVE
-#if 1
-    MREAD(&AnimCnt,sizeof(AnimCnt),1,fil);
-
-    for (i = 0; i < AnimCnt; i++)
-    {
-        a = &Anim[i];
-        MREAD(a,sizeof(ANIM),1,fil);
-
-        if ((intptr_t)a->ptr == -2)
-        {
-            // maintain compatibility with sinking boat which points to user data
-            int offset;
-            MREAD(&j, sizeof(j),1,fil);
-            MREAD(&offset, sizeof(offset),1,fil);
-            a->ptr = (int *)(((char *)User[j].Data()) + offset);
-        }
-        else if ((intptr_t)a->ptr == -3)
-        {
-            // maintain compatibility with sinking boat which points to user data
-            int offset;
-            MREAD(&j, sizeof(j),1,fil);
-            MREAD(&offset, sizeof(offset),1,fil);
-            a->ptr = (int *)(((char *)SectUser[j].Data()) + offset);
-        }
-        else
-        {
-            saveisshot |= LoadSymDataInfo(fil, (void **)&a->ptr);
-        }
-
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&a->callback);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&a->callbackdata);
-        if (saveisshot) { MCLOSE_READ(fil); return false; }
-    }
-#else
-    AnimCnt = 0;
-    for (i = MAXANIM - 1; i >= 0; i--)
-    {
-        a = &Anim[i];
-
-        MREAD(&ndx,sizeof(ndx),1,fil);
-
-        if (ndx == -1)
-            break;
-
-        AnimCnt++;
-
-        MREAD(a,sizeof(ANIM),1,fil);
-
-        saveisshot |= LoadSymDataInfo(fil, (void **)&a->ptr);
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&a->callback);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&a->callbackdata);
-        if (saveisshot) { MCLOSE_READ(fil); return false; }
-    }
-#endif
-#endif
-
-    MCLOSE_READ(fil);
-
 
     DoTheCache();
 

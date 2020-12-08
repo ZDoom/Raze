@@ -686,7 +686,7 @@ DoSpringBoardDown(void)
 
                 destz = sector[nextsectorneighborz(sbp->Sector, sector[sbp->Sector].floorz, 1, 1)].floorz;
 
-                AnimSet(&sector[sbp->Sector].floorz, destz, 256);
+                AnimSet(ANIM_Floorz, sbp->Sector, destz, 256);
 
                 sector[sbp->Sector].lotag = TAG_SPRING_BOARD;
 
@@ -2845,7 +2845,7 @@ DoAnim(int numtics)
 
     for (i = AnimCnt - 1; i >= 0; i--)
     {
-        animval = *Anim[i].ptr;
+        animval = Anim[i].Addr();
 
         // if LESS THAN goal
         if (animval < Anim[i].goal)
@@ -2871,7 +2871,7 @@ DoAnim(int numtics)
                 animval = Anim[i].goal;
         }
 
-        *Anim[i].ptr = animval;
+        Anim[i].Addr() =animval;
 
         // EQUAL this entry has finished
         if (animval == Anim[i].goal)
@@ -2920,14 +2920,14 @@ AnimClear(void)
 }
 
 short
-AnimGetGoal(int *animptr)
+AnimGetGoal(int animtype, int animindex)
 {
     int i, j;
 
     j = -1;
     for (i = 0; i < AnimCnt; i++)
     {
-        if (animptr == Anim[i].ptr)
+        if (animtype == Anim[i].animtype && animindex == Anim[i].index)
         {
             j = i;
             break;
@@ -2938,14 +2938,14 @@ AnimGetGoal(int *animptr)
 }
 
 void
-AnimDelete(int *animptr)
+AnimDelete(int animtype, int animindex)
 {
     int i, j;
 
     j = -1;
     for (i = 0; i < AnimCnt; i++)
     {
-        if (animptr == Anim[i].ptr)
+        if (animtype == Anim[i].animtype && animindex == Anim[i].index)
         {
             j = i;
             break;
@@ -2968,7 +2968,7 @@ AnimDelete(int *animptr)
 
 
 short
-AnimSet(int *animptr, fixed_t thegoal, int thevel)
+AnimSet(int animtype, int animindex, fixed_t thegoal, int thevel)
 {
     int i, j;
 
@@ -2979,14 +2979,15 @@ AnimSet(int *animptr, fixed_t thegoal, int thevel)
     // look for existing animation and reset it
     for (i = 0; i < AnimCnt; i++)
     {
-        if (animptr == Anim[i].ptr)
+        if (animtype == Anim[i].animtype && animindex == Anim[i].index)
         {
             j = i;
             break;
         }
     }
 
-    Anim[j].ptr = animptr;
+    Anim[j].animtype = animtype;
+    Anim[j].index = animindex;
     Anim[j].goal = thegoal;
     Anim[j].vel = Z(thevel);
     Anim[j].vel_adj = 0;
@@ -3000,7 +3001,7 @@ AnimSet(int *animptr, fixed_t thegoal, int thevel)
 }
 
 short
-AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, ANIM_DATAp data)
+AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data)
 {
     ASSERT(anim_ndx < AnimCnt);
 

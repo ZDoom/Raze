@@ -1552,7 +1552,11 @@ typedef struct SECT_USER
 {
     SECT_USER() { memset(this, 0, sizeof(*this)); }
     int dist, flags;
-    short depth_fract, depth; // do NOT change this, doubles as a long FIXED point number
+    union
+    {
+        struct { short depth_fract, depth; }; // do NOT change this, doubles as a long FIXED point number
+        int depth_fixed;
+    };
     short stag,    // ST? tag number - for certain things it helps to know it
           ang,
           height,
@@ -1655,17 +1659,14 @@ typedef void ANIM_CALLBACK (ANIMp, void *);
 typedef ANIM_CALLBACK *ANIM_CALLBACKp;
 typedef void *ANIM_DATAp;
 
-struct ANIMstruct
+enum
 {
-    int *ptr, goal;
-    int vel;
-    short vel_adj;
-    ANIM_CALLBACKp callback;
-    ANIM_DATAp callbackdata;
+    ANIM_Floorz,
+    ANIM_SopZ,
+    ANIM_Spritez,
+    ANIM_Userz,
+    ANIM_SUdepth,
 };
-
-extern ANIM Anim[MAXANIM];
-extern short AnimCnt;
 
 
 typedef struct TRACK_POINT
@@ -1880,6 +1881,39 @@ struct SECTOR_OBJECTstruct
 
 extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 
+
+struct ANIMstruct
+{
+    int animtype, index;
+    int goal;
+    int vel;
+    short vel_adj;
+    ANIM_CALLBACKp callback;
+    SECTOR_OBJECTp callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
+
+    int& Addr()
+    {
+        switch (animtype)
+        {
+        case ANIM_Floorz:
+            return sector[index].floorz;
+        case ANIM_SopZ:
+            return SectorObject[index].zmid;
+        case ANIM_Spritez:
+            return sprite[index].z;
+        case ANIM_Userz:
+            return User[index]->sz;
+        case ANIM_SUdepth:
+            return SectUser[index]->depth_fixed;
+        default:
+            return index;
+        }
+    }
+};
+
+extern ANIM Anim[MAXANIM];
+extern short AnimCnt;
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
 // Prototypes
@@ -1955,11 +1989,10 @@ void PlayerUpdateKills(PLAYERp pp, short value);
 void RefreshInfoLine(PLAYERp pp);
 
 void DoAnim(int numtics);
-void AnimDelete(int *animptr);
-short AnimGetGoal(int *animptr);
-short AnimSet(int *animptr, int thegoal, int thevel);
-//short AnimSetCallback(int *animptr, int thegoal, int thevel, ANIM_CALLBACKp call, ANIM_DATAp data);
-short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, ANIM_DATAp data);
+void AnimDelete(int animtype, int animindex);
+short AnimGetGoal(int animtype, int animindex);
+short AnimSet(int animtype, int animindex, int thegoal, int thevel);
+short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data);
 short AnimSetVelAdj(short anim_ndx, short vel_adj);
 
 void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person);
