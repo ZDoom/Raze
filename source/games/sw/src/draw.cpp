@@ -594,21 +594,6 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
             continue;
         }
 
-        // Diss any parentally locked sprites
-        if (adult_lockout)
-        {
-            if (aVoxelArray[tsp->picnum].Parental == 6145)
-            {
-                tsp->owner = -1;
-                tu = NULL;
-            }
-            else if (aVoxelArray[tsp->picnum].Parental > 0)
-            {
-                ASSERT(aVoxelArray[tsp->picnum].Parental >= 0 && aVoxelArray[tsp->picnum].Parental < 6145);
-                tsp->picnum=aVoxelArray[tsp->picnum].Parental; // Change the pic
-            }
-        }
-
         if (tu)
         {
             if (tsp->statnum != STAT_DEFAULT)

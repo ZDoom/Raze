@@ -2147,7 +2147,6 @@ int GetZadjustment(short sectnum,short hitag);  // rooms.c
 void InitSetup(void);   // setup.c
 
 void LoadKVXFromScript(const char *filename); // scrip2.c
-void LoadPLockFromScript(const char *filename);   // scrip2.c
 void LoadCustomInfoFromScript(const char *filename);  // scrip2.c
 
 int PlayerInitChemBomb(PLAYERp pp); // jweapon.c

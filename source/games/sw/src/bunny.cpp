@@ -1085,11 +1085,6 @@ DoBunnyQuickJump(short SpriteNum)
 
                 NewStateGroup(SpriteNum, sg_BunnyScrew);
                 NewStateGroup(hit_sprite, sg_BunnyScrew);
-                if (adult_lockout)
-                {
-                    SET(sp->cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' invisible
-                    SET(tsp->cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' invisible
-                }
                 u->WaitTics = tu->WaitTics = SEC(10);  // Mate for this long
                 return true;
             }
@@ -1476,8 +1471,7 @@ DoBunnyScrew(short SpriteNum)
 
     if (RANDOM_RANGE(1000) > 990) // Bunny sex sounds
     {
-        if (!adult_lockout)
-            PlaySound(DIGI_BUNNYATTACK, sp, v3df_follow);
+         PlaySound(DIGI_BUNNYATTACK, sp, v3df_follow);
     }
 
     u->WaitTics -= ACTORMOVETICS;

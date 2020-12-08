@@ -199,11 +199,6 @@ void LoadKVXFromScript(const char* filename)
 
     // zero out the array memory with -1's for pics not being voxelized
     memset(&aVoxelArray[0], -1, sizeof(struct TILE_INFO_TYPE) * MAXTILES);
-    for (grabbed = 0; grabbed < MAXTILES; grabbed++)
-    {
-        aVoxelArray[grabbed].Voxel = -1;
-        aVoxelArray[grabbed].Parental = -1;
-    }
 
     grabbed = 0;
 
@@ -248,53 +243,6 @@ void LoadKVXFromScript(const char* filename)
 
     script_p = NULL;
 }
-
-// Load in info for all Parental lock tile targets
-//          # - Comment
-//          tilenumber (in artfile), replacement tile offset (if any)
-//          Ex. 1803 -1       -1 = No tile replacement
-//              1804 2000
-//              etc....
-void LoadPLockFromScript(const char *filename)
-{
-    int lNumber=0,lTile=0; // lNumber is the voxel no. and lTile is the editart tile being
-    // replaced.
-
-    int grabbed=0;          // Number of lines parsed
-
-    // Load the file
-    auto buffer = LoadScriptFile(filename);
-    if (!buffer.Size())
-    {
-        return;
-    }
-    script_p = (char*)buffer.Data();
-    scriptend_p = (char*)&buffer.Last();
-
-    do
-    {
-        GetToken(true);     // Crossing a line boundary on the end of line to first token
-        // of a new line is permitted (and expected)
-        if (endofscript)
-            break;
-
-        lTile = atoi(token);
-
-        GetToken(false);
-        lNumber = atoi(token);
-
-        // Store the sprite and voxel numbers for later use
-        aVoxelArray[lTile].Parental = lNumber;  // Replacement to tile, -1 for none
-
-        grabbed++;
-        ASSERT(grabbed < MAXSPRITES);
-
-    }
-    while (script_p < scriptend_p);
-
-    script_p = NULL;
-}
-
 
 /*
  * Here begins JonoF's modding enhancement stuff

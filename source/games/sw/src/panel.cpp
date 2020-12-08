@@ -6956,7 +6956,7 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
                 break;
             }
 
-        if (pp->Bloody && !adult_lockout)
+        if (pp->Bloody)
         {
             switch (picnum)
             {

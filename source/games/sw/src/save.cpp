@@ -88,8 +88,6 @@ extern short BossSpriteNum[3];
 
 extern STATE s_NotRestored[];
 
-OrgTileListP otlist[] = {&orgwalllist, &orgwalloverlist, &orgsectorceilinglist, &orgsectorfloorlist};
-
 int PanelSpriteToNdx(PLAYERp pp, PANEL_SPRITEp psprite)
 {
     short ndx = 0;
@@ -219,7 +217,6 @@ bool GameInterface::SaveGame()
     PANEL_SPRITEp psp,cur,next;
     SECTOR_OBJECTp sop;
     int saveisshot=0;
-    OrgTileP otp, next_otp;
 
     Saveable_Init();
 	
@@ -565,20 +562,6 @@ bool GameInterface::SaveGame()
 	saveisshot |= so_writeinterpolations(fil);
 	assert(!saveisshot);
 
-    // parental lock
-    for (i = 0; i < (int)SIZ(otlist); i++)
-    {
-        ndx = 0;
-        TRAVERSE(otlist[i], otp, next_otp)
-        {
-            MWRITE(&ndx,sizeof(ndx),1,fil);
-            MWRITE(&otp,sizeof(*otp),1,fil);
-            ndx++;
-        }
-        ndx = -1;
-        MWRITE(&ndx, sizeof(ndx),1,fil);
-    }
-
     // mirror
     MWRITE(mirror,sizeof(mirror),1,fil);
     MWRITE(&mirrorcnt,sizeof(mirrorcnt),1,fil);
@@ -636,7 +619,6 @@ bool GameInterface::LoadGame()
     SECT_USERp sectu;
     ANIMp a;
     PANEL_SPRITEp psp,next;
-    OrgTileP otp;
 
 
     Saveable_Init();
@@ -755,31 +737,6 @@ bool GameInterface::LoadGame()
         u->rotator.Clear();
         MREAD(u,sizeof(USER),1,fil);
         memset((void*)&u->rotator, 0, sizeof(u->rotator));
-
-#if 0
-        if (u->WallShade)
-        {
-            u->WallShade = (int8_t*)CallocMem(u->WallCount * sizeof(*u->WallShade), 1);
-            MREAD(u->WallShade, sizeof(*u->WallShade) * u->WallCount, 1, fil);
-        }
-
-        if (u->rotator)
-        {
-            u->rotator.Alloc();
-            MREAD(u->rotator,sizeof(*u->rotator),1,fil);
-
-            if (u->rotator->origx)
-            {
-                u->rotator->origx = (int*)CallocMem(u->rotator->num_walls * sizeof(*u->rotator->origx), 1);
-                MREAD(u->rotator->origx,sizeof(*u->rotator->origx)*u->rotator->num_walls,1,fil);
-            }
-            if (u->rotator->origy)
-            {
-                u->rotator->origy = (int*)CallocMem(u->rotator->num_walls * sizeof(*u->rotator->origy), 1);
-                MREAD(u->rotator->origy,sizeof(*u->rotator->origy)*u->rotator->num_walls,1,fil);
-            }
-        }
-#endif
 
         saveisshot |= LoadSymDataInfo(fil, (void **)&u->WallP);
         saveisshot |= LoadSymDataInfo(fil, (void **)&u->State);
@@ -910,26 +867,6 @@ bool GameInterface::LoadGame()
     // SO interpolations
     saveisshot |= so_readinterpolations(fil);
     if (saveisshot) { MCLOSE_READ(fil); return false; }
-
-    // parental lock
-    for (i = 0; i < (int)SIZ(otlist); i++)
-    {
-        INITLIST(otlist[i]);
-
-        while (true)
-        {
-            MREAD(&ndx, sizeof(ndx),1,fil);
-
-            if (ndx == -1)
-                break;
-
-            otp = (OrgTileP)CallocMem(sizeof(*otp), 1);
-            ASSERT(otp);
-
-            MREAD(otp, sizeof(*otp),1,fil);
-            INSERT_TAIL(otlist[i],otp);
-        }
-    }
 
     // mirror
     MREAD(mirror,sizeof(mirror),1,fil);

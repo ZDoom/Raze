@@ -625,15 +625,6 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
         return -1;
 
     SPRITEp sps = sp;
-    // Weed out parental lock sounds if PLock is active
-    if (adult_lockout)
-    {
-        for (unsigned i = 0; i < sizeof(PLocked_Sounds); i++)
-        {
-            if (num == PLocked_Sounds[i])
-                return -1;
-        }
-    }
 
     auto vp = &voc[num];
     int sourcetype = SOURCE_None;
@@ -693,7 +684,7 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
 
 void PlaySoundRTS(int rts_num)
 {
-    if (!adult_lockout && SoundEnabled() && RTS_IsInitialized() && snd_speech)
+    if (SoundEnabled() && RTS_IsInitialized() && snd_speech)
     {
         auto sid = RTS_GetSoundID(rts_num - 1);
         if (sid != -1)
