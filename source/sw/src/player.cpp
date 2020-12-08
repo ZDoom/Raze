@@ -2639,7 +2639,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
         return;
 
     // main sector
-    SectIterator it(StatDamageList[sop->op_main_sector]);
+    SectIterator it(sop->op_main_sector);
     while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
