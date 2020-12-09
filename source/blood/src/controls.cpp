@@ -1,3 +1,4 @@
+#pragma once
 //-------------------------------------------------------------------------
 /*
 Copyright (C) 2020 Christoph Oelckers & Mitchell Richters
@@ -24,8 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "mmulti.h"
-#include "view.h"
+#include "blood.h"
 #include "gamestate.h"
+#include "inputstate.h"
+#include "gamestruct.h"
 #include "razemenu.h"
 
 BEGIN_BLD_NS

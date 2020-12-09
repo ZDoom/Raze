@@ -22,12 +22,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
-#include "levels.h"
-#include "misc.h"
-#include "db.h"
-#include "mapinfo.h"
+#include "build.h"
 #include "gamestruct.h"
 #include "mapinfo.h"
+
+#include "common_game.h"
+#include "fx.h"
+#include "gameutil.h"
+#include "db.h"
+
+#include "actor.h"
+#include "ai.h"
+#include "aistate.h"
+#include "aiunicult.h"
+#include "blood.h"
+#include "callback.h"
+#include "db.h"
+#include "endgame.h"
+#include "eventq.h"
+#include "gib.h"
+#include "globals.h"
+#include "levels.h"
+#include "misc.h"
+#include "player.h"
+#include "seq.h"
+#include "sound.h"
+#include "triggers.h"
+#include "view.h"
+#include "nnexts.h"
+#include "player.h"
+#include "misc.h"
+#include "sectorfx.h"
+#include "bloodactor.h"
+
 
 BEGIN_BLD_NS
 

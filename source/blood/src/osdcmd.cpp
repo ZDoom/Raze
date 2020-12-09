@@ -26,13 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "compat.h"
 #include "mmulti.h"
-#include "common_game.h"
+
 #include "blood.h"
-#include "globals.h"
-#include "levels.h"
-#include "messages.h"
-#include "sound.h"
-#include "view.h"
 #include "mapinfo.h"
 #include "gamestate.h"
 

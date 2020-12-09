@@ -23,10 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "compat.h"
-#include "common_game.h"
+#include "blood.h"
 #include "m_crc32.h"
 
-#include "globals.h"
 
 BEGIN_BLD_NS
 

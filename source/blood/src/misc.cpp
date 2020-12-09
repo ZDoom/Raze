@@ -24,9 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <stdio.h>
 #include <string.h>
-#include "common_game.h"
-
-#include "misc.h"
+#include "blood.h"
 
 BEGIN_BLD_NS
 

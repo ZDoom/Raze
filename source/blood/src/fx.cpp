@@ -24,19 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "build.h"
-#include "common_game.h"
-
-#include "actor.h"
 #include "blood.h"
-#include "callback.h"
-#include "globals.h"
-#include "db.h"
-#include "eventq.h"
-#include "fx.h"
-#include "gameutil.h"
-#include "levels.h"
-#include "seq.h"
-#include "view.h"
 
 BEGIN_BLD_NS
 

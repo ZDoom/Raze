@@ -27,24 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tarray.h"
 
 #include "build.h"
-#include "common_game.h"
 
 #include "blood.h"
-#include "db.h"
-#include "eventq.h"
-#include "globals.h"
-#include "levels.h"
-#include "sound.h"
-#include "seq.h"
-#include "gameutil.h"
-#include "actor.h"
-#include "view.h"
-#include "raze_sound.h"
-#include "actor.h"
-#include "seq.h"
-#include "bloodactor.h"
-
-
 #include "files.h"
 
 

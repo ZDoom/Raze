@@ -22,9 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 #include "build.h"
-#include "common_game.h"
-#include "blood.h"
-#include "misc.h"
 
 class F2DDrawer;
 

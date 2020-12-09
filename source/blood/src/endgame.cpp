@@ -26,21 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "v_draw.h"
 #include "mmulti.h"
-#include "common_game.h"
-#include "blood.h"
-#include "endgame.h"
-#include "globals.h"
-#include "levels.h"
-#include "player.h"
-#include "sound.h"
-#include "view.h"
-#include "messages.h"
 #include "statistics.h"
 #include "gstrings.h"
 #include "gamestate.h"
 #include "raze_sound.h"
 #include "d_net.h"
 #include "screenjob.h"
+#include "blood.h"
 
 BEGIN_BLD_NS
 

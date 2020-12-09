@@ -26,10 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_2ddrawer.h"
 #include "compat.h"
 #include "common_game.h"
-#include "qav.h"
-#include "sound.h"
 #include "v_draw.h"
 #include "glbackend/glbackend.h"
+#include "blood.h"
 
 BEGIN_BLD_NS
 

@@ -24,23 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 
-#include "bloodactor.h"
-
 #include "build.h"
 #include "compat.h"
 #include "mmulti.h"
 #include "c_bind.h"
 #include "razemenu.h"
 #include "gamestate.h"
-
-#include "blood.h"
-#include "globals.h"
-#include "qav.h"
-#include "view.h"
-#include "sound.h"
 #include "v_video.h"
 #include "v_draw.h"
 #include "vm.h"
+#include "blood.h"
 
 bool ShowOptionMenu();
 

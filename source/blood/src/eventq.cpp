@@ -26,13 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <set>
 #include "build.h"
 #include "printf.h"
-#include "common_game.h"
-#include "eventq.h"
-#include "db.h"
-#include "levels.h"
-#include "triggers.h"
-#include "view.h"
-#include "nnexts.h"
+#include "blood.h"
 #include "secrets.h"
 #include "serializer.h"
 

@@ -25,13 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "build.h"
 #include "pragmas.h"
-#include "common_game.h"
 
 #include "blood.h"
-#include "db.h"
-#include "gameutil.h"
-#include "globals.h"
-#include "sectorfx.h"
 #include "interpolate.h"
 
 BEGIN_BLD_NS

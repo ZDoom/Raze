@@ -29,21 +29,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 ///////////////////////////////////////////////////////////////////
 #include "ns.h"
 
-#include "nnexts.h"
 #ifdef NOONE_EXTENSIONS
 #include <random>
-#include "player.h"
-#include "aiunicult.h"
-#include "triggers.h"
-#include "sectorfx.h"
-#include "globals.h"
-#include "endgame.h"
-#include "misc.h"
 #include "mmulti.h"
-#include "view.h"
-#include "sound.h"
-#include "seq.h"
-#include "ai.h"
+#include "blood.h"
 #include "savegamehelp.h"
 #include "bloodactor.h"
 

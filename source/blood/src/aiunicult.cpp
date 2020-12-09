@@ -24,35 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 
-#include "common_game.h"
-#include "nnexts.h"
-#ifdef NOONE_EXTENSIONS
 #include "compat.h"
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-
-#include "actor.h"
-#include "ai.h"
-#include "aistate.h"
-#include "aiunicult.h"
-#include "blood.h"
-#include "db.h"
-#include "dude.h"
-
-#include "eventq.h"
-#include "globals.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
-#include "triggers.h"
-#include "endgame.h"
-#include "view.h"
 #include "raze_sound.h"
-#include "bloodactor.h"
 
-#include "gib.h"
+#include "blood.h"
+
+#ifdef NOONE_EXTENSIONS
+
 
 BEGIN_BLD_NS
 static void ThrowThing(DBloodActor*, bool);
