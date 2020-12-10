@@ -683,7 +683,7 @@ private:
             DisplayTimeLimit(pp);
         DisplayBarInventory(pp);
         DrawCompass(pp);
-        PrintLevelStats(-1);
+        PrintLevelStats(-3);
     }
 
     //---------------------------------------------------------------------------

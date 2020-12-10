@@ -144,11 +144,11 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 	double spacing = stats.spacing * hud_statscale;
 	if (stats.screenbottomspace < 0)
 	{
-		y = 200 - RelTop - spacing - 1;
+		y = 200 - (RelTop - stats.screenbottomspace) * hud_scalefactor - spacing;
 	}
 	else
 	{
-		y = 200 - stats.screenbottomspace - spacing;
+		y = 200 - stats.screenbottomspace * hud_scalefactor - spacing;
 	}
 
 	double y1, y2, y3;
