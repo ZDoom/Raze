@@ -1007,29 +1007,29 @@ public:
         if (hud_size == Hud_Nothing)
         {
             align = DI_SCREEN_RIGHT_BOTTOM;
-            inv_x = -210 * hud_scalefactor;
-            inv_y = -28 * hud_scalefactor;
+            inv_x = -210;
+            inv_y = -28;
             PrintLevelStats(2);
         }
         else if (hud_size == Hud_full)
         {
             align = DI_SCREEN_CENTER_BOTTOM;
-            inv_x = -80 * hud_scalefactor;
-            inv_y = -40 * hud_scalefactor;
+            inv_x = -80;
+            inv_y = -40;
             DrawHUD2();
         }
         else if (hud_size == Hud_Mini)
         {
             align = DI_SCREEN_RIGHT_BOTTOM;
-            inv_x = -210 * hud_scalefactor;
-            inv_y = -28 * hud_scalefactor;
+            inv_x = -210;
+            inv_y = -28;
             DrawHUD1();
         }
         else
         {
             align = 0;
-            inv_x = 80 * hud_scalefactor;
-            inv_y = 130 * hud_scalefactor;
+            inv_x = 80;
+            inv_y = 130;
             DrawStatusBar();
         }
         DrawInventory(inv_x, inv_y, align);
