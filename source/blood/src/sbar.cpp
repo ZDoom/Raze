@@ -799,7 +799,7 @@ private:
             BeginStatusBar(320, 200, 28);
             if (pPlayer->throwPower)
                 TileHGauge(2260, 124, 175, pPlayer->throwPower, 65536);
-            else
+            else if (hud_size > Hud_StbarOverlay)
                 drawInventory(pPlayer, 166, 200 - tileHeight(2201) / 2);
         }
         if (hud_size == Hud_Mini)
