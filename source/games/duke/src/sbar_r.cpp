@@ -352,7 +352,7 @@ public:
 
 		double top = 200 - h;
 		BeginStatusBar(320, 200, wh + h);
-		DrawInventory(p, 160, 154, 0);
+		DrawInventory(p, 160, hud_size <= Hud_Stbar? 148 : 154, 0);
 
 		if (hud_size <= Hud_Stbar)
 			DrawWeaponBar(p, top);
