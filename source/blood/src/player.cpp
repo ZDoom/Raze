@@ -1311,11 +1311,13 @@ void ProcessInput(PLAYER *pPlayer)
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     InputPacket *pInput = &pPlayer->input;
 
-    pPlayer->isRunning = !!(pInput->actions & SB_RUN);
     if ((pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->avel)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
+
+    pPlayer->isRunning = !!(pInput->actions & SB_RUN) && pPlayer->restTime <= 10;
+
     WeaponProcess(pPlayer);
     if (pXSprite->health == 0)
     {
@@ -1682,7 +1684,7 @@ void playerProcess(PLAYER *pPlayer)
     {
         if (pXSprite->height < 256)
         {
-            bool running = pPlayer->isRunning && pPlayer->restTime <= 10;
+            bool running = pPlayer->isRunning;
             pPlayer->bobAmp = (pPlayer->bobAmp+pPosture->pace[running]*4) & 2047;
             pPlayer->swayAmp = (pPlayer->swayAmp+(pPosture->pace[running]*4)/2) & 2047;
             if (running)
