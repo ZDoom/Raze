@@ -65,71 +65,75 @@ void SerializeWasp(FSerializer& arc);
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
-    if (arc.BeginObject("exhumed"))
-    {
-	    SerializeState(arc);
-	    SerializeAnim(arc);
-	    SerializeBubbles(arc);
-	    SerializeBullet(arc);
-	    SerializeGrenade(arc);
-	    SerializeGun(arc);
-	    SerializeInit(arc);
-	    SerializeItems(arc);
-	    SerializeMove(arc);
-	    SerializeLighting(arc);
-	    SerializeObjects(arc);
-	    SerializePlayer(arc);
-	    SerializeRa(arc);
-	    SerializeRand(arc);
-	    SerializeRunList(arc);
-	    SerializeSequence(arc);
-	    SerializeSnake(arc);
-	    SerializeSwitch(arc);
-	    SerializeView(arc);
+	if (arc.BeginObject("exhumed"))
+	{
+		SerializeState(arc);
+		SerializeAnim(arc);
+		SerializeBubbles(arc);
+		SerializeBullet(arc);
+		SerializeGrenade(arc);
+		SerializeGun(arc);
+		SerializeInit(arc);
+		SerializeItems(arc);
+		SerializeMove(arc);
+		SerializeLighting(arc);
+		SerializeObjects(arc);
+		SerializePlayer(arc);
+		SerializeRa(arc);
+		SerializeRand(arc);
+		SerializeRunList(arc);
+		SerializeSequence(arc);
+		SerializeSnake(arc);
+		SerializeSwitch(arc);
+		SerializeView(arc);
 
-	    SerializeAnubis(arc);
-	    SerializeFish(arc);
-	    SerializeLavadude(arc);
-	    SerializeLion(arc);
-	    SerializeMummy(arc);
-	    SerializeQueen(arc);
-	    SerializeRat(arc);
-	    SerializeRex(arc);
-	    SerializeRoach(arc);
-	    SerializeScorpion(arc);
-	    SerializeSet(arc);
-	    SerializeSpider(arc);
-	    SerializeWasp(arc);
-    }
-    // reset the sky in case it hasn't been done yet.
-    psky_t* pSky = tileSetupSky(DEFAULTPSKY);
-    pSky->tileofs[0] = 0;
-    pSky->tileofs[1] = 0;
-    pSky->tileofs[2] = 0;
-    pSky->tileofs[3] = 0;
-    pSky->yoffs = 256;
-    pSky->lognumtiles = 2;
-    pSky->horizfrac = 65536;
-    pSky->yscale = 65536;
-    parallaxtype = 2;
-    g_visibility = 1024;
+		SerializeAnubis(arc);
+		SerializeFish(arc);
+		SerializeLavadude(arc);
+		SerializeLion(arc);
+		SerializeMummy(arc);
+		SerializeQueen(arc);
+		SerializeRat(arc);
+		SerializeRex(arc);
+		SerializeRoach(arc);
+		SerializeScorpion(arc);
+		SerializeSet(arc);
+		SerializeSpider(arc);
+		SerializeWasp(arc);
+	}
+	if (arc.isReading())
+	{
 
-    if (currentLevel->levelNumber > 15)
-    {
-        nSwitchSound = 35;
-        nStoneSound = 23;
-        nElevSound = 51;
-        nStopSound = 35;
-    }
-    else
-    {
-        nSwitchSound = 33;
-        nStoneSound = 23;
-        nElevSound = 23;
-        nStopSound = 66;
-    }
+		// reset the sky in case it hasn't been done yet.
+		psky_t* pSky = tileSetupSky(DEFAULTPSKY);
+		pSky->tileofs[0] = 0;
+		pSky->tileofs[1] = 0;
+		pSky->tileofs[2] = 0;
+		pSky->tileofs[3] = 0;
+		pSky->yoffs = 256;
+		pSky->lognumtiles = 2;
+		pSky->horizfrac = 65536;
+		pSky->yscale = 65536;
+		parallaxtype = 2;
+		g_visibility = 1024;
 
-    Mus_ResumeSaved();
+		if (currentLevel->levelNumber > 15)
+		{
+			nSwitchSound = 35;
+			nStoneSound = 23;
+			nElevSound = 51;
+			nStopSound = 35;
+		}
+		else
+		{
+			nSwitchSound = 33;
+			nStoneSound = 23;
+			nElevSound = 23;
+			nStopSound = 66;
+		}
+
+		Mus_ResumeSaved();
+	}
 }
 
 END_PS_NS
