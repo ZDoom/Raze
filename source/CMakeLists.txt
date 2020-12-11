@@ -39,6 +39,10 @@ endif()
 target_architecture(TARGET_ARCHITECTURE)
 message(STATUS "Architecture is ${TARGET_ARCHITECTURE}")
 
+if ( ${TARGET_ARCHITECTURE} MATCHES "arm64" )
+	set (ARM64 aarch64)
+endif()
+
 # Right now only 64 bit is supported.
 if( ${TARGET_ARCHITECTURE} MATCHES "x86_64" )
 			set( X64 64 )
@@ -67,7 +71,6 @@ if( WIN32 )
 	set( DX_dinput8_LIBRARY dinput8 )
 
 	set( PROJECT_LIBRARIES
-		opengl32
 		wsock32
 		winmm
 		"${DX_dinput8_LIBRARY}"
@@ -416,6 +419,8 @@ else()
 	find_package( ZMusic REQUIRED )
 endif()
 
+message("Building for target architecture: ${TARGET_ARCHITECTURE}")
+
 if( MSVC AND NOT ZMUSIC_FOUND )
 	# Use prebuilt library
 	set( ZMUSIC_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/windows/zmusic" )
@@ -423,6 +428,8 @@ if( MSVC AND NOT ZMUSIC_FOUND )
 	set( ZMUSIC_LIBRARIES zmusiclite )
 	if( X64 )
 		link_directories( ${ZMUSIC_ROOT_PATH}/64bit )
+	elseif( ${TARGET_ARCHITECTURE} MATCHES "arm" )
+		link_directories( ${ZMUSIC_ROOT_PATH}/arm64 )
 	else()
 		link_directories( ${ZMUSIC_ROOT_PATH}/32bit )
 	endif()
@@ -436,7 +443,9 @@ if( MSVC AND NOT VPX_FOUND )
 	set( VPX_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../platform/Windows" )
 	set( VPX_INCLUDE_DIR ${VPX_ROOT_PATH}/include )
 	set( VPX_LIBRARIES libvpx libcompat-to-msvc )
-	if( X64 )
+	if( ARM64 )
+		link_directories( ${VPX_ROOT_PATH}/lib/arm64 )
+	elseif( X64 )
 		link_directories( ${VPX_ROOT_PATH}/lib/64 )
 	else()
 		link_directories( ${VPX_ROOT_PATH}/lib/32 )
@@ -472,7 +481,6 @@ endif()
 set( PLAT_WIN32_SOURCES
 	platform/win32/i_steam.cpp
 	common/platform/win32/hardware.cpp
-	common/platform/win32/i_crash.cpp
 	common/platform/win32/i_input.cpp
 	common/platform/win32/i_keyboard.cpp
 	common/platform/win32/i_mouse.cpp
@@ -494,6 +502,15 @@ if (HAVE_VULKAN)
 	set (PLAT_WIN32_SOURCES ${PLAT_WIN32_SOURCES} common/platform/win32/win32vulkanvideo.cpp )
 endif()
 	
+# todo: implement an actual crash catcher for ARM
+# for now this is purely experimental
+if (NOT ${TARGET_ARCHITECTURE} MATCHES "arm" )
+	set (PLAT_WIN32_SOURCES ${PLAT_WIN32_SOURCES} common/platform/win32/i_crash.cpp )
+endif()
+if (MSVC AND ${TARGET_ARCHITECTURE} MATCHES "arm")
+	add_definitions( -DNO_SSE -D__ARM__ -DRAPIDJSON_ENDIAN=RAPIDJSON_LITTLEENDIAN)
+endif()
+
 set( PLAT_POSIX_SOURCES
 	platform/posix/i_steam.cpp
 	common/platform/posix/i_system_posix.cpp )
