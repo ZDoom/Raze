@@ -1006,11 +1006,6 @@ void movestandables_r(void)
 			continue;
 		}
 
-		act->bposx = act->s.x;
-		act->bposy = act->s.y;
-		act->bposz = act->s.z;
-
-
 		if (picnum >= CRANE && picnum <= CRANE +3)
 		{
 			movecrane(act, CRANE);
@@ -1519,10 +1514,6 @@ void moveweapons_r(void)
 			deletesprite(proj);
 			continue;
 		}
-
-		proj->bposx = proj->s.x;
-		proj->bposy = proj->s.y;
-		proj->bposz = proj->s.z;
 
 		switch (proj->s.picnum)
 		{
@@ -2882,11 +2873,6 @@ void moveactors_r(void)
 
 		auto t = &act->temp_data[0];
 
-		act->bposx = s->x;
-		act->bposy = s->y;
-		act->bposz = s->z;
-
-
 		switch(s->picnum)
 		{
 			case RESPAWNMARKERRED:
@@ -3152,10 +3138,6 @@ void moveexplosions_r(void)  // STATNUM 5
 			deletesprite(act);
 			continue;
 		}
-
-		act->bposx = s->x;
-		act->bposy = s->y;
-		act->bposz = s->z;
 
 		switch (s->picnum)
 		{

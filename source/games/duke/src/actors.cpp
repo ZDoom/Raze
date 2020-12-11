@@ -3986,7 +3986,7 @@ void handle_se17(DDukeActor* actor)
 			ps[p].truecz += q;
 			if (numplayers > 1)	ps[p].oposz = ps[p].posz;
 		}
-		if (act1->s.statnum != 3)
+		if (act1->s.statnum != STAT_EFFECTOR)
 		{
 			act1->bposz = act1->s.z;
 			act1->s.z += q;
@@ -4052,7 +4052,7 @@ void handle_se17(DDukeActor* actor)
 				changespritesect(act3, spr2->sectnum);
 				ps[p].cursectnum = spr2->sectnum;
 			}
-			else if (spr3->statnum != 3)
+			else if (spr3->statnum != STAT_EFFECTOR)
 			{
 				spr3->x += spr2->x - s->x;
 				spr3->y += spr2->y - s->y;
@@ -4871,7 +4871,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 								ps[a2->PlayerIndex()].posz += l;
 						if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && (!choosedir || a2->s.statnum != STAT_PROJECTILE))
 						{
-							a2->bposz = a2->s.z += l;
+							a2->s.z += l;
 							a2->floorz = sec->floorz;
 						}
 					}
@@ -4900,7 +4900,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 								ps[a2->PlayerIndex()].posz += l;
 						if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && (!choosedir || a2->s.statnum != STAT_PROJECTILE))
 						{
-							a2->bposz = a2->s.z += l;
+							a2->s.z += l;
 							a2->floorz = sec->floorz;
 						}
 					}
@@ -4931,7 +4931,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 							ps[a2->PlayerIndex()].posz += l;
 					if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && (!choosedir || a2->s.statnum != STAT_PROJECTILE))
 					{
-						a2->bposz = a2->s.z += l;
+						a2->s.z += l;
 						a2->floorz = sec->floorz;
 					}
 				}
@@ -4959,7 +4959,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 							ps[a2->PlayerIndex()].posz -= l;
 					if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && (!choosedir || a2->s.statnum != STAT_PROJECTILE))
 					{
-						a2->bposz = a2->s.z -= l;
+						a2->s.z -= l;
 						a2->floorz = sec->floorz;
 					}
 				}

@@ -1435,10 +1435,6 @@ void movestandables_d(void)
 			continue;
 		}
 
-		act->bposx = act->s.x;
-		act->bposy = act->s.y;
-		act->bposz = act->s.z;
-
 
 		if (picnum >= CRANE && picnum <= CRANE +3)
 		{
@@ -1942,9 +1938,6 @@ void moveweapons_d(void)
 			continue;
 		}
 
-		act->bposx = act->s.x;
-		act->bposy = act->s.y;
-		act->bposz = act->s.z;
 
 		switch(act->s.picnum)
 		{
@@ -3069,10 +3062,6 @@ void moveactors_d(void)
 
 		int *t = &act->temp_data[0];
 
-		act->bposx = s->x;
-		act->bposy = s->y;
-		act->bposz = s->z;
-
 
 		switch (s->picnum)
 		{
@@ -3293,9 +3282,6 @@ void moveexplosions_d(void)  // STATNUM 5
 			continue;
 		}
 
-		act->bposx = s->x;
-		act->bposy = s->y;
-		act->bposz = s->z;
 
 		switch (s->picnum)
 		{
