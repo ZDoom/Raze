@@ -680,6 +680,7 @@ void SerializeState(FSerializer& arc)
             ("slipmode", bSlipMode)
             ("leveltime", leveltime)
             ("cinemaseen", nCinemaSeen)
+            ("spiritsprite", nSpiritSprite)
             .EndObject();
     }
 }
