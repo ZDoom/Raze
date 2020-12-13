@@ -99,8 +99,8 @@ if( WIN32 )
 		odbccp32
 
 		# this local library crap needs to go away. Sadly there doesn't seem to be anything to get a working libvpx that doesn't force linking with MinGW dependencies.
-		libvpx
-		libcompat-to-msvc
+		#libvpx
+		#libcompat-to-msvc
 
 		)
 
