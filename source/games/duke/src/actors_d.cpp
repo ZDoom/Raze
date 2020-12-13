@@ -1287,20 +1287,15 @@ static void movefireext(DDukeActor* actor)
 
 static void moveviewscreen(DDukeActor* actor)
 {
+	const int VIEWSCR_DIST = 8192;	// was originally 2048, was increased to this by EDuke32 and RedNukem.
 	if (actor->s.xrepeat == 0) deletesprite(actor);
 	else
 	{
 		int x;
-		findplayer(actor, &x);
+		int p = findplayer(actor, &x);
 
-		if (x < 2048)
-		{
-#if 0
-			if (actor->s.yvel  == 1)
-				camsprite = actor;
-#endif
-		}
-		else if (camsprite != nullptr && actor->temp_data[0] == 1)
+		x = dist(actor, ps[p].GetActor()); // the result from findplayer is not really useful.
+		if (x >= VIEWSCR_DIST && camsprite == actor)
 		{
 			camsprite = nullptr;
 			actor->s.yvel = 0;
