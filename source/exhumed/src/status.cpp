@@ -559,7 +559,7 @@ private:
             if (nFrameSize < 0)
                 break;
 
-            int flags = DI_ITEM_RELCENTER;
+            int flags = 0;
 
             double x = ChunkXpos[nFrameBase] + xoffset;
             double y = ChunkYpos[nFrameBase] + ebx;
@@ -588,9 +588,21 @@ private:
 
             short chunkFlag = ChunkFlag[nFrameBase];
 
-            if (chunkFlag & 1) 
+            if (chunkFlag & 3)
+            {
+                // This is hard to align with bad offsets, so skip that treatment for mirrored elements.
+                flags |= DI_ITEM_RELCENTER;
+            }
+            else
+            {
+                x -= tileWidth(tile) / 2;
+                y -= tileHeight(tile) / 2;
+                flags |= DI_ITEM_OFFSETS;
+            }
+
+            if (chunkFlag & 1)
                 flags |= DI_MIRROR;
-            if (chunkFlag & 2) 
+            if (chunkFlag & 2)
                 flags |= DI_MIRRORY;
 
             DrawGraphic(tileGetTexture(tile), x, y, flags, 1, -1, -1, 1, 1);
@@ -611,6 +623,13 @@ private:
         return tileGetTexture(ChunkPict[nFrameBase]);
     }
 
+    int GetStatusSequenceTile(short nSequence, uint16_t edx)
+    {
+        edx += SeqBase[nSequence];
+        int nFrameBase = FrameBase[edx];
+        return ChunkPict[nFrameBase];
+    }
+
     //---------------------------------------------------------------------------
     //
     // 
@@ -621,33 +640,8 @@ private:
     {
         for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
         {
-            double xoff = 0.5, yoff = 0;
             int nSequence = nStatusSeqOffset + StatusAnim[i].s1;
-
-            if (StatusAnim[i].s1 >= 37 && StatusAnim[i].s1 <= 43)
-            {
-                yoff = 0.5;
-            }
-
-            if (StatusAnim[i].s1 == 4 || StatusAnim[i].s1 == 166)
-            {
-                xoff = 0;
-            }
-
-            DrawStatusSequence(nSequence, StatusAnim[i].s2, yoff, xoff);
-
-            /*
-                    if (StatusAnim[nAnim].s2 >= (SeqSize[nSequence] - 1))
-                    {
-                        if (!(StatusAnimFlags[nAnim] & 0x10))
-                        {
-                            StatusAnim[nAnim].nPage--;
-                            if (StatusAnim[nAnim].nPage <= 0) {
-                                DestroyStatusAnim(nAnim);
-                            }
-                        }
-                    }
-            */
+            DrawStatusSequence(nSequence, StatusAnim[i].s2, 0, 0);
         }
     }
 
@@ -760,15 +754,19 @@ private:
             DrawGraphic(img, -4, -22, DI_ITEM_RIGHT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 		}
 
-
         //
         // Magic
         //
         if (nItemSeq >= 0)
         {
-            img = GetStatusSequencePic(nItemSeq + nStatusSeqOffset, nItemFrame);
-            imgScale = baseScale / img->GetDisplayHeight();
-            DrawGraphic(img, 70, -1, DI_ITEM_CENTER_BOTTOM, 1., -1, -1, imgScale, imgScale);
+            int tile = GetStatusSequenceTile(nItemSeq + nStatusSeqOffset, nItemFrame);
+            int tile2 = tile;
+            if (tile2 > 744 && tile2 < 751) tile2 = 744;
+
+            imgScale = baseScale / tileHeight(tile2);
+            DrawGraphic(tileGetTexture(tile), 70, -1, DI_ITEM_CENTER_BOTTOM, 1., -1, -1, imgScale, imgScale);
+
+
 
             format.Format("%d", pp->nMagic / 10);
 
