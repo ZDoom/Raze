@@ -178,7 +178,6 @@ int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 int32_t xyaspect;
 int32_t viewingrangerecip;
 
-static char globalxshift, globalyshift;
 static int32_t globalxpanning, globalypanning;
 int32_t globalshade, globalorientation;
 int16_t globalpicnum;
@@ -299,19 +298,6 @@ int32_t animateoffs(int const tilenum, int fakevar)
     }
 
     return offs;
-}
-
-
-// globalpicnum --> globalxshift, globalyshift
-static void calc_globalshifts(void)
-{
-    globalxshift = (8-widthBits(globalpicnum));
-    globalyshift = (8-heightBits(globalpicnum));
-    if (globalorientation&8) { globalxshift++; globalyshift++; }
-    // PK: the following can happen for large (>= 512) tile sizes.
-    // NOTE that global[xy]shift are unsigned chars.
-    if (globalxshift > 31) globalxshift=0;
-    if (globalyshift > 31) globalyshift=0;
 }
 
 static void renderDrawSprite(int32_t snum)
@@ -1705,7 +1691,12 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 globaly2 = mulscale12(globaly2,i);
             }
 
-            calc_globalshifts();
+            int globalxshift = (8 - widthBits(globalpicnum));
+            int globalyshift = (8 - heightBits(globalpicnum));
+            if (globalorientation & 8) { globalxshift++; globalyshift++; }
+            // PK: the following can happen for large (>= 512) tile sizes.
+            if (globalxshift < 0) globalxshift = 0;
+            if (globalyshift < 0) globalyshift = 0;
 
             if ((globalorientation&0x4) > 0)
             {

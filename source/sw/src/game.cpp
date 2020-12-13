@@ -599,12 +599,12 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 	COVER_SetReverb(0); // Reset reverb
 	Player[myconnectindex].Reverb = 0;
 	StopSound();
+    STAT_Update(map == nullptr);
 
 	StatScreen(FinishAnim, [=](bool)
 		{
-			if (map == nullptr)
+            if (map == nullptr)
 			{
-				STAT_Update(true);
 				FinishAnim = false;
 				PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
                 if (SW_SHAREWARE)
