@@ -177,8 +177,8 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
 
                         if (diff > INT_MAX)
                         {
-                            Printf("%s %d: overflow\n", __func__, __LINE__);
-                            diff = INT_MAX; 
+                            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
+                            diff = INT_MAX;
                         }
 
                         int theSqrt = ksqrt(diff);
