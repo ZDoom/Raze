@@ -825,7 +825,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.avel = input.avel = 0;
 		}
 
-		if (p->newOwner == nullptr && !(p->sync.actions & SB_CENTERVIEW))
+		if (p->newOwner == nullptr)
 		{
 			// input.horz already added to loc in processMovement()
 			loc.horz = clamp(loc.horz, -MAXHORIZVEL, MAXHORIZVEL);
