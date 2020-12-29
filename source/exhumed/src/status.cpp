@@ -595,8 +595,8 @@ private:
             }
             else
             {
-                x -= tileWidth(tile) / 2;
-                y -= tileHeight(tile) / 2;
+                x -= tileWidth(tile) * .5;
+                y -= tileHeight(tile) * .5;
                 flags |= DI_ITEM_OFFSETS;
             }
 
@@ -641,7 +641,7 @@ private:
         for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
         {
             int nSequence = nStatusSeqOffset + StatusAnim[i].s1;
-            DrawStatusSequence(nSequence, StatusAnim[i].s2, 0, 0);
+            DrawStatusSequence(nSequence, StatusAnim[i].s2, StatusAnim[i].s1 >= 37 && StatusAnim[i].s1 <= 43 ? 0.5 : 0, 0.5);
         }
     }
 
