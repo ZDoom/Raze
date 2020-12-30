@@ -289,27 +289,24 @@ void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double 
 			pitch += scaleAdjust * amount;
 	}
 
-	// clamp pitch after processing
-	pitch = clamp(pitch, -90, 90);
+	// clamp before converting back to horizon
+	*horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
 
 	// return to center if conditions met.
 	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 	{
-		if (abs(pitch) > 0.1375)
+		if (abs(horiz->asq16()) > FloatToFixed(0.25))
 		{
-			// move pitch back to 0
-			pitch += -scaleAdjust * pitch * (9. / GameTicRate);
+			// move horiz back to 0
+			*horiz -= q16horiz(xs_CRoundToInt(scaleAdjust * horiz->asq16() * (10. / GameTicRate)));
 		}
 		else
 		{
-			// not looking anymore because pitch is back at 0
-			pitch = 0;
+			// not looking anymore because horiz is back at 0
+			*horiz = q16horiz(0);
 			*actions &= ~SB_CENTERVIEW;
 		}
 	}
-
-	// clamp before returning
-	*horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
 }
 
 //---------------------------------------------------------------------------
