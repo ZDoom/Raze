@@ -295,7 +295,7 @@ void animatecamsprite(double smoothratio)
 				auto camera = &camsprite->GetOwner()->s;
 				auto ang = getcamspriteang(camsprite->GetOwner(), smoothratio);
 				// Note: no ROR or camera here for now - the current setup has no means to detect these things before rendering the scene itself.
-				drawrooms(camera->x, camera->y, camera->z, ang, 100 + camera->shade, camera->sectnum); // why 'shade'...?
+				drawrooms(camera->x, camera->y, camera->z, ang, camera->shade, camera->sectnum); // why 'shade'...?
 				display_mirror = 1; // should really be 'display external view'.
 				fi.animatesprites(camera->x, camera->y, ang, smoothratio);
 				display_mirror = 0;
