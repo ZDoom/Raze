@@ -557,7 +557,7 @@ void evKill(int index, int type, CALLBACK_ID cb)
 
 void evProcess(unsigned int time)
 {
-	while (queue.size() > 0 && time >= queue.begin()->priority)
+	while (queue.size() > 0 && (int)time >= queue.begin()->priority)
 	{
 		EVENT event = *queue.begin();
 		queue.erase(queue.begin());
