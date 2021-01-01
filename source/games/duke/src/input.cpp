@@ -794,21 +794,17 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.svel = input.svel = 0;
 		}
 
-		if (p->on_crane == nullptr && p->newOwner == nullptr)
+		if (p->newOwner != nullptr)
 		{
-			if (!SyncInput() && input.avel)
+			if (p->on_crane != nullptr)
 			{
-				p->angle.spin = bamlook(0);
+				loc.avel = input.avel = 0;
 			}
-		}
-		else
-		{
-			loc.avel = input.avel = 0;
-		}
 
-		if (p->newOwner != nullptr && ((p->sync.actions & SB_CENTERVIEW) || !(p->sync.actions & SB_CENTERVIEW) && abs(p->horizon.horiz.asbuild()) > 5))
-		{
-			loc.horz = input.horz = 0;
+			if ((p->sync.actions & SB_CENTERVIEW) || (!(p->sync.actions & SB_CENTERVIEW) && abs(p->horizon.horiz.asbuild()) > 5))
+			{
+				loc.horz = input.horz = 0;
+			}
 		}
 	}
 }

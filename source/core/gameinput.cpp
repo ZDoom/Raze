@@ -387,6 +387,7 @@ void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double 
 	{
 		// add player's input
 		angle->ang += degang(avel);
+		angle->spin = bamlook(0);
 	}
 }
 
