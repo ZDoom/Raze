@@ -43,6 +43,7 @@
 #include "gamestruct.h"
 #include "d_net.h"
 #include "gamestate.h"
+#include "gameinput.h"
 
 static int WeaponToSend = 0;
 ESyncBits ActionsToSend = 0;
@@ -125,6 +126,7 @@ void InputState::ClearAllInput()
 	crouch_toggle = false;
 	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
 	gi->clearlocalinputstate();		// also clear game local input state.
+	resetTurnHeldAmt();
 }
 
 
