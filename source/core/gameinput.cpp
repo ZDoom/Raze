@@ -423,7 +423,7 @@ void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, b
 			}
 			if (horizoff->asq16() < 0)
 			{
-				*horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff->asq16() >> 3) + FRACUNIT)));
+				*horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff->asq16() >> 3) - FRACUNIT)));
 				if (horizoff->asq16() > 0) *horizoff = q16horiz(0);
 			}
 		}
