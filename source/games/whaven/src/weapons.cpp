@@ -681,8 +681,8 @@ void weaponsprocess(int snum) {
 				plr.currweaponframe = weaponanimtics[plr.currweapon][0].daweaponframe;
 		}
 		if (plr.plInput.fvel || plr.plInput.svel) {
-			snakex = (sintable[(lockclock << 4) & 2047] >> 12);
-			snakey = (sintable[(lockclock << 4) & 2047] >> 12);
+			snakex = bsin(lockclock << 4, -12);
+			snakey = bsin(lockclock << 4, -12);
 		}
 		break;
 	case 2: // unready
@@ -865,8 +865,8 @@ void weaponsprocess(int snum) {
 	if (plr.shieldpoints > 0 && (plr.currweaponfired == 0 || plr.currweaponfired == 1) && plr.selectedgun > 0
 			&& plr.selectedgun < 5 && !droptheshield) {
 		if (plr.currweaponfired == 1) {
-			snakex = (sintable[(lockclock << 4) & 2047] >> 12);
-			snakey = (sintable[(lockclock << 4) & 2047] >> 12);
+			snakex = bsin(lockclock << 4, -12);
+			snakey = bsin(lockclock << 4, -12);
 			if (droptheshield) {
 				dropshieldcnt += (TICSPERFRAME << 1);
 				snakey += dropshieldcnt;
@@ -904,8 +904,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
 
 		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
-				sintable[(daang + 2560) & 2047], // X vector of 3D ang
-				sintable[(daang + 2048) & 2047], // Y vector of 3D ang
+				bcos(daang), // X vector of 3D ang
+				bsin(daang), // Y vector of 3D ang
 				daz2, // Z vector of 3D ang
 				pHitInfo, CLIPMASK1);
 
@@ -1676,8 +1676,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
 
 		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
-				sintable[(daang + 2560) & 2047], // X vector of 3D ang
-				sintable[(daang + 2048) & 2047], // Y vector of 3D ang
+				bcos(daang), // X vector of 3D ang
+				bsin(daang), // Y vector of 3D ang
 				daz2, // Z vector of 3D ang
 				pHitInfo, CLIPMASK1);
 
@@ -1757,8 +1757,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			sprite[j].owner = sprite[plr.spritenum].owner;
 			sprite[j].lotag = 32;
 			sprite[j].hitag = 0;
-			movesprite((short) j, ((sintable[(sprite[j].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-					((sintable[sprite[j].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+			movesprite((short) j, (bcos(sprite[j].ang) * TICSPERFRAME) << 3,
+					(bsin(sprite[j].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		}
 		if ((pHitInfo.hitsprite >= 0) && (sprite[pHitInfo.hitsprite].statnum < MAXSTATUS)) {
 			switch (sprite[pHitInfo.hitsprite].detail) {
@@ -1891,8 +1891,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 		Neartag ntag;
 		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
-			sintable[(daang + 2560) & 2047], // X vector of 3D ang
-			sintable[(daang + 2048) & 2047], // Y vector of 3D ang
+			bcos(daang), // X vector of 3D ang
+			bsin(daang), // Y vector of 3D ang
 			daz2, // Z vector of 3D ang
 			pHitInfo, CLIPMASK1);
 
@@ -1955,8 +1955,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						sprite[j].lotag = 1024;
 						sprite[j].hitag = 0;
 						sprite[j].pal = 0;
-						movesprite((short) j, ((sintable[(sprite[j].extra + 512) & 2047]) * TICSPERFRAME) << 3,
-								((sintable[sprite[j].extra & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+						movesprite((short) j, (bcos(sprite[j].extra) * TICSPERFRAME) << 3,
+								(bsin(sprite[j].extra) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 						setsprite((short) j, sprite[j].x, sprite[j].y, sprite[j].z);
 					} else {
 						j = insertsprite(plr.sector, MISSILE);
@@ -2044,8 +2044,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						sprite[j].lotag = 1024;
 						sprite[j].hitag = 0;
 						sprite[j].pal = 0;
-						movesprite((short) j, ((sintable[(sprite[j].extra + 512) & 2047]) * TICSPERFRAME) << 3,
-								((sintable[sprite[j].extra & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+						movesprite((short) j, (bcos(sprite[j].extra) * TICSPERFRAME) << 3,
+								(bsin(sprite[j].extra) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 						setsprite((short) j, sprite[j].x, sprite[j].y, sprite[j].z);
 					} else {
 						j = insertsprite(plr.sector, MISSILE);
@@ -2115,8 +2115,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		sprite[j].xrepeat = 16;
 		sprite[j].yrepeat = 16;
 		sprite[j].ang = (short) daang;
-		sprite[j].xvel = (short) (sintable[(daang + 2560) & 2047] >> 5);
-		sprite[j].yvel = (short) (sintable[(daang) & 2047] >> 5);
+		sprite[j].xvel = bcos(daang, -5);
+		sprite[j].yvel = bsin(daang, -5);
 
 		if (shootgunzvel != 0) {
 			sprite[j].zvel = (short) shootgunzvel;
@@ -2130,8 +2130,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		sprite[j].hitag = 0;
 		sprite[j].clipdist = 48;
 
-		movesprite((short) j, ((sintable[(sprite[j].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-				((sintable[sprite[j].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+		movesprite((short) j, (bcos(sprite[j].ang) * TICSPERFRAME) << 3,
+				(bsin(sprite[j].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
 
 		break;
@@ -2152,8 +2152,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		sprite[j].xrepeat = 64;
 		sprite[j].yrepeat = 64;
 		sprite[j].ang = plr.angle.ang.asbuild();
-		sprite[j].xvel = (short) (sintable[(daang + 2560) & 2047] >> 7);
-		sprite[j].yvel = (short) (sintable[(daang) & 2047] >> 7);
+		sprite[j].xvel = bcos(daang, -7);
+		sprite[j].yvel = bsin(daang, -7);
 
 		if (shootgunzvel != 0) {
 			sprite[j].zvel = (short) shootgunzvel;
@@ -2167,11 +2167,11 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		sprite[j].hitag = 0;
 		sprite[j].clipdist = 64;
 
-		// dax=(sintable[(sprite[j].ang+512)&2047]>>6);
-		// day=(sintable[sprite[j].ang]>>6);
+		// dax=bcos(sprite[j].ang, -6);
+		// day=bsin(sprite[j].ang, -6);
 
-		movesprite((short) j, ((sintable[(sprite[j].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-				((sintable[sprite[j].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+		movesprite((short) j, (bcos(sprite[j].ang) * TICSPERFRAME) << 3,
+				(bsin(sprite[j].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
 
 		break;
