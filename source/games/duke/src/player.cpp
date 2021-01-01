@@ -73,18 +73,6 @@ void PlayerColorChanged(void)
 
 //---------------------------------------------------------------------------
 //
-// Sync local player with CVARs.
-//
-//---------------------------------------------------------------------------
-
-void setlocalplayerinput(player_struct* pp)
-{
-	pp->aim_mode = in_mousemode;
-	pp->auto_aim = cl_autoaim;
-}
-
-//---------------------------------------------------------------------------
-//
 // calculates automatic view pitch for playing without a mouse
 //
 //---------------------------------------------------------------------------
@@ -95,8 +83,8 @@ void calcviewpitch(player_struct *p, double factor)
 	int psectlotag = sector[psect].lotag;
 	if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
 	{
-		int x = p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 5);
-		int y = p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 5);
+		int x = p->posx + p->angle.ang.bcos(-5);
+		int y = p->posy + p->angle.ang.bsin(-5);
 		short tempsect = psect;
 		updatesector(x, y, &tempsect);
 
@@ -225,7 +213,7 @@ int hits(DDukeActor* actor)
 	if (sp->picnum == TILE_APLAYER) zoff = (40 << 8);
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, sintable[(sp->ang + 512) & 2047], sintable[sp->ang & 2047], 0, &sect, &hw, &d, &sx, &sy, &sz, CLIPMASK1);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, &sect, &hw, &d, &sx, &sy, &sz, CLIPMASK1);
 
 	return (FindDistance2D(sx - sp->x, sy - sp->y));
 }
@@ -247,7 +235,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	else if (sp->picnum == TILE_APLAYER) zoff = (39 << 8);
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, sintable[(sp->ang + 512) & 2047], sintable[sp->ang & 2047], 0, &sect, &hw, hitsp, &sx, &sy, &sz, CLIPMASK1);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, &sect, &hw, hitsp, &sx, &sy, &sz, CLIPMASK1);
 
 	if (hw >= 0 && (wall[hw].cstat & 16) && badguy(actor))
 		return((1 << 30));
@@ -268,7 +256,7 @@ int hitawall(struct player_struct* p, int* hitw)
 	DDukeActor* d;
 
 	hitscan(p->posx, p->posy, p->posz, p->cursectnum,
-		sintable[(p->angle.ang.asbuild() + 512) & 2047], sintable[p->angle.ang.asbuild() & 2047], 0, &sect, &hitw1, &d, &sx, &sy, &sz, CLIPMASK0);
+		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, &sect, &hitw1, &d, &sx, &sy, &sz, CLIPMASK0);
 	*hitw = hitw1;
 
 	return (FindDistance2D(sx - p->posx, sy - p->posy));
@@ -295,13 +283,14 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	// Autoaim from DukeGDX.
 	if (s->picnum == TILE_APLAYER)
 	{
-		if (ps[s->yvel].auto_aim == 0)
+		int autoaim = Autoaim(s->yvel);
+		if (!autoaim)
 		{
 			// The chickens in RRRA are homing and must always autoaim.
 			if (!isRRRA() || ps[s->yvel].curr_weapon != CHICKEN_WEAPON)
 				return nullptr;
 		}
-		else if (ps[s->yvel].auto_aim == 2)
+		else if (autoaim == 2)
 		{
 			int weap;
 			if (!isWW2GI())
@@ -340,13 +329,13 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 
 	smax = 0x7fffffff;
 
-	dx1 = sintable[(a + 512 - aang) & 2047];
-	dy1 = sintable[(a - aang) & 2047];
-	dx2 = sintable[(a + 512 + aang) & 2047];
-	dy2 = sintable[(a + aang) & 2047];
+	dx1 = bcos(a - aang);
+	dy1 = bsin(a - aang);
+	dx2 = bcos(a + aang);
+	dy2 = bsin(a + aang);
 
-	dx3 = sintable[(a + 512) & 2047];
-	dy3 = sintable[a & 2047];
+	dx3 = bcos(a);
+	dy3 = bsin(a);
 
 	for (k = 0; k < 4; k++)
 	{
@@ -369,7 +358,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 							s != sp)
 							continue;
 
-						if (gotshrinker && sp->xrepeat < 30 && !(actorinfo[sp->picnum].flags & SFLAG_SHRINKAUTOAIM)) continue;
+						if (gotshrinker && sp->xrepeat < 30 && !(gs.actorinfo[sp->picnum].flags & SFLAG_SHRINKAUTOAIM)) continue;
 						if (gotfreezer && sp->pal == 1) continue;
 					}
 
@@ -386,7 +375,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 									a = (abs(scale(sp->z - s->z, 10, sdist) - ps[s->yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
-								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + actorinfo[sp->picnum].aimoffset, sp->sectnum, s->x, s->y, s->z - (32 << 8), s->sectnum);
+								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + gs.actorinfo[sp->picnum].aimoffset, sp->sectnum, s->x, s->y, s->z - (32 << 8), s->sectnum);
 
 								if (a && cans)
 								{
@@ -582,7 +571,7 @@ void footprints(int snum)
 
 inline void backupplayer(player_struct* p)
 {
-	backuppos(p);
+	p->backuppos();
 	p->angle.backup();
 	p->horizon.backup();
 }
@@ -623,9 +612,9 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 			if (p->frag_ps != snum)
 			{
 				ps[p->frag_ps].frag++;
-				frags[p->frag_ps][snum]++;
+				ps[p->frag_ps].frags[snum]++;
 
-				auto pname = &ud.user_name[p->frag_ps][0];
+				auto pname = PlayerName(p->frag_ps);
 				if (snum == screenpeek)
 				{
 					Printf(PRINT_NOTIFY, "Killed by %s", pname);
@@ -655,7 +644,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->posz - fz) > (PHEIGHT >> 1))
+			if (abs(p->posz - fz) > (gs.playerheight >> 1))
 				p->posz += 348;
 		}
 		else
@@ -781,42 +770,23 @@ void playerJump(int snum, int fz, int cz)
 //
 //---------------------------------------------------------------------------
 
-void apply_seasick(player_struct* p, double factor)
+void player_struct::apply_seasick(double factor)
 {
-	if (isRRRA() && p->SeaSick && p->dead_flag == 0)
+	if (isRRRA() && SeaSick && dead_flag == 0)
 	{
-		if (p->SeaSick < 250)
+		if (SeaSick < 250)
 		{
-			if (p->SeaSick >= 180)
-				p->angle.rotscrnang += bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
-			else if (p->SeaSick >= 130)
-				p->angle.rotscrnang -= bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
-			else if (p->SeaSick >= 70)
-				p->angle.rotscrnang += bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
-			else if (p->SeaSick >= 20)
-				p->angle.rotscrnang -= bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
+			if (SeaSick >= 180)
+				angle.rotscrnang += bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
+			else if (SeaSick >= 130)
+				angle.rotscrnang -= bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
+			else if (SeaSick >= 70)
+				angle.rotscrnang += bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
+			else if (SeaSick >= 20)
+				angle.rotscrnang -= bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
 		}
-		if (p->SeaSick < 250)
-			p->angle.look_ang = bamlook(xs_CRoundToUInt(((krand() & 255) - 128) * factor * BAMUNIT));
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// split off because it can be called from multiple places.
-//
-//---------------------------------------------------------------------------
-
-void processavel(player_struct* p, float* avel)
-{
-	// Taken from processinput() for use with applying look while cl_syncinput is 0.
-	if (p->psectlotag == ST_2_UNDERWATER)
-	{
-		*avel = (*avel - (*avel / 8.f)) * sgn(TICSPERFRAME);
-	}
-	else
-	{
-		*avel = *avel * sgn(TICSPERFRAME);
+		if (SeaSick < 250)
+			angle.look_ang = bamlook(xs_CRoundToUInt(((krand() & 255) - 128) * factor * BAMUNIT));
 	}
 }
 
@@ -826,23 +796,23 @@ void processavel(player_struct* p, float* avel)
 //
 //---------------------------------------------------------------------------
 
-void backuppos(player_struct* p, bool noclipping)
+void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		p->oposx = p->posx;
-		p->oposy = p->posy;
+		oposx = posx;
+		oposy = posy;
 	}
 	else
 	{
-		p->posx = p->oposx;
-		p->posy = p->oposy;
+		posx = oposx;
+		posy = oposy;
 	}
 
-	p->oposz = p->posz;
-	p->bobposx = p->posx;
-	p->bobposy = p->posy;
-	p->opyoff = p->pyoff;
+	oposz = posz;
+	bobposx = posx;
+	bobposy = posy;
+	opyoff = pyoff;
 }
 
 //---------------------------------------------------------------------------
@@ -851,13 +821,13 @@ void backuppos(player_struct* p, bool noclipping)
 //
 //---------------------------------------------------------------------------
 
-void backupweapon(player_struct* p)
+void player_struct::backupweapon()
 {
-	p->oweapon_sway = p->weapon_sway;
-	p->oweapon_pos = p->weapon_pos;
-	p->okickback_pic = p->kickback_pic;
-	p->orandom_club_frame = p->random_club_frame;
-	p->ohard_landing = p->hard_landing;
+	oweapon_sway = weapon_sway;
+	oweapon_pos = weapon_pos;
+	okickback_pic = kickback_pic;
+	orandom_club_frame = random_club_frame;
+	ohard_landing = hard_landing;
 }
 
 //---------------------------------------------------------------------------
@@ -866,34 +836,34 @@ void backupweapon(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-void checkhardlanding(player_struct* p)
+void player_struct::checkhardlanding()
 {
-	if (p->hard_landing > 0)
+	if (hard_landing > 0)
 	{
-		p->horizon.addadjustment(-(p->hard_landing << 4));
-		p->hard_landing--;
+		horizon.addadjustment(-(hard_landing << 4));
+		hard_landing--;
 	}
 }
 
-void playerweaponsway(player_struct* p, spritetype* s)
+void player_struct::playerweaponsway(int xvel)
 {
 	if (cl_weaponsway)
 	{
-		if (s->xvel < 32 || p->on_ground == 0 || p->bobcounter == 1024)
+		if (xvel < 32 || on_ground == 0 || bobcounter == 1024)
 		{
-			if ((p->weapon_sway & 2047) > (1024 + 96))
-				p->weapon_sway -= 96;
-			else if ((p->weapon_sway & 2047) < (1024 - 96))
-				p->weapon_sway += 96;
-			else p->oweapon_sway = p->weapon_sway = 1024;
+			if ((weapon_sway & 2047) > (1024 + 96))
+				weapon_sway -= 96;
+			else if ((weapon_sway & 2047) < (1024 - 96))
+				weapon_sway += 96;
+			else oweapon_sway = weapon_sway = 1024;
 		}
 		else
 		{
-			p->weapon_sway = p->bobcounter;
+			weapon_sway = bobcounter;
 
-			if ((p->bobcounter - p->oweapon_sway) > 256)
+			if ((bobcounter - oweapon_sway) > 256)
 			{
-				p->oweapon_sway = p->weapon_sway;
+				oweapon_sway = weapon_sway;
 			}
 		}
 	}
@@ -1085,8 +1055,8 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 
 
 	hitscan(sx, sy, sz, sect,
-		sintable[(sa + 512) & 2047],
-		sintable[sa & 2047], zvel << 6,
+		bcos(sa),
+		bsin(sa), zvel << 6,
 		&hitsect, &hitwall, &d, &hitx, &hity, &hitz, CLIPMASK1);
 
 	// oh my...
@@ -1147,8 +1117,8 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 	short bakcstat, hitsect, hitwall, daang;
 	DDukeActor* hitsprt;
 
-	nx = (sintable[(ang + 1536) & 2047] >> 4);
-	ny = (sintable[(ang + 1024) & 2047] >> 4);
+	nx = -bcos(ang, -4);
+	ny = -bsin(ang, -4);
 	nz = q16horiz >> 9;
 
 	sp = &pp->GetActor()->s;
@@ -1174,7 +1144,7 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 			daang = getangle(wall[wall[hitwall].point2].x - wall[hitwall].x,
 				wall[wall[hitwall].point2].y - wall[hitwall].y);
 
-			i = nx * sintable[daang] + ny * sintable[(daang + 1536) & 2047];
+			i = nx * bsin(daang) + ny * -bcos(daang);
 			if (abs(nx) > abs(ny)) hx -= mulscale28(nx, i);
 			else hy -= mulscale28(ny, i);
 		}

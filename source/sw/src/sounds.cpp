@@ -249,8 +249,11 @@ void InitAmbient(int num, SPRITEp sp)
     // Ambient sounds need special treatment
     if (num < 0 || num > MAX_AMBIENT_SOUNDS)
     {
-        sprintf(ds, "Invalid or out of range ambient sound number %d\n", num);
-        PutStringInfo(Player + screenpeek, ds);
+        if (num != -1) // skip message for -1 to allow using it for silencing buggy ambient sound sprites (there is one in SW level 9.)
+        {
+            sprintf(ds, "Invalid or out of range ambient sound number %d\n", num);
+            PutStringInfo(Player + screenpeek, ds);
+        }
         return;
     }
     auto vnum = ambarray[num].diginame;
@@ -300,6 +303,8 @@ void StartAmbientSound(void)
 
 static void RestartAmbient(AmbientSound* amb)
 {
+    if (!SoundEnabled()) return;
+
     auto& vp = voc[amb->vocIndex];
     auto rolloff = GetRolloff(vp.voc_distance);
     int pitch = 0;
@@ -368,6 +373,8 @@ static void DoTimedSound(AmbientSound* amb)
 
 static void UpdateAmbients()
 {
+    if (!SoundEnabled()) return;
+
     for (auto& amb : ambients)
     {
         auto sp = amb->sp;
@@ -515,7 +522,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
     if (pos != nullptr)
     {
         PLAYERp pp = Player + screenpeek;
-        FVector3 campos = GetSoundPos((vec3_t*)pp);
+        FVector3 campos = GetSoundPos(&pp->pos);
         vec3_t *vpos = nullptr;
 
         if (vel) vel->Zero();
@@ -528,7 +535,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         else if (type == SOURCE_Actor || type == SOURCE_Player)
         {
-            vpos = type == SOURCE_Actor ? &((SPRITEp)source)->pos : (vec3_t*)&((PLAYERp)source)->posx;
+            vpos = type == SOURCE_Actor ? &((SPRITEp)source)->pos : &((PLAYERp)source)->pos;
             FVector3 npos = GetSoundPos(vpos);
 
             *pos = npos;
@@ -590,9 +597,9 @@ void GameInterface::UpdateSounds(void)
     PLAYERp pp = Player + screenpeek;
     SoundListener listener;
 
-    listener.angle = -(pp->angle.ang.asbam() / (double)BAMUNIT) * pi::pi() / 1024; // Build uses a period of 2048.
+    listener.angle = -pp->angle.ang.asbuild() * BAngRadian; // Build uses a period of 2048.
     listener.velocity.Zero();
-    listener.position = GetSoundPos((vec3_t*)&pp->posx);
+    listener.position = GetSoundPos(&pp->pos);
     listener.underwater = false;
     // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
     // listenactor->waterlevel == 3;
@@ -642,7 +649,7 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
         }
         else if (pp && !pos)
         {
-            pos = (vec3_t*)&pp->posx;
+            pos = &pp->pos;
             pp = nullptr;
         }
     }
@@ -807,7 +814,7 @@ int _PlayerSound(int num, PLAYERp pp)
         return 0;
     }
 
-    if (num < 0 || num >= DIGI_MAX || !soundEngine->isValidSoundId(num))
+    if (num < 0 || num >= DIGI_MAX || !soundEngine->isValidSoundId(num) || !SoundEnabled())
         return 0;
 
     if (TEST(pp->Flags, PF_DEAD)) return 0; // You're dead, no talking!

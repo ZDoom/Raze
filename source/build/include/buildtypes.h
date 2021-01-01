@@ -29,16 +29,31 @@ struct sectortype
     uint16_t ceilingstat, floorstat;
     int16_t ceilingpicnum, ceilingheinum;
     int8_t ceilingshade;
-    uint8_t ceilingpal, /*CM_FLOORZ:*/ ceilingxpanning, ceilingypanning;
+    uint8_t ceilingpal; /*CM_FLOORZ:*/
     int16_t floorpicnum, floorheinum;
     int8_t floorshade;
-    uint8_t floorpal, floorxpanning, floorypanning;
+    uint8_t floorpal;;
     uint8_t /*CM_CEILINGZ:*/ visibility, fogpal;
     union {
         int16_t lotag, type;
     };
     int16_t hitag;
     int16_t extra;
+
+    float ceilingxpan_, ceilingypan_, floorxpan_, floorypan_;
+
+    int ceilingxpan() const { return int(ceilingxpan_); }
+    int ceilingypan() const { return int(ceilingypan_); }
+    int floorxpan() const { return int(floorxpan_); }
+    int floorypan() const { return int(floorypan_); }
+    void setfloorxpan(float val) { floorxpan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
+    void setfloorypan(float val) { floorypan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
+    void setceilingxpan(float val) { ceilingxpan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
+    void setceilingypan(float val) { ceilingypan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
+    void addfloorxpan(float add) { floorxpan_ = fmod(floorxpan_ + add + 512, 256); } // +512 is for handling negative offsets
+    void addfloorypan(float add) { floorypan_ = fmod(floorypan_ + add + 512, 256); } // +512 is for handling negative offsets
+    void addceilingxpan(float add) { ceilingxpan_ = fmod(ceilingxpan_ + add + 512, 256); } // +512 is for handling negative offsets
+    void addceilingypan(float add) { ceilingypan_ = fmod(ceilingypan_ + add + 512, 256); } // +512 is for handling negative offsets
 };
 
 //cstat:
@@ -69,12 +84,18 @@ struct walltype
     uint16_t cstat;
     int16_t picnum, overpicnum;
     int8_t shade;
-    uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
+    uint8_t pal, xrepeat, yrepeat;
     union {
         int16_t lotag, type;
     };
     int16_t hitag;
     int16_t extra;
+    float xpan_, ypan_;
+
+    int xpan() const { return int(xpan_); }
+    int ypan() const { return int(ypan_); }
+    void addxpan(float add) { xpan_ = fmod(xpan_ + add + 512, 256); } // +512 is for handling negative offsets
+    void addypan(float add) { ypan_ = fmod(ypan_ + add + 512, 256); } // +512 is for handling negative offsets
 
 #if 0
     // make sure we do not accidentally copy this

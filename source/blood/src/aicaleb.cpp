@@ -27,31 +27,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
 
 BEGIN_BLD_NS
 
-static void SeqAttackCallback(int, int);
-static void calebThinkSearch(spritetype *, XSPRITE *);
-static void calebThinkGoto(spritetype *, XSPRITE *);
-static void calebThinkChase(spritetype *, XSPRITE *);
-static void calebThinkSwimGoto(spritetype *, XSPRITE *);
-static void calebThinkSwimChase(spritetype *, XSPRITE *);
-static void sub_65D04(spritetype *, XSPRITE *);
-static void sub_65F44(spritetype *, XSPRITE *);
-static void sub_661E0(spritetype *, XSPRITE *);
-
-static int nAttackClient = seqRegisterClient(SeqAttackCallback);
+static void calebThinkSearch(DBloodActor *);
+static void calebThinkGoto(DBloodActor *);
+static void calebThinkChase(DBloodActor *);
+static void calebThinkSwimGoto(DBloodActor *);
+static void calebThinkSwimChase(DBloodActor *);
+static void sub_65D04(DBloodActor *);
+static void sub_65F44(DBloodActor *);
+static void sub_661E0(DBloodActor *);
 
 AISTATE tinycalebIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE tinycalebChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveForward, calebThinkChase, NULL };
@@ -72,13 +60,12 @@ AISTATE tinycaleb139660 = { kAiStateOther, 8, -1, 120, NULL, sub_65F44, calebThi
 AISTATE tinycaleb13967C = { kAiStateOther, 8, -1, 0, NULL, sub_661E0, calebThinkSwimChase, &tinycalebSwimChase };
 AISTATE tinycaleb139698 = { kAiStateOther, 8, -1, 120, NULL, aiMoveTurn, NULL, &tinycalebSwimChase };
 
-static void SeqAttackCallback(int, int nXSprite)
+void SeqAttackCallback(int, DBloodActor* actor)
 {
-    int nSprite = xsprite[nXSprite].reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype *pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    int dz = gDudeSlope[nXSprite];
+    int dz = actor->dudeSlope;
     dx += Random2(1500);
     dy += Random2(1500);
     dz += Random2(1500);
@@ -97,14 +84,18 @@ static void SeqAttackCallback(int, int nXSprite)
         sfxPlay3DSound(pSprite, 1002, -1, 0);
 }
 
-static void calebThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void calebThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void calebThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void calebThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     XSECTOR *pXSector;
@@ -121,15 +112,17 @@ static void calebThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
     {
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+            aiNewState(actor, &tinycalebSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &tinycalebSearch);
+            aiNewState(actor, &tinycalebSearch);
     }
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void calebThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void calebThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         XSECTOR *pXSector;
@@ -139,9 +132,9 @@ static void calebThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+            aiNewState(actor, &tinycalebSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &tinycalebSearch);
+            aiNewState(actor, &tinycalebSearch);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -161,11 +154,11 @@ static void calebThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+            aiNewState(actor, &tinycalebSwimSearch);
         else
         {
             aiPlay3DSound(pSprite, 11000+Random(4), AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &tinycalebSearch);
+            aiNewState(actor, &tinycalebSearch);
         }
         return;
     }
@@ -178,9 +171,9 @@ static void calebThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+            aiNewState(actor, &tinycalebSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &tinycalebSearch);
+            aiNewState(actor, &tinycalebSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -193,8 +186,7 @@ static void calebThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                int nXSprite = sprite[pXSprite->reference].extra;
-                gDudeSlope[nXSprite] = divscale(pTarget->z-pSprite->z, nDist, 10);
+                actor->dudeSlope = divscale(pTarget->z-pSprite->z, nDist, 10);
                 if (nDist < 0x599 && klabs(nDeltaAngle) < 28)
                 {
                     XSECTOR *pXSector;
@@ -208,31 +200,31 @@ static void calebThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                     {
                     case -1:
                         if (pXSector && pXSector->Underwater)
-                            aiNewState(pSprite, pXSprite, &tinycalebSwimAttack);
+                            aiNewState(actor, &tinycalebSwimAttack);
                         else
-                            aiNewState(pSprite, pXSprite, &tinycalebAttack);
+                            aiNewState(actor, &tinycalebAttack);
                         break;
                     case 3:
                         if (pSprite->type != sprite[gHitInfo.hitsprite].type)
                         {
                             if (pXSector && pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &tinycalebSwimAttack);
+                                aiNewState(actor, &tinycalebSwimAttack);
                             else
-                                aiNewState(pSprite, pXSprite, &tinycalebAttack);
+                                aiNewState(actor, &tinycalebAttack);
                         }
                         else
                         {
                             if (pXSector && pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &tinycalebSwimDodge);
+                                aiNewState(actor, &tinycalebSwimDodge);
                             else
-                                aiNewState(pSprite, pXSprite, &tinycalebDodge);
+                                aiNewState(actor, &tinycalebDodge);
                         }
                         break;
                     default:
                         if (pXSector && pXSector->Underwater)
-                            aiNewState(pSprite, pXSprite, &tinycalebSwimAttack);
+                            aiNewState(actor, &tinycalebSwimAttack);
                         else
-                            aiNewState(pSprite, pXSprite, &tinycalebAttack);
+                            aiNewState(actor, &tinycalebAttack);
                         break;
                     }
                 }
@@ -248,16 +240,18 @@ static void calebThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     else
         pXSector = NULL;
     if (pXSector && pXSector->Underwater)
-        aiNewState(pSprite, pXSprite, &tinycalebSwimGoto);
+        aiNewState(actor, &tinycalebSwimGoto);
     else
-        aiNewState(pSprite, pXSprite, &tinycalebGoto);
+        aiNewState(actor, &tinycalebGoto);
     if (Chance(0x2000))
         sfxPlay3DSound(pSprite, 10000 + Random(5), -1, 0);
     pXSprite->target = -1;
 }
 
-static void calebThinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void calebThinkSwimGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -266,15 +260,17 @@ static void calebThinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
-    aiThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &tinycalebSwimSearch);
+    aiThinkTarget(actor);
 }
 
-static void calebThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void calebThinkSwimChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &tinycalebSwimGoto);
+        aiNewState(actor, &tinycalebSwimGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -287,12 +283,12 @@ static void calebThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+        aiNewState(actor, &tinycalebSwimSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+        aiNewState(actor, &tinycalebSwimSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -308,19 +304,21 @@ static void calebThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &tinycalebSwimAttack);
+                    aiNewState(actor, &tinycalebSwimAttack);
                 else
-                    aiNewState(pSprite, pXSprite, &tinycaleb13967C);
+                    aiNewState(actor, &tinycaleb13967C);
             }
         }
         return;
     }
-    aiNewState(pSprite, pXSprite, &tinycalebSwimGoto);
+    aiNewState(actor, &tinycalebSwimGoto);
     pXSprite->target = -1;
 }
 
-static void sub_65D04(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_65D04(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -351,8 +349,10 @@ static void sub_65D04(spritetype *pSprite, XSPRITE *pXSprite)
     yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void sub_65F44(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_65F44(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -386,8 +386,10 @@ static void sub_65F44(spritetype *pSprite, XSPRITE *pXSprite)
     zvel[nSprite] = -dz;
 }
 
-static void sub_661E0(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_661E0(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);

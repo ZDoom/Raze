@@ -96,9 +96,12 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", "$PROGDIR/*", true);
 #else
 		SetValueForKey ("Path", "$HOME/" GAME_DIR "/*", true);
-		// Arch Linux likes them in /usr/share/doom
-		// Debian likes them in /usr/share/games/doom
+		// Arch Linux likes them in /usr/share/raze
+		// Debian likes them in /usr/share/games/raze
 		// I assume other distributions don't do anything radically different
+		SetValueForKey ("Path", "/opt/raze", true);
+		SetValueForKey ("Path", "/usr/share/games/raze", true);
+		SetValueForKey ("Path", "/usr/local/share/games/raze", true);
 		SetValueForKey ("Path", "/usr/share/games/jfduke3d", true);
 		SetValueForKey ("Path", "/usr/local/share/games/jfduke3d", true);
 		SetValueForKey ("Path", "/usr/share/games/eduke32", true);

@@ -462,7 +462,7 @@ void JS_InitMirrors(void)
 void drawroomstotile(int daposx, int daposy, int daposz,
                      fixed_t daq16ang, fixed_t daq16horiz, short dacursectnum, short tilenume)
 {
-	TileFiles.MakeCanvas(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
+	TileFiles.MakeCanvas(tilenume, tileWidth(tilenume), tileHeight(tilenume));
 
     auto canvas = renderSetTarget(tilenume);
     if (!canvas) return;
@@ -1045,7 +1045,7 @@ JAnalyzeSprites(tspriteptr_t tspr)
     // Take care of autosizing
     DoAutoSize(tspr);
 
-    if (videoGetRenderMode() >= REND_POLYMOST && md_tilehasmodel(tspr->picnum, 0) >= 0 && hw_models) return;
+    if (md_tilehasmodel(tspr->picnum, 0) >= 0 && hw_models) return;
 
     // Check for voxels
     //if (bVoxelsOn)

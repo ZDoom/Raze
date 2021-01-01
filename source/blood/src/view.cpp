@@ -31,13 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "v_font.h"
 
-#include "endgame.h"
-#include "aistate.h"
-#include "loadsave.h"
-#include "sectorfx.h"
+#include "blood.h"
 #include "choke.h"
-#include "view.h"
-#include "nnexts.h"
 #include "zstring.h"
 #include "razemenu.h"
 #include "gstrings.h"
@@ -51,27 +46,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-
+FixedBitArray<kMaxSprites> gInterpolateSprite;
 VIEW gPrevView[kMaxPlayers];
 VIEWPOS gViewPos;
 int gViewIndex;
 
-struct INTERPOLATE {
-    void *pointer;
-    int value;
-    int value2;
-    INTERPOLATE_TYPE type;
-};
-
 double gInterpolate;
-int nInterpolations;
-char gInterpolateSprite[(kMaxSprites+7)>>3];
-char gInterpolateWall[(kMaxWalls+7)>>3];
-char gInterpolateSector[(kMaxSectors+7)>>3];
-
-enum { kMaxInterpolations = 16384 };
-
-INTERPOLATE gInterpolation[kMaxInterpolations];
 
 int gScreenTilt;
 
@@ -132,76 +112,6 @@ void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
     pView->at38 += pPlayer->pSprite->z-oldpos->z;
 }
 
-void viewClearInterpolations(void)
-{
-    nInterpolations = 0;
-    memset(gInterpolateSprite, 0, sizeof(gInterpolateSprite));
-    memset(gInterpolateWall, 0, sizeof(gInterpolateWall));
-    memset(gInterpolateSector, 0, sizeof(gInterpolateSector));
-}
-
-void viewAddInterpolation(void *data, INTERPOLATE_TYPE type)
-{
-    if (nInterpolations == kMaxInterpolations)
-        I_Error("Too many interpolations");
-    INTERPOLATE *pInterpolate = &gInterpolation[nInterpolations++];
-    pInterpolate->pointer = data;
-    pInterpolate->type = type;
-    switch (type)
-    {
-    case INTERPOLATE_TYPE_INT:
-        pInterpolate->value = *((int*)data);
-        break;
-    case INTERPOLATE_TYPE_SHORT:
-        pInterpolate->value = *((short*)data);
-        break;
-    }
-}
-
-void CalcInterpolations(void)
-{
-    int i;
-    INTERPOLATE *pInterpolate = gInterpolation;
-    for (i = 0; i < nInterpolations; i++, pInterpolate++)
-    {
-        switch (pInterpolate->type)
-        {
-        case INTERPOLATE_TYPE_INT:
-        {
-            pInterpolate->value2 = *((int*)pInterpolate->pointer);
-            int newValue = interpolate(pInterpolate->value, *((int*)pInterpolate->pointer), gInterpolate);
-            *((int*)pInterpolate->pointer) = newValue;
-            break;
-        }
-        case INTERPOLATE_TYPE_SHORT:
-        {
-            pInterpolate->value2 = *((short*)pInterpolate->pointer);
-            int newValue = interpolate(pInterpolate->value, *((short*)pInterpolate->pointer), gInterpolate);
-            *((short*)pInterpolate->pointer) = newValue;
-            break;
-        }
-        }
-    }
-}
-
-void RestoreInterpolations(void)
-{
-    int i;
-    INTERPOLATE *pInterpolate = gInterpolation;
-    for (i = 0; i < nInterpolations; i++, pInterpolate++)
-    {
-        switch (pInterpolate->type)
-        {
-        case INTERPOLATE_TYPE_INT:
-            *((int*)pInterpolate->pointer) = pInterpolate->value2;
-            break;
-        case INTERPOLATE_TYPE_SHORT:
-            *((short*)pInterpolate->pointer) = pInterpolate->value2;
-            break;
-        }
-    }
-}
-
 void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat, uint8_t alpha)
 {
     if (nFont < 0 || nFont >= kFontNum || !pString) return;
@@ -242,8 +152,8 @@ void viewDrawAimedPlayerName(void)
         spritetype* pSprite = &sprite[gHitInfo.hitsprite];
         if (IsPlayerSprite(pSprite))
         {
-            char nPlayer = pSprite->type-kDudePlayer1;
-            char* szName = gProfile[nPlayer].name;
+            int nPlayer = pSprite->type-kDudePlayer1;
+            const char* szName = PlayerName(nPlayer);
             int nPalette = (gPlayer[nPlayer].teamId&3)+11;
             viewDrawText(4, szName, 160, 125, -128, nPalette, 1, 1);
         }
@@ -481,8 +391,8 @@ void UpdateBlend()
     videoTintBlood(nRed, nGreen, nBlue);
 }
 
-char otherMirrorGotpic[2];
-char bakMirrorGotpic[2];
+uint8_t otherMirrorGotpic[2];
+uint8_t bakMirrorGotpic[2];
 // int gVisibility;
 
 int deliriumTilt, deliriumTurn, deliriumPitch;
@@ -604,7 +514,7 @@ void viewDrawScreen(bool sceneonly)
 
     if (cl_interpolate)
     {
-        CalcInterpolations();
+        DoInterpolations(gInterpolate / MaxSmoothRatio);
     }
 
     if (automapMode != am_full)
@@ -631,7 +541,7 @@ void viewDrawScreen(bool sceneonly)
         int viewingRange = viewingrange;
         videoSetCorrectedAspect();
 
-        int v1 = xs_CRoundToInt(double(viewingrange) * tan(r_fov * (PI / 360.)));
+        int v1 = xs_CRoundToInt(double(viewingrange) * tan(r_fov * (pi::pi() / 360.)));
 
         renderSetAspect(v1, yxaspect);
 
@@ -654,7 +564,7 @@ void viewDrawScreen(bool sceneonly)
             v4c = finterpolate(predictOld.at1c, predict.at1c, gInterpolate);
             v48 = finterpolate(predictOld.at18, predict.at18, gInterpolate);
 
-            if (!cl_syncinput)
+            if (!SyncInput())
             {
                 cA = bamang(predict.at30.asbam() + predict.look_ang.asbam());
                 cH = predict.at24;
@@ -682,7 +592,7 @@ void viewDrawScreen(bool sceneonly)
             v4c = finterpolate(pView->at1c, gView->swayWidth, gInterpolate);
             v48 = finterpolate(pView->at18, gView->swayHeight, gInterpolate);
 
-            if (!cl_syncinput)
+            if (!SyncInput())
             {
                 cA = gView->angle.sum();
                 cH = gView->horizon.horiz;
@@ -740,7 +650,7 @@ void viewDrawScreen(bool sceneonly)
         //int tiltcs, tiltdim;
         uint8_t v4 = powerupCheck(gView, kPwUpCrystalBall) > 0;
 #ifdef USE_OPENGL
-        renderSetRollAngle(rotscrnang.asbam() / (double)(BAMUNIT));
+        renderSetRollAngle(rotscrnang.asbuildf());
 #endif
         if (v78 || bDelirium)
         {
@@ -927,7 +837,7 @@ void viewDrawScreen(bool sceneonly)
 
         if ((v78 || bDelirium) && !sceneonly)
         {
-            if (videoGetRenderMode() == REND_POLYMOST && gDeliriumBlur)
+            if (gDeliriumBlur)
             {
                 // todo: Implement using modern techniques instead of relying on deprecated old stuff that isn't well supported anymore.
                 /* names broken up so that searching for GL keywords won't find them anymore
@@ -973,7 +883,7 @@ void viewDrawScreen(bool sceneonly)
             }
         }
 #endif
-        hudDraw(gView, &gPrevView[gViewIndex], nSectnum, v4c, v48, zDelta, basepal, gInterpolate);
+        hudDraw(gView, nSectnum, v4c, v48, zDelta, basepal, gInterpolate);
     }
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (automapMode != am_off)
@@ -988,7 +898,7 @@ void viewDrawScreen(bool sceneonly)
         gChoke.animateChoke(160, zn, (int)gInterpolate);
     }
 #if 0
-    if (byte_1A76C6)
+    if (drawtile_2048)
     {
         DrawStatSprite(2048, xdim-15, 20);
     }
@@ -1001,7 +911,7 @@ void viewDrawScreen(bool sceneonly)
     }
     else if (gView != gMe)
     {
-        FStringf gTempStr("] %s [", gProfile[gView->nPlayer].name);
+        FStringf gTempStr("] %s [", PlayerName(gView->nPlayer));
         viewDrawText(0, gTempStr, 160, 10, 0, 0, 1, 0);
     }
     if (cl_interpolate)
@@ -1029,8 +939,9 @@ FString GameInterface::GetCoordString()
 
 bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a)
 {
-    int nCos = z * sintable[(0 - a) & 2047];
-    int nSin = z * sintable[(1536 - a) & 2047];
+    // [MR]: Confirm that this is correct as math doesn't match the variable names.
+    int nCos = z * -bsin(a);
+    int nSin = z * -bcos(a);
     int nCos2 = mulscale16(nCos, yxaspect);
     int nSin2 = mulscale16(nSin, yxaspect);
     int nPSprite = gView->pSprite->index;
@@ -1064,36 +975,17 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a)
     return true;
 }
 
-
-class ViewLoadSave : public LoadSave {
-public:
-    void Load(void);
-    void Save(void);
-};
-
-void ViewLoadSave::Load(void)
+void SerializeView(FSerializer& arc)
 {
-    Read(otherMirrorGotpic, sizeof(otherMirrorGotpic));
-    Read(bakMirrorGotpic, sizeof(bakMirrorGotpic));
-    Read(&gScreenTilt, sizeof(gScreenTilt));
-    Read(&deliriumTilt, sizeof(deliriumTilt));
-    Read(&deliriumTurn, sizeof(deliriumTurn));
-    Read(&deliriumPitch, sizeof(deliriumPitch));
+    if (arc.BeginObject("view"))
+    {
+        arc("screentilt", gScreenTilt)
+            ("deliriumtilt", deliriumTilt)
+            ("deliriumturn", deliriumTurn)
+            ("deliriumpitch", deliriumPitch)
+            .EndObject();
+    }
 }
 
-void ViewLoadSave::Save(void)
-{
-    Write(otherMirrorGotpic, sizeof(otherMirrorGotpic));
-    Write(bakMirrorGotpic, sizeof(bakMirrorGotpic));
-    Write(&gScreenTilt, sizeof(gScreenTilt));
-    Write(&deliriumTilt, sizeof(deliriumTilt));
-    Write(&deliriumTurn, sizeof(deliriumTurn));
-    Write(&deliriumPitch, sizeof(deliriumPitch));
-}
-
-void ViewLoadSaveConstruct(void)
-{
-    new ViewLoadSave();
-}
 
 END_BLD_NS

@@ -29,6 +29,7 @@
 #include "gamestate.h"
 #include "inputstate.h"
 #include "printf.h"
+#include "gamecontrol.h"
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
@@ -39,8 +40,6 @@
 #endif
 
 
-int32_t rendmode=0;
-int32_t glrendmode = REND_POLYMOST;
 int32_t r_rortexture = 0;
 int32_t r_rortexturerange = 0;
 int32_t r_rorphase = 0;
@@ -179,7 +178,6 @@ int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 int32_t xyaspect;
 int32_t viewingrangerecip;
 
-static char globalxshift, globalyshift;
 static int32_t globalxpanning, globalypanning;
 int32_t globalshade, globalorientation;
 int16_t globalpicnum;
@@ -302,19 +300,6 @@ int32_t animateoffs(int const tilenum, int fakevar)
     return offs;
 }
 
-
-// globalpicnum --> globalxshift, globalyshift
-static void calc_globalshifts(void)
-{
-    globalxshift = (8-widthBits(globalpicnum));
-    globalyshift = (8-heightBits(globalpicnum));
-    if (globalorientation&8) { globalxshift++; globalyshift++; }
-    // PK: the following can happen for large (>= 512) tile sizes.
-    // NOTE that global[xy]shift are unsigned chars.
-    if (globalxshift > 31) globalxshift=0;
-    if (globalyshift > 31) globalyshift=0;
-}
-
 static void renderDrawSprite(int32_t snum)
 {
     polymost_drawsprite(snum);
@@ -326,10 +311,7 @@ static void renderDrawSprite(int32_t snum)
 //
 static void renderDrawMaskedWall(int16_t damaskwallcnt)
 {
-    if (videoGetRenderMode() == REND_POLYMOST) 
-    { 
-        polymost_drawmaskwall(damaskwallcnt); return; 
-    }
+    polymost_drawmaskwall(damaskwallcnt); return; 
 }
 
 
@@ -411,19 +393,19 @@ static int32_t engineLoadTables(void)
             reciptable[i] = divscale30(2048, i+2048);
 
         for (i=0; i<=512; i++)
-            sintable[i] = (int16_t)(16384.f * sinf((float)i * BANG2RAD) + 0.0001f);
+            sintable[i] = bsinf(i);
         for (i=513; i<1024; i++)
             sintable[i] = sintable[1024-i];
         for (i=1024; i<2048; i++)
             sintable[i] = -sintable[i-1024];
 
         for (i=0; i<640; i++)
-            radarang[i] = (int16_t)(atanf(((float)(640-i)-0.5f) * (1.f/160.f)) * (-64.f * (1.f/BANG2RAD)) + 0.0001f);
+            radarang[i] = atan((639.5 - i) / 160.) * (-64. / BAngRadian);
         for (i=0; i<640; i++)
             radarang[1279-i] = -radarang[i];
 
         for (i=0; i<5120; i++)
-            qradarang[i] = FloatToFixed(atanf(((float)(5120-i)-0.5f) * (1.f/1280.f)) * (-64.f * (1.f/BANG2RAD)));
+            qradarang[i] = FloatToFixed(atan((5119.5 - i) / 1280.) * (-64. / BAngRadian));
         for (i=0; i<5120; i++)
             qradarang[10239-i] = -qradarang[i];
 
@@ -807,14 +789,12 @@ psky_t * tileSetupSky(int32_t const tilenum)
     for (auto& sky : multipskies)
         if (tilenum == sky.tilenum)
         {
-            sky.combinedtile = -1;  // invalidate the old content
             return &sky;
         }
 
     multipskies.Reserve(1);
     multipskies.Last() = {};
     multipskies.Last().tilenum = tilenum;
-    multipskies.Last().combinedtile = -1;
     multipskies.Last().yscale = 65536;
     return &multipskies.Last();
 }
@@ -878,8 +858,6 @@ int32_t enginePreInit(void)
 }
 
 
-void (*paletteLoadFromDisk_replace)(void) = NULL;   // replacement hook for Blood.
-
 //
 // initengine
 //
@@ -915,14 +893,7 @@ int32_t engineInit(void)
     maxspritesonscreen = MAXSPRITESONSCREEN;
 
     GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
-    if (paletteLoadFromDisk_replace)
-    {
-        paletteLoadFromDisk_replace();
-    }
-    else
-    {
-        paletteLoadFromDisk();
-    }
+    gi->loadPalette();
 
 #ifdef USE_OPENGL
     if (!mdinited) mdinit();
@@ -1008,10 +979,8 @@ void set_globalang(fixed_t const ang)
     qglobalang = ang & 0x7FFFFFF;
 
     float const f_ang = FixedToFloat(ang);
-    float const f_ang_radians = f_ang * M_PI * (1.f/1024.f);
-
-    float const fcosang = cosf(f_ang_radians) * 16384.f;
-    float const fsinang = sinf(f_ang_radians) * 16384.f;
+    float const fcosang = bcosf(f_ang);
+    float const fsinang = bsinf(f_ang);
 
 #ifdef USE_OPENGL
     fcosglobalang = fcosang;
@@ -1142,16 +1111,12 @@ static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, c
 
 static inline int comparetsprites(int const k, int const l)
 {
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
-    {
-        if ((tspriteptr[k]->cstat & 48) != (tspriteptr[l]->cstat & 48))
-            return (tspriteptr[k]->cstat & 48) - (tspriteptr[l]->cstat & 48);
+    if ((tspriteptr[k]->cstat & 48) != (tspriteptr[l]->cstat & 48))
+        return (tspriteptr[k]->cstat & 48) - (tspriteptr[l]->cstat & 48);
 
-        if ((tspriteptr[k]->cstat & 48) == 16 && tspriteptr[k]->ang != tspriteptr[l]->ang)
-            return tspriteptr[k]->ang - tspriteptr[l]->ang;
-    }
-#endif
+    if ((tspriteptr[k]->cstat & 48) == 16 && tspriteptr[k]->ang != tspriteptr[l]->ang)
+        return tspriteptr[k]->ang - tspriteptr[l]->ang;
+
     if (tspriteptr[k]->statnum != tspriteptr[l]->statnum)
         return tspriteptr[k]->statnum - tspriteptr[l]->statnum;
 
@@ -1208,7 +1173,7 @@ static void sortsprites(int const start, int const end)
                 if ((s->cstat&48) != 32)
                 {
                     int32_t yoff = tileTopOffset(s->picnum) + s->yoffset;
-                    int32_t yspan = (tilesiz[s->picnum].y*s->yrepeat<<2);
+                    int32_t yspan = (tileHeight(s->picnum) * s->yrepeat << 2);
 
                     spritesxyz[k].z -= (yoff*s->yrepeat)<<2;
 
@@ -1242,29 +1207,18 @@ void renderDrawMasks(void)
     int32_t i = spritesortcnt-1;
     int32_t numSprites = spritesortcnt;
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
+    spritesortcnt = 0;
+    int32_t back = i;
+    for (; i >= 0; --i)
     {
-        spritesortcnt = 0;
-        int32_t back = i;
-        for (; i >= 0; --i)
+        if (polymost_spriteHasTranslucency(&tsprite[i]))
         {
-            if (polymost_spriteHasTranslucency(&tsprite[i]))
-            {
-                tspriteptr[spritesortcnt] = &tsprite[i];
-                ++spritesortcnt;
-            } else
-            {
-                tspriteptr[back] = &tsprite[i];
-                --back;
-            }
-        }
-    } else
-#endif
-    {
-        for (; i >= 0; --i)
+            tspriteptr[spritesortcnt] = &tsprite[i];
+            ++spritesortcnt;
+        } else
         {
-            tspriteptr[i] = &tsprite[i];
+            tspriteptr[back] = &tsprite[i];
+            --back;
         }
     }
 
@@ -1272,9 +1226,7 @@ void renderDrawMasks(void)
     {
         const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
         const int32_t yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
-#ifdef USE_OPENGL
         const int32_t modelp = polymost_spriteIsModelOrVoxel(tspriteptr[i]);
-#endif
 
         if (yp > (4<<8))
         {
@@ -1288,9 +1240,7 @@ void renderDrawMasks(void)
         else if ((tspriteptr[i]->cstat&48) == 0)
         {
 killsprite:
-#ifdef USE_OPENGL
             if (!modelp)
-#endif
             {
                 //Delete face sprite if on wrong side!
                 if (i >= spritesortcnt)
@@ -1327,81 +1277,76 @@ killsprite:
     sortsprites(spritesortcnt, numSprites);
     renderBeginScene();
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
+    GLInterface.EnableBlend(false);
+    GLInterface.EnableAlphaTest(true);
+    GLInterface.SetDepthBias(-2, -256);
+
+    if (spritesortcnt < numSprites)
     {
-        GLInterface.EnableBlend(false);
-        GLInterface.EnableAlphaTest(true);
-        GLInterface.SetDepthBias(-2, -256);
-
-        if (spritesortcnt < numSprites)
+        i = spritesortcnt;
+        for (bssize_t i = spritesortcnt; i < numSprites;)
         {
-            i = spritesortcnt;
-            for (bssize_t i = spritesortcnt; i < numSprites;)
+            int32_t py = spritesxyz[i].y;
+            int32_t pcstat = tspriteptr[i]->cstat & 48;
+            int32_t pangle = tspriteptr[i]->ang;
+            int j = i + 1;
+            if (!polymost_spriteIsModelOrVoxel(tspriteptr[i]))
             {
-                int32_t py = spritesxyz[i].y;
-                int32_t pcstat = tspriteptr[i]->cstat & 48;
-                int32_t pangle = tspriteptr[i]->ang;
-                int j = i + 1;
-                if (!polymost_spriteIsModelOrVoxel(tspriteptr[i]))
+                while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
+                    && !polymost_spriteIsModelOrVoxel(tspriteptr[j]))
                 {
-                    while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
-                        && !polymost_spriteIsModelOrVoxel(tspriteptr[j]))
-                    {
-                        j++;
-                    }
+                    j++;
                 }
-                if (j - i == 1)
-                {
-                    debugmask_add(i | 32768, tspriteptr[i]->owner);
-                    renderDrawSprite(i);
-                    tspriteptr[i] = NULL;
-                }
-                else
-                {
-					GLInterface.SetDepthMask(false);
-
-                    for (bssize_t k = j-1; k >= i; k--)
-                    {
-                        debugmask_add(k | 32768, tspriteptr[k]->owner);
-                        renderDrawSprite(k);
-                    }
-
-					GLInterface.SetDepthMask(true);
-
-					GLInterface.SetColorMask(false);
-                    
-                    for (bssize_t k = j-1; k >= i; k--)
-                    {
-                        renderDrawSprite(k);
-                        tspriteptr[k] = NULL;
-                    }
-
-					GLInterface.SetColorMask(true);
-
-                }
-                i = j;
             }
-        }
-
-		int32_t numMaskWalls = maskwallcnt;
-        maskwallcnt = 0;
-        for (i = 0; i < numMaskWalls; i++)
-        {
-            if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[i]]]))
+            if (j - i == 1)
             {
-                maskwall[maskwallcnt] = maskwall[i];
-                maskwallcnt++;
+                debugmask_add(i | 32768, tspriteptr[i]->owner);
+                renderDrawSprite(i);
+                tspriteptr[i] = NULL;
             }
             else
-                renderDrawMaskedWall(i);
-        }
+            {
+				GLInterface.SetDepthMask(false);
 
-        GLInterface.EnableBlend(true);
-        GLInterface.EnableAlphaTest(true);
-		GLInterface.SetDepthMask(false);
+                for (bssize_t k = j-1; k >= i; k--)
+                {
+                    debugmask_add(k | 32768, tspriteptr[k]->owner);
+                    renderDrawSprite(k);
+                }
+
+				GLInterface.SetDepthMask(true);
+
+				GLInterface.SetColorMask(false);
+                    
+                for (bssize_t k = j-1; k >= i; k--)
+                {
+                    renderDrawSprite(k);
+                    tspriteptr[k] = NULL;
+                }
+
+				GLInterface.SetColorMask(true);
+
+            }
+            i = j;
+        }
     }
-#endif
+
+	int32_t numMaskWalls = maskwallcnt;
+    maskwallcnt = 0;
+    for (i = 0; i < numMaskWalls; i++)
+    {
+        if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[i]]]))
+        {
+            maskwall[maskwallcnt] = maskwall[i];
+            maskwallcnt++;
+        }
+        else
+            renderDrawMaskedWall(i);
+    }
+
+    GLInterface.EnableBlend(true);
+    GLInterface.EnableAlphaTest(true);
+	GLInterface.SetDepthMask(false);
 
     vec2f_t pos;
 
@@ -1413,8 +1358,7 @@ killsprite:
     while (maskwallcnt)
     {
         // PLAG: sorting stuff
-        const int32_t w = (videoGetRenderMode()==REND_POLYMER) ?
-            maskwall[maskwallcnt-1] : thewall[maskwall[maskwallcnt-1]];
+        const int32_t w =  thewall[maskwall[maskwallcnt-1]];
 
         maskwallcnt--;
 
@@ -1917,9 +1861,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     zoome <<= 8;
 
-    vec2_t const bakgvect = { divscale28(sintable[(1536 - ang) & 2047], zoome),
-                        divscale28(sintable[(2048 - ang) & 2047], zoome) };
-    vec2_t const vect = { mulscale8(sintable[(2048 - ang) & 2047], zoome), mulscale8(sintable[(1536 - ang) & 2047], zoome) };
+    vec2_t const bakgvect = { divscale28(-bcos(ang), zoome), divscale28(-bsin(ang), zoome) };
+    vec2_t const vect = { mulscale8(-bsin(ang), zoome), mulscale8(-bcos(ang), zoome) };
     vec2_t const vect2 = { mulscale16(vect.x, yxaspect), mulscale16(vect.y, yxaspect) };
 
     int32_t sortnum = 0;
@@ -1980,7 +1923,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
             tileUpdatePicnum(&globalpicnum, s);
             setgotpic(globalpicnum);
-            if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
+            if ((tileWidth(globalpicnum) <= 0) || (tileHeight(globalpicnum) <= 0)) continue;
 
 			globalshade = max(min<int>(sec->floorshade, numshades - 1), 0);
             if ((globalorientation&64) == 0)
@@ -2010,7 +1953,12 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 globaly2 = mulscale12(globaly2,i);
             }
 
-            calc_globalshifts();
+            int globalxshift = (8 - widthBits(globalpicnum));
+            int globalyshift = (8 - heightBits(globalpicnum));
+            if (globalorientation & 8) { globalxshift++; globalyshift++; }
+            // PK: the following can happen for large (>= 512) tile sizes.
+            if (globalxshift < 0) globalxshift = 0;
+            if (globalyshift < 0) globalyshift = 0;
 
             if ((globalorientation&0x4) > 0)
             {
@@ -2024,8 +1972,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             asm2 = (globalx2<<globalyshift);
             globalx1 <<= globalxshift;
             globaly2 <<= globalyshift;
-            set_globalpos(((int64_t) globalposx<<(20+globalxshift))+(((uint32_t) sec->floorxpanning)<<24),
-                ((int64_t) globalposy<<(20+globalyshift))-(((uint32_t) sec->floorypanning)<<24),
+            set_globalpos(((int64_t) globalposx<<(20+globalxshift))+(((uint32_t) sec->floorxpan())<<24),
+                ((int64_t) globalposy<<(20+globalyshift))-(((uint32_t) sec->floorypan())<<24),
                 globalposz);
             renderFillPolygon(npoints);
         }
@@ -2048,7 +1996,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
         auto const spr = (uspritetype * )&sprite[tsprite[s].owner];
         if ((spr->cstat&48) == 32)
         {
-            const int32_t xspan = tilesiz[spr->picnum].x;
+            const int32_t xspan = tileWidth(spr->picnum);
 
             int32_t npoints = 0;
             vec2_t v1 = { spr->x, spr->y }, v2, v3, v4;
@@ -2093,7 +2041,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
             tileUpdatePicnum(&globalpicnum, s);
             setgotpic(globalpicnum);
-            if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
+            if ((tileWidth(globalpicnum) <= 0) || (tileHeight(globalpicnum) <= 0)) continue;
 
             if ((sector[spr->sectnum].ceilingstat&1) > 0)
                 globalshade = ((int32_t)sector[spr->sectnum].ceilingshade);
@@ -2152,8 +2100,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 
     strcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
            "  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
-
-    rendmode = REND_POLYMOST;
 
     upscalefactor = 1;
     xdim = daupscaledxdim;
@@ -2666,8 +2612,8 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 {
     int16_t tempshortcnt, tempshortnum;
 
-    const int32_t vx = mulscale14(sintable[(ange+2560)&2047],neartagrange);
-    const int32_t vy = mulscale14(sintable[(ange+2048)&2047],neartagrange);
+    const int32_t vx = mulscale14(bcos(ange), neartagrange);
+    const int32_t vy = mulscale14(bsin(ange), neartagrange);
     vec3_t hitv = { xs+vx, ys+vy, 0 };
     const vec3_t sv = { xs, ys, zs };
 
@@ -2715,7 +2661,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
                 {
                     if (good&1) *neartagsector = nextsector;
                     if (good&2) *neartagwall = z;
-                    *neartaghitdist = dmulscale14(intx-xs,sintable[(ange+2560)&2047],inty-ys,sintable[(ange+2048)&2047]);
+                    *neartaghitdist = dmulscale14(intx-xs, bcos(ange), inty-ys, bsin(ange));
                     hitv.x = intx; hitv.y = inty; hitv.z = intz;
                 }
 
@@ -2747,8 +2693,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
                 if (try_facespr_intersect(spr, sv, vx, vy, 0, &hitv, 1))
                 {
                     *neartagsprite = z;
-                    *neartaghitdist = dmulscale14(hitv.x-xs, sintable[(ange+2560)&2047],
-                                                  hitv.y-ys, sintable[(ange+2048)&2047]);
+                    *neartaghitdist = dmulscale14(hitv.x-xs, bcos(ange), hitv.y-ys, bsin(ange));
                 }
             }
         }
@@ -3154,8 +3099,8 @@ void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, in
 //
 void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * const p2)
 {
-    int const dacos = sintable[(daang+2560)&2047];
-    int const dasin = sintable[(daang+2048)&2047];
+    int const dacos = bcos(daang);
+    int const dasin = bsin(daang);
     p.x -= pivot.x;
     p.y -= pivot.y;
     p2->x = dmulscale14(p.x, dacos, -p.y, dasin) + pivot.x;
@@ -3467,7 +3412,7 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 #ifdef USE_OPENGL
 void renderSetRollAngle(float rolla)
 {
-    gtang = rolla * (fPI * (1.f/1024.f));
+    gtang = rolla * BAngRadian;
 }
 #endif
 

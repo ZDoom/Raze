@@ -28,30 +28,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "build.h"
 #include "mmulti.h"
-#include "actor.h"
+
 #include "blood.h"
-#include "callback.h"
-#include "eventq.h"
-#include "fx.h"
-#include "gib.h"
-#include "globals.h"
-#include "levels.h"
-#include "loadsave.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
-#include "triggers.h"
-#include "view.h"
-#include "common_game.h"
-#include "messages.h"
-#include "nnexts.h"
 #include "gstrings.h"
 #include "gamestate.h"
 #include "automap.h"
 
 BEGIN_BLD_NS
-
-PROFILE gProfile[kMaxPlayers];
 
 PLAYER gPlayer[kMaxPlayers];
 PLAYER *gMe, *gView;
@@ -165,12 +148,12 @@ AMMOINFO gAmmoInfo[] = {
 };
 
 struct ARMORDATA {
-    int TotalKills;
-    int Kills;
-    int at8;
-    int atc;
-    int at10;
-    int at14;
+    int armor0;
+    int armor0max;
+    int armor1;
+    int armor1max;
+    int armor2;
+    int armor2max;
 };
 ARMORDATA armorData[5] = {
     { 0x320, 0x640, 0x320, 0x640, 0x320, 0x640 },
@@ -180,14 +163,10 @@ ARMORDATA armorData[5] = {
     { 0xc80, 0xc80, 0xc80, 0xc80, 0xc80, 0xc80 }
 };
 
-void PlayerSurvive(int, int);
-void PlayerKneelsOver(int, int);
 
-int nPlayerSurviveClient = seqRegisterClient(PlayerSurvive);
-int nPlayerKneelClient = seqRegisterClient(PlayerKneelsOver);
 
 struct VICTORY {
-    const char *TotalKills;
+    const char *message;
     int Kills;
 };
 
@@ -220,7 +199,7 @@ VICTORY gVictory[] = {
 };
 
 struct SUICIDE {
-    const char *TotalKills;
+    const char *message;
     int Kills;
 };
 
@@ -233,7 +212,7 @@ SUICIDE gSuicide[] = {
 };
 
 struct DAMAGEINFO {
-    int TotalKills;
+    int armorType;
     int Kills[3];
     int at10[3];
 };
@@ -607,22 +586,11 @@ void playerSetRace(PLAYER *pPlayer, int nLifeMode)
     pPlayer->pSprite->clipdist = pDudeInfo->clipdist;
     
     for (int i = 0; i < 7; i++)
-        pDudeInfo->at70[i] = mulscale8(Handicap[gProfile[pPlayer->nPlayer].skill], pDudeInfo->startDamage[i]);
+        pDudeInfo->at70[i] = mulscale8(Handicap[gSkill], pDudeInfo->startDamage[i]);
 }
 
 void playerSetGodMode(PLAYER *pPlayer, bool bGodMode)
 {
-    if (pPlayer->godMode == bGodMode) return;
-    if (bGodMode)
-    {
-        for (int i = 0; i < 7; i++)
-            pPlayer->damageControl[i]++;
-    }
-    else
-    {
-        for (int i = 0; i < 7; i++)
-            pPlayer->damageControl[i]--;
-    }
     pPlayer->godMode = bGodMode;
 }
 
@@ -714,8 +682,8 @@ void playerStart(int nPlayer, int bNewLevel)
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z -= bottom - pSprite->z;
     pSprite->pal = 11+(pPlayer->teamId&3);
-    pPlayer->angold = pSprite->ang = pStartZone->ang;
-    pPlayer->angle.ang = buildang(pSprite->ang);
+    pSprite->ang = pStartZone->ang;
+    pPlayer->angold = pPlayer->angle.ang = buildang(pSprite->ang);
     pSprite->type = kDudePlayer1+nPlayer;
     pSprite->clipdist = pDudeInfo->clipdist;
     pSprite->flags = 15;
@@ -728,11 +696,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->slope = 0;
     pPlayer->fraggerId = -1;
     pPlayer->underwaterTime = 1200;
-    pPlayer->bloodTime = 0;
-    pPlayer->gooTime = 0;
-    pPlayer->wetTime = 0;
     pPlayer->bubbleTime = 0;
-    pPlayer->at306 = 0;
     pPlayer->restTime = 0;
     pPlayer->kickPower = 0;
     pPlayer->laughCount = 0;
@@ -868,8 +832,8 @@ void playerReset(PLAYER *pPlayer)
 
 }
 
-int dword_21EFB0[8];
-int dword_21EFD0[8];
+int team_score[8];
+int team_ticker[8];
 
 void playerInit(int nPlayer, unsigned int a2)
 {
@@ -881,15 +845,15 @@ void playerInit(int nPlayer, unsigned int a2)
     if (gGameOptions.nGameType == 3)
         pPlayer->teamId = nPlayer&1;
     pPlayer->fragCount = 0;
-    memset(dword_21EFB0, 0, sizeof(dword_21EFB0));
-    memset(dword_21EFD0, 0, sizeof(dword_21EFD0));
+    memset(team_score, 0, sizeof(team_score));
+    memset(team_ticker, 0, sizeof(team_ticker));
     memset(pPlayer->fragInfo, 0, sizeof(pPlayer->fragInfo));
 
     if (!(a2&1))
         playerReset(pPlayer);
 }
 
-char sub_3A158(PLAYER *a1, spritetype *a2)
+char findDroppedLeech(PLAYER *a1, spritetype *a2)
 {
     int nSprite;
     StatIterator it(kStatThing);
@@ -898,7 +862,7 @@ char sub_3A158(PLAYER *a1, spritetype *a2)
         if (a2 && a2->index == nSprite)
             continue;
         spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->type == kThingDroppedLifeLeech && actOwnerIdToSpriteId(pSprite->owner) == a1->nSprite)
+        if (pSprite->type == kThingDroppedLifeLeech && pSprite->owner == a1->nSprite)
             return 1;
     }
     return 0;
@@ -946,7 +910,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->hasFlag |= 1;
                         pPlayer->used2[0] = pItem->index;
                         trTriggerSprite(pItem->index, pXItem, kCmdOff);
-                        sprintf(buffer, "%s stole Blue Flag", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8007, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -958,7 +922,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->hasFlag &= ~1;
                         pPlayer->used2[0] = -1;
                         trTriggerSprite(pItem->index, pXItem, kCmdOn);
-                        sprintf(buffer, "%s returned Blue Flag", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8003, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -966,10 +930,10 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                     if ((pPlayer->hasFlag & 2) != 0 && pXItem->state) {
                         pPlayer->hasFlag &= ~2;
                         pPlayer->used2[1] = -1;
-                        dword_21EFB0[pPlayer->teamId] += 10;
-                        dword_21EFD0[pPlayer->teamId] += 240;
+                        team_score[pPlayer->teamId] += 10;
+                        team_ticker[pPlayer->teamId] += 240;
                         evSend(0, 0, 81, kCmdOn);
-                        sprintf(buffer, "%s captured Red Flag!", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s captured Red Flag!", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8001, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -983,7 +947,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->hasFlag |= 2;
                         pPlayer->used2[1] = pItem->index;
                         trTriggerSprite(pItem->index, pXItem, kCmdOff);
-                        sprintf(buffer, "%s stole Red Flag", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8006, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -995,7 +959,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->hasFlag &= ~2;
                         pPlayer->used2[1] = -1;
                         trTriggerSprite(pItem->index, pXItem, kCmdOn);
-                        sprintf(buffer, "%s returned Red Flag", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8002, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -1003,10 +967,10 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                     {
                         pPlayer->hasFlag &= ~1;
                         pPlayer->used2[0] = -1;
-                        dword_21EFB0[pPlayer->teamId] += 10;
-                        dword_21EFD0[pPlayer->teamId] += 240;
+                        team_score[pPlayer->teamId] += 10;
+                        team_ticker[pPlayer->teamId] += 240;
                         evSend(0, 0, 80, kCmdOn);
-                        sprintf(buffer, "%s captured Blue Flag!", gProfile[pPlayer->nPlayer].name);
+                        sprintf(buffer, "%s captured Blue Flag!", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8000, 255, 2, 0);
                         viewSetMessage(buffer);
                     }
@@ -1034,18 +998,18 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
         case kItemArmorSpirit:
         case kItemArmorSuper: {
             ARMORDATA *pArmorData = &armorData[pItem->type - kItemArmorBasic]; bool pickedUp = false;
-            if (pPlayer->armor[1] < pArmorData->atc) {
-                pPlayer->armor[1] = ClipHigh(pPlayer->armor[1]+pArmorData->at8, pArmorData->atc);
+            if (pPlayer->armor[1] < pArmorData->armor1max) {
+                pPlayer->armor[1] = ClipHigh(pPlayer->armor[1]+pArmorData->armor1, pArmorData->armor1max);
                 pickedUp = true;
             }
         
-            if (pPlayer->armor[0] < pArmorData->Kills) {
-                pPlayer->armor[0] = ClipHigh(pPlayer->armor[0]+pArmorData->TotalKills, pArmorData->Kills);
+            if (pPlayer->armor[0] < pArmorData->armor0max) {
+                pPlayer->armor[0] = ClipHigh(pPlayer->armor[0]+pArmorData->armor0, pArmorData->armor0max);
                 pickedUp = true;
             }
 
-            if (pPlayer->armor[2] < pArmorData->at14) {
-                pPlayer->armor[2] = ClipHigh(pPlayer->armor[2]+pArmorData->at10, pArmorData->at14);
+            if (pPlayer->armor[2] < pArmorData->armor2max) {
+                pPlayer->armor[2] = ClipHigh(pPlayer->armor[2]+pArmorData->armor2, pArmorData->armor2max);
                 pickedUp = true;
             }
         
@@ -1118,7 +1082,7 @@ char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon) {
     int nWeaponType = pWeaponItemData->type;
     int nAmmoType = pWeaponItemData->ammoType;
     if (!pPlayer->hasWeapon[nWeaponType] || gGameOptions.nWeaponSettings == 2 || gGameOptions.nWeaponSettings == 3) {
-        if (pWeapon->type == kItemWeaponLifeLeech && gGameOptions.nGameType > 1 && sub_3A158(pPlayer, NULL))
+        if (pWeapon->type == kItemWeaponLifeLeech && gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, NULL))
             return 0;
         pPlayer->hasWeapon[nWeaponType] = 1;
         if (nAmmoType == -1) return 0;
@@ -1259,7 +1223,7 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
                 XSPRITE *pXSprite = &xsprite[*a3];
                 if (pSprite->type == kThingDroppedLifeLeech)
                 {
-                    if (gGameOptions.nGameType > 1 && sub_3A158(pPlayer, pSprite))
+                    if (gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, pSprite))
                         return -1;
                     pXSprite->data4 = pPlayer->nPlayer;
                     pXSprite->isTriggered = 0;
@@ -1323,8 +1287,9 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 {
     spritetype *pSprite = pPlayer->pSprite;
 
-    pPlayer->angle.ang += buildang(pSprite->ang - pPlayer->angold);
-    pPlayer->angold = pSprite->ang = pPlayer->angle.ang.asbuild();
+    pPlayer->angle.ang += buildang(pSprite->ang) - pPlayer->angold;
+    pPlayer->angold = pPlayer->angle.ang;
+    pSprite->ang = pPlayer->angle.ang.asbuild();
 }
 
 void ProcessInput(PLAYER *pPlayer)
@@ -1346,20 +1311,22 @@ void ProcessInput(PLAYER *pPlayer)
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     InputPacket *pInput = &pPlayer->input;
 
-    pPlayer->isRunning = !!(pInput->actions & SB_RUN);
     if ((pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->avel)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
+
+    pPlayer->isRunning = !!(pInput->actions & SB_RUN) && pPlayer->restTime <= 10;
+
     WeaponProcess(pPlayer);
     if (pXSprite->health == 0)
     {
         char bSeqStat = playerSeqPlaying(pPlayer, 16);
         if (pPlayer->fraggerId != -1)
         {
-            fixed_t fraggerAng = gethiq16angle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
-            pPlayer->angold = pSprite->ang = FixedToInt(fraggerAng);
-            pPlayer->angle.addadjustment(FixedToFloat(getincangleq16(pPlayer->angle.ang.asq16(), fraggerAng)));
+            pPlayer->angold = bvectangbam(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
+            pSprite->ang = pPlayer->angold.asbuild();
+            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, pPlayer->angold));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
@@ -1443,11 +1410,14 @@ void ProcessInput(PLAYER *pPlayer)
         }
     }
 
-    if (cl_syncinput)
+    if (SyncInput())
     {
         applylook(&pPlayer->angle, pInput->avel, &pInput->actions);
-        UpdatePlayerSpriteAngle(pPlayer);
     }
+
+    // unconditionally update the player's sprite angle
+    // in case game is forcing synchronised input.
+    UpdatePlayerSpriteAngle(pPlayer);
 
     if (!(pInput->actions & SB_JUMP))
         pPlayer->cantJump = 0;
@@ -1567,10 +1537,13 @@ void ProcessInput(PLAYER *pPlayer)
         pInput->actions &= ~SB_OPEN;
     }
 
-    if (cl_syncinput)
+    if (SyncInput())
     {
         sethorizon(&pPlayer->horizon.horiz, pInput->horz, &pInput->actions);
     }
+
+    // disable synchronised input if set by game.
+    resetForcedSyncInput();
 
     int nSector = pSprite->sectnum;
     int florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
@@ -1711,9 +1684,10 @@ void playerProcess(PLAYER *pPlayer)
     {
         if (pXSprite->height < 256)
         {
-            pPlayer->bobAmp = (pPlayer->bobAmp+pPosture->pace[pPlayer->isRunning]*4) & 2047;
-            pPlayer->swayAmp = (pPlayer->swayAmp+(pPosture->pace[pPlayer->isRunning]*4)/2) & 2047;
-            if (pPlayer->isRunning)
+            bool running = pPlayer->isRunning;
+            pPlayer->bobAmp = (pPlayer->bobAmp+pPosture->pace[running]*4) & 2047;
+            pPlayer->swayAmp = (pPlayer->swayAmp+(pPosture->pace[running]*4)/2) & 2047;
+            if (running)
             {
                 if (pPlayer->bobPhase < 60)
                     pPlayer->bobPhase = ClipHigh(pPlayer->bobPhase+nSpeed, 60);
@@ -1807,7 +1781,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
             pVictim->fragInfo[nVictim]--;
         }
         if (gGameOptions.nGameType == 3)
-            dword_21EFB0[pVictim->teamId]--;
+            team_score[pVictim->teamId]--;
         int nMessage = Random(5);
         int nSound = gSuicide[nMessage].Kills;
         if (pVictim == gMe && gMe->handTime <= 0)
@@ -1818,7 +1792,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         }
         else
         {
-            sprintf(buffer, gSuicide[nMessage].TotalKills, gProfile[nVictim].name);
+            sprintf(buffer, gSuicide[nMessage].message, PlayerName(nVictim));
         }
     }
     else
@@ -1831,17 +1805,17 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         if (gGameOptions.nGameType == 3)
         {
             if (pKiller->teamId == pVictim->teamId)
-                dword_21EFB0[pKiller->teamId]--;
+                team_score[pKiller->teamId]--;
             else
             {
-                dword_21EFB0[pKiller->teamId]++;
-                dword_21EFD0[pKiller->teamId]+=120;
+                team_score[pKiller->teamId]++;
+                team_ticker[pKiller->teamId]+=120;
             }
         }
         int nMessage = Random(25);
         int nSound = gVictory[nMessage].Kills;
-        const char* pzMessage = gVictory[nMessage].TotalKills;
-        sprintf(buffer, pzMessage, gProfile[nKiller].name, gProfile[nVictim].name);
+        const char* pzMessage = gVictory[nMessage].message;
+        sprintf(buffer, pzMessage, PlayerName(nKiller), PlayerName(nVictim));
         if (gGameOptions.nGameType > 0 && nSound >= 0 && pKiller == gMe)
             sndStartSample(nSound, 255, 2, 0);
     }
@@ -1879,7 +1853,7 @@ void FragPlayer(PLAYER *pPlayer, int nSprite)
 int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
 {
     DAMAGEINFO *pDamageInfo = &damageInfo[nType];
-    int nArmorType = pDamageInfo->TotalKills;
+    int nArmorType = pDamageInfo->armorType;
     if (nArmorType >= 0 && pPlayer->armor[nArmorType])
     {
 #if 0
@@ -1897,7 +1871,7 @@ int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
     return nDamage;
 }
 
-spritetype *sub_40A94(PLAYER *pPlayer, int a2)
+spritetype *flagDropped(PLAYER *pPlayer, int a2)
 {
     char buffer[80];
     spritetype *pSprite = NULL;
@@ -1909,7 +1883,7 @@ spritetype *sub_40A94(PLAYER *pPlayer, int a2)
         if (pSprite)
             pSprite->owner = pPlayer->used2[0];
         gBlueFlagDropped = true;
-        sprintf(buffer, "%s dropped Blue Flag", gProfile[pPlayer->nPlayer].name);
+        sprintf(buffer, "%s dropped Blue Flag", PlayerName(pPlayer->nPlayer));
         sndStartSample(8005, 255, 2, 0);
         viewSetMessage(buffer);
         break;
@@ -1919,7 +1893,7 @@ spritetype *sub_40A94(PLAYER *pPlayer, int a2)
         if (pSprite)
             pSprite->owner = pPlayer->used2[1];
         gRedFlagDropped = true;
-        sprintf(buffer, "%s dropped Red Flag", gProfile[pPlayer->nPlayer].name);
+        sprintf(buffer, "%s dropped Red Flag", PlayerName(pPlayer->nPlayer));
         sndStartSample(8004, 255, 2, 0);
         viewSetMessage(buffer);
         break;
@@ -1931,7 +1905,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
 {
     assert(nSource < kMaxSprites);
     assert(pPlayer != NULL);
-    if (pPlayer->damageControl[nDamageType])
+    if (pPlayer->damageControl[nDamageType] || pPlayer->godMode)
         return 0;
     nDamage = playerDamageArmor(pPlayer, nDamageType, nDamage);
     pPlayer->painEffect = ClipHigh(pPlayer->painEffect+(nDamage>>3), 600);
@@ -2002,8 +1976,8 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
         }
         sfxKill3DSound(pPlayer->pSprite, -1, 441);
         if (gGameOptions.nGameType == 3 && pPlayer->hasFlag) {
-            if (pPlayer->hasFlag&1) sub_40A94(pPlayer, kItemFlagA);
-            if (pPlayer->hasFlag&2) sub_40A94(pPlayer, kItemFlagB);
+            if (pPlayer->hasFlag&1) flagDropped(pPlayer, kItemFlagA);
+            if (pPlayer->hasFlag&2) flagDropped(pPlayer, kItemFlagB);
         }
         pPlayer->deathTime = 0;
         pPlayer->qavLoop = 0;
@@ -2078,7 +2052,7 @@ int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec)
     return pPlayer->ammoCount[nAmmoType];
 }
 
-void sub_41250(PLAYER *pPlayer)
+void voodooTarget(PLAYER *pPlayer)
 {
     int v4 = pPlayer->aim.dz;
     int dz = pPlayer->zWeapon-pPlayer->pSprite->z;
@@ -2128,12 +2102,11 @@ void playerLandingSound(PLAYER *pPlayer)
     }
 }
 
-void PlayerSurvive(int, int nXSprite)
+void PlayerSurvive(int, DBloodActor* actor)
 {
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     char buffer[80];
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
     actHealDude(pXSprite, 1, 2);
     if (gGameOptions.nGameType > 0 && numplayers > 1)
     {
@@ -2145,7 +2118,7 @@ void PlayerSurvive(int, int nXSprite)
                 viewSetMessage(GStrings("TXT_LIVEAGAIM"));
             else
             {
-                sprintf(buffer, "%s lives again!", gProfile[pPlayer->nPlayer].name);
+                sprintf(buffer, "%s lives again!", PlayerName(pPlayer->nPlayer));
                 viewSetMessage(buffer);
             }
             pPlayer->newWeapon = 1;
@@ -2153,9 +2126,9 @@ void PlayerSurvive(int, int nXSprite)
     }
 }
 
-void PlayerKneelsOver(int, int nXSprite)
+void PlayerKneelsOver(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
+    XSPRITE* pXSprite = &actor->x();
     for (int p = connecthead; p >= 0; p = connectpoint2[p])
     {
         if (gPlayer[p].pXSprite == pXSprite)
@@ -2167,63 +2140,212 @@ void PlayerKneelsOver(int, int nXSprite)
     }
 }
 
-class PlayerLoadSave : public LoadSave
-{
-public:
-    virtual void Load(void);
-    virtual void Save(void);
-};
 
-void PlayerLoadSave::Load(void)
-{
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-    Read(dword_21EFB0, sizeof(dword_21EFB0));
-    Read(&gNetPlayers, sizeof(gNetPlayers));
-    Read(&gProfile, sizeof(gProfile));
-    Read(&gPlayer, sizeof(gPlayer));
-    #ifdef NOONE_EXTENSIONS
-        Read(&gPlayerCtrl, sizeof(gPlayerCtrl));
-    #endif
-    for (int i = 0; i < gNetPlayers; i++) {
-        gPlayer[i].pSprite = &sprite[gPlayer[i].nSprite];
-        gPlayer[i].pXSprite = &xsprite[gPlayer[i].pSprite->extra];
-        gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].pSprite->type-kDudeBase];
-        
-    #ifdef NOONE_EXTENSIONS
-        // load qav scene
-        if (gPlayer[i].sceneQav != -1) {
-            if (gPlayerCtrl[i].qavScene.qavResrc == NULL) 
-                gPlayer[i].sceneQav = -1;
-            else {
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Aim& w, Aim* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("x", w.dx)
+            ("y", w.dx)
+            ("z", w.dx)
+            .EndObject();
+    }
+    return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PACKINFO& w, PACKINFO* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("isactive", w.isActive)
+            ("curamount", w.curAmount)
+            .EndObject();
+    }
+    return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, POSTURE& w, POSTURE* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("frontaccel", w.frontAccel, def->frontAccel)
+            ("sideaccel", w.sideAccel, def->sideAccel)
+            ("backaccel", w.backAccel, def->backAccel)
+            ("pace0", w.pace[0], def->pace[0])
+            ("pace1", w.pace[1], def->pace[1])
+            ("bobv", w.bobV, def->bobV)
+            ("bobh", w.bobH, def->bobH)
+            ("swayv", w.swayV, def->swayV)
+            ("swayh", w.swayH, def->swayH)
+            ("eyeabovez", w.eyeAboveZ, def->eyeAboveZ)
+            ("weaponabovez", w.weaponAboveZ, def->weaponAboveZ)
+            ("xoffset", w.xOffset, def->xOffset)
+            ("zoffset", w.zOffset, def->zOffset)
+            ("normaljumpz", w.normalJumpZ, def->normalJumpZ)
+            ("pwupjumpz", w.pwupJumpZ, def->pwupJumpZ)
+            .EndObject();
+    }
+    return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER* def)
+{
+    if (arc.isReading()) playerResetPosture(&w);
+    if (arc.BeginObject(keyname))
+    {
+        arc("spritenum", w.nSprite)
+            ("horizon", w.horizon)
+            ("angle", w.angle)
+            ("newweapon", w.newWeapon)
+            ("used1", w.used1)
+            ("weaponqav", w.weaponQav)
+            ("qavcallback", w.qavCallback)
+            ("isrunning", w.isRunning)
+            ("posture", w.posture)
+            ("sceneqav", w.sceneQav)
+            ("bobphase", w.bobPhase)
+            ("bobamp", w.bobAmp)
+            ("bobheight", w.bobHeight)
+            ("bobwidth", w.bobWidth)
+            ("swayphase", w.swayPhase)
+            ("swayamp", w.swayAmp)
+            ("swayheight", w.swayHeight)
+            ("swaywidth", w.swayWidth)
+            ("nplayer", w.nPlayer)
+            ("lifemode", w.lifeMode)
+            ("bloodlust", w.bloodlust)
+            ("zview", w.zView)
+            ("zviewvel", w.zViewVel)
+            ("zweapon", w.zWeapon)
+            ("zweaponvel", w.zWeaponVel)
+            ("slope", w.slope)
+            ("underwater", w.isUnderwater)
+            .Array("haskey", w.hasKey, 8)
+            ("hasflag", w.hasFlag)
+            .Array("used2", w.used2, 8)
+            .Array("dmgcontrol", w.damageControl, 7)
+            ("curweapon", w.curWeapon)
+            ("nextweapon", w.nextWeapon)
+            ("weapontimer", w.weaponTimer)
+            ("weaponstate", w.weaponState)
+            ("weaponammo", w.weaponAmmo)
+            .Array("hasweapon", w.hasWeapon, countof(w.hasWeapon))
+            .Array("weaponmode", w.weaponMode, countof(w.weaponMode))
+            .Array("weaponorder", &w.weaponOrder[0][0], 14*2)
+            .Array("ammocount", w.ammoCount, countof(w.ammoCount))
+            ("qavloop", w.qavLoop)
+            ("fusetime", w.fuseTime)
+            ("throwtime", w.throwTime)
+            ("throwpower", w.throwPower)
+            ("aim", w.aim)
+            ("relaim", w.relAim)
+            ("aimtarget", w.aimTarget)
+            ("aimtargetscount", w.aimTargetsCount)
+            .Array("aimtargets", w.aimTargets, countof(w.aimTargets))
+            ("deathtime", w.deathTime)
+            .Array("pwuptime", w.pwUpTime, countof(w.pwUpTime))
+            ("fragcount", w.fragCount)
+            .Array("fraginfo", w.fragInfo, countof(w.fragInfo))
+            ("teamid", w.teamId)
+            ("fraggerid", w.fraggerId)
+            ("undserwatertime", w.underwaterTime)
+            ("bubbletime", w.bubbleTime)
+            ("resttime", w.restTime)
+            ("kickpower", w.kickPower)
+            ("laughcount", w.laughCount)
+            ("godmode", w.godMode)
+            ("fallscream", w.fallScream)
+            ("cantjump", w.cantJump)
+            ("packitemtime", w.packItemTime)
+            ("packitemid", w.packItemId)
+            .Array("packslots", w.packSlots, countof(w.packSlots))
+            .Array("armor", w.armor, countof(w.armor))
+            ("voodootarget", w.voodooTarget)
+            ("voodootargets", w.voodooTargets)
+            ("voodoovar1", w.voodooVar1)
+            ("voodoovar2", w.vodooVar2)
+            ("flickereffect", w.flickerEffect)
+            ("tilteffect", w.tiltEffect)
+            ("visibility", w.visibility)
+            ("paineffect", w.painEffect)
+            ("blindeffect", w.blindEffect)
+            ("chokeeffect", w.chokeEffect)
+            ("handtime", w.handTime)
+            ("hand", w.hand)
+            ("pickupeffect", w.pickupEffect)
+            ("flasheffect", w.flashEffect)
+            ("quakeeffect", w.quakeEffect)
+            ("angold", w.angold)
+            ("player_par", w.player_par)
+            ("waterpal", w.nWaterPal)
+            .Array("posturedata", &w.pPosture[0][0], &gPostureDefaults[0][0], kModeMax * kPostureMax) // only save actual changes in this.
+            .EndObject();
+    }
+    return arc;
+}
+
+#ifdef NOONE_EXTENSIONS
+FSerializer& Serialize(FSerializer& arc, const char* keyname, TRPLAYERCTRL& w, TRPLAYERCTRL* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("index", w.qavScene.index)
+            ("dummy", w.qavScene.dummy)
+            .EndObject();
+    }
+    if (arc.isReading()) w.qavScene.qavResrc = nullptr;
+    return arc;
+}
+#endif
+
+
+void SerializePlayers(FSerializer& arc)
+{
+    if (arc.BeginObject("players"))
+    {
+        arc("numplayers", gNetPlayers)
+            .Array("teamscore", team_score, gNetPlayers)
+            .Array("players", gPlayer, gNetPlayers)
+#ifdef NOONE_EXTENSIONS
+            .Array("playerctrl", gPlayerCtrl, gNetPlayers)
+#endif
+            .EndObject();
+    }
+
+    if (arc.isReading())
+    {
+        for (int i = 0; i < gNetPlayers; i++) 
+        {
+            gPlayer[i].pSprite = &sprite[gPlayer[i].nSprite];
+            gPlayer[i].pXSprite = &xsprite[gPlayer[i].pSprite->extra];
+            gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].pSprite->type - kDudeBase];
+
+#ifdef NOONE_EXTENSIONS
+            // load qav scene
+            if (gPlayer[i].sceneQav != -1) 
+            {
                 QAV* pQav = playerQavSceneLoad(gPlayer[i].sceneQav);
-                if (pQav) {
+                if (pQav) 
+                {
                     gPlayerCtrl[i].qavScene.qavResrc = pQav;
                     gPlayerCtrl[i].qavScene.qavResrc->Preload();
-                } else {
+                }
+                else 
+                {
                     gPlayer[i].sceneQav = -1;
                 }
             }
+#endif
         }
-    #endif
-
     }
 }
 
-void PlayerLoadSave::Save(void)
-{
-    Write(dword_21EFB0, sizeof(dword_21EFB0));
-    Write(&gNetPlayers, sizeof(gNetPlayers));
-    Write(&gProfile, sizeof(gProfile));
-    Write(&gPlayer, sizeof(gPlayer));
-    
-    #ifdef NOONE_EXTENSIONS
-    Write(&gPlayerCtrl, sizeof(gPlayerCtrl));
-    #endif
-}
 
-void PlayerLoadSaveConstruct(void)
-{
-    new PlayerLoadSave();
-}
 
 END_BLD_NS

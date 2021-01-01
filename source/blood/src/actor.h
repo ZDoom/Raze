@@ -21,14 +21,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
-#include "build.h"
-#include "common_game.h"
-#include "blood.h"
-#include "db.h"
-#include "fx.h"
-#include "gameutil.h"
 
 BEGIN_BLD_NS
+
+class DBloodActor;
 
 enum DAMAGE_TYPE {
     DAMAGE_TYPE_0 = 0,
@@ -176,8 +172,6 @@ extern const THINGINFO thingInfo[];
 extern VECTORDATA gVectorData[];
 
 const int gDudeDrag = 0x2a00;
-extern short gAffectedSectors[kMaxSectors];
-extern short gAffectedXWalls[kMaxXWalls];
 
 template<typename T> bool IsPlayerSprite(T const * const pSprite)
 {
@@ -216,18 +210,12 @@ void actDoLight(int spriteNum);
 #endif
 
 bool IsUnderwaterSector(int nSector);
-int actSpriteOwnerToSpriteId(spritetype *pSprite);
-void actPropagateSpriteOwner(spritetype *pTarget, spritetype *pSource);
-int actSpriteIdToOwnerId(int nSprite);
-int actOwnerIdToSpriteId(int nSprite);
-bool actTypeInSector(int nSector, int nType);
-void actAllocateSpares(void);
 void actInit(bool bSaveLoad);
 void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6);
 int actWallBounceVector(int *x, int *y, int nWall, int a4);
 int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5);
 void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11, int a12, int a13);
-void sub_2AA94(spritetype *pSprite, XSPRITE *pXSprite);
+void sub_2AA94(DBloodActor *actor);
 spritetype *actSpawnFloor(spritetype *pSprite);
 spritetype *actDropAmmo(spritetype *pSprite, int nType);
 spritetype *actDropWeapon(spritetype *pSprite, int nType);
@@ -248,7 +236,7 @@ int MoveThing(spritetype *pSprite);
 void MoveDude(spritetype *pSprite);
 int MoveMissile(spritetype *pSprite);
 void actExplodeSprite(spritetype *pSprite);
-void actActivateGibObject(spritetype *pSprite, XSPRITE *pXSprite);
+void actActivateGibObject(DBloodActor *actor);
 bool IsUnderWater(spritetype *pSprite);
 void actProcessSprites(void);
 spritetype * actSpawnSprite(int nSector, int x, int y, int z, int nStat, char a6);
@@ -263,7 +251,7 @@ bool actCanSplatWall(int nWall);
 void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType);
 void actPostSprite(int nSprite, int nStatus);
 void actPostProcess(void);
-void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite);
+void MakeSplash(DBloodActor *actor);
 void actBuildMissile(spritetype* pMissile, int nXSprite, int nSprite);
 
 extern const int DudeDifficulty[];

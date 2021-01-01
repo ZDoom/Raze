@@ -26,15 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "compat.h"
 #include "gamecontrol.h"
-#include "common_game.h"
+
 #include "blood.h"
-#include "eventq.h"
-#include "globals.h"
-#include "levels.h"
-#include "loadsave.h"
-#include "messages.h"
-#include "player.h"
-#include "view.h"
 #include "gstrings.h"
 #include "cheathandler.h"
 #include "d_protocol.h"
@@ -320,7 +313,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
     {
         if (!gMe->pXSprite->burnTime)
             evPost(gMe->nSprite, 3, 0, kCallbackFXFlameLick);
-        actBurnSprite(actSpriteIdToOwnerId(gMe->nSprite), gMe->pXSprite, 2400);
+        actBurnSprite(gMe->pSprite->index, gMe->pXSprite, 2400);
         return GStrings("TXTB_FIRED");
     }
     case kCheatEdmark:
@@ -333,7 +326,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         gMe->armor[1] = VanillaMode() ? 200 : 3200;
         if (!gMe->pXSprite->burnTime)
             evPost(gMe->nSprite, 3, 0, kCallbackFXFlameLick);
-        actBurnSprite(actSpriteIdToOwnerId(gMe->nSprite), gMe->pXSprite, 2400);
+        actBurnSprite(gMe->pSprite->index, gMe->pXSprite, 2400);
         return GStrings("TXTB_RETARD");
     }
     case kCheatSterno:
@@ -550,28 +543,6 @@ static void cmd_Give(int player, uint8_t **stream, bool skip)
     }
 }
 
-
-class MessagesLoadSave : public LoadSave
-{
-public:
-    virtual void Load();
-    virtual void Save();
-};
-
-void MessagesLoadSave::Load()
-{
-    Read(&bPlayerCheated, sizeof(bPlayerCheated));
-}
-
-void MessagesLoadSave::Save()
-{
-    Write(&bPlayerCheated, sizeof(bPlayerCheated));
-}
-
-void MessagesLoadSaveConstruct(void)
-{
-    new MessagesLoadSave();
-}
 
 void InitCheats()
 {

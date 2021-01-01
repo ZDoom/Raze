@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "texturemanager.h"
 #include "razemenu.h"
 #include "v_draw.h"
+#include "interpolate.h"
 
 BEGIN_PS_NS
 
@@ -82,7 +83,6 @@ void InstallEngine()
     }
     uploadCinemaPalettes();
     LoadPaletteLookups();
-    InitFonts();
 }
 
 void RemoveEngine()
@@ -175,6 +175,8 @@ int nTimeLimit;
 
 int bVanilla = 0;
 
+Loc oldLocs[MAXSPRITES];
+
 void DebugOut(const char *fmt, ...)
 {
 #ifdef _DEBUG
@@ -241,9 +243,9 @@ void DrawClock()
     while (nVal)
     {
         int v2 = nVal & 0xF;
-        int yPos = 32 - tilesiz[v2 + kClockSymbol1].y / 2;
+        int yPos = 32 - tileHeight(v2 + kClockSymbol1) / 2;
 
-        CopyTileToBitmap(v2 + kClockSymbol1, kTile3603, ebp - tilesiz[v2 + kClockSymbol1].x / 2, yPos);
+        CopyTileToBitmap(v2 + kClockSymbol1, kTile3603, ebp - tileWidth(v2 + kClockSymbol1) / 2, yPos);
 
         ebp -= 15;
 
@@ -261,9 +263,24 @@ double calc_smoothratio()
     return I_GetTimeFrac() * MaxSmoothRatio;
 }
 
+static void recordoldspritepos()
+{
+    for (int i = 0; i < MAXSPRITES; i++)
+    {
+        auto* spr = &sprite[i];
+        Loc* oldLoc = &oldLocs[i];
+        oldLoc->x = spr->x;
+        oldLoc->y = spr->y;
+        oldLoc->z = spr->z;
+        oldLoc->ang = spr->ang;
+    }
+}
+
 void GameMove(void)
 {
     FixPalette();
+
+    recordoldspritepos();
 
     if (currentLevel->levelNumber == kMap20)
     {
@@ -334,11 +351,12 @@ void GameInterface::Ticker()
 
         for (int i = 0; i < 4; i++)
         {
-            lPlayerXVel += localInput.fvel * Cos(inita) + localInput.svel * Sin(inita);
-            lPlayerYVel += localInput.fvel * Sin(inita) - localInput.svel * Cos(inita);
+            lPlayerXVel += localInput.fvel * bcos(inita) + localInput.svel * bsin(inita);
+            lPlayerYVel += localInput.fvel * bsin(inita) - localInput.svel * bcos(inita);
             lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
             lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
         }
+        UpdateInterpolations();
 
         if (localInput.actions & SB_INVPREV)
         {
@@ -403,16 +421,17 @@ void GameInterface::Ticker()
         if (weap2 == WeaponSel_Next)
         {
             auto newWeap = currWeap == 6 ? 0 : currWeap + 1;
-            while (!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)) || (nPlayerWeapons[nLocalPlayer] & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0))
+            while (newWeap != 0 && (!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)) || (nPlayerWeapons[nLocalPlayer] & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0)))
             {
                 newWeap++;
+                if (newWeap > 6) newWeap = 0;
             }
             localInput.setNewWeapon(newWeap + 1);
         }
         else if (weap2 == WeaponSel_Prev)
         {
             auto newWeap = currWeap == 0 ? 6 : currWeap - 1;
-            while (!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)) || (nPlayerWeapons[nLocalPlayer] & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0))
+            while (newWeap != 0 && ((!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)) || (nPlayerWeapons[nLocalPlayer] & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0))))
             {
                 newWeap--;
             }
@@ -527,6 +546,7 @@ void GameInterface::app_init()
     // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
     InstallEngine();
     LoadDefinitions();
+    InitFonts();
     SetTileNames();
 
     TileFiles.SetBackup();
@@ -569,7 +589,7 @@ void mydeletesprite(int nSprite)
 
 void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
 {
-    int nOffs = tilesiz[nDestTile].y * xPos;
+    int nOffs = tileHeight(nDestTile) * xPos;
 
 	auto pixels = TileFiles.tileMakeWritable(nDestTile);
     uint8_t *pDest = pixels + nOffs + yPos;
@@ -577,12 +597,12 @@ void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
 
     tileLoad(nSrcTile);
 
-    int destYSize = tilesiz[nDestTile].y;
-    int srcYSize = tilesiz[nSrcTile].y;
+    int destYSize = tileHeight(nDestTile);
+    int srcYSize = tileHeight(nSrcTile);
 
     const uint8_t *pSrc = tilePtr(nSrcTile);
 
-    for (int x = 0; x < tilesiz[nSrcTile].x; x++)
+    for (int x = 0; x < tileWidth(nSrcTile); x++)
     {
         pDest += destYSize;
 
@@ -612,7 +632,7 @@ void EraseScreen(int nVal)
 
 bool GameInterface::CanSave()
 {
-    return !bRecord && !bPlayback && !paused && !bInDemo && nTotalPlayers == 1;
+    return gamestate == GS_LEVEL && !bRecord && !bPlayback && !bInDemo && nTotalPlayers == 1 && nFreeze == 0;
 }
 
 ::GameStats GameInterface::getStats()
@@ -625,83 +645,44 @@ bool GameInterface::CanSave()
     return new GameInterface;
 }
 
-
-// This is only the static global data.
-static SavegameHelper sghexhumed("exhumed",
-    SV(besttarget),
-    SV(nCreaturesTotal),
-    SV(nCreaturesKilled),
-    SV(nFreeze),
-    SV(nSnakeCam),
-    SV(nLocalSpr),
-    SV(nClockVal),  // kTile3603
-    SV(nRedTicks),
-    SV(nAlarmTicks),
-    SV(nButtonColor),
-    SV(nEnergyChan),
-    SV(lCountDown),
-    SV(nEnergyTowers),
-    SV(totalmoves),
-    SV(nCurBodyNum),
-    SV(nBodyTotal),
-    SV(bSnakeCam),
-    SV(bSlipMode),
-    SV(leveltime),
-    nullptr);
-
 extern short cPupData[300];
 extern uint8_t* Worktile;
 extern int lHeadStartClock;
 extern short* pPupData;
 
-
-void SaveTextureState()
+void SerializeState(FSerializer& arc)
 {
-    auto fw = WriteSavegameChunk("texture");
-    int pupOffset = pPupData? int(pPupData - cPupData) : -1;
-
-    // There is really no good way to restore these tiles, so it's probably best to save them as well, so that they can be reloaded with the exact state they were left in
-    fw->Write(&pupOffset, 4);
-    uint8_t loaded = !!Worktile;
-    fw->Write(&loaded, 1);
-    if (Worktile) fw->Write(Worktile, WorktileSize);
-    auto pixels = TileFiles.tileMakeWritable(kTile3603);
-    fw->Write(pixels, tilesiz[kTile3603].x * tilesiz[kTile3603].y);
-    pixels = TileFiles.tileMakeWritable(kEnergy1);
-    fw->Write(pixels, tilesiz[kEnergy1].x * tilesiz[kEnergy1].y);
-    pixels = TileFiles.tileMakeWritable(kEnergy2);
-    fw->Write(pixels, tilesiz[kEnergy2].x * tilesiz[kEnergy2].y);
-    
-}
-
-void LoadTextureState()
-{
-    auto fr = ReadSavegameChunk("texture");
-    int pofs;
-    fr.Read(&pofs, 4);
-    pPupData = pofs == -1 ? nullptr : cPupData + pofs;
-    uint8_t loaded;
-    fr.Read(&loaded, 1);
-    if (loaded)
+    int loaded = 0;
+    if (arc.BeginObject("state"))
     {
-        Worktile = TileFiles.tileCreate(kTileRamsesWorkTile, kSpiritX * 2, kSpiritY * 2);
-        fr.Read(Worktile, WorktileSize);
+        if (arc.isReading() && currentLevel->levelNumber == 20)
+        {
+            InitEnergyTile();
     }
-    auto pixels = TileFiles.tileMakeWritable(kTile3603);
-    fr.Read(pixels, tilesiz[kTile3603].x * tilesiz[kTile3603].y);
-    pixels = TileFiles.tileMakeWritable(kEnergy1);
-    fr.Read(pixels, tilesiz[kEnergy1].x * tilesiz[kEnergy1].y);
-    pixels = TileFiles.tileMakeWritable(kEnergy2);
-    fr.Read(pixels, tilesiz[kEnergy2].x * tilesiz[kEnergy2].y);
-    TileFiles.InvalidateTile(kTileRamsesWorkTile);
-    TileFiles.InvalidateTile(kTile3603);
-    TileFiles.InvalidateTile(kEnergy1);
-    TileFiles.InvalidateTile(kEnergy2);
+
+        arc ("besttarget", besttarget)
+            ("creaturestotal", nCreaturesTotal)
+            ("creatureskilled", nCreaturesKilled)
+            ("freeze", nFreeze)
+            ("snakecam", nSnakeCam)
+            ("localspr", nLocalSpr)
+            ("clockval", nClockVal)  // kTile3603
+            ("redticks", nRedTicks)
+            ("alarmticks", nAlarmTicks)
+            ("buttoncolor", nButtonColor)
+            ("energychan", nEnergyChan)
+            ("countdown", lCountDown)
+            ("energytowers", nEnergyTowers)
+            ("totalmoves", totalmoves)
+            ("curbodynum", nCurBodyNum)
+            ("bodytotal", nBodyTotal)
+            ("bsnakecam", bSnakeCam)
+            ("slipmode", bSlipMode)
+            ("leveltime", leveltime)
+            ("cinemaseen", nCinemaSeen)
+            ("spiritsprite", nSpiritSprite)
+            .EndObject();
+    }
 }
 
-
-CCMD(endit)
-{
-    LevelFinished();
-}
 END_PS_NS

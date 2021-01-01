@@ -57,7 +57,7 @@ public:
 		digiFont = Create<DHUDFont>(DigiFont, 2, Off, 1, 1 );
 
 		// optionally draw at the top of the screen.
-		SetSize(tilesiz[BOTTOMSTATUSBAR].y);
+		SetSize(tileHeight(BOTTOMSTATUSBAR));
 		scale = 0.5;
 		ammo_sprites = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO, HBOMBAMMO, HBOMBAMMO, SAWAMMO, DEVISTATORAMMO, TRIPBOMBSPRITE, GROWSPRITEICON, HBOMBAMMO, -1, BOWLINGBALLSPRITE, MOTOAMMO, BOATAMMO, -1, RPG2SPRITE };
 		item_icons = { 0, FIRSTAID_ICON, STEROIDS_ICON, HOLODUKE_ICON, JETPACK_ICON, HEAT_ICON, AIRTANK_ICON, BOOT_ICON };
@@ -108,11 +108,11 @@ public:
 		imgScale = baseScale / img->GetDisplayHeight();
 		DrawGraphic(img, 2, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, imgScale, imgScale);
 
-		if (!althud_flashing || p->last_extra > (max_player_health >> 2) || (ud.levelclock & 32) || (p->GetActor()->s.pal == 1 && p->last_extra < 2))
+		if (!althud_flashing || p->last_extra > (gs.max_player_health >> 2) || (ud.levelclock & 32) || (p->GetActor()->s.pal == 1 && p->last_extra < 2))
 		{
 			int s = -8;
-			if (althud_flashing && p->last_extra > max_player_health)
-				s += (sintable[(I_GetBuildTime() << 5) & 2047] / 768);
+			if (althud_flashing && p->last_extra > gs.max_player_health)
+				s += bsin(I_GetBuildTime() << 5) / 768;
 			int intens = clamp(255 - 6 * s, 0, 255);
 			format.Format("%d", p->last_extra);
 			SBar_DrawString(this, numberFont, format, 26.5, -numberFont->mFont->GetHeight() * scale + 4, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, intens / 255., 0, 0, scale, scale);
@@ -175,7 +175,7 @@ public:
 				imgX += (imgX * 0.755) * (strlen - 1);
 			}
 
-			if (weapon != KNEE_WEAPON && weapon != SLINGBLADE_WEAPON && (!althud_flashing || ud.levelclock & 32 || ammo > (max_ammo_amount[weapon] / 10)))
+			if (weapon != KNEE_WEAPON && weapon != SLINGBLADE_WEAPON && (!althud_flashing || ud.levelclock & 32 || ammo > (gs.max_ammo_amount[weapon] / 10)))
 			{
 				SBar_DrawString(this, numberFont, format, -1, -numberFont->mFont->GetHeight() * scale + 4, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 			}
@@ -277,13 +277,13 @@ public:
 				y -= 4;
 			DrawInventory(p, 0, y, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD1(p, snum);
-			PrintLevelStats(scale * tilesiz[BIGALPHANUM].y + 10);
+			PrintLevelStats(scale * tileHeight(BIGALPHANUM) + 10);
 		}
 		else if (style == 2)
 		{
 			DrawInventory(p, 56, -20, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD2(p);
-			PrintLevelStats(scale * tilesiz[HEALTHBOX].y + 4);
+			PrintLevelStats(scale * tileHeight(HEALTHBOX) + 4);
 		}
 		else
 		{
@@ -345,14 +345,14 @@ public:
 	void Statusbar(int snum)
 	{
 		auto p = &ps[snum];
-		double h = tilesiz[BOTTOMSTATUSBAR].y * scale;
+		double h = tileHeight(BOTTOMSTATUSBAR) * scale;
 		double wh = 0;
-		if (hud_size < Hud_Stbar) wh = tilesiz[WEAPONBAR].y * scale;
-		double left = (320 - tilesiz[BOTTOMSTATUSBAR].x * scale) / 2;
+		if (hud_size < Hud_Stbar) wh = tileHeight(WEAPONBAR) * scale;
+		double left = (320 - tileWidth(BOTTOMSTATUSBAR) * scale) / 2;
 
 		double top = 200 - h;
 		BeginStatusBar(320, 200, wh + h);
-		DrawInventory(p, 160, 154, 0);
+		DrawInventory(p, 160, hud_size <= Hud_Stbar? 148 : 154, 0);
 
 		if (hud_size <= Hud_Stbar)
 			DrawWeaponBar(p, top);

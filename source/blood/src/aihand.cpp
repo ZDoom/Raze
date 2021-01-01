@@ -27,27 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "eventq.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
 
 BEGIN_BLD_NS
 
-static void HandJumpSeqCallback(int, int);
-static void handThinkSearch(spritetype *, XSPRITE *);
-static void handThinkGoto(spritetype *, XSPRITE *);
-static void handThinkChase(spritetype *, XSPRITE *);
-
-static int nJumpClient = seqRegisterClient(HandJumpSeqCallback);
+static void handThinkSearch(DBloodActor *);
+static void handThinkGoto(DBloodActor *);
+static void handThinkChase(DBloodActor *);
 
 AISTATE handIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE hand13A3B4 = { kAiStateOther, 0, -1, 0, NULL, NULL, NULL, NULL };
@@ -57,11 +44,10 @@ AISTATE handRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &handSearch }
 AISTATE handGoto = { kAiStateMove, 6, -1, 1800, NULL, aiMoveForward, handThinkGoto, &handIdle };
 AISTATE handJump = { kAiStateChase, 7, nJumpClient, 120, NULL, NULL, NULL, &handChase };
 
-static void HandJumpSeqCallback(int, int nXSprite)
+void HandJumpSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     if (IsPlayerSprite(pTarget))
     {
@@ -74,14 +60,18 @@ static void HandJumpSeqCallback(int, int nXSprite)
     }
 }
 
-static void handThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void handThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void handThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void handThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -90,15 +80,17 @@ static void handThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &handSearch);
-    aiThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &handSearch);
+    aiThinkTarget(actor);
 }
 
-static void handThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void handThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &handGoto);
+        aiNewState(actor, &handGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -111,12 +103,12 @@ static void handThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &handSearch);
+        aiNewState(actor, &handSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &handSearch);
+        aiNewState(actor, &handSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -130,13 +122,13 @@ static void handThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x233 && klabs(nDeltaAngle) < 85 && gGameOptions.nGameType == 0)
-                    aiNewState(pSprite, pXSprite, &handJump);
+                    aiNewState(actor, &handJump);
                 return;
             }
         }
     }
 
-    aiNewState(pSprite, pXSprite, &handGoto);
+    aiNewState(actor, &handGoto);
     pXSprite->target = -1;
 }
 

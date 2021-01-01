@@ -25,19 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 #include <string.h>
 #include "compat.h"
-#include "common_game.h"
 
 #include "blood.h"
-#include "globals.h"
-#include "endgame.h"
 #include "inifile.h"
-#include "levels.h"
-#include "loadsave.h"
-#include "messages.h"
-#include "seq.h"
-#include "sound.h"
-#include "view.h"
-#include "eventq.h"
 #include "razemenu.h"
 
 BEGIN_BLD_NS
@@ -45,7 +35,7 @@ BEGIN_BLD_NS
 GAMEOPTIONS gGameOptions;
 
 GAMEOPTIONS gSingleGameOptions = {
-    0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
+    0, 2, 0, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
 };
 
 EPISODEINFO gEpisodeInfo[kMaxEpisodes+1];
@@ -250,28 +240,5 @@ void levelTryPlayMusic()
     }
 }
 
-class LevelsLoadSave : public LoadSave
-{
-    virtual void Load(void);
-    virtual void Save(void);
-};
-
-
-void LevelsLoadSave::Load(void)
-{
-    Read(&gNextLevel, sizeof(gNextLevel));
-    Read(&gGameOptions, sizeof(gGameOptions));
-}
-
-void LevelsLoadSave::Save(void)
-{
-    Write(&gNextLevel, sizeof(gNextLevel));
-    Write(&gGameOptions, sizeof(gGameOptions));
-}
-
-void LevelsLoadSaveConstruct(void)
-{
-    new LevelsLoadSave();
-}
 
 END_BLD_NS

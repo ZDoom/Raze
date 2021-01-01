@@ -48,7 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "misc.h"
 
 #include "menus.h"
-#include "interp.h"
+#include "interpolate.h"
 #include "interpso.h"
 #include "sector.h"
 #include "razemenu.h"
@@ -350,7 +350,7 @@ DoShadows(tspriteptr_t tsp, int viewz, bool mirror)
     else
     {
         int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
-        vec2_t const ofs = { sintable[NORM_ANGLE(camang+512)]>>11, sintable[NORM_ANGLE(camang)]>>11};
+        vec2_t const ofs = { bcos(camang, -11), bsin(camang, -11) };
 
         New->x += ofs.x;
         New->y += ofs.y;
@@ -947,8 +947,8 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
     ang = nang->asbuild() + pp->view_outside_dang;
 
     // Calculate the vector (nx,ny,nz) to shoot backwards
-    vx = (sintable[NORM_ANGLE(ang + 1536)] >> 3);
-    vy = (sintable[NORM_ANGLE(ang + 1024)] >> 3);
+    vx = -bcos(ang, -3);
+    vy = -bsin(ang, -3);
     vz = q16horiz >> 8;
 
     // Player sprite of current view
@@ -986,7 +986,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
             daang = getangle(wall[wall[hitinfo.wall].point2].x - wall[hitinfo.wall].x,
                              wall[wall[hitinfo.wall].point2].y - wall[hitinfo.wall].y);
 
-            i = vx * sintable[daang] + vy * sintable[NORM_ANGLE(daang + 1536)];
+            i = vx * bsin(daang) + vy * -bcos(daang);
             if (klabs(vx) > klabs(vy))
                 hx -= mulscale28(vx, i);
             else
@@ -1021,7 +1021,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
                 // same as wall calculation
                 daang = NORM_ANGLE(sp->ang-512);
 
-                i = vx * sintable[daang] + vy * sintable[NORM_ANGLE(daang + 1536)];
+                i = vx * bsin(daang) + vy * -bcos(daang);
                 if (klabs(vx) > klabs(vy))
                     hx -= mulscale28(vx, i);
                 else
@@ -1071,8 +1071,8 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q1
     ang = *nang + buildang(pp->circle_camera_ang);
 
     // Calculate the vector (nx,ny,nz) to shoot backwards
-    vx = (sintable[NORM_ANGLE(ang.asbuild() + 1536)] >> 4);
-    vy = (sintable[NORM_ANGLE(ang.asbuild() + 1024)] >> 4);
+    vx = -ang.bcos(-4);
+    vy = -ang.bsin(-4);
 
     // lengthen the vector some
     vx += DIV2(vx);
@@ -1108,7 +1108,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q1
             daang = getangle(wall[wall[hitinfo.wall].point2].x - wall[hitinfo.wall].x,
                              wall[wall[hitinfo.wall].point2].y - wall[hitinfo.wall].y);
 
-            i = vx * sintable[daang] + vy * sintable[NORM_ANGLE(daang + 1536)];
+            i = vx * bsin(daang) + vy * -bcos(daang);
             if (klabs(vx) > klabs(vy))
                 hx -= mulscale28(vx, i);
             else
@@ -1259,7 +1259,7 @@ void DrawCrosshair(PLAYERp pp)
     if (!(CameraTestMode))
     {
         USERp u = User[pp->PlayerSprite];
-        ::DrawCrosshair(2326, u->Health, -getHalfLookAng(pp->angle.olook_ang.asq16(), pp->angle.look_ang.asq16(), cl_syncinput, smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
+        ::DrawCrosshair(2326, u->Health, -pp->angle.look_anghalf(smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
     }
 }
 
@@ -1315,8 +1315,8 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, binangle
 
                     pp->last_camera_sp = sp;
 
-                    xvect = sintable[NORM_ANGLE(ang.asbuild() + 512)] >> 3;
-                    yvect = sintable[NORM_ANGLE(ang.asbuild())] >> 3;
+                    xvect = ang.bcos(-3);
+                    yvect = ang.bsin(-3);
 
                     zdiff = sp->z - *tz;
                     if (labs(sp->x - *tx) > 1000)
@@ -1404,12 +1404,7 @@ PostDraw(void)
     it.Reset(STAT_FAF_COPY);
     while ((i = it.NextIndex()) >= 0)
     {
-        if (User[i])
-        {
-            FreeMem(User[i]);
-            User[i] = NULL;
-        }
-
+        FreeUser(i);
         deletesprite(i);
     }
 }
@@ -1512,7 +1507,7 @@ void PreDrawStackedWater(void)
                 if (New >= 0)
                 {
                     // spawn a user
-                    User[New] = nu = (USERp)CallocMem(sizeof(USER), 1);
+                    User[New] = nu = NewUser();
                     ASSERT(nu != NULL);
 
                     nu->xchange = -989898;
@@ -1634,8 +1629,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if (!ScreenSavePic)
     {
-        dointerpolations(smoothratio);                      // Stick at beginning of drawscreen
-        short_dointerpolations(smoothratio);                      // Stick at beginning of drawscreen
+        DoInterpolations(smoothratio / 65536.);                      // Stick at beginning of drawscreen
         if (cl_sointerpolation)
             so_dointerpolations(smoothratio);                           // Stick at beginning of drawscreen
     }
@@ -1653,7 +1647,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
-    if (cl_syncinput || pp != Player+myconnectindex)
+    if (SyncInput() || pp != Player+myconnectindex)
     {
         tang = camerapp->angle.interpolatedsum(smoothratio);
         thoriz = camerapp->horizon.interpolatedsum(smoothratio);
@@ -1667,7 +1661,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     }
     tsectnum = camerapp->cursectnum;
 
-    renderSetRollAngle(trotscrnang.asbam() / (double)BAMUNIT);
+    renderSetRollAngle(trotscrnang.asbuildf());
 
     COVERupdatesector(tx, ty, &tsectnum);
 
@@ -1755,7 +1749,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
 
     videoSetCorrectedAspect();
-    renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov* (PI / 360.))), yxaspect);
+    renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov * (pi::pi() / 360.))), yxaspect);
     OverlapDraw = true;
     DrawOverlapRoom(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
     OverlapDraw = false;
@@ -1847,8 +1841,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     SyncStatMessage();
 #endif
 
-    restoreinterpolations();                 // Stick at end of drawscreen
-    short_restoreinterpolations();                 // Stick at end of drawscreen
+    RestoreInterpolations();                 // Stick at end of drawscreen
     if (cl_sointerpolation)
         so_restoreinterpolations();                       // Stick at end of drawscreen
 
@@ -1893,8 +1886,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
     bool sprisplayer = false;
     short txt_x, txt_y;
 
-    xvect = sintable[(2048 - cang) & 2047] * czoom;
-    yvect = sintable[(1536 - cang) & 2047] * czoom;
+    xvect = -bsin(cang) * czoom;
+    yvect = -bcos(cang) * czoom;
     xvect2 = mulscale16(xvect, yxaspect);
     yvect2 = mulscale16(yvect, yxaspect);
 
@@ -1984,9 +1977,9 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
                         xoff = -xoff;
                     k = spr->ang;
                     l = spr->xrepeat;
-                    dax = sintable[k & 2047] * l;
-                    day = sintable[(k + 1536) & 2047] * l;
-                    l = tilesiz[tilenum].x;
+                    dax = bsin(k) * l;
+                    day = -bcos(k) * l;
+                    l = tileWidth(tilenum);
                     k = (l >> 1) + xoff;
                     x1 -= mulscale16(dax, k);
                     x2 = x1 + mulscale16(dax, l);
@@ -2019,11 +2012,11 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
                             yoff = -yoff;
 
                         k = spr->ang;
-                        cosang = sintable[(k + 512) & 2047];
-                        sinang = sintable[k];
-                        xspan = tilesiz[tilenum].x;
+                        cosang = bcos(k);
+                        sinang = bsin(k);
+                        xspan = tileWidth(tilenum);
                         xrepeat = spr->xrepeat;
-                        yspan = tilesiz[tilenum].y;
+                        yspan = tileHeight(tilenum);
                         yrepeat = spr->yrepeat;
 
                         dax = ((xspan >> 1) + xoff) * xrepeat;

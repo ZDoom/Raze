@@ -545,7 +545,7 @@ int DoEelMatchPlayerZ(short SpriteNum)
     u->sz = max(u->sz, hiz + u->ceiling_dist);
 
     u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    sp->z = u->sz + ((EEL_BOB_AMT * (int)sintable[u->Counter]) >> 14);
+    sp->z = u->sz + mulscale14(EEL_BOB_AMT, bsin(u->Counter));
 
     bound = u->hiz + u->ceiling_dist + EEL_BOB_AMT;
     if (sp->z < bound)
@@ -578,8 +578,8 @@ DoEelDeath(short SpriteNum)
         DoActorSlide(SpriteNum);
 
     // slide while falling
-    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+    nx = mulscale14(sp->xvel, bcos(sp->ang));
+    ny = mulscale14(sp->xvel, bsin(sp->ang));
 
     u->ret = move_sprite(SpriteNum, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
     DoFindGroundPoint(SpriteNum);

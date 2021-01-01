@@ -93,7 +93,7 @@ static void processInputBits(PLAYERp const pp, ControlInfo* const hidInput)
         else
             RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
 
-        if (cl_autoaim)
+        if (Autoaim(myconnectindex))
             SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
         else
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
@@ -203,7 +203,7 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
     processMovement(&input, &loc, hidInput, scaleAdjust, 0, !pp->sop, pp->sop_control ? 3. / 1.40625 : 1.);
     processWeapon(pp);
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
         {
@@ -231,12 +231,13 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 
     if (packet)
     {
-        auto const ang = pp->angle.ang.asbuild();
+        auto const cos = pp->angle.ang.bcos();
+        auto const sin = pp->angle.ang.bsin();
 
         *packet = loc;
 
-        packet->fvel = mulscale9(loc.fvel, sintable[NORM_ANGLE(ang + 512)]) + mulscale9(loc.svel, sintable[NORM_ANGLE(ang)]);
-        packet->svel = mulscale9(loc.fvel, sintable[NORM_ANGLE(ang)]) + mulscale9(loc.svel, sintable[NORM_ANGLE(ang + 1536)]);
+        packet->fvel = mulscale9(loc.fvel, cos) + mulscale9(loc.svel, sin);
+        packet->svel = mulscale9(loc.fvel, sin) - mulscale9(loc.svel, cos);
 
         loc = {};
     }

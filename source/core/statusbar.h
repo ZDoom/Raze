@@ -76,7 +76,7 @@ struct FLevelStats
 	int time; // in milliseconds
 	int frags;
 	int kills, maxkills;	// set maxkills to -1 to ignore, or to -2 to only print kills
-	int secrets, maxsecrets;	// set maxsecrets to -1 to ignore
+	int secrets, maxsecrets, supersecrets;	// set maxsecrets to -1 to ignore
 	int spacing; // uses fontheight if 0 or less.
 	EColorRange letterColor, standardColor, completeColor;
 	double fontscale;
@@ -136,7 +136,7 @@ void ST_Clear();
 extern FGameTexture *CrosshairImage;
 
 
-void SBar_DrawString(DStatusBarCore* self, DHUDFont* font, const FString& string, double x, double y, int flags, int trans, double alpha, int wrapwidth, int linespacing, double scaleX, double scaleY);
+void SBar_DrawString(DStatusBarCore* self, DHUDFont* font, const FString& string, double x, double y, int flags, int trans, double alpha, int wrapwidth, int linespacing, double scaleX, double scaleY, int pt = 0);
 void setViewport(int viewSize);
 struct MapRecord;
 void setLevelStarted(MapRecord *);

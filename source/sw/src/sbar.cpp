@@ -217,7 +217,7 @@ private:
 
             font_pic = font_base[color] + (ch - '0');
             DrawGraphic(tileGetTexture(font_pic), x, ys, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, shadeToLight(shade));
-            x += tilesiz[font_pic].x + 1;
+            x += tileWidth(font_pic) + 1;
         }
     }
 
@@ -242,7 +242,7 @@ private:
 
     void DisplayTinyString(double xs, double ys, const char* buffer, int pal)
     {
-        SBar_DrawString(this, miniFont, buffer, xs, ys, DI_ITEM_LEFT_TOP, TRANSLATION(Translation_Remap, pal), 1, -1, -1, 1, 1);
+        SBar_DrawString(this, miniFont, buffer, xs, ys, DI_ITEM_LEFT_TOP, CR_UNTRANSLATED, 1, -1, -1, 1, 1);
     }
 
     void DisplayFragString(PLAYERp pp, double xs, double ys, const char* buffer)
@@ -274,7 +274,7 @@ private:
             // frag bar 0 or 1
             frag_bar = ((pnum) / 4);
             // move y down according to frag bar number
-            ys = ys + (tilesiz[FRAG_BAR].y - 2) * frag_bar;
+            ys = ys + (tileHeight(FRAG_BAR) - 2) * frag_bar;
 
             // move x over according to the number of players
             xs = xoffs[MOD4(pnum)];
@@ -308,7 +308,7 @@ private:
             // frag bar 0 or 1
             frag_bar = ((pnum) / 4);
             // move y down according to frag bar number
-            ys = ys + (tilesiz[FRAG_BAR].y - 2) * frag_bar;
+            ys = ys + (tileHeight(FRAG_BAR) - 2) * frag_bar;
 
             // move x over according to the number of players
             xs = xoffs[MOD4(pnum)];
@@ -345,14 +345,14 @@ private:
 
         for (i = windowxy1.x; i <= windowxy2.x; i++)
         {
-            y = (tilesiz[FRAG_BAR].y * num_frag_bars) - (2 * (num_frag_bars - 1));
+            y = (tileHeight(FRAG_BAR) * num_frag_bars) - (2 * (num_frag_bars - 1));
             y = y * (ydim / 200.0);
         }
 
         for (i = 0, y = 0; i < num_frag_bars; i++)
         {
             DrawGraphic(tileGetTexture(FRAG_BAR), 0, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
-            y += tilesiz[FRAG_BAR].y - 2;
+            y += tileHeight(FRAG_BAR) - 2;
         }
         DisplayFragNames();
         DisplayFragNumbers();
@@ -449,8 +449,8 @@ private:
         };
 
 
-        xsize = tilesiz[PANEL_KEY_RED].x + 1;
-        ysize = tilesiz[PANEL_KEY_RED].y + 2;
+        xsize = tileWidth(PANEL_KEY_RED) + 1;
+        ysize = tileHeight(PANEL_KEY_RED) + 2;
 
         i = 0;
         for (row = 0; row < 2; row++)
@@ -607,7 +607,7 @@ private:
         auto NORM_CANG = [](int ang) { return (((ang)+32) & 31); };
 
         int start_ang, ang;
-        int x_size = tilesiz[COMPASS_NORTH].x;
+        int x_size = tileWidth(COMPASS_NORTH);
         int x;
         int i;
 
@@ -669,7 +669,7 @@ private:
         BeginStatusBar(320, 200, tileHeight(STATUS_BAR));
 
         if (hud_size == Hud_StbarOverlay) Set43ClipRect();
-        int left = (320 - tilesiz[STATUS_BAR].x) / 2;
+        int left = (320 - tileWidth(STATUS_BAR)) / 2;
         DrawGraphic(tileGetTexture(STATUS_BAR), left, 200, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 1, 1);
         twod->ClearClipRect();
         DisplayPanelNumber(PANEL_HEALTH_BOX_X + PANEL_HEALTH_XOFF, PANEL_BOX_Y + PANEL_HEALTH_YOFF, u->Health);
@@ -683,7 +683,7 @@ private:
             DisplayTimeLimit(pp);
         DisplayBarInventory(pp);
         DrawCompass(pp);
-        PrintLevelStats(-1);
+        PrintLevelStats(-3);
     }
 
     //---------------------------------------------------------------------------
@@ -803,7 +803,7 @@ private:
         {
             int s = -8;
             if (althud_flashing && u->Health > u->MaxHealth)
-                s += (sintable[(PlayClock << 5) & 2047] >> 10);
+                s += bsin(PlayClock << 5, -10);
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", u->Health);
@@ -1007,29 +1007,29 @@ public:
         if (hud_size == Hud_Nothing)
         {
             align = DI_SCREEN_RIGHT_BOTTOM;
-            inv_x = -210 * hud_scalefactor;
-            inv_y = -28 * hud_scalefactor;
+            inv_x = -210;
+            inv_y = -28;
             PrintLevelStats(2);
         }
         else if (hud_size == Hud_full)
         {
             align = DI_SCREEN_CENTER_BOTTOM;
-            inv_x = -80 * hud_scalefactor;
-            inv_y = -40 * hud_scalefactor;
+            inv_x = -80;
+            inv_y = -40;
             DrawHUD2();
         }
         else if (hud_size == Hud_Mini)
         {
             align = DI_SCREEN_RIGHT_BOTTOM;
-            inv_x = -210 * hud_scalefactor;
-            inv_y = -28 * hud_scalefactor;
+            inv_x = -210;
+            inv_y = -28;
             DrawHUD1();
         }
         else
         {
             align = 0;
-            inv_x = 80 * hud_scalefactor;
-            inv_y = 130 * hud_scalefactor;
+            inv_x = 80;
+            inv_y = 130;
             DrawStatusBar();
         }
         DrawInventory(inv_x, inv_y, align);

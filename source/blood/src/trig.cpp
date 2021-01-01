@@ -1,9 +1,6 @@
 #include "ns.h"	// Must come before everything else!
 
-#include "build.h"
-#include "pragmas.h"
-#include "common_game.h"
-//-------------------------------------------------------------------------
+//----------------------------------------------------------------------
 /*
 Copyright (C) 2010-2019 EDuke32 developers and contributors
 Copyright (C) 2019 Nuke.YKT
@@ -27,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "build.h"
 #include "pragmas.h"
-#include "common_game.h"
+#include "blood.h"
 
 BEGIN_BLD_NS
 

@@ -267,72 +267,59 @@ int StdRandomRange(int range);
 
 #define RANDOM_NEG(x,y) ((RANDOM_P2(((x)<<(y))<<1) - (x))<<(y))
 
-#define MOVEx(vel,ang) (((int)(vel) * (int)sintable[NORM_ANGLE((ang) + 512)]) >> 14)
-#define MOVEy(vel,ang) (((int)(vel) * (int)sintable[NORM_ANGLE((ang))]) >> 14)
+#define MOVEx(vel,ang) (mulscale14(vel, bcos(ang)))
+#define MOVEy(vel,ang) (mulscale14(vel, bsin(ang)))
 
 #define DIST(x1, y1, x2, y2) ksqrt( SQ((x1) - (x2)) + SQ((y1) - (y2)) )
 
-#define PIC_SIZX(sn) (tilesiz[sprite[sn].picnum].x)
-#define PIC_SIZY(sn) (tilesiz[sprite[sn].picnum].y)
+inline int PIC_SIZY(int sn) 
+{ 
+	return tileHeight(sprite[sn].picnum); 
+}
 
 // Distance macro - tx, ty, tmin are holding vars that must be declared in the routine
 // that uses this macro
-#define DISTANCE(x1, y1, x2, y2, dist, tx, ty, tmin) \
-    {                                    \
-        tx = abs(x2-x1);                    \
-        ty = abs(y2-y1);                    \
-        tmin = min(tx,ty);                   \
-        dist = tx + ty - DIV2(tmin);         \
-    }
+inline void DISTANCE(int x1, int y1, int x2, int y2, int& dist, int& tx, int& ty, int& tmin)
+{
+	tx = abs(x2 - x1);
+	ty = abs(y2 - y1);
+	tmin = min(tx, ty);
+	dist = tx + ty - (tmin >> 1);
+}
 
-#define SPRITE_SIZE_X(sp_num)   ((sprite[sp_num].xrepeat == 64) ?                         \
-                                 tilesiz[sprite[sp_num].picnum].x :                   \
-                                 ((sprite[sp_num].xrepeat * tilesiz[sprite[sp_num].picnum].x) >> 6) \
-                                 )
+inline int SPRITEp_SIZE_X(const spritetype* sp)
+{
+	return mulscale6(tileWidth(sp->picnum), sp->xrepeat);
+}
 
-#define SPRITE_SIZE_Y(sp_num)   ((sprite[sp_num].yrepeat == 64) ?                          \
-                                 tilesiz[sprite[sp_num].picnum].y :                    \
-                                 ((sprite[sp_num].yrepeat * tilesiz[sprite[sp_num].picnum].y) >> 6) \
-                                 )
+inline int SPRITEp_SIZE_Y(const spritetype* sp)
+{
+	return mulscale6(tileHeight(sp->picnum), sp->yrepeat);
+}
 
-#define SPRITE_SIZE_Z(sp_num)   ((sprite[sp_num].yrepeat == 64) ?                          \
-                                 Z(tilesiz[sprite[sp_num].picnum].y) :                 \
-                                 ((sprite[sp_num].yrepeat * tilesiz[sprite[sp_num].picnum].y) << 2) \
-                                 )
+inline int SPRITEp_SIZE_Z(const spritetype* sp)
+{
+	return (tileHeight(sp->picnum) * sp->yrepeat) << 2;
+}
 
-#define SPRITEp_SIZE_X(sp)   (((sp)->xrepeat == 64) ?                         \
-                              tilesiz[(sp)->picnum].x :                   \
-                              (((sp)->xrepeat * tilesiz[(sp)->picnum].x) >> 6) \
-                              )
 
-#define SPRITEp_SIZE_Y(sp)   (((sp)->yrepeat == 64) ?                          \
-                              tilesiz[(sp)->picnum].y :                    \
-                              (((sp)->yrepeat * tilesiz[(sp)->picnum].y) >> 6) \
-                              )
-
-#define SPRITEp_SIZE_Z(sp)   (((sp)->yrepeat == 64) ?                          \
-                              Z(tilesiz[(sp)->picnum].y) :                 \
-                              (((sp)->yrepeat * tilesiz[(sp)->picnum].y) << 2) \
-                              )
-
-// Given a z height and sprite return the correct x repeat value
-#define SPRITEp_SIZE_X_2_XREPEAT(sp, x) (((x)*64)/tilesiz[(sp)->picnum].x)
 // Given a z height and sprite return the correct y repeat value
-#define SPRITEp_SIZE_Z_2_YREPEAT(sp, zh) ((zh)/(4*tilesiz[(sp)->picnum].y))
-#define SPRITEp_SIZE_Y_2_YREPEAT(sp, y) (((y)*64)/tilesiz[(sp)->picnum].y)
+inline int SPRITEp_SIZE_Z_2_YREPEAT(const spritetype* sp, int zh)
+{
+	return zh / (4 * tileHeight(sp->picnum));
+}
 
-
-// x & y offset of tile
-#define TILE_XOFF(picnum) (tileLeftOffset(picnum))
-#define TILE_YOFF(picnum) (tileTopOffset(picnum))
-
-// x & y offset of current sprite tile
-#define SPRITEp_XOFF(sp) (tileLeftOffset((sp)->picnum))
-#define SPRITEp_YOFF(sp) (tileTopOffset((sp)->picnum))
 
 // Z size of top (TOS) and bottom (BOS) part of sprite
-#define SPRITEp_SIZE_TOS(sp) (DIV2(SPRITEp_SIZE_Z(sp)) + Z(SPRITEp_YOFF(sp)))
-#define SPRITEp_SIZE_BOS(sp) (DIV2(SPRITEp_SIZE_Z(sp)) - Z(SPRITEp_YOFF(sp)))
+inline int SPRITEp_SIZE_TOS(const spritetype* sp)
+{
+    return (DIV2(SPRITEp_SIZE_Z(sp)) + (tileTopOffset(sp->picnum) << 8));
+}
+
+inline int SPRITEp_SIZE_BOS(const spritetype* sp)
+{
+    return (DIV2(SPRITEp_SIZE_Z(sp)) - (tileTopOffset(sp->picnum) << 8));
+}
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
 #define SPRITEp_TOS(sp) (TEST((sp)->cstat, CSTAT_SPRITE_YCENTER) ? \
@@ -353,7 +340,7 @@ int StdRandomRange(int range);
 
 #define SQ(val) ((val) * (val))
 
-#define KENFACING_PLAYER(pp,sp) (sintable[NORM_ANGLE(sp->ang+512)]*(pp->posy-sp->y) >= sintable[NORM_ANGLE(sp-ang)]*(pp->posx-sp->x))
+#define KENFACING_PLAYER(pp,sp) (bcos(sp->ang)*(pp->posy-sp->y) >= bsin(sp-ang)*(pp->posx-sp->x))
 #define FACING_PLAYER(pp,sp) (abs(getincangle(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y), (sp)->ang)) < 512)
 #define PLAYER_FACING(pp,sp) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), (pp)->angle.ang.asbuild())) < 320)
 #define FACING(sp1,sp2) (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < 512)
@@ -826,7 +813,12 @@ typedef struct
 struct PLAYERstruct
 {
     // variable that fit in the sprite or user structure
-    int32_t posx, posy, posz;
+    union
+    {
+        struct { int32_t posx, posy, posz; };
+        vec3_t pos;
+    };
+    
     // interpolation
     int oposx, oposy, oposz;
 
@@ -897,7 +889,7 @@ struct PLAYERstruct
 
     short pnum; // carry along the player number
 
-    short LadderSector,LadderAngle;
+    short LadderSector;
     int lx,ly; // ladder x and y
     short JumpDuration;
     short WadeDepth;
@@ -1285,6 +1277,28 @@ typedef struct
     uint8_t filler;
 } USER,*USERp;
 
+struct USERSAVE
+{
+    short Health;
+    int8_t WeaponNum;
+    int8_t LastWeaponNum;
+
+    void CopyFromUser(USER* u)
+    {
+        Health = u->Health;
+        WeaponNum = u->WeaponNum;
+        LastWeaponNum = u->LastWeaponNum;
+    }
+
+    void CopyToUser(USER* u)
+    {
+        u->Health = Health;
+        u->WeaponNum = WeaponNum;
+        u->LastWeaponNum = LastWeaponNum;
+    }
+
+};
+
 // sprite->extra flags
 // BUILD AND GAME - DO NOT MOVE THESE
 #define SPRX_SKILL              (BIT(0) | BIT(1) | BIT(2))
@@ -1430,6 +1444,26 @@ typedef struct
 {
     short high;
 } RANGE,*RANGEp;
+
+
+inline void ClearUser(USER* user)
+{
+    *user = {};
+}
+
+inline USER* NewUser()
+{
+    auto u = (USER*)M_Calloc(sizeof(USER), 1);// new USER;
+    ClearUser(u);
+    return u;
+}
+
+inline void FreeUser(int num)
+{
+    if (User[num]) M_Free(User[num]);// delete User[num];
+    User[num] = nullptr;
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1635,19 +1669,37 @@ extern ANIM Anim[MAXANIM];
 extern short AnimCnt;
 
 
-typedef struct
+typedef struct TRACK_POINT
 {
     int x,y,z;
     short ang, tag_low, tag_high, filler;
-} TRACK_POINT, *TRACK_POINTp;
+} *TRACK_POINTp;
 
-typedef struct
+typedef struct TRACK
 {
     TRACK_POINTp TrackPoint;
     int ttflags;
     short flags;
     short NumPoints;
-} TRACK, *TRACKp;
+
+    void FreeTrackPoints()
+    {
+        if (TrackPoint)
+        {
+            M_Free(TrackPoint);
+            // !JIM! I added null assigner
+            TrackPoint = nullptr;
+        }
+    }
+
+    TRACK_POINTp SetTrackSize(unsigned newsize)
+    {
+        FreeTrackPoints();
+        TrackPoint = (TRACK_POINTp)M_Calloc((newsize * sizeof(TRACK_POINT)), 1);
+        return TrackPoint;
+    }
+
+}*TRACKp;
 
 // Most track type flags are in tags.h
 
@@ -1678,8 +1730,13 @@ struct SECTOR_OBJECTstruct
 
     SPRITEp sp_child;  // child sprite that holds info for the sector object
 
-    int    xmid,ymid,zmid, // midpoints of the sector object
-           vel,            // velocity
+    union
+    {
+        struct { int xmid, ymid, zmid; };  // midpoints of the sector object
+        vec3_t pmid;
+    };
+    
+    int    vel,            // velocity
            vel_tgt,        // target velocity
            player_xoff,    // player x offset from the xmid
            player_yoff,    // player y offset from the ymid
@@ -1986,9 +2043,6 @@ extern int GodMode;
 
 extern bool ReloadPrompt;
 
-//extern unsigned char synctics, lastsynctics;
-extern short snum;
-
 extern int lockspeed;
 
 #define synctics 3
@@ -2007,8 +2061,8 @@ extern short connecthead, connectpoint2[MAXPLAYERS];
 */
 extern int *lastpacket2clock;
 
-// save player info when moving to a new level
-extern USER puser[MAX_SW_PLAYERS_REG];
+// save player info when moving to a new level (shortened to only cover the fields that actually are copied back.(
+extern USERSAVE puser[MAX_SW_PLAYERS_REG];
 
 ///////////////////////////
 //
@@ -2202,6 +2256,9 @@ struct GameInterface : ::GameInterface
 	void NewGame(MapRecord *map, int skill) override;
     bool DrawAutomapPlayer(int x, int y, int z, int a) override;
     int playerKeyMove() override { return 35; }
+    void WarpToCoords(int x, int y, int z, int a, int h) override;
+    void ToggleThirdPerson() override;
+    void SwitchCoopView() override;
 
 
     GameStats getStats() override;

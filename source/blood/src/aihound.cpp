@@ -27,31 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "eventq.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
-#include "nnexts.h"
 
 BEGIN_BLD_NS
 
-static void houndBiteSeqCallback(int, int);
-static void houndBurnSeqCallback(int, int);
-static void houndThinkSearch(spritetype *, XSPRITE *);
-static void houndThinkGoto(spritetype *, XSPRITE *);
-static void houndThinkChase(spritetype *, XSPRITE *);
-
-static int nHoundBiteClient = seqRegisterClient(houndBiteSeqCallback);
-static int nHoundBurnClient = seqRegisterClient(houndBurnSeqCallback);
+static void houndThinkSearch(DBloodActor *);
+static void houndThinkGoto(DBloodActor *);
+static void houndThinkChase(DBloodActor *);
 
 AISTATE houndIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE houndSearch = { kAiStateMove, 8, -1, 1800, NULL, aiMoveForward, houndThinkSearch, &houndIdle };
@@ -62,11 +45,10 @@ AISTATE houndGoto = { kAiStateMove, 8, -1, 600, NULL, aiMoveForward, houndThinkG
 AISTATE houndBite = { kAiStateChase, 6, nHoundBiteClient, 60, NULL, NULL, NULL, &houndChase };
 AISTATE houndBurn = { kAiStateChase, 7, nHoundBurnClient, 60, NULL, NULL, NULL, &houndChase };
 
-static void houndBiteSeqCallback(int, int nXSprite)
+void houndBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -90,22 +72,24 @@ static void houndBiteSeqCallback(int, int nXSprite)
     #endif
 }
 
-static void houndBurnSeqCallback(int, int nXSprite)
+void houndBurnSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype* pSprite = &actor->s();
     actFireMissile(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFlameHound);
 }
 
-static void houndThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void houndThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void houndThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void houndThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -119,15 +103,17 @@ static void houndThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &houndSearch);
-    aiThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &houndSearch);
+    aiThinkTarget(actor);
 }
 
-static void houndThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void houndThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &houndGoto);
+        aiNewState(actor, &houndGoto);
         return;
     }
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -148,12 +134,12 @@ static void houndThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &houndSearch);
+        aiNewState(actor, &houndSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &houndSearch);
+        aiNewState(actor, &houndSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -167,15 +153,15 @@ static void houndThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0xb00 && nDist > 0x500 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &houndBurn);
+                    aiNewState(actor, &houndBurn);
                 else if(nDist < 0x266 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &houndBite);
+                    aiNewState(actor, &houndBite);
                 return;
             }
         }
     }
 
-    aiNewState(pSprite, pXSprite, &houndGoto);
+    aiNewState(actor, &houndGoto);
     pXSprite->target = -1;
 }
 

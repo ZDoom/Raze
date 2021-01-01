@@ -27,31 +27,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
 
 BEGIN_BLD_NS
 
-static void cerberusBiteSeqCallback(int, int);
-static void cerberusBurnSeqCallback(int, int);
-static void cerberusBurnSeqCallback2(int, int);
-static void cerberusThinkSearch(spritetype *pSprite, XSPRITE *pXSprite);
-static void cerberusThinkTarget(spritetype *pSprite, XSPRITE *pXSprite);
-static void cerberusThinkGoto(spritetype *pSprite, XSPRITE *pXSprite);
-static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite);
+static void cerberusThinkSearch(DBloodActor *actor);
+static void cerberusThinkTarget(DBloodActor *actor);
+static void cerberusThinkGoto(DBloodActor *actor);
+static void cerberusThinkChase(DBloodActor *actor);
 
-static int nCerberusBiteClient = seqRegisterClient(cerberusBiteSeqCallback);
-static int nCerberusBurnClient = seqRegisterClient(cerberusBurnSeqCallback);
-static int nCerberusBurnClient2 = seqRegisterClient(cerberusBurnSeqCallback2);
 
 AISTATE cerberusIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, cerberusThinkTarget, NULL };
 AISTATE cerberusSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, cerberusThinkSearch, &cerberusIdle };
@@ -73,11 +58,10 @@ AISTATE cerberus4Burn = { kAiStateChase, 6, nCerberusBurnClient2, 60, NULL, NULL
 AISTATE cerberus139890 = { kAiStateOther, 7, -1, 120, NULL, aiMoveTurn, NULL, &cerberusChase };
 AISTATE cerberus1398AC = { kAiStateOther, 7, -1, 120, NULL, aiMoveTurn, NULL, &cerberusChase };
 
-static void cerberusBiteSeqCallback(int, int nXSprite)
+void cerberusBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -97,11 +81,10 @@ static void cerberusBiteSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_14);
 }
 
-static void cerberusBurnSeqCallback(int, int nXSprite)
+void cerberusBurnSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pDudeInfo->eyeHeight*pSprite->yrepeat;
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
@@ -116,7 +99,7 @@ static void cerberusBurnSeqCallback(int, int nXSprite)
     Aim aim;
     aim.dx = CosScale16(pSprite->ang);
     aim.dy = SinScale16(pSprite->ang);
-    aim.dz = gDudeSlope[nXSprite];
+    aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
     int nSprite2;
     StatIterator it(kStatDude);
@@ -140,7 +123,7 @@ static void cerberusBurnSeqCallback(int, int nXSprite)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(gDudeSlope[nXSprite], nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
@@ -180,11 +163,10 @@ static void cerberusBurnSeqCallback(int, int nXSprite)
     }
 }
 
-static void cerberusBurnSeqCallback2(int, int nXSprite)
+void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
         Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
@@ -201,7 +183,7 @@ static void cerberusBurnSeqCallback2(int, int nXSprite)
     int ax, ay, az;
     aim.dx = ax = CosScale16(pSprite->ang);
     aim.dy = ay = SinScale16(pSprite->ang);
-    aim.dz = gDudeSlope[nXSprite];
+    aim.dz = actor->dudeSlope;
     az = 0;
     int nClosest = 0x7fffffff;
     int nSprite2;
@@ -226,7 +208,7 @@ static void cerberusBurnSeqCallback2(int, int nXSprite)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(gDudeSlope[nXSprite], nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
@@ -268,14 +250,18 @@ static void cerberusBurnSeqCallback2(int, int nXSprite)
     }
 }
 
-static void cerberusThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void cerberusThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkTarget(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -283,17 +269,17 @@ static void cerberusThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-    if (pDudeExtraE->at8 && pDudeExtraE->Kills < 10)
-        pDudeExtraE->Kills++;
-    else if (pDudeExtraE->Kills >= 10 && pDudeExtraE->at8)
+    if (pDudeExtraE->xval3 && pDudeExtraE->xval2 < 10)
+        pDudeExtraE->xval2++;
+    else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)
     {
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
         if (pSprite->type == kDudeCerberusTwoHead)
-            aiNewState(pSprite, pXSprite, &cerberus139890);
+            aiNewState(actor, &cerberus139890);
         else
-            aiNewState(pSprite, pXSprite, &cerberus1398AC);
+            aiNewState(actor, &cerberus1398AC);
         return;
     }
     if (Chance(pDudeInfo->alertChance))
@@ -317,15 +303,15 @@ static void cerberusThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                pDudeExtraE->TotalKills = 0;
+                pDudeExtraE->xval1 = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                pDudeExtraE->TotalKills = 0;
+                pDudeExtraE->xval1 = 0;
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else
                 continue;
@@ -334,8 +320,10 @@ static void cerberusThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void cerberusThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -351,25 +339,27 @@ static void cerberusThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     {
         switch (pSprite->type) {
             case kDudeCerberusTwoHead:
-                aiNewState(pSprite, pXSprite, &cerberusSearch);
+                aiNewState(actor, &cerberusSearch);
                 break;
             case kDudeCerberusOneHead:
-                aiNewState(pSprite, pXSprite, &cerberus2Search);
+                aiNewState(actor, &cerberus2Search);
                 break;
         }
     }
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void cerberusThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1) {
         switch (pSprite->type) {
             case kDudeCerberusTwoHead:
-                aiNewState(pSprite, pXSprite, &cerberusGoto);
+                aiNewState(actor, &cerberusGoto);
                 break;
             case kDudeCerberusOneHead:
-                aiNewState(pSprite, pXSprite, &cerberus2Goto);
+                aiNewState(actor, &cerberus2Goto);
                 break;
         }
         return;
@@ -397,10 +387,10 @@ static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     if (pXTarget->health == 0) {
         switch (pSprite->type) {
             case kDudeCerberusTwoHead:
-                aiNewState(pSprite, pXSprite, &cerberusSearch);
+                aiNewState(actor, &cerberusSearch);
                 break;
             case kDudeCerberusOneHead:
-                aiNewState(pSprite, pXSprite, &cerberus2Search);
+                aiNewState(actor, &cerberus2Search);
                 break;
         }
         return;
@@ -409,10 +399,10 @@ static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0) {
         switch (pSprite->type) {
             case kDudeCerberusTwoHead:
-                aiNewState(pSprite, pXSprite, &cerberusSearch);
+                aiNewState(actor, &cerberusSearch);
                 break;
             case kDudeCerberusOneHead:
-                aiNewState(pSprite, pXSprite, &cerberus2Search);
+                aiNewState(actor, &cerberus2Search);
                 break;
         }
         return;
@@ -431,10 +421,10 @@ static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                 if (nDist < 0x1b00 && nDist > 0xd00 && klabs(nDeltaAngle) < 85) {
                     switch (pSprite->type) {
                         case kDudeCerberusTwoHead:
-                            aiNewState(pSprite, pXSprite, &cerberusBurn);
+                            aiNewState(actor, &cerberusBurn);
                             break;
                         case kDudeCerberusOneHead:
-                            aiNewState(pSprite, pXSprite, &cerberus2Burn);
+                            aiNewState(actor, &cerberus2Burn);
                             break;
                     }
                 }
@@ -442,10 +432,10 @@ static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                 else if (nDist < 0xb00 && nDist > 0x500 && klabs(nDeltaAngle) < 85) {
                     switch (pSprite->type) {
                         case kDudeCerberusTwoHead:
-                            aiNewState(pSprite, pXSprite, &cerberus3Burn);
+                            aiNewState(actor, &cerberus3Burn);
                             break;
                         case kDudeCerberusOneHead:
-                            aiNewState(pSprite, pXSprite, &cerberus4Burn);
+                            aiNewState(actor, &cerberus4Burn);
                             break;
                     }
                 }
@@ -456,34 +446,34 @@ static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                     case kDudeCerberusTwoHead:
                         switch (hit) {
                             case -1:
-                                aiNewState(pSprite, pXSprite, &cerberusBite);
+                                aiNewState(actor, &cerberusBite);
                                 break;
                             case 3:
                                 if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeHellHound)
-                                    aiNewState(pSprite, pXSprite, &cerberusBite);
+                                    aiNewState(actor, &cerberusBite);
                                 break;
                             case 0:
                             case 4:
                                 break;
                             default:
-                                aiNewState(pSprite, pXSprite, &cerberusBite);
+                                aiNewState(actor, &cerberusBite);
                                 break;
                         }
                         break;
                     case kDudeCerberusOneHead:
                         switch (hit) {
                             case -1:
-                                aiNewState(pSprite, pXSprite, &cerberus2Bite);
+                                aiNewState(actor, &cerberus2Bite);
                                 break;
                             case 3:
                                 if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeHellHound)
-                                    aiNewState(pSprite, pXSprite, &cerberus2Bite);
+                                    aiNewState(actor, &cerberus2Bite);
                                 break;
                             case 0:
                             case 4:
                                 break;
                             default:
-                                aiNewState(pSprite, pXSprite, &cerberus2Bite);
+                                aiNewState(actor, &cerberus2Bite);
                                 break;
                         }
                         break;
@@ -496,10 +486,10 @@ static void cerberusThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
 
     switch (pSprite->type) {
         case kDudeCerberusTwoHead:
-            aiNewState(pSprite, pXSprite, &cerberusGoto);
+            aiNewState(actor, &cerberusGoto);
             break;
         case kDudeCerberusOneHead:
-            aiNewState(pSprite, pXSprite, &cerberus2Goto);
+            aiNewState(actor, &cerberus2Goto);
             break;
     }
     pXSprite->target = -1;

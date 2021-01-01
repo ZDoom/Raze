@@ -194,10 +194,10 @@ static inline void get_wallspr_points(T const * const spr, int32_t *x1, int32_t 
     if (spr->cstat&4)
         xoff = -xoff;
 
-    dax = sintable[ang&2047]*xrepeat;
-    day = sintable[(ang+1536)&2047]*xrepeat;
+    dax = bsin(ang) * xrepeat;
+    day = -bcos(ang) * xrepeat;
 
-    l = tilesiz[tilenum].x;
+    l = tileWidth(tilenum);
     k = (l>>1)+xoff;
 
     *x1 -= mulscale16(dax,k);
@@ -215,10 +215,10 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
                                        int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
 {
     const int32_t tilenum = spr->picnum;
-    const int32_t cosang = sintable[(spr->ang+512)&2047];
-    const int32_t sinang = sintable[spr->ang&2047];
+    const int32_t cosang = bcos(spr->ang);
+    const int32_t sinang = bsin(spr->ang);
 
-    vec2_t const span = { tilesiz[tilenum].x, tilesiz[tilenum].y};
+    vec2_t const span = { tileWidth(tilenum), tileHeight(tilenum)};
     vec2_t const repeat = { spr->xrepeat, spr->yrepeat };
 
     vec2_t adjofs = { tileLeftOffset(tilenum) + spr->xoffset, tileTopOffset(tilenum) + spr->yoffset };
@@ -242,5 +242,26 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
     *x3 = *x2 + ofs.x, *x4 = *x1 + ofs.x;
     *y3 = *y2 + ofs.y, *y4 = *y1 + ofs.y;
 }
+
+inline int widthBits(int num)
+{
+    int w = tileWidth(num);
+    int j = 15;
+
+    while ((j > 1) && ((1 << j) > w))
+        j--;
+    return j;
+}
+
+inline int heightBits(int num)
+{
+    int w = tileHeight(num);
+    int j = 15;
+
+    while ((j > 1) && ((1 << j) > w))
+        j--;
+    return j;
+}
+
 
 #endif	/* ENGINE_PRIV_H */

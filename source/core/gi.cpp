@@ -49,4 +49,6 @@ DEFINE_GLOBAL(gameinfo)
 DEFINE_FIELD_X(GameInfoStruct, gameinfo_t, gametype)
 DEFINE_FIELD_X(GameInfoStruct, gameinfo_t, mBackButton)
 DEFINE_FIELD_X(GameInfoStruct, gameinfo_t, mSliderColor)
+DEFINE_FIELD_X(GameInfoStruct, gameinfo_t, mSliderBackColor)
+
 

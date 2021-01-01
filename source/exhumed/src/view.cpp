@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "mapinfo.h"
 #include "v_video.h"
+#include "interpolate.h"
 #include "glbackend/glbackend.h"
 #include "v_draw.h"
 #include <string.h>
@@ -60,69 +61,25 @@ short enemy;
 
 short nEnemyPal = 0;
 
-enum { MAXINTERPOLATIONS = MAXSPRITES };
-int32_t g_interpolationCnt;
-int32_t oldipos[MAXINTERPOLATIONS];
-int32_t* curipos[MAXINTERPOLATIONS];
-int32_t bakipos[MAXINTERPOLATIONS];
-
-int viewSetInterpolation(int32_t *const posptr)
-{
-    if (g_interpolationCnt >= MAXINTERPOLATIONS)
-        return 1;
-
-    for (int i = 0; i < g_interpolationCnt; ++i)
-        if (curipos[i] == posptr)
-            return 0;
-
-    curipos[g_interpolationCnt] = posptr;
-    oldipos[g_interpolationCnt] = *posptr;
-    g_interpolationCnt++;
-    return 0;
-}
-
-void viewStopInterpolation(const int32_t * const posptr)
-{
-    for (int i = 0; i < g_interpolationCnt; ++i)
-        if (curipos[i] == posptr)
-        {
-            g_interpolationCnt--;
-            oldipos[i] = oldipos[g_interpolationCnt];
-            bakipos[i] = bakipos[g_interpolationCnt];
-            curipos[i] = curipos[g_interpolationCnt];
-        }
-}
-
-void viewDoInterpolations(int smoothRatio)
-{
-    int32_t ndelta = 0;
-
-    for (int i = 0, j = 0; i < g_interpolationCnt; ++i)
-    {
-        int32_t const odelta = ndelta;
-        bakipos[i] = *curipos[i];
-        ndelta = (*curipos[i]) - oldipos[i];
-        if (odelta != ndelta)
-            j = mulscale16(ndelta, smoothRatio);
-        *curipos[i] = oldipos[i] + j;
-    }
-}
-
-void viewUpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
-{
-    for (int i=g_interpolationCnt-1; i>=0; i--) oldipos[i] = *curipos[i];
-}
-
-void viewRestoreInterpolations(void)  //Stick at end of drawscreen
-{
-    int32_t i=g_interpolationCnt-1;
-
-    for (; i>=0; i--) *curipos[i] = bakipos[i];
-}
-
 // NOTE - not to be confused with Ken's analyzesprites()
-static void analyzesprites()
+static void analyzesprites(double const smoothratio)
 {
+    tspritetype *pTSprite;
+
+    for (int i = 0; i < spritesortcnt; i++) {
+        pTSprite = &tsprite[i];
+
+        if (pTSprite->owner != -1)
+        {
+            // interpolate sprite position
+            Loc* oldLoc = &oldLocs[pTSprite->owner];
+            pTSprite->x = oldLoc->x + MulScale(pTSprite->x - oldLoc->x, smoothratio, 16);
+            pTSprite->y = oldLoc->y + MulScale(pTSprite->y - oldLoc->y, smoothratio, 16);
+            pTSprite->z = oldLoc->z + MulScale(pTSprite->z - oldLoc->z, smoothratio, 16);
+            pTSprite->ang = oldLoc->ang + MulScale(((pTSprite->ang - oldLoc->ang + 1024) & 0x7FF) - 1024, smoothratio, 16);
+        }
+    }
+
     short nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
 
     int var_38 = 20;
@@ -142,7 +99,6 @@ static void analyzesprites()
     int nAngle = (2048 - pPlayerSprite->ang) & kAngleMask;
 
     int nTSprite;
-    tspritetype *pTSprite;
 
 //	int var_20 = var_24;
 
@@ -161,6 +117,14 @@ static void analyzesprites()
 
         pTSprite->pal = RemapPLU(pTSprite->pal);
 
+        // PowerSlaveGDX: Torch bouncing fix
+        if ((pTSprite->picnum == kTorch1 || pTSprite->picnum == kTorch2) && (pTSprite->cstat & 0x80) == 0)
+        {
+            pTSprite->cstat |= 0x80;
+            int nTileY = (tileHeight(pTSprite->picnum) * pTSprite->yrepeat) * 2;
+            pTSprite->z -= nTileY;
+        }
+
         if (pSprite->statnum > 0)
         {
             runlist_SignalRun(pSprite->lotag - 1, nTSprite | 0x90000);
@@ -170,8 +134,8 @@ static void analyzesprites()
                 int xval = pSprite->x - x;
                 int yval = pSprite->y - y;
 
-                int vcos = Cos(nAngle);
-                int vsin = Sin(nAngle);
+                int vcos = bcos(nAngle);
+                int vsin = bsin(nAngle);
 
 
                 int edx = ((vcos * yval) + (xval * vsin)) >> 14;
@@ -242,7 +206,9 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     fixed_t dang = IntToFixed(1024);
 
-    zbob = Sin(2 * bobangle) >> 3;
+    zbob = bsin(2 * bobangle, -3);
+
+    DoInterpolations(smoothRatio / 65536.);
 
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
     int nPlayerOldCstat = sprite[nPlayerSprite].cstat;
@@ -281,7 +247,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         nSector = nPlayerViewSect[nLocalPlayer];
         updatesector(playerX, playerY, &nSector);
 
-        if (!cl_syncinput)
+        if (!SyncInput())
         {
             nAngle = PlayerList[nLocalPlayer].angle.sum();
             rotscrnang = PlayerList[nLocalPlayer].angle.rotscrnang;
@@ -298,7 +264,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
 
-        renderSetRollAngle(rotscrnang.asbam() / (double)BAMUNIT);
+        renderSetRollAngle(rotscrnang.asbuildf());
     }
 
     nCameraa = nAngle;
@@ -315,7 +281,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             viewz = playerZ + nQuake[nLocalPlayer];
             int floorZ = sector[sprite[nPlayerSprite].sectnum].floorz;
 
-            if (!cl_syncinput)
+            if (!SyncInput())
             {
                 pan = PlayerList[nLocalPlayer].horizon.sum();
             }
@@ -333,8 +299,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     else
     {
         clipmove_old((int32_t*)&playerX, (int32_t*)&playerY, (int32_t*)&playerZ, &nSector,
-            -2000 * Sin(inita + 512),
-            -2000 * Sin(inita),
+            -2000 * bcos(inita),
+            -2000 * bsin(inita),
             4, 0, 0, CLIPMASK1);
 
         pan = q16horiz(0);
@@ -375,7 +341,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         static uint8_t sectorCeilingPal[MAXSECTORS];
         static uint8_t wallPal[MAXWALLS];
         int const viewingRange = viewingrange;
-        int const vr = xs_CRoundToInt(65536.f * tanf(r_fov * (fPI / 360.f)));
+        int const vr = xs_CRoundToInt(65536.f * tanf(r_fov * (pi::pi() / 360.f)));
 
 
         videoSetCorrectedAspect();
@@ -398,7 +364,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         }
 
         renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
-        analyzesprites();
+        analyzesprites(smoothRatio);
         renderDrawMasks();
 
         if (HavePLURemap())
@@ -490,6 +456,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     sprite[nPlayerSprite].cstat = nPlayerOldCstat;
     sprite[nDoppleSprite[nLocalPlayer]].cstat = nDoppleOldCstat;
+    RestoreInterpolations();
 
     flash = 0;
 }
@@ -508,25 +475,22 @@ void Clip()
 {
 }
 
-
-static SavegameHelper sghview("view",
-    SV(nCamerax),
-    SV(nCameray),
-    SV(nCameraz),
-    SV(bTouchFloor),
-    SV(nChunkTotal),
-    SV(nCameraa),
-    SV(nCamerapan),
-    SV(bCamera),
-    SV(viewz),
-    SV(enemy),
-    SV(nEnemyPal),
-    SA(dVertPan),
-    SA(nQuake),
-    SV(g_interpolationCnt),
-    SA(oldipos),
-    SA(curipos),
-    SA(bakipos),
-    nullptr);
+void SerializeView(FSerializer& arc)
+{
+    arc("camerax", nCamerax)
+        ("cameray", nCameray)
+        ("cameraz", nCameraz)
+        ("touchfloor", bTouchFloor)
+        ("chunktotal", nChunkTotal)
+        ("cameraa", nCameraa)
+        ("camerapan", nCamerapan)
+        ("camera", bCamera)
+        ("viewz", viewz)
+        ("enemy", enemy)
+        ("enemypal", nEnemyPal)
+        .Array("vertpan", dVertPan, countof(dVertPan))
+        .Array("quake", nQuake, countof(nQuake))
+        .EndObject();
+}
 
 END_PS_NS

@@ -126,8 +126,8 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor*
 		break;
 
 	case USERDEFS_SHOWWEAPONS:
-		if (bSet) ud.showweapons = lValue;
-		else SetGameVarID((int)lVar2, ud.showweapons, sActor, sPlayer);
+		// Read-only user state.
+		if (!bSet) SetGameVarID((int)lVar2, cl_showweapon, sActor, sPlayer);
 		break;
 
 	case USERDEFS_FROM_BONUS:
@@ -993,12 +993,12 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, s
 		else SetGameVarID((int)lVar2, wall[iWall].yrepeat, sActor, sPlayer);
 		break;
 	case WALL_XPANNING:
-		if (bSet) wall[iWall].xpanning = lValue;
-		else SetGameVarID((int)lVar2, wall[iWall].xpanning, sActor, sPlayer);
+		if (bSet) wall[iWall].xpan_ = lValue;
+		else SetGameVarID((int)lVar2, wall[iWall].xpan(), sActor, sPlayer);
 		break;
 	case WALL_YPANNING:
-		if (bSet) wall[iWall].ypanning = lValue;
-		else SetGameVarID((int)lVar2, wall[iWall].ypanning, sActor, sPlayer);
+		if (bSet) wall[iWall].ypan_ = lValue;
+		else SetGameVarID((int)lVar2, wall[iWall].ypan(), sActor, sPlayer);
 		break;
 	case WALL_LOTAG:
 		if (bSet) wall[iWall].lotag = lValue;
@@ -1083,8 +1083,12 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID((int)lVar2, sector[iSector].ceilingpal, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGXPANNING:
-		if (bSet) sector[iSector].ceilingxpanning = lValue;
-		else SetGameVarID((int)lVar2, sector[iSector].ceilingypanning, sActor, sPlayer);
+		if (bSet) sector[iSector].ceilingxpan_ = lValue;
+		else SetGameVarID((int)lVar2, sector[iSector].ceilingxpan(), sActor, sPlayer);
+		break;
+	case SECTOR_CEILINGYPANNING:
+		if (bSet) sector[iSector].ceilingypan_ = lValue;
+		else SetGameVarID((int)lVar2, sector[iSector].ceilingypan(), sActor, sPlayer);
 		break;
 	case SECTOR_FLOORPICNUM:
 		if (bSet) sector[iSector].floorpicnum = lValue;
@@ -1103,12 +1107,12 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID((int)lVar2, sector[iSector].floorpal, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORXPANNING:
-		if (bSet) sector[iSector].floorxpanning = lValue;
-		else SetGameVarID((int)lVar2, sector[iSector].floorxpanning, sActor, sPlayer);
+		if (bSet) sector[iSector].floorxpan_ = lValue;
+		else SetGameVarID((int)lVar2, sector[iSector].floorxpan(), sActor, sPlayer);
 		break;
 	case SECTOR_FLOORYPANNING:
-		if (bSet) sector[iSector].floorypanning = lValue;
-		else SetGameVarID((int)lVar2, sector[iSector].floorypanning, sActor, sPlayer);
+		if (bSet) sector[iSector].floorypan_ = lValue;
+		else SetGameVarID((int)lVar2, sector[iSector].floorypan(), sActor, sPlayer);
 		break;
 	case SECTOR_VISIBILITY:
 		if (bSet) sector[iSector].visibility = lValue;
@@ -1740,7 +1744,7 @@ int ParseState::parse(void)
 
 		insptr++;
 
-		if ((g_sp->picnum == TILE_APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tilesiz[g_sp->picnum].y + 8)) << 2) < (g_ac->floorz - g_ac->ceilingz))
+		if ((g_sp->picnum == TILE_APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tileHeight(g_sp->picnum) + 8)) << 2) < (g_ac->floorz - g_ac->ceilingz))
 		{
 			j = ((*insptr) - g_sp->yrepeat) << 1;
 			if (abs(j)) g_sp->yrepeat += ksgn(j);
@@ -1858,7 +1862,7 @@ int ParseState::parse(void)
 		return 1;
 	case concmd_addammo:
 		insptr++;
-		if( ps[g_p].ammo_amount[*insptr] >= max_ammo_amount[*insptr] )
+		if( ps[g_p].ammo_amount[*insptr] >= gs.max_ammo_amount[*insptr] )
 		{
 			killit_flag = 2;
 			break;
@@ -1915,7 +1919,7 @@ int ParseState::parse(void)
 	case concmd_addweapon:
 		insptr++;
 		if( ps[g_p].gotweapon[*insptr] == 0 ) fi.addweapon( &ps[g_p], *insptr );
-		else if( ps[g_p].ammo_amount[*insptr] >= max_ammo_amount[*insptr] )
+		else if( ps[g_p].ammo_amount[*insptr] >= gs.max_ammo_amount[*insptr] )
 		{
 				killit_flag = 2;
 				break;
@@ -1945,8 +1949,8 @@ int ParseState::parse(void)
 		j = ps[g_p].GetActor()->s.extra;
 		if (j > 0)
 			j += *insptr;
-		if (j > max_player_health * 2)
-			j = max_player_health * 2;
+		if (j > gs.max_player_health * 2)
+			j = gs.max_player_health * 2;
 		if (j < 0)
 			j = 0;
 
@@ -1954,8 +1958,8 @@ int ParseState::parse(void)
 		{
 			if (*insptr > 0)
 			{
-				if ((j - *insptr) < (max_player_health >> 2) &&
-					j >= (max_player_health >> 2))
+				if ((j - *insptr) < (gs.max_player_health >> 2) &&
+					j >= (gs.max_player_health >> 2))
 					S_PlayActorSound(DUKE_GOTHEALTHATLOW, ps[g_p].GetActor());
 
 				ps[g_p].last_extra = j;
@@ -1966,20 +1970,20 @@ int ParseState::parse(void)
 		if (ps[g_p].drink_amt > 100)
 			ps[g_p].drink_amt = 100;
 
-		if (ps[g_p].GetActor()->s.extra >= max_player_health)
+		if (ps[g_p].GetActor()->s.extra >= gs.max_player_health)
 		{
-			ps[g_p].GetActor()->s.extra = max_player_health;
-			ps[g_p].last_extra = max_player_health;
+			ps[g_p].GetActor()->s.extra = gs.max_player_health;
+			ps[g_p].last_extra = gs.max_player_health;
 		}
 		insptr++;
 		break;
 	case concmd_strafeleft:
 		insptr++;
-		movesprite_ex(g_ac, sintable[(g_sp->ang + 1024) & 2047] >> 10, sintable[(g_sp->ang + 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0, coll);
+		movesprite_ex(g_ac, -bsin(g_sp->ang, -10), bcos(g_sp->ang, -10), g_sp->zvel, CLIPMASK0, coll);
 		break;
 	case concmd_straferight:
 		insptr++;
-		movesprite_ex(g_ac, sintable[(g_sp->ang - 0) & 2047] >> 10, sintable[(g_sp->ang - 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0, coll);
+		movesprite_ex(g_ac, bsin(g_sp->ang, -10), -bcos(g_sp->ang, -10), g_sp->zvel, CLIPMASK0, coll);
 		break;
 	case concmd_larrybird:
 		insptr++;
@@ -2003,7 +2007,7 @@ int ParseState::parse(void)
 		j = ps[g_p].GetActor()->s.extra;
 		if (g_sp->picnum != TILE_ATOMICHEALTH)
 		{
-			if (j > max_player_health && *insptr > 0)
+			if (j > gs.max_player_health && *insptr > 0)
 			{
 				insptr++;
 				break;
@@ -2012,16 +2016,16 @@ int ParseState::parse(void)
 			{
 				if (j > 0)
 					j += (*insptr) * 3;
-				if (j > max_player_health && *insptr > 0)
-					j = max_player_health;
+				if (j > gs.max_player_health && *insptr > 0)
+					j = gs.max_player_health;
 			}
 		}
 		else
 		{
 			if (j > 0)
 				j += *insptr;
-			if (j > (max_player_health << 1))
-				j = (max_player_health << 1);
+			if (j > (gs.max_player_health << 1))
+				j = (gs.max_player_health << 1);
 		}
 
 		if (j < 0) j = 0;
@@ -2030,8 +2034,8 @@ int ParseState::parse(void)
 		{
 			if (*insptr > 0)
 			{
-				if ((j - *insptr) < (max_player_health >> 2) &&
-					j >= (max_player_health >> 2))
+				if ((j - *insptr) < (gs.max_player_health >> 2) &&
+					j >= (gs.max_player_health >> 2))
 					S_PlayActorSound(229, ps[g_p].GetActor());
 
 				ps[g_p].last_extra = j;
@@ -2067,7 +2071,7 @@ int ParseState::parse(void)
 
 		if(g_sp->picnum != TILE_ATOMICHEALTH)
 		{
-			if( j > max_player_health && *insptr > 0 )
+			if( j > gs.max_player_health && *insptr > 0 )
 			{
 				insptr++;
 				break;
@@ -2076,16 +2080,16 @@ int ParseState::parse(void)
 			{
 				if(j > 0)
 					j += *insptr;
-				if ( j > max_player_health && *insptr > 0 )
-					j = max_player_health;
+				if ( j > gs.max_player_health && *insptr > 0 )
+					j = gs.max_player_health;
 			}
 		}
 		else
 		{
 			if( j > 0 )
 				j += *insptr;
-			if ( j > (max_player_health<<1) )
-				j = (max_player_health<<1);
+			if ( j > (gs.max_player_health<<1) )
+				j = (gs.max_player_health<<1);
 		}
 
 		if(j < 0) j = 0;
@@ -2094,8 +2098,8 @@ int ParseState::parse(void)
 		{
 			if(*insptr > 0)
 			{
-				if( ( j - *insptr ) < (max_player_health>>2) &&
-					j >= (max_player_health>>2) )
+				if( ( j - *insptr ) < (gs.max_player_health>>2) &&
+					j >= (gs.max_player_health>>2) )
 						S_PlayActorSound(isRR()? 229 : DUKE_GOTHEALTHATLOW,ps[g_p].GetActor());
 
 				ps[g_p].last_extra = j;
@@ -2177,7 +2181,7 @@ int ParseState::parse(void)
 					dnum + s, g_sp->shade, 32 + (krand() & 15), 32 + (krand() & 15),
 					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
 				if(weap)
-					l->s.yvel = weaponsandammosprites[j%14];
+					l->s.yvel = gs.weaponsandammosprites[j%14];
 				else l->s.yvel = -1;
 				l->s.pal = g_sp->pal;
 			}
@@ -2229,7 +2233,7 @@ int ParseState::parse(void)
 			g_sp->y = g_ac->bposy = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].posy;
 			g_sp->z = g_ac->bposy = ps[g_p].oposz = ps[g_p].posz;
 			updatesector(ps[g_p].posx, ps[g_p].posy, &ps[g_p].cursectnum);
-			setsprite(ps[g_p].GetActor(), ps[g_p].posx, ps[g_p].posy, ps[g_p].posz + PHEIGHT);
+			setsprite(ps[g_p].GetActor(), ps[g_p].posx, ps[g_p].posy, ps[g_p].posz + gs.playerheight);
 			g_sp->cstat = 257;
 
 			g_sp->shade = -12;
@@ -2240,7 +2244,7 @@ int ParseState::parse(void)
 			g_sp->xoffset = 0;
 			g_sp->pal = ps[g_p].palookup;
 
-			ps[g_p].last_extra = g_sp->extra = max_player_health;
+			ps[g_p].last_extra = g_sp->extra = gs.max_player_health;
 			ps[g_p].wantweaponfire = -1;
 			ps[g_p].horizon.ohoriz = ps[g_p].horizon.horiz = q16horiz(0);
 			ps[g_p].on_crane = nullptr;
@@ -2248,7 +2252,7 @@ int ParseState::parse(void)
 			ps[g_p].horizon.ohorizoff = ps[g_p].horizon.horizoff = q16horiz(0);
 			ps[g_p].opyoff = 0;
 			ps[g_p].wackedbyactor = nullptr;
-			ps[g_p].shield_amount = max_armour_amount;
+			ps[g_p].shield_amount = gs.max_armour_amount;
 			ps[g_p].dead_flag = 0;
 			ps[g_p].pals.a = 0;
 			ps[g_p].footprintcount = 0;
@@ -2325,8 +2329,8 @@ int ParseState::parse(void)
 				break;
 			case 1:
 				ps[g_p].shield_amount +=		  *insptr;// 100;
-				if(ps[g_p].shield_amount > max_player_health)
-					ps[g_p].shield_amount = max_player_health;
+				if(ps[g_p].shield_amount > gs.max_player_health)
+					ps[g_p].shield_amount = gs.max_player_health;
 				break;
 			case 2:
 				ps[g_p].scuba_amount =			   *insptr;// 1600;
@@ -2451,8 +2455,8 @@ int ParseState::parse(void)
 	case concmd_slapplayer:
 		insptr++;
 		forceplayerangle(g_p);
-		ps[g_p].posxv -= sintable[(ps[g_p].angle.ang.asbuild() + 512) & 2047] << 7;
-		ps[g_p].posyv -= sintable[ps[g_p].angle.ang.asbuild() & 2047] << 7;
+		ps[g_p].posxv -= ps[g_p].angle.ang.bcos(7);
+		ps[g_p].posyv -= ps[g_p].angle.ang.bsin(7);
 		return 0;
 	case concmd_wackplayer:
 		insptr++;
@@ -2460,8 +2464,8 @@ int ParseState::parse(void)
 			forceplayerangle(g_p);
 		else
 		{
-			ps[g_p].posxv -= sintable[(ps[g_p].angle.ang.asbuild() + 512) & 2047] << 10;
-			ps[g_p].posyv -= sintable[ps[g_p].angle.ang.asbuild() & 2047] << 10;
+			ps[g_p].posxv -= ps[g_p].angle.ang.bcos(10);
+			ps[g_p].posyv -= ps[g_p].angle.ang.bsin(10);
 			ps[g_p].jumping_counter = 767;
 			ps[g_p].jumping_toggle = 1;
 		}
@@ -2725,7 +2729,7 @@ int ParseState::parse(void)
 				case 0:if( ps[g_p].steroids_amount != *insptr)
 						j = 1;
 					break;
-				case 1:if(ps[g_p].shield_amount != max_player_health )
+				case 1:if(ps[g_p].shield_amount != gs.max_player_health )
 						j = 1;
 					break;
 				case 2:if(ps[g_p].scuba_amount != *insptr) j = 1;break;
@@ -3262,7 +3266,7 @@ int ParseState::parse(void)
 		i = *(insptr++);	// ID of def
 		l1 = GetGameVarID(i, g_ac, g_p);
 		l2 = GetGameVarID(*insptr, g_ac, g_p); // l2 not used in this one
-		lResult = max_ammo_amount[l1];
+		lResult = gs.max_ammo_amount[l1];
 		SetGameVarID(*insptr, lResult, g_ac, g_p);
 		insptr++;
 		break;
@@ -3275,7 +3279,7 @@ int ParseState::parse(void)
 		i = *(insptr++);	// ID of def
 		l1 = GetGameVarID(i, g_ac, g_p);
 		l2 = GetGameVarID(*insptr, g_ac, g_p);
-		max_ammo_amount[l1] = l2;
+		gs.max_ammo_amount[l1] = l2;
 
 		insptr++;
 		break;
@@ -3396,8 +3400,7 @@ int ParseState::parse(void)
 		int lValue;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		lValue = GetGameVarID(*insptr, g_ac, g_p);
-		lValue = sintable[lValue & 2047];
+		lValue = bsin(GetGameVarID(*insptr, g_ac, g_p));
 		SetGameVarID(i, lValue, g_ac, g_p);
 		insptr++;
 		break;
@@ -3648,7 +3651,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 	s.g_ac = actor;
 	s.g_t = &s.g_ac->temp_data[0];	// Sprite's 'extra' data
 
-	auto addr = tileinfo[actor->s.picnum].loadeventscriptptr;
+	auto addr = gs.tileinfo[actor->s.picnum].loadeventscriptptr;
 	if (addr == 0) return;
 
 	int *insptr = &ScriptCode[addr + 1];
@@ -3729,7 +3732,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 
 void execute(DDukeActor *actor,int p,int x)
 {
-	if (actorinfo[actor->s.picnum].scriptaddress == 0) return;
+	if (gs.actorinfo[actor->s.picnum].scriptaddress == 0) return;
 
 	int done;
 
@@ -3739,8 +3742,8 @@ void execute(DDukeActor *actor,int p,int x)
 	s.g_ac = actor;
 	s.g_t = &actor->temp_data[0];	// Sprite's 'extra' data
 
-	if (actorinfo[actor->s.picnum].scriptaddress == 0) return;
-	s.insptr = &ScriptCode[4 + (actorinfo[actor->s.picnum].scriptaddress)];
+	if (gs.actorinfo[actor->s.picnum].scriptaddress == 0) return;
+	s.insptr = &ScriptCode[4 + (gs.actorinfo[actor->s.picnum].scriptaddress)];
 
 	s.killit_flag = 0;
 

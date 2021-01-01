@@ -24,9 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "compat.h"
-#include "common_game.h"
-#include "levels.h"
-#include "sound.h"
+#include "blood.h"
 #include "raze_music.h"
 #include "raze_sound.h"
 #include "gamecontrol.h"
@@ -48,7 +46,6 @@ int soundRates[13] = {
     44100,
     44100,
 };
-enum { kChannelMax = 32 };
 
 
 void ByteSwapSFX(SFX* pSFX)
@@ -138,12 +135,6 @@ int sndGetRate(int format)
 
 
 
-void SoundCallback(intptr_t val)
-{
-    SAMPLE2D *pChannel = (SAMPLE2D*)val;
-    pChannel->TotalKills = 0;
-}
-
 bool sndCheckPlaying(unsigned int nSound)
 {
     auto snd = soundEngine->FindSoundByResID(nSound);
@@ -166,7 +157,6 @@ void sndStartSample(const char *pzSound, int nVolume, int nChannel)
         return;
     if (!strlen(pzSound))
         return;
-    assert(nChannel >= -1 && nChannel < kChannelMax);
     auto snd = soundEngine->FindSound(pzSound);
     if (snd > 0)
     {
@@ -178,7 +168,6 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop, 
 {
     if (!SoundEnabled())
         return;
-    assert(nChannel >= -1 && nChannel < kChannelMax);
     if (nChannel >= 7) nChannel = -1;
     auto snd = soundEngine->FindSoundByResID(nSound);
     if (snd > 0)

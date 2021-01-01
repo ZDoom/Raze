@@ -374,8 +374,7 @@ void QuickJumpSetup(short stat, short lotag, short type)
         ////DSPRINTF(ds,"1 ndx = %d, numpoints = %d\n", ndx, Track[ndx].NumPoints);
         //MONO_PRINT(ds);
 
-        FreeMem(Track[ndx].TrackPoint);
-        Track[ndx].TrackPoint = (TRACK_POINTp)CallocMem((4 * sizeof(TRACK_POINT)), 1);
+        Track[ndx].SetTrackSize(4);
 
         tp = Track[ndx].TrackPoint;
         t = &Track[ndx];
@@ -399,15 +398,15 @@ void QuickJumpSetup(short stat, short lotag, short type)
 
         // add jump point
         nsp = &sprite[SpriteNum];
-        nsp->x += 64 * (int) sintable[NORM_ANGLE(nsp->ang + 512)] >> 14;
-        nsp->y += 64 * (int) sintable[nsp->ang] >> 14;
+        nsp->x += mulscale14(64, bcos(nsp->ang));
+        nsp->y += mulscale14(64, bsin(nsp->ang));
         nsp->lotag = lotag;
         TrackAddPoint(t, tp, SpriteNum);
 
         // add end point
         nsp = &sprite[end_sprite];
-        nsp->x += 2048 * (int) sintable[NORM_ANGLE(nsp->ang + 512)] >> 14;
-        nsp->y += 2048 * (int) sintable[nsp->ang] >> 14;
+        nsp->x += mulscale14(2048, bcos(nsp->ang));
+        nsp->y += mulscale14(2048, bsin(nsp->ang));
         nsp->lotag = TRACK_END;
         nsp->hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -438,8 +437,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         ASSERT(ndx < MAX_TRACKS);
 
         // save space for 3 points
-        FreeMem(Track[ndx].TrackPoint);
-        Track[ndx].TrackPoint = (TRACK_POINTp)CallocMem((4 * sizeof(TRACK_POINT)), 1);
+        Track[ndx].SetTrackSize(4);
 
         ASSERT(Track[ndx].TrackPoint != NULL);
 
@@ -458,8 +456,8 @@ void QuickScanSetup(short stat, short lotag, short type)
         nsp = &sprite[start_sprite];
         nsp->lotag = TRACK_START;
         nsp->hitag = 0;
-        nsp->x += 64 * (int) sintable[NORM_ANGLE(nsp->ang + 1024 + 512)] >> 14;
-        nsp->y += 64 * (int) sintable[NORM_ANGLE(nsp->ang + 1024)] >> 14;
+        nsp->x += mulscale14(64, -bcos(nsp->ang));
+        nsp->y += mulscale14(64, -bsin(nsp->ang));
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
@@ -469,8 +467,8 @@ void QuickScanSetup(short stat, short lotag, short type)
 
         // add end point
         nsp = &sprite[end_sprite];
-        nsp->x += 64 * (int) sintable[NORM_ANGLE(nsp->ang + 512)] >> 14;
-        nsp->y += 64 * (int) sintable[nsp->ang] >> 14;
+        nsp->x += mulscale14(64, bcos(nsp->ang));
+        nsp->y += mulscale14(64, bsin(nsp->ang));
         nsp->lotag = TRACK_END;
         nsp->hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -499,8 +497,7 @@ void QuickExitSetup(short stat, short type)
         ASSERT(ndx < MAX_TRACKS);
 
         // save space for 3 points
-        FreeMem(Track[ndx].TrackPoint);
-        Track[ndx].TrackPoint = (TRACK_POINTp)CallocMem((4 * sizeof(TRACK_POINT)), 1);
+        Track[ndx].SetTrackSize(4);
 
         ASSERT(Track[ndx].TrackPoint != NULL);
 
@@ -525,8 +522,8 @@ void QuickExitSetup(short stat, short type)
 
         // add end point
         nsp = &sprite[end_sprite];
-        nsp->x += 1024 * (int) sintable[NORM_ANGLE(nsp->ang + 512)] >> 14;
-        nsp->y += 1024 * (int) sintable[nsp->ang] >> 14;
+        nsp->x += mulscale14(1024, bcos(nsp->ang));
+        nsp->y += mulscale14(1024, bsin(nsp->ang));
         nsp->lotag = TRACK_END;
         nsp->hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -555,8 +552,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         ASSERT(ndx < MAX_TRACKS);
 
         // save space for 3 points
-        FreeMem(Track[ndx].TrackPoint);
-        Track[ndx].TrackPoint = (TRACK_POINTp)CallocMem((4 * sizeof(TRACK_POINT)), 1);
+        Track[ndx].SetTrackSize(4);
 
         ASSERT(Track[ndx].TrackPoint != NULL);
 
@@ -1680,7 +1676,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
     // increment Players delta angle
     pp->RevolveDeltaAng = NORM_ANGLE(pp->RevolveDeltaAng + GlobSpeedSO);
 
-    rotatepoint(*(vec2_t *)&sop->xmid, *(vec2_t *)&pp->RevolveX, pp->RevolveDeltaAng, (vec2_t *)&pp->posx);
+    rotatepoint(sop->pmid.vec2, *(vec2_t *)&pp->RevolveX, pp->RevolveDeltaAng, &pp->pos.vec2);
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector
@@ -1688,7 +1684,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    pp->angle.addadjustment((pp->angle.ang - (pp->RevolveAng + buildang(pp->RevolveDeltaAng))).asbam() / (double)BAMUNIT);
+    pp->angle.addadjustment(pp->angle.ang - (pp->RevolveAng + buildang(pp->RevolveDeltaAng)));
 
     UpdatePlayerSprite(pp);
 }
@@ -1763,7 +1759,7 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
             if (TEST(wp->extra, WALLFX_LOOP_SPIN_4X))
                 rot_ang = NORM_ANGLE(rot_ang * 4);
 
-            rotatepoint(*(vec2_t *)&sop->xmid, *(vec2_t *)&wp->x, rot_ang, &rxy);
+            rotatepoint(sop->pmid.vec2, wp->pos, rot_ang, &rxy);
 
             if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
             {
@@ -1863,12 +1859,12 @@ PlayerPart:
 
             if (TEST(wall[sector[sp->sectnum].wallptr].extra, WALLFX_LOOP_REVERSE_SPIN))
             {
-                rotatepoint(*(vec2_t *)&sop->xmid, *(vec2_t *)&sp->x, -delta_ang, (vec2_t *)&sp->x);
+                rotatepoint(sop->pmid.vec2, sp->pos.vec2, -delta_ang, &sp->pos.vec2);
                 sp->ang = NORM_ANGLE(sp->ang - delta_ang);
             }
             else
             {
-                rotatepoint(*(vec2_t *)&sop->xmid, *(vec2_t *)&sp->x, delta_ang, (vec2_t *)&sp->x);
+                rotatepoint(sop->pmid.vec2, sp->pos.vec2, delta_ang, &sp->pos.vec2);
                 sp->ang = NORM_ANGLE(sp->ang + delta_ang);
             }
 
@@ -1878,14 +1874,14 @@ PlayerPart:
             if (!TEST(sop->flags, SOBJ_DONT_ROTATE))
             {
                 // NOT part of a sector - independant of any sector
-                rotatepoint(*(vec2_t *)&sop->xmid, *(vec2_t *)&sp->x, delta_ang, (vec2_t *)&sp->x);
+                rotatepoint(sop->pmid.vec2, sp->pos.vec2, delta_ang, &sp->pos.vec2);
                 sp->ang = NORM_ANGLE(sp->ang + delta_ang);
             }
 
             // Does not necessarily move with the sector so must accout for
             // moving across sectors
             if (sop->xmid < MAXSO) // special case for operating SO's
-                setspritez(sop->sp_num[i], (vec3_t *)sp);
+                setspritez(sop->sp_num[i], &sp->pos);
         }
 
         u->oangdiff += getincangle(oldang, sp->ang);
@@ -1984,8 +1980,8 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
                                 int xmul = (sop->scale_dist * sop->scale_x_mult)>>8;
                                 int ymul = (sop->scale_dist * sop->scale_y_mult)>>8;
 
-                                dx = x + ((xmul * sintable[NORM_ANGLE(ang+512)]) >> 14);
-                                dy = y + ((ymul * sintable[ang]) >> 14);
+                                dx = x + mulscale14(xmul, bcos(ang));
+                                dy = y + mulscale14(ymul, bsin(ang));
                             }
                         }
                     }
@@ -2062,7 +2058,7 @@ void UpdateSectorObjectSprites(SECTOR_OBJECTp sop)
     {
         sp = &sprite[sop->sp_num[i]];
 
-        setspritez(sop->sp_num[i], (vec3_t *)sp);
+        setspritez(sop->sp_num[i], &sp->pos);
     }
 }
 
@@ -2180,7 +2176,7 @@ MoveZ(SECTOR_OBJECTp sop)
     if (sop->bob_amt)
     {
         sop->bob_sine_ndx = (PlayClock << sop->bob_speed) & 2047;
-        sop->bob_diff = ((sop->bob_amt * (int) sintable[sop->bob_sine_ndx]) >> 14);
+        sop->bob_diff = mulscale14(sop->bob_amt, bsin(sop->bob_sine_ndx));
 
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
@@ -2763,8 +2759,8 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
     // calculate a new x and y
     if (sop->vel && !TEST(sop->flags,SOBJ_MOVE_VERTICAL))
     {
-        *nx = (DIV256(sop->vel)) * locktics * (int) sintable[NORM_ANGLE(sop->ang_moving + 512)] >> 14;
-        *ny = (DIV256(sop->vel)) * locktics * (int) sintable[sop->ang_moving] >> 14;
+        *nx = (DIV256(sop->vel)) * locktics * bcos(sop->ang_moving) >> 14;
+        *ny = (DIV256(sop->vel)) * locktics * bsin(sop->ang_moving) >> 14;
 
         dist = Distance(sop->xmid, sop->ymid, sop->xmid + *nx, sop->ymid + *ny);
         sop->target_dist -= dist;
@@ -2789,7 +2785,7 @@ OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int newy,
     if (sop->bob_amt)
     {
         sop->bob_sine_ndx = (PlayClock << sop->bob_speed) & 2047;
-        sop->bob_diff = ((sop->bob_amt * (int) sintable[sop->bob_sine_ndx]) >> 14);
+        sop->bob_diff = mulscale14(sop->bob_amt, bsin(sop->bob_sine_ndx));
 
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
@@ -2933,8 +2929,8 @@ DoTornadoObject(SECTOR_OBJECTp sop)
     int ret;
     short *ang = &sop->ang_moving;
 
-    xvect = (sop->vel * sintable[NORM_ANGLE(*ang + 512)]);
-    yvect = (sop->vel * sintable[NORM_ANGLE(*ang)]);
+    xvect = sop->vel * bcos(*ang);
+    yvect = sop->vel * bcos(*ang);
 
     cursect = sop->op_main_sector; // for sop->vel
     floor_dist = DIV4(labs(sector[cursect].ceilingz - sector[cursect].floorz));
@@ -3128,8 +3124,8 @@ ActorLeaveTrack(short SpriteNum)
 /*
 ScanToWall
 (lsp->x, lsp->y, SPRITEp_TOS(sp) - DIV2(SPRITEp_SIZE_Z(sp)), lsp->sectnum,
-    sintable[NORM_ANGLE(lsp->ang + 1024 + 512)],
-    sintable[lsp->ang + 1024],
+    -bcos(lsp->ang),
+    -bsin(lsp->ang),
     0,
     &hitinfo);
 */
@@ -3275,9 +3271,9 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
                 RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
                 FAFhitscan(sp->x, sp->y, sp->z - Z(24), sp->sectnum,      // Start position
-                           sintable[NORM_ANGLE(sp->ang + 512)],      // X vector of 3D ang
-                           sintable[sp->ang],    // Y vector of 3D ang
-                           0,                            // Z vector of 3D ang
+                           bcos(sp->ang),    // X vector of 3D ang
+                           bsin(sp->ang),    // Y vector of 3D ang
+                           0,                // Z vector of 3D ang
                            &hitinfo, CLIPMASK_MISSILE);
 
                 SET(sp->cstat, CSTAT_SPRITE_BLOCK);
@@ -3830,8 +3826,8 @@ ActorFollowTrack(short SpriteNum, short locktics)
         else
         {
             // calculate a new x and y
-            nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-            ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+            nx = mulscale14(sp->xvel, bcos(sp->ang));
+            ny = mulscale14(sp->xvel, bsin(sp->ang));
         }
 
         nz = 0;

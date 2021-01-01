@@ -35,6 +35,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "sbar.h"
 #include "automap.h"
 #include "dukeactor.h"
+#include "interpolate.h"
 
 BEGIN_DUKE_NS  
 
@@ -274,7 +275,7 @@ void resetweapons(int snum)
     p->curr_weapon = PISTOL_WEAPON;
     p->gotweapon.Set(PISTOL_WEAPON);
     p->gotweapon.Set(KNEE_WEAPON);
-    p->ammo_amount[PISTOL_WEAPON] = std::min<int16_t>(max_ammo_amount[PISTOL_WEAPON], 48);
+    p->ammo_amount[PISTOL_WEAPON] = std::min<int16_t>(gs.max_ammo_amount[PISTOL_WEAPON], 48);
     p->gotweapon.Set(HANDREMOTE_WEAPON);
     p->last_weapon = -1;
 
@@ -318,7 +319,7 @@ void resetinventory(int snum)
     p->heat_on = 0;
     p->jetpack_on = 0;
     p->jetpack_amount = 0;
-    p->shield_amount = max_armour_amount;
+    p->shield_amount = gs.max_armour_amount;
     p->holoduke_on = nullptr;
     p->holoduke_amount = 0;
     p->firstaid_amount = 0;
@@ -426,9 +427,6 @@ void resetprestat(int snum,int g)
     BellTime = 0;
     BellSprite = nullptr;
 
-    numinterpolations = 0;
-    //startofdynamicinterpolations = 0;
-
     if(p->curr_weapon == HANDREMOTE_WEAPON)
     {
         p->ammo_amount[HANDBOMB_WEAPON]++;
@@ -503,7 +501,7 @@ void resetpspritevars(int g)
     short circ;
     int firstx, firsty;
     spritetype* s;
-    int aimmode[MAXPLAYERS], autoaim[MAXPLAYERS];
+    int aimmode[MAXPLAYERS];
     STATUSBARTYPE tsbar[MAXPLAYERS];
 
     EGS(ps[0].cursectnum, ps[0].posx, ps[0].posy, ps[0].posz,
@@ -512,7 +510,6 @@ void resetpspritevars(int g)
     if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
     {
         aimmode[i] = ps[i].aim_mode;
-        autoaim[i] = ps[i].auto_aim;
         if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
         {
             for (j = 0; j < MAX_WEAPONS; j++)
@@ -543,7 +540,6 @@ void resetpspritevars(int g)
     if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
     {
         ps[i].aim_mode = aimmode[i];
-        ps[i].auto_aim = autoaim[i];
         if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
         {
             for (j = 0; j < MAX_WEAPONS; j++)
@@ -603,8 +599,8 @@ void resetpspritevars(int g)
 
             if (ps[j].last_extra == 0)
             {
-                ps[j].last_extra = max_player_health;
-                s->extra = max_player_health;
+                ps[j].last_extra = gs.max_player_health;
+                s->extra = gs.max_player_health;
             }
             else s->extra = ps[j].last_extra;
 
@@ -902,8 +898,8 @@ static void clearfrags(void)
     for (int i = 0; i < ud.multimode; i++)
     {
         ps[i].frag = ps[i].fraggedself = 0;
+        memset(ps[i].frags, 0, sizeof(ps[i].frags));
     }
-    memset(frags, 0, sizeof(frags));
 }
 
 //---------------------------------------------------------------------------
@@ -923,6 +919,7 @@ void enterlevel(MapRecord *mi, int gamemode)
     ud.monsters_off = ud.m_monsters_off;
     ud.coop = ud.m_coop;
     ud.ffire = ud.m_ffire;
+    lastlevel = 0;
 
     OnEvent(EVENT_ENTERLEVEL);
 
@@ -965,11 +962,18 @@ void enterlevel(MapRecord *mi, int gamemode)
     global_random = 0;
 
     ud.last_level = currentLevel->levelNumber;
-    for (int i=numinterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
     ps[myconnectindex].over_shoulder_on = 0;
     clearfrags();
     resettimevars();  // Here we go
 	setLevelStarted(mi);
+    if (isRRRA() && ps[screenpeek].sea_sick_stat == 1)
+    {
+        for (int i = 0; i < MAXWALLS; i++)
+        {
+            if (wall[i].picnum == 7873 || wall[i].picnum == 7870)
+                StartInterpolation(i, Interp_Wall_PanX);
+        }
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -991,8 +995,6 @@ void startnewgame(MapRecord* map, int skill)
     newgame(map, skill, [=](bool)
         {
             enterlevel(map, 0);
-            ud.showweapons = cl_showweapon;
-            setlocalplayerinput(&ps[myconnectindex]);
             PlayerColorChanged();
             inputState.ClearAllInput();
             gameaction = ga_level;

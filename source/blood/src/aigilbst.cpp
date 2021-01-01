@@ -27,32 +27,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "eventq.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
 
 BEGIN_BLD_NS
 
-static void GillBiteSeqCallback(int, int);
-static void gillThinkSearch(spritetype *, XSPRITE *);
-static void gillThinkGoto(spritetype *, XSPRITE *);
-static void gillThinkChase(spritetype *, XSPRITE *);
-static void gillThinkSwimGoto(spritetype *, XSPRITE *);
-static void gillThinkSwimChase(spritetype *, XSPRITE *);
-static void sub_6CB00(spritetype *, XSPRITE *);
-static void sub_6CD74(spritetype *, XSPRITE *);
-static void sub_6D03C(spritetype *, XSPRITE *);
+static void gillThinkSearch(DBloodActor *);
+static void gillThinkGoto(DBloodActor *);
+static void gillThinkChase(DBloodActor *);
+static void gillThinkSwimGoto(DBloodActor *);
+static void gillThinkSwimChase(DBloodActor *);
+static void sub_6CB00(DBloodActor *);
+static void sub_6CD74(DBloodActor *);
+static void sub_6D03C(DBloodActor *);
 
-static int nGillBiteClient = seqRegisterClient(GillBiteSeqCallback);
 
 AISTATE gillBeastIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE gillBeastChase = { kAiStateChase, 9, -1, 0, NULL, aiMoveForward, gillThinkChase, NULL };
@@ -72,11 +60,10 @@ AISTATE gillBeast13A138 = { kAiStateOther, 10, -1, 120, NULL, sub_6CD74, gillThi
 AISTATE gillBeast13A154 = { kAiStateOther, 10, -1, 0, NULL, sub_6D03C, gillThinkSwimChase, &gillBeastSwimChase };
 AISTATE gillBeast13A170 = { kAiStateOther, 10, -1, 120, NULL, NULL, aiMoveTurn, &gillBeastSwimChase };
 
-static void GillBiteSeqCallback(int, int nXSprite)
+void GillBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
@@ -88,14 +75,18 @@ static void GillBiteSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_8);
 }
 
-static void gillThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void gillThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void gillThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void gillThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     XSECTOR *pXSector;
@@ -112,15 +103,17 @@ static void gillThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
     {
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &gillBeastSwimSearch);
+            aiNewState(actor, &gillBeastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &gillBeastSearch);
+            aiNewState(actor, &gillBeastSearch);
     }
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void gillThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void gillThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         XSECTOR *pXSector;
@@ -130,9 +123,9 @@ static void gillThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &gillBeastSwimSearch);
+            aiNewState(actor, &gillBeastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &gillBeastSearch);
+            aiNewState(actor, &gillBeastSearch);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -152,9 +145,9 @@ static void gillThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &gillBeastSwimSearch);
+            aiNewState(actor, &gillBeastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &gillBeastSearch);
+            aiNewState(actor, &gillBeastSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
@@ -166,9 +159,9 @@ static void gillThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &gillBeastSwimSearch);
+            aiNewState(actor, &gillBeastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &gillBeastSearch);
+            aiNewState(actor, &gillBeastSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -181,8 +174,7 @@ static void gillThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                int nXSprite = sprite[pXSprite->reference].extra;
-                gDudeSlope[nXSprite] = divscale(pTarget->z-pSprite->z, nDist, 10);
+                actor->dudeSlope = divscale(pTarget->z-pSprite->z, nDist, 10);
                 if (nDist < 921 && klabs(nDeltaAngle) < 28)
                 {
                     XSECTOR *pXSector;
@@ -196,31 +188,31 @@ static void gillThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                     {
                     case -1:
                         if (pXSector && pXSector->Underwater)
-                            aiNewState(pSprite, pXSprite, &gillBeastSwimBite);
+                            aiNewState(actor, &gillBeastSwimBite);
                         else
-                            aiNewState(pSprite, pXSprite, &gillBeastBite);
+                            aiNewState(actor, &gillBeastBite);
                         break;
                     case 3:
                         if (pSprite->type != sprite[gHitInfo.hitsprite].type)
                         {
                             if (pXSector && pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &gillBeastSwimBite);
+                                aiNewState(actor, &gillBeastSwimBite);
                             else
-                                aiNewState(pSprite, pXSprite, &gillBeastBite);
+                                aiNewState(actor, &gillBeastBite);
                         }
                         else
                         {
                             if (pXSector && pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &gillBeastSwimDodge);
+                                aiNewState(actor, &gillBeastSwimDodge);
                             else
-                                aiNewState(pSprite, pXSprite, &gillBeastDodge);
+                                aiNewState(actor, &gillBeastDodge);
                         }
                         break;
                     default:
                         if (pXSector && pXSector->Underwater)
-                            aiNewState(pSprite, pXSprite, &gillBeastSwimBite);
+                            aiNewState(actor, &gillBeastSwimBite);
                         else
-                            aiNewState(pSprite, pXSprite, &gillBeastBite);
+                            aiNewState(actor, &gillBeastBite);
                         break;
                     }
                 }
@@ -236,15 +228,17 @@ static void gillThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     else
         pXSector = NULL;
     if (pXSector && pXSector->Underwater)
-        aiNewState(pSprite, pXSprite, &gillBeastSwimGoto);
+        aiNewState(actor, &gillBeastSwimGoto);
     else
-        aiNewState(pSprite, pXSprite, &gillBeastGoto);
+        aiNewState(actor, &gillBeastGoto);
     sfxPlay3DSound(pSprite, 1701, -1, 0);
     pXSprite->target = -1;
 }
 
-static void gillThinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void gillThinkSwimGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -253,15 +247,17 @@ static void gillThinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &gillBeastSwimSearch);
-    aiThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &gillBeastSwimSearch);
+    aiThinkTarget(actor);
 }
 
-static void gillThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void gillThinkSwimChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &gillBeastSwimSearch);
+        aiNewState(actor, &gillBeastSwimSearch);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -274,12 +270,12 @@ static void gillThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &gillBeastSwimSearch);
+        aiNewState(actor, &gillBeastSwimSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &gillBeastSwimSearch);
+        aiNewState(actor, &gillBeastSwimSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -295,24 +291,26 @@ static void gillThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &gillBeastSwimBite);
+                    aiNewState(actor, &gillBeastSwimBite);
                 else
                 {
                     aiPlay3DSound(pSprite, 1700, AI_SFX_PRIORITY_1, -1);
-                    aiNewState(pSprite, pXSprite, &gillBeast13A154);
+                    aiNewState(actor, &gillBeast13A154);
                 }
             }
         }
         else
-            aiNewState(pSprite, pXSprite, &gillBeast13A154);
+            aiNewState(actor, &gillBeast13A154);
         return;
     }
-    aiNewState(pSprite, pXSprite, &gillBeastSwimGoto);
+    aiNewState(actor, &gillBeastSwimGoto);
     pXSprite->target = -1;
 }
 
-static void sub_6CB00(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_6CB00(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -331,21 +329,22 @@ static void sub_6CB00(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     if (pXSprite->target == -1)
         t1 += nAccel;
     else
         t1 += nAccel>>2;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void sub_6CD74(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_6CD74(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     spritetype *pTarget = &sprite[pXSprite->target];
@@ -368,19 +367,20 @@ static void sub_6CD74(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = -dz;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = -dz;
 }
 
-static void sub_6D03C(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_6D03C(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     spritetype *pTarget = &sprite[pXSprite->target];
@@ -403,14 +403,14 @@ static void sub_6D03C(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = dz;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = dz;
 }
 
 END_BLD_NS

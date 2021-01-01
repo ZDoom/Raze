@@ -28,12 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-struct SAMPLE2D
-{
-    int TotalKills;
-    char Kills;
-}; // 9 bytes
-
 struct SFX
 {
     int relVol;

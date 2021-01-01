@@ -22,9 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 #include "build.h"
-#include "common_game.h"
-#include "blood.h"
-#include "misc.h"
 
 class F2DDrawer;
 
@@ -75,7 +72,7 @@ struct QAV
     char pad1[8]; // 0
     int nFrames; // 8
     int ticksPerFrame; // C
-    int at10; // 10
+    int duration; // 10
     int x; // 14
     int y; // 18
     int nSprite; // 1c
@@ -87,14 +84,10 @@ struct QAV
     void Play(int, int, int, void *);
     void Preload(void);
     void Precache(HitList &hits);
-
-    void PlaySound(int nSound);
-    void PlaySound3D(spritetype *pSprite, int nSound, int a3, int a4);
 };
 
 #pragma pack(pop)
 
-int qavRegisterClient(void(*pClient)(int, void *));
 QAV* getQAV(int res_id);
 
 END_BLD_NS

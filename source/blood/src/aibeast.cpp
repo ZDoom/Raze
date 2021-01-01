@@ -27,35 +27,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
 
 BEGIN_BLD_NS
 
-static void SlashSeqCallback(int, int);
-static void StompSeqCallback(int, int);
-static void MorphToBeast(spritetype *, XSPRITE *);
-static void beastThinkSearch(spritetype *, XSPRITE *);
-static void beastThinkGoto(spritetype *, XSPRITE *);
-static void beastThinkChase(spritetype *, XSPRITE *);
-static void beastThinkSwimGoto(spritetype *, XSPRITE *);
-static void beastThinkSwimChase(spritetype *, XSPRITE *);
-static void beastMoveForward(spritetype *, XSPRITE *);
-static void sub_628A0(spritetype *, XSPRITE *);
-static void sub_62AE0(spritetype *, XSPRITE *);
-static void sub_62D7C(spritetype *, XSPRITE *);
-
-static int nSlashClient = seqRegisterClient(SlashSeqCallback);
-static int nStompClient = seqRegisterClient(StompSeqCallback);
+static void MorphToBeast(DBloodActor *);
+static void beastThinkSearch(DBloodActor *);
+static void beastThinkGoto(DBloodActor *);
+static void beastThinkChase(DBloodActor *);
+static void beastThinkSwimGoto(DBloodActor *);
+static void beastThinkSwimChase(DBloodActor *);
+static void beastMoveForward(DBloodActor *);
+static void sub_628A0(DBloodActor *);
+static void sub_62AE0(DBloodActor *);
+static void sub_62D7C(DBloodActor *);
 
 AISTATE beastIdle = {kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE beastChase = {kAiStateChase, 8, -1, 0, NULL, beastMoveForward, beastThinkChase, NULL };
@@ -79,11 +65,10 @@ AISTATE beast138FB4 = { kAiStateOther, 9, -1, 120, NULL, sub_62AE0, beastThinkSw
 AISTATE beast138FD0 = { kAiStateOther, 9, -1, 0, NULL, sub_62D7C, beastThinkSwimChase, &beastSwimChase };
 AISTATE beast138FEC = { kAiStateOther, 9, -1, 120, NULL, aiMoveTurn, NULL, &beastSwimChase };
 
-static void SlashSeqCallback(int, int nXSprite)
+void SlashSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
@@ -97,12 +82,12 @@ static void SlashSeqCallback(int, int nXSprite)
     sfxPlay3DSound(pSprite, 9012+Random(2), -1, 0);
 }
 
-static void StompSeqCallback(int, int nXSprite)
+void StompSeqCallback(int, DBloodActor* actor)
 {
     uint8_t vb8[(kMaxSectors+7)>>3];
-    XSPRITE *pXSprite = &xsprite[nXSprite];
+    XSPRITE* pXSprite = &actor->x();
     int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype *pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     int x = pSprite->x;
@@ -112,9 +97,7 @@ static void StompSeqCallback(int, int nXSprite)
     int nSector = pSprite->sectnum;
     int v1c = 5+2*gGameOptions.nDifficulty;
     int v10 = 25+30*gGameOptions.nDifficulty;
-    gAffectedSectors[0] = -1;
-    gAffectedXWalls[0] = -1;
-    GetClosestSpriteSectors(nSector, x, y, vc, gAffectedSectors, vb8, gAffectedXWalls);
+    GetClosestSpriteSectors(nSector, x, y, vc, vb8);
     char v4 = 0;
     int v34 = -1;
     int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
@@ -193,20 +176,26 @@ static void StompSeqCallback(int, int nXSprite)
     sfxPlay3DSound(pSprite, 9015+Random(2), -1, 0);
 }
 
-static void MorphToBeast(spritetype *pSprite, XSPRITE *pXSprite)
+static void MorphToBeast(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     actHealDude(pXSprite, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
     pSprite->type = kDudeBeast;
 }
 
-static void beastThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void beastThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     XSECTOR *pXSector;
@@ -223,15 +212,17 @@ static void beastThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
     {
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &beastSwimSearch);
+            aiNewState(actor, &beastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &beastSearch);
+            aiNewState(actor, &beastSearch);
     }
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void beastThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
         XSECTOR *pXSector;
@@ -241,9 +232,9 @@ static void beastThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &beastSwimSearch);
+            aiNewState(actor, &beastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &beastSearch);
+            aiNewState(actor, &beastSearch);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -263,9 +254,9 @@ static void beastThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &beastSwimSearch);
+            aiNewState(actor, &beastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &beastSearch);
+            aiNewState(actor, &beastSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
@@ -277,9 +268,9 @@ static void beastThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         else
             pXSector = NULL;
         if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &beastSwimSearch);
+            aiNewState(actor, &beastSwimSearch);
         else
-            aiNewState(pSprite, pXSprite, &beastSearch);
+            aiNewState(actor, &beastSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -292,8 +283,7 @@ static void beastThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                int nXSprite = sprite[pXSprite->reference].extra;
-                gDudeSlope[nXSprite] = divscale(pTarget->z-pSprite->z, nDist, 10);
+                actor->dudeSlope = divscale(pTarget->z-pSprite->z, nDist, 10);
                 if (nDist < 0x1400 && nDist > 0xa00 && klabs(nDeltaAngle) < 85 && (pTarget->flags&2)
                     && IsPlayerSprite(pTarget) && Chance(0x8000))
                 {
@@ -310,25 +300,25 @@ static void beastThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         {
                         case -1:
                             if (!pXSector || !pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &beastStomp);
+                                aiNewState(actor, &beastStomp);
                             break;
                         case 3:
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type)
                             {
                                 if (!pXSector || !pXSector->Underwater)
-                                    aiNewState(pSprite, pXSprite, &beastStomp);
+                                    aiNewState(actor, &beastStomp);
                             }
                             else
                             {
                                 if (pXSector && pXSector->Underwater)
-                                    aiNewState(pSprite, pXSprite, &beastSwimDodge);
+                                    aiNewState(actor, &beastSwimDodge);
                                 else
-                                    aiNewState(pSprite, pXSprite, &beastDodge);
+                                    aiNewState(actor, &beastDodge);
                             }
                             break;
                         default:
                             if (!pXSector || !pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &beastStomp);
+                                aiNewState(actor, &beastStomp);
                             break;
                         }
                     }
@@ -346,31 +336,31 @@ static void beastThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                     {
                     case -1:
                         if (pXSector && pXSector->Underwater)
-                            aiNewState(pSprite, pXSprite, &beastSwimSlash);
+                            aiNewState(actor, &beastSwimSlash);
                         else
-                            aiNewState(pSprite, pXSprite, &beastSlash);
+                            aiNewState(actor, &beastSlash);
                         break;
                     case 3:
                         if (pSprite->type != sprite[gHitInfo.hitsprite].type)
                         {
                             if (pXSector && pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &beastSwimSlash);
+                                aiNewState(actor, &beastSwimSlash);
                             else
-                                aiNewState(pSprite, pXSprite, &beastSlash);
+                                aiNewState(actor, &beastSlash);
                         }
                         else
                         {
                             if (pXSector && pXSector->Underwater)
-                                aiNewState(pSprite, pXSprite, &beastSwimDodge);
+                                aiNewState(actor, &beastSwimDodge);
                             else
-                                aiNewState(pSprite, pXSprite, &beastDodge);
+                                aiNewState(actor, &beastDodge);
                         }
                         break;
                     default:
                         if (pXSector && pXSector->Underwater)
-                            aiNewState(pSprite, pXSprite, &beastSwimSlash);
+                            aiNewState(actor, &beastSwimSlash);
                         else
-                            aiNewState(pSprite, pXSprite, &beastSlash);
+                            aiNewState(actor, &beastSlash);
                         break;
                     }
                 }
@@ -386,14 +376,16 @@ static void beastThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     else
         pXSector = NULL;
     if (pXSector && pXSector->Underwater)
-        aiNewState(pSprite, pXSprite, &beastSwimGoto);
+        aiNewState(actor, &beastSwimGoto);
     else
-        aiNewState(pSprite, pXSprite, &beastGoto);
+        aiNewState(actor, &beastGoto);
     pXSprite->target = -1;
 }
 
-static void beastThinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastThinkSwimGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -402,15 +394,17 @@ static void beastThinkSwimGoto(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &beastSwimSearch);
-    aiThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &beastSwimSearch);
+    aiThinkTarget(actor);
 }
 
-static void beastThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastThinkSwimChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &beastSwimGoto);
+        aiNewState(actor, &beastSwimGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -423,12 +417,12 @@ static void beastThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &beastSwimSearch);
+        aiNewState(actor, &beastSwimSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &beastSwimSearch);
+        aiNewState(actor, &beastSwimSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -444,25 +438,26 @@ static void beastThinkSwimChase(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &beastSwimSlash);
+                    aiNewState(actor, &beastSwimSlash);
                 else
                 {
                     aiPlay3DSound(pSprite, 9009+Random(2), AI_SFX_PRIORITY_1, -1);
-                    aiNewState(pSprite, pXSprite, &beast138FD0);
+                    aiNewState(actor, &beast138FD0);
                 }
             }
         }
         else
-            aiNewState(pSprite, pXSprite, &beast138FD0);
+            aiNewState(actor, &beast138FD0);
         return;
     }
-    aiNewState(pSprite, pXSprite, &beastSwimGoto);
+    aiNewState(actor, &beastSwimGoto);
     pXSprite->target = -1;
 }
 
-static void beastMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+static void beastMoveForward(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -475,13 +470,14 @@ static void beastMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     if (nDist <= 0x400 && Random(64) < 32)
         return;
-    xvel[nSprite] += mulscale30(pDudeInfo->frontSpeed, Cos(pSprite->ang));
-    yvel[nSprite] += mulscale30(pDudeInfo->frontSpeed, Sin(pSprite->ang));
+    actor->xvel() += mulscale30(pDudeInfo->frontSpeed, Cos(pSprite->ang));
+    actor->yvel() += mulscale30(pDudeInfo->frontSpeed, Sin(pSprite->ang));
 }
 
-static void sub_628A0(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_628A0(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -499,21 +495,22 @@ static void sub_628A0(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     if (pXSprite->target == -1)
         t1 += nAccel;
     else
         t1 += nAccel>>2;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void sub_62AE0(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_62AE0(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     spritetype *pTarget = &sprite[pXSprite->target];
@@ -536,18 +533,20 @@ static void sub_62AE0(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = -dz;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = -dz;
 }
 
-static void sub_62D7C(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_62D7C(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -571,14 +570,14 @@ static void sub_62D7C(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = dz;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = dz;
 }
 
 END_BLD_NS

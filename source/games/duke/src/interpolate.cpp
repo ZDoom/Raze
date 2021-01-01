@@ -34,71 +34,9 @@ source as it is released.
 
 #include "ns.h"	// Must come before everything else!
 #include "global.h"
+#include "interpolate.h"
 
 BEGIN_DUKE_NS
-
-int32_t numinterpolations;
-int32_t g_interpolationLock;
-int32_t oldipos[MAXINTERPOLATIONS];
-int32_t *curipos[MAXINTERPOLATIONS];
-int32_t bakipos[MAXINTERPOLATIONS];
-
-
-void updateinterpolations()  //Stick at beginning of domovethings
-{
-	int i;
-
-	for(i=numinterpolations-1;i>=0;i--) oldipos[i] = *curipos[i];
-}
-
-
-void setinterpolation(int *posptr)
-{
-	int i;
-
-	if (numinterpolations >= MAXINTERPOLATIONS) return;
-	for(i=numinterpolations-1;i>=0;i--)
-		if (curipos[i] == posptr) return;
-	curipos[numinterpolations] = posptr;
-	oldipos[numinterpolations] = *posptr;
-	numinterpolations++;
-}
-
-void stopinterpolation(int *posptr)
-{
-	int i;
-
-	for(i=numinterpolations-1;i>=0;i--)
-		if (curipos[i] == posptr)
-		{
-			numinterpolations--;
-			oldipos[i] = oldipos[numinterpolations];
-			bakipos[i] = bakipos[numinterpolations];
-			curipos[i] = curipos[numinterpolations];
-		}
-}
-
-void dointerpolations(int smoothratio)       //Stick at beginning of drawscreen
-{
-	int i, j, odelta, ndelta;
-
-	ndelta = 0; j = 0;
-	for(i=numinterpolations-1;i>=0;i--)
-	{
-		bakipos[i] = *curipos[i];
-		odelta = ndelta; ndelta = (*curipos[i])-oldipos[i];
-		if (odelta != ndelta) j = mulscale16(ndelta,smoothratio);
-		*curipos[i] = oldipos[i]+j;
-	}
-}
-
-void restoreinterpolations()  //Stick at end of drawscreen
-{
-	int i;
-
-	for(i=numinterpolations-1;i>=0;i--) *curipos[i] = bakipos[i];
-}
-
 
 void setsectinterpolate(int sectnum)
 {
@@ -110,16 +48,16 @@ void setsectinterpolate(int sectnum)
 
 	for(j=startwall;j<endwall;j++)
 	{
-		setinterpolation(&wall[j].x);
-		setinterpolation(&wall[j].y);
+		StartInterpolation(j, Interp_Wall_X);
+		StartInterpolation(j, Interp_Wall_Y);
 		k = wall[j].nextwall;
 		if(k >= 0)
 		{
-			setinterpolation(&wall[k].x);
-			setinterpolation(&wall[k].y);
+			StartInterpolation(k, Interp_Wall_X);
+			StartInterpolation(k, Interp_Wall_Y);
 			k = wall[k].point2;
-			setinterpolation(&wall[k].x);
-			setinterpolation(&wall[k].y);
+			StartInterpolation(k, Interp_Wall_X);
+			StartInterpolation(k, Interp_Wall_Y);
 		}
 	}
 }
@@ -133,12 +71,12 @@ void clearsectinterpolate(int sectnum)
 	endwall = startwall + sect->wallnum;
 	for(j=startwall;j<endwall;j++)
 	{
-		stopinterpolation(&wall[j].x);
-		stopinterpolation(&wall[j].y);
+		StopInterpolation(j, Interp_Wall_X);
+		StopInterpolation(j, Interp_Wall_Y);
 		if(wall[j].nextwall >= 0)
 		{
-			stopinterpolation(&wall[wall[j].nextwall].x);
-			stopinterpolation(&wall[wall[j].nextwall].y);
+			StopInterpolation(wall[j].nextwall, Interp_Wall_X);
+			StopInterpolation(wall[j].nextwall, Interp_Wall_Y);
 		}
 	}
 }

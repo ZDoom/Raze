@@ -53,7 +53,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 // Distance definitions for effective sound ranges
 // Note: These are some useful constants, but you can type in whatever you want!
-#define DIST_NORMAL             0        // Just play sound normaly
+#define DIST_NORMAL             0        // Just play sound normally
 #define DIST_MAXNORMAL          16384    // This is max distance constant for normal sounds
 // This is the limiting constant in Sound_Dist function.
 #define DIST_WIDE               65536    // Half level at full volume before sound begins to fade.
@@ -320,7 +320,7 @@ DIGI_ENTRY("BMBDROP.VOC",   DIGI_BOMBRDROPBOMB,   157,      PRI_SECTOROBJ,      
 DIGI_ENTRY("BUBBLE.VOC",    DIGI_BUBBLES,         158,      PRI_AMBIENT,      -100,     100, 0, DIST_NORMAL, VF_NORMAL)
 
 // CHAIN MOVING
-// SOUND NOT AVAILABLE -- DELTED
+// SOUND NOT AVAILABLE -- DELETED
 DIGI_ENTRY("CHAIN.VOC",     DIGI_CHAIN,           159,      PRI_ENVIRONMENT,    0,      0, 0, DIST_NORMAL, VF_NORMAL)
 
 // CHAIN DOOR
@@ -463,7 +463,7 @@ DIGI_ENTRY("UNLOCK.VOC",    DIGI_UNLOCK,          209,      PRI_ENVIRONMENT,    
 // SQUEAKY VALVE TURNING
 DIGI_ENTRY("VALVE.VOC",     DIGI_SQUEAKYVALVE,    210,      PRI_ENVIRONMENT,    0,      0, 0, DIST_NORMAL, VF_NORMAL)
 
-// SPOOKY ETHERAL void AMBIENCE
+// SPOOKY ETHEREAL void AMBIENCE
 //(NETHERWORLDLY SOUNDS)
 DIGI_ENTRY("VOID1.VOC",     DIGI_VOID1,           211,      PRI_AMBIENT,        0,      0, 0, DIST_NORMAL, VF_LOOP)
 DIGI_ENTRY("VOID2.VOC",     DIGI_VOID2,           212,      PRI_AMBIENT,        0,      0, 0, DIST_NORMAL, VF_LOOP)
@@ -508,7 +508,7 @@ DIGI_ENTRY("HELI.VOC",      DIGI_HELI,            229,      PRI_SECTOROBJ,      
 // HUGE ECHOING HEART LIKE AMBIENCE
 DIGI_ENTRY("BIGHART.VOC",   DIGI_BIGHART,         230,      PRI_AMBIENT,        0,      0, 0, DIST_NORMAL, VF_LOOP)
 
-// EERIE ETHERAL TYPE WIND
+// EERIE ETHEREAL TYPE WIND
 DIGI_ENTRY("WIND4.VOC",     DIGI_WIND4,           231,      PRI_AMBIENT,        0,      0, 0, DIST_NORMAL, VF_LOOP)
 
 // SPOOKY SINE WAVE SOUND
@@ -520,7 +520,7 @@ DIGI_ENTRY("DRILL1.VOC",    DIGI_DRILL1,          233,      PRI_SECTOROBJ,      
 // JET ENGINE
 DIGI_ENTRY("JET.VOC",       DIGI_JET,             234,      PRI_AMBIENT,        0,      0, 0, DIST_MAXNORMAL, VF_LOOP)
 
-// CERIMONIAL DRUM CHANT
+// CEREMONIAL DRUM CHANT
 DIGI_ENTRY("DRUMCHNT.VOC",  DIGI_DRUMCHANT,       235,      PRI_AMBIENT,        0,      0, 0, DIST_NORMAL, VF_LOOP)
 
 DIGI_ENTRY("FLY.VOC",       DIGI_BUZZZ,           236,      PRI_MAX,            0,      0, 0, DIST_NORMAL, VF_NORMAL)
@@ -866,7 +866,7 @@ DIGI_ENTRY("EXP3.VOC",     DIGI_CANNON,           514,      PRI_HI_PLAYERWEAP,  
 DIGI_ENTRY("JG41001.VOC",  DIGI_JG41001,          515,      PRI_PLAYERSPEECH, 0,      0, 0, DIST_NORMAL, VF_NORMAL)
 DIGI_ENTRY("JG41012.VOC",  DIGI_JG41012,          516,      PRI_PLAYERVOICE, 0,      0, 0, DIST_NORMAL, VF_NORMAL)
 DIGI_ENTRY("JG41018.VOC",  DIGI_JG41018,          517,      PRI_PLAYERVOICE, 0,      0, 0, DIST_NORMAL, VF_NORMAL)
-DIGI_ENTRY("JG41028.VOC",  DIGI_JG41028,          518,      PRI_PLAYERVOICE, 0,      0, 0, DIST_NORMAL, VF_NORMAL)
+DIGI_ENTRY("JG41028.VOC",  DIGI_JG41028,          518,      PRI_PLAYERSPEECH, 0,      0, 0, DIST_NORMAL, VF_NORMAL)
 DIGI_ENTRY("JG41048.VOC",  DIGI_JG41048,          519,      PRI_PLAYERSPEECH, 0,      0, 0, DIST_NORMAL, VF_NORMAL)
 DIGI_ENTRY("JG41052.VOC",  DIGI_JG41052,          520,      PRI_PLAYERSPEECH, 0,      0, 0, DIST_NORMAL, VF_NORMAL)
 DIGI_ENTRY("JG41058.VOC",  DIGI_JG41058,          521,      PRI_PLAYERSPEECH, 0,      0, 0, DIST_NORMAL, VF_NORMAL)

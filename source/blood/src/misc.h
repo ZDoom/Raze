@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
-#include "build.h"
 #include "m_fixed.h"
 #include "filesystem.h"
 
@@ -41,7 +40,6 @@ void InitMirrors(void);
 void sub_5571C(char mode);
 void sub_557C4(int x, int y, int interpolation);
 void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int viewPlayer);
-int32_t registerosdcommands(void); 
 int qanimateoffs(int a1, int a2);
 int32_t qgetpalookup(int32_t a1, int32_t a2);
 void HookReplaceFunctions();
@@ -57,8 +55,7 @@ void WeaponLower(PLAYER *pPlayer);
 char WeaponUpgrade(PLAYER *pPlayer, char newWeapon);
 void WeaponProcess(PLAYER *pPlayer);
 void WeaponUpdateState(PLAYER* pPlayer);
-void sub_51340(spritetype *pMissile, int a2);
-void StartQAV(PLAYER* pPlayer, int nWeaponQAV, int a3 = -1, char a4 = 0);
+void teslaHit(spritetype *pMissile, int a2);
 void WeaponPrecache(HitList &hits);
 
 struct ZONE {
@@ -88,16 +85,6 @@ inline int Sin(int ang)
 inline int Cos(int ang)
 {
     return costable[ang & 2047];
-}
-
-inline double Sinf(double ang)
-{
-    return (1 << 30) * sin(BANG2RAD * ang);
-}
-
-inline double Cosf(double ang)
-{
-    return (1 << 30) * sin(BANG2RAD * (ang + 512.));
 }
 
 inline int SinScale16(int ang)
@@ -141,7 +128,5 @@ void tilePreloadTile(int nTile);
 void tilePrecacheTile(int nTile, int nType, HitList& hits);
 
 char tileGetSurfType(int hit);
-
-void scrLoadPalette(void);
 
 END_BLD_NS

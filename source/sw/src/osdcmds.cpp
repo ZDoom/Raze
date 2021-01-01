@@ -48,26 +48,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_SW_NS
 
-static int osdcmd_warptocoords(CCmdFuncPtr parm)
+void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
-    if (parm->numparms < 3 || parm->numparms > 5)
-        return CCMD_SHOWHELP;
+    Player->oposx = Player->posx = x;
+    Player->oposy = Player->posy = y;
+    Player->oposz = Player->posz = z;
 
-    Player->oposx = Player->posx = atoi(parm->parms[0]);
-    Player->oposy = Player->posy = atoi(parm->parms[1]);
-    Player->oposz = Player->posz = atoi(parm->parms[2]);
-
-    if (parm->numparms >= 4)
+    if (ang != INT_MIN)
     {
-		Player->angle.oang = Player->angle.ang = buildang(atoi(parm->parms[3]));
+		Player->angle.oang = Player->angle.ang = buildang(ang);
     }
 
-    if (parm->numparms == 5)
+    if (horz != INT_MIN)
     {
-    	Player->horizon.ohoriz = Player->horizon.horiz = buildhoriz(atoi(parm->parms[4]));
+    	Player->horizon.ohoriz = Player->horizon.horiz = buildhoriz(horz);
     }
-
-    return CCMD_OK;
 }
 
 static int osdcmd_mirror(CCmdFuncPtr parm)
@@ -100,9 +95,9 @@ static int osdcmd_mirror(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
-static int osdcmd_third_person_view(CCmdFuncPtr parm)
+void GameInterface::ToggleThirdPerson()
 {
-    if (gamestate != GS_LEVEL) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return;
     auto pp = &Player[myconnectindex];
     if (inputState.ShiftPressed())
     {
@@ -121,12 +116,11 @@ static int osdcmd_third_person_view(CCmdFuncPtr parm)
             pp->camera_dist = 0;
         }
     }
-    return CCMD_OK;
 }
 
-static int osdcmd_coop_view(CCmdFuncPtr parm)
+void GameInterface::SwitchCoopView()
 {
-    if (gamestate != GS_LEVEL) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return;
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
     {
         screenpeek = connectpoint2[screenpeek];
@@ -148,23 +142,11 @@ static int osdcmd_coop_view(CCmdFuncPtr parm)
             DoPlayerNightVisionPalette(tp);
         }
     }
-    return CCMD_OK;
-}
-
-static int osdcmd_noop(CCmdFuncPtr parm)
-{
-	// this is for silencing key bindings only.
-	return CCMD_OK;
 }
 
 int32_t registerosdcommands(void)
 {
     C_RegisterFunction("mirror_debug", "mirror [mirrornum]: print mirror debug info", osdcmd_mirror);
-    C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
-    C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
-    C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_coop_view);
-	C_RegisterFunction("show_weapon", "Show opponents' weapons", osdcmd_noop);
-
     return 0;
 }
 

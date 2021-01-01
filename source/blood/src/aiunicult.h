@@ -157,7 +157,8 @@ struct GENDUDESND
 extern const GENDUDESND gCustomDudeSnd[];
 
 // temporary, until normal DUDEEXTRA gets refactored
-struct GENDUDEEXTRA {
+struct GENDUDEEXTRA 
+{
     unsigned short initVals[3];             // xrepeat, yrepeat, clipdist
     unsigned short availDeaths[kDamageMax]; // list of seqs with deaths for each damage type
     unsigned int moveSpeed;
@@ -172,17 +173,24 @@ struct GENDUDEEXTRA {
     signed short slave[kGenDudeMaxSlaves];  // index of the ones dude is summon
     signed short dmgControl[kDamageMax];    // depends of current weapon, drop armor item, sprite yrepeat and surface type
     bool updReq[kGenDudePropertyMax]; // update requests
-    bool sndPlaying;                        // indicate if sound of AISTATE currently playing
-    bool forcePunch;                        // indicate if there is no fire trigger in punch state seq
-    bool isMelee;
-    bool canBurn;                           // can turn in Burning dude or not
-    bool canElectrocute;
-    bool canAttack;
-    bool canRecoil;
-    bool canWalk;
-    bool canDuck;
-    bool canSwim;
-    bool canFly;
+    union
+    {
+        struct
+        {
+            bool sndPlaying : 1;                        // indicate if sound of AISTATE currently playing
+            bool forcePunch : 1;                        // indicate if there is no fire trigger in punch state seq
+            bool isMelee : 1;
+            bool canBurn : 1;                           // can turn in Burning dude or not
+            bool canElectrocute : 1;
+            bool canAttack : 1;
+            bool canRecoil : 1;
+            bool canWalk : 1;
+            bool canDuck : 1;
+            bool canSwim : 1;
+            bool canFly : 1;
+        };
+        int flags;
+    };
 };
 
 extern GENDUDEEXTRA gGenDudeExtra[kMaxSprites];
@@ -195,11 +203,11 @@ void removeDudeStuff(spritetype* pSprite);
 spritetype* leechIsDropped(spritetype* pSprite);
 bool spriteIsUnderwater(spritetype* pSprite, bool oldWay = false);
 bool playGenDudeSound(spritetype* pSprite, int mode);
-void aiGenDudeMoveForward(spritetype* pSprite, XSPRITE* pXSprite);
+void aiGenDudeMoveForward(DBloodActor* actor);
 void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, int aXvel = -1, int aYvel = -1);
 void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState);
 int getGenDudeMoveSpeed(spritetype* pSprite, int which, bool mul, bool shift);
-int checkAttackState(spritetype* pSprite, XSPRITE* pXSprite);
+int checkAttackState(DBloodActor* actor);
 bool doExplosion(spritetype* pSprite, int nType);
 spritetype* genDudeSpawn(spritetype* pSprite, int nDist);
 void genDudeTransform(spritetype* pSprite);
@@ -225,7 +233,6 @@ int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp);
 void scaleDamage(XSPRITE* pXSprite);
 bool genDudePrepare(spritetype* pSprite, int propId);
 void genDudeUpdate(spritetype* pSprite);
-bool genDudeAdjustSlope(spritetype* pSprite, XSPRITE* pXSprite, int dist, int weaponType, int by = 64);
 void genDudePostDeath(spritetype* pSprite, DAMAGE_TYPE damageType, int damage);
 void aiGenDudeInitSprite(spritetype* pSprite, XSPRITE* pXSprite);
 #endif

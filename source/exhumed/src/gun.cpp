@@ -59,13 +59,19 @@ Weapon WeaponInfo[] = {
 
 short nTemperature[kMaxPlayers];
 short nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
-short word_96E26 = 0;
+short isRed = 0;
 
-static SavegameHelper sghgun("gun",
-    SA(nTemperature),
-    SV(word_96E26),
-    nullptr);
 
+void SerializeGun(FSerializer& arc)
+{
+    if (arc.BeginObject("gun"))
+    {
+        arc.Array("temperature", nTemperature, kMaxPlayers)
+            ("isred", isRed)
+            .EndObject();
+            
+    }
+}
 
 void RestoreMinAmmo(short nPlayer)
 {
@@ -289,8 +295,8 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
 
     short nSprite = PlayerList[nPlayer].nSprite;
 
-    int xVect = Sin(sprite[nSprite].ang + 512);
-    int yVect = Sin(sprite[nSprite].ang);
+    int xVect = bcos(sprite[nSprite].ang);
+    int yVect = bsin(sprite[nSprite].ang);
 
     vec3_t startPos = { *x, *y, *z };
     hitdata_t hitData;
@@ -302,7 +308,7 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
     hitSect = hitData.sect;
     hitWall = hitData.wall;
 
-    int ecx = sintable[150] >> 3;
+    int ecx = bsin(150, -3);
 
     uint32_t xDiff = klabs(hitX - *x);
     uint32_t yDiff = klabs(hitY - *y);
@@ -697,8 +703,8 @@ loc_flag:
             int theY = sprite[nPlayerSprite].y;
             int theZ = sprite[nPlayerSprite].z;
 
-            int ebp = Cos(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
-            int ebx = Sin(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
+            int ebp = bcos(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
+            int ebx = bsin(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
 
             if (WeaponInfo[nWeapon].c)
             {
@@ -711,8 +717,8 @@ loc_flag:
                     ecx = theVal;
 
                 int var_44 = (nAngle + 512) & kAngleMask;
-                ebp += (Cos(var_44) >> 11) * ecx;
-                ebx += (Sin(var_44) >> 11) * ecx;
+                ebp += bcos(var_44, -11) * ecx;
+                ebx += bsin(var_44, -11) * ecx;
             }
 
             int nHeight = (-GetSpriteHeight(nPlayerSprite)) >> 1;
@@ -847,9 +853,9 @@ loc_flag:
                     int var_50 = PlayerList[nLocalPlayer].horizon.horiz.asq16() >> 14;
                     nHeight -= var_50;
 
-                    if (sPlayerInput[nPlayer].nTarget >= 0 && cl_autoaim)
+                    if (sPlayerInput[nPlayer].nTarget >= 0 && Autoaim(nPlayer))
                     {
-                                                assert(sprite[sPlayerInput[nPlayer].nTarget].sectnum < kMaxSectors);
+                        assert(sprite[sPlayerInput[nPlayer].nTarget].sectnum < kMaxSectors);
                         var_50 = sPlayerInput[nPlayer].nTarget + 10000;
                     }
 
@@ -867,8 +873,8 @@ loc_flag:
                     BuildSnake(nPlayer, nHeight);
                     nQuake[nPlayer] = 512;
 
-                    nXDamage[nPlayer] -= Sin(sprite[nPlayerSprite].ang + 512) << 9;
-                    nYDamage[nPlayer] -= Sin(sprite[nPlayerSprite].ang) << 9;
+                    nXDamage[nPlayer] -= bcos(sprite[nPlayerSprite].ang, 9);
+                    nYDamage[nPlayer] -= bsin(sprite[nPlayerSprite].ang, 9);
                     break;
                 }
                 case kWeaponRing:
@@ -947,11 +953,11 @@ void DrawWeapons(double smooth)
 
     if (nDouble)
     {
-        if (word_96E26) {
+        if (isRed) {
             nPal = kPalRedBrite;
         }
 
-        word_96E26 = word_96E26 == 0;
+        isRed = isRed == 0;
     }
 
     nPal = RemapPLU(nPal);
@@ -962,12 +968,12 @@ void DrawWeapons(double smooth)
     {
         // CHECKME - not & 0x7FF?
         double nBobAngle = obobangle + fmulscale16(((bobangle + 1024 - obobangle) & 2047) - 1024, smooth);
-        double nVal = (ototalvel[nLocalPlayer] + fmulscale16(totalvel[nLocalPlayer] - ototalvel[nLocalPlayer], smooth)) / 2.;
-        yOffset = (nVal * (calcSinTableValue(fmod(nBobAngle, 1024)) / 256.)) / 512.;
+        double nVal = (ototalvel[nLocalPlayer] + fmulscale16(totalvel[nLocalPlayer] - ototalvel[nLocalPlayer], smooth)) * 0.5;
+        yOffset = fmulscale9(nVal, bsinf(fmod(nBobAngle, 1024.), -8));
 
         if (var_34 == 1)
         {
-            xOffset = ((FSin(nBobAngle + 512) / 256.) * nVal) / 256.;
+            xOffset = fmulscale8(bcosf(nBobAngle, -8), nVal);
         }
     }
     else
@@ -983,7 +989,7 @@ void DrawWeapons(double smooth)
         nShade = sprite[PlayerList[nLocalPlayer].nSprite].shade;
     }
 
-    double const look_anghalf = getHalfLookAng(PlayerList[nLocalPlayer].angle.olook_ang.asq16(), PlayerList[nLocalPlayer].angle.look_ang.asq16(), cl_syncinput, smooth);
+    double const look_anghalf = PlayerList[nLocalPlayer].angle.look_anghalf(smooth);
     double const looking_arc = fabs(look_anghalf) / 4.5;
 
     xOffset -= look_anghalf;

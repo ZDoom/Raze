@@ -13,43 +13,45 @@
 BEGIN_DUKE_NS
 
 extern user_defs ud;
-// Interpolation code is the same in all games with slightly different naming - this needs to be unified and cleaned up.
-// Interpolations are reconstructed on load and do not need to be saved.
-enum { MAXINTERPOLATIONS = MAXSPRITES };
-extern int numinterpolations;
-extern int* curipos[MAXINTERPOLATIONS];
-extern int bakipos[MAXINTERPOLATIONS];
 
-// Variables that do not need to be saved.
-extern int respawnactortime;
-extern int bouncemineblastradius;
-extern int respawnitemtime;
-extern int morterblastradius;
-extern int numfreezebounces;
-extern int pipebombblastradius;
-extern int dukefriction;
-extern int rpgblastradius;
-extern int seenineblastradius;
-extern int shrinkerblastradius;
-extern int gc;
-extern int tripbombblastradius;
-extern int camerashitable;
-extern int max_player_health;
-extern int max_armour_amount;
-extern int lasermode;
+struct DukeGameInfo
+{
+	// Static constant global state
+	int respawnactortime;
+	int bouncemineblastradius;
+	int respawnitemtime;
+	int morterblastradius;
+	int numfreezebounces;
+	int pipebombblastradius;
+	int playerfriction;
+	int rpgblastradius;
+	int seenineblastradius;
+	int shrinkerblastradius;
+	int gravity;
+	int tripbombblastradius;
+	int camerashitable;
+	int max_player_health;
+	int max_armour_amount;
+	int lasermode;
+	int freezerhurtowner;
+	int impact_damage;
+
+	TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
+	ActorInfo actorinfo[MAXTILES];
+	int16_t max_ammo_amount[MAX_WEAPONS];
+	int16_t weaponsandammosprites[15];
+	int playerheight;
+	int displayflags;
+};
+
+extern DukeGameInfo gs;
 
 extern int cameraclock;
 extern int cameradist;
 extern int otherp; // transient helper, MP only
-extern TileInfo tileinfo[MAXTILES]; // static state
-extern ActorInfo actorinfo[MAXTILES]; // static state
 extern int actor_tog; // cheat state
 extern intptr_t apScriptGameEvent[];
 extern TArray<int> ScriptCode;
-extern int16_t max_ammo_amount[MAX_WEAPONS];
-extern int16_t weaponsandammosprites[15];
-extern int32_t PHEIGHT;
-extern int duke3d_globalflags;
 extern int playerswhenstarted;
 extern int show_shareware;
 extern int screenpeek;
@@ -61,7 +63,6 @@ extern int rtsplaying;
 extern int tempwallptr;
 
 extern bool sound445done;
-extern uint16_t frags[MAXPLAYERS][MAXPLAYERS];
 extern player_struct ps[MAXPLAYERS];
 extern int spriteqamount;
 extern uint8_t shadedsector[MAXSECTORS];
@@ -73,9 +74,7 @@ extern int numclouds;
 extern DDukeActor* camsprite;
 extern int numcyclers;
 extern int earthquaketime;
-extern int freezerhurtowner;
 extern int global_random;
-extern int impact_damage;
 extern int mirrorcnt;
 extern int numplayersprites;
 extern int spriteqloc;
@@ -95,8 +94,8 @@ extern int animategoal[MAXANIMATES];
 extern int animatevel[MAXANIMATES];
 
 extern int16_t clouds[256];
-extern int16_t cloudx;
-extern int16_t cloudy;
+extern float cloudx;
+extern float cloudy;
 extern int cloudclock;
 
 extern DDukeActor *spriteq[1024];

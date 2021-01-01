@@ -29,7 +29,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "names2.h"
 #include "panel.h"
 #include "misc.h"
-#include "interp.h"
 #include "interpso.h"
 #include "tags.h"
 #include "break.h"
@@ -3822,8 +3821,8 @@ AutoShrap:
                 shrap_ysize = u->sy = 12 + (RANDOM_P2(32<<8)>>8);
                 u->Counter = (RANDOM_P2(2048<<5)>>5);
 
-                nx = sintable[NORM_ANGLE(sp->ang+512)]>>6;
-                ny = sintable[sp->ang]>>6;
+                nx = bcos(sp->ang, -6);
+                ny = bsin(sp->ang, -6);
                 move_missile(SpriteNum, nx, ny, 0, Z(8), Z(8), CLIPMASK_MISSILE, MISSILEMOVETICS);
 
                 if (RANDOM_P2(1024)<700)
@@ -3897,9 +3896,8 @@ DoVomit(short SpriteNum)
     USERp u = User[SpriteNum];
 
     u->Counter = NORM_ANGLE(u->Counter + (30*MISSILEMOVETICS));
-    sp->xrepeat = u->sx + ((12 * sintable[NORM_ANGLE(u->Counter+512)]) >> 14);
-    sp->yrepeat = u->sy + ((12 * sintable[u->Counter]) >> 14);
-
+    sp->xrepeat = u->sx + mulscale14(12, bcos(u->Counter));
+    sp->yrepeat = u->sy + mulscale14(12, bsin(u->Counter));
     if (TEST(u->Flags, SPR_JUMPING))
     {
         DoJump(SpriteNum);
@@ -3948,8 +3946,8 @@ DoVomit(short SpriteNum)
     USERp u = User[SpriteNum];
 
     u->Counter = NORM_ANGLE(u->Counter + (30*MISSILEMOVETICS));
-    sp->xrepeat = u->sx + ((12 * sintable[NORM_ANGLE(u->Counter+512)]) >> 14);
-    sp->yrepeat = u->sy + ((12 * sintable[u->Counter]) >> 14);
+    sp->xrepeat = u->sx + mulscale14(12, bcos(u->Counter));
+    sp->yrepeat = u->sy + mulscale14(12, bsin(u->Counter));
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
@@ -4349,7 +4347,6 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
             nu->jump_speed += RANDOM_RANGE(p->max_jspeed - p->min_jspeed);
             nu->jump_speed = -nu->jump_speed;
 
-            //setspritez(New, (vec3_t *)np);
             nu->xchange = MOVEx(np->xvel, np->ang);
             nu->ychange = MOVEy(np->xvel, np->ang);
 
@@ -4683,10 +4680,10 @@ WeaponMoveHit(short SpriteNum)
         // clipmove does not correctly return the sprite for WALL sprites
         // on walls, so look with hitscan
 
-        hitscan((vec3_t *)sp, sp->sectnum,   // Start position
-                sintable[NORM_ANGLE(sp->ang + 512)],    // X vector of 3D ang
-                sintable[NORM_ANGLE(sp->ang)],  // Y vector of 3D ang
-                sp->zvel,               // Z vector of 3D ang
+        hitscan(&sp->pos, sp->sectnum,   // Start position
+                bcos(sp->ang),    // X vector of 3D ang
+                bsin(sp->ang),    // Y vector of 3D ang
+                sp->zvel,         // Z vector of 3D ang
                 &hitinfo, CLIPMASK_MISSILE);
 
         if (hitinfo.sect < 0)
@@ -8640,7 +8637,7 @@ DoPlasmaFountain(int16_t Weapon)
         ap = &sprite[u->Attach];
 
         // move with sprite
-        setspritez(Weapon, (vec3_t *)ap);
+        setspritez(Weapon, &ap->pos);
         sp->ang = ap->ang;
 
         u->Counter++;
@@ -8821,9 +8818,9 @@ void WallBounce(short SpriteNum, short ang)
     u->bounce++;
 
     //k = cos(ang) * sin(ang) * 2
-    k = mulscale13(sintable[NORM_ANGLE(ang+512)], sintable[ang]);
+    k = mulscale13(bcos(ang), bsin(ang));
     //l = cos(ang * 2)
-    l = sintable[NORM_ANGLE((ang*2)+512)];
+    l = bcos(ang << 1);
 
     dax = -u->xchange;
     day = -u->ychange;
@@ -8893,8 +8890,8 @@ bool SlopeBounce(short SpriteNum, bool *hit_wall)
     // k is now the slope of the ceiling or floor
 
     // normal vector of the slope
-    dax = mulscale14(slope, sintable[(daang)&2047]);
-    day = mulscale14(slope, sintable[(daang+1536)&2047]);
+    dax = mulscale14(slope, bsin(daang));
+    day = mulscale14(slope, -bcos(daang));
     daz = 4096; // 4096 = 45 degrees
 
     // reflection code
@@ -10366,7 +10363,7 @@ DoMicro(int16_t Weapon)
         // last smoke
         if ((u->WaitTics -= MISSILEMOVETICS) <= 0)
         {
-            setspritez(New, (vec3_t *)np);
+            setspritez(New, &np->pos);
             NewStateGroup(Weapon, &sg_MicroMini[0]);
             sp->xrepeat = sp->yrepeat = 10;
             RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
@@ -11716,9 +11713,9 @@ InitMineShrap(short SpriteNum)
         daz -= DIV2(Z(48)<<3);
 
         FAFhitscan(sp->x, sp->y, sp->z - Z(30), sp->sectnum,   // Start position
-                   sintable[NORM_ANGLE(ang + 512)],        // X vector of 3D ang
-                   sintable[NORM_ANGLE(ang)],              // Y vector of 3D ang
-                   daz,                                    // Z vector of 3D ang
+                   bcos(ang),        // X vector of 3D ang
+                   bsin(ang),        // Y vector of 3D ang
+                   daz,              // Z vector of 3D ang
                    &hitinfo, CLIPMASK_MISSILE);
 
         if (hitinfo.sect < 0)
@@ -12310,8 +12307,8 @@ DoBloodWorm(int16_t Weapon)
 
     ang = NORM_ANGLE(sp->ang + 512);
 
-    xvect = sintable[NORM_ANGLE(ang+512)];
-    yvect = sintable[ang];
+    xvect = bcos(ang);
+    yvect = bsin(ang);
 
     bx = sp->x;
     by = sp->y;
@@ -12423,8 +12420,8 @@ DoBloodWorm(int16_t Weapon)
 
     ang = NORM_ANGLE(sp->ang + 512);
 
-    xvect = sintable[NORM_ANGLE(ang+512)];
-    yvect = sintable[ang];
+    xvect = bcos(ang);
+    yvect = bsin(ang);
 
     bx = sp->x;
     by = sp->y;
@@ -12825,15 +12822,15 @@ DoRing(int16_t Weapon)
     sp->ang = NORM_ANGLE(sp->ang + (4 * RINGMOVETICS) + RINGMOVETICS);
 
     // put it out there
-    sp->x += ((int) u->Dist * (int) sintable[NORM_ANGLE(sp->ang + 512)]) >> 14;
-    sp->y += ((int) u->Dist * (int) sintable[sp->ang]) >> 14;
+    sp->x += mulscale14(u->Dist, bcos(sp->ang));
+    sp->y += mulscale14(u->Dist, bsin(sp->ang));
     if (User[sp->owner]->PlayerP)
         sp->z += (u->Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9;
 
     //sp->ang = NORM_ANGLE(sp->ang + 512);
     //updatesector(sp->x, sp->y);
 
-    setsprite(Weapon, (vec3_t *)sp);
+    setsprite(Weapon, &sp->pos);
 
     ASSERT(sp->sectnum >= 0);
 
@@ -12913,8 +12910,8 @@ InitSpellRing(PLAYERp pp)
         //SET(u->Flags, SPR_XFLIP_TOGGLE);
 
         // put it out there
-        sp->x += ((int) u->Dist * (int) sintable[NORM_ANGLE(sp->ang + 512)]) >> 14;
-        sp->y += ((int) u->Dist * (int) sintable[sp->ang]) >> 14;
+        sp->x += mulscale14(u->Dist, bcos(sp->ang));
+        sp->y += mulscale14(u->Dist, bsin(sp->ang));
         sp->z = pp->posz + Z(20) + ((u->Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9);
 
         sp->ang = NORM_ANGLE(sp->ang + 512);
@@ -12975,10 +12972,10 @@ DoSerpRing(int16_t Weapon)
         sp->ang = NORM_ANGLE(sp->ang - (28 * RINGMOVETICS));
 
     // put it out there
-    sp->x += ((int) u->Dist * (int) sintable[NORM_ANGLE(u->slide_ang + 512)]) >> 14;
-    sp->y += ((int) u->Dist * (int) sintable[u->slide_ang]) >> 14;
+    sp->x += mulscale14(u->Dist, bcos(u->slide_ang));
+    sp->y += mulscale14(u->Dist, bsin(u->slide_ang));
 
-    setsprite(Weapon, (vec3_t *)sp);
+    setsprite(Weapon, &sp->pos);
 
     ASSERT(sp->sectnum >= 0);
 
@@ -13228,8 +13225,8 @@ InitSerpRing(short SpriteNum)
         nu->spal = np->pal = 27; // Bright Green
 
         // put it out there
-        np->x += ((int) nu->Dist * (int) sintable[NORM_ANGLE(np->ang + 512)]) >> 14;
-        np->y += ((int) nu->Dist * (int) sintable[np->ang]) >> 14;
+        np->x += mulscale14(nu->Dist, bcos(np->ang));
+        np->y += mulscale14(nu->Dist, bsin(np->ang));
         np->z = SPRITEp_TOS(sp) + Z(20);
 
         np->ang = NORM_ANGLE(np->ang + 512);
@@ -13764,9 +13761,9 @@ InitSwordAttack(PLAYERp pp)
         daz = -mulscale16(pp->horizon.horiz.asq16(), 2000) + (RANDOM_RANGE(24000) - 12000);
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,       // Start position
-                   sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
-                   sintable[NORM_ANGLE(daang)],    // Y vector of 3D ang
-                   daz,                            // Z vector of 3D ang
+                   bcos(daang),      // X vector of 3D ang
+                   bsin(daang),      // Y vector of 3D ang
+                   daz,              // Z vector of 3D ang
                    &hitinfo, CLIPMASK_MISSILE);
 
         if (hitinfo.sect < 0)
@@ -13955,9 +13952,9 @@ InitFistAttack(PLAYERp pp)
         daz = -mulscale16(pp->horizon.horiz.asq16(), 2000) + (RANDOM_RANGE(24000) - 12000);
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,       // Start position
-                   sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
-                   sintable[NORM_ANGLE(daang)],    // Y vector of 3D ang
-                   daz,                            // Z vector of 3D ang
+                   bcos(daang),      // X vector of 3D ang
+                   bsin(daang),      // Y vector of 3D ang
+                   daz,              // Z vector of 3D ang
                    &hitinfo, CLIPMASK_MISSILE);
 
         if (hitinfo.sect < 0)
@@ -14461,8 +14458,8 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
     {
         zh = SPRITEp_UPPER(hp);
 
-        xvect = sintable[NORM_ANGLE(*ang + 512)];
-        yvect = sintable[NORM_ANGLE(*ang)];
+        xvect = bcos(*ang);
+        yvect = bsin(*ang);
 
         if (hp->x - sp->x != 0)
             //*z = xvect * ((zh - *z)/(hp->x - sp->x));
@@ -14523,8 +14520,8 @@ WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
         {
             zh = SPRITEp_TOS(hp) + DIV4(SPRITEp_SIZE_Z(hp));
 
-            xvect = sintable[NORM_ANGLE(*ang + 512)];
-            yvect = sintable[NORM_ANGLE(*ang)];
+            xvect = bcos(*ang);
+            yvect = bsin(*ang);
 
             if (hp->x - sp->x != 0)
                 //*z = xvect * ((zh - *z)/(hp->x - sp->x));
@@ -14562,8 +14559,8 @@ WeaponHitscanShootFeet(SPRITEp sp, SPRITEp hp, int *zvect)
         zh = SPRITEp_BOS(hp) + Z(20);
         z = sp->z;
 
-        xvect = sintable[NORM_ANGLE(ang + 512)];
-        yvect = sintable[NORM_ANGLE(ang)];
+        xvect = bcos(ang);
+        yvect = bsin(ang);
 
         if (hp->x - sp->x != 0)
             //*z = xvect * ((zh - *z)/(hp->x - sp->x));
@@ -14614,10 +14611,6 @@ InitStar(PLAYERp pp)
     w = SpawnSprite(STAT_MISSILE, STAR1, s_Star, pp->cursectnum, nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
     wp = &sprite[w];
     wu = User[w];
-
-    // Attach sound to moving shuriken  (* Screw off, yucky sound! *)
-//    PlaySound(DIGI_STARWIZ, &wp->x, &wp->y, &wp->z, v3df_follow);
-//    Set3DSoundOwner(w);
 
     //SET(wp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
     SetOwner(pp->PlayerSprite, w);
@@ -14988,8 +14981,8 @@ InitShotgun(PLAYERp pp)
             ndaang = NORM_ANGLE(daang + (RANDOM_RANGE(70) - 30));
         }
 
-        xvect = sintable[NORM_ANGLE(ndaang + 512)];
-        yvect = sintable[NORM_ANGLE(ndaang)];
+        xvect = bcos(ndaang);
+        yvect = bsin(ndaang);
         zvect = ndaz;
         FAFhitscan(nx, ny, nz, nsect,               // Start position
                    xvect, yvect, zvect,
@@ -16099,17 +16092,17 @@ WallSpriteInsideSprite(SPRITEp wsp, SPRITEp sp)
     x1 = wsp->x;
     y1 = wsp->y;
 
-    xoff = (int) TILE_XOFF(wsp->picnum) + (int) wsp->xoffset;
+    xoff = (int) tileLeftOffset(wsp->picnum) + (int) wsp->xoffset;
 
     if (TEST(wsp->cstat, CSTAT_SPRITE_XFLIP))
         xoff = -xoff;
 
     // x delta
-    dax = sintable[wsp->ang] * wsp->xrepeat;
+    dax = bsin(wsp->ang) * wsp->xrepeat;
     // y delta
-    day = sintable[NORM_ANGLE(wsp->ang + 1024 + 512)] * wsp->xrepeat;
+    day = -bcos(wsp->ang) * wsp->xrepeat;
 
-    xsiz = tilesiz[wsp->picnum].x;
+    xsiz = tileWidth(wsp->picnum);
     mid_dist = DIV2(xsiz) + xoff;
 
     // starting from the center find the first point
@@ -17081,8 +17074,8 @@ InitCoolgFire(short SpriteNum)
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = wp->zvel;
 
-    nx = ((int) 728 * (int) sintable[NORM_ANGLE(nang + 512)]) >> 14;
-    ny = ((int) 728 * (int) sintable[nang]) >> 14;
+    nx = mulscale14(728, bcos(nang));
+    ny = mulscale14(728, bsin(nang));
 
     move_missile(w, nx, ny, 0L, wu->ceiling_dist, wu->floor_dist, 0, 3L);
 
@@ -17734,9 +17727,9 @@ int SpawnWallHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_
 
     sp->ang = NORM_ANGLE(wall_ang + 1024);
 
-//    int nx,ny;
-    //nx = (sintable[(512 + Player[0].angle.ang.asbuild()) & 2047] >> 7);
-    //ny = (sintable[Player[0].angle.ang.asbuild()] >> 7);
+    //int nx,ny;
+    //nx = Player[0].angle.ang.bcos(-7);
+    //ny = Player[0].angle.ang.bsin(-7);
     //sp->x -= nx;
     //sp->y -= ny;
 
@@ -17764,19 +17757,18 @@ HitscanSpriteAdjust(short SpriteNum, short hit_wall)
 #endif
 
 #if 0
-    xvect = (sintable[(512 + ang) & 2047] >> 7);
-    yvect = (sintable[ang] >> 7);
+    xvect = bcos(ang, -7);
+    yvect = bsin(ang, -7);
     move_missile(SpriteNum, xvect, yvect, 0L, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, 4L);
 #else
-    xvect = sintable[(512 + ang) & 2047] << 4;
-    yvect = sintable[ang] << 4;
+    xvect = bcos(ang, 4);
+    yvect = bsin(ang, 4);
 
     clipmoveboxtracenum = 1;
 
     // must have this
     sectnum = sp->sectnum;
-    clipmove((vec3_t *)sp, &sectnum, xvect, yvect,
-             4L, 4L<<8, 4L<<8, CLIPMASK_MISSILE);
+    clipmove(&sp->pos, &sectnum, xvect, yvect, 4L, 4L<<8, 4L<<8, CLIPMASK_MISSILE);
     clipmoveboxtracenum = 3;
 
     if (sp->sectnum != sectnum)
@@ -17848,8 +17840,8 @@ InitUzi(PLAYERp pp)
     }
 
 
-    xvect = sintable[NORM_ANGLE(daang + 512)];
-    yvect = sintable[NORM_ANGLE(daang)];
+    xvect = bcos(daang);
+    yvect = bsin(daang);
     zvect = daz;
     FAFhitscan(pp->posx, pp->posy, nz, pp->cursectnum,       // Start position
                xvect,yvect,zvect,
@@ -18034,9 +18026,9 @@ InitEMP(PLAYERp pp)
     }
 
     FAFhitscan(pp->posx, pp->posy, nz, pp->cursectnum,       // Start position
-               sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
-               sintable[NORM_ANGLE(daang)],    // Y vector of 3D ang
-               daz,                            // Z vector of 3D ang
+               bcos(daang),      // X vector of 3D ang
+               bsin(daang),      // Y vector of 3D ang
+               daz,              // Z vector of 3D ang
                &hitinfo, CLIPMASK_MISSILE);
 
     j = SpawnSprite(STAT_MISSILE, EMP, s_EMPBurst, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
@@ -18585,9 +18577,9 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
     }
 
     FAFhitscan(nx, ny, nz, nsect,       // Start position
-               sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
-               sintable[NORM_ANGLE(daang)],    // Y vector of 3D ang
-               daz,                            // Z vector of 3D ang
+               bcos(daang),      // X vector of 3D ang
+               bsin(daang),      // Y vector of 3D ang
+               daz,              // Z vector of 3D ang
                &hitinfo, CLIPMASK_MISSILE);
 
     if (hitinfo.sect < 0)
@@ -18943,7 +18935,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
     SPRITEp sp;
     int xvect,yvect,zvect;
 
-    PlaySound(DIGI_BOATFIRE, (vec3_t*)sop, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_BOATFIRE, &sop->pmid, v3df_dontpan|v3df_doppler);
 
     for (i = 0; sop->sp_num[i] != -1; i++)
     {
@@ -18997,8 +18989,8 @@ InitTurretMgun(SECTOR_OBJECTp sop)
                 }
             }
 
-            xvect = sintable[NORM_ANGLE(daang + 512)];
-            yvect = sintable[NORM_ANGLE(daang)];
+            xvect = bcos(daang);
+            yvect = bsin(daang);
             zvect = daz;
 
             FAFhitscan(nx, ny, nz, nsect,       // Start position
@@ -19111,7 +19103,7 @@ InitEnemyUzi(short SpriteNum)
     // Make sprite shade brighter
     u->Vis = 128;
 
-    setspritez(SpriteNum, (vec3_t *)sp);
+    setspritez(SpriteNum, &sp->pos);
 
     if (u->ID == ZILLA_RUN_R0)
     {
@@ -19146,9 +19138,9 @@ InitEnemyUzi(short SpriteNum)
     }
 
     FAFhitscan(sp->x, sp->y, sp->z - zh, sp->sectnum,      // Start position
-               sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
-               sintable[NORM_ANGLE(daang)],    // Y vector of 3D ang
-               daz,                            // Z vector of 3D ang
+               bcos(daang),      // X vector of 3D ang
+               bsin(daang),      // Y vector of 3D ang
+               daz,              // Z vector of 3D ang
                &hitinfo, CLIPMASK_MISSILE);
 
     if (hitinfo.sect < 0)
@@ -19486,7 +19478,7 @@ InitMine(PLAYERp pp)
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
 
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->angle.ang.asbuild()+512)], sintable[pp->angle.ang.asbuild()]);
+    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
 
     // don't adjust for strafing
     if (labs(dot) > 10000)
@@ -20567,8 +20559,7 @@ int QueueStar(short SpriteNum)
         // new star
         if (User[SpriteNum])
         {
-            FreeMem(User[SpriteNum]);
-            User[SpriteNum] = NULL;
+            FreeUser(SpriteNum);
         }
         change_sprite_stat(SpriteNum, STAT_STAR_QUEUE);
         StarQueue[StarQueueHead] = SpriteNum;
@@ -20632,14 +20623,13 @@ int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
     sp->ang = wall_ang;
 
     // move it back some
-    nx = sintable[(512 + sp->ang) & 2047]<<4;
-    ny = sintable[sp->ang]<<4;
+    nx = bcos(sp->ang, 4);
+    ny = bsin(sp->ang, 4);
 
     sectnum = sp->sectnum;
 
     clipmoveboxtracenum = 1;
-    clipmove((vec3_t *)sp, &sectnum, nx, ny,
-             0L, 0L, 0L, CLIPMASK_MISSILE);
+    clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE);
     clipmoveboxtracenum = 3;
 
     if (sp->sectnum != sectnum)
@@ -20876,9 +20866,9 @@ int QueueWallBlood(short hit_sprite, short ang)
     dang = (ang+(RANDOM_P2(128<<5) >> 5)) - DIV2(128);
 
     FAFhitscan(hsp->x, hsp->y, hsp->z - Z(30), hsp->sectnum,    // Start position
-               sintable[NORM_ANGLE(dang + 512)],  // X vector of 3D ang
-               sintable[NORM_ANGLE(dang)],                             // Y vector of 3D ang
-               daz,                                                    // Z vector of 3D ang
+               bcos(dang),      // X vector of 3D ang
+               bsin(dang),      // Y vector of 3D ang
+               daz,              // Z vector of 3D ang
                &hitinfo, CLIPMASK_MISSILE);
 
     if (hitinfo.sect < 0)
@@ -20951,14 +20941,13 @@ int QueueWallBlood(short hit_sprite, short ang)
     sp->ang = wall_ang;
 
     // move it back some
-    nx = sintable[(512 + sp->ang) & 2047]<<4;
-    ny = sintable[sp->ang]<<4;
+    nx = bcos(sp->ang, 4);
+    ny = bsin(sp->ang, 4);
 
     sectnum = sp->sectnum;
 
     clipmoveboxtracenum = 1;
-    clipmove((vec3_t *)sp, &sectnum, nx, ny,
-             0L, 0L, 0L, CLIPMASK_MISSILE);
+    clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE);
     clipmoveboxtracenum = 3;
 
     if (sp->sectnum != sectnum)
@@ -21086,8 +21075,7 @@ int QueueGeneric(short SpriteNum, short pic)
     {
         if (User[SpriteNum])
         {
-            FreeMem(User[SpriteNum]);
-            User[SpriteNum] = NULL;
+            FreeUser(SpriteNum);
         }
         change_sprite_stat(SpriteNum, STAT_GENERIC_QUEUE);
         GenericQueue[GenericQueueHead] = SpriteNum;
@@ -21096,7 +21084,7 @@ int QueueGeneric(short SpriteNum, short pic)
     {
         // move old sprite to new sprite's place
         osp = &sprite[GenericQueue[GenericQueueHead]];
-        //setspritez(GenericQueue[GenericQueueHead], (vec3_t *)sp);
+        //setspritez(GenericQueue[GenericQueueHead], &sp->pos);
         osp->x = sp->x;
         osp->y = sp->y;
         osp->z = sp->z;
@@ -21649,7 +21637,7 @@ int QueueLoWangs(short SpriteNum)
     else
     {
         // move old sprite to new sprite's place
-        setspritez(LoWangsQueue[LoWangsQueueHead], (vec3_t *)sp);
+        setspritez(LoWangsQueue[LoWangsQueueHead], &sp->pos);
         NewSprite = LoWangsQueue[LoWangsQueueHead];
         ASSERT(sprite[NewSprite].statnum != MAXSTATUS);
     }

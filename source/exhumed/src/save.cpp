@@ -29,91 +29,111 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-void SaveTextureState();
-void LoadTextureState();
+void SerializeState(FSerializer& arc);
+void SerializeAnim(FSerializer& arc);
+void SerializeBubbles(FSerializer& arc);
+void SerializeBullet(FSerializer& arc);
+void SerializeGrenade(FSerializer& arc);
+void SerializeGun(FSerializer& arc);
+void SerializeInit(FSerializer& arc);
+void SerializeItems(FSerializer& arc);
+void SerializeMove(FSerializer& arc);
+void SerializeLighting(FSerializer& arc);
+void SerializeObjects(FSerializer& arc);
+void SerializePlayer(FSerializer& arc);
+void SerializeRa(FSerializer& arc);
+void SerializeRand(FSerializer& arc);
+void SerializeRunList(FSerializer& arc);
+void SerializeSequence(FSerializer& arc);
+void SerializeSnake(FSerializer& arc);
+void SerializeSwitch(FSerializer& arc);
+void SerializeView(FSerializer& arc);
 
-static TArray<SavegameHelper*> sghelpers(TArray<SavegameHelper*>::NoInit);
+void SerializeAnubis(FSerializer& arc);
+void SerializeFish(FSerializer& arc);
+void SerializeLavadude(FSerializer& arc);
+void SerializeLion(FSerializer& arc);
+void SerializeMummy(FSerializer& arc);
+void SerializeQueen(FSerializer& arc);
+void SerializeRat(FSerializer& arc);
+void SerializeRex(FSerializer& arc);
+void SerializeRoach(FSerializer& arc);
+void SerializeScorpion(FSerializer& arc);
+void SerializeSet(FSerializer& arc);
+void SerializeSpider(FSerializer& arc);
+void SerializeWasp(FSerializer& arc);
 
-bool GameInterface::SaveGame()
+void GameInterface::SerializeGameState(FSerializer& arc)
 {
-    for (auto sgh : sghelpers) sgh->Save();
-    SaveTextureState();
-    return 1; // CHECKME
-}
+	if (arc.BeginObject("exhumed"))
+	{
+		SerializeState(arc);
+		SerializeAnim(arc);
+		SerializeBubbles(arc);
+		SerializeBullet(arc);
+		SerializeGrenade(arc);
+		SerializeGun(arc);
+		SerializeInit(arc);
+		SerializeItems(arc);
+		SerializeMove(arc);
+		SerializeLighting(arc);
+		SerializeObjects(arc);
+		SerializePlayer(arc);
+		SerializeRa(arc);
+		SerializeRand(arc);
+		SerializeRunList(arc);
+		SerializeSequence(arc);
+		SerializeSnake(arc);
+		SerializeSwitch(arc);
+		SerializeView(arc);
 
-bool GameInterface::LoadGame()
-{
+		SerializeAnubis(arc);
+		SerializeFish(arc);
+		SerializeLavadude(arc);
+		SerializeLion(arc);
+		SerializeMummy(arc);
+		SerializeQueen(arc);
+		SerializeRat(arc);
+		SerializeRex(arc);
+		SerializeRoach(arc);
+		SerializeScorpion(arc);
+		SerializeSet(arc);
+		SerializeSpider(arc);
+		SerializeWasp(arc);
+	}
+	if (arc.isReading())
+	{
 
-    for (auto sgh : sghelpers) sgh->Load();
-    LoadTextureState();
-    FinishSavegameRead();
+		// reset the sky in case it hasn't been done yet.
+		psky_t* pSky = tileSetupSky(DEFAULTPSKY);
+		pSky->tileofs[0] = 0;
+		pSky->tileofs[1] = 0;
+		pSky->tileofs[2] = 0;
+		pSky->tileofs[3] = 0;
+		pSky->yoffs = 256;
+		pSky->lognumtiles = 2;
+		pSky->horizfrac = 65536;
+		pSky->yscale = 65536;
+		parallaxtype = 2;
+		g_visibility = 1024;
 
-    // reset the sky in case it hasn't been done yet.
-    psky_t* pSky = tileSetupSky(DEFAULTPSKY);
-    pSky->tileofs[0] = 0;
-    pSky->tileofs[1] = 0;
-    pSky->tileofs[2] = 0;
-    pSky->tileofs[3] = 0;
-    pSky->yoffs = 256;
-    pSky->lognumtiles = 2;
-    pSky->horizfrac = 65536;
-    pSky->yscale = 65536;
-    parallaxtype = 2;
-    g_visibility = 2048;
+		if (currentLevel->levelNumber > 15)
+		{
+			nSwitchSound = 35;
+			nStoneSound = 23;
+			nElevSound = 51;
+			nStopSound = 35;
+		}
+		else
+		{
+			nSwitchSound = 33;
+			nStoneSound = 23;
+			nElevSound = 23;
+			nStopSound = 66;
+		}
 
-    if (currentLevel->levelNumber > 15)
-    {
-        nSwitchSound = 35;
-        nStoneSound = 23;
-        nElevSound = 51;
-        nStopSound = 35;
-    }
-    else
-    {
-        nSwitchSound = 33;
-        nStoneSound = 23;
-        nElevSound = 23;
-        nStopSound = 66;
-    }
-
-    Mus_ResumeSaved();
-    return 1; // CHECKME
-}
-
-
-SavegameHelper::SavegameHelper(const char* name, ...)
-{
-    Name = name;
-    sghelpers.Push(this);
-    va_list ap;
-    va_start(ap, name);
-    for(;;)
-    {
-        void* addr = va_arg(ap, void*);
-        if (!addr) break;
-        size_t size = va_arg(ap, size_t);
-        Elements.Push(std::make_pair(addr, size));
-    }
-}
-
-void SavegameHelper::Load()
-{
-    auto fr = ReadSavegameChunk(Name);
-    if (!fr.isOpen()) return;
-    for (auto& entry : Elements)
-    {
-        auto read = fr.Read(entry.first, entry.second);
-        if (read != entry.second) I_Error("Save game read error in %s", Name.GetChars());
-    }
-}
-void SavegameHelper::Save()
-{
-    auto fw = WriteSavegameChunk(Name);
-    for (auto& entry : Elements)
-    {
-        auto write = fw->Write(entry.first, entry.second);
-        if (write != entry.second) I_Error("Save game write error in %s", Name.GetChars());
-    }
+		Mus_ResumeSaved();
+	}
 }
 
 END_PS_NS

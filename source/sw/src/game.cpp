@@ -32,7 +32,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
-#include "interp.h"
 #include "interpso.h"
 #include "tags.h"
 #include "sector.h"
@@ -79,6 +78,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamestate.h"
 #include "d_net.h"
 #include "v_draw.h"
+#include "interpolate.h"
 
 //#include "crc32.h"
 
@@ -221,7 +221,6 @@ void GameInterface::app_init()
     }
 
     TileFiles.LoadArtSet("tiles%03d.art");
-    InitFonts();
 
     //Connect();
     SortBreakInfo();
@@ -240,6 +239,7 @@ void GameInterface::app_init()
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
  
     LoadDefinitions();
+    InitFonts();
     SetTileNames();
     TileFiles.SetBackup();
     userConfig.AddDefs.reset();
@@ -283,11 +283,11 @@ void InitLevelGlobals(void)
     AnimCnt = 0;
     left_foot = false;
     screenpeek = myconnectindex;
-    numinterpolations = short_numinterpolations = 0;
+    ClearInterpolations();
 
     gNet.TimeLimitClock = gNet.TimeLimit;
 
-    serpwasseen = false;
+    serpwasseen = false; 
     sumowasseen = false;
     zillawasseen = false;
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
@@ -346,8 +346,14 @@ void InitLevel(MapRecord *maprec)
     }
 
     int16_t ang;
-    engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, (vec3_t*)&Player[0], &ang, &Player[0].cursectnum);
+    engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].pos, &ang, &Player[0].cursectnum);
     currentLevel = maprec;
+
+    if (!maprec->labelName.CompareNoCase("$outpost") && !maprec->name.CompareNoCase("$TXTS_MAP09"))
+    {
+        // silence a misplaced and *very* annoying ambient sound.
+        if (sprite[442].picnum == ST1 && sprite[442].hitag == 1002 && sprite[442].lotag == 31) sprite[442].lotag = -1;
+    }
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     Player[0].angle.ang = buildang(ang);
@@ -418,7 +424,7 @@ void InitPlayerGameSettings(void)
         // everyone gets the same Auto Aim
         TRAVERSE_CONNECT(pnum)
         {
-            if (gNet.AutoAim)
+            if (Autoaim(pnum))
                 SET(Player[pnum].Flags, PF_AUTO_AIM);
             else
                 RESET(Player[pnum].Flags, PF_AUTO_AIM);
@@ -426,7 +432,7 @@ void InitPlayerGameSettings(void)
     }
     else
     {
-        if (cl_autoaim)
+        if (Autoaim(myconnectindex))
             SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
         else
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
@@ -485,12 +491,7 @@ void TerminateLevel(void)
     // Free any track points
     for (ndx = 0; ndx < MAX_TRACKS; ndx++)
     {
-        if (Track[ndx].TrackPoint)
-        {
-            FreeMem(Track[ndx].TrackPoint);
-            // !JIM! I added null assigner
-            Track[ndx].TrackPoint = NULL;
-        }
+        Track[ndx].FreeTrackPoints();
     }
 
     // Clear the tracks
@@ -508,10 +509,9 @@ void TerminateLevel(void)
         pnum = stat - STAT_PLAYER0;
 
         StatIterator it(stat);
-        while ((i = it.NextIndex()) >= 0)
+        if ((i = it.NextIndex()) >= 0)
         {
-            if (User[i])
-                memcpy(&puser[pnum], User[i], sizeof(USER));
+            if (User[i]) puser[pnum].CopyFromUser(User[i]);
         }
     }
 
@@ -599,12 +599,12 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 	COVER_SetReverb(0); // Reset reverb
 	Player[myconnectindex].Reverb = 0;
 	StopSound();
+    STAT_Update(map == nullptr);
 
 	StatScreen(FinishAnim, [=](bool)
 		{
-			if (map == nullptr)
+            if (map == nullptr)
 			{
-				STAT_Update(true);
 				FinishAnim = false;
 				PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
                 if (SW_SHAREWARE)

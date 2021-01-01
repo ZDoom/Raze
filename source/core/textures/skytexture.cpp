@@ -1,9 +1,9 @@
 /*
-** autozend.cpp
-** This file contains the tails of lists stored in special data segments
+** skytexture.cpp
+** Composite sky textures for Build.
 **
 **---------------------------------------------------------------------------
-** Copyright 1998-2006 Randy Heit
+** Copyright 2019 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -30,41 +30,48 @@
 ** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **---------------------------------------------------------------------------
 **
-** See autostart.cpp for an explanation of why I do things like this.
+**
 */
 
-#include "autosegs.h"
+#include "files.h"
+#include "filesystem.h"
+#include "image.h"
+#include "multipatchtexture.h"
+#include "printf.h"
+#include "texturemanager.h"
+#include "buildtiles.h"
 
-#if defined(_MSC_VER)
-
-#pragma section(".areg$z",read)
-__declspec(allocate(".areg$z")) void *const ARegTail = 0;
-
-#pragma section(".creg$z",read)
-__declspec(allocate(".creg$z")) void *const CRegTail = 0;
-
-#pragma section(".freg$z",read)
-__declspec(allocate(".freg$z")) void *const FRegTail = 0;
-
-#pragma section(".greg$z",read)
-__declspec(allocate(".greg$z")) void *const GRegTail = 0;
-
-#pragma section(".yreg$z",read)
-__declspec(allocate(".yreg$z")) void *const YRegTail = 0;
-
-
-#elif defined(__GNUC__)
-
-#include "basics.h"
-
-void *const ARegTail __attribute__((section(SECTION_AREG))) = 0;
-void *const CRegTail __attribute__((section(SECTION_CREG))) = 0;
-void *const FRegTail __attribute__((section(SECTION_FREG))) = 0;
-void *const GRegTail __attribute__((section(SECTION_GREG))) = 0;
-void *const YRegTail __attribute__((section(SECTION_YREG))) = 0;
-
-#else
-
-#error Please fix autozend.cpp for your compiler
-
-#endif
+FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilemap)
+{
+	char synthname[60];
+	
+	
+	if (lognumtiles == 0 || lognumtiles > 4) 
+	{
+		// no special handling - let the old code do its job as-is
+		return nullptr;
+	}
+	
+	int numtiles = 1 << lognumtiles;
+	mysnprintf(synthname, 60, "%04x", basetile);
+	for(int i = 0; i < numtiles; i++)
+	{
+		synthname[4+i] = 'A' + tilemap[i];
+	};
+	synthname[4+numtiles] = 0;
+	auto tex = TexMan.FindGameTexture(synthname);
+	if (tex) return tex;
+	
+	TArray<TexPartBuild> build(numtiles, true);
+	int tilewidth = tileWidth(basetile);
+	for(int i = 0; i < numtiles; i++)
+	{
+		auto tex = tileGetTexture(basetile + tilemap[i]);
+		if (!tex || !tex->isValid() || tex->GetTexture() == 0) return nullptr;
+		build[i].TexImage = static_cast<FImageTexture*>(tex->GetTexture());
+		build[i].OriginX = tilewidth * i;
+	}
+	auto tt = MakeGameTexture(new FImageTexture(new FMultiPatchTexture(tilewidth*numtiles, tileHeight(basetile), build, false, false)), synthname, ETextureType::Override);
+	TexMan.AddGameTexture(tt, true);
+	return tt;
+}

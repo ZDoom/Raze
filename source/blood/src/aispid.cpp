@@ -27,32 +27,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "endgame.h"
-#include "eventq.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
 
 BEGIN_BLD_NS
 
-static void SpidBiteSeqCallback(int, int);
-static void SpidJumpSeqCallback(int, int);
-static void sub_71370(int, int);
-static void spidThinkSearch(spritetype *, XSPRITE *);
-static void spidThinkGoto(spritetype *, XSPRITE *);
-static void spidThinkChase(spritetype *, XSPRITE *);
+static void spidThinkSearch(DBloodActor *);
+static void spidThinkGoto(DBloodActor *);
+static void spidThinkChase(DBloodActor *);
 
-static int nSpidBiteClient = seqRegisterClient(SpidBiteSeqCallback);
-static int nSpidJumpClient = seqRegisterClient(SpidJumpSeqCallback);
-static int dword_279B50 = seqRegisterClient(sub_71370);
 
 AISTATE spidIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE spidChase = { kAiStateChase, 7, -1, 0, NULL, aiMoveForward, spidThinkChase, NULL };
@@ -85,11 +68,10 @@ static char sub_70D30(XSPRITE *pXDude, int a2, int a3)
     return 0;
 }
 
-static void SpidBiteSeqCallback(int, int nXSprite)
+void SpidBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     dx += Random2(2000);
@@ -135,11 +117,10 @@ static void SpidBiteSeqCallback(int, int nXSprite)
     }
 }
 
-static void SpidJumpSeqCallback(int, int nXSprite)
+void SpidJumpSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     dx += Random2(200);
@@ -154,19 +135,18 @@ static void SpidJumpSeqCallback(int, int nXSprite)
             case kDudeSpiderBrown:
             case kDudeSpiderRed:
             case kDudeSpiderBlack:
-                xvel[nSprite] = IntToFixed(dx);
-                yvel[nSprite] = IntToFixed(dy);
-                zvel[nSprite] = IntToFixed(dz);
+                actor->xvel() = IntToFixed(dx);
+                actor->yvel() = IntToFixed(dy);
+                actor->zvel() = IntToFixed(dz);
                 break;
         }
     }
 }
 
-static void sub_71370(int, int nXSprite)
+void sub_71370(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
@@ -178,7 +158,7 @@ static void sub_71370(int, int nXSprite)
     int nDist = approxDist(dx, dy);
     
     spritetype *pSpawn = NULL;
-    if (IsPlayerSprite(pTarget) && pDudeExtraE->Kills < 10) {
+    if (IsPlayerSprite(pTarget) && pDudeExtraE->xval2 < 10) {
         
         if (nDist < 0x1a00 && nDist > 0x1400 && klabs(pSprite->ang-nAngle) < pDudeInfo->periphery)
             pSpawn = actSpawnDude(pSprite, kDudeSpiderRed, pSprite->clipdist, 0);
@@ -188,22 +168,26 @@ static void sub_71370(int, int nXSprite)
             pSpawn = actSpawnDude(pSprite, kDudeSpiderBrown, pSprite->clipdist, 0);
         
         if (pSpawn) {
-            pDudeExtraE->Kills++;
-            pSpawn->owner = nSprite;
+            pDudeExtraE->xval2++;
+            pSpawn->owner = pSprite->index;
             gKillMgr.AddNewKill(1);
         }
     }
 
 }
 
-static void spidThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void spidThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void spidThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void spidThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -212,15 +196,17 @@ static void spidThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &spidSearch);
-    aiThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &spidSearch);
+    aiThinkTarget(actor);
 }
 
-static void spidThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void spidThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &spidGoto);
+        aiNewState(actor, &spidGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -233,12 +219,12 @@ static void spidThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &spidSearch);
+        aiNewState(actor, &spidSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &spidSearch);
+        aiNewState(actor, &spidSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -252,20 +238,20 @@ static void spidThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                 switch (pSprite->type) {
                     case kDudeSpiderRed:
                         if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
-                            aiNewState(pSprite, pXSprite, &spidBite);
+                            aiNewState(actor, &spidBite);
                         break;
                     case kDudeSpiderBrown:
                     case kDudeSpiderBlack:
                         if (nDist < 0x733 && nDist > 0x399 && klabs(nDeltaAngle) < 85)
-                            aiNewState(pSprite, pXSprite, &spidJump);
+                            aiNewState(actor, &spidJump);
                         else if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
-                            aiNewState(pSprite, pXSprite, &spidBite);
+                            aiNewState(actor, &spidBite);
                         break;
                     case kDudeSpiderMother:
                         if (nDist < 0x733 && nDist > 0x399 && klabs(nDeltaAngle) < 85)
-                            aiNewState(pSprite, pXSprite, &spidJump);
+                            aiNewState(actor, &spidJump);
                         else if (Chance(0x8000))
-                            aiNewState(pSprite, pXSprite, &spid13A92C);
+                            aiNewState(actor, &spid13A92C);
                         break;
                 }
 
@@ -274,7 +260,7 @@ static void spidThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         }
     }
 
-    aiNewState(pSprite, pXSprite, &spidGoto);
+    aiNewState(actor, &spidGoto);
     pXSprite->target = -1;
 }
 

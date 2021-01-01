@@ -33,9 +33,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS
 
-short pinsectorresetdown(short sect);
-
-
 void ballreturn(DDukeActor *ball)
 {
 	DukeStatIterator it(STAT_BOWLING);

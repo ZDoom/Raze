@@ -29,22 +29,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 ///////////////////////////////////////////////////////////////////
 #include "ns.h"
 
-#include "nnexts.h"
 #ifdef NOONE_EXTENSIONS
 #include <random>
-#include "loadsave.h"
-#include "player.h"
-#include "aiunicult.h"
-#include "triggers.h"
-#include "sectorfx.h"
-#include "globals.h"
-#include "endgame.h"
-#include "misc.h"
 #include "mmulti.h"
-#include "view.h"
-#include "sound.h"
-#include "seq.h"
-#include "ai.h"
+#include "blood.h"
+#include "savegamehelp.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -1053,7 +1043,7 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) {
         int dx = pSprite->x - x; int dy = pSprite->y - y; int dz = (pSprite->z - z) >> 4;
         dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
 
-        int size = (tilesiz[pSprite->picnum].x * pSprite->xrepeat * tilesiz[pSprite->picnum].y * pSprite->yrepeat) >> 1;
+        int size = (tileWidth(pSprite->picnum) * pSprite->xrepeat * tileHeight(pSprite->picnum) * pSprite->yrepeat) >> 1;
         if (xsprite[pSprite->extra].physAttr & kPhysDebrisExplode) {
             if (gSpriteMass[pSprite->extra].mass > 0) {
                 int t = scale(dmg, size, gSpriteMass[pSprite->extra].mass);
@@ -1267,14 +1257,16 @@ bool ceilIsTooLow(spritetype* pSprite) {
     return false;
 }
 
-void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite) {
+void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite) 
+{
+    auto actor = &bloodActors[pXSprite->reference];
     switch (pSprite->type) {
     case kDudeModernCustom:
     case kDudeModernCustomBurning:
         aiGenDudeNewState(pSprite, &genIdle);
         break;
     default:
-        aiNewState(pSprite, pXSprite, &genIdle);
+        aiNewState(actor, &genIdle);
         break;
     }
 }
@@ -1328,7 +1320,7 @@ void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force) {
         if (nIndex < 0)
             WeaponLower(pPlayer);
 
-        pXSource->sysData1 = ClipLow((pQav->at10 * pXSource->waitTime) / 4, 0); // how many times animation should be played
+        pXSource->sysData1 = ClipLow((pQav->duration * pXSource->waitTime) / 4, 0); // how many times animation should be played
 
         pCtrl->qavScene.index = nSource;
         pCtrl->qavScene.qavResrc = pQav;
@@ -1337,7 +1329,7 @@ void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force) {
         pCtrl->qavScene.qavResrc->Preload();
 
         pPlayer->sceneQav = pXSource->data2;
-        pPlayer->weaponTimer = pCtrl->qavScene.qavResrc->at10;
+        pPlayer->weaponTimer = pCtrl->qavScene.qavResrc->duration;
         pPlayer->qavCallback = (pXSource->data3 > 0) ? ClipRange(pXSource->data3 - 1, 0, 32) : -1;
         pPlayer->qavLoop = false;
 
@@ -1648,16 +1640,16 @@ void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
     // for sectors
     case 6:
         if (valueIsBetween(pXSource->data1, -1, 32767))
-            sector[objIndex].floorxpanning = ClipRange(pXSource->data1, 0, 255);
+            sector[objIndex].floorxpan_ = ClipRange(pXSource->data1, 0, 255);
 
         if (valueIsBetween(pXSource->data2, -1, 32767))
-            sector[objIndex].floorypanning = ClipRange(pXSource->data2, 0, 255);
+            sector[objIndex].floorypan_ = ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            sector[objIndex].ceilingxpanning = ClipRange(pXSource->data3, 0, 255);
+            sector[objIndex].ceilingxpan_ = ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            sector[objIndex].ceilingypanning = ClipRange(pXSource->data4, 0, 255);
+            sector[objIndex].ceilingypan_ = ClipRange(pXSource->data4, 0, 255);
         break;
     // for sprites
     case 3:
@@ -1708,10 +1700,10 @@ void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
             wall[objIndex].yrepeat = ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            wall[objIndex].xpanning = ClipRange(pXSource->data3, 0, 255);
+            wall[objIndex].xpan_ = ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            wall[objIndex].ypanning = ClipRange(pXSource->data4, 0, 255);
+            wall[objIndex].ypan_ = ClipRange(pXSource->data4, 0, 255);
         break;
     }
 
@@ -2123,7 +2115,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
 
         if (target >= 0) {
             pXDude->targetX = x; pXDude->targetY = y; pXDude->targetZ = z;
-            pXDude->target = target; aiActivateDude(pSprite, pXDude);
+            pXDude->target = target; aiActivateDude(&bloodActors[pXDude->reference]);
         }
     }
 
@@ -2165,7 +2157,7 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
                 pos = bottom;
                 break;
             case 2: // middle
-                pos = pSprite->z + (tilesiz[pSprite->picnum].y / 2 + tileTopOffset(pSprite->picnum));
+                pos = pSprite->z + (tileHeight(pSprite->picnum) / 2 + tileTopOffset(pSprite->picnum));
                 break;
             case 3:
             case 4:
@@ -2269,6 +2261,16 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
             pXSector->panCeiling = true;
             break;
         }
+        if (pXSector->panCeiling)
+        {
+            StartInterpolation(pXSector->reference, Interp_Sect_CeilingPanX);
+            StartInterpolation(pXSector->reference, Interp_Sect_CeilingPanY);
+        }
+        if (pXSector->panFloor)
+        {
+            StartInterpolation(pXSector->reference, Interp_Sect_FloorPanX);
+            StartInterpolation(pXSector->reference, Interp_Sect_FloorPanY);
+        }
 
         short oldPan = pXSector->panVel;
         pXSector->panAngle = pXSector->windAng;
@@ -2284,7 +2286,9 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
             }
 
             if (i == panCount)
+            {
                 panList[panCount++] = nXSector;
+            }
         }
 
     }
@@ -2302,8 +2306,7 @@ void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
     int dmgType = (pXSource->data2 >= kDmgFall) ? ClipHigh(pXSource->data2, kDmgElectric) : -1;
     int dmg = pXSprite->health << 4; int armor[3];
 
-    bool godMode = (pPlayer && ((dmgType >= 0 && pPlayer->damageControl[dmgType]) || powerupCheck(pPlayer, kPwUpDeathMask) || pPlayer->godMode
-                            /*|| seqGetID(3, pSprite->extra) == getDudeInfo(pSprite->type)->seqStartID + 16*/)); // kneeling
+    bool godMode = (pPlayer && ((dmgType >= 0 && pPlayer->damageControl[dmgType]) || powerupCheck(pPlayer, kPwUpDeathMask) || pPlayer->godMode)); // kneeling
 
     if (godMode || pXSprite->locked) return;
     else if (pXSource->data3) {
@@ -2573,9 +2576,9 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
                         case 28: return (pObj->cstat & arg1);
                         case 29: return (pObj->hitag & arg1);
                         case 30: return condCmp(pObj->xrepeat, arg1, arg2, cmpOp);
-                        case 31: return condCmp(pObj->xpanning, arg1, arg2, cmpOp);
+                        case 31: return condCmp(pObj->xpan(), arg1, arg2, cmpOp);
                         case 32: return condCmp(pObj->yrepeat, arg1, arg2, cmpOp);
-                        case 33: return condCmp(pObj->ypanning, arg1, arg2, cmpOp);
+                        case 33: return condCmp(pObj->ypan(), arg1, arg2, cmpOp);
                     }
                     break;
                 }
@@ -2627,10 +2630,10 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
                             }
                             break;
                         case 29: return (pObj->hitag & arg1);
-                        case 30: return condCmp(pObj->floorxpanning, arg1, arg2, cmpOp);
-                        case 31: return condCmp(pObj->ceilingxpanning, arg1, arg2, cmpOp);
-                        case 32: return condCmp(pObj->floorypanning, arg1, arg2, cmpOp);
-                        case 33: return condCmp(pObj->ceilingypanning, arg1, arg2, cmpOp);
+                        case 30: return condCmp(pObj->floorxpan(), arg1, arg2, cmpOp);
+                        case 31: return condCmp(pObj->ceilingxpan(), arg1, arg2, cmpOp);
+                        case 32: return condCmp(pObj->floorypan(), arg1, arg2, cmpOp);
+                        case 33: return condCmp(pObj->ceilingypan(), arg1, arg2, cmpOp);
                     }
                     break;
                 }
@@ -3025,7 +3028,7 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
     UNREFERENCED_PARAMETER(PUSH);
-    
+    auto actor = &bloodActors[pXCond->reference];
     int var = -1; PLAYER* pPlayer = NULL; bool retn = false;
     int cond = pXCond->data1 - kCondSpriteBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; int arg3 = pXCond->data4;
@@ -3079,7 +3082,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
                     var = HitScan(pSpr, pPlayer->zWeapon - pSpr->z, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
                 else if (IsDudeSprite(pSpr))
-                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), gDudeSlope[pSpr->extra], arg1, arg3 << 1);
+                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), actor->dudeSlope, arg1, arg3 << 1);
                 else
                     var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), 0, arg1, arg3 << 1);
 
@@ -3600,7 +3603,7 @@ void aiFightAlarmDudesInSight(spritetype* pSprite, int max) {
                 continue;
 
             aiSetTarget(pXDude, pDude->x, pDude->y, pDude->z);
-            aiActivateDude(pDude, pXDude);
+            aiActivateDude(&bloodActors[pXDude->reference]);
             if (max-- < 1)
                 break;
         }
@@ -3684,7 +3687,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 switch (pXSprite->aiState->stateType) {
                     case kAiStateIdle:
                     case kAiStateGenIdle:
-                        aiActivateDude(pSprite, pXSprite);
+                        aiActivateDude(&bloodActors[pXSprite->reference]);
                         break;
                 }
                 break;
@@ -3723,10 +3726,10 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                         pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
                         pXSpawn->burnTime = 10;
                         pXSpawn->target = -1;
-                        aiActivateDude(pSpawn, pXSpawn);
+                        aiActivateDude(&bloodActors[pXSpawn->reference]);
                         break;
                     default:
-                        if (pSprite->flags & kModernTypeFlag3) aiActivateDude(pSpawn, pXSpawn);
+                        if (pSprite->flags & kModernTypeFlag3) aiActivateDude(&bloodActors[pXSpawn->reference]);
                         break;
                 }
             }
@@ -4623,7 +4626,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
 
         int mDist = 3; if (aiFightIsMeleeUnit(pSprite)) mDist = 2;
         if (pXSprite->target >= 0 && aiFightGetTargetDist(pSprite, pDudeInfo, &sprite[pXSprite->target]) < mDist) {
-            if (!isActive(pSprite->index)) aiActivateDude(pSprite, pXSprite);
+            if (!isActive(pSprite->index)) aiActivateDude(&bloodActors[pXSprite->reference]);
             return;
         }
         // lets try to look for target that fits better by distance
@@ -4637,19 +4640,19 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                     spritetype* prvTarget = &sprite[pXSprite->target];
                     aiSetTarget(&xsprite[prvTarget->extra], prvTarget->x, prvTarget->y, prvTarget->z);
                     if (!isActive(pTarget->index))
-                        aiActivateDude(pTarget, pXTarget);
+                        aiActivateDude(&bloodActors[pXTarget->reference]);
                 }
 
                 // Change target for dude
                 aiSetTarget(pXSprite, pTarget->index);
                 if (!isActive(pSprite->index))
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
 
                 // ...and change target of target to dude to force it fight
                 if (pXSource->data3 > 0 && pXTarget->target != pSprite->index) {
                     aiSetTarget(pXTarget, pSprite->index);
                     if (!isActive(pTarget->index))
-                        aiActivateDude(pTarget, pXTarget);
+                        aiActivateDude(&bloodActors[pXTarget->reference]);
                 }
 
                 return;
@@ -4685,13 +4688,13 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                 // Change target for dude
                 aiSetTarget(pXSprite, pTarget->index);
                 if (!isActive(pSprite->index))
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
 
                 // ...and change target of target to dude to force it fight
                 if (pXSource->data3 > 0 && pXTarget->target != pSprite->index) {
                     aiSetTarget(pXTarget, pSprite->index);
                     if (pPlayer == NULL && !isActive(pTarget->index))
-                        aiActivateDude(pTarget, pXTarget);
+                        aiActivateDude(&bloodActors[pXTarget->reference]);
 
                     if (pXSource->data3 == 2)
                         aiFightAlarmDudesInSight(pTarget, maxAlarmDudes);
@@ -4713,12 +4716,12 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                 if (pXMateTarget->target < 0) {
                     aiSetTarget(pXMateTarget, pSprite->index);
                     if (IsDudeSprite(pMateTarget) && !isActive(pMateTarget->index))
-                        aiActivateDude(pMateTarget, pXMateTarget);
+                        aiActivateDude(&bloodActors[pXMateTarget->reference]);
                 }
 
                 aiSetTarget(pXSprite, pMateTarget->index);
                 if (!isActive(pSprite->index))
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
 
                 // try walk in mate direction in case if not see the target
@@ -4729,7 +4732,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                 pXSprite->targetY = pMate->y;
                 pXSprite->targetZ = pMate->z;
                 if (!isActive(pSprite->index))
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
         }
@@ -4843,7 +4846,7 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, i
     if (pQavScene->qavResrc != NULL) {
 
         QAV* pQAV = pQavScene->qavResrc;
-        int v4 = (pPlayer->weaponTimer == 0) ? ((gFrameClock + mulscale16(4, smoothratio)) % pQAV->at10) : pQAV->at10 - pPlayer->weaponTimer;
+        int v4 = (pPlayer->weaponTimer == 0) ? ((gFrameClock + mulscale16(4, smoothratio)) % pQAV->duration) : pQAV->duration - pPlayer->weaponTimer;
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
         if (nInv >= 120 * 8 || (nInv != 0 && (gFrameClock & 32))) {
@@ -4877,7 +4880,7 @@ void playerQavScenePlay(PLAYER* pPlayer) {
     if (pQavScene->qavResrc != NULL) {
         QAV* pQAV = pQavScene->qavResrc;
         pQAV->nSprite = pPlayer->pSprite->index;
-        int nTicks = pQAV->at10 - pPlayer->weaponTimer;
+        int nTicks = pQAV->duration - pPlayer->weaponTimer;
         pQAV->Play(nTicks - 4, nTicks, pPlayer->qavCallback, pPlayer);
     }
 }
@@ -5286,43 +5289,83 @@ void callbackGenDudeUpdate(int nSprite) // 24
 }
 
 
-class NNLoadSave : public LoadSave
-{
-    virtual void Load(void);
-    virtual void Save(void);
-};
 
-void NNLoadSave::Load(void)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, GENDUDEEXTRA& w, GENDUDEEXTRA* def)
 {
-    Read(gSpriteMass, sizeof(gSpriteMass));
-    Read(&gProxySpritesCount, sizeof(gProxySpritesCount));
-    Read(gProxySpritesList, sizeof(gProxySpritesList));
-    Read(&gSightSpritesCount, sizeof(gSightSpritesCount));
-    Read(gSightSpritesList, sizeof(gSightSpritesList));
-    Read(&gPhysSpritesCount, sizeof(gPhysSpritesCount));
-    Read(gPhysSpritesList, sizeof(gPhysSpritesList));
-	Read(&gImpactSpritesCount, sizeof(gImpactSpritesCount));
-	Read(gImpactSpritesList, sizeof(gImpactSpritesList));
-	Read(&gEventRedirectsUsed, sizeof(gEventRedirectsUsed));
+    if (arc.BeginObject(keyname))
+    {
+        arc.Array("initvals", w.initVals, 3)
+            .Array("availdeaths", w.availDeaths, kDamageMax)
+            ("movespeed", w.moveSpeed)
+            ("firedist", w.fireDist)
+            ("throwdist", w.throwDist)
+            ("curweapon", w.curWeapon)
+            ("weapontype", w.weaponType)
+            ("basedispersion", w.baseDispersion)
+            ("slavecount", w.slaveCount)
+            ("lifeleech", w.nLifeLeech)
+            .Array("slaves", w.slave, w.slaveCount)
+            .Array("dmgcontrol", w.dmgControl, kDamageMax)
+            .Array("updreq", w.updReq, kGenDudePropertyMax)
+            ("flags", w.flags)
+            .EndObject();
+    }
+    return arc;
 }
 
-void NNLoadSave::Save(void)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEMASS& w, SPRITEMASS* def)
 {
-    Write(gSpriteMass, sizeof(gSpriteMass));
-    Write(&gProxySpritesCount, sizeof(gProxySpritesCount));
-    Write(gProxySpritesList, sizeof(gProxySpritesList));
-    Write(&gSightSpritesCount, sizeof(gSightSpritesCount));
-    Write(gSightSpritesList, sizeof(gSightSpritesList));
-    Write(&gPhysSpritesCount, sizeof(gPhysSpritesCount));
-    Write(gPhysSpritesList, sizeof(gPhysSpritesList));
-	Write(&gImpactSpritesCount, sizeof(gImpactSpritesCount));
-	Write(gImpactSpritesList, sizeof(gImpactSpritesList));
-	Write(&gEventRedirectsUsed, sizeof(gEventRedirectsUsed));
+    static SPRITEMASS nul;
+    if (arc.isReading()) w = {};
+    if (arc.BeginObject(keyname))
+    {
+        arc ("seq", w.seqId, &nul.seqId)
+            ("picnum", w.picnum, &nul.picnum)
+            ("xrepeat", w.xrepeat, &nul.xrepeat)
+            ("yrepeat", w.yrepeat, &nul.yrepeat)
+            ("clipdist", w.clipdist)
+            ("mass", w.mass)
+            ("airvel", w.airVel)
+            ("fraction", w.fraction)
+            .EndObject();
+    }
+    return arc;
 }
 
-void NNLoadSaveConstruct(void)
+void SerializeNNExts(FSerializer& arc)
 {
-    new NNLoadSave();
+    if (arc.BeginObject("nnexts"))
+    {
+        // the GenDudeArray only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save the relevant entries as these are not small.
+        bool foundsome = false;
+        for (int i = 0; i < kMaxSprites; i++)
+        {
+            if (activeSprites[i] && (sprite[i].type == kDudeModernCustom || sprite[i].type == kDudeModernCustomBurning))
+            {
+                if (!foundsome) arc.BeginArray("gendudeextra");
+                foundsome = true;
+                arc(nullptr, gGenDudeExtra[i]);
+            }
+        }
+        if (foundsome) arc.EndArray();
+        arc.SparseArray("spritemass", gSpriteMass, kMaxSprites, activeXSprites)
+            ("proxyspritescount", gProxySpritesCount)
+            .Array("proxyspriteslist", gProxySpritesList, gProxySpritesCount)
+            ("sightspritescount", gSightSpritesCount)
+            .Array("sightspriteslist", gSightSpritesList, gSightSpritesCount)
+            ("physspritescount", gPhysSpritesCount)
+            .Array("physspriteslist", gPhysSpritesList, gPhysSpritesCount)
+            ("impactspritescount", gImpactSpritesCount)
+            .Array("impactspriteslist", gImpactSpritesList, gImpactSpritesCount)
+            ("eventredirects", gEventRedirectsUsed)
+            .EndObject();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////

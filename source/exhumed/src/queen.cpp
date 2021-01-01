@@ -70,19 +70,6 @@ static actionSeq EggSeq[] = {
     {23, 1},
 };
 
-int nQHead = 0;
-
-short nEggsFree;
-short nHeadVel;
-short nVelShift;
-
-short tailspr[kMaxTails];
-short nEggFree[kMaxEggs];
-
-short QueenChan[kMaxQueens];
-
-
-
 struct Queen
 {
     short nHealth;
@@ -92,7 +79,6 @@ struct Queen
     short nTarget;
     short field_A;
     short field_C;
-    short pad;
     short field_10;
     short field_12;
 };
@@ -100,7 +86,7 @@ struct Queen
 struct Egg
 {
     short nHealth;
-    short field_2;
+    short nFrame;
     short nAction;
     short nSprite;
     short field_8;
@@ -112,16 +98,26 @@ struct Egg
 struct Head
 {
     short nHealth;
-    short field_2;
+    short nFrame;
     short nAction;
     short nSprite;
     short field_8;
     short nTarget;
     short field_C;
-    short field_E;
+    short tails;
 };
 
-Egg QueenEgg[kMaxEggs];
+FreeListArray<Egg, kMaxEggs> QueenEgg;
+
+int nQHead = 0;
+
+short nHeadVel;
+short nVelShift;
+
+short tailspr[kMaxTails];
+
+short QueenChan[kMaxQueens];
+
 Queen QueenList[kMaxQueens];
 Head QueenHead;
 
@@ -131,49 +127,98 @@ int MoveQZ[25];
 short MoveQS[25];
 short MoveQA[25];
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Queen& w, Queen* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("ata", w.field_A)
+            ("atc", w.field_C)
+            ("at10", w.field_10)
+            ("at12", w.field_12)
+            .EndObject();
+    }
+    return arc;
+}
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Egg& w, Egg* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("at8", w.field_8)
+            ("atc", w.field_C)
+            ("ate", w.field_E)
+            .EndObject();
+    }
+    return arc;
+}
 
-static SavegameHelper sghqueen("queen",
-    SV(QueenCount),
-    SV(nQHead),
-    SV(nEggsFree),
-    SV(nHeadVel),
-    SV(nVelShift),
-    SV(QueenHead),
-    SA(tailspr),
-    SA(nEggFree),
-    SA(QueenChan),
-    SA(QueenEgg),
-    SA(QueenList),
-    SA(MoveQX),
-    SA(MoveQY),
-    SA(MoveQZ),
-    SA(MoveQS),
-    SA(MoveQA),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Head& w, Head* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("at8", w.field_8)
+            ("atc", w.field_C)
+            ("tails", w.tails)
+            .EndObject();
+    }
+    return arc;
+}
 
+void SerializeQueen(FSerializer& arc)
+{
+    if (arc.BeginObject("queen"))
+    {
+        arc("count", QueenCount);
+        if (QueenCount == 0) // only save the rest if we got a queen. There can only be one.
+        {
+            arc("qhead", nQHead)
+                ("headvel", nHeadVel)
+                ("velshift", nVelShift)
+                ("head", QueenHead)
+                .Array("tailspr", tailspr, countof(tailspr))
+                ("queenchan", QueenChan[0])
+                ("queen", QueenList[0])
+                ("eggs", QueenEgg)
+                .Array("moveqx", MoveQX, countof(MoveQX))
+                .Array("moveqy", MoveQY, countof(MoveQY))
+                .Array("moveqz", MoveQZ, countof(MoveQZ))
+                .Array("moveqa", MoveQA, countof(MoveQA))
+                .Array("moveqs", MoveQS, countof(MoveQS));
+        }
+        arc.EndObject();
+    }
+}
 
 void InitQueens()
 {
     QueenCount = 1;
-
+    QueenEgg.Clear();
     for (int i = 0; i < kMaxEggs; i++)
     {
-        nEggFree[i] = i;
         QueenEgg[i].field_8 = -1;
     }
-
-    nEggsFree = kMaxEggs;
 }
 
 int GrabEgg()
 {
-    if (!nEggsFree) {
-        return -1;
-    }
-
-    nEggsFree--;
-    return nEggFree[nEggsFree];
+    auto egg = QueenEgg.Get();
+    if (egg == -1) return -1;
+    return egg;
 }
 
 void BlowChunks(int nSprite)
@@ -207,9 +252,7 @@ void DestroyEgg(short nEgg)
     QueenEgg[nEgg].field_8 = -1;
 
     mydeletesprite(nSprite);
-
-    nEggFree[nEggsFree] = nEgg;
-    nEggsFree++;
+    QueenEgg.Release(nEgg);
 }
 
 void DestroyAllEggs()
@@ -227,16 +270,8 @@ void SetHeadVel(short nSprite)
 {
     short nAngle = sprite[nSprite].ang;
 
-    if (nVelShift >= 0)
-    {
-        sprite[nSprite].xvel = Cos(nAngle) >> (int8_t)(nVelShift);
-        sprite[nSprite].yvel = Sin(nAngle) >> (int8_t)(nVelShift);
-    }
-    else
-    {
-        sprite[nSprite].xvel = Cos(nAngle) << (int8_t)(-nVelShift);
-        sprite[nSprite].yvel = Sin(nAngle) << (int8_t)(-nVelShift);
-    }
+    sprite[nSprite].xvel = bcos(nAngle, nVelShift);
+    sprite[nSprite].yvel = bsin(nAngle, nVelShift);
 }
 
 int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
@@ -252,7 +287,7 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
     else
     {
         spritetype *pSprite2 = &sprite[nSprite2];
-        int nTileY = (tilesiz[pSprite2->picnum].y * pSprite2->yrepeat) * 2;
+        int nTileY = (tileHeight(pSprite2->picnum) * pSprite2->yrepeat) * 2;
 
         int nMyAngle = GetMyAngle(pSprite2->x - pSprite->x, pSprite2->y - pSprite->y);
 
@@ -298,10 +333,10 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
     pSprite->ang = nAngle;
 
     int da = pSprite->zvel;
-    int x = klabs(Cos(da));
+    int x = klabs(bcos(da));
 
-    int v26 = x * ((val1 * Cos(nAngle)) >> 14);
-    int v27 = x * ((val1 * Sin(nAngle)) >> 14);
+    int v26 = x * ((val1 * bcos(nAngle)) >> 14);
+    int v27 = x * ((val1 * bsin(nAngle)) >> 14);
 
     uint32_t xDiff = klabs((int32_t)(v26 >> 8));
     uint32_t yDiff = klabs((int32_t)(v27 >> 8));
@@ -314,18 +349,18 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
         sqrtNum = INT_MAX;
     }
 
-    int nSqrt = ksqrt(sqrtNum) * Sin(da);
+    int nSqrt = ksqrt(sqrtNum) * bsin(da);
 
-    return movesprite(nSprite, v26 >> 2, v27 >> 2, (Sin(bobangle) >> 5) + (nSqrt >> 13), 0, 0, CLIPMASK1);
+    return movesprite(nSprite, v26 >> 2, v27 >> 2, bsin(bobangle, -5) + (nSqrt >> 13), 0, 0, CLIPMASK1);
 }
 
 int DestroyTailPart()
 {
-    if (!QueenHead.field_E) {
+    if (!QueenHead.tails) {
         return 0;
     }
 
-    short nSprite = tailspr[--QueenHead.field_E];
+    short nSprite = tailspr[--QueenHead.tails];
 
     BlowChunks(nSprite);
     BuildExplosion(nSprite);
@@ -388,7 +423,7 @@ void BuildTail()
     }
 
     nQHead = 0;
-    QueenHead.field_E = 7;
+    QueenHead.tails = 7;
 }
 
 int BuildQueenEgg(short nQueen, int nVal)
@@ -424,8 +459,8 @@ int BuildQueenEgg(short nQueen, int nVal)
     {
         sprite[nSprite2].xrepeat = 30;
         sprite[nSprite2].yrepeat = 30;
-        sprite[nSprite2].xvel = Cos(sprite[nSprite2].ang);
-        sprite[nSprite2].yvel = Sin(sprite[nSprite2].ang);
+        sprite[nSprite2].xvel = bcos(sprite[nSprite2].ang);
+        sprite[nSprite2].yvel = bsin(sprite[nSprite2].ang);
         sprite[nSprite2].zvel = -6000;
         sprite[nSprite2].cstat = 0;
     }
@@ -446,7 +481,7 @@ int BuildQueenEgg(short nQueen, int nVal)
     GrabTimeSlot(3);
 
     QueenEgg[nEgg].nHealth = 200;
-    QueenEgg[nEgg].field_2 = 0;
+    QueenEgg[nEgg].nFrame = 0;
     QueenEgg[nEgg].nSprite = nSprite2;
     QueenEgg[nEgg].field_E = nVal;
     QueenEgg[nEgg].nTarget = QueenList[nQueen].nTarget;
@@ -501,16 +536,16 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
 
             short nSeq = SeqOffsets[kSeqQueenEgg] + EggSeq[nAction].a;
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, pEgg->field_2);
+            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, pEgg->nFrame);
 
             if (nAction != 4)
             {
-                seq_MoveSequence(nSprite, nSeq, pEgg->field_2);
+                seq_MoveSequence(nSprite, nSeq, pEgg->nFrame);
 
-                pEgg->field_2++;
-                if (pEgg->field_2 >= SeqSize[nSeq])
+                pEgg->nFrame++;
+                if (pEgg->nFrame >= SeqSize[nSeq])
                 {
-                    pEgg->field_2 = 0;
+                    pEgg->nFrame = 0;
                     bVal = true;
                 }
 
@@ -543,7 +578,7 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                         if (!RandomSize(1))
                         {
                             pEgg->nAction = 1;
-                            pEgg->field_2 = 0;
+                            pEgg->nFrame = 0;
                         }
                         else
                         {
@@ -567,8 +602,8 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                         }
 
                         sprite[nSprite].ang = nAngle;
-                        sprite[nSprite].xvel = Cos(nAngle) >> 1;
-                        sprite[nSprite].yvel = Sin(nAngle) >> 1;
+                        sprite[nSprite].xvel = bcos(nAngle, -1);
+                        sprite[nSprite].yvel = bsin(nAngle, -1);
                     }
 
                     break;
@@ -600,8 +635,8 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                     case 0x8000:
                         sprite[nSprite].ang += (RandomSize(9) + 768);
                         sprite[nSprite].ang &= kAngleMask;
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 3;
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 3;
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -3);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -3);
                         sprite[nSprite].zvel = -RandomSize(5);
                         break;
                     }
@@ -661,7 +696,7 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqQueenEgg] + EggSeq[nAction].a, pEgg->field_2, EggSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqQueenEgg] + EggSeq[nAction].a, pEgg->nFrame, EggSeq[nAction].b);
             break;
         }
         }
@@ -707,14 +742,14 @@ int BuildQueenHead(short nQueen)
     QueenHead.nHealth = 800;
     QueenHead.nAction = 0;
     QueenHead.nTarget = QueenList[nQueen].nTarget;
-    QueenHead.field_2 = 0;
+    QueenHead.nFrame = 0;
     QueenHead.nSprite = nSprite2;
     QueenHead.field_C = 0;
 
     sprite[nSprite2].owner = runlist_AddRunRec(sprite[nSprite2].lotag - 1, 0x1B0000);
 
     QueenHead.field_8 = runlist_AddRunRec(NewRun, 0x1B0000);
-    QueenHead.field_E = 0;
+    QueenHead.tails = 0;
 
     return 0;
 }
@@ -745,14 +780,14 @@ void FuncQueenHead(int a, int nDamage, int nRun)
 
             short nSeq = SeqOffsets[kSeqQueen] + HeadSeq[QueenHead.nAction].a;
 
-            seq_MoveSequence(nSprite, nSeq, QueenHead.field_2);
+            seq_MoveSequence(nSprite, nSeq, QueenHead.nFrame);
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, QueenHead.field_2);
+            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, QueenHead.nFrame);
 
-            QueenHead.field_2++;
-            if (QueenHead.field_2 >= SeqSize[nSeq])
+            QueenHead.nFrame++;
+            if (QueenHead.nFrame >= SeqSize[nSeq])
             {
-                QueenHead.field_2 = 0;
+                QueenHead.nFrame = 0;
                 var_14 = 1;
             }
 
@@ -845,7 +880,7 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                     if (var_14)
                     {
                         QueenHead.nAction = 1;
-                        QueenHead.field_2 = 0;
+                        QueenHead.nFrame = 0;
                         break;
                     }
                     fallthrough__;
@@ -854,7 +889,7 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                     if ((sprite[nTarget].z - 51200) > sprite[nSprite].z)
                     {
                         QueenHead.nAction = 4;
-                        QueenHead.field_2 = 0;
+                        QueenHead.nFrame = 0;
                     }
                     else
                     {
@@ -920,7 +955,7 @@ __MOVEQS:
 
                     nHd = nQHead;
 
-                    for (int i = 0; i < QueenHead.field_E; i++)
+                    for (int i = 0; i < QueenHead.tails; i++)
                     {
                         nHd -= 3;
                         if (nHd < 0) {
@@ -957,9 +992,9 @@ __MOVEQS:
                     {
                         QueenHead.field_C = 3;
 
-                        if (QueenHead.field_E--)
+                        if (QueenHead.tails--)
                         {
-                            if (QueenHead.field_E >= 15 || QueenHead.field_E < 10)
+                            if (QueenHead.tails >= 15 || QueenHead.tails < 10)
                             {
                                 int x = sprite[nSprite].x;
                                 int y = sprite[nSprite].y;
@@ -967,16 +1002,15 @@ __MOVEQS:
                                 short nSector = sprite[nSprite].sectnum;
                                 int nAngle = RandomSize(11) & kAngleMask;
 
-                                sprite[nSprite].xrepeat = 127 - QueenHead.field_E;
-                                sprite[nSprite].yrepeat = 127 - QueenHead.field_E;
+                                sprite[nSprite].xrepeat = 127 - QueenHead.tails;
+                                sprite[nSprite].yrepeat = 127 - QueenHead.tails;
 
                                 sprite[nSprite].cstat = 0x8000;
 
                                 // DEMO-TODO: in disassembly angle was used without masking and thus causing OOB issue.
                                 // This behavior probably would be needed emulated for demo compatibility
-                                // int dx = sintable[nAngle + 512] << 10;
-                                int dx = Cos(nAngle) << 10;
-                                int dy = Sin(nAngle) << 10;
+                                int dx = bcos(nAngle, 10);
+                                int dy = bsin(nAngle, 10);
                                 int dz = (RandomSize(5) - RandomSize(5)) << 7;
 
                                 movesprite(nSprite, dx, dy, dz, 0, 0, CLIPMASK1);
@@ -990,8 +1024,8 @@ __MOVEQS:
                                 sprite[nSprite].y = y;
                                 sprite[nSprite].z = z;
 
-                                if (QueenHead.field_E < 10) {
-                                    for (int i = (10 - QueenHead.field_E) * 2; i > 0; i--)
+                                if (QueenHead.tails < 10) {
+                                    for (int i = (10 - QueenHead.tails) * 2; i > 0; i--)
                                     {
                                         BuildLavaLimb(nSprite, i, GetSpriteHeight(nSprite));
                                     }
@@ -1046,7 +1080,7 @@ __MOVEQS:
                 {
                     QueenHead.nTarget = a & 0xFFFF;
                     QueenHead.nAction = 7;
-                    QueenHead.field_2 = 0;
+                    QueenHead.nFrame = 0;
                 }
 
                 if (QueenHead.nHealth <= 0)
@@ -1059,9 +1093,9 @@ __MOVEQS:
                     else
                     {
                         QueenHead.nAction = 5;
-                        QueenHead.field_2 = 0;
+                        QueenHead.nFrame = 0;
                         QueenHead.field_C = 0;
-                        QueenHead.field_E = 80;
+                        QueenHead.tails = 80;
                         sprite[nSprite].cstat = 0;
                     }
                 }
@@ -1085,7 +1119,7 @@ __MOVEQS:
                 nSeq += 73;
             }
 
-            seq_PlotSequence(a & 0xFFFF, nSeq, QueenHead.field_2, edx);
+            seq_PlotSequence(a & 0xFFFF, nSeq, QueenHead.nFrame, edx);
             break;
         }
 
@@ -1167,8 +1201,8 @@ int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nC
 
 void SetQueenSpeed(short nSprite, int nSpeed)
 {
-    sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> (2 - nSpeed);
-    sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> (2 - nSpeed);
+    sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -(2 - nSpeed));
+    sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -(2 - nSpeed));
 }
 
 void FuncQueen(int a, int nDamage, int nRun)
@@ -1293,7 +1327,7 @@ void FuncQueen(int a, int nDamage, int nRun)
                         {
                             if (QueenList[nQueen].field_C <= 0)
                             {
-                                if (nWaspCount < 100)
+                                if (WaspCount() < 100)
                                 {
                                     QueenList[nQueen].nAction = 6;
                                     QueenList[nQueen].nFrame  = 0;

@@ -24,12 +24,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+
 enum
 {
 	kMaxXSprites = 16384,
 	kMaxXWalls = 512,
 	kMaxXSectors = 512
 };
+
+enum
+{
+	kAttrMove = 0x0001, // is affected by movement physics
+	kAttrGravity = 0x0002, // is affected by gravity
+	kAttrFalling = 0x0004, // in z motion
+	kAttrAiming = 0x0008,
+	kAttrRespawn = 0x0010,
+	kAttrFree = 0x0020,
+	kAttrSmoke = 0x0100, // receives tsprite smoke/steam 
+	};
 
 
 // by NoOne: functions to quckly check range of specifical arrays
@@ -201,12 +213,8 @@ struct XSECTOR {
     uint8_t Depth;             // Depth
     uint8_t Key;               // Key
     uint8_t ceilpal;           // Ceil pal2
-    uint8_t ceilXPanFrac;      // Ceiling x panning frac
-    uint8_t ceilYPanFrac;      // Ceiling y panning frac
-    uint8_t floorXPanFrac;     // Floor x panning frac
     uint8_t damageType;        // DamageType
     uint8_t floorpal;          // Floor pal2
-    uint8_t floorYPanFrac;     // Floor y panning frac
     uint8_t bobZRange;         // Motion Z range
 };
 
@@ -245,8 +253,6 @@ struct XWALL {
     int8_t panXVel;           // panX
     int8_t panYVel;           // panY
     uint8_t key;               // Key
-    uint8_t xpanFrac;          // x panning frac
-    uint8_t ypanFrac;          // y panning frac
 };
 
 struct MAPSIGNATURE {
@@ -255,26 +261,26 @@ struct MAPSIGNATURE {
 };
 
 struct MAPHEADER  {
-    int TotalKills; // x
-    int Kills; // y
-    int at8; // z
-    short atc; // ang
-    short ate; // sect
-    short at10; // pskybits
-    int at12; // visibility
-    int at16; // song id, Matt
-    char at1a; // parallaxtype
-    int at1b; // map revision
-    short at1f; // numsectors
-    short at21; // numwalls
-    short at23; // numsprites
+    int x; // x
+    int y; // y
+    int z; // z
+    short ang; // ang
+    short sect; // sect
+    short pskybits; // pskybits
+    int visibility; // visibility
+    int mattid; // song id, Matt
+    char parallax; // parallaxtype
+    int revision; // map revision
+    short numsectors; // numsectors
+    short numwalls; // numwalls
+    short numsprites; // numsprites
 };
 
 struct MAPHEADER2 {
-    char TotalKills[64];
-    int at40; // xsprite size
-    int at44; // xwall size
-    int at48; // xsector size
+    char name[64];
+    int numxsprites; // xsprite size
+    int numxwalls; // xwall size
+    int numxsectors; // xsector size
     char pad[52];
 };
 
@@ -286,12 +292,14 @@ struct SPRITEHIT {
 
 extern unsigned short gStatCount[kMaxStatus + 1];;
 
-extern bool byte_1A76C6, byte_1A76C7, byte_1A76C8;
+extern bool drawtile2048, encrypted;
 extern MAPHEADER2 byte_19AE44;
 
 extern XSPRITE xsprite[kMaxXSprites];
 extern XSECTOR xsector[kMaxXSectors];
 extern XWALL xwall[kMaxXWalls];
+
+extern FixedBitArray<MAXSPRITES> activeXSprites;
 
 extern SPRITEHIT gSpriteHit[kMaxXSprites];
 
@@ -300,7 +308,7 @@ extern char qsector_filler[kMaxSectors];
 extern int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 
 extern int gVisibility;
-extern int gMapRev, gSongId, gSkyCount;
+extern int gMapRev, gMattId, gSkyCount;
 extern const char *gItemText[];
 extern const char *gAmmoText[];
 extern const char *gWeaponText[];
@@ -354,6 +362,7 @@ int qchangespritesect(short nSprite, short nSector);
 int ChangeSpriteStat(int nSprite, int nStatus);
 int qchangespritestat(short nSprite, short nStatus);
 void InitFreeList(unsigned short *pList, int nCount);
+void InitFreeList(unsigned short* pList, int nCount, FixedBitArray<MAXSPRITES>& activeXSprites);
 void InsertFree(unsigned short *pList, int nIndex);
 unsigned short dbInsertXSprite(int nSprite);
 void dbDeleteXSprite(int nXSprite);

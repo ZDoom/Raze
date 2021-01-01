@@ -9,4 +9,3 @@ struct ticcmd_t
 	uint16_t	consistency;	// checks for net game
 };
 
-FArchive &operator<< (FArchive &arc, ticcmd_t &cmd);

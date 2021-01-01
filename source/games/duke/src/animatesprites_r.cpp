@@ -242,8 +242,8 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 					t->ang = getangle(x - t->x, y - t->y);
 					t->x = Owner->x;
 					t->y = Owner->y;
-					t->x += sintable[(t->ang + 512) & 2047] >> 10;
-					t->y += sintable[t->ang & 2047] >> 10;
+					t->x += bcos(t->ang, -10);
+					t->y += bsin(t->ang, -10);
 				}
 			}
 			break;
@@ -252,7 +252,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			t->z -= (4 << 8);
 			break;
 		case CRYSTALAMMO:
-			t->shade = (sintable[(ud.levelclock << 4) & 2047] >> 10);
+			t->shade = bsin(ud.levelclock << 4, -10);
 			break;
 		case SHRINKSPARK:
 			if (Owner && (Owner->picnum == CHEER || Owner->picnum == CHEERSTAYPUT) && isRRRA())
@@ -384,7 +384,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 				}
 			}
 
-			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && ud.showweapons && ps[p].GetActor()->s.extra > 0 && ps[p].curr_weapon > 0)
+			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->s.extra > 0 && ps[p].curr_weapon > 0)
 			{
 				auto newtspr = &tsprite[spritesortcnt];
 				memcpy(newtspr, t, sizeof(spritetype));
@@ -438,10 +438,12 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 
 			if (!h->GetOwner())
 			{
-				/*if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
+				if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+				{
 					k = 0;
 					t->cstat &= ~4;
-				} else*/ {
+				} else
+				{
 					k = (((s->ang + 3072 + 128 - a) & 2047) >> 8) & 7;
 					if (k > 4)
 					{
@@ -470,9 +472,9 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 
 			if (ps[p].newOwner != nullptr)
 			{
-				t4 = ScriptCode[actorinfo[APLAYER].scriptaddress + 1];
+				t4 = ScriptCode[gs.actorinfo[APLAYER].scriptaddress + 1];
 				t3 = 0;
-				t1 = ScriptCode[actorinfo[APLAYER].scriptaddress + 2];
+				t1 = ScriptCode[gs.actorinfo[APLAYER].scriptaddress + 2];
 			}
 
 			if (ud.cameraactor == nullptr && ps[p].newOwner == nullptr)
@@ -636,16 +638,19 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			break;
 		}
 
-		if (actorinfo[s->picnum].scriptaddress && (t->cstat & 48) != 48)
+		if (gs.actorinfo[s->picnum].scriptaddress && (t->cstat & 48) != 48)
 		{
 			if (t4)
 			{
 				l = ScriptCode[t4 + 2];
 
-				/*if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
+				if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+				{
 					k = 0;
 					t->cstat &= ~4;
-				} else*/ switch (l) {
+				} 
+				else switch (l) 
+				{
 				case 2:
 					k = (((s->ang + 3072 + 128 - a) & 2047) >> 8) & 1;
 					break;
@@ -707,8 +712,13 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 				t->picnum += k + ScriptCode[t4] + l * t3;
 
 				if (l > 0)
-					while (!tileGetTexture(t->picnum)->isValid() && t->picnum > 0)
+					while (t->picnum >= 0 && t->picnum < MAXTILES && !tileGetTexture(t->picnum)->isValid() && t->picnum > 0)
 						t->picnum -= l;       //Hack, for actors 
+				if (t->picnum < 0 || t->picnum >= MAXTILES)
+				{
+					t->picnum = 0;
+					t->xrepeat = t->yrepeat = 0;
+				}
 
 				if (h->dispicnum >= 0)
 					h->dispicnum = t->picnum;
@@ -755,25 +765,20 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 								shadowspr->z = daz;
 								shadowspr->pal = 4;
 
-								if (videoGetRenderMode() >= REND_POLYMOST)
+								if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0)
 								{
-									/*
-									if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0)
-									{
-										shadowspr->yrepeat = 0;
-										// 512:trans reverse
-										//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
-										shadowspr->clipdist |= TSPR_FLAGS_MDHACK;
-										shadowspr->cstat |= 512;
-									}
-									else
-									*/
-									{
-										// Alter the shadow's position so that it appears behind the sprite itself.
-										int look = getangle(shadowspr->x - ps[screenpeek].posx, shadowspr->y - ps[screenpeek].posy);
-										shadowspr->x += sintable[(look + 2560) & 2047] >> 9;
-										shadowspr->y += sintable[(look + 2048) & 2047] >> 9;
-									}
+									shadowspr->yrepeat = 0;
+									// 512:trans reverse
+									//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
+									shadowspr->clipdist |= TSPR_FLAGS_MDHACK;
+									shadowspr->cstat |= 512;
+								}
+								else
+								{
+									// Alter the shadow's position so that it appears behind the sprite itself.
+									int look = getangle(shadowspr->x - ps[screenpeek].posx, shadowspr->y - ps[screenpeek].posy);
+									shadowspr->x += bcos(look, -9);
+									shadowspr->y += bsin(look, -9);
 								}
 								spritesortcnt++;
 							}

@@ -38,6 +38,7 @@ source as it is released.
 #include "names_d.h"
 #include "mapinfo.h"
 #include "dukeactor.h"
+#include "secrets.h"
 
 // PRIMITIVE
 BEGIN_DUKE_NS
@@ -149,8 +150,8 @@ void animatewalls_d(void)
 
 				if (wall[i].cstat & 254)
 				{
-					wall[i].xpanning -= t >> 10; // sintable[(t+512)&2047]>>12;
-					wall[i].ypanning -= t >> 10; // sintable[t&2047]>>12;
+					wall[i].addxpan(-t / 4096.f); // bcos(t, -12);
+					wall[i].addypan(-t / 4096.f); // bsin(t, -12);
 
 					if (wall[i].extra == 1)
 					{
@@ -918,13 +919,13 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 		p->hurt_delay = 16;
 		SetPlayerPal(p, PalEntry(32, 32, 0, 0));
 
-		p->posxv = -(sintable[(p->angle.ang.asbuild() + 512) & 2047] << 8);
-		p->posyv = -(sintable[(p->angle.ang.asbuild()) & 2047] << 8);
+		p->posxv = -p->angle.ang.bcos(8);
+		p->posyv = -p->angle.ang.bsin(8);
 		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
 		fi.checkhitwall(p->GetActor(), j,
-			p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 9),
-			p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 9),
+			p->posx + p->angle.ang.bcos(-9),
+			p->posy + p->angle.ang.bsin(-9),
 			p->posz, -1);
 
 		break;
@@ -932,8 +933,8 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 	case BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->GetActor(), j,
-			p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 9),
-			p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 9),
+			p->posx + p->angle.ang.bcos(-9),
+			p->posy + p->angle.ang.bsin(-9),
 			p->posz, -1);
 		break;
 
@@ -1145,7 +1146,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case FUELPOD:
 	case SOLARPANNEL:
 	case ANTENNA:
-		if (actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[actorinfo[SHOTSPARK1].scriptaddress])
+		if (gs.actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
 				EGS(s->sectnum, s->x, s->y, sector[s->sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
@@ -1424,7 +1425,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 			if (s->statnum != 2)
 			{
-				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (freezerhurtowner == 0 && proj->GetOwner() == targ)))
+				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 					return;
 
 
@@ -1505,6 +1506,7 @@ void checksectors_d(int snum)
 		sector[p->cursectnum].lotag = 0;
 		FTA(9, p);
 		p->secret_rooms++;
+		SECRET_Trigger(p->cursectnum);
 		return;
 	case -1:
 		sector[p->cursectnum].lotag = 0;
@@ -1651,13 +1653,13 @@ void checksectors_d(int snum)
 						p->holster_weapon = 1;
 						p->weapon_pos = -1;
 					}
-					if (p->GetActor()->s.extra <= (max_player_health - (max_player_health / 10)))
+					if (p->GetActor()->s.extra <= (gs.max_player_health - (gs.max_player_health / 10)))
 					{
-						p->GetActor()->s.extra += max_player_health / 10;
+						p->GetActor()->s.extra += gs.max_player_health / 10;
 						p->last_extra = p->GetActor()->s.extra;
 					}
-					else if (p->GetActor()->s.extra < max_player_health)
-						p->GetActor()->s.extra = max_player_health;
+					else if (p->GetActor()->s.extra < gs.max_player_health)
+						p->GetActor()->s.extra = gs.max_player_health;
 				}
 				else if (S_CheckActorSoundPlaying(neartagsprite, FLUSH_TOILET) == 0)
 					S_PlayActorSound(FLUSH_TOILET, neartagsprite);
@@ -1683,7 +1685,7 @@ void checksectors_d(int snum)
 					neartagsprite->temp_data[0] = 1;
 					neartagsprite->SetOwner(p->GetActor());
 
-					if (p->GetActor()->s.extra < max_player_health)
+					if (p->GetActor()->s.extra < gs.max_player_health)
 					{
 						p->GetActor()->s.extra++;
 						S_PlayActorSound(DUKE_DRINKING, p->GetActor());

@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "misc.h"
 #include "printf.h"
 #include "v_text.h"
-#include "binaryangle.h"
+#include "seqcb.h"
 
 BEGIN_BLD_NS
 
@@ -463,13 +463,8 @@ struct LOCATION {
     int ang;
 };
 
-struct POINT2D {
-    int x, y;
-};
-
-struct POINT3D {
-    int x, y, z;
-};
+using POINT2D = vec2_t;
+using POINT3D = vec3_t;
 
 struct VECTOR2D {
     int dx, dy;
@@ -525,15 +520,6 @@ inline int ClipHigh(int a, int b)
 }
 
 inline int ClipRange(int a, int b, int c)
-{
-    if (a < b)
-        return b;
-    if (a > c)
-        return c;
-    return a;
-}
-
-inline float ClipRangeF(float a, float b, float c)
 {
     if (a < b)
         return b;

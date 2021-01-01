@@ -131,6 +131,9 @@ void I_DetectOS(void);
 void LoadScripts();
 void MainLoop();
 void SetConsoleNotifyBuffer();
+bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader);
+void PostLoadSetup();
+void FontCharCreated(FGameTexture* base, FGameTexture* untranslated, FGameTexture* translated);
 
 DBaseStatusBar* StatusBar;
 
@@ -148,6 +151,8 @@ extern int hud_size_max;
 
 int paused;
 bool pausedWithKey;
+
+bool gamesetinput = false;
 
 CUSTOM_CVAR(Int, cl_gender, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
@@ -530,7 +535,10 @@ int GameMain()
 		validFilter,
 		StrTable_GetGender,
 		System_MenuClosed,
-		nullptr
+		nullptr,
+		nullptr,
+		PreBindTexture,
+		FontCharCreated
 	};
 
 	try
@@ -928,7 +936,7 @@ int RunGame()
 
 	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
 	lookups.postLoadTables();
-	TileFiles.PostLoadSetup();
+	PostLoadSetup();
 	videoInit();
 
 	D_CheckNetGame();
@@ -1238,6 +1246,11 @@ CCMD(taunt)
 	}
 }
 
+
+void GameInterface::loadPalette()
+{
+	paletteLoadFromDisk();
+}
 //---------------------------------------------------------------------------
 //
 // 
@@ -1274,7 +1287,7 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 			auto tile = tileGetTexture(deftile);
 			if (tile)
 			{
-				double crosshair_scale = cl_crosshairscale * .01 * scale;
+				double crosshair_scale = crosshairscale * scale;
 				DrawTexture(twod, tile, 160 + xdelta, 100 + ydelta, DTA_Color, color,
 					DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
 					DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);

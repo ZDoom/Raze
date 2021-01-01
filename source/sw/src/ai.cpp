@@ -347,8 +347,8 @@ CanHitPlayer(short SpriteNum)
     ang = getangle(hp->x - sp->x, hp->y - sp->y);
 
     // get x,yvect
-    xvect = sintable[NORM_ANGLE(ang + 512)];
-    yvect = sintable[NORM_ANGLE(ang)];
+    xvect = bcos(ang);
+    yvect = bsin(ang);
 
     // get zvect
     zhh = hp->z - DIV2(SPRITEp_SIZE_Z(hp));
@@ -1127,8 +1127,8 @@ DoActorMoveCloser(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
-    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+    nx = mulscale14(sp->xvel, bcos(sp->ang));
+    ny = mulscale14(sp->xvel, bsin(sp->ang));
 
     // if cannot move the sprite
     if (!move_actor(SpriteNum, nx, ny, 0L))
@@ -1707,8 +1707,8 @@ DoActorMoveJump(short SpriteNum)
 
     // Move while jumping
 
-    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+    nx = mulscale14(sp->xvel, bcos(sp->ang));
+    ny = mulscale14(sp->xvel, bsin(sp->ang));
 
     move_actor(SpriteNum, nx, ny, 0L);
 
@@ -1753,8 +1753,8 @@ int move_scan(short SpriteNum, short ang, int dist, int *stopx, int *stopy, int 
 
     // do the move
     sp->ang = ang;
-    nx = (dist) * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = (dist) * (int) sintable[sp->ang] >> 14;
+    nx = mulscale14(dist, bcos(sp->ang));
+    ny = mulscale14(dist, bsin(sp->ang));
 
     ret = move_sprite(SpriteNum, nx, ny, 0, u->ceiling_dist, u->floor_dist, cliptype, 1);
     // move_sprite DOES do a getzrange point?
@@ -2042,8 +2042,8 @@ DoActorReposition(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
-    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+    nx = mulscale14(sp->xvel, bcos(sp->ang));
+    ny = mulscale14(sp->xvel, bsin(sp->ang));
 
     // still might hit something and have to handle it.
     if (!move_actor(SpriteNum, nx, ny, 0L))
@@ -2129,8 +2129,8 @@ DoActorReposition(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
-    nx = sp->xvel * (int) sintable[NORM_ANGLE(sp->ang + 512)] >> 14;
-    ny = sp->xvel * (int) sintable[sp->ang] >> 14;
+    nx = mulscale14(sp->xvel, bcos(sp->ang));
+    ny = mulscale14(sp->xvel, bsin(sp->ang));
 
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {

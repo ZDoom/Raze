@@ -26,68 +26,80 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-struct SEQFRAME {
-    unsigned int tile : 12;
-    unsigned int at1_4 : 1; // transparent
-    unsigned int at1_5 : 1; // transparent
-    unsigned int at1_6 : 1; // blockable
-    unsigned int at1_7 : 1; // hittable
-    unsigned int at2_0 : 8; // xrepeat
-    unsigned int at3_0 : 8; // yrepeat
-    signed int at4_0 : 8; // shade
-    unsigned int at5_0 : 5; // palette
-    unsigned int at5_5 : 1; //
-    unsigned int at5_6 : 1; //
-    unsigned int at5_7 : 1; //
-    unsigned int at6_0 : 1; //
-    unsigned int at6_1 : 1; //
-    unsigned int at6_2 : 1; // invisible
-    unsigned int at6_3 : 1; //
-    unsigned int at6_4 : 1; //
-    unsigned int tile2 : 4;
-    unsigned soundRange : 4; // (by NoOne) random sound range relative to global SEQ sound
-    unsigned surfaceSound : 1; // (by NoOne) trigger surface sound when moving / touching
-    unsigned reserved : 2;
+struct SEQFRAME 
+{
+	unsigned int tile : 12;
+	unsigned int transparent : 1;
+	unsigned int transparent2 : 1;
+	unsigned int blockable : 1;
+	unsigned int hittable : 1;
+	unsigned int xrepeat : 8;
+	unsigned int yrepeat : 8;
+	signed int shade : 8;
+	unsigned int palette : 5;
+	unsigned int trigger : 1;
+	unsigned int smoke : 1;
+	unsigned int aiming : 1;
+	unsigned int pushable : 1;
+	unsigned int playsound : 1;
+	unsigned int invisible : 1;// invisible
+	unsigned int flipx : 1;
+	unsigned int flipy : 1;
+	unsigned int tile2 : 4;
+	unsigned soundRange : 4; // (by NoOne) random sound range relative to global SEQ sound
+	unsigned surfaceSound : 1; // (by NoOne) trigger surface sound when moving / touching
+	unsigned reserved : 2;
 };
 
 struct Seq {
-    char signature[4];
-    short version;
-    short nFrames; // at6
-    short at8;
-    short ata;
-    int atc;
-    SEQFRAME frames[1];
-    void Preload(void);
-    void Precache(HitList &);
+	char signature[4];
+	short version;
+	short nFrames;
+	short ticksPerFrame;
+	short soundId;
+	int flags;
+	SEQFRAME frames[1];
+	void Preload(void);
+	void Precache(HitList&);
+
+	bool isLooping()
+	{
+		return (flags & 1) != 0;
+	}
+
+	bool isRemovable()
+	{
+		return (flags & 2) != 0;
+	}
 };
 
 struct ACTIVE
 {
-    unsigned char type;
-    unsigned short xindex;
+	unsigned char type;
+	unsigned short xindex;
 };
 
 struct SEQINST
 {
-    Seq *pSequence;
-    int at8;
-    int atc;
-    short at10;
-    unsigned char frameIndex;
-    char at13;
-    void Update(ACTIVE *pActive);
+	Seq* pSequence;
+	int index, type;
+
+	int nSeqID;
+	int callback;
+	short timeCounter;
+	unsigned char frameIndex;
+	void Update();
 };
 
 inline int seqGetTile(SEQFRAME* pFrame)
 {
-    return pFrame->tile+(pFrame->tile2<<12);
+	return pFrame->tile + (pFrame->tile2 << 12);
 }
 
 int seqRegisterClient(void(*pClient)(int, int));
-void seqPrecacheId(int id, HitList &hits);
-SEQINST * GetInstance(int a1, int a2);
-void UnlockInstance(SEQINST *pInst);
+void seqPrecacheId(int id, HitList& hits);
+SEQINST* GetInstance(int a1, int a2);
+void UnlockInstance(SEQINST* pInst);
 void seqSpawn(int a1, int a2, int a3, int a4 = -1);
 void seqKill(int a1, int a2);
 void seqKillAll(void);

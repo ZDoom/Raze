@@ -25,33 +25,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "pragmas.h"
+#include "savegamehelp.h"
 #include "mmulti.h"
-#include "common_game.h"
-#include "actor.h"
-#include "ai.h"
-#include "aistate.h"
-#include "aiunicult.h"
+
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "eventq.h"
-#include "fx.h"
-#include "gameutil.h"
-#include "gib.h"
-#include "globals.h"
-#include "levels.h"
-#include "loadsave.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
-#include "triggers.h"
-#include "view.h"
-#include "nnexts.h"
 
 BEGIN_BLD_NS
 
 int cumulDamage[kMaxXSprites];
-int gDudeSlope[kMaxXSprites];
 DUDEEXTRA gDudeExtra[kMaxXSprites];
 
 AISTATE genIdle = {kAiStateGenIdle, 0, -1, 0, NULL, NULL, NULL, NULL };
@@ -59,7 +40,7 @@ AISTATE genRecoil = {kAiStateRecoil, 5, -1, 20, NULL, NULL, NULL, &genIdle };
 
 const int dword_138BB0[5] = {0x2000, 0x4000, 0x8000, 0xa000, 0xe000};
 
-bool sub_5BDA8(spritetype *pSprite, int nSeq)
+bool dudeIsPlayingSeq(spritetype *pSprite, int nSeq)
 {
     if (pSprite->statnum == kStatDude && pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
     {
@@ -75,17 +56,19 @@ void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4)
     DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
     if (a3 == AI_SFX_PRIORITY_0)
         sfxPlay3DSound(pSprite, a2, a4, 2);
-    else if (a3 > pDudeExtra->at5 || pDudeExtra->TotalKills <= gFrameClock)
+    else if (a3 > pDudeExtra->prio || pDudeExtra->time <= gFrameClock)
     {
         sfxKill3DSound(pSprite, -1, -1);
         sfxPlay3DSound(pSprite, a2, a4, 0);
-        pDudeExtra->at5 = a3;
-        pDudeExtra->TotalKills = gFrameClock+120;
+        pDudeExtra->prio = a3;
+        pDudeExtra->time = gFrameClock+120;
     }
 }
 
-void aiNewState(spritetype *pSprite, XSPRITE *pXSprite, AISTATE *pAIState)
+void aiNewState(DBloodActor* actor, AISTATE *pAIState)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     pXSprite->stateTimer = pAIState->stateTicks;
     pXSprite->aiState = pAIState;
@@ -98,16 +81,19 @@ void aiNewState(spritetype *pSprite, XSPRITE *pXSprite, AISTATE *pAIState)
     }
     
     if (pAIState->enterFunc) 
-        pAIState->enterFunc(pSprite, pXSprite);
+        pAIState->enterFunc(&bloodActors[pXSprite->reference]);
 }
 
-bool isImmune(spritetype* pSprite, int dmgType, int minScale) {
+bool isImmune(spritetype* pSprite, int dmgType, int minScale) 
+{
 
-    if (dmgType >= kDmgFall && dmgType < kDmgMax && pSprite->extra >= 0 && xsprite[pSprite->extra].locked != 1) {
+    if (dmgType >= kDmgFall && dmgType < kDmgMax && pSprite->extra >= 0 && xsprite[pSprite->extra].locked != 1) 
+    {
         if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
             return (thingInfo[pSprite->type - kThingBase].dmgControl[dmgType] <= minScale);
-        else if (IsDudeSprite(pSprite)) {
-            if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType] <= minScale);
+        else if (IsDudeSprite(pSprite)) 
+        {
+            if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].godMode || gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType] <= minScale);
             else return (dudeInfo[pSprite->type - kDudeBase].at70[dmgType] <= minScale);
         }
     }
@@ -270,9 +256,10 @@ void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
     }
 }
 
-void aiMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+void aiMoveForward(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -280,12 +267,14 @@ void aiMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     if (klabs(nAng) > 341)
         return;
-    xvel[nSprite] += mulscale30(pDudeInfo->frontSpeed, Cos(pSprite->ang));
-    yvel[nSprite] += mulscale30(pDudeInfo->frontSpeed, Sin(pSprite->ang));
+    actor->xvel() += mulscale30(pDudeInfo->frontSpeed, Cos(pSprite->ang));
+    actor->yvel() += mulscale30(pDudeInfo->frontSpeed, Sin(pSprite->ang));
 }
 
-void aiMoveTurn(spritetype *pSprite, XSPRITE *pXSprite)
+void aiMoveTurn(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -293,9 +282,10 @@ void aiMoveTurn(spritetype *pSprite, XSPRITE *pXSprite)
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
 }
 
-void aiMoveDodge(spritetype *pSprite, XSPRITE *pXSprite)
+void aiMoveDodge(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -305,8 +295,8 @@ void aiMoveDodge(spritetype *pSprite, XSPRITE *pXSprite)
     {
         int nCos = Cos(pSprite->ang);
         int nSin = Sin(pSprite->ang);
-        int dx = xvel[nSprite];
-        int dy = yvel[nSprite];
+        int dx = actor->xvel();
+        int dy = actor->yvel();
         int t1 = dmulscale30(dx, nCos, dy, nSin);
         int t2 = dmulscale30(dx, nSin, -dy, nCos);
         if (pXSprite->dodgeDir > 0)
@@ -314,13 +304,15 @@ void aiMoveDodge(spritetype *pSprite, XSPRITE *pXSprite)
         else
             t2 -= pDudeInfo->sideSpeed;
 
-        xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-        yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+        actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+        actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
     }
 }
 
-void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
+void aiActivateDude(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!pXSprite->state) {
         aiChooseDirection(pSprite, pXSprite, getangle(pXSprite->targetX-pSprite->x, pXSprite->targetY-pSprite->y));
@@ -330,15 +322,15 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
     case kDudePhantasm:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->at8 = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval3 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &ghostSearch);
+            aiNewState(actor, &ghostSearch);
         else
         {
             aiPlay3DSound(pSprite, 1600, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &ghostChase);
+            aiNewState(actor, &ghostChase);
         }
         break;
     }
@@ -349,12 +341,12 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
     case kDudeCultistBeast:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->at8 = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval3 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->target == -1) {
             switch (pXSprite->medium) {
                 case kMediumNormal:
-                    aiNewState(pSprite, pXSprite, &cultistSearch);
+                    aiNewState(actor, &cultistSearch);
                     if (Chance(0x8000)) {
                         if (pSprite->type == kDudeCultistTommy) aiPlay3DSound(pSprite, 4008+Random(5), AI_SFX_PRIORITY_1, -1);
                         else aiPlay3DSound(pSprite, 1008+Random(5), AI_SFX_PRIORITY_1, -1);
@@ -362,7 +354,7 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
                     break;
                 case kMediumWater:
                 case kMediumGoo:
-                    aiNewState(pSprite, pXSprite, &cultistSwimSearch);
+                    aiNewState(actor, &cultistSwimSearch);
                     break;
             }
         } else {
@@ -372,12 +364,12 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
             }
             switch (pXSprite->medium) {
                 case kMediumNormal:
-                    if (pSprite->type == kDudeCultistTommy) aiNewState(pSprite, pXSprite, &fanaticChase);
-                    else aiNewState(pSprite, pXSprite, &cultistChase);
+                    if (pSprite->type == kDudeCultistTommy) aiNewState(actor, &fanaticChase);
+                    else aiNewState(actor, &cultistChase);
                     break;
                 case kMediumWater:
                 case kMediumGoo:
-                    aiNewState(pSprite, pXSprite, &cultistSwimChase);
+                    aiNewState(actor, &cultistSwimChase);
                     break;
             }
         }
@@ -387,8 +379,8 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
     case kDudeModernCustom:
     {
         DUDEEXTRA_at6_u1* pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->at8 = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval3 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->target == -1) {
             if (spriteIsUnderwater(pSprite, false))  aiGenDudeNewState(pSprite, &genDudeSearchW);
             else aiGenDudeNewState(pSprite, &genDudeSearchL);
@@ -406,18 +398,18 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
 #endif
     case kDudeCultistTommyProne: {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->at8 = 1; pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval3 = 1; pDudeExtraE->xval1 = 0;
         pSprite->type = kDudeCultistTommy;
         if (pXSprite->target == -1) {
             switch (pXSprite->medium) {
                 case 0:
-                    aiNewState(pSprite, pXSprite, &cultistSearch);
+                    aiNewState(actor, &cultistSearch);
                     if (Chance(0x8000))
                         aiPlay3DSound(pSprite, 4008+Random(5), AI_SFX_PRIORITY_1, -1);
                     break;
                 case kMediumWater:
                 case kMediumGoo:
-                    aiNewState(pSprite, pXSprite, &cultistSwimSearch);
+                    aiNewState(actor, &cultistSwimSearch);
                     break;
             }
         } else {
@@ -426,11 +418,11 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
             
             switch (pXSprite->medium) {
                 case kMediumNormal:
-                    aiNewState(pSprite, pXSprite, &cultistProneChase);
+                    aiNewState(actor, &cultistProneChase);
                     break;
                 case kMediumWater:
                 case kMediumGoo:
-                    aiNewState(pSprite, pXSprite, &cultistSwimChase);
+                    aiNewState(actor, &cultistSwimChase);
                     break;
             }
         }
@@ -439,21 +431,21 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
     case kDudeCultistShotgunProne:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->at8 = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval3 = 1;
+        pDudeExtraE->xval1 = 0;
         pSprite->type = kDudeCultistShotgun;
         if (pXSprite->target == -1)
         {
             switch (pXSprite->medium)
             {
             case kMediumNormal:
-                aiNewState(pSprite, pXSprite, &cultistSearch);
+                aiNewState(actor, &cultistSearch);
                 if (Chance(0x8000))
                     aiPlay3DSound(pSprite, 1008+Random(5), AI_SFX_PRIORITY_1, -1);
                 break;
             case kMediumWater:
             case kMediumGoo:
-                aiNewState(pSprite, pXSprite, &cultistSwimSearch);
+                aiNewState(actor, &cultistSwimSearch);
                 break;
             }
         }
@@ -464,11 +456,11 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
             switch (pXSprite->medium)
             {
             case kMediumNormal:
-                aiNewState(pSprite, pXSprite, &cultistProneChase);
+                aiNewState(actor, &cultistProneChase);
                 break;
             case kMediumWater:
             case kMediumGoo:
-                aiNewState(pSprite, pXSprite, &cultistSwimChase);
+                aiNewState(actor, &cultistSwimChase);
                 break;
             }
         }
@@ -476,43 +468,43 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
     }
     case kDudeBurningCultist:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &cultistBurnSearch);
+            aiNewState(actor, &cultistBurnSearch);
         else
-            aiNewState(pSprite, pXSprite, &cultistBurnChase);
+            aiNewState(actor, &cultistBurnChase);
         break;
     case kDudeBat:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->at8 = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval3 = 1;
+        pDudeExtraE->xval1 = 0;
         if (!pSprite->flags)
             pSprite->flags = 9;
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &batSearch);
+            aiNewState(actor, &batSearch);
         else
         {
             if (Chance(0xa000))
                 aiPlay3DSound(pSprite, 2000, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &batChase);
+            aiNewState(actor, &batChase);
         }
         break;
     }
     case kDudeBoneEel:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->at8 = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval3 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &eelSearch);
+            aiNewState(actor, &eelSearch);
         else
         {
             if (Chance(0x8000))
                 aiPlay3DSound(pSprite, 1501, AI_SFX_PRIORITY_1, -1);
             else
                 aiPlay3DSound(pSprite, 1500, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &eelChase);
+            aiNewState(actor, &eelChase);
         }
         break;
     }
@@ -521,15 +513,15 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         XSECTOR *pXSector = NULL;
         if (sector[pSprite->sectnum].extra > 0)
             pXSector = &xsector[sector[pSprite->sectnum].extra];
-        pDudeExtraE->TotalKills = 0;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->at8 = 1;
+        pDudeExtraE->xval1 = 0;
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval3 = 1;
         if (pXSprite->target == -1)
         {
             if (pXSector && pXSector->Underwater)
-                aiNewState(pSprite, pXSprite, &gillBeastSwimSearch);
+                aiNewState(actor, &gillBeastSwimSearch);
             else
-                aiNewState(pSprite, pXSprite, &gillBeastSearch);
+                aiNewState(actor, &gillBeastSearch);
         }
         else
         {
@@ -538,18 +530,18 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
             else
                 aiPlay3DSound(pSprite, 1700, AI_SFX_PRIORITY_1, -1);
             if (pXSector && pXSector->Underwater)
-                aiNewState(pSprite, pXSprite, &gillBeastSwimChase);
+                aiNewState(actor, &gillBeastSwimChase);
             else
-                aiNewState(pSprite, pXSprite, &gillBeastChase);
+                aiNewState(actor, &gillBeastChase);
         }
         break;
     }
     case kDudeZombieAxeNormal: {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u2;
-        pDudeExtraE->Kills = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval2 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &zombieASearch);
+            aiNewState(actor, &zombieASearch);
         else
         {
             if (Chance(0xa000))
@@ -569,88 +561,88 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
                     break;
                 }
             }
-            aiNewState(pSprite, pXSprite, &zombieAChase);
+            aiNewState(actor, &zombieAChase);
         }
         break;
     }
     case kDudeZombieAxeBuried:
     {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u2;
-        pDudeExtraE->Kills = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval2 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->aiState == &zombieEIdle)
-            aiNewState(pSprite, pXSprite, &zombieEUp);
+            aiNewState(actor, &zombieEUp);
         break;
     }
     case kDudeZombieAxeLaying:
     {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u2;
-        pDudeExtraE->Kills = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval2 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->aiState == &zombieSIdle)
-            aiNewState(pSprite, pXSprite, &zombie13AC2C);
+            aiNewState(actor, &zombie13AC2C);
         break;
     }
     case kDudeZombieButcher: {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u2;
-        pDudeExtraE->Kills = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval2 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &zombieFSearch);
+            aiNewState(actor, &zombieFSearch);
         else
         {
             if (Chance(0x4000))
                 aiPlay3DSound(pSprite, 1201, AI_SFX_PRIORITY_1, -1);
             else
                 aiPlay3DSound(pSprite, 1200, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &zombieFChase);
+            aiNewState(actor, &zombieFChase);
         }
         break;
     }
     case kDudeBurningZombieAxe:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &zombieABurnSearch);
+            aiNewState(actor, &zombieABurnSearch);
         else
-            aiNewState(pSprite, pXSprite, &zombieABurnChase);
+            aiNewState(actor, &zombieABurnChase);
         break;
     case kDudeBurningZombieButcher:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &zombieFBurnSearch);
+            aiNewState(actor, &zombieFBurnSearch);
         else
-            aiNewState(pSprite, pXSprite, &zombieFBurnChase);
+            aiNewState(actor, &zombieFBurnChase);
         break;
     case kDudeGargoyleFlesh: {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->at8 = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval3 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &gargoyleFSearch);
+            aiNewState(actor, &gargoyleFSearch);
         else
         {
             if (Chance(0x4000))
                 aiPlay3DSound(pSprite, 1401, AI_SFX_PRIORITY_1, -1);
             else
                 aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &gargoyleFChase);
+            aiNewState(actor, &gargoyleFChase);
         }
         break;
     }
     case kDudeGargoyleStone:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->at8 = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval3 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &gargoyleFSearch);
+            aiNewState(actor, &gargoyleFSearch);
         else
         {
             if (Chance(0x4000))
                 aiPlay3DSound(pSprite, 1451, AI_SFX_PRIORITY_1, -1);
             else
                 aiPlay3DSound(pSprite, 1450, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &gargoyleFChase);
+            aiNewState(actor, &gargoyleFChase);
         }
         break;
     }
@@ -660,85 +652,85 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         #ifdef NOONE_EXTENSIONS
         // play gargoyle statue breaking animation if data1 = 1.
         if (gModernMap && pXSprite->data1 == 1) {
-            if (pSprite->type == kDudeGargoyleStatueFlesh) aiNewState(pSprite, pXSprite, &statueFBreakSEQ);
-            else aiNewState(pSprite, pXSprite, &statueSBreakSEQ);
+            if (pSprite->type == kDudeGargoyleStatueFlesh) aiNewState(actor, &statueFBreakSEQ);
+            else aiNewState(actor, &statueSBreakSEQ);
         } else {
             if (Chance(0x4000)) aiPlay3DSound(pSprite, 1401, AI_SFX_PRIORITY_1, -1);
             else aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
             
-            if (pSprite->type == kDudeGargoyleStatueFlesh) aiNewState(pSprite, pXSprite, &gargoyleFMorph);
-            else aiNewState(pSprite, pXSprite, &gargoyleSMorph);
+            if (pSprite->type == kDudeGargoyleStatueFlesh) aiNewState(actor, &gargoyleFMorph);
+            else aiNewState(actor, &gargoyleSMorph);
         }
         #else
         if (Chance(0x4000)) aiPlay3DSound(pSprite, 1401, AI_SFX_PRIORITY_1, -1);
         else aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
 
-        if (pSprite->type == kDudeGargoyleStatueFlesh) aiNewState(pSprite, pXSprite, &gargoyleFMorph);
-        else aiNewState(pSprite, pXSprite, &gargoyleSMorph);
+        if (pSprite->type == kDudeGargoyleStatueFlesh) aiNewState(actor, &gargoyleFMorph);
+        else aiNewState(actor, &gargoyleSMorph);
         #endif
         break;
     case kDudeCerberusTwoHead:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &cerberusSearch);
+            aiNewState(actor, &cerberusSearch);
         else
         {
             aiPlay3DSound(pSprite, 2300, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &cerberusChase);
+            aiNewState(actor, &cerberusChase);
         }
         break;
     case kDudeCerberusOneHead:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &cerberus2Search);
+            aiNewState(actor, &cerberus2Search);
         else
         {
             aiPlay3DSound(pSprite, 2300, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &cerberus2Chase);
+            aiNewState(actor, &cerberus2Chase);
         }
         break;
     case kDudeHellHound:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &houndSearch);
+            aiNewState(actor, &houndSearch);
         else
         {
             aiPlay3DSound(pSprite, 1300, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &houndChase);
+            aiNewState(actor, &houndChase);
         }
         break;
     case kDudeHand:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &handSearch);
+            aiNewState(actor, &handSearch);
         else
         {
             aiPlay3DSound(pSprite, 1900, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &handChase);
+            aiNewState(actor, &handChase);
         }
         break;
     case kDudeRat:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &ratSearch);
+            aiNewState(actor, &ratSearch);
         else
         {
             aiPlay3DSound(pSprite, 2100, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &ratChase);
+            aiNewState(actor, &ratChase);
         }
         break;
     case kDudeInnocent:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &innocentSearch);
+            aiNewState(actor, &innocentSearch);
         else
         {
             if (pXSprite->health > 0)
                 aiPlay3DSound(pSprite, 7000+Random(6), AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &innocentChase);
+            aiNewState(actor, &innocentChase);
         }
         break;
     case kDudeTchernobog:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &tchernobogSearch);
+            aiNewState(actor, &tchernobogSearch);
         else
         {
             aiPlay3DSound(pSprite, 2350+Random(7), AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &tchernobogChase);
+            aiNewState(actor, &tchernobogChase);
         }
         break;
     case kDudeSpiderBrown:
@@ -747,43 +739,43 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         pSprite->flags |= 2;
         pSprite->cstat &= ~8;
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &spidSearch);
+            aiNewState(actor, &spidSearch);
         else
         {
             aiPlay3DSound(pSprite, 1800, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &spidChase);
+            aiNewState(actor, &spidChase);
         }
         break;
     case kDudeSpiderMother: {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->at8 = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval3 = 1;
+        pDudeExtraE->xval1 = 0;
         pSprite->flags |= 2;
         pSprite->cstat &= ~8;
         if (pXSprite->target == -1) 
-            aiNewState(pSprite, pXSprite, &spidSearch);
+            aiNewState(actor, &spidSearch);
         else
         {
             aiPlay3DSound(pSprite, 1853+Random(1), AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &spidChase);
+            aiNewState(actor, &spidChase);
         }
         break;
     }
     case kDudeTinyCaleb:
     {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u2;
-        pDudeExtraE->Kills = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval2 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->target == -1)
         {
             switch (pXSprite->medium)
             {
             case kMediumNormal:
-                aiNewState(pSprite, pXSprite, &tinycalebSearch);
+                aiNewState(actor, &tinycalebSearch);
                 break;
             case kMediumWater:
             case kMediumGoo:
-                aiNewState(pSprite, pXSprite, &tinycalebSwimSearch);
+                aiNewState(actor, &tinycalebSwimSearch);
                 break;
             }
         }
@@ -792,11 +784,11 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
             switch (pXSprite->medium)
             {
             case kMediumNormal:
-                aiNewState(pSprite, pXSprite, &tinycalebChase);
+                aiNewState(actor, &tinycalebChase);
                 break;
             case kMediumWater:
             case kMediumGoo:
-                aiNewState(pSprite, pXSprite, &tinycalebSwimChase);
+                aiNewState(actor, &tinycalebSwimChase);
                 break;
             }
         }
@@ -805,18 +797,18 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
     case kDudeBeast:
     {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u2;
-        pDudeExtraE->Kills = 1;
-        pDudeExtraE->TotalKills = 0;
+        pDudeExtraE->xval2 = 1;
+        pDudeExtraE->xval1 = 0;
         if (pXSprite->target == -1)
         {
             switch (pXSprite->medium)
             {
             case kMediumNormal:
-                aiNewState(pSprite, pXSprite, &beastSearch);
+                aiNewState(actor, &beastSearch);
                 break;
             case kMediumWater:
             case kMediumGoo:
-                aiNewState(pSprite, pXSprite, &beastSwimSearch);
+                aiNewState(actor, &beastSwimSearch);
                 break;
             }
         }
@@ -826,11 +818,11 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
             switch (pXSprite->medium)
             {
             case kMediumNormal:
-                aiNewState(pSprite, pXSprite, &beastChase);
+                aiNewState(actor, &beastChase);
                 break;
             case kMediumWater:
             case kMediumGoo:
-                aiNewState(pSprite, pXSprite, &beastSwimChase);
+                aiNewState(actor, &beastSwimChase);
                 break;
             }
         }
@@ -839,24 +831,24 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
     case kDudePodGreen:
     case kDudePodFire:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &podSearch);
+            aiNewState(actor, &podSearch);
         else
         {
             if (pSprite->type == kDudePodFire)
                 aiPlay3DSound(pSprite, 2453, AI_SFX_PRIORITY_1, -1);
             else
                 aiPlay3DSound(pSprite, 2473, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &podChase);
+            aiNewState(actor, &podChase);
         }
         break;
     case kDudeTentacleGreen:
     case kDudeTentacleFire:
         if (pXSprite->target == -1)
-            aiNewState(pSprite, pXSprite, &tentacleSearch);
+            aiNewState(actor, &tentacleSearch);
         else
         {
             aiPlay3DSound(pSprite, 2503, AI_SFX_PRIORITY_1, -1);
-            aiNewState(pSprite, pXSprite, &tentacleChase);
+            aiNewState(actor, &tentacleChase);
         }
         break;
     }
@@ -876,7 +868,7 @@ void aiSetTarget(XSPRITE *pXSprite, int nTarget)
     spritetype *pTarget = &sprite[nTarget];
     if (pTarget->type >= kDudeBase && pTarget->type < kDudeMax)
     {
-        if (actSpriteOwnerToSpriteId(&sprite[pXSprite->reference]) != nTarget)
+        if (sprite[pXSprite->reference].owner != nTarget)
         {
             pXSprite->target = nTarget;
             DUDEINFO *pDudeInfo = getDudeInfo(pTarget->type);
@@ -893,6 +885,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
     assert(nSource < kMaxSprites);
     if (!pXSprite->health)
         return 0;
+    auto actor = &bloodActors[pXSprite->reference];
     pXSprite->health = ClipLow(pXSprite->health - nDamage, 0);
     cumulDamage[pSprite->extra] += nDamage;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -905,12 +898,12 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
         if (pXSprite->target == -1 || (nSource != pXSprite->target && Chance(pSprite->type == pSource->type ? nDamage*pDudeInfo->changeTargetKin : nDamage*pDudeInfo->changeTarget)))
         {
             aiSetTarget(pXSprite, nSource);
-            aiActivateDude(pSprite, pXSprite);
+            aiActivateDude(&bloodActors[pXSprite->reference]);
         }
         if (nDmgType == DAMAGE_TYPE_6)
         {
             DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
-            pDudeExtra->Kills = 1;
+            pDudeExtra->recoil = 1;
         }
         switch (pSprite->type)
         {
@@ -920,20 +913,20 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
         case kDudeCultistTNT:
             if (nDmgType != DAMAGE_TYPE_1)
             {
-                if (!sub_5BDA8(pSprite, 14) && !pXSprite->medium)
-                    aiNewState(pSprite, pXSprite, &cultistDodge);
-                else if (sub_5BDA8(pSprite, 14) && !pXSprite->medium)
-                    aiNewState(pSprite, pXSprite, &cultistProneDodge);
-                else if (sub_5BDA8(pSprite, 13) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
-                    aiNewState(pSprite, pXSprite, &cultistSwimDodge);
+                if (!dudeIsPlayingSeq(pSprite, 14) && !pXSprite->medium)
+                    aiNewState(actor, &cultistDodge);
+                else if (dudeIsPlayingSeq(pSprite, 14) && !pXSprite->medium)
+                    aiNewState(actor, &cultistProneDodge);
+                else if (dudeIsPlayingSeq(pSprite, 13) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
+                    aiNewState(actor, &cultistSwimDodge);
             }
             else if (nDmgType == DAMAGE_TYPE_1 && pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth/* && (pXSprite->at17_6 != 1 || pXSprite->at17_6 != 2)*/)
             {
                 pSprite->type = kDudeBurningCultist;
-                aiNewState(pSprite, pXSprite, &cultistBurnGoto);
+                aiNewState(actor, &cultistBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
                 aiPlay3DSound(pSprite, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
-                gDudeExtra[pSprite->extra].TotalKills = gFrameClock+360;
+                gDudeExtra[pSprite->extra].time = gFrameClock+360;
                 actHealDude(pXSprite, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
@@ -942,41 +935,41 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
             if (nDmgType == DAMAGE_TYPE_1 && pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth/* && (pXSprite->at17_6 != 1 || pXSprite->at17_6 != 2)*/)
             {
                 pSprite->type = kDudeBurningInnocent;
-                aiNewState(pSprite, pXSprite, &cultistBurnGoto);
+                aiNewState(actor, &cultistBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
-                gDudeExtra[pSprite->extra].TotalKills = gFrameClock+360;
+                gDudeExtra[pSprite->extra].time = gFrameClock+360;
                 actHealDude(pXSprite, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
             break;
         case kDudeBurningCultist:
-            if (Chance(0x4000) && gDudeExtra[pSprite->extra].TotalKills < gFrameClock)
+            if (Chance(0x4000) && gDudeExtra[pSprite->extra].time < gFrameClock)
             {
                 aiPlay3DSound(pSprite, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
-                gDudeExtra[pSprite->extra].TotalKills = gFrameClock+360;
+                gDudeExtra[pSprite->extra].time = gFrameClock+360;
             }
             if (Chance(0x600) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
             {
                 pSprite->type = kDudeCultistTommy;
                 pXSprite->burnTime = 0;
-                aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                aiNewState(actor, &cultistSwimGoto);
             }
             else if (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo)
             {
                 pSprite->type = kDudeCultistShotgun;
                 pXSprite->burnTime = 0;
-                aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                aiNewState(actor, &cultistSwimGoto);
             }
             break;
         case kDudeGargoyleFlesh:
-            aiNewState(pSprite, pXSprite, &gargoyleFChase);
+            aiNewState(actor, &gargoyleFChase);
             break;
         case kDudeZombieButcher:
             if (nDmgType == DAMAGE_TYPE_1 && pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth) {
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
                 aiPlay3DSound(pSprite, 1202, AI_SFX_PRIORITY_2, -1);
                 pSprite->type = kDudeBurningZombieButcher;
-                aiNewState(pSprite, pXSprite, &zombieFBurnGoto);
+                aiNewState(actor, &zombieFBurnGoto);
                 actHealDude(pXSprite, dudeInfo[42].startHealth, dudeInfo[42].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
@@ -985,18 +978,18 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
             if (nDmgType == DAMAGE_TYPE_1 && pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth/* && (pXSprite->at17_6 != 1 || pXSprite->at17_6 != 2)*/)
             {
                 pSprite->type = kDudeBurningInnocent;
-                aiNewState(pSprite, pXSprite, &cultistBurnGoto);
+                aiNewState(actor, &cultistBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
-                gDudeExtra[pSprite->extra].TotalKills = gFrameClock+360;
+                gDudeExtra[pSprite->extra].time = gFrameClock+360;
                 actHealDude(pXSprite, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
             break;
 #ifdef NOONE_EXTENSIONS
         case kDudeModernCustomBurning:
-            if (Chance(0x2000) && gDudeExtra[pSprite->extra].TotalKills < gFrameClock) {
+            if (Chance(0x2000) && gDudeExtra[pSprite->extra].time < gFrameClock) {
                 playGenDudeSound(pSprite, kGenDudeSndBurning);
-                gDudeExtra[pSprite->extra].TotalKills = gFrameClock + 360;
+                gDudeExtra[pSprite->extra].time = gFrameClock + 360;
             }
             if (pXSprite->burnTime == 0) pXSprite->burnTime = 2400;
             if (spriteIsUnderwater(pSprite, false)) {
@@ -1036,7 +1029,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
 
                         aiGenDudeNewState(pSprite, &genDudeBurnGoto);
                         actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
-                        gDudeExtra[pSprite->extra].TotalKills = gFrameClock + 360;
+                        gDudeExtra[pSprite->extra].time = gFrameClock + 360;
                         evKill(nSprite, 3, kCallbackFXFlameLick);
 
                     }
@@ -1048,13 +1041,13 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                 if (!dudeIsMelee(pXSprite)) {
                     if (inIdle(pXSprite->aiState) ||  Chance(getDodgeChance(pSprite))) {
                         if (!spriteIsUnderwater(pSprite, false)) {
-                            if (!canDuck(pSprite) || !sub_5BDA8(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
+                            if (!canDuck(pSprite) || !dudeIsPlayingSeq(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
                             else aiGenDudeNewState(pSprite, &genDudeDodgeShortD);
 
                             if (Chance(0x0200))
                                 playGenDudeSound(pSprite, kGenDudeSndGotHit);
 
-                        } else if (sub_5BDA8(pSprite, 13)) {
+                        } else if (dudeIsPlayingSeq(pSprite, 13)) {
                             aiGenDudeNewState(pSprite, &genDudeDodgeShortW);
                         }
                     }
@@ -1070,7 +1063,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
             {
                 pSprite->type = kDudeBeast;
                 aiPlay3DSound(pSprite, 9008, AI_SFX_PRIORITY_1, -1);
-                aiNewState(pSprite, pXSprite, &beastMorphFromCultist);
+                aiNewState(actor, &beastMorphFromCultist);
                 actHealDude(pXSprite, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
             }
             break;
@@ -1081,7 +1074,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
                 aiPlay3DSound(pSprite, 1106, AI_SFX_PRIORITY_2, -1);
                 pSprite->type = kDudeBurningZombieAxe;
-                aiNewState(pSprite, pXSprite, &zombieABurnGoto);
+                aiNewState(actor, &zombieABurnGoto);
                 actHealDude(pXSprite, dudeInfo[41].startHealth, dudeInfo[41].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
@@ -1091,8 +1084,10 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
     return nDamage;
 }
 
-void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
+void RecoilDude(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     char v4 = Chance(0x8000);
     DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
     if (pSprite->statnum == kStatDude && (pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -1101,7 +1096,7 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
 #ifdef NOONE_EXTENSIONS
         case kDudeModernCustom: {
             GENDUDEEXTRA* pExtra = genDudeExtra(pSprite); int rChance = getRecoilChance(pSprite);
-            if (pExtra->canElectrocute && pDudeExtra->Kills && !spriteIsUnderwater(pSprite, false)) {
+            if (pExtra->canElectrocute && pDudeExtra->recoil && !spriteIsUnderwater(pSprite, false)) {
                 
                 if (Chance(rChance << 3) || (dudeIsMelee(pXSprite) && Chance(rChance << 4))) aiGenDudeNewState(pSprite, &genDudeRecoilTesla);
                 else if (pExtra->canRecoil && Chance(rChance)) aiGenDudeNewState(pSprite, &genDudeRecoilL);
@@ -1142,7 +1137,7 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
 
             }
 
-            pDudeExtra->Kills = 0;
+            pDudeExtra->recoil = 0;
             break;
         }
 #endif
@@ -1155,26 +1150,26 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
             else aiPlay3DSound(pSprite, 1013+Random(2), AI_SFX_PRIORITY_2, -1);
             
             if (!v4 && pXSprite->medium == kMediumNormal) {
-                if (pDudeExtra->Kills) aiNewState(pSprite, pXSprite, &cultistTeslaRecoil);
-                else aiNewState(pSprite, pXSprite, &cultistRecoil);
+                if (pDudeExtra->recoil) aiNewState(actor, &cultistTeslaRecoil);
+                else aiNewState(actor, &cultistRecoil);
 
             } else if (v4 && pXSprite->medium == kMediumNormal) {
-                if (pDudeExtra->Kills) aiNewState(pSprite, pXSprite, &cultistTeslaRecoil);
-                else if (gGameOptions.nDifficulty > 0) aiNewState(pSprite, pXSprite, &cultistProneRecoil);
-                else aiNewState(pSprite, pXSprite, &cultistRecoil);
+                if (pDudeExtra->recoil) aiNewState(actor, &cultistTeslaRecoil);
+                else if (gGameOptions.nDifficulty > 0) aiNewState(actor, &cultistProneRecoil);
+                else aiNewState(actor, &cultistRecoil);
             }
             else if (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo)
-                aiNewState(pSprite, pXSprite, &cultistSwimRecoil);
+                aiNewState(actor, &cultistSwimRecoil);
             else
             {
-                if (pDudeExtra->Kills)
-                    aiNewState(pSprite, pXSprite, &cultistTeslaRecoil);
+                if (pDudeExtra->recoil)
+                    aiNewState(actor, &cultistTeslaRecoil);
                 else
-                    aiNewState(pSprite, pXSprite, &cultistRecoil);
+                    aiNewState(actor, &cultistRecoil);
             }
             break;
         case kDudeBurningCultist:
-            aiNewState(pSprite, pXSprite, &cultistBurnGoto);
+            aiNewState(actor, &cultistBurnGoto);
             break;
 #ifdef NOONE_EXTENSIONS
         case kDudeModernCustomBurning:
@@ -1183,71 +1178,71 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
 #endif
         case kDudeZombieButcher:
             aiPlay3DSound(pSprite, 1202, AI_SFX_PRIORITY_2, -1);
-            if (pDudeExtra->Kills)
-                aiNewState(pSprite, pXSprite, &zombieFTeslaRecoil);
+            if (pDudeExtra->recoil)
+                aiNewState(actor, &zombieFTeslaRecoil);
             else
-                aiNewState(pSprite, pXSprite, &zombieFRecoil);
+                aiNewState(actor, &zombieFRecoil);
             break;
         case kDudeZombieAxeNormal:
         case kDudeZombieAxeBuried:
             aiPlay3DSound(pSprite, 1106, AI_SFX_PRIORITY_2, -1);
-            if (pDudeExtra->Kills && pXSprite->data3 > pDudeInfo->startHealth/3)
-                aiNewState(pSprite, pXSprite, &zombieATeslaRecoil);
+            if (pDudeExtra->recoil && pXSprite->data3 > pDudeInfo->startHealth/3)
+                aiNewState(actor, &zombieATeslaRecoil);
             else if (pXSprite->data3 > pDudeInfo->startHealth/3)
-                aiNewState(pSprite, pXSprite, &zombieARecoil2);
+                aiNewState(actor, &zombieARecoil2);
             else
-                aiNewState(pSprite, pXSprite, &zombieARecoil);
+                aiNewState(actor, &zombieARecoil);
             break;
         case kDudeBurningZombieAxe:
             aiPlay3DSound(pSprite, 1106, AI_SFX_PRIORITY_2, -1);
-            aiNewState(pSprite, pXSprite, &zombieABurnGoto);
+            aiNewState(actor, &zombieABurnGoto);
             break;
         case kDudeBurningZombieButcher:
             aiPlay3DSound(pSprite, 1202, AI_SFX_PRIORITY_2, -1);
-            aiNewState(pSprite, pXSprite, &zombieFBurnGoto);
+            aiNewState(actor, &zombieFBurnGoto);
             break;
         case kDudeGargoyleFlesh:
         case kDudeGargoyleStone:
             aiPlay3DSound(pSprite, 1402, AI_SFX_PRIORITY_2, -1);
-            aiNewState(pSprite, pXSprite, &gargoyleFRecoil);
+            aiNewState(actor, &gargoyleFRecoil);
             break;
         case kDudeCerberusTwoHead:
             aiPlay3DSound(pSprite, 2302+Random(2), AI_SFX_PRIORITY_2, -1);
-            if (pDudeExtra->Kills && pXSprite->data3 > pDudeInfo->startHealth/3)
-                aiNewState(pSprite, pXSprite, &cerberusTeslaRecoil);
+            if (pDudeExtra->recoil && pXSprite->data3 > pDudeInfo->startHealth/3)
+                aiNewState(actor, &cerberusTeslaRecoil);
             else
-                aiNewState(pSprite, pXSprite, &cerberusRecoil);
+                aiNewState(actor, &cerberusRecoil);
             break;
         case kDudeCerberusOneHead:
             aiPlay3DSound(pSprite, 2302+Random(2), AI_SFX_PRIORITY_2, -1);
-            aiNewState(pSprite, pXSprite, &cerberus2Recoil);
+            aiNewState(actor, &cerberus2Recoil);
             break;
         case kDudeHellHound:
             aiPlay3DSound(pSprite, 1302, AI_SFX_PRIORITY_2, -1);
-            if (pDudeExtra->Kills)
-                aiNewState(pSprite, pXSprite, &houndTeslaRecoil);
+            if (pDudeExtra->recoil)
+                aiNewState(actor, &houndTeslaRecoil);
             else
-                aiNewState(pSprite, pXSprite, &houndRecoil);
+                aiNewState(actor, &houndRecoil);
             break;
         case kDudeTchernobog:
             aiPlay3DSound(pSprite, 2370+Random(2), AI_SFX_PRIORITY_2, -1);
-            aiNewState(pSprite, pXSprite, &tchernobogRecoil);
+            aiNewState(actor, &tchernobogRecoil);
             break;
         case kDudeHand:
             aiPlay3DSound(pSprite, 1902, AI_SFX_PRIORITY_2, -1);
-            aiNewState(pSprite, pXSprite, &handRecoil);
+            aiNewState(actor, &handRecoil);
             break;
         case kDudeRat:
             aiPlay3DSound(pSprite, 2102, AI_SFX_PRIORITY_2, -1);
-            aiNewState(pSprite, pXSprite, &ratRecoil);
+            aiNewState(actor, &ratRecoil);
             break;
         case kDudeBat:
             aiPlay3DSound(pSprite, 2002, AI_SFX_PRIORITY_2, -1);
-            aiNewState(pSprite, pXSprite, &batRecoil);
+            aiNewState(actor, &batRecoil);
             break;
         case kDudeBoneEel:
             aiPlay3DSound(pSprite, 1502, AI_SFX_PRIORITY_2, -1);
-            aiNewState(pSprite, pXSprite, &eelRecoil);
+            aiNewState(actor, &eelRecoil);
             break;
         case kDudeGillBeast: {
             XSECTOR *pXSector = NULL;
@@ -1255,90 +1250,92 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
                 pXSector = &xsector[sector[pSprite->sectnum].extra];
             aiPlay3DSound(pSprite, 1702, AI_SFX_PRIORITY_2, -1);
             if (pXSector && pXSector->Underwater)
-                aiNewState(pSprite, pXSprite, &gillBeastSwimRecoil);
+                aiNewState(actor, &gillBeastSwimRecoil);
             else
-                aiNewState(pSprite, pXSprite, &gillBeastRecoil);
+                aiNewState(actor, &gillBeastRecoil);
             break;
         }
         case kDudePhantasm:
             aiPlay3DSound(pSprite, 1602, AI_SFX_PRIORITY_2, -1);
-            if (pDudeExtra->Kills)
-                aiNewState(pSprite, pXSprite, &ghostTeslaRecoil);
+            if (pDudeExtra->recoil)
+                aiNewState(actor, &ghostTeslaRecoil);
             else
-                aiNewState(pSprite, pXSprite, &ghostRecoil);
+                aiNewState(actor, &ghostRecoil);
             break;
         case kDudeSpiderBrown:
         case kDudeSpiderRed:
         case kDudeSpiderBlack:
             aiPlay3DSound(pSprite, 1802+Random(1), AI_SFX_PRIORITY_2, -1);
-            aiNewState(pSprite, pXSprite, &spidDodge);
+            aiNewState(actor, &spidDodge);
             break;
         case kDudeSpiderMother:
             aiPlay3DSound(pSprite, 1851+Random(1), AI_SFX_PRIORITY_2, -1);
-            aiNewState(pSprite, pXSprite, &spidDodge);
+            aiNewState(actor, &spidDodge);
             break;
         case kDudeInnocent:
             aiPlay3DSound(pSprite, 7007+Random(2), AI_SFX_PRIORITY_2, -1);
-            if (pDudeExtra->Kills)
-                aiNewState(pSprite, pXSprite, &innocentTeslaRecoil);
+            if (pDudeExtra->recoil)
+                aiNewState(actor, &innocentTeslaRecoil);
             else
-                aiNewState(pSprite, pXSprite, &innocentRecoil);
+                aiNewState(actor, &innocentRecoil);
             break;
         case kDudeTinyCaleb:
             if (pXSprite->medium == kMediumNormal)
             {
-                if (pDudeExtra->Kills)
-                    aiNewState(pSprite, pXSprite, &tinycalebTeslaRecoil);
+                if (pDudeExtra->recoil)
+                    aiNewState(actor, &tinycalebTeslaRecoil);
                 else
-                    aiNewState(pSprite, pXSprite, &tinycalebRecoil);
+                    aiNewState(actor, &tinycalebRecoil);
             }
             else if (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo)
-                aiNewState(pSprite, pXSprite, &tinycalebSwimRecoil);
+                aiNewState(actor, &tinycalebSwimRecoil);
             else
             {
-                if (pDudeExtra->Kills)
-                    aiNewState(pSprite, pXSprite, &tinycalebTeslaRecoil);
+                if (pDudeExtra->recoil)
+                    aiNewState(actor, &tinycalebTeslaRecoil);
                 else
-                    aiNewState(pSprite, pXSprite, &tinycalebRecoil);
+                    aiNewState(actor, &tinycalebRecoil);
             }
             break;
         case kDudeBeast:
             aiPlay3DSound(pSprite, 9004+Random(2), AI_SFX_PRIORITY_2, -1);
             if (pXSprite->medium == kMediumNormal)
             {
-                if (pDudeExtra->Kills)
-                    aiNewState(pSprite, pXSprite, &beastTeslaRecoil);
+                if (pDudeExtra->recoil)
+                    aiNewState(actor, &beastTeslaRecoil);
                 else
-                    aiNewState(pSprite, pXSprite, &beastRecoil);
+                    aiNewState(actor, &beastRecoil);
             }
             else if (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo)
-                aiNewState(pSprite, pXSprite, &beastSwimRecoil);
+                aiNewState(actor, &beastSwimRecoil);
             else
             {
-                if (pDudeExtra->Kills)
-                    aiNewState(pSprite, pXSprite, &beastTeslaRecoil);
+                if (pDudeExtra->recoil)
+                    aiNewState(actor, &beastTeslaRecoil);
                 else
-                    aiNewState(pSprite, pXSprite, &beastRecoil);
+                    aiNewState(actor, &beastRecoil);
             }
             break;
         case kDudePodGreen:
         case kDudePodFire:
-            aiNewState(pSprite, pXSprite, &podRecoil);
+            aiNewState(actor, &podRecoil);
             break;
         case kDudeTentacleGreen:
         case kDudeTentacleFire:
-            aiNewState(pSprite, pXSprite, &tentacleRecoil);
+            aiNewState(actor, &tentacleRecoil);
             break;
         default:
-            aiNewState(pSprite, pXSprite, &genRecoil);
+            aiNewState(actor, &genRecoil);
             break;
         }
-        pDudeExtra->Kills = 0;
+        pDudeExtra->recoil = 0;
     }
 }
 
-void aiThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+void aiThinkTarget(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (Chance(pDudeInfo->alertChance))
@@ -1363,13 +1360,13 @@ void aiThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
             else if (nDist < pDudeInfo->hearDist)
             {
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
         }
@@ -1402,22 +1399,20 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
             else if (nDist < pDudeInfo->hearDist)
             {
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
         }
         if (pXSprite->state)
         {
             uint8_t va4[(kMaxSectors+7)>>3];
-            gAffectedSectors[0] = 0;
-            gAffectedXWalls[0] = 0;
-            GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, gAffectedSectors, va4, gAffectedXWalls);
+            GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, va4);
 
             int nSprite2;
             StatIterator it(kStatDude);
@@ -1433,7 +1428,7 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
                     if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
                         continue;
                     aiSetTarget(pXSprite, pSprite2->index);
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
                     return;
                 }
             }
@@ -1449,15 +1444,17 @@ void aiProcessDudes(void) {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->flags & 32) continue;
         int nXSprite = pSprite->extra;
-        XSPRITE *pXSprite = &xsprite[nXSprite]; DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+        XSPRITE *pXSprite = &xsprite[nXSprite]; 
+        DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+        auto actor = &bloodActors[pXSprite->reference];
         if (IsPlayerSprite(pSprite) || pXSprite->health == 0) continue;
         pXSprite->stateTimer = ClipLow(pXSprite->stateTimer-4, 0);
 
         if (pXSprite->aiState->moveFunc)
-            pXSprite->aiState->moveFunc(pSprite, pXSprite);
+            pXSprite->aiState->moveFunc(&bloodActors[pXSprite->reference]);
 
         if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (nSprite & 3))
-            pXSprite->aiState->thinkFunc(pSprite, pXSprite);
+            pXSprite->aiState->thinkFunc(&bloodActors[pXSprite->reference]);
 
         switch (pSprite->type) {
             #ifdef NOONE_EXTENSIONS
@@ -1473,21 +1470,21 @@ void aiProcessDudes(void) {
                 int hinder = ((pExtra->isMelee) ? 25 : 5) << 4;
                 if (pXSprite->health <= 0 || hinder > cumulDamage[pSprite->extra]) break;
                 pXSprite->data3 = cumulDamage[pSprite->extra];
-                RecoilDude(pSprite, pXSprite);
+                RecoilDude(&bloodActors[pXSprite->reference]);
                 break;
             }
             #endif
             default:
                 if (pXSprite->stateTimer == 0 && pXSprite->aiState->nextState) {
                     if (pXSprite->aiState->stateTicks > 0)
-                        aiNewState(pSprite, pXSprite, pXSprite->aiState->nextState);
+                        aiNewState(actor, pXSprite->aiState->nextState);
                     else if (seqGetStatus(3, nXSprite) < 0)
-                        aiNewState(pSprite, pXSprite, pXSprite->aiState->nextState);
+                        aiNewState(actor, pXSprite->aiState->nextState);
                 }
 
                 if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage << 4) <= cumulDamage[nXSprite])) {
                     pXSprite->data3 = cumulDamage[nXSprite];
-                    RecoilDude(pSprite, pXSprite);
+                    RecoilDude(&bloodActors[pXSprite->reference]);
                 }
                 break;
         }
@@ -1509,14 +1506,15 @@ void aiInitSprite(spritetype *pSprite)
 {
     int nXSprite = pSprite->extra;
     XSPRITE *pXSprite = &xsprite[nXSprite];
+    auto actor = &bloodActors[pXSprite->reference];
     int nSector = pSprite->sectnum;
     int nXSector = sector[nSector].extra;
     XSECTOR *pXSector = NULL;
     if (nXSector > 0)
         pXSector = &xsector[nXSector];
     DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
-    pDudeExtra->Kills = 0;
-    pDudeExtra->TotalKills = 0;
+    pDudeExtra->recoil = 0;
+    pDudeExtra->time = 0;
 
     switch (pSprite->type) {
     #ifdef NOONE_EXTENSIONS
@@ -1535,117 +1533,117 @@ void aiInitSprite(spritetype *pSprite)
     case kDudeCultistBeast:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u1;
-        pDudeExtraE->at8 = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &cultistIdle);
+        pDudeExtraE->xval3 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &cultistIdle);
         break;
     }
     case kDudeCultistTommyProne:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u1;
-        pDudeExtraE->at8 = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &fanaticProneIdle);
+        pDudeExtraE->xval3 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &fanaticProneIdle);
         break;
     }
     case kDudeCultistShotgunProne:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u1;
-        pDudeExtraE->at8 = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &cultistProneIdle);
+        pDudeExtraE->xval3 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &cultistProneIdle);
         break;
     }
     case kDudeZombieButcher: {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u2;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &zombieFIdle);
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &zombieFIdle);
         break;
     }
     case kDudeZombieAxeNormal: {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u2;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &zombieAIdle);
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &zombieAIdle);
         break;
     }
     case kDudeZombieAxeLaying:
     {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u2;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &zombieSIdle);
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &zombieSIdle);
         pSprite->flags &= ~1;
         break;
     }
     case kDudeZombieAxeBuried: {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u2;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &zombieEIdle);
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &zombieEIdle);
         break;
     }
     case kDudeGargoyleFlesh:
     case kDudeGargoyleStone: {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u1;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->at8 = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &gargoyleFIdle);
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval3 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &gargoyleFIdle);
         break;
     }
     case kDudeGargoyleStatueFlesh:
     case kDudeGargoyleStatueStone:
-        aiNewState(pSprite, pXSprite, &gargoyleStatueIdle);
+        aiNewState(actor, &gargoyleStatueIdle);
         break;
     case kDudeCerberusTwoHead: {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u2;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &cerberusIdle);
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &cerberusIdle);
         break;
     }
     case kDudeHellHound:
-        aiNewState(pSprite, pXSprite, &houndIdle);
+        aiNewState(actor, &houndIdle);
         break;
     case kDudeHand:
-        aiNewState(pSprite, pXSprite, &handIdle);
+        aiNewState(actor, &handIdle);
         break;
     case kDudePhantasm:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u1;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->at8 = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &ghostIdle);
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval3 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &ghostIdle);
         break;
     }
     case kDudeInnocent:
-        aiNewState(pSprite, pXSprite, &innocentIdle);
+        aiNewState(actor, &innocentIdle);
         break;
     case kDudeRat:
-        aiNewState(pSprite, pXSprite, &ratIdle);
+        aiNewState(actor, &ratIdle);
         break;
     case kDudeBoneEel:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u1;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->at8 = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &eelIdle);
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval3 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &eelIdle);
         break;
     }
     case kDudeGillBeast:
-        aiNewState(pSprite, pXSprite, &gillBeastIdle);
+        aiNewState(actor, &gillBeastIdle);
         break;
     case kDudeBat:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u1;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->at8 = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &batIdle);
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval3 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &batIdle);
         break;
     }
     case kDudeSpiderBrown:
@@ -1653,45 +1651,45 @@ void aiInitSprite(spritetype *pSprite)
     case kDudeSpiderBlack:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u1;
-        pDudeExtraE->at8 = 0;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &spidIdle);
+        pDudeExtraE->xval3 = 0;
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &spidIdle);
         break;
     }
     case kDudeSpiderMother:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u1;
-        pDudeExtraE->at8 = 0;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &spidIdle);
+        pDudeExtraE->xval3 = 0;
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &spidIdle);
         break;
     }
     case kDudeTchernobog:
     {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[nXSprite].at6.u2;
-        pDudeExtraE->Kills = 0;
-        pDudeExtraE->TotalKills = 0;
-        aiNewState(pSprite, pXSprite, &tchernobogIdle);
+        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->xval1 = 0;
+        aiNewState(actor, &tchernobogIdle);
         break;
     }
     case kDudeTinyCaleb:
-        aiNewState(pSprite, pXSprite, &tinycalebIdle);
+        aiNewState(actor, &tinycalebIdle);
         break;
     case kDudeBeast:
-        aiNewState(pSprite, pXSprite, &beastIdle);
+        aiNewState(actor, &beastIdle);
         break;
     case kDudePodGreen:
     case kDudePodFire:
-        aiNewState(pSprite, pXSprite, &podIdle);
+        aiNewState(actor, &podIdle);
         break;
     case kDudeTentacleGreen:
     case kDudeTentacleFire:
-        aiNewState(pSprite, pXSprite, &tentacleIdle);
+        aiNewState(actor, &tentacleIdle);
         break;
     default:
-        aiNewState(pSprite, pXSprite, &genIdle);
+        aiNewState(actor, &genIdle);
         break;
     }
     aiSetTarget(pXSprite, 0, 0, 0);
@@ -1743,31 +1741,45 @@ void aiInitSprite(spritetype *pSprite)
     }
 }
 
-class AILoadSave : public LoadSave
-{
-    virtual void Load(void);
-    virtual void Save(void);
-};
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-void AILoadSave::Load(void)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDEEXTRA* def)
 {
-    //Read(cumulDamage, sizeof(cumulDamage));
-    Read(gDudeSlope, sizeof(gDudeSlope));
-    Read(gDudeExtra, sizeof(gDudeExtra));
-    Read(gGenDudeExtra, sizeof(gGenDudeExtra));
+    int empty = 0;
+    char empty2 = 0;
+    if (arc.isReading()) w = {};
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("time", w.time, &empty)
+			("recoil", w.recoil, &empty)
+			("prio", w.prio, &empty)
+			("x1", w.at6.u1.xval1, &empty)
+			("x2", w.at6.u1.xval2, &empty)
+			("x3", w.at6.u1.xval3, &empty2)
+			.EndObject();
+	}
+	return arc;
 }
 
-void AILoadSave::Save(void)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void SerializeAI(FSerializer& arc)
 {
-    //Write(cumulDamage, sizeof(cumulDamage)); data never crosses the end-of-frame barrier
-    Write(gDudeSlope, sizeof(gDudeSlope));
-    Write(gDudeExtra, sizeof(gDudeExtra));
-    Write(gGenDudeExtra, sizeof(gGenDudeExtra));
+	if (arc.BeginObject("ai"))
+	{
+		arc.SparseArray("dudeextra", gDudeExtra, kMaxSprites, activeXSprites)
+		    .EndObject();
+	}
 }
 
-void AILoadSaveConstruct(void)
-{
-    new AILoadSave();
-}
 
 END_BLD_NS

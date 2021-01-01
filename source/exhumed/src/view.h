@@ -31,12 +31,6 @@ void ResetView();
 void NoClip();
 void Clip();
 
-int viewSetInterpolation(int32_t *const posptr);
-void viewStopInterpolation(const int32_t * const posptr);
-void viewDoInterpolations(int smoothRatio);
-void viewUpdateInterpolations(void);
-void viewRestoreInterpolations(void);
-
 extern short dVertPan[];
 extern short nQuake[];
 extern int nCamerax;
@@ -45,6 +39,12 @@ extern int nCameraz;
 extern short bTouchFloor;
 extern short nChunkTotal;
 extern int gFov;
+
+struct Loc
+{
+	int x, y, z, ang;
+};
+extern Loc oldLocs[MAXSPRITES];
 
 static inline int angle_interpolate16(int a, int b, int smooth)
 {

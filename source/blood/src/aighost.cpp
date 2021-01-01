@@ -27,40 +27,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "eventq.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
-#include "nnexts.h"
 
 BEGIN_BLD_NS
 
-static void ghostSlashSeqCallback(int, int);
-static void ghostThrowSeqCallback(int, int);
-static void ghostBlastSeqCallback(int, int);
-static void ghostThinkTarget(spritetype *, XSPRITE *);
-static void ghostThinkSearch(spritetype *, XSPRITE *);
-static void ghostThinkGoto(spritetype *, XSPRITE *);
-static void ghostMoveDodgeUp(spritetype *, XSPRITE *);
-static void ghostMoveDodgeDown(spritetype *, XSPRITE *);
-static void ghostThinkChase(spritetype *, XSPRITE *);
-static void ghostMoveForward(spritetype *, XSPRITE *);
-static void ghostMoveSlow(spritetype *, XSPRITE *);
-static void ghostMoveSwoop(spritetype *, XSPRITE *);
-static void ghostMoveFly(spritetype *, XSPRITE *);
+static void ghostThinkTarget(DBloodActor *);
+static void ghostThinkSearch(DBloodActor *);
+static void ghostThinkGoto(DBloodActor *);
+static void ghostMoveDodgeUp(DBloodActor *);
+static void ghostMoveDodgeDown(DBloodActor *);
+static void ghostThinkChase(DBloodActor *);
+static void ghostMoveForward(DBloodActor *);
+static void ghostMoveSlow(DBloodActor *);
+static void ghostMoveSwoop(DBloodActor *);
+static void ghostMoveFly(DBloodActor *);
 
-static int nGhostSlashClient = seqRegisterClient(ghostSlashSeqCallback);
-static int nGhostThrowClient = seqRegisterClient(ghostThrowSeqCallback);
-static int nGhostBlastClient = seqRegisterClient(ghostBlastSeqCallback);
 
 AISTATE ghostIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, ghostThinkTarget, NULL };
 AISTATE ghostChase = { kAiStateChase, 0, -1, 0, NULL, ghostMoveForward, ghostThinkChase, &ghostIdle };
@@ -81,11 +63,10 @@ AISTATE ghostDodgeDown = { kAiStateMove, 0, -1, 120, NULL, ghostMoveDodgeDown, N
 AISTATE ghostDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
 AISTATE ghostDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, ghostMoveDodgeDown, NULL, &ghostChase };
 
-static void ghostSlashSeqCallback(int, int nXSprite)
+void ghostSlashSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
@@ -104,18 +85,15 @@ static void ghostSlashSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx-r2, dy+r1, dz, VECTOR_TYPE_12);
 }
 
-static void ghostThrowSeqCallback(int, int nXSprite)
+void ghostThrowSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    actFireThing(&sprite[nSprite], 0, 0, gDudeSlope[nXSprite]-7500, kThingBone, 0xeeeee);
+    actFireThing(&actor->s(), 0, 0, actor->dudeSlope - 7500, kThingBone, 0xeeeee);
 }
 
-static void ghostBlastSeqCallback(int, int nXSprite)
+void ghostBlastSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     wrand(); // ???
     spritetype *pTarget = &sprite[pXSprite->target];
     int height = (pSprite->yrepeat*getDudeInfo(pSprite->type)->eyeHeight) << 2;
@@ -128,7 +106,7 @@ static void ghostBlastSeqCallback(int, int nXSprite)
     Aim aim;
     aim.dx = CosScale16(pSprite->ang);
     aim.dy = SinScale16(pSprite->ang);
-    aim.dz = gDudeSlope[nXSprite];
+    aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
     int nSprite2;
     StatIterator it(kStatDude);
@@ -152,7 +130,7 @@ static void ghostBlastSeqCallback(int, int nXSprite)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(gDudeSlope[nXSprite], nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
@@ -205,8 +183,10 @@ static void ghostBlastSeqCallback(int, int nXSprite)
     #endif
 }
 
-static void ghostThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostThinkTarget(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -214,14 +194,14 @@ static void ghostThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-    if (pDudeExtraE->at8 && pDudeExtraE->Kills < 10)
-        pDudeExtraE->Kills++;
-    else if (pDudeExtraE->Kills >= 10 && pDudeExtraE->at8)
+    if (pDudeExtraE->xval3 && pDudeExtraE->xval2 < 10)
+        pDudeExtraE->xval2++;
+    else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)
     {
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
-        aiNewState(pSprite, pXSprite, &ghostTurn);
+        aiNewState(actor, &ghostTurn);
         return;
     }
     if (Chance(pDudeInfo->alertChance))
@@ -245,30 +225,34 @@ static void ghostThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                pDudeExtraE->Kills = 0;
+                pDudeExtraE->xval2 = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                pDudeExtraE->Kills = 0;
+                pDudeExtraE->xval2 = 0;
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 return;
             }
         }
     }
 }
 
-static void ghostThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void ghostThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -281,12 +265,14 @@ static void ghostThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &ghostSearch);
-    aiThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &ghostSearch);
+    aiThinkTarget(actor);
 }
 
-static void ghostMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveDodgeUp(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int nSprite = pSprite->index;
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -299,8 +285,8 @@ static void ghostMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int dx = xvel[nSprite];
-    int dy = yvel[nSprite];
+    int dx = actor->xvel();
+    int dy = actor->yvel();
     int t1 = dmulscale30(dx, nCos, dy, nSin);
     int t2 = dmulscale30(dx, nSin, -dy, nCos);
     if (pXSprite->dodgeDir > 0)
@@ -308,13 +294,15 @@ static void ghostMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     else
         t2 -= pDudeInfo->sideSpeed;
 
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = -0x1d555;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = -0x1d555;
 }
 
-static void ghostMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveDodgeDown(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int nSprite = pSprite->index;
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -329,8 +317,8 @@ static void ghostMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int dx = xvel[nSprite];
-    int dy = yvel[nSprite];
+    int dx = actor->xvel();
+    int dy = actor->yvel();
     int t1 = dmulscale30(dx, nCos, dy, nSin);
     int t2 = dmulscale30(dx, nSin, -dy, nCos);
     if (pXSprite->dodgeDir > 0)
@@ -338,16 +326,18 @@ static void ghostMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
     else
         t2 -= pDudeInfo->sideSpeed;
 
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = 0x44444;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = 0x44444;
 }
 
-static void ghostThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &ghostGoto);
+        aiNewState(actor, &ghostGoto);
         return;
     }
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -368,12 +358,12 @@ static void ghostThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &ghostSearch);
+        aiNewState(actor, &ghostSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &ghostSearch);
+        aiNewState(actor, &ghostSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -398,17 +388,17 @@ static void ghostThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         switch (hit)
                         {
                         case -1:
-                            aiNewState(pSprite, pXSprite, &ghostBlast);
+                            aiNewState(actor, &ghostBlast);
                             break;
                         case 0:
                         case 4:
                             break;
                         case 3:
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudePhantasm)
-                                aiNewState(pSprite, pXSprite, &ghostBlast);
+                                aiNewState(actor, &ghostBlast);
                             break;
                         default:
-                            aiNewState(pSprite, pXSprite, &ghostBlast);
+                            aiNewState(actor, &ghostBlast);
                             break;
                         }
                     }
@@ -418,24 +408,24 @@ static void ghostThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         switch (hit)
                         {
                         case -1:
-                            aiNewState(pSprite, pXSprite, &ghostSlash);
+                            aiNewState(actor, &ghostSlash);
                             break;
                         case 0:
                         case 4:
                             break;
                         case 3:
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudePhantasm)
-                                aiNewState(pSprite, pXSprite, &ghostSlash);
+                                aiNewState(actor, &ghostSlash);
                             break;
                         default:
-                            aiNewState(pSprite, pXSprite, &ghostSlash);
+                            aiNewState(actor, &ghostSlash);
                             break;
                         }
                     }
                     else if ((height2-height > 0x2000 || floorZ-bottom > 0x2000) && nDist < 0x1400 && nDist > 0x800)
                     {
                         aiPlay3DSound(pSprite, 1600, AI_SFX_PRIORITY_1, -1);
-                        aiNewState(pSprite, pXSprite, &ghostSwoop);
+                        aiNewState(actor, &ghostSwoop);
                     }
                     else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && klabs(nDeltaAngle) < 85)
                         aiPlay3DSound(pSprite, 1600, AI_SFX_PRIORITY_1, -1);
@@ -446,18 +436,19 @@ static void ghostThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         }
         else
         {
-            aiNewState(pSprite, pXSprite, &ghostFly);
+            aiNewState(actor, &ghostFly);
             return;
         }
     }
 
-    aiNewState(pSprite, pXSprite, &ghostGoto);
+    aiNewState(actor, &ghostGoto);
     pXSprite->target = -1;
 }
 
-static void ghostMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveForward(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -479,21 +470,22 @@ static void ghostMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     if (pXSprite->target == -1)
         t1 += nAccel;
     else
         t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void ghostMoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveSlow(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -516,24 +508,25 @@ static void ghostMoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 = nAccel>>1;
     t2 >>= 1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
     switch (pSprite->type) {
         case kDudePhantasm:
-            zvel[nSprite] = 0x44444;
+            actor->zvel() = 0x44444;
             break;
     }
 }
 
-static void ghostMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveSwoop(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -556,23 +549,24 @@ static void ghostMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
     switch (pSprite->type) {
         case kDudePhantasm:
-            zvel[nSprite] = t1;
+            actor->zvel() = t1;
             break;
     }
 }
 
-static void ghostMoveFly(spritetype *pSprite, XSPRITE *pXSprite)
+static void ghostMoveFly(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -595,16 +589,16 @@ static void ghostMoveFly(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
     switch (pSprite->type) {
         case kDudePhantasm:
-            zvel[nSprite] = -t1;
+            actor->zvel() = -t1;
             break;
     }
 }

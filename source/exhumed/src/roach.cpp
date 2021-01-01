@@ -24,10 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum { kMaxRoach = 100 };
-
-int16_t RoachCount = -1;
-
 static actionSeq RoachSeq[] = {
     {24, 0},
     {0,  0},
@@ -41,37 +37,52 @@ static actionSeq RoachSeq[] = {
 struct Roach
 {
     short nHealth;
-    short field_2;
+    short nFrame;
     short nAction;
     short nSprite;
     short nTarget;
-    short field_A;
-    short field_C;
-    short field_E;
+    short nRun;
+    short nCount;
+    short nIndex;
 };
 
-Roach RoachList[kMaxRoach];
+TArray<Roach> RoachList;
 
-static SavegameHelper sghroach("roach",
-    SV(RoachCount),
-    SA(RoachList),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Roach& w, Roach* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("run", w.nRun)
+            ("count", w.nCount)
+            ("index", w.nIndex)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializeRoach(FSerializer& arc)
+{
+    arc("roach", RoachList);
+}
+
 
 
 /* Kilmaat Sentry */
 
 void InitRoachs()
 {
-    RoachCount = kMaxRoach;
+    RoachList.Clear();
 }
 
 // TODO - make nType a bool?
 int BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int angle)
 {
-    RoachCount--;
-    if (RoachCount < 0) {
-        return -1;
-    }
+    auto RoachCount = RoachList.Reserve(1);
 
     if (nSprite == -1)
     {
@@ -120,13 +131,13 @@ int BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int a
     }
 
     RoachList[RoachCount].nSprite = nSprite;
-    RoachList[RoachCount].field_2 = 0;
-    RoachList[RoachCount].field_C = 0;
+    RoachList[RoachCount].nFrame = 0;
+    RoachList[RoachCount].nCount = 0;
     RoachList[RoachCount].nTarget = -1;
     RoachList[RoachCount].nHealth = 600;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, RoachCount | 0x1C0000);
-    RoachList[RoachCount].field_A = runlist_AddRunRec(NewRun, RoachCount | 0x1C0000);
+    RoachList[RoachCount].nRun = runlist_AddRunRec(NewRun, RoachCount | 0x1C0000);
 
     nCreaturesTotal++;
 
@@ -135,14 +146,14 @@ int BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int a
 
 void GoRoach(short nSprite)
 {
-    sprite[nSprite].xvel = (Cos(sprite[nSprite].ang) >> 1) - (Cos(sprite[nSprite].ang) >> 3);
-    sprite[nSprite].yvel = (Sin(sprite[nSprite].ang) >> 1) - (Sin(sprite[nSprite].ang) >> 3);
+    sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1) - bcos(sprite[nSprite].ang, -3);
+    sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1) - bsin(sprite[nSprite].ang, -3);
 }
 
 void FuncRoach(int a, int nDamage, int nRun)
 {
     short nRoach = RunData[nRun].nVal;
-    assert(nRoach >= 0 && nRoach < kMaxRoach);
+    assert(nRoach >= 0 && nRoach < (int)RoachList.Size());
     
     short nSprite = RoachList[nRoach].nSprite;
     short nAction = RoachList[nRoach].nAction;
@@ -161,7 +172,7 @@ void FuncRoach(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], RoachList[nRoach].field_2, RoachSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], RoachList[nRoach].nFrame, RoachSeq[nAction].b);
             return;
         }
 
@@ -192,7 +203,7 @@ void FuncRoach(int a, int nDamage, int nRun)
                     {
                         DropMagic(nSprite);
                         RoachList[nRoach].nAction = 5;
-                        RoachList[nRoach].field_2 = 0;
+                        RoachList[nRoach].nFrame = 0;
                     }
 
                     nCreaturesKilled++; // NOTE: This was incrementing in original code. Bug?
@@ -210,14 +221,14 @@ void FuncRoach(int a, int nDamage, int nRun)
                         {
                             RoachList[nRoach].nAction = 2;
                             GoRoach(nSprite);
-                            RoachList[nRoach].field_2 = 0;
+                            RoachList[nRoach].nFrame = 0;
                         }
                         else
                         {
                             if (!RandomSize(4))
                             {
                                 RoachList[nRoach].nAction = 4;
-                                RoachList[nRoach].field_2 = 0;
+                                RoachList[nRoach].nFrame = 0;
                             }
                         }
                     }
@@ -233,17 +244,17 @@ void FuncRoach(int a, int nDamage, int nRun)
 
             int nSeq = SeqOffsets[kSeqRoach] + RoachSeq[RoachList[nRoach].nAction].a;
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, RoachList[nRoach].field_2);
-            seq_MoveSequence(nSprite, nSeq, RoachList[nRoach].field_2);
+            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, RoachList[nRoach].nFrame);
+            seq_MoveSequence(nSprite, nSeq, RoachList[nRoach].nFrame);
 
-            RoachList[nRoach].field_2++;
-            if (RoachList[nRoach].field_2 >= SeqSize[nSeq])
+            RoachList[nRoach].nFrame++;
+            if (RoachList[nRoach].nFrame >= SeqSize[nSeq])
             {
                 bVal = true;
-                RoachList[nRoach].field_2 = 0;
+                RoachList[nRoach].nFrame = 0;
             }
 
-            int nFlag = FrameFlag[SeqBase[nSeq] + RoachList[nRoach].field_2];
+            int nFlag = FrameFlag[SeqBase[nSeq] + RoachList[nRoach].nFrame];
             short nTarget = RoachList[nRoach].nTarget;
 
             if (nAction > 5) {
@@ -254,16 +265,16 @@ void FuncRoach(int a, int nDamage, int nRun)
             {
                 case 0:
                 {
-                    if (RoachList[nRoach].field_2 == 1)
+                    if (RoachList[nRoach].nFrame == 1)
                     {
-                        RoachList[nRoach].field_C--;
-                        if (RoachList[nRoach].field_C <= 0)
+                        RoachList[nRoach].nCount--;
+                        if (RoachList[nRoach].nCount <= 0)
                         {
-                            RoachList[nRoach].field_C = RandomSize(6);
+                            RoachList[nRoach].nCount = RandomSize(6);
                         }
                         else
                         {
-                            RoachList[nRoach].field_2 = 0;
+                            RoachList[nRoach].nFrame = 0;
                         }
                     }
 
@@ -273,7 +284,7 @@ void FuncRoach(int a, int nDamage, int nRun)
                         if (nTarget >= 0)
                         {
                             RoachList[nRoach].nAction = 2;
-                            RoachList[nRoach].field_2 = 0;
+                            RoachList[nRoach].nFrame = 0;
                             RoachList[nRoach].nTarget = nTarget;
                             GoRoach(nSprite);
                         }
@@ -291,7 +302,7 @@ void FuncRoach(int a, int nDamage, int nRun)
                         if (nTarget >= 0)
                         {
                             RoachList[nRoach].nAction = 2;
-                            RoachList[nRoach].field_2 = 0;
+                            RoachList[nRoach].nFrame = 0;
                             RoachList[nRoach].nTarget = nTarget;
                             GoRoach(nSprite);
                         }
@@ -315,14 +326,14 @@ void FuncRoach(int a, int nDamage, int nRun)
                         if ((nMov & 0x3FFF) == nTarget)
                         {
                             // repeated below
-                            RoachList[nRoach].field_E = RandomSize(2) + 1;
+                            RoachList[nRoach].nIndex = RandomSize(2) + 1;
                             RoachList[nRoach].nAction = 3;
 
                             sprite[nSprite].xvel = 0;
                             sprite[nSprite].yvel = 0;
                             sprite[nSprite].ang = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
 
-                            RoachList[nRoach].field_2 = 0;
+                            RoachList[nRoach].nFrame = 0;
                         }
                         else
                         {
@@ -337,29 +348,29 @@ void FuncRoach(int a, int nDamage, int nRun)
                     }
                     else
                     {
-                        if (RoachList[nRoach].field_C != 0)
+                        if (RoachList[nRoach].nCount != 0)
                         {
-                            RoachList[nRoach].field_C--;
+                            RoachList[nRoach].nCount--;
                         }
                         else
                         {
                             // same as above
-                            RoachList[nRoach].field_E = RandomSize(2) + 1;
+                            RoachList[nRoach].nIndex = RandomSize(2) + 1;
                             RoachList[nRoach].nAction = 3;
 
                             sprite[nSprite].xvel = 0;
                             sprite[nSprite].yvel = 0;
                             sprite[nSprite].ang = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
 
-                            RoachList[nRoach].field_2 = 0;
+                            RoachList[nRoach].nFrame = 0;
                         }
                     }
 
                     if (nTarget != -1 && !(sprite[nTarget].cstat & 0x101))
                     {
                         RoachList[nRoach].nAction = 1;
-                        RoachList[nRoach].field_2 = 0;
-                        RoachList[nRoach].field_C = 100;
+                        RoachList[nRoach].nFrame = 0;
+                        RoachList[nRoach].nCount = 100;
                         RoachList[nRoach].nTarget = -1;
                         sprite[nSprite].xvel = 0;
                         sprite[nSprite].yvel = 0;
@@ -372,13 +383,13 @@ void FuncRoach(int a, int nDamage, int nRun)
                 {
                     if (bVal)
                     {
-                        RoachList[nRoach].field_E--;
-                        if (RoachList[nRoach].field_E <= 0)
+                        RoachList[nRoach].nIndex--;
+                        if (RoachList[nRoach].nIndex <= 0)
                         {
                             RoachList[nRoach].nAction = 2;
                             GoRoach(nSprite);
-                            RoachList[nRoach].field_2 = 0;
-                            RoachList[nRoach].field_C = RandomSize(7);
+                            RoachList[nRoach].nFrame = 0;
+                            RoachList[nRoach].nCount = RandomSize(7);
                         }
                     }
                     else
@@ -397,7 +408,7 @@ void FuncRoach(int a, int nDamage, int nRun)
                     if (bVal)
                     {
                         RoachList[nRoach].nAction = 2;
-                        RoachList[nRoach].field_2 = 0;
+                        RoachList[nRoach].nFrame = 0;
                     }
 
                     return;
@@ -409,7 +420,7 @@ void FuncRoach(int a, int nDamage, int nRun)
                     {
                         sprite[nSprite].cstat = 0;
                         RoachList[nRoach].nAction = 6;
-                        RoachList[nRoach].field_2 = 0;
+                        RoachList[nRoach].nFrame = 0;
                     }
 
                     return;

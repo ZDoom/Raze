@@ -59,6 +59,10 @@ struct GameInterface : public ::GameInterface
 	void LevelCompleted(MapRecord* map, int skill) override;
 	bool DrawAutomapPlayer(int x, int y, int z, int a) override;
 	int playerKeyMove() override { return 40; }
+	void WarpToCoords(int x, int y, int z, int a, int h) override;
+	void ToggleThirdPerson() override;
+	void SwitchCoopView() override;
+	void ToggleShowWeapon() override;
 
 };
 

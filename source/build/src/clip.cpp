@@ -649,8 +649,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
                     if (clipinsideboxline(cent.x, cent.y, p1.x, p1.y, p2.x, p2.y, rad) != 0)
                     {
-                        vec2_t v = { mulscale14(sintable[(spr->ang+256+512) & 2047], walldist),
-                                     mulscale14(sintable[(spr->ang+256) & 2047], walldist) };
+                        vec2_t v = { mulscale14(bcos(spr->ang + 256), walldist),
+                                     mulscale14(bsin(spr->ang + 256), walldist) };
 
                         if ((p1.x-pos->x) * (p2.y-pos->y) >= (p2.x-pos->x) * (p1.y-pos->y))  // Front
                             addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.y, p2.y-v.x, (int16_t)j+49152, false);
@@ -685,8 +685,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                     get_floorspr_points((uspriteptr_t) spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
                         &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
 
-                    vec2_t v = { mulscale14(sintable[(spr->ang-256+512)&2047], walldist),
-                                 mulscale14(sintable[(spr->ang-256)&2047], walldist) };
+                    vec2_t v = { mulscale14(bcos(spr->ang - 256), walldist),
+                                 mulscale14(bsin(spr->ang - 256), walldist) };
 
                     if ((rxi[0]-pos->x) * (ryi[1]-pos->y) < (rxi[1]-pos->x) * (ryi[0]-pos->y))
                     {
@@ -934,8 +934,8 @@ int pushmove(vec3_t *const vect, int16_t *const sectnum,
                     if (j != 0)
                     {
                         j = getangle(wall[wal->point2].x-wal->x, wall[wal->point2].y-wal->y);
-                        int32_t dx = (sintable[(j+1024)&2047]>>11);
-                        int32_t dy = (sintable[(j+512)&2047]>>11);
+                        int32_t dx = -bsin(j, -11);
+                        int32_t dy = bcos(j, -11);
                         int bad2 = 16;
                         do
                         {
@@ -1140,8 +1140,8 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                         get_floorspr_points((uspriteptr_t) &sprite[j], pos->x, pos->y, &v1.x, &v2.x, &v3.x, &v4.x,
                                             &v1.y, &v2.y, &v3.y, &v4.y);
 
-                        vec2_t const da = { mulscale14(sintable[(sprite[j].ang - 256 + 512) & 2047], walldist + 4),
-                                            mulscale14(sintable[(sprite[j].ang - 256) & 2047], walldist + 4) };
+                        vec2_t const da = { mulscale14(bcos(sprite[j].ang - 256), walldist + 4),
+                                            mulscale14(bsin(sprite[j].ang - 256), walldist + 4) };
 
                         v1.x += da.x; v2.x -= da.y; v3.x -= da.x; v4.x += da.y;
                         v1.y += da.y; v2.y += da.x; v3.y -= da.y; v4.y -= da.x;
@@ -1198,7 +1198,7 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
     vec2_t  const off  = { scale(vx, topu, bot), scale(vy, topu, bot) };
     int32_t const dist = off.x * off.x + off.y * off.y;
 
-    siz = tilesiz[spr->picnum].x * spr->xrepeat;
+    siz = tileWidth(spr->picnum) * spr->xrepeat;
 
     if (dist > mulscale7(siz, siz)) return 0;
 
@@ -1476,11 +1476,11 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                         if (tileLoad(tilenum))
                         {
                             // daz-intz > 0 && daz-intz < k
-                            int32_t xtex = mulscale16(ucoefup16, tilesiz[tilenum].x);
+                            int32_t xtex = mulscale16(ucoefup16, tileWidth(tilenum));
                             int32_t vcoefup16 = 65536-divscale16(daz-intz, k);
-                            int32_t ytex = mulscale16(vcoefup16, tilesiz[tilenum].y);
+                            int32_t ytex = mulscale16(vcoefup16, tileHeight(tilenum));
 
-                            auto texel = (tilePtr(tilenum) + tilesiz[tilenum].y*xtex + ytex);
+                            auto texel = (tilePtr(tilenum) + tileHeight(tilenum)*xtex + ytex);
                             if (*texel == TRANSPARENT_INDEX)
                                 continue;
                         }

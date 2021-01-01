@@ -27,27 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "eventq.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
 
 BEGIN_BLD_NS
 
-static void ratBiteSeqCallback(int, int);
-static void ratThinkSearch(spritetype *, XSPRITE *);
-static void ratThinkGoto(spritetype *, XSPRITE *);
-static void ratThinkChase(spritetype *, XSPRITE *);
-
-static int nRatBiteClient = seqRegisterClient(ratBiteSeqCallback);
+static void ratThinkSearch(DBloodActor *);
+static void ratThinkGoto(DBloodActor *);
+static void ratThinkChase(DBloodActor *);
 
 AISTATE ratIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE ratSearch = { kAiStateSearch, 7, -1, 1800, NULL, aiMoveForward, ratThinkSearch, &ratIdle };
@@ -57,11 +44,10 @@ AISTATE ratRecoil = { kAiStateRecoil, 7, -1, 0, NULL, NULL, NULL, &ratDodge };
 AISTATE ratGoto = { kAiStateMove, 7, -1, 600, NULL, aiMoveForward, ratThinkGoto, &ratIdle };
 AISTATE ratBite = { kAiStateChase, 6, nRatBiteClient, 120, NULL, NULL, NULL, &ratChase };
 
-static void ratBiteSeqCallback(int, int nXSprite)
+void ratBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -71,14 +57,18 @@ static void ratBiteSeqCallback(int, int nXSprite)
         actFireVector(pSprite, 0, 0, dx, dy, pTarget->z-pSprite->z, VECTOR_TYPE_16);
 }
 
-static void ratThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void ratThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void ratThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void ratThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -87,15 +77,17 @@ static void ratThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &ratSearch);
-    aiThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &ratSearch);
+    aiThinkTarget(actor);
 }
 
-static void ratThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void ratThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &ratGoto);
+        aiNewState(actor, &ratGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -108,12 +100,12 @@ static void ratThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &ratSearch);
+        aiNewState(actor, &ratSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &ratSearch);
+        aiNewState(actor, &ratSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -127,13 +119,13 @@ static void ratThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &ratBite);
+                    aiNewState(actor, &ratBite);
                 return;
             }
         }
     }
 
-    aiNewState(pSprite, pXSprite, &ratGoto);
+    aiNewState(actor, &ratGoto);
     pXSprite->target = -1;
 }
 

@@ -22,7 +22,7 @@ protected:
 	std::array<int, 8> item_icons;
 
 	DDukeCommonStatusBar();
-	std::pair<const char*, EColorRange> ontext(struct player_struct *p);
+	std::pair<const char*, int> ontext(struct player_struct *p);
 	void DrawInventory(const struct player_struct* p, double x, double y, int align);
 	PalEntry LightForShade(int shade);
 public:

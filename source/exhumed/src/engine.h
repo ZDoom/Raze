@@ -126,20 +126,5 @@ int GetMyAngle(int x, int y);
 int AngleDiff(short a, short b);
 int AngleDelta(int a, int b, int c);
 
-inline int Sin(int angle)
-{
-    return sintable[angle & kAngleMask];
-}
-
-inline double FSin(double angle)
-{
-    return calcSinTableValue(fmod(angle, kAngleMask + 1));
-}
-
-inline int Cos(int angle)
-{
-    return sintable[(angle + 512) & kAngleMask];
-}
-
 END_PS_NS
 

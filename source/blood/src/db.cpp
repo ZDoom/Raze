@@ -32,13 +32,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "raze_sound.h"
 
-//#include "actor.h"
-#include "globals.h"
-#include "db.h"
-#include "eventq.h"
-#include "nnexts.h"
+#include "blood.h"
 
 BEGIN_BLD_NS
+
+DBloodActor bloodActors[kMaxSprites];
+
 
 bool gModernMap = false;
 unsigned short gStatCount[kMaxStatus + 1];
@@ -274,6 +273,20 @@ void InitFreeList(unsigned short *pList, int nCount)
     pList[0] = nCount - 1;
 }
 
+void InitFreeList(unsigned short* pList, int nCount, FixedBitArray<MAXSPRITES>&used)
+{
+    int lastfree = 0;
+    for (int i = 1; i < nCount; i++)
+    {
+        if (!used[i])
+        {
+            pList[i] = lastfree;
+            lastfree = i;
+        }
+    }
+    pList[0] = lastfree;
+}
+
 void InsertFree(unsigned short *pList, int nIndex)
 {
     pList[nIndex] = pList[0];
@@ -391,14 +404,13 @@ void PropagateMarkerReferences(void)
     }
 }
 
-bool byte_1A76C6, byte_1A76C7, byte_1A76C8;
+bool drawtile2048, encrypted;
 
 MAPHEADER2 byte_19AE44;
 
 unsigned int dbReadMapCRC(const char *pPath)
 {
-    byte_1A76C7 = 0;
-    byte_1A76C8 = 0;
+    encrypted = 0;
 
     FString mapname = pPath;
     DefaultExtension(mapname, ".map");
@@ -422,7 +434,7 @@ unsigned int dbReadMapCRC(const char *pPath)
     }
     else if ((ver & 0xff00) == 0x700)
     {
-        byte_1A76C8 = 1;
+        encrypted = 1;
     }
     else
     {
@@ -432,7 +444,7 @@ unsigned int dbReadMapCRC(const char *pPath)
     return fr.ReadInt32();
 }
 
-int gMapRev, gSongId, gSkyCount;
+int gMapRev, gMattId, gSkyCount;
 //char byte_19AE44[128];
 const int nXSectorSize = 60;
 const int nXSpriteSize = 56;
@@ -517,9 +529,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     {
         I_Error("%s: Map file corrupted", mapname.GetChars());
     }
-    byte_1A76C8 = 0;
+    encrypted = 0;
     if ((LittleShort(header.version) & 0xff00) == 0x700) {
-        byte_1A76C8 = 1;
+        encrypted = 1;
         
         #ifdef NOONE_EXTENSIONS
         // indicate if the map requires modern features to work properly
@@ -534,78 +546,77 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 
     MAPHEADER mapHeader;
     fr.Read(&mapHeader,37/* sizeof(mapHeader)*/);
-    if (mapHeader.at16 != 0 && mapHeader.at16 != 0x7474614d && mapHeader.at16 != 0x4d617474) {
+    if (mapHeader.mattid != 0 && mapHeader.mattid != 0x7474614d && mapHeader.mattid != 0x4d617474) {
         dbCrypt((char*)&mapHeader, sizeof(mapHeader), 0x7474614d);
-        byte_1A76C7 = 1;
     }
 
-    mapHeader.TotalKills = LittleLong(mapHeader.TotalKills);
-    mapHeader.Kills = LittleLong(mapHeader.Kills);
-    mapHeader.at8 = LittleLong(mapHeader.at8);
-    mapHeader.atc = LittleShort(mapHeader.atc);
-    mapHeader.ate = LittleShort(mapHeader.ate);
-    mapHeader.at10 = LittleShort(mapHeader.at10);
-    mapHeader.at12 = LittleLong(mapHeader.at12);
-    mapHeader.at16 = LittleLong(mapHeader.at16);
-    mapHeader.at1b = LittleLong(mapHeader.at1b);
-    mapHeader.at1f = LittleShort(mapHeader.at1f);
-    mapHeader.at21 = LittleShort(mapHeader.at21);
-    mapHeader.at23 = LittleShort(mapHeader.at23);
+    mapHeader.x = LittleLong(mapHeader.x);
+    mapHeader.y = LittleLong(mapHeader.y);
+    mapHeader.z = LittleLong(mapHeader.z);
+    mapHeader.ang = LittleShort(mapHeader.ang);
+    mapHeader.sect = LittleShort(mapHeader.sect);
+    mapHeader.pskybits = LittleShort(mapHeader.pskybits);
+    mapHeader.visibility = LittleLong(mapHeader.visibility);
+    mapHeader.mattid = LittleLong(mapHeader.mattid);
+    mapHeader.revision = LittleLong(mapHeader.revision);
+    mapHeader.numsectors = LittleShort(mapHeader.numsectors);
+    mapHeader.numwalls = LittleShort(mapHeader.numwalls);
+    mapHeader.numsprites = LittleShort(mapHeader.numsprites);
 
-    *pX = mapHeader.TotalKills;
-    *pY = mapHeader.Kills;
-    *pZ = mapHeader.at8;
-    *pAngle = mapHeader.atc;
-    *pSector = mapHeader.ate;
-    gVisibility = g_visibility = mapHeader.at12;
-    gSongId = mapHeader.at16;
-    if (byte_1A76C8)
+    *pX = mapHeader.x;
+    *pY = mapHeader.y;
+    *pZ = mapHeader.z;
+    *pAngle = mapHeader.ang;
+    *pSector = mapHeader.sect;
+    gVisibility = g_visibility = mapHeader.visibility;
+    gMattId = mapHeader.mattid;
+    if (encrypted)
     {
-        if (mapHeader.at16 == 0x7474614d || mapHeader.at16 == 0x4d617474)
+        if (mapHeader.mattid == 0x7474614d || mapHeader.mattid == 0x4d617474)
         {
-            byte_1A76C6 = 1;
+            drawtile2048 = 1;
         }
-        else if (!mapHeader.at16)
+        else if (!mapHeader.mattid)
         {
-            byte_1A76C6 = 0;
+            drawtile2048 = 0;
         }
         else
         {
             I_Error("%s: Corrupted Map file", mapname.GetChars());
         }
     }
-    else if (mapHeader.at16)
+    else if (mapHeader.mattid)
     {
         I_Error("%s: Corrupted Map file", mapname.GetChars());
     }
-    parallaxtype = mapHeader.at1a;
-    gMapRev = mapHeader.at1b;
-    numsectors = mapHeader.at1f;
-    numwalls = mapHeader.at21;
+    parallaxtype = mapHeader.parallax;
+    gMapRev = mapHeader.revision;
+    numsectors = mapHeader.numsectors;
+    numwalls = mapHeader.numwalls;
     dbInit();
-    if (byte_1A76C8)
+    if (encrypted)
     {
         fr.Read(&byte_19AE44, 128);
         dbCrypt((char*)&byte_19AE44, 128, numwalls);
 
-        byte_19AE44.at40 = LittleLong(byte_19AE44.at40);
-        byte_19AE44.at44 = LittleLong(byte_19AE44.at44);
-        byte_19AE44.at48 = LittleLong(byte_19AE44.at48);
+        byte_19AE44.numxsprites = LittleLong(byte_19AE44.numxsprites);
+        byte_19AE44.numxwalls = LittleLong(byte_19AE44.numxwalls);
+        byte_19AE44.numxsectors = LittleLong(byte_19AE44.numxsectors);
     }
     else
     {
         memset(&byte_19AE44, 0, 128);
     }
-    gSkyCount = 1<< mapHeader.at10;
+    gSkyCount = 1<< mapHeader.pskybits;
     fr.Read(tpskyoff, gSkyCount*sizeof(tpskyoff[0]));
-    if (byte_1A76C8)
+    if (encrypted)
     {
         dbCrypt((char*)tpskyoff, gSkyCount*sizeof(tpskyoff[0]), gSkyCount*2);
     }
 
     psky_t* pSky = tileSetupSky(DEFAULTPSKY);
     pSky->horizfrac = 65536;
-    pSky->lognumtiles = mapHeader.at10;
+    pSky->lognumtiles = mapHeader.pskybits;
     for (int i = 0; i < ClipHigh(gSkyCount, MAXPSKYTILES); i++)
     {
         pSky->tileofs[i] = LittleShort(tpskyoff[i]);
@@ -616,7 +627,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         sectortype *pSector = &sector[i];
         sectortypedisk load;
         fr.Read(&load, sizeof(sectortypedisk));
-        if (byte_1A76C8)
+        if (encrypted)
         {
             dbCrypt((char*)&load, sizeof(sectortypedisk), gMapRev*sizeof(sectortypedisk));
         }
@@ -635,12 +646,12 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSector->extra = LittleShort(load.extra);
         pSector->ceilingshade = load.ceilingshade;
         pSector->ceilingpal = load.ceilingpal;
-        pSector->ceilingxpanning = load.ceilingxpanning;
-        pSector->ceilingypanning = load.ceilingypanning;
+        pSector->ceilingxpan_ = load.ceilingxpanning;
+        pSector->ceilingypan_ = load.ceilingypanning;
         pSector->floorshade = load.floorshade;
         pSector->floorpal = load.floorpal;
-        pSector->floorxpanning = load.floorxpanning;
-        pSector->floorypanning = load.floorypanning;
+        pSector->floorxpan_ = load.floorxpanning;
+        pSector->floorypan_ = load.floorypanning;
         pSector->visibility = load.visibility;
         qsector_filler[i] = load.fogpal;
         pSector->fogpal = 0;
@@ -652,13 +663,13 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             XSECTOR *pXSector = &xsector[nXSector];
             memset(pXSector, 0, sizeof(XSECTOR));
             int nCount;
-            if (!byte_1A76C8)
+            if (!encrypted)
             {
                 nCount = nXSectorSize;
             }
             else
             {
-                nCount = byte_19AE44.at48;
+                nCount = byte_19AE44.numxsectors;
             }
             assert(nCount <= nXSectorSize);
             fr.Read(pBuffer, nCount);
@@ -722,12 +733,12 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSector->marker0 = bitReader.readUnsigned(16);
             pXSector->marker1 = bitReader.readUnsigned(16);
             pXSector->Crush = bitReader.readUnsigned(1);
-            pXSector->ceilXPanFrac = bitReader.readUnsigned(8);
-            pXSector->ceilYPanFrac = bitReader.readUnsigned(8);
-            pXSector->floorXPanFrac = bitReader.readUnsigned(8);
+            pSector->ceilingxpan_ += bitReader.readUnsigned(8) / 256.f;
+            pSector->ceilingypan_ += bitReader.readUnsigned(8) / 256.f;
+            pSector->floorxpan_ += bitReader.readUnsigned(8) / 256.f;
             pXSector->damageType = bitReader.readUnsigned(3);
             pXSector->floorpal = bitReader.readUnsigned(4);
-            pXSector->floorYPanFrac = bitReader.readUnsigned(8);
+            pSector->floorypan_ = bitReader.readUnsigned(8) / 256.f;
             pXSector->locked = bitReader.readUnsigned(1);
             pXSector->windVel = bitReader.readUnsigned(10);
             pXSector->windAng = bitReader.readUnsigned(11);
@@ -750,7 +761,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         walltype *pWall = &wall[i];
         walltypedisk load;
         fr.Read(&load, sizeof(walltypedisk));
-        if (byte_1A76C8)
+        if (encrypted)
         {
             dbCrypt((char*)&load, sizeof(walltypedisk), (gMapRev*sizeof(sectortypedisk)) | 0x7474614d);
         }
@@ -768,9 +779,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pWall->shade = load.shade;
         pWall->pal = load.pal;
         pWall->xrepeat = load.xrepeat;
-        pWall->xpanning = load.xpanning;
+        pWall->xpan_ = load.xpanning;
         pWall->yrepeat = load.yrepeat;
-        pWall->ypanning = load.ypanning;
+        pWall->ypan_ = load.ypanning;
 
         if (wall[i].extra > 0)
         {
@@ -779,13 +790,13 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             XWALL *pXWall = &xwall[nXWall];
             memset(pXWall, 0, sizeof(XWALL));
             int nCount;
-            if (!byte_1A76C8)
+            if (!encrypted)
             {
                 nCount = nXWallSize;
             }
             else
             {
-                nCount = byte_19AE44.at44;
+                nCount = byte_19AE44.numxwalls;
             }
             assert(nCount <= nXWallSize);
             fr.Read(pBuffer, nCount);
@@ -815,8 +826,8 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXWall->triggerVector = bitReader.readUnsigned(1);
             pXWall->triggerTouch = bitReader.readUnsigned(1);
             bitReader.readUnsigned(2);
-            pXWall->xpanFrac = bitReader.readUnsigned(8);
-            pXWall->ypanFrac = bitReader.readUnsigned(8);
+            pWall->xpan_ += bitReader.readUnsigned(8) / 256.f;
+            pWall->ypan_ += bitReader.readUnsigned(8) / 256.f;
             pXWall->locked = bitReader.readUnsigned(1);
             pXWall->dudeLockout = bitReader.readUnsigned(1);
             bitReader.readUnsigned(4);
@@ -827,13 +838,13 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         }
     }
     initspritelists();
-    for (int i = 0; i < mapHeader.at23; i++)
+    for (int i = 0; i < mapHeader.numsprites; i++)
     {
         RemoveSpriteStat(i);
         spritetypedisk load;
         spritetype *pSprite = &sprite[i];
         fr.Read(&load, sizeof(spritetypedisk)); // load into an intermediate buffer so that spritetype is no longer bound by file formats.
-        if (byte_1A76C8) // What were these people thinking? :(
+        if (encrypted) // What were these people thinking? :(
         {
             dbCrypt((char*)&load, sizeof(spritetypedisk), (gMapRev*sizeof(spritetypedisk)) | 0x7474614d);
         }
@@ -874,13 +885,13 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             XSPRITE *pXSprite = &xsprite[nXSprite];
             memset(pXSprite, 0, sizeof(XSPRITE));
             int nCount;
-            if (!byte_1A76C8)
+            if (!encrypted)
             {
                 nCount = nXSpriteSize;
             }
             else
             {
-                nCount = byte_19AE44.at40;
+                nCount = byte_19AE44.numxsprites;
             }
             assert(nCount <= nXSpriteSize);
             fr.Read(pBuffer, nCount);
@@ -948,7 +959,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             bitReader.skipBits(32);
             xsprite[sprite[i].extra].reference = i;
             xsprite[sprite[i].extra].busy = IntToFixed(xsprite[sprite[i].extra].state);
-            if (!byte_1A76C8) {
+            if (!encrypted) {
                 xsprite[sprite[i].extra].lT |= xsprite[sprite[i].extra].lB;
             }
 
@@ -978,22 +989,22 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     if (pCRC)
         *pCRC = nCRC;
     PropagateMarkerReferences();
-    if (byte_1A76C8)
+    if (encrypted)
     {
-        if (gSongId == 0x7474614d || gSongId == 0x4d617474)
+        if (gMattId == 0x7474614d || gMattId == 0x4d617474)
         {
-            byte_1A76C6 = 1;
+            drawtile2048 = 1;
         }
-        else if (!gSongId)
+        else if (!gMattId)
         {
-            byte_1A76C6 = 0;
+            drawtile2048 = 0;
         }
         else
         {
             I_Error("%s: Corrupted Map file", mapname.GetChars());
         }
     }
-    else if (gSongId != 0)
+    else if (gMattId != 0)
     {
         I_Error("%s: Corrupted Map file", mapname.GetChars());
     }
@@ -1048,7 +1059,6 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 
     memcpy(wallbackup, wall, sizeof(wallbackup));
     memcpy(sectorbackup, sector, sizeof(sectorbackup));
-    // todo: back up xsector and xwall as well
 }
 
 

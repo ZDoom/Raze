@@ -32,6 +32,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "prediction.h"
 #include "automap.h"
 #include "dukeactor.h"
+#include "interpolate.h"
 
 
 BEGIN_DUKE_NS
@@ -294,7 +295,7 @@ void animatecamsprite(double smoothratio)
 				auto camera = &camsprite->GetOwner()->s;
 				auto ang = getcamspriteang(camsprite->GetOwner(), smoothratio);
 				// Note: no ROR or camera here for now - the current setup has no means to detect these things before rendering the scene itself.
-				drawrooms(camera->x, camera->y, camera->z, ang, 100 + camera->shade, camera->sectnum); // why 'shade'...?
+				drawrooms(camera->x, camera->y, camera->z, ang, camera->shade, camera->sectnum); // why 'shade'...?
 				display_mirror = 1; // should really be 'display external view'.
 				fi.animatesprites(camera->x, camera->y, ang, smoothratio);
 				display_mirror = 0;
@@ -502,8 +503,7 @@ void displayrooms(int snum, double smoothratio)
 	if (sect < 0 || sect >= MAXSECTORS) return;
 
 	GLInterface.SetMapFog(fogactive != 0);
-	if (fogactive) hw_int_useindexedcolortextures = false;
-	dointerpolations(smoothratio);
+	DoInterpolations(smoothratio / 65536.);
 
 	setgamepalette(BASEPAL);
 	animatecamsprite(smoothratio);
@@ -538,19 +538,19 @@ void displayrooms(int snum, double smoothratio)
 		setgamepalette(setpal(p));
 
 		// set screen rotation.
-		rotscrnang = !cl_syncinput ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio);
+		rotscrnang = !SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio);
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
 			cposx = omyx + xs_CRoundToInt(fmulscale16(myx - omyx, smoothratio));
 			cposy = omyy + xs_CRoundToInt(fmulscale16(myy - omyy, smoothratio));
 			cposz = omyz + xs_CRoundToInt(fmulscale16(myz - omyz, smoothratio));
-			if (cl_syncinput)
+			if (SyncInput())
 			{
-				fixed_t ohorz = (omyhoriz.asq16() + omyhorizoff.asq16());
-				fixed_t horz = (myhoriz.asq16() + myhorizoff.asq16());
+				fixed_t ohorz = (omyhoriz + omyhorizoff).asq16();
+				fixed_t horz = (myhoriz + myhorizoff).asq16();
 				choriz = q16horiz(ohorz + xs_CRoundToInt(fmulscale16(horz - ohorz, smoothratio)));
-				cang = bamang(xs_CRoundToUInt(omyang.asbam() + fmulscale16(myang.asbam() - omyang.asbam(), smoothratio)));
+				cang = bamang(xs_CRoundToUInt(omyang.asbam() + fmulscale16((myang - omyang).asbam(), smoothratio)));
 			}
 			else
 			{
@@ -564,7 +564,7 @@ void displayrooms(int snum, double smoothratio)
 			cposx = p->oposx + xs_CRoundToInt(fmulscale16(p->posx - p->oposx, smoothratio));
 			cposy = p->oposy + xs_CRoundToInt(fmulscale16(p->posy - p->oposy, smoothratio));
 			cposz = p->oposz + xs_CRoundToInt(fmulscale16(p->posz - p->oposz, smoothratio));
-			if (cl_syncinput)
+			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct
 				choriz = p->horizon.interpolatedsum(smoothratio);
@@ -606,7 +606,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 
 		// do screen rotation.
-		renderSetRollAngle(rotscrnang.asbam() / (double)(BAMUNIT));
+		renderSetRollAngle(rotscrnang.asbuildf());
 
 		cz = p->GetActor()->ceilingz;
 		fz = p->GetActor()->floorz;
@@ -648,7 +648,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 	}
 	//GLInterface.SetMapFog(false);
-	restoreinterpolations();
+	RestoreInterpolations();
 
 	if (!isRRRA() || !fogactive)
 	{
@@ -659,7 +659,6 @@ void displayrooms(int snum, double smoothratio)
 		}
 		else p->visibility = ud.const_visibility;
 	}
-	if (fogactive) hw_int_useindexedcolortextures = hw_useindexedcolortextures;
 }
 
 bool GameInterface::GenerateSavePic()

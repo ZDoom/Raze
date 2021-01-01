@@ -31,13 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "v_font.h"
 
-#include "endgame.h"
-#include "aistate.h"
-#include "loadsave.h"
-#include "sectorfx.h"
+#include "blood.h"
 #include "choke.h"
-#include "view.h"
-#include "nnexts.h"
 #include "zstring.h"
 #include "razemenu.h"
 #include "gstrings.h"
@@ -78,7 +73,7 @@ void viewInitializePrediction(void)
 	predict.at4c = gMe->angle.spin;
 	predict.at6e = !!(gMe->input.actions & SB_CENTERVIEW);
 	memcpy(&predict.at75,&gSpriteHit[gMe->pSprite->extra],sizeof(SPRITEHIT));
-	predict.TotalKills = gMe->bobPhase;
+	predict.bobPhase = gMe->bobPhase;
 	predict.Kills = gMe->bobAmp;
 	predict.at8 = gMe->bobHeight;
 	predict.atc = gMe->bobWidth;
@@ -232,9 +227,9 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     predict.at20 = clamp(predict.at20+pInput->horz, IntToFixed(-60), IntToFixed(60));
 
     if (predict.at20 > 0)
-        predict.at24 = FloatToFixed(fmulscale30(120., Sinf(FixedToFloat(predict.at20) * 8.)));
+        predict.at24 = FloatToFixed(fmulscale30(120., bsinf(FixedToFloat(predict.at20) * 8., 16)));
     else if (predict.at20 < 0)
-        predict.at24 = FloatToFixed(fmulscale30(180., Sinf(FixedToFloat(predict.at20) * 8.)));
+        predict.at24 = FloatToFixed(fmulscale30(180., bsinf(FixedToFloat(predict.at20) * 8., 16)));
     else
         predict.at24 = 0;
 #endif
@@ -313,7 +308,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 
     predict.at34 = predict.at40 - predict.at38 - (12<<8);
 
-    predict.TotalKills = ClipLow(predict.TotalKills-4, 0);
+    predict.bobPhase = ClipLow(predict.bobPhase-4, 0);
 
     nSpeed >>= FRACBITS;
 	if (predict.at48 == 1)
@@ -321,9 +316,9 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 		predict.Kills = (predict.Kills+17)&2047;
 		predict.at14 = (predict.at14+17)&2047;
 		predict.at8 = mulscale30(10*pPosture->bobV,Sin(predict.Kills*2));
-		predict.atc = mulscale30(predict.TotalKills*pPosture->bobH,Sin(predict.Kills-256));
-		predict.at18 = mulscale30(predict.TotalKills*pPosture->swayV,Sin(predict.at14*2));
-		predict.at1c = mulscale30(predict.TotalKills*pPosture->swayH,Sin(predict.at14-0x155));
+		predict.atc = mulscale30(predict.bobPhase*pPosture->bobH,Sin(predict.Kills-256));
+		predict.at18 = mulscale30(predict.bobPhase*pPosture->swayV,Sin(predict.at14*2));
+		predict.at1c = mulscale30(predict.bobPhase*pPosture->swayH,Sin(predict.at14-0x155));
 	}
 	else
 	{
@@ -333,19 +328,19 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 			predict.at14 = (predict.at14+(pPosture->pace[predict.at70]*4)/2)&2047;
 			if (predict.at70)
 			{
-				if (predict.TotalKills < 60)
-                    predict.TotalKills = ClipHigh(predict.TotalKills + nSpeed, 60);
+				if (predict.bobPhase < 60)
+                    predict.bobPhase = ClipHigh(predict.bobPhase + nSpeed, 60);
 			}
 			else
 			{
-				if (predict.TotalKills < 30)
-                    predict.TotalKills = ClipHigh(predict.TotalKills + nSpeed, 30);
+				if (predict.bobPhase < 30)
+                    predict.bobPhase = ClipHigh(predict.bobPhase + nSpeed, 30);
 			}
 		}
-		predict.at8 = mulscale30(predict.TotalKills*pPosture->bobV,Sin(predict.Kills*2));
-		predict.atc = mulscale30(predict.TotalKills*pPosture->bobH,Sin(predict.Kills-256));
-		predict.at18 = mulscale30(predict.TotalKills*pPosture->swayV,Sin(predict.at14*2));
-		predict.at1c = mulscale30(predict.TotalKills*pPosture->swayH,Sin(predict.at14-0x155));
+		predict.at8 = mulscale30(predict.bobPhase*pPosture->bobV,Sin(predict.Kills*2));
+		predict.atc = mulscale30(predict.bobPhase*pPosture->bobH,Sin(predict.Kills-256));
+		predict.at18 = mulscale30(predict.bobPhase*pPosture->swayV,Sin(predict.at14*2));
+		predict.at1c = mulscale30(predict.bobPhase*pPosture->swayH,Sin(predict.at14-0x155));
 	}
 	if (!pXSprite->health)
         return;

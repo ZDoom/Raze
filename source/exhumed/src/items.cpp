@@ -109,12 +109,16 @@ short nRegenerates;
 short nFirstRegenerate;
 short nMagicCount;
 
-static SavegameHelper sghitems("items",
-    SV(nRegenerates),
-    SV(nFirstRegenerate),
-    SV(nMagicCount),
-    nullptr);
-
+void SerializeItems(FSerializer& arc)
+{
+    if (arc.BeginObject("items"))
+    {
+        arc("regenerates", nRegenerates)
+            ("first", nFirstRegenerate)
+            ("magiccount", nMagicCount)
+            .EndObject();
+    }
+}
 
 void BuildItemAnim(short nSprite)
 {

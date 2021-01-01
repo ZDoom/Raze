@@ -24,14 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "compat.h"
-#include "common_game.h"
+
 #include "blood.h"
-#include "db.h"
-#include "gameutil.h"
-#include "levels.h"
-#include "loadsave.h"
-#include "view.h"
-#include "nnexts.h"
 
 BEGIN_BLD_NS
 
@@ -209,7 +203,7 @@ int CheckLink(spritetype *pSprite)
             else
                 z2 = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
             pSprite->z += z2-z;
-            ClearBitString(gInterpolateSprite, pSprite->index);
+            gInterpolateSprite.Clear(pSprite->index);
             return pUpper->type;
         }
     }
@@ -236,7 +230,7 @@ int CheckLink(spritetype *pSprite)
             else
                 z2 = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
             pSprite->z += z2-z;
-            ClearBitString(gInterpolateSprite, pSprite->index);
+            gInterpolateSprite.Clear(pSprite->index);
             return pLower->type;
         }
     }
@@ -302,30 +296,35 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
     return 0;
 }
 
-class WarpLoadSave : public LoadSave
-{
-public:
-    virtual void Load();
-    virtual void Save();
-};
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-void WarpLoadSave::Load()
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ZONE& w, ZONE* def)
 {
-    Read(gStartZone, sizeof(gStartZone));
-    Read(gUpperLink, sizeof(gUpperLink));
-    Read(gLowerLink, sizeof(gLowerLink));
+	if (arc.BeginObject(keyname))
+	{
+		arc("x", w.x)
+			("y", w.y)
+			("z", w.z)
+			("sector", w.sectnum)
+			("angle", w.ang)
+			.EndObject();
+	}
+	return arc;
 }
 
-void WarpLoadSave::Save()
+void SerializeWarp(FSerializer& arc)
 {
-    Write(gStartZone, sizeof(gStartZone));
-    Write(gUpperLink, sizeof(gUpperLink));
-    Write(gLowerLink, sizeof(gLowerLink));
-}
-
-void WarpLoadSaveConstruct(void)
-{
-    new WarpLoadSave();
+	if (arc.BeginObject("warp"))
+	{
+		arc.Array("startzone", gStartZone, kMaxPlayers)
+			.Array("upperlink", gUpperLink, numsectors)
+			.Array("lowerlink", gLowerLink, numsectors)
+			.EndObject();
+	}
 }
 
 END_BLD_NS

@@ -1197,8 +1197,8 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float
 
     k0 = ((float)(tspr->x+spriteext[tspr->owner].position_offset.x-globalposx))*f*(1.f/1024.f);
     k1 = ((float)(tspr->y+spriteext[tspr->owner].position_offset.y-globalposy))*f*(1.f/1024.f);
-    k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] * (1.f/16384.f);
-    k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] * (1.f/16384.f);
+    k4 = -bsinf(tspr->ang+spriteext[tspr->owner].angoff, -14);
+    k5 = bcosf(tspr->ang+spriteext[tspr->owner].angoff, -14);
     k2 = k0*(1-k4)+k1*k5;
     k3 = k1*(1-k4)-k0*k5;
     k6 = - gsinang; 
@@ -1238,7 +1238,7 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
 
             vt->SetTexCoord(s->uv[k].u, s->uv[k].v);
 
-            vt->SetVertex(vertlist[k].x, vertlist[k].y);
+            vt->SetVertex(vertlist[k].x, vertlist[k].y, vertlist[k].z);
         }
     }
 	GLInterface.Draw(DT_Triangles, data.second, s->numtris *3);
@@ -1260,7 +1260,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     const int32_t owner = tspr->owner;
     const spriteext_t *const sext = &spriteext[((unsigned)owner < MAXSPRITES+MAXUNIQHUDID) ? owner : MAXSPRITES+MAXUNIQHUDID-1];
     const uint8_t lpal = ((unsigned)owner < MAXSPRITES) ? sprite[tspr->owner].pal : tspr->pal;
-    const int32_t sizyrep = tilesiz[tspr->picnum].y*tspr->yrepeat;
+    const int32_t sizyrep = tileHeight(tspr->picnum) * tspr->yrepeat;
 
     polymost_outputGLDebugMessage(3, "polymost_md3draw(m:%p, tspr:%p)", m, tspr);
     //    if ((tspr->cstat&48) == 32) return 0;
@@ -1403,10 +1403,10 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         if ((sext->pivot_offset.z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
             a0.z = (float)sext->pivot_offset.z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.z+m1.z));
 
-        k0 = (float)sintable[(sext->pitch+512)&2047] * (1.f/16384.f);
-        k1 = (float)sintable[sext->pitch&2047] * (1.f/16384.f);
-        k2 = (float)sintable[(sext->roll+512)&2047] * (1.f/16384.f);
-        k3 = (float)sintable[sext->roll&2047] * (1.f/16384.f);
+        k0 = bcosf(sext->pitch, -14);
+        k1 = bsinf(sext->pitch, -14);
+        k2 = bcosf(sext->roll, -14);
+        k3 = bsinf(sext->roll, -14);
     }
 
     VSMatrix imat = 0;
@@ -1495,7 +1495,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 #endif
         int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
         GLInterface.SetFade(sector[tspr->sectnum].floorpal);
-        GLInterface.SetTexture(-1, tex, palid, CLAMP_XY);
+        GLInterface.SetTexture(tex, palid, CLAMP_XY);
 
         if (tspr->clipdist & TSPR_FLAGS_MDHACK)
         {
@@ -1559,7 +1559,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 	GLInterface.SetCull(Cull_None);
 
     GLInterface.SetIdentityMatrix(Matrix_Model);
-    GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
     
     globalnoeffect=0;
     return 1;
@@ -1677,7 +1676,7 @@ static void mdfree(mdmodel_t *vm)
     if (vm->mdnum == 2 || vm->mdnum == 3) { md3free((md3model_t *)vm); return; }
 }
 
-static void updateModelInterpolation()
+void updateModelInterpolation()
 {
 	// sigh...
 	omdtims = mdtims;

@@ -27,43 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "compat.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-#include "ai.h"
-#include "actor.h"
 #include "blood.h"
-#include "db.h"
-#include "endgame.h"
-#include "eventq.h"
-#include "aiunicult.h"
-#include "fx.h"
-#include "gameutil.h"
-#include "gib.h"
-#include "globals.h"
-#include "levels.h"
-#include "loadsave.h"
-#include "player.h"
-#include "seq.h"
-#include "qav.h"
-#include "sound.h"
-#include "triggers.h"
-#include "view.h"
-#include "messages.h"
-#include "nnexts.h"
 #include "d_net.h"
 
 BEGIN_BLD_NS
 
 int basePath[kMaxSectors];
-
-void FireballTrapSeqCallback(int, int);
-void MGunFireSeqCallback(int, int);
-void MGunOpenSeqCallback(int, int);
-
-int nFireballTrapClient = seqRegisterClient(FireballTrapSeqCallback);
-int nMGunFireClient = seqRegisterClient(MGunFireSeqCallback);
-int nMGunOpenClient = seqRegisterClient(MGunOpenSeqCallback);
-
 
 
 unsigned int GetWaveValue(unsigned int nPhase, int nType)
@@ -176,10 +146,10 @@ enum BUSYID {
 };
 
 struct BUSY {
-    int TotalKills;
-    int Kills;
-    int at8;
-    BUSYID atc;
+    int index;
+    int delta;
+    int busy;
+    int type;
 };
 
 BUSY gBusy[128];
@@ -190,19 +160,19 @@ void AddBusy(int a1, BUSYID a2, int nDelta)
     int i;
     for (i = 0; i < gBusyCount; i++)
     {
-        if (gBusy[i].TotalKills == a1 && gBusy[i].atc == a2)
+        if (gBusy[i].index == a1 && gBusy[i].type == a2)
             break;
     }
     if (i == gBusyCount)
     {
         if (gBusyCount == 128)
             return;
-        gBusy[i].TotalKills = a1;
-        gBusy[i].atc = a2;
-        gBusy[i].at8 = nDelta > 0 ? 0 : 65536;
+        gBusy[i].index = a1;
+        gBusy[i].type = a2;
+        gBusy[i].busy = nDelta > 0 ? 0 : 65536;
         gBusyCount++;
     }
-    gBusy[i].Kills = nDelta;
+    gBusy[i].delta = nDelta;
 }
 
 void ReverseBusy(int a1, BUSYID a2)
@@ -210,9 +180,9 @@ void ReverseBusy(int a1, BUSYID a2)
     int i;
     for (i = 0; i < gBusyCount; i++)
     {
-        if (gBusy[i].TotalKills == a1 && gBusy[i].atc == a2)
+        if (gBusy[i].index == a1 && gBusy[i].type == a2)
         {
-            gBusy[i].Kills = -gBusy[i].Kills;
+            gBusy[i].delta = -gBusy[i].delta;
             break;
         }
     }
@@ -359,7 +329,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             case kCmdSpritePush:
             case kCmdSpriteTouch:
                 if (!pXSprite->state) SetSpriteState(nSprite, pXSprite, 1);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
                 break;
         }
 
@@ -517,7 +487,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                         pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
                         pXSpawn->burnTime = 10;
                         pXSpawn->target = -1;
-                        aiActivateDude(pSpawn, pXSpawn);
+                        aiActivateDude(&bloodActors[pXSpawn->reference]);
                         break;
                     default:
                         break;
@@ -635,15 +605,15 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         switch (event.cmd) {
             case kCmdOff:
                 if (!SetSpriteState(nSprite, pXSprite, 0)) break;
-                actActivateGibObject(pSprite, pXSprite);
+                actActivateGibObject(&bloodActors[pXSprite->reference]);
                 break;
             case kCmdOn:
                 if (!SetSpriteState(nSprite, pXSprite, 1)) break;
-                actActivateGibObject(pSprite, pXSprite);
+                actActivateGibObject(&bloodActors[pXSprite->reference]);
                 break;
             default:
                 if (!SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1)) break;
-                actActivateGibObject(pSprite, pXSprite);
+                actActivateGibObject(&bloodActors[pXSprite->reference]);
                 break;
         }
         break;
@@ -1507,7 +1477,7 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 ChangeSpriteSect(nSprite, pDest->sectnum);
                 sfxPlay3DSound(pDest, 201, -1, 0);
                 xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
-                ClearBitString(gInterpolateSprite, nSprite);
+                gInterpolateSprite.Clear(nSprite);
                 viewBackupSpriteLoc(nSprite, pSprite);
                 if (pPlayer)
                 {
@@ -1528,7 +1498,7 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
     spritetype *pSprite2 = &sprite[pXSector->marker0];
     XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
     int nId = pXSprite2->data2;
-    StatIterator it(kStatMarker);
+    StatIterator it(kStatPathMarker);
     while ((nSprite = it.NextIndex()) >= 0)
     {
         pSprite = &sprite[nSprite];
@@ -1682,7 +1652,7 @@ void InitPath(unsigned int nSector, XSECTOR *pXSector)
     XSPRITE *pXSprite;
     assert(nSector < (unsigned int)numsectors);
     int nId = pXSector->data;
-    StatIterator it(kStatMarker);
+    StatIterator it(kStatPathMarker);
     while ((nSprite = it.NextIndex()) >= 0)
     {
         pSprite = &sprite[nSprite];
@@ -1724,6 +1694,8 @@ void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
             break;
         case kSectorRotateMarked:
         case kSectorRotate:
+            // force synchronised input here for now.
+            setForcedSyncInput();
             RDoorBusy(nSector, nBusy);
             break;
         default:
@@ -2014,16 +1986,16 @@ void trProcessBusy(void)
     memset(velCeil, 0, sizeof(velCeil));
     for (int i = gBusyCount-1; i >= 0; i--)
     {
-        int oldBusy = gBusy[i].at8;
-        gBusy[i].at8 = ClipRange(oldBusy+gBusy[i].Kills*4, 0, 65536);
-        int nStatus = gBusyProc[gBusy[i].atc](gBusy[i].TotalKills, gBusy[i].at8);
+        int oldBusy = gBusy[i].busy;
+        gBusy[i].busy = ClipRange(oldBusy+gBusy[i].delta*4, 0, 65536);
+        int nStatus = gBusyProc[gBusy[i].type](gBusy[i].index, gBusy[i].busy);
         switch (nStatus) {
             case 1:
-                gBusy[i].at8 = oldBusy;
+                gBusy[i].busy = oldBusy;
                 break;
             case 2:
-                gBusy[i].at8 = oldBusy;
-                gBusy[i].Kills = -gBusy[i].Kills;
+                gBusy[i].busy = oldBusy;
+                gBusy[i].delta = -gBusy[i].delta;
                 break;
             case 3:
                 gBusy[i] = gBusy[--gBusyCount];
@@ -2266,7 +2238,7 @@ void ActivateGenerator(int nSprite)
         case kGenMissileFireball:
             switch (pXSprite->data2) {
                 case 0:
-                    FireballTrapSeqCallback(3, nXSprite);
+                    FireballTrapSeqCallback(3, &bloodActors[nSprite]);
                     break;
                 case 1:
                     seqSpawn(35, 3, nXSprite, nFireballTrapClient);
@@ -2288,11 +2260,9 @@ void ActivateGenerator(int nSprite)
     }
 }
 
-void FireballTrapSeqCallback(int, int nXSprite)
+void FireballTrapSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype* pSprite = &actor->s();
     if (pSprite->cstat&32)
         actFireMissile(pSprite, 0, 0, 0, 0, (pSprite->cstat&8) ? 0x4000 : -0x4000, kMissileFireball);
     else
@@ -2300,18 +2270,17 @@ void FireballTrapSeqCallback(int, int nXSprite)
 }
 
 
-void MGunFireSeqCallback(int, int nXSprite)
+void MGunFireSeqCallback(int, DBloodActor* actor)
 {
-    int nSprite = xsprite[nXSprite].reference;
-    spritetype *pSprite = &sprite[nSprite];
-    XSPRITE *pXSprite = &xsprite[nXSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     if (pXSprite->data2 > 0 || pXSprite->data1 == 0)
     {
         if (pXSprite->data2 > 0)
         {
             pXSprite->data2--;
             if (pXSprite->data2 == 0)
-                evPost(nSprite, 3, 1, kCmdOff);
+                evPost(pXSprite->reference, 3, 1, kCmdOff);
         }
         int dx = CosScale16(pSprite->ang)+Random2(1000);
         int dy = SinScale16(pSprite->ang)+Random2(1000);
@@ -2321,35 +2290,40 @@ void MGunFireSeqCallback(int, int nXSprite)
     }
 }
 
-void MGunOpenSeqCallback(int, int nXSprite)
+void MGunOpenSeqCallback(int, DBloodActor* actor)
 {
-    seqSpawn(39, 3, nXSprite, nMGunFireClient);
+    seqSpawn(39, 3, actor->s().extra, nMGunFireClient);
 }
 
-class TriggersLoadSave : public LoadSave
-{
-public:
-    virtual void Load();
-    virtual void Save();
-};
 
-void TriggersLoadSave::Load()
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, BUSY& w, BUSY* def)
 {
-    Read(&gBusyCount, sizeof(gBusyCount));
-    Read(gBusy, sizeof(gBusy));
-    Read(basePath, sizeof(basePath));
+	if (arc.BeginObject(keyname))
+	{
+		arc("index", w.index)
+			("type", w.type)
+			("delta", w.delta)
+			("busy", w.busy)
+			.EndObject();
+	}
+	return arc;
 }
 
-void TriggersLoadSave::Save()
+void SerializeTriggers(FSerializer& arc)
 {
-    Write(&gBusyCount, sizeof(gBusyCount));
-    Write(gBusy, sizeof(gBusy));
-    Write(basePath, sizeof(basePath));
-}
-
-void TriggersLoadSaveConstruct(void)
-{
-    new TriggersLoadSave();
+	if (arc.BeginObject("triggers"))
+	{
+		arc("busycount", gBusyCount)
+			.Array("busy", gBusy, gBusyCount)
+			.Array("basepath", basePath, numsectors)
+			.EndObject();
+	}
 }
 
 END_BLD_NS

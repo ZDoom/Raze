@@ -38,6 +38,7 @@ source as it is released.
 #include "sounds.h"
 #include "automap.h"
 #include "dukeactor.h"
+#include "interpolate.h"
 
 BEGIN_DUKE_NS
 
@@ -106,9 +107,9 @@ DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed ch
 	}
 
 	memset(act->temp_data, 0, sizeof(act->temp_data));
-	if (actorinfo[s_pn].scriptaddress)
+	if (gs.actorinfo[s_pn].scriptaddress)
 	{
-		auto sa = &ScriptCode[actorinfo[s_pn].scriptaddress];
+		auto sa = &ScriptCode[gs.actorinfo[s_pn].scriptaddress];
 		s->extra = sa[0];
 		act->temp_data[4] = sa[1];
 		act->temp_data[1] = sa[2];
@@ -206,7 +207,7 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 				{
 					changespritestat(i, 12);
 					sp->cstat |= 257;
-					sp->extra = impact_damage;
+					sp->extra = gs.impact_damage;
 					return i;
 				}
 			}
@@ -215,12 +216,12 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 
 		if (sp->cstat & 1) sp->cstat |= 256;
 
-		if (actorinfo[s].scriptaddress)
+		if (gs.actorinfo[s].scriptaddress)
 		{
-			sp->extra = ScriptCode[actorinfo[s].scriptaddress];
-			t[4] = ScriptCode[actorinfo[s].scriptaddress+1];
-			t[1] = ScriptCode[actorinfo[s].scriptaddress+2];
-			int s3 = ScriptCode[actorinfo[s].scriptaddress+3];
+			sp->extra = ScriptCode[gs.actorinfo[s].scriptaddress];
+			t[4] = ScriptCode[gs.actorinfo[s].scriptaddress+1];
+			t[1] = ScriptCode[gs.actorinfo[s].scriptaddress+2];
+			int s3 = ScriptCode[gs.actorinfo[s].scriptaddress+3];
 			if (s3 && sp->hitag == 0)
 				sp->hitag = s3;
 		}
@@ -240,7 +241,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 	auto sp = &act->s;
 	auto sect = sp->sectnum;
 
-	if (actorinfo[sp->picnum].scriptaddress)
+	if (gs.actorinfo[sp->picnum].scriptaddress)
 	{
 		if (actj == nullptr && sp->lotag > ud.player_skill)
 		{
@@ -453,11 +454,11 @@ void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 		else
 		{
 			a = sp->ang;
-			sp->z = spj->z - PHEIGHT + (3 << 8);
+			sp->z = spj->z - gs.playerheight + (3 << 8);
 		}
 
-		sp->x = spj->x + (sintable[(a + 512) & 2047] >> 7);
-		sp->y = spj->y + (sintable[a & 2047] >> 7);
+		sp->x = spj->x + bcos(a, -7);
+		sp->y = spj->y + bsin(a, -7);
 
 		sp->shade = -8;
 
@@ -599,7 +600,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 		sp->extra = 130;
 	}
 	else
-		sp->extra = impact_damage;
+		sp->extra = gs.impact_damage;
 
 	sp->cstat |= 257; // Make it hitable
 
@@ -640,12 +641,13 @@ void spawneffector(DDukeActor* actor)
 			break;
 		case SE_7_TELEPORT: // Transporters!!!!
 		case SE_23_ONE_WAY_TELEPORT:// XPTR END
-			if (sp->lotag != 23)
+			if (sp->lotag != SE_23_ONE_WAY_TELEPORT)
 			{
-				DukeSpriteIterator it;
+				DukeLinearSpriteIterator it;
 				while (auto act2 = it.Next())
 					{
-					if (act2->s.statnum < MAXSTATUS && act2->s.picnum == SECTOREFFECTOR && (act2->s.lotag == 7 || act2->s.lotag == 23) && actor != act2 && act2->s.hitag == sp->hitag)
+					if (act2->s.statnum < MAXSTATUS && act2->s.picnum == SECTOREFFECTOR && (act2->s.lotag == SE_7_TELEPORT || act2->s.lotag == SE_23_ONE_WAY_TELEPORT) && 
+						actor != act2 && act2->s.hitag == sp->hitag)
 					{
 						actor->SetOwner(act2);
 						break;
@@ -693,7 +695,7 @@ void spawneffector(DDukeActor* actor)
 				t[4] = sector[sect].ceilingz;
 
 			sector[sect].ceilingz = sp->z;
-			setinterpolation(&sector[sect].ceilingz);
+			StartInterpolation(sect, Interp_Sect_Ceilingz);
 			break;
 		case SE_35:
 			sector[sect].ceilingz = sp->z;
@@ -780,13 +782,20 @@ void spawneffector(DDukeActor* actor)
 
 			if (numplayers < 2)
 			{
-				setinterpolation(&sector[sect].floorz);
-				setinterpolation(&sector[sect].ceilingz);
+				StartInterpolation(sect, Interp_Sect_Floorz);
+				StartInterpolation(sect, Interp_Sect_Ceilingz);
 			}
 
 			break;
 		}
+		case 156:
+			if (!isRRRA()) break;
+		case 34:
+			StartInterpolation(sect, Interp_Sect_FloorPanX);
+			break;
+
 		case SE_24_CONVEYOR:
+			StartInterpolation(sect, Interp_Sect_FloorPanX);
 			sp->yvel <<= 1;
 		case SE_36_PROJ_SHOOTER:
 			break;
@@ -832,6 +841,8 @@ void spawneffector(DDukeActor* actor)
 			}
 
 			t[2] = clostest;
+			StartInterpolation(sect, Interp_Sect_FloorPanX);
+			StartInterpolation(sect, Interp_Sect_FloorPanY);
 			break;
 		}
 
@@ -870,7 +881,7 @@ void spawneffector(DDukeActor* actor)
 			for (s = startwall; s < endwall; s++)
 				if (wall[s].hitag == 0) wall[s].hitag = 9999;
 
-			setinterpolation(&sector[sect].floorz);
+			StartInterpolation(sect, Interp_Sect_Floorz);
 
 			break;
 		case SE_32_CEILING_RISE_FALL:
@@ -884,7 +895,7 @@ void spawneffector(DDukeActor* actor)
 			for (s = startwall; s < endwall; s++)
 				if (wall[s].hitag == 0) wall[s].hitag = 9999;
 
-			setinterpolation(&sector[sect].ceilingz);
+			StartInterpolation(sect, Interp_Sect_Ceilingz);
 
 			break;
 
@@ -964,7 +975,7 @@ void spawneffector(DDukeActor* actor)
 					sector[sect].hitag = ActorToScriptIndex(actor);
 				}
 
-				DukeSpriteIterator it;
+				DukeLinearSpriteIterator it;
 				bool found = false;
 				while (auto act2 = it.Next())
 				{
@@ -1004,7 +1015,7 @@ void spawneffector(DDukeActor* actor)
 					I_Error("Too many moving sectors at (%d,%d).\n", wall[s].x, wall[s].y);
 				}
 			}
-			if (sp->lotag == 30 || sp->lotag == 6 || sp->lotag == 14 || sp->lotag == 5)
+			if (sp->lotag == SE_30_TWO_WAY_TRAIN || sp->lotag == SE_6_SUBWAY || sp->lotag == SE_14_SUBWAY_CAR || sp->lotag == SE_5_BOSS)
 			{
 
 				startwall = sector[sect].wallptr;
@@ -1038,14 +1049,14 @@ void spawneffector(DDukeActor* actor)
 				actor->SetOwner(nullptr);
 				t[0] = s;
 
-				if (sp->lotag != 30)
+				if (sp->lotag != SE_30_TWO_WAY_TRAIN)
 					t[3] = sp->hitag;
 			}
 
-			else if (sp->lotag == 16)
+			else if (sp->lotag == SE_16_REACTOR)
 				t[3] = sector[sect].ceilingz;
 
-			else if (sp->lotag == 26)
+			else if (sp->lotag == SE_26)
 			{
 				t[3] = sp->x;
 				t[4] = sp->y;
@@ -1056,7 +1067,7 @@ void spawneffector(DDukeActor* actor)
 
 				sp->shade = 0;
 			}
-			else if (sp->lotag == 2)
+			else if (sp->lotag == SE_2_EARTHQUAKE)
 			{
 				t[5] = sector[sp->sectnum].floorheinum;
 				sector[sp->sectnum].floorheinum = 0;
@@ -1087,6 +1098,11 @@ void spawneffector(DDukeActor* actor)
 		case SE_16_REACTOR:
 		case SE_26:
 			setsectinterpolate(actor->s.sectnum);
+			break;
+
+		case SE_29_WAVES:
+			StartInterpolation(actor->s.sectnum, Interp_Sect_Floorheinum);
+			StartInterpolation(actor->s.sectnum, Interp_Sect_Floorz);
 			break;
 	}
 

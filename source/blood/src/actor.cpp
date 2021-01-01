@@ -29,2573 +29,2530 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
+#include "savegamehelp.h"
 
-#include "actor.h"
-#include "ai.h"
-#include "aistate.h"
-#include "aiunicult.h"
 #include "blood.h"
-#include "callback.h"
-#include "db.h"
-#include "endgame.h"
-#include "eventq.h"
-#include "fx.h"
-#include "gameutil.h"
-#include "gib.h"
-#include "globals.h"
-#include "levels.h"
-#include "loadsave.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
-#include "triggers.h"
-#include "view.h"
-#include "nnexts.h"
-#include "player.h"
-#include "misc.h"
 
 BEGIN_BLD_NS
 
 VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].maxDist. What were they thinking... 
-    
-    // Tine
-    {
-        DAMAGE_TYPE_2,
-        17,
-        174762,
-        1152,
-        10240,
-        0,
-        1,
-        20480,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_43, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_43, FX_6, FX_NONE, 502,
-        FX_43, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_7, 502,
-        FX_43, FX_6, FX_7, 502,
-        FX_NONE, FX_NONE, FX_NONE, 503,
-        FX_43, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 503,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-    },
+	
+	// Tine
+	{
+		DAMAGE_TYPE_2,
+		17,
+		174762,
+		1152,
+		10240,
+		0,
+		1,
+		20480,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_43, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_43, FX_6, FX_NONE, 502,
+		FX_43, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_7, 502,
+		FX_43, FX_6, FX_7, 502,
+		FX_NONE, FX_NONE, FX_NONE, 503,
+		FX_43, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 503,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+	},
    
-    // Shell
-    {
-        DAMAGE_TYPE_2,
-        4,
-        65536,
-        0,
-        8192,
-        0,
-        1,
-        12288,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_43, FX_5, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_43, FX_6, FX_NONE, -1,
-        FX_43, FX_0, FX_NONE, -1,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_43, FX_6, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_43, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-    },
-    
-    // Bullet
-    {
-        DAMAGE_TYPE_2,
-        7,
-        21845,
-        0,
-        32768,
-        0,
-        1,
-        12288,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_43, FX_5, FX_7, 510,
-        FX_NONE, FX_5, FX_7, 511,
-        FX_43, FX_6, FX_NONE, 512,
-        FX_43, FX_0, FX_NONE, 513,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_7, 512,
-        FX_43, FX_6, FX_7, 512,
-        FX_NONE, FX_NONE, FX_NONE, 513,
-        FX_43, FX_NONE, FX_NONE, 513,
-        FX_NONE, FX_6, FX_NONE, 513,
-        FX_NONE, FX_6, FX_NONE, 513,
-        FX_NONE, FX_6, FX_NONE, 513,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
+	// Shell
+	{
+		DAMAGE_TYPE_2,
+		4,
+		65536,
+		0,
+		8192,
+		0,
+		1,
+		12288,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_43, FX_5, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_43, FX_6, FX_NONE, -1,
+		FX_43, FX_0, FX_NONE, -1,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_43, FX_6, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_43, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+	},
+	
+	// Bullet
+	{
+		DAMAGE_TYPE_2,
+		7,
+		21845,
+		0,
+		32768,
+		0,
+		1,
+		12288,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_43, FX_5, FX_7, 510,
+		FX_NONE, FX_5, FX_7, 511,
+		FX_43, FX_6, FX_NONE, 512,
+		FX_43, FX_0, FX_NONE, 513,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_7, 512,
+		FX_43, FX_6, FX_7, 512,
+		FX_NONE, FX_NONE, FX_NONE, 513,
+		FX_43, FX_NONE, FX_NONE, 513,
+		FX_NONE, FX_6, FX_NONE, 513,
+		FX_NONE, FX_6, FX_NONE, 513,
+		FX_NONE, FX_6, FX_NONE, 513,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
 
-    },
-    
-    // Tommy AP
-    {
-        DAMAGE_TYPE_2,
-        20,
-        65536,
-        0,
-        16384,
-        0,
-        1,
-        20480,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_43, FX_5, FX_7, 510,
-        FX_NONE, FX_5, FX_7, 511,
-        FX_43, FX_6, FX_NONE, 512,
-        FX_43, FX_0, FX_NONE, 513,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_7, 512,
-        FX_43, FX_6, FX_7, 512,
-        FX_NONE, FX_NONE, FX_NONE, 513,
-        FX_43, FX_NONE, FX_NONE, 513,
-        FX_NONE, FX_6, FX_NONE, 513,
-        FX_NONE, FX_6, FX_NONE, 513,
-        FX_NONE, FX_6, FX_NONE, 513,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-    },
-    
-    // Shell AP
-    {
-        DAMAGE_TYPE_2,
-        6,
-        87381,
-        0,
-        12288,
-        0,
-        1,
-        6144,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_43, FX_5, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_43, FX_6, FX_NONE, -1,
-        FX_43, FX_0, FX_NONE, -1,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_43, FX_6, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_43, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-    },
-    
-    // Tommy regular
-    {
-        DAMAGE_TYPE_2,
-        12,
-        65536,
-        0,
-        16384,
-        0,
-        1,
-        12288,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_43, FX_5, FX_7, 510,
-        FX_NONE, FX_5, FX_7, 511,
-        FX_43, FX_6, FX_NONE, 512,
-        FX_43, FX_0, FX_NONE, 513,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_7, 512,
-        FX_43, FX_6, FX_7, 512,
-        FX_NONE, FX_NONE, FX_NONE, 513,
-        FX_43, FX_NONE, FX_NONE, 513,
-        FX_NONE, FX_6, FX_NONE, 513,
-        FX_NONE, FX_6, FX_NONE, 513,
-        FX_NONE, FX_6, FX_NONE, 513,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-    },
-    
-    // Bat bite
-    {
-        DAMAGE_TYPE_2,
-        4,
-        0,
-        921,
-        0,
-        0,
-        1,
-        4096,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
-    
-    // Eel bite
-    {
-        DAMAGE_TYPE_2,
-        12,
-        0,
-        1177,
-        0,
-        0,
-        0,
-        0,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
-    
-    // Gill bite
-    {
-        DAMAGE_TYPE_2,
-        9,
-        0,
-        1177,
-        0,
-        0,
-        0,
-        0,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
-    
-            // Beast slash
-    {
-        DAMAGE_TYPE_3,
-        50,
-        43690,
-        1024,
-        8192,
-        0,
-        4,
-        32768,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
-    
-            // Axe
-    {
-        DAMAGE_TYPE_2,
-        18,
-        436906,
-        1024,
-        16384,
-        0,
-        2,
-        20480,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-    },
-    
-            // Cleaver
-    {
-        DAMAGE_TYPE_2,
-        9,
-        218453,
-        1024,
-        0,
-        0,
-        1,
-        24576,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-    },
-    
-            // Phantasm slash
-    {
-        DAMAGE_TYPE_2,
-        20,
-        436906,
-        1024,
-        16384,
-        0,
-        3,
-        24576,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-    },
+	},
+	
+	// Tommy AP
+	{
+		DAMAGE_TYPE_2,
+		20,
+		65536,
+		0,
+		16384,
+		0,
+		1,
+		20480,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_43, FX_5, FX_7, 510,
+		FX_NONE, FX_5, FX_7, 511,
+		FX_43, FX_6, FX_NONE, 512,
+		FX_43, FX_0, FX_NONE, 513,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_7, 512,
+		FX_43, FX_6, FX_7, 512,
+		FX_NONE, FX_NONE, FX_NONE, 513,
+		FX_43, FX_NONE, FX_NONE, 513,
+		FX_NONE, FX_6, FX_NONE, 513,
+		FX_NONE, FX_6, FX_NONE, 513,
+		FX_NONE, FX_6, FX_NONE, 513,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+	},
+	
+	// Shell AP
+	{
+		DAMAGE_TYPE_2,
+		6,
+		87381,
+		0,
+		12288,
+		0,
+		1,
+		6144,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_43, FX_5, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_43, FX_6, FX_NONE, -1,
+		FX_43, FX_0, FX_NONE, -1,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_43, FX_6, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_43, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+	},
+	
+	// Tommy regular
+	{
+		DAMAGE_TYPE_2,
+		12,
+		65536,
+		0,
+		16384,
+		0,
+		1,
+		12288,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_43, FX_5, FX_7, 510,
+		FX_NONE, FX_5, FX_7, 511,
+		FX_43, FX_6, FX_NONE, 512,
+		FX_43, FX_0, FX_NONE, 513,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_7, 512,
+		FX_43, FX_6, FX_7, 512,
+		FX_NONE, FX_NONE, FX_NONE, 513,
+		FX_43, FX_NONE, FX_NONE, 513,
+		FX_NONE, FX_6, FX_NONE, 513,
+		FX_NONE, FX_6, FX_NONE, 513,
+		FX_NONE, FX_6, FX_NONE, 513,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+	},
+	
+	// Bat bite
+	{
+		DAMAGE_TYPE_2,
+		4,
+		0,
+		921,
+		0,
+		0,
+		1,
+		4096,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
+	
+	// Eel bite
+	{
+		DAMAGE_TYPE_2,
+		12,
+		0,
+		1177,
+		0,
+		0,
+		0,
+		0,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
+	
+	// Gill bite
+	{
+		DAMAGE_TYPE_2,
+		9,
+		0,
+		1177,
+		0,
+		0,
+		0,
+		0,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
+	
+			// Beast slash
+	{
+		DAMAGE_TYPE_3,
+		50,
+		43690,
+		1024,
+		8192,
+		0,
+		4,
+		32768,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
+	
+			// Axe
+	{
+		DAMAGE_TYPE_2,
+		18,
+		436906,
+		1024,
+		16384,
+		0,
+		2,
+		20480,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+	},
+	
+			// Cleaver
+	{
+		DAMAGE_TYPE_2,
+		9,
+		218453,
+		1024,
+		0,
+		0,
+		1,
+		24576,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+	},
+	
+			// Phantasm slash
+	{
+		DAMAGE_TYPE_2,
+		20,
+		436906,
+		1024,
+		16384,
+		0,
+		3,
+		24576,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+	},
 
-            // Gargoyle Slash
-    {
-        DAMAGE_TYPE_2,
-        16,
-        218453,
-        1024,
-        8192,
-        0,
-        4,
-        20480,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-    },
+			// Gargoyle Slash
+	{
+		DAMAGE_TYPE_2,
+		16,
+		218453,
+		1024,
+		8192,
+		0,
+		4,
+		20480,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+	},
 
-            // Cerberus bite
-    {
-        DAMAGE_TYPE_2,
-        19,
-        218453,
-        614,
-        8192,
-        0,
-        2,
-        24576,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
+			// Cerberus bite
+	{
+		DAMAGE_TYPE_2,
+		19,
+		218453,
+		614,
+		8192,
+		0,
+		2,
+		24576,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
 
-            // Hound bite
-    {
-        DAMAGE_TYPE_2,
-        10,
-        218453,
-        614,
-        8192,
-        0,
-        2,
-        24576,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
+			// Hound bite
+	{
+		DAMAGE_TYPE_2,
+		10,
+		218453,
+		614,
+		8192,
+		0,
+		2,
+		24576,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
 
-            // Rat bite
-    {
-        DAMAGE_TYPE_2,
-        4,
-        0,
-        921,
-        0,
-        0,
-        1,
-        24576,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
+			// Rat bite
+	{
+		DAMAGE_TYPE_2,
+		4,
+		0,
+		921,
+		0,
+		0,
+		1,
+		24576,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
 
-            // Spider bite
-    {
-        DAMAGE_TYPE_2,
-        8,
-        0,
-        614,
-        0,
-        0,
-        1,
-        24576,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
+			// Spider bite
+	{
+		DAMAGE_TYPE_2,
+		8,
+		0,
+		614,
+		0,
+		0,
+		1,
+		24576,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
 
-            // Unk
-    {
-        DAMAGE_TYPE_2,
-        9,
-        0,
-        512,
-        0,
-        0,
-        0,
-        0,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_5, FX_NONE, 500,
-        FX_NONE, FX_5, FX_NONE, 501,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_0, FX_NONE, 503,
-        FX_NONE, FX_4, FX_NONE, -1,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_6, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, 502,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
-    
-    {
-        (DAMAGE_TYPE)-1,
-        0,
-        0,
-        2560,
-        0,
-        0,
-        0,
-        0,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_34, FX_35, -1,
-        FX_NONE, FX_34, FX_35, -1,
-        FX_NONE, FX_34, FX_35, -1,
-        FX_NONE, FX_34, FX_35, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_34, FX_35, -1,
-        FX_NONE, FX_34, FX_35, -1,
-        FX_NONE, FX_34, FX_35, -1,
-        FX_NONE, FX_34, FX_35, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
+			// Unk
+	{
+		DAMAGE_TYPE_2,
+		9,
+		0,
+		512,
+		0,
+		0,
+		0,
+		0,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_5, FX_NONE, 500,
+		FX_NONE, FX_5, FX_NONE, 501,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_0, FX_NONE, 503,
+		FX_NONE, FX_4, FX_NONE, -1,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_6, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, 502,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
+	
+	{
+		(DAMAGE_TYPE)-1,
+		0,
+		0,
+		2560,
+		0,
+		0,
+		0,
+		0,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_34, FX_35, -1,
+		FX_NONE, FX_34, FX_35, -1,
+		FX_NONE, FX_34, FX_35, -1,
+		FX_NONE, FX_34, FX_35, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_34, FX_35, -1,
+		FX_NONE, FX_34, FX_35, -1,
+		FX_NONE, FX_34, FX_35, -1,
+		FX_NONE, FX_34, FX_35, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
 
-    // Tchernobog burn vector
-    {
-        DAMAGE_TYPE_1,
-        2,
-        0,
-        0,
-        0,
-        15,
-        0,
-        0,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
+	// Tchernobog burn vector
+	{
+		DAMAGE_TYPE_1,
+		2,
+		0,
+		0,
+		0,
+		15,
+		0,
+		0,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
 
-    // Vodoo 1.0 vector
-    {
-        DAMAGE_TYPE_5,
-        25,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-    },
+	// Vodoo 1.0 vector
+	{
+		DAMAGE_TYPE_5,
+		25,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+	},
 
-    // 22 kVectorGenDudePunch
-    {
-    DAMAGE_TYPE_0, 
-        37, 
-        874762, 
-        620, 
-        0, 
-        0, 
-        0, 
-        0,
-        FX_NONE, FX_NONE, FX_NONE, -1,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-        FX_NONE, FX_NONE, FX_NONE, 357,
-    },
+	// 22 kVectorGenDudePunch
+	{
+	DAMAGE_TYPE_0, 
+		37, 
+		874762, 
+		620, 
+		0, 
+		0, 
+		0, 
+		0,
+		FX_NONE, FX_NONE, FX_NONE, -1,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+		FX_NONE, FX_NONE, FX_NONE, 357,
+	},
 };
 
 const ITEMDATA gItemData[] = {
-    {
-        0,
-        2552,
-        (char)-8,
-        0,
-        32,
-        32,
-        -1,
-    },
-    {
-        0,
-        2553,
-        (char)-8,
-        0,
-        32,
-        32,
-        -1,
-    },
-    {
-        0,
-        2554,
-        (char)-8,
-        0,
-        32,
-        32,
-        -1,
-    },
-    {
-        0,
-        2555,
-        (char)-8,
-        0,
-        32,
-        32,
-        -1,
-    },
-    {
-        0,
-        2556,
-        (char)-8,
-        0,
-        32,
-        32,
-        -1,
-    },
-    {
-        0,
-        2557,
-        (char)-8,
-        0,
-        32,
-        32,
-        -1,
-    },
-    {
-        0,
-        -1,
-        (char)-8,
-        0,
-        255,
-        255,
-        -1,
-    },
-    {
-        0,
-        519,
-        (char)-8,
-        0,
-        48,
-        48,
-        0,
-    },
-    {
-        0,
-        822,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        2169,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        2433,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        517,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        783,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        896,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        825,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        827,
-        (char)-8,
-        0,
-        40,
-        40,
-        4,
-    },
-    {
-        0,
-        828,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        829,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        830,
-        (char)-8,
-        0,
-        80,
-        64,
-        1,
-    },
-    {
-        0,
-        831,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        863,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        760,
-        (char)-8,
-        0,
-        40,
-        40,
-        2,
-    },
-    {
-        0,
-        836,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        851,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        2428,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        839,
-        (char)-8,
-        0,
-        40,
-        40,
-        3,
-    },
-    {
-        0,
-        768,
-        (char)-8,
-        0,
-        64,
-        64,
-        -1,
-    },
-    {
-        0,
-        840,
-        (char)-8,
-        0,
-        48,
-        48,
-        -1,
-    },
-    {
-        0,
-        841,
-        (char)-8,
-        0,
-        48,
-        48,
-        -1,
-    },
-    {
-        0,
-        842,
-        (char)-8,
-        0,
-        48,
-        48,
-        -1,
-    },
-    {
-        0,
-        843,
-        (char)-8,
-        0,
-        48,
-        48,
-        -1,
-    },
-    {
-        0,
-        683,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        521,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        604,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        520,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        803,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        518,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        522,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        523,
-        (char)-8,
-        0,
-        40,
-        40,
-        -1,
-    },
-    {
-        0,
-        837,
-        (char)-8,
-        0,
-        80,
-        64,
-        -1,
-    },
-    {
-        0,
-        2628,
-        (char)-8,
-        0,
-        64,
-        64,
-        -1,
-    },
-    {
-        0,
-        2586,
-        (char)-8,
-        0,
-        64,
-        64,
-        -1,
-    },
-    {
-        0,
-        2578,
-        (char)-8,
-        0,
-        64,
-        64,
-        -1,
-    },
-    {
-        0,
-        2602,
-        (char)-8,
-        0,
-        64,
-        64,
-        -1,
-    },
-    {
-        0,
-        2594,
-        (char)-8,
-        0,
-        64,
-        64,
-        -1,
-    },
-    {
-        0,
-        753,
-        (char)-8,
-        0,
-        64,
-        64,
-        -1,
-    },
-    {
-        0,
-        753,
-        (char)-8,
-        7,
-        64,
-        64,
-        -1,
-    },
-    {
-        0,
-        3558,
-        (char)-128,
-        0,
-        64,
-        64,
-        -1,
-    },
-    {
-        0,
-        3558,
-        (char)-128,
-        7,
-        64,
-        64,
-        -1,
-    }
+	{
+		0,
+		2552,
+		(char)-8,
+		0,
+		32,
+		32,
+		-1,
+	},
+	{
+		0,
+		2553,
+		(char)-8,
+		0,
+		32,
+		32,
+		-1,
+	},
+	{
+		0,
+		2554,
+		(char)-8,
+		0,
+		32,
+		32,
+		-1,
+	},
+	{
+		0,
+		2555,
+		(char)-8,
+		0,
+		32,
+		32,
+		-1,
+	},
+	{
+		0,
+		2556,
+		(char)-8,
+		0,
+		32,
+		32,
+		-1,
+	},
+	{
+		0,
+		2557,
+		(char)-8,
+		0,
+		32,
+		32,
+		-1,
+	},
+	{
+		0,
+		-1,
+		(char)-8,
+		0,
+		255,
+		255,
+		-1,
+	},
+	{
+		0,
+		519,
+		(char)-8,
+		0,
+		48,
+		48,
+		0,
+	},
+	{
+		0,
+		822,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		2169,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		2433,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		517,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		783,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		896,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		825,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		827,
+		(char)-8,
+		0,
+		40,
+		40,
+		4,
+	},
+	{
+		0,
+		828,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		829,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		830,
+		(char)-8,
+		0,
+		80,
+		64,
+		1,
+	},
+	{
+		0,
+		831,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		863,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		760,
+		(char)-8,
+		0,
+		40,
+		40,
+		2,
+	},
+	{
+		0,
+		836,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		851,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		2428,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		839,
+		(char)-8,
+		0,
+		40,
+		40,
+		3,
+	},
+	{
+		0,
+		768,
+		(char)-8,
+		0,
+		64,
+		64,
+		-1,
+	},
+	{
+		0,
+		840,
+		(char)-8,
+		0,
+		48,
+		48,
+		-1,
+	},
+	{
+		0,
+		841,
+		(char)-8,
+		0,
+		48,
+		48,
+		-1,
+	},
+	{
+		0,
+		842,
+		(char)-8,
+		0,
+		48,
+		48,
+		-1,
+	},
+	{
+		0,
+		843,
+		(char)-8,
+		0,
+		48,
+		48,
+		-1,
+	},
+	{
+		0,
+		683,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		521,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		604,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		520,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		803,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		518,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		522,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		523,
+		(char)-8,
+		0,
+		40,
+		40,
+		-1,
+	},
+	{
+		0,
+		837,
+		(char)-8,
+		0,
+		80,
+		64,
+		-1,
+	},
+	{
+		0,
+		2628,
+		(char)-8,
+		0,
+		64,
+		64,
+		-1,
+	},
+	{
+		0,
+		2586,
+		(char)-8,
+		0,
+		64,
+		64,
+		-1,
+	},
+	{
+		0,
+		2578,
+		(char)-8,
+		0,
+		64,
+		64,
+		-1,
+	},
+	{
+		0,
+		2602,
+		(char)-8,
+		0,
+		64,
+		64,
+		-1,
+	},
+	{
+		0,
+		2594,
+		(char)-8,
+		0,
+		64,
+		64,
+		-1,
+	},
+	{
+		0,
+		753,
+		(char)-8,
+		0,
+		64,
+		64,
+		-1,
+	},
+	{
+		0,
+		753,
+		(char)-8,
+		7,
+		64,
+		64,
+		-1,
+	},
+	{
+		0,
+		3558,
+		(char)-128,
+		0,
+		64,
+		64,
+		-1,
+	},
+	{
+		0,
+		3558,
+		(char)-128,
+		7,
+		64,
+		64,
+		-1,
+	}
 };
 
 const AMMOITEMDATA gAmmoItemData[] = {
-    {
-        0,
-        618,
-        (char)-8,
-        0,
-        40,
-        40,
-        480,
-        6,
-        7
-    },
-    {
-        0,
-        589,
-        (char)-8,
-        0,
-        48,
-        48,
-        1,
-        5,
-        6
-    },
-    {
-        0,
-        589,
-        (char)-8,
-        0,
-        48,
-        48,
-        1,
-        5,
-        6
-    },
-    {
-        0,
-        809,
-        (char)-8,
-        0,
-        48,
-        48,
-        5,
-        5,
-        6
-    },
-    {
-        0,
-        811,
-        (char)-8,
-        0,
-        48,
-        48,
-        1,
-        10,
-        11
-    },
-    {
-        0,
-        810,
-        (char)-8,
-        0,
-        48,
-        48,
-        1,
-        11,
-        12
-    },
-    {
-        0,
-        820,
-        (char)-8,
-        0,
-        24,
-        24,
-        10,
-        8,
-        0
-    },
-    {
-        0,
-        619,
-        (char)-8,
-        0,
-        48,
-        48,
-        4,
-        2,
-        0
-    },
-    {
-        0,
-        812,
-        (char)-8,
-        0,
-        48,
-        48,
-        15,
-        2,
-        0
-    },
-    {
-        0,
-        813,
-        (char)-8,
-        0,
-        48,
-        48,
-        15,
-        3,
-        0
-    },
-    {
-        0,
-        525,
-        (char)-8,
-        0,
-        48,
-        48,
-        100,
-        9,
-        10
-    },
-    {
-        0,
-        814,
-        (char)-8,
-        0,
-        48,
-        48,
-        15,
-        255,
-        0
-    },
-    {
-        0,
-        817,
-        (char)-8,
-        0,
-        48,
-        48,
-        100,
-        3,
-        0
-    },
-    {
-        0,
-        548,
-        (char)-8,
-        0,
-        24,
-        24,
-        32,
-        7,
-        0
-    },
-    {
-        0,
-        0,
-        (char)-8,
-        0,
-        48,
-        48,
-        6,
-        255,
-        0
-    },
-    {
-        0,
-        0,
-        (char)-8,
-        0,
-        48,
-        48,
-        6,
-        255,
-        0
-    },
-    {
-        0,
-        816,
-        (char)-8,
-        0,
-        48,
-        48,
-        8,
-        1,
-        0
-    },
-    {
-        0,
-        818,
-        (char)-8,
-        0,
-        48,
-        48,
-        8,
-        255,
-        0
-    },
-    {
-        0,
-        819,
-        (char)-8,
-        0,
-        48,
-        48,
-        8,
-        255,
-        0
-    },
-    {
-        0,
-        801,
-        (char)-8,
-        0,
-        48,
-        48,
-        6,
-        4,
-        0
-    },
-    {
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    },
+	{
+		0,
+		618,
+		(char)-8,
+		0,
+		40,
+		40,
+		480,
+		6,
+		7
+	},
+	{
+		0,
+		589,
+		(char)-8,
+		0,
+		48,
+		48,
+		1,
+		5,
+		6
+	},
+	{
+		0,
+		589,
+		(char)-8,
+		0,
+		48,
+		48,
+		1,
+		5,
+		6
+	},
+	{
+		0,
+		809,
+		(char)-8,
+		0,
+		48,
+		48,
+		5,
+		5,
+		6
+	},
+	{
+		0,
+		811,
+		(char)-8,
+		0,
+		48,
+		48,
+		1,
+		10,
+		11
+	},
+	{
+		0,
+		810,
+		(char)-8,
+		0,
+		48,
+		48,
+		1,
+		11,
+		12
+	},
+	{
+		0,
+		820,
+		(char)-8,
+		0,
+		24,
+		24,
+		10,
+		8,
+		0
+	},
+	{
+		0,
+		619,
+		(char)-8,
+		0,
+		48,
+		48,
+		4,
+		2,
+		0
+	},
+	{
+		0,
+		812,
+		(char)-8,
+		0,
+		48,
+		48,
+		15,
+		2,
+		0
+	},
+	{
+		0,
+		813,
+		(char)-8,
+		0,
+		48,
+		48,
+		15,
+		3,
+		0
+	},
+	{
+		0,
+		525,
+		(char)-8,
+		0,
+		48,
+		48,
+		100,
+		9,
+		10
+	},
+	{
+		0,
+		814,
+		(char)-8,
+		0,
+		48,
+		48,
+		15,
+		255,
+		0
+	},
+	{
+		0,
+		817,
+		(char)-8,
+		0,
+		48,
+		48,
+		100,
+		3,
+		0
+	},
+	{
+		0,
+		548,
+		(char)-8,
+		0,
+		24,
+		24,
+		32,
+		7,
+		0
+	},
+	{
+		0,
+		0,
+		(char)-8,
+		0,
+		48,
+		48,
+		6,
+		255,
+		0
+	},
+	{
+		0,
+		0,
+		(char)-8,
+		0,
+		48,
+		48,
+		6,
+		255,
+		0
+	},
+	{
+		0,
+		816,
+		(char)-8,
+		0,
+		48,
+		48,
+		8,
+		1,
+		0
+	},
+	{
+		0,
+		818,
+		(char)-8,
+		0,
+		48,
+		48,
+		8,
+		255,
+		0
+	},
+	{
+		0,
+		819,
+		(char)-8,
+		0,
+		48,
+		48,
+		8,
+		255,
+		0
+	},
+	{
+		0,
+		801,
+		(char)-8,
+		0,
+		48,
+		48,
+		6,
+		4,
+		0
+	},
+	{
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	},
 };
 
 const WEAPONITEMDATA gWeaponItemData[] = {
-    {
-        0,
-        -1,
-        (char)0,
-        0,
-        0,
-        0,
-        0,
-        -1,
-        0
-    },
-    {
-        0,
-        559,
-        (char)-8,
-        0,
-        48,
-        48,
-        3,
-        2,
-        8
-    },
-    {
-        0,
-        558,
-        (char)-8,
-        0,
-        48,
-        48,
-        4,
-        3,
-        50
-    },
-    {
-        0,
-        524,
-        (char)-8,
-        0,
-        48,
-        48,
-        2,
-        1,
-        9
-    },
-    {
-        0,
-        525,
-        (char)-8,
-        0,
-        48,
-        48,
-        10,
-        9,
-        100
-    },
-    {
-        0,
-        539,
-        (char)-8,
-        0,
-        48,
-        48,
-        8,
-        7,
-        64
-    },
-    {
-        0,
-        526,
-        (char)-8,
-        0,
-        48,
-        48,
-        5,
-        4,
-        6
-    },
-    {
-        0,
-        -1,
-        (char)0,
-        0,
-        0,
-        0,
-        1,
-        -1,
-        0
-    },
-    {
-        0,
-        618,
-        (char)-8,
-        0,
-        48,
-        48,
-        7,
-        6,
-        480
-    },
-    {
-        0,
-        589,
-        (char)-8,
-        0,
-        48,
-        48,
-        6,
-        5,
-        1
-    },
-    {
-        0,
-        800,
-        (char)-8,
-        0,
-        48,
-        48,
-        9,
-        8,
-        35
-    }
+	{
+		0,
+		-1,
+		(char)0,
+		0,
+		0,
+		0,
+		0,
+		-1,
+		0
+	},
+	{
+		0,
+		559,
+		(char)-8,
+		0,
+		48,
+		48,
+		3,
+		2,
+		8
+	},
+	{
+		0,
+		558,
+		(char)-8,
+		0,
+		48,
+		48,
+		4,
+		3,
+		50
+	},
+	{
+		0,
+		524,
+		(char)-8,
+		0,
+		48,
+		48,
+		2,
+		1,
+		9
+	},
+	{
+		0,
+		525,
+		(char)-8,
+		0,
+		48,
+		48,
+		10,
+		9,
+		100
+	},
+	{
+		0,
+		539,
+		(char)-8,
+		0,
+		48,
+		48,
+		8,
+		7,
+		64
+	},
+	{
+		0,
+		526,
+		(char)-8,
+		0,
+		48,
+		48,
+		5,
+		4,
+		6
+	},
+	{
+		0,
+		-1,
+		(char)0,
+		0,
+		0,
+		0,
+		1,
+		-1,
+		0
+	},
+	{
+		0,
+		618,
+		(char)-8,
+		0,
+		48,
+		48,
+		7,
+		6,
+		480
+	},
+	{
+		0,
+		589,
+		(char)-8,
+		0,
+		48,
+		48,
+		6,
+		5,
+		1
+	},
+	{
+		0,
+		800,
+		(char)-8,
+		0,
+		48,
+		48,
+		9,
+		8,
+		35
+	}
 };
 
 const MissileType missileInfo[] = {
-    // Cleaver
-    {
-        2138,
-        978670,
-        512,
-        40,
-        40,
-        (char)-16,
-        16,
-    },
-    // Regular flare
-    {
-        2424,
-        3145728,
-        0,
-        32,
-        32,
-        (char)-128,
-        32,
-    },
-    // Tesla alt
-    {
-        3056,
-        2796202,
-        0,
-        32,
-        32,
-        (char)-128,
-        32,
-    },
-    // Flare alt
-    {
-        2424,
-        2446677,
-        0,
-        32,
-        32,
-        (char)-128,
-        4,
-    },
-    // Spray flame
-    {
-        0,
-        1118481,
-        0,
-        24,
-        24,
-        (char)-128,
-        16,
-    },
-    // Fireball
-    {
-        0,
-        1118481,
-        0,
-        32,
-        32,
-        (char)-128,
-        32,
-    },
-    // Tesla regular
-    {
-        2130,
-        2796202,
-        0,
-        32,
-        32,
-        (char)-128,
-        16,
-    },
-    // EctoSkull
-    {
-        870,
-        699050,
-        0,
-        32,
-        32,
-        (char)-24,
-        32,
-    },
-    // Hellhound flame
-    {
-        0,
-        1118481,
-        0,
-        24,
-        24,
-        (char)-128,
-        16,
-    },
-    // Puke
-    {
-        0,
-        838860,
-        0,
-        16,
-        16,
-        (char)-16,
-        16,
-    },
-    // Reserved
-    {
-        0,
-        838860,
-        0,
-        8,
-        8,
-        (char)0,
-        16,
-    },
-    // Stone gargoyle projectile
-    {
-        3056,
-        2097152,
-        0,
-        32,
-        32,
-        (char)-128,
-        16,
-    },
-    // Napalm launcher
-    {
-        0,
-        2446677,
-        0,
-        30,
-        30,
-        (char)-128,
-        24,
-    },
-    // Cerberus fireball
-    {
-        0,
-        2446677,
-        0,
-        30,
-        30,
-        (char)-128,
-        24,
-    },
-    // Tchernobog fireball
-    {
-        0,
-        1398101,
-        0,
-        24,
-        24,
-        (char)-128,
-        16,
-    },
-    // Regular life leech
-    {
-        2446,
-        2796202,
-        0,
-        32,
-        32,
-        (char)-128,
-        16,
-    },
-    // Dropped life leech (enough ammo)
-    {
-        3056,
-        2446677,
-        0,
-        16,
-        16,
-        (char)-128,
-        16,
-    },
-    // Dropped life leech (no ammo)
-    {
-        3056,
-        1747626,
-        0,
-        32,
-        32,
-        (char)-128,
-        16,
-    }
+	// Cleaver
+	{
+		2138,
+		978670,
+		512,
+		40,
+		40,
+		(char)-16,
+		16,
+	},
+	// Regular flare
+	{
+		2424,
+		3145728,
+		0,
+		32,
+		32,
+		(char)-128,
+		32,
+	},
+	// Tesla alt
+	{
+		3056,
+		2796202,
+		0,
+		32,
+		32,
+		(char)-128,
+		32,
+	},
+	// Flare alt
+	{
+		2424,
+		2446677,
+		0,
+		32,
+		32,
+		(char)-128,
+		4,
+	},
+	// Spray flame
+	{
+		0,
+		1118481,
+		0,
+		24,
+		24,
+		(char)-128,
+		16,
+	},
+	// Fireball
+	{
+		0,
+		1118481,
+		0,
+		32,
+		32,
+		(char)-128,
+		32,
+	},
+	// Tesla regular
+	{
+		2130,
+		2796202,
+		0,
+		32,
+		32,
+		(char)-128,
+		16,
+	},
+	// EctoSkull
+	{
+		870,
+		699050,
+		0,
+		32,
+		32,
+		(char)-24,
+		32,
+	},
+	// Hellhound flame
+	{
+		0,
+		1118481,
+		0,
+		24,
+		24,
+		(char)-128,
+		16,
+	},
+	// Puke
+	{
+		0,
+		838860,
+		0,
+		16,
+		16,
+		(char)-16,
+		16,
+	},
+	// Reserved
+	{
+		0,
+		838860,
+		0,
+		8,
+		8,
+		(char)0,
+		16,
+	},
+	// Stone gargoyle projectile
+	{
+		3056,
+		2097152,
+		0,
+		32,
+		32,
+		(char)-128,
+		16,
+	},
+	// Napalm launcher
+	{
+		0,
+		2446677,
+		0,
+		30,
+		30,
+		(char)-128,
+		24,
+	},
+	// Cerberus fireball
+	{
+		0,
+		2446677,
+		0,
+		30,
+		30,
+		(char)-128,
+		24,
+	},
+	// Tchernobog fireball
+	{
+		0,
+		1398101,
+		0,
+		24,
+		24,
+		(char)-128,
+		16,
+	},
+	// Regular life leech
+	{
+		2446,
+		2796202,
+		0,
+		32,
+		32,
+		(char)-128,
+		16,
+	},
+	// Dropped life leech (enough ammo)
+	{
+		3056,
+		2446677,
+		0,
+		16,
+		16,
+		(char)-128,
+		16,
+	},
+	// Dropped life leech (no ammo)
+	{
+		3056,
+		1747626,
+		0,
+		32,
+		32,
+		(char)-128,
+		16,
+	}
 };
 
 const THINGINFO thingInfo[] = {
-    //TNT Barrel
-    {
-        25,
-        250,
-        32,
-        11,
-        4096,
-        80,
-        384,
-        907,
-        (char)0,
-        0,
-        0,
-        0,
-        256, 256, 128, 64, 0, 0, 128,
-    },
-    
-    // Armed Proxy Dynamite
-    {
-        5,
-        5,
-        16,
-        3,
-        24576,
-        1600,
-        256,
-        3444,
-        (char)-16,
-        0,
-        32,
-        32,
-        256, 256, 256, 64, 0, 0, 512,
-    },
-    // Armed Remote Dynamite
-    {
-        5,
-        5,
-        16,
-        3,
-        24576,
-        1600,
-        256,
-        3457,
-        (char)-16,
-        0,
-        32,
-        32,
-        256, 256, 256, 64, 0, 0, 512,
-    },
-    // Vase1
-    {
-        1,
-        20,
-        32,
-        3,
-        32768,
-        80,
-        0,
-        739,
-        (char)0,
-        0,
-        0,
-        0,
-        256, 0, 256, 128, 0, 0, 0,
-    },
-    // Vase2
-    {
-        1,
-        150,
-        32,
-        3,
-        32768,
-        80,
-        0,
-        642,
-        (char)0,
-        0,
-        0,
-        0,
-        256, 256, 256, 128, 0, 0, 0,
-    },
-    // Crate face
-    {
-        10,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        462,
-        (char)0,
-        0,
-        0,
-        0,
-        0, 0, 0, 256, 0, 0, 0,
-    },
-    // Glass window
-    {
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        266,
-        (char)0,
-        0,
-        0,
-        0,
-        256, 0, 256, 256, 0, 0, 0,
-    },
-    // Flourescent Light
-    {
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        796,
-        (char)0,
-        0,
-        0,
-        0,
-        256, 0, 256, 256, 0, 0, 512,
-    },
-    // Wall Crack
-    {
-        50,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1127,
-        (char)0,
-        0,
-        0,
-        0,
-        0, 0, 0, 256, 0, 0, 0,
-    },
-    // Wood Beam
-    {
-        8,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1142,
-        (char)0,
-        0,
-        0,
-        0,
-        256, 0, 256, 128, 0, 0, 0,
-    },
-    // Spider's Web
-    {
-        4,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1069,
-        (char)0,
-        0,
-        0,
-        0,
-        256, 256, 64, 256, 0, 0, 128,
-    },
-    // Metal Grate
-    {
-        40,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        483,
-        (char)0,
-        0,
-        0,
-        0,
-        64, 0, 128, 256, 0, 0, 0,
-    },
-    // Flammable Tree
-    {
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        -1,
-        (char)0,
-        0,
-        0,
-        0,
-        0, 256, 0, 256, 0, 0, 128,
-    },
-    // MachineGun Trap
-    {
-        1000,
-        0,
-        0,
-        8,
-        0,
-        0,
-        0,
-        -1,
-        (char)0,
-        0,
-        0,
-        0,
-        0, 0, 128, 256, 0, 0, 512,
-    },
-    // Falling Rock
-    {
-        0,
-        15,
-        8,
-        3,
-        32768,
-        0,
-        0,
-        -1,
-        (char)0,
-        0,
-        0,
-        0,
-        0, 0, 0, 0, 0, 0, 0,
-    },
-    // Kickable Pail
-    {
-        0,
-        8,
-        48,
-        3,
-        49152,
-        0,
-        0,
-        -1,
-        (char)0,
-        0,
-        0,
-        0,
-        0, 0, 0, 0, 0, 0, 0,
-    },
-    // Gib Object
-    {
-        10,
-        2,
-        0,
-        0,
-        32768,
-        0,
-        0,
-        -1,
-        (char)0,
-        0,
-        0,
-        0,
-        256, 0, 256, 256, 0, 0, 128,
-    },
-    // Explode Object
-    {
-        20,
-        2,
-        0,
-        0,
-        32768,
-        0,
-        0,
-        -1,
-        (char)0,
-        0,
-        0,
-        0,
-        0, 0, 0, 256, 0, 0, 128,
-    },
-    // Armed stick Of TNT
-    {
-        5,
-        14,
-        16,
-        3,
-        24576,
-        1600,
-        256,
-        3422,
-        (char)-32,
-        0,
-        32,
-        32,
-        64, 256, 128, 64, 0, 0, 256,
-    },
-    // Armed bundle Of TNT
-    {
-        5,
-        14,
-        16,
-        3,
-        24576,
-        1600,
-        256,
-        3433,
-        (char)-32,
-        0,
-        32,
-        32,
-        64, 256, 128, 64, 0, 0, 256,
-    },
-    // Armed aerosol
-    {
-        5,
-        14,
-        16,
-        3,
-        32768,
-        1600,
-        256,
-        3467,
-        (char)-128,
-        0,
-        32,
-        32,
-        64, 256, 128, 64, 0, 0, 256,
-    },
-    // Bone (Flesh Garg.)
-    {
-        5,
-        6,
-        16,
-        3,
-        32768,
-        1600,
-        256,
-        1462,
-        (char)0,
-        0,
-        32,
-        32,
-        0, 0, 0, 0, 0, 0, 0,
-    },
-    // Some alpha stuff
-    {
-        8,
-        3,
-        16,
-        11,
-        32768,
-        1600,
-        256,
-        -1,
-        (char)0,
-        0,
-        0,
-        0,
-        256, 0, 256, 256, 0, 0, 0,
-    },
-    // WaterDrip 
-    {
-        0,
-        1,
-        1,
-        2,
-        0,
-        0,
-        0,
-        1147,
-        (char)0,
-        10,
-        0,
-        0,
-        0, 0, 0, 0, 0, 0, 0,
-    },
-    // BloodDrip 
-    {
-        0,
-        1,
-        1,
-        2,
-        0,
-        0,
-        0,
-        1160,
-        (char)0,
-        2,
-        0,
-        0,
-        0, 0, 0, 0, 0, 0, 0,
-    },
-    // Blood chucks1 
-    {
-        15,
-        4,
-        4,
-        3,
-        24576,
-        0,
-        257,
-        -1,
-        (char)0,
-        0,
-        0,
-        0,
-        128, 64, 256, 256, 0, 0, 256,
-    },
-    // Blood chucks2
-    {
-        30,
-        30,
-        8,
-        3,
-        8192,
-        0,
-        257,
-        -1,
-        (char)0,
-        0,
-        0,
-        0,
-        128, 64, 256, 256, 0, 0, 64,
-    },
-    // Axe Zombie Head 
-    {
-        60,
-        5,
-        32,
-        3,
-        40960,
-        1280,
-        257,
-        3405,
-        (char)0,
-        0,
-        40,
-        40,
-        128, 64, 256, 256, 0, 0, 64,
-    },
-    // Napalm's Alt Fire explosion
-    {
-        80,
-        30,
-        32,
-        3,
-        57344,
-        1600,
-        256,
-        3281,
-        (char)-128,
-        0,
-        32,
-        32,
-        0, 0, 0, 0, 0, 0, 0,
-    },
-    // Fire Pod Explosion
-    {
-        80,
-        30,
-        32,
-        3,
-        57344,
-        1600,
-        256,
-        2020,
-        (char)-128,
-        0,
-        32,
-        32,
-        256, 0, 256, 256, 0, 0, 0,
-    },
-    // Green Pod Explosion
-    {
-        80,
-        30,
-        32,
-        3,
-        57344,
-        1600,
-        256,
-        1860,
-        (char)-128,
-        0,
-        32,
-        32,
-        256, 0, 256, 256, 0, 0, 0,
-    },
-    // Life Leech
-    {
-        150,
-        30,
-        48,
-        3,
-        32768,
-        1600,
-        257,
-        800,
-        (char)-128,
-        0,
-        48,
-        48,
-        64, 64, 112, 64, 0, 96, 96,
-    },
-    // Voodoo Head
-    {
-        1,
-        30,
-        48,
-        3,
-        32768,
-        1600,
-        0,
-        2443,
-        (char)-128,
-        0,
-        16,
-        16,
-        0, 0, 0, 0, 0, 0, 0,
-    },
-    // 433 - kModernThingTNTProx
-    {
-        5,
-        5,
-        16,
-        3,
-        24576,
-        1600,
-        256,
-        3444,
-        (char)-16,
-        7,
-        32,
-        32,
-        256, 256, 256, 64, 0, 0, 512,
-    },
-    // 434 - kModernThingThrowableRock
-    {
-        5,
-        6,
-        16,
-        3,
-        32768,
-        1600,
-        256,
-        1462,
-        (char)0,
-        0,
-        32,
-        32,
-        0, 0, 0, 0, 0, 0, 0,
-    },
-    // 435 - kModernThingEnemyLifeLeech
-    {
-        150,
-        30,
-        48,
-        3,
-        32768,
-        1600,
-        257,
-        800,
-        (char)-128,
-        0,
-        44,
-        44,
-        0, 1024, 512, 1024, 0, 64, 512,
-    },
+	//TNT Barrel
+	{
+		25,
+		250,
+		32,
+		11,
+		4096,
+		80,
+		384,
+		907,
+		(char)0,
+		0,
+		0,
+		0,
+		256, 256, 128, 64, 0, 0, 128,
+	},
+	
+	// Armed Proxy Dynamite
+	{
+		5,
+		5,
+		16,
+		3,
+		24576,
+		1600,
+		256,
+		3444,
+		(char)-16,
+		0,
+		32,
+		32,
+		256, 256, 256, 64, 0, 0, 512,
+	},
+	// Armed Remote Dynamite
+	{
+		5,
+		5,
+		16,
+		3,
+		24576,
+		1600,
+		256,
+		3457,
+		(char)-16,
+		0,
+		32,
+		32,
+		256, 256, 256, 64, 0, 0, 512,
+	},
+	// Vase1
+	{
+		1,
+		20,
+		32,
+		3,
+		32768,
+		80,
+		0,
+		739,
+		(char)0,
+		0,
+		0,
+		0,
+		256, 0, 256, 128, 0, 0, 0,
+	},
+	// Vase2
+	{
+		1,
+		150,
+		32,
+		3,
+		32768,
+		80,
+		0,
+		642,
+		(char)0,
+		0,
+		0,
+		0,
+		256, 256, 256, 128, 0, 0, 0,
+	},
+	// Crate face
+	{
+		10,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		462,
+		(char)0,
+		0,
+		0,
+		0,
+		0, 0, 0, 256, 0, 0, 0,
+	},
+	// Glass window
+	{
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		266,
+		(char)0,
+		0,
+		0,
+		0,
+		256, 0, 256, 256, 0, 0, 0,
+	},
+	// Flourescent Light
+	{
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		796,
+		(char)0,
+		0,
+		0,
+		0,
+		256, 0, 256, 256, 0, 0, 512,
+	},
+	// Wall Crack
+	{
+		50,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		1127,
+		(char)0,
+		0,
+		0,
+		0,
+		0, 0, 0, 256, 0, 0, 0,
+	},
+	// Wood Beam
+	{
+		8,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		1142,
+		(char)0,
+		0,
+		0,
+		0,
+		256, 0, 256, 128, 0, 0, 0,
+	},
+	// Spider's Web
+	{
+		4,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		1069,
+		(char)0,
+		0,
+		0,
+		0,
+		256, 256, 64, 256, 0, 0, 128,
+	},
+	// Metal Grate
+	{
+		40,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		483,
+		(char)0,
+		0,
+		0,
+		0,
+		64, 0, 128, 256, 0, 0, 0,
+	},
+	// Flammable Tree
+	{
+		1,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		-1,
+		(char)0,
+		0,
+		0,
+		0,
+		0, 256, 0, 256, 0, 0, 128,
+	},
+	// MachineGun Trap
+	{
+		1000,
+		0,
+		0,
+		8,
+		0,
+		0,
+		0,
+		-1,
+		(char)0,
+		0,
+		0,
+		0,
+		0, 0, 128, 256, 0, 0, 512,
+	},
+	// Falling Rock
+	{
+		0,
+		15,
+		8,
+		3,
+		32768,
+		0,
+		0,
+		-1,
+		(char)0,
+		0,
+		0,
+		0,
+		0, 0, 0, 0, 0, 0, 0,
+	},
+	// Kickable Pail
+	{
+		0,
+		8,
+		48,
+		3,
+		49152,
+		0,
+		0,
+		-1,
+		(char)0,
+		0,
+		0,
+		0,
+		0, 0, 0, 0, 0, 0, 0,
+	},
+	// Gib Object
+	{
+		10,
+		2,
+		0,
+		0,
+		32768,
+		0,
+		0,
+		-1,
+		(char)0,
+		0,
+		0,
+		0,
+		256, 0, 256, 256, 0, 0, 128,
+	},
+	// Explode Object
+	{
+		20,
+		2,
+		0,
+		0,
+		32768,
+		0,
+		0,
+		-1,
+		(char)0,
+		0,
+		0,
+		0,
+		0, 0, 0, 256, 0, 0, 128,
+	},
+	// Armed stick Of TNT
+	{
+		5,
+		14,
+		16,
+		3,
+		24576,
+		1600,
+		256,
+		3422,
+		(char)-32,
+		0,
+		32,
+		32,
+		64, 256, 128, 64, 0, 0, 256,
+	},
+	// Armed bundle Of TNT
+	{
+		5,
+		14,
+		16,
+		3,
+		24576,
+		1600,
+		256,
+		3433,
+		(char)-32,
+		0,
+		32,
+		32,
+		64, 256, 128, 64, 0, 0, 256,
+	},
+	// Armed aerosol
+	{
+		5,
+		14,
+		16,
+		3,
+		32768,
+		1600,
+		256,
+		3467,
+		(char)-128,
+		0,
+		32,
+		32,
+		64, 256, 128, 64, 0, 0, 256,
+	},
+	// Bone (Flesh Garg.)
+	{
+		5,
+		6,
+		16,
+		3,
+		32768,
+		1600,
+		256,
+		1462,
+		(char)0,
+		0,
+		32,
+		32,
+		0, 0, 0, 0, 0, 0, 0,
+	},
+	// Some alpha stuff
+	{
+		8,
+		3,
+		16,
+		11,
+		32768,
+		1600,
+		256,
+		-1,
+		(char)0,
+		0,
+		0,
+		0,
+		256, 0, 256, 256, 0, 0, 0,
+	},
+	// WaterDrip 
+	{
+		0,
+		1,
+		1,
+		2,
+		0,
+		0,
+		0,
+		1147,
+		(char)0,
+		10,
+		0,
+		0,
+		0, 0, 0, 0, 0, 0, 0,
+	},
+	// BloodDrip 
+	{
+		0,
+		1,
+		1,
+		2,
+		0,
+		0,
+		0,
+		1160,
+		(char)0,
+		2,
+		0,
+		0,
+		0, 0, 0, 0, 0, 0, 0,
+	},
+	// Blood chucks1 
+	{
+		15,
+		4,
+		4,
+		3,
+		24576,
+		0,
+		257,
+		-1,
+		(char)0,
+		0,
+		0,
+		0,
+		128, 64, 256, 256, 0, 0, 256,
+	},
+	// Blood chucks2
+	{
+		30,
+		30,
+		8,
+		3,
+		8192,
+		0,
+		257,
+		-1,
+		(char)0,
+		0,
+		0,
+		0,
+		128, 64, 256, 256, 0, 0, 64,
+	},
+	// Axe Zombie Head 
+	{
+		60,
+		5,
+		32,
+		3,
+		40960,
+		1280,
+		257,
+		3405,
+		(char)0,
+		0,
+		40,
+		40,
+		128, 64, 256, 256, 0, 0, 64,
+	},
+	// Napalm's Alt Fire explosion
+	{
+		80,
+		30,
+		32,
+		3,
+		57344,
+		1600,
+		256,
+		3281,
+		(char)-128,
+		0,
+		32,
+		32,
+		0, 0, 0, 0, 0, 0, 0,
+	},
+	// Fire Pod Explosion
+	{
+		80,
+		30,
+		32,
+		3,
+		57344,
+		1600,
+		256,
+		2020,
+		(char)-128,
+		0,
+		32,
+		32,
+		256, 0, 256, 256, 0, 0, 0,
+	},
+	// Green Pod Explosion
+	{
+		80,
+		30,
+		32,
+		3,
+		57344,
+		1600,
+		256,
+		1860,
+		(char)-128,
+		0,
+		32,
+		32,
+		256, 0, 256, 256, 0, 0, 0,
+	},
+	// Life Leech
+	{
+		150,
+		30,
+		48,
+		3,
+		32768,
+		1600,
+		257,
+		800,
+		(char)-128,
+		0,
+		48,
+		48,
+		64, 64, 112, 64, 0, 96, 96,
+	},
+	// Voodoo Head
+	{
+		1,
+		30,
+		48,
+		3,
+		32768,
+		1600,
+		0,
+		2443,
+		(char)-128,
+		0,
+		16,
+		16,
+		0, 0, 0, 0, 0, 0, 0,
+	},
+	// 433 - kModernThingTNTProx
+	{
+		5,
+		5,
+		16,
+		3,
+		24576,
+		1600,
+		256,
+		3444,
+		(char)-16,
+		7,
+		32,
+		32,
+		256, 256, 256, 64, 0, 0, 512,
+	},
+	// 434 - kModernThingThrowableRock
+	{
+		5,
+		6,
+		16,
+		3,
+		32768,
+		1600,
+		256,
+		1462,
+		(char)0,
+		0,
+		32,
+		32,
+		0, 0, 0, 0, 0, 0, 0,
+	},
+	// 435 - kModernThingEnemyLifeLeech
+	{
+		150,
+		30,
+		48,
+		3,
+		32768,
+		1600,
+		257,
+		800,
+		(char)-128,
+		0,
+		44,
+		44,
+		0, 1024, 512, 1024, 0, 64, 512,
+	},
 };
 
 const EXPLOSION explodeInfo[] = {
-    {
-        40,
-        10,
-        10,
-        75,
-        450,
-        0,
-        60,
-        80,
-        40
-    },
-    {
-        80,
-        20,
-        10,
-        150,
-        900,
-        0,
-        60,
-        160,
-        60
-    },
-    {
-        120,
-        40,
-        15,
-        225,
-        1350,
-        0,
-        60,
-        240,
-        80
-    },
-    {
-        80,
-        5,
-        10,
-        120,
-        20,
-        10,
-        60,
-        0,
-        40
-    },
-    {
-        120,
-        10,
-        10,
-        180,
-        40,
-        10,
-        60,
-        0,
-        80
-    },
-    {
-        160,
-        15,
-        10,
-        240,
-        60,
-        10,
-        60,
-        0,
-        120
-    },
-    {
-        40,
-        20,
-        10,
-        120,
-        0,
-        10,
-        30,
-        60,
-        40
-    },
-    {
-        80,
-        20,
-        10,
-        150,
-        800,
-        5,
-        60,
-        160,
-        60
-    },
+	{
+		40,
+		10,
+		10,
+		75,
+		450,
+		0,
+		60,
+		80,
+		40
+	},
+	{
+		80,
+		20,
+		10,
+		150,
+		900,
+		0,
+		60,
+		160,
+		60
+	},
+	{
+		120,
+		40,
+		15,
+		225,
+		1350,
+		0,
+		60,
+		240,
+		80
+	},
+	{
+		80,
+		5,
+		10,
+		120,
+		20,
+		10,
+		60,
+		0,
+		40
+	},
+	{
+		120,
+		10,
+		10,
+		180,
+		40,
+		10,
+		60,
+		0,
+		80
+	},
+	{
+		160,
+		15,
+		10,
+		240,
+		60,
+		10,
+		60,
+		0,
+		120
+	},
+	{
+		40,
+		20,
+		10,
+		120,
+		0,
+		10,
+		30,
+		60,
+		40
+	},
+	{
+		80,
+		20,
+		10,
+		150,
+		800,
+		5,
+		60,
+		160,
+		60
+	},
 };
 
-short gAffectedSectors[kMaxSectors];
-short gAffectedXWalls[kMaxXWalls];
 static const short gPlayerGibThingComments[] = {
-    734, 735, 736, 737, 738, 739, 740, 741, 3038, 3049
+	734, 735, 736, 737, 738, 739, 740, 741, 3038, 3049
 };
 
-void FireballSeqCallback(int, int);
-void sub_38938(int, int);
-void NapalmSeqCallback(int, int);
-void sub_3888C(int, int);
-void TreeToGibCallback(int, int);
-void DudeToGibCallback1(int, int);
-void DudeToGibCallback2(int, int);
-
-const int nFireballClient = seqRegisterClient(FireballSeqCallback);
-const int dword_2192D8 = seqRegisterClient(sub_38938); // fireball smoke
-const int nNapalmClient = seqRegisterClient(NapalmSeqCallback);
-const int dword_2192E0 = seqRegisterClient(sub_3888C); // flame lick
-const int nTreeToGibClient = seqRegisterClient(TreeToGibCallback);
-const int nDudeToGibClient1 = seqRegisterClient(DudeToGibCallback1);
-const int nDudeToGibClient2 = seqRegisterClient(DudeToGibCallback2);
+const int DudeDifficulty[5] = {
+	512, 384, 256, 208, 160
+};
 
 int gPostCount = 0;
 
 struct POSTPONE {
-    short TotalKills;
-    short at2;
+	short sprite;
+	short status;
 };
 
 POSTPONE gPost[kMaxSprites];
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool IsUnderwaterSector(int nSector)
 {
-    int nXSector = sector[nSector].extra;
-    if (nXSector > 0 && xsector[nXSector].Underwater)
-        return 1;
-    return 0;
+	int nXSector = sector[nSector].extra;
+	if (nXSector > 0 && xsector[nXSector].Underwater)
+		return 1;
+	return 0;
 }
 
-int actSpriteOwnerToSpriteId(spritetype *pSprite)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void actInitTraps()
 {
-    assert(pSprite != NULL);
-    if (pSprite->owner == -1)
-        return -1;
-    int nSprite = pSprite->owner & (kMaxSprites-1);
-    if (pSprite->owner & kMaxSprites)
-        nSprite = gPlayer[nSprite].pSprite->index;
-    return nSprite;
+	BloodStatIterator it(kStatTraps);
+	while (auto act = it.Next())
+	{
+		spritetype* pSprite = &act->s();
+		if (pSprite->type == kTrapExploder)
+		{
+			pSprite->cstat &= ~1;
+			pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+			if (!act->hasX()) continue;
+			auto x = &act->x();
+			x->waitTime = ClipLow(x->waitTime, 1);
+			x->state = 0;
+		}
+	}
 }
 
-void actPropagateSpriteOwner(spritetype *pTarget, spritetype *pSource)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void actInitThings()
 {
-    assert(pTarget != NULL && pSource != NULL);
-    if (IsPlayerSprite(pSource))
-        pTarget->owner = (pSource->type - kDudePlayer1) | kMaxSprites;
-    else
-        pTarget->owner = pSource->index;
+	BloodStatIterator it(kStatThing);
+	while (auto act = it.Next())
+	{
+		if (!act->hasX()) continue;
+		spritetype* pSprite = &act->s();
+		XSPRITE* pXSprite = &act->x();
+
+		int nType = pSprite->type - kThingBase;
+		pXSprite->health = thingInfo[nType].startHealth << 4;
+#ifdef NOONE_EXTENSIONS
+		// allow level designer to set custom clipdist.
+		// this is especially useful for various Gib and Explode objects which have clipdist 1 for some reason predefined,
+		// but what if it have voxel model...?
+		if (!gModernMap)
+#endif
+			pSprite->clipdist = thingInfo[nType].clipdist;
+
+		pSprite->flags = thingInfo[nType].flags;
+		if (pSprite->flags & kPhysGravity) pSprite->flags |= kPhysFalling;
+		act->xvel() = act->yvel() = act->zvel() = 0;
+
+		switch (pSprite->type) {
+		case kThingArmedProxBomb:
+		case kTrapMachinegun:
+#ifdef NOONE_EXTENSIONS
+		case kModernThingTNTProx:
+#endif
+			pXSprite->state = 0;
+			break;
+		case kThingBloodChunks: {
+			SEQINST* pInst = GetInstance(3, pSprite->extra);
+			if (pInst)
+			{
+				auto seq = getSequence(pInst->nSeqID);
+				if (!seq) break;
+				seqSpawn(pInst->nSeqID, 3, pSprite->extra);
+			}
+			break;
+		}
+		default:
+			pXSprite->state = 1;
+			break;
+		}
+	}
 }
 
-int actSpriteIdToOwnerId(int nSprite)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void actInitDudes()
 {
-    if (nSprite == -1)
-        return -1;
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    spritetype *pSprite = &sprite[nSprite];
-    if (IsPlayerSprite(pSprite))
-        nSprite = (pSprite->type - kDudePlayer1) | kMaxSprites;
-    return nSprite;
+	if (gGameOptions.nMonsterSettings == 0)
+	{
+		gKillMgr.SetCount(0);
+		BloodStatIterator it(kStatDude);
+		while (auto act = it.Next())
+		{
+			spritetype* pSprite = &act->s();
+			if (act->hasX() && act->x().key > 0) // Drop Key
+				actDropObject(pSprite, kItemKeyBase + (act->x().key - 1));
+			DeleteSprite(act);
+		}
+	}
+	else
+	{
+		// by NoOne: WTF is this?
+		///////////////
+		char unk[kDudeMax - kDudeBase];
+		memset(unk, 0, sizeof(unk));
+		BloodStatIterator it(kStatDude);
+		while (auto act = it.Next())
+		{
+			spritetype* pSprite = &act->s();
+			if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
+				I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", pSprite->index);
+			unk[pSprite->type - kDudeBase] = 1;
+		}
+
+		gKillMgr.CountTotalKills();
+		///////////////
+
+		for (int i = 0; i < kDudeMax - kDudeBase; i++)
+			for (int j = 0; j < 7; j++)
+				dudeInfo[i].at70[j] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j]);
+
+		it.Reset(kStatDude);
+		while (auto act = it.Next())
+		{
+			if (!act->hasX()) continue;
+			spritetype* pSprite = &act->s();
+			XSPRITE* pXSprite = &act->x();
+
+			int nType = pSprite->type - kDudeBase;
+			int seqStartId = dudeInfo[nType].seqStartID;
+			if (!act->IsPlayerActor())
+			{
+#ifdef NOONE_EXTENSIONS
+				switch (pSprite->type)
+				{
+				case kDudeModernCustom:
+				case kDudeModernCustomBurning:
+					pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
+					seqStartId = genDudeSeqStartId(pXSprite); //  Custom Dude stores its SEQ in data2
+					pXSprite->sysData1 = pXSprite->data3; // move sndStartId to sysData1, because data3 used by the game;
+					pXSprite->data3 = 0;
+					break;
+
+				case kDudePodMother:  // FakeDude type (no seq, custom flags, clipdist and cstat)
+					if (gModernMap) break;
+					[[fallthrough]];
+				default:
+					pSprite->clipdist = dudeInfo[nType].clipdist;
+					pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
+					break;
+				}
+#else
+				pSprite->clipdist = dudeInfo[nType].clipdist;
+				pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
+#endif
+
+				act->xvel() = act->yvel() = act->zvel() = 0;
+
+#ifdef NOONE_EXTENSIONS
+				// add a way to set custom hp for every enemy - should work only if map just started and not loaded.
+				if (!gModernMap || pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[nType].startHealth << 4;
+				else pXSprite->health = ClipRange(pXSprite->sysData2 << 4, 1, 65535);
+#else
+				pXSprite->health = dudeInfo[nType].startHealth << 4;
+#endif
+
+			}
+
+			if (getSequence(seqStartId)) seqSpawn(seqStartId, 3, pSprite->extra);
+		}
+		aiInit();
+	}
 }
 
-int actOwnerIdToSpriteId(int nSprite)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void actInit(bool bSaveLoad)
 {
-    if (nSprite == -1)
-        return -1;
-    if (nSprite & kMaxSprites)
-        nSprite = gPlayer[nSprite&(kMaxSprites-1)].pSprite->index;
-    return nSprite;
+	
+	#ifdef NOONE_EXTENSIONS
+	if (!gModernMap) nnExtResetGlobals();
+	else nnExtInitModernStuff(bSaveLoad);
+	#endif
+	
+	BloodStatIterator it(kStatItem);
+	while (auto act = it.Next())
+	{
+		if (act->s().type == kItemWeaponVoodooDoll)
+		{
+			act->s().type = kAmmoItemVoodooDoll;
+			break;
+		}
+	}
+
+	actInitTraps();
+	actInitThings();
+	actInitDudes();
 }
 
-bool actTypeInSector(int nSector, int nType)
-{
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
-    {
-        if (sprite[nSprite].index == nType)
-            return 1;
-    }
-    return 0;
-}
-
-void actAllocateSpares(void)
-{
-}
-
-const int DudeDifficulty[5] = {
-    512, 384, 256, 208, 160
-};
-
-void actInit(bool bSaveLoad) {
-    
-    #ifdef NOONE_EXTENSIONS
-    if (!gModernMap) {
-        //Printf("> This map *does not* provides modern features.\n");
-        nnExtResetGlobals();
-    } else {
-            //Printf("> This map provides modern features.\n");
-            nnExtInitModernStuff(bSaveLoad);
-    }
-    #endif
-    
-    int nSprite;
-    StatIterator it(kStatItem);
-    while ((nSprite = it.NextIndex()) >= 0)
-    {
-        switch (sprite[nSprite].type) {
-            case kItemWeaponVoodooDoll:
-                sprite[nSprite].type = kAmmoItemVoodooDoll;
-                break;
-        }
-    }
-
-    it.Reset(kStatTraps);
-    while ((nSprite = it.NextIndex()) >= 0)
-    {
-        spritetype *pSprite = &sprite[nSprite];
-        switch (pSprite->type) {
-            case kTrapExploder:
-                pSprite->cstat &= ~1; pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
-                if (pSprite->extra <= 0 || pSprite->extra >= kMaxXSprites) continue;
-                xsprite[pSprite->extra].waitTime = ClipLow(xsprite[pSprite->extra].waitTime, 1);
-                xsprite[pSprite->extra].state = 0;
-                break;
-        }
-    }
-
-    it.Reset(kStatThing);
-    while ((nSprite = it.NextIndex()) >= 0)
-    {
-        if (sprite[nSprite].extra <= 0 || sprite[nSprite].extra >= kMaxXSprites) continue;
-        spritetype* pSprite = &sprite[nSprite]; XSPRITE *pXSprite = &xsprite[pSprite->extra];
-        
-        int nType = pSprite->type - kThingBase;
-        pXSprite->health = thingInfo[nType].startHealth << 4;
-        #ifdef NOONE_EXTENSIONS
-            // allow level designer to set custom clipdist.
-        // this is especially useful for various Gib and Explode objects which have clipdist 1 for some reason predefined,
-        // but what if it have voxel model...?
-            if (!gModernMap)
-        #endif
-            pSprite->clipdist = thingInfo[nType].clipdist;
-        
-        pSprite->flags = thingInfo[nType].flags;
-        if (pSprite->flags & kPhysGravity) pSprite->flags |= kPhysFalling;
-        xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
-        
-        switch (pSprite->type) {
-            case kThingArmedProxBomb:
-            case kTrapMachinegun:
-            #ifdef NOONE_EXTENSIONS
-            case kModernThingTNTProx:
-            #endif
-                pXSprite->state = 0;
-                break;
-            case kThingBloodChunks: {
-                SEQINST *pInst = GetInstance(3, pSprite->extra);
-                if (pInst && pInst->at13) {
-                    auto seq = getSequence(pInst->at8);
-                    if (!seq) break;
-                    seqSpawn(pInst->at8, 3, pSprite->extra);
-                }
-                break;
-            }
-            default:
-                pXSprite->state = 1;
-                break;
-        }
-    }
-    
-    if (gGameOptions.nMonsterSettings == 0) {
-        gKillMgr.SetCount(0);
-        int nSprite;
-        StatIterator it(kStatDude);
-        while ((nSprite = it.NextIndex()) >= 0)
-        {
-            spritetype *pSprite = &sprite[nSprite];
-            if (pSprite->extra > 0 && pSprite->extra < kMaxXSprites && xsprite[pSprite->extra].key > 0) // Drop Key
-                actDropObject(pSprite, kItemKeyBase + (xsprite[pSprite->extra].key - 1));
-            DeleteSprite(nSprite);
-        }
-    } else {
-        // by NoOne: WTF is this?
-        ///////////////
-        char unk[kDudeMax-kDudeBase];
-        memset(unk, 0, sizeof(unk));
-        int nSprite;
-        StatIterator it(kStatDude);
-        while ((nSprite = it.NextIndex()) >= 0)
-        {
-            spritetype *pSprite = &sprite[nSprite];
-            if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
-                I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", nSprite);
-            unk[pSprite->type - kDudeBase] = 1;
-        }
-        
-        gKillMgr.CountTotalKills();
-        ///////////////
-
-        for (int i = 0; i < kDudeMax - kDudeBase; i++)
-            for (int j = 0; j < 7; j++)
-                dudeInfo[i].at70[j] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j]);
-
-        it.Reset(kStatDude);
-        while ((nSprite = it.NextIndex()) >= 0)
-        {
-            if (sprite[nSprite].extra <= 0 || sprite[nSprite].extra >= kMaxXSprites) continue;
-            spritetype *pSprite = &sprite[nSprite]; XSPRITE *pXSprite = &xsprite[pSprite->extra];
-            
-            int nType = pSprite->type - kDudeBase; int seqStartId = dudeInfo[nType].seqStartID;
-            if (!IsPlayerSprite(pSprite)) {
-                #ifdef NOONE_EXTENSIONS
-                switch (pSprite->type) {
-                    case kDudeModernCustom:
-                    case kDudeModernCustomBurning:
-                        pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
-                            seqStartId = genDudeSeqStartId(pXSprite); //  Custom Dude stores it's SEQ in data2
-                            pXSprite->sysData1 = pXSprite->data3; // move sndStartId to sysData1, because data3 used by the game;
-                        pXSprite->data3 = 0;
-                        break;
-                        case kDudePodMother:  // FakeDude type (no seq, custom flags, clipdist and cstat)
-                        if (gModernMap) break;
-                        fallthrough__;
-                    default:
-                        pSprite->clipdist = dudeInfo[nType].clipdist;
-                        pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
-                        break;
-                }
-                #else
-                    pSprite->clipdist = dudeInfo[nType].clipdist;
-                    pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
-                #endif
-
-                xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
-                
-                #ifdef NOONE_EXTENSIONS
-                    // add a way to set custom hp for every enemy - should work only if map just started and not loaded.
-                    if (!gModernMap || pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[nType].startHealth << 4;
-                    else pXSprite->health = ClipRange(pXSprite->sysData2 << 4, 1, 65535);
-                #else
-                    pXSprite->health = dudeInfo[nType].startHealth << 4;
-                #endif
-                    
-            }
-
-            if (getSequence(seqStartId)) seqSpawn(seqStartId, 3, pSprite->extra);
-        }
-        aiInit();
-    }
-}
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6)
 {
@@ -2628,7 +2585,7 @@ void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6)
             return;
         }
 
-        int size = (tilesiz[pSprite->picnum].x*pSprite->xrepeat*tilesiz[pSprite->picnum].y*pSprite->yrepeat)>>1;
+        int size = (tileWidth(pSprite->picnum)*pSprite->xrepeat*tileHeight(pSprite->picnum)*pSprite->yrepeat)>>1;
         assert(mass > 0);
 
         int t = scale(a6, size, mass);
@@ -2687,10 +2644,8 @@ void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7,
     UNREFERENCED_PARAMETER(a12);
     UNREFERENCED_PARAMETER(a13);
     uint8_t va0[(kMaxSectors+7)>>3];
-    int nOwner = actSpriteIdToOwnerId(nSprite);
-    gAffectedSectors[0] = 0;
-    gAffectedXWalls[0] = 0;
-    GetClosestSpriteSectors(nSector, x, y, nDist, gAffectedSectors, va0, gAffectedXWalls);
+    int nOwner = sprite[nSprite].owner;
+    GetClosestSpriteSectors(nSector, x, y, nDist, va0);
     nDist <<= 4;
     if (a10 & 2)
     {
@@ -2762,16 +2717,18 @@ void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7,
     }
 }
 
-void sub_2AA94(spritetype *pSprite, XSPRITE *pXSprite)
+void sub_2AA94(DBloodActor* actor)
 {
-    int nSprite = actOwnerIdToSpriteId(pSprite->owner);
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
+    int nOwner = pSprite->owner;
     actPostSprite(pSprite->index, kStatDecoration);
     seqSpawn(9, 3, pSprite->extra);
     if (Chance(0x8000))
         pSprite->cstat |= 4;
 
     sfxPlay3DSound(pSprite, 303, 24+(pSprite->flags&3), 1);
-    sub_2A620(nSprite, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128, 0, 60, DAMAGE_TYPE_3, 15, 120, 0, 0);
+    sub_2A620(nOwner, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128, 0, 60, DAMAGE_TYPE_3, 15, 120, 0, 0);
     if (pXSprite->data4 > 1)
     {
         GibSprite(pSprite, GIBTYPE_5, NULL, NULL);
@@ -2956,7 +2913,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
                         aiGenDudeNewState(pSprite, &genDudeBurnGoto);
                         actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
                         if (pXSprite->burnTime <= 0) pXSprite->burnTime = 1200;
-                        gDudeExtra[pSprite->extra].TotalKills = gFrameClock + 360;
+                        gDudeExtra[pSprite->extra].time = gFrameClock + 360;
                         return;
                     }
 
@@ -3025,7 +2982,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == kMediumNormal)
         {
             pSprite->type = kDudeBurningCultist;
-            aiNewState(pSprite, pXSprite, &cultistBurnGoto);
+            aiNewState(&bloodActors[pXSprite->reference], &cultistBurnGoto);
             actHealDude(pXSprite, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
             return;
         }
@@ -3035,7 +2992,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == kMediumNormal)
         {
             pSprite->type = kDudeBurningBeast;
-            aiNewState(pSprite, pXSprite, &beastBurnGoto);
+            aiNewState(&bloodActors[pXSprite->reference], &beastBurnGoto);
             actHealDude(pXSprite, dudeInfo[53].startHealth, dudeInfo[53].startHealth);
             return;
         }
@@ -3045,7 +3002,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         if (damageType == DAMAGE_TYPE_1 && pXSprite->medium == kMediumNormal)
         {
             pSprite->type = kDudeBurningInnocent;
-            aiNewState(pSprite, pXSprite, &innocentBurnGoto);
+            aiNewState(&bloodActors[pXSprite->reference], &innocentBurnGoto);
             actHealDude(pXSprite, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
             return;
         }
@@ -3345,8 +3302,8 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         break;
     case kDudeSpiderBrown:
         if (pSprite->owner != -1) {
-            spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.Kills--;
+            spritetype *pOwner = &sprite[pSprite->owner];
+            gDudeExtra[pOwner->extra].at6.u1.xval2--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -3355,8 +3312,8 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         break;
     case kDudeSpiderRed:
         if (pSprite->owner != -1) {
-            spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.Kills--;
+            spritetype *pOwner = &sprite[pSprite->owner];
+            gDudeExtra[pOwner->extra].at6.u1.xval2--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -3365,8 +3322,8 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         break;
     case kDudeSpiderBlack:
         if (pSprite->owner != -1) {
-            spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.Kills--;
+            spritetype *pOwner = &sprite[pSprite->owner];
+            gDudeExtra[pOwner->extra].at6.u1.xval2--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -3579,7 +3536,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
 
                 default:
                     if (!(pSprite->flags & kHitagRespawn))
-                        actPropagateSpriteOwner(pSprite, &sprite[nSource]);
+                        pSprite->owner = nSource;
                     break;
             }
 
@@ -3722,7 +3679,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
     switch (pMissile->type) {
         case kMissileLifeLeechRegular:
             if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo)) {
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 DAMAGE_TYPE rand1 = (DAMAGE_TYPE)Random(7);
                 int rand2 = (7 + Random(7)) << 4;
                 int nDamage = actDamageSprite(nOwner, pSpriteHit, rand1, rand2);
@@ -3751,7 +3708,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
 
             break;
         case kMissileTeslaAlt:
-            sub_51340(pMissile, hitCode);
+            teslaHit(pMissile, hitCode);
             switch (hitCode) {
                 case 0:
                 case 4:
@@ -3768,7 +3725,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             seqKill(3, nXMissile);
             if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
             {
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDamage = (15+Random(7))<<4;
                 actDamageSprite(nOwner, pSpriteHit, DAMAGE_TYPE_2, nDamage);
             }
@@ -3780,7 +3737,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             GibSprite(pMissile, GIBTYPE_6, NULL, NULL);
             if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
             {
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDamage = (25+Random(20))<<4;
                 actDamageSprite(nOwner, pSpriteHit, DAMAGE_TYPE_5, nDamage);
             }
@@ -3791,7 +3748,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             sfxKill3DSound(pMissile, -1, -1);
             sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 306, pMissile->sectnum);
             if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo)) {
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDmgMul = (pMissile->type == kMissileLifeLeechAltSmall) ? 6 : 3;
                 int nDamage = (nDmgMul+Random(nDmgMul))<<4;
                 actDamageSprite(nOwner, pSpriteHit, DAMAGE_TYPE_5, nDamage);
@@ -3804,7 +3761,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             {
                 if (pThingInfo && pSpriteHit->type == kThingTNTBarrel && pXSpriteHit->burnTime == 0)
                     evPost(nSpriteHit, 3, 0, kCallbackFXFlameLick);
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDamage = (50+Random(50))<<4;
                 actDamageSprite(nOwner, pSpriteHit, DAMAGE_TYPE_2, nDamage);
             }
@@ -3817,7 +3774,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
         case kMissileFlareRegular:
             sfxKill3DSound(pMissile, -1, -1);
             if ((hitCode == 3 && pSpriteHit) && (pThingInfo || pDudeInfo)) {
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 if ((pThingInfo && pThingInfo->dmgControl[DAMAGE_TYPE_1] != 0) || (pDudeInfo && pDudeInfo->at70[DAMAGE_TYPE_1] != 0)) {
                     if (pThingInfo && pSpriteHit->type == kThingTNTBarrel && pXSpriteHit->burnTime == 0)
                         evPost(nSpriteHit, 3, 0, kCallbackFXFlameLick);
@@ -3861,7 +3818,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                     XSPRITE *pXObject = &xsprite[pObject->extra];
                     if ((pObject->statnum == kStatThing || pObject->statnum == kStatDude) && pXObject->burnTime == 0)
                         evPost(nObject, 3, 0, kCallbackFXFlameLick);
-                    int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                    int nOwner = pMissile->owner;
                     actBurnSprite(pMissile->owner, pXObject, (4+gGameOptions.nDifficulty)<<2);
                     actDamageSprite(nOwner, pObject, DAMAGE_TYPE_1, 8);
                 }
@@ -3879,7 +3836,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                     XSPRITE *pXObject = &xsprite[pObject->extra];
                     if ((pObject->statnum == kStatThing || pObject->statnum == kStatDude) && pXObject->burnTime == 0)
                         evPost(nObject, 3, 0, kCallbackFXFlameLick);
-                    int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                    int nOwner = pMissile->owner;
                     actBurnSprite(pMissile->owner, pXObject, (4+gGameOptions.nDifficulty)<<2);
                     actDamageSprite(nOwner, pObject, DAMAGE_TYPE_1, 8);
                     int nDamage = (25+Random(10))<<4;
@@ -3900,7 +3857,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                     XSPRITE *pXObject = &xsprite[pObject->extra];
                     if ((pObject->statnum == kStatThing || pObject->statnum == kStatDude) && pXObject->burnTime == 0)
                         evPost(nObject, 3, 0, kCallbackFXFlameLick);
-                    int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                    int nOwner = pMissile->owner;
                     actBurnSprite(pMissile->owner, pXObject, 32);
                     actDamageSprite(nOwner, pObject, DAMAGE_TYPE_5, 12);
                     int nDamage = (25+Random(10))<<4;
@@ -3921,7 +3878,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                 spritetype *pObject = &sprite[nObject];
                 if (pObject->statnum == kStatDude)
                 {
-                    int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                    int nOwner = pMissile->owner;
                     int nDamage = (25+Random(10))<<4;
                     actDamageSprite(nOwner, pObject, DAMAGE_TYPE_5, nDamage);
                 }
@@ -3939,7 +3896,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                 spritetype *pObject = &sprite[nObject];
                 if (pObject->statnum == kStatDude)
                 {
-                    int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                    int nOwner = pMissile->owner;
                     int nDamage = (10+Random(10))<<4;
                     actDamageSprite(nOwner, pObject, DAMAGE_TYPE_5, nDamage);
                     spritetype *pOwner = &sprite[nOwner];
@@ -3962,7 +3919,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                 int nObject = gHitInfo.hitsprite;
                 assert(nObject >= 0 && nObject < kMaxSprites);
                 spritetype *pObject = &sprite[nObject];
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDamage = (15+Random(10))<<4;
                 actDamageSprite(nOwner, pObject, DAMAGE_TYPE_6, nDamage);
             }
@@ -3975,7 +3932,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                 int nObject = gHitInfo.hitsprite;
                 assert(nObject >= 0 && nObject < kMaxSprites);
                 spritetype *pObject = &sprite[nObject];
-                int nOwner = actSpriteOwnerToSpriteId(pMissile);
+                int nOwner = pMissile->owner;
                 int nDamage = (10+Random(10))<<4;
                 actDamageSprite(nOwner, pObject, DAMAGE_TYPE_0, nDamage);
             }
@@ -4112,7 +4069,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                                 if (!IsPlayerSprite(pSprite)) {
                                     actDamageSprite(pSprite2->index, pSprite, DAMAGE_TYPE_0, dmg);
                                     if (xspriRangeIsFine(pSprite->extra) && !isActive(pSprite->index))
-                                        aiActivateDude(pSprite, &xsprite[pSprite->extra]);
+                                        aiActivateDude(&bloodActors[pSprite->index]);
                                 }
                                 else if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpJumpBoots) > 0) actDamageSprite(pSprite2->index, pSprite, DAMAGE_TYPE_3, dmg);
                                 else actDamageSprite(pSprite2->index, pSprite, DAMAGE_TYPE_0, dmg);
@@ -4186,7 +4143,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                 case kDudeBurningZombieButcher:
                     // This does not make sense
                     pXSprite->burnTime = ClipLow(pXSprite->burnTime-4, 0);
-                    actDamageSprite(actOwnerIdToSpriteId(pXSprite->burnSource), pSprite, DAMAGE_TYPE_1, 8);
+                    actDamageSprite(pXSprite->burnSource, pSprite, DAMAGE_TYPE_1, 8);
                     break;
             }
         }
@@ -4463,7 +4420,7 @@ int MoveThing(spritetype *pSprite)
             
             switch (pSprite->type) {
                 case kThingNapalmBall:
-                    if (zvel[nSprite] == 0 || Chance(0xA000)) sub_2AA94(pSprite, pXSprite);
+                    if (zvel[nSprite] == 0 || Chance(0xA000)) sub_2AA94(&bloodActors[pXSprite->reference]);
                     break;
                 case kThingZombieHead:
                     if (klabs(zvel[nSprite]) > 0x80000) {
@@ -4603,7 +4560,7 @@ void MoveDude(spritetype *pSprite)
             // Should be pHitSprite here
             if (pSprite->extra > 0)
                 pHitXSprite = &xsprite[pHitSprite->extra];
-            int nOwner = actSpriteOwnerToSpriteId(pHitSprite);
+            int nOwner = pHitSprite->owner;
 
             if (pHitSprite->statnum == kStatProjectile && !(pHitSprite->flags&32) && pSprite->index != nOwner)
             {
@@ -4774,10 +4731,10 @@ void MoveDude(spritetype *pSprite)
                 switch (pSprite->type) {
                     case kDudeCultistTommy:
                     case kDudeCultistShotgun:
-                        aiNewState(pSprite, pXSprite, &cultistGoto);
+                        aiNewState(&bloodActors[pXSprite->reference], &cultistGoto);
                         break;
                     case kDudeGillBeast:
-                        aiNewState(pSprite, pXSprite, &gillBeastGoto);
+                        aiNewState(&bloodActors[pXSprite->reference], &gillBeastGoto);
                         pSprite->flags |= 6;
                         break;
                     case kDudeBoneEel:
@@ -4821,7 +4778,7 @@ void MoveDude(spritetype *pSprite)
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                    aiNewState(&bloodActors[pXSprite->reference], &cultistSwimGoto);
                     break;
                 case kDudeBurningCultist:
                 {
@@ -4831,7 +4788,7 @@ void MoveDude(spritetype *pSprite)
                         pXSprite->burnTime = 0;
                         evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                         sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                        aiNewState(&bloodActors[pXSprite->reference], &cultistSwimGoto);
                     }
                     else
                     {
@@ -4839,7 +4796,7 @@ void MoveDude(spritetype *pSprite)
                         pXSprite->burnTime = 0;
                         evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                         sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                        aiNewState(&bloodActors[pXSprite->reference], &cultistSwimGoto);
                     }
                     break;
                 }
@@ -4847,19 +4804,19 @@ void MoveDude(spritetype *pSprite)
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &zombieAGoto);
+                    aiNewState(&bloodActors[pXSprite->reference], &zombieAGoto);
                     break;
                 case kDudeZombieButcher:
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &zombieFGoto);
+                    aiNewState(&bloodActors[pXSprite->reference], &zombieFGoto);
                     break;
                 case kDudeGillBeast:
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &gillBeastSwimGoto);
+                    aiNewState(&bloodActors[pXSprite->reference], &gillBeastSwimGoto);
 
                     pSprite->flags &= ~6;
                     break;
@@ -4903,7 +4860,7 @@ void MoveDude(spritetype *pSprite)
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                    aiNewState(actor, &cultistSwimGoto);
                     break;
                 case kDudeBurningCultist:
                     if (Chance(0x400))
@@ -4912,7 +4869,7 @@ void MoveDude(spritetype *pSprite)
                         pXSprite->burnTime = 0;
                         evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                         sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                        aiNewState(actor, &cultistSwimGoto);
                     }
                     else
                     {
@@ -4920,26 +4877,26 @@ void MoveDude(spritetype *pSprite)
                         pXSprite->burnTime = 0;
                         evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                         sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(pSprite, pXSprite, &cultistSwimGoto);
+                        aiNewState(actor, &cultistSwimGoto);
                     }
                     break;
                 case kDudeZombieAxeNormal:
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &zombieAGoto);
+                    aiNewState(actor, &zombieAGoto);
                     break;
                 case kDudeZombieButcher:
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &zombieFGoto);
+                    aiNewState(actor, &zombieFGoto);
                     break;
                 case kDudeGillBeast:
                     pXSprite->burnTime = 0;
                     evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
                     sfxPlay3DSound(pSprite, 720, -1, 0);
-                    aiNewState(pSprite, pXSprite, &gillBeastSwimGoto);
+                    aiNewState(actor, &gillBeastSwimGoto);
                     pSprite->flags &= ~6;
                     break;
                 case kDudeGargoyleFlesh:
@@ -5086,7 +5043,7 @@ int MoveMissile(spritetype *pSprite)
     int bakCstat = 0;
     if (pSprite->owner >= 0)
     {
-        int nOwner = actSpriteOwnerToSpriteId(pSprite);
+        int nOwner = pSprite->owner;
         pOwner = &sprite[nOwner];
         if (IsDudeSprite(pOwner))
         {
@@ -5392,8 +5349,10 @@ void actExplodeSprite(spritetype *pSprite)
     xsprite[nXSprite].data3 = pExplodeInfo->flashEffect;
 }
 
-void actActivateGibObject(spritetype *pSprite, XSPRITE *pXSprite)
+void actActivateGibObject(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int vdx = ClipRange(pXSprite->data1, 0, 31);
     int vc = ClipRange(pXSprite->data2, 0, 31);
     int v4 = ClipRange(pXSprite->data3, 0, 31);
@@ -5424,7 +5383,7 @@ bool IsUnderWater(spritetype *pSprite)
     return 0;
 }
 
-void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite);
+void MakeSplash(DBloodActor *actor);
 
 void actProcessSprites(void)
 {
@@ -5456,7 +5415,7 @@ void actProcessSprites(void)
             if (pXSprite->burnTime > 0)
             {
                 pXSprite->burnTime = ClipLow(pXSprite->burnTime-4,0);
-                actDamageSprite(actOwnerIdToSpriteId(pXSprite->burnSource), pSprite, DAMAGE_TYPE_1, 8);
+                actDamageSprite(pXSprite->burnSource, pSprite, DAMAGE_TYPE_1, 8);
             }
                                        
             if (pXSprite->Proximity) {
@@ -5489,7 +5448,7 @@ void actProcessSprites(void)
                         if (pSprite->type == kModernThingEnemyLifeLeech) proxyDist = 512;
                         #endif
                             if (pSprite->type == kThingDroppedLifeLeech && pXSprite->target == -1)  {
-                            int nOwner = actOwnerIdToSpriteId(pSprite->owner);
+                            int nOwner = pSprite->owner;
                             spritetype *pOwner = &sprite[nOwner];
                             if (!IsPlayerSprite(pOwner))
                                 continue;
@@ -5524,7 +5483,7 @@ void actProcessSprites(void)
                                     break;
                                 #endif
                             }
-                            if (pSprite->owner == -1) actPropagateSpriteOwner(pSprite, pSprite2);
+                            if (pSprite->owner == -1) pSprite->owner = pSprite2->index;
                             trTriggerSprite(nSprite, pXSprite, kCmdSpriteProximity);
                         }
                     }
@@ -5607,7 +5566,7 @@ void actProcessSprites(void)
                         switch (pSprite->type) {
                         case kThingDripWater:
                         case kThingDripBlood:
-                            MakeSplash(pSprite, pXSprite);
+                            MakeSplash(&bloodActors[pXSprite->reference]);
                             break;
                         #ifdef NOONE_EXTENSIONS
                         case kModernThingThrowableRock:
@@ -5619,7 +5578,7 @@ void actProcessSprites(void)
                                 int nObject = hit & 0x3fff;
                                 assert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype * pObject = &sprite[nObject];
-                                actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, pXSprite->data1);
+                                actDamageSprite(pSprite->owner, pObject, DAMAGE_TYPE_0, pXSprite->data1);
                             }
                             break;
                         #endif
@@ -5630,13 +5589,13 @@ void actProcessSprites(void)
                                 int nObject = hit & 0x3fff;
                                 assert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype *pObject = &sprite[nObject];
-                                actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, 12);
+                                actDamageSprite(pSprite->owner, pObject, DAMAGE_TYPE_0, 12);
                             }
                             break;
                         case kThingPodGreenBall:
                             if ((hit&0xc000) == 0x4000)
                             {
-                                sub_2A620(actSpriteOwnerToSpriteId(pSprite), pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 200, 1, 20, DAMAGE_TYPE_3, 6, 0, 0, 0);
+                                sub_2A620(pSprite->owner, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 200, 1, 20, DAMAGE_TYPE_3, 6, 0, 0, 0);
                                 evPost(pSprite->index, 3, 0, kCallbackFXPodBloodSplat);
                             }
                             else
@@ -5646,7 +5605,7 @@ void actProcessSprites(void)
                                     break;
                                 assert(nObject >= 0 && nObject < kMaxSprites);
                                 spritetype *pObject = &sprite[nObject];
-                                actDamageSprite(actSpriteOwnerToSpriteId(pSprite), pObject, DAMAGE_TYPE_0, 12);
+                                actDamageSprite(pSprite->owner, pObject, DAMAGE_TYPE_0, 12);
                                 evPost(pSprite->index, 3, 0, kCallbackFXPodBloodSplat);
                             }
                             break;
@@ -5685,7 +5644,7 @@ void actProcessSprites(void)
 
         if (pSprite->flags & 32)
             continue;
-        int nOwner = actSpriteOwnerToSpriteId(pSprite);
+        int nOwner = pSprite->owner;
         int nType = pSprite->type;
         assert(nType >= 0 && nType < kExplodeMax);
         const EXPLOSION *pExplodeInfo = &explodeInfo[nType];
@@ -5696,8 +5655,6 @@ void actProcessSprites(void)
         int y = pSprite->y;
         int z = pSprite->z;
         int nSector = pSprite->sectnum;
-        gAffectedSectors[0] = -1;
-        gAffectedXWalls[0] = -1;
         int radius = pExplodeInfo->radius;
 
         #ifdef NOONE_EXTENSIONS
@@ -5707,7 +5664,8 @@ void actProcessSprites(void)
             radius = pXSprite->data4;
         #endif
         
-        GetClosestSpriteSectors(nSector, x, y, radius, gAffectedSectors, v24c, gAffectedXWalls);
+        short gAffectedXWalls[kMaxXWalls];
+        GetClosestSpriteSectors(nSector, x, y, radius, v24c, gAffectedXWalls);
         
         for (int i = 0; i < kMaxXWalls; i++)
         {
@@ -5902,11 +5860,11 @@ void actProcessSprites(void)
                 case kDudeBurningCultist:
                 case kDudeBurningZombieAxe:
                 case kDudeBurningZombieButcher:
-                    actDamageSprite(actOwnerIdToSpriteId(pXSprite->burnSource), pSprite, DAMAGE_TYPE_1, 8);
+                    actDamageSprite(pXSprite->burnSource, pSprite, DAMAGE_TYPE_1, 8);
                     break;
                 default:
                     pXSprite->burnTime = ClipLow(pXSprite->burnTime-4, 0);
-                    actDamageSprite(actOwnerIdToSpriteId(pXSprite->burnSource), pSprite, DAMAGE_TYPE_1, 8);
+                    actDamageSprite(pXSprite->burnSource, pSprite, DAMAGE_TYPE_1, 8);
                     break;
                 }
             }
@@ -5927,7 +5885,7 @@ void actProcessSprites(void)
                     pSprite->type = kDudeCerberusOneHead;
                     if (pXSprite->target != -1)
                         aiSetTarget(pXSprite, pXSprite->target);
-                    aiActivateDude(pSprite, pXSprite);
+                    aiActivateDude(&bloodActors[pXSprite->reference]);
                 }
             }
             if (pXSprite->Proximity && !pXSprite->isTriggered)
@@ -5952,7 +5910,7 @@ void actProcessSprites(void)
             {
                 PLAYER *pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
                 if (pPlayer->voodooTargets)
-                    sub_41250(pPlayer);
+                    voodooTarget(pPlayer);
                 if (pPlayer->hand && Chance(0x8000))
                     actDamageSprite(nSprite, pSprite, DAMAGE_TYPE_4, 12);
                 if (pPlayer->isUnderwater)
@@ -6300,7 +6258,7 @@ spritetype * actFireThing(spritetype *pSprite, int a2, int a3, int a4, int thing
         y = gHitInfo.hity-mulscale28(pSprite->clipdist<<1, Sin(pSprite->ang));
     }
     spritetype *pThing = actSpawnThing(pSprite->sectnum, x, y, z, thingType);
-    actPropagateSpriteOwner(pThing, pSprite);
+    pThing->owner = pSprite->index;
     pThing->ang = pSprite->ang;
     xvel[pThing->index] = mulscale30(a6, Cos(pThing->ang));
     yvel[pThing->index] = mulscale30(a6, Sin(pThing->ang));
@@ -6354,7 +6312,7 @@ spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, 
     xvel[nMissile] = mulscale(pMissileInfo->velocity, a4, 14);
     yvel[nMissile] = mulscale(pMissileInfo->velocity, a5, 14);
     zvel[nMissile] = mulscale(pMissileInfo->velocity, a6, 14);
-    actPropagateSpriteOwner(pMissile, pSprite);
+    pMissile->owner = pSprite->index;
     pMissile->cstat |= 1;
     int nXSprite = pMissile->extra;
     assert(nXSprite > 0 && nXSprite < kMaxXSprites);
@@ -6667,7 +6625,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                     XSPRITE *pXSprite = &xsprite[nXSprite];
                     if (!pXSprite->burnTime)
                         evPost(nSprite, 3, 0, kCallbackFXFlameLick);
-                    actBurnSprite(actSpriteIdToOwnerId(nShooter), pXSprite, pVectorData->burnTime);
+                    actBurnSprite(sprite[nShooter].owner, pXSprite, pVectorData->burnTime);
                 }
             }
             if (pSprite->statnum == kStatDude)
@@ -6697,7 +6655,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                     XSPRITE *pXSprite = &xsprite[nXSprite];
                     if (!pXSprite->burnTime)
                         evPost(nSprite, 3, 0, kCallbackFXFlameLick);
-                    actBurnSprite(actSpriteIdToOwnerId(nShooter), pXSprite, pVectorData->burnTime);
+                    actBurnSprite(sprite[nShooter].owner, pXSprite, pVectorData->burnTime);
                 }
                 if (Chance(pVectorData->fxChance))
                 {
@@ -6751,7 +6709,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
 
                     if (pVectorData->burnTime != 0) {
                         if (!xsprite[nXSprite].burnTime) evPost(nSprite, 3, 0, kCallbackFXFlameLick);
-                        actBurnSprite(actSpriteIdToOwnerId(nShooter), &xsprite[nXSprite], pVectorData->burnTime);
+                        actBurnSprite(sprite[nShooter].owner, &xsprite[nXSprite], pVectorData->burnTime);
                     }
 
                     //if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
@@ -6773,71 +6731,66 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         sfxPlay3DSound(x, y, z, pVectorData->surfHit[nSurf].fxSnd, nSector);
 }
 
-void FireballSeqCallback(int, int nXSprite)
+void FireballSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
+    XSPRITE* pXSprite = &actor->x();
     int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype *pSprite = &actor->s();
     spritetype *pFX = gFX.fxSpawn(FX_11, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
         int nFX = pFX->index;
-        xvel[nFX] = xvel[nSprite];
-        yvel[nFX] = yvel[nSprite];
-        zvel[nFX] = zvel[nSprite];
+        xvel[nFX] = actor->xvel();
+        yvel[nFX] = actor->yvel();
+        zvel[nFX] = actor->zvel();
     }
 }
 
-void NapalmSeqCallback(int, int nXSprite)
+
+void NapalmSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     spritetype *pFX = gFX.fxSpawn(FX_12, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
         int nFX = pFX->index;
-        xvel[nFX] = xvel[nSprite];
-        yvel[nFX] = yvel[nSprite];
-        zvel[nFX] = zvel[nSprite];
+        xvel[nFX] = actor->xvel();
+        yvel[nFX] = actor->yvel();
+        zvel[nFX] = actor->zvel();
     }
 }
 
-void sub_3888C(int, int nXSprite)
+void sub_3888C(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype* pSprite = &actor->s();
     spritetype *pFX = gFX.fxSpawn(FX_32, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
         int nFX = pFX->index;
-        xvel[nFX] = xvel[nSprite];
-        yvel[nFX] = yvel[nSprite];
-        zvel[nFX] = zvel[nSprite];
+        xvel[nFX] = actor->xvel();
+        yvel[nFX] = actor->yvel();
+        zvel[nFX] = actor->zvel();
     }
 }
 
-void sub_38938(int, int nXSprite)
+void sub_38938(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype *pSprite = &actor->s();
     spritetype *pFX = gFX.fxSpawn(FX_33, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
         int nFX = pFX->index;
-        xvel[nFX] = xvel[nSprite];
-        yvel[nFX] = yvel[nSprite];
-        zvel[nFX] = zvel[nSprite];
+        xvel[nFX] = actor->xvel();
+        yvel[nFX] = actor->yvel();
+        zvel[nFX] = actor->zvel();
     }
 }
 
-void TreeToGibCallback(int, int nXSprite)
+void TreeToGibCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     pSprite->type = kThingObjectExplode;
     pXSprite->state = 1;
     pXSprite->data1 = 15;
@@ -6848,11 +6801,10 @@ void TreeToGibCallback(int, int nXSprite)
     pSprite->cstat |= 257;
 }
 
-void DudeToGibCallback1(int, int nXSprite)
+void DudeToGibCallback1(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     pSprite->type = kThingBloodChunks;
     pXSprite->data1 = 8;
     pXSprite->data2 = 0;
@@ -6866,11 +6818,10 @@ void DudeToGibCallback1(int, int nXSprite)
     pXSprite->state = 1;
 }
 
-void DudeToGibCallback2(int, int nXSprite)
+void DudeToGibCallback2(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     pSprite->type = kThingBloodChunks;
     pXSprite->data1 = 3;
     pXSprite->data2 = 0;
@@ -6893,7 +6844,7 @@ void actPostSprite(int nSprite, int nStatus)
     if (sprite[nSprite].flags&32)
     {
         for (n = 0; n < gPostCount; n++)
-            if (gPost[n].TotalKills == nSprite)
+            if (gPost[n].sprite == nSprite)
                 break;
         assert(n < gPostCount);
     }
@@ -6903,8 +6854,8 @@ void actPostSprite(int nSprite, int nStatus)
         sprite[nSprite].flags |= 32;
         gPostCount++;
     }
-    gPost[n].TotalKills = nSprite;
-    gPost[n].at2 = nStatus;
+    gPost[n].sprite = nSprite;
+    gPost[n].status = nStatus;
 }
 
 void actPostProcess(void)
@@ -6912,10 +6863,10 @@ void actPostProcess(void)
     for (int i = 0; i < gPostCount; i++)
     {
         POSTPONE *pPost = &gPost[i];
-        int nSprite = pPost->TotalKills;
+        int nSprite = pPost->sprite;
         spritetype *pSprite = &sprite[nSprite];
         pSprite->flags &= ~32;
-        int nStatus = pPost->at2;
+        int nStatus = pPost->status;
         if (nStatus == kStatFree)
         {
             evKill(nSprite, 3);
@@ -6929,9 +6880,10 @@ void actPostProcess(void)
     gPostCount = 0;
 }
 
-void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite)
+void MakeSplash(DBloodActor* actor)
 {
-    UNREFERENCED_PARAMETER(pXSprite);
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     pSprite->flags &= ~2;
     int nXSprite = pSprite->extra;
     pSprite->z -= 4 << 8;
@@ -6956,41 +6908,55 @@ void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-class ActorLoadSave : public LoadSave
-{
-    virtual void Load(void);
-    virtual void Save(void);
-};
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-void ActorLoadSave::Load(void)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, POSTPONE& w, POSTPONE* def)
 {
-    Read(&gVectorData[VECTOR_TYPE_20].maxDist, sizeof(gVectorData[VECTOR_TYPE_20].maxDist));    // The code messes around with this field so better save it.
-    Read(gSpriteHit, sizeof(gSpriteHit));
-    Read(gAffectedSectors, sizeof(gAffectedSectors));
-    Read(gAffectedXWalls, sizeof(gAffectedXWalls));
-    Read(&gPostCount, sizeof(gPostCount));
-    Read(gPost, sizeof(gPost));
-    if (gGameOptions.nMonsterSettings != 0) {
-        for (int i = 0; i < kDudeMax - kDudeBase; i++)
-            for (int j = 0; j < 7; j++)
-                dudeInfo[i].at70[j] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j]);
+	if (arc.BeginObject(keyname))
+	{
+		arc("sprite", w.sprite)
+			("status", w.status)
+			.EndObject();
+	}
+	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEHIT& w, SPRITEHIT* def)
+{
+    int empty = 0;
+    if (arc.isReading()) w = {};
+    if (arc.BeginObject(keyname))
+    {
+        arc("hit", w.hit, &empty)
+            ("ceilhit", w.ceilhit, &empty)
+            ("florhit", w.florhit, &empty)
+            .EndObject();
     }
+    return arc;
 }
 
-void ActorLoadSave::Save(void)
+void SerializeActor(FSerializer& arc)
 {
-    Write(&gVectorData[VECTOR_TYPE_20].maxDist, sizeof(gVectorData[VECTOR_TYPE_20].maxDist));
-    Write(gSpriteHit, sizeof(gSpriteHit));
-    Write(gAffectedSectors, sizeof(gAffectedSectors));
-    Write(gAffectedXWalls, sizeof(gAffectedXWalls));
-    Write(&gPostCount, sizeof(gPostCount));
-    Write(gPost, sizeof(gPost));
+	if (arc.BeginObject("actor"))
+	{
+		arc("maxdist20", gVectorData[VECTOR_TYPE_20].maxDist)    // The code messes around with this field so better save it.
+			.SparseArray("spritehit", gSpriteHit, kMaxSprites, activeXSprites)
+			("postcount", gPostCount)
+			.Array("post", gPost, gPostCount)
+			.EndObject();
+
+		if (arc.isReading() && gGameOptions.nMonsterSettings != 0) 
+		{
+			for (int i = 0; i < kDudeMax - kDudeBase; i++)
+				for (int j = 0; j < 7; j++)
+					dudeInfo[i].at70[j] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j]);
+		}
+	}
 }
 
-
-void ActorLoadSaveConstruct(void)
-{
-    new ActorLoadSave();
-}
 
 END_BLD_NS

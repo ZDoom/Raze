@@ -50,6 +50,7 @@ struct GameInterface
 	virtual ~GameInterface() {}
 	virtual bool GenerateSavePic() { return false; }
 	virtual void app_init() = 0;
+	virtual void loadPalette();
 	virtual void clearlocalinputstate() {}
 	virtual void UpdateScreenSize() {}
 	virtual void FreeLevelData();
@@ -92,6 +93,10 @@ struct GameInterface
 	virtual fixed_t playerHorizMin() { return IntToFixed(-200); }
 	virtual fixed_t playerHorizMax() { return IntToFixed(200); }
 	virtual int playerKeyMove() { return 0; }
+	virtual void WarpToCoords(int x, int y, int z, int a, int h) {}
+	virtual void ToggleThirdPerson() { }
+	virtual void SwitchCoopView() { Printf("Unsupported command\n"); }
+	virtual void ToggleShowWeapon() { Printf("Unsupported command\n"); }
 
 	virtual FString statFPS()
 	{

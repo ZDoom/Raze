@@ -607,11 +607,11 @@ int ConCompiler::transword(void)
 	l = 0;
 	while (isaltok(*(textptr + l)) && !(*(textptr + l) == '.'))
 	{
-		if (l < 31)
+		if (l < 1023)
 		{
 			parsebuf[l] = textptr[l];
-			l++;
 		}
+		l++;
 	}
 	parsebuf[l] = 0;
 
@@ -665,11 +665,11 @@ int ConCompiler::transnum(int type)
 	l = 0;
 	while (isaltok(*(textptr + l)))
 	{
-		if (l < 31)
+		if (l < 1023)
 		{
 			parsebuf[l] = textptr[l];
-			l++;
 		}
+		l++;
 	}
 	parsebuf[l] = 0;
 
@@ -1181,14 +1181,14 @@ int ConCompiler::parsecommand()
 		transnum(LABEL_DEFINE);
 		lnum = popscriptvalue();
 
-		actorinfo[lnum].scriptaddress = parsing_actor;	// TRANSITIONAL should only store an index
+		gs.actorinfo[lnum].scriptaddress = parsing_actor;	// TRANSITIONAL should only store an index
 		if (tw == concmd_useractor)
 		{
 			if (j & 1)
-				actorinfo[lnum].flags |= SFLAG_BADGUY;
+				gs.actorinfo[lnum].flags |= SFLAG_BADGUY;
 
 			if (j & 2)
-				actorinfo[lnum].flags |= (SFLAG_BADGUY | SFLAG_BADGUYSTAYPUT);
+				gs.actorinfo[lnum].flags |= (SFLAG_BADGUY | SFLAG_BADGUYSTAYPUT);
 		}
 
 		for (j = 0; j < 4; j++)
@@ -1887,46 +1887,46 @@ int ConCompiler::parsecommand()
 		auto parseone = [&]() { return params[pget++]; };
 
 		ud.const_visibility = parseone();
-		impact_damage = parseone();
-		max_player_health = parseone();
-		max_armour_amount = parseone();
-		respawnactortime = parseone();
-		respawnitemtime = parseone();
-		dukefriction = parseone();
-		if (isPlutoPak() || isRR()) gc = parseone();
-		rpgblastradius = parseone();
-		pipebombblastradius = parseone();
-		shrinkerblastradius = parseone();
-		tripbombblastradius = parseone();
-		morterblastradius = parseone();
-		bouncemineblastradius = parseone();
-		seenineblastradius = parseone();
+		gs.impact_damage = parseone();
+		gs.max_player_health = parseone();
+		gs.max_armour_amount = parseone();
+		gs.respawnactortime = parseone();
+		gs.respawnitemtime = parseone();
+		gs.playerfriction = parseone();
+		if (isPlutoPak() || isRR()) gs.gravity = parseone();
+		gs.rpgblastradius = parseone();
+		gs.pipebombblastradius = parseone();
+		gs.shrinkerblastradius = parseone();
+		gs.tripbombblastradius = parseone();
+		gs.morterblastradius = parseone();
+		gs.bouncemineblastradius = parseone();
+		gs.seenineblastradius = parseone();
 
-		max_ammo_amount[1] = parseone();
-		max_ammo_amount[2] = parseone();
-		max_ammo_amount[3] = parseone();
-		max_ammo_amount[4] = parseone();
-		max_ammo_amount[5] = parseone();
-		max_ammo_amount[6] = parseone();
-		max_ammo_amount[7] = parseone();
-		max_ammo_amount[8] = parseone();
-		max_ammo_amount[9] = parseone();
-		if (isPlutoPak() || isRR()) max_ammo_amount[11] = parseone();
-		if (isRR()) max_ammo_amount[12] = parseone();
-		camerashitable = parseone();
-		numfreezebounces = parseone();
-		freezerhurtowner = parseone();
+		gs.max_ammo_amount[1] = parseone();
+		gs.max_ammo_amount[2] = parseone();
+		gs.max_ammo_amount[3] = parseone();
+		gs.max_ammo_amount[4] = parseone();
+		gs.max_ammo_amount[5] = parseone();
+		gs.max_ammo_amount[6] = parseone();
+		gs.max_ammo_amount[7] = parseone();
+		gs.max_ammo_amount[8] = parseone();
+		gs.max_ammo_amount[9] = parseone();
+		if (isPlutoPak() || isRR()) gs.max_ammo_amount[11] = parseone();
+		if (isRR()) gs.max_ammo_amount[12] = parseone();
+		gs.camerashitable = parseone();
+		gs.numfreezebounces = parseone();
+		gs.freezerhurtowner = parseone();
 		if (isPlutoPak() || isRR())
 		{
 			spriteqamount = clamp(parseone(), 0, 1024);
-			lasermode = parseone();
+			gs.lasermode = parseone();
 		}
-		if (isWorldTour()) max_ammo_amount[12] = parseone();
+		if (isWorldTour()) gs.max_ammo_amount[12] = parseone();
 		if (isRRRA())
 		{
-			max_ammo_amount[13] = parseone();
-			max_ammo_amount[14] = parseone();
-			max_ammo_amount[16] = parseone();
+			gs.max_ammo_amount[13] = parseone();
+			gs.max_ammo_amount[14] = parseone();
+			gs.max_ammo_amount[16] = parseone();
 		}
 		return 0;
 	}
@@ -1951,7 +1951,7 @@ int ConCompiler::parsecommand()
 
 		transnum(LABEL_DEFINE);
 		int n = popscriptvalue();
-		tileinfo[n].loadeventscriptptr = parsing_actor;
+		gs.tileinfo[n].loadeventscriptptr = parsing_actor;
 		checking_ifelse = 0;
 		return 0;
 	}
@@ -3146,7 +3146,22 @@ void ConCompiler::setmusic()
 
 void loadcons()
 {
-	memset(&actorinfo, 0, sizeof(actorinfo));
+	gs = {};
+	gs.respawnactortime = 768;
+	gs.bouncemineblastradius = 2500;
+	gs.respawnitemtime = 768;
+	gs.morterblastradius = 2500;
+	gs.numfreezebounces = 3;
+	gs.pipebombblastradius = 2500;
+	gs.playerfriction = 0xCFD0;
+	gs.rpgblastradius = 1780;
+	gs.seenineblastradius = 2048;
+	gs.shrinkerblastradius = 650;
+	gs.gravity = 176;
+	gs.tripbombblastradius = 3880;
+	gs.playerheight = PHEIGHT_DUKE;
+	gs.displayflags = DUKE3D_NO_WIDESCREEN_PINNING;
+
 
 	ScriptCode.Clear();
 	labels.Clear();
@@ -3191,7 +3206,17 @@ void loadcons()
 	InitGameVarPointers();
 	ResetSystemDefaults();
 	S_WorldTourMappingsForOldSounds(); // create a sound mapping for World Tour.
-	if (isRRRA())
+	if (isWorldTour())
+	{
+		int num = fileSystem.CheckNumForName("e1l7.map");
+		int file = fileSystem.GetFileContainer(num);
+		if (file <= fileSystem.GetMaxIwadNum())
+		{
+			auto maprec = FindMapByName("e1l7");
+			if (maprec) maprec->nextLevel = levelnum(0, 4);
+		}
+	}
+	else if (isRRRA())
 	{
 		// RRRA goes directly to the second episode after E1L7 to continue the game.
 		int num = fileSystem.CheckNumForName("e1l7.map");

@@ -32,7 +32,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "network.h"
 #include "tags.h"
 #include "sector.h"
-#include "interp.h"
+#include "interpolate.h"
 #include "misc.h"
 #include "sprite.h"
 #include "quotemgr.h"
@@ -98,7 +98,7 @@ void SetSlidorActive(short SpriteNum)
 
     r = u->rotator;
 
-    DoSlidorInterp(SpriteNum, setinterpolation);
+    DoSlidorInterp(SpriteNum, StartInterpolation);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
@@ -118,7 +118,7 @@ void SetSlidorInactive(short SpriteNum)
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
 
-    DoSlidorInterp(SpriteNum, stopinterpolation);
+    DoSlidorInterp(SpriteNum, StopInterpolation);
 
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
@@ -257,7 +257,7 @@ TestSlidorMatchActive(short match)
     return false;
 }
 
-void DoSlidorInterp(short SpriteNum, INTERP_FUNCp interp_func)
+void DoSlidorInterp(short SpriteNum, INTERP_FUNC interp_func)
 {
     short w, pw, startwall, endwall;
 
@@ -279,18 +279,18 @@ void DoSlidorInterp(short SpriteNum, INTERP_FUNCp interp_func)
             if (nextwall >= MAXWALLS)
             {
                 // white wall - move 4 points
-                interp_func(&wall[w].x);
-                interp_func(&wall[pw].x);
-                interp_func(&wall[wall[w].point2].x);
-                interp_func(&wall[wall[wall[w].point2].point2].x);
+                interp_func(w, Interp_Wall_X);
+                interp_func(pw, Interp_Wall_X);
+                interp_func(wall[w].point2, Interp_Wall_X);
+                interp_func(wall[wall[w].point2].point2, Interp_Wall_X);
             }
             else
             {
                 // red wall - move 2 points
-                interp_func(&wall[w].x);
-                interp_func(&wall[wall[nextwall].point2].x);
-                interp_func(&wall[wall[w].point2].x);
-                interp_func(&wall[wall[wall[wall[w].point2].nextwall].point2].x);
+                interp_func(w, Interp_Wall_X);
+                interp_func(wall[nextwall].point2, Interp_Wall_X);
+                interp_func(wall[w].point2, Interp_Wall_X);
+                interp_func(wall[wall[wall[w].point2].nextwall].point2, Interp_Wall_X);
             }
 
             break;
@@ -307,18 +307,18 @@ void DoSlidorInterp(short SpriteNum, INTERP_FUNCp interp_func)
             if (nextwall >= MAXWALLS)
             {
                 // white wall - move 4 points
-                interp_func(&wall[w].x);
-                interp_func(&wall[pw].x);
-                interp_func(&wall[wall[w].point2].x);
-                interp_func(&wall[wall[wall[w].point2].point2].x);
+                interp_func(w, Interp_Wall_X);
+                interp_func(pw, Interp_Wall_X);
+                interp_func(wall[w].point2, Interp_Wall_X);
+                interp_func(wall[wall[w].point2].point2, Interp_Wall_X);
             }
             else
             {
                 // red wall - move 2 points
-                interp_func(&wall[w].x);
-                interp_func(&wall[wall[nextwall].point2].x);
-                interp_func(&wall[wall[w].point2].x);
-                interp_func(&wall[wall[wall[wall[w].point2].nextwall].point2].x);
+                interp_func(w, Interp_Wall_X);
+                interp_func(wall[nextwall].point2, Interp_Wall_X);
+                interp_func(wall[w].point2, Interp_Wall_X);
+                interp_func(wall[wall[wall[w].point2].nextwall].point2, Interp_Wall_X);
             }
 
             break;
@@ -334,17 +334,17 @@ void DoSlidorInterp(short SpriteNum, INTERP_FUNCp interp_func)
             uint16_t const nextwall = wall[w].nextwall;
             if (nextwall >= MAXWALLS)
             {
-                interp_func(&wall[w].y);
-                interp_func(&wall[pw].y);
-                interp_func(&wall[wall[w].point2].y);
-                interp_func(&wall[wall[wall[w].point2].point2].y);
+                interp_func(w, Interp_Wall_Y);
+                interp_func(pw, Interp_Wall_Y);
+                interp_func(wall[w].point2, Interp_Wall_Y);
+                interp_func(wall[wall[w].point2].point2, Interp_Wall_Y);
             }
             else
             {
-                interp_func(&wall[w].y);
-                interp_func(&wall[wall[nextwall].point2].y);
-                interp_func(&wall[wall[w].point2].y);
-                interp_func(&wall[wall[wall[wall[w].point2].nextwall].point2].y);
+                interp_func(w, Interp_Wall_Y);
+                interp_func(wall[nextwall].point2, Interp_Wall_Y);
+                interp_func(wall[w].point2, Interp_Wall_Y);
+                interp_func(wall[wall[wall[w].point2].nextwall].point2, Interp_Wall_Y);
             }
 
             break;
@@ -360,17 +360,17 @@ void DoSlidorInterp(short SpriteNum, INTERP_FUNCp interp_func)
             uint16_t const nextwall = wall[w].nextwall;
             if (nextwall >= MAXWALLS)
             {
-                interp_func(&wall[w].y);
-                interp_func(&wall[pw].y);
-                interp_func(&wall[wall[w].point2].y);
-                interp_func(&wall[wall[wall[w].point2].point2].y);
+                interp_func(w, Interp_Wall_Y);
+                interp_func(pw, Interp_Wall_Y);
+                interp_func(wall[w].point2, Interp_Wall_Y);
+                interp_func(wall[wall[w].point2].point2, Interp_Wall_Y);
             }
             else
             {
-                interp_func(&wall[w].y);
-                interp_func(&wall[wall[nextwall].point2].y);
-                interp_func(&wall[wall[w].point2].y);
-                interp_func(&wall[wall[wall[wall[w].point2].nextwall].point2].y);
+                interp_func(w, Interp_Wall_Y);
+                interp_func(wall[nextwall].point2, Interp_Wall_Y);
+                interp_func(wall[w].point2, Interp_Wall_Y);
+                interp_func(wall[wall[wall[w].point2].nextwall].point2, Interp_Wall_Y);
             }
 
             break;

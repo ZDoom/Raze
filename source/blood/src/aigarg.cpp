@@ -27,45 +27,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "eventq.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
-#include "nnexts.h"
 
 BEGIN_BLD_NS
 
-static void SlashFSeqCallback(int, int);
-static void ThrowFSeqCallback(int, int);
-static void BlastSSeqCallback(int, int);
-static void ThrowSSeqCallback(int, int);
-static void gargThinkTarget(spritetype *, XSPRITE *);
-static void gargThinkSearch(spritetype *, XSPRITE *);
-static void gargThinkGoto(spritetype *, XSPRITE *);
-static void gargMoveDodgeUp(spritetype *, XSPRITE *);
-static void gargMoveDodgeDown(spritetype *, XSPRITE *);
-static void gargThinkChase(spritetype *, XSPRITE *);
-static void entryFStatue(spritetype *, XSPRITE *);
-static void entrySStatue(spritetype *, XSPRITE *);
-static void gargMoveForward(spritetype *, XSPRITE *);
-static void gargMoveSlow(spritetype *, XSPRITE *);
-static void gargMoveSwoop(spritetype *, XSPRITE *);
-static void gargMoveFly(spritetype *, XSPRITE *);
-static void playStatueBreakSnd(spritetype*,XSPRITE*);
-
-static int nSlashFClient = seqRegisterClient(SlashFSeqCallback);
-static int nThrowFClient = seqRegisterClient(ThrowFSeqCallback);
-static int nThrowSClient = seqRegisterClient(ThrowSSeqCallback);
-static int nBlastSClient = seqRegisterClient(BlastSSeqCallback);
+static void gargThinkTarget(DBloodActor *);
+static void gargThinkSearch(DBloodActor *);
+static void gargThinkGoto(DBloodActor *);
+static void gargMoveDodgeUp(DBloodActor *);
+static void gargMoveDodgeDown(DBloodActor *);
+static void gargThinkChase(DBloodActor *);
+static void entryFStatue(DBloodActor *);
+static void entrySStatue(DBloodActor *);
+static void gargMoveForward(DBloodActor *);
+static void gargMoveSlow(DBloodActor *);
+static void gargMoveSwoop(DBloodActor *);
+static void gargMoveFly(DBloodActor *);
+static void playStatueBreakSnd(DBloodActor*);
 
 AISTATE gargoyleFIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, gargThinkTarget, NULL };
 AISTATE gargoyleStatueIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, NULL, NULL };
@@ -94,16 +73,16 @@ AISTATE gargoyleFDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, gargMoveDodgeD
 AISTATE statueFBreakSEQ = { kAiStateOther, 5, -1, 0, entryFStatue, NULL, playStatueBreakSnd, &gargoyleFMorph2};
 AISTATE statueSBreakSEQ = { kAiStateOther, 5, -1, 0, entrySStatue, NULL, playStatueBreakSnd, &gargoyleSMorph2};
 
-static void playStatueBreakSnd(spritetype* pSprite, XSPRITE* pXSprite) {
-    UNREFERENCED_PARAMETER(pXSprite);
+static void playStatueBreakSnd(DBloodActor* actor) {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiPlay3DSound(pSprite, 313, AI_SFX_PRIORITY_1, -1);
 }
 
-static void SlashFSeqCallback(int, int nXSprite)
+void SlashFSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
@@ -121,18 +100,17 @@ static void SlashFSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx-r2, dy+r1, dz, VECTOR_TYPE_13);
 }
 
-static void ThrowFSeqCallback(int, int nXSprite)
+void ThrowFSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    actFireThing(&sprite[nSprite], 0, 0, gDudeSlope[nXSprite]-7500, kThingBone, 0xeeeee);
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
+    actFireThing(&actor->s(), 0, 0, actor->dudeSlope-7500, kThingBone, 0xeeeee);
 }
 
-static void BlastSSeqCallback(int, int nXSprite)
+void BlastSSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     wrand(); // ???
     spritetype *pTarget = &sprite[pXSprite->target];
     int height = (pSprite->yrepeat*getDudeInfo(pSprite->type)->eyeHeight) << 2;
@@ -145,7 +123,7 @@ static void BlastSSeqCallback(int, int nXSprite)
     Aim aim;
     aim.dx = CosScale16(pSprite->ang);
     aim.dy = SinScale16(pSprite->ang);
-    aim.dz = gDudeSlope[nXSprite];
+    aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
     int nSprite2;
     StatIterator it(kStatDude);
@@ -169,7 +147,7 @@ static void BlastSSeqCallback(int, int nXSprite)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(gDudeSlope[nXSprite], nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
@@ -223,16 +201,16 @@ static void BlastSSeqCallback(int, int nXSprite)
 
 }
 
-static void ThrowSSeqCallback(int, int nXSprite)
+void ThrowSSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
-    actFireThing(pSprite, 0, 0, gDudeSlope[nXSprite]-7500, kThingBone, Chance(0x6000) ? 0x133333 : 0x111111);
+    spritetype* pSprite = &actor->s();
+    actFireThing(pSprite, 0, 0, actor->dudeSlope - 7500, kThingBone, Chance(0x6000) ? 0x133333 : 0x111111);
 }
 
-static void gargThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargThinkTarget(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -240,14 +218,14 @@ static void gargThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-    if (pDudeExtraE->at8 && pDudeExtraE->Kills < 10)
-        pDudeExtraE->Kills++;
-    else if (pDudeExtraE->Kills >= 10 && pDudeExtraE->at8)
+    if (pDudeExtraE->xval3 && pDudeExtraE->xval2 < 10)
+        pDudeExtraE->xval2++;
+    else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)
     {
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
-        aiNewState(pSprite, pXSprite, &gargoyleTurn);
+        aiNewState(actor, &gargoyleTurn);
         return;
     }
     if (Chance(pDudeInfo->alertChance))
@@ -271,15 +249,15 @@ static void gargThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                pDudeExtraE->Kills = 0;
+                pDudeExtraE->xval2 = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                pDudeExtraE->Kills = 0;
+                pDudeExtraE->xval2 = 0;
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else
                 continue;
@@ -288,14 +266,18 @@ static void gargThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void gargThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
     sub_5F15C(pSprite, pXSprite);
 }
 
-static void gargThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -308,13 +290,14 @@ static void gargThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &gargoyleFSearch);
-    aiThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &gargoyleFSearch);
+    aiThinkTarget(actor);
 }
 
-static void gargMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveDodgeUp(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -326,8 +309,8 @@ static void gargMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int dx = xvel[nSprite];
-    int dy = yvel[nSprite];
+    int dx = actor->xvel();
+    int dy = actor->yvel();
     int t1 = dmulscale30(dx, nCos, dy, nSin);
     int t2 = dmulscale30(dx, nSin, -dy, nCos);
     if (pXSprite->dodgeDir > 0)
@@ -335,14 +318,15 @@ static void gargMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     else
         t2 -= pDudeInfo->sideSpeed;
 
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = -0x1d555;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = -0x1d555;
 }
 
-static void gargMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveDodgeDown(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -356,8 +340,8 @@ static void gargMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int dx = xvel[nSprite];
-    int dy = yvel[nSprite];
+    int dx = actor->xvel();
+    int dy = actor->yvel();
     int t1 = dmulscale30(dx, nCos, dy, nSin);
     int t2 = dmulscale30(dx, nSin, -dy, nCos);
     if (pXSprite->dodgeDir > 0)
@@ -365,16 +349,18 @@ static void gargMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
     else
         t2 -= pDudeInfo->sideSpeed;
 
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = 0x44444;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = 0x44444;
 }
 
-static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &gargoyleFGoto);
+        aiNewState(actor, &gargoyleFGoto);
         return;
     }
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -395,12 +381,12 @@ static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &gargoyleFSearch);
+        aiNewState(actor, &gargoyleFSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &gargoyleFSearch);
+        aiNewState(actor, &gargoyleFSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -427,7 +413,7 @@ static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         {
                         case -1:
                             sfxPlay3DSound(pSprite, 1408, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleFThrow);
+                            aiNewState(actor, &gargoyleFThrow);
                             break;
                         case 0:
                         case 4:
@@ -436,12 +422,12 @@ static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleStone)
                             {
                                 sfxPlay3DSound(pSprite, 1408, 0, 0);
-                                aiNewState(pSprite, pXSprite, &gargoyleFThrow);
+                                aiNewState(actor, &gargoyleFThrow);
                             }
                             break;
                         default:
                             sfxPlay3DSound(pSprite, 1408, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleFThrow);
+                            aiNewState(actor, &gargoyleFThrow);
                             break;
                         }
                     }
@@ -452,7 +438,7 @@ static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         {
                         case -1:
                             sfxPlay3DSound(pSprite, 1406, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                            aiNewState(actor, &gargoyleFSlash);
                             break;
                         case 0:
                         case 4:
@@ -461,19 +447,19 @@ static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleStone)
                             {
                                 sfxPlay3DSound(pSprite, 1406, 0, 0);
-                                aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                                aiNewState(actor, &gargoyleFSlash);
                             }
                             break;
                         default:
                             sfxPlay3DSound(pSprite, 1406, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                            aiNewState(actor, &gargoyleFSlash);
                             break;
                         }
                     }
                     else if ((height2-height > 0x2000 || floorZ-bottom > 0x2000) && nDist < 0x1400 && nDist > 0xa00)
                     {
                         aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
-                        aiNewState(pSprite, pXSprite, &gargoyleSwoop);
+                        aiNewState(actor, &gargoyleSwoop);
                     }
                     else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && klabs(nDeltaAngle) < 85)
                         aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
@@ -486,7 +472,7 @@ static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         {
                         case -1:
                             sfxPlay3DSound(pSprite, 1457, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleSBlast);
+                            aiNewState(actor, &gargoyleSBlast);
                             break;
                         case 0:
                         case 4:
@@ -495,12 +481,12 @@ static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleFlesh)
                             {
                                 sfxPlay3DSound(pSprite, 1457, 0, 0);
-                                aiNewState(pSprite, pXSprite, &gargoyleSBlast);
+                                aiNewState(actor, &gargoyleSBlast);
                             }
                             break;
                         default:
                             sfxPlay3DSound(pSprite, 1457, 0, 0);
-                            aiNewState(pSprite, pXSprite, &gargoyleSBlast);
+                            aiNewState(actor, &gargoyleSBlast);
                             break;
                         }
                     }
@@ -510,17 +496,17 @@ static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                         switch (hit)
                         {
                         case -1:
-                            aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                            aiNewState(actor, &gargoyleFSlash);
                             break;
                         case 0:
                         case 4:
                             break;
                         case 3:
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleFlesh)
-                                aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                                aiNewState(actor, &gargoyleFSlash);
                             break;
                         default:
-                            aiNewState(pSprite, pXSprite, &gargoyleFSlash);
+                            aiNewState(actor, &gargoyleFSlash);
                             break;
                         }
                     }
@@ -530,7 +516,7 @@ static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                             aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
                         else
                             aiPlay3DSound(pSprite, 1450, AI_SFX_PRIORITY_1, -1);
-                        aiNewState(pSprite, pXSprite, &gargoyleSwoop);
+                        aiNewState(actor, &gargoyleSwoop);
                     }
                     else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && klabs(nDeltaAngle) < 85)
                         aiPlay3DSound(pSprite, 1450, AI_SFX_PRIORITY_1, -1);
@@ -541,32 +527,37 @@ static void gargThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         }
         else
         {
-            aiNewState(pSprite, pXSprite, &gargoyleFly);
+            aiNewState(actor, &gargoyleFly);
             return;
         }
     }
 
-    aiNewState(pSprite, pXSprite, &gargoyleFGoto);
+    aiNewState(actor, &gargoyleFGoto);
     pXSprite->target = -1;
 }
 
-static void entryFStatue(spritetype *pSprite, XSPRITE *pXSprite)
+static void entryFStatue(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     DUDEINFO *pDudeInfo = &dudeInfo[6];
     actHealDude(pXSprite, pDudeInfo->startHealth, pDudeInfo->startHealth);
     pSprite->type = kDudeGargoyleFlesh;
 }
 
-static void entrySStatue(spritetype *pSprite, XSPRITE *pXSprite)
+static void entrySStatue(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     DUDEINFO *pDudeInfo = &dudeInfo[7];
     actHealDude(pXSprite, pDudeInfo->startHealth, pDudeInfo->startHealth);
     pSprite->type = kDudeGargoyleStone;
 }
 
-static void gargMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveForward(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -588,21 +579,22 @@ static void gargMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     if (pXSprite->target == -1)
         t1 += nAccel;
     else
         t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void gargMoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveSlow(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -625,27 +617,28 @@ static void gargMoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 = nAccel>>1;
     t2 >>= 1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
     switch (pSprite->type) { 
         case kDudeGargoyleFlesh:
-            zvel[nSprite] = 0x44444;
+            actor->zvel() = 0x44444;
             break;
         case kDudeGargoyleStone:
-            zvel[nSprite] = 0x35555;
+            actor->zvel() = 0x35555;
             break;
     }
 }
 
-static void gargMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveSwoop(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -668,26 +661,27 @@ static void gargMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
     switch (pSprite->type) {
         case kDudeGargoyleFlesh:
-            zvel[nSprite] = t1;
+            actor->zvel() = t1;
             break;
         case kDudeGargoyleStone:
-            zvel[nSprite] = t1;
+            actor->zvel() = t1;
             break;
     }
 }
 
-static void gargMoveFly(spritetype *pSprite, XSPRITE *pXSprite)
+static void gargMoveFly(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -710,22 +704,22 @@ static void gargMoveFly(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
     switch (pSprite->type) {
         case kDudeGargoyleFlesh:
-            zvel[nSprite] = -t1;
+            actor->zvel() = -t1;
             break;
         case kDudeGargoyleStone:
-            zvel[nSprite] = -t1;
+            actor->zvel() = -t1;
             break;
     }
-    klabs(zvel[nSprite]);
+    klabs(actor->zvel());
 }
 
 END_BLD_NS

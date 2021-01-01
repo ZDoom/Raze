@@ -19,7 +19,7 @@ EXTERN_CVAR(Bool, cl_interpolate)
 EXTERN_CVAR(Bool, cl_slopetilting)
 EXTERN_CVAR(Int, cl_showweapon)
 EXTERN_CVAR(Int, cl_weaponswitch)
-EXTERN_CVAR(Int, cl_crosshairscale)
+EXTERN_CVAR(Float, crosshairscale)
 EXTERN_CVAR(Bool, cl_sointerpolation)
 EXTERN_CVAR(Bool, cl_syncinput)
 EXTERN_CVAR(Bool, cl_swaltnukeinit)
@@ -100,6 +100,18 @@ EXTERN_CVAR(Int, m_coop)
 EXTERN_CVAR(Int, m_ffire)
 EXTERN_CVAR(Int, m_noexits)
 EXTERN_CVAR(Int, playercolor)
+
+inline const char* PlayerName(int pindex)
+{
+	// Todo: proper implementation of user CVARs.
+	return playername;
+}
+
+inline bool Autoaim(int player)
+{
+	// Todo: proper implementation of user CVARs.
+	return cl_autoaim;
+}
 
 extern bool gNoAutoLoad;
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.

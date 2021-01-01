@@ -40,17 +40,27 @@ int getincangle(int a, int na)
 	a &= 2047;
 	na &= 2047;
 
-	if(abs(a-na) < 1024)
-		return (na-a);
-	else
+	if(abs(a-na) >= 1024)
 	{
 		if(na > 1024) na -= 2048;
 		if(a > 1024) a -= 2048;
-
-		na -= 2048;
-		a -= 2048;
-		return (na-a);
 	}
+
+	return na-a;
+}
+
+double getincanglef(double a, double na)
+{
+	a = fmod(a, 2048.);
+	na = fmod(na, 2048.);
+
+	if(fabs(a-na) >= 1024)
+	{
+		if(na > 1024) na -= 2048;
+		if(a > 1024) a -= 2048;
+	}
+
+	return na-a;
 }
 
 fixed_t getincangleq16(fixed_t a, fixed_t na)
@@ -58,17 +68,27 @@ fixed_t getincangleq16(fixed_t a, fixed_t na)
 	a &= 0x7FFFFFF;
 	na &= 0x7FFFFFF;
 
-	if(abs(a-na) < IntToFixed(1024))
-		return (na-a);
-	else
+	if(abs(a-na) >= IntToFixed(1024))
 	{
 		if(na > IntToFixed(1024)) na -= IntToFixed(2048);
 		if(a > IntToFixed(1024)) a -= IntToFixed(2048);
-
-		na -= IntToFixed(2048);
-		a -= IntToFixed(2048);
-		return (na-a);
 	}
+
+	return na-a;
+}
+
+lookangle getincanglebam(binangle a, binangle na)
+{
+	int64_t cura = a.asbam() & 0xFFFFFFFF;
+	int64_t newa = na.asbam() & 0xFFFFFFFF;
+
+	if(abs(cura-newa) >= BAngToBAM(1024))
+	{
+		if(newa > BAngToBAM(1024)) newa -= BAngToBAM(2048);
+		if(cura > BAngToBAM(1024)) cura -= BAngToBAM(2048);
+	}
+
+	return bamlook(newa-cura);
 }
 
 //---------------------------------------------------------------------------
@@ -269,27 +289,24 @@ void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double 
 			pitch += scaleAdjust * amount;
 	}
 
-	// clamp pitch after processing
-	pitch = clamp(pitch, -90, 90);
+	// clamp before converting back to horizon
+	*horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
 
 	// return to center if conditions met.
 	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 	{
-		if (abs(pitch) > 0.1375)
+		if (abs(horiz->asq16()) > FloatToFixed(0.25))
 		{
-			// move pitch back to 0
-			pitch += -scaleAdjust * pitch * (9. / GameTicRate);
+			// move horiz back to 0
+			*horiz -= q16horiz(xs_CRoundToInt(scaleAdjust * horiz->asq16() * (10. / GameTicRate)));
 		}
 		else
 		{
-			// not looking anymore because pitch is back at 0
-			pitch = 0;
+			// not looking anymore because horiz is back at 0
+			*horiz = q16horiz(0);
 			*actions &= ~SB_CENTERVIEW;
 		}
 	}
-
-	// clamp before returning
-	*horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
 }
 
 //---------------------------------------------------------------------------

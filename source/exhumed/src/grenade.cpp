@@ -26,11 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-int nGrenadeCount = 0;
-int nGrenadesFree;
-
-short GrenadeFree[kMaxGrenades];
-
 struct Grenade
 {
     short field_0;
@@ -46,30 +41,48 @@ struct Grenade
     int y;
 };
 
-Grenade GrenadeList[kMaxGrenades];
+FreeListArray<Grenade, kMaxGrenades> GrenadeList;
 
-static SavegameHelper sghgrenade("grenade",
-    SV(nGrenadeCount),
-    SV(nGrenadesFree),
-    SA(GrenadeFree),
-    SA(GrenadeList),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Grenade& w, Grenade* def)
+{
+    static Grenade nul;
+    if (!def)
+    {
+        def = &nul;
+        if (arc.isReading()) w = {};
+    }
+    if (arc.BeginObject(keyname))
+    {
+        arc("sprite", w.nSprite, def->nSprite)
+            ("at0", w.field_0, def->field_0)
+            ("at2", w.field_2, def->field_2)
+            ("at6", w.field_6, def->field_6)
+            ("at8", w.field_8, def->field_8)
+            ("ata", w.field_A, def->field_A)
+            ("atc", w.field_C, def->field_C)
+            ("ate", w.field_E, def->field_E)
+            ("at10", w.field_10, def->field_10)
+            ("x", w.x, def->x)
+            ("y", w.y, def->y)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializeGrenade(FSerializer& arc)
+{
+    arc("grenades", GrenadeList);
+}
 
 
 void InitGrenades()
 {
-    nGrenadeCount = 0;
-
-    for (int i = 0; i < kMaxGrenades; i++) {
-        GrenadeFree[i] = i;
-    }
-
-    nGrenadesFree = kMaxGrenades;
+    GrenadeList.Clear();
 }
 
 short GrabGrenade()
 {
-    return GrenadeFree[--nGrenadesFree];
+    return GrenadeList.Get();
 }
 
 void DestroyGrenade(short nGrenade)
@@ -79,17 +92,15 @@ void DestroyGrenade(short nGrenade)
     runlist_DoSubRunRec(sprite[GrenadeList[nGrenade].nSprite].lotag - 1);
 
     mydeletesprite(GrenadeList[nGrenade].nSprite);
-    GrenadeFree[nGrenadesFree] = nGrenade;
-
-    nGrenadesFree++;
+    GrenadeList.Release(nGrenade);
 }
 
 void BounceGrenade(short nGrenade, short nAngle)
 {
     GrenadeList[nGrenade].field_10 >>= 1;
 
-    GrenadeList[nGrenade].x = (Cos(nAngle) >> 5) * GrenadeList[nGrenade].field_10;
-    GrenadeList[nGrenade].y = (Sin(nAngle) >> 5) * GrenadeList[nGrenade].field_10;
+    GrenadeList[nGrenade].x = bcos(nAngle, -5) * GrenadeList[nGrenade].field_10;
+    GrenadeList[nGrenade].y = bsin(nAngle, -5) * GrenadeList[nGrenade].field_10;
 
     D3PlayFX(StaticSound[kSound3], GrenadeList[nGrenade].nSprite);
 }
@@ -126,7 +137,7 @@ int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
         GrenadeList[nGrenade].field_10 = ((90 - GrenadeList[nGrenade].field_E) * (90 - GrenadeList[nGrenade].field_E)) + nVel;
         sprite[nGrenadeSprite].zvel = (-64 * push1) - 4352;
 
-        int nMov = movesprite(nGrenadeSprite, Cos(nAngle) * (sprite[nPlayerSprite].clipdist << 3), Sin(nAngle) * (sprite[nPlayerSprite].clipdist << 3), ecx, 0, 0, CLIPMASK1);
+        int nMov = movesprite(nGrenadeSprite, bcos(nAngle) * (sprite[nPlayerSprite].clipdist << 3), bsin(nAngle) * (sprite[nPlayerSprite].clipdist << 3), ecx, 0, 0, CLIPMASK1);
         if (nMov & 0x8000)
         {
             nAngle = GetWallNormal(nMov & 0x3FFF);
@@ -139,11 +150,8 @@ int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
         sprite[nGrenadeSprite].zvel = sprite[nPlayerSprite].zvel;
     }
 
-    GrenadeList[nGrenade].x = Cos(nAngle) >> 4;
-    GrenadeList[nGrenade].x *= GrenadeList[nGrenade].field_10;
-
-    GrenadeList[nGrenade].y = Sin(nAngle) >> 4;
-    GrenadeList[nGrenade].y *= GrenadeList[nGrenade].field_10;
+    GrenadeList[nGrenade].x = bcos(nAngle, -4) * GrenadeList[nGrenade].field_10;
+    GrenadeList[nGrenade].y = bsin(nAngle, -4) * GrenadeList[nGrenade].field_10;
 
     nPlayerGrenade[nPlayer] = -1;
 
@@ -152,10 +160,8 @@ int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
 
 int BuildGrenade(int nPlayer)
 {
-    if (nGrenadesFree == 0)
-        return -1;
-
     int nGrenade = GrabGrenade();
+    if (nGrenade < 0) return -1;
 
     int nSprite = insertsprite(nPlayerViewSect[nPlayer], 201);
     assert(nSprite >= 0 && nSprite < kMaxSprites);
@@ -240,8 +246,8 @@ void ExplodeGrenade(short nGrenade)
         short nAngle = sprite[nPlayerSprite].ang;
 
         sprite[nGrenadeSprite].z = sprite[nPlayerSprite].z;
-        sprite[nGrenadeSprite].x = (Cos(nAngle) >> 5) + sprite[nPlayerSprite].x;
-        sprite[nGrenadeSprite].y = (Sin(nAngle) >> 5) + sprite[nPlayerSprite].y;
+        sprite[nGrenadeSprite].x = bcos(nAngle, -5) + sprite[nPlayerSprite].x;
+        sprite[nGrenadeSprite].y = bsin(nAngle, -5) + sprite[nPlayerSprite].y;
 
         changespritesect(nGrenadeSprite, sprite[nPlayerSprite].sectnum);
 

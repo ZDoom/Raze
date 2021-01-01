@@ -24,19 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "build.h"
-#include "common_game.h"
-
-#include "actor.h"
 #include "blood.h"
-#include "callback.h"
-#include "globals.h"
-#include "db.h"
-#include "eventq.h"
-#include "fx.h"
-#include "gameutil.h"
-#include "levels.h"
-#include "seq.h"
-#include "view.h"
 
 BEGIN_BLD_NS
 
@@ -118,7 +106,7 @@ FXDATA gFXData[] = {
     { kCallbackNone, 1, 70, 1, -13981, 5120, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-void CFX::sub_73FB0(int nSprite)
+void CFX::destroy(int nSprite)
 {
     if (nSprite < 0 || nSprite >= kMaxSprites)
         return;
@@ -128,7 +116,7 @@ void CFX::sub_73FB0(int nSprite)
     DeleteSprite(nSprite);
 }
 
-void CFX::sub_73FFC(int nSprite)
+void CFX::remove(int nSprite)
 {
     if (nSprite < 0 || nSprite >= kMaxSprites)
         return;
@@ -174,7 +162,7 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
             nSprite = it.NextIndex();
         if (nSprite == -1)
             return NULL;
-        sub_73FB0(nSprite);
+        destroy(nSprite);
     }
     spritetype *pSprite = actSpawnSprite(nSector, x, y, z, 1, 0);
     pSprite->type = nFx;
@@ -228,14 +216,14 @@ void CFX::fxProcess(void)
             updatesector(pSprite->x, pSprite->y, &nSector);
             if (nSector == -1)
             {
-                sub_73FFC(nSprite);
+                remove(nSprite);
                 continue;
             }
             if (getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y) <= pSprite->z)
             {
                 if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
                 {
-                    sub_73FFC(nSprite);
+                    remove(nSprite);
                     continue;
                 }
                 assert(gCallback[pFXData->funcID] != NULL);
@@ -254,14 +242,14 @@ void CFX::fxProcess(void)
             getzsofslope(nSector, pSprite->x, pSprite->y, &ceilZ, &floorZ);
             if (ceilZ > pSprite->z && !(sector[nSector].ceilingstat&1))
             {
-                sub_73FFC(nSprite);
+                remove(nSprite);
                 continue;
             }
             if (floorZ < pSprite->z)
             {
                 if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
                 {
-                    sub_73FFC(nSprite);
+                    remove(nSprite);
                     continue;
                 }
                 assert(gCallback[pFXData->funcID] != NULL);

@@ -31,13 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "v_font.h"
 
-#include "endgame.h"
-#include "aistate.h"
-#include "loadsave.h"
-#include "sectorfx.h"
-#include "choke.h"
-#include "view.h"
-#include "nnexts.h"
+#include "blood.h"
 #include "zstring.h"
 #include "razemenu.h"
 #include "gstrings.h"
@@ -48,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statusbar.h"
 #include "automap.h"
 #include "v_draw.h"
+#include "gamecvars.h"
 
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE/*|CVAR_FRONTEND_BLOOD*/, "enable/disable displaying the remaining seconds for power-ups")
 
@@ -200,8 +195,9 @@ private:
 
     void TileHGauge(int nTile, double x, double y, int nMult, int nDiv, int nStat = 0, int nScale = 65536)
     {
-        int bx = scale(mulscale16(tilesiz[nTile].x, nScale), nMult, nDiv) + x;
-        double scale = double(bx - x) / tileWidth(nTile);
+        int w = tileWidth(nTile);
+        int bx = scale(mulscale16(w, nScale), nMult, nDiv) + x;
+        double scale = double(bx - x) / w;
         double sc = nScale / 65536.;
         DrawGraphic(tileGetTexture(nTile, true), x, y, DI_ITEM_LEFT_TOP, 1., -1, -1, scale*sc, sc, 0xffffffff, 0, 0);
     }
@@ -251,8 +247,9 @@ private:
             stats.kills = gKillMgr.Kills;
             stats.maxkills = gKillMgr.TotalKills;
             stats.frags = gGameOptions.nGameType == 3? pPlayer->fragCount : -1;
-            stats.secrets = gSecretMgr.Founds + gSecretMgr.Super;
-            stats.maxsecrets = gSecretMgr.Total;
+            stats.secrets = gSecretMgr.Founds;
+            stats.supersecrets = gSecretMgr.Super;
+            stats.maxsecrets = max(gSecretMgr.Founds, gSecretMgr.Total); // If we found more than there are, increase the total. Some levels have a bugged counter.
 
             DBaseStatusBar::PrintLevelStats(stats);
         }
@@ -261,14 +258,15 @@ private:
 
     //---------------------------------------------------------------------------
     //
-    // ok
+    // 
     //
     //---------------------------------------------------------------------------
+    enum { nPowerUps = 11 };
 
     void sortPowerUps(POWERUPDISPLAY* powerups) {
-        for (int i = 1; i < 5; i++)
+        for (int i = 1; i < nPowerUps; i++)
         {
-            for (int j = 0; j < 5 - i; j++)
+            for (int j = 0; j < nPowerUps - i; j++)
             {
                 if (powerups[j].remainingDuration > powerups[j + 1].remainingDuration)
                 {
@@ -291,28 +289,27 @@ private:
         if (!hud_powerupduration)
             return;
 
-        // NoOne to author: the following powerups can be safely added in this list:
-        // kPwUpFeatherFall -   (used in some user addons, makes player immune to fall damage)
-        // kPwUpGasMask -       (used in some user addons, makes player immune to choke damage)
-        // kPwUpDoppleganger -  (works in multiplayer, it swaps player's team colors, so enemy team player thinks it's a team mate)
-        // kPwUpAsbestArmor -   (used in some user addons, makes player immune to fire damage and draws hud)
-        // kPwUpGrowShroom -    (grows player size, works only if gModernMap == true)
-        // kPwUpShrinkShroom -  (shrinks player size, works only if gModernMap == true)
+        POWERUPDISPLAY powerups[nPowerUps];
+        powerups[0] = { gPowerUpInfo[kPwUpShadowCloak].picnum,  0.4f, 0, pPlayer->pwUpTime[kPwUpShadowCloak] }; // Invisibility
+        powerups[1] = { gPowerUpInfo[kPwUpReflectShots].picnum, 0.4f, 5, pPlayer->pwUpTime[kPwUpReflectShots] }; // Reflects enemy shots
+        powerups[2] = { gPowerUpInfo[kPwUpDeathMask].picnum, 0.3f, 9, pPlayer->pwUpTime[kPwUpDeathMask] }; // Invulnerability
+        powerups[3] = { gPowerUpInfo[kPwUpTwoGuns].picnum, 0.3f, 5, pPlayer->pwUpTime[kPwUpTwoGuns] }; // Guns Akimbo
+        powerups[4] = { gPowerUpInfo[kPwUpShadowCloakUseless].picnum, 0.4f, 9, pPlayer->pwUpTime[kPwUpShadowCloakUseless] }; // Does nothing, only appears at near the end of Cryptic Passage's Lost Monastery (CP04)
 
-        POWERUPDISPLAY powerups[5];
-        powerups[0] = { gPowerUpInfo[kPwUpShadowCloak].picnum,  0.4f, 0, pPlayer->pwUpTime[kPwUpShadowCloak] }; // invisibility
-        powerups[1] = { gPowerUpInfo[kPwUpReflectShots].picnum, 0.4f, 5, pPlayer->pwUpTime[kPwUpReflectShots] };
-        powerups[2] = { gPowerUpInfo[kPwUpDeathMask].picnum, 0.3f, 9, pPlayer->pwUpTime[kPwUpDeathMask] }; // invulnerability
-        powerups[3] = { gPowerUpInfo[kPwUpTwoGuns].picnum, 0.3f, 5, pPlayer->pwUpTime[kPwUpTwoGuns] };
-        // does nothing, only appears at near the end of Cryptic Passage's Lost Monastery (CP04)
-        powerups[4] = { gPowerUpInfo[kPwUpShadowCloakUseless].picnum, 0.4f, 9, pPlayer->pwUpTime[kPwUpShadowCloakUseless] };
+        // Not in official maps, but custom maps can use them
+        powerups[5] = { gPowerUpInfo[kPwUpFeatherFall].picnum, 0.3f, 7, pPlayer->pwUpTime[kPwUpFeatherFall] }; // Makes player immune to fall damage
+        powerups[6] = { gPowerUpInfo[kPwUpGasMask].picnum, 0.4f, 4, pPlayer->pwUpTime[kPwUpGasMask] }; // Makes player immune to choke damage
+        powerups[7] = { gPowerUpInfo[kPwUpDoppleganger].picnum, 0.5f, 5, pPlayer->pwUpTime[kPwUpDoppleganger] }; // Works in multiplayer, it swaps player's team colors, so enemy team player thinks it's a team mate
+        powerups[8] = { gPowerUpInfo[kPwUpAsbestArmor].picnum, 0.3f, 9, pPlayer->pwUpTime[kPwUpAsbestArmor] }; // Makes player immune to fire damage and draws HUD
+        powerups[9] = { gPowerUpInfo[kPwUpGrowShroom].picnum, 0.4f, 4, pPlayer->pwUpTime[kPwUpGrowShroom] }; // Grows player size, works only if gModernMap == true
+        powerups[10] = { gPowerUpInfo[kPwUpShrinkShroom].picnum, 0.4f, 4, pPlayer->pwUpTime[kPwUpShrinkShroom] }; // Shrinks player size, works only if gModernMap == true
 
         sortPowerUps(powerups);
 
         const int warningTime = 5;
         const int x = 15;
         int y = -50;
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < nPowerUps; i++)
         {
             if (powerups[i].remainingDuration)
             {
@@ -346,7 +343,7 @@ private:
                 if (pPlayer->packSlots[i].curAmount)
                 {
                     packs[nPacks++] = i;
-                    width += tilesiz[gPackIcons[i]].x + 1;
+                    width += tileWidth(gPackIcons[i]) + 1;
                 }
             }
             width /= 2;
@@ -365,7 +362,7 @@ private:
                 else
                     nShade = 24;
                 DrawStatNumber("%3d", pPlayer->packSlots[nPack].curAmount, 2250, x - 4, y - 13, nShade, 0);
-                x += tilesiz[gPackIcons[nPack]].x + 1;
+                x += tileWidth(gPackIcons[nPack]) + 1;
             }
         }
     }
@@ -426,12 +423,8 @@ private:
             int x = -160 + 80 * (i & 3);
             int y = 9 * (i / 4);
             int col = gPlayer[p].teamId & 3;
-            char* name = gProfile[p].name;
-            if (gProfile[p].skill == 2)
-                gTempStr.Format("%s", name);
-            else
-                gTempStr.Format("%s [%d]", name, gProfile[p].skill);
-            
+            const char* name = PlayerName(p);
+            gTempStr.Format("%s", name);
             int color = CR_UNDEFINED;// todo: remap the colors. (11+col)
             SBar_DrawString(this, tinyf, gTempStr, x + 4, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
             gTempStr.Format("%2d", gPlayer[p].fragCount);
@@ -454,11 +447,8 @@ private:
             int x = -160 + 80 * (i & 3);
             int y = 9 * (i / 4);
             int col = gPlayer[p].teamId & 3;
-            char* name = gProfile[p].name;
-            if (gProfile[p].skill == 2)
-                gTempStr.Format("%s", name);
-            else
-                gTempStr.Format("%s [%d]", name, gProfile[p].skill);
+            const char* name = PlayerName(p);
+            gTempStr.Format("%s", name);
             gTempStr.ToUpper();
             int color = CR_UNDEFINED;// todo: remap the colors.
             SBar_DrawString(this, tinyf, gTempStr, x + 4, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
@@ -487,17 +477,17 @@ private:
     {
         FString gTempStr;
         int x = 1, y = 1;
-        if (dword_21EFD0[0] == 0 || (gFrameClock & 8))
+        if (team_ticker[0] == 0 || (gFrameClock & 8))
         {
             SBar_DrawString(this, smallf, GStrings("TXT_COLOR_BLUE"), x, y, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
-            gTempStr.Format("%-3d", dword_21EFB0[0]);
+            gTempStr.Format("%-3d", team_score[0]);
             SBar_DrawString(this, smallf, gTempStr, x, y + 10, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
         }
         x = -2;
-        if (dword_21EFD0[1] == 0 || (gFrameClock & 8))
+        if (team_ticker[1] == 0 || (gFrameClock & 8))
         {
             SBar_DrawString(this, smallf, GStrings("TXT_COLOR_RED"), x, y, DI_TEXT_ALIGN_RIGHT, CR_BRICK, 1., -1, -1, 1, 1);
-            gTempStr.Format("%3d", dword_21EFB0[1]);
+            gTempStr.Format("%3d", team_score[1]);
             SBar_DrawString(this, smallf, gTempStr, x, y + 10, DI_TEXT_ALIGN_RIGHT, CR_BRICK, 1., -1, -1, 1, 1);
         }
     }
@@ -512,10 +502,10 @@ private:
     {
         assert(0 == team || 1 == team); // 0: blue, 1: red
 
-        if (dword_21EFD0[team] == 0 || (gFrameClock & 8))
+        if (team_ticker[team] == 0 || (gFrameClock & 8))
         {
              if (show)
-                DrawStatNumber("%d", dword_21EFB0[team], kSBarNumberInv, -30, team ? 25 : -10, 0, team ? 2 : 10, 512, 65536 * 0.75, DI_SCREEN_RIGHT_CENTER);
+                DrawStatNumber("%d", team_score[team], kSBarNumberInv, -30, team ? 25 : -10, 0, team ? 2 : 10, 512, 65536 * 0.75, DI_SCREEN_RIGHT_CENTER);
         }
     }
 
@@ -577,7 +567,7 @@ private:
 
     void DrawStatusBar(int nPalette)
     {
-        BeginStatusBar(320, 200, tilesiz[2200].y);
+        BeginStatusBar(320, 200, tileHeight(2200));
 
         PLAYER* pPlayer = gView;
         XSPRITE* pXSprite = pPlayer->pXSprite;
@@ -640,7 +630,7 @@ private:
         {
             TileHGauge(2260, 124, 175.5, pPlayer->throwPower, 65536);
         }
-        drawInventory(pPlayer, 166, 200 - tilesiz[2200].y);
+        drawInventory(pPlayer, 166, 200 - tileHeight(2200));
         // Depending on the scale we can lower the stats display. This needs some tweaking but this catches the important default case already.
         PrintLevelStats(pPlayer, (hud_statscale <= 0.501f || hud_scalefactor < 0.7) && double(xdim)/ydim > 1.6? 28 : 56);
 
@@ -775,7 +765,7 @@ private:
         if (pPlayer->throwPower)
             TileHGauge(2260, 124, 175, pPlayer->throwPower, 65536);
         else
-            drawInventory(pPlayer, 166, 200-tilesiz[2201].y / 2 - 30);
+            drawInventory(pPlayer, 166, 200-tileHeight(2201) / 2 - 30);
         PrintLevelStats(pPlayer, 28);
     }
 
@@ -809,8 +799,8 @@ private:
             BeginStatusBar(320, 200, 28);
             if (pPlayer->throwPower)
                 TileHGauge(2260, 124, 175, pPlayer->throwPower, 65536);
-            else
-                drawInventory(pPlayer, 166, 200 - tilesiz[2201].y / 2);
+            else if (hud_size > Hud_StbarOverlay)
+                drawInventory(pPlayer, 166, 200 - tileHeight(2201) / 2);
         }
         if (hud_size == Hud_Mini)
         {

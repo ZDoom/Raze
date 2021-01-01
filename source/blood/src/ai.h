@@ -35,9 +35,9 @@ struct AISTATE {
     int seqId;
     int funcId; // seq callback
     int stateTicks;
-    void(*enterFunc)(spritetype *, XSPRITE *);
-    void(*moveFunc)(spritetype *, XSPRITE *);
-    void(*thinkFunc)(spritetype *, XSPRITE *);
+    void(*enterFunc)(DBloodActor *);
+    void(*moveFunc)(DBloodActor *);
+    void(*thinkFunc)(DBloodActor *);
     AISTATE *nextState;
 };
 extern AISTATE aiState[];
@@ -53,22 +53,23 @@ enum AI_SFX_PRIORITY {
 
 struct DUDEEXTRA_at6_u1
 {
-    int TotalKills;
-    int Kills;
-    char at8;
+    int xval1;
+    int xval2;
+    char xval3;
 };
 
 struct DUDEEXTRA_at6_u2
 {
-    int TotalKills;
-    char Kills;
+    int xval1;
+    char xval2;
 };
 
 struct DUDEEXTRA
 {
-    int TotalKills;
-    char Kills;
-    AI_SFX_PRIORITY at5;
+    int time;
+    int recoil;
+    int prio;
+    // Broken by design... :?
     union
     {
         DUDEEXTRA_at6_u1 u1;
@@ -88,24 +89,22 @@ struct TARGETTRACK {
 extern const int dword_138BB0[5];
 extern DUDEEXTRA gDudeExtra[];
 extern int gDudeSlope[];
-extern int cumulDamage[];
 
-bool sub_5BDA8(spritetype *pSprite, int nSeq);
+bool dudeIsPlayingSeq(spritetype *pSprite, int nSeq);
 void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
-void aiNewState(spritetype *pSprite, XSPRITE *pXSprite, AISTATE *pAIState);
+void aiNewState(DBloodActor* actor, AISTATE *pAIState);
 void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3);
-void aiMoveForward(spritetype *pSprite, XSPRITE *pXSprite);
-void aiMoveTurn(spritetype *pSprite, XSPRITE *pXSprite);
-void aiMoveDodge(spritetype *pSprite, XSPRITE *pXSprite);
-void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite);
+void aiMoveForward(DBloodActor*pXSprite);
+void aiMoveTurn(DBloodActor*pXSprite);
+void aiMoveDodge(DBloodActor *actor);
+void aiActivateDude(DBloodActor *actor);
 void aiSetTarget(XSPRITE *pXSprite, int x, int y, int z);
 void aiSetTarget(XSPRITE *pXSprite, int nTarget);
 int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_TYPE nDmgType, int nDamage);
-void aiThinkTarget(spritetype *pSprite, XSPRITE *pXSprite);
+void aiThinkTarget(DBloodActor* actor);
 void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite);
 void aiProcessDudes(void);
 void aiInit(void);
 void aiInitSprite(spritetype *pSprite);
 bool CanMove(spritetype* pSprite, int a2, int nAngle, int nRange);
-void RecoilDude(spritetype* pSprite, XSPRITE* pXSprite);
 END_BLD_NS

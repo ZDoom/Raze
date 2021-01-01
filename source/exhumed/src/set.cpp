@@ -24,10 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum { kMaxSets = 10};
-
-short SetCount = 0;
-
 static actionSeq SetSeq[] = {
     {0, 0},
     {77, 1},
@@ -50,36 +46,49 @@ struct Set
     short nAction;
     short nSprite;
     short nTarget;
-    short field_A;
-    short field_C;
-    short field_D;
-    short field_E;
+    short nCount;
+    short nIndex;
+    short nIndex2;
+    short nRun;
+    short nChannel;
 };
 
-Set SetList[kMaxSets];
-short SetChan[kMaxSets];
+TArray<Set> SetList;
 
-static SavegameHelper sghset("set",
-    SV(SetCount),
-    SA(SetList),
-    SA(SetChan),
-    nullptr);
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Set& w, Set* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("count", w.nCount)
+            ("index", w.nIndex)
+            ("index2", w.nIndex2)
+            ("run", w.nRun)
+            ("channel", w.nChannel)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializeSet(FSerializer& arc)
+{
+    arc("set", SetList);
+}
 
 
 void InitSets()
 {
-    SetCount = kMaxSets;
+    SetList.Clear();
 }
 
 int BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
 {
-    SetCount--;
-
-    short nSet = SetCount;
-    if (nSet < 0) {
-        return -1;
-    }
-
+    auto nSet = SetList.Reserve(1);
     if (nSprite == -1)
     {
         nSprite = insertsprite(nSector, 120);
@@ -122,11 +131,11 @@ int BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, in
     SetList[nSet].nSprite = nSprite;
     SetList[nSet].nFrame  = 0;
     SetList[nSet].nTarget = -1;
-    SetList[nSet].field_A = 90;
-    SetList[nSet].field_C = 0;
-    SetList[nSet].field_D = 0;
+    SetList[nSet].nCount = 90;
+    SetList[nSet].nIndex = 0;
+    SetList[nSet].nIndex2 = 0;
 
-    SetChan[nSet] = nChannel;
+    SetList[nSet].nChannel = nChannel;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nSet | 0x190000);
 
@@ -196,9 +205,9 @@ void FuncSoul(int a, int, int nRun)
             sprite[nSprite].extra += (nSprite & 0x0F) + 5;
             sprite[nSprite].extra &= kAngleMask;
 
-            int nVel = (Cos(sprite[nSprite].extra) >> 7);
+            int nVel = bcos(sprite[nSprite].extra, -7);
 
-            if (movesprite(nSprite, Cos(sprite[nSprite].ang) * nVel, Sin(sprite[nSprite].ang) * nVel, sprite[nSprite].zvel, 5120, 0, CLIPMASK0) & 0x10000)
+            if (movesprite(nSprite, bcos(sprite[nSprite].ang) * nVel, bsin(sprite[nSprite].ang) * nVel, sprite[nSprite].zvel, 5120, 0, CLIPMASK0) & 0x10000)
             {
                 int nSet = sprite[nSprite].hitag;
                 int nSetSprite = SetList[nSet].nSprite;
@@ -227,7 +236,7 @@ void FuncSoul(int a, int, int nRun)
 void FuncSet(int a, int nDamage, int nRun)
 {
     short nSet = RunData[nRun].nVal;
-    assert(nSet >= 0 && nSet < kMaxSets);
+    assert(nSet >= 0 && nSet < (int)SetList.Size());
 
     short nSprite = SetList[nSet].nSprite;
     short nAction = SetList[nSet].nAction;
@@ -305,7 +314,7 @@ void FuncSet(int a, int nDamage, int nRun)
 
             if (nAction == 3)
             {
-                if (SetList[nSet].field_D) {
+                if (SetList[nSet].nIndex2) {
                     SetList[nSet].nFrame++;
                 }
             }
@@ -363,8 +372,8 @@ void FuncSet(int a, int nDamage, int nRun)
                             SetList[nSet].nFrame  = 0;
                             SetList[nSet].nTarget = nTarget;
 
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
                         }
                     }
 
@@ -375,8 +384,8 @@ void FuncSet(int a, int nDamage, int nRun)
                 {
                     if (FindPlayer(nSprite, 1000) >= 0)
                     {
-                        SetList[nSet].field_A--;
-                        if (SetList[nSet].field_A <= 0)
+                        SetList[nSet].nCount--;
+                        if (SetList[nSet].nCount <= 0)
                         {
                             SetList[nSet].nAction = 2;
                             SetList[nSet].nFrame  = 0;
@@ -391,7 +400,7 @@ void FuncSet(int a, int nDamage, int nRun)
                     if (bVal)
                     {
                         SetList[nSet].nAction = 7;
-                        SetList[nSet].field_C = 0;
+                        SetList[nSet].nIndex = 0;
                         SetList[nSet].nFrame  = 0;
 
                         sprite[nSprite].xvel = 0;
@@ -422,7 +431,7 @@ void FuncSet(int a, int nDamage, int nRun)
                                 case 0:
                                 case 2:
                                 {
-                                    SetList[nSet].field_C = 0;
+                                    SetList[nSet].nIndex = 0;
                                     SetList[nSet].nAction = 7;
                                     SetList[nSet].nFrame  = 0;
                                     sprite[nSprite].xvel = 0;
@@ -435,7 +444,7 @@ void FuncSet(int a, int nDamage, int nRun)
 
                                     SetList[nSet].nAction = 6;
                                     SetList[nSet].nFrame  = 0;
-                                    SetList[nSet].field_E = 5;
+                                    SetList[nSet].nRun = 5;
                                     sprite[nSprite].xvel = 0;
                                     sprite[nSprite].yvel = 0;
                                     return;
@@ -444,11 +453,11 @@ void FuncSet(int a, int nDamage, int nRun)
                                 {
                                     if (nCourse <= 100)
                                     {
-                                        SetList[nSet].field_D = 0;
+                                        SetList[nSet].nIndex2 = 0;
                                     }
                                     else
                                     {
-                                        SetList[nSet].field_D = 1;
+                                        SetList[nSet].nIndex2 = 1;
                                     }
                                     break;
                                 }
@@ -457,10 +466,10 @@ void FuncSet(int a, int nDamage, int nRun)
 
                         // loc_338E2
                         int nAngle = sprite[nSprite].ang & 0xFFF8;
-                        sprite[nSprite].xvel = Cos(nAngle) >> 1;
-                        sprite[nSprite].yvel = Sin(nAngle) >> 1;
+                        sprite[nSprite].xvel = bcos(nAngle, -1);
+                        sprite[nSprite].yvel = bsin(nAngle, -1);
 
-                        if (SetList[nSet].field_D)
+                        if (SetList[nSet].nIndex2)
                         {
                             sprite[nSprite].xvel *= 2;
                             sprite[nSprite].yvel *= 2;
@@ -477,7 +486,7 @@ void FuncSet(int a, int nDamage, int nRun)
                                 {
                                     if (sprite[nSprite].z > sector[nSector].ceilingz)
                                     {
-                                        SetList[nSet].field_C = 1;
+                                        SetList[nSet].nIndex = 1;
                                         SetList[nSet].nAction = 7;
                                         SetList[nSet].nFrame  = 0;
                                         sprite[nSprite].xvel = 0;
@@ -488,8 +497,8 @@ void FuncSet(int a, int nDamage, int nRun)
                             }
 
                             sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
                             break;
                         }
                         else if ((nMov & 0xC000) == 0xC000)
@@ -506,7 +515,7 @@ void FuncSet(int a, int nDamage, int nRun)
                             }
                             else
                             {
-                                SetList[nSet].field_C = 1;
+                                SetList[nSet].nIndex = 1;
                                 SetList[nSet].nAction = 7;
                                 SetList[nSet].nFrame  = 0;
                                 sprite[nSprite].xvel = 0;
@@ -530,7 +539,7 @@ void FuncSet(int a, int nDamage, int nRun)
                     if (nTarget == -1)
                     {
                         SetList[nSet].nAction = 0;
-                        SetList[nSet].field_A = 50;
+                        SetList[nSet].nCount = 50;
                     }
                     else
                     {
@@ -552,7 +561,7 @@ void FuncSet(int a, int nDamage, int nRun)
                     if (bVal)
                     {
                         SetList[nSet].nAction = 0;
-                        SetList[nSet].field_A = 15;
+                        SetList[nSet].nCount = 15;
                     }
                     return;
                 }
@@ -565,8 +574,8 @@ void FuncSet(int a, int nDamage, int nRun)
                         int nBullet = BuildBullet(nSprite, 11, 0, 0, -1, sprite[nSprite].ang, nTarget + 10000, 1);
                         SetBulletEnemy(FixedToInt(nBullet), nTarget); // isolate the bullet number (shift off the sprite index)
 
-                        SetList[nSet].field_E--;
-                        if (SetList[nSet].field_E <= 0 || !RandomBit())
+                        SetList[nSet].nRun--;
+                        if (SetList[nSet].nRun <= 0 || !RandomBit())
                         {
                             SetList[nSet].nAction = 0;
                             SetList[nSet].nFrame  = 0;
@@ -579,7 +588,7 @@ void FuncSet(int a, int nDamage, int nRun)
                 {
                     if (bVal)
                     {
-                        if (SetList[nSet].field_C)
+                        if (SetList[nSet].nIndex)
                         {
                             sprite[nSprite].zvel = -10000;
                         }
@@ -591,8 +600,8 @@ void FuncSet(int a, int nDamage, int nRun)
                         SetList[nSet].nAction = 8;
                         SetList[nSet].nFrame  = 0;
 
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
                     }
                     return;
                 }
@@ -627,7 +636,7 @@ void FuncSet(int a, int nDamage, int nRun)
 
                         SetList[nSet].nAction = 6;
                         SetList[nSet].nFrame  = 0;
-                        SetList[nSet].field_E = 5;
+                        SetList[nSet].nRun = 5;
 
                         sprite[nSprite].xvel = 0;
                         sprite[nSprite].yvel = 0;
@@ -649,7 +658,7 @@ void FuncSet(int a, int nDamage, int nRun)
                         SetList[nSet].nAction = 11;
                         SetList[nSet].nFrame  = 0;
 
-                        runlist_ChangeChannel(SetChan[nSet], 1);
+                        runlist_ChangeChannel(SetList[nSet].nChannel, 1);
 
                         for (int i = 0; i < 20; i++)
                         {
@@ -675,7 +684,7 @@ void FuncSet(int a, int nDamage, int nRun)
                     {
                         SetList[nSet].nAction = 0;
                         SetList[nSet].nFrame  = 0;
-                        SetList[nSet].field_A = 100;
+                        SetList[nSet].nCount = 100;
                         SetList[nSet].nTarget = -1;
                         sprite[nSprite].xvel = 0;
                         sprite[nSprite].yvel = 0;

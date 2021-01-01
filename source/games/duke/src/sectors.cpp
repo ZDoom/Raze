@@ -37,11 +37,14 @@ source as it is released.
 #include "global.h"
 #include "sounds.h"
 #include "dukeactor.h"
+#include "interpolate.h"
 
 using std::min;
 using std::max;
 // PRIMITIVE
 BEGIN_DUKE_NS
+
+static int interptype[] = { Interp_Sect_Floorz, Interp_Sect_Ceilingz, Interp_Wall_X, Interp_Wall_Y };
 
 //---------------------------------------------------------------------------
 //
@@ -318,7 +321,7 @@ void doanimations(void)
 
 		if (a == animategoal[i])
 		{
-			stopinterpolation(animateptr(i));
+			StopInterpolation(animatetarget[i], interptype[animatetype[i]]);
 
 			animatecnt--;
 			animatetype[i] = animatetype[animatecnt];
@@ -419,8 +422,7 @@ int setanimation(short animsect, int animtype, int animtarget, int thegoal, int 
 
 	if (j == animatecnt) animatecnt++;
 
-	setinterpolation(animptr);
-
+	StartInterpolation(animatetarget[i], interptype[animatetype[i]]);
 	return(j);
 }
 
@@ -1255,12 +1257,12 @@ void moveclouds(double smoothratio)
 		cloudclock = myclock + 6;
 
 		// cloudx/y were an array, but all entries were always having the same value so a single pair is enough.
-		cloudx += (sintable[(ps[screenpeek].angle.ang.asbuild() + 512) & 2047] >> 9);
-		cloudy += (sintable[ps[screenpeek].angle.ang.asbuild() & 2047] >> 9);
+		cloudx += ps[screenpeek].angle.ang.fcos() * 0.5f;
+		cloudy += ps[screenpeek].angle.ang.fsin() * 0.5f;
 		for (int i = 0; i < numclouds; i++)
 		{
-			sector[clouds[i]].ceilingxpanning = cloudx >> 6;
-			sector[clouds[i]].ceilingypanning = cloudy >> 6;
+			sector[clouds[i]].setceilingxpan(cloudx);
+			sector[clouds[i]].setceilingypan(cloudy);
 		}
 	}
 }

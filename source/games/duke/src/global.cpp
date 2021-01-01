@@ -33,94 +33,99 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS
 
-user_defs ud;
+//------------------------------------------------------------------------- 
+//
+// variables that need a script export
+//
+//------------------------------------------------------------------------- 
 
-// Variables that do not need to be saved.
-int respawnactortime		= 768;
-int bouncemineblastradius	= 2500;
-int respawnitemtime			= 768;
-int morterblastradius		= 2500;
-int numfreezebounces		= 3;
-int pipebombblastradius		= 2500;
-int dukefriction			= 0xCFD0;
-int rpgblastradius			= 1780;
-int seenineblastradius		= 2048;
-int shrinkerblastradius		= 650;
-int gc						= 176;
-int tripbombblastradius		= 3880;
-int camerashitable;
-int max_player_health;
-int max_armour_amount;
-int lasermode;
+user_defs ud;		// partially serialized
 
-int cameradist = 0, cameraclock = 0;
-int otherp;	
-TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
-ActorInfo actorinfo[MAXTILES];
-int actor_tog;
-int16_t max_ammo_amount[MAX_WEAPONS];
-int16_t weaponsandammosprites[15];
-int PHEIGHT = PHEIGHT_DUKE;
-int duke3d_globalflags;
-int playerswhenstarted;
-int show_shareware;
+// not serialized - read only
+DukeGameInfo gs;
 int screenpeek;
 
-
-
-// Variables that must be saved
-uint8_t sectorextra[MAXSECTORS]; // move these back into the base structs!
-
-int rtsplaying;
-int tempwallptr;
-weaponhit hittype[MAXSPRITES+1];	// +1 to have a blank entry for serialization.
-bool sound445done; // this was local state inside a function, but this must be maintained globally and serialized
-uint16_t frags[MAXPLAYERS][MAXPLAYERS];
+// serialized
 player_struct ps[MAXPLAYERS];
-int spriteqamount = 64;
-uint8_t shadedsector[MAXSECTORS];
-int lastvisinc;
-animwalltype animwall[MAXANIMWALLS];
-int numanimwalls;
-int animatecnt;
-int numclouds;
-DDukeActor* camsprite;
-int numcyclers;
-int earthquaketime;
-int freezerhurtowner;
-int global_random;
-int impact_damage;
-int mirrorcnt;
-int numplayersprites;
-int spriteqloc;
-int thunder_brightness;
 
+//------------------------------------------------------------------------- 
+//
+// variables that only need an export if the entire game logic gets scriptified.
+// Otherwise all code referencing these variables should remain native.
+//
+//------------------------------------------------------------------------- 
+
+int lastvisinc;								// weapon flash
+DDukeActor* camsprite;						// active camera
+int earthquaketime;
+int global_random;							// readonly - one single global per-frame random value. Ugh...
+
+// Redneck Rampage
+int chickenplant;							// readonly - used to trigger some special behavior if a special item is found in a map.
+int thunderon;								// readonly - enables thunder effect in RR if true.
+int ufospawn;								// UFO spawn flag
+int ufocnt;									// UFO spawn count
+int hulkspawn;								// Spawn a hulk?
+int lastlevel;								// Set at the end of RRRA's E2L7.
+short fakebubba_spawn, mamaspawn_count, banjosound; // RRRA special effects
+short BellTime;
+DDukeActor* BellSprite /* word_119BE0*/;
+int WindTime, WindDir;
+uint8_t enemysizecheat /*raat607*/, ufospawnsminion, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
+
+//------------------------------------------------------------------------- 
+//
+// variables that do not need a script export.
+//
+//------------------------------------------------------------------------- 
+
+// not serialized
+int cameradist = 0, cameraclock = 0;		// only for 3rd person view
+int otherp;									// internal helper
+int actor_tog;								// cheat helper
+int playerswhenstarted;						// why is this needed?
+int show_shareware;							// display only.
+int rtsplaying;								// RTS playback state
+int tempwallptr;							// msx/y index.
+int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS];
+bool sound445done;							// used in checksectors_r. This was local state inside a function, but this must be maintained globally and serialized
+
+// serialized
+uint8_t sectorextra[MAXSECTORS];			// something about keys, all access through the haskey function.
+weaponhit hittype[MAXSPRITES + 1];			// +1 to have a blank entry for serialization, all access in game code through the iterators.
+int spriteqamount = 64;						// internal sprite queue
+int spriteqloc;
+DDukeActor* spriteq[1024];
+uint8_t shadedsector[MAXSECTORS];			// display hackiness
+animwalltype animwall[MAXANIMWALLS];		// animated walls
+int numanimwalls;
+int animatecnt;								// sector plane movement
 int16_t animatesect[MAXANIMATES];
 int8_t animatetype[MAXANIMATES];
 int16_t animatetarget[MAXANIMATES];
 int animategoal[MAXANIMATES];
 int animatevel[MAXANIMATES];
-
+int numclouds;								// cloudy skies
 int16_t clouds[256];
-int16_t cloudx;
-int16_t cloudy;
+float cloudx;
+float cloudy;
 int cloudclock;
-
-DDukeActor *spriteq[1024];
+int numcyclers;								// sector lighting effects
 int16_t cyclers[MAXCYCLERS][6];
-int16_t mirrorsector[64];
+int mirrorcnt;
+int16_t mirrorsector[64];					// mirrors
 int16_t mirrorwall[64];
+int numplayersprites;						// player management for some SEs.
+player_orig po[MAXPLAYERS];
+unsigned ambientfx;							// used by soundtag and soundtagonce script commands. If exported, export the commands, not the data!
+short ambientlotag[64];
+short ambienthitag[64];
+uint32_t everyothertime;					// Global animation ticker helper.
 
 // Redneck Rampage
-int wupass;
-int chickenplant;
-int thunderon;
-int ufospawn;
-int ufocnt;
-int hulkspawn;
-int lastlevel;
-
-int geosectorwarp[MAXGEOSECTORS];
+int thunder_brightness;
+int wupass;									// used to play the level entry sound only once.
+int geosectorwarp[MAXGEOSECTORS];			// geometry render hack (overlay a secondary scene)
 int geosectorwarp2[MAXGEOSECTORS];
 int geosector[MAXGEOSECTORS];
 int geox[MAXGEOSECTORS];
@@ -129,16 +134,5 @@ int geox2[MAXGEOSECTORS];
 int geoy2[MAXGEOSECTORS];
 int geocnt;
 
-short ambientlotag[64];
-short ambienthitag[64];
-unsigned ambientfx;
-int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS];
-int WindTime, WindDir;
-short fakebubba_spawn, mamaspawn_count, banjosound;
-short BellTime;
-DDukeActor* BellSprite /* word_119BE0*/;
-uint8_t enemysizecheat /*raat607*/, ufospawnsminion, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
-uint32_t everyothertime;
-player_orig po[MAXPLAYERS];
 
 END_DUKE_NS

@@ -49,6 +49,7 @@
 #include "v_draw.h"
 #include "s_music.h"
 #include "cmdlib.h"
+#include "templates.h"
 
 
 
@@ -90,16 +91,6 @@ static const int16_t delta_table[] = {
 
 // macro to fetch 16-bit little-endian words from a bytestream
 #define LE_16(x)  ((*x) | ((*(x+1)) << 8))
-
-static int ClipRange(int val, int min, int max)
-{
-    if (val < min)
-        return min;
-    else if (val > max)
-        return max;
-    else
-        return val;
-}
 
 static bool StreamCallbackFunc(SoundStream* stream, void* buff, int len, void* userdata)
 {
@@ -380,7 +371,7 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
                 for (; i < (nSamples / 2); i++)
                 {
                     predictor[ch] += delta_table[fr.ReadUInt8()];
-                    predictor[ch] = ClipRange(predictor[ch], -32768, 32768);
+                    predictor[ch] = clamp(predictor[ch], -32768, 32768);
 
                     audio.samples[audio.nWrite++] = predictor[ch];
                     if (audio.nWrite >= countof(audio.samples)) audio.nWrite = 0;

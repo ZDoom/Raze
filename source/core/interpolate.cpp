@@ -1,10 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 1997, 2005 - 3D Realms Entertainment
+Copyright (C) 2020 Christoph Oelckers
 
-This file is part of Shadow Warrior version 1.2
-
-Shadow Warrior is free software; you can redistribute it and/or
+This is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -19,124 +17,182 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-Original Source: 1997 - Frank Maddin and Jim Norwood
-Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------- 
 
-#include "ns.h"
+#include "build.h"
+#include "interpolate.h"
+#include "xs_Float.h"
+#include "serializer.h"
+#include "gamecvars.h"
 
-#include "interp.h"
-#include "m_fixed.h"
 
-#define (MAXINTERPOLATIONS 16384 + 256)
-static int recursions = 0;
-static int numinterpolations = 0;
-
-// Not used yet. The entire interpolation feature as-is is highly serialization unfriendly because it only stores pointers without context, meaning there is no safe way to store them in a savegame without constantly risking breakage.
-
-// Todo: This really needs to be made serialization friendly
 struct Interpolation
 {
-	int oldipos;
-	int bakipos;
-	void *curipos;
-	bool isshort;
+	double old, bak;
+	int index;
+	int type;
 };
 
-static Interpolation interpolations[MAXINTERPOLATIONS];
+static TArray<Interpolation> interpolations;
 
-
-void setinterpolation(void *posptr, bool isshort)
+double Get(int index, int type)
 {
-    if (numinterpolations >= MAXINTERPOLATIONS)
-        return;
+	switch(type)
+	{
+	case Interp_Sect_Floorz:			return sector[index].floorz;
+	case Interp_Sect_Ceilingz:			return sector[index].ceilingz;
+	case Interp_Sect_Floorheinum:		return sector[index].floorheinum;
+	case Interp_Sect_Ceilingheinum:		return sector[index].ceilingheinum;
+	case Interp_Sect_FloorPanX:			return sector[index].floorxpan_;
+	case Interp_Sect_FloorPanY:			return sector[index].floorypan_;
+	case Interp_Sect_CeilingPanX:		return sector[index].ceilingxpan_;
+	case Interp_Sect_CeilingPanY:		return sector[index].ceilingypan_;
 
-    for (int i = numinterpolations - 1; i >= 0; i--)
+	case Interp_Wall_X:					return wall[index].x;
+	case Interp_Wall_Y:					return wall[index].y;
+	case Interp_Wall_PanX:				return wall[index].xpan_;
+	case Interp_Wall_PanY:				return wall[index].ypan_;
+
+	case Interp_Sprite_Z:				return sprite[index].z;
+	default: return 0;
+	}
+}
+
+void Set(int index, int type, double val)
+{
+	switch(type)
+	{
+	case Interp_Sect_Floorz:			sector[index].floorz = xs_CRoundToInt(val); break;
+	case Interp_Sect_Ceilingz:          sector[index].ceilingz = xs_CRoundToInt(val); break;
+	case Interp_Sect_Floorheinum:       sector[index].floorheinum = (short)xs_CRoundToInt(val); break;
+	case Interp_Sect_Ceilingheinum:     sector[index].ceilingheinum = (short)xs_CRoundToInt(val); break;
+	case Interp_Sect_FloorPanX:         sector[index].floorxpan_ = float(val); break;
+	case Interp_Sect_FloorPanY:	        sector[index].floorypan_ = float(val); break;
+	case Interp_Sect_CeilingPanX:       sector[index].ceilingxpan_ = float(val); break;
+	case Interp_Sect_CeilingPanY:       sector[index].ceilingypan_ = float(val); break;
+                                        
+	case Interp_Wall_X:                 wall[index].x = xs_CRoundToInt(val); break;
+	case Interp_Wall_Y:                 wall[index].y = xs_CRoundToInt(val); break;
+	case Interp_Wall_PanX:              wall[index].xpan_ = float(val);  break;
+	case Interp_Wall_PanY:              wall[index].ypan_ = float(val);  break;
+                                        
+	case Interp_Sprite_Z:               sprite[index].z = xs_CRoundToInt(val); break;
+	}
+}
+
+void StartInterpolation(int index, int type)
+{
+    for (unsigned i = 0; i < interpolations.Size(); i++)
     {
-        if (interpolations[i].curipos == posptr)
+        if (interpolations[i].index == index && interpolations[i].type == type)
             return;
     }
+	int n = interpolations.Reserve(1);
 
-    interpolations[numinterpolations].curipos = posptr;
-    interpolations[numinterpolations].oldipos = *posptr;
-    numinterpolations++;
+    interpolations[n].index = index;
+    interpolations[n].type = type;
+    interpolations[n].old = Get(index, type);
 }
 
-void setinterpolation(int *posptr)
+void StopInterpolation(int index, int type)
 {
-	setinterpolation(posptr, false);
-}
-
-// only used by SW to interpolate floorheinum and ceilingheinum
-void setinterpolation(short *posptr)
-{
-	setinterpolation(posptr, true);
-}
-
-void stopinterpolation(void *posptr)
-{
-    for (int i = numinterpolations - 1; i >= 0; i--)
+    for (unsigned i = 0; i < interpolations.Size(); i++)
     {
-        if (curipos[i] == posptr)
-        {
-            numinterpolations--;
-			interpolations[i] = interpolations[numinterpolations];
-        }
+        if (interpolations[i].index == index && interpolations[i].type == type)
+		{
+            interpolations[i] = interpolations.Last();
+			interpolations.Pop();
+			return;
+		}
     }
 }
 
-void updateinterpolations(void)                  // Stick at beginning of domovethings
+void UpdateInterpolations()
 {
-    int i;
-
-    for (int i = numinterpolations - 1; i >= 0; i--)
-        interpolations[i].oldipos = interpolations[i].isshort? *(short*)interpolations[i].curipos : *(int*)interpolations[i].curipos;
-}
-
-// must call restore for every do interpolations
-// make sure you don't exit
-void dointerpolations(int smoothratio)                      // Stick at beginning of drawscreen
-{
-    if (recursions++)
-        return;
-	
-    int i, j, odelta, ndelta;
-
-    ndelta = 0;
-    j = 0;
-
-    for (i = numinterpolations - 1; i >= 0; i--)
+    for (unsigned i = 0; i < interpolations.Size(); i++)
     {
-        bakipos[i] = *curipos[i];
+		interpolations[i].old = Get(interpolations[i].index, interpolations[i].type);
+	}		
+}
 
-        odelta = ndelta;
-        ndelta = (*curipos[i]) - oldipos[i];
+void DoInterpolations(double smoothratio)
+{
+	if (!cl_interpolate) return;
+    for (unsigned i = 0; i < interpolations.Size(); i++)
+    {
+		double bak;
+		interpolations[i].bak = bak = Get(interpolations[i].index, interpolations[i].type);
+		double old = interpolations[i].old;
+		if (interpolations[i].type < Interp_Pan_First || fabs(bak-old) < 128.)
+		{
+			Set(interpolations[i].index, interpolations[i].type, old + (bak - old) * smoothratio);
+		}
+		else
+		{
+			// with the panning types we need to check for potential wraparound.
+			if (bak < old) bak += 256.;
+			else old += 256;
+			double cur = old + (bak - old) * smoothratio;
+			if (cur >= 256.) cur -= 256.;
+			Set(interpolations[i].index, interpolations[i].type, cur);
+		}
+	}
+}
 
-        if (odelta != ndelta)
-            j = FixedMul(ndelta, smoothratio);
+void RestoreInterpolations()
+{
+	if (!cl_interpolate) return;
+	for (unsigned i = 0; i < interpolations.Size(); i++)
+    {
+		Set(interpolations[i].index, interpolations[i].type, interpolations[i].bak);
+	}		
+}
 
-        *curipos[i] = oldipos[i] + j;
+void ClearInterpolations()
+{
+	interpolations.Clear();
+}
+
+void ClearMovementInterpolations()
+{
+	// This clears all movement interpolations. Needed for Blood which destroys its interpolations each frame.
+	for (unsigned i = 0; i < interpolations.Size();)
+	{
+		switch (interpolations[i].type)
+		{
+		case Interp_Sect_Floorz:
+		case Interp_Sect_Ceilingz:
+		case Interp_Sect_Floorheinum:
+		case Interp_Sect_Ceilingheinum:
+		case Interp_Wall_X:
+		case Interp_Wall_Y:
+			interpolations[i] = interpolations.Last();
+			interpolations.Pop();
+			break;
+		default:
+			i++;
+			break;
+		}
+	}
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Interpolation& w, Interpolation* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc ("index", w.index)
+            ("type", w.type)
+            .EndObject();
     }
+	if (arc.isReading())
+	{
+		w.old = Get(w.index, w.type);
+	}
+    return arc;
 }
 
-void restoreinterpolations(bool force)                 // Stick at end of drawscreen
+void SerializeInterpolations(FSerializer& arc)
 {
-    int i;
-
-    if (!force && --recursions)
-        return;
-
-	recursions = 0;	// if interpolations are forcibly restored, the recursion counter must also be reset.
-    for (i = numinterpolations - 1; i >= 0; i--)
-        *curipos[i] = bakipos[i];
+	arc("interpolations", interpolations);
 }
-
-void togglespriteinterpolation(spritetype *sp, int set)
-{
-    auto func = set ? setinterpolation : stopinterpolation;
-    func(&sp->x);
-    func(&sp->y);
-    func(&sp->z);
-}
-

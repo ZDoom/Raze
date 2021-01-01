@@ -26,56 +26,45 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "compat.h"
 #include "mmulti.h"
-#include "common_game.h"
+
 #include "blood.h"
-#include "globals.h"
-#include "levels.h"
-#include "messages.h"
-#include "sound.h"
-#include "view.h"
 #include "mapinfo.h"
 #include "gamestate.h"
 
 BEGIN_BLD_NS
 
-static int osdcmd_warptocoords(CCmdFuncPtr parm)
+void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
-    if (parm->numparms < 3 || parm->numparms > 5)
-        return CCMD_SHOWHELP;
-
     PLAYER *pPlayer = &gPlayer[myconnectindex];
     VIEW* pView = &gPrevView[myconnectindex];
 
-    pPlayer->pSprite->x = pView->at50 = gView->pSprite->x = atoi(parm->parms[0]);
-    pPlayer->pSprite->y = pView->at54 = gView->pSprite->y = atoi(parm->parms[1]);
-    pPlayer->zView      = pView->at38 = gView->zView      = atoi(parm->parms[2]);
+    pPlayer->pSprite->x = pView->at50 = gView->pSprite->x = x;
+    pPlayer->pSprite->y = pView->at54 = gView->pSprite->y = y;
+    pPlayer->zView      = pView->at38 = gView->zView      = z;
 
-    if (parm->numparms >= 4)
+    if (ang != INT_MIN)
     {
-        pPlayer->angle.oang = pPlayer->angle.ang = pView->at30 = gView->angle.ang = buildang(atoi(parm->parms[3]));
+        pPlayer->angle.oang = pPlayer->angle.ang = pView->at30 = gView->angle.ang = buildang(ang);
     }
 
-    if (parm->numparms == 5)
+    if (horz != INT_MIN)
     {
-        pPlayer->horizon.ohoriz = pPlayer->horizon.horiz = pView->at24 = gView->horizon.horiz = buildhoriz(atoi(parm->parms[4]));
+        pPlayer->horizon.ohoriz = pPlayer->horizon.horiz = pView->at24 = gView->horizon.horiz = buildhoriz(horz);
     }
-
-    return CCMD_OK;
 }
 
-static int osdcmd_third_person_view(CCmdFuncPtr parm)
+void GameInterface::ToggleThirdPerson()
 {
-    if (gamestate != GS_LEVEL) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return;
     if (gViewPos > VIEWPOS_0)
         gViewPos = VIEWPOS_0;
     else
         gViewPos = VIEWPOS_1;
-    return CCMD_OK;
 }
 
-static int osdcmd_coop_view(CCmdFuncPtr parm)
+void GameInterface::SwitchCoopView()
 {
-    if (gamestate != GS_LEVEL) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return;
     if (gGameOptions.nGameType == 1)
     {
         gViewIndex = connectpoint2[gViewIndex];
@@ -96,26 +85,12 @@ static int osdcmd_coop_view(CCmdFuncPtr parm)
         } while (oldViewIndex != gViewIndex);
         gView = &gPlayer[gViewIndex];
     }
-    return CCMD_OK;
 }
 
-static int osdcmd_show_weapon(CCmdFuncPtr parm)
+void GameInterface::ToggleShowWeapon()
 {
-    if (gamestate != GS_LEVEL) return CCMD_OK;
+    if (gamestate != GS_LEVEL) return;
     cl_showweapon = (cl_showweapon + 1) & 3;
-    return CCMD_OK;
-}
-
-
-
-int32_t registerosdcommands(void)
-{
-    C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
-    C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
-    C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_coop_view);
-    C_RegisterFunction("show_weapon", "Show opponents' weapons", osdcmd_show_weapon);
-
-    return 0;
 }
 
 END_BLD_NS

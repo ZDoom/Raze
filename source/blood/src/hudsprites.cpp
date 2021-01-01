@@ -31,19 +31,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "v_font.h"
 
-#include "endgame.h"
-#include "aistate.h"
-#include "loadsave.h"
-#include "sectorfx.h"
-#include "choke.h"
-#include "view.h"
-#include "nnexts.h"
+#include "blood.h"
+
 #include "zstring.h"
 #include "razemenu.h"
 #include "gstrings.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
-#include "v_font.h"
 #include "glbackend/glbackend.h"
 
 BEGIN_BLD_NS
@@ -96,9 +90,9 @@ static void viewBurnTime(int gScale)
 }
 
 
-void hudDraw(PLAYER *gView, VIEW *pView, int nSectnum, double bobx, double boby, double zDelta, int basepal, double smoothratio)
+void hudDraw(PLAYER *gView, int nSectnum, double bobx, double boby, double zDelta, int basepal, double smoothratio)
 {
-	double look_anghalf = getHalfLookAng(pView->look_ang.asq16(), gView->angle.look_ang.asq16(), cl_syncinput, smoothratio);
+	double look_anghalf = gView->angle.look_anghalf(smoothratio);
 
 	DrawCrosshair(kCrosshairTile, gView->pXSprite->health >> 4, -look_anghalf, 0, 2);
 

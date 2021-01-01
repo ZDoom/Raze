@@ -26,18 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "compat.h"
 #include "SmackerDecoder.h"
-#include "common_game.h"
 #include "blood.h"
-#include "globals.h"
-#include "sound.h"
-#include "view.h"
 #include "animtexture.h"
 #include "../glbackend/glbackend.h"
 #include "raze_sound.h"
 #include "v_2ddrawer.h"
 #include "screenjob.h"
 #include "gamestate.h"
-#include "seq.h"
 #include "razemenu.h"
 
 BEGIN_BLD_NS

@@ -31,9 +31,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "duke3d.h"
 #include "gamestate.h"
 #include "dukeactor.h"
-
-extern FixedBitArray<MAXSPRITES> activeSprites;
-
+#include "savegamehelp.h"
 
 //==========================================================================
 //
@@ -55,47 +53,6 @@ BEGIN_DUKE_NS
 void SerializeActorGlobals(FSerializer& arc);
 void lava_serialize(FSerializer& arc);
 void SerializeGameVars(FSerializer &arc);
-
-
-static void recreateinterpolations()
-{
-	numinterpolations = 0;
-
-	DukeStatIterator it(STAT_EFFECTOR);
-	while (auto k = it.Next())
-	{
-		auto sectnum = k->s.sectnum;
-		switch (k->s.lotag)
-		{
-		case SE_31_FLOOR_RISE_FALL:
-			setinterpolation(&sector[sectnum].floorz);
-			break;
-		case SE_32_CEILING_RISE_FALL:
-			setinterpolation(&sector[sectnum].ceilingz);
-			break;
-		case SE_17_WARP_ELEVATOR:
-		case SE_25_PISTON:
-			setinterpolation(&sector[sectnum].floorz);
-			setinterpolation(&sector[sectnum].ceilingz);
-			break;
-		case SE_0_ROTATING_SECTOR:
-		case SE_5_BOSS:
-		case SE_6_SUBWAY:
-		case SE_11_SWINGING_DOOR:
-		case SE_14_SUBWAY_CAR:
-		case SE_15_SLIDING_DOOR:
-		case SE_16_REACTOR:
-		case SE_26:
-		case SE_30_TWO_WAY_TRAIN:
-			setsectinterpolate(sectnum);
-			break;
-		}
-	}
-
-	for (int i = numinterpolations - 1; i >= 0; i--) bakipos[i] = *curipos[i];
-	for (int i = animatecnt - 1; i >= 0; i--)
-		setinterpolation(animateptr(i));
-}
 
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, animwalltype& w, animwalltype* def)
@@ -158,7 +115,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("randomflamex", w.randomflamex)
 			("crack_time", w.crack_time)
 			("aim.mode", w.aim_mode)
-			("auto_aim", w.auto_aim)
 			("psectlotag", w.psectlotag)
 			("cursectnum", w.cursectnum)
 			("last_extra", w.last_extra)
@@ -292,6 +248,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("moto_on_mud", w.moto_on_mud)
 			// new stuff
 			("actions", w.sync.actions)
+			.Array("frags", w.frags, MAXPLAYERS)
 			.EndObject();
 
 		w.invdisptime = 0;
@@ -359,7 +316,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	if (arc.BeginObject("duke.gamestate"))
 	{
 		arc("multimode", ud.multimode);
-		if (ud.multimode > 1) arc.Array("frags", &frags[0][0], MAXPLAYERS * MAXPLAYERS);
 
 		arc.SparseArray("actors", hittype, MAXSPRITES, activeSprites)
 			("skill", ud.player_skill)
@@ -391,9 +347,9 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			.Array("animwall", animwall, numanimwalls)
 			("camsprite", camsprite)
 			("earthquaketime", earthquaketime)
-			("freezerhurtowner", freezerhurtowner)
+			("gs.freezerhurtowner", gs.freezerhurtowner)
 			("global_random", global_random)
-			("impact_damage", impact_damage)
+			("gs.impact_damage", gs.impact_damage)
 			("numplayersprites", numplayersprites)
 			("spriteqloc", spriteqloc)
 			("animatecnt", animatecnt)
@@ -482,7 +438,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			Mus_SetPaused(false);
 
 			FX_SetReverb(0);
-			recreateinterpolations();
 			show_shareware = 0;
 			everyothertime = 0;
 

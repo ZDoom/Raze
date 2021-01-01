@@ -98,9 +98,9 @@ void DDukeCommonStatusBar::displayfragbar(void)
 //
 //==========================================================================
 
-std::pair<const char*, EColorRange> DDukeCommonStatusBar::ontext(struct player_struct *p)
+std::pair<const char*, int> DDukeCommonStatusBar::ontext(struct player_struct *p)
 {
-	std::pair<const char*, EColorRange> retval(nullptr, CR_RED);
+	std::pair<const char*, int> retval(nullptr, CR_RED);
 
 	int onstate = 0x80000000;
 	switch (p->inven_icon)
@@ -119,12 +119,12 @@ std::pair<const char*, EColorRange> DDukeCommonStatusBar::ontext(struct player_s
 	// Texts are intentionally not translated because the font is too small for making localization work and the translated words are too long.
 	if ((unsigned)onstate != 0x80000000 && !(g_gameType & (GAMEFLAG_WW2GI|GAMEFLAG_RRALL)))
 	{
-		retval.second = onstate > 0 ? CR_LIGHTBLUE : CR_RED;
+		retval.second = onstate > 0 ? 0 : 2;
 		retval.first = onstate > 0 ? "ON" : "OFF";
 	}
 	if (p->inven_icon >= ICON_SCUBA)
 	{
-		retval.second = CR_ORANGE;
+		retval.second = 2;
 		retval.first = "AUTO";
 	}
 	return retval;

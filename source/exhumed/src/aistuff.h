@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once 
 
 #include "compat.h"
+#include "freelistarray.h"
 
 BEGIN_PS_NS
 
@@ -30,10 +31,14 @@ struct Anim
     short field_2;
     short field_4;
     short nSprite;
+
+    short AnimRunRec;
+    uint8_t AnimFlags;
+
 };
 
-extern Anim AnimList[];
-extern uint8_t AnimFlags[];
+enum { kMaxAnims = 400 };
+extern FreeListArray<Anim, kMaxAnims> AnimList;
 
 void InitAnims();
 void DestroyAnim(int nAnim);
@@ -83,7 +88,7 @@ extern int lasthitx;
 extern int lasthity;
 
 void InitBullets();
-short GrabBullet();
+int GrabBullet();
 void DestroyBullet(short nRun);
 int MoveBullet(short nBullet);
 void SetBulletEnemy(short nBullet, short nEnemy);
@@ -263,13 +268,6 @@ void FuncMummy(int nSector, int edx, int nRun);
 
 // object
 
-enum
-{
-	kMaxPoints	= 1024,
-	kMaxSlides	= 128,
-	kMaxElevs	= 1024
-};
-
 enum kStatus
 {
     kStatDestructibleSprite = 97,
@@ -382,8 +380,13 @@ struct RunStruct
         int nMoves;
         struct
         {
+#if B_BIG_ENDIAN == 1
+            short nRef;
+            short nVal;
+#else
             short nVal;
             short nRef;
+#endif
         };
     };
 
@@ -401,7 +404,7 @@ struct RunChannel
 
 typedef void(*AiFunc)(int, int, int nRun);
 
-extern RunStruct RunData[kMaxRuns];
+extern FreeListArray<RunStruct, kMaxRuns> RunData;
 extern RunChannel sRunChannels[kMaxChannels];
 extern short NewRun;
 extern int nRadialOwner;
@@ -455,23 +458,14 @@ struct Snake
     short sC;
     short nRun;
 
-    // array?
     char c[8];
-    /*
-    char c1;
-    char c2;
-    char c3;
-    char c4;
-    char c5;
-    char c6;
-    char c7;
-    char c8;
-    */
-
     short sE;
+    short nSnakePlayer;
 };
 
-extern Snake SnakeList[];
+enum { kMaxSnakes = 50 };
+
+extern FreeListArray<Snake, kMaxSnakes> SnakeList;
 
 void InitSnakes();
 short GrabSnake();
@@ -485,12 +479,6 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle);
 void FuncSpider(int a, int b, int nRun);
 
 // switch
-
-enum
-{
-	kMaxLinks		= 1024,
-	kMaxSwitches	= 1024
-};
 
 void InitLink();
 void InitSwitch();
@@ -513,7 +501,7 @@ int BuildSwPressWall(short nChannel, short nLink, short nWall);
 
 // wasp
 
-extern short nWaspCount;
+int WaspCount();
 
 void InitWasps();
 int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle);

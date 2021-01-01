@@ -12,7 +12,6 @@
 #include "i_time.h"
 #include "palentry.h"
 #include "pragmas.h"
-#include "binaryangle.h"
 
 extern FString currentGame;
 extern FString LumpFilter;
@@ -236,13 +235,4 @@ extern int chatmodeon;
 extern bool sendPause;
 extern int lastTic;
 
-//---------------------------------------------------------------------------
-//
-// Return half player's q16look_ang directly or interpolated as required.
-//
-//---------------------------------------------------------------------------
 
-inline double getHalfLookAng(fixed_t const oq16look_ang, fixed_t const q16look_ang, bool interpolate, double smoothratio)
-{
-	return (!interpolate ? q16look_ang : oq16look_ang + fmulscale16(q16look_ang - oq16look_ang, smoothratio)) * (0.5 / FRACUNIT);
-}

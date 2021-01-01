@@ -23,25 +23,23 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 #include "palette.h"
 #include "pragmas.h"
 
+    //Make all variables in BUILD.H defined in the ENGINE,
+    //and externed in GAME
+#ifdef engine_c_
+#  define EXTERN
+#else
+#  define EXTERN extern
+#endif
+
+EXTERN int16_t sintable[2048];
 
 #include "buildtiles.h"
 #include "c_cvars.h"
 #include "cmdlib.h"
-#include "m_fixed.h"
+#include "binaryangle.h"
 #include "mathutil.h"
 
 typedef int64_t coord_t;
-
-enum rendmode_t {
-    REND_CLASSIC,
-    REND_POLYMOST = 3,
-    REND_POLYMER
-};
-
-#define PI 3.14159265358979323846
-#define fPI 3.14159265358979323846f
-
-#define BANG2RAD (PI * (1./1024.))
 
 enum
 {
@@ -102,14 +100,6 @@ enum {
     RS_CENTER = (1<<29),    // proper center align.
     RS_CENTERORIGIN = (1<<30),
 };
-
-    //Make all variables in BUILD.H defined in the ENGINE,
-    //and externed in GAME
-#ifdef engine_c_
-#  define EXTERN
-#else
-#  define EXTERN extern
-#endif
 
 
 enum {
@@ -267,7 +257,6 @@ EXTERN int16_t numsectors, numwalls;
 EXTERN int32_t display_mirror;
 
 EXTERN int32_t randomseed;
-EXTERN int16_t sintable[2048];
 
 EXTERN int16_t numshades;
 EXTERN uint8_t paletteloaded;
@@ -315,7 +304,6 @@ typedef struct {
     int16_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<lognumtiles): tile offset relative to basetile
 
     int32_t yscale;
-    int combinedtile;
 } psky_t;
 
 // Index of map-global (legacy) multi-sky:
@@ -338,7 +326,7 @@ EXTERN char parallaxtype;
 EXTERN int32_t parallaxyoffs_override, parallaxyscale_override;
 extern int16_t pskybits_override;
 
-// last sprite in the freelist, that is the spritenum for which
+// last sprite in the freelist, that is the spritenum for which 
 //   .statnum==MAXSTATUS && nextspritestat[spritenum]==-1
 // (or -1 if freelist is empty):
 EXTERN int16_t tailspritefree;
@@ -359,9 +347,6 @@ extern int16_t tiletovox[MAXTILES];
 extern int32_t voxscale[MAXVOXELS];
 extern char g_haveVoxels;
 
-#ifdef USE_OPENGL
-extern int32_t rendmode;
-#endif
 extern uint8_t globalr, globalg, globalb;
 
 enum {
@@ -375,15 +360,6 @@ extern int32_t globalflags;
 extern const char *engineerrstr;
 
 EXTERN int32_t editorzrange[2];
-
-static FORCE_INLINE int32_t videoGetRenderMode(void)
-{
-#ifndef USE_OPENGL
-    return REND_CLASSIC;
-#else
-    return rendmode;
-#endif
-}
 
 enum {
     ENGINECOMPATIBILITY_NONE = 0,
@@ -733,14 +709,6 @@ int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum);
 void    renderSetRollAngle(float rolla);
 #endif
 
-//
-// Calculates and returns a sintable[] value of the equivilent index (and supports fractional indexes also)
-//
-inline double calcSinTableValue(double index)
-{
-    return 16384. * sin(BANG2RAD * index);
-}
-
 void PrecacheHardwareTextures(int nTile);
 void Polymost_Startup();
 
@@ -774,7 +742,6 @@ EXTERN_CVAR(Bool, r_voxels)
 
 extern int32_t r_downsize;
 extern int32_t mdtims, omdtims;
-extern int32_t glrendmode;
 
 extern int32_t r_rortexture;
 extern int32_t r_rortexturerange;
@@ -922,7 +889,6 @@ void markTileForPrecache(int tilenum, int palnum);
 void precacheMarkedTiles();
 
 extern int32_t(*animateoffs_replace)(int const tilenum, int fakevar);
-extern void(*paletteLoadFromDisk_replace)(void);
 extern int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade);
 extern void(*initspritelists_replace)(void);
 extern int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum);
@@ -945,6 +911,8 @@ enum EHitBits
     kHitWall = 0x8000,
     kHitSprite = 0xC000,
 };
+
+void updateModelInterpolation();
 
 
 #include "iterators.h"

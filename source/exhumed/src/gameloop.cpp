@@ -90,11 +90,10 @@ void GameInterface::Render()
     }
 
     double const smoothratio = calc_smoothratio();
-    double const look_anghalf = getHalfLookAng(PlayerList[nLocalPlayer].angle.olook_ang.asq16(), PlayerList[nLocalPlayer].angle.look_ang.asq16(), cl_syncinput, smoothratio);
 
     DrawView(smoothratio);
     DrawStatusBar();
-    DrawCrosshair(MAXTILES, PlayerList[nLocalPlayer].nHealth >> 3, -look_anghalf, 0, 1);
+    DrawCrosshair(MAXTILES, PlayerList[nLocalPlayer].nHealth >> 3, -PlayerList[nLocalPlayer].angle.look_anghalf(smoothratio), 0, 1);
 
     if (paused && !M_Active())
     {

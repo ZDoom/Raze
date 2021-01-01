@@ -111,6 +111,7 @@ static const RegistryPathInfo paths[] = {
 	{ L"SOFTWARE" WOW64 "GOG.com\\GOGSHADOWARRIOR", L"PATH", nullptr},
 	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1374469660", L"path", bloodfs},
 	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1740836875", L"path", nullptr},
+	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\2132611980", L"path", nullptr}, // Powerslave
 
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 434050", L"InstallLocation", nullptr },
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", L"InstallLocation", dukeaddons },

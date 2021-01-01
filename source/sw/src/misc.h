@@ -60,11 +60,10 @@ short DoSlidorMatch(PLAYERp pp, short match, bool);
 bool TestSlidorMatchActive(short match);
 void InterpSectorSprites(short sectnum, bool state);
 
-typedef void INTERP_FUNC(int*);
-typedef INTERP_FUNC* INTERP_FUNCp;
+using INTERP_FUNC = void(*)(int, int);
 
 void SetSlidorActive(short SpriteNum);
-void DoSlidorInterp(short, INTERP_FUNCp);
+void DoSlidorInterp(short, INTERP_FUNC);
 
 int DoBeginJump(short SpriteNum);
 int DoJump(short SpriteNum);

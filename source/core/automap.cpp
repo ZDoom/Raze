@@ -236,11 +236,11 @@ void AutomapControl()
 			if (buttonMap.ButtonDown(gamefunc_AM_PanDown))
 				panvert -= keymove;
 
-			int momx = mulscale9(panvert, sintable[(follow_a + 512) & 2047]);
-			int momy = mulscale9(panvert, sintable[(follow_a) & 2047]);
+			int momx = mulscale9(panvert, bcos(follow_a));
+			int momy = mulscale9(panvert, bsin(follow_a));
 
-			momx += mulscale9(panhorz, sintable[(follow_a) & 2047]);
-			momy += mulscale9(panhorz, sintable[(follow_a + 1536) & 2047]);
+			momx += mulscale9(panhorz, bsin(follow_a));
+			momy += mulscale9(panhorz, -bcos(follow_a));
 
 			follow_x += int(momx * j);
 			follow_y += int(momy * j);
@@ -406,8 +406,8 @@ bool ShowRedLine(int j, int i)
 
 void drawredlines(int cposx, int cposy, int czoom, int cang)
 {
-	int xvect = sintable[(-cang) & 2047] * czoom;
-	int yvect = sintable[(1536 - cang) & 2047] * czoom;
+	int xvect = -bsin(cang) * czoom;
+	int yvect = -bcos(cang) * czoom;
 	int xvect2 = mulscale16(xvect, yxaspect);
 	int yvect2 = mulscale16(yvect, yxaspect);
 
@@ -458,8 +458,8 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 
 static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 {
-	int xvect = sintable[(-cang) & 2047] * czoom;
-	int yvect = sintable[(1536 - cang) & 2047] * czoom;
+	int xvect = -bsin(cang) * czoom;
+	int yvect = -bcos(cang) * czoom;
 	int xvect2 = mulscale16(xvect, yxaspect);
 	int yvect2 = mulscale16(yvect, yxaspect);
 
@@ -508,13 +508,13 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 		0, 65536, 32768, 32878,
 	};
 
-	int xvect = sintable[(-cang) & 2047] * zoom;
-	int yvect = sintable[(1536 - cang) & 2047] * zoom;
+	int xvect = -bsin(cang) * zoom;
+	int yvect = -bcos(cang) * zoom;
 	int xvect2 = mulscale16(xvect, yxaspect);
 	int yvect2 = mulscale16(yvect, yxaspect);
 
-	int pxvect = sintable[(-pl_angle) & 2047];
-	int pyvect = sintable[(1536 - pl_angle) & 2047];
+	int pxvect = -bsin(pl_angle);
+	int pyvect = -bcos(pl_angle);
 
 	for (int i = 0; i < 12; i += 4)
 	{

@@ -55,6 +55,7 @@
 #include "statusbar.h"
 #include "gamestate.h"
 #include "razemenu.h"
+#include "interpolate.h"
 
 
 sectortype sectorbackup[MAXSECTORS];
@@ -101,6 +102,7 @@ static void SerializeSession(FSerializer& arc)
 	SerializeAutomap(arc);
 	SerializeHud(arc);
 	SerializeGlobals(arc);
+	gi->SerializeGameState(arc);
 }
 
 //=============================================================================
@@ -156,7 +158,6 @@ bool OpenSaveGameForRead(const char *name)
 		// Load system-side data from savegames.
 		loadMapBackup(currentLevel->fileName);
 		SerializeSession(arc);
-		gi->SerializeGameState(arc);
 	}
 	return savereader != nullptr;
 }
@@ -250,7 +251,6 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	// Handle system-side modules that need to persist data in savegames here, in a central place.
 	savegamesession.OpenWriter(save_formatted);
 	SerializeSession(savegamesession);
-	gi->SerializeGameState(savegamesession);
 	buff = savegamesession.GetCompressedOutput();
 	AddCompressedSavegameChunk("session.json", buff);
 
@@ -540,14 +540,14 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 			("ceilingheinum", c.ceilingheinum, def->ceilingheinum)
 			("ceilingshade", c.ceilingshade, def->ceilingshade)
 			("ceilingpal", c.ceilingpal, def->ceilingpal)
-			("ceilingxpanning", c.ceilingxpanning, def->ceilingxpanning)
-			("ceilingypanning", c.ceilingypanning, def->ceilingypanning)
+			("ceilingxpanning", c.ceilingxpan_, def->ceilingxpan_)
+			("ceilingypanning", c.ceilingypan_, def->ceilingypan_)
 			("floorpicnum", c.floorpicnum, def->floorpicnum)
 			("floorheinum", c.floorheinum, def->floorheinum)
 			("floorshade", c.floorshade, def->floorshade)
 			("floorpal", c.floorpal, def->floorpal)
-			("floorxpanning", c.floorxpanning, def->floorxpanning)
-			("floorypanning", c.floorypanning, def->floorypanning)
+			("floorxpanning", c.floorxpan_, def->floorxpan_)
+			("floorypanning", c.floorypan_, def->floorypan_)
 			("visibility", c.visibility, def->visibility)
 			("fogpal", c.fogpal, def->fogpal)
 			("lotag", c.lotag, def->lotag)
@@ -574,8 +574,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 			("pal", c.pal, def->pal)
 			("xrepeat", c.xrepeat, def->xrepeat)
 			("yrepeat", c.yrepeat, def->yrepeat)
-			("xpanning", c.xpanning, def->xpanning)
-			("ypanning", c.ypanning, def->ypanning)
+			("xpanning", c.xpan_, def->xpan_)
+			("ypanning", c.ypan_, def->ypan_)
 			("lotag", c.lotag, def->lotag)
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
@@ -630,7 +630,7 @@ void SerializeMap(FSerializer& arc)
 			.Array("headspritesect", headspritesect, MAXSECTORS + 1)
 			.Array("nextspritesect", nextspritesect, MAXSPRITES)
 			.Array("prevspritesect", prevspritesect, MAXSPRITES)
-			
+
 			("tailspritefree", tailspritefree)
 			("myconnectindex", myconnectindex)
 			("connecthead", connecthead)
@@ -643,7 +643,10 @@ void SerializeMap(FSerializer& arc)
 			("parallaxyo", parallaxyoffs_override)
 			("parallaxys", parallaxyscale_override)
 			("pskybits", pskybits_override)
-			("numsprites", Numsprites);
+			("numsprites", Numsprites)
+			("gamesetinput", gamesetinput);
+
+		SerializeInterpolations(arc);
 
 		if (arc.BeginArray("picanm")) // write this in the most compact form available.
 		{

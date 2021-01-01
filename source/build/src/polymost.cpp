@@ -23,18 +23,18 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "hw_renderstate.h"
 #include "printf.h"
 
+int checkTranslucentReplacement(FTextureID picnum, int pal);
+
 CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVARD(Bool, hw_animsmoothing, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model animation smoothing")
 CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
 CVARD(Bool, hw_models, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model rendering")
 CVARD(Bool, hw_parallaxskypanning, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky")
-CVARD(Bool, hw_shadeinterpolate, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable shade interpolation")
 CVARD(Float, hw_shadescale, 1.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "multiplier for shading")
 bool hw_int_useindexedcolortextures;
 CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
 {
-    hw_int_useindexedcolortextures = self;
     if (screen) screen->SetTextureFilterMode();
 }
 
@@ -102,6 +102,9 @@ static int32_t drawingskybox = 0;
 static int32_t hicprecaching = 0;
 
 static hitdata_t polymost_hitdata;
+
+FGameTexture* globalskytex = nullptr;
+FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap);
 
 void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)
 {
@@ -194,7 +197,7 @@ static void resizeglcheck(void)
 //    +4 means it's a sprite, so wraparound isn't needed
 
 // drawpoly's hack globals
-static int32_t pow2xsplit = 0, skyclamphack = 0, skyzbufferhack = 0, flatskyrender = 0;
+static int32_t pow2xsplit = 0, skyzbufferhack = 0, flatskyrender = 0;
 static float drawpoly_alpha = 0.f;
 static uint8_t drawpoly_blend = 0;
 
@@ -203,11 +206,7 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
     if (wall->cstat & CSTAT_WALL_TRANSLUCENT)
         return true;
 
-	auto tex = tileGetTexture(wall->picnum);
-	auto si = TileFiles.FindReplacement(wall->picnum, wall->pal);
-	if (si && hw_hightile) tex = si->faces[0];
-	if (tex->GetTexelWidth() == 0 || tex->GetTexelHeight() == 0) return false;
-	return tex && tex->GetTranslucency();
+    return checkTranslucentReplacement(tileGetTexture(wall->picnum)->GetID(), wall->pal);
 }
 
 int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
@@ -216,11 +215,7 @@ int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
         ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
         return true;
 
-	auto tex = tileGetTexture(tspr->picnum);
-	auto si = TileFiles.FindReplacement(tspr->picnum, tspr->shade, 0);
-	if (si && hw_hightile) tex = si->faces[0];
-    if (tex->GetTexelWidth() == 0 || tex->GetTexelHeight() == 0) return false;
-    return tex && tex->GetTranslucency();
+    return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
 }
 
 int32_t polymost_spriteIsModelOrVoxel(tspritetype const * const tspr)
@@ -263,7 +258,13 @@ static void polymost_updaterotmat(void)
     renderSetVisibility(mulscale16(g_visibility, mulscale16(xdimenscale, viewingrangerecip)) * fviewingrange * (1.f / (65536.f * 65536.f)) / r_ambientlight);
 }
 
-static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesiz);
+const vec2_16_t tileSize(size_t index)
+{
+    vec2_16_t v = { (int16_t)tileWidth(index), (int16_t)tileHeight(index) };
+    return v;
+}
+
+static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesize);
 
 // Hack for Duke's camera until I can find out why this behaves erratically.
 int skiptile = -1;
@@ -333,38 +334,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     float usub = 0;
     float vsub = 0;
-#if 0
-    if (skyclamphack)
-    {
-        drawpoly_srepeat = false;
-        drawpoly_trepeat = false;
-        method = DAMETH_CLAMPED;
-
-        vec2f_t const scale = { 1.f / tsiz.x, 1.f / tsiz.y };
-
-#if 0
-        usub = FLT_MAX;
-        vsub = FLT_MAX;
-        for (int i = 0; i < npoints; i++)
-        {
-            float const r = 1.f / dd[i];
-            float u = floor(uu[i] * r * scale.x);
-            float v = floor(vv[i] * r * scale.y);
-            if (u < usub) usub = u;
-            if (v < vsub) vsub = v;
-        }
-#endif
-
-        for (int i = 0; i < npoints; i++)
-        {
-            float const r = 1.f / dd[i];
-            float u = uu[i] * r * scale.x - usub;
-            float v = vv[i] * r * scale.y - vsub;
-            if (u < -FLT_EPSILON || u > 1 + FLT_EPSILON) drawpoly_srepeat = true;
-            if (v < -FLT_EPSILON || v > 1 + FLT_EPSILON) drawpoly_trepeat = true;
-        }
-    }
-#endif
 
     polymost_outputGLDebugMessage(3, "polymost_drawpoly(dpxy:%p, n:%d, method_:%X), method: %X", dpxy, n, method_, method);
 
@@ -379,7 +348,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
     GLInterface.SetFade(globalfloorpal);
-	bool success = GLInterface.SetTexture(globalpicnum, tileGetTexture(globalpicnum), palid, sampleroverride);
+	bool success = GLInterface.SetTexture(globalskytex? globalskytex : tileGetTexture(globalpicnum), palid, sampleroverride);
 	if (!success)
 	{
 		tsiz.x = tsiz.y = 1;
@@ -461,7 +430,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
 	GLInterface.Draw(DT_TriangleFan, data.second, npoints);
 
-    GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
 	GLInterface.SetNpotEmulation(0.f, 0.f);
     GLInterface.SetTextureMode(TM_NORMAL);
 
@@ -799,7 +767,7 @@ skip: ;
 
                         int n = 4;
                         polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
-                            polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
+                            polymost_drawpoly(dpxy, n, domostpolymethod, tileSize(globalpicnum));
 
                         vsp[i].cy[0] = n0.y;
                         vsp[i].cy[1] = n1.y;
@@ -813,7 +781,7 @@ skip: ;
 
                         int n = 3;
                         polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
-                            polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
+                            polymost_drawpoly(dpxy, n, domostpolymethod, tileSize(globalpicnum));
 
                         vsp[i].cy[0] = n0.y;
                         vsp[i].ctag = gtag;
@@ -826,7 +794,7 @@ skip: ;
 
                         int n = 3;
                         polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
-                            polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
+                            polymost_drawpoly(dpxy, n, domostpolymethod, tileSize(globalpicnum));
 
                         vsp[i].cy[1] = n1.y;
                         vsp[i].ctag = gtag;
@@ -840,7 +808,7 @@ skip: ;
 
                         int n = 4;
                         polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
-                            polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
+                            polymost_drawpoly(dpxy, n, domostpolymethod, tileSize(globalpicnum));
 
                         vsp[i].ctag = vsp[i].ftag = -1;
                     }
@@ -861,7 +829,7 @@ skip: ;
 
                     int n = 4;
                     polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
-                        polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
+                        polymost_drawpoly(dpxy, n, domostpolymethod, tileSize(globalpicnum));
 
                     vsp[i].fy[0] = n0.y;
                     vsp[i].fy[1] = n1.y;
@@ -875,7 +843,7 @@ skip: ;
 
                     int n = 3;
                     polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
-                        polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
+                        polymost_drawpoly(dpxy, n, domostpolymethod, tileSize(globalpicnum));
 
                     vsp[i].fy[0] = n0.y;
                     vsp[i].ftag = gtag;
@@ -888,7 +856,7 @@ skip: ;
 
                     int n = 3;
                     polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
-                        polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
+                        polymost_drawpoly(dpxy, n, domostpolymethod, tileSize(globalpicnum));
 
                     vsp[i].fy[1] = n1.y;
                     vsp[i].ftag = gtag;
@@ -900,7 +868,7 @@ skip: ;
 
                     int n = 4;
                     polymost_clipmost(dpxy, n, x0, x1, y0top, y0bot, y1top, y1bot);
-                        polymost_drawpoly(dpxy, n, domostpolymethod, tilesiz[globalpicnum]);
+                        polymost_drawpoly(dpxy, n, domostpolymethod, tileSize(globalpicnum));
 
                     vsp[i].ctag = vsp[i].ftag = -1;
                 }
@@ -1166,7 +1134,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
 }
 
 static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
-                          float x0, float x1, uint8_t ypan, uint8_t yrepeat,
+                          float x0, float x1, float ypan, uint8_t yrepeat,
                           int32_t dopancor, const vec2_16_t &tilesize)
 {
     float const t0 = ((float)(refposz-globalposz))*ryp0 + ghoriz;
@@ -1282,7 +1250,7 @@ static void fgetzsofslope(usectorptr_t sec, float dax, float day, float* ceilz, 
         *florz += (sec->floorheinum*j)/i;
 }
 
-static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t &tilesiz)
+static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t &tilesize)
 {
     flatskyrender = 0;
     vec2f_t xys[8];
@@ -1304,6 +1272,9 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     float const fglobalang = FixedToFloat(qglobalang);
     int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
     int16_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
+    globalskytex = skytile? nullptr : GetSkyTexture(globalpicnum, dapskybits, dapskyoff);
+    int realskybits = dapskybits;
+    if (globalskytex) dapskybits = 0;
 
     ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyscale*(1.f/65536.f)+float(ydimen>>1)+ghorizcorrect;
 
@@ -1311,11 +1282,9 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     float vv[2];
     float t = (float)((1<<(widthBits(globalpicnum)))<<dapskybits);
     vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
-    vv[0] = dd*((float)((tilesiz.y>>1)+dapyoffs)) - vv[1]*ghoriz;
-    int ti = (1<<(heightBits(globalpicnum))); if (ti != tilesiz.y) ti += ti;
+    vv[0] = dd*((float)((tilesize.y>>1)+dapyoffs)) - vv[1]*ghoriz;
+    int ti = (1<<(heightBits(globalpicnum))); if (ti != tilesize.y) ti += ti;
     vec3f_t o;
-
-    skyclamphack = 0;
 
     xtex.d = xtex.v = 0;
     ytex.d = ytex.u = 0;
@@ -1334,7 +1303,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     }
 
     int const npot = (1<<(widthBits(globalpicnum))) != tileWidth(globalpicnum);
-    int const xpanning = (hw_parallaxskypanning?global_cf_xpanning:0);
+    float const xPanning = (hw_parallaxskypanning ? global_cf_xpanning / (1 << (realskybits-dapskybits)) : 0);
 
     int picnumbak = globalpicnum;
     ti = globalpicnum;
@@ -1343,7 +1312,6 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
     float fx = x0;
 
-	skyclamphack = true;	// Hack to make Blood's skies show properly.
     do
     {
         globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+ti;
@@ -1353,10 +1321,10 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
         {
             fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
             int tang = (y<<(11-dapskybits))&2047;
-            otex.u = otex.d*(t*((float)(tang)) * (1.f/2048.f) + xpanning) - xtex.u*fx;
+            otex.u = otex.d*(t*((float)(tang)) * (1.f/2048.f) + xPanning) - xtex.u*fx;
         }
         else
-            otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + xpanning) - xtex.u*ghalfx;
+            otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + xPanning) - xtex.u*ghalfx;
         y++;
         o.x = fx; fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
 
@@ -1464,13 +1432,12 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
             cxy[i].y = v.y * r + ghalfy;
         }
 
-        polymost_drawpoly(cxy, n3, method|DAMETH_WALL, tilesiz);
+        polymost_drawpoly(cxy, n3, method|DAMETH_WALL, tilesize);
 
         otex = otexbak, xtex = xtexbak, ytex = ytexbak;
     }
     while (ti >= 0);
-    skyclamphack = false;
-
+    globalskytex = nullptr;
     globalpicnum = picnumbak;
 
     flatskyrender = 1;
@@ -1581,7 +1548,9 @@ static void polymost_drawalls(int32_t const bunch)
 
         global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->floorshade, global_cf_pal = sec->floorpal; global_cf_z = sec->floorz;  // REFACT
-        global_cf_xpanning = sec->floorxpanning; global_cf_ypanning = sec->floorypanning, global_cf_heinum = sec->floorheinum;
+        global_cf_xpanning = sec->floorxpan_;
+        global_cf_ypanning = sec->floorypan_;
+        global_cf_heinum = sec->floorheinum;
         global_getzofslope_func = &fgetflorzofslope;
 
         if (globalpicnum >= r_rortexture && globalpicnum < r_rortexture + r_rortexturerange && r_rorphase == 0)
@@ -1602,19 +1571,12 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
         {
-            //Use clamping for tiled sky textures
-            //(don't wrap around edges if the sky use multiple panels)
-            for (bssize_t i=(1<<dapskybits)-1; i>0; i--)
-                if (dapskyoff[i] != dapskyoff[i-1])
-                    { skyclamphack = r_parallaxskyclamping; break; }
-
             skyzbufferhack = 1;
 
             //if (!hw_hightile || !hicfindskybox(globalpicnum, globalpal))
             {
                 float const ghorizbak = ghoriz;
 				pow2xsplit = 0;
-                skyclamphack = 0;
                 flatskyrender = 1;
 				GLInterface.SetVisibility(0.f);
                 polymost_domost(x0,fy0,x1,fy1);
@@ -1630,7 +1592,6 @@ static void polymost_drawalls(int32_t const bunch)
                 static vec2f_t const skywal[4] = { { -512, -512 }, { 512, -512 }, { 512, 512 }, { -512, 512 } };
 
                 pow2xsplit = 0;
-                skyclamphack = 1;
 
                 for (bssize_t i=0; i<4; i++)
                 {
@@ -1797,13 +1758,10 @@ static void polymost_drawalls(int32_t const bunch)
 
                 polymost_domost(x0,fy0,x1,fy1);
 
-                skyclamphack = 0;
                 drawingskybox = 0;
             }
 #endif
 
-            skyclamphack = 0;
-            skyzbufferhack = 0;
         }
 
         // Ceiling
@@ -1821,7 +1779,9 @@ static void polymost_drawalls(int32_t const bunch)
 
         global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT
-        global_cf_xpanning = sec->ceilingxpanning; global_cf_ypanning = sec->ceilingypanning, global_cf_heinum = sec->ceilingheinum;
+        global_cf_xpanning = sec->ceilingxpan_; 
+        global_cf_ypanning = sec->ceilingypan_, 
+            global_cf_heinum = sec->ceilingheinum;
         global_getzofslope_func = &fgetceilzofslope;
         
         if (globalpicnum >= r_rortexture && globalpicnum < r_rortexture + r_rortexturerange && r_rorphase == 0)
@@ -1842,19 +1802,12 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
         {
-            //Use clamping for tiled sky textures
-            //(don't wrap around edges if the sky use multiple panels)
-            for (bssize_t i=(1<<dapskybits)-1; i>0; i--)
-                if (dapskyoff[i] != dapskyoff[i-1])
-                    { skyclamphack = r_parallaxskyclamping; break; }
-
             skyzbufferhack = 1;
 
 			//if (!hw_hightile || !hicfindskybox(globalpicnum, globalpal))
 			{
 				float const ghorizbak = ghoriz;
 				pow2xsplit = 0;
-				skyclamphack = 0;
 				flatskyrender = 1;
 				GLInterface.SetVisibility(0.f);
 				polymost_domost(x1, cy1, x0, cy0);
@@ -1870,7 +1823,6 @@ static void polymost_drawalls(int32_t const bunch)
                 static vec2f_t const skywal[4] = { { -512, -512 }, { 512, -512 }, { 512, 512 }, { -512, 512 } };
 
                 pow2xsplit = 0;
-                skyclamphack = 1;
 
                 for (bssize_t i=0; i<4; i++)
                 {
@@ -2037,12 +1989,10 @@ static void polymost_drawalls(int32_t const bunch)
                 xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; //y-flip skybox floor
                 polymost_domost(x1,cy1,x0,cy0);
 
-                skyclamphack = 0;
                 drawingskybox = 0;
             }
 #endif
 
-            skyclamphack = 0;
             skyzbufferhack = 0;
         }
 
@@ -2054,8 +2004,8 @@ static void polymost_drawalls(int32_t const bunch)
 
         xtex.u = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)wal->xrepeat*8.f / (x0-x1);
         otex.u = t0*ryp0*gxyaspect*wal->xrepeat*8.0 - xtex.u*x0;
-        otex.u += (float)wal->xpanning*otex.d;
-        xtex.u += (float)wal->xpanning*xtex.d;
+        otex.u += (float)wal->xpan_*otex.d;
+        xtex.u += (float)wal->xpan_*xtex.d;
         ytex.u = 0;
 
         float const ogux = xtex.u, oguy = ytex.u, oguo = otex.u;
@@ -2084,11 +2034,11 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (!(wal->cstat&4)) ? sector[nextsectnum].ceilingz : sec->ceilingz;
 
                 // over
-                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, wal->cstat&4, tilesiz[globalpicnum]);
+                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypan_, wal->yrepeat, wal->cstat&4, tileSize(globalpicnum));
 
                 if (wal->cstat&8) //xflip
                 {
-                    float const t = (float)(wal->xrepeat*8 + wal->xpanning*2);
+                    float const t = (float)(wal->xrepeat*8 + wal->xpan_*2);
                     xtex.u = xtex.d*t - xtex.u;
                     ytex.u = ytex.d*t - ytex.u;
                     otex.u = otex.d*t - otex.u;
@@ -2107,9 +2057,9 @@ static void polymost_drawalls(int32_t const bunch)
                 else
                 {
                     nwal = (uwallptr_t)&wall[wal->nextwall];
-                    otex.u += (float)(nwal->xpanning - wal->xpanning) * otex.d;
-                    xtex.u += (float)(nwal->xpanning - wal->xpanning) * xtex.d;
-                    ytex.u += (float)(nwal->xpanning - wal->xpanning) * ytex.d;
+                    otex.u += (float)(nwal->xpan_ - wal->xpan_) * otex.d;
+                    xtex.u += (float)(nwal->xpan_ - wal->xpan_) * xtex.d;
+                    ytex.u += (float)(nwal->xpan_ - wal->xpan_) * ytex.d;
                 }
                 globalpicnum = nwal->picnum; globalshade = nwal->shade; globalfloorpal = globalpal = (int32_t)((uint8_t)nwal->pal);
                 GLInterface.SetVisibility(sectorVisibility(sectnum));
@@ -2119,11 +2069,11 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (!(nwal->cstat&4)) ? sector[nextsectnum].floorz : sec->ceilingz;
 
                 // under
-                calc_ypanning(i, ryp0, ryp1, x0, x1, nwal->ypanning, wal->yrepeat, !(nwal->cstat&4), tilesiz[globalpicnum]);
+                calc_ypanning(i, ryp0, ryp1, x0, x1, nwal->ypan_, wal->yrepeat, !(nwal->cstat&4), tileSize(globalpicnum));
 
                 if (wal->cstat&8) //xflip
                 {
-                    float const t = (float)(wal->xrepeat*8 + nwal->xpanning*2);
+                    float const t = (float)(wal->xrepeat*8 + nwal->xpan_*2);
                     xtex.u = xtex.d*t - xtex.u;
                     ytex.u = ytex.d*t - ytex.u;
                     otex.u = otex.d*t - otex.u;
@@ -2164,11 +2114,11 @@ static void polymost_drawalls(int32_t const bunch)
                 else { i = nwcs4 ? sec->ceilingz : sec->floorz; }
 
                 // white / 1-way
-                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, nwcs4 && !maskingOneWay, tilesiz[globalpicnum]);
+                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypan_, wal->yrepeat, nwcs4 && !maskingOneWay, tileSize(globalpicnum));
 
                 if (wal->cstat&8) //xflip
                 {
-                    float const t = (float) (wal->xrepeat*8 + wal->xpanning*2);
+                    float const t = (float) (wal->xrepeat*8 + wal->xpan_*2);
                     xtex.u = xtex.d*t - xtex.u;
                     ytex.u = ytex.d*t - ytex.u;
                     otex.u = otex.d*t - otex.u;
@@ -2244,7 +2194,7 @@ void polymost_scansector(int32_t sectnum)
             {
                 if ((spr->cstat&(64+48))!=(64+16) ||
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
-                    dmulscale6(sintable[(spr->ang+512)&2047],-s.x, sintable[spr->ang&2047],-s.y) > 0)
+                    dmulscale6(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y) > 0)
                     if (renderAddTsprite(z, sectnum))
                         break;
             }
@@ -2451,8 +2401,6 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
 
 void polymost_drawrooms()
 {
-    if (videoGetRenderMode() == REND_CLASSIC) return;
-
     polymost_outputGLDebugMessage(3, "polymost_drawrooms()");
 
 	GLInterface.ClearDepth();
@@ -2467,7 +2415,7 @@ void polymost_drawrooms()
     {
         // calculates the extend of the zenith glitch
         float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
-        float verticalfov = atanf(verticalfovtan) * (2.f / fPI);
+        float verticalfov = atanf(verticalfovtan) * (2.f / pi::pi());
         static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
         float zenglitch = verticalfov + maxhorizangle - 0.95f; // less than 1 because the zenith glitch extends a bit
         if (zenglitch > 0.f)
@@ -2488,8 +2436,6 @@ void polymost_drawrooms()
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
     ghoriz = FixedToFloat(qglobalhoriz);
     ghorizcorrect = FixedToFloat(divscale16(xdimenscale, viewingrange));
-
-    GLInterface.SetShadeInterpolate(hw_shadeinterpolate);
 
     //global cos/sin height angle
     if (r_yshearing)
@@ -2730,17 +2676,17 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     //gux*x1 + guo = t1*wal->xrepeat*8*yp1
     xtex.u = (t0*ryp0 - t1*ryp1)*gxyaspect*(float)wal->xrepeat*8.f / (x0-x1);
     otex.u = t0*ryp0*gxyaspect*(float)wal->xrepeat*8.f - xtex.u*x0;
-    otex.u += (float)wal->xpanning*otex.d;
-    xtex.u += (float)wal->xpanning*xtex.d;
+    otex.u += (float)wal->xpan_*otex.d;
+    xtex.u += (float)wal->xpan_*xtex.d;
     ytex.u = 0;
 
     // mask
     calc_ypanning((!(wal->cstat & 4)) ? max(nsec->ceilingz, sec->ceilingz) : min(nsec->floorz, sec->floorz), ryp0, ryp1,
-                  x0, x1, wal->ypanning, wal->yrepeat, 0, tilesiz[globalpicnum]);
+                  x0, x1, wal->ypan_, wal->yrepeat, 0, tileSize(globalpicnum));
 
     if (wal->cstat&8) //xflip
     {
-        float const t = (float)(wal->xrepeat*8 + wal->xpanning*2);
+        float const t = (float)(wal->xrepeat*8 + wal->xpan_*2);
         xtex.u = xtex.d*t - xtex.u;
         ytex.u = ytex.d*t - ytex.u;
         otex.u = otex.d*t - otex.u;
@@ -2840,9 +2786,8 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
         return;
 
     pow2xsplit = 0;
-    skyclamphack = 0;
 
-    polymost_drawpoly(dpxy, n, method, tilesiz[globalpicnum]);
+    polymost_drawpoly(dpxy, n, method, tileSize(globalpicnum));
 }
 
 void polymost_drawmaskwall(int32_t damaskwallcnt)
@@ -2861,7 +2806,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
     {
         // calculates the extend of the zenith glitch
         float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
-        float verticalfov = atanf(verticalfovtan) * (2.f / fPI);
+        float verticalfov = atanf(verticalfovtan) * (2.f / pi::pi());
         static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
         float zenglitch = verticalfov + maxhorizangle - 0.95f; // less than 1 because the zenith glitch extends a bit
         if (zenglitch > 0.f)
@@ -3099,13 +3044,13 @@ void polymost_drawsprite(int32_t snum)
 
     if (spriteext[spritenum].flags & SPREXT_AWAY1)
     {
-        pos.x += (sintable[(tspr->ang + 512) & 2047] >> 13);
-        pos.y += (sintable[(tspr->ang) & 2047] >> 13);
+        pos.x += bcos(tspr->ang, -13);
+        pos.y += bsin(tspr->ang, -13);
     }
     else if (spriteext[spritenum].flags & SPREXT_AWAY2)
     {
-        pos.x -= (sintable[(tspr->ang + 512) & 2047] >> 13);
-        pos.y -= (sintable[(tspr->ang) & 2047] >> 13);
+        pos.x -= bcos(tspr->ang, -13);
+        pos.y -= bsin(tspr->ang, -13);
     }
 
     vec2_t tsiz;
@@ -3136,7 +3081,7 @@ void polymost_drawsprite(int32_t snum)
             float foffs2 = TSPR_OFFSET(tspr);
 			if (fabs(foffs2) < fabs(foffs)) foffs = foffs2;
 
-            vec2f_t const offs = { (float)(sintable[(ang + 512) & 2047] >> 6)* foffs,  (float) (sintable[(ang) & 2047] >> 6) * foffs };
+            vec2f_t const offs = { float(bcosf(ang, -6) * foffs), float(bsinf(ang, -6) * foffs) };
 
             vec2f_t s0 = { (float)(tspr->x - globalposx) + offs.x,
                            (float)(tspr->y - globalposy) + offs.y};
@@ -3238,8 +3183,8 @@ void polymost_drawsprite(int32_t snum)
             if (globalorientation & 8)
                 off.y = -off.y;
 
-            vec2f_t const extent = { (float)tspr->xrepeat * (float)sintable[(tspr->ang) & 2047] * (1.0f / 65536.f),
-                                     (float)tspr->xrepeat * (float)sintable[(tspr->ang + 1536) & 2047] * (1.0f / 65536.f) };
+            vec2f_t const extent = { float(tspr->xrepeat * bsinf(tspr->ang, -16)),
+                                     float(tspr->xrepeat * -bcosf(tspr->ang, -16)) };
 
             float f = (float)(tsiz.x >> 1) + (float)off.x;
 
@@ -3284,8 +3229,7 @@ void polymost_drawsprite(int32_t snum)
                 {
                     int32_t const ang = getangle(wall[w].x - POINT2(w).x, wall[w].y - POINT2(w).y);
                     float const foffs = TSPR_OFFSET(tspr);
-                    vec2f_t const offs = { (float)(sintable[(ang + 1024) & 2047] >> 6) * foffs,
-                                     (float)(sintable[(ang + 512) & 2047] >> 6) * foffs};
+                    vec2d_t const offs = { -bsinf(ang, -6) * foffs, bcosf(ang, -6) * foffs };
 
                     vec0.x -= offs.x;
                     vec0.y -= offs.y;
@@ -3434,8 +3378,8 @@ void polymost_drawsprite(int32_t snum)
                               p1 = { (float)((tsiz.x >> 1) + off.x) * tspr->xrepeat,
                                      (float)((tsiz.y >> 1) + off.y) * tspr->yrepeat };
 
-                float const c = sintable[(tspr->ang + 512) & 2047] * (1.0f / 65536.f);
-                float const s = sintable[tspr->ang & 2047] * (1.0f / 65536.f);
+                float const c = bcosf(tspr->ang, -16);
+                float const s = bsinf(tspr->ang, -16);
 
                 vec2f_t pxy[6];
 
@@ -3598,13 +3542,14 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     //    basically this just means walls are repeating
     //    while sprites are clamped
 
-    if (videoGetRenderMode() < REND_POLYMOST) return;
    if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (!lookups.checkTable(dapalnum))) return;//dapalnum = 0;
 
     //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
     int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
-    GLInterface.SetTexture(dapicnum, tileGetTexture(dapicnum), palid, CLAMP_NONE);
+    auto tex = tileGetTexture(dapicnum);
+    if (tex->isValid())
+        GLInterface.SetTexture(tex, palid, CLAMP_NONE);
     hicprecaching = 0;
 
     if (datype == 0 || !hw_models) return;
@@ -3619,7 +3564,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 	{
         auto tex = mdloadskin((md2model_t *)models[mid], 0, dapalnum, i, nullptr);
         int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
-        if (tex) GLInterface.SetTexture(-1, tex, palid, CLAMP_NONE);
+        if (tex) GLInterface.SetTexture(tex, palid, CLAMP_NONE);
 	}
 }
 

@@ -126,8 +126,6 @@ struct user_defs
 	int levelclock;
 	unsigned char god, cashman, eog;
 	unsigned char clipping;
-	char user_name[MAXPLAYERS][32];
-	unsigned char showweapons;
 	unsigned char user_pals[MAXPLAYERS];
 
 	short from_bonus;
@@ -173,6 +171,8 @@ struct player_struct
 	PlayerHorizon horizon;
 	PlayerAngle angle;
 
+	uint16_t frags[MAXPLAYERS];
+
 	// using a bit field for this to save a bit of space.
 	FixedBitArray<MAX_WEAPONS> gotweapon;
 
@@ -202,7 +202,7 @@ struct player_struct
 	int bobcounter;
 	int randomflamex, crack_time;
 
-	int aim_mode, auto_aim, ftt;
+	int aim_mode, ftt;
 
 	short cursectnum, last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], frag, fraggedself;
@@ -283,6 +283,18 @@ struct player_struct
 
 	DDukeActor* GetActor();
 	int GetPlayerNum();
+
+	void apply_seasick(double factor);
+	void backuppos(bool noclipping = false);
+	void backupweapon();
+	void checkhardlanding();
+	void playerweaponsway(int xvel);
+
+	float adjustavel(float avel)
+	{
+		return (psectlotag == ST_2_UNDERWATER)? avel * 0.875f : avel;
+	}
+
 
 };
 

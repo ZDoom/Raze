@@ -103,33 +103,28 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	return CCMD_OK;
 }
 
-static int osdcmd_warptocoords(CCmdFuncPtr parm)
+void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
-	if (parm->numparms < 3 || parm->numparms > 5)
-		return CCMD_SHOWHELP;
-
 	player_struct* p = &ps[myconnectindex];
 
-	p->oposx = p->posx = atoi(parm->parms[0]);
-	p->oposy = p->posy = atoi(parm->parms[1]);
-	p->oposz = p->posz = atoi(parm->parms[2]);
+	p->oposx = p->posx = x;
+	p->oposy = p->posy = y;
+	p->oposz = p->posz = z;
 
-    if (parm->numparms >= 4)
+    if (ang != INT_MIN)
     {
-        p->angle.oang = p->angle.ang = buildang(atoi(parm->parms[3]));
+        p->angle.oang = p->angle.ang = buildang(ang);
     }
 
-    if (parm->numparms == 5)
+    if (horz != INT_MIN)
     {
-        p->horizon.ohoriz = p->horizon.horiz = buildhoriz(atoi(parm->parms[4]));
+        p->horizon.ohoriz = p->horizon.horiz = buildhoriz(horz);
     }
-
-	return CCMD_OK;
 }
 
-static int osdcmd_third_person_view(CCmdFuncPtr parm)
+void GameInterface::ToggleThirdPerson()
 {
-	if (gamestate != GS_LEVEL) return CCMD_OK;
+	if (gamestate != GS_LEVEL) return;
 	if (!isRRRA() || (!ps[myconnectindex].OnMotorcycle && !ps[myconnectindex].OnBoat))
 	{
 		if (ps[myconnectindex].over_shoulder_on)
@@ -142,42 +137,29 @@ static int osdcmd_third_person_view(CCmdFuncPtr parm)
 		}
 		FTA(QUOTE_VIEW_MODE_OFF + ps[myconnectindex].over_shoulder_on, &ps[myconnectindex]);
 	}
-	return CCMD_OK;
 }
 
-static int osdcmd_coop_view(CCmdFuncPtr parm)
+void GameInterface::SwitchCoopView()
 {
-	if (gamestate != GS_LEVEL) return CCMD_OK;
+	if (gamestate != GS_LEVEL) return;
 	if (ud.coop || ud.recstat == 2)
 	{
 		screenpeek = connectpoint2[screenpeek];
 		if (screenpeek == -1) screenpeek = 0;
 	}
-	return CCMD_OK;
 }
 
-static int osdcmd_show_weapon(CCmdFuncPtr parm)
+void GameInterface::ToggleShowWeapon()
 {
-	if (gamestate != GS_LEVEL) return CCMD_OK;
-	if (ud.multimode > 1)
-	{
-		ud.showweapons = 1 - ud.showweapons;
-		cl_showweapon = ud.showweapons;
-		FTA(QUOTE_WEAPON_MODE_OFF - ud.showweapons, &ps[screenpeek]);
-	}
-
-	return CCMD_OK;
+	if (gamestate != GS_LEVEL) return;
+	cl_showweapon = cl_showweapon == 0;
+	FTA(QUOTE_WEAPON_MODE_OFF - cl_showweapon, &ps[screenpeek]);
 }
 
 
 int registerosdcommands(void)
 {
 	C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",ccmd_spawn);
-	C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
-	C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
-	C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_coop_view);
-	C_RegisterFunction("show_weapon", "Show opponents' weapons", osdcmd_show_weapon);
-
 	return 0;
 }
 

@@ -48,7 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "jsector.h"
 #include "sector.h"
 #include "misc.h"
-#include "interp.h"
+#include "interpolate.h"
 #include "interpso.h"
 #include "razemenu.h"
 #include "gstrings.h"
@@ -78,7 +78,7 @@ extern bool NoMeters;
 #define PLAYER_MIN_HEIGHT (Z(20))
 #define PLAYER_CRAWL_WADE_DEPTH (30)
 
-USER puser[MAX_SW_PLAYERS_REG];
+USERSAVE puser[MAX_SW_PLAYERS_REG];
 
 //int16_t gNet.MultiGameType = MULTI_GAME_NONE;
 bool NightVision = false;
@@ -129,14 +129,9 @@ int ChopTics;
 
 PLAYER Player[MAX_SW_PLAYERS_REG + 1];
 
-//short snum = 0;
-
 // These are a bunch of kens variables for the player
 
 short NormalVisibility;
-
-// bool for determining whether game has set cl_syncinput or not.
-static bool gamesetinput = false;
 
 int InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity);
 
@@ -1349,7 +1344,7 @@ DoSpawnTeleporterEffect(SPRITEp sp)
 
     ep = &sprite[effect];
 
-    setspritez(effect, (vec3_t *)ep);
+    setspritez(effect, &ep->pos);
 
     ep->shade = -40;
     ep->xrepeat = ep->yrepeat = 42;
@@ -1373,7 +1368,7 @@ DoSpawnTeleporterEffectPlace(SPRITEp sp)
 
     ep = &sprite[effect];
 
-    setspritez(effect, (vec3_t *)ep);
+    setspritez(effect, &ep->pos);
 
     ep->shade = -40;
     ep->xrepeat = ep->yrepeat = 42;
@@ -1611,7 +1606,7 @@ DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 void
 DoPlayerTurnTurret(PLAYERp pp, float avel)
 {
-    fixed_t diff;
+    lookangle diff;
     binangle new_ang;
     SECTOR_OBJECTp sop = pp->sop;
 
@@ -1633,11 +1628,11 @@ DoPlayerTurnTurret(PLAYERp pp, float avel)
 
         if (sop->limit_ang_center >= 0)
         {
-            diff = getincangleq16(IntToFixed(sop->limit_ang_center), new_ang.asq16());
+            diff = getincanglebam(buildang(sop->limit_ang_center), new_ang);
 
-            if (labs(diff) >= IntToFixed(sop->limit_ang_delta))
+            if (labs(diff.asbuild()) >= sop->limit_ang_delta)
             {
-                if (diff < 0)
+                if (diff.asbam() < 0)
                     new_ang = buildang(sop->limit_ang_center - sop->limit_ang_delta);
                 else
                     new_ang = buildang(sop->limit_ang_center + sop->limit_ang_delta);
@@ -1665,8 +1660,8 @@ void SlipSlope(PLAYERp pp)
 
     ang = NORM_ANGLE(ang + 512);
 
-    pp->xvect += mulscale(sintable[NORM_ANGLE(ang + 512)], sector[pp->cursectnum].floorheinum, sectu->speed);
-    pp->yvect += mulscale(sintable[ang], sector[pp->cursectnum].floorheinum, sectu->speed);
+    pp->xvect += mulscale(bcos(ang), sector[pp->cursectnum].floorheinum, sectu->speed);
+    pp->yvect += mulscale(bsin(ang), sector[pp->cursectnum].floorheinum, sectu->speed);
 }
 
 void
@@ -1680,9 +1675,8 @@ PlayerAutoLook(PLAYERp pp, double const scaleAdjust)
         if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
         {
             // Get a point, 512 units ahead of player's position
-            auto const ang = pp->angle.ang.asbuild();
-            x = pp->posx + (sintable[(ang + 512) & 2047] >> 5);
-            y = pp->posy + (sintable[ang & 2047] >> 5);
+            x = pp->posx + pp->angle.ang.bcos(-5);
+            y = pp->posy + pp->angle.ang.bsin(-5);
             tempsect = pp->cursectnum;
             COVERupdatesector(x, y, &tempsect);
 
@@ -1757,34 +1751,24 @@ DoPlayerBob(PLAYERp pp)
         //amt = 10;
         amt = 12;
         amt = mulscale16(amt, dist<<8);
-
         dist = mulscale16(dist, 26000);
-        // controls how fast you move through the sin table
-        pp->bcnt += dist;
-
-        // wrap bcnt
-        pp->bcnt &= 2047;
-
-        // move pp->q16horiz up and down from 100 using sintable
-        //pp->bob_z = Z((8 * sintable[pp->bcnt]) >> 14);
-        pp->bob_z = mulscale14(Z(amt),sintable[pp->bcnt]);
     }
     else
     {
         amt = 5;
         amt = mulscale16(amt, dist<<9);
-
         dist = mulscale16(dist, 32000);
-        // controls how fast you move through the sin table
-        pp->bcnt += dist;
-
-        // wrap bcnt
-        pp->bcnt &= 2047;
-
-        // move pp->q16horiz up and down from 100 using sintable
-        //pp->bob_z = Z((4 * sintable[pp->bcnt]) >> 14);
-        pp->bob_z = mulscale14(Z(amt),sintable[pp->bcnt]);
     }
+
+    // controls how fast you move through the sin table
+    pp->bcnt += dist;
+
+    // wrap bcnt
+    pp->bcnt &= 2047;
+
+    // move pp->q16horiz up and down from 100 using sintable
+    //pp->bob_z = Z((8 * bsin(pp->bcnt)) >> 14);
+    pp->bob_z = mulscale14(Z(amt), bsin(pp->bcnt));
 }
 
 void
@@ -1804,7 +1788,7 @@ DoPlayerRecoil(PLAYERp pp)
     // controls how fast you move through the sin table
     pp->recoil_ndx += pp->recoil_speed;
 
-    if (sintable[pp->recoil_ndx] < 0)
+    if (bsin(pp->recoil_ndx) < 0)
     {
         RESET(pp->Flags, PF_RECOIL);
         pp->recoil_horizoff = 0;
@@ -1812,7 +1796,7 @@ DoPlayerRecoil(PLAYERp pp)
     }
 
     // move pp->q16horiz up and down
-    pp->recoil_horizoff = (pp->recoil_amt * sintable[pp->recoil_ndx]) << 2;
+    pp->recoil_horizoff = pp->recoil_amt * bsin(pp->recoil_ndx, 2);
 }
 
 
@@ -1825,7 +1809,7 @@ DoPlayerSpriteBob(PLAYERp pp, short player_height, short bob_amt, short bob_spee
 
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
 
-    pp->bob_amt = ((bob_amt * (int) sintable[pp->bob_ndx]) >> 14);
+    pp->bob_amt = mulscale14(bob_amt, bsin(pp->bob_ndx));
 
     sp->z = (pp->posz + player_height) + pp->bob_amt;
 }
@@ -2065,7 +2049,7 @@ DoPlayerSlide(PLAYERp pp)
     if (labs(pp->slide_xvect) < 12800 && labs(pp->slide_yvect) < 12800)
         pp->slide_xvect = pp->slide_yvect = 0;
 
-    push_ret = pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -2078,9 +2062,9 @@ DoPlayerSlide(PLAYERp pp)
         }
         return;
     }
-    clipmove((vec3_t *)pp, &pp->cursectnum, pp->slide_xvect, pp->slide_yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    clipmove(&pp->pos, &pp->cursectnum, pp->slide_xvect, pp->slide_yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     PlayerCheckValidMove(pp);
-    push_ret = pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -2158,7 +2142,7 @@ DoPlayerMove(PLAYERp pp)
 
     SlipSlope(pp);
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL);
     }
@@ -2228,7 +2212,7 @@ DoPlayerMove(PLAYERp pp)
     }
     else
     {
-        push_ret = pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2251,11 +2235,11 @@ DoPlayerMove(PLAYERp pp)
         save_cstat = pp->SpriteP->cstat;
         RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
         COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
-        clipmove((vec3_t *)pp, &pp->cursectnum, pp->xvect, pp->yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+        clipmove(&pp->pos, &pp->cursectnum, pp->xvect, pp->yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
         pp->SpriteP->cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -2286,7 +2270,7 @@ DoPlayerMove(PLAYERp pp)
 
     DoPlayerSetWadeDepth(pp);
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     }
@@ -2449,7 +2433,7 @@ DoPlayerMoveBoat(PLAYERp pp)
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_TURN_BOAT);
     }
@@ -2504,7 +2488,7 @@ DoPlayerMoveBoat(PLAYERp pp)
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     }
@@ -2529,7 +2513,7 @@ void DoTankTreads(PLAYERp pp)
         return;
 
     vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->angle.ang.asbuild()+512)], sintable[pp->angle.ang.asbuild()]);
+    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
     if (dot < 0)
         reverse = true;
 
@@ -2655,7 +2639,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
         return;
 
     // main sector
-    SectIterator it(StatDamageList[sop->op_main_sector]);
+    SectIterator it(sop->op_main_sector);
     while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
@@ -2828,10 +2812,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
     }
 
     // force synchronised input here for now.
-    if (!cl_syncinput)
-    {
-        gamesetinput = cl_syncinput = true;
-    }
+    setForcedSyncInput();
 
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);
@@ -2958,7 +2939,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
     }
     else
     {
-        if (!cl_syncinput)
+        if (!SyncInput())
         {
             SET(pp->Flags2, PF2_INPUT_CAN_TURN_VEHICLE);
         }
@@ -3003,7 +2984,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     }
@@ -3026,7 +3007,7 @@ DoPlayerMoveTurret(PLAYERp pp)
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
     }
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET);
     }
@@ -3040,7 +3021,7 @@ DoPlayerMoveTurret(PLAYERp pp)
     else
         SET(pp->Flags, PF_PLAYER_MOVED);
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     }
@@ -3470,7 +3451,7 @@ DoPlayerClimb(PLAYERp pp)
         pp->xvect = pp->yvect = 0;
 
     climbvel = FindDistance2D(pp->xvect, pp->yvect)>>9;
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->angle.ang.asbuild()+512)], sintable[pp->angle.ang.asbuild()]);
+    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
     if (dot < 0)
         climbvel = -climbvel;
 
@@ -3590,7 +3571,7 @@ DoPlayerClimb(PLAYERp pp)
 
         pp->climb_ndx &= 1023;
 
-        // pp->posz += (climb_amt * sintable[pp->climb_ndx]) >> 14;
+        // pp->posz += mulscale14(climb_amt, bsin(pp->climb_ndx));
         pp->posz += climb_amt;
 
         // if you are touching the floor
@@ -3619,7 +3600,7 @@ DoPlayerClimb(PLAYERp pp)
     sp->z = pp->posz + PLAYER_HEIGHT;
     changespritesect(pp->PlayerSprite, pp->cursectnum);
 
-    if (!cl_syncinput)
+    if (!SyncInput())
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     }
@@ -3662,8 +3643,7 @@ DoPlayerClimb(PLAYERp pp)
             nx = MOVEx(100, lsp->ang);
             ny = MOVEy(100, lsp->ang);
 
-            // set angle player is supposed to face.
-            pp->LadderAngle = NORM_ANGLE(lsp->ang + 1024);
+            // set ladder sector
             pp->LadderSector = wall[wal].nextsector;
 
             // set players "view" distance from the ladder - needs to be farther than
@@ -3672,7 +3652,7 @@ DoPlayerClimb(PLAYERp pp)
             pp->lx = lsp->x + nx * 5;
             pp->ly = lsp->y + ny * 5;
 
-            pp->angle.settarget(pp->LadderAngle);
+            pp->angle.settarget(lsp->ang + 1024);
         }
     }
 }
@@ -3692,10 +3672,9 @@ DoPlayerWadeSuperJump(PLAYERp pp)
     for (i = 0; i < SIZ(angs); i++)
     {
         FAFhitscan(pp->posx, pp->posy, zh, pp->cursectnum,    // Start position
-                   sintable[NORM_ANGLE(pp->angle.ang.asbuild() + angs[i] + 512)],       // X vector of 3D ang
-                   sintable[NORM_ANGLE(pp->angle.ang.asbuild() + angs[i])],         // Y vector of 3D ang
-                   0,                          // Z vector of 3D ang
-                   &hitinfo, CLIPMASK_MISSILE);
+                   bcos(pp->angle.ang.asbuild() + angs[i]),   // X vector of 3D ang
+                   bsin(pp->angle.ang.asbuild() + angs[i]),   // Y vector of 3D ang
+                   0, &hitinfo, CLIPMASK_MISSILE);            // Z vector of 3D ang
 
         if (hitinfo.wall >= 0 && hitinfo.sect >= 0)
         {
@@ -4015,7 +3994,7 @@ PlayerOnLadder(PLAYERp pp)
             &neartagsector, &neartagwall, &neartagsprite,
             &neartaghitdist, 1024L+768L, NTAG_SEARCH_LO_HI, NULL);
 
-    dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->angle.ang.asbuild()+512)], sintable[pp->angle.ang.asbuild()]);
+    dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
 
     if (dir < 0)
         return false;
@@ -4033,8 +4012,8 @@ PlayerOnLadder(PLAYERp pp)
             return false;
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,
-                   sintable[NORM_ANGLE(pp->angle.ang.asbuild()  + angles[i] + 512)],
-                   sintable[NORM_ANGLE(pp->angle.ang.asbuild() + angles[i])],
+                   bcos(pp->angle.ang.asbuild() + angles[i]),
+                   bsin(pp->angle.ang.asbuild() + angles[i]),
                    0,
                    &hitinfo, CLIPMASK_MISSILE);
 
@@ -4069,9 +4048,6 @@ PlayerOnLadder(PLAYERp pp)
     nx = MOVEx(100, lsp->ang);
     ny = MOVEy(100, lsp->ang);
 
-    // set angle player is supposed to face.
-    pp->LadderAngle = NORM_ANGLE(lsp->ang + 1024);
-
 #if DEBUG
     if (wall[wal].nextsector < 0)
     {
@@ -4089,7 +4065,7 @@ PlayerOnLadder(PLAYERp pp)
     pp->lx = lsp->x + nx * 5;
     pp->ly = lsp->y + ny * 5;
 
-    pp->angle.settarget(pp->LadderAngle);
+    pp->angle.settarget(lsp->ang + 1024);
 
     return true;
 }
@@ -4934,10 +4910,10 @@ DoPlayerCurrent(PLAYERp pp)
     if (!sectu)
         return;
 
-    xvect = sectu->speed * synctics * (int) sintable[NORM_ANGLE(sectu->ang + 512)] >> 4;
-    yvect = sectu->speed * synctics * (int) sintable[sectu->ang] >> 4;
+    xvect = sectu->speed * synctics * bcos(sectu->ang) >> 4;
+    yvect = sectu->speed * synctics * bsin(sectu->ang) >> 4;
 
-    push_ret = pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -4952,9 +4928,9 @@ DoPlayerCurrent(PLAYERp pp)
         }
         return;
     }
-    clipmove((vec3_t *)pp, &pp->cursectnum, xvect, yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    clipmove(&pp->pos, &pp->cursectnum, xvect, yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     PlayerCheckValidMove(pp);
-    pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -6193,7 +6169,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     // allow turning
     if (TEST(pp->Flags, PF_DEAD_HEAD|PF_HEAD_CONTROL))
     {  
-        if (!cl_syncinput)
+        if (!SyncInput())
         {
             SET(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL);
         }
@@ -6210,7 +6186,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            pp->angle.addadjustment(getincangleq16(pp->angle.ang.asq16(), gethiq16angle(kp->x - pp->posx, kp->y - pp->posy)) / (double)(FRACUNIT << 4));
+            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->x - pp->posx, kp->y - pp->posy)) >> 4);
         }
     }
 }
@@ -6316,7 +6292,8 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
     SPRITEp sp = pp->SpriteP, hp;
     USERp u = User[pp->PlayerSprite], hu;
     int i;
-    unsigned stat,dist;
+    unsigned stat;
+    int dist;
     int a,b,c;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
@@ -6336,7 +6313,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
 
             DISTANCE(hp->x, hp->y, sp->x, sp->y, dist, a, b, c);
 
-            if (dist < hu->Radius + 100)
+            if (unsigned(dist) < hu->Radius + 100)
             {
                 pp->Killer = i;
 
@@ -7178,8 +7155,7 @@ domovethings(void)
     extern int FinishTimer;
 
 
-    updateinterpolations();                  // Stick at beginning of domovethings
-    short_updateinterpolations();            // Stick at beginning of domovethings
+    UpdateInterpolations();                  // Stick at beginning of domovethings
     so_updateinterpolations();               // Stick at beginning of domovethings
     MoveSkipSavePos();
 
@@ -7235,7 +7211,7 @@ domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].angle.settarget(FixedToFloat(gethiq16angle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy)));
+            Player[screenpeek].angle.settarget(bvectangf(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy));
         }
 
         if (!TEST(pp->Flags, PF_DEAD))
@@ -7254,10 +7230,7 @@ domovethings(void)
         pp->angle.resetadjustment();
 
         // disable synchronised input if set by game.
-        if (gamesetinput)
-        {
-            gamesetinput = cl_syncinput = false;
-        }
+        resetForcedSyncInput();
 
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 
@@ -7522,11 +7495,7 @@ InitMultiPlayerInfo(void)
 
         start0 = SpawnSprite(MultiStatList[stat], ST1, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
         ASSERT(start0 >= 0);
-        if (User[start0])
-        {
-            FreeMem(User[start0]);
-            User[start0] = NULL;
-        }
+        FreeUser(start0);
         sprite[start0].picnum = ST1;
     }
 

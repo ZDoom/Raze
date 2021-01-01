@@ -44,6 +44,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "glbackend/glbackend.h"
 #include "gamestate.h"
 #include "dukeactor.h"
+#include "interpolate.h"
 
 BEGIN_DUKE_NS
 
@@ -83,27 +84,6 @@ GameStats GameInterface::getStats()
 //
 //---------------------------------------------------------------------------
 
-template<class func>
-void runbonus(func completion)
-{
-	// MP scoreboard
-	if (playerswhenstarted > 1 && !ud.coop)
-	{
-		dobonus(1, completion);
-	}
-	else completion(false);
-
-}
-
-template <class func>
-void runtwoscreens(func completion)
-{
-	// shareware and TEN screens
-	if (isShareware() && !isRR())
-		showtwoscreens(completion);
-	else completion(false);
-}
-
 static void endthegame(bool)
 {
 	endoomName = isRR() ? "redneck.bin" : !isShareware() ? "duke3d.bin" : "dukesw.bin";
@@ -111,14 +91,27 @@ static void endthegame(bool)
 }
 
 
-void gameexitfrommenu()
-{
-	runbonus([](bool aborted) { runtwoscreens(endthegame); });
-}
-
 void GameInterface::ExitFromMenu() 
 { 
-	gameexitfrommenu();
+	auto runbonus = [=](auto completion)
+	{
+	// MP scoreboard
+		if (playerswhenstarted > 1 && !ud.coop)
+	{
+			dobonus(1, completion);
+	}
+	else completion(false);
+	};
+
+	auto runtwoscreens = [](auto completion)
+	{
+	// shareware and TEN screens
+	if (isShareware() && !isRR())
+		showtwoscreens(completion);
+	else completion(false);
+	};
+
+	runbonus([=](bool aborted) { runtwoscreens(endthegame); });
 }
 
 //---------------------------------------------------------------------------
@@ -234,7 +227,7 @@ void drawoverlays(double smoothratio)
 	// this does pain tinting etc from the CON
 	V_AddBlend(pp->pals.r, pp->pals.g, pp->pals.b, pp->pals.a, blend);
 	// loogies courtesy of being snotted on
-	if (pp->loogcnt > 0)
+	if (pp->loogcnt > 0 && !isRR())
 	{
 		V_AddBlend(0, 63, 0, (pp->loogcnt >> 1), blend);
 	}
@@ -267,7 +260,7 @@ void drawoverlays(double smoothratio)
 
 		if (automapMode != am_off)
 		{
-			dointerpolations(smoothratio);
+			DoInterpolations(smoothratio / 65536.);
 
 			if (pp->newOwner == nullptr && playrunning())
 			{
@@ -291,7 +284,7 @@ void drawoverlays(double smoothratio)
 				cang = pp->angle.oang.asbuild();
 			}
 			DrawOverheadMap(cposx, cposy, cang);
-			restoreinterpolations();
+			RestoreInterpolations();
 		}
 	}
 
@@ -301,7 +294,7 @@ void drawoverlays(double smoothratio)
 
 	if (ps[myconnectindex].newOwner == nullptr && ud.cameraactor == nullptr)
 	{
-		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -getHalfLookAng(pp->angle.olook_ang.asq16(), pp->angle.look_ang.asq16(), cl_syncinput, smoothratio), pp->over_shoulder_on ? 2.5 : 0, isRR() ? 0.5 : 1);
+		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -pp->angle.look_anghalf(smoothratio), pp->over_shoulder_on ? 2.5 : 0, isRR() ? 0.5 : 1);
 	}
 
 	if (paused == 2)
@@ -381,8 +374,8 @@ int startrts(int lumpNum, int localPlayer)
 
 ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 {
-	// todo: factor in the frag bar: tilesiz[TILE_FRAGBAR].y
-	int sbar = tilesiz[TILE_BOTTOMSTATUSBAR].y;
+	// todo: factor in the frag bar: tileHeight(TILE_FRAGBAR)
+	int sbar = tileHeight(TILE_BOTTOMSTATUSBAR);
 	if (isRR())
 	{
 		sbar >>= 1;
@@ -411,8 +404,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 	PalEntry col;
 	spritetype* spr;
 
-	xvect = sintable[(-cang) & 2047] * czoom;
-	yvect = sintable[(1536 - cang) & 2047] * czoom;
+	xvect = -bsin(cang) * czoom;
+	yvect = -bcos(cang) * czoom;
 	xvect2 = mulscale16(xvect, yxaspect);
 	yvect2 = mulscale16(yvect, yxaspect);
 
@@ -444,8 +437,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 				x1 = dmulscale16(ox, xvect, -oy, yvect);
 				y1 = dmulscale16(oy, xvect2, ox, yvect2);
 
-				ox = (sintable[(spr->ang + 512) & 2047] >> 7);
-				oy = (sintable[(spr->ang) & 2047] >> 7);
+				ox = bcos(spr->ang, -7);
+				oy = bsin(spr->ang, -7);
 				x2 = dmulscale16(ox, xvect, -oy, yvect);
 				y2 = dmulscale16(oy, xvect, ox, yvect);
 
@@ -470,9 +463,9 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 					if ((spr->cstat & 4) > 0) xoff = -xoff;
 					k = spr->ang;
 					l = spr->xrepeat;
-					dax = sintable[k & 2047] * l;
-					day = sintable[(k + 1536) & 2047] * l;
-					l = tilesiz[tilenum].x;
+					dax = bsin(k) * l;
+					day = -bcos(k) * l;
+					l = tileWidth(tilenum);
 					k = (l >> 1) + xoff;
 					x1 -= mulscale16(dax, k);
 					x2 = x1 + mulscale16(dax, l);
@@ -503,11 +496,11 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 				if ((spr->cstat & 8) > 0) yoff = -yoff;
 
 				k = spr->ang;
-				cosang = sintable[(k + 512) & 2047];
-				sinang = sintable[k & 2047];
-				xspan = tilesiz[tilenum].x;
+				cosang = bcos(k);
+				sinang = bsin(k);
+				xspan = tileWidth(tilenum);
 				xrepeat = spr->xrepeat;
-				yspan = tilesiz[tilenum].y;
+				yspan = tileHeight(tilenum);
 				yrepeat = spr->yrepeat;
 
 				dax = ((xspan >> 1) + xoff) * xrepeat;

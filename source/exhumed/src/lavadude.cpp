@@ -25,8 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum { kMaxLavas = 20 };
-
 struct Lava
 {
     short nSprite;
@@ -35,12 +33,32 @@ struct Lava
     short nTarget;
     short nHealth;
     short nFrame;
-    short nChannel;
+    short nIndex;
 };
 
-Lava LavaList[kMaxLavas];
+TArray<Lava> LavaList;
 
-short LavaCount = 0;
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Lava& w, Lava* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("run", w.nRun)
+            ("channel", w.nIndex)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializeLavadude(FSerializer& arc)
+{
+    arc("lavadude", LavaList);
+}
+
 
 static actionSeq LavadudeSeq[] = {
     {0, 1},
@@ -54,15 +72,9 @@ static actionSeq LavadudeSeq[] = {
     {42, 1}
 };
 
-static SavegameHelper sghlava("lavadude",
-    SA(LavaList),
-    SV(LavaCount),
-    nullptr);
-
-
 void InitLava()
 {
-    LavaCount = 0;
+    LavaList.Clear();
 }
 
 int BuildLavaLimb(int nSprite, int edx, int ebx)
@@ -142,12 +154,7 @@ void FuncLavaLimb(int a, int, int nRun)
 
 int BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, int nChannel)
 {
-    short nLava = LavaCount;
-    LavaCount++;
-
-    if (nLava >= kMaxLavas) {
-        return -1;
-    }
+    auto nLava = LavaList.Reserve(1);
 
     if (nSprite == -1)
     {
@@ -192,7 +199,7 @@ int BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, int
     LavaList[nLava].nHealth = 4000;
     LavaList[nLava].nSprite = nSprite;
     LavaList[nLava].nTarget = -1;
-    LavaList[nLava].nChannel = nChannel;
+    LavaList[nLava].nIndex = nChannel;
     LavaList[nLava].nFrame = 0;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nLava | 0x150000);
@@ -206,7 +213,7 @@ int BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, int
 void FuncLava(int a, int nDamage, int nRun)
 {
     short nLava = RunData[nRun].nVal;
-    assert(nLava >= 0 && nLava < kMaxLavas);
+    assert(nLava >= 0 && nLava < LavaList.Size());
 
     short nAction = LavaList[nLava].nAction;
     short nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
@@ -329,8 +336,8 @@ void FuncLava(int a, int nDamage, int nRun)
 
                         PlotCourseToSprite(nSprite, nTarget);
 
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
 
                         if (nTarget >= 0 && !RandomSize(1))
                         {
@@ -357,8 +364,8 @@ void FuncLava(int a, int nDamage, int nRun)
                         sprite[nSprite].z = z;
 
                         sprite[nSprite].ang = (sprite[nSprite].ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
                         break;
                     }
 
@@ -369,8 +376,8 @@ void FuncLava(int a, int nDamage, int nRun)
                     if ((nVal & 0xC000) == 0x8000)
                     {
                         sprite[nSprite].ang = (sprite[nSprite].ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
                         break;
                     }
                     else if ((nVal & 0xC000) == 0xC000)
@@ -419,7 +426,7 @@ void FuncLava(int a, int nDamage, int nRun)
                         int nHeight = GetSpriteHeight(nSprite);
                         GetUpAngle(nSprite, -64000, nTarget, (-(nHeight >> 1)));
 
-                        BuildBullet(nSprite, 10, Cos(sprite[nSprite].ang) << 8, Sin(sprite[nSprite].ang) << 8, -1, sprite[nSprite].ang, nTarget + 10000, 1);
+                        BuildBullet(nSprite, 10, bcos(sprite[nSprite].ang, 8), bsin(sprite[nSprite].ang, 8), -1, sprite[nSprite].ang, nTarget + 10000, 1);
                     }
                     else if (var_1C)
                     {
@@ -461,7 +468,7 @@ void FuncLava(int a, int nDamage, int nRun)
                                 ecx++;
                             }
                             while (ecx < 20);
-                            runlist_ChangeChannel(LavaList[nLava].nChannel, 1);
+                            runlist_ChangeChannel(LavaList[nLava].nIndex, 1);
                         }
                     }
                     else

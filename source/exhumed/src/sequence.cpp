@@ -333,9 +333,9 @@ void seq_LoadSequences()
 #endif
 
     nShadowPic = seq_GetFirstSeqPicnum(kSeqShadow);
-    nShadowWidth = tilesiz[nShadowPic].x;
+    nShadowWidth = tileWidth(nShadowPic);
 
-    nFlameHeight = tilesiz[seq_GetFirstSeqPicnum(kSeqFirePoof)].y;
+    nFlameHeight = tileHeight(seq_GetFirstSeqPicnum(kSeqFirePoof));
 
     nBackgroundPic = seq_GetFirstSeqPicnum(kSeqBackgrnd);
 
@@ -379,7 +379,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
             double x = ChunkXpos[nFrameBase] + (160 + xOffset);
             double y = ChunkYpos[nFrameBase] + (100 + yOffset);
 
-            hud_drawsprite(x, y, 65536, fmod(-2 * (PlayerList[nLocalPlayer].angle.ang.asbam() / (double)BAMUNIT), kAngleMask + 1), nTile, 0, 0, 1);
+            hud_drawsprite(x, y, 65536, fmod(-2 * PlayerList[nLocalPlayer].angle.ang.asbuildf(), kAngleMask + 1), nTile, 0, 0, 1);
             nFrameBase++;
         }
     }
@@ -618,13 +618,13 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
         {
             pTSprite->picnum = nShadowPic;
 
-            int edx = ((tilesiz[nPict].x << 5) / nShadowWidth) - ((nFloorZ - pTSprite->z) >> 10);
+            int edx = ((tileWidth(nPict) << 5) / nShadowWidth) - ((nFloorZ - pTSprite->z) >> 10);
             if (edx < 1) {
                 edx = 1;
             }
 
             pTSprite->cstat = 0x22; // transluscence, floor sprite
-            pTSprite->z = videoGetRenderMode() >= REND_POLYMOST ? nFloorZ : nFloorZ + 1;
+            pTSprite->z = nFloorZ;
             pTSprite->yrepeat = (uint8_t)edx;
             pTSprite->xrepeat = (uint8_t)edx;
             pTSprite->statnum = -3;
@@ -635,12 +635,17 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
     return nPict;
 }
 
-static SavegameHelper sghseq("sequence",
-    SV(nPilotLightFrame),
-    SV(nPilotLightCount),
-    SV(nPilotLightBase),
-    SV(nShadowWidth),
-    SV(nFlameHeight),
-    nullptr);
+void SerializeSequence(FSerializer& arc)
+{
+    if (arc.BeginObject("sequence"))
+    {
+        arc("pilotlightframe", nPilotLightFrame)
+            ("pilotlightcount", nPilotLightCount)
+            ("pilotlightbase", nPilotLightBase)
+            ("shadowwidth", nShadowWidth)
+            ("flameheight", nFlameHeight)
+            .EndObject();
+    }
+}
 
 END_PS_NS

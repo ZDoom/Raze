@@ -31,13 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "v_font.h"
 
-#include "endgame.h"
-#include "aistate.h"
-#include "loadsave.h"
-#include "sectorfx.h"
-#include "choke.h"
-#include "view.h"
-#include "nnexts.h"
+#include "blood.h"
+
 #include "zstring.h"
 #include "razemenu.h"
 #include "gstrings.h"
@@ -95,11 +90,8 @@ template<typename T> tspritetype* viewInsertTSprite(int nSector, int nStatnum, T
         pTSprite->owner = pSprite->owner;
         pTSprite->ang = pSprite->ang;
     }
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        pTSprite->x += Cos(gCameraAng)>>25;
-        pTSprite->y += Sin(gCameraAng)>>25;
-    }
+    pTSprite->x += Cos(gCameraAng)>>25;
+    pTSprite->y += Sin(gCameraAng)>>25;
     return pTSprite;
 }
 
@@ -261,7 +253,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         pNSprite->z = pTSprite->z;
         pNSprite->picnum = 908;
         pNSprite->statnum = kStatDecoration;
-        pNSprite->xrepeat = pNSprite->yrepeat = (tilesiz[pTSprite->picnum].x*pTSprite->xrepeat)/64;
+        pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum)*pTSprite->xrepeat)/64;
         break;
     }
     case VIEW_EFFECT_6:
@@ -304,7 +296,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         pNSprite->z = top;
         pNSprite->picnum = 2101;
         pNSprite->shade = -128;
-        pNSprite->xrepeat = pNSprite->yrepeat = (tilesiz[pTSprite->picnum].x*pTSprite->xrepeat)/32;
+        pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum)*pTSprite->xrepeat)/32;
         break;
     }
     case VIEW_EFFECT_5:
@@ -315,7 +307,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         pNSprite->z = bottom;
         pNSprite->picnum = 2101;
         pNSprite->shade = -128;
-        pNSprite->xrepeat = pNSprite->yrepeat = (tilesiz[pTSprite->picnum].x*pTSprite->xrepeat)/32;
+        pNSprite->xrepeat = pNSprite->yrepeat = (tileWidth(pTSprite->picnum)*pTSprite->xrepeat)/32;
         break;
     }
     case VIEW_EFFECT_0:
@@ -330,7 +322,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
             pNSprite->yrepeat = pTSprite->yrepeat >> 2;
             pNSprite->picnum = pTSprite->picnum;
             pNSprite->pal = 5;
-            int height = tilesiz[pNSprite->picnum].y;
+            int height = tileHeight(pNSprite->picnum);
             int center = height / 2 + tileTopOffset(pNSprite->picnum);
             pNSprite->z -= (pNSprite->yrepeat << 2) * (height - center);
         }
@@ -409,7 +401,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         pNSprite->xrepeat = 32;
         pNSprite->yrepeat = 32;
         const int nVoxel = voxelIndex[nTile];
-        if (cl_showweapon == 2 && r_voxels && gDetail >= 4 && videoGetRenderMode() != REND_POLYMER && nVoxel != -1)
+        if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
         {
             pNSprite->cstat |= 48;
             pNSprite->cstat &= ~8;
@@ -469,7 +461,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
 
         int nSprite = pTSprite->owner;
-        if (cl_interpolate && TestBitString(gInterpolateSprite, nSprite) && !(pTSprite->flags&512))
+        if (cl_interpolate && gInterpolateSprite[nSprite] && !(pTSprite->flags&512))
         {
             LOCATION *pPrevLoc = &gPrevSpriteLoc[nSprite];
             int iInterpolate = (int)gInterpolate;
@@ -551,7 +543,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     break;
 
                 // Can be overridden by def script
-                if (r_voxels && gDetail >= 4 && videoGetRenderMode() != REND_POLYMER && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1 && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+                if (r_voxels && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1 && !(spriteext[nSprite].flags&SPREXT_NOTMD))
                 {
                     if ((pTSprite->flags&kHitagRespawn) == 0)
                     {
@@ -574,7 +566,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             nAnim--;
         }
 
-        if ((pTSprite->cstat&48) != 48 && r_voxels && videoGetRenderMode() != REND_POLYMER && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+        if ((pTSprite->cstat&48) != 48 && r_voxels && !(spriteext[nSprite].flags&SPREXT_NOTMD))
         {
             int const nRootTile = pTSprite->picnum;
             int nAnimTile = pTSprite->picnum + animateoffs_replace(pTSprite->picnum, 32768+pTSprite->owner);

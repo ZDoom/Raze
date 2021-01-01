@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 #include "actor.h"
-#include "blood.h"
 #include "build.h"
 #include "common_game.h"
 #include "compat.h"
@@ -114,7 +113,7 @@ struct PLAYER
     int                 slope;
     bool                isUnderwater;
     bool                hasKey[8];
-    char                hasFlag;
+    int8_t              hasFlag;
     short               used2[8];  // ??
     int                 damageControl[7];
     int8_t              curWeapon;
@@ -147,11 +146,7 @@ struct PLAYER
     int                 teamId;
     int                 fraggerId;
     int                 underwaterTime;
-    int                 bloodTime;  // --> useless
-    int                 gooTime;    // --> useless
-    int                 wetTime;    // --> useless
     int                 bubbleTime;
-    int                 at306;  // --> useless
     int                 restTime;
     int                 kickPower;
     int                 laughCount;
@@ -179,16 +174,10 @@ struct PLAYER
     int                 pickupEffect;
     bool                flashEffect;  // if true, reduce pPlayer->visibility counter
     int                 quakeEffect;
-    int                 angold;
+    binangle            angold;
     int                 player_par;
     int                 nWaterPal;
     POSTURE             pPosture[kModeMax][kPostureMax];
-};
-
-struct PROFILE
-{
-    int skill;
-    char name[MAXPLAYERNAME];
 };
 
 struct AMMOINFO
@@ -213,10 +202,8 @@ extern PLAYER *gMe, *gView;
 extern bool gBlueFlagDropped;
 extern bool gRedFlagDropped;
 
-extern PROFILE gProfile[kMaxPlayers];
-
-extern int dword_21EFB0[kMaxPlayers];
-extern int dword_21EFD0[kMaxPlayers];
+extern int team_score[kMaxPlayers];
+extern int team_ticker[kMaxPlayers];
 extern AMMOINFO gAmmoInfo[];
 extern POWERUPINFO gPowerUpInfo[kMaxPowerUps];
 
@@ -272,7 +259,7 @@ void        playerCorrectInertia(PLAYER *pPlayer, vec3_t const *oldpos);
 void        playerStart(int nPlayer, int bNewLevel = 0);
 void playerReset(PLAYER *pPlayer);
 void playerInit(int nPlayer, unsigned int a2);
-char sub_3A158(PLAYER *a1, spritetype *a2);
+char findDroppedLeech(PLAYER *a1, spritetype *a2);
 char PickupItem(PLAYER *pPlayer, spritetype *pItem);
 char PickupAmmo(PLAYER *pPlayer, spritetype *pAmmo);
 char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon);
@@ -286,12 +273,11 @@ spritetype *playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int 
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim);
 void FragPlayer(PLAYER *pPlayer, int nSprite);
 int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage);
-spritetype *sub_40A94(PLAYER *pPlayer, int a2);
+spritetype *flagDropped(PLAYER *pPlayer, int a2);
 int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage);
 int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec);
-void sub_41250(PLAYER *pPlayer);
+void voodooTarget(PLAYER *pPlayer);
 void playerLandingSound(PLAYER *pPlayer);
-void PlayerSurvive(int, int nXSprite);
-void PlayerKneelsOver(int, int nXSprite);
+void PlayerSurvive(int, DBloodActor*);
 
 END_BLD_NS

@@ -376,6 +376,7 @@ void Display()
 			screen->FrameTime = I_msTimeFS();
 			screen->BeginFrame();
 			screen->SetSceneRenderTarget(gl_ssao != 0);
+			updateModelInterpolation();
 			gi->Render();
 			DrawFullscreenBlends();
 			drawMapTitle();
@@ -519,7 +520,7 @@ void TryRunTics (void)
 			gi->Predict(myconnectindex);
 #endif
 		}
-		if (!cl_syncinput)
+		if (!SyncInput())
 		{
 			I_GetEvent();
 			auto input = CONTROL_GetInput();

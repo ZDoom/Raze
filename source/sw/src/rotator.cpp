@@ -32,7 +32,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "network.h"
 #include "tags.h"
 #include "sector.h"
-#include "interp.h"
+#include "interpolate.h"
 #include "sprite.h"
 #include "quotemgr.h"
 
@@ -273,14 +273,14 @@ void DoRotatorSetInterp(short SpriteNum)
     // move points
     for (w = startwall; w <= endwall; w++)
     {
-        setinterpolation(&wall[w].x);
-        setinterpolation(&wall[w].y);
+        StartInterpolation(w, Interp_Wall_X);
+        StartInterpolation(w, Interp_Wall_Y);
 
         uint16_t const nextwall = wall[w].nextwall;
         if (nextwall < MAXWALLS)
         {
-            setinterpolation(&wall[wall[nextwall].point2].x);
-            setinterpolation(&wall[wall[nextwall].point2].y);
+            StartInterpolation(wall[nextwall].point2, Interp_Wall_X);
+            StartInterpolation(wall[nextwall].point2, Interp_Wall_Y);
         }
     }
 }
@@ -296,14 +296,14 @@ void DoRotatorStopInterp(short SpriteNum)
     // move points
     for (w = startwall; w <= endwall; w++)
     {
-        stopinterpolation(&wall[w].x);
-        stopinterpolation(&wall[w].y);
+        StopInterpolation(w, Interp_Wall_X);
+        StopInterpolation(w, Interp_Wall_Y);
 
         uint16_t const nextwall = wall[w].nextwall;
         if (nextwall < MAXWALLS)
         {
-            stopinterpolation(&wall[wall[nextwall].point2].x);
-            stopinterpolation(&wall[wall[nextwall].point2].y);
+            StopInterpolation(wall[nextwall].point2, Interp_Wall_X);
+            StopInterpolation(wall[nextwall].point2, Interp_Wall_Y);
         }
     }
 }
@@ -417,7 +417,7 @@ int DoRotatorMove(short SpriteNum)
     for (w = startwall, ndx = 0; w <= endwall; w++)
     {
         vec2_t const orig = { r->origx[ndx], r->origy[ndx] };
-        rotatepoint(*(vec2_t *)&pivot->x, orig, r->pos, &nxy);
+        rotatepoint(pivot->pos.vec2, orig, r->pos, &nxy);
 
         dragpoint(w, nxy.x, nxy.y, 0);
         ndx++;

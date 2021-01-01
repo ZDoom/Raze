@@ -4,12 +4,9 @@
 
 #include "mdsprite.h"
 
-void Polymost_CacheHitList(uint8_t* hash);
-
 typedef struct { uint8_t r, g, b, a; } coltype;
 typedef struct { float r, g, b, a; } coltypef;
 
-extern int32_t rendmode;
 extern float gtang;
 extern double gxyaspect;
 extern float grhalfxdown10x;
@@ -23,7 +20,6 @@ void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...);
 void polymost_drawsprite(int32_t snum);
 void polymost_drawmaskwall(int32_t damaskwallcnt);
 void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend, int32_t uniqid);
-void polymost_fillpolygon(int32_t npoints);
 void polymost_initosdfuncs(void);
 void polymost_drawrooms(void);
 void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t mirrorWall);

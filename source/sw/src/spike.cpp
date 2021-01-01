@@ -32,6 +32,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "tags.h"
 #include "sector.h"
 #include "sprite.h"
+#include "interpolate.h"
 
 BEGIN_SW_NS
 
@@ -101,9 +102,9 @@ void SetSpikeActive(short SpriteNum)
     SECTORp sectp = &sector[sp->sectnum];
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-        short_setinterpolation(&sectp->ceilingheinum);
+        StartInterpolation(sp->sectnum, Interp_Sect_Ceilingheinum);
     else
-        short_setinterpolation(&sectp->floorheinum);
+        StartInterpolation(sp->sectnum, Interp_Sect_Floorheinum);
 
     InterpSectorSprites(sp->sectnum, true);
 
@@ -129,9 +130,9 @@ void SetSpikeInactive(short SpriteNum)
     SECTORp sectp = &sector[sp->sectnum];
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-        short_stopinterpolation(&sectp->ceilingheinum);
+        StopInterpolation(sp->sectnum, Interp_Sect_Ceilingheinum);
     else
-        short_stopinterpolation(&sectp->floorheinum);
+        StopInterpolation(sp->sectnum, Interp_Sect_Floorheinum);
 
     InterpSectorSprites(sp->sectnum, false);
 

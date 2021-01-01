@@ -1,6 +1,9 @@
 #pragma once
 
 #include "resourcefile.h"
+#include "build.h"
+
+extern FixedBitArray<MAXSPRITES> activeSprites;
 
 bool OpenSaveGameForWrite(const char *fname, const char *name);
 bool OpenSaveGameForRead(const char *name);

@@ -38,7 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 
 #include "sounds.h"
-#include "interp.h"
+#include "interpolate.h"
 #include "interpso.h"
 #include "sprite.h"
 #include "weapon.h"
@@ -656,9 +656,7 @@ KillSprite(int16_t SpriteNum)
         // any Anims attached
         AnimDelete(&u->sz);
         AnimDelete(&sp->z);
-        stopinterpolation(&sp->x);
-        stopinterpolation(&sp->y);
-        stopinterpolation(&sp->z);
+        StopInterpolation(SpriteNum, Interp_Sprite_Z);
 
         //if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
         //    Zombies--;
@@ -795,8 +793,7 @@ KillSprite(int16_t SpriteNum)
             FreeMem(u->rotator);
         }
 
-        FreeMem(User[SpriteNum]);
-        User[SpriteNum] = 0;
+        FreeUser(SpriteNum);
     }
 
     FVector3 pos = GetSoundPos(&sprite[SpriteNum].pos);
@@ -889,7 +886,7 @@ SpawnUser(short SpriteNum, short id, STATEp state)
 
     ASSERT(!Prediction);
 
-    User[SpriteNum] = u = (USERp) CallocMem(sizeof(USER), 1);
+    User[SpriteNum] = u = NewUser();
 
     PRODUCTION_ASSERT(u != NULL);
 
@@ -1050,7 +1047,7 @@ IconSpawn(SPRITEp sp)
         if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
             return false;
     }
-
+    sp->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_FLOOR);
     return true;
 }
 
@@ -2116,6 +2113,8 @@ SpriteSetup(void)
                     else
                         sp->xvel = sp->lotag;
 
+                    StartInterpolation(sp->sectnum, Interp_Sect_FloorPanX);
+                    StartInterpolation(sp->sectnum, Interp_Sect_FloorPanY);
                     change_sprite_stat(SpriteNum, STAT_FLOOR_PAN);
                     break;
                 }
@@ -2127,6 +2126,8 @@ SpriteSetup(void)
                         sp->xvel = 0;
                     else
                         sp->xvel = sp->lotag;
+                    StartInterpolation(sp->sectnum, Interp_Sect_CeilingPanX);
+                    StartInterpolation(sp->sectnum, Interp_Sect_CeilingPanY);
                     change_sprite_stat(SpriteNum, STAT_CEILING_PAN);
                     break;
                 }
@@ -2137,9 +2138,9 @@ SpriteSetup(void)
                     hitdata_t hitinfo;
 
                     hitscan(&hit_pos, sp->sectnum,    // Start position
-                            sintable[NORM_ANGLE(sp->ang + 512)],    // X vector of 3D ang
-                            sintable[sp->ang],      // Y vector of 3D ang
-                            0,      // Z vector of 3D ang
+                            bcos(sp->ang),    // X vector of 3D ang
+                            bsin(sp->ang),    // Y vector of 3D ang
+                            0,                // Z vector of 3D ang
                             &hitinfo, CLIPMASK_MISSILE);
 
                     if (hitinfo.wall == -1)
@@ -2157,6 +2158,8 @@ SpriteSetup(void)
                     sp->ang = SP_TAG6(sp);
                     // attach to the sector that contains the wall
                     changespritesect(SpriteNum, hitinfo.sect);
+                    StartInterpolation(hitinfo.wall, Interp_Wall_PanX);
+                    StartInterpolation(hitinfo.wall, Interp_Wall_PanY);
                     change_sprite_stat(SpriteNum, STAT_WALL_PAN);
                     break;
                 }
@@ -2167,9 +2170,9 @@ SpriteSetup(void)
                     hitdata_t hitinfo;
 
                     hitscan(&hit_pos, sp->sectnum,    // Start position
-                            sintable[NORM_ANGLE(sp->ang + 512)],    // X vector of 3D ang
-                            sintable[sp->ang],      // Y vector of 3D ang
-                            0,      // Z vector of 3D ang
+                            bcos(sp->ang),    // X vector of 3D ang
+                            bcos(sp->ang),    // Y vector of 3D ang
+                            0,                // Z vector of 3D ang
                             &hitinfo, CLIPMASK_MISSILE);
 
                     if (hitinfo.wall == -1)
@@ -3147,7 +3150,7 @@ KeyMain:
                 RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
                 RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
                 change_sprite_stat(SpriteNum, STAT_ITEM);
-                RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+                RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDED);
                 u->Radius = 500;
                 sp->hitag = LUMINOUS; //Set so keys over ride colored lighting
 
@@ -4785,11 +4788,11 @@ getzrangepoint(int x, int y, int z, short sectnum,
         // Calculate all 4 points of the floor sprite.
         // (x1,y1),(x2,y2),(x3,y3),(x4,y4)
         // These points will already have (x,y) subtracted from them
-        cosang = sintable[NORM_ANGLE(spr->ang + 512)];
-        sinang = sintable[spr->ang];
-        xspan = tilesiz[tilenum].x;
+        cosang = bcos(spr->ang);
+        sinang = bsin(spr->ang);
+        xspan = tileWidth(tilenum);
         dax = ((xspan >> 1) + xoff) * spr->xrepeat;
-        yspan = tilesiz[tilenum].y;
+        yspan = tileHeight(tilenum);
         day = ((yspan >> 1) + yoff) * spr->yrepeat;
         x1 = spr->x + dmulscale16(sinang, dax, cosang, day) - x;
         y1 = spr->y + dmulscale16(sinang, day, -cosang, dax) - y;
@@ -5171,12 +5174,11 @@ DoGrating(short SpriteNum)
         change_sprite_stat(SpriteNum, STAT_DEFAULT);
         if (User[SpriteNum])
         {
-            FreeMem(User[SpriteNum]);
-            User[SpriteNum] = 0;
+            FreeUser(SpriteNum);
         }
     }
 
-    setspritez(SpriteNum, (vec3_t *)sp);
+    setspritez(SpriteNum, &sp->pos);
 
     return 0;
 }
@@ -7064,7 +7066,7 @@ move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist
 
     // extra processing for Stacks and warping
     if (FAF_ConnectArea(spr->sectnum))
-        setspritez(spritenum, (vec3_t *)spr);
+        setspritez(spritenum, &spr->pos);
 
     if (TEST(sector[spr->sectnum].extra, SECTFX_WARP_SECTOR))
     {
@@ -7306,7 +7308,7 @@ move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildis
     }
 
     if (FAF_ConnectArea(sp->sectnum))
-        setspritez(spritenum, (vec3_t *)sp);
+        setspritez(spritenum, &sp->pos);
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
     {
@@ -7506,7 +7508,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     //MissileWaterAdjust(spritenum);
 
     //if (FAF_ConnectArea(sp->sectnum))
-    //    setspritez(spritenum, (vec3_t *)sp);
+    //    setspritez(spritenum, &sp->pos);
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
     {

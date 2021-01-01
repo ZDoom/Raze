@@ -27,72 +27,46 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-
-#include "actor.h"
-#include "ai.h"
-#include "aistate.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "eventq.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
 
 BEGIN_BLD_NS
 
-static void sub_6FF08(int, int);
-static void sub_6FF54(int, int);
-static void sub_6FFA0(int, int);
-static void sub_70284(int, int);
-static void sub_7034C(spritetype *, XSPRITE *);
-static void sub_70380(spritetype *, XSPRITE *);
-static void sub_704D8(spritetype *, XSPRITE *);
-
-static int dword_279B34 = seqRegisterClient(sub_6FFA0);
-static int dword_279B38 = seqRegisterClient(sub_70284);
-static int dword_279B3C = seqRegisterClient(sub_6FF08);
-static int dword_279B40 = seqRegisterClient(sub_6FF54);
+static void aiPodSearch(DBloodActor* actor);
+static void aiPodMove(DBloodActor* actor);
+static void aiPodChase(DBloodActor* actor);
 
 AISTATE podIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
-AISTATE pod13A600 = { kAiStateMove, 7, -1, 3600, NULL, aiMoveTurn, sub_70380, &podSearch };
-AISTATE podSearch = { kAiStateSearch, 0, -1, 3600, NULL, aiMoveTurn, sub_7034C, &podSearch };
-AISTATE pod13A638 = { kAiStateChase, 8, dword_279B34, 600, NULL, NULL, NULL, &podChase };
+AISTATE podMove = { kAiStateMove, 7, -1, 3600, NULL, aiMoveTurn, aiPodMove, &podSearch };
+AISTATE podSearch = { kAiStateSearch, 0, -1, 3600, NULL, aiMoveTurn, aiPodSearch, &podSearch };
+AISTATE podStartChase = { kAiStateChase, 8, nPodStartChaseClient, 600, NULL, NULL, NULL, &podChase };
 AISTATE podRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &podChase };
-AISTATE podChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveTurn, sub_704D8, NULL };
+AISTATE podChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveTurn, aiPodChase, NULL };
 AISTATE tentacleIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, aiThinkTarget, NULL };
 AISTATE tentacle13A6A8 = { kAiStateOther, 7, dword_279B3C, 0, NULL, NULL, NULL, &tentacle13A6C4 };
 AISTATE tentacle13A6C4 = { kAiStateOther, -1, -1, 0, NULL, NULL, NULL, &tentacleChase };
 AISTATE tentacle13A6E0 = { kAiStateOther, 8, dword_279B40, 0, NULL, NULL, NULL, &tentacle13A6FC };
 AISTATE tentacle13A6FC = { kAiStateOther, -1, -1, 0, NULL, NULL, NULL, &tentacleIdle };
-AISTATE tentacle13A718 = { kAiStateOther, 8, -1, 3600, NULL, aiMoveTurn, sub_70380, &tentacleSearch };
-AISTATE tentacleSearch = { kAiStateOther, 0, -1, 3600, NULL, aiMoveTurn, sub_7034C, NULL };
-AISTATE tentacle13A750 = { kAiStateOther, 6, dword_279B38, 120, NULL, NULL, NULL, &tentacleChase };
+AISTATE tentacleMove = { kAiStateOther, 8, -1, 3600, NULL, aiMoveTurn, aiPodMove, &tentacleSearch };
+AISTATE tentacleSearch = { kAiStateOther, 0, -1, 3600, NULL, aiMoveTurn, aiPodSearch, NULL };
+AISTATE tentacleStartChase = { kAiStateOther, 6, nTentacleStartSearchClient, 120, NULL, NULL, NULL, &tentacleChase };
 AISTATE tentacleRecoil = { kAiStateRecoil, 5, -1, 0, NULL, NULL, NULL, &tentacleChase };
-AISTATE tentacleChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveTurn, sub_704D8, NULL };
+AISTATE tentacleChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveTurn, aiPodChase, NULL };
 
-static void sub_6FF08(int, int nXSprite)
+void sub_6FF08(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    sfxPlay3DSound(&sprite[nSprite], 2503, -1, 0);
+    sfxPlay3DSound(&actor->s(), 2503, -1, 0);
 }
 
-static void sub_6FF54(int, int nXSprite)
+void sub_6FF54(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    sfxPlay3DSound(&sprite[nSprite], 2500, -1, 0);
+    sfxPlay3DSound(&actor->s(), 2500, -1, 0);
 }
 
-static void sub_6FFA0(int, int nXSprite)
+void podAttack(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
         Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
@@ -145,11 +119,10 @@ static void sub_6FFA0(int, int nXSprite)
         sub_746D4(pSprite, 240);
 }
 
-static void sub_70284(int, int nXSprite)
+void sub_70284(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     sfxPlay3DSound(pSprite, 2502, -1, 0);
     int nDist, nBurn;
     DAMAGE_TYPE dmgType;
@@ -166,17 +139,21 @@ static void sub_70284(int, int nXSprite)
             nDist = 75;
             break;
     }
-    sub_2A620(nSprite, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nDist, 1, 5*(1+gGameOptions.nDifficulty), dmgType, 2, nBurn, 0, 0);
+    sub_2A620(pSprite->index, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nDist, 1, 5*(1+gGameOptions.nDifficulty), dmgType, 2, nBurn, 0, 0);
 }
 
-static void sub_7034C(spritetype *pSprite, XSPRITE *pXSprite)
+static void aiPodSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void sub_70380(spritetype *pSprite, XSPRITE *pXSprite)
+static void aiPodMove(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -193,28 +170,30 @@ static void sub_70380(spritetype *pSprite, XSPRITE *pXSprite)
         switch (pSprite->type) {
             case kDudePodGreen:
             case kDudePodFire:
-                aiNewState(pSprite, pXSprite, &podSearch);
+                aiNewState(actor, &podSearch);
                 break;
             case kDudeTentacleGreen:
             case kDudeTentacleFire:
-                aiNewState(pSprite, pXSprite, &tentacleSearch);
+                aiNewState(actor, &tentacleSearch);
                 break;
         }
     }
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void sub_704D8(spritetype *pSprite, XSPRITE *pXSprite)
+static void aiPodChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1) {
         switch (pSprite->type) {
             case kDudePodGreen:
             case kDudePodFire:
-                aiNewState(pSprite, pXSprite, &pod13A600);
+                aiNewState(actor, &podMove);
                 break;
             case kDudeTentacleGreen:
             case kDudeTentacleFire:
-                aiNewState(pSprite, pXSprite, &tentacle13A718);
+                aiNewState(actor, &tentacleMove);
                 break;
         }
         return;
@@ -240,11 +219,11 @@ static void sub_704D8(spritetype *pSprite, XSPRITE *pXSprite)
         switch (pSprite->type) {
             case kDudePodGreen:
             case kDudePodFire:
-                aiNewState(pSprite, pXSprite, &podSearch);
+                aiNewState(actor, &podSearch);
                 break;
             case kDudeTentacleGreen:
             case kDudeTentacleFire:
-                aiNewState(pSprite, pXSprite, &tentacleSearch);
+                aiNewState(actor, &tentacleSearch);
                 break;
         }
         return;
@@ -263,11 +242,11 @@ static void sub_704D8(spritetype *pSprite, XSPRITE *pXSprite)
                     switch (pSprite->type) {
                         case kDudePodGreen:
                         case kDudePodFire:
-                            aiNewState(pSprite, pXSprite, &pod13A638);
+                            aiNewState(actor, &podStartChase);
                             break;
                         case kDudeTentacleGreen:
                         case kDudeTentacleFire:
-                            aiNewState(pSprite, pXSprite, &tentacle13A750);
+                            aiNewState(actor, &tentacleStartChase);
                             break;
                     }
                 }
@@ -279,11 +258,11 @@ static void sub_704D8(spritetype *pSprite, XSPRITE *pXSprite)
     switch (pSprite->type) {
         case kDudePodGreen:
         case kDudePodFire:
-            aiNewState(pSprite, pXSprite, &pod13A600);
+            aiNewState(actor, &podMove);
             break;
         case kDudeTentacleGreen:
         case kDudeTentacleFire:
-            aiNewState(pSprite, pXSprite, &tentacle13A718);
+            aiNewState(actor, &tentacleMove);
             break;
     }
     pXSprite->target = -1;

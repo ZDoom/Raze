@@ -28,12 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string.h>
 
 #include "build.h"
-#include "common_game.h"
+#include "blood.h"
 
-#include "actor.h"
-#include "db.h"
-#include "gameutil.h"
-#include "globals.h"
 
 BEGIN_BLD_NS
 
@@ -558,7 +554,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 return 0;
 
             nOffset = (nOffset*pWall->yrepeat) / 8;
-            nOffset += (nSizY*pWall->ypanning) / 256;
+            nOffset += int((nSizY*pWall->ypan_) / 256);
             int nLength = approxDist(pWall->x - wall[pWall->point2].x, pWall->y - wall[pWall->point2].y);
             int nHOffset;
             if (pWall->cstat & 8)
@@ -566,7 +562,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
             else
                 nHOffset = approxDist(gHitInfo.hitx - pWall->x, gHitInfo.hity - pWall->y);
 
-            nHOffset = pWall->xpanning + ((nHOffset*pWall->xrepeat) << 3) / nLength;
+            nHOffset = pWall->xpan() + ((nHOffset*pWall->xrepeat) << 3) / nLength;
             nHOffset %= nSizX;
             nOffset %= nSizY;
             auto pData = tilePtr(nPicnum);
@@ -832,10 +828,10 @@ int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, cha
     return n;
 }
 
-int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pSectors, uint8_t *pSectBit, short *a8)
+int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSectBit, short *walls)
 {
+    static short pSectors[kMaxSectors];
     uint8_t sectbits[(kMaxSectors+7)>>3];
-    assert(pSectors != NULL);
     memset(sectbits, 0, sizeof(sectbits));
     pSectors[0] = nSector;
     SetBitString(sectbits, nSector);
@@ -865,30 +861,26 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pSector
                 if (pSectBit)
                     SetBitString(pSectBit, nNextSector);
                 pSectors[n++] = nNextSector;
-                if (a8 && pWall->extra > 0)
+                if (walls && pWall->extra > 0)
                 {
                     XWALL *pXWall = &xwall[pWall->extra];
                     if (pXWall->triggerVector && !pXWall->isTriggered && !pXWall->state)
-                        a8[m++] = j;
+                        walls[m++] = j;
                 }
             }
         }
         i++;
     }
-    pSectors[n] = -1;
-    if (a8)
-    {
-        a8[m] = -1;
-    }
+    if (walls) walls[m] = -1;
     return n;
 }
 
 int picWidth(short nPic, short repeat) {
-    return ClipLow((tilesiz[nPic].x * repeat) << 2, 0);
+    return ClipLow((tileWidth(nPic) * repeat) << 2, 0);
 }
 
 int picHeight(short nPic, short repeat) {
-    return ClipLow((tilesiz[nPic].y * repeat) << 2, 0);
+    return ClipLow((tileHeight(nPic) * repeat) << 2, 0);
 }
 
 

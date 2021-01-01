@@ -72,7 +72,7 @@ void hud_input(int plnum)
 		p->sync.actions |= SB_CENTERVIEW;
 
 	// Backup weapon here as hud_input() is the first function where any one of the weapon variables can change.
-	backupweapon(p);
+	p->backupweapon();
 
 	if (isRR())
 	{
@@ -82,13 +82,13 @@ void hud_input(int plnum)
 			{
 				p->last_pissed_time = 4000;
 				S_PlayActorSound(437, pact);
-				if (p->GetActor()->s.extra <= max_player_health - max_player_health / 10)
+				if (p->GetActor()->s.extra <= gs.max_player_health - gs.max_player_health / 10)
 				{
 					p->GetActor()->s.extra += 2;
 					p->last_extra = p->GetActor()->s.extra;
 				}
-				else if (p->GetActor()->s.extra < max_player_health)
-					p->GetActor()->s.extra = max_player_health;
+				else if (p->GetActor()->s.extra < gs.max_player_health)
+					p->GetActor()->s.extra = gs.max_player_health;
 			}
 		}
 	}
@@ -307,12 +307,12 @@ void hud_input(int plnum)
 				}
 				else // In RR this means drinking whiskey.
 				{
-					if (p->holoduke_amount > 0 && p->GetActor()->s.extra < max_player_health)
+					if (p->holoduke_amount > 0 && p->GetActor()->s.extra < gs.max_player_health)
 					{
 						p->holoduke_amount -= 400;
 						p->GetActor()->s.extra += 5;
-						if (p->GetActor()->s.extra > max_player_health)
-							p->GetActor()->s.extra = max_player_health;
+						if (p->GetActor()->s.extra > gs.max_player_health)
+							p->GetActor()->s.extra = gs.max_player_health;
 
 						p->drink_amt += 5;
 						p->inven_icon = 3;
@@ -340,16 +340,16 @@ void hud_input(int plnum)
 					madenoise(plnum);
 					if (sector[p->cursectnum].lotag == 857)
 					{
-						if (p->GetActor()->s.extra <= max_player_health)
+						if (p->GetActor()->s.extra <= gs.max_player_health)
 						{
 							p->GetActor()->s.extra += 10;
-							if (p->GetActor()->s.extra >= max_player_health)
-								p->GetActor()->s.extra = max_player_health;
+							if (p->GetActor()->s.extra >= gs.max_player_health)
+								p->GetActor()->s.extra = gs.max_player_health;
 						}
 					}
 					else
 					{
-						if (p->GetActor()->s.extra + 1 <= max_player_health)
+						if (p->GetActor()->s.extra + 1 <= gs.max_player_health)
 						{
 							p->GetActor()->s.extra++;
 						}
@@ -364,16 +364,16 @@ void hud_input(int plnum)
 			OnEvent(EVENT_USEMEDKIT, plnum, nullptr, -1);
 			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
 			{
-				if (p->firstaid_amount > 0 && p->GetActor()->s.extra < max_player_health)
+				if (p->firstaid_amount > 0 && p->GetActor()->s.extra < gs.max_player_health)
 				{
 					if (!isRR())
 					{
-						int j = max_player_health - p->GetActor()->s.extra;
+						int j = gs.max_player_health - p->GetActor()->s.extra;
 
 						if ((unsigned int)p->firstaid_amount > j)
 						{
 							p->firstaid_amount -= j;
-							p->GetActor()->s.extra = max_player_health;
+							p->GetActor()->s.extra = gs.max_player_health;
 							p->inven_icon = 1;
 						}
 						else
@@ -391,8 +391,8 @@ void hud_input(int plnum)
 						{
 							p->firstaid_amount -= j;
 							p->GetActor()->s.extra += j;
-							if (p->GetActor()->s.extra > max_player_health)
-								p->GetActor()->s.extra = max_player_health;
+							if (p->GetActor()->s.extra > gs.max_player_health)
+								p->GetActor()->s.extra = gs.max_player_health;
 							p->inven_icon = 1;
 						}
 						else
@@ -401,8 +401,8 @@ void hud_input(int plnum)
 							p->firstaid_amount = 0;
 							checkavailinven(p);
 						}
-						if (p->GetActor()->s.extra > max_player_health)
-							p->GetActor()->s.extra = max_player_health;
+						if (p->GetActor()->s.extra > gs.max_player_health)
+							p->GetActor()->s.extra = gs.max_player_health;
 						p->drink_amt += 10;
 						if (p->drink_amt <= 100 && !S_CheckActorSoundPlaying(pact, DUKE_USEMEDKIT))
 							S_PlayActorSound(DUKE_USEMEDKIT, pact);
@@ -445,7 +445,7 @@ void hud_input(int plnum)
 				else
 				{
 					// eat cow pie
-					if (p->jetpack_amount > 0 && p->GetActor()->s.extra < max_player_health)
+					if (p->jetpack_amount > 0 && p->GetActor()->s.extra < gs.max_player_health)
 					{
 						if (!S_CheckActorSoundPlaying(pact, 429))
 							S_PlayActorSound(429, pact);
@@ -469,8 +469,8 @@ void hud_input(int plnum)
 
 						p->inven_icon = 4;
 
-						if (p->GetActor()->s.extra > max_player_health)
-							p->GetActor()->s.extra = max_player_health;
+						if (p->GetActor()->s.extra > gs.max_player_health)
+							p->GetActor()->s.extra = gs.max_player_health;
 
 						if (p->jetpack_amount <= 0)
 							checkavailinven(p);
@@ -812,7 +812,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 		{
 			// input.avel already added to loc in processMovement()
 			loc.avel = clamp(loc.avel, -MAXANGVEL, MAXANGVEL);
-			if (!cl_syncinput && input.avel)
+			if (!SyncInput() && input.avel)
 			{
 				p->angle.spin = bamlook(0);
 			}
@@ -822,7 +822,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.avel = input.avel = 0;
 		}
 
-		if (p->newOwner == nullptr && !(p->sync.actions & SB_CENTERVIEW))
+		if (p->newOwner == nullptr && (!(p->sync.actions & SB_CENTERVIEW) || p->sync.actions & SB_CENTERVIEW && abs(p->horizon.horiz.asbuild()) <= 5))
 		{
 			// input.horz already added to loc in processMovement()
 			loc.horz = clamp(loc.horz, -MAXHORIZVEL, MAXHORIZVEL);
@@ -851,11 +851,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
 	auto const p = &ps[myconnectindex];
 
-	if (numplayers == 1)
-	{
-		setlocalplayerinput(p);
-	}
-
 	double const scaleAdjust = InputScale();
 	InputPacket input{};
 
@@ -865,9 +860,9 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		processVehicleInput(p, hidInput, input, scaleAdjust);
 		FinalizeInput(myconnectindex, input, true);
 
-		if (!cl_syncinput && p->GetActor()->s.extra > 0)
+		if (!SyncInput() && p->GetActor()->s.extra > 0)
 		{
-			apply_seasick(p, scaleAdjust);
+			p->apply_seasick(scaleAdjust);
 		}
 	}
 	else
@@ -877,13 +872,13 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		FinalizeInput(myconnectindex, input, false);
 	}
 
-	if (!cl_syncinput)
+	if (!SyncInput())
 	{
 		if (p->GetActor()->s.extra > 0)
 		{
 			// Do these in the same order as the old code.
 			calcviewpitch(p, scaleAdjust);
-			processavel(p, &input.avel);
+			input.avel = p->adjustavel(input.avel);
 			applylook(&p->angle, input.avel, &p->sync.actions, scaleAdjust);
 			sethorizon(&p->horizon.horiz, input.horz, &p->sync.actions, scaleAdjust);
 		}
@@ -894,18 +889,12 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
 	if (packet)
 	{
-		auto const pPlayer = &ps[myconnectindex];
-		auto const ang = pPlayer->angle.ang.asbuild();
+		auto cos = p->angle.ang.bcos();
+		auto sin = p->angle.ang.bsin();
 
 		*packet = loc;
-		auto fvel = loc.fvel;
-		auto svel = loc.svel;
-		packet->fvel = mulscale9(fvel, sintable[(ang + 2560) & 2047]) +
-			mulscale9(svel, sintable[(ang + 2048) & 2047]) +
-			pPlayer->fric.x;
-		packet->svel = mulscale9(fvel, sintable[(ang + 2048) & 2047]) +
-			mulscale9(svel, sintable[(ang + 1536) & 2047]) +
-			pPlayer->fric.y;
+		packet->fvel = mulscale9(loc.fvel, cos) + mulscale9(loc.svel, sin) + p->fric.x;
+		packet->svel = mulscale9(loc.fvel, sin) - mulscale9(loc.svel, cos) + p->fric.y;
 		loc = {};
 	}
 }

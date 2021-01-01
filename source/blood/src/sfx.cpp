@@ -25,11 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string.h>
 #include "build.h"
 #include "compat.h"
-#include "common_game.h"
-
-#include "gameutil.h"
-#include "player.h"
-#include "sound.h"
+#include "blood.h"
 #include "raze_sound.h"
 
 BEGIN_BLD_NS
@@ -127,7 +123,7 @@ void GameInterface::UpdateSounds()
 
     if (gMe->pSprite)
     {
-        listener.angle = -(float)gMe->pSprite->ang * pi::pi() / 1024; // Build uses a period of 2048.
+        listener.angle = -gMe->pSprite->ang * BAngRadian; // Build uses a period of 2048.
         listener.velocity.Zero();
         listener.position = GetSoundPos(&gMe->pSprite->pos);
         listener.valid = true;

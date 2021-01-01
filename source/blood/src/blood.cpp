@@ -26,25 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "mmulti.h"
 #include "compat.h"
-#include "common_game.h"
 #include "g_input.h"
 #include "automap.h"
 
-#include "db.h"
 #include "blood.h"
 #include "choke.h"
-#include "dude.h"
-#include "endgame.h"
-#include "eventq.h"
-#include "fx.h"
-#include "gib.h"
-#include "globals.h"
-#include "levels.h"
-#include "loadsave.h"
-#include "sectorfx.h"
-#include "seq.h"
-#include "sound.h"
-#include "triggers.h"
+
 #include "view.h"
 #include "misc.h"
 #include "gameconfigfile.h"
@@ -53,12 +40,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statistics.h"
 #include "razemenu.h"
 #include "raze_sound.h"
-#include "nnexts.h"
 #include "secrets.h"
 #include "gamestate.h"
 #include "screenjob.h"
 #include "mapinfo.h"
-#include "choke.h"
 #include "d_net.h"
 #include "v_video.h"
 #include "v_draw.h"
@@ -198,10 +183,6 @@ void StartLevel(MapRecord* level)
 	{
 		if (!(gGameOptions.uGameFlags & GF_AdvanceLevel))
 		{
-			if (numplayers == 1)
-			{
-				gProfile[i].skill = gSkill;
-			}
 			playerInit(i, 0);
 		}
 		playerStart(i, 1);
@@ -295,7 +276,9 @@ void GameInterface::Ticker()
 		if (newweap > 0 && newweap < WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;
 	}
 
-	viewClearInterpolations();
+	gInterpolateSprite.Zero();
+	ClearMovementInterpolations();
+	UpdateInterpolations();
 
 	if (!(paused || (gGameOptions.nGameType == 0 && M_Active())))
 	{
@@ -330,7 +313,7 @@ void GameInterface::Ticker()
 			gChokeCounter += CHOKERATE;
 			while (gChokeCounter >= COUNTRATE)
 			{
-				gChoke.at1c(gMe);
+				gChoke.callback(gMe);
 				gChokeCounter -= COUNTRATE;
 			}
 		}
@@ -342,9 +325,9 @@ void GameInterface::Ticker()
 
 		for (int i = 0; i < 8; i++)
 		{
-			dword_21EFD0[i] = dword_21EFD0[i] -= 4;
-			if (dword_21EFD0[i] < 0)
-				dword_21EFD0[i] = 0;
+			team_ticker[i] = team_ticker[i] -= 4;
+			if (team_ticker[i] < 0)
+				team_ticker[i] = 0;
 		}
 
 		if ((gGameOptions.uGameFlags & GF_AdvanceLevel) != 0)
@@ -407,6 +390,74 @@ static void SetTileNames()
 
 void ReadAllRFS();
 
+void GameInterface::loadPalette(void)
+{
+	// in nearly typical Blood fashion it had to use an inverse of the original translucency settings...
+	static glblend_t const bloodglblend =
+	{
+		{
+			{ 1.f / 3.f, STYLEALPHA_Src, STYLEALPHA_InvSrc, 0 },
+			{ 2.f / 3.f, STYLEALPHA_Src, STYLEALPHA_InvSrc, 0 },
+		},
+	};
+
+	static const char* PLU[15] = {
+		"NORMAL.PLU",
+		"SATURATE.PLU",
+		"BEAST.PLU",
+		"TOMMY.PLU",
+		"SPIDER3.PLU",
+		"GRAY.PLU",
+		"GRAYISH.PLU",
+		"SPIDER1.PLU",
+		"SPIDER2.PLU",
+		"FLAME.PLU",
+		"COLD.PLU",
+		"P1.PLU",
+		"P2.PLU",
+		"P3.PLU",
+		"P4.PLU"
+	};
+
+	static const char* PAL[5] = {
+		"BLOOD.PAL",
+		"WATER.PAL",
+		"BEAST.PAL",
+		"SEWER.PAL",
+		"INVULN1.PAL"
+	};
+
+	for (auto& x : glblend) x = bloodglblend;
+
+	for (int i = 0; i < 5; i++)
+	{
+		auto pal = fileSystem.LoadFile(PAL[i]);
+		if (pal.Size() < 768) I_FatalError("%s: file too small", PAL[i]);
+		paletteSetColorTable(i, pal.Data(), false, false);
+	}
+
+	numshades = 64;
+	for (int i = 0; i < MAXPALOOKUPS; i++)
+	{
+		int lump = i < 15 ? fileSystem.FindFile(PLU[i]) : fileSystem.FindResource(i, "PLU");
+		if (lump < 0)
+		{
+			if (i < 15) I_FatalError("%s: file not found", PLU[i]);
+			else continue;
+		}
+		auto data = fileSystem.GetFileData(lump);
+		if (data.Size() != 64 * 256)
+		{
+			if (i < 15) I_FatalError("%s: Incorrect PLU size", PLU[i]);
+			else continue;
+		}
+		lookups.setTable(i, data.Data());
+	}
+
+	lookups.setFadeColor(1, 255, 255, 255);
+	paletteloaded = PALETTE_SHADE | PALETTE_TRANSLUC | PALETTE_MAIN;
+}
+
 void GameInterface::app_init()
 {
 	InitCheats();
@@ -438,7 +489,6 @@ void GameInterface::app_init()
 	FireInit();
 	Printf(PRINT_NONOTIFY, "Initializing weapon animations\n");
 	WeaponInit();
-	LoadSaveSetup();
 
 	myconnectindex = connecthead = 0;
 	gNetPlayers = numplayers = 1;
@@ -448,9 +498,8 @@ void GameInterface::app_init()
 
 	Printf(PRINT_NONOTIFY, "Initializing sound system\n");
 	sndInit();
-	registerosdcommands();
 
-	gChoke.init(518, sub_84230);
+	gChoke.init(518, chokeCallback);
 	UpdateDacs(0, true);
 
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;
@@ -461,10 +510,6 @@ static void gameInit()
 	//RESTART:
 	gViewIndex = myconnectindex;
 	gMe = gView = &gPlayer[myconnectindex];
-
-	PROFILE* pProfile = &gProfile[myconnectindex];
-	strcpy(pProfile->name, playername);
-	pProfile->skill = gSkill;
 
 	UpdateNetworkMenus();
 	if (gGameOptions.nGameType > 0)
@@ -528,7 +573,7 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 	int top = 0;
 	if (gGameOptions.nGameType > 0 && gGameOptions.nGameType <= 3)
 	{
-		top = (tilesiz[2229].y * ((gNetPlayers + 3) / 4));
+		top = (tileHeight(2229) * ((gNetPlayers + 3) / 4));
 	}
 	return { top, 25 };
 }

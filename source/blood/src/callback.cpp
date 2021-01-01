@@ -24,26 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "build.h"
-#include "common_game.h"
-
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "callback.h"
-#include "db.h"
-#include "dude.h"
-#include "eventq.h"
-#include "fx.h"
-#include "gameutil.h"
-#include "globals.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
-#include "triggers.h"
-#include "view.h"
-#include "nnexts.h"
-#include "aiunicult.h"
 
 BEGIN_BLD_NS
 
@@ -57,7 +38,7 @@ void fxFlameLick(int nSprite) // 0
     GetSpriteExtents(pSprite, &top, &bottom);
     for (int i = 0; i < 3; i++)
     {
-        int nDist = (pSprite->xrepeat*(tilesiz[pSprite->picnum].x/2))>>3;
+        int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>3;
         int nAngle = Random(2048);
         int dx = mulscale30(nDist, Cos(nAngle));
         int dy = mulscale30(nDist, Sin(nAngle));
@@ -208,7 +189,7 @@ void fxDynPuff(int nSprite) // 8
     spritetype *pSprite = &sprite[nSprite];
     if (zvel[nSprite])
     {
-        int nDist = (pSprite->xrepeat*(tilesiz[pSprite->picnum].x/2))>>2;
+        int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
         int x = pSprite->x + mulscale30(nDist, Cos(pSprite->ang-512));
         int y = pSprite->y + mulscale30(nDist, Sin(pSprite->ang-512));
         int z = pSprite->z;
@@ -313,7 +294,7 @@ void PlayerBubble(int nSprite) // 10
         GetSpriteExtents(pSprite, &top, &bottom);
         for (int i = 0; i < (pPlayer->bubbleTime>>6); i++)
         {
-            int nDist = (pSprite->xrepeat*(tilesiz[pSprite->picnum].x/2))>>2;
+            int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
             int nAngle = Random(2048);
             int x = pSprite->x + mulscale30(nDist, Cos(nAngle));
             int y = pSprite->y + mulscale30(nDist, Sin(nAngle));
@@ -337,7 +318,7 @@ void EnemyBubble(int nSprite) // 11
     GetSpriteExtents(pSprite, &top, &bottom);
     for (int i = 0; i < (klabs(zvel[nSprite])>>18); i++)
     {
-        int nDist = (pSprite->xrepeat*(tilesiz[pSprite->picnum].x/2))>>2;
+        int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
         int nAngle = Random(2048);
         int x = pSprite->x + mulscale30(nDist, Cos(nAngle));
         int y = pSprite->y + mulscale30(nDist, Sin(nAngle));
@@ -415,7 +396,7 @@ void fxBloodBits(int nSprite) // 14
         if (pFX)
             pFX->ang = nAngle;
     }
-    gFX.sub_73FFC(nSprite);
+    gFX.remove(nSprite);
 }
 
 
@@ -569,7 +550,7 @@ void fxPodBloodSplat(int nSprite) // 19
         if (pFX)
             pFX->ang = nAngle;
     }
-    gFX.sub_73FFC(nSprite);
+    gFX.remove(nSprite);
 }
 
 
@@ -612,7 +593,7 @@ void sub_76A08(spritetype *pSprite, spritetype *pSprite2, PLAYER *pPlayer) // ??
 void DropVoodooCb(int nSprite) // unused
 {
     spritetype *pSprite = &sprite[nSprite];
-    int nOwner = actSpriteOwnerToSpriteId(pSprite);
+    int nOwner = pSprite->owner;
     if (nOwner < 0 || nOwner >= kMaxSprites)
     {
         evPost(nSprite, 3, 0, kCallbackRemove);

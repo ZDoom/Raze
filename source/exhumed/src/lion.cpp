@@ -25,11 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum { kMaxLions = 40 };
-
-short LionCount = -1;
-short MoveHook[kMaxLions];
-
 static actionSeq LionSeq[] = {
     {54, 1},
     {18, 0},
@@ -52,32 +47,43 @@ struct Lion
     short nAction;
     short nSprite;
     short nTarget;
-    short _f;
-    short _g;
+    short nIndex;
+    short nCount;
+    short nRun;
 };
 
-Lion LionList[kMaxLions];
+TArray<Lion> LionList;
 
-static SavegameHelper sghlion("lion",
-    SV(LionCount),
-    SA(MoveHook),
-    SA(LionList),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Lion& w, Lion* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("index", w.nIndex)
+            ("count", w.nCount)
+            ("run", w.nRun)
+            .EndObject();
+    }
+    return arc;
+}
 
+void SerializeLion(FSerializer& arc)
+{
+    arc("lion", LionList);
+}
 
 void InitLion()
 {
-    LionCount = kMaxLions;
+    LionList.Clear();
 }
 
 int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
 {
-    LionCount--;
-    short nLion = LionCount;
-
-    if (LionCount < 0) {
-        return -1;
-    }
+    auto nLion = LionList.Reserve(1);
 
     if (nSprite == -1)
     {
@@ -121,12 +127,12 @@ int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
     LionList[nLion].nFrame = 0;
     LionList[nLion].nSprite = nSprite;
     LionList[nLion].nTarget = -1;
-    LionList[nLion]._g = 0;
-    LionList[nLion]._f = nLion;
+    LionList[nLion].nCount = 0;
+    LionList[nLion].nIndex = nLion;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nLion | 0x130000);
 
-    MoveHook[nLion] = runlist_AddRunRec(NewRun, nLion | 0x130000);
+    LionList[nLion].nRun = runlist_AddRunRec(NewRun, nLion | 0x130000);
 
     nCreaturesTotal++;
 
@@ -136,7 +142,7 @@ int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
 void FuncLion(int a, int nDamage, int nRun)
 {
     short nLion = RunData[nRun].nVal;
-    assert(nLion >= 0 && nLion < kMaxLions);
+    assert(nLion >= 0 && nLion < (int)LionList.Size());
 
     short nSprite = LionList[nLion].nSprite;
     short nAction = LionList[nLion].nAction;
@@ -220,7 +226,7 @@ void FuncLion(int a, int nDamage, int nRun)
                             {
                                 PlotCourseToSprite(nSprite, nTarget);
                                 LionList[nLion].nAction = 5;
-                                LionList[nLion]._g = RandomSize(3);
+                                LionList[nLion].nCount = RandomSize(3);
                                 sprite[nSprite].ang = (sprite[nSprite].ang - (RandomSize(1) << 8)) + (RandomSize(1) << 8); // NOTE: no angle mask in original code
                             }
                             else
@@ -271,7 +277,7 @@ void FuncLion(int a, int nDamage, int nRun)
                 case 0:
                 case 1:
                 {
-                    if ((LionList[nLion]._f & 0x1F) == (totalmoves & 0x1F))
+                    if ((LionList[nLion].nIndex & 0x1F) == (totalmoves & 0x1F))
                     {
                         if (nTarget < 0)
                         {
@@ -282,8 +288,8 @@ void FuncLion(int a, int nDamage, int nRun)
                                 LionList[nLion].nAction = 2;
                                 LionList[nLion].nFrame = 0;
 
-                                sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
-                                sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                                sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
+                                sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
                                 LionList[nLion].nTarget = nTarget;
                                 return;
                             }
@@ -292,14 +298,14 @@ void FuncLion(int a, int nDamage, int nRun)
 
                     if (nAction)
                     {
-                        LionList[nLion]._g--;
-                        if (LionList[nLion]._g <= 0)
+                        LionList[nLion].nCount--;
+                        if (LionList[nLion].nCount <= 0)
                         {
                             if (RandomBit())
                             {
                                 sprite[nSprite].ang = RandomWord() & kAngleMask;
-                                sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
-                                sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                                sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
+                                sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
                             }
                             else
                             {
@@ -307,7 +313,7 @@ void FuncLion(int a, int nDamage, int nRun)
                                 sprite[nSprite].yvel = 0;
                             }
 
-                            LionList[nLion]._g = 100;
+                            LionList[nLion].nCount = 100;
                         }
                     }
 
@@ -316,7 +322,7 @@ void FuncLion(int a, int nDamage, int nRun)
 
                 case 2:
                 {
-                    if ((totalmoves & 0x1F) == (LionList[nLion]._f & 0x1F))
+                    if ((totalmoves & 0x1F) == (LionList[nLion].nIndex & 0x1F))
                     {
                         PlotCourseToSprite(nSprite, nTarget);
 
@@ -324,13 +330,13 @@ void FuncLion(int a, int nDamage, int nRun)
 
                         if (sprite[nSprite].cstat & 0x8000)
                         {
-                            sprite[nSprite].xvel = Cos(nAng) * 2;
-                            sprite[nSprite].yvel = Sin(nAng) * 2;
+                            sprite[nSprite].xvel = bcos(nAng, 1);
+                            sprite[nSprite].yvel = bsin(nAng, 1);
                         }
                         else
                         {
-                            sprite[nSprite].xvel = Cos(nAng) >> 1;
-                            sprite[nSprite].yvel = Sin(nAng) >> 1;
+                            sprite[nSprite].xvel = bcos(nAng, -1);
+                            sprite[nSprite].yvel = bsin(nAng, -1);
                         }
                     }
 
@@ -342,8 +348,8 @@ void FuncLion(int a, int nDamage, int nRun)
                     {
                         // loc_378FA:
                         sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
                         break;
                     }
                     else if ((nMov & 0xC000) == 0xC000)
@@ -374,8 +380,8 @@ void FuncLion(int a, int nDamage, int nRun)
                         {
                             // loc_378FA:
                             sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
                             break;
                         }
                     }
@@ -388,7 +394,7 @@ void FuncLion(int a, int nDamage, int nRun)
                     if (nTarget == -1)
                     {
                         LionList[nLion].nAction = 1;
-                        LionList[nLion]._g = 50;
+                        LionList[nLion].nCount = 50;
                     }
                     else
                     {
@@ -424,11 +430,11 @@ void FuncLion(int a, int nDamage, int nRun)
 
                 case 5: // Jump away when damaged
                 {
-                    LionList[nLion]._g--;
-                    if (LionList[nLion]._g <= 0)
+                    LionList[nLion].nCount--;
+                    if (LionList[nLion].nCount <= 0)
                     {
                         sprite[nSprite].zvel = -4000;
-                        LionList[nLion]._g = 0;
+                        LionList[nLion].nCount = 0;
 
                         int x = sprite[nSprite].x;
                         int y = sprite[nSprite].y;
@@ -446,7 +452,7 @@ void FuncLion(int a, int nDamage, int nRun)
                             vec3_t startPos = { x, y, z };
                             hitdata_t hitData;
 
-                            hitscan(&startPos, sprite[nSprite].sectnum, Cos(nScanAngle), Sin(nScanAngle), 0, &hitData, CLIPMASK1);
+                            hitscan(&startPos, sprite[nSprite].sectnum, bcos(nScanAngle), bsin(nScanAngle), 0, &hitData, CLIPMASK1);
 
                             hitx = hitData.pos.x;
                             hity = hitData.pos.y;
@@ -471,8 +477,8 @@ void FuncLion(int a, int nDamage, int nRun)
                         sprite[nSprite].ang = nAngle;
 
                         LionList[nLion].nAction = 6;
-                        sprite[nSprite].xvel = (Cos(sprite[nSprite].ang)) - (Cos(sprite[nSprite].ang) >> 3);
-                        sprite[nSprite].yvel = (Sin(sprite[nSprite].ang)) - (Sin(sprite[nSprite].ang) >> 3);
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang) - bcos(sprite[nSprite].ang, -3);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang) - bsin(sprite[nSprite].ang, -3);
                         D3PlayFX(StaticSound[kSound24], nSprite);
                     }
 
@@ -492,7 +498,7 @@ void FuncLion(int a, int nDamage, int nRun)
                     {
                         LionList[nLion].nAction = 7;
                         sprite[nSprite].ang = (GetWallNormal(nMov & 0x3FFF) + 1024) & kAngleMask;
-                        LionList[nLion]._g = RandomSize(4);
+                        LionList[nLion].nCount = RandomSize(4);
                         return;
                     }
                     else if ((nMov & 0xC000) == 0xC000)
@@ -510,8 +516,8 @@ void FuncLion(int a, int nDamage, int nRun)
                         {
                             // loc_378FA:
                             sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
                             break;
                         }
                     }
@@ -521,11 +527,11 @@ void FuncLion(int a, int nDamage, int nRun)
 
                 case 7:
                 {
-                    LionList[nLion]._g--;
+                    LionList[nLion].nCount--;
 
-                    if (LionList[nLion]._g <= 0)
+                    if (LionList[nLion].nCount <= 0)
                     {
-                        LionList[nLion]._g = 0;
+                        LionList[nLion].nCount = 0;
                         if (nTarget > -1)
                         {
                             PlotCourseToSprite(nSprite, nTarget);
@@ -538,8 +544,8 @@ void FuncLion(int a, int nDamage, int nRun)
                         sprite[nSprite].zvel = -1000;
 
                         LionList[nLion].nAction = 6;
-                        sprite[nSprite].xvel = (Cos(sprite[nSprite].ang)) - (Cos(sprite[nSprite].ang) >> 3);
-                        sprite[nSprite].yvel = (Sin(sprite[nSprite].ang)) - (Sin(sprite[nSprite].ang) >> 3);
+                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang) - bcos(sprite[nSprite].ang, -3);
+                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang) - bsin(sprite[nSprite].ang, -3);
                         D3PlayFX(StaticSound[kSound24], nSprite);
                     }
 
@@ -574,7 +580,7 @@ void FuncLion(int a, int nDamage, int nRun)
                     if (bVal)
                     {
                         runlist_SubRunRec(sprite[nSprite].owner);
-                        runlist_SubRunRec(MoveHook[nLion]);
+                        runlist_SubRunRec(LionList[nLion].nRun);
                         sprite[nSprite].cstat = 0x8000;
                     }
                     return;
@@ -588,7 +594,7 @@ void FuncLion(int a, int nDamage, int nRun)
                 {
                     LionList[nLion].nAction = 1;
                     LionList[nLion].nFrame = 0;
-                    LionList[nLion]._g = 100;
+                    LionList[nLion].nCount = 100;
                     LionList[nLion].nTarget = -1;
                     sprite[nSprite].xvel = 0;
                     sprite[nSprite].yvel = 0;

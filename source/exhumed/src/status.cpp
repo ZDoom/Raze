@@ -42,9 +42,6 @@ BEGIN_PS_NS
 // All this must be moved into the status bar once it is made persistent!
 const int kMaxStatusAnims = 50;
 
-short word_9AD54[kMaxPlayers] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-int dword_9AD64[kMaxPlayers] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
 short nStatusSeqOffset;
 short nHealthFrames;
 short nMagicFrames;
@@ -55,11 +52,7 @@ short nHealthFrame;
 short nMagicFrame;
 
 short nMaskY;
-static short nStatusFree = 0;
 
-short statusmask[MAXXDIM];
-
-char message_text[80];
 int magicperline;
 int airperline;
 int healthperline;
@@ -99,12 +92,10 @@ struct statusAnim
 //    int16_t nPage;
     int8_t nPrevAnim;
     int8_t nNextAnim;
+    uint8_t StatusAnimFlags;
 };
 
-
-statusAnim StatusAnim[kMaxStatusAnims];
-uint8_t StatusAnimsFree[kMaxStatusAnims];
-uint8_t StatusAnimFlags[kMaxStatusAnims];
+FreeListArray<statusAnim, kMaxStatusAnims> StatusAnim;
 
 short nItemSeqOffset[] = {91, 72, 76, 79, 68, 87, 83};
 
@@ -112,6 +103,20 @@ void SetCounterDigits();
 void SetItemSeq();
 void SetItemSeq2(int nSeqOffset);
 void DestroyStatusAnim(short nAnim);
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, statusAnim& w, statusAnim* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("s1", w.s1)
+            ("s2", w.s2)
+            ("prev", w.nPrevAnim)
+            ("next", w.nNextAnim)
+            ("flags", w.StatusAnimFlags)
+            .EndObject();
+    }
+    return arc;
+}
 
 
 void InitStatus()
@@ -124,7 +129,7 @@ void InitStatus()
     nMagicFrame = 0;
     nHealthLevel = 0;
     nMagicLevel = 0;
-    nMeterRange = tilesiz[nPicNum].y;
+    nMeterRange = tileHeight(nPicNum);
     magicperline = 1000 / nMeterRange;
     healthperline = 800 / nMeterRange;
     nAirFrames = SeqSize[nStatusSeqOffset + 133];
@@ -138,18 +143,32 @@ void InitStatus()
     SetHealthFrame(0);
     SetMagicFrame();
 
-    for (int i = 0; i < kMaxStatusAnims; i++) {
-        StatusAnimsFree[i] = i;
-    }
+    StatusAnim.Clear();
 
     nLastAnim = -1;
     nFirstAnim = -1;
     nItemSeq = -1;
-    nStatusFree = kMaxStatusAnims;
     statusx = xdim - 320;
     statusy = ydim - 200;
 }
 
+int ItemTimer(int num, int plr) 
+{
+    switch (num) {
+    case 1: //Scarab item
+        return (PlayerList[plr].invincibility * 100) / 900;
+    case 3: //Hand item
+        return (nPlayerDouble[plr] * 100) / 1350;
+    case 5: //Mask
+        return (PlayerList[plr].nMaskAmount * 100) / 1350;
+    case 4: //Invisible
+        return (nPlayerInvisible[plr] * 100) / 900;
+    case 2: //Torch
+        return (nPlayerTorch[plr] * 100) / 900;
+    }
+
+    return -1;
+}
 
 int BuildStatusAnim(int val, int nFlags)
 {
@@ -162,13 +181,7 @@ int BuildStatusAnim(int val, int nFlags)
         }
     }
 
-    if (nStatusFree <= 0) {
-        return -1;
-    }
-
-    nStatusFree--;
-
-    uint8_t nStatusAnim = StatusAnimsFree[nStatusFree];
+    int nStatusAnim = StatusAnim.Get();
 
     StatusAnim[nStatusAnim].nPrevAnim = -1;
     StatusAnim[nStatusAnim].nNextAnim = nLastAnim;
@@ -184,7 +197,7 @@ int BuildStatusAnim(int val, int nFlags)
 
     StatusAnim[nStatusAnim].s1 = val;
     StatusAnim[nStatusAnim].s2 = 0;
-    StatusAnimFlags[nStatusAnim] = nFlags;
+    StatusAnim[nStatusAnim].StatusAnimFlags = nFlags;
     return nStatusAnim;
 }
 
@@ -231,7 +244,7 @@ void MoveStatusAnims()
 
         if (StatusAnim[i].s2 >= nSize)
         {
-            if (StatusAnimFlags[i] & 0x10) {
+            if (StatusAnim[i].StatusAnimFlags & 0x10) {
                 StatusAnim[i].s2 = 0;
             }
             else {
@@ -262,8 +275,7 @@ void DestroyStatusAnim(short nAnim)
         nLastAnim = nNext;
     }
 
-    StatusAnimsFree[nStatusFree] = (uint8_t)nAnim;
-    nStatusFree++;
+    StatusAnim.Release(nAnim);
 }
 
 void SetMagicFrame()
@@ -547,7 +559,7 @@ private:
             if (nFrameSize < 0)
                 break;
 
-            int flags = DI_ITEM_RELCENTER;
+            int flags = 0;
 
             double x = ChunkXpos[nFrameBase] + xoffset;
             double y = ChunkYpos[nFrameBase] + ebx;
@@ -576,9 +588,21 @@ private:
 
             short chunkFlag = ChunkFlag[nFrameBase];
 
-            if (chunkFlag & 1) 
+            if (chunkFlag & 3)
+            {
+                // This is hard to align with bad offsets, so skip that treatment for mirrored elements.
+                flags |= DI_ITEM_RELCENTER;
+            }
+            else
+            {
+                x -= tileWidth(tile) * .5;
+                y -= tileHeight(tile) * .5;
+                flags |= DI_ITEM_OFFSETS;
+            }
+
+            if (chunkFlag & 1)
                 flags |= DI_MIRROR;
-            if (chunkFlag & 2) 
+            if (chunkFlag & 2)
                 flags |= DI_MIRRORY;
 
             DrawGraphic(tileGetTexture(tile), x, y, flags, 1, -1, -1, 1, 1);
@@ -599,6 +623,13 @@ private:
         return tileGetTexture(ChunkPict[nFrameBase]);
     }
 
+    int GetStatusSequenceTile(short nSequence, uint16_t edx)
+    {
+        edx += SeqBase[nSequence];
+        int nFrameBase = FrameBase[edx];
+        return ChunkPict[nFrameBase];
+    }
+
     //---------------------------------------------------------------------------
     //
     // 
@@ -609,33 +640,8 @@ private:
     {
         for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
         {
-            double xoff = 0.5, yoff = 0;
             int nSequence = nStatusSeqOffset + StatusAnim[i].s1;
-
-            if (StatusAnim[i].s1 >= 37 && StatusAnim[i].s1 <= 43)
-            {
-                yoff = 0.5;
-            }
-
-            if (StatusAnim[i].s1 == 4 || StatusAnim[i].s1 == 166)
-            {
-                xoff = 0;
-            }
-
-            DrawStatusSequence(nSequence, StatusAnim[i].s2, yoff, xoff);
-
-            /*
-                    if (StatusAnim[nAnim].s2 >= (SeqSize[nSequence] - 1))
-                    {
-                        if (!(StatusAnimFlags[nAnim] & 0x10))
-                        {
-                            StatusAnim[nAnim].nPage--;
-                            if (StatusAnim[nAnim].nPage <= 0) {
-                                DestroyStatusAnim(nAnim);
-                            }
-                        }
-                    }
-            */
+            DrawStatusSequence(nSequence, StatusAnim[i].s2, StatusAnim[i].s1 >= 37 && StatusAnim[i].s1 <= 43 ? 0.5 : 0, 0.5);
         }
     }
 
@@ -669,20 +675,6 @@ private:
 
             for (int i = 0; i < nTotalPlayers; i++)
             {
-                int nScore = nPlayerScore[i];
-                if (word_9AD54[i] == nScore)
-                {
-                    int v9 = dword_9AD64[i];
-                    if (v9 && v9 <= leveltime*4) {
-                        dword_9AD64[i] = 0;
-                    }
-                }
-                else
-                {
-                    word_9AD54[i] = nScore;
-                    dword_9AD64[i] = leveltime*4 + 30;
-                }
-
                 DrawGraphic(tileGetTexture(nTile), x, 7, DI_ITEM_CENTER, 1, -1, -1, 1, 1);
 
                 if (i != nLocalPlayer) {
@@ -745,7 +737,7 @@ private:
         {
             int s = -8;
             if (althud_flashing && pp->nHealth > 800)
-                s += (sintable[(leveltime << 7) & 2047] >> 10);
+                s += bsin(leveltime << 7, -10);
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", pp->nHealth >> 3);
@@ -762,18 +754,29 @@ private:
             DrawGraphic(img, -4, -22, DI_ITEM_RIGHT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 		}
 
-
         //
         // Magic
         //
         if (nItemSeq >= 0)
         {
-            img = GetStatusSequencePic(nItemSeq + nStatusSeqOffset, nItemFrame);
-            imgScale = baseScale / img->GetDisplayHeight();
-            DrawGraphic(img, 70, -1, DI_ITEM_CENTER_BOTTOM, 1., -1, -1, imgScale, imgScale);
+            int tile = GetStatusSequenceTile(nItemSeq + nStatusSeqOffset, nItemFrame);
+            int tile2 = tile;
+            if (tile2 > 744 && tile2 < 751) tile2 = 744;
+
+            imgScale = baseScale / tileHeight(tile2);
+            DrawGraphic(tileGetTexture(tile), 70, -1, DI_ITEM_CENTER_BOTTOM, 1., -1, -1, imgScale, imgScale);
+
+
 
             format.Format("%d", pp->nMagic / 10);
-            SBar_DrawString(this, numberFont, format, 79.5, -numberFont->mFont->GetHeight()+3, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+
+            short nItem = nPlayerItem[nLocalPlayer];
+            int timer = ItemTimer(nItem, nLocalPlayer);
+            if (timer > 0)
+            {
+                format.AppendFormat("/%d", timer);
+            }
+            SBar_DrawString(this, numberFont, format, 79.5, -numberFont->mFont->GetHeight() + 3, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
         }
         //
         // Weapon
@@ -1013,43 +1016,41 @@ void DrawStatusBar()
 }
 
 
-// I'm not sure this really needs to be saved.
-static SavegameHelper sghstatus("status",
-    SV(nMaskY),
-    SV(nStatusFree),
-    SV(magicperline),
-    SV(airperline),
-    SV(healthperline),
-    SV(nAirFrames),
-    SV(nCounter),
-    SV(nCounterDest),
-    SV(nItemFrames),
-    SV(nItemSeq),
-    SV(nMagicFrames),
-    SV(nHealthLevel),
-    SV(nItemFrame),
-    SV(nMeterRange),
-    SV(nMagicLevel),
-    SV(nHealthFrame),
-    SV(nMagicFrame),
-    SV(statusx),
-    SV(statusy),
-    SV(airframe),
-    SV(nFirstAnim),
-    SV(nLastAnim),
-    SV(nItemAltSeq),
-    SV(airpages),
-    SV(ammodelay),
-    SV(nCounterBullet),
-    SA(statusmask),
-    SA(message_text),
-    SA(nDigit),
-    SA(StatusAnim),
-    SA(StatusAnimsFree),
-    SA(StatusAnimFlags),
-    SA(nItemSeqOffset),
-    SA(word_9AD54),
-    SA(dword_9AD64),
-    nullptr);
+// This should not be necessary but the game only lazily updates the statusbar data.
+void SerializeStatus(FSerializer& arc)
+{
+    if (arc.BeginObject("status"))
+    {
+        arc("masky", nMaskY)
+            ("magicperline", magicperline)
+            ("airperline", airperline)
+            ("healthperline", healthperline)
+            ("airframes", nAirFrames)
+            ("counter", nCounter)
+            ("counterdest", nCounterDest)
+            ("itemframes", nItemFrames)
+            ("itemseq", nItemSeq)
+            ("magicframes", nMagicFrames)
+            ("healthlevel", nHealthLevel)
+            ("itemframe", nItemFrame)
+            ("meterrange", nMeterRange)
+            ("magiclevel", nMagicLevel)
+            ("healthframe", nHealthFrame)
+            ("magicframe", nMagicFrame)
+            ("statusx", statusx)
+            ("statusy", statusy)
+            ("airframe", airframe)
+            ("firstanim", nFirstAnim)
+            ("lastanim", nLastAnim)
+            ("itemaltseq", nItemAltSeq)
+            ("airpages", airpages)
+            ("ammodelay", ammodelay)
+            ("counterbullet", nCounterBullet)
+            .Array("digit", nDigit, 3)
+            .Array("itemseqoffset", nItemSeqOffset, countof(nItemSeqOffset))
+            ("statusanim", StatusAnim)
+            .EndObject();
+    }
+}
 
 END_PS_NS

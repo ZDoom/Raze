@@ -26,23 +26,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "build.h"
 #include "pragmas.h"
-#include "common_game.h"
-#include "actor.h"
+
 #include "blood.h"
-#include "db.h"
-#include "callback.h"
-#include "globals.h"
-#include "eventq.h"
-#include "fx.h"
-#include "gib.h"
-#include "levels.h"
-#include "sound.h"
 
 BEGIN_BLD_NS
 
 struct GIBFX
 {
-    FX_ID TotalKills;
+    FX_ID fxId;
     int at1;
     int chance;
     int at9;
@@ -53,7 +44,7 @@ struct GIBFX
 
 struct GIBTHING
 {
-    int TotalKills;
+    int type;
     int Kills;
     int chance;
     int atc;
@@ -62,7 +53,7 @@ struct GIBTHING
 
 struct GIBLIST
 {
-    GIBFX *TotalKills;
+    GIBFX *gibFX;
     int Kills;
     GIBTHING *at8;
     int atc;
@@ -295,7 +286,7 @@ int ChanceToCount(int a1, int a2)
 void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pVel)
 {
     int nSector = pSprite->sectnum;
-    if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->TotalKills == FX_13)
+    if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->fxId == FX_13)
         return;
     CGibPosition gPos(pSprite->x, pSprite->y, pSprite->z);
     if (pPos)
@@ -316,7 +307,7 @@ void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *p
             gPos.y = pSprite->y+mulscale30(pSprite->clipdist<<2, Sin(nAngle));
             gPos.z = bottom-Random(bottom-top);
         }
-        spritetype *pFX = gFX.fxSpawn(pGFX->TotalKills, nSector, gPos.x, gPos.y, gPos.z, 0);
+        spritetype *pFX = gFX.fxSpawn(pGFX->fxId, nSector, gPos.x, gPos.y, gPos.z, 0);
         if (pFX)
         {
             if (pGFX->at1 < 0)
@@ -362,7 +353,7 @@ void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *p
 void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVelocity *pVel)
 {
     if (adult_lockout && gGameOptions.nGameType <= 0)
-        switch (pGThing->TotalKills) {
+        switch (pGThing->type) {
             case kThingBloodBits:
             case kThingZombieHead:
                 return;
@@ -391,7 +382,7 @@ void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVe
         getzsofslope(nSector, x, y, &ceilZ, &floorZ);
         int dz1 = floorZ-z;
         int dz2 = z-ceilZ;
-        spritetype *pGib = actSpawnThing(nSector, x, y, z, pGThing->TotalKills);
+        spritetype *pGib = actSpawnThing(nSector, x, y, z, pGThing->type);
         assert(pGib != NULL);
         if (pGThing->Kills > -1)
             pGib->picnum = pGThing->Kills;
@@ -438,7 +429,7 @@ void GibSprite(spritetype *pSprite, GIBTYPE nGibType, CGibPosition *pPos, CGibVe
     GIBLIST *pGib = &gibList[nGibType];
     for (int i = 0; i < pGib->Kills; i++)
     {
-        GIBFX *pGibFX = &pGib->TotalKills[i];
+        GIBFX *pGibFX = &pGib->gibFX[i];
         assert(pGibFX->chance > 0);
         GibFX(pSprite, pGibFX, pPos, pVel);
     }
@@ -461,7 +452,7 @@ void GibFX(int nWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVelocity
         int r1 = Random(a6);
         int r2 = Random(a5);
         int r3 = Random(a4);
-        spritetype *pGib = gFX.fxSpawn(pGFX->TotalKills, nSector, pWall->x+r3, pWall->y+r2, a3+r1, 0);
+        spritetype *pGib = gFX.fxSpawn(pGFX->fxId, nSector, pWall->x+r3, pWall->y+r2, a3+r1, 0);
         if (pGib)
         {
             if (pGFX->at1 < 0)
@@ -505,7 +496,7 @@ void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel)
     sfxPlay3DSound(cx, cy, cz, pGib->at10, nSector);
     for (int i = 0; i < pGib->Kills; i++)
     {
-        GIBFX *pGibFX = &pGib->TotalKills[i];
+        GIBFX *pGibFX = &pGib->gibFX[i];
         assert(pGibFX->chance > 0);
         GibFX(nWall, pGibFX, ceilZ, wx, wy, wz, pVel);
     }

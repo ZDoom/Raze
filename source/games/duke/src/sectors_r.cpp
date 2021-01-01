@@ -32,6 +32,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "names_r.h"
 #include "mapinfo.h"
 #include "dukeactor.h"
+#include "secrets.h"
 
 // PRIMITIVE
 BEGIN_DUKE_NS
@@ -204,9 +205,9 @@ void animatewalls_r(void)
 		for (i = 0; i < MAXWALLS; i++)
 		{
 			if (wall[i].picnum == RRTILE7873)
-				wall[i].xpanning += 6;
+				wall[i].addxpan(6);
 			else if (wall[i].picnum == RRTILE7870)
-				wall[i].xpanning += 6;
+				wall[i].addxpan(6);
 		}
 	}
 
@@ -264,8 +265,8 @@ void animatewalls_r(void)
 
 				if (wall[i].cstat & 254)
 				{
-					wall[i].xpanning -= t >> 10; // sintable[(t+512)&2047]>>12;
-					wall[i].ypanning -= t >> 10; // sintable[t&2047]>>12;
+					wall[i].addxpan(-t / 4096.f); // bcos(t, -12);
+					wall[i].addypan(-t / 4096.f); // bsin(t, -12);
 
 					if (wall[i].extra == 1)
 					{
@@ -786,7 +787,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 					DDukeActor* switches[3];
 					int switchcount = 0, j;
 					S_PlaySound3D(SWITCH_ON, act, &v);
-					DukeSpriteIterator it;
+					DukeLinearSpriteIterator it;
 					while (auto actt = it.Next())
 					{
 						int jpn = actt->s.picnum;
@@ -1414,8 +1415,8 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 	case BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->GetActor(), j,
-			p->posx + (sintable[(p->angle.ang.asbuild() + 512) & 2047] >> 9),
-			p->posy + (sintable[p->angle.ang.asbuild() & 2047] >> 9),
+			p->posx + p->angle.ang.bcos(-9),
+			p->posy + p->angle.ang.bsin(-9),
 			p->posz, -1);
 		break;
 
@@ -2188,7 +2189,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case FUELPOD:
 	case SOLARPANNEL:
 	case ANTENNA:
-		if (actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[actorinfo[SHOTSPARK1].scriptaddress])
+		if (gs.actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
 				EGS(s->sectnum, s->x, s->y, sector[s->sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
@@ -2385,7 +2386,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 
 			if (s->statnum != 2)
 			{
-				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (freezerhurtowner == 0 && proj->GetOwner() == targ)))
+				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 					return;
 
 				targ->picnum = pspr->picnum;
@@ -2449,6 +2450,7 @@ void checksectors_r(int snum)
 		sector[p->cursectnum].lotag = 0;
 		FTA(9, p);
 		p->secret_rooms++;
+		SECRET_Trigger(p->cursectnum);
 		return;
 	case -1:
 		sector[p->cursectnum].lotag = 0;
@@ -2674,13 +2676,13 @@ void checksectors_r(int snum)
 						p->holster_weapon = 1;
 						p->weapon_pos = -1;
 					}
-					if (p->GetActor()->s.extra <= (max_player_health - (max_player_health / 10)))
+					if (p->GetActor()->s.extra <= (gs.max_player_health - (gs.max_player_health / 10)))
 					{
-						p->GetActor()->s.extra += max_player_health / 10;
+						p->GetActor()->s.extra += gs.max_player_health / 10;
 						p->last_extra = p->GetActor()->s.extra;
 					}
-					else if (p->GetActor()->s.extra < max_player_health)
-						p->GetActor()->s.extra = max_player_health;
+					else if (p->GetActor()->s.extra < gs.max_player_health)
+						p->GetActor()->s.extra = gs.max_player_health;
 				}
 				else if (S_CheckActorSoundPlaying(pact, DUKE_GRUNT) == 0)
 					S_PlayActorSound(DUKE_GRUNT, pact);
@@ -2691,7 +2693,7 @@ void checksectors_r(int snum)
 					neartagsprite->temp_data[0] = 1;
 					neartagsprite->SetOwner(p->GetActor());
 
-					if (p->GetActor()->s.extra < max_player_health)
+					if (p->GetActor()->s.extra < gs.max_player_health)
 					{
 						p->GetActor()->s.extra++;
 						S_PlayActorSound(DUKE_DRINKING, pact);

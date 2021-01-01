@@ -440,6 +440,8 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         auto fcampos = GetSoundPos(&campos);
 
+        if (vel) vel->Zero();
+
         if (type == SOURCE_Ambient)
         {
             *pos = *(FVector3*)source;
@@ -454,7 +456,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         else if (type == SOURCE_Swirly)
         {
             int which = *(int*)source;
-            float phase = (leveltime << (6 + which)) * (M_PI / 1024);
+            float phase = (leveltime << (6 + which)) * BAngRadian;
             pos->X = fcampos.X + 256 * cos(phase);
             pos->Z = fcampos.Z + 256 * sin(phase);
         }
@@ -483,7 +485,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         if ((chanflags & CHANF_LISTENERZ) && type != SOURCE_None)
         {
-            pos->Y = fcampos.Z;
+            pos->Y = fcampos.Y;
         }
     }
 }
@@ -517,7 +519,7 @@ void GameInterface::UpdateSounds()
     }
     auto fv = GetSoundPos(&pos);
     SoundListener listener;
-    listener.angle = -(float)ang * pi::pi() / 1024; // Build uses a period of 2048.
+    listener.angle = -ang * BAngRadian; // Build uses a period of 2048.
     listener.velocity.Zero();
     listener.position = GetSoundPos(&pos);
     listener.underwater = false;
@@ -556,7 +558,7 @@ void GameInterface::UpdateSounds()
 int soundx, soundy, soundz;
 short soundsect;
 
-void PlayFX2(unsigned short nSound, short nSprite, int sectf)
+void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanflags)
 {
     if (!SoundEnabled()) return;
     if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
@@ -635,11 +637,11 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf)
     FSoundChan* chan = nullptr;
     if (nSprite >= 0)
     {
-        chan = soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f,fullvol? 0.5 : ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
+        chan = soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, chanflags| CHANF_OVERLAP, nSound+1, nVolume / 255.f,fullvol? 0.5 : ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
     }
     else
     {
-        chan = soundEngine->StartSound(SOURCE_Unattached, nullptr, &vv, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f, ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
+        chan = soundEngine->StartSound(SOURCE_Unattached, nullptr, &vv, CHAN_BODY, chanflags | CHANF_OVERLAP, nSound+1, nVolume / 255.f, ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
     }
     if (chan)
     {
@@ -658,13 +660,13 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf)
 //
 //==========================================================================
 
-void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector)
+void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector, EChanFlags chanflags)
 {
     soundx = x;
     soundy = y;
     soundz = z;
     soundsect = nSector&0x3fff;
-    PlayFX2(ax, -1, nSector & 0x4000);
+    PlayFX2(ax, -1, nSector & 0x4000, chanflags);
 }
 
 //==========================================================================

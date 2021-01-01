@@ -70,14 +70,6 @@ struct rottile_t
 	int16_t owner;
 };
 
-struct HightileReplacement
-{
-	FGameTexture* faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
-	FVector2 scale;
-	float alphacut, specpower, specfactor;
-	uint16_t palnum, flags;
-};
-
 class FTileTexture : public FImageSource
 {
 public:
@@ -273,7 +265,6 @@ struct TileDesc
 	picanm_t picanm;		// animation descriptor
 	picanm_t picanmbackup;	// animation descriptor backup when using map tiles
 	rottile_t RotTile;// = { -1,-1 };
-	TArray<HightileReplacement> Hightiles;
 	ReplacementType replacement;
 	float alphaThreshold;
 
@@ -298,7 +289,6 @@ struct BuildTiles
 	TDeletingArray<BuildArtFile*> ArtFiles;
 	TileDesc tiledata[MAXTILES];
 	TArray<FString> addedArt;
-	TMap<FGameTexture*, int> TextureToTile;
 	TArray<FString> maptilesadded;
 
 	void Init(); // This cannot be a constructor because it needs the texture manager running.
@@ -336,21 +326,6 @@ struct BuildTiles
 	{
 		addedArt = std::move(art);
 	}
-	int GetTileIndex(FGameTexture* tex)
-	{
-		auto p = TextureToTile.CheckKey(tex);
-		return p ? *p : -1;
-	}
-
-	void SetupReverseTileMap()
-	{
-		TextureToTile.Clear();
-		for (int i = 0; i < MAXTILES; i++)
-		{
-			if (tiledata[i].texture != nullptr && tiledata[i].texture != Placeholder) TextureToTile.Insert(tiledata[i].texture, i);
-		}
-
-	}
 
 	void setAnim(int tile, int type, int speed, int frames)
 	{
@@ -368,17 +343,6 @@ struct BuildTiles
 	int tileCreateRotated(int owner);
 	void InvalidateTile(int num);
 	void MakeCanvas(int tilenum, int width, int height);
-	HightileReplacement* FindReplacement(int picnum, int palnum, bool skybox = false);
-	void AddReplacement(int picnum, const HightileReplacement&);
-	void DeleteReplacement(int picnum, int palnum);
-	void DeleteReplacements(int picnum)
-	{
-		assert(picnum < MAXTILES);
-		tiledata[picnum].Hightiles.Clear();
-	}
-
-	void PostLoadSetup();
-
 };
 
 int tileGetCRC32(int tileNum);
@@ -386,13 +350,9 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 void tileCopy(int tile, int tempsource, int temppal, int xoffset, int yoffset, int flags);
 void tileSetDummy(int tile, int width, int height);
 void tileDelete(int tile);
-void tileRemoveReplacement(int tile);
 bool tileLoad(int tileNum);
 void    artClearMapArt(void);
 void    artSetupMapArt(const char* filename);
-int tileSetHightileReplacement(int picnum, int palnum, const char *filen, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
-int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags );
-int tileDeleteReplacement(int picnum, int palnum);
 void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int tilenum2, int sx2, int sy2);
 
 extern BuildTiles TileFiles;
@@ -436,17 +396,6 @@ inline const uint8_t* tileRawData(int num)
 }
 
 // Some hacks to allow accessing the no longer existing arrays as if they still were arrays to avoid changing hundreds of lines of code.
-struct TileSiz
-{
-	const vec2_16_t operator[](size_t index)
-	{
-		assert(index < MAXTILES);
-		vec2_16_t v = { (int16_t)TileFiles.tiledata[index].texture->GetDisplayWidth(), (int16_t)TileFiles.tiledata[index].texture->GetDisplayHeight() };
-		return v;
-	}
-};
-extern TileSiz tilesiz;
-
 struct PicAnm
 {
 	picanm_t& operator[](size_t index)
@@ -457,7 +406,6 @@ struct PicAnm
 };
 extern PicAnm picanm;
 
-// Helpers to read the refactored tilesiz array.
 inline int tileWidth(int num)
 {
 	assert(num < MAXTILES);
@@ -482,26 +430,6 @@ inline int tileTopOffset(int num)
 	return (int)TileFiles.tiledata[num].texture->GetDisplayTopOffset();
 }
 
-inline int widthBits(int num)
-{
-	int w = tileWidth(num);
-	int j = 15;
-
-	while ((j > 1) && ((1 << j) > w))
-		j--;
-	return j;
-}
-
-inline int heightBits(int num)
-{
-	int w = tileHeight(num);
-	int j = 15;
-
-	while ((j > 1) && ((1 << j) > w))
-		j--;
-	return j;
-}
-
 inline rottile_t& RotTile(int tile)
 {
 	assert(tile < MAXTILES);
@@ -514,6 +442,7 @@ int32_t animateoffs(int const tilenum, int fakevar);
 inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 {
 	assert(tile < MAXTILES);
+	if (tile < 0 || tile >= MAXTILES) return nullptr;
 	if (animate)
 	{
 		if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
@@ -525,9 +454,6 @@ inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 
 bool tileEqualTo(int me, int other);
 void tileUpdateAnimations();
-
-bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick);
-
 
 bool ValidateTileRange(const char* cmd, int& begin, int& end, FScriptPosition pos, bool allowswap = true);
 bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos);

@@ -26,22 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "v_draw.h"
 #include "mmulti.h"
-#include "common_game.h"
-#include "blood.h"
-#include "endgame.h"
-#include "globals.h"
-#include "levels.h"
-#include "loadsave.h"
-#include "player.h"
-#include "sound.h"
-#include "view.h"
-#include "messages.h"
 #include "statistics.h"
 #include "gstrings.h"
 #include "gamestate.h"
 #include "raze_sound.h"
 #include "d_net.h"
 #include "screenjob.h"
+#include "blood.h"
 
 BEGIN_BLD_NS
 
@@ -126,7 +117,7 @@ class DBloodSummaryScreen : public DScreenJob
 			{
 				mysnprintf(pBuffer, 40, "%-2d", i);
 				viewDrawText(3, pBuffer, 85, 50 + 8 * i, -128, 0, 0, 1);
-				mysnprintf(pBuffer, 40, "%s", gProfile[i].name);
+				mysnprintf(pBuffer, 40, "%s", PlayerName(i));
 				viewDrawText(3, pBuffer, 100, 50 + 8 * i, -128, 0, 0, 1);
 				mysnprintf(pBuffer, 40, "%d", gPlayer[i].fragCount);
 				viewDrawText(3, pBuffer, 210, 50 + 8 * i, -128, 0, 0, 1);
@@ -265,38 +256,22 @@ void CSecretMgr::Clear(void)
 	Total = Founds = Super = 0;
 }
 
-class EndGameLoadSave : public LoadSave {
-public:
-	virtual void Load(void);
-	virtual void Save(void);
-};
-
-void EndGameLoadSave::Load(void)
+void SerializeGameStats(FSerializer& arc)
 {
-	Read(&gSecretMgr.Total, 4);
-	Read(&gSecretMgr.Founds, 4);
-	Read(&gSecretMgr.Super, 4);
-	Read(&gKillMgr.TotalKills, 4);
-	Read(&gKillMgr.Kills, 4);
+	if (arc.BeginObject("gamestats"))
+	{
+		arc("secrets", gSecretMgr.Total)
+			("secretsfound", gSecretMgr.Founds)
+			("super", gSecretMgr.Super)
+			("totalkills", gKillMgr.TotalKills)
+			("kills", gKillMgr.Kills)
+			.EndObject();
+	}
 }
 
-void EndGameLoadSave::Save(void)
-{
-	Write(&gSecretMgr.Total, 4);
-	Write(&gSecretMgr.Founds, 4);
-	Write(&gSecretMgr.Super, 4);
-	Write(&gKillMgr.TotalKills, 4);
-	Write(&gKillMgr.Kills, 4);
-}
 
 CSecretMgr gSecretMgr;
 CKillMgr gKillMgr;
-
-void EndGameLoadSaveConstruct(void)
-{
-	new EndGameLoadSave();
-}
-
 
 class DBloodLoadScreen : public DScreenJob
 {

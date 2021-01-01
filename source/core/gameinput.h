@@ -5,8 +5,10 @@
 #include "gamecvars.h"
 #include "packet.h"
 
-int getincangle(int c, int n);
-fixed_t getincangleq16(fixed_t c, fixed_t n);
+int getincangle(int a, int na);
+double getincanglef(double a, double na);
+fixed_t getincangleq16(fixed_t a, fixed_t na);
+lookangle getincanglebam(binangle a, binangle na);
 
 struct PlayerHorizon
 {
@@ -27,7 +29,7 @@ struct PlayerHorizon
 
 	void addadjustment(double value)
 	{
-		if (!cl_syncinput)
+		if (!SyncInput())
 		{
 			adjustment += value * FRACUNIT;
 		}
@@ -44,7 +46,7 @@ struct PlayerHorizon
 
 	void settarget(double value, bool backup = false)
 	{
-		if (!cl_syncinput)
+		if (!SyncInput() && !backup)
 		{
 			target = value * FRACUNIT;
 			if (target == 0) target += 1;
@@ -119,9 +121,21 @@ struct PlayerAngle
 		rotscrnang = orotscrnang;
 	}
 
+	void addadjustment(int value)
+	{
+		if (!SyncInput())
+		{
+			adjustment += BAngToBAM(value);
+		}
+		else
+		{
+			ang += buildang(value);
+		}
+	}
+
 	void addadjustment(double value)
 	{
-		if (!cl_syncinput)
+		if (!SyncInput())
 		{
 			adjustment += value * BAMUNIT;
 		}
@@ -131,21 +145,73 @@ struct PlayerAngle
 		}
 	}
 
+	void addadjustment(lookangle value)
+	{
+		if (!SyncInput())
+		{
+			adjustment += value.asbam();
+		}
+		else
+		{
+			ang += bamang(value.asbam());
+		}
+	}
+
+	void addadjustment(binangle value)
+	{
+		if (!SyncInput())
+		{
+			adjustment += value.asbam();
+		}
+		else
+		{
+			ang += value;
+		}
+	}
+
 	void resetadjustment()
 	{
 		adjustment = 0;
 	}
 
-	void settarget(double value, bool backup = false)
+	void settarget(int value, bool backup = false)
 	{
-		if (!cl_syncinput)
+		if (!SyncInput() && !backup)
 		{
-			target = value * BAMUNIT;
+			target = (ang + getincanglebam(ang, buildang(value))).asbam();
 			if (target == 0) target += 1;
 		}
 		else
 		{
-			ang = bamang(xs_CRoundToUInt(value * BAMUNIT));
+			ang = buildang(value);
+			if (backup) oang = ang;
+		}
+	}
+
+	void settarget(double value, bool backup = false)
+	{
+		if (!SyncInput() && !backup)
+		{
+			target = (ang + getincanglebam(ang, buildfang(value))).asbam();
+			if (target == 0) target += 1;
+		}
+		else
+		{
+			ang = buildfang(value);
+			if (backup) oang = ang;
+		}
+	}
+
+	void settarget(binangle value, bool backup = false)
+	{
+		if (!SyncInput() && !backup)
+		{
+			target = (ang + getincanglebam(ang, value)).asbam();
+			if (target == 0) target += 1;
+		}
+		else
+		{
+			ang = value;
 			if (backup) oang = ang;
 		}
 	}
@@ -170,12 +236,12 @@ struct PlayerAngle
 
 	binangle osum()
 	{
-		return bamang(oang.asbam() + olook_ang.asbam());
+		return oang + olook_ang;
 	}
 
 	binangle sum()
 	{
-		return bamang(ang.asbam() + look_ang.asbam());
+		return ang + look_ang;
 	}
 
 	binangle interpolatedsum(double const smoothratio)
@@ -187,10 +253,21 @@ struct PlayerAngle
 		return bamang(prev + xs_CRoundToUInt(ratio * (((curr + dang - prev) & 0xFFFFFFFF) - dang)));
 	}
 
+	lookangle interpolatedlookang(double const smoothratio)
+	{
+		double const ratio = smoothratio * (1. / FRACUNIT);
+		return bamlook(olook_ang.asbam() + xs_CRoundToInt(ratio * (look_ang - olook_ang).asbam()));
+	}
+
 	lookangle interpolatedrotscrn(double const smoothratio)
 	{
-		double const ratio = smoothratio / FRACUNIT;
-		return bamlook(orotscrnang.asbam() + xs_CRoundToInt(ratio * (rotscrnang.asbam() - orotscrnang.asbam())));
+		double const ratio = smoothratio * (1. / FRACUNIT);
+		return bamlook(orotscrnang.asbam() + xs_CRoundToInt(ratio * (rotscrnang - orotscrnang).asbam()));
+	}
+
+	double look_anghalf(double const smoothratio)
+	{
+		return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).asbam() * (0.5 / BAMUNIT); // Used within draw code for weapon and crosshair when looking left/right.
 	}
 };
 

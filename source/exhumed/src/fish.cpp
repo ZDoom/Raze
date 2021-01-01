@@ -25,14 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum
-{
-    kMaxFishes = 128,
-    kMaxChunks = 128
-};
-
-short FishCount = 0;
-
 static actionSeq FishSeq[] = {
     {8, 0},
     {8, 0},
@@ -46,9 +38,6 @@ static actionSeq FishSeq[] = {
     {39, 1}
 };
 
-short nChunksFree;
-
-int nFreeChunk[kMaxChunks] = { 0 };
 
 struct Fish
 {
@@ -57,59 +46,72 @@ struct Fish
     short nAction;
     short nSprite;
     short nTarget;
-    short field_A;
-    short field_C;
+    short nCount;
     short nRun;
 };
 
 struct Chunk
 {
     short nSprite;
-    short field_2;
-    short field_4;
-    short field_6;
+    short nIndex;
+    short nSeqIndex;
 };
 
-Fish FishList[kMaxFishes];
-Chunk FishChunk[kMaxChunks];
+TArray<Fish> FishList;
+TArray<Chunk> FishChunk;
 
-static SavegameHelper sghfish("fish",
-    SV(FishCount),
-    SV(nChunksFree),
-    SA(nFreeChunk),
-    SA(FishList),
-    SA(FishChunk),
-    nullptr);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Fish& w, Fish* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("sprite", w.nSprite)
+            ("target", w.nTarget)
+            ("run", w.nRun)
+            ("count", w.nCount)
+            .EndObject();
+    }
+    return arc;
+}
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Chunk& w, Chunk* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc ("sprite", w.nSprite)
+            ("index", w.nIndex)
+            ("seqindex", w.nSeqIndex)
+            .EndObject();
+    }
+    return arc;
+}
+
+void SerializeFish(FSerializer& arc)
+{
+    arc("fish", FishList)
+        ("fishchunk", FishChunk);
+}
 
 void InitFishes()
 {
-    FishCount = 0;
-    nChunksFree = kMaxChunks;
-
-    for (int i = 0; i < kMaxChunks; i++) {
-        nFreeChunk[i] = i;
-    }
+    FishList.Clear();
+    FishChunk.Clear();
 }
 
 int BuildFishLimb(short nFish, short edx)
 {
-    if (nChunksFree <= 0) {
-        return -1;
-    }
-
     short nSprite = FishList[nFish].nSprite;
 
-    nChunksFree--;
-
-    int nFree = nFreeChunk[nChunksFree];
+    int nFree = FishChunk.Reserve(1);
 
     int nSprite2 = insertsprite(sprite[nSprite].sectnum, 99);
     assert(nSprite2 >= 0 && nSprite2 < kMaxSprites);
 
     FishChunk[nFree].nSprite = nSprite2;
-    FishChunk[nFree].field_4 = edx + 40;
-    FishChunk[nFree].field_2 = RandomSize(3) % SeqSize[SeqOffsets[kSeqFish] + edx + 40];
+    FishChunk[nFree].nSeqIndex = edx + 40;
+    FishChunk[nFree].nIndex = RandomSize(3) % SeqSize[SeqOffsets[kSeqFish] + edx + 40];
 
     sprite[nSprite2].x = sprite[nSprite].x;
     sprite[nSprite2].y = sprite[nSprite].y;
@@ -125,7 +127,7 @@ int BuildFishLimb(short nFish, short edx)
     sprite[nSprite2].yoffset = 0;
     sprite[nSprite2].zvel = (-(RandomByte() + 512)) * 2;
 
-    seq_GetSeqPicnum(kSeqFish, FishChunk[nFree].field_4, 0);
+    seq_GetSeqPicnum(kSeqFish, FishChunk[nFree].nSeqIndex, 0);
 
     sprite[nSprite2].picnum = edx;
     sprite[nSprite2].lotag = runlist_HeadRun() + 1;
@@ -151,7 +153,7 @@ void FuncFishLimb(int a, int, int nRun)
     short nSprite = FishChunk[nFish].nSprite;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
 
-    int nSeq = SeqOffsets[kSeqFish] + FishChunk[nFish].field_4;
+    int nSeq = SeqOffsets[kSeqFish] + FishChunk[nFish].nSeqIndex;
 
     int nMessage = a & kMessageMask;
 
@@ -159,15 +161,15 @@ void FuncFishLimb(int a, int, int nRun)
     {
         case 0x20000:
         {
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, FishChunk[nFish].field_2);
+            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, FishChunk[nFish].nIndex);
 
             Gravity(nSprite);
 
-            FishChunk[nFish].field_2++;
+            FishChunk[nFish].nIndex++;
 
-            if (FishChunk[nFish].field_2 >= SeqSize[nSeq])
+            if (FishChunk[nFish].nIndex >= SeqSize[nSeq])
             {
-                FishChunk[nFish].field_2 = 0;
+                FishChunk[nFish].nIndex = 0;
                 if (RandomBit()) {
                     BuildBlood(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum);
                 }
@@ -208,7 +210,7 @@ void FuncFishLimb(int a, int, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, nSeq, FishChunk[nFish].field_2, 1);
+            seq_PlotSequence(a & 0xFFFF, nSeq, FishChunk[nFish].nIndex, 1);
             return;
         }
     }
@@ -216,12 +218,7 @@ void FuncFishLimb(int a, int, int nRun)
 
 int BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
 {
-    short nFish = FishCount;
-    FishCount++;
-
-    if (nFish >= kMaxFishes) {
-        return -1;
-    }
+    int nFish = FishList.Reserve(1);
 
     if (nSprite == -1)
     {
@@ -264,7 +261,7 @@ int BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
     FishList[nFish].nHealth = 200;
     FishList[nFish].nSprite = nSprite;
     FishList[nFish].nTarget = -1;
-    FishList[nFish].field_C = 60;
+    FishList[nFish].nCount = 60;
     FishList[nFish].nFrame = 0;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nFish | 0x120000);
@@ -282,8 +279,8 @@ void IdleFish(short nFish, short edx)
     sprite[nSprite].ang += (256 - RandomSize(9)) + 1024;
     sprite[nSprite].ang &= kAngleMask;
 
-    sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 8;
-    sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 8;
+    sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -8);
+    sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -8);
 
     FishList[nFish].nAction = 0;
     FishList[nFish].nFrame = 0;
@@ -315,7 +312,7 @@ void DestroyFish(short nFish)
 void FuncFish(int a, int nDamage, int nRun)
 {
     short nFish = RunData[nRun].nVal;
-    assert(nFish >= 0 && nFish < kMaxFishes);
+    assert(nFish >= 0 && nFish < (int)FishList.Size());
 
     short nSprite = FishList[nFish].nSprite;
     short nAction = FishList[nFish].nAction;
@@ -349,7 +346,7 @@ void FuncFish(int a, int nDamage, int nRun)
                     return;
                 }
 
-                FishList[nFish].field_C = 10;
+                FishList[nFish].nCount = 10;
             }
             // fall through
             fallthrough__;
@@ -396,7 +393,7 @@ void FuncFish(int a, int nDamage, int nRun)
 
                 FishList[nFish].nAction = 4;
                 FishList[nFish].nFrame = 0;
-                FishList[nFish].field_C += 10;
+                FishList[nFish].nCount += 10;
             }
 
             return;
@@ -429,8 +426,8 @@ void FuncFish(int a, int nDamage, int nRun)
 
                 case 0:
                 {
-                    FishList[nFish].field_C--;
-                    if (FishList[nFish].field_C <= 0)
+                    FishList[nFish].nCount--;
+                    if (FishList[nFish].nCount <= 0)
                     {
                         nTarget = FindPlayer(nSprite, 60);
                         if (nTarget >= 0)
@@ -440,9 +437,9 @@ void FuncFish(int a, int nDamage, int nRun)
                             FishList[nFish].nFrame = 0;
 
                             int nAngle = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].z - sprite[nSprite].z);
-                            sprite[nSprite].zvel = Sin(nAngle) >> 5;
+                            sprite[nSprite].zvel = bsin(nAngle, -5);
 
-                            FishList[nFish].field_C = RandomSize(6) + 90;
+                            FishList[nFish].nCount = RandomSize(6) + 90;
                         }
                         else
                         {
@@ -459,8 +456,8 @@ void FuncFish(int a, int nDamage, int nRun)
                 case 2:
                 case 3:
                 {
-                    FishList[nFish].field_C--;
-                    if (FishList[nFish].field_C <= 0)
+                    FishList[nFish].nCount--;
+                    if (FishList[nFish].nCount <= 0)
                     {
                         IdleFish(nFish, 0);
                         return;
@@ -474,8 +471,8 @@ void FuncFish(int a, int nDamage, int nRun)
 
                         if (z <= nHeight)
                         {
-                            sprite[nSprite].xvel = (Cos(sprite[nSprite].ang) >> 5) - (Cos(sprite[nSprite].ang) >> 7);
-                            sprite[nSprite].yvel = (Sin(sprite[nSprite].ang) >> 5) - (Sin(sprite[nSprite].ang) >> 7);
+                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -5) - bcos(sprite[nSprite].ang, -7);
+                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -5) - bsin(sprite[nSprite].ang, -7);
                         }
                         else
                         {

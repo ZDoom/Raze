@@ -66,8 +66,6 @@ struct zdemoheader_s {
 };
 
 
-class FArchive;
-
 // When transmitted, the above message is preceded by a uint8_t
 // indicating which fields are actually present in the message.
 enum

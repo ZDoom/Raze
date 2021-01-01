@@ -119,7 +119,7 @@ void footprints(int snum);
 int makepainsounds(int snum, int type);
 void playerCrouch(int snum);
 void playerJump(int snum, int fz, int cz);
-void processavel(player_struct* p, float* avel); 
+
 void checklook(int snum, ESyncBits actions);
 void playerCenterView(int snum);
 void playerLookUp(int snum, ESyncBits actions);
@@ -195,7 +195,6 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE);
 void initwaterdrip(DDukeActor* actj, DDukeActor* acti);
 int initreactor(DDukeActor* actj, DDukeActor* acti, bool isrecon);
 void spawneffector(DDukeActor* actor);
-void gameexitfrommenu();
 int startrts(int lumpNum, int localPlayer);
 
 void pickrandomspot(int pn);
@@ -232,25 +231,13 @@ void exitlevel(MapRecord *next);
 void enterlevel(MapRecord* mi, int gm);
 void donewgame(MapRecord* map, int sk);
 void startnewgame(MapRecord* map, int skill);
-void setlocalplayerinput(player_struct *pp);
 int playercolor2lookup(int color);
 void PlayerColorChanged(void);
-void apply_seasick(player_struct* p, double scalefactor);
 void calcviewpitch(player_struct* p, double factor);
 bool movementBlocked(int snum);
 void loadcons();
 void recordoldspritepos();
 
-void updateinterpolations();
-void restoreinterpolations();
-void setinterpolation(int* posptr);
-void stopinterpolation(int* posptr);
-void dointerpolations(int smoothratio);
 int* animateptr(int i);
-
-void backuppos(player_struct* p, bool noclipping = false);
-void backupweapon(player_struct* p);
-void checkhardlanding(player_struct* p);
-void playerweaponsway(player_struct* p, spritetype* s);
 
 END_DUKE_NS

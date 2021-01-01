@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statistics.h"
 #include "v_draw.h"
 #include <string>
+#include "mapinfo.h"
 
 #include <assert.h>
 
@@ -75,6 +76,7 @@ unsigned int menu_RandomBit2()
 
 void InitEnergyTile()
 {
+    word_9AB5B = 0;
     memset(energytile, 96, sizeof(energytile));
 }
 
@@ -214,7 +216,7 @@ void DoEnergyTile()
         for (i = 0; i < 4096; i++)
         {
             if (ptrW[i] == 96) {
-                ptrW[i] = 255; // -1?
+                ptrW[i] = 0; // -1?
             }
         }
 
@@ -237,12 +239,5 @@ void DoEnergyTile()
         TileFiles.InvalidateTile(kEnergy2);
     }
 }
-
-static SavegameHelper sghmenu("menu",
-    SA(nCinemaSeen),
-    SA(energytile),
-    SV(nButtonColor),
-    SV(word_9AB5B),
-    nullptr);
 
 END_PS_NS

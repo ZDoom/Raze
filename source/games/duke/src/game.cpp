@@ -210,11 +210,11 @@ static void setupbackdrop()
 	{
 		for (int i = 0; i < MAXUSERTILES; i++)
 		{
-			if (tilesiz[i].x == 512)
+			if (tileWidth(i) == 512)
 			{
 				defineSky(i, 32768, 1, pskyoff);
 			}
-			else if (tilesiz[i].x == 1024)
+			else if (tileWidth(i) == 1024)
 			{
 				defineSky(i, 32768, 0, pskyoff);
 			}
@@ -317,7 +317,6 @@ void GameInterface::app_init()
 	//Net_SendClientInfo();
 
 	initTiles();
-	fi.InitFonts();
 	genspriteremaps();
 	SetupGameButtons();
 	InitCheats();
@@ -326,13 +325,8 @@ void GameInterface::app_init()
 
 	screenpeek = myconnectindex;
 
-	for (int j = numplayers; j < ud.multimode; j++)
-	{
-		mysnprintf(ud.user_name[j], sizeof(ud.user_name[j]), "%s %d", GStrings("PLAYER"), j + 1);
-		ps[j].auto_aim = 0;
-	}
-
 	LoadDefinitions();
+	fi.InitFonts();
 	SetTileNames();
 	TileFiles.SetBackup();
 	C_InitConback(TexMan.CheckForTexture("MENUSCREEN", ETextureType::Any), false, 0.75);

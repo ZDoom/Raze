@@ -27,32 +27,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "player.h"
-#include "seq.h"
 
 BEGIN_BLD_NS
 
-static void batBiteSeqCallback(int, int);
-static void batThinkTarget(spritetype *, XSPRITE *);
-static void batThinkSearch(spritetype *, XSPRITE *);
-static void batThinkGoto(spritetype *, XSPRITE *);
-static void batThinkPonder(spritetype *, XSPRITE *);
-static void batMoveDodgeUp(spritetype *, XSPRITE *);
-static void batMoveDodgeDown(spritetype *, XSPRITE *);
-static void batThinkChase(spritetype *, XSPRITE *);
-static void batMoveForward(spritetype *, XSPRITE *);
-static void batMoveSwoop(spritetype *, XSPRITE *);
-static void batMoveFly(spritetype *, XSPRITE *);
-static void batMoveToCeil(spritetype *, XSPRITE *);
+static void batThinkTarget(DBloodActor*);
+static void batThinkSearch(DBloodActor*);
+static void batThinkGoto(DBloodActor*);
+static void batThinkPonder(DBloodActor*);
+static void batMoveDodgeUp(DBloodActor*);
+static void batMoveDodgeDown(DBloodActor*);
+static void batThinkChase(DBloodActor*);
+static void batMoveForward(DBloodActor*);
+static void batMoveSwoop(DBloodActor*);
+static void batMoveFly(DBloodActor*);
+static void batMoveToCeil(DBloodActor*);
 
-static int nBatBiteClient = seqRegisterClient(batBiteSeqCallback);
 
 AISTATE batIdle = {kAiStateIdle, 0, -1, 0, NULL, NULL, batThinkTarget, NULL };
 AISTATE batFlyIdle = {kAiStateIdle, 6, -1, 0, NULL, NULL, batThinkTarget, NULL };
@@ -73,10 +64,10 @@ AISTATE batDodgeDown = {kAiStateMove, 6, -1, 120, NULL, batMoveDodgeDown, 0, &ba
 AISTATE batDodgeDownRight = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 AISTATE batDodgeDownLeft = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 
-static void batBiteSeqCallback(int, int nXSprite)
+void batBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    spritetype *pSprite = &sprite[pXSprite->reference];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
@@ -89,20 +80,22 @@ static void batBiteSeqCallback(int, int nXSprite)
     actFireVector(pSprite, 0, 0, dx, dy, height2-height, VECTOR_TYPE_6);
 }
 
-static void batThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void batThinkTarget(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-    if (pDudeExtraE->at8 && pDudeExtraE->Kills < 10)
-        pDudeExtraE->Kills++;
-    else if (pDudeExtraE->Kills >= 10 && pDudeExtraE->at8)
+    if (pDudeExtraE->xval3 && pDudeExtraE->xval2 < 10)
+        pDudeExtraE->xval2++;
+    else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)
     {
-        pDudeExtraE->Kills = 0;
+        pDudeExtraE->xval2 = 0;
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
-        aiNewState(pSprite, pXSprite, &batTurn);
+        aiNewState(actor, &batTurn);
         return;
     }
     if (Chance(pDudeInfo->alertChance))
@@ -127,12 +120,12 @@ static void batThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else
                 continue;
@@ -141,14 +134,18 @@ static void batThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void batThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void batThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    batThinkTarget(pSprite, pXSprite);
+    batThinkTarget(actor);
 }
 
-static void batThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void batThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -157,15 +154,17 @@ static void batThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &batSearch);
-    batThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &batSearch);
+    batThinkTarget(actor);
 }
 
-static void batThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
+static void batThinkPonder(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &batSearch);
+        aiNewState(actor, &batSearch);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -178,7 +177,7 @@ static void batThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &batSearch);
+        aiNewState(actor, &batSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -193,31 +192,32 @@ static void batThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
         {
             aiSetTarget(pXSprite, pXSprite->target);
             if (height2-height < 0x3000 && nDist < 0x1800 && nDist > 0xc00 && klabs(nDeltaAngle) < 85)
-                aiNewState(pSprite, pXSprite, &batDodgeUp);
+                aiNewState(actor, &batDodgeUp);
             else if (height2-height > 0x5000 && nDist < 0x1800 && nDist > 0xc00 && klabs(nDeltaAngle) < 85)
-                aiNewState(pSprite, pXSprite, &batDodgeDown);
+                aiNewState(actor, &batDodgeDown);
             else if (height2-height < 0x2000 && nDist < 0x200 && klabs(nDeltaAngle) < 85)
-                aiNewState(pSprite, pXSprite, &batDodgeUp);
+                aiNewState(actor, &batDodgeUp);
             else if (height2-height > 0x6000 && nDist < 0x1400 && nDist > 0x800 && klabs(nDeltaAngle) < 85)
-                aiNewState(pSprite, pXSprite, &batDodgeDown);
+                aiNewState(actor, &batDodgeDown);
             else if (height2-height < 0x2000 && nDist < 0x1400 && nDist > 0x800 && klabs(nDeltaAngle) < 85)
-                aiNewState(pSprite, pXSprite, &batDodgeUp);
+                aiNewState(actor, &batDodgeUp);
             else if (height2-height < 0x2000 && klabs(nDeltaAngle) < 85 && nDist > 0x1400)
-                aiNewState(pSprite, pXSprite, &batDodgeUp);
+                aiNewState(actor, &batDodgeUp);
             else if (height2-height > 0x4000)
-                aiNewState(pSprite, pXSprite, &batDodgeDown);
+                aiNewState(actor, &batDodgeDown);
             else
-                aiNewState(pSprite, pXSprite, &batDodgeUp);
+                aiNewState(actor, &batDodgeUp);
             return;
         }
     }
-    aiNewState(pSprite, pXSprite, &batGoto);
+    aiNewState(actor, &batGoto);
     pXSprite->target = -1;
 }
 
-static void batMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
+static void batMoveDodgeUp(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -225,8 +225,8 @@ static void batMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int dx = xvel[nSprite];
-    int dy = yvel[nSprite];
+    int dx = actor->xvel();
+    int dy = actor->yvel();
     int t1 = dmulscale30(dx, nCos, dy, nSin);
     int t2 = dmulscale30(dx, nSin, -dy, nCos);
     if (pXSprite->dodgeDir > 0)
@@ -234,14 +234,15 @@ static void batMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     else
         t2 -= pDudeInfo->sideSpeed;
 
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = -0x52aaa;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = -0x52aaa;
 }
 
-static void batMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
+static void batMoveDodgeDown(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -251,8 +252,8 @@ static void batMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int dx = xvel[nSprite];
-    int dy = yvel[nSprite];
+    int dx = actor->xvel();
+    int dy = actor->yvel();
     int t1 = dmulscale30(dx, nCos, dy, nSin);
     int t2 = dmulscale30(dx, nSin, -dy, nCos);
     if (pXSprite->dodgeDir > 0)
@@ -260,16 +261,18 @@ static void batMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
     else
         t2 -= pDudeInfo->sideSpeed;
 
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = 0x44444;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = 0x44444;
 }
 
-static void batThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void batThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &batGoto);
+        aiNewState(actor, &batGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -282,12 +285,12 @@ static void batThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &batSearch);
+        aiNewState(actor, &batSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type - kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &batSearch);
+        aiNewState(actor, &batSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -306,28 +309,29 @@ static void batThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                 aiSetTarget(pXSprite, pXSprite->target);
                 int floorZ = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
                 if (height2-height < 0x2000 && nDist < 0x200 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &batBite);
+                    aiNewState(actor, &batBite);
                 else if ((height2-height > 0x5000 || floorZ-bottom > 0x5000) && nDist < 0x1400 && nDist > 0x800 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &batSwoop);
+                    aiNewState(actor, &batSwoop);
                 else if ((height2-height < 0x3000 || floorZ-bottom < 0x3000) && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &batFly);
+                    aiNewState(actor, &batFly);
                 return;
             }
         }
         else
         {
-            aiNewState(pSprite, pXSprite, &batFly);
+            aiNewState(actor, &batFly);
             return;
         }
     }
 
     pXSprite->target = -1;
-    aiNewState(pSprite, pXSprite, &batHide);
+    aiNewState(actor, &batHide);
 }
 
-static void batMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+static void batMoveForward(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -345,21 +349,22 @@ static void batMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     if (pXSprite->target == -1)
         t1 += nAccel;
     else
         t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void batMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
+static void batMoveSwoop(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -378,19 +383,20 @@ static void batMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = 0x44444;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = 0x44444;
 }
 
-static void batMoveFly(spritetype *pSprite, XSPRITE *pXSprite)
+static void batMoveFly(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -409,18 +415,20 @@ static void batMoveFly(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = -0x2d555;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = -0x2d555;
 }
 
-void batMoveToCeil(spritetype *pSprite, XSPRITE *pXSprite)
+void batMoveToCeil(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
@@ -428,9 +436,9 @@ void batMoveToCeil(spritetype *pSprite, XSPRITE *pXSprite)
     if (z - pXSprite->targetZ < 0x1000)
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->at8 = 0;
+        pDudeExtraE->xval3 = 0;
         pSprite->flags = 0;
-        aiNewState(pSprite, pXSprite, &batIdle);
+        aiNewState(actor, &batIdle);
     }
     else
         aiSetTarget(pXSprite, x, y, sector[nSector].ceilingz);

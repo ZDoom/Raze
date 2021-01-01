@@ -1031,8 +1031,8 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
     if ((sprite[tspr->owner].cstat&48)==16)
     {
         f *= 1.25f;
-        a0.y -= tspr->xoffset*sintable[(spriteext[tspr->owner].angoff+512)&2047]*(1.f/(64.f*16384.f));
-        a0.x += tspr->xoffset*sintable[(spriteext[tspr->owner].angoff)&2047]*(1.f/(64.f*16384.f));
+        a0.y -= tspr->xoffset * bcosf(spriteext[tspr->owner].angoff, -20);
+        a0.x += tspr->xoffset * bsinf(spriteext[tspr->owner].angoff, -20);
     }
 
     if (globalorientation&8) { m0.z = -m0.z; a0.z = -a0.z; } //y-flipping
@@ -1151,16 +1151,8 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
 
     GLInterface.SetPalswap(globalpal);
     GLInterface.SetFade(sector[tspr->sectnum].floorpal);
-	// The texture here is already translated.
-	GLInterface.SetTexture(-1, htex, 0/*TRANSLATION(Translation_Remap + curbasepal, globalpal)*/, CLAMP_NOFILTER_XY, true);
-
-	// This must be done after setting up the texture.
-	auto& h = lookups.tables[globalpal];
-	if (h.tintFlags & (TINTF_USEONART|TINTF_ALWAYSUSEART))
-		GLInterface.SetTinting(h.tintFlags, h.tintColor, h.tintColor);
-	else
-		GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
-
+ 	// The texture here is already translated.
+	GLInterface.SetTexture(htex, 0/*TRANSLATION(Translation_Remap + curbasepal, globalpal)*/, CLAMP_NOFILTER_XY, true);
 #endif
 
 	auto data = screen->mVertexData->AllocVertices(m->qcnt * 6);
@@ -1216,7 +1208,6 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
 	}
 	GLInterface.SetIdentityMatrix(Matrix_Model);
 	GLInterface.SetFadeDisable(false);
-    GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
     return 1;
 }
 #endif

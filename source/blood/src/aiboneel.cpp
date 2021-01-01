@@ -26,34 +26,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
 
 BEGIN_BLD_NS
 
-static void eelBiteSeqCallback(int, int);
-static void eelThinkTarget(spritetype *, XSPRITE *);
-static void eelThinkSearch(spritetype *, XSPRITE *);
-static void eelThinkGoto(spritetype *, XSPRITE *);
-static void eelThinkPonder(spritetype *, XSPRITE *);
-static void eelMoveDodgeUp(spritetype *, XSPRITE *);
-static void eelMoveDodgeDown(spritetype *, XSPRITE *);
-static void eelThinkChase(spritetype *, XSPRITE *);
-static void eelMoveForward(spritetype *, XSPRITE *);
-static void eelMoveSwoop(spritetype *, XSPRITE *);
-static void eelMoveAscend(spritetype *pSprite, XSPRITE *pXSprite);
-static void eelMoveToCeil(spritetype *, XSPRITE *);
+static void eelThinkTarget(DBloodActor *);
+static void eelThinkSearch(DBloodActor *);
+static void eelThinkGoto(DBloodActor *);
+static void eelThinkPonder(DBloodActor *);
+static void eelMoveDodgeUp(DBloodActor *);
+static void eelMoveDodgeDown(DBloodActor *);
+static void eelThinkChase(DBloodActor *);
+static void eelMoveForward(DBloodActor *);
+static void eelMoveSwoop(DBloodActor *);
+static void eelMoveAscend(DBloodActor *actor);
+static void eelMoveToCeil(DBloodActor *);
 
-static int nEelBiteClient = seqRegisterClient(eelBiteSeqCallback);
 
 AISTATE eelIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, eelThinkTarget, NULL };
 AISTATE eelFlyIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, eelThinkTarget, NULL };
@@ -74,10 +63,10 @@ AISTATE eelDodgeDown = { kAiStateMove, 0, -1, 120, NULL, eelMoveDodgeDown, NULL,
 AISTATE eelDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 AISTATE eelDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 
-static void eelBiteSeqCallback(int, int nXSprite)
+void eelBiteSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    spritetype *pSprite = &sprite[pXSprite->reference];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype *pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
@@ -95,27 +84,29 @@ static void eelBiteSeqCallback(int, int nXSprite)
      */
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &eelSearch);
+        aiNewState(actor, &eelSearch);
         return;
     }
     assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     actFireVector(pSprite, 0, 0, dx, dy, height2-height, VECTOR_TYPE_7);
 }
 
-static void eelThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelThinkTarget(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-    if (pDudeExtraE->at8 && pDudeExtraE->Kills < 10)
-        pDudeExtraE->Kills++;
-    else if (pDudeExtraE->Kills >= 10 && pDudeExtraE->at8)
+    if (pDudeExtraE->xval3 && pDudeExtraE->xval2 < 10)
+        pDudeExtraE->xval2++;
+    else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)
     {
-        pDudeExtraE->Kills = 0;
+        pDudeExtraE->xval2 = 0;
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
-        aiNewState(pSprite, pXSprite, &eelTurn);
+        aiNewState(actor, &eelTurn);
         return;
     }
     if (Chance(pDudeInfo->alertChance))
@@ -139,15 +130,15 @@ static void eelThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                pDudeExtraE->Kills = 0;
+                pDudeExtraE->xval2 = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                pDudeExtraE->Kills = 0;
+                pDudeExtraE->xval2 = 0;
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else
                 continue;
@@ -156,14 +147,18 @@ static void eelThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void eelThinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelThinkSearch(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    eelThinkTarget(pSprite, pXSprite);
+    eelThinkTarget(actor);
 }
 
-static void eelThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelThinkGoto(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
@@ -172,15 +167,17 @@ static void eelThinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &eelSearch);
-    eelThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &eelSearch);
+    eelThinkTarget(actor);
 }
 
-static void eelThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelThinkPonder(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &eelSearch);
+        aiNewState(actor, &eelSearch);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -193,7 +190,7 @@ static void eelThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &eelSearch);
+        aiNewState(actor, &eelSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -208,31 +205,32 @@ static void eelThinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
         {
             aiSetTarget(pXSprite, pXSprite->target);
             if (height2-height < -0x2000 && nDist < 0x1800 && nDist > 0xc00 && klabs(nDeltaAngle) < 85)
-                aiNewState(pSprite, pXSprite, &eelDodgeUp);
+                aiNewState(actor, &eelDodgeUp);
             else if (height2-height > 0xccc && nDist < 0x1800 && nDist > 0xc00 && klabs(nDeltaAngle) < 85)
-                aiNewState(pSprite, pXSprite, &eelDodgeDown);
+                aiNewState(actor, &eelDodgeDown);
             else if (height2-height < 0xccc && nDist < 0x399 && klabs(nDeltaAngle) < 85)
-                aiNewState(pSprite, pXSprite, &eelDodgeUp);
+                aiNewState(actor, &eelDodgeUp);
             else if (height2-height > 0xccc && nDist < 0x1400 && nDist > 0x800 && klabs(nDeltaAngle) < 85)
-                aiNewState(pSprite, pXSprite, &eelDodgeDown);
+                aiNewState(actor, &eelDodgeDown);
             else if (height2-height < -0x2000 && nDist < 0x1400 && nDist > 0x800 && klabs(nDeltaAngle) < 85)
-                aiNewState(pSprite, pXSprite, &eelDodgeUp);
+                aiNewState(actor, &eelDodgeUp);
             else if (height2-height < -0x2000 && klabs(nDeltaAngle) < 85 && nDist > 0x1400)
-                aiNewState(pSprite, pXSprite, &eelDodgeUp);
+                aiNewState(actor, &eelDodgeUp);
             else if (height2-height > 0xccc)
-                aiNewState(pSprite, pXSprite, &eelDodgeDown);
+                aiNewState(actor, &eelDodgeDown);
             else
-                aiNewState(pSprite, pXSprite, &eelDodgeUp);
+                aiNewState(actor, &eelDodgeUp);
             return;
         }
     }
-    aiNewState(pSprite, pXSprite, &eelGoto);
+    aiNewState(actor, &eelGoto);
     pXSprite->target = -1;
 }
 
-static void eelMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelMoveDodgeUp(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -240,8 +238,8 @@ static void eelMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int dx = xvel[nSprite];
-    int dy = yvel[nSprite];
+    int dx = actor->xvel();
+    int dy = actor->yvel();
     int t1 = dmulscale30(dx, nCos, dy, nSin);
     int t2 = dmulscale30(dx, nSin, -dy, nCos);
     if (pXSprite->dodgeDir > 0)
@@ -249,14 +247,15 @@ static void eelMoveDodgeUp(spritetype *pSprite, XSPRITE *pXSprite)
     else
         t2 -= pDudeInfo->sideSpeed;
 
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = -0x8000;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = -0x8000;
 }
 
-static void eelMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelMoveDodgeDown(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -266,8 +265,8 @@ static void eelMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int dx = xvel[nSprite];
-    int dy = yvel[nSprite];
+    int dx = actor->xvel();
+    int dy = actor->yvel();
     int t1 = dmulscale30(dx, nCos, dy, nSin);
     int t2 = dmulscale30(dx, nSin, -dy, nCos);
     if (pXSprite->dodgeDir > 0)
@@ -275,16 +274,18 @@ static void eelMoveDodgeDown(spritetype *pSprite, XSPRITE *pXSprite)
     else
         t2 -= pDudeInfo->sideSpeed;
 
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = 0x44444;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = 0x44444;
 }
 
-static void eelThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelThinkChase(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &eelGoto);
+        aiNewState(actor, &eelGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -297,12 +298,12 @@ static void eelThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &eelSearch);
+        aiNewState(actor, &eelSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &eelSearch);
+        aiNewState(actor, &eelSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -320,25 +321,26 @@ static void eelThinkChase(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x399 && top2 > top && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &eelSwoop);
+                    aiNewState(actor, &eelSwoop);
                 else if (nDist <= 0x399 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &eelBite);
+                    aiNewState(actor, &eelBite);
                 else if (bottom2 > top && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &eelSwoop);
+                    aiNewState(actor, &eelSwoop);
                 else if (top2 < top && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &eelFly);
+                    aiNewState(actor, &eelFly);
             }
         }
         return;
     }
 
     pXSprite->target = -1;
-    aiNewState(pSprite, pXSprite, &eelSearch);
+    aiNewState(actor, &eelSearch);
 }
 
-static void eelMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelMoveForward(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -356,21 +358,22 @@ static void eelMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     if (pXSprite->target == -1)
         t1 += nAccel;
     else
         t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
 }
 
-static void eelMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelMoveSwoop(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -386,19 +389,20 @@ static void eelMoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = 0x22222;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = 0x22222;
 }
 
-static void eelMoveAscend(spritetype *pSprite, XSPRITE *pXSprite)
+static void eelMoveAscend(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -414,18 +418,20 @@ static void eelMoveAscend(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = dmulscale30(vx, nCos, vy, nSin);
     int t2 = dmulscale30(vx, nSin, -vy, nCos);
     t1 += nAccel>>1;
-    xvel[nSprite] = dmulscale30(t1, nCos, t2, nSin);
-    yvel[nSprite] = dmulscale30(t1, nSin, -t2, nCos);
-    zvel[nSprite] = -0x8000;
+    actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
+    actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+    actor->zvel() = -0x8000;
 }
 
-void eelMoveToCeil(spritetype *pSprite, XSPRITE *pXSprite)
+void eelMoveToCeil(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
@@ -433,9 +439,9 @@ void eelMoveToCeil(spritetype *pSprite, XSPRITE *pXSprite)
     if (z - pXSprite->targetZ < 0x1000)
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-        pDudeExtraE->at8 = 0;
+        pDudeExtraE->xval3 = 0;
         pSprite->flags = 0;
-        aiNewState(pSprite, pXSprite, &eelIdle);
+        aiNewState(actor, &eelIdle);
     }
     else
         aiSetTarget(pXSprite, x, y, sector[nSector].ceilingz);

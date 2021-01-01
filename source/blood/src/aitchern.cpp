@@ -27,33 +27,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
 
-
-#include "actor.h"
-#include "ai.h"
 #include "blood.h"
-#include "db.h"
-#include "dude.h"
-#include "eventq.h"
-#include "levels.h"
-#include "player.h"
-#include "seq.h"
-#include "sound.h"
 
 BEGIN_BLD_NS
 
-static void sub_71A90(int, int);
-static void sub_71BD4(int, int);
-static void sub_720AC(int, int);
-static void sub_72580(spritetype *, XSPRITE *);
-static void sub_725A4(spritetype *, XSPRITE *);
-static void sub_72850(spritetype *, XSPRITE *);
-static void sub_72934(spritetype *, XSPRITE *);
+static void sub_72580(DBloodActor *);
+static void sub_725A4(DBloodActor *);
+static void sub_72850(DBloodActor *);
+static void sub_72934(DBloodActor *);
 
-static int dword_279B54 = seqRegisterClient(sub_71BD4);
-static int dword_279B58 = seqRegisterClient(sub_720AC);
-static int dword_279B5C = seqRegisterClient(sub_71A90);
 
 AISTATE tchernobogIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, sub_725A4, NULL };
 AISTATE tchernobogSearch = { kAiStateSearch, 8, -1, 1800, NULL, aiMoveForward, sub_72580, &tchernobogIdle };
@@ -65,27 +48,25 @@ AISTATE tcherno13A9F0 = { kAiStateChase, 6, dword_279B58, 60, NULL, NULL, NULL, 
 AISTATE tcherno13AA0C = { kAiStateChase, 7, dword_279B5C, 60, NULL, NULL, NULL, &tchernobogChase };
 AISTATE tcherno13AA28 = { kAiStateChase, 8, -1, 60, NULL, aiMoveTurn, NULL, &tchernobogChase };
 
-static void sub_71A90(int, int nXSprite)
+void sub_71A90(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int nTarget = pTarget->index;
-    int nOwner = actSpriteIdToOwnerId(nSprite);
+    int nOwner = pSprite->owner;
     if (pXTarget->burnTime == 0)
         evPost(nTarget, 3, 0, kCallbackFXFlameLick);
     actBurnSprite(nOwner, pXTarget, 40);
     if (Chance(0x6000))
-        aiNewState(pSprite, pXSprite, &tcherno13A9D4);
+        aiNewState(actor, &tcherno13A9D4);
 }
 
-static void sub_71BD4(int, int nXSprite)
+void sub_71BD4(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pSprite->yrepeat*pDudeInfo->eyeHeight;
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
@@ -100,7 +81,7 @@ static void sub_71BD4(int, int nXSprite)
     Aim aim;
     aim.dx = CosScale16(pSprite->ang);
     aim.dy = SinScale16(pSprite->ang);
-    aim.dz = gDudeSlope[nXSprite];
+    aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
     int nSprite2;
     StatIterator it(kStatDude);
@@ -124,7 +105,7 @@ static void sub_71BD4(int, int nXSprite)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(gDudeSlope[nXSprite], nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
@@ -157,11 +138,10 @@ static void sub_71BD4(int, int nXSprite)
     actFireMissile(pSprite, 350, 0, aim.dx, aim.dy, aim.dz, kMissileFireballTchernobog);
 }
 
-static void sub_720AC(int, int nXSprite)
+void sub_720AC(int, DBloodActor* actor)
 {
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &sprite[nSprite];
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pSprite = &actor->s();
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
         Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
@@ -179,7 +159,7 @@ static void sub_720AC(int, int nXSprite)
     Aim aim;
     aim.dx = ax;
     aim.dy = ay;
-    aim.dz = gDudeSlope[nXSprite];
+    aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
     az = 0;
     int nSprite2;
@@ -204,7 +184,7 @@ static void sub_720AC(int, int nXSprite)
         }
         int tx = x+mulscale30(Cos(pSprite->ang), nDist);
         int ty = y+mulscale30(Sin(pSprite->ang), nDist);
-        int tz = z+mulscale(gDudeSlope[nXSprite], nDist, 10);
+        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
@@ -237,14 +217,18 @@ static void sub_720AC(int, int nXSprite)
     actFireMissile(pSprite, -350, 0, ax, ay, az, kMissileFireballTchernobog);
 }
 
-static void sub_72580(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_72580(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(pSprite, pXSprite);
+    aiThinkTarget(actor);
 }
 
-static void sub_725A4(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_725A4(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -252,14 +236,14 @@ static void sub_725A4(spritetype *pSprite, XSPRITE *pXSprite)
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u2 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u2;
-    if (pDudeExtraE->Kills && pDudeExtraE->TotalKills < 10)
-        pDudeExtraE->TotalKills++;
-    else if (pDudeExtraE->TotalKills >= 10 && pDudeExtraE->Kills)
+    if (pDudeExtraE->xval2 && pDudeExtraE->xval1 < 10)
+        pDudeExtraE->xval1++;
+    else if (pDudeExtraE->xval1 >= 10 && pDudeExtraE->xval2)
     {
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
-        aiNewState(pSprite, pXSprite, &tcherno13AA28);
+        aiNewState(actor, &tcherno13AA28);
         return;
     }
     if (Chance(pDudeInfo->alertChance))
@@ -283,15 +267,15 @@ static void sub_725A4(spritetype *pSprite, XSPRITE *pXSprite)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                pDudeExtraE->TotalKills = 0;
+                pDudeExtraE->xval1 = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                pDudeExtraE->TotalKills = 0;
+                pDudeExtraE->xval1 = 0;
                 aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(pSprite, pXSprite);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else
                 continue;
@@ -300,8 +284,10 @@ static void sub_725A4(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-static void sub_72850(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_72850(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -314,15 +300,17 @@ static void sub_72850(spritetype *pSprite, XSPRITE *pXSprite)
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
     if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-        aiNewState(pSprite, pXSprite, &tchernobogSearch);
-    aiThinkTarget(pSprite, pXSprite);
+        aiNewState(actor, &tchernobogSearch);
+    aiThinkTarget(actor);
 }
 
-static void sub_72934(spritetype *pSprite, XSPRITE *pXSprite)
+static void sub_72934(DBloodActor* actor)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
     if (pXSprite->target == -1)
     {
-        aiNewState(pSprite, pXSprite, &tcherno13A9B8);
+        aiNewState(actor, &tcherno13A9B8);
         return;
     }
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -343,12 +331,12 @@ static void sub_72934(spritetype *pSprite, XSPRITE *pXSprite)
     aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
-        aiNewState(pSprite, pXSprite, &tchernobogSearch);
+        aiNewState(actor, &tchernobogSearch);
         return;
     }
     if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
     {
-        aiNewState(pSprite, pXSprite, &tchernobogSearch);
+        aiNewState(actor, &tchernobogSearch);
         return;
     }
     int nDist = approxDist(dx, dy);
@@ -362,17 +350,17 @@ static void sub_72934(spritetype *pSprite, XSPRITE *pXSprite)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x1f00 && nDist > 0xd00 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &tcherno13AA0C);
+                    aiNewState(actor, &tcherno13AA0C);
                 else if (nDist < 0xd00 && nDist > 0xb00 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &tcherno13A9D4);
+                    aiNewState(actor, &tcherno13A9D4);
                 else if (nDist < 0xb00 && nDist > 0x500 && klabs(nDeltaAngle) < 85)
-                    aiNewState(pSprite, pXSprite, &tcherno13A9F0);
+                    aiNewState(actor, &tcherno13A9F0);
                 return;
             }
         }
     }
 
-    aiNewState(pSprite, pXSprite, &tcherno13A9B8);
+    aiNewState(actor, &tcherno13A9B8);
     pXSprite->target = -1;
 }
 

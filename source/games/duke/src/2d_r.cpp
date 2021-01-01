@@ -296,11 +296,11 @@ public:
 			mysnprintf(tempbuf, 32, "%d", i + 1);
 
 			MiniText(30, 90 + t, tempbuf, 0);
-			MiniText(38, 90 + t, ud.user_name[i], 0, -1, ps[i].palookup);
+			MiniText(38, 90 + t, PlayerName(i), 0, -1, ps[i].palookup);
 
 			for (int y = 0; y < playerswhenstarted; y++)
 			{
-				int frag = frags[i][y];
+				int frag = ps[i].frags[y];
 				if (i == y)
 				{
 					mysnprintf(tempbuf, 32, "%-4d", ps[y].fraggedself);
@@ -335,7 +335,7 @@ public:
 			{
 				if (i == y)
 					yfragtotal += ps[i].fraggedself;
-				int frag = frags[i][y];
+				int frag = ps[i].frags[y];
 				yfragtotal += frag;
 			}
 			mysnprintf(tempbuf, 32, "%-4d", yfragtotal);

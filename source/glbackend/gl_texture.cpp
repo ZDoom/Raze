@@ -43,6 +43,7 @@
 #include "../../glbackend/glbackend.h"
 #include "texturemanager.h"
 #include "v_video.h"
+#include "printf.h"
 
 //===========================================================================
 // 
@@ -56,8 +57,12 @@ CVAR(Int, fixpalette, -1, 0)
 CVAR(Int, fixpalswap, -1, 0)
 #endif
 
-bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sampler, bool notindexed)
+bool GLInstance::SetTexture(FGameTexture* tex, int paletteid, int sampler, bool notindexed)
 {
+	if (!tex->isValid())
+	{
+		return false;
+	}
 #ifdef _DEBUG
 	int basepal = GetTranslationType(paletteid) - Translation_Remap;
 	int translation = GetTranslationIndex(paletteid);
@@ -66,22 +71,15 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sa
 	paletteid = TRANSLATION(Translation_Remap + usepalette, usepalswap);
 #endif
 
-	TexturePick texpick;
-	if (!PickTexture(picnum, tex, paletteid, texpick)) return false;
+	SetPalswap(GetTranslationIndex(paletteid));
 
-	int TextureType = (texpick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
-
-	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
-	SetTinting(texpick.tintFlags, texpick.tintColor, texpick.tintColor);
-	int lookuppal = texpick.translation & 0x7fffffff;
-	SetPalswap(GetTranslationIndex(lookuppal));
-
-	SetBasepalTint(texpick.basepalTint);
 	auto &mat = renderState.mMaterial;
-	int flags = (TextureType == TT_INDEXED) ? CTF_Indexed : 0;
-	mat.mMaterial = FMaterial::ValidateTexture(texpick.texture, flags); // todo allow scaling
+	assert(tex->isValid());
+	mat.mTexture = tex;
+	mat.uFlags = UF_None;
+	mat.mScaleFlags = 0;
 	mat.mClampMode = sampler;
-	mat.mTranslation = texpick.translation;
+	mat.mTranslation = paletteid;
 	mat.mOverrideShader = -1;
 	mat.mChanged = true;
 	GLInterface.SetAlphaThreshold(tex->alphaThreshold);
