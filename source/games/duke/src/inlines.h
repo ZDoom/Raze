@@ -195,11 +195,8 @@ inline double get16thOfHoriz(int const snum, bool const interpolate, double cons
 
 inline void doslopetilting(player_struct* p, double const scaleAdjust)
 {
-	if (cl_slopetilting)
-	{
-		bool const canslopetilt = p->on_ground && sector[p->cursectnum].lotag != ST_2_UNDERWATER && (sector[p->cursectnum].floorstat & 2);
-		calcviewpitch(p->pos.vec2, &p->horizon.horizoff, p->angle.ang, p->aim_mode == 0, canslopetilt, p->cursectnum, scaleAdjust);
-	}
+	bool const canslopetilt = p->on_ground && sector[p->cursectnum].lotag != ST_2_UNDERWATER && (sector[p->cursectnum].floorstat & 2);
+	calcviewpitch(p->pos.vec2, &p->horizon.horizoff, p->angle.ang, p->aim_mode == 0, canslopetilt, p->cursectnum, scaleAdjust);
 }
 
 
