@@ -73,42 +73,6 @@ void PlayerColorChanged(void)
 
 //---------------------------------------------------------------------------
 //
-// calculates automatic view pitch for playing without a mouse
-//
-//---------------------------------------------------------------------------
-
-void calcviewpitch(player_struct *p, double factor)
-{
-	int psect = p->cursectnum;
-	int psectlotag = sector[psect].lotag;
-	if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
-	{
-		int x = p->posx + p->angle.ang.bcos(-5);
-		int y = p->posy + p->angle.ang.bsin(-5);
-		short tempsect = psect;
-		updatesector(x, y, &tempsect);
-
-		if (tempsect >= 0)
-		{
-			int k = getflorzofslope(psect, x, y);
-			if (psect == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
-			p->horizon.horizoff += q16horiz(FloatToFixed(factor * mulscale16(p->truefz - k, 160)));
-		}
-	}
-	if (p->horizon.horizoff.asq16() > 0)
-	{
-		p->horizon.horizoff += q16horiz(xs_CRoundToInt(-factor * ((p->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
-		if (p->horizon.horizoff.asq16() < 0) p->horizon.horizoff = q16horiz(0);
-	}
-	else if (p->horizon.horizoff.asq16() < 0)
-	{
-		p->horizon.horizoff += q16horiz(xs_CRoundToInt(-factor * ((p->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
-		if (p->horizon.horizoff.asq16() > 0) p->horizon.horizoff = q16horiz(0);
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // why is this such a mess?
 //
 //---------------------------------------------------------------------------

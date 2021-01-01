@@ -881,7 +881,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		if (p->GetActor()->s.extra > 0)
 		{
 			// Do these in the same order as the old code.
-			calcviewpitch(p, scaleAdjust);
+			doslopetilting(p, scaleAdjust);
 			input.avel = p->adjustavel(input.avel);
 			applylook(&p->angle, input.avel, &p->sync.actions, scaleAdjust);
 			sethorizon(&p->horizon.horiz, input.horz, &p->sync.actions, scaleAdjust);

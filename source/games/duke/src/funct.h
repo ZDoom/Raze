@@ -233,7 +233,6 @@ void donewgame(MapRecord* map, int sk);
 void startnewgame(MapRecord* map, int skill);
 int playercolor2lookup(int color);
 void PlayerColorChanged(void);
-void calcviewpitch(player_struct* p, double factor);
 bool movementBlocked(int snum);
 void loadcons();
 void recordoldspritepos();

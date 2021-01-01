@@ -370,6 +370,63 @@ void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double 
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// Player's slope tilt when playing without a mouse and on a slope.
+//
+//---------------------------------------------------------------------------
+
+void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust, bool const climbing)
+{
+	if (aimmode && canslopetilt) // If the floor is sloped
+	{
+		// Get a point, 512 units ahead of player's position
+		int x = pos.x + ang.bcos(-5);
+		int y = pos.y + ang.bsin(-5);
+		int16_t tempsect = cursectnum;
+		updatesector(x, y, &tempsect);
+
+		if (tempsect >= 0) // If the new point is inside a valid sector...
+		{
+			// Get the floorz as if the new (x,y) point was still in
+			// your sector
+			int j = getflorzofslope(cursectnum, pos.x, pos.y);
+			int k = getflorzofslope(cursectnum, x, y);
+
+			// If extended point is in same sector as you or the slopes
+			// of the sector of the extended point and your sector match
+			// closely (to avoid accidently looking straight out when
+			// you're at the edge of a sector line) then adjust horizon
+			// accordingly
+			if (cursectnum == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
+			{
+				*horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * 160)));
+			}
+		}
+	}
+
+	if (climbing)
+	{
+		// tilt when climbing but you can't even really tell it.
+		if (horizoff->asq16() < IntToFixed(100))
+			*horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * (((IntToFixed(100) - horizoff->asq16()) >> 3) + FRACUNIT)));
+	}
+	else
+	{
+		// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
+		if (horizoff->asq16() > 0)
+		{
+			*horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff->asq16() >> 3) + FRACUNIT)));
+			if (horizoff->asq16() < 0) *horizoff = q16horiz(0);
+		}
+		if (horizoff->asq16() < 0)
+		{
+			*horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff->asq16() >> 3) + FRACUNIT)));
+			if (horizoff->asq16() > 0) *horizoff = q16horiz(0);
+		}
+	}
+}
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def)
 {
 	if (arc.BeginObject(keyname))

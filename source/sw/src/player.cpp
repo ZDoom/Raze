@@ -1665,70 +1665,14 @@ void SlipSlope(PLAYERp pp)
 }
 
 void
-PlayerAutoLook(PLAYERp pp, double const scaleAdjust)
-{
-    int x,y,k,j;
-    short tempsect;
-
-    if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
-    {
-        if ((pp->input.actions & SB_AIMMODE) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
-        {
-            // Get a point, 512 units ahead of player's position
-            x = pp->posx + pp->angle.ang.bcos(-5);
-            y = pp->posy + pp->angle.ang.bsin(-5);
-            tempsect = pp->cursectnum;
-            COVERupdatesector(x, y, &tempsect);
-
-            if (tempsect >= 0) // If the new point is inside a valid sector...
-            {
-                // Get the floorz as if the new (x,y) point was still in
-                // your sector
-                j = getflorzofslope(pp->cursectnum, pp->posx, pp->posy);
-                k = getflorzofslope(pp->cursectnum, x, y);
-
-                // If extended point is in same sector as you or the slopes
-                // of the sector of the extended point and your sector match
-                // closely (to avoid accidently looking straight out when
-                // you're at the edge of a sector line) then adjust horizon
-                // accordingly
-                if ((pp->cursectnum == tempsect) || (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
-                {
-                    pp->horizon.horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * 160)));
-                }
-            }
-        }
-    }
-
-    if (TEST(pp->Flags, PF_CLIMBING) && pp->horizon.horizoff.asq16() < IntToFixed(100))
-    {
-        // tilt when climbing but you can't even really tell it.
-        pp->horizon.horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * (((IntToFixed(100) - pp->horizon.horizoff.asq16()) >> 3) + FRACUNIT)));
-    }
-    else
-    {
-        // Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-        if (pp->horizon.horizoff.asq16() > 0)
-        {
-            pp->horizon.horizoff -= q16horiz(xs_CRoundToInt(scaleAdjust * ((pp->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
-            pp->horizon.horizoff = q16horiz(max(pp->horizon.horizoff.asq16(), 0));
-        }
-        if (pp->horizon.horizoff.asq16() < 0)
-        {
-            pp->horizon.horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((pp->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
-            pp->horizon.horizoff = q16horiz(min(pp->horizon.horizoff.asq16(), 0));
-        }
-    }
-}
-
-void
 DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
 {
-    // Fixme: This should probably be made optional.
     if (cl_slopetilting)
-        PlayerAutoLook(pp, scaleAdjust);
+    {
+        bool const canslopetilt = !TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE);
+        calcviewpitch(pp->pos.vec2, &pp->horizon.horizoff, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursectnum, scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
+    }
 
-    // apply default horizon from backend
     sethorizon(&pp->horizon.horiz, horz, &pp->input.actions, scaleAdjust);
 }
 
