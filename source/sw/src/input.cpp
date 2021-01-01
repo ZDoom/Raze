@@ -40,7 +40,6 @@ void DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist);
 void DoPlayerTurnTurret(PLAYERp pp, float avel);
 
 static InputPacket loc;
-static int32_t turnheldtime;
 
 void
 InitNetVars(void)
@@ -220,7 +219,6 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 void GameInterface::clearlocalinputstate()
 {
     loc = {};
-    turnheldtime = 0;
 }
 
 END_SW_NS
