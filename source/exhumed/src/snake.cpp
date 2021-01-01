@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "status.h"
 #include "player.h"
 #include "sequence.h"
-#include "ps_input.h"
+#include "input.h"
 #include "sound.h"
 #include <string.h>
 #include <assert.h>

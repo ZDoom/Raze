@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exhumed.h"
 #include "player.h"
 #include "sequence.h"
-#include "ps_input.h"
+#include "input.h"
 #include <string.h>
 
 BEGIN_PS_NS
