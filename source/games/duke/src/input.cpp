@@ -854,15 +854,15 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 	}
 
 	auto const p = &ps[myconnectindex];
-
+	bool const rrraVehicle = isRRRA() && (p->OnMotorcycle || p->OnBoat);
 	double const scaleAdjust = InputScale();
 	InputPacket input{};
 
-	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
+	processInputBits(p, hidInput);
+
+	if (rrraVehicle)
 	{
-		processInputBits(p, hidInput);
 		processVehicleInput(p, hidInput, input, scaleAdjust);
-		FinalizeInput(myconnectindex, input, true);
 
 		if (!SyncInput() && p->GetActor()->s.extra > 0)
 		{
@@ -871,10 +871,10 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 	}
 	else
 	{
-		processInputBits(p, hidInput);
 		processMovement(&input, &loc, hidInput, scaleAdjust, p->drink_amt);
-		FinalizeInput(myconnectindex, input, false);
 	}
+
+	FinalizeInput(myconnectindex, input, rrraVehicle);
 
 	if (!SyncInput())
 	{
@@ -893,12 +893,9 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
 	if (packet)
 	{
-		auto cos = p->angle.ang.bcos();
-		auto sin = p->angle.ang.bsin();
-
 		*packet = loc;
-		packet->fvel = mulscale9(loc.fvel, cos) + mulscale9(loc.svel, sin) + p->fric.x;
-		packet->svel = mulscale9(loc.fvel, sin) - mulscale9(loc.svel, cos) + p->fric.y;
+		packet->fvel = mulscale9(loc.fvel, p->angle.ang.bcos()) + mulscale9(loc.svel, p->angle.ang.bsin()) + p->fric.x;
+		packet->svel = mulscale9(loc.fvel, p->angle.ang.bsin()) - mulscale9(loc.svel, p->angle.ang.bcos()) + p->fric.y;
 		loc = {};
 	}
 }
