@@ -93,6 +93,29 @@ lookangle getincanglebam(binangle a, binangle na)
 
 //---------------------------------------------------------------------------
 //
+// Functions for determining whether its turbo turn time (turn key held for a number of tics).
+//
+//---------------------------------------------------------------------------
+
+static double turnheldtime;
+
+void updateTurnHeldAmt(double const scaleAdjust)
+{
+	turnheldtime += scaleAdjust * (120. / GameTicRate);
+}
+
+bool const isTurboTurnTime()
+{
+	return turnheldtime >= 590. / GameTicRate;
+}
+
+void resetTurnHeldAmt()
+{
+	turnheldtime = 0;
+}
+
+//---------------------------------------------------------------------------
+//
 // Player's movement function, called from game's ticker or from gi->GetInput() as required.
 //
 //---------------------------------------------------------------------------
@@ -170,9 +193,6 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	}
 	else
 	{
-		static double turnheldtime;
-		int const turnheldamt = 120 / GameTicRate;
-		double const turboturntime = 590. / GameTicRate;
 		double turnamount = hidspeed * turnscale;
 		double preambleturn = turnamount * (750. / 2776.);
 
@@ -184,17 +204,17 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
 		{
-			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->avel -= scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
+			updateTurnHeldAmt(scaleAdjust);
+			currInput->avel -= scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn);
 		}
 		else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe))
 		{
-			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->avel += scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
+			updateTurnHeldAmt(scaleAdjust);
+			currInput->avel += scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn);
 		}
 		else
 		{
-			turnheldtime = 0;
+			resetTurnHeldAmt();
 		}
 	}
 
