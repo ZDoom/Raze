@@ -27,8 +27,8 @@ static void chase(PLAYER& plr, short i) {
 		if (lockclock % 100 > 70)
 			trailingsmoke(i, true);
 
-		int dax = ((sintable[(sprite[i].ang + 512) & 2047] * TICSPERFRAME) << 2);
-		int day = ((sintable[sprite[i].ang & 2047] * TICSPERFRAME) << 2);
+		int dax = (bcos(sprite[i].ang) * TICSPERFRAME) << 2;
+		int day = (bsin(sprite[i].ang) * TICSPERFRAME) << 2;
 		checksight(plr, i);
 
 

@@ -180,8 +180,7 @@ static void stand(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-	if (sintable[(spr.ang + 2560) & 2047] * (plr.x - spr.x)
-		+ sintable[(spr.ang + 2048) & 2047] * (plr.y - spr.y) >= 0)
+	if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && plr.invisibletime < 0) {
 
@@ -198,6 +197,7 @@ static void stand(PLAYER& plr, short i) {
 					newstatus(i, CHASE);
 			}
 		}
+	}
 
 	checksector6(i);
 }

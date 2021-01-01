@@ -460,8 +460,8 @@ static void throwhalberd(int s) {
 
 	spr.cstat = 0;
 	int daz = (((spr.zvel) * TICSPERFRAME) >> 3);
-	movesprite((short)j, ((sintable[(spr.extra + 512) & 2047]) * TICSPERFRAME) << 7,
-		((sintable[spr.extra & 2047]) * TICSPERFRAME) << 7, daz, 4 << 8, 4 << 8, 1);
+	movesprite((short)j, (bcos(spr.extra) * TICSPERFRAME) << 7,
+		(bsin(spr.extra) * TICSPERFRAME) << 7, daz, 4 << 8, 4 << 8, 1);
 	spr.cstat = 21;
 }
 

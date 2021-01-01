@@ -545,8 +545,8 @@ void gonzoProcess(PLAYER& plr)
 		case 1: // forward
 			spr.zvel += TICSPERFRAME << 3;
 
-			movestat = (short)movesprite(i, ((sintable[(spr.ang + 512) & 2047]) * TICSPERFRAME) << 3,
-				((sintable[spr.ang]) * TICSPERFRAME) << 3, spr.zvel, 4 << 8, 4 << 8, 0);
+			movestat = (short)movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+				(bsin(spr.ang) * TICSPERFRAME) << 3, spr.zvel, 4 << 8, 4 << 8, 0);
 
 			spr.lotag -= TICSPERFRAME;
 
@@ -567,8 +567,8 @@ void gonzoProcess(PLAYER& plr)
 		case 2: // fall
 			spr.zvel += TICSPERFRAME << 4;
 
-			movestat = (short)movesprite(i, ((sintable[(spr.ang + 512) & 2047]) * TICSPERFRAME) << 1,
-				((sintable[spr.ang]) * TICSPERFRAME) << 1, spr.zvel, 4 << 8, 4 << 8, 0);
+			movestat = (short)movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 1,
+				(bsin(spr.ang) * TICSPERFRAME) << 1, spr.zvel, 4 << 8, 4 << 8, 0);
 
 			spr.lotag -= TICSPERFRAME;
 
@@ -582,8 +582,8 @@ void gonzoProcess(PLAYER& plr)
 
 			spr.zvel -= TICSPERFRAME << 4;
 
-			movestat = (short)movesprite(i, ((sintable[(spr.ang + 512) & 2047]) * TICSPERFRAME) << 3,
-				((sintable[spr.ang]) * TICSPERFRAME) << 3, spr.zvel, 4 << 8, 4 << 8, 0);
+			movestat = (short)movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+				(bsin(spr.ang) * TICSPERFRAME) << 3, spr.zvel, 4 << 8, 4 << 8, 0);
 
 			spr.lotag -= TICSPERFRAME;
 

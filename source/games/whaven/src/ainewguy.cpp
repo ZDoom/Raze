@@ -7,8 +7,7 @@ static void newguyarrow(short s, PLAYER& plr);
 
 static void stand(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
-	if (sintable[(spr.ang + 512) & 2047] * (plr.x - spr.x)
-		+ sintable[spr.ang & 2047] * (plr.y - spr.y) >= 0)
+	if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
 		if (cansee(spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum, plr.x, plr.y,
 			plr.z, plr.sector) && plr.invisibletime < 0) {
 			if (plr.shadowtime > 0) {
@@ -18,6 +17,7 @@ static void stand(PLAYER& plr, short i) {
 			else
 				newstatus(i, CHASE);
 		}
+	}
 }
 	
 static void chase(PLAYER& plr, short i) {

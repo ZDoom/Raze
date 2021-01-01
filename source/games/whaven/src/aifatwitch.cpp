@@ -245,8 +245,8 @@ static void throwspank(PLAYER& plr, int i) {
 	sprite[j].yrepeat = 64;
 	sprite[j].ang = (short)(((getangle(plr.x - sprite[j].x, plr.y - sprite[j].y) + (krand() & 15)
 		- 8) + 2048) & 2047);
-	sprite[j].xvel = (short)(sintable[(sprite[j].ang + 2560) & 2047] >> 6);
-	sprite[j].yvel = (short)(sintable[(sprite[j].ang + 2048) & 2047] >> 6);
+	sprite[j].xvel = bcos(sprite[j].ang, -6);
+	sprite[j].yvel = bsin(sprite[j].ang, -6);
 	long discrim = ksqrt((plr.x - sprite[j].x) * (plr.x - sprite[j].x) + (plr.y - sprite[j].y) * (plr.y - sprite[j].y));
 	if (discrim == 0)
 		discrim = 1;

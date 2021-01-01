@@ -27,8 +27,8 @@ static void chase(PLAYER& plr, short i) {
 		return;
 	}
 	else {
-		int dax = (sintable[(sprite[i].ang + 512) & 2047] * TICSPERFRAME) << 3;
-		int day = (sintable[sprite[i].ang & 2047] * TICSPERFRAME) << 3;
+		int dax = (bcos(sprite[i].ang) * TICSPERFRAME) << 3;
+		int day = (bsin(sprite[i].ang) * TICSPERFRAME) << 3;
 		//					checkspeed(i, speed);
 		checksight(plr, i);
 		if (!checkdist(plr, i)) {
@@ -339,8 +339,8 @@ static void firebreath(PLAYER& plr, int i, int a, int b, int c) {
 		sprite[j].yrepeat = 128;
 		sprite[j].ang = (short)((((getangle(plr.x - sprite[j].x, plr.y - sprite[j].y)
 			+ (krand() & 15) - 8) + 2048) + ((b * 22) + (k * 10))) & 2047);
-		sprite[j].xvel = (short)(sintable[(sprite[j].ang + 2560) & 2047] >> 6);
-		sprite[j].yvel = (short)(sintable[(sprite[j].ang + 2048) & 2047] >> 6);
+		sprite[j].xvel = bcos(sprite[j].ang, -6);
+		sprite[j].yvel = bsin(sprite[j].ang, -6);
 		int discrim = ksqrt(
 			(plr.x - sprite[j].x) * (plr.x - sprite[j].x) + (plr.y - sprite[j].y) * (plr.y - sprite[j].y));
 		if (discrim == 0)
@@ -358,8 +358,8 @@ static void firebreath(PLAYER& plr, int i, int a, int b, int c) {
 }
 	
 static void checkspeed(int i, int speed) {
-	checksight_x = (sintable[(sprite[i].ang + 512) & 2047] >> speed);
-	checksight_y = (sintable[sprite[i].ang & 2047] >> speed);
+	checksight_x = bcos(sprite[i].ang, -speed);
+	checksight_y = bsin(sprite[i].ang, -speed);
 }
 
 
