@@ -497,8 +497,10 @@ void hud_input(int plnum)
 //
 //---------------------------------------------------------------------------
 
+#if 0
 enum
 {
+
 	TURBOTURNTIME = (TICRATE/8), // 7
 	NORMALTURN    = 15,
 	PREAMBLETURN  = 5,
@@ -507,7 +509,11 @@ enum
 	MAXSVEL       = ((NORMALKEYMOVE*2)+10),
 	MAXANGVEL     = 1024, // 127
 	MAXHORIZVEL   = 256,  // 127
+};
+#endif
 
+enum
+{
 	MAXVELMOTO    = 120,
 	VEHICLETURN   = 20
 };
@@ -777,13 +783,10 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 	{
 		if (p->on_crane == nullptr)
 		{
-			if (!vehicle)
+			if (vehicle)
 			{
-				loc.fvel = clamp(loc.fvel + input.fvel, -MAXVEL, MAXVEL);
-				loc.svel = clamp(loc.svel + input.svel, -MAXSVEL, MAXSVEL);
-			}
-			else
 				loc.fvel = clamp(input.fvel, -(MAXVELMOTO >> 3), MAXVELMOTO);
+			}
 		}
 		else
 		{
@@ -793,8 +796,6 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 
 		if (p->on_crane == nullptr && p->newOwner == nullptr)
 		{
-			// input.avel already added to loc in processMovement()
-			loc.avel = clamp(loc.avel, -MAXANGVEL, MAXANGVEL);
 			if (!SyncInput() && input.avel)
 			{
 				p->angle.spin = bamlook(0);
@@ -805,12 +806,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.avel = input.avel = 0;
 		}
 
-		if (p->newOwner == nullptr && (!(p->sync.actions & SB_CENTERVIEW) || p->sync.actions & SB_CENTERVIEW && abs(p->horizon.horiz.asbuild()) <= 5))
-		{
-			// input.horz already added to loc in processMovement()
-			loc.horz = clamp(loc.horz, -MAXHORIZVEL, MAXHORIZVEL);
-		}
-		else
+		if (p->newOwner != nullptr && ((p->sync.actions & SB_CENTERVIEW) || !(p->sync.actions & SB_CENTERVIEW) && abs(p->horizon.horiz.asbuild()) > 5))
 		{
 			loc.horz = input.horz = 0;
 		}
