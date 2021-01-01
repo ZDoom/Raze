@@ -362,8 +362,8 @@ void analyzesprites(PLAYER& plr, int dasmoothratio)
 						SPRITE& tshadow = tsprite[spritesortcnt];
 						tshadow = tspr;
 						int camangle = getangle(plr.x - tshadow.x, plr.y - tshadow.y);
-						tshadow.x -= mulscale(sintable[(camangle + 512) & 2047], 100, 16);
-						tshadow.y += mulscale(sintable[(camangle + 1024) & 2047], 100, 16);
+						tshadow.x -= mulscale(bcos(camangle), 100, 16);
+						tshadow.y += mulscale(-bsin(camangle), 100, 16);
 						tshadow.z = fz + 1;
 						tshadow.statnum = 99;
 						

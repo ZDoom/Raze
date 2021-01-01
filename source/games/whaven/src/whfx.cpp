@@ -398,7 +398,7 @@ void revolvefx() {
 void bobbingsector() {
 	for (int i = 0; i < bobbingsectorcnt; i++) {
 		short dasector = bobbingsectorlist[i];
-		sector[dasector].floorz += (sintable[(lockclock << 4) & 2047] >> 6);
+		sector[dasector].floorz += bsin(lockclock << 4, -6);
 	}
 }
 
@@ -663,7 +663,7 @@ void dofx() {
 	GLRenderer gl = glrender();
 	if (gl != nullptr) {
 		if (player[pyrn].poisoned != 0) {
-			int tilt = mulscale(sintable[(3 * lockclock) & 2047], 20, 16);
+			int tilt = mulscale(bsin(3 * lockclock), 20, 16);
 			if (tilt != 0)
 				gl.setdrunk(tilt);
 		} else
@@ -826,8 +826,8 @@ void makeasplash(int picnum, PLAYER& plr) {
 		break;
 	}
 
-	movesprite((short) j, ((sintable[(sprite[j].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-			((sintable[sprite[j].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+	movesprite((short) j, (bcos(sprite[j].ang) * TICSPERFRAME) << 3,
+			(bsin(sprite[j].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 }
 
 void makemonstersplash(int picnum, int i) {
@@ -1020,8 +1020,8 @@ void warpfxsprite(int s) {
 
 	int daz = (((sprite[j].zvel) * TICSPERFRAME) >> 3);
 
-	movesprite((short) j, ((sintable[(daang + 512) & 2047]) * TICSPERFRAME) << 3,
-			((sintable[daang & 2047]) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
+	movesprite((short) j, (bcos(daang) * TICSPERFRAME) << 3,
+			(bsin(daang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
 }
 
 void FadeInit() {

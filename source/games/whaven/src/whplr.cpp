@@ -247,8 +247,8 @@ void plruse(PLAYER& plr) {
 			int daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
 			Hitscan pHitInfo;
 			hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
-					sintable[(daang + 2560) & 2047], // X vector of 3D ang
-					sintable[(daang + 2048) & 2047], // Y vector of 3D ang
+					bcos(daang), // X vector of 3D ang
+					bsin(daang), // Y vector of 3D ang
 					daz2, // Z vector of 3D ang
 					pHitInfo, CLIPMASK1);
 
@@ -430,8 +430,8 @@ void chunksofmeat(PLAYER& plr, int hitsprite, int hitx, int hity, int hitz, shor
 			sprite[j].lotag = 512;
 			sprite[j].hitag = 0;
 			sprite[j].pal = 0;
-			movesprite((short) j, ((sintable[(sprite[j].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-					((sintable[sprite[j].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+			movesprite((short) j, (bcos(sprite[j].ang) * TICSPERFRAME) << 3,
+					(bsin(sprite[j].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		}
 	}
 
@@ -612,7 +612,7 @@ void dophysics(PLAYER& plr, int goalz, int flyupdn, int v) {
 		if (flyupdn < 0) {
 			plr.hvel += (TICSPERFRAME << 7);
 		}
-		plr.hvel += (sintable[(lockclock << 4) & 2047] >> 6);
+		plr.hvel += bsin(lockclock << 4, -6);
 		plr.fallz = 0;
 
 	}

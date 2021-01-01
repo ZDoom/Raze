@@ -358,11 +358,11 @@ void GameInterface::Ticker()
 	if (followmode) {
 		followa += followang;
 
-		followx += (followvel * sintable[(512 + 2048 - followa) & 2047]) >> 10;
-		followy += (followvel * sintable[(512 + 1024 - 512 - followa) & 2047]) >> 10;
+		followx += MulScale(-bsin(followa), followvel, 10);
+		followy += MulScale(-bcos(followa), followvel, 10);
 
-		followx += (followsvel * sintable[(512 + 1024 - 512 - followa) & 2047]) >> 10;
-		followy -= (followsvel * sintable[(512 + 2048 - followa) & 2047]) >> 10;
+		followx += MulScale(-bcos(followa), followsvel, 10);
+		followy -= MulScale(-bsin(followa), followsvel, 10);
 	}
 
 	lockclock += TICSPERFRAME;

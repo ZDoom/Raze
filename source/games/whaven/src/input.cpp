@@ -477,7 +477,7 @@ void processinput(int num) {
 			dist >>= 2;
 
 		if (dist > 0 && feetoffground <= (plr.height << 8) || onsprite != -1) {
-			oldhoriz = ((dist * sintable[(lockclock << 5) & 2047]) >> 19) >> 2;
+			oldhoriz = ((dist * bsin(lockclock << 5)) >> 19) >> 2;
 			plr.horizon.addadjustment(oldhoriz);
 		}
 		else

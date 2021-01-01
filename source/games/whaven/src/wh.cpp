@@ -44,8 +44,8 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz, Hitsc
 
 Point rotatepoint(int xpivot, int ypivot, int x, int y, short daang) { // jfBuild
 	Point rotatepoint;
-	int dacos = sintable[(daang + 2560) & 2047];
-	int dasin = sintable[(daang + 2048) & 2047];
+	int dacos = bcos(daang);
+	int dasin = bsin(daang);
 	x -= xpivot;
 	y -= ypivot;
 	rotatepoint.x = dmulscale(x, dacos, -y, dasin, 14) + xpivot;

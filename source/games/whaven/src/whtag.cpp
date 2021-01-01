@@ -938,7 +938,7 @@ void animatetags(int nPlayer) {
 			
 #pragma message ("setinterpolation")
 		//game.pInt.setceilinterpolate(dasector, sector[dasector]);
-		sector[dasector].floorz = dragfloorz[i] + (sintable[(lockclock << 4) & 2047] >> 3);
+		sector[dasector].floorz = dragfloorz[i] + bsin(lockclock << 4, -3);
 	
 		if (plr.sector == dasector) {
 
