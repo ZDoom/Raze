@@ -415,44 +415,11 @@ void InitLevel(MapRecord *maprec)
 //
 //---------------------------------------------------------------------------
 
-void InitPlayerGameSettings(void)
-{
-    int pnum;
-
-    if (CommEnabled)
-    {
-        // everyone gets the same Auto Aim
-        TRAVERSE_CONNECT(pnum)
-        {
-            if (Autoaim(pnum))
-                SET(Player[pnum].Flags, PF_AUTO_AIM);
-            else
-                RESET(Player[pnum].Flags, PF_AUTO_AIM);
-        }
-    }
-    else
-    {
-        if (Autoaim(myconnectindex))
-            SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-        else
-            RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void InitRunLevel(void)
 {
     Mus_Stop();
 
     DoTheCache();
-
-    // auto aim / auto run / etc
-    InitPlayerGameSettings();
 
     // send packets with player info
     InitNetPlayerOptions();

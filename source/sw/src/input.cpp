@@ -75,33 +75,6 @@ enum
 
 //---------------------------------------------------------------------------
 //
-// handles the input bits
-//
-//---------------------------------------------------------------------------
-
-static void processInputBits(PLAYERp const pp, ControlInfo* const hidInput)
-{
-    ApplyGlobalInput(loc, hidInput);
-
-    if (!CommEnabled)
-    {
-        // Go back to the source to set this - the old code here was catastrophically bad.
-        // this needs to be fixed properly - as it is this can never be compatible with demo playback.
-
-        if (!(loc.actions & SB_AIMMODE))
-            SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
-        else
-            RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
-
-        if (Autoaim(myconnectindex))
-            SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-        else
-            RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-    }
-}
-
-//---------------------------------------------------------------------------
-//
 // handles movement
 //
 //---------------------------------------------------------------------------
@@ -199,7 +172,7 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
     InputPacket input {};
     PLAYERp pp = &Player[myconnectindex];
 
-    processInputBits(pp, hidInput);
+    ApplyGlobalInput(loc, hidInput);
     processMovement(&input, &loc, hidInput, scaleAdjust, 0, !pp->sop, pp->sop_control ? 3. / 1.40625 : 1.);
     processWeapon(pp);
 

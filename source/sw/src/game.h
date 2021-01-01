@@ -1013,7 +1013,6 @@ enum
     PF_LOCK_CRAWL               = (BIT(4)),
     PF_PLAYER_MOVED             = (BIT(7)),
     PF_PLAYER_RIDING            = (BIT(8)),
-    PF_AUTO_AIM                 = (BIT(9)),
     PF_RECOIL                   = (BIT(10)),
     PF_FLYING                   = (BIT(11)),
     PF_WEAPON_RETRACT           = (BIT(12)),
@@ -1032,7 +1031,6 @@ enum
     PF_VIEW_OUTSIDE_WEAPON      = (BIT(27)),
     PF_VIEW_FROM_CAMERA         = (BIT(28)),
     PF_TANK                     = (BIT(29)), // Doin the tank thang
-    PF_MOUSE_AIMING_ON          = (BIT(30)),
     PF_WEAPON_DOWN              = (BIT(31)),
     PF2_TELEPORTED              = (BIT(0)),
     PF2_INPUT_CAN_AIM           = (BIT(1)), // Allow calling DoPlayerHorizon() from processMovement()

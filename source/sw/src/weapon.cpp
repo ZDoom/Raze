@@ -14306,7 +14306,7 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
 
     if (u && u->PlayerP)
     {
-        if (!TEST(u->PlayerP->Flags, PF_AUTO_AIM))
+        if (!Autoaim(u->PlayerP->pnum))
         {
             return -1;
         }
@@ -14376,7 +14376,7 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
 
     if (u && u->PlayerP)
     {
-        if (!TEST(u->PlayerP->Flags, PF_AUTO_AIM))
+        if (!Autoaim(u->PlayerP->pnum))
         {
             return -1;
         }
@@ -14495,7 +14495,7 @@ WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
 
     if (u && u->PlayerP)
     {
-        if (!TEST(u->PlayerP->Flags, PF_AUTO_AIM))
+        if (!Autoaim(u->PlayerP->pnum))
         {
             return -1;
         }
