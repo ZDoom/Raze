@@ -2779,7 +2779,7 @@ void processinput_d(int snum)
 	if (SyncInput())
 	{
 		p->horizon.backup();
-		doslopetilting(p, 1);
+		doslopetilting(p);
 	}
 
 	if (chz.type == kHitSprite)

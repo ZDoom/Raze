@@ -3461,7 +3461,7 @@ void processinput_r(int snum)
 	if (SyncInput())
 	{
 		p->horizon.backup();
-		doslopetilting(p, 1);
+		doslopetilting(p);
 	}
 
 	if (chz.type == kHitSprite)
