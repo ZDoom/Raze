@@ -28,18 +28,18 @@ void animateobjs(PLAYER& plr) {
 			switch (spr.extra) {
 			case 1:
 				spr.zvel += TICSPERFRAME << 3;
-				movestat = (short) movesprite((short) i, ((sintable[(spr.ang + 512) & 2047]) * TICSPERFRAME) << 3,
-						((sintable[spr.ang & 2047]) * TICSPERFRAME) << 3, spr.zvel, 4 << 8, 4 << 8, 0);
+				movestat = (short) movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+						(bsin(spr.ang) * TICSPERFRAME) << 3, spr.zvel, 4 << 8, 4 << 8, 0);
 				break;
 			case 2:
 				spr.zvel += TICSPERFRAME << 5;
-				movestat = (short) movesprite((short) i, ((sintable[(spr.ang + 512) & 2047]) * TICSPERFRAME) << 1,
-						((sintable[spr.ang & 2047]) * TICSPERFRAME) << 1, spr.zvel, 4 << 8, 4 << 8, 0);
+				movestat = (short) movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 1,
+						(bsin(spr.ang) * TICSPERFRAME) << 1, spr.zvel, 4 << 8, 4 << 8, 0);
 				break;
 			case 3:
 				spr.zvel -= TICSPERFRAME << 5;
-				movestat = (short) movesprite((short) i, ((sintable[(spr.ang + 512) & 2047]) * TICSPERFRAME) << 2,
-						((sintable[spr.ang & 2047]) * TICSPERFRAME) << 2, spr.zvel, 4 << 8, 4 << 8, 0);
+				movestat = (short) movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 2,
+						(bsin(spr.ang) * TICSPERFRAME) << 2, spr.zvel, 4 << 8, 4 << 8, 0);
 				if (spr.lotag < 0) {
 					spr.lotag = 30;
 					spr.extra = 2;
@@ -65,8 +65,8 @@ void animateobjs(PLAYER& plr) {
 				daz = spr.zvel -= TICSPERFRAME << 4;
 				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
 
-				movesprite((short) i, ((sintable[(spr.ang + 512) & 2047]) * TICSPERFRAME) << 3,
-						((sintable[spr.ang & 2047]) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
+				movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+						(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
 
 				if (osectnum != spr.sectnum) {
 					spr.x = sparksx;
@@ -96,8 +96,8 @@ void animateobjs(PLAYER& plr) {
 				daz = spr.zvel += TICSPERFRAME << 4;
 				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
 
-				movesprite((short) i, ((sintable[(spr.ang + 512) & 2047]) * TICSPERFRAME) << 3,
-						((sintable[spr.ang & 2047]) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
+				movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+						(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
 
 				if (osectnum != spr.sectnum) {
 					spr.x = sparksx;
@@ -126,8 +126,8 @@ void animateobjs(PLAYER& plr) {
 				daz = 0;
 				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
 
-				movesprite((short) i, ((sintable[(spr.ang + 512) & 2047]) * TICSPERFRAME) << 3,
-						((sintable[spr.ang & 2047]) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
+				movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+						(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
 
 				if (osectnum != spr.sectnum) {
 					spr.x = sparksx;
@@ -413,8 +413,8 @@ void animateobjs(PLAYER& plr) {
 				sprite[i].lotag = 512;
 			} else {
 				movestat = (short) movesprite((short) i,
-						(((int) sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-						(((int) sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+						(bcos(sprite[i].ang) * TICSPERFRAME) << 3,
+						(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 				if (movestat != 0)
 					sprite[i].ang = (short) (krand() & 2047);
@@ -430,8 +430,8 @@ void animateobjs(PLAYER& plr) {
 				sprite[i].z -= TICSPERFRAME << 4;
 				sprite[i].ang = (short) ((sprite[i].ang + (TICSPERFRAME << 2)) & 2047);
 				movestat = (short) movesprite((short) i,
-						(((int) sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-						(((int) sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+						(bcos(sprite[i].ang) * TICSPERFRAME) << 3,
+						(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 				if (movestat != 0)
 					sprite[i].ang = (short) (krand() & 2047);
@@ -446,8 +446,8 @@ void animateobjs(PLAYER& plr) {
 				continue;
 			} else {
 				movestat = (short) movesprite((short) i,
-						(((int) sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-						(((int) sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+						(bcos(sprite[i].ang) * TICSPERFRAME) << 3,
+						(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 				if ((movestat & 0xc000) == 16384) {// Hits a ceiling / floor
 					if (i == lastbat) {
@@ -493,7 +493,7 @@ void animateobjs(PLAYER& plr) {
 	// BOB
 	for (i = headspritestat[BOB]; i >= 0; i = nextspritestat[i]) {
 		nextsprite = nextspritestat[i];
-		sprite[i].z += (sintable[(lockclock << 4) & 2047] >> 6);
+		sprite[i].z += bsin(lockclock << 4, -6);
 	}
 
 	// LIFT UP
@@ -654,8 +654,8 @@ void animateobjs(PLAYER& plr) {
 		if (sprite[i].z < zr_florz)
 			daz = sprite[i].zvel += (TICSPERFRAME << 9);
 
-		hitobject = (short) movesprite(i, ((sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-				((sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
+		hitobject = (short) movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
+				(bsin(sprite[i].ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
 		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 
@@ -696,8 +696,8 @@ void animateobjs(PLAYER& plr) {
 		if (sprite[i].z < zr_florz)
 			daz = sprite[i].zvel += (TICSPERFRAME << 5);
 
-		hitobject = (short) movesprite(i, ((sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-				((sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
+		hitobject = (short) movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
+				(bsin(sprite[i].ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
 		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 
@@ -742,8 +742,8 @@ void animateobjs(PLAYER& plr) {
 			daz = sprite[i].zvel += (TICSPERFRAME << 1);
 
 		// clip type was 1
-		hitobject = (short) movesprite(i, ((sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-				((sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
+		hitobject = (short) movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
+				(bsin(sprite[i].ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
 		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 
@@ -882,13 +882,13 @@ void animateobjs(PLAYER& plr) {
 		if (sprite[i].picnum == THROWPIKE) {
 			sprite[i].cstat = 0;
 			hitobject = (short) movesprite((short) i,
-					((sintable[(sprite[i].extra + 512) & 2047]) * TICSPERFRAME) << 6,
-					((sintable[sprite[i].extra & 2047]) * TICSPERFRAME) << 6, daz, 4 << 8, 4 << 8, 1);
+					(bcos(sprite[i].extra) * TICSPERFRAME) << 6,
+					(bsin(sprite[i].extra) * TICSPERFRAME) << 6, daz, 4 << 8, 4 << 8, 1);
 			sprite[i].cstat = 21;
 		} else {
 			hitobject = (short) movesprite((short) i,
-					((sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 6, // was 3
-					((sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 6, // was 3
+					(bcos(sprite[i].ang) * TICSPERFRAME) << 6, // was 3
+					(bsin(sprite[i].ang) * TICSPERFRAME) << 6, // was 3
 					daz, 4 << 8, 4 << 8, 1);
 		}
 
@@ -995,8 +995,8 @@ void animateobjs(PLAYER& plr) {
 
 		sprite[i].cstat = 0;
 
-		hitobject = (short) movesprite(i, ((sintable[(sprite[i].extra + 512) & 2047]) * TICSPERFRAME) << 6,
-				((sintable[sprite[i].extra & 2047]) * TICSPERFRAME) << 6, daz, 4 << 8, 4 << 8, 0);
+		hitobject = (short) movesprite(i, (bcos(sprite[i].extra) * TICSPERFRAME) << 6,
+				(bsin(sprite[i].extra) * TICSPERFRAME) << 6, daz, 4 << 8, 4 << 8, 0);
 
 		if (sprite[i].picnum == WALLARROW || sprite[i].picnum == THROWHALBERD)
 			sprite[i].cstat = 0x11;
@@ -1065,8 +1065,8 @@ void animateobjs(PLAYER& plr) {
 		dax = sprite[i].xvel >> 3;
 		day = sprite[i].yvel >> 3;
 		daz = sprite[i].zvel -= TICSPERFRAME << 2;
-		movestat = (short) movesprite(i, ((sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-				((sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 1);
+		movestat = (short) movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
+				(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 1);
 		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
 		if (sprite[i].extra == 0) {
 			if (sprite[i].lotag < 0) {
@@ -1094,8 +1094,8 @@ void animateobjs(PLAYER& plr) {
 
 		daz = sprite[i].zvel += TICSPERFRAME << 4;
 
-		int xvel = ((sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3;
-		int yvel = ((sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3;
+		int xvel = (bcos(sprite[i].ang) * TICSPERFRAME) << 3;
+		int yvel = (bsin(sprite[i].ang) * TICSPERFRAME) << 3;
 
 		if (sprite[i].picnum == BONECHUNK1 && sprite[i].picnum == BONECHUNKEND) {
 			daz >>= 1;
@@ -1372,8 +1372,8 @@ void animateobjs(PLAYER& plr) {
 
 			daz = sprite[i].zvel += TICSPERFRAME << 4;
 
-			movestat = (short) movesprite((short) i, ((sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-					((sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
+			movestat = (short) movesprite((short) i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
+					(bsin(sprite[i].ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
 
 		}
 
