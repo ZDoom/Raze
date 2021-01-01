@@ -213,8 +213,8 @@ void aiProcess() {
 	//		short daang = plr.angle.ang.asbuild();
 	//		int daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
 	//		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
-	//				sintable[(daang + 2560) & 2047], // X vector of 3D ang
-	//				sintable[(daang + 2048) & 2047], // Y vector of 3D ang
+	//				bcos(daang), // X vector of 3D ang
+	//				bsin(daang), // Y vector of 3D ang
 	//				daz2, // Z vector of 3D ang
 	//				pHitInfo, CLIPMASK0);
 	//		
@@ -236,8 +236,8 @@ void aiProcess() {
 		nextsprite = nextspritestat[i];
 
 		SPRITE& spr = sprite[i];
-		short movestat = (short)movesprite((short)i, ((sintable[(spr.ang + 512) & 2047]) * TICSPERFRAME) << 3,
-			((sintable[spr.ang]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+		short movestat = (short)movesprite((short)i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+			(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		if (zr_florz > spr.z + (48 << 8)) {
 			setsprite(i, spr.x, spr.y, spr.z);
 			movestat = 1;
@@ -260,8 +260,7 @@ void aiProcess() {
 			}
 			j = nextj;
 		}
-		if (sintable[(spr.ang + 2560) & 2047] * (plr.x - spr.x)
-			+ sintable[(spr.ang + 2048) & 2047] * (plr.y - spr.y) >= 0) {
+		if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
 			if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 				spr.sectnum)) {
 				newstatus(i, CHASE);
@@ -421,14 +420,14 @@ int aimove(short i) {
 	int oz = sprite[i].z;
 	//		short osect = sprite[i].sectnum;
 
-	int movestate = movesprite(i, ((sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-		((sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
+	int movestate = movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
+		(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
 	if (((zr_florz - oz) >> 4) > tileHeight(sprite[i].picnum) + (sprite[i].yrepeat << 2)
 		|| (movestate & kHitTypeMask) == kHitWall) {
 		//			changespritesect(i, osect);
-		//			setsprite(i, ox + mulscale((sprite[i].clipdist) << 2, sintable[(sprite[i].ang + 1536) & 2047], 16),
-		//					oy + mulscale((sprite[i].clipdist) << 2, sintable[(sprite[i].ang + 1024) & 2047], 16), oz);
+		//			setsprite(i, ox + mulscale((sprite[i].clipdist) << 2, -bcos(sprite[i].ang), 16),
+		//					oy + mulscale((sprite[i].clipdist) << 2, -bsin(sprite[i].ang), 16), oz);
 
 		setsprite(i, ox, oy, oz);
 
@@ -448,8 +447,8 @@ int aimove(short i) {
 
 int aifly(short i) {
 	SPRITE& spr = sprite[i];
-	int movestate = movesprite(i, ((sintable[(sprite[i].ang + 512) & 2047]) * TICSPERFRAME) << 3,
-		((sintable[sprite[i].ang & 2047]) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
+	int movestate = movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
+		(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
 	spr.z -= TICSPERFRAME << 8;
 	short ocs = spr.cstat;
@@ -599,8 +598,8 @@ void castspell(PLAYER& plr, int i) {
 	else
 		sprite[j].ang = (short)(((getangle(plr.x - sprite[j].x, plr.y - sprite[j].y) + (krand() & 15)
 			- 8) + 2048) & 2047);
-	sprite[j].xvel = (short)(sintable[(sprite[j].ang + 2560) & 2047] >> 6);
-	sprite[j].yvel = (short)(sintable[(sprite[j].ang + 2048) & 2047] >> 6);
+	sprite[j].xvel = bcos(sprite[j].ang, -6);
+	sprite[j].yvel = bsin(sprite[j].ang, -6);
 
 	int discrim = ksqrt((plr.x - sprite[j].x) * (plr.x - sprite[j].x) + (plr.y - sprite[j].y) * (plr.y - sprite[j].y));
 	if (discrim == 0)
@@ -635,8 +634,8 @@ void skullycastspell(PLAYER& plr, int i) {
 	else
 		sprite[j].ang = (short)(((getangle(plr.x - sprite[j].x, plr.y - sprite[j].y) + (krand() & 15)
 			- 8) + 2048) & 2047);
-	sprite[j].xvel = (short)(sintable[(sprite[j].ang + 2560) & 2047] >> 6);
-	sprite[j].yvel = (short)(sintable[(sprite[j].ang + 2048) & 2047] >> 6);
+	sprite[j].xvel = bcos(sprite[j].ang, -6);
+	sprite[j].yvel = bsin(sprite[j].ang, -6);
 
 	int discrim = ksqrt((plr.x - sprite[j].x) * (plr.x - sprite[j].x) + (plr.y - sprite[j].y) * (plr.y - sprite[j].y));
 	if (discrim == 0)
