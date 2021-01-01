@@ -592,6 +592,7 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 	{
 		if (kbdLeft || kbdRight || p->moto_drink || hidInput->mouseturnx || hidInput->dyaw)
 		{
+			double const velScale = 3. / 10;
 			auto const baseVel = (buttonMap.ButtonDown(gamefunc_Move_Backward) || hidInput->dz < 0) && p->MotoSpeed <= 0 ? -VEHICLETURN : VEHICLETURN;
 			int tics = getticssincelastupdate();
 
@@ -604,13 +605,13 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 					p->TiltStatus = -10;
 
 				if (kbdLeft)
-					turnvel -= turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.);
+					turnvel -= turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0 ? baseVel : baseVel * velScale;
 
 				if (hidInput->mouseturnx < 0)
-					turnvel -= sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * -(hidInput->mouseturnx / factor) * 2.);
+					turnvel -= sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * -(hidInput->mouseturnx / factor) * 2.);
 
 				if (hidInput->dyaw < 0)
-					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * hidInput->dyaw;
+					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * hidInput->dyaw;
 			}
 
 			if (kbdRight || p->moto_drink > 0 || hidInput->mouseturnx > 0 || hidInput->dyaw > 0)
@@ -622,13 +623,13 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 					p->TiltStatus = 10;
 
 				if (kbdRight)
-					turnvel += turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.);
+					turnvel += turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0 ? baseVel : baseVel * velScale;
 
 				if (hidInput->mouseturnx > 0)
-					turnvel += sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * (hidInput->mouseturnx / factor) * 2.);
+					turnvel += sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * (hidInput->mouseturnx / factor) * 2.);
 
 				if (hidInput->dyaw > 0)
-					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * hidInput->dyaw;
+					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * hidInput->dyaw;
 			}
 		}
 		else
