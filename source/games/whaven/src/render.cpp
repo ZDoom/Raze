@@ -24,9 +24,9 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	{
 		auto& prevloc = gPrevPlayerLoc[num];
 
-		cposx = prevloc.x + mulscale16(cposx - prevloc.x, dasmoothratio);
-		cposy = prevloc.y + mulscale16(cposy - prevloc.y, dasmoothratio);
-		cposz = prevloc.z + mulscale16(cposz - prevloc.z, dasmoothratio);
+		cposx = prevloc.x + MulScale(cposx - prevloc.x, dasmoothratio, 16);
+		cposy = prevloc.y + MulScale(cposy - prevloc.y, dasmoothratio, 16);
+		cposz = prevloc.z + MulScale(cposz - prevloc.z, dasmoothratio, 16);
 
 		if (cl_syncinput)
 		{

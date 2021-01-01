@@ -198,12 +198,12 @@ void potionpic(PLAYER& plr, int currentpotion, int x, int y, int scale) {
 		return;
 #pragma message("fix potionpic")
 #if 0
-	x = x + mulscale(200, scale, 16);
-	y = y - mulscale(94, scale, 16);
+	x = x + MulScale(200, scale, 16);
+	y = y - MulScale(94, scale, 16);
 	engine.rotatesprite(x<<16,y<<16,scale,0,SPOTIONBACKPIC,0, 0, 8 | 16, 0, 0, xdim, ydim-1);
-	engine.rotatesprite((x - mulscale(4, scale, 16))<<16,(y - mulscale(7, scale, 16))<<16,scale,0,SPOTIONARROW+currentpotion,0, 0, 8 | 16, 0, 0, xdim, ydim-1);
+	engine.rotatesprite((x - MulScale(4, scale, 16))<<16,(y - MulScale(7, scale, 16))<<16,scale,0,SPOTIONARROW+currentpotion,0, 0, 8 | 16, 0, 0, xdim, ydim-1);
 	
-	x += mulscale(4, scale, 16);
+	x += MulScale(4, scale, 16);
 	for(int i = 0; i < MAXPOTIONS; i++) {
 		if(plr.potion[i] < 0)
 			plr.potion[i] = 0;
@@ -224,15 +224,15 @@ void potionpic(PLAYER& plr, int currentpotion, int x, int y, int scale) {
 			}
 			potiontilenum=tilenum;
 
-			engine.rotatesprite((x + mulscale(i*20, scale, 16))<<16,(y + mulscale(19, scale, 16))<<16,scale,0,potiontilenum,0, 0, 8 | 16, 0, 0, xdim, ydim-1);
+			engine.rotatesprite((x + MulScale(i*20, scale, 16))<<16,(y + MulScale(19, scale, 16))<<16,scale,0,potiontilenum,0, 0, 8 | 16, 0, 0, xdim, ydim-1);
 			char potionbuf[50];
 			Bitoa(plr.potion[i],potionbuf);
 
 			fancyfont((266<<1)+(i*20),394,SPOTIONFONT-26,potionbuf,0);
-			//game.getFont(3).drawText(x + mulscale(7 +(i*20), scale, 16),y+mulscale(7, scale, 16), potionbuf, scale, 0, 0, TextAlign.Left, 0, false);
+			//game.getFont(3).drawText(x + MulScale(7 +(i*20), scale, 16),y+MulScale(7, scale, 16), potionbuf, scale, 0, 0, TextAlign.Left, 0, false);
 		}
 		else 
-			engine.rotatesprite((x + mulscale(i*20, scale, 16))<<16,(y + mulscale(19, scale, 16))<<16,scale,0,SFLASKBLACK,0, 0, 8 | 16, 0, 0, xdim, ydim-1);
+			engine.rotatesprite((x + MulScale(i*20, scale, 16))<<16,(y + MulScale(19, scale, 16))<<16,scale,0,SFLASKBLACK,0, 0, 8 | 16, 0, 0, xdim, ydim-1);
 	}
 #endif
 }

@@ -901,7 +901,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 	Hitscan pHitInfo;
 	switch (guntype) {
 	case 0:
-		daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
+		daz2 = -MulScale(plr.horizon.horiz.asq16(), 2000, 16);
 
 		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
 				bcos(daang), // X vector of 3D ang
@@ -1673,7 +1673,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		}
 		break;
 	case 1: //bow's arrow
-		daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
+		daz2 = -MulScale(plr.horizon.horiz.asq16(), 2000, 16);
 
 		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
 				bcos(daang), // X vector of 3D ang
@@ -1887,7 +1887,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		break;
 	case 7: // KNOCKSPELL
 	{
-		daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
+		daz2 = -MulScale(plr.horizon.horiz.asq16(), 2000, 16);
 
 		Neartag ntag;
 		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position

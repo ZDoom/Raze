@@ -176,8 +176,8 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 			yvel = (yvel / len) * (keymove << 14);
 		}
 
-		lPlayerXVel = fmulscale16(lPlayerXVel + (xvel * k), 0xD000);
-		lPlayerYVel = fmulscale16(lPlayerYVel + (yvel * k), 0xD000);
+		lPlayerXVel = MulScaleF(lPlayerXVel + (xvel * k), 0xD000, 16);
+		lPlayerYVel = MulScaleF(lPlayerYVel + (yvel * k), 0xD000, 16);
 
 		if (abs(lPlayerXVel) < 2048 && abs(lPlayerYVel) < 2048)
 		{

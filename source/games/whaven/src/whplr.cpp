@@ -244,7 +244,7 @@ void plruse(PLAYER& plr) {
 			operatesector(plr, nt.tagsector);
 		} else {
 			short daang = plr.angle.ang.asbuild();
-			int daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
+			int daz2 = -MulScale(plr.horizon.horiz.asq16(), 2000, 16);
 			Hitscan pHitInfo;
 			hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
 					bcos(daang), // X vector of 3D ang

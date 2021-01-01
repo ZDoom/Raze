@@ -26,10 +26,10 @@ void analyzesprites(PLAYER& plr, int dasmoothratio)
 			short nAngle = oldLoc.ang;
 
 			// interpolate sprite position
-			x += mulscale(tspr.x - oldLoc.x, dasmoothratio, 16);
-			y += mulscale(tspr.y - oldLoc.y, dasmoothratio, 16);
-			z += mulscale(tspr.z - oldLoc.z, dasmoothratio, 16);
-			nAngle += mulscale(((tspr.ang - oldLoc.ang + 1024) & 2047) - 1024, dasmoothratio, 16);
+			x += MulScale(tspr.x - oldLoc.x, dasmoothratio, 16);
+			y += MulScale(tspr.y - oldLoc.y, dasmoothratio, 16);
+			z += MulScale(tspr.z - oldLoc.z, dasmoothratio, 16);
+			nAngle += MulScale(((tspr.ang - oldLoc.ang + 1024) & 2047) - 1024, dasmoothratio, 16);
 
 			tspr.x = x;
 			tspr.y = y;
@@ -362,8 +362,8 @@ void analyzesprites(PLAYER& plr, int dasmoothratio)
 						SPRITE& tshadow = tsprite[spritesortcnt];
 						tshadow = tspr;
 						int camangle = getangle(plr.x - tshadow.x, plr.y - tshadow.y);
-						tshadow.x -= mulscale(bcos(camangle), 100, 16);
-						tshadow.y += mulscale(-bsin(camangle), 100, 16);
+						tshadow.x -= MulScale(bcos(camangle), 100, 16);
+						tshadow.y += MulScale(-bsin(camangle), 100, 16);
 						tshadow.z = fz + 1;
 						tshadow.statnum = 99;
 						

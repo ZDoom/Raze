@@ -211,7 +211,7 @@ void aiProcess() {
 	PLAYER& plr = player[0];
 
 	//		short daang = plr.angle.ang.asbuild();
-	//		int daz2 = -mulscale16(plr.horizon.horiz.asq16(), 2000);
+	//		int daz2 = -MulScale(plr.horizon.horiz.asq16(), 2000, 16);
 	//		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
 	//				bcos(daang), // X vector of 3D ang
 	//				bsin(daang), // Y vector of 3D ang
@@ -426,8 +426,8 @@ int aimove(short i) {
 	if (((zr_florz - oz) >> 4) > tileHeight(sprite[i].picnum) + (sprite[i].yrepeat << 2)
 		|| (movestate & kHitTypeMask) == kHitWall) {
 		//			changespritesect(i, osect);
-		//			setsprite(i, ox + mulscale((sprite[i].clipdist) << 2, -bcos(sprite[i].ang), 16),
-		//					oy + mulscale((sprite[i].clipdist) << 2, -bsin(sprite[i].ang), 16), oz);
+		//			setsprite(i, ox + MulScale((sprite[i].clipdist) << 2, -bcos(sprite[i].ang), 16),
+		//					oy + MulScale((sprite[i].clipdist) << 2, -bsin(sprite[i].ang), 16), oz);
 
 		setsprite(i, ox, oy, oz);
 

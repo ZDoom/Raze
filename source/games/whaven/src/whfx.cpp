@@ -663,7 +663,7 @@ void dofx() {
 	GLRenderer gl = glrender();
 	if (gl != nullptr) {
 		if (player[pyrn].poisoned != 0) {
-			int tilt = mulscale(bsin(3 * lockclock), 20, 16);
+			int tilt = MulScale(bsin(3 * lockclock), 20, 16);
 			if (tilt != 0)
 				gl.setdrunk(tilt);
 		} else

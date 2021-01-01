@@ -48,8 +48,8 @@ Point rotatepoint(int xpivot, int ypivot, int x, int y, short daang) { // jfBuil
 	int dasin = bsin(daang);
 	x -= xpivot;
 	y -= ypivot;
-	rotatepoint.x = dmulscale(x, dacos, -y, dasin, 14) + xpivot;
-	rotatepoint.y = dmulscale(y, dacos, x, dasin, 14) + ypivot;
+	rotatepoint.x = DMulScale(x, dacos, -y, dasin, 14) + xpivot;
+	rotatepoint.y = DMulScale(y, dacos, x, dasin, 14) + ypivot;
 
 	return rotatepoint;
 }
