@@ -7,6 +7,7 @@
 
 
 __forceinline constexpr int32_t MulScale(int32_t a, int32_t b, int32_t shift) { return (int32_t)(((int64_t)a * b) >> shift); }
+__forceinline constexpr int32_t MulScaleF(double a, double b, int32_t shift) { return (a * b) * (1. / (uint32_t(1) << shift)); }
 __forceinline constexpr int32_t DMulScale(int32_t a, int32_t b, int32_t c, int32_t d, int32_t shift) { return (int32_t)(((int64_t)a * b + (int64_t)c * d) >> shift); }
 __forceinline constexpr int32_t DivScale(int32_t a, int32_t b, int shift) { return (int32_t)(((int64_t)a << shift) / b); }
 
