@@ -489,7 +489,11 @@ static void DrawMap(spritetype* pSprite)
         setViewport(Hud_Stbar);
         tm = 1;
     }
-    DrawOverheadMap(pSprite->x, pSprite->y, pSprite->ang, gInterpolate);
+    VIEW* pView = &gPrevView[gViewIndex];
+    int x = interpolate(pView->at50, pSprite->x, gInterpolate);
+    int y = interpolate(pView->at54, pSprite->y, gInterpolate);
+    int ang = (!SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate)).asbuild();
+    DrawOverheadMap(x, y, ang, gInterpolate);
     if (tm)
         setViewport(hud_size);
 }
