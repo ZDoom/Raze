@@ -233,7 +233,7 @@ void donewgame(MapRecord* map, int sk);
 void startnewgame(MapRecord* map, int skill);
 int playercolor2lookup(int color);
 void PlayerColorChanged(void);
-bool movementBlocked(int snum);
+bool movementBlocked(player_struct *p);
 void loadcons();
 void recordoldspritepos();
 

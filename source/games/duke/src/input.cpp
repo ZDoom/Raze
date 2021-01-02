@@ -767,12 +767,11 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 //
 //---------------------------------------------------------------------------
 
-static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
+static void FinalizeInput(player_struct *p, InputPacket& input, bool vehicle)
 {
-	auto p = &ps[playerNum];
-	bool blocked = movementBlocked(playerNum) || p->GetActor()->s.extra <= 0 || (p->dead_flag && !ud.god);
+	bool blocked = movementBlocked(p) || p->GetActor()->s.extra <= 0 || (p->dead_flag && !ud.god);
 
-	if (blocked && ps[playerNum].newOwner == nullptr)
+	if (blocked && p->newOwner == nullptr)
 	{
 		// neutralize all movement when blocked or in automap follow mode
 		loc.fvel = loc.svel = 0;
@@ -842,7 +841,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		processMovement(&input, &loc, hidInput, scaleAdjust, p->drink_amt);
 	}
 
-	FinalizeInput(myconnectindex, input, rrraVehicle);
+	FinalizeInput(p, input, rrraVehicle);
 
 	if (!SyncInput())
 	{

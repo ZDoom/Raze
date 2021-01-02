@@ -3646,7 +3646,7 @@ void processinput_r(int snum)
 
 	//Do the quick lefts and rights
 
-	if (movementBlocked(snum))
+	if (movementBlocked(p))
 	{
 		doubvel = 0;
 		p->posxv = 0;

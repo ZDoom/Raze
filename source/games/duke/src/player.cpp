@@ -944,20 +944,18 @@ void playerAimDown(int snum, ESyncBits actions)
 //
 //---------------------------------------------------------------------------
 
-bool movementBlocked(int snum)
+bool movementBlocked(player_struct *p)
 {
-	auto p = &ps[snum];
-
 	auto blockingweapon = [=]()
 	{
 		if (isRR()) return false;
-		if (isWW2GI()) return aplWeaponWorksLike[p->curr_weapon][snum] == TRIPBOMB_WEAPON;
+		if (isWW2GI()) return aplWeaponWorksLike[p->curr_weapon][p->i] == TRIPBOMB_WEAPON;
 		else return p->curr_weapon == TRIPBOMB_WEAPON;
 	};
 
 	auto weapondelay = [=]()
 	{
-		if (isWW2GI()) return aplWeaponFireDelay[p->curr_weapon][snum];
+		if (isWW2GI()) return aplWeaponFireDelay[p->curr_weapon][p->i];
 		else return 4;
 	};
 
