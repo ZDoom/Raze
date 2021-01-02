@@ -949,11 +949,9 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
     {
         PLAYER* pPlayer = &gPlayer[i];
         spritetype* pSprite = pPlayer->pSprite;
-        int px = pSprite->x - x;
-        int py = pSprite->y - y;
+        int x1 = pSprite->x - x;
+        int y1 = pSprite->y - y;
         int pa = (pSprite->ang - a) & 2047;
-        int x1 = dmulscale16(px, nCos, -py, nSin);
-        int y1 = dmulscale16(py, nCos2, px, nSin2);
         if (i == gView->nPlayer || gGameOptions.nGameType == 1)
         {
             int nTile = pSprite->picnum;
