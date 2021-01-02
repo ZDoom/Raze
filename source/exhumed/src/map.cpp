@@ -50,7 +50,10 @@ void DrawMap(double const smoothratio)
 {
     if (!nFreeze && automapMode != am_off) 
     {
-        DrawOverheadMap(initx, inity, inita, smoothratio);
+        int x = PlayerList[nLocalPlayer].opos.x + MulScale(initx - PlayerList[nLocalPlayer].opos.x, smoothratio, 16);
+        int y = PlayerList[nLocalPlayer].opos.y + MulScale(inity - PlayerList[nLocalPlayer].opos.y, smoothratio, 16);
+        int ang = (!SyncInput() ? PlayerList[nLocalPlayer].angle.sum() : PlayerList[nLocalPlayer].angle.interpolatedsum(smoothratio)).asbuild();
+        DrawOverheadMap(x, y, ang, smoothratio);
     }
 }
 
