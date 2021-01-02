@@ -1555,15 +1555,11 @@ void ProcessInput(PLAYER *pPlayer)
     if (SyncInput())
     {
         sethorizon(&pPlayer->horizon.horiz, pInput->horz, &pInput->actions);
+        doslopetilting(pPlayer);
     }
 
     // disable synchronised input if set by game.
     resetForcedSyncInput();
-
-    if (SyncInput())
-    {
-        doslopetilting(pPlayer);
-    }
 
     pPlayer->slope = -pPlayer->horizon.horiz.asq16() >> 9;
     if (pInput->actions & SB_INVPREV)
