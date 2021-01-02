@@ -219,10 +219,7 @@ void displayweapon_r(int snum, double smoothratio)
 		else
 			pal = sector[p->cursectnum].floorpal;
 
-		if (TiltStatus >= 0)
-			ShowMotorcycle(160-look_anghalf, 174, temp_kb, shade, 0, pal, TiltStatus*5);
-		else if (p->TiltStatus < 0)
-			ShowMotorcycle(160-look_anghalf, 174, temp_kb, shade, 0, pal, TiltStatus*5+2047);
+		ShowMotorcycle(160-look_anghalf, 174, temp_kb, shade, 0, pal, TiltStatus*5);
 		return;
 	}
 	if (p->OnBoat)
@@ -294,10 +291,7 @@ void displayweapon_r(int snum, double smoothratio)
 		if (temp2)
 			shade = -96;
 
-		if (TiltStatus >= 0)
-			ShowBoat(160-look_anghalf, temp3, temp_kb, shade, 0, pal, TiltStatus);
-		else if (p->TiltStatus < 0)
-			ShowBoat(160-look_anghalf, temp3, temp_kb, shade, 0, pal, TiltStatus+2047);
+		ShowBoat(160-look_anghalf, temp3, temp_kb, shade, 0, pal, TiltStatus);
 		return;
 	}
 
