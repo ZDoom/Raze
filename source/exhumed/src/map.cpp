@@ -46,11 +46,11 @@ void UpdateMap()
     }
 }
 
-void DrawMap()
+void DrawMap(double const smoothratio)
 {
     if (!nFreeze && automapMode != am_off) 
     {
-        DrawOverheadMap(initx, inity, inita);
+        DrawOverheadMap(initx, inity, inita, smoothratio);
     }
 }
 
@@ -66,7 +66,7 @@ template<typename T> void GetSpriteExtents(T const* const pSprite, int* top, int
     }
 }
 
-bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a)
+bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio)
 {
     // [MR]: Confirm that this is correct as math doesn't match the variable names.
     int nCos = z * -bsin(a);

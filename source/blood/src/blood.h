@@ -122,7 +122,7 @@ struct GameInterface : ::GameInterface
 	void NewGame(MapRecord *sng, int skill) override;
 	void NextLevel(MapRecord* map, int skill) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
-	bool DrawAutomapPlayer(int x, int y, int z, int a) override;
+	bool DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio) override;
 	void SetTileProps(int til, int surf, int vox, int shade) override;
 	fixed_t playerHorizMin() override { return IntToFixed(-180); }
 	fixed_t playerHorizMax() override { return IntToFixed(120); }

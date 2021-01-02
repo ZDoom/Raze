@@ -1812,7 +1812,7 @@ drawscreen(PLAYERp pp, double smoothratio)
                 }
             }
         }
-        DrawOverheadMap(tx, ty, tang.asbuild());
+        DrawOverheadMap(tx, ty, tang.asbuild(), smoothratio);
     }
 
     for (j = 0; j < MAXSPRITES; j++)
@@ -1873,7 +1873,7 @@ bool GameInterface::GenerateSavePic()
 
 
 
-bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
+bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang, double const smoothratio)
 {
     int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;

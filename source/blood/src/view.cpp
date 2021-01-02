@@ -489,7 +489,7 @@ static void DrawMap(spritetype* pSprite)
         setViewport(Hud_Stbar);
         tm = 1;
     }
-    DrawOverheadMap(pSprite->x, pSprite->y, pSprite->ang);
+    DrawOverheadMap(pSprite->x, pSprite->y, pSprite->ang, gInterpolate);
     if (tm)
         setViewport(hud_size);
 }
@@ -932,7 +932,7 @@ FString GameInterface::GetCoordString()
 }
 
 
-bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a)
+bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio)
 {
     // [MR]: Confirm that this is correct as math doesn't match the variable names.
     int nCos = z * -bsin(a);

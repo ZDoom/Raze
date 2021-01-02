@@ -5391,6 +5391,7 @@ void recordoldspritepos()
 			ac->bposx = ac->s.x;
 			ac->bposy = ac->s.y;
 			ac->bposz = ac->s.z;
+			ac->tempang = ac->s.ang;
 		}
 	}
 }

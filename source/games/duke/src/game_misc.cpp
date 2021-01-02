@@ -283,7 +283,7 @@ void drawoverlays(double smoothratio)
 				cposy = pp->oposy;
 				cang = pp->angle.oang.asbuild();
 			}
-			DrawOverheadMap(cposx, cposy, cang);
+			DrawOverheadMap(cposx, cposy, cang, smoothratio);
 			RestoreInterpolations();
 		}
 	}
@@ -394,7 +394,7 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 //
 //---------------------------------------------------------------------------
 
-bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
+bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang, double const smoothratio)
 {
 	int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
 	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;

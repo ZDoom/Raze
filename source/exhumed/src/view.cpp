@@ -436,7 +436,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             if (nSnakeCam < 0)
             {
                 DrawWeapons(smoothRatio);
-                DrawMap();
+                DrawMap(smoothRatio);
             }
             else
             {
@@ -445,7 +445,7 @@ void DrawView(double smoothRatio, bool sceneonly)
                     sprite[enemy].pal = nEnemyPal;
                 }
 
-                DrawMap();
+                DrawMap(smoothRatio);
             }
         }
     }
