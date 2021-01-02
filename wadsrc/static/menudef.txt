@@ -1015,11 +1015,11 @@ OptionMenu "VideoOptions" protected
 	StaticText ""
 	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
 	Option "$DSPLYMNU_SHADOWS",					"r_shadows",					"OnOff"
-	ifgame(Blood, ShadowWarrior)
+	ifnotgame(Exhumed)
 	{
 		Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
 	}
-	ifgame (Duke, ShadowWarrior, Nam, WW2GI, Redneck, RedneckRides)
+	ifnotgame(Blood, Exhumed)
 	{
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"OnOff"
 	}
