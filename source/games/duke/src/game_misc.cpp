@@ -557,13 +557,11 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
 	for (p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		auto pspr = &ps[p].GetActor()->s;
-		ox = pspr->x - cposx;
-		oy = pspr->y - cposy;
-		daang = (pspr->ang - cang) & 2047;
-
-		x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-		y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+		auto act = ps[p].GetActor();
+		auto pspr = &act->s;
+		x1 = act->bposx + MulScale(pspr->x - act->bposx, smoothratio, 16) - cposx;
+		y1 = act->bposy + MulScale(pspr->y - act->bposy, smoothratio, 16) - cposy;
+		daang = (act->tempang + MulScale(((pspr->ang + 1024 - act->tempang) & 2047) - 1024, smoothratio, 16) - cang) & 2047;
 
 		if (p == screenpeek || ud.coop == 1)
 		{
