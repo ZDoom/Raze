@@ -3685,11 +3685,6 @@ void handle_se11(DDukeActor *actor)
 				if (ac->GetOwner() && clipinsidebox(sk->x, sk->y, j, 144L) == 1)
 				{
 					t[5] = 8; // Delay
-					int k = (s->yvel >> 3) * t[3];
-					t[2] -= k;
-					t[4] -= k;
-					ms(actor);
-					setsprite(actor, s->pos);
 					return;
 				}
 			}
