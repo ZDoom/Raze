@@ -548,7 +548,7 @@ void viewDrawScreen(bool sceneonly)
         int cX, cY, cZ, v74, v8c;
         lookangle rotscrnang;
         binangle cA;
-        fixedhoriz cH, cOff;
+        fixedhoriz cH;
         double zDelta, v4c, v48;
         int nSectnum = gView->pSprite->sectnum;
         if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
@@ -558,7 +558,6 @@ void viewDrawScreen(bool sceneonly)
             cY = interpolate(predictOld.at54, predict.at54, gInterpolate);
             cZ = interpolate(predictOld.at38, predict.at38, gInterpolate);
             zDelta = finterpolate(predictOld.at34, predict.at34, gInterpolate);
-            cOff = q16horiz(interpolate(predictOld.at28.asq16(), predict.at28.asq16(), gInterpolate));
             v74 = interpolate(predictOld.atc, predict.atc, gInterpolate);
             v8c = interpolate(predictOld.at8, predict.at8, gInterpolate);
             v4c = finterpolate(predictOld.at1c, predict.at1c, gInterpolate);
@@ -567,7 +566,7 @@ void viewDrawScreen(bool sceneonly)
             if (!SyncInput())
             {
                 cA = bamang(predict.at30.asbam() + predict.look_ang.asbam());
-                cH = predict.at24;
+                cH = predict.at24 + predict.at28;
                 rotscrnang = predict.rotscrnang;
             }
             else
@@ -575,7 +574,11 @@ void viewDrawScreen(bool sceneonly)
                 uint32_t oang = predictOld.at30.asbam() + predictOld.look_ang.asbam();
                 uint32_t ang = predict.at30.asbam() + predict.look_ang.asbam();
                 cA = interpolateangbin(oang, ang, gInterpolate);
-                cH = q16horiz(interpolate(predictOld.at24.asq16(), predict.at24.asq16(), gInterpolate));
+
+                fixed_t ohoriz = (predictOld.at24 + predictOld.at28).asq16();
+                fixed_t horiz = (predict.at24 + predict.at28).asq16();
+                cH = q16horiz(interpolate(ohoriz, horiz, gInterpolate));
+
                 rotscrnang = interpolateanglook(predictOld.rotscrnang.asbam(), predict.rotscrnang.asbam(), gInterpolate);
             }
         }
@@ -586,7 +589,6 @@ void viewDrawScreen(bool sceneonly)
             cY = interpolate(pView->at54, gView->pSprite->y, gInterpolate);
             cZ = interpolate(pView->at38, gView->zView, gInterpolate);
             zDelta = finterpolate(pView->at34, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
-            cOff = q16horiz(interpolate(pView->at28.asq16(), gView->horizon.horizoff.asq16(), gInterpolate));
             v74 = interpolate(pView->atc, gView->bobWidth, gInterpolate);
             v8c = interpolate(pView->at8, gView->bobHeight, gInterpolate);
             v4c = finterpolate(pView->at1c, gView->swayWidth, gInterpolate);
@@ -595,13 +597,13 @@ void viewDrawScreen(bool sceneonly)
             if (!SyncInput())
             {
                 cA = gView->angle.sum();
-                cH = gView->horizon.horiz;
+                cH = gView->horizon.sum();
                 rotscrnang = gView->angle.rotscrnang;
             }
             else
             {
                 cA = gView->angle.interpolatedsum(gInterpolate);
-                cH = q16horiz(interpolate(pView->at24.asq16(), gView->horizon.horiz.asq16(), gInterpolate));
+                cH = gView->horizon.interpolatedsum(gInterpolate);
                 rotscrnang = gView->angle.interpolatedrotscrn(gInterpolate);
             }
         }
@@ -625,10 +627,6 @@ void viewDrawScreen(bool sceneonly)
             if (cl_viewvbob)
             {
                 cZ += v8c;
-            }
-            if (cl_slopetilting)
-            {
-                cH += cOff;
             }
             cZ += xs_CRoundToInt(cH.asq16() / 6553.6);
             cameradist = -1;

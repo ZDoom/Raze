@@ -36,6 +36,7 @@ BEGIN_BLD_NS
 static InputPacket gInput;
 
 void UpdatePlayerSpriteAngle(PLAYER* pPlayer);
+void doslopetilting(PLAYER* pPlayer, double const scaleAdjust);
 
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
@@ -59,6 +60,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         {
             applylook(&pPlayer->angle, input.avel, &pPlayer->input.actions, scaleAdjust);
             sethorizon(&pPlayer->horizon.horiz, input.horz, &pPlayer->input.actions, scaleAdjust);
+            doslopetilting(pPlayer, scaleAdjust);
         }
 
         pPlayer->angle.processhelpers(scaleAdjust);

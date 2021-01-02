@@ -403,9 +403,11 @@ void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, b
 	{
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{
-			// Get a point, 512 units ahead of player's position
-			int x = pos.x + ang.bcos(-5);
-			int y = pos.y + ang.bsin(-5);
+			// Get a point, 512 (64 for Blood) units ahead of player's position
+			bool const isBlood = g_gameType & GAMEFLAG_BLOOD;
+			int const shift = -(isBlood ? 8 : 5);
+			int const x = pos.x + ang.bcos(shift);
+			int const y = pos.y + ang.bsin(shift);
 			int16_t tempsect = cursectnum;
 			updatesector(x, y, &tempsect);
 
@@ -413,17 +415,17 @@ void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, b
 			{
 				// Get the floorz as if the new (x,y) point was still in
 				// your sector
-				int j = getflorzofslope(cursectnum, pos.x, pos.y);
-				int k = getflorzofslope(cursectnum, x, y);
+				int const j = getflorzofslope(cursectnum, pos.x, pos.y);
+				int const k = getflorzofslope(tempsect, x, y);
 
 				// If extended point is in same sector as you or the slopes
 				// of the sector of the extended point and your sector match
 				// closely (to avoid accidently looking straight out when
 				// you're at the edge of a sector line) then adjust horizon
 				// accordingly
-				if (cursectnum == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
+				if (cursectnum == tempsect || (!isBlood && abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
 				{
-					*horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * 160)));
+					*horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood ? 160 : 1408))));
 				}
 			}
 		}

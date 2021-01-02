@@ -1292,6 +1292,21 @@ void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
     pSprite->ang = pPlayer->angle.ang.asbuild();
 }
 
+//---------------------------------------------------------------------------
+//
+// Player's slope tilting wrapper function function, called in ProcessInput() or from gi->GetInput() as required.
+//
+//---------------------------------------------------------------------------
+
+void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
+{
+    auto* const pSprite = pPlayer->pSprite;
+    auto* const pXSprite = pPlayer->pXSprite;
+    int const florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
+    char const va = pXSprite->height < 16 && (florhit == 0x4000 || florhit == 0) ? 1 : 0;
+    calcviewpitch(pSprite->pos.vec2, &pPlayer->horizon.horizoff, buildang(pSprite->ang), va, sector[pSprite->sectnum].floorstat & 2, pSprite->sectnum, scaleAdjust);
+}
+
 void ProcessInput(PLAYER *pPlayer)
 {
     enum
@@ -1545,32 +1560,11 @@ void ProcessInput(PLAYER *pPlayer)
     // disable synchronised input if set by game.
     resetForcedSyncInput();
 
-    int nSector = pSprite->sectnum;
-    int florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
-    char va;
-    if (pXSprite->height < 16 && (florhit == 0x4000 || florhit == 0))
-        va = 1;
-    else
-        va = 0;
-    if (va && (sector[nSector].floorstat&2))
+    if (SyncInput())
     {
-        int z1 = getflorzofslope(nSector, pSprite->x, pSprite->y);
-        int x2 = pSprite->x+mulscale30(64, Cos(pSprite->ang));
-        int y2 = pSprite->y+mulscale30(64, Sin(pSprite->ang));
-        short nSector2 = nSector;
-        updatesector(x2, y2, &nSector2);
-        if (nSector2 == nSector)
-        {
-            int z2 = getflorzofslope(nSector2, x2, y2);
-            pPlayer->horizon.horizoff = q16horiz(interpolate(pPlayer->horizon.horizoff.asq16(), IntToFixed(z1-z2)>>3, 0x4000));
-        }
+        doslopetilting(pPlayer);
     }
-    else
-    {
-        pPlayer->horizon.horizoff = q16horiz(interpolate(pPlayer->horizon.horizoff.asq16(), 0, 0x4000));
-        if (klabs(pPlayer->horizon.horizoff.asq16()) < 4)
-            pPlayer->horizon.horizoff = q16horiz(0);
-    }
+
     pPlayer->slope = -pPlayer->horizon.horiz.asq16() >> 9;
     if (pInput->actions & SB_INVPREV)
     {
