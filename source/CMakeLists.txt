@@ -508,6 +508,7 @@ if (NOT ${TARGET_ARCHITECTURE} MATCHES "arm" )
 	set (PLAT_WIN32_SOURCES ${PLAT_WIN32_SOURCES} common/platform/win32/i_crash.cpp )
 endif()
 if (MSVC AND ${TARGET_ARCHITECTURE} MATCHES "arm")
+	set (PLAT_WIN32_SOURCES ${PLAT_WIN32_SOURCES} common/platform/win32/i_crash_arm.cpp )
 	add_definitions( -DNO_SSE -D__ARM__ -DRAPIDJSON_ENDIAN=RAPIDJSON_LITTLEENDIAN)
 endif()
 
