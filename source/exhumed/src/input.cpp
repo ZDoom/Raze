@@ -136,7 +136,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     if (packet)
     {
         *packet = localInput;
-        localInput = {};
     }
 }
 
