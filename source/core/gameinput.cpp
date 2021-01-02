@@ -404,8 +404,7 @@ void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, b
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{
 			// Get a point, 512 (64 for Blood) units ahead of player's position
-			bool const isBlood = g_gameType & GAMEFLAG_BLOOD;
-			int const shift = -(isBlood ? 8 : 5);
+			int const shift = -(isBlood() ? 8 : 5);
 			int const x = pos.x + ang.bcos(shift);
 			int const y = pos.y + ang.bsin(shift);
 			int16_t tempsect = cursectnum;
@@ -423,9 +422,9 @@ void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, b
 				// closely (to avoid accidently looking straight out when
 				// you're at the edge of a sector line) then adjust horizon
 				// accordingly
-				if (cursectnum == tempsect || (!isBlood && abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
+				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
 				{
-					*horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood ? 160 : 1408))));
+					*horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood() ? 160 : 1408))));
 				}
 			}
 		}

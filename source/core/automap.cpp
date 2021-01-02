@@ -90,7 +90,7 @@ CCMD(togglemap)
 	{
 		automapMode++;
 		if (automapMode == am_count) automapMode = am_off;
-		if ((g_gameType & GAMEFLAG_BLOOD) && automapMode == am_overlay) automapMode = am_full; // todo: investigate if this can be re-enabled
+		if (isBlood() && automapMode == am_overlay) automapMode = am_full; // todo: investigate if this can be re-enabled
 	}
 }
 

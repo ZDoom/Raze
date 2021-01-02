@@ -347,7 +347,7 @@ CCMD(quickload)
 static DMenuItemBase* CreateCustomListMenuItemText(double x, double y, int height, int hotkey, const char* text, FFont* font, PalEntry color1, PalEntry color2, FName command, int param)
 {
 	const char* classname = 
-		(g_gameType & GAMEFLAG_BLOOD) ? "ListMenuItemBloodTextItem" :
+		isBlood() ? "ListMenuItemBloodTextItem" :
 		(g_gameType & GAMEFLAG_SW) ? "ListMenuItemSWTextItem" :
 		(g_gameType & GAMEFLAG_PSEXHUMED) ? "ListMenuItemExhumedTextItem" : "ListMenuItemDukeTextItem";
 	auto c = PClass::FindClass(classname);
@@ -564,7 +564,7 @@ void SetDefaultMenuColors()
 	gameinfo.mSliderColor = "Orange";
 	gameinfo.mSliderBackColor = "White";
 
-	if (g_gameType & GAMEFLAG_BLOOD)
+	if (isBlood())
 	{
 		OptionSettings.mFontColorHeader = CR_DARKGRAY;
 		OptionSettings.mFontColorHighlight = CR_WHITE;

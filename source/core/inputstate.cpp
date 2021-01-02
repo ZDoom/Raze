@@ -248,7 +248,7 @@ void SetupGameButtons()
 CCMD(slot)
 {
 	// The max differs between games so we have to handle this here.
-	int max = (g_gameType & GAMEFLAG_PSEXHUMED) || (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE)) == (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE) ? 7 : (g_gameType & GAMEFLAG_BLOOD) ? 12 : 10;
+	int max = (g_gameType & GAMEFLAG_PSEXHUMED) || (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE)) == (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE) ? 7 : isBlood() ? 12 : 10;
 	if (argv.argc() != 2)
 	{
 		Printf("slot <weaponslot>: select a weapon from the given slot (1-%d)", max);
@@ -278,7 +278,7 @@ CCMD(weapalt)
 
 CCMD(useitem)
 {
-	int max = (g_gameType & GAMEFLAG_PSEXHUMED)? 6 : (g_gameType & GAMEFLAG_SW)? 7 : (g_gameType & GAMEFLAG_BLOOD) ? 4 : 5;
+	int max = (g_gameType & GAMEFLAG_PSEXHUMED)? 6 : (g_gameType & GAMEFLAG_SW)? 7 : isBlood() ? 4 : 5;
 	if (argv.argc() != 2)
 	{
 		Printf("useitem <itemnum>: activates an inventory item (1-%d)", max);
@@ -437,7 +437,7 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput, bool const crou
 
 	if (buttonMap.ButtonDown(gamefunc_Open))
 	{
-		if (g_gameType & GAMEFLAG_BLOOD) buttonMap.ClearButton(gamefunc_Open);
+		if (isBlood()) buttonMap.ClearButton(gamefunc_Open);
 		input.actions |= SB_OPEN;
 	}
 	if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run)))

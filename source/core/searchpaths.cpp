@@ -884,7 +884,7 @@ TArray<GrpEntry> GrpScan()
 
 const char* G_DefaultDefFile(void)
 {
-	if (g_gameType & GAMEFLAG_BLOOD) 
+	if (isBlood()) 
 		return "blood.def";
 
 	if (g_gameType & GAMEFLAG_DUKE)

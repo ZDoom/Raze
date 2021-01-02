@@ -202,6 +202,11 @@ inline bool isShareware()
 	return g_gameType & GAMEFLAG_SHAREWARE;
 }
 
+inline bool isBlood()
+{
+	return g_gameType & GAMEFLAG_BLOOD;
+}
+
 TArray<GrpEntry> GrpScan();
 void S_PauseSound(bool notmusic, bool notsfx);
 void S_ResumeSound(bool notsfx);
