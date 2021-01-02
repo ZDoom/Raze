@@ -1927,8 +1927,9 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                 k = spr->statnum;
                 if ((k >= 1) && (k <= 8) && (k != 2))   // Interpolate moving
                 {
-                    sprx = sprite[j].x;
-                    spry = sprite[j].y;
+                    USERp sprusr = User[j];
+                    sprx = sprusr->ox + MulScale(spr->x - sprusr->ox, smoothratio, 16);
+                    spry = sprusr->oy + MulScale(spr->y - sprusr->oy, smoothratio, 16);
                 }
 
                 switch (spr->cstat & 48)
@@ -1936,10 +1937,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                 case 0:  // Regular sprite
                     if (Player[p].PlayerSprite == j)
                     {
-                        ox = sprx - cposx;
-                        oy = spry - cposy;
-                        x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
-                        y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+                        x1 = sprx - cposx;
+                        y1 = spry - cposy;
 
                         if (((gotsector[i >> 3] & (1 << (i & 7))) > 0) && (czoom > 192))
                         {
