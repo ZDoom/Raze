@@ -789,17 +789,14 @@ static void FinalizeInput(player_struct *p, InputPacket& input, bool vehicle)
 			loc.svel = input.svel = 0;
 		}
 
-		if (p->newOwner != nullptr)
+		if (p->newOwner != nullptr || p->on_crane != nullptr)
 		{
-			if (p->on_crane != nullptr)
-			{
-				loc.avel = input.avel = 0;
-			}
+			loc.avel = input.avel = 0;
+		}
 
-			if (p->sync.actions & SB_CENTERVIEW && abs(p->horizon.horiz.asbuild()) > 5)
-			{
-				loc.horz = input.horz = 0;
-			}
+		if (p->newOwner != nullptr || (p->sync.actions & SB_CENTERVIEW && abs(p->horizon.horiz.asbuild()) > 5))
+		{
+			loc.horz = input.horz = 0;
 		}
 	}
 }
