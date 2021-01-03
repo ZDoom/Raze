@@ -829,11 +829,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 	if (rrraVehicle)
 	{
 		processVehicleInput(p, hidInput, input, scaleAdjust);
-
-		if (!SyncInput() && p->GetActor()->s.extra > 0)
-		{
-			p->apply_seasick(scaleAdjust);
-		}
 	}
 	else
 	{
@@ -848,8 +843,8 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		{
 			// Do these in the same order as the old code.
 			doslopetilting(p, scaleAdjust);
-			input.avel = p->adjustavel(input.avel);
-			applylook(&p->angle, input.avel, &p->sync.actions, scaleAdjust);
+			applylook(&p->angle, p->adjustavel(input.avel), &p->sync.actions, scaleAdjust);
+			p->apply_seasick(scaleAdjust);
 			sethorizon(&p->horizon.horiz, input.horz, &p->sync.actions, scaleAdjust);
 		}
 
