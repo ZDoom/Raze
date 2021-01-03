@@ -964,7 +964,6 @@ bool movementBlocked(player_struct *p)
 		p->hard_landing ||
 		p->access_incs > 0 ||
 		p->knee_incs > 0 ||
-		p->newOwner != nullptr ||
 		(blockingweapon() && p->kickback_pic > 1 && p->kickback_pic < weapondelay()));
 }
 

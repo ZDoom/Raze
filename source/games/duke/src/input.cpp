@@ -769,9 +769,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 
 static void FinalizeInput(player_struct *p, InputPacket& input, bool vehicle)
 {
-	bool blocked = movementBlocked(p) || p->GetActor()->s.extra <= 0 || (p->dead_flag && !ud.god);
-
-	if (blocked && p->newOwner == nullptr)
+	if (movementBlocked(p) || p->GetActor()->s.extra <= 0 || (p->dead_flag && !ud.god))
 	{
 		// neutralize all movement when blocked or in automap follow mode
 		loc.fvel = loc.svel = 0;
@@ -793,14 +791,17 @@ static void FinalizeInput(player_struct *p, InputPacket& input, bool vehicle)
 			loc.svel = input.svel = 0;
 		}
 
-		if (p->newOwner != nullptr || p->on_crane != nullptr)
+		if (p->newOwner != nullptr)
 		{
-			loc.avel = input.avel = 0;
-		}
+			if (p->on_crane != nullptr)
+			{
+				loc.avel = input.avel = 0;
+			}
 
-		if (p->newOwner != nullptr || (p->sync.actions & SB_CENTERVIEW && abs(p->horizon.horiz.asbuild()) > 5))
-		{
-			loc.horz = input.horz = 0;
+			if (p->sync.actions & SB_CENTERVIEW && abs(p->horizon.horiz.asbuild()) > 5)
+			{
+				loc.horz = input.horz = 0;
+			}
 		}
 	}
 }
