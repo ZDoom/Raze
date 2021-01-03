@@ -463,11 +463,6 @@ void   renderCompleteMirror(void);
 
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, int16_t dacursectnum);
 
-static FORCE_INLINE int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int16_t dahoriz, int16_t dacursectnum)
-{
-    return renderDrawRoomsQ16(daposx, daposy, daposz, IntToFixed(daang), IntToFixed(dahoriz), dacursectnum);
-}
-
 void   renderDrawMasks(void);
 void videoInit();
 void   videoClearViewableArea(int32_t dacol);

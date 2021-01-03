@@ -259,9 +259,9 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 //
 //---------------------------------------------------------------------------
 
-static inline int16_t getcamspriteang(DDukeActor* newOwner, double const smoothratio)
+static inline binangle getcamspriteang(DDukeActor* newOwner, double const smoothratio)
 {
-	return newOwner->tempang + xs_CRoundToInt(fmulscale16(((newOwner->s.ang - newOwner->tempang + 1024) & 2047) - 1024, smoothratio));
+	return buildfang(newOwner->tempang + fmulscale16(((newOwner->s.ang - newOwner->tempang + 1024) & 2047) - 1024, smoothratio));
 }
 
 //---------------------------------------------------------------------------
@@ -295,9 +295,9 @@ void animatecamsprite(double smoothratio)
 				auto camera = &camsprite->GetOwner()->s;
 				auto ang = getcamspriteang(camsprite->GetOwner(), smoothratio);
 				// Note: no ROR or camera here for now - the current setup has no means to detect these things before rendering the scene itself.
-				drawrooms(camera->x, camera->y, camera->z, ang, camera->shade, camera->sectnum); // why 'shade'...?
+				renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sectnum); // why 'shade'...?
 				display_mirror = 1; // should really be 'display external view'.
-				fi.animatesprites(camera->x, camera->y, ang, smoothratio);
+				fi.animatesprites(camera->x, camera->y, ang.asbuild(), smoothratio);
 				display_mirror = 0;
 				renderDrawMasks();
 			});
@@ -517,7 +517,7 @@ void displayrooms(int snum, double smoothratio)
 		if (s->yvel < 0) s->yvel = -100;
 		else if (s->yvel > 199) s->yvel = 300;
 
-		cang = buildang(ud.cameraactor->tempang + xs_CRoundToInt(fmulscale16(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio)));
+		cang = buildfang(ud.cameraactor->tempang + fmulscale16(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio));
 
 		auto bh = buildhoriz(s->yvel);
 		se40code(s->x, s->y, s->z, cang, bh, smoothratio);
@@ -581,7 +581,7 @@ void displayrooms(int snum, double smoothratio)
 		if (p->newOwner != nullptr)
 		{
 			auto spr = &p->newOwner->s;
-			cang = buildang(getcamspriteang(p->newOwner, smoothratio));
+			cang = getcamspriteang(p->newOwner, smoothratio);
 			choriz = buildhoriz(spr->shade);
 			cposx = spr->pos.x;
 			cposy = spr->pos.y;
