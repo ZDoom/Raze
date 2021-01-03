@@ -3578,6 +3578,7 @@ void processinput_r(int snum)
 	doubvel = TICSPERFRAME;
 
 	checklook(snum, actions);
+	p->apply_seasick(1);
 
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
@@ -3639,7 +3640,6 @@ void processinput_r(int snum)
 
 		sb_avel = p->adjustavel(sb_avel);
 		applylook(&p->angle, sb_avel, &p->sync.actions);
-		p->apply_seasick(1);
 	}
 
 	if (p->spritebridge == 0)
