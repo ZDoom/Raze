@@ -268,13 +268,13 @@ void drawoverlays(double smoothratio)
 				{
 					cposx = omyx + mulscale16(myx - omyx, smoothratio);
 					cposy = omyy + mulscale16(myy - omyy, smoothratio);
-					cang = omyang.asbuild() + mulscale16(((myang.asbuild() + 1024 - omyang.asbuild()) & 2047) - 1024, smoothratio);
+					cang = !SyncInput() ? myang.asbuild() : omyang.asbuild() + mulscale16(((myang.asbuild() + 1024 - omyang.asbuild()) & 2047) - 1024, smoothratio);
 				}
 				else
 				{
 					cposx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
 					cposy = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
-					cang = pp->angle.oang.asbuild() + mulscale16(((pp->angle.ang.asbuild() + 1024 - pp->angle.oang.asbuild()) & 2047) - 1024, smoothratio);
+					cang = !SyncInput() ? pp->angle.ang.asbuild() : pp->angle.oang.asbuild() + mulscale16(((pp->angle.ang.asbuild() + 1024 - pp->angle.oang.asbuild()) & 2047) - 1024, smoothratio);
 				}
 			}
 			else
