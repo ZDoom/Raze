@@ -847,6 +847,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
 		p->angle.processhelpers(scaleAdjust);
 		p->horizon.processhelpers(scaleAdjust);
+		p->GetActor()->s.ang = p->angle.ang.asbuild();
 	}
 
 	if (packet)

@@ -561,7 +561,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 		auto pspr = &act->s;
 		x1 = act->bposx + MulScale(pspr->x - act->bposx, smoothratio, 16) - cposx;
 		y1 = act->bposy + MulScale(pspr->y - act->bposy, smoothratio, 16) - cposy;
-		daang = (act->tempang + MulScale(((pspr->ang + 1024 - act->tempang) & 2047) - 1024, smoothratio, 16) - cang) & 2047;
+		daang = (pspr->ang - cang) & 2047;
 
 		if (p == screenpeek || ud.coop == 1)
 		{
