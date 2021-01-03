@@ -3668,25 +3668,15 @@ void handle_se11(DDukeActor *actor)
 		startwall = sc->wallptr;
 		endwall = startwall + sc->wallnum;
 
+		DukeStatIterator it(STAT_ACTOR);
+
 		for (int j = startwall; j < endwall; j++)
 		{
-			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
 			{
 				auto sk = &ac->s;
 				if (sk->extra > 0 && badguy(ac) && clipinsidebox(sk->x, sk->y, j, 256L) == 1)
 					return;
-			}
-
-			it.Reset(STAT_PLAYER);
-			while (auto ac = it.Next())
-			{
-				auto sk = &ac->s;
-				if (ac->GetOwner() && clipinsidebox(sk->x, sk->y, j, 144L) == 1)
-				{
-					t[5] = 8; // Delay
-					return;
-				}
 			}
 		}
 
@@ -3695,6 +3685,24 @@ void handle_se11(DDukeActor *actor)
 		t[4] += k;
 		ms(actor);
 		setsprite(actor, s->pos);
+
+		for (int j = startwall; j < endwall; j++)
+		{
+			it.Reset(STAT_PLAYER);
+			while (auto ac = it.Next())
+			{
+				auto sk = &ac->s;
+				if (ac->GetOwner() && clipinsidebox(sk->x, sk->y, j, 144L) == 1)
+				{
+					t[5] = 8; // Delay
+					t[2] -= k;
+					t[4] -= k;
+					ms(actor);
+					setsprite(actor, s->pos);
+					return;
+				}
+			}
+		}
 
 		if (t[4] <= -511 || t[4] >= 512)
 		{

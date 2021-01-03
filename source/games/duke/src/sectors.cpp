@@ -815,7 +815,7 @@ static void handle_st23(int sn, DDukeActor* actor)
 	DDukeActor* act2;
 	while ((act2 = it.Next()))
 	{
-		if (act2->s.lotag == 11 && act2->s.sectnum == sn && !act2->temp_data[4])
+		if (act2->s.lotag == SE_11_SWINGING_DOOR && act2->s.sectnum == sn && !act2->temp_data[4])
 		{
 			break;
 		}
@@ -827,9 +827,19 @@ static void handle_st23(int sn, DDukeActor* actor)
 	if (act2)
 	{
 		DukeStatIterator it(STAT_EFFECTOR);
+
 		while (auto act3 = it.Next())
 		{
-			if (l == (sector[act3->s.sectnum].lotag & 0x8000) && act3->s.lotag == 11 && act2->s.hitag == act3->s.hitag && !act3->temp_data[4])
+			if (l == (sector[act3->s.sectnum].lotag & 0x8000) && act3->s.lotag == SE_11_SWINGING_DOOR && act2->s.hitag == act3->s.hitag && act3->temp_data[4])
+			{
+				return;
+			}
+		}
+
+		it.Reset(STAT_EFFECTOR);
+		while (auto act3 = it.Next())
+		{
+			if (l == (sector[act3->s.sectnum].lotag & 0x8000) && act3->s.lotag == SE_11_SWINGING_DOOR && act2->s.hitag == act3->s.hitag)
 			{
 				if (sector[act3->s.sectnum].lotag & 0x8000) sector[act3->s.sectnum].lotag &= 0x7fff;
 				else sector[act3->s.sectnum].lotag |= 0x8000;
