@@ -741,9 +741,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 	{
 		p->vehForwardScale = std::min((buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) + hidInput->dz, 1.f); 
 		p->vehReverseScale = std::min(buttonMap.ButtonDown(gamefunc_Move_Backward) + -hidInput->dz, 1.f);
-
-		if (loc.actions & SB_RUN)
-			loc.actions |= SB_CROUCH;
+		p->vehBraking = buttonMap.ButtonDown(gamefunc_Run);
 	}
 
 	if (p->OnMotorcycle)

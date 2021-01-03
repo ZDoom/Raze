@@ -1600,25 +1600,16 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 
-	bool braking;
 	short rng;
 
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
 
-	if (actions & SB_CROUCH)
-	{
-		braking = true;
-		actions &= ~SB_CROUCH;
-	}
-	else
-		braking = false;
-
 	if (p->vehForwardScale != 0)
 	{
 		if (p->on_ground)
 		{
-			if (p->MotoSpeed == 0 && braking)
+			if (p->MotoSpeed == 0 && p->vehBraking)
 			{
 				if (!S_CheckActorSoundPlaying(pact, 187))
 					S_PlayActorSound(187, pact);
@@ -1676,7 +1667,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 
 	if (p->on_ground == 1)
 	{
-		if (braking && p->MotoSpeed > 0)
+		if (p->vehBraking && p->MotoSpeed > 0)
 		{
 			p->MotoSpeed -= p->moto_on_oil ? 2 : 4;
 			if (p->MotoSpeed < 0)
@@ -1684,7 +1675,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->VBumpTarget = -30;
 			p->moto_do_bump = 1;
 		}
-		else if (p->vehForwardScale != 0 && !braking)
+		else if (p->vehForwardScale != 0 && !p->vehBraking)
 		{
 			if (p->MotoSpeed < 40)
 			{
@@ -1704,13 +1695,13 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		else if (p->MotoSpeed > 0)
 			p->MotoSpeed--;
 
-		if (p->moto_do_bump && (!braking || p->MotoSpeed == 0))
+		if (p->moto_do_bump && (!p->vehBraking || p->MotoSpeed == 0))
 		{
 			p->VBumpTarget = 0;
 			p->moto_do_bump = 0;
 		}
 
-		if (p->vehReverseScale != 0 && p->MotoSpeed <= 0 && !braking)
+		if (p->vehReverseScale != 0 && p->MotoSpeed <= 0 && !p->vehBraking)
 		{
 			bool temp = p->vehTurnRight;
 			p->vehTurnRight = p->vehTurnLeft;
@@ -1831,10 +1822,8 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		p->posyv += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
 	}
 
-	p->moto_on_mud = 0;
-	p->moto_on_oil = 0;
-	p->vehTurnLeft = false;
-	p->vehTurnRight = false;
+	p->moto_on_mud = p->moto_on_oil = 0;
+	p->vehTurnLeft = p->vehTurnRight = p->vehBraking = false;
 }
 
 //---------------------------------------------------------------------------
@@ -1848,7 +1837,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 
-	bool heeltoe, braking;
+	bool heeltoe;
 	short rng;
 
 	if (p->NotOnWater)
@@ -1868,12 +1857,11 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
 
-	if ((actions & SB_CROUCH) && (p->vehForwardScale != 0))
+	if (p->vehBraking && (p->vehForwardScale != 0))
 	{
 		heeltoe = true;
-		braking = false;
+		p->vehBraking = false;
 		p->vehForwardScale = 0;
-		actions &= ~SB_CROUCH;
 	}
 	else
 		heeltoe = false;
@@ -1908,14 +1896,6 @@ static void onBoat(int snum, ESyncBits &actions)
 		if (!S_CheckActorSoundPlaying(pact, 90) && !S_CheckActorSoundPlaying(pact, 87))
 			S_PlayActorSound(87, pact);
 	}
-
-	if (actions & SB_CROUCH)
-	{
-		braking = true;
-		actions &= ~SB_CROUCH;
-	}
-	else
-		braking = false;
 
 	if (p->vehTurnLeft && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 		S_PlayActorSound(91, pact);
@@ -1962,7 +1942,7 @@ static void onBoat(int snum, ESyncBits &actions)
 				p->moto_do_bump = 1;
 			}
 		}
-		else if (braking && p->MotoSpeed > 0)
+		else if (p->vehBraking && p->MotoSpeed > 0)
 		{
 			p->MotoSpeed -= 2;
 			if (p->MotoSpeed < 0)
@@ -1985,13 +1965,13 @@ static void onBoat(int snum, ESyncBits &actions)
 		else if (p->MotoSpeed > 0)
 			p->MotoSpeed--;
 
-		if (p->moto_do_bump && (!braking || p->MotoSpeed == 0))
+		if (p->moto_do_bump && (!p->vehBraking || p->MotoSpeed == 0))
 		{
 			p->VBumpTarget = 0;
 			p->moto_do_bump = 0;
 		}
 
-		if (p->vehReverseScale != 0 && p->MotoSpeed == 0 && !braking)
+		if (p->vehReverseScale != 0 && p->MotoSpeed == 0 && !p->vehBraking)
 		{
 			bool temp = p->vehTurnRight;
 			p->vehTurnRight = p->vehTurnLeft;
@@ -2080,8 +2060,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed -= (p->MotoSpeed / 2.);
 
-	p->vehTurnLeft = false;
-	p->vehTurnRight = false;
+	p->vehTurnLeft = p->vehTurnRight = p->vehBraking = false;
 }
 
 //---------------------------------------------------------------------------
@@ -2340,7 +2319,7 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 		p->poszv -= 348;
 		if (p->poszv < -(256 * 6)) p->poszv = -(256 * 6);
 	}
-	else if ((actions & SB_CROUCH) || p->OnMotorcycle)
+	else if (p->vehBraking || p->OnMotorcycle)
 	{
 		if (p->poszv < 0) p->poszv = 0;
 		p->poszv += 348;
