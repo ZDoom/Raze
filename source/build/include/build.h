@@ -706,8 +706,6 @@ enum {
 
 extern int32_t gltexmaxsize;
 
-EXTERN_CVAR(Bool, hw_detailmapping)
-EXTERN_CVAR(Bool, hw_glowmapping)
 EXTERN_CVAR(Bool, hw_animsmoothing)
 EXTERN_CVAR(Bool, hw_hightile)
 EXTERN_CVAR(Bool, hw_models)
