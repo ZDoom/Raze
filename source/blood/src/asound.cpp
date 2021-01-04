@@ -65,7 +65,7 @@ void ambProcess(void)
                 dy >>= 4;
                 dz >>= 8;
                 int nDist = ksqrt(dx*dx+dy*dy+dz*dz);
-                int vs = mulscale16(pXSprite->data4, pXSprite->busy);
+                int vs = MulScale(pXSprite->data4, pXSprite->busy, 16);
                 ambChannels[pSprite->owner].distance += ClipRange(scale(nDist, pXSprite->data1, pXSprite->data2, vs, 0), 0, vs);
             }
         }

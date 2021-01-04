@@ -438,8 +438,8 @@ int DoSkullBob(short SpriteNum)
 #define SKULL_BOB_AMT (Z(16))
 
     u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    sp->z = u->sz + mulscale14(SKULL_BOB_AMT, bsin(u->Counter)) +
-            mulscale14(DIV2(SKULL_BOB_AMT), bsin(u->Counter));
+    sp->z = u->sz + MulScale(SKULL_BOB_AMT, bsin(u->Counter), 14) +
+            MulScale(DIV2(SKULL_BOB_AMT), bsin(u->Counter), 14);
 
     return 0;
 }
@@ -849,8 +849,8 @@ int DoBettyBob(short SpriteNum)
 #define BETTY_BOB_AMT (Z(16))
 
     u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    sp->z = u->sz + mulscale14(BETTY_BOB_AMT, bsin(u->Counter)) +
-            mulscale14(DIV2(BETTY_BOB_AMT), bsin(u->Counter));
+    sp->z = u->sz + MulScale(BETTY_BOB_AMT, bsin(u->Counter), 14) +
+            MulScale(DIV2(BETTY_BOB_AMT), bsin(u->Counter), 14);
 
     return 0;
 }

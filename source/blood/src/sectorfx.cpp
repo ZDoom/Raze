@@ -86,7 +86,7 @@ int GetWaveValue(int a, int b, int c)
     case 4:
         return ((255-(b>>3))*c)>>8;
     case 5:
-        return (c+mulscale30(c,Sin(b)))>>1;
+        return (c+MulScale(c,Sin(b), 30))>>1;
     case 6:
         return flicker1[b>>5]*c;
     case 7:
@@ -100,7 +100,7 @@ int GetWaveValue(int a, int b, int c)
     case 11:
         if (b*4 > 2048)
             return 0;
-        return (c-mulscale30(c, Cos(b*4)))>>1;
+        return (c-MulScale(c, Cos(b*4), 30))>>1;
     }
     return 0;
 }
@@ -162,7 +162,7 @@ void DoSectorLighting(void)
             int t2 = pXSector->amplitude;
             if (!pXSector->shadeAlways && pXSector->busy)
             {
-                t2 = mulscale16(t2, pXSector->busy);
+                t2 = MulScale(t2, pXSector->busy, 16);
             }
             int v4 = GetWaveValue(t1, pXSector->phase*8+pXSector->freq*gFrameClock, t2);
             if (pXSector->shadeFloor)
@@ -271,7 +271,7 @@ void DoSectorPanning(void)
             int angle = pXSector->panAngle+1024;
             int speed = pXSector->panVel<<10;
             if (!pXSector->panAlways && (pXSector->busy&0xffff))
-                speed = mulscale16(speed, pXSector->busy);
+                speed = MulScale(speed, pXSector->busy, 16);
 
             if (pXSector->panFloor) // Floor
             {
@@ -279,9 +279,9 @@ void DoSectorPanning(void)
                 if (pSector->floorstat & 64)
                     angle -= 512;
                 int xBits = tileWidth(nTile) >> int((pSector->floorstat & 8) != 0);
-                int px = mulscale30(speed << 2, Cos(angle)) / xBits;
+                int px = MulScale(speed << 2, Cos(angle), 30) / xBits;
                 int yBits = tileHeight(nTile) >> int((pSector->floorstat & 8) != 0);
-                int py = mulscale30(speed << 2, Sin(angle)) / yBits;
+                int py = MulScale(speed << 2, Sin(angle), 30) / yBits;
                 pSector->addfloorxpan(px * (1. / 256));
                 pSector->addfloorypan(-py * (1. / 256));
             }
@@ -291,9 +291,9 @@ void DoSectorPanning(void)
                 if (pSector->ceilingstat & 64)
                     angle -= 512;
                 int xBits = tileWidth(nTile) >> int((pSector->ceilingstat & 8) != 0);
-                int px = mulscale30(speed << 2, Cos(angle)) / xBits;
+                int px = MulScale(speed << 2, Cos(angle), 30) / xBits;
                 int yBits = tileHeight(nTile) >> int((pSector->ceilingstat & 8) != 0);
-                int py = mulscale30(speed << 2, Sin(angle)) / yBits;
+                int py = MulScale(speed << 2, Sin(angle), 30) / yBits;
                 pSector->addceilingxpan(px * (1. / 256));
                 pSector->addceilingypan(-py * (1. / 256));
             }
@@ -311,8 +311,8 @@ void DoSectorPanning(void)
             int psy = pXWall->panYVel<<10;
             if (!pXWall->panAlways && (pXWall->busy & 0xffff))
             {
-                psx = mulscale16(psx, pXWall->busy);
-                psy = mulscale16(psy, pXWall->busy);
+                psx = MulScale(psx, pXWall->busy, 16);
+                psy = MulScale(psy, pXWall->busy, 16);
             }
             int nTile = wall[nWall].picnum;
             int px = (psx << 2) / tileWidth(nTile);

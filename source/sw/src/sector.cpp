@@ -2760,13 +2760,13 @@ DoSineWaveFloor(void)
 
             if (TEST(flags, SINE_FLOOR))
             {
-                newz = swf->floor_origz + mulscale14(swf->range, bsin(swf->sintable_ndx));
+                newz = swf->floor_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
                 sector[swf->sector].floorz = newz;
             }
 
             if (TEST(flags, SINE_CEILING))
             {
-                newz = swf->ceiling_origz + mulscale14(swf->range, bsin(swf->sintable_ndx));
+                newz = swf->ceiling_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
                 sector[swf->sector].ceilingz = newz;
             }
 
@@ -2824,13 +2824,13 @@ DoSineWaveWall(void)
 
             if (!sw->type)
             {
-                New = sw->orig_xy + mulscale14(sw->range, bsin(sw->sintable_ndx));
+                New = sw->orig_xy + MulScale(sw->range, bsin(sw->sintable_ndx), 14);
                 // wall[sw->wall].y = New;
                 dragpoint(sw->wall, wall[sw->wall].x, New, 0);
             }
             else
             {
-                New = sw->orig_xy + mulscale14(sw->range, bsin(sw->sintable_ndx));
+                New = sw->orig_xy + MulScale(sw->range, bsin(sw->sintable_ndx), 14);
                 // wall[sw->wall].x = New;
                 dragpoint(sw->wall, New, wall[sw->wall].y, 0);
             }
@@ -3207,8 +3207,8 @@ DoPanning(void)
         sp = &sprite[i];
         sectp = &sector[sp->sectnum];
 
-        nx = mulscale20(sp->xvel, bcos(sp->ang));
-        ny = mulscale20(sp->xvel, bsin(sp->ang));
+        nx = MulScale(sp->xvel, bcos(sp->ang), 20);
+        ny = MulScale(sp->xvel, bsin(sp->ang), 20);
 
         sectp->addfloorxpan(nx);
         sectp->addfloorypan(ny);
@@ -3220,8 +3220,8 @@ DoPanning(void)
         sp = &sprite[i];
         sectp = &sector[sp->sectnum];
 
-        nx = mulscale20(sp->xvel, bcos(sp->ang));
-        ny = mulscale20(sp->xvel, bsin(sp->ang));
+        nx = MulScale(sp->xvel, bcos(sp->ang), 20);
+        ny = MulScale(sp->xvel, bsin(sp->ang), 20);
 
         sectp->addceilingxpan(nx);
         sectp->addceilingypan(ny);
@@ -3233,8 +3233,8 @@ DoPanning(void)
         sp = &sprite[i];
         wallp = &wall[sp->owner];
 
-        nx = mulscale20(sp->xvel, bcos(sp->ang));
-        ny = mulscale20(sp->xvel, bsin(sp->ang));
+        nx = MulScale(sp->xvel, bcos(sp->ang), 20);
+        ny = MulScale(sp->xvel, bsin(sp->ang), 20);
 
         wallp->addxpan(nx);
         wallp->addypan(ny);

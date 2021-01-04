@@ -268,7 +268,7 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
         // Double shotgun fix from BloodGDX.
         if (/*!IsOriginalDemo() &&*/ (pPlayer->weaponState == -1 || (pPlayer->curWeapon == 3 && pPlayer->weaponState == 7)) && isOriginalQAV())
             duration = pQAV->duration - 1;
-        else duration = (gFrameClock + mulscale16(4, smoothratio)) % pQAV->duration;
+        else duration = (gFrameClock + MulScale(4, smoothratio, 16)) % pQAV->duration;
     }
     else duration = pQAV->duration - pPlayer->weaponTimer;
 
@@ -379,8 +379,8 @@ void UpdateAimVector(PLAYER * pPlayer)
                 y2 += (yvel[nSprite]*t)>>12;
                 z2 += (zvel[nSprite]*t)>>8;
             }
-            int lx = x + mulscale30(Cos(pPSprite->ang), nDist);
-            int ly = y + mulscale30(Sin(pPSprite->ang), nDist);
+            int lx = x + MulScale(Cos(pPSprite->ang), nDist, 30);
+            int ly = y + MulScale(Sin(pPSprite->ang), nDist, 30);
             int lz = z + mulscale(pPlayer->slope, nDist, 10);
             int zRange = mulscale(9460, nDist, 10);
             int top, bottom;
@@ -431,10 +431,10 @@ void UpdateAimVector(PLAYER * pPlayer)
                 int nDist = approxDist(dx, dy);
                 if (nDist == 0 || nDist > 51200)
                     continue;
-                int lx = x + mulscale30(Cos(pPSprite->ang), nDist);
-                int ly = y + mulscale30(Sin(pPSprite->ang), nDist);
+                int lx = x + MulScale(Cos(pPSprite->ang), nDist, 30);
+                int ly = y + MulScale(Sin(pPSprite->ang), nDist, 30);
                 int lz = z + mulscale(pPlayer->slope, nDist, 10);
-                int zRange = mulscale10(9460, nDist);
+                int zRange = MulScale(9460, nDist, 10);
                 int top, bottom;
                 GetSpriteExtents(pSprite, &top, &bottom);
                 if (lz-zRange>bottom || lz+zRange<top)
@@ -1027,7 +1027,7 @@ void FireSpray(int, PLAYER *pPlayer)
 void ThrowCan(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, -1, 441);
-    int nSpeed = mulscale16(pPlayer->throwPower, 0x177777)+0x66666;
+    int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16)+0x66666;
     sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
     spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, kThingArmedSpray, nSpeed);
     if (pSprite)
@@ -1067,7 +1067,7 @@ void ExplodeCan(int, PLAYER *pPlayer)
 void ThrowBundle(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, 16, -1);
-    int nSpeed = mulscale16(pPlayer->throwPower, 0x177777)+0x66666;
+    int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16)+0x66666;
     sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
     spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, kThingArmedTNTBundle, nSpeed);
     int nXSprite = pSprite->extra;
@@ -1101,7 +1101,7 @@ void ExplodeBundle(int, PLAYER *pPlayer)
 
 void ThrowProx(int, PLAYER *pPlayer)
 {
-    int nSpeed = mulscale16(pPlayer->throwPower, 0x177777)+0x66666;
+    int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16)+0x66666;
     sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
     spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, kThingArmedProxBomb, nSpeed);
     evPost(pSprite->index, 3, 240, kCmdOn);
@@ -1118,7 +1118,7 @@ void DropProx(int, PLAYER *pPlayer)
 
 void ThrowRemote(int, PLAYER *pPlayer)
 {
-    int nSpeed = mulscale16(pPlayer->throwPower, 0x177777)+0x66666;
+    int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16)+0x66666;
     sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
     spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, kThingArmedRemoteBomb, nSpeed);
     int nXSprite = pSprite->extra;
@@ -1612,7 +1612,7 @@ void FireNapalm2(int nTrigger, PLAYER *pPlayer)
 void AltFireNapalm(int nTrigger, PLAYER *pPlayer)
 {
     UNREFERENCED_PARAMETER(nTrigger);
-    int nSpeed = mulscale16(0x8000, 0x177777)+0x66666;
+    int nSpeed = MulScale(0x8000, 0x177777, 16)+0x66666;
     spritetype *pMissile = playerFireThing(pPlayer, 0, -4730, kThingNapalmBall, nSpeed);
     if (pMissile)
     {

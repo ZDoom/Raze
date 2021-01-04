@@ -202,11 +202,11 @@ static inline void get_wallspr_points(T const * const spr, int32_t *x1, int32_t 
     l = tileWidth(tilenum);
     k = (l>>1)+xoff;
 
-    *x1 -= mulscale16(dax,k);
-    *x2 = *x1 + mulscale16(dax,l);
+    *x1 -= MulScale(dax,k, 16);
+    *x2 = *x1 + MulScale(dax,l, 16);
 
-    *y1 -= mulscale16(day,k);
-    *y2 = *y1 + mulscale16(day,l);
+    *y1 -= MulScale(day,k, 16);
+    *y2 = *y1 + MulScale(day,l, 16);
 }
 
 // x1, y1: in/out
@@ -233,13 +233,13 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
 
     vec2_t const center = { ((span.x >> 1) + adjofs.x) * repeat.x, ((span.y >> 1) + adjofs.y) * repeat.y };
     vec2_t const rspan  = { span.x * repeat.x, span.y * repeat.y };
-    vec2_t const ofs    = { -mulscale16(cosang, rspan.y), -mulscale16(sinang, rspan.y) };
+    vec2_t const ofs    = { -MulScale(cosang, rspan.y, 16), -MulScale(sinang, rspan.y, 16) };
 
     *x1 += DMulScale(sinang, center.x, cosang, center.y, 16) - px;
     *y1 += DMulScale(sinang, center.y, -cosang, center.x, 16) - py;
 
-    *x2 = *x1 - mulscale16(sinang, rspan.x);
-    *y2 = *y1 + mulscale16(cosang, rspan.x);
+    *x2 = *x1 - MulScale(sinang, rspan.x, 16);
+    *y2 = *y1 + MulScale(cosang, rspan.x, 16);
 
     *x3 = *x2 + ofs.x, *x4 = *x1 + ofs.x;
     *y3 = *y2 + ofs.y, *y4 = *y1 + ofs.y;

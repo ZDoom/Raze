@@ -309,10 +309,10 @@ void sub_746D4(spritetype *pSprite, int a2)
 
 void fxSpawnEjectingBrass(spritetype *pSprite, int z, int a3, int a4)
 {
-    int x = pSprite->x+mulscale28(pSprite->clipdist-4, Cos(pSprite->ang));
-    int y = pSprite->y+mulscale28(pSprite->clipdist-4, Sin(pSprite->ang));
-    x += mulscale30(a3, Cos(pSprite->ang+512));
-    y += mulscale30(a3, Sin(pSprite->ang+512));
+    int x = pSprite->x+MulScale(pSprite->clipdist-4, Cos(pSprite->ang), 28);
+    int y = pSprite->y+MulScale(pSprite->clipdist-4, Sin(pSprite->ang), 28);
+    x += MulScale(a3, Cos(pSprite->ang+512), 30);
+    y += MulScale(a3, Sin(pSprite->ang+512), 30);
     spritetype *pBrass = gFX.fxSpawn((FX_ID)(FX_37+Random(3)), pSprite->sectnum, x, y, z, 0);
     if (pBrass)
     {
@@ -320,18 +320,18 @@ void fxSpawnEjectingBrass(spritetype *pSprite, int z, int a3, int a4)
             pBrass->ang = Random(2047);
         int nDist = (a4<<18)/120+Random2(((a4/4)<<18)/120);
         int nAngle = pSprite->ang+Random2(56)+512;
-        xvel[pBrass->index] = mulscale30(nDist, Cos(nAngle));
-        yvel[pBrass->index] = mulscale30(nDist, Sin(nAngle));
+        xvel[pBrass->index] = MulScale(nDist, Cos(nAngle), 30);
+        yvel[pBrass->index] = MulScale(nDist, Sin(nAngle), 30);
         zvel[pBrass->index] = zvel[pSprite->index]-(0x20000+(Random2(40)<<18)/120);
     }
 }
 
 void fxSpawnEjectingShell(spritetype *pSprite, int z, int a3, int a4)
 {
-    int x = pSprite->x+mulscale28(pSprite->clipdist-4, Cos(pSprite->ang));
-    int y = pSprite->y+mulscale28(pSprite->clipdist-4, Sin(pSprite->ang));
-    x += mulscale30(a3, Cos(pSprite->ang+512));
-    y += mulscale30(a3, Sin(pSprite->ang+512));
+    int x = pSprite->x+MulScale(pSprite->clipdist-4, Cos(pSprite->ang), 28);
+    int y = pSprite->y+MulScale(pSprite->clipdist-4, Sin(pSprite->ang), 28);
+    x += MulScale(a3, Cos(pSprite->ang+512), 30);
+    y += MulScale(a3, Sin(pSprite->ang+512), 30);
     spritetype *pShell = gFX.fxSpawn((FX_ID)(FX_40+Random(3)), pSprite->sectnum, x, y, z, 0);
     if (pShell)
     {
@@ -339,8 +339,8 @@ void fxSpawnEjectingShell(spritetype *pSprite, int z, int a3, int a4)
             pShell->ang = Random(2047);
         int nDist = (a4<<18)/120+Random2(((a4/4)<<18)/120);
         int nAngle = pSprite->ang+Random2(56)+512;
-        xvel[pShell->index] = mulscale30(nDist, Cos(nAngle));
-        yvel[pShell->index] = mulscale30(nDist, Sin(nAngle));
+        xvel[pShell->index] = MulScale(nDist, Cos(nAngle), 30);
+        yvel[pShell->index] = MulScale(nDist, Sin(nAngle), 30);
         zvel[pShell->index] = zvel[pSprite->index]-(0x20000+(Random2(20)<<18)/120);
     }
 }

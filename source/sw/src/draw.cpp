@@ -618,9 +618,9 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
-                        tsp->x = tu->ox + mulscale18(tsp->x - tu->ox, smr4);
-                        tsp->y = tu->oy + mulscale18(tsp->y - tu->oy, smr4);
-                        tsp->z = tu->oz + mulscale18(tsp->z - tu->oz, smr4);
+                        tsp->x = tu->ox + MulScale(tsp->x - tu->ox, smr4, 18);
+                        tsp->y = tu->oy + MulScale(tsp->y - tu->oy, smr4, 18);
+                        tsp->z = tu->oz + MulScale(tsp->z - tu->oz, smr4, 18);
                     }
                 }
 
@@ -628,9 +628,9 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
-                        tsp->x = tu->ox + mulscale17(tsp->x - tu->ox, smr2);
-                        tsp->y = tu->oy + mulscale17(tsp->y - tu->oy, smr2);
-                        tsp->z = tu->oz + mulscale17(tsp->z - tu->oz, smr2);
+                        tsp->x = tu->ox + MulScale(tsp->x - tu->ox, smr2, 17);
+                        tsp->y = tu->oy + MulScale(tsp->y - tu->oy, smr2, 17);
+                        tsp->z = tu->oz + MulScale(tsp->z - tu->oz, smr2, 17);
                     }
                 }
             }
@@ -786,10 +786,10 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
             else // Otherwise just interpolate the player sprite
             {
                 PLAYERp pp = tu->PlayerP;
-                tsp->x -= mulscale16(pp->posx - pp->oposx, 65536-smoothratio);
-                tsp->y -= mulscale16(pp->posy - pp->oposy, 65536-smoothratio);
-                tsp->z -= mulscale16(pp->posz - pp->oposz, 65536-smoothratio);
-                tsp->ang -= mulscale16(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), 65536-smoothratio);
+                tsp->x -= MulScale(pp->posx - pp->oposx, 65536-smoothratio, 16);
+                tsp->y -= MulScale(pp->posy - pp->oposy, 65536-smoothratio, 16);
+                tsp->z -= MulScale(pp->posz - pp->oposz, 65536-smoothratio, 16);
+                tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), 65536-smoothratio, 16);
             }
         }
 
@@ -988,9 +988,9 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
 
             i = vx * bsin(daang) + vy * -bcos(daang);
             if (klabs(vx) > klabs(vy))
-                hx -= mulscale28(vx, i);
+                hx -= MulScale(vx, i, 28);
             else
-                hy -= mulscale28(vy, i);
+                hy -= MulScale(vy, i, 28);
         }
         else if (hitinfo.sprite < 0)        // Push you off the ceiling/floor
         {
@@ -1023,9 +1023,9 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
 
                 i = vx * bsin(daang) + vy * -bcos(daang);
                 if (klabs(vx) > klabs(vy))
-                    hx -= mulscale28(vx, i);
+                    hx -= MulScale(vx, i, 28);
                 else
-                    hy -= mulscale28(vy, i);
+                    hy -= MulScale(vy, i, 28);
             }
 
         }
@@ -1040,9 +1040,9 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
     }
 
     // Actually move you!  (Camerdist is 65536 if nothing is in the way)
-    *nx = (*nx) + mulscale16(vx, pp->camera_dist);
-    *ny = (*ny) + mulscale16(vy, pp->camera_dist);
-    *nz = (*nz) + mulscale16(vz, pp->camera_dist);
+    *nx = (*nx) + MulScale(vx, pp->camera_dist, 16);
+    *ny = (*ny) + MulScale(vy, pp->camera_dist, 16);
+    *nz = (*nz) + MulScale(vz, pp->camera_dist, 16);
 
     // Slowly increase pp->camera_dist until it reaches 65536
     // Synctics is a timer variable so it increases the same rate
@@ -1110,9 +1110,9 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q1
 
             i = vx * bsin(daang) + vy * -bcos(daang);
             if (klabs(vx) > klabs(vy))
-                hx -= mulscale28(vx, i);
+                hx -= MulScale(vx, i, 28);
             else
-                hy -= mulscale28(vy, i);
+                hy -= MulScale(vy, i, 28);
         }
         else if (hitinfo.sprite < 0)        // Push you off the ceiling/floor
         {
@@ -1888,8 +1888,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
     xvect = -bsin(cang) * czoom;
     yvect = -bcos(cang) * czoom;
-    xvect2 = mulscale16(xvect, yxaspect);
-    yvect2 = mulscale16(yvect, yxaspect);
+    xvect2 = MulScale(xvect, yxaspect, 16);
+    yvect2 = MulScale(yvect, yxaspect, 16);
 
 
     // Draw sprites
@@ -1957,7 +1957,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
                             double xd = ((x1 << 4) + (xdim << 15)) / 65536.;
                             double yd = ((y1 << 4) + (ydim << 15)) / 65536.;
-                            double sc = mulscale16(czoom * (spr->yrepeat), yxaspect) / 32768.;
+                            double sc = MulScale(czoom * (spr->yrepeat), yxaspect, 16) / 32768.;
                             if (spnum >= 0)
                             {
                                 DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xd, yd, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * (-360. / 2048),
@@ -1980,20 +1980,20 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                     day = -bcos(k) * l;
                     l = tileWidth(tilenum);
                     k = (l >> 1) + xoff;
-                    x1 -= mulscale16(dax, k);
-                    x2 = x1 + mulscale16(dax, l);
-                    y1 -= mulscale16(day, k);
-                    y2 = y1 + mulscale16(day, l);
+                    x1 -= MulScale(dax, k, 16);
+                    x2 = x1 + MulScale(dax, l, 16);
+                    y1 -= MulScale(day, k, 16);
+                    y2 = y1 + MulScale(day, l, 16);
 
                     ox = x1 - cposx;
                     oy = y1 - cposy;
-                    x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
-                    y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+                    x1 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
+                    y1 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
 
                     ox = x2 - cposx;
                     oy = y2 - cposy;
-                    x2 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
-                    y2 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+                    x2 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
+                    y2 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
 
                     drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
                         x2 + (xdim << 11), y2 + (ydim << 11), col);
@@ -2020,38 +2020,38 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
                         dax = ((xspan >> 1) + xoff) * xrepeat;
                         day = ((yspan >> 1) + yoff) * yrepeat;
-                        x1 = sprx + mulscale16(sinang, dax) + mulscale16(cosang, day);
-                        y1 = spry + mulscale16(sinang, day) - mulscale16(cosang, dax);
+                        x1 = sprx + MulScale(sinang, dax, 16) + MulScale(cosang, day, 16);
+                        y1 = spry + MulScale(sinang, day, 16) - MulScale(cosang, dax, 16);
                         l = xspan * xrepeat;
-                        x2 = x1 - mulscale16(sinang, l);
-                        y2 = y1 + mulscale16(cosang, l);
+                        x2 = x1 - MulScale(sinang, l, 16);
+                        y2 = y1 + MulScale(cosang, l, 16);
                         l = yspan * yrepeat;
-                        k = -mulscale16(cosang, l);
+                        k = -MulScale(cosang, l, 16);
                         x3 = x2 + k;
                         x4 = x1 + k;
-                        k = -mulscale16(sinang, l);
+                        k = -MulScale(sinang, l, 16);
                         y3 = y2 + k;
                         y4 = y1 + k;
 
                         ox = x1 - cposx;
                         oy = y1 - cposy;
-                        x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
-                        y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+                        x1 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
+                        y1 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
 
                         ox = x2 - cposx;
                         oy = y2 - cposy;
-                        x2 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
-                        y2 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+                        x2 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
+                        y2 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
 
                         ox = x3 - cposx;
                         oy = y3 - cposy;
-                        x3 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
-                        y3 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+                        x3 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
+                        y3 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
 
                         ox = x4 - cposx;
                         oy = y4 - cposy;
-                        x4 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
-                        y4 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+                        x4 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
+                        y4 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
 
                         drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
                             x2 + (xdim << 11), y2 + (ydim << 11), col);

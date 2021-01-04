@@ -196,7 +196,7 @@ private:
     void TileHGauge(int nTile, double x, double y, int nMult, int nDiv, int nStat = 0, int nScale = 65536)
     {
         int w = tileWidth(nTile);
-        int bx = scale(mulscale16(w, nScale), nMult, nDiv) + x;
+        int bx = scale(MulScale(w, nScale, 16), nMult, nDiv) + x;
         double scale = double(bx - x) / w;
         double sc = nScale / 65536.;
         DrawGraphic(tileGetTexture(nTile, true), x, y, DI_ITEM_LEFT_TOP, 1., -1, -1, scale*sc, sc, 0xffffffff, 0, 0);

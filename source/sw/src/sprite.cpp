@@ -4797,13 +4797,13 @@ getzrangepoint(int x, int y, int z, short sectnum,
         x1 = spr->x + DMulScale(sinang, dax, cosang, day, 16) - x;
         y1 = spr->y + DMulScale(sinang, day, -cosang, dax, 16) - y;
         l = xspan * spr->xrepeat;
-        x2 = x1 - mulscale16(sinang, l);
-        y2 = y1 + mulscale16(cosang, l);
+        x2 = x1 - MulScale(sinang, l, 16);
+        y2 = y1 + MulScale(cosang, l, 16);
         l = yspan * spr->yrepeat;
-        k = -mulscale16(cosang, l);
+        k = -MulScale(cosang, l, 16);
         x3 = x2 + k;
         x4 = x1 + k;
-        k = -mulscale16(sinang, l);
+        k = -MulScale(sinang, l, 16);
         y3 = y2 + k;
         y4 = y1 + k;
 

@@ -1462,7 +1462,7 @@ void scaleDamage(XSPRITE* pXSprite) {
 
     // finally, scale dmg for difficulty
     for (int i = 0; i < kDmgMax; i++) 
-        curScale[i] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], ClipLow(curScale[i], 1));
+        curScale[i] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], ClipLow(curScale[i], 1), 8);
     
     //short* dc = curScale;
     //if (pXSprite->rxID == 788)

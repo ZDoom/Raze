@@ -853,8 +853,8 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 	if (packet)
 	{
 		*packet = loc;
-		packet->fvel = mulscale9(loc.fvel, p->angle.ang.bcos()) + mulscale9(loc.svel, p->angle.ang.bsin()) + p->fric.x;
-		packet->svel = mulscale9(loc.fvel, p->angle.ang.bsin()) - mulscale9(loc.svel, p->angle.ang.bcos()) + p->fric.y;
+		packet->fvel = MulScale(loc.fvel, p->angle.ang.bcos(), 9) + MulScale(loc.svel, p->angle.ang.bsin(), 9) + p->fric.x;
+		packet->svel = MulScale(loc.fvel, p->angle.ang.bsin(), 9) - MulScale(loc.svel, p->angle.ang.bcos(), 9) + p->fric.y;
 		loc = {};
 	}
 }

@@ -156,9 +156,9 @@ void fakedomovethings(void)
 				{
 					 k = getflorzofslope(psect,x,y);
 					 if (psect == tempsect)
-						  myhorizoff += mulscale16(j-k,160);
+						  myhorizoff += MulScale(j-k,160, 16);
 					 else if (klabs(getflorzofslope(tempsect,x,y)-k) <= (4<<8))
-						  myhorizoff += mulscale16(j-k,160);
+						  myhorizoff += MulScale(j-k,160, 16);
 				}
 		}
 		if (myhorizoff > 0) myhorizoff -= ((myhorizoff>>3)+1);
@@ -421,20 +421,20 @@ void fakedomovethings(void)
 
 				 if( ( p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && myonground ) || ( myonground && (sb_snum&2) && !(p->OnMotorcycle || p->OnBoat)) )
 				 {
-							myxvel = mulscale16(myxvel,gs.playerfriction-0x2000);
-							myyvel = mulscale16(myyvel,gs.playerfriction-0x2000);
+							myxvel = MulScale(myxvel,gs.playerfriction-0x2000, 16);
+							myyvel = MulScale(myyvel,gs.playerfriction-0x2000, 16);
 				 }
 				 else
 				 {
 					if(psectlotag == 2)
 					{
-						myxvel = mulscale16(myxvel,gs.playerfriction-0x1400);
-						myyvel = mulscale16(myyvel,gs.playerfriction-0x1400);
+						myxvel = MulScale(myxvel,gs.playerfriction-0x1400, 16);
+						myyvel = MulScale(myyvel,gs.playerfriction-0x1400, 16);
 					}
 					else
 					{
-						myxvel = mulscale16(myxvel,gs.playerfriction);
-						myyvel = mulscale16(myyvel,gs.playerfriction);
+						myxvel = MulScale(myxvel,gs.playerfriction, 16);
+						myyvel = MulScale(myyvel,gs.playerfriction, 16);
 					}
 				 }
 
@@ -444,9 +444,9 @@ void fakedomovethings(void)
 				 if( shrunk )
 				 {
 					 myxvel =
-						 mulscale16(myxvel,(gs.playerfriction)-(gs.playerfriction>>1)+(gs.playerfriction>>2));
+						 MulScale(myxvel,(gs.playerfriction)-(gs.playerfriction>>1)+(gs.playerfriction>>2), 16);
 					 myyvel =
-						 mulscale16(myyvel,(gs.playerfriction)-(gs.playerfriction>>1)+(gs.playerfriction>>2));
+						 MulScale(myyvel,(gs.playerfriction)-(gs.playerfriction>>1)+(gs.playerfriction>>2), 16);
 				 }
 		}
 

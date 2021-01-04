@@ -358,11 +358,11 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             }
 
             if (data->spriteofang >= 0)
-                sprite[data->spriteofang].ang = NORM_ANGLE(data->lastoldipos + mulscale16(data->lastangdiff, ratio));
+                sprite[data->spriteofang].ang = NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16));
             else
             {
                 delta = data->lastipos - data->lastoldipos;
-                getvalue(data->curelement) = data->lastoldipos + mulscale16(delta, ratio);
+                getvalue(data->curelement) = data->lastoldipos + MulScale(delta, ratio, 16);
             }
         }
     }

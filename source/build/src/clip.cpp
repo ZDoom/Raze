@@ -649,8 +649,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
                     if (clipinsideboxline(cent.x, cent.y, p1.x, p1.y, p2.x, p2.y, rad) != 0)
                     {
-                        vec2_t v = { mulscale14(bcos(spr->ang + 256), walldist),
-                                     mulscale14(bsin(spr->ang + 256), walldist) };
+                        vec2_t v = { MulScale(bcos(spr->ang + 256), walldist, 14),
+                                     MulScale(bsin(spr->ang + 256), walldist, 14) };
 
                         if ((p1.x-pos->x) * (p2.y-pos->y) >= (p2.x-pos->x) * (p1.y-pos->y))  // Front
                             addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.y, p2.y-v.x, (int16_t)j+49152, false);
@@ -685,8 +685,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                     get_floorspr_points((uspriteptr_t) spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
                         &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
 
-                    vec2_t v = { mulscale14(bcos(spr->ang - 256), walldist),
-                                 mulscale14(bsin(spr->ang - 256), walldist) };
+                    vec2_t v = { MulScale(bcos(spr->ang - 256), walldist, 14),
+                                 MulScale(bsin(spr->ang - 256), walldist, 14) };
 
                     if ((rxi[0]-pos->x) * (ryi[1]-pos->y) < (rxi[1]-pos->x) * (ryi[0]-pos->y))
                     {
@@ -755,7 +755,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 int32_t const i = (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || (klabs(templl2)>>11) < templl) ?
                     divscale64(templl2, templl, 20) : 0;
 
-                goal = { mulscale20(clipr.x, i)+vec.x, mulscale20(clipr.y, i)+vec.y };
+                goal = { MulScale(clipr.x, i, 20)+vec.x, MulScale(clipr.y, i, 20)+vec.y };
             }
 
             int32_t tempint;
@@ -922,8 +922,8 @@ int pushmove(vec3_t *const vect, int16_t *const sectnum,
                                 daz2 = dax*dax+day*day;
                                 if (daz >= daz2) t = (1<<30); else t = divscale30(daz, daz2);
                             }
-                            dax = wal->x + mulscale30(dax, t);
-                            day = wal->y + mulscale30(day, t);
+                            dax = wal->x + MulScale(dax, t, 30);
+                            day = wal->y + MulScale(day, t, 30);
 
                             closest = { dax, day };
                         }
@@ -1140,8 +1140,8 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                         get_floorspr_points((uspriteptr_t) &sprite[j], pos->x, pos->y, &v1.x, &v2.x, &v3.x, &v4.x,
                                             &v1.y, &v2.y, &v3.y, &v4.y);
 
-                        vec2_t const da = { mulscale14(bcos(sprite[j].ang - 256), walldist + 4),
-                                            mulscale14(bsin(sprite[j].ang - 256), walldist + 4) };
+                        vec2_t const da = { MulScale(bcos(sprite[j].ang - 256), walldist + 4, 14),
+                                            MulScale(bsin(sprite[j].ang - 256), walldist + 4, 14) };
 
                         v1.x += da.x; v2.x -= da.y; v3.x -= da.x; v4.x += da.y;
                         v1.y += da.y; v2.y += da.x; v3.y -= da.y; v4.y -= da.x;
@@ -1200,7 +1200,7 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
 
     siz = tileWidth(spr->picnum) * spr->xrepeat;
 
-    if (dist > mulscale7(siz, siz)) return 0;
+    if (dist > MulScale(siz, siz, 7)) return 0;
 
     newpos.vec2 = { in.x + scale(vx, topt, bot), in.y + scale(vy, topt, bot) };
 
@@ -1251,9 +1251,9 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
             if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
             {
                 i = divscale30(i,j);
-                x1 = sv->x + mulscale30(vx,i);
-                y1 = sv->y + mulscale30(vy,i);
-                z1 = sv->z + mulscale30(vz,i);
+                x1 = sv->x + MulScale(vx,i, 30);
+                y1 = sv->y + MulScale(vy,i, 30);
+                z1 = sv->z + MulScale(vz,i, 30);
             }
         }
     }
@@ -1263,8 +1263,8 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
         if ((klabs(i)>>1) < vz*how)
         {
             i = divscale30(i,vz);
-            x1 = sv->x + mulscale30(vx,i);
-            y1 = sv->y + mulscale30(vy,i);
+            x1 = sv->x + MulScale(vx,i, 30);
+            y1 = sv->y + MulScale(vy,i, 30);
         }
     }
 
@@ -1476,9 +1476,9 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                         if (tileLoad(tilenum))
                         {
                             // daz-intz > 0 && daz-intz < k
-                            int32_t xtex = mulscale16(ucoefup16, tileWidth(tilenum));
+                            int32_t xtex = MulScale(ucoefup16, tileWidth(tilenum), 16);
                             int32_t vcoefup16 = 65536-divscale16(daz-intz, k);
-                            int32_t ytex = mulscale16(vcoefup16, tileHeight(tilenum));
+                            int32_t ytex = MulScale(vcoefup16, tileHeight(tilenum), 16);
 
                             auto texel = (tilePtr(tilenum) + tileHeight(tilenum)*xtex + ytex);
                             if (*texel == TRANSPARENT_INDEX)

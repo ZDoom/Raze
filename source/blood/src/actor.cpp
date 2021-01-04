@@ -2464,7 +2464,7 @@ void actInitDudes()
 
 		for (int i = 0; i < kDudeMax - kDudeBase; i++)
 			for (int j = 0; j < 7; j++)
-				dudeInfo[i].at70[j] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j]);
+				dudeInfo[i].at70[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j], 8);
 
 		it.Reset(kStatDude);
 		while (auto act = it.Next())
@@ -2589,9 +2589,9 @@ void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6)
         assert(mass > 0);
 
         int t = scale(a6, size, mass);
-        dx = mulscale16(t, dx);
-        dy = mulscale16(t, dy);
-        dz = mulscale16(t, dz);
+        dx = MulScale(t, dx, 16);
+        dy = MulScale(t, dy, 16);
+        dz = MulScale(t, dz, 16);
         int nSprite = pSprite->index;
         assert(nSprite >= 0 && nSprite < kMaxSprites);
         xvel[nSprite] += dx;
@@ -2608,8 +2608,8 @@ int actWallBounceVector(int *x, int *y, int nWall, int a4)
     GetWallNormal(nWall, &wx, &wy);
     int t = DMulScale(*x, wx, *y, wy, 16);
     int t2 = mulscale16r(t, a4+0x10000);
-    *x -= mulscale16(wx, t2);
-    *y -= mulscale16(wy, t2);
+    *x -= MulScale(wx, t2, 16);
+    *y -= MulScale(wy, t2, 16);
     return mulscale16r(t, 0x10000-a4);
 }
 
@@ -2618,7 +2618,7 @@ int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5)
     int t = 0x10000-a5;
     if (sector[nSector].floorheinum == 0)
     {
-        int t2 = mulscale16(*z, t);
+        int t2 = MulScale(*z, t, 16);
         *z = -(*z-t2);
         return t2;
     }
@@ -2629,13 +2629,13 @@ int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5)
     int t3 = approxDist(-0x10000, t2);
     int t4 = divscale16(-0x10000, t3);
     int t5 = divscale16(t2, t3);
-    int t6 = mulscale30(t5, Cos(angle));
-    int t7 = mulscale30(t5, Sin(angle));
+    int t6 = MulScale(t5, Cos(angle), 30);
+    int t7 = MulScale(t5, Sin(angle), 30);
     int t8 = TMulScale(*x, t6, *y, t7, *z, t4, 16);
-    int t9 = mulscale16(t8, 0x10000+a5);
-    *x -= mulscale16(t6, t9);
-    *y -= mulscale16(t7, t9);
-    *z -= mulscale16(t4, t9);
+    int t9 = MulScale(t8, 0x10000+a5, 16);
+    *x -= MulScale(t6, t9, 16);
+    *y -= MulScale(t7, t9, 16);
+    *z -= MulScale(t4, t9, 16);
     return mulscale16r(t8, t);
 }
 
@@ -3491,7 +3491,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
 
             if (!nDamageFactor) return 0;
             else if (nDamageFactor != 256)
-                damage = mulscale8(damage, nDamageFactor);
+                damage = MulScale(damage, nDamageFactor, 8);
 
             if (!IsPlayerSprite(pSprite)) {
             
@@ -3515,7 +3515,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
         
         if (!nDamageFactor) return 0;
         else if (nDamageFactor != 256)
-            damage = mulscale8(damage, nDamageFactor);
+            damage = MulScale(damage, nDamageFactor, 8);
 
         pXSprite->health = ClipLow(pXSprite->health - damage, 0);
         if (pXSprite->health <= 0) {
@@ -3951,8 +3951,8 @@ void actKickObject(spritetype *pSprite1, spritetype *pSprite2)
     int nSprite1 = pSprite1->index;
     int nSprite2 = pSprite2->index;
     int nSpeed = ClipLow(approxDist(xvel[nSprite1], yvel[nSprite1])*2, 0xaaaaa);
-    xvel[nSprite2] = mulscale30(nSpeed, Cos(pSprite1->ang+Random2(85)));
-    yvel[nSprite2] = mulscale30(nSpeed, Sin(pSprite1->ang+Random2(85)));
+    xvel[nSprite2] = MulScale(nSpeed, Cos(pSprite1->ang+Random2(85)), 30);
+    yvel[nSprite2] = MulScale(nSpeed, Sin(pSprite1->ang+Random2(85)), 30);
     zvel[nSprite2] = mulscale(nSpeed, -0x2000, 14);
     pSprite2->flags = 7;
 }
@@ -4310,14 +4310,14 @@ void actAirDrag(spritetype *pSprite, int a2)
         {
             int vcx = pXSector->windVel<<12;
             if (!pXSector->windAlways && pXSector->busy)
-                vcx = mulscale16(vcx, pXSector->busy);
-            vbp = mulscale30(vcx, Cos(pXSector->windAng));
-            v4 = mulscale30(vcx, Sin(pXSector->windAng));
+                vcx = MulScale(vcx, pXSector->busy, 16);
+            vbp = MulScale(vcx, Cos(pXSector->windAng), 30);
+            v4 = MulScale(vcx, Sin(pXSector->windAng), 30);
         }
     }
-    xvel[pSprite->index] += mulscale16(vbp-xvel[pSprite->index], a2);
-    yvel[pSprite->index] += mulscale16(v4-yvel[pSprite->index], a2);
-    zvel[pSprite->index] -= mulscale16(zvel[pSprite->index], a2);
+    xvel[pSprite->index] += MulScale(vbp-xvel[pSprite->index], a2, 16);
+    yvel[pSprite->index] += MulScale(v4-yvel[pSprite->index], a2, 16);
+    zvel[pSprite->index] -= MulScale(zvel[pSprite->index], a2, 16);
 }
 
 int MoveThing(spritetype *pSprite)
@@ -4453,9 +4453,9 @@ int MoveThing(spritetype *pSprite)
         pSprite->z += ClipLow(ceilZ-top, 0);
         if (zvel[nSprite] < 0)
         {
-            xvel[nSprite] = mulscale16(xvel[nSprite], 0xc000);
-            yvel[nSprite] = mulscale16(yvel[nSprite], 0xc000);
-            zvel[nSprite] = mulscale16(-zvel[nSprite], 0x4000);
+            xvel[nSprite] = MulScale(xvel[nSprite], 0xc000, 16);
+            yvel[nSprite] = MulScale(yvel[nSprite], 0xc000, 16);
+            zvel[nSprite] = MulScale(-zvel[nSprite], 0x4000, 16);
             switch (pSprite->type) {
                 case kThingZombieHead:
                     if (klabs(zvel[nSprite]) > 0x80000) {
@@ -4489,8 +4489,8 @@ int MoveThing(spritetype *pSprite)
         if (nVel > 0)
         {
             int t = divscale16(nVelClipped, nVel);
-            xvel[nSprite] -= mulscale16(t, xvel[nSprite]);
-            yvel[nSprite] -= mulscale16(t, yvel[nSprite]);
+            xvel[nSprite] -= MulScale(t, xvel[nSprite], 16);
+            yvel[nSprite] -= MulScale(t, yvel[nSprite], 16);
         }
     }
     if (xvel[nSprite] || yvel[nSprite])
@@ -4999,7 +4999,7 @@ void MoveDude(spritetype *pSprite)
         pSprite->z += ClipLow(ceilZ-top, 0);
 
         if (zvel[nSprite] <= 0 && (pSprite->flags&4))
-            zvel[nSprite] = mulscale16(-zvel[nSprite], 0x2000);
+            zvel[nSprite] = MulScale(-zvel[nSprite], 0x2000, 16);
     }
     else
         gSpriteHit[nXSprite].ceilhit = 0;
@@ -5154,8 +5154,8 @@ int MoveMissile(spritetype *pSprite)
         if (vdi >= 0 && vdi != 3)
         {
             int nAngle = getangle(xvel[nSprite], yvel[nSprite]);
-            x -= mulscale30(Cos(nAngle), 16);
-            y -= mulscale30(Sin(nAngle), 16);
+            x -= MulScale(Cos(nAngle), 16, 30);
+            y -= MulScale(Sin(nAngle), 16, 30);
             int nVel = approxDist(xvel[nSprite], yvel[nSprite]);
             vz -= scale(0x100, zvel[nSprite], nVel);
             updatesector(x, y, &nSector);
@@ -5537,12 +5537,12 @@ void actProcessSprites(void)
                     {
                         speed = pXSector->panVel << 9;
                         if (!pXSector->panAlways && pXSector->busy)
-                            speed = mulscale16(speed, pXSector->busy);
+                            speed = MulScale(speed, pXSector->busy, 16);
                     }
                     if (sector[nSector].floorstat&64)
                         angle = (angle+GetWallAngle(sector[nSector].wallptr)+512)&2047;
-                    int dx = mulscale30(speed, Cos(angle));
-                    int dy = mulscale30(speed, Sin(angle));
+                    int dx = MulScale(speed, Cos(angle), 30);
+                    int dy = MulScale(speed, Sin(angle), 30);
                     xvel[nSprite] += dx;
                     yvel[nSprite] += dy;
                 }
@@ -5819,8 +5819,8 @@ void actProcessSprites(void)
                 int y = pSprite->y;
                 int z = pSprite->z;
                 int t = (pXSprite->data1<<23)/120;
-                int dx = mulscale30(t, Cos(pSprite->ang));
-                int dy = mulscale30(t, Sin(pSprite->ang));
+                int dx = MulScale(t, Cos(pSprite->ang), 30);
+                int dy = MulScale(t, Sin(pSprite->ang), 30);
                 for (int i = 0; i < 2; i++)
                 {
                     spritetype *pFX = gFX.fxSpawn(FX_32, pSprite->sectnum, x, y, z, 0);
@@ -5977,12 +5977,12 @@ void actProcessSprites(void)
                 {
                     speed = pXSector->panVel << 9;
                     if (!pXSector->panAlways && pXSector->busy)
-                        speed = mulscale16(speed, pXSector->busy);
+                        speed = MulScale(speed, pXSector->busy, 16);
                 }
                 if (sector[nSector].floorstat&64)
                     angle = (angle+GetWallAngle(sector[nSector].wallptr)+512)&2047;
-                int dx = mulscale30(speed, Cos(angle));
-                int dy = mulscale30(speed, Sin(angle));
+                int dx = MulScale(speed, Cos(angle), 30);
+                int dy = MulScale(speed, Sin(angle), 30);
                 xvel[nSprite] += dx;
                 yvel[nSprite] += dy;
             }
@@ -6247,21 +6247,21 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
 spritetype * actFireThing(spritetype *pSprite, int a2, int a3, int a4, int thingType, int a6)
 {
     assert(thingType >= kThingBase && thingType < kThingMax);
-    int x = pSprite->x+mulscale30(a2, Cos(pSprite->ang+512));
-    int y = pSprite->y+mulscale30(a2, Sin(pSprite->ang+512));
+    int x = pSprite->x+MulScale(a2, Cos(pSprite->ang+512), 30);
+    int y = pSprite->y+MulScale(a2, Sin(pSprite->ang+512), 30);
     int z = pSprite->z+a3;
-    x += mulscale28(pSprite->clipdist, Cos(pSprite->ang));
-    y += mulscale28(pSprite->clipdist, Sin(pSprite->ang));
+    x += MulScale(pSprite->clipdist, Cos(pSprite->ang), 28);
+    y += MulScale(pSprite->clipdist, Sin(pSprite->ang), 28);
     if (HitScan(pSprite, z, x-pSprite->x, y-pSprite->y, 0, CLIPMASK0, pSprite->clipdist) != -1)
     {
-        x = gHitInfo.hitx-mulscale28(pSprite->clipdist<<1, Cos(pSprite->ang));
-        y = gHitInfo.hity-mulscale28(pSprite->clipdist<<1, Sin(pSprite->ang));
+        x = gHitInfo.hitx-MulScale(pSprite->clipdist<<1, Cos(pSprite->ang), 28);
+        y = gHitInfo.hity-MulScale(pSprite->clipdist<<1, Sin(pSprite->ang), 28);
     }
     spritetype *pThing = actSpawnThing(pSprite->sectnum, x, y, z, thingType);
     pThing->owner = pSprite->index;
     pThing->ang = pSprite->ang;
-    xvel[pThing->index] = mulscale30(a6, Cos(pThing->ang));
-    yvel[pThing->index] = mulscale30(a6, Sin(pThing->ang));
+    xvel[pThing->index] = MulScale(a6, Cos(pThing->ang), 30);
+    yvel[pThing->index] = MulScale(a6, Sin(pThing->ang), 30);
     zvel[pThing->index] = mulscale(a6, a4, 14);
     xvel[pThing->index] += xvel[pSprite->index]/2;
     yvel[pThing->index] += yvel[pSprite->index]/2;
@@ -6276,25 +6276,25 @@ spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, 
     char v4 = 0;
     int nSprite = pSprite->index;
     const MissileType *pMissileInfo = &missileInfo[nType-kMissileBase];
-    int x = pSprite->x+mulscale30(a2, Cos(pSprite->ang+512));
-    int y = pSprite->y+mulscale30(a2, Sin(pSprite->ang+512));
+    int x = pSprite->x+MulScale(a2, Cos(pSprite->ang+512), 30);
+    int y = pSprite->y+MulScale(a2, Sin(pSprite->ang+512), 30);
     int z = pSprite->z+a3;
     int clipdist = pMissileInfo->clipDist+pSprite->clipdist;
-    x += mulscale28(clipdist, Cos(pSprite->ang));
-    y += mulscale28(clipdist, Sin(pSprite->ang));
+    x += MulScale(clipdist, Cos(pSprite->ang), 28);
+    y += MulScale(clipdist, Sin(pSprite->ang), 28);
     int hit = HitScan(pSprite, z, x-pSprite->x, y-pSprite->y, 0, CLIPMASK0, clipdist);
     if (hit != -1)
     {
         if (hit == 3 || hit == 0)
         {
             v4 = 1;
-            x = gHitInfo.hitx-mulscale30(Cos(pSprite->ang), 16);
-            y = gHitInfo.hity-mulscale30(Sin(pSprite->ang), 16);
+            x = gHitInfo.hitx-MulScale(Cos(pSprite->ang), 16, 30);
+            y = gHitInfo.hity-MulScale(Sin(pSprite->ang), 16, 30);
         }
         else
         {
-            x = gHitInfo.hitx-mulscale28(pMissileInfo->clipDist<<1, Cos(pSprite->ang));
-            y = gHitInfo.hity-mulscale28(pMissileInfo->clipDist<<1, Sin(pSprite->ang));
+            x = gHitInfo.hitx-MulScale(pMissileInfo->clipDist<<1, Cos(pSprite->ang), 28);
+            y = gHitInfo.hity-MulScale(pMissileInfo->clipDist<<1, Sin(pSprite->ang), 28);
         }
     }
     spritetype *pMissile = actSpawnSprite(pSprite->sectnum, x, y, z, 5, 1);
@@ -6463,7 +6463,7 @@ bool actCheckRespawn(spritetype *pSprite)
         if (nRespawnTime > 0)
         {
             if (pXSprite->respawnPending == 1)
-                nRespawnTime = mulscale16(nRespawnTime, 0xa000);
+                nRespawnTime = MulScale(nRespawnTime, 0xa000, 16);
             pSprite->owner = pSprite->statnum;
             actPostSprite(pSprite->index, kStatRespawn);
             pSprite->flags |= kHitagRespawn;
@@ -6616,9 +6616,9 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                 if (t > 0 && pVectorData->impulse)
                 {
                     int t2 = divscale(pVectorData->impulse, t, 8);
-                    xvel[nSprite] += mulscale16(a4, t2);
-                    yvel[nSprite] += mulscale16(a5, t2);
-                    zvel[nSprite] += mulscale16(a6, t2);
+                    xvel[nSprite] += MulScale(a4, t2, 16);
+                    yvel[nSprite] += MulScale(a5, t2, 16);
+                    zvel[nSprite] += MulScale(a6, t2, 16);
                 }
                 if (pVectorData->burnTime)
                 {
@@ -6646,9 +6646,9 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                 if (t > 0 && pVectorData->impulse)
                 {
                     int t2 = divscale(pVectorData->impulse, t, 8);
-                    xvel[nSprite] += mulscale16(a4, t2);
-                    yvel[nSprite] += mulscale16(a5, t2);
-                    zvel[nSprite] += mulscale16(a6, t2);
+                    xvel[nSprite] += MulScale(a4, t2, 16);
+                    yvel[nSprite] += MulScale(a5, t2, 16);
+                    zvel[nSprite] += MulScale(a6, t2, 16);
                 }
                 if (pVectorData->burnTime)
                 {
@@ -6703,9 +6703,9 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                 int nIndex = debrisGetIndex(pSprite->index);
                 if (nIndex != -1 && (xsprite[pSprite->extra].physAttr & kPhysDebrisVector)) {
                     int impulse = divscale(pVectorData->impulse, ClipLow(gSpriteMass[pSprite->extra].mass, 10), 6);
-                    xvel[nSprite] += mulscale16(a4, impulse);
-                    yvel[nSprite] += mulscale16(a5, impulse);
-                    zvel[nSprite] += mulscale16(a6, impulse);
+                    xvel[nSprite] += MulScale(a4, impulse, 16);
+                    yvel[nSprite] += MulScale(a5, impulse, 16);
+                    zvel[nSprite] += MulScale(a6, impulse, 16);
 
                     if (pVectorData->burnTime != 0) {
                         if (!xsprite[nXSprite].burnTime) evPost(nSprite, 3, 0, kCallbackFXFlameLick);
@@ -6953,7 +6953,7 @@ void SerializeActor(FSerializer& arc)
 		{
 			for (int i = 0; i < kDudeMax - kDudeBase; i++)
 				for (int j = 0; j < 7; j++)
-					dudeInfo[i].at70[j] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j]);
+					dudeInfo[i].at70[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j], 8);
 		}
 	}
 }

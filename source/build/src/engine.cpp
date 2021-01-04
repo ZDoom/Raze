@@ -663,9 +663,9 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
         }
         t = (t << 24) / rayLengthSquared;
 
-        *intersectionX = originX + mulscale24(ray.x, t);
-        *intersectionY = originY + mulscale24(ray.y, t);
-        *intersectionZ = originZ + mulscale24(destZ-originZ, t);
+        *intersectionX = originX + MulScale(ray.x, t, 24);
+        *intersectionY = originY + MulScale(ray.y, t, 24);
+        *intersectionZ = originZ + MulScale(destZ-originZ, t, 24);
 
         return 1;
     }
@@ -692,9 +692,9 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
     int64_t t = (int64_t(originDiffCrossLineVec) << 24) / rayCrossLineVec;
     // For sake of completeness/readability, alternative to the above approach for an early out & avoidance of an extra division:
 
-    *intersectionX = originX + mulscale24(ray.x, t);
-    *intersectionY = originY + mulscale24(ray.y, t);
-    *intersectionZ = originZ + mulscale24(destZ-originZ, t);
+    *intersectionX = originX + MulScale(ray.x, t, 24);
+    *intersectionY = originY + MulScale(ray.y, t, 24);
+    *intersectionZ = originZ + MulScale(destZ-originZ, t, 24);
 
     return 1;
 }
@@ -727,9 +727,9 @@ int32_t rintersect_old(int32_t x1, int32_t y1, int32_t z1,
         return -1;
 
     int32_t t = divscale16(topt, bot);
-    *intx = x1 + mulscale16(vx, t);
-    *inty = y1 + mulscale16(vy, t);
-    *intz = z1 + mulscale16(vz, t);
+    *intx = x1 + MulScale(vx, t, 16);
+    *inty = y1 + MulScale(vy, t, 16);
+    *intz = z1 + MulScale(vz, t, 16);
 
     t = divscale16(topu, bot);
 
@@ -990,8 +990,8 @@ void set_globalang(fixed_t const ang)
     cosglobalang = (int)fcosang;
     singlobalang = (int)fsinang;
 
-    cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
-    sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
+    cosviewingrangeglobalang = MulScale(cosglobalang,viewingrange, 16);
+    sinviewingrangeglobalang = MulScale(singlobalang,viewingrange, 16);
 }
 
 //
@@ -1012,7 +1012,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     // xdimenscale is scale(xdimen,yxaspect,320);
     // normalization by viewingrange so that center-of-aim doesn't depend on it
-    qglobalhoriz = mulscale16(dahoriz, divscale16(xdimenscale, viewingrange))+IntToFixed(ydimen>>1);
+    qglobalhoriz = MulScale(dahoriz, divscale16(xdimenscale, viewingrange), 16)+IntToFixed(ydimen>>1);
 
     globalcursectnum = dacursectnum;
 
@@ -1232,7 +1232,7 @@ void renderDrawMasks(void)
         {
             const int32_t xp = DMulScale(ys,cosglobalang,-xs,singlobalang, 6);
 
-            if (mulscale24(labs(xp+yp),xdimen) >= yp)
+            if (MulScale(labs(xp+yp),xdimen, 24) >= yp)
                 goto killsprite;
 
             spritesxyz[i].x = scale(xp+yp,xdimen<<7,yp);
@@ -1568,8 +1568,8 @@ static void renderFillPolygon(int32_t npoints)
             xb1[z] = 0;
 
     FVector2 xtex, ytex, otex;
-    int x1 = mulscale16(globalx1, xyaspect);
-    int y2 = mulscale16(globaly2, xyaspect);
+    int x1 = MulScale(globalx1, xyaspect, 16);
+    int y2 = MulScale(globaly2, xyaspect, 16);
     xtex.X = ((float)asm1) * (1.f / 4294967296.f);
     xtex.Y = ((float)asm2) * (1.f / 4294967296.f);
     ytex.X = ((float)x1) * (1.f / 4294967296.f);
@@ -1600,8 +1600,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     zoome <<= 8;
 
     vec2_t const bakgvect = { divscale28(-bcos(ang), zoome), divscale28(-bsin(ang), zoome) };
-    vec2_t const vect = { mulscale8(-bsin(ang), zoome), mulscale8(-bcos(ang), zoome) };
-    vec2_t const vect2 = { mulscale16(vect.x, yxaspect), mulscale16(vect.y, yxaspect) };
+    vec2_t const vect = { MulScale(-bsin(ang), zoome, 8), MulScale(-bcos(ang), zoome, 8) };
+    vec2_t const vect2 = { MulScale(vect.x, yxaspect, 16), MulScale(vect.y, yxaspect, 16) };
 
     int32_t sortnum = 0;
 
@@ -1633,7 +1633,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             }
             if (npoints > 0) xb1[npoints-1] = l; //overwrite point2
 
-            vec2_t bak = { rx1[0], mulscale16(ry1[0]-(ydim<<11),xyaspect)+(ydim<<11) };
+            vec2_t bak = { rx1[0], MulScale(ry1[0]-(ydim<<11),xyaspect, 16)+(ydim<<11) };
 
 
             //Collect floor sprites to draw
@@ -1676,8 +1676,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 oy = wall[wall[startwall].point2].y - wall[startwall].y;
                 i = nsqrtasm(uhypsq(ox,oy)); if (i == 0) continue;
                 i = 1048576/i;
-                globalx1 = mulscale10(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i);
-                globaly1 = mulscale10(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i);
+                globalx1 = MulScale(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i, 10);
+                globaly1 = MulScale(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i, 10);
                 ox = (bak.x>>4)-(xdim<<7); oy = (bak.y>>4)-(ydim<<7);
                 globalposx = DMulScale(-oy, globalx1, -ox, globaly1, 28);
                 globalposy = DMulScale(-ox, globalx1, oy, globaly1, 28);
@@ -1686,9 +1686,9 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
                 int32_t const daslope = sector[s].floorheinum;
                 i = nsqrtasm(daslope*daslope+16777216);
-                set_globalpos(globalposx, mulscale12(globalposy,i), globalposz);
-                globalx2 = mulscale12(globalx2,i);
-                globaly2 = mulscale12(globaly2,i);
+                set_globalpos(globalposx, MulScale(globalposy,i, 12), globalposz);
+                globalx2 = MulScale(globalx2,i, 12);
+                globaly2 = MulScale(globaly2,i, 12);
             }
 
             int globalxshift = (8 - widthBits(globalpicnum));
@@ -1771,7 +1771,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             rx1[3] = x; ry1[3] = y;
 
 
-            vec2_t bak = { rx1[0], mulscale16(ry1[0] - (ydim << 11), xyaspect) + (ydim << 11) };
+            vec2_t bak = { rx1[0], MulScale(ry1[0] - (ydim << 11), xyaspect, 16) + (ydim << 11) };
 
 
             globalpicnum = spr->picnum;
@@ -1790,12 +1790,12 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             //relative alignment stuff
             ox = v2.x-v1.x; oy = v2.y-v1.y;
             i = ox*ox+oy*oy; if (i == 0) continue; i = 65536*16384 / i;
-            globalx1 = mulscale10(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i);
-            globaly1 = mulscale10(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i);
+            globalx1 = MulScale(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i, 10);
+            globaly1 = MulScale(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i, 10);
             ox = v1.y-v4.y; oy = v4.x-v1.x;
             i = ox*ox+oy*oy; if (i == 0) continue; i = 65536 * 16384 / i;
-            globalx2 = mulscale10(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i);
-            globaly2 = mulscale10(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i);
+            globalx2 = MulScale(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i, 10);
+            globaly2 = MulScale(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i, 10);
 
             ox = widthBits(globalpicnum); 
             oy = heightBits(globalpicnum);
@@ -2310,9 +2310,9 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
                     return 0;
 
             t = divscale24(t,bot);
-            x = x1 + mulscale24(x21,t);
-            y = y1 + mulscale24(y21,t);
-            z = z1 + mulscale24(z21,t);
+            x = x1 + MulScale(x21,t, 24);
+            y = y1 + MulScale(y21,t, 24);
+            z = z1 + MulScale(z21,t, 24);
 
             getzsofslope(dasectnum, x,y, &cfz[0],&cfz[1]);
 
@@ -2350,8 +2350,8 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 {
     int16_t tempshortcnt, tempshortnum;
 
-    const int32_t vx = mulscale14(bcos(ange), neartagrange);
-    const int32_t vy = mulscale14(bsin(ange), neartagrange);
+    const int32_t vx = MulScale(bcos(ange), neartagrange, 14);
+    const int32_t vy = MulScale(bsin(ange), neartagrange, 14);
     vec3_t hitv = { xs+vx, ys+vy, 0 };
     const vec3_t sv = { xs, ys, zs };
 

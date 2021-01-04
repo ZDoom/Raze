@@ -65,8 +65,8 @@ void SOwallmove(SECTOR_OBJECTp sop, SPRITEp sp, WALLp find_wallp, int dist, int 
                 ASSERT(User[sp - sprite]);
                 ang = User[sp - sprite]->sang;
 
-                *nx = mulscale14(dist, bcos(ang));
-                *ny = mulscale14(dist, bsin(ang));
+                *nx = MulScale(dist, bcos(ang), 14);
+                *ny = MulScale(dist, bsin(ang), 14);
 
                 sop->xorig[wallcount] -= *nx;
                 sop->yorig[wallcount] -= *ny;
@@ -101,8 +101,8 @@ int DoWallMove(SPRITEp sp)
     if (dang)
         ang = NORM_ANGLE(ang + (RANDOM_RANGE(dang) - dang/2));
 
-    nx = mulscale14(dist, bcos(ang));
-    ny = mulscale14(dist, bsin(ang));
+    nx = MulScale(dist, bcos(ang), 14);
+    ny = MulScale(dist, bsin(ang), 14);
 
     for (wallp = wall; wallp < &wall[numwalls]; wallp++)
     {

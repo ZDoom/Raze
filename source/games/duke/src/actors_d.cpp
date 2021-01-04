@@ -1792,8 +1792,8 @@ static void weaponcommon_d(DDukeActor* proj)
 
 	Collision coll;
 	movesprite_ex(proj,
-		mulscale14(k, bcos(s->ang)),
-		mulscale14(k, bsin(s->ang)), ll, CLIPMASK1, coll);
+		MulScale(k, bcos(s->ang), 14),
+		MulScale(k, bsin(s->ang), 14), ll, CLIPMASK1, coll);
 
 	if (s->picnum == RPG && proj->temp_actor != nullptr)
 		if (FindDistance2D(s->x - proj->temp_actor->s.x, s->y - proj->temp_actor->s.y) < 256)
@@ -1827,8 +1827,8 @@ static void weaponcommon_d(DDukeActor* proj)
 		for (k = -3; k < 2; k++)
 		{
 			auto spawned = EGS(s->sectnum,
-				s->x + mulscale9(k, bcos(s->ang)),
-				s->y + mulscale9(k, bsin(s->ang)),
+				s->x + MulScale(k, bcos(s->ang), 9),
+				s->y + MulScale(k, bsin(s->ang), 9),
 				s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
 				s->xrepeat, s->yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
@@ -2754,8 +2754,8 @@ static void flamethrowerflame(DDukeActor *actor)
 	}
 
 	Collision coll;
-	movesprite_ex(actor, mulscale14(xvel, bcos(s->ang)),
-		mulscale14(xvel, bsin(s->ang)), s->zvel, CLIPMASK1, coll);
+	movesprite_ex(actor, MulScale(xvel, bcos(s->ang), 14),
+		MulScale(xvel, bsin(s->ang), 14), s->zvel, CLIPMASK1, coll);
 
 	if (s->sectnum < 0)
 	{
@@ -2878,8 +2878,8 @@ static void heavyhbomb(DDukeActor *actor)
 
 	Collision coll;
 	movesprite_ex(actor,
-		mulscale14(s->xvel, bcos(s->ang)),
-		mulscale14(s->xvel, bsin(s->ang)),
+		MulScale(s->xvel, bcos(s->ang), 14),
+		MulScale(s->xvel, bsin(s->ang), 14),
 		s->zvel, CLIPMASK0, coll);
 
 	if (sector[s->sectnum].lotag == 1 && s->zvel == 0)
@@ -3729,7 +3729,7 @@ void moveeffectors_d(void)   //STATNUM 3
 
 		case SE_29_WAVES:
 			act->s.hitag += 64;
-			l = mulscale12(act->s.yvel, bsin(act->s.hitag));
+			l = MulScale(act->s.yvel, bsin(act->s.hitag), 12);
 			sc->floorz = act->s.z + l;
 			break;
 		case SE_31_FLOOR_RISE_FALL: // True Drop Floor
@@ -3972,8 +3972,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 		Collision coll;
 		actor->movflag = movesprite_ex(actor,
-			mulscale14(daxvel, bcos(angdif)),
-			mulscale14(daxvel, bsin(angdif)), spr->zvel, CLIPMASK0, coll);
+			MulScale(daxvel, bcos(angdif), 14),
+			MulScale(daxvel, bsin(angdif), 14), spr->zvel, CLIPMASK0, coll);
 	}
 
 	if (a)

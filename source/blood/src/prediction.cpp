@@ -121,18 +121,18 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         {
             int forward = pInput->fvel;
             if (forward > 0)
-                forward = mulscale8(pPosture->frontAccel, forward);
+                forward = MulScale(pPosture->frontAccel, forward, 8);
             else
-                forward = mulscale8(pPosture->backAccel, forward);
-            predict.at5c += mulscale30(forward, x);
-            predict.at60 += mulscale30(forward, y);
+                forward = MulScale(pPosture->backAccel, forward, 8);
+            predict.at5c += MulScale(forward, x, 30);
+            predict.at60 += MulScale(forward, y, 30);
         }
         if (pInput->svel)
         {
             int strafe = pInput->svel;
-            strafe = mulscale8(pPosture->sideAccel, strafe);
-            predict.at5c += mulscale30(strafe, y);
-            predict.at60 -= mulscale30(strafe, x);
+            strafe = MulScale(pPosture->sideAccel, strafe, 8);
+            predict.at5c += MulScale(strafe, y, 30);
+            predict.at60 -= MulScale(strafe, x, 30);
         }
     }
     else if (predict.at6a < 0x100)
@@ -146,22 +146,22 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         {
             int forward = pInput->fvel;
             if (forward > 0)
-                forward = mulscale8(pPosture->frontAccel, forward);
+                forward = MulScale(pPosture->frontAccel, forward, 8);
             else
-                forward = mulscale8(pPosture->backAccel, forward);
+                forward = MulScale(pPosture->backAccel, forward, 8);
             if (predict.at6a)
-                forward = mulscale16(forward, speed);
-            predict.at5c += mulscale30(forward, x);
-            predict.at60 += mulscale30(forward, y);
+                forward = MulScale(forward, speed, 16);
+            predict.at5c += MulScale(forward, x, 30);
+            predict.at60 += MulScale(forward, y, 30);
         }
         if (pInput->svel)
         {
             int strafe = pInput->svel;
-            strafe = mulscale8(pPosture->sideAccel, strafe);
+            strafe = MulScale(pPosture->sideAccel, strafe, 8);
             if (predict.at6a)
-                strafe = mulscale16(strafe, speed);
-            predict.at5c += mulscale30(strafe, y);
-            predict.at60 -= mulscale30(strafe, x);
+                strafe = MulScale(strafe, speed, 16);
+            predict.at5c += MulScale(strafe, y, 30);
+            predict.at60 -= MulScale(strafe, x, 30);
         }
     }
     if (pInput->avel)
@@ -244,8 +244,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     if (va && (sector[nSector].floorstat&2) != 0)
     {
         int z1 = getflorzofslope(nSector, predict.at50, predict.at54);
-        int x2 = predict.at50+mulscale30(64, Cos(predict.at30.asbuild()));
-        int y2 = predict.at54+mulscale30(64, Sin(predict.at30.asbuild()));
+        int x2 = predict.at50+MulScale(64, Cos(predict.at30.asbuild()), 30);
+        int y2 = predict.at54+MulScale(64, Sin(predict.at30.asbuild()), 30);
         short nSector2 = nSector;
         updatesector(x2, y2, &nSector2);
         if (nSector2 == nSector)
@@ -293,17 +293,17 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
     predict.at3c = interpolate(predict.at3c, predict.at64, 0x7000);
     int dz = predict.at58-pPosture->eyeAboveZ-predict.at38;
     if (dz > 0)
-        predict.at3c += mulscale16(dz<<8, 0xa000);
+        predict.at3c += MulScale(dz<<8, 0xa000, 16);
     else
-        predict.at3c += mulscale16(dz<<8, 0x1800);
+        predict.at3c += MulScale(dz<<8, 0x1800, 16);
     predict.at38 += predict.at3c>>8;
 
     predict.at44 = interpolate(predict.at44, predict.at64, 0x5000);
     dz = predict.at58-pPosture->weaponAboveZ-predict.at40;
     if (dz > 0)
-        predict.at44 += mulscale16(dz<<8, 0x8000);
+        predict.at44 += MulScale(dz<<8, 0x8000, 16);
     else
-        predict.at44 += mulscale16(dz<<8, 0xc00);
+        predict.at44 += MulScale(dz<<8, 0xc00, 16);
     predict.at40 += predict.at44>>8;
 
     predict.at34 = predict.at40 - predict.at38 - (12<<8);
@@ -315,10 +315,10 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 	{
 		predict.Kills = (predict.Kills+17)&2047;
 		predict.at14 = (predict.at14+17)&2047;
-		predict.at8 = mulscale30(10*pPosture->bobV,Sin(predict.Kills*2));
-		predict.atc = mulscale30(predict.bobPhase*pPosture->bobH,Sin(predict.Kills-256));
-		predict.at18 = mulscale30(predict.bobPhase*pPosture->swayV,Sin(predict.at14*2));
-		predict.at1c = mulscale30(predict.bobPhase*pPosture->swayH,Sin(predict.at14-0x155));
+		predict.at8 = MulScale(10*pPosture->bobV,Sin(predict.Kills*2), 30);
+		predict.atc = MulScale(predict.bobPhase*pPosture->bobH,Sin(predict.Kills-256), 30);
+		predict.at18 = MulScale(predict.bobPhase*pPosture->swayV,Sin(predict.at14*2), 30);
+		predict.at1c = MulScale(predict.bobPhase*pPosture->swayH,Sin(predict.at14-0x155), 30);
 	}
 	else
 	{
@@ -337,10 +337,10 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
                     predict.bobPhase = ClipHigh(predict.bobPhase + nSpeed, 30);
 			}
 		}
-		predict.at8 = mulscale30(predict.bobPhase*pPosture->bobV,Sin(predict.Kills*2));
-		predict.atc = mulscale30(predict.bobPhase*pPosture->bobH,Sin(predict.Kills-256));
-		predict.at18 = mulscale30(predict.bobPhase*pPosture->swayV,Sin(predict.at14*2));
-		predict.at1c = mulscale30(predict.bobPhase*pPosture->swayH,Sin(predict.at14-0x155));
+		predict.at8 = MulScale(predict.bobPhase*pPosture->bobV,Sin(predict.Kills*2), 30);
+		predict.atc = MulScale(predict.bobPhase*pPosture->bobH,Sin(predict.Kills-256), 30);
+		predict.at18 = MulScale(predict.bobPhase*pPosture->swayV,Sin(predict.at14*2), 30);
+		predict.at1c = MulScale(predict.bobPhase*pPosture->swayH,Sin(predict.at14-0x155), 30);
 	}
 	if (!pXSprite->health)
         return;
@@ -535,7 +535,7 @@ static void fakeMoveDude(spritetype *pSprite)
         predict.at75.ceilhit = ceilHit;
         predict.at58 += ClipLow(ceilZ-top, 0);
         if (predict.at64 <= 0 && (predict.at73&4))
-            predict.at64 = mulscale16(-predict.at64, 0x2000);
+            predict.at64 = MulScale(-predict.at64, 0x2000, 16);
     }
     else
         predict.at75.ceilhit = 0;
@@ -586,14 +586,14 @@ static void fakeActAirDrag(spritetype *, int num)
         {
             int vel = pXSector->windVel<<12;
             if (!pXSector->windAlways && pXSector->busy)
-                vel = mulscale16(vel, pXSector->busy);
-            xvec = mulscale30(vel, Cos(pXSector->windAng));
-            yvec = mulscale30(vel, Sin(pXSector->windAng));
+                vel = MulScale(vel, pXSector->busy, 16);
+            xvec = MulScale(vel, Cos(pXSector->windAng), 30);
+            yvec = MulScale(vel, Sin(pXSector->windAng), 30);
         }
     }
-    predict.at5c += mulscale16(xvec-predict.at5c, num);
-    predict.at60 += mulscale16(yvec-predict.at60, num);
-    predict.at64 -= mulscale16(predict.at64, num);
+    predict.at5c += MulScale(xvec-predict.at5c, num, 16);
+    predict.at60 += MulScale(yvec-predict.at60, num, 16);
+    predict.at64 -= MulScale(predict.at64, num, 16);
 }
 
 void fakeActProcessSprites(void)
@@ -626,12 +626,12 @@ void fakeActProcessSprites(void)
 				{
 					speed = pXSector->panVel << 9;
 					if (!pXSector->panAlways && pXSector->busy)
-						speed = mulscale16(speed, pXSector->busy);
+						speed = MulScale(speed, pXSector->busy, 16);
 				}
 				if (sector[nSector].floorstat&64)
 					angle = (GetWallAngle(sector[nSector].wallptr)+512)&2047;
-				predict.at5c += mulscale30(speed,Cos(angle));
-				predict.at60 += mulscale30(speed,Sin(angle));
+				predict.at5c += MulScale(speed,Cos(angle), 30);
+				predict.at60 += MulScale(speed,Sin(angle), 30);
 			}
 		}
         if (pXSector && pXSector->Underwater)

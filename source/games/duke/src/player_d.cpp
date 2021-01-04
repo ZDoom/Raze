@@ -112,7 +112,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 	}
 	else
 	{
-		zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
+		zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
 		sx += bcos(sa + 348) / 448;
 		sy += bsin(sa + 348) / 448;
 		sz += (3 << 8);
@@ -181,7 +181,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	}
 	else
 	{
-		zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
+		zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (ps[p].GetActor()->s.xvel != 0)
 			vel = (int)((((512 - (1024
 				- abs(abs(getangle(sx - ps[p].oposx, sy - ps[p].oposy) - sa) - 1024)))
@@ -595,7 +595,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
 		else
-			zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
+			zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
 	}
 	else
 	{
@@ -693,7 +693,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 			if (aimed->s.picnum != RECON)
 				sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
-		else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
+		else zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
 
@@ -1149,7 +1149,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 				zvel = ((aimed->s.z - sz - dal - (4 << 8)) * 768) / (ldist(ps[p].GetActor(), aimed));
 				sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 			}
-			else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
+			else zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
 		}
 		else if (s->statnum != 3)
 		{
@@ -2194,12 +2194,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				k = 15;
-				i = mulscale16(p->horizon.sum().asq16(), 20);
+				i = MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 			else
 			{
 				k = 140;
-				i = -512 - mulscale16(p->horizon.sum().asq16(), 20);
+				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
 			auto spawned = EGS(p->cursectnum,
@@ -3022,9 +3022,9 @@ void processinput_d(int snum)
 		if (shrunk)
 		{
 			p->posxv =
-				mulscale16(p->posxv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2));
+				MulScale(p->posxv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
 			p->posyv =
-				mulscale16(p->posyv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2));
+				MulScale(p->posyv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
 		}
 	}
 

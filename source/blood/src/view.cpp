@@ -190,9 +190,9 @@ void viewInit(void)
 
     for (int i = 0; i < 16; i++)
     {
-        dword_172CE0[i][0] = mulscale16(wrand(), 2048);
-        dword_172CE0[i][1] = mulscale16(wrand(), 2048);
-        dword_172CE0[i][2] = mulscale16(wrand(), 2048);
+        dword_172CE0[i][0] = MulScale(wrand(), 2048, 16);
+        dword_172CE0[i][1] = MulScale(wrand(), 2048, 16);
+        dword_172CE0[i][2] = MulScale(wrand(), 2048, 16);
     }
 }
 
@@ -202,8 +202,8 @@ int othercameraclock, cameraclock;
 
 void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fixed_t zm, int smoothratio)
 {
-    int vX = mulscale30(-Cos(nAng), 1280);
-    int vY = mulscale30(-Sin(nAng), 1280);
+    int vX = MulScale(-Cos(nAng), 1280, 30);
+    int vY = MulScale(-Sin(nAng), 1280, 30);
     int vZ = FixedToInt(mulscale(zm, 1280, 3))-(16<<8);
     int bakCstat = pSprite->cstat;
     pSprite->cstat &= ~256;
@@ -235,10 +235,10 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
         }
         othercameradist = nDist;
     }
-    *pX += mulscale16(vX, othercameradist);
-    *pY += mulscale16(vY, othercameradist);
-    *pZ += mulscale16(vZ, othercameradist);
-	int myclock = gFrameClock + mulscale16(4, smoothratio);
+    *pX += MulScale(vX, othercameradist, 16);
+    *pY += MulScale(vY, othercameradist, 16);
+    *pZ += MulScale(vZ, othercameradist, 16);
+	int myclock = gFrameClock + MulScale(4, smoothratio, 16);
     othercameradist = ClipHigh(othercameradist+((myclock-othercameraclock)<<10), 65536);
     othercameraclock = myclock;
     assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
@@ -248,8 +248,8 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
 
 void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fixed_t zm, int smoothratio)
 {
-    int vX = mulscale30(-Cos(nAng), 1280);
-    int vY = mulscale30(-Sin(nAng), 1280);
+    int vX = MulScale(-Cos(nAng), 1280, 30);
+    int vY = MulScale(-Sin(nAng), 1280, 30);
     int vZ = FixedToInt(mulscale(zm, 1280, 3))-(16<<8);
     int bakCstat = pSprite->cstat;
     pSprite->cstat &= ~256;
@@ -282,10 +282,10 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
         }
         cameradist = nDist;
     }
-    *pX += mulscale16(vX, cameradist);
-    *pY += mulscale16(vY, cameradist);
-    *pZ += mulscale16(vZ, cameradist);
-	int myclock = gFrameClock + mulscale16(4, smoothratio);
+    *pX += MulScale(vX, cameradist, 16);
+    *pY += MulScale(vY, cameradist, 16);
+    *pZ += MulScale(vZ, cameradist, 16);
+	int myclock = gFrameClock + MulScale(4, smoothratio, 16);
     cameradist = ClipHigh(cameradist+((myclock-cameraclock)<<10), 65536);
     cameraclock = myclock;
     assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
@@ -413,17 +413,17 @@ void viewUpdateDelirium(void)
 		if (powerCount < 512)
 		{
 			int powerScale = IntToFixed(powerCount) / 512;
-			tilt1 = mulscale16(tilt1, powerScale);
-			tilt2 = mulscale16(tilt2, powerScale);
-			pitch = mulscale16(pitch, powerScale);
+			tilt1 = MulScale(tilt1, powerScale, 16);
+			tilt2 = MulScale(tilt2, powerScale, 16);
+			pitch = MulScale(pitch, powerScale, 16);
 		}
 		int sin2 = costable[(2*timer-512)&2047] / 2;
 		int sin3 = costable[(3*timer-512)&2047] / 2;
-		gScreenTilt = mulscale30(sin2+sin3,tilt1);
+		gScreenTilt = MulScale(sin2+sin3,tilt1, 30);
 		int sin4 = costable[(4*timer-512)&2047] / 2;
-		deliriumTurn = mulscale30(sin3+sin4,tilt2);
+		deliriumTurn = MulScale(sin3+sin4,tilt2, 30);
 		int sin5 = costable[(5*timer-512)&2047] / 2;
-		deliriumPitch = mulscale30(sin4+sin5,pitch);
+		deliriumPitch = MulScale(sin4+sin5,pitch, 30);
 		return;
 	}
 	gScreenTilt = ((gScreenTilt+1024)&2047)-1024;
@@ -620,13 +620,13 @@ void viewDrawScreen(bool sceneonly)
         cZ += shakeZ;
         v4c += shakeBobX;
         v48 += shakeBobY;
-        cH += buildhoriz(mulscale30(0x40000000 - Cos(gView->tiltEffect << 2), 30));
+        cH += buildhoriz(MulScale(0x40000000 - Cos(gView->tiltEffect << 2), 30, 30));
         if (gViewPos == 0)
         {
             if (cl_viewhbob)
             {
-                cX -= mulscale30(v74, Sin(cA.asbuild())) >> 4;
-                cY += mulscale30(v74, Cos(cA.asbuild())) >> 4;
+                cX -= MulScale(v74, Sin(cA.asbuild()), 30) >> 4;
+                cY += MulScale(v74, Cos(cA.asbuild()), 30) >> 4;
             }
             if (cl_viewvbob)
             {
@@ -634,7 +634,7 @@ void viewDrawScreen(bool sceneonly)
             }
             cZ += xs_CRoundToInt(cH.asq16() / 6553.6);
             cameradist = -1;
-            cameraclock = gFrameClock +mulscale16(4, (int)gInterpolate);
+            cameraclock = gFrameClock +MulScale(4, (int)gInterpolate, 16);
         }
         else
         {
@@ -670,7 +670,7 @@ void viewDrawScreen(bool sceneonly)
                 tmp--;
             }
             PLAYER* pOther = &gPlayer[i];
-            //othercameraclock = gFrameClock + mulscale16(4, (int)gInterpolate);;
+            //othercameraclock = gFrameClock + MulScale(4, (int)gInterpolate, 16);;
             if (!tileData(4079))
             {
                 TileFiles.tileCreate(4079, 128, 128);
@@ -747,7 +747,7 @@ void viewDrawScreen(bool sceneonly)
         }
         else
         {
-            othercameraclock = gFrameClock + mulscale16(4, (int)gInterpolate);
+            othercameraclock = gFrameClock + MulScale(4, (int)gInterpolate, 16);
         }
 
         if (!bDelirium)
@@ -941,8 +941,8 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
     // [MR]: Confirm that this is correct as math doesn't match the variable names.
     int nCos = z * -bsin(a);
     int nSin = z * -bcos(a);
-    int nCos2 = mulscale16(nCos, yxaspect);
-    int nSin2 = mulscale16(nSin, yxaspect);
+    int nCos2 = MulScale(nCos, yxaspect, 16);
+    int nSin2 = MulScale(nSin, yxaspect, 16);
     int nPSprite = gView->pSprite->index;
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])

@@ -531,7 +531,7 @@ void displayrooms(int snum, double smoothratio)
 		// Fixme: This should get the aspect ratio from the backend, not the current viewport size.
 		int i = divscale22(1, isRR() ? 64 : p->GetActor()->s.yrepeat + 28);
 		int viewingaspect = !isRRRA() || !p->DrugMode ? xs_CRoundToInt(double(i) * tan(r_fov * (pi::pi() / 360.))) : getdrugmode(p, i);
-		renderSetAspect(mulscale16(viewingaspect, viewingrange), yxaspect);
+		renderSetAspect(MulScale(viewingaspect, viewingrange, 16), yxaspect);
 
 		// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
 		// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.

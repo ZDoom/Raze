@@ -253,7 +253,7 @@ static void polymost_updaterotmat(void)
     };
     multiplyMatrix4f(matrix, tiltmatrix);
     renderSetViewMatrix(matrix);
-    renderSetVisibility(mulscale16(g_visibility, mulscale16(xdimenscale, viewingrangerecip)) * fviewingrange * (1.f / (65536.f * 65536.f)) / r_ambientlight);
+    renderSetVisibility(MulScale(g_visibility, MulScale(xdimenscale, viewingrangerecip, 16), 16) * fviewingrange * (1.f / (65536.f * 65536.f)) / r_ambientlight);
 }
 
 const vec2_16_t tileSize(size_t index)
@@ -2813,7 +2813,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
 
     set_globalpos(dax, day, daz);
     set_globalang(daang);
-    qglobalhoriz = mulscale16(dahoriz, divscale16(xdimenscale, viewingrange))+IntToFixed(ydimen>>1);
+    qglobalhoriz = MulScale(dahoriz, divscale16(xdimenscale, viewingrange), 16)+IntToFixed(ydimen>>1);
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
     gxyaspect = ((double)xyaspect*fviewingrange)*(5.0/(65536.0*262144.0));
     gviewxrange = fviewingrange * fxdimen * (1.f/(32768.f*1024.f));

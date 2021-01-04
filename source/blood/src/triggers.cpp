@@ -959,7 +959,7 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
     if (dz != 0)
     {
         int oldZ = pSector->floorz;
-        baseFloor[nSector] = pSector->floorz = pXSector->offFloorZ + mulscale16(dz, GetWaveValue(a3, a4));
+        baseFloor[nSector] = pSector->floorz = pXSector->offFloorZ + MulScale(dz, GetWaveValue(a3, a4), 16);
         velFloor[nSector] += (pSector->floorz-oldZ)<<8;
         int nSprite;
         SectIterator it(nSector);
@@ -988,7 +988,7 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
     if (dz != 0)
     {
         int oldZ = pSector->ceilingz;
-        baseCeil[nSector] = pSector->ceilingz = pXSector->offCeilZ + mulscale16(dz, GetWaveValue(a3, a4));
+        baseCeil[nSector] = pSector->ceilingz = pXSector->offCeilZ + MulScale(dz, GetWaveValue(a3, a4), 16);
         velCeil[nSector] += (pSector->ceilingz-oldZ)<<8;
         int nSprite;
         SectIterator it(nSector);
@@ -1071,11 +1071,11 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
     int dz1 = pXSector->onCeilZ - pXSector->offCeilZ;
     int vc = pXSector->offCeilZ;
     if (dz1 != 0)
-        vc += mulscale16(dz1, GetWaveValue(a2, nWave));
+        vc += MulScale(dz1, GetWaveValue(a2, nWave), 16);
     int dz2 = pXSector->onFloorZ - pXSector->offFloorZ;
     int v10 = pXSector->offFloorZ;
     if (dz2 != 0)
-        v10 += mulscale16(dz2, GetWaveValue(a2, nWave));
+        v10 += MulScale(dz2, GetWaveValue(a2, nWave), 16);
     int v18;
     if (GetHighestSprite(nSector, 6, &v18) >= 0 && vc >= v18)
         return 1;
@@ -1118,7 +1118,7 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
             if (pSprite->cstat&8192)
             {
                 viewBackupSpriteLoc(nSprite, pSprite);
-                pSprite->z = baseSprite[nSprite].z+mulscale16(dz1, GetWaveValue(a2, nWave));
+                pSprite->z = baseSprite[nSprite].z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
             }
         }
     }
@@ -1133,7 +1133,7 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
             if (pSprite->cstat&16384)
             {
                 viewBackupSpriteLoc(nSprite, pSprite);
-                pSprite->z = baseSprite[nSprite].z+mulscale16(dz2, GetWaveValue(a2, nWave));
+                pSprite->z = baseSprite[nSprite].z+MulScale(dz2, GetWaveValue(a2, nWave), 16);
             }
         }
     }
@@ -1885,8 +1885,8 @@ void ProcessMotion(void)
             else if (pXSector->busy == 0)
                 continue;
             else
-                pXSector->bobTheta += mulscale16(pXSector->bobSpeed, pXSector->busy);
-            int vdi = mulscale30(Sin(pXSector->bobTheta), pXSector->bobZRange<<8);
+                pXSector->bobTheta += MulScale(pXSector->bobSpeed, pXSector->busy, 16);
+            int vdi = MulScale(Sin(pXSector->bobTheta), pXSector->bobZRange<<8, 30);
             int nSprite;
             SectIterator it(nSector);
             while ((nSprite = it.NextIndex()) >= 0)

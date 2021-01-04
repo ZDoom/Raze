@@ -895,8 +895,8 @@ DoBunnyMoveJump(short SpriteNum)
         int nx, ny;
 
         // Move while jumping
-        nx = mulscale14(sp->xvel, bcos(sp->ang));
-        ny = mulscale14(sp->xvel, bsin(sp->ang));
+        nx = MulScale(sp->xvel, bcos(sp->ang), 14);
+        ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
         move_actor(SpriteNum, nx, ny, 0L);
 

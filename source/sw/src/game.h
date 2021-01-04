@@ -267,8 +267,8 @@ int StdRandomRange(int range);
 
 #define RANDOM_NEG(x,y) ((RANDOM_P2(((x)<<(y))<<1) - (x))<<(y))
 
-#define MOVEx(vel,ang) (mulscale14(vel, bcos(ang)))
-#define MOVEy(vel,ang) (mulscale14(vel, bsin(ang)))
+#define MOVEx(vel,ang) (MulScale(vel, bcos(ang), 14))
+#define MOVEy(vel,ang) (MulScale(vel, bsin(ang), 14))
 
 #define DIST(x1, y1, x2, y2) ksqrt( SQ((x1) - (x2)) + SQ((y1) - (y2)) )
 
@@ -289,12 +289,12 @@ inline void DISTANCE(int x1, int y1, int x2, int y2, int& dist, int& tx, int& ty
 
 inline int SPRITEp_SIZE_X(const spritetype* sp)
 {
-	return mulscale6(tileWidth(sp->picnum), sp->xrepeat);
+	return MulScale(tileWidth(sp->picnum), sp->xrepeat, 6);
 }
 
 inline int SPRITEp_SIZE_Y(const spritetype* sp)
 {
-	return mulscale6(tileHeight(sp->picnum), sp->yrepeat);
+	return MulScale(tileHeight(sp->picnum), sp->yrepeat, 6);
 }
 
 inline int SPRITEp_SIZE_Z(const spritetype* sp)
@@ -351,8 +351,8 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 
 // two vectors
 // can determin direction
-#define DOT_PRODUCT_2D(x1,y1,x2,y2) (mulscale16((x1), (x2)) + mulscale16((y1), (y2)))
-#define DOT_PRODUCT_3D(x1,y1,z1,x2,y2,z2) (mulscale16((x1), (x2)) + mulscale16((y1), (y2)) + mulscale16((z1), (z2)))
+#define DOT_PRODUCT_2D(x1,y1,x2,y2) (MulScale((x1), (x2), 16) + MulScale((y1), (y2), 16))
+#define DOT_PRODUCT_3D(x1,y1,z1,x2,y2,z2) (MulScale((x1), (x2), 16) + MulScale((y1), (y2), 16) + MulScale((z1), (z2), 16))
 
 // just determine if the player is moving
 #define PLAYER_MOVING(pp) ((pp)->xvect|(pp)->yvect)

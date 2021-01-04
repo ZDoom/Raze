@@ -288,8 +288,8 @@ void ScaleRandomPoint(SECTOR_OBJECTp sop, short k, short ang, int x, int y, int 
     xmul = (sop->scale_point_dist[k] * sop->scale_x_mult)>>8;
     ymul = (sop->scale_point_dist[k] * sop->scale_y_mult)>>8;
 
-    *dx = x + mulscale14(xmul, bcos(ang));
-    *dy = y + mulscale14(ymul, bsin(ang));
+    *dx = x + MulScale(xmul, bcos(ang), 14);
+    *dy = y + MulScale(ymul, bsin(ang), 14);
 }
 
 //
@@ -322,8 +322,8 @@ MorphTornado(SECTOR_OBJECTp sop)
     sy = y;
 
     // move it from last x,y
-    mx = x + mulscale14(sop->morph_speed, bcos(sop->morph_ang));
-    my = y + mulscale14(sop->morph_speed, bsin(sop->morph_ang));
+    mx = x + MulScale(sop->morph_speed, bcos(sop->morph_ang), 14);
+    my = y + MulScale(sop->morph_speed, bsin(sop->morph_ang), 14);
 
     // bound check radius
     if (ksqrt(SQ(sop->xmid - mx) + SQ(sop->ymid - my)) > sop->morph_dist_max + sop->scale_dist)
@@ -334,8 +334,8 @@ MorphTornado(SECTOR_OBJECTp sop)
         sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024);
 
         // move back some from last point
-        mx = sx + mulscale14(sop->morph_speed << 1, bcos(sop->morph_ang));
-        my = sy + mulscale14(sop->morph_speed << 1, bsin(sop->morph_ang));
+        mx = sx + MulScale(sop->morph_speed << 1, bcos(sop->morph_ang), 14);
+        my = sy + MulScale(sop->morph_speed << 1, bsin(sop->morph_ang), 14);
 
         sop->morph_xoff = sop->xmid - mx;
         sop->morph_yoff = sop->ymid - my;
@@ -400,8 +400,8 @@ MorphFloor(SECTOR_OBJECTp sop)
     y = sop->ymid - sop->morph_yoff;
 
     // move it from last x,y
-    mx = x + mulscale14(sop->morph_speed, bcos(sop->morph_ang));
-    my = y + mulscale14(sop->morph_speed, bsin(sop->morph_ang));
+    mx = x + MulScale(sop->morph_speed, bcos(sop->morph_ang), 14);
+    my = y + MulScale(sop->morph_speed, bsin(sop->morph_ang), 14);
 
     // save x,y back as offset info
     sop->morph_xoff = sop->xmid - mx;
@@ -415,8 +415,8 @@ MorphFloor(SECTOR_OBJECTp sop)
         sop->morph_ang = NORM_ANGLE(sop->morph_ang + 1024);
 
         // back it up and save it off
-        mx = x + mulscale14(sop->morph_speed, bcos(sop->morph_ang));
-        my = y + mulscale14(sop->morph_speed, bsin(sop->morph_ang));
+        mx = x + MulScale(sop->morph_speed, bcos(sop->morph_ang), 14);
+        my = y + MulScale(sop->morph_speed, bsin(sop->morph_ang), 14);
         sop->morph_xoff = sop->xmid - mx;
         sop->morph_yoff = sop->ymid - my;
 

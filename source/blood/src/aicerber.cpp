@@ -121,8 +121,8 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
             y2 += (yvel[nSprite2]*t)>>12;
             z2 += (zvel[nSprite2]*t)>>8;
         }
-        int tx = x+mulscale30(Cos(pSprite->ang), nDist);
-        int ty = y+mulscale30(Sin(pSprite->ang), nDist);
+        int tx = x+MulScale(Cos(pSprite->ang), nDist, 30);
+        int ty = y+MulScale(Sin(pSprite->ang), nDist, 30);
         int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;
@@ -206,8 +206,8 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
             y2 += (yvel[nSprite2]*t)>>12;
             z2 += (zvel[nSprite2]*t)>>8;
         }
-        int tx = x+mulscale30(Cos(pSprite->ang), nDist);
-        int ty = y+mulscale30(Sin(pSprite->ang), nDist);
+        int tx = x+MulScale(Cos(pSprite->ang), nDist, 30);
+        int ty = y+MulScale(Sin(pSprite->ang), nDist, 30);
         int tz = z+mulscale(actor->dudeSlope, nDist, 10);
         int tsr = mulscale(9460, nDist, 10);
         int top, bottom;

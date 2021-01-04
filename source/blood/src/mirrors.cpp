@@ -244,7 +244,7 @@ void sub_557C4(int x, int y, int interpolation)
                         pTSprite->x = dx+interpolate(pLocation->x, pSprite->x, interpolation);
                         pTSprite->y = dy+interpolate(pLocation->y, pSprite->y, interpolation);
                         pTSprite->z = dz+interpolate(pLocation->z, pSprite->z, interpolation);
-                        pTSprite->ang = pLocation->ang+mulscale16(((pSprite->ang-pLocation->ang+1024)&2047)-1024,interpolation);
+                        pTSprite->ang = pLocation->ang+MulScale(((pSprite->ang-pLocation->ang+1024)&2047)-1024,interpolation, 16);
                         spritesortcnt++;
                     }
                 }

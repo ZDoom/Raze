@@ -139,8 +139,8 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
             int nRand2 = dword_172CE0[i][1];
             int nRand3 = dword_172CE0[i][2];
             ang += nRand3;
-            int x = mulscale30(512, Cos(ang));
-            int y = mulscale30(512, Sin(ang));
+            int x = MulScale(512, Cos(ang), 30);
+            int y = MulScale(512, Sin(ang), 30);
             int z = 0;
             RotateYZ(&x, &y, &z, nRand1);
             RotateXZ(&x, &y, &z, nRand2);
@@ -226,9 +226,9 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
             int nSector = pTSprite->sectnum;
             auto pNSprite = viewInsertTSprite<tspritetype>(nSector, 32767, NULL);
             int nLen = 128+(i<<7);
-            int x = mulscale30(nLen, Cos(nAng));
+            int x = MulScale(nLen, Cos(nAng), 30);
             pNSprite->x = pTSprite->x + x;
-            int y = mulscale30(nLen, Sin(nAng));
+            int y = MulScale(nLen, Sin(nAng), 30);
             pNSprite->y = pTSprite->y + y;
             pNSprite->z = pTSprite->z;
             assert(nSector >= 0 && nSector < kMaxSectors);
@@ -410,8 +410,8 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
             const int lifeLeech = 9;
             if (pPlayer->curWeapon == lifeLeech)
             {
-                pNSprite->x -=  mulscale30(128, Cos(pNSprite->ang));
-                pNSprite->y -= mulscale30(128, Sin(pNSprite->ang));
+                pNSprite->x -=  MulScale(128, Cos(pNSprite->ang), 30);
+                pNSprite->y -= MulScale(128, Sin(pNSprite->ang), 30);
             }
         }
         break;
@@ -435,7 +435,7 @@ static void viewApplyDefaultPal(tspritetype *pTSprite, sectortype const *pSector
 void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smoothratio)
 {
 	// shift before interpolating to increase precision.
-	int myclock = (gFrameClock<<3) + mulscale16(4<<3, smoothratio);
+	int myclock = (gFrameClock<<3) + MulScale(4<<3, smoothratio, 16);
     assert(spritesortcnt <= maxspritesonscreen);
     gCameraAng = cA;
     int nViewSprites = spritesortcnt;
@@ -468,7 +468,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             pTSprite->x = interpolate(pPrevLoc->x, pTSprite->x, iInterpolate);
             pTSprite->y = interpolate(pPrevLoc->y, pTSprite->y, iInterpolate);
             pTSprite->z = interpolate(pPrevLoc->z, pTSprite->z, iInterpolate);
-            pTSprite->ang = pPrevLoc->ang+mulscale16(((pTSprite->ang-pPrevLoc->ang+1024)&2047)-1024, iInterpolate);
+            pTSprite->ang = pPrevLoc->ang+MulScale(((pTSprite->ang-pPrevLoc->ang+1024)&2047)-1024, iInterpolate, 16);
         }
         int nAnim = 0;
         switch (picanm[nTile].extra & 7) {
@@ -792,8 +792,8 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     auto pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_14);
                     if (pNTSprite) {
                         POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-                        pNTSprite->x += mulscale28(pPosture->zOffset, Cos(pTSprite->ang));
-                        pNTSprite->y += mulscale28(pPosture->zOffset, Sin(pTSprite->ang));
+                        pNTSprite->x += MulScale(pPosture->zOffset, Cos(pTSprite->ang), 28);
+                        pNTSprite->y += MulScale(pPosture->zOffset, Sin(pTSprite->ang), 28);
                         pNTSprite->z = pPlayer->pSprite->z-pPosture->xOffset;
                     }
                 }

@@ -1127,8 +1127,8 @@ DoActorMoveCloser(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
-    nx = mulscale14(sp->xvel, bcos(sp->ang));
-    ny = mulscale14(sp->xvel, bsin(sp->ang));
+    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
+    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     // if cannot move the sprite
     if (!move_actor(SpriteNum, nx, ny, 0L))
@@ -1707,8 +1707,8 @@ DoActorMoveJump(short SpriteNum)
 
     // Move while jumping
 
-    nx = mulscale14(sp->xvel, bcos(sp->ang));
-    ny = mulscale14(sp->xvel, bsin(sp->ang));
+    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
+    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     move_actor(SpriteNum, nx, ny, 0L);
 
@@ -1753,8 +1753,8 @@ int move_scan(short SpriteNum, short ang, int dist, int *stopx, int *stopy, int 
 
     // do the move
     sp->ang = ang;
-    nx = mulscale14(dist, bcos(sp->ang));
-    ny = mulscale14(dist, bsin(sp->ang));
+    nx = MulScale(dist, bcos(sp->ang), 14);
+    ny = MulScale(dist, bsin(sp->ang), 14);
 
     ret = move_sprite(SpriteNum, nx, ny, 0, u->ceiling_dist, u->floor_dist, cliptype, 1);
     // move_sprite DOES do a getzrange point?
@@ -2042,8 +2042,8 @@ DoActorReposition(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
-    nx = mulscale14(sp->xvel, bcos(sp->ang));
-    ny = mulscale14(sp->xvel, bsin(sp->ang));
+    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
+    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     // still might hit something and have to handle it.
     if (!move_actor(SpriteNum, nx, ny, 0L))
@@ -2129,8 +2129,8 @@ DoActorReposition(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
-    nx = mulscale14(sp->xvel, bcos(sp->ang));
-    ny = mulscale14(sp->xvel, bsin(sp->ang));
+    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
+    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {

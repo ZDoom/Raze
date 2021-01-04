@@ -1690,14 +1690,14 @@ DoPlayerBob(PLAYERp pp)
     {
         //amt = 10;
         amt = 12;
-        amt = mulscale16(amt, dist<<8);
-        dist = mulscale16(dist, 26000);
+        amt = MulScale(amt, dist<<8, 16);
+        dist = MulScale(dist, 26000, 16);
     }
     else
     {
         amt = 5;
-        amt = mulscale16(amt, dist<<9);
-        dist = mulscale16(dist, 32000);
+        amt = MulScale(amt, dist<<9, 16);
+        dist = MulScale(dist, 32000, 16);
     }
 
     // controls how fast you move through the sin table
@@ -1708,7 +1708,7 @@ DoPlayerBob(PLAYERp pp)
 
     // move pp->q16horiz up and down from 100 using sintable
     //pp->bob_z = Z((8 * bsin(pp->bcnt)) >> 14);
-    pp->bob_z = mulscale14(Z(amt), bsin(pp->bcnt));
+    pp->bob_z = MulScale(Z(amt), bsin(pp->bcnt), 14);
 }
 
 void
@@ -1749,7 +1749,7 @@ DoPlayerSpriteBob(PLAYERp pp, short player_height, short bob_amt, short bob_spee
 
     pp->bob_ndx = (pp->bob_ndx + (synctics << bob_speed)) & 2047;
 
-    pp->bob_amt = mulscale14(bob_amt, bsin(pp->bob_ndx));
+    pp->bob_amt = MulScale(bob_amt, bsin(pp->bob_ndx), 14);
 
     sp->z = (pp->posz + player_height) + pp->bob_amt;
 }
@@ -1983,8 +1983,8 @@ DoPlayerSlide(PLAYERp pp)
     if (pp->sop)
         return;
 
-    pp->slide_xvect  = mulscale16(pp->slide_xvect, PLAYER_SLIDE_FRICTION);
-    pp->slide_yvect  = mulscale16(pp->slide_yvect, PLAYER_SLIDE_FRICTION);
+    pp->slide_xvect  = MulScale(pp->slide_xvect, PLAYER_SLIDE_FRICTION, 16);
+    pp->slide_yvect  = MulScale(pp->slide_yvect, PLAYER_SLIDE_FRICTION, 16);
 
     if (labs(pp->slide_xvect) < 12800 && labs(pp->slide_yvect) < 12800)
         pp->slide_xvect = pp->slide_yvect = 0;
@@ -2115,8 +2115,8 @@ DoPlayerMove(PLAYERp pp)
         friction -= pp->WadeDepth * 100L;
     }
 
-    pp->xvect  = mulscale16(pp->xvect, friction);
-    pp->yvect  = mulscale16(pp->yvect, friction);
+    pp->xvect  = MulScale(pp->xvect, friction, 16);
+    pp->yvect  = MulScale(pp->yvect, friction, 16);
 
     if (TEST(pp->Flags, PF_FLYING))
     {
@@ -2392,8 +2392,8 @@ DoPlayerMoveBoat(PLAYERp pp)
 
     if (sop->drive_speed)
     {
-        pp->xvect = mulscale6(pp->input.fvel, sop->drive_speed);
-        pp->yvect = mulscale6(pp->input.svel, sop->drive_speed);
+        pp->xvect = MulScale(pp->input.fvel, sop->drive_speed, 6);
+        pp->yvect = MulScale(pp->input.svel, sop->drive_speed, 6);
 
         // does sliding/momentum
         pp->xvect = (pp->xvect + (pp->oxvect*(sop->drive_slide-1)))/sop->drive_slide;
@@ -2404,8 +2404,8 @@ DoPlayerMoveBoat(PLAYERp pp)
         pp->xvect += ((pp->input.fvel*synctics*2)<<6);
         pp->yvect += ((pp->input.svel*synctics*2)<<6);
 
-        pp->xvect  = mulscale16(pp->xvect, BOAT_FRICTION);
-        pp->yvect  = mulscale16(pp->yvect, BOAT_FRICTION);
+        pp->xvect  = MulScale(pp->xvect, BOAT_FRICTION, 16);
+        pp->yvect  = MulScale(pp->yvect, BOAT_FRICTION, 16);
 
         // does sliding/momentum
         pp->xvect = (pp->xvect + (pp->oxvect*5))/6;
@@ -2764,8 +2764,8 @@ DoPlayerMoveVehicle(PLAYERp pp)
 
     if (sop->drive_speed)
     {
-        pp->xvect = mulscale6(pp->input.fvel, sop->drive_speed);
-        pp->yvect = mulscale6(pp->input.svel, sop->drive_speed);
+        pp->xvect = MulScale(pp->input.fvel, sop->drive_speed, 6);
+        pp->yvect = MulScale(pp->input.svel, sop->drive_speed, 6);
 
         // does sliding/momentum
         pp->xvect = (pp->xvect + (pp->oxvect*(sop->drive_slide-1)))/sop->drive_slide;
@@ -2776,8 +2776,8 @@ DoPlayerMoveVehicle(PLAYERp pp)
         pp->xvect += ((pp->input.fvel*synctics*2)<<6);
         pp->yvect += ((pp->input.svel*synctics*2)<<6);
 
-        pp->xvect  = mulscale16(pp->xvect, TANK_FRICTION);
-        pp->yvect  = mulscale16(pp->yvect, TANK_FRICTION);
+        pp->xvect  = MulScale(pp->xvect, TANK_FRICTION, 16);
+        pp->yvect  = MulScale(pp->yvect, TANK_FRICTION, 16);
 
         pp->xvect = (pp->xvect + (pp->oxvect*1))/2;
         pp->yvect = (pp->yvect + (pp->oyvect*1))/2;
@@ -3385,8 +3385,8 @@ DoPlayerClimb(PLAYERp pp)
 
     pp->xvect += ((pp->input.fvel*synctics*2)<<6);
     pp->yvect += ((pp->input.svel*synctics*2)<<6);
-    pp->xvect  = mulscale16(pp->xvect, PLAYER_CLIMB_FRICTION);
-    pp->yvect  = mulscale16(pp->yvect, PLAYER_CLIMB_FRICTION);
+    pp->xvect  = MulScale(pp->xvect, PLAYER_CLIMB_FRICTION, 16);
+    pp->yvect  = MulScale(pp->yvect, PLAYER_CLIMB_FRICTION, 16);
     if (labs(pp->xvect) < 12800 && labs(pp->yvect) < 12800)
         pp->xvect = pp->yvect = 0;
 
@@ -3511,7 +3511,7 @@ DoPlayerClimb(PLAYERp pp)
 
         pp->climb_ndx &= 1023;
 
-        // pp->posz += mulscale14(climb_amt, bsin(pp->climb_ndx));
+        // pp->posz += MulScale(climb_amt, bsin(pp->climb_ndx), 14);
         pp->posz += climb_amt;
 
         // if you are touching the floor
@@ -3849,7 +3849,7 @@ DoPlayerFly(PLAYERp pp)
             pp->z_speed = -PLAYER_FLY_MAX_SPEED;
     }
 
-    pp->z_speed = mulscale16(pp->z_speed, 58000);
+    pp->z_speed = MulScale(pp->z_speed, 58000, 16);
 
     pp->posz += pp->z_speed;
 
@@ -4703,7 +4703,7 @@ DoPlayerDive(PLAYERp pp)
             pp->z_speed = -PLAYER_DIVE_MAX_SPEED;
     }
 
-    pp->z_speed = mulscale16(pp->z_speed, 58000);
+    pp->z_speed = MulScale(pp->z_speed, 58000, 16);
 
     if (labs(pp->z_speed) < 16)
         pp->z_speed = 0;

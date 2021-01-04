@@ -189,7 +189,7 @@ void ResetView()
 
 static inline int interpolate16(int a, int b, int smooth)
 {
-    return a + mulscale16(b - a, smooth);
+    return a + MulScale(b - a, smooth, 16);
 }
 
 static TextOverlay subtitleOverlay;
@@ -345,7 +345,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
 
         videoSetCorrectedAspect();
-        renderSetAspect(mulscale16(vr, viewingrange), yxaspect);
+        renderSetAspect(MulScale(vr, viewingrange, 16), yxaspect);
 
         if (HavePLURemap())
         {

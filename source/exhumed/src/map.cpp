@@ -74,8 +74,8 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
     // [MR]: Confirm that this is correct as math doesn't match the variable names.
     int nCos = z * -bsin(a);
     int nSin = z * -bcos(a);
-    int nCos2 = mulscale16(nCos, yxaspect);
-    int nSin2 = mulscale16(nSin, yxaspect);
+    int nCos2 = MulScale(nCos, yxaspect, 16);
+    int nSin2 = MulScale(nSin, yxaspect, 16);
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {

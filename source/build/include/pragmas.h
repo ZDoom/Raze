@@ -50,19 +50,6 @@ static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
 }
 
 
-//
-// Generic C
-//
-
-#define EDUKE32_SCALER_PRAGMA(a)                                                                                                     \
-    static FORCE_INLINE int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }             \
-
-
-EDUKE32_GENERATE_PRAGMAS
-
-#undef EDUKE32_SCALER_PRAGMA
-
-
 #define klabs(x) abs(x)
 static inline constexpr int ksgn(int32_t a) { return (a > 0) - (a < 0); }
 

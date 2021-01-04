@@ -398,15 +398,15 @@ void QuickJumpSetup(short stat, short lotag, short type)
 
         // add jump point
         nsp = &sprite[SpriteNum];
-        nsp->x += mulscale14(64, bcos(nsp->ang));
-        nsp->y += mulscale14(64, bsin(nsp->ang));
+        nsp->x += MulScale(64, bcos(nsp->ang), 14);
+        nsp->y += MulScale(64, bsin(nsp->ang), 14);
         nsp->lotag = lotag;
         TrackAddPoint(t, tp, SpriteNum);
 
         // add end point
         nsp = &sprite[end_sprite];
-        nsp->x += mulscale14(2048, bcos(nsp->ang));
-        nsp->y += mulscale14(2048, bsin(nsp->ang));
+        nsp->x += MulScale(2048, bcos(nsp->ang), 14);
+        nsp->y += MulScale(2048, bsin(nsp->ang), 14);
         nsp->lotag = TRACK_END;
         nsp->hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -456,8 +456,8 @@ void QuickScanSetup(short stat, short lotag, short type)
         nsp = &sprite[start_sprite];
         nsp->lotag = TRACK_START;
         nsp->hitag = 0;
-        nsp->x += mulscale14(64, -bcos(nsp->ang));
-        nsp->y += mulscale14(64, -bsin(nsp->ang));
+        nsp->x += MulScale(64, -bcos(nsp->ang), 14);
+        nsp->y += MulScale(64, -bsin(nsp->ang), 14);
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
@@ -467,8 +467,8 @@ void QuickScanSetup(short stat, short lotag, short type)
 
         // add end point
         nsp = &sprite[end_sprite];
-        nsp->x += mulscale14(64, bcos(nsp->ang));
-        nsp->y += mulscale14(64, bsin(nsp->ang));
+        nsp->x += MulScale(64, bcos(nsp->ang), 14);
+        nsp->y += MulScale(64, bsin(nsp->ang), 14);
         nsp->lotag = TRACK_END;
         nsp->hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -522,8 +522,8 @@ void QuickExitSetup(short stat, short type)
 
         // add end point
         nsp = &sprite[end_sprite];
-        nsp->x += mulscale14(1024, bcos(nsp->ang));
-        nsp->y += mulscale14(1024, bsin(nsp->ang));
+        nsp->x += MulScale(1024, bcos(nsp->ang), 14);
+        nsp->y += MulScale(1024, bsin(nsp->ang), 14);
         nsp->lotag = TRACK_END;
         nsp->hitag = 0;
         TrackAddPoint(t, tp, end_sprite);
@@ -1980,8 +1980,8 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
                                 int xmul = (sop->scale_dist * sop->scale_x_mult)>>8;
                                 int ymul = (sop->scale_dist * sop->scale_y_mult)>>8;
 
-                                dx = x + mulscale14(xmul, bcos(ang));
-                                dy = y + mulscale14(ymul, bsin(ang));
+                                dx = x + MulScale(xmul, bcos(ang), 14);
+                                dy = y + MulScale(ymul, bsin(ang), 14);
                             }
                         }
                     }
@@ -2176,7 +2176,7 @@ MoveZ(SECTOR_OBJECTp sop)
     if (sop->bob_amt)
     {
         sop->bob_sine_ndx = (PlayClock << sop->bob_speed) & 2047;
-        sop->bob_diff = mulscale14(sop->bob_amt, bsin(sop->bob_sine_ndx));
+        sop->bob_diff = MulScale(sop->bob_amt, bsin(sop->bob_sine_ndx), 14);
 
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
@@ -2785,7 +2785,7 @@ OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int newy,
     if (sop->bob_amt)
     {
         sop->bob_sine_ndx = (PlayClock << sop->bob_speed) & 2047;
-        sop->bob_diff = mulscale14(sop->bob_amt, bsin(sop->bob_sine_ndx));
+        sop->bob_diff = MulScale(sop->bob_amt, bsin(sop->bob_sine_ndx), 14);
 
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
@@ -3826,8 +3826,8 @@ ActorFollowTrack(short SpriteNum, short locktics)
         else
         {
             // calculate a new x and y
-            nx = mulscale14(sp->xvel, bcos(sp->ang));
-            ny = mulscale14(sp->xvel, bsin(sp->ang));
+            nx = MulScale(sp->xvel, bcos(sp->ang), 14);
+            ny = MulScale(sp->xvel, bsin(sp->ang), 14);
         }
 
         nz = 0;

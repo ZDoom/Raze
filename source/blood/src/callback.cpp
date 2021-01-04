@@ -40,8 +40,8 @@ void fxFlameLick(int nSprite) // 0
     {
         int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>3;
         int nAngle = Random(2048);
-        int dx = mulscale30(nDist, Cos(nAngle));
-        int dy = mulscale30(nDist, Sin(nAngle));
+        int dx = MulScale(nDist, Cos(nAngle), 30);
+        int dy = MulScale(nDist, Sin(nAngle), 30);
         int x = pSprite->x + dx;
         int y = pSprite->y + dy;
         int z = bottom-Random(bottom-top);
@@ -190,8 +190,8 @@ void fxDynPuff(int nSprite) // 8
     if (zvel[nSprite])
     {
         int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
-        int x = pSprite->x + mulscale30(nDist, Cos(pSprite->ang-512));
-        int y = pSprite->y + mulscale30(nDist, Sin(pSprite->ang-512));
+        int x = pSprite->x + MulScale(nDist, Cos(pSprite->ang-512), 30);
+        int y = pSprite->y + MulScale(nDist, Sin(pSprite->ang-512), 30);
         int z = pSprite->z;
         spritetype *pFX = gFX.fxSpawn(FX_7, pSprite->sectnum, x, y, z, 0);
         if (pFX)
@@ -220,13 +220,13 @@ void Respawn(int nSprite) // 9
 
     switch (pXSprite->respawnPending) {
         case 1: {
-            int nTime = mulscale16(actGetRespawnTime(pSprite), 0x4000);
+            int nTime = MulScale(actGetRespawnTime(pSprite), 0x4000, 16);
             pXSprite->respawnPending = 2;
             evPost(nSprite, 3, nTime, kCallbackRespawn);
             break;
         }
         case 2: {
-            int nTime = mulscale16(actGetRespawnTime(pSprite), 0x2000);
+            int nTime = MulScale(actGetRespawnTime(pSprite), 0x2000, 16);
             pXSprite->respawnPending = 3;
             evPost(nSprite, 3, nTime, kCallbackRespawn);
             break;
@@ -296,8 +296,8 @@ void PlayerBubble(int nSprite) // 10
         {
             int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
             int nAngle = Random(2048);
-            int x = pSprite->x + mulscale30(nDist, Cos(nAngle));
-            int y = pSprite->y + mulscale30(nDist, Sin(nAngle));
+            int x = pSprite->x + MulScale(nDist, Cos(nAngle), 30);
+            int y = pSprite->y + MulScale(nDist, Sin(nAngle), 30);
             int z = bottom-Random(bottom-top);
             spritetype *pFX = gFX.fxSpawn((FX_ID)(FX_23+Random(3)), pSprite->sectnum, x, y, z, 0);
             if (pFX)
@@ -320,8 +320,8 @@ void EnemyBubble(int nSprite) // 11
     {
         int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
         int nAngle = Random(2048);
-        int x = pSprite->x + mulscale30(nDist, Cos(nAngle));
-        int y = pSprite->y + mulscale30(nDist, Sin(nAngle));
+        int x = pSprite->x + MulScale(nDist, Cos(nAngle), 30);
+        int y = pSprite->y + MulScale(nDist, Sin(nAngle), 30);
         int z = bottom-Random(bottom-top);
         spritetype *pFX = gFX.fxSpawn((FX_ID)(FX_23+Random(3)), pSprite->sectnum, x, y, z, 0);
         if (pFX)
@@ -381,8 +381,8 @@ void fxBloodBits(int nSprite) // 14
     pSprite->z += floorZ-bottom;
     int nAngle = Random(2048);
     int nDist = Random(16)<<4;
-    int x = pSprite->x+mulscale28(nDist, Cos(nAngle));
-    int y = pSprite->y+mulscale28(nDist, Sin(nAngle));
+    int x = pSprite->x+MulScale(nDist, Cos(nAngle), 28);
+    int y = pSprite->y+MulScale(nDist, Sin(nAngle), 28);
     gFX.fxSpawn(FX_48, pSprite->sectnum, x, y, pSprite->z, 0);
     if (pSprite->ang == 1024)
     {
@@ -528,8 +528,8 @@ void fxPodBloodSplat(int nSprite) // 19
     pSprite->z += floorZ-bottom;
     int nAngle = Random(2048);
     int nDist = Random(16)<<4;
-    int x = pSprite->x+mulscale28(nDist, Cos(nAngle));
-    int y = pSprite->y+mulscale28(nDist, Sin(nAngle));
+    int x = pSprite->x+MulScale(nDist, Cos(nAngle), 28);
+    int y = pSprite->y+MulScale(nDist, Sin(nAngle), 28);
     if (pSprite->ang == 1024)
     {
         int nChannel = 28+(pSprite->index&2);

@@ -304,8 +304,8 @@ DoDebrisCurrent(SPRITEp sp)
 
     //sp->clipdist = (256+128)>>2;
 
-    nx = mulscale14(DIV4(sectu->speed), bcos(sectu->ang));
-    ny = mulscale14(DIV4(sectu->speed), bsin(sectu->ang));
+    nx = MulScale(DIV4(sectu->speed), bcos(sectu->ang), 14);
+    ny = MulScale(DIV4(sectu->speed), bsin(sectu->ang), 14);
 
     // faster than move_sprite
     //move_missile(sp-sprite, nx, ny, 0, Z(2), Z(0), 0, ACTORMOVETICS);
@@ -316,8 +316,8 @@ DoDebrisCurrent(SPRITEp sp)
     {
         short rang = RANDOM_P2(2048);
 
-        nx = mulscale14(DIV4(sectu->speed), bcos(sectu->ang + rang));
-        nx = mulscale14(DIV4(sectu->speed), bsin(sectu->ang + rang));
+        nx = MulScale(DIV4(sectu->speed), bcos(sectu->ang + rang), 14);
+        nx = MulScale(DIV4(sectu->speed), bsin(sectu->ang + rang), 14);
 
         move_sprite(sp-sprite, nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
     }
@@ -444,8 +444,8 @@ DoActorDebris(short SpriteNum)
         {
             //nx = sp->xvel * ACTORMOVETICS * bcos(sp->ang) >> 14;
             //ny = sp->xvel * ACTORMOVETICS * bsin(sp->ang) >> 14;
-            nx = mulscale14(ACTORMOVETICS, bcos(sp->ang));
-            ny = mulscale14(ACTORMOVETICS, bsin(sp->ang));
+            nx = MulScale(ACTORMOVETICS, bcos(sp->ang), 14);
+            ny = MulScale(ACTORMOVETICS, bsin(sp->ang), 14);
 
             //sp->clipdist = (256+128)>>2;
 
@@ -459,7 +459,7 @@ DoActorDebris(short SpriteNum)
         {
             u->WaitTics = (u->WaitTics + (ACTORMOVETICS << 3)) & 1023;
             //sp->z = Z(2) + u->loz + ((Z(4) * (int) bsin(u->WaitTics)) >> 14);
-            sp->z = u->loz - mulscale14(Z(2), bsin(u->WaitTics));
+            sp->z = u->loz - MulScale(Z(2), bsin(u->WaitTics), 14);
         }
     }
     else
@@ -489,7 +489,7 @@ DoFireFly(short SpriteNum)
 
     u->WaitTics = (u->WaitTics + (ACTORMOVETICS << 1)) & 2047;
 
-    sp->z = u->sz + mulscale14(Z(32), bsin(u->WaitTics));
+    sp->z = u->sz + MulScale(Z(32), bsin(u->WaitTics), 14);
     return 0;
 }
 
@@ -635,8 +635,8 @@ DoActorSlide(short SpriteNum)
     USERp u = User[SpriteNum];
     int nx, ny;
 
-    nx = mulscale14(u->slide_vel, bcos(u->slide_ang));
-    ny = mulscale14(u->slide_vel, bsin(u->slide_ang));
+    nx = MulScale(u->slide_vel, bcos(u->slide_ang), 14);
+    ny = MulScale(u->slide_vel, bsin(u->slide_ang), 14);
 
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {
@@ -853,8 +853,8 @@ DoActorDeathMove(short SpriteNum)
             DoActorFall(SpriteNum);
     }
 
-    nx = mulscale14(sp->xvel, bcos(sp->ang));
-    ny = mulscale14(sp->xvel, bsin(sp->ang));
+    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
+    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     sp->clipdist = (128+64)>>2;
     move_actor(SpriteNum, nx, ny, 0);

@@ -697,7 +697,7 @@ int DoCoolgMatchPlayerZ(short SpriteNum)
     u->sz = max(u->sz, hiz + u->ceiling_dist);
 
     u->Counter = (u->Counter + (ACTORMOVETICS<<3)) & 2047;
-    sp->z = u->sz + mulscale14(COOLG_BOB_AMT, bsin(u->Counter));
+    sp->z = u->sz + MulScale(COOLG_BOB_AMT, bsin(u->Counter), 14);
 
     bound = u->hiz + u->ceiling_dist + COOLG_BOB_AMT;
     if (sp->z < bound)
@@ -751,8 +751,8 @@ int DoCoolgCircle(short SpriteNum)
 
     sp->ang = NORM_ANGLE(sp->ang + u->Counter2);
 
-    nx = mulscale14(sp->xvel, bcos(sp->ang));
-    ny = mulscale14(sp->xvel, bsin(sp->ang));
+    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
+    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {
@@ -812,8 +812,8 @@ DoCoolgDeath(short SpriteNum)
         DoActorSlide(SpriteNum);
 
     // slide while falling
-    nx = mulscale14(sp->xvel, bcos(sp->ang));
-    ny = mulscale14(sp->xvel, bsin(sp->ang));
+    nx = MulScale(sp->xvel, bcos(sp->ang), 14);
+    ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     u->ret = move_sprite(SpriteNum, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
     DoFindGroundPoint(SpriteNum);

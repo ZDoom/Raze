@@ -873,12 +873,12 @@ void nnExtProcessSuperSprites() {
                         {
                             speed = pXSector->panVel << 9;
                             if (!pXSector->panAlways && pXSector->busy)
-                                speed = mulscale16(speed, pXSector->busy);
+                                speed = MulScale(speed, pXSector->busy, 16);
                         }
                         if (sector[pDebris->sectnum].floorstat & 64)
                             angle = (angle + GetWallAngle(sector[pDebris->sectnum].wallptr) + 512) & 2047;
-                        int dx = mulscale30(speed, Cos(angle));
-                        int dy = mulscale30(speed, Sin(angle));
+                        int dx = MulScale(speed, Cos(angle), 30);
+                        int dy = MulScale(speed, Sin(angle), 30);
                         xvel[pDebris->index] += dx;
                         yvel[pDebris->index] += dy;
                     }
@@ -1048,9 +1048,9 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) {
             if (gSpriteMass[pSprite->extra].mass > 0) {
                 int t = scale(dmg, size, gSpriteMass[pSprite->extra].mass);
 
-                xvel[pSprite->index] += mulscale16(t, dx);
-                yvel[pSprite->index] += mulscale16(t, dy);
-                zvel[pSprite->index] += mulscale16(t, dz);
+                xvel[pSprite->index] += MulScale(t, dx, 16);
+                yvel[pSprite->index] += MulScale(t, dy, 16);
+                zvel[pSprite->index] += MulScale(t, dz, 16);
             }
 
 
@@ -1194,9 +1194,9 @@ void debrisMove(int listIndex) {
         pSprite->z += ClipLow(ceilZ - top, 0);
         if (zvel[nSprite] < 0)
         {
-            xvel[nSprite] = mulscale16(xvel[nSprite], 0xc000);
-            yvel[nSprite] = mulscale16(yvel[nSprite], 0xc000);
-            zvel[nSprite] = mulscale16(-zvel[nSprite], 0x4000);
+            xvel[nSprite] = MulScale(xvel[nSprite], 0xc000, 16);
+            yvel[nSprite] = MulScale(yvel[nSprite], 0xc000, 16);
+            zvel[nSprite] = MulScale(-zvel[nSprite], 0x4000, 16);
         }
 
     } else {
@@ -1221,8 +1221,8 @@ void debrisMove(int listIndex) {
         if (nVel > 0)
         {
             int t = divscale16(nVelClipped, nVel);
-            xvel[nSprite] -= mulscale16(t, xvel[nSprite]);
-            yvel[nSprite] -= mulscale16(t, yvel[nSprite]);
+            xvel[nSprite] -= MulScale(t, xvel[nSprite], 16);
+            yvel[nSprite] -= MulScale(t, yvel[nSprite], 16);
         }
     }
 
@@ -4846,7 +4846,7 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, i
     if (pQavScene->qavResrc != NULL) {
 
         QAV* pQAV = pQavScene->qavResrc;
-        int v4 = (pPlayer->weaponTimer == 0) ? ((gFrameClock + mulscale16(4, smoothratio)) % pQAV->duration) : pQAV->duration - pPlayer->weaponTimer;
+        int v4 = (pPlayer->weaponTimer == 0) ? ((gFrameClock + MulScale(4, smoothratio, 16)) % pQAV->duration) : pQAV->duration - pPlayer->weaponTimer;
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
         if (nInv >= 120 * 8 || (nInv != 0 && (gFrameClock & 32))) {

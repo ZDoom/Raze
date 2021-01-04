@@ -116,8 +116,8 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
             return false;
         return true;
     }
-    x += mulscale30(nRange, Cos(nAngle));
-    y += mulscale30(nRange, Sin(nAngle));
+    x += MulScale(nRange, Cos(nAngle), 30);
+    y += MulScale(nRange, Sin(nAngle), 30);
     int nSector = pSprite->sectnum;
     assert(nSector >= 0 && nSector < kMaxSectors);
     if (!FindSector(x, y, z, &nSector))
@@ -267,8 +267,8 @@ void aiMoveForward(DBloodActor* actor)
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     if (klabs(nAng) > 341)
         return;
-    actor->xvel() += mulscale30(pDudeInfo->frontSpeed, Cos(pSprite->ang));
-    actor->yvel() += mulscale30(pDudeInfo->frontSpeed, Sin(pSprite->ang));
+    actor->xvel() += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
+    actor->yvel() += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
 }
 
 void aiMoveTurn(DBloodActor* actor)

@@ -1106,8 +1106,8 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 				wall[wall[hitwall].point2].y - wall[hitwall].y);
 
 			i = nx * bsin(daang) + ny * -bcos(daang);
-			if (abs(nx) > abs(ny)) hx -= mulscale28(nx, i);
-			else hy -= mulscale28(ny, i);
+			if (abs(nx) > abs(ny)) hx -= MulScale(nx, i, 28);
+			else hy -= MulScale(ny, i, 28);
 		}
 		else if (!hitsprt)
 		{
@@ -1118,9 +1118,9 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 		else i = divscale16(hy, ny);
 		if (i < cameradist) cameradist = i;
 	}
-	*vx = (*vx) + mulscale16(nx, cameradist);
-	*vy = (*vy) + mulscale16(ny, cameradist);
-	*vz = (*vz) + mulscale16(nz, cameradist);
+	*vx = (*vx) + MulScale(nx, cameradist, 16);
+	*vy = (*vy) + MulScale(ny, cameradist, 16);
+	*vz = (*vz) + MulScale(nz, cameradist, 16);
 	
 	int myclock = ud.levelclock + int(TICSPERFRAME/65536. * smoothratio);
 	if (cameraclock == INT_MIN) cameraclock = myclock;	// third person view was just started.

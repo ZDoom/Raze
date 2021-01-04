@@ -303,8 +303,8 @@ void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *p
         if (!pPos && (pSprite->cstat&48) == 0)
         {
             int nAngle = Random(2048);
-            gPos.x = pSprite->x+mulscale30(pSprite->clipdist<<2, Cos(nAngle));
-            gPos.y = pSprite->y+mulscale30(pSprite->clipdist<<2, Sin(nAngle));
+            gPos.x = pSprite->x+MulScale(pSprite->clipdist<<2, Cos(nAngle), 30);
+            gPos.y = pSprite->y+MulScale(pSprite->clipdist<<2, Sin(nAngle), 30);
             gPos.z = bottom-Random(bottom-top);
         }
         spritetype *pFX = gFX.fxSpawn(pGFX->fxId, nSector, gPos.x, gPos.y, gPos.z, 0);
@@ -368,8 +368,8 @@ void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVe
         if (!pPos)
         {
             int nAngle = Random(2048);
-            x = pSprite->x+mulscale30(pSprite->clipdist<<2, Cos(nAngle));
-            y = pSprite->y+mulscale30(pSprite->clipdist<<2, Sin(nAngle));
+            x = pSprite->x+MulScale(pSprite->clipdist<<2, Cos(nAngle), 30);
+            y = pSprite->y+MulScale(pSprite->clipdist<<2, Sin(nAngle), 30);
             z = bottom-Random(bottom-top);
         }
         else

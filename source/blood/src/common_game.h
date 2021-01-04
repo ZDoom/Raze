@@ -530,7 +530,7 @@ inline int ClipRange(int a, int b, int c)
 
 inline int interpolate(int a, int b, int c)
 {
-    return a+mulscale16(b-a,c);
+    return a+MulScale(b-a,c, 16);
 }
 
 inline double finterpolate(double a, double b, double c)
@@ -540,12 +540,12 @@ inline double finterpolate(double a, double b, double c)
 
 inline int interpolateang(int a, int b, int c)
 {
-    return a+mulscale16(((b-a+1024)&2047)-1024, c);
+    return a+MulScale(((b-a+1024)&2047)-1024, c, 16);
 }
 
 inline fixed_t interpolateangfix16(fixed_t a, fixed_t b, int c)
 {
-    return a+mulscale16(((b-a+0x4000000)&0x7ffffff)-0x4000000, c);
+    return a+MulScale(((b-a+0x4000000)&0x7ffffff)-0x4000000, c, 16);
 }
 
 inline binangle interpolateangbin(uint32_t a, uint32_t b, double c)

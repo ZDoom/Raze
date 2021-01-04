@@ -586,7 +586,7 @@ void playerSetRace(PLAYER *pPlayer, int nLifeMode)
     pPlayer->pSprite->clipdist = pDudeInfo->clipdist;
     
     for (int i = 0; i < 7; i++)
-        pDudeInfo->at70[i] = mulscale8(Handicap[gSkill], pDudeInfo->startDamage[i]);
+        pDudeInfo->at70[i] = MulScale(Handicap[gSkill], pDudeInfo->startDamage[i], 8);
 }
 
 void playerSetGodMode(PLAYER *pPlayer, bool bGodMode)
@@ -1239,9 +1239,9 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
                 if (nMass)
                 {
                     int t2 = divscale(0xccccc, nMass, 8);
-                    xvel[*a2] += mulscale16(x, t2);
-                    yvel[*a2] += mulscale16(y, t2);
-                    zvel[*a2] += mulscale16(z, t2);
+                    xvel[*a2] += MulScale(x, t2, 16);
+                    yvel[*a2] += MulScale(y, t2, 16);
+                    zvel[*a2] += MulScale(z, t2, 16);
                 }
                 if (pXSprite->Push && !pXSprite->state && !pXSprite->isTriggered)
                     trTriggerSprite(*a2, pXSprite, kCmdSpritePush);
@@ -1345,7 +1345,7 @@ void ProcessInput(PLAYER *pPlayer)
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
-            pPlayer->horizon.addadjustment(FixedToFloat(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), gi->playerHorizMax()) - pPlayer->horizon.horiz.asq16()));
+            pPlayer->horizon.addadjustment(FixedToFloat(MulScale(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), gi->playerHorizMax(), 16) - pPlayer->horizon.horiz.asq16()));
         if (pPlayer->curWeapon)
             pInput->setNewWeapon(pPlayer->curWeapon);
         if (pInput->actions & SB_OPEN)
@@ -1381,18 +1381,18 @@ void ProcessInput(PLAYER *pPlayer)
         {
             int forward = pInput->fvel;
             if (forward > 0)
-                forward = mulscale8(pPosture->frontAccel, forward);
+                forward = MulScale(pPosture->frontAccel, forward, 8);
             else
-                forward = mulscale8(pPosture->backAccel, forward);
-            xvel[nSprite] += mulscale30(forward, x);
-            yvel[nSprite] += mulscale30(forward, y);
+                forward = MulScale(pPosture->backAccel, forward, 8);
+            xvel[nSprite] += MulScale(forward, x, 30);
+            yvel[nSprite] += MulScale(forward, y, 30);
         }
         if (pInput->svel)
         {
             int strafe = pInput->svel;
-            strafe = mulscale8(pPosture->sideAccel, strafe);
-            xvel[nSprite] += mulscale30(strafe, y);
-            yvel[nSprite] -= mulscale30(strafe, x);
+            strafe = MulScale(pPosture->sideAccel, strafe, 8);
+            xvel[nSprite] += MulScale(strafe, y, 30);
+            yvel[nSprite] -= MulScale(strafe, x, 30);
         }
     }
     else if (pXSprite->height < 256)
@@ -1406,22 +1406,22 @@ void ProcessInput(PLAYER *pPlayer)
         {
             int forward = pInput->fvel;
             if (forward > 0)
-                forward = mulscale8(pPosture->frontAccel, forward);
+                forward = MulScale(pPosture->frontAccel, forward, 8);
             else
-                forward = mulscale8(pPosture->backAccel, forward);
+                forward = MulScale(pPosture->backAccel, forward, 8);
             if (pXSprite->height)
-                forward = mulscale16(forward, speed);
-            xvel[nSprite] += mulscale30(forward, x);
-            yvel[nSprite] += mulscale30(forward, y);
+                forward = MulScale(forward, speed, 16);
+            xvel[nSprite] += MulScale(forward, x, 30);
+            yvel[nSprite] += MulScale(forward, y, 30);
         }
         if (pInput->svel)
         {
             int strafe = pInput->svel;
-            strafe = mulscale8(pPosture->sideAccel, strafe);
+            strafe = MulScale(pPosture->sideAccel, strafe, 8);
             if (pXSprite->height)
-                strafe = mulscale16(strafe, speed);
-            xvel[nSprite] += mulscale30(strafe, y);
-            yvel[nSprite] -= mulscale30(strafe, x);
+                strafe = MulScale(strafe, speed, 16);
+            xvel[nSprite] += MulScale(strafe, y, 30);
+            yvel[nSprite] -= MulScale(strafe, x, 30);
         }
     }
 
@@ -1544,8 +1544,8 @@ void ProcessInput(PLAYER *pPlayer)
             int nSprite = pPlayer->pSprite->index;
             int x = CosScale16(pPlayer->pSprite->ang);
             int y = SinScale16(pPlayer->pSprite->ang);
-            xvel[pSprite2->index] = xvel[nSprite] + mulscale14(0x155555, x);
-            yvel[pSprite2->index] = yvel[nSprite] + mulscale14(0x155555, y);
+            xvel[pSprite2->index] = xvel[nSprite] + MulScale(0x155555, x, 14);
+            yvel[pSprite2->index] = yvel[nSprite] + MulScale(0x155555, y, 14);
             zvel[pSprite2->index] = zvel[nSprite];
             pPlayer->hand = 0;
         }
@@ -1648,16 +1648,16 @@ void playerProcess(PLAYER *pPlayer)
     pPlayer->zViewVel = interpolate(pPlayer->zViewVel, zvel[nSprite], 0x7000);
     int dz = pPlayer->pSprite->z-pPosture->eyeAboveZ-pPlayer->zView;
     if (dz > 0)
-        pPlayer->zViewVel += mulscale16(dz<<8, 0xa000);
+        pPlayer->zViewVel += MulScale(dz<<8, 0xa000, 16);
     else
-        pPlayer->zViewVel += mulscale16(dz<<8, 0x1800);
+        pPlayer->zViewVel += MulScale(dz<<8, 0x1800, 16);
     pPlayer->zView += pPlayer->zViewVel>>8;
     pPlayer->zWeaponVel = interpolate(pPlayer->zWeaponVel, zvel[nSprite], 0x5000);
     dz = pPlayer->pSprite->z-pPosture->weaponAboveZ-pPlayer->zWeapon;
     if (dz > 0)
-        pPlayer->zWeaponVel += mulscale16(dz<<8, 0x8000);
+        pPlayer->zWeaponVel += MulScale(dz<<8, 0x8000, 16);
     else
-        pPlayer->zWeaponVel += mulscale16(dz<<8, 0xc00);
+        pPlayer->zWeaponVel += MulScale(dz<<8, 0xc00, 16);
     pPlayer->zWeapon += pPlayer->zWeaponVel>>8;
     pPlayer->bobPhase = ClipLow(pPlayer->bobPhase-4, 0);
     nSpeed >>= FRACBITS;
@@ -1665,10 +1665,10 @@ void playerProcess(PLAYER *pPlayer)
     {
         pPlayer->bobAmp = (pPlayer->bobAmp+17)&2047;
         pPlayer->swayAmp = (pPlayer->swayAmp+17)&2047;
-        pPlayer->bobHeight = mulscale30(pPosture->bobV*10, Sin(pPlayer->bobAmp*2));
-        pPlayer->bobWidth = mulscale30(pPosture->bobH*pPlayer->bobPhase, Sin(pPlayer->bobAmp-256));
-        pPlayer->swayHeight = mulscale30(pPosture->swayV*pPlayer->bobPhase, Sin(pPlayer->swayAmp*2));
-        pPlayer->swayWidth = mulscale30(pPosture->swayH*pPlayer->bobPhase, Sin(pPlayer->swayAmp-0x155));
+        pPlayer->bobHeight = MulScale(pPosture->bobV*10, Sin(pPlayer->bobAmp*2), 30);
+        pPlayer->bobWidth = MulScale(pPosture->bobH*pPlayer->bobPhase, Sin(pPlayer->bobAmp-256), 30);
+        pPlayer->swayHeight = MulScale(pPosture->swayV*pPlayer->bobPhase, Sin(pPlayer->swayAmp*2), 30);
+        pPlayer->swayWidth = MulScale(pPosture->swayH*pPlayer->bobPhase, Sin(pPlayer->swayAmp-0x155), 30);
     }
     else
     {
@@ -1688,10 +1688,10 @@ void playerProcess(PLAYER *pPlayer)
                     pPlayer->bobPhase = ClipHigh(pPlayer->bobPhase+nSpeed, 30);
             }
         }
-        pPlayer->bobHeight = mulscale30(pPosture->bobV*pPlayer->bobPhase, Sin(pPlayer->bobAmp*2));
-        pPlayer->bobWidth = mulscale30(pPosture->bobH*pPlayer->bobPhase, Sin(pPlayer->bobAmp-256));
-        pPlayer->swayHeight = mulscale30(pPosture->swayV*pPlayer->bobPhase, Sin(pPlayer->swayAmp*2));
-        pPlayer->swayWidth = mulscale30(pPosture->swayH*pPlayer->bobPhase, Sin(pPlayer->swayAmp-0x155));
+        pPlayer->bobHeight = MulScale(pPosture->bobV*pPlayer->bobPhase, Sin(pPlayer->bobAmp*2), 30);
+        pPlayer->bobWidth = MulScale(pPosture->bobH*pPlayer->bobPhase, Sin(pPlayer->bobAmp-256), 30);
+        pPlayer->swayHeight = MulScale(pPosture->swayV*pPlayer->bobPhase, Sin(pPlayer->swayAmp*2), 30);
+        pPlayer->swayWidth = MulScale(pPosture->swayH*pPlayer->bobPhase, Sin(pPlayer->swayAmp-0x155), 30);
     }
     pPlayer->flickerEffect = 0;
     pPlayer->quakeEffect = ClipLow(pPlayer->quakeEffect-4, 0);

@@ -3896,8 +3896,8 @@ DoVomit(short SpriteNum)
     USERp u = User[SpriteNum];
 
     u->Counter = NORM_ANGLE(u->Counter + (30*MISSILEMOVETICS));
-    sp->xrepeat = u->sx + mulscale14(12, bcos(u->Counter));
-    sp->yrepeat = u->sy + mulscale14(12, bsin(u->Counter));
+    sp->xrepeat = u->sx + MulScale(12, bcos(u->Counter), 14);
+    sp->yrepeat = u->sy + MulScale(12, bsin(u->Counter), 14);
     if (TEST(u->Flags, SPR_JUMPING))
     {
         DoJump(SpriteNum);
@@ -3946,8 +3946,8 @@ DoVomit(short SpriteNum)
     USERp u = User[SpriteNum];
 
     u->Counter = NORM_ANGLE(u->Counter + (30*MISSILEMOVETICS));
-    sp->xrepeat = u->sx + mulscale14(12, bcos(u->Counter));
-    sp->yrepeat = u->sy + mulscale14(12, bsin(u->Counter));
+    sp->xrepeat = u->sx + MulScale(12, bcos(u->Counter), 14);
+    sp->yrepeat = u->sy + MulScale(12, bsin(u->Counter), 14);
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
@@ -8102,13 +8102,13 @@ DoStar(int16_t Weapon)
                 break; // will be killed below - u->ret != 0
 
             // 32000 to 96000
-            u->xchange = mulscale16(u->xchange, 64000 + (RANDOM_RANGE(64000) - 32000));
-            u->ychange = mulscale16(u->ychange, 64000 + (RANDOM_RANGE(64000) - 32000));
+            u->xchange = MulScale(u->xchange, 64000 + (RANDOM_RANGE(64000) - 32000), 16);
+            u->ychange = MulScale(u->ychange, 64000 + (RANDOM_RANGE(64000) - 32000), 16);
 
             if (sp->z > DIV2(u->hiz + u->loz))
-                u->zchange = mulscale16(u->zchange, 50000); // floor
+                u->zchange = MulScale(u->zchange, 50000, 16); // floor
             else
-                u->zchange = mulscale16(u->zchange, 40000); // ceiling
+                u->zchange = MulScale(u->zchange, 40000, 16); // ceiling
 
             if (SlopeBounce(Weapon, &did_hit_wall))
             {
@@ -8145,12 +8145,12 @@ DoStar(int16_t Weapon)
             u->zchange = -u->zchange;
 
             // 32000 to 96000
-            u->xchange = mulscale16(u->xchange, 64000 + (RANDOM_RANGE(64000) - 32000));
-            u->ychange = mulscale16(u->ychange, 64000 + (RANDOM_RANGE(64000) - 32000));
+            u->xchange = MulScale(u->xchange, 64000 + (RANDOM_RANGE(64000) - 32000), 16);
+            u->ychange = MulScale(u->ychange, 64000 + (RANDOM_RANGE(64000) - 32000), 16);
             if (sp->z > DIV2(u->hiz + u->loz))
-                u->zchange = mulscale16(u->zchange, 50000); // floor
+                u->zchange = MulScale(u->zchange, 50000, 16); // floor
             else
-                u->zchange = mulscale16(u->zchange, 40000); // ceiling
+                u->zchange = MulScale(u->zchange, 40000, 16); // ceiling
 
             break;
         }
@@ -8794,9 +8794,9 @@ void ScaleSpriteVector(short SpriteNum, int scale)
 {
     USERp u = User[SpriteNum];
 
-    u->xchange = mulscale16(u->xchange, scale);
-    u->ychange = mulscale16(u->ychange, scale);
-    u->zchange = mulscale16(u->zchange, scale);
+    u->xchange = MulScale(u->xchange, scale, 16);
+    u->ychange = MulScale(u->ychange, scale, 16);
+    u->zchange = MulScale(u->zchange, scale, 16);
 }
 
 void WallBounce(short SpriteNum, short ang)
@@ -8818,7 +8818,7 @@ void WallBounce(short SpriteNum, short ang)
     u->bounce++;
 
     //k = cos(ang) * sin(ang) * 2
-    k = mulscale13(bcos(ang), bsin(ang));
+    k = MulScale(bcos(ang), bsin(ang), 13);
     //l = cos(ang * 2)
     l = bcos(ang << 1);
 
@@ -8890,21 +8890,21 @@ bool SlopeBounce(short SpriteNum, bool *hit_wall)
     // k is now the slope of the ceiling or floor
 
     // normal vector of the slope
-    dax = mulscale14(slope, bsin(daang));
-    day = mulscale14(slope, -bcos(daang));
+    dax = MulScale(slope, bsin(daang), 14);
+    day = MulScale(slope, -bcos(daang), 14);
     daz = 4096; // 4096 = 45 degrees
 
     // reflection code
-    k = ((u->xchange*dax) + (u->ychange*day)) + mulscale4(u->zchange, daz);
+    k = ((u->xchange*dax) + (u->ychange*day)) + MulScale(u->zchange, daz, 4);
     l = (dax*dax) + (day*day) + (daz*daz);
 
     // make sure divscale doesn't overflow
     if ((klabs(k)>>14) < l)
     {
         k = divscale17(k, l);
-        u->xchange -= mulscale16(dax, k);
-        u->ychange -= mulscale16(day, k);
-        u->zchange -= mulscale12(daz, k);
+        u->xchange -= MulScale(dax, k, 16);
+        u->ychange -= MulScale(day, k, 16);
+        u->zchange -= MulScale(daz, k, 12);
 
         sp->ang = getangle(u->xchange, u->ychange);
     }
@@ -9264,9 +9264,9 @@ DoVulcanBoulder(int16_t Weapon)
                     if (sp->z > DIV2(u->hiz + u->loz))
                     {
                         // hit a floor
-                        u->xchange = mulscale16(u->xchange, 30000);
-                        u->ychange = mulscale16(u->ychange, 30000);
-                        u->zchange = mulscale16(u->zchange, 12000);
+                        u->xchange = MulScale(u->xchange, 30000, 16);
+                        u->ychange = MulScale(u->ychange, 30000, 16);
+                        u->zchange = MulScale(u->zchange, 12000, 16);
                         u->ret = 0;
                         u->Counter = 0;
 
@@ -9291,9 +9291,9 @@ DoVulcanBoulder(int16_t Weapon)
                     u->ret = 0;
                     u->Counter = 0;
 
-                    u->xchange = mulscale16(u->xchange, 20000);
-                    u->ychange = mulscale16(u->ychange, 20000);
-                    u->zchange = mulscale16(u->zchange, 32000);
+                    u->xchange = MulScale(u->xchange, 20000, 16);
+                    u->ychange = MulScale(u->ychange, 20000, 16);
+                    u->zchange = MulScale(u->zchange, 32000, 16);
 
                     // limit to a reasonable bounce value
                     if (u->zchange > Z(24))
@@ -12314,8 +12314,8 @@ DoBloodWorm(int16_t Weapon)
     by = sp->y;
 
     amt = RANDOM_P2(2048) - 1024;
-    sp->x += mulscale15(amt,xvect);
-    sp->y += mulscale15(amt,yvect);
+    sp->x += MulScale(amt,xvect, 15);
+    sp->y += MulScale(amt,yvect, 15);
 
     sectnum = sp->sectnum;
     updatesectorz(sp->x, sp->y, sp->z, &sectnum);
@@ -12427,8 +12427,8 @@ DoBloodWorm(int16_t Weapon)
     by = sp->y;
 
     amt = RANDOM_P2(2048) - 1024;
-    sp->x += mulscale15(amt,xvect);
-    sp->y += mulscale15(amt,yvect);
+    sp->x += MulScale(amt,xvect, 15);
+    sp->y += MulScale(amt,yvect, 15);
 
     sectnum = sp->sectnum;
     updatesectorz(sp->x, sp->y, sp->z, &sectnum);
@@ -12445,8 +12445,8 @@ DoBloodWorm(int16_t Weapon)
         sp->y = by;
 
         amt = RANDOM_P2(2048) - 1024;
-        sp->x += mulscale15(amt,xvect);
-        sp->y += mulscale15(amt,yvect);
+        sp->x += MulScale(amt,xvect, 15);
+        sp->y += MulScale(amt,yvect, 15);
 
         sectnum = sp->sectnum;
         updatesectorz(sp->x, sp->y, sp->z, &sectnum);
@@ -12822,8 +12822,8 @@ DoRing(int16_t Weapon)
     sp->ang = NORM_ANGLE(sp->ang + (4 * RINGMOVETICS) + RINGMOVETICS);
 
     // put it out there
-    sp->x += mulscale14(u->Dist, bcos(sp->ang));
-    sp->y += mulscale14(u->Dist, bsin(sp->ang));
+    sp->x += MulScale(u->Dist, bcos(sp->ang), 14);
+    sp->y += MulScale(u->Dist, bsin(sp->ang), 14);
     if (User[sp->owner]->PlayerP)
         sp->z += (u->Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9;
 
@@ -12910,8 +12910,8 @@ InitSpellRing(PLAYERp pp)
         //SET(u->Flags, SPR_XFLIP_TOGGLE);
 
         // put it out there
-        sp->x += mulscale14(u->Dist, bcos(sp->ang));
-        sp->y += mulscale14(u->Dist, bsin(sp->ang));
+        sp->x += MulScale(u->Dist, bcos(sp->ang), 14);
+        sp->y += MulScale(u->Dist, bsin(sp->ang), 14);
         sp->z = pp->posz + Z(20) + ((u->Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9);
 
         sp->ang = NORM_ANGLE(sp->ang + 512);
@@ -12972,8 +12972,8 @@ DoSerpRing(int16_t Weapon)
         sp->ang = NORM_ANGLE(sp->ang - (28 * RINGMOVETICS));
 
     // put it out there
-    sp->x += mulscale14(u->Dist, bcos(u->slide_ang));
-    sp->y += mulscale14(u->Dist, bsin(u->slide_ang));
+    sp->x += MulScale(u->Dist, bcos(u->slide_ang), 14);
+    sp->y += MulScale(u->Dist, bsin(u->slide_ang), 14);
 
     setsprite(Weapon, &sp->pos);
 
@@ -13225,8 +13225,8 @@ InitSerpRing(short SpriteNum)
         nu->spal = np->pal = 27; // Bright Green
 
         // put it out there
-        np->x += mulscale14(nu->Dist, bcos(np->ang));
-        np->y += mulscale14(nu->Dist, bsin(np->ang));
+        np->x += MulScale(nu->Dist, bcos(np->ang), 14);
+        np->y += MulScale(nu->Dist, bsin(np->ang), 14);
         np->z = SPRITEp_TOS(sp) + Z(20);
 
         np->ang = NORM_ANGLE(np->ang + 512);
@@ -13758,7 +13758,7 @@ InitSwordAttack(PLAYERp pp)
         int daz;
 
         daang = pp->angle.ang.asbuild();
-        daz = -mulscale16(pp->horizon.horiz.asq16(), 2000) + (RANDOM_RANGE(24000) - 12000);
+        daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RANDOM_RANGE(24000) - 12000);
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,       // Start position
                    bcos(daang),      // X vector of 3D ang
@@ -13949,7 +13949,7 @@ InitFistAttack(PLAYERp pp)
         int daz;
 
         daang = pp->angle.ang.asbuild();
-        daz = -mulscale16(pp->horizon.horiz.asq16(), 2000) + (RANDOM_RANGE(24000) - 12000);
+        daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RANDOM_RANGE(24000) - 12000);
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,       // Start position
                    bcos(daang),      // X vector of 3D ang
@@ -14619,7 +14619,7 @@ InitStar(PLAYERp pp)
     wp->clipdist = 32L >> 2;
     // wp->zvel was overflowing with this calculation - had to move to a local
     // long var
-    zvel = -mulscale16(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ);
+    zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
 
     wu->ceiling_dist = Z(1);
     wu->floor_dist = Z(1);
@@ -14676,7 +14676,7 @@ InitStar(PLAYERp pp)
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(np))
             SET(nu->Flags, SPR_UNDERWATER);
 
-        zvel = -mulscale16(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ);
+        zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
         np->zvel = zvel >> 1;
 
         if (MissileSetPos(nw, DoStar, 1000))
@@ -14964,7 +14964,7 @@ InitShotgun(PLAYERp pp)
     }
     else
     {
-        daz = -mulscale16(pp->horizon.horiz.asq16(), 2000);
+        daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16);
         daang = pp->angle.ang.asbuild();
     }
 
@@ -15247,7 +15247,7 @@ InitRail(PLAYERp pp)
     wp->yrepeat = 52;
     wp->xrepeat = 52;
     wp->shade = -15;
-    zvel = -mulscale16(pp->horizon.horiz.asq16(), HORIZ_MULT + 17);
+    zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT + 17, 16);
 
     wu->RotNum = 5;
     NewStateGroup(w, &sg_Rail[0]);
@@ -15448,7 +15448,7 @@ InitRocket(PLAYERp pp)
     wp->yrepeat = 90;
     wp->xrepeat = 90;
     wp->shade = -15;
-    zvel = -mulscale16(pp->horizon.horiz.asq16(), HORIZ_MULT + 35);
+    zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT + 35, 16);
 
     wp->clipdist = 64L>>2;
 
@@ -15579,7 +15579,7 @@ InitBunnyRocket(PLAYERp pp)
     wp->yrepeat = 64;
     wp->xrepeat = 64;
     wp->shade = -15;
-    zvel = -mulscale16(pp->horizon.horiz.asq16(), HORIZ_MULT + 35);
+    zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT + 35, 16);
 
     wp->clipdist = 64L>>2;
 
@@ -15693,7 +15693,7 @@ InitNuke(PLAYERp pp)
     wp->yrepeat = 128;
     wp->xrepeat = 128;
     wp->shade = -15;
-    zvel = -mulscale16(pp->horizon.horiz.asq16(), HORIZ_MULT + 36);
+    zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT + 36, 16);
     wp->clipdist = 64L>>2;
 
     // Set to red palette
@@ -16106,12 +16106,12 @@ WallSpriteInsideSprite(SPRITEp wsp, SPRITEp sp)
     mid_dist = DIV2(xsiz) + xoff;
 
     // starting from the center find the first point
-    x1 -= mulscale16(dax, mid_dist);
+    x1 -= MulScale(dax, mid_dist, 16);
     // starting from the first point find the end point
-    x2 = x1 + mulscale16(dax, xsiz);
+    x2 = x1 + MulScale(dax, xsiz, 16);
 
-    y1 -= mulscale16(day, mid_dist);
-    y2 = y1 + mulscale16(day, xsiz);
+    y1 -= MulScale(day, mid_dist, 16);
+    y2 = y1 + MulScale(day, xsiz, 16);
 
     return !!clipinsideboxline(sp->x, sp->y, x1, y1, x2, y2, ((int) sp->clipdist) << 2);
 }
@@ -17074,8 +17074,8 @@ InitCoolgFire(short SpriteNum)
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = wp->zvel;
 
-    nx = mulscale14(728, bcos(nang));
-    ny = mulscale14(728, bsin(nang));
+    nx = MulScale(728, bcos(nang), 14);
+    ny = MulScale(728, bsin(nang), 14);
 
     move_missile(w, nx, ny, 0L, wu->ceiling_dist, wu->floor_dist, 0, 3L);
 
@@ -17439,8 +17439,8 @@ InitTracerUzi(PLAYERp pp)
     nx = pp->posx;
     ny = pp->posy;
     //nz = pp->posz + pp->bob_z + Z(8);
-    //nz = pp->posz + pp->bob_z + Z(8) + -mulscale16(pp->horizon.horiz.asq16(), 72);
-    nz = pp->posz + Z(8) + -mulscale16(pp->horizon.horiz.asq16(), 72);
+    //nz = pp->posz + pp->bob_z + Z(8) + -MulScale(pp->horizon.horiz.asq16(), 72, 16);
+    nz = pp->posz + Z(8) + -MulScale(pp->horizon.horiz.asq16(), 72, 16);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -17517,7 +17517,7 @@ InitTracerTurret(short SpriteNum, short Operator, fixed_t q16horiz)
 
     nx = sp->x;
     ny = sp->y;
-    nz = sp->z + -mulscale16(q16horiz, 72);
+    nz = sp->z + -MulScale(q16horiz, 72, 16);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -17836,7 +17836,7 @@ InitUzi(PLAYERp pp)
     {
         //daang = NORM_ANGLE(pp->angle.ang.asbuild() + (RANDOM_RANGE(50) - 25));
         daang = NORM_ANGLE(pp->angle.ang.asbuild() + (RANDOM_RANGE(24) - 12));
-        daz = -mulscale16(pp->horizon.horiz.asq16(), 2000) + (RANDOM_RANGE(24000) - 12000);
+        daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RANDOM_RANGE(24000) - 12000);
     }
 
 
@@ -18011,7 +18011,7 @@ InitEMP(PLAYERp pp)
 
     InitTracerUzi(pp);
 
-    //daz = nz = pp->posz + Z(8) + -mulscale16(pp->horizon.horiz.asq16(), 72);
+    //daz = nz = pp->posz + Z(8) + -MulScale(pp->horizon.horiz.asq16(), 72, 16);
     //daang = NORM_ANGLE(pp->angle.ang.asbuild() + (RANDOM_RANGE(50) - 25));
 
     daz = nz = pp->posz + pp->bob_z;
@@ -18021,7 +18021,7 @@ InitEMP(PLAYERp pp)
     }
     else
     {
-        daz = -mulscale16(pp->horizon.horiz.asq16(), 2000);
+        daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16);
         daang = pp->angle.ang.asbuild();
     }
 
@@ -18572,7 +18572,7 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
         if (q16horiz < horizmin)
             q16horiz = horizmin;
 
-        daz = -mulscale16(q16horiz, 2000) + (RANDOM_RANGE(Z(80)) - Z(40));
+        daz = -MulScale(q16horiz, 2000, 16) + (RANDOM_RANGE(Z(80)) - Z(40));
         daang = sp->ang;
     }
 
@@ -19623,8 +19623,8 @@ InitFireball(PLAYERp pp)
 
     wu->ceiling_dist = Z(6);
     wu->floor_dist = Z(6);
-    //zvel = -mulscale16(pp->horizon.horiz.asq16(), 100 + ADJUST);
-    zvel = -mulscale16(pp->horizon.horiz.asq16(), 240);
+    //zvel = -MulScale(pp->horizon.horiz.asq16(), 100 + ADJUST, 16);
+    zvel = -MulScale(pp->horizon.horiz.asq16(), 240, 16);
 
     //wu->RotNum = 5;
     //NewStateGroup(w, &sg_Fireball);
@@ -19642,7 +19642,7 @@ InitFireball(PLAYERp pp)
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    if (TestMissileSetPos(w, DoFireball, 1200, mulscale16(zvel,44000)))
+    if (TestMissileSetPos(w, DoFireball, 1200, MulScale(zvel,44000, 16)))
     {
         pp->SpriteP->clipdist = oclipdist;
         KillSprite(w);

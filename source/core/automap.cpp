@@ -236,11 +236,11 @@ void AutomapControl()
 			if (buttonMap.ButtonDown(gamefunc_AM_PanDown))
 				panvert -= keymove;
 
-			int momx = mulscale9(panvert, bcos(follow_a));
-			int momy = mulscale9(panvert, bsin(follow_a));
+			int momx = MulScale(panvert, bcos(follow_a), 9);
+			int momy = MulScale(panvert, bsin(follow_a), 9);
 
-			momx += mulscale9(panhorz, bsin(follow_a));
-			momy += mulscale9(panhorz, -bcos(follow_a));
+			momx += MulScale(panhorz, bsin(follow_a), 9);
+			momy += MulScale(panhorz, -bcos(follow_a), 9);
 
 			follow_x += int(momx * j);
 			follow_y += int(momy * j);
@@ -408,8 +408,8 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 {
 	int xvect = -bsin(cang) * czoom;
 	int yvect = -bcos(cang) * czoom;
-	int xvect2 = mulscale16(xvect, yxaspect);
-	int yvect2 = mulscale16(yvect, yxaspect);
+	int xvect2 = MulScale(xvect, yxaspect, 16);
+	int yvect2 = MulScale(yvect, yxaspect, 16);
 
 	for (int i = 0; i < numsectors; i++)
 	{
@@ -460,8 +460,8 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 {
 	int xvect = -bsin(cang) * czoom;
 	int yvect = -bcos(cang) * czoom;
-	int xvect2 = mulscale16(xvect, yxaspect);
-	int yvect2 = mulscale16(yvect, yxaspect);
+	int xvect2 = MulScale(xvect, yxaspect, 16);
+	int yvect2 = MulScale(yvect, yxaspect, 16);
 
 	for (int i = numsectors - 1; i >= 0; i--)
 	{
@@ -510,8 +510,8 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 
 	int xvect = -bsin(cang) * zoom;
 	int yvect = -bcos(cang) * zoom;
-	int xvect2 = mulscale16(xvect, yxaspect);
-	int yvect2 = mulscale16(yvect, yxaspect);
+	int xvect2 = MulScale(xvect, yxaspect, 16);
+	int yvect2 = MulScale(yvect, yxaspect, 16);
 
 	int pxvect = -bsin(pl_angle);
 	int pyvect = -bcos(pl_angle);

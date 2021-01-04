@@ -77,8 +77,8 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
             min_dist = 0;
             min_ndx = i;
             // ox is where it should be
-            ox[i] = x[i] = pp->posx + mulscale14(sop->clipbox_vdist[i], bcos(ang));
-            oy[i] = y[i] = pp->posy + mulscale14(sop->clipbox_vdist[i], bsin(ang));
+            ox[i] = x[i] = pp->posx + MulScale(sop->clipbox_vdist[i], bcos(ang), 14);
+            oy[i] = y[i] = pp->posy + MulScale(sop->clipbox_vdist[i], bsin(ang), 14);
 
             // xs is where it hit
             x[i] = xs;

@@ -228,8 +228,8 @@ int ssp(DDukeActor* const actor, unsigned int cliptype) //The set sprite functio
 	Collision c;
 
 	return movesprite_ex(actor,
-		mulscale14(actor->s.xvel, bcos(actor->s.ang)),
-		mulscale14(actor->s.xvel, bsin(actor->s.ang)), actor->s.zvel,
+		MulScale(actor->s.xvel, bcos(actor->s.ang), 14),
+		MulScale(actor->s.xvel, bsin(actor->s.ang), 14), actor->s.zvel,
 		cliptype, c) == kHitNone;
 }
 
@@ -287,8 +287,8 @@ void ms(DDukeActor* const actor)
 	int tx, ty;
 	auto s = &actor->s;
 
-	s->x += mulscale14(s->xvel, bcos(s->ang));
-	s->y += mulscale14(s->xvel, bsin(s->ang));
+	s->x += MulScale(s->xvel, bcos(s->ang), 14);
+	s->y += MulScale(s->xvel, bsin(s->ang), 14);
 
 	int j = actor->temp_data[1];
 	int k = actor->temp_data[2];
@@ -1299,8 +1299,8 @@ void movecanwithsomething(DDukeActor* actor)
 void bounce(DDukeActor* actor)
 {
 	auto s = &actor->s;
-	int xvect = mulscale10(s->xvel, bcos(s->ang));
-	int yvect = mulscale10(s->xvel, bsin(s->ang));
+	int xvect = MulScale(s->xvel, bcos(s->ang), 10);
+	int yvect = MulScale(s->xvel, bsin(s->ang), 10);
 	int zvect = s->zvel;
 
 	int hitsect = s->sectnum;
@@ -1314,8 +1314,8 @@ void bounce(DDukeActor* actor)
 	else
 		k = sector[hitsect].floorheinum;
 
-	int dax = mulscale14(k, bsin(daang));
-	int day = mulscale14(k, -bcos(daang));
+	int dax = MulScale(k, bsin(daang), 14);
+	int day = MulScale(k, -bcos(daang), 14);
 	int daz = 4096;
 
 	k = xvect * dax + yvect * day + zvect * daz;
@@ -1323,9 +1323,9 @@ void bounce(DDukeActor* actor)
 	if ((abs(k) >> 14) < l)
 	{
 		k = divscale17(k, l);
-		xvect -= mulscale16(dax, k);
-		yvect -= mulscale16(day, k);
-		zvect -= mulscale16(daz, k);
+		xvect -= MulScale(dax, k, 16);
+		yvect -= MulScale(day, k, 16);
+		zvect -= MulScale(daz, k, 16);
 	}
 
 	s->zvel = zvect;
@@ -1368,8 +1368,8 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	for (int k = 0; k < actor->temp_data[0]; k++)
 	{
 		auto q = EGS(s->sectnum,
-			s->x + mulscale9(k, bcos(s->ang)),
-			s->y + mulscale9(k, bsin(s->ang)),
+			s->x + MulScale(k, bcos(s->ang), 9),
+			s->y + MulScale(k, bsin(s->ang), 9),
 			s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), tongue, -40 + (k << 1),
 			8, 8, 0, 0, 0, actor, 5);
 		if (q)
@@ -1380,8 +1380,8 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	}
 	int k = actor->temp_data[0];	// do not depend on the above loop counter.
 	auto spawned = EGS(s->sectnum,
-		s->x + mulscale9(k, bcos(s->ang)),
-		s->y + mulscale9(k, bsin(s->ang)),
+		s->x + MulScale(k, bcos(s->ang), 9),
+		s->y + MulScale(k, bsin(s->ang), 9),
 		s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), jaw, -40,
 		32, 32, 0, 0, 0, actor, 5);
 	if (spawned)
@@ -1510,8 +1510,8 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 
 		Collision coll;
 		int j = clipmove_ex(&s->x, &s->y, &s->z, &s->sectnum,
-			(mulscale14(s->xvel, bcos(s->ang)) * TICSPERFRAME) << 11,
-			(mulscale14(s->xvel, bsin(s->ang)) * TICSPERFRAME) << 11,
+			(MulScale(s->xvel, bcos(s->ang), 14) * TICSPERFRAME) << 11,
+			(MulScale(s->xvel, bsin(s->ang), 14) * TICSPERFRAME) << 11,
 			24L, (4 << 8), (4 << 8), CLIPMASK1, coll);
 
 		if (j == kHitWall)
@@ -2297,8 +2297,8 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			else s->zvel += gs.gravity - 50;
 		}
 
-		s->x += mulscale14(s->xvel, bcos(s->ang));
-		s->y += mulscale14(s->xvel, bsin(s->ang));
+		s->x += MulScale(s->xvel, bcos(s->ang), 14);
+		s->y += MulScale(s->xvel, bsin(s->ang), 14);
 		s->z += s->zvel;
 
 		if (floorcheck && s->z >= sector[s->sectnum].floorz)
@@ -2580,8 +2580,8 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 			}
 		}
 		if (s->zvel < 4096) s->zvel += gs.gravity - 50;
-		s->x += mulscale14(s->xvel, bcos(s->ang));
-		s->y += mulscale14(s->xvel, bsin(s->ang));
+		s->x += MulScale(s->xvel, bcos(s->ang), 14);
+		s->y += MulScale(s->xvel, bsin(s->ang), 14);
 		s->z += s->zvel;
 	}
 	else
@@ -2918,8 +2918,8 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				}
 		}
 
-		int m = mulscale14(s->xvel, bcos(s->ang));
-		x = mulscale14(s->xvel, bsin(s->ang));
+		int m = MulScale(s->xvel, bcos(s->ang), 14);
+		x = MulScale(s->xvel, bsin(s->ang), 14);
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
@@ -3094,8 +3094,8 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 	if (s->xvel)
 	{
-		int l = mulscale14(s->xvel, bcos(s->ang));
-		int x = mulscale14(s->xvel, bsin(s->ang));
+		int l = MulScale(s->xvel, bcos(s->ang), 14);
+		int x = MulScale(s->xvel, bsin(s->ang), 14);
 
 		if ((sc->floorz - sc->ceilingz) < (108 << 8))
 			if (ud.clipping == 0)
@@ -3263,8 +3263,8 @@ void handle_se02(DDukeActor *actor)
 			else sc->floorheinum += (sgn(t[5] - sc->floorheinum) << 4);
 		}
 
-		int m = mulscale14(s->xvel, bcos(s->ang));
-		int x = mulscale14(s->xvel, bsin(s->ang));
+		int m = MulScale(s->xvel, bcos(s->ang), 14);
+		int x = MulScale(s->xvel, bsin(s->ang), 14);
 
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -4296,8 +4296,8 @@ void handle_se20(DDukeActor* actor)
 
 	if (s->xvel) //Moving
 	{
-		int x = mulscale14(s->xvel, bcos(s->ang));
-		int l = mulscale14(s->xvel, bsin(s->ang));
+		int x = MulScale(s->xvel, bcos(s->ang), 14);
+		int l = MulScale(s->xvel, bsin(s->ang), 14);
 
 		t[3] += s->xvel;
 
@@ -4423,8 +4423,8 @@ void handle_se26(DDukeActor* actor)
 	int x, l;
 
 	s->xvel = 32;
-	l = mulscale14(s->xvel, bcos(s->ang));
-	x = mulscale14(s->xvel, bsin(s->ang));
+	l = MulScale(s->xvel, bcos(s->ang), 14);
+	x = MulScale(s->xvel, bsin(s->ang), 14);
 
 	s->shade++;
 	if (s->shade > 7)
@@ -4543,8 +4543,8 @@ void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, int TRIPBOMB
 
 	if (t[4]) return;
 
-	int x = mulscale18(actor->s.yvel, bcos(actor->s.ang));
-	int l = mulscale18(actor->s.yvel, bsin(actor->s.ang));
+	int x = MulScale(actor->s.yvel, bcos(actor->s.ang), 18);
+	int l = MulScale(actor->s.yvel, bsin(actor->s.ang), 18);
 
 	DukeSectIterator it(actor->s.sectnum);
 	while (auto a2 = it.Next())

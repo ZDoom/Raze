@@ -242,10 +242,10 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
         dist_diff = radius - save_dist;
         scale_value = divscale16(dist_diff, radius);
 
-        *z_diff = mulscale16(*z_diff, scale_value);
-        *ang_diff = mulscale16(*ang_diff, scale_value);
-        *x_diff = mulscale16(*x_diff, scale_value);
-        *y_diff = mulscale16(*y_diff, scale_value);
+        *z_diff = MulScale(*z_diff, scale_value, 16);
+        *ang_diff = MulScale(*ang_diff, scale_value, 16);
+        *x_diff = MulScale(*x_diff, scale_value, 16);
+        *y_diff = MulScale(*y_diff, scale_value, 16);
     }
 }
 

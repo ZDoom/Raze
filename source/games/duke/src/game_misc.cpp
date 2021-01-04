@@ -266,15 +266,15 @@ void drawoverlays(double smoothratio)
 			{
 				if (screenpeek == myconnectindex && numplayers > 1)
 				{
-					cposx = omyx + mulscale16(myx - omyx, smoothratio);
-					cposy = omyy + mulscale16(myy - omyy, smoothratio);
-					cang = !SyncInput() ? myang.asbuild() : omyang.asbuild() + mulscale16(((myang.asbuild() + 1024 - omyang.asbuild()) & 2047) - 1024, smoothratio);
+					cposx = omyx + MulScale(myx - omyx, smoothratio, 16);
+					cposy = omyy + MulScale(myy - omyy, smoothratio, 16);
+					cang = !SyncInput() ? myang.asbuild() : omyang.asbuild() + MulScale(((myang.asbuild() + 1024 - omyang.asbuild()) & 2047) - 1024, smoothratio, 16);
 				}
 				else
 				{
-					cposx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
-					cposy = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
-					cang = !SyncInput() ? pp->angle.ang.asbuild() : pp->angle.oang.asbuild() + mulscale16(((pp->angle.ang.asbuild() + 1024 - pp->angle.oang.asbuild()) & 2047) - 1024, smoothratio);
+					cposx = pp->oposx + MulScale(pp->posx - pp->oposx, smoothratio, 16);
+					cposy = pp->oposy + MulScale(pp->posy - pp->oposy, smoothratio, 16);
+					cang = !SyncInput() ? pp->angle.ang.asbuild() : pp->angle.oang.asbuild() + MulScale(((pp->angle.ang.asbuild() + 1024 - pp->angle.oang.asbuild()) & 2047) - 1024, smoothratio, 16);
 				}
 			}
 			else
@@ -406,8 +406,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
 	xvect = -bsin(cang) * czoom;
 	yvect = -bcos(cang) * czoom;
-	xvect2 = mulscale16(xvect, yxaspect);
-	yvect2 = mulscale16(yvect, yxaspect);
+	xvect2 = MulScale(xvect, yxaspect, 16);
+	yvect2 = MulScale(yvect, yxaspect, 16);
 
 	//Draw sprites
 	auto pactor = ps[screenpeek].GetActor();
@@ -442,8 +442,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 				x2 = DMulScale(ox, xvect, -oy, yvect, 16);
 				y2 = DMulScale(oy, xvect, ox, yvect, 16);
 
-				x3 = mulscale16(x2, yxaspect);
-				y3 = mulscale16(y2, yxaspect);
+				x3 = MulScale(x2, yxaspect, 16);
+				y3 = MulScale(y2, yxaspect, 16);
 
 				drawlinergb(x1 - x2 + (xdim << 11), y1 - y3 + (ydim << 11),
 					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
@@ -467,10 +467,10 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 					day = -bcos(k) * l;
 					l = tileWidth(tilenum);
 					k = (l >> 1) + xoff;
-					x1 -= mulscale16(dax, k);
-					x2 = x1 + mulscale16(dax, l);
-					y1 -= mulscale16(day, k);
-					y2 = y1 + mulscale16(day, l);
+					x1 -= MulScale(dax, k, 16);
+					x2 = x1 + MulScale(dax, l, 16);
+					y1 -= MulScale(day, k, 16);
+					y2 = y1 + MulScale(day, l, 16);
 
 					ox = x1 - cposx;
 					oy = y1 - cposy;
@@ -508,13 +508,13 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 				x1 = sprx + DMulScale(sinang, dax, cosang, day, 16);
 				y1 = spry + DMulScale(sinang, day, -cosang, dax, 16);
 				l = xspan * xrepeat;
-				x2 = x1 - mulscale16(sinang, l);
-				y2 = y1 + mulscale16(cosang, l);
+				x2 = x1 - MulScale(sinang, l, 16);
+				y2 = y1 + MulScale(cosang, l, 16);
 				l = yspan * yrepeat;
-				k = -mulscale16(cosang, l);
+				k = -MulScale(cosang, l, 16);
 				x3 = x2 + k;
 				x4 = x1 + k;
-				k = -mulscale16(sinang, l);
+				k = -MulScale(sinang, l, 16);
 				y3 = y2 + k;
 				y4 = y1 + k;
 

@@ -363,9 +363,9 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
             return 0;
     }
     int nScale = divscale16(check2, side);
-    *ix = x1 + mulscale16(dX, nScale);
-    *iy = y1 + mulscale16(dY, nScale);
-    *iz = z1 + mulscale16(dZ, nScale);
+    *ix = x1 + MulScale(dX, nScale, 16);
+    *iy = y1 + MulScale(dY, nScale, 16);
+    *iz = z1 + MulScale(dZ, nScale, 16);
     return 1;
 }
 
@@ -383,8 +383,8 @@ int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMa
     pSprite->cstat &= ~256;
     if (nRange)
     {
-        hitscangoal.x = x + mulscale30(nRange << 4, Cos(pSprite->ang));
-        hitscangoal.y = y + mulscale30(nRange << 4, Sin(pSprite->ang));
+        hitscangoal.x = x + MulScale(nRange << 4, Cos(pSprite->ang), 30);
+        hitscangoal.y = y + MulScale(nRange << 4, Sin(pSprite->ang), 30);
     }
     else
     {
@@ -428,16 +428,16 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
     gHitInfo.hitsect = -1;
     gHitInfo.hitwall = -1;
     gHitInfo.hitsprite = -1;
-    int x1 = pSprite->x+mulscale30(nOffset, Cos(pSprite->ang+512));
-    int y1 = pSprite->y+mulscale30(nOffset, Sin(pSprite->ang+512));
+    int x1 = pSprite->x+MulScale(nOffset, Cos(pSprite->ang+512), 30);
+    int y1 = pSprite->y+MulScale(nOffset, Sin(pSprite->ang+512), 30);
     int z1 = pSprite->z+nZOffset;
     int bakCstat = pSprite->cstat;
     pSprite->cstat &= ~256;
     int nSector = pSprite->sectnum;
     if (nRange)
     {
-        hitscangoal.x = x1+mulscale30(nRange<<4, Cos(pSprite->ang));
-        hitscangoal.y = y1+mulscale30(nRange<<4, Sin(pSprite->ang));
+        hitscangoal.x = x1+MulScale(nRange<<4, Cos(pSprite->ang), 30);
+        hitscangoal.y = y1+MulScale(nRange<<4, Sin(pSprite->ang), 30);
     }
     else
     {
