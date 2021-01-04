@@ -30,3 +30,5 @@ void ClearMovementInterpolations();
 void DoInterpolations(double smoothratio);
 void RestoreInterpolations();
 void SerializeInterpolations(FSerializer& arc);
+void clearsectinterpolate(int sectnum);
+void setsectinterpolate(int sectnum);

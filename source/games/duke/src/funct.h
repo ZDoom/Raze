@@ -160,8 +160,6 @@ void dotorch();
 int hitawall(struct player_struct* pl, int* hitWall);
 int hits(DDukeActor* snum);
 
-void   clearsectinterpolate(int sprnum);
-void   setsectinterpolate(int sectnum);
 DDukeActor* LocateTheLocator(int n, int sectnum);
 void clearcamera(player_struct* ps);
 

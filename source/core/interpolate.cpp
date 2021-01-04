@@ -177,6 +177,49 @@ void ClearMovementInterpolations()
 	}
 }
 
+void setsectinterpolate(int sectnum)
+{
+	int j, k, startwall, endwall;
+	auto sect = &sector[sectnum];
+
+	startwall = sect->wallptr;
+	endwall = startwall + sect->wallnum;
+
+	for (j = startwall; j < endwall; j++)
+	{
+		StartInterpolation(j, Interp_Wall_X);
+		StartInterpolation(j, Interp_Wall_Y);
+		k = wall[j].nextwall;
+		if (k >= 0)
+		{
+			StartInterpolation(k, Interp_Wall_X);
+			StartInterpolation(k, Interp_Wall_Y);
+			k = wall[k].point2;
+			StartInterpolation(k, Interp_Wall_X);
+			StartInterpolation(k, Interp_Wall_Y);
+		}
+	}
+}
+
+void clearsectinterpolate(int sectnum)
+{
+	short j, startwall, endwall;
+	auto sect = &sector[sectnum];
+
+	startwall = sect->wallptr;
+	endwall = startwall + sect->wallnum;
+	for (j = startwall; j < endwall; j++)
+	{
+		StopInterpolation(j, Interp_Wall_X);
+		StopInterpolation(j, Interp_Wall_Y);
+		if (wall[j].nextwall >= 0)
+		{
+			StopInterpolation(wall[j].nextwall, Interp_Wall_X);
+			StopInterpolation(wall[j].nextwall, Interp_Wall_Y);
+		}
+	}
+}
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Interpolation& w, Interpolation* def)
 {
     if (arc.BeginObject(keyname))

@@ -25,7 +25,6 @@ set( PCH_SOURCES
 	src/hudweapon_d.cpp
 	src/hudweapon_r.cpp
 	src/input.cpp
-	src/interpolate.cpp
 	src/noise.cpp
 	src/player.cpp
 	src/player_d.cpp
