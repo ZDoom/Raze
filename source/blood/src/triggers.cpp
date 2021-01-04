@@ -259,7 +259,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                     int nDist = approxDist(x - pSprite->x, y - pSprite->y);
                     if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sectnum, x, y, z, pTarget->sectnum))
                     {
-                        int t = divscale(nDist, 0x1aaaaa, 12);
+                        int t = DivScale(nDist, 0x1aaaaa, 12);
                         x += (xvel[nTarget]*t)>>12;
                         y += (yvel[nTarget]*t)>>12;
                         int angBak = pSprite->ang;
@@ -267,7 +267,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                         int dx = CosScale16(pSprite->ang);
                         int dy = SinScale16(pSprite->ang);
                         int tz = pTarget->z - (pTarget->yrepeat * pDudeInfo->aimHeight) * 4;
-                        int dz = divscale(tz - top - 256, nDist, 10);
+                        int dz = DivScale(tz - top - 256, nDist, 10);
                         int nMissileType = kMissileLifeLeechAltNormal + (pXSprite->data3 ? 1 : 0);
                         int t2;
                         if (!pXSprite->data3)

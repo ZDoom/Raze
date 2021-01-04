@@ -6615,7 +6615,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                 int t = thingInfo[pSprite->type-kThingBase].mass;
                 if (t > 0 && pVectorData->impulse)
                 {
-                    int t2 = divscale(pVectorData->impulse, t, 8);
+                    int t2 = DivScale(pVectorData->impulse, t, 8);
                     xvel[nSprite] += MulScale(a4, t2, 16);
                     yvel[nSprite] += MulScale(a5, t2, 16);
                     zvel[nSprite] += MulScale(a6, t2, 16);
@@ -6645,7 +6645,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
 
                 if (t > 0 && pVectorData->impulse)
                 {
-                    int t2 = divscale(pVectorData->impulse, t, 8);
+                    int t2 = DivScale(pVectorData->impulse, t, 8);
                     xvel[nSprite] += MulScale(a4, t2, 16);
                     yvel[nSprite] += MulScale(a5, t2, 16);
                     zvel[nSprite] += MulScale(a6, t2, 16);
@@ -6702,7 +6702,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
             if (gPhysSpritesCount > 0 && pVectorData->impulse) {
                 int nIndex = debrisGetIndex(pSprite->index);
                 if (nIndex != -1 && (xsprite[pSprite->extra].physAttr & kPhysDebrisVector)) {
-                    int impulse = divscale(pVectorData->impulse, ClipLow(gSpriteMass[pSprite->extra].mass, 10), 6);
+                    int impulse = DivScale(pVectorData->impulse, ClipLow(gSpriteMass[pSprite->extra].mass, 10), 6);
                     xvel[nSprite] += MulScale(a4, impulse, 16);
                     yvel[nSprite] += MulScale(a5, impulse, 16);
                     zvel[nSprite] += MulScale(a6, impulse, 16);

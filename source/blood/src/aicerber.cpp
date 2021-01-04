@@ -116,7 +116,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
             continue;
         if (tt1.at10)
         {
-            int t = divscale(nDist, tt1.at10, 12);
+            int t = DivScale(nDist, tt1.at10, 12);
             x2 += (xvel[nSprite2]*t)>>12;
             y2 += (yvel[nSprite2]*t)>>12;
             z2 += (zvel[nSprite2]*t)>>8;
@@ -145,7 +145,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
                     nClosest = nDist2;
                     aim.dx = CosScale16(nAngle);
                     aim.dy = SinScale16(nAngle);
-                    aim.dz = divscale(tz, nDist, 10);
+                    aim.dz = DivScale(tz, nDist, 10);
                 }
                 else
                     aim.dz = tz;
@@ -201,7 +201,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
             continue;
         if (tt1.at10)
         {
-            int t = divscale(nDist, tt1.at10, 12);
+            int t = DivScale(nDist, tt1.at10, 12);
             x2 += (xvel[nSprite2]*t)>>12;
             y2 += (yvel[nSprite2]*t)>>12;
             z2 += (zvel[nSprite2]*t)>>8;
@@ -232,7 +232,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
                     nClosest = nDist2;
                     aim.dx = CosScale16(nAngle);
                     aim.dy = SinScale16(nAngle);
-                    aim.dz = divscale(tz, nDist, 10);
+                    aim.dz = DivScale(tz, nDist, 10);
                 }
                 else
                     aim.dz = tz;

@@ -98,7 +98,7 @@ void sub_71BD4(int, DBloodActor* actor)
             continue;
         if (tt.at10)
         {
-            int t = divscale(nDist, tt.at10, 12);
+            int t = DivScale(nDist, tt.at10, 12);
             x2 += (xvel[nSprite2]*t)>>12;
             y2 += (yvel[nSprite2]*t)>>12;
             z2 += (zvel[nSprite2]*t)>>8;
@@ -127,7 +127,7 @@ void sub_71BD4(int, DBloodActor* actor)
                     nClosest = nDist2;
                     aim.dx = CosScale16(nAngle);
                     aim.dy = SinScale16(nAngle);
-                    aim.dz = divscale(tz, nDist, 10);
+                    aim.dz = DivScale(tz, nDist, 10);
                 }
                 else
                     aim.dz = tz;
@@ -177,7 +177,7 @@ void sub_720AC(int, DBloodActor* actor)
             continue;
         if (tt.at10)
         {
-            int t = divscale(nDist, tt.at10, 12);
+            int t = DivScale(nDist, tt.at10, 12);
             x2 += (xvel[nSprite2]*t)>>12;
             y2 += (yvel[nSprite2]*t)>>12;
             z2 += (zvel[nSprite2]*t)>>8;
@@ -206,7 +206,7 @@ void sub_720AC(int, DBloodActor* actor)
                     nClosest = nDist2;
                     aim.dx = CosScale16(nAngle);
                     aim.dy = SinScale16(nAngle);
-                    aim.dz = divscale(tz, nDist, 10);
+                    aim.dz = DivScale(tz, nDist, 10);
                 }
                 else
                     aim.dz = tz;

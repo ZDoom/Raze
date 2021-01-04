@@ -140,7 +140,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
             continue;
         if (tt.at10)
         {
-            int t = divscale(nDist, tt.at10, 12);
+            int t = DivScale(nDist, tt.at10, 12);
             x2 += (xvel[nSprite2]*t)>>12;
             y2 += (yvel[nSprite2]*t)>>12;
             z2 += (zvel[nSprite2]*t)>>8;
@@ -169,20 +169,20 @@ void BlastSSeqCallback(int, DBloodActor* actor)
                     nClosest = nDist2;
                     aim.dx = CosScale16(nAngle);
                     aim.dy = SinScale16(nAngle);
-                    aim.dz = divscale(tz, nDist, 10);
+                    aim.dz = DivScale(tz, nDist, 10);
                     if (tz > -0x333)
-                        aim.dz = divscale(tz, nDist, 10);
+                        aim.dz = DivScale(tz, nDist, 10);
                     else if (tz < -0x333 && tz > -0xb33)
-                        aim.dz = divscale(tz, nDist, 10)+9460;
+                        aim.dz = DivScale(tz, nDist, 10)+9460;
                     else if (tz < -0xb33 && tz > -0x3000)
-                        aim.dz = divscale(tz, nDist, 10)+9460;
+                        aim.dz = DivScale(tz, nDist, 10)+9460;
                     else if (tz < -0x3000)
-                        aim.dz = divscale(tz, nDist, 10)-7500;
+                        aim.dz = DivScale(tz, nDist, 10)-7500;
                     else
-                        aim.dz = divscale(tz, nDist, 10);
+                        aim.dz = DivScale(tz, nDist, 10);
                 }
                 else
-                    aim.dz = divscale(tz, nDist, 10);
+                    aim.dz = DivScale(tz, nDist, 10);
             }
         }
     }

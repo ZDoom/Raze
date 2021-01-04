@@ -374,7 +374,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 continue;
             if (pWeaponTrack->seeker)
             {
-                int t = divscale(nDist,pWeaponTrack->seeker, 12);
+                int t = DivScale(nDist,pWeaponTrack->seeker, 12);
                 x2 += (xvel[nSprite]*t)>>12;
                 y2 += (yvel[nSprite]*t)>>12;
                 z2 += (zvel[nSprite]*t)>>8;
@@ -407,7 +407,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 nClosest = nDist2;
                 aim.dx = CosScale16(angle);
                 aim.dy = SinScale16(angle);
-                aim.dz = divscale(dzCenter, nDist, 10);
+                aim.dz = DivScale(dzCenter, nDist, 10);
                 nTarget = nSprite;
             }
         }
@@ -456,7 +456,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                     nClosest = nDist2;
                     aim.dx = CosScale16(angle);
                     aim.dy = SinScale16(angle);
-                    aim.dz = divscale(dz, nDist, 10);
+                    aim.dz = DivScale(dz, nDist, 10);
                     nTarget = nSprite;
                 }
             }

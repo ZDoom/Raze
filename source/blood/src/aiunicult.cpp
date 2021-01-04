@@ -308,7 +308,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     }
 
     spritetype* pThing = NULL;
-    if ((pThing = actFireThing(pSprite, 0, 0, (dz / 128) - zThrow, curWeapon, divscale(dist / 540, 120, 23))) == NULL) return;
+    if ((pThing = actFireThing(pSprite, 0, 0, (dz / 128) - zThrow, curWeapon, DivScale(dist / 540, 120, 23))) == NULL) return;
     else if (pThinkInfo->picnum < 0 && pThing->type != kModernThingThrowableRock) pThing->picnum = 0;
             
     pThing->owner = pSprite->index;
@@ -494,7 +494,7 @@ static void unicultThinkChase(DBloodActor* actor)
         if ((gFrameClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(pSprite, false))
             playGenDudeSound(pSprite, kGenDudeSndChasing);
 
-        actor->dudeSlope = divscale(pTarget->z - pSprite->z, dist, 10);
+        actor->dudeSlope = DivScale(pTarget->z - pSprite->z, dist, 10);
 
         short curWeapon = gGenDudeExtra[pSprite->index].curWeapon; short weaponType = gGenDudeExtra[pSprite->index].weaponType;
         spritetype* pLeech = leechIsDropped(pSprite); const VECTORDATA* meleeVector = &gVectorData[22];
@@ -1563,7 +1563,7 @@ void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT event)
             int nDist = approxDist(x - pSprite->x, y - pSprite->y);
             
             if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sectnum, x, y, z, pTarget->sectnum)) {
-                int t = divscale(nDist, 0x1aaaaa, 12);
+                int t = DivScale(nDist, 0x1aaaaa, 12);
                 x += (xvel[nTarget] * t) >> 12;
                 y += (yvel[nTarget] * t) >> 12;
                 int angBak = pSprite->ang;
@@ -1571,7 +1571,7 @@ void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT event)
                 int dx = CosScale16(pSprite->ang);
                 int dy = SinScale16(pSprite->ang);
                 int tz = pTarget->z - (pTarget->yrepeat * pDudeInfo->aimHeight) * 4;
-                int dz = divscale(tz - top - 256, nDist, 10);
+                int dz = DivScale(tz - top - 256, nDist, 10);
                 int nMissileType = kMissileLifeLeechAltNormal + (pXSprite->data3 ? 1 : 0);
                 int t2;
                 

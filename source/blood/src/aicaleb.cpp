@@ -186,7 +186,7 @@ static void calebThinkChase(DBloodActor* actor)
             if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                actor->dudeSlope = divscale(pTarget->z-pSprite->z, nDist, 10);
+                actor->dudeSlope = DivScale(pTarget->z-pSprite->z, nDist, 10);
                 if (nDist < 0x599 && klabs(nDeltaAngle) < 28)
                 {
                     XSECTOR *pXSector;

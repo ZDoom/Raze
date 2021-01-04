@@ -1238,7 +1238,7 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
                 int nMass = getDudeInfo(pSprite->type)->mass;
                 if (nMass)
                 {
-                    int t2 = divscale(0xccccc, nMass, 8);
+                    int t2 = DivScale(0xccccc, nMass, 8);
                     xvel[*a2] += MulScale(x, t2, 16);
                     yvel[*a2] += MulScale(y, t2, 16);
                     zvel[*a2] += MulScale(z, t2, 16);
