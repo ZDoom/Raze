@@ -1025,6 +1025,14 @@ set (PCH_SOURCES
 
 	core/menu/loadsavemenu.cpp
 	core/menu/razemenu.cpp
+	
+	#Duke is split because Duke and RR need different constants.
+	games/duke/all.cpp
+	games/duke/all_d.cpp
+	games/duke/all_r.cpp
+	exhumed/all.cpp
+	blood/all.cpp
+	sw/all.cpp
 )
 
 if( ${HAVE_VM_JIT} )
@@ -1094,7 +1102,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma duke blood sw exhumed )
+target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma )
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
@@ -1353,8 +1361,3 @@ require_strnicmp()
 unset( PCH_SOURCES )
 unset( HEADER_FILES )
 unset( NOT_COMPILED_SOURCE_FILES )
-
-add_subdirectory( games/duke )
-add_subdirectory( blood )
-add_subdirectory( sw )
-add_subdirectory( exhumed )
