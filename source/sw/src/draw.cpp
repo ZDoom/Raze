@@ -1771,7 +1771,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     renderDrawMasks();
 
 
-    renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
+    renderSetAspect(viewingRange, DivScale(ydim * 8, xdim * 5, 16));
     if (!ScreenSavePic) UpdatePanel(smoothratio);
 
 #define SLIME 2305

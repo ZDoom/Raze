@@ -381,7 +381,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         }
 
 
-        renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
+        renderSetAspect(viewingRange, DivScale(ydim * 8, xdim * 5, 16));
 
         if (nFreeze)
         {

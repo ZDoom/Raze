@@ -2627,8 +2627,8 @@ int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5)
     int angle = getangle(pWall2->x-pWall->x, pWall2->y-pWall->y)+512;
     int t2 = sector[nSector].floorheinum<<4;
     int t3 = approxDist(-0x10000, t2);
-    int t4 = divscale16(-0x10000, t3);
-    int t5 = divscale16(t2, t3);
+    int t4 = DivScale(-0x10000, t3, 16);
+    int t5 = DivScale(t2, t3, 16);
     int t6 = MulScale(t5, Cos(angle), 30);
     int t7 = MulScale(t5, Sin(angle), 30);
     int t8 = TMulScale(*x, t6, *y, t7, *z, t4, 16);
@@ -4488,7 +4488,7 @@ int MoveThing(spritetype *pSprite)
         }
         if (nVel > 0)
         {
-            int t = divscale16(nVelClipped, nVel);
+            int t = DivScale(nVelClipped, nVel, 16);
             xvel[nSprite] -= MulScale(t, xvel[nSprite], 16);
             yvel[nSprite] -= MulScale(t, yvel[nSprite], 16);
         }
@@ -5743,7 +5743,7 @@ void actProcessSprites(void)
             int dy = (y - pSprite2->y)>>4;
             int dz = (z - pSprite2->z)>>8;
             int nDist = dx*dx+dy*dy+dz*dz+0x40000;
-            int t = divscale16(pXSprite->data2, nDist);
+            int t = DivScale(pXSprite->data2, nDist, 16);
             gPlayer[p].flickerEffect += t;
         }
 

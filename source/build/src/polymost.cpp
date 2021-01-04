@@ -2433,7 +2433,7 @@ void polymost_drawrooms()
     ghalfy = (float)(ydimen>>1);
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
     ghoriz = FixedToFloat(qglobalhoriz);
-    ghorizcorrect = FixedToFloat(divscale16(xdimenscale, viewingrange));
+    ghorizcorrect = FixedToFloat(DivScale(xdimenscale, viewingrange, 16));
 
     //global cos/sin height angle
     if (r_yshearing)
@@ -2813,7 +2813,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
 
     set_globalpos(dax, day, daz);
     set_globalang(daang);
-    qglobalhoriz = MulScale(dahoriz, divscale16(xdimenscale, viewingrange), 16)+IntToFixed(ydimen>>1);
+    qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16)+IntToFixed(ydimen>>1);
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
     gxyaspect = ((double)xyaspect*fviewingrange)*(5.0/(65536.0*262144.0));
     gviewxrange = fviewingrange * fxdimen * (1.f/(32768.f*1024.f));
@@ -2825,7 +2825,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
     ghalfy = (float)(ydimen>>1);
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
     ghoriz = FixedToFloat(qglobalhoriz);
-    ghorizcorrect = FixedToFloat(divscale16(xdimenscale, viewingrange));
+    ghorizcorrect = FixedToFloat(DivScale(xdimenscale, viewingrange, 16));
     resizeglcheck();
     if (r_yshearing)
     {

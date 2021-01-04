@@ -332,8 +332,8 @@ void GetWallNormal(int nWall, int *pX, int *pY)
     int nLength = ksqrt(dX*dX+dY*dY);
     if (nLength <= 0)
         nLength = 1;
-    *pX = divscale16(dX, nLength);
-    *pY = divscale16(dY, nLength);
+    *pX = DivScale(dX, nLength, 16);
+    *pY = DivScale(dY, nLength, 16);
 }
 
 bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int x2, int y2, int z2, int *ix, int *iy, int *iz)
@@ -362,7 +362,7 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
         if (check2 > 0 || check2 <= side)
             return 0;
     }
-    int nScale = divscale16(check2, side);
+    int nScale = DivScale(check2, side, 16);
     *ix = x1 + MulScale(dX, nScale, 16);
     *iy = y1 + MulScale(dY, nScale, 16);
     *iz = z1 + MulScale(dZ, nScale, 16);

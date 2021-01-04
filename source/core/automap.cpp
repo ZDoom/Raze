@@ -562,7 +562,7 @@ void DrawOverheadMap(int pl_x, int pl_y, int pl_angle, double const smoothratio)
 		renderDrawMapView(x, y, gZoom, follow_a);
 	}
 	int32_t tmpydim = (xdim * 5) / 8;
-	renderSetAspect(65536, divscale16(tmpydim * 320, xdim * 200));
+	renderSetAspect(65536, DivScale(tmpydim * 320, xdim * 200, 16));
 
 	drawredlines(x, y, gZoom, follow_a);
 	drawwhitelines(x, y, gZoom, follow_a);

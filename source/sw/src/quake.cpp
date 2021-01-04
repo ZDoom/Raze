@@ -240,7 +240,7 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
     {
         // scale values from epicenter
         dist_diff = radius - save_dist;
-        scale_value = divscale16(dist_diff, radius);
+        scale_value = DivScale(dist_diff, radius, 16);
 
         *z_diff = MulScale(*z_diff, scale_value, 16);
         *ang_diff = MulScale(*ang_diff, scale_value, 16);

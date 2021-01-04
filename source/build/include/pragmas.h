@@ -10,17 +10,6 @@
 #ifndef pragmas_h_
 #define pragmas_h_
 
-
-#define EDUKE32_GENERATE_PRAGMAS                                                                            \
-    EDUKE32_SCALER_PRAGMA(1)  EDUKE32_SCALER_PRAGMA(2)  EDUKE32_SCALER_PRAGMA(3)  EDUKE32_SCALER_PRAGMA(4)  \
-    EDUKE32_SCALER_PRAGMA(5)  EDUKE32_SCALER_PRAGMA(6)  EDUKE32_SCALER_PRAGMA(7)  EDUKE32_SCALER_PRAGMA(8)  \
-    EDUKE32_SCALER_PRAGMA(9)  EDUKE32_SCALER_PRAGMA(10) EDUKE32_SCALER_PRAGMA(11) EDUKE32_SCALER_PRAGMA(12) \
-    EDUKE32_SCALER_PRAGMA(13) EDUKE32_SCALER_PRAGMA(14) EDUKE32_SCALER_PRAGMA(15) EDUKE32_SCALER_PRAGMA(16) \
-    EDUKE32_SCALER_PRAGMA(17) EDUKE32_SCALER_PRAGMA(18) EDUKE32_SCALER_PRAGMA(19) EDUKE32_SCALER_PRAGMA(20) \
-    EDUKE32_SCALER_PRAGMA(21) EDUKE32_SCALER_PRAGMA(22) EDUKE32_SCALER_PRAGMA(23) EDUKE32_SCALER_PRAGMA(24) \
-    EDUKE32_SCALER_PRAGMA(25) EDUKE32_SCALER_PRAGMA(26) EDUKE32_SCALER_PRAGMA(27) EDUKE32_SCALER_PRAGMA(28) \
-    EDUKE32_SCALER_PRAGMA(29) EDUKE32_SCALER_PRAGMA(30) EDUKE32_SCALER_PRAGMA(31) EDUKE32_SCALER_PRAGMA(32)
-
 extern int32_t reciptable[2048];
 
 // break the C version of divscale out from the others
@@ -35,12 +24,6 @@ extern int32_t reciptable[2048];
 
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return (int64_t(eax) << ecx) / ebx; }
 static inline double fdivscale(double eax, double ebx, int32_t ecx) { return (eax * (double)(qw(1) << ecx)) / ebx; }
-
-#define EDUKE32_SCALER_PRAGMA(a) \
-    static FORCE_INLINE int32_t divscale##a(int32_t eax, int32_t ebx) { return divscale(eax, ebx, a); } \
-    static FORCE_INLINE double fdivscale##a(double eax, double ebx) { return fdivscale(eax, ebx, a); }
-EDUKE32_GENERATE_PRAGMAS
-#undef EDUKE32_SCALER_PRAGMA
 
 static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
 {

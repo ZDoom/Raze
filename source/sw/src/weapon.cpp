@@ -8901,7 +8901,7 @@ bool SlopeBounce(short SpriteNum, bool *hit_wall)
     // make sure divscale doesn't overflow
     if ((klabs(k)>>14) < l)
     {
-        k = divscale17(k, l);
+        k = DivScale(k, l, 17);
         u->xchange -= MulScale(dax, k, 16);
         u->ychange -= MulScale(day, k, 16);
         u->zchange -= MulScale(daz, k, 12);

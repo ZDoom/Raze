@@ -139,7 +139,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     {
         int speed = 0x10000;
         if (predict.at6a > 0)
-            speed -= divscale16(predict.at6a, 0x100);
+            speed -= DivScale(predict.at6a, 0x100, 16);
         int x = Cos(predict.at30.asbuild());
         int y = Sin(predict.at30.asbuild());
         if (pInput->fvel)

@@ -287,7 +287,7 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, int sectNum,
 		orgsndist = sndist = int(16 * (sndorg - campos).Length());
 
 		if ((userflags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && sp->picnum == MUSICANDSFX && sp->lotag < 999 && (sector[sp->sectnum].lotag & 0xff) < ST_9_SLIDING_ST_DOOR)
-			sndist = divscale14(sndist, sp->hitag + 1);
+			sndist = DivScale(sndist, sp->hitag + 1, 14);
 	}
 
 	sndist += dist_adjust;

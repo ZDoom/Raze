@@ -1322,7 +1322,7 @@ void bounce(DDukeActor* actor)
 	l = dax * dax + day * day + daz * daz;
 	if ((abs(k) >> 14) < l)
 	{
-		k = divscale17(k, l);
+		k = DivScale(k, l, 17);
 		xvect -= MulScale(dax, k, 16);
 		yvect -= MulScale(day, k, 16);
 		zvect -= MulScale(daz, k, 16);

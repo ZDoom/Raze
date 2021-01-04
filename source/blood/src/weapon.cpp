@@ -1818,7 +1818,7 @@ int processSprayCan(PLAYER *pPlayer)
         return 1;
     case 7:
     {
-        pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
+        pPlayer->throwPower = ClipHigh(DivScale(gFrameClock-pPlayer->throwTime,240, 16), 65536);
         if (!(pPlayer->input.actions & SB_FIRE))
         {
             if (!pPlayer->fuseTime)
@@ -1856,7 +1856,7 @@ char processTNT(PLAYER *pPlayer)
         return 1;
     case 6:
     {
-        pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
+        pPlayer->throwPower = ClipHigh(DivScale(gFrameClock-pPlayer->throwTime,240, 16), 65536);
         if (!(pPlayer->input.actions & SB_FIRE))
         {
             if (!pPlayer->fuseTime)
@@ -1875,7 +1875,7 @@ char processProxy(PLAYER *pPlayer)
     switch (pPlayer->weaponState)
     {
     case 9:
-        pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
+        pPlayer->throwPower = ClipHigh(DivScale(gFrameClock-pPlayer->throwTime,240, 16), 65536);
         pPlayer->weaponTimer = 0;
         if (!(pPlayer->input.actions & SB_FIRE))
         {
@@ -1892,7 +1892,7 @@ char processRemote(PLAYER *pPlayer)
     switch (pPlayer->weaponState)
     {
     case 13:
-        pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
+        pPlayer->throwPower = ClipHigh(DivScale(gFrameClock-pPlayer->throwTime,240, 16), 65536);
         if (!(pPlayer->input.actions & SB_FIRE))
         {
             pPlayer->weaponState = 11;

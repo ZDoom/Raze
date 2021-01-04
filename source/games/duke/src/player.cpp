@@ -1114,8 +1114,8 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 			if (abs(nx) > abs(ny)) hx -= (nx >> 5);
 			else hy -= (ny >> 5);
 		}
-		if (abs(nx) > abs(ny)) i = divscale16(hx, nx);
-		else i = divscale16(hy, ny);
+		if (abs(nx) > abs(ny)) i = DivScale(hx, nx, 16);
+		else i = DivScale(hy, ny, 16);
 		if (i < cameradist) cameradist = i;
 	}
 	*vx = (*vx) + MulScale(nx, cameradist, 16);

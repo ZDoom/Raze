@@ -184,7 +184,7 @@ int32_t getceilzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
     dx = wall[wall[j].point2].x-wall[j].x;
     dy = wall[wall[j].point2].y-wall[j].y;
     i = (ksqrtasm_old(dx*dx+dy*dy)); if (i == 0) return(sector[sectnum].ceilingz);
-    i = divscale15(sector[sectnum].ceilingheinum,i);
+    i = DivScale(sector[sectnum].ceilingheinum,i, 15);
     dx *= i; dy *= i;
     return sector[sectnum].ceilingz+DMulScale(dx,day-wall[j].y,-dy,dax-wall[j].x, 23);
 }
@@ -198,7 +198,7 @@ int32_t getflorzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
     dx = wall[wall[j].point2].x-wall[j].x;
     dy = wall[wall[j].point2].y-wall[j].y;
     i = (ksqrtasm_old(dx*dx+dy*dy)); if (i == 0) return sector[sectnum].floorz;
-    i = divscale15(sector[sectnum].floorheinum,i);
+    i = DivScale(sector[sectnum].floorheinum,i, 15);
     dx *= i; dy *= i;
     return sector[sectnum].floorz+DMulScale(dx,day-wall[j].y,-dy,dax-wall[j].x, 23);
 }
@@ -920,7 +920,7 @@ int pushmove(vec3_t *const vect, int16_t *const sectnum,
                             else
                             {
                                 daz2 = dax*dax+day*day;
-                                if (daz >= daz2) t = (1<<30); else t = divscale30(daz, daz2);
+                                if (daz >= daz2) t = (1<<30); else t = DivScale(daz, daz2, 30);
                             }
                             dax = wal->x + MulScale(dax, t, 30);
                             day = wal->y + MulScale(day, t, 30);
@@ -1241,7 +1241,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
         int32_t j, dax=wal2->x-wal->x, day=wal2->y-wal->y;
 
         i = nsqrtasm(compat_maybe_truncate_to_int32(uhypsq(dax,day))); if (i == 0) return 1; //continue;
-        i = divscale15(heinum,i);
+        i = DivScale(heinum,i, 15);
         dax *= i; day *= i;
 
         j = (vz<<8)-DMulScale(dax,vy,-day,vx, 15);
@@ -1250,7 +1250,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
             i = ((z - sv->z)<<8)+DMulScale(dax,sv->y-wal->y,-day,sv->x-wal->x, 15);
             if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
             {
-                i = divscale30(i,j);
+                i = DivScale(i,j, 30);
                 x1 = sv->x + MulScale(vx,i, 30);
                 y1 = sv->y + MulScale(vy,i, 30);
                 z1 = sv->z + MulScale(vz,i, 30);
@@ -1262,7 +1262,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
         z1 = z; i = z1-sv->z;
         if ((klabs(i)>>1) < vz*how)
         {
-            i = divscale30(i,vz);
+            i = DivScale(i,vz, 30);
             x1 = sv->x + MulScale(vx,i, 30);
             y1 = sv->y + MulScale(vy,i, 30);
         }
@@ -1477,7 +1477,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                         {
                             // daz-intz > 0 && daz-intz < k
                             int32_t xtex = MulScale(ucoefup16, tileWidth(tilenum), 16);
-                            int32_t vcoefup16 = 65536-divscale16(daz-intz, k);
+                            int32_t vcoefup16 = 65536-DivScale(daz-intz, k, 16);
                             int32_t ytex = MulScale(vcoefup16, tileHeight(tilenum), 16);
 
                             auto texel = (tilePtr(tilenum) + tileHeight(tilenum)*xtex + ytex);

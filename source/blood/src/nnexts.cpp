@@ -1220,7 +1220,7 @@ void debrisMove(int listIndex) {
         }
         if (nVel > 0)
         {
-            int t = divscale16(nVelClipped, nVel);
+            int t = DivScale(nVelClipped, nVel, 16);
             xvel[nSprite] -= MulScale(t, xvel[nSprite], 16);
             yvel[nSprite] -= MulScale(t, yvel[nSprite], 16);
         }

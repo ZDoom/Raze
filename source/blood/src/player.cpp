@@ -1399,7 +1399,7 @@ void ProcessInput(PLAYER *pPlayer)
     {
         int speed = 0x10000;
         if (pXSprite->height > 0)
-            speed -= divscale16(pXSprite->height, 256);
+            speed -= DivScale(pXSprite->height, 256, 16);
         int x = Cos(pSprite->ang);
         int y = Sin(pSprite->ang);
         if (pInput->fvel)

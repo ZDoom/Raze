@@ -227,11 +227,11 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
         int nDist;
         if (klabs(vX) > klabs(vY))
         {
-            nDist = ClipHigh(divscale16(dX,vX), othercameradist);
+            nDist = ClipHigh(DivScale(dX,vX, 16), othercameradist);
         }
         else
         {
-            nDist = ClipHigh(divscale16(dY,vY), othercameradist);
+            nDist = ClipHigh(DivScale(dY,vY, 16), othercameradist);
         }
         othercameradist = nDist;
     }
@@ -274,11 +274,11 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
         int nDist;
         if (klabs(vX) > klabs(vY))
         {
-            nDist = ClipHigh(divscale16(dX,vX), cameradist);
+            nDist = ClipHigh(DivScale(dX,vX, 16), cameradist);
         }
         else
         {
-            nDist = ClipHigh(divscale16(dY,vY), cameradist);
+            nDist = ClipHigh(DivScale(dY,vY, 16), cameradist);
         }
         cameradist = nDist;
     }

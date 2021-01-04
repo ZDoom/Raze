@@ -506,7 +506,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             int dy = (pSprite->y - pPlayerSprite->y)>>4;
             int dz = (pSprite->z - pPlayerSprite->z)>>8;
             int nDist = dx*dx+dy*dy+dz*dz+0x40000;
-            gPlayer[p].quakeEffect = divscale16(pXSprite->data1, nDist);
+            gPlayer[p].quakeEffect = DivScale(pXSprite->data1, nDist, 16);
         }
         break;
     case kThingTNTBarrel:

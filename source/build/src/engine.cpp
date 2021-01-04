@@ -390,7 +390,7 @@ static int32_t engineLoadTables(void)
         initksqrt();
 
         for (i=0; i<2048; i++)
-            reciptable[i] = divscale30(2048, i+2048);
+            reciptable[i] = DivScale(2048, i+2048, 30);
 
         for (i=0; i<=512; i++)
             sintable[i] = bsinf(i);
@@ -726,12 +726,12 @@ int32_t rintersect_old(int32_t x1, int32_t y1, int32_t z1,
     else if (bot < 0 && (topt > 0 || topu > 0 || topu <= bot))
         return -1;
 
-    int32_t t = divscale16(topt, bot);
+    int32_t t = DivScale(topt, bot, 16);
     *intx = x1 + MulScale(vx, t, 16);
     *inty = y1 + MulScale(vy, t, 16);
     *intz = z1 + MulScale(vz, t, 16);
 
-    t = divscale16(topu, bot);
+    t = DivScale(topu, bot, 16);
 
     return t;
 }
@@ -1012,7 +1012,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     // xdimenscale is scale(xdimen,yxaspect,320);
     // normalization by viewingrange so that center-of-aim doesn't depend on it
-    qglobalhoriz = MulScale(dahoriz, divscale16(xdimenscale, viewingrange), 16)+IntToFixed(ydimen>>1);
+    qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16)+IntToFixed(ydimen>>1);
 
     globalcursectnum = dacursectnum;
 
@@ -1590,7 +1590,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     int32_t const oyxaspect = yxaspect, oviewingrange = viewingrange;
 
-    renderSetAspect(65536, divscale16((320*5)/8, 200));
+    renderSetAspect(65536, DivScale((320*5)/8, 200, 16));
 
     memset(gotsector, 0, sizeof(gotsector));
 
@@ -1599,7 +1599,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     zoome <<= 8;
 
-    vec2_t const bakgvect = { divscale28(-bcos(ang), zoome), divscale28(-bsin(ang), zoome) };
+    vec2_t const bakgvect = { DivScale(-bcos(ang), zoome, 28), DivScale(-bsin(ang), zoome, 28) };
     vec2_t const vect = { MulScale(-bsin(ang), zoome, 8), MulScale(-bcos(ang), zoome, 8) };
     vec2_t const vect2 = { MulScale(vect.x, yxaspect, 16), MulScale(vect.y, yxaspect, 16) };
 
@@ -2309,7 +2309,7 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
                 if (nexts < 0 || wal->cstat&32)
                     return 0;
 
-            t = divscale24(t,bot);
+            t = DivScale(t,bot, 24);
             x = x1 + MulScale(x21,t, 24);
             y = y1 + MulScale(y21,t, 24);
             z = z1 + MulScale(z21,t, 24);
@@ -2856,7 +2856,7 @@ void videoSetCorrectedAspect()
         x = xdim;
         y = ydim;
 
-        vr = divscale16(x*3, y*4);
+        vr = DivScale(x*3, y*4, 16);
 
         renderSetAspect(vr, yx);
 }
@@ -2872,7 +2872,7 @@ void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     windowxy2.y = y2;
 
     xdimen = (x2-x1)+1; halfxdimen = (xdimen>>1);
-    xdimenrecip = divscale32(1L,xdimen);
+    xdimenrecip = DivScale(1L,xdimen, 32);
     ydimen = (y2-y1)+1;
 
     fxdimen = (float) xdimen;
@@ -2890,13 +2890,13 @@ void renderSetAspect(int32_t daxrange, int32_t daaspect)
 {
     if (daxrange == 65536) daxrange--;  // This doesn't work correctly with 65536. All other values are fine. No idea where this is evaluated wrong.
     viewingrange = daxrange;
-    viewingrangerecip = divscale32(1,daxrange);
+    viewingrangerecip = DivScale(1,daxrange, 32);
 #ifdef USE_OPENGL
     fviewingrange = (float) daxrange;
 #endif
 
     yxaspect = daaspect;
-    xyaspect = divscale32(1,yxaspect);
+    xyaspect = DivScale(1,yxaspect, 32);
     xdimenscale = scale(xdimen,yxaspect,320);
     xdimscale = scale(320,xyaspect,xdimen);
 }
