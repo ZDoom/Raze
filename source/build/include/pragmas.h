@@ -36,8 +36,6 @@ extern int32_t reciptable[2048];
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return (int64_t(eax) << ecx) / ebx; }
 static inline double fdivscale(double eax, double ebx, int32_t ecx) { return (eax * (double)(qw(1) << ecx)) / ebx; }
 
-static inline int64_t divscale64(int64_t eax, int64_t ebx, int64_t ecx) { return (eax << ecx) / ebx; }
-
 #define EDUKE32_SCALER_PRAGMA(a) \
     static FORCE_INLINE int32_t divscale##a(int32_t eax, int32_t ebx) { return divscale(eax, ebx, a); } \
     static FORCE_INLINE double fdivscale##a(double eax, double ebx) { return fdivscale(eax, ebx, a); }
