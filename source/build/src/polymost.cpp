@@ -919,6 +919,15 @@ skip: ;
 #endif
 }
 
+// Moved in from pragmas.h
+static inline int32_t krecipasm(int32_t i)
+{
+    // Ken did this
+    union { int32_t i; float f; } x;
+    x.f = (float)i;
+    i = x.i;
+    return ((reciptable[(i >> 12) & 2047] >> (((i - 0x3f800000) >> 23) & 31)) ^ (i >> 31));
+}
 
 // variables that are set to ceiling- or floor-members, depending
 // on which one is processed right now
