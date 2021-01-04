@@ -38,14 +38,6 @@ inline int sgn(int32_t a) { return (a > 0) - (a < 0); }
 
 static inline int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
 static inline double fmulscale(double eax, double edx, int32_t ecx) { return (eax * edx) / (double)(qw(1) << ecx); }
-static inline int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx)
-{
-    return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(ecx));
-}
-static inline double fdmulscale(double eax, double edx, double esi, double edi, int32_t ecx)
-{
-    return ((eax * edx) + (esi * edi)) / (double)(qw(1) << ecx);
-}
 
 static inline int32_t krecipasm(int32_t i)
 {

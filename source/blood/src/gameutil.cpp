@@ -743,8 +743,8 @@ int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3)
     int check2 = (x1-x2)*(y3-y2);
     if (check2 > check)
         return -1;
-    int v8 = dmulscale(x1-x2,x3-x2,y1-y3,y3-y2,4);
-    int vv = dmulscale(x3-x2,x3-x2,y3-y2,y3-y2,4);
+    int v8 = DMulScale(x1-x2,x3-x2,y1-y3,y3-y2,4);
+    int vv = DMulScale(x3-x2,x3-x2,y3-y2,y3-y2,4);
     int t1, t2;
     if (v8 <= 0)
     {
