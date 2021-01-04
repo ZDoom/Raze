@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestate.h"
 #include "mapinfo.h"
 #include "automap.h"
+#include "interpolate.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -1096,22 +1097,20 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
                 if (((nMove & 0xC000) == 0x4000) || ((nMove & 0xC000) == 0x8000))
                 {
-                    int bx = 0;
+                    int sectnum = 0;
 
                     if ((nMove & 0xC000) == 0x4000)
                     {
-                        bx = nMove & 0x3FFF;
+                        sectnum = nMove & 0x3FFF;
                     }
                     else if ((nMove & 0xC000) == 0x8000)
                     {
-                        bx = wall[nMove & 0x3FFF].nextsector;
+                        sectnum = wall[nMove & 0x3FFF].nextsector;
                     }
 
-                    if (bx >= 0)
+                    if (sectnum >= 0)
                     {
-                        int var_B4 = bx;
-
-                        if ((sector[bx].hitag == 45) && bTouchFloor)
+                        if ((sector[sectnum].hitag == 45) && bTouchFloor)
                         {
                             int nNormal = GetWallNormal(nMove & 0x3FFF);
                             int nDiff = AngleDiff(nNormal, (sprite[nPlayerSprite].ang + 1024) & kAngleMask);
@@ -1122,13 +1121,14 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
                             if (nDiff <= 256)
                             {
-                                nPlayerPushSect[nPlayer] = bx;
+                                nPlayerPushSect[nPlayer] = sectnum;
 
-                                int var_F4 = sPlayerInput[nPlayer].xVel;
-                                int var_F8 = sPlayerInput[nPlayer].yVel;
-                                int nMyAngle = GetMyAngle(sPlayerInput[nPlayer].xVel, sPlayerInput[nPlayer].yVel);
+                                int xvel = sPlayerInput[nPlayer].xVel;
+                                int yvel = sPlayerInput[nPlayer].yVel;
+                                int nMyAngle = GetMyAngle(xvel, yvel);
 
-                                MoveSector(var_B4, nMyAngle, &var_F4, &var_F8);
+                                setsectinterpolate(sectnum);
+                                MoveSector(sectnum, nMyAngle, &xvel, &yvel);
 
                                 if (nPlayerPushSound[nPlayer] <= -1)
                                 {
@@ -1147,8 +1147,8 @@ void FuncPlayer(int a, int nDamage, int nRun)
                                     mychangespritesect(nPlayerSprite, spr_sectnum);
                                 }
 
-                                movesprite(nPlayerSprite, var_F4, var_F8, z, 5120, -5120, CLIPMASK0);
-                                goto loc_1AB8E;
+                                movesprite(nPlayerSprite, xvel, yvel, z, 5120, -5120, CLIPMASK0);
+                                goto sectdone;
                             }
                         }
                     }
@@ -1166,7 +1166,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 nPlayerPushSound[nPlayer] = -1;
             }
 
-loc_1AB8E:
+sectdone:
             playerX -= sprite[nPlayerSprite].x;
             playerY -= sprite[nPlayerSprite].y;
 
