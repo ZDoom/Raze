@@ -27,7 +27,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 
 #include "compat.h"
-#include "pragmas.h"
 
 #include "game.h"
 #include "interpso.h"

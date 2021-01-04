@@ -1829,7 +1829,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			auto spawned = EGS(s->sectnum,
 				s->x + MulScale(k, bcos(s->ang), 9),
 				s->y + MulScale(k, bsin(s->ang), 9),
-				s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
+				s->z + ((k * Sgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
 				s->xrepeat, s->yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
 			spawned->s.cstat = 128;
@@ -3482,7 +3482,7 @@ void handle_se06_d(DDukeActor* actor)
 			{
 				if (act2->temp_data[5] == 0)
 					act2->temp_data[5] = dist(act2, actor);
-				int x = sgn(dist(act2, actor) - act2->temp_data[5]);
+				int x = Sgn(dist(act2, actor) - act2->temp_data[5]);
 				if (act2->s.extra)
 					x = -x;
 				s->xvel += x;
@@ -3819,7 +3819,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		if (ps[playernum].newOwner != nullptr)
 			goalang = getangle(ps[playernum].oposx - spr->x, ps[playernum].oposy - spr->y);
 		else goalang = getangle(ps[playernum].posx - spr->x, ps[playernum].posy - spr->y);
-		angdif = ksgn(getincangle(spr->ang, goalang)) << 5;
+		angdif = Sgn(getincangle(spr->ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
 		{
 			angdif = 0;

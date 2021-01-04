@@ -1446,7 +1446,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			auto x = EGS(s->sectnum,
 				s->x + MulScale(k, bcos(s->ang), 9),
 				s->y + MulScale(k, bsin(s->ang), 9),
-				s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
+				s->z + ((k * Sgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
 				s->xrepeat, s->yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
 			x->s.cstat = 128;
@@ -3447,7 +3447,7 @@ void handle_se06_r(DDukeActor *actor)
 			{
 				if (act2->temp_data[5] == 0)
 					act2->temp_data[5] = dist(act2, actor);
-				int x = sgn(dist(act2, actor) - act2->temp_data[5]);
+				int x = Sgn(dist(act2, actor) - act2->temp_data[5]);
 				if (act2->s.extra) x = -x;
 				s->xvel += x;
 			}
@@ -3719,7 +3719,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if (ps[pnum].newOwner != nullptr)
 			goalang = getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y);
 		else goalang = getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y);
-		angdif = ksgn(getincangle(spr->ang, goalang)) << 5;
+		angdif = Sgn(getincangle(spr->ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
 		{
 			angdif = 0;
@@ -3735,7 +3735,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			if (ps[pnum].newOwner != nullptr)
 				goalang = (getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y) + 1024) & 2047;
 			else goalang = (getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y) + 1024) & 2047;
-			angdif = ksgn(getincangle(spr->ang, goalang)) << 5;
+			angdif = Sgn(getincangle(spr->ang, goalang)) << 5;
 			if (angdif > -32 && angdif < 0)
 			{
 				angdif = 0;

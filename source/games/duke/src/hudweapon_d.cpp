@@ -942,7 +942,7 @@ void displayweapon_d(int snum, double smoothratio)
 			{
 				if (*kb < aplWeaponTotalTime[p->curr_weapon][snum])
 				{
-					i = sgn(*kb >> 2);
+					i = Sgn(*kb >> 2);
 					if (p->ammo_amount[p->curr_weapon] & 1)
 					{
 						hud_drawpal(weapon_xoffset + 30 - look_anghalf, looking_arc + 240 - gun_pos, DEVISTATOR, shade, o | 4, pal);
@@ -1003,7 +1003,7 @@ void displayweapon_d(int snum, double smoothratio)
 			{
 				char cycloidy[] = { 0,4,12,24,12,4,0 };
 
-				i = sgn(*kb >> 2);
+				i = Sgn(*kb >> 2);
 
 				if (p->hbomb_hold_delay)
 				{

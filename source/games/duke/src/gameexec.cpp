@@ -1740,14 +1740,14 @@ int ParseState::parse(void)
 		//if (!isPlutoPak() && *insptr == 0) *insptr = 4;
 
 		j = ((*insptr) - g_sp->xrepeat) << 1;
-		g_sp->xrepeat += ksgn(j);
+		g_sp->xrepeat += Sgn(j);
 
 		insptr++;
 
 		if ((g_sp->picnum == TILE_APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tileHeight(g_sp->picnum) + 8)) << 2) < (g_ac->floorz - g_ac->ceilingz))
 		{
 			j = ((*insptr) - g_sp->yrepeat) << 1;
-			if (abs(j)) g_sp->yrepeat += ksgn(j);
+			if (abs(j)) g_sp->yrepeat += Sgn(j);
 		}
 
 		insptr++;

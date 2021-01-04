@@ -21,7 +21,6 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 
 #include "compat.h"
 #include "palette.h"
-#include "pragmas.h"
 
     //Make all variables in BUILD.H defined in the ENGINE,
     //and externed in GAME

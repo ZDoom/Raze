@@ -406,8 +406,8 @@ void fakedomovethings(void)
 			tempang = syn->avel<<1;
 
 			if(psectlotag == 2)
-				myang += (tempang-(tempang>>3))*sgn(doubvel);
-			else myang += (tempang)*sgn(doubvel);
+				myang += (tempang-(tempang>>3))*Sgn(doubvel);
+			else myang += (tempang)*Sgn(doubvel);
 			myang &= 2047;
 		}
 

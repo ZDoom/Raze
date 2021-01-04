@@ -4,7 +4,6 @@
 
 #include "compat.h"
 
-#include "pragmas.h"
 
 #include "polymost.h"
 #include "gamecvars.h"

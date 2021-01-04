@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "build.h"
-#include "pragmas.h"
 #include "mmulti.h"
 #include "v_font.h"
 
@@ -222,8 +221,8 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     if (abs(vX)+abs(vY) > abs(dX)+abs(dY))
     {
         *vsectnum = nHSector;
-        dX -= ksgn(vX)<<6;
-        dY -= ksgn(vY)<<6;
+        dX -= Sgn(vX)<<6;
+        dY -= Sgn(vY)<<6;
         int nDist;
         if (abs(vX) > abs(vY))
         {
@@ -269,8 +268,8 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
     if (abs(vX)+abs(vY) > abs(dX)+abs(dY))
     {
         *vsectnum = nHSector;
-        dX -= ksgn(vX)<<6;
-        dY -= ksgn(vY)<<6;
+        dX -= Sgn(vX)<<6;
+        dY -= Sgn(vY)<<6;
         int nDist;
         if (abs(vX) > abs(vY))
         {

@@ -1370,7 +1370,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 		auto q = EGS(s->sectnum,
 			s->x + MulScale(k, bcos(s->ang), 9),
 			s->y + MulScale(k, bsin(s->ang), 9),
-			s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), tongue, -40 + (k << 1),
+			s->z + ((k * Sgn(s->zvel)) * abs(s->zvel / 12)), tongue, -40 + (k << 1),
 			8, 8, 0, 0, 0, actor, 5);
 		if (q)
 		{
@@ -1382,7 +1382,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	auto spawned = EGS(s->sectnum,
 		s->x + MulScale(k, bcos(s->ang), 9),
 		s->y + MulScale(k, bsin(s->ang), 9),
-		s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), jaw, -40,
+		s->z + ((k * Sgn(s->zvel)) * abs(s->zvel / 12)), jaw, -40,
 		32, 32, 0, 0, 0, actor, 5);
 	if (spawned)
 	{
@@ -1743,7 +1743,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		{
 			int l = ps[p].posz - s->z;
 			if (abs(l) < (48 << 8)) t[0] = 3;
-			else s->z += sgn(ps[p].posz - s->z) << shift; // The shift here differs between Duke and RR.
+			else s->z += Sgn(ps[p].posz - s->z) << shift; // The shift here differs between Duke and RR.
 		}
 		else
 		{
@@ -3260,7 +3260,7 @@ void handle_se02(DDukeActor *actor)
 
 			if (abs(sc->floorheinum - t[5]) < 8)
 				sc->floorheinum = t[5];
-			else sc->floorheinum += (sgn(t[5] - sc->floorheinum) << 4);
+			else sc->floorheinum += (Sgn(t[5] - sc->floorheinum) << 4);
 		}
 
 		int m = MulScale(s->xvel, bcos(s->ang), 14);
@@ -3465,7 +3465,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 
 		actor->SetOwner(Owner);
 		if (!Owner) return; // Undefined case - was not checked.
-		s->zvel = ksgn(Owner->s.z - s->z) << 4;
+		s->zvel = Sgn(Owner->s.z - s->z) << 4;
 	}
 
 	if (ldist(Owner, actor) < 1024)
@@ -3822,23 +3822,23 @@ void handle_se13(DDukeActor* actor)
 			if (actor->spriteextra)
 			{
 				if (abs(t[0] - sc->ceilingz) >= j)
-					sc->ceilingz += sgn(t[0] - sc->ceilingz) * j;
+					sc->ceilingz += Sgn(t[0] - sc->ceilingz) * j;
 				else sc->ceilingz = t[0];
 			}
 			else
 			{
 				if (abs(t[1] - sc->floorz) >= j)
-					sc->floorz += sgn(t[1] - sc->floorz) * j;
+					sc->floorz += Sgn(t[1] - sc->floorz) * j;
 				else sc->floorz = t[1];
 			}
 		}
 		else
 		{
 			if (abs(t[1] - sc->floorz) >= j)
-				sc->floorz += sgn(t[1] - sc->floorz) * j;
+				sc->floorz += Sgn(t[1] - sc->floorz) * j;
 			else sc->floorz = t[1];
 			if (abs(t[0] - sc->ceilingz) >= j)
-				sc->ceilingz += sgn(t[0] - sc->ceilingz) * j;
+				sc->ceilingz += Sgn(t[0] - sc->ceilingz) * j;
 			sc->ceilingz = t[0];
 		}
 
@@ -4374,7 +4374,7 @@ void handle_se21(DDukeActor* actor)
 
 	if (t[0] == 1) //Decide if the s->sectnum should go up or down
 	{
-		s->zvel = ksgn(s->z - *lp) * (s->yvel << 4);
+		s->zvel = Sgn(s->z - *lp) * (s->yvel << 4);
 		t[0]++;
 	}
 
@@ -4676,7 +4676,7 @@ void handle_se32(DDukeActor *actor)
 					t[2] = 0;
 					t[0] = 0;
 				}
-				else sc->ceilingz += sgn(s->z - sc->ceilingz) * s->yvel;
+				else sc->ceilingz += Sgn(s->z - sc->ceilingz) * s->yvel;
 			}
 			else
 			{
@@ -4687,7 +4687,7 @@ void handle_se32(DDukeActor *actor)
 					t[2] = 0;
 					t[0] = 0;
 				}
-				else sc->ceilingz += sgn(t[1] - sc->ceilingz) * s->yvel;
+				else sc->ceilingz += Sgn(t[1] - sc->ceilingz) * s->yvel;
 			}
 			return;
 		}
@@ -4701,7 +4701,7 @@ void handle_se32(DDukeActor *actor)
 				callsound(s->sectnum, actor);
 				sc->ceilingz = s->z;
 			}
-			else sc->ceilingz += sgn(s->z - sc->ceilingz) * s->yvel;
+			else sc->ceilingz += Sgn(s->z - sc->ceilingz) * s->yvel;
 		}
 		else
 		{
@@ -4711,7 +4711,7 @@ void handle_se32(DDukeActor *actor)
 				t[2] = !t[2];
 				callsound(s->sectnum, actor);
 			}
-			else sc->ceilingz -= sgn(s->z - t[1]) * s->yvel;
+			else sc->ceilingz -= Sgn(s->z - t[1]) * s->yvel;
 		}
 	}
 
@@ -4867,7 +4867,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				}
 				else
 				{
-					int l = sgn(s->z - sec->floorz) * s->yvel;
+					int l = Sgn(s->z - sec->floorz) * s->yvel;
 					sec->floorz += l;
 
 					DukeSectIterator it(s->sectnum);
@@ -4896,7 +4896,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				}
 				else
 				{
-					int l = sgn(t[1] - sec->floorz) * s->yvel;
+					int l = Sgn(t[1] - sec->floorz) * s->yvel;
 					sec->floorz += l;
 
 					DukeSectIterator it(s->sectnum);
@@ -4927,7 +4927,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			}
 			else
 			{
-				int l = sgn(s->z - sec->floorz) * s->yvel;
+				int l = Sgn(s->z - sec->floorz) * s->yvel;
 				sec->floorz += l;
 
 				DukeSectIterator it(s->sectnum);
@@ -4955,7 +4955,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			}
 			else
 			{
-				int l = sgn(s->z - t[1]) * s->yvel;
+				int l = Sgn(s->z - t[1]) * s->yvel;
 				sec->floorz -= l;
 
 				DukeSectIterator it(s->sectnum);

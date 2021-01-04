@@ -1146,8 +1146,8 @@ void lotsofglass(DDukeActor *actor, int wallnum, int n)
 	xv = wall[wall[wallnum].point2].x - x1;
 	yv = wall[wall[wallnum].point2].y - y1;
 
-	x1 -= sgn(yv);
-	y1 += sgn(xv);
+	x1 -= Sgn(yv);
+	y1 += Sgn(xv);
 
 	xv /= j;
 	yv /= j;

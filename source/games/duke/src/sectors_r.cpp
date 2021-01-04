@@ -945,8 +945,8 @@ static void lotsofpopcorn(DDukeActor *actor, short wallnum, short n)
 	xv = wall[wall[wallnum].point2].x - x1;
 	yv = wall[wall[wallnum].point2].y - y1;
 
-	x1 -= ksgn(yv);
-	y1 += ksgn(xv);
+	x1 -= Sgn(yv);
+	y1 += Sgn(xv);
 
 	xv /= j;
 	yv /= j;

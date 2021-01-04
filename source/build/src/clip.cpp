@@ -351,7 +351,7 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
 {
     const int32_t x1 = clipit[w].x1, dx = clipit[w].x2-x1;
     const int32_t y1 = clipit[w].y1, dy = clipit[w].y2-y1;
-    const int32_t ox = ksgn(-dy), oy = ksgn(dx);
+    const int32_t ox = Sgn(-dy), oy = Sgn(dx);
     char first = (abs(dx) <= abs(dy));
 
     do

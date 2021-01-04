@@ -42,7 +42,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "mytypes.h"
 #include "sounds.h"
-#include "pragmas.h"
 #include "gamecvars.h"
 #include "raze_sound.h"
 #include "c_cvars.h"
@@ -123,7 +122,6 @@ inline int RANDOM(void)
 
 #define PRINT(line,str) DebugPrint(line,str)
 
-#include "pragmas.h"
 
 //
 // Map directions/degrees

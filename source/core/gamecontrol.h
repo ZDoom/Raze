@@ -11,7 +11,6 @@
 #include "stats.h"
 #include "i_time.h"
 #include "palentry.h"
-#include "pragmas.h"
 
 extern FString currentGame;
 extern FString LumpFilter;

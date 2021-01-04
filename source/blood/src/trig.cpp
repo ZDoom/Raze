@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "build.h"
-#include "pragmas.h"
 #include "blood.h"
 
 BEGIN_BLD_NS
