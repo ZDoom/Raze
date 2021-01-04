@@ -565,27 +565,27 @@ inline char Chance(int a1)
 
 inline unsigned int Random(int a1)
 {
-    return mulscale(wrand(), a1, 15);
+    return MulScale(wrand(), a1, 15);
 }
 
 inline int Random2(int a1)
 {
-    return mulscale(wrand(), a1, 14)-a1;
+    return MulScale(wrand(), a1, 14)-a1;
 }
 
 inline int Random3(int a1)
 {
-    return mulscale(wrand()+wrand(), a1, 15) - a1;
+    return MulScale(wrand()+wrand(), a1, 15) - a1;
 }
 
 inline unsigned int QRandom(int a1)
 {
-    return mulscale(qrand(), a1, 15);
+    return MulScale(qrand(), a1, 15);
 }
 
 inline int QRandom2(int a1)
 {
-    return mulscale(qrand(), a1, 14)-a1;
+    return MulScale(qrand(), a1, 14)-a1;
 }
 
 template<class T>

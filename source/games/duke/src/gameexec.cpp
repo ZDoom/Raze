@@ -3161,7 +3161,7 @@ int ParseState::parse(void)
 		int i;
 		insptr++;
 		i = *(insptr++);	// ID of def
-		SetGameVarID(i, mulscale(rand(), *insptr, 15), g_ac, g_p);
+		SetGameVarID(i, MulScale(rand(), *insptr, 15), g_ac, g_p);
 		insptr++;
 		break;
 	}
@@ -3252,7 +3252,7 @@ int ParseState::parse(void)
 		i = *(insptr++);	// ID of def
 		l1 = GetGameVarID(i, g_ac, g_p); // not used for this command
 		l2 = GetGameVarID(*insptr, g_ac, g_p);
-		lResult = mulscale(rand(), l2, 15);
+		lResult = MulScale(rand(), l2, 15);
 		SetGameVarID(i, lResult, g_ac, g_p);
 		insptr++;
 		break;

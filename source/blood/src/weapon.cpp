@@ -381,8 +381,8 @@ void UpdateAimVector(PLAYER * pPlayer)
             }
             int lx = x + MulScale(Cos(pPSprite->ang), nDist, 30);
             int ly = y + MulScale(Sin(pPSprite->ang), nDist, 30);
-            int lz = z + mulscale(pPlayer->slope, nDist, 10);
-            int zRange = mulscale(9460, nDist, 10);
+            int lz = z + MulScale(pPlayer->slope, nDist, 10);
+            int zRange = MulScale(9460, nDist, 10);
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
             if (lz-zRange>bottom || lz+zRange<top)
@@ -433,7 +433,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                     continue;
                 int lx = x + MulScale(Cos(pPSprite->ang), nDist, 30);
                 int ly = y + MulScale(Sin(pPSprite->ang), nDist, 30);
-                int lz = z + mulscale(pPlayer->slope, nDist, 10);
+                int lz = z + MulScale(pPlayer->slope, nDist, 10);
                 int zRange = MulScale(9460, nDist, 10);
                 int top, bottom;
                 GetSpriteExtents(pSprite, &top, &bottom);

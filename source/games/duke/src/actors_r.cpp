@@ -3916,8 +3916,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				}
 				else
 				{
-					ps[pnum].posxv = mulscale(ps[pnum].posxv, gs.playerfriction - 0x2000, 16);
-					ps[pnum].posyv = mulscale(ps[pnum].posyv, gs.playerfriction - 0x2000, 16);
+					ps[pnum].posxv = MulScale(ps[pnum].posxv, gs.playerfriction - 0x2000, 16);
+					ps[pnum].posyv = MulScale(ps[pnum].posyv, gs.playerfriction - 0x2000, 16);
 				}
 			}
 			else if ((isRRRA() && spr->picnum != DRONE && spr->picnum != SHARK && spr->picnum != UFO1_RRRA) ||

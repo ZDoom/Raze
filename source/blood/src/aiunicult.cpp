@@ -1025,8 +1025,8 @@ void aiGenDudeMoveForward(DBloodActor* actor)
     int cos = Cos(pSprite->ang);
 
         int frontSpeed = gGenDudeExtra[pSprite->index].moveSpeed;
-        xvel[pSprite->index] += mulscale(cos, frontSpeed, 30);
-        yvel[pSprite->index] += mulscale(sin, frontSpeed, 30);
+        xvel[pSprite->index] += MulScale(cos, frontSpeed, 30);
+        yvel[pSprite->index] += MulScale(sin, frontSpeed, 30);
     }
 }
 

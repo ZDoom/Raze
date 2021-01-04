@@ -550,8 +550,8 @@ static void fakeMoveDude(spritetype *pSprite)
             int nHitSprite = floorHit & 0x3fff;
             if ((sprite[nHitSprite].cstat & 0x30) == 0)
             {
-                predict.at5c += mulscale(4, predict.at50 - sprite[nHitSprite].x, 2);
-                predict.at60 += mulscale(4, predict.at54 - sprite[nHitSprite].y, 2);
+                predict.at5c += MulScale(4, predict.at50 - sprite[nHitSprite].x, 2);
+                predict.at60 += MulScale(4, predict.at54 - sprite[nHitSprite].y, 2);
                 return;
             }
         }

@@ -352,7 +352,7 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 				int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, snum);
 				// set timer.  blows up when at zero....
 				j->s.extra = lGrenadeLifetime
-					+ mulscale(krand(), lGrenadeLifetimeVar, 14)
+					+ MulScale(krand(), lGrenadeLifetimeVar, 14)
 					- lGrenadeLifetimeVar;
 			}
 

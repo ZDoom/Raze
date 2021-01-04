@@ -105,8 +105,8 @@ void sub_71BD4(int, DBloodActor* actor)
         }
         int tx = x+MulScale(Cos(pSprite->ang), nDist, 30);
         int ty = y+MulScale(Sin(pSprite->ang), nDist, 30);
-        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
-        int tsr = mulscale(9460, nDist, 10);
+        int tz = z+MulScale(actor->dudeSlope, nDist, 10);
+        int tsr = MulScale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
         if (tz-tsr > bottom || tz+tsr < top)
@@ -184,8 +184,8 @@ void sub_720AC(int, DBloodActor* actor)
         }
         int tx = x+MulScale(Cos(pSprite->ang), nDist, 30);
         int ty = y+MulScale(Sin(pSprite->ang), nDist, 30);
-        int tz = z+mulscale(actor->dudeSlope, nDist, 10);
-        int tsr = mulscale(9460, nDist, 10);
+        int tz = z+MulScale(actor->dudeSlope, nDist, 10);
+        int tsr = MulScale(9460, nDist, 10);
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
         if (tz-tsr > bottom || tz+tsr < top)

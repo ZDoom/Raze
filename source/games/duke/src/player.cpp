@@ -332,7 +332,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 					if ((dy1 * xv) <= (dx1 * yv))
 						if ((dy2 * xv) >= (dx2 * yv))
 						{
-							sdist = mulscale(dx3, xv, 14) + mulscale(dy3, yv, 14);
+							sdist = MulScale(dx3, xv, 14) + MulScale(dy3, yv, 14);
 							if (sdist > 512 && sdist < smax)
 							{
 								if (s->picnum == TILE_APLAYER)

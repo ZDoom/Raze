@@ -885,7 +885,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 				int lLifetimeVar = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, p);
 				// set timer.  blows up when at zero....
 				bomb->s.extra = lLifetime
-					+ mulscale(krand(), lLifetimeVar, 14)
+					+ MulScale(krand(), lLifetimeVar, 14)
 					- lLifetimeVar;
 			}
 		}
@@ -2210,7 +2210,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 			if (isNam())
 			{
-				spawned->s.extra = mulscale(krand(), NAM_GRENADE_LIFETIME_VAR, 14);
+				spawned->s.extra = MulScale(krand(), NAM_GRENADE_LIFETIME_VAR, 14);
 			}
 
 			if (k == 15)
@@ -2999,20 +2999,20 @@ void processinput_d(int snum)
 		else check = ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
 		if (check)
 		{
-			p->posxv = mulscale(p->posxv, gs.playerfriction - 0x2000, 16);
-			p->posyv = mulscale(p->posyv, gs.playerfriction - 0x2000, 16);
+			p->posxv = MulScale(p->posxv, gs.playerfriction - 0x2000, 16);
+			p->posyv = MulScale(p->posyv, gs.playerfriction - 0x2000, 16);
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1400, 16);
-				p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1400, 16);
+				p->posxv = MulScale(p->posxv, gs.playerfriction - 0x1400, 16);
+				p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1400, 16);
 			}
 			else
 			{
-				p->posxv = mulscale(p->posxv, gs.playerfriction, 16);
-				p->posyv = mulscale(p->posyv, gs.playerfriction, 16);
+				p->posxv = MulScale(p->posxv, gs.playerfriction, 16);
+				p->posyv = MulScale(p->posyv, gs.playerfriction, 16);
 			}
 		}
 

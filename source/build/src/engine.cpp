@@ -1802,8 +1802,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((1 << ox) != xspan)
             {
                 ox++;
-                globalx1 = mulscale(globalx1,xspan,ox);
-                globaly1 = mulscale(globaly1,xspan,ox);
+                globalx1 = MulScale(globalx1,xspan,ox);
+                globaly1 = MulScale(globaly1,xspan,ox);
             }
 
             bak.x = (bak.x>>4)-(xdim<<7); bak.y = (bak.y>>4)-(ydim<<7);

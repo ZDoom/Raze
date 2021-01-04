@@ -3717,20 +3717,20 @@ void processinput_r(int snum)
 
 		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
-			p->posxv = mulscale(p->posxv, gs.playerfriction - 0x2000, 16);
-			p->posyv = mulscale(p->posyv, gs.playerfriction - 0x2000, 16);
+			p->posxv = MulScale(p->posxv, gs.playerfriction - 0x2000, 16);
+			p->posyv = MulScale(p->posyv, gs.playerfriction - 0x2000, 16);
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1400, 16);
-				p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1400, 16);
+				p->posxv = MulScale(p->posxv, gs.playerfriction - 0x1400, 16);
+				p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1400, 16);
 			}
 			else
 			{
-				p->posxv = mulscale(p->posxv, gs.playerfriction, 16);
-				p->posyv = mulscale(p->posyv, gs.playerfriction, 16);
+				p->posxv = MulScale(p->posxv, gs.playerfriction, 16);
+				p->posyv = MulScale(p->posyv, gs.playerfriction, 16);
 			}
 		}
 
@@ -3751,8 +3751,8 @@ void processinput_r(int snum)
 				p->boot_amount--;
 			else
 			{
-				p->posxv = mulscale(p->posxv, gs.playerfriction, 16);
-				p->posyv = mulscale(p->posyv, gs.playerfriction, 16);
+				p->posxv = MulScale(p->posxv, gs.playerfriction, 16);
+				p->posyv = MulScale(p->posyv, gs.playerfriction, 16);
 			}
 		}
 		else
@@ -3763,8 +3763,8 @@ void processinput_r(int snum)
 				{
 					if (p->on_ground)
 					{
-						p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1800, 16);
-						p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1800, 16);
+						p->posxv = MulScale(p->posxv, gs.playerfriction - 0x1800, 16);
+						p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1800, 16);
 					}
 				}
 				else
@@ -3772,8 +3772,8 @@ void processinput_r(int snum)
 						p->boot_amount--;
 					else
 					{
-						p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1800, 16);
-						p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1800, 16);
+						p->posxv = MulScale(p->posxv, gs.playerfriction - 0x1800, 16);
+						p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1800, 16);
 					}
 			}
 

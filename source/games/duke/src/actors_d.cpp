@@ -3951,8 +3951,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 				}
 				else
 				{
-					ps[playernum].posxv = mulscale(ps[playernum].posxv, gs.playerfriction - 0x2000, 16);
-					ps[playernum].posyv = mulscale(ps[playernum].posyv, gs.playerfriction - 0x2000, 16);
+					ps[playernum].posxv = MulScale(ps[playernum].posxv, gs.playerfriction - 0x2000, 16);
+					ps[playernum].posyv = MulScale(ps[playernum].posyv, gs.playerfriction - 0x2000, 16);
 				}
 			}
 			else if (spr->picnum != DRONE && spr->picnum != SHARK && spr->picnum != COMMANDER)

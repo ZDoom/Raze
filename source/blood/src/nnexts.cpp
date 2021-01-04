@@ -1213,8 +1213,8 @@ void debrisMove(int listIndex) {
             int nHitSprite = floorHit & 0x3fff;
             if ((sprite[nHitSprite].cstat & 0x30) == 0)
             {
-                xvel[nSprite] += mulscale(4, pSprite->x - sprite[nHitSprite].x, 2);
-                yvel[nSprite] += mulscale(4, pSprite->y - sprite[nHitSprite].y, 2);
+                xvel[nSprite] += MulScale(4, pSprite->x - sprite[nHitSprite].x, 2);
+                yvel[nSprite] += MulScale(4, pSprite->y - sprite[nHitSprite].y, 2);
                 moveHit = gSpriteHit[nXSprite].hit;
             }
         }
@@ -4341,9 +4341,9 @@ void useUniMissileGen(int, int nXSprite) {
         if (pXSprite->data2 > 0) {
 
             int velocity = pXSprite->data2 << 12;
-            xvel[pMissile->index] = mulscale(velocity, dx, 14);
-            yvel[pMissile->index] = mulscale(velocity, dy, 14);
-            zvel[pMissile->index] = mulscale(velocity, dz, 14);
+            xvel[pMissile->index] = MulScale(velocity, dx, 14);
+            yvel[pMissile->index] = MulScale(velocity, dy, 14);
+            zvel[pMissile->index] = MulScale(velocity, dz, 14);
 
         }
 

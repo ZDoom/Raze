@@ -572,7 +572,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 				i = TILE_APLAYERTOP;
 
 			j = klabs(pp.truefz - pp.posz) >> 8;
-			j = mulscale(czoom * (pspr->yrepeat + j), yxaspect, 16);
+			j = MulScale(czoom * (pspr->yrepeat + j), yxaspect, 16);
 
 			if (j < 22000) j = 22000;
 			else if (j > (65536 << 1)) j = (65536 << 1);

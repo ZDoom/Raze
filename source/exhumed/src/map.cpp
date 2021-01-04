@@ -91,7 +91,7 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
             getzrange_old(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0);
             int nTop, nBottom;
             GetSpriteExtents(pSprite, &nTop, &nBottom);
-            int nScale = mulscale((pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z, yxaspect, 16);
+            int nScale = MulScale((pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z, yxaspect, 16);
             nScale = clamp(nScale, 8000, 65536 << 1);
             // Players on automap
             double x = xdim / 2. + x1 / double(1 << 12);

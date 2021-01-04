@@ -1660,8 +1660,8 @@ void SlipSlope(PLAYERp pp)
 
     ang = NORM_ANGLE(ang + 512);
 
-    pp->xvect += mulscale(bcos(ang), sector[pp->cursectnum].floorheinum, sectu->speed);
-    pp->yvect += mulscale(bsin(ang), sector[pp->cursectnum].floorheinum, sectu->speed);
+    pp->xvect += MulScale(bcos(ang), sector[pp->cursectnum].floorheinum, sectu->speed);
+    pp->yvect += MulScale(bsin(ang), sector[pp->cursectnum].floorheinum, sectu->speed);
 }
 
 void

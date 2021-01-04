@@ -36,9 +36,6 @@ static inline constexpr int ksgn(int32_t a) { return (a > 0) - (a < 0); }
 
 inline int sgn(int32_t a) { return (a > 0) - (a < 0); }
 
-static inline int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
-static inline double fmulscale(double eax, double edx, int32_t ecx) { return (eax * edx) / (double)(qw(1) << ecx); }
-
 static inline int32_t krecipasm(int32_t i)
 {
     // Ken did this
