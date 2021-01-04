@@ -495,8 +495,8 @@ JS_ProcessEchoSpot()
 
         tp = &sprite[i];
 
-        j = klabs(tp->x - pp->posx);
-        j += klabs(tp->y - pp->posy);
+        j = abs(tp->x - pp->posx);
+        j += abs(tp->y - pp->posy);
         if (j < dist)
             dist = j;
 
@@ -569,8 +569,8 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
 
                 if (bIsWallMirror)
                 {
-                    j = klabs(wall[mirror[cnt].mirrorwall].x - tx);
-                    j += klabs(wall[mirror[cnt].mirrorwall].y - ty);
+                    j = abs(wall[mirror[cnt].mirrorwall].x - tx);
+                    j += abs(wall[mirror[cnt].mirrorwall].y - ty);
                     if (j < dist)
                         dist = j;
                 }
@@ -580,8 +580,8 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
 
                     tp = &sprite[mirror[cnt].camsprite];
 
-                    j = klabs(tp->x - tx);
-                    j += klabs(tp->y - ty);
+                    j = abs(tp->x - tx);
+                    j += abs(tp->y - ty);
                     if (j < dist)
                         dist = j;
                 }
@@ -607,8 +607,8 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                 midy = (wall[w].y + wall[wall[w].point2].y) / 2;
 
                 // Finish finding offsets
-                tdx = klabs(midx - tx);
-                tdy = klabs(midy - ty);
+                tdx = abs(midx - tx);
+                tdy = abs(midy - ty);
 
                 if (midx >= tx)
                     dx = sp->x - tdx;
@@ -620,7 +620,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                 else
                     dy = sp->y + tdy;
 
-                tdz = klabs(tz - sp->z);
+                tdz = abs(tz - sp->z);
                 if (tz >= sp->z)
                     dz = sp->z + tdz;
                 else
@@ -657,7 +657,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                             SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) + oscilation_delta));
 
                             // TAG6 = Turn radius
-                            if (klabs(getincangle(sp->ang, SP_TAG5(sp))) >= SP_TAG6(sp))
+                            if (abs(getincangle(sp->ang, SP_TAG5(sp))) >= SP_TAG6(sp))
                             {
                                 SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) - oscilation_delta));
                                 RESET_BOOL3(sp);    // Reverse turn
@@ -670,7 +670,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                             SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) - oscilation_delta));
 
                             // TAG6 = Turn radius
-                            if (klabs(getincangle(sp->ang, SP_TAG5(sp))) >= SP_TAG6(sp))
+                            if (abs(getincangle(sp->ang, SP_TAG5(sp))) >= SP_TAG6(sp))
                             {
                                 SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) + oscilation_delta));
                                 SET_BOOL3(sp);      // Reverse turn
@@ -768,8 +768,8 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 
                 if (bIsWallMirror)
                 {
-                    j = klabs(wall[mirror[cnt].mirrorwall].x - tx);
-                    j += klabs(wall[mirror[cnt].mirrorwall].y - ty);
+                    j = abs(wall[mirror[cnt].mirrorwall].x - tx);
+                    j += abs(wall[mirror[cnt].mirrorwall].y - ty);
                     if (j < dist)
                         dist = j;
                 }
@@ -779,8 +779,8 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 
                     tp = &sprite[mirror[cnt].camsprite];
 
-                    j = klabs(tp->x - tx);
-                    j += klabs(tp->y - ty);
+                    j = abs(tp->x - tx);
+                    j += abs(tp->y - ty);
                     if (j < dist)
                         dist = j;
                 }
@@ -807,8 +807,8 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     midy = (wall[w].y + wall[wall[w].point2].y) / 2;
 
                     // Finish finding offsets
-                    tdx = klabs(midx - tx);
-                    tdy = klabs(midy - ty);
+                    tdx = abs(midx - tx);
+                    tdy = abs(midy - ty);
 
                     if (midx >= tx)
                         dx = sp->x - tdx;
@@ -820,7 +820,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     else
                         dy = sp->y + tdy;
 
-                    tdz = klabs(tz - sp->z);
+                    tdz = abs(tz - sp->z);
                     if (tz >= sp->z)
                         dz = sp->z + tdz;
                     else

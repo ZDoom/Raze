@@ -142,13 +142,13 @@ bool FindSector(int nX, int nY, int *nSector)
 bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, int nDist)
 {
     assert(pSprite != NULL);
-    int oX = klabs(nX-pSprite->x)>>4;
+    int oX = abs(nX-pSprite->x)>>4;
     if (oX >= nDist) return 0;
 
-    int oY = klabs(nY-pSprite->y)>>4;
+    int oY = abs(nY-pSprite->y)>>4;
     if (oY >= nDist) return 0;
 
-    int oZ = klabs(nZ-pSprite->z)>>8;
+    int oZ = abs(nZ-pSprite->z)>>8;
     if (oZ >= nDist) return 0;
 
     if (approxDist(oX, oY) >= nDist) return 0;
@@ -166,13 +166,13 @@ bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, in
 
 bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, int nDist)
 {
-    int oX = klabs(nX2-nX1)>>4;
+    int oX = abs(nX2-nX1)>>4;
     if (oX >= nDist)
         return 0;
-    int oY = klabs(nY2-nY1)>>4;
+    int oY = abs(nY2-nY1)>>4;
     if (oY >= nDist)
         return 0;
-    int oZ = klabs(nZ2-nZ1)>>4;
+    int oZ = abs(nZ2-nZ1)>>4;
     if (oZ >= nDist)
         return 0;
     if (approxDist(oX, oY) >= nDist) return 0;
@@ -810,8 +810,8 @@ int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, cha
             if (TestBitString(sectbits, nNextSector))
                 continue;
             SetBitString(sectbits, nNextSector);
-            int dx = klabs(wall[pWall->point2].x - x)>>4;
-            int dy = klabs(wall[pWall->point2].y - y)>>4;
+            int dx = abs(wall[pWall->point2].x - x)>>4;
+            int dy = abs(wall[pWall->point2].y - y)>>4;
             if (dx < nDist && dy < nDist)
             {
                 if (approxDist(dx, dy) < nDist)

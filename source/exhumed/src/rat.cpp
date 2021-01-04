@@ -271,8 +271,8 @@ void FuncRat(int a, int nDamage, int nRun)
                         return;
                     }
 
-                    int xVal = klabs(sprite[nSprite].x - sprite[nTarget].x);
-                    int yVal = klabs(sprite[nSprite].y - sprite[nTarget].y);
+                    int xVal = abs(sprite[nSprite].x - sprite[nTarget].x);
+                    int yVal = abs(sprite[nSprite].y - sprite[nTarget].y);
 
                     if (xVal > 50 || yVal > 50)
                     {
@@ -324,8 +324,8 @@ void FuncRat(int a, int nDamage, int nRun)
 
                     MoveCreature(nSprite);
 
-                    int xVal = klabs(sprite[nSprite].x - sprite[nTarget].x);
-                    int yVal = klabs(sprite[nSprite].y - sprite[nTarget].y);
+                    int xVal = abs(sprite[nSprite].x - sprite[nTarget].x);
+                    int yVal = abs(sprite[nSprite].y - sprite[nTarget].y);
 
                     if (xVal >= 50 || yVal >= 50)
                     {

@@ -109,7 +109,7 @@ static void calebThinkGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
     {
         if (pXSector && pXSector->Underwater)
             aiNewState(actor, &tinycalebSwimSearch);
@@ -183,11 +183,11 @@ static void calebThinkChase(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 actor->dudeSlope = DivScale(pTarget->z-pSprite->z, nDist, 10);
-                if (nDist < 0x599 && klabs(nDeltaAngle) < 28)
+                if (nDist < 0x599 && abs(nDeltaAngle) < 28)
                 {
                     XSECTOR *pXSector;
                     int nXSector = sector[pSprite->sectnum].extra;
@@ -259,7 +259,7 @@ static void calebThinkSwimGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &tinycalebSwimSearch);
     aiThinkTarget(actor);
 }
@@ -300,10 +300,10 @@ static void calebThinkSwimChase(DBloodActor* actor)
         GetSpriteExtents(pSprite, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
+                if (nDist < 0x400 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &tinycalebSwimAttack);
                 else
                     aiNewState(actor, &tinycaleb13967C);
@@ -326,7 +326,7 @@ static void sub_65D04(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
         return;
     if (pXSprite->target == -1)
         pSprite->ang = (pSprite->ang+256)&2047;
@@ -363,7 +363,7 @@ static void sub_65F44(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
     {
         pXSprite->goalAng = (pSprite->ang+512)&2047;
         return;
@@ -400,7 +400,7 @@ static void sub_661E0(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
     {
         pSprite->ang = (pSprite->ang+512)&2047;
         return;

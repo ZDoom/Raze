@@ -257,7 +257,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     else
     {
         predict.at28 = q16horiz(interpolate(predict.at28.asq16(), 0, 0x4000));
-        if (klabs(predict.at28.asq16()) < 4)
+        if (abs(predict.at28.asq16()) < 4)
             predict.at28 = q16horiz(0);
     }
     predict.at2c = -predict.at24.asq16() >> 9;
@@ -513,7 +513,7 @@ static void fakeMoveDude(spritetype *pSprite)
         {
             actFloorBounceVector(&predict.at5c, &predict.at60, &var44, predict.at68, 0);
             predict.at64 = var44;
-            if (klabs(predict.at64) < 0x10000)
+            if (abs(predict.at64) < 0x10000)
             {
                 predict.at64 = velFloor[predict.at68];
                 predict.at73 &= ~4;

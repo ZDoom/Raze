@@ -128,7 +128,7 @@ static void eelThinkTarget(DBloodActor* actor)
             if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z-((pDudeInfo->eyeHeight*pSprite->yrepeat)<<2), pSprite->sectnum))
                 continue;
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 pDudeExtraE->xval2 = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
@@ -166,7 +166,7 @@ static void eelThinkGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &eelSearch);
     eelThinkTarget(actor);
 }
@@ -204,17 +204,17 @@ static void eelThinkPonder(DBloodActor* actor)
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
             aiSetTarget(pXSprite, pXSprite->target);
-            if (height2-height < -0x2000 && nDist < 0x1800 && nDist > 0xc00 && klabs(nDeltaAngle) < 85)
+            if (height2-height < -0x2000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &eelDodgeUp);
-            else if (height2-height > 0xccc && nDist < 0x1800 && nDist > 0xc00 && klabs(nDeltaAngle) < 85)
+            else if (height2-height > 0xccc && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &eelDodgeDown);
-            else if (height2-height < 0xccc && nDist < 0x399 && klabs(nDeltaAngle) < 85)
+            else if (height2-height < 0xccc && nDist < 0x399 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &eelDodgeUp);
-            else if (height2-height > 0xccc && nDist < 0x1400 && nDist > 0x800 && klabs(nDeltaAngle) < 85)
+            else if (height2-height > 0xccc && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &eelDodgeDown);
-            else if (height2-height < -0x2000 && nDist < 0x1400 && nDist > 0x800 && klabs(nDeltaAngle) < 85)
+            else if (height2-height < -0x2000 && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &eelDodgeUp);
-            else if (height2-height < -0x2000 && klabs(nDeltaAngle) < 85 && nDist > 0x1400)
+            else if (height2-height < -0x2000 && abs(nDeltaAngle) < 85 && nDist > 0x1400)
                 aiNewState(actor, &eelDodgeUp);
             else if (height2-height > 0xccc)
                 aiNewState(actor, &eelDodgeDown);
@@ -317,16 +317,16 @@ static void eelThinkChase(DBloodActor* actor)
         GetSpriteExtents(pTarget, &top2, &bottom2);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                if (nDist < 0x399 && top2 > top && klabs(nDeltaAngle) < 85)
+                if (nDist < 0x399 && top2 > top && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &eelSwoop);
-                else if (nDist <= 0x399 && klabs(nDeltaAngle) < 85)
+                else if (nDist <= 0x399 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &eelBite);
-                else if (bottom2 > top && klabs(nDeltaAngle) < 85)
+                else if (bottom2 > top && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &eelSwoop);
-                else if (top2 < top && klabs(nDeltaAngle) < 85)
+                else if (top2 < top && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &eelFly);
             }
         }
@@ -347,7 +347,7 @@ static void eelMoveForward(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = (pDudeInfo->frontSpeed-(((4-gGameOptions.nDifficulty)<<26)/120)/120)<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
         return;
     if (pXSprite->target == -1)
         pSprite->ang = (pSprite->ang+256)&2047;
@@ -380,7 +380,7 @@ static void eelMoveSwoop(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = (pDudeInfo->frontSpeed-(((4-gGameOptions.nDifficulty)<<26)/120)/120)<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
         return;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -409,7 +409,7 @@ static void eelMoveAscend(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = (pDudeInfo->frontSpeed-(((4-gGameOptions.nDifficulty)<<26)/120)/120)<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
         return;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;

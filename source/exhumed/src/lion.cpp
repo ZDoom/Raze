@@ -460,8 +460,8 @@ void FuncLion(int a, int nDamage, int nRun)
 
                             if (hitwall > -1)
                             {
-                                int theX = klabs(hitx - x);
-                                int theY = klabs(hity - y);
+                                int theX = abs(hitx - x);
+                                int theY = abs(hity - y);
 
                                 if ((theX + theY) < nCheckDist)
                                 {

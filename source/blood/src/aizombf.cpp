@@ -105,7 +105,7 @@ static void zombfThinkGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &zombieFSearch);
     aiThinkTarget(actor);
 }
@@ -144,10 +144,10 @@ static void zombfThinkChase(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                if (nDist < 0x1400 && nDist > 0xe00 && klabs(nDeltaAngle) < 85)
+                if (nDist < 0x1400 && nDist > 0xe00 && abs(nDeltaAngle) < 85)
                 {
                     int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                     switch (hit)
@@ -166,7 +166,7 @@ static void zombfThinkChase(DBloodActor* actor)
                         break;
                     }
                 }
-                else if (nDist < 0x1400 && nDist > 0x600 && klabs(nDeltaAngle) < 85)
+                else if (nDist < 0x1400 && nDist > 0x600 && abs(nDeltaAngle) < 85)
                 {
                     int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                     switch (hit)
@@ -185,7 +185,7 @@ static void zombfThinkChase(DBloodActor* actor)
                         break;
                     }
                 }
-                else if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
+                else if (nDist < 0x400 && abs(nDeltaAngle) < 85)
                 {
                     int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                     switch (hit)

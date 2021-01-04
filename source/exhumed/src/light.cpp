@@ -244,15 +244,15 @@ void TintPalette(int r, int g, int b)
     int nVal;
 
     // loc_17F49
-    if (klabs(r) > klabs(g)) {
-        nVal = klabs(r);
+    if (abs(r) > abs(g)) {
+        nVal = abs(r);
     }
     else {
-        nVal = klabs(g);
+        nVal = abs(g);
     }
 
-    if (nVal < klabs(b)) {
-        nVal = klabs(b);
+    if (nVal < abs(b)) {
+        nVal = abs(b);
     }
 
     nPalDiff += nVal;

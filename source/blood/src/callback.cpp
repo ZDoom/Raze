@@ -316,7 +316,7 @@ void EnemyBubble(int nSprite) // 11
     spritetype *pSprite = &sprite[nSprite];
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
-    for (int i = 0; i < (klabs(zvel[nSprite])>>18); i++)
+    for (int i = 0; i < (abs(zvel[nSprite])>>18); i++)
     {
         int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
         int nAngle = Random(2048);
@@ -430,7 +430,7 @@ void fxBouncingSleeve(int nSprite) // 16
     else if (zv > 0) {
         actFloorBounceVector((int*)& xvel[nSprite], (int*)& yvel[nSprite], &zv, pSprite->sectnum, 0x9000);
         zvel[nSprite] = zv;
-        if (velFloor[pSprite->sectnum] == 0 && klabs(zvel[nSprite]) < 0x20000)  {
+        if (velFloor[pSprite->sectnum] == 0 && abs(zvel[nSprite]) < 0x20000)  {
             sleeveStopBouncing(pSprite);
             return;
         }

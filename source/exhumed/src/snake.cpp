@@ -142,8 +142,8 @@ int BuildSnake(short nPlayer, short zVal)
     hitsect = hitData.sect;
     hitsprite = hitData.sprite;
 
-    uint32_t xDiff = klabs(hitx - x);
-    uint32_t yDiff = klabs(hity - y);
+    uint32_t xDiff = abs(hitx - x);
+    uint32_t yDiff = abs(hity - y);
 
     uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 

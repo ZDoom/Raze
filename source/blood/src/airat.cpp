@@ -76,7 +76,7 @@ static void ratThinkGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &ratSearch);
     aiThinkTarget(actor);
 }
@@ -115,10 +115,10 @@ static void ratThinkChase(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
+                if (nDist < 0x399 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &ratBite);
                 return;
             }

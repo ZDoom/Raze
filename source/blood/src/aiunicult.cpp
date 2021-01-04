@@ -401,7 +401,7 @@ static void unicultThinkGoto(DBloodActor* actor)
     aiChooseDirection(pSprite, pXSprite, nAngle);
 
     // if reached target, change to search mode
-    if (approxDist(dx, dy) < 5120 && klabs(pSprite->ang - nAngle) < getDudeInfo(pSprite->type)->periphery) {
+    if (approxDist(dx, dy) < 5120 && abs(pSprite->ang - nAngle) < getDudeInfo(pSprite->type)->periphery) {
         if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeSearchW);
         else aiGenDudeNewState(pSprite, &genDudeSearchL);
     }
@@ -489,7 +489,7 @@ static void unicultThinkChase(DBloodActor* actor)
     }
 
     // is the target visible?
-    if (dist < pDudeInfo->seeDist && klabs(losAngle) <= pDudeInfo->periphery) {
+    if (dist < pDudeInfo->seeDist && abs(losAngle) <= pDudeInfo->periphery) {
 
         if ((gFrameClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(pSprite, false))
             playGenDudeSound(pSprite, kGenDudeSndChasing);
@@ -499,7 +499,7 @@ static void unicultThinkChase(DBloodActor* actor)
         short curWeapon = gGenDudeExtra[pSprite->index].curWeapon; short weaponType = gGenDudeExtra[pSprite->index].weaponType;
         spritetype* pLeech = leechIsDropped(pSprite); const VECTORDATA* meleeVector = &gVectorData[22];
         if (weaponType == kGenDudeWeaponThrow) {
-            if (klabs(losAngle) < kAng15) {
+            if (abs(losAngle) < kAng15) {
                 if (!gThingInfoExtra[curWeapon - kThingBase].allowThrow) {
                     if (spriteIsUnderwater(pSprite)) aiGenDudeNewState(pSprite, &genDudeChaseW);
                     else aiGenDudeNewState(pSprite, &genDudeChaseL);
@@ -659,7 +659,7 @@ static void unicultThinkChase(DBloodActor* actor)
             int state = checkAttackState(&bloodActors[pXSprite->reference]);
             int kAngle = (dudeIsMelee(pXSprite) || dist <= kGenDudeMaxMeleeDist) ? pDudeInfo->periphery : kGenDudeKlabsAng;
 
-            if (dist < vdist && klabs(losAngle) < kAngle) {
+            if (dist < vdist && abs(losAngle) < kAngle) {
                 if (pExtra->canWalk) {
                     int objDist = -1; int targetDist = -1; int hit = -1;
                     if (weaponType == kGenDudeWeaponHitscan)
@@ -992,7 +992,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
         int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
         pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
         int nAccel = pDudeInfo->frontSpeed << 2;
-        if (klabs(nAng) > 341)
+        if (abs(nAng) > 341)
             return;
         if (pXSprite->target == -1)
             pSprite->ang = (pSprite->ang + 256) & 2047;
@@ -1018,7 +1018,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
     pSprite->ang = ((pSprite->ang + ClipRange(dang, -maxTurn, maxTurn)) & 2047);
 
     // don't move forward if trying to turn around
-        if (klabs(dang) > kAng60)
+        if (abs(dang) > kAng60)
         return;
 
     int sin = Sin(pSprite->ang);

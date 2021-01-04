@@ -143,7 +143,7 @@ void fakedomovethings(void)
 
 		j = getflorzofslope(psect,myx,myy);
 
-		if(clz.type == kHitSector && psectlotag == 1 && klabs(myz-j) > gs.playerheight+(16<<8) )
+		if(clz.type == kHitSector && psectlotag == 1 && abs(myz-j) > gs.playerheight+(16<<8) )
 			psectlotag = 0;
 
 		if( p->aim_mode == 0 && myonground && psectlotag != 2 && (sector[psect].floorstat&2) )
@@ -157,7 +157,7 @@ void fakedomovethings(void)
 					 k = getflorzofslope(psect,x,y);
 					 if (psect == tempsect)
 						  myhorizoff += MulScale(j-k,160, 16);
-					 else if (klabs(getflorzofslope(tempsect,x,y)-k) <= (4<<8))
+					 else if (abs(getflorzofslope(tempsect,x,y)-k) <= (4<<8))
 						  myhorizoff += MulScale(j-k,160, 16);
 				}
 		}
@@ -180,7 +180,7 @@ void fakedomovethings(void)
 						psectlotag = 0;
 						spritebridge = 1;
 				 }
-				 if(badguy(chz.actor) && chz.actor->s.xrepeat > 24 && klabs(p->GetActor()->s.z- chz.actor->s.z) < (84<<8) )
+				 if(badguy(chz.actor) && chz.actor->s.xrepeat > 24 && abs(p->GetActor()->s.z- chz.actor->s.z) < (84<<8) )
 				 {
 					j = getangle(chz.actor->s.x-myx, chz.actor->s.y-myy);
 					myxvel -= bcos(j, 4);
@@ -194,7 +194,7 @@ void fakedomovethings(void)
 				 {
 							if(p->on_warping_sector == 0)
 							{
-									 if( klabs(myz-fz) > (gs.playerheight>>1))
+									 if( abs(myz-fz) > (gs.playerheight>>1))
 											 myz += 348;
 							}
 							clipmove(&myx,&myy,&myz,&mycursectnum,0,0,164L,(4L<<8),(4L<<8),CLIPMASK0);
@@ -320,7 +320,7 @@ void fakedomovethings(void)
 									 //Smooth on the ground
 
 									 k = ((fz-(i<<8))-myz)>>1;
-									 if( klabs(k) < 256 ) k = 0;
+									 if( abs(k) < 256 ) k = 0;
 									 myz += k; // ((fz-(i<<8))-myz)>>1;
 									 myzvel -= 768; // 412;
 									 if(myzvel < 0) myzvel = 0;

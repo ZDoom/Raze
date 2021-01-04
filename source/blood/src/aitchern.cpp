@@ -119,7 +119,7 @@ void sub_71BD4(int, DBloodActor* actor)
         {
             int nAngle = getangle(x2-x, y2-y);
             int nDeltaAngle = ((nAngle-pSprite->ang+1024)&2047)-1024;
-            if (klabs(nDeltaAngle) <= tt.at8)
+            if (abs(nDeltaAngle) <= tt.at8)
             {
                 int tz = pSprite2->z-pSprite->z;
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
@@ -198,7 +198,7 @@ void sub_720AC(int, DBloodActor* actor)
         {
             int nAngle = getangle(x2-x, y2-y);
             int nDeltaAngle = ((nAngle-pSprite->ang+1024)&2047)-1024;
-            if (klabs(nDeltaAngle) <= tt.at8)
+            if (abs(nDeltaAngle) <= tt.at8)
             {
                 int tz = pSprite2->z-pSprite->z;
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
@@ -265,7 +265,7 @@ static void sub_725A4(DBloodActor* actor)
             if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z-((pDudeInfo->eyeHeight*pSprite->yrepeat)<<2), pSprite->sectnum))
                 continue;
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 pDudeExtraE->xval1 = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
@@ -299,7 +299,7 @@ static void sub_72850(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &tchernobogSearch);
     aiThinkTarget(actor);
 }
@@ -346,14 +346,14 @@ static void sub_72934(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                if (nDist < 0x1f00 && nDist > 0xd00 && klabs(nDeltaAngle) < 85)
+                if (nDist < 0x1f00 && nDist > 0xd00 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &tcherno13AA0C);
-                else if (nDist < 0xd00 && nDist > 0xb00 && klabs(nDeltaAngle) < 85)
+                else if (nDist < 0xd00 && nDist > 0xb00 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &tcherno13A9D4);
-                else if (nDist < 0xb00 && nDist > 0x500 && klabs(nDeltaAngle) < 85)
+                else if (nDist < 0xb00 && nDist > 0x500 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &tcherno13A9F0);
                 return;
             }

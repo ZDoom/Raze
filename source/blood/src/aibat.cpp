@@ -117,7 +117,7 @@ static void batThinkTarget(DBloodActor* actor)
             if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z-((pDudeInfo->eyeHeight*pSprite->yrepeat)<<2), pSprite->sectnum))
                 continue;
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pPlayer->nSprite);
                 aiActivateDude(&bloodActors[pXSprite->reference]);
@@ -153,7 +153,7 @@ static void batThinkGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &batSearch);
     batThinkTarget(actor);
 }
@@ -191,17 +191,17 @@ static void batThinkPonder(DBloodActor* actor)
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
             aiSetTarget(pXSprite, pXSprite->target);
-            if (height2-height < 0x3000 && nDist < 0x1800 && nDist > 0xc00 && klabs(nDeltaAngle) < 85)
+            if (height2-height < 0x3000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &batDodgeUp);
-            else if (height2-height > 0x5000 && nDist < 0x1800 && nDist > 0xc00 && klabs(nDeltaAngle) < 85)
+            else if (height2-height > 0x5000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &batDodgeDown);
-            else if (height2-height < 0x2000 && nDist < 0x200 && klabs(nDeltaAngle) < 85)
+            else if (height2-height < 0x2000 && nDist < 0x200 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &batDodgeUp);
-            else if (height2-height > 0x6000 && nDist < 0x1400 && nDist > 0x800 && klabs(nDeltaAngle) < 85)
+            else if (height2-height > 0x6000 && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &batDodgeDown);
-            else if (height2-height < 0x2000 && nDist < 0x1400 && nDist > 0x800 && klabs(nDeltaAngle) < 85)
+            else if (height2-height < 0x2000 && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &batDodgeUp);
-            else if (height2-height < 0x2000 && klabs(nDeltaAngle) < 85 && nDist > 0x1400)
+            else if (height2-height < 0x2000 && abs(nDeltaAngle) < 85 && nDist > 0x1400)
                 aiNewState(actor, &batDodgeUp);
             else if (height2-height > 0x4000)
                 aiNewState(actor, &batDodgeDown);
@@ -304,15 +304,15 @@ static void batThinkChase(DBloodActor* actor)
         GetSpriteExtents(pSprite, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 int floorZ = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-                if (height2-height < 0x2000 && nDist < 0x200 && klabs(nDeltaAngle) < 85)
+                if (height2-height < 0x2000 && nDist < 0x200 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &batBite);
-                else if ((height2-height > 0x5000 || floorZ-bottom > 0x5000) && nDist < 0x1400 && nDist > 0x800 && klabs(nDeltaAngle) < 85)
+                else if ((height2-height > 0x5000 || floorZ-bottom > 0x5000) && nDist < 0x1400 && nDist > 0x800 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &batSwoop);
-                else if ((height2-height < 0x3000 || floorZ-bottom < 0x3000) && klabs(nDeltaAngle) < 85)
+                else if ((height2-height < 0x3000 || floorZ-bottom < 0x3000) && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &batFly);
                 return;
             }
@@ -338,7 +338,7 @@ static void batMoveForward(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
         return;
     if (pXSprite->target == -1)
         pSprite->ang = (pSprite->ang+256)&2047;
@@ -371,7 +371,7 @@ static void batMoveSwoop(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
     {
         pXSprite->goalAng = (pSprite->ang+512)&2047;
         return;
@@ -403,7 +403,7 @@ static void batMoveFly(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
     {
         pSprite->ang = (pSprite->ang+512)&2047;
         return;

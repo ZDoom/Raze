@@ -310,8 +310,8 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
 
     int ecx = bsin(150, -3);
 
-    uint32_t xDiff = klabs(hitX - *x);
-    uint32_t yDiff = klabs(hitY - *y);
+    uint32_t xDiff = abs(hitX - *x);
+    uint32_t yDiff = abs(hitY - *y);
 
     uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 

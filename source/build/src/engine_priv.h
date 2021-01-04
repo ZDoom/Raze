@@ -64,7 +64,7 @@ extern uint16_t sqrtable[4096], shlookup[4096+256],sqrtable_old[2048];
 inline int32_t ksqrtasm_old(int32_t n)
 {
     uint32_t shift = 0;
-    n = klabs((int32_t)n);
+    n = abs((int32_t)n);
     while (n >= 2048)
     {
         n >>= 2;

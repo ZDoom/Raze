@@ -125,10 +125,10 @@ void StompSeqCallback(int, DBloodActor* actor)
                 {
                     int top, bottom;
                     GetSpriteExtents(pSprite, &top, &bottom);
-                    if (klabs(bottom-sector[nSector].floorz) == 0)
+                    if (abs(bottom-sector[nSector].floorz) == 0)
                     {
-                        int dx = klabs(pSprite->x-pSprite2->x);
-                        int dy = klabs(pSprite->y-pSprite2->y);
+                        int dx = abs(pSprite->x-pSprite2->x);
+                        int dy = abs(pSprite->y-pSprite2->y);
                         int nDist2 = ksqrt(dx*dx + dy*dy);
                         if (nDist2 <= vc)
                         {
@@ -157,8 +157,8 @@ void StompSeqCallback(int, DBloodActor* actor)
             XSPRITE *pXSprite = &xsprite[pSprite2->extra];
             if (pXSprite->locked)
                 continue;
-            int dx = klabs(pSprite->x-pSprite2->x);
-            int dy = klabs(pSprite->y-pSprite2->y);
+            int dx = abs(pSprite->x-pSprite2->x);
+            int dy = abs(pSprite->y-pSprite2->y);
             int nDist2 = ksqrt(dx*dx + dy*dy);
             if (nDist2 <= vc)
             {
@@ -209,7 +209,7 @@ static void beastThinkGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
     {
         if (pXSector && pXSector->Underwater)
             aiNewState(actor, &beastSwimSearch);
@@ -280,11 +280,11 @@ static void beastThinkChase(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 actor->dudeSlope = DivScale(pTarget->z-pSprite->z, nDist, 10);
-                if (nDist < 0x1400 && nDist > 0xa00 && klabs(nDeltaAngle) < 85 && (pTarget->flags&2)
+                if (nDist < 0x1400 && nDist > 0xa00 && abs(nDeltaAngle) < 85 && (pTarget->flags&2)
                     && IsPlayerSprite(pTarget) && Chance(0x8000))
                 {
                     XSECTOR *pXSector;
@@ -323,7 +323,7 @@ static void beastThinkChase(DBloodActor* actor)
                         }
                     }
                 }
-                if (nDist < 921 && klabs(nDeltaAngle) < 28)
+                if (nDist < 921 && abs(nDeltaAngle) < 28)
                 {
                     XSECTOR *pXSector;
                     int nXSector = sector[pSprite->sectnum].extra;
@@ -393,7 +393,7 @@ static void beastThinkSwimGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &beastSwimSearch);
     aiThinkTarget(actor);
 }
@@ -434,10 +434,10 @@ static void beastThinkSwimChase(DBloodActor* actor)
         GetSpriteExtents(pSprite, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
+                if (nDist < 0x400 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &beastSwimSlash);
                 else
                 {
@@ -463,7 +463,7 @@ static void beastMoveForward(DBloodActor* actor)
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
         return;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -484,7 +484,7 @@ static void sub_628A0(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
         return;
     if (pXSprite->target == -1)
         pSprite->ang = (pSprite->ang+256)&2047;
@@ -520,7 +520,7 @@ static void sub_62AE0(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
     {
         pXSprite->goalAng = (pSprite->ang+512)&2047;
         return;
@@ -557,7 +557,7 @@ static void sub_62D7C(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
     {
         pSprite->ang = (pSprite->ang+512)&2047;
         return;

@@ -705,8 +705,8 @@ int PlotCourseToSprite(int nSprite1, int nSprite2)
 
     sprite[nSprite1].ang = GetMyAngle(x, y);
 
-    uint32_t x2 = klabs(x);
-    uint32_t y2 = klabs(y);
+    uint32_t x2 = abs(x);
+    uint32_t y2 = abs(y);
 
     uint32_t diff = x2 * x2 + y2 * y2;
 
@@ -751,11 +751,11 @@ int FindPlayer(int nSprite, int nDistance)
 
         if ((sprite[nPlayerSprite].cstat & 0x101) && (!(sprite[nPlayerSprite].cstat & 0x8000)))
         {
-            int v9 = klabs(sprite[nPlayerSprite].x - x);
+            int v9 = abs(sprite[nPlayerSprite].x - x);
 
             if (v9 < nDistance)
             {
-                int v10 = klabs(sprite[nPlayerSprite].y - y);
+                int v10 = abs(sprite[nPlayerSprite].y - y);
 
                 if (v10 < nDistance && cansee(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z - 7680, sprite[nPlayerSprite].sectnum, x, y, z, nSector))
                 {
@@ -867,8 +867,8 @@ void CreatePushBlock(int nSector)
 
     for (i = 0; i < nWalls; i++)
     {
-        uint32_t xDiff = klabs(xAvg - wall[startwall + i].x);
-        uint32_t yDiff = klabs(yAvg - wall[startwall + i].y);
+        uint32_t xDiff = abs(xAvg - wall[startwall + i].x);
+        uint32_t yDiff = abs(yAvg - wall[startwall + i].y);
 
         uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -1143,8 +1143,8 @@ void SetQuake(short nSprite, int nVal)
     {
         int nPlayerSprite = PlayerList[i].nSprite;
 
-        uint32_t xDiff = klabs((int32_t)((sprite[nPlayerSprite].x - x) >> 8));
-        uint32_t yDiff = klabs((int32_t)((sprite[nPlayerSprite].y - y) >> 8));
+        uint32_t xDiff = abs((int32_t)((sprite[nPlayerSprite].x - x) >> 8));
+        uint32_t yDiff = abs((int32_t)((sprite[nPlayerSprite].y - y) >> 8));
 
         uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -1205,8 +1205,8 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
         int nMyAngle = GetMyAngle(sprite[nSprite2].x - sprite[nSprite].x, sprite[nSprite2].y - sprite[nSprite].y);
 
-        uint32_t xDiff = klabs(sprite[nSprite2].x - sprite[nSprite].x);
-        uint32_t yDiff = klabs(sprite[nSprite2].y - sprite[nSprite].y);
+        uint32_t xDiff = abs(sprite[nSprite2].x - sprite[nSprite].x);
+        uint32_t yDiff = abs(sprite[nSprite2].y - sprite[nSprite].y);
 
         uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -1221,11 +1221,11 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
         int var_18 = GetMyAngle(nSqrt, ((sprite[nSprite2].z - nHeight) - sprite[nSprite].z) >> 8);
 
         int nAngDelta = AngleDelta(sprite[nSprite].ang, nMyAngle, 1024);
-        int nAngDelta2 = klabs(nAngDelta);
+        int nAngDelta2 = abs(nAngDelta);
 
         if (nAngDelta2 > 63)
         {
-            nAngDelta2 = klabs(nAngDelta >> 6);
+            nAngDelta2 = abs(nAngDelta >> 6);
 
             ebx /= nAngDelta2;
 
@@ -1234,7 +1234,7 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
             }
         }
 
-        int nAngDeltaC = klabs(nAngDelta);
+        int nAngDeltaC = abs(nAngDelta);
 
         if (nAngDeltaC > push1)
         {
@@ -1252,7 +1252,7 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
     sprite[nSprite].ang = nAngle;
 
-    int eax = klabs(bcos(sprite[nSprite].zvel));
+    int eax = abs(bcos(sprite[nSprite].zvel));
 
     int x = ((bcos(nAngle) * ebx) >> 14) * eax;
     int y = ((bsin(nAngle) * ebx) >> 14) * eax;

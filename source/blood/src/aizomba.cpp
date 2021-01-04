@@ -104,7 +104,7 @@ static void zombaThinkGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 921 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 921 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &zombieASearch);
     aiThinkTarget(actor);
 }
@@ -147,10 +147,10 @@ static void zombaThinkChase(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
-                if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
+                if (nDist < 0x400 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &zombieAHack);
                 return;
             }
@@ -195,12 +195,12 @@ static void zombaThinkPonder(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 if (nDist < 0x400)
                 {
-                    if (klabs(nDeltaAngle) < 85)
+                    if (abs(nDeltaAngle) < 85)
                     {
                         sfxPlay3DSound(pSprite, 1101, 1, 0);
                         aiNewState(actor, &zombieAHack);
@@ -238,7 +238,7 @@ static void myThinkTarget(DBloodActor* actor)
         if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z-((pDudeInfo->eyeHeight*pSprite->yrepeat)<<2), pSprite->sectnum))
             continue;
         int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
-        if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+        if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
         {
             aiSetTarget(pXSprite, pPlayer->nSprite);
             aiActivateDude(&bloodActors[pXSprite->reference]);

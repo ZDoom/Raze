@@ -388,7 +388,7 @@ void UpdateAimVector(PLAYER * pPlayer)
             if (lz-zRange>bottom || lz+zRange<top)
                 continue;
             int angle = getangle(x2-x,y2-y);
-            if (klabs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->angleRange)
+            if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->angleRange)
                 continue;
             if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sectnum,x2,y2,z2,pSprite->sectnum))
                 pPlayer->aimTargets[pPlayer->aimTargetsCount++] = nSprite;
@@ -440,7 +440,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 if (lz-zRange>bottom || lz+zRange<top)
                     continue;
                 int angle = getangle(dx,dy);
-                if (klabs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->thingAngle)
+                if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->thingAngle)
                     continue;
                 if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sectnum,pSprite->x,pSprite->y,pSprite->z,pSprite->sectnum))
                     pPlayer->aimTargets[pPlayer->aimTargetsCount++] = nSprite;
@@ -957,7 +957,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             pPlayer->weaponQav = 42;
         break;
     case 10:
-        if (pXSprite->height < 256 && klabs(pPlayer->swayHeight) > 768)
+        if (pXSprite->height < 256 && abs(pPlayer->swayHeight) > 768)
             pPlayer->weaponQav = 102;
         else
             pPlayer->weaponQav = 101;

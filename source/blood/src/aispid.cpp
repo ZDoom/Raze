@@ -160,11 +160,11 @@ void sub_71370(int, DBloodActor* actor)
     spritetype *pSpawn = NULL;
     if (IsPlayerSprite(pTarget) && pDudeExtraE->xval2 < 10) {
         
-        if (nDist < 0x1a00 && nDist > 0x1400 && klabs(pSprite->ang-nAngle) < pDudeInfo->periphery)
+        if (nDist < 0x1a00 && nDist > 0x1400 && abs(pSprite->ang-nAngle) < pDudeInfo->periphery)
             pSpawn = actSpawnDude(pSprite, kDudeSpiderRed, pSprite->clipdist, 0);
-        else if (nDist < 0x1400 && nDist > 0xc00 && klabs(pSprite->ang-nAngle) < pDudeInfo->periphery)
+        else if (nDist < 0x1400 && nDist > 0xc00 && abs(pSprite->ang-nAngle) < pDudeInfo->periphery)
             pSpawn = actSpawnDude(pSprite, kDudeSpiderBrown, pSprite->clipdist, 0);
-        else if (nDist < 0xc00 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+        else if (nDist < 0xc00 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
             pSpawn = actSpawnDude(pSprite, kDudeSpiderBrown, pSprite->clipdist, 0);
         
         if (pSpawn) {
@@ -195,7 +195,7 @@ static void spidThinkGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &spidSearch);
     aiThinkTarget(actor);
 }
@@ -232,23 +232,23 @@ static void spidThinkChase(DBloodActor* actor)
         int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum)) {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery) {
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery) {
                 aiSetTarget(pXSprite, pXSprite->target);
                 
                 switch (pSprite->type) {
                     case kDudeSpiderRed:
-                        if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
+                        if (nDist < 0x399 && abs(nDeltaAngle) < 85)
                             aiNewState(actor, &spidBite);
                         break;
                     case kDudeSpiderBrown:
                     case kDudeSpiderBlack:
-                        if (nDist < 0x733 && nDist > 0x399 && klabs(nDeltaAngle) < 85)
+                        if (nDist < 0x733 && nDist > 0x399 && abs(nDeltaAngle) < 85)
                             aiNewState(actor, &spidJump);
-                        else if (nDist < 0x399 && klabs(nDeltaAngle) < 85)
+                        else if (nDist < 0x399 && abs(nDeltaAngle) < 85)
                             aiNewState(actor, &spidBite);
                         break;
                     case kDudeSpiderMother:
-                        if (nDist < 0x733 && nDist > 0x399 && klabs(nDeltaAngle) < 85)
+                        if (nDist < 0x733 && nDist > 0x399 && abs(nDeltaAngle) < 85)
                             aiNewState(actor, &spidJump);
                         else if (Chance(0x8000))
                             aiNewState(actor, &spid13A92C);

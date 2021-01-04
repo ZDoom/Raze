@@ -155,8 +155,8 @@ void CheckMummyRevive(short nMummy)
                 continue;
             }
 
-            int x = klabs(sprite[nSprite2].x - sprite[nSprite].x) >> 8;
-            int y = klabs(sprite[nSprite2].y - sprite[nSprite].y) >> 8;
+            int x = abs(sprite[nSprite2].x - sprite[nSprite].x) >> 8;
+            int y = abs(sprite[nSprite2].y - sprite[nSprite].y) >> 8;
 
             if (x <= 20 && y <= 20)
             {

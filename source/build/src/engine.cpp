@@ -365,12 +365,12 @@ static inline void initksqrt(void)
             root = (root+num/root)>>1;
         } while((temp-root+1) > 2);
         temp = root*root-num;
-        while (klabs(int32_t(temp-2*root+1)) < klabs(temp))
+        while (abs(int32_t(temp-2*root+1)) < abs(temp))
         {
             temp += 1-int(2*root);
             root--;
         }
-        while (klabs(int32_t(temp+2*root+1)) < klabs(temp))
+        while (abs(int32_t(temp+2*root+1)) < abs(temp))
         {
             temp += 2*root+1;
             root++;
@@ -677,13 +677,13 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
     // If the point is outside of the bounds of the line segment, we know we don't have an intersection.
     // t is < 0 if (originDiffCrossLineVec^rayCrossLineVec) & signBit)
     // u is < 0 if (originDiffCrossRay^rayCrossLineVec) & signBit
-    // t is > 1 if klabs(originDiffCrossLineVec) > klabs(rayCrossLineVec)
-    // u is > 1 if klabs(originDiffCrossRay) > klabs(rayCrossLineVec)
+    // t is > 1 if abs(originDiffCrossLineVec) > abs(rayCrossLineVec)
+    // u is > 1 if abs(originDiffCrossRay) > abs(rayCrossLineVec)
     // where int32_t u = tabledivide64(((int64_t) originDiffCrossRay) << 24L, rayCrossLineVec);
     if (((originDiffCrossLineVec^rayCrossLineVec) & signBit) ||
         ((originDiffCrossRay^rayCrossLineVec) & signBit) ||
-        klabs(originDiffCrossLineVec) > klabs(rayCrossLineVec) ||
-        klabs(originDiffCrossRay) > klabs(rayCrossLineVec))
+        abs(originDiffCrossLineVec) > abs(rayCrossLineVec) ||
+        abs(originDiffCrossRay) > abs(rayCrossLineVec))
     {
         // line segments do not overlap
         return 0;
@@ -1127,8 +1127,8 @@ static inline int comparetsprites(int const k, int const l)
         tspriteptr[k]->owner != tspriteptr[l]->owner)
         return tspriteptr[k]->owner - tspriteptr[l]->owner;
 
-    if (klabs(spritesxyz[k].z-globalposz) != klabs(spritesxyz[l].z-globalposz))
-        return klabs(spritesxyz[k].z-globalposz)-klabs(spritesxyz[l].z-globalposz);
+    if (abs(spritesxyz[k].z-globalposz) != abs(spritesxyz[l].z-globalposz))
+        return abs(spritesxyz[k].z-globalposz)-abs(spritesxyz[l].z-globalposz);
 
     return 0;
 }
@@ -1179,7 +1179,7 @@ static void sortsprites(int const start, int const end)
 
                     if (!(s->cstat&128))
                         spritesxyz[k].z -= (yspan>>1);
-                    if (klabs(spritesxyz[k].z-globalposz) < (yspan>>1))
+                    if (abs(spritesxyz[k].z-globalposz) < (yspan>>1))
                         spritesxyz[k].z = globalposz;
                 }
             }
@@ -2084,7 +2084,7 @@ int32_t getangle(int32_t xvect, int32_t yvect)
         rv = 256 + ((xvect < 0) << 10);
     else if (xvect == -yvect)
         rv = 768 + ((xvect > 0) << 10);
-    else if (klabs(xvect) > klabs(yvect))
+    else if (abs(xvect) > abs(yvect))
         rv = ((radarang[640 + scale(160, yvect, xvect)] >> 6) + ((xvect < 0) << 10)) & 2047;
     else rv = ((radarang[640 - scale(160, xvect, yvect)] >> 6) + 512 + ((yvect < 0) << 10)) & 2047;
 
@@ -2105,7 +2105,7 @@ fixed_t gethiq16angle(int32_t xvect, int32_t yvect)
         rv = IntToFixed(256 + ((xvect < 0) << 10));
     else if (xvect == -yvect)
         rv = IntToFixed(768 + ((xvect > 0) << 10));
-    else if (klabs(xvect) > klabs(yvect))
+    else if (abs(xvect) > abs(yvect))
         rv = ((qradarang[5120 + scale(1280, yvect, xvect)] >> 6) + IntToFixed(((xvect < 0) << 10))) & 0x7FFFFFF;
     else rv = ((qradarang[5120 - scale(1280, xvect, yvect)] >> 6) + IntToFixed(512 + ((yvect < 0) << 10))) & 0x7FFFFFF;
 
@@ -2561,13 +2561,13 @@ int32_t getwalldist(vec2_t const in, int const wallnum)
 {
     vec2_t closest;
     getclosestpointonwall_internal(in, wallnum, &closest);
-    return klabs(closest.x - in.x) + klabs(closest.y - in.y);
+    return abs(closest.x - in.x) + abs(closest.y - in.y);
 }
 
 int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out)
 {
     getclosestpointonwall_internal(in, wallnum, out);
-    return klabs(out->x - in.x) + klabs(out->y - in.y);
+    return abs(out->x - in.x) + abs(out->y - in.y);
 }
 
 

@@ -467,7 +467,7 @@ void FuncFish(int a, int nDamage, int nRun)
                         PlotCourseToSprite(nSprite, nTarget);
                         int nHeight = GetSpriteHeight(nSprite) >> 1;
 
-                        int z = klabs(sprite[nTarget].z - sprite[nSprite].z);
+                        int z = abs(sprite[nTarget].z - sprite[nSprite].z);
 
                         if (z <= nHeight)
                         {

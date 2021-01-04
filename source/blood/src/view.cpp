@@ -219,13 +219,13 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     hY = hitdata.pos.y;
     int dX = hX-*pX;
     int dY = hY-*pY;
-    if (klabs(vX)+klabs(vY) > klabs(dX)+klabs(dY))
+    if (abs(vX)+abs(vY) > abs(dX)+abs(dY))
     {
         *vsectnum = nHSector;
         dX -= ksgn(vX)<<6;
         dY -= ksgn(vY)<<6;
         int nDist;
-        if (klabs(vX) > klabs(vY))
+        if (abs(vX) > abs(vY))
         {
             nDist = ClipHigh(DivScale(dX,vX, 16), othercameradist);
         }
@@ -266,13 +266,13 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
     hY = hitdata.pos.y;
     int dX = hX-*pX;
     int dY = hY-*pY;
-    if (klabs(vX)+klabs(vY) > klabs(dX)+klabs(dY))
+    if (abs(vX)+abs(vY) > abs(dX)+abs(dY))
     {
         *vsectnum = nHSector;
         dX -= ksgn(vX)<<6;
         dY -= ksgn(vY)<<6;
         int nDist;
-        if (klabs(vX) > klabs(vY))
+        if (abs(vX) > abs(vY))
         {
             nDist = ClipHigh(DivScale(dX,vX, 16), cameradist);
         }

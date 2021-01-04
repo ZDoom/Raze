@@ -3070,7 +3070,7 @@ void initlava(void)
 
     for (z = 0; z < LAVASIZ; z++)
     {
-        lavainc[z] = klabs((((z ^ 17) >> 4) & 7) - 4) + 12;
+        lavainc[z] = abs((((z ^ 17) >> 4) & 7) - 4) + 12;
     }
 
     lavanumdrops = 0;

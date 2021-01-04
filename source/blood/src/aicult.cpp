@@ -218,7 +218,7 @@ static void cultThinkGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 5120 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 5120 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
     {
         switch (pXSprite->medium)
         {
@@ -299,13 +299,13 @@ static void cultThinkChase(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 actor->dudeSlope = DivScale(pTarget->z-pSprite->z, nDist, 10);
                 switch (pSprite->type) {
                 case kDudeCultistTommy:
-                    if (nDist < 0x1e00 && nDist > 0xe00 && klabs(nDeltaAngle) < 85 && !TargetNearExplosion(pTarget)
+                    if (nDist < 0x1e00 && nDist > 0xe00 && abs(nDeltaAngle) < 85 && !TargetNearExplosion(pTarget)
                         && (pTarget->flags&2) && gGameOptions.nDifficulty > 2 && IsPlayerSprite(pTarget) && gPlayer[pTarget->type-kDudePlayer1].isRunning
                         && Chance(0x8000))
                     {
@@ -328,7 +328,7 @@ static void cultThinkChase(DBloodActor* actor)
                             break;
                         }
                     }
-                    else if (nDist < 0x4600 && klabs(nDeltaAngle) < 28)
+                    else if (nDist < 0x4600 && abs(nDeltaAngle) < 28)
                     {
                         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                         switch (hit)
@@ -396,7 +396,7 @@ static void cultThinkChase(DBloodActor* actor)
                             break;
                         }
                     }
-                    else if (nDist < 0x3200 && klabs(nDeltaAngle) < 28)
+                    else if (nDist < 0x3200 && abs(nDeltaAngle) < 28)
                     {
                         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                         switch (hit)
@@ -464,7 +464,7 @@ static void cultThinkChase(DBloodActor* actor)
                             break;
                         }
                     }
-                    else if (nDist < 0x3200 && klabs(nDeltaAngle) < 28)
+                    else if (nDist < 0x3200 && abs(nDeltaAngle) < 28)
                     {
                         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                         switch (hit)
@@ -509,7 +509,7 @@ static void cultThinkChase(DBloodActor* actor)
                     }
                     break;
                 case kDudeCultistTNT:
-                    if (nDist < 0x2c00 && nDist > 0x1400 && klabs(nDeltaAngle) < 85
+                    if (nDist < 0x2c00 && nDist > 0x1400 && abs(nDeltaAngle) < 85
                         && (pTarget->flags&2) && IsPlayerSprite(pTarget))
                     {
                         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
@@ -530,7 +530,7 @@ static void cultThinkChase(DBloodActor* actor)
                             break;
                         }
                     }
-                    else if (nDist < 0x1400 && klabs(nDeltaAngle) < 85
+                    else if (nDist < 0x1400 && abs(nDeltaAngle) < 85
                         && (pTarget->flags&2) && IsPlayerSprite(pTarget))
                     {
                         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
@@ -576,7 +576,7 @@ static void cultThinkChase(DBloodActor* actor)
                             break;
                         }
                     }
-                    else if (nDist < 0x3200 && klabs(nDeltaAngle) < 28)
+                    else if (nDist < 0x3200 && abs(nDeltaAngle) < 28)
                     {
                         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                         switch (hit)

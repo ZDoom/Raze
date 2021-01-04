@@ -2093,7 +2093,7 @@ static void polymost_drawalls(int32_t const bunch)
                 if (maskingOneWay)
                 {
                     vec2_t n, pos = { globalposx, globalposy };
-                    if (!polymost_getclosestpointonwall(&pos, wallnum, &n) && klabs(pos.x - n.x) + klabs(pos.y - n.y) <= 128)
+                    if (!polymost_getclosestpointonwall(&pos, wallnum, &n) && abs(pos.x - n.x) + abs(pos.y - n.y) <= 128)
                         break;
                 }
 
@@ -2903,7 +2903,7 @@ static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t c
         if ((wall[i].nextsector == -1 || ((sector[wall[i].nextsector].ceilingz > (tspr->z - ((tsiz->y * tspr->yrepeat) << 2))) ||
              sector[wall[i].nextsector].floorz < tspr->z)) && !polymost_getclosestpointonwall((const vec2_t *) tspr, i, &n))
         {
-            int const dst = klabs(tspr->x - n.x) + klabs(tspr->y - n.y);
+            int const dst = abs(tspr->x - n.x) + abs(tspr->y - n.y);
 
             if (dst <= dist)
             {

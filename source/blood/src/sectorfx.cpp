@@ -80,7 +80,7 @@ int GetWaveValue(int a, int b, int c)
     case 1:
         return (b>>10)*c;
     case 2:
-        return (klabs(128-(b>>3))*c)>>7;
+        return (abs(128-(b>>3))*c)>>7;
     case 3:
         return ((b>>3)*c)>>8;
     case 4:

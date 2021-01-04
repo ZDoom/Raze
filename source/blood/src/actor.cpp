@@ -2665,9 +2665,9 @@ void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7,
                         continue;
                     if (!CheckProximity(pSprite2, x, y, z, nSector, nDist))
                         continue;
-                    int dx = klabs(x-pSprite2->x);
-                    int dy = klabs(y-pSprite2->y);
-                    int dz = klabs(z-pSprite2->z)>>4;
+                    int dx = abs(x-pSprite2->x);
+                    int dy = abs(y-pSprite2->y);
+                    int dz = abs(z-pSprite2->z)>>4;
                     int dist = ksqrt(dx*dx+dy*dy+dz*dz);
                     if (dist > nDist)
                         continue;
@@ -2700,8 +2700,8 @@ void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7,
             XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
             if (pXSprite2->locked)
                 continue;
-            int dx = klabs(x-pSprite2->x);
-            int dy = klabs(y-pSprite2->y);
+            int dx = abs(x-pSprite2->x);
+            int dy = abs(y-pSprite2->y);
             int dist = ksqrt(dx*dx+dy*dy);
             if (dist > nDist)
                 continue;
@@ -4411,7 +4411,7 @@ int MoveThing(spritetype *pSprite)
             if (nDamage > 0)
                 actDamageSprite(nSprite, pSprite, DAMAGE_TYPE_0, nDamage);
             zvel[nSprite] = v20;
-            if (velFloor[pSprite->sectnum] == 0 && klabs(zvel[nSprite]) < 0x10000)
+            if (velFloor[pSprite->sectnum] == 0 && abs(zvel[nSprite]) < 0x10000)
             {
                 zvel[nSprite] = 0;
 
@@ -4423,13 +4423,13 @@ int MoveThing(spritetype *pSprite)
                     if (zvel[nSprite] == 0 || Chance(0xA000)) sub_2AA94(&bloodActors[pXSprite->reference]);
                     break;
                 case kThingZombieHead:
-                    if (klabs(zvel[nSprite]) > 0x80000) {
+                    if (abs(zvel[nSprite]) > 0x80000) {
                         sfxPlay3DSound(pSprite, 607, 0, 0);
                         actDamageSprite(-1, pSprite, DAMAGE_TYPE_0, 80);
                     }
                     break;
                 case kThingKickablePail:
-                    if (klabs(zvel[nSprite]) > 0x80000)
+                    if (abs(zvel[nSprite]) > 0x80000)
                         sfxPlay3DSound(pSprite, 374, 0, 0);
                     break;
             }
@@ -4458,13 +4458,13 @@ int MoveThing(spritetype *pSprite)
             zvel[nSprite] = MulScale(-zvel[nSprite], 0x4000, 16);
             switch (pSprite->type) {
                 case kThingZombieHead:
-                    if (klabs(zvel[nSprite]) > 0x80000) {
+                    if (abs(zvel[nSprite]) > 0x80000) {
                         sfxPlay3DSound(pSprite, 607, 0, 0);
                         actDamageSprite(-1, pSprite, DAMAGE_TYPE_0, 80);
                     }
                     break;
                 case kThingKickablePail:
-                    if (klabs(zvel[nSprite]) > 0x80000)
+                    if (abs(zvel[nSprite]) > 0x80000)
                         sfxPlay3DSound(pSprite, 374, 0, 0);
                     break;
             }
@@ -4766,7 +4766,7 @@ void MoveDude(spritetype *pSprite)
 
                 pPlayer->posture = 1;
                 pXSprite->burnTime = 0;
-                pPlayer->bubbleTime = klabs(zvel[nSprite]) >> 12;
+                pPlayer->bubbleTime = abs(zvel[nSprite]) >> 12;
                 evPost(nSprite, 3, 0, kCallbackPlayerBubble);
                 sfxPlay3DSound(pSprite, 720, -1, 0);
             }
@@ -4847,7 +4847,7 @@ void MoveDude(spritetype *pSprite)
             {
                 pPlayer->changeTargetKin = 1;
                 pXSprite->burnTime = 0;
-                pPlayer->bubbleTime = klabs(zvel[nSprite])>>12;
+                pPlayer->bubbleTime = abs(zvel[nSprite])>>12;
                 evPost(nSprite, 3, 0, kCallbackPlayerBubble);
                 sfxPlay3DSound(pSprite, 720, -1, 0);
             }
@@ -4948,7 +4948,7 @@ void MoveDude(spritetype *pSprite)
             if (nDamage > 0)
                 actDamageSprite(nSprite, pSprite, DAMAGE_TYPE_0, nDamage);
             zvel[nSprite] = v30;
-            if (klabs(zvel[nSprite]) < 0x10000)
+            if (abs(zvel[nSprite]) < 0x10000)
             {
                 zvel[nSprite] = velFloor[pSprite->sectnum];
 

@@ -141,12 +141,12 @@ static void analyzesprites(double const smoothratio)
                 int edx = ((vcos * yval) + (xval * vsin)) >> 14;
 
 
-                int ebx = klabs(((vcos * xval) - (yval * vsin)) >> 14);
+                int ebx = abs(((vcos * xval) - (yval * vsin)) >> 14);
 
                 if (!ebx)
                     continue;
 
-                edx = (klabs(edx) * 32) / ebx;
+                edx = (abs(edx) * 32) / ebx;
                 if (ebx < 1000 && ebx < var_2C && edx < 10)
                 {
                     besttarget = nSprite;
@@ -156,7 +156,7 @@ static void analyzesprites(double const smoothratio)
                 else if (ebx < 30000)
                 {
                     int t = var_38 - edx;
-                    if (t > 3 || (ebx < var_2C && klabs(t) < 5))
+                    if (t > 3 || (ebx < var_2C && abs(t) < 5))
                     {
                         var_38 = edx;
                         var_2C = ebx;

@@ -261,9 +261,9 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     if ((sec->floorstat|sec->ceilingstat) & 2)
         getcorrectzsofslope(dasect, pos.x, pos.y, &dacz, &daz);
 
-    int32_t const sec2height = klabs(daz2-dacz2);
+    int32_t const sec2height = abs(daz2-dacz2);
 
-    return ((klabs(daz-dacz) > sec2height &&       // clip if the current sector is taller and the next is too small
+    return ((abs(daz-dacz) > sec2height &&       // clip if the current sector is taller and the next is too small
             sec2height < (ceildist+(CLIPCURBHEIGHT<<1))) ||
 
             ((sec2->floorstat&1) == 0 &&    // parallaxed floor curbs don't clip
@@ -352,7 +352,7 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
     const int32_t x1 = clipit[w].x1, dx = clipit[w].x2-x1;
     const int32_t y1 = clipit[w].y1, dy = clipit[w].y2-y1;
     const int32_t ox = ksgn(-dy), oy = ksgn(dx);
-    char first = (klabs(dx) <= klabs(dy));
+    char first = (abs(dx) <= abs(dy));
 
     do
     {
@@ -752,7 +752,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 // I don't know if this one actually overflows or not, but I highly doubt it hurts to check
                 int32_t const templl2
                 = (int32_t)clamp(compat_maybe_truncate_to_int32((int64_t)(goal.x - vec.x) * clipr.x + (int64_t)(goal.y - vec.y) * clipr.y), INT32_MIN, INT32_MAX);
-                int32_t const i = (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || (klabs(templl2)>>11) < templl) ?
+                int32_t const i = (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || (abs(templl2)>>11) < templl) ?
                     DivScaleL(templl2, templl, 20) : 0;
 
                 goal = { MulScale(clipr.x, i, 20)+vec.x, MulScale(clipr.y, i, 20)+vec.y };
@@ -1105,7 +1105,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                     case CSTAT_SPRITE_ALIGNMENT_FACING:
                     {
                         int32_t k = walldist+(sprite[j].clipdist<<2)+1;
-                        if ((klabs(v1.x-pos->x) <= k) && (klabs(v1.y-pos->y) <= k))
+                        if ((abs(v1.x-pos->x) <= k) && (abs(v1.y-pos->y) <= k))
                         {
                             daz = sprite[j].z + spriteheightofs(j, &k, 1);
                             daz2 = daz - k;
@@ -1204,8 +1204,8 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
 
     newpos.vec2 = { in.x + scale(vx, topt, bot), in.y + scale(vy, topt, bot) };
 
-    if (klabs(newpos.x - in.x) + klabs(newpos.y - in.y) + strictly_smaller_than_p >
-        klabs(intp->x - in.x) + klabs(intp->y - in.y))
+    if (abs(newpos.x - in.x) + abs(newpos.y - in.y) + strictly_smaller_than_p >
+        abs(intp->x - in.x) + abs(intp->y - in.y))
         return 0;
 
     *intp = newpos;
@@ -1248,7 +1248,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
         if (j != 0)
         {
             i = ((z - sv->z)<<8)+DMulScale(dax,sv->y-wal->y,-day,sv->x-wal->x, 15);
-            if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
+            if (((i^j) >= 0) && ((abs(i)>>1) < abs(j)))
             {
                 i = DivScale(i,j, 30);
                 x1 = sv->x + MulScale(vx,i, 30);
@@ -1260,7 +1260,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
     else if ((how*vz > 0) && (how*sv->z <= how*z))
     {
         z1 = z; i = z1-sv->z;
-        if ((klabs(i)>>1) < vz*how)
+        if ((abs(i)>>1) < vz*how)
         {
             i = DivScale(i,vz, 30);
             x1 = sv->x + MulScale(vx,i, 30);
@@ -1268,7 +1268,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
         }
     }
 
-    if ((x1 != INT32_MAX) && (klabs(x1-sv->x)+klabs(y1-sv->y) < klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y)))
+    if ((x1 != INT32_MAX) && (abs(x1-sv->x)+abs(y1-sv->y) < abs((hit->pos.x)-sv->x)+abs((hit->pos.y)-sv->y)))
     {
         if (tmp==NULL)
         {
@@ -1361,7 +1361,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
             {
                 if (vz != 0)
                     if ((intz <= sec->ceilingz) || (intz >= sec->floorz))
-                        if (klabs(intx-sv->x)+klabs(inty-sv->y) < klabs(hit->pos.x-sv->x)+klabs(hit->pos.y-sv->y))
+                        if (abs(intx-sv->x)+abs(inty-sv->y) < abs(hit->pos.x-sv->x)+abs(hit->pos.y-sv->y))
                         {
                                 //x1,y1,z1 are temp variables
                             if (vz > 0) z1 = sec->floorz; else z1 = sec->ceilingz;
@@ -1374,7 +1374,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                             }
                         }
             }
-            else if (klabs(intx-sv->x)+klabs(inty-sv->y) >= klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
+            else if (abs(intx-sv->x)+abs(inty-sv->y) >= abs((hit->pos.x)-sv->x)+abs((hit->pos.y)-sv->y))
                 continue;
 
             if (!curspr)
@@ -1383,14 +1383,14 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 {
                     if ((nextsector < 0) || (wal->cstat&dawalclipmask))
                     {
-                        if ((klabs(intx-sv->x)+klabs(inty-sv->y) < klabs(hit->pos.x-sv->x)+klabs(hit->pos.y-sv->y)))
+                        if ((abs(intx-sv->x)+abs(inty-sv->y) < abs(hit->pos.x-sv->x)+abs(hit->pos.y-sv->y)))
                             hit_set(hit, dasector, z, -1, intx, inty, intz);
                         continue;
                     }
 
                     if (intz <= sector[nextsector].ceilingz || intz >= sector[nextsector].floorz)
                     {
-                        if ((klabs(intx-sv->x)+klabs(inty-sv->y) < klabs(hit->pos.x-sv->x)+klabs(hit->pos.y-sv->y)))
+                        if ((abs(intx-sv->x)+abs(inty-sv->y) < abs(hit->pos.x-sv->x)+abs(hit->pos.y-sv->y)))
                             hit_set(hit, dasector, z, -1, intx, inty, intz);
                         continue;
                     }
@@ -1463,7 +1463,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 ucoefup16 = rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz);
                 if (ucoefup16 == -1) continue;
 
-                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
+                if (abs(intx-sv->x)+abs(inty-sv->y) > abs((hit->pos.x)-sv->x)+abs((hit->pos.y)-sv->y))
                     continue;
 
                 daz = spr->z + spriteheightofs(z, &k, 1);
@@ -1517,7 +1517,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                     inty = sv->y+scale(intz-sv->z,vy,vz);
                 }
 
-                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
+                if (abs(intx-sv->x)+abs(inty-sv->y) > abs((hit->pos.x)-sv->x)+abs((hit->pos.y)-sv->y))
                     continue;
 
                 get_floorspr_points((uspriteptr_t)spr, intx, inty, &x1, &x2, &x3, &x4,

@@ -1157,7 +1157,7 @@ void debrisMove(int listIndex) {
 
     if ((floorHit & 0xe000) == 0xc000) {
         if ((sprite[floorHit & 0x1fff].cstat & 0x30) == 0x20)
-            if (klabs(bottom - floorZ) < 1024) floorZ -= 1024;
+            if (abs(bottom - floorZ) < 1024) floorZ -= 1024;
     }
 
     if (bottom >= floorZ) {
@@ -1171,7 +1171,7 @@ void debrisMove(int listIndex) {
             actFloorBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], (int*)&v20, pSprite->sectnum, tmpFraction);
             zvel[nSprite] = v20;
 
-            if (velFloor[pSprite->sectnum] == 0 && klabs(zvel[nSprite]) < 0x10000) {
+            if (velFloor[pSprite->sectnum] == 0 && abs(zvel[nSprite]) < 0x10000) {
                 zvel[nSprite] = 0;
                 pXDebris->physAttr &= ~kPhysFalling;
             }
@@ -2985,7 +2985,7 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                         var = cansee(pSpr->x, pSpr->y, pSpr->z, pSpr->sectnum, pTrgt->x, pTrgt->y, pTrgt->z - eyeAboveZ, pTrgt->sectnum);
                         if (cond == 4 && var > 0) {
                             var = ((1024 + getangle(dx, dy) - pSpr->ang) & 2047) - 1024;
-                            var = (klabs(var) < ((arg1 <= 0) ? pInfo->periphery : ClipHigh(arg1, 2048)));
+                            var = (abs(var) < ((arg1 <= 0) ? pInfo->periphery : ClipHigh(arg1, 2048)));
                         }
                         break;
                 }
@@ -3494,7 +3494,7 @@ bool aiFightDudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* p
             int losAngle = ((1024 + nAngle - pDude->ang) & 2047) - 1024;
 
             // is the target visible?
-            if (klabs(losAngle) < 2048) // 360 deg periphery here*/
+            if (abs(losAngle) < 2048) // 360 deg periphery here*/
             return true;
         }
 

@@ -334,12 +334,12 @@ void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *p
                     }
                     else if (dz2 > dz1 && dz1 < 0x4000)
                     {
-                        zvel[pFX->index] = -(int)Random((klabs(pGFX->at11)<<18)/120);
+                        zvel[pFX->index] = -(int)Random((abs(pGFX->at11)<<18)/120);
                     }
                     else
                     {
                         if ((pGFX->at11<<18)/120 < 0)
-                            zvel[pFX->index] = -(int)Random((klabs(pGFX->at11)<<18)/120);
+                            zvel[pFX->index] = -(int)Random((abs(pGFX->at11)<<18)/120);
                         else
                             zvel[pFX->index] = Random2((pGFX->at11<<18)/120);
                     }

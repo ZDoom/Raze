@@ -168,8 +168,8 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
 
                 if (nStat >= 900 && !(sprite[i].cstat & 0x8000))
                 {
-                    uint32_t xDiff = klabs(sprite[i].x - x);
-                    uint32_t yDiff = klabs(sprite[i].y - y);
+                    uint32_t xDiff = abs(sprite[i].x - x);
+                    uint32_t yDiff = abs(sprite[i].y - y);
                     int zDiff = sprite[i].z - z;
 
                     if (zDiff < 5120 && zDiff > -25600)

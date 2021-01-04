@@ -1175,10 +1175,10 @@ void CheckPickUp(PLAYER *pPlayer)
         nNextSprite = nextspritestat[nSprite];
         if (pItem->flags&32)
             continue;
-        int dx = klabs(x-pItem->x)>>4;
+        int dx = abs(x-pItem->x)>>4;
         if (dx > 48)
             continue;
-        int dy = klabs(y-pItem->y)>>4;
+        int dy = abs(y-pItem->y)>>4;
         if (dy > 48)
             continue;
         int top, bottom;

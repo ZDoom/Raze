@@ -293,8 +293,8 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
 
         int edx = ((pSprite2->z - nTileY) - pSprite->z) >> 8;
 
-        uint32_t xDiff = klabs(pSprite2->x - pSprite->x);
-        uint32_t yDiff = klabs(pSprite2->y - pSprite->y);
+        uint32_t xDiff = abs(pSprite2->x - pSprite->x);
+        uint32_t yDiff = abs(pSprite2->y - pSprite->y);
 
         uint32_t sqrtVal = xDiff * xDiff + yDiff * yDiff;
 
@@ -310,14 +310,14 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
 
         int nAngDelta = AngleDelta(pSprite->ang, nMyAngle, 1024);
 
-        if (klabs(nAngDelta) > 127)
+        if (abs(nAngDelta) > 127)
         {
-            val1 /= klabs(nAngDelta>>7);
+            val1 /= abs(nAngDelta>>7);
             if (val1 < 256)
                 val1 = 256;
         }
 
-        if (klabs(nAngDelta) > val2)
+        if (abs(nAngDelta) > val2)
         {
             if (nAngDelta < 0)
                 nAngDelta = -val2;
@@ -333,13 +333,13 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
     pSprite->ang = nAngle;
 
     int da = pSprite->zvel;
-    int x = klabs(bcos(da));
+    int x = abs(bcos(da));
 
     int v26 = x * ((val1 * bcos(nAngle)) >> 14);
     int v27 = x * ((val1 * bsin(nAngle)) >> 14);
 
-    uint32_t xDiff = klabs((int32_t)(v26 >> 8));
-    uint32_t yDiff = klabs((int32_t)(v27 >> 8));
+    uint32_t xDiff = abs((int32_t)(v26 >> 8));
+    uint32_t yDiff = abs((int32_t)(v27 >> 8));
 
     uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 

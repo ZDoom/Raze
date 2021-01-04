@@ -144,7 +144,7 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
         {
             int nAngle = getangle(x2-x, y2-y);
             int nDeltaAngle = ((nAngle-pSprite->ang+1024)&2047)-1024;
-            if (klabs(nDeltaAngle) <= tt.at8)
+            if (abs(nDeltaAngle) <= tt.at8)
             {
                 int tz = pSprite2->z-pSprite->z;
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
@@ -223,7 +223,7 @@ static void ghostThinkTarget(DBloodActor* actor)
             if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z-((pDudeInfo->eyeHeight*pSprite->yrepeat)<<2), pSprite->sectnum))
                 continue;
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 pDudeExtraE->xval2 = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
@@ -264,7 +264,7 @@ static void ghostThinkGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &ghostSearch);
     aiThinkTarget(actor);
 }
@@ -377,13 +377,13 @@ static void ghostThinkChase(DBloodActor* actor)
         GetSpriteExtents(pSprite, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(pXSprite, pXSprite->target);
                 int floorZ = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
                 switch (pSprite->type) {
                 case kDudePhantasm:
-                    if (nDist < 0x2000 && nDist > 0x1000 && klabs(nDeltaAngle) < 85) {
+                    if (nDist < 0x2000 && nDist > 0x1000 && abs(nDeltaAngle) < 85) {
                         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                         switch (hit)
                         {
@@ -402,7 +402,7 @@ static void ghostThinkChase(DBloodActor* actor)
                             break;
                         }
                     }
-                    else if (nDist < 0x400 && klabs(nDeltaAngle) < 85)
+                    else if (nDist < 0x400 && abs(nDeltaAngle) < 85)
                     {
                         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                         switch (hit)
@@ -427,7 +427,7 @@ static void ghostThinkChase(DBloodActor* actor)
                         aiPlay3DSound(pSprite, 1600, AI_SFX_PRIORITY_1, -1);
                         aiNewState(actor, &ghostSwoop);
                     }
-                    else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && klabs(nDeltaAngle) < 85)
+                    else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && abs(nDeltaAngle) < 85)
                         aiPlay3DSound(pSprite, 1600, AI_SFX_PRIORITY_1, -1);
                     break;
                 }
@@ -459,7 +459,7 @@ static void ghostMoveForward(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
         return;
     if (pXSprite->target == -1)
         pSprite->ang = (pSprite->ang+256)&2047;
@@ -496,7 +496,7 @@ static void ghostMoveSlow(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
     {
         pXSprite->goalAng = (pSprite->ang+512)&2047;
         return;
@@ -537,7 +537,7 @@ static void ghostMoveSwoop(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
     {
         pXSprite->goalAng = (pSprite->ang+512)&2047;
         return;
@@ -577,7 +577,7 @@ static void ghostMoveFly(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nAccel = pDudeInfo->frontSpeed<<2;
-    if (klabs(nAng) > 341)
+    if (abs(nAng) > 341)
     {
         pSprite->ang = (pSprite->ang+512)&2047;
         return;

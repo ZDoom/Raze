@@ -8899,7 +8899,7 @@ bool SlopeBounce(short SpriteNum, bool *hit_wall)
     l = (dax*dax) + (day*day) + (daz*daz);
 
     // make sure divscale doesn't overflow
-    if ((klabs(k)>>14) < l)
+    if ((abs(k)>>14) < l)
     {
         k = DivScale(k, l, 17);
         u->xchange -= MulScale(dax, k, 16);

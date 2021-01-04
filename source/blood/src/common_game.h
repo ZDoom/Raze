@@ -644,8 +644,8 @@ inline int dmulscale30r(int a, int b, int c, int d)
 
 inline int approxDist(int dx, int dy)
 {
-    dx = klabs(dx);
-    dy = klabs(dy);
+    dx = abs(dx);
+    dy = abs(dy);
     if (dx > dy)
         dy = (3*dy)>>3;
     else

@@ -977,7 +977,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
     hy = hitinfo.pos.y - (*ny);
 
     // If something is in the way, make pp->camera_dist lower if necessary
-    if (klabs(vx) + klabs(vy) > klabs(hx) + klabs(hy))
+    if (abs(vx) + abs(vy) > abs(hx) + abs(hy))
     {
         if (hitinfo.wall >= 0)               // Push you a little bit off the wall
         {
@@ -987,7 +987,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
                              wall[wall[hitinfo.wall].point2].y - wall[hitinfo.wall].y);
 
             i = vx * bsin(daang) + vy * -bcos(daang);
-            if (klabs(vx) > klabs(vy))
+            if (abs(vx) > abs(vy))
                 hx -= MulScale(vx, i, 28);
             else
                 hy -= MulScale(vy, i, 28);
@@ -996,7 +996,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
         {
             *vsect = hitinfo.sect;
 
-            if (klabs(vx) > klabs(vy))
+            if (abs(vx) > abs(vy))
                 hx -= (vx >> 5);
             else
                 hy -= (vy >> 5);
@@ -1022,7 +1022,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
                 daang = NORM_ANGLE(sp->ang-512);
 
                 i = vx * bsin(daang) + vy * -bcos(daang);
-                if (klabs(vx) > klabs(vy))
+                if (abs(vx) > abs(vy))
                     hx -= MulScale(vx, i, 28);
                 else
                     hy -= MulScale(vy, i, 28);
@@ -1030,7 +1030,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16hor
 
         }
 
-        if (klabs(vx) > klabs(vy))
+        if (abs(vx) > abs(vy))
             i = IntToFixed(hx) / vx;
         else
             i = IntToFixed(hy) / vy;
@@ -1099,7 +1099,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q1
     hy = hitinfo.pos.y - (*ny);
 
     // If something is in the way, make pp->circle_camera_dist lower if necessary
-    if (klabs(vx) + klabs(vy) > klabs(hx) + klabs(hy))
+    if (abs(vx) + abs(vy) > abs(hx) + abs(hy))
     {
         if (hitinfo.wall >= 0)               // Push you a little bit off the wall
         {
@@ -1109,7 +1109,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q1
                              wall[wall[hitinfo.wall].point2].y - wall[hitinfo.wall].y);
 
             i = vx * bsin(daang) + vy * -bcos(daang);
-            if (klabs(vx) > klabs(vy))
+            if (abs(vx) > abs(vy))
                 hx -= MulScale(vx, i, 28);
             else
                 hy -= MulScale(vy, i, 28);
@@ -1118,7 +1118,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q1
         {
             *vsect = hitinfo.sect;
 
-            if (klabs(vx) > klabs(vy))
+            if (abs(vx) > abs(vy))
                 hx -= (vx >> 5);
             else
                 hy -= (vy >> 5);
@@ -1140,7 +1140,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q1
             }
         }
 
-        if (klabs(vx) > klabs(vy))
+        if (abs(vx) > abs(vy))
             i = IntToFixed(hx) / vx;
         else
             i = IntToFixed(hy) / vy;

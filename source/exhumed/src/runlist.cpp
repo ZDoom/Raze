@@ -1554,22 +1554,22 @@ int runlist_CheckRadialDamage(short nSprite)
     int y = (sprite[nSprite].y - sprite[nRadialSpr].y) >> 8;
     int z = (sprite[nSprite].z - sprite[nRadialSpr].z) >> 12;
 
-    if (klabs(x) > nDamageRadius) {
+    if (abs(x) > nDamageRadius) {
         return 0;
     }
 
-    if (klabs(y) > nDamageRadius) {
+    if (abs(y) > nDamageRadius) {
         return 0;
     }
 
-    if (klabs(z) > nDamageRadius) {
+    if (abs(z) > nDamageRadius) {
         return 0;
     }
 
     int edi = 0;
 
-    uint32_t xDiff = klabs(x);
-    uint32_t yDiff = klabs(y);
+    uint32_t xDiff = abs(x);
+    uint32_t yDiff = abs(y);
 
     uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 

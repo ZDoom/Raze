@@ -137,7 +137,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
         {
             int nAngle = getangle(x2-x, y2-y);
             int nDeltaAngle = ((nAngle-pSprite->ang+1024)&2047)-1024;
-            if (klabs(nDeltaAngle) <= tt1.at8)
+            if (abs(nDeltaAngle) <= tt1.at8)
             {
                 int tz = pSprite2->z-pSprite->z;
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
@@ -222,7 +222,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
         {
             int nAngle = getangle(x2-x, y2-y);
             int nDeltaAngle = ((nAngle-pSprite->ang+1024)&2047)-1024;
-            if (klabs(nDeltaAngle) <= tt1.at8)
+            if (abs(nDeltaAngle) <= tt1.at8)
             {
                 DUDEINFO *pDudeInfo2 = getDudeInfo(pSprite2->type);
                 int height = (pDudeInfo2->aimHeight*pSprite2->yrepeat)<<2;
@@ -301,7 +301,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
             if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z-((pDudeInfo->eyeHeight*pSprite->yrepeat)<<2), pSprite->sectnum))
                 continue;
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery)
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 pDudeExtraE->xval1 = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
@@ -335,7 +335,7 @@ static void cerberusThinkGoto(DBloodActor* actor)
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && klabs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
     {
         switch (pSprite->type) {
             case kDudeCerberusTwoHead:
@@ -415,10 +415,10 @@ static void cerberusThinkChase(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            if (nDist < pDudeInfo->seeDist && klabs(nDeltaAngle) <= pDudeInfo->periphery) {
+            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery) {
                 aiSetTarget(pXSprite, pXSprite->target);
                 
-                if (nDist < 0x1b00 && nDist > 0xd00 && klabs(nDeltaAngle) < 85) {
+                if (nDist < 0x1b00 && nDist > 0xd00 && abs(nDeltaAngle) < 85) {
                     switch (pSprite->type) {
                         case kDudeCerberusTwoHead:
                             aiNewState(actor, &cerberusBurn);
@@ -429,7 +429,7 @@ static void cerberusThinkChase(DBloodActor* actor)
                     }
                 }
 
-                else if (nDist < 0xb00 && nDist > 0x500 && klabs(nDeltaAngle) < 85) {
+                else if (nDist < 0xb00 && nDist > 0x500 && abs(nDeltaAngle) < 85) {
                     switch (pSprite->type) {
                         case kDudeCerberusTwoHead:
                             aiNewState(actor, &cerberus3Burn);
@@ -439,7 +439,7 @@ static void cerberusThinkChase(DBloodActor* actor)
                             break;
                     }
                 }
-                else if (nDist < 0x200 && klabs(nDeltaAngle) < 85)
+                else if (nDist < 0x200 && abs(nDeltaAngle) < 85)
                 {
                     int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                     switch (pSprite->type) {
