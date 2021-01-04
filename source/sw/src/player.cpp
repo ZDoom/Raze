@@ -1529,7 +1529,7 @@ DoPlayerTurnBoat(PLAYERp pp, float avel)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = (fmulscale16(avel, sop->drive_angspeed) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_avel = (MulScaleF(avel, sop->drive_angspeed) + (drive_oavel * (sop->drive_angslide - 1)), 16) / sop->drive_angslide;
 
         avel = pp->drive_avel;
     }
@@ -1554,7 +1554,7 @@ DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = (fmulscale16(avel, sop->drive_angspeed) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_avel = (MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
         avel = pp->drive_avel;
     }
@@ -1583,7 +1583,7 @@ DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = (fmulscale16(pp->input.avel, sop->drive_angspeed) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_avel = (MulScaleF(pp->input.avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
         avel = pp->drive_avel;
     }
@@ -1613,7 +1613,7 @@ DoPlayerTurnTurret(PLAYERp pp, float avel)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = (fmulscale16(avel, sop->drive_angspeed) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_avel = (MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
         avel = pp->drive_avel;
     }

@@ -17485,7 +17485,7 @@ InitTracerUzi(PLAYERp pp)
         return 0;
     }
 
-    wp->zvel = xs_CRoundToInt(-fmulscale16(pp->horizon.horiz.asq16(), wp->xvel / 8.));
+    wp->zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), wp->xvel / 8., 16));
 
     pp->SpriteP->clipdist = oclipdist;
 
@@ -17544,7 +17544,7 @@ InitTracerTurret(short SpriteNum, short Operator, fixed_t q16horiz)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     SET(wp->cstat, CSTAT_SPRITE_INVISIBLE);
 
-    wp->zvel = xs_CRoundToInt(-fmulscale16(q16horiz, wp->xvel / 8.));
+    wp->zvel = xs_CRoundToInt(-MulScaleF(q16horiz, wp->xvel / 8., 16));
 
     WeaponAutoAim(sp, w, 32, false);
 
@@ -18195,7 +18195,7 @@ InitTankShell(short SpriteNum, PLAYERp pp)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     SET(wp->cstat, CSTAT_SPRITE_INVISIBLE);
 
-    wp->zvel = xs_CRoundToInt(-fmulscale16(pp->horizon.horiz.asq16(), wp->xvel / 8.));
+    wp->zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), wp->xvel / 8., 16));
 
     WeaponAutoAim(sp, w, 64, false);
     // a bit of randomness
@@ -18355,7 +18355,7 @@ InitTurretRocket(short SpriteNum, PLAYERp pp)
     SET(wu->Flags2, SPR2_SO_MISSILE);
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
-    wp->zvel = xs_CRoundToInt(-fmulscale16(pp->horizon.horiz.asq16(), wp->xvel / 8.));
+    wp->zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), wp->xvel / 8., 16));
 
     WeaponAutoAim(sp, w, 64, false);
     // a bit of randomness
@@ -18402,7 +18402,7 @@ InitTurretFireball(short SpriteNum, PLAYERp pp)
     SET(wu->Flags2, SPR2_SO_MISSILE);
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
-    wp->zvel = xs_CRoundToInt(-fmulscale16(pp->horizon.horiz.asq16(), wp->xvel / 8.));
+    wp->zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), wp->xvel / 8., 16));
 
     WeaponAutoAim(sp, w, 64, false);
     // a bit of randomness

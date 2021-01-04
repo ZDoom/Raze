@@ -216,9 +216,9 @@ void AutomapControl()
 		double j = interval * 35. / gZoom;
 
 		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-			gZoom += (int)fmulscale6(j, max(gZoom, 256));
+			gZoom += (int)MulScaleF(j, max(gZoom, 256), 6);
 		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-			gZoom -= (int)fmulscale6(j, max(gZoom, 256));
+			gZoom -= (int)MulScaleF(j, max(gZoom, 256), 6);
 
 		gZoom = clamp(gZoom, 48, 2048);
 

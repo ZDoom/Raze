@@ -6937,8 +6937,8 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
         ang = psp->rotate_ang;
         shade = 0;
         flags = 0;
-        x = (psp->ox + fmulscale16(psp->x - psp->ox, smoothratio)) - look_anghalf;
-        y = (psp->oy + fmulscale16(psp->y - psp->oy, smoothratio)) + looking_arc;
+        x = (psp->ox + MulScaleF(psp->x - psp->ox, smoothratio, 16)) - look_anghalf;
+        y = (psp->oy + MulScaleF(psp->y - psp->oy, smoothratio, 16)) + looking_arc;
         // initilize pal here - jack with it below
         pal = psp->pal;
 

@@ -56,7 +56,6 @@ static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
 
 #define EDUKE32_SCALER_PRAGMA(a)                                                                                                     \
     static FORCE_INLINE int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }             \
-    static FORCE_INLINE double fmulscale##a(double eax, double edx) { return (eax * edx) / (double)(qw(1) << a); }         \
 
 
 EDUKE32_GENERATE_PRAGMAS

@@ -967,13 +967,13 @@ void DrawWeapons(double smooth)
     if (cl_weaponsway)
     {
         // CHECKME - not & 0x7FF?
-        double nBobAngle = obobangle + fmulscale16(((bobangle + 1024 - obobangle) & 2047) - 1024, smooth);
-        double nVal = (ototalvel[nLocalPlayer] + fmulscale16(totalvel[nLocalPlayer] - ototalvel[nLocalPlayer], smooth)) * 0.5;
-        yOffset = fmulscale9(nVal, bsinf(fmod(nBobAngle, 1024.), -8));
+        double nBobAngle = obobangle + MulScaleF(((bobangle + 1024 - obobangle) & 2047) - 1024, smooth, 16);
+        double nVal = (ototalvel[nLocalPlayer] + MulScaleF(totalvel[nLocalPlayer] - ototalvel[nLocalPlayer], smooth, 16)) * 0.5;
+        yOffset = MulScaleF(nVal, bsinf(fmod(nBobAngle, 1024.), -8), 9);
 
         if (var_34 == 1)
         {
-            xOffset = fmulscale8(bcosf(nBobAngle, -8), nVal);
+            xOffset = MulScaleF(bcosf(nBobAngle, -8), nVal, 8);
         }
     }
     else

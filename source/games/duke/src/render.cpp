@@ -261,7 +261,7 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 
 static inline binangle getcamspriteang(DDukeActor* newOwner, double const smoothratio)
 {
-	return buildfang(newOwner->tempang + fmulscale16(((newOwner->s.ang - newOwner->tempang + 1024) & 2047) - 1024, smoothratio));
+	return buildfang(newOwner->tempang + MulScaleF(((newOwner->s.ang - newOwner->tempang + 1024) & 2047) - 1024, smoothratio, 16));
 }
 
 //---------------------------------------------------------------------------
@@ -517,7 +517,7 @@ void displayrooms(int snum, double smoothratio)
 		if (s->yvel < 0) s->yvel = -100;
 		else if (s->yvel > 199) s->yvel = 300;
 
-		cang = buildfang(ud.cameraactor->tempang + fmulscale16(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio));
+		cang = buildfang(ud.cameraactor->tempang + MulScaleF(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio, 16));
 
 		auto bh = buildhoriz(s->yvel);
 		se40code(s->x, s->y, s->z, cang, bh, smoothratio);
@@ -542,15 +542,15 @@ void displayrooms(int snum, double smoothratio)
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
-			cposx = omyx + xs_CRoundToInt(fmulscale16(myx - omyx, smoothratio));
-			cposy = omyy + xs_CRoundToInt(fmulscale16(myy - omyy, smoothratio));
-			cposz = omyz + xs_CRoundToInt(fmulscale16(myz - omyz, smoothratio));
+			cposx = omyx + xs_CRoundToInt(MulScaleF(myx - omyx, smoothratio, 16));
+			cposy = omyy + xs_CRoundToInt(MulScaleF(myy - omyy, smoothratio, 16));
+			cposz = omyz + xs_CRoundToInt(MulScaleF(myz - omyz, smoothratio, 16));
 			if (SyncInput())
 			{
 				fixed_t ohorz = (omyhoriz + omyhorizoff).asq16();
 				fixed_t horz = (myhoriz + myhorizoff).asq16();
-				choriz = q16horiz(ohorz + xs_CRoundToInt(fmulscale16(horz - ohorz, smoothratio)));
-				cang = bamang(xs_CRoundToUInt(omyang.asbam() + fmulscale16((myang - omyang).asbam(), smoothratio)));
+				choriz = q16horiz(ohorz + xs_CRoundToInt(MulScaleF(horz - ohorz, smoothratio, 16)));
+				cang = bamang(xs_CRoundToUInt(omyang.asbam() + MulScaleF((myang - omyang).asbam(), smoothratio, 16)));
 			}
 			else
 			{
@@ -561,9 +561,9 @@ void displayrooms(int snum, double smoothratio)
 		}
 		else
 		{
-			cposx = p->oposx + xs_CRoundToInt(fmulscale16(p->posx - p->oposx, smoothratio));
-			cposy = p->oposy + xs_CRoundToInt(fmulscale16(p->posy - p->oposy, smoothratio));
-			cposz = p->oposz + xs_CRoundToInt(fmulscale16(p->posz - p->oposz, smoothratio));
+			cposx = p->oposx + xs_CRoundToInt(MulScaleF(p->posx - p->oposx, smoothratio, 16));
+			cposy = p->oposy + xs_CRoundToInt(MulScaleF(p->posy - p->oposy, smoothratio, 16));
+			cposz = p->oposz + xs_CRoundToInt(MulScaleF(p->posz - p->oposz, smoothratio, 16));
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct
@@ -592,7 +592,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 		else if (p->over_shoulder_on == 0)
 		{
-			if (cl_viewbob) cposz += p->opyoff + xs_CRoundToInt(fmulscale16(p->pyoff - p->opyoff, smoothratio));
+			if (cl_viewbob) cposz += p->opyoff + xs_CRoundToInt(MulScaleF(p->pyoff - p->opyoff, smoothratio, 16));
 		}
 		else
 		{

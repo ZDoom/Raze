@@ -2500,7 +2500,7 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
 
     if (u->PlayerP)
     {
-        wp->z += xs_CRoundToInt(-fmulscale16(u->PlayerP->horizon.horiz.asq16(), HORIZ_MULT / 3.));
+        wp->z += xs_CRoundToInt(-MulScaleF(u->PlayerP->horizon.horiz.asq16(), HORIZ_MULT / 3., 16));
     }
 
     switch (wu->ID)

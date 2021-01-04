@@ -127,8 +127,8 @@ void displayweapon_r(int snum, double smoothratio)
 
 	look_anghalf = p->angle.look_anghalf(smoothratio);
 	looking_arc = fabs(look_anghalf) / 4.5;
-	weapon_sway = p->oweapon_sway + fmulscale16((p->weapon_sway - p->oweapon_sway), smoothratio);
-	TiltStatus = !SyncInput() ? p->TiltStatus : p->oTiltStatus + fmulscale16((p->TiltStatus - p->oTiltStatus), smoothratio);
+	weapon_sway = p->oweapon_sway + MulScaleF((p->weapon_sway - p->oweapon_sway), smoothratio, 16);
+	TiltStatus = !SyncInput() ? p->TiltStatus : p->oTiltStatus + MulScaleF((p->TiltStatus - p->oTiltStatus), smoothratio, 16);
 
 	if (shadedsector[p->cursectnum] == 1)
 		shade = 16;
@@ -141,7 +141,7 @@ void displayweapon_r(int snum, double smoothratio)
 
 	int opos = p->oweapon_pos * p->oweapon_pos;
 	int npos = p->weapon_pos * p->weapon_pos;
-	gun_pos = 80 - (opos + fmulscale16(npos - opos, smoothratio));
+	gun_pos = 80 - (opos + MulScaleF(npos - opos, smoothratio, 16));
 
 	weapon_xoffset =  (160)-90;
 	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
@@ -150,7 +150,7 @@ void displayweapon_r(int snum, double smoothratio)
 		gun_pos -= fabs(bsinf(weapon_sway * 4., -9));
 	else gun_pos -= fabs(bsinf(weapon_sway * 0.5, -10));
 
-	gun_pos -= (p->ohard_landing + fmulscale16(p->hard_landing - p->ohard_landing, smoothratio)) * 8.;
+	gun_pos -= (p->ohard_landing + MulScaleF(p->hard_landing - p->ohard_landing, smoothratio, 16)) * 8.;
 
 	if(p->last_weapon >= 0)
 		cw = p->last_weapon;

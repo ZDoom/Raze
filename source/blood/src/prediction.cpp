@@ -227,9 +227,9 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     predict.at20 = clamp(predict.at20+pInput->horz, IntToFixed(-60), IntToFixed(60));
 
     if (predict.at20 > 0)
-        predict.at24 = FloatToFixed(fmulscale30(120., bsinf(FixedToFloat(predict.at20) * 8., 16)));
+        predict.at24 = FloatToFixed(MulScaleF(120., bsinf(FixedToFloat(predict.at20) * 8., 16)), 30);
     else if (predict.at20 < 0)
-        predict.at24 = FloatToFixed(fmulscale30(180., bsinf(FixedToFloat(predict.at20) * 8., 16)));
+        predict.at24 = FloatToFixed(MulScaleF(180., bsinf(FixedToFloat(predict.at20) * 8., 16)), 30);
     else
         predict.at24 = 0;
 #endif
