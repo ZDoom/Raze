@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "names.h"
 #include "sequence.h"
 #include "player.h"
+#include "interpolate.h"
 #include "mapinfo.h"
 #include <string.h>
 #include <assert.h>
@@ -1015,7 +1016,7 @@ int IdentifySector(int nVal)
     return -1;
 }
 
-int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int nWall3, int nWall4)
+int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, int nWall3, int nWall4)
 {
     auto nSlide = SlideData.Reserve(1);
 
@@ -1065,7 +1066,7 @@ int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int n
     }
 
     SlideData[nSlide].field_0 = nStartWall;
-    SlideData[nSlide].field_4 = ebx;
+    SlideData[nSlide].field_4 = nWall1;
     SlideData[nSlide].field_8 = nWall2;
     SlideData[nSlide].field_C = nWall3;
 
@@ -1075,8 +1076,8 @@ int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int n
     SlideData[nSlide].x2 = wall[nWall2].x;
     SlideData[nSlide].y2 = wall[nWall2].y;
 
-    SlideData[nSlide].field_20 = wall[ebx].x;
-    SlideData[nSlide].field_24 = wall[ebx].y;
+    SlideData[nSlide].field_20 = wall[nWall1].x;
+    SlideData[nSlide].field_24 = wall[nWall1].y;
 
     SlideData[nSlide].field_28 = wall[nWall3].x;
     SlideData[nSlide].field_2C = wall[nWall3].y;
@@ -1086,6 +1087,19 @@ int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int n
 
     SlideData[nSlide].field_38 = wall[nWall4].x;
     SlideData[nSlide].field_3C = wall[nWall4].y;
+
+    StartInterpolation(nStartWall, Interp_Wall_X);
+    StartInterpolation(nStartWall, Interp_Wall_Y);
+
+    StartInterpolation(nWall1, Interp_Wall_X);
+    StartInterpolation(nWall1, Interp_Wall_Y);
+
+    StartInterpolation(nWall2, Interp_Wall_X);
+    StartInterpolation(nWall2, Interp_Wall_Y);
+
+    StartInterpolation(nWall3, Interp_Wall_X);
+    StartInterpolation(nWall3, Interp_Wall_Y);
+
 
     int nSprite = insertsprite(nSector, 899);
 
@@ -2361,6 +2375,7 @@ void AddSectorBob(int nSector, int nHitag, int bx)
     sBob[nBobs].sBobID = nHitag;
 
     sBob[nBobs].nSector = nSector;
+    StartInterpolation(nSector, bx == 0? Interp_Sect_Floorz : Interp_Sect_Ceilingz);
 
     SectFlag[nSector] |= 0x0010;
 }
@@ -2443,6 +2458,7 @@ void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
 void AddMovingSector(int nSector, int edx, int ebx, int ecx)
 {
     CreatePushBlock(nSector);
+    setsectinterpolate(nSector);
 
     short nTrail = FindTrail(ebx);
 
