@@ -857,7 +857,7 @@ void FuncElev(int a, int, int nRun)
             {
                 // loc_20FC3:
                 int ceilZ = sector[nSector].ceilingz;
-                sectortype *var_28 = &sector[nSector];
+                sectortype *cursect = &sector[nSector];
 
                 int nZOffset = Elevator[nElev].nCurZOffset;
                 int zVal = Elevator[nElev].zOffsets[nZOffset];
@@ -911,7 +911,8 @@ void FuncElev(int a, int, int nRun)
                     }
                 }
 
-                var_28->ceilingz = ceilZ;
+                StartInterpolation(nSector, Interp_Sect_Ceilingz);
+                cursect->ceilingz = ceilZ;
             }
 
             // maybe this doesn't go here?
