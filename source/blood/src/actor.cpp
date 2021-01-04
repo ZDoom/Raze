@@ -2631,7 +2631,7 @@ int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5)
     int t5 = divscale16(t2, t3);
     int t6 = mulscale30(t5, Cos(angle));
     int t7 = mulscale30(t5, Sin(angle));
-    int t8 = tmulscale16(*x, t6, *y, t7, *z, t4);
+    int t8 = TMulScale(*x, t6, *y, t7, *z, t4, 16);
     int t9 = mulscale16(t8, 0x10000+a5);
     *x -= mulscale16(t6, t9);
     *y -= mulscale16(t7, t9);

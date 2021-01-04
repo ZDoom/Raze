@@ -8,6 +8,7 @@
 
 __forceinline constexpr int32_t MulScale(int32_t a, int32_t b, int32_t shift) { return (int32_t)(((int64_t)a * b) >> shift); }
 __forceinline constexpr int32_t DMulScale(int32_t a, int32_t b, int32_t c, int32_t d, int32_t shift) { return (int32_t)(((int64_t)a * b + (int64_t)c * d) >> shift); }
+__forceinline constexpr int32_t TMulScale(int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, int32_t f, int32_t shift) { return (int32_t)(((int64_t)a * b + (int64_t)c * d + (int64_t)e * f) >> shift); }
 __forceinline constexpr int32_t DivScale(int32_t a, int32_t b, int shift) { return (int32_t)(((int64_t)a << shift) / b); }
 
 #include "xs_Float.h"

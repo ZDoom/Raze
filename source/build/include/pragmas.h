@@ -65,14 +65,6 @@ static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
     {                                                                                                                                \
         return ((eax * edx) + (esi * edi)) / (double)(qw(1) << a);                                                                   \
     }                                                                                                                                \
-    static FORCE_INLINE int32_t tmulscale##a(int32_t eax, int32_t edx, int32_t ebx, int32_t ecx, int32_t esi, int32_t edi) \
-    {                                                                                                                                \
-        return dw(((qw(eax) * edx) + (qw(ebx) * ecx) + (qw(esi) * edi)) >> by(a));                                                   \
-    }                                                                                                                                \
-    static FORCE_INLINE double ftmulscale##a(double eax, double edx, double ebx, double ecx, double esi, double edi)       \
-    {                                                                                                                                \
-        return ((eax * edx) + (ebx * ecx) + (esi * edi)) / (double)(qw(1) << a);                                                     \
-    }
 
 EDUKE32_GENERATE_PRAGMAS
 
