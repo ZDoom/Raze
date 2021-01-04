@@ -272,11 +272,6 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
     }
     else duration = pQAV->duration - pPlayer->weaponTimer;
 
-
-    if (pPlayer->weaponTimer == 0)
-        duration = (gFrameClock + mulscale16(4, smoothratio)) % pQAV->duration;
-    else
-        duration = pQAV->duration - pPlayer->weaponTimer;
     pQAV->x = int(xpos);
     pQAV->y = int(ypos);
     int flags = 2;
