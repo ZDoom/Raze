@@ -299,9 +299,9 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     if (dist != 0)
     {
         if (xe - xs != 0)
-            zvect = scale(xvect, ze - zs, xe - xs);
+            zvect = Scale(xvect, ze - zs, xe - xs);
         else if (ye - ys != 0)
-            zvect = scale(yvect, ze - zs, ye - ys);
+            zvect = Scale(yvect, ze - zs, ye - ys);
         else
             zvect = 0;
     }

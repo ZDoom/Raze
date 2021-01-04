@@ -1010,7 +1010,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     global100horiz = dahoriz;
 
-    // xdimenscale is scale(xdimen,yxaspect,320);
+    // xdimenscale is Scale(xdimen,yxaspect,320);
     // normalization by viewingrange so that center-of-aim doesn't depend on it
     qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16)+IntToFixed(ydimen>>1);
 
@@ -1235,7 +1235,7 @@ void renderDrawMasks(void)
             if (MulScale(labs(xp+yp),xdimen, 24) >= yp)
                 goto killsprite;
 
-            spritesxyz[i].x = scale(xp+yp,xdimen<<7,yp);
+            spritesxyz[i].x = Scale(xp+yp,xdimen<<7,yp);
         }
         else if ((tspriteptr[i]->cstat&48) == 0)
         {
@@ -1540,7 +1540,7 @@ void FillPolygon(int* rx1, int* ry1, int* xb1, int32_t npoints, int picnum, int 
         alpha = GetAlphaFromBlend(maskprops, 0);
     }
     int translation = TRANSLATION(Translation_Remap + curbasepal, palette);
-    int light = clamp(scale((numshades - shade), 255, numshades), 0, 255);
+    int light = clamp(Scale((numshades - shade), 255, numshades), 0, 255);
     PalEntry pe = PalEntry(uint8_t(alpha*255), light, light, light);
 
     twod->AddPoly(tileGetTexture(picnum), points.Data(), points.Size(), indices.data(), indices.size(), translation, pe, rs, clipx1, clipy1, clipx2, clipy2);
@@ -2085,8 +2085,8 @@ int32_t getangle(int32_t xvect, int32_t yvect)
     else if (xvect == -yvect)
         rv = 768 + ((xvect > 0) << 10);
     else if (abs(xvect) > abs(yvect))
-        rv = ((radarang[640 + scale(160, yvect, xvect)] >> 6) + ((xvect < 0) << 10)) & 2047;
-    else rv = ((radarang[640 - scale(160, xvect, yvect)] >> 6) + 512 + ((yvect < 0) << 10)) & 2047;
+        rv = ((radarang[640 + Scale(160, yvect, xvect)] >> 6) + ((xvect < 0) << 10)) & 2047;
+    else rv = ((radarang[640 - Scale(160, xvect, yvect)] >> 6) + 512 + ((yvect < 0) << 10)) & 2047;
 
     return rv;
 }
@@ -2106,8 +2106,8 @@ fixed_t gethiq16angle(int32_t xvect, int32_t yvect)
     else if (xvect == -yvect)
         rv = IntToFixed(768 + ((xvect > 0) << 10));
     else if (abs(xvect) > abs(yvect))
-        rv = ((qradarang[5120 + scale(1280, yvect, xvect)] >> 6) + IntToFixed(((xvect < 0) << 10))) & 0x7FFFFFF;
-    else rv = ((qradarang[5120 - scale(1280, xvect, yvect)] >> 6) + IntToFixed(512 + ((yvect < 0) << 10))) & 0x7FFFFFF;
+        rv = ((qradarang[5120 + Scale(1280, yvect, xvect)] >> 6) + IntToFixed(((xvect < 0) << 10))) & 0x7FFFFFF;
+    else rv = ((qradarang[5120 - Scale(1280, xvect, yvect)] >> 6) + IntToFixed(512 + ((yvect < 0) << 10))) & 0x7FFFFFF;
 
     return rv;
 }
@@ -2897,8 +2897,8 @@ void renderSetAspect(int32_t daxrange, int32_t daaspect)
 
     yxaspect = daaspect;
     xyaspect = DivScale(1,yxaspect, 32);
-    xdimenscale = scale(xdimen,yxaspect,320);
-    xdimscale = scale(320,xyaspect,xdimen);
+    xdimenscale = Scale(xdimen,yxaspect,320);
+    xdimscale = Scale(320,xyaspect,xdimen);
 }
 
 
@@ -2990,8 +2990,8 @@ void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, f
 
     int i = ((dax-x)*dx + (day-y)*dy)<<1;
 
-    *tposx = (x<<1) + scale(dx,i,j) - dax;
-    *tposy = (y<<1) + scale(dy,i,j) - day;
+    *tposx = (x<<1) + Scale(dx,i,j) - dax;
+    *tposy = (y<<1) + Scale(dy,i,j) - day;
     *tang  = ((gethiq16angle(dx, dy) << 1) - daang) & 0x7FFFFFF;
 
     inpreparemirror = 1;
@@ -3056,7 +3056,7 @@ int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
 
     int const j = DMulScale(d.x, day-w.y, -d.y, dax-w.x, 3);
     int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
-    return sec->ceilingz + (scale(sec->ceilingheinum,j>>shift,i)<<shift);
+    return sec->ceilingz + (Scale(sec->ceilingheinum,j>>shift,i)<<shift);
 }
 
 int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
@@ -3075,7 +3075,7 @@ int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
 
     int const j = DMulScale(d.x, day-w.y, -d.y, dax-w.x, 3);
     int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
-    return sec->floorz + (scale(sec->floorheinum,j>>shift,i)<<shift);
+    return sec->floorz + (Scale(sec->floorheinum,j>>shift,i)<<shift);
 }
 
 void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
@@ -3096,9 +3096,9 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz,
     int const j = DMulScale(d.x,day-wal->y, -d.y,dax-wal->x, 3);
     int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
     if (sec->ceilingstat&2)
-        *ceilz += scale(sec->ceilingheinum,j>>shift,i)<<shift;
+        *ceilz += Scale(sec->ceilingheinum,j>>shift,i)<<shift;
     if (sec->floorstat&2)
-        *florz += scale(sec->floorheinum,j>>shift,i)<<shift;
+        *florz += Scale(sec->floorheinum,j>>shift,i)<<shift;
 }
 
 //
@@ -3114,7 +3114,7 @@ void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
     if (i == 0)
         return;
 
-    sector[dasect].ceilingheinum = scale((z-sector[dasect].ceilingz)<<8,
+    sector[dasect].ceilingheinum = Scale((z-sector[dasect].ceilingz)<<8,
                                          nsqrtasm(uhypsq(dax,day)), i);
     if (sector[dasect].ceilingheinum == 0)
         sector[dasect].ceilingstat &= ~2;
@@ -3135,7 +3135,7 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
     if (i == 0)
         return;
 
-    sector[dasect].floorheinum = scale((z-sector[dasect].floorz)<<8,
+    sector[dasect].floorheinum = Scale((z-sector[dasect].floorz)<<8,
                                        nsqrtasm(uhypsq(dax,day)), i);
     if (sector[dasect].floorheinum == 0)
         sector[dasect].floorstat &= ~2;

@@ -1320,13 +1320,13 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, binangle
 
                     zdiff = sp->z - *tz;
                     if (labs(sp->x - *tx) > 1000)
-                        zvect = scale(xvect, zdiff, sp->x - *tx);
+                        zvect = Scale(xvect, zdiff, sp->x - *tx);
                     else if (labs(sp->y - *ty) > 1000)
-                        zvect = scale(yvect, zdiff, sp->y - *ty);
+                        zvect = Scale(yvect, zdiff, sp->y - *ty);
                     else if (sp->x - *tx != 0)
-                        zvect = scale(xvect, zdiff, sp->x - *tx);
+                        zvect = Scale(xvect, zdiff, sp->x - *tx);
                     else if (sp->y - *ty != 0)
-                        zvect = scale(yvect, zdiff, sp->y - *ty);
+                        zvect = Scale(yvect, zdiff, sp->y - *ty);
                     else
                         zvect = 0;
 

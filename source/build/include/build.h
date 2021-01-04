@@ -262,7 +262,7 @@ EXTERN uint8_t paletteloaded;
 inline int shadeToLight(int shade)
 {
 	shade = clamp(shade, 0, numshades-1);
-	int light = scale(numshades-1-shade, 255, numshades-1);
+	int light = Scale(numshades-1-shade, 255, numshades-1);
 	return PalEntry(255,light,light,light);
 }
 

@@ -8403,7 +8403,7 @@ ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int1
 
         oz = u->zchange;
 
-        u->zchange = scale(sp->xvel, zh - sp->z, dist);
+        u->zchange = Scale(sp->xvel, zh - sp->z, dist);
         u->zchange = (u->zchange + oz*15)/16;
     }
     return 0;
@@ -8486,9 +8486,9 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
         oy = u->ychange;
         oz = u->zchange;
 
-        u->xchange = scale(sp->xvel, hp->x - sp->x, dist);
-        u->ychange = scale(sp->xvel, hp->y - sp->y, dist);
-        u->zchange = scale(sp->xvel, zh - sp->z, dist);
+        u->xchange = Scale(sp->xvel, hp->x - sp->x, dist);
+        u->ychange = Scale(sp->xvel, hp->y - sp->y, dist);
+        u->zchange = Scale(sp->xvel, zh - sp->z, dist);
 
         // the large turn_speed is the slower the turn
 
@@ -8555,9 +8555,9 @@ VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t
         oy = u->ychange;
         oz = u->zchange;
 
-        u->xchange = scale(sp->xvel, hp->x - sp->x, dist);
-        u->ychange = scale(sp->xvel, hp->y - sp->y, dist);
-        u->zchange = scale(sp->xvel, zh - sp->z, dist);
+        u->xchange = Scale(sp->xvel, hp->x - sp->x, dist);
+        u->ychange = Scale(sp->xvel, hp->y - sp->y, dist);
+        u->zchange = Scale(sp->xvel, zh - sp->z, dist);
 
         u->xchange = (u->xchange + ox*7)/8;
         u->ychange = (u->ychange + oy*7)/8;
@@ -14463,10 +14463,10 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
 
         if (hp->x - sp->x != 0)
             //*z = xvect * ((zh - *z)/(hp->x - sp->x));
-            *z = scale(xvect,zh - *z,hp->x - sp->x);
+            *z = Scale(xvect,zh - *z,hp->x - sp->x);
         else if (hp->y - sp->y != 0)
             //*z = yvect * ((zh - *z)/(hp->y - sp->y));
-            *z = scale(yvect,zh - *z,hp->y - sp->y);
+            *z = Scale(yvect,zh - *z,hp->y - sp->y);
         else
             *z = 0;
 
@@ -14525,10 +14525,10 @@ WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
 
             if (hp->x - sp->x != 0)
                 //*z = xvect * ((zh - *z)/(hp->x - sp->x));
-                *z = scale(xvect,zh - *z,hp->x - sp->x);
+                *z = Scale(xvect,zh - *z,hp->x - sp->x);
             else if (hp->y - sp->y != 0)
                 //*z = yvect * ((zh - *z)/(hp->y - sp->y));
-                *z = scale(yvect,zh - *z,hp->y - sp->y);
+                *z = Scale(yvect,zh - *z,hp->y - sp->y);
             else
                 *z = 0;
         }
@@ -14564,10 +14564,10 @@ WeaponHitscanShootFeet(SPRITEp sp, SPRITEp hp, int *zvect)
 
         if (hp->x - sp->x != 0)
             //*z = xvect * ((zh - *z)/(hp->x - sp->x));
-            *zvect = scale(xvect,zh - z, hp->x - sp->x);
+            *zvect = Scale(xvect,zh - z, hp->x - sp->x);
         else if (hp->y - sp->y != 0)
             //*z = yvect * ((zh - *z)/(hp->y - sp->y));
-            *zvect = scale(yvect,zh - z, hp->y - sp->y);
+            *zvect = Scale(yvect,zh - z, hp->y - sp->y);
         else
             *zvect = 0;
     }

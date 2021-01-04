@@ -451,7 +451,7 @@ public:
 			framenum++;
 			if (framenum >= numframes) stop = true;
 
-			int soundframe = convdenom ? scale(framenum, convnumer, convdenom) : framenum;
+			int soundframe = convdenom ? Scale(framenum, convnumer, convdenom) : framenum;
 			if (soundframe > lastsoundframe)
 			{
 				if (animSnd && soundtrack == -1) for (int i = 0; animSnd[i].framenum >= 0; i++)

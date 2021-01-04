@@ -330,7 +330,7 @@ static inline int32_t cliptrace(vec2_t const pos, vec2_t * const goal)
                 return z;
             }
 
-            n = { pos.x+scale(diff.x, topu, bot), pos.y+scale(diff.y, topu, bot) };
+            n = { pos.x+Scale(diff.x, topu, bot), pos.y+Scale(diff.y, topu, bot) };
             topu--;
         } while (area.x*(n.y-p1.y) <= (n.x-p1.x)*area.y);
 
@@ -1187,7 +1187,7 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
 
     if (!bot) return 0;
 
-    vec3_t        newpos = { 0, 0, in.z + scale(vz, topt, bot) };
+    vec3_t        newpos = { 0, 0, in.z + Scale(vz, topt, bot) };
     int32_t       siz;
     int32_t const z1 = sprpos.z + spriteheightofsptr(spr, &siz, 1);
 
@@ -1195,14 +1195,14 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
         return 0;
 
     int32_t const topu = vx * (sprpos.y - in.y) - vy * (sprpos.x - in.x);
-    vec2_t  const off  = { scale(vx, topu, bot), scale(vy, topu, bot) };
+    vec2_t  const off  = { Scale(vx, topu, bot), Scale(vy, topu, bot) };
     int32_t const dist = off.x * off.x + off.y * off.y;
 
     siz = tileWidth(spr->picnum) * spr->xrepeat;
 
     if (dist > MulScale(siz, siz, 7)) return 0;
 
-    newpos.vec2 = { in.x + scale(vx, topt, bot), in.y + scale(vy, topt, bot) };
+    newpos.vec2 = { in.x + Scale(vx, topt, bot), in.y + Scale(vy, topt, bot) };
 
     if (abs(newpos.x - in.x) + abs(newpos.y - in.y) + strictly_smaller_than_p >
         abs(intp->x - in.x) + abs(intp->y - in.y))
@@ -1365,8 +1365,8 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                         {
                                 //x1,y1,z1 are temp variables
                             if (vz > 0) z1 = sec->floorz; else z1 = sec->ceilingz;
-                            x1 = sv->x + scale(z1-sv->z,vx,vz);
-                            y1 = sv->y + scale(z1-sv->z,vy,vz);
+                            x1 = sv->x + Scale(z1-sv->z,vx,vz);
+                            y1 = sv->y + Scale(z1-sv->z,vy,vz);
                             if (inside(x1,y1,dasector) == 1)
                             {
                                 hit_set(hit, dasector, -1, -1, x1, y1, z1);
@@ -1507,14 +1507,14 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                     // signed overflow is undefined behavior in C), but rather the idiv trap when
                     // the resulting quotient doesn't fit into a *signed* 32-bit integer.
                     zz = (uint32_t)(intz-sv->z) * vx;
-                    intx = sv->x+scale(zz,1,vz);
+                    intx = sv->x+Scale(zz,1,vz);
                     zz = (uint32_t)(intz-sv->z) * vy;
-                    inty = sv->y+scale(zz,1,vz);
+                    inty = sv->y+Scale(zz,1,vz);
                 }
                 else
                 {
-                    intx = sv->x+scale(intz-sv->z,vx,vz);
-                    inty = sv->y+scale(intz-sv->z,vy,vz);
+                    intx = sv->x+Scale(intz-sv->z,vx,vz);
+                    inty = sv->y+Scale(intz-sv->z,vy,vz);
                 }
 
                 if (abs(intx-sv->x)+abs(inty-sv->y) > abs((hit->pos.x)-sv->x)+abs((hit->pos.y)-sv->y))

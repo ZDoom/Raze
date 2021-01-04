@@ -336,7 +336,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 							if (sdist > 512 && sdist < smax)
 							{
 								if (s->picnum == TILE_APLAYER)
-									a = (abs(scale(sp->z - s->z, 10, sdist) - ps[s->yvel].horizon.sum().asbuild()) < 100);
+									a = (abs(Scale(sp->z - s->z, 10, sdist) - ps[s->yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
 								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + gs.actorinfo[sp->picnum].aimoffset, sp->sectnum, s->x, s->y, s->z - (32 << 8), s->sectnum);

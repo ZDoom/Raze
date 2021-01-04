@@ -10,11 +10,6 @@
 #ifndef pragmas_h_
 #define pragmas_h_
 
-static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
-{
-    return int64_t(eax) * edx / ecx;
-}
-
 static inline constexpr int ksgn(int32_t a) { return (a > 0) - (a < 0); }
 
 inline int sgn(int32_t a) { return (a > 0) - (a < 0); }
