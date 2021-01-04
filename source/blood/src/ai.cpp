@@ -223,7 +223,7 @@ void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
     int nSin = Sin(pSprite->ang);
     int dx = xvel[nSprite];
     int dy = yvel[nSprite];
-    int t1 = dmulscale30(dx, nCos, dy, nSin);
+    int t1 = DMulScale(dx, nCos, dy, nSin, 30);
     int vsi = ((t1*15)>>12) / 2;
     int v8 = 341;
     if (vc < 0)
@@ -297,15 +297,15 @@ void aiMoveDodge(DBloodActor* actor)
         int nSin = Sin(pSprite->ang);
         int dx = actor->xvel();
         int dy = actor->yvel();
-        int t1 = dmulscale30(dx, nCos, dy, nSin);
-        int t2 = dmulscale30(dx, nSin, -dy, nCos);
+        int t1 = DMulScale(dx, nCos, dy, nSin, 30);
+        int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
         if (pXSprite->dodgeDir > 0)
             t2 += pDudeInfo->sideSpeed;
         else
             t2 -= pDudeInfo->sideSpeed;
 
-        actor->xvel() = dmulscale30(t1, nCos, t2, nSin);
-        actor->yvel() = dmulscale30(t1, nSin, -t2, nCos);
+        actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
+        actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     }
 }
 

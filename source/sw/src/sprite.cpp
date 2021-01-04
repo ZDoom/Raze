@@ -4794,8 +4794,8 @@ getzrangepoint(int x, int y, int z, short sectnum,
         dax = ((xspan >> 1) + xoff) * spr->xrepeat;
         yspan = tileHeight(tilenum);
         day = ((yspan >> 1) + yoff) * spr->yrepeat;
-        x1 = spr->x + dmulscale16(sinang, dax, cosang, day) - x;
-        y1 = spr->y + dmulscale16(sinang, day, -cosang, dax) - y;
+        x1 = spr->x + DMulScale(sinang, dax, cosang, day, 16) - x;
+        y1 = spr->y + DMulScale(sinang, day, -cosang, dax, 16) - y;
         l = xspan * spr->xrepeat;
         x2 = x1 - mulscale16(sinang, l);
         y2 = y1 + mulscale16(cosang, l);

@@ -8825,8 +8825,8 @@ void WallBounce(short SpriteNum, short ang)
     dax = -u->xchange;
     day = -u->ychange;
 
-    u->xchange = dmulscale14(day, k, dax, l);
-    u->ychange = dmulscale14(dax, k, -day, l);
+    u->xchange = DMulScale(day, k, dax, l, 14);
+    u->ychange = DMulScale(dax, k, -day, l, 14);
 
     old_ang = sp->ang;
     sp->ang = getangle(u->xchange, u->ychange);

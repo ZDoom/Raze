@@ -242,26 +242,26 @@ int32_t wallfront(int32_t l1, int32_t l2)
     vec2_t const l2vect   = wall[thewall[l2]].pos;
     vec2_t const l2p2vect = wall[wall[thewall[l2]].point2].pos;
     vec2_t d = { l1p2vect.x - l1vect.x, l1p2vect.y - l1vect.y };
-    int32_t t1 = dmulscale2(l2vect.x-l1vect.x, d.y, -d.x, l2vect.y-l1vect.y); //p1(l2) vs. l1
-    int32_t t2 = dmulscale2(l2p2vect.x-l1vect.x, d.y, -d.x, l2p2vect.y-l1vect.y); //p2(l2) vs. l1
+    int32_t t1 = DMulScale(l2vect.x-l1vect.x, d.y, -d.x, l2vect.y-l1vect.y, 2); //p1(l2) vs. l1
+    int32_t t2 = DMulScale(l2p2vect.x-l1vect.x, d.y, -d.x, l2p2vect.y-l1vect.y, 2); //p2(l2) vs. l1
 
     if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
     if (t2 == 0) t2 = t1;
 
     if ((t1^t2) >= 0) //pos vs. l1
-        return (dmulscale2(globalposx-l1vect.x, d.y, -d.x, globalposy-l1vect.y) ^ t1) >= 0;
+        return (DMulScale(globalposx-l1vect.x, d.y, -d.x, globalposy-l1vect.y, 2) ^ t1) >= 0;
 
     d.x = l2p2vect.x-l2vect.x;
     d.y = l2p2vect.y-l2vect.y;
 
-    t1 = dmulscale2(l1vect.x-l2vect.x, d.y, -d.x, l1vect.y-l2vect.y); //p1(l1) vs. l2
-    t2 = dmulscale2(l1p2vect.x-l2vect.x, d.y, -d.x, l1p2vect.y-l2vect.y); //p2(l1) vs. l2
+    t1 = DMulScale(l1vect.x-l2vect.x, d.y, -d.x, l1vect.y-l2vect.y, 2); //p1(l1) vs. l2
+    t2 = DMulScale(l1p2vect.x-l2vect.x, d.y, -d.x, l1p2vect.y-l2vect.y, 2); //p2(l1) vs. l2
 
     if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
     if (t2 == 0) t2 = t1;
 
     if ((t1^t2) >= 0) //pos vs. l2
-        return (dmulscale2(globalposx-l2vect.x,d.y,-d.x,globalposy-l2vect.y) ^ t1) < 0;
+        return (DMulScale(globalposx-l2vect.x,d.y,-d.x,globalposy-l2vect.y, 2) ^ t1) < 0;
 
     return -2;
 }
@@ -1225,12 +1225,12 @@ void renderDrawMasks(void)
     for (i=numSprites-1; i>=0; --i)
     {
         const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
-        const int32_t yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
+        const int32_t yp = DMulScale(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang, 6);
         const int32_t modelp = polymost_spriteIsModelOrVoxel(tspriteptr[i]);
 
         if (yp > (4<<8))
         {
-            const int32_t xp = dmulscale6(ys,cosglobalang,-xs,singlobalang);
+            const int32_t xp = DMulScale(ys,cosglobalang,-xs,singlobalang, 6);
 
             if (mulscale24(labs(xp+yp),xdimen) >= yp)
                 goto killsprite;
@@ -1621,10 +1621,10 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 if ((k > j) && (npoints > 0)) { xb1[npoints-1] = l; l = npoints; } //overwrite point2
                 //wall[k].x wal->x wall[wal->point2].x
                 //wall[k].y wal->y wall[wal->point2].y
-                if (!dmulscale1(wal->x-wall[k].x,wall[wal->point2].y-wal->y,-(wal->y-wall[k].y),wall[wal->point2].x-wal->x)) continue;
+                if (!DMulScale(wal->x-wall[k].x,wall[wal->point2].y-wal->y,-(wal->y-wall[k].y),wall[wal->point2].x-wal->x, 1)) continue;
                 ox = wal->x - dax; oy = wal->y - day;
-                x = dmulscale16(ox,vect.x,-oy,vect.y) + (xdim<<11);
-                y = dmulscale16(oy,vect2.x,ox,vect2.y) + (ydim<<11);
+                x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (xdim<<11);
+                y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (ydim<<11);
                 i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
                 rx1[npoints] = x;
                 ry1[npoints] = y;
@@ -1676,11 +1676,11 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 oy = wall[wall[startwall].point2].y - wall[startwall].y;
                 i = nsqrtasm(uhypsq(ox,oy)); if (i == 0) continue;
                 i = 1048576/i;
-                globalx1 = mulscale10(dmulscale10(ox,bakgvect.x,oy,bakgvect.y),i);
-                globaly1 = mulscale10(dmulscale10(ox,bakgvect.y,-oy,bakgvect.x),i);
+                globalx1 = mulscale10(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i);
+                globaly1 = mulscale10(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i);
                 ox = (bak.x>>4)-(xdim<<7); oy = (bak.y>>4)-(ydim<<7);
-                globalposx = dmulscale28(-oy, globalx1, -ox, globaly1);
-                globalposy = dmulscale28(-ox, globalx1, oy, globaly1);
+                globalposx = DMulScale(-oy, globalx1, -ox, globaly1, 28);
+                globalposy = DMulScale(-ox, globalx1, oy, globaly1, 28);
                 globalx2 = -globalx1;
                 globaly2 = -globaly1;
 
@@ -1748,20 +1748,20 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             i = 0;
 
             ox = v1.x - dax; oy = v1.y - day;
-            x = dmulscale16(ox,vect.x,-oy,vect.y) + (xdim<<11);
-            y = dmulscale16(oy,vect2.x,ox,vect2.y) + (ydim<<11);
+            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (xdim<<11);
+            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (ydim<<11);
             i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
             rx1[0] = x; ry1[0] = y;
 
             ox = v2.x - dax; oy = v2.y - day;
-            x = dmulscale16(ox,vect.x,-oy,vect.y) + (xdim<<11);
-            y = dmulscale16(oy,vect2.x,ox,vect2.y) + (ydim<<11);
+            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (xdim<<11);
+            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (ydim<<11);
             i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
             rx1[1] = x; ry1[1] = y;
 
             ox = v3.x - dax; oy = v3.y - day;
-            x = dmulscale16(ox,vect.x,-oy,vect.y) + (xdim<<11);
-            y = dmulscale16(oy,vect2.x,ox,vect2.y) + (ydim<<11);
+            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (xdim<<11);
+            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (ydim<<11);
             i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
             rx1[2] = x; ry1[2] = y;
 
@@ -1790,12 +1790,12 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             //relative alignment stuff
             ox = v2.x-v1.x; oy = v2.y-v1.y;
             i = ox*ox+oy*oy; if (i == 0) continue; i = 65536*16384 / i;
-            globalx1 = mulscale10(dmulscale10(ox,bakgvect.x,oy,bakgvect.y),i);
-            globaly1 = mulscale10(dmulscale10(ox,bakgvect.y,-oy,bakgvect.x),i);
+            globalx1 = mulscale10(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i);
+            globaly1 = mulscale10(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i);
             ox = v1.y-v4.y; oy = v4.x-v1.x;
             i = ox*ox+oy*oy; if (i == 0) continue; i = 65536 * 16384 / i;
-            globalx2 = mulscale10(dmulscale10(ox,bakgvect.x,oy,bakgvect.y),i);
-            globaly2 = mulscale10(dmulscale10(ox,bakgvect.y,-oy,bakgvect.x),i);
+            globalx2 = mulscale10(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i);
+            globaly2 = mulscale10(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i);
 
             ox = widthBits(globalpicnum); 
             oy = heightBits(globalpicnum);
@@ -1807,8 +1807,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             }
 
             bak.x = (bak.x>>4)-(xdim<<7); bak.y = (bak.y>>4)-(ydim<<7);
-            globalposx = dmulscale28(-bak.y,globalx1,-bak.x,globaly1);
-            globalposy = dmulscale28(bak.x,globalx2,-bak.y,globaly2);
+            globalposx = DMulScale(-bak.y,globalx1,-bak.x,globaly1, 28);
+            globalposy = DMulScale(bak.x,globalx2,-bak.y,globaly2, 28);
 
             if ((spr->cstat&0x4) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalposx = -globalposx;
             asm1 = (globaly1<<2); globalx1 <<= 2; globalposx <<= (20+2);
@@ -2399,7 +2399,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
                 {
                     if (good&1) *neartagsector = nextsector;
                     if (good&2) *neartagwall = z;
-                    *neartaghitdist = dmulscale14(intx-xs, bcos(ange), inty-ys, bsin(ange));
+                    *neartaghitdist = DMulScale(intx-xs, bcos(ange), inty-ys, bsin(ange), 14);
                     hitv.x = intx; hitv.y = inty; hitv.z = intz;
                 }
 
@@ -2431,7 +2431,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
                 if (try_facespr_intersect(spr, sv, vx, vy, 0, &hitv, 1))
                 {
                     *neartagsprite = z;
-                    *neartaghitdist = dmulscale14(hitv.x-xs, bcos(ange), hitv.y-ys, bsin(ange));
+                    *neartaghitdist = DMulScale(hitv.x-xs, bcos(ange), hitv.y-ys, bsin(ange), 14);
                 }
             }
         }
@@ -2841,8 +2841,8 @@ void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * con
     int const dasin = bsin(daang);
     p.x -= pivot.x;
     p.y -= pivot.y;
-    p2->x = dmulscale14(p.x, dacos, -p.y, dasin) + pivot.x;
-    p2->y = dmulscale14(p.y, dacos, p.x, dasin) + pivot.y;
+    p2->x = DMulScale(p.x, dacos, -p.y, dasin, 14) + pivot.x;
+    p2->y = DMulScale(p.y, dacos, p.x, dasin, 14) + pivot.y;
 }
 
 void videoSetCorrectedAspect()
@@ -3054,7 +3054,7 @@ int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
     if (i == 0) return sec->ceilingz;
 
-    int const j = dmulscale3(d.x, day-w.y, -d.y, dax-w.x);
+    int const j = DMulScale(d.x, day-w.y, -d.y, dax-w.x, 3);
     int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
     return sec->ceilingz + (scale(sec->ceilingheinum,j>>shift,i)<<shift);
 }
@@ -3073,7 +3073,7 @@ int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
     if (i == 0) return sec->floorz;
 
-    int const j = dmulscale3(d.x, day-w.y, -d.y, dax-w.x);
+    int const j = DMulScale(d.x, day-w.y, -d.y, dax-w.x, 3);
     int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
     return sec->floorz + (scale(sec->floorheinum,j>>shift,i)<<shift);
 }
@@ -3093,7 +3093,7 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz,
     int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
     if (i == 0) return;
 
-    int const j = dmulscale3(d.x,day-wal->y, -d.y,dax-wal->x);
+    int const j = DMulScale(d.x,day-wal->y, -d.y,dax-wal->x, 3);
     int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
     if (sec->ceilingstat&2)
         *ceilz += scale(sec->ceilingheinum,j>>shift,i)<<shift;

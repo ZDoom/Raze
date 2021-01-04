@@ -235,8 +235,8 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
     vec2_t const rspan  = { span.x * repeat.x, span.y * repeat.y };
     vec2_t const ofs    = { -mulscale16(cosang, rspan.y), -mulscale16(sinang, rspan.y) };
 
-    *x1 += dmulscale16(sinang, center.x, cosang, center.y) - px;
-    *y1 += dmulscale16(sinang, center.y, -cosang, center.x) - py;
+    *x1 += DMulScale(sinang, center.x, cosang, center.y, 16) - px;
+    *y1 += DMulScale(sinang, center.y, -cosang, center.x, 16) - py;
 
     *x2 = *x1 - mulscale16(sinang, rspan.x);
     *y2 = *y1 + mulscale16(cosang, rspan.x);

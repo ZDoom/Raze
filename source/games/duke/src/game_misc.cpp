@@ -434,13 +434,13 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
 				ox = sprx - cposx;
 				oy = spry - cposy;
-				x1 = dmulscale16(ox, xvect, -oy, yvect);
-				y1 = dmulscale16(oy, xvect2, ox, yvect2);
+				x1 = DMulScale(ox, xvect, -oy, yvect, 16);
+				y1 = DMulScale(oy, xvect2, ox, yvect2, 16);
 
 				ox = bcos(spr->ang, -7);
 				oy = bsin(spr->ang, -7);
-				x2 = dmulscale16(ox, xvect, -oy, yvect);
-				y2 = dmulscale16(oy, xvect, ox, yvect);
+				x2 = DMulScale(ox, xvect, -oy, yvect, 16);
+				y2 = DMulScale(oy, xvect, ox, yvect, 16);
 
 				x3 = mulscale16(x2, yxaspect);
 				y3 = mulscale16(y2, yxaspect);
@@ -474,13 +474,13 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
 					ox = x1 - cposx;
 					oy = y1 - cposy;
-					x1 = dmulscale16(ox, xvect, -oy, yvect);
-					y1 = dmulscale16(oy, xvect2, ox, yvect2);
+					x1 = DMulScale(ox, xvect, -oy, yvect, 16);
+					y1 = DMulScale(oy, xvect2, ox, yvect2, 16);
 
 					ox = x2 - cposx;
 					oy = y2 - cposy;
-					x2 = dmulscale16(ox, xvect, -oy, yvect);
-					y2 = dmulscale16(oy, xvect2, ox, yvect2);
+					x2 = DMulScale(ox, xvect, -oy, yvect, 16);
+					y2 = DMulScale(oy, xvect2, ox, yvect2, 16);
 
 					drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
 						x2 + (xdim << 11), y2 + (ydim << 11), col);
@@ -505,8 +505,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
 				dax = ((xspan >> 1) + xoff) * xrepeat;
 				day = ((yspan >> 1) + yoff) * yrepeat;
-				x1 = sprx + dmulscale16(sinang, dax, cosang, day);
-				y1 = spry + dmulscale16(sinang, day, -cosang, dax);
+				x1 = sprx + DMulScale(sinang, dax, cosang, day, 16);
+				y1 = spry + DMulScale(sinang, day, -cosang, dax, 16);
 				l = xspan * xrepeat;
 				x2 = x1 - mulscale16(sinang, l);
 				y2 = y1 + mulscale16(cosang, l);
@@ -520,23 +520,23 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
 				ox = x1 - cposx;
 				oy = y1 - cposy;
-				x1 = dmulscale16(ox, xvect, -oy, yvect);
-				y1 = dmulscale16(oy, xvect2, ox, yvect2);
+				x1 = DMulScale(ox, xvect, -oy, yvect, 16);
+				y1 = DMulScale(oy, xvect2, ox, yvect2, 16);
 
 				ox = x2 - cposx;
 				oy = y2 - cposy;
-				x2 = dmulscale16(ox, xvect, -oy, yvect);
-				y2 = dmulscale16(oy, xvect2, ox, yvect2);
+				x2 = DMulScale(ox, xvect, -oy, yvect, 16);
+				y2 = DMulScale(oy, xvect2, ox, yvect2, 16);
 
 				ox = x3 - cposx;
 				oy = y3 - cposy;
-				x3 = dmulscale16(ox, xvect, -oy, yvect);
-				y3 = dmulscale16(oy, xvect2, ox, yvect2);
+				x3 = DMulScale(ox, xvect, -oy, yvect, 16);
+				y3 = DMulScale(oy, xvect2, ox, yvect2, 16);
 
 				ox = x4 - cposx;
 				oy = y4 - cposy;
-				x4 = dmulscale16(ox, xvect, -oy, yvect);
-				y4 = dmulscale16(oy, xvect2, ox, yvect2);
+				x4 = DMulScale(ox, xvect, -oy, yvect, 16);
+				y4 = DMulScale(oy, xvect2, ox, yvect2, 16);
 
 				drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
 					x2 + (xdim << 11), y2 + (ydim << 11), col);

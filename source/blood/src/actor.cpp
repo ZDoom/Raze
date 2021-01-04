@@ -2606,7 +2606,7 @@ int actWallBounceVector(int *x, int *y, int nWall, int a4)
 {
     int wx, wy;
     GetWallNormal(nWall, &wx, &wy);
-    int t = dmulscale16(*x, wx, *y, wy);
+    int t = DMulScale(*x, wx, *y, wy, 16);
     int t2 = mulscale16r(t, a4+0x10000);
     *x -= mulscale16(wx, t2);
     *y -= mulscale16(wy, t2);

@@ -186,7 +186,7 @@ int32_t getceilzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
     i = (ksqrtasm_old(dx*dx+dy*dy)); if (i == 0) return(sector[sectnum].ceilingz);
     i = divscale15(sector[sectnum].ceilingheinum,i);
     dx *= i; dy *= i;
-    return(sector[sectnum].ceilingz+dmulscale23(dx,day-wall[j].y,-dy,dax-wall[j].x));
+    return sector[sectnum].ceilingz+DMulScale(dx,day-wall[j].y,-dy,dax-wall[j].x, 23);
 }
 
 int32_t getflorzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
@@ -200,7 +200,7 @@ int32_t getflorzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
     i = (ksqrtasm_old(dx*dx+dy*dy)); if (i == 0) return sector[sectnum].floorz;
     i = divscale15(sector[sectnum].floorheinum,i);
     dx *= i; dy *= i;
-    return(sector[sectnum].floorz+dmulscale23(dx,day-wall[j].y,-dy,dax-wall[j].x));
+    return sector[sectnum].floorz+DMulScale(dx,day-wall[j].y,-dy,dax-wall[j].x, 23);
 }
 
 // Returns: should clip?
@@ -762,7 +762,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
                 tempint = clipr.x*(move.x>>6)+clipr.y*(move.y>>6);
             else
-                tempint = dmulscale6(clipr.x, move.x, clipr.y, move.y);
+                tempint = DMulScale(clipr.x, move.x, clipr.y, move.y, 6);
 
             for (native_t i=cnt+1, j; i<=clipmoveboxtracenum; ++i)
             {
@@ -772,7 +772,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
                     tempint2 = (clipit[j].x2-clipit[j].x1)*(move.x>>6)+(clipit[j].y2-clipit[j].y1)*(move.y>>6);
                 else
-                    tempint2 = dmulscale6(clipit[j].x2-clipit[j].x1, move.x, clipit[j].y2-clipit[j].y1, move.y);
+                    tempint2 = DMulScale(clipit[j].x2-clipit[j].x1, move.x, clipit[j].y2-clipit[j].y1, move.y, 6);
 
                 if ((tempint ^ tempint2) < 0)
                 {
@@ -1244,10 +1244,10 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
         i = divscale15(heinum,i);
         dax *= i; day *= i;
 
-        j = (vz<<8)-dmulscale15(dax,vy,-day,vx);
+        j = (vz<<8)-DMulScale(dax,vy,-day,vx, 15);
         if (j != 0)
         {
-            i = ((z - sv->z)<<8)+dmulscale15(dax,sv->y-wal->y,-day,sv->x-wal->x);
+            i = ((z - sv->z)<<8)+DMulScale(dax,sv->y-wal->y,-day,sv->x-wal->x, 15);
             if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
             {
                 i = divscale30(i,j);

@@ -1005,14 +1005,14 @@ void aiGenDudeMoveForward(DBloodActor* actor)
         int nSin = Sin(pSprite->ang);
         int vx = xvel[pSprite->index];
         int vy = yvel[pSprite->index];
-        int t1 = dmulscale30(vx, nCos, vy, nSin);
-        int t2 = dmulscale30(vx, nSin, -vy, nCos);
+        int t1 = DMulScale(vx, nCos, vy, nSin, 30);
+        int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
         if (pXSprite->target == -1)
             t1 += nAccel;
         else
             t1 += nAccel >> 1;
-        xvel[pSprite->index] = dmulscale30(t1, nCos, t2, nSin);
-        yvel[pSprite->index] = dmulscale30(t1, nSin, -t2, nCos);
+        xvel[pSprite->index] = DMulScale(t1, nCos, t2, nSin, 30);
+        yvel[pSprite->index] = DMulScale(t1, nSin, -t2, nCos, 30);
     } else {
     int dang = ((kAng180 + pXSprite->goalAng - pSprite->ang) & 2047) - kAng180;
     pSprite->ang = ((pSprite->ang + ClipRange(dang, -maxTurn, maxTurn)) & 2047);
@@ -1039,7 +1039,7 @@ void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, in
     // TO-DO: Take in account if sprite is flip-x, so enemy select correct angle
 
     int vc = ((a3 + 1024 - pSprite->ang) & 2047) - 1024;
-    int t1 = dmulscale30(xvel, Cos(pSprite->ang), yvel, Sin(pSprite->ang));
+    int t1 = DMulScale(xvel, Cos(pSprite->ang), yvel, Sin(pSprite->ang), 30);
     int vsi = ((t1 * 15) >> 12) / 2; int v8 = (vc >= 0) ? 341 : -341;
     
     if (CanMove(pSprite, pXSprite->target, pSprite->ang + vc, vsi))

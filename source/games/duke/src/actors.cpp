@@ -1329,7 +1329,7 @@ void bounce(DDukeActor* actor)
 	}
 
 	s->zvel = zvect;
-	s->xvel = ksqrt(dmulscale8(xvect, xvect, yvect, yvect));
+	s->xvel = ksqrt(DMulScale(xvect, xvect, yvect, yvect, 8));
 	s->ang = getangle(xvect, yvect);
 }
 

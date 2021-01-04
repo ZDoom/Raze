@@ -435,14 +435,14 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 			{
 				int ox = wal->x - cposx;
 				int oy = wal->y - cposy;
-				int x1 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-				int y1 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+				int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (xdim << 11);
+				int y1 = DMulScale(oy, xvect2, ox, yvect2, 16) + (ydim << 11);
 
 				auto wal2 = &wall[wal->point2];
 				ox = wal2->x - cposx;
 				oy = wal2->y - cposy;
-				int x2 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-				int y2 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+				int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (xdim << 11);
+				int y2 = DMulScale(oy, xvect2, ox, yvect2, 16) + (ydim << 11);
 
 				drawlinergb(x1, y1, x2, y2, RedLineColor());
 			}
@@ -483,15 +483,15 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 
 			int ox = wal->x - cposx;
 			int oy = wal->y - cposy;
-			int x1 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-			int y1 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (xdim << 11);
+			int y1 = DMulScale(oy, xvect2, ox, yvect2, 16) + (ydim << 11);
 
 			int k = wal->point2;
 			auto wal2 = &wall[k];
 			ox = wal2->x - cposx;
 			oy = wal2->y - cposy;
-			int x2 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-			int y2 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+			int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (xdim << 11);
+			int y2 = DMulScale(oy, xvect2, ox, yvect2, 16) + (ydim << 11);
 
 			drawlinergb(x1, y1, x2, y2, WhiteLineColor());
 		}
@@ -519,20 +519,20 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 	for (int i = 0; i < 12; i += 4)
 	{
 
-		int px1 = dmulscale16(arrow[i], pxvect, -arrow[i+1], pyvect);
-		int py1 = dmulscale16(arrow[i+1], pxvect, arrow[i], pyvect) + (ydim << 11);
-		int px2 = dmulscale16(arrow[i+2], pxvect, -arrow[i + 3], pyvect);
-		int py2 = dmulscale16(arrow[i + 3], pxvect, arrow[i+2], pyvect) + (ydim << 11);
+		int px1 = DMulScale(arrow[i], pxvect, -arrow[i+1], pyvect, 16);
+		int py1 = DMulScale(arrow[i+1], pxvect, arrow[i], pyvect, 16) + (ydim << 11);
+		int px2 = DMulScale(arrow[i+2], pxvect, -arrow[i + 3], pyvect, 16);
+		int py2 = DMulScale(arrow[i + 3], pxvect, arrow[i+2], pyvect, 16) + (ydim << 11);
 
 		int ox1 = px1 - cposx;
 		int oy1 = py1 - cposx;
 		int ox2 = px2 - cposx;
 		int oy2 = py2 - cposx;
 
-		int sx1 = dmulscale16(ox1, xvect, -oy1, yvect) + (xdim << 11);
-		int sy1 = dmulscale16(oy1, xvect2, ox1, yvect2) + (ydim << 11);
-		int sx2 = dmulscale16(ox2, xvect, -oy2, yvect) + (xdim << 11);
-		int sy2 = dmulscale16(oy2, xvect2, ox2, yvect2) + (ydim << 11);
+		int sx1 = DMulScale(ox1, xvect, -oy1, yvect, 16) + (xdim << 11);
+		int sy1 = DMulScale(oy1, xvect2, ox1, yvect2, 16) + (ydim << 11);
+		int sx2 = DMulScale(ox2, xvect, -oy2, yvect, 16) + (xdim << 11);
+		int sy2 = DMulScale(oy2, xvect2, ox2, yvect2, 16) + (ydim << 11);
 
 		drawlinergb(sx1, sy1, sx2, sy2, WhiteLineColor());
 	}
