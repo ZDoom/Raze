@@ -414,6 +414,10 @@ void moveplayers(void)
 		int pn = act->PlayerIndex();
 		auto p = &ps[pn];
 		auto spri = &act->s;
+
+		// Back up player's sprite angle, used in DrawAutomapPlayer() when input is synchronised.
+		act->tempang = spri->ang;
+
 		if (act->GetOwner())
 		{
 			if (p->newOwner != nullptr) //Looking thru the camera
