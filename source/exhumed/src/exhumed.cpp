@@ -175,8 +175,6 @@ int nTimeLimit;
 
 int bVanilla = 0;
 
-Loc oldLocs[MAXSPRITES];
-
 void DebugOut(const char *fmt, ...)
 {
 #ifdef _DEBUG
@@ -263,24 +261,14 @@ double calc_smoothratio()
     return I_GetTimeFrac() * MaxSmoothRatio;
 }
 
-static void recordoldspritepos()
-{
-    for (int i = 0; i < MAXSPRITES; i++)
-    {
-        auto* spr = &sprite[i];
-        Loc* oldLoc = &oldLocs[i];
-        oldLoc->x = spr->x;
-        oldLoc->y = spr->y;
-        oldLoc->z = spr->z;
-        oldLoc->ang = spr->ang;
-    }
-}
-
 void GameMove(void)
 {
     FixPalette();
 
-    recordoldspritepos();
+    for (int i = 0; i < MAXSPRITES; i++)
+    {
+        sprite[i].backuploc();
+    }
 
     if (currentLevel->levelNumber == kMap20)
     {

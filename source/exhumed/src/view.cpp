@@ -72,11 +72,8 @@ static void analyzesprites(double const smoothratio)
         if (pTSprite->owner != -1)
         {
             // interpolate sprite position
-            Loc* oldLoc = &oldLocs[pTSprite->owner];
-            pTSprite->x = oldLoc->x + MulScale(pTSprite->x - oldLoc->x, smoothratio, 16);
-            pTSprite->y = oldLoc->y + MulScale(pTSprite->y - oldLoc->y, smoothratio, 16);
-            pTSprite->z = oldLoc->z + MulScale(pTSprite->z - oldLoc->z, smoothratio, 16);
-            pTSprite->ang = oldLoc->ang + MulScale(((pTSprite->ang - oldLoc->ang + 1024) & 0x7FF) - 1024, smoothratio, 16);
+            pTSprite->pos = pTSprite->interpolatedvec3(smoothratio);
+            pTSprite->ang = pTSprite->interpolatedang(smoothratio);
         }
     }
 
