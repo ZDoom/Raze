@@ -193,6 +193,13 @@ struct spritetype
         };
         vec3_t pos;
     };
+    union {
+        struct
+        {
+            int32_t ox, oy, oz;
+        };
+        vec3_t opos;
+    };
     uint16_t cstat;
     int16_t picnum;
     int8_t shade;
@@ -200,7 +207,7 @@ struct spritetype
     uint8_t xrepeat, yrepeat;
     int8_t xoffset, yoffset;
     int16_t sectnum, statnum;
-    int16_t ang, owner;
+    int16_t oang, ang, owner;
     union {
         struct
         {
@@ -232,6 +239,79 @@ struct spritetype
     void clear()
     {
         memset(this, 0, sizeof(*this));
+    }
+
+    void backupx()
+    {
+        opos.x = pos.x;
+    }
+
+    void backupy()
+    {
+        opos.y = pos.y;
+    }
+
+    void backupz()
+    {
+        opos.z = pos.z;
+    }
+
+    void backupvec2()
+    {
+        opos.vec2 = pos.vec2;
+    }
+
+    void backuppos()
+    {
+        opos = pos;
+    }
+
+    void backupang()
+    {
+        oang = ang;
+    }
+
+    void backuploc()
+    {
+        backuppos();
+        backupang();
+    }
+
+    int32_t interpolatedx(double const smoothratio, int const scale = 16)
+    {
+        return ox + MulScale(x - ox, smoothratio, scale);
+    }
+
+    int32_t interpolatedy(double const smoothratio, int const scale = 16)
+    {
+        return oy + MulScale(y - oy, smoothratio, scale);
+    }
+
+    int32_t interpolatedz(double const smoothratio, int const scale = 16)
+    {
+        return oz + MulScale(z - oz, smoothratio, scale);
+    }
+
+    vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
+    {
+        return vec2_t({
+            interpolatedx(smoothratio, scale),
+            interpolatedy(smoothratio, scale)
+        });
+    }
+
+    vec3_t interpolatedvec3(double const smoothratio, int const scale = 16)
+    {
+        return vec3_t({
+            interpolatedx(smoothratio, scale),
+            interpolatedy(smoothratio, scale),
+            interpolatedz(smoothratio, scale)
+        });
+    }
+
+    int16_t interpolatedang(double const smoothratio)
+    {
+        return oang + MulScale(((ang + 1024 - oang) & 2047) - 1024, smoothratio, 16);
     }
 };
 
