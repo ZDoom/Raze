@@ -131,7 +131,6 @@ extern int deliriumTilt, deliriumTurn, deliriumPitch;
 extern int gScreenTiltO, deliriumTurnO, deliriumPitchO;
 extern int gShowFrameRate;
 extern FixedBitArray<kMaxSprites> gInterpolateSprite;
-extern LOCATION gPrevSpriteLoc[kMaxSprites];
 extern int gLastPal;
 extern double gInterpolate;
 
@@ -174,11 +173,7 @@ inline void viewBackupSpriteLoc(int nSprite, spritetype *pSprite)
 {
     if (!gInterpolateSprite[nSprite])
     {
-        LOCATION *pPrevLoc = &gPrevSpriteLoc[nSprite];
-        pPrevLoc->x = pSprite->x;
-        pPrevLoc->y = pSprite->y;
-        pPrevLoc->z = pSprite->z;
-        pPrevLoc->ang = pSprite->ang;
+        pSprite->backuploc();
         gInterpolateSprite.Set(nSprite);
     }
 }

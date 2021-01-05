@@ -240,11 +240,10 @@ void sub_557C4(int x, int y, int interpolation)
                         pTSprite->owner = pSprite->index;
                         pTSprite->extra = pSprite->extra;
                         pTSprite->flags = pSprite->hitag|0x200;
-                        LOCATION *pLocation = &gPrevSpriteLoc[pSprite->index];
-                        pTSprite->x = dx+interpolate(pLocation->x, pSprite->x, interpolation);
-                        pTSprite->y = dy+interpolate(pLocation->y, pSprite->y, interpolation);
-                        pTSprite->z = dz+interpolate(pLocation->z, pSprite->z, interpolation);
-                        pTSprite->ang = pLocation->ang+MulScale(((pSprite->ang-pLocation->ang+1024)&2047)-1024,interpolation, 16);
+                        pTSprite->x = dx+interpolate(pSprite->ox, pSprite->x, interpolation);
+                        pTSprite->y = dy+interpolate(pSprite->oy, pSprite->y, interpolation);
+                        pTSprite->z = dz+interpolate(pSprite->oz, pSprite->z, interpolation);
+                        pTSprite->ang = pSprite->interpolatedang(interpolation);
                         spritesortcnt++;
                     }
                 }

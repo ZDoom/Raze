@@ -419,8 +419,6 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     return NULL;
 }
 
-LOCATION gPrevSpriteLoc[kMaxSprites];
-
 static void viewApplyDefaultPal(tspritetype *pTSprite, sectortype const *pSector)
 {
     int const nXSector = pSector->extra;
@@ -462,12 +460,8 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         int nSprite = pTSprite->owner;
         if (cl_interpolate && gInterpolateSprite[nSprite] && !(pTSprite->flags&512))
         {
-            LOCATION *pPrevLoc = &gPrevSpriteLoc[nSprite];
-            int iInterpolate = (int)gInterpolate;
-            pTSprite->x = interpolate(pPrevLoc->x, pTSprite->x, iInterpolate);
-            pTSprite->y = interpolate(pPrevLoc->y, pTSprite->y, iInterpolate);
-            pTSprite->z = interpolate(pPrevLoc->z, pTSprite->z, iInterpolate);
-            pTSprite->ang = pPrevLoc->ang+MulScale(((pTSprite->ang-pPrevLoc->ang+1024)&2047)-1024, iInterpolate, 16);
+            pTSprite->pos = pTSprite->interpolatedvec3(gInterpolate);
+            pTSprite->ang = pTSprite->interpolatedang(gInterpolate);
         }
         int nAnim = 0;
         switch (picanm[nTile].extra & 7) {
