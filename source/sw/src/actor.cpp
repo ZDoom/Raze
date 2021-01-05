@@ -555,7 +555,8 @@ KeepActorOnFloor(short SpriteNum)
                 // was swimming but have now stopped
                 RESET(u->Flags, SPR_SWIMMING);
                 RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
-                u->oz = sp->z = u->loz;
+                sp->z = u->loz;
+                sp->backupz();
                 return;
             }
 
@@ -565,7 +566,8 @@ KeepActorOnFloor(short SpriteNum)
             }
 
             // are swimming
-            u->oz = sp->z = u->loz - Z(depth);
+            sp->z = u->loz - Z(depth);
+            sp->backupz();
         }
         else
         {
@@ -573,7 +575,8 @@ KeepActorOnFloor(short SpriteNum)
             if (u->Rot == u->ActorActionSet->Run || u->Rot == u->ActorActionSet->Swim)
             {
                 NewStateGroup(SpriteNum, u->ActorActionSet->Swim);
-                u->oz = sp->z = u->loz - Z(depth);
+                sp->z = u->loz - Z(depth);
+                sp->backupz();
                 SET(u->Flags, SPR_SWIMMING);
                 SET(sp->cstat, CSTAT_SPRITE_YCENTER);
             }
@@ -581,7 +584,8 @@ KeepActorOnFloor(short SpriteNum)
             {
                 RESET(u->Flags, SPR_SWIMMING);
                 RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
-                u->oz = sp->z = u->loz;
+                sp->z = u->loz;
+                sp->backupz();
             }
         }
 
@@ -595,7 +599,8 @@ KeepActorOnFloor(short SpriteNum)
 #if 1
     if (TEST(u->Flags, SPR_MOVED))
     {
-        u->oz = sp->z = u->loz;
+        sp->z = u->loz;
+        sp->backupz();
     }
     else
     {
@@ -603,7 +608,8 @@ KeepActorOnFloor(short SpriteNum)
         FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sectnum,
                           &ceilz, &ceilhit, &florz, &florhit);
 
-        u->oz = sp->z = florz;
+        sp->z = florz;
+        sp->backupz();
     }
 #endif
 

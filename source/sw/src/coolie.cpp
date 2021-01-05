@@ -498,7 +498,7 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
     {
         sp->z += Z(depth);
         u->loz = sp->z;
-        u->oz = sp->z;
+        sp->backupz();
     }
 
     if (!action)

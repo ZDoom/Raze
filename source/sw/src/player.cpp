@@ -1444,9 +1444,7 @@ DoPlayerWarpTeleporter(PLAYERp pp)
         break;
     }
 
-    u->ox = sp->x;
-    u->oy = sp->y;
-    u->oz = sp->z;
+    sp->backuppos();
 }
 
 void
@@ -1505,10 +1503,12 @@ DoPlayerCrawlHeight(PLAYERp pp)
 void
 UpdatePlayerSpriteAngle(PLAYERp pp)
 {
+    sprite[pp->PlayerSprite].backupang();
     sprite[pp->PlayerSprite].ang = pp->angle.ang.asbuild();
 
     if (!Prediction && pp->PlayerUnderSprite >= 0)
     {
+        sprite[pp->PlayerUnderSprite].backupang();
         sprite[pp->PlayerUnderSprite].ang = pp->angle.ang.asbuild();
     }
 }
@@ -6864,9 +6864,7 @@ MoveSkipSavePos(void)
                 if (sp == NULL || u == NULL)
                     continue;
 
-                u->ox = sp->x;
-                u->oy = sp->y;
-                u->oz = sp->z;
+                sp->backuppos();
             }
         }
     }
@@ -6888,9 +6886,7 @@ MoveSkipSavePos(void)
 
                 if (sp == NULL || u == NULL)
                     continue;
-                u->ox = sp->x;
-                u->oy = sp->y;
-                u->oz = sp->z;
+                sp->backuppos();
             }
         }
     }

@@ -9144,9 +9144,7 @@ DoGrenade(int16_t Weapon)
         np->shade = -40;
         np->xrepeat = 40;
         np->yrepeat = 40;
-        nu->ox = u->ox;
-        nu->oy = u->oy;
-        nu->oz = u->oz;
+        np->opos = sp->opos;
         SET(np->cstat, CSTAT_SPRITE_YCENTER);
         RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -10113,9 +10111,7 @@ DoRail(int16_t Weapon)
             np->shade = -40;
             np->xrepeat = 10;
             np->yrepeat = 10;
-            nu->ox = u->ox;
-            nu->oy = u->oy;
-            nu->oz = u->oz;
+            np->opos = sp->opos;
             SET(np->cstat, CSTAT_SPRITE_YCENTER);
             RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -10215,7 +10211,7 @@ DoRocket(int16_t Weapon)
         short New;
 
         New = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
-                          u->ox, u->oy, u->oz, sp->ang, 100);
+                          sp->ox, sp->oy, sp->oz, sp->ang, 100);
 
         np = &sprite[New];
         nu = User[New];
@@ -10224,9 +10220,7 @@ DoRocket(int16_t Weapon)
         np->shade = -40;
         np->xrepeat = 40;
         np->yrepeat = 40;
-        nu->ox = u->ox;
-        nu->oy = u->oy;
-        nu->oz = u->oz;
+        np->opos = sp->opos;
         SET(np->cstat, CSTAT_SPRITE_YCENTER);
         RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -10344,9 +10338,7 @@ DoMicro(int16_t Weapon)
         np->shade = -40;
         np->xrepeat = 20;
         np->yrepeat = 20;
-        nu->ox = u->ox;
-        nu->oy = u->oy;
-        nu->oz = u->oz;
+        np->opos = sp->opos;
         np->zvel = sp->zvel;
         SET(np->cstat, CSTAT_SPRITE_YCENTER);
         RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -11450,12 +11442,14 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop)
     if (TEST(u->Flags, SPR_ON_SO_SECTOR))
     {
         // move with sector its on
-        exp->z = eu->oz = sector[sp->sectnum].floorz - u->sz;
+        exp->z = sector[sp->sectnum].floorz - u->sz;
+        exp->backupz();
     }
     else
     {
         // move with the mid sector
-        exp->z = eu->oz = sector[sop->mid_sector].floorz - u->sz;
+        exp->z = sector[sop->mid_sector].floorz - u->sz;
+        exp->backupz();
     }
 
     eu->sx = u->sx;
@@ -11509,9 +11503,7 @@ SpawnGrenadeSecondaryExp(int16_t Weapon, short ang)
 
     SpawnExpZadjust(Weapon, exp, Z(50), Z(10));
 
-    eu->ox = exp->x;
-    eu->oy = exp->y;
-    eu->oz = exp->z;
+    exp->backuppos();
 
     return explosion;
 }
@@ -11648,7 +11640,7 @@ void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize
         }
     }
 
-    eu->oz = exp->z;
+    exp->backupz();
 }
 int
 SpawnMineExp(int16_t Weapon)
@@ -12215,7 +12207,7 @@ DoNapalm(int16_t Weapon)
         DoFindGroundPoint(explosion);
         MissileWaterAdjust(explosion);
         exp->z = eu->loz;
-        eu->oz = exp->z;
+        exp->backupz();
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(eu->Flags, SPR_UNDERWATER);
@@ -12706,9 +12698,7 @@ MissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist)
     wp->zvel = oldzvel;
 
     // update for interpolation
-    wu->ox = wp->x;
-    wu->oy = wp->y;
-    wu->oz = wp->z;
+    wp->backuppos();
 
     return retval;
 }
@@ -12752,9 +12742,7 @@ TestMissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist, int zvel)
     wp->zvel = oldzvel;
 
     // update for interpolation
-    wu->ox = wp->x;
-    wu->oy = wp->y;
-    wu->oz = wp->z;
+    wp->backuppos();
 
     return retval;
 }
@@ -12916,9 +12904,7 @@ InitSpellRing(PLAYERp pp)
 
         sp->ang = NORM_ANGLE(sp->ang + 512);
 
-        u->ox = sp->x;
-        u->oy = sp->y;
-        u->oz = sp->z;
+        sp->backuppos();
 
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(sp))
             SET(u->Flags, SPR_UNDERWATER);
@@ -13231,9 +13217,7 @@ InitSerpRing(short SpriteNum)
 
         np->ang = NORM_ANGLE(np->ang + 512);
 
-        nu->ox = np->x;
-        nu->oy = np->y;
-        nu->oz = np->z;
+        np->backuppos();
 
         if (SpriteInUnderwaterArea(sp))
             SET(nu->Flags, SPR_UNDERWATER);
@@ -14651,9 +14635,7 @@ InitStar(PLAYERp pp)
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    wu->ox = wp->x;
-    wu->oy = wp->y;
-    wu->oz = wp->z;
+    wp->backuppos();
 
     for (i = 0; i < (int)SIZ(dang); i++)
     {
@@ -14692,9 +14674,7 @@ InitStar(PLAYERp pp)
         nu->ychange = MOVEy(np->xvel, np->ang);
         nu->zchange = zvel;
 
-        nu->ox = np->x;
-        nu->oy = np->y;
-        nu->oz = np->z;
+        np->backuppos();
     }
 
     return 0;
@@ -19575,9 +19555,7 @@ HelpMissileLateral(int16_t Weapon, int dist)
     sp->xvel = old_xvel;
     sp->clipdist = old_clipdist;
 
-    u->ox = sp->x;
-    u->oy = sp->y;
-    u->oz = sp->z;
+    sp->backuppos();
     return 0;
 }
 
@@ -19980,9 +19958,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
     //sp->z = sector[under_sp->sectnum].ceilingz + Z(6);
     sp->z = sector[under_sp->sectnum].ceilingz + u->ceiling_dist+Z(1);
 
-    u->ox = sp->x;
-    u->oy = sp->y;
-    u->oz = sp->z;
+    sp->backuppos();
 
     return true;
 }
@@ -20065,9 +20041,7 @@ SpriteWarpToSurface(SPRITEp sp)
     MissileWaterAdjust(sp - sprite);
 
 
-    u->ox = sp->x;
-    u->oy = sp->y;
-    u->oz = sp->z;
+    sp->backuppos();
 
     return true;
 }

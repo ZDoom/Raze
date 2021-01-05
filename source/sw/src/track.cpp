@@ -911,9 +911,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
                 u->RotNum = 0;
 
-                u->ox = sp->x;
-                u->oy = sp->y;
-                u->oz = sp->z;
+                sp->backuppos();
 
                 switch (sp->statnum)
                 {

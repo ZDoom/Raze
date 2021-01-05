@@ -315,9 +315,7 @@ SpawnMidSplash(short SpriteNum)
     np->shade = -12;
     np->xrepeat = 70-RANDOM_RANGE(20);
     np->yrepeat = 70-RANDOM_RANGE(20);
-    nu->ox = u->ox;
-    nu->oy = u->oy;
-    nu->oz = u->oz;
+    np->opos = sp->opos;
     SET(np->cstat, CSTAT_SPRITE_YCENTER);
     RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -351,9 +349,7 @@ SpawnFloorSplash(short SpriteNum)
     np->shade = -12;
     np->xrepeat = 70-RANDOM_RANGE(20);
     np->yrepeat = 70-RANDOM_RANGE(20);
-    nu->ox = u->ox;
-    nu->oy = u->oy;
-    nu->oz = u->oz;
+    np->opos = sp->opos;
     SET(np->cstat, CSTAT_SPRITE_YCENTER);
     RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -573,9 +569,7 @@ DoBloodSpray(int16_t Weapon)
         np->shade = -12;
         np->xrepeat = 40-RANDOM_RANGE(30);
         np->yrepeat = 40-RANDOM_RANGE(30);
-        nu->ox = u->ox;
-        nu->oy = u->oy;
-        nu->oz = u->oz;
+        np->opos = sp->opos;
         SET(np->cstat, CSTAT_SPRITE_YCENTER);
         RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -798,9 +792,7 @@ DoPhosphorus(int16_t Weapon)
         np->shade = -40;
         np->xrepeat = 12 + RANDOM_RANGE(10);
         np->yrepeat = 12 + RANDOM_RANGE(10);
-        nu->ox = u->ox;
-        nu->oy = u->oy;
-        nu->oz = u->oz;
+        np->opos = sp->opos;
         SET(np->cstat, CSTAT_SPRITE_YCENTER);
         RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -1049,9 +1041,7 @@ DoChemBomb(int16_t Weapon)
         np->shade = -40;
         np->xrepeat = 40;
         np->yrepeat = 40;
-        nu->ox = u->ox;
-        nu->oy = u->oy;
-        nu->oz = u->oz;
+        np->opos = sp->opos;
         // !Frank - dont do translucent
         SET(np->cstat, CSTAT_SPRITE_YCENTER);
         // SET(np->cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_TRANSLUCENT);

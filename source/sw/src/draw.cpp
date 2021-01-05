@@ -617,9 +617,7 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
-                        tsp->x = tu->ox + MulScale(tsp->x - tu->ox, smr4, 18);
-                        tsp->y = tu->oy + MulScale(tsp->y - tu->oy, smr4, 18);
-                        tsp->z = tu->oz + MulScale(tsp->z - tu->oz, smr4, 18);
+                        tsp->pos = tsp->interpolatedvec3(smr4, 18);
                     }
                 }
 
@@ -627,9 +625,7 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
-                        tsp->x = tu->ox + MulScale(tsp->x - tu->ox, smr2, 17);
-                        tsp->y = tu->oy + MulScale(tsp->y - tu->oy, smr2, 17);
-                        tsp->z = tu->oz + MulScale(tsp->z - tu->oz, smr2, 17);
+                        tsp->pos = tsp->interpolatedvec3(smr2, 17);
                     }
                 }
             }
@@ -1517,9 +1513,7 @@ void PreDrawStackedWater(void)
                     nu->Rot = u->Rot;
                     nu->StateStart = u->StateStart;
                     nu->StateEnd = u->StateEnd;
-                    nu->ox = u->ox;
-                    nu->oy = u->oy;
-                    nu->oz = u->oz;
+                    nu->SpriteP->pos = sp->opos;
                     nu->Flags = u->Flags;
                     nu->Flags2 = u->Flags2;
                     nu->RotNum = u->RotNum;
@@ -1926,9 +1920,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                 k = spr->statnum;
                 if ((k >= 1) && (k <= 8) && (k != 2))   // Interpolate moving
                 {
-                    USERp sprusr = User[j];
-                    sprx = sprusr->ox + MulScale(spr->x - sprusr->ox, smoothratio, 16);
-                    spry = sprusr->oy + MulScale(spr->y - sprusr->oy, smoothratio, 16);
+                    sprx = spr->interpolatedx(smoothratio);
+                    spry = spr->interpolatedy(smoothratio);
                 }
 
                 switch (spr->cstat & 48)
@@ -1941,7 +1934,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
                         if (((gotsector[i >> 3] & (1 << (i & 7))) > 0) && (czoom > 192))
                         {
-                            daang = (spr->ang - cang) & 2047;
+                            daang = ((!SyncInput() ? spr->ang : spr->interpolatedang(smoothratio)) - cang) & 2047;
 
                             // Special case tiles
                             if (spr->picnum == 3123) break;

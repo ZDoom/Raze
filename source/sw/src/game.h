@@ -1141,8 +1141,6 @@ typedef struct
     SECTOR_OBJECTp sop_parent;  // denotes that this sprite is a part of the
     // sector object - contains info for the SO
 
-    int ox, oy, oz;
-
     int Flags;
     int Flags2;
     int Tics;
