@@ -39,18 +39,6 @@ struct PlayerHorizon
 		}
 	}
 
-	void addadjustment(fixed_t value)
-	{
-		if (!SyncInput())
-		{
-			adjustment += value;
-		}
-		else
-		{
-			horiz += q16horiz(value);
-		}
-	}
-
 	void resetadjustment()
 	{
 		adjustment = 0;
