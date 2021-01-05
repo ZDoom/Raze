@@ -1846,7 +1846,7 @@ void movetransports_r(void)
 									spr2->z -= spr->z - sector[Owner->s.sectnum].floorz;
 									spr2->ang = Owner->s.ang;
 
-									spr2->backuppos();
+									spr2->backupang();
 
 									auto beam = spawn(act, TRANSPORTERBEAM);
 									S_PlayActorSound(TELEPORTER, beam);
@@ -1869,7 +1869,7 @@ void movetransports_r(void)
 								spr2->y += (Owner->s.y - spr->y);
 								spr2->z = Owner->s.z + 4096;
 
-								spr2->backuppos();
+								spr2->backupz();
 
 								changespritesect(act2, Owner->s.sectnum);
 							}
@@ -1879,7 +1879,7 @@ void movetransports_r(void)
 							spr2->y += (Owner->s.y - spr->y);
 							spr2->z = sector[Owner->s.sectnum].ceilingz + ll;
 
-							spr2->backuppos();
+							spr2->backupz();
 
 							changespritesect(act2, Owner->s.sectnum);
 
@@ -1889,7 +1889,7 @@ void movetransports_r(void)
 							spr2->y += (Owner->s.y - spr->y);
 							spr2->z = sector[Owner->s.sectnum].floorz - ll;
 
-							spr2->backuppos();
+							spr2->backupz();
 
 							changespritesect(act2, Owner->s.sectnum);
 
@@ -1901,7 +1901,7 @@ void movetransports_r(void)
 							spr2->y += (Owner->s.y - spr->y);
 							spr2->z = sector[Owner->s.sectnum].ceilingz + ll2;
 
-							spr2->backuppos();
+							spr2->backupz();
 
 							changespritesect(act2, Owner->s.sectnum);
 
@@ -1915,7 +1915,7 @@ void movetransports_r(void)
 							spr2->y += (Owner->s.y - spr->y);
 							spr2->z = sector[Owner->s.sectnum].floorz - ll2;
 
-							spr2->backuppos();
+							spr2->backupz();
 
 							changespritesect(act2, Owner->s.sectnum);
 

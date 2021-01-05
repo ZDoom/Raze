@@ -501,8 +501,6 @@ void moveplayers(void)
 				continue;
 			}
 
-			spri->backuppos();
-
 			spri->cstat = 0;
 
 			if (spri->xrepeat < 42)
@@ -3068,16 +3066,6 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				s->ang += 1024;
 				t[4] = 0;
 				fi.operateforcefields(actor, s->hitag);
-
-				DukeSectIterator it(s->sectnum);
-				while (auto a2 = it.Next())
-				{
-					if (a2->s.picnum != SECTOREFFECTOR && a2->s.picnum != LOCATORS)
-					{
-						a2->s.backupvec2();
-					}
-				}
-
 			}
 		}
 	}
@@ -3138,11 +3126,6 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			auto spa2 = &a2->s;
 			if (spa2->picnum != SECTOREFFECTOR && spa2->picnum != LOCATORS)
 			{
-				if (numplayers < 2)
-				{
-					spa2->backupvec2();
-				}
-
 				spa2->x += l;
 				spa2->y += x;
 
@@ -4053,7 +4036,7 @@ void handle_se17(DDukeActor* actor)
 				spr3->y += spr2->y - s->y;
 				spr3->z = sector[spr2->sectnum].floorz - (sc->floorz - spr3->z);
 
-				spr3->backuppos();
+				spr3->backupz();
 
 				changespritesect(act3, spr2->sectnum);
 				setsprite(act3, spr3->pos);
@@ -4106,7 +4089,6 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 						if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && a2->s.statnum != STAT_PROJECTILE)
 						{
 							a2->s.z += sc->extra;
-							a2->s.backupz();
 							a2->floorz = sc->floorz;
 						}
 					}
@@ -4144,7 +4126,6 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 						if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && a2->s.statnum != STAT_PROJECTILE)
 						{
 							a2->s.z -= sc->extra;
-							a2->s.backupz();
 							a2->floorz = sc->floorz;
 						}
 					}
@@ -4430,11 +4411,8 @@ void handle_se26(DDukeActor* actor)
 	{
 		if (a2->s.statnum != 3 && a2->s.statnum != 10)
 		{
-			a2->s.backupvec2();
-
 			a2->s.x += l;
 			a2->s.y += x;
-
 			a2->s.z += s->zvel;
 			setsprite(a2, a2->s.pos);
 		}
@@ -4566,8 +4544,6 @@ void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, int TRIPBOMB
 				{
 					if (s2->z > (a2->floorz - (16 << 8)))
 					{
-						s2->backupvec2();
-
 						s2->x += x >> shift;
 						s2->y += l >> shift;
 
