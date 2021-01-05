@@ -1167,6 +1167,32 @@ void FuncPlayer(int a, int nDamage, int nRun)
             }
 
 sectdone:
+            static bool plrFalling = false;
+            if (!PlayerList[nPlayer].horizon.horiz.asbuild() || plrFalling)
+            {
+                // Calculate base pan amount based on how much the player is falling.
+                fixed_t dVertPan = (spr_z - sprite[nPlayerSprite].z) << 9;
+                if (dVertPan != 0)
+                {
+                    fixed_t adjustment;
+
+                    if (dVertPan >= IntToFixed(4))
+                        adjustment = IntToFixed(4);
+                    else if (dVertPan <= -IntToFixed(4))
+                        adjustment = -IntToFixed(4);
+                    else
+                        adjustment = dVertPan << 1;
+
+                    PlayerList[nPlayer].horizon.addadjustment(adjustment);
+                    plrFalling = true;
+                }
+                else
+                {
+                    sPlayerInput[nPlayer].actions |= SB_CENTERVIEW;
+                    plrFalling = false;
+                }
+            }
+
             playerX -= sprite[nPlayerSprite].x;
             playerY -= sprite[nPlayerSprite].y;
 
