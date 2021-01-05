@@ -1314,16 +1314,16 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID((int)lVar2, act->lastvy, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSX:
-		if (bSet) act->bposx = lValue;
-		else SetGameVarID((int)lVar2, act->bposx, sActor, sPlayer);
+		if (bSet) spr->ox = lValue;
+		else SetGameVarID((int)lVar2, spr->ox, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSY:
-		if (bSet) act->bposy = lValue;
-		else SetGameVarID((int)lVar2, act->bposy, sActor, sPlayer);
+		if (bSet) spr->oy = lValue;
+		else SetGameVarID((int)lVar2, spr->oy, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSZ:
-		if (bSet) act->bposz = lValue;
-		else SetGameVarID((int)lVar2, act->bposz, sActor, sPlayer);
+		if (bSet) spr->oz = lValue;
+		else SetGameVarID((int)lVar2, spr->oz, sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T0:
 		if (bSet) act->temp_data[0] = lValue;
@@ -2229,9 +2229,10 @@ int ParseState::parse(void)
 		{
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_sp->x = g_ac->bposx = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
-			g_sp->y = g_ac->bposy = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].posy;
-			g_sp->z = g_ac->bposy = ps[g_p].oposz = ps[g_p].posz;
+			g_sp->x = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
+			g_sp->y = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].posy;
+			g_sp->z = ps[g_p].oposz = ps[g_p].posz;
+			g_sp->backuppos();
 			updatesector(ps[g_p].posx, ps[g_p].posy, &ps[g_p].cursectnum);
 			setsprite(ps[g_p].GetActor(), ps[g_p].posx, ps[g_p].posy, ps[g_p].posz + gs.playerheight);
 			g_sp->cstat = 257;

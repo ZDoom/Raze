@@ -624,9 +624,10 @@ void resetpspritevars(int g)
             ps[j].frag_ps = j;
             act->SetOwner(act);
 
-            act->bposx = ps[j].bobposx = ps[j].oposx = ps[j].posx = s->x;
-            act->bposy = ps[j].bobposy = ps[j].oposy = ps[j].posy = s->y;
-            act->bposz = ps[j].oposz = ps[j].posz = s->z;
+            ps[j].bobposx = ps[j].oposx = ps[j].posx = s->x;
+            ps[j].bobposy = ps[j].oposy = ps[j].posy = s->y;
+            ps[j].oposz = ps[j].posz = s->z;
+            s->backuppos();
             ps[j].angle.oang = ps[j].angle.ang = buildang(s->ang);
 
             updatesector(s->x, s->y, &ps[j].cursectnum);

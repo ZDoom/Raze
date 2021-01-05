@@ -170,9 +170,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 		}
 		else if (s->picnum != CRANEPOLE)
 		{
-			t->x -= MulScale(MaxSmoothRatio - smoothratio, s->x - h->bposx, 16);
-			t->y -= MulScale(MaxSmoothRatio - smoothratio, s->y - h->bposy, 16);
-			t->z -= MulScale(MaxSmoothRatio - smoothratio, s->z - h->bposz, 16);
+			t->pos = s->interpolatedvec3(smoothratio);
 		}
 
 		sect = s->sectnum;

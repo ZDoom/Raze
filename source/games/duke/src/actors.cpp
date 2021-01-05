@@ -415,16 +415,14 @@ void moveplayers(void)
 		auto p = &ps[pn];
 		auto spri = &act->s;
 
-		// Back up player's sprite angle, used in DrawAutomapPlayer() when input is synchronised.
-		act->tempang = spri->ang;
-
 		if (act->GetOwner())
 		{
 			if (p->newOwner != nullptr) //Looking thru the camera
 			{
 				spri->x = p->oposx;
 				spri->y = p->oposy;
-				act->bposz = spri->z = p->oposz + gs.playerheight;
+				spri->z = p->oposz + gs.playerheight;
+				spri->backupz();
 				spri->ang = p->angle.oang.asbuild();
 				setsprite(act, spri->pos);
 			}
@@ -503,9 +501,7 @@ void moveplayers(void)
 				continue;
 			}
 
-			act->bposx = spri->x;
-			act->bposy = spri->y;
-			act->bposz = spri->z;
+			spri->backuppos();
 
 			spri->cstat = 0;
 
@@ -811,9 +807,7 @@ void movecrane(DDukeActor *actor, int crane)
 		{
 			setsprite(Owner, spri->pos);
 
-			Owner->bposx = spri->x;
-			Owner->bposy = spri->y;
-			Owner->bposz = spri->z;
+			Owner->s.opos = spri->pos;
 
 			spri->zvel = 0;
 		}
@@ -1081,7 +1075,8 @@ void movewaterdrip(DDukeActor *actor, int drip)
 			}
 			else
 			{
-				actor->bposz = s->z = t[0];
+				s->z = t[0];
+				s->backupz();
 				t[1] = 48 + (krand() & 31);
 			}
 		}
@@ -2015,9 +2010,6 @@ void camera(DDukeActor *actor)
 				return;
 			}
 		}
-
-		// backup current angle for interpolating camera angle.
-		actor->tempang = s->ang;
 		
 		if (s->hitag > 0)
 		{
@@ -2972,8 +2964,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 				if (numplayers > 1)
 				{
-					a2->bposx = sj->x;
-					a2->bposy = sj->y;
+					sj->backupvec2();
 				}
 			}
 		}
@@ -3083,8 +3074,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				{
 					if (a2->s.picnum != SECTOREFFECTOR && a2->s.picnum != LOCATORS)
 					{
-						a2->bposx = a2->s.x;
-						a2->bposy = a2->s.y;
+						a2->s.backupvec2();
 					}
 				}
 
@@ -3150,8 +3140,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			{
 				if (numplayers < 2)
 				{
-					a2->bposx = spa2->x;
-					a2->bposy = spa2->y;
+					spa2->backupvec2();
 				}
 
 				spa2->x += l;
@@ -3159,8 +3148,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 				if (numplayers > 1)
 				{
-					a2->bposx = spa2->x;
-					a2->bposy = spa2->y;
+					spa2->backupvec2();
 				}
 			}
 		}
@@ -3995,7 +3983,7 @@ void handle_se17(DDukeActor* actor)
 		}
 		if (act1->s.statnum != STAT_EFFECTOR)
 		{
-			act1->bposz = act1->s.z;
+			act1->s.backupz();
 			act1->s.z += q;
 		}
 
@@ -4065,9 +4053,7 @@ void handle_se17(DDukeActor* actor)
 				spr3->y += spr2->y - s->y;
 				spr3->z = sector[spr2->sectnum].floorz - (sc->floorz - spr3->z);
 
-				act3->bposx = spr3->x;
-				act3->bposy = spr3->y;
-				act3->bposz = spr3->z;
+				spr3->backuppos();
 
 				changespritesect(act3, spr2->sectnum);
 				setsprite(act3, spr3->pos);
@@ -4119,7 +4105,8 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].posz += sc->extra;
 						if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && a2->s.statnum != STAT_PROJECTILE)
 						{
-							a2->bposz = a2->s.z += sc->extra;
+							a2->s.z += sc->extra;
+							a2->s.backupz();
 							a2->floorz = sc->floorz;
 						}
 					}
@@ -4156,7 +4143,8 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 							if (ps[a2->PlayerIndex()].on_ground == 1) ps[a2->PlayerIndex()].posz -= sc->extra;
 						if (a2->s.zvel == 0 && a2->s.statnum != STAT_EFFECTOR && a2->s.statnum != STAT_PROJECTILE)
 						{
-							a2->bposz = a2->s.z -= sc->extra;
+							a2->s.z -= sc->extra;
+							a2->s.backupz();
 							a2->floorz = sc->floorz;
 						}
 					}
@@ -4442,8 +4430,7 @@ void handle_se26(DDukeActor* actor)
 	{
 		if (a2->s.statnum != 3 && a2->s.statnum != 10)
 		{
-			a2->bposx = a2->s.x;
-			a2->bposy = a2->s.y;
+			a2->s.backupvec2();
 
 			a2->s.x += l;
 			a2->s.y += x;
@@ -4579,8 +4566,7 @@ void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, int TRIPBOMB
 				{
 					if (s2->z > (a2->floorz - (16 << 8)))
 					{
-						a2->bposx = s2->x;
-						a2->bposy = s2->y;
+						s2->backupvec2();
 
 						s2->x += x >> shift;
 						s2->y += l >> shift;
@@ -5395,9 +5381,7 @@ void recordoldspritepos()
 		DukeStatIterator it(statNum);
 		while (auto ac = it.Next())
 		{
-			ac->bposx = ac->s.x;
-			ac->bposy = ac->s.y;
-			ac->bposz = ac->s.z;
+			ac->s.backuploc();
 		}
 	}
 }

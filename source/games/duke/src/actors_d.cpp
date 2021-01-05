@@ -2075,9 +2075,7 @@ void movetransports_d(void)
 							ps[p].oposz = ps[p].posz;
 							
 							auto pa = ps[p].GetActor();
-							pa->bposx = ps[p].posx;
-							pa->bposy = ps[p].posy;
-							pa->bposz = ps[p].posz;
+							pa->s.opos = ps[p].pos;
 							
 							changespritesect(act2, Owner->s.sectnum);
 							ps[p].cursectnum = Owner->s.sectnum;
@@ -2240,9 +2238,7 @@ void movetransports_d(void)
 									spr2->z -= spr->z - sector[Owner->s.sectnum].floorz;
 									spr2->ang = Owner->s.ang;
 									
-									act2->bposx = spr2->x;
-									act2->bposy = spr2->y;
-									act2->bposz = spr2->z;
+									spr2->backuppos();
 									
 									if (spr->pal == 0)
 									{
@@ -2268,9 +2264,7 @@ void movetransports_d(void)
 								spr2->y += (Owner->s.y - spr->y);
 								spr2->z = Owner->s.z + 4096;
 								
-								act2->bposx = spr2->x;
-								act2->bposy = spr2->y;
-								act2->bposz = spr2->z;
+								spr2->backuppos();
 								
 								changespritesect(act2, Owner->s.sectnum);
 							}
@@ -2280,9 +2274,7 @@ void movetransports_d(void)
 							spr2->y += (Owner->s.y - spr->y);
 							spr2->z = sector[Owner->s.sectnum].ceilingz + ll;
 							
-							act2->bposx = spr2->x;
-							act2->bposy = spr2->y;
-							act2->bposz = spr2->z;
+							spr2->backuppos();
 							
 							changespritesect(act2, Owner->s.sectnum);
 							
@@ -2292,9 +2284,7 @@ void movetransports_d(void)
 							spr2->y += (Owner->s.y - spr->y);
 							spr2->z = sector[Owner->s.sectnum].floorz - ll;
 							
-							act2->bposx = spr2->x;
-							act2->bposy = spr2->y;
-							act2->bposz = spr2->z;
+							spr2->backuppos();
 							
 							changespritesect(act2, Owner->s.sectnum);
 							
@@ -3849,10 +3839,9 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (t[1] == 0 || a == 0)
 	{
-		if ((badguy(actor) && spr->extra <= 0) || (actor->bposx != spr->x) || (actor->bposy != spr->y))
+		if ((badguy(actor) && spr->extra <= 0) || (spr->ox != spr->x) || (spr->oy != spr->y))
 		{
-			actor->bposx = spr->x;
-			actor->bposy = spr->y;
+			spr->backupvec2();
 			setsprite(actor, spr->pos);
 		}
 		return;
@@ -3957,7 +3946,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			}
 			else if (spr->picnum != DRONE && spr->picnum != SHARK && spr->picnum != COMMANDER)
 			{
-				if (actor->bposz != spr->z || (ud.multimode < 2 && ud.player_skill < 2))
+				if (spr->oz != spr->z || (ud.multimode < 2 && ud.player_skill < 2))
 				{
 					if ((t[0] & 1) || ps[playernum].actorsqu == actor) return;
 					else daxvel <<= 1;

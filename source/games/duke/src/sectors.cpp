@@ -358,7 +358,7 @@ void doanimations(void)
 			{
 				if (act->s.statnum != STAT_EFFECTOR)
 				{
-					act->bposz = act->s.z;
+					act->s.backupz();
 					act->s.z += v;
 					act->floorz = sector[dasect].floorz + v;
 				}

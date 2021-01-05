@@ -58,9 +58,6 @@ DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed ch
 
 	auto act = &hittype[i];
 	auto s = &act->s;
-	act->bposx = s_x;
-	act->bposy = s_y;
-	act->bposz = s_z;
 
 	s->x = s_x;
 	s->y = s_y;
@@ -81,6 +78,7 @@ DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed ch
 	s->clipdist = 0;
 	s->pal = 0;
 	s->lotag = 0;
+	s->backuploc();
 
 	act->lastvx = 0;
 	act->lastvy = 0;
@@ -162,9 +160,7 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 		act->timetosleep = 0;
 		act->extra = -1;
 
-		act->bposx = sp->x;
-		act->bposy = sp->y;
-		act->bposz = sp->z;
+		sp->backuppos();
 
 		act->SetOwner(act);
 		act->SetHitOwner(act);

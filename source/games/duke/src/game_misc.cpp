@@ -559,9 +559,8 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 	{
 		auto act = ps[p].GetActor();
 		auto pspr = &act->s;
-		x1 = act->bposx + MulScale(pspr->x - act->bposx, smoothratio, 16) - cposx;
-		y1 = act->bposy + MulScale(pspr->y - act->bposy, smoothratio, 16) - cposy;
-		daang = ((!SyncInput() ? pspr->ang : act->tempang + MulScale(((pspr->ang + 1024 - act->tempang) & 2047) - 1024, smoothratio, 16)) - cang) & 2047;
+		auto spos = pspr->interpolatedvec2(smoothratio);
+		daang = ((!SyncInput() ? pspr->ang : pspr->interpolatedang(smoothratio)) - cang) & 2047;
 
 		if (p == screenpeek || ud.coop == 1)
 		{
@@ -577,7 +576,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 			if (j < 22000) j = 22000;
 			else if (j > (65536 << 1)) j = (65536 << 1);
 
-			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), pspr->pal), DTA_CenterOffset, true,
+			DrawTexture(twod, tileGetTexture(i), xdim / 2. + spos.x / 4096., ydim / 2. + spos.y / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), pspr->pal), DTA_CenterOffset, true,
 				DTA_Rotate, daang * (-360./2048), DTA_Color, shadeToLight(pspr->shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
 		}
 	}

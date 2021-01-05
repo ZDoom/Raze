@@ -28,7 +28,7 @@ struct weaponhit
 	short picnum, ang, extra, owner, movflag;
 	short tempang, actorstayput, dispicnum;
 	short timetosleep;
-	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags;
+	int floorz, ceilingz, lastvx, lastvy, aflags;
 	union
 	{
 		int saved_ammo;
@@ -47,7 +47,7 @@ struct weaponhit
 	{
 		cgg = spriteextra = 0;
 		picnum = ang = extra = owner = movflag = tempang = actorstayput = dispicnum = timetosleep = 0;
-		floorz = ceilingz = lastvx = lastvy = bposx = bposy = bposz = aflags = saved_ammo = 0;
+		floorz = ceilingz = lastvx = lastvy = aflags = saved_ammo = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}
 	int GetIndex() const { return this - array(); }

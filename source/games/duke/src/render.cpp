@@ -259,17 +259,6 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 //
 //---------------------------------------------------------------------------
 
-static inline binangle getcamspriteang(DDukeActor* newOwner, double const smoothratio)
-{
-	return buildfang(newOwner->tempang + MulScaleF(((newOwner->s.ang - newOwner->tempang + 1024) & 2047) - 1024, smoothratio, 16));
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void animatecamsprite(double smoothratio)
 {
 	const int VIEWSCREEN_ACTIVE_DISTANCE = 8192;
@@ -293,7 +282,7 @@ void animatecamsprite(double smoothratio)
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
 				auto camera = &camsprite->GetOwner()->s;
-				auto ang = getcamspriteang(camsprite->GetOwner(), smoothratio);
+				auto ang = buildang(camera->interpolatedang(smoothratio));
 				// Note: no ROR or camera here for now - the current setup has no means to detect these things before rendering the scene itself.
 				renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sectnum); // why 'shade'...?
 				display_mirror = 1; // should really be 'display external view'.
@@ -581,7 +570,7 @@ void displayrooms(int snum, double smoothratio)
 		if (p->newOwner != nullptr)
 		{
 			auto spr = &p->newOwner->s;
-			cang = getcamspriteang(p->newOwner, smoothratio);
+			cang = buildang(spr->interpolatedang(smoothratio));
 			choriz = buildhoriz(spr->shade);
 			cposx = spr->pos.x;
 			cposy = spr->pos.y;
