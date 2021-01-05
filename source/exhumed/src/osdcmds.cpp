@@ -107,13 +107,8 @@ void GameInterface::ToggleThirdPerson()
 
         if (bCamera)
         {
-            setForcedSyncInput();
             GrabPalette();
         }
-    }
-    if (!bCamera)
-    {
-        resetForcedSyncInput();
     }
 }
 

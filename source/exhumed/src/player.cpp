@@ -673,7 +673,7 @@ static void pickupMessage(int no)
 
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
-    sprite[pPlayer->nSprite].ang = pPlayer->angle.ang.asbuild();
+    inita = sprite[pPlayer->nSprite].ang = pPlayer->angle.ang.asbuild();
 }
 
 void FuncPlayer(int a, int nDamage, int nRun)
