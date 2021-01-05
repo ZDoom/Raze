@@ -1167,7 +1167,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
             }
 
 sectdone:
-            if (!bUnderwater || !PlayerList[nPlayer].horizon.horiz.asbuild() || PlayerList[nPlayer].bIsFalling)
+            if (!PlayerList[nPlayer].horizon.horiz.asbuild() || PlayerList[nPlayer].bIsFalling)
             {
                 // Calculate base pan amount based on how much the player is falling.
                 fixed_t dVertPan = (spr_z - sprite[nPlayerSprite].z) << 9;
