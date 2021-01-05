@@ -821,6 +821,7 @@ void FuncElev(int a, int, int nRun)
 
                 short nSectorB = nSector;
 
+                StartInterpolation(nSector, Interp_Sect_Floorz);
                 int nVal = LongSeek((int*)&sector[nSector].floorz, nZVal, Elevator[nElev].field_6, Elevator[nElev].field_A);
                 ebp = nVal;
 
@@ -862,6 +863,7 @@ void FuncElev(int a, int, int nRun)
                 int nZOffset = Elevator[nElev].nCurZOffset;
                 int zVal = Elevator[nElev].zOffsets[nZOffset];
 
+                StartInterpolation(nSector, Interp_Sect_Ceilingz);
                 int nVal = LongSeek(&ceilZ, zVal, Elevator[nElev].field_6, Elevator[nElev].field_A);
                 ebp = nVal;
 
