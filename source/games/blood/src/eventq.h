@@ -117,15 +117,8 @@ kCmdWallTouch               = 52,
 #ifdef NOONE_EXTENSIONS
 kCmdSectorMotionPause       = 13,   // stops motion of the sector
 kCmdSectorMotionContinue    = 14,   // continues motion of the sector
+kCmdDudeFlagsSet            = 15,   // copy dudeFlags from sprite to dude
 kCmdModernUse               = 53,   // used by most of modern types
-kCmdModernPatrolOff         = 54,   // to manipulate dudeFlags
-kCmdModernPatrolOn          = 55,   // to manipulate dudeFlags
-kCmdModernDeafOff           = 56,   // to manipulate dudeFlags
-kCmdModernDeafOn            = 57,   // to manipulate dudeFlags
-kCmdModernBlindOff          = 58,   // to manipulate dudeFlags
-kCmdModernBlindOn           = 59,   // to manipulate dudeFlags
-kCmdModernAlarmOff          = 60,   // to manipulate dudeFlags
-kCmdModernAlarmOn           = 61,   // to manipulate dudeFlags
 #endif
 
 kCmdNumberic                = 64, // 64: 0, 65: 1 and so on up to 255

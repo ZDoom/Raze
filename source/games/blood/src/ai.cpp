@@ -1815,12 +1815,12 @@ void aiInitSprite(spritetype *pSprite)
             bool uwater = spriteIsUnderwater(pSprite);
             if (stateTimer > 0) {
                 if (uwater) aiPatrolState(pSprite, kAiStatePatrolWaitW);
-                else if (pXSprite->unused2) aiPatrolState(pSprite, kAiStatePatrolWaitC);
+                else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(pSprite, kAiStatePatrolWaitC);
                 else aiPatrolState(pSprite, kAiStatePatrolWaitL);
                 pXSprite->stateTimer = stateTimer; // restore state timer
             }
             else if (uwater) aiPatrolState(pSprite, kAiStatePatrolMoveW);
-            else if (pXSprite->unused2) aiPatrolState(pSprite, kAiStatePatrolMoveC);
+            else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(pSprite, kAiStatePatrolMoveC);
             else aiPatrolState(pSprite, kAiStatePatrolMoveL);
 
         }

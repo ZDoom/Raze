@@ -53,6 +53,15 @@ enum
     kPhysDebrisSwim = 0x0016, // *debris* can swim underwater (instead of drowning)
     kPhysDebrisVector = 0x0400, // *debris* can be affected by vector weapons
     kPhysDebrisExplode = 0x0800, // *debris* can be affected by explosions
+/*
+// additional physics attributes for debris sprites
+#define kPhysDebrisFloat 0x0008 // *debris* slowly goes up and down from it's position
+#define kPhysDebrisFly 0x0010 // *debris* affected by negative gravity (fly instead of falling)
+#define kPhysDebrisSwim 0x0020 // *debris* can swim underwater (instead of drowning)
+#define kPhysDebrisTouch 0x0040 // *debris* can be moved via touch
+//#define kPhysDebrisPush 0x0080 // *debris* can be moved via push
+#define kPhysDebrisVector 0x0400 // *debris* can be affected by vector weapons
+*/
 
     // *modern types only hitag*
     kModernTypeFlag0 = 0x0000,
@@ -71,7 +80,10 @@ enum
 #define kMaxPatrolCrouchVelocity (kMaxPatrolVelocity >> 1)
 #define kMaxPatrolSpotValue 500
 
+#define kDudeFlagStealth    0x0001
+#define kDudeFlagCrouch     0x0002
 
+#define kSlopeDist 0x20
 
 // modern statnums
 enum {
@@ -150,10 +162,10 @@ kCondSpriteMax                      = 600,
 };
 
 enum {
-kCondSerialSector                   = 100000,
-kCondSerialWall                     = 200000,
-kCondSerialSprite                   = 300000,
-kCondSerialMax                      = 400000,
+kCondSerialSector                   = 10000,
+kCondSerialWall                     = 20000,
+kCondSerialSprite                   = 30000,
+kCondSerialMax                      = 40000,
 };
 
 // - STRUCTS ------------------------------------------------------------------
@@ -215,8 +227,6 @@ struct TRCONDITION {
     OBJECTS_TO_TRACK obj[kMaxTracedObjects];
 };
 
-
-
 // - VARIABLES ------------------------------------------------------------------
 extern bool gModernMap;
 extern bool gTeamsSpawnUsed;
@@ -259,6 +269,7 @@ void sfxPlayVectorSound(spritetype* pSprite, int vectorId);
 //  -------------------------------------------------------------------------   //
 int debrisGetIndex(int nSprite);
 int debrisGetFreeIndex(void);
+void debrisBubble(int nSprite);
 void debrisMove(int listIndex);
 void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg);
 //  -------------------------------------------------------------------------   //

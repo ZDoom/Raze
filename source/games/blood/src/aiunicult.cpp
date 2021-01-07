@@ -1686,6 +1686,7 @@ spritetype* genDudeSpawn(spritetype* pSprite, int nDist) {
             pXDude->dudeGuard = pXSource->dudeGuard;
             pXDude->dudeAmbush = pXSource->dudeAmbush;
             pXDude->dudeFlag4 = pXSource->dudeFlag4;
+            pXDude->unused1 = pXSource->unused1;
             break;
         }
     }
@@ -1761,6 +1762,7 @@ void genDudeTransform(spritetype* pSprite) {
     pXSprite->dudeDeaf = pXIncarnation->dudeDeaf;
     pXSprite->dudeAmbush = pXIncarnation->dudeAmbush;
     pXSprite->dudeFlag4 = pXIncarnation->dudeFlag4;
+    pXSprite->unused1 = pXIncarnation->unused1;
 
     pXSprite->dropMsg = pXIncarnation->dropMsg;
     pXSprite->key = pXIncarnation->key;

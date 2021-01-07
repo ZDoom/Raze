@@ -6431,6 +6431,7 @@ spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4)
                 pXSprite2->dudeGuard = pXSource->dudeGuard;
                 pXSprite2->dudeAmbush = pXSource->dudeAmbush;
                 pXSprite2->dudeFlag4 = pXSource->dudeFlag4;
+                pXSprite2->unused1 = pXSource->unused1;
                 break;
         }
     }
