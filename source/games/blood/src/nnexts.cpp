@@ -4342,7 +4342,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 break;
             case kCmdDudeFlagsSet:
                 if (xspriRangeIsFine(sprite[event.index].extra)) {
-                    if (!xsprite[sprite[event.index].extra].dudeFlag4) {
+                    if (!pXSprite->dudeFlag4) {
                         
                 if (pXSprite->aiState->stateType < kAiStatePatrolBase || pXSprite->aiState->stateType >= kAiStatePatrolMax) break;
                 else aiPatrolStop(pSprite, -1);
@@ -4353,10 +4353,12 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 else if (spriteIsUnderwater(pSprite)) aiPatrolState(pSprite, kAiStatePatrolWaitW);
                 else aiPatrolState(pSprite, kAiStatePatrolWaitL);
 
-                        viewSetSystemMessage("%d", pXSprite->aiState->stateType);
+                        
                 pXSprite->data3 = 0;
 
                 }
+
+                    //viewSetSystemMessage("%d / %d / %d", pSprite->type, pXSprite->dudeFlag4, pXSprite->dudeGuard);
                 }
                 break;
             default:
@@ -6353,7 +6355,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
             continue;
 
         XSPRITE* pXSpr = &xsprite[pSpr->extra];
-        if (pSprite->owner == pSpr->index || pXSpr->health == 0)
+        if (pSprite->index == pSpr->index || pSprite->owner == pSpr->index || pXSpr->health == 0)
             continue;
 
         x = pSpr->x;
