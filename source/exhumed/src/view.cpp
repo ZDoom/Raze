@@ -237,10 +237,11 @@ void DrawView(double smoothRatio, bool sceneonly)
     }
     else
     {
-        playerX = interpolate16(PlayerList[nLocalPlayer].opos.x, sprite[nPlayerSprite].x, smoothRatio);
-        playerY = interpolate16(PlayerList[nLocalPlayer].opos.y, sprite[nPlayerSprite].y, smoothRatio);
-        playerZ = interpolate16(PlayerList[nLocalPlayer].opos.z, sprite[nPlayerSprite].z, smoothRatio)
-                + interpolate16(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
+        auto psp = &sprite[nPlayerSprite];
+        playerX = psp->interpolatedx(smoothRatio);
+        playerY = psp->interpolatedy(smoothRatio);
+        playerZ = psp->interpolatedz(smoothRatio) + interpolate16(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
+
         nSector = nPlayerViewSect[nLocalPlayer];
         updatesector(playerX, playerY, &nSector);
 
