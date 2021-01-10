@@ -335,7 +335,6 @@ void RestartPlayer(short nPlayer)
 		floorspr = -1;
 	}
 
-	plr->opos = nSpr->pos;
 	plr->angle.backup();
 	plr->horizon.backup();
 
@@ -696,7 +695,6 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
     short nSprite2;
 
-    PlayerList[nPlayer].opos = sprite[nPlayerSprite].pos;
     PlayerList[nPlayer].angle.backup();
     PlayerList[nPlayer].horizon.backup();
     PlayerList[nPlayer].angle.resetadjustment();
