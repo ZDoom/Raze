@@ -724,8 +724,8 @@ void DoFlows()
                 sFlowInfo[i].ydelta &= sFlowInfo[i].yacc;
 
                 short nSector = sFlowInfo[i].objindex;
-                sector[nSector].addfloorxpan(sFlowInfo[i].xdelta / 16384.f);
-                sector[nSector].addfloorypan(sFlowInfo[i].ydelta / 16384.f);
+                sector[nSector].setfloorxpan(sFlowInfo[i].xdelta / 16384.f);
+                sector[nSector].setfloorypan(sFlowInfo[i].ydelta / 16384.f);
                 break;
             }
 
@@ -733,8 +733,8 @@ void DoFlows()
             {
                 short nSector = sFlowInfo[i].objindex;
 
-                sector[nSector].addceilingxpan(sFlowInfo[i].xdelta / 16384.f);
-                sector[nSector].addceilingypan(sFlowInfo[i].ydelta / 16384.f);
+                sector[nSector].setceilingxpan(sFlowInfo[i].xdelta / 16384.f);
+                sector[nSector].setceilingypan(sFlowInfo[i].ydelta / 16384.f);
 
                 sFlowInfo[i].xdelta &= sFlowInfo[i].xacc;
                 sFlowInfo[i].ydelta &= sFlowInfo[i].yacc;
