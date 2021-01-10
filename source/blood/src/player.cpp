@@ -683,7 +683,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pSprite->z -= bottom - pSprite->z;
     pSprite->pal = 11+(pPlayer->teamId&3);
     pSprite->ang = pStartZone->ang;
-    pPlayer->angold = pPlayer->angle.ang = buildang(pSprite->ang);
+    pPlayer->angle.ang = buildang(pSprite->ang);
     pSprite->type = kDudePlayer1+nPlayer;
     pSprite->clipdist = pDudeInfo->clipdist;
     pSprite->flags = 15;
@@ -1285,11 +1285,7 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
 
 void UpdatePlayerSpriteAngle(PLAYER *pPlayer)
 {
-    spritetype *pSprite = pPlayer->pSprite;
-
-    pPlayer->angle.ang += buildang(pSprite->ang) - pPlayer->angold;
-    pPlayer->angold = pPlayer->angle.ang;
-    pSprite->ang = pPlayer->angle.ang.asbuild();
+    pPlayer->pSprite->ang = pPlayer->angle.ang.asbuild();
 }
 
 //---------------------------------------------------------------------------
@@ -1339,9 +1335,7 @@ void ProcessInput(PLAYER *pPlayer)
         char bSeqStat = playerSeqPlaying(pPlayer, 16);
         if (pPlayer->fraggerId != -1)
         {
-            pPlayer->angold = bvectangbam(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
-            pSprite->ang = pPlayer->angold.asbuild();
-            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, pPlayer->angold));
+            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y)));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
@@ -2271,7 +2265,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
             ("pickupeffect", w.pickupEffect)
             ("flasheffect", w.flashEffect)
             ("quakeeffect", w.quakeEffect)
-            ("angold", w.angold)
             ("player_par", w.player_par)
             ("waterpal", w.nWaterPal)
             .Array("posturedata", &w.pPosture[0][0], &gPostureDefaults[0][0], kModeMax * kPostureMax) // only save actual changes in this.
