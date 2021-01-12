@@ -683,12 +683,18 @@ int CheckSectorSprites(short nSector, int nVal)
 // done
 void MoveSectorSprites(int nSector, int z)
 {
+    int newz = sector[nSector].floorz;
+    int oldz = newz - z;
+    int minz = std::min(newz, oldz);
+    int maxz = std::max(newz, oldz);
     int nSprite;
     SectIterator it(nSector);
     while ((nSprite = it.NextIndex()) >= 0)
     {
-        if (sprite[nSprite].statnum != 200) {
-            sprite[nSprite].z += z;
+        int z = sprite[nSprite].z;
+        if (sprite[nSprite].statnum != 200 && z >= minz && z <= maxz) 
+        {
+            sprite[nSprite].z = newz;
         }
     }
 }
