@@ -745,8 +745,8 @@ void DoFlows()
             {
                 short nWall = sFlowInfo[i].objindex;
 
-                wall[nWall].addxpan(sFlowInfo[i].xdelta / 16384.f);
-                wall[nWall].addypan(sFlowInfo[i].ydelta / 16384.f);
+                wall[nWall].setxpan(sFlowInfo[i].xdelta / 16384.f);
+                wall[nWall].setypan(sFlowInfo[i].ydelta / 16384.f);
 
                 if (sFlowInfo[i].xdelta < 0)
                 {
@@ -765,8 +765,8 @@ void DoFlows()
             {
                 short nWall = sFlowInfo[i].objindex;
 
-                wall[nWall].addxpan(sFlowInfo[i].xdelta / 16384.f);
-                wall[nWall].addypan(sFlowInfo[i].ydelta / 16384.f);
+                wall[nWall].setxpan(sFlowInfo[i].xdelta / 16384.f);
+                wall[nWall].setypan(sFlowInfo[i].ydelta / 16384.f);
 
                 if (sFlowInfo[i].xdelta >= sFlowInfo[i].xacc)
                 {

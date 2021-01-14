@@ -94,6 +94,8 @@ struct walltype
 
     int xpan() const { return int(xpan_); }
     int ypan() const { return int(ypan_); }
+    void setxpan(float add) { xpan_ = fmod(add + 512, 256); } // +512 is for handling negative offsets
+    void setypan(float add) { ypan_ = fmod(add + 512, 256); } // +512 is for handling negative offsets
     void addxpan(float add) { xpan_ = fmod(xpan_ + add + 512, 256); } // +512 is for handling negative offsets
     void addypan(float add) { ypan_ = fmod(ypan_ + add + 512, 256); } // +512 is for handling negative offsets
 
