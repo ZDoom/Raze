@@ -692,7 +692,7 @@ void MoveSectorSprites(int nSector, int z)
     while ((nSprite = it.NextIndex()) >= 0)
     {
         int z = sprite[nSprite].z;
-        if (sprite[nSprite].statnum != 200 && z >= minz && z <= maxz) 
+        if ((sprite[nSprite].statnum != 200 && z >= minz && z <= maxz) || sprite[nSprite].statnum >= 900)
         {
             sprite[nSprite].z = newz;
         }
