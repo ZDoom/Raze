@@ -199,7 +199,7 @@ using namespace Blood;
 DEFINE_ACTION_FUNCTION(DListMenuItemBloodDripDrawer, Draw)
 {
 	// For narrow screens this would be mispositioned so skip drawing it there.
-	double ratio = screen->GetWidth() / double(screen->GetHeight());
+	double ratio = ActiveRatio(screen->GetWidth(), screen->GetHeight());
 	if (ratio > 1.32) itemBloodQAV->Draw();
 	return 0;
 }
