@@ -896,15 +896,13 @@ loc_flag:
             if (nWeapon < kWeaponMummified)
             {
                 if (nWeapon != kWeaponGrenade)
-                {
-                    short nAmmo = -WeaponInfo[nWeapon].d; // negative
-
-                    if (nAmmo) {
-                        AddAmmo(nPlayer, nAmmoType, nAmmo);
+                {   
+                    if (WeaponInfo[nWeapon].d) {
+                        AddAmmo(nPlayer, nAmmoType, -1);
                     }
 
                     if (nWeapon == kWeaponM60) {
-                        nPlayerClip[nPlayer] -= WeaponInfo[nWeapon].d;
+                        nPlayerClip[nPlayer]--;
                     }
                     else if (nWeapon == kWeaponPistol) {
                         nPistolClip[nPlayer]--;

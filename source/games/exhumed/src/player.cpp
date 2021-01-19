@@ -230,7 +230,7 @@ void InitPlayerInventory(short nPlayer)
     PlayerList[nPlayer].nRun = -1;
 
     nPistolClip[nPlayer] = 6;
-    nPlayerClip[nPlayer] = 100;
+    nPlayerClip[nPlayer] = 0;
 
     PlayerList[nPlayer].nCurrentWeapon = 0;
 
@@ -245,7 +245,6 @@ void InitPlayerInventory(short nPlayer)
     nPlayerColor[nPlayer] = pixels[tileWidth(nPlayer + kTile3571) * tileHeight(nPlayer + kTile3571) / 2];
 }
 
-// done
 short GetPlayerFromSprite(short nSprite)
 {
     return RunData[sprite[nSprite].owner].nVal;
@@ -471,7 +470,7 @@ void RestartPlayer(short nPlayer)
 		SetHealthFrame(0);
 	}
 }
-// done
+
 int GrabPlayer()
 {
     if (PlayerCount >= kMaxPlayers) {
@@ -481,7 +480,6 @@ int GrabPlayer()
     return PlayerCount++;
 }
 
-// checked OK on 26/03/2019
 void StartDeathSeq(int nPlayer, int nVal)
 {
     FreeRa(nPlayer);
