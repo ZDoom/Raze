@@ -26,11 +26,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+enum { kMaxSwitches = 1024 };
+
+short SwitchCount = -1;
+
 struct Link
 {
     int8_t v[8];
 };
-
 
 struct Switch
 {
@@ -47,7 +50,7 @@ struct Switch
 };
 
 TArray<Link> LinkMap;
-TArray<Switch> SwitchData;
+Switch SwitchData[kMaxSwitches];
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Link& w, Link* def)
 {
@@ -76,7 +79,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Switch& w, Switch*
 
 void SerializeSwitch(FSerializer& arc)
 {
-    arc("switch", SwitchData)
+    arc("switchcount", SwitchCount)
+        .Array("switch", SwitchData + SwitchCount, kMaxSwitches - SwitchCount)
         ("linkmap", LinkMap);
 }
 
@@ -114,25 +118,28 @@ int BuildLink(int nCount, ...)
 
 void InitSwitch()
 {
-    SwitchData.Clear();
+    SwitchCount = kMaxSwitches;
+    memset(SwitchData, 0, sizeof(SwitchData));
 }
 
 int BuildSwReady(int nChannel, short nLink)
 {
-    if (nLink < 0) {
+    if (SwitchCount <= 0 || nLink < 0) {
         I_Error("Too many switch readys!\n");
         return -1;
     }
-    unsigned SwitchCount = SwitchData.Reserve(1);
+
+    SwitchCount--;
     SwitchData[SwitchCount].nChannel = nChannel;
     SwitchData[SwitchCount].nLink = nLink;
+
     return SwitchCount | 0x10000;
 }
 
 void FuncSwReady(int a, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
-    assert(nSwitch >= 0 && nSwitch < (int)SwitchData.Size());
+    assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     int nMessage = a & 0x7F0000;
 
@@ -162,18 +169,19 @@ void FuncSwReady(int a, int, int nRun)
 
 int BuildSwPause(int nChannel, int nLink, int ebx)
 {
-    for (unsigned i = 0; i < SwitchData.Size(); i++)
+    for (int i = kMaxSwitches - 1; i >= SwitchCount; i--)
     {
         if (SwitchData[i].nChannel == nChannel && SwitchData[i].nWait != 0) {
             return i | 0x20000;
         }
     }
 
-    if (nLink < 0) {
+    if (SwitchCount <= 0 || nLink < 0) {
         I_Error("Too many switches!\n");
         return -1;
     }
-    unsigned SwitchCount = SwitchData.Reserve(1);
+
+    SwitchCount--;
 
     SwitchData[SwitchCount].nChannel = nChannel;
     SwitchData[SwitchCount].nLink = nLink;
@@ -186,7 +194,7 @@ int BuildSwPause(int nChannel, int nLink, int ebx)
 void FuncSwPause(int a, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
-    assert(nSwitch >= 0 && nSwitch < (int)SwitchData.Size());
+    assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     int nMessage = a & 0x7F0000;
 
@@ -259,9 +267,10 @@ void FuncSwPause(int a, int, int nRun)
 
 int BuildSwStepOn(int nChannel, int nLink, int nSector)
 {
-    if (nLink < 0 || nSector < 0)
+    if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
         I_Error("Too many switches!\n");
-    unsigned nSwitch = SwitchData.Reserve(1);
+
+    int nSwitch = --SwitchCount;
 
     SwitchData[nSwitch].nChannel = nChannel;
     SwitchData[nSwitch].nLink = nLink;
@@ -274,7 +283,7 @@ int BuildSwStepOn(int nChannel, int nLink, int nSector)
 void FuncSwStepOn(int a, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
-    assert(nSwitch >= 0 && nSwitch < (int)SwitchData.Size());
+    assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nLink = SwitchData[nSwitch].nLink;
     short nChannel = SwitchData[nSwitch].nChannel;
@@ -327,9 +336,11 @@ void FuncSwStepOn(int a, int, int nRun)
 
 int BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx)
 {
-    if (nLink < 0 || nSector < 0)
+    if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
         I_Error("Too many switches!\n");
-    unsigned nSwitch = SwitchData.Reserve(1);
+
+    int nSwitch = --SwitchCount;
+
     SwitchData[nSwitch].nChannel = nChannel;
     SwitchData[nSwitch].nLink    = nLink;
     SwitchData[nSwitch].nWait  = ecx;
@@ -343,7 +354,7 @@ int BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx)
 void FuncSwNotOnPause(int a, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
-    assert(nSwitch >= 0 && nSwitch < (int)SwitchData.Size());
+    assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     int nMessage = a & 0x7F0000;
 
@@ -415,9 +426,11 @@ void FuncSwNotOnPause(int a, int, int nRun)
 
 int BuildSwPressSector(int nChannel, int nLink, int nSector, int keyMask)
 {
-    if (nLink < 0 || nSector < 0)
+    if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
         I_Error("Too many switches!\n");
-    unsigned nSwitch = SwitchData.Reserve(1);
+
+    int nSwitch = --SwitchCount;
+
     SwitchData[nSwitch].nChannel = nChannel;
     SwitchData[nSwitch].nLink = nLink;
     SwitchData[nSwitch].nSector = nSector;
@@ -430,7 +443,7 @@ int BuildSwPressSector(int nChannel, int nLink, int nSector, int keyMask)
 void FuncSwPressSector(int a, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
-    assert(nSwitch >= 0 && nSwitch < (int)SwitchData.Size());
+    assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     int nMessage = a & 0x7F0000;
 
@@ -485,10 +498,12 @@ void FuncSwPressSector(int a, int, int nRun)
 
 int BuildSwPressWall(short nChannel, short nLink, short nWall)
 {
-    if (nLink < 0 || nWall < 0) {
+    if (SwitchCount <= 0 || nLink < 0 || nWall < 0) {
         I_Error("Too many switches!\n");
     }
-    unsigned SwitchCount = SwitchData.Reserve(1);
+
+    SwitchCount--;
+
     SwitchData[SwitchCount].nChannel = nChannel;
     SwitchData[SwitchCount].nLink = nLink;
     SwitchData[SwitchCount].nWall = nWall;
@@ -500,7 +515,7 @@ int BuildSwPressWall(short nChannel, short nLink, short nWall)
 void FuncSwPressWall(int a, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
-    assert(nSwitch >= 0 && nSwitch < (int)SwitchData.Size());
+    assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nChannel = SwitchData[nSwitch].nChannel;
     short nLink = SwitchData[nSwitch].nLink;
