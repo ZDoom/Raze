@@ -2319,7 +2319,7 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 		p->poszv -= 348;
 		if (p->poszv < -(256 * 6)) p->poszv = -(256 * 6);
 	}
-	else if (p->vehBraking || p->OnMotorcycle)
+	else if ((actions & SB_CROUCH) || p->OnMotorcycle)
 	{
 		if (p->poszv < 0) p->poszv = 0;
 		p->poszv += 348;
