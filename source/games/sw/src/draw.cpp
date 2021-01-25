@@ -1513,7 +1513,6 @@ void PreDrawStackedWater(void)
                     nu->Rot = u->Rot;
                     nu->StateStart = u->StateStart;
                     nu->StateEnd = u->StateEnd;
-                    nu->SpriteP->pos = sp->opos;
                     nu->Flags = u->Flags;
                     nu->Flags2 = u->Flags2;
                     nu->RotNum = u->RotNum;
