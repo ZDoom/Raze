@@ -114,8 +114,8 @@ void GLInstance::DoDraw()
 
 		for (auto& rs : rendercommands)
 		{
-			rs.Apply(*screen->RenderState(), lastState);
-			screen->RenderState()->Draw(rs.primtype, rs.vindex, rs.vcount);
+			if (rs.Apply(*screen->RenderState(), lastState))
+				screen->RenderState()->Draw(rs.primtype, rs.vindex, rs.vcount);
 		}
 		renderState.Apply(*screen->RenderState(), lastState);	// apply any pending change before returning.
 		rendercommands.Clear();
@@ -151,7 +151,7 @@ void GLInstance::SetFade(int index)
 		renderState.FogColor = 0;
 }
 
-void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
+bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 {
 	if (Flags & RF_ColorOnly)
 	{
@@ -159,6 +159,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	}
 	else
 	{
+		if (!mMaterial.mTexture) return false;	// Oh no! Something passed an invalid tile!
 		state.EnableTexture(gl_texture);
 		state.SetMaterial(mMaterial.mTexture, mMaterial.uFlags, mMaterial.mScaleFlags, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
 	}
@@ -254,6 +255,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	else state.EnableModelMatrix(false);
 
 	memset(matrixIndex, -1, sizeof(matrixIndex));
+	return true;
 }
 
 void DoWriteSavePic(FileWriter* file, ESSType ssformat, uint8_t* scr, int width, int height, bool upsidedown)

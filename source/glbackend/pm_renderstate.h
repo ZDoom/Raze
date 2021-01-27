@@ -89,5 +89,5 @@ struct PolymostRenderState
 
 	PalEntry FogColor;
 
-	void Apply(FRenderState & state, GLState& oldState);
+	bool Apply(FRenderState & state, GLState& oldState);
 };
