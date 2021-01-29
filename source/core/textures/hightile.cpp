@@ -318,7 +318,6 @@ static bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick)
 	int usepalette = paletteid == 0? 0 : GetTranslationType(paletteid) - Translation_Remap;
 	int usepalswap = GetTranslationIndex(paletteid);
 	int TextureType = hw_int_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
-	if (usepalette < 0) usepalette = usepalswap = 0; // this is not a lookup-based translation so ignore it.
 
 	pick.translation = paletteid;
 	pick.basepalTint = 0xffffff;
@@ -326,10 +325,12 @@ static bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick)
 	auto& h = lookups.tables[usepalswap];
 	bool applytint = false;
 	// Canvas textures must be treated like hightile replacements in the following code.
-	auto rep = (hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? FindReplacement(tex->GetID(), usepalswap, false) : nullptr;
+
+	int hipalswap = usepalette >= 0 ? usepalswap : 0;
+	auto rep = (hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? FindReplacement(tex->GetID(), hipalswap, false) : nullptr;
 	if (rep || tex->GetTexture()->isHardwareCanvas())
 	{
-		if (usepalette != 0)
+		if (usepalette > 0)
 		{
 			// This is a global setting for the entire scene, so let's do it here, right at the start. (Fixme: Store this in a static table instead of reusing the same entry for all palettes.)
 			auto& hh = lookups.tables[MAXPALOOKUPS - 1];
@@ -341,7 +342,7 @@ static bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick)
 		{
 			tex = rep->faces[0];
 		}
-		if (!rep || rep->palnum != usepalswap || (h.tintFlags & TINTF_APPLYOVERALTPAL)) 
+		if (!rep || rep->palnum != hipalswap || (h.tintFlags & TINTF_APPLYOVERALTPAL)) 
 			applytint = true;
 		pick.translation = 0;
 	}
