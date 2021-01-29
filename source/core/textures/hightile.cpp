@@ -314,13 +314,11 @@ int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
 static bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick)
 {
 	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
-	if (paletteid == 0)
-	{
-		int a = 0;
-	}
+
 	int usepalette = paletteid == 0? 0 : GetTranslationType(paletteid) - Translation_Remap;
 	int usepalswap = GetTranslationIndex(paletteid);
 	int TextureType = hw_int_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
+	if (usepalette < 0) usepalette = usepalswap = 0; // this is not a lookup-based translation so ignore it.
 
 	pick.translation = paletteid;
 	pick.basepalTint = 0xffffff;
