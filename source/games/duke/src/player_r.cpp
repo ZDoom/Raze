@@ -2268,7 +2268,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 			}
 			else
 			{
-				p->poszv -= bsin(128 + p->jumping_counter) / 12;
+				p->poszv -= bsin(2048 - 128 + p->jumping_counter) / 12;
 				p->jumping_counter += 180;
 				p->on_ground = 0;
 			}
