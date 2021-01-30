@@ -931,7 +931,7 @@ void playerAimDown(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-	OnEvent(EVENT_AIMDOWN, snum, p->GetActor(), -1);
+	OnEvent(EVENT_AIMDOWN, snum, p->GetActor(), -1);	// due to a typo in WW2GI's CON files this is the same as EVENT_AIMUP.
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum) != 0)
 	{
 		p->sync.actions &= ~SB_AIM_DOWN;
