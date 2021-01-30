@@ -255,7 +255,7 @@ void DrawClock()
 
 double calc_smoothratio()
 {
-    if (bRecord || bPlayback || nFreeze != 0 || bCamera || paused)
+    if (bRecord || bPlayback || nFreeze != 0 || paused)
         return MaxSmoothRatio;
 
     return I_GetTimeFrac() * MaxSmoothRatio;

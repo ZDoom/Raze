@@ -297,8 +297,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     else
     {
         clipmove_old((int32_t*)&playerX, (int32_t*)&playerY, (int32_t*)&playerZ, &nSector,
-            -2000 * bcos(inita),
-            -2000 * bsin(inita),
+            -2000 * nAngle.bcos(),
+            -2000 * nAngle.bsin(),
             4, 0, 0, CLIPMASK1);
 
         pan = q16horiz(0);
