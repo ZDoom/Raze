@@ -311,7 +311,7 @@ int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
 //
 //===========================================================================
 
-static bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick)
+bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick)
 {
 	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
 

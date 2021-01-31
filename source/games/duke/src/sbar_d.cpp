@@ -44,6 +44,7 @@ source as it is released.
 #include "texturemanager.h"
 #include "dukeactor.h"
 
+bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick);
 
 BEGIN_DUKE_NS
 
@@ -57,6 +58,8 @@ BEGIN_DUKE_NS
 class DDukeStatusBar : public DDukeCommonStatusBar
 {
 	DECLARE_CLASS(DDukeStatusBar, DDukeCommonStatusBar)
+
+	int fontheight[2];
 public:
 
 	DDukeStatusBar()
@@ -72,6 +75,27 @@ public:
 
 		ammo_sprites = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO, TRIPBOMBSPRITE, FREEZEAMMO + 1, HBOMBAMMO, GROWAMMO, FLAMETHROWERAMMO + 1 };
 		item_icons = { 0, FIRSTAID_ICON, STEROIDS_ICON, HOLODUKE_ICON, JETPACK_ICON, HEAT_ICON, AIRTANK_ICON, BOOT_ICON };
+
+		fontheight[1] = fontheight[0] = 0;
+		for (int i = 0; i < 9; i++)
+		{
+			auto zerotex = tileGetTexture(BIGALPHANUM - 10 + i);
+			if (zerotex)
+			{
+				int fh0 = zerotex->GetTexture()->CheckRealHeight();
+				int fh1 = fh0;
+				TexturePick pick;
+				if (PickTexture(zerotex, TRANSLATION(Translation_Remap, 0), pick))
+				{
+					int oheight = zerotex->GetTexelHeight();
+					int dheight = pick.texture->GetTexelHeight();
+					int dReal = pick.texture->CheckRealHeight();
+					fh1 = Scale(dReal, oheight, dheight);
+				}
+				if (fh0 > fontheight[0]) fontheight[0] = fh0;
+				if (fh1 > fontheight[1]) fontheight[1] = fh1;
+			}
+		}
 	}
 
 	//==========================================================================
@@ -120,11 +144,12 @@ public:
 
 	void FullscreenHUD1(struct player_struct* p, int snum)
 	{
+		int fh = fontheight[hw_hightile ? 1 : 0];
 		FString format;
 		FGameTexture* img;
 		double imgScale;
-		double baseScale = (scale * numberFont->mFont->GetHeight()) * (isNamWW2GI() ? 0.65 : !isPlutoPak() ? 0.75 : 0.7);
-		double texty = -numberFont->mFont->GetHeight() + (isNamWW2GI() ? 2.5 : !isPlutoPak() ? 3.5 : 4.5);
+		double baseScale = (scale * (fh+1));
+		double texty = -fh - 2;
 
 		//
 		// Health
