@@ -149,7 +149,7 @@ public:
 		FGameTexture* img;
 		double imgScale;
 		double baseScale = (scale * (fh+1));
-		double texty = -fh - 2;
+		double texty = -fh - 2.5;
 
 		//
 		// Health
