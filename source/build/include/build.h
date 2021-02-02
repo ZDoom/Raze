@@ -512,8 +512,6 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
 #define MAXUPDATESECTORDIST 1536
 #define INITIALUPDATESECTORDIST 256
 void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum) ATTRIBUTE((nonnull(3)));
-void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectnum,
-                         const uint8_t * const excludesectbitmap) ATTRIBUTE((nonnull(3,4)));
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum) ATTRIBUTE((nonnull(4)));
 void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
 void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));

@@ -2664,32 +2664,6 @@ void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
     *sectnum = -1;
 }
 
-void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectnum, const uint8_t * const excludesectbitmap)
-{
-    if (inside_exclude_p(x, y, *sectnum, excludesectbitmap))
-        return;
-
-    if (*sectnum >= 0 && *sectnum < numsectors)
-    {
-        auto wal = (uwallptr_t)&wall[sector[*sectnum].wallptr];
-        int wallsleft = sector[*sectnum].wallnum;
-
-        do
-        {
-            int const next = wal->nextsector;
-            if (inside_exclude_p(x, y, next, excludesectbitmap))
-                SET_AND_RETURN(*sectnum, next);
-            wal++;
-        }
-        while (--wallsleft);
-    }
-
-    for (bssize_t i=numsectors-1; i>=0; --i)
-        if (inside_exclude_p(x, y, i, excludesectbitmap))
-            SET_AND_RETURN(*sectnum, i);
-
-    *sectnum = -1;
-}
 
 // new: if *sectnum >= MAXSECTORS, *sectnum-=MAXSECTORS is considered instead
 //      as starting sector and the 'initial' z check is skipped
