@@ -107,7 +107,7 @@ inline const char* PlayerName(int pindex)
 	return playername;
 }
 
-inline bool Autoaim(int player)
+inline int Autoaim(int player)
 {
 	// Todo: proper implementation of user CVARs.
 	return cl_autoaim;
