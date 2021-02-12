@@ -19,6 +19,7 @@ vec4 ProcessTexel()
 	// z is the depth in view space, positive going into the screen
 	float z = abs(pixelpos.w);
 	
+#ifdef NPOT_EMULATION
 	// Coordinate adjustment for NPOT textures. It is somehow fitting that Build games exploited this texture wrapping quirk of the software rendering engine...
 	if (uNpotEmulation.y != 0.0)
 	{
@@ -26,6 +27,7 @@ vec4 ProcessTexel()
 		coordX += uNpotEmulation.x * floor(mod(coordY, uNpotEmulation.y));
 		coordY = period + mod(coordY, uNpotEmulation.y);
 	}
+#endif
 	newCoord = vec2(coordX, coordY);
 
 	color = texture(tex, newCoord);
