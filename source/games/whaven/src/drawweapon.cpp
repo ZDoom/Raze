@@ -13,9 +13,8 @@ static void overwritesprite(double thex, double they, int tilenum, int shade, in
 	hud_drawsprite(thex, they, 65536, (stat & RS_NOCLIP) << 7, tilenum, shade, dapalnum, dastat);
 }
 
-void drawweapons(int snum) {
-
-	int dax, day;
+void drawweapons(int snum, double const dasmoothratio) {
+	double dax, day;
 	int dashade;
 	int dapalnum;
 
@@ -29,6 +28,10 @@ void drawweapons(int snum) {
 		dashade = sector[plr.sector].ceilingshade;
 		dapalnum = 0;
 	}
+
+	// Interpoplated snake values for smooth bobbing.
+	double dasnakex = osnakex + MulScaleF(snakex - osnakex, dasmoothratio, 16);
+	double dasnakey = osnakey + MulScaleF(snakey - osnakey, dasmoothratio, 16);
 
 	int dabits;
 	if (plr.invisibletime > 0)
@@ -167,33 +170,33 @@ void drawweapons(int snum) {
 			if (plr.currweaponframe == BOWREADYEND) {
 				if (isWh2()) {
 					if (plr.weapon[plr.currweapon] == 1) {
-						day = readyanimtics[plr.currweapon][6].curry + snakey + 8;
-						dax = readyanimtics[plr.currweapon][6].currx + snakex + 8;
+						day = readyanimtics[plr.currweapon][6].curry + dasnakey + 8;
+						dax = readyanimtics[plr.currweapon][6].currx + dasnakex + 8;
 					}
 					else {
-						day = zreadyanimtics[plr.currweapon][6].curry + snakey + 8;
-						dax = zreadyanimtics[plr.currweapon][6].currx + snakex + 8;
+						day = zreadyanimtics[plr.currweapon][6].curry + dasnakey + 8;
+						dax = zreadyanimtics[plr.currweapon][6].currx + dasnakex + 8;
 					}
 				}
 				else {
-					day = readyanimtics[plr.currweapon][6].curry + snakey + 8;
-					dax = readyanimtics[plr.currweapon][6].currx + snakex + 8;
+					day = readyanimtics[plr.currweapon][6].curry + dasnakey + 8;
+					dax = readyanimtics[plr.currweapon][6].currx + dasnakex + 8;
 				}
 			}
 			else {
 				if (isWh2()) {
 					if (plr.weapon[plr.currweapon] == 1 || plr.weapon[7] == 2) {
-						day = weaponanimtics[plr.currweapon][0].curry + snakey + 8;
-						dax = weaponanimtics[plr.currweapon][0].currx + snakex + 8;
+						day = weaponanimtics[plr.currweapon][0].curry + dasnakey + 8;
+						dax = weaponanimtics[plr.currweapon][0].currx + dasnakex + 8;
 					}
 					else {
-						day = zweaponanimtics[plr.currweapon][0].curry + snakey + 8;
-						dax = zweaponanimtics[plr.currweapon][0].currx + snakex + 8;
+						day = zweaponanimtics[plr.currweapon][0].curry + dasnakey + 8;
+						dax = zweaponanimtics[plr.currweapon][0].currx + dasnakex + 8;
 					}
 				}
 				else {
-					day = weaponanimtics[plr.currweapon][0].curry + snakey + 8;
-					dax = weaponanimtics[plr.currweapon][0].currx + snakex + 8;
+					day = weaponanimtics[plr.currweapon][0].curry + dasnakey + 8;
+					dax = weaponanimtics[plr.currweapon][0].currx + dasnakex + 8;
 				}
 			}
 		}
@@ -238,7 +241,7 @@ void drawweapons(int snum) {
 			overwritesprite(0, day + 8, plr.currweaponframe + 6, dashade, dabits, dapalnum);
 		}
 		else if (plr.currweaponframe != 0)
-			overwritesprite(dax + snakex, day, plr.currweaponframe, dashade, dabits, dapalnum);
+			overwritesprite(dax + dasnakex, day, plr.currweaponframe, dashade, dabits, dapalnum);
 		break;
 	case 2: // unready
 		if (isWh2()) {
@@ -348,30 +351,30 @@ void drawweapons(int snum) {
 		&& plr.selectedgun < 5) {
 		if (plr.shieldtype == 1) {
 			if (plr.shieldpoints > 75) {
-				overwritesprite(-40 + snakex, 100 + snakey, GRONSHIELD, dashade, dabits, dapalnum);
+				overwritesprite(-40 + dasnakex, 100 + dasnakey, GRONSHIELD, dashade, dabits, dapalnum);
 			}
 			else if (plr.shieldpoints > 50 && plr.shieldpoints < 76) {
-				overwritesprite(-40 + snakex, 100 + snakey, GRONSHIELD + 1, dashade, dabits, dapalnum);
+				overwritesprite(-40 + dasnakex, 100 + dasnakey, GRONSHIELD + 1, dashade, dabits, dapalnum);
 			}
 			else if (plr.shieldpoints > 25 && plr.shieldpoints < 51) {
-				overwritesprite(-40 + snakex, 100 + snakey, GRONSHIELD + 2, dashade, dabits, dapalnum);
+				overwritesprite(-40 + dasnakex, 100 + dasnakey, GRONSHIELD + 2, dashade, dabits, dapalnum);
 			}
 			else {
-				overwritesprite(-40 + snakex, 100 + snakey, GRONSHIELD + 3, dashade, dabits, dapalnum);
+				overwritesprite(-40 + dasnakex, 100 + dasnakey, GRONSHIELD + 3, dashade, dabits, dapalnum);
 			}
 		}
 		else {
 			if (plr.shieldpoints > 150) {
-				overwritesprite(-40 + snakex, 100 + snakey, ROUNDSHIELD, dashade, dabits, dapalnum);
+				overwritesprite(-40 + dasnakex, 100 + dasnakey, ROUNDSHIELD, dashade, dabits, dapalnum);
 			}
 			else if (plr.shieldpoints > 100 && plr.shieldpoints < 151) {
-				overwritesprite(-40 + snakex, 100 + snakey, ROUNDSHIELD + 1, dashade, dabits, dapalnum);
+				overwritesprite(-40 + dasnakex, 100 + dasnakey, ROUNDSHIELD + 1, dashade, dabits, dapalnum);
 			}
 			else if (plr.shieldpoints > 50 && plr.shieldpoints < 101) {
-				overwritesprite(-40 + snakex, 100 + snakey, ROUNDSHIELD + 2, dashade, dabits, dapalnum);
+				overwritesprite(-40 + dasnakex, 100 + dasnakey, ROUNDSHIELD + 2, dashade, dabits, dapalnum);
 			}
 			else {
-				overwritesprite(-40 + snakex, 100 + snakey, ROUNDSHIELD + 3, dashade, dabits, dapalnum);
+				overwritesprite(-40 + dasnakex, 100 + dasnakey, ROUNDSHIELD + 3, dashade, dabits, dapalnum);
 			}
 		}
 	}
@@ -400,16 +403,15 @@ void drawscary() {
 }
 
 
+void DrawHud(double const dasmoothratio) {
+	if (!player[pyrn].dead)
+		drawweapons(pyrn, dasmoothratio);
+	if (player[pyrn].spiked == 1)
+		spikeheart(player[pyrn]);
+	if (scarytime >= 0)
+		drawscary();
 
-	void DrawHud(float smooth) {
-		if (!player[pyrn].dead)
-			drawweapons(pyrn);
-		if (player[pyrn].spiked == 1)
-			spikeheart(player[pyrn]);
-		if (scarytime >= 0)
-			drawscary();
-
-		//drawInterface(player[pyrn]);
-	}
+	//drawInterface(player[pyrn]);
+}
 	
 END_WH_NS

@@ -193,7 +193,7 @@ void trowajavlin(int s);
 void spawnhornskull(short i);
 void spawnapentagram(int sn);
 void processinput(int num);
-void DrawHud(float smooth);
+void DrawHud(double const dasmoothratio);
 
 
 // whplr
@@ -291,7 +291,7 @@ extern int dropshieldcnt;
 extern boolean droptheshield;
 extern int dahand;
 extern int weapondrop;
-extern int snakex, snakey;
+extern double osnakex, osnakey, snakex, snakey;
 
 boolean checkmedusadist(int i, int x, int y, int z, int lvl);
 void autoweaponchange(PLAYER& plr, int dagun);

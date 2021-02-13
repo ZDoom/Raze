@@ -14,7 +14,7 @@ int dropshieldcnt = 0;
 boolean droptheshield = false;
 int dahand = 0;
 int weapondrop;
-int snakex, snakey;
+double osnakex, osnakey, snakex, snakey;
 
 boolean checkmedusadist(int i, int x, int y, int z, int lvl) {
 	int attackdist = (isWh2() ? 8192 : 1024) + (lvl << 9);
@@ -681,8 +681,9 @@ void weaponsprocess(int snum) {
 				plr.currweaponframe = weaponanimtics[plr.currweapon][0].daweaponframe;
 		}
 		if (plr.plInput.fvel || plr.plInput.svel) {
-			snakex = bsin(lockclock << 4, -12);
-			snakey = bsin(lockclock << 4, -12);
+			osnakex = snakex;
+			osnakey = snakey;
+			snakex = snakey = bsinf(lockclock << 4, -12);
 		}
 		break;
 	case 2: // unready
