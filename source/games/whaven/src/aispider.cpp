@@ -3,9 +3,9 @@
 
 BEGIN_WH_NS
 
-static void checkexpl(PLAYER& plr, short i);
+static void checkexplspider(PLAYER& plr, short i);
 
-static void chase(PLAYER& plr, short i) {
+static void chasespider(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -84,10 +84,10 @@ static void chase(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexpl(plr, i);
+	checkexplspider(plr, i);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectspider(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -100,7 +100,7 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmish(PLAYER& plr, short i) {
+static void skirmishspider(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -123,16 +123,16 @@ static void skirmish(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexpl(plr, i);
+	checkexplspider(plr, i);
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchspider(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexpl(plr, i);
+		checkexplspider(plr, i);
 }
 	
-static void frozen(PLAYER& plr, short i) {
+static void frozenspider(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -143,7 +143,7 @@ static void frozen(PLAYER& plr, short i) {
 	}
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facespider(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -173,10 +173,10 @@ static void face(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexpl(plr, i);
+	checkexplspider(plr, i);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackspider(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -220,7 +220,7 @@ static void attackfunc(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleespider(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -252,10 +252,10 @@ static void flee(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplspider(plr, i);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void diespider(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -274,7 +274,7 @@ static void die(PLAYER& plr, short i) {
 	}
 }
 
-static void checkexpl(PLAYER& plr, short i) {
+static void checkexplspider(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
@@ -300,15 +300,15 @@ static void checkexpl(PLAYER& plr, short i) {
 void createSpiderAI() {
 	auto& e = enemy[SPIDERTYPE];
 	e.info.Init(24, 18, 512, 60, 0, 64, false, 5, 0);
-	e.chase = chase;
-	e.resurect = resurect;
-	e.skirmish = skirmish;
-	e.search = search;
-	e.frozen = frozen;
-	e.face = face;
-	e.attack = attackfunc;
-	e.flee = flee;
-	e.die = die;
+	e.chase = chasespider;
+	e.resurect = resurectspider;
+	e.skirmish = skirmishspider;
+	e.search = searchspider;
+	e.frozen = frozenspider;
+	e.face = facespider;
+	e.attack = attackspider;
+	e.flee = fleespider;
+	e.die = diespider;
 }
 
 void premapSpider(short i) {

@@ -5,7 +5,7 @@ BEGIN_WH_NS
 
 static void willowDrain(PLAYER& plr, short i);
 
-static void chase(PLAYER& plr, short i) {
+static void chasewillow(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -67,7 +67,7 @@ static void chase(PLAYER& plr, short i) {
 	}
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackwillow(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -138,7 +138,7 @@ static void attackfunc(PLAYER& plr, short i) {
 		spr.z = floorz;
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facewillow(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -167,12 +167,12 @@ static void face(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchwillow(PLAYER& plr, short i) {
 	aisearch(plr, i, true);
 	checksector6(i);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleewillow(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -205,7 +205,7 @@ static void flee(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void diewillow(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -227,7 +227,7 @@ static void die(PLAYER& plr, short i) {
 	}
 }
 		
-static void nuked(PLAYER& plr, short i) {
+static void nukedwillow(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (isWh2()) {
@@ -268,13 +268,13 @@ static void willowDrain(PLAYER& plr, short i) {
 void createWillowAI() {
 	auto& e = enemy[WILLOWTYPE];
 	e.info.Init(32, 32, 512, 120, 0, 64, true, isWh2() ? 5 : 400, 0);
-	e.chase = chase;
-	e.attack = attackfunc;
-	e.face = face;
-	e.search = search;
-	e.flee = flee;
-	e.die = die;
-	e.nuked = nuked;
+	e.chase = chasewillow;
+	e.attack = attackwillow;
+	e.face = facewillow;
+	e.search = searchwillow;
+	e.flee = fleewillow;
+	e.die = diewillow;
+	e.nuked = nukedwillow;
 }
 	
 

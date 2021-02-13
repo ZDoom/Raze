@@ -153,7 +153,6 @@ extern uint8_t wallshadearray[MAXWALLS];
 extern short floormirrorsector[64];
 extern int floormirrorcnt;
 extern int displaytime;
-extern int redcount, whitecount;
 
 extern int zr_ceilz, zr_ceilhit, zr_florz, zr_florhit;
 void getzrange(int x, int y, int z, short sectnum, int walldist, int cliptype);

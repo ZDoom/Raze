@@ -3,16 +3,16 @@
 
 BEGIN_WH_NS
 
-static void chase(PLAYER& plr, short i) {
+static void chaserat(PLAYER& plr, short i) {
 	newstatus(i, FLEE);
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchrat(PLAYER& plr, short i) {
 	sprite[i].ang = (short) (((krand() & 512 - 256) + sprite[i].ang + 1024) & 2047);
 	newstatus(i, FLEE);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facerat(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 	spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
@@ -20,11 +20,11 @@ static void face(PLAYER& plr, short i) {
 	newstatus(i, FLEE);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void dierat(PLAYER& plr, short i) {
 	deletesprite(i);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleerat(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -90,11 +90,11 @@ void createRatAI() {
 	{
 		return 10;
 	};
-	e.chase = chase;
-	e.search = search;
-	e.face = face;
-	e.die = die;
-	e.flee = flee;
+	e.chase = chaserat;
+	e.search = searchrat;
+	e.face = facerat;
+	e.die = dierat;
+	e.flee = fleerat;
 }
 	
 void premapRat(short i) {

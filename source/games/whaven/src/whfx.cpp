@@ -71,7 +71,7 @@ void initlava(void) {
 		lavadropsizlookup[z] = 8 / (ksqrt(z) + 1);
 
 	for (z = 0; z < LAVASIZ; z++)
-		lavainc[z] = klabs((((z ^ 17) >> 4) & 7) - 4) + 12;
+		lavainc[z] = abs((((z ^ 17) >> 4) & 7) - 4) + 12;
 
 	lavanumdrops = 0;
 	lavanumframes = 0;
@@ -195,7 +195,7 @@ void initwater(void) {
 		waterdropsizlookup[z] = 8 / (ksqrt(z) + 1);
 
 	for (z = 0; z < WATERSIZ; z++)
-		waterinc[z] = klabs((((z ^ 17) >> 4) & 7) - 4) + 12;
+		waterinc[z] = abs((((z ^ 17) >> 4) & 7) - 4) + 12;
 
 	waternumdrops = 0;
 	waternumframes = 0;

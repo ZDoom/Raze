@@ -5,7 +5,7 @@ BEGIN_WH_NS
 
 void spawnabaddy(int i, int monster);
 
-static void chase(PLAYER& plr, short i) {
+static void chasekatie(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -59,7 +59,7 @@ static void chase(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectkatie(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -72,12 +72,12 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchkatie(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void pain(PLAYER& plr, short i) {
+static void painkatie(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -91,7 +91,7 @@ static void pain(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facekatie(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.ang = (short)(getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
@@ -121,7 +121,7 @@ static void face(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackkatie(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -148,7 +148,7 @@ static void attackfunc(PLAYER& plr, short i) {
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleekatie(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -185,7 +185,7 @@ static void flee(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void cast(PLAYER& plr, short i) {
+static void castkatie(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -240,7 +240,7 @@ static void cast(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void diekatie(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -262,15 +262,15 @@ static void die(PLAYER& plr, short i) {
 void createKatieAI() {
 	auto& e = enemy[KATIETYPE];
 	e.info.Init(35, 35, 2048, 120, 0, 64, false, 200, 0);
-	e.chase = chase;
-	e.resurect = resurect;
-	e.search = search;
-	e.pain = pain;
-	e.face = face;
-	e.attack = attackfunc;
-	e.flee = flee;
-	e.cast = cast;
-	e.die = die;
+	e.chase = chasekatie;
+	e.resurect = resurectkatie;
+	e.search = searchkatie;
+	e.pain = painkatie;
+	e.face = facekatie;
+	e.attack = attackkatie;
+	e.flee = fleekatie;
+	e.cast = castkatie;
+	e.die = diekatie;
 }
 
 void premapKatie(short i) {

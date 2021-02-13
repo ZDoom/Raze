@@ -9,7 +9,7 @@ static void checkspeed(int i, int speed);
 static void dragonAttack2(PLAYER& plr, short i);
 static void firebreath(PLAYER& plr, int i, int a, int b, int c);
 
-static void chase(PLAYER& plr, short i) {
+static void chasedragon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -70,7 +70,7 @@ static void chase(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void flee(PLAYER& plr, short i) {
+static void fleedragon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -102,7 +102,7 @@ static void flee(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void die(PLAYER& plr, short i) {
+static void diedragon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -120,7 +120,7 @@ static void die(PLAYER& plr, short i) {
 	}
 }
 
-static void cast(PLAYER& plr, short i) {
+static void castdragon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -190,7 +190,7 @@ static void cast(PLAYER& plr, short i) {
 	checksector6(i);
 }
 
-static void attackfunc(PLAYER& plr, short i) {
+static void attackdragon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -205,7 +205,7 @@ static void attackfunc(PLAYER& plr, short i) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 }
 
-static void resurect(PLAYER& plr, short i) {
+static void resurectdragon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -218,12 +218,12 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 
-static void search(PLAYER& plr, short i) {
+static void searchdragon(PLAYER& plr, short i) {
 	aisearch(plr, i, true);
 	checksector6(i);
 }
 
-static void frozen(PLAYER& plr, short i) {
+static void frozendragon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -234,7 +234,7 @@ static void frozen(PLAYER& plr, short i) {
 	}
 }
 
-static void nuked(PLAYER& plr, short i) {
+static void nukeddragon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -248,7 +248,7 @@ static void nuked(PLAYER& plr, short i) {
 	}
 }
 
-static void pain(PLAYER& plr, short i) {
+static void paindragon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	aimove(i);
@@ -256,7 +256,7 @@ static void pain(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void face(PLAYER& plr, short i) {
+static void facedragon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -366,17 +366,17 @@ static void checkspeed(int i, int speed) {
 void createDragonAI() {
 	auto& e = enemy[DRAGONTYPE];
 	e.info.Init(54, 54, 512, 120, 0, 128, false, 900, 0);
-	e.chase = chase;
-	e.flee = flee;
-	e.die = die;
-	e.cast = cast;
-	e.attack = attackfunc;
-	e.resurect = resurect;
-	e.search = search;
-	e.frozen = frozen;
-	e.nuked = nuked;
-	e.pain = pain;
-	e.face = face;
+	e.chase = chasedragon;
+	e.flee = fleedragon;
+	e.die = diedragon;
+	e.cast = castdragon;
+	e.attack = attackdragon;
+	e.resurect = resurectdragon;
+	e.search = searchdragon;
+	e.frozen = frozendragon;
+	e.nuked = nukeddragon;
+	e.pain = paindragon;
+	e.face = facedragon;
 }
 
 void premapDragon(short i) {

@@ -43,8 +43,8 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
             for (int k = floormirrorcnt - 1; k >= 0; k--) {
             	int sect = floormirrorsector[k];
             	if((gotsector[sect >> 3] & (1 << (sect & 7))) == 0) continue;
-                j = klabs(wall[sector[sect].wallptr].x - plr.x);
-                j += klabs(wall[sector[sect].wallptr].y - plr.y);
+                j = abs(wall[sector[sect].wallptr].x - plr.x);
+                j += abs(wall[sector[sect].wallptr].y - plr.y);
                 if (j < dist) {
                     dist = j; i = k;
                 }
@@ -81,7 +81,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 		DrawHud(dasmoothratio);
 		if (automapMode != am_off)
 		{
-			DrawOverheadMap(cposx, cposy, cang.asbuild());
+			DrawOverheadMap(cposx, cposy, cang.asbuild(), dasmoothratio);
 		}
 	}
 }

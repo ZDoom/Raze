@@ -5,7 +5,7 @@ BEGIN_WH_NS
 
 static void newguyarrow(short s, PLAYER& plr);
 
-static void stand(PLAYER& plr, short i) {
+static void standnewguy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
 		if (cansee(spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum, plr.x, plr.y,
@@ -20,7 +20,7 @@ static void stand(PLAYER& plr, short i) {
 	}
 }
 	
-static void chase(PLAYER& plr, short i) {
+static void chasenewguy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -100,7 +100,7 @@ static void chase(PLAYER& plr, short i) {
 	}
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectnewguy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -131,7 +131,7 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmish(PLAYER& plr, short i) {
+static void skirmishnewguy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -154,19 +154,19 @@ static void skirmish(PLAYER& plr, short i) {
 	checksector6(i);
 }
 
-static void search(PLAYER& plr, short i) {
+static void searchnewguy(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void nuked(PLAYER& plr, short i) {
+static void nukednewguy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
 	newstatus((short)i, DIE);
 }
 	
-static void pain(PLAYER& plr, short i) {
+static void painnewguy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -180,7 +180,7 @@ static void pain(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facenewguy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -209,7 +209,7 @@ static void face(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleenewguy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -243,7 +243,7 @@ static void flee(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attacknewguy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -296,7 +296,7 @@ static void attackfunc(PLAYER& plr, short i) {
 	}
 }
 	
-static void die(PLAYER& plr, short i) {
+static void dienewguy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -315,7 +315,7 @@ static void die(PLAYER& plr, short i) {
 	}
 }
 	
-static void cast(PLAYER& plr, short i) {
+static void castnewguy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -421,18 +421,18 @@ void createNewGuyAI() {
 
 		return adjusthp(e.health);
 	};
-	e.stand = stand;
-	e.chase = chase;
-	e.resurect = resurect;
-	e.skirmish = skirmish;
-	e.search = search;
-	e.nuked = nuked;
-	e.pain = pain;
-	e.face = face;
-	e.flee = flee;
-	e.attack = attackfunc;
-	e.die = die;
-	e.cast = cast;
+	e.stand = standnewguy;
+	e.chase = chasenewguy;
+	e.resurect = resurectnewguy;
+	e.skirmish = skirmishnewguy;
+	e.search = searchnewguy;
+	e.nuked = nukednewguy;
+	e.pain = painnewguy;
+	e.face = facenewguy;
+	e.flee = fleenewguy;
+	e.attack = attacknewguy;
+	e.die = dienewguy;
+	e.cast = castnewguy;
 }
 
 

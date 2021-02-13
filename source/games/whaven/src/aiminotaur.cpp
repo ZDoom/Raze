@@ -3,9 +3,9 @@
 
 BEGIN_WH_NS
 
-static void checkexpl(PLAYER& plr, short i);
+static void checkexplminotaur(PLAYER& plr, short i);
 
-static void chase(PLAYER& plr, short i) {
+static void chaseminotaur(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -84,10 +84,10 @@ static void chase(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexpl(plr, i);
+	checkexplminotaur(plr, i);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectminotaur(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -100,7 +100,7 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmish(PLAYER& plr, short i) {
+static void skirmishminotaur(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -123,10 +123,10 @@ static void skirmish(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexpl(plr, i);
+	checkexplminotaur(plr, i);
 }
 	
-static void nuked(PLAYER& plr, short i) {
+static void nukedminotaur(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (isWh2()) {
@@ -147,7 +147,7 @@ static void nuked(PLAYER& plr, short i) {
 	}
 }
 	
-static void pain(PLAYER& plr, short i) {
+static void painminotaur(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -160,10 +160,10 @@ static void pain(PLAYER& plr, short i) {
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplminotaur(plr, i);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void faceminotaur(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -193,10 +193,10 @@ static void face(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexpl(plr, i);
+	checkexplminotaur(plr, i);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackminotaur(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -234,7 +234,7 @@ static void attackfunc(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void dieminotaur(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -253,7 +253,7 @@ static void die(PLAYER& plr, short i) {
 	}
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleeminotaur(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -284,10 +284,10 @@ static void flee(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplminotaur(plr, i);
 }
 	
-static void frozen(PLAYER& plr, short i) {
+static void frozenminotaur(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -298,14 +298,14 @@ static void frozen(PLAYER& plr, short i) {
 	}
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchminotaur(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexpl(plr, i);
+		checkexplminotaur(plr, i);
 }
 
 
-static void checkexpl(PLAYER& plr, short i) {
+static void checkexplminotaur(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
@@ -334,17 +334,17 @@ void createMinotaurAI() {
 
 	auto& e = enemy[MINOTAURTYPE];
 	e.info.Init(64, 64, 1024 + 512, 120, 0, 64, false, isWh2() ? 80 : 100, 0);
-	e.chase = chase;
-	e.resurect = resurect;
-	e.skirmish = skirmish;
-	e.nuked = nuked;
-	e.pain = pain;
-	e.face = face;
-	e.attack = attackfunc;
-	e.die = die;
-	e.flee = flee;
-	e.frozen = frozen;
-	e.search = search;
+	e.chase = chaseminotaur;
+	e.resurect = resurectminotaur;
+	e.skirmish = skirmishminotaur;
+	e.nuked = nukedminotaur;
+	e.pain = painminotaur;
+	e.face = faceminotaur;
+	e.attack = attackminotaur;
+	e.die = dieminotaur;
+	e.flee = fleeminotaur;
+	e.frozen = frozenminotaur;
+	e.search = searchminotaur;
 }
 
 

@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void chase(PLAYER& plr, short i) {
+static void chaseskully(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -56,7 +56,7 @@ static void chase(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectskully(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -69,12 +69,12 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchskully(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void nuked(PLAYER& plr, short i) {
+static void nukedskully(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -88,7 +88,7 @@ static void nuked(PLAYER& plr, short i) {
 	}
 }
 	
-static void pain(PLAYER& plr, short i) {
+static void painskully(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -102,7 +102,7 @@ static void pain(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void faceskully(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -133,7 +133,7 @@ static void face(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackskully(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -160,7 +160,7 @@ static void attackfunc(PLAYER& plr, short i) {
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleeskully(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -192,7 +192,7 @@ static void flee(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void cast(PLAYER& plr, short i) {
+static void castskully(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -210,7 +210,7 @@ static void cast(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void dieskully(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -232,16 +232,16 @@ static void die(PLAYER& plr, short i) {
 void createSkullyAI() {
 	auto& e = enemy[SKULLYTYPE];
 	e.info.Init(32, 32, 2048, 120, 0, 64, false, 300, 0);
-	e.chase = chase;
-	e.resurect = resurect;
-	e.search = search;
-	e.nuked = nuked;
-	e.pain = pain;
-	e.face = face;
-	e.attack = attackfunc;
-	e.flee = flee;
-	e.cast = cast;
-	e.die = die;
+	e.chase = chaseskully;
+	e.resurect = resurectskully;
+	e.search = searchskully;
+	e.nuked = nukedskully;
+	e.pain = painskully;
+	e.face = faceskully;
+	e.attack = attackskully;
+	e.flee = fleeskully;
+	e.cast = castskully;
+	e.die = dieskully;
 }
 
 void premapSkully(short i) {

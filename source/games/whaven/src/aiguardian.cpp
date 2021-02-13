@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void chase(PLAYER& plr, short i) {
+static void chaseguardian(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -70,7 +70,7 @@ static void chase(PLAYER& plr, short i) {
 	}
 }
 	
-static void nuked(PLAYER& plr, short i) {
+static void nukedguardian(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (isWh2()) {
@@ -91,7 +91,7 @@ static void nuked(PLAYER& plr, short i) {
 	}
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackguardian(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (plr.z < spr.z) {
@@ -113,7 +113,7 @@ static void attackfunc(PLAYER& plr, short i) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void faceguardian(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -144,12 +144,12 @@ static void face(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchguardian(PLAYER& plr, short i) {
 	aisearch(plr, i, true);
 	checksector6(i);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleeguardian(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -185,7 +185,7 @@ static void flee(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void pain(PLAYER& plr, short i) {
+static void painguardian(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -198,7 +198,7 @@ static void pain(PLAYER& plr, short i) {
 	//				setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void cast(PLAYER& plr, short i) {
+static void castguardian(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -228,14 +228,14 @@ static void cast(PLAYER& plr, short i) {
 void createGuardianAI() {
 	auto& e = enemy[GUARDIANTYPE];
 	e.info.Init(isWh2() ? 35 : 32, isWh2() ? 35 : 32, 4096, 120, 0, 64, true, isWh2() ? 100 : 200, 0);
-	e.chase = chase;
-	e.nuked = nuked;
-	e.attack = attackfunc;
-	e.face = face;
-	e.search = search;
-	e.flee = flee;
-	e.pain = pain;
-	e.cast = cast;
+	e.chase = chaseguardian;
+	e.nuked = nukedguardian;
+	e.attack = attackguardian;
+	e.face = faceguardian;
+	e.search = searchguardian;
+	e.flee = fleeguardian;
+	e.pain = painguardian;
+	e.cast = castguardian;
 }
 
 void premapGuardian(short i) {

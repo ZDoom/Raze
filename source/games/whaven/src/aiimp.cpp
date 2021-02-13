@@ -3,9 +3,9 @@
 
 BEGIN_WH_NS
 
-static void checkexpl(PLAYER& plr, short i);
+static void checkexplimp(PLAYER& plr, short i);
 
-static void chase(PLAYER& plr, short i) {
+static void chaseimp(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -84,10 +84,10 @@ static void chase(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexpl(plr, i);
+	checkexplimp(plr, i);
 }
 		
-static void frozen(PLAYER& plr, short i) {
+static void frozenimp(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -98,7 +98,7 @@ static void frozen(PLAYER& plr, short i) {
 	}
 }
 	
-static void pain(PLAYER& plr, short i) {
+static void painimp(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -112,7 +112,7 @@ static void pain(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void dieimp(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -131,14 +131,14 @@ static void die(PLAYER& plr, short i) {
 	}
 }
 	
-static void nuked(PLAYER& plr, short i) {
+static void nukedimp(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
 	newstatus((short)i, DIE);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectimp(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -151,7 +151,7 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void face(PLAYER& plr, short i) {
+static void faceimp(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -181,10 +181,10 @@ static void face(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexpl(plr, i);
+	checkexplimp(plr, i);
 }
 
-static void flee(PLAYER& plr, short i) {
+static void fleeimp(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -216,10 +216,10 @@ static void flee(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplimp(plr, i);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackimp(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -256,13 +256,13 @@ static void attackfunc(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchimp(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexpl(plr, i);
+		checkexplimp(plr, i);
 }
 		
-static void skirmish(PLAYER& plr, short i) {
+static void skirmishimp(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -285,10 +285,10 @@ static void skirmish(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexpl(plr, i);
+	checkexplimp(plr, i);
 }
 
-static void checkexpl(PLAYER& plr, short i) {
+static void checkexplimp(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
@@ -314,17 +314,17 @@ static void checkexpl(PLAYER& plr, short i) {
 void createImpAI() {
 	auto& e = enemy[IMPTYPE];
 	e.info.Init(25, 25, 1024, 120, 0, 64, false, 20, 0);
-	e.chase = chase;
-	e.frozen = frozen;
-	e.pain = pain;
-	e.die = die;
-	e.nuked = nuked;
-	e.resurect = resurect;
-	e.face = face;
-	e.flee = flee;
-	e.attack = attackfunc;
-	e.search = search;
-	e.skirmish = skirmish;
+	e.chase = chaseimp;
+	e.frozen = frozenimp;
+	e.pain = painimp;
+	e.die = dieimp;
+	e.nuked = nukedimp;
+	e.resurect = resurectimp;
+	e.face = faceimp;
+	e.flee = fleeimp;
+	e.attack = attackimp;
+	e.search = searchimp;
+	e.skirmish = skirmishimp;
 }
 
 	

@@ -4,10 +4,10 @@
 BEGIN_WH_NS
 
 static void gonzopike(short s, PLAYER& plr);
-static void checkexpl(PLAYER& plr, short i);
+static void checkexplgonzo(PLAYER& plr, short i);
 static boolean patrolprocess(PLAYER& plr, short i);
 
-static void chase(PLAYER& plr, short i) {
+static void chasegonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -184,10 +184,10 @@ static void chase(PLAYER& plr, short i) {
 		}
 	}
 
-	checkexpl(plr, i);
+	checkexplgonzo(plr, i);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectgonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -216,7 +216,7 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmish(PLAYER& plr, short i) {
+static void skirmishgonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -240,23 +240,23 @@ static void skirmish(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexpl(plr, i);
+	checkexplgonzo(plr, i);
 }
 
-static void search(PLAYER& plr, short i) {
+static void searchgonzo(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexpl(plr, i);
+		checkexplgonzo(plr, i);
 }
 	
-static void nuked(PLAYER& plr, short i) {
+static void nukedgonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
 	newstatus(i, DIE);
 }
 	
-static void frozen(PLAYER& plr, short i) {
+static void frozengonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -280,7 +280,7 @@ static void frozen(PLAYER& plr, short i) {
 	}
 }
 	
-static void pain(PLAYER& plr, short i) {
+static void paingonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -306,10 +306,10 @@ static void pain(PLAYER& plr, short i) {
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplgonzo(plr, i);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facegonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -339,10 +339,10 @@ static void face(PLAYER& plr, short i) {
 	if (plr.invisibletime < 0 && checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexpl(plr, i);
+	checkexplgonzo(plr, i);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackgonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -426,7 +426,7 @@ static void attackfunc(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleegonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -460,10 +460,10 @@ static void flee(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplgonzo(plr, i);
 }
 	
-static void cast(PLAYER& plr, short i) {
+static void castgonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -480,7 +480,7 @@ static void cast(PLAYER& plr, short i) {
 	}
 }
 	
-static void die(PLAYER& plr, short i) {
+static void diegonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -666,7 +666,7 @@ static void gonzopike(short s, PLAYER& plr) {
 
 }
 
-static void checkexpl(PLAYER& plr, short i) {
+static void checkexplgonzo(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
@@ -721,18 +721,18 @@ void createGonzoAI() {
 
 		return adjusthp(e.health);
 	};
-	e.chase = chase;
-	e.resurect = resurect;
-	e.skirmish = skirmish;
-	e.search = search;
-	e.nuked = nuked;
-	e.frozen = frozen;
-	e.pain = pain;
-	e.face = face;
-	e.attack = attackfunc;
-	e.flee = flee;
-	e.cast = cast;
-	e.die = die;
+	e.chase = chasegonzo;
+	e.resurect = resurectgonzo;
+	e.skirmish = skirmishgonzo;
+	e.search = searchgonzo;
+	e.nuked = nukedgonzo;
+	e.frozen = frozengonzo;
+	e.pain = paingonzo;
+	e.face = facegonzo;
+	e.attack = attackgonzo;
+	e.flee = fleegonzo;
+	e.cast = castgonzo;
+	e.die = diegonzo;
 }
 	
 

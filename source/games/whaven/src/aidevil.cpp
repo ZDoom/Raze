@@ -4,7 +4,7 @@
 BEGIN_WH_NS
 
 
-static void chase(PLAYER& plr, short i) {
+static void chasedevil(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -59,7 +59,7 @@ static void chase(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void die(PLAYER& plr, short i) {
+static void diedevil(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -78,7 +78,7 @@ static void die(PLAYER& plr, short i) {
 	}
 }
 
-static void pain(PLAYER& plr, short i) {
+static void paindevil(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -92,7 +92,7 @@ static void pain(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void face(PLAYER& plr, short i) {
+static void facedevil(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -123,7 +123,7 @@ static void face(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 
-static void flee(PLAYER& plr, short i) {
+static void fleedevil(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -155,7 +155,7 @@ static void flee(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void attackfunc(PLAYER& plr, short i) {
+static void attackdevil(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -183,7 +183,7 @@ static void attackfunc(PLAYER& plr, short i) {
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
 }
 
-static void resurect(PLAYER& plr, short i) {
+static void resurectdevil(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -196,12 +196,12 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 
-static void search(PLAYER& plr, short i) {
+static void searchdevil(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 
-static void frozen(PLAYER& plr, short i) {
+static void frozendevil(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -212,7 +212,7 @@ static void frozen(PLAYER& plr, short i) {
 	}
 }
 
-static void nuked(PLAYER& plr, short i) {
+static void nukeddevil(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (isWh2()) {
@@ -233,7 +233,7 @@ static void nuked(PLAYER& plr, short i) {
 	}
 }
 
-static void cast(PLAYER& plr, short i) {
+static void castdevil(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -255,17 +255,17 @@ static void cast(PLAYER& plr, short i) {
 void createDevilAI() {
 	auto &e = enemy[DEVILTYPE];
 	e.info.Init(isWh2() ? 50 : 36, isWh2() ? 50 : 36, 2048, 120, 0, 64, false, 50, 0);
-	e.chase = chase;
-	e.die = die;
-	e.pain = pain;
-	e.face = face;
-	e.flee = flee;
-	e.attack = attackfunc;
-	e.resurect = resurect;
-	e.search = search;
-	e.frozen = frozen;
-	e.nuked = nuked;
-	e.cast = cast;
+	e.chase = chasedevil;
+	e.die = diedevil;
+	e.pain = paindevil;
+	e.face = facedevil;
+	e.flee = fleedevil;
+	e.attack = attackdevil;
+	e.resurect = resurectdevil;
+	e.search = searchdevil;
+	e.frozen = frozendevil;
+	e.nuked = nukeddevil;
+	e.cast = castdevil;
 }
 
 void premapDevil(short i) {

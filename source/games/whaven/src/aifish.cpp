@@ -4,7 +4,7 @@
 BEGIN_WH_NS
 
 
-static void chase(PLAYER& plr, short i) {
+static void chasefish(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -76,11 +76,11 @@ static void chase(PLAYER& plr, short i) {
 	}
 }
 	
-static void die(PLAYER& plr, short i) {
+static void diefish(PLAYER& plr, short i) {
 	deletesprite(i);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackfish(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.z = sector[sprite[i].sectnum].floorz;
@@ -115,7 +115,7 @@ static void attackfunc(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void skirmish(PLAYER& plr, short i) {
+static void skirmishfish(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -138,12 +138,12 @@ static void skirmish(PLAYER& plr, short i) {
 		return;
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchfish(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facefish(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -177,12 +177,12 @@ static void face(PLAYER& plr, short i) {
 void createFishAI() {
 	auto &e = enemy[FISHTYPE];
 	e.info.Init(1, 1, 512, 120, 0, 32, false, 10, 0);
-	e.chase = chase;
-	e.die = die;
-	e.attack = attackfunc;
-	e.skirmish = skirmish;
-	e.search = search;
-	e.face = face;
+	e.chase = chasefish;
+	e.die = diefish;
+	e.attack = attackfish;
+	e.skirmish = skirmishfish;
+	e.search = searchfish;
+	e.face = facefish;
 }
 
 void premapFish(short i) {

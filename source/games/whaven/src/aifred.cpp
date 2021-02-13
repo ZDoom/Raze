@@ -3,10 +3,10 @@
 
 BEGIN_WH_NS
 
-static void checkexpl(PLAYER& plr, short i);
+static void checkexplfred(PLAYER& plr, short i);
 
 
-static void chase(PLAYER& plr, short i) {
+static void chasefred(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -77,10 +77,10 @@ static void chase(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexpl(plr, i);
+	checkexplfred(plr, i);
 }
 	
-static void skirmish(PLAYER& plr, short i) {
+static void skirmishfred(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -102,10 +102,10 @@ static void skirmish(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexpl(plr, i);
+	checkexplfred(plr, i);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void diefred(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -124,13 +124,13 @@ static void die(PLAYER& plr, short i) {
 	}
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchfred(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexpl(plr, i);
+		checkexplfred(plr, i);
 }
 	
-static void frozen(PLAYER& plr, short i) {
+static void frozenfred(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -141,7 +141,7 @@ static void frozen(PLAYER& plr, short i) {
 	}
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facefred(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -171,10 +171,10 @@ static void face(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexpl(plr, i);
+	checkexplfred(plr, i);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackfred(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -212,7 +212,7 @@ static void attackfunc(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleefred(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -244,10 +244,10 @@ static void flee(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplfred(plr, i);
 }
 	
-static void pain(PLAYER& plr, short i) {
+static void painfred(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -260,10 +260,10 @@ static void pain(PLAYER& plr, short i) {
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplfred(plr, i);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectfred(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -276,7 +276,7 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 
-static void checkexpl(PLAYER& plr, short i) {
+static void checkexplfred(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
@@ -302,16 +302,16 @@ static void checkexpl(PLAYER& plr, short i) {
 void createFredAI() {
 	auto &e = enemy[FREDTYPE];
 	e.info.Init(48, 48, 1024 + 256, 120, 0, 64, false, 40, 0);
-	e.chase = chase;
-	e.skirmish = skirmish;
-	e.die = die;
-	e.search = search;
-	e.frozen = frozen;
-	e.face = face;
-	e.attack = attackfunc;
-	e.flee = flee;
-	e.pain = pain;
-	e.resurect = resurect;
+	e.chase = chasefred;
+	e.skirmish = skirmishfred;
+	e.die = diefred;
+	e.search = searchfred;
+	e.frozen = frozenfred;
+	e.face = facefred;
+	e.attack = attackfred;
+	e.flee = fleefred;
+	e.pain = painfred;
+	e.resurect = resurectfred;
 }
 
 

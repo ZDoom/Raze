@@ -20,8 +20,6 @@ WEAPONINF weaponanimtics2[MAXWEAPONS][MAXFRAMES];
 WEAPONINF zweaponanimtics2[MAXWEAPONS][MAXFRAMES];
 WEAPONINF lefthandanimtics[5][MAXFRAMES];
 
-#define set(v) memcpy(v, _##v, sizeof(v));
-
 void wepdatainit()
 {
 	// The data in here is not constant so they need to be set up at run time.
@@ -716,20 +714,24 @@ void wepdatainit()
 
 	};
 
-	set(sspellbookanim);
-	set(spikeanimtics);
-	set(wh2throwanimtics);
-	set(throwanimtics);
-	set(cockanimtics);
-	set(zcockanimtics);
-	set(zreadyanimtics);
-	set(readyanimtics);
-	set(weaponanimtics);
-	set(zweaponanimtics);
-	set(zlefthandanimtics);
-	set(weaponanimtics2);
-	set(zweaponanimtics2);
-	set(lefthandanimtics);
+#define setmem(v) ::memcpy(v, _##v, sizeof(v));
+
+	setmem(sspellbookanim);
+	setmem(spikeanimtics);
+	setmem(wh2throwanimtics);
+	setmem(throwanimtics);
+	setmem(cockanimtics);
+	setmem(zcockanimtics);
+	setmem(zreadyanimtics);
+	setmem(readyanimtics);
+	setmem(weaponanimtics);
+	setmem(zweaponanimtics);
+	setmem(zlefthandanimtics);
+	setmem(weaponanimtics2);
+	setmem(zweaponanimtics2);
+	setmem(lefthandanimtics);
+
+#undef setmem
 
 }
 

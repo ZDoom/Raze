@@ -3,11 +3,11 @@
 
 BEGIN_WH_NS
 
-static void checkexpl(PLAYER& plr, short i);
+static void checkexplgron(PLAYER& plr, short i);
 static void throwhalberd(int s);
 
 
-static void chase(PLAYER& plr, short i) {
+static void chasegron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -115,10 +115,10 @@ static void chase(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexpl(plr, i);
+	checkexplgron(plr, i);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectgron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -146,7 +146,7 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmish(PLAYER& plr, short i) {
+static void skirmishgron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -169,16 +169,16 @@ static void skirmish(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexpl(plr, i);
+	checkexplgron(plr, i);
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchgron(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexpl(plr, i);
+		checkexplgron(plr, i);
 }
 	
-static void nuked(PLAYER& plr, short i) {
+static void nukedgron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (isWh2()) {
@@ -199,7 +199,7 @@ static void nuked(PLAYER& plr, short i) {
 	}
 }
 	
-static void frozen(PLAYER& plr, short i) {
+static void frozengron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -215,7 +215,7 @@ static void frozen(PLAYER& plr, short i) {
 	}
 }
 			
-static void pain(PLAYER& plr, short i) {
+static void paingron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -234,10 +234,10 @@ static void pain(PLAYER& plr, short i) {
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplgron(plr, i);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facegron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -267,10 +267,10 @@ static void face(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexpl(plr, i);
+	checkexplgron(plr, i);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackgron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (spr.picnum == GRONSWATTACK) {
@@ -322,7 +322,7 @@ static void attackfunc(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleegron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -353,10 +353,10 @@ static void flee(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplgron(plr, i);
 }
 	
-static void cast(PLAYER& plr, short i) {
+static void castgron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -378,7 +378,7 @@ static void cast(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void diegron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -407,7 +407,7 @@ static void die(PLAYER& plr, short i) {
 	}
 }
 
-static void checkexpl(PLAYER& plr, short i) {
+static void checkexplgron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
@@ -493,18 +493,18 @@ void createGronAI() {
 		}
 		return adjusthp(e.health);
 	};
-	e.chase = chase;
-	e.resurect = resurect;
-	e.skirmish = skirmish;
-	e.search = search;
-	e.nuked = nuked;
-	e.frozen = frozen;
-	e.pain = pain;
-	e.face = face;
-	e.attack = attackfunc;
-	e.flee = flee;
-	e.cast = cast;
-	e.die = die;
+	e.chase = chasegron;
+	e.resurect = resurectgron;
+	e.skirmish = skirmishgron;
+	e.search = searchgron;
+	e.nuked = nukedgron;
+	e.frozen = frozengron;
+	e.pain = paingron;
+	e.face = facegron;
+	e.attack = attackgron;
+	e.flee = fleegron;
+	e.cast = castgron;
+	e.die = diegron;
 }
 
 

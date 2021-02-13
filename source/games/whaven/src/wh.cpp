@@ -22,7 +22,6 @@ uint8_t wallshadearray[MAXWALLS];
 short floormirrorsector[64];
 int floormirrorcnt;
 int displaytime = -1;
-int redcount, whitecount;
 
 // We owe this to Java. Unfortunately WitchavenGDX was a bit sloppy with the use of its global variables so the wrapper is here to stay. :(
 int zr_ceilz, zr_ceilhit, zr_florz, zr_florhit;

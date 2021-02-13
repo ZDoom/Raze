@@ -685,6 +685,7 @@ file( GLOB HEADER_FILES
 	games/blood/src/*.h
 	games/sw/src/*.h
 	games/exhumed/src/*.h
+	games/whaven/src/*.h
 
 	build/src/*.h
 	platform/win32/*.h
@@ -945,6 +946,58 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/exhumed/src/trigdat.cpp
 	games/exhumed/src/view.cpp
 	games/exhumed/src/wasp.cpp
+
+	# Witchaven
+	games/whaven/src/2d.cpp
+	games/whaven/src/ai.cpp
+	games/whaven/src/aidemon.cpp
+	games/whaven/src/aidevil.cpp
+	games/whaven/src/aidragon.cpp
+	games/whaven/src/aifatwitch.cpp
+	games/whaven/src/aifish.cpp
+	games/whaven/src/aifred.cpp
+	games/whaven/src/aigoblin.cpp
+	games/whaven/src/aigonzo.cpp
+	games/whaven/src/aigron.cpp
+	games/whaven/src/aiguardian.cpp
+	games/whaven/src/aiimp.cpp
+	games/whaven/src/aijudy.cpp
+	games/whaven/src/aikatie.cpp
+	games/whaven/src/aikobold.cpp
+	games/whaven/src/aikurt.cpp
+	games/whaven/src/aiminotaur.cpp
+	games/whaven/src/ainewguy.cpp
+	games/whaven/src/airat.cpp
+	games/whaven/src/aiskeleton.cpp
+	games/whaven/src/aiskully.cpp
+	games/whaven/src/aispider.cpp
+	games/whaven/src/aiwillow.cpp
+	games/whaven/src/animate.cpp
+	games/whaven/src/animatesprites.cpp
+	games/whaven/src/drawweapon.cpp
+	games/whaven/src/fonts.cpp
+	games/whaven/src/input.cpp
+	games/whaven/src/items.cpp
+	games/whaven/src/main.cpp
+	games/whaven/src/music.cpp
+	games/whaven/src/names.cpp
+	games/whaven/src/potions.cpp
+	games/whaven/src/precache.cpp
+	games/whaven/src/render.cpp
+	games/whaven/src/screenflash.cpp
+	games/whaven/src/sndnames.cpp
+	games/whaven/src/sound.cpp
+	games/whaven/src/spellbooks.cpp
+	games/whaven/src/weapons.cpp
+	games/whaven/src/wepdata.cpp
+	games/whaven/src/wh.cpp
+	games/whaven/src/whani.cpp
+	games/whaven/src/whfx.cpp
+	games/whaven/src/whldsv.cpp
+	games/whaven/src/whmap.cpp
+	games/whaven/src/whobj.cpp
+	games/whaven/src/whplr.cpp
+	games/whaven/src/whtag.cpp
 	
 	
 )
@@ -1269,6 +1322,7 @@ set (PCH_SOURCES
 	games/exhumed/all.cpp
 	games/blood/all.cpp
 	games/sw/all.cpp
+	games/whaven/all.cpp
 )
 
 if( ${HAVE_VM_JIT} )
@@ -1500,6 +1554,8 @@ source_group("Games\\Shadow Warrior" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE
 source_group("Games\\Shadow Warrior\\Source" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/sw/src/+")
 source_group("Games\\Exhumed" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/exhumed/.+")
 source_group("Games\\Exhumed\\Source" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/exhumed/src/.+")
+source_group("Games\\Witchaven" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/whaven/.+")
+source_group("Games\\Witchaven\\Source" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/whaven/src/.+")
 source_group("Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/.+")
 source_group("Core\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/textures/.+")
 source_group("Core\\Textures\\Formats" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/textures/formats/.+")

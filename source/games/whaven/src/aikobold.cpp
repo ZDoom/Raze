@@ -3,9 +3,9 @@
 
 BEGIN_WH_NS
 
-static void checkexpl(PLAYER& plr, short i);
+static void checkexplkobold(PLAYER& plr, short i);
 
-static void chase(PLAYER& plr, short i) {
+static void chasekobold(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -87,10 +87,10 @@ static void chase(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexpl(plr, i);
+	checkexplkobold(plr, i);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void diekobold(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -109,7 +109,7 @@ static void die(PLAYER& plr, short i) {
 	}
 }
 	
-static void pain(PLAYER& plr, short i) {
+static void painkobold(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -122,10 +122,10 @@ static void pain(PLAYER& plr, short i) {
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplkobold(plr, i);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facekobold(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -155,10 +155,10 @@ static void face(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexpl(plr, i);
+	checkexplkobold(plr, i);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleekobold(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -189,10 +189,10 @@ static void flee(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplkobold(plr, i);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackkobold(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -228,7 +228,7 @@ static void attackfunc(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectkobold(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -241,15 +241,15 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchkobold(PLAYER& plr, short i) {
 	if ((krand() % 100) > 98)
 		spritesound(S_KSNARL1 + (krand() % 4), &sprite[i]);
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexpl(plr, i);
+		checkexplkobold(plr, i);
 }
 	
-static void frozen(PLAYER& plr, short i) {
+static void frozenkobold(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -260,7 +260,7 @@ static void frozen(PLAYER& plr, short i) {
 	}
 }
 		
-static void nuked(PLAYER& plr, short i) {
+static void nukedkobold(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (isWh2()) {
@@ -281,7 +281,7 @@ static void nuked(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmish(PLAYER& plr, short i) {
+static void skirmishkobold(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -304,11 +304,11 @@ static void skirmish(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexpl(plr, i);
+	checkexplkobold(plr, i);
 }
 	
 
-static void checkexpl(PLAYER& plr, short i) {
+static void checkexplkobold(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
@@ -334,17 +334,17 @@ static void checkexpl(PLAYER& plr, short i) {
 void createKoboldAI() {
 	auto& e = enemy[KOBOLDTYPE];
 	e.info.Init(isWh2() ? 60 : 54, isWh2() ? 60 : 54, 1024, 120, 0, 64, false, 20, 0);
-	e.chase = chase;
-	e.die = die;
-	e.pain = pain;
-	e.face = face;
-	e.flee = flee;
-	e.attack = attackfunc;
-	e.resurect = resurect;
-	e.search = search;
-	e.frozen = frozen;
-	e.nuked = nuked;
-	e.skirmish = skirmish;
+	e.chase = chasekobold;
+	e.die = diekobold;
+	e.pain = painkobold;
+	e.face = facekobold;
+	e.flee = fleekobold;
+	e.attack = attackkobold;
+	e.resurect = resurectkobold;
+	e.search = searchkobold;
+	e.frozen = frozenkobold;
+	e.nuked = nukedkobold;
+	e.skirmish = skirmishkobold;
 }
 
 void premapKobold(short i) {

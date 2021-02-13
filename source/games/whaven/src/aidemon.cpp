@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void chase(PLAYER& plr, short i) {
+static void chasedemon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -73,12 +73,12 @@ static void chase(PLAYER& plr, short i) {
 	}
 }
 
-static void search(PLAYER& plr, short i) {
+static void searchdemon(PLAYER& plr, short i) {
 	aisearch(plr, i, true);
 	checksector6(i);
 }
 
-static void pain(PLAYER& plr, short i) {
+static void paindemon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -91,7 +91,7 @@ static void pain(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void face(PLAYER& plr, short i) {
+static void facedemon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum);
@@ -120,7 +120,7 @@ static void face(PLAYER& plr, short i) {
 }
 
 
-static void attackfunc(PLAYER& plr, short i) {
+static void attackdemon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (plr.z < spr.z) {
@@ -142,7 +142,7 @@ static void attackfunc(PLAYER& plr, short i) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 }
 
-static void flee(PLAYER& plr, short i) {
+static void fleedemon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -175,7 +175,7 @@ static void flee(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void cast(PLAYER& plr, short i) {
+static void castdemon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -193,7 +193,7 @@ static void cast(PLAYER& plr, short i) {
 	}
 }
 
-static void nuked(PLAYER& plr, short i) {
+static void nukeddemon(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
@@ -205,19 +205,19 @@ void createDemonAI() {
 	auto& e = enemy[DEMONTYPE];
 	enemy[DEMONTYPE].info.Init(38, 41, 4096 + 2048, 120, 0, 64, true, 300, 0);
 
-	e.chase = chase;
+	e.chase = chasedemon;
 	e.resurect;
-	e.nuked = nuked;
+	e.nuked = nukeddemon;
 	e.frozen;
-	e.pain = pain;
-	e.face = face;
-	e.attack = attackfunc;
-	e.flee = flee;
-	e.cast = cast;
+	e.pain = paindemon;
+	e.face = facedemon;
+	e.attack = attackdemon;
+	e.flee = fleedemon;
+	e.cast = castdemon;
 	e.die;
 	e.skirmish;
 	e.stand;
-	e.search = search;
+	e.search = searchdemon;
 }
 
 

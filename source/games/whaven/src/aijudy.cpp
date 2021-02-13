@@ -5,7 +5,7 @@ BEGIN_WH_NS
 
 void spawnabaddy(int i, int monster);
 
-static void chase(PLAYER& plr, short i) {
+static void chasejudy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -69,7 +69,7 @@ static void chase(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectjudy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -82,12 +82,12 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchjudy(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void nuked(PLAYER& plr, short i) {
+static void nukedjudy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -101,7 +101,7 @@ static void nuked(PLAYER& plr, short i) {
 	}
 }
 	
-static void pain(PLAYER& plr, short i) {
+static void painjudy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -115,7 +115,7 @@ static void pain(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facejudy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
@@ -145,7 +145,7 @@ static void face(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackjudy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -173,7 +173,7 @@ static void attackfunc(PLAYER& plr, short i) {
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleejudy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -205,7 +205,7 @@ static void flee(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void cast(PLAYER& plr, short i) {
+static void castjudy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -318,7 +318,7 @@ static void cast(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void diejudy(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -391,16 +391,16 @@ void spawnabaddy(int i, int monster) {
 void createJudyAI() {
 	auto& e = enemy[JUDYTYPE];
 	e.info.Init(32, 32, 2048, 120, 0, 64, false, 500, 0);
-	e.chase = chase;
-	e.resurect = resurect;
-	e.search = search;
-	e.nuked = nuked;
-	e.pain = pain;
-	e.face = face;
-	e.attack = attackfunc;
-	e.flee = flee;
-	e.cast = cast;
-	e.die = die;
+	e.chase = chasejudy;
+	e.resurect = resurectjudy;
+	e.search = searchjudy;
+	e.nuked = nukedjudy;
+	e.pain = painjudy;
+	e.face = facejudy;
+	e.attack = attackjudy;
+	e.flee = fleejudy;
+	e.cast = castjudy;
+	e.die = diejudy;
 }
 
 void premapJudy(short i) {

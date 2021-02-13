@@ -5,7 +5,7 @@ BEGIN_WH_NS
 
 static void throwspank(PLAYER& plr, int i);
 
-static void chase(PLAYER& plr, short i) {
+static void chasefatwitch(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -59,7 +59,7 @@ static void chase(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectfatwitch(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -72,12 +72,12 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchfatwitch(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void nuked(PLAYER& plr, short i) {
+static void nukedfatwitch(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -91,7 +91,7 @@ static void nuked(PLAYER& plr, short i) {
 	}
 }
 	
-static void pain(PLAYER& plr, short i) {
+static void painfatwitch(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -105,7 +105,7 @@ static void pain(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void face(PLAYER& plr, short i) {
+static void facefatwitch(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum);
@@ -133,7 +133,7 @@ static void face(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackfatwitch(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -160,7 +160,7 @@ static void attackfunc(PLAYER& plr, short i) {
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
 }
 	
-static void flee(PLAYER& plr, short i) {
+static void fleefatwitch(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
@@ -192,7 +192,7 @@ static void flee(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void cast(PLAYER& plr, short i) {
+static void castfatwitch(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -209,7 +209,7 @@ static void cast(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void die(PLAYER& plr, short i) {
+static void diefatwitch(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -261,16 +261,16 @@ static void throwspank(PLAYER& plr, int i) {
 void createFatwitchAI() {
 	auto& e = enemy[FATWITCHTYPE];
 	e.info.Init(32, 32, 2048, 120, 0, 64, false, 280, 0);
-	e.chase = chase;
-	e.resurect = resurect;
-	e.search = search;
-	e.nuked = nuked;
-	e.pain = pain;
-	e.face = face;
-	e.attack = attackfunc;
-	e.flee = flee;
-	e.cast = cast;
-	e.die = die;
+	e.chase = chasefatwitch;
+	e.resurect = resurectfatwitch;
+	e.search = searchfatwitch;
+	e.nuked = nukedfatwitch;
+	e.pain = painfatwitch;
+	e.face = facefatwitch;
+	e.attack = attackfatwitch;
+	e.flee = fleefatwitch;
+	e.cast = castfatwitch;
+	e.die = diefatwitch;
 }
 
 void premapFatwitch(short i) {

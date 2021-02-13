@@ -4,7 +4,7 @@
 BEGIN_WH_NS
 
 
-static void stand(PLAYER& plr, short i) {
+static void standkurt(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
@@ -20,7 +20,7 @@ static void stand(PLAYER& plr, short i) {
 	}
 }
 
-static void nuked(PLAYER& plr, short i) {
+static void nukedkurt(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
@@ -69,8 +69,8 @@ void createKurtAI() {
 
 		return out;
 	};
-	e.stand = stand;
-	e.nuked = nuked;
+	e.stand = standkurt;
+	e.nuked = nukedkurt;
 	e.chase = enemy[GONZOTYPE].chase;
 	e.resurect = enemy[GONZOTYPE].resurect;
 	e.skirmish = enemy[GONZOTYPE].skirmish;

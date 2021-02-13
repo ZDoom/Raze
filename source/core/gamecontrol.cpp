@@ -494,12 +494,10 @@ void CheckFrontend(int flags)
 	{
 		gi = Exhumed::CreateInterface();
 	}
-#if 0
 	else if (flags & GAMEFLAG_WHALL)
 	{
 		gi = Witchaven::CreateInterface();
 	}
-#endif
 	else
 	{
 		gi = Duke3d::CreateInterface();

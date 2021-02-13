@@ -3,9 +3,9 @@
 
 BEGIN_WH_NS
 
-static void checkexpl(PLAYER& plr, short i);
+static void checkexplskeleton(PLAYER& plr, short i);
 
-static void chase(PLAYER& plr, short i) {
+static void chaseskeleton(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -84,10 +84,10 @@ static void chase(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexpl(plr, i);
+	checkexplskeleton(plr, i);
 }
 
-static void die(PLAYER& plr, short i) {
+static void dieskeleton(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 
@@ -106,7 +106,7 @@ static void die(PLAYER& plr, short i) {
 	}
 }
 
-static void face(PLAYER& plr, short i) {
+static void faceskeleton(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 
@@ -136,10 +136,10 @@ static void face(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexpl(plr, i);
+	checkexplskeleton(plr, i);
 }
 
-static void flee(PLAYER& plr, short i) {
+static void fleeskeleton(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.picnum = SKELETON;
 
@@ -173,10 +173,10 @@ static void flee(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexpl(plr, i);
+	checkexplskeleton(plr, i);
 }
 
-static void stand(PLAYER& plr, short i) {
+static void standskeleton(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
@@ -202,7 +202,7 @@ static void stand(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void attackfunc(PLAYER& plr, short i) {
+static void attackskeleton(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -238,7 +238,7 @@ static void attackfunc(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void resurect(PLAYER& plr, short i) {
+static void resurectskeleton(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -251,13 +251,13 @@ static void resurect(PLAYER& plr, short i) {
 	}
 }
 	
-static void search(PLAYER& plr, short i) {
+static void searchskeleton(PLAYER& plr, short i) {
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexpl(plr, i);
+		checkexplskeleton(plr, i);
 }
 	
-static void frozen(PLAYER& plr, short i) {
+static void frozenskeleton(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -268,7 +268,7 @@ static void frozen(PLAYER& plr, short i) {
 	}
 }
 	
-static void nuked(PLAYER& plr, short i) {
+static void nukedskeleton(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	if (isWh2()) {
@@ -289,7 +289,7 @@ static void nuked(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmish(PLAYER& plr, short i) {
+static void skirmishskeleton(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 
 	spr.lotag -= TICSPERFRAME;
@@ -312,7 +312,7 @@ static void skirmish(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexpl(plr, i);
+	checkexplskeleton(plr, i);
 }
 
 void skeletonChill(PLAYER& plr, short i) {
@@ -329,7 +329,7 @@ void skeletonChill(PLAYER& plr, short i) {
 	}
 }
 
-static void checkexpl(PLAYER& plr, short i) {
+static void checkexplskeleton(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
@@ -355,17 +355,17 @@ static void checkexpl(PLAYER& plr, short i) {
 void createSkeletonAI() {
 	auto& e = enemy[SKELETONTYPE];
 	e.info.Init(isWh2() ? 35 : 24, isWh2() ? 35 : 24, 1024, 120, 0, 64, false, isWh2() ? 25 : 30, 0);
-	e.chase = chase;
-	e.die = die;
-	e.face = face;
-	e.flee = flee;
-	e.stand = stand;
-	e.attack = attackfunc;
-	e.resurect = resurect;
-	e.search = search;
-	e.frozen = frozen;
-	e.nuked = nuked;
-	e.skirmish = skirmish;
+	e.chase = chaseskeleton;
+	e.die = dieskeleton;
+	e.face = faceskeleton;
+	e.flee = fleeskeleton;
+	e.stand = standskeleton;
+	e.attack = attackskeleton;
+	e.resurect = resurectskeleton;
+	e.search = searchskeleton;
+	e.frozen = frozenskeleton;
+	e.nuked = nukedskeleton;
+	e.skirmish = skirmishskeleton;
 }
 	
 
