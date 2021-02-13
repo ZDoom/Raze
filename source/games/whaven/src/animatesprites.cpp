@@ -3,8 +3,6 @@
 
 BEGIN_WH_NS
 
-Loc oldLocs[MAXSPRITES];	
-
 void analyzesprites(PLAYER& plr, int dasmoothratio) 
 {
 	int k;
@@ -17,24 +15,12 @@ void analyzesprites(PLAYER& plr, int dasmoothratio)
 				tspr.shade = sector[tspr.sectnum].floorshade;
 		}
 
-		auto& oldLoc = oldLocs[tspr.owner];
 		// only interpolate certain moving things
 		if ((tspr.hitag & 0x0200) == 0) {
-			int x = oldLoc.x;
-			int y = oldLoc.y;
-			int z = oldLoc.z;
-			short nAngle = oldLoc.ang;
-
-			// interpolate sprite position
-			x += MulScale(tspr.x - oldLoc.x, dasmoothratio, 16);
-			y += MulScale(tspr.y - oldLoc.y, dasmoothratio, 16);
-			z += MulScale(tspr.z - oldLoc.z, dasmoothratio, 16);
-			nAngle += MulScale(((tspr.ang - oldLoc.ang + 1024) & 2047) - 1024, dasmoothratio, 16);
-
-			tspr.x = x;
-			tspr.y = y;
-			tspr.z = z;
-			tspr.ang = nAngle;
+			tspr.x = tspr.interpolatedx(dasmoothratio);
+			tspr.y = tspr.interpolatedy(dasmoothratio);
+			tspr.z = tspr.interpolatedz(dasmoothratio);
+			tspr.ang = tspr.interpolatedang(dasmoothratio);
 		}
 
 		switch (sprite[tspr.owner].detail) {

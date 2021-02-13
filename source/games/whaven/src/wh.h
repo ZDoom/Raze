@@ -384,13 +384,6 @@ void shards(int i, int type);
 
 
 // animate
-
-struct Loc
-{
-	int x, y, z, ang;
-};
-extern Loc oldLocs[MAXSPRITES];
-
 struct ANIMATION
 {
 	short id;

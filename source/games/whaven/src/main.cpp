@@ -308,12 +308,7 @@ static void recordoldspritepos()
 {
 	for (int i = 0; i < MAXSPRITES; i++)
 	{
-		SPRITE* spr = &sprite[i];
-		Loc* oldLoc = &oldLocs[i];
-		oldLoc->x = spr->x;
-		oldLoc->y = spr->y;
-		oldLoc->z = spr->z;
-		oldLoc->ang = spr->ang;
+		sprite[i].backuploc();
 	}
 }
 
