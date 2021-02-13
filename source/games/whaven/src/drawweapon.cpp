@@ -33,6 +33,9 @@ void drawweapons(int snum, double const dasmoothratio) {
 	double dasnakex = osnakex + MulScaleF(snakex - osnakex, dasmoothratio, 16);
 	double dasnakey = osnakey + MulScaleF(snakey - osnakey, dasmoothratio, 16);
 
+	// Interpolated weapon dropping.
+	double daweapondrop = oweapondrop + MulScaleF(weapondrop - oweapondrop, dasmoothratio, 16);
+
 	int dabits;
 	if (plr.invisibletime > 0)
 		dabits = RS_TRANS1;
@@ -246,32 +249,32 @@ void drawweapons(int snum, double const dasmoothratio) {
 	case 2: // unready
 		if (isWh2()) {
 			if (plr.currweaponframe == BOWREADYEND) {
-				day = readyanimtics[plr.currweapon][6].curry + (weapondrop);
+				day = readyanimtics[plr.currweapon][6].curry + daweapondrop;
 				dax = readyanimtics[plr.currweapon][6].currx;
 			}
 			else if (plr.currweaponframe == ZBOWWALK) {
-				day = zreadyanimtics[plr.currweapon][6].curry + (weapondrop);
+				day = zreadyanimtics[plr.currweapon][6].curry + daweapondrop;
 				dax = zreadyanimtics[plr.currweapon][6].currx;
 			}
 			else {
 				if (plr.weapon[plr.currweapon] == 1 || plr.weapon[7] == 2) {
 					dax = weaponanimtics[plr.currweapon][0].currx;
-					day = weaponanimtics[plr.currweapon][0].curry + (weapondrop);
+					day = weaponanimtics[plr.currweapon][0].curry + daweapondrop;
 				}
 				else {
 					dax = zweaponanimtics[plr.currweapon][0].currx;
-					day = zweaponanimtics[plr.currweapon][0].curry + (weapondrop);
+					day = zweaponanimtics[plr.currweapon][0].curry + daweapondrop;
 				}
 			}
 		}
 		else {
 			if (plr.currweaponframe == BOWREADYEND) {
-				day = readyanimtics[plr.currweapon][6].curry + (weapondrop);
+				day = readyanimtics[plr.currweapon][6].curry + daweapondrop;
 				dax = readyanimtics[plr.currweapon][6].currx;
 			}
 			else {
 				dax = weaponanimtics[plr.currweapon][0].currx;
-				day = weaponanimtics[plr.currweapon][0].curry + (weapondrop);
+				day = weaponanimtics[plr.currweapon][0].curry + daweapondrop;
 			}
 		}
 

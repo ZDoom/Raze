@@ -290,7 +290,7 @@ extern WEAPONINF lefthandanimtics[5][MAXFRAMES];
 extern int dropshieldcnt;
 extern boolean droptheshield;
 extern int dahand;
-extern int weapondrop;
+extern int oweapondrop, weapondrop;
 extern double osnakex, osnakey, snakex, snakey;
 
 boolean checkmedusadist(int i, int x, int y, int z, int lvl);

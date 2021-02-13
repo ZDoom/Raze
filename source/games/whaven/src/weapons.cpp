@@ -13,7 +13,7 @@ static int arrowcnt, throwpikecnt;
 int dropshieldcnt = 0;
 boolean droptheshield = false;
 int dahand = 0;
-int weapondrop;
+int oweapondrop, weapondrop;
 double osnakex, osnakey, snakex, snakey;
 
 boolean checkmedusadist(int i, int x, int y, int z, int lvl) {
@@ -687,6 +687,7 @@ void weaponsprocess(int snum) {
 		}
 		break;
 	case 2: // unready
+		oweapondrop = weapondrop;
 		if (plr.currweapon == 1)
 			weapondrop += TICSPERFRAME << 1;
 		else
