@@ -9,6 +9,7 @@
 #include "raze_music.h"
 #include "statistics.h"
 #include "version.h"
+#include "cheathandler.h"
 
 BEGIN_WH_NS
 
@@ -64,75 +65,447 @@ const char* GameInterface::GenericCheat(int playerno, int cheat)
 	}
 }
 
-#if 0
-		Console.RegisterCvar(new OSDCOMMAND("scooter",
-			"", new OSDCVARFUNC() {
-				public void execute() {
-					if (isCurrentScreen(gGameScreen)) {
-						PLAYER plr = player[pyrn];
-						plr.weapon[1]=1;plr.ammo[1]=45; //DAGGER
-						plr.weapon[2]=1;plr.ammo[2]=55; //MORNINGSTAR
-						plr.weapon[3]=1;plr.ammo[3]=50; //SHORT SWORD
-						plr.weapon[4]=1;plr.ammo[4]=80; //BROAD SWORD
-						plr.weapon[5]=1;plr.ammo[5]=100; //BATTLE AXE
-						plr.weapon[6]=1;plr.ammo[6]=50; // BOW
-						plr.weapon[7]=2;plr.ammo[7]=40; //PIKE
-						plr.weapon[8]=1;plr.ammo[8]=250; //TWO HANDED
-						plr.weapon[9]=1;plr.ammo[9]=50;
-						plr.currweapon=plr.selectedgun=4;
-					} else
-						Console.Println("scooter: not in a single-player game");
-				}
-			}));
-		
-		Console.RegisterCvar(new OSDCOMMAND("mommy",
-			"", new OSDCVARFUNC() {
-				public void execute() {
-					if (isCurrentScreen(gGameScreen)) {
-						PLAYER plr = player[pyrn];
-						for(int i=0;i<MAXPOTIONS;i++) 
-							plr.potion[i]=9;
-					} else
-						Console.Println("mommy: not in a single-player game");
-				}
-			}));
-		Console.RegisterCvar(new OSDCOMMAND("wango",
-			"", new OSDCVARFUNC() {
-				public void execute() {
-					if (isCurrentScreen(gGameScreen)) {
-						PLAYER plr = player[pyrn];
-						for(int i=0;i<8;i++) {
-							plr.orb[i]=1;
-							plr.orbammo[i]=9;
-						}
-						plr.health=0;
-						addhealth(plr, 200);
-						plr.armor=150;
-						plr.armortype=3;
-						plr.lvl=7;
-						plr.maxhealth=200;
-						plr.treasure[TBRASSKEY]=1;
-						plr.treasure[TBLACKKEY]=1;
-						plr.treasure[TGLASSKEY]=1;
-						plr.treasure[TIVORYKEY]=1;
-					} else
-						Console.Println("wango: not in a single-player game");
-				}
-			}));
-		
-		Console.RegisterCvar(new OSDCOMMAND("powerup",
-				"", new OSDCVARFUNC() {
-					public void execute() {
-						if (isCurrentScreen(gGameScreen)) {
-							PLAYER plr = player[pyrn];
-							weaponpowerup(plr);
-						} else
-							Console.Println("powerup: not in a single-player game");
-					}
-				}));
-				
+static void GiveWeapons(int pyrn)
+{
+	PLAYER& plr = player[pyrn];
+	plr.weapon[1] = 1; //DAGGER
+	plr.weapon[2] = 1; //MORNINGSTAR
+	plr.weapon[3] = 1; //SHORT SWORD
+	plr.weapon[4] = 1; //BROAD SWORD
+	plr.weapon[5] = 1; //BATTLE AXE
+	plr.weapon[6] = 1; // BOW
+	plr.weapon[7] = 2; //PIKE
+	plr.weapon[8] = 1;  //TWO HANDED
+	plr.weapon[9] = 1; 
+	//plr.currweapon = plr.selectedgun = 4;
+}
+
+static void GiveAmmo(int pyrn)
+{
+	PLAYER& plr = player[pyrn];
+	plr.ammo[1] = 45; //DAGGER
+	plr.ammo[2] = 55; //MORNINGSTAR
+	plr.ammo[3] = 50; //SHORT SWORD
+	plr.ammo[4] = 80; //BROAD SWORD
+	plr.ammo[5] = 100; //BATTLE AXE
+	plr.ammo[6] = 50; // BOW
+	plr.ammo[7] = 40; //PIKE
+	plr.ammo[8] = 250; //TWO HANDED
+	plr.ammo[9] = 50;
+}
+
+static void GiveKeys(int pyrn)
+{
+	PLAYER& plr = player[pyrn];
+	plr.treasure[TBRASSKEY] = 1;
+	plr.treasure[TBLACKKEY] = 1;
+	plr.treasure[TGLASSKEY] = 1;
+	plr.treasure[TIVORYKEY] = 1;
+}
+
+static void GiveInventory(int pyrn)
+{
+	PLAYER& plr = player[pyrn];
+	for (int i = 0; i < MAXPOTIONS; i++)
+		plr.potion[i] = 9;
+
+	for (int i = 0; i < 8; i++) {
+		plr.orb[i] = 1;
+		plr.orbammo[i] = 9;
 	}
+}
+
+static void GiveArmor(int pyrn)
+{
+	PLAYER& plr = player[pyrn];
+	plr.armor = 150;
+	plr.armortype = 3;
+}
+
+static void GiveHealth(int pyrn)
+{
+	PLAYER& plr = player[pyrn];
+	plr.health = 0;
+	addhealth(plr, 200);
+	plr.lvl = 7;
+	plr.maxhealth = 200;
+}
+
+static void cmd_Give(int player, uint8_t** stream, bool skip)
+{
+	int type = ReadByte(stream);
+	if (skip) return;
+
+	if (numplayers != 1 || gamestate != GS_LEVEL)// || (Player[player].Flags & PF_DEAD))
+	{
+		Printf("give: Cannot give while dead or not in a single-player game.\n");
+		return;
+	}
+
+	switch (type)
+	{
+	case GIVE_ALL:
+		GiveWeapons(player);
+		GiveAmmo(player);
+		GiveKeys(player);
+		GiveInventory(player);
+		GiveArmor(player);
+		GiveHealth(player);
+		break;
+
+	case GIVE_HEALTH:
+		GiveHealth(player);
+		break;
+
+	case GIVE_WEAPONS:
+		GiveWeapons(player);
+		break;
+
+	case GIVE_AMMO:
+		GiveAmmo(player);
+		break;
+
+	case GIVE_ARMOR:
+		GiveArmor(player);
+		break;
+
+	case GIVE_KEYS:
+		GiveKeys(player);
+		break;
+
+	case GIVE_INVENTORY:
+		GiveInventory(player);
+		break;
+
+	case GIVE_ITEMS:
+		GiveWeapons(player);
+		GiveAmmo(player);
+		GiveKeys(player);
+		GiveInventory(player);
+		break;
+	}
+}
+
+bool CheatScooter(cheatseq_t* c)
+{
+	if (CheckCheatmode())
+	{
+		GiveWeapons(pyrn);
+		GiveAmmo(pyrn);
+		PLAYER& plr = player[pyrn];
+		plr.currweapon = plr.selectedgun = 4;
+	}
+	return true;
+}
+
+bool CheatMommy(cheatseq_t* c)
+{
+	if (CheckCheatmode())
+	{
+		PLAYER& plr = player[pyrn];
+		for (int i = 0; i < MAXPOTIONS; i++)
+			plr.potion[i] = 9;
+	}
+	return true;
+}
+
+bool CheatPowerup(cheatseq_t* c)
+{
+	if (CheckCheatmode())
+	{
+		PLAYER& plr = player[pyrn];
+		weaponpowerup(plr);
+	}
+	return true;
+}
+
+bool CheatWango(cheatseq_t* c)
+{
+	if (CheckCheatmode())
+	{
+		PLAYER& plr = player[pyrn];
+		for (int i = 0; i < 8; i++) {
+			plr.orb[i] = 1;
+			plr.orbammo[i] = 9;
+		}
+		GiveHealth(pyrn);
+		GiveAmmo(pyrn);
+		GiveKeys(pyrn);
+	}
+	return true;
+}
+
+bool CheatSpells(cheatseq_t* c)
+{
+    if (CheckCheatmode())
+    {
+        PLAYER& plr = player[pyrn];
+        for (int i = 0; i < 8; i++) {
+            plr.orb[i] = 1;
+            plr.orbammo[i] = 9;
+        }
+    }
+    return true;
+}
+
+static cheatseq_t whcheats[] = {
+	{"scooter",   nullptr,     CheatScooter, 0},
+	{"mommy",    nullptr,     CheatMommy, 0},
+	{"wango",    nullptr,     CheatWango, 0},
+	{"powerup",    nullptr,     CheatPowerup, 0},
+};
+
+static cheatseq_t wh2cheats[] = {
+    {"weapons",   nullptr,     CheatScooter, 0},
+    {"potions",    nullptr,     CheatMommy, 0},
+    {"spells",    nullptr,     CheatSpells, 0},
+    {"powerup",    nullptr,     CheatPowerup, 0},
+};
+
+#if 0 // to do
+void
+checkcheat(void)
+{
+
+    int  i, j, y = 24;
+    struct player* plr;
+
+    plr = &player[pyrn];
+
+    strupr(displaybuf);
+
+    else if (strcmp(displaybuf, "MARKETING") == 0) {
+        if (godmode == 1) {
+            godmode = 0;
+        }
+        else {
+            godmode = 1;
+            plr->health = 0;
+            healthpic(200);
+#if 0
+            for (i = 0; i < MAXWEAPONS; i++) {
+                plr->weapon[i] = 3;
+            }
 #endif
+            GiveAmmo(player);
+            GiveArmor(player);
+            currweapon = selectedgun = 4;
+            for (i = 0; i < MAXNUMORBS; i++) {
+                plr->orb[i] = 1;
+                plr->orbammo[i] = 9;
+            }
+            for (i = 0; i < MAXPOTIONS; i++) {
+                plr->potion[i] = 9;
+            }
+            plr->armor = 150;
+            plr->armortype = 3;
+            plr->lvl = 7;
+            plr->maxhealth = 200;
+            for (i = 0; i < MAXTREASURES; i++) {
+                plr->treasure[i] = 1;
+            }
+            nobreakflag = 1;
+            updatepics();
+        }
+    }
+    else if (strcmp(displaybuf, "KILLME") == 0) {
+        plr->health = 0;
+        plr->potion[0] = 0;
+        playerdead(plr);
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "SCARE") == 0) {
+        currentorb = 0;
+        plr->orbammo[currentorb] += 1;
+        orbshot = 1;
+        activatedaorb(plr);
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "NIGHTVISION") == 0) {
+        currentorb = 1;
+        plr->orbammo[currentorb] += 1;
+        orbshot = 1;
+        activatedaorb(plr);
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "FREEZE") == 0) {
+        currentorb = 2;
+        plr->orbammo[currentorb] += 1;
+        orbshot = 1;
+        activatedaorb(plr);
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "MAGICARROW") == 0) {
+        currentorb = 3;
+        plr->orbammo[currentorb] += 1;
+        orbshot = 1;
+        activatedaorb(plr);
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "OPENDOOR") == 0) {
+        currentorb = 4;
+        plr->orbammo[currentorb] += 1;
+        orbshot = 1;
+        activatedaorb(plr);
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "FLY") == 0) {
+        currentorb = 5;
+        plr->orbammo[currentorb] += 1;
+        orbshot = 1;
+        activatedaorb(plr);
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "FIREBALL") == 0) {
+        currentorb = 6;
+        plr->orbammo[currentorb] += 1;
+        orbshot = 1;
+        activatedaorb(plr);
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "NUKE") == 0) {
+        currentorb = 7;
+        plr->orbammo[currentorb] += 1;
+        orbshot = 1;
+        activatedaorb(plr);
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "HEALTH") == 0) {
+        i = currentpotion;
+        currentpotion = 0;
+        plr->potion[currentpotion] += 1;
+        usapotion(plr);
+        currentpotion = i;
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "STRENGTH") == 0) {
+        i = currentpotion;
+        currentpotion = 1;
+        plr->potion[currentpotion] += 1;
+        usapotion(plr);
+        currentpotion = i;
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "CUREPOISON") == 0) {
+        i = currentpotion;
+        currentpotion = 2;
+        plr->potion[currentpotion] += 1;
+        usapotion(plr);
+        currentpotion = i;
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "RESISTFIRE") == 0) {
+        i = currentpotion;
+        currentpotion = 3;
+        plr->potion[currentpotion] += 1;
+        usapotion(plr);
+        currentpotion = i;
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "INVIS") == 0) {
+        i = currentpotion;
+        currentpotion = 4;
+        plr->potion[currentpotion] += 1;
+        usapotion(plr);
+        currentpotion = i;
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "KEYS") == 0) {
+        plr->treasure[14] = 1;
+        plr->treasure[15] = 1;
+        plr->treasure[16] = 1;
+        plr->treasure[17] = 1;
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "PENTAGRAM") == 0) {
+        plr->treasure[8] = 1;
+    }
+    else if (strcmp(displaybuf, "ARMOR") == 0) {
+        plr->armortype = 3;
+        armorpic(150);
+        updatepics();
+    }
+    else if (strcmp(displaybuf, "HEROTIME") == 0) {
+        helmettime = 7200;
+    }
+    else if (strcmp(displaybuf, "SHIELD") == 0) {
+        droptheshield = 0;
+        shieldtype = 1;
+        shieldpoints = 100;
+    }
+    else if (strcmp(displaybuf, "SHIELD2") == 0) {
+        droptheshield = 0;
+        shieldtype = 2;
+        shieldpoints = 200;
+    }
+    else if (strcmp(displaybuf, "NOBREAK") == 0) {
+        nobreakflag ^= 1;
+    }
+    else if (strcmp(displaybuf, "SHOWOBJECTS") == 0) {
+        show2dobjectsflag ^= 1;
+    }
+    else if (strcmp(displaybuf, "SHOWMAP") == 0) {
+        show2dmapflag ^= 1;
+    }
+    else if (strcmp(displaybuf, "ENCHANT") == 0) {
+        for (i = 0; i < MAXWEAPONS; i++) {
+            plr->weapon[i] = 3;
+        }
+    }
+    else if (strcmp(displaybuf, "INTRACORP") == 0) {
+        if (svga == 1) {
+            keystatus[0x39] = 0;
+            keystatus[1] = 0;
+            SND_Sound(S_PICKUPFLAG);
+            permanentwritesprite(0, 0, STHEORDER, 0, 0, 0, 639, 239, 0);
+            permanentwritesprite(0, 240, STHEORDER + 1, 0, 0, 240, 639, 479, 0);
+            nextpage();
+            i = 0;
+            while (!i) {
+                if (keystatus[0x39] > 0 || keystatus[1] > 0)
+                    i = 1;
+            }
+            keystatus[0x39] = 0;
+            keystatus[1] = 0;
+        }
+        else {
+            keystatus[0x39] = 0;
+            keystatus[1] = 0;
+            SND_Sound(S_PICKUPFLAG);
+            itemtoscreen(0L, 0L, THEORDER, 0, 0);
+            nextpage();
+            i = 0;
+            while (!i) {
+                if (keystatus[0x39] > 0 || keystatus[1] > 0)
+                    i = 1;
+            }
+            keystatus[0x39] = 0;
+            keystatus[1] = 0;
+        }
+        mflag = 1;
+    }
+    else if (strcmp(displaybuf, "SPIKEME") == 0) {
+        spikeme = 1;
+    }
+    else if (strcmp(displaybuf, "EXPERIENCE") == 0) {
+        score(10000);
+    }
+    else if (strcmp(displaybuf, "SCAREME") == 0) {
+        scarytime = 180;
+        scarysize = 30;
+        SND_PlaySound(S_SCARYDUDE, 0, 0, 0, 0);
+    }
+    strcpy(displaybuf, "");
+}
+#endif
+
+void InitCheats()
+{
+	if (!isWh2()) SetCheats(whcheats, countof(whcheats));
+	else SetCheats(wh2cheats, countof(wh2cheats));
+	Net_SetCommandHandler(DEM_GIVE, cmd_Give);
+}
+
 
 void MakeLevel(int i, int game)
 {
@@ -248,6 +621,11 @@ void GameInterface::app_init()
 	//initpaletteshifts();
 	InitOriginalEpisodes();
 
+	numplayers = 1; 
+	myconnectindex = 0;
+	connecthead = 0; 
+	connectpoint2[0] = -1;
+
 	psky_t* pSky = tileSetupSky(0);
 	pSky->tileofs[0] = 0;
 	pSky->tileofs[1] = 0;
@@ -263,6 +641,7 @@ void GameInterface::app_init()
 	initAI();
 	InitItems();
 	wepdatainit();
+	InitCheats();
 }
 
 void GameInterface::Startup()
@@ -281,7 +660,7 @@ void GameInterface::Startup()
 
 bool GameInterface::CanSave()
 {
-	return !player[pyrn].dead && numplayers == 1;
+	return !player[pyrn].dead && numplayers == 1 && gamestate == GS_LEVEL;
 }
 
 

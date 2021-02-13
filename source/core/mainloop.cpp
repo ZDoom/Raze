@@ -649,7 +649,7 @@ void MainLoop ()
 			Mus_UpdateMusic();		// must be at the end.
 		}
 		catch (CRecoverableError &error)
-		{
+ 		{
 			if (error.GetMessage ())
 			{
 				Printf (PRINT_BOLD, "\n%s\n", error.GetMessage());

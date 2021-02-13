@@ -374,7 +374,15 @@ void RunNetSpecs (int player, int buf)
 			while (stream < end)
 			{
 				int type = ReadByte (&stream);
-				Net_DoCommand (type, &stream, player);
+				try
+				{
+					Net_DoCommand(type, &stream, player);
+				}
+				catch (...)
+				{
+					NetSpecs[player][buf].SetData(NULL, 0);
+					throw;
+				}
 			}
 #if 0
 			if (!demorecording)
