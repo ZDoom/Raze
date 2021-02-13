@@ -8,7 +8,9 @@ BEGIN_WH_NS
 
 static void overwritesprite(double thex, double they, int tilenum, int shade, int stat, int dapalnum) 
 {
-	hud_drawsprite(thex, they, 65536, 0, tilenum, shade, dapalnum, stat);
+	int dastat = (((stat & RS_TRANS1) ^ RS_TRANS1) << 4) + (stat & RS_AUTO) + ((stat & RS_YFLIP) >> 2) + RS_NOCLIP +
+	             (((stat & RS_TOPLEFT) >> 2) ^ ((stat & RS_NOCLIP) >> 1)) + (stat & RS_ALIGN_L) + (stat & RS_ALIGN_R);
+	hud_drawsprite(thex, they, 65536, (stat & RS_NOCLIP) << 7, tilenum, shade, dapalnum, dastat);
 }
 
 void drawweapons(int snum) {
