@@ -133,7 +133,7 @@ enum
 };
 
 
-struct GrpInfo
+struct GrpDefInfo
 {
 	FString name;
 	FString scriptname;
@@ -156,7 +156,7 @@ struct GrpInfo
 struct GrpEntry
 {
 	FString FileName;
-	GrpInfo FileInfo;
+	GrpDefInfo FileInfo;
 	uint32_t FileIndex;
 };
 extern int g_gameType;

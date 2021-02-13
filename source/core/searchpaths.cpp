@@ -378,9 +378,9 @@ void SaveCRCs(TArray<FileEntry>& crclist)
 //
 //==========================================================================
 
-static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString, uint32_t> &CRCMap)
+static TArray<GrpDefInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString, uint32_t> &CRCMap)
 {
-	TArray<GrpInfo> groups;
+	TArray<GrpDefInfo> groups;
 	TMap<FString, int> FlagMap;
 	
 	FlagMap.Insert("GAMEFLAG_DUKE", GAMEFLAG_DUKE);
@@ -580,9 +580,9 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 //
 //==========================================================================
 
-TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
+TArray<GrpDefInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 {
-	TArray<GrpInfo> groups;
+	TArray<GrpDefInfo> groups;
 	TMap<FString, uint32_t> CRCMap;
 	// This opens the base resource only for reading the grpinfo from it which we need before setting up the game state.
 	std::unique_ptr<FResourceFile> engine_res;
@@ -655,7 +655,7 @@ void GetCRC(FileEntry *entry, TArray<FileEntry> &CRCCache)
 	}
 }
 
-GrpInfo *IdentifyGroup(FileEntry *entry, TArray<GrpInfo *> &groups)
+GrpDefInfo *IdentifyGroup(FileEntry *entry, TArray<GrpDefInfo *> &groups)
 {
 	for (auto g : groups)
 	{
@@ -671,7 +671,7 @@ GrpInfo *IdentifyGroup(FileEntry *entry, TArray<GrpInfo *> &groups)
 //
 //==========================================================================
 
-static bool CheckAddon(GrpInfo* addon, GrpInfo* main, const char* filename)
+static bool CheckAddon(GrpDefInfo* addon, GrpDefInfo* main, const char* filename)
 {
 	if (addon->dependencyCRC != main->CRC) return false;
 	FString path = ExtractFilePath(filename);
@@ -702,9 +702,9 @@ TArray<GrpEntry> GrpScan()
 	TArray<GrpEntry> foundGames;
 
 	TArray<FileEntry*> sortedFileList;
-	TArray<GrpInfo*> sortedGroupList;
-	TArray<GrpInfo*> contentGroupList;
-	TArray<GrpInfo*> addonList;
+	TArray<GrpDefInfo*> sortedGroupList;
+	TArray<GrpDefInfo*> contentGroupList;
+	TArray<GrpDefInfo*> addonList;
 
 	auto allFiles = CollectAllFilesInSearchPath();
 	auto allGroups = ParseAllGrpInfos(allFiles);
@@ -770,42 +770,22 @@ TArray<GrpEntry> GrpScan()
 		}
 	}
 
+	TMap<size_t, bool> sizeLookup;
+	TArray<FileEntry*> matchedFileList;
 
-	std::sort(sortedFileList.begin(), sortedFileList.end(), [](FileEntry* lhs, FileEntry* rhs) { return lhs->FileLength < rhs->FileLength; });
-	std::sort(sortedGroupList.begin(), sortedGroupList.end(), [](GrpInfo* lhs, GrpInfo* rhs) { return lhs->size < rhs->size; });
-
-	int findex = sortedFileList.Size() - 1;
-	int gindex = sortedGroupList.Size() - 1;
-
-
-	while (findex > 0 && gindex > 0)
+	for (auto& entry : sortedGroupList)
 	{
-		if (sortedFileList[findex]->FileLength > sortedGroupList[gindex]->size)
-		{
-			// File is larger than the largest known group so it cannot be a candidate.
-			sortedFileList.Delete(findex--);
-		}
-		else if (sortedFileList[findex]->FileLength < sortedGroupList[gindex]->size)
-		{
-			// The largest available file is smaller than this group so we cannot possibly have it.
-			sortedGroupList.Delete(gindex--);
-		}
-		else
-		{
-			findex--;
-			gindex--;
-			// We found a matching file. Skip over all other entries of the same size so we can analyze those later as well
-			while (findex > 0 && sortedFileList[findex]->FileLength == sortedFileList[findex + 1]->FileLength) findex--;
-			while (gindex > 0 && sortedGroupList[gindex]->size == sortedGroupList[gindex + 1]->size) gindex--;
-		}
+		sizeLookup.Insert(entry->size, true);
 	}
-	sortedFileList.Delete(0, findex + 1);
-	sortedGroupList.Delete(0, gindex + 1);
+	for (auto entry : sortedFileList)
+	{
+		if (sizeLookup.CheckKey(entry->FileLength)) matchedFileList.Push(entry);
+	}
 
-	if (sortedGroupList.Size() == 0 || sortedFileList.Size() == 0)
+	if (matchedFileList.Size() == 0)
 		return foundGames;
 
-	for (auto entry : sortedFileList)
+	for (auto entry : matchedFileList)
 	{
 		GetCRC(entry, cachedCRCs);
 		auto grp = IdentifyGroup(entry, sortedGroupList);
