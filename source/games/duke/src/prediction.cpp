@@ -143,7 +143,7 @@ void fakedomovethings(void)
 
 		j = getflorzofslope(psect,myx,myy);
 
-		if(clz.type == kHitSector && psectlotag == 1 && klabs(myz-j) > gs.playerheight+(16<<8) )
+		if(clz.type == kHitSector && psectlotag == 1 && abs(myz-j) > gs.playerheight+(16<<8) )
 			psectlotag = 0;
 
 		if( p->aim_mode == 0 && myonground && psectlotag != 2 && (sector[psect].floorstat&2) )
@@ -156,9 +156,9 @@ void fakedomovethings(void)
 				{
 					 k = getflorzofslope(psect,x,y);
 					 if (psect == tempsect)
-						  myhorizoff += mulscale16(j-k,160);
-					 else if (klabs(getflorzofslope(tempsect,x,y)-k) <= (4<<8))
-						  myhorizoff += mulscale16(j-k,160);
+						  myhorizoff += MulScale(j-k,160, 16);
+					 else if (abs(getflorzofslope(tempsect,x,y)-k) <= (4<<8))
+						  myhorizoff += MulScale(j-k,160, 16);
 				}
 		}
 		if (myhorizoff > 0) myhorizoff -= ((myhorizoff>>3)+1);
@@ -180,7 +180,7 @@ void fakedomovethings(void)
 						psectlotag = 0;
 						spritebridge = 1;
 				 }
-				 if(badguy(chz.actor) && chz.actor->s.xrepeat > 24 && klabs(p->GetActor()->s.z- chz.actor->s.z) < (84<<8) )
+				 if(badguy(chz.actor) && chz.actor->s.xrepeat > 24 && abs(p->GetActor()->s.z- chz.actor->s.z) < (84<<8) )
 				 {
 					j = getangle(chz.actor->s.x-myx, chz.actor->s.y-myy);
 					myxvel -= bcos(j, 4);
@@ -194,7 +194,7 @@ void fakedomovethings(void)
 				 {
 							if(p->on_warping_sector == 0)
 							{
-									 if( klabs(myz-fz) > (gs.playerheight>>1))
+									 if( abs(myz-fz) > (gs.playerheight>>1))
 											 myz += 348;
 							}
 							clipmove(&myx,&myy,&myz,&mycursectnum,0,0,164L,(4L<<8),(4L<<8),CLIPMASK0);
@@ -320,7 +320,7 @@ void fakedomovethings(void)
 									 //Smooth on the ground
 
 									 k = ((fz-(i<<8))-myz)>>1;
-									 if( klabs(k) < 256 ) k = 0;
+									 if( abs(k) < 256 ) k = 0;
 									 myz += k; // ((fz-(i<<8))-myz)>>1;
 									 myzvel -= 768; // 412;
 									 if(myzvel < 0) myzvel = 0;
@@ -406,8 +406,8 @@ void fakedomovethings(void)
 			tempang = syn->avel<<1;
 
 			if(psectlotag == 2)
-				myang += (tempang-(tempang>>3))*sgn(doubvel);
-			else myang += (tempang)*sgn(doubvel);
+				myang += (tempang-(tempang>>3))*Sgn(doubvel);
+			else myang += (tempang)*Sgn(doubvel);
 			myang &= 2047;
 		}
 
@@ -421,20 +421,20 @@ void fakedomovethings(void)
 
 				 if( ( p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && myonground ) || ( myonground && (sb_snum&2) && !(p->OnMotorcycle || p->OnBoat)) )
 				 {
-							myxvel = mulscale16(myxvel,gs.playerfriction-0x2000);
-							myyvel = mulscale16(myyvel,gs.playerfriction-0x2000);
+							myxvel = MulScale(myxvel,gs.playerfriction-0x2000, 16);
+							myyvel = MulScale(myyvel,gs.playerfriction-0x2000, 16);
 				 }
 				 else
 				 {
 					if(psectlotag == 2)
 					{
-						myxvel = mulscale16(myxvel,gs.playerfriction-0x1400);
-						myyvel = mulscale16(myyvel,gs.playerfriction-0x1400);
+						myxvel = MulScale(myxvel,gs.playerfriction-0x1400, 16);
+						myyvel = MulScale(myyvel,gs.playerfriction-0x1400, 16);
 					}
 					else
 					{
-						myxvel = mulscale16(myxvel,gs.playerfriction);
-						myyvel = mulscale16(myyvel,gs.playerfriction);
+						myxvel = MulScale(myxvel,gs.playerfriction, 16);
+						myyvel = MulScale(myyvel,gs.playerfriction, 16);
 					}
 				 }
 
@@ -444,9 +444,9 @@ void fakedomovethings(void)
 				 if( shrunk )
 				 {
 					 myxvel =
-						 mulscale16(myxvel,(gs.playerfriction)-(gs.playerfriction>>1)+(gs.playerfriction>>2));
+						 MulScale(myxvel,(gs.playerfriction)-(gs.playerfriction>>1)+(gs.playerfriction>>2), 16);
 					 myyvel =
-						 mulscale16(myyvel,(gs.playerfriction)-(gs.playerfriction>>1)+(gs.playerfriction>>2));
+						 MulScale(myyvel,(gs.playerfriction)-(gs.playerfriction>>1)+(gs.playerfriction>>2), 16);
 				 }
 		}
 

@@ -455,7 +455,7 @@ void loadMapBackup(const char* filename)
 	vec3_t pos;
 	int16_t scratch;
 
-	if (g_gameType & GAMEFLAG_BLOOD)
+	if (isBlood())
 	{
 		qloadboard(filename, 0, &pos, &scratch, &scratch);
 	}

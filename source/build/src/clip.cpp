@@ -184,9 +184,9 @@ int32_t getceilzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
     dx = wall[wall[j].point2].x-wall[j].x;
     dy = wall[wall[j].point2].y-wall[j].y;
     i = (ksqrtasm_old(dx*dx+dy*dy)); if (i == 0) return(sector[sectnum].ceilingz);
-    i = divscale15(sector[sectnum].ceilingheinum,i);
+    i = DivScale(sector[sectnum].ceilingheinum,i, 15);
     dx *= i; dy *= i;
-    return(sector[sectnum].ceilingz+dmulscale23(dx,day-wall[j].y,-dy,dax-wall[j].x));
+    return sector[sectnum].ceilingz+DMulScale(dx,day-wall[j].y,-dy,dax-wall[j].x, 23);
 }
 
 int32_t getflorzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
@@ -198,9 +198,9 @@ int32_t getflorzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
     dx = wall[wall[j].point2].x-wall[j].x;
     dy = wall[wall[j].point2].y-wall[j].y;
     i = (ksqrtasm_old(dx*dx+dy*dy)); if (i == 0) return sector[sectnum].floorz;
-    i = divscale15(sector[sectnum].floorheinum,i);
+    i = DivScale(sector[sectnum].floorheinum,i, 15);
     dx *= i; dy *= i;
-    return(sector[sectnum].floorz+dmulscale23(dx,day-wall[j].y,-dy,dax-wall[j].x));
+    return sector[sectnum].floorz+DMulScale(dx,day-wall[j].y,-dy,dax-wall[j].x, 23);
 }
 
 // Returns: should clip?
@@ -261,9 +261,9 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     if ((sec->floorstat|sec->ceilingstat) & 2)
         getcorrectzsofslope(dasect, pos.x, pos.y, &dacz, &daz);
 
-    int32_t const sec2height = klabs(daz2-dacz2);
+    int32_t const sec2height = abs(daz2-dacz2);
 
-    return ((klabs(daz-dacz) > sec2height &&       // clip if the current sector is taller and the next is too small
+    return ((abs(daz-dacz) > sec2height &&       // clip if the current sector is taller and the next is too small
             sec2height < (ceildist+(CLIPCURBHEIGHT<<1))) ||
 
             ((sec2->floorstat&1) == 0 &&    // parallaxed floor curbs don't clip
@@ -330,7 +330,7 @@ static inline int32_t cliptrace(vec2_t const pos, vec2_t * const goal)
                 return z;
             }
 
-            n = { pos.x+scale(diff.x, topu, bot), pos.y+scale(diff.y, topu, bot) };
+            n = { pos.x+Scale(diff.x, topu, bot), pos.y+Scale(diff.y, topu, bot) };
             topu--;
         } while (area.x*(n.y-p1.y) <= (n.x-p1.x)*area.y);
 
@@ -351,8 +351,8 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
 {
     const int32_t x1 = clipit[w].x1, dx = clipit[w].x2-x1;
     const int32_t y1 = clipit[w].y1, dy = clipit[w].y2-y1;
-    const int32_t ox = ksgn(-dy), oy = ksgn(dx);
-    char first = (klabs(dx) <= klabs(dy));
+    const int32_t ox = Sgn(-dy), oy = Sgn(dx);
+    char first = (abs(dx) <= abs(dy));
 
     do
     {
@@ -649,8 +649,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
                     if (clipinsideboxline(cent.x, cent.y, p1.x, p1.y, p2.x, p2.y, rad) != 0)
                     {
-                        vec2_t v = { mulscale14(bcos(spr->ang + 256), walldist),
-                                     mulscale14(bsin(spr->ang + 256), walldist) };
+                        vec2_t v = { MulScale(bcos(spr->ang + 256), walldist, 14),
+                                     MulScale(bsin(spr->ang + 256), walldist, 14) };
 
                         if ((p1.x-pos->x) * (p2.y-pos->y) >= (p2.x-pos->x) * (p1.y-pos->y))  // Front
                             addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.y, p2.y-v.x, (int16_t)j+49152, false);
@@ -685,8 +685,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                     get_floorspr_points((uspriteptr_t) spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
                         &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
 
-                    vec2_t v = { mulscale14(bcos(spr->ang - 256), walldist),
-                                 mulscale14(bsin(spr->ang - 256), walldist) };
+                    vec2_t v = { MulScale(bcos(spr->ang - 256), walldist, 14),
+                                 MulScale(bsin(spr->ang - 256), walldist, 14) };
 
                     if ((rxi[0]-pos->x) * (ryi[1]-pos->y) < (rxi[1]-pos->x) * (ryi[0]-pos->y))
                     {
@@ -752,17 +752,17 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 // I don't know if this one actually overflows or not, but I highly doubt it hurts to check
                 int32_t const templl2
                 = (int32_t)clamp(compat_maybe_truncate_to_int32((int64_t)(goal.x - vec.x) * clipr.x + (int64_t)(goal.y - vec.y) * clipr.y), INT32_MIN, INT32_MAX);
-                int32_t const i = (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || (klabs(templl2)>>11) < templl) ?
-                    divscale64(templl2, templl, 20) : 0;
+                int32_t const i = (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || (abs(templl2)>>11) < templl) ?
+                    DivScaleL(templl2, templl, 20) : 0;
 
-                goal = { mulscale20(clipr.x, i)+vec.x, mulscale20(clipr.y, i)+vec.y };
+                goal = { MulScale(clipr.x, i, 20)+vec.x, MulScale(clipr.y, i, 20)+vec.y };
             }
 
             int32_t tempint;
             if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
                 tempint = clipr.x*(move.x>>6)+clipr.y*(move.y>>6);
             else
-                tempint = dmulscale6(clipr.x, move.x, clipr.y, move.y);
+                tempint = DMulScale(clipr.x, move.x, clipr.y, move.y, 6);
 
             for (native_t i=cnt+1, j; i<=clipmoveboxtracenum; ++i)
             {
@@ -772,7 +772,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
                     tempint2 = (clipit[j].x2-clipit[j].x1)*(move.x>>6)+(clipit[j].y2-clipit[j].y1)*(move.y>>6);
                 else
-                    tempint2 = dmulscale6(clipit[j].x2-clipit[j].x1, move.x, clipit[j].y2-clipit[j].y1, move.y);
+                    tempint2 = DMulScale(clipit[j].x2-clipit[j].x1, move.x, clipit[j].y2-clipit[j].y1, move.y, 6);
 
                 if ((tempint ^ tempint2) < 0)
                 {
@@ -920,10 +920,10 @@ int pushmove(vec3_t *const vect, int16_t *const sectnum,
                             else
                             {
                                 daz2 = dax*dax+day*day;
-                                if (daz >= daz2) t = (1<<30); else t = divscale30(daz, daz2);
+                                if (daz >= daz2) t = (1<<30); else t = DivScale(daz, daz2, 30);
                             }
-                            dax = wal->x + mulscale30(dax, t);
-                            day = wal->y + mulscale30(day, t);
+                            dax = wal->x + MulScale(dax, t, 30);
+                            day = wal->y + MulScale(day, t, 30);
 
                             closest = { dax, day };
                         }
@@ -1105,7 +1105,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                     case CSTAT_SPRITE_ALIGNMENT_FACING:
                     {
                         int32_t k = walldist+(sprite[j].clipdist<<2)+1;
-                        if ((klabs(v1.x-pos->x) <= k) && (klabs(v1.y-pos->y) <= k))
+                        if ((abs(v1.x-pos->x) <= k) && (abs(v1.y-pos->y) <= k))
                         {
                             daz = sprite[j].z + spriteheightofs(j, &k, 1);
                             daz2 = daz - k;
@@ -1140,8 +1140,8 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                         get_floorspr_points((uspriteptr_t) &sprite[j], pos->x, pos->y, &v1.x, &v2.x, &v3.x, &v4.x,
                                             &v1.y, &v2.y, &v3.y, &v4.y);
 
-                        vec2_t const da = { mulscale14(bcos(sprite[j].ang - 256), walldist + 4),
-                                            mulscale14(bsin(sprite[j].ang - 256), walldist + 4) };
+                        vec2_t const da = { MulScale(bcos(sprite[j].ang - 256), walldist + 4, 14),
+                                            MulScale(bsin(sprite[j].ang - 256), walldist + 4, 14) };
 
                         v1.x += da.x; v2.x -= da.y; v3.x -= da.x; v4.x += da.y;
                         v1.y += da.y; v2.y += da.x; v3.y -= da.y; v4.y -= da.x;
@@ -1187,7 +1187,7 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
 
     if (!bot) return 0;
 
-    vec3_t        newpos = { 0, 0, in.z + scale(vz, topt, bot) };
+    vec3_t        newpos = { 0, 0, in.z + Scale(vz, topt, bot) };
     int32_t       siz;
     int32_t const z1 = sprpos.z + spriteheightofsptr(spr, &siz, 1);
 
@@ -1195,17 +1195,17 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
         return 0;
 
     int32_t const topu = vx * (sprpos.y - in.y) - vy * (sprpos.x - in.x);
-    vec2_t  const off  = { scale(vx, topu, bot), scale(vy, topu, bot) };
+    vec2_t  const off  = { Scale(vx, topu, bot), Scale(vy, topu, bot) };
     int32_t const dist = off.x * off.x + off.y * off.y;
 
     siz = tileWidth(spr->picnum) * spr->xrepeat;
 
-    if (dist > mulscale7(siz, siz)) return 0;
+    if (dist > MulScale(siz, siz, 7)) return 0;
 
-    newpos.vec2 = { in.x + scale(vx, topt, bot), in.y + scale(vy, topt, bot) };
+    newpos.vec2 = { in.x + Scale(vx, topt, bot), in.y + Scale(vy, topt, bot) };
 
-    if (klabs(newpos.x - in.x) + klabs(newpos.y - in.y) + strictly_smaller_than_p >
-        klabs(intp->x - in.x) + klabs(intp->y - in.y))
+    if (abs(newpos.x - in.x) + abs(newpos.y - in.y) + strictly_smaller_than_p >
+        abs(intp->x - in.x) + abs(intp->y - in.y))
         return 0;
 
     *intp = newpos;
@@ -1241,34 +1241,34 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
         int32_t j, dax=wal2->x-wal->x, day=wal2->y-wal->y;
 
         i = nsqrtasm(compat_maybe_truncate_to_int32(uhypsq(dax,day))); if (i == 0) return 1; //continue;
-        i = divscale15(heinum,i);
+        i = DivScale(heinum,i, 15);
         dax *= i; day *= i;
 
-        j = (vz<<8)-dmulscale15(dax,vy,-day,vx);
+        j = (vz<<8)-DMulScale(dax,vy,-day,vx, 15);
         if (j != 0)
         {
-            i = ((z - sv->z)<<8)+dmulscale15(dax,sv->y-wal->y,-day,sv->x-wal->x);
-            if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
+            i = ((z - sv->z)<<8)+DMulScale(dax,sv->y-wal->y,-day,sv->x-wal->x, 15);
+            if (((i^j) >= 0) && ((abs(i)>>1) < abs(j)))
             {
-                i = divscale30(i,j);
-                x1 = sv->x + mulscale30(vx,i);
-                y1 = sv->y + mulscale30(vy,i);
-                z1 = sv->z + mulscale30(vz,i);
+                i = DivScale(i,j, 30);
+                x1 = sv->x + MulScale(vx,i, 30);
+                y1 = sv->y + MulScale(vy,i, 30);
+                z1 = sv->z + MulScale(vz,i, 30);
             }
         }
     }
     else if ((how*vz > 0) && (how*sv->z <= how*z))
     {
         z1 = z; i = z1-sv->z;
-        if ((klabs(i)>>1) < vz*how)
+        if ((abs(i)>>1) < vz*how)
         {
-            i = divscale30(i,vz);
-            x1 = sv->x + mulscale30(vx,i);
-            y1 = sv->y + mulscale30(vy,i);
+            i = DivScale(i,vz, 30);
+            x1 = sv->x + MulScale(vx,i, 30);
+            y1 = sv->y + MulScale(vy,i, 30);
         }
     }
 
-    if ((x1 != INT32_MAX) && (klabs(x1-sv->x)+klabs(y1-sv->y) < klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y)))
+    if ((x1 != INT32_MAX) && (abs(x1-sv->x)+abs(y1-sv->y) < abs((hit->pos.x)-sv->x)+abs((hit->pos.y)-sv->y)))
     {
         if (tmp==NULL)
         {
@@ -1361,12 +1361,12 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
             {
                 if (vz != 0)
                     if ((intz <= sec->ceilingz) || (intz >= sec->floorz))
-                        if (klabs(intx-sv->x)+klabs(inty-sv->y) < klabs(hit->pos.x-sv->x)+klabs(hit->pos.y-sv->y))
+                        if (abs(intx-sv->x)+abs(inty-sv->y) < abs(hit->pos.x-sv->x)+abs(hit->pos.y-sv->y))
                         {
                                 //x1,y1,z1 are temp variables
                             if (vz > 0) z1 = sec->floorz; else z1 = sec->ceilingz;
-                            x1 = sv->x + scale(z1-sv->z,vx,vz);
-                            y1 = sv->y + scale(z1-sv->z,vy,vz);
+                            x1 = sv->x + Scale(z1-sv->z,vx,vz);
+                            y1 = sv->y + Scale(z1-sv->z,vy,vz);
                             if (inside(x1,y1,dasector) == 1)
                             {
                                 hit_set(hit, dasector, -1, -1, x1, y1, z1);
@@ -1374,7 +1374,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                             }
                         }
             }
-            else if (klabs(intx-sv->x)+klabs(inty-sv->y) >= klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
+            else if (abs(intx-sv->x)+abs(inty-sv->y) >= abs((hit->pos.x)-sv->x)+abs((hit->pos.y)-sv->y))
                 continue;
 
             if (!curspr)
@@ -1383,14 +1383,14 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 {
                     if ((nextsector < 0) || (wal->cstat&dawalclipmask))
                     {
-                        if ((klabs(intx-sv->x)+klabs(inty-sv->y) < klabs(hit->pos.x-sv->x)+klabs(hit->pos.y-sv->y)))
+                        if ((abs(intx-sv->x)+abs(inty-sv->y) < abs(hit->pos.x-sv->x)+abs(hit->pos.y-sv->y)))
                             hit_set(hit, dasector, z, -1, intx, inty, intz);
                         continue;
                     }
 
                     if (intz <= sector[nextsector].ceilingz || intz >= sector[nextsector].floorz)
                     {
-                        if ((klabs(intx-sv->x)+klabs(inty-sv->y) < klabs(hit->pos.x-sv->x)+klabs(hit->pos.y-sv->y)))
+                        if ((abs(intx-sv->x)+abs(inty-sv->y) < abs(hit->pos.x-sv->x)+abs(hit->pos.y-sv->y)))
                             hit_set(hit, dasector, z, -1, intx, inty, intz);
                         continue;
                     }
@@ -1463,7 +1463,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 ucoefup16 = rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz);
                 if (ucoefup16 == -1) continue;
 
-                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
+                if (abs(intx-sv->x)+abs(inty-sv->y) > abs((hit->pos.x)-sv->x)+abs((hit->pos.y)-sv->y))
                     continue;
 
                 daz = spr->z + spriteheightofs(z, &k, 1);
@@ -1476,9 +1476,9 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                         if (tileLoad(tilenum))
                         {
                             // daz-intz > 0 && daz-intz < k
-                            int32_t xtex = mulscale16(ucoefup16, tileWidth(tilenum));
-                            int32_t vcoefup16 = 65536-divscale16(daz-intz, k);
-                            int32_t ytex = mulscale16(vcoefup16, tileHeight(tilenum));
+                            int32_t xtex = MulScale(ucoefup16, tileWidth(tilenum), 16);
+                            int32_t vcoefup16 = 65536-DivScale(daz-intz, k, 16);
+                            int32_t ytex = MulScale(vcoefup16, tileHeight(tilenum), 16);
 
                             auto texel = (tilePtr(tilenum) + tileHeight(tilenum)*xtex + ytex);
                             if (*texel == TRANSPARENT_INDEX)
@@ -1507,17 +1507,17 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                     // signed overflow is undefined behavior in C), but rather the idiv trap when
                     // the resulting quotient doesn't fit into a *signed* 32-bit integer.
                     zz = (uint32_t)(intz-sv->z) * vx;
-                    intx = sv->x+scale(zz,1,vz);
+                    intx = sv->x+Scale(zz,1,vz);
                     zz = (uint32_t)(intz-sv->z) * vy;
-                    inty = sv->y+scale(zz,1,vz);
+                    inty = sv->y+Scale(zz,1,vz);
                 }
                 else
                 {
-                    intx = sv->x+scale(intz-sv->z,vx,vz);
-                    inty = sv->y+scale(intz-sv->z,vy,vz);
+                    intx = sv->x+Scale(intz-sv->z,vx,vz);
+                    inty = sv->y+Scale(intz-sv->z,vy,vz);
                 }
 
-                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
+                if (abs(intx-sv->x)+abs(inty-sv->y) > abs((hit->pos.x)-sv->x)+abs((hit->pos.y)-sv->y))
                     continue;
 
                 get_floorspr_points((uspriteptr_t)spr, intx, inty, &x1, &x2, &x3, &x4,

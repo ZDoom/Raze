@@ -25,8 +25,6 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 
 int checkTranslucentReplacement(FTextureID picnum, int pal);
 
-CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVARD(Bool, hw_animsmoothing, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model animation smoothing")
 CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
 CVARD(Bool, hw_models, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model rendering")
@@ -255,7 +253,7 @@ static void polymost_updaterotmat(void)
     };
     multiplyMatrix4f(matrix, tiltmatrix);
     renderSetViewMatrix(matrix);
-    renderSetVisibility(mulscale16(g_visibility, mulscale16(xdimenscale, viewingrangerecip)) * fviewingrange * (1.f / (65536.f * 65536.f)) / r_ambientlight);
+    renderSetVisibility(MulScale(g_visibility, MulScale(xdimenscale, viewingrangerecip, 16), 16) * fviewingrange * (1.f / (65536.f * 65536.f)) / r_ambientlight);
 }
 
 const vec2_16_t tileSize(size_t index)
@@ -921,6 +919,15 @@ skip: ;
 #endif
 }
 
+// Moved in from pragmas.h
+static inline int32_t krecipasm(int32_t i)
+{
+    // Ken did this
+    union { int32_t i; float f; } x;
+    x.f = (float)i;
+    i = x.i;
+    return ((reciptable[(i >> 12) & 2047] >> (((i - 0x3f800000) >> 23) & 31)) ^ (i >> 31));
+}
 
 // variables that are set to ceiling- or floor-members, depending
 // on which one is processed right now
@@ -2095,7 +2102,7 @@ static void polymost_drawalls(int32_t const bunch)
                 if (maskingOneWay)
                 {
                     vec2_t n, pos = { globalposx, globalposy };
-                    if (!polymost_getclosestpointonwall(&pos, wallnum, &n) && klabs(pos.x - n.x) + klabs(pos.y - n.y) <= 128)
+                    if (!polymost_getclosestpointonwall(&pos, wallnum, &n) && abs(pos.x - n.x) + abs(pos.y - n.y) <= 128)
                         break;
                 }
 
@@ -2194,7 +2201,7 @@ void polymost_scansector(int32_t sectnum)
             {
                 if ((spr->cstat&(64+48))!=(64+16) ||
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
-                    dmulscale6(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y) > 0)
+                    DMulScale(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y, 6) > 0)
                     if (renderAddTsprite(z, sectnum))
                         break;
             }
@@ -2435,7 +2442,7 @@ void polymost_drawrooms()
     ghalfy = (float)(ydimen>>1);
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
     ghoriz = FixedToFloat(qglobalhoriz);
-    ghorizcorrect = FixedToFloat(divscale16(xdimenscale, viewingrange));
+    ghorizcorrect = FixedToFloat(DivScale(xdimenscale, viewingrange, 16));
 
     //global cos/sin height angle
     if (r_yshearing)
@@ -2815,7 +2822,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
 
     set_globalpos(dax, day, daz);
     set_globalang(daang);
-    qglobalhoriz = mulscale16(dahoriz, divscale16(xdimenscale, viewingrange))+IntToFixed(ydimen>>1);
+    qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16)+IntToFixed(ydimen>>1);
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
     gxyaspect = ((double)xyaspect*fviewingrange)*(5.0/(65536.0*262144.0));
     gviewxrange = fviewingrange * fxdimen * (1.f/(32768.f*1024.f));
@@ -2827,7 +2834,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
     ghalfy = (float)(ydimen>>1);
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
     ghoriz = FixedToFloat(qglobalhoriz);
-    ghorizcorrect = FixedToFloat(divscale16(xdimenscale, viewingrange));
+    ghorizcorrect = FixedToFloat(DivScale(xdimenscale, viewingrange, 16));
     resizeglcheck();
     if (r_yshearing)
     {
@@ -2905,7 +2912,7 @@ static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t c
         if ((wall[i].nextsector == -1 || ((sector[wall[i].nextsector].ceilingz > (tspr->z - ((tsiz->y * tspr->yrepeat) << 2))) ||
              sector[wall[i].nextsector].floorz < tspr->z)) && !polymost_getclosestpointonwall((const vec2_t *) tspr, i, &n))
         {
-            int const dst = klabs(tspr->x - n.x) + klabs(tspr->y - n.y);
+            int const dst = abs(tspr->x - n.x) + abs(tspr->y - n.y);
 
             if (dst <= dist)
             {

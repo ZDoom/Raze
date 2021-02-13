@@ -161,7 +161,7 @@ void DDukeCommonStatusBar::DrawInventory(const struct player_struct* p, double x
 			int select = 1 << (p->inven_icon - 1);
 			double alpha = select == i ? 1.0 : 0.7;
 			DrawGraphic(tileGetTexture(item_icons[bit+1]), x, y, align, alpha, 0, 0, scale, scale);
-			if (select == i) DrawGraphic(tileGetTexture(TILE_ARROW), x, y, align, alpha, 0, 0, scale, scale);
+			if (select == i) DrawGraphic(tileGetTexture(TILE_ARROW), isWW2GI()? x + 7.5 : x, isWW2GI()? y + 0.5 : y, align, alpha, 0, 0, scale, scale);
 			x += 22;
 		}
 	}

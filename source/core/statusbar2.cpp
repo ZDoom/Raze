@@ -366,7 +366,7 @@ void drawMapTitle()
 		double scale = (g_gameType & GAMEFLAG_RRALL)? 0.4 : (g_gameType & GAMEFLAG_SW)? 0.7 : 1.0;
 		auto text = currentLevel->DisplayName();
 		double x = 160 - BigFont->StringWidth(text) * scale / 2.;
-		double y = (g_gameType & GAMEFLAG_BLOOD)? 50 : 100 - BigFont->GetHeight()/2.;
+		double y = isBlood() ? 50 : 100 - BigFont->GetHeight()/2.;
 		bool shadow = true;
 
 		if (shadow)

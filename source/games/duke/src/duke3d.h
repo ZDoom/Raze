@@ -4,7 +4,6 @@
 
 #include "compat.h"
 
-#include "pragmas.h"
 
 #include "polymost.h"
 #include "gamecvars.h"
@@ -57,7 +56,7 @@ struct GameInterface : public ::GameInterface
 	void NextLevel(MapRecord* map, int skill) override;
 	void NewGame(MapRecord* map, int skill) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
-	bool DrawAutomapPlayer(int x, int y, int z, int a) override;
+	bool DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio) override;
 	int playerKeyMove() override { return 40; }
 	void WarpToCoords(int x, int y, int z, int a, int h) override;
 	void ToggleThirdPerson() override;

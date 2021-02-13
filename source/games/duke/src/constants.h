@@ -332,7 +332,7 @@ enum
 	EVENT_LOOKUP,		// for each player
 	EVENT_LOOKDOWN,		// for each player
 	EVENT_AIMUP,		// for each player
-	EVENT_AIMDOWN,		// for each player
+	EVENT_AIMDOWN = EVENT_AIMUP,		// for each player, typo in WW2GI
 	EVENT_FIRE,			// for each player
 	EVENT_CHANGEWEAPON,	// for each player
 	EVENT_GETSHOTRANGE,	// for each player

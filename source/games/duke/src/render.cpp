@@ -259,17 +259,6 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 //
 //---------------------------------------------------------------------------
 
-static inline int16_t getcamspriteang(DDukeActor* newOwner, double const smoothratio)
-{
-	return newOwner->tempang + xs_CRoundToInt(fmulscale16(((newOwner->s.ang - newOwner->tempang + 1024) & 2047) - 1024, smoothratio));
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void animatecamsprite(double smoothratio)
 {
 	const int VIEWSCREEN_ACTIVE_DISTANCE = 8192;
@@ -293,11 +282,11 @@ void animatecamsprite(double smoothratio)
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
 				auto camera = &camsprite->GetOwner()->s;
-				auto ang = getcamspriteang(camsprite->GetOwner(), smoothratio);
+				auto ang = buildang(camera->interpolatedang(smoothratio));
 				// Note: no ROR or camera here for now - the current setup has no means to detect these things before rendering the scene itself.
-				drawrooms(camera->x, camera->y, camera->z, ang, camera->shade, camera->sectnum); // why 'shade'...?
+				renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sectnum); // why 'shade'...?
 				display_mirror = 1; // should really be 'display external view'.
-				fi.animatesprites(camera->x, camera->y, ang, smoothratio);
+				fi.animatesprites(camera->x, camera->y, ang.asbuild(), smoothratio);
 				display_mirror = 0;
 				renderDrawMasks();
 			});
@@ -517,7 +506,7 @@ void displayrooms(int snum, double smoothratio)
 		if (s->yvel < 0) s->yvel = -100;
 		else if (s->yvel > 199) s->yvel = 300;
 
-		cang = buildang(ud.cameraactor->tempang + xs_CRoundToInt(fmulscale16(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio)));
+		cang = buildfang(ud.cameraactor->tempang + MulScaleF(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio, 16));
 
 		auto bh = buildhoriz(s->yvel);
 		se40code(s->x, s->y, s->z, cang, bh, smoothratio);
@@ -529,9 +518,9 @@ void displayrooms(int snum, double smoothratio)
 	else
 	{
 		// Fixme: This should get the aspect ratio from the backend, not the current viewport size.
-		int i = divscale22(1, isRR() ? 64 : p->GetActor()->s.yrepeat + 28);
+		int i = DivScale(1, isRR() ? 64 : p->GetActor()->s.yrepeat + 28, 22);
 		int viewingaspect = !isRRRA() || !p->DrugMode ? xs_CRoundToInt(double(i) * tan(r_fov * (pi::pi() / 360.))) : getdrugmode(p, i);
-		renderSetAspect(mulscale16(viewingaspect, viewingrange), yxaspect);
+		renderSetAspect(MulScale(viewingaspect, viewingrange, 16), yxaspect);
 
 		// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
 		// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
@@ -542,15 +531,15 @@ void displayrooms(int snum, double smoothratio)
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
-			cposx = omyx + xs_CRoundToInt(fmulscale16(myx - omyx, smoothratio));
-			cposy = omyy + xs_CRoundToInt(fmulscale16(myy - omyy, smoothratio));
-			cposz = omyz + xs_CRoundToInt(fmulscale16(myz - omyz, smoothratio));
+			cposx = omyx + xs_CRoundToInt(MulScaleF(myx - omyx, smoothratio, 16));
+			cposy = omyy + xs_CRoundToInt(MulScaleF(myy - omyy, smoothratio, 16));
+			cposz = omyz + xs_CRoundToInt(MulScaleF(myz - omyz, smoothratio, 16));
 			if (SyncInput())
 			{
 				fixed_t ohorz = (omyhoriz + omyhorizoff).asq16();
 				fixed_t horz = (myhoriz + myhorizoff).asq16();
-				choriz = q16horiz(ohorz + xs_CRoundToInt(fmulscale16(horz - ohorz, smoothratio)));
-				cang = bamang(xs_CRoundToUInt(omyang.asbam() + fmulscale16((myang - omyang).asbam(), smoothratio)));
+				choriz = q16horiz(ohorz + xs_CRoundToInt(MulScaleF(horz - ohorz, smoothratio, 16)));
+				cang = bamang(xs_CRoundToUInt(omyang.asbam() + MulScaleF((myang - omyang).asbam(), smoothratio, 16)));
 			}
 			else
 			{
@@ -561,9 +550,9 @@ void displayrooms(int snum, double smoothratio)
 		}
 		else
 		{
-			cposx = p->oposx + xs_CRoundToInt(fmulscale16(p->posx - p->oposx, smoothratio));
-			cposy = p->oposy + xs_CRoundToInt(fmulscale16(p->posy - p->oposy, smoothratio));
-			cposz = p->oposz + xs_CRoundToInt(fmulscale16(p->posz - p->oposz, smoothratio));
+			cposx = p->oposx + xs_CRoundToInt(MulScaleF(p->posx - p->oposx, smoothratio, 16));
+			cposy = p->oposy + xs_CRoundToInt(MulScaleF(p->posy - p->oposy, smoothratio, 16));
+			cposz = p->oposz + xs_CRoundToInt(MulScaleF(p->posz - p->oposz, smoothratio, 16));
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct
@@ -581,7 +570,7 @@ void displayrooms(int snum, double smoothratio)
 		if (p->newOwner != nullptr)
 		{
 			auto spr = &p->newOwner->s;
-			cang = buildang(getcamspriteang(p->newOwner, smoothratio));
+			cang = buildang(spr->interpolatedang(smoothratio));
 			choriz = buildhoriz(spr->shade);
 			cposx = spr->pos.x;
 			cposy = spr->pos.y;
@@ -592,7 +581,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 		else if (p->over_shoulder_on == 0)
 		{
-			if (cl_viewbob) cposz += p->opyoff + xs_CRoundToInt(fmulscale16(p->pyoff - p->opyoff, smoothratio));
+			if (cl_viewbob) cposz += p->opyoff + xs_CRoundToInt(MulScaleF(p->pyoff - p->opyoff, smoothratio, 16));
 		}
 		else
 		{

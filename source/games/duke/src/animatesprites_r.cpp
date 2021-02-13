@@ -161,18 +161,16 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 		if (t->statnum == 99) continue;
 		if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && ps[s->yvel].newOwner == nullptr && h->GetOwner())
 		{
-			t->x -= mulscale16(MaxSmoothRatio - smoothratio, ps[s->yvel].posx - ps[s->yvel].oposx);
-			t->y -= mulscale16(MaxSmoothRatio - smoothratio, ps[s->yvel].posy - ps[s->yvel].oposy);
-			t->z = ps[s->yvel].oposz + mulscale16(smoothratio, ps[s->yvel].posz - ps[s->yvel].oposz);
+			t->x -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].posx - ps[s->yvel].oposx, 16);
+			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].posy - ps[s->yvel].oposy, 16);
+			t->z = ps[s->yvel].oposz + MulScale(smoothratio, ps[s->yvel].posz - ps[s->yvel].oposz, 16);
 			t->z += (40 << 8);
 			s->xrepeat = 24;
 			s->yrepeat = 17;
 		}
 		else if (s->picnum != CRANEPOLE)
 		{
-			t->x -= mulscale16(MaxSmoothRatio - smoothratio, s->x - h->bposx);
-			t->y -= mulscale16(MaxSmoothRatio - smoothratio, s->y - h->bposy);
-			t->z -= mulscale16(MaxSmoothRatio - smoothratio, s->z - h->bposz);
+			t->pos = s->interpolatedvec3(smoothratio);
 		}
 
 		sect = s->sectnum;
@@ -376,10 +374,10 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 				t->cstat |= 2;
 				if (screenpeek == myconnectindex && numplayers >= 2)
 				{
-					t->x = omyx + mulscale16((int)(myx - omyx), smoothratio);
-					t->y = omyy + mulscale16((int)(myy - omyy), smoothratio);
-					t->z = omyz + mulscale16((int)(myz - omyz), smoothratio) + (40 << 8);
-					t->ang = omyang.asbuild() + mulscale16((((myang.asbuild() + 1024 - omyang.asbuild()) & 2047) - 1024), smoothratio);
+					t->x = omyx + MulScale((int)(myx - omyx), smoothratio, 16);
+					t->y = omyy + MulScale((int)(myy - omyy), smoothratio, 16);
+					t->z = omyz + MulScale((int)(myz - omyz), smoothratio, 16) + (40 << 8);
+					t->ang = omyang.asbuild() + MulScale((((myang.asbuild() + 1024 - omyang.asbuild()) & 2047) - 1024), smoothratio, 16);
 					t->sectnum = mycursectnum;
 				}
 			}

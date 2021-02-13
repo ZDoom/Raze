@@ -73,42 +73,6 @@ void PlayerColorChanged(void)
 
 //---------------------------------------------------------------------------
 //
-// calculates automatic view pitch for playing without a mouse
-//
-//---------------------------------------------------------------------------
-
-void calcviewpitch(player_struct *p, double factor)
-{
-	int psect = p->cursectnum;
-	int psectlotag = sector[psect].lotag;
-	if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
-	{
-		int x = p->posx + p->angle.ang.bcos(-5);
-		int y = p->posy + p->angle.ang.bsin(-5);
-		short tempsect = psect;
-		updatesector(x, y, &tempsect);
-
-		if (tempsect >= 0)
-		{
-			int k = getflorzofslope(psect, x, y);
-			if (psect == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
-			p->horizon.horizoff += q16horiz(FloatToFixed(factor * mulscale16(p->truefz - k, 160)));
-		}
-	}
-	if (p->horizon.horizoff.asq16() > 0)
-	{
-		p->horizon.horizoff += q16horiz(xs_CRoundToInt(-factor * ((p->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
-		if (p->horizon.horizoff.asq16() < 0) p->horizon.horizoff = q16horiz(0);
-	}
-	else if (p->horizon.horizoff.asq16() < 0)
-	{
-		p->horizon.horizoff += q16horiz(xs_CRoundToInt(-factor * ((p->horizon.horizoff.asq16() >> 3) + FRACUNIT)));
-		if (p->horizon.horizoff.asq16() > 0) p->horizon.horizoff = q16horiz(0);
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // why is this such a mess?
 //
 //---------------------------------------------------------------------------
@@ -368,11 +332,11 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 					if ((dy1 * xv) <= (dx1 * yv))
 						if ((dy2 * xv) >= (dx2 * yv))
 						{
-							sdist = mulscale(dx3, xv, 14) + mulscale(dy3, yv, 14);
+							sdist = MulScale(dx3, xv, 14) + MulScale(dy3, yv, 14);
 							if (sdist > 512 && sdist < smax)
 							{
 								if (s->picnum == TILE_APLAYER)
-									a = (abs(scale(sp->z - s->z, 10, sdist) - ps[s->yvel].horizon.sum().asbuild()) < 100);
+									a = (abs(Scale(sp->z - s->z, 10, sdist) - ps[s->yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
 								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + gs.actorinfo[sp->picnum].aimoffset, sp->sectnum, s->x, s->y, s->z - (32 << 8), s->sectnum);
@@ -967,7 +931,7 @@ void playerAimDown(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->GetActor(), snum);
-	OnEvent(EVENT_AIMDOWN, snum, p->GetActor(), -1);
+	OnEvent(EVENT_AIMDOWN, snum, p->GetActor(), -1);	// due to a typo in WW2GI's CON files this is the same as EVENT_AIMUP.
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum) != 0)
 	{
 		p->sync.actions &= ~SB_AIM_DOWN;
@@ -980,20 +944,18 @@ void playerAimDown(int snum, ESyncBits actions)
 //
 //---------------------------------------------------------------------------
 
-bool movementBlocked(int snum)
+bool movementBlocked(player_struct *p)
 {
-	auto p = &ps[snum];
-
 	auto blockingweapon = [=]()
 	{
 		if (isRR()) return false;
-		if (isWW2GI()) return aplWeaponWorksLike[p->curr_weapon][snum] == TRIPBOMB_WEAPON;
+		if (isWW2GI()) return aplWeaponWorksLike[p->curr_weapon][p->i] == TRIPBOMB_WEAPON;
 		else return p->curr_weapon == TRIPBOMB_WEAPON;
 	};
 
 	auto weapondelay = [=]()
 	{
-		if (isWW2GI()) return aplWeaponFireDelay[p->curr_weapon][snum];
+		if (isWW2GI()) return aplWeaponFireDelay[p->curr_weapon][p->i];
 		else return 4;
 	};
 
@@ -1002,7 +964,6 @@ bool movementBlocked(int snum)
 		p->hard_landing ||
 		p->access_incs > 0 ||
 		p->knee_incs > 0 ||
-		p->newOwner != nullptr ||
 		(blockingweapon() && p->kickback_pic > 1 && p->kickback_pic < weapondelay()));
 }
 
@@ -1145,21 +1106,21 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 				wall[wall[hitwall].point2].y - wall[hitwall].y);
 
 			i = nx * bsin(daang) + ny * -bcos(daang);
-			if (abs(nx) > abs(ny)) hx -= mulscale28(nx, i);
-			else hy -= mulscale28(ny, i);
+			if (abs(nx) > abs(ny)) hx -= MulScale(nx, i, 28);
+			else hy -= MulScale(ny, i, 28);
 		}
 		else if (!hitsprt)
 		{
 			if (abs(nx) > abs(ny)) hx -= (nx >> 5);
 			else hy -= (ny >> 5);
 		}
-		if (abs(nx) > abs(ny)) i = divscale16(hx, nx);
-		else i = divscale16(hy, ny);
+		if (abs(nx) > abs(ny)) i = DivScale(hx, nx, 16);
+		else i = DivScale(hy, ny, 16);
 		if (i < cameradist) cameradist = i;
 	}
-	*vx = (*vx) + mulscale16(nx, cameradist);
-	*vy = (*vy) + mulscale16(ny, cameradist);
-	*vz = (*vz) + mulscale16(nz, cameradist);
+	*vx = (*vx) + MulScale(nx, cameradist, 16);
+	*vy = (*vy) + MulScale(ny, cameradist, 16);
+	*vz = (*vz) + MulScale(nz, cameradist, 16);
 	
 	int myclock = ud.levelclock + int(TICSPERFRAME/65536. * smoothratio);
 	if (cameraclock == INT_MIN) cameraclock = myclock;	// third person view was just started.

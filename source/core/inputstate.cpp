@@ -43,6 +43,7 @@
 #include "gamestruct.h"
 #include "d_net.h"
 #include "gamestate.h"
+#include "gameinput.h"
 
 static int WeaponToSend = 0;
 ESyncBits ActionsToSend = 0;
@@ -125,6 +126,7 @@ void InputState::ClearAllInput()
 	crouch_toggle = false;
 	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
 	gi->clearlocalinputstate();		// also clear game local input state.
+	resetTurnHeldAmt();
 }
 
 
@@ -246,7 +248,7 @@ void SetupGameButtons()
 CCMD(slot)
 {
 	// The max differs between games so we have to handle this here.
-	int max = (g_gameType & GAMEFLAG_PSEXHUMED) || (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE)) == (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE) ? 7 : (g_gameType & GAMEFLAG_BLOOD) ? 12 : 10;
+	int max = (g_gameType & GAMEFLAG_PSEXHUMED) || (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE)) == (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE) ? 7 : isBlood() ? 12 : 10;
 	if (argv.argc() != 2)
 	{
 		Printf("slot <weaponslot>: select a weapon from the given slot (1-%d)", max);
@@ -276,7 +278,7 @@ CCMD(weapalt)
 
 CCMD(useitem)
 {
-	int max = (g_gameType & GAMEFLAG_PSEXHUMED)? 6 : (g_gameType & GAMEFLAG_SW)? 7 : (g_gameType & GAMEFLAG_BLOOD) ? 4 : 5;
+	int max = (g_gameType & GAMEFLAG_PSEXHUMED)? 6 : (g_gameType & GAMEFLAG_SW)? 7 : isBlood() ? 4 : 5;
 	if (argv.argc() != 2)
 	{
 		Printf("useitem <itemnum>: activates an inventory item (1-%d)", max);

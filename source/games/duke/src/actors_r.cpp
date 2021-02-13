@@ -1278,7 +1278,7 @@ static bool weaponhitwall(DDukeActor *proj, int wal, const vec3_t& oldpos)
 					j->s.yrepeat = 8;
 					j->s.cstat = 16;
 					j->s.ang = (j->s.ang + 512) & 2047;
-					j->s.clipdist = mulscale7(s->xrepeat, tileWidth(s->picnum));
+					j->s.clipdist = MulScale(s->xrepeat, tileWidth(s->picnum), 7);
 				}
 				deletesprite(proj);
 				return true;
@@ -1410,8 +1410,8 @@ static void weaponcommon_r(DDukeActor *proj)
 
 	Collision coll;
 	movesprite_ex(proj,
-		mulscale14(k, bcos(s->ang)),
-		mulscale14(k, bsin(s->ang)), ll, CLIPMASK1, coll);
+		MulScale(k, bcos(s->ang), 14),
+		MulScale(k, bsin(s->ang), 14), ll, CLIPMASK1, coll);
 
 	if ((s->picnum == RPG || (isRRRA() && isIn(s->picnum, RPG2, RRTILE1790))) && proj->temp_actor != nullptr)
 		if (FindDistance2D(s->x - proj->temp_actor->s.x, s->y - proj->temp_actor->s.y) < 256)
@@ -1444,9 +1444,9 @@ static void weaponcommon_r(DDukeActor *proj)
 		for (k = -3; k < 2; k++)
 		{
 			auto x = EGS(s->sectnum,
-				s->x + mulscale9(k, bcos(s->ang)),
-				s->y + mulscale9(k, bsin(s->ang)),
-				s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
+				s->x + MulScale(k, bcos(s->ang), 9),
+				s->y + MulScale(k, bsin(s->ang), 9),
+				s->z + ((k * Sgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
 				s->xrepeat, s->yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
 			x->s.cstat = 128;
@@ -1846,9 +1846,7 @@ void movetransports_r(void)
 									spr2->z -= spr->z - sector[Owner->s.sectnum].floorz;
 									spr2->ang = Owner->s.ang;
 
-									act2->bposx = spr2->x;
-									act2->bposy = spr2->y;
-									act2->bposz = spr2->z;
+									spr2->backupang();
 
 									auto beam = spawn(act, TRANSPORTERBEAM);
 									S_PlayActorSound(TELEPORTER, beam);
@@ -1871,9 +1869,7 @@ void movetransports_r(void)
 								spr2->y += (Owner->s.y - spr->y);
 								spr2->z = Owner->s.z + 4096;
 
-								act2->bposx = spr2->x;
-								act2->bposy = spr2->y;
-								act2->bposz = spr2->z;
+								spr2->backupz();
 
 								changespritesect(act2, Owner->s.sectnum);
 							}
@@ -1883,9 +1879,7 @@ void movetransports_r(void)
 							spr2->y += (Owner->s.y - spr->y);
 							spr2->z = sector[Owner->s.sectnum].ceilingz + ll;
 
-							act2->bposx = spr2->x;
-							act2->bposy = spr2->y;
-							act2->bposz = spr2->z;
+							spr2->backupz();
 
 							changespritesect(act2, Owner->s.sectnum);
 
@@ -1895,9 +1889,7 @@ void movetransports_r(void)
 							spr2->y += (Owner->s.y - spr->y);
 							spr2->z = sector[Owner->s.sectnum].floorz - ll;
 
-							act2->bposx = spr2->x;
-							act2->bposy = spr2->y;
-							act2->bposz = spr2->z;
+							spr2->backupz();
 
 							changespritesect(act2, Owner->s.sectnum);
 
@@ -1909,14 +1901,12 @@ void movetransports_r(void)
 							spr2->y += (Owner->s.y - spr->y);
 							spr2->z = sector[Owner->s.sectnum].ceilingz + ll2;
 
-							act2->bposx = spr2->x;
-							act2->bposy = spr2->y;
-							act2->bposz = spr2->z;
+							spr2->backupz();
 
 							changespritesect(act2, Owner->s.sectnum);
 
-							movesprite_ex(act2, mulscale14(spr2->xvel, bcos(spr2->ang)),
-								mulscale14(spr2->xvel, bsin(spr2->ang)), 0, CLIPMASK1, coll);
+							movesprite_ex(act2, MulScale(spr2->xvel, bcos(spr2->ang), 14),
+								MulScale(spr2->xvel, bsin(spr2->ang), 14), 0, CLIPMASK1, coll);
 
 							break;
 						case 161:
@@ -1925,14 +1915,12 @@ void movetransports_r(void)
 							spr2->y += (Owner->s.y - spr->y);
 							spr2->z = sector[Owner->s.sectnum].floorz - ll2;
 
-							act2->bposx = spr2->x;
-							act2->bposy = spr2->y;
-							act2->bposz = spr2->z;
+							spr2->backupz();
 
 							changespritesect(act2, Owner->s.sectnum);
 
-							movesprite_ex(act2, mulscale14(spr2->xvel, bcos(spr2->ang)),
-								mulscale14(spr2->xvel, bsin(spr2->ang)), 0, CLIPMASK1, coll);
+							movesprite_ex(act2, MulScale(spr2->xvel, bcos(spr2->ang), 14),
+								MulScale(spr2->xvel, bsin(spr2->ang), 14), 0, CLIPMASK1, coll);
 
 							break;
 						}
@@ -2071,13 +2059,13 @@ static void rrra_specialstats()
 				{
 					s->xrepeat <<= 1;
 					s->yrepeat <<= 1;
-					s->clipdist = mulscale7(s->xrepeat, tileWidth(s->picnum));
+					s->clipdist = MulScale(s->xrepeat, tileWidth(s->picnum), 7);
 				}
 				else if (enemysizecheat == 2)
 				{
 					s->xrepeat >>= 1;
 					s->yrepeat >>= 1;
-					s->clipdist = mulscale7(s->xrepeat, tileHeight(s->picnum));
+					s->clipdist = MulScale(s->xrepeat, tileHeight(s->picnum), 7);
 				}
 				break;
 			}
@@ -2142,8 +2130,8 @@ static void rrra_specialstats()
 				S_PlaySound(183);
 			s->extra--;
 			int j = movesprite_ex(act,
-				mulscale14(s->hitag, bcos(s->ang)),
-				mulscale14(s->hitag, bsin(s->ang)),
+				MulScale(s->hitag, bcos(s->ang), 14),
+				MulScale(s->hitag, bsin(s->ang), 14),
 				s->hitag << 1, CLIPMASK0, coll);
 			if (j > 0)
 			{
@@ -2582,8 +2570,8 @@ static void heavyhbomb(DDukeActor *actor)
 
 	Collision coll;
 	movesprite_ex(actor,
-		mulscale14(s->xvel, bcos(s->ang)),
-		mulscale14(s->xvel, bsin(s->ang)),
+		MulScale(s->xvel, bcos(s->ang), 14),
+		MulScale(s->xvel, bsin(s->ang), 14),
 		s->zvel, CLIPMASK0, coll);
 
 	if (sector[s->sectnum].lotag == 1 && s->zvel == 0)
@@ -2776,8 +2764,8 @@ static int henstand(DDukeActor *actor)
 		makeitfall(actor);
 		Collision coll;
 		movesprite_ex(actor,
-			mulscale14(bcos(s->ang), s->xvel),
-			mulscale14(bsin(s->ang), s->xvel),
+			MulScale(bcos(s->ang), s->xvel, 14),
+			MulScale(bsin(s->ang), s->xvel, 14),
 			s->zvel, CLIPMASK0, coll);
 		if (coll.type)
 		{
@@ -2894,8 +2882,8 @@ void moveactors_r(void)
 				if (sector[sect].lotag == 903)
 					makeitfall(act);
 				movesprite_ex(act,
-					mulscale14(s->xvel, bcos(s->ang)),
-					mulscale14(s->xvel, bsin(s->ang)),
+					MulScale(s->xvel, bcos(s->ang), 14),
+					MulScale(s->xvel, bsin(s->ang), 14),
 					s->zvel,CLIPMASK0, coll);
 				switch (sector[sect].lotag)
 				{
@@ -2935,8 +2923,8 @@ void moveactors_r(void)
 				}
 				makeitfall(act);
 				movesprite_ex(act,
-					mulscale14(s->xvel, bcos(s->ang)),
-					mulscale14(s->xvel, bsin(s->ang)),
+					MulScale(s->xvel, bcos(s->ang), 14),
+					MulScale(s->xvel, bsin(s->ang), 14),
 					s->zvel,CLIPMASK0, coll);
 				if (coll.type > kHitSector)
 				{
@@ -2966,8 +2954,8 @@ void moveactors_r(void)
 				}
 				makeitfall(act);
 				movesprite_ex(act,
-					mulscale14(s->xvel, bcos(s->ang)),
-					mulscale14(s->xvel, bsin(s->ang)),
+					MulScale(s->xvel, bcos(s->ang), 14),
+					MulScale(s->xvel, bsin(s->ang), 14),
 					s->zvel,CLIPMASK0, coll);
 				if (s->z >= sector[sect].floorz - (8<<8))
 				{
@@ -3065,8 +3053,8 @@ void moveactors_r(void)
 					if (s->xvel)
 					{
 						movesprite_ex(act,
-							mulscale14(s->xvel, bcos(s->ang)),
-							mulscale14(s->xvel, bsin(s->ang)),
+							MulScale(s->xvel, bcos(s->ang), 14),
+							MulScale(s->xvel, bsin(s->ang), 14),
 							s->zvel,CLIPMASK0, coll);
 						s->xvel--;
 					}
@@ -3447,7 +3435,7 @@ void handle_se06_r(DDukeActor *actor)
 			{
 				if (act2->temp_data[5] == 0)
 					act2->temp_data[5] = dist(act2, actor);
-				int x = sgn(dist(act2, actor) - act2->temp_data[5]);
+				int x = Sgn(dist(act2, actor) - act2->temp_data[5]);
 				if (act2->s.extra) x = -x;
 				s->xvel += x;
 			}
@@ -3611,7 +3599,7 @@ void moveeffectors_r(void)   //STATNUM 3
 
 		case SE_29_WAVES:
 			act->s.hitag += 64;
-			l = mulscale12(act->s.yvel, bsin(act->s.hitag));
+			l = MulScale(act->s.yvel, bsin(act->s.hitag), 12);
 			sc->floorz = act->s.z + l;
 			break;
 
@@ -3719,7 +3707,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if (ps[pnum].newOwner != nullptr)
 			goalang = getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y);
 		else goalang = getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y);
-		angdif = ksgn(getincangle(spr->ang, goalang)) << 5;
+		angdif = Sgn(getincangle(spr->ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
 		{
 			angdif = 0;
@@ -3735,7 +3723,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			if (ps[pnum].newOwner != nullptr)
 				goalang = (getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y) + 1024) & 2047;
 			else goalang = (getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y) + 1024) & 2047;
-			angdif = ksgn(getincangle(spr->ang, goalang)) << 5;
+			angdif = Sgn(getincangle(spr->ang, goalang)) << 5;
 			if (angdif > -32 && angdif < 0)
 			{
 				angdif = 0;
@@ -3810,10 +3798,9 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (t[1] == 0 || a == 0)
 	{
-		if ((badguy(actor) && spr->extra <= 0) || (actor->bposx != spr->x) || (actor->bposy != spr->y))
+		if ((badguy(actor) && spr->extra <= 0) || (spr->ox != spr->x) || (spr->oy != spr->y))
 		{
-			actor->bposx = spr->x;
-			actor->bposy = spr->y;
+			spr->backupvec2();
 			setsprite(actor, spr->pos);
 		}
 		if (badguy(actor) && spr->extra <= 0)
@@ -3916,15 +3903,15 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				}
 				else
 				{
-					ps[pnum].posxv = mulscale(ps[pnum].posxv, gs.playerfriction - 0x2000, 16);
-					ps[pnum].posyv = mulscale(ps[pnum].posyv, gs.playerfriction - 0x2000, 16);
+					ps[pnum].posxv = MulScale(ps[pnum].posxv, gs.playerfriction - 0x2000, 16);
+					ps[pnum].posyv = MulScale(ps[pnum].posyv, gs.playerfriction - 0x2000, 16);
 				}
 			}
 			else if ((isRRRA() && spr->picnum != DRONE && spr->picnum != SHARK && spr->picnum != UFO1_RRRA) ||
 					(!isRRRA() && spr->picnum != DRONE && spr->picnum != SHARK && spr->picnum != UFO1_RR
 							&& spr->picnum != UFO2 && spr->picnum != UFO3 && spr->picnum != UFO4 && spr->picnum != UFO5))
 			{
-				if (actor->bposz != spr->z || (ud.multimode < 2 && ud.player_skill < 2))
+				if (spr->oz != spr->z || (ud.multimode < 2 && ud.player_skill < 2))
 				{
 					if ((t[0] & 1) || ps[pnum].actorsqu == actor) return;
 					else daxvel <<= 1;
@@ -3964,8 +3951,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 		Collision coll;
 		actor->movflag = movesprite_ex(actor,
-			mulscale14(daxvel, bcos(angdif)),
-			mulscale14(daxvel, bsin(angdif)), spr->zvel, CLIPMASK0, coll);
+			MulScale(daxvel, bcos(angdif), 14),
+			MulScale(daxvel, bsin(angdif), 14), spr->zvel, CLIPMASK0, coll);
 	}
 
 	if (a)

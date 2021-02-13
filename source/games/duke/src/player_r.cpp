@@ -521,7 +521,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		}
 		else
 		{
-			zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
+			zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
 		}
 	}
 	else
@@ -635,7 +635,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 			if (aimed->s.picnum != RECON)
 				sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
-		else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
+		else zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
 		else if (isRRRA())
@@ -789,7 +789,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
 		else
-			zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
+			zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
 	}
 	else
 	{
@@ -1600,25 +1600,16 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 
-	bool braking;
 	short rng;
 
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
 
-	if (actions & SB_CROUCH)
-	{
-		braking = true;
-		actions &= ~SB_CROUCH;
-	}
-	else
-		braking = false;
-
 	if (p->vehForwardScale != 0)
 	{
 		if (p->on_ground)
 		{
-			if (p->MotoSpeed == 0 && braking)
+			if (p->MotoSpeed == 0 && p->vehBraking)
 			{
 				if (!S_CheckActorSoundPlaying(pact, 187))
 					S_PlayActorSound(187, pact);
@@ -1676,7 +1667,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 
 	if (p->on_ground == 1)
 	{
-		if (braking && p->MotoSpeed > 0)
+		if (p->vehBraking && p->MotoSpeed > 0)
 		{
 			p->MotoSpeed -= p->moto_on_oil ? 2 : 4;
 			if (p->MotoSpeed < 0)
@@ -1684,7 +1675,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 			p->VBumpTarget = -30;
 			p->moto_do_bump = 1;
 		}
-		else if (p->vehForwardScale != 0 && !braking)
+		else if (p->vehForwardScale != 0 && !p->vehBraking)
 		{
 			if (p->MotoSpeed < 40)
 			{
@@ -1704,13 +1695,13 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		else if (p->MotoSpeed > 0)
 			p->MotoSpeed--;
 
-		if (p->moto_do_bump && (!braking || p->MotoSpeed == 0))
+		if (p->moto_do_bump && (!p->vehBraking || p->MotoSpeed == 0))
 		{
 			p->VBumpTarget = 0;
 			p->moto_do_bump = 0;
 		}
 
-		if (p->vehReverseScale != 0 && p->MotoSpeed <= 0 && !braking)
+		if (p->vehReverseScale != 0 && p->MotoSpeed <= 0 && !p->vehBraking)
 		{
 			bool temp = p->vehTurnRight;
 			p->vehTurnRight = p->vehTurnLeft;
@@ -1826,15 +1817,13 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	{
 		rng = krand() & 1;
 		velAdjustment = rng == 0 ? -10 : 10;
-		currSpeed = mulscale7(currSpeed, p->moto_on_oil ? 10 : 5);
+		currSpeed = MulScale(currSpeed, p->moto_on_oil ? 10 : 5, 7);
 		p->posxv += currSpeed * bcos(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
 		p->posyv += currSpeed * bsin(velAdjustment * -51 + p->angle.ang.asbuild(), 4);
 	}
 
-	p->moto_on_mud = 0;
-	p->moto_on_oil = 0;
-	p->vehTurnLeft = false;
-	p->vehTurnRight = false;
+	p->moto_on_mud = p->moto_on_oil = 0;
+	p->vehTurnLeft = p->vehTurnRight = p->vehBraking = false;
 }
 
 //---------------------------------------------------------------------------
@@ -1848,7 +1837,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 
-	bool heeltoe, braking;
+	bool heeltoe;
 	short rng;
 
 	if (p->NotOnWater)
@@ -1868,12 +1857,11 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
 
-	if ((actions & SB_CROUCH) && (p->vehForwardScale != 0))
+	if (p->vehBraking && (p->vehForwardScale != 0))
 	{
 		heeltoe = true;
-		braking = false;
+		p->vehBraking = false;
 		p->vehForwardScale = 0;
-		actions &= ~SB_CROUCH;
 	}
 	else
 		heeltoe = false;
@@ -1908,14 +1896,6 @@ static void onBoat(int snum, ESyncBits &actions)
 		if (!S_CheckActorSoundPlaying(pact, 90) && !S_CheckActorSoundPlaying(pact, 87))
 			S_PlayActorSound(87, pact);
 	}
-
-	if (actions & SB_CROUCH)
-	{
-		braking = true;
-		actions &= ~SB_CROUCH;
-	}
-	else
-		braking = false;
 
 	if (p->vehTurnLeft && !S_CheckActorSoundPlaying(pact, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 		S_PlayActorSound(91, pact);
@@ -1962,7 +1942,7 @@ static void onBoat(int snum, ESyncBits &actions)
 				p->moto_do_bump = 1;
 			}
 		}
-		else if (braking && p->MotoSpeed > 0)
+		else if (p->vehBraking && p->MotoSpeed > 0)
 		{
 			p->MotoSpeed -= 2;
 			if (p->MotoSpeed < 0)
@@ -1985,13 +1965,13 @@ static void onBoat(int snum, ESyncBits &actions)
 		else if (p->MotoSpeed > 0)
 			p->MotoSpeed--;
 
-		if (p->moto_do_bump && (!braking || p->MotoSpeed == 0))
+		if (p->moto_do_bump && (!p->vehBraking || p->MotoSpeed == 0))
 		{
 			p->VBumpTarget = 0;
 			p->moto_do_bump = 0;
 		}
 
-		if (p->vehReverseScale != 0 && p->MotoSpeed == 0 && !braking)
+		if (p->vehReverseScale != 0 && p->MotoSpeed == 0 && !p->vehBraking)
 		{
 			bool temp = p->vehTurnRight;
 			p->vehTurnRight = p->vehTurnLeft;
@@ -2080,8 +2060,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->NotOnWater && p->MotoSpeed > 50)
 		p->MotoSpeed -= (p->MotoSpeed / 2.);
 
-	p->vehTurnLeft = false;
-	p->vehTurnRight = false;
+	p->vehTurnLeft = p->vehTurnRight = p->vehBraking = false;
 }
 
 //---------------------------------------------------------------------------
@@ -2289,7 +2268,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 			}
 			else
 			{
-				p->poszv -= bsin(128 + p->jumping_counter) / 12;
+				p->poszv -= bsin(2048 - 128 + p->jumping_counter) / 12;
 				p->jumping_counter += 180;
 				p->on_ground = 0;
 			}
@@ -2770,12 +2749,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
-				i = -mulscale16(p->horizon.sum().asq16(), 20);
+				i = -MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 			else
 			{
 				k = 140;
-				i = -512 - -mulscale16(p->horizon.sum().asq16(), 20);
+				i = -512 - -MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
 			auto spawned = EGS(p->cursectnum,
@@ -3180,12 +3159,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
-				i = mulscale16(p->horizon.sum().asq16(), 20);
+				i = MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 			else
 			{
 				k = 32;
-				i = -512 - mulscale16(p->horizon.sum().asq16(), 20);
+				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
 			EGS(p->cursectnum,
@@ -3461,7 +3440,7 @@ void processinput_r(int snum)
 	if (SyncInput())
 	{
 		p->horizon.backup();
-		calcviewpitch(p, 1);
+		doslopetilting(p);
 	}
 
 	if (chz.type == kHitSprite)
@@ -3599,6 +3578,7 @@ void processinput_r(int snum)
 	doubvel = TICSPERFRAME;
 
 	checklook(snum, actions);
+	p->apply_seasick(1);
 
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
@@ -3646,7 +3626,7 @@ void processinput_r(int snum)
 
 	//Do the quick lefts and rights
 
-	if (movementBlocked(snum))
+	if (movementBlocked(p))
 	{
 		doubvel = 0;
 		p->posxv = 0;
@@ -3660,7 +3640,6 @@ void processinput_r(int snum)
 
 		sb_avel = p->adjustavel(sb_avel);
 		applylook(&p->angle, sb_avel, &p->sync.actions);
-		p->apply_seasick(1);
 	}
 
 	if (p->spritebridge == 0)
@@ -3738,20 +3717,20 @@ void processinput_r(int snum)
 
 		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
-			p->posxv = mulscale(p->posxv, gs.playerfriction - 0x2000, 16);
-			p->posyv = mulscale(p->posyv, gs.playerfriction - 0x2000, 16);
+			p->posxv = MulScale(p->posxv, gs.playerfriction - 0x2000, 16);
+			p->posyv = MulScale(p->posyv, gs.playerfriction - 0x2000, 16);
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1400, 16);
-				p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1400, 16);
+				p->posxv = MulScale(p->posxv, gs.playerfriction - 0x1400, 16);
+				p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1400, 16);
 			}
 			else
 			{
-				p->posxv = mulscale(p->posxv, gs.playerfriction, 16);
-				p->posyv = mulscale(p->posyv, gs.playerfriction, 16);
+				p->posxv = MulScale(p->posxv, gs.playerfriction, 16);
+				p->posyv = MulScale(p->posyv, gs.playerfriction, 16);
 			}
 		}
 
@@ -3772,8 +3751,8 @@ void processinput_r(int snum)
 				p->boot_amount--;
 			else
 			{
-				p->posxv = mulscale(p->posxv, gs.playerfriction, 16);
-				p->posyv = mulscale(p->posyv, gs.playerfriction, 16);
+				p->posxv = MulScale(p->posxv, gs.playerfriction, 16);
+				p->posyv = MulScale(p->posyv, gs.playerfriction, 16);
 			}
 		}
 		else
@@ -3784,8 +3763,8 @@ void processinput_r(int snum)
 				{
 					if (p->on_ground)
 					{
-						p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1800, 16);
-						p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1800, 16);
+						p->posxv = MulScale(p->posxv, gs.playerfriction - 0x1800, 16);
+						p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1800, 16);
 					}
 				}
 				else
@@ -3793,8 +3772,8 @@ void processinput_r(int snum)
 						p->boot_amount--;
 					else
 					{
-						p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1800, 16);
-						p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1800, 16);
+						p->posxv = MulScale(p->posxv, gs.playerfriction - 0x1800, 16);
+						p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1800, 16);
 					}
 			}
 
@@ -3804,9 +3783,9 @@ void processinput_r(int snum)
 		if (shrunk)
 		{
 			p->posxv =
-				mulscale16(p->posxv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2));
+				MulScale(p->posxv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
 			p->posyv =
-				mulscale16(p->posyv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2));
+				MulScale(p->posyv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
 		}
 	}
 

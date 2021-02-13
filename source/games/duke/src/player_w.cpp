@@ -333,12 +333,12 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				k = 15;
-				i = mulscale16(p->horizon.sum().asq16(), 20);
+				i = MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 			else
 			{
 				k = 140;
-				i = -512 - mulscale16(p->horizon.sum().asq16(), 20);
+				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
 			auto j = EGS(p->cursectnum,
@@ -352,7 +352,7 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 				int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, snum);
 				// set timer.  blows up when at zero....
 				j->s.extra = lGrenadeLifetime
-					+ mulscale(krand(), lGrenadeLifetimeVar, 14)
+					+ MulScale(krand(), lGrenadeLifetimeVar, 14)
 					- lGrenadeLifetimeVar;
 			}
 

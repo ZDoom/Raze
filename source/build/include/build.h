@@ -21,7 +21,6 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 
 #include "compat.h"
 #include "palette.h"
-#include "pragmas.h"
 
     //Make all variables in BUILD.H defined in the ENGINE,
     //and externed in GAME
@@ -265,7 +264,7 @@ EXTERN uint8_t paletteloaded;
 inline int shadeToLight(int shade)
 {
 	shade = clamp(shade, 0, numshades-1);
-	int light = scale(numshades-1-shade, 255, numshades-1);
+	int light = Scale(numshades-1-shade, 255, numshades-1);
 	return PalEntry(255,light,light,light);
 }
 
@@ -466,11 +465,6 @@ void   renderCompleteMirror(void);
 
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, int16_t dacursectnum);
 
-static FORCE_INLINE int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int16_t dahoriz, int16_t dacursectnum)
-{
-    return renderDrawRoomsQ16(daposx, daposy, daposz, IntToFixed(daang), IntToFixed(dahoriz), dacursectnum);
-}
-
 void   renderDrawMasks(void);
 void videoInit();
 void   videoClearViewableArea(int32_t dacol);
@@ -534,8 +528,6 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
 #define MAXUPDATESECTORDIST 1536
 #define INITIALUPDATESECTORDIST 256
 void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum) ATTRIBUTE((nonnull(3)));
-void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectnum,
-                         const uint8_t * const excludesectbitmap) ATTRIBUTE((nonnull(3,4)));
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum) ATTRIBUTE((nonnull(4)));
 void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
 void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
@@ -727,8 +719,6 @@ enum {
 
 extern int32_t gltexmaxsize;
 
-EXTERN_CVAR(Bool, hw_detailmapping)
-EXTERN_CVAR(Bool, hw_glowmapping)
 EXTERN_CVAR(Bool, hw_animsmoothing)
 EXTERN_CVAR(Bool, hw_hightile)
 EXTERN_CVAR(Bool, hw_models)

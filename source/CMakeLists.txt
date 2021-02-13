@@ -508,6 +508,7 @@ if (NOT ${TARGET_ARCHITECTURE} MATCHES "arm" )
 	set (PLAT_WIN32_SOURCES ${PLAT_WIN32_SOURCES} common/platform/win32/i_crash.cpp )
 endif()
 if (MSVC AND ${TARGET_ARCHITECTURE} MATCHES "arm")
+	set (PLAT_WIN32_SOURCES ${PLAT_WIN32_SOURCES} common/platform/win32/i_crash_arm.cpp )
 	add_definitions( -DNO_SSE -D__ARM__ -DRAPIDJSON_ENDIAN=RAPIDJSON_LITTLEENDIAN)
 endif()
 
@@ -680,6 +681,10 @@ file( GLOB HEADER_FILES
 	common/scripting/interface/*.h
 	common/scripting/backend/*.h
 	common/scripting/frontend/*.h
+	games/duke/src/*.h
+	games/blood/src/*.h
+	games/sw/src/*.h
+	games/exhumed/src/*.h
 
 	build/src/*.h
 	platform/win32/*.h
@@ -710,6 +715,238 @@ set( NOT_COMPILED_SOURCE_FILES
 	zcc-parse.c
 	zcc-parse.h
 	common/platform/win32/zutil.natvis
+	
+	# Blood
+	games/blood/src/actor.cpp
+	games/blood/src/ai.cpp
+	games/blood/src/aibat.cpp
+	games/blood/src/aibeast.cpp
+	games/blood/src/aiboneel.cpp
+	games/blood/src/aiburn.cpp
+	games/blood/src/aicaleb.cpp
+	games/blood/src/aicerber.cpp
+	games/blood/src/aicult.cpp
+	games/blood/src/aigarg.cpp
+	games/blood/src/aighost.cpp
+	games/blood/src/aigilbst.cpp
+	games/blood/src/aihand.cpp
+	games/blood/src/aihound.cpp
+	games/blood/src/aiinnoc.cpp
+	games/blood/src/aipod.cpp
+	games/blood/src/airat.cpp
+	games/blood/src/aispid.cpp
+	games/blood/src/aitchern.cpp
+	games/blood/src/aiunicult.cpp
+	games/blood/src/aizomba.cpp
+	games/blood/src/aizombf.cpp
+	games/blood/src/animatesprite.cpp
+	games/blood/src/asound.cpp
+	games/blood/src/barf.cpp
+	games/blood/src/blood.cpp
+	games/blood/src/callback.cpp
+	games/blood/src/choke.cpp
+	games/blood/src/controls.cpp
+	games/blood/src/credits.cpp
+	games/blood/src/db.cpp
+	games/blood/src/dude.cpp
+	games/blood/src/d_menu.cpp
+	games/blood/src/endgame.cpp
+	games/blood/src/eventq.cpp
+	games/blood/src/fire.cpp
+	games/blood/src/fx.cpp
+	games/blood/src/gameutil.cpp
+	games/blood/src/gib.cpp
+	games/blood/src/globals.cpp
+	games/blood/src/hudsprites.cpp
+	games/blood/src/inifile.cpp
+	games/blood/src/levels.cpp
+	games/blood/src/loadsave.cpp
+	games/blood/src/messages.cpp
+	games/blood/src/mirrors.cpp
+	games/blood/src/misc.cpp
+	games/blood/src/nnexts.cpp
+	games/blood/src/osdcmd.cpp
+	games/blood/src/player.cpp
+	games/blood/src/prediction.cpp
+	games/blood/src/preload.cpp
+	games/blood/src/qav.cpp
+	games/blood/src/replace.cpp
+	games/blood/src/sbar.cpp
+	games/blood/src/sectorfx.cpp
+	games/blood/src/seq.cpp
+	games/blood/src/sfx.cpp
+	games/blood/src/sound.cpp
+	games/blood/src/tile.cpp
+	games/blood/src/trig.cpp
+	games/blood/src/triggers.cpp
+	games/blood/src/view.cpp
+	games/blood/src/warp.cpp
+	games/blood/src/weapon.cpp
+	
+	# Duke
+	games/duke/src/2d_d.cpp
+	games/duke/src/2d_r.cpp
+	games/duke/src/actors.cpp
+	games/duke/src/actors_d.cpp
+	games/duke/src/actors_lava.cpp
+	games/duke/src/actors_r.cpp
+	games/duke/src/animatesprites_d.cpp
+	games/duke/src/animatesprites_r.cpp
+	games/duke/src/bowling.cpp
+	games/duke/src/ccmds.cpp
+	games/duke/src/cheats.cpp
+	games/duke/src/dispatch.cpp
+	games/duke/src/d_menu.cpp
+	games/duke/src/flags_d.cpp
+	games/duke/src/flags_r.cpp
+	games/duke/src/game.cpp
+	games/duke/src/gamedef.cpp
+	games/duke/src/gameexec.cpp
+	games/duke/src/gameloop.cpp
+	games/duke/src/gamevar.cpp
+	games/duke/src/game_misc.cpp
+	games/duke/src/global.cpp
+	games/duke/src/hudweapon_d.cpp
+	games/duke/src/hudweapon_r.cpp
+	games/duke/src/input.cpp
+	games/duke/src/noise.cpp
+	games/duke/src/player.cpp
+	games/duke/src/player_d.cpp
+	games/duke/src/player_r.cpp
+	games/duke/src/player_w.cpp
+	games/duke/src/prediction.cpp
+	games/duke/src/premap.cpp
+	games/duke/src/premap_d.cpp
+	games/duke/src/premap_r.cpp
+	games/duke/src/render.cpp
+	games/duke/src/savegame.cpp
+	games/duke/src/sbar.cpp
+	games/duke/src/sbar_d.cpp
+	games/duke/src/sbar_r.cpp
+	games/duke/src/sectors.cpp
+	games/duke/src/sectors_d.cpp
+	games/duke/src/sectors_r.cpp
+	games/duke/src/sounds.cpp
+	games/duke/src/spawn.cpp
+	games/duke/src/spawn_d.cpp
+	games/duke/src/spawn_r.cpp
+	
+	# Shadow Warrior
+	games/sw/src/2d.cpp
+	games/sw/src/actor.cpp
+	games/sw/src/ai.cpp
+	games/sw/src/break.cpp
+	games/sw/src/bunny.cpp
+	games/sw/src/cache.cpp
+	games/sw/src/cheats.cpp
+	games/sw/src/colormap.cpp
+	games/sw/src/coolg.cpp
+	games/sw/src/coolie.cpp
+	games/sw/src/copysect.cpp
+	games/sw/src/draw.cpp
+	games/sw/src/d_menu.cpp
+	games/sw/src/eel.cpp
+	games/sw/src/game.cpp
+	games/sw/src/girlninj.cpp
+	games/sw/src/goro.cpp
+	games/sw/src/hornet.cpp
+	games/sw/src/input.cpp
+	games/sw/src/interpso.cpp
+	games/sw/src/inv.cpp
+	games/sw/src/jsector.cpp
+	games/sw/src/jweapon.cpp
+	games/sw/src/lava.cpp
+	games/sw/src/light.cpp
+	games/sw/src/mclip.cpp
+	games/sw/src/menus.cpp
+	games/sw/src/miscactr.cpp
+	games/sw/src/morph.cpp
+	games/sw/src/network.cpp
+	games/sw/src/ninja.cpp
+	games/sw/src/osdcmds.cpp
+	games/sw/src/panel.cpp
+	games/sw/src/player.cpp
+	games/sw/src/predict.cpp
+	games/sw/src/quake.cpp
+	games/sw/src/ripper.cpp
+	games/sw/src/ripper2.cpp
+	games/sw/src/rooms.cpp
+	games/sw/src/rotator.cpp
+	games/sw/src/save.cpp
+	games/sw/src/saveable.cpp
+	games/sw/src/sbar.cpp
+	games/sw/src/scrip2.cpp
+	games/sw/src/sector.cpp
+	games/sw/src/serp.cpp
+	games/sw/src/skel.cpp
+	games/sw/src/skull.cpp
+	games/sw/src/slidor.cpp
+	games/sw/src/sounds.cpp
+	games/sw/src/spike.cpp
+	games/sw/src/sprite.cpp
+	games/sw/src/sumo.cpp
+	games/sw/src/text.cpp
+	games/sw/src/track.cpp
+	games/sw/src/vator.cpp
+	games/sw/src/vis.cpp
+	games/sw/src/wallmove.cpp
+	games/sw/src/warp.cpp
+	games/sw/src/weapon.cpp
+	games/sw/src/zilla.cpp
+	games/sw/src/zombie.cpp
+	
+	# Exhumed
+	games/exhumed/src/2d.cpp
+	games/exhumed/src/anims.cpp
+	games/exhumed/src/anubis.cpp
+	games/exhumed/src/bubbles.cpp
+	games/exhumed/src/bullet.cpp
+	games/exhumed/src/cd.cpp
+	games/exhumed/src/cheats.cpp
+	games/exhumed/src/d_menu.cpp
+	games/exhumed/src/enginesubs.cpp
+	games/exhumed/src/exhumed.cpp
+	games/exhumed/src/fish.cpp
+	games/exhumed/src/gameloop.cpp
+	games/exhumed/src/grenade.cpp
+	games/exhumed/src/gun.cpp
+	games/exhumed/src/init.cpp
+	games/exhumed/src/input.cpp
+	games/exhumed/src/items.cpp
+	games/exhumed/src/lavadude.cpp
+	games/exhumed/src/light.cpp
+	games/exhumed/src/lighting.cpp
+	games/exhumed/src/lion.cpp
+	games/exhumed/src/map.cpp
+	games/exhumed/src/menu.cpp
+	games/exhumed/src/move.cpp
+	games/exhumed/src/movie.cpp
+	games/exhumed/src/mummy.cpp
+	games/exhumed/src/object.cpp
+	games/exhumed/src/osdcmds.cpp
+	games/exhumed/src/player.cpp
+	games/exhumed/src/queen.cpp
+	games/exhumed/src/ra.cpp
+	games/exhumed/src/ramses.cpp
+	games/exhumed/src/random.cpp
+	games/exhumed/src/rat.cpp
+	games/exhumed/src/rex.cpp
+	games/exhumed/src/roach.cpp
+	games/exhumed/src/runlist.cpp
+	games/exhumed/src/save.cpp
+	games/exhumed/src/scorp.cpp
+	games/exhumed/src/sequence.cpp
+	games/exhumed/src/set.cpp
+	games/exhumed/src/snake.cpp
+	games/exhumed/src/sound.cpp
+	games/exhumed/src/spider.cpp
+	games/exhumed/src/status.cpp
+	games/exhumed/src/switch.cpp
+	games/exhumed/src/trigdat.cpp
+	games/exhumed/src/view.cpp
+	games/exhumed/src/wasp.cpp
+	
+	
 )
 
 set( VM_JIT_SOURCES
@@ -1024,6 +1261,14 @@ set (PCH_SOURCES
 
 	core/menu/loadsavemenu.cpp
 	core/menu/razemenu.cpp
+	
+	#Duke is split because Duke and RR need different constants.
+	games/duke/all.cpp
+	games/duke/all_d.cpp
+	games/duke/all_r.cpp
+	games/exhumed/all.cpp
+	games/blood/all.cpp
+	games/sw/all.cpp
 )
 
 if( ${HAVE_VM_JIT} )
@@ -1093,7 +1338,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma duke blood sw exhumed whaven )
+target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma )
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
@@ -1245,7 +1490,16 @@ install(TARGETS ${PROJECT_NAME}
 		DESTINATION ${INSTALL_PATH}
 		COMPONENT "Game executable")
 
-source_group("Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/utility/.+")
+
+source_group("Games" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/.+")
+source_group("Games\\Duke" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/duke/.+")
+source_group("Games\\Duke\\Source" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/duke/src/.+")
+source_group("Games\\Blood" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/blood/.+")
+source_group("Games\\Blood\\Source" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/blood/src.+")
+source_group("Games\\Shadow Warrior" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/sw/+")
+source_group("Games\\Shadow Warrior\\Source" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/sw/src/+")
+source_group("Games\\Exhumed" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/exhumed/.+")
+source_group("Games\\Exhumed\\Source" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/games/exhumed/src/.+")
 source_group("Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/.+")
 source_group("Core\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/textures/.+")
 source_group("Core\\Textures\\Formats" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/textures/formats/.+")
@@ -1352,9 +1606,3 @@ require_strnicmp()
 unset( PCH_SOURCES )
 unset( HEADER_FILES )
 unset( NOT_COMPILED_SOURCE_FILES )
-
-add_subdirectory( games/duke )
-add_subdirectory( blood )
-add_subdirectory( sw )
-add_subdirectory( exhumed )
-add_subdirectory( games/whaven )

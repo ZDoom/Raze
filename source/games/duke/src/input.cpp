@@ -42,8 +42,6 @@ source as it is released.
 BEGIN_DUKE_NS
 
 // State timer counters. 
-static int turnheldtime;
-static int lastcontroltime;
 static InputPacket loc; // input accumulation buffer.
 
 //---------------------------------------------------------------------------
@@ -499,8 +497,10 @@ void hud_input(int plnum)
 //
 //---------------------------------------------------------------------------
 
+#if 0
 enum
 {
+
 	TURBOTURNTIME = (TICRATE/8), // 7
 	NORMALTURN    = 15,
 	PREAMBLETURN  = 5,
@@ -509,7 +509,11 @@ enum
 	MAXSVEL       = ((NORMALKEYMOVE*2)+10),
 	MAXANGVEL     = 1024, // 127
 	MAXHORIZVEL   = 256,  // 127
+};
+#endif
 
+enum
+{
 	MAXVELMOTO    = 120,
 	VEHICLETURN   = 20
 };
@@ -545,19 +549,6 @@ static void processInputBits(player_struct *p, ControlInfo* const hidInput)
 
 //---------------------------------------------------------------------------
 //
-// 
-//
-//---------------------------------------------------------------------------
-
-int getticssincelastupdate()
-{
-	int  tics = lastcontroltime == 0 || ud.levelclock < lastcontroltime ? 0 : ud.levelclock - lastcontroltime;
-	lastcontroltime = ud.levelclock;
-	return tics;
-}
-
-//---------------------------------------------------------------------------
-//
 // split out for readability
 //
 //---------------------------------------------------------------------------
@@ -569,8 +560,7 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 
 	if (p->MotoSpeed == 0 || !p->on_ground)
 	{
-		turnheldtime = 0;
-		lastcontroltime = 0;
+		resetTurnHeldAmt();
 
 		if (kbdLeft || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 		{
@@ -589,49 +579,48 @@ static double motoApplyTurn(player_struct* p, ControlInfo* const hidInput, bool 
 	{
 		if (kbdLeft || kbdRight || p->moto_drink || hidInput->mouseturnx || hidInput->dyaw)
 		{
+			double const velScale = 3. / 10;
 			auto const baseVel = (buttonMap.ButtonDown(gamefunc_Move_Backward) || hidInput->dz < 0) && p->MotoSpeed <= 0 ? -VEHICLETURN : VEHICLETURN;
-			int tics = getticssincelastupdate();
 
 			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 			{
-				turnheldtime += tics;
+				updateTurnHeldAmt(factor);
 				p->TiltStatus -= factor;
 
 				if (p->TiltStatus < -10)
 					p->TiltStatus = -10;
 
 				if (kbdLeft)
-					turnvel -= turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.);
+					turnvel -= isTurboTurnTime() && p->MotoSpeed > 0 ? baseVel : baseVel * velScale;
 
 				if (hidInput->mouseturnx < 0)
-					turnvel -= sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * -(hidInput->mouseturnx / factor) * 2.);
+					turnvel -= sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * -(hidInput->mouseturnx / factor) * 2.);
 
 				if (hidInput->dyaw < 0)
-					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * hidInput->dyaw;
+					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * hidInput->dyaw;
 			}
 
 			if (kbdRight || p->moto_drink > 0 || hidInput->mouseturnx > 0 || hidInput->dyaw > 0)
 			{
-				turnheldtime += tics;
+				updateTurnHeldAmt(factor);
 				p->TiltStatus += factor;
 
 				if (p->TiltStatus > 10)
 					p->TiltStatus = 10;
 
 				if (kbdRight)
-					turnvel += turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.);
+					turnvel += isTurboTurnTime() && p->MotoSpeed > 0 ? baseVel : baseVel * velScale;
 
 				if (hidInput->mouseturnx > 0)
-					turnvel += sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * (hidInput->mouseturnx / factor) * 2.);
+					turnvel += sqrt((p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * (hidInput->mouseturnx / factor) * 2.);
 
 				if (hidInput->dyaw > 0)
-					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * (3. / 10.)) * hidInput->dyaw;
+					turnvel += (p->MotoSpeed > 0 ? baseVel : baseVel * velScale) * hidInput->dyaw;
 			}
 		}
 		else
 		{
-			turnheldtime = 0;
-			lastcontroltime = 0;
+			resetTurnHeldAmt();
 
 			if (p->TiltStatus > 0)
 				p->TiltStatus -= factor;
@@ -663,11 +652,10 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 		{
 			double const velScale = 6. / 19.;
 			auto const baseVel = !p->NotOnWater ? VEHICLETURN : VEHICLETURN * velScale;
-			int tics = getticssincelastupdate();
 
 			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 			{
-				turnheldtime += tics;
+				updateTurnHeldAmt(factor);
 
 				if (!p->NotOnWater)
 				{
@@ -677,7 +665,7 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 				}
 
 				if (kbdLeft)
-					turnvel -= turnheldtime >= TURBOTURNTIME ? baseVel : baseVel * velScale;
+					turnvel -= isTurboTurnTime() ? baseVel : baseVel * velScale;
 
 				if (hidInput->mouseturnx < 0)
 					turnvel -= sqrt(baseVel * -(hidInput->mouseturnx / factor) * 2.);
@@ -688,7 +676,7 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 
 			if (kbdRight || p->moto_drink > 0 || hidInput->mouseturnx > 0 || hidInput->dyaw > 0)
 			{
-				turnheldtime += tics;
+				updateTurnHeldAmt(factor);
 
 				if (!p->NotOnWater)
 				{
@@ -698,7 +686,7 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 				}
 
 				if (kbdRight)
-					turnvel += turnheldtime >= TURBOTURNTIME ? baseVel : baseVel * velScale;
+					turnvel += isTurboTurnTime() ? baseVel : baseVel * velScale;
 
 				if (hidInput->mouseturnx > 0)
 					turnvel += sqrt(baseVel * (hidInput->mouseturnx / factor) * 2.);
@@ -709,8 +697,7 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 		}
 		else if (!p->NotOnWater)
 		{
-			turnheldtime = 0;
-			lastcontroltime = 0;
+			resetTurnHeldAmt();
 
 			if (p->TiltStatus > 0)
 				p->TiltStatus -= factor;
@@ -720,8 +707,7 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 	}
 	else if (!p->NotOnWater)
 	{
-		turnheldtime = 0;
-		lastcontroltime = 0;
+		resetTurnHeldAmt();
 
 		if (p->TiltStatus > 0)
 			p->TiltStatus -= factor;
@@ -752,9 +738,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 	{
 		p->vehForwardScale = std::min((buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) + hidInput->dz, 1.f); 
 		p->vehReverseScale = std::min(buttonMap.ButtonDown(gamefunc_Move_Backward) + -hidInput->dz, 1.f);
-
-		if (loc.actions & SB_RUN)
-			loc.actions |= SB_CROUCH;
+		p->vehBraking = buttonMap.ButtonDown(gamefunc_Run);
 	}
 
 	if (p->OnMotorcycle)
@@ -778,12 +762,9 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 //
 //---------------------------------------------------------------------------
 
-static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
+static void FinalizeInput(player_struct *p, InputPacket& input, bool vehicle)
 {
-	auto p = &ps[playerNum];
-	bool blocked = movementBlocked(playerNum) || p->GetActor()->s.extra <= 0 || (p->dead_flag && !ud.god);
-
-	if (blocked && ps[playerNum].newOwner == nullptr)
+	if (movementBlocked(p) || p->GetActor()->s.extra <= 0 || (p->dead_flag && !ud.god))
 	{
 		// neutralize all movement when blocked or in automap follow mode
 		loc.fvel = loc.svel = 0;
@@ -794,13 +775,10 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 	{
 		if (p->on_crane == nullptr)
 		{
-			if (!vehicle)
+			if (vehicle)
 			{
-				loc.fvel = clamp(loc.fvel + input.fvel, -MAXVEL, MAXVEL);
-				loc.svel = clamp(loc.svel + input.svel, -MAXSVEL, MAXSVEL);
-			}
-			else
 				loc.fvel = clamp(input.fvel, -(MAXVELMOTO >> 3), MAXVELMOTO);
+			}
 		}
 		else
 		{
@@ -808,26 +786,12 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 			loc.svel = input.svel = 0;
 		}
 
-		if (p->on_crane == nullptr && p->newOwner == nullptr)
-		{
-			// input.avel already added to loc in processMovement()
-			loc.avel = clamp(loc.avel, -MAXANGVEL, MAXANGVEL);
-			if (!SyncInput() && input.avel)
-			{
-				p->angle.spin = bamlook(0);
-			}
-		}
-		else
+		if (p->newOwner != nullptr || p->on_crane != nullptr)
 		{
 			loc.avel = input.avel = 0;
 		}
 
-		if (p->newOwner == nullptr && (!(p->sync.actions & SB_CENTERVIEW) || p->sync.actions & SB_CENTERVIEW && abs(p->horizon.horiz.asbuild()) <= 5))
-		{
-			// input.horz already added to loc in processMovement()
-			loc.horz = clamp(loc.horz, -MAXHORIZVEL, MAXHORIZVEL);
-		}
-		else
+		if (p->newOwner != nullptr || (p->sync.actions & SB_CENTERVIEW && abs(p->horizon.horiz.asbuild()) > 5))
 		{
 			loc.horz = input.horz = 0;
 		}
@@ -850,51 +814,44 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 	}
 
 	auto const p = &ps[myconnectindex];
-
+	bool const rrraVehicle = isRRRA() && (p->OnMotorcycle || p->OnBoat);
 	double const scaleAdjust = InputScale();
 	InputPacket input{};
 
-	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
-	{
-		processInputBits(p, hidInput);
-		processVehicleInput(p, hidInput, input, scaleAdjust);
-		FinalizeInput(myconnectindex, input, true);
+	processInputBits(p, hidInput);
 
-		if (!SyncInput() && p->GetActor()->s.extra > 0)
-		{
-			p->apply_seasick(scaleAdjust);
-		}
+	if (rrraVehicle)
+	{
+		processVehicleInput(p, hidInput, input, scaleAdjust);
 	}
 	else
 	{
-		processInputBits(p, hidInput);
 		processMovement(&input, &loc, hidInput, scaleAdjust, p->drink_amt);
-		FinalizeInput(myconnectindex, input, false);
 	}
+
+	FinalizeInput(p, input, rrraVehicle);
 
 	if (!SyncInput())
 	{
 		if (p->GetActor()->s.extra > 0)
 		{
 			// Do these in the same order as the old code.
-			calcviewpitch(p, scaleAdjust);
-			input.avel = p->adjustavel(input.avel);
-			applylook(&p->angle, input.avel, &p->sync.actions, scaleAdjust);
+			doslopetilting(p, scaleAdjust);
+			applylook(&p->angle, p->adjustavel(input.avel), &p->sync.actions, scaleAdjust);
+			p->apply_seasick(scaleAdjust);
 			sethorizon(&p->horizon.horiz, input.horz, &p->sync.actions, scaleAdjust);
 		}
 
 		p->angle.processhelpers(scaleAdjust);
 		p->horizon.processhelpers(scaleAdjust);
+		p->GetActor()->s.ang = p->angle.ang.asbuild();
 	}
 
 	if (packet)
 	{
-		auto cos = p->angle.ang.bcos();
-		auto sin = p->angle.ang.bsin();
-
 		*packet = loc;
-		packet->fvel = mulscale9(loc.fvel, cos) + mulscale9(loc.svel, sin) + p->fric.x;
-		packet->svel = mulscale9(loc.fvel, sin) - mulscale9(loc.svel, cos) + p->fric.y;
+		packet->fvel = MulScale(loc.fvel, p->angle.ang.bcos(), 9) + MulScale(loc.svel, p->angle.ang.bsin(), 9) + p->fric.x;
+		packet->svel = MulScale(loc.fvel, p->angle.ang.bsin(), 9) - MulScale(loc.svel, p->angle.ang.bcos(), 9) + p->fric.y;
 		loc = {};
 	}
 }
@@ -908,8 +865,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 void GameInterface::clearlocalinputstate()
 {
 	loc = {};
-	turnheldtime = 0;
-	lastcontroltime = 0;
 }
 
 

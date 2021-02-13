@@ -160,8 +160,6 @@ void dotorch();
 int hitawall(struct player_struct* pl, int* hitWall);
 int hits(DDukeActor* snum);
 
-void   clearsectinterpolate(int sprnum);
-void   setsectinterpolate(int sectnum);
 DDukeActor* LocateTheLocator(int n, int sectnum);
 void clearcamera(player_struct* ps);
 
@@ -233,8 +231,7 @@ void donewgame(MapRecord* map, int sk);
 void startnewgame(MapRecord* map, int skill);
 int playercolor2lookup(int color);
 void PlayerColorChanged(void);
-void calcviewpitch(player_struct* p, double factor);
-bool movementBlocked(int snum);
+bool movementBlocked(player_struct *p);
 void loadcons();
 void recordoldspritepos();
 

@@ -112,7 +112,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 	}
 	else
 	{
-		zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
+		zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
 		sx += bcos(sa + 348) / 448;
 		sy += bsin(sa + 348) / 448;
 		sz += (3 << 8);
@@ -181,7 +181,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	}
 	else
 	{
-		zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
+		zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (ps[p].GetActor()->s.xvel != 0)
 			vel = (int)((((512 - (1024
 				- abs(abs(getangle(sx - ps[p].oposx, sy - ps[p].oposy) - sa) - 1024)))
@@ -595,7 +595,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 			sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
 		else
-			zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
+			zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
 	}
 	else
 	{
@@ -693,7 +693,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 			if (aimed->s.picnum != RECON)
 				sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 		}
-		else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 81);
+		else zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (atwith == RPG)
 			S_PlayActorSound(RPG_SHOOT, actor);
 
@@ -885,7 +885,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 				int lLifetimeVar = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, p);
 				// set timer.  blows up when at zero....
 				bomb->s.extra = lLifetime
-					+ mulscale(krand(), lLifetimeVar, 14)
+					+ MulScale(krand(), lLifetimeVar, 14)
 					- lLifetimeVar;
 			}
 		}
@@ -1149,7 +1149,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 				zvel = ((aimed->s.z - sz - dal - (4 << 8)) * 768) / (ldist(ps[p].GetActor(), aimed));
 				sa = getangle(aimed->s.x - sx, aimed->s.y - sy);
 			}
-			else zvel = -mulscale16(ps[p].horizon.sum().asq16(), 98);
+			else zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
 		}
 		else if (s->statnum != 3)
 		{
@@ -1893,7 +1893,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 			}
 			else
 			{
-				p->poszv -= bsin(128 + p->jumping_counter) / 12;
+				p->poszv -= bsin(2048 - 128 + p->jumping_counter) / 12;
 				p->jumping_counter += 180;
 				p->on_ground = 0;
 			}
@@ -2194,12 +2194,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				k = 15;
-				i = mulscale16(p->horizon.sum().asq16(), 20);
+				i = MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 			else
 			{
 				k = 140;
-				i = -512 - mulscale16(p->horizon.sum().asq16(), 20);
+				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
 			auto spawned = EGS(p->cursectnum,
@@ -2210,7 +2210,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 			if (isNam())
 			{
-				spawned->s.extra = mulscale(krand(), NAM_GRENADE_LIFETIME_VAR, 14);
+				spawned->s.extra = MulScale(krand(), NAM_GRENADE_LIFETIME_VAR, 14);
 			}
 
 			if (k == 15)
@@ -2779,7 +2779,7 @@ void processinput_d(int snum)
 	if (SyncInput())
 	{
 		p->horizon.backup();
-		calcviewpitch(p, 1);
+		doslopetilting(p);
 	}
 
 	if (chz.type == kHitSprite)
@@ -2893,7 +2893,7 @@ void processinput_d(int snum)
 
 	//Do the quick lefts and rights
 
-	if (movementBlocked(snum))
+	if (movementBlocked(p))
 	{
 		doubvel = 0;
 		p->posxv = 0;
@@ -2999,20 +2999,20 @@ void processinput_d(int snum)
 		else check = ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
 		if (check)
 		{
-			p->posxv = mulscale(p->posxv, gs.playerfriction - 0x2000, 16);
-			p->posyv = mulscale(p->posyv, gs.playerfriction - 0x2000, 16);
+			p->posxv = MulScale(p->posxv, gs.playerfriction - 0x2000, 16);
+			p->posyv = MulScale(p->posyv, gs.playerfriction - 0x2000, 16);
 		}
 		else
 		{
 			if (psectlotag == 2)
 			{
-				p->posxv = mulscale(p->posxv, gs.playerfriction - 0x1400, 16);
-				p->posyv = mulscale(p->posyv, gs.playerfriction - 0x1400, 16);
+				p->posxv = MulScale(p->posxv, gs.playerfriction - 0x1400, 16);
+				p->posyv = MulScale(p->posyv, gs.playerfriction - 0x1400, 16);
 			}
 			else
 			{
-				p->posxv = mulscale(p->posxv, gs.playerfriction, 16);
-				p->posyv = mulscale(p->posyv, gs.playerfriction, 16);
+				p->posxv = MulScale(p->posxv, gs.playerfriction, 16);
+				p->posyv = MulScale(p->posyv, gs.playerfriction, 16);
 			}
 		}
 
@@ -3022,9 +3022,9 @@ void processinput_d(int snum)
 		if (shrunk)
 		{
 			p->posxv =
-				mulscale16(p->posxv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2));
+				MulScale(p->posxv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
 			p->posyv =
-				mulscale16(p->posyv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2));
+				MulScale(p->posyv, gs.playerfriction - (gs.playerfriction >> 1) + (gs.playerfriction >> 2), 16);
 		}
 	}
 

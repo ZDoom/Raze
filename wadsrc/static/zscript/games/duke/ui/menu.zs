@@ -21,7 +21,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 		}
 		double fx, fy, fw, fh;
 		[fx, fy, fw, fh] = Screen.GetFullscreenRect(320, 200, FSMode_ScaleToFit43Top);
-		int h = texid.isValid()? texsize.Y : fonth;
+		int h = texid.isValid() && texsize.Y < 40? texsize.Y : fonth;
 		return int((y+h) * fh / 200); // This must be the covered height of the header in true pixels.
 	}
 	

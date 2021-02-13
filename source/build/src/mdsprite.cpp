@@ -4,7 +4,6 @@
 
 #include "compat.h"
 #include "build.h"
-#include "pragmas.h"
 #include "engine_priv.h"
 #include "polymost.h"
 #include "mdsprite.h"
@@ -1478,21 +1477,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 		FGameTexture *det = nullptr, *glow = nullptr;
 		float detscale = 1.f;
 
-#if 0
-		// The data lookup here is one incredible mess. Thanks to whoever cooked this up... :(
-        // Todo: assign the layers to the base textures at setup time
-        if (!(tspr->clipdist & TSPR_FLAGS_MDHACK))
-        {
-			det = tex = hw_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi, nullptr) : nullptr;
-			if (det)
-			{
-                for (auto sk = m->skinmap; sk; sk = sk->next)
-                    if ((int32_t) sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum && sk->surfnum == surfi)
-                        detscale = sk->param;
-			}
-			glow = hw_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi, nullptr) : 0;
-		}
-#endif
         int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
         GLInterface.SetFade(sector[tspr->sectnum].floorpal);
         GLInterface.SetTexture(tex, palid, CLAMP_XY);

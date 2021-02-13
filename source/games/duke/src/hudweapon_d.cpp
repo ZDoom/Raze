@@ -284,10 +284,10 @@ void displayweapon_d(int snum, double smoothratio)
 	horiz16th = get16thOfHoriz(snum, SyncInput(), smoothratio);
 	look_anghalf = p->angle.look_anghalf(smoothratio);
 	looking_arc = fabs(look_anghalf) / 4.5;
-	weapon_sway = p->oweapon_sway + fmulscale16(p->weapon_sway - p->oweapon_sway, smoothratio);
-	kickback_pic = p->okickback_pic + fmulscale16(*kb - p->okickback_pic, smoothratio);
-	random_club_frame = p->orandom_club_frame + fmulscale16(p->random_club_frame - p->orandom_club_frame, smoothratio);
-	hard_landing = p->ohard_landing + fmulscale16(p->hard_landing - p->ohard_landing, smoothratio);
+	weapon_sway = p->oweapon_sway + MulScaleF(p->weapon_sway - p->oweapon_sway, smoothratio, 16);
+	kickback_pic = p->okickback_pic + MulScaleF(*kb - p->okickback_pic, smoothratio, 16);
+	random_club_frame = p->orandom_club_frame + MulScaleF(p->random_club_frame - p->orandom_club_frame, smoothratio, 16);
+	hard_landing = p->ohard_landing + MulScaleF(p->hard_landing - p->ohard_landing, smoothratio, 16);
 
 	shade = p->GetActor()->s.shade;
 	if(shade > 24) shade = 24;
@@ -303,7 +303,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 	int opos = p->oweapon_pos * p->oweapon_pos;
 	int npos = p->weapon_pos * p->weapon_pos;
-	gun_pos = 80 - (opos + fmulscale16(npos - opos, smoothratio));
+	gun_pos = 80 - (opos + MulScaleF(npos - opos, smoothratio, 16));
 
 	weapon_xoffset =  (160)-90;
 	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
@@ -942,7 +942,7 @@ void displayweapon_d(int snum, double smoothratio)
 			{
 				if (*kb < aplWeaponTotalTime[p->curr_weapon][snum])
 				{
-					i = sgn(*kb >> 2);
+					i = Sgn(*kb >> 2);
 					if (p->ammo_amount[p->curr_weapon] & 1)
 					{
 						hud_drawpal(weapon_xoffset + 30 - look_anghalf, looking_arc + 240 - gun_pos, DEVISTATOR, shade, o | 4, pal);
@@ -1003,7 +1003,7 @@ void displayweapon_d(int snum, double smoothratio)
 			{
 				char cycloidy[] = { 0,4,12,24,12,4,0 };
 
-				i = sgn(*kb >> 2);
+				i = Sgn(*kb >> 2);
 
 				if (p->hbomb_hold_delay)
 				{

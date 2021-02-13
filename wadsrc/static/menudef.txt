@@ -1071,7 +1071,14 @@ OptionValue "WeapSwitch"
 OptionMenu GameplayOptions protected
 {
 	Title 	"$GMPLYMNU_TITLE"
-	Option "$PLYRMNU_AUTOAIM", "cl_autoaim", "AimMode"
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, Blood)
+	{
+		Option "$PLYRMNU_AUTOAIM", "cl_autoaim", "AimMode"
+	}
+	else
+	{
+		Option "$PLYRMNU_AUTOAIM", "cl_autoaim", "OnOff"
+	}
 	Option "$PLYRMNU_ALWAYSRUN", "cl_autorun", "OnOff"
 	Option "$PLRMNU_RUNMODE", "cl_runmode", "RunMode"
 	ifgame(ShadowWarrior)
@@ -1142,11 +1149,11 @@ OptionMenu "VideoOptions" protected
 	StaticText ""
 	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
 	Option "$DSPLYMNU_SHADOWS",					"r_shadows",					"OnOff"
-	ifgame(Blood, ShadowWarrior)
+	ifnotgame(Exhumed)
 	{
 		Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
 	}
-	ifgame (Duke, ShadowWarrior, Nam, WW2GI, Redneck, RedneckRides)
+	ifnotgame(Blood, Exhumed)
 	{
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"OnOff"
 	}
@@ -1310,9 +1317,6 @@ OptionMenu "PolymostOptions"
 	Title "Polymost Options"
 	Option "$POLYMOST_TC", "hw_hightile", "OnOff"
 	Option "$POLYMOST_CACHE", "r_precache", "OnOff"
-	StaticText ""
-	Option "$POLYMOST_DETAIL", "hw_detailmapping", "OnOff", "hw_hightile"
-	Option "$POLYMOST_GLOW", "hw_glowmapping", "OnOff", "hw_hightile"
 	StaticText ""
 	Option "$POLYMOST_PALETTEEMU", "hw_useindexedcolortextures", "OnOff"
 	Option "$POLYMOST_PALINTER", "hw_shadeinterpolate", "OnOff", "hw_useindexedcolortextures"
@@ -1671,6 +1675,10 @@ OptionMenu CustomResolutionMenu protected
 	Command "1440x900", "menu_resolution_set_custom 1440 900"
 	Command "1680x1050", "menu_resolution_set_custom 1680 1050"
 	Command "1920x1200", "menu_resolution_set_custom 1920 1200"
+	StaticText ""
+	StaticText "$VIDMNU_ASPECT219"
+	Command "1920x810", "menu_resolution_set_custom 1920 810"
+	Command "2560x1080", "menu_resolution_set_custom 2560 1080"
 }
 
 

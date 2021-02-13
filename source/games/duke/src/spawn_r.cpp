@@ -824,7 +824,7 @@ int spawn_r(int j, int pn)
 							sp->xrepeat = 22;
 							sp->yrepeat = 20;
 						}
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case HULKHANG:
 					case HULKHANGDEAD:
@@ -833,14 +833,14 @@ int spawn_r(int j, int pn)
 					case HULKSTAYPUT:
 						sp->xrepeat = 32;
 						sp->yrepeat = 32;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case COOTPLAY:
 					case COOT:
 					case COOTSTAYPUT:
 						sp->xrepeat = 24;
 						sp->yrepeat = 18;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						sp->clipdist <<= 2;
 						break;
 					case DRONE:
@@ -857,12 +857,12 @@ int spawn_r(int j, int pn)
 					case BUBBASTAND:
 						sp->xrepeat = 25;
 						sp->yrepeat = 21;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case COW:
 						sp->xrepeat = 32;
 						sp->yrepeat = 32;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case HEN:
 					case HENSTAYPUT:
@@ -871,7 +871,7 @@ int spawn_r(int j, int pn)
 						{
 							sp->xrepeat = 42;
 							sp->yrepeat = 30;
-							sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+							sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						}
 						else
 						{
@@ -884,7 +884,7 @@ int spawn_r(int j, int pn)
 					case MINIONSTAYPUT:
 						sp->xrepeat = 16;
 						sp->yrepeat = 16;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						if (isRRRA() && ufospawnsminion)
 							sp->pal = 8;
 						break;
@@ -892,12 +892,12 @@ int spawn_r(int j, int pn)
 					case PIG:
 						sp->xrepeat = 16;
 						sp->yrepeat = 16;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case RABBIT:
 						sp->xrepeat = 18;
 						sp->yrepeat = 18;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case MAMACLOUD:
 						sp->xrepeat = 64;
@@ -947,7 +947,7 @@ int spawn_r(int j, int pn)
 					case BIKER:
 						sp->xrepeat = 28;
 						sp->yrepeat = 22;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case CHEERB:
 						sp->xrepeat = 28;
@@ -958,46 +958,46 @@ int spawn_r(int j, int pn)
 					case CHEERSTAYPUT:
 						sp->xrepeat = 20;
 						sp->yrepeat = 20;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case MAKEOUT:
 						sp->xrepeat = 26;
 						sp->yrepeat = 26;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case MINIONBOAT:
 						sp->xrepeat = 16;
 						sp->yrepeat = 16;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case HULKBOAT:
 						sp->xrepeat = 48;
 						sp->yrepeat = 48;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case CHEERBOAT:
 						sp->xrepeat = 32;
 						sp->yrepeat = 32;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 
 					case TORNADO:
 						sp->xrepeat = 64;
 						sp->yrepeat = 128;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						sp->clipdist >>= 2;
 						sp->cstat = 2;
 						break;
 					case LTH:
 						sp->xrepeat = 24;
 						sp->yrepeat = 22;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 					case ROCK:
 					case ROCK2:
 						sp->xrepeat = 64;
 						sp->yrepeat = 64;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 
 					case UFO1_RRRA:
@@ -1008,13 +1008,13 @@ int spawn_r(int j, int pn)
 					case UFO5:
 						sp->xrepeat = 32;
 						sp->yrepeat = 32;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						sp->extra = 50;
 						break;
 					case SBMOVE:
 						sp->xrepeat = 48;
 						sp->yrepeat = 48;
-						sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+						sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 						break;
 
 					default:
@@ -1409,7 +1409,7 @@ int spawn_r(int j, int pn)
 				sp->pal = 0;
 				sp->xrepeat = 18;
 				sp->yrepeat = 18;
-				sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+				sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 				act->saved_ammo = 100;
 				sp->cstat = 257;
 				sp->lotag = 1;
@@ -1425,7 +1425,7 @@ int spawn_r(int j, int pn)
 				sp->pal = 0;
 				sp->xrepeat = 32;
 				sp->yrepeat = 32;
-				sp->clipdist = mulscale7(sp->xrepeat,tileWidth(sp->picnum));
+				sp->clipdist = MulScale(sp->xrepeat,tileWidth(sp->picnum), 7);
 				act->saved_ammo = 20;
 				sp->cstat = 257;
 				sp->lotag = 1;

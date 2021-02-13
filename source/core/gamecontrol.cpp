@@ -494,10 +494,12 @@ void CheckFrontend(int flags)
 	{
 		gi = Exhumed::CreateInterface();
 	}
+#if 0
 	else if (flags & GAMEFLAG_WHALL)
 	{
 		gi = Witchaven::CreateInterface();
 	}
+#endif
 	else
 	{
 		gi = Duke3d::CreateInterface();
@@ -610,7 +612,7 @@ void SetDefaultStrings()
 		gSkillNames[3] = "$Damn I'm Good";
 	}
 	// Blood hard codes its skill names, so we have to define them manually.
-	if (g_gameType & GAMEFLAG_BLOOD)
+	if (isBlood())
 	{
 		gSkillNames[0] = "$STILL KICKING";
 		gSkillNames[1] = "$PINK ON THE INSIDE";
@@ -848,7 +850,7 @@ int RunGame()
 	if (usedgroups.Size() == 0) return 0;
 
 	// Handle CVARs with game specific defaults here.
-	if (g_gameType & GAMEFLAG_BLOOD)
+	if (isBlood())
 	{
 		mus_redbook.SetGenericRepDefault(false, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
 		am_showlabel.SetGenericRepDefault(true, CVAR_Bool);

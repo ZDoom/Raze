@@ -347,7 +347,7 @@ CCMD(quickload)
 static DMenuItemBase* CreateCustomListMenuItemText(double x, double y, int height, int hotkey, const char* text, FFont* font, PalEntry color1, PalEntry color2, FName command, int param)
 {
 	const char* classname = 
-		(g_gameType & GAMEFLAG_BLOOD) ? "ListMenuItemBloodTextItem" :
+		isBlood() ? "ListMenuItemBloodTextItem" :
 		(g_gameType & GAMEFLAG_SW) ? "ListMenuItemSWTextItem" :
 		(g_gameType & GAMEFLAG_PSEXHUMED) ? "ListMenuItemExhumedTextItem" : 
 		"ListMenuItemDukeTextItem";
@@ -371,6 +371,7 @@ static void BuildEpisodeMenu()
 {
 	// Build episode menu
 	int addedVolumes = 0;
+	bool textadded = false;
 	DMenuDescriptor** desc = MenuDescriptors.CheckKey(NAME_Episodemenu);
 	if (desc != nullptr && (*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
 	{
@@ -403,6 +404,7 @@ static void BuildEpisodeMenu()
 						gVolumeSubtitles[i], SmallFont, CR_GRAY, false, NAME_None, i);
 					y += ld->mLinespacing * 6 / 10;
 					ld->mItems.Push(it);
+					textadded = true;
 				}
 			}
 		}
@@ -420,7 +422,7 @@ static void BuildEpisodeMenu()
 #endif
 		if (addedVolumes == 1)
 		{
-			ld->mAutoselect = ld->mItems.Size()-1;
+			ld->mAutoselect = ld->mItems.Size() - (textadded ? 2 : 1);
 		}
 		if (popped) ld->mItems.Push(popped);
 	}
@@ -566,7 +568,7 @@ void SetDefaultMenuColors()
 	gameinfo.mSliderColor = "Orange";
 	gameinfo.mSliderBackColor = "White";
 
-	if (g_gameType & GAMEFLAG_BLOOD)
+	if (isBlood())
 	{
 		OptionSettings.mFontColorHeader = CR_DARKGRAY;
 		OptionSettings.mFontColorHighlight = CR_WHITE;

@@ -4,7 +4,6 @@
 
 #include "compat.h"
 #include "build.h"
-#include "pragmas.h"
 #include "engine_priv.h"
 #include "polymost.h"
 #include "mdsprite.h"

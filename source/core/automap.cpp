@@ -90,7 +90,7 @@ CCMD(togglemap)
 	{
 		automapMode++;
 		if (automapMode == am_count) automapMode = am_off;
-		if ((g_gameType & GAMEFLAG_BLOOD) && automapMode == am_overlay) automapMode = am_full; // todo: investigate if this can be re-enabled
+		if (isBlood() && automapMode == am_overlay) automapMode = am_full; // todo: investigate if this can be re-enabled
 	}
 }
 
@@ -216,9 +216,9 @@ void AutomapControl()
 		double j = interval * 35. / gZoom;
 
 		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-			gZoom += (int)fmulscale6(j, max(gZoom, 256));
+			gZoom += (int)MulScaleF(j, max(gZoom, 256), 6);
 		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-			gZoom -= (int)fmulscale6(j, max(gZoom, 256));
+			gZoom -= (int)MulScaleF(j, max(gZoom, 256), 6);
 
 		gZoom = clamp(gZoom, 48, 2048);
 
@@ -236,11 +236,11 @@ void AutomapControl()
 			if (buttonMap.ButtonDown(gamefunc_AM_PanDown))
 				panvert -= keymove;
 
-			int momx = mulscale9(panvert, bcos(follow_a));
-			int momy = mulscale9(panvert, bsin(follow_a));
+			int momx = MulScale(panvert, bcos(follow_a), 9);
+			int momy = MulScale(panvert, bsin(follow_a), 9);
 
-			momx += mulscale9(panhorz, bsin(follow_a));
-			momy += mulscale9(panhorz, -bcos(follow_a));
+			momx += MulScale(panhorz, bsin(follow_a), 9);
+			momy += MulScale(panhorz, -bcos(follow_a), 9);
 
 			follow_x += int(momx * j);
 			follow_y += int(momy * j);
@@ -408,8 +408,8 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 {
 	int xvect = -bsin(cang) * czoom;
 	int yvect = -bcos(cang) * czoom;
-	int xvect2 = mulscale16(xvect, yxaspect);
-	int yvect2 = mulscale16(yvect, yxaspect);
+	int xvect2 = MulScale(xvect, yxaspect, 16);
+	int yvect2 = MulScale(yvect, yxaspect, 16);
 
 	for (int i = 0; i < numsectors; i++)
 	{
@@ -435,14 +435,14 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 			{
 				int ox = wal->x - cposx;
 				int oy = wal->y - cposy;
-				int x1 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-				int y1 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+				int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (xdim << 11);
+				int y1 = DMulScale(oy, xvect2, ox, yvect2, 16) + (ydim << 11);
 
 				auto wal2 = &wall[wal->point2];
 				ox = wal2->x - cposx;
 				oy = wal2->y - cposy;
-				int x2 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-				int y2 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+				int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (xdim << 11);
+				int y2 = DMulScale(oy, xvect2, ox, yvect2, 16) + (ydim << 11);
 
 				drawlinergb(x1, y1, x2, y2, RedLineColor());
 			}
@@ -460,8 +460,8 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 {
 	int xvect = -bsin(cang) * czoom;
 	int yvect = -bcos(cang) * czoom;
-	int xvect2 = mulscale16(xvect, yxaspect);
-	int yvect2 = mulscale16(yvect, yxaspect);
+	int xvect2 = MulScale(xvect, yxaspect, 16);
+	int yvect2 = MulScale(yvect, yxaspect, 16);
 
 	for (int i = numsectors - 1; i >= 0; i--)
 	{
@@ -483,15 +483,15 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 
 			int ox = wal->x - cposx;
 			int oy = wal->y - cposy;
-			int x1 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-			int y1 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (xdim << 11);
+			int y1 = DMulScale(oy, xvect2, ox, yvect2, 16) + (ydim << 11);
 
 			int k = wal->point2;
 			auto wal2 = &wall[k];
 			ox = wal2->x - cposx;
 			oy = wal2->y - cposy;
-			int x2 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-			int y2 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+			int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (xdim << 11);
+			int y2 = DMulScale(oy, xvect2, ox, yvect2, 16) + (ydim << 11);
 
 			drawlinergb(x1, y1, x2, y2, WhiteLineColor());
 		}
@@ -510,8 +510,8 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 
 	int xvect = -bsin(cang) * zoom;
 	int yvect = -bcos(cang) * zoom;
-	int xvect2 = mulscale16(xvect, yxaspect);
-	int yvect2 = mulscale16(yvect, yxaspect);
+	int xvect2 = MulScale(xvect, yxaspect, 16);
+	int yvect2 = MulScale(yvect, yxaspect, 16);
 
 	int pxvect = -bsin(pl_angle);
 	int pyvect = -bcos(pl_angle);
@@ -519,20 +519,20 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 	for (int i = 0; i < 12; i += 4)
 	{
 
-		int px1 = dmulscale16(arrow[i], pxvect, -arrow[i+1], pyvect);
-		int py1 = dmulscale16(arrow[i+1], pxvect, arrow[i], pyvect) + (ydim << 11);
-		int px2 = dmulscale16(arrow[i+2], pxvect, -arrow[i + 3], pyvect);
-		int py2 = dmulscale16(arrow[i + 3], pxvect, arrow[i+2], pyvect) + (ydim << 11);
+		int px1 = DMulScale(arrow[i], pxvect, -arrow[i+1], pyvect, 16);
+		int py1 = DMulScale(arrow[i+1], pxvect, arrow[i], pyvect, 16) + (ydim << 11);
+		int px2 = DMulScale(arrow[i+2], pxvect, -arrow[i + 3], pyvect, 16);
+		int py2 = DMulScale(arrow[i + 3], pxvect, arrow[i+2], pyvect, 16) + (ydim << 11);
 
 		int ox1 = px1 - cposx;
 		int oy1 = py1 - cposx;
 		int ox2 = px2 - cposx;
 		int oy2 = py2 - cposx;
 
-		int sx1 = dmulscale16(ox1, xvect, -oy1, yvect) + (xdim << 11);
-		int sy1 = dmulscale16(oy1, xvect2, ox1, yvect2) + (ydim << 11);
-		int sx2 = dmulscale16(ox2, xvect, -oy2, yvect) + (xdim << 11);
-		int sy2 = dmulscale16(oy2, xvect2, ox2, yvect2) + (ydim << 11);
+		int sx1 = DMulScale(ox1, xvect, -oy1, yvect, 16) + (xdim << 11);
+		int sy1 = DMulScale(oy1, xvect2, ox1, yvect2, 16) + (ydim << 11);
+		int sx2 = DMulScale(ox2, xvect, -oy2, yvect, 16) + (xdim << 11);
+		int sy2 = DMulScale(oy2, xvect2, ox2, yvect2, 16) + (ydim << 11);
 
 		drawlinergb(sx1, sy1, sx2, sy2, WhiteLineColor());
 	}
@@ -544,7 +544,7 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 //
 //---------------------------------------------------------------------------
 
-void DrawOverheadMap(int pl_x, int pl_y, int pl_angle)
+void DrawOverheadMap(int pl_x, int pl_y, int pl_angle, double const smoothratio)
 {
 	if (am_followplayer || follow_x == INT_MAX)
 	{
@@ -562,11 +562,11 @@ void DrawOverheadMap(int pl_x, int pl_y, int pl_angle)
 		renderDrawMapView(x, y, gZoom, follow_a);
 	}
 	int32_t tmpydim = (xdim * 5) / 8;
-	renderSetAspect(65536, divscale16(tmpydim * 320, xdim * 200));
+	renderSetAspect(65536, DivScale(tmpydim * 320, xdim * 200, 16));
 
 	drawredlines(x, y, gZoom, follow_a);
 	drawwhitelines(x, y, gZoom, follow_a);
-	if (!gi->DrawAutomapPlayer(x, y, gZoom, follow_a))
+	if (!gi->DrawAutomapPlayer(x, y, gZoom, follow_a, smoothratio))
 		DrawPlayerArrow(x, y, follow_a, pl_x, pl_y, gZoom, -pl_angle);
 
 }

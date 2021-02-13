@@ -93,6 +93,29 @@ lookangle getincanglebam(binangle a, binangle na)
 
 //---------------------------------------------------------------------------
 //
+// Functions for determining whether its turbo turn time (turn key held for a number of tics).
+//
+//---------------------------------------------------------------------------
+
+static double turnheldtime;
+
+void updateTurnHeldAmt(double const scaleAdjust)
+{
+	turnheldtime += scaleAdjust * (120. / GameTicRate);
+}
+
+bool const isTurboTurnTime()
+{
+	return turnheldtime >= 590. / GameTicRate;
+}
+
+void resetTurnHeldAmt()
+{
+	turnheldtime = 0;
+}
+
+//---------------------------------------------------------------------------
+//
 // Player's movement function, called from game's ticker or from gi->GetInput() as required.
 //
 //---------------------------------------------------------------------------
@@ -170,9 +193,6 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	}
 	else
 	{
-		static double turnheldtime;
-		int const turnheldamt = 120 / GameTicRate;
-		double const turboturntime = 590. / GameTicRate;
 		double turnamount = hidspeed * turnscale;
 		double preambleturn = turnamount * (750. / 2776.);
 
@@ -184,17 +204,17 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
 		{
-			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->avel -= scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
+			updateTurnHeldAmt(scaleAdjust);
+			currInput->avel -= scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn);
 		}
 		else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe))
 		{
-			turnheldtime += scaleAdjust * turnheldamt;
-			currInput->avel += scaleAdjust * (turnheldtime >= turboturntime ? turnamount : preambleturn);
+			updateTurnHeldAmt(scaleAdjust);
+			currInput->avel += scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn);
 		}
 		else
 		{
-			turnheldtime = 0;
+			resetTurnHeldAmt();
 		}
 	}
 
@@ -367,6 +387,68 @@ void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double 
 	{
 		// add player's input
 		angle->ang += degang(avel);
+		angle->spin = bamlook(0);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// Player's slope tilt when playing without a mouse and on a slope.
+//
+//---------------------------------------------------------------------------
+
+void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust, bool const climbing)
+{
+	if (cl_slopetilting)
+	{
+		if (aimmode && canslopetilt) // If the floor is sloped
+		{
+			// Get a point, 512 (64 for Blood) units ahead of player's position
+			int const shift = -(isBlood() ? 8 : 5);
+			int const x = pos.x + ang.bcos(shift);
+			int const y = pos.y + ang.bsin(shift);
+			int16_t tempsect = cursectnum;
+			updatesector(x, y, &tempsect);
+
+			if (tempsect >= 0) // If the new point is inside a valid sector...
+			{
+				// Get the floorz as if the new (x,y) point was still in
+				// your sector
+				int const j = getflorzofslope(cursectnum, pos.x, pos.y);
+				int const k = getflorzofslope(tempsect, x, y);
+
+				// If extended point is in same sector as you or the slopes
+				// of the sector of the extended point and your sector match
+				// closely (to avoid accidently looking straight out when
+				// you're at the edge of a sector line) then adjust horizon
+				// accordingly
+				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
+				{
+					*horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood() ? 160 : 1408))));
+				}
+			}
+		}
+
+		if (climbing)
+		{
+			// tilt when climbing but you can't even really tell it.
+			if (horizoff->asq16() < IntToFixed(100))
+				*horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * (((IntToFixed(100) - horizoff->asq16()) >> 3) + FRACUNIT)));
+		}
+		else
+		{
+			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
+			if (horizoff->asq16() > 0)
+			{
+				*horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff->asq16() >> 3) + FRACUNIT)));
+				if (horizoff->asq16() < 0) *horizoff = q16horiz(0);
+			}
+			if (horizoff->asq16() < 0)
+			{
+				*horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff->asq16() >> 3) - FRACUNIT)));
+				if (horizoff->asq16() > 0) *horizoff = q16horiz(0);
+			}
+		}
 	}
 }
 

@@ -112,12 +112,12 @@ void FNotifyBuffer::DrawNative()
 
 	bool center = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RRALL | GAMEFLAG_SW);
 	bool pulse = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RRALL);
-	unsigned topline = g_gameType & GAMEFLAG_BLOOD ? 0 : Text.Size() - 1;
+	unsigned topline = isBlood() ? 0 : Text.Size() - 1;
 
-	FFont* font = g_gameType & GAMEFLAG_BLOOD ? SmallFont2 : SmallFont;
+	FFont* font = isBlood() ? SmallFont2 : SmallFont;
 
-	int line = (g_gameType & GAMEFLAG_BLOOD)? Top : (g_gameType & GAMEFLAG_SW) ? 40 : (g_gameType & GAMEFLAG_WHALL)? 18 : font->GetDisplacement();
-	bool canskip = (g_gameType & GAMEFLAG_BLOOD);
+	int line = isBlood() ? Top : (g_gameType & GAMEFLAG_SW) ? 40 : (g_gameType & GAMEFLAG_WHALL)? 18 : font->GetDisplacement();
+	bool canskip = isBlood();
 	double scale = 1 / (NotifyFontScale * con_notifyscale);
 	int lineadv = font->GetHeight() / NotifyFontScale;
 	int textleft = (g_gameType & GAMEFLAG_WHALL) ? 18 : 0;
@@ -132,7 +132,7 @@ void FNotifyBuffer::DrawNative()
 		int j = notify.TimeOut - notify.Ticker;
 		if (j > 0)
 		{
-			double alpha = g_gameType & GAMEFLAG_BLOOD? ((j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1) : 1;
+			double alpha = isBlood() ? ((j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1) : 1;
 			if (pulse)
 			{
 				alpha *= 0.7 + 0.3 * sin(I_msTime() / 100.);
@@ -170,7 +170,7 @@ static bool printNative()
 {
 	// Blood originally uses its tiny font for the notify display which does not play along well with localization because it is too small, so for non-English switch to the text font.
 	if (con_notify_advanced) return false;
-	if (!(g_gameType & GAMEFLAG_BLOOD)) return true;
+	if (!isBlood()) return true;
 	auto p = GStrings["REQUIRED_CHARACTERS"];
 	if (p && *p) return false;
 	return true;
