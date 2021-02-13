@@ -584,6 +584,7 @@ static void readpalettetable(void)
 
 void GameInterface::app_init()
 {
+	GameTicRate = TIMERRATE / TICSPERFRAME;
 	InitNames();
 	engineInit();
 

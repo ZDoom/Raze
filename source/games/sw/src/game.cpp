@@ -177,7 +177,7 @@ static void SetTileNames()
 
 void GameInterface::app_init()
 {
-    GameTicRate = 40;
+    GameTicRate = TICS_PER_SEC / synctics;
     InitCheats();
     automapping = 1;
 
