@@ -2251,6 +2251,9 @@ struct GameInterface : ::GameInterface
     void WarpToCoords(int x, int y, int z, int a, int h) override;
     void ToggleThirdPerson() override;
     void SwitchCoopView() override;
+    int chaseCamX(binangle ang) { return -ang.bcos(-3); }
+    int chaseCamY(binangle ang) { return -ang.bsin(-3); }
+    int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() >> 8; }
 
 
     GameStats getStats() override;

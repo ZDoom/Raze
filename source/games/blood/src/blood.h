@@ -131,6 +131,9 @@ struct GameInterface : ::GameInterface
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;
+	int chaseCamX(binangle ang) { return MulScale(-Cos(ang.asbuild()), 1280, 30); }
+	int chaseCamY(binangle ang) { return MulScale(-Sin(ang.asbuild()), 1280, 30); }
+	int chaseCamZ(fixedhoriz horiz) { return FixedToInt(MulScale(horiz.asq16(), 1280, 3)) - (16 << 8); }
 
 	GameStats getStats() override;
 };

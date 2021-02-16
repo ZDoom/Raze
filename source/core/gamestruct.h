@@ -7,6 +7,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 #include "engineerrors.h"
 #include "stats.h"
 #include "packet.h"
+#include "binaryangle.h"
 #include "inputstate.h"
 
 class FSerializer;
@@ -97,6 +98,9 @@ struct GameInterface
 	virtual void ToggleThirdPerson() { }
 	virtual void SwitchCoopView() { Printf("Unsupported command\n"); }
 	virtual void ToggleShowWeapon() { Printf("Unsupported command\n"); }
+	virtual int chaseCamX(binangle ang) { return 0; }
+	virtual int chaseCamY(binangle ang) { return 0; }
+	virtual int chaseCamZ(fixedhoriz horiz) { return 0; }
 
 	virtual FString statFPS()
 	{

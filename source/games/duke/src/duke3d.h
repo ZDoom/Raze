@@ -62,6 +62,9 @@ struct GameInterface : public ::GameInterface
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;
+	int chaseCamX(binangle ang) { return -ang.bcos(-4); }
+	int chaseCamY(binangle ang) { return -ang.bsin(-4); }
+	int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() >> 9; }
 
 };
 

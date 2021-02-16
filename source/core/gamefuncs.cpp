@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //------------------------------------------------------------------------- 
 
 #include "gamefuncs.h"
+#include "gamestruct.h"
 
 
 //---------------------------------------------------------------------------
@@ -41,9 +42,9 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnu
 	assert(*psectnum >= 0 && *psectnum < MAXSECTORS);
 
 	// Calculate new pos to shoot backwards, using averaged values from the big three.
-	int nx = xs_CRoundToInt(-ang.fcos() * (4352. / 3.));
-	int ny = xs_CRoundToInt(-ang.fsin() * (4352. / 3.));
-	int nz = xs_CRoundToInt(horiz.asq16() * (17. / 6144.));
+	int nx = gi->chaseCamX(ang);
+	int ny = gi->chaseCamY(ang);
+	int nz = gi->chaseCamZ(horiz);
 
 	vec3_t pvect = { *px, *py, *pz };
 	bakcstat = pspr->cstat;
