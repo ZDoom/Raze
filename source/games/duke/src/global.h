@@ -46,8 +46,6 @@ struct DukeGameInfo
 
 extern DukeGameInfo gs;
 
-extern int cameraclock;
-extern int cameradist;
 extern int otherp; // transient helper, MP only
 extern int actor_tog; // cheat state
 extern intptr_t apScriptGameEvent[];

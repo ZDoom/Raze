@@ -34,6 +34,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "cheathandler.h"
 #include "c_dispatch.h"
 #include "gamestate.h"
+#include "gamefuncs.h"
 #include "dukeactor.h"
 
 BEGIN_DUKE_NS

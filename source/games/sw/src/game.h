@@ -839,7 +839,6 @@ struct PLAYERstruct
     SPRITEp hi_sp, lo_sp;
 
     SPRITEp last_camera_sp;
-    int camera_dist; // view mode dist
     int circle_camera_dist;
     int six,siy,siz; // save player interp position for PlayerSprite
     short siang;
