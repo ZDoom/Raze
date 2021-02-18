@@ -268,7 +268,7 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
         // Double shotgun fix from BloodGDX.
         if (/*!IsOriginalDemo() &&*/ (pPlayer->weaponState == -1 || (pPlayer->curWeapon == 3 && pPlayer->weaponState == 7)) && isOriginalQAV())
             duration = pQAV->duration - 1;
-        else duration = (gFrameClock + MulScale(4, smoothratio, 16)) % pQAV->duration;
+        else duration = (PlayClock + MulScale(4, smoothratio, 16)) % pQAV->duration;
     }
     else duration = pQAV->duration - pPlayer->weaponTimer;
 
@@ -276,7 +276,7 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
     pQAV->y = int(ypos);
     int flags = 2;
     int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
-    if (nInv >= 120 * 8 || (nInv != 0 && (gFrameClock & 32)))
+    if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32)))
     {
         shade = -128;
         flags |= 1;
@@ -1813,12 +1813,12 @@ int processSprayCan(PLAYER *pPlayer)
         {
             pPlayer->weaponState = 7;
             pPlayer->fuseTime = 0;
-            pPlayer->throwTime = gFrameClock;
+            pPlayer->throwTime = PlayClock;
         }
         return 1;
     case 7:
     {
-        pPlayer->throwPower = ClipHigh(DivScale(gFrameClock-pPlayer->throwTime,240, 16), 65536);
+        pPlayer->throwPower = ClipHigh(DivScale(PlayClock-pPlayer->throwTime,240, 16), 65536);
         if (!(pPlayer->input.actions & SB_FIRE))
         {
             if (!pPlayer->fuseTime)
@@ -1851,12 +1851,12 @@ char processTNT(PLAYER *pPlayer)
         {
             pPlayer->weaponState = 6;
             pPlayer->fuseTime = 0;
-            pPlayer->throwTime = gFrameClock;
+            pPlayer->throwTime = PlayClock;
         }
         return 1;
     case 6:
     {
-        pPlayer->throwPower = ClipHigh(DivScale(gFrameClock-pPlayer->throwTime,240, 16), 65536);
+        pPlayer->throwPower = ClipHigh(DivScale(PlayClock-pPlayer->throwTime,240, 16), 65536);
         if (!(pPlayer->input.actions & SB_FIRE))
         {
             if (!pPlayer->fuseTime)
@@ -1875,7 +1875,7 @@ char processProxy(PLAYER *pPlayer)
     switch (pPlayer->weaponState)
     {
     case 9:
-        pPlayer->throwPower = ClipHigh(DivScale(gFrameClock-pPlayer->throwTime,240, 16), 65536);
+        pPlayer->throwPower = ClipHigh(DivScale(PlayClock-pPlayer->throwTime,240, 16), 65536);
         pPlayer->weaponTimer = 0;
         if (!(pPlayer->input.actions & SB_FIRE))
         {
@@ -1892,7 +1892,7 @@ char processRemote(PLAYER *pPlayer)
     switch (pPlayer->weaponState)
     {
     case 13:
-        pPlayer->throwPower = ClipHigh(DivScale(gFrameClock-pPlayer->throwTime,240, 16), 65536);
+        pPlayer->throwPower = ClipHigh(DivScale(PlayClock-pPlayer->throwTime,240, 16), 65536);
         if (!(pPlayer->input.actions & SB_FIRE))
         {
             pPlayer->weaponState = 11;
@@ -2261,7 +2261,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             case 3:
                 pPlayer->weaponState = 6;
                 pPlayer->fuseTime = -1;
-                pPlayer->throwTime = gFrameClock;
+                pPlayer->throwTime = PlayClock;
                 StartQAV(pPlayer, 21, nClientExplodeBundle, 0);
                 return;
             }
@@ -2272,7 +2272,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             case 7:
                 pPlayer->weaponQav = 27;
                 pPlayer->weaponState = 9;
-                pPlayer->throwTime = gFrameClock;
+                pPlayer->throwTime = PlayClock;
                 return;
             }
             break;
@@ -2282,7 +2282,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             case 10:
                 pPlayer->weaponQav = 36;
                 pPlayer->weaponState = 13;
-                pPlayer->throwTime = gFrameClock;
+                pPlayer->throwTime = PlayClock;
                 return;
             case 11:
                 pPlayer->weaponState = 12;

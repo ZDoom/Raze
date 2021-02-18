@@ -1122,7 +1122,7 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 	*vy = (*vy) + MulScale(ny, cameradist, 16);
 	*vz = (*vz) + MulScale(nz, cameradist, 16);
 	
-	int myclock = ud.levelclock + int(TICSPERFRAME/65536. * smoothratio);
+	int myclock = PlayClock + int(TICSPERFRAME/65536. * smoothratio);
 	if (cameraclock == INT_MIN) cameraclock = myclock;	// third person view was just started.
 
 	cameradist = min(cameradist + ((myclock - cameraclock) << 10), 65536);

@@ -126,7 +126,7 @@ void FTA(int q, struct player_struct* p)
 	if (q < 0 || gamestate != GS_LEVEL)
 		return;
 
-	if (p->ftq != q || (ud.levelclock - p->ftt > TICRATE && q != QUOTE_DEAD))
+	if (p->ftq != q || (PlayClock - p->ftt > TICRATE && q != QUOTE_DEAD))
 	{
 		p->ftq = q;
 		auto qu = quoteMgr.GetQuote(q);
@@ -144,7 +144,7 @@ void FTA(int q, struct player_struct* p)
 			}
 		}
 	}
-	p->ftt = ud.levelclock;
+	p->ftt = PlayClock;
 }
 
 //==========================================================================
@@ -324,16 +324,16 @@ void cameratext(DDukeActor *cam)
 		drawitem(TILE_CAMCORNER + 1, 24, 163, true, true);
 		drawitem(TILE_CAMCORNER + 1, 320 - 26, 163, false, true);
 
-		if (ud.levelclock & 16)
+		if (PlayClock & 16)
 			drawitem(TILE_CAMLIGHT, 46, 32, false, false);
 	}
 	else
 	{
-		int flipbits = (ud.levelclock << 1) & 48;
+		int flipbits = (PlayClock << 1) & 48;
 
 		for (int x = -64; x < 394; x += 64)
 			for (int y = 0; y < 200; y += 64)
-				drawitem(TILE_STATIC, x, y, !!(ud.levelclock & 8), !!(ud.levelclock & 16));
+				drawitem(TILE_STATIC, x, y, !!(PlayClock & 8), !!(PlayClock & 16));
 	}
 }
 
@@ -566,7 +566,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 		{
 			auto& pp = ps[p];
 			if (pspr->xvel > 16 && pp.on_ground)
-				i = TILE_APLAYERTOP + ((ud.levelclock >> 4) & 3);
+				i = TILE_APLAYERTOP + ((PlayClock >> 4) & 3);
 			else
 				i = TILE_APLAYERTOP;
 

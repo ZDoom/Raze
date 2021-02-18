@@ -123,7 +123,6 @@ struct TileInfo
 
 struct user_defs
 {
-	int levelclock;
 	unsigned char god, cashman, eog;
 	unsigned char clipping;
 	unsigned char user_pals[MAXPLAYERS];

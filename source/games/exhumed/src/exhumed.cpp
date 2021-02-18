@@ -107,7 +107,6 @@ short nBackgroundPic;
 short nShadowPic;
 
 short nCreaturesKilled = 0, nCreaturesTotal = 0;
-int leveltime;
 
 short nFreeze;
 
@@ -449,8 +448,8 @@ void GameInterface::Ticker()
 
         lLocalCodes = 0;
 
-        leveltime++;
-        if (leveltime == 2) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
+        PlayClock += 4;
+        if (PlayClock == 8) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
         GameMove();
         r_NoInterpolate = false;
     }
@@ -625,7 +624,7 @@ bool GameInterface::CanSave()
 
 ::GameStats GameInterface::getStats()
 {
-    return { nCreaturesKilled, nCreaturesTotal, 0, 0, leveltime / 30, 0 };
+    return { nCreaturesKilled, nCreaturesTotal, 0, 0, PlayClock / 120, 0 };
 }
 
 ::GameInterface* CreateInterface()
@@ -666,7 +665,7 @@ void SerializeState(FSerializer& arc)
             ("bodytotal", nBodyTotal)
             ("bsnakecam", bSnakeCam)
             ("slipmode", bSlipMode)
-            ("leveltime", leveltime)
+            ("PlayClock", PlayClock)
             ("cinemaseen", nCinemaSeen)
             ("spiritsprite", nSpiritSprite)
             .EndObject();

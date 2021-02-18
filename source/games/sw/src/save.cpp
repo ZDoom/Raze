@@ -70,7 +70,6 @@ void InitLevelGlobals(void);
 
 extern int lastUpdate;
 extern char SaveGameDescr[10][80];
-extern int PlayClock;
 extern short Bunny_Count;
 extern bool NewGame;
 extern int GodMode;

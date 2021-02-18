@@ -2196,7 +2196,6 @@ void InitFonts();
 int32_t registerosdcommands(void);
 void SW_InitMultiPsky(void);
 
-extern int PlayClock;
 extern short LevelSecrets;
 extern short TotalKillable;
 extern int OrigCommPlayers;

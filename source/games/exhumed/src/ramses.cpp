@@ -128,7 +128,7 @@ void InitSpiritHead()
 
     sprite[nSpiritSprite].cstat &= 0x7FFF;
 
-    nHeadTimeStart = leveltime*4;
+    nHeadTimeStart = PlayClock;
 
     memset(Worktile, TRANSPARENT_INDEX, WorktileSize);
     TileFiles.InvalidateTile(kTileRamsesWorkTile);
@@ -153,8 +153,8 @@ void InitSpiritHead()
     StartSwirlies();
 
     sprintf(filename, "LEV%d.PUP", currentLevel->levelNumber);
-    lNextStateChange = leveltime*4;
-    lHeadStartClock = leveltime*4;
+    lNextStateChange = PlayClock;
+    lHeadStartClock = PlayClock;
 
 	auto headfd = fileSystem.OpenFileReader(filename);
 	if (!headfd.isOpen())
@@ -212,7 +212,6 @@ void DoSpiritHead()
 
     sPlayerInput[0].actions |= SB_CENTERVIEW;
     TileFiles.InvalidateTile(kTileRamsesWorkTile);
-    int totalclock = leveltime * 4;
 
     switch (nHeadStage) 
     {
@@ -221,7 +220,7 @@ void DoSpiritHead()
         memset(Worktile, TRANSPARENT_INDEX, WorktileSize);
         break;
     case 5:
-        if (lNextStateChange <= totalclock) 
+        if (lNextStateChange <= PlayClock) 
         {
             if (nPupData != 0) 
             {
@@ -291,7 +290,7 @@ void DoSpiritHead()
         return;
     }
 
-    nPixelsToShow = 15 * (totalclock - nHeadTimeStart);
+    nPixelsToShow = 15 * (PlayClock - nHeadTimeStart);
     if (nPixelsToShow > nPixels)
         nPixelsToShow = nPixels;
 
@@ -319,10 +318,10 @@ void DoSpiritHead()
 
         if (nHeadStage == 0) 
         {
-            if (totalclock - nHeadTimeStart > 480) 
+            if (PlayClock - nHeadTimeStart > 480) 
             {
                 nHeadStage = 1;
-                nHeadTimeStart = totalclock + 480;
+                nHeadTimeStart = PlayClock + 480;
             }
 
             for (int i = 0; i < nPixelsToShow; i++) 
@@ -434,7 +433,7 @@ void DoSpiritHead()
                 Worktile[((cury[i] >> 8) + (212 * ((curx[i] >> 8) + 97))) + 106] = pixelval[i];
             }
 
-            if (totalclock - lHeadStartClock > 600)
+            if (PlayClock - lHeadStartClock > 600)
                 CopyHeadToWorkTile(590);
 
             if (nCount < (15 * nPixels) / 16) {

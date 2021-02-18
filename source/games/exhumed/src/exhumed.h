@@ -112,7 +112,6 @@ extern short nBackgroundPic;
 extern short nShadowPic;
 
 extern short nCreaturesTotal, nCreaturesKilled;
-extern int leveltime;
 
 extern int lLocalButtons;
 

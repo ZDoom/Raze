@@ -329,7 +329,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("coop", ud.coop)
 			("marker", ud.marker)
 			("ffire", ud.ffire)
-			("levelclock", ud.levelclock)
+			("levelclock", PlayClock)
 			("bomb_tag", ud.bomb_tag)
 
 			.Array("sectorextra", sectorextra, numsectors)

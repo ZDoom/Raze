@@ -7084,7 +7084,6 @@ void PauseMultiPlay(void)
 void
 domovethings(void)
 {
-    extern int PlayClock;
     short i, pnum;
 
     PLAYERp pp;

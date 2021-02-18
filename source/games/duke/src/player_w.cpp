@@ -78,7 +78,7 @@ void DoFire(struct player_struct* p, short snum)
 	if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
 	{
 		// make them visible if not set...
-		lastvisinc = ud.levelclock + 32;
+		lastvisinc = PlayClock + 32;
 		p->visibility = 0;
 	}
 
@@ -400,7 +400,7 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 				if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
 				{
 					// make them visible if not set...
-					lastvisinc = ud.levelclock + 32;
+					lastvisinc = PlayClock + 32;
 					p->visibility = 0;
 				}
 				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);

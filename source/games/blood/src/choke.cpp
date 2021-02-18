@@ -50,7 +50,7 @@ void CChoke::animateChoke(int x, int y, int smoothratio)
 {
 	if (!qav)
 		return;
-	int myclock = gFrameClock + MulScale(4, smoothratio, 16);
+	int myclock = PlayClock + MulScale(4, smoothratio, 16);
 	qav->x = x;
 	qav->y = y;
 	int vd = myclock - time;
