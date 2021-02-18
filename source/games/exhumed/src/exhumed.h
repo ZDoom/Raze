@@ -254,6 +254,9 @@ struct GameInterface : ::GameInterface
     int playerKeyMove() override { return 6; }
     void WarpToCoords(int x, int y, int z, int a, int h) override;
     void ToggleThirdPerson() override;
+    int chaseCamX(binangle ang) { return -ang.bcos() / 12; }
+    int chaseCamY(binangle ang) { return -ang.bsin() / 12; }
+    int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() / 384; }
 
 	::GameStats getStats() override;
 };
