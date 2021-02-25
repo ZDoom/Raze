@@ -80,7 +80,6 @@ uint8_t enemysizecheat /*raat607*/, ufospawnsminion, pistonsound, chickenphase /
 //------------------------------------------------------------------------- 
 
 // not serialized
-int cameradist = 0, cameraclock = 0;		// only for 3rd person view
 int otherp;									// internal helper
 int actor_tog;								// cheat helper
 int playerswhenstarted;						// why is this needed?

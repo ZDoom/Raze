@@ -1600,7 +1600,7 @@ int doincrements_d(struct player_struct* p)
 		p->knuckle_incs++;
 		if (p->knuckle_incs == 10 && !isWW2GI())
 		{
-			if (ud.levelclock > 1024)
+			if (PlayClock > 1024)
 				if (snum == screenpeek || ud.coop == 1)
 				{
 					if (rand() & 1)
@@ -2274,7 +2274,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		{
 			fi.shoot(pact, SHOTSPARK1);
 			S_PlayActorSound(PISTOL_FIRE, pact);
-			lastvisinc = ud.levelclock + 32;
+			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
 		}
 
@@ -2328,7 +2328,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 			S_PlayActorSound(SHOTGUN_FIRE, pact);
 
-			lastvisinc = ud.levelclock + 32;
+			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
 
 		}
@@ -2383,7 +2383,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 				S_PlayActorSound(CHAINGUN_FIRE, pact);
 				fi.shoot(pact, CHAINGUN);
-				lastvisinc = ud.levelclock + 32;
+				lastvisinc = PlayClock + 32;
 				p->visibility = 0;
 				checkavailweapon(p);
 
@@ -2434,7 +2434,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			{
 				// make them visible if not set...
 				p->visibility = 0;
-				lastvisinc = ud.levelclock + 32;
+				lastvisinc = PlayClock + 32;
 			}
 			checkavailweapon(p);
 			//#endif
@@ -2448,7 +2448,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			{
 				// make them visible if not set...
 				p->visibility = 0;
-				lastvisinc = ud.levelclock + 32;
+				lastvisinc = PlayClock + 32;
 			}
 			checkavailweapon(p);
 		}
@@ -2467,7 +2467,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			{
 				p->visibility = 0;
 				//flashColor = 176 + (252 << 8) + (120 << 16);
-				lastvisinc = ud.levelclock + 32;
+				lastvisinc = PlayClock + 32;
 				checkavailweapon(p);
 			}
 		}
@@ -2475,7 +2475,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		{
 			p->okickback_pic = p->kickback_pic = 0;
 			p->visibility = 0;
-			lastvisinc = ud.levelclock + 32;
+			lastvisinc = PlayClock + 32;
 			checkavailweapon(p);
 		}
 		else p->kickback_pic++;
@@ -2493,7 +2493,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 					(p->kickback_pic & 1))
 				{
 					p->visibility = 0;
-					lastvisinc = ud.levelclock + 32;
+					lastvisinc = PlayClock + 32;
 					fi.shoot(pact, RPG);
 					p->ammo_amount[DEVISTATOR_WEAPON]--;
 					checkavailweapon(p);
@@ -2503,7 +2503,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			else if (p->kickback_pic & 1)
 			{
 				p->visibility = 0;
-				lastvisinc = ud.levelclock + 32;
+				lastvisinc = PlayClock + 32;
 				fi.shoot(pact, RPG);
 				p->ammo_amount[DEVISTATOR_WEAPON]--;
 				checkavailweapon(p);
@@ -2523,7 +2523,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				p->ammo_amount[p->curr_weapon]--;
 
 				p->visibility = 0;
-				lastvisinc = ud.levelclock + 32;
+				lastvisinc = PlayClock + 32;
 				fi.shoot(pact, FREEZEBLAST);
 				checkavailweapon(p);
 			}
@@ -2606,7 +2606,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		if (p->kickback_pic == 4)
 		{
 			p->ammo_amount[RPG_WEAPON]--;
-			lastvisinc = ud.levelclock + 32;
+			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
 			fi.shoot(pact, RPG);
 			checkavailweapon(p);

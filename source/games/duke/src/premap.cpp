@@ -736,7 +736,7 @@ void prelevel_common(int g)
 void resettimevars(void)
 {
     cloudclock = 0;
-	ud.levelclock = 0;
+	PlayClock = 0;
     if (camsprite != nullptr)
         camsprite->temp_data[0] = 0;
 }

@@ -87,7 +87,7 @@ uint8_t LoadLevel(int nMap)
         nCreaturesTotal = 0;
         nFreeze = 0;
         nSpiritSprite = -1;
-        leveltime = 0;
+        PlayClock = 0;
 
         InitLion();
         InitRexs();

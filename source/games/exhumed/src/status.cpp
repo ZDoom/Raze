@@ -661,7 +661,7 @@ private:
 
             int shade;
 
-            if ((leveltime / 30) & 1) {
+            if ((PlayClock / 120) & 1) {
                 shade = -100;
             }
             else {
@@ -733,11 +733,11 @@ private:
         imgScale = baseScale / img->GetDisplayHeight();
         DrawGraphic(img, 1.5, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
-        if (!althud_flashing || pp->nHealth > 150 || (leveltime & 8))
+        if (!althud_flashing || pp->nHealth > 150 || (PlayClock & 32))
         {
             int s = -8;
             if (althud_flashing && pp->nHealth > 800)
-                s += bsin(leveltime << 7, -10);
+                s += bsin(PlayClock << 5, -10);
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", pp->nHealth >> 3);
@@ -799,7 +799,7 @@ private:
                 imgX += (imgX * 0.855) * (strlen - 1);
             }
 
-            if ((!althud_flashing || leveltime & 8 || ammo > 10))// (DamageData[weapon].max_ammo / 10)))
+            if ((!althud_flashing || PlayClock & 32 || ammo > 10))// (DamageData[weapon].max_ammo / 10)))
             {
                 SBar_DrawString(this, numberFont, format, -3, -numberFont->mFont->GetHeight()+3, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
             }
@@ -940,7 +940,7 @@ private:
         stats.font = SmallFont;
         stats.letterColor = CR_RED;
         stats.standardColor = CR_UNTRANSLATED;
-        stats.time = Scale(leveltime, 1000, 30);
+        stats.time = Scale(PlayClock, 1000, 120);
 
         if (automapMode == am_full)
         {

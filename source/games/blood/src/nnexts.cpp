@@ -4630,7 +4630,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             return;
         }
         // lets try to look for target that fits better by distance
-        else if ((gFrameClock & 256) != 0 && (pXSprite->target < 0 || aiFightGetTargetDist(pSprite, pDudeInfo, pTarget) >= mDist)) {
+        else if ((PlayClock & 256) != 0 && (pXSprite->target < 0 || aiFightGetTargetDist(pSprite, pDudeInfo, pTarget) >= mDist)) {
             pTarget = aiFightGetTargetInRange(pSprite, 0, mDist, pXSource->data1, pXSource->data2);
             if (pTarget != NULL) {
                 pXTarget = &xsprite[pTarget->extra];
@@ -4660,7 +4660,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
         }
     }
     
-    if ((pXSprite->target < 0 || pPlayer != NULL) && (gFrameClock & 32) != 0) {
+    if ((pXSprite->target < 0 || pPlayer != NULL) && (PlayClock & 32) != 0) {
         // try find first target that dude can see
         int nSprite;
         StatIterator it(kStatDude);
@@ -4708,7 +4708,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
     }
 
     // got no target - let's ask mates if they have targets
-    if ((pXSprite->target < 0 || pPlayer != NULL) && pXSource->data2 == 1 && (gFrameClock & 64) != 0) {
+    if ((pXSprite->target < 0 || pPlayer != NULL) && pXSource->data2 == 1 && (PlayClock & 64) != 0) {
         spritetype* pMateTarget = NULL;
         if ((pMateTarget = aiFightGetMateTargets(pXSprite)) != NULL && pMateTarget->extra > 0) {
             XSPRITE* pXMateTarget = &xsprite[pMateTarget->extra];
@@ -4846,10 +4846,10 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, i
     if (pQavScene->qavResrc != NULL) {
 
         QAV* pQAV = pQavScene->qavResrc;
-        int v4 = (pPlayer->weaponTimer == 0) ? ((gFrameClock + MulScale(4, smoothratio, 16)) % pQAV->duration) : pQAV->duration - pPlayer->weaponTimer;
+        int v4 = (pPlayer->weaponTimer == 0) ? ((PlayClock + MulScale(4, smoothratio, 16)) % pQAV->duration) : pQAV->duration - pPlayer->weaponTimer;
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
-        if (nInv >= 120 * 8 || (nInv != 0 && (gFrameClock & 32))) {
+        if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32))) {
             a2 = -128; flags |= 1;
         }
 

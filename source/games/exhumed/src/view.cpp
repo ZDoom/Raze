@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "compat.h"
 #include "engine.h"
+#include "gamefuncs.h"
 #include "names.h"
 #include "view.h"
 #include "status.h"
@@ -247,11 +248,13 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!SyncInput())
         {
+            pan = PlayerList[nLocalPlayer].horizon.sum();
             nAngle = PlayerList[nLocalPlayer].angle.sum();
             rotscrnang = PlayerList[nLocalPlayer].angle.rotscrnang;
         }
         else
         {
+            pan = PlayerList[nLocalPlayer].horizon.interpolatedsum(smoothRatio);
             nAngle = PlayerList[nLocalPlayer].angle.interpolatedsum(smoothRatio);
             rotscrnang = PlayerList[nLocalPlayer].angle.interpolatedrotscrn(smoothRatio);
         }
@@ -261,51 +264,44 @@ void DrawView(double smoothRatio, bool sceneonly)
             sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
             sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
+        else
+        {
+            sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_TRANSLUCENT;
+            sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
+        }
 
         renderSetRollAngle(rotscrnang.asbuildf());
+
+        pan = q16horiz(clamp(pan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
     nCameraa = nAngle;
 
-    if (!bCamera || nFreeze || sceneonly)
+    if (nSnakeCam >= 0 && !sceneonly)
     {
-        if (nSnakeCam >= 0 && !sceneonly)
-        {
-            pan = q16horiz(0);
-            viewz = playerZ;
-        }
-        else
-        {
-            viewz = playerZ + nQuake[nLocalPlayer];
-            int floorZ = sector[sprite[nPlayerSprite].sectnum].floorz;
-
-            if (!SyncInput())
-            {
-                pan = PlayerList[nLocalPlayer].horizon.sum();
-            }
-            else
-            {
-                pan = PlayerList[nLocalPlayer].horizon.interpolatedsum(smoothRatio);
-            }
-
-            if (viewz > floorZ)
-                viewz = floorZ;
-
-            nCameraa += buildang((nQuake[nLocalPlayer] >> 7) % 31);
-        }
-    }
-    else
-    {
-        clipmove_old((int32_t*)&playerX, (int32_t*)&playerY, (int32_t*)&playerZ, &nSector,
-            -2000 * nAngle.bcos(),
-            -2000 * nAngle.bsin(),
-            4, 0, 0, CLIPMASK1);
-
         pan = q16horiz(0);
         viewz = playerZ;
     }
+    else
+    {
+        viewz = playerZ + nQuake[nLocalPlayer];
+        int floorZ = sector[sprite[nPlayerSprite].sectnum].floorz;
 
-    pan = q16horiz(clamp(pan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
+        if (viewz > floorZ)
+            viewz = floorZ;
+
+        nCameraa += buildang((nQuake[nLocalPlayer] >> 7) % 31);
+
+        if (bCamera)
+        {
+            viewz -= 2560;
+            if (!calcChaseCamPos(&playerX, &playerY, &viewz, &sprite[nPlayerSprite], &nSector, nAngle, pan, smoothRatio))
+            {
+                viewz += 2560;
+                calcChaseCamPos(&playerX, &playerY, &viewz, &sprite[nPlayerSprite], &nSector, nAngle, pan, smoothRatio);
+            }
+        }
+    }
 
     nCamerax = playerX;
     nCameray = playerY;

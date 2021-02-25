@@ -1486,7 +1486,7 @@ int doincrements_r(struct player_struct* p)
 				}
 				S_PlayActorSound(snd, pact);
 			}
-			else if (ud.levelclock > 1024)
+			else if (PlayClock > 1024)
 				if (snum == screenpeek || ud.coop == 1)
 				{
 					if (rand() & 1)
@@ -2806,7 +2806,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			p->noise_radius = 8192;
 			madenoise(snum);
 
-			lastvisinc = ud.levelclock + 32;
+			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
 			if (psectlotag != 857)
 			{
@@ -2885,7 +2885,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			p->noise_radius = 8192;
 			madenoise(snum);
 
-			lastvisinc = ud.levelclock + 32;
+			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
 		}
 
@@ -2996,7 +2996,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				fi.shoot(pact, CHAINGUN);
 				p->noise_radius = 8192;
 				madenoise(snum);
-				lastvisinc = ud.levelclock + 32;
+				lastvisinc = PlayClock + 32;
 				p->visibility = 0;
 
 				if (psectlotag != 857)
@@ -3052,7 +3052,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		if (p->kickback_pic == 2 || p->kickback_pic == 4)
 		{
 			p->visibility = 0;
-			lastvisinc = ud.levelclock + 32;
+			lastvisinc = PlayClock + 32;
 			S_PlayActorSound(CHAINGUN_FIRE, pact);
 			fi.shoot(pact, SHOTSPARK1);
 			p->noise_radius = 16384;
@@ -3079,7 +3079,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		if (p->kickback_pic == 2 || p->kickback_pic == 4)
 		{
 			p->visibility = 0;
-			lastvisinc = ud.levelclock + 32;
+			lastvisinc = PlayClock + 32;
 			S_PlayActorSound(CHAINGUN_FIRE, pact);
 			fi.shoot(pact, CHAINGUN);
 			p->noise_radius = 16384;
@@ -3137,7 +3137,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		{
 			p->ammo_amount[ALIENBLASTER_WEAPON]--;
 			p->visibility = 0;
-			lastvisinc = ud.levelclock + 32;
+			lastvisinc = PlayClock + 32;
 			checkavailweapon(p);
 		}
 		else if (p->kickback_pic == 12)
@@ -3246,7 +3246,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			p->ammo_amount[CROSSBOW_WEAPON]--;
 			if (p->ammo_amount[DYNAMITE_WEAPON])
 				p->ammo_amount[DYNAMITE_WEAPON]--;
-			lastvisinc = ud.levelclock + 32;
+			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
 			fi.shoot(pact, RPG);
 			p->noise_radius = 32768;
@@ -3264,7 +3264,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		if (p->kickback_pic == 4)
 		{
 			p->ammo_amount[CHICKEN_WEAPON]--;
-			lastvisinc = ud.levelclock + 32;
+			lastvisinc = PlayClock + 32;
 			p->visibility = 0;
 			fi.shoot(pact, RPG2);
 			p->noise_radius = 32768;

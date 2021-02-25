@@ -490,7 +490,7 @@ static void unicultThinkChase(DBloodActor* actor)
     // is the target visible?
     if (dist < pDudeInfo->seeDist && abs(losAngle) <= pDudeInfo->periphery) {
 
-        if ((gFrameClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(pSprite, false))
+        if ((PlayClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(pSprite, false))
             playGenDudeSound(pSprite, kGenDudeSndChasing);
 
         actor->dudeSlope = DivScale(pTarget->z - pSprite->z, dist, 10);

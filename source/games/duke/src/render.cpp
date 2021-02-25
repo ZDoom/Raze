@@ -587,10 +587,10 @@ void displayrooms(int snum, double smoothratio)
 		{
 			cposz -= isRR() ? 3840 : 3072;
 
-			if (!view(p, &cposx, &cposy, &cposz, &sect, cang.asbuild(), choriz.asq16(), smoothratio))
+			if (!calcChaseCamPos(&cposx, &cposy, &cposz, &p->GetActor()->s, &sect, cang, choriz, smoothratio))
 			{
 				cposz += isRR() ? 3840 : 3072;
-				view(p, &cposx, &cposy, &cposz, &sect, cang.asbuild(), choriz.asq16(), smoothratio);
+				calcChaseCamPos(&cposx, &cposy, &cposz, &p->GetActor()->s, &sect, cang, choriz, smoothratio);
 			}
 		}
 
@@ -641,7 +641,7 @@ void displayrooms(int snum, double smoothratio)
 
 	if (!isRRRA() || !fogactive)
 	{
-		if (ud.levelclock < lastvisinc)
+		if (PlayClock < lastvisinc)
 		{
 			if (abs(p->visibility - ud.const_visibility) > 8)
 				p->visibility += (ud.const_visibility - p->visibility) >> 2;

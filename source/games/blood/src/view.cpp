@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_font.h"
 #include "statusbar.h"
 #include "automap.h"
+#include "gamefuncs.h"
 #include "v_draw.h"
 #include "glbackend/glbackend.h"
 
@@ -196,8 +197,7 @@ void viewInit(void)
 }
 
 int othercameradist = 1280;
-int cameradist = -1;
-int othercameraclock, cameraclock;
+int othercameraclock;
 
 void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fixed_t zm, int smoothratio)
 {
@@ -237,56 +237,9 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     *pX += MulScale(vX, othercameradist, 16);
     *pY += MulScale(vY, othercameradist, 16);
     *pZ += MulScale(vZ, othercameradist, 16);
-	int myclock = gFrameClock + MulScale(4, smoothratio, 16);
+	int myclock = PlayClock + MulScale(4, smoothratio, 16);
     othercameradist = ClipHigh(othercameradist+((myclock-othercameraclock)<<10), 65536);
     othercameraclock = myclock;
-    assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
-    FindSector(*pX, *pY, *pZ, vsectnum);
-    pSprite->cstat = bakCstat;
-}
-
-void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fixed_t zm, int smoothratio)
-{
-    int vX = MulScale(-Cos(nAng), 1280, 30);
-    int vY = MulScale(-Sin(nAng), 1280, 30);
-    int vZ = FixedToInt(MulScale(zm, 1280, 3))-(16<<8);
-    int bakCstat = pSprite->cstat;
-    pSprite->cstat &= ~256;
-    assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
-    FindSector(*pX, *pY, *pZ, vsectnum);
-    short nHSector;
-    int hX, hY;
-    hitscangoal.x = hitscangoal.y = 0x1fffffff;
-    vec3_t pos = { *pX, *pY, *pZ };
-    hitdata_t hitdata;
-    hitscan(&pos, *vsectnum, vX, vY, vZ, &hitdata, CLIPMASK1);
-    nHSector = hitdata.sect;
-    hX = hitdata.pos.x;
-    hY = hitdata.pos.y;
-    int dX = hX-*pX;
-    int dY = hY-*pY;
-    if (abs(vX)+abs(vY) > abs(dX)+abs(dY))
-    {
-        *vsectnum = nHSector;
-        dX -= Sgn(vX)<<6;
-        dY -= Sgn(vY)<<6;
-        int nDist;
-        if (abs(vX) > abs(vY))
-        {
-            nDist = ClipHigh(DivScale(dX,vX, 16), cameradist);
-        }
-        else
-        {
-            nDist = ClipHigh(DivScale(dY,vY, 16), cameradist);
-        }
-        cameradist = nDist;
-    }
-    *pX += MulScale(vX, cameradist, 16);
-    *pY += MulScale(vY, cameradist, 16);
-    *pZ += MulScale(vZ, cameradist, 16);
-	int myclock = gFrameClock + MulScale(4, smoothratio, 16);
-    cameradist = ClipHigh(cameradist+((myclock-cameraclock)<<10), 65536);
-    cameraclock = myclock;
     assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
@@ -408,7 +361,7 @@ void viewUpdateDelirium(void)
 	if ((powerCount = powerupCheck(gView, kPwUpDeliriumShroom)) != 0)
 	{
 		int tilt1 = 170, tilt2 = 170, pitch = 20;
-        int timer = gFrameClock*4;
+        int timer = PlayClock*4;
 		if (powerCount < 512)
 		{
 			int powerScale = IntToFixed(powerCount) / 512;
@@ -633,11 +586,11 @@ void viewDrawScreen(bool sceneonly)
             }
             cZ += xs_CRoundToInt(cH.asq16() / 6553.6);
             cameradist = -1;
-            cameraclock = gFrameClock +MulScale(4, (int)gInterpolate, 16);
+            cameraclock = PlayClock + MulScale(4, (int)gInterpolate, 16);
         }
         else
         {
-            CalcPosition(gView->pSprite, (int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum, cA.asbuild(), cH.asq16(), (int)gInterpolate);
+            calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->pSprite, (short*)&nSectnum, cA, cH, gInterpolate);
         }
         CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum);
         int v78 = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
@@ -657,7 +610,7 @@ void viewDrawScreen(bool sceneonly)
         else if (v4 && gNetPlayers > 1)
         {
 #if 0       // needs to be redone for pure hardware rendering.
-            int tmp = (gFrameClock / 240) % (gNetPlayers - 1);
+            int tmp = (PlayClock / 240) % (gNetPlayers - 1);
             int i = connecthead;
             while (1)
             {
@@ -669,7 +622,7 @@ void viewDrawScreen(bool sceneonly)
                 tmp--;
             }
             PLAYER* pOther = &gPlayer[i];
-            //othercameraclock = gFrameClock + MulScale(4, (int)gInterpolate, 16);;
+            //othercameraclock = PlayClock + MulScale(4, (int)gInterpolate, 16);;
             if (!tileData(4079))
             {
                 TileFiles.tileCreate(4079, 128, 128);
@@ -746,7 +699,7 @@ void viewDrawScreen(bool sceneonly)
         }
         else
         {
-            othercameraclock = gFrameClock + MulScale(4, (int)gInterpolate, 16);
+            othercameraclock = PlayClock + MulScale(4, (int)gInterpolate, 16);
         }
 
         if (!bDelirium)

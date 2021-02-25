@@ -514,13 +514,13 @@ void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
 	assert(command != kCmdCallback);
 	if (command == kCmdState) command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
 	else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
-	EVENT evn = { (int16_t)nIndex, (int8_t)nType, (int8_t)command, 0, gFrameClock + (int)nDelta };
+	EVENT evn = { (int16_t)nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
 void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 {
-	EVENT evn = { (int16_t)nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, gFrameClock + (int)nDelta };
+	EVENT evn = { (int16_t)nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 

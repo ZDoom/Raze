@@ -84,9 +84,9 @@ void CGameMenuItemQAV::Draw(void)
 	if (raw.Size() > 0)
 	{
 		auto data = (QAV*)raw.Data();
-		int backFC = gFrameClock;
+		int backFC = PlayClock;
 		int currentclock = I_GetBuildTime();
-		gFrameClock = currentclock;
+		PlayClock = currentclock;
 		int nTicks = currentclock - lastTick;
 		lastTick = currentclock;
 		duration -= nTicks;
@@ -111,7 +111,7 @@ void CGameMenuItemQAV::Draw(void)
 		else
 			data->Draw(data->duration - duration, 10, 0, 0, false);
 
-		gFrameClock = backFC;
+		PlayClock = backFC;
 	}
 }
 

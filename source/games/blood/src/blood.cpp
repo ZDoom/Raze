@@ -83,7 +83,7 @@ void StartLevel(MapRecord* level)
 {
 	if (!level) return;
 	gFrameCount = 0;
-	gFrameClock = 0;
+	PlayClock = 0;
 	STAT_Update(0);
 	EndLevel();
 	inputState.ClearAllInput();
@@ -291,7 +291,7 @@ void GameInterface::Ticker()
 		}
 
 		trProcessBusy();
-		evProcess(gFrameClock);
+		evProcess(PlayClock);
 		seqProcess(4);
 		DoSectorPanning();
 
@@ -320,8 +320,8 @@ void GameInterface::Ticker()
 		thinktime.Unclock();
 
 		gFrameCount++;
-		gFrameClock += kTicsPerFrame;
-		if (gFrameClock == 8) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
+		PlayClock += kTicsPerFrame;
+		if (PlayClock == 8) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
 
 		for (int i = 0; i < 8; i++)
 		{

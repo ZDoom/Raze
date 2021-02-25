@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "jsector.h"
 #include "network.h"
 #include "gamestate.h"
+#include "gamefuncs.h"
 #include "player.h"
 
 BEGIN_SW_NS
@@ -99,22 +100,14 @@ void GameInterface::ToggleThirdPerson()
 {
     if (gamestate != GS_LEVEL) return;
     auto pp = &Player[myconnectindex];
-    if (inputState.ShiftPressed())
+    if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
-        if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
-            pp->view_outside_dang = NORM_ANGLE(pp->view_outside_dang + 256);
+        RESET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
     }
     else
     {
-        if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
-        {
-            RESET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
-        }
-        else
-        {
-            SET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
-            pp->camera_dist = 0;
-        }
+        SET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
+        cameradist = 0;
     }
 }
 
