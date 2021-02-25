@@ -531,6 +531,10 @@ struct GameInterface : public ::GameInterface
 	int playerKeyMove() override { return isWh2()? 20:15; }
 	fixed_t playerHorizMin() override { return IntToFixed(-145); }
 	fixed_t playerHorizMax() override { return IntToFixed(145); }
+	void ToggleThirdPerson() override;
+    int chaseCamX(binangle ang) { return -ang.bcos() / 12; }
+    int chaseCamY(binangle ang) { return -ang.bsin() / 12; }
+    int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() / 384; }
 
 };
  

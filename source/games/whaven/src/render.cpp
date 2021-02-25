@@ -34,6 +34,22 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 			choriz = plr.horizon.interpolatedsum(dasmoothratio);
 			crotscrnang = plr.angle.interpolatedrotscrn(dasmoothratio);
 		}
+
+		if (plr.over_shoulder_on)
+		{
+			sprite[plr.spritenum].cstat |= CSTAT_SPRITE_TRANSLUCENT;
+
+			cposz -= 2560;
+			if (!calcChaseCamPos(&cposx, &cposy, &cposz, &sprite[plr.spritenum], &plr.sector, cang, choriz, dasmoothratio))
+			{
+				cposz += 2560;
+				calcChaseCamPos(&cposx, &cposy, &cposz, &sprite[plr.spritenum], &plr.sector, cang, choriz, dasmoothratio);
+			}
+		}
+		else
+		{
+			sprite[plr.spritenum].cstat &= ~CSTAT_SPRITE_TRANSLUCENT;
+		}
 	}
 
 	// wango
@@ -78,7 +94,11 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	renderDrawMasks();
 	if (!sceneonly)
 	{
-		DrawHud(dasmoothratio);
+		if (!plr.over_shoulder_on)
+		{
+			DrawHud(dasmoothratio);
+		}
+
 		if (automapMode != am_off)
 		{
 			DrawOverheadMap(cposx, cposy, cang.asbuild(), dasmoothratio);

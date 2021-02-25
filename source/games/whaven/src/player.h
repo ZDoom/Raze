@@ -85,6 +85,8 @@ struct PLAYER {
 	boolean godMode;
 	boolean noclip;
 
+	bool over_shoulder_on;
+
 	// no copy assignments for this one!
 	PLAYER() = default;
 	PLAYER(const PLAYER&) = delete;

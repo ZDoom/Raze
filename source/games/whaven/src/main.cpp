@@ -2,6 +2,7 @@
 #include "wh.h"
 #include "mapinfo.h"
 #include "gamestate.h"
+#include "gamefuncs.h"
 #include "buildtiles.h"
 #include "v_draw.h"
 #include "menu.h"
@@ -836,6 +837,25 @@ void GameInterface::QuitToTitle()
 {
 	Mus_Stop();
 	gameaction = ga_mainmenu;
+}
+
+void GameInterface::ToggleThirdPerson()
+{
+	if (gamestate == GS_LEVEL)
+	{
+		auto pplr = &player[pyrn];
+
+		if (pplr->over_shoulder_on)
+		{
+			pplr->over_shoulder_on = false;
+		}
+		else
+		{
+			pplr->over_shoulder_on = true;
+			cameradist = 0;
+			cameraclock = INT_MIN;
+		}
+	}
 }
 
 ::GameStats GameInterface::getStats()
