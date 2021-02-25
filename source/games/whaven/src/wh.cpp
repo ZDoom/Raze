@@ -9,7 +9,6 @@ int attacktheme;
 int killcnt, kills;
 int expgained;
 int difficulty;
-int lockclock;
 int treasurescnt, treasuresfound;
 SPRITE tspritelist[MAXSPRITESONSCREEN + 1];
 int tspritelistcnt;

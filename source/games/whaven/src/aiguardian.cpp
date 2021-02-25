@@ -26,7 +26,7 @@ static void chaseguardian(PLAYER& plr, short i) {
 		int day = (bsin(sprite[i].ang) * TICSPERFRAME) << 3;
 		checksight(plr, i);
 
-		if (lockclock % 100 > 70)
+		if (PlayClock % 100 > 70)
 			trailingsmoke(i, true);
 
 		if (!checkdist(plr, i)) {
@@ -154,7 +154,7 @@ static void fleeguardian(PLAYER& plr, short i) {
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
-	if (lockclock % 100 > 70)
+	if (PlayClock % 100 > 70)
 		trailingsmoke(i, true);
 
 	int movestat = aifly(i);

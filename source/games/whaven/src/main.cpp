@@ -740,7 +740,7 @@ void GameInterface::Ticker()
 		followy -= MulScale(-bsin(followa), followsvel, 10);
 	}
 
-	lockclock += TICSPERFRAME;
+	PlayClock += TICSPERFRAME;
 	r_NoInterpolate = false;
 }
 
@@ -840,7 +840,7 @@ void GameInterface::QuitToTitle()
 
 ::GameStats GameInterface::getStats()
 {
-	return { kills, killcnt, treasuresfound, treasurescnt, lockclock / 30, 0 };
+	return { kills, killcnt, treasuresfound, treasurescnt, PlayClock / 30, 0 };
 }
 
 ::GameInterface* CreateInterface()

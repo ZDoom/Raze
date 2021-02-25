@@ -141,7 +141,6 @@ extern int killcnt, kills;
 extern int treasurescnt, treasuresfound;
 extern int expgained;
 extern int difficulty;
-extern int lockclock;
 extern SPRITE tspritelist[MAXSPRITESONSCREEN + 1];
 extern int tspritelistcnt;
 extern short arrowsprite[ARROWCOUNTLIMIT], throwpikesprite[THROWPIKELIMIT];

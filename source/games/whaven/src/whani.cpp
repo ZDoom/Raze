@@ -273,7 +273,7 @@ void animateobjs(PLAYER& plr) {
 			}
 			setsprite((short) i, plr.x, plr.y, plr.z);
 			osectnum = spr.sectnum;
-			j = (torchpattern[lockclock % 38]);
+			j = (torchpattern[PlayClock % 38]);
 			sector[osectnum].ceilingshade = (byte) ((sector[osectnum].ceilingshade + j) >> 1);
 			sector[osectnum].floorshade = (byte) ((sector[osectnum].floorshade + j) >> 1);
 			startwall = sector[osectnum].wallptr;
@@ -468,7 +468,7 @@ void animateobjs(PLAYER& plr) {
 		nextsprite = nextspritestat[i];
 
 		osectnum = sprite[i].sectnum;
-		j = (torchpattern[lockclock % 38]);
+		j = (torchpattern[PlayClock % 38]);
 		sector[osectnum].ceilingshade = (byte) j;
 		sector[osectnum].floorshade = (byte) j;
 		startwall = sector[osectnum].wallptr;
@@ -481,7 +481,7 @@ void animateobjs(PLAYER& plr) {
 	for (i = headspritestat[GLOWLIGHT]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		osectnum = sprite[i].sectnum;
-		j = (torchpattern[lockclock % 38]);
+		j = (torchpattern[PlayClock % 38]);
 		sector[osectnum].floorshade = (byte) j;
 		startwall = sector[osectnum].wallptr;
 		endwall = (short) (startwall + sector[osectnum].wallnum - 1);
@@ -493,7 +493,7 @@ void animateobjs(PLAYER& plr) {
 	// BOB
 	for (i = headspritestat[BOB]; i >= 0; i = nextspritestat[i]) {
 		nextsprite = nextspritestat[i];
-		sprite[i].z += bsin(lockclock << 4, -6);
+		sprite[i].z += bsin(PlayClock << 4, -6);
 	}
 
 	// LIFT UP
@@ -764,7 +764,7 @@ void animateobjs(PLAYER& plr) {
 		if (isWh2()) {
 			SPRITE& spr = sprite[i];
 			osectnum = spr.sectnum;
-			j = (torchpattern[lockclock % 38]);
+			j = (torchpattern[PlayClock % 38]);
 			sector[osectnum].ceilingshade = (byte) j;
 			sector[osectnum].floorshade = (byte) j;
 			startwall = sector[osectnum].wallptr;
@@ -792,7 +792,7 @@ void animateobjs(PLAYER& plr) {
 			SPRITE& spr = sprite[i];
 			spr.lotag -= TICSPERFRAME;
 			osectnum = spr.sectnum;
-			j = (torchpattern[lockclock % 38]);
+			j = (torchpattern[PlayClock % 38]);
 			sector[osectnum].ceilingshade = (byte) j;
 			sector[osectnum].floorshade = (byte) j;
 			startwall = sector[osectnum].wallptr;

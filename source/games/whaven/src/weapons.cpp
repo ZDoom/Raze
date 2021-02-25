@@ -683,7 +683,7 @@ void weaponsprocess(int snum) {
 		if (plr.plInput.fvel || plr.plInput.svel) {
 			osnakex = snakex;
 			osnakey = snakey;
-			snakex = snakey = bsinf(lockclock << 4, -12);
+			snakex = snakey = bsinf(PlayClock << 4, -12);
 		}
 		break;
 	case 2: // unready
@@ -867,8 +867,8 @@ void weaponsprocess(int snum) {
 	if (plr.shieldpoints > 0 && (plr.currweaponfired == 0 || plr.currweaponfired == 1) && plr.selectedgun > 0
 			&& plr.selectedgun < 5 && !droptheshield) {
 		if (plr.currweaponfired == 1) {
-			snakex = bsin(lockclock << 4, -12);
-			snakey = bsin(lockclock << 4, -12);
+			snakex = bsin(PlayClock << 4, -12);
+			snakey = bsin(PlayClock << 4, -12);
 			if (droptheshield) {
 				dropshieldcnt += (TICSPERFRAME << 1);
 				snakey += dropshieldcnt;

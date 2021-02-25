@@ -24,7 +24,7 @@ static void chasedemon(PLAYER& plr, short i) {
 		return;
 	}
 	else {
-		if (lockclock % 100 > 70)
+		if (PlayClock % 100 > 70)
 			trailingsmoke(i, true);
 
 		int dax = (bcos(sprite[i].ang) * TICSPERFRAME) << 2;

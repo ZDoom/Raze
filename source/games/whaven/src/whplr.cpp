@@ -198,7 +198,7 @@ void initplayersprite(PLAYER& plr) {
 	for (int i = 0; i < MAXNUMORBS; i++)
 		plr.orbactive[i] = -1;
 
-	lockclock = 0;
+	PlayClock = 0;
 	playertorch = 0;
 
 	plr.spellbookflip = 0;
@@ -612,7 +612,7 @@ void dophysics(PLAYER& plr, int goalz, int flyupdn, int v) {
 		if (flyupdn < 0) {
 			plr.hvel += (TICSPERFRAME << 7);
 		}
-		plr.hvel += bsin(lockclock << 4, -6);
+		plr.hvel += bsin(PlayClock << 4, -6);
 		plr.fallz = 0;
 
 	}

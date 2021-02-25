@@ -302,7 +302,7 @@ void movewater(uint8_t* dapic) {
 
 void skypanfx() {
 	for (int i = 0; i < skypancnt; i++) {
-		sector[skypanlist[i]].setceilingxpan(-((lockclock >> 2) & 255));
+		sector[skypanlist[i]].setceilingxpan(-((PlayClock >> 2) & 255));
 	}
 }
 
@@ -312,32 +312,32 @@ void panningfx() {
 
 		switch (whichdir) {
 		case 0:
-			sector[floorpanninglist[i]].setfloorypan(((lockclock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorypan(((PlayClock >> 2) & 255));
 			break;
 		case 1:
-			sector[floorpanninglist[i]].setfloorxpan(-((lockclock >> 2) & 255));
-			sector[floorpanninglist[i]].setfloorypan(((lockclock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorxpan(-((PlayClock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorypan(((PlayClock >> 2) & 255));
 			break;
 		case 2:
-			sector[floorpanninglist[i]].setfloorxpan(-((lockclock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorxpan(-((PlayClock >> 2) & 255));
 			break;
 		case 3:
-			sector[floorpanninglist[i]].setfloorxpan(-((lockclock >> 2) & 255));
-			sector[floorpanninglist[i]].setfloorypan(-((lockclock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorxpan(-((PlayClock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorypan(-((PlayClock >> 2) & 255));
 			break;
 		case 4:
-			sector[floorpanninglist[i]].setfloorypan(-((lockclock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorypan(-((PlayClock >> 2) & 255));
 			break;
 		case 5:
-			sector[floorpanninglist[i]].setfloorxpan(((lockclock >> 2) & 255));
-			sector[floorpanninglist[i]].setfloorypan(-((lockclock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorxpan(((PlayClock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorypan(-((PlayClock >> 2) & 255));
 			break;
 		case 6:
-			sector[floorpanninglist[i]].setfloorxpan(((lockclock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorxpan(((PlayClock >> 2) & 255));
 			break;
 		case 7:
-			sector[floorpanninglist[i]].setfloorxpan(((lockclock >> 2) & 255));
-			sector[floorpanninglist[i]].setfloorypan(((lockclock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorxpan(((PlayClock >> 2) & 255));
+			sector[floorpanninglist[i]].setfloorypan(((PlayClock >> 2) & 255));
 			break;
 		default:
 			sector[floorpanninglist[i]].setfloorxpan(0);
@@ -351,11 +351,11 @@ void panningfx() {
 		int startwall = sector[dasector].wallptr;
 		int endwall = startwall + sector[dasector].wallnum - 1;
 		for (int s = startwall; s <= endwall; s++)
-			wall[s].setxpan((lockclock >> 2) & 255);
+			wall[s].setxpan((PlayClock >> 2) & 255);
 	}
 
 	for (int i = 0; i < ypanningwallcnt; i++)
-		wall[ypanningwalllist[i]].setypan(~(lockclock & 255));
+		wall[ypanningwalllist[i]].setypan(~(PlayClock & 255));
 }
 
 void revolvefx() {
@@ -398,7 +398,7 @@ void revolvefx() {
 void bobbingsector() {
 	for (int i = 0; i < bobbingsectorcnt; i++) {
 		short dasector = bobbingsectorlist[i];
-		sector[dasector].floorz += bsin(lockclock << 4, -6);
+		sector[dasector].floorz += bsin(PlayClock << 4, -6);
 	}
 }
 
@@ -414,7 +414,7 @@ void teleporter() {
 
 	for (i = 0; i < warpsectorcnt; i++) {
 		dasector = warpsectorlist[i];
-		j = ((lockclock & 127) >> 2);
+		j = ((PlayClock & 127) >> 2);
 		if (j >= 16)
 			j = 31 - j;
 		{
@@ -663,7 +663,7 @@ void dofx() {
 	GLRenderer gl = glrender();
 	if (gl != nullptr) {
 		if (player[pyrn].poisoned != 0) {
-			int tilt = MulScale(bsin(3 * lockclock), 20, 16);
+			int tilt = MulScale(bsin(3 * PlayClock), 20, 16);
 			if (tilt != 0)
 				gl.setdrunk(tilt);
 		} else
