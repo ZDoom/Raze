@@ -102,7 +102,6 @@ extern int32_t globalorientation;
 extern int16_t editstatus;
 
 extern int16_t searchit;
-extern int32_t searchx, searchy;
 extern int16_t searchsector, searchwall, searchstat;
 extern int16_t searchbottomwall, searchisbottom;
 

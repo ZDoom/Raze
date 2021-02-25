@@ -912,11 +912,7 @@ int RunGame()
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
 
-	if (enginePreInit())
-	{
-		I_FatalError("There was a problem initializing the Build engine: %s\n", engineerrstr);
-	}
-
+	enginePreInit();
 	SetupGameButtons();
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
 	gi->app_init();
@@ -1000,11 +996,20 @@ void updatePauseStatus()
 
 void PolymostProcessVoxels(void);
 
+void setVideoMode()
+{
+	xdim = screen->GetWidth();
+	ydim = screen->GetHeight();
+	V_UpdateModeSize(xdim, ydim);
+	videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
+	videoClearScreen(0);
+}
+
 void videoInit()
 {
 	lookups.postLoadLookups();
 	V_Init2();
-	videoSetGameMode(vid_fullscreen, screen->GetWidth(), screen->GetHeight(), 32, 1);
+	setVideoMode();
 
 	PolymostProcessVoxels();
 	GLInterface.Init(screen->GetWidth());

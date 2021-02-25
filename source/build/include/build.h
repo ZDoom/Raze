@@ -229,7 +229,7 @@ EXTERN int16_t thewall[MAXWALLSB];
 EXTERN tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t wx1, wy1, wx2, wy2;
-EXTERN int32_t xdim, ydim, numpages, upscalefactor;
+EXTERN int32_t xdim, ydim;
 EXTERN int32_t yxaspect, viewingrange;
 
 #ifndef GEKKO
@@ -448,7 +448,6 @@ int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
 void vox_deinit();
 
-int32_t   videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daupscaledydim, int32_t dabpp, int32_t daupscalefactor);
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   renderSetAspect(int32_t daxrange, int32_t daaspect);
@@ -463,6 +462,7 @@ void   renderCompleteMirror(void);
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, int16_t dacursectnum);
 
 void   renderDrawMasks(void);
+void setVideoMode();
 void videoInit();
 void   videoClearViewableArea(int32_t dacol);
 void   videoClearScreen(int32_t dacol);

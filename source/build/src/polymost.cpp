@@ -3538,10 +3538,6 @@ _drawsprite_return:
 
 static_assert((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
 
-void polymost_initosdfuncs(void)
-{
-}
-
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 {
     // dapicnum and dapalnum are like you'd expect

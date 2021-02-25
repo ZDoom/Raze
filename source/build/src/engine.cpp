@@ -45,7 +45,7 @@ int32_t r_rorphase = 0;
 int32_t mdtims, omdtims;
 
 float fcosglobalang, fsinglobalang;
-float fxdim, fydim, fydimen, fviewingrange;
+float fydimen, fviewingrange;
 
 uint8_t globalr = 255, globalg = 255, globalb = 255;
 
@@ -82,7 +82,6 @@ static int32_t qradarang[10240];
 
 uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256], ATTRIBUTE((used)) sqrtable_old[2048];
 
-static char kensmessage[128];
 const char *engineerrstr = "No error";
 
 int32_t showfirstwall=0;
@@ -194,7 +193,6 @@ int16_t numscans, numbunches;
 static int16_t numhits;
 
 int16_t searchit;
-int32_t searchx = -1, searchy;                          //search input
 int16_t searchsector, searchwall, searchstat;     //search output
 
 // SEARCHBOTTOMWALL:
@@ -831,8 +829,6 @@ const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, 
 //
 // preinitengine
 //
-static int32_t preinitcalled = 0;
-
 static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];
 static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
 static sectortype sector_s[MAXSECTORS];
@@ -842,17 +838,12 @@ static tspritetype tsprite_s[MAXSPRITESONSCREEN];
 
 int32_t enginePreInit(void)
 {
-	polymost_initosdfuncs();
-
     sector = sector_s;
     wall = wall_s;
     sprite = sprite_s;
     tsprite = tsprite_s;
     spriteext = spriteext_s;
     spritesmooth = spritesmooth_s;
-
-
-    preinitcalled = 1;
     return 0;
 }
 
@@ -862,14 +853,6 @@ int32_t enginePreInit(void)
 //
 int32_t engineInit(void)
 {
-    int32_t i;
-
-    if (!preinitcalled)
-    {
-        i = enginePreInit();
-        if (i) return i;
-    }
-
     if (engineLoadTables())
         return 1;
 
@@ -877,7 +860,7 @@ int32_t engineInit(void)
 
 	voxelmemory.Reset();
 
-    for (i=0; i<MAXTILES; i++)
+    for (int i=0; i<MAXTILES; i++)
         tiletovox[i] = -1;
     for (auto& v : voxscale) v = 65536;
     memset(voxrotate, 0, sizeof(voxrotate));
@@ -1573,8 +1556,8 @@ static void renderFillPolygon(int32_t npoints)
     xtex.Y = ((float)asm2) * (1.f / 4294967296.f);
     ytex.X = ((float)x1) * (1.f / 4294967296.f);
     ytex.Y = ((float)y2) * (-1.f / 4294967296.f);
-    otex.X = (fxdim * xtex.X + fydim * ytex.X) * -0.5f + fglobalposx * (1.f / 4294967296.f);
-    otex.Y = (fxdim * xtex.Y + fydim * ytex.Y) * -0.5f - fglobalposy * (1.f / 4294967296.f);
+    otex.X = (xdim * xtex.X + ydim * ytex.X) * -0.5f + fglobalposx * (1.f / 4294967296.f);
+    otex.Y = (xdim * xtex.Y + ydim * ytex.Y) * -0.5f - fglobalposy * (1.f / 4294967296.f);
     FillPolygon(rx1, ry1, xb1, npoints, globalpicnum, globalpal, globalshade, globalorientation, xtex, ytex, otex, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
 }
 
@@ -1820,43 +1803,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             renderFillPolygon(npoints);
         }
     }
-}
-
-//
-// setgamemode
-//
-// JBF: davidoption now functions as a windowed-mode flag (0 == windowed, 1 == fullscreen)
-int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daupscaledydim, int32_t dabpp, int32_t daupscalefactor)
-{
-    int32_t j;
-
-    if (dabpp != 32) return -1; // block software mode.
-
-    daupscaledxdim = max(320, daupscaledxdim);
-    daupscaledydim = max(200, daupscaledydim);
-
-    strcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
-           "  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
-
-    upscalefactor = 1;
-    xdim = daupscaledxdim;
-    ydim = daupscaledydim;
-	V_UpdateModeSize(xdim, ydim);
-    numpages = 1; // We have only one page, no exceptions.
-
-#ifdef USE_OPENGL
-    fxdim = (float) xdim;
-    fydim = (float) ydim;
-#endif
-
-    j = ydim*4;  //Leave room for horizlookup&horizlookup2
-
-    videoSetViewableArea(0L,0L,xdim-1,ydim-1);
-    videoClearScreen(0L);
-
-    if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
-
-    return 0;
 }
 
 //
