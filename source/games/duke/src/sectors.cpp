@@ -1261,7 +1261,7 @@ void allignwarpelevators(void)
 void moveclouds(double smoothratio)
 {
 	// The math here is very messy.. :(
-	int myclock = smoothratio < 32768? ud.levelclock-2 : ud.levelclock;
+	int myclock = smoothratio < 32768? PlayClock-2 : PlayClock;
 	if (myclock > cloudclock || myclock < (cloudclock - 7))
 	{
 		cloudclock = myclock + 6;

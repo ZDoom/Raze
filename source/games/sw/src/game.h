@@ -839,7 +839,6 @@ struct PLAYERstruct
     SPRITEp hi_sp, lo_sp;
 
     SPRITEp last_camera_sp;
-    int camera_dist; // view mode dist
     int circle_camera_dist;
     int six,siy,siz; // save player interp position for PlayerSprite
     short siang;
@@ -2196,7 +2195,6 @@ void InitFonts();
 int32_t registerosdcommands(void);
 void SW_InitMultiPsky(void);
 
-extern int PlayClock;
 extern short LevelSecrets;
 extern short TotalKillable;
 extern int OrigCommPlayers;
@@ -2253,6 +2251,9 @@ struct GameInterface : ::GameInterface
     void WarpToCoords(int x, int y, int z, int a, int h) override;
     void ToggleThirdPerson() override;
     void SwitchCoopView() override;
+    int chaseCamX(binangle ang) { return -ang.bcos(-3); }
+    int chaseCamY(binangle ang) { return -ang.bsin(-3); }
+    int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() >> 8; }
 
 
     GameStats getStats() override;

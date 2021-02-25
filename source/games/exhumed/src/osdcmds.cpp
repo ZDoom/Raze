@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "input.h"
 #include "cheathandler.h"
 #include "gamestate.h"
+#include "gamefuncs.h"
 #include "mmulti.h"
 
 BEGIN_PS_NS
@@ -108,6 +109,8 @@ void GameInterface::ToggleThirdPerson()
         if (bCamera)
         {
             GrabPalette();
+            cameradist = 0;
+            cameraclock = INT_MIN;
         }
     }
 }

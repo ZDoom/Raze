@@ -456,7 +456,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         else if (type == SOURCE_Swirly)
         {
             int which = *(int*)source;
-            float phase = (leveltime << (6 + which)) * BAngRadian;
+            float phase = (PlayClock << (4 + which)) * BAngRadian;
             pos->X = fcampos.X + 256 * cos(phase);
             pos->Z = fcampos.Z + 256 * sin(phase);
         }

@@ -535,7 +535,8 @@ void G_ReadConfig(const char* game)
 	// Process automatically executed files
 	FExecList *exec;
 	FArgs *execFiles = new FArgs;
-	GameConfig->AddAutoexec(execFiles, game);
+	if (!(Args->CheckParm("-noautoexec")))
+		GameConfig->AddAutoexec(execFiles, game);
 	exec = D_MultiExec(execFiles, NULL);
 	delete execFiles;
 

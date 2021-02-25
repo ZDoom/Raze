@@ -240,4 +240,5 @@ extern int chatmodeon;
 extern bool sendPause;
 extern int lastTic;
 
+extern int PlayClock;
 

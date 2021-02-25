@@ -38,6 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "mytypes.h"
 #include "gamecontrol.h"
+#include "gamefuncs.h"
 #include "network.h"
 #include "pal.h"
 #include "player.h"
@@ -925,133 +926,6 @@ post_analyzesprites(void)
 }
 #endif
 
-
-bool
-BackView(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16horiz)
-{
-    vec3_t n = { *nx, *ny, *nz };
-    SPRITEp sp;
-    hitdata_t hitinfo;
-    int i, vx, vy, vz, hx, hy;
-    short bakcstat, daang;
-    PLAYERp pp = &Player[screenpeek];
-    short ang;
-
-    ASSERT(*vsect >= 0 && *vsect < MAXSECTORS);
-
-    ang = nang->asbuild() + pp->view_outside_dang;
-
-    // Calculate the vector (nx,ny,nz) to shoot backwards
-    vx = -bcos(ang, -3);
-    vy = -bsin(ang, -3);
-    vz = q16horiz >> 8;
-
-    // Player sprite of current view
-    sp = &sprite[pp->PlayerSprite];
-
-    bakcstat = sp->cstat;
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-
-    // Make sure sector passed to FAFhitscan is correct
-    //COVERupdatesector(*nx, *ny, vsect);
-
-    hitscan(&n, *vsect, vx, vy, vz,
-            &hitinfo, CLIPMASK_PLAYER);
-
-    if (*vsect < 0)
-    {
-        sp->cstat = bakcstat;
-        return false;
-    }
-
-    ASSERT(*vsect >= 0 && *vsect < MAXSECTORS);
-
-    sp->cstat = bakcstat;              // Restore cstat
-
-    hx = hitinfo.pos.x - (*nx);
-    hy = hitinfo.pos.y - (*ny);
-
-    // If something is in the way, make pp->camera_dist lower if necessary
-    if (abs(vx) + abs(vy) > abs(hx) + abs(hy))
-    {
-        if (hitinfo.wall >= 0)               // Push you a little bit off the wall
-        {
-            *vsect = hitinfo.sect;
-
-            daang = getangle(wall[wall[hitinfo.wall].point2].x - wall[hitinfo.wall].x,
-                             wall[wall[hitinfo.wall].point2].y - wall[hitinfo.wall].y);
-
-            i = vx * bsin(daang) + vy * -bcos(daang);
-            if (abs(vx) > abs(vy))
-                hx -= MulScale(vx, i, 28);
-            else
-                hy -= MulScale(vy, i, 28);
-        }
-        else if (hitinfo.sprite < 0)        // Push you off the ceiling/floor
-        {
-            *vsect = hitinfo.sect;
-
-            if (abs(vx) > abs(vy))
-                hx -= (vx >> 5);
-            else
-                hy -= (vy >> 5);
-        }
-        else
-        {
-            SPRITEp hsp = &sprite[hitinfo.sprite];
-            int flag_backup;
-
-            // if you hit a sprite that's not a wall sprite - try again
-            if (!TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
-            {
-                flag_backup = hsp->cstat;
-                RESET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-                ASSERT(*vsect >= 0 && *vsect < MAXSECTORS);
-                BackView(nx, ny, nz, vsect, nang, q16horiz);
-                hsp->cstat = flag_backup;
-                return false;
-            }
-            else
-            {
-                // same as wall calculation
-                daang = NORM_ANGLE(sp->ang-512);
-
-                i = vx * bsin(daang) + vy * -bcos(daang);
-                if (abs(vx) > abs(vy))
-                    hx -= MulScale(vx, i, 28);
-                else
-                    hy -= MulScale(vy, i, 28);
-            }
-
-        }
-
-        if (abs(vx) > abs(vy))
-            i = IntToFixed(hx) / vx;
-        else
-            i = IntToFixed(hy) / vy;
-
-        if (i < pp->camera_dist)
-            pp->camera_dist = i;
-    }
-
-    // Actually move you!  (Camerdist is 65536 if nothing is in the way)
-    *nx = (*nx) + MulScale(vx, pp->camera_dist, 16);
-    *ny = (*ny) + MulScale(vy, pp->camera_dist, 16);
-    *nz = (*nz) + MulScale(vz, pp->camera_dist, 16);
-
-    // Slowly increase pp->camera_dist until it reaches 65536
-    // Synctics is a timer variable so it increases the same rate
-    // on all speed computers
-    pp->camera_dist = min(pp->camera_dist + (3 << 10), 65536);
-    //pp->camera_dist = min(pp->camera_dist + (synctics << 10), 65536);
-
-    // Make sure vsect is correct
-    updatesectorz(*nx, *ny, *nz, vsect);
-
-    *nang += buildang(pp->view_outside_dang);
-    return true;
-}
-
 void
 CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16horiz)
 {
@@ -1705,10 +1579,10 @@ drawscreen(PLAYERp pp, double smoothratio)
     {
         tz -= 8448;
         
-        if (!BackView(&tx, &ty, &tz, &tsectnum, &tang, thoriz.asq16()))
+        if (!calcChaseCamPos(&tx, &ty, &tz, &sprite[pp->PlayerSprite], &tsectnum, tang, thoriz, smoothratio))
         {
             tz += 8448;
-            BackView(&tx, &ty, &tz, &tsectnum, &tang, thoriz.asq16());
+            calcChaseCamPos(&tx, &ty, &tz, &sprite[pp->PlayerSprite], &tsectnum, tang, thoriz, smoothratio);
         }
     }
     else

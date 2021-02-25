@@ -154,6 +154,8 @@ bool pausedWithKey;
 
 bool gamesetinput = false;
 
+int PlayClock;
+
 CUSTOM_CVAR(Int, cl_gender, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
 	if (self < 0 || self > 3) self = 0;

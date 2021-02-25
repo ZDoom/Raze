@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-extern int gFrameClock;
 extern int gFrameCount;
 
 enum { MAXPLAYERNAME = 16 };

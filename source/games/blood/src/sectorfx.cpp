@@ -163,7 +163,7 @@ void DoSectorLighting(void)
             {
                 t2 = MulScale(t2, pXSector->busy, 16);
             }
-            int v4 = GetWaveValue(t1, pXSector->phase*8+pXSector->freq*gFrameClock, t2);
+            int v4 = GetWaveValue(t1, pXSector->phase*8+pXSector->freq*PlayClock, t2);
             if (pXSector->shadeFloor)
             {
                 sector[nSector].floorshade = ClipRange(sector[nSector].floorshade+v4, -128, 127);

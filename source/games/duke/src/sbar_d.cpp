@@ -158,7 +158,7 @@ public:
 		imgScale = baseScale / img->GetDisplayHeight();
 		DrawGraphic(img, 2, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
-		if (!althud_flashing || p->last_extra > (gs.max_player_health >> 2) || (ud.levelclock & 32) || (p->GetActor()->s.pal == 1 && p->last_extra < 2))
+		if (!althud_flashing || p->last_extra > (gs.max_player_health >> 2) || (PlayClock & 32) || (p->GetActor()->s.pal == 1 && p->last_extra < 2))
 		{
 			int s = -8;
 			if (althud_flashing && p->last_extra > gs.max_player_health)
@@ -207,7 +207,7 @@ public:
 				imgX += (imgX * 0.6) * (strlen - 1);
 			}
 
-			if (weapon != KNEE_WEAPON && (!althud_flashing || ud.levelclock & 32 || ammo > (gs.max_ammo_amount[weapon] / 10)))
+			if (weapon != KNEE_WEAPON && (!althud_flashing || PlayClock & 32 || ammo > (gs.max_ammo_amount[weapon] / 10)))
 			{
 				SBar_DrawString(this, numberFont, format, -3, texty, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 			}

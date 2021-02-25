@@ -133,7 +133,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         for (int i = 0; i < 16; i++)
         {
             auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
-            int ang = (gFrameClock*2048)/120;
+            int ang = (PlayClock*2048)/120;
             int nRand1 = dword_172CE0[i][0];
             int nRand2 = dword_172CE0[i][1];
             int nRand3 = dword_172CE0[i][2];
@@ -432,7 +432,7 @@ static void viewApplyDefaultPal(tspritetype *pTSprite, sectortype const *pSector
 void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smoothratio)
 {
 	// shift before interpolating to increase precision.
-	int myclock = (gFrameClock<<3) + MulScale(4<<3, smoothratio, 16);
+	int myclock = (PlayClock<<3) + MulScale(4<<3, smoothratio, 16);
     assert(spritesortcnt <= maxspritesonscreen);
     gCameraAng = cA;
     int nViewSprites = spritesortcnt;

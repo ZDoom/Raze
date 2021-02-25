@@ -148,7 +148,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 		case SECTOREFFECTOR:
 			if (t->lotag == 27 && ud.recstat == 1)
 			{
-				t->picnum = 11 + ((ud.levelclock >> 3) & 1);
+				t->picnum = 11 + ((PlayClock >> 3) & 1);
 				t->cstat |= 128;
 			}
 			else
@@ -183,7 +183,7 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 		case RESPAWNMARKERRED:
 		case RESPAWNMARKERYELLOW:
 		case RESPAWNMARKERGREEN:
-			t->picnum = 861 + ((ud.levelclock >> 4) & 13);
+			t->picnum = 861 + ((PlayClock >> 4) & 13);
 			if (s->picnum == RESPAWNMARKERRED)
 				t->pal = 0;
 			else if (s->picnum == RESPAWNMARKERYELLOW)
@@ -250,21 +250,21 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			t->z -= (4 << 8);
 			break;
 		case CRYSTALAMMO:
-			t->shade = bsin(ud.levelclock << 4, -10);
+			t->shade = bsin(PlayClock << 4, -10);
 			break;
 		case SHRINKSPARK:
 			if (Owner && (Owner->picnum == CHEER || Owner->picnum == CHEERSTAYPUT) && isRRRA())
 			{
-				t->picnum = CHEERBLADE + ((ud.levelclock >> 4) & 3);
+				t->picnum = CHEERBLADE + ((PlayClock >> 4) & 3);
 				t->shade = -127;
 			}
 			else
-				t->picnum = SHRINKSPARK + ((ud.levelclock >> 4) & 7);
+				t->picnum = SHRINKSPARK + ((PlayClock >> 4) & 7);
 			break;
 		case CHEERBOMB:
 			if (isRRRA())
 			{
-				t->picnum = CHEERBOMB + ((ud.levelclock >> 4) & 3);
+				t->picnum = CHEERBOMB + ((PlayClock >> 4) & 3);
 				break;
 			}
 			else goto default_case;
@@ -272,10 +272,10 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			if (isRRRA() && Owner)
 			{
 				if (Owner->picnum == MINION && Owner->pal == 8)
-					t->picnum = RRTILE3500 + ((ud.levelclock >> 4) % 6);
+					t->picnum = RRTILE3500 + ((PlayClock >> 4) % 6);
 				else if (Owner->picnum == MINION && Owner->pal == 19)
 				{
-					t->picnum = RRTILE5090 + ((ud.levelclock >> 4) & 3);
+					t->picnum = RRTILE5090 + ((PlayClock >> 4) & 3);
 					t->shade = -127;
 				}
 				else if (Owner->picnum == MAMA)
@@ -291,10 +291,10 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 					t->picnum = RRTILE7274 + k;
 				}
 				else
-					t->picnum = SPIT + ((ud.levelclock >> 4) & 3);
+					t->picnum = SPIT + ((PlayClock >> 4) & 3);
 			}
 			else
-				t->picnum = SPIT + ((ud.levelclock >> 4) & 3);
+				t->picnum = SPIT + ((PlayClock >> 4) & 3);
 			break;
 		case EMPTYBIKE:
 			if (!isRRRA()) goto default_case;
@@ -803,12 +803,12 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 			if (t->picnum == EXPLOSION2)
 			{
 				ps[screenpeek].visibility = -127;
-				lastvisinc = ud.levelclock + 32;
+				lastvisinc = PlayClock + 32;
 				t->pal = 0;
 			}
 			else if (t->picnum == FIRELASER)
 			{
-				t->picnum = FIRELASER + ((ud.levelclock >> 2) & 5);
+				t->picnum = FIRELASER + ((PlayClock >> 2) & 5);
 			}
 			t->shade = -127;
 			break;
@@ -904,11 +904,11 @@ void animatesprites_r(int x, int y, int a, int smoothratio)
 				t->shade = -127;
 			break;
 		case RRTILE2034:
-			t->picnum = RRTILE2034 + ((ud.levelclock >> 2) & 1);
+			t->picnum = RRTILE2034 + ((PlayClock >> 2) & 1);
 			break;
 		case RRTILE2944:
 			t->shade = -127;
-			t->picnum = RRTILE2944 + ((ud.levelclock >> 2) & 4);
+			t->picnum = RRTILE2944 + ((PlayClock >> 2) & 4);
 			break;
 		case PLAYERONWATER:
 

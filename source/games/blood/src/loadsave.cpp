@@ -624,7 +624,7 @@ void SerializeState(FSerializer& arc)
 
 		arc.Array("sector_filler", qsector_filler, numsectors)
 			("visibility", gVisibility)
-			("frameclock", gFrameClock)
+			("frameclock", PlayClock)
 			("framecount", gFrameCount)
 			.Array("basewall", baseWall, numwalls)
 			.SparseArray("basesprite", baseSprite, kMaxSprites, activeSprites)
