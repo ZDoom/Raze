@@ -4349,7 +4349,7 @@ void handle_se21(DDukeActor* actor)
 
 	if (sc->extra == 0)
 	{
-		lp += s->zvel;
+		*lp += s->zvel;
 
 		if (abs(*lp - s->z) < 1024)
 		{
