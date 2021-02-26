@@ -454,6 +454,7 @@ int BuildQueenEgg(short nQueen, int nVal)
     sprite[nSprite2].shade = -12;
     sprite[nSprite2].picnum = 1;
     sprite[nSprite2].ang = (RandomSize(9) + (nAngle - 256)) & kAngleMask;
+    sprite[nSprite2].backuppos();
 
     if (!nVal)
     {

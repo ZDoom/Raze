@@ -122,7 +122,6 @@ struct PANEL_SPRITEstruct
     short picndx;                       // for pip stuff in conpic.h
     short picnum;                       // bypass pip stuff in conpic.h
     short vel, vel_adj;
-    short numpages;
     int xorig, yorig, flags, priority;
     int scale;
     int jump_speed, jump_grav;         // jumping vars

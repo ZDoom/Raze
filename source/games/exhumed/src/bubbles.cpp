@@ -146,6 +146,7 @@ int BuildBubble(int x, int y, int z, short nSector)
     sprite[nSprite].hitag = -1;
     sprite[nSprite].extra = -1;
     sprite[nSprite].lotag = runlist_HeadRun() + 1;
+    sprite[nSprite].backuppos();
 
 //	GrabTimeSlot(3);
 

@@ -118,6 +118,7 @@ int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, 
     sprite[nSprite].xvel = 0;
     sprite[nSprite].yvel = 0;
     sprite[nSprite].zvel = 0;
+    sprite[nSprite].backuppos();
 
     // CHECKME - where is hitag set otherwise?
     if (sprite[nSprite].statnum < 900) {

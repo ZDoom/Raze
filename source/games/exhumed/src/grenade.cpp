@@ -188,6 +188,7 @@ int BuildGrenade(int nPlayer)
     sprite[nSprite].hitag = 0;
     sprite[nSprite].lotag = runlist_HeadRun() + 1;
     sprite[nSprite].extra = -1;
+    sprite[nSprite].backuppos();
 
 //	GrabTimeSlot(3);
 

@@ -157,7 +157,7 @@ int32_t handleevents(void)
 	// change the view size if needed
 	if (setsizeneeded)
 	{
-		videoSetGameMode(vid_fullscreen, SCREENWIDTH, SCREENHEIGHT, 32, 1);
+		setVideoMode();
 		setViewport(hud_size);
 		setsizeneeded = false;
 	}

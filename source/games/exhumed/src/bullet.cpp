@@ -691,6 +691,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     pBullet->field_8 = runlist_AddRunRec(NewRun, nBullet | 0xB0000);
     pBullet->field_13 = val3;
     sprite[nBulletSprite].z += val1;
+    sprite[nBulletSprite].backuppos();
 
     int var_18;
 
