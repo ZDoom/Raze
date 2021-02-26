@@ -117,14 +117,17 @@ FImageSource *PNGImage_TryCreate(FileReader & data, int lumpnum)
 
 	if (compression != 0 || filter != 0 || interlace > 1)
 	{
+		Printf(TEXTCOLOR_YELLOW"WARNING: failed to load PNG %s: the compression, filter, or interlace is not supported!\n", fileSystem.GetFileFullName(lumpnum));
 		return NULL;
 	}
 	if (!((1 << colortype) & 0x5D))
 	{
+		Printf(TEXTCOLOR_YELLOW"WARNING: failed to load PNG %s: the colortype (%u) is not supported!\n", fileSystem.GetFileFullName(lumpnum), colortype);
 		return NULL;
 	}
 	if (!((1 << bitdepth) & 0x116))
 	{
+		Printf(TEXTCOLOR_YELLOW"WARNING: failed to load PNG %s: the bit-depth (%u) is not supported!\n", fileSystem.GetFileFullName(lumpnum), bitdepth);
 		return NULL;
 	}
 
@@ -133,9 +136,9 @@ FImageSource *PNGImage_TryCreate(FileReader & data, int lumpnum)
 	data.Read (first4bytes.b, 4);
 	if (first4bytes.dw == 0)
 	{
-		data.Read (first4bytes.b, 4);
-		if (first4bytes.dw == MAKE_ID('I','E','N','D'))
+		if (data.Read(first4bytes.b, 4) != 4 || first4bytes.dw == MAKE_ID('I','E','N','D'))
 		{
+			Printf(TEXTCOLOR_YELLOW"WARNING: failed to load PNG %s: the file ends immediately after the IHDR.\n", fileSystem.GetFileFullName(lumpnum));
 			return NULL;
 		}
 	}
