@@ -1117,6 +1117,7 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
     sprite[nSprite].x = wall[nStartWall].x;
     sprite[nSprite].y = wall[nStartWall].y;
     sprite[nSprite].z = sector[nSector].floorz;
+    sprite[nSprite].backuppos();
 
     SlideData[nSlide].field_8a = 0;
 
@@ -1363,6 +1364,8 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
         ecx++;
         nWall++;
     }
+    sprite[nSprite].backuppos();
+
 }
 
 void FuncTrap(int a, int, int nRun)
@@ -1545,6 +1548,7 @@ int BuildSpark(int nSprite, int nVal)
     spr->lotag = runlist_HeadRun() + 1;
     spr->clipdist = 1;
     spr->hitag = 0;
+    spr->backuppos();
 
 //	GrabTimeSlot(3);
 
@@ -1754,6 +1758,7 @@ int BuildEnergyBlock(short nSector)
     spr->lotag = runlist_HeadRun() + 1;
     spr->hitag = 0;
     spr->owner = runlist_AddRunRec(spr->lotag - 1, nSprite | 0x250000);
+    spr->backuppos();
 
     nEnergyBlocks++;
 
@@ -2025,6 +2030,7 @@ int BuildObject(int const nSprite, int nOjectType, int nHitag)
             ObjectList[nObject].field_10 = -nHitag;
         }
     }
+    spr->backuppos();
 
     return nObject | 0x170000;
 }

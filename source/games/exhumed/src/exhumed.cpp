@@ -566,6 +566,7 @@ void mydeletesprite(int nSprite)
     soundEngine->RelinkSound(SOURCE_Actor, &sprite[nSprite], nullptr, &pos);
 
     deletesprite(nSprite);
+    sprite[nSprite].ox = 0x80000000;
 
     if (nSprite == besttarget) {
         besttarget = -1;

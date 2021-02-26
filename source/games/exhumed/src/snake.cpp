@@ -225,6 +225,7 @@ int BuildSnake(short nPlayer, short zVal)
             sprite[nSprite].hitag = 0;
             sprite[nSprite].extra = -1;
             sprite[nSprite].lotag = runlist_HeadRun() + 1;
+            sprite[nSprite].backuppos();
 
             SnakeList[nSnake].nSprites[i] = nSprite;
 
