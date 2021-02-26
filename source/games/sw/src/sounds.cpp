@@ -946,7 +946,7 @@ int PlayerYellVocs[] =
 bool PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track, bool isThemeTrack) //(nullptr, nullptr, -1, false) starts the normal level music.
 {
     // Play  CD audio if enabled.
-    if (cdaudio_track >= 0 && (mus_redbook || *song_file_name == 0))
+    if (cdaudio_track >= 0 && (mus_redbook || !song_file_name || *song_file_name == 0))
     {
         FStringf trackname("track%02d.ogg", cdaudio_track);
         if (!Mus_Play(mapname, trackname, true))
@@ -954,6 +954,10 @@ bool PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track
             Printf("Can't find CD track %i!\n", cdaudio_track);
         }
         else return true;
+    }
+    if (!song_file_name || *song_file_name == 0)
+    {
+        return true;
     }
     if (!Mus_Play(mapname, song_file_name, true))
     {
