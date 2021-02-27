@@ -228,25 +228,8 @@ EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN int16_t thewall[MAXWALLSB];
 EXTERN tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 
-EXTERN int32_t wx1, wy1, wx2, wy2;
 EXTERN int32_t xdim, ydim;
 EXTERN int32_t yxaspect, viewingrange;
-
-#ifndef GEKKO
-#define MAXVALIDMODES 256
-#else
-#define MAXVALIDMODES 16
-#endif
-EXTERN int32_t validmodecnt;
-struct validmode_t {
-    int32_t xdim,ydim;
-    char bpp;
-    char fs;    // bit 0 = fullscreen flag
-    char filler[2];
-    int32_t extra; // internal use
-};
-EXTERN struct validmode_t validmode[MAXVALIDMODES];
-
 
 EXTERN int32_t Numsprites;
 EXTERN int16_t numsectors, numwalls;
