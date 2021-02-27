@@ -68,9 +68,6 @@ short nDigit[3];
 short nItemFrame;
 short nMeterRange;
 
-short statusx;
-short statusy;
-
 short airframe;
 
 int16_t nFirstAnim;
@@ -148,8 +145,6 @@ void InitStatus()
     nLastAnim = -1;
     nFirstAnim = -1;
     nItemSeq = -1;
-    statusx = xdim - 320;
-    statusy = ydim - 200;
 }
 
 int ItemTimer(int num, int plr) 
@@ -1037,8 +1032,6 @@ void SerializeStatus(FSerializer& arc)
             ("magiclevel", nMagicLevel)
             ("healthframe", nHealthFrame)
             ("magicframe", nMagicFrame)
-            ("statusx", statusx)
-            ("statusy", statusy)
             ("airframe", airframe)
             ("firstanim", nFirstAnim)
             ("lastanim", nLastAnim)
