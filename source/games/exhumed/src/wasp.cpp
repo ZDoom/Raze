@@ -212,7 +212,7 @@ void FuncWasp(int a, int nDamage, int nRun)
 
             if (WaspList[nWasp].nHealth > 0)
             {
-                WaspList[nWasp].nHealth -= nDamage;
+                WaspList[nWasp].nHealth -= dmgAdjust(nDamage, 3);
 
                 if (WaspList[nWasp].nHealth > 0)
                 {

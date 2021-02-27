@@ -247,7 +247,7 @@ void FuncLava(int a, int nDamage, int nRun)
                 return;
             }
 
-            LavaList[nLava].nHealth -= nDamage;
+            LavaList[nLava].nHealth -= dmgAdjust(nDamage, 3);
 
             if (LavaList[nLava].nHealth <= 0)
             {

@@ -179,7 +179,7 @@ void FuncRex(int a, int nDamage, int nRun)
 
                 if (RexList[nRex].nAction == 5 && RexList[nRex].nHealth > 0)
                 {
-                    RexList[nRex].nHealth -= nDamage;
+                    RexList[nRex].nHealth -= dmgAdjust(nDamage);
 
                     if (RexList[nRex].nHealth <= 0)
                     {  

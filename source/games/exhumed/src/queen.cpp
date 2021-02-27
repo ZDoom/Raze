@@ -1500,7 +1500,7 @@ void FuncQueen(int a, int nDamage, int nRun)
         {
             if (QueenList[nQueen].nHealth > 0)
             {
-                QueenList[nQueen].nHealth -= nDamage;
+                QueenList[nQueen].nHealth -= dmgAdjust(nDamage);
 
                 if (QueenList[nQueen].nHealth <= 0)
                 {

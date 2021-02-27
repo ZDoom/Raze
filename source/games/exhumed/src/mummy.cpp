@@ -498,7 +498,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                 return;
             }
 
-            MummyList[nMummy].nHealth -= nDamage;
+            MummyList[nMummy].nHealth -= dmgAdjust(nDamage);
 
             if (MummyList[nMummy].nHealth <= 0)
             {

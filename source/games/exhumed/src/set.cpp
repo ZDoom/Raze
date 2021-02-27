@@ -269,7 +269,7 @@ void FuncSet(int a, int nDamage, int nRun)
             {
                 if (nAction != 1)
                 {
-                    SetList[nSet].nHealth -= nDamage;
+                    SetList[nSet].nHealth -= dmgAdjust(nDamage);
                 }
 
                 if (SetList[nSet].nHealth <= 0)

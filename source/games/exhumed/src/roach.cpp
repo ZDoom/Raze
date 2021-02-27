@@ -189,7 +189,7 @@ void FuncRoach(int a, int nDamage, int nRun)
                     return;
                 }
 
-                RoachList[nRoach].nHealth -= nDamage;
+                RoachList[nRoach].nHealth -= dmgAdjust(nDamage);
                 if (RoachList[nRoach].nHealth <= 0)
                 {
                     sprite[nSprite].xvel = 0;

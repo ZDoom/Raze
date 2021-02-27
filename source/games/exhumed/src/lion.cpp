@@ -175,7 +175,7 @@ void FuncLion(int a, int nDamage, int nRun)
         {
             if (nDamage && LionList[nLion].nHealth > 0)
             {
-                LionList[nLion].nHealth -= nDamage;
+                LionList[nLion].nHealth -= dmgAdjust(nDamage);
                 if (LionList[nLion].nHealth <= 0)
                 {
                     // R.I.P.
@@ -296,7 +296,7 @@ void FuncLion(int a, int nDamage, int nRun)
                         }
                     }
 
-                    if (nAction)
+                    if (nAction && !easy())
                     {
                         LionList[nLion].nCount--;
                         if (LionList[nLion].nCount <= 0)
