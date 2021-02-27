@@ -1544,6 +1544,9 @@ void FillPolygon(int* rx1, int* ry1, int* xb1, int32_t npoints, int picnum, int 
 //
 static void renderFillPolygon(int32_t npoints)
 {
+    int width = screen->GetWidth();
+    int height = screen->GetHeight();
+
     // fix for bad next-point (xb1) values...
     for (int z = 0; z < npoints; z++)
         if ((unsigned)xb1[z] >= (unsigned)npoints)
@@ -1556,8 +1559,8 @@ static void renderFillPolygon(int32_t npoints)
     xtex.Y = ((float)asm2) * (1.f / 4294967296.f);
     ytex.X = ((float)x1) * (1.f / 4294967296.f);
     ytex.Y = ((float)y2) * (-1.f / 4294967296.f);
-    otex.X = (xdim * xtex.X + ydim * ytex.X) * -0.5f + fglobalposx * (1.f / 4294967296.f);
-    otex.Y = (xdim * xtex.Y + ydim * ytex.Y) * -0.5f - fglobalposy * (1.f / 4294967296.f);
+    otex.X = (width * xtex.X + height * ytex.X) * -0.5f + fglobalposx * (1.f / 4294967296.f);
+    otex.Y = (width * xtex.Y + height * ytex.Y) * -0.5f - fglobalposy * (1.f / 4294967296.f);
     FillPolygon(rx1, ry1, xb1, npoints, globalpicnum, globalpal, globalshade, globalorientation, xtex, ytex, otex, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
 }
 
@@ -1569,6 +1572,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     int32_t i, j, k, l;
     int32_t x, y;
     int32_t s, ox, oy;
+    int width = screen->GetWidth();
+    int height = screen->GetHeight();
 
     int32_t const oyxaspect = yxaspect, oviewingrange = viewingrange;
 
@@ -1605,8 +1610,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 //wall[k].y wal->y wall[wal->point2].y
                 if (!DMulScale(wal->x-wall[k].x,wall[wal->point2].y-wal->y,-(wal->y-wall[k].y),wall[wal->point2].x-wal->x, 1)) continue;
                 ox = wal->x - dax; oy = wal->y - day;
-                x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (xdim<<11);
-                y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (ydim<<11);
+                x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (width<<11);
+                y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (height<<11);
                 i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
                 rx1[npoints] = x;
                 ry1[npoints] = y;
@@ -1615,7 +1620,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             }
             if (npoints > 0) xb1[npoints-1] = l; //overwrite point2
 
-            vec2_t bak = { rx1[0], MulScale(ry1[0]-(ydim<<11),xyaspect, 16)+(ydim<<11) };
+            vec2_t bak = { rx1[0], MulScale(ry1[0]-(height<<11),xyaspect, 16)+(height<<11) };
 
 
             //Collect floor sprites to draw
@@ -1660,7 +1665,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 i = 1048576/i;
                 globalx1 = MulScale(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i, 10);
                 globaly1 = MulScale(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i, 10);
-                ox = (bak.x>>4)-(xdim<<7); oy = (bak.y>>4)-(ydim<<7);
+                ox = (bak.x>>4)-(width<<7); oy = (bak.y>>4)-(height<<7);
                 globalposx = DMulScale(-oy, globalx1, -ox, globaly1, 28);
                 globalposy = DMulScale(-ox, globalx1, oy, globaly1, 28);
                 globalx2 = -globalx1;
@@ -1730,20 +1735,20 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             i = 0;
 
             ox = v1.x - dax; oy = v1.y - day;
-            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (xdim<<11);
-            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (ydim<<11);
+            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (width<<11);
+            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (height<<11);
             i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
             rx1[0] = x; ry1[0] = y;
 
             ox = v2.x - dax; oy = v2.y - day;
-            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (xdim<<11);
-            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (ydim<<11);
+            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (width<<11);
+            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (height<<11);
             i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
             rx1[1] = x; ry1[1] = y;
 
             ox = v3.x - dax; oy = v3.y - day;
-            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (xdim<<11);
-            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (ydim<<11);
+            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (width<<11);
+            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (height<<11);
             i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
             rx1[2] = x; ry1[2] = y;
 
@@ -1753,7 +1758,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             rx1[3] = x; ry1[3] = y;
 
 
-            vec2_t bak = { rx1[0], MulScale(ry1[0] - (ydim << 11), xyaspect, 16) + (ydim << 11) };
+            vec2_t bak = { rx1[0], MulScale(ry1[0] - (height << 11), xyaspect, 16) + (height << 11) };
 
 
             globalpicnum = spr->picnum;
@@ -1788,7 +1793,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 globaly1 = MulScale(globaly1,xspan,ox);
             }
 
-            bak.x = (bak.x>>4)-(xdim<<7); bak.y = (bak.y>>4)-(ydim<<7);
+            bak.x = (bak.x>>4)-(width<<7); bak.y = (bak.y>>4)-(height<<7);
             globalposx = DMulScale(-bak.y,globalx1,-bak.x,globaly1, 28);
             globalposy = DMulScale(bak.x,globalx2,-bak.y,globaly2, 28);
 
