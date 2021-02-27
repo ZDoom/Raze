@@ -631,7 +631,7 @@ private:
         }
         drawInventory(pPlayer, 166, 200 - tileHeight(2200));
         // Depending on the scale we can lower the stats display. This needs some tweaking but this catches the important default case already.
-        PrintLevelStats(pPlayer, (hud_statscale <= 0.501f || hud_scalefactor < 0.7) && double(xdim)/ydim > 1.6? 28 : 56);
+        PrintLevelStats(pPlayer, (hud_statscale <= 0.501f || hud_scalefactor < 0.7) && double(twod->GetWidth())/twod->GetHeight() > 1.6? 28 : 56);
 
     }
 
@@ -842,11 +842,13 @@ IMPLEMENT_CLASS(DBloodStatusBar, false, false)
 static void UpdateFrame(void)
 {
     auto tex = tileGetTexture(kBackTile);
+    int width = twod->GetWidth();
+    int height = twod->GetHeight();
 
-    twod->AddFlatFill(0, 0, xdim, windowxy1.y - 3, tex);
-    twod->AddFlatFill(0, windowxy2.y + 4, xdim, ydim, tex);
+    twod->AddFlatFill(0, 0, width, windowxy1.y - 3, tex);
+    twod->AddFlatFill(0, windowxy2.y + 4, width, height, tex);
     twod->AddFlatFill(0, windowxy1.y - 3, windowxy1.x - 3, windowxy2.y + 4, tex);
-    twod->AddFlatFill(windowxy2.x + 4, windowxy1.y - 3, xdim, windowxy2.y + 4, tex);
+    twod->AddFlatFill(windowxy2.x + 4, windowxy1.y - 3, width, windowxy2.y + 4, tex);
 
     twod->AddFlatFill(windowxy1.x - 3, windowxy1.y - 3, windowxy1.x, windowxy2.y + 1, tex, 0, 1, 0xff545454);
     twod->AddFlatFill(windowxy1.x, windowxy1.y - 3, windowxy2.x + 4, windowxy1.y, tex, 0, 1, 0xff545454);
