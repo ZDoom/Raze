@@ -311,13 +311,14 @@ int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
 //
 //===========================================================================
 
-bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick)
+bool PickTexture(FRenderState *state, FGameTexture* tex, int paletteid, TexturePick& pick)
 {
 	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
 
 	int usepalette = paletteid == 0? 0 : GetTranslationType(paletteid) - Translation_Remap;
 	int usepalswap = GetTranslationIndex(paletteid);
-	int TextureType = hw_int_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
+	bool foggy = state && (state->GetFogColor() & 0xffffff);
+	int TextureType = hw_int_useindexedcolortextures && !foggy? TT_INDEXED : TT_TRUECOLOR;
 
 	pick.translation = paletteid;
 	pick.basepalTint = 0xffffff;
@@ -383,12 +384,16 @@ bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flag
 
 	if (tex->GetUseType() == ETextureType::Special) return true;
 
-	if (PickTexture(tex, translation, pick))
+	if (PickTexture(state, tex, translation, pick))
 	{
 		int TextureType = (pick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
 		int lookuppal = pick.translation & 0x7fffffff;
 
-		if (pick.translation & 0x80000000) scaleflags |= CTF_Indexed;
+		if (pick.translation & 0x80000000)
+		{
+			scaleflags |= CTF_Indexed;
+			if (state) state->EnableFog(0);
+		}
 		tex = pick.texture;
 		translation = lookuppal;
 
