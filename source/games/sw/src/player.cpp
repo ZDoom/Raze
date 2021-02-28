@@ -6865,6 +6865,7 @@ MoveSkipSavePos(void)
                     continue;
 
                 sp->backuppos();
+                u->oz = sp->oz;
             }
         }
     }
@@ -6887,6 +6888,7 @@ MoveSkipSavePos(void)
                 if (sp == NULL || u == NULL)
                     continue;
                 sp->backuppos();
+                u->oz = sp->oz;
             }
         }
     }

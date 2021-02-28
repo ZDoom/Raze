@@ -59,18 +59,18 @@ void ReverseVator(short SpriteNum)
     }
 
     // moving toward to OFF pos
-    if (u->z_tgt == sp->oz)
+    if (u->z_tgt == u->oz)
     {
-        if (sp->z == sp->oz)
+        if (sp->z == u->oz)
             u->z_tgt = u->sz;
-        else if (u->sz == sp->oz)
+        else if (u->sz == u->oz)
             u->z_tgt = sp->z;
     }
     else if (u->z_tgt == u->sz)
     {
-        if (sp->z == sp->oz)
+        if (sp->z == u->oz)
             u->z_tgt = sp->z;
-        else if (u->sz == sp->oz)
+        else if (u->sz == u->oz)
             u->z_tgt = u->sz;
     }
 
@@ -530,7 +530,7 @@ int DoVator(short SpriteNum)
         }
 
         // setup to go back to the original z
-        if (*lptr != sp->oz)
+        if (*lptr != u->oz)
         {
             if (u->WaitTics)
                 u->Tics = u->WaitTics;
@@ -539,7 +539,7 @@ int DoVator(short SpriteNum)
     else // if (*lptr == u->z_tgt)
     {
         // if heading for the OFF (original) position and should NOT CRUSH
-        if (TEST_BOOL3(sp) && u->z_tgt == sp->oz)
+        if (TEST_BOOL3(sp) && u->z_tgt == u->oz)
         {
             int i;
             SPRITEp bsp;

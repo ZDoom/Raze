@@ -10158,6 +10158,7 @@ DoRocket(int16_t Weapon)
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
     int dist,a,b,c;
+    auto pos = sp->pos;
 
 
     if ((u->FlagOwner -= ACTORMOVETICS)<=0 && u->spal == 20)
@@ -10211,7 +10212,7 @@ DoRocket(int16_t Weapon)
         short New;
 
         New = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
-                          sp->ox, sp->oy, sp->oz, sp->ang, 100);
+                          pos.x, pos.y, pos.z, sp->ang, 100);
 
         np = &sprite[New];
         nu = User[New];
@@ -11432,10 +11433,6 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop)
     ASSERT(sn < SIZ(sop->sp_num) - 1);
     sop->sp_num[sn] = explosion;
     so_setspriteinterpolation(sop, exp);
-
-    // Place sprite exactly where shoot point is
-    //exp->x = eu->ox = sop->xmid - u->sx;
-    //exp->y = eu->oy = sop->ymid - u->sy;
 
     SET(eu->Flags, TEST(u->Flags, SPR_ON_SO_SECTOR|SPR_SO_ATTACHED));
 

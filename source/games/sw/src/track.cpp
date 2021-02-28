@@ -912,6 +912,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 u->RotNum = 0;
 
                 sp->backuppos();
+                u->oz = sp->oz;
 
                 switch (sp->statnum)
                 {
