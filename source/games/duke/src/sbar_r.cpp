@@ -35,6 +35,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "names_r.h"
 #include "texturemanager.h"
 #include "dukeactor.h"
+#include "v_video.h"
+#include "v_draw.h"
 
 BEGIN_DUKE_NS
 
@@ -411,9 +413,8 @@ public:
 			p->drunkang = 400;
 		}
 		
-		// Todo: These need rotation support which currently does not exist.
-		DrawGraphic(tileGetTexture(GUTMETER), 256, top + 15, DI_ITEM_RELCENTER, 1, -1, -1, scale, scale, 0xffffffff, 0, p->drunkang * (-360. / 2048));
-		DrawGraphic(tileGetTexture(GUTMETER), 292, top + 15, DI_ITEM_RELCENTER, 1, -1, -1, scale, scale, 0xffffffff, 0, p->eatang * (-360. / 2048));
+		DrawRotated(tileGetTexture(GUTMETER), 256, top + 15, DI_ITEM_RELCENTER, p->drunkang * (-360. / 2048), 1, scale, scale, 0xffffffff, 0);
+		DrawRotated(tileGetTexture(GUTMETER), 292, top + 15, DI_ITEM_RELCENTER, p->eatang * (-360. / 2048), 1, scale, scale, 0xffffffff, 0);
 
 		if (p->drink_amt >= 0 && p->drink_amt <= 30)
 		{

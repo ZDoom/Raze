@@ -131,7 +131,7 @@ private:
         int flags = align | ((nStat & RS_CENTERBOTTOM)? DI_ITEM_CENTER_BOTTOM : (nStat & RS_TOPLEFT)? DI_ITEM_LEFT_TOP : DI_ITEM_RELCENTER);
         double alpha = 1.;
         double scale = nScale / 65536.;
-        DrawGraphic(tileGetTexture(nTile, true), x, y, flags, alpha, -1, -1, scale, scale, shadeToLight(nShade), TRANSLATION(Translation_Remap, nPalette), 0, style);
+        DrawGraphic(tileGetTexture(nTile, true), x, y, flags, alpha, -1, -1, scale, scale, shadeToLight(nShade), TRANSLATION(Translation_Remap, nPalette), style);
     }
     void DrawStatMaskedSprite(int nTile, double x, double y, int nShade = 0, int nPalette = 0, unsigned int nStat = 0, int nScale = 65536, int align = DI_SCREEN_AUTO)
     {
@@ -198,7 +198,7 @@ private:
         int bx = scale(MulScale(w, nScale, 16), nMult, nDiv) + x;
         double scale = double(bx - x) / w;
         double sc = nScale / 65536.;
-        DrawGraphic(tileGetTexture(nTile, true), x, y, DI_ITEM_LEFT_TOP, 1., -1, -1, scale*sc, sc, 0xffffffff, 0, 0);
+        DrawGraphic(tileGetTexture(nTile, true), x, y, DI_ITEM_LEFT_TOP, 1., -1, -1, scale*sc, sc, 0xffffffff, 0);
     }
 
 
