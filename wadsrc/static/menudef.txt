@@ -965,6 +965,10 @@ OptionMenu GameplayOptions protected
 	{
 		Option "$PLRMNU_EQUIP", "cl_weaponswitch", "WeapSwitch"
 	}
+	ifgame(Exhumed)
+	{
+	    Option "$PLRMNU_EXHUMEDOLDTURN", "cl_exhumedoldturn", "OnOff"
+	}
 	// StaticText ""
 	// Option "Record Demo", "m_recstat", "OnOff"
 	// Submenu "Cheats" "CheatsMenu
