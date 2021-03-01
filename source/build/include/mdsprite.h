@@ -4,6 +4,7 @@
 #ifdef USE_OPENGL
 #include "palette.h"
 #include "gl_hwtexture.h"
+#include "model_kvx.h"
 
 #if defined(_M_IX86) || defined(_M_AMD64) || defined(__i386) || defined(__x86_64)
 #define SHIFTMOD32(a) (a)
@@ -18,7 +19,8 @@ class FGameTexture;
 
 struct mdmodel_t
 {
-	int32_t mdnum, shadeoff;
+ 
+    int32_t mdnum, shadeoff;
 	float scale, bscale, zadd, yoffset;
 	FGameTexture *texture;
 	
@@ -188,13 +190,10 @@ typedef struct { vert_t v[4]; } voxrect_t;
 
 struct voxmodel_t : public mdmodel_t
 {
-    //VOX specific stuff:
-    voxrect_t *quad; int32_t qcnt, qfacind[7];
-    int32_t *mytex, mytexx, mytexy;
+    FVoxelModel* model = nullptr;
     vec3_t siz;
     vec3f_t piv;
     int32_t is8bit;
-    TMap<int, FGameTexture*> *texIds;
 };
 
 EXTERN mdmodel_t **models;
@@ -210,8 +209,7 @@ EXTERN int32_t nextmodelid;
 EXTERN voxmodel_t *voxmodels[MAXVOXELS];
 
 void voxfree(voxmodel_t *m);
-voxmodel_t *voxload(const char *filnam);
-voxmodel_t *loadkvxfrombuf(const char *buffer, int32_t length);
+voxmodel_t *voxload(int lumpnum);
 int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr);
 
 int      md3postload_polymer(md3model_t* m);

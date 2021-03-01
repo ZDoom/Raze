@@ -101,8 +101,7 @@ void tileProcessGLVoxels(void)
         auto index = fileSystem.FindResource(i, "KVX");
         if (index >= 0)
         {
-            auto data = fileSystem.ReadFile(index);
-            voxmodels[i] = loadkvxfrombuf((const char*)data.GetMem(), data.GetSize());
+            voxmodels[i] = voxload(index);
         }
     }
 }

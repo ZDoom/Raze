@@ -1596,8 +1596,8 @@ static mdmodel_t *mdload(const char *filnam)
     mdmodel_t *vm;
     int32_t i;
 
-    vm = (mdmodel_t *)voxload(filnam);
-    if (vm) return vm;
+    //vm = (mdmodel_t *)voxload(filnam);
+    //if (vm) return vm;
 
     auto fil = fileSystem.OpenFileReader(filnam);
 

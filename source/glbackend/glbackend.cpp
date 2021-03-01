@@ -49,6 +49,7 @@
 #include "hw_renderstate.h"
 #include "hw_cvars.h"
 #include "gamestruct.h"
+#include "gl_models.h"
 
 CVAR(Bool, gl_texture, true, 0)
 
@@ -111,11 +112,28 @@ void GLInstance::DoDraw()
 		lastState.Flags = ~rendercommands[0].StateFlags;	// Force ALL flags to be considered 'changed'.
 		lastState.DepthFunc = INT_MIN;						// Something totally invalid.
 		screen->RenderState()->EnableMultisampling(true);
+		auto& state = *screen->RenderState();
 
 		for (auto& rs : rendercommands)
 		{
-			if (rs.Apply(*screen->RenderState(), lastState))
-				screen->RenderState()->Draw(rs.primtype, rs.vindex, rs.vcount);
+			if (rs.Apply(state, lastState))
+			{
+				if (!rs.model)
+				{
+					state.Draw(rs.primtype, rs.vindex, rs.vcount);
+				}
+				else
+				{
+					FHWModelRenderer mr(*screen->RenderState(), 0);
+					state.SetDepthFunc(DF_LEqual);
+					state.EnableTexture(true);
+					rs.model->BuildVertexBuffer(&mr);
+					mr.SetupFrame(rs.model, rs.mframes[0], rs.mframes[1], rs.mfactor);
+					rs.model->RenderFrame(&mr, rs.mMaterial.mTexture, rs.mframes[0], rs.mframes[1], 0.f, rs.mMaterial.mTranslation);
+					state.SetDepthFunc(DF_Less);
+					state.SetVertexBuffer(screen->mVertexData);
+				}
+			}
 		}
 		renderState.Apply(*screen->RenderState(), lastState);	// apply any pending change before returning.
 		rendercommands.Clear();
