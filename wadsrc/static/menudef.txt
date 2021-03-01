@@ -82,6 +82,7 @@ LISTMENU "MainMenu"
 
 LISTMENU "IngameMenu"
 {
+	Size 320, 200
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		position 160, 55
@@ -152,6 +153,7 @@ LISTMENU "IngameMenu"
 
 LISTMENU "EpisodeMenu"
 {
+	Size 320, 200
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		position 160, 48
@@ -176,6 +178,7 @@ LISTMENU "EpisodeMenu"
 
 LISTMENU "SkillMenu"
 {
+	Size 320, 200
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		position 160, 48
@@ -1719,6 +1722,7 @@ OptionValue "os_isanyof_values"
 /*
 LISTMENU "MultiMenu"
 {
+	Size 320, 200
 	ifgame(Duke, Nam, WW2GI)
 	{
 		position 160, 55, 135
