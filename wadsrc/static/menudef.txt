@@ -1600,7 +1600,6 @@ OptionMenu "MiscOptions" protected
 		StaticText " "
 		Option "$MISCMNU_DARTS",				"sw_darts", "OnOff"
 		Option "$MISCMNU_NINJA",				"sw_ninjahack", "OnOff"
-		Option "$MISCMNU_ALTNUKE",              "cl_swaltnukeinit", "OnOff"
 	}
 	//StaticText " "
 	//Option "$OPTMNU_LANGUAGE", "language", "LanguageOptions" - not ready yet
