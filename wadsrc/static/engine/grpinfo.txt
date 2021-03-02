@@ -595,6 +595,17 @@ grpinfo
 
 grpinfo
 {
+	name "Shadow Warrior: Wanton Destruction (ProAsm)"
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	crc 0x39893EF4
+	size 9562689
+	defname "sw.def"
+	dependency SWREG12_CRC
+	gamefilter "ShadowWarrior.Wanton"
+}
+
+grpinfo
+{
 	name "Shadow Warrior: Twin Dragon"
 	flags GAMEFLAG_SW|GAMEFLAG_ADDON
 	crc SWTD_CRC
