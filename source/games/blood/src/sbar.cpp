@@ -198,7 +198,7 @@ private:
         int bx = scale(MulScale(w, nScale, 16), nMult, nDiv) + x;
         double scale = double(bx - x) / w;
         double sc = nScale / 65536.;
-        DrawGraphic(tileGetTexture(nTile, true), x, y, DI_ITEM_LEFT_TOP, 1., -1, -1, scale*sc, sc, 0xffffffff, 0);
+        DrawGraphic(tileGetTexture(nTile, true), x, y, DI_ITEM_LEFT_TOP, 1., -1, -1, sc, sc, 0xffffffff, 0, STYLE_Translucent, scale);
     }
 
 
