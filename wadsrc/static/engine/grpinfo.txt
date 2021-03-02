@@ -602,6 +602,7 @@ grpinfo
 	defname "sw.def"
 	dependency SWREG12_CRC
 	gamefilter "ShadowWarrior.Wanton"
+	deletecontent "swcustom.txt"	// not localizable and also not present in the alternative packages.
 }
 
 grpinfo
