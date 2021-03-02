@@ -106,7 +106,7 @@ static int32_t LoadMapHack(const char *filename)
         else if (sc.Compare("roll"))
         {
             if (sc.CheckNumber() && validateSprite())
-                spriteext[currentsprite].pitch = (int16_t)sc.Number;
+                spriteext[currentsprite].roll = (int16_t)sc.Number;
         }
         else if (sc.Compare("mdxoff") || sc.Compare("mdpivxoff") || sc.Compare("mdpivotxoff"))
         {
