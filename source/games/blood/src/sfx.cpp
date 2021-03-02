@@ -169,8 +169,11 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
     int pitch = -1;
     int relvol = -1;
     sid = getSfx(sid, attenuation, pitch, relvol);
+    auto sfx = soundEngine->GetSfx(sid);
+    EChanFlags flags = CHANF_OVERLAP;
+    if (sfx && sfx->LoopStart >= 0) flags |= CHANF_LOOP;
   
-    soundEngine->StartSound(SOURCE_Unattached, nullptr, &svec, -1, CHANF_OVERLAP, sid, (0.8f / 80.f) * relvol, attenuation, nullptr, pitch / 65536.f);
+    soundEngine->StartSound(SOURCE_Unattached, nullptr, &svec, -1, flags, sid, (0.8f / 80.f) * relvol, attenuation, nullptr, pitch / 65536.f);
 
 }
 
@@ -213,7 +216,11 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
 
     }
 
-    soundEngine->StartSound(SOURCE_Actor, pSprite, &svec, a3, a3 == -1? CHANF_OVERLAP : CHANF_NONE , sid, volume * (0.8f / 80.f), attenuation, nullptr, pitch / 65536.f);
+    auto sfx = soundEngine->GetSfx(sid);
+    EChanFlags flags = a3 == -1 ? CHANF_OVERLAP : CHANF_NONE;
+    if (sfx && sfx->LoopStart >= 0) flags |= CHANF_LOOP;
+
+    soundEngine->StartSound(SOURCE_Actor, pSprite, &svec, a3, flags, sid, volume * (0.8f / 80.f), attenuation, nullptr, pitch / 65536.f);
 }
 
 void sfxPlay3DSound(spritetype* pSprite, int soundId, int a3, int a4)
