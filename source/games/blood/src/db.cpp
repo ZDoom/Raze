@@ -738,7 +738,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pSector->floorxpan_ += bitReader.readUnsigned(8) / 256.f;
             pXSector->damageType = bitReader.readUnsigned(3);
             pXSector->floorpal = bitReader.readUnsigned(4);
-            pSector->floorypan_ = bitReader.readUnsigned(8) / 256.f;
+            pSector->floorypan_ += bitReader.readUnsigned(8) / 256.f;
             pXSector->locked = bitReader.readUnsigned(1);
             pXSector->windVel = bitReader.readUnsigned(10);
             pXSector->windAng = bitReader.readUnsigned(11);
