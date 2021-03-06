@@ -56,6 +56,16 @@ struct FSpecialColormap
 	PalEntry GrayscaleToColor[256];
 };
 
+enum EColorManipulation
+{
+	CM_PLAIN2D = -2,			// regular 2D drawing.
+	CM_INVALID = -1,
+	CM_DEFAULT = 0,					// untranslated
+	CM_FIRSTSPECIALCOLORMAP,		// first special fixed colormap
+};
+
+#define CM_MAXCOLORMAP int(CM_FIRSTSPECIALCOLORMAP + SpecialColormaps.Size())
+
 extern TArray<FSpecialColormap> SpecialColormaps;
 extern uint8_t DesaturateColormap[31][256];
 
