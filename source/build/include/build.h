@@ -173,8 +173,6 @@ struct usermaphack_t
     uint8_t md4[16]{};
 };
 
-extern usermaphack_t g_loadedMapHack;
-
 EXTERN spriteext_t *spriteext;
 EXTERN spritesmooth_t *spritesmooth;
 
@@ -425,7 +423,7 @@ void   initspritelists(void);
 
 void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 void loadMapBackup(const char* filename);
-void G_LoadMapHack(const char* filename);
+void G_LoadMapHack(const char* filename, const unsigned char*);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
