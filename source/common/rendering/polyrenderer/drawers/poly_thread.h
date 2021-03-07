@@ -174,6 +174,9 @@ public:
 	bool WriteDepth = true;
 	uint8_t StencilTestValue = 0;
 	uint8_t StencilWriteValue = 0;
+	float DepthRangeStart = 0.0f;
+	float DepthRangeScale = 1.0f;
+	bool DepthClamp = true;
 
 	void (*FragmentShader)(int x0, int x1, PolyTriangleThreadData* thread) = nullptr;
 	void (*WriteColorFunc)(int y, int x0, int x1, PolyTriangleThreadData* thread) = nullptr;
