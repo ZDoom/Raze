@@ -54,8 +54,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, RunStruct& w, RunS
     if (arc.BeginObject(keyname))
     {
         arc("moves", w.nMoves)
-            ("_4", w._4)
-            ("_6", w._6)
+            ("_4", w.next)
+            ("_6", w.prev)
             .EndObject();
     }
     return arc;
@@ -134,9 +134,9 @@ int runlist_FreeRun(int nRun)
 {
     assert(nRun >= 0 && nRun < kMaxRuns);
 
-    RunData[nRun]._6 = -1;
+    RunData[nRun].prev = -1;
     RunData[nRun].nMoves = -1;
-    RunData[nRun]._4 = RunData[nRun]._6;
+    RunData[nRun].next = RunData[nRun].prev;
     RunData.Release(nRun);
     return 1;
 }
@@ -145,8 +145,8 @@ int runlist_HeadRun()
 {
     int nRun = runlist_GrabRun();
 
-    RunData[nRun]._4 = -1;
-    RunData[nRun]._6 = -1;
+    RunData[nRun].next = -1;
+    RunData[nRun].prev = -1;
 
     return nRun;
 }
@@ -161,8 +161,8 @@ void runlist_InitRun()
     for (i = 0; i < kMaxRuns; i++)
     {
         RunData[i].nMoves = -1;
-        RunData[i]._6 = -1;
-        RunData[i]._4 = -1;
+        RunData[i].prev = -1;
+        RunData[i].next = -1;
     }
 
     int nRun = runlist_HeadRun();
@@ -176,44 +176,41 @@ void runlist_InitRun()
     nRadialSpr = -1;
 }
 
-int runlist_UnlinkRun(int nRun)
+void runlist_UnlinkRun(int nRun)
 {
-    assert(nRun >= 0 && nRun < kMaxRuns);
+    if (!(nRun >= 0 && nRun < kMaxRuns)) return;
 
     if (nRun == RunChain)
     {
-        RunChain = RunData[nRun]._4;
-        return nRun;
+        RunChain = RunData[nRun].next;
+        return;
     }
 
-    if (RunData[nRun]._6 >= 0)
+    if (RunData[nRun].prev >= 0)
     {
-        RunData[RunData[nRun]._6]._4 = RunData[nRun]._4;
+        RunData[RunData[nRun].prev].next = RunData[nRun].next;
     }
 
-    if (RunData[nRun]._4 >= 0)
+    if (RunData[nRun].next >= 0)
     {
-        RunData[RunData[nRun]._4]._6 = RunData[nRun]._6;
+        RunData[RunData[nRun].next].prev = RunData[nRun].prev;
     }
-
-    return nRun;
 }
 
-int runlist_InsertRun(int RunLst, int RunNum)
+void runlist_InsertRun(int RunLst, int RunNum)
 {
-    assert(RunLst >= 0 && RunLst < kMaxRuns);
-    assert(RunNum >= 0 && RunNum < kMaxRuns);
+    if (!(RunLst >= 0 && RunLst < kMaxRuns)) return;
+    if (!(RunNum >= 0 && RunNum < kMaxRuns)) return;
 
-    RunData[RunNum]._6 = RunLst;
-    int val = RunData[RunLst]._4;
-    RunData[RunNum]._4 = val;
+    RunData[RunNum].prev = RunLst;
+    int val = RunData[RunLst].next;
+    RunData[RunNum].next = val;
 
     if (val >= 0) {
-        RunData[val]._6 = RunNum;
+        RunData[val].prev = RunNum;
     }
 
-    RunData[RunLst]._4 = RunNum;
-    return RunNum;
+    RunData[RunLst].next = RunNum;
 }
 
 int runlist_AddRunRec(int a, int b)
@@ -228,7 +225,7 @@ int runlist_AddRunRec(int a, int b)
 
 void runlist_DoSubRunRec(int RunPtr)
 {
-    assert(RunPtr >= 0 && RunPtr < kMaxRuns);
+    if (!(RunPtr >= 0 && RunPtr < kMaxRuns)) return;
 
     runlist_UnlinkRun(RunPtr);
     runlist_FreeRun(RunPtr);
@@ -241,7 +238,7 @@ void runlist_CleanRunRecs()
     if (nextPtr >= 0)
     {
         assert(nextPtr < kMaxRuns);
-        nextPtr = RunData[nextPtr]._4;
+        nextPtr = RunData[nextPtr].next;
     }
 
     while (nextPtr >= 0)
@@ -250,7 +247,7 @@ void runlist_CleanRunRecs()
         assert(runPtr < kMaxRuns);
 
         int val = RunData[runPtr].nRef; // >> 16;
-        nextPtr = RunData[runPtr]._4;
+        nextPtr = RunData[runPtr].next;
 
         if (val < 0) {
             runlist_DoSubRunRec(runPtr);
@@ -260,7 +257,7 @@ void runlist_CleanRunRecs()
 
 void runlist_SubRunRec(int RunPtr)
 {
-    assert(RunPtr >= 0 && RunPtr < kMaxRuns);
+    if (!(RunPtr >= 0 && RunPtr < kMaxRuns)) return;
 
     RunData[RunPtr].nMoves = -totalmoves;
 }
@@ -292,7 +289,7 @@ void runlist_ExplodeSignalRun()
     if (nextPtr >= 0)
     {
         assert(nextPtr < kMaxRuns);
-        nextPtr = RunData[nextPtr]._4;
+        nextPtr = RunData[nextPtr].next;
     }
 
     // LOOP
@@ -302,7 +299,7 @@ void runlist_ExplodeSignalRun()
         assert(runPtr < kMaxRuns);
 
         int val = RunData[runPtr].nMoves;
-        nextPtr = RunData[runPtr]._4;
+        nextPtr = RunData[runPtr].next;
 
         if (val >= 0)
         {
@@ -345,7 +342,7 @@ void runlist_SignalRun(int NxtPtr, int edx)
         if (NxtPtr >= 0)
         {
             assert(NxtPtr < kMaxRuns);
-            NxtPtr = RunData[NxtPtr]._4;
+            NxtPtr = RunData[NxtPtr].next;
         }
 
         while (NxtPtr >= 0)
@@ -356,7 +353,7 @@ void runlist_SignalRun(int NxtPtr, int edx)
             {
                 assert(RunPtr < kMaxRuns);
                 int val = RunData[RunPtr].nMoves;
-                NxtPtr = RunData[RunPtr]._4;
+                NxtPtr = RunData[RunPtr].next;
 
                 if (val >= 0) {
                     runlist_SendMessageToRunRec(RunPtr, edx, 0);

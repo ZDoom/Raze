@@ -390,8 +390,8 @@ struct RunStruct
         };
     };
 
-    short _4;
-    short _6;
+    short next;
+    short prev;
 };
 
 struct RunChannel
