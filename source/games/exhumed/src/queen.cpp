@@ -89,7 +89,7 @@ struct Egg
     short nFrame;
     short nAction;
     short nSprite;
-    short field_8;
+    short nRunPtr;
     short nTarget;
     short field_C;
     short field_E;
@@ -154,7 +154,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Egg& w, Egg* def)
             ("action", w.nAction)
             ("sprite", w.nSprite)
             ("target", w.nTarget)
-            ("at8", w.field_8)
+            ("runptr", w.nRunPtr)
             ("atc", w.field_C)
             ("ate", w.field_E)
             .EndObject();
@@ -186,6 +186,10 @@ void SerializeQueen(FSerializer& arc)
         arc("count", QueenCount);
         if (QueenCount == 0) // only save the rest if we got a queen. There can only be one.
         {
+            for (int i = 0; i < kMaxEggs; i++)
+            {
+                QueenEgg[i].nRunPtr = -1;
+            }
             arc("qhead", nQHead)
                 ("headvel", nHeadVel)
                 ("velshift", nVelShift)
@@ -210,7 +214,7 @@ void InitQueens()
     QueenEgg.Clear();
     for (int i = 0; i < kMaxEggs; i++)
     {
-        QueenEgg[i].field_8 = -1;
+        QueenEgg[i].nRunPtr = -1;
     }
 }
 
@@ -247,9 +251,9 @@ void DestroyEgg(short nEgg)
 
     runlist_DoSubRunRec(sprite[nSprite].owner);
     runlist_DoSubRunRec(sprite[nSprite].lotag - 1);
-    runlist_SubRunRec(QueenEgg[nEgg].field_8);
+    runlist_SubRunRec(QueenEgg[nEgg].nRunPtr);
 
-    QueenEgg[nEgg].field_8 = -1;
+    QueenEgg[nEgg].nRunPtr = -1;
 
     mydeletesprite(nSprite);
     QueenEgg.Release(nEgg);
@@ -259,7 +263,7 @@ void DestroyAllEggs()
 {
     for (int i = 0; i < kMaxEggs; i++)
     {
-        if (QueenEgg[i].field_8 > -1)
+        if (QueenEgg[i].nRunPtr > -1)
         {
             DestroyEgg(i);
         }
@@ -496,7 +500,7 @@ int BuildQueenEgg(short nQueen, int nVal)
     QueenEgg[nEgg].nAction = nVal;
 
     sprite[nSprite2].owner = runlist_AddRunRec(sprite[nSprite2].lotag - 1, nEgg | 0x1D0000);
-    QueenEgg[nEgg].field_8 = runlist_AddRunRec(NewRun, nEgg | 0x1D0000);
+    QueenEgg[nEgg].nRunPtr = runlist_AddRunRec(NewRun, nEgg | 0x1D0000);
 
     return 0;
 }
