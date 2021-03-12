@@ -948,10 +948,14 @@ bool PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track
     // Play  CD audio if enabled.
     if (cdaudio_track >= 0 && (mus_redbook || !song_file_name || *song_file_name == 0))
     {
-        FStringf trackname("track%02d.ogg", cdaudio_track);
+        FStringf trackname("shadow%02d.ogg", cdaudio_track);
         if (!Mus_Play(mapname, trackname, true))
         {
-            Printf("Can't find CD track %i!\n", cdaudio_track);
+            trackname.Format("track%02d.ogg", cdaudio_track);
+            if (!Mus_Play(mapname, trackname, true))
+            {
+                Printf("Can't find CD track %i!\n", cdaudio_track);
+            }
         }
         else return true;
     }
@@ -962,8 +966,12 @@ bool PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track
     if (!Mus_Play(mapname, song_file_name, true))
     {
         // try the CD track anyway if no MIDI could be found (the original game doesn't have any MIDI, it was CD Audio only, this avoids no music playing if mus_redbook is off.)
-        FStringf trackname("track%02d.ogg", cdaudio_track);
-        if (!Mus_Play(nullptr, trackname, true)) return false;
+        FStringf trackname("shadow%02d.ogg", cdaudio_track);
+        if (!Mus_Play(mapname, trackname, true))
+        {
+            trackname.Format("track%02d.ogg", cdaudio_track);
+            if (!Mus_Play(nullptr, trackname, true)) return false;
+        }
     }
     return true;
 }
