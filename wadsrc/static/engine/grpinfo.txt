@@ -288,95 +288,6 @@ grpinfo
 
 grpinfo
 {
-	name "NAM"
-	size 43448927
-	crc NAM_CRC
-	flags GAMEFLAG_NAM
-	dependency 0
-	gamefilter "Nam.Nam"
-}
-
-grpinfo
-{
-	name "NAPALM"
-	size 44365728
-	crc NAPALM_CRC
-	flags GAMEFLAG_NAM|GAMEFLAG_NAPALM
-	dependency 0
-	gamefilter "Nam.Napalm"
-}
-
-grpinfo
-{
-	name "WWII GI"
-	size 77939508
-	crc WW2GI_CRC
-	flags GAMEFLAG_WW2GI
-	dependency 0
-	gamefilter "WW2GI.WW2GI"
-}
-
-grpinfo
-{
-	name "Platoon Leader"
-	scriptname "PLATOONL.DEF"
-	size 37852572
-	crc PLATOONL_CRC
-	flags GAMEFLAG_WW2GI|GAMEFLAG_ADDON
-	dependency WW2GI_CRC
-	gamefilter "WW2GI.Platoon"
-}
-
-grpinfo
-{
-	name "Redneck Rampage"
-	size 141174222
-	crc RR_CRC
-	defname "rr.def"
-	flags GAMEFLAG_RR
-	dependency 0
-	gamefilter "Redneck.Redneck"
-}
-
-grpinfo
-{
-	name "Redneck Rampage Rides Again"
-	size 191798609
-	crc RRRA_CRC
-	defname "rrra.def"
-	flags GAMEFLAG_RRRA
-	dependency 0
-	gamefilter "Redneck.RidesAgain"
-}
-
-grpinfo
-{
-	// This is for detecting zipped versions of the mod.
-	name "Redneck Rampage: Suckin' Grits on Route 66"
-	scriptname "GAME66.CON"
-	mustcontain "TILESA66.ART", "TILESB66.ART", "ROUTE66/CARNIVAL.MAP", "ROUTE66/TRUCKSTP.MAP", "GAME66.CON"
-	flags GAMEFLAG_RR|GAMEFLAG_ADDON
-	dependency RR_CRC
-	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
-	gamefilter "Redneck.Route66"
-	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*rr_outro.voc"	// This renames instead of deleting
-}
-
-addon
-{
-	// this is for detecting the files within the game directory.
-	name "Redneck Rampage: Suckin' Grits on Route 66"
-	scriptname "GAME66.CON"
-	mustcontain "TILESA66.ART", "TILESB66.ART", "ROUTE66/CARNIVAL.MAP", "ROUTE66/TRUCKSTP.MAP", "GAME66.CON"
-	flags GAMEFLAG_RR|GAMEFLAG_ADDON
-	dependency RR_CRC
-	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
-	gamefilter "Redneck.Route66"
-	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*rr_outro.voc"	// This renames instead of deleting
-}	
-
-grpinfo
-{
 	name "Blood 1.0"
 	size 9570681
 	crc BLOOD10_CRC
@@ -639,8 +550,94 @@ grpinfo
 	gamefilter "ShadowWarrior.TwinDragon"
 }
 
+grpinfo
+{
+	name "Redneck Rampage"
+	size 141174222
+	crc RR_CRC
+	defname "rr.def"
+	flags GAMEFLAG_RR
+	dependency 0
+	gamefilter "Redneck.Redneck"
+}
 
-   
+grpinfo
+{
+	name "Redneck Rampage Rides Again"
+	size 191798609
+	crc RRRA_CRC
+	defname "rrra.def"
+	flags GAMEFLAG_RRRA
+	dependency 0
+	gamefilter "Redneck.RidesAgain"
+}
+
+grpinfo
+{
+	// This is for detecting zipped versions of the mod.
+	name "Redneck Rampage: Suckin' Grits on Route 66"
+	scriptname "GAME66.CON"
+	mustcontain "TILESA66.ART", "TILESB66.ART", "ROUTE66/CARNIVAL.MAP", "ROUTE66/TRUCKSTP.MAP", "GAME66.CON"
+	flags GAMEFLAG_RR|GAMEFLAG_ADDON
+	dependency RR_CRC
+	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
+	gamefilter "Redneck.Route66"
+	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*rr_outro.voc"	// This renames instead of deleting
+}
+
+addon
+{
+	// this is for detecting the files within the game directory.
+	name "Redneck Rampage: Suckin' Grits on Route 66"
+	scriptname "GAME66.CON"
+	mustcontain "TILESA66.ART", "TILESB66.ART", "ROUTE66/CARNIVAL.MAP", "ROUTE66/TRUCKSTP.MAP", "GAME66.CON"
+	flags GAMEFLAG_RR|GAMEFLAG_ADDON
+	dependency RR_CRC
+	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
+	gamefilter "Redneck.Route66"
+	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*rr_outro.voc"	// This renames instead of deleting
+}	
+
+grpinfo
+{
+	name "NAM"
+	size 43448927
+	crc NAM_CRC
+	flags GAMEFLAG_NAM
+	dependency 0
+	gamefilter "Nam.Nam"
+}
+
+grpinfo
+{
+	name "NAPALM"
+	size 44365728
+	crc NAPALM_CRC
+	flags GAMEFLAG_NAM|GAMEFLAG_NAPALM
+	dependency 0
+	gamefilter "Nam.Napalm"
+}
+
+grpinfo
+{
+	name "WWII GI"
+	size 77939508
+	crc WW2GI_CRC
+	flags GAMEFLAG_WW2GI
+	dependency 0
+	gamefilter "WW2GI.WW2GI"
+}
+
+grpinfo
+{
+	name "Platoon Leader"
+	scriptname "PLATOONL.DEF"
+	size 37852572
+	crc PLATOONL_CRC
+	flags GAMEFLAG_WW2GI|GAMEFLAG_ADDON
+	dependency WW2GI_CRC
+	gamefilter "WW2GI.Platoon"
+}
 
 grpinfo
 {
