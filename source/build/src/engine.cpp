@@ -80,8 +80,6 @@ static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
 static int32_t qradarang[10240];
 
-uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256], ATTRIBUTE((used)) sqrtable_old[2048];
-
 const char *engineerrstr = "No error";
 
 int32_t showfirstwall=0;
@@ -312,70 +310,6 @@ static void renderDrawMaskedWall(int16_t damaskwallcnt)
 }
 
 
-static uint32_t msqrtasm(uint32_t c)
-{
-    uint32_t a = 0x40000000l, b = 0x20000000l;
-
-    do
-    {
-        if (c >= a)
-        {
-            c -= a;
-            a += b*4;
-        }
-        a -= b;
-        a >>= 1;
-        b >>= 2;
-    } while (b);
-
-    if (c >= a)
-        a++;
-
-    return a >> 1;
-}
-
-//
-// initksqrt (internal)
-//
-static inline void initksqrt(void)
-{
-    int32_t i, j, k;
-    uint32_t root, num;
-    int32_t temp;
-
-    j = 1; k = 0;
-    for (i=0; i<4096; i++)
-    {
-        if (i >= j) { j <<= 2; k++; }
-        sqrtable[i] = (uint16_t)(msqrtasm((i<<18)+131072)<<1);
-        shlookup[i] = (k<<1)+((10-k)<<8);
-        if (i < 256) shlookup[i+4096] = ((k+6)<<1)+((10-(k+6))<<8);
-    }
-
-    for(i=0;i<2048;i++)
-    {
-        root = 128;
-        num = i<<20;
-        do
-        {
-            temp = root;
-            root = (root+num/root)>>1;
-        } while((temp-root+1) > 2);
-        temp = root*root-num;
-        while (abs(int32_t(temp-2*root+1)) < abs(temp))
-        {
-            temp += 1-int(2*root);
-            root--;
-        }
-        while (abs(int32_t(temp+2*root+1)) < abs(temp))
-        {
-            temp += 2*root+1;
-            root++;
-        }
-        sqrtable_old[i] = root;
-    }
-}
-
 static int32_t engineLoadTables(void)
 {
     static char tablesloaded = 0;
@@ -383,8 +317,6 @@ static int32_t engineLoadTables(void)
     if (tablesloaded == 0)
     {
         int32_t i;
-
-        initksqrt();
 
         for (i=0; i<2048; i++)
             reciptable[i] = DivScale(2048, i+2048, 30);
@@ -1648,7 +1580,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             {
                 ox = wall[wall[startwall].point2].x - wall[startwall].x;
                 oy = wall[wall[startwall].point2].y - wall[startwall].y;
-                i = nsqrtasm(uhypsq(ox,oy)); if (i == 0) continue;
+                i = ksqrt(uhypsq(ox,oy)); if (i == 0) continue;
                 i = 1048576/i;
                 globalx1 = MulScale(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i, 10);
                 globaly1 = MulScale(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i, 10);
@@ -1659,7 +1591,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 globaly2 = -globaly1;
 
                 int32_t const daslope = sector[s].floorheinum;
-                i = nsqrtasm(daslope*daslope+16777216);
+                i = ksqrt(daslope*daslope+16777216);
                 set_globalpos(globalposx, MulScale(globalposy,i, 12), globalposz);
                 globalx2 = MulScale(globalx2,i, 12);
                 globaly2 = MulScale(globaly2,i, 12);
@@ -2047,16 +1979,6 @@ fixed_t gethiq16angle(int32_t xvect, int32_t yvect)
     else rv = ((qradarang[5120 - Scale(1280, xvect, yvect)] >> 6) + IntToFixed(512 + ((yvect < 0) << 10))) & 0x7FFFFFF;
 
     return rv;
-}
-
-//
-// ksqrt
-//
-int32_t ksqrt(uint32_t num)
-{
-    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-        return ksqrtasm_old(num);
-    return nsqrtasm(num);
 }
 
 // Gets the BUILD unit height and z offset of a sprite.
@@ -2962,7 +2884,7 @@ int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
 
-    int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
     if (i == 0) return sec->ceilingz;
 
     int const j = DMulScale(d.x, day-w.y, -d.y, dax-w.x, 3);
@@ -2981,7 +2903,7 @@ int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
 
-    int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
     if (i == 0) return sec->floorz;
 
     int const j = DMulScale(d.x, day-w.y, -d.y, dax-w.x, 3);
@@ -3001,7 +2923,7 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz,
 
     vec2_t const d = { wal2->x - wal->x, wal2->y - wal->y };
 
-    int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
     if (i == 0) return;
 
     int const j = DMulScale(d.x,day-wal->y, -d.y,dax-wal->x, 3);
@@ -3026,7 +2948,7 @@ void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
         return;
 
     sector[dasect].ceilingheinum = Scale((z-sector[dasect].ceilingz)<<8,
-                                         nsqrtasm(uhypsq(dax,day)), i);
+                                         ksqrt(uhypsq(dax,day)), i);
     if (sector[dasect].ceilingheinum == 0)
         sector[dasect].ceilingstat &= ~2;
     else sector[dasect].ceilingstat |= 2;
@@ -3047,7 +2969,7 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
         return;
 
     sector[dasect].floorheinum = Scale((z-sector[dasect].floorz)<<8,
-                                       nsqrtasm(uhypsq(dax,day)), i);
+                                       ksqrt(uhypsq(dax,day)), i);
     if (sector[dasect].floorheinum == 0)
         sector[dasect].floorstat &= ~2;
     else sector[dasect].floorstat |= 2;

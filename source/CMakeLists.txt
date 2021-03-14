@@ -1511,6 +1511,8 @@ source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d
 source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
 source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/dobject/.+")
 source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
+source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/.+")
+source_group("Core\\Rendering\\Scene" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/scene/.+")
 source_group("Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glbackend/.+")
 source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/.+")
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")

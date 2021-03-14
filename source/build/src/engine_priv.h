@@ -23,63 +23,15 @@
     extern int32_t globalx1, globaly2;
 
 
-extern uint16_t sqrtable[4096], shlookup[4096+256],sqrtable_old[2048];
 
-
-    static inline int32_t nsqrtasm(uint32_t a)
-    {
-        // JBF 20030901: This was a damn lot simpler to reverse engineer than
-        // msqrtasm was. Really, it was just like simplifying an algebra equation.
-        uint16_t c;
-
-        if (a & 0xff000000)  			// test eax, 0xff000000  /  jnz short over24
-        {
-            c = shlookup[(a >> 24) + 4096];	// mov ebx, eax
-                                            // over24: shr ebx, 24
-                                            // mov cx, word ptr shlookup[ebx*2+8192]
-        }
-        else
-        {
-            c = shlookup[a >> 12];		// mov ebx, eax
-                                        // shr ebx, 12
-                                        // mov cx, word ptr shlookup[ebx*2]
-                                        // jmp short under24
-        }
-        a >>= c&0xff;				// under24: shr eax, cl
-        a = (a&0xffff0000)|(sqrtable[a]);	// mov ax, word ptr sqrtable[eax*2]
-        a >>= ((c&0xff00) >> 8);		// mov cl, ch
-                                        // shr eax, cl
-        return a;
-    }
-
-    static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
-    {
-        // Ken did this
-        d = ((a<0)<<3) + ((b<0)<<2) + ((c<0)<<1) + (d<0);
-        return (((d<<4)^0xf0)|d);
-    }
-
-
-
-inline int32_t ksqrtasm_old(int32_t n)
+static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
 {
-    uint32_t shift = 0;
-    n = abs((int32_t)n);
-    while (n >= 2048)
-    {
-        n >>= 2;
-        ++shift;
-    }
-    uint32_t const s = sqrtable_old[n];
-    return (s << shift) >> 10;
+    // Ken did this
+    d = ((a<0)<<3) + ((b<0)<<2) + ((c<0)<<1) + (d<0);
+    return (((d<<4)^0xf0)|d);
 }
 
-inline int32_t clip_nsqrtasm(int32_t n)
-{
-    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-        return ksqrtasm_old(n);
-    return nsqrtasm(n);
-}
+
 
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];

@@ -513,7 +513,11 @@ static FORCE_INLINE int32_t krand(void)
 int32_t    krand(void);
 #endif
 
-int32_t   ksqrt(uint32_t num);
+inline int32_t ksqrt(uint32_t num)
+{
+    return int(sqrt((float)num));
+}
+
 int32_t   getangle(int32_t xvect, int32_t yvect);
 fixed_t   gethiq16angle(int32_t xvect, int32_t yvect);
 
