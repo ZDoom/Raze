@@ -1010,40 +1010,4 @@ void DrawStatusBar()
     StatusBar->UpdateStatusBar();
 }
 
-
-// This should not be necessary but the game only lazily updates the statusbar data.
-void SerializeStatus(FSerializer& arc)
-{
-    if (arc.BeginObject("status"))
-    {
-        arc("masky", nMaskY)
-            ("magicperline", magicperline)
-            ("airperline", airperline)
-            ("healthperline", healthperline)
-            ("airframes", nAirFrames)
-            ("counter", nCounter)
-            ("counterdest", nCounterDest)
-            ("itemframes", nItemFrames)
-            ("itemseq", nItemSeq)
-            ("magicframes", nMagicFrames)
-            ("healthlevel", nHealthLevel)
-            ("itemframe", nItemFrame)
-            ("meterrange", nMeterRange)
-            ("magiclevel", nMagicLevel)
-            ("healthframe", nHealthFrame)
-            ("magicframe", nMagicFrame)
-            ("airframe", airframe)
-            ("firstanim", nFirstAnim)
-            ("lastanim", nLastAnim)
-            ("itemaltseq", nItemAltSeq)
-            ("airpages", airpages)
-            ("ammodelay", ammodelay)
-            ("counterbullet", nCounterBullet)
-            .Array("digit", nDigit, 3)
-            .Array("itemseqoffset", nItemSeqOffset, countof(nItemSeqOffset))
-            ("statusanim", StatusAnim)
-            .EndObject();
-    }
-}
-
 END_PS_NS
