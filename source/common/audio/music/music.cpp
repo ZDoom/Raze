@@ -82,8 +82,11 @@ static MusicCallbacks mus_cb = { nullptr, DefaultOpenMusic };
 
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
 EXTERN_CVAR(Int, snd_mididevice)
+EXTERN_CVAR(Float, mod_dumb_mastervolume)
+EXTERN_CVAR(Float, fluid_gain)
 
-CVAR(Bool, mus_calcgain, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG) // changing this will only take effect for the next song.
+
+CVAR(Bool, mus_calcgain, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG) // changing this will only take effect for the next song.
 CVAR(Bool, mus_usereplaygain, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG) // changing this will only take effect for the next song.
 CUSTOM_CVAR(Float, mus_gainoffset, 0.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG) // for customizing the base volume
 {
@@ -214,6 +217,9 @@ static bool S_StartMusicPlaying(ZMusic_MusicStream song, bool loop, float rel_vo
 		I_SetRelativeVolume(saved_relative_volume * factor);
 	}
 	ZMusic_Stop(song);
+	// make sure the volume modifiers update properly in case replay gain settings have changed.
+	fluid_gain.Callback();
+	mod_dumb_mastervolume.Callback();
 	if (!ZMusic_Start(song, subsong, loop))
 	{
 		return false;
@@ -488,6 +494,8 @@ static void CheckReplayGain(const char *musicname, EMidiDevice playertype, const
 {
 	mus_playing.replayGain = 0.f;
 	mus_playing.replayGainFactor = dBToAmplitude(mus_gainoffset);
+	fluid_gain.Callback();
+	mod_dumb_mastervolume.Callback();
 	if (!mus_usereplaygain) return;
 
 	FileReader reader = mus_cb.OpenMusic(musicname);
