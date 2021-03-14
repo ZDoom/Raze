@@ -45,7 +45,7 @@
 #include "gamecontrol.h"
 #include "version.h"
 
-#define LASTRUNVERSION "1"
+#define LASTRUNVERSION "2"
 
 #if !defined _MSC_VER && !defined __APPLE__
 #include "i_system.h"  // for SHARE_DIR
@@ -253,7 +253,17 @@ void FGameConfigFile::DoGlobalSetup ()
 		const char *lastver = GetValueForKey ("Version");
 		if (lastver != NULL)
 		{
-			//double last = atof (lastver);
+			double last = atof (lastver);
+			if (last < 2)
+			{
+				auto var = FindCVar("mod_dumb_mastervolume", NULL);
+				if (var != NULL)
+				{
+					UCVarValue v = var->GetGenericRep(CVAR_Float);
+					v.Float /= 4.f;
+					if (v.Float < 1.f) v.Float = 1.f;
+				}
+			}
 		}
 	}
 }
