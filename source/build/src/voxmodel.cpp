@@ -13,9 +13,12 @@
 #include "texturemanager.h"
 #include "voxels.h"
 #include "glbackend/gl_models.h"
+#include "printf.h"
 
 #include "palette.h"
 #include "../../glbackend/glbackend.h"
+
+using namespace Polymost;
 
 void voxfree(voxmodel_t *m)
 {
@@ -60,10 +63,6 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
 
     if ((tspr->cstat & 48) == 32)
         return 0;
-
-    polymost_outputGLDebugMessage(3, "polymost_voxdraw(m:%p, tspr:%p)", m, tspr);
-
-    //updateanimation((md2model *)m,tspr);
 
     vec3f_t m0 = { m->scale, m->scale, m->scale };
     vec3f_t a0 = { 0, 0, m->zadd*m->scale };
@@ -194,6 +193,36 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
 	GLInterface.SetFadeDisable(false);
     return 1;
 }
+
+extern char* voxfilenames[MAXVOXELS];
+void (*PolymostProcessVoxels_Callback)(void) = NULL;
+void PolymostProcessVoxels(void)
+{
+    if (PolymostProcessVoxels_Callback)
+        PolymostProcessVoxels_Callback();
+
+    if (g_haveVoxels != 1)
+        return;
+
+    g_haveVoxels = 2;
+
+    Printf(PRINT_NONOTIFY, "Generating voxel models for Polymost. This may take a while...\n");
+
+    for (bssize_t i = 0; i < MAXVOXELS; i++)
+    {
+        if (voxfilenames[i])
+        {
+            int lumpnum = fileSystem.FindFile(voxfilenames[i]);
+            if (lumpnum >= 0)
+            {
+                voxmodels[i] = voxload(lumpnum);
+                voxmodels[i]->scale = voxscale[i] * (1.f / 65536.f);
+            }
+            DO_FREE_AND_NULL(voxfilenames[i]);
+        }
+    }
+}
+
 #endif
 
 //---------------------------------------- VOX LIBRARY ENDS ----------------------------------------

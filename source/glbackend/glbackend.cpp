@@ -51,6 +51,13 @@
 #include "gamestruct.h"
 #include "gl_models.h"
 
+CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
+bool hw_int_useindexedcolortextures;
+CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
+{
+	if (screen) screen->SetTextureFilterMode();
+}
+
 CVAR(Bool, gl_texture, true, 0)
 
 F2DDrawer twodpsp;
@@ -519,8 +526,6 @@ void markTileForPrecache(int tilenum, int palnum)
 	}
 }
 
-void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
-
 void precacheMarkedTiles()
 {
 	decltype(cachemap)::Iterator it(cachemap);
@@ -529,7 +534,7 @@ void precacheMarkedTiles()
 	{
 		int dapicnum = pair->Key & 0x7fffffff;
 		int dapalnum = pair->Key >> 32;
-		polymost_precache(dapicnum, dapalnum, 0);
+		Polymost::polymost_precache(dapicnum, dapalnum, 0);
 	}
 }
 

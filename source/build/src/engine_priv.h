@@ -97,9 +97,6 @@ static FORCE_INLINE int32_t getpalookup(int32_t davis, int32_t dashade)
 static FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(davis, globalshade) << 8; }
 
 ////// yax'y stuff //////
-#ifdef USE_OPENGL
-extern void polymost_scansector(int32_t sectnum);
-#endif
 int32_t renderAddTsprite(int16_t z, int16_t sectnum);
 
 

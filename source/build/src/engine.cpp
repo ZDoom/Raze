@@ -55,9 +55,7 @@ int16_t pskybits_override = -1;
 static TArray<TArray<uint8_t>> voxelmemory;
 
 int16_t tiletovox[MAXTILES];
-#ifdef USE_OPENGL
 char *voxfilenames[MAXVOXELS];
-#endif
 char g_haveVoxels;
 //#define kloadvoxel loadvoxel
 
@@ -297,7 +295,7 @@ int32_t animateoffs(int const tilenum, int fakevar)
 
 static void renderDrawSprite(int32_t snum)
 {
-    polymost_drawsprite(snum);
+    Polymost::polymost_drawsprite(snum);
 }
 
 
@@ -306,7 +304,7 @@ static void renderDrawSprite(int32_t snum)
 //
 static void renderDrawMaskedWall(int16_t damaskwallcnt)
 {
-    polymost_drawmaskwall(damaskwallcnt); return; 
+    Polymost::polymost_drawmaskwall(damaskwallcnt); return;
 }
 
 
@@ -464,10 +462,9 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 // deletesprite
 //
 int32_t (*deletesprite_replace)(int16_t spritenum) = NULL;
-void polymost_deletesprite(int num);
 int32_t deletesprite(int16_t spritenum)
 {
-    polymost_deletesprite(spritenum);
+    Polymost::polymost_deletesprite(spritenum);
     if (deletesprite_replace)
         return deletesprite_replace(spritenum);
     assert((sprite[spritenum].statnum == MAXSTATUS)
@@ -822,7 +819,7 @@ int32_t engineInit(void)
 
 void engineUnInit(void)
 {
-    polymost_glreset();
+    Polymost::polymost_glreset();
     freeallmodels();
 # ifdef POLYMER
     polymer_uninit();
@@ -970,7 +967,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
             return 0;
     }
 
-    polymost_drawrooms();
+    Polymost::polymost_drawrooms();
 
     return inpreparemirror;
 }
@@ -1112,7 +1109,7 @@ void renderDrawMasks(void)
     int32_t back = i;
     for (; i >= 0; --i)
     {
-        if (polymost_spriteHasTranslucency(&tsprite[i]))
+        if (Polymost::polymost_spriteHasTranslucency(&tsprite[i]))
         {
             tspriteptr[spritesortcnt] = &tsprite[i];
             ++spritesortcnt;
@@ -1127,7 +1124,7 @@ void renderDrawMasks(void)
     {
         const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
         const int32_t yp = DMulScale(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang, 6);
-        const int32_t modelp = polymost_spriteIsModelOrVoxel(tspriteptr[i]);
+        const int32_t modelp = Polymost::polymost_spriteIsModelOrVoxel(tspriteptr[i]);
 
         if (yp > (4<<8))
         {
@@ -1191,10 +1188,10 @@ killsprite:
             int32_t pcstat = tspriteptr[i]->cstat & 48;
             int32_t pangle = tspriteptr[i]->ang;
             int j = i + 1;
-            if (!polymost_spriteIsModelOrVoxel(tspriteptr[i]))
+            if (!Polymost::polymost_spriteIsModelOrVoxel(tspriteptr[i]))
             {
                 while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
-                    && !polymost_spriteIsModelOrVoxel(tspriteptr[j]))
+                    && !Polymost::polymost_spriteIsModelOrVoxel(tspriteptr[j]))
                 {
                     j++;
                 }
@@ -1236,7 +1233,7 @@ killsprite:
     maskwallcnt = 0;
     for (i = 0; i < numMaskWalls; i++)
     {
-        if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[i]]]))
+        if (Polymost::polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[i]]]))
         {
             maskwall[maskwallcnt] = maskwall[i];
             maskwallcnt++;
@@ -2829,7 +2826,7 @@ void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, f
 
     inpreparemirror = 1;
 
-    polymost_prepareMirror(dax, day, daz, daang, dahoriz, dawall);
+    Polymost::polymost_prepareMirror(dax, day, daz, daang, dahoriz, dawall);
 }
 
 
@@ -2838,7 +2835,7 @@ void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, f
 //
 void renderCompleteMirror(void)
 {
-    polymost_completeMirror();
+    Polymost::polymost_completeMirror();
     inpreparemirror = 0;
 }
 
@@ -2983,7 +2980,7 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 #ifdef USE_OPENGL
 void renderSetRollAngle(float rolla)
 {
-    gtang = rolla * BAngRadian;
+    Polymost::gtang = rolla * BAngRadian;
 }
 #endif
 
