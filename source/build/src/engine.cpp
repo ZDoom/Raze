@@ -1070,19 +1070,6 @@ static inline _equation equation(float const x1, float const y1, float const x2,
     }
 }
 
-int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum)
-{
-    // 1 if wall is in front of player 0 otherwise
-    auto w1 = (uwallptr_t)&wall[wallnum];
-    auto w2 = (uwallptr_t)&wall[w1->point2];
-
-    int32_t const a1 = getangle(w1->x - x, w1->y - y);
-    int32_t const a2 = getangle(w2->x - x, w2->y - y);
-
-    return (((a2 + (2048 - a1)) & 2047) <= 1024);
-}
-
-
 static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, const vec2f_t *p2)
 {
     const float sign1 = (eq->a * p1->x) + (eq->b * p1->y) + eq->c;

@@ -657,8 +657,6 @@ typedef struct s_equation
     float a, b, c;
 } _equation;
 
-int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum);
-
 #define STATUS2DSIZ 144
 #define STATUS2DSIZ2 26
 
