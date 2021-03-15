@@ -44,8 +44,6 @@ enum basepal_t {
     BASEPALCOUNT
 };
 
-void ExitGame();
-void ShutDown(void);
 void DebugOut(const char *fmt, ...);
 int ExhumedMain(int argc, char *argv[]);
 

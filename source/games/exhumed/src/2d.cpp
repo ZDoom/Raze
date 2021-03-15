@@ -1006,7 +1006,7 @@ public:
         // quit the game if we've finished level 4 and displayed the advert text
         if (isShareware() && currentCinemaPalette == 3 && ret != 1) 
         {
-            ExitGame();
+            gameaction = ga_mainmenu;
         }
         return ret;
     }
