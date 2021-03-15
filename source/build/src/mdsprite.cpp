@@ -646,7 +646,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
         //Printf("not smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
     }
 
-    m->interpol = ((float)(i&65535))/65536.f;
+    m->interpol = clamp(i, 0, 65535) / 65536.f;
     //Printf("interpol %f\n", m->interpol);
 
 prep_return:
