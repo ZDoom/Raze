@@ -638,6 +638,8 @@ file( GLOB HEADER_FILES
 	core/music/*.h
 	core/menu/*.h
 	core/input/*.h
+	core/rendering/*.h
+	core/rendering/scene/*.h
 
 	common/audio/sound/thirdparty/*.h
 	common/audio/sound/*.h
@@ -1069,6 +1071,8 @@ set (PCH_SOURCES
 	core/statusbar2.cpp
 	core/gi.cpp
 
+	core/rendering/scene/hw_clipper.cpp
+
 	core/console/c_notifybuffer.cpp
 	core/console/d_event.cpp
 
@@ -1361,6 +1365,8 @@ include_directories(
 	core/dobject
 	core/menu
 	core/input
+	core/rendering
+	core/rendering/scene
 	platform
 	common/audio/sound
 	common/audio/music
