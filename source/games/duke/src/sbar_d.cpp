@@ -44,7 +44,7 @@ source as it is released.
 #include "texturemanager.h"
 #include "dukeactor.h"
 
-bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick);
+bool PickTexture(FRenderState* state, FGameTexture* tex, int paletteid, TexturePick& pick);
 
 BEGIN_DUKE_NS
 
@@ -85,7 +85,7 @@ public:
 				int fh0 = zerotex->GetTexture()->CheckRealHeight();
 				int fh1 = fh0;
 				TexturePick pick;
-				if (PickTexture(zerotex, TRANSLATION(Translation_Remap, 0), pick))
+				if (PickTexture(nullptr, zerotex, TRANSLATION(Translation_Remap, 0), pick))
 				{
 					int oheight = zerotex->GetTexelHeight();
 					int dheight = pick.texture->GetTexelHeight();

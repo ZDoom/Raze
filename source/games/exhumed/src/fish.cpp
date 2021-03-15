@@ -357,7 +357,7 @@ void FuncFish(int a, int nDamage, int nRun)
                 return;
             }
 
-            FishList[nFish].nHealth -= nDamage;
+            FishList[nFish].nHealth -= dmgAdjust(nDamage);
             if (FishList[nFish].nHealth <= 0)
             {
                 FishList[nFish].nHealth = 0;

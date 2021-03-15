@@ -434,7 +434,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
                 if (ap->nHealth <= 0)
                     return;
 
-                ap->nHealth -= nDamage;
+                ap->nHealth -= dmgAdjust(nDamage);
 
                 if (ap->nHealth > 0)
                 {

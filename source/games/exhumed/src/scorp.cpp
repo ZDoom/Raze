@@ -191,7 +191,7 @@ void FuncScorp(int a, int nDamage, int nRun)
                 return;
             }
 
-            scorpion[nScorp].nHealth -= nDamage;
+            scorpion[nScorp].nHealth -= dmgAdjust(nDamage);
 
             if (scorpion[nScorp].nHealth <= 0)
             {

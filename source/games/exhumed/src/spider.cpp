@@ -420,7 +420,7 @@ void FuncSpider(int a, int nDamage, int nRun)
 
             short nTarget = a & 0xFFFF;
 
-            spp->nHealth -= nDamage;
+            spp->nHealth -= dmgAdjust(nDamage);
             if (spp->nHealth > 0)
             {
                 /*

@@ -174,8 +174,6 @@ struct usermaphack_t
     uint8_t md4[16]{};
 };
 
-extern usermaphack_t g_loadedMapHack;
-
 EXTERN spriteext_t *spriteext;
 EXTERN spritesmooth_t *spritesmooth;
 
@@ -231,25 +229,8 @@ EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN int16_t thewall[MAXWALLSB];
 EXTERN tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 
-EXTERN int32_t wx1, wy1, wx2, wy2;
 EXTERN int32_t xdim, ydim;
 EXTERN int32_t yxaspect, viewingrange;
-
-#ifndef GEKKO
-#define MAXVALIDMODES 256
-#else
-#define MAXVALIDMODES 16
-#endif
-EXTERN int32_t validmodecnt;
-struct validmode_t {
-    int32_t xdim,ydim;
-    char bpp;
-    char fs;    // bit 0 = fullscreen flag
-    char filler[2];
-    int32_t extra; // internal use
-};
-EXTERN struct validmode_t validmode[MAXVALIDMODES];
-
 
 EXTERN int32_t Numsprites;
 EXTERN int16_t numsectors, numwalls;
@@ -445,7 +426,7 @@ void   initspritelists(void);
 
 void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 void loadMapBackup(const char* filename);
-void G_LoadMapHack(const char* filename);
+void G_LoadMapHack(const char* filename, const unsigned char*);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
@@ -691,8 +672,6 @@ typedef struct s_equation
 {
     float a, b, c;
 } _equation;
-
-int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum);
 
 #define STATUS2DSIZ 144
 #define STATUS2DSIZ2 26

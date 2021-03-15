@@ -5,6 +5,7 @@
 #include "renderstyle.h"
 struct GLState;
 class FMaterial;
+class FModel;
 
 enum EMatrixType
 {
@@ -79,6 +80,9 @@ struct PolymostRenderState
 	short matrixIndex[NUMMATRICES] = { -1 };
 	FDepthBiasState mBias{ };
 	PolymostTextureState mMaterial;
+	FModel* model = nullptr;
+	int mframes[2] = { 0,0 };
+	float mfactor = 0;
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
 	FRenderStyle Style{};

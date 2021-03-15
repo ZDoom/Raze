@@ -49,6 +49,7 @@
 #include "hw_renderstate.h"
 #include "hw_cvars.h"
 #include "gamestruct.h"
+#include "gl_models.h"
 
 CVAR(Bool, gl_texture, true, 0)
 
@@ -111,11 +112,28 @@ void GLInstance::DoDraw()
 		lastState.Flags = ~rendercommands[0].StateFlags;	// Force ALL flags to be considered 'changed'.
 		lastState.DepthFunc = INT_MIN;						// Something totally invalid.
 		screen->RenderState()->EnableMultisampling(true);
+		auto& state = *screen->RenderState();
 
 		for (auto& rs : rendercommands)
 		{
-			if (rs.Apply(*screen->RenderState(), lastState))
-				screen->RenderState()->Draw(rs.primtype, rs.vindex, rs.vcount);
+			if (rs.Apply(state, lastState))
+			{
+				if (!rs.model)
+				{
+					state.Draw(rs.primtype, rs.vindex, rs.vcount);
+				}
+				else
+				{
+					FHWModelRenderer mr(*screen->RenderState(), 0);
+					state.SetDepthFunc(DF_LEqual);
+					state.EnableTexture(true);
+					rs.model->BuildVertexBuffer(&mr);
+					mr.SetupFrame(rs.model, rs.mframes[0], rs.mframes[1], rs.mfactor);
+					rs.model->RenderFrame(&mr, rs.mMaterial.mTexture, rs.mframes[0], rs.mframes[1], 0.f, rs.mMaterial.mTranslation);
+					state.SetDepthFunc(DF_Less);
+					state.SetVertexBuffer(screen->mVertexData);
+				}
+			}
 		}
 		renderState.Apply(*screen->RenderState(), lastState);	// apply any pending change before returning.
 		rendercommands.Clear();
@@ -145,14 +163,29 @@ void GLInstance::SetPalswap(int index)
 
 void GLInstance::SetFade(int index)
 {
-	if (!hw_useindexedcolortextures)
-		renderState.FogColor = lookups.getFade(index);
-	else
-		renderState.FogColor = 0;
+	renderState.FogColor = lookups.getFade(index);
 }
 
 bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 {
+	// Fog must be done before the texture so that the texture selector can override it.
+	bool foggy = (GLInterface.useMapFog || (FogColor & 0xffffff));
+	// Disable brightmaps if non-black fog is used.
+	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f && foggy)
+	{
+		state.EnableFog(1);
+		float density = GLInterface.useMapFog ? 350.f : 350.f - Scale(numshades - Shade, 150, numshades);
+		state.SetFog((GLInterface.useMapFog) ? PalEntry(0x999999) : FogColor, density);
+		state.SetSoftLightLevel(255);
+		state.SetLightParms(128.f, 1 / 1000.f);
+	}
+	else
+	{
+		state.EnableFog(0);
+		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(Shade, 255, numshades) : 255);
+		state.SetLightParms(VisFactor, ShadeDiv / (numshades - 2));
+	}
+
 	if (Flags & RF_ColorOnly)
 	{
 		state.EnableTexture(false);
@@ -224,23 +257,6 @@ bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		state.SetDepthFunc(DepthFunc);
 		oldState.DepthFunc = DepthFunc;
 	}
-	bool foggy = (GLInterface.useMapFog || (FogColor & 0xffffff));
-	// Disable brightmaps if non-black fog is used.
-	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f && foggy)
-	{
-		state.EnableFog(1);
-		float density = GLInterface.useMapFog ? 350.f : 350.f - Scale(numshades - Shade, 150, numshades);
-		state.SetFog((GLInterface.useMapFog) ? PalEntry(0x999999) : FogColor, density);
-		state.SetSoftLightLevel(255);
-		state.SetLightParms(128.f, 1/1000.f);
-	}
-	else
-	{
-		state.EnableFog(0);
-		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(Shade, 255, numshades) : 255);
-		state.SetLightParms(VisFactor, ShadeDiv / (numshades - 2));
-	}
-
 
 	state.SetTextureMode(TextureMode);
 

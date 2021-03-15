@@ -146,6 +146,7 @@ struct GrpDefInfo
 	int flags = 0;
 	bool loaddirectory = false;
 	bool isAddon = false;
+	int index = -1;
 	TArray<FString> mustcontain;
 	TArray<FString> tobedeleted;
 	TArray<FString> loadfiles;
@@ -157,7 +158,6 @@ struct GrpEntry
 {
 	FString FileName;
 	GrpDefInfo FileInfo;
-	uint32_t FileIndex;
 };
 extern int g_gameType;
 const char* G_DefaultDefFile(void);

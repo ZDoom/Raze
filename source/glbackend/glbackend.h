@@ -329,6 +329,14 @@ public:
 	}
 
 	bool SetTexture(FGameTexture* tex, int palette, int sampleroverride, bool notindexed = false);
+
+	void SetModel(FModel* model, int frame1, int frame2, float factor)
+	{
+		renderState.model = model;
+		renderState.mframes[0] = frame1;
+		renderState.mframes[1] = frame2;
+		renderState.mfactor = factor;
+	}
 };
 
 extern GLInstance GLInterface;

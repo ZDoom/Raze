@@ -1668,7 +1668,8 @@ void playerProcess(PLAYER *pPlayer)
     {
         if (pXSprite->height < 256)
         {
-            bool running = pPlayer->isRunning;
+            // taking a cue from BloodGDX here. Apparently due to poor coding in the original game this could never be true.
+            bool running = false;// pPlayer->isRunning; 
             pPlayer->bobAmp = (pPlayer->bobAmp+pPosture->pace[running]*4) & 2047;
             pPlayer->swayAmp = (pPlayer->swayAmp+(pPosture->pace[running]*4)/2) & 2047;
             if (running)

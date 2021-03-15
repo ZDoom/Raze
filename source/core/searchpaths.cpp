@@ -712,6 +712,9 @@ TArray<GrpEntry> GrpScan()
 	auto cachedCRCs = LoadCRCCache();
 	auto numCRCs = cachedCRCs.Size();
 
+	for (unsigned i = 0; i < allGroups.Size(); i++)
+		allGroups[i].index = i;
+
 	// Remove all unnecessary content from the file list. Since this contains all data from the search path's directories it can be quite large.
 	// Sort both lists by file size so that we only need to pass over each list once to weed out all unrelated content. Go backward to avoid too much item movement
 	// (most will be deleted anyway.)
@@ -759,7 +762,6 @@ TArray<GrpEntry> GrpScan()
 								auto& fg = foundGames.Last();
 								fg.FileInfo = *grp;
 								fg.FileName = fe->FileName;
-								fg.FileIndex = fe->Index;
 								break;
 							}
 						}
@@ -795,7 +797,6 @@ TArray<GrpEntry> GrpScan()
 			auto& fg = foundGames.Last();
 			fg.FileInfo = *grp;
 			fg.FileName = entry->FileName;
-			fg.FileIndex = entry->Index;
 			for (auto addon : addonList)
 			{
 				if (CheckAddon(addon, grp, entry->FileName))
@@ -803,7 +804,6 @@ TArray<GrpEntry> GrpScan()
 					foundGames.Reserve(1);
 					auto& fga = foundGames.Last();
 					fga.FileInfo = *addon;
-					fga.FileIndex = entry->Index;
 				}
 			}
 		}
@@ -833,7 +833,7 @@ TArray<GrpEntry> GrpScan()
 		{
 			auto A = (const GrpEntry*)a;
 			auto B = (const GrpEntry*)b;
-			return (int)A->FileIndex - (int)B->FileIndex;
+			return (int)A->FileInfo.index - (int)B->FileInfo.index;
 		});
 
 	// Finally, scan the list for duplicstes. Only the first occurence should count.

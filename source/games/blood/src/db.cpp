@@ -738,7 +738,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pSector->floorxpan_ += bitReader.readUnsigned(8) / 256.f;
             pXSector->damageType = bitReader.readUnsigned(3);
             pXSector->floorpal = bitReader.readUnsigned(4);
-            pSector->floorypan_ = bitReader.readUnsigned(8) / 256.f;
+            pSector->floorypan_ += bitReader.readUnsigned(8) / 256.f;
             pXSector->locked = bitReader.readUnsigned(1);
             pXSector->windVel = bitReader.readUnsigned(10);
             pXSector->windAng = bitReader.readUnsigned(11);
@@ -979,8 +979,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 
     fr.Seek(0, FileReader::SeekSet);
     auto buffer = fr.Read();
-    md4once(buffer.Data(), buffer.Size(), g_loadedMapHack.md4);
-    G_LoadMapHack(mapname);
+    unsigned char md4[16];
+    md4once(buffer.Data(), buffer.Size(), md4);
+    G_LoadMapHack(mapname, md4);
 
     if (CalcCRC32(buffer.Data(), buffer.Size() -4) != nCRC)
     {

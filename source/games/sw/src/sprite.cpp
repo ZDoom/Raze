@@ -916,6 +916,7 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     u->motion_blur_dist = 256;
 
     sp->backuppos();
+    u->oz = sp->oz;
 
     u->active_range = MIN_ACTIVE_RANGE;
 
@@ -2345,7 +2346,7 @@ SpriteSetup(void)
                         }
 
                         // set orig z
-                        sp->oz = sectp->floorz;
+                        u->oz = sp->oz = sectp->floorz;
                     }
                     else
                     {
@@ -2366,7 +2367,7 @@ SpriteSetup(void)
                         }
 
                         // set orig z
-                        sp->oz = sectp->ceilingz;
+                        u->oz = sp->oz = sectp->ceilingz;
                     }
 
 
@@ -2557,7 +2558,7 @@ SpriteSetup(void)
                         }
 
                         // set orig z
-                        sp->oz = u->zclip;
+                        u->oz = sp->oz = u->zclip;
                     }
                     else
                     {
@@ -2575,7 +2576,7 @@ SpriteSetup(void)
                         }
 
                         // set orig z
-                        sp->oz = u->zclip;
+                        u->oz = sp->oz = u->zclip;
                     }
 
                     change_sprite_stat(SpriteNum, STAT_SPIKE);
@@ -7120,6 +7121,7 @@ void MissileWarpUpdatePos(short SpriteNum, short sectnum)
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
     sp->backuppos();
+    u->oz = sp->oz;
     changespritesect(SpriteNum, sectnum);
     MissileZrange(SpriteNum);
 }
@@ -7129,6 +7131,7 @@ void ActorWarpUpdatePos(short SpriteNum, short sectnum)
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
     sp->backuppos();
+    u->oz = sp->oz;
     changespritesect(SpriteNum, sectnum);
     DoActorZrange(SpriteNum);
 }

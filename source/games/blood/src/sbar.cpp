@@ -131,7 +131,7 @@ private:
         int flags = align | ((nStat & RS_CENTERBOTTOM)? DI_ITEM_CENTER_BOTTOM : (nStat & RS_TOPLEFT)? DI_ITEM_LEFT_TOP : DI_ITEM_RELCENTER);
         double alpha = 1.;
         double scale = nScale / 65536.;
-        DrawGraphic(tileGetTexture(nTile, true), x, y, flags, alpha, -1, -1, scale, scale, shadeToLight(nShade), TRANSLATION(Translation_Remap, nPalette), 0, style);
+        DrawGraphic(tileGetTexture(nTile, true), x, y, flags, alpha, -1, -1, scale, scale, shadeToLight(nShade), TRANSLATION(Translation_Remap, nPalette), style);
     }
     void DrawStatMaskedSprite(int nTile, double x, double y, int nShade = 0, int nPalette = 0, unsigned int nStat = 0, int nScale = 65536, int align = DI_SCREEN_AUTO)
     {
@@ -198,7 +198,7 @@ private:
         int bx = scale(MulScale(w, nScale, 16), nMult, nDiv) + x;
         double scale = double(bx - x) / w;
         double sc = nScale / 65536.;
-        DrawGraphic(tileGetTexture(nTile, true), x, y, DI_ITEM_LEFT_TOP, 1., -1, -1, scale*sc, sc, 0xffffffff, 0, 0);
+        DrawGraphic(tileGetTexture(nTile, true), x, y, DI_ITEM_LEFT_TOP, 1., -1, -1, sc, sc, 0xffffffff, 0, STYLE_Translucent, scale);
     }
 
 
@@ -631,7 +631,7 @@ private:
         }
         drawInventory(pPlayer, 166, 200 - tileHeight(2200));
         // Depending on the scale we can lower the stats display. This needs some tweaking but this catches the important default case already.
-        PrintLevelStats(pPlayer, (hud_statscale <= 0.501f || hud_scalefactor < 0.7) && double(xdim)/ydim > 1.6? 28 : 56);
+        PrintLevelStats(pPlayer, (hud_statscale <= 0.501f || hud_scalefactor < 0.7) && double(twod->GetWidth())/twod->GetHeight() > 1.6? 28 : 56);
 
     }
 
@@ -842,11 +842,13 @@ IMPLEMENT_CLASS(DBloodStatusBar, false, false)
 static void UpdateFrame(void)
 {
     auto tex = tileGetTexture(kBackTile);
+    int width = twod->GetWidth();
+    int height = twod->GetHeight();
 
-    twod->AddFlatFill(0, 0, xdim, windowxy1.y - 3, tex);
-    twod->AddFlatFill(0, windowxy2.y + 4, xdim, ydim, tex);
+    twod->AddFlatFill(0, 0, width, windowxy1.y - 3, tex);
+    twod->AddFlatFill(0, windowxy2.y + 4, width, height, tex);
     twod->AddFlatFill(0, windowxy1.y - 3, windowxy1.x - 3, windowxy2.y + 4, tex);
-    twod->AddFlatFill(windowxy2.x + 4, windowxy1.y - 3, xdim, windowxy2.y + 4, tex);
+    twod->AddFlatFill(windowxy2.x + 4, windowxy1.y - 3, width, windowxy2.y + 4, tex);
 
     twod->AddFlatFill(windowxy1.x - 3, windowxy1.y - 3, windowxy1.x, windowxy2.y + 1, tex, 0, 1, 0xff545454);
     twod->AddFlatFill(windowxy1.x, windowxy1.y - 3, windowxy2.x + 4, windowxy1.y, tex, 0, 1, 0xff545454);

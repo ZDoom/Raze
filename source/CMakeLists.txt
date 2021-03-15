@@ -1074,6 +1074,7 @@ set (PCH_SOURCES
 	glbackend/glbackend.cpp
 	glbackend/gl_palmanager.cpp
 	glbackend/gl_texture.cpp
+	glbackend/gl_models.cpp
 
 	thirdparty/src/md4.cpp
 
@@ -1137,6 +1138,7 @@ set (PCH_SOURCES
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_drawtext.cpp
 	common/2d/v_draw.cpp
+	common/thirdparty/gain_analysis.cpp
 	common/thirdparty/sfmt/SFMT.cpp
 	common/fonts/singlelumpfont.cpp
 	common/fonts/singlepicfont.cpp
@@ -1565,6 +1567,7 @@ source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d
 source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
 source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/dobject/.+")
 source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
+source_group("Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glbackend/.+")
 source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/.+")
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
 source_group("Platform\\POSIX" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/posix/.+")

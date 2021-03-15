@@ -1143,6 +1143,7 @@ typedef struct
     int Flags;
     int Flags2;
     int Tics;
+    int oz; // serialized copy of sprite.oz
 
     short RotNum;
     short ID;

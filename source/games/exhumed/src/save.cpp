@@ -133,6 +133,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		}
 
 		Mus_ResumeSaved();
+		RefreshStatus();
 	}
 }
 

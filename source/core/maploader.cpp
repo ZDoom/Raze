@@ -439,7 +439,11 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	//Must be last.
 	updatesector(pos->x, pos->y, cursectnum);
 	guniqhudid = 0;
-	G_LoadMapHack(filename);
+	fr.Seek(0, FileReader::SeekSet);
+	auto buffer = fr.Read();
+	unsigned char md4[16];
+	md4once(buffer.Data(), buffer.Size(), md4);
+	G_LoadMapHack(filename, md4);
 
 	memcpy(wallbackup, wall, sizeof(wallbackup));
 	memcpy(sectorbackup, sector, sizeof(sectorbackup));

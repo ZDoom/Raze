@@ -665,7 +665,20 @@ void WeaponLower(PLAYER *pPlayer)
         switch (prevState)
         {
         case 1:
-            StartQAV(pPlayer, 7, -1, 0);
+            if (VanillaMode())
+            {
+                StartQAV(pPlayer, 7, -1, 0);
+            }
+            else
+            {
+                if (pPlayer->newWeapon == 6)
+                {
+                    pPlayer->weaponState = 2;
+                    StartQAV(pPlayer, 11, -1, 0);
+                    WeaponRaise(pPlayer);
+                    return;
+                }
+            }
             break;
         case 2:
             pPlayer->weaponState = 1;
@@ -674,8 +687,24 @@ void WeaponLower(PLAYER *pPlayer)
         case 4:
             pPlayer->weaponState = 1;
             StartQAV(pPlayer, 11, -1, 0);
-            pPlayer->newWeapon = 0;
-            WeaponLower(pPlayer);
+            if (VanillaMode())
+            {
+                pPlayer->newWeapon = 0;
+                WeaponLower(pPlayer);
+            }
+            else
+            {
+                if (pPlayer->newWeapon == 6)
+                {
+                    pPlayer->weaponState = 2;
+                    StartQAV(pPlayer, 11, -1, 0);
+                    return;
+                }
+                else
+                {
+                    WeaponLower(pPlayer);
+                }
+            }
             break;
         case 3:
             if (pPlayer->newWeapon == 6)
@@ -703,7 +732,20 @@ void WeaponLower(PLAYER *pPlayer)
         switch (prevState)
         {
         case 1:
-            StartQAV(pPlayer, 7, -1, 0);
+            if (VanillaMode())
+            {
+                StartQAV(pPlayer, 7, -1, 0);
+            }
+            else
+            {
+                if (pPlayer->newWeapon == 7)
+                {
+                    pPlayer->weaponState = 2;
+                    StartQAV(pPlayer, 17, -1, 0);
+                    WeaponRaise(pPlayer);
+                    return;
+                }
+            }
             break;
         case 2:
             WeaponRaise(pPlayer);
@@ -2061,32 +2103,44 @@ void WeaponProcess(PLAYER *pPlayer) {
     if (pPlayer->input.getNewWeapon() == WeaponSel_Next)
     {
         pPlayer->input.setNewWeapon(0);
-        pPlayer->weaponState = 0;
+        if (VanillaMode())
+        {
+            pPlayer->weaponState = 0;
+        }
         pPlayer->nextWeapon = 0;
         int t;
         char weapon = WeaponFindNext(pPlayer, &t, 1);
         pPlayer->weaponMode[weapon] = t;
-        if (pPlayer->curWeapon)
+        if (VanillaMode())
         {
-            WeaponLower(pPlayer);
-            pPlayer->nextWeapon = weapon;
-            return;
+            if (pPlayer->curWeapon)
+            {
+                WeaponLower(pPlayer);
+                pPlayer->nextWeapon = weapon;
+                return;
+            }
         }
         pPlayer->newWeapon = weapon;
     }
     else if (pPlayer->input.getNewWeapon() == WeaponSel_Prev)
     {
         pPlayer->input.setNewWeapon(0);
-        pPlayer->weaponState = 0;
+        if (VanillaMode())
+        {
+            pPlayer->weaponState = 0;
+        }
         pPlayer->nextWeapon = 0;
         int t;
         char weapon = WeaponFindNext(pPlayer, &t, 0);
         pPlayer->weaponMode[weapon] = t;
-        if (pPlayer->curWeapon)
+        if (VanillaMode())
         {
-            WeaponLower(pPlayer);
-            pPlayer->nextWeapon = weapon;
-            return;
+            if (pPlayer->curWeapon)
+            {
+                WeaponLower(pPlayer);
+                pPlayer->nextWeapon = weapon;
+                return;
+            }
         }
         pPlayer->newWeapon = weapon;
     }
@@ -2121,6 +2175,15 @@ void WeaponProcess(PLAYER *pPlayer) {
             return;
         }
         pPlayer->newWeapon = weapon;
+    }
+    if (!VanillaMode())
+    {
+        if (pPlayer->nextWeapon)
+        {
+            sfxKill3DSound(pPlayer->pSprite, -1, 441);
+            pPlayer->newWeapon = pPlayer->nextWeapon;
+            pPlayer->nextWeapon = 0;
+        }
     }
     if (pPlayer->weaponState == -1)
     {

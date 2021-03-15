@@ -58,7 +58,7 @@ static void drawTextScreenBackground(void)
 		}
 		else
 		{
-			int width = scale(xdim, 240, ydim);
+			int width = scale(twod->GetWidth(), 240, twod->GetHeight());
 			int nCount = (width + kLoadScreenWideBackWidth - 1) / kLoadScreenWideBackWidth;
 			for (int i = 0; i < nCount; i++)
 			{

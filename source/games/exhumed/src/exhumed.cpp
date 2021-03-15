@@ -85,14 +85,6 @@ void InstallEngine()
     LoadPaletteLookups();
 }
 
-void RemoveEngine()
-{
-    engineUnInit();
-}
-
-
-
-
 void CopyTileToBitmap(short nSrcTile, short nDestTile, int xPos, int yPos);
 
 // void TestSaveLoad();
@@ -181,14 +173,6 @@ void DebugOut(const char *fmt, ...)
     va_start(args, fmt);
 	VPrintf(PRINT_HIGH, fmt, args);
 #endif
-}
-
-void ShutDown(void)
-{
-    StopCD();
-
-    RemoveEngine();
-    //UnInitFX();
 }
 
 void DoClockBeep()
@@ -480,12 +464,6 @@ void LevelFinished()
 {
     NextMap = currentLevel->levelNumber == 20 ? nullptr : FindMapByLevelNum(currentLevel->levelNumber + 1); // todo: Use the map record for progression
     EndLevel = 13;
-}
-
-void ExitGame()
-{
-    ShutDown();
-    throw CExitEvent(0);
 }
 
 #define x(a, b) registerName(#a, b);

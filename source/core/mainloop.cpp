@@ -118,6 +118,7 @@ void DoLoadGame(const char* name);
 
 void G_BuildTiccmd(ticcmd_t* cmd) 
 {
+	cmd->ucmd = {};
 	I_GetEvent();
 	auto input = CONTROL_GetInput();
 	gi->GetInput(&cmd->ucmd, &input);

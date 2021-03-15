@@ -105,6 +105,7 @@ LISTMENU "MainMenu"
 
 LISTMENU "IngameMenu"
 {
+	Size 320, 200
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		position 160, 55
@@ -197,6 +198,7 @@ LISTMENU "IngameMenu"
 
 LISTMENU "EpisodeMenu"
 {
+	Size 320, 200
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		position 160, 48
@@ -221,6 +223,7 @@ LISTMENU "EpisodeMenu"
 
 LISTMENU "SkillMenu"
 {
+	Size 320, 200
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		position 160, 48
@@ -785,12 +788,12 @@ OptionMenu "InventoryControlsMenu" protected
 	ifgame(Exhumed)
 	{
 		StaticText ""
-		Control    "$TXT_EX_USEINV1" , "useitem 1"
-		Control    "$TXT_EX_USEINV2" , "useitem 2"
-		Control    "$TXT_EX_USEINV3" , "useitem 3"
-		Control    "$TXT_EX_USEINV4" , "useitem 4"
-		Control    "$TXT_EX_USEINV5" , "useitem 5"
-		Control    "$TXT_EX_USEINV6" , "useitem 6"
+		Control    "$TXT_EX_USEINV1" , "useitem 4"
+		Control    "$TXT_EX_USEINV2" , "useitem 5"
+		Control    "$TXT_EX_USEINV3" , "useitem 6"
+		Control    "$TXT_EX_USEINV4" , "useitem 1"
+		Control    "$TXT_EX_USEINV5" , "useitem 3"
+		Control    "$TXT_EX_USEINV6" , "useitem 2"
 	}
 	ifgame(Witchaven, Witchaven2)
 	{
@@ -893,6 +896,10 @@ OptionMenu "MouseOptions" protected
 	//Option "$MOUSEMNU_ENABLEMOUSE",		"in_mouse", "YesNo"
 	Option "$MOUSEMNU_MOUSEINMENU",		"m_use_mouse", "MenuMouse", "use_mouse"
 	Option "$MOUSEMNU_SHOWBACKBUTTON",	"m_show_backbutton", "Corners", "use_mouse"
+	IfOption(Windows)
+	{
+		Option "$MOUSEMNU_SWAPBUTTONS", "m_swapbuttons", "YesNo"
+	}
 	// todo Option "$MOUSEMNU_CURSOR",			"vid_cursor", "Cursors"
 	StaticText 	""
 	Slider "$MOUSEMNU_SENSITIVITY_X",	"m_sensitivity_x", 0.5, 8, 0.25
@@ -1088,6 +1095,10 @@ OptionMenu GameplayOptions protected
 	ifgame(Blood)
 	{
 		Option "$PLRMNU_EQUIP", "cl_weaponswitch", "WeapSwitch"
+	}
+	ifgame(Exhumed)
+	{
+	    Option "$PLRMNU_EXHUMEDOLDTURN", "cl_exhumedoldturn", "OnOff"
 	}
 	// StaticText ""
 	// Option "Record Demo", "m_recstat", "OnOff"
@@ -1516,7 +1527,7 @@ OptionValue ModVolumeRamps
 OptionMenu ModReplayerOptions protected
 {
 	Title "$MODMNU_TITLE"
-	Slider "$MODMNU_MASTERVOLUME",			"mod_dumb_mastervolume", 1, 16, 0.5, 1
+	Slider "$MODMNU_MASTERVOLUME",			"mod_dumb_mastervolume", 0.25, 4, 0.1, 1
 	Option "$ADVSNDMNU_SAMPLERATE",			"mod_samplerate", "SampleRates2"
 	Option "$MODMNU_QUALITY",				"mod_interp", "ModQuality"
 	Option "$MODMNU_VOLUMERAMPING",			"mod_volramp", "ModVolumeRamps"
@@ -1720,7 +1731,6 @@ OptionMenu "MiscOptions" protected
 		StaticText " "
 		Option "$MISCMNU_DARTS",				"sw_darts", "OnOff"
 		Option "$MISCMNU_NINJA",				"sw_ninjahack", "OnOff"
-		Option "$MISCMNU_ALTNUKE",              "cl_swaltnukeinit", "OnOff"
 	}
 	//StaticText " "
 	//Option "$OPTMNU_LANGUAGE", "language", "LanguageOptions" - not ready yet
@@ -1846,6 +1856,7 @@ OptionValue "os_isanyof_values"
 /*
 LISTMENU "MultiMenu"
 {
+	Size 320, 200
 	ifgame(Duke, Nam, WW2GI)
 	{
 		position 160, 55, 135

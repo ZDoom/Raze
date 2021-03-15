@@ -744,7 +744,10 @@ void S_PlayRRMusic(int newTrack)
 		if (newTrack != 10 && (g_cdTrack > 9 || g_cdTrack < 2))
 			g_cdTrack = 2;
 
-		FStringf filename("track%02d.ogg", g_cdTrack);
+		FStringf filename("redneck%s%02d.ogg", isRRRA()? "rides" : "", g_cdTrack);
+		if (Mus_Play(nullptr, filename, false)) return;
+
+		filename.Format("track%02d.ogg", g_cdTrack);
 		if (Mus_Play(nullptr, filename, false)) return;
 	}
 	// If none of the tracks managed to start, disable the CD music for this session so that regular music can play if defined.

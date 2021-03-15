@@ -41,6 +41,7 @@
 #include "version.h"
 #include <zmusic.h>
 
+EXTERN_CVAR(Bool, mus_usereplaygain)
 //==========================================================================
 //
 // ADL Midi device
@@ -122,7 +123,16 @@ CUSTOM_CVAR(String, fluid_patchset, GAMENAMELOWERCASE, CVAR_ARCHIVE | CVAR_GLOBA
 
 CUSTOM_CVAR(Float, fluid_gain, 0.5, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
 {
-	FORWARD_CVAR(fluid_gain);
+	if (!mus_usereplaygain)
+	{
+		FORWARD_CVAR(fluid_gain);
+	}
+	else
+	{
+		// Replay gain will disable the user setting for consistency.
+		float newval;
+		ChangeMusicSetting(zmusic_fluid_gain, mus_playing.handle, 0.5f, & newval);
+	}
 }
 
 CUSTOM_CVAR(Bool, fluid_reverb, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
@@ -453,6 +463,11 @@ CUSTOM_CVAR(Int, snd_streambuffersize, 64, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CV
 
 CUSTOM_CVAR(Int,  mod_samplerate,				0,	   CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
 {
+	if (self != 0 && self != 11025 && self != 22050 && self != 44100 && self != 48000)
+	{
+		self = 0;
+		return;
+	}
 	FORWARD_CVAR(mod_samplerate);
 }
 
@@ -488,6 +503,14 @@ CUSTOM_CVAR(Int,  mod_autochip_scan_threshold, 12,	   CVAR_ARCHIVE | CVAR_GLOBAL
 
 CUSTOM_CVAR(Float, mod_dumb_mastervolume, 1.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
 {
-	FORWARD_CVAR(mod_dumb_mastervolume);
+	if (!mus_usereplaygain)
+	{
+		FORWARD_CVAR(mod_dumb_mastervolume);
+	}
+	else
+	{
+		float newval;
+		ChangeMusicSetting(zmusic_mod_dumb_mastervolume, mus_playing.handle, 0.5f, &newval);
+	}
 }
 

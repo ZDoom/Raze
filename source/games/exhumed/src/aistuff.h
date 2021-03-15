@@ -390,8 +390,8 @@ struct RunStruct
         };
     };
 
-    short _4;
-    short _6;
+    short next;
+    short prev;
 };
 
 struct RunChannel
@@ -515,6 +515,8 @@ void FuncWasp(int eax, int edx, int nRun);
 
 enum { kMessageMask = 0x7F0000 };
 inline int GrabTimeSlot(int nVal) { return -1; }
+inline int dmgAdjust(int dmg, int fact = 2) { return dmg; }
+inline bool easy() { return false; }
 
 END_PS_NS
 

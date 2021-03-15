@@ -1,10 +1,6 @@
-cmake_minimum_required( VERSION 2.8.7 )
+cmake_minimum_required( VERSION 3.1.0 )
 
 make_release_only()
-
-if( DEM_CMAKE_COMPILER_IS_GNUC_COMPATIBLE )
-	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fomit-frame-pointer" )
-endif()
 
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_7ZIP_PPMD_SUPPPORT" )
 

@@ -36,7 +36,6 @@
 #include "sc_man.h"
 #include "printf.h"
 
-usermaphack_t g_loadedMapHack;  // used only for the MD4 part
 static TArray<usermaphack_t> usermaphacks;
 
 void AddUserMapHack(usermaphack_t& mhk)
@@ -59,7 +58,6 @@ static int32_t LoadMapHack(const char *filename)
     while (sc.GetString())
     {
         FString token = sc.String;
-        int currentsprite = -1;
         auto validateSprite = [&]()
         {
             if (currentsprite < 0)
@@ -106,7 +104,7 @@ static int32_t LoadMapHack(const char *filename)
         else if (sc.Compare("roll"))
         {
             if (sc.CheckNumber() && validateSprite())
-                spriteext[currentsprite].pitch = (int16_t)sc.Number;
+                spriteext[currentsprite].roll = (int16_t)sc.Number;
         }
         else if (sc.Compare("mdxoff") || sc.Compare("mdpivxoff") || sc.Compare("mdpivotxoff"))
         {
@@ -201,7 +199,7 @@ static int32_t LoadMapHack(const char *filename)
 	return 0;
 }
 
-void G_LoadMapHack(const char* filename)
+void G_LoadMapHack(const char* filename, const unsigned char* md4)
 {
     FString hack = StripExtension(filename) + ".mhk";
 
@@ -209,7 +207,7 @@ void G_LoadMapHack(const char* filename)
     {
         for (auto& mhk : usermaphacks)
         {
-            if (!memcmp(g_loadedMapHack.md4, mhk.md4, 16))
+            if (!memcmp(md4, mhk.md4, 16))
             {
                 LoadMapHack(mhk.mhkfile);
             }
