@@ -19,7 +19,6 @@ class FMaterial;
 struct FTexCoordInfo;
 struct FSectorPortalGroup;
 struct FFlatVertex;
-struct FLinePortalSpan;
 struct FDynLightData;
 class VSMatrix;
 struct FSpriteModelFrame;
@@ -171,7 +170,7 @@ public:
 		HWHorizonInfo * horizon;	// for horizon information
 		FSectorPortalGroup * portal;			// stacked sector portals
 		secplane_t * planemirror;	// for plane mirrors
-		FLinePortalSpan *lineportal;	// line-to-line portals
+		walltype *lineportal;	// line-to-line portals
 	};
 	*/
 

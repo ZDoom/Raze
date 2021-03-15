@@ -2,10 +2,12 @@
 
 #include <atomic>
 #include <functional>
+#include "build.h"
 #include "vectors.h"
 #include "hw_viewpointuniforms.h"
 #include "v_video.h"
 #include "hw_drawlist.h"
+#include "r_viewpoint.h"
 
 enum EDrawMode
 {
@@ -16,7 +18,6 @@ enum EDrawMode
 };
 
 struct FSectorPortalGroup;
-struct FLinePortalSpan;
 struct FFlatVertex;
 class HWWall;
 class HWFlat;
@@ -82,7 +83,6 @@ struct HWDrawInfo
 	int vpIndex;
 	//ELightMode lightmode;
 
-	FLevelLocals *Level;
 	HWDrawInfo * outer = nullptr;
 	int FullbrightFlags;
 	std::atomic<int> spriteindex;
@@ -101,7 +101,6 @@ struct HWDrawInfo
 	TArray<uint8_t> sector_renderflags;
 
 	// This is needed by the BSP traverser.
-	BitArray CurrentMapSections;	// this cannot be a single number, because a group of portals with the same displacement may link different sections.
 	fixed_t viewx, viewy;	// since the nodes are still fixed point, keeping the view position  also fixed point for node traversal is faster.
 	bool multithread;
 
@@ -151,7 +150,7 @@ public:
 
 	HWPortal * FindPortal(const void * src);
 
-	//static HWDrawInfo *StartDrawInfo(FLevelLocals *lev, HWDrawInfo *parent, FRenderViewpoint &parentvp, HWViewpointUniforms *uniforms);
+	//static HWDrawInfo *StartDrawInfo(HWDrawInfo *parent, FRenderViewpoint &parentvp, HWViewpointUniforms *uniforms);
 	//void StartScene(FRenderViewpoint &parentvp, HWViewpointUniforms *uniforms);
 	void ClearBuffers();
 	HWDrawInfo *EndDrawInfo();
@@ -169,7 +168,6 @@ public:
 	//void GetDynSpriteLight(AActor *self, float x, float y, float z, FLightNode *node, int portalgroup, float *out);
 	//void GetDynSpriteLight(AActor *thing, particle_t *particle, float *out);
 
-	void UpdateCurrentMapSection();
 	void SetViewMatrix(const FRotator &angles, float vx, float vy, float vz, bool mirror, bool planemirror);
 	void SetupView(FRenderState &state, float vx, float vy, float vz, bool mirror, bool planemirror);
 	angle_t FrustumAngle();
