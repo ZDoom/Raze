@@ -114,11 +114,22 @@ static inline float polymost_invsqrt_approximation(float x)
     return 1.f / sqrtf(x);
 }
 
-float sectorVisibility(int sectnum)
+static float sectorVisibility(int sectnum)
 {
     // Beware of wraparound madness...
     int v = sector[sectnum].visibility;
     return v? ((uint8_t)(v + 16)) / 16.f : 1.f;
+}
+
+template <typename T> static FORCE_INLINE void tileUpdatePicnum(T* const tileptr, int const obj)
+{
+    auto& tile = *tileptr;
+
+    if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
+        tile += animateoffs(tile, obj);
+
+    if (((obj & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && RotTile(tile).newtile != -1)
+        tile = RotTile(tile).newtile;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -345,6 +345,7 @@ extern F2DDrawer twodpsp;
 void renderSetProjectionMatrix(const float* p);
 void renderSetViewMatrix(const float* p);
 void renderSetVisibility(float v);
+void renderSetViewpoint(float x, float y, float z);
 void renderBeginScene();
 void renderFinishScene();
 void DrawRateStuff();

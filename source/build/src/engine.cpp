@@ -29,6 +29,7 @@
 #include "inputstate.h"
 #include "printf.h"
 #include "gamecontrol.h"
+#include "render.h"
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
@@ -38,6 +39,7 @@
 #include "gl_renderer.h"
 #endif
 
+float rollang;
 
 int32_t r_rortexture = 0;
 int32_t r_rortexturerange = 0;
@@ -909,9 +911,32 @@ void set_globalang(fixed_t const ang)
 // drawrooms
 //
 EXTERN_CVAR(Int, gl_fogmode)
+CVAR(Bool, testnewrenderer, true, 0)
+
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
                            fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
 {
+    for (int i = 0; i < numwalls; ++i)
+    {
+        if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
+        {
+            auto& w = wall[i];
+            auto& tile = RotTile(w.picnum + animateoffs(w.picnum, 16384));
+
+            if (tile.newtile == -1 && tile.owner == -1)
+            {
+                auto owner = w.picnum + animateoffs(w.picnum, 16384);
+
+                tile.newtile = TileFiles.tileCreateRotated(owner);
+                assert(tile.newtile != -1);
+
+                RotTile(tile.newtile).owner = w.picnum + animateoffs(w.picnum, 16384);
+
+            }
+        }
+    }
+
+
     int32_t i;
 
     if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.
@@ -931,26 +956,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     i = xdimen-1;
 
-    for (int i = 0; i < numwalls; ++i)
-    {
-        if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
-        {
-            auto &w    = wall[i];
-			auto &tile = RotTile(w.picnum+animateoffs(w.picnum,16384));
-
-            if (tile.newtile == -1 && tile.owner == -1)
-            {
-				auto owner = w.picnum + animateoffs(w.picnum, 16384);
-
-				tile.newtile = TileFiles.tileCreateRotated(owner);
-                assert(tile.newtile != -1);
-
-                RotTile(tile.newtile).owner = w.picnum+animateoffs(w.picnum,16384);
-
-            }
-        }
-    }
-
     // Update starting sector number (common to classic and Polymost).
     // ADJUST_GLOBALCURSECTNUM.
     if (globalcursectnum >= MAXSECTORS)
@@ -967,7 +972,15 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
             return 0;
     }
 
-    Polymost::polymost_drawrooms();
+    if (!testnewrenderer)
+    {
+        Polymost::polymost_drawrooms();
+    }
+    else
+    {
+        vec3_t pos = { daposx, daposy, daposz };
+        render_drawrooms(pos, globalcursectnum, daang, dahoriz, rollang, r_fov, false, false);
+    }
 
     return inpreparemirror;
 }
@@ -1560,9 +1573,11 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             globalfloorpal = globalpal = sec->floorpal;
 
-            globalpicnum = sec->floorpicnum;
-            if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-            tileUpdatePicnum(&globalpicnum, s);
+            int _globalpicnum = sec->floorpicnum;
+            if ((unsigned)_globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
+            tileUpdatePicnum(&_globalpicnum, s, 0);
+            globalpicnum = _globalpicnum;
+
             setgotpic(globalpicnum);
             if ((tileWidth(globalpicnum) <= 0) || (tileHeight(globalpicnum) <= 0)) continue;
 
@@ -1679,8 +1694,12 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             globalpicnum = spr->picnum;
             globalpal = spr->pal; // GL needs this, software doesn't
-            if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-            tileUpdatePicnum(&globalpicnum, s);
+
+            int _globalpicnum = sec->floorpicnum;
+            if ((unsigned)_globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
+            tileUpdatePicnum(&_globalpicnum, s, 0);
+            globalpicnum = _globalpicnum;
+
             setgotpic(globalpicnum);
             if ((tileWidth(globalpicnum) <= 0) || (tileHeight(globalpicnum) <= 0)) continue;
 
@@ -2981,6 +3000,7 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 void renderSetRollAngle(float rolla)
 {
     Polymost::gtang = rolla * BAngRadian;
+    rollang = rolla * (BAngRadian * 180 / pi::pif());
 }
 #endif
 

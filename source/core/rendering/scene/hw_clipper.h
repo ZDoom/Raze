@@ -32,7 +32,6 @@ class Clipper
 	DVector2 viewpoint;
 	bool blocked = false;
 
-	static angle_t AngleToPseudo(angle_t ang);
 	bool IsRangeVisible(angle_t startangle, angle_t endangle);
 	void RemoveRange(ClipNode * cn);
 	void AddClipRange(angle_t startangle, angle_t endangle);
@@ -44,6 +43,7 @@ public:
 	Clipper();
 
 	void Clear();
+	static angle_t AngleToPseudo(angle_t ang);
 
 	void Free(ClipNode *node)
 	{

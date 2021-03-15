@@ -875,6 +875,19 @@ enum EHitBits
 
 void updateModelInterpolation();
 
+int32_t renderAddTsprite(int16_t z, int16_t sectnum);
+
+inline void tileUpdatePicnum(int* const tileptr, int const obj, int stat)
+{
+    auto& tile = *tileptr;
+
+    if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
+        tile += animateoffs(tile, obj);
+
+    if (((obj & 16384) == 16384) && (stat & CSTAT_WALL_ROTATE_90) && RotTile(tile).newtile != -1)
+        tile = RotTile(tile).newtile;
+}
+
 
 #include "iterators.h"
 

@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "cmdlib.h"
+
 #ifndef ENGINE_PRIV_H
 #define ENGINE_PRIV_H
 
@@ -96,10 +98,6 @@ static FORCE_INLINE int32_t getpalookup(int32_t davis, int32_t dashade)
 
 static FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(davis, globalshade) << 8; }
 
-////// yax'y stuff //////
-int32_t renderAddTsprite(int16_t z, int16_t sectnum);
-
-
 static FORCE_INLINE void setgotpic(int32_t tilenume)
 {
     gotpic[tilenume>>3] |= pow2char[tilenume&7];
@@ -117,16 +115,6 @@ static FORCE_INLINE void set_globalpos(int32_t const x, int32_t const y, int32_t
     globalposz = z, fglobalposz = (float)z;
 }
 
-template <typename T> static FORCE_INLINE void tileUpdatePicnum(T * const tileptr, int const obj)
-{
-    auto &tile = *tileptr;
-
-    if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
-        tile += animateoffs(tile, obj);
-
-    if (((obj & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && RotTile(tile).newtile != -1)
-        tile = RotTile(tile).newtile;
-}
 
 // x1, y1: in/out
 // rest x/y: out
@@ -196,22 +184,12 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
 
 inline int widthBits(int num)
 {
-    int w = tileWidth(num);
-    int j = 15;
-
-    while ((j > 1) && ((1 << j) > w))
-        j--;
-    return j;
+    return sizeToBits(tileWidth(num));
 }
 
 inline int heightBits(int num)
 {
-    int w = tileHeight(num);
-    int j = 15;
-
-    while ((j > 1) && ((1 << j) > w))
-        j--;
-    return j;
+    return sizeToBits(tileHeight(num));
 }
 
 

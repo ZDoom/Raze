@@ -389,6 +389,11 @@ void renderSetVisibility(float vis)
 	vp.mGlobVis = vis;
 }
 
+void renderSetViewpoint(float x, float y, float z)
+{
+	vp.mCameraPos = {x, y, z, 0};
+}
+
 void renderBeginScene()
 {
 	assert(BufferLock == 0);
