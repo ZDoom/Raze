@@ -108,8 +108,6 @@ struct FBunch
     angle_t endangle;
 };
 
-const float aspect_factor = (1.28f / 1.333333f);   // this factor gets applied by the original code - must check if needed or just an artifact of the weird math.
-
 // ----------------------------------------------------------------------------
 //
 // Bunches are groups of continuous lines
@@ -617,8 +615,6 @@ static void SetProjection(const FRotator& rotation, FAngle fov)
     {
         fovratio = ratio;
     }
-    ratio *= aspect_factor;   // this factor gets applied by the original code - must check if needed or just an artifact of the weird math.
-    fovratio *= aspect_factor;
     auto rotmat = eye.GetProjection(fov.Degrees, ratio, fovratio);
     renderSetProjectionMatrix(rotmat.get());
 }
@@ -626,7 +622,7 @@ static void SetProjection(const FRotator& rotation, FAngle fov)
 static void SetViewMatrix(const FRotator& angles, float vx, float vy, float vz, bool mirror, bool planemirror)
 {
     float mult = mirror ? -1.f : 1.f;
-    float planemult = planemirror ? -aspect_factor : aspect_factor;// Level->info->pixelstretch : Level->info->pixelstretch;
+    float planemult = planemirror ? -1.f : 1.f;// Level->info->pixelstretch : Level->info->pixelstretch;
     VSMatrix mViewMatrix;
 
     mViewMatrix.loadIdentity();
