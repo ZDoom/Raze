@@ -270,7 +270,8 @@ static void polymost_updaterotmat(void)
     };
     multiplyMatrix4f(matrix, tiltmatrix);
     renderSetViewMatrix(matrix);
-    renderSetVisibility(MulScale(g_visibility, MulScale(xdimenscale, viewingrangerecip, 16), 16) * fviewingrange * (1.f / (65536.f * 65536.f)) / r_ambientlight);
+    float fxdimen = FixedToFloat(xdimenscale);
+    renderSetVisibility(g_visibility * fxdimen * (1.f / (65536.f)) / r_ambientlight);
 }
 
 const vec2_16_t tileSize(size_t index)

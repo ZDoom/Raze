@@ -661,11 +661,12 @@ void render_drawrooms(vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q
     rotation.Yaw = -90.f + q16ang(q16angle).asdeg();
     rotation.Pitch = -HorizToPitch(q16horizon);
     rotation.Roll = rollang;
+    GLInterface.SetViewport(windowxy1.x, windowxy1.y, windowxy2.x - windowxy1.x + 1, windowxy2.y - windowxy1.y + 1);
     SetProjection(rotation, fov);
     SetViewMatrix(rotation, position.x / 16.f, -position.y / 16.f, -position.z / 256.f, mirror, planemirror);
 
     renderSetViewpoint(position.x / 16.f, -position.y / 16.f, -position.z / 256.f);
-    renderSetVisibility((1.f / (65536.f * 65536.f)) * g_visibility / r_ambientlight);//  MulScale(g_visibility, MulScale(xdimenscale * viewingrangerecip * fviewingrange / r_ambientlight);
+    renderSetVisibility((2 / 65536.f) * g_visibility / r_ambientlight); // (2 / 65536.f) is a magic factor to produce the same brightness as Polymost.
     renderBeginScene();
 
     Clipper clipper;
