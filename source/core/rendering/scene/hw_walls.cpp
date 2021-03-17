@@ -843,7 +843,7 @@ void HWWall::DoUpperTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 	float topleft, float topright, float bottomleft, float bottomright)
 {
 	// get the alignment reference position.
-	int refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->floorz : frontsector->ceilingz;
+	int refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->ceilingz;
 
 	type = RENDERWALL_BOTTOM;
 	DoTexture(di, wal, wal, refheight, topleft, topright, bottomleft, bottomright);
@@ -861,19 +861,7 @@ void HWWall::DoLowerTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 	// get the alignment reference position.
 	int refheight;
 	auto refwall = (wall->cstat & CSTAT_WALL_BOTTOM_SWAP) ? &wall[wal->nextwall] : wal;
-
-	if ((wal->cstat & CSTAT_WALL_1WAY) && backsector)
-	{
-		if ((!(wal->cstat & CSTAT_WALL_BOTTOM_SWAP) && (wal->cstat & CSTAT_WALL_1WAY)) ||
-			((wal->cstat & CSTAT_WALL_BOTTOM_SWAP) && (wall[wal->nextwall].cstat & CSTAT_WALL_ALIGN_BOTTOM)))
-			refheight = frontsector->ceilingz;
-		else
-			refheight = backsector->floorz;
-	}
-	else
-	{
-		refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->floorz : frontsector->ceilingz;
-	}
+	refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->floorz;
 
 	shade = refwall->shade;
 	palette = refwall->pal;
@@ -893,7 +881,23 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 	float bch1, float bch2, float bfh1, float bfh2)
 {
 	float topleft,bottomleft,topright,bottomright;
-	float refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->ceilingz;
+	int refheight;
+
+	const int swapit = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM);
+
+	if (wal->cstat & CSTAT_WALL_1WAY)
+	{
+		// 1-sided wall
+		refheight = swapit ? front->ceilingz : back->ceilingz;
+	}
+	else
+	{
+		// masked wall
+		if (swapit)
+			refheight = min(front->floorz, back->floorz);
+		else
+			refheight = max(front->ceilingz, back->ceilingz);
+	}
 
 	topleft = std::min(bch1,fch1);
 	topright = std::min(bch2,fch2);
@@ -1094,5 +1098,6 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 			}
 		}
 	}
+	globalr = globalg = globalb = 255;
 }
 
