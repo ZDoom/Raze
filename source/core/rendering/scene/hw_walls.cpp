@@ -921,7 +921,7 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 //==========================================================================
 void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sectortype* backsector)
 {
-	auto backwall = wall->nextwall >= 0 && wall->nextwall < numwalls? &wall[wal->nextwall] : nullptr;
+	auto backwall = wal->nextwall >= 0 && wal->nextwall < numwalls? &wall[wal->nextwall] : nullptr;
 	auto p2wall = &wall[wal->point2];
 
 	float fch1;

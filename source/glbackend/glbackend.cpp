@@ -189,6 +189,7 @@ bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	else
 	{
 		state.EnableFog(0);
+		state.SetFog(0, 0);
 		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(Shade, 255, numshades) : 255);
 		state.SetLightParms(VisFactor, ShadeDiv / (numshades - 2));
 	}
@@ -391,7 +392,7 @@ void renderSetVisibility(float vis)
 
 void renderSetViewpoint(float x, float y, float z)
 {
-	vp.mCameraPos = {x, y, z, 0};
+	vp.mCameraPos = {x, z, y, 0};
 }
 
 void renderBeginScene()
