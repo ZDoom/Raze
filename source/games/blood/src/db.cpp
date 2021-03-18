@@ -512,7 +512,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     #endif
 
 #ifdef USE_OPENGL
-    Polymost_prepare_loadboard();
+    Polymost::Polymost_prepare_loadboard();
 #endif
 
     FString mapname = pPath;

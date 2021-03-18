@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "cmdlib.h"
+
 #ifndef ENGINE_PRIV_H
 #define ENGINE_PRIV_H
 
@@ -23,63 +25,15 @@
     extern int32_t globalx1, globaly2;
 
 
-extern uint16_t sqrtable[4096], shlookup[4096+256],sqrtable_old[2048];
 
-
-    static inline int32_t nsqrtasm(uint32_t a)
-    {
-        // JBF 20030901: This was a damn lot simpler to reverse engineer than
-        // msqrtasm was. Really, it was just like simplifying an algebra equation.
-        uint16_t c;
-
-        if (a & 0xff000000)  			// test eax, 0xff000000  /  jnz short over24
-        {
-            c = shlookup[(a >> 24) + 4096];	// mov ebx, eax
-                                            // over24: shr ebx, 24
-                                            // mov cx, word ptr shlookup[ebx*2+8192]
-        }
-        else
-        {
-            c = shlookup[a >> 12];		// mov ebx, eax
-                                        // shr ebx, 12
-                                        // mov cx, word ptr shlookup[ebx*2]
-                                        // jmp short under24
-        }
-        a >>= c&0xff;				// under24: shr eax, cl
-        a = (a&0xffff0000)|(sqrtable[a]);	// mov ax, word ptr sqrtable[eax*2]
-        a >>= ((c&0xff00) >> 8);		// mov cl, ch
-                                        // shr eax, cl
-        return a;
-    }
-
-    static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
-    {
-        // Ken did this
-        d = ((a<0)<<3) + ((b<0)<<2) + ((c<0)<<1) + (d<0);
-        return (((d<<4)^0xf0)|d);
-    }
-
-
-
-inline int32_t ksqrtasm_old(int32_t n)
+static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
 {
-    uint32_t shift = 0;
-    n = abs((int32_t)n);
-    while (n >= 2048)
-    {
-        n >>= 2;
-        ++shift;
-    }
-    uint32_t const s = sqrtable_old[n];
-    return (s << shift) >> 10;
+    // Ken did this
+    d = ((a<0)<<3) + ((b<0)<<2) + ((c<0)<<1) + (d<0);
+    return (((d<<4)^0xf0)|d);
 }
 
-inline int32_t clip_nsqrtasm(int32_t n)
-{
-    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-        return ksqrtasm_old(n);
-    return nsqrtasm(n);
-}
+
 
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
@@ -142,13 +96,6 @@ static FORCE_INLINE int32_t getpalookup(int32_t davis, int32_t dashade)
 
 static FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(davis, globalshade) << 8; }
 
-////// yax'y stuff //////
-#ifdef USE_OPENGL
-extern void polymost_scansector(int32_t sectnum);
-#endif
-int32_t renderAddTsprite(int16_t z, int16_t sectnum);
-
-
 static FORCE_INLINE void setgotpic(int32_t tilenume)
 {
     gotpic[tilenume>>3] |= pow2char[tilenume&7];
@@ -166,16 +113,6 @@ static FORCE_INLINE void set_globalpos(int32_t const x, int32_t const y, int32_t
     globalposz = z, fglobalposz = (float)z;
 }
 
-template <typename T> static FORCE_INLINE void tileUpdatePicnum(T * const tileptr, int const obj)
-{
-    auto &tile = *tileptr;
-
-    if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
-        tile += animateoffs(tile, obj);
-
-    if (((obj & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && RotTile(tile).newtile != -1)
-        tile = RotTile(tile).newtile;
-}
 
 // x1, y1: in/out
 // rest x/y: out
@@ -245,22 +182,12 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
 
 inline int widthBits(int num)
 {
-    int w = tileWidth(num);
-    int j = 15;
-
-    while ((j > 1) && ((1 << j) > w))
-        j--;
-    return j;
+    return sizeToBits(tileWidth(num));
 }
 
 inline int heightBits(int num)
 {
-    int w = tileHeight(num);
-    int j = 15;
-
-    while ((j > 1) && ((1 << j) > w))
-        j--;
-    return j;
+    return sizeToBits(tileHeight(num));
 }
 
 

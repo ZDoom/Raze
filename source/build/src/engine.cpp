@@ -29,6 +29,8 @@
 #include "inputstate.h"
 #include "printf.h"
 #include "gamecontrol.h"
+#include "render.h"
+#include "gamefuncs.h"
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
@@ -38,6 +40,7 @@
 #include "gl_renderer.h"
 #endif
 
+float rollang;
 
 int32_t r_rortexture = 0;
 int32_t r_rortexturerange = 0;
@@ -55,9 +58,7 @@ int16_t pskybits_override = -1;
 static TArray<TArray<uint8_t>> voxelmemory;
 
 int16_t tiletovox[MAXTILES];
-#ifdef USE_OPENGL
 char *voxfilenames[MAXVOXELS];
-#endif
 char g_haveVoxels;
 //#define kloadvoxel loadvoxel
 
@@ -79,8 +80,6 @@ int32_t globalx1, globaly2, globalx3, globaly3;
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
 static int32_t qradarang[10240];
-
-uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256], ATTRIBUTE((used)) sqrtable_old[2048];
 
 const char *engineerrstr = "No error";
 
@@ -299,7 +298,7 @@ int32_t animateoffs(int const tilenum, int fakevar)
 
 static void renderDrawSprite(int32_t snum)
 {
-    polymost_drawsprite(snum);
+    Polymost::polymost_drawsprite(snum);
 }
 
 
@@ -308,73 +307,9 @@ static void renderDrawSprite(int32_t snum)
 //
 static void renderDrawMaskedWall(int16_t damaskwallcnt)
 {
-    polymost_drawmaskwall(damaskwallcnt); return; 
+    Polymost::polymost_drawmaskwall(damaskwallcnt); return;
 }
 
-
-static uint32_t msqrtasm(uint32_t c)
-{
-    uint32_t a = 0x40000000l, b = 0x20000000l;
-
-    do
-    {
-        if (c >= a)
-        {
-            c -= a;
-            a += b*4;
-        }
-        a -= b;
-        a >>= 1;
-        b >>= 2;
-    } while (b);
-
-    if (c >= a)
-        a++;
-
-    return a >> 1;
-}
-
-//
-// initksqrt (internal)
-//
-static inline void initksqrt(void)
-{
-    int32_t i, j, k;
-    uint32_t root, num;
-    int32_t temp;
-
-    j = 1; k = 0;
-    for (i=0; i<4096; i++)
-    {
-        if (i >= j) { j <<= 2; k++; }
-        sqrtable[i] = (uint16_t)(msqrtasm((i<<18)+131072)<<1);
-        shlookup[i] = (k<<1)+((10-k)<<8);
-        if (i < 256) shlookup[i+4096] = ((k+6)<<1)+((10-(k+6))<<8);
-    }
-
-    for(i=0;i<2048;i++)
-    {
-        root = 128;
-        num = i<<20;
-        do
-        {
-            temp = root;
-            root = (root+num/root)>>1;
-        } while((temp-root+1) > 2);
-        temp = root*root-num;
-        while (abs(int32_t(temp-2*root+1)) < abs(temp))
-        {
-            temp += 1-int(2*root);
-            root--;
-        }
-        while (abs(int32_t(temp+2*root+1)) < abs(temp))
-        {
-            temp += 2*root+1;
-            root++;
-        }
-        sqrtable_old[i] = root;
-    }
-}
 
 static int32_t engineLoadTables(void)
 {
@@ -383,8 +318,6 @@ static int32_t engineLoadTables(void)
     if (tablesloaded == 0)
     {
         int32_t i;
-
-        initksqrt();
 
         for (i=0; i<2048; i++)
             reciptable[i] = DivScale(2048, i+2048, 30);
@@ -532,10 +465,9 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 // deletesprite
 //
 int32_t (*deletesprite_replace)(int16_t spritenum) = NULL;
-void polymost_deletesprite(int num);
 int32_t deletesprite(int16_t spritenum)
 {
-    polymost_deletesprite(spritenum);
+    Polymost::polymost_deletesprite(spritenum);
     if (deletesprite_replace)
         return deletesprite_replace(spritenum);
     assert((sprite[spritenum].statnum == MAXSTATUS)
@@ -890,7 +822,7 @@ int32_t engineInit(void)
 
 void engineUnInit(void)
 {
-    polymost_glreset();
+    Polymost::polymost_glreset();
     freeallmodels();
 # ifdef POLYMER
     polymer_uninit();
@@ -980,9 +912,33 @@ void set_globalang(fixed_t const ang)
 // drawrooms
 //
 EXTERN_CVAR(Int, gl_fogmode)
+CVAR(Bool, testnewrenderer, true, 0)
+CVAR(Bool, testnewinterface, true, 0)
+
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
                            fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
 {
+    for (int i = 0; i < numwalls; ++i)
+    {
+        if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
+        {
+            auto& w = wall[i];
+            auto& tile = RotTile(w.picnum + animateoffs(w.picnum, 16384));
+
+            if (tile.newtile == -1 && tile.owner == -1)
+            {
+                auto owner = w.picnum + animateoffs(w.picnum, 16384);
+
+                tile.newtile = TileFiles.tileCreateRotated(owner);
+                assert(tile.newtile != -1);
+
+                RotTile(tile.newtile).owner = w.picnum + animateoffs(w.picnum, 16384);
+
+            }
+        }
+    }
+
+
     int32_t i;
 
     if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.
@@ -1002,26 +958,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     i = xdimen-1;
 
-    for (int i = 0; i < numwalls; ++i)
-    {
-        if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
-        {
-            auto &w    = wall[i];
-			auto &tile = RotTile(w.picnum+animateoffs(w.picnum,16384));
-
-            if (tile.newtile == -1 && tile.owner == -1)
-            {
-				auto owner = w.picnum + animateoffs(w.picnum, 16384);
-
-				tile.newtile = TileFiles.tileCreateRotated(owner);
-                assert(tile.newtile != -1);
-
-                RotTile(tile.newtile).owner = w.picnum+animateoffs(w.picnum,16384);
-
-            }
-        }
-    }
-
     // Update starting sector number (common to classic and Polymost).
     // ADJUST_GLOBALCURSECTNUM.
     if (globalcursectnum >= MAXSECTORS)
@@ -1038,7 +974,16 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
             return 0;
     }
 
-    polymost_drawrooms();
+    if (!testnewrenderer)
+    {
+        Polymost::polymost_drawrooms();
+    }
+    else
+    {
+        vec3_t pos = { daposx, daposy, daposz };
+        //if (!testnewinterface) render_drawrooms_(pos, globalcursectnum, daang, dahoriz, rollang, r_fov, false, false);
+        /*else*/ render_drawrooms(pos, globalcursectnum, daang, dahoriz, rollang, false, false);
+    }
 
     return inpreparemirror;
 }
@@ -1180,7 +1125,7 @@ void renderDrawMasks(void)
     int32_t back = i;
     for (; i >= 0; --i)
     {
-        if (polymost_spriteHasTranslucency(&tsprite[i]))
+        if (Polymost::polymost_spriteHasTranslucency(&tsprite[i]))
         {
             tspriteptr[spritesortcnt] = &tsprite[i];
             ++spritesortcnt;
@@ -1195,7 +1140,7 @@ void renderDrawMasks(void)
     {
         const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
         const int32_t yp = DMulScale(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang, 6);
-        const int32_t modelp = polymost_spriteIsModelOrVoxel(tspriteptr[i]);
+        const int32_t modelp = spriteIsModelOrVoxel(tspriteptr[i]);
 
         if (yp > (4<<8))
         {
@@ -1259,10 +1204,10 @@ killsprite:
             int32_t pcstat = tspriteptr[i]->cstat & 48;
             int32_t pangle = tspriteptr[i]->ang;
             int j = i + 1;
-            if (!polymost_spriteIsModelOrVoxel(tspriteptr[i]))
+            if (!spriteIsModelOrVoxel(tspriteptr[i]))
             {
                 while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
-                    && !polymost_spriteIsModelOrVoxel(tspriteptr[j]))
+                    && !spriteIsModelOrVoxel(tspriteptr[j]))
                 {
                     j++;
                 }
@@ -1304,7 +1249,7 @@ killsprite:
     maskwallcnt = 0;
     for (i = 0; i < numMaskWalls; i++)
     {
-        if (polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[i]]]))
+        if (Polymost::polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[i]]]))
         {
             maskwall[maskwallcnt] = maskwall[i];
             maskwallcnt++;
@@ -1893,9 +1838,11 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             globalfloorpal = globalpal = sec->floorpal;
 
-            globalpicnum = sec->floorpicnum;
-            if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-            tileUpdatePicnum(&globalpicnum, s);
+            int _globalpicnum = sec->floorpicnum;
+            if ((unsigned)_globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
+            tileUpdatePicnum(&_globalpicnum, s, 0);
+            globalpicnum = _globalpicnum;
+
             setgotpic(globalpicnum);
             if ((tileWidth(globalpicnum) <= 0) || (tileHeight(globalpicnum) <= 0)) continue;
 
@@ -1910,7 +1857,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             {
                 ox = wall[wall[startwall].point2].x - wall[startwall].x;
                 oy = wall[wall[startwall].point2].y - wall[startwall].y;
-                i = nsqrtasm(uhypsq(ox,oy)); if (i == 0) continue;
+                i = ksqrt(uhypsq(ox,oy)); if (i == 0) continue;
                 i = 1048576/i;
                 globalx1 = MulScale(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i, 10);
                 globaly1 = MulScale(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i, 10);
@@ -1921,7 +1868,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 globaly2 = -globaly1;
 
                 int32_t const daslope = sector[s].floorheinum;
-                i = nsqrtasm(daslope*daslope+16777216);
+                i = ksqrt(daslope*daslope+16777216);
                 set_globalpos(globalposx, MulScale(globalposy,i, 12), globalposz);
                 globalx2 = MulScale(globalx2,i, 12);
                 globaly2 = MulScale(globaly2,i, 12);
@@ -2012,8 +1959,12 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             globalpicnum = spr->picnum;
             globalpal = spr->pal; // GL needs this, software doesn't
-            if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-            tileUpdatePicnum(&globalpicnum, s);
+
+            int _globalpicnum = sec->floorpicnum;
+            if ((unsigned)_globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
+            tileUpdatePicnum(&_globalpicnum, s, 0);
+            globalpicnum = _globalpicnum;
+
             setgotpic(globalpicnum);
             if ((tileWidth(globalpicnum) <= 0) || (tileHeight(globalpicnum) <= 0)) continue;
 
@@ -2309,16 +2260,6 @@ fixed_t gethiq16angle(int32_t xvect, int32_t yvect)
     else rv = ((qradarang[5120 - Scale(1280, xvect, yvect)] >> 6) + IntToFixed(512 + ((yvect < 0) << 10))) & 0x7FFFFFF;
 
     return rv;
-}
-
-//
-// ksqrt
-//
-int32_t ksqrt(uint32_t num)
-{
-    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-        return ksqrtasm_old(num);
-    return nsqrtasm(num);
 }
 
 // Gets the BUILD unit height and z offset of a sprite.
@@ -3169,7 +3110,7 @@ void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, f
 
     inpreparemirror = 1;
 
-    polymost_prepareMirror(dax, day, daz, daang, dahoriz, dawall);
+    Polymost::polymost_prepareMirror(dax, day, daz, daang, dahoriz, dawall);
 }
 
 
@@ -3178,7 +3119,7 @@ void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, f
 //
 void renderCompleteMirror(void)
 {
-    polymost_completeMirror();
+    Polymost::polymost_completeMirror();
     inpreparemirror = 0;
 }
 
@@ -3224,7 +3165,7 @@ int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
 
-    int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
     if (i == 0) return sec->ceilingz;
 
     int const j = DMulScale(d.x, day-w.y, -d.y, dax-w.x, 3);
@@ -3243,7 +3184,7 @@ int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
 
-    int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
     if (i == 0) return sec->floorz;
 
     int const j = DMulScale(d.x, day-w.y, -d.y, dax-w.x, 3);
@@ -3263,7 +3204,7 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz,
 
     vec2_t const d = { wal2->x - wal->x, wal2->y - wal->y };
 
-    int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
     if (i == 0) return;
 
     int const j = DMulScale(d.x,day-wal->y, -d.y,dax-wal->x, 3);
@@ -3288,7 +3229,7 @@ void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
         return;
 
     sector[dasect].ceilingheinum = Scale((z-sector[dasect].ceilingz)<<8,
-                                         nsqrtasm(uhypsq(dax,day)), i);
+                                         ksqrt(uhypsq(dax,day)), i);
     if (sector[dasect].ceilingheinum == 0)
         sector[dasect].ceilingstat &= ~2;
     else sector[dasect].ceilingstat |= 2;
@@ -3309,7 +3250,7 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
         return;
 
     sector[dasect].floorheinum = Scale((z-sector[dasect].floorz)<<8,
-                                       nsqrtasm(uhypsq(dax,day)), i);
+                                       ksqrt(uhypsq(dax,day)), i);
     if (sector[dasect].floorheinum == 0)
         sector[dasect].floorstat &= ~2;
     else sector[dasect].floorstat |= 2;
@@ -3323,7 +3264,8 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 #ifdef USE_OPENGL
 void renderSetRollAngle(float rolla)
 {
-    gtang = rolla * BAngRadian;
+    Polymost::gtang = rolla * BAngRadian;
+    rollang = rolla * (BAngRadian * 180 / pi::pif());
 }
 #endif
 

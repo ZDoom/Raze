@@ -51,7 +51,14 @@
 #include "gamestruct.h"
 #include "gl_models.h"
 
-CVAR(Bool, gl_texture, true, 0)
+CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
+bool hw_int_useindexedcolortextures;
+CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
+{
+	if (screen) screen->SetTextureFilterMode();
+}
+
+EXTERN_CVAR(Bool, gl_texture)
 
 F2DDrawer twodpsp;
 static int BufferLock = 0;
@@ -182,6 +189,7 @@ bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	else
 	{
 		state.EnableFog(0);
+		state.SetFog(0, 0);
 		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(Shade, 255, numshades) : 255);
 		state.SetLightParms(VisFactor, ShadeDiv / (numshades - 2));
 	}
@@ -382,6 +390,11 @@ void renderSetVisibility(float vis)
 	vp.mGlobVis = vis;
 }
 
+void renderSetViewpoint(float x, float y, float z)
+{
+	vp.mCameraPos = {x, z, y, 0};
+}
+
 void renderBeginScene()
 {
 	assert(BufferLock == 0);
@@ -519,8 +532,6 @@ void markTileForPrecache(int tilenum, int palnum)
 	}
 }
 
-void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
-
 void precacheMarkedTiles()
 {
 	decltype(cachemap)::Iterator it(cachemap);
@@ -529,7 +540,7 @@ void precacheMarkedTiles()
 	{
 		int dapicnum = pair->Key & 0x7fffffff;
 		int dapalnum = pair->Key >> 32;
-		polymost_precache(dapicnum, dapalnum, 0);
+		Polymost::polymost_precache(dapicnum, dapalnum, 0);
 	}
 }
 

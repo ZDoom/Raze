@@ -20,6 +20,17 @@
 //   bits 12-15: reserved
 
 //////////////////// Version 7 map format ////////////////////
+enum
+{
+    CSTAT_SECTOR_SKY = 1,
+    CSTAT_SECTOR_SLOPE = 2,
+    CSTAT_SECTOR_SWAPXY = 4,
+    CSTAT_SECTOR_TEXHALF = 8,
+    CSTAT_SECTOR_XFLIP = 16,
+    CSTAT_SECTOR_YFLIP = 32,
+    CSTAT_SECTOR_ALIGN = 64,
+    CSTAT_SECTOR_METHOD = 384
+};
 
 //40 bytes
 struct sectortype
@@ -91,6 +102,7 @@ struct walltype
     int16_t hitag;
     int16_t extra;
     float xpan_, ypan_;
+    angle_t clipangle;
 
     int xpan() const { return int(xpan_); }
     int ypan() const { return int(ypan_); }

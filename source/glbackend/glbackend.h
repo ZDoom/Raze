@@ -21,12 +21,6 @@ class F2DDrawer;
 struct palette_t;
 extern int xdim, ydim;
 
-enum
-{
-	DM_MAINVIEW,
-	DM_OFFSCREEN
-};
-
 class PaletteManager
 {
 	IHardwareTexture* palettetextures[256] = {};
@@ -293,12 +287,6 @@ public:
 		renderState.NPOTEmulation.X = xOffset;
 	}
 
-	void SetFadeDisable(bool yes)
-	{
-		if (yes) renderState.Flags |= RF_FogDisabled;
-		else renderState.Flags &= ~RF_FogDisabled;
-	}
-
 	// Hack...
 	bool useMapFog = false;
 
@@ -345,6 +333,7 @@ extern F2DDrawer twodpsp;
 void renderSetProjectionMatrix(const float* p);
 void renderSetViewMatrix(const float* p);
 void renderSetVisibility(float v);
+void renderSetViewpoint(float x, float y, float z);
 void renderBeginScene();
 void renderFinishScene();
 void DrawRateStuff();

@@ -45,7 +45,6 @@
 #include "hw_shadowmap.h"
 
 
-struct sector_t;
 struct FPortalSceneState;
 class FSkyVertexBuffer;
 class IIndexBuffer;

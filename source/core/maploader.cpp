@@ -385,7 +385,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES + MAXUNIQHUDID));
 	initspritelists();
 	ClearAutomap();
-	Polymost_prepare_loadboard();
+	Polymost::Polymost_prepare_loadboard();
 
 	pos->x = fr.ReadInt32();
 	pos->y = fr.ReadInt32();

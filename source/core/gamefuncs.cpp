@@ -146,3 +146,79 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnu
 
 	return true;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool spriteIsModelOrVoxel(const spritetype * tspr)
+{
+	if ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].flags & SPREXT_NOTMD)
+		return false;
+
+	if (hw_models)
+	{
+		auto& mdinfo = tile2model[Ptile2tile(tspr->picnum, tspr->pal)];
+		if (mdinfo.modelid >= 0 && mdinfo.framenum >= 0) return true;
+	}
+
+	auto slabalign = (tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB;
+	if (r_voxels && !slabalign && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]]) return true;
+	return (slabalign && voxmodels[tspr->picnum]);
+}
+
+//==========================================================================
+//
+// note that this returns values in renderer coordinate space with inverted sign!
+//
+//==========================================================================
+
+void PlanesAtPoint(usectorptr_t sec, float dax, float day, float* pceilz, float* pflorz)
+{
+	float ceilz = float(sec->ceilingz);
+	float florz = float(sec->floorz);
+
+	if (((sec->ceilingstat | sec->floorstat) & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)
+	{
+		auto wal = &wall[sec->wallptr];
+		auto wal2 = &wall[wal->point2];
+
+		float dx = wal2->x - wal->x;
+		float dy = wal2->y - wal->y;
+
+		int i = (int)sqrt(dx * dx + dy * dy) << 5; // length of sector's first wall.
+		if (i != 0)
+		{
+			float const j = (dx * (day - wal->y) - dy * (dax - wal->x)) * (1.f / 8.f);
+			if (sec->ceilingstat & CSTAT_SECTOR_SLOPE) ceilz += (sec->ceilingheinum * j) / i;
+			if (sec->floorstat & CSTAT_SECTOR_SLOPE) florz += (sec->floorheinum * j) / i;
+		}
+	}
+	// Scale to render coordinates.
+	if (pceilz) *pceilz = ceilz * -(1.f / 256.f);
+	if (pflorz) *pflorz = florz * -(1.f / 256.f);
+}
+
+// variant that allows to pass precalculated info for the first line in. For cases where multiple points in a sector need to be checked.
+void PlanesAtPoint(usectorptr_t sec, PlaneParam *pp, float dax, float day, float* pceilz, float* pflorz)
+{
+	float ceilz = float(sec->ceilingz);
+	float florz = float(sec->floorz);
+
+	if (((sec->ceilingstat | sec->floorstat) & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)
+	{
+		if (pp->length != 0)
+		{
+			auto wal = &wall[sec->wallptr];
+			float const j = (pp->dx * (day - wal->y) - pp->dy * (dax - wal->x)) * (1.f / 8.f);
+			if (sec->ceilingstat & CSTAT_SECTOR_SLOPE) ceilz += (sec->ceilingheinum * j) / pp->length;
+			if (sec->floorstat & CSTAT_SECTOR_SLOPE) florz += (sec->floorheinum * j) / pp->length;
+		}
+	}
+	// Scale to render coordinates.
+	if (pceilz) *pceilz = ceilz * -(1.f / 256.f);
+	if (pflorz) *pflorz = florz * -(1.f / 256.f);
+}
+

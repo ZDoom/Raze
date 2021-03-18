@@ -34,6 +34,10 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "dukeactor.h"
 #include "interpolate.h"
 
+// temporary hack to pass along RRRA's global fog. Needs to be done better later.
+extern PalEntry GlobalMapFog;
+extern float GlobalFogDensity;
+
 
 BEGIN_DUKE_NS
 
@@ -491,6 +495,8 @@ void displayrooms(int snum, double smoothratio)
 	sect = p->cursectnum;
 	if (sect < 0 || sect >= MAXSECTORS) return;
 
+	GlobalMapFog = fogactive ? 0x999999 : 0;
+	GlobalFogDensity = fogactive ? 350.f : 0.f;
 	GLInterface.SetMapFog(fogactive != 0);
 	DoInterpolations(smoothratio / 65536.);
 
