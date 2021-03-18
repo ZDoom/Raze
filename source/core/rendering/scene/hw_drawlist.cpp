@@ -507,12 +507,12 @@ void HWDrawList::SortSpriteIntoWall(HWDrawInfo *di, SortNode * head,SortNode * s
 	{
 		const bool drawWithXYBillboard = false;//
 
-		const bool drawBillboardFacingCamera = gl_billboard_faces_camera;
 		// [Nash] has +ROLLSPRITE
 		const bool rotated = false;//
 
 		// cannot sort them at the moment. This requires more complex splitting.
 		/*
+		const bool drawBillboardFacingCamera = gl_billboard_faces_camera;
 		if (drawWithXYBillboard || drawBillboardFacingCamera || rotated)
 		{
 			float v1 = wh->PointOnSide(ss->x, ss->y);

@@ -279,10 +279,7 @@ public:
 	void ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which = 7 /*SSRF_RENDERALL*/);	// cannot use constant due to circular dependencies.
 	
 	void DrawSubsectors(HWDrawInfo *di, FRenderState &state);
-	void DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent);
-    
-    void DrawOtherPlanes(HWDrawInfo *di, FRenderState &state);
-    void DrawFloodPlanes(HWDrawInfo *di, FRenderState &state);
+	void DrawFlat(HWDrawInfo* di, FRenderState& state, bool translucent) {}
 };
 
 //==========================================================================
@@ -334,11 +331,11 @@ public:
 
 public:
 
-	void CreateVertices(HWDrawInfo *di);
+	void CreateVertices(HWDrawInfo* di) {}
 	void PutSprite(HWDrawInfo *di, bool translucent);
 	void Process(HWDrawInfo *di, AActor* thing,sectortype * sector, int thruportal = false);
 
-	void DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent);
+	void DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent) {}
 };
 
 

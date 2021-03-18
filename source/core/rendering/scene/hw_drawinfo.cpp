@@ -142,12 +142,11 @@ void HWDrawInfo::StartScene(FRenderViewpoint &parentvp, HWViewpointUniforms *uni
 		VPUniforms.mClipLine.X = -10000000.0f;
 		VPUniforms.mShadowmapFilter = gl_shadowmap_filter;
 	}
-	mClipper->SetViewpoint(Viewpoint);
+	mClipper->SetViewpoint(Viewpoint.Pos.XY());
 
 	ClearBuffers();
 
 	for (int i = 0; i < GLDL_TYPES; i++) drawlists[i].Reset();
-	hudsprites.Clear();
 	vpIndex = 0;
 
 	// Fullbright information needs to be propagated from the main view.
@@ -295,14 +294,17 @@ HWDecal* HWDrawInfo::AddDecal(bool onmirror)
 //
 //-----------------------------------------------------------------------------
 
-void HWDrawInfo::CreateScene(bool drawpsprites)
+void HWDrawInfo::CreateScene()
 {
 	const auto &vp = Viewpoint;
-	angle_t a1 = FrustumAngle();
-	mClipper->SafeAddClipRangeRealAngles(vp.Angles.Yaw.BAMs() + a1, vp.Angles.Yaw.BAMs() - a1);
 
+	angle_t a1 = FrustumAngle();
+	mClipper->SafeAddClipRangeRealAngles(vp.RotAngle + a1, vp.RotAngle - a1);
+
+#if 0
 	// reset the portal manager
 	portalState.StartFrame();
+#endif
 
 	ProcessAll.Clock();
 
@@ -380,7 +382,9 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 
 	// Part 4: Draw decals (not a real pass)
 	state.SetDepthFunc(DF_LEqual);
+#if 0
 	DrawDecals(state, Decals[0]);
+#endif
 
 	RenderAll.Unclock();
 }
@@ -422,6 +426,7 @@ void HWDrawInfo::RenderTranslucent(FRenderState &state)
 
 void HWDrawInfo::RenderPortal(HWPortal *p, FRenderState &state, bool usestencil)
 {
+#if 0
 	auto gp = static_cast<HWPortal *>(p);
 	gp->SetupStencil(this, state, usestencil);
 	auto new_di = StartDrawInfo(this, Viewpoint, &VPUniforms);
@@ -432,7 +437,7 @@ void HWDrawInfo::RenderPortal(HWPortal *p, FRenderState &state, bool usestencil)
 	state.SetVertexBuffer(screen->mVertexData);
 	screen->mViewpoints->Bind(state, vpIndex);
 	gp->RemoveStencil(this, state, usestencil);
-
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -544,11 +549,13 @@ void HWDrawInfo::DrawScene(int drawmode)
 		ssao_portals_available--;
 	}
 
-	CreateScene(false);
+	CreateScene();
 	auto& RenderState = *screen->RenderState();
 
 	RenderState.SetDepthMask(true);
+#if 0
 	if (!gl_no_skyclear) portalState.RenderFirstSkyPortal(recursion, this, RenderState);
+#endif
 
 	RenderScene(RenderState);
 
@@ -561,7 +568,9 @@ void HWDrawInfo::DrawScene(int drawmode)
 	// Handle all portals after rendering the opaque objects but before
 	// doing all translucent stuff
 	recursion++;
+#if 0
 	portalState.EndFrame(this, RenderState);
+#endif
 	recursion--;
 	RenderTranslucent(RenderState);
 }
@@ -575,9 +584,10 @@ void HWDrawInfo::DrawScene(int drawmode)
 
 void HWDrawInfo::ProcessScene(bool toscreen)
 {
+#if 0
 	portalState.BeginScene();
+#endif
 	DrawScene(toscreen ? DM_MAINVIEW : DM_OFFSCREEN);
-
 }
 
 //==========================================================================

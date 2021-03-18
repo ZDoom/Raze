@@ -7,7 +7,8 @@
 #include "hw_viewpointuniforms.h"
 #include "v_video.h"
 #include "hw_drawlist.h"
-#include "r_viewpoint.h"
+#include "hw_bunchdrawer.h"
+//#include "r_viewpoint.h"
 
 enum EDrawMode
 {
@@ -25,7 +26,6 @@ class HWSprite;
 struct HWDecal;
 class IShadowMap;
 struct FDynLightData;
-struct HUDSprite;
 class Clipper;
 class HWPortal;
 class FFlatVertexBuffer;
@@ -33,6 +33,13 @@ class IRenderQueue;
 class HWScenePortalBase;
 class FRenderState;
 
+struct FRenderViewpoint
+{
+	DVector3 Pos;
+	FRotator HWAngles;
+	FAngle FieldOfView;
+	angle_t RotAngle;
+};
 //==========================================================================
 //
 // these are used to link faked planes due to missing textures to a sector
@@ -89,12 +96,12 @@ struct HWDrawInfo
 	HWPortal *mClipPortal;
 	HWPortal *mCurrentPortal;
 	//FRotator mAngles;
+	BunchDrawer mDrawer;
 	Clipper *mClipper;
-	//FRenderViewpoint Viewpoint;
+	FRenderViewpoint Viewpoint;
 	HWViewpointUniforms VPUniforms;	// per-viewpoint uniform state
 	TArray<HWPortal *> Portals;
 	TArray<HWDecal *> Decals[2];	// the second slot is for mirrors which get rendered in a separate pass.
-	TArray<HUDSprite> hudsprites;	// These may just be stored by value.
 
 	TArray<sectortype *> HandledSubsectors;
 
@@ -105,10 +112,7 @@ struct HWDrawInfo
 	bool multithread;
 
 private:
-    // For ProcessLowerMiniseg
     bool inview;
-//    sectortype * viewsubsector;
-//	sectortype *currentsubsector;	// used by the line processing code.
 	sectortype *currentsector;
 
 	void WorkerThread();
@@ -150,13 +154,13 @@ public:
 
 	HWPortal * FindPortal(const void * src);
 
-	//static HWDrawInfo *StartDrawInfo(HWDrawInfo *parent, FRenderViewpoint &parentvp, HWViewpointUniforms *uniforms);
-	//void StartScene(FRenderViewpoint &parentvp, HWViewpointUniforms *uniforms);
+	static HWDrawInfo *StartDrawInfo(HWDrawInfo *parent, FRenderViewpoint &parentvp, HWViewpointUniforms *uniforms);
+	void StartScene(FRenderViewpoint &parentvp, HWViewpointUniforms *uniforms);
 	void ClearBuffers();
 	HWDrawInfo *EndDrawInfo();
 
 	void DrawScene(int drawmode);
-	void CreateScene(bool drawpsprites);
+	void CreateScene();
 	void RenderScene(FRenderState &state);
 	void RenderTranslucent(FRenderState &state);
 	void RenderPortal(HWPortal *p, FRenderState &state, bool usestencil);

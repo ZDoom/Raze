@@ -58,7 +58,7 @@ CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBAL
 	if (screen) screen->SetTextureFilterMode();
 }
 
-CVAR(Bool, gl_texture, true, 0)
+EXTERN_CVAR(Bool, gl_texture)
 
 F2DDrawer twodpsp;
 static int BufferLock = 0;

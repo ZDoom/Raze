@@ -43,6 +43,42 @@
 
 //==========================================================================
 //
+// Create vertices for one wall
+//
+//==========================================================================
+
+int HWWall::CreateVertices(FFlatVertex*& ptr, bool split)
+{
+	auto oo = ptr;
+	ptr->Set(glseg.x1, zbottom[0], glseg.y1, tcs[LOLFT].u, tcs[LOLFT].v);
+	ptr++;
+	ptr->Set(glseg.x1, ztop[0], glseg.y1, tcs[UPLFT].u, tcs[UPLFT].v);
+	ptr++;
+	ptr->Set(glseg.x2, ztop[1], glseg.y2, tcs[UPRGT].u, tcs[UPRGT].v);
+	ptr++;
+	ptr->Set(glseg.x2, zbottom[1], glseg.y2, tcs[LORGT].u, tcs[LORGT].v);
+	ptr++;
+	return int(ptr - oo);
+}
+
+//==========================================================================
+//
+// build the vertices for this wall
+//
+//==========================================================================
+
+void HWWall::MakeVertices(HWDrawInfo* di, bool nosplit)
+{
+	if (vertcount == 0)
+	{
+		auto ret = screen->mVertexData->AllocVertices(4);
+		vertindex = ret.second;
+		vertcount = CreateVertices(ret.first, false);
+	}
+}
+
+//==========================================================================
+//
 // General purpose wall rendering function
 // everything goes through here
 //
