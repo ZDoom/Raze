@@ -169,3 +169,35 @@ bool spriteIsModelOrVoxel(const spritetype * tspr)
 	return (slabalign && voxmodels[tspr->picnum]);
 }
 
+//==========================================================================
+//
+// note that this returns values in renderer coordinate space with inverted sign!
+//
+//==========================================================================
+
+void PlanesAtPoint(usectorptr_t sec, float dax, float day, float* pceilz, float* pflorz)
+{
+	float ceilz = float(sec->ceilingz);
+	float florz = float(sec->floorz);
+
+	if (((sec->ceilingstat | sec->floorstat) & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)
+	{
+		auto wal = &wall[sec->wallptr];
+		auto wal2 = &wall[wal->point2];
+
+		float dx = wal2->x - wal->x;
+		float dy = wal2->y - wal->y;
+
+		int i = (int)sqrt(dx * dx + dy * dy) << 5; // length of sector's first wall.
+		if (i != 0)
+		{
+			float const j = (dx * (day - wal->y) - dy * (dax - wal->x)) * (1.f / 8.f);
+			if (sec->ceilingstat & CSTAT_SECTOR_SLOPE) ceilz += (sec->ceilingheinum * j) / i;
+			if (sec->floorstat & CSTAT_SECTOR_SLOPE) florz += (sec->floorheinum * j) / i;
+		}
+	}
+	// Scale to render coordinates.
+	if (pceilz) *pceilz = ceilz * -(1.f / 256.f);
+	if (pflorz) *pflorz = florz * -(1.f / 256.f);
+}
+

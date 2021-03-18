@@ -13,6 +13,7 @@
 #include "printf.h"
 #include "v_video.h"
 #include "flatvertices.h"
+#include "gamefuncs.h"
 
 angle_t FrustumAngle(float ratio, float fov, float pitch)
 {
@@ -28,71 +29,6 @@ angle_t FrustumAngle(float ratio, float fov, float pitch)
     angle_t a1 = DAngle(floatangle).BAMs();
     if (a1 >= ANGLE_180) return 0xffffffff;
     return a1;
-}
-
-//==========================================================================
-//
-// note that these return values in renderer coordinate space with inverted sign!
-//
-//==========================================================================
-
-float CeilingAtPoint(sectortype* sec, float dax, float day)
-{
-    if (!(sec->ceilingstat & CSTAT_SECTOR_SLOPE))
-        return float(sec->ceilingz);
-
-    auto wal = &wall[sec->wallptr];
-    auto wal2 = &wall[wal->point2];
-
-    vec2_t d = { wal2->x - wal->x, wal2->y - wal->y };
-
-    int i = ksqrt(uhypsq(d.x, d.y)) << 5;
-    if (i == 0) return sec->ceilingz;
-
-    float const j = (d.x * (day - wal->y) - d.y * (dax - wal->x)) * (1.f / 8.f);
-    return -float(sec->ceilingz) + (sec->ceilingheinum * j) / i;
-}
-
-float FloorAtPoint(usectorptr_t sec, float dax, float day)
-{
-    if (!(sec->floorstat & CSTAT_SECTOR_SLOPE))
-        return float(sec->floorz);
-
-    auto wal = &wall[sec->wallptr];
-    auto wal2 = &wall[wal->point2];
-
-    vec2_t d = { wal2->x - wal->x, wal2->y - wal->y };
-
-    int i = ksqrt(uhypsq(d.x, d.y)) << 5;
-    if (i == 0) return sec->floorz;
-
-    float const j = (d.x * (day - wal->y) - d.y * (dax - wal->x)) * (1.f / 8.f);
-    return -float(sec->floorz) + (sec->floorheinum * j) / i;
-}
-
-void PlanesAtPoint(usectorptr_t sec, float dax, float day, float* pceilz, float* pflorz)
-{
-    float ceilz = float(sec->ceilingz); 
-    float florz = float(sec->floorz);
-
-    if (((sec->ceilingstat | sec->floorstat) & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)
-    {
-        auto wal = &wall[sec->wallptr];
-        auto wal2 = &wall[wal->point2];
-
-        vec2_t d = { wal2->x - wal->x, wal2->y - wal->y };
-
-        int i = ksqrt(uhypsq(d.x, d.y)) << 5;
-        if (i != 0)
-        {
-            float const j = (d.x * (day - wal->y) - d.y * (dax - wal->x)) * (1.f / 8.f);
-            if (sec->ceilingstat & CSTAT_SECTOR_SLOPE) ceilz += (sec->ceilingheinum * j) / i;
-            if (sec->floorstat & CSTAT_SECTOR_SLOPE) florz += (sec->floorheinum * j) / i;
-        }
-    }
-    // Scale to render coordinates.
-    *pceilz = ceilz * -(1.f / 256.f);
-    *pflorz = florz * -(1.f / 256.f);
 }
 
 

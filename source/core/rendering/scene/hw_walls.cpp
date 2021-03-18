@@ -33,7 +33,7 @@
 #include "hw_renderstate.h"
 #include "hw_skydome.h"
 #include "hw_drawstructs.h"
-#include "render.h"
+#include "gamefuncs.h"
 #include "cmdlib.h"
 
 #include "v_video.h"

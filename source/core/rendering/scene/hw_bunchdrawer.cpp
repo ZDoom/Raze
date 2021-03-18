@@ -37,7 +37,7 @@
 #include "hw_clock.h"
 #include "hw_drawstructs.h"
 #include "automap.h"
-#include "render.h"
+#include "gamefuncs.h"
 
 
 
