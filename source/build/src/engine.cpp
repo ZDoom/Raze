@@ -981,8 +981,8 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     else
     {
         vec3_t pos = { daposx, daposy, daposz };
-        if (!testnewinterface) render_drawrooms_(pos, globalcursectnum, daang, dahoriz, rollang, r_fov, false, false);
-        else render_drawrooms(pos, globalcursectnum, daang, dahoriz, rollang, false, false);
+        //if (!testnewinterface) render_drawrooms_(pos, globalcursectnum, daang, dahoriz, rollang, r_fov, false, false);
+        /*else*/ render_drawrooms(pos, globalcursectnum, daang, dahoriz, rollang, false, false);
     }
 
     return inpreparemirror;

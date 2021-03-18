@@ -38,6 +38,7 @@
 #include "hw_vrmodes.h"
 #include "hw_clipper.h"
 #include "v_draw.h"
+#include "gamecvars.h"
 
 EXTERN_CVAR(Float, r_visibility)
 CVAR(Bool, gl_bandedswlight, false, CVAR_ARCHIVE)
@@ -136,7 +137,7 @@ void HWDrawInfo::StartScene(FRenderViewpoint &parentvp, HWViewpointUniforms *uni
 		VPUniforms.mViewMatrix.loadIdentity();
 		VPUniforms.mNormalViewMatrix.loadIdentity();
 		//VPUniforms.mViewHeight = viewheight;
-		VPUniforms.mGlobVis = 1 / 64.f;
+		VPUniforms.mGlobVis = (2 / 65536.f) * g_visibility / r_ambientlight;
 		VPUniforms.mPalLightLevels = numshades | (static_cast<int>(gl_fogmode) << 8) | (5 << 16);
 
 		VPUniforms.mClipLine.X = -10000000.0f;
@@ -184,15 +185,9 @@ HWDrawInfo *HWDrawInfo::EndDrawInfo()
 
 void HWDrawInfo::ClearBuffers()
 {
-	HandledSubsectors.Clear();
 	spriteindex = 0;
-
-	sector_renderflags.Resize(numsectors);
-	memset(&sector_renderflags[0], 0, numsectors * sizeof(sector_renderflags[0]));
-
 	Decals[0].Clear();
 	Decals[1].Clear();
-
 	mClipPortal = nullptr;
 	mCurrentPortal = nullptr;
 }
@@ -296,7 +291,7 @@ HWDecal* HWDrawInfo::AddDecal(bool onmirror)
 
 void HWDrawInfo::CreateScene()
 {
-	const auto &vp = Viewpoint;
+	const auto& vp = Viewpoint;
 
 	angle_t a1 = FrustumAngle();
 	mClipper->SafeAddClipRangeRealAngles(vp.RotAngle + a1, vp.RotAngle - a1);
@@ -312,7 +307,9 @@ void HWDrawInfo::CreateScene()
 	screen->mVertexData->Map();
 	screen->mLights->Map();
 
-	//RenderBSP(Level->HeadNode(), drawpsprites);
+	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
+	mDrawer.Init(this, mClipper, view);
+	mDrawer.RenderScene(vp.SectNum);
 
 	// And now the crappy hacks that have to be done to avoid rendering anomalies.
 	// These cannot be multithreaded when the time comes because all these depend

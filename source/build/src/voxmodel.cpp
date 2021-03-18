@@ -190,7 +190,6 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
 		GLInterface.SetDepthFunc(DF_Less);
 	}
 	GLInterface.SetIdentityMatrix(Matrix_Model);
-	GLInterface.SetFadeDisable(false);
     return 1;
 }
 

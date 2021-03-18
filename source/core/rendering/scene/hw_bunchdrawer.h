@@ -3,7 +3,7 @@
 #include "tarray.h"
 #include "basics.h"
 
-class FDrawInfo;
+struct HWDrawInfo;
 class Clipper;
 
 struct FBunch
@@ -17,7 +17,7 @@ struct FBunch
 
 class BunchDrawer
 {
-	FDrawInfo *di;
+	HWDrawInfo *di;
     Clipper *clipper;
     int LastBunch;
     int StartTime;
@@ -49,6 +49,6 @@ private:
     void ProcessSector(int sectnum);
 
 public:
-    void Init(FDrawInfo* _di, Clipper* c, vec2_t& view);
+    void Init(HWDrawInfo* _di, Clipper* c, vec2_t& view);
     void RenderScene(int viewsector);
 };

@@ -105,10 +105,6 @@ struct HWDrawInfo
 	TArray<HWPortal *> Portals;
 	TArray<HWDecal *> Decals[2];	// the second slot is for mirrors which get rendered in a separate pass.
 
-	TArray<sectortype *> HandledSubsectors;
-
-	TArray<uint8_t> sector_renderflags;
-
 	// This is needed by the BSP traverser.
 	fixed_t viewx, viewy;	// since the nodes are still fixed point, keeping the view position  also fixed point for node traversal is faster.
 	bool multithread;
@@ -128,12 +124,6 @@ private:
 	//void RenderThings(sectortype * sub, sectortype * sector);
 	//void RenderParticles(sectortype *sub, sectortype *front);
 	void SetColor(FRenderState &state, int sectorlightlevel, int rellight, bool fullbright, const FColormap &cm, float alpha, bool weapon = false);
-	void SetFog(FRenderState &state, int lightlevel, int rellight, bool fullbright, const FColormap *cmap, bool isadditive);
-	void SetShaderLight(FRenderState &state, float level, float olight);
-	int CalcLightLevel(int lightlevel, int rellight, bool weapon, int blendfactor);
-	PalEntry CalcLightColor(int light, PalEntry pe, int blendfactor);
-	float GetFogDensity(int lightlevel, PalEntry fogcolor, int sectorfogdensity, int blendfactor);
-	bool CheckFog(sectortype *frontsector, sectortype *backsector);
 public:
 
 	void SetCameraPos(const DVector3 &pos)

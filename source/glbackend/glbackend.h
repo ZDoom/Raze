@@ -287,12 +287,6 @@ public:
 		renderState.NPOTEmulation.X = xOffset;
 	}
 
-	void SetFadeDisable(bool yes)
-	{
-		if (yes) renderState.Flags |= RF_FogDisabled;
-		else renderState.Flags &= ~RF_FogDisabled;
-	}
-
 	// Hack...
 	bool useMapFog = false;
 

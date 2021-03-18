@@ -154,7 +154,9 @@ public:
 	
 	float ViewDistance;
 	float visibility;
-	short shade, palette, floorpal;
+	short shade, palette;
+
+	PalEntry fade;
 
 	uint16_t flags;
 	uint8_t type;

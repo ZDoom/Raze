@@ -26,8 +26,7 @@
 #include "hw_cvars.h"
 #include "hw_clock.h"
 //#include "hw_lighting.h"
-//#include "hwrenderer/scene/hw_drawinfo.h"
-//#include "hwrenderer/scene/hw_drawstructs.h"
+#include "hw_drawinfo.h"
 //#include "hwrenderer/scene/hw_portal.h"
 #include "hw_lightbuffer.h"
 #include "hw_renderstate.h"
@@ -40,6 +39,8 @@
 #include "flatvertices.h"
 #include "glbackend/glbackend.h"
 
+extern PalEntry GlobalMapFog;
+extern float GlobalFogDensity;
 
 //==========================================================================
 //
@@ -171,12 +172,10 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
-#if 0
-	int tmode = state.GetTextureMode();
+	//int tmode = state.GetTextureMode();
 
-	state.SetMaterial(texture, UF_Texture, 0, flags & 3, 0, -1);
+	state.SetMaterial(texture, UF_Texture, 0, 0/*flags & 3*/, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
-	
 	int32_t size = xs_CRoundToInt(texture->GetDisplayHeight());
 	int32_t size2;
 	for (size2 = 1; size2 < size; size2 += size2) {}
@@ -188,13 +187,48 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 		state.SetNpotEmulation((1.f * size2) / size, xOffset);
 	}
 
-
 	float absalpha = fabsf(alpha);
-	if (type != RENDERWALL_M2SNF) di->SetFog(state, lightlevel, rel, di->isFullbrightScene(), &Colormap, RenderStyle == STYLE_Add);
-	di->SetColor(state, lightlevel, rel, di->isFullbrightScene(), Colormap, absalpha);
+
+	// Fog must be done before the texture so that the texture selector can override it.
+	bool foggy = (GlobalMapFog || (fade & 0xffffff));
+	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
+	// Disable brightmaps if non-black fog is used.
+	if (ShadeDiv >= 1 / 1000.f && foggy)
+	{
+		state.EnableFog(1);
+		float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
+		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density);
+		state.SetSoftLightLevel(255);
+		state.SetLightParms(128.f, 1 / 1000.f);
+	}
+	else
+	{
+		state.EnableFog(0);
+		state.SetFog(0, 0);
+		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(shade, 255, numshades) : 255);
+		state.SetLightParms(visibility, ShadeDiv / (numshades - 2));
+	}
+
+	// The shade rgb from the tint is ignored here.
+	state.SetColor(PalEntry(255, globalr, globalg, globalb));
+
+	int h = texture->GetTexelHeight();
+	int h2 = 1 << sizeToBits(h);
+	if (h2 < h) h2 *= 2;
+	if (h != h2)
+	{
+		float xOffset = 1.f / texture->GetTexelWidth();
+		state.SetNpotEmulation(float(h2) / h, xOffset);
+	}
+	else
+	{
+		state.SetNpotEmulation(0.f, 0.f);
+	}
+
 	RenderWall(di, state, rflags);
 
 	state.SetNpotEmulation(0.f, 0.f);
+	/* none of these functions is in use.
 	state.SetObjectColor(0xffffffff);
 	state.SetObjectColor2(0);
 	state.SetAddColor(0);
@@ -202,7 +236,7 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 	state.EnableGlow(false);
 	state.EnableGradient(false);
 	state.ApplyTextureManipulation(nullptr);
-#endif
+	*/
 }
 
 //==========================================================================
@@ -229,16 +263,16 @@ void HWWall::RenderTranslucentWall(HWDrawInfo *di, FRenderState &state)
 //==========================================================================
 void HWWall::DrawWall(HWDrawInfo *di, FRenderState &state, bool translucent)
 {
-	/*
 	if (screen->BuffersArePersistent())
 	{
+		/*
 		if (di->Level->HasDynamicLights && !di->isFullbrightScene() && texture != nullptr)
 		{
 			SetupLights(di, lightdata);
 		}
+		*/
 		MakeVertices(di, !!(flags & HWWall::HWF_TRANSLUCENT));
 	}
-	*/
 
 	state.SetNormal(glseg.Normal());
 	if (!translucent)
@@ -379,16 +413,18 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 		//ViewDistance = (di->Viewpoint.Pos - (seg->linedef->v1->fPos() + seg->linedef->Delta() / 2)).XY().LengthSquared();
 	}
 	
-	/*
 	if (!screen->BuffersArePersistent())
 	{
+		/*
 		if (di->Level->HasDynamicLights && !di->isFullbrightScene() && texture != nullptr)
 		{
 			SetupLights(di, lightdata);
 		}
+		*/
 		MakeVertices(di, translucent);
 	}
 
+	/*
 	bool hasDecals = type != RENDERWALL_M2S && seg->sidedef->AttachedDecals;
 	if (hasDecals)
 	{
@@ -404,56 +440,7 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 	}
 	*/
 
-#if 0
 	di->AddWall(this);
-#else
-	// route it through the GLInterface for now for easier testing
-	int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
-	GLInterface.SetFade(globalfloorpal);
-	GLInterface.SetTexture(texture, TRANSLATION(Translation_Remap + curbasepal, palette), 0);
-
-	GLInterface.SetShade(shade, numshades);
-
-	int h = texture->GetTexelHeight();
-	int h2 = 1 << sizeToBits(h);
-	if (h2 < h) h2 *= 2;
-	if (h != h2)
-	{
-		float xOffset = 1.f / texture->GetTexelWidth();
-		GLInterface.SetNpotEmulation(float(h2) / h, xOffset);
-	}
-	else
-	{
-		GLInterface.SetNpotEmulation(0.f, 0.f);
-	}
-	GLInterface.SetTextureMode(TM_OPAQUE);
-	GLInterface.SetVisibility(visibility);
-
-	// The shade rgb from the tint is ignored here.
-	float pc[4];
-	pc[0] = (float)globalr * (1.f / 255.f);
-	pc[1] = (float)globalg * (1.f / 255.f);
-	pc[2] = (float)globalb * (1.f / 255.f);
-	pc[3] = alpha;
-	GLInterface.SetColor(pc[0], pc[1], pc[2], pc[3]);
-
-	auto data = screen->mVertexData->AllocVertices(4);
-	auto vt = data.first;
-	vt[0].SetTexCoord(tcs[LOLFT].u, tcs[LOLFT].v);
-	vt[0].SetVertex(glseg.x1, zbottom[0], glseg.y1);
-	vt[1].SetTexCoord(tcs[UPLFT].u, tcs[UPLFT].v);
-	vt[1].SetVertex(glseg.x1, ztop[0], glseg.y1);
-	vt[2].SetTexCoord(tcs[UPRGT].u, tcs[UPRGT].v);
-	vt[2].SetVertex(glseg.x2, ztop[1], glseg.y2);
-	vt[3].SetTexCoord(tcs[LORGT].u, tcs[LORGT].v);
-	vt[3].SetVertex(glseg.x2, zbottom[1], glseg.y2);
-
-	GLInterface.Draw(DT_TriangleFan, data.second, 4);
-
-	GLInterface.SetNpotEmulation(0.f, 0.f);
-	GLInterface.SetTextureMode(TM_NORMAL);
-
-#endif
 	// make sure that following parts of the same linedef do not get this one's vertex and lighting info.
 	vertcount = 0;	
 	dynlightindex = -1;
@@ -1000,7 +987,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 	dynlightindex = -1;
 	shade = wal->shade;
 	palette = wal->pal;
-	floorpal = frontsector->floorpal;
+	fade = lookups.getFade(frontsector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(frontsector);
 
 	alpha = 1.0f;

@@ -47,7 +47,7 @@
 //
 //==========================================================================
 
-void BunchDrawer::Init(FDrawInfo *_di, Clipper* c, vec2_t& view)
+void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view)
 {
 	di = _di;
 	clipper = c;
@@ -230,7 +230,7 @@ void BunchDrawer::ProcessBunch(int bnch)
 
 				HWWall hwwall;
 				//Printf("Rendering wall %d\n", i);
-				hwwall.Process(nullptr, &wall[i], &sector[bunch->sectnum], wall[i].nextsector<0? nullptr : &sector[wall[i].nextsector]);
+				hwwall.Process(di, &wall[i], &sector[bunch->sectnum], wall[i].nextsector<0? nullptr : &sector[wall[i].nextsector]);
 				rendered_lines++;
 
 				SetupWall.Unclock();

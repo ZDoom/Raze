@@ -60,6 +60,10 @@ EXTERN_CVAR(Bool, cl_capfps)
 bool NoInterpolateView;
 
 
+PalEntry GlobalMapFog;
+float GlobalFogDensity;
+
+
 #if 0
 void CollectLights(FLevelLocals* Level)
 {
@@ -267,7 +271,6 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 
 void render_drawrooms(vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang, bool mirror, bool planemirror)
 {
-	int retsec = 0;
 	auto RenderState = screen->RenderState();
 	RenderState->SetVertexBuffer(screen->mVertexData);
 	screen->mVertexData->Reset();
@@ -311,7 +314,7 @@ void render_drawrooms(vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q
 
 	// now render the main view
 	float fovratio;
-	float ratio = ActiveRatio(windowxy2.x - windowxy1.x + 1, windowxy2.y - windowxy1.y);
+	float ratio = ActiveRatio(windowxy2.x - windowxy1.x + 1, windowxy2.y - windowxy1.y + 1);
 	if (ratio >= 1.33f)
 	{
 		fovratio = 1.33f;

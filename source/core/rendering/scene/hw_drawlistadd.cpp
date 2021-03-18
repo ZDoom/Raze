@@ -40,7 +40,6 @@ EXTERN_CVAR(Bool, gl_seamless)
 
 void HWDrawInfo::AddWall(HWWall *wall)
 {
-#if 0
 	if (wall->flags & HWWall::HWF_TRANSLUCENT)
 	{
 		auto newwall = drawlists[GLDL_TRANSLUCENT].NewWall();
@@ -48,7 +47,7 @@ void HWDrawInfo::AddWall(HWWall *wall)
 	}
 	else
 	{
-		bool masked = HWWall::passflag[wall->type] == 1 ? false : (wall->texture && wall->texture->isMasked());
+		bool masked = wall->type != RENDERWALL_M2S ? false : (wall->texture && wall->texture->isMasked());
 		int list;
 
 		if (wall->flags & HWWall::HWF_SKYHACK && wall->type == RENDERWALL_M2S)
@@ -62,7 +61,6 @@ void HWDrawInfo::AddWall(HWWall *wall)
 		auto newwall = drawlists[list].NewWall();
 		*newwall = *wall;
 	}
-#endif
 }
 
 //==========================================================================
