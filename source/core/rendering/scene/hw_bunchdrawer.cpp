@@ -2,7 +2,7 @@
 ** hw_bunchdrawer.cpp
 **
 **---------------------------------------------------------------------------
-** Copyright 2008-2921 Christoph Oelckers
+** Copyright 2008-2021 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -426,12 +426,10 @@ void BunchDrawer::ProcessSector(int sectnum)
 	bool inbunch;
 	angle_t startangle;
 
-	//if (sect->validcount == StartTime) return;
-	//sect->validcount = StartTime;
-
-#if 0//ndef BUILD_TEST
-	DoSector(sectnum, false);
-#endif
+	SetupFlat.Clock();
+	HWFlat flat;
+	flat.ProcessSector(di, &sector[sectnum]);
+	SetupFlat.Unclock();
 
 	//Todo: process subsectors
 	inbunch = false;

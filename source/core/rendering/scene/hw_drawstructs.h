@@ -8,6 +8,7 @@
 #include "textures.h"
 #include "fcolormap.h"
 #include "build.h"
+#include "gamefuncs.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244)
@@ -252,36 +253,33 @@ public:
 class HWFlat
 {
 public:
-	sectortype * sector;
+	sectortype * sec;
 	FGameTexture *texture;
 
 	float z; // the z position of the flat (only valid for non-sloped planes)
 	FColormap Colormap;	// light and fog
-	PalEntry FlatColor;
-	PalEntry AddColor;
 	ERenderStyle renderstyle;
 
+	PalEntry fade;
+	int shade, palette, visibility;
 	float alpha;
-	HWSectorPlane plane;
-	int lightlevel;
-	bool stack;
-	bool ceiling;
-	uint8_t renderflags;
-    uint8_t hacktype;
 	int iboindex;
 	//int vboheight;
+
+	int plane;
+	int vertindex, vertcount;	// this should later use a static vertex buffer, but that'd hinder the development phase, so for now vertex data gets created on the fly.
+	void MakeVertices();
 
 	int dynlightindex;
 
 	void CreateSkyboxVertices(FFlatVertex *buffer);
 	//void SetupLights(HWDrawInfo *di, FLightNode *head, FDynLightData &lightdata, int portalgroup);
 
-	void PutFlat(HWDrawInfo *di, bool fog = false);
-	void Process(HWDrawInfo *di, sectortype * model, int whichplane, bool notexture);
+	void PutFlat(HWDrawInfo* di, int whichplane);
 	void ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which = 7 /*SSRF_RENDERALL*/);	// cannot use constant due to circular dependencies.
 	
 	void DrawSubsectors(HWDrawInfo *di, FRenderState &state);
-	void DrawFlat(HWDrawInfo* di, FRenderState& state, bool translucent) {}
+	void DrawFlat(HWDrawInfo* di, FRenderState& state, bool translucent);
 };
 
 //==========================================================================
@@ -388,3 +386,11 @@ struct FDynLightData;
 struct FDynamicLight;
 bool GetLight(FDynLightData& dld, int group, Plane& p, FDynamicLight* light, bool checkside);
 void AddLightToList(FDynLightData &dld, int group, FDynamicLight* light, bool forceAttenuate);
+
+inline float sectorVisibility(sectortype* sec)
+{
+	// Beware of wraparound madness...
+	int v = sec->visibility;
+	return v ? ((uint8_t)(v + 16)) / 16.f : 1.f;
+}
+

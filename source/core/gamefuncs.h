@@ -10,6 +10,14 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnu
 bool spriteIsModelOrVoxel(const spritetype* tspr);
 void PlanesAtPoint(usectorptr_t sec, float dax, float day, float* ceilz, float* florz);
 
+struct PlaneParam
+{
+    float dx, dy;
+    int length;
+};
+
+void PlanesAtPoint(usectorptr_t sec, PlaneParam* pp, float dax, float day, float* ceilz, float* florz);
+
 // y is negated so that the orientation is the same as in GZDoom, in order to use its utilities.
 // The render code should NOT use Build coordinates for anything!
 

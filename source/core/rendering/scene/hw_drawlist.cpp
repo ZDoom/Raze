@@ -250,7 +250,7 @@ void HWDrawList::SortPlaneIntoPlane(SortNode * head,SortNode * sort)
 
 	if (fh->z==fs->z) 
 		head->AddToEqual(sort);
-	else if ( (fh->z<fs->z && fh->ceiling) || (fh->z>fs->z && !fh->ceiling)) 
+	else if ( (fh->z<fs->z && fh->plane) || (fh->z>fs->z && !fh->plane)) 
 		head->AddToLeft(sort);
 	else 
 		head->AddToRight(sort);

@@ -201,3 +201,24 @@ void PlanesAtPoint(usectorptr_t sec, float dax, float day, float* pceilz, float*
 	if (pflorz) *pflorz = florz * -(1.f / 256.f);
 }
 
+// variant that allows to pass precalculated info for the first line in. For cases where multiple points in a sector need to be checked.
+void PlanesAtPoint(usectorptr_t sec, PlaneParam *pp, float dax, float day, float* pceilz, float* pflorz)
+{
+	float ceilz = float(sec->ceilingz);
+	float florz = float(sec->floorz);
+
+	if (((sec->ceilingstat | sec->floorstat) & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)
+	{
+		if (pp->length != 0)
+		{
+			auto wal = &wall[sec->wallptr];
+			float const j = (pp->dx * (day - wal->y) - pp->dy * (dax - wal->x)) * (1.f / 8.f);
+			if (sec->ceilingstat & CSTAT_SECTOR_SLOPE) ceilz += (sec->ceilingheinum * j) / pp->length;
+			if (sec->floorstat & CSTAT_SECTOR_SLOPE) florz += (sec->floorheinum * j) / pp->length;
+		}
+	}
+	// Scale to render coordinates.
+	if (pceilz) *pceilz = ceilz * -(1.f / 256.f);
+	if (pflorz) *pflorz = florz * -(1.f / 256.f);
+}
+

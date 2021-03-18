@@ -626,13 +626,6 @@ bool HWWall::DoHorizon(HWDrawInfo* di, walltype* seg, sectortype* fs, DVector2& 
 	return true;
 }
 
-static float sectorVisibility(sectortype *sec)
-{
-	// Beware of wraparound madness...
-	int v = sec->visibility;
-	return v ? ((uint8_t)(v + 16)) / 16.f : 1.f;
-}
-
 //==========================================================================
 //
 // Build math sucks. This would be easier if NPOT was handled properly.

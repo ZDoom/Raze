@@ -108,21 +108,23 @@ void HWDrawInfo::AddMirrorSurface(HWWall *w)
 
 void HWDrawInfo::AddFlat(HWFlat *flat)
 {
-#if 0
-	int list;
+	int list = GLDL_PLAINFLATS;
 
-	if (flat->renderstyle != STYLE_Translucent || flat->alpha < 1.f - FLT_EPSILON || flat->texture == nullptr)
+#if 0
+	if (flat->renderstyle != STYLE_Translucent || flat->alpha < 1.f - FLT_EPSILON)
 	{
 		// translucent portals go into the translucent border list.
 		list = GLDL_TRANSLUCENTBORDER;
 	}
 	else if (flat->texture->GetTranslucency())
 	{
+		/*
 		if (flat->stack)
 		{
 			list = GLDL_TRANSLUCENTBORDER;
 		}
 		else
+		*/
 		{
 			list = GLDL_PLAINFLATS;
 		}
@@ -132,9 +134,9 @@ void HWDrawInfo::AddFlat(HWFlat *flat)
 		bool masked = flat->texture->isMasked() && flat->stack;
 		list = masked ? GLDL_MASKEDFLATS : GLDL_PLAINFLATS;
 	}
+#endif
 	auto newflat = drawlists[list].NewFlat();
 	*newflat = *flat;
-#endif
 }
 
 
