@@ -913,6 +913,7 @@ void set_globalang(fixed_t const ang)
 //
 EXTERN_CVAR(Int, gl_fogmode)
 CVAR(Bool, testnewrenderer, true, 0)
+CVAR(Bool, testnewinterface, true, 0)
 
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
                            fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
@@ -980,7 +981,8 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     else
     {
         vec3_t pos = { daposx, daposy, daposz };
-        render_drawrooms(pos, globalcursectnum, daang, dahoriz, rollang, r_fov, false, false);
+        if (!testnewinterface) render_drawrooms_(pos, globalcursectnum, daang, dahoriz, rollang, r_fov, false, false);
+        else render_drawrooms(pos, globalcursectnum, daang, dahoriz, rollang, false, false);
     }
 
     return inpreparemirror;

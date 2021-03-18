@@ -14,6 +14,7 @@
 #include "v_video.h"
 #include "flatvertices.h"
 #include "gamefuncs.h"
+#include "hw_drawinfo.h"
 
 angle_t FrustumAngle(float ratio, float fov, float pitch)
 {
@@ -579,7 +580,7 @@ static void SetViewMatrix(const FRotator& angles, float vx, float vy, float vz, 
 
 using namespace Newrender;
 
-void render_drawrooms(vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang, float fov, bool mirror, bool planemirror)
+void render_drawrooms_(vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang, float fov, bool mirror, bool planemirror)
 {
     GLInterface.ClearDepth();
     GLInterface.EnableBlend(false);
@@ -608,7 +609,7 @@ void render_drawrooms(vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q
     angle_t rotang = q16ang(q16angle).asbam();
     clipper.SafeAddClipRangeRealAngles(rotang + fa, rotang - fa);
 
-    BunchDrawer drawer(clipper, position.vec2);
+    Newrender::BunchDrawer drawer(clipper, position.vec2);
 
     drawer.RenderScene(sectnum);
 

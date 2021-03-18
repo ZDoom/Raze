@@ -21,12 +21,6 @@ class F2DDrawer;
 struct palette_t;
 extern int xdim, ydim;
 
-enum
-{
-	DM_MAINVIEW,
-	DM_OFFSCREEN
-};
-
 class PaletteManager
 {
 	IHardwareTexture* palettetextures[256] = {};

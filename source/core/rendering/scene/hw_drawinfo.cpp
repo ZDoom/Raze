@@ -447,7 +447,7 @@ void HWDrawInfo::RenderPortal(HWPortal *p, FRenderState &state, bool usestencil)
 //-----------------------------------------------------------------------------
 
 
-void HWDrawInfo::EndDrawScene(sectortype * viewsector, FRenderState &state)
+void HWDrawInfo::EndDrawScene(FRenderState &state)
 {
 	state.EnableFog(false);
 
@@ -472,28 +472,6 @@ void HWDrawInfo::EndDrawScene(sectortype * viewsector, FRenderState &state)
 	state.SetScissor(0, 0, -1, -1);
 }
 
-void HWDrawInfo::DrawEndScene2D(sectortype * viewsector, FRenderState &state)
-{
-	//const bool renderHUDModel = IsHUDModelForPlayerAvailable(players[consoleplayer].camera->player);
-	auto vrmode = VRMode::GetVRMode(true);
-
-	HWViewpointUniforms vp = VPUniforms;
-	vp.mViewMatrix.loadIdentity();
-	vp.mProjectionMatrix = vrmode->GetHUDSpriteProjection();
-	screen->mViewpoints->SetViewpoint(state, &vp);
-	state.EnableDepthTest(false);
-	state.EnableMultisampling(false);
-
-	//DrawPlayerSprites(false, state);
-
-	state.SetNoSoftLightLevel();
-
-	// Restore standard rendering state
-	state.SetRenderStyle(STYLE_Translucent);
-	state.ResetColor();
-	state.EnableTexture(true);
-	state.SetScissor(0, 0, -1, -1);
-}
 
 //-----------------------------------------------------------------------------
 //

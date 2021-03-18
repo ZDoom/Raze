@@ -39,6 +39,8 @@ struct FRenderViewpoint
 	FRotator HWAngles;
 	FAngle FieldOfView;
 	angle_t RotAngle;
+	int SectNum;
+	double TicFrac;
 };
 //==========================================================================
 //
@@ -164,8 +166,7 @@ public:
 	void RenderScene(FRenderState &state);
 	void RenderTranslucent(FRenderState &state);
 	void RenderPortal(HWPortal *p, FRenderState &state, bool usestencil);
-	void EndDrawScene(sectortype * viewsector, FRenderState &state);
-	void DrawEndScene2D(sectortype * viewsector, FRenderState &state);
+	void EndDrawScene(FRenderState &state);
 	void Set3DViewport(FRenderState &state);
 	void ProcessScene(bool toscreen);
 

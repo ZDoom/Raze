@@ -1071,6 +1071,7 @@ set (PCH_SOURCES
 	core/statusbar2.cpp
 	core/gi.cpp
 
+	core/rendering/hw_entrypoint.cpp
 	core/rendering/scene/hw_clipper.cpp
 	core/rendering/scene/hw_walls.cpp
 	core/rendering/render.cpp
