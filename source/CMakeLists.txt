@@ -1074,7 +1074,6 @@ set (PCH_SOURCES
 	core/rendering/hw_entrypoint.cpp
 	core/rendering/scene/hw_clipper.cpp
 	core/rendering/scene/hw_walls.cpp
-	core/rendering/render.cpp
 	core/rendering/scene/hw_drawlistadd.cpp
 	core/rendering/scene/hw_drawlist.cpp
 	core/rendering/scene/hw_drawinfo.cpp
