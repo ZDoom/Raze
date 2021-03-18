@@ -30,6 +30,7 @@
 #include "printf.h"
 #include "gamecontrol.h"
 #include "render.h"
+#include "gamefuncs.h"
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
@@ -1137,7 +1138,7 @@ void renderDrawMasks(void)
     {
         const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
         const int32_t yp = DMulScale(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang, 6);
-        const int32_t modelp = Polymost::polymost_spriteIsModelOrVoxel(tspriteptr[i]);
+        const int32_t modelp = spriteIsModelOrVoxel(tspriteptr[i]);
 
         if (yp > (4<<8))
         {
@@ -1201,10 +1202,10 @@ killsprite:
             int32_t pcstat = tspriteptr[i]->cstat & 48;
             int32_t pangle = tspriteptr[i]->ang;
             int j = i + 1;
-            if (!Polymost::polymost_spriteIsModelOrVoxel(tspriteptr[i]))
+            if (!spriteIsModelOrVoxel(tspriteptr[i]))
             {
                 while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
-                    && !Polymost::polymost_spriteIsModelOrVoxel(tspriteptr[j]))
+                    && !spriteIsModelOrVoxel(tspriteptr[j]))
                 {
                     j++;
                 }

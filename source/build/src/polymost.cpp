@@ -233,25 +233,6 @@ int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
     return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
 }
 
-int32_t polymost_spriteIsModelOrVoxel(tspritetype const * const tspr)
-{
-    if ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].flags&SPREXT_NOTMD)
-        return false;
-
-
-    if (hw_models && tile2model[Ptile2tile(tspr->picnum, tspr->pal)].modelid >= 0 &&
-        tile2model[Ptile2tile(tspr->picnum, tspr->pal)].framenum >= 0)
-        return true;
-
-    if (r_voxels && (tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
-        return true;
-
-    if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && voxmodels[tspr->picnum])
-        return true;
-
-    return false;
-}
-
 static void polymost_updaterotmat(void)
 {
     //Up/down rotation

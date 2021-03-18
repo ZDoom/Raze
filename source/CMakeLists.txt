@@ -1074,6 +1074,7 @@ set (PCH_SOURCES
 	core/rendering/scene/hw_clipper.cpp
 	core/rendering/scene/hw_walls.cpp
 	core/rendering/render.cpp
+	core/rendering/scene/hw_drawlistadd.cpp
 
 	core/console/c_notifybuffer.cpp
 	core/console/d_event.cpp
