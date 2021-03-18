@@ -176,17 +176,6 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 
 	state.SetMaterial(texture, UF_Texture, 0, 0/*flags & 3*/, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
-	int32_t size = xs_CRoundToInt(texture->GetDisplayHeight());
-	int32_t size2;
-	for (size2 = 1; size2 < size; size2 += size2) {}
-	if (size == size2)
-		state.SetNpotEmulation(0.f, 0.f);
-	else
-	{
-		float xOffset = 1.f / texture->GetDisplayWidth();
-		state.SetNpotEmulation((1.f * size2) / size, xOffset);
-	}
-
 	float absalpha = fabsf(alpha);
 
 	// Fog must be done before the texture so that the texture selector can override it.

@@ -194,7 +194,7 @@ void HWFlat::MakeVertices()
 	auto vp = ret.first;
 	for (auto i : indices)
 	{
-		auto& pt = points[indices[i]];
+		auto& pt = points[i];
 		vp->SetVertex(pt.X, pt.Z, pt.Y);
 		vp->SetTexCoord(pt.X / 64.f, pt.Y / 64.f);	// todo: align
 		vp++;
@@ -253,15 +253,13 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 		if (!texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_threshold);
 		else state.AlphaFunc(Alpha_GEqual, 0.f);
 	}
-	state.SetMaterial(texture, UF_Texture, 0, CLAMP_NONE, 0, -1);
+	state.SetMaterial(texture, UF_Texture, 0, 0/*flags & 3*/, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 	state.SetLightIndex(dynlightindex);
 	state.Draw(DT_Triangles, vertindex, vertcount);
 	vertexcount += vertcount;
 
-	state.EnableTextureMatrix(false);
-
-	state.SetRenderStyle(DefaultRenderStyle());
+	if (translucent) state.SetRenderStyle(DefaultRenderStyle());
 	//state.SetObjectColor(0xffffffff);
 	//state.SetAddColor(0);
 	//state.ApplyTextureManipulation(nullptr);
@@ -314,7 +312,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
     const auto &vp = di->Viewpoint;
 
 	float florz, ceilz;
-	PlanesAtPoint(frontsector, vp.Pos.X, vp.Pos.Y, &ceilz, &florz);
+	PlanesAtPoint(frontsector, vp.Pos.X * 16.f, vp.Pos.Y * -16.f, &ceilz, &florz);
 
 	fade = lookups.getFade(frontsector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(frontsector);
