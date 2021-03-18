@@ -380,6 +380,7 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 
 	int h = texture->GetTexelHeight();
 	int h2 = 1 << sizeToBits(h);
+	if (h2 < h) h2 *= 2;
 	if (h != h2)
 	{
 		float xOffset = 1.f / texture->GetTexelWidth();
@@ -860,7 +861,7 @@ void HWWall::DoLowerTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 {
 	// get the alignment reference position.
 	int refheight;
-	auto refwall = (wall->cstat & CSTAT_WALL_BOTTOM_SWAP) ? &wall[wal->nextwall] : wal;
+	auto refwall = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? &wall[wal->nextwall] : wal;
 	refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->floorz;
 
 	shade = refwall->shade;
@@ -936,11 +937,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 	PlanesAtPoint(frontsector, p2wall->x, p2wall->y, &fch2, &ffh2);
 
 #ifdef _DEBUG
-	if (wal - wall == 14454)
-	{
-		int a = 0;
-	}
-	if (fabs(v1.X) == 400 && fabs(v1.Y) == 3968)
+	if (wal - wall == 3810)
 	{
 		int a = 0;
 	}
@@ -1006,7 +1003,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 			// normal texture
 
 			int tilenum = (wal->cstat & CSTAT_WALL_1WAY) ? wal->overpicnum : wal->picnum;
-			tileUpdatePicnum(&tilenum, int(wal-wall) + 16384, wall->cstat);
+			tileUpdatePicnum(&tilenum, int(wal-wall) + 16384, wal->cstat);
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())
 			{
@@ -1043,7 +1040,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 			if (bch1a < fch1 || bch2a < fch2)
 			{
 				int tilenum = wal->picnum;
-				tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, wall->cstat);
+				tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, wal->cstat);
 				texture = tileGetTexture(tilenum);
 				if (texture && texture->isValid())
 				{
@@ -1064,10 +1061,10 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 		}
 		else*/
 
-		if (wall->cstat & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY))
+		if (wal->cstat & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY))
 		{
 			int tilenum = wal->overpicnum;
-			tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, wall->cstat);
+			tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, wal->cstat);
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())
 			{
