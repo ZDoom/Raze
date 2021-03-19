@@ -827,7 +827,7 @@ void HWWall::DoUpperTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 	// get the alignment reference position.
 	int refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->ceilingz;
 
-	type = RENDERWALL_BOTTOM;
+	type = RENDERWALL_TOP;
 	DoTexture(di, wal, wal, refheight, topleft, topright, bottomleft, bottomright);
 }
 
