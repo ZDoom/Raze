@@ -757,7 +757,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	float th = texture->GetTexelHeight();
 	int pow2size = 1 << sizeToBits(th);
 	if (pow2size < th) pow2size *= 2;
-	float ypanning = wal->ypan_ ? pow2size * wal->ypan_ / (256.0f * th) : 0;
+	float ypanning = refwall->ypan_ ? pow2size * refwall->ypan_ / (256.0f * th) : 0;
 
 	tcs[LOLFT].u = tcs[UPLFT].u = ((leftdist * 8.f * wal->xrepeat) + refwall->xpan_) / tw;
 	tcs[LORGT].u = tcs[UPRGT].u = ((rightdist * 8.f * wal->xrepeat) + refwall->xpan_) / tw;
@@ -843,7 +843,7 @@ void HWWall::DoLowerTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 	// get the alignment reference position.
 	int refheight;
 	auto refwall = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? &wall[wal->nextwall] : wal;
-	refheight = (wal->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->floorz;
+	refheight = (refwall->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->floorz;
 
 	shade = refwall->shade;
 	palette = refwall->pal;
