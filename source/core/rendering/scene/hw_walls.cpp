@@ -759,8 +759,8 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	if (pow2size < th) pow2size *= 2;
 	float ypanning = wal->ypan_ ? pow2size * wal->ypan_ / (256.0f * th) : 0;
 
-	tcs[LOLFT].u = tcs[UPLFT].u = ((leftdist * 8.f * wal->xrepeat) + wal->xpan_) / tw;
-	tcs[LORGT].u = tcs[UPRGT].u = ((rightdist * 8.f * wal->xrepeat) + wal->xpan_) / tw;
+	tcs[LOLFT].u = tcs[UPLFT].u = ((leftdist * 8.f * wal->xrepeat) + refwall->xpan_) / tw;
+	tcs[LORGT].u = tcs[UPRGT].u = ((rightdist * 8.f * wal->xrepeat) + refwall->xpan_) / tw;
 	 
 	auto setv = [=](float hl, float hr, float frac) -> float
 	{
@@ -918,7 +918,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 	PlanesAtPoint(frontsector, p2wall->x, p2wall->y, &fch2, &ffh2);
 
 #ifdef _DEBUG
-	if (wal - wall == 3810)
+	if (wal - wall == 7591)
 	{
 		int a = 0;
 	}
