@@ -617,34 +617,6 @@ bool HWWall::DoHorizon(HWDrawInfo* di, walltype* seg, sectortype* fs, DVector2& 
 
 //==========================================================================
 //
-// Build math sucks. This would be easier if NPOT was handled properly.
-// Panning is calculated in NPOT dimensions only, the next largest one
-// to the texture height applies, so the panning needs to be scaled accordingly.
-//
-//==========================================================================
-
-static float GetYPanning(float curypanning, FGameTexture* tex/*, bool aligned*/)
-{
-	// get next largest POT size.
-	int th = tex->GetTexelHeight();
-	int pow2size = 1 << sizeToBits(th);
-	if (pow2size < th) pow2size *= 2;
-
-	/* crap for lack of NPOT emulation. Should not be needed anymore
-	if (aligned)
-	{
-		float yoffs = (pow2size - th) * (255.0f / pow2size);
-		if (curypanning > 256 - yoffs)
-			curypanning -= yoffs;
-	}
-	*/
-
-	// scale the panning factor and scale to texture coordinates.
-	return pow2size * curypanning / (256.0f * th);
-}
-
-//==========================================================================
-//
 // 
 //
 //==========================================================================
@@ -721,7 +693,7 @@ void HWWall::CheckTexturePosition()
 
 	// clamp texture coordinates to a reasonable range.
 	// Extremely large values can cause visual problems
-	if (tcs[UPLFT].v > tcs[LOLFT].v || tcs[UPRGT].v > tcs[LORGT].v)
+	if (tcs[UPLFT].v < tcs[LOLFT].v || tcs[UPRGT].v < tcs[LORGT].v)
 	{
 		if (tcs[UPLFT].v < tcs[UPRGT].v)
 		{
@@ -775,7 +747,6 @@ void HWWall::CheckTexturePosition()
 void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float refheight, float topleft, float topright, float bottomleft, float bottomright)
 {
 	auto glsave = glseg;
-	float ypanning = wal->ypan_ ? GetYPanning(wal->ypan_, texture) : 0;
 	SetWallCoordinates(wal, topleft, topright, bottomleft, bottomright);
 
 	bool xflipped = (wal->cstat & CSTAT_WALL_XFLIP);
@@ -784,6 +755,10 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 
 	float tw = texture->GetTexelWidth();
 	float th = texture->GetTexelHeight();
+	int pow2size = 1 << sizeToBits(th);
+	if (pow2size < th) pow2size *= 2;
+	float ypanning = wal->ypan_ ? pow2size * wal->ypan_ / (256.0f * th) : 0;
+
 	tcs[LOLFT].u = tcs[UPLFT].u = ((leftdist * 8.f * wal->xrepeat) + wal->xpan_) / tw;
 	tcs[LORGT].u = tcs[UPRGT].u = ((rightdist * 8.f * wal->xrepeat) + wal->xpan_) / tw;
 	 
@@ -799,7 +774,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	tcs[LOLFT].v = setv(bottomleft, bottomright, glseg.fracleft);
 	tcs[UPRGT].v = setv(topleft, topright, glseg.fracright);
 	tcs[LORGT].v = setv(bottomleft, bottomright, glseg.fracright);
-	CheckTexturePosition();
+	if (th == pow2size) CheckTexturePosition(); // for NPOT textures this adjustment can break things.
 	bool trans = type == RENDERWALL_M2S && (wal->cstat & CSTAT_WALL_TRANSLUCENT);
 	if (trans)
 	{
@@ -807,6 +782,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 		alpha = GetAlphaFromBlend((wal->cstat & CSTAT_WALL_TRANS_FLIP) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
 	}
 	PutWall(di, trans);
+	flags = 0;
 	glseg = glsave;
 }
 
