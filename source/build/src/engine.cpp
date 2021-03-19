@@ -2323,6 +2323,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
 
         while (1)
         {
+            sector[wall[w].sector].dirty = 255;
             wall[w].x = dax;
             wall[w].y = day;
             walbitmap[w>>3] |= pow2char[w&7];
@@ -2836,36 +2837,6 @@ void renderCompleteMirror(void)
 {
     Polymost::polymost_completeMirror();
     inpreparemirror = 0;
-}
-
-
-//
-// sectorofwall
-//
-static int32_t sectorofwall_internal(int16_t wallNum)
-{
-    native_t gap = numsectors>>1, sectNum = gap;
-
-    while (gap > 1)
-    {
-        gap >>= 1;
-        native_t const n = !!(sector[sectNum].wallptr < wallNum);
-        sectNum += (n ^ (n - 1)) * gap;
-    }
-    while (sector[sectNum].wallptr > wallNum) sectNum--;
-    while (sector[sectNum].wallptr + sector[sectNum].wallnum <= wallNum) sectNum++;
-
-    return sectNum;
-}
-
-int32_t sectorofwall(int16_t wallNum)
-{
-	if ((unsigned)wallNum < (unsigned)numwalls)
-	{
-		native_t const w = wall[wallNum].nextwall;
-		return ((unsigned)w < MAXWALLS) ? wall[w].nextsector : sectorofwall_internal(wallNum);
-	}
-	return -1;
 }
 
 

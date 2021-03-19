@@ -794,6 +794,7 @@ void PathSound(int nSector, int nSound)
 
 void DragPoint(int nWall, int x, int y)
 {
+    sector[wall[nWall].sector].dirty = 255; 
     viewInterpolateWall(nWall, &wall[nWall]);
     wall[nWall].x = x;
     wall[nWall].y = y;
@@ -805,6 +806,7 @@ void DragPoint(int nWall, int x, int y)
         if (wall[vb].nextwall >= 0)
         {
             vb = wall[wall[vb].nextwall].point2;
+            sector[wall[vb].sector].dirty = 255;
             viewInterpolateWall(vb, &wall[vb]);
             wall[vb].x = x;
             wall[vb].y = y;
@@ -817,6 +819,7 @@ void DragPoint(int nWall, int x, int y)
                 if (wall[lastwall(vb)].nextwall >= 0)
                 {
                     vb = wall[lastwall(vb)].nextwall;
+                    sector[wall[vb].sector].dirty = 255;
                     viewInterpolateWall(vb, &wall[vb]);
                     wall[vb].x = x;
                     wall[vb].y = y;

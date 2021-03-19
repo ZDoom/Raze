@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "md4.h"
 #include "automap.h"
 #include "raze_sound.h"
+#include "gamefuncs.h"
 
 #include "blood.h"
 
@@ -1058,6 +1059,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         }
     }
 
+    setWallSectors();
     memcpy(wallbackup, wall, sizeof(wallbackup));
     memcpy(sectorbackup, sector, sizeof(sectorbackup));
 }

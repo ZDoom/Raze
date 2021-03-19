@@ -72,8 +72,8 @@ void Set(int index, int type, double val)
 	case Interp_Sect_CeilingPanX:       sector[index].ceilingxpan_ = float(val); break;
 	case Interp_Sect_CeilingPanY:       sector[index].ceilingypan_ = float(val); break;
                                         
-	case Interp_Wall_X:                 wall[index].x = xs_CRoundToInt(val); break;
-	case Interp_Wall_Y:                 wall[index].y = xs_CRoundToInt(val); break;
+	case Interp_Wall_X:                 wall[index].x = xs_CRoundToInt(val); sector[wall[index].sector].dirty = 255; break;
+	case Interp_Wall_Y:                 wall[index].y = xs_CRoundToInt(val); sector[wall[index].sector].dirty = 255; break;
 	case Interp_Wall_PanX:              wall[index].xpan_ = float(val);  break;
 	case Interp_Wall_PanY:              wall[index].ypan_ = float(val);  break;
                                         
