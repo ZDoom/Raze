@@ -69,7 +69,6 @@ extern int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
 extern int16_t bunchp2[MAXWALLSB];
 extern int16_t numscans, numbunches;
 extern int32_t rxi[8], ryi[8];
-extern int32_t reciptable[2048];
 
 
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);

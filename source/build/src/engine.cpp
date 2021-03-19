@@ -73,7 +73,6 @@ int32_t globalflags;
 static int8_t tempbuf[MAXWALLS];
 
 // referenced from asm
-int32_t reciptable[2048];
 intptr_t asm1, asm2;
 int32_t globalx1, globaly2, globalx3, globaly3;
 
@@ -318,9 +317,6 @@ static int32_t engineLoadTables(void)
     if (tablesloaded == 0)
     {
         int32_t i;
-
-        for (i=0; i<2048; i++)
-            reciptable[i] = DivScale(2048, i+2048, 30);
 
         for (i=0; i<=512; i++)
             sintable[i] = bsinf(i);
