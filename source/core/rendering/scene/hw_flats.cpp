@@ -35,8 +35,7 @@
 #include "hw_lightbuffer.h"
 #include "hw_drawstructs.h"
 #include "hw_renderstate.h"
-#include "texturemanager.h"
-#include "earcut.hpp"
+#include "sectorgeometry.h"
 
 #ifdef _DEBUG
 CVAR(Int, gl_breaksec, -1, 0)
@@ -92,244 +91,26 @@ void HWFlat::SetupLights(HWDrawInfo *di, FLightNode * node, FDynLightData &light
 
 //==========================================================================
 //
-// CalcPlane fixme - this should be stored in the sector, not be recalculated each frame.
 //
-//==========================================================================
-
-static FVector3 CalcNormal(sectortype* sector, int plane)
-{
-	FVector3 pt[3];
-
-	auto wal = &wall[sector->wallptr];
-	auto wal2 = &wall[wal->point2];
-
-	pt[0] = { (float)WallStartX(wal), (float)WallStartY(wal), 0 };
-	pt[1] = { (float)WallEndX(wal), (float)WallEndY(wal), 0 };
-	PlanesAtPoint(sector, wal->x, wal->y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Z);
-	PlanesAtPoint(sector, wal2->x, wal2->y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Z);
-
-	if (pt[0].X == pt[1].X)
-	{
-		if (pt[0].Y == pt[1].Y) return { 0.f, 0.f, plane ? -1.f : 1.f };
-		pt[2].X = pt[0].X + 4;
-		pt[2].Y = pt[0].Y;
-	}
-	else
-	{
-		pt[2].X = pt[0].X;
-		pt[2].Y = pt[0].Y + 4;
-	}
-	PlanesAtPoint(sector, pt[2].X * 16, pt[2].Y * 16, plane ? &pt[2].Z : nullptr, plane ? nullptr : &pt[2].Z);
-
-	auto normal = (pt[2] - pt[0]) ^ (pt[1] - pt[0]);
-
-	if ((pt[2].Z < 0 && !plane) || (pt[2].Z > 0 && plane)) return -pt[2];
-	return pt[2];
-}
-
-//==========================================================================
-//
-// The math used here to calculate texture positioning was derived from
-// Polymer but required several fixes for correctness. 
-//
-//==========================================================================
-class UVCalculator
-{
-	sectortype* sect;
-	int myplane;
-	int stat;
-	float z1;
-	int ix1;
-	int iy1;
-	int ix2;
-	int iy2;
-	float sinalign, cosalign;
-	FGameTexture* tex;
-	float xpanning, ypanning;
-	float xscaled, yscaled;
-
-public:
-
-	// Moved in from pragmas.h
-	UVCalculator(sectortype* sec, int plane, FGameTexture* tx)
-	{
-		float xpan, ypan;
-
-		sect = sec;
-		tex = tx;
-		myplane = plane;
-
-		auto firstwall = &wall[sec->wallptr];
-		ix1 = firstwall->x;
-		iy1 = firstwall->y;
-		ix2 = wall[firstwall->point2].x;
-		iy2 = wall[firstwall->point2].y;
-
-		if (plane == 0)
-		{
-			stat = sec->floorstat;
-			xpan = sec->floorxpan_;
-			ypan = sec->floorypan_;
-			PlanesAtPoint(sec, ix1, iy1, nullptr, &z1);
-		}
-		else
-		{
-			stat = sec->ceilingstat;
-			xpan = sec->ceilingxpan_;
-			ypan = sec->ceilingypan_;
-			PlanesAtPoint(sec, ix1, iy1, &z1, nullptr);
-		}
-
-		DVector2 dv = { double(ix2 - ix1), -double(iy2 - iy1) };
-		auto vang = dv.Angle() - 90.;
-
-		cosalign = vang.Cos();
-		sinalign = vang.Sin();
-
-		int pow2width = 1 << sizeToBits(tx->GetTexelWidth());
-		if (pow2width < tx->GetTexelWidth()) pow2width *= 2;
-
-		int pow2height = 1 << sizeToBits(tx->GetTexelHeight());
-		if (pow2height < tx->GetTexelHeight()) pow2height *= 2;
-
-		xpanning = pow2width * xpan / (256.f * tx->GetTexelWidth());
-		ypanning = pow2height * ypan / (256.f * tx->GetTexelHeight());
-
-		float scalefactor = (stat & CSTAT_SECTOR_TEXHALF) ? 8.0f : 16.0f;
-
-		if ((stat & (CSTAT_SECTOR_SLOPE | CSTAT_SECTOR_ALIGN)) == (CSTAT_SECTOR_ALIGN))
-		{
-			// This is necessary to adjust for some imprecisions in the math.
-			// To calculate the inverse Build performs an integer division with significant loss of precision
-			// that can cause the texture to be shifted by multiple pixels.
-			// The code below calculates the amount of this deviation so that it can be added back to the formula.
-			int len = ksqrt(uhypsq(ix2 - ix1, iy2 - iy1));
-			if (len != 0)
-			{
-				int i = 1048576 / len;
-				scalefactor *= 1048576.f / (i * len);
-			}
-		}
-
-		xscaled = scalefactor * tx->GetTexelWidth();
-		yscaled = scalefactor * tx->GetTexelHeight();
-	}
-
-	DVector2 GetUV(int x, int y, float z)
-	{
-		float tv, tu;
-
-		if (stat & CSTAT_SECTOR_ALIGN)
-		{
-			float dx = (float)(x - ix1);
-			float dy = (float)(y - iy1);
-
-			tu = -(dx * sinalign + dy * cosalign);
-			tv = (dx * cosalign - dy * sinalign);
-
-			if (stat & CSTAT_SECTOR_SLOPE)
-			{
-				float dz = (z - z1) * 16;
-				float newtv = sqrt(tv * tv + dz * dz);
-				tv = tv < 0 ? -newtv : newtv;
-			}
-		}
-		else 
-		{
-			tu = x;
-			tv = -y;
-		}
-
-		if (stat & CSTAT_SECTOR_SWAPXY)
-			std::swap(tu, tv);
-
-		if (stat & CSTAT_SECTOR_XFLIP) tu = -tu;
-		if (stat & CSTAT_SECTOR_YFLIP) tv = -tv;
-
-
-
-		return { tu / xscaled + xpanning, tv / yscaled + ypanning };
-
-	}
-};
-
-
-//==========================================================================
-//
-// this should be buffered later.
 //
 //==========================================================================
 
 void HWFlat::MakeVertices()
 {
-	int numvertices = sec->wallnum;
-	
-	TArray<FVector3> points(numvertices, true);
-	using Point = std::pair<float, float>;
-	std::vector<std::vector<Point>> polygon;
-	std::vector<Point>* curPoly;
-
-	polygon.resize(1);
-	curPoly = &polygon.back();
-
-	for (int i = 0; i < numvertices; i++)
-	{
-		auto wal = &wall[sec->wallptr + i];
-
-		float X = WallStartX(wal);
-		float Y = WallStartY(wal);
-		curPoly->push_back(std::make_pair(X, Y));
-		if (wal->point2 != sec->wallptr+i+1 && i < numvertices - 1)
-		{
-			polygon.resize(polygon.size() + 1);
-			curPoly = &polygon.back();
-		}
-	}
-	// Now make sure that the outer boundary is the first polygon by picking a point that's as much to the outside as possible.
-	int outer = 0;
-	float minx = FLT_MAX;
-	float miny = FLT_MAX;
-	for (size_t a = 0; a < polygon.size(); a++)
-	{
-		for (auto& pt : polygon[a])
-		{
-			if (pt.first < minx || (pt.first == minx && pt.second < miny))
-			{
-				minx = pt.first;
-				miny = pt.second;
-				outer = a;
-			}
-		}
-	}
-	if (outer != 0) std::swap(polygon[0], polygon[outer]);
-	auto indices = mapbox::earcut(polygon);
-
-	int p = 0;
-	for (size_t a = 0; a < polygon.size(); a++)
-	{
-		for (auto& pt : polygon[a])
-		{
-			float planez;
-			PlanesAtPoint(sec, (pt.first * 16), (pt.second * -16), plane ? &planez : nullptr, !plane ? &planez : nullptr);
-			FVector3 point = { pt.first, pt.second, planez };
-			points[p++] = point;
-		}
-	}
-
-	UVCalculator uvcalc(sec, plane, texture);
-
-	auto ret = screen->mVertexData->AllocVertices(indices.size());
+	auto mesh = sectorGeometry.get(sec - sector, plane);
+	if (!mesh) return;
+	auto ret = screen->mVertexData->AllocVertices(mesh->vertices.Size());
 	auto vp = ret.first;
-	for (auto i : indices)
+	for (unsigned i = 0; i < mesh->vertices.Size(); i++)
 	{
-		auto& pt = points[i];
+		auto& pt = mesh->vertices[i];
+		auto& uv = mesh->texcoords[i];
 		vp->SetVertex(pt.X, pt.Z, pt.Y);
-		auto uv = uvcalc.GetUV(int(pt.X * 16), int(pt.Y * -16), pt.Z);
 		vp->SetTexCoord(uv.X, uv.Y);
 		vp++;
 	}
 	vertindex = ret.second;
-	vertcount = indices.size();
+	vertcount = mesh->vertices.Size();
 }
 
 //==========================================================================
@@ -351,7 +132,8 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	}
 #endif
 
-	state.SetNormal(CalcNormal(sector, plane));
+	auto mesh = sectorGeometry.get(sec - sector, plane);
+	state.SetNormal(mesh->normal);
 
 	// Fog must be done before the texture so that the texture selector can override it.
 	bool foggy = (GlobalMapFog || (fade & 0xffffff));
@@ -404,6 +186,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 
 void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 {
+	plane = whichplane;
 	if (!screen->BuffersArePersistent())	// should be made static buffer content later (when the logic is working)
 	{
 #if 0
@@ -414,7 +197,6 @@ void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 #endif
 		MakeVertices();
 	}
-	plane = whichplane;
 	di->AddFlat(this);
 	rendered_flats++;
 }

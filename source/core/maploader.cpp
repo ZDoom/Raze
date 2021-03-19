@@ -42,6 +42,7 @@
 #include "md4.h"
 #include "gamecontrol.h"
 #include "gamefuncs.h"
+#include "sectorgeometry.h"
 
 
 static void ReadSectorV7(FileReader& fr, sectortype& sect)
@@ -483,4 +484,5 @@ void setWallSectors()
 			wall[sector[i].wallptr + w].sector = i;
 		}
 	}
+	sectorGeometry.SetSize(numsectors);
 }
