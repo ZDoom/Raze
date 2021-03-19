@@ -29,7 +29,7 @@
 #include "inputstate.h"
 #include "printf.h"
 #include "gamecontrol.h"
-#include "render.h"
+#include "rendering/render.h"
 #include "gamefuncs.h"
 
 #ifdef USE_OPENGL
@@ -1600,7 +1600,7 @@ void twod_rotatesprite(F2DDrawer *twod, int32_t sx, int32_t sy, int32_t z, int16
     }
     else
 #endif
-        if (!pic) tileUpdatePicnum(&picnum, 0);
+        //if (!pic) tileUpdatePicnum(&picnum, 0, 0);
 
 
 
