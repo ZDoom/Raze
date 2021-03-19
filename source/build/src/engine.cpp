@@ -86,7 +86,6 @@ int32_t showfirstwall=0;
 int32_t showheightindicators=1;
 int32_t circlewall=-1;
 
-int16_t editstatus = 0;
 static fixed_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
 
 static FString printcoords(void)
@@ -117,8 +116,6 @@ ADD_STAT(printcoords)
     return printcoords();
 }
 
-int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade) = NULL;
-
 // adapted from build.c
 static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall, vec2_t *const closest)
 {
@@ -148,7 +145,6 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
 }
 
 int32_t xb1[MAXWALLSB];  // Polymost uses this as a temp array
-static int32_t xb2[MAXWALLSB];
 int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
 int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
 
@@ -157,7 +153,7 @@ int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
 static vec3_t spritesxyz[MAXSPRITESONSCREEN+1];
 
-int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
+int32_t xdimen = -1, xdimenscale, xdimscale;
 float fxdimen = -1.f;
 int32_t ydimen;
 
@@ -189,18 +185,6 @@ int32_t halfxdim16, midydim16;
 static_assert(MAXWALLSB < INT16_MAX);
 int16_t numscans, numbunches;
 static int16_t numhits;
-
-int16_t searchit;
-int16_t searchsector, searchwall, searchstat;     //search output
-
-// SEARCHBOTTOMWALL:
-//   When aiming at a the bottom part of a 2-sided wall whose bottom part
-//   is swapped (.cstat&2), searchbottomwall equals that wall's .nextwall. In all
-//   other cases (when aiming at a wall), searchbottomwall equals searchwall.
-//
-// SEARCHISBOTTOM:
-//  When aiming at a 2-sided wall, 1 if aiming at the bottom part, 0 else
-int16_t searchbottomwall, searchisbottom;
 
 char inpreparemirror = 0;
 static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
@@ -794,8 +778,6 @@ int32_t engineInit(void)
     memset(voxrotate, 0, sizeof(voxrotate));
 
     paletteloaded = 0;
-
-    searchit = 0; searchstat = -1;
 
     g_visibility = 512;
     parallaxvisibility = 512;
@@ -2719,8 +2701,7 @@ void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     windowxy2.x = x2;
     windowxy2.y = y2;
 
-    xdimen = (x2-x1)+1; halfxdimen = (xdimen>>1);
-    xdimenrecip = DivScale(1L,xdimen, 32);
+    xdimen = (x2-x1)+1;
     ydimen = (y2-y1)+1;
 
     fxdimen = (float) xdimen;
