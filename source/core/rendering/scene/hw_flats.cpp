@@ -127,6 +127,132 @@ static FVector3 CalcNormal(sectortype* sector, int plane)
 	return pt[2];
 }
 
+//==========================================================================
+//
+// The math used here to calculate texture positioning was derived from
+// Polymer but required several fixes for correctness. 
+//
+//==========================================================================
+class UVCalculator
+{
+	sectortype* sect;
+	int myplane;
+	int stat;
+	float z1;
+	int ix1;
+	int iy1;
+	int ix2;
+	int iy2;
+	float sinalign, cosalign;
+	FGameTexture* tex;
+	float xpanning, ypanning;
+	float xscaled, yscaled;
+
+public:
+
+	// Moved in from pragmas.h
+	UVCalculator(sectortype* sec, int plane, FGameTexture* tx)
+	{
+		float xpan, ypan;
+
+		sect = sec;
+		tex = tx;
+		myplane = plane;
+
+		auto firstwall = &wall[sec->wallptr];
+		ix1 = firstwall->x;
+		iy1 = firstwall->y;
+		ix2 = wall[firstwall->point2].x;
+		iy2 = wall[firstwall->point2].y;
+
+		if (plane == 0)
+		{
+			stat = sec->floorstat;
+			xpan = sec->floorxpan_;
+			ypan = sec->floorypan_;
+			PlanesAtPoint(sec, ix1, iy1, nullptr, &z1);
+		}
+		else
+		{
+			stat = sec->ceilingstat;
+			xpan = sec->ceilingxpan_;
+			ypan = sec->ceilingypan_;
+			PlanesAtPoint(sec, ix1, iy1, &z1, nullptr);
+		}
+
+		DVector2 dv = { double(ix2 - ix1), -double(iy2 - iy1) };
+		auto vang = dv.Angle() - 90.;
+
+		cosalign = vang.Cos();
+		sinalign = vang.Sin();
+
+		int pow2width = 1 << sizeToBits(tx->GetTexelWidth());
+		if (pow2width < tx->GetTexelWidth()) pow2width *= 2;
+
+		int pow2height = 1 << sizeToBits(tx->GetTexelHeight());
+		if (pow2height < tx->GetTexelHeight()) pow2height *= 2;
+
+		xpanning = pow2width * xpan / (256.f * tx->GetTexelWidth());
+		ypanning = pow2height * ypan / (256.f * tx->GetTexelHeight());
+
+		float scalefactor = (stat & CSTAT_SECTOR_TEXHALF) ? 8.0f : 16.0f;
+
+		if ((stat & (CSTAT_SECTOR_SLOPE | CSTAT_SECTOR_ALIGN)) == (CSTAT_SECTOR_ALIGN))
+		{
+			// This is necessary to adjust for some imprecisions in the math.
+			// To calculate the inverse Build performs an integer division with significant loss of precision
+			// that can cause the texture to be shifted by multiple pixels.
+			// The code below calculates the amount of this deviation so that it can be added back to the formula.
+			int len = ksqrt(uhypsq(ix2 - ix1, iy2 - iy1));
+			if (len != 0)
+			{
+				int i = 1048576 / len;
+				scalefactor *= 1048576.f / (i * len);
+			}
+		}
+
+		xscaled = scalefactor * tx->GetTexelWidth();
+		yscaled = scalefactor * tx->GetTexelHeight();
+	}
+
+	DVector2 GetUV(int x, int y, float z)
+	{
+		float tv, tu;
+
+		if (stat & CSTAT_SECTOR_ALIGN)
+		{
+			float dx = (float)(x - ix1);
+			float dy = (float)(y - iy1);
+
+			tu = -(dx * sinalign + dy * cosalign);
+			tv = (dx * cosalign - dy * sinalign);
+
+			if (stat & CSTAT_SECTOR_SLOPE)
+			{
+				float dz = (z - z1) * 16;
+				float newtv = sqrt(tv * tv + dz * dz);
+				tv = tv < 0 ? -newtv : newtv;
+			}
+		}
+		else 
+		{
+			tu = x;
+			tv = -y;
+		}
+
+		if (stat & CSTAT_SECTOR_SWAPXY)
+			std::swap(tu, tv);
+
+		if (stat & CSTAT_SECTOR_XFLIP) tu = -tu;
+		if (stat & CSTAT_SECTOR_YFLIP) tv = -tv;
+
+
+
+		return { tu / xscaled + xpanning, tv / yscaled + ypanning };
+
+	}
+};
+
 
 //==========================================================================
 //
@@ -190,13 +316,16 @@ void HWFlat::MakeVertices()
 		}
 	}
 
+	UVCalculator uvcalc(sec, plane, texture);
+
 	auto ret = screen->mVertexData->AllocVertices(indices.size());
 	auto vp = ret.first;
 	for (auto i : indices)
 	{
 		auto& pt = points[i];
 		vp->SetVertex(pt.X, pt.Z, pt.Y);
-		vp->SetTexCoord(pt.X / 64.f, pt.Y / 64.f);	// todo: align
+		auto uv = uvcalc.GetUV(int(pt.X * 16), int(pt.Y * -16), pt.Z);
+		vp->SetTexCoord(uv.X, uv.Y);
 		vp++;
 	}
 	vertindex = ret.second;
