@@ -41,7 +41,6 @@ extern int16_t numscans, numbunches;
 
 
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
-int32_t wallfront(int32_t l1, int32_t l2);
 
 void set_globalang(fixed_t const ang);
 

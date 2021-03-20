@@ -12,17 +12,6 @@
 #include "intvec.h"
 #include "m_swap.h"
 
-////////// Compiler detection //////////
-
-#ifdef __GNUC__
-# define EDUKE32_GCC_PREREQ(major, minor) (major < __GNUC__ || (major == __GNUC__ && minor <= __GNUC_MINOR__))
-#else
-# define EDUKE32_GCC_PREREQ(major, minor) 0
-#endif
-
-
-////////// Language detection //////////
-
 ////////// Language and compiler feature polyfills //////////
 
 # define EXTERNC

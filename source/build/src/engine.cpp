@@ -199,40 +199,6 @@ int32_t renderAddTsprite(int16_t z, int16_t sectnum)
 
 
 //
-// wallfront (internal)
-//
-int32_t wallfront(int32_t l1, int32_t l2)
-{
-    vec2_t const l1vect   = wall[thewall[l1]].pos;
-    vec2_t const l1p2vect = wall[wall[thewall[l1]].point2].pos;
-    vec2_t const l2vect   = wall[thewall[l2]].pos;
-    vec2_t const l2p2vect = wall[wall[thewall[l2]].point2].pos;
-    vec2_t d = { l1p2vect.x - l1vect.x, l1p2vect.y - l1vect.y };
-    int32_t t1 = DMulScale(l2vect.x-l1vect.x, d.y, -d.x, l2vect.y-l1vect.y, 2); //p1(l2) vs. l1
-    int32_t t2 = DMulScale(l2p2vect.x-l1vect.x, d.y, -d.x, l2p2vect.y-l1vect.y, 2); //p2(l2) vs. l1
-
-    if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
-    if (t2 == 0) t2 = t1;
-
-    if ((t1^t2) >= 0) //pos vs. l1
-        return (DMulScale(globalposx-l1vect.x, d.y, -d.x, globalposy-l1vect.y, 2) ^ t1) >= 0;
-
-    d.x = l2p2vect.x-l2vect.x;
-    d.y = l2p2vect.y-l2vect.y;
-
-    t1 = DMulScale(l1vect.x-l2vect.x, d.y, -d.x, l1vect.y-l2vect.y, 2); //p1(l1) vs. l2
-    t2 = DMulScale(l1p2vect.x-l2vect.x, d.y, -d.x, l1p2vect.y-l2vect.y, 2); //p2(l1) vs. l2
-
-    if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
-    if (t2 == 0) t2 = t1;
-
-    if ((t1^t2) >= 0) //pos vs. l2
-        return (DMulScale(globalposx-l2vect.x,d.y,-d.x,globalposy-l2vect.y, 2) ^ t1) < 0;
-
-    return -2;
-}
-
-//
 // animateoffs (internal)
 //
 int32_t (*animateoffs_replace)(int const tilenum, int fakevar) = NULL;
