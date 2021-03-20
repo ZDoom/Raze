@@ -38,18 +38,18 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
     PLAYER *pPlayer = &gPlayer[myconnectindex];
     VIEW* pView = &gPrevView[myconnectindex];
 
-    pPlayer->pSprite->x = pView->at50 = gView->pSprite->x = x;
-    pPlayer->pSprite->y = pView->at54 = gView->pSprite->y = y;
-    pPlayer->zView      = pView->at38 = gView->zView      = z;
+    pPlayer->pSprite->x = pView->x = gView->pSprite->x = x;
+    pPlayer->pSprite->y = pView->y = gView->pSprite->y = y;
+    pPlayer->zView      = pView->viewz = gView->zView      = z;
 
     if (ang != INT_MIN)
     {
-        pPlayer->angle.oang = pPlayer->angle.ang = pView->at30 = gView->angle.ang = buildang(ang);
+        pPlayer->angle.oang = pPlayer->angle.ang = pView->angle = gView->angle.ang = buildang(ang);
     }
 
     if (horz != INT_MIN)
     {
-        pPlayer->horizon.ohoriz = pPlayer->horizon.horiz = pView->at24 = gView->horizon.horiz = buildhoriz(horz);
+        pPlayer->horizon.ohoriz = pPlayer->horizon.horiz = pView->horiz = gView->horizon.horiz = buildhoriz(horz);
     }
 }
 
