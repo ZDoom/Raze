@@ -984,6 +984,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 			// normal texture
 
 			int tilenum = (wal->cstat & CSTAT_WALL_1WAY) ? wal->overpicnum : wal->picnum;
+			setgotpic(tilenum);
 			tileUpdatePicnum(&tilenum, int(wal-wall) + 16384, wal->cstat);
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())
@@ -1021,6 +1022,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 			if (bch1a < fch1 || bch2a < fch2)
 			{
 				int tilenum = wal->picnum;
+				setgotpic(tilenum);
 				tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, wal->cstat);
 				texture = tileGetTexture(tilenum);
 				if (texture && texture->isValid())
@@ -1045,6 +1047,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 		if (wal->cstat & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY))
 		{
 			int tilenum = wal->overpicnum;
+			setgotpic(tilenum);
 			tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, wal->cstat);
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())
@@ -1067,6 +1070,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 			{
 				auto w = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? backwall : wal;
 				int tilenum = w->picnum;
+				setgotpic(tilenum);
 				tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, w->cstat);
 				texture = tileGetTexture(tilenum);
 				if (texture && texture->isValid())

@@ -648,20 +648,11 @@ static FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t 
 
 int videoCaptureScreen();
 
-struct OutputFileCounter {
-    uint16_t count = 0;
-    FileWriter *opennextfile(char *, char *);
-    FileWriter *opennextfile_withext(char *, const char *);
-};
-
 // PLAG: line utility functions
 typedef struct s_equation
 {
     float a, b, c;
 } _equation;
-
-#define STATUS2DSIZ 144
-#define STATUS2DSIZ2 26
 
 #ifdef USE_OPENGL
 void    renderSetRollAngle(float rolla);
@@ -669,21 +660,6 @@ void    renderSetRollAngle(float rolla);
 
 void PrecacheHardwareTextures(int nTile);
 void Polymost_Startup();
-
-typedef uint16_t polytintflags_t;
-
-enum cutsceneflags {
-    CUTSCENE_FORCEFILTER = 1,
-    CUTSCENE_FORCENOFILTER = 2,
-    CUTSCENE_TEXTUREFILTER = 4,
-};
-
-enum {
-    TEXFILTER_OFF = 0, // GL_NEAREST
-    TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
-};
-
-extern int32_t gltexmaxsize;
 
 EXTERN_CVAR(Bool, hw_animsmoothing)
 EXTERN_CVAR(Bool, hw_hightile)
@@ -696,7 +672,6 @@ EXTERN_CVAR(Bool, hw_useindexedcolortextures)
 EXTERN_CVAR(Bool, hw_parallaxskypanning)
 EXTERN_CVAR(Bool, r_voxels)
 
-extern int32_t r_downsize;
 extern int32_t mdtims, omdtims;
 
 extern int32_t r_rortexture;
@@ -708,8 +683,6 @@ int32_t Ptile2tile(int32_t tile, int32_t palette) ATTRIBUTE((pure));
 int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, float yoffset, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
-
-extern TArray<FString> g_clipMapFiles;
 
 EXTERN int32_t nextvoxid;
 EXTERN int8_t voxreserve[(MAXVOXELS+7)>>3];
@@ -763,10 +736,6 @@ int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);
 
 int32_t loaddefinitionsfile(const char *fn, bool loadadds = false);
-
-// if loadboard() fails with -2 return, try loadoldboard(). if it fails with
-// -2, board is dodgy
-int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 
 #ifdef USE_OPENGL
 # include "polymost.h"

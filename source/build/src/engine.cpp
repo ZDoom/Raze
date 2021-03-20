@@ -72,10 +72,6 @@ int32_t globalflags;
 
 static int8_t tempbuf[MAXWALLS];
 
-// referenced from asm
-intptr_t asm1, asm2;
-int32_t globalx1, globaly2, globalx3, globaly3;
-
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
 static int32_t qradarang[10240];
@@ -144,10 +140,7 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
     *closest = { (int32_t)(w.x + ((d.x * i) >> 30)), (int32_t)(w.y + ((d.y * i) >> 30)) };
 }
 
-int32_t xb1[MAXWALLSB];  // Polymost uses this as a temp array
-int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
 int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
-
 int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
 
@@ -178,16 +171,12 @@ static int32_t globaly1, globalx2;
 int16_t sectorborder[256];
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 
-int32_t halfxdim16, midydim16;
-
 static_assert(MAXWALLSB < INT16_MAX);
 int16_t numscans, numbunches;
 static int16_t numhits;
 
 char inpreparemirror = 0;
 static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
-
-#define MAXSETVIEW 4
 
 
 //

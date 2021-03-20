@@ -13,28 +13,6 @@
 #ifndef ENGINE_PRIV_H
 #define ENGINE_PRIV_H
 
-#define MAXARTFILES_BASE 200
-#define MAXARTFILES_TOTAL 220
-#define MAXCLIPDIST 1024
-
-// Uncomment to clear the screen before each top-level draw (classic only).
-// FIXME: doesn't work with mirrors.
-//#define ENGINE_CLEAR_SCREEN
-
-    extern intptr_t asm1, asm2;
-    extern int32_t globalx1, globaly2;
-
-
-
-static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
-{
-    // Ken did this
-    d = ((a<0)<<3) + ((b<0)<<2) + ((c<0)<<1) + (d<0);
-    return (((d<<4)^0xf0)|d);
-}
-
-
-
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 extern int16_t maskwall[MAXWALLSB], maskwallcnt;
@@ -58,8 +36,6 @@ extern char inpreparemirror;
 extern int16_t sectorborder[256];
 extern int32_t hitallsprites;
 
-extern int32_t xb1[MAXWALLSB];
-extern int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
 extern int16_t bunchp2[MAXWALLSB];
 extern int16_t numscans, numbunches;
 
