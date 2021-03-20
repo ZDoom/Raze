@@ -31,16 +31,10 @@
 //#include "a_dynlight.h"
 #include "v_video.h"
 #include "m_png.h"
-//#include "doomstat.h"
-//#include "r_data/r_interpolate.h"
-//#include "r_utility.h"
-//#include "d_player.h"
 #include "i_time.h"
 #include "hw_dynlightdata.h"
 #include "hw_clock.h"
 #include "flatvertices.h"
-//#include "v_palette.h"
-//#include "d_main.h"
 
 #include "hw_renderstate.h"
 #include "hw_lightbuffer.h"
@@ -49,12 +43,12 @@
 #include "hw_clipper.h"
 //#include "hwrenderer/scene/hw_portal.h"
 #include "hw_vrmodes.h"
-//#include "g_levellocals.h"
 
 #include "hw_drawstructs.h"
 #include "hw_drawlist.h"
 #include "hw_drawinfo.h"
 #include "gamecvars.h"
+#include "render.h"
 
 EXTERN_CVAR(Bool, cl_capfps)
 bool NoInterpolateView;
@@ -178,9 +172,10 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 //
 //===========================================================================
 
-FRenderViewpoint SetupView(vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang)
+FRenderViewpoint SetupView(spritetype* cam, const vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang)
 {
 	FRenderViewpoint r_viewpoint{};
+	r_viewpoint.CameraSprite = cam;
 	r_viewpoint.SectNum = sectnum;
 	r_viewpoint.Pos = { position.x / 16.f, position.y / -16.f, position.z / -256.f };
 	r_viewpoint.HWAngles.Yaw = -90.f + q16ang(q16angle).asdeg();
@@ -269,13 +264,25 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 }
 
 
-void render_drawrooms(vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang, bool mirror, bool planemirror)
+void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang, int flags)
 {
+	checkRotatedWalls();
+
+	if (gl_fogmode == 1) gl_fogmode = 2;	// still needed?
+
+	if (flags & RSF_UPDATESECTOR)
+	{
+		int16_t sect = sectnum;
+		updatesector(position.x, position.y, &sect);
+		if (sect >= 0) sectnum = sect;
+		if (sectnum < 0) return;
+	}
+
 	auto RenderState = screen->RenderState();
 	RenderState->SetVertexBuffer(screen->mVertexData);
 	screen->mVertexData->Reset();
 
-	FRenderViewpoint r_viewpoint = SetupView(position, sectnum, q16angle, q16horizon, rollang);
+	FRenderViewpoint r_viewpoint = SetupView(playersprite, position, sectnum, q16angle, q16horizon, rollang);
 	iter_dlightf = iter_dlight = draw_dlight = draw_dlightf = 0;
 
 	checkBenchActive();
@@ -326,6 +333,6 @@ void render_drawrooms(vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q
 
 	screen->ImageTransitionScene(true); // Only relevant for Vulkan.
 
-	RenderViewpoint(r_viewpoint, NULL, r_viewpoint.FieldOfView.Degrees, ratio, fovratio, true, true);
+	RenderViewpoint(r_viewpoint, nullptr, r_viewpoint.FieldOfView.Degrees, ratio, fovratio, flags & RSF_MIRROR, flags & RSF_PLANEMIRROR);
 	All.Unclock();
 }

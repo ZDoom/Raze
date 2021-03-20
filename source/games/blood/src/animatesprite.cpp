@@ -887,4 +887,9 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
 }
 
 
+void GameInterface::processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+{
+    viewProcessSprites(viewx, viewy, viewz, viewang.asbuild(), int(smoothRatio));
+}
+
 END_BLD_NS

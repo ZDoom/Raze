@@ -12,6 +12,7 @@ void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, fl
 void setWallSectors();
 void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out);
 void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out);
+void checkRotatedWalls();
 
 // y is negated so that the orientation is the same as in GZDoom, in order to use its utilities.
 // The render code should NOT use Build coordinates for anything!

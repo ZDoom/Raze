@@ -23,22 +23,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "build.h"
-#include "compat.h"
-#include "blood.h"
+#include "automap.h"
+#include "mmulti.h"
+#include "savegamehelp.h"
+
+#include "blood.h" 
 
 BEGIN_BLD_NS
 
 int mirrorcnt, mirrorsector, mirrorwall[4];
-
-typedef struct
-{
-    int type;
-    int link;
-    int dx;
-    int dy;
-    int dz;
-    int wallnum;
-} MIRROR;
 
 MIRROR mirror[16];
 
@@ -64,6 +57,7 @@ void InitMirrors(void)
             if (wall[i].extra > 0 && GetWallType(i) == kWallStack)
             {
                 wall[i].overpicnum = nTile;
+                wall[i].portalflags = PORTAL_WALL_VIEW;
                 mirror[mirrorcnt].wallnum = i;
                 mirror[mirrorcnt].type = 0;
                 wall[i].cstat |= 32;
@@ -96,6 +90,7 @@ void InitMirrors(void)
             wall[i].picnum = nTile;
             mirror[mirrorcnt].type = 0;
             wall[i].cstat |= 32;
+            wall[i].portalflags = PORTAL_WALL_MIRROR;
             mirrorcnt++;
             continue;
         }
@@ -121,6 +116,7 @@ void InitMirrors(void)
             mirror[mirrorcnt].wallnum = i;
             mirror[mirrorcnt].link = j;
             sector[i].floorpicnum = 4080+mirrorcnt;
+            sector[i].portalflags = PORTAL_SECTOR_FLOOR;
             mirrorcnt++;
             mirror[mirrorcnt].type = 1;
             mirror[mirrorcnt].dx = sprite[nLink].x-sprite[nLink2].x;
@@ -129,10 +125,12 @@ void InitMirrors(void)
             mirror[mirrorcnt].wallnum = j;
             mirror[mirrorcnt].link = i;
             sector[j].ceilingpicnum = 4080+mirrorcnt;
+            sector[j].portalflags = PORTAL_SECTOR_CEILING;
             mirrorcnt++;
         }
     }
     mirrorsector = numsectors;
+#if 1 // The new backend won't need this shit anymore.
     for (int i = 0; i < 4; i++)
     {
         mirrorwall[i] = numwalls+i;
@@ -148,268 +146,11 @@ void InitMirrors(void)
     sector[mirrorsector].floorpicnum = 504;
     sector[mirrorsector].wallptr = mirrorwall[0];
     sector[mirrorsector].wallnum = 4;
+#endif
 }
 
 void TranslateMirrorColors(int nShade, int nPalette)
 {
-}
-
-void sub_5571C(char mode)
-{
-    for (int i = mirrorcnt-1; i >= 0; i--)
-    {
-        int nTile = 4080+i;
-        if (TestBitString(gotpic, nTile))
-        {
-            switch (mirror[i].type)
-            {
-                case 1:
-                    if (mode)
-                        sector[mirror[i].wallnum].ceilingstat |= 1;
-                    else
-                        sector[mirror[i].wallnum].ceilingstat &= ~1;
-                    break;
-                case 2:
-                    if (mode)
-                        sector[mirror[i].wallnum].floorstat |= 1;
-                    else
-                        sector[mirror[i].wallnum].floorstat &= ~1;
-                    break;
-            }
-        }
-    }
-}
-
-void sub_557C4(int x, int y, int interpolation)
-{
-    if (spritesortcnt == 0) return;
-    int nViewSprites = spritesortcnt-1;
-    for (int nTSprite = nViewSprites; nTSprite >= 0; nTSprite--)
-    {
-        tspritetype *pTSprite = &tsprite[nTSprite];
-        pTSprite->xrepeat = pTSprite->yrepeat = 0;
-    }
-    for (int i = mirrorcnt-1; i >= 0; i--)
-    {
-        int nTile = 4080+i;
-        if (TestBitString(gotpic, nTile))
-        {
-            if (mirror[i].type == 1 || mirror[i].type == 2)
-            {
-                int nSector = mirror[i].link;
-                int nSector2 = mirror[i].wallnum;
-                int nSprite;
-                SectIterator it(nSector);
-                while ((nSprite = it.NextIndex()) >= 0)
-                {
-                    spritetype *pSprite = &sprite[nSprite];
-                    if (pSprite == gView->pSprite)
-                        continue;
-                    int top, bottom;
-                    GetSpriteExtents(pSprite, &top, &bottom);
-                    int zCeil, zFloor;
-                    getzsofslope(nSector, pSprite->x, pSprite->y, &zCeil, &zFloor);
-                    if (pSprite->statnum == kStatDude && (top < zCeil || bottom > zFloor))
-                    {
-                        int j = i;
-                        if (mirror[i].type == 2)
-                            j++;
-                        else
-                            j--;
-                        int dx = mirror[j].dx;
-                        int dy = mirror[j].dy;
-                        int dz = mirror[j].dz;
-                        tspritetype *pTSprite = &tsprite[spritesortcnt];
-                        memset(pTSprite, 0, sizeof(tspritetype));
-                        pTSprite->type = pSprite->type;
-                        pTSprite->index = pSprite->index;
-                        pTSprite->sectnum = nSector2;
-                        pTSprite->x = pSprite->x+dx;
-                        pTSprite->y = pSprite->y+dy;
-                        pTSprite->z = pSprite->z+dz;
-                        pTSprite->ang = pSprite->ang;
-                        pTSprite->picnum = pSprite->picnum;
-                        pTSprite->shade = pSprite->shade;
-                        pTSprite->pal = pSprite->pal;
-                        pTSprite->xrepeat = pSprite->xrepeat;
-                        pTSprite->yrepeat = pSprite->yrepeat;
-                        pTSprite->xoffset = pSprite->xoffset;
-                        pTSprite->yoffset = pSprite->yoffset;
-                        pTSprite->cstat = pSprite->cstat;
-                        pTSprite->statnum = kStatDecoration;
-                        pTSprite->owner = pSprite->index;
-                        pTSprite->extra = pSprite->extra;
-                        pTSprite->flags = pSprite->hitag|0x200;
-                        pTSprite->x = dx+interpolate(pSprite->ox, pSprite->x, interpolation);
-                        pTSprite->y = dy+interpolate(pSprite->oy, pSprite->y, interpolation);
-                        pTSprite->z = dz+interpolate(pSprite->oz, pSprite->z, interpolation);
-                        pTSprite->ang = pSprite->interpolatedang(interpolation);
-                        spritesortcnt++;
-                    }
-                }
-            }
-        }
-    }
-    for (int nTSprite = spritesortcnt-1; nTSprite >= nViewSprites; nTSprite--)
-    {
-        tspritetype *pTSprite = &tsprite[nTSprite];
-        int nAnim = 0;
-        switch (picanm[pTSprite->picnum].extra&7)
-        {
-        case 1:
-        {
-            int dX = x - pTSprite->x;
-            int dY = y - pTSprite->y;
-            RotateVector(&dX, &dY, 128 - pTSprite->ang);
-            nAnim = GetOctant(dX, dY);
-            if (nAnim <= 4)
-            {
-                pTSprite->cstat &= ~4;
-            }
-            else
-            {
-                nAnim = 8 - nAnim;
-                pTSprite->cstat |= 4;
-            }
-            break;
-        }
-        case 2:
-        {
-            int dX = x - pTSprite->x;
-            int dY = y - pTSprite->y;
-            RotateVector(&dX, &dY, 128 - pTSprite->ang);
-            nAnim = GetOctant(dX, dY);
-            break;
-        }
-        }
-        while (nAnim > 0)
-        {
-            pTSprite->picnum += picanm[pTSprite->picnum].num+1;
-            nAnim--;
-        }
-    }
-}
-
-void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int viewPlayer)
-{
-    for (int i = mirrorcnt - 1; i >= 0; i--)
-    {
-        int nTile = 4080+i;
-        if (TestBitString(gotpic, nTile))
-        {
-            ClearBitString(gotpic, nTile);
-            switch (mirror[i].type)
-            {
-            case 0:
-            {
-                int nWall = mirror[i].link;
-                int nSector = sectorofwall(nWall);
-                walltype *pWall = &wall[nWall];
-                int nNextWall = pWall->nextwall;
-                int nNextSector = pWall->nextsector;
-                pWall->nextwall = mirrorwall[0];
-                pWall->nextsector = mirrorsector;
-                wall[mirrorwall[0]].nextwall = nWall;
-                wall[mirrorwall[0]].nextsector = nSector;
-                wall[mirrorwall[0]].x = wall[pWall->point2].x;
-                wall[mirrorwall[0]].y = wall[pWall->point2].y;
-                wall[mirrorwall[1]].x = pWall->x;
-                wall[mirrorwall[1]].y = pWall->y;
-                wall[mirrorwall[2]].x = wall[mirrorwall[1]].x+(wall[mirrorwall[1]].x-wall[mirrorwall[0]].x)*16;
-                wall[mirrorwall[2]].y = wall[mirrorwall[1]].y+(wall[mirrorwall[1]].y-wall[mirrorwall[0]].y)*16;
-                wall[mirrorwall[3]].x = wall[mirrorwall[0]].x+(wall[mirrorwall[0]].x-wall[mirrorwall[1]].x)*16;
-                wall[mirrorwall[3]].y = wall[mirrorwall[0]].y+(wall[mirrorwall[0]].y-wall[mirrorwall[1]].y)*16;
-                sector[mirrorsector].floorz = sector[nSector].floorz;
-                sector[mirrorsector].ceilingz = sector[nSector].ceilingz;
-                int cx, cy, ca;
-                if (GetWallType(nWall) == kWallStack)
-                {
-                     cx = x - (wall[pWall->hitag].x-wall[pWall->point2].x);
-                     cy = y - (wall[pWall->hitag].y-wall[pWall->point2].y);
-                     ca = a;
-                }
-                else
-                {
-                    renderPrepareMirror(x,y,z,a,horiz,nWall,&cx,&cy,&ca);
-                }
-                int32_t didmirror = renderDrawRoomsQ16(cx, cy, z, ca,horiz,mirrorsector|MAXSECTORS);
-                viewProcessSprites(cx,cy,z,FixedToInt(ca),smooth);
-                renderDrawMasks();
-                if (GetWallType(nWall) != kWallStack)
-                    renderCompleteMirror();
-                if (wall[nWall].pal != 0 || wall[nWall].shade != 0)
-                    TranslateMirrorColors(wall[nWall].shade, wall[nWall].pal);
-                pWall->nextwall = nNextWall;
-                pWall->nextsector = nNextSector;
-                return;
-            }
-            case 1:
-            {
-                r_rorphase = 1;
-                int nSector = mirror[i].link;
-                int bakCstat;
-                if (viewPlayer >= 0)
-                {
-                    bakCstat = gPlayer[viewPlayer].pSprite->cstat;
-                    if (gViewPos == 0)
-                    {
-                        gPlayer[viewPlayer].pSprite->cstat |= 32768;
-                    }
-                    else
-                    {
-                        gPlayer[viewPlayer].pSprite->cstat |= 514;
-                    }
-                }
-                renderDrawRoomsQ16(x+mirror[i].dx, y+mirror[i].dy, z+mirror[i].dz, a, horiz, nSector|MAXSECTORS);
-                viewProcessSprites(x+mirror[i].dx, y+mirror[i].dy, z+mirror[i].dz, FixedToInt(a), smooth);
-                short fstat = sector[nSector].floorstat;
-                sector[nSector].floorstat |= 1;
-                renderDrawMasks();
-                sector[nSector].floorstat = fstat;
-                for (int i = 0; i < 16; i++)
-                    ClearBitString(gotpic, 4080+i);
-                if (viewPlayer >= 0)
-                {
-                    gPlayer[viewPlayer].pSprite->cstat = bakCstat;
-                }
-                r_rorphase = 0;
-                return;
-            }
-            case 2:
-            {
-                r_rorphase = 1;
-                int nSector = mirror[i].link;
-                int bakCstat;
-                if (viewPlayer >= 0)
-                {
-                    bakCstat = gPlayer[viewPlayer].pSprite->cstat;
-                    if (gViewPos == 0)
-                    {
-                        gPlayer[viewPlayer].pSprite->cstat |= 32768;
-                    }
-                    else
-                    {
-                        gPlayer[viewPlayer].pSprite->cstat |= 514;
-                    }
-                }
-                renderDrawRoomsQ16(x+mirror[i].dx, y+mirror[i].dy, z+mirror[i].dz, a, horiz, nSector|MAXSECTORS);
-                viewProcessSprites(x+mirror[i].dx, y+mirror[i].dy, z+mirror[i].dz, FixedToInt(a), smooth);
-                short cstat = sector[nSector].ceilingstat;
-                sector[nSector].ceilingstat |= 1;
-                renderDrawMasks();
-                sector[nSector].ceilingstat = cstat;
-                for (int i = 0; i < 16; i++)
-                    ClearBitString(gotpic, 4080+i);
-                if (viewPlayer >= 0)
-                {
-                    gPlayer[viewPlayer].pSprite->cstat = bakCstat;
-                }
-                r_rorphase = 0;
-                return;
-            }
-            }
-        }
-    }
 }
 
 //---------------------------------------------------------------------------

@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "blood.h"
 #include "savegamehelp.h"
-#include "bloodactor.h"
 
 BEGIN_BLD_NS
 

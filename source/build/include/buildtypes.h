@@ -32,6 +32,20 @@ enum
     CSTAT_SECTOR_METHOD = 384
 };
 
+enum
+{
+    PORTAL_SECTOR_FLOOR = 1,
+    PORTAL_SECTOR_CEILING = 2,
+    PORTAL_SECTOR_FLOOR_REFLECT = 4,
+    PORTAL_SECTOR_CEILING_REFLECT = 8,
+};
+
+enum
+{
+    PORTAL_WALL_VIEW = 1,
+    PORTAL_WALL_MIRROR = 2,
+};
+
 //40 bytes
 struct sectortype
 {
@@ -53,6 +67,7 @@ struct sectortype
 
     uint8_t dirty;
     float ceilingxpan_, ceilingypan_, floorxpan_, floorypan_;
+    uint8_t portalflags;
 
     int ceilingxpan() const { return int(ceilingxpan_); }
     int ceilingypan() const { return int(ceilingypan_); }
@@ -104,6 +119,7 @@ struct walltype
     int16_t extra;
     float xpan_, ypan_;
     angle_t clipangle;
+    uint8_t portalflags;
 
     int xpan() const { return int(xpan_); }
     int ypan() const { return int(ypan_); }

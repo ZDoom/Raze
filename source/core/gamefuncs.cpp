@@ -262,6 +262,37 @@ void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out)
 
 //==========================================================================
 //
+// Check if some walls are set to be rotated textures.
+// Ideally this should just have been done with texture rotation,
+// but the effects on the render code would be too severe due to the alignment mess.
+//
+//==========================================================================
+
+void checkRotatedWalls()
+{
+	for (int i = 0; i < numwalls; ++i)
+	{
+		if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
+		{
+			auto& w = wall[i];
+			auto& tile = RotTile(w.picnum + animateoffs(w.picnum, 16384));
+
+			if (tile.newtile == -1 && tile.owner == -1)
+			{
+				auto owner = w.picnum + animateoffs(w.picnum, 16384);
+
+				tile.newtile = TileFiles.tileCreateRotated(owner);
+				assert(tile.newtile != -1);
+
+				RotTile(tile.newtile).owner = w.picnum + animateoffs(w.picnum, 16384);
+
+			}
+		}
+	}
+}
+
+//==========================================================================
+//
 // vector serializers
 //
 //==========================================================================

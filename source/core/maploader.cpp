@@ -43,6 +43,7 @@
 #include "gamecontrol.h"
 #include "gamefuncs.h"
 #include "sectorgeometry.h"
+#include "render.h"
 
 
 static void ReadSectorV7(FileReader& fr, sectortype& sect)

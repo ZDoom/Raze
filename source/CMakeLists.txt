@@ -1284,6 +1284,7 @@ set (PCH_SOURCES
 	games/exhumed/all.cpp
 	games/blood/all.cpp
 	games/sw/all.cpp
+	
 )
 
 if( ${HAVE_VM_JIT} )

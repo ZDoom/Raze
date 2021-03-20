@@ -849,71 +849,42 @@ CVAR(Bool, testnewinterface, true, 0)
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
                            fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
 {
-    for (int i = 0; i < numwalls; ++i)
-    {
-        if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
-        {
-            auto& w = wall[i];
-            auto& tile = RotTile(w.picnum + animateoffs(w.picnum, 16384));
-
-            if (tile.newtile == -1 && tile.owner == -1)
-            {
-                auto owner = w.picnum + animateoffs(w.picnum, 16384);
-
-                tile.newtile = TileFiles.tileCreateRotated(owner);
-                assert(tile.newtile != -1);
-
-                RotTile(tile.newtile).owner = w.picnum + animateoffs(w.picnum, 16384);
-
-            }
-        }
-    }
-
-
-    int32_t i;
+    checkRotatedWalls();
 
     if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.
 
-    set_globalpos(daposx, daposy, daposz);
-    set_globalang(daang);
-
-    global100horiz = dahoriz;
-
-    // xdimenscale is Scale(xdimen,yxaspect,320);
-    // normalization by viewingrange so that center-of-aim doesn't depend on it
-    qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16)+IntToFixed(ydimen>>1);
-
-    globalcursectnum = dacursectnum;
-
-    memset(gotsector, 0, sizeof(gotsector));
-
-    i = xdimen-1;
-
     // Update starting sector number (common to classic and Polymost).
     // ADJUST_GLOBALCURSECTNUM.
-    if (globalcursectnum >= MAXSECTORS)
-        globalcursectnum -= MAXSECTORS;
+    if (dacursectnum >= MAXSECTORS)
+        dacursectnum -= MAXSECTORS;
     else
     {
-        i = globalcursectnum;
-        updatesector(globalposx,globalposy,&globalcursectnum);
-        if (globalcursectnum < 0) globalcursectnum = i;
+        int i = dacursectnum;
+        updatesector(daposx, daposy, &dacursectnum);
+        if (dacursectnum < 0) dacursectnum = i;
 
         // PK 20110123: I'm not sure what the line above is supposed to do, but 'i'
         //              *can* be negative, so let's just quit here in that case...
-        if (globalcursectnum<0)
+        if (dacursectnum < 0)
             return 0;
     }
 
     if (!testnewrenderer)
     {
+        set_globalpos(daposx, daposy, daposz);
+        set_globalang(daang);
+
+        global100horiz = dahoriz;
+
+        memset(gotsector, 0, sizeof(gotsector));
+        qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16) + IntToFixed(ydimen >> 1);
+        globalcursectnum = dacursectnum;
         Polymost::polymost_drawrooms();
     }
     else
     {
         vec3_t pos = { daposx, daposy, daposz };
-        //if (!testnewinterface) render_drawrooms_(pos, globalcursectnum, daang, dahoriz, rollang, r_fov, false, false);
-        /*else*/ render_drawrooms(pos, globalcursectnum, daang, dahoriz, rollang, false, false);
+        render_drawrooms(nullptr, pos, dacursectnum, daang, dahoriz, rollang, 0);
     }
 
     return inpreparemirror;

@@ -35,7 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ai.h"
 #include "aistate.h"
 #include "aiunicult.h"
-#include "blood.h"
 #include "callback.h"
 #include "db.h"
 #include "endgame.h"
@@ -82,6 +81,20 @@ void StartLevel(MapRecord *gameOptions);
 void ProcessFrame(void);
 void ScanINIFiles(void);
 void EndLevel();
+
+struct MIRROR
+{
+	int type;
+	int link;
+	int dx;
+	int dy;
+	int dz;
+	int wallnum;
+};
+
+extern MIRROR mirror[16];
+extern int mirrorcnt, mirrorsector, mirrorwall[4];
+
 
 inline bool DemoRecordStatus(void)
 {
@@ -131,9 +144,10 @@ struct GameInterface : ::GameInterface
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;
-	int chaseCamX(binangle ang) { return MulScale(-Cos(ang.asbuild()), 1280, 30); }
-	int chaseCamY(binangle ang) { return MulScale(-Sin(ang.asbuild()), 1280, 30); }
-	int chaseCamZ(fixedhoriz horiz) { return FixedToInt(MulScale(horiz.asq16(), 1280, 3)) - (16 << 8); }
+	int chaseCamX(binangle ang) override { return MulScale(-Cos(ang.asbuild()), 1280, 30); }
+	int chaseCamY(binangle ang) override { return MulScale(-Sin(ang.asbuild()), 1280, 30); }
+	int chaseCamZ(fixedhoriz horiz) override { return FixedToInt(MulScale(horiz.asq16(), 1280, 3)) - (16 << 8); }
+	void processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
 
 	GameStats getStats() override;
 };

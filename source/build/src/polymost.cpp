@@ -2075,7 +2075,7 @@ void polymost_drawrooms()
 {
     polymost_outputGLDebugMessage(3, "polymost_drawrooms()");
 
-	GLInterface.ClearDepth();
+    GLInterface.ClearDepth();
     GLInterface.EnableBlend(false);
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(true);
@@ -2477,7 +2477,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
     gvrcorrection = viewingrange*(1.f/65536.f);
     //if (glprojectionhacks == 2)
     {
-        // calculates the extend of the zenith glitch
+        // calculates the extent of the zenith glitch
         float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
         float verticalfov = atanf(verticalfovtan) * (2.f / pi::pi());
         static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees

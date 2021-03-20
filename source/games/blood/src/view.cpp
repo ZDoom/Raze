@@ -42,8 +42,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "gamefuncs.h"
 #include "v_draw.h"
+#include "render.h"
 #include "glbackend/glbackend.h"
 
+EXTERN_CVAR(Bool, testnewrenderer)
 BEGIN_BLD_NS
 
 FixedBitArray<kMaxSprites> gInterpolateSprite;
@@ -450,6 +452,101 @@ static void DrawMap(spritetype* pSprite)
         setViewport(hud_size);
 }
 
+void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSectnum, double& zDelta)
+{
+    int bobWidth, bobHeight;
+    lookangle rotscrnang;
+    double shakeX, shakeY;
+    nSectnum = gView->pSprite->sectnum;
+    if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
+    {
+        nSectnum = predict.sectnum;
+        cX = interpolate(predictOld.x, predict.x, gInterpolate);
+        cY = interpolate(predictOld.y, predict.y, gInterpolate);
+        cZ = interpolate(predictOld.viewz, predict.viewz, gInterpolate);
+        zDelta = finterpolate(predictOld.weaponZ, predict.weaponZ, gInterpolate);
+        bobWidth = interpolate(predictOld.bobWidth, predict.bobWidth, gInterpolate);
+        bobHeight = interpolate(predictOld.bobHeight, predict.bobHeight, gInterpolate);
+        shakeX = finterpolate(predictOld.shakeBobX, predict.shakeBobX, gInterpolate);
+        shakeY = finterpolate(predictOld.shakeBobY, predict.shakeBobY, gInterpolate);
+
+        if (!SyncInput())
+        {
+            cA = bamang(predict.angle.asbam() + predict.look_ang.asbam());
+            cH = predict.horiz + predict.horizoff;
+            rotscrnang = predict.rotscrnang;
+        }
+        else
+        {
+            uint32_t oang = predictOld.angle.asbam() + predictOld.look_ang.asbam();
+            uint32_t ang = predict.angle.asbam() + predict.look_ang.asbam();
+            cA = interpolateangbin(oang, ang, gInterpolate);
+
+            fixed_t ohoriz = (predictOld.horiz + predictOld.horizoff).asq16();
+            fixed_t horiz = (predict.horiz + predict.horizoff).asq16();
+            cH = q16horiz(interpolate(ohoriz, horiz, gInterpolate));
+
+            rotscrnang = interpolateanglook(predictOld.rotscrnang.asbam(), predict.rotscrnang.asbam(), gInterpolate);
+        }
+    }
+    else
+    {
+        VIEW* pView = &gPrevView[gViewIndex];
+        cX = interpolate(pView->x, gView->pSprite->x, gInterpolate);
+        cY = interpolate(pView->y, gView->pSprite->y, gInterpolate);
+        cZ = interpolate(pView->viewz, gView->zView, gInterpolate);
+        zDelta = finterpolate(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
+        bobWidth = interpolate(pView->bobWidth, gView->bobWidth, gInterpolate);
+        bobHeight = interpolate(pView->bobHeight, gView->bobHeight, gInterpolate);
+        shakeX = finterpolate(pView->shakeBobX, gView->swayWidth, gInterpolate);
+        shakeY = finterpolate(pView->shakeBobY, gView->swayHeight, gInterpolate);
+
+        if (!SyncInput())
+        {
+            cA = gView->angle.sum();
+            cH = gView->horizon.sum();
+            rotscrnang = gView->angle.rotscrnang;
+        }
+        else
+        {
+            cA = gView->angle.interpolatedsum(gInterpolate);
+            cH = gView->horizon.interpolatedsum(gInterpolate);
+            rotscrnang = gView->angle.interpolatedrotscrn(gInterpolate);
+        }
+    }
+
+    viewUpdateShake();
+    cH += buildhoriz(shakeHoriz);
+    cA += buildang(shakeAngle);
+    cX += shakeX;
+    cY += shakeY;
+    cZ += shakeZ;
+    shakeX += shakeBobX;
+    shakeY += shakeBobY;
+    cH += buildhoriz(MulScale(0x40000000 - Cos(gView->tiltEffect << 2), 30, 30));
+    if (gViewPos == 0)
+    {
+        if (cl_viewhbob)
+        {
+            cX -= MulScale(bobWidth, Sin(cA.asbuild()), 30) >> 4;
+            cY += MulScale(bobWidth, Cos(cA.asbuild()), 30) >> 4;
+        }
+        if (cl_viewvbob)
+        {
+            cZ += bobHeight;
+        }
+        cZ += xs_CRoundToInt(cH.asq16() / 6553.6);
+        cameradist = -1;
+        cameraclock = PlayClock + MulScale(4, (int)gInterpolate, 16);
+    }
+    else
+    {
+        calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->pSprite, (short*)&nSectnum, cA, cH, gInterpolate);
+    }
+    CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum);
+    renderSetRollAngle(rotscrnang.asbuildf());
+}
+
 void renderCrystalBall()
 {
 #if 0
@@ -541,23 +638,7 @@ RORHACKOTHER:
 #endif
 }
 
-void render3DViewPolymost()
-{
-    int yxAspect = yxaspect;
-    int viewingRange = viewingrange;
-    videoSetCorrectedAspect();
-
-    int v1 = xs_CRoundToInt(double(viewingrange) * tan(r_fov * (pi::pi() / 360.)));
-
-    renderSetAspect(v1, yxaspect);
-
-}
-
-// The hackery in this code necessitates separating the main render functions because the modern renderer does not need
-// the messed up way to render portals.
-void render3DViewModern()
-{
-}
+void render3DViewPolymost(int nSectnum, int cX, int cY, int cZ, binangle cA, fixedhoriz cH);
 
 void viewDrawScreen(bool sceneonly)
 {
@@ -600,113 +681,25 @@ void viewDrawScreen(bool sceneonly)
         UpdateDacs(basepal);
         UpdateBlend();
 
-        int cX, cY, cZ, bobWidth, bobHeight;
-        lookangle rotscrnang;
+        int cX, cY, cZ;
         binangle cA;
         fixedhoriz cH;
-        double zDelta, shakeX, shakeY;
-        int nSectnum = gView->pSprite->sectnum;
-        if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
-        {
-            nSectnum = predict.sectnum;
-            cX = interpolate(predictOld.x, predict.x, gInterpolate);
-            cY = interpolate(predictOld.y, predict.y, gInterpolate);
-            cZ = interpolate(predictOld.viewz, predict.viewz, gInterpolate);
-            zDelta = finterpolate(predictOld.weaponZ, predict.weaponZ, gInterpolate);
-            bobWidth = interpolate(predictOld.bobWidth, predict.bobWidth, gInterpolate);
-            bobHeight = interpolate(predictOld.bobHeight, predict.bobHeight, gInterpolate);
-            shakeX = finterpolate(predictOld.shakeBobX, predict.shakeBobX, gInterpolate);
-            shakeY = finterpolate(predictOld.shakeBobY, predict.shakeBobY, gInterpolate);
+        int nSectnum;
+        double zDelta;
+        SetupView(cX, cY, cZ, cA, cH, nSectnum, zDelta);
 
-            if (!SyncInput())
-            {
-                cA = bamang(predict.angle.asbam() + predict.look_ang.asbam());
-                cH = predict.horiz + predict.horizoff;
-                rotscrnang = predict.rotscrnang;
-            }
-            else
-            {
-                uint32_t oang = predictOld.angle.asbam() + predictOld.look_ang.asbam();
-                uint32_t ang = predict.angle.asbam() + predict.look_ang.asbam();
-                cA = interpolateangbin(oang, ang, gInterpolate);
-
-                fixed_t ohoriz = (predictOld.horiz + predictOld.horizoff).asq16();
-                fixed_t horiz = (predict.horiz + predict.horizoff).asq16();
-                cH = q16horiz(interpolate(ohoriz, horiz, gInterpolate));
-
-                rotscrnang = interpolateanglook(predictOld.rotscrnang.asbam(), predict.rotscrnang.asbam(), gInterpolate);
-            }
-        }
-        else
-        {
-            VIEW* pView = &gPrevView[gViewIndex];
-            cX = interpolate(pView->x, gView->pSprite->x, gInterpolate);
-            cY = interpolate(pView->y, gView->pSprite->y, gInterpolate);
-            cZ = interpolate(pView->viewz, gView->zView, gInterpolate);
-            zDelta = finterpolate(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
-            bobWidth = interpolate(pView->bobWidth, gView->bobWidth, gInterpolate);
-            bobHeight = interpolate(pView->bobHeight, gView->bobHeight, gInterpolate);
-            shakeX = finterpolate(pView->shakeBobX, gView->swayWidth, gInterpolate);
-            shakeY = finterpolate(pView->shakeBobY, gView->swayHeight, gInterpolate);
-
-            if (!SyncInput())
-            {
-                cA = gView->angle.sum();
-                cH = gView->horizon.sum();
-                rotscrnang = gView->angle.rotscrnang;
-            }
-            else
-            {
-                cA = gView->angle.interpolatedsum(gInterpolate);
-                cH = gView->horizon.interpolatedsum(gInterpolate);
-                rotscrnang = gView->angle.interpolatedrotscrn(gInterpolate);
-            }
-        }
-
-        viewUpdateShake();
-        cH += buildhoriz(shakeHoriz);
-        cA += buildang(shakeAngle);
-        cX += shakeX;
-        cY += shakeY;
-        cZ += shakeZ;
-        shakeX += shakeBobX;
-        shakeY += shakeBobY;
-        cH += buildhoriz(MulScale(0x40000000 - Cos(gView->tiltEffect << 2), 30, 30));
-        if (gViewPos == 0)
-        {
-            if (cl_viewhbob)
-            {
-                cX -= MulScale(bobWidth, Sin(cA.asbuild()), 30) >> 4;
-                cY += MulScale(bobWidth, Cos(cA.asbuild()), 30) >> 4;
-            }
-            if (cl_viewvbob)
-            {
-                cZ += bobHeight;
-            }
-            cZ += xs_CRoundToInt(cH.asq16() / 6553.6);
-            cameradist = -1;
-            cameraclock = PlayClock + MulScale(4, (int)gInterpolate, 16);
-        }
-        else
-        {
-            calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->pSprite, (short*)&nSectnum, cA, cH, gInterpolate);
-        }
-        CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum);
-        int v78 = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
+        int tilt = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
         uint8_t v14 = 0;
         uint8_t v10 = 0;
         bool bDelirium = powerupCheck(gView, kPwUpDeliriumShroom) > 0;
         static bool bDeliriumOld = false;
         //int tiltcs, tiltdim;
-        uint8_t v4 = powerupCheck(gView, kPwUpCrystalBall) > 0;
-#ifdef USE_OPENGL
-        renderSetRollAngle(rotscrnang.asbuildf());
-#endif
-        if (v78 || bDelirium)
+        uint8_t otherview = powerupCheck(gView, kPwUpCrystalBall) > 0;
+        if (tilt || bDelirium)
         {
-            renderSetRollAngle(v78);
+            renderSetRollAngle(tilt);
         }
-        else if (v4 && gNetPlayers > 1)
+        else if (otherview && gNetPlayers > 1)
         {
 #if 0    
             renderCrystalBall();
@@ -723,7 +716,7 @@ void viewDrawScreen(bool sceneonly)
             deliriumTurn = 0;
             deliriumPitch = 0;
         }
-        int unk = 0;
+        int brightness = 0;
 
         int nSprite;
         StatIterator it(kStatExplosion);
@@ -735,7 +728,7 @@ void viewDrawScreen(bool sceneonly)
             XSPRITE* pXSprite = &xsprite[nXSprite];
             if (TestBitString(gotsector, pSprite->sectnum))
             {
-                unk += pXSprite->data3 * 32;
+                brightness += pXSprite->data3 * 32;
             }
         }
         it.Reset(kStatProjectile);
@@ -747,81 +740,49 @@ void viewDrawScreen(bool sceneonly)
             case kMissileTeslaAlt:
             case kMissileFlareAlt:
             case kMissileTeslaRegular:
-                if (TestBitString(gotsector, pSprite->sectnum)) unk += 256;
+                if (TestBitString(gotsector, pSprite->sectnum)) brightness += 256;
                 break;
             }
         }
-        g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - unk, 0));
+        g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - brightness, 0));
         cA += q16ang(interpolateangfix16(IntToFixed(deliriumTurnO), IntToFixed(deliriumTurn), gInterpolate));
-        int vfc, vf8;
-        getzsofslope(nSectnum, cX, cY, &vfc, &vf8);
-        if (cZ >= vf8)
+
+        int ceilingZ, floorZ;
+        getzsofslope(nSectnum, cX, cY, &ceilingZ, &floorZ);
+        if (cZ >= floorZ)
         {
-            cZ = vf8 - (gUpperLink[nSectnum] >= 0 ? 0 : (8 << 8));
+            cZ = floorZ - (gUpperLink[nSectnum] >= 0 ? 0 : (8 << 8));
         }
-        if (cZ <= vfc)
+        if (cZ <= ceilingZ)
         {
-            cZ = vfc + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
+            cZ = ceilingZ + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
         }
         cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
-    RORHACK:
-        int ror_status[16];
-        for (int i = 0; i < 16; i++)
-            ror_status[i] = TestBitString(gotpic, 4080 + i);
-        fixed_t deliriumPitchI = interpolate(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
-        DrawMirrors(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, gInterpolate, gViewIndex);
-        int bakCstat = gView->pSprite->cstat;
-        if (gViewPos == 0)
-        {
-            gView->pSprite->cstat |= 32768;
-        }
-        else
-        {
-            gView->pSprite->cstat |= 514;
-        }
 
-        renderDrawRoomsQ16(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, nSectnum);
-        viewProcessSprites(cX, cY, cZ, cA.asbuild(), gInterpolate);
-        bool do_ror_hack = false;
-        for (int i = 0; i < 16; i++)
-            if (ror_status[i] != TestBitString(gotpic, 4080 + i))
-                do_ror_hack = true;
-        if (do_ror_hack)
-        {
-            gView->pSprite->cstat = bakCstat;
-            spritesortcnt = 0;
-            goto RORHACK;
-        }
-        sub_5571C(1);
-        int nSpriteSortCnt = spritesortcnt;
-        renderDrawMasks();
-        spritesortcnt = nSpriteSortCnt;
-        sub_5571C(0);
-        sub_557C4(cX, cY, gInterpolate);
-        renderDrawMasks();
-        gView->pSprite->cstat = bakCstat;
-
-        if ((v78 || bDelirium) && !sceneonly)
+        if ((tilt || bDelirium) && !sceneonly)
         {
             if (gDeliriumBlur)
             {
-                // todo: Implement using modern techniques instead of relying on deprecated old stuff that isn't well supported anymore.
-                /* names broken up so that searching for GL keywords won't find them anymore
-                if (!bDeliriumOld)
-                {
-                    g lAccum(GL_LOAD, 1.f);
-                }
-                else
-                {
-                    const float fBlur = pow(1.f/3.f, 30.f/g_frameRate);
-                    g lAccum(GL _MULT, fBlur);
-                    g lAccum(GL _ACCUM, 1.f-fBlur);
-                    g lAccum(GL _RETURN, 1.f);
-                }
-                */
+                // todo: Set up a blurring postprocessing shader.
+                //const float fBlur = pow(1.f/3.f, 30.f/g_frameRate);
+                //g lAccum(GL _MULT, fBlur);
+                //g lAccum(GL _ACCUM, 1.f-fBlur);
+                //g lAccum(GL _RETURN, 1.f);
             }
         }
 
+        if (testnewrenderer)
+        {
+            fixed_t deliriumPitchI = interpolate(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
+            int bakCstat = gView->pSprite->cstat;
+            gView->pSprite->cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANSLUCENT_INVERT;
+            render_drawrooms(gView->pSprite, { cX, cY, cZ }, nSectnum, cA.asq16(), cH.asq16() + deliriumPitchI, 0, RSF_UPDATESECTOR);
+            gView->pSprite->cstat = bakCstat;
+        }
+        else
+        {
+            render3DViewPolymost(nSectnum, cX, cY, cZ, cA, cH);
+        }
         bDeliriumOld = bDelirium && gDeliriumBlur;
 
         int nClipDist = gView->pSprite->clipdist << 2;
