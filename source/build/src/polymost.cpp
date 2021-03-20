@@ -915,16 +915,6 @@ skip: ;
 #endif
 }
 
-// Moved in from pragmas.h
-static inline int32_t krecipasm(int32_t i)
-{
-    // Ken did this
-    union { int32_t i; float f; } x;
-    x.f = (float)i;
-    i = x.i;
-    return ((reciptable[(i >> 12) & 2047] >> (((i - 0x3f800000) >> 23) & 31)) ^ (i >> 31));
-}
-
 // variables that are set to ceiling- or floor-members, depending
 // on which one is processed right now
 static int32_t global_cf_z;
@@ -956,14 +946,14 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
                             wall[wall[sec->wallptr].point2].y - wall[sec->wallptr].y };
         float r;
 
+        int length = ksqrt(uhypsq(xy.x, xy.y));
         if (globalorientation & 2)
         {
-            int i = krecipasm(ksqrt(uhypsq(xy.x,xy.y)));
-            r = i * (1.f/1073741824.f);
+            r = 1.f / length;
         }
         else
         {
-            int i = ksqrt(uhypsq(xy.x,xy.y)); if (i == 0) i = 1024; else i = 1048576 / i;
+            int i; if (length == 0) i = 1024; else i = 1048576 / length; // consider integer truncation
             r = i * (1.f/1048576.f);
         }
 

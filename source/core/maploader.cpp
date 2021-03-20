@@ -41,6 +41,8 @@
 #include "inputstate.h"
 #include "md4.h"
 #include "gamecontrol.h"
+#include "gamefuncs.h"
+#include "sectorgeometry.h"
 
 
 static void ReadSectorV7(FileReader& fr, sectortype& sect)
@@ -444,6 +446,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	unsigned char md4[16];
 	md4once(buffer.Data(), buffer.Size(), md4);
 	G_LoadMapHack(filename, md4);
+	setWallSectors();
 
 	memcpy(wallbackup, wall, sizeof(wallbackup));
 	memcpy(sectorbackup, sector, sizeof(sectorbackup));
@@ -468,4 +471,18 @@ void loadMapBackup(const char* filename)
 		engineLoadBoard(filename, 0, &pos, &scratch, &scratch);
 		initspritelists();
 	}
+}
+
+// Sets the sector reference for each wall. We need this for the triangulation cache.
+void setWallSectors()
+{
+	for (int i = 0; i < numsectors; i++)
+	{
+		sector[i].dirty = 255;
+		for (int w = 0; w < sector[i].wallnum; w++)
+		{
+			wall[sector[i].wallptr + w].sector = i;
+		}
+	}
+	sectorGeometry.SetSize(numsectors);
 }

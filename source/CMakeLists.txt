@@ -1117,6 +1117,7 @@ set (PCH_SOURCES
 	core/savegamehelp.cpp
 	core/quotes.cpp
 	core/screenshot.cpp
+	core/sectorgeometry.cpp
 	core/raze_music.cpp
 	core/raze_sound.cpp
 	core/palette.cpp

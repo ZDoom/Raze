@@ -185,7 +185,7 @@ FRenderViewpoint SetupView(vec3_t& position, int sectnum, fixed_t q16angle, fixe
 	r_viewpoint.Pos = { position.x / 16.f, position.y / -16.f, position.z / -256.f };
 	r_viewpoint.HWAngles.Yaw = -90.f + q16ang(q16angle).asdeg();
 	r_viewpoint.HWAngles.Pitch = -HorizToPitch(q16horizon);
-	r_viewpoint.HWAngles.Roll = rollang;
+	r_viewpoint.HWAngles.Roll = -rollang;
 	r_viewpoint.FieldOfView = (float)r_fov;
 	r_viewpoint.RotAngle = q16ang(q16angle).asbam();
 	return r_viewpoint;

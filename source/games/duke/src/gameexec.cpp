@@ -977,7 +977,7 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, s
 		else SetGameVarID((int)lVar2, wall[iWall].overpicnum, sActor, sPlayer);
 		break;
 	case WALL_SHADE:
-		if (bSet) wall[iWall].x = lValue;
+		if (bSet) wall[iWall].shade = lValue;
 		else SetGameVarID((int)lVar2, wall[iWall].shade, sActor, sPlayer);
 		break;
 	case WALL_PAL:
@@ -1009,8 +1009,8 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, s
 		else SetGameVarID((int)lVar2, wall[iWall].hitag, sActor, sPlayer);
 		break;
 	case WALL_EXTRA:
-		if (bSet) wall[iWall].x = lValue;
-		else SetGameVarID((int)lVar2, wall[iWall].x, sActor, sPlayer);
+		if (bSet) wall[iWall].extra = lValue;
+		else SetGameVarID((int)lVar2, wall[iWall].extra, sActor, sPlayer);
 		break;
 	default:
 		break;

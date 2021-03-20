@@ -56,6 +56,7 @@
 #include "gamestate.h"
 #include "razemenu.h"
 #include "interpolate.h"
+#include "gamefuncs.h"
 
 
 sectortype sectorbackup[MAXSECTORS];
@@ -669,6 +670,10 @@ void SerializeMap(FSerializer& arc)
 		if (nextspritesect[i] == -2) nextspritesect[i] = i + 1;
 		if (prevspritestat[i] == -2) prevspritestat[i] = i - 1;
 		if (prevspritesect[i] == -2) prevspritesect[i] = i - 1;
+	}
+	if (arc.isReading())
+	{
+		setWallSectors();
 	}
 }
 

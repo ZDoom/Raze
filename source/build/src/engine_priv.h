@@ -39,7 +39,7 @@ extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 extern int16_t maskwall[MAXWALLSB], maskwallcnt;
 extern tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
-extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
+extern int32_t xdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
 extern int32_t globalposx, globalposy, globalposz;
 extern fixed_t qglobalhoriz, qglobalang;
@@ -53,12 +53,6 @@ extern int16_t globalpicnum;
 
 extern int32_t globalorientation;
 
-extern int16_t editstatus;
-
-extern int16_t searchit;
-extern int16_t searchsector, searchwall, searchstat;
-extern int16_t searchbottomwall, searchisbottom;
-
 extern int16_t sectorborder[256];
 extern int32_t hitallsprites;
 
@@ -67,7 +61,6 @@ extern int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
 extern int16_t bunchp2[MAXWALLSB];
 extern int16_t numscans, numbunches;
 extern int32_t rxi[8], ryi[8];
-extern int32_t reciptable[2048];
 
 
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
@@ -83,18 +76,6 @@ static FORCE_INLINE int32_t bad_tspr(tspriteptr_t tspr)
     // caller.
     return (tspr->owner < 0 || (unsigned)tspr->picnum >= MAXTILES);
 }
-
-//
-// getpalookup (internal)
-//
-static FORCE_INLINE int32_t getpalookup(int32_t davis, int32_t dashade)
-{
-    if (getpalookup_replace)
-        return getpalookup_replace(davis, dashade);
-    return min(max(dashade + (davis >> 8), 0), numshades - 1);
-}
-
-static FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(davis, globalshade) << 8; }
 
 static FORCE_INLINE void setgotpic(int32_t tilenume)
 {

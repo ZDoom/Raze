@@ -622,7 +622,6 @@ static FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
 
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
-int32_t sectorofwall(int16_t wallNum);
 void setslope(int32_t sectnum, int32_t cf, int16_t slope);
 
 int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
@@ -862,7 +861,6 @@ void markTileForPrecache(int tilenum, int palnum);
 void precacheMarkedTiles();
 
 extern int32_t(*animateoffs_replace)(int const tilenum, int fakevar);
-extern int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade);
 extern void(*initspritelists_replace)(void);
 extern int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum);
 extern int32_t(*deletesprite_replace)(int16_t spritenum);

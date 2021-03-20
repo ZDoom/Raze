@@ -508,7 +508,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 {
                     clipyou = 1;
                 }
-                else if (editstatus == 0)
+                else
                 {
                     clipmove_tweak_pos(pos, diff.x, diff.y, p1.x, p1.y, p2.x, p2.y, &v.x, &v.y);
                     clipyou = cliptestsector(dasect, wal->nextsector, flordist, ceildist, v, pos->z);
@@ -990,11 +990,8 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                 if (wall[j].cstat&dawalclipmask) continue;  // XXX?
                 auto const sec = (usectorptr_t)&sector[k];
 
-                if (editstatus == 0)
-                {
-                    if (((sec->ceilingstat&1) == 0) && (pos->z <= sec->ceilingz+(3<<8))) continue;
-                    if (((sec->floorstat&1) == 0) && (pos->z >= sec->floorz-(3<<8))) continue;
-                }
+                if (((sec->ceilingstat&1) == 0) && (pos->z <= sec->ceilingz+(3<<8))) continue;
+                if (((sec->floorstat&1) == 0) && (pos->z >= sec->floorz-(3<<8))) continue;
 
                 if (bitmap_test(clipsectormap, k) == 0)
                     addclipsect(k);

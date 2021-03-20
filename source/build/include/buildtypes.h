@@ -51,6 +51,7 @@ struct sectortype
     int16_t hitag;
     int16_t extra;
 
+    uint8_t dirty;
     float ceilingxpan_, ceilingypan_, floorxpan_, floorypan_;
 
     int ceilingxpan() const { return int(ceilingxpan_); }
@@ -91,7 +92,7 @@ struct walltype
         };
         vec2_t pos;
     };
-    int16_t point2, nextwall, nextsector;
+    int16_t point2, nextwall, sector, nextsector;
     uint16_t cstat;
     int16_t picnum, overpicnum;
     int8_t shade;

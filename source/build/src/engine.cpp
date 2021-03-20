@@ -73,7 +73,6 @@ int32_t globalflags;
 static int8_t tempbuf[MAXWALLS];
 
 // referenced from asm
-int32_t reciptable[2048];
 intptr_t asm1, asm2;
 int32_t globalx1, globaly2, globalx3, globaly3;
 
@@ -87,7 +86,6 @@ int32_t showfirstwall=0;
 int32_t showheightindicators=1;
 int32_t circlewall=-1;
 
-int16_t editstatus = 0;
 static fixed_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
 
 static FString printcoords(void)
@@ -118,8 +116,6 @@ ADD_STAT(printcoords)
     return printcoords();
 }
 
-int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade) = NULL;
-
 // adapted from build.c
 static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall, vec2_t *const closest)
 {
@@ -149,7 +145,6 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
 }
 
 int32_t xb1[MAXWALLSB];  // Polymost uses this as a temp array
-static int32_t xb2[MAXWALLSB];
 int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
 int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
 
@@ -158,7 +153,7 @@ int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
 static vec3_t spritesxyz[MAXSPRITESONSCREEN+1];
 
-int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
+int32_t xdimen = -1, xdimenscale, xdimscale;
 float fxdimen = -1.f;
 int32_t ydimen;
 
@@ -190,18 +185,6 @@ int32_t halfxdim16, midydim16;
 static_assert(MAXWALLSB < INT16_MAX);
 int16_t numscans, numbunches;
 static int16_t numhits;
-
-int16_t searchit;
-int16_t searchsector, searchwall, searchstat;     //search output
-
-// SEARCHBOTTOMWALL:
-//   When aiming at a the bottom part of a 2-sided wall whose bottom part
-//   is swapped (.cstat&2), searchbottomwall equals that wall's .nextwall. In all
-//   other cases (when aiming at a wall), searchbottomwall equals searchwall.
-//
-// SEARCHISBOTTOM:
-//  When aiming at a 2-sided wall, 1 if aiming at the bottom part, 0 else
-int16_t searchbottomwall, searchisbottom;
 
 bool inpreparemirror = 0;
 static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
@@ -318,9 +301,6 @@ static int32_t engineLoadTables(void)
     if (tablesloaded == 0)
     {
         int32_t i;
-
-        for (i=0; i<2048; i++)
-            reciptable[i] = DivScale(2048, i+2048, 30);
 
         for (i=0; i<=512; i++)
             sintable[i] = bsinf(i);
@@ -798,8 +778,6 @@ int32_t engineInit(void)
     memset(voxrotate, 0, sizeof(voxrotate));
 
     paletteloaded = 0;
-
-    searchit = 0; searchstat = -1;
 
     g_visibility = 512;
     parallaxvisibility = 512;
@@ -2607,6 +2585,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
 
         while (1)
         {
+            sector[wall[w].sector].dirty = 255;
             wall[w].x = dax;
             wall[w].y = day;
             walbitmap[w>>3] |= pow2char[w&7];
@@ -2985,8 +2964,7 @@ void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     windowxy2.x = x2;
     windowxy2.y = y2;
 
-    xdimen = (x2-x1)+1; halfxdimen = (xdimen>>1);
-    xdimenrecip = DivScale(1L,xdimen, 32);
+    xdimen = (x2-x1)+1;
     ydimen = (y2-y1)+1;
 
     fxdimen = (float) xdimen;
@@ -3121,36 +3099,6 @@ void renderCompleteMirror(void)
 {
     Polymost::polymost_completeMirror();
     inpreparemirror = 0;
-}
-
-
-//
-// sectorofwall
-//
-static int32_t sectorofwall_internal(int16_t wallNum)
-{
-    native_t gap = numsectors>>1, sectNum = gap;
-
-    while (gap > 1)
-    {
-        gap >>= 1;
-        native_t const n = !!(sector[sectNum].wallptr < wallNum);
-        sectNum += (n ^ (n - 1)) * gap;
-    }
-    while (sector[sectNum].wallptr > wallNum) sectNum--;
-    while (sector[sectNum].wallptr + sector[sectNum].wallnum <= wallNum) sectNum++;
-
-    return sectNum;
-}
-
-int32_t sectorofwall(int16_t wallNum)
-{
-	if ((unsigned)wallNum < (unsigned)numwalls)
-	{
-		native_t const w = wall[wallNum].nextwall;
-		return ((unsigned)w < MAXWALLS) ? wall[w].nextsector : sectorofwall_internal(wallNum);
-	}
-	return -1;
 }
 
 

@@ -41,7 +41,6 @@ void sub_5571C(char mode);
 void sub_557C4(int x, int y, int interpolation);
 void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int viewPlayer);
 int qanimateoffs(int a1, int a2);
-int32_t qgetpalookup(int32_t a1, int32_t a2);
 void HookReplaceFunctions();
 
 struct QAV;
