@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "gamefuncs.h"
 #include "gamestruct.h"
+#include "intvec.h"
 
 
 //---------------------------------------------------------------------------
@@ -258,3 +259,34 @@ void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out)
 	out[3] = out[0] - sub;
 }
 
+
+//==========================================================================
+//
+// vector serializers
+//
+//==========================================================================
+
+FSerializer& Serialize(FSerializer& arc, const char* key, vec2_t& c, vec2_t* def)
+{
+	if (def && !memcmp(&c, def, sizeof(c))) return arc;
+	if (arc.BeginObject(key))
+	{
+		arc("x", c.x, def ? &def->x : nullptr)
+			("y", c.y, def ? &def->y : nullptr)
+			.EndObject();
+	}
+	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* key, vec3_t& c, vec3_t* def)
+{
+	if (def && !memcmp(&c, def, sizeof(c))) return arc;
+	if (arc.BeginObject(key))
+	{
+		arc("x", c.x, def ? &def->x : nullptr)
+			("y", c.y, def ? &def->y : nullptr)
+			("z", c.z, def ? &def->z : nullptr)
+			.EndObject();
+	}
+	return arc;
+}
