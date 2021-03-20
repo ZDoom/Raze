@@ -1846,7 +1846,7 @@ void polymost_scansector(int32_t sectnum)
 
         int scanfirst = numscans;
 
-        vec2d_t p2 = { 0, 0 };
+        DVector2 p2 = { 0, 0 };
 
         uwallptr_t wal;
 
@@ -1854,37 +1854,37 @@ void polymost_scansector(int32_t sectnum)
         {
             auto const wal2 = (uwallptr_t)&wall[wal->point2];
 
-            vec2d_t const fp1 = { double(wal->x - globalposx), double(wal->y - globalposy) };
-            vec2d_t const fp2 = { double(wal2->x - globalposx), double(wal2->y - globalposy) };
+            DVector2 const fp1 = { double(wal->x - globalposx), double(wal->y - globalposy) };
+            DVector2 const fp2 = { double(wal2->x - globalposx), double(wal2->y - globalposy) };
 
             int const nextsectnum = wal->nextsector; //Scan close sectors
 
             if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < countof(sectorborder))
             if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
             {
-                double const d = fp1.x*fp2.y - fp2.x*fp1.y;
-                vec2d_t const p1 = { fp2.x-fp1.x, fp2.y-fp1.y };
+                double const d = fp1.X* fp2.Y - fp2.X * fp1.Y;
+                DVector2 const p1 = fp2 - fp1;
 
                 // this said (SCISDIST*SCISDIST*260.f), but SCISDIST is 1 and the significance of 260 isn't obvious to me
                 // is 260 fudged to solve a problem, and does the problem still apply to our version of the renderer?
-                if (d*d < (p1.x*p1.x + p1.y*p1.y) * 256.f)
+                if (d*d < (p1.LengthSquared()) * 256.f)
                 {
                     sectorborder[sectorbordercnt++] = nextsectnum;
                     gotsector[nextsectnum>>3] |= pow2char[nextsectnum&7];
                 }
             }
 
-            vec2d_t p1;
+            DVector2 p1;
 
             if ((z == startwall) || (wall[z-1].point2 != z))
             {
-                p1 = { (((fp1.y * fcosglobalang) - (fp1.x * fsinglobalang)) * (1.0/64.0)),
-                       (((fp1.x * cosviewingrangeglobalang) + (fp1.y * sinviewingrangeglobalang)) * (1.0/64.0)) };
+                p1 = { (((fp1.Y * fcosglobalang) - (fp1.X * fsinglobalang)) * (1.0/64.0)),
+                       (((fp1.X * cosviewingrangeglobalang) + (fp1.Y * sinviewingrangeglobalang)) * (1.0/64.0)) };
             }
             else { p1 = p2; }
 
-            p2 = { (((fp2.y * fcosglobalang) - (fp2.x * fsinglobalang)) * (1.0/64.0)),
-                   (((fp2.x * cosviewingrangeglobalang) + (fp2.y * sinviewingrangeglobalang)) * (1.0/64.0)) };
+            p2 = { (((fp2.Y * fcosglobalang) - (fp2.X * fsinglobalang)) * (1.0/64.0)),
+                   (((fp2.X * cosviewingrangeglobalang) + (fp2.Y * sinviewingrangeglobalang)) * (1.0/64.0)) };
 
             if (numscans >= MAXWALLSB-1)
             {
@@ -1893,10 +1893,10 @@ void polymost_scansector(int32_t sectnum)
             }
 
             //if wall is facing you...
-            if ((p1.y >= SCISDIST || p2.y >= SCISDIST) && (nexttoward(p1.x*p2.y, p2.x*p1.y) < p2.x*p1.y))
+            if ((p1.Y >= SCISDIST || p2.Y >= SCISDIST) && (nexttoward(p1.X*p2.Y, p2.X*p1.Y) < p2.X*p1.Y))
             {
-                dxb1[numscans] = (p1.y >= SCISDIST) ? float(p1.x*ghalfx/p1.y + ghalfx) : -1e32f;
-                dxb2[numscans] = (p2.y >= SCISDIST) ? float(p2.x*ghalfx/p2.y + ghalfx) : 1e32f;
+                dxb1[numscans] = (p1.Y >= SCISDIST) ? float(p1.X*ghalfx/p1.Y + ghalfx) : -1e32f;
+                dxb2[numscans] = (p2.Y >= SCISDIST) ? float(p2.X*ghalfx/p2.Y + ghalfx) : 1e32f;
 
                 if (dxb1[numscans] < xbl)
                     dxb1[numscans] = xbl;
@@ -2865,10 +2865,10 @@ void polymost_drawsprite(int32_t snum)
                 {
                     int32_t const ang = getangle(wall[w].x - POINT2(w).x, wall[w].y - POINT2(w).y);
                     float const foffs = TSPR_OFFSET(tspr);
-                    vec2d_t const offs = { -bsinf(ang, -6) * foffs, bcosf(ang, -6) * foffs };
+                    DVector2 const offs = { -bsinf(ang, -6) * foffs, bcosf(ang, -6) * foffs };
 
-                    vec0.x -= offs.x;
-                    vec0.y -= offs.y;
+                    vec0.x -= offs.X;
+                    vec0.y -= offs.Y;
                 }
             }
 

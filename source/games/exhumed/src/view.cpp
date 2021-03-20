@@ -374,9 +374,6 @@ void DrawView(double smoothRatio, bool sceneonly)
             }
         }
 
-
-        renderSetAspect(viewingRange, DivScale(ydim * 8, xdim * 5, 16));
-
         if (nFreeze)
         {
             nSnakeCam = -1;

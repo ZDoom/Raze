@@ -10,6 +10,7 @@
 #include "clip.h"
 #include "engine_priv.h"
 #include "printf.h"
+#include "gamefuncs.h"
 
 
 static int16_t clipnum;
@@ -574,7 +575,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             if ((cstat&dasprclipmask) == 0)
                 continue;
 
-            vec2_t p1 = *(vec2_t const *)spr;
+            auto p1 = spr->pos.vec2;
 
             switch (cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
             {
@@ -599,31 +600,30 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             {
                 int32_t height, daz = spr->z+spriteheightofs(j, &height, 1);
 
-                if (pos->z > daz-height-flordist && pos->z < daz+ceildist)
+                if (pos->z > daz - height - flordist && pos->z < daz + ceildist)
                 {
-                    vec2_t p2;
+                    vec2_t pp[2];
+                    GetWallSpritePosition(spr, p1, pp);
 
-                    get_wallspr_points(spr, &p1.x, &p2.x, &p1.y, &p2.y);
-
-                    if (clipinsideboxline(cent.x, cent.y, p1.x, p1.y, p2.x, p2.y, rad) != 0)
+                    if (clipinsideboxline(cent.x, cent.y, pp[0].x, pp[0].y, pp[1].x, pp[1].y, rad) != 0)
                     {
                         vec2_t v = { MulScale(bcos(spr->ang + 256), walldist, 14),
                                      MulScale(bsin(spr->ang + 256), walldist, 14) };
 
-                        if ((p1.x-pos->x) * (p2.y-pos->y) >= (p2.x-pos->x) * (p1.y-pos->y))  // Front
-                            addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.y, p2.y-v.x, (int16_t)j+49152, false);
+                        if ((pp[0].x - pos->x) * (pp[1].y - pos->y) >= (pp[1].x - pos->x) * (pp[0].y - pos->y))  // Front
+                            addclipline(pp[0].x + v.x, pp[0].y + v.y, pp[1].x + v.y, pp[1].y - v.x, (int16_t)j + 49152, false);
                         else
                         {
                             if ((cstat & 64) != 0)
                                 continue;
-                            addclipline(p2.x-v.x, p2.y-v.y, p1.x-v.y, p1.y+v.x, (int16_t)j+49152, false);
+                            addclipline(pp[1].x - v.x, pp[1].y - v.y, pp[0].x - v.y, pp[0].y + v.x, (int16_t)j + 49152, false);
                         }
 
                         //Side blocker
-                        if ((p2.x-p1.x) * (pos->x-p1.x)+(p2.y-p1.y) * (pos->y-p1.y) < 0)
-                            addclipline(p1.x-v.y, p1.y+v.x, p1.x+v.x, p1.y+v.y, (int16_t)j+49152, true);
-                        else if ((p1.x-p2.x) * (pos->x-p2.x)+(p1.y-p2.y) * (pos->y-p2.y) < 0)
-                            addclipline(p2.x+v.y, p2.y-v.x, p2.x-v.x, p2.y-v.y, (int16_t)j+49152, true);
+                        if ((pp[1].x - pp[0].x) * (pos->x - pp[0].x) + (pp[1].y - pp[0].y) * (pos->y - pp[0].y) < 0)
+                            addclipline(pp[0].x - v.y, pp[0].y + v.x, pp[0].x + v.x, pp[0].y + v.y, (int16_t)j + 49152, true);
+                        else if ((pp[0].x - pp[1].x) * (pos->x - pp[1].x) + (pp[0].y - pp[1].y) * (pos->y - pp[1].y) < 0)
+                            addclipline(pp[1].x + v.y, pp[1].y - v.x, pp[1].x - v.x, pp[1].y - v.y, (int16_t)j + 49152, true);
                     }
                 }
                 break;
@@ -631,41 +631,38 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
             case CSTAT_SPRITE_ALIGNMENT_FLOOR:
             {
-                if (pos->z > spr->z-flordist && pos->z < spr->z+ceildist)
+                if (pos->z > spr->z - flordist && pos->z < spr->z + ceildist)
                 {
-                    if ((cstat&64) != 0)
-                        if ((pos->z > spr->z) == ((cstat&8)==0))
+                    if ((cstat & 64) != 0)
+                        if ((pos->z > spr->z) == ((cstat & 8) == 0))
                             continue;
 
-                    rxi[0] = p1.x;
-                    ryi[0] = p1.y;
-
-                    get_floorspr_points((uspriteptr_t) spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
-                        &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
+                    vec2_t pp[4];
+                    GetFlatSpritePosition(spr, p1, pp);
 
                     vec2_t v = { MulScale(bcos(spr->ang - 256), walldist, 14),
                                  MulScale(bsin(spr->ang - 256), walldist, 14) };
 
-                    if ((rxi[0]-pos->x) * (ryi[1]-pos->y) < (rxi[1]-pos->x) * (ryi[0]-pos->y))
+                    if ((pp[0].x - pos->x) * (pp[1].y - pos->y) < (pp[1].x - pos->x) * (pp[0].y - pos->y))
                     {
-                        if (clipinsideboxline(cent.x, cent.y, rxi[1], ryi[1], rxi[0], ryi[0], rad) != 0)
-                            addclipline(rxi[1]-v.y, ryi[1]+v.x, rxi[0]+v.x, ryi[0]+v.y, (int16_t)j+49152, false);
+                        if (clipinsideboxline(cent.x, cent.y, pp[1].x, pp[1].y, pp[0].x, pp[0].y, rad) != 0)
+                            addclipline(pp[1].x - v.y, pp[1].y + v.x, pp[0].x + v.x, pp[0].y + v.y, (int16_t)j + 49152, false);
                     }
-                    else if ((rxi[2]-pos->x) * (ryi[3]-pos->y) < (rxi[3]-pos->x) * (ryi[2]-pos->y))
+                    else if ((pp[2].x - pos->x) * (pp[3].y - pos->y) < (pp[3].x - pos->x) * (pp[2].y - pos->y))
                     {
-                        if (clipinsideboxline(cent.x, cent.y, rxi[3], ryi[3], rxi[2], ryi[2], rad) != 0)
-                            addclipline(rxi[3]+v.y, ryi[3]-v.x, rxi[2]-v.x, ryi[2]-v.y, (int16_t)j+49152, false);
+                        if (clipinsideboxline(cent.x, cent.y, pp[3].x, pp[3].y, pp[2].x, pp[2].y, rad) != 0)
+                            addclipline(pp[3].x + v.y, pp[3].y - v.x, pp[2].x - v.x, pp[2].y - v.y, (int16_t)j + 49152, false);
                     }
 
-                    if ((rxi[1]-pos->x) * (ryi[2]-pos->y) < (rxi[2]-pos->x) * (ryi[1]-pos->y))
+                    if ((pp[1].x - pos->x) * (pp[2].y - pos->y) < (pp[2].x - pos->x) * (pp[1].y - pos->y))
                     {
-                        if (clipinsideboxline(cent.x, cent.y, rxi[2], ryi[2], rxi[1], ryi[1], rad) != 0)
-                            addclipline(rxi[2]-v.x, ryi[2]-v.y, rxi[1]-v.y, ryi[1]+v.x, (int16_t)j+49152, false);
+                        if (clipinsideboxline(cent.x, cent.y, pp[2].x, pp[2].y, pp[1].x, pp[1].y, rad) != 0)
+                            addclipline(pp[2].x - v.x, pp[2].y - v.y, pp[1].x - v.y, pp[1].y + v.x, (int16_t)j + 49152, false);
                     }
-                    else if ((rxi[3]-pos->x) * (ryi[0]-pos->y) < (rxi[0]-pos->x) * (ryi[3]-pos->y))
+                    else if ((pp[3].x - pos->x) * (pp[0].y - pos->y) < (pp[0].x - pos->x) * (pp[3].y - pos->y))
                     {
-                        if (clipinsideboxline(cent.x, cent.y, rxi[0], ryi[0], rxi[3], ryi[3], rad) != 0)
-                            addclipline(rxi[0]+v.x, ryi[0]+v.y, rxi[3]+v.y, ryi[3]-v.x, (int16_t)j+49152, false);
+                        if (clipinsideboxline(cent.x, cent.y, pp[0].x, pp[0].y, pp[3].x, pp[3].y, rad) != 0)
+                            addclipline(pp[0].x + v.x, pp[0].y + v.y, pp[3].x + v.y, pp[3].y - v.x, (int16_t)j + 49152, false);
                     }
                 }
                 break;
@@ -1043,7 +1040,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
             {
                 int32_t clipyou = 0;
 
-                vec2_t v1 = sprite[j].pos.vec2;
+                auto v1 = sprite[j].pos.vec2;
 
                 switch (cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
@@ -1061,14 +1058,14 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
 
                     case CSTAT_SPRITE_ALIGNMENT_WALL:
                     {
-                        vec2_t v2;
-                        get_wallspr_points((uspriteptr_t)&sprite[j], &v1.x, &v2.x, &v1.y, &v2.y);
+                        vec2_t pp[2];
+                        GetWallSpritePosition(&sprite[j], v1, pp);
 
-                        if (clipinsideboxline(pos->x,pos->y,v1.x,v1.y,v2.x,v2.y,walldist+1) != 0)
+                        if (clipinsideboxline(pos->x, pos->y, pp[0].x, pp[0].y, pp[1].x, pp[1].y, walldist + 1) != 0)
                         {
                             int32_t k;
                             daz = sprite[j].z + spriteheightofs(j, &k, 1);
-                            daz2 = daz-k;
+                            daz2 = daz - k;
                             clipyou = 1;
                         }
                         break;
@@ -1081,17 +1078,16 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                         if ((cstat&64) != 0 && (pos->z > daz) == ((cstat&8)==0))
                             continue;
 
-                        vec2_t v2, v3, v4;
-                        get_floorspr_points((uspriteptr_t) &sprite[j], pos->x, pos->y, &v1.x, &v2.x, &v3.x, &v4.x,
-                                            &v1.y, &v2.y, &v3.y, &v4.y);
+                        vec2_t pp[4];
+                        GetFlatSpritePosition(&sprite[j], v1 - pos->vec2, pp);
 
                         vec2_t const da = { MulScale(bcos(sprite[j].ang - 256), walldist + 4, 14),
                                             MulScale(bsin(sprite[j].ang - 256), walldist + 4, 14) };
 
-                        v1.x += da.x; v2.x -= da.y; v3.x -= da.x; v4.x += da.y;
-                        v1.y += da.y; v2.y += da.x; v3.y -= da.y; v4.y -= da.x;
+                        pp[0].x += da.x; pp[1].x -= da.y; pp[2].x -= da.x; pp[3].x += da.y;
+                        pp[0].y += da.y; pp[1].y += da.x; pp[2].y -= da.y; pp[3].y -= da.x;
 
-                        clipyou = get_floorspr_clipyou(v1, v2, v3, v4);
+                        clipyou = get_floorspr_clipyou(pp[0], pp[1], pp[2], pp[3]);
                         break;
                     }
                 }
@@ -1379,7 +1375,6 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 if ((cstat&dasprclipmask) == 0)
                     continue;
 
-            x1 = spr->x; y1 = spr->y; z1 = spr->z;
             switch (cstat&CSTAT_SPRITE_ALIGNMENT)
             {
             case 0:
@@ -1399,13 +1394,14 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 int32_t ucoefup16;
                 int32_t tilenum = spr->picnum;
 
-                get_wallspr_points(spr, &x1, &x2, &y1, &y2);
+                vec2_t pp[2];
+                GetWallSpritePosition(spr, spr->pos.vec2, pp);
 
-                if ((cstat&64) != 0)   //back side of 1-way sprite
-                    if (compat_maybe_truncate_to_int32((coord_t)(x1-sv->x)*(y2-sv->y))
-                        < compat_maybe_truncate_to_int32((coord_t)(x2-sv->x)*(y1-sv->y))) continue;
+                if ((cstat & 64) != 0)   //back side of 1-way sprite
+                    if (compat_maybe_truncate_to_int32((coord_t)(pp[0].x - sv->x) * (pp[1].y - sv->y))
+                        < compat_maybe_truncate_to_int32((coord_t)(pp[1].x - sv->x) * (pp[0].y - sv->y))) continue;
 
-                ucoefup16 = rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz);
+                ucoefup16 = rintersect(sv->x, sv->y, sv->z, vx, vy, vz, pp[0].x, pp[0].y, pp[1].x, pp[1].y, &intx, &inty, &intz);
                 if (ucoefup16 == -1) continue;
 
                 if (abs(intx-sv->x)+abs(inty-sv->y) > abs((hit->pos.x)-sv->x)+abs((hit->pos.y)-sv->y))
@@ -1438,8 +1434,9 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
 
             case CSTAT_SPRITE_ALIGNMENT_FLOOR:
             {
-                int32_t x3, y3, x4, y4, zz;
+                int32_t zz;
                 intz = z1;
+
 
                 if (vz == 0 || ((intz-sv->z)^vz) < 0) continue;
 
@@ -1465,10 +1462,10 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 if (abs(intx-sv->x)+abs(inty-sv->y) > abs((hit->pos.x)-sv->x)+abs((hit->pos.y)-sv->y))
                     continue;
 
-                get_floorspr_points((uspriteptr_t)spr, intx, inty, &x1, &x2, &x3, &x4,
-                                    &y1, &y2, &y3, &y4);
+                vec2_t pp[4];
+                GetFlatSpritePosition(spr, spr->pos.vec2 - vec2_t(intx, inty), pp);
 
-                if (get_floorspr_clipyou({x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}))
+                if (get_floorspr_clipyou(pp[0], pp[1], pp[2], pp[3]))
                     hit_set(hit, dasector, -1, z, intx, inty, intz);
 
                 break;

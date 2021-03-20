@@ -1,6 +1,6 @@
 #pragma once
 // nobody uses these. What's so cool about naked numbers? :(
-
+#if 0
 // system defines for status bits
 #define CEILING_STAT_PLAX           BIT(0)
 #define CEILING_STAT_SLOPE          BIT(1)
@@ -40,3 +40,4 @@
 #define CSTAT_WALL_TRANS_FLIP       BIT(9)
 #define CSTAT_WALL_BLOCK_ACTOR (BIT(14)) // my def
 #define CSTAT_WALL_WARP_HITSCAN (BIT(15)) // my def
+#endif

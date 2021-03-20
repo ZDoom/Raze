@@ -200,3 +200,61 @@ void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pceilz, f
 	if (pceilz) *pceilz = ceilz * -(1.f / 256.f);
 	if (pflorz) *pflorz = florz * -(1.f / 256.f);
 }
+
+//==========================================================================
+//
+// Calculate the position of a wall sprite in the world
+//
+//==========================================================================
+
+void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out)
+{
+	int x = bsin(spr->ang) * spr->xrepeat;
+	int y = -bcos(spr->ang) * spr->xrepeat;
+	int width = tileWidth(spr->picnum);
+
+	int xoff = tileLeftOffset(spr->picnum) + spr->xoffset;
+	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoff = -xoff;
+	int origin = (width >> 1) + xoff;
+
+	out[0].x = pos.x - MulScale(x, origin, 16);
+	out[0].y = pos.y - MulScale(y, origin, 16);
+	out[1].x = out[0].x + MulScale(x, width, 16);
+	out[1].y = out[0].y + MulScale(y, width, 16);
+}
+
+
+//==========================================================================
+//
+// Calculate the position of a wall sprite in the world
+//
+//==========================================================================
+
+void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out)
+{
+	auto tex = tileGetTexture(spr->picnum);
+	int width = tex->GetTexelWidth() * spr->xrepeat;
+	int height = tex->GetTexelHeight() * spr->yrepeat;
+	int leftofs = (tex->GetTexelLeftOffset() + spr->xoffset) * spr->xrepeat;
+	int topofs = (tex->GetTexelTopOffset() + spr->yoffset) * spr->yrepeat;
+
+	if (spr->cstat & CSTAT_SPRITE_XFLIP) leftofs = -leftofs;
+	if (spr->cstat & CSTAT_SPRITE_YFLIP) topofs = -topofs;
+
+	int sprcenterx = (width >> 1) + leftofs;
+	int sprcentery = (height >> 1) + topofs;
+
+	int cosang = bcos(spr->ang);
+	int sinang = bsin(spr->ang);
+
+	out[0].x = pos.x + DMulScale(sinang, sprcenterx, cosang, sprcentery, 16);
+	out[0].y = pos.y + DMulScale(sinang, sprcentery, -cosang, sprcenterx, 16);
+
+	out[1].x = out[0].x - MulScale(sinang, width, 16);
+	out[1].y = out[0].y + MulScale(cosang, width, 16);
+
+	vec2_t sub = { MulScale(cosang, height, 16), MulScale(sinang, height, 16) };
+	out[2] = out[1] - sub;
+	out[3] = out[0] - sub;
+}
+

@@ -158,10 +158,8 @@ void hudDraw(PLAYER *gView, int nSectnum, double bobx, double boby, double zDelt
 		DoLensEffect();
 		viewingRange = viewingrange;
 		yxAspect = yxaspect;
-		renderSetAspect(65536, 54613);
 		r otatesprite(IntToFixed(280), IntToFixed(35), 53248, 512, 4077, v10, v14, 512 + 6, gViewX0, gViewY0, gViewX1, gViewY1);
 		r otatesprite(IntToFixed(280), IntToFixed(35), 53248, 0, 1683, v10, 0, 512 + 35, gViewX0, gViewY0, gViewX1, gViewY1);
-		renderSetAspect(viewingRange, yxAspect);
 	}
 #endif
 }

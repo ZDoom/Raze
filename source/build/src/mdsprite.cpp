@@ -675,15 +675,15 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
 
     fil.Read((char *)&head,sizeof(md2head_t));
 #if B_BIG_ENDIAN != 0
-    head.id = B_LITTLE32(head.id);                 head.vers = B_LITTLE32(head.vers);
-    head.skinxsiz = B_LITTLE32(head.skinxsiz);     head.skinysiz = B_LITTLE32(head.skinysiz);
-    head.framebytes = B_LITTLE32(head.framebytes); head.numskins = B_LITTLE32(head.numskins);
-    head.numverts = B_LITTLE32(head.numverts);     head.numuv = B_LITTLE32(head.numuv);
-    head.numtris = B_LITTLE32(head.numtris);       head.numglcmds = B_LITTLE32(head.numglcmds);
-    head.numframes = B_LITTLE32(head.numframes);   head.ofsskins = B_LITTLE32(head.ofsskins);
-    head.ofsuv = B_LITTLE32(head.ofsuv);           head.ofstris = B_LITTLE32(head.ofstris);
-    head.ofsframes = B_LITTLE32(head.ofsframes);   head.ofsglcmds = B_LITTLE32(head.ofsglcmds);
-    head.ofseof = B_LITTLE32(head.ofseof);
+    head.id = LittleLong(head.id);                 head.vers = LittleLong(head.vers);
+    head.skinxsiz = LittleLong(head.skinxsiz);     head.skinysiz = LittleLong(head.skinysiz);
+    head.framebytes = LittleLong(head.framebytes); head.numskins = LittleLong(head.numskins);
+    head.numverts = LittleLong(head.numverts);     head.numuv = LittleLong(head.numuv);
+    head.numtris = LittleLong(head.numtris);       head.numglcmds = LittleLong(head.numglcmds);
+    head.numframes = LittleLong(head.numframes);   head.ofsskins = LittleLong(head.ofsskins);
+    head.ofsuv = LittleLong(head.ofsuv);           head.ofstris = LittleLong(head.ofstris);
+    head.ofsframes = LittleLong(head.ofsframes);   head.ofsglcmds = LittleLong(head.ofsglcmds);
+    head.ofseof = LittleLong(head.ofseof);
 #endif
 
     if ((head.id != IDP2_MAGIC) || (head.vers != 8)) { Xfree(m); return 0; } //"IDP2"
@@ -731,13 +731,13 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
         {
             fr = (md2frame_t *)f;
             l = (int32_t *)&fr->mul;
-            for (j=5; j>=0; j--) l[j] = B_LITTLE32(l[j]);
+            for (j=5; j>=0; j--) l[j] = LittleLong(l[j]);
             f += m->framebytes;
         }
 
         for (i = m->numglcmds-1; i>=0; i--)
         {
-            m->glcmds[i] = B_LITTLE32(m->glcmds[i]);
+            m->glcmds[i] = LittleLong(m->glcmds[i]);
         }
         for (i = head.numtris-1; i>=0; i--)
         {
@@ -957,12 +957,12 @@ static md3model_t *md3load(FileReader & fil)
     fil.Read(&m->head,SIZEOF_MD3HEAD_T);
 
 #if B_BIG_ENDIAN != 0
-    m->head.id = B_LITTLE32(m->head.id);             m->head.vers = B_LITTLE32(m->head.vers);
-    m->head.flags = B_LITTLE32(m->head.flags);       m->head.numframes = B_LITTLE32(m->head.numframes);
-    m->head.numtags = B_LITTLE32(m->head.numtags);   m->head.numsurfs = B_LITTLE32(m->head.numsurfs);
-    m->head.numskins = B_LITTLE32(m->head.numskins); m->head.ofsframes = B_LITTLE32(m->head.ofsframes);
-    m->head.ofstags = B_LITTLE32(m->head.ofstags); m->head.ofssurfs = B_LITTLE32(m->head.ofssurfs);
-    m->head.eof = B_LITTLE32(m->head.eof);
+    m->head.id = LittleLong(m->head.id);             m->head.vers = LittleLong(m->head.vers);
+    m->head.flags = LittleLong(m->head.flags);       m->head.numframes = LittleLong(m->head.numframes);
+    m->head.numtags = LittleLong(m->head.numtags);   m->head.numsurfs = LittleLong(m->head.numsurfs);
+    m->head.numskins = LittleLong(m->head.numskins); m->head.ofsframes = LittleLong(m->head.ofsframes);
+    m->head.ofstags = LittleLong(m->head.ofstags); m->head.ofssurfs = LittleLong(m->head.ofssurfs);
+    m->head.eof = LittleLong(m->head.eof);
 #endif
 
     if ((m->head.id != IDP3_MAGIC) && (m->head.vers != 15)) { Xfree(m); return 0; } //"IDP3"
@@ -998,13 +998,13 @@ static md3model_t *md3load(FileReader & fil)
         for (i = m->head.numframes-1; i>=0; i--)
         {
             l = (int32_t *)&m->head.frames[i].min;
-            for (j=3+3+3+1-1; j>=0; j--) l[j] = B_LITTLE32(l[j]);
+            for (j=3+3+3+1-1; j>=0; j--) l[j] = LittleLong(l[j]);
         }
 
         for (i = m->head.numtags-1; i>=0; i--)
         {
             l = (int32_t *)&m->head.tags[i].p;
-            for (j=3+3+3+3-1; j>=0; j--) l[j] = B_LITTLE32(l[j]);
+            for (j=3+3+3+3-1; j>=0; j--) l[j] = LittleLong(l[j]);
         }
     }
 #endif
@@ -1019,9 +1019,9 @@ static md3model_t *md3load(FileReader & fil)
 #if B_BIG_ENDIAN != 0
         {
             int32_t j, *l;
-            s->id = B_LITTLE32(s->id);
+            s->id = LittleLong(s->id);
             l =	(int32_t *)&s->flags;
-            for	(j=1+1+1+1+1+1+1+1+1+1-1; j>=0; j--) l[j] = B_LITTLE32(l[j]);
+            for	(j=1+1+1+1+1+1+1+1+1+1-1; j>=0; j--) l[j] = LittleLong(l[j]);
         }
 #endif
 
@@ -1055,17 +1055,17 @@ static md3model_t *md3load(FileReader & fil)
 
             for (i=s->numtris-1; i>=0; i--)
             {
-                for (j=2; j>=0; j--) s->tris[i].i[j] = B_LITTLE32(s->tris[i].i[j]);
+                for (j=2; j>=0; j--) s->tris[i].i[j] = LittleLong(s->tris[i].i[j]);
             }
             for (i=s->numshaders-1; i>=0; i--)
             {
-                s->shaders[i].i = B_LITTLE32(s->shaders[i].i);
+                s->shaders[i].i = LittleLong(s->shaders[i].i);
             }
             for (i=s->numverts-1; i>=0; i--)
             {
                 l = (int32_t *)&s->uv[i].u;
-                l[0] = B_LITTLE32(l[0]);
-                l[1] = B_LITTLE32(l[1]);
+                l[0] = LittleLong(l[0]);
+                l[1] = LittleLong(l[1]);
             }
             for (i=s->numframes*s->numverts-1; i>=0; i--)
             {
@@ -1605,7 +1605,7 @@ static mdmodel_t *mdload(const char *filnam)
     fil.Read(&i,4);
     fil.Seek(0,FileReader::SeekSet);
 
-    switch (B_LITTLE32(i))
+    switch (LittleLong(i))
     {
     case IDP2_MAGIC:
 //        Printf("Warning: model \"%s\" is version IDP2; wanted version IDP3\n",filnam);
