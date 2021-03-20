@@ -157,8 +157,6 @@ int32_t xdimen = -1, xdimenscale, xdimscale;
 float fxdimen = -1.f;
 int32_t ydimen;
 
-int32_t rxi[8], ryi[8];
-
 int32_t globalposx, globalposy, globalposz;
 fixed_t qglobalhoriz;
 float fglobalposx, fglobalposy, fglobalposz;
@@ -1289,8 +1287,7 @@ killsprite:
                     if (!ok)
                     {
                         // If not, check if any of the border points are...
-                        int32_t xx[4] = { tspr->x };
-                        int32_t yy[4] = { tspr->y };
+                        vec2_t pp[4];
                         int32_t numpts, jj;
 
                         const _equation pineq = inleft ? p1eq : p2eq;
@@ -1298,9 +1295,7 @@ killsprite:
                         if ((tspr->cstat & 48) == 32)
                         {
                             numpts = 4;
-                            get_floorspr_points(tspr, 0, 0,
-                                                &xx[0], &xx[1], &xx[2], &xx[3],
-                                                &yy[0], &yy[1], &yy[2], &yy[3]);
+                            GetFlatSpritePosition(tspr, tspr->pos.vec2, pp);
                         }
                         else
                         {
@@ -1312,7 +1307,7 @@ killsprite:
                             if ((tspr->cstat & 48) != 16)
                                 tspriteptr[i]->ang = globalang;
 
-                            get_wallspr_points(tspr, &xx[0], &xx[1], &yy[0], &yy[1]);
+                            GetWallSpritePosition(tspr, tspr->pos.vec2, pp);
 
                             if ((tspr->cstat & 48) != 16)
                                 tspriteptr[i]->ang = oang;
@@ -1320,8 +1315,8 @@ killsprite:
 
                         for (jj=0; jj<numpts; jj++)
                         {
-                            spr.x = (float)xx[jj];
-                            spr.y = (float)yy[jj];
+                            spr.x = (float)pp[jj].x;
+                            spr.y = (float)pp[jj].y;
 
                             if (!sameside(&maskeq, &spr, &pos))  // behind the maskwall,
                                 if ((sameside(&p1eq, &middle, &spr) &&  // inside the 'cone',
@@ -1364,367 +1359,6 @@ killsprite:
 	GLInterface.SetDepthBias(0, 0);
 }
 
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void FillPolygon(int* rx1, int* ry1, int* xb1, int32_t npoints, int picnum, int palette, int shade, int props, const FVector2& xtex, const FVector2& ytex, const FVector2& otex,
-    int clipx1, int clipy1, int clipx2, int clipy2)
-{
-    //Convert int32_t to float (in-place)
-    TArray<FVector4> points(npoints, true);
-    using Point = std::pair<float, float>;
-    std::vector<std::vector<Point>> polygon;
-    std::vector<Point>* curPoly;
-
-    polygon.resize(1);
-    curPoly = &polygon.back();
-
-    for (bssize_t i = 0; i < npoints; ++i)
-    {
-        auto X = ((float)rx1[i]) * (1.0f / 4096.f);
-        auto Y = ((float)ry1[i]) * (1.0f / 4096.f);
-        curPoly->push_back(std::make_pair(X, Y));
-        if (xb1[i] < i && i < npoints - 1)
-        {
-            polygon.resize(polygon.size() + 1);
-            curPoly = &polygon.back();
-        }
-    }
-    // Now make sure that the outer boundary is the first polygon by picking a point that's as much to the outside as possible.
-    int outer = 0;
-    float minx = FLT_MAX;
-    float miny = FLT_MAX;
-    for (size_t a = 0; a < polygon.size(); a++)
-    {
-        for (auto& pt : polygon[a])
-        {
-            if (pt.first < minx || (pt.first == minx && pt.second < miny))
-            {
-                minx = pt.first;
-                miny = pt.second;
-                outer = a;
-            }
-        }
-    }
-    if (outer != 0) std::swap(polygon[0], polygon[outer]);
-    auto indices = mapbox::earcut(polygon);
-
-    int p = 0;
-    for (size_t a = 0; a < polygon.size(); a++)
-    {
-        for (auto& pt : polygon[a])
-        {
-            FVector4 point = { pt.first, pt.second, float(pt.first * xtex.X + pt.second * ytex.X + otex.X), float(pt.first * xtex.Y + pt.second * ytex.Y + otex.Y) };
-            points[p++] = point;
-        }
-    }
-
-    int maskprops = (props >> 7) & DAMETH_MASKPROPS;
-    FRenderStyle rs = LegacyRenderStyles[STYLE_Translucent];
-    double alpha = 1.;
-    if (maskprops > DAMETH_MASK)
-    {
-        rs = GetRenderStyle(0, maskprops == DAMETH_TRANS2);
-        alpha = GetAlphaFromBlend(maskprops, 0);
-    }
-    int translation = TRANSLATION(Translation_Remap + curbasepal, palette);
-    int light = clamp(Scale((numshades - shade), 255, numshades), 0, 255);
-    PalEntry pe = PalEntry(uint8_t(alpha*255), light, light, light);
-
-    twod->AddPoly(tileGetTexture(picnum), points.Data(), points.Size(), indices.data(), indices.size(), translation, pe, rs, clipx1, clipy1, clipx2, clipy2);
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-
-#include "build.h"
-#include "../src/engine_priv.h"
-
-
-//
-// fillpolygon (internal)
-//
-static void renderFillPolygon(int32_t npoints)
-{
-    int width = screen->GetWidth();
-    int height = screen->GetHeight();
-
-    // fix for bad next-point (xb1) values...
-    for (int z = 0; z < npoints; z++)
-        if ((unsigned)xb1[z] >= (unsigned)npoints)
-            xb1[z] = 0;
-
-    FVector2 xtex, ytex, otex;
-    int x1 = MulScale(globalx1, xyaspect, 16);
-    int y2 = MulScale(globaly2, xyaspect, 16);
-    xtex.X = ((float)asm1) * (1.f / 4294967296.f);
-    xtex.Y = ((float)asm2) * (1.f / 4294967296.f);
-    ytex.X = ((float)x1) * (1.f / 4294967296.f);
-    ytex.Y = ((float)y2) * (-1.f / 4294967296.f);
-    otex.X = (width * xtex.X + height * ytex.X) * -0.5f + fglobalposx * (1.f / 4294967296.f);
-    otex.Y = (width * xtex.Y + height * ytex.Y) * -0.5f - fglobalposy * (1.f / 4294967296.f);
-    FillPolygon(rx1, ry1, xb1, npoints, globalpicnum, globalpal, globalshade, globalorientation, xtex, ytex, otex, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
-}
-
-//
-// drawmapview
-//
-void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
-{
-    int32_t i, j, k, l;
-    int32_t x, y;
-    int32_t s, ox, oy;
-    int width = screen->GetWidth();
-    int height = screen->GetHeight();
-
-    int32_t const oyxaspect = yxaspect, oviewingrange = viewingrange;
-
-    renderSetAspect(65536, DivScale((320*5)/8, 200, 16));
-
-    memset(gotsector, 0, sizeof(gotsector));
-
-    vec2_t const c1 = { (windowxy1.x<<12), (windowxy1.y<<12) };
-    vec2_t const c2 = { ((windowxy2.x+1)<<12)-1, ((windowxy2.y+1)<<12)-1 };
-
-    zoome <<= 8;
-
-    vec2_t const bakgvect = { DivScale(-bcos(ang), zoome, 28), DivScale(-bsin(ang), zoome, 28) };
-    vec2_t const vect = { MulScale(-bsin(ang), zoome, 8), MulScale(-bcos(ang), zoome, 8) };
-    vec2_t const vect2 = { MulScale(vect.x, yxaspect, 16), MulScale(vect.y, yxaspect, 16) };
-
-    int32_t sortnum = 0;
-
-    usectorptr_t sec;
-
-    for (s=0,sec=(usectorptr_t)&sector[s]; s<numsectors; s++,sec++)
-        if (gFullMap || show2dsector[s])
-        {
-            int32_t npoints = 0; i = 0;
-            int32_t startwall = sec->wallptr;
-            j = startwall; l = 0;
-            uwallptr_t wal;
-            int32_t w;
-            for (w=sec->wallnum,wal=(uwallptr_t)&wall[startwall]; w>0; w--,wal++,j++)
-            {
-                k = lastwall(j);
-                if ((k > j) && (npoints > 0)) { xb1[npoints-1] = l; l = npoints; } //overwrite point2
-                //wall[k].x wal->x wall[wal->point2].x
-                //wall[k].y wal->y wall[wal->point2].y
-                if (!DMulScale(wal->x-wall[k].x,wall[wal->point2].y-wal->y,-(wal->y-wall[k].y),wall[wal->point2].x-wal->x, 1)) continue;
-                ox = wal->x - dax; oy = wal->y - day;
-                x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (width<<11);
-                y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (height<<11);
-                i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
-                rx1[npoints] = x;
-                ry1[npoints] = y;
-                xb1[npoints] = npoints+1;
-                npoints++;
-            }
-            if (npoints > 0) xb1[npoints-1] = l; //overwrite point2
-
-            vec2_t bak = { rx1[0], MulScale(ry1[0]-(height<<11),xyaspect, 16)+(height<<11) };
-
-
-            //Collect floor sprites to draw
-            SectIterator it(s);
-            while ((i = it.NextIndex()) >= 0)
-            {
-                if (sprite[i].cstat & 32768)
-                    continue;
-
-                if ((sprite[i].cstat & 48) == 32)
-                {
-                    if ((sprite[i].cstat & (64 + 8)) == (64 + 8))
-                        continue;
-                    tsprite[sortnum++].owner = i;
-                }
-            }
-            gotsector[s>>3] |= pow2char[s&7];
-
-            globalorientation = (int32_t)sec->floorstat;
-            if ((globalorientation&1) != 0) continue;
-
-            globalfloorpal = globalpal = sec->floorpal;
-
-            int _globalpicnum = sec->floorpicnum;
-            if ((unsigned)_globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-            tileUpdatePicnum(&_globalpicnum, s, 0);
-            globalpicnum = _globalpicnum;
-
-            setgotpic(globalpicnum);
-            if ((tileWidth(globalpicnum) <= 0) || (tileHeight(globalpicnum) <= 0)) continue;
-
-			globalshade = max(min<int>(sec->floorshade, numshades - 1), 0);
-            if ((globalorientation&64) == 0)
-            {
-                set_globalpos(dax, day, globalposz);
-                globalx1 = bakgvect.x; globaly1 = bakgvect.y;
-                globalx2 = bakgvect.x; globaly2 = bakgvect.y;
-            }
-            else
-            {
-                ox = wall[wall[startwall].point2].x - wall[startwall].x;
-                oy = wall[wall[startwall].point2].y - wall[startwall].y;
-                i = ksqrt(uhypsq(ox,oy)); if (i == 0) continue;
-                i = 1048576/i;
-                globalx1 = MulScale(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i, 10);
-                globaly1 = MulScale(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i, 10);
-                ox = (bak.x>>4)-(width<<7); oy = (bak.y>>4)-(height<<7);
-                globalposx = DMulScale(-oy, globalx1, -ox, globaly1, 28);
-                globalposy = DMulScale(-ox, globalx1, oy, globaly1, 28);
-                globalx2 = -globalx1;
-                globaly2 = -globaly1;
-
-                int32_t const daslope = sector[s].floorheinum;
-                i = ksqrt(daslope*daslope+16777216);
-                set_globalpos(globalposx, MulScale(globalposy,i, 12), globalposz);
-                globalx2 = MulScale(globalx2,i, 12);
-                globaly2 = MulScale(globaly2,i, 12);
-            }
-
-            int globalxshift = (8 - widthBits(globalpicnum));
-            int globalyshift = (8 - heightBits(globalpicnum));
-            if (globalorientation & 8) { globalxshift++; globalyshift++; }
-            // PK: the following can happen for large (>= 512) tile sizes.
-            if (globalxshift < 0) globalxshift = 0;
-            if (globalyshift < 0) globalyshift = 0;
-
-            if ((globalorientation&0x4) > 0)
-            {
-                i = globalposx; globalposx = -globalposy; globalposy = -i;
-                i = globalx2; globalx2 = globaly1; globaly1 = i;
-                i = globalx1; globalx1 = -globaly2; globaly2 = -i;
-            }
-            if ((globalorientation&0x10) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalposx = -globalposx;
-            if ((globalorientation&0x20) > 0) globalx2 = -globalx2, globaly2 = -globaly2, globalposy = -globalposy;
-            asm1 = (globaly1<<globalxshift);
-            asm2 = (globalx2<<globalyshift);
-            globalx1 <<= globalxshift;
-            globaly2 <<= globalyshift;
-            set_globalpos(((int64_t) globalposx<<(20+globalxshift))+(((uint32_t) sec->floorxpan())<<24),
-                ((int64_t) globalposy<<(20+globalyshift))-(((uint32_t) sec->floorypan())<<24),
-                globalposz);
-            renderFillPolygon(npoints);
-        }
-
-    //Sort sprite list
-    int32_t gap = 1;
-
-    while (gap < sortnum) gap = (gap << 1) + 1;
-
-    for (gap>>=1; gap>0; gap>>=1)
-        for (i=0; i<sortnum-gap; i++)
-            for (j=i; j>=0; j-=gap)
-            {
-                if (sprite[tsprite[j].owner].z <= sprite[tsprite[j+gap].owner].z) break;
-                std::swap(tsprite[j].owner, tsprite[j+gap].owner);
-            }
-
-    for (s=sortnum-1; s>=0; s--)
-    {
-        auto const spr = (uspritetype * )&sprite[tsprite[s].owner];
-        if ((spr->cstat&48) == 32)
-        {
-            const int32_t xspan = tileWidth(spr->picnum);
-
-            int32_t npoints = 0;
-            vec2_t v1 = { spr->x, spr->y }, v2, v3, v4;
-
-            get_floorspr_points(spr, 0, 0, &v1.x, &v2.x, &v3.x, &v4.x,
-                                &v1.y, &v2.y, &v3.y, &v4.y);
-
-            xb1[0] = 1; xb1[1] = 2; xb1[2] = 3; xb1[3] = 0;
-            npoints = 4;
-
-            i = 0;
-
-            ox = v1.x - dax; oy = v1.y - day;
-            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (width<<11);
-            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (height<<11);
-            i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
-            rx1[0] = x; ry1[0] = y;
-
-            ox = v2.x - dax; oy = v2.y - day;
-            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (width<<11);
-            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (height<<11);
-            i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
-            rx1[1] = x; ry1[1] = y;
-
-            ox = v3.x - dax; oy = v3.y - day;
-            x = DMulScale(ox,vect.x,-oy,vect.y, 16) + (width<<11);
-            y = DMulScale(oy,vect2.x,ox,vect2.y, 16) + (height<<11);
-            i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
-            rx1[2] = x; ry1[2] = y;
-
-            x = rx1[0]+rx1[2]-rx1[1];
-            y = ry1[0]+ry1[2]-ry1[1];
-            i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
-            rx1[3] = x; ry1[3] = y;
-
-
-            vec2_t bak = { rx1[0], MulScale(ry1[0] - (height << 11), xyaspect, 16) + (height << 11) };
-
-
-            globalpicnum = spr->picnum;
-            globalpal = spr->pal; // GL needs this, software doesn't
-
-            int _globalpicnum = sec->floorpicnum;
-            if ((unsigned)_globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-            tileUpdatePicnum(&_globalpicnum, s, 0);
-            globalpicnum = _globalpicnum;
-
-            setgotpic(globalpicnum);
-            if ((tileWidth(globalpicnum) <= 0) || (tileHeight(globalpicnum) <= 0)) continue;
-
-            if ((sector[spr->sectnum].ceilingstat&1) > 0)
-                globalshade = ((int32_t)sector[spr->sectnum].ceilingshade);
-            else
-                globalshade = ((int32_t)sector[spr->sectnum].floorshade);
-            globalshade = max(min(globalshade+spr->shade+6,numshades-1),0);
-
-            //relative alignment stuff
-            ox = v2.x-v1.x; oy = v2.y-v1.y;
-            i = ox*ox+oy*oy; if (i == 0) continue; i = 65536*16384 / i;
-            globalx1 = MulScale(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i, 10);
-            globaly1 = MulScale(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i, 10);
-            ox = v1.y-v4.y; oy = v4.x-v1.x;
-            i = ox*ox+oy*oy; if (i == 0) continue; i = 65536 * 16384 / i;
-            globalx2 = MulScale(DMulScale(ox,bakgvect.x,oy,bakgvect.y, 10),i, 10);
-            globaly2 = MulScale(DMulScale(ox,bakgvect.y,-oy,bakgvect.x, 10),i, 10);
-
-            ox = widthBits(globalpicnum); 
-            oy = heightBits(globalpicnum);
-            if ((1 << ox) != xspan)
-            {
-                ox++;
-                globalx1 = MulScale(globalx1,xspan,ox);
-                globaly1 = MulScale(globaly1,xspan,ox);
-            }
-
-            bak.x = (bak.x>>4)-(width<<7); bak.y = (bak.y>>4)-(height<<7);
-            globalposx = DMulScale(-bak.y,globalx1,-bak.x,globaly1, 28);
-            globalposy = DMulScale(bak.x,globalx2,-bak.y,globaly2, 28);
-
-            if ((spr->cstat&0x4) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalposx = -globalposx;
-            asm1 = (globaly1<<2); globalx1 <<= 2; globalposx <<= (20+2);
-            asm2 = (globalx2<<2); globaly2 <<= 2; globalposy <<= (20+2);
-
-            set_globalpos(globalposx, globalposy, globalposz);
-
-            // so polymost can get the translucency. ignored in software mode:
-            globalorientation = ((spr->cstat&2)<<7) | ((spr->cstat&512)>>2);
-            renderFillPolygon(npoints);
-        }
-    }
-}
 
 //
 // qloadkvx

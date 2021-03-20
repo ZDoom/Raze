@@ -886,6 +886,12 @@ inline void tileUpdatePicnum(int* const tileptr, int const obj, int stat)
         tile = RotTile(tile).newtile;
 }
 
+inline void setgotpic(int32_t tilenume)
+{
+    gotpic[tilenume >> 3] |= pow2char[tilenume & 7];
+}
+
+
 
 #include "iterators.h"
 

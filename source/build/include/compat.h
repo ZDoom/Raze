@@ -116,17 +116,9 @@ typedef ssize_t bssize_t;
 using std::enable_if_t;
 using  native_t = intptr_t;
 
-typedef struct MAY_ALIAS {
-    int32_t x, y;
-} vec2_t;
-
 typedef struct {
     float x, y;
 } vec2f_t;
-
-typedef struct {
-    double x, y;
-} vec2d_t;
 
 typedef struct MAY_ALIAS {
     union {
@@ -135,12 +127,6 @@ typedef struct MAY_ALIAS {
     };
 } vec3_t;
 
-typedef struct MAY_ALIAS {
-    union {
-        struct { int16_t x, y, z; };
-        vec2_16_t vec2;
-    };
-} vec3_16_t;
 
 typedef struct {
     union {
@@ -177,8 +163,6 @@ static_assert(sizeof(vec3d_t) == sizeof(double) * 3);
 
 ////////// Data serialization //////////
 
-inline int32_t B_LITTLE32(int32_t val) { return LittleLong(val); }
-inline uint32_t B_LITTLE32(uint32_t val) { return LittleLong(val); }
 inline int32_t B_LITTLE16(int16_t val) { return LittleShort(val); }
 inline uint32_t B_LITTLE16(uint16_t val) { return LittleShort(val); }
 

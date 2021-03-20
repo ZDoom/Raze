@@ -223,19 +223,13 @@ struct spritetype
     int8_t xoffset, yoffset;
     int16_t sectnum, statnum;
     int16_t oang, ang, owner;
-    union {
-        struct
-        {
-            union {
-                int16_t xvel, index;
-            };
-            int16_t yvel;
-            union {
-                int16_t zvel, inittype;
-            };
+        union {
+            int16_t xvel, index;
         };
-        vec3_16_t vel;
-    };
+        int16_t yvel;
+        union {
+            int16_t zvel, inittype;
+        };
     union {
         int16_t lotag, type;
     };

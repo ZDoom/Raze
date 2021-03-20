@@ -44,6 +44,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "v_video.h"
 #include "gamestruct.h"
 #include "v_draw.h"
+#include "sectorgeometry.h"
+#include "gamefuncs.h"
 
 CVAR(Bool, am_followplayer, true, CVAR_ARCHIVE)
 CVAR(Bool, am_rotate, true, CVAR_ARCHIVE)
@@ -408,8 +410,6 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 {
 	int xvect = -bsin(cang) * czoom;
 	int yvect = -bcos(cang) * czoom;
-	int xvect2 = MulScale(xvect, yxaspect, 16);
-	int yvect2 = MulScale(yvect, yxaspect, 16);
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 
@@ -438,13 +438,13 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 				int ox = wal->x - cposx;
 				int oy = wal->y - cposy;
 				int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
-				int y1 = DMulScale(oy, xvect2, ox, yvect2, 16) + (height << 11);
+				int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
 				auto wal2 = &wall[wal->point2];
 				ox = wal2->x - cposx;
 				oy = wal2->y - cposy;
 				int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
-				int y2 = DMulScale(oy, xvect2, ox, yvect2, 16) + (height << 11);
+				int y2 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
 				drawlinergb(x1, y1, x2, y2, RedLineColor());
 			}
@@ -462,8 +462,6 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 {
 	int xvect = -bsin(cang) * czoom;
 	int yvect = -bcos(cang) * czoom;
-	int xvect2 = MulScale(xvect, yxaspect, 16);
-	int yvect2 = MulScale(yvect, yxaspect, 16);
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 
@@ -488,20 +486,25 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 			int ox = wal->x - cposx;
 			int oy = wal->y - cposy;
 			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
-			int y1 = DMulScale(oy, xvect2, ox, yvect2, 16) + (height << 11);
+			int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
 			int k = wal->point2;
 			auto wal2 = &wall[k];
 			ox = wal2->x - cposx;
 			oy = wal2->y - cposy;
 			int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
-			int y2 = DMulScale(oy, xvect2, ox, yvect2, 16) + (height << 11);
+			int y2 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
 			drawlinergb(x1, y1, x2, y2, WhiteLineColor());
 		}
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// player sprite fallback
+//
+//---------------------------------------------------------------------------
 
 void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoom, int pl_angle)
 {
@@ -514,8 +517,6 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 
 	int xvect = -bsin(cang) * zoom;
 	int yvect = -bcos(cang) * zoom;
-	int xvect2 = MulScale(xvect, yxaspect, 16);
-	int yvect2 = MulScale(yvect, yxaspect, 16);
 
 	int pxvect = -bsin(pl_angle);
 	int pyvect = -bcos(pl_angle);
@@ -537,11 +538,116 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 		int oy2 = py2 - cposx;
 
 		int sx1 = DMulScale(ox1, xvect, -oy1, yvect, 16) + (width << 11);
-		int sy1 = DMulScale(oy1, xvect2, ox1, yvect2, 16) + (height << 11);
+		int sy1 = DMulScale(oy1, xvect, ox1, yvect, 16) + (height << 11);
 		int sx2 = DMulScale(ox2, xvect, -oy2, yvect, 16) + (width << 11);
-		int sy2 = DMulScale(oy2, xvect2, ox2, yvect2, 16) + (height << 11);
+		int sy2 = DMulScale(oy2, xvect, ox2, yvect, 16) + (height << 11);
 
 		drawlinergb(sx1, sy1, sx2, sy2, WhiteLineColor());
+	}
+}
+
+
+//---------------------------------------------------------------------------
+//
+// floor textures
+//
+//---------------------------------------------------------------------------
+
+void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
+{
+	int xvect = -bsin(cang) * czoom;
+	int yvect = -bcos(cang) * czoom;
+	int width = screen->GetWidth();
+	int height = screen->GetHeight();
+	TArray<FVector4> vertices;
+	TArray<int> floorsprites;
+
+
+	for (int i = numsectors - 1; i >= 0; i--)
+	{
+		if (!gFullMap && !show2dsector[i] && !(g_gameType & GAMEFLAG_SW)) continue;
+
+		//Collect floor sprites to draw
+		SectIterator it(i);
+		int s;
+		while ((s = it.NextIndex()) >= 0)
+		{
+			if (sprite[s].cstat & CSTAT_SPRITE_INVISIBLE)
+				continue;
+
+			if ((sprite[s].cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
+			{
+				if ((sprite[s].cstat & (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_YFLIP)) == (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_YFLIP))
+					continue; // upside down
+				floorsprites.Push(s);
+			}
+		}
+
+		if (sector[i].floorstat & CSTAT_SECTOR_SKY) continue;
+
+		auto mesh = sectorGeometry.get(i, 0);
+		vertices.Resize(mesh->vertices.Size());
+		for (unsigned j = 0; j < mesh->vertices.Size(); j++)
+		{
+			int ox = int(mesh->vertices[j].X * 16.f) - cposx;
+			int oy = int(mesh->vertices[j].Y * -16.f) - cposy;
+			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
+			int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
+			vertices[j] = { x1 / 4096.f, y1 / 4096.f, mesh->texcoords[j].X, mesh->texcoords[j].Y };
+		}
+		int picnum = sector[i].floorpicnum;
+		if ((unsigned)picnum >= (unsigned)MAXTILES) continue;
+
+		int translation = TRANSLATION(Translation_Remap + curbasepal, sector[i].floorpal);
+		setgotpic(picnum);
+		twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), nullptr, 0, translation, shadeToLight(sector[i].floorshade), 
+			LegacyRenderStyles[STYLE_Translucent], windowxy1.x, windowxy1.y, windowxy2.x + 1, windowxy2.y + 1);
+
+
+	}
+	qsort(floorsprites.Data(), floorsprites.Size(), sizeof(int), [](const void* a, const void* b)
+		{
+			int A = *(int*)a;
+			int B = *(int*)b;
+			if (sprite[A].z != sprite[B].z) return sprite[B].z - sprite[A].z;
+			return A - B; // ensures stable sort.
+		});
+
+	vertices.Resize(4);
+	for (auto sn : floorsprites)
+	{
+		auto spr = &sprite[sn];
+		vec2_t pp[4];
+		GetFlatSpritePosition(spr, spr->pos.vec2, pp);
+
+		for (unsigned j = 0; j < 4; j++)
+		{
+			int ox = pp[j].x - cposx;
+			int oy = pp[j].y - cposy;
+			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
+			int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
+			vertices[j] = { x1 / 4096.f, y1 / 4096.f, j == 1 || j == 2 ? 1.f : 0.f, j == 2 || j == 3 ? 1.f : 0.f };
+		}
+		int shade;
+		if ((sector[spr->sectnum].ceilingstat & CSTAT_SECTOR_SKY)) shade = sector[spr->sectnum].ceilingshade;
+		else shade = sector[spr->sectnum].floorshade;
+		shade += spr->shade;
+		PalEntry color = shadeToLight(shade);
+		FRenderStyle rs = LegacyRenderStyles[STYLE_Translucent];
+		float alpha = 1;
+		if (spr->cstat & CSTAT_SPRITE_TRANSLUCENT)
+		{
+			rs = GetRenderStyle(0, !!(spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
+			alpha = GetAlphaFromBlend((spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+			color.a = uint8_t(alpha * 255);
+		}
+
+		int translation = TRANSLATION(Translation_Remap + curbasepal, spr->pal);
+		int picnum = spr->picnum;
+		setgotpic(picnum);
+		const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
+		twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), indices, 6, translation, color, rs,
+			windowxy1.x, windowxy1.y, windowxy2.x + 1, windowxy2.y + 1);
 	}
 }
 
@@ -570,7 +676,6 @@ void DrawOverheadMap(int pl_x, int pl_y, int pl_angle, double const smoothratio)
 		renderDrawMapView(x, y, gZoom, follow_a);
 	}
 	int32_t tmpydim = (width * 5) / 8;
-	renderSetAspect(65536, DivScale(tmpydim * 320, width * 200, 16));
 
 	drawredlines(x, y, gZoom, follow_a);
 	drawwhitelines(x, y, gZoom, follow_a);
