@@ -555,6 +555,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
 			("portalflags", c.portalflags, def->portalflags)
+			("portalnum", c.portalnum, def->portalnum)
 			.EndObject();
 	}
 	return arc;
@@ -582,6 +583,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
 			("portalflags", c.portalflags, def->portalflags)
+			("portalnum", c.portalnum, def->portalnum)
 			.EndObject();
 	}
 	return arc;

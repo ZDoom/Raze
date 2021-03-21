@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegamehelp.h"
 
 #include "blood.h" 
+#include "render.h"
 
 BEGIN_BLD_NS
 
@@ -42,6 +43,7 @@ void InitMirrors(void)
 
     mirrorcnt = 0;
     tileDelete(504);
+    portalClear();
     
 	for (int i = 0; i < 16; i++)
 	{
@@ -57,7 +59,7 @@ void InitMirrors(void)
             if (wall[i].extra > 0 && GetWallType(i) == kWallStack)
             {
                 wall[i].overpicnum = nTile;
-                wall[i].portalflags = PORTAL_WALL_VIEW;
+
                 mirror[mirrorcnt].wallnum = i;
                 mirror[mirrorcnt].type = 0;
                 wall[i].cstat |= 32;
@@ -78,8 +80,15 @@ void InitMirrors(void)
                     }
                 }
                 if (j < 0)
-                    I_Error("wall[%d] has no matching wall link! (data=%d)\n", i, tmp);
-                mirrorcnt++;
+                {
+                    Printf(PRINT_HIGH, "wall[%d] has no matching wall link! (data=%d)\n", i, tmp);
+                }
+                else
+                {
+                    mirrorcnt++;
+                    wall[i].portalflags = PORTAL_WALL_VIEW;
+                    wall[i].portalnum = portalAdd(PORTAL_WALL_VIEW, j);
+                }
             }
             continue;
         }
@@ -117,6 +126,7 @@ void InitMirrors(void)
             mirror[mirrorcnt].link = j;
             sector[i].floorpicnum = 4080+mirrorcnt;
             sector[i].portalflags = PORTAL_SECTOR_FLOOR;
+            sector[i].portalnum = portalAdd(PORTAL_SECTOR_FLOOR, j, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
             mirrorcnt++;
             mirror[mirrorcnt].type = 1;
             mirror[mirrorcnt].dx = sprite[nLink].x-sprite[nLink2].x;
@@ -126,10 +136,12 @@ void InitMirrors(void)
             mirror[mirrorcnt].link = i;
             sector[j].ceilingpicnum = 4080+mirrorcnt;
             sector[j].portalflags = PORTAL_SECTOR_CEILING;
+            sector[i].portalnum = portalAdd(PORTAL_SECTOR_CEILING, j, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
             mirrorcnt++;
         }
     }
     mirrorsector = numsectors;
+    mergePortals();
 #if 1 // The new backend won't need this shit anymore.
     for (int i = 0; i < 4; i++)
     {

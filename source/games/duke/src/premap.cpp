@@ -36,6 +36,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "automap.h"
 #include "dukeactor.h"
 #include "interpolate.h"
+#include "render.h"
 
 BEGIN_DUKE_NS  
 
@@ -840,6 +841,124 @@ void newgame(MapRecord* map, int sk, func completion)
 
 //---------------------------------------------------------------------------
 //
+// the setup here is very, very sloppy, because mappings are not 1:1.
+// Each portal can have multiple sectors, and even extends to unmarked
+// neighboring sectors if they got the portal tile as floor or ceiling
+//
+//---------------------------------------------------------------------------
+
+static void SpawnPortals()
+{
+    for (int i = 0; i < numwalls; i++)
+    {
+        if (wall[i].overpicnum == TILE_MIRROR) wall[i].portalflags |= PORTAL_WALL_MIRROR;
+    }
+
+    portalClear();
+    int tag;
+    if (!isRR()) tag = 40;
+    else if (isRRRA()) tag = 150;
+    else return;
+
+    TArray<int> processedTags;
+    DukeStatIterator it(STAT_RAROR);
+    while (auto act = it.Next())
+    {
+        auto spr = &act->s;
+        if (spr->picnum == SECTOREFFECTOR && spr->lotag == tag)
+        {
+            if (processedTags.Find(spr->hitag) == processedTags.Size())
+            {
+                DukeStatIterator it2(STAT_RAROR);
+                while (auto act2 = it2.Next())
+                {
+                    auto spr2 = &act2->s;
+                    if (spr2->picnum == SECTOREFFECTOR && spr2->lotag == tag + 1 && spr2->hitag == spr->hitag)
+                    {
+                        if (processedTags.Find(spr->hitag) == processedTags.Size())
+                        {
+                            int s1 = spr->sectnum, s2 = spr2->sectnum;
+                            sector[s1].portalflags = PORTAL_SECTOR_FLOOR;
+                            sector[s2].portalflags = PORTAL_SECTOR_CEILING;
+                            sector[s1].portalnum = portalAdd(PORTAL_SECTOR_FLOOR, s2, spr2->x - spr->x, spr2->y - spr->y, spr->hitag);
+                            sector[s2].portalnum = portalAdd(PORTAL_SECTOR_CEILING, s1, spr->x - spr2->x, spr->y - spr2->y, spr->hitag);
+                            processedTags.Push(spr->hitag);
+                        }
+                        else
+                        {
+                            for (auto& p : allPortals)
+                            {
+                                if (p.type == PORTAL_SECTOR_FLOOR && p.dz == spr->hitag)
+                                {
+                                    p.targets.Push(spr2->sectnum);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (auto& p : allPortals)
+                {
+                    if (p.type == PORTAL_SECTOR_CEILING && p.dz == spr->hitag)
+                    {
+                        p.targets.Push(spr->sectnum);
+                    }
+                }
+            }
+        }
+    }
+    // Unfortunately the above still isn't enough. We got to do one more check to add stuff to the portals.
+    // There is one map where a sector neighboring a portal is not marked as part of the portal itself.
+    for (int i = 0; i < numsectors; i++)
+    {
+        if (sector[i].floorpicnum == FOF && sector[i].portalflags != PORTAL_SECTOR_FLOOR)
+        {
+            for (auto& pt : allPortals)
+            {
+                if (pt.type == PORTAL_SECTOR_CEILING)
+                {
+                    for (auto& t : pt.targets)
+                    {
+                        if (findwallbetweensectors(i, t) >= 0)
+                        {
+                            sector[i].portalflags = PORTAL_SECTOR_FLOOR;
+                            sector[i].portalnum = uint8_t(&pt - allPortals.Data());
+                            pt.targets.Push(i);
+                            goto nexti;
+                        }
+                    }
+                }
+            }
+        }
+        else if (sector[i].ceilingpicnum == FOF && sector[i].portalflags != PORTAL_SECTOR_CEILING)
+        {
+            for (auto& pt : allPortals)
+            {
+                if (pt.type == PORTAL_SECTOR_FLOOR)
+                {
+                    for (auto& t : pt.targets)
+                    {
+                        if (findwallbetweensectors(i, t) >= 0)
+                        {
+                            sector[i].portalflags = PORTAL_SECTOR_CEILING;
+                            sector[i].portalnum = uint8_t(&pt - allPortals.Data());
+                            pt.targets.Push(i);
+                            goto nexti;
+                        }
+                    }
+                }
+            }
+        }
+    nexti:;
+    }
+    for (auto& p : allPortals) p.dz = 0;
+    mergePortals();
+}
+
+//---------------------------------------------------------------------------
+//
 //
 //
 //---------------------------------------------------------------------------
@@ -853,12 +972,6 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     }
 
     engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &p->cursectnum);
-    for(int i = 0; i < numsectors; i++)
-    {
-        if (sector[i].ceilingpicnum == FOF) sector[i].portalflags |= PORTAL_SECTOR_CEILING;
-        if (sector[i].floorpicnum == FOF) sector[i].portalflags |= PORTAL_SECTOR_FLOOR;
-        if (wall[i].overpicnum == TILE_MIRROR) wall[i].portalflags |= PORTAL_WALL_MIRROR;
-    }
 
     currentLevel = mi;
     SECRET_SetMapName(mi->DisplayName(), mi->name);
@@ -876,6 +989,8 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     
     if (isRR()) prelevel_r(gamemode);
     else prelevel_d(gamemode);
+
+    SpawnPortals();
 
     if (isRRRA() && mi->levelNumber == levelnum(2, 0))
     {

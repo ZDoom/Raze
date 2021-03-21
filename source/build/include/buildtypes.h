@@ -36,15 +36,13 @@ enum
 {
     PORTAL_SECTOR_FLOOR = 1,
     PORTAL_SECTOR_CEILING = 2,
-    PORTAL_SECTOR_FLOOR_REFLECT = 4,
-    PORTAL_SECTOR_CEILING_REFLECT = 8,
+    PORTAL_SECTOR_FLOOR_REFLECT = 3,
+    PORTAL_SECTOR_CEILING_REFLECT = 4,
+    PORTAL_WALL_VIEW = 5,
+    PORTAL_WALL_MIRROR = 6,
+    PORTAL_SECTOR_GEOMETRY = 7,
 };
 
-enum
-{
-    PORTAL_WALL_VIEW = 1,
-    PORTAL_WALL_MIRROR = 2,
-};
 
 //40 bytes
 struct sectortype
@@ -68,6 +66,7 @@ struct sectortype
     uint8_t dirty;
     float ceilingxpan_, ceilingypan_, floorxpan_, floorypan_;
     uint8_t portalflags;
+    uint8_t portalnum;
 
     int ceilingxpan() const { return int(ceilingxpan_); }
     int ceilingypan() const { return int(ceilingypan_); }
@@ -120,6 +119,7 @@ struct walltype
     float xpan_, ypan_;
     angle_t clipangle;
     uint8_t portalflags;
+    uint8_t portalnum;
 
     int xpan() const { return int(xpan_); }
     int ypan() const { return int(ypan_); }

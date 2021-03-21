@@ -54,6 +54,7 @@ EXTERN_CVAR(Bool, cl_capfps)
 
 PalEntry GlobalMapFog;
 float GlobalFogDensity;
+TArray<PortalDesc> allPortals;
 
 
 #if 0
