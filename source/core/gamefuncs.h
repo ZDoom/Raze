@@ -47,6 +47,11 @@ inline double WallStartY(const walltype* wallnum)
     return wallnum->y * (1 / -16.);
 }
 
+inline DVector2 WallStart(const walltype* wallnum)
+{
+    return { WallStartX(wallnum), WallStartY(wallnum) };
+}
+
 inline double WallEndX(const walltype* wallnum)
 {
     return wall[wallnum->point2].x * (1 / 16.);
@@ -55,6 +60,16 @@ inline double WallEndX(const walltype* wallnum)
 inline double WallEndY(const walltype* wallnum)
 {
     return wall[wallnum->point2].y * (1 / -16.);
+}
+
+inline DVector2 WallEnd(const walltype* wallnum)
+{
+    return { WallEndX(wallnum), WallEndY(wallnum) };
+}
+
+inline DVector2 WallDelta(const walltype* wallnum)
+{
+    return WallEnd(wallnum) - WallStart(wallnum);
 }
 
 inline double SpriteX(int wallnum)
@@ -70,6 +85,11 @@ inline double SpriteY(int wallnum)
 inline double PointOnLineSide(double x, double y, double linex, double liney, double deltax, double deltay)
 {
     return (x - linex) * deltay - (y - liney) * deltax;
+}
+
+inline double PointOnLineSide(const DVector2 &pos, const walltype *line)
+{
+    return (pos.X - WallStartX(line)) * WallDelta(line).Y - (pos.Y - WallStartY(line)) * WallDelta(line).X;
 }
 
 inline int sectorofwall(int wallNum)

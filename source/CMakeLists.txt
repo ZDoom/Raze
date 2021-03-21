@@ -1080,6 +1080,7 @@ set (PCH_SOURCES
 	core/rendering/scene/hw_drawlist.cpp
 	core/rendering/scene/hw_drawinfo.cpp
 	core/rendering/scene/hw_bunchdrawer.cpp
+	core/rendering/scene/hw_portal.cpp
 
 	core/console/c_notifybuffer.cpp
 	core/console/d_event.cpp
