@@ -31,7 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "interpolate.h"
 #include "glbackend/glbackend.h"
 #include "v_draw.h"
+#include "render.h"
 #include <string.h>
+
+EXTERN_CVAR(Bool, testnewrenderer)
 
 BEGIN_PS_NS
 
@@ -221,6 +224,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerZ = sprite[nSprite].z;
         nSector = sprite[nSprite].sectnum;
         nAngle = buildang(sprite[nSprite].ang);
+        rotscrnang = buildlook(0);
 
         SetGreenPal();
 
@@ -269,9 +273,6 @@ void DrawView(double smoothRatio, bool sceneonly)
             sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_TRANSLUCENT;
             sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
-
-        renderSetRollAngle(rotscrnang.asbuildf());
-
         pan = q16horiz(clamp(pan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
@@ -357,9 +358,17 @@ void DrawView(double smoothRatio, bool sceneonly)
             }
         }
 
-        renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
-        analyzesprites(smoothRatio);
-        renderDrawMasks();
+        if (!testnewrenderer)
+        {
+            renderSetRollAngle(rotscrnang.asbuildf());
+            renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
+            analyzesprites(smoothRatio);
+            renderDrawMasks();
+        }
+        else
+        {
+            render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, nSector, nCameraa.asq16(), nCamerapan.asq16(), rotscrnang.asbuildf(), RSF_UPDATESECTOR);
+        }
 
         if (HavePLURemap())
         {
