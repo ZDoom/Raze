@@ -299,6 +299,11 @@ static inline psky_t *getpskyidx(int32_t picnum)
 EXTERN psky_t * tileSetupSky(int32_t tilenum);
 psky_t* defineSky(int32_t const tilenum, int horiz, int lognumtiles, const uint16_t* tileofs, int yoff = 0);
 
+// Get properties of parallaxed sky to draw.
+// Returns: pointer to tile offset array. Sets-by-pointer the other three.
+const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, int32_t* dapyoffs, int32_t* daptileyscale);
+
+
 EXTERN char parallaxtype;
 EXTERN int32_t parallaxyoffs_override, parallaxyscale_override;
 extern int16_t pskybits_override;

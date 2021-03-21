@@ -53,10 +53,6 @@ static FORCE_INLINE int32_t bad_tspr(tspriteptr_t tspr)
     return (tspr->owner < 0 || (unsigned)tspr->picnum >= MAXTILES);
 }
 
-// Get properties of parallaxed sky to draw.
-// Returns: pointer to tile offset array. Sets-by-pointer the other three.
-const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, int32_t* dapyoffs, int32_t* daptileyscale);
-
 inline void set_globalpos(int32_t const x, int32_t const y, int32_t const z)
 {
     globalposx = x, fglobalposx = (float)x;

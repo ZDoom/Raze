@@ -1082,6 +1082,7 @@ set (PCH_SOURCES
 	core/rendering/scene/hw_bunchdrawer.cpp
 	core/rendering/scene/hw_portal.cpp
 	core/rendering/scene/hw_skyportal.cpp
+	core/rendering/scene/hw_sky.cpp
 
 	core/console/c_notifybuffer.cpp
 	core/console/d_event.cpp

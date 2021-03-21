@@ -173,7 +173,7 @@ public:
 		HWSkyInfo * sky;			// for normal sky
 		//HWHorizonInfo * horizon;	// for horizon information
 		PortalDesc * portal;			// stacked sector portals
-		//secplane_t * planemirror;	// for plane mirrors
+		int * planemirror;	// for plane mirrors
 		spritetype* teleport;	// SW's teleport-views
 	};
 
@@ -202,9 +202,9 @@ public:
 
 	void SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowmirror);
 	void SkyLine(HWDrawInfo *di, sectortype *sec, walltype *line);
-	void SkyNormal(HWDrawInfo* di, sectortype* fs, FVector2& v1, FVector2& v2) {}
-	void SkyTop(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * bs, FVector2& v1, FVector2& v2) {}
-	void SkyBottom(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * bs, FVector2& v1, FVector2& v2) {}
+	void SkyNormal(HWDrawInfo* di, sectortype* fs, FVector2& v1, FVector2& v2);
+	void SkyTop(HWDrawInfo* di, walltype* seg, sectortype* fs, sectortype* bs, FVector2& v1, FVector2& v2);
+	void SkyBottom(HWDrawInfo* di, walltype* seg, sectortype* fs, sectortype* bs, FVector2& v1, FVector2& v2);
 
 	bool DoHorizon(HWDrawInfo *di, walltype * seg,sectortype * fs, DVector2& v1, DVector2& v2);
 

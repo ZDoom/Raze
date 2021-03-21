@@ -296,10 +296,8 @@ void HWDrawInfo::CreateScene()
 	angle_t a1 = FrustumAngle();
 	mClipper->SafeAddClipRangeRealAngles(vp.RotAngle + a1, vp.RotAngle - a1);
 
-#if 0
 	// reset the portal manager
 	portalState.StartFrame();
-#endif
 
 	ProcessAll.Clock();
 
@@ -528,9 +526,8 @@ void HWDrawInfo::DrawScene(int drawmode)
 	auto& RenderState = *screen->RenderState();
 
 	RenderState.SetDepthMask(true);
-#if 0
+
 	if (!gl_no_skyclear) portalState.RenderFirstSkyPortal(recursion, this, RenderState);
-#endif
 
 	RenderScene(RenderState);
 
@@ -543,9 +540,7 @@ void HWDrawInfo::DrawScene(int drawmode)
 	// Handle all portals after rendering the opaque objects but before
 	// doing all translucent stuff
 	recursion++;
-#if 0
 	portalState.EndFrame(this, RenderState);
-#endif
 	recursion--;
 	RenderTranslucent(RenderState);
 }
@@ -559,28 +554,6 @@ void HWDrawInfo::DrawScene(int drawmode)
 
 void HWDrawInfo::ProcessScene(bool toscreen)
 {
-#if 0
 	portalState.BeginScene();
-#endif
 	DrawScene(toscreen ? DM_MAINVIEW : DM_OFFSCREEN);
 }
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-/*
-void HWDrawInfo::AddSubsectorToPortal(FSectorPortalGroup *ptg, subsector_t *sub)
-{
-	auto portal = FindPortal(ptg);
-	if (!portal)
-	{
-        portal = new HWSectorStackPortal(&portalState, ptg);
-		Portals.Push(portal);
-	}
-    auto ptl = static_cast<HWSectorStackPortal*>(portal);
-	ptl->AddSubsector(sub);
-}
-*/
-

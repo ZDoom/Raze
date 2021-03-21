@@ -42,7 +42,6 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 		state.SetNoSoftLightLevel();
 	}
 
-
 	state.ResetColor();
 	state.EnableFog(false);
 	state.AlphaFunc(Alpha_GEqual, 0.f);
@@ -52,42 +51,27 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 	di->SetupView(state, 0, 0, 0, !!(mState->MirrorFlag & 1), !!(mState->PlaneMirrorFlag & 1));
 
 	state.SetVertexBuffer(vertexBuffer);
-	auto skybox = origin->texture[0] ? dynamic_cast<FSkyBox*>(origin->texture[0]->GetTexture()) : nullptr;
+	auto skybox = origin->texture ? dynamic_cast<FSkyBox*>(origin->texture->GetTexture()) : nullptr;
 	if (skybox)
 	{
-		vertexBuffer->RenderBox(state, origin->skytexno1, skybox, origin->x_offset[0], origin->sky2, /*di->Level->info->pixelstretch*/1, { 0, 0, 1 }, { 0, 0, 1 });
+		vertexBuffer->RenderBox(state, origin->skytexno1, skybox, origin->x_offset, false, /*di->Level->info->pixelstretch*/1, { 0, 0, 1 }, { 0, 0, 1 });
 	}
 	else
 	{
-		if (origin->texture[0]==origin->texture[1] && origin->doublesky) origin->doublesky=false;	
-
-		if (origin->texture[0])
-		{
-			state.SetTextureMode(TM_OPAQUE);
-			vertexBuffer->RenderDome(state, origin->texture[0], origin->x_offset[0], origin->y_offset, origin->mirrored, FSkyVertexBuffer::SKYMODE_MAINLAYER, false);
-			state.SetTextureMode(TM_NORMAL);
-		}
-		
-		state.AlphaFunc(Alpha_Greater, 0.f);
-		
-		if (origin->doublesky && origin->texture[1])
-		{
-			vertexBuffer->RenderDome(state, origin->texture[1], origin->x_offset[1], origin->y_offset, false, FSkyVertexBuffer::SKYMODE_SECONDLAYER, false);
-		}
-
-		int skyfog = 0;
-		if (skyfog>0 && /*!di->isFullbrightScene()  &&*/ (origin->fadecolor & 0xffffff) != 0)
-		{
-			PalEntry FadeColor = origin->fadecolor;
-			FadeColor.a = clamp<int>(skyfog, 0, 255);
-
-			state.EnableTexture(false);
-			state.SetObjectColor(FadeColor);
-			state.Draw(DT_Triangles, 0, 12);
-			state.EnableTexture(true);
-			state.SetObjectColor(0xffffffff);
-		}
+		state.SetTextureMode(TM_OPAQUE);
+		vertexBuffer->RenderDome(state, origin->texture, origin->x_offset, origin->y_offset, false, FSkyVertexBuffer::SKYMODE_MAINLAYER, false);
+		state.SetTextureMode(TM_NORMAL);
 	}
+	if (origin->fadecolor & 0xffffff)
+	{
+		PalEntry FadeColor = origin->fadecolor;
+		state.EnableTexture(false);
+		state.SetObjectColor(FadeColor);
+		state.Draw(DT_Triangles, 0, 12);
+		state.EnableTexture(true);
+		state.SetObjectColor(0xffffffff);
+	}
+
 	//di->lightmode = oldlightmode;
 	state.SetDepthClamp(oldClamp);
 }

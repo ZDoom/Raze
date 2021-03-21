@@ -324,7 +324,7 @@ void FSkyVertexBuffer::CreateDome()
 //
 //-----------------------------------------------------------------------------
 
-void FSkyVertexBuffer::SetupMatrices(FGameTexture *tex, float x_offset, float y_offset, bool mirror, int mode, VSMatrix &modelMatrix, VSMatrix &textureMatrix, bool tiled)
+void FSkyVertexBuffer::SetupMatrices(FGameTexture *tex, float x_offset, float y_offset, bool mirror, int mode, VSMatrix &modelMatrix, VSMatrix &textureMatrix, bool tiled, float xscale, float yscale)
 {
 	float texw = tex->GetDisplayWidth();
 	float texh = tex->GetDisplayHeight();
@@ -332,37 +332,44 @@ void FSkyVertexBuffer::SetupMatrices(FGameTexture *tex, float x_offset, float y_
 	modelMatrix.loadIdentity();
 	modelMatrix.rotate(-180.0f + x_offset, 0.f, 1.f, 0.f);
 
-	float xscale = texw < 1024.f ? floorf(1024.f / float(texw)) : 1.f;
-	float yscale = 1.f;
+	if (xscale == 0) xscale = texw < 1024.f ? floorf(1024.f / float(texw)) : 1.f;
 	auto texskyoffset = tex->GetSkyOffset() + skyoffset;
-	if (texh <= 128 && tiled)
+	if (yscale == 0)
 	{
-		modelMatrix.translate(0.f, (-40 + texskyoffset)*skyoffsetfactor, 0.f);
-		modelMatrix.scale(1.f, 1.2f * 1.17f, 1.f);
-		yscale = 240.f / texh;
-	}
-	else if (texh < 128)
-	{
-		// smaller sky textures must be tiled. We restrict it to 128 sky pixels, though
-		modelMatrix.translate(0.f, -1250.f, 0.f);
-		modelMatrix.scale(1.f, 128 / 230.f, 1.f);
-		yscale = float(128 / texh);	// intentionally left as integer.
-	}
-	else if (texh < 200)
-	{
-		modelMatrix.translate(0.f, -1250.f, 0.f);
-		modelMatrix.scale(1.f, texh / 230.f, 1.f);
-	}
-	else if (texh <= 240)
-	{
-		modelMatrix.translate(0.f, (200 - texh + texskyoffset)*skyoffsetfactor, 0.f);
-		modelMatrix.scale(1.f, 1.f + ((texh - 200.f) / 200.f) * 1.17f, 1.f);
+		if (texh <= 128 && tiled)
+		{
+			modelMatrix.translate(0.f, (-40 + texskyoffset) * skyoffsetfactor, 0.f);
+			modelMatrix.scale(1.f, 1.2f * 1.17f, 1.f);
+			yscale = 240.f / texh;
+		}
+		else if (texh < 128)
+		{
+			// smaller sky textures must be tiled. We restrict it to 128 sky pixels, though
+			modelMatrix.translate(0.f, -1250.f, 0.f);
+			modelMatrix.scale(1.f, 128 / 230.f, 1.f);
+			yscale = float(128 / texh);	// intentionally left as integer.
+		}
+		else if (texh < 200)
+		{
+			modelMatrix.translate(0.f, -1250.f, 0.f);
+			modelMatrix.scale(1.f, texh / 230.f, 1.f);
+		}
+		else if (texh <= 240)
+		{
+			modelMatrix.translate(0.f, (200 - texh + texskyoffset) * skyoffsetfactor, 0.f);
+			modelMatrix.scale(1.f, 1.f + ((texh - 200.f) / 200.f) * 1.17f, 1.f);
+		}
+		else
+		{
+			modelMatrix.translate(0.f, (-40 + texskyoffset) * skyoffsetfactor, 0.f);
+			modelMatrix.scale(1.f, 1.2f * 1.17f, 1.f);
+			yscale = 240.f / texh;
+		}
 	}
 	else
 	{
-		modelMatrix.translate(0.f, (-40 + texskyoffset)*skyoffsetfactor, 0.f);
+		modelMatrix.translate(0.f, (-40 + texskyoffset) * skyoffsetfactor, 0.f);
 		modelMatrix.scale(1.f, 1.2f * 1.17f, 1.f);
-		yscale = 240.f / texh;
 	}
 	textureMatrix.loadIdentity();
 	textureMatrix.scale(mirror ? -xscale : xscale, yscale, 1.f);

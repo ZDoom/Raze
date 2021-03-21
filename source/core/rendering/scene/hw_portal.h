@@ -9,15 +9,22 @@
 
 class FSkyBox;
 
+enum
+{
+	plane_floor,
+	plane_ceiling
+};
+
+
+
 struct HWSkyInfo
 {
-	float x_offset[2];
+	float x_offset;
 	float y_offset;		// doubleskies don't have a y-offset
-	FGameTexture * texture[2];
+	float y_scale;
+	int shade;
+	FGameTexture * texture;
 	FTextureID skytexno1;
-	bool mirrored;
-	bool doublesky;
-	bool sky2;
 	PalEntry fadecolor;
 
 	bool operator==(const HWSkyInfo & inf)
@@ -28,7 +35,6 @@ struct HWSkyInfo
 	{
 		return !!memcmp(this, &inf, sizeof(*this));
 	}
-	void init(HWDrawInfo *di, int sky1, PalEntry fadecolor);
 };
 
 struct HWHorizonInfo

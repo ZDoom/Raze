@@ -36,12 +36,6 @@
 EXTERN_CVAR(Int, r_mirror_recursions)
 EXTERN_CVAR(Bool, gl_portals)
 
-enum
-{
-	plane_floor,
-	plane_ceiling
-};
-
 //-----------------------------------------------------------------------------
 //
 // StartFrame
