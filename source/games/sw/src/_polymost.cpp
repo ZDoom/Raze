@@ -1,5 +1,350 @@
 BEGIN_SW_NS
 
+short GlobStackSect[2];
+
+void
+GetUpperLowerSector(short match, int x, int y, short* upper, short* lower)
+{
+    int i;
+    short sectorlist[16];
+    int sln = 0;
+    int SpriteNum;
+    SPRITEp sp;
+
+    // keep a list of the last stacked sectors the view was in and
+    // check those fisrt
+    sln = 0;
+    for (i = 0; i < (int)SIZ(GlobStackSect); i++)
+    {
+        // will not hurt if GlobStackSect is invalid - inside checks for this
+        if (inside(x, y, GlobStackSect[i]) == 1)
+        {
+            bool found = false;
+
+            SectIterator it(GlobStackSect[i]);
+            while ((SpriteNum = it.NextIndex()) >= 0)
+            {
+                sp = &sprite[SpriteNum];
+
+                if (sp->statnum == STAT_FAF &&
+                    (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6)
+                    && sp->lotag == match)
+                {
+                    found = true;
+                }
+            }
+
+            if (!found)
+                continue;
+
+            sectorlist[sln] = GlobStackSect[i];
+            sln++;
+        }
+    }
+
+    // didn't find it yet so test ALL sectors
+    if (sln < 2)
+    {
+        sln = 0;
+        for (i = numsectors - 1; i >= 0; i--)
+        {
+            if (inside(x, y, (short)i) == 1)
+            {
+                bool found = false;
+
+                SectIterator it(i);
+                while ((SpriteNum = it.NextIndex()) >= 0)
+                {
+                    sp = &sprite[SpriteNum];
+
+                    if (sp->statnum == STAT_FAF &&
+                        (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6)
+                        && sp->lotag == match)
+                    {
+                        found = true;
+                    }
+                }
+
+                if (!found)
+                    continue;
+
+                if (sln < (int)SIZ(GlobStackSect))
+                    GlobStackSect[sln] = i;
+                if (sln < (int)SIZ(sectorlist))
+                    sectorlist[sln] = i;
+                sln++;
+            }
+        }
+    }
+
+    // might not find ANYTHING if not tagged right
+    if (sln == 0)
+    {
+        *upper = -1;
+        *lower = -1;
+        return;
+    }
+    // Map rooms have NOT been dragged on top of each other
+    else if (sln == 1)
+    {
+        *lower = sectorlist[0];
+        *upper = sectorlist[0];
+        return;
+    }
+    // Map rooms HAVE been dragged on top of each other
+    // inside will somtimes find that you are in two different sectors if the x,y
+    // is exactly on a sector line.
+    else if (sln > 2)
+    {
+        //DSPRINTF(ds, "TOO MANY SECTORS FOUND: x=%d, y=%d, match=%d, num sectors %d, %d, %d, %d, %d, %d", x, y, match, sln, sectorlist[0], sectorlist[1], sectorlist[2], sectorlist[3], sectorlist[4]);
+        MONO_PRINT(ds);
+        // try again moving the x,y pos around until you only get two sectors
+        GetUpperLowerSector(match, x - 1, y, upper, lower);
+    }
+
+    if (sln == 2)
+    {
+        if (sector[sectorlist[0]].floorz < sector[sectorlist[1]].floorz)
+        {
+            // swap
+            // make sectorlist[0] the LOW sector
+            short hold;
+
+            hold = sectorlist[0];
+            sectorlist[0] = sectorlist[1];
+            sectorlist[1] = hold;
+        }
+
+        *lower = sectorlist[0];
+        *upper = sectorlist[1];
+    }
+}
+
+
+bool
+FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
+{
+    int xoff = 0;
+    int yoff = 0;
+    int i;
+    SPRITEp sp = NULL;
+    int pix_diff;
+    int newz;
+
+    save.zcount = 0;
+
+    // Search Stat List For closest ceiling view sprite
+    // Get the match, xoff, yoff from this point
+    StatIterator it(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
+    {
+        sp = &sprite[i];
+
+        if (sp->hitag == VIEW_THRU_CEILING && sp->lotag == match)
+        {
+            xoff = *x - sp->x;
+            yoff = *y - sp->y;
+            break;
+        }
+    }
+
+    it.Reset(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
+    {
+        sp = &sprite[i];
+
+        if (sp->lotag == match)
+        {
+            // determine x,y position
+            if (sp->hitag == VIEW_THRU_FLOOR)
+            {
+                short upper, lower;
+
+                *x = sp->x + xoff;
+                *y = sp->y + yoff;
+
+                // get new sector
+                GetUpperLowerSector(match, *x, *y, &upper, &lower);
+                *sectnum = upper;
+                break;
+            }
+        }
+    }
+
+    if (*sectnum < 0)
+        return false;
+
+    ASSERT(sp);
+    ASSERT(sp->hitag == VIEW_THRU_FLOOR);
+
+    pix_diff = labs(z - sector[sp->sectnum].floorz) >> 8;
+    newz = sector[sp->sectnum].floorz + ((pix_diff / 128) + 1) * Z(128);
+
+    it.Reset(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
+    {
+        sp = &sprite[i];
+
+        if (sp->lotag == match)
+        {
+            // move lower levels ceilings up for the correct view
+            if (sp->hitag == VIEW_LEVEL2)
+            {
+                // save it off
+                save.sectnum[save.zcount] = sp->sectnum;
+                save.zval[save.zcount] = sector[sp->sectnum].floorz;
+                save.pic[save.zcount] = sector[sp->sectnum].floorpicnum;
+                save.slope[save.zcount] = sector[sp->sectnum].floorheinum;
+
+                sector[sp->sectnum].floorz = newz;
+                // don't change FAF_MIRROR_PIC - ConnectArea
+                if (sector[sp->sectnum].floorpicnum != FAF_MIRROR_PIC)
+                    sector[sp->sectnum].floorpicnum = FAF_MIRROR_PIC + 1;
+                sector[sp->sectnum].floorheinum = 0;
+
+                save.zcount++;
+                PRODUCTION_ASSERT(save.zcount < ZMAX);
+            }
+        }
+    }
+
+    return true;
+}
+
+
+bool
+FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
+{
+    int xoff = 0;
+    int yoff = 0;
+    int i;
+    SPRITEp sp = NULL;
+    int newz;
+    int pix_diff;
+
+    save.zcount = 0;
+
+    // Search Stat List For closest ceiling view sprite
+    // Get the match, xoff, yoff from this point
+    StatIterator it(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
+    {
+        sp = &sprite[i];
+
+        if (sp->hitag == VIEW_THRU_FLOOR && sp->lotag == match)
+        {
+            xoff = *x - sp->x;
+            yoff = *y - sp->y;
+            break;
+        }
+    }
+
+
+    it.Reset(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
+    {
+        sp = &sprite[i];
+
+        if (sp->lotag == match)
+        {
+            // determine x,y position
+            if (sp->hitag == VIEW_THRU_CEILING)
+            {
+                short upper, lower;
+
+                *x = sp->x + xoff;
+                *y = sp->y + yoff;
+
+                // get new sector
+                GetUpperLowerSector(match, *x, *y, &upper, &lower);
+                *sectnum = lower;
+                break;
+            }
+        }
+    }
+
+    if (*sectnum < 0)
+        return false;
+
+    ASSERT(sp);
+    ASSERT(sp->hitag == VIEW_THRU_CEILING);
+
+    // move ceiling multiple of 128 so that the wall tile will line up
+    pix_diff = labs(z - sector[sp->sectnum].ceilingz) >> 8;
+    newz = sector[sp->sectnum].ceilingz - ((pix_diff / 128) + 1) * Z(128);
+
+    it.Reset(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
+    {
+        sp = &sprite[i];
+
+        if (sp->lotag == match)
+        {
+            // move upper levels floors down for the correct view
+            if (sp->hitag == VIEW_LEVEL1)
+            {
+                // save it off
+                save.sectnum[save.zcount] = sp->sectnum;
+                save.zval[save.zcount] = sector[sp->sectnum].ceilingz;
+                save.pic[save.zcount] = sector[sp->sectnum].ceilingpicnum;
+                save.slope[save.zcount] = sector[sp->sectnum].ceilingheinum;
+
+                sector[sp->sectnum].ceilingz = newz;
+
+                // don't change FAF_MIRROR_PIC - ConnectArea
+                if (sector[sp->sectnum].ceilingpicnum != FAF_MIRROR_PIC)
+                    sector[sp->sectnum].ceilingpicnum = FAF_MIRROR_PIC + 1;
+                sector[sp->sectnum].ceilingheinum = 0;
+
+                save.zcount++;
+                PRODUCTION_ASSERT(save.zcount < ZMAX);
+            }
+        }
+    }
+
+    return true;
+}
+
+
+
+short
+ViewSectorInScene(short cursectnum, short level)
+{
+    int i;
+    SPRITEp sp;
+    short match;
+
+    StatIterator it(STAT_FAF);
+    while ((i = it.NextIndex()) >= 0)
+    {
+        sp = &sprite[i];
+
+        if (sp->hitag == level)
+        {
+            if (cursectnum == sp->sectnum)
+            {
+                // ignore case if sprite is pointing up
+                if (sp->ang == 1536)
+                    continue;
+
+                // only gets to here is sprite is pointing down
+
+                // found a potential match
+                match = sp->lotag;
+
+                if (!PicInView(FAF_MIRROR_PIC, true))
+                    return -1;
+
+                return match;
+            }
+        }
+    }
+
+    return -1;
+}
+
+
+
 void
 DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, short tsectnum)
 {

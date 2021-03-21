@@ -1416,6 +1416,33 @@ void DoPlayerDiveMeter(PLAYERp pp);
 void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, int tsectnum);
 
 
+void UpdateWallPortalState()
+{
+    // This is too obtuse to be maintained statically, but with 8 mirrors at most easy to be kept up to date.
+    for (int i = 0; i < MAXMIRRORS; i++)
+    {
+        auto wal = &wall[mirror[i].mirrorwall];
+        wal->portalflags = 0;
+        wal->portalnum = 0;
+
+        if (!mirror[i].ismagic)
+        {
+            // a simple mirror
+            wal->portalflags = PORTAL_WALL_MIRROR;
+        }
+        else
+        {
+            auto sp = &sprite[mirror[i].camera];
+            if (!TEST_BOOL1(sp))
+            {
+                wal->portalflags = PORTAL_WALL_TO_SPRITE;
+                wal->portalnum = mirror[i].camera;
+            }
+        }
+    }
+}
+
+
 void
 drawscreen(PLAYERp pp, double smoothratio)
 {
@@ -1568,6 +1595,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     }
     else
     {
+        UpdateWallPortalState();
         render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang.asq16(), thoriz.asq16(), trotscrnang.asbuildf());
     }
 

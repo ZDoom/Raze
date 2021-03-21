@@ -40,7 +40,8 @@ enum
     PORTAL_SECTOR_CEILING_REFLECT = 4,
     PORTAL_WALL_VIEW = 5,
     PORTAL_WALL_MIRROR = 6,
-    PORTAL_SECTOR_GEOMETRY = 7,
+    PORTAL_WALL_TO_SPRITE = 7,
+    PORTAL_SECTOR_GEOMETRY = 8,
 };
 
 
@@ -119,7 +120,7 @@ struct walltype
     float xpan_, ypan_;
     angle_t clipangle;
     uint8_t portalflags;
-    uint8_t portalnum;
+    uint16_t portalnum;
 
     int xpan() const { return int(xpan_); }
     int ypan() const { return int(ypan_); }

@@ -2135,6 +2135,7 @@ void DrawOverlapRoom(int tx,int ty,int tz,fixed_t tq16ang,fixed_t tq16horiz,shor
 void SetupMirrorTiles(void);    // rooms.c
 bool FAF_Sector(short sectnum); // rooms.c
 int GetZadjustment(short sectnum,short hitag);  // rooms.c
+void SetupSectorPortals();
 
 void InitSetup(void);   // setup.c
 

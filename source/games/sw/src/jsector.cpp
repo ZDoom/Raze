@@ -354,7 +354,7 @@ void JS_InitMirrors(void)
                         if (sp->hitag == MIRROR_CAM && sp->lotag == wall[i].hitag)
                         {
                             mirror[mirrorcnt].camera = ii;
-                            // Set up camera varialbes
+                            // Set up camera variables
                             SP_TAG5(sp) = sp->ang;      // Set current angle to
                             // sprite angle
                             Found_Cam = true;
@@ -370,7 +370,7 @@ void JS_InitMirrors(void)
                         if (sp->hitag == MIRROR_CAM && sp->lotag == wall[i].hitag)
                         {
                             mirror[mirrorcnt].camera = ii;
-                            // Set up camera varialbes
+                            // Set up camera variables
                             SP_TAG5(sp) = sp->ang;      // Set current angle to
                             // sprite angle
                             Found_Cam = true;
@@ -535,6 +535,7 @@ int camloopcnt = 0;                    // Timer to cycle through player
 int lastcamclock;
 // views
 short camplayerview = 1;                // Don't show yourself!
+
 
 // Hack job alert!
 // Mirrors and cameras are maintained in the same data structure, but for hardware rendering they cannot be interleaved.

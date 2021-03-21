@@ -87,7 +87,7 @@ void InitMirrors(void)
                 {
                     mirrorcnt++;
                     wall[i].portalflags = PORTAL_WALL_VIEW;
-                    wall[i].portalnum = portalAdd(PORTAL_WALL_VIEW, j);
+                    wall[i].portalnum = j;
                 }
             }
             continue;
