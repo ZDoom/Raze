@@ -32,8 +32,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void FAF_DrawRooms(int posx, int posy, int posz, fixed_t q16ang, fixed_t q16horiz, short cursectnum);
-
 ////////////////////////////////////////////////////////////////////
 //
 // FLOOR ABOVE FLOOR
@@ -1019,65 +1017,5 @@ ViewSectorInScene(short cursectnum, short level)
     return -1;
 }
 
-void
-DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, short tsectnum)
-{
-    short i;
-    short match;
-
-    save.zcount = 0;
-
-    match = ViewSectorInScene(tsectnum, VIEW_LEVEL1);
-    if (match != -1)
-    {
-        FindCeilingView(match, &tx, &ty, tz, &tsectnum);
-
-        if (tsectnum < 0)
-            return;
-
-        renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
-        //FAF_DrawRooms(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
-
-        // reset Z's
-        for (i = 0; i < save.zcount; i++)
-        {
-            sector[save.sectnum[i]].floorz = save.zval[i];
-            sector[save.sectnum[i]].floorpicnum = save.pic[i];
-            sector[save.sectnum[i]].floorheinum = save.slope[i];
-        }
-
-        analyzesprites(tx, ty, tz, false);
-        post_analyzesprites();
-        renderDrawMasks();
-
-    }
-    else
-    {
-        match = ViewSectorInScene(tsectnum, VIEW_LEVEL2);
-        if (match != -1)
-        {
-            FindFloorView(match, &tx, &ty, tz, &tsectnum);
-
-            if (tsectnum < 0)
-                return;
-
-            renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
-            //FAF_DrawRooms(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
-
-            // reset Z's
-            for (i = 0; i < save.zcount; i++)
-            {
-                sector[save.sectnum[i]].ceilingz = save.zval[i];
-                sector[save.sectnum[i]].ceilingpicnum = save.pic[i];
-                sector[save.sectnum[i]].ceilingheinum = save.slope[i];
-            }
-
-            analyzesprites(tx, ty, tz, false);
-            post_analyzesprites();
-            renderDrawMasks();
-
-        }
-    }
-}
 
 END_SW_NS

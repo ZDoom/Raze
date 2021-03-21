@@ -82,7 +82,7 @@ void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, bina
 	}
 	else
 	{
-		render_drawrooms(playersprite, { x, y, z }, sectnum, a.asq16(), h.asq16(), rotscrnang.asbuildf() , RSF_UPDATESECTOR);
+		render_drawrooms(playersprite, { x, y, z }, sectnum, a.asq16(), h.asq16(), rotscrnang.asbuildf());
 	}
 }
 
@@ -125,7 +125,7 @@ void animatecamsprite(double smoothratio)
 				}
 				else
 				{
-					render_drawrooms(camera, camera->pos, camera->sectnum, ang.asq16(), IntToFixed(camera->shade), 0, RSF_UPDATESECTOR);
+					render_drawrooms(camera, camera->pos, camera->sectnum, ang.asq16(), IntToFixed(camera->shade), 0);
 				}
 				display_mirror = 0;
 				renderDrawMasks();

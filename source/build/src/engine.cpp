@@ -844,7 +844,6 @@ void set_globalang(fixed_t const ang)
 //
 EXTERN_CVAR(Int, gl_fogmode)
 CVAR(Bool, testnewrenderer, true, 0)
-CVAR(Bool, testnewinterface, true, 0)
 
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
                            fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
@@ -869,24 +868,15 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
             return 0;
     }
 
-    if (!testnewrenderer)
-    {
-        set_globalpos(daposx, daposy, daposz);
-        set_globalang(daang);
+    set_globalpos(daposx, daposy, daposz);
+    set_globalang(daang);
 
-        global100horiz = dahoriz;
+    global100horiz = dahoriz;
 
-        memset(gotsector, 0, sizeof(gotsector));
-        qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16) + IntToFixed(ydimen >> 1);
-        globalcursectnum = dacursectnum;
-        Polymost::polymost_drawrooms();
-    }
-    else
-    {
-        vec3_t pos = { daposx, daposy, daposz };
-        render_drawrooms(nullptr, pos, dacursectnum, daang, dahoriz, rollang, 0);
-    }
-
+    memset(gotsector, 0, sizeof(gotsector));
+    qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16) + IntToFixed(ydimen >> 1);
+    globalcursectnum = dacursectnum;
+    Polymost::polymost_drawrooms();
     return inpreparemirror;
 }
 

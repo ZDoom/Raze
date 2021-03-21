@@ -44,9 +44,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 #include "parent.h"
 #include "v_video.h"
+#include "render.h"
 #include "glbackend/glbackend.h"
 
+EXTERN_CVAR(Bool, testnewrenderer)
+
 BEGIN_SW_NS
+
 
 // V A R I A B L E   D E C L A R A T I O N S //////////////////////////////////////////////////////
 
@@ -469,9 +473,16 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 
     screen->RenderTextureView(canvas, [=](IntRect& rect)
         {
-            renderDrawRoomsQ16(daposx, daposy, daposz, daq16ang, daq16horiz, dacursectnum);
-            analyzesprites(daposx, daposy, daposz, false);
-            renderDrawMasks();
+            if (!testnewrenderer)
+            {
+                renderDrawRoomsQ16(daposx, daposy, daposz, daq16ang, daq16horiz, dacursectnum);
+                analyzesprites(daposx, daposy, daposz, false);
+                renderDrawMasks();
+            }
+            else
+            {
+                render_drawrooms(nullptr, { daposx, daposy, daposz }, dacursectnum, daq16ang, daq16horiz, 0);
+            }
         });
 
     renderRestoreTarget();
@@ -720,167 +731,6 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                 }
             }
         }
-    }
-}
-
-void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed_t tpq16horiz)
-{
-    int j, cnt;
-    int dist;
-    int tposx, tposy; // Camera
-    int *longptr;
-    fixed_t tang;
-
-//    int tx, ty, tz, tpang;             // Interpolate so mirror doesn't
-    // drift!
-    bool bIsWallMirror = false;
-
-    // WARNING!  Assuming (MIRRORLABEL&31) = 0 and MAXMIRRORS = 64 <-- JBF: wrong
-    longptr = (int *)&gotpic[MIRRORLABEL >> 3];
-    if (longptr && (longptr[0] || longptr[1]))
-    {
-        for (cnt = MAXMIRRORS - 1; cnt >= 0; cnt--)
-            //if (TEST_GOTPIC(cnt + MIRRORLABEL) || TEST_GOTPIC(cnt + CAMSPRITE))
-            if (TEST_GOTPIC(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && TEST_GOTPIC(mirror[cnt].campic)))
-            {
-                bIsWallMirror = false;
-                if (TEST_GOTPIC(cnt + MIRRORLABEL))
-                {
-                    bIsWallMirror = true;
-                    RESET_GOTPIC(cnt + MIRRORLABEL);
-                }
-                //else if (TEST_GOTPIC(cnt + CAMSPRITE))
-                else if ((unsigned)mirror[cnt].campic < MAXTILES && TEST_GOTPIC(mirror[cnt].campic))
-                {
-                    //RESET_GOTPIC(cnt + CAMSPRITE);
-                    RESET_GOTPIC(mirror[cnt].campic);
-                }
-
-                mirrorinview = true;
-
-//                tx = pp->oposx + MulScale(pp->posx - pp->oposx, smoothratio, 16);
-//                ty = pp->oposy + MulScale(pp->posy - pp->oposy, smoothratio, 16);
-//                tz = pp->oposz + MulScale(pp->posz - pp->oposz, smoothratio, 16);
-//                tpq16ang = pp->angle.ang.asq16();
-
-
-                dist = 0x7fffffff;
-
-                if (bIsWallMirror)
-                {
-                    j = abs(wall[mirror[cnt].mirrorwall].x - tx);
-                    j += abs(wall[mirror[cnt].mirrorwall].y - ty);
-                    if (j < dist)
-                        dist = j;
-                }
-                else
-                {
-                    SPRITEp tp;
-
-                    tp = &sprite[mirror[cnt].camsprite];
-
-                    j = abs(tp->x - tx);
-                    j += abs(tp->y - ty);
-                    if (j < dist)
-                        dist = j;
-                }
-
-                if (mirror[cnt].ismagic)
-                {
-                    SPRITEp sp=NULL;
-                    int camhoriz;
-                    short w;
-                    int dx, dy, dz, tdx, tdy, tdz, midx, midy;
-
-
-                    ASSERT(mirror[cnt].camera != -1);
-
-                    sp = &sprite[mirror[cnt].camera];
-
-                    ASSERT(sp);
-
-                    // Calculate the angle of the mirror wall
-                    w = mirror[cnt].mirrorwall;
-
-                    // Get wall midpoint for offset in mirror view
-                    midx = (wall[w].x + wall[wall[w].point2].x) / 2;
-                    midy = (wall[w].y + wall[wall[w].point2].y) / 2;
-
-                    // Finish finding offsets
-                    tdx = abs(midx - tx);
-                    tdy = abs(midy - ty);
-
-                    if (midx >= tx)
-                        dx = sp->x - tdx;
-                    else
-                        dx = sp->x + tdx;
-
-                    if (midy >= ty)
-                        dy = sp->y - tdy;
-                    else
-                        dy = sp->y + tdy;
-
-                    tdz = abs(tz - sp->z);
-                    if (tz >= sp->z)
-                        dz = sp->z + tdz;
-                    else
-                        dz = sp->z - tdz;
-
-
-                    // Is it a TV cam or a teleporter that shows destination?
-                    // true = It's a TV cam
-                    mirror[cnt].mstate = m_normal;
-                    if (TEST_BOOL1(sp))
-                        mirror[cnt].mstate = m_viewon;
-
-                    // Show teleport destination
-                    // NOTE: Adding MAXSECTORS lets you draw a room, even if
-                    // you are outside of it!
-                    if (mirror[cnt].mstate != m_viewon)
-                    {
-						tileDelete(MIRROR);
-                        // Set TV camera sprite size to 0 to show mirror
-                        // behind in this case!
-
-                        if (mirror[cnt].campic != -1)
-							tileDelete(mirror[cnt].campic);
-                        renderDrawRoomsQ16(dx, dy, dz, tpq16ang, tpq16horiz, sp->sectnum + MAXSECTORS);
-                        analyzesprites(dx, dy, dz, false);
-                        renderDrawMasks();
-                    }
-                }
-                else
-                {
-                    // It's just a mirror
-                    // Prepare drawrooms for drawing mirror and calculate
-                    // reflected
-                    // position into tposx, tposy, and tang (tposz == cposz)
-                    // Must call preparemirror before drawrooms and
-                    // completemirror after drawrooms
-
-                    renderPrepareMirror(tx, ty, tz, tpq16ang, tpq16horiz,
-                                  mirror[cnt].mirrorwall, /*mirror[cnt].mirrorsector,*/ &tposx, &tposy, &tang);
-
-                    renderDrawRoomsQ16(tposx, tposy, tz, (tang), tpq16horiz, mirror[cnt].mirrorsector + MAXSECTORS);
-
-                    analyzesprites(tposx, tposy, tz, true);
-                    renderDrawMasks();
-
-                    renderCompleteMirror();   // Reverse screen x-wise in this
-                    // function
-                }
-
-
-                // g_visibility = tvisibility;
-                // g_visibility = NormalVisibility;
-
-                // renderDrawRoomsQ16(tx, ty, tz, tpq16ang, tpq16horiz, pp->cursectnum);
-                // Clean up anything that the camera view might have done
-				tileDelete(MIRROR);
-                wall[mirror[cnt].mirrorwall].overpicnum = MIRRORLABEL + cnt;
-            }
-            else
-                mirrorinview = false;
     }
 }
 

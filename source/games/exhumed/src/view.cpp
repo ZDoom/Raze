@@ -367,7 +367,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         }
         else
         {
-            render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, nSector, nCameraa.asq16(), nCamerapan.asq16(), rotscrnang.asbuildf(), RSF_UPDATESECTOR);
+            render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, nSector, nCameraa.asq16(), nCamerapan.asq16(), rotscrnang.asbuildf());
         }
 
         if (HavePLURemap())

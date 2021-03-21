@@ -55,7 +55,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "v_2ddrawer.h"
 #include "v_video.h"
 #include "v_draw.h"
+#include "render.h"
 #include "glbackend/glbackend.h"
+
+EXTERN_CVAR(Bool, testnewrenderer)
 
 BEGIN_SW_NS
 
@@ -1405,66 +1408,13 @@ void PreDrawStackedWater(void)
 }
 
 
-void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short sectnum)
-{
-    int i;
-    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-    while ((i = it.NextIndex()) >= 0)
-    {
-        if (SPRITE_TAG3(i) == 0)
-        {
-            // back up ceilingpicnum and ceilingstat
-            SPRITE_TAG5(i) = sector[sprite[i].sectnum].ceilingpicnum;
-            sector[sprite[i].sectnum].ceilingpicnum = SPRITE_TAG2(i);
-            SPRITE_TAG4(i) = sector[sprite[i].sectnum].ceilingstat;
-            //SET(sector[sprite[i].sectnum].ceilingstat, ((int)SPRITE_TAG7(i))<<7);
-            SET(sector[sprite[i].sectnum].ceilingstat, SPRITE_TAG6(i));
-            RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_PLAX);
-        }
-        else if (SPRITE_TAG3(i) == 1)
-        {
-            SPRITE_TAG5(i) = sector[sprite[i].sectnum].floorpicnum;
-            sector[sprite[i].sectnum].floorpicnum = SPRITE_TAG2(i);
-            SPRITE_TAG4(i) = sector[sprite[i].sectnum].floorstat;
-            //SET(sector[sprite[i].sectnum].floorstat, ((int)SPRITE_TAG7(i))<<7);
-            SET(sector[sprite[i].sectnum].floorstat, SPRITE_TAG6(i));
-            RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_PLAX);
-        }
-    }
-
-    renderDrawRoomsQ16(x,y,z,q16ang,q16horiz,sectnum);
-
-    it.Reset(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-    while ((i = it.NextIndex()) >= 0)
-    {
-        // manually set gotpic
-        if (TEST_GOTSECTOR(sprite[i].sectnum))
-        {
-            SET_GOTPIC(FAF_MIRROR_PIC);
-        }
-
-        if (SPRITE_TAG3(i) == 0)
-        {
-            // restore ceilingpicnum and ceilingstat
-            sector[sprite[i].sectnum].ceilingpicnum = SPRITE_TAG5(i);
-            sector[sprite[i].sectnum].ceilingstat = SPRITE_TAG4(i);
-            //RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_TYPE_MASK);
-            RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_PLAX);
-        }
-        else if (SPRITE_TAG3(i) == 1)
-        {
-            sector[sprite[i].sectnum].floorpicnum = SPRITE_TAG5(i);
-            sector[sprite[i].sectnum].floorstat = SPRITE_TAG4(i);
-            //RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_TYPE_MASK);
-            RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_PLAX);
-        }
-    }
-}
-
 short ScreenSavePic = false;
 
 bool PicInView(short, bool);
 void DoPlayerDiveMeter(PLAYERp pp);
+
+void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, int tsectnum);
+
 
 void
 drawscreen(PLAYERp pp, double smoothratio)
@@ -1526,8 +1476,6 @@ drawscreen(PLAYERp pp, double smoothratio)
         trotscrnang = pp->angle.rotscrnang;
     }
     tsectnum = camerapp->cursectnum;
-
-    renderSetRollAngle(trotscrnang.asbuildf());
 
     COVERupdatesector(tx, ty, &tsectnum);
 
@@ -1613,28 +1561,15 @@ drawscreen(PLAYERp pp, double smoothratio)
         JS_DrawCameras(pp, tx, ty, tz);
     }
 
-
-    videoSetCorrectedAspect();
-    renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov * (pi::pi() / 360.))), yxaspect);
-    OverlapDraw = true;
-    DrawOverlapRoom(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
-    OverlapDraw = false;
-
-    if (automapMode != am_full)// && !ScreenSavePic)
+    if (!testnewrenderer)
     {
-        // TEST this! Changed to camerapp
-        //JS_DrawMirrors(camerapp, tx, ty, tz, tang.asq16(), thoriz.asq16());
-        JS_DrawMirrors(pp, tx, ty, tz, tang.asq16(), thoriz.asq16());
+        renderSetRollAngle(trotscrnang.asbuildf());
+        polymost_drawscreen(pp, tx, ty, tz, tang, thoriz, tsectnum);
     }
-
-    // TODO: This call is redundant if the tiled overhead map is shown, but the
-    // HUD elements should be properly outputted with hardware rendering first.
-    if (!FAF_DebugView)
-        FAF_DrawRooms(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
-
-    analyzesprites(tx, ty, tz, false);
-    post_analyzesprites();
-    renderDrawMasks();
+    else
+    {
+        render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang.asq16(), thoriz.asq16(), trotscrnang.asbuildf());
+    }
 
 
     if (!ScreenSavePic) UpdatePanel(smoothratio);

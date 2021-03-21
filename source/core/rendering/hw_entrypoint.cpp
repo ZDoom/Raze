@@ -51,8 +51,6 @@
 #include "render.h"
 
 EXTERN_CVAR(Bool, cl_capfps)
-bool NoInterpolateView;
-
 
 PalEntry GlobalMapFog;
 float GlobalFogDensity;
@@ -264,19 +262,16 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 }
 
 
-void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang, int flags)
+void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang)
 {
 	checkRotatedWalls();
 
 	if (gl_fogmode == 1) gl_fogmode = 2;	// still needed?
 
-	if (flags & RSF_UPDATESECTOR)
-	{
-		int16_t sect = sectnum;
-		updatesector(position.x, position.y, &sect);
-		if (sect >= 0) sectnum = sect;
-		if (sectnum < 0) return;
-	}
+	int16_t sect = sectnum;
+	updatesector(position.x, position.y, &sect);
+	if (sect >= 0) sectnum = sect;
+	if (sectnum < 0) return;
 
 	auto RenderState = screen->RenderState();
 	RenderState->SetVertexBuffer(screen->mVertexData);
@@ -297,27 +292,8 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 	screen->mLights->Clear();
 	screen->mViewpoints->Clear();
 
-	// NoInterpolateView should have no bearing on camera textures, but needs to be preserved for the main view below.
-	bool saved_niv = NoInterpolateView;
-	NoInterpolateView = false;
-
 	// Shader start time does not need to be handled per level. Just use the one from the camera to render from.
 	CheckTimer(*RenderState, 0/*ShaderStartTime*/);
-	// prepare all camera textures that have been used in the last frame.
-	// This must be done for all levels, not just the primary one!
-	/*
-	Level->canvasTextureInfo.UpdateAll([&](AActor* camera, FCanvasTexture* camtex, double fov)
-		{
-			screen->RenderTextureView(camtex, [=](IntRect& bounds)
-				{
-					FRenderViewpoint texvp;
-					float ratio = camtex->aspectRatio;
-					RenderViewpoint(texvp, camera, &bounds, fov, ratio, ratio, false, false);
-				});
-		});
-	}
-	*/
-	NoInterpolateView = saved_niv;
 
 	// now render the main view
 	float fovratio;
@@ -333,6 +309,6 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 
 	screen->ImageTransitionScene(true); // Only relevant for Vulkan.
 
-	RenderViewpoint(r_viewpoint, nullptr, r_viewpoint.FieldOfView.Degrees, ratio, fovratio, flags & RSF_MIRROR, flags & RSF_PLANEMIRROR);
+	RenderViewpoint(r_viewpoint, nullptr, r_viewpoint.FieldOfView.Degrees, ratio, fovratio, false, false);
 	All.Unclock();
 }
