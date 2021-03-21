@@ -153,7 +153,6 @@ void DoLensEffect(void);
 void UpdateDacs(int nPalette, bool bNoTint = false);
 void viewDrawScreen(bool sceneonly = false);
 void viewUpdateDelirium(void);
-void viewUpdateShake(void);
 void viewSetSystemMessage(const char* pMessage, ...);
 
 inline void viewInterpolateSector(int nSector, sectortype *pSector)

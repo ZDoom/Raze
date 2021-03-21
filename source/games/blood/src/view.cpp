@@ -395,17 +395,15 @@ void viewUpdateDelirium(void)
 	}
 }
 
-int shakeHoriz, shakeAngle, shakeX, shakeY, shakeZ, shakeBobX, shakeBobY;
-
-void viewUpdateShake(void)
+void viewUpdateShake(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, double& pshakeX, double& pshakeY)
 {
-    shakeHoriz = 0;
-    shakeAngle = 0;
-    shakeX = 0;
-    shakeY = 0;
-    shakeZ = 0;
-    shakeBobX = 0;
-    shakeBobY = 0;
+    int shakeHoriz = 0;
+    int shakeAngle = 0;
+    int shakeX = 0;
+    int shakeY = 0;
+    int shakeZ = 0;
+    int shakeBobX = 0;
+    int shakeBobY = 0;
     if (gView->flickerEffect)
     {
         int nValue = ClipHigh(gView->flickerEffect * 8, 2000);
@@ -428,6 +426,14 @@ void viewUpdateShake(void)
         shakeBobX += QRandom2(nValue);
         shakeBobY += QRandom2(nValue);
     }
+    cH += buildhoriz(shakeHoriz);
+    cA += buildang(shakeAngle);
+    cX += shakeX;
+    cY += shakeY;
+    cZ += shakeZ;
+    pshakeX += shakeBobX;
+    pshakeY += shakeBobY;
+
 }
 
 
@@ -452,11 +458,10 @@ static void DrawMap(spritetype* pSprite)
         setViewport(hud_size);
 }
 
-void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSectnum, double& zDelta)
+void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSectnum, double& zDelta, double& shakeX, double& shakeY)
 {
     int bobWidth, bobHeight;
     lookangle rotscrnang;
-    double shakeX, shakeY;
     nSectnum = gView->pSprite->sectnum;
     if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
     {
@@ -515,14 +520,7 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSe
         }
     }
 
-    viewUpdateShake();
-    cH += buildhoriz(shakeHoriz);
-    cA += buildang(shakeAngle);
-    cX += shakeX;
-    cY += shakeY;
-    cZ += shakeZ;
-    shakeX += shakeBobX;
-    shakeY += shakeBobY;
+    viewUpdateShake(cX, cY, cZ, cA, cH, shakeX, shakeY);
     cH += buildhoriz(MulScale(0x40000000 - Cos(gView->tiltEffect << 2), 30, 30));
     if (gViewPos == 0)
     {
@@ -686,7 +684,8 @@ void viewDrawScreen(bool sceneonly)
         fixedhoriz cH;
         int nSectnum;
         double zDelta;
-        SetupView(cX, cY, cZ, cA, cH, nSectnum, zDelta);
+        double shakeX, shakeY;
+        SetupView(cX, cY, cZ, cA, cH, nSectnum, zDelta, shakeX, shakeY);
 
         int tilt = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
         uint8_t v14 = 0;
