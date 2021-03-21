@@ -853,6 +853,12 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     }
 
     engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &p->cursectnum);
+    for(int i = 0; i < numsectors; i++)
+    {
+        if (sector[i].ceilingpicnum == FOF) sector[i].portalflags |= PORTAL_SECTOR_CEILING;
+        if (sector[i].floorpicnum == FOF) sector[i].portalflags |= PORTAL_SECTOR_FLOOR;
+        if (wall[i].overpicnum == TILE_MIRROR) wall[i].portalflags |= PORTAL_WALL_MIRROR;
+    }
 
     currentLevel = mi;
     SECRET_SetMapName(mi->DisplayName(), mi->name);

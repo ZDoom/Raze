@@ -458,10 +458,10 @@ static void DrawMap(spritetype* pSprite)
         setViewport(hud_size);
 }
 
-void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSectnum, double& zDelta, double& shakeX, double& shakeY)
+void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSectnum, double& zDelta, double& shakeX, double& shakeY, lookangle& rotscrnang)
 {
     int bobWidth, bobHeight;
-    lookangle rotscrnang;
+    
     nSectnum = gView->pSprite->sectnum;
     if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
     {
@@ -542,7 +542,6 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSe
         calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->pSprite, (short*)&nSectnum, cA, cH, gInterpolate);
     }
     CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum);
-    renderSetRollAngle(rotscrnang.asbuildf());
 }
 
 void renderCrystalBall()
@@ -685,7 +684,8 @@ void viewDrawScreen(bool sceneonly)
         int nSectnum;
         double zDelta;
         double shakeX, shakeY;
-        SetupView(cX, cY, cZ, cA, cH, nSectnum, zDelta, shakeX, shakeY);
+        lookangle rotscrnang;
+        SetupView(cX, cY, cZ, cA, cH, nSectnum, zDelta, shakeX, shakeY, rotscrnang);
 
         int tilt = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
         uint8_t v14 = 0;
@@ -696,7 +696,7 @@ void viewDrawScreen(bool sceneonly)
         uint8_t otherview = powerupCheck(gView, kPwUpCrystalBall) > 0;
         if (tilt || bDelirium)
         {
-            renderSetRollAngle(tilt);
+            rotscrnang = buildlook(tilt);
         }
         else if (otherview && gNetPlayers > 1)
         {
@@ -775,11 +775,12 @@ void viewDrawScreen(bool sceneonly)
             fixed_t deliriumPitchI = interpolate(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
             int bakCstat = gView->pSprite->cstat;
             gView->pSprite->cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANSLUCENT_INVERT;
-            render_drawrooms(gView->pSprite, { cX, cY, cZ }, nSectnum, cA.asq16(), cH.asq16() + deliriumPitchI, 0, RSF_UPDATESECTOR);
+            render_drawrooms(gView->pSprite, { cX, cY, cZ }, nSectnum, cA.asq16(), cH.asq16() + deliriumPitchI, rotscrnang.asbuildf(), RSF_UPDATESECTOR);
             gView->pSprite->cstat = bakCstat;
         }
         else
         {
+            renderSetRollAngle(rotscrnang.asbuildf());
             render3DViewPolymost(nSectnum, cX, cY, cZ, cA, cH);
         }
         bDeliriumOld = bDelirium && gDeliriumBlur;
