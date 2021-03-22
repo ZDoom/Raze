@@ -26,6 +26,7 @@
 #include "hw_renderstate.h"
 #include "skyboxtexture.h"
 
+ CVAR(Float, skyoffsettest, 0, 0)
 //-----------------------------------------------------------------------------
 //
 //
@@ -51,6 +52,7 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 	di->SetupView(state, 0, 0, 0, !!(mState->MirrorFlag & 1), !!(mState->PlaneMirrorFlag & 1));
 
 	state.SetVertexBuffer(vertexBuffer);
+	state.SetTextureMode(TM_OPAQUE);
 	auto skybox = origin->texture ? dynamic_cast<FSkyBox*>(origin->texture->GetTexture()) : nullptr;
 	if (skybox)
 	{
@@ -58,10 +60,23 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 	}
 	else
 	{
-		state.SetTextureMode(TM_OPAQUE);
-		vertexBuffer->RenderDome(state, origin->texture, origin->x_offset, origin->y_offset, false, FSkyVertexBuffer::SKYMODE_MAINLAYER, false);
-		state.SetTextureMode(TM_NORMAL);
+		auto tex = origin->texture;
+		float texw = tex->GetDisplayWidth();
+		float texh = tex->GetDisplayHeight();
+		auto& modelMatrix = state.mModelMatrix;
+		auto& textureMatrix = state.mTextureMatrix;
+		auto texskyoffset = tex->GetSkyOffset() + origin->y_offset + skyoffsettest;
+
+		modelMatrix.loadIdentity();
+		modelMatrix.rotate(-180.0f + origin->x_offset, 0.f, 1.f, 0.f);
+		modelMatrix.translate(0.f, (-40 + texskyoffset) * skyoffsetfactor, 0.f);
+		//modelMatrix.scale(1.f, 0.8f * 1.17f, 1.f);
+		textureMatrix.loadIdentity();
+		textureMatrix.scale(-1.f, 0.5, 1.f);
+		textureMatrix.translate(1.f, 0/*origin->y_offset / texh*/, 1.f);
+		vertexBuffer->RenderDome(state, origin->texture, FSkyVertexBuffer::SKYMODE_MAINLAYER);
 	}
+	state.SetTextureMode(TM_NORMAL);
 	if (origin->fadecolor & 0xffffff)
 	{
 		PalEntry FadeColor = origin->fadecolor;

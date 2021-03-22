@@ -63,13 +63,6 @@
 #include "v_video.h"
 #include "hwrenderer/data/buffers.h"
 
-// 57 world units roughly represent one sky texel for the glTranslate call.
-enum
-{
-	skyoffsetfactor = 57
-};
-
-
 //-----------------------------------------------------------------------------
 //
 // Shamelessly lifted from Doomsday (written by Jaakko Keränen)
@@ -369,7 +362,7 @@ void FSkyVertexBuffer::SetupMatrices(FGameTexture *tex, float x_offset, float y_
 	else
 	{
 		modelMatrix.translate(0.f, (-40 + texskyoffset) * skyoffsetfactor, 0.f);
-		modelMatrix.scale(1.f, 1.2f * 1.17f, 1.f);
+		modelMatrix.scale(1.f, 0.8f * 1.17f, 1.f);
 	}
 	textureMatrix.loadIdentity();
 	textureMatrix.scale(mirror ? -xscale : xscale, yscale, 1.f);
@@ -393,21 +386,19 @@ void FSkyVertexBuffer::RenderRow(FRenderState& state, EDrawType prim, int row, b
 //
 //-----------------------------------------------------------------------------
 
-void FSkyVertexBuffer::RenderDome(FRenderState& state, FGameTexture* tex, float x_offset, float y_offset, bool mirror, int mode, bool tiled)
+void FSkyVertexBuffer::RenderDome(FRenderState& state, FGameTexture* tex, int mode)
 {
 	if (tex)
 	{
 		state.SetMaterial(tex, UF_Texture, 0, CLAMP_NONE, 0, -1);
 		state.EnableModelMatrix(true);
 		state.EnableTextureMatrix(true);
-
-		SetupMatrices(tex, x_offset, y_offset, mirror, mode, state.mModelMatrix, state.mTextureMatrix, tiled);
 	}
 
 	int rc = mRows + 1;
 
 	// The caps only get drawn for the main layer but not for the overlay.
-	if (mode == FSkyVertexBuffer::SKYMODE_MAINLAYER && tex != NULL)
+	if (mode == FSkyVertexBuffer::SKYMODE_MAINLAYER && tex != nullptr)
 	{
 		auto& col = R_GetSkyCapColor(tex);
 		state.SetObjectColor(col.first);
@@ -427,6 +418,22 @@ void FSkyVertexBuffer::RenderDome(FRenderState& state, FGameTexture* tex, float 
 
 	state.EnableTextureMatrix(false);
 	state.EnableModelMatrix(false);
+}
+
+
+//-----------------------------------------------------------------------------
+//
+//
+//
+//-----------------------------------------------------------------------------
+
+void FSkyVertexBuffer::RenderDome(FRenderState& state, FGameTexture* tex, float x_offset, float y_offset, bool mirror, int mode, bool tiled, float xscale, float yscale)
+{
+	if (tex)
+	{
+		SetupMatrices(tex, x_offset, y_offset, mirror, mode, state.mModelMatrix, state.mTextureMatrix, tiled, xscale, yscale);
+	}
+	RenderDome(state, tex, mode);
 }
 
 

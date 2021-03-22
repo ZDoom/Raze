@@ -63,7 +63,7 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, 
 
 	// dapyscale is not relvant for a sky dome.
 	sky->y_scale = FixedToFloat(daptileyscale);
-	sky->y_offset = FixedToFloat(dapyoffs) + ypanning * (float)ti * (1.f / 256.f);
+	sky->y_offset = dapyoffs*2 + (ypanning * ti / 64.f);
 	sky->x_offset = xpanning / (1 << (realskybits - dapskybits));	
 	sky->fadecolor = FadeColor;
 	sky->shade = 0;// clamp(plane == plane_ceiling ? sector->ceilingshade : sector->floorshade, 0, numshades - 1);
@@ -113,17 +113,23 @@ void HWWall::SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowr
 //
 //==========================================================================
 
-void HWWall::SkyNormal(HWDrawInfo* di, sectortype* fs, FVector2& v1, FVector2& v2)
+void HWWall::SkyNormal(HWDrawInfo* di, sectortype* fs, FVector2& v1, FVector2& v2, float fch1, float fch2, float ffh1, float ffh2)
 {
-	ztop[0] = ztop[1] = 32768.0f;
-	zbottom[0] = zceil[0];
-	zbottom[1] = zceil[1];
-	SkyPlane(di, fs, plane_ceiling, true);
+	if (fs->ceilingstat & CSTAT_SECTOR_SKY)
+	{
+		ztop[0] = ztop[1] = 32768.0f;
+		zbottom[0] = fch1;
+		zbottom[1] = fch2;
+		SkyPlane(di, fs, plane_ceiling, true);
+	}
 
-	ztop[0] = zfloor[0];
-	ztop[1] = zfloor[1];
-	zbottom[0] = zbottom[1] = -32768.0f;
-	SkyPlane(di, fs, plane_floor, true);
+	if (fs->floorstat & CSTAT_SECTOR_SKY)
+	{
+		ztop[0] = ffh1;
+		ztop[1] = ffh2;
+		zbottom[0] = zbottom[1] = -32768.0f;
+		SkyPlane(di, fs, plane_floor, true);
+	}
 }
 
 //==========================================================================
@@ -132,7 +138,7 @@ void HWWall::SkyNormal(HWDrawInfo* di, sectortype* fs, FVector2& v1, FVector2& v
 //
 //==========================================================================
 
-void HWWall::SkyTop(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * bs, FVector2& v1, FVector2& v2)
+void HWWall::SkyTop(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * bs, FVector2& v1, FVector2& v2, float fch1, float fch2)
 {
 	if (fs->portalflags == PORTAL_SECTOR_CEILING || fs->portalflags == PORTAL_SECTOR_CEILING_REFLECT)
 	{
@@ -155,30 +161,26 @@ void HWWall::SkyTop(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * 
 				return;
 			}
 		}
-		// stacked sectors
-		ztop[0] = ztop[1] = 32768.0f;
-		PlanesAtPoint(fs, v1.X*16.f, v1.Y*-16.f, &zbottom[0], nullptr);
-		PlanesAtPoint(fs, v2.X * 16.f, v2.Y * -16.f, &zbottom[1], nullptr);
 	}
 	else if (fs->ceilingstat & CSTAT_SECTOR_SKY)
 	{
-		float c1, c2, f1, f2;
-		PlanesAtPoint(bs, v1.X * 16.f, v1.Y * -16.f, &c1, &f1);
-		PlanesAtPoint(bs, v2.X * 16.f, v2.Y * -16.f, &c2, &f2);
-
 		if (bs->ceilingstat & CSTAT_SECTOR_SKY)
 		{
+			float c1, c2, f1, f2;
+			PlanesAtPoint(bs, v1.X * 16.f, v1.Y * -16.f, &c1, &f1);
+			PlanesAtPoint(bs, v2.X * 16.f, v2.Y * -16.f, &c2, &f2);
+
 			// if the back sector is closed the sky must be drawn!
 			if (c1 > f1 || c2 > f2) return;
 		}
 
-		ztop[0]=ztop[1]=32768.0f;
-
-		zbottom[0] = c1;
-		zbottom[1] = c2;
-		flags|=HWF_SKYHACK;	// mid textures on such lines need special treatment!
+		flags |= HWF_SKYHACK;	// mid textures on such lines need special treatment!
 	}
+	else return;
 
+	ztop[0] = ztop[1] = 32768.0f;
+	zbottom[0] = fch1;
+	zbottom[1] = fch2;
 	SkyPlane(di, fs, plane_ceiling, true);
 }
 
@@ -189,7 +191,7 @@ void HWWall::SkyTop(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * 
 //
 //==========================================================================
 
-void HWWall::SkyBottom(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * bs, FVector2& v1, FVector2& v2)
+void HWWall::SkyBottom(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * bs, FVector2& v1, FVector2& v2, float ffh1, float ffh2)
 {
 	if (fs->portalflags == PORTAL_SECTOR_FLOOR || fs->portalflags == PORTAL_SECTOR_FLOOR_REFLECT)
 	{
@@ -213,29 +215,25 @@ void HWWall::SkyBottom(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype
 			}
 		}
 		// stacked sectors
-		zbottom[0] = zbottom[1] = -32768.0f;
-		PlanesAtPoint(fs, v1.X * 16.f, v1.Y * -16.f, nullptr, &ztop[0]);
-		PlanesAtPoint(fs, v2.X * 16.f, v2.Y * -16.f, nullptr, &ztop[0]);
 	}
-	else if (fs->ceilingstat & CSTAT_SECTOR_SKY)
+	else if (fs->floorstat & CSTAT_SECTOR_SKY)
 	{
 		float c1, c2, f1, f2;
 		PlanesAtPoint(bs, v1.X * 16.f, v1.Y * -16.f, &c1, &f1);
 		PlanesAtPoint(bs, v2.X * 16.f, v2.Y * -16.f, &c2, &f2);
 
-		if (bs->ceilingstat & CSTAT_SECTOR_SKY)
+		if (bs->floorstat & CSTAT_SECTOR_SKY)
 		{
 			// if the back sector is closed the sky must be drawn!
 			if (c1 > f1 || c2 > f2) return;
 		}
-
-		zbottom[0] = zbottom[1] = -32768.0f;
-
-		zbottom[0] = f1;
-		zbottom[1] = f2;
 		flags |= HWF_SKYHACK;	// mid textures on such lines need special treatment!
 	}
+	else return;
 
+	zbottom[0] = zbottom[1] = -32768.0f;
+	ztop[0] = ffh1;
+	ztop[1] = ffh2;
 	SkyPlane(di, fs, plane_floor, true);
 }
 

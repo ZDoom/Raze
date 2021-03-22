@@ -880,9 +880,9 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 // 
 //
 //==========================================================================
-void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sectortype* backsector)
+void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sectortype* backsector)
 {
-	auto backwall = wal->nextwall >= 0 && wal->nextwall < numwalls? &wall[wal->nextwall] : nullptr;
+	auto backwall = wal->nextwall >= 0 && wal->nextwall < numwalls ? &wall[wal->nextwall] : nullptr;
 	auto p2wall = &wall[wal->point2];
 
 	float fch1;
@@ -896,8 +896,9 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 	PlanesAtPoint(frontsector, wal->x, wal->y, &fch1, &ffh1);
 	PlanesAtPoint(frontsector, p2wall->x, p2wall->y, &fch2, &ffh2);
 
+
 #ifdef _DEBUG
-	if (wal - wall == 7591)
+	if (wal - wall == 843)
 	{
 		int a = 0;
 	}
@@ -950,10 +951,10 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 		else if (seg->portalflags == PORTAL_WALL_TO_SPRITE) ptype = PORTALTYPE_LINETOSPRITE;
 		if (ptype != -1)
 		{
-			ztop[0] = zceil[0];
-			ztop[1] = zceil[1];
-			zbottom[0] = zfloor[0];
-			zbottom[1] = zfloor[1];
+			ztop[0] = fch1;
+			ztop[1] = fch2;
+			zbottom[0] = ffh1;
+			zbottom[1] = ffh2;
 			PutPortal(di, ptype, -1);
 			return;
 		}
@@ -963,7 +964,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 	if (!backsector || !backwall)
 	{
 		// sector's sky
-		SkyNormal(di, frontsector, v1, v2);
+		SkyNormal(di, frontsector, v1, v2, fch1, fch2, ffh1, ffh2);
 
 		// normal texture
 
@@ -987,8 +988,11 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 
 		float zalign = 0.f;
 
-		SkyTop(di, wal, frontsector, backsector, v1, v2);
-		SkyBottom(di, wal, frontsector, backsector, v1, v2);
+		if (fch1 > ffh1 || fch2 > ffh2)
+		{
+			SkyTop(di, wal, frontsector, backsector, v1, v2, fch1, fch2);
+			SkyBottom(di, wal, frontsector, backsector, v1, v2, ffh1, ffh2);
+		}
 
 		// upper texture
 		if (!(frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY))

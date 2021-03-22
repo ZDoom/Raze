@@ -120,9 +120,23 @@ void BunchDrawer::DeleteBunch(int index)
 
 bool BunchDrawer::CheckClip(walltype* wal)
 {
+#ifdef _DEBUG
+	if (wal - wall == 843 || wal - wall == 847)
+	{
+		int a = 0;
+	}
+#endif
+
+
+
 	auto pt2 = &wall[wal->point2];
 	sectortype* backsector = &sector[wal->nextsector];
 	sectortype* frontsector = &sector[wall[wal->nextwall].nextsector];
+
+	// if one plane is sky on both sides, the line must not clip.
+	if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY) return false;
+	if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY) return false;
+
 	float bs_floorheight1;
 	float bs_floorheight2;
 	float bs_ceilingheight1;
@@ -145,22 +159,18 @@ bool BunchDrawer::CheckClip(walltype* wal)
 	if (bs_ceilingheight1 <= fs_floorheight1 && bs_ceilingheight2 <= fs_floorheight2)
 	{
 		// backsector's ceiling is below frontsector's floor.
-		if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY) return false; 
 		return true;
 	}
 
 	if (fs_ceilingheight1 <= bs_floorheight1 && fs_ceilingheight2 <= bs_floorheight2) 
 	{
 		// backsector's floor is above frontsector's ceiling
-		if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY) return false;
 		return true;
 	}
 
 	if (bs_ceilingheight1 <= bs_floorheight1 && bs_ceilingheight2 <= bs_floorheight2) 
 	{
 		// backsector is closed
-		if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY) return false;
-		if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY) return false;
 		return true;
 	}
 
