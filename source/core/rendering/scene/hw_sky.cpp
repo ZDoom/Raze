@@ -66,7 +66,7 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, 
 	sky->y_offset = FixedToFloat(dapyoffs) + ypanning * (float)ti * (1.f / 256.f);
 	sky->x_offset = xpanning / (1 << (realskybits - dapskybits));	
 	sky->fadecolor = FadeColor;
-	sky->shade = plane == plane_ceiling ? sector->ceilingshade : sector->floorshade;
+	sky->shade = 0;// clamp(plane == plane_ceiling ? sector->ceilingshade : sector->floorshade, 0, numshades - 1);
 	sky->texture = skytex;
 }
 

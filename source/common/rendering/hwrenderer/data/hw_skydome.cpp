@@ -436,7 +436,7 @@ void FSkyVertexBuffer::RenderDome(FRenderState& state, FGameTexture* tex, float 
 //
 //-----------------------------------------------------------------------------
 
-void FSkyVertexBuffer::RenderBox(FRenderState& state, FTextureID texno, FSkyBox* tex, float x_offset, bool sky2, float stretch, const FVector3& skyrotatevector, const FVector3& skyrotatevector2)
+void FSkyVertexBuffer::RenderBox(FRenderState& state, FSkyBox* tex, float x_offset, bool sky2, float stretch, const FVector3& skyrotatevector, const FVector3& skyrotatevector2)
 {
 	int faces;
 

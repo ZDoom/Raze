@@ -170,7 +170,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	state.Draw(DT_Triangles, vertindex, vertcount);
 	vertexcount += vertcount;
 
-	if (translucent) state.SetRenderStyle(DefaultRenderStyle());
+	if (translucent) state.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 	//state.SetObjectColor(0xffffffff);
 	//state.SetAddColor(0);
 	//state.ApplyTextureManipulation(nullptr);

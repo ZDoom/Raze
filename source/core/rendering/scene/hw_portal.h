@@ -20,11 +20,10 @@ enum
 struct HWSkyInfo
 {
 	float x_offset;
-	float y_offset;		// doubleskies don't have a y-offset
+	float y_offset;
 	float y_scale;
 	int shade;
 	FGameTexture * texture;
-	FTextureID skytexno1;
 	PalEntry fadecolor;
 
 	bool operator==(const HWSkyInfo & inf)

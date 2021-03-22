@@ -85,6 +85,6 @@ public:
 
 	void RenderRow(FRenderState& state, EDrawType prim, int row, bool apply = true);
 	void RenderDome(FRenderState& state, FGameTexture* tex, float x_offset, float y_offset, bool mirror, int mode, bool tiled);
-	void RenderBox(FRenderState& state, FTextureID texno, FSkyBox* tex, float x_offset, bool sky2, float stretch, const FVector3& skyrotatevector, const FVector3& skyrotatevector2);
+	void RenderBox(FRenderState& state, FSkyBox* tex, float x_offset, bool sky2, float stretch, const FVector3& skyrotatevector, const FVector3& skyrotatevector2);
 
 };

@@ -870,7 +870,7 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 	// todo: transparency.
 
 	DoTexture(di, wal, wal, refheight, topleft, topright, bottomleft, bottomright);
-	RenderStyle = STYLE_Normal;
+	RenderStyle = STYLE_Translucent;
 	alpha = 1.f;
 }
 
@@ -928,7 +928,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 	visibility = sectorVisibility(frontsector);
 
 	alpha = 1.0f;
-	RenderStyle = STYLE_Normal;
+	RenderStyle = STYLE_Translucent;
 	texture = NULL;
 
 	/*

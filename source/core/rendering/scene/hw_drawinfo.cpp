@@ -421,7 +421,6 @@ void HWDrawInfo::RenderTranslucent(FRenderState &state)
 
 void HWDrawInfo::RenderPortal(HWPortal *p, FRenderState &state, bool usestencil)
 {
-#if 0
 	auto gp = static_cast<HWPortal *>(p);
 	gp->SetupStencil(this, state, usestencil);
 	auto new_di = StartDrawInfo(this, Viewpoint, &VPUniforms);
@@ -432,7 +431,6 @@ void HWDrawInfo::RenderPortal(HWPortal *p, FRenderState &state, bool usestencil)
 	state.SetVertexBuffer(screen->mVertexData);
 	screen->mViewpoints->Bind(state, vpIndex);
 	gp->RemoveStencil(this, state, usestencil);
-#endif
 }
 
 //-----------------------------------------------------------------------------

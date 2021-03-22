@@ -54,7 +54,7 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 	auto skybox = origin->texture ? dynamic_cast<FSkyBox*>(origin->texture->GetTexture()) : nullptr;
 	if (skybox)
 	{
-		vertexBuffer->RenderBox(state, origin->skytexno1, skybox, origin->x_offset, false, /*di->Level->info->pixelstretch*/1, { 0, 0, 1 }, { 0, 0, 1 });
+		vertexBuffer->RenderBox(state, skybox, origin->x_offset, false, /*di->Level->info->pixelstretch*/1, { 0, 0, 1 }, { 0, 0, 1 });
 	}
 	else
 	{
