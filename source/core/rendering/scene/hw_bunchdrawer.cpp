@@ -54,12 +54,12 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view)
 	viewx = view.x * (1/ 16.f);
 	viewy = view.y * -(1/ 16.f);
 	StartScene();
-	clipper->SetViewpoint(DVector2(viewx, viewy));
+	clipper->SetViewpoint(view);
 	for (int i = 0; i < numwalls; i++)
 	{
 		// Precalculate the clip angles to avoid doing this repeatedly during level traversal.
 		// Reverse the orientation so that startangle and endangle are properly ordered.
-		wall[i].clipangle = 0 - clipper->PointToPseudoAngle(wall[i].x * (1 / 16.f), wall[i].y * (-1 / 16.f));
+		wall[i].clipangle = clipper->PointToAngle(wall[i].pos);
 	}
 }
 
@@ -84,7 +84,7 @@ void BunchDrawer::StartScene()
 //
 //==========================================================================
 
-void BunchDrawer::StartBunch(int sectnum, int linenum, angle_t startan, angle_t endan)
+void BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangle endan)
 {
 	FBunch* bunch = &Bunches[LastBunch = Bunches.Reserve(1)];
 
@@ -100,7 +100,7 @@ void BunchDrawer::StartBunch(int sectnum, int linenum, angle_t startan, angle_t 
 //
 //==========================================================================
 
-void BunchDrawer::AddLineToBunch(int line, int newan)
+void BunchDrawer::AddLineToBunch(int line, binangle newan)
 {
 	Bunches[LastBunch].endline++;
 	Bunches[LastBunch].endangle = newan;
@@ -186,14 +186,13 @@ bool BunchDrawer::CheckClip(walltype* wal)
 
 int BunchDrawer::ClipLine(int line)
 {
-	angle_t startAngle, endAngle;
 	auto wal = &wall[line];
 
-	startAngle = wal->clipangle;
-	endAngle = wall[wal->point2].clipangle;
+	auto startAngle = wal->clipangle;
+	auto endAngle = wall[wal->point2].clipangle;
 
 	// Back side, i.e. backface culling	- read: endAngle >= startAngle!
-	if (startAngle - endAngle < ANGLE_180)
+	if (startAngle.asbam() - endAngle.asbam() < ANGLE_180)
 	{
 		return CL_Skip;
 	}
@@ -325,9 +324,9 @@ int BunchDrawer::WallInFront(int wall1, int wall2)
 
 int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 {
-	angle_t anglecheck, endang;
+	binangle anglecheck, endang;
 
-	if (b2->startangle - b1->startangle < b1->endangle - b1->startangle)
+	if (b2->startangle.asbam() - b1->startangle.asbam() < b1->endangle.asbam() - b1->startangle.asbam())
 	{
 		// we have an overlap at b2->startangle
 		anglecheck = b2->startangle - b1->startangle;
@@ -336,7 +335,7 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 		for (int i = b1->startline; i <= b1->endline; i++)
 		{
 			endang = wall[wall[i].point2].clipangle - b1->startangle;
-			if (endang > anglecheck)
+			if (endang.asbam() > anglecheck.asbam())
 			{
 				// found a line
 				int ret = WallInFront(b2->startline, i);
@@ -344,7 +343,7 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 			}
 		}
 	}
-	else if (b1->startangle - b2->startangle < b2->endangle - b2->startangle)
+	else if (b1->startangle.asbam() - b2->startangle.asbam() < b2->endangle.asbam() - b2->startangle.asbam())
 	{
 		// we have an overlap at b1->startangle
 		anglecheck = b1->startangle - b2->startangle;
@@ -353,7 +352,7 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 		for (int i = b2->startline; i <= b2->endline; i++)
 		{
 			endang = wall[wall[i].point2].clipangle - b2->startangle;
-			if (endang > anglecheck)
+			if (endang.asbam() > anglecheck.asbam())
 			{
 				// found a line
 				int ret = WallInFront(i, b1->startline);
@@ -434,7 +433,7 @@ void BunchDrawer::ProcessSector(int sectnum)
 
 	auto sect = &sector[sectnum];
 	bool inbunch;
-	angle_t startangle;
+	binangle startangle;
 
 	SetupFlat.Clock();
 	HWFlat flat;
@@ -452,10 +451,10 @@ void BunchDrawer::ProcessSector(int sectnum)
 		DVector2 start = { WallStartX(thiswall), WallStartY(thiswall) };
 		DVector2 end = { WallStartX(thiswall->point2), WallStartY(thiswall->point2) };
 #endif
-		angle_t ang1 = thiswall->clipangle;
-		angle_t ang2 = wall[thiswall->point2].clipangle;
+		binangle ang1 = thiswall->clipangle;
+		binangle ang2 = wall[thiswall->point2].clipangle;
 
-		if (ang1 - ang2 < ANGLE_180)
+		if (ang1.asbam() - ang2.asbam() < ANGLE_180)
 		{
 			// Backside
 			inbunch = false;
@@ -465,7 +464,7 @@ void BunchDrawer::ProcessSector(int sectnum)
 			// is it visible?
 			inbunch = false;
 		}
-		else if (!inbunch || ang2 - startangle >= ANGLE_180)
+		else if (!inbunch || ang2.asbam() - startangle.asbam() >= ANGLE_180)
 		{
 			// don't let a bunch span more than 180° to avoid problems.
 			// This limitation ensures that the combined range of 2

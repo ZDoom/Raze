@@ -118,7 +118,7 @@ struct walltype
     int16_t hitag;
     int16_t extra;
     float xpan_, ypan_;
-    angle_t clipangle;
+    binangle clipangle;
     uint8_t portalflags;
     uint16_t portalnum;
 

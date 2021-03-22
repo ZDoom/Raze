@@ -1,8 +1,8 @@
 #pragma once
 
 #include "gamecontrol.h"
-#include "buildtypes.h"
 #include "binaryangle.h"
+#include "build.h"
 
 extern int cameradist, cameraclock;
 

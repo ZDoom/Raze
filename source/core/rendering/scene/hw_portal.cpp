@@ -404,21 +404,21 @@ void HWScenePortalBase::ClearClipper(HWDrawInfo *di, Clipper *clipper)
 	clipper->Clear();
 
 	// Set the clipper to the minimal visible area
-	clipper->SafeAddClipRange(0, 0xffffffff);
+	clipper->SafeAddClipRange(bamang(0), bamang(0xffffffff));
 	for (unsigned int i = 0; i < lines.Size(); i++)
 	{
-		DAngle startAngle = (DVector2(lines[i].glseg.x2, lines[i].glseg.y2) - outer_di->Viewpoint.Pos).Angle() + angleOffset;
-		DAngle endAngle = (DVector2(lines[i].glseg.x1, lines[i].glseg.y1) - outer_di->Viewpoint.Pos).Angle() + angleOffset;
+		binangle startang = lines[i].seg->clipangle;
+		binangle endang = wall[lines[i].seg->point2].clipangle;
 
-		if (deltaangle(endAngle, startAngle) < 0)
+		if (endang.asbam() - startang.asbam() >= ANGLE_180)
 		{
-			clipper->SafeRemoveClipRangeRealAngles(startAngle.BAMs(), endAngle.BAMs());
+			clipper->SafeRemoveClipRange(startang, endang);
 		}
 	}
 
 	// and finally clip it to the visible area
 	angle_t a1 = di->FrustumAngle();
-	if (a1 < ANGLE_180) clipper->SafeAddClipRangeRealAngles(di->Viewpoint.HWAngles.Yaw.BAMs() + a1, di->Viewpoint.HWAngles.Yaw.BAMs() - a1);
+	if (a1 < ANGLE_180) clipper->SafeAddClipRange(bamang(di->Viewpoint.RotAngle + a1), bamang(di->Viewpoint.RotAngle - a1));
 
 	// lock the parts that have just been clipped out.
 	//clipper->SetSilhouette();
@@ -595,9 +595,9 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	clipper->Clear();
 
 	angle_t af = di->FrustumAngle();
-	if (af < ANGLE_180) clipper->SafeAddClipRangeRealAngles(vp.HWAngles.Yaw.BAMs() + af, vp.HWAngles.Yaw.BAMs() - af);
+	if (af < ANGLE_180) clipper->SafeAddClipRange(bamang(vp.RotAngle + af), bamang(vp.RotAngle - af));
 
-	clipper->SafeAddClipRange(pos1, pos2);
+	clipper->SafeAddClipRange(line->clipangle, wall[line->point2].clipangle);
 	return true;
 }
 

@@ -117,7 +117,7 @@ HWDrawInfo *HWDrawInfo::StartDrawInfo(HWDrawInfo *parent, FRenderViewpoint &pare
 static Clipper staticClipper;		// Since all scenes are processed sequentially we only need one clipper.
 static HWDrawInfo * gl_drawinfo;	// This is a linked list of all active DrawInfos and needed to free the memory arena after the last one goes out of scope.
 
-void HWDrawInfo::StartScene(FRenderViewpoint &parentvp, HWViewpointUniforms *uniforms)
+void HWDrawInfo::StartScene(FRenderViewpoint& parentvp, HWViewpointUniforms* uniforms)
 {
 	staticClipper.Clear();
 	mClipper = &staticClipper;
@@ -143,7 +143,7 @@ void HWDrawInfo::StartScene(FRenderViewpoint &parentvp, HWViewpointUniforms *uni
 		VPUniforms.mClipLine.X = -10000000.0f;
 		VPUniforms.mShadowmapFilter = gl_shadowmap_filter;
 	}
-	mClipper->SetViewpoint(Viewpoint.Pos.XY());
+	mClipper->SetViewpoint({viewx, viewy});
 
 	ClearBuffers();
 
@@ -294,7 +294,7 @@ void HWDrawInfo::CreateScene()
 	const auto& vp = Viewpoint;
 
 	angle_t a1 = FrustumAngle();
-	mClipper->SafeAddClipRangeRealAngles(vp.RotAngle + a1, vp.RotAngle - a1);
+	mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
 
 	// reset the portal manager
 	portalState.StartFrame();

@@ -21,6 +21,7 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 
 #include "compat.h"
 #include "palette.h"
+#include "binaryangle.h"
 
     //Make all variables in BUILD.H defined in the ENGINE,
     //and externed in GAME
@@ -35,7 +36,6 @@ EXTERN int16_t sintable[2048];
 #include "buildtiles.h"
 #include "c_cvars.h"
 #include "cmdlib.h"
-#include "binaryangle.h"
 #include "mathutil.h"
 
 typedef int64_t coord_t;

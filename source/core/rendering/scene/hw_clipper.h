@@ -5,6 +5,8 @@
 #include "memarena.h"
 #include "basics.h"
 #include "vectors.h"
+#include "binaryangle.h"
+#include "intvec.h"
 
 class ClipNode
 {
@@ -29,21 +31,20 @@ class Clipper
 	ClipNode * clipnodes = nullptr;
 	ClipNode * cliphead = nullptr;
 	ClipNode * silhouette = nullptr;	// will be preserved even when RemoveClipRange is called
-	DVector2 viewpoint;
+	vec2_t viewpoint;
 	bool blocked = false;
 
-	bool IsRangeVisible(angle_t startangle, angle_t endangle);
+	bool IsRangeVisible(binangle startangle, binangle endangle);
 	void RemoveRange(ClipNode * cn);
-	void AddClipRange(angle_t startangle, angle_t endangle);
-	void RemoveClipRange(angle_t startangle, angle_t endangle);
-	void DoRemoveClipRange(angle_t start, angle_t end);
+	void AddClipRange(binangle startangle, binangle endangle);
+	void RemoveClipRange(binangle startangle, binangle endangle);
 
 public:
 
 	Clipper();
 
 	void Clear();
-	static angle_t AngleToPseudo(angle_t ang);
+	static binangle AngleToPseudo(binangle ang);
 
 	void Free(ClipNode *node)
 	{
@@ -51,6 +52,7 @@ public:
 		freelist = node;
 	}
 
+private:
 	ClipNode * GetNew()
 	{
 		if (freelist)
@@ -71,31 +73,35 @@ public:
 		c->next = c->prev = NULL;
 		return c;
 	}
+
+	void DoRemoveClipRange(angle_t start, angle_t end);
+
+public:
     
-    void SetViewpoint(const DVector2 &vp)
+    void SetViewpoint(const vec2_t &vp)
     {
         viewpoint = vp;
     }
 
 	void SetSilhouette();
 
-	bool SafeCheckRange(angle_t startAngle, angle_t endAngle)
+	bool SafeCheckRange(binangle startAngle, binangle endAngle)
 	{
-		if(startAngle > endAngle)
+		if(startAngle.asbam() > endAngle.asbam())
 		{
-			return (IsRangeVisible(startAngle, ANGLE_MAX) || IsRangeVisible(0, endAngle));
+			return (IsRangeVisible(startAngle, bamang(ANGLE_MAX)) || IsRangeVisible(bamang(0), endAngle));
 		}
 		
 		return IsRangeVisible(startAngle, endAngle);
 	}
 
-	void SafeAddClipRange(angle_t startangle, angle_t endangle)
+	void SafeAddClipRange(binangle startangle, binangle endangle)
 	{
-		if(startangle > endangle)
+		if(startangle.asbam() > endangle.asbam())
 		{
 			// The range has to added in two parts.
-			AddClipRange(startangle, ANGLE_MAX);
-			AddClipRange(0, endangle);
+			AddClipRange(startangle, bamang(ANGLE_MAX));
+			AddClipRange(bamang(0), endangle);
 		}
 		else
 		{
@@ -104,37 +110,26 @@ public:
 		}
 	}
     
-    void SafeAddClipRange(const DVector2& v1, const DVector2& v2)
+    void SafeAddClipRange(const vec2_t& v1, const vec2_t& v2)
     {
-        angle_t a2 = PointToPseudoAngle(v1.X, v1.Y);
-        angle_t a1 = PointToPseudoAngle(v2.X, v2.Y);
+        binangle a2 = PointToAngle(v1);
+        binangle a1 = PointToAngle(v2);
         SafeAddClipRange(a1,a2);
     }
 
-	void SafeAddClipRangeRealAngles(angle_t startangle, angle_t endangle)
+	void SafeRemoveClipRange(binangle startangle, binangle endangle)
 	{
-		SafeAddClipRange(AngleToPseudo(startangle), AngleToPseudo(endangle));
-	}
-
-
-	void SafeRemoveClipRange(angle_t startangle, angle_t endangle)
-	{
-		if(startangle > endangle)
+		if(startangle.asbam() > endangle.asbam())
 		{
 			// The range has to added in two parts.
-			RemoveClipRange(startangle, ANGLE_MAX);
-			RemoveClipRange(0, endangle);
+			RemoveClipRange(startangle, bamang(ANGLE_MAX));
+			RemoveClipRange(bamang(0), endangle);
 		}
 		else
 		{
 			// Add the range as usual.
 			RemoveClipRange(startangle, endangle);
 		}
-	}
-
-	void SafeRemoveClipRangeRealAngles(angle_t startangle, angle_t endangle)
-	{
-		SafeRemoveClipRange(AngleToPseudo(startangle), AngleToPseudo(endangle));
 	}
 
 	void SetBlocked(bool on)
@@ -147,12 +142,7 @@ public:
 		return blocked;
 	}
     
-    angle_t PointToPseudoAngle(double x, double y);
-
-	inline angle_t GetClipAngle(const DVector2& v)
-	{
-		return PointToPseudoAngle(v.X, v.Y);
-	}
+    binangle PointToAngle(const vec2_t& point);
 
 };
 

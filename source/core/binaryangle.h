@@ -40,8 +40,8 @@
 #include "m_fixed.h"
 #include "xs_Float.h"	// needed for reliably overflowing float->int conversions.
 #include "serializer.h"
-#include "build.h"
 #include "math/cmath.h"
+#include "templates.h"
 
 class FSerializer;
 
@@ -61,6 +61,7 @@ enum
 constexpr double BAngRadian = pi::pi() * (1. / 1024.);
 constexpr double BRadAngScale = 1. / BAngRadian;
 
+extern int16_t sintable[2048];
 
 //---------------------------------------------------------------------------
 //
@@ -345,7 +346,6 @@ public:
 	{
 		return binangle(value >> shift);
 	}
-
 };
 
 inline constexpr binangle bamang(uint32_t v) { return binangle(v); }
