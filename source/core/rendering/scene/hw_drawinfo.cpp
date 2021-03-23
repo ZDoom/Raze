@@ -143,7 +143,8 @@ void HWDrawInfo::StartScene(FRenderViewpoint& parentvp, HWViewpointUniforms* uni
 		VPUniforms.mClipLine.X = -10000000.0f;
 		VPUniforms.mShadowmapFilter = gl_shadowmap_filter;
 	}
-	mClipper->SetViewpoint({viewx, viewy});
+	vec2_t view = { int(Viewpoint.Pos.X * 16), int(Viewpoint.Pos.Y * -16) };
+	mClipper->SetViewpoint(view);
 
 	ClearBuffers();
 
@@ -308,10 +309,6 @@ void HWDrawInfo::CreateScene()
 	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
 	mDrawer.Init(this, mClipper, view);
 	mDrawer.RenderScene(vp.SectNum);
-
-	// And now the crappy hacks that have to be done to avoid rendering anomalies.
-	// These cannot be multithreaded when the time comes because all these depend
-	// on the global 'validcount' variable.
 
 	screen->mLights->Unmap();
 	screen->mVertexData->Unmap();

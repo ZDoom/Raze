@@ -141,6 +141,8 @@ public:
 	{
 		return blocked;
 	}
+
+	void DumpClipper();
     
     binangle PointToAngle(const vec2_t& point);
 

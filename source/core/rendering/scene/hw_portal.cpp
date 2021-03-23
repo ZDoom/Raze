@@ -403,12 +403,15 @@ void HWScenePortalBase::ClearClipper(HWDrawInfo *di, Clipper *clipper)
 
 	clipper->Clear();
 
+	auto& vp = di->Viewpoint;
+	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
+
 	// Set the clipper to the minimal visible area
 	clipper->SafeAddClipRange(bamang(0), bamang(0xffffffff));
 	for (unsigned int i = 0; i < lines.Size(); i++)
 	{
-		binangle startang = q16ang(gethiq16angle(lines[i].seg->x - di->viewx, lines[i].seg->y - di->viewy));
-		binangle endang = q16ang(gethiq16angle(wall[lines[i].seg->point2].x - di->viewx, wall[lines[i].seg->point2].y - di->viewy));
+		binangle startang = q16ang(gethiq16angle(lines[i].seg->x - view.x, lines[i].seg->y - view.y));
+		binangle endang = q16ang(gethiq16angle(wall[lines[i].seg->point2].x - view.x, wall[lines[i].seg->point2].y - view.y));
 
 		if (endang.asbam() - startang.asbam() >= ANGLE_180)
 		{
@@ -533,25 +536,29 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 
 	di->mClipPortal = this;
 
-	int x = line->x, dx = wall[line->point2].x - x;
-	int y = line->y, dy = wall[line->point2].y - y;
+	int x = line->x;
+	int y = line->y;
+	int dx = wall[line->point2].x - x;
+	int dy = wall[line->point2].y - y;
 
 	// this can overflow so use 64 bit math.
 	const int64_t j = int64_t(dx) * dx + int64_t(dy) * dy;
 	if (j == 0)
 		return false;
 
-	int64_t i = ((int64_t(di->viewx) - x) * dx + (int64_t(di->viewy) - y) * dy) << 1;
+	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
 
-	int newx = int((x << 1) + Scale(dx, i, j) - di->viewx);
-	int newy = int((y << 1) + Scale(dy, i, j) - di->viewy);
-	int newan = ((gethiq16angle(dx, dy) << 1) - vp.RotAngle) & 0x7FFFFFF;
+	int64_t i = ((int64_t(view.x) - x) * dx + (int64_t(view.y) - y) * dy) << 1;
+
+	int newx = int((x << 1) + Scale(dx, i, j) - view.x);
+	int newy = int((y << 1) + Scale(dy, i, j) - view.y);
+	int newan = ((gethiq16angle(dx, dy) << 1) - bamang(vp.RotAngle).asq16()) & 0x7FFFFFF;
 	vp.RotAngle = q16ang(newan).asbam();
-	di->viewx = newx;
-	di->viewy = newy;
+	vp.SectNum = line->sector;
 
 	vp.Pos.X = newx / 16.f;
 	vp.Pos.Y = newy / -16.f;
+	vp.HWAngles.Yaw = -90.f + q16ang(newan).asdeg();
 
 	int oldstat = 0;
 	if (vp.CameraSprite)

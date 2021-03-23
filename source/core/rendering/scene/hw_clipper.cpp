@@ -38,6 +38,7 @@
 #include "hw_clipper.h"
 #include "basics.h"
 #include "build.h"
+#include "printf.h"
 
 unsigned Clipper::starttime;
 
@@ -380,5 +381,10 @@ binangle Clipper::PointToAngle(const vec2_t& pos)
 #endif
 }
 
-
-
+void Clipper::DumpClipper()
+{
+	for (auto node = cliphead; node; node = node->next)
+	{
+		Printf("Range from %f to %f\n", bamang(node->start).asdeg(), bamang(node->end).asdeg());
+	}
+}
