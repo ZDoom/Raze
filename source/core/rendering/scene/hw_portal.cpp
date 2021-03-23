@@ -407,8 +407,8 @@ void HWScenePortalBase::ClearClipper(HWDrawInfo *di, Clipper *clipper)
 	clipper->SafeAddClipRange(bamang(0), bamang(0xffffffff));
 	for (unsigned int i = 0; i < lines.Size(); i++)
 	{
-		binangle startang = lines[i].seg->clipangle;
-		binangle endang = wall[lines[i].seg->point2].clipangle;
+		binangle startang = q16ang(gethiq16angle(lines[i].seg->x - di->viewx, lines[i].seg->y - di->viewy));
+		binangle endang = q16ang(gethiq16angle(wall[lines[i].seg->point2].x - di->viewx, wall[lines[i].seg->point2].y - di->viewy));
 
 		if (endang.asbam() - startang.asbam() >= ANGLE_180)
 		{
@@ -532,61 +532,33 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	auto &vp = di->Viewpoint;
 
 	di->mClipPortal = this;
-	DAngle StartAngle = vp.HWAngles.Yaw.Degrees;
-	DVector3 StartPos = vp.Pos;
 
-	auto pos1 = WallStart(line);
-	auto pos2 = WallEnd(line);
+	int x = line->x, dx = wall[line->point2].x - x;
+	int y = line->y, dy = wall[line->point2].y - y;
 
-	// the player is always visible in a mirror.
-	//vp.showviewer = true;
-	// Reflect the current view behind the mirror.
-	if (pos2.X == pos1.X)
+	// this can overflow so use 64 bit math.
+	const int64_t j = int64_t(dx) * dx + int64_t(dy) * dy;
+	if (j == 0)
+		return false;
+
+	int64_t i = ((int64_t(di->viewx) - x) * dx + (int64_t(di->viewy) - y) * dy) << 1;
+
+	int newx = int((x << 1) + Scale(dx, i, j) - di->viewx);
+	int newy = int((y << 1) + Scale(dy, i, j) - di->viewy);
+	int newan = ((gethiq16angle(dx, dy) << 1) - vp.RotAngle) & 0x7FFFFFF;
+	vp.RotAngle = q16ang(newan).asbam();
+	di->viewx = newx;
+	di->viewy = newy;
+
+	vp.Pos.X = newx / 16.f;
+	vp.Pos.Y = newy / -16.f;
+
+	int oldstat = 0;
+	if (vp.CameraSprite)
 	{
-		// vertical mirror
-		vp.Pos.X = 2 * pos1.X - StartPos.X;
-
-		// Compensation for reendering inaccuracies
-		if (StartPos.X < pos1.X) vp.Pos.X -= 0.1;
-		else vp.Pos.X += 0.1;
+		oldstat = vp.CameraSprite->cstat;
+		vp.CameraSprite->cstat &= ~CSTAT_SPRITE_INVISIBLE;
 	}
-	else if (pos2.Y == pos1.Y)
-	{
-		// horizontal mirror
-		vp.Pos.Y = 2 * pos1.Y - StartPos.Y;
-
-		// Compensation for reendering inaccuracies
-		if (StartPos.Y < pos1.Y)  vp.Pos.Y -= 0.1;
-		else vp.Pos.Y += 0.1;
-	}
-	else
-	{
-		// any mirror--use floats to avoid integer overflow. 
-		// Use doubles to avoid losing precision which is very important here.
-
-		double dx = pos2.X - pos1.X;
-		double dy = pos2.Y - pos1.Y;
-		double x1 = pos1.X;
-		double y1 = pos1.Y;
-		double x = StartPos.X;
-		double y = StartPos.Y;
-
-		// the above two cases catch len == 0
-		double r = ((x - x1)*dx + (y - y1)*dy) / (dx*dx + dy * dy);
-
-		vp.Pos.X = (x1 + r * dx) * 2 - x;
-		vp.Pos.Y = (y1 + r * dy) * 2 - y;
-
-		// Compensation for reendering inaccuracies
-		FVector2 v(-dx, dy);
-		v.MakeUnit();
-
-		vp.Pos.X += v[1] * state->renderdepth / 2;
-		vp.Pos.Y += v[0] * state->renderdepth / 2;
-	}
-	vp.HWAngles.Yaw = WallDelta(line).Angle().Degrees * 2. - StartAngle.Degrees;
-
-	//vp.ViewActor = nullptr;
 
 	state->MirrorFlag++;
 	di->SetClipLine(line);
@@ -597,7 +569,9 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	angle_t af = di->FrustumAngle();
 	if (af < ANGLE_180) clipper->SafeAddClipRange(bamang(vp.RotAngle + af), bamang(vp.RotAngle - af));
 
-	clipper->SafeAddClipRange(line->clipangle, wall[line->point2].clipangle);
+	auto startan = gethiq16angle(line->x - newx, line->y - newy);
+	auto endan = gethiq16angle(wall[line->point2].x - newx, wall[line->point2].y - newy);
+	clipper->SafeAddClipRange(q16ang(startan), q16ang(endan));  // we check the line from the backside so angles are reversed.
 	return true;
 }
 
