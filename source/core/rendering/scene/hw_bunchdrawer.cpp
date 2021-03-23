@@ -40,7 +40,6 @@
 #include "gamefuncs.h"
 
 
-
 //==========================================================================
 //
 //
@@ -238,8 +237,7 @@ void BunchDrawer::ProcessBunch(int bnch)
 				SetupWall.Clock();
 
 				HWWall hwwall;
-				//Printf("Rendering wall %d\n", i);
-				hwwall.Process(di, &wall[i], &sector[bunch->sectnum], wall[i].nextsector<0? nullptr : &sector[wall[i].nextsector]);
+				hwwall.Process(di, &wall[i], &sector[bunch->sectnum], wall[i].nextsector < 0 ? nullptr : &sector[wall[i].nextsector]);
 				rendered_lines++;
 
 				SetupWall.Unclock();
@@ -401,7 +399,7 @@ int BunchDrawer::FindClosestBunch()
 			closest = CompareData[i];
 			CompareData[i] = CompareData.Last();
 			CompareData.Pop();
-			i = 0;	// we need to recheck everything that's still marked.
+			i = -1;	// we need to recheck everything that's still marked. -1 because this will get incremented before being used.
 			continue;
 
 		case 1:	// is behind
@@ -459,11 +457,13 @@ void BunchDrawer::ProcessSector(int sectnum)
 			// Backside
 			inbunch = false;
 		}
+		/* disabled because it only fragments the bunches without any performance gain.
 		else if (!clipper->SafeCheckRange(ang1, ang2))
 		{
 			// is it visible?
 			inbunch = false;
 		}
+		*/
 		else if (!inbunch || ang2.asbam() - startangle.asbam() >= ANGLE_180)
 		{
 			// don't let a bunch span more than 180° to avoid problems.
