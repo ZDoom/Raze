@@ -12,6 +12,7 @@
 #include "printf.h"
 #include "gamefuncs.h"
 
+enum { MAXCLIPDIST = 1024 };
 
 static int16_t clipnum;
 static linetype clipit[MAXCLIPNUM];

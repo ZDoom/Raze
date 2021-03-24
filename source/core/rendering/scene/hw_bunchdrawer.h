@@ -11,8 +11,8 @@ struct FBunch
     int sectnum;
     int startline;
     int endline;
-    angle_t startangle; // in pseudo angles for the clipper
-    angle_t endangle;
+    binangle startangle; // in pseudo angles for the clipper
+    binangle endangle;
 };
 
 class BunchDrawer
@@ -37,8 +37,8 @@ private:
 
 
     void StartScene();
-    void StartBunch(int sectnum, int linenum, angle_t startan, angle_t endan);
-    void AddLineToBunch(int line, int newan);
+    void StartBunch(int sectnum, int linenum, binangle startan, binangle endan);
+    void AddLineToBunch(int line, binangle newan);
     void DeleteBunch(int index);
     bool CheckClip(walltype* wal);
     int ClipLine(int line);

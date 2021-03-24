@@ -11,18 +11,6 @@
 #include "m_alloc.h"
 #include "intvec.h"
 #include "m_swap.h"
-#include "serializer.h"
-
-////////// Compiler detection //////////
-
-#ifdef __GNUC__
-# define EDUKE32_GCC_PREREQ(major, minor) (major < __GNUC__ || (major == __GNUC__ && minor <= __GNUC_MINOR__))
-#else
-# define EDUKE32_GCC_PREREQ(major, minor) 0
-#endif
-
-
-////////// Language detection //////////
 
 ////////// Language and compiler feature polyfills //////////
 
@@ -120,14 +108,6 @@ typedef struct {
     float x, y;
 } vec2f_t;
 
-typedef struct MAY_ALIAS {
-    union {
-        struct { int32_t x, y, z; };
-        vec2_t  vec2;
-    };
-} vec3_t;
-
-
 typedef struct {
     union {
         struct {
@@ -159,17 +139,6 @@ static_assert(sizeof(vec3d_t) == sizeof(double) * 3);
 #define DO_FREE_AND_NULL(var) do { \
     Xfree(var); (var) = NULL; \
 } while (0)
-
-
-////////// Data serialization //////////
-
-inline int32_t B_LITTLE16(int16_t val) { return LittleShort(val); }
-inline uint32_t B_LITTLE16(uint16_t val) { return LittleShort(val); }
-
-static FORCE_INLINE void B_BUF32(void * const buf, uint32_t const x) { *(uint32_t *) buf = x; }
-static FORCE_INLINE uint32_t B_UNBUF32(void const * const buf) { return *(uint32_t const *) buf; }
-static FORCE_INLINE uint16_t B_UNBUF16(void const * const buf) { return *(uint16_t const *) buf; }
-
 
 
 ////////// Abstract data operations //////////
@@ -222,34 +191,5 @@ void bfirst_search_try(T *const list, uint8_t *const bitmap, T *const eltnumptr,
 #define Xcalloc(nmemb, size) (M_Calloc(nmemb, size))
 #define Xrealloc(ptr, size)  (M_Realloc(ptr, size))
 #define Xfree(ptr) (M_Free(ptr))
-
-////////// Inlined external libraries //////////
-
-/* End dependence on compat.o object. */
-
-inline FSerializer& Serialize(FSerializer& arc, const char* key, vec2_t& c, vec2_t* def)
-{
-    if (def && !memcmp(&c, def, sizeof(c))) return arc;
-    if (arc.BeginObject(key))
-    {
-        arc("x", c.x, def? &def->x : nullptr)
-            ("y", c.y, def ? &def->y : nullptr)
-            .EndObject();
-    }
-    return arc;
-}
-
-inline FSerializer& Serialize(FSerializer& arc, const char* key, vec3_t& c, vec3_t* def)
-{
-    if (def && !memcmp(&c, def, sizeof(c))) return arc;
-    if (arc.BeginObject(key))
-    {
-        arc("x", c.x, def ? &def->x : nullptr)
-            ("y", c.y, def ? &def->y : nullptr)
-            ("z", c.z, def ? &def->z : nullptr)
-            .EndObject();
-    }
-    return arc;
-}
 
 #endif // compat_h_

@@ -998,6 +998,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 			lotsofglass(spr, dawallnum, 70);
 			wal->cstat &= ~16;
 			wal->overpicnum = MIRRORBROKE;
+			wal->portalflags = 0;
 			S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 			return;
 		}

@@ -101,6 +101,7 @@ struct GameInterface
 	virtual int chaseCamX(binangle ang) { return 0; }
 	virtual int chaseCamY(binangle ang) { return 0; }
 	virtual int chaseCamZ(fixedhoriz horiz) { return 0; }
+	virtual void processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) {}
 
 	virtual FString statFPS()
 	{

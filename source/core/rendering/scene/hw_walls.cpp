@@ -27,7 +27,7 @@
 #include "hw_clock.h"
 //#include "hw_lighting.h"
 #include "hw_drawinfo.h"
-//#include "hwrenderer/scene/hw_portal.h"
+#include "hw_portal.h"
 #include "hw_lightbuffer.h"
 #include "hw_renderstate.h"
 #include "hw_skydome.h"
@@ -101,12 +101,10 @@ void HWWall::RenderWall(HWDrawInfo *di, FRenderState &state, int textured)
 
 void HWWall::RenderFogBoundary(HWDrawInfo *di, FRenderState &state)
 {
-#if 0
-	if (gl_fogmode && !di->isFullbrightScene())
+	if (gl_fogmode)// && !di->isFullbrightScene())
 	{
-		int rel = rellight + getExtraLight();
 		state.EnableDrawBufferAttachments(false);
-		di->SetFog(state, lightlevel, rel, false, &Colormap, false);
+		SetLightAndFog(state);
 		state.SetEffect(EFF_FOGBOUNDARY);
 		state.AlphaFunc(Alpha_GEqual, 0.f);
 		state.SetDepthBias(-1, -128);
@@ -115,53 +113,6 @@ void HWWall::RenderFogBoundary(HWDrawInfo *di, FRenderState &state)
 		state.SetEffect(EFF_NONE);
 		state.EnableDrawBufferAttachments(true);
 	}
-#endif
-}
-
-
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
-{
-#if 0
-	if (!TexMan.mirrorTexture.isValid()) return;
-
-	state.SetDepthFunc(DF_LEqual);
-
-	// we use texture coordinates and texture matrix to pass the normal stuff to the shader so that the default vertex buffer format can be used as is.
-	state.EnableTextureMatrix(true);
-
-	// Use sphere mapping for this
-	state.SetEffect(EFF_SPHEREMAP);
-	di->SetColor(state, lightlevel, 0, di->isFullbrightScene(), Colormap, 0.1f);
-	di->SetFog(state, lightlevel, 0, di->isFullbrightScene(), &Colormap, true);
-	state.SetRenderStyle(STYLE_Add);
-	state.AlphaFunc(Alpha_Greater, 0);
-
-	auto tex = TexMan.GetGameTexture(TexMan.mirrorTexture, false);
-	state.SetMaterial(tex, UF_None, 0, CLAMP_NONE, 0, -1); // do not upscale the mirror texture.
-
-	flags &= ~HWWall::HWF_GLOW;
-	RenderWall(di, state, HWWall::RWF_BLANK);
-
-	state.EnableTextureMatrix(false);
-	state.SetEffect(EFF_NONE);
-	state.AlphaFunc(Alpha_GEqual, gl_mask_sprite_threshold);
-
-	state.SetDepthFunc(DF_Less);
-
-	// This is drawn in the translucent pass which is done after the decal pass
-	// As a result the decals have to be drawn here, right after the wall they are on,
-	// because the depth buffer won't get set by translucent items.
-	if (seg->sidedef->AttachedDecals)
-	{
-		DrawDecalsForMirror(di, state, di->Decals[1]);
-	}
-	state.SetRenderStyle(STYLE_Translucent);
-#endif
 }
 
 //==========================================================================
@@ -170,14 +121,8 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 //
 //==========================================================================
 
-void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
+void HWWall::SetLightAndFog(FRenderState& state)
 {
-	//int tmode = state.GetTextureMode();
-
-	state.SetMaterial(texture, UF_Texture, 0, 0/*flags & 3*/, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
-
-	float absalpha = fabsf(alpha);
-
 	// Fog must be done before the texture so that the texture selector can override it.
 	bool foggy = (GlobalMapFog || (fade & 0xffffff));
 	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
@@ -200,6 +145,56 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 
 	// The shade rgb from the tint is ignored here.
 	state.SetColor(PalEntry(255, globalr, globalg, globalb));
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
+{
+	if (!TexMan.mirrorTexture.isValid()) return;
+
+	state.SetDepthFunc(DF_LEqual);
+
+	// we use texture coordinates and texture matrix to pass the normal stuff to the shader so that the default vertex buffer format can be used as is.
+	state.EnableTextureMatrix(true);
+
+	// Use sphere mapping for this
+	state.SetEffect(EFF_SPHEREMAP);
+	SetLightAndFog(state);
+	state.SetColor(PalEntry(25, globalr >> 1, globalg >> 1, globalb >> 1));
+
+	state.SetRenderStyle(STYLE_Add);
+	state.AlphaFunc(Alpha_Greater, 0);
+
+	auto tex = TexMan.GetGameTexture(TexMan.mirrorTexture, false);
+	state.SetMaterial(tex, UF_None, 0, CLAMP_NONE, 0, -1); // do not upscale the mirror texture.
+
+	RenderWall(di, state, HWWall::RWF_BLANK);
+
+	state.EnableTextureMatrix(false);
+	state.SetEffect(EFF_NONE);
+	state.AlphaFunc(Alpha_GEqual, gl_mask_sprite_threshold);
+
+	state.SetDepthFunc(DF_Less);
+	state.SetRenderStyle(STYLE_Translucent);
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
+{
+	//int tmode = state.GetTextureMode();
+
+	state.SetMaterial(texture, UF_Texture, 0, 0/*flags & 3*/, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
+
+	SetLightAndFog(state);
 
 	int h = texture->GetTexelHeight();
 	int h2 = 1 << sizeToBits(h);
@@ -236,13 +231,11 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 
 void HWWall::RenderTranslucentWall(HWDrawInfo *di, FRenderState &state)
 {
-#if 0
 	state.SetRenderStyle(RenderStyle);
 	if (!texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_threshold);
 	else state.AlphaFunc(Alpha_GEqual, 0.f);
 	RenderTexturedWall(di, state, HWWall::RWF_TEXTURED);
 	state.SetRenderStyle(STYLE_Translucent);
-#endif
 }
 
 //==========================================================================
@@ -444,12 +437,12 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 
 void HWWall::PutPortal(HWDrawInfo *di, int ptype, int plane)
 {
-#if 0
 	HWPortal * portal = nullptr;
 
 	MakeVertices(di, false);
 	switch (ptype)
 	{
+#if 0
 		// portals don't go into the draw list.
 		// Instead they are added to the portal manager
 	case PORTALTYPE_HORIZON:
@@ -477,6 +470,7 @@ void HWWall::PutPortal(HWDrawInfo *di, int ptype, int plane)
 		}
 		portal->AddLine(this);
 		break;
+#endif
 
 	case PORTALTYPE_SECTORSTACK:
 		portal = di->FindPortal(this->portal);
@@ -488,6 +482,7 @@ void HWWall::PutPortal(HWDrawInfo *di, int ptype, int plane)
 		portal->AddLine(this);
 		break;
 
+#if 0
 	case PORTALTYPE_PLANEMIRROR:
 		if (portalState.PlaneMirrorMode * planemirror->fC() <= 0)
 		{
@@ -501,14 +496,11 @@ void HWWall::PutPortal(HWDrawInfo *di, int ptype, int plane)
 			portal->AddLine(this);
 		}
 		break;
-
+#endif
 	case PORTALTYPE_MIRROR:
-		portal = di->FindPortal(seg->linedef);
-		if (!portal)
-		{
-			portal = new HWMirrorPortal(&portalState, seg->linedef);
-			di->Portals.Push(portal);
-		}
+		// These are unique. No need to look existing ones up.
+		portal = new HWMirrorPortal(&portalState, seg);
+		di->Portals.Push(portal);
 		portal->AddLine(this);
 		if (gl_mirror_envmap)
 		{
@@ -518,19 +510,16 @@ void HWWall::PutPortal(HWDrawInfo *di, int ptype, int plane)
 		break;
 
 	case PORTALTYPE_LINETOLINE:
-		if (!lineportal)
-			return;
-		portal = di->FindPortal(lineportal);
-		if (!portal)
-		{
-			line_t *otherside = lineportal->lines[0]->mDestination;
-			if (otherside != nullptr && otherside->portalindex < di->Level->linePortals.Size())
-			{
-				di->ProcessActorsInPortal(otherside->getPortal()->mGroup, di->in_area);
-			}
-			portal = new HWLineToLinePortal(&portalState, lineportal);
-			di->Portals.Push(portal);
-		}
+		// These are also unique.
+		portal = new HWLineToLinePortal(&portalState, seg, &wall[seg->portalnum]);
+		di->Portals.Push(portal);
+		portal->AddLine(this);
+		break;
+
+	case PORTALTYPE_LINETOSPRITE:
+		// These are also unique.
+		portal = new HWLineToSpritePortal(&portalState, seg, &sprite[seg->portalnum]);
+		di->Portals.Push(portal);
 		portal->AddLine(this);
 		break;
 
@@ -551,7 +540,6 @@ void HWWall::PutPortal(HWDrawInfo *di, int ptype, int plane)
 	{
 		portal->planesused |= (1<<plane);
 	}
-#endif
 }
 
 //==========================================================================
@@ -891,7 +879,7 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 	// todo: transparency.
 
 	DoTexture(di, wal, wal, refheight, topleft, topright, bottomleft, bottomright);
-	RenderStyle = STYLE_Normal;
+	RenderStyle = STYLE_Translucent;
 	alpha = 1.f;
 }
 
@@ -901,9 +889,9 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 // 
 //
 //==========================================================================
-void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sectortype* backsector)
+void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sectortype* backsector)
 {
-	auto backwall = wal->nextwall >= 0 && wal->nextwall < numwalls? &wall[wal->nextwall] : nullptr;
+	auto backwall = wal->nextwall >= 0 && wal->nextwall < numwalls ? &wall[wal->nextwall] : nullptr;
 	auto p2wall = &wall[wal->point2];
 
 	float fch1;
@@ -917,8 +905,9 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 	PlanesAtPoint(frontsector, wal->x, wal->y, &fch1, &ffh1);
 	PlanesAtPoint(frontsector, p2wall->x, p2wall->y, &fch2, &ffh2);
 
+
 #ifdef _DEBUG
-	if (wal - wall == 7591)
+	if (wal - wall == 843)
 	{
 		int a = 0;
 	}
@@ -949,7 +938,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 	visibility = sectorVisibility(frontsector);
 
 	alpha = 1.0f;
-	RenderStyle = STYLE_Normal;
+	RenderStyle = STYLE_Translucent;
 	texture = NULL;
 
 	/*
@@ -963,33 +952,38 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 
 	bool isportal = false;// wal->linedef->isVisualPortal() && wal->sidedef == wal->linedef->sidedef[0];
 
+	if (seg->portalflags)
+	{
+		int ptype = -1;
+		if (seg->portalflags == PORTAL_WALL_MIRROR) ptype = PORTALTYPE_MIRROR;
+		else if (seg->portalflags == PORTAL_WALL_VIEW) ptype = PORTALTYPE_LINETOLINE;
+		else if (seg->portalflags == PORTAL_WALL_TO_SPRITE) ptype = PORTALTYPE_LINETOSPRITE;
+		if (ptype != -1)
+		{
+			ztop[0] = fch1;
+			ztop[1] = fch2;
+			zbottom[0] = ffh1;
+			zbottom[1] = ffh2;
+			PutPortal(di, ptype, -1);
+			return;
+		}
+	}
+
+
 	if (!backsector || !backwall)
 	{
 		// sector's sky
-		SkyNormal(di, frontsector, v1, v2);
+		SkyNormal(di, frontsector, v1, v2, fch1, fch2, ffh1, ffh2);
 
-		/*
-		if (isportal)
-		{
-			lineportal = wal->linedef->getPortal()->mGroup;
-			ztop[0] = zceil[0];
-			ztop[1] = zceil[1];
-			zbottom[0] = zfloor[0];
-			zbottom[1] = zfloor[1];
-			PutPortal(di, PORTALTYPE_LINETOLINE, -1);
-		}
-		else
-		*/
-		{
-			// normal texture
+		// normal texture
 
-			int tilenum = (wal->cstat & CSTAT_WALL_1WAY) ? wal->overpicnum : wal->picnum;
-			tileUpdatePicnum(&tilenum, int(wal-wall) + 16384, wal->cstat);
-			texture = tileGetTexture(tilenum);
-			if (texture && texture->isValid())
-			{
-				DoOneSidedTexture(di, wal, frontsector, backsector, fch1, fch2, ffh1, ffh2);
-			}
+		int tilenum = (wal->cstat & CSTAT_WALL_1WAY) ? wal->overpicnum : wal->picnum;
+		setgotpic(tilenum);
+		tileUpdatePicnum(&tilenum, int(wal-wall) + 16384, wal->cstat);
+		texture = tileGetTexture(tilenum);
+		if (texture && texture->isValid())
+		{
+			DoOneSidedTexture(di, wal, frontsector, backsector, fch1, fch2, ffh1, ffh2);
 		}
 	}
 	else // two sided
@@ -1003,8 +997,11 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 
 		float zalign = 0.f;
 
-		SkyTop(di, wal, frontsector, backsector, v1, v2);
-		SkyBottom(di, wal, frontsector, backsector, v1, v2);
+		if (fch1 > ffh1 || fch2 > ffh2)
+		{
+			SkyTop(di, wal, frontsector, backsector, v1, v2, fch1, fch2);
+			SkyBottom(di, wal, frontsector, backsector, v1, v2, ffh1, ffh2);
+		}
 
 		// upper texture
 		if (!(frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY))
@@ -1021,6 +1018,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 			if (bch1a < fch1 || bch2a < fch2)
 			{
 				int tilenum = wal->picnum;
+				setgotpic(tilenum);
 				tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, wal->cstat);
 				texture = tileGetTexture(tilenum);
 				if (texture && texture->isValid())
@@ -1030,21 +1028,10 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 			}
 		}
 
-		/*
-		if (isportal)
-		{
-			lineportal = wal->linedef->getPortal()->mGroup;
-			ztop[0] = bch1;
-			ztop[1] = bch2;
-			zbottom[0] = bfh1;
-			zbottom[1] = bfh2;
-			PutPortal(di, PORTALTYPE_LINETOLINE, -1);
-		}
-		else*/
-
 		if (wal->cstat & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY))
 		{
 			int tilenum = wal->overpicnum;
+			setgotpic(tilenum);
 			tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, wal->cstat);
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())
@@ -1067,6 +1054,7 @@ void HWWall::Process(HWDrawInfo *di, walltype *wal, sectortype* frontsector, sec
 			{
 				auto w = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? backwall : wal;
 				int tilenum = w->picnum;
+				setgotpic(tilenum);
 				tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, w->cstat);
 				texture = tileGetTexture(tilenum);
 				if (texture && texture->isValid())

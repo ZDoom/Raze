@@ -1776,6 +1776,41 @@ static void polymost_drawalls(int32_t const bunch)
     }
 }
 
+//
+// wallfront (internal)
+//
+int32_t wallfront(int32_t l1, int32_t l2)
+{
+    vec2_t const l1vect = wall[thewall[l1]].pos;
+    vec2_t const l1p2vect = wall[wall[thewall[l1]].point2].pos;
+    vec2_t const l2vect = wall[thewall[l2]].pos;
+    vec2_t const l2p2vect = wall[wall[thewall[l2]].point2].pos;
+    vec2_t d = { l1p2vect.x - l1vect.x, l1p2vect.y - l1vect.y };
+    int32_t t1 = DMulScale(l2vect.x - l1vect.x, d.y, -d.x, l2vect.y - l1vect.y, 2); //p1(l2) vs. l1
+    int32_t t2 = DMulScale(l2p2vect.x - l1vect.x, d.y, -d.x, l2p2vect.y - l1vect.y, 2); //p2(l2) vs. l1
+
+    if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
+    if (t2 == 0) t2 = t1;
+
+    if ((t1 ^ t2) >= 0) //pos vs. l1
+        return (DMulScale(globalposx - l1vect.x, d.y, -d.x, globalposy - l1vect.y, 2) ^ t1) >= 0;
+
+    d.x = l2p2vect.x - l2vect.x;
+    d.y = l2p2vect.y - l2vect.y;
+
+    t1 = DMulScale(l1vect.x - l2vect.x, d.y, -d.x, l1vect.y - l2vect.y, 2); //p1(l1) vs. l2
+    t2 = DMulScale(l1p2vect.x - l2vect.x, d.y, -d.x, l1p2vect.y - l2vect.y, 2); //p2(l1) vs. l2
+
+    if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
+    if (t2 == 0) t2 = t1;
+
+    if ((t1 ^ t2) >= 0) //pos vs. l2
+        return (DMulScale(globalposx - l2vect.x, d.y, -d.x, globalposy - l2vect.y, 2) ^ t1) < 0;
+
+    return -2;
+}
+
+
 static int32_t polymost_bunchfront(const int32_t b1, const int32_t b2)
 {
     int b1f = bunchfirst[b1];
@@ -2040,7 +2075,7 @@ void polymost_drawrooms()
 {
     polymost_outputGLDebugMessage(3, "polymost_drawrooms()");
 
-	GLInterface.ClearDepth();
+    GLInterface.ClearDepth();
     GLInterface.EnableBlend(false);
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(true);
@@ -2442,7 +2477,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
     gvrcorrection = viewingrange*(1.f/65536.f);
     //if (glprojectionhacks == 2)
     {
-        // calculates the extend of the zenith glitch
+        // calculates the extent of the zenith glitch
         float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
         float verticalfov = atanf(verticalfovtan) * (2.f / pi::pi());
         static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees

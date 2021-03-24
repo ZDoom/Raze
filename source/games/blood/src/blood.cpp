@@ -304,7 +304,6 @@ void GameInterface::Ticker()
 		viewCorrectPrediction();
 		ambProcess();
 		viewUpdateDelirium();
-		viewUpdateShake();
 		gi->UpdateSounds();
 		if (gMe->hand == 1)
 		{

@@ -40,7 +40,6 @@
 #include "gamefuncs.h"
 
 
-
 //==========================================================================
 //
 //
@@ -54,12 +53,12 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view)
 	viewx = view.x * (1/ 16.f);
 	viewy = view.y * -(1/ 16.f);
 	StartScene();
-	clipper->SetViewpoint(DVector2(viewx, viewy));
+	clipper->SetViewpoint(view);
 	for (int i = 0; i < numwalls; i++)
 	{
 		// Precalculate the clip angles to avoid doing this repeatedly during level traversal.
 		// Reverse the orientation so that startangle and endangle are properly ordered.
-		wall[i].clipangle = 0 - clipper->PointToPseudoAngle(wall[i].x * (1 / 16.f), wall[i].y * (-1 / 16.f));
+		wall[i].clipangle = clipper->PointToAngle(wall[i].pos);
 	}
 }
 
@@ -84,7 +83,7 @@ void BunchDrawer::StartScene()
 //
 //==========================================================================
 
-void BunchDrawer::StartBunch(int sectnum, int linenum, angle_t startan, angle_t endan)
+void BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangle endan)
 {
 	FBunch* bunch = &Bunches[LastBunch = Bunches.Reserve(1)];
 
@@ -100,7 +99,7 @@ void BunchDrawer::StartBunch(int sectnum, int linenum, angle_t startan, angle_t 
 //
 //==========================================================================
 
-void BunchDrawer::AddLineToBunch(int line, int newan)
+void BunchDrawer::AddLineToBunch(int line, binangle newan)
 {
 	Bunches[LastBunch].endline++;
 	Bunches[LastBunch].endangle = newan;
@@ -120,9 +119,23 @@ void BunchDrawer::DeleteBunch(int index)
 
 bool BunchDrawer::CheckClip(walltype* wal)
 {
+#ifdef _DEBUG
+	if (wal - wall == 843 || wal - wall == 847)
+	{
+		int a = 0;
+	}
+#endif
+
+
+
 	auto pt2 = &wall[wal->point2];
 	sectortype* backsector = &sector[wal->nextsector];
 	sectortype* frontsector = &sector[wall[wal->nextwall].nextsector];
+
+	// if one plane is sky on both sides, the line must not clip.
+	if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY) return false;
+	if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY) return false;
+
 	float bs_floorheight1;
 	float bs_floorheight2;
 	float bs_ceilingheight1;
@@ -145,22 +158,18 @@ bool BunchDrawer::CheckClip(walltype* wal)
 	if (bs_ceilingheight1 <= fs_floorheight1 && bs_ceilingheight2 <= fs_floorheight2)
 	{
 		// backsector's ceiling is below frontsector's floor.
-		if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY) return false; 
 		return true;
 	}
 
 	if (fs_ceilingheight1 <= bs_floorheight1 && fs_ceilingheight2 <= bs_floorheight2) 
 	{
 		// backsector's floor is above frontsector's ceiling
-		if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY) return false;
 		return true;
 	}
 
 	if (bs_ceilingheight1 <= bs_floorheight1 && bs_ceilingheight2 <= bs_floorheight2) 
 	{
 		// backsector is closed
-		if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY) return false;
-		if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY) return false;
 		return true;
 	}
 
@@ -176,14 +185,13 @@ bool BunchDrawer::CheckClip(walltype* wal)
 
 int BunchDrawer::ClipLine(int line)
 {
-	angle_t startAngle, endAngle;
 	auto wal = &wall[line];
 
-	startAngle = wal->clipangle;
-	endAngle = wall[wal->point2].clipangle;
+	auto startAngle = wal->clipangle;
+	auto endAngle = wall[wal->point2].clipangle;
 
 	// Back side, i.e. backface culling	- read: endAngle >= startAngle!
-	if (startAngle - endAngle < ANGLE_180)
+	if (startAngle.asbam() - endAngle.asbam() < ANGLE_180)
 	{
 		return CL_Skip;
 	}
@@ -229,8 +237,7 @@ void BunchDrawer::ProcessBunch(int bnch)
 				SetupWall.Clock();
 
 				HWWall hwwall;
-				//Printf("Rendering wall %d\n", i);
-				hwwall.Process(di, &wall[i], &sector[bunch->sectnum], wall[i].nextsector<0? nullptr : &sector[wall[i].nextsector]);
+				hwwall.Process(di, &wall[i], &sector[bunch->sectnum], wall[i].nextsector < 0 ? nullptr : &sector[wall[i].nextsector]);
 				rendered_lines++;
 
 				SetupWall.Unclock();
@@ -315,9 +322,9 @@ int BunchDrawer::WallInFront(int wall1, int wall2)
 
 int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 {
-	angle_t anglecheck, endang;
+	binangle anglecheck, endang;
 
-	if (b2->startangle - b1->startangle < b1->endangle - b1->startangle)
+	if (b2->startangle.asbam() - b1->startangle.asbam() < b1->endangle.asbam() - b1->startangle.asbam())
 	{
 		// we have an overlap at b2->startangle
 		anglecheck = b2->startangle - b1->startangle;
@@ -326,7 +333,7 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 		for (int i = b1->startline; i <= b1->endline; i++)
 		{
 			endang = wall[wall[i].point2].clipangle - b1->startangle;
-			if (endang > anglecheck)
+			if (endang.asbam() > anglecheck.asbam())
 			{
 				// found a line
 				int ret = WallInFront(b2->startline, i);
@@ -334,7 +341,7 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 			}
 		}
 	}
-	else if (b1->startangle - b2->startangle < b2->endangle - b2->startangle)
+	else if (b1->startangle.asbam() - b2->startangle.asbam() < b2->endangle.asbam() - b2->startangle.asbam())
 	{
 		// we have an overlap at b1->startangle
 		anglecheck = b1->startangle - b2->startangle;
@@ -343,7 +350,7 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 		for (int i = b2->startline; i <= b2->endline; i++)
 		{
 			endang = wall[wall[i].point2].clipangle - b2->startangle;
-			if (endang > anglecheck)
+			if (endang.asbam() > anglecheck.asbam())
 			{
 				// found a line
 				int ret = WallInFront(i, b1->startline);
@@ -392,7 +399,7 @@ int BunchDrawer::FindClosestBunch()
 			closest = CompareData[i];
 			CompareData[i] = CompareData.Last();
 			CompareData.Pop();
-			i = 0;	// we need to recheck everything that's still marked.
+			i = -1;	// we need to recheck everything that's still marked. -1 because this will get incremented before being used.
 			continue;
 
 		case 1:	// is behind
@@ -424,7 +431,7 @@ void BunchDrawer::ProcessSector(int sectnum)
 
 	auto sect = &sector[sectnum];
 	bool inbunch;
-	angle_t startangle;
+	binangle startangle;
 
 	SetupFlat.Clock();
 	HWFlat flat;
@@ -442,20 +449,22 @@ void BunchDrawer::ProcessSector(int sectnum)
 		DVector2 start = { WallStartX(thiswall), WallStartY(thiswall) };
 		DVector2 end = { WallStartX(thiswall->point2), WallStartY(thiswall->point2) };
 #endif
-		angle_t ang1 = thiswall->clipangle;
-		angle_t ang2 = wall[thiswall->point2].clipangle;
+		binangle ang1 = thiswall->clipangle;
+		binangle ang2 = wall[thiswall->point2].clipangle;
 
-		if (ang1 - ang2 < ANGLE_180)
+		if (ang1.asbam() - ang2.asbam() < ANGLE_180)
 		{
 			// Backside
 			inbunch = false;
 		}
+		/* disabled because it only fragments the bunches without any performance gain.
 		else if (!clipper->SafeCheckRange(ang1, ang2))
 		{
 			// is it visible?
 			inbunch = false;
 		}
-		else if (!inbunch || ang2 - startangle >= ANGLE_180)
+		*/
+		else if (!inbunch || ang2.asbam() - startangle.asbam() >= ANGLE_180)
 		{
 			// don't let a bunch span more than 180° to avoid problems.
 			// This limitation ensures that the combined range of 2

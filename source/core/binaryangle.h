@@ -40,8 +40,8 @@
 #include "m_fixed.h"
 #include "xs_Float.h"	// needed for reliably overflowing float->int conversions.
 #include "serializer.h"
-#include "build.h"
 #include "math/cmath.h"
+#include "templates.h"
 
 class FSerializer;
 
@@ -61,6 +61,7 @@ enum
 constexpr double BAngRadian = pi::pi() * (1. / 1024.);
 constexpr double BRadAngScale = 1. / BAngRadian;
 
+extern int16_t sintable[2048];
 
 //---------------------------------------------------------------------------
 //
@@ -345,7 +346,6 @@ public:
 	{
 		return binangle(value >> shift);
 	}
-
 };
 
 inline constexpr binangle bamang(uint32_t v) { return binangle(v); }
@@ -511,11 +511,11 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj
 //
 //---------------------------------------------------------------------------
 
-inline double bradarangf(const double& vect)
+inline double bradarangf(double vect)
 {
 	return atan(vect) * BRadAngScale;
 }
-inline double bvectangf(const int32_t& x, const int32_t& y)
+inline double bvectangf(int32_t x, int32_t y)
 {
 	if ((x | y) == 0)
 	{
@@ -546,15 +546,15 @@ inline double bvectangf(const int32_t& x, const int32_t& y)
 		return fmod(bradarangf(double(x) / -y) + 512 + ((y < 0) << 10), 2048.);
 	}
 }
-inline int32_t bvectang(const int32_t& x, const int32_t& y)
+inline int32_t bvectang(int32_t x, int32_t y)
 {
 	return xs_CRoundToInt(bvectangf(x, y));
 }
-inline fixed_t bvectangq16(const int32_t& x, const int32_t& y)
+inline fixed_t bvectangq16(int32_t x, int32_t y)
 {
 	return FloatToFixed(bvectangf(x, y));
 }
-inline binangle bvectangbam(const int32_t& x, const int32_t& y)
+inline binangle bvectangbam(int32_t x, int32_t y)
 {
 	return bamang(xs_CRoundToUInt(bvectangf(x, y) * BAMUNIT));
 }

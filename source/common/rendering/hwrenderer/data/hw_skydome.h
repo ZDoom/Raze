@@ -11,6 +11,12 @@ class IVertexBuffer;
 struct HWSkyPortal;
 struct HWDrawInfo;
 
+// 57 world units roughly represent one sky texel for the glTranslate call.
+enum
+{
+	skyoffsetfactor = 57
+};
+
 struct FSkyVertex
 {
 	float x, y, z, u, v;
@@ -71,7 +77,7 @@ public:
 
 	FSkyVertexBuffer();
 	~FSkyVertexBuffer();
-	void SetupMatrices(FGameTexture *tex, float x_offset, float y_offset, bool mirror, int mode, VSMatrix &modelmatrix, VSMatrix &textureMatrix, bool tiled);
+	void SetupMatrices(FGameTexture *tex, float x_offset, float y_offset, bool mirror, int mode, VSMatrix &modelmatrix, VSMatrix &textureMatrix, bool tiled, float xscale = 0, float vertscale = 0);
 	std::pair<IVertexBuffer *, IIndexBuffer *> GetBufferObjects() const
 	{
 		return std::make_pair(mVertexBuffer, nullptr);
@@ -84,7 +90,8 @@ public:
 	}
 
 	void RenderRow(FRenderState& state, EDrawType prim, int row, bool apply = true);
-	void RenderDome(FRenderState& state, FGameTexture* tex, float x_offset, float y_offset, bool mirror, int mode, bool tiled);
-	void RenderBox(FRenderState& state, FTextureID texno, FSkyBox* tex, float x_offset, bool sky2, float stretch, const FVector3& skyrotatevector, const FVector3& skyrotatevector2);
+	void RenderDome(FRenderState& state, FGameTexture* tex, int mode);
+	void RenderDome(FRenderState& state, FGameTexture* tex, float x_offset, float y_offset, bool mirror, int mode, bool tiled, float xscale = 0, float yscale = 0);
+	void RenderBox(FRenderState& state, FSkyBox* tex, float x_offset, bool sky2, float stretch, const FVector3& skyrotatevector, const FVector3& skyrotatevector2);
 
 };

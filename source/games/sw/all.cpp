@@ -60,3 +60,5 @@
 #include "src/zilla.cpp"
 #include "src/zombie.cpp"
 #include "src/d_menu.cpp"
+
+#include "src/_polymost.cpp"

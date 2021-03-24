@@ -117,7 +117,7 @@ HWDrawInfo *HWDrawInfo::StartDrawInfo(HWDrawInfo *parent, FRenderViewpoint &pare
 static Clipper staticClipper;		// Since all scenes are processed sequentially we only need one clipper.
 static HWDrawInfo * gl_drawinfo;	// This is a linked list of all active DrawInfos and needed to free the memory arena after the last one goes out of scope.
 
-void HWDrawInfo::StartScene(FRenderViewpoint &parentvp, HWViewpointUniforms *uniforms)
+void HWDrawInfo::StartScene(FRenderViewpoint& parentvp, HWViewpointUniforms* uniforms)
 {
 	staticClipper.Clear();
 	mClipper = &staticClipper;
@@ -143,7 +143,8 @@ void HWDrawInfo::StartScene(FRenderViewpoint &parentvp, HWViewpointUniforms *uni
 		VPUniforms.mClipLine.X = -10000000.0f;
 		VPUniforms.mShadowmapFilter = gl_shadowmap_filter;
 	}
-	mClipper->SetViewpoint(Viewpoint.Pos.XY());
+	vec2_t view = { int(Viewpoint.Pos.X * 16), int(Viewpoint.Pos.Y * -16) };
+	mClipper->SetViewpoint(view);
 
 	ClearBuffers();
 
@@ -294,12 +295,10 @@ void HWDrawInfo::CreateScene()
 	const auto& vp = Viewpoint;
 
 	angle_t a1 = FrustumAngle();
-	mClipper->SafeAddClipRangeRealAngles(vp.RotAngle + a1, vp.RotAngle - a1);
+	mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
 
-#if 0
 	// reset the portal manager
 	portalState.StartFrame();
-#endif
 
 	ProcessAll.Clock();
 
@@ -310,10 +309,6 @@ void HWDrawInfo::CreateScene()
 	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
 	mDrawer.Init(this, mClipper, view);
 	mDrawer.RenderScene(vp.SectNum);
-
-	// And now the crappy hacks that have to be done to avoid rendering anomalies.
-	// These cannot be multithreaded when the time comes because all these depend
-	// on the global 'validcount' variable.
 
 	screen->mLights->Unmap();
 	screen->mVertexData->Unmap();
@@ -423,7 +418,6 @@ void HWDrawInfo::RenderTranslucent(FRenderState &state)
 
 void HWDrawInfo::RenderPortal(HWPortal *p, FRenderState &state, bool usestencil)
 {
-#if 0
 	auto gp = static_cast<HWPortal *>(p);
 	gp->SetupStencil(this, state, usestencil);
 	auto new_di = StartDrawInfo(this, Viewpoint, &VPUniforms);
@@ -434,7 +428,6 @@ void HWDrawInfo::RenderPortal(HWPortal *p, FRenderState &state, bool usestencil)
 	state.SetVertexBuffer(screen->mVertexData);
 	screen->mViewpoints->Bind(state, vpIndex);
 	gp->RemoveStencil(this, state, usestencil);
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -528,9 +521,8 @@ void HWDrawInfo::DrawScene(int drawmode)
 	auto& RenderState = *screen->RenderState();
 
 	RenderState.SetDepthMask(true);
-#if 0
+
 	if (!gl_no_skyclear) portalState.RenderFirstSkyPortal(recursion, this, RenderState);
-#endif
 
 	RenderScene(RenderState);
 
@@ -543,9 +535,7 @@ void HWDrawInfo::DrawScene(int drawmode)
 	// Handle all portals after rendering the opaque objects but before
 	// doing all translucent stuff
 	recursion++;
-#if 0
 	portalState.EndFrame(this, RenderState);
-#endif
 	recursion--;
 	RenderTranslucent(RenderState);
 }
@@ -559,28 +549,6 @@ void HWDrawInfo::DrawScene(int drawmode)
 
 void HWDrawInfo::ProcessScene(bool toscreen)
 {
-#if 0
 	portalState.BeginScene();
-#endif
 	DrawScene(toscreen ? DM_MAINVIEW : DM_OFFSCREEN);
 }
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-/*
-void HWDrawInfo::AddSubsectorToPortal(FSectorPortalGroup *ptg, subsector_t *sub)
-{
-	auto portal = FindPortal(ptg);
-	if (!portal)
-	{
-        portal = new HWSectorStackPortal(&portalState, ptg);
-		Portals.Push(portal);
-	}
-    auto ptl = static_cast<HWSectorStackPortal*>(portal);
-	ptl->AddSubsector(sub);
-}
-*/
-

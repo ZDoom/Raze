@@ -741,17 +741,17 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
         }
         for (i = head.numtris-1; i>=0; i--)
         {
-            m->tris[i].v[0] = B_LITTLE16(m->tris[i].v[0]);
-            m->tris[i].v[1] = B_LITTLE16(m->tris[i].v[1]);
-            m->tris[i].v[2] = B_LITTLE16(m->tris[i].v[2]);
-            m->tris[i].u[0] = B_LITTLE16(m->tris[i].u[0]);
-            m->tris[i].u[1] = B_LITTLE16(m->tris[i].u[1]);
-            m->tris[i].u[2] = B_LITTLE16(m->tris[i].u[2]);
+            m->tris[i].v[0] = LittleShort(m->tris[i].v[0]);
+            m->tris[i].v[1] = LittleShort(m->tris[i].v[1]);
+            m->tris[i].v[2] = LittleShort(m->tris[i].v[2]);
+            m->tris[i].u[0] = LittleShort(m->tris[i].u[0]);
+            m->tris[i].u[1] = LittleShort(m->tris[i].u[1]);
+            m->tris[i].u[2] = LittleShort(m->tris[i].u[2]);
         }
         for (i = head.numuv-1; i>=0; i--)
         {
-            m->uv[i].u = B_LITTLE16(m->uv[i].u);
-            m->uv[i].v = B_LITTLE16(m->uv[i].v);
+            m->uv[i].u = LittleShort(m->uv[i].u);
+            m->uv[i].v = LittleShort(m->uv[i].v);
         }
     }
 #endif
@@ -1069,9 +1069,9 @@ static md3model_t *md3load(FileReader & fil)
             }
             for (i=s->numframes*s->numverts-1; i>=0; i--)
             {
-                s->xyzn[i].x = (int16_t)B_LITTLE16((uint16_t)s->xyzn[i].x);
-                s->xyzn[i].y = (int16_t)B_LITTLE16((uint16_t)s->xyzn[i].y);
-                s->xyzn[i].z = (int16_t)B_LITTLE16((uint16_t)s->xyzn[i].z);
+                s->xyzn[i].x = (int16_t)LittleShort((uint16_t)s->xyzn[i].x);
+                s->xyzn[i].y = (int16_t)LittleShort((uint16_t)s->xyzn[i].y);
+                s->xyzn[i].z = (int16_t)LittleShort((uint16_t)s->xyzn[i].z);
             }
         }
 #endif

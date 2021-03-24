@@ -5,18 +5,25 @@
 #include "hw_drawstructs.h"
 #include "hw_renderstate.h"
 #include "hw_material.h"
+#include "render.h"
 
 class FSkyBox;
 
+enum
+{
+	plane_floor,
+	plane_ceiling
+};
+
+
+
 struct HWSkyInfo
 {
-	float x_offset[2];
-	float y_offset;		// doubleskies don't have a y-offset
-	FGameTexture * texture[2];
-	FTextureID skytexno1;
-	bool mirrored;
-	bool doublesky;
-	bool sky2;
+	float x_offset;
+	float y_offset;
+	float y_scale;
+	int shade;
+	FGameTexture * texture;
 	PalEntry fadecolor;
 
 	bool operator==(const HWSkyInfo & inf)
@@ -27,7 +34,6 @@ struct HWSkyInfo
 	{
 		return !!memcmp(this, &inf, sizeof(*this));
 	}
-	void init(HWDrawInfo *di, int sky1, PalEntry fadecolor);
 };
 
 struct HWHorizonInfo
@@ -143,7 +149,7 @@ public:
     }
     virtual ~HWPortal() {}
     virtual int ClipSeg(walltype *seg, const DVector3 &viewpos) { return PClip_Inside; }
-    virtual int ClipSubsector(sectortype *sub) { return PClip_Inside; }
+    virtual int ClipSector(sectortype *sub) { return PClip_Inside; }
     virtual int ClipPoint(const DVector2 &pos) { return PClip_Inside; }
     virtual walltype *ClipLine() { return nullptr; }
 	virtual void * GetSource() const = 0;	// GetSource MUST be implemented!
@@ -229,19 +235,22 @@ public:
 
 struct HWLinePortal : public HWScenePortalBase
 {
+protected:
 	// this must be the same as at the start of line_t, so that we can pass in this structure directly to P_ClipLineToPortal.
 	walltype* line;
+	/*
 	vec2_t	*v1, *v2;	// vertices, from v1 to v2
 	DVector2	delta;		// precalculated v2 - v1 for side checking
 
 	angle_t		angv1, angv2;	// for quick comparisons with a line or subsector
+	*/
 
 	HWLinePortal(FPortalSceneState *state, walltype *line) : HWScenePortalBase(state)
 	{
 		this->line = line;
-		v1 = &line->pos;
-		v2 = &wall[line->point2].pos;
-		CalcDelta();
+		//v1 = &line->pos;
+		//v2 = &wall[line->point2].pos;
+		//CalcDelta();
 	}
 
 	void CalcDelta()
@@ -250,7 +259,7 @@ struct HWLinePortal : public HWScenePortalBase
 	}
 
 	int ClipSeg(walltype *seg, const DVector3 &viewpos) override;
-	int ClipSubsector(sectortype *sub) override;
+	int ClipSector(sectortype *sub) override;
 	int ClipPoint(const DVector2 &pos);
 	bool NeedCap() override { return false; }
 };
@@ -275,22 +284,43 @@ public:
 
 struct HWLineToLinePortal : public HWLinePortal
 {
+	walltype* origin;
 protected:
 	bool Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clipper) override;
-	virtual void * GetSource() const override { return line; }
+	virtual void * GetSource() const override { return origin; }
 	virtual const char *GetName() override;
 	virtual walltype *ClipLine() override { return line; }
-	virtual void RenderAttached(HWDrawInfo *di) override;
 
 public:
 
-	HWLineToLinePortal(FPortalSceneState *state, walltype *ll)
-		: HWLinePortal(state, ll)
+	HWLineToLinePortal(FPortalSceneState *state, walltype* from, walltype *to)
+		: HWLinePortal(state, to), origin(from)
 	{
 	}
 };
 
+struct HWLineToSpritePortal : public HWLinePortal
+{
+	walltype* origin;
+	spritetype* camera;
+protected:
+	bool Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* clipper) override;
+	virtual void* GetSource() const override { return origin; }
+	virtual const char* GetName() override;
+	virtual walltype* ClipLine() override { return line; }
 
+public:
+
+	HWLineToSpritePortal(FPortalSceneState* state, walltype* from, spritetype* to)
+		: HWLinePortal(state, &wall[numwalls]), origin(from), camera(to)
+	{
+		// todo: set up two fake walls at the end of the walls array to be used for backside clipping.
+		// Not really needed for vanilla support but maybe later for feature enhancement.
+	}
+};
+
+
+#if 0
 struct HWSkyboxPortal : public HWScenePortalBase
 {
 	bool oldclamp;
@@ -314,6 +344,7 @@ public:
 	}
 
 };
+#endif
 
 
 struct HWSectorStackPortal : public HWScenePortalBase
@@ -325,22 +356,19 @@ protected:
 	virtual void * GetSource() const { return origin; }
 	virtual bool IsSky() { return true; }	// although this isn't a real sky it can be handled as one.
 	virtual const char *GetName();
-	FSectorPortalGroup *origin;
+	PortalDesc *origin;
 
 public:
 
-	HWSectorStackPortal(FPortalSceneState *state, FSectorPortalGroup *pt) : HWScenePortalBase(state)
+	HWSectorStackPortal(FPortalSceneState *state, PortalDesc *pt) : HWScenePortalBase(state)
 	{
 		origin = pt;
 	}
-	void SetupCoverage(HWDrawInfo *di);
-	void AddSector(sectortype *sub)
-	{
-		sectors.Push(sub);
-	}
+	//void SetupCoverage(HWDrawInfo *di);
 
 };
 
+#if 0
 struct HWPlaneMirrorPortal : public HWScenePortalBase
 {
 	int old_pm;
@@ -359,8 +387,9 @@ public:
 	}
 
 };
+#endif
 
-
+#if 0
 struct HWHorizonPortal : public HWPortal
 {
 	HWHorizonInfo * origin;
@@ -379,6 +408,7 @@ public:
 	
 	HWHorizonPortal(FPortalSceneState *state, HWHorizonInfo * pt, FRenderViewpoint &vp, bool local = false);
 };
+#endif
 
 struct HWSkyPortal : public HWPortal
 {

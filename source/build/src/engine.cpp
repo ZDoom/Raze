@@ -72,10 +72,6 @@ int32_t globalflags;
 
 static int8_t tempbuf[MAXWALLS];
 
-// referenced from asm
-intptr_t asm1, asm2;
-int32_t globalx1, globaly2, globalx3, globaly3;
-
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
 static int32_t qradarang[10240];
@@ -144,10 +140,7 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
     *closest = { (int32_t)(w.x + ((d.x * i) >> 30)), (int32_t)(w.y + ((d.y * i) >> 30)) };
 }
 
-int32_t xb1[MAXWALLSB];  // Polymost uses this as a temp array
-int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
 int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
-
 int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
 
@@ -178,16 +171,12 @@ static int32_t globaly1, globalx2;
 int16_t sectorborder[256];
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 
-int32_t halfxdim16, midydim16;
-
 static_assert(MAXWALLSB < INT16_MAX);
 int16_t numscans, numbunches;
 static int16_t numhits;
 
 bool inpreparemirror = 0;
 static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
-
-#define MAXSETVIEW 4
 
 
 //
@@ -208,40 +197,6 @@ int32_t renderAddTsprite(int16_t z, int16_t sectnum)
     return 0;
 }
 
-
-//
-// wallfront (internal)
-//
-int32_t wallfront(int32_t l1, int32_t l2)
-{
-    vec2_t const l1vect   = wall[thewall[l1]].pos;
-    vec2_t const l1p2vect = wall[wall[thewall[l1]].point2].pos;
-    vec2_t const l2vect   = wall[thewall[l2]].pos;
-    vec2_t const l2p2vect = wall[wall[thewall[l2]].point2].pos;
-    vec2_t d = { l1p2vect.x - l1vect.x, l1p2vect.y - l1vect.y };
-    int32_t t1 = DMulScale(l2vect.x-l1vect.x, d.y, -d.x, l2vect.y-l1vect.y, 2); //p1(l2) vs. l1
-    int32_t t2 = DMulScale(l2p2vect.x-l1vect.x, d.y, -d.x, l2p2vect.y-l1vect.y, 2); //p2(l2) vs. l1
-
-    if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
-    if (t2 == 0) t2 = t1;
-
-    if ((t1^t2) >= 0) //pos vs. l1
-        return (DMulScale(globalposx-l1vect.x, d.y, -d.x, globalposy-l1vect.y, 2) ^ t1) >= 0;
-
-    d.x = l2p2vect.x-l2vect.x;
-    d.y = l2p2vect.y-l2vect.y;
-
-    t1 = DMulScale(l1vect.x-l2vect.x, d.y, -d.x, l1vect.y-l2vect.y, 2); //p1(l1) vs. l2
-    t2 = DMulScale(l1p2vect.x-l2vect.x, d.y, -d.x, l1p2vect.y-l2vect.y, 2); //p2(l1) vs. l2
-
-    if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
-    if (t2 == 0) t2 = t1;
-
-    if ((t1^t2) >= 0) //pos vs. l2
-        return (DMulScale(globalposx-l2vect.x,d.y,-d.x,globalposy-l2vect.y, 2) ^ t1) < 0;
-
-    return -2;
-}
 
 //
 // animateoffs (internal)
@@ -889,78 +844,39 @@ void set_globalang(fixed_t const ang)
 //
 EXTERN_CVAR(Int, gl_fogmode)
 CVAR(Bool, testnewrenderer, true, 0)
-CVAR(Bool, testnewinterface, true, 0)
 
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
                            fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
 {
-    for (int i = 0; i < numwalls; ++i)
-    {
-        if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
-        {
-            auto& w = wall[i];
-            auto& tile = RotTile(w.picnum + animateoffs(w.picnum, 16384));
-
-            if (tile.newtile == -1 && tile.owner == -1)
-            {
-                auto owner = w.picnum + animateoffs(w.picnum, 16384);
-
-                tile.newtile = TileFiles.tileCreateRotated(owner);
-                assert(tile.newtile != -1);
-
-                RotTile(tile.newtile).owner = w.picnum + animateoffs(w.picnum, 16384);
-
-            }
-        }
-    }
-
-
-    int32_t i;
+    checkRotatedWalls();
 
     if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.
+
+    // Update starting sector number (common to classic and Polymost).
+    // ADJUST_GLOBALCURSECTNUM.
+    if (dacursectnum >= MAXSECTORS)
+        dacursectnum -= MAXSECTORS;
+    else
+    {
+        int i = dacursectnum;
+        updatesector(daposx, daposy, &dacursectnum);
+        if (dacursectnum < 0) dacursectnum = i;
+
+        // PK 20110123: I'm not sure what the line above is supposed to do, but 'i'
+        //              *can* be negative, so let's just quit here in that case...
+        if (dacursectnum < 0)
+            return 0;
+    }
 
     set_globalpos(daposx, daposy, daposz);
     set_globalang(daang);
 
     global100horiz = dahoriz;
 
-    // xdimenscale is Scale(xdimen,yxaspect,320);
-    // normalization by viewingrange so that center-of-aim doesn't depend on it
-    qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16)+IntToFixed(ydimen>>1);
-
-    globalcursectnum = dacursectnum;
-
     memset(gotsector, 0, sizeof(gotsector));
-
-    i = xdimen-1;
-
-    // Update starting sector number (common to classic and Polymost).
-    // ADJUST_GLOBALCURSECTNUM.
-    if (globalcursectnum >= MAXSECTORS)
-        globalcursectnum -= MAXSECTORS;
-    else
-    {
-        i = globalcursectnum;
-        updatesector(globalposx,globalposy,&globalcursectnum);
-        if (globalcursectnum < 0) globalcursectnum = i;
-
-        // PK 20110123: I'm not sure what the line above is supposed to do, but 'i'
-        //              *can* be negative, so let's just quit here in that case...
-        if (globalcursectnum<0)
-            return 0;
-    }
-
-    if (!testnewrenderer)
-    {
-        Polymost::polymost_drawrooms();
-    }
-    else
-    {
-        vec3_t pos = { daposx, daposy, daposz };
-        //if (!testnewinterface) render_drawrooms_(pos, globalcursectnum, daang, dahoriz, rollang, r_fov, false, false);
-        /*else*/ render_drawrooms(pos, globalcursectnum, daang, dahoriz, rollang, false, false);
-    }
-
+    qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16) + IntToFixed(ydimen >> 1);
+    globalcursectnum = dacursectnum;
+    Polymost::polymost_drawrooms();
     return inpreparemirror;
 }
 

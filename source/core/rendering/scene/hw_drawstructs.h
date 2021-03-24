@@ -9,6 +9,7 @@
 #include "fcolormap.h"
 #include "build.h"
 #include "gamefuncs.h"
+#include "render.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244)
@@ -80,6 +81,7 @@ enum PortalTypes
 	PORTALTYPE_PLANEMIRROR,
 	PORTALTYPE_MIRROR,
 	PORTALTYPE_LINETOLINE,
+	PORTALTYPE_LINETOSPRITE,
 };
 
 //==========================================================================
@@ -164,24 +166,16 @@ public:
 
 	int dynlightindex;
 
-	/*
 	union
 	{
 		// it's either one of them but never more!
-		FSectorPortal *secportal;	// sector portal (formerly skybox)
+		//FSectorPortal *secportal;	// sector portal (formerly skybox)
 		HWSkyInfo * sky;			// for normal sky
-		HWHorizonInfo * horizon;	// for horizon information
-		FSectorPortalGroup * portal;			// stacked sector portals
-		secplane_t * planemirror;	// for plane mirrors
-		walltype *lineportal;	// line-to-line portals
+		//HWHorizonInfo * horizon;	// for horizon information
+		PortalDesc * portal;			// stacked sector portals
+		int * planemirror;	// for plane mirrors
+		spritetype* teleport;	// SW's teleport-views
 	};
-	*/
-
-
-
-	// these are not the same as ytop and ybottom!!!
-	float zceil[2];
-	float zfloor[2];
 
 	unsigned int vertindex;
 	unsigned int vertcount;
@@ -198,12 +192,13 @@ public:
 	void SetupLights(HWDrawInfo *di, FDynLightData &lightdata);
 
 	void MakeVertices(HWDrawInfo *di, bool nosplit);
+	void SetLightAndFog(FRenderState& state);
 
 	void SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowmirror);
 	void SkyLine(HWDrawInfo *di, sectortype *sec, walltype *line);
-	void SkyNormal(HWDrawInfo* di, sectortype* fs, FVector2& v1, FVector2& v2) {}
-	void SkyTop(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * bs, FVector2& v1, FVector2& v2) {}
-	void SkyBottom(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * bs, FVector2& v1, FVector2& v2) {}
+	void SkyNormal(HWDrawInfo* di, sectortype* fs, FVector2& v1, FVector2& v2, float fch1, float fch2, float ffh1, float ffh2);
+	void SkyTop(HWDrawInfo* di, walltype* seg, sectortype* fs, sectortype* bs, FVector2& v1, FVector2& v2, float fch1, float fch2);
+	void SkyBottom(HWDrawInfo* di, walltype* seg, sectortype* fs, sectortype* bs, FVector2& v1, FVector2& v2, float ffh1, float ffh2);
 
 	bool DoHorizon(HWDrawInfo *di, walltype * seg,sectortype * fs, DVector2& v1, DVector2& v2);
 

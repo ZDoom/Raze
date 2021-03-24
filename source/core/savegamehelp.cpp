@@ -57,6 +57,7 @@
 #include "razemenu.h"
 #include "interpolate.h"
 #include "gamefuncs.h"
+#include "render.h"
 
 
 sectortype sectorbackup[MAXSECTORS];
@@ -554,6 +555,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 			("lotag", c.lotag, def->lotag)
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
+			("portalflags", c.portalflags, def->portalflags)
+			("portalnum", c.portalnum, def->portalnum)
 			.EndObject();
 	}
 	return arc;
@@ -580,6 +583,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 			("lotag", c.lotag, def->lotag)
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
+			("portalflags", c.portalflags, def->portalflags)
+			("portalnum", c.portalnum, def->portalnum)
 			.EndObject();
 	}
 	return arc;
@@ -645,7 +650,8 @@ void SerializeMap(FSerializer& arc)
 			("parallaxys", parallaxyscale_override)
 			("pskybits", pskybits_override)
 			("numsprites", Numsprites)
-			("gamesetinput", gamesetinput);
+			("gamesetinput", gamesetinput)
+			("allportals", allPortals);
 
 		SerializeInterpolations(arc);
 

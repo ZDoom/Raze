@@ -35,6 +35,7 @@ class FRenderState;
 
 struct FRenderViewpoint
 {
+	spritetype* CameraSprite;
 	DVector3 Pos;
 	FRotator HWAngles;
 	FAngle FieldOfView;
@@ -106,7 +107,6 @@ struct HWDrawInfo
 	TArray<HWDecal *> Decals[2];	// the second slot is for mirrors which get rendered in a separate pass.
 
 	// This is needed by the BSP traverser.
-	fixed_t viewx, viewy;	// since the nodes are still fixed point, keeping the view position  also fixed point for node traversal is faster.
 	bool multithread;
 
 private:

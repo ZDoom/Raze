@@ -170,7 +170,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	state.Draw(DT_Triangles, vertindex, vertcount);
 	vertexcount += vertcount;
 
-	if (translucent) state.SetRenderStyle(DefaultRenderStyle());
+	if (translucent) state.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 	//state.SetObjectColor(0xffffffff);
 	//state.SetAddColor(0);
 	//state.ApplyTextureManipulation(nullptr);
@@ -256,6 +256,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 		if (alpha != 0.f)
 		{
 			int tilenum = frontsector->floorpicnum;
+			setgotpic(tilenum);
 			tileUpdatePicnum(&tilenum, tilenum, 0);
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())
@@ -296,6 +297,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 			//iboindex = frontsector->iboindex[sector_t::ceiling];
 
 			int tilenum = frontsector->ceilingpicnum;
+			setgotpic(tilenum);
 			tileUpdatePicnum(&tilenum, tilenum, 0);
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())
