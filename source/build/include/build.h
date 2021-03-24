@@ -800,7 +800,7 @@ inline void tileUpdatePicnum(int* const tileptr, int const obj, int stat)
 
 inline void setgotpic(int32_t tilenume)
 {
-    gotpic[tilenume >> 3] |= pow2char[tilenume & 7];
+    gotpic[tilenume >> 3] |= 1 << (tilenume & 7);
 }
 
 

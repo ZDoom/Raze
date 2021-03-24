@@ -1282,7 +1282,7 @@ static int32_t defsparser(scriptfile *script)
                             break;
                         default:
                             if (framei >= 0 && framei<1024)
-                                usedframebitmap[framei>>3] |= pow2char[framei&7];
+                                usedframebitmap[framei>>3] |= (1 << (framei&7));
                         }
                         model_ok &= happy;
                     }
@@ -1637,7 +1637,7 @@ static int32_t defsparser(scriptfile *script)
                 }
 
                 case T_ROTATE:
-                    voxrotate[lastvoxid>>3] |= pow2char[lastvoxid&7];
+                    voxrotate[lastvoxid>>3] |= (1 << (lastvoxid&7));
                     break;
                 }
             }

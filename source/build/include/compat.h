@@ -148,15 +148,6 @@ using std::max;
 
 ////////// Bitfield manipulation //////////
 
-// This once was a static array, requiring a memory acces where a shift would suffice.
-// Revert the above to a real bit shift through some C++ operator magic. That saves me from reverting all the code that uses this construct.
-// Note: Only occurs 25 times in the code, should be removed for good.
-static struct 
-{
-	constexpr uint8_t operator[](int index) const { return 1 << index; };
-} pow2char;
-
-
 static FORCE_INLINE void bitmap_set(uint8_t *const ptr, int const n) { ptr[n>>3] |= 1 << (n&7); }
 static FORCE_INLINE char bitmap_test(uint8_t const *const ptr, int const n) { return ptr[n>>3] & (1 << (n&7)); }
 

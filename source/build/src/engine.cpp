@@ -831,7 +831,7 @@ void vox_undefine(int32_t const tile)
 #endif
 
     voxscale[voxindex] = 65536;
-    voxrotate[voxindex>>3] &= ~pow2char[voxindex&7];
+    voxrotate[voxindex>>3] &= ~(1 << (voxindex&7));
     tiletovox[tile] = -1;
 
     // TODO: nextvoxid
@@ -1175,7 +1175,7 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
     if (x1 == x2 && y1 == y2)
         return (sect1 == sect2);
 
-    sectbitmap[sect1>>3] |= pow2char[sect1&7];
+    sectbitmap[sect1>>3] |= (1 << (sect1&7));
     clipsectorlist[0] = sect1; danum = 1;
 
     for (dacnt=0; dacnt<danum; dacnt++)
@@ -1223,16 +1223,16 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
             if (z <= cfz[0] || z >= cfz[1])
                 return 0;
 
-            if (!(sectbitmap[nexts>>3] & pow2char[nexts&7]))
+            if (!(sectbitmap[nexts>>3] & (1 << (nexts&7))))
             {
-                sectbitmap[nexts>>3] |= pow2char[nexts&7];
+                sectbitmap[nexts>>3] |= (1 << (nexts&7));
                 clipsectorlist[danum++] = nexts;
             }
         }
 
     }
 
-    if (sectbitmap[sect2>>3] & pow2char[sect2&7])
+    if (sectbitmap[sect2>>3] & (1<<(sect2&7)))
         return 1;
 
     return 0;
@@ -1368,7 +1368,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
             sector[wall[w].sector].dirty = 255;
             wall[w].x = dax;
             wall[w].y = day;
-            walbitmap[w>>3] |= pow2char[w&7];
+            walbitmap[w>>3] |= (1<<(w&7));
 
             if (!clockwise)  //search points CCW
             {
@@ -1398,7 +1398,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
                     break;
             }
 
-            if ((walbitmap[w>>3] & pow2char[w&7]))
+            if ((walbitmap[w>>3] & (1<<(w&7))))
             {
                 if (clockwise)
                     break;
