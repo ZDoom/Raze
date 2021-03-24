@@ -49,6 +49,8 @@ static int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
 static int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 static float rollang;
 static int16_t numscans, numbunches;
+static int16_t maskwall[MAXWALLSB], maskwallcnt;
+static int16_t sectorborder[256];
 
 
 
@@ -250,7 +252,7 @@ static int32_t pow2xsplit = 0, skyzbufferhack = 0, flatskyrender = 0;
 static float drawpoly_alpha = 0.f;
 static uint8_t drawpoly_blend = 0;
 
-int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
+int32_t polymost_maskWallHasTranslucency(walltype const * const wall)
 {
     if (wall->cstat & CSTAT_WALL_TRANSLUCENT)
         return true;
@@ -258,7 +260,7 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
     return checkTranslucentReplacement(tileGetTexture(wall->picnum)->GetID(), wall->pal);
 }
 
-int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
+int32_t polymost_spriteHasTranslucency(spritetype const * const tspr)
 {
     if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || (tspr->clipdist & TSPR_FLAGS_DRAW_LAST) || 
         ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
@@ -2604,7 +2606,7 @@ void polymost_deletesprite(int num)
 static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
     int32_t dist = 4, closest = -1;
-    auto const sect = (usectortype  * )&sector[tspr->sectnum];
+    auto const sect = &sector[tspr->sectnum];
     vec2_t n;
 
     for (bssize_t i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
@@ -3610,7 +3612,7 @@ void renderDrawMasks(void)
     maskwallcnt = 0;
     for (i = 0; i < numMaskWalls; i++)
     {
-        if (Polymost::polymost_maskWallHasTranslucency((uwalltype*)&wall[thewall[maskwall[i]]]))
+        if (Polymost::polymost_maskWallHasTranslucency(&wall[thewall[maskwall[i]]]))
         {
             maskwall[maskwallcnt] = maskwall[i];
             maskwallcnt++;
@@ -3778,4 +3780,22 @@ void videoSetCorrectedAspect()
 
     renderSetAspect(vr, yx);
 }
+
+
+//
+// setaspect
+//
+void renderSetAspect(int32_t daxrange, int32_t daaspect)
+{
+    if (daxrange == 65536) daxrange--;  // This doesn't work correctly with 65536. All other values are fine. No idea where this is evaluated wrong.
+    viewingrange = daxrange;
+    viewingrangerecip = DivScale(1, daxrange, 32);
+    fviewingrange = (float)daxrange;
+
+    yxaspect = daaspect;
+    xyaspect = DivScale(1, yxaspect, 32);
+    xdimenscale = Scale(xdimen, yxaspect, 320);
+    xdimscale = Scale(320, xyaspect, xdimen);
+}
+
 

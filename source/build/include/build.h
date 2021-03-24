@@ -48,11 +48,6 @@ enum
 
     MAXVOXMIPS = 5,
 
-    MAXXDIM = 7680,
-    MAXYDIM = 3200,
-    MINXDIM = 640,
-    MINYDIM = 480,
-
     MAXWALLSB = ((MAXWALLS >> 2) + (MAXWALLS >> 3)),
 
     MAXVOXELS = 1024,
@@ -100,24 +95,11 @@ enum {
 };
 
 
-enum {
-    SPR_XFLIP = 4,
-    SPR_YFLIP = 8,
-
-    SPR_WALL = 16,
-    SPR_FLOOR = 32,
-    SPR_ALIGN_MASK = 32+16,
-};
-
 #include "buildtypes.h"
 
-using usectortype = sectortype;
-using uwalltype = walltype;
-using uspritetype = spritetype;
-
-using uspriteptr_t = uspritetype const *;
-using uwallptr_t   = uwalltype const *;
-using usectorptr_t = usectortype const *;
+using uspriteptr_t = spritetype const *;
+using uwallptr_t   = walltype const *;
+using usectorptr_t = sectortype const *;
 using tspriteptr_t = tspritetype *;
 
 
@@ -150,17 +132,11 @@ typedef struct {
 #define SPREXT_TSPRACCESS 16
 #define SPREXT_TEMPINVISIBLE 32
 
-#define NEG_ALPHA_TO_BLEND(alpha, blend, orientation) do { \
-    if ((alpha) < 0) { (blend) = -(alpha); (alpha) = 0; (orientation) |= RS_TRANS1; } \
-} while (0)
-
 // using the clipdist field
 enum
 {
     TSPR_FLAGS_MDHACK = 1u<<0u,
     TSPR_FLAGS_DRAW_LAST = 1u<<1u,
-    TSPR_FLAGS_NO_SHADOW = 1u<<2u,
-    TSPR_FLAGS_INVISIBLE_WITH_SHADOW = 1u<<3u,
 };
 
 EXTERN int32_t guniqhudid;
@@ -175,25 +151,6 @@ struct usermaphack_t
 
 EXTERN spriteext_t *spriteext;
 EXTERN spritesmooth_t *spritesmooth;
-
-// Wrapper that makes an array of pointers look like an array of references. (Refactoring helper.)
-
-template<class T, int size>
-class ReferenceArray
-{
-    T* data[size];
-public:
-    T& operator[](size_t index)
-    {
-        assert(index < size);
-        return *data[index];
-    }
-
-    void set(int pos, T* spr)
-    {
-        data[pos] = spr;
-    }
-};
 
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
@@ -222,7 +179,6 @@ static inline tspriteptr_t renderAddTSpriteFromSprite(uint16_t const spritenum)
 }
 
 
-EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t xdim, ydim;

@@ -13,7 +13,6 @@
 #ifndef ENGINE_PRIV_H
 #define ENGINE_PRIV_H
 
-extern int16_t maskwall[MAXWALLSB], maskwallcnt;
 extern tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
@@ -31,7 +30,6 @@ extern int32_t globalorientation;
 
 extern char inpreparemirror;
 
-extern int16_t sectorborder[256];
 extern int32_t hitallsprites;
 
 int32_t animateoffs(int tilenum, int fakevar);

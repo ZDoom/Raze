@@ -161,7 +161,6 @@ int16_t globalpicnum;
 
 static int32_t globaly1, globalx2;
 
-int16_t sectorborder[256];
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 
 static int16_t numhits;
@@ -1526,35 +1525,10 @@ int findwallbetweensectors(int sect1, int sect2)
 //
 void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
-#if 0
-    if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
-    {
-        if (inside_p(x, y, *sectnum))
-            return;
-
-        if ((unsigned)*sectnum < (unsigned)numsectors)
-        {
-            const uwalltype *wal = (uwalltype *)&wall[sector[*sectnum].wallptr];
-            int wallsleft = sector[*sectnum].wallnum;
-
-            do
-            {
-                int const next = wal->nextsector;
-                if (inside_p(x, y, next))
-                    SET_AND_RETURN(*sectnum, next);
-                wal++;
-            }
-            while (--wallsleft);
-        }
-    }
-    else
-#endif
-    {
-        int16_t sect = *sectnum;
-        updatesectorneighbor(x, y, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
-        if (sect != -1)
-            SET_AND_RETURN(*sectnum, sect);
-    }
+    int16_t sect = *sectnum;
+    updatesectorneighbor(x, y, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
+    if (sect != -1)
+        SET_AND_RETURN(*sectnum, sect);
 
     // we need to support passing in a sectnum of -1, unfortunately
 
@@ -1570,7 +1544,6 @@ void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 //      as starting sector and the 'initial' z check is skipped
 //      (not initial anymore because it follows the sector updating due to TROR)
 
-// NOTE: This comes from Duke, therefore it's GPL!
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum)
 {
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
@@ -1593,7 +1566,7 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
                 if (inside_p(x, y, *sectnum))
                     return;
 
-            uwalltype const * wal = (uwalltype *)&wall[sector[*sectnum].wallptr];
+            walltype const * wal = &wall[sector[*sectnum].wallptr];
             int wallsleft = sector[*sectnum].wallnum;
             do
             {
@@ -1733,29 +1706,8 @@ void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     ydimen = (y2-y1)+1;
 
     fxdimen = (float) xdimen;
-#ifdef USE_OPENGL
     fydimen = (float) ydimen;
-#endif
     videoSetCorrectedAspect();
-}
-
-
-//
-// setaspect
-//
-void renderSetAspect(int32_t daxrange, int32_t daaspect)
-{
-    if (daxrange == 65536) daxrange--;  // This doesn't work correctly with 65536. All other values are fine. No idea where this is evaluated wrong.
-    viewingrange = daxrange;
-    viewingrangerecip = DivScale(1,daxrange, 32);
-#ifdef USE_OPENGL
-    fviewingrange = (float) daxrange;
-#endif
-
-    yxaspect = daaspect;
-    xyaspect = DivScale(1,yxaspect, 32);
-    xdimenscale = Scale(xdimen,yxaspect,320);
-    xdimscale = Scale(320,xyaspect,xdimen);
 }
 
 

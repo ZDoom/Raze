@@ -71,7 +71,7 @@ extern short f_c;
 
 extern ParentalStruct aVoxelArray[MAXTILES];
 
-int ConnectCopySprite(uspritetype const * tsp);
+int ConnectCopySprite(spritetype const * tsp);
 void PreDrawStackedWater(void);
 
 void SW_InitMultiPsky(void)
@@ -794,8 +794,7 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
 
         if (OverlapDraw && FAF_ConnectArea(tsp->sectnum) && tsp->owner >= 0)
         {
-            static_assert(sizeof(uspritetype) == sizeof(tspritetype)); // see TSPRITE_SIZE
-            ConnectCopySprite((uspriteptr_t)tsp);
+            ConnectCopySprite(tsp);
         }
 
         //
@@ -902,7 +901,6 @@ post_analyzesprites(void)
         {
             if (tu->ID == FIREBALL_FLAMES && tu->Attach >= 0)
             {
-                //uspritetype * const atsp = &sprite[tu->Attach];
                 tspriteptr_t const atsp = get_tsprite(tu->Attach);
 
                 if (!atsp)
@@ -1281,7 +1279,7 @@ PostDraw(void)
     }
 }
 
-int CopySprite(uspritetype const * tsp, short newsector)
+int CopySprite(spritetype const * tsp, short newsector)
 {
     short New;
     SPRITEp sp;
@@ -1310,7 +1308,7 @@ int CopySprite(uspritetype const * tsp, short newsector)
     return New;
 }
 
-int ConnectCopySprite(uspritetype const * tsp)
+int ConnectCopySprite(spritetype const * tsp)
 {
     short newsector;
     int testz;
@@ -1375,7 +1373,7 @@ void PreDrawStackedWater(void)
                 sp = &sprite[i];
                 u = User[i];
 
-                New = ConnectCopySprite((uspritetype const *)sp);
+                New = ConnectCopySprite((spritetype const *)sp);
                 if (New >= 0)
                 {
                     // spawn a user
@@ -1706,7 +1704,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
     int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
     int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
-    int xvect, yvect, xvect2, yvect2;
+    int xvect, yvect;
     walltype* wal, * wal2;
     spritetype* spr;
     short p;
@@ -1716,8 +1714,6 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
     xvect = -bsin(cang) * czoom;
     yvect = -bcos(cang) * czoom;
-    xvect2 = MulScale(xvect, yxaspect, 16);
-    yvect2 = MulScale(yvect, yxaspect, 16);
 
 
     // Draw sprites
@@ -1784,7 +1780,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
                             double xd = ((x1 << 4) + (xdim << 15)) / 65536.;
                             double yd = ((y1 << 4) + (ydim << 15)) / 65536.;
-                            double sc = MulScale(czoom * (spr->yrepeat), yxaspect, 16) / 32768.;
+                            double sc = czoom * (spr->yrepeat) / 32768.;
                             if (spnum >= 0)
                             {
                                 DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xd, yd, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * (-360. / 2048),
@@ -1815,12 +1811,12 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                     ox = x1 - cposx;
                     oy = y1 - cposy;
                     x1 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                    y1 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                    y1 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                     ox = x2 - cposx;
                     oy = y2 - cposy;
                     x2 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                    y2 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                    y2 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                     drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
                         x2 + (xdim << 11), y2 + (ydim << 11), col);
@@ -1863,22 +1859,22 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                         ox = x1 - cposx;
                         oy = y1 - cposy;
                         x1 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y1 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                        y1 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                         ox = x2 - cposx;
                         oy = y2 - cposy;
                         x2 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y2 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                        y2 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                         ox = x3 - cposx;
                         oy = y3 - cposy;
                         x3 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y3 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                        y3 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                         ox = x4 - cposx;
                         oy = y4 - cposy;
                         x4 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y4 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                        y4 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                         drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
                             x2 + (xdim << 11), y2 + (ydim << 11), col);

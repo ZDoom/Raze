@@ -25,9 +25,9 @@ void polymost_completeMirror();
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 void polymost_deletesprite(int num);
 
-int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall);
-int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr);
-int32_t polymost_spriteIsModelOrVoxel(tspritetype const * const tspr);
+int32_t polymost_maskWallHasTranslucency(walltype const * const wall);
+int32_t polymost_spriteHasTranslucency(spritetype const * const tspr);
+int32_t polymost_spriteIsModelOrVoxel(spritetype const * const tspr);
 
 void polymost_glreset(void);
 void polymost_scansector(int32_t sectnum);
