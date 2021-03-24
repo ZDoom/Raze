@@ -34,7 +34,7 @@ extern int32_t hitallsprites;
 
 int32_t animateoffs(int tilenum, int fakevar);
 
-static FORCE_INLINE int32_t bad_tspr(tspriteptr_t tspr)
+inline int32_t bad_tspr(tspriteptr_t tspr)
 {
     // NOTE: tspr->owner >= MAXSPRITES (could be model) has to be handled by
     // caller.

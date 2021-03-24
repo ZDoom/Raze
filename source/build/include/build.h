@@ -451,13 +451,13 @@ void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sect
 void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
 
 int findwallbetweensectors(int sect1, int sect2);
-static FORCE_INLINE int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
+inline int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
 int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = nullptr);
 extern const int16_t *chsecptr_onextwall;
 int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
 #if !KRANDDEBUG
-static FORCE_INLINE int32_t krand(void)
+inline int32_t krand(void)
 {
     randomseed = (randomseed * 1664525ul) + 221297ul;
     return ((uint32_t) randomseed)>>16;
@@ -474,12 +474,12 @@ inline int32_t ksqrt(uint32_t num)
 int32_t   getangle(int32_t xvect, int32_t yvect);
 fixed_t   gethiq16angle(int32_t xvect, int32_t yvect);
 
-static FORCE_INLINE constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
+inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
 {
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
 
-static FORCE_INLINE int32_t logapproach(int32_t const val, int32_t const targetval)
+inline int32_t logapproach(int32_t const val, int32_t const targetval)
 {
     int32_t const dif = targetval - val;
     return (dif>>1) ? val + (dif>>1) : targetval;
@@ -508,36 +508,36 @@ void yax_getzsofslope(int sectNum, int playerX, int playerY, int32_t* pCeilZ, in
 int32_t yax_getceilzofslope(int const sectnum, vec2_t const vect);
 int32_t yax_getflorzofslope(int const sectnum, vec2_t const vect);
 
-static FORCE_INLINE int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     return getceilzofslopeptr((usectorptr_t)&sector[sectnum], dax, day);
 }
 
-static FORCE_INLINE int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     return getflorzofslopeptr((usectorptr_t)&sector[sectnum], dax, day);
 }
 
-static FORCE_INLINE void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+inline void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
     getzsofslopeptr((usectorptr_t)&sector[sectnum], dax, day, ceilz, florz);
 }
 
-static FORCE_INLINE void getcorrectzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+inline void getcorrectzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
     vec2_t closest = { dax, day };
     getsectordist(closest, sectnum, &closest);
     getzsofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y, ceilz, florz);
 }
 
-static FORCE_INLINE int32_t getcorrectceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getcorrectceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     vec2_t closest = { dax, day };
     getsectordist(closest, sectnum, &closest);
     return getceilzofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y);
 }
 
-static FORCE_INLINE int32_t getcorrectflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getcorrectflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     vec2_t closest = { dax, day };
     getsectordist(closest, sectnum, &closest);
@@ -546,12 +546,12 @@ static FORCE_INLINE int32_t getcorrectflorzofslope(int16_t sectnum, int32_t dax,
 
 // Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
 // ".nextsector >= 0 iff .nextwall >= 0" holds.
-static FORCE_INLINE int32_t redwallp(uwallptr_t wal)
+inline int32_t redwallp(uwallptr_t wal)
 {
     return (wal->nextwall >= 0 && wal->nextsector >= 0);
 }
 
-static FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
+inline int32_t E_SpriteIsValid(const int32_t i)
 {
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
@@ -594,7 +594,7 @@ inline void setspritepos(int spnum, int x, int y, int z)
 int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 
 int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyofs);
-static FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
+inline int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
 {
     return spriteheightofsptr((uspriteptr_t)&sprite[i], height, alsotileyofs);
 }
@@ -653,13 +653,13 @@ typedef struct
 EXTERN int32_t mdinited;
 EXTERN tile2model_t tile2model[MAXTILES+EXTRATILES];
 
-static FORCE_INLINE int32_t md_tilehasmodel(int32_t const tilenume, int32_t const pal)
+inline int32_t md_tilehasmodel(int32_t const tilenume, int32_t const pal)
 {
     return mdinited ? tile2model[Ptile2tile(tilenume,pal)].modelid : -1;
 }
 #endif  // defined USE_OPENGL
 
-static FORCE_INLINE int tilehasmodelorvoxel(int const tilenume, int pal)
+inline int tilehasmodelorvoxel(int const tilenume, int pal)
 {
     UNREFERENCED_PARAMETER(pal);
     return
@@ -688,7 +688,7 @@ extern int skiptile;
 
 static vec2_t const zerovec = { 0, 0 };
 
-static FORCE_INLINE int inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
+inline int inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
 
 #define SET_AND_RETURN(Lval, Rval) \
     do                             \

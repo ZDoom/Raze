@@ -27,26 +27,6 @@
 #endif
 
 
-#ifndef MAY_ALIAS
-# ifdef _MSC_VER
-#  define MAY_ALIAS
-# else
-#  define MAY_ALIAS __attribute__((may_alias))
-# endif
-#endif
-
-#ifndef FORCE_INLINE
-# ifdef _MSC_VER
-#  define FORCE_INLINE __forceinline
-# else
-#  ifdef __GNUC__
-#    define FORCE_INLINE inline __attribute__((always_inline))
-#  else
-#    define FORCE_INLINE inline
-#  endif
-# endif
-#endif
-
 #  define fallthrough__ [[fallthrough]]
 
 ////////// Architecture detection //////////
@@ -122,8 +102,8 @@ static_assert(sizeof(vec3f_t) == sizeof(float) * 3);
 
 ////////// Bitfield manipulation //////////
 
-static FORCE_INLINE void bitmap_set(uint8_t *const ptr, int const n) { ptr[n>>3] |= 1 << (n&7); }
-static FORCE_INLINE char bitmap_test(uint8_t const *const ptr, int const n) { return ptr[n>>3] & (1 << (n&7)); }
+inline void bitmap_set(uint8_t *const ptr, int const n) { ptr[n>>3] |= 1 << (n&7); }
+inline char bitmap_test(uint8_t const *const ptr, int const n) { return ptr[n>>3] & (1 << (n&7)); }
 
 ////////// Utility functions //////////
 
