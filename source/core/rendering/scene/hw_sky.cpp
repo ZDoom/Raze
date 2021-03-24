@@ -83,7 +83,7 @@ void HWWall::SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowr
 
 	if (sector->portalflags == PORTAL_SECTOR_CEILING || sector->portalflags == PORTAL_SECTOR_FLOOR)
 	{
-		if (screen->instack[1 - plane]) return;
+		if (screen->instack[1 - plane] || allPortals.Size() == 0) return;
 		portal = &allPortals[sector->portalnum];
 		PutPortal(di, PORTALTYPE_SECTORSTACK, plane);
 	}

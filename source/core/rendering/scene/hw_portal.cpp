@@ -601,7 +601,7 @@ const char *HWMirrorPortal::GetName() { return "Mirror"; }
 
 //-----------------------------------------------------------------------------
 //
-//
+// only used by Blood - they can not change the angle.
 //
 //-----------------------------------------------------------------------------
 bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clipper)
@@ -619,11 +619,39 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	auto destcenter = (WallStart(line) + WallEnd(line)) / 2;
 	DVector2 npos = vp.Pos - srccenter + destcenter;
 
-	//vp.ViewActor = nullptr;
+#if 0 // Blood does not rotate these. Needs map checking to make sure it can be added.
+	int dx = wall[origin->point2].x - origin->x;
+	int dy = wall[origin->point2].y - origin->y;
+	int dx2 = wall[line->point2].x - line->x;
+	int dy2 = wall[line->point2].y - line->y;
+
+	int srcang = gethiq16angle(dx, dy);
+	int destang = gethiq16angle(-dx, -dy);
+
+	vp.RotAngle += q16ang(destang - srcang).asbam();
+#endif
+
+	// Nothing in the entire setup mandates that both lines have the same length.
+	// So we need to calculate the clip range from the origin line, not the destination, because that is what determines the visible part of the scene.
+	int origx = vp.Pos.X * 16;
+	int origy = vp.Pos.Y * -16;
+
+	vp.SectNum = line->sector;
+	vp.Pos.X = npos.X;
+	vp.Pos.Y = npos.Y;
+
+	vp.Pos.Z -= (sector[line->sector].floorz - sector[origin->sector].floorz) / 256.f; // for testing only. Blood does not do it.
+
 	di->SetClipLine(line);
 	di->SetupView(rstate, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, !!(state->MirrorFlag & 1), !!(state->PlaneMirrorFlag & 1));
+	clipper->Clear();
 
-	ClearClipper(di, clipper);
+	angle_t af = di->FrustumAngle();
+	if (af < ANGLE_180) clipper->SafeAddClipRange(bamang(vp.RotAngle + af), bamang(vp.RotAngle - af));
+
+	auto startan = gethiq16angle(line->x - origx, line->y - origy);
+	auto endan = gethiq16angle(wall[line->point2].x - origx, wall[line->point2].y - origy);
+	clipper->SafeAddClipRange(q16ang(startan), q16ang(endan));  // we check the line from the backside so angles are reversed.
 	return true;
 }
 
