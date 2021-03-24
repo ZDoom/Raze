@@ -4,6 +4,9 @@
 #include "mmulti.h"
 #include "glbackend/glbackend.h"
 #include "raze_music.h"
+#include "rendering/render.h"
+
+EXTERN_CVAR(Bool, testnewrenderer)
 
 BEGIN_WH_NS
 
@@ -53,7 +56,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	}
 
 	// wango
-    if ((gotpic[FLOORMIRROR >> 3] & (1 << (FLOORMIRROR & 7))) != 0) {
+    if (!testnewrenderer && (gotpic[FLOORMIRROR >> 3] & (1 << (FLOORMIRROR & 7))) != 0) {
             int dist = 0x7fffffff;
             int i = 0, j;
             for (int k = floormirrorcnt - 1; k >= 0; k--) {
@@ -89,9 +92,18 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	// do screen rotation.
 	renderSetRollAngle(crotscrnang.asbam() / (double)(BAMUNIT));
 
-	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), plr.sector);
-	analyzesprites(plr, dasmoothratio);
-	renderDrawMasks();
+	if (!testnewrenderer)
+	{
+		renderSetRollAngle(crotscrnang.asbuildf());
+		renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), plr.sector);
+		analyzesprites(plr, dasmoothratio);
+		renderDrawMasks();
+	}
+	else
+	{
+		render_drawrooms(nullptr, { cposx, cposy, cposz }, plr.sector, cang.asq16(), choriz.asq16(), crotscrnang.asbuildf());
+	}
+
 	if (!sceneonly)
 	{
 		if (!plr.over_shoulder_on)
