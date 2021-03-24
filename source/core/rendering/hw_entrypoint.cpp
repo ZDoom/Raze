@@ -313,3 +313,17 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 	RenderViewpoint(r_viewpoint, nullptr, r_viewpoint.FieldOfView.Degrees, ratio, fovratio, false, false);
 	All.Unclock();
 }
+
+FSerializer& Serialize(FSerializer& arc, const char* key, PortalDesc& obj, PortalDesc* defval)
+{
+	if (arc.BeginObject(key))
+	{
+		arc("type", obj.type)
+			("dx", obj.dx)
+			("dy", obj.dy)
+			("dz", obj.dz)
+			("targets", obj.targets)
+			.EndObject();
+	}
+	return arc;
+}

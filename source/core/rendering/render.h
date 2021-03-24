@@ -1,6 +1,8 @@
 #pragma once
 #include "build.h"
 
+class FSerializer;
+
 void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang);
 
 struct PortalDesc
@@ -9,6 +11,9 @@ struct PortalDesc
 	int dx, dy, dz;
 	TArray<int> targets;
 };
+
+FSerializer& Serialize(FSerializer& arc, const char* key, PortalDesc& obj, PortalDesc* defval);
+
 
 extern TArray<PortalDesc> allPortals;
 
@@ -28,10 +33,10 @@ inline int portalAdd(int type, int target, int dx = 0, int dy = 0, int dz = 0)
 	return allPortals.Size() - 1;
 }
 
-// merges portals in adjoining sectors. AFAIK the only one of this kind is in Blood's E4M9, which with the original code is very glitchy.
+// merges portals in adjoining sectors.
 inline void mergePortals()
 {
-	Printf("Have %d portals\n", allPortals.Size());
+	//Printf("Have %d portals\n", allPortals.Size());
 	bool didsomething = true;
 	while (didsomething)
 	{
@@ -56,7 +61,7 @@ inline void mergePortals()
 								pt2.type = -1;
 								for (int n = 0; n < numsectors; n++)
 								{
-									Printf("Merged %d and %d\n", i, j);
+									//Printf("Merged %d and %d\n", i, j);
 									if (sector[n].portalnum == j) sector[n].portalnum = i;
 									didsomething = true;
 									break;

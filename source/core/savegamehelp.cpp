@@ -57,6 +57,7 @@
 #include "razemenu.h"
 #include "interpolate.h"
 #include "gamefuncs.h"
+#include "render.h"
 
 
 sectortype sectorbackup[MAXSECTORS];
@@ -649,7 +650,8 @@ void SerializeMap(FSerializer& arc)
 			("parallaxys", parallaxyscale_override)
 			("pskybits", pskybits_override)
 			("numsprites", Numsprites)
-			("gamesetinput", gamesetinput);
+			("gamesetinput", gamesetinput)
+			("allportals", allPortals);
 
 		SerializeInterpolations(arc);
 
