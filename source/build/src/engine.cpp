@@ -57,7 +57,7 @@ int16_t pskybits_override = -1;
 static TArray<TArray<uint8_t>> voxelmemory;
 
 int16_t tiletovox[MAXTILES];
-char *voxfilenames[MAXVOXELS];
+int voxlumps[MAXVOXELS];
 char g_haveVoxels;
 //#define kloadvoxel loadvoxel
 
@@ -799,16 +799,13 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
     }
 
 
-#ifdef USE_OPENGL
     if (voxmodels[voxindex])
     {
         voxfree(voxmodels[voxindex]);
         voxmodels[voxindex] = NULL;
     }
 
-    Xfree(voxfilenames[voxindex]);
-    voxfilenames[voxindex] = Xstrdup(filename);
-#endif
+    voxlumps[voxindex] = fileSystem.FindFile(filename);
 
     g_haveVoxels = 1;
 
@@ -817,18 +814,15 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
 
 void vox_undefine(int32_t const tile)
 {
-    ssize_t voxindex = tiletovox[tile];
+    int voxindex = tiletovox[tile];
     if (voxindex < 0)
         return;
 
-#ifdef USE_OPENGL
     if (voxmodels[voxindex])
     {
         voxfree(voxmodels[voxindex]);
         voxmodels[voxindex] = NULL;
     }
-    DO_FREE_AND_NULL(voxfilenames[voxindex]);
-#endif
 
     voxscale[voxindex] = 65536;
     voxrotate[voxindex>>3] &= ~(1 << (voxindex&7));

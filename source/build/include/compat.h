@@ -91,17 +91,12 @@
 
 #include "engineerrors.h"
 
-////////// DEPRECATED: Standard library prefixing //////////
-
-typedef intptr_t ssize_t;
-
-typedef ssize_t bssize_t;
+typedef intptr_t bssize_t;
 
 #define BMAX_PATH 256
 
 ////////// Metaprogramming structs //////////
 
-using std::enable_if_t;
 using  native_t = intptr_t;
 
 typedef struct {
@@ -121,30 +116,9 @@ typedef struct {
 
 static_assert(sizeof(vec3f_t) == sizeof(float) * 3);
 
-typedef struct {
-    union { double x; double d; };
-    union { double y; double u; };
-    union { double z; double v; };
-} vec3d_t;
-
-static_assert(sizeof(vec3d_t) == sizeof(double) * 3);
-
-
 ////////// Language tricks that depend on size_t //////////
 
 #include "basics.h"
-
-////////// Pointer management //////////
-
-#define DO_FREE_AND_NULL(var) do { \
-    Xfree(var); (var) = NULL; \
-} while (0)
-
-
-////////// Abstract data operations //////////
-
-using std::min;
-using std::max;
 
 ////////// Bitfield manipulation //////////
 
@@ -173,14 +147,5 @@ void bfirst_search_try(T *const list, uint8_t *const bitmap, T *const eltnumptr,
         list[(*eltnumptr)++] = elt;
     }
 }
-
-////////// PANICKING ALLOCATION WRAPPERS //////////
-
-
-#define Xstrdup(s)    (strdup(s))
-#define Xmalloc(size) (M_Malloc(size))
-#define Xcalloc(nmemb, size) (M_Calloc(nmemb, size))
-#define Xrealloc(ptr, size)  (M_Realloc(ptr, size))
-#define Xfree(ptr) (M_Free(ptr))
 
 #endif // compat_h_

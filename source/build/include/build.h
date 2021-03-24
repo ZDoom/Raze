@@ -643,7 +643,7 @@ typedef struct
     int16_t     framenum;   // calculate the number from the name when declaring
     int16_t     nexttile;
     uint16_t    smoothduration;
-    hudtyp      *hudmem[2];
+    hudtyp      hudmem[2];
     int8_t      skinnum;
     char        pal;
 } tile2model_t;

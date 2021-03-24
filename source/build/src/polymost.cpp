@@ -25,6 +25,17 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "gamefuncs.h"
 #include "hw_drawinfo.h"
 
+
+typedef struct {
+    union { double x; double d; };
+    union { double y; double u; };
+    union { double z; double v; };
+} vec3d_t;
+
+static_assert(sizeof(vec3d_t) == sizeof(double) * 3);
+
+
+
 int skiptile = -1;
 FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap);
 

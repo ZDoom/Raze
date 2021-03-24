@@ -22,10 +22,7 @@ using namespace Polymost;
 
 void voxfree(voxmodel_t *m)
 {
-    if (!m)
-        return;
-
-    Xfree(m);
+    if (m) delete m;
 }
 
 voxmodel_t *voxload(int lumpnum)
@@ -33,8 +30,8 @@ voxmodel_t *voxload(int lumpnum)
     FVoxel* voxel = R_LoadKVX(lumpnum);
     if (voxel != nullptr)
     {
-        voxmodel_t* vm = (voxmodel_t*)Xmalloc(sizeof(voxmodel_t));
-        memset(vm, 0, sizeof(voxmodel_t));
+        voxmodel_t* vm = new voxmodel_t;
+        *vm = {};
         auto pivot = voxel->Mips[0].Pivot;
         vm->mdnum = 1; //VOXel model id
         vm->scale = vm->bscale = 1.f;
@@ -53,7 +50,6 @@ voxmodel_t *voxload(int lumpnum)
 }
 
 //Draw voxel model as perfect cubes
-// Note: This is a hopeless mess that totally forfeits any chance of using a vertex buffer with its messy coordinate adjustments. :(
 int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
 {
     float f, g, k0, zoff;
@@ -193,7 +189,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
     return 1;
 }
 
-extern char* voxfilenames[MAXVOXELS];
+extern int voxlumps[MAXVOXELS];
 void (*PolymostProcessVoxels_Callback)(void) = NULL;
 void PolymostProcessVoxels(void)
 {
@@ -207,17 +203,13 @@ void PolymostProcessVoxels(void)
 
     Printf(PRINT_NONOTIFY, "Generating voxel models for Polymost. This may take a while...\n");
 
-    for (bssize_t i = 0; i < MAXVOXELS; i++)
+    for (int i = 0; i < MAXVOXELS; i++)
     {
-        if (voxfilenames[i])
+        int lumpnum = voxlumps[i];
+        if (lumpnum >= 0)
         {
-            int lumpnum = fileSystem.FindFile(voxfilenames[i]);
-            if (lumpnum >= 0)
-            {
-                voxmodels[i] = voxload(lumpnum);
-                voxmodels[i]->scale = voxscale[i] * (1.f / 65536.f);
-            }
-            DO_FREE_AND_NULL(voxfilenames[i]);
+            voxmodels[i] = voxload(lumpnum);
+            voxmodels[i]->scale = voxscale[i] * (1.f / 65536.f);
         }
     }
 }

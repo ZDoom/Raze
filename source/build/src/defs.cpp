@@ -210,8 +210,6 @@ enum scripttoken_t
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
-static char *faketilebuffer = NULL;
-static int32_t faketilebuffersiz = 0;
 
 static const char *skyfaces[6] =
 {
@@ -3195,9 +3193,6 @@ int32_t loaddefinitionsfile(const char *fn, bool loadadds)
 
     if (script)
         scriptfile_close(script);
-
-    DO_FREE_AND_NULL(faketilebuffer);
-    faketilebuffersiz = 0;
 
     if (!script) return -1;
 
