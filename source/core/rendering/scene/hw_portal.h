@@ -287,7 +287,7 @@ struct HWLineToLinePortal : public HWLinePortal
 	walltype* origin;
 protected:
 	bool Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clipper) override;
-	virtual void * GetSource() const override { return line; }
+	virtual void * GetSource() const override { return origin; }
 	virtual const char *GetName() override;
 	virtual walltype *ClipLine() override { return line; }
 
@@ -296,6 +296,26 @@ public:
 	HWLineToLinePortal(FPortalSceneState *state, walltype* from, walltype *to)
 		: HWLinePortal(state, to), origin(from)
 	{
+	}
+};
+
+struct HWLineToSpritePortal : public HWLinePortal
+{
+	walltype* origin;
+	spritetype* camera;
+protected:
+	bool Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* clipper) override;
+	virtual void* GetSource() const override { return origin; }
+	virtual const char* GetName() override;
+	virtual walltype* ClipLine() override { return line; }
+
+public:
+
+	HWLineToSpritePortal(FPortalSceneState* state, walltype* from, spritetype* to)
+		: HWLinePortal(state, &wall[numwalls]), origin(from), camera(to)
+	{
+		// todo: set up two fake walls at the end of the walls array to be used for backside clipping.
+		// Not really needed for vanilla support but maybe later for feature enhancement.
 	}
 };
 

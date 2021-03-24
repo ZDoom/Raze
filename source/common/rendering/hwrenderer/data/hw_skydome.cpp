@@ -388,7 +388,7 @@ void FSkyVertexBuffer::RenderRow(FRenderState& state, EDrawType prim, int row, b
 
 void FSkyVertexBuffer::RenderDome(FRenderState& state, FGameTexture* tex, int mode)
 {
-	if (tex)
+	if (tex && tex->isValid())
 	{
 		state.SetMaterial(tex, UF_Texture, 0, CLAMP_NONE, 0, -1);
 		state.EnableModelMatrix(true);

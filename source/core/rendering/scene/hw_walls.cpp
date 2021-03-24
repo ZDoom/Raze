@@ -516,6 +516,13 @@ void HWWall::PutPortal(HWDrawInfo *di, int ptype, int plane)
 		portal->AddLine(this);
 		break;
 
+	case PORTALTYPE_LINETOSPRITE:
+		// These are also unique.
+		portal = new HWLineToSpritePortal(&portalState, seg, &sprite[seg->portalnum]);
+		di->Portals.Push(portal);
+		portal->AddLine(this);
+		break;
+
 	case PORTALTYPE_SKY:
 		sky = portalState.UniqueSkies.Get(sky);
 		portal = di->FindPortal(sky);

@@ -640,7 +640,58 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	vp.Pos.X = npos.X;
 	vp.Pos.Y = npos.Y;
 
-	vp.Pos.Z -= (sector[line->sector].floorz - sector[origin->sector].floorz) / 256.f; // for testing only. Blood does not do it.
+	di->SetClipLine(line);
+	di->SetupView(rstate, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, !!(state->MirrorFlag & 1), !!(state->PlaneMirrorFlag & 1));
+	clipper->Clear();
+
+	angle_t af = di->FrustumAngle();
+	if (af < ANGLE_180) clipper->SafeAddClipRange(bamang(vp.RotAngle + af), bamang(vp.RotAngle - af));
+
+	auto startan = gethiq16angle(origin->x - origx, origin->y - origy);
+	auto endan = gethiq16angle(wall[origin->point2].x - origx, wall[origin->point2].y - origy);
+	clipper->SafeAddClipRange(q16ang(endan), q16ang(startan));
+	return true;
+}
+
+const char *HWLineToLinePortal::GetName() { return "LineToLine"; }
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//
+//
+// Line to sprite Portal
+//
+//
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//
+// only used by SW.
+//
+//-----------------------------------------------------------------------------
+bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* clipper)
+{
+	// TODO: Handle recursion more intelligently
+	auto& state = mState;
+	if (state->renderdepth > r_mirror_recursions)
+	{
+		return false;
+	}
+	auto& vp = di->Viewpoint;
+	di->mClipPortal = this;
+
+	auto srccenter = (WallStart(origin) + WallEnd(origin)) / 2;
+	DVector2 destcenter ={ camera->x / 16.f, camera->y / -16.f };
+	DVector2 npos = vp.Pos - srccenter + destcenter;
+
+	int origx = vp.Pos.X * 16;
+	int origy = vp.Pos.Y * -16;
+
+	vp.SectNum = camera->sectnum;
+	vp.Pos.X = npos.X;
+	vp.Pos.Y = npos.Y;
 
 	di->SetClipLine(line);
 	di->SetupView(rstate, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, !!(state->MirrorFlag & 1), !!(state->PlaneMirrorFlag & 1));
@@ -649,13 +700,13 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	angle_t af = di->FrustumAngle();
 	if (af < ANGLE_180) clipper->SafeAddClipRange(bamang(vp.RotAngle + af), bamang(vp.RotAngle - af));
 
-	auto startan = gethiq16angle(line->x - origx, line->y - origy);
-	auto endan = gethiq16angle(wall[line->point2].x - origx, wall[line->point2].y - origy);
-	clipper->SafeAddClipRange(q16ang(startan), q16ang(endan));  // we check the line from the backside so angles are reversed.
+	auto startan = gethiq16angle(origin->x - origx, origin->y - origy);
+	auto endan = gethiq16angle(wall[origin->point2].x - origx, wall[origin->point2].y - origy);
+	clipper->SafeAddClipRange(q16ang(endan), q16ang(startan));
 	return true;
 }
 
-const char *HWLineToLinePortal::GetName() { return "LineToLine"; }
+const char* HWLineToSpritePortal::GetName() { return "LineToSprite"; }
 
 
 #if 0 // currently none of the games has any support for this. Maybe later.
