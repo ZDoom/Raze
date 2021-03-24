@@ -50,7 +50,7 @@ inline void mergePortals()
 				{
 					auto& pt2 = allPortals[j];
 					if (pt1.type != pt2.type || pt1.dx != pt2.dx || pt1.dy != pt2.dy || pt1.dz != pt2.dz) continue;
-					for (unsigned s = 0; s < pt1.targets.Size(); s++)
+					for (unsigned s = 0; s < pt1.targets.Size() && pt2.targets.Size(); s++)
 					{
 						for (unsigned t = 0; t < pt2.targets.Size(); t++)
 						{
@@ -63,9 +63,9 @@ inline void mergePortals()
 								{
 									//Printf("Merged %d and %d\n", i, j);
 									if (sector[n].portalnum == j) sector[n].portalnum = i;
-									didsomething = true;
-									break;
 								}
+								didsomething = true;
+								break;
 							}
 						}
 					}

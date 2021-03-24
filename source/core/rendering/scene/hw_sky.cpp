@@ -115,7 +115,7 @@ void HWWall::SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowr
 
 void HWWall::SkyNormal(HWDrawInfo* di, sectortype* fs, FVector2& v1, FVector2& v2, float fch1, float fch2, float ffh1, float ffh2)
 {
-	if (fs->ceilingstat & CSTAT_SECTOR_SKY)
+	if ((fs->ceilingstat & CSTAT_SECTOR_SKY) || fs->portalflags == PORTAL_SECTOR_CEILING || fs->portalflags == PORTAL_SECTOR_CEILING_REFLECT)
 	{
 		ztop[0] = ztop[1] = 32768.0f;
 		zbottom[0] = fch1;
@@ -123,7 +123,7 @@ void HWWall::SkyNormal(HWDrawInfo* di, sectortype* fs, FVector2& v1, FVector2& v
 		SkyPlane(di, fs, plane_ceiling, true);
 	}
 
-	if (fs->floorstat & CSTAT_SECTOR_SKY)
+	if ((fs->floorstat & CSTAT_SECTOR_SKY) || fs->portalflags == PORTAL_SECTOR_FLOOR || fs->portalflags == PORTAL_SECTOR_FLOOR_REFLECT)
 	{
 		ztop[0] = ffh1;
 		ztop[1] = ffh2;

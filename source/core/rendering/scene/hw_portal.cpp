@@ -398,6 +398,7 @@ void HWPortal::RemoveStencil(HWDrawInfo *di, FRenderState &state, bool usestenci
 void HWScenePortalBase::ClearClipper(HWDrawInfo *di, Clipper *clipper)
 {
 	auto outer_di = di->outer;
+#if 0 // todo: fixme or remove - Unlike for Doom this won't be of great benefit with Build's rendering approach.
 	// This requires maximum precision, so convert everything to double.
 	DAngle angleOffset = deltaangle(DAngle(outer_di->Viewpoint.HWAngles.Yaw.Degrees), DAngle(di->Viewpoint.HWAngles.Yaw.Degrees));
 
@@ -418,6 +419,7 @@ void HWScenePortalBase::ClearClipper(HWDrawInfo *di, Clipper *clipper)
 			clipper->SafeRemoveClipRange(startang, endang);
 		}
 	}
+#endif
 
 	// and finally clip it to the visible area
 	angle_t a1 = di->FrustumAngle();
@@ -554,7 +556,9 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	int newy = int((y << 1) + Scale(dy, i, j) - view.y);
 	int newan = ((gethiq16angle(dx, dy) << 1) - bamang(vp.RotAngle).asq16()) & 0x7FFFFFF;
 	vp.RotAngle = q16ang(newan).asbam();
-	vp.SectNum = line->sector;
+	vp.SectNums = nullptr;
+	vp.SectCount = line->sector;
+
 
 	vp.Pos.X = newx / 16.f;
 	vp.Pos.Y = newy / -16.f;
@@ -636,7 +640,8 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	int origx = vp.Pos.X * 16;
 	int origy = vp.Pos.Y * -16;
 
-	vp.SectNum = line->sector;
+	vp.SectNums = nullptr;
+	vp.SectCount = line->sector;
 	vp.Pos.X = npos.X;
 	vp.Pos.Y = npos.Y;
 
@@ -689,7 +694,8 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 	int origx = vp.Pos.X * 16;
 	int origy = vp.Pos.Y * -16;
 
-	vp.SectNum = camera->sectnum;
+	vp.SectNums = nullptr;
+	vp.SectCount = camera->sectnum;
 	vp.Pos.X = npos.X;
 	vp.Pos.Y = npos.Y;
 
@@ -803,8 +809,8 @@ bool HWSectorStackPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *c
 	auto &vp = di->Viewpoint;
 
 	vp.Pos += DVector3(portal->dx / 16., portal->dy / -16., portal->dz / -256.);
-	//vp.ActorPos += origin->mDisplacement;
-	//vp.ViewActor = nullptr;
+	vp.SectNums = portal->targets.Data();
+	vp.SectCount = portal->targets.Size();
 
 	// avoid recursions!
 	screen->instack[origin->type == PORTAL_SECTOR_CEILING ? 1 : 0]++;
@@ -829,7 +835,7 @@ const char *HWSectorStackPortal::GetName() { return "Sectorstack"; }
 //-----------------------------------------------------------------------------
 //
 //
-// Plane Mirror Portal
+// Plane Mirror Portal (currently not needed, Witchaven 2 is the only Build game using such a feature)
 //
 //
 //-----------------------------------------------------------------------------

@@ -136,7 +136,7 @@ void InitMirrors(void)
             mirror[mirrorcnt].link = i;
             sector[j].ceilingpicnum = 4080+mirrorcnt;
             sector[j].portalflags = PORTAL_SECTOR_CEILING;
-            sector[i].portalnum = portalAdd(PORTAL_SECTOR_CEILING, j, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
+            sector[j].portalnum = portalAdd(PORTAL_SECTOR_CEILING, i, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
             mirrorcnt++;
         }
     }

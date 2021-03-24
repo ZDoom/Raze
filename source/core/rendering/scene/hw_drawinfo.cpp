@@ -308,7 +308,10 @@ void HWDrawInfo::CreateScene()
 
 	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
 	mDrawer.Init(this, mClipper, view);
-	mDrawer.RenderScene(vp.SectNum);
+	if (vp.SectNums)
+		mDrawer.RenderScene(vp.SectNums, vp.SectCount);
+	else
+		mDrawer.RenderScene(&vp.SectCount, 1); 
 
 	screen->mLights->Unmap();
 	screen->mVertexData->Unmap();

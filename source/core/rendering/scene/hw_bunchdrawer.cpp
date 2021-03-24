@@ -491,9 +491,10 @@ void BunchDrawer::ProcessSector(int sectnum)
 //
 //==========================================================================
 
-void BunchDrawer::RenderScene(int viewsector)
+void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount)
 {
-	ProcessSector(viewsector);
+	for(unsigned i=0;i<sectcount;i++)
+		ProcessSector(viewsectors[i]);
 	while (Bunches.Size() > 0)
 	{
 		int closest = FindClosestBunch();
