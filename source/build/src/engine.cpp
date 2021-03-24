@@ -1,4 +1,5 @@
 // "Build Engine & Tools" Copyright (c) 1993-1997 Ken Silverman
+// "Build Engine & Tools" Copyright (c) 1993-1997 Ken Silverman
 // Ken Silverman's official web site: "http://www.advsys.net/ken"
 // See the included license file "BUILDLIC.TXT" for license info.
 //
@@ -40,8 +41,6 @@
 #include "gl_renderer.h"
 #endif
 
-float rollang;
-
 int32_t r_rortexture = 0;
 int32_t r_rortexturerange = 0;
 int32_t r_rorphase = 0;
@@ -82,7 +81,7 @@ int32_t showfirstwall=0;
 int32_t showheightindicators=1;
 int32_t circlewall=-1;
 
-static fixed_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
+fixed_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
 
 static FString printcoords(void)
 {
@@ -140,12 +139,6 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
     *closest = { (int32_t)(w.x + ((d.x * i) >> 30)), (int32_t)(w.y + ((d.y * i) >> 30)) };
 }
 
-int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
-int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
-
-
-static vec3_t spritesxyz[MAXSPRITESONSCREEN+1];
-
 int32_t xdimen = -1, xdimenscale, xdimscale;
 float fxdimen = -1.f;
 int32_t ydimen;
@@ -171,12 +164,9 @@ static int32_t globaly1, globalx2;
 int16_t sectorborder[256];
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 
-static_assert(MAXWALLSB < INT16_MAX);
-int16_t numscans, numbunches;
 static int16_t numhits;
 
 char inpreparemirror = 0;
-static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
 
 
 //
@@ -232,21 +222,6 @@ int32_t animateoffs(int const tilenum, int fakevar)
     return offs;
 }
 
-static void renderDrawSprite(int32_t snum)
-{
-    Polymost::polymost_drawsprite(snum);
-}
-
-
-//
-// drawmaskwall (internal)
-//
-static void renderDrawMaskedWall(int16_t damaskwallcnt)
-{
-    Polymost::polymost_drawmaskwall(damaskwallcnt); return;
-}
-
-
 static int32_t engineLoadTables(void)
 {
     static char tablesloaded = 0;
@@ -281,16 +256,10 @@ static int32_t engineLoadTables(void)
 
 ////////// SPRITE LIST MANIPULATION FUNCTIONS //////////
 
-#ifdef NETCODE_DISABLE
-# define LISTFN_STATIC static
-#else
-# define LISTFN_STATIC
-#endif
-
 ///// sector lists of sprites /////
 
 // insert sprite at the head of sector list, change .sectnum
-LISTFN_STATIC void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum)
+static void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum)
 {
     int16_t const ohead = headspritesect[sectnum];
 
@@ -304,7 +273,7 @@ LISTFN_STATIC void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sect
 }
 
 // remove sprite 'deleteme' from its sector list
-LISTFN_STATIC void do_deletespritesect(int16_t deleteme)
+static void do_deletespritesect(int16_t deleteme)
 {
     int32_t const sectnum = sprite[deleteme].sectnum;
     int32_t const prev = prevspritesect[deleteme];
@@ -321,7 +290,7 @@ LISTFN_STATIC void do_deletespritesect(int16_t deleteme)
 ///// now, status lists /////
 
 // insert sprite at head of status list, change .statnum
-LISTFN_STATIC void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum)
+static void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum)
 {
     int16_t const ohead = headspritestat[statnum];
 
@@ -335,7 +304,7 @@ LISTFN_STATIC void do_insertsprite_at_headofstat(int16_t spritenum, int16_t stat
 }
 
 // insertspritestat (internal)
-LISTFN_STATIC int32_t insertspritestat(int16_t statnum)
+static int32_t insertspritestat(int16_t statnum)
 {
     if ((statnum >= MAXSTATUS) || (headspritestat[MAXSTATUS] == -1))
         return -1;  //list full
@@ -356,7 +325,7 @@ LISTFN_STATIC int32_t insertspritestat(int16_t statnum)
 }
 
 // remove sprite 'deleteme' from its status list
-LISTFN_STATIC void do_deletespritestat(int16_t deleteme)
+static void do_deletespritestat(int16_t deleteme)
 {
     int32_t const sectnum = sprite[deleteme].statnum;
     int32_t const prev = prevspritestat[deleteme];
@@ -740,28 +709,9 @@ int32_t engineInit(void)
     GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
     gi->loadPalette();
 
-#ifdef USE_OPENGL
     if (!mdinited) mdinit();
-#endif
-
     return 0;
 }
-
-//
-// uninitengine
-//
-
-void engineUnInit(void)
-{
-    Polymost::polymost_glreset();
-    freeallmodels();
-# ifdef POLYMER
-    polymer_uninit();
-# endif
-
-	TileFiles.CloseAll();
-}
-
 
 //
 // initspritelists
@@ -817,463 +767,6 @@ void initspritelists(void)
     Numsprites = 0;
 }
 
-
-void set_globalang(fixed_t const ang)
-{
-    globalang = FixedToInt(ang)&2047;
-    qglobalang = ang & 0x7FFFFFF;
-
-    float const f_ang = FixedToFloat(ang);
-    float const fcosang = bcosf(f_ang);
-    float const fsinang = bsinf(f_ang);
-
-#ifdef USE_OPENGL
-    fcosglobalang = fcosang;
-    fsinglobalang = fsinang;
-#endif
-    
-    cosglobalang = (int)fcosang;
-    singlobalang = (int)fsinang;
-
-    cosviewingrangeglobalang = MulScale(cosglobalang,viewingrange, 16);
-    sinviewingrangeglobalang = MulScale(singlobalang,viewingrange, 16);
-}
-
-//
-// drawrooms
-//
-EXTERN_CVAR(Int, gl_fogmode)
-CVAR(Bool, testnewrenderer, true, 0)
-
-int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
-                           fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
-{
-    checkRotatedWalls();
-
-    if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.
-
-    // Update starting sector number (common to classic and Polymost).
-    // ADJUST_GLOBALCURSECTNUM.
-    if (dacursectnum >= MAXSECTORS)
-        dacursectnum -= MAXSECTORS;
-    else
-    {
-        int i = dacursectnum;
-        updatesector(daposx, daposy, &dacursectnum);
-        if (dacursectnum < 0) dacursectnum = i;
-
-        // PK 20110123: I'm not sure what the line above is supposed to do, but 'i'
-        //              *can* be negative, so let's just quit here in that case...
-        if (dacursectnum < 0)
-            return 0;
-    }
-
-    set_globalpos(daposx, daposy, daposz);
-    set_globalang(daang);
-
-    global100horiz = dahoriz;
-
-    memset(gotsector, 0, sizeof(gotsector));
-    qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16) + IntToFixed(ydimen >> 1);
-    globalcursectnum = dacursectnum;
-    Polymost::polymost_drawrooms();
-    return inpreparemirror;
-}
-
-// UTILITY TYPES AND FUNCTIONS FOR DRAWMASKS OCCLUSION TREE
-// typedef struct          s_maskleaf
-// {
-//     int32_t                index;
-//     _point2d            p1, p2;
-//     _equation           maskeq, p1eq, p2eq;
-//     struct s_maskleaf*  branch[MAXWALLSB];
-//     int32_t                 drawing;
-// }                       _maskleaf;
-//
-// _maskleaf               maskleaves[MAXWALLSB];
-
-// returns equation of a line given two points
-static inline _equation equation(float const x1, float const y1, float const x2, float const y2)
-{
-    const float f = x2-x1;
-
-    // vertical
-    if (f == 0.f)
-       return { 1, 0, -x1 };
-    else
-    {
-        float const ff = (y2 - y1) / f;
-        return { ff, -1, (y1 - (ff * x1)) };
-    }
-}
-
-static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, const vec2f_t *p2)
-{
-    const float sign1 = (eq->a * p1->x) + (eq->b * p1->y) + eq->c;
-    const float sign2 = (eq->a * p2->x) + (eq->b * p2->y) + eq->c;
-    return (sign1 * sign2) > 0.f;
-}
-
-
-static inline int comparetsprites(int const k, int const l)
-{
-    if ((tspriteptr[k]->cstat & 48) != (tspriteptr[l]->cstat & 48))
-        return (tspriteptr[k]->cstat & 48) - (tspriteptr[l]->cstat & 48);
-
-    if ((tspriteptr[k]->cstat & 48) == 16 && tspriteptr[k]->ang != tspriteptr[l]->ang)
-        return tspriteptr[k]->ang - tspriteptr[l]->ang;
-
-    if (tspriteptr[k]->statnum != tspriteptr[l]->statnum)
-        return tspriteptr[k]->statnum - tspriteptr[l]->statnum;
-
-    if (tspriteptr[k]->x == tspriteptr[l]->x &&
-        tspriteptr[k]->y == tspriteptr[l]->y &&
-        tspriteptr[k]->z == tspriteptr[l]->z &&
-        (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
-        tspriteptr[k]->owner != tspriteptr[l]->owner)
-        return tspriteptr[k]->owner - tspriteptr[l]->owner;
-
-    if (abs(spritesxyz[k].z-globalposz) != abs(spritesxyz[l].z-globalposz))
-        return abs(spritesxyz[k].z-globalposz)-abs(spritesxyz[l].z-globalposz);
-
-    return 0;
-}
-
-static void sortsprites(int const start, int const end)
-{
-    int32_t i, gap, y, ys;
-
-    if (start >= end)
-        return;
-
-    gap = 1; while (gap < end - start) gap = (gap<<1)+1;
-    for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
-        for (i=start; i<end-gap; i++)
-            for (bssize_t l=i; l>=start; l-=gap)
-            {
-                if (spritesxyz[l].y <= spritesxyz[l+gap].y) break;
-                std::swap(tspriteptr[l],tspriteptr[l+gap]);
-                std::swap(spritesxyz[l].x,spritesxyz[l+gap].x);
-                std::swap(spritesxyz[l].y,spritesxyz[l+gap].y);
-            }
-
-    ys = spritesxyz[start].y; i = start;
-    for (bssize_t j=start+1; j<=end; j++)
-    {
-        if (j < end)
-        {
-            y = spritesxyz[j].y;
-            if (y == ys)
-                continue;
-
-            ys = y;
-        }
-
-        if (j > i+1)
-        {
-            for (bssize_t k=i; k<j; k++)
-            {
-                auto const s = tspriteptr[k];
-
-                spritesxyz[k].z = s->z;
-                if ((s->cstat&48) != 32)
-                {
-                    int32_t yoff = tileTopOffset(s->picnum) + s->yoffset;
-                    int32_t yspan = (tileHeight(s->picnum) * s->yrepeat << 2);
-
-                    spritesxyz[k].z -= (yoff*s->yrepeat)<<2;
-
-                    if (!(s->cstat&128))
-                        spritesxyz[k].z -= (yspan>>1);
-                    if (abs(spritesxyz[k].z-globalposz) < (yspan>>1))
-                        spritesxyz[k].z = globalposz;
-                }
-            }
-
-            for (bssize_t k=i+1; k<j; k++)
-                for (bssize_t l=i; l<k; l++)
-                    if (comparetsprites(k, l) < 0)
-                    {
-                        std::swap(tspriteptr[k], tspriteptr[l]);
-                        vec3_t tv3 = spritesxyz[k];
-                        spritesxyz[k] = spritesxyz[l];
-                        spritesxyz[l] = tv3;
-                    }
-        }
-        i = j;
-    }
-}
-
-//
-// drawmasks
-//
-void renderDrawMasks(void)
-{
-# define debugmask_add(dispidx, idx) do {} while (0)
-    int32_t i = spritesortcnt-1;
-    int32_t numSprites = spritesortcnt;
-
-    spritesortcnt = 0;
-    int32_t back = i;
-    for (; i >= 0; --i)
-    {
-        if (Polymost::polymost_spriteHasTranslucency(&tsprite[i]))
-        {
-            tspriteptr[spritesortcnt] = &tsprite[i];
-            ++spritesortcnt;
-        } else
-        {
-            tspriteptr[back] = &tsprite[i];
-            --back;
-        }
-    }
-
-    for (i=numSprites-1; i>=0; --i)
-    {
-        const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
-        const int32_t yp = DMulScale(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang, 6);
-        const int32_t modelp = spriteIsModelOrVoxel(tspriteptr[i]);
-
-        if (yp > (4<<8))
-        {
-            const int32_t xp = DMulScale(ys,cosglobalang,-xs,singlobalang, 6);
-
-            if (MulScale(labs(xp+yp),xdimen, 24) >= yp)
-                goto killsprite;
-
-            spritesxyz[i].x = Scale(xp+yp,xdimen<<7,yp);
-        }
-        else if ((tspriteptr[i]->cstat&48) == 0)
-        {
-killsprite:
-            if (!modelp)
-            {
-                //Delete face sprite if on wrong side!
-                if (i >= spritesortcnt)
-                {
-                    --numSprites;
-                    if (i != numSprites)
-                    {
-                        tspriteptr[i] = tspriteptr[numSprites];
-                        spritesxyz[i].x = spritesxyz[numSprites].x;
-                        spritesxyz[i].y = spritesxyz[numSprites].y;
-                    }
-                }
-                else
-                {
-                    --numSprites;
-                    --spritesortcnt;
-                    if (i != numSprites)
-                    {
-                        tspriteptr[i] = tspriteptr[spritesortcnt];
-                        spritesxyz[i].x = spritesxyz[spritesortcnt].x;
-                        spritesxyz[i].y = spritesxyz[spritesortcnt].y;
-                        tspriteptr[spritesortcnt] = tspriteptr[numSprites];
-                        spritesxyz[spritesortcnt].x = spritesxyz[numSprites].x;
-                        spritesxyz[spritesortcnt].y = spritesxyz[numSprites].y;
-                    }
-                }
-                continue;
-            }
-        }
-        spritesxyz[i].y = yp;
-    }
-
-    sortsprites(0, spritesortcnt);
-    sortsprites(spritesortcnt, numSprites);
-    renderBeginScene();
-
-    GLInterface.EnableBlend(false);
-    GLInterface.EnableAlphaTest(true);
-    GLInterface.SetDepthBias(-2, -256);
-
-    if (spritesortcnt < numSprites)
-    {
-        i = spritesortcnt;
-        for (bssize_t i = spritesortcnt; i < numSprites;)
-        {
-            int32_t py = spritesxyz[i].y;
-            int32_t pcstat = tspriteptr[i]->cstat & 48;
-            int32_t pangle = tspriteptr[i]->ang;
-            int j = i + 1;
-            if (!spriteIsModelOrVoxel(tspriteptr[i]))
-            {
-                while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
-                    && !spriteIsModelOrVoxel(tspriteptr[j]))
-                {
-                    j++;
-                }
-            }
-            if (j - i == 1)
-            {
-                debugmask_add(i | 32768, tspriteptr[i]->owner);
-                renderDrawSprite(i);
-                tspriteptr[i] = NULL;
-            }
-            else
-            {
-				GLInterface.SetDepthMask(false);
-
-                for (bssize_t k = j-1; k >= i; k--)
-                {
-                    debugmask_add(k | 32768, tspriteptr[k]->owner);
-                    renderDrawSprite(k);
-                }
-
-				GLInterface.SetDepthMask(true);
-
-				GLInterface.SetColorMask(false);
-                    
-                for (bssize_t k = j-1; k >= i; k--)
-                {
-                    renderDrawSprite(k);
-                    tspriteptr[k] = NULL;
-                }
-
-				GLInterface.SetColorMask(true);
-
-            }
-            i = j;
-        }
-    }
-
-	int32_t numMaskWalls = maskwallcnt;
-    maskwallcnt = 0;
-    for (i = 0; i < numMaskWalls; i++)
-    {
-        if (Polymost::polymost_maskWallHasTranslucency((uwalltype *) &wall[thewall[maskwall[i]]]))
-        {
-            maskwall[maskwallcnt] = maskwall[i];
-            maskwallcnt++;
-        }
-        else
-            renderDrawMaskedWall(i);
-    }
-
-    GLInterface.EnableBlend(true);
-    GLInterface.EnableAlphaTest(true);
-	GLInterface.SetDepthMask(false);
-
-    vec2f_t pos;
-
-    pos.x = fglobalposx;
-    pos.y = fglobalposy;
-
-    // CAUTION: maskwallcnt and spritesortcnt may be zero!
-    // Writing e.g. "while (maskwallcnt--)" is wrong!
-    while (maskwallcnt)
-    {
-        // PLAG: sorting stuff
-        const int32_t w =  thewall[maskwall[maskwallcnt-1]];
-
-        maskwallcnt--;
-
-        vec2f_t dot    = { (float)wall[w].x, (float)wall[w].y };
-        vec2f_t dot2   = { (float)wall[wall[w].point2].x, (float)wall[wall[w].point2].y };
-        vec2f_t middle = { (dot.x + dot2.x) * .5f, (dot.y + dot2.y) * .5f };
-
-        _equation maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
-        _equation p1eq   = equation(pos.x, pos.y, dot.x, dot.y);
-        _equation p2eq   = equation(pos.x, pos.y, dot2.x, dot2.y);
-
-        i = spritesortcnt;
-        while (i)
-        {
-            i--;
-            if (tspriteptr[i] != NULL)
-            {
-                vec2f_t spr;
-                auto const tspr = tspriteptr[i];
-
-                spr.x = (float)tspr->x;
-                spr.y = (float)tspr->y;
-
-                if (!sameside(&maskeq, &spr, &pos))
-                {
-                    // Sprite and camera are on different sides of the
-                    // masked wall.
-
-                    // Check if the sprite is inside the 'cone' given by
-                    // the rays from the camera to the two wall-points.
-                    const int32_t inleft = sameside(&p1eq, &middle, &spr);
-                    const int32_t inright = sameside(&p2eq, &middle, &spr);
-
-                    int32_t ok = (inleft && inright);
-
-                    if (!ok)
-                    {
-                        // If not, check if any of the border points are...
-                        vec2_t pp[4];
-                        int32_t numpts, jj;
-
-                        const _equation pineq = inleft ? p1eq : p2eq;
-
-                        if ((tspr->cstat & 48) == 32)
-                        {
-                            numpts = 4;
-                            GetFlatSpritePosition(tspr, tspr->pos.vec2, pp);
-                        }
-                        else
-                        {
-                            const int32_t oang = tspr->ang;
-                            numpts = 2;
-
-                            // Consider face sprites as wall sprites with camera ang.
-                            // XXX: factor 4/5 needed?
-                            if ((tspr->cstat & 48) != 16)
-                                tspriteptr[i]->ang = globalang;
-
-                            GetWallSpritePosition(tspr, tspr->pos.vec2, pp);
-
-                            if ((tspr->cstat & 48) != 16)
-                                tspriteptr[i]->ang = oang;
-                        }
-
-                        for (jj=0; jj<numpts; jj++)
-                        {
-                            spr.x = (float)pp[jj].x;
-                            spr.y = (float)pp[jj].y;
-
-                            if (!sameside(&maskeq, &spr, &pos))  // behind the maskwall,
-                                if ((sameside(&p1eq, &middle, &spr) &&  // inside the 'cone',
-                                        sameside(&p2eq, &middle, &spr))
-                                        || !sameside(&pineq, &middle, &spr))  // or on the other outside.
-                                {
-                                    ok = 1;
-                                    break;
-                                }
-                        }
-                    }
-
-                    if (ok)
-                    {
-                        debugmask_add(i | 32768, tspr->owner);
-                        renderDrawSprite(i);
-
-                        tspriteptr[i] = NULL;
-                    }
-                }
-            }
-        }
-
-        debugmask_add(maskwall[maskwallcnt], thewall[maskwall[maskwallcnt]]);
-        renderDrawMaskedWall(maskwallcnt);
-    }
-
-    while (spritesortcnt)
-    {
-        --spritesortcnt;
-        if (tspriteptr[spritesortcnt] != NULL)
-        {
-            debugmask_add(i | 32768, tspriteptr[i]->owner);
-            renderDrawSprite(spritesortcnt);
-            tspriteptr[spritesortcnt] = NULL;
-        }
-    }
-    renderFinishScene();
-	GLInterface.SetDepthMask(true);
-	GLInterface.SetDepthBias(0, 0);
-}
 
 
 //
@@ -2226,22 +1719,6 @@ void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * con
     p2->y = DMulScale(p.y, dacos, p.x, dasin, 14) + pivot.y;
 }
 
-void videoSetCorrectedAspect()
-{
-        // In DOS the game world is displayed with an aspect of 1.28 instead 1.333,
-        // meaning we have to stretch it by a factor of 1.25 instead of 1.2
-        // to get perfect squares
-        int32_t yx = (65536 * 5) / 4;
-        int32_t vr, y, x;
-
-        x = xdim;
-        y = ydim;
-
-        vr = DivScale(x*3, y*4, 16);
-
-        renderSetAspect(vr, yx);
-}
-
 //
 // setview
 //
@@ -2355,41 +1832,6 @@ void renderRestoreTarget()
 }
 
 
-//
-// preparemirror
-//
-void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
-                         int32_t *tposx, int32_t *tposy, fixed_t *tang)
-{
-    const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
-    const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
-
-    const int32_t j = dx*dx + dy*dy;
-    if (j == 0)
-        return;
-
-    int i = ((dax-x)*dx + (day-y)*dy)<<1;
-
-    *tposx = (x<<1) + Scale(dx,i,j) - dax;
-    *tposy = (y<<1) + Scale(dy,i,j) - day;
-    *tang  = ((gethiq16angle(dx, dy) << 1) - daang) & 0x7FFFFFF;
-
-    inpreparemirror = 1;
-
-    Polymost::polymost_prepareMirror(dax, day, daz, daang, dahoriz, dawall);
-}
-
-
-//
-// completemirror
-//
-void renderCompleteMirror(void)
-{
-    Polymost::polymost_completeMirror();
-    inpreparemirror = 0;
-}
-
-
 int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
 {
     if (!(sec->ceilingstat&2))
@@ -2492,16 +1934,4 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
     else sector[dasect].floorstat |= 2;
 }
 
-
-
-//
-// setrollangle
-//
-#ifdef USE_OPENGL
-void renderSetRollAngle(float rolla)
-{
-    Polymost::gtang = rolla * BAngRadian;
-    rollang = rolla * (BAngRadian * 180 / pi::pif());
-}
-#endif
 

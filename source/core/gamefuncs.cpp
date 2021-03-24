@@ -262,7 +262,7 @@ void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out)
 
 //==========================================================================
 //
-// Check if some walls are set to be rotated textures.
+// Check if some walls are set to use rotated textures.
 // Ideally this should just have been done with texture rotation,
 // but the effects on the render code would be too severe due to the alignment mess.
 //

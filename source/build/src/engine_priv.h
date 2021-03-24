@@ -13,8 +13,6 @@
 #ifndef ENGINE_PRIV_H
 #define ENGINE_PRIV_H
 
-extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
-extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 extern int16_t maskwall[MAXWALLSB], maskwallcnt;
 extern tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenscale, xdimscale, ydimen;
@@ -35,14 +33,6 @@ extern char inpreparemirror;
 
 extern int16_t sectorborder[256];
 extern int32_t hitallsprites;
-
-extern int16_t bunchp2[MAXWALLSB];
-extern int16_t numscans, numbunches;
-
-
-// int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
-
-void set_globalang(fixed_t const ang);
 
 int32_t animateoffs(int tilenum, int fakevar);
 

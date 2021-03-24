@@ -570,7 +570,7 @@ int GameMain()
 	TileFiles.CloseAll();	// delete the texture data before shutting down graphics.
 	GLInterface.Deinit();
 	I_ShutdownGraphics();
-	engineUnInit();
+	freeallmodels();
 	if (gi)
 	{
 		delete gi;

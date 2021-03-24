@@ -223,7 +223,6 @@ static inline tspriteptr_t renderAddTSpriteFromSprite(uint16_t const spritenum)
 
 
 EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
-EXTERN int16_t thewall[MAXWALLSB];
 EXTERN tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t xdim, ydim;
@@ -441,18 +440,11 @@ void   renderSetAspect(int32_t daxrange, int32_t daaspect);
 void   plotpixel(int32_t x, int32_t y, char col);
 FCanvasTexture *renderSetTarget(int16_t tilenume);
 void   renderRestoreTarget();
-void   renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
-                           int32_t *tposx, int32_t *tposy, fixed_t *tang);
-void   renderCompleteMirror(void);
 
-int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, int16_t dacursectnum);
-
-void   renderDrawMasks(void);
 void setVideoMode();
 void videoInit();
 void   videoClearViewableArea(int32_t dacol);
 void   videoClearScreen(int32_t dacol);
-void   renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
 
 class F2DDrawer;
 
@@ -652,16 +644,6 @@ static FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t 
 }
 
 int videoCaptureScreen();
-
-// PLAG: line utility functions
-typedef struct s_equation
-{
-    float a, b, c;
-} _equation;
-
-#ifdef USE_OPENGL
-void    renderSetRollAngle(float rolla);
-#endif
 
 void PrecacheHardwareTextures(int nTile);
 void Polymost_Startup();

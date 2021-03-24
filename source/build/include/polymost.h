@@ -36,6 +36,23 @@ extern float curpolygonoffset;
 
 }
 
+void   renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
+    int32_t* tposx, int32_t* tposy, fixed_t* tang);
+void   renderCompleteMirror(void);
+
+int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, int16_t dacursectnum);
+
+void   renderDrawMasks(void);
+
+// PLAG: line utility functions
+typedef struct s_equation
+{
+    float a, b, c;
+} _equation;
+
+void    renderSetRollAngle(float rolla);
+
+
 // these are defined in engine.cpp.
 extern int16_t globalpicnum;
 extern float fcosglobalang, fsinglobalang;
