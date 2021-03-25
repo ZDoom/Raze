@@ -190,16 +190,7 @@ EXTERN int32_t display_mirror;
 
 EXTERN int32_t randomseed;
 
-EXTERN int16_t numshades;
 EXTERN uint8_t paletteloaded;
-
-// Return type is int because this gets passed to variadic functions where structs may produce undefined behavior.
-inline int shadeToLight(int shade)
-{
-	shade = clamp(shade, 0, numshades-1);
-	int light = Scale(numshades-1-shade, 255, numshades-1);
-	return PalEntry(255,light,light,light);
-}
 
 EXTERN int32_t maxspritesonscreen;
 
@@ -337,22 +328,8 @@ SPRITE VARIABLES:
         be in some sector, and must have some kind of status that you define.
 
 
-TILE VARIABLES:
-        NUMTILES - the number of tiles found TILES.DAT.
-
-TIMING VARIABLES:
-        NUMFRAMES - The number of times the draw3dscreen function was called
-            since the engine was initialized.  This helps to determine frame
-            rate.  (Frame rate = numframes * 120 / I_GetBuildTime().)
-
 OTHER VARIABLES:
 
-        STARTUMOST[320] is an array of the highest y-coordinates on each column
-                that my engine is allowed to write to.  You need to set it only
-                once.
-        STARTDMOST[320] is an array of the lowest y-coordinates on each column
-                that my engine is allowed to write to.  You need to set it only
-                once.
         SINTABLE[2048] is a sin table with 2048 angles rather than the
             normal 360 angles for higher precision.  Also since SINTABLE is in
             all integers, the range is multiplied by 16383, so instead of the
@@ -454,7 +431,6 @@ int findwallbetweensectors(int sect1, int sect2);
 inline int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
 int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = nullptr);
 extern const int16_t *chsecptr_onextwall;
-int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
 #if !KRANDDEBUG
 inline int32_t krand(void)

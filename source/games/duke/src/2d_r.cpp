@@ -39,6 +39,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "texturemanager.h"
 #include "c_dispatch.h"
 #include "gamestate.h"
+#include "gamefuncs.h"
 
 BEGIN_DUKE_NS
 

@@ -165,7 +165,7 @@ inline void videoclearFade()
 
 void videoTintBlood(int32_t r, int32_t g, int32_t b);
 
-extern int32_t globalpal, globalfloorpal;
+extern int numshades;
 extern void paletteLoadFromDisk(void);
 
 

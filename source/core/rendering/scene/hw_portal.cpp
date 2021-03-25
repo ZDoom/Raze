@@ -804,7 +804,12 @@ bool HWSkyboxPortal::AllowSSAO() { return false; }	// [MK] sector skyboxes don't
 //-----------------------------------------------------------------------------
 bool HWSectorStackPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clipper)
 {
-	auto state = mState;
+	// TODO: Handle recursion more intelligently
+	auto& state = mState;
+	if (state->renderdepth > r_mirror_recursions)
+	{
+		return false;
+	}
 	auto portal = origin;
 	auto &vp = di->Viewpoint;
 
