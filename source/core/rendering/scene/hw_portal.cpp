@@ -814,20 +814,10 @@ bool HWSectorStackPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *c
 	auto portal = origin;
 	auto &vp = di->Viewpoint;
 
-	if (portal)
-	{
-		vp.Pos += DVector3(portal->dx / 16., portal->dy / -16., portal->dz / -256.);
-		vp.SectNums = portal->targets.Data();
-		vp.SectCount = portal->targets.Size();
-		type = origin->type;
-	}
-	else
-	{
-		if (state->renderdepth > 1) return false;	// there is no way to make these portals recursive.
-		// Shadow Warrior's portals are too poorly defined so that the static approach won't work.
-		type = gi->SetupPortal(vp);
-		if (type == -1) return false;
-	}
+	vp.Pos += DVector3(portal->dx / 16., portal->dy / -16., portal->dz / -256.);
+	vp.SectNums = portal->targets.Data();
+	vp.SectCount = portal->targets.Size();
+	type = origin->type;
 	state->insectorportal = true;
 
 	// avoid recursions!

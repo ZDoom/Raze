@@ -120,15 +120,6 @@ void BunchDrawer::DeleteBunch(int index)
 
 bool BunchDrawer::CheckClip(walltype* wal)
 {
-#ifdef _DEBUG
-	if (wal - wall == 843 || wal - wall == 847)
-	{
-		int a = 0;
-	}
-#endif
-
-
-
 	auto pt2 = &wall[wal->point2];
 	sectortype* backsector = &sector[wal->nextsector];
 	sectortype* frontsector = &sector[wall[wal->nextwall].nextsector];
@@ -136,10 +127,6 @@ bool BunchDrawer::CheckClip(walltype* wal)
 	// if one plane is sky on both sides, the line must not clip.
 	if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY) return false;
 	if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY) return false;
-
-	// if we are in a sector portal, no two sided line may clip.
-	// originally this was achieved by temporarily altering the map geometry in the portal sectors.
-	if (portalState.insectorportal) return false;
 
 	float bs_floorheight1;
 	float bs_floorheight2;

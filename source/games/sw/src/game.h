@@ -1969,21 +1969,14 @@ void SetOwner(short, short);
 void SetAttach(short, short);
 void analyzesprites(int,int,int,bool);
 void ChangeState(short SpriteNum, STATEp statep);
+void CollectPortals();
 
-void UpdateSectorFAF_Connect(short SpriteNum, int newz);
-#if 0
-bool FAF_ConnectCeiling(short sectnum);
-bool FAF_ConnectFloor(short sectnum);
-#else
 #define FAF_PLACE_MIRROR_PIC 341
 #define FAF_MIRROR_PIC 2356
 #define FAF_ConnectCeiling(sectnum) (sector[(sectnum)].ceilingpicnum == FAF_MIRROR_PIC)
 #define FAF_ConnectFloor(sectnum) (sector[(sectnum)].floorpicnum == FAF_MIRROR_PIC)
 #define FAF_ConnectArea(sectnum) (FAF_ConnectCeiling(sectnum) || FAF_ConnectFloor(sectnum))
-#endif
-//void updatesectorz(int, int, int, short *);
-void FAF_ConnectPlayerCeiling(PLAYERp pp);
-void FAF_ConnectPlayerFloor(PLAYERp pp);
+
 bool PlayerCeilingHit(PLAYERp pp, int zlimit);
 bool PlayerFloorHit(PLAYERp pp, int zlimit);
 
@@ -2255,8 +2248,7 @@ struct GameInterface : ::GameInterface
     int chaseCamX(binangle ang) { return -ang.bcos(-3); }
     int chaseCamY(binangle ang) { return -ang.bsin(-3); }
     int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() >> 8; }
-    int SetupPortal(FRenderViewpoint& vp) override;
-
+    
 
     GameStats getStats() override;
 };

@@ -26,7 +26,7 @@ inline int portalAdd(int type, int target, int dx = 0, int dy = 0, int dz = 0)
 {
 	auto& pt = allPortals[allPortals.Reserve(1)];
 	pt.type = type;
-	pt.targets.Push(target);
+	if (target >= 0) pt.targets.Push(target);
 	pt.dx = dx;
 	pt.dy = dy;
 	pt.dz = dz;

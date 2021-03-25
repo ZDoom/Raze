@@ -408,6 +408,7 @@ void InitLevel(MapRecord *maprec)
     PostSetupSectorObject();
     SetupMirrorTiles();
     initlava();
+    CollectPortals();
 
     // reset NewGame
     NewGame = false;

@@ -689,7 +689,7 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
     int sln = 0;
     int SpriteNum;
     SPRITEp sp;
-
+#if 0
     // keep a list of the last stacked sectors the view was in and
     // check those fisrt
     sln = 0;
@@ -720,12 +720,13 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
             sln++;
         }
     }
+#endif
 
     // didn't find it yet so test ALL sectors
     if (sln < 2)
     {
         sln = 0;
-        for (i = numsectors - 1; i >= 0; i--)
+        for (i = 0; i < numsectors; i++)// - 1; i >= 0; i--)
         {
             if (inside(x, y, (short) i) == 1)
             {
@@ -1020,45 +1021,179 @@ FindViewSectorInScene(short cursectnum, short level)
     return -1;
 }
 
-int GameInterface::SetupPortal(FRenderViewpoint &vp)
+struct PortalGroup
 {
-    short i;
-    short match;
+    TArray<int> sectors;
+    int othersector = -1;
+    vec3_t offset = { 0,0,0 };
+};
 
-    save.zcount = 0;
-    int16_t tsectnum = int16_t(vp.SectNums == nullptr ? vp.SectCount : vp.SectNums[0]);
-    int tx = vp.Pos.X * 16;
-    int ty = vp.Pos.Y * -16;
-    int tz = vp.Pos.Z * -128;
-    int type = -1;
-    int looktype = -1;
+    // This is very messy because some portals are linked outside the actual portal sectors, so we have to use the complicated original linking logic to find the connection. :?
+void CollectPortals()
+{
+    int t = testnewrenderer;
+    testnewrenderer = true;
+    TArray<PortalGroup> floorportals;
+    TArray<PortalGroup> ceilingportals;
+    FixedBitArray<MAXSECTORS> floordone, ceilingdone;
 
-    match = FindViewSectorInScene(tsectnum, VIEW_LEVEL1);
-    if (match != -1)
+    floordone.Zero();
+    ceilingdone.Zero();
+
+    for (int i = 0; i < numsectors; i++)
     {
-        FindCeilingView(match, &tx, &ty, tz, &tsectnum);
-        type = PORTAL_SECTOR_CEILING;
-
-        if (tsectnum < 0)
-            return -1;
-    }
-    else
-    {
-        match = FindViewSectorInScene(tsectnum, VIEW_LEVEL2);
-        if (match != -1)
+        if (sector[i].floorpicnum == FAF_MIRROR_PIC && !floordone[i])
         {
-            FindFloorView(match, &tx, &ty, tz, &tsectnum);
-            type = PORTAL_SECTOR_FLOOR;
-
-            if (tsectnum < 0)
-                return -1;
-
+            auto& fp = floorportals[floorportals.Reserve(1)];
+            fp.sectors.Push(i);
+            floordone.Set(i);
+            for (unsigned ii = 0; ii < fp.sectors.Size(); ii++)
+            {
+                auto sec = &sector[fp.sectors[ii]];
+                for (int w = 0; w < sec->wallnum; w++)
+                {
+                    auto ns = wall[sec->wallptr + w].nextsector;
+                    if (ns < 0 || floordone[ns] || sector[ns].floorpicnum != FAF_MIRROR_PIC) continue;
+                    fp.sectors.Push(ns);
+                    floordone.Set(ns);
+                }
+            }
+        }
+        if (sector[i].ceilingpicnum == FAF_MIRROR_PIC && !ceilingdone[i])
+        {
+            auto& fp = ceilingportals[ceilingportals.Reserve(1)];
+            fp.sectors.Push(i);
+            ceilingdone.Set(i);
+            for (unsigned ii = 0; ii < fp.sectors.Size(); ii++)
+            {
+                auto sec = &sector[fp.sectors[ii]];
+                for (int w = 0; w < sec->wallnum; w++)
+                {
+                    auto ns = wall[sec->wallptr + w].nextsector;
+                    if (ns < 0 || ceilingdone[ns] || sector[ns].ceilingpicnum != FAF_MIRROR_PIC) continue;
+                    fp.sectors.Push(ns);
+                    ceilingdone.Set(ns);
+                }
+            }
         }
     }
-    vp.Pos = { tx / 16.f, ty / -16.f, tz / -128.f };
-    vp.SectNums = nullptr;
-    vp.SectCount = tsectnum;
-    return type;
+    // now try to find connections.
+    for (auto& fp : ceilingportals)
+    {
+        // pick one sprite out of the sectors, repeat until we get a valid connection
+        for (auto sec : fp.sectors)
+        {
+            SectIterator it(sec);
+            int spr;
+            while ((spr = it.NextIndex()) >= 0)
+            {
+                int tx = sprite[spr].x;
+                int ty = sprite[spr].y;
+                int tz = sprite[spr].z;
+                int16_t tsectnum = sec;
+
+                int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL1);
+                if (match != -1)
+                {
+                    FindCeilingView(match, &tx, &ty, tz, &tsectnum);
+                    if (tsectnum >= 0 && sector[tsectnum].floorpicnum == FAF_MIRROR_PIC)
+                    {
+                        // got something!
+                        fp.othersector = tsectnum;
+                        fp.offset = { tx, ty, tz };
+                        fp.offset -= sprite[spr].pos;
+                        goto nextfg;
+                    }
+                }
+            }
+        }
+    nextfg:;
+    }
+
+    for (auto& fp : floorportals)
+    {
+        for (auto sec : fp.sectors)
+        {
+            SectIterator it(sec);
+            int spr;
+            while ((spr = it.NextIndex()) >= 0)
+            {
+                int tx = sprite[spr].x;
+                int ty = sprite[spr].y;
+                int tz = sprite[spr].z;
+                int16_t tsectnum = sec;
+
+                int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL2);
+                if (match != -1)
+                {
+                    FindFloorView(match, &tx, &ty, tz, &tsectnum);
+                    if (tsectnum >= 0 && sector[tsectnum].ceilingpicnum == FAF_MIRROR_PIC)
+                    {
+                        // got something!
+                        fp.othersector = tsectnum;
+                        fp.offset = { tx, ty, tz };
+                        fp.offset -= sprite[spr].pos;
+                        goto nextcg;
+                    }
+                }
+            }
+        }
+    nextcg:;
+    }
+    for (auto& pt : floorportals)
+    {
+        if (pt.othersector > -1)
+        {
+            auto findother = [&](int other) -> PortalGroup*
+            {
+                for (auto& pt2 : ceilingportals)
+                {
+                    if (pt2.sectors.Find(other) != pt2.sectors.Size()) return &pt2;
+                }
+                return nullptr;
+            };
+
+            auto pt2 = findother(pt.othersector);
+            if (pt2)
+            {
+                int pnum = portalAdd(PORTAL_SECTOR_FLOOR, -1, pt.offset.x, pt.offset.y, 0);
+                allPortals[pnum].targets = pt2->sectors; // do not move! We still need the original.
+                for (auto sec : pt.sectors)
+                {
+                    sector[sec].portalflags = PORTAL_SECTOR_FLOOR;
+                    sector[sec].portalnum = pnum;
+                }
+            }
+        }
+    }
+    for (auto& pt : ceilingportals)
+    {
+        if (pt.othersector > -1)
+        {
+            auto findother = [&](int other) -> PortalGroup*
+            {
+                for (auto& pt2 : floorportals)
+                {
+                    if (pt2.sectors.Find(other) != pt2.sectors.Size()) return &pt2;
+                }
+                return nullptr;
+            };
+
+            auto pt2 = findother(pt.othersector);
+            if (pt2)
+            {
+                int pnum = portalAdd(PORTAL_SECTOR_FLOOR, -1, pt.offset.x, pt.offset.y, 0);
+                allPortals[pnum].targets = std::move(pt2->sectors);
+                for (auto sec : pt.sectors)
+                {
+                    sector[sec].portalflags = PORTAL_SECTOR_CEILING;
+                    sector[sec].portalnum = pnum;
+                }
+            }
+        }
+    }
+    testnewrenderer = false;
 }
+
 
 END_SW_NS
