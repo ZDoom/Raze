@@ -161,25 +161,33 @@ extern sectortype sectorbackup[MAXSECTORS];
 extern walltype wallbackup[MAXWALLS];
 
 
-static inline tspriteptr_t renderMakeTSpriteFromSprite(tspriteptr_t const tspr, uint16_t const spritenum)
+inline tspriteptr_t renderAddNewTSprite()
 {
-    auto const spr = &sprite[spritenum];
-
-    *tspr = *spr;
-
-    tspr->clipdist = 0;
-    tspr->owner = spritenum;
-
+    auto tspr = &tsprite[spritesortcnt++];
+    *tspr = {};
     return tspr;
 }
 
-static inline tspriteptr_t renderAddTSpriteFromSprite(uint16_t const spritenum)
+inline tspriteptr_t renderAddTSpriteFromSprite(uint16_t const spritenum)
 {
-    return renderMakeTSpriteFromSprite(&tsprite[spritesortcnt++], spritenum);
+    auto tspr = &tsprite[spritesortcnt++];
+    auto const spr = &sprite[spritenum];
+    *tspr = *spr;
+    tspr->clipdist = 0;
+    tspr->owner = spritenum;
+    return tspr;
+}
+
+// returns: 0=continue sprite collecting;
+//          1=break out of sprite collecting;
+inline int32_t renderAddTsprite(int16_t z, int16_t sectnum)
+{
+    if (spritesortcnt >= MAXSPRITESONSCREEN) return 1;
+    renderAddTSpriteFromSprite(z);
+    return 0;
 }
 
 
-EXTERN tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t xdim, ydim;
 EXTERN int32_t yxaspect, viewingrange;
@@ -191,8 +199,6 @@ EXTERN int32_t display_mirror;
 EXTERN int32_t randomseed;
 
 EXTERN uint8_t paletteloaded;
-
-EXTERN int32_t maxspritesonscreen;
 
 enum {
     PALETTE_MAIN = 1<<0,

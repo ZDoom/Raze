@@ -24,6 +24,8 @@ class BunchDrawer
     TArray<FBunch> Bunches;
     TArray<int> CompareData;
     double viewx, viewy;
+    vec2_t iview;
+    float gcosang, gsinang;
     FixedBitArray<MAXSECTORS> gotsector;
 
 private:

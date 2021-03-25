@@ -1094,34 +1094,6 @@ void PrintSpriteInfo(PLAYERp pp)
 }
 
 
-void SpriteSortList2D(int tx, int ty)
-{
-    SPRITEp sp;
-    int i;
-    int dist,a,b,c;
-
-    spritesortcnt = 0;
-    for (i = 0; i < MAXSPRITES; i++)
-    {
-        if (sprite[i].statnum < MAXSTATUS)
-        {
-            sp = &sprite[i];
-
-            if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE) &&
-                (sp->xrepeat > 0) && (sp->yrepeat > 0) &&
-                (spritesortcnt < MAXSPRITESONSCREEN))
-            {
-                DISTANCE(tx,ty,sp->x,sp->y,dist,a,b,c);
-
-                if (dist < 22000)
-                {
-                    renderAddTSpriteFromSprite(i);
-                }
-            }
-        }
-    }
-}
-
 void DrawCrosshair(PLAYERp pp)
 {
     extern bool CameraTestMode;

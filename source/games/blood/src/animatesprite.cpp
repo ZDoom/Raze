@@ -126,7 +126,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
 {
     assert(nViewEffect >= 0 && nViewEffect < kViewEffectMax);
     auto pTSprite = &tsprite[nTSprite];
-    if (gDetail < effectDetail[nViewEffect] || nTSprite >= maxspritesonscreen) return NULL;
+    if (gDetail < effectDetail[nViewEffect] || nTSprite >= MAXSPRITESONSCREEN) return NULL;
     switch (nViewEffect)
     {
     case VIEW_EFFECT_18:
@@ -220,7 +220,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         {
             nAng = (nAng+1024)&2047;
         }
-        for (int i = 0; i < 5 && spritesortcnt < maxspritesonscreen; i++)
+        for (int i = 0; i < 5 && spritesortcnt < MAXSPRITESONSCREEN; i++)
         {
             int nSector = pTSprite->sectnum;
             auto pNSprite = viewInsertTSprite<tspritetype>(nSector, 32767, NULL);
@@ -433,7 +433,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
 {
 	// shift before interpolating to increase precision.
 	int myclock = (PlayClock<<3) + MulScale(4<<3, smoothratio, 16);
-    assert(spritesortcnt <= maxspritesonscreen);
+    assert(spritesortcnt <= MAXSPRITESONSCREEN);
     gCameraAng = cA;
     int nViewSprites = spritesortcnt;
     for (int nTSprite = spritesortcnt-1; nTSprite >= 0; nTSprite--)
@@ -633,7 +633,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 pTSprite->xrepeat = pTSprite->yrepeat = 0;
             }
         }
-        if (spritesortcnt >= maxspritesonscreen) continue;
+        if (spritesortcnt >= MAXSPRITESONSCREEN) continue;
         if (pTXSprite && pTXSprite->burnTime > 0)
         {
             pTSprite->shade = ClipRange(pTSprite->shade-16-QRandom(8), -128, 127);

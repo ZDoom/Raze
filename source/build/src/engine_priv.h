@@ -14,7 +14,6 @@
 #define ENGINE_PRIV_H
 
 extern int32_t globalpal, globalfloorpal;
-extern tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
 extern int32_t globalposx, globalposy, globalposz;

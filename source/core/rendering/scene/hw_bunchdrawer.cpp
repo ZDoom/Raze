@@ -53,8 +53,13 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view)
 	clipper = c;
 	viewx = view.x * (1/ 16.f);
 	viewy = view.y * -(1/ 16.f);
+	iview = view;
 	StartScene();
 	clipper->SetViewpoint(view);
+
+	gcosang = bamang(di->Viewpoint.RotAngle).fcos();
+	gsinang = bamang(di->Viewpoint.RotAngle).fsin();
+
 	for (int i = 0; i < numwalls; i++)
 	{
 		// Precalculate the clip angles to avoid doing this repeatedly during level traversal.
@@ -419,16 +424,40 @@ void BunchDrawer::ProcessSector(int sectnum)
 	if (gotsector[sectnum]) return;
 	gotsector.Set(sectnum);
 
-	Bsp.Clock();
-
 	auto sect = &sector[sectnum];
 	bool inbunch;
 	binangle startangle;
+
+	SetupSprite.Clock();
+
+	int z;
+	SectIterator it(sectnum);
+	while ((z = it.NextIndex()) >= 0)
+	{
+		auto const spr = (uspriteptr_t)&sprite[z];
+
+		if ((spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->xrepeat == 0 || spr->yrepeat == 0) // skip invisible sprites
+			continue;
+
+		int sx = spr->x - iview.x, sy = spr->y - int(iview.y);
+
+		if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) || (hw_models && tile2model[spr->picnum].modelid >= 0) || ((sx * gcosang) + (sy * gsinang) > 0)) // is it behind the camera? (fixme!)
+		{
+			if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_WALL + 16) ||
+				(r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
+				DMulScale(bcos(spr->ang), -sx, bsin(spr->ang), -sy, 6) > 0)
+				if (renderAddTsprite(z, sectnum))
+					break;
+		}
+	}
+	SetupSprite.Unclock();
+
 
 	SetupFlat.Clock();
 	HWFlat flat;
 	flat.ProcessSector(di, &sector[sectnum]);
 	SetupFlat.Unclock();
+	Bsp.Clock();
 
 	//Todo: process subsectors
 	inbunch = false;

@@ -61,6 +61,7 @@ static int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 static int16_t numscans, numbunches;
 static int16_t maskwall[MAXWALLSB], maskwallcnt;
 static int16_t sectorborder[256];
+static tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 
 
 

@@ -172,20 +172,6 @@ char inpreparemirror = 0;
 // Internal Engine Functions
 //
 
-// returns: 0=continue sprite collecting;
-//          1=break out of sprite collecting;
-int32_t renderAddTsprite(int16_t z, int16_t sectnum)
-{
-    auto const spr = (uspriteptr_t)&sprite[z];
-    if (spritesortcnt >= maxspritesonscreen)
-        return 1;
-
-    renderAddTSpriteFromSprite(z);
-
-
-    return 0;
-}
-
 
 //
 // animateoffs (internal)
@@ -702,8 +688,6 @@ int32_t engineInit(void)
 
     g_visibility = 512;
     parallaxvisibility = 512;
-
-    maxspritesonscreen = MAXSPRITESONSCREEN;
 
     GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
     gi->loadPalette();
