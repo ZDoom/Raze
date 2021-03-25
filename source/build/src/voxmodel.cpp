@@ -206,10 +206,13 @@ void PolymostProcessVoxels(void)
     for (int i = 0; i < MAXVOXELS; i++)
     {
         int lumpnum = voxlumps[i];
-        if (lumpnum >= 0)
+        if (lumpnum > 0)
         {
             voxmodels[i] = voxload(lumpnum);
-            voxmodels[i]->scale = voxscale[i] * (1.f / 65536.f);
+            if (voxmodels[i])
+                voxmodels[i]->scale = voxscale[i] * (1.f / 65536.f);
+            else
+                Printf("Unable to load voxel from %s\n", fileSystem.GetFileFullPath(lumpnum));
         }
     }
 }
