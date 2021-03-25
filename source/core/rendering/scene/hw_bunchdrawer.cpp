@@ -38,6 +38,7 @@
 #include "hw_drawstructs.h"
 #include "automap.h"
 #include "gamefuncs.h"
+#include "hw_portal.h"
 
 
 //==========================================================================
@@ -135,6 +136,10 @@ bool BunchDrawer::CheckClip(walltype* wal)
 	// if one plane is sky on both sides, the line must not clip.
 	if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY) return false;
 	if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY) return false;
+
+	// if we are in a sector portal, no two sided line may clip.
+	// originally this was achieved by temporarily altering the map geometry in the portal sectors.
+	if (portalState.insectorportal) return false;
 
 	float bs_floorheight1;
 	float bs_floorheight2;

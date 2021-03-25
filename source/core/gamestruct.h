@@ -11,6 +11,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 #include "inputstate.h"
 
 class FSerializer;
+struct FRenderViewpoint;
 
 struct GameStats
 {
@@ -102,6 +103,7 @@ struct GameInterface
 	virtual int chaseCamY(binangle ang) { return 0; }
 	virtual int chaseCamZ(fixedhoriz horiz) { return 0; }
 	virtual void processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) {}
+	virtual int SetupPortal(FRenderViewpoint& vp) { return -1; }
 
 	virtual FString statFPS()
 	{

@@ -67,7 +67,7 @@ struct sectortype
     uint8_t dirty;
     float ceilingxpan_, ceilingypan_, floorxpan_, floorypan_;
     uint8_t portalflags;
-    uint8_t portalnum;
+    int8_t portalnum;
 
     int ceilingxpan() const { return int(ceilingxpan_); }
     int ceilingypan() const { return int(ceilingypan_); }

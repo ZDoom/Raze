@@ -1438,6 +1438,26 @@ void UpdateWallPortalState()
             }
         }
     }
+
+    // The entire setup here is so catastrophically bad that we have to completely rely on the original information.
+    for (int i = 0; i < numsectors; i++)
+    {
+        if (sector[i].ceilingpicnum == FAF_MIRROR_PIC)
+        {
+            sector[i].portalflags = PORTAL_SECTOR_CEILING;
+            sector[i].portalnum = -1;
+        }
+        else if (sector[i].floorpicnum == FAF_MIRROR_PIC)
+        {
+            sector[i].portalflags = PORTAL_SECTOR_FLOOR;
+            sector[i].portalnum = -1;
+        }
+        else
+        {
+            sector[i].portalflags = 0;
+            sector[i].portalnum = -1;
+        }
+    }
 }
 
 

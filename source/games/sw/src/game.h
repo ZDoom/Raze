@@ -2135,7 +2135,6 @@ void DrawOverlapRoom(int tx,int ty,int tz,fixed_t tq16ang,fixed_t tq16horiz,shor
 void SetupMirrorTiles(void);    // rooms.c
 bool FAF_Sector(short sectnum); // rooms.c
 int GetZadjustment(short sectnum,short hitag);  // rooms.c
-void SetupSectorPortals();
 
 void InitSetup(void);   // setup.c
 
@@ -2256,6 +2255,7 @@ struct GameInterface : ::GameInterface
     int chaseCamX(binangle ang) { return -ang.bcos(-3); }
     int chaseCamY(binangle ang) { return -ang.bsin(-3); }
     int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() >> 8; }
+    int SetupPortal(FRenderViewpoint& vp) override;
 
 
     GameStats getStats() override;

@@ -81,13 +81,13 @@ void HWWall::SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowr
 {
 	int ptype;
 
-	if (sector->portalflags == PORTAL_SECTOR_CEILING || sector->portalflags == PORTAL_SECTOR_FLOOR)
+	if ((sector->portalflags == PORTAL_SECTOR_CEILING && plane == plane_ceiling) || (sector->portalflags == PORTAL_SECTOR_FLOOR && plane == plane_floor))
 	{
-		if (screen->instack[1 - plane] || allPortals.Size() == 0) return;
-		portal = &allPortals[sector->portalnum];
+		if (screen->instack[1 - plane] || sector->portalnum >= (int)allPortals.Size()) return;
+		portal = sector->portalnum < 0? nullptr : &allPortals[sector->portalnum];
 		PutPortal(di, PORTALTYPE_SECTORSTACK, plane);
 	}
-	else if (sector->portalflags == PORTAL_SECTOR_CEILING_REFLECT || sector->portalflags == PORTAL_SECTOR_FLOOR_REFLECT)
+	else if ((sector->portalflags == PORTAL_SECTOR_CEILING_REFLECT && plane == plane_ceiling) || (sector->portalflags == PORTAL_SECTOR_FLOOR_REFLECT && plane == plane_floor))
 	{
 		ptype = PORTALTYPE_PLANEMIRROR;
 		if (plane == plane_ceiling && (sector->ceilingstat & CSTAT_SECTOR_SLOPE)) return;

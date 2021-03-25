@@ -32,6 +32,7 @@
 #include "flatvertices.h"
 #include "hw_clock.h"
 #include "texturemanager.h"
+#include "gamestruct.h"
 
 EXTERN_CVAR(Int, r_mirror_recursions)
 EXTERN_CVAR(Bool, gl_portals)
@@ -813,12 +814,24 @@ bool HWSectorStackPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *c
 	auto portal = origin;
 	auto &vp = di->Viewpoint;
 
-	vp.Pos += DVector3(portal->dx / 16., portal->dy / -16., portal->dz / -256.);
-	vp.SectNums = portal->targets.Data();
-	vp.SectCount = portal->targets.Size();
+	if (portal)
+	{
+		vp.Pos += DVector3(portal->dx / 16., portal->dy / -16., portal->dz / -256.);
+		vp.SectNums = portal->targets.Data();
+		vp.SectCount = portal->targets.Size();
+		type = origin->type;
+	}
+	else
+	{
+		if (state->renderdepth > 1) return false;	// there is no way to make these portals recursive.
+		// Shadow Warrior's portals are too poorly defined so that the static approach won't work.
+		type = gi->SetupPortal(vp);
+		if (type == -1) return false;
+	}
+	state->insectorportal = true;
 
 	// avoid recursions!
-	screen->instack[origin->type == PORTAL_SECTOR_CEILING ? 1 : 0]++;
+	screen->instack[type == PORTAL_SECTOR_CEILING ? 1 : 0]++;
 
 	di->SetupView(rstate, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, !!(state->MirrorFlag & 1), !!(state->PlaneMirrorFlag & 1));
 	//SetupCoverage(di);
@@ -830,7 +843,8 @@ bool HWSectorStackPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *c
 
 void HWSectorStackPortal::Shutdown(HWDrawInfo *di, FRenderState &rstate)
 {
-	screen->instack[origin->type == PORTAL_SECTOR_CEILING ? 1 : 0]--;
+	screen->instack[type == PORTAL_SECTOR_CEILING ? 1 : 0]--;
+	mState->insectorportal = false;
 }
 
 const char *HWSectorStackPortal::GetName() { return "Sectorstack"; }

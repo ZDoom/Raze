@@ -182,6 +182,7 @@ struct FPortalSceneState
 
 	int PlaneMirrorMode = 0;
 	bool inskybox = 0;
+	bool insectorportal = false;
 
 	UniqueList<HWSkyInfo> UniqueSkies;
 	UniqueList<HWHorizonInfo> UniqueHorizons;
@@ -350,6 +351,7 @@ public:
 struct HWSectorStackPortal : public HWScenePortalBase
 {
 	TArray<sectortype *> sectors;
+	int type = -1;
 protected:
 	bool Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clipper) override;
 	void Shutdown(HWDrawInfo *di, FRenderState &rstate) override;
