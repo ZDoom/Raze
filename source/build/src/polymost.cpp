@@ -58,7 +58,6 @@ static vec3_t spritesxyz[MAXSPRITESONSCREEN + 1];
 static int16_t thewall[MAXWALLSB];
 static int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
 static int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
-static float rollang;
 static int16_t numscans, numbunches;
 static int16_t maskwall[MAXWALLSB], maskwallcnt;
 static int16_t sectorborder[256];
@@ -3773,7 +3772,6 @@ void PrecacheHardwareTextures(int nTile)
 void renderSetRollAngle(float rolla)
 {
     Polymost::gtang = rolla * BAngRadian;
-    rollang = rolla * (BAngRadian * 180 / pi::pif());
 }
 
 void videoSetCorrectedAspect()

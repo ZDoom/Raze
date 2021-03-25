@@ -464,7 +464,7 @@ void JS_InitMirrors(void)
 //  Draw a 3d screen to a specific tile
 /////////////////////////////////////////////////////
 void drawroomstotile(int daposx, int daposy, int daposz,
-                     fixed_t daq16ang, fixed_t daq16horiz, short dacursectnum, short tilenume)
+                     binangle ang, fixedhoriz horiz, short dacursectnum, short tilenume)
 {
 	TileFiles.MakeCanvas(tilenume, tileWidth(tilenume), tileHeight(tilenume));
 
@@ -475,13 +475,13 @@ void drawroomstotile(int daposx, int daposy, int daposz,
         {
             if (!testnewrenderer)
             {
-                renderDrawRoomsQ16(daposx, daposy, daposz, daq16ang, daq16horiz, dacursectnum);
+                renderDrawRoomsQ16(daposx, daposy, daposz, ang.asq16(), horiz.asq16(), dacursectnum);
                 analyzesprites(daposx, daposy, daposz, false);
                 renderDrawMasks();
             }
             else
             {
-                render_drawrooms(nullptr, { daposx, daposy, daposz }, dacursectnum, daq16ang, daq16horiz, 0);
+                render_drawrooms(nullptr, { daposx, daposy, daposz }, dacursectnum, ang, horiz, buildlook(0));
             }
         });
 
@@ -721,11 +721,11 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
 
                             if (TEST_BOOL11(sp) && numplayers > 1)
                             {
-                                drawroomstotile(cp->posx, cp->posy, cp->posz, cp->angle.ang.asq16(), cp->horizon.horiz.asq16(), cp->cursectnum, mirror[cnt].campic);
+                                drawroomstotile(cp->posx, cp->posy, cp->posz, cp->angle.ang, cp->horizon.horiz, cp->cursectnum, mirror[cnt].campic);
                             }
                             else
                             {
-                                drawroomstotile(sp->x, sp->y, sp->z, IntToFixed(SP_TAG5(sp)), IntToFixed(camhoriz), sp->sectnum, mirror[cnt].campic);
+                                drawroomstotile(sp->x, sp->y, sp->z, buildang(SP_TAG5(sp)), buildhoriz(camhoriz), sp->sectnum, mirror[cnt].campic);
                             }
                         }
                     }

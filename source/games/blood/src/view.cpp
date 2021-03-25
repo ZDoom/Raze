@@ -772,10 +772,10 @@ void viewDrawScreen(bool sceneonly)
 
         if (testnewrenderer)
         {
-            fixed_t deliriumPitchI = interpolate(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
+            fixedhoriz deliriumPitchI = q16horiz(interpolate(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate));
             int bakCstat = gView->pSprite->cstat;
             gView->pSprite->cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANSLUCENT_INVERT;
-            render_drawrooms(gView->pSprite, { cX, cY, cZ }, nSectnum, cA.asq16(), cH.asq16() + deliriumPitchI, rotscrnang.asbuildf());
+            render_drawrooms(gView->pSprite, { cX, cY, cZ }, nSectnum, cA, cH + deliriumPitchI, rotscrnang);
             gView->pSprite->cstat = bakCstat;
         }
         else

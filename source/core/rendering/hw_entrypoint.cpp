@@ -171,18 +171,18 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 //
 //===========================================================================
 
-FRenderViewpoint SetupViewpoint(spritetype* cam, const vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang)
+FRenderViewpoint SetupViewpoint(spritetype* cam, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, lookangle rollang)
 {
 	FRenderViewpoint r_viewpoint{};
 	r_viewpoint.CameraSprite = cam;
 	r_viewpoint.SectNums = nullptr;
 	r_viewpoint.SectCount = sectnum;
 	r_viewpoint.Pos = { position.x / 16.f, position.y / -16.f, position.z / -256.f };
-	r_viewpoint.HWAngles.Yaw = -90.f + q16ang(q16angle).asdeg();
-	r_viewpoint.HWAngles.Pitch = -HorizToPitch(q16horizon);
-	r_viewpoint.HWAngles.Roll = -rollang;
+	r_viewpoint.HWAngles.Yaw = -90.f + angle.asdeg();
+	r_viewpoint.HWAngles.Pitch = -horizon.aspitch();
+	r_viewpoint.HWAngles.Roll = -rollang.asdeg();
 	r_viewpoint.FieldOfView = (float)r_fov;
-	r_viewpoint.RotAngle = q16ang(q16angle).asbam();
+	r_viewpoint.RotAngle = angle.asbam();
 	return r_viewpoint;
 }
 
@@ -264,7 +264,7 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 }
 
 
-void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang)
+void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, lookangle rollang)
 {
 	checkRotatedWalls();
 
@@ -279,7 +279,7 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 	RenderState->SetVertexBuffer(screen->mVertexData);
 	screen->mVertexData->Reset();
 
-	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, q16angle, q16horizon, rollang);
+	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, angle, horizon, rollang);
 	iter_dlightf = iter_dlight = draw_dlight = draw_dlightf = 0;
 
 	checkBenchActive();

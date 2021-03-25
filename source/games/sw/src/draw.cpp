@@ -1594,7 +1594,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     else
     {
         UpdateWallPortalState();
-        render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang.asq16(), thoriz.asq16(), trotscrnang.asbuildf());
+        render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang);
     }
 
 
