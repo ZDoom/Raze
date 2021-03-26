@@ -66,7 +66,7 @@ short enemy;
 short nEnemyPal = 0;
 
 // NOTE - not to be confused with Ken's analyzesprites()
-static void analyzesprites(double const smoothratio)
+static void analyzesprites(int x, int y, int z, double const smoothratio)
 {
     tspritetype *pTSprite;
 
@@ -89,11 +89,6 @@ static void analyzesprites(double const smoothratio)
     spritetype *pPlayerSprite = &sprite[nPlayerSprite];
 
     besttarget = -1;
-
-    int x = pPlayerSprite->x;
-    int y = pPlayerSprite->y;
-
-    int z = pPlayerSprite->z - (GetSpriteHeight(nPlayerSprite) / 2);
 
     short nSector = pPlayerSprite->sectnum;
 
@@ -362,7 +357,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         {
             renderSetRollAngle(rotscrnang.asbuildf());
             renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
-            analyzesprites(smoothRatio);
+            analyzesprites(nCamerax, nCameray, viewz, smoothRatio);
             renderDrawMasks();
         }
         else
@@ -466,6 +461,12 @@ bool GameInterface::GenerateSavePic()
     DrawView(65536, true);
     return true;
 }
+
+void GameInterface::processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+{
+    analyzesprites(viewx, viewy, viewz, smoothRatio);
+}
+
 
 void NoClip()
 {

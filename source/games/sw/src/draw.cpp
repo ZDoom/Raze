@@ -265,7 +265,7 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
 }
 
 void
-DoShadows(tspriteptr_t tsp, int viewz, bool mirror)
+DoShadows(tspriteptr_t tsp, int viewz, int camang)
 {
     tspriteptr_t New = &tsprite[spritesortcnt];
     USERp tu = User[tsp->owner];
@@ -553,7 +553,7 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
 }
 
 void
-analyzesprites(int viewx, int viewy, int viewz, bool mirror)
+analyzesprites(int viewx, int viewy, int viewz, int camang)
 {
     int tSpriteNum;
     short SpriteNum;
@@ -645,7 +645,7 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
 
             if (r_shadows && TEST(tu->Flags, SPR_SHADOW))
             {
-                DoShadows(tsp, viewz, mirror);
+                DoShadows(tsp, viewz, camang);
             }
 
             //#define UK_VERSION 1
@@ -1867,6 +1867,12 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
         }
     }
     return true;
+}
+
+void GameInterface::processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+{
+    analyzesprites(viewx, viewy, viewz, viewang.asbuild());
+    post_analyzesprites();
 }
 
 

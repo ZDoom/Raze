@@ -414,6 +414,10 @@ bool GameInterface::GenerateSavePic()
 	return true;
 }
 
+void GameInterface::processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+{
+	fi.animatesprites(viewx, viewy, viewz, int(smoothRatio));
+}
 
 
 END_DUKE_NS

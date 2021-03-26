@@ -1967,7 +1967,7 @@ int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets);
 void change_sprite_stat(short, short);
 void SetOwner(short, short);
 void SetAttach(short, short);
-void analyzesprites(int,int,int,bool);
+void analyzesprites(int,int,int,int);
 void ChangeState(short SpriteNum, STATEp statep);
 void CollectPortals();
 
@@ -2248,7 +2248,8 @@ struct GameInterface : ::GameInterface
     int chaseCamX(binangle ang) { return -ang.bcos(-3); }
     int chaseCamY(binangle ang) { return -ang.bsin(-3); }
     int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() >> 8; }
-    
+    void processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+
 
     GameStats getStats() override;
 };

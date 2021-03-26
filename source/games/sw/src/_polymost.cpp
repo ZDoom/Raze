@@ -177,7 +177,7 @@ void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixe
     if (!FAF_DebugView)
         FAF_DrawRooms(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
 
-    analyzesprites(tx, ty, tz, false);
+    analyzesprites(tx, ty, tz, tang.asbuild());
     post_analyzesprites();
     renderDrawMasks();
 
@@ -323,7 +323,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 
                     renderDrawRoomsQ16(tposx, tposy, tz, (tang), tpq16horiz, mirror[cnt].mirrorsector + MAXSECTORS);
 
-                    analyzesprites(tposx, tposy, tz, true);
+                    analyzesprites(tposx, tposy, tz, tang >> 16);
                     renderDrawMasks();
 
                     renderCompleteMirror();   // Reverse screen x-wise in this

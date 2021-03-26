@@ -255,6 +255,7 @@ struct GameInterface : ::GameInterface
     int chaseCamX(binangle ang) { return -ang.bcos() / 12; }
     int chaseCamY(binangle ang) { return -ang.bsin() / 12; }
     int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() / 384; }
+    void processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
 
 	::GameStats getStats() override;
 };
