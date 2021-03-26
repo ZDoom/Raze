@@ -227,10 +227,11 @@ static IntRect System_GetSceneRect()
 {
 	// Special handling so the view with a visible status bar displays properly
 	int height = windowxy2.y - windowxy1.y + 1, width = windowxy2.x - windowxy1.x + 1;
+	int bottomspace = screen->GetHeight() - windowxy2.y;
 
 	IntRect mSceneViewport;
 	mSceneViewport.left = windowxy1.x;
-	mSceneViewport.top = windowxy1.y;
+	mSceneViewport.top = (bottomspace - windowxy1.y/2);
 	mSceneViewport.width = width;
 	mSceneViewport.height = height;
 	return mSceneViewport;
