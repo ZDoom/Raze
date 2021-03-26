@@ -210,8 +210,6 @@ enum scripttoken_t
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
-static char *faketilebuffer = NULL;
-static int32_t faketilebuffersiz = 0;
 
 static const char *skyfaces[6] =
 {
@@ -1282,7 +1280,7 @@ static int32_t defsparser(scriptfile *script)
                             break;
                         default:
                             if (framei >= 0 && framei<1024)
-                                usedframebitmap[framei>>3] |= pow2char[framei&7];
+                                usedframebitmap[framei>>3] |= (1 << (framei&7));
                         }
                         model_ok &= happy;
                     }
@@ -1637,7 +1635,7 @@ static int32_t defsparser(scriptfile *script)
                 }
 
                 case T_ROTATE:
-                    voxrotate[lastvoxid>>3] |= pow2char[lastvoxid&7];
+                    voxrotate[lastvoxid>>3] |= (1 << (lastvoxid&7));
                     break;
                 }
             }
@@ -3195,9 +3193,6 @@ int32_t loaddefinitionsfile(const char *fn, bool loadadds)
 
     if (script)
         scriptfile_close(script);
-
-    DO_FREE_AND_NULL(faketilebuffer);
-    faketilebuffersiz = 0;
 
     if (!script) return -1;
 

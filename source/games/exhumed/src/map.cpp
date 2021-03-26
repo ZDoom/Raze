@@ -77,8 +77,6 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
     // [MR]: Confirm that this is correct as math doesn't match the variable names.
     int nCos = z * -bsin(a);
     int nSin = z * -bcos(a);
-    int nCos2 = MulScale(nCos, yxaspect, 16);
-    int nSin2 = MulScale(nSin, yxaspect, 16);
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
@@ -94,7 +92,7 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
             getzrange_old(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0);
             int nTop, nBottom;
             GetSpriteExtents(pSprite, &nTop, &nBottom);
-            int nScale = MulScale((pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z, yxaspect, 16);
+            int nScale = (pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z;
             nScale = clamp(nScale, 8000, 65536 << 1);
             // Players on automap
             double x = xdim / 2. + x1 / double(1 << 12);

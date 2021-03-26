@@ -407,8 +407,8 @@ void InitLevel(MapRecord *maprec)
     PlaceActorsOnTracks();
     PostSetupSectorObject();
     SetupMirrorTiles();
-    SetupSectorPortals();
     initlava();
+    CollectPortals();
 
     // reset NewGame
     NewGame = false;

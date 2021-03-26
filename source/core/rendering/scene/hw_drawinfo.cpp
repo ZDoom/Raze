@@ -39,6 +39,7 @@
 #include "hw_clipper.h"
 #include "v_draw.h"
 #include "gamecvars.h"
+#include "gamestruct.h"
 
 EXTERN_CVAR(Float, r_visibility)
 CVAR(Bool, gl_bandedswlight, false, CVAR_ARCHIVE)
@@ -306,9 +307,18 @@ void HWDrawInfo::CreateScene()
 	screen->mVertexData->Map();
 	screen->mLights->Map();
 
+	spritesortcnt = 0;
+
 	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
 	mDrawer.Init(this, mClipper, view);
-	mDrawer.RenderScene(vp.SectNum);
+	if (vp.SectNums)
+		mDrawer.RenderScene(vp.SectNums, vp.SectCount);
+	else
+		mDrawer.RenderScene(&vp.SectCount, 1); 
+
+	SetupSprite.Clock();
+	gi->processSprites(view.x, view.y, vp.Pos.Z * -256, bamang(vp.RotAngle), vp.TicFrac * 65536);
+	SetupSprite.Unclock();
 
 	screen->mLights->Unmap();
 	screen->mVertexData->Unmap();

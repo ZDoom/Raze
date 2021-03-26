@@ -40,7 +40,8 @@ struct FRenderViewpoint
 	FRotator HWAngles;
 	FAngle FieldOfView;
 	angle_t RotAngle;
-	int SectNum;
+	int* SectNums;
+	int SectCount;
 	double TicFrac;
 };
 //==========================================================================

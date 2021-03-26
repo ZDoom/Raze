@@ -639,7 +639,7 @@ TrackSetup(void)
         if (t->NumPoints == 0)
         {
             int i;
-            auto const sp = (uspritetype const *)&sprite[StatIterator::First(STAT_TRACK+ndx)];
+            auto const sp = (spritetype const *)&sprite[StatIterator::First(STAT_TRACK+ndx)];
             Printf("WARNING: Did not find first point of Track Number %d, x %d, y %d\n", ndx, sp->x, sp->y);
             StatIterator it(STAT_TRACK + ndx);
             while ((i = it.NextIndex()) >= 0)

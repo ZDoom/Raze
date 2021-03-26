@@ -82,7 +82,7 @@ void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, bina
 	}
 	else
 	{
-		render_drawrooms(playersprite, { x, y, z }, sectnum, a.asq16(), h.asq16(), rotscrnang.asbuildf());
+		render_drawrooms(playersprite, { x, y, z }, sectnum, a, h, rotscrnang);
 	}
 }
 
@@ -125,7 +125,7 @@ void animatecamsprite(double smoothratio)
 				}
 				else
 				{
-					render_drawrooms(camera, camera->pos, camera->sectnum, ang.asq16(), IntToFixed(camera->shade), 0);
+					render_drawrooms(camera, camera->pos, camera->sectnum, ang, buildhoriz(camera->shade), buildlook(0));
 				}
 				display_mirror = 0;
 				renderDrawMasks();
@@ -414,6 +414,10 @@ bool GameInterface::GenerateSavePic()
 	return true;
 }
 
+void GameInterface::processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+{
+	fi.animatesprites(viewx, viewy, viewz, int(smoothRatio));
+}
 
 
 END_DUKE_NS

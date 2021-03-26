@@ -27,40 +27,8 @@ static uint8_t clipignore[(MAXCLIPNUM+7)>>3];
 
 int32_t quickloadboard=0;
 
-static int32_t numclipmaps;
-
-static int32_t numclipsects;  // number in sectq[]
-static int16_t *sectoidx;
-static int16_t *sectq;  // [numsectors]
-static int16_t pictoidx[MAXTILES];  // maps tile num to clipinfo[] index
-static int16_t *tempictoidx;
-
-static usectortype *loadsector;
-static uwalltype *loadwall, *loadwallinv;
-static uspritetype *loadsprite;
-
 vec2_t hitscangoal = { (1<<29)-1, (1<<29)-1 };
 int32_t hitallsprites = 0;
-
-void engineInitClipMaps()
-{
-    numclipmaps = 0;
-    numclipsects = 0;
-
-    DO_FREE_AND_NULL(sectq);
-    DO_FREE_AND_NULL(sectoidx);
-    DO_FREE_AND_NULL(tempictoidx);
-    DO_FREE_AND_NULL(loadsector);
-    DO_FREE_AND_NULL(loadwall);
-    DO_FREE_AND_NULL(loadwallinv);
-    DO_FREE_AND_NULL(loadsprite);
-
-    // two's complement trick, -1 = 0xff
-    memset(&pictoidx, -1, sizeof(pictoidx));
-
-    numsectors = 0;
-    numwalls = 0;
-}
 
 ////////// CLIPMOVE //////////
 
@@ -157,14 +125,14 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
     clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2;
     clipobjectval[clipnum] = daoval;
 
-    uint32_t const mask = pow2char[clipnum&7];
+    uint32_t const mask = (1 << (clipnum&7));
     uint8_t &value = clipignore[clipnum>>3];
     value = (value & ~mask) | (-nofix & mask);
 
     clipnum++;
 }
 
-static FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_t x1, int32_t y1, int32_t x2,
+inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_t x1, int32_t y1, int32_t x2,
                                       int32_t y2, int32_t *daxptr, int32_t *dayptr)
 {
     int32_t daz;
@@ -530,7 +498,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
             if (clipyou)
             {
-                int16_t const objtype = curspr ? (int16_t)(curspr - (uspritetype *)sprite) + 49152 : (int16_t)j + 32768;
+                int16_t const objtype = curspr ? (int16_t)(curspr - sprite) + 49152 : (int16_t)j + 32768;
 
                 //Add 2 boxes at endpoints
                 int32_t bsz = walldist; if (diff.x < 0) bsz = -bsz;
@@ -1214,22 +1182,22 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
     {
         if (tmp==NULL)
         {
-            if (inside(x1,y1,sec-(usectortype *)sector) == 1)
+            if (inside(x1,y1,sec-sector) == 1)
             {
-                hit_set(hit, sec-(usectortype *)sector, -1, -1, x1, y1, z1);
+                hit_set(hit, sec-sector, -1, -1, x1, y1, z1);
                 hitscan_hitsectcf = (how+1)>>1;
             }
         }
         else
         {
             const int32_t curidx=(int32_t)tmp[0];
-            auto const curspr=(uspritetype *)tmp[1];
+            auto const curspr=(spritetype *)tmp[1];
             const int32_t thislastsec = tmp[2];
 
             if (!thislastsec)
             {
-                if (inside(x1,y1,sec-(usectortype *)sector) == 1)
-                    hit_set(hit, curspr->sectnum, -1, curspr-(uspritetype *)sprite, x1, y1, z1);
+                if (inside(x1,y1,sec-sector) == 1)
+                    hit_set(hit, curspr->sectnum, -1, curspr-sprite, x1, y1, z1);
             }
         }
     }

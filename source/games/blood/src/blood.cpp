@@ -112,7 +112,6 @@ void StartLevel(MapRecord* level)
 		}
 	}
 	memset(xsprite, 0, sizeof(xsprite));
-	memset(sprite, 0, kMaxSprites * sizeof(spritetype));
 	//drawLoadingScreen();
 	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsectnum, nullptr);
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);

@@ -924,7 +924,7 @@ static void SpawnPortals()
                         if (findwallbetweensectors(i, t) >= 0)
                         {
                             sector[i].portalflags = PORTAL_SECTOR_FLOOR;
-                            sector[i].portalnum = uint8_t(&pt - allPortals.Data());
+                            sector[i].portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
                             pt.targets.Push(i);
                             goto nexti;
                         }
@@ -943,7 +943,7 @@ static void SpawnPortals()
                         if (findwallbetweensectors(i, t) >= 0)
                         {
                             sector[i].portalflags = PORTAL_SECTOR_CEILING;
-                            sector[i].portalnum = uint8_t(&pt - allPortals.Data());
+                            sector[i].portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
                             pt.targets.Push(i);
                             goto nexti;
                         }

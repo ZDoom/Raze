@@ -212,10 +212,6 @@ void voxfree(voxmodel_t *m);
 voxmodel_t *voxload(int lumpnum);
 int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr);
 
-int      md3postload_polymer(md3model_t* m);
-//int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap);
-EXTERN void md_freevbos(void);
-
 #endif // defined USE_OPENGL
 
 enum {

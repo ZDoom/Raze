@@ -632,7 +632,7 @@ void artSetupMapArt(const char* filename)
 	}
 
 
-	for (bssize_t i = 0; i < MAXARTFILES_TOTAL - MAXARTFILES_BASE; i++)
+	for (int i = 0; i < MAXARTFILES_TOTAL - MAXARTFILES_BASE; i++)
 	{
 		FStringf fullname("%s_%02d.art", filename, i);
 		TileFiles.LoadArtFile(fullname, filename);

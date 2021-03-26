@@ -81,13 +81,13 @@ void HWWall::SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowr
 {
 	int ptype;
 
-	if (sector->portalflags == PORTAL_SECTOR_CEILING || sector->portalflags == PORTAL_SECTOR_FLOOR)
+	if ((sector->portalflags == PORTAL_SECTOR_CEILING && plane == plane_ceiling) || (sector->portalflags == PORTAL_SECTOR_FLOOR && plane == plane_floor))
 	{
-		if (screen->instack[1 - plane] || allPortals.Size() == 0) return;
+		if (screen->instack[1 - plane] || sector->portalnum >= (int)allPortals.Size()) return;
 		portal = &allPortals[sector->portalnum];
 		PutPortal(di, PORTALTYPE_SECTORSTACK, plane);
 	}
-	else if (sector->portalflags == PORTAL_SECTOR_CEILING_REFLECT || sector->portalflags == PORTAL_SECTOR_FLOOR_REFLECT)
+	else if ((sector->portalflags == PORTAL_SECTOR_CEILING_REFLECT && plane == plane_ceiling) || (sector->portalflags == PORTAL_SECTOR_FLOOR_REFLECT && plane == plane_floor))
 	{
 		ptype = PORTALTYPE_PLANEMIRROR;
 		if (plane == plane_ceiling && (sector->ceilingstat & CSTAT_SECTOR_SLOPE)) return;
@@ -115,7 +115,7 @@ void HWWall::SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowr
 
 void HWWall::SkyNormal(HWDrawInfo* di, sectortype* fs, FVector2& v1, FVector2& v2, float fch1, float fch2, float ffh1, float ffh2)
 {
-	if (fs->ceilingstat & CSTAT_SECTOR_SKY)
+	if ((fs->ceilingstat & CSTAT_SECTOR_SKY) || fs->portalflags == PORTAL_SECTOR_CEILING || fs->portalflags == PORTAL_SECTOR_CEILING_REFLECT)
 	{
 		ztop[0] = ztop[1] = 32768.0f;
 		zbottom[0] = fch1;
@@ -123,7 +123,7 @@ void HWWall::SkyNormal(HWDrawInfo* di, sectortype* fs, FVector2& v1, FVector2& v
 		SkyPlane(di, fs, plane_ceiling, true);
 	}
 
-	if (fs->floorstat & CSTAT_SECTOR_SKY)
+	if ((fs->floorstat & CSTAT_SECTOR_SKY) || fs->portalflags == PORTAL_SECTOR_FLOOR || fs->portalflags == PORTAL_SECTOR_FLOOR_REFLECT)
 	{
 		ztop[0] = ffh1;
 		ztop[1] = ffh2;

@@ -25,9 +25,9 @@ void polymost_completeMirror();
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 void polymost_deletesprite(int num);
 
-int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall);
-int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr);
-int32_t polymost_spriteIsModelOrVoxel(tspritetype const * const tspr);
+int32_t polymost_maskWallHasTranslucency(walltype const * const wall);
+int32_t polymost_spriteHasTranslucency(spritetype const * const tspr);
+int32_t polymost_spriteIsModelOrVoxel(spritetype const * const tspr);
 
 void polymost_glreset(void);
 void polymost_scansector(int32_t sectnum);
@@ -35,6 +35,23 @@ void polymost_scansector(int32_t sectnum);
 extern float curpolygonoffset;
 
 }
+
+void   renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
+    int32_t* tposx, int32_t* tposy, fixed_t* tang);
+void   renderCompleteMirror(void);
+
+int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, int16_t dacursectnum);
+
+void   renderDrawMasks(void);
+
+// PLAG: line utility functions
+typedef struct s_equation
+{
+    float a, b, c;
+} _equation;
+
+void    renderSetRollAngle(float rolla);
+
 
 // these are defined in engine.cpp.
 extern int16_t globalpicnum;

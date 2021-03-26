@@ -496,6 +496,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
 			("detail", c.detail, def->detail)
+			("time", c.time, def->time)
 			.EndObject();
 	}
 	return arc;

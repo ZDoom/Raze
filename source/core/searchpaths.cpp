@@ -917,10 +917,10 @@ bool AddINIFile(const char* pzFile, bool bForce = false)
 		if (findfrompath(pzFile, &pzFN)) return false; // failed to resolve the filename
 		if (!FileExists(pzFN))
 		{
-			Xfree(pzFN);
+			M_Free(pzFN);
 			return false;
 		} // failed to stat the file
-		Xfree(pzFN);
+		M_Free(pzFN);
 		IniFile* pTempIni = new IniFile(pzFile);
 		if (!pTempIni->FindSection("Episode1"))
 		{

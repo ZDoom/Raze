@@ -3,7 +3,7 @@
 
 class FSerializer;
 
-void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, fixed_t q16angle, fixed_t q16horizon, float rollang);
+void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, lookangle rollang);
 
 struct PortalDesc
 {
@@ -26,7 +26,7 @@ inline int portalAdd(int type, int target, int dx = 0, int dy = 0, int dz = 0)
 {
 	auto& pt = allPortals[allPortals.Reserve(1)];
 	pt.type = type;
-	pt.targets.Push(target);
+	if (target >= 0) pt.targets.Push(target);
 	pt.dx = dx;
 	pt.dy = dy;
 	pt.dz = dz;
@@ -50,7 +50,7 @@ inline void mergePortals()
 				{
 					auto& pt2 = allPortals[j];
 					if (pt1.type != pt2.type || pt1.dx != pt2.dx || pt1.dy != pt2.dy || pt1.dz != pt2.dz) continue;
-					for (unsigned s = 0; s < pt1.targets.Size(); s++)
+					for (unsigned s = 0; s < pt1.targets.Size() && pt2.targets.Size(); s++)
 					{
 						for (unsigned t = 0; t < pt2.targets.Size(); t++)
 						{
@@ -63,9 +63,9 @@ inline void mergePortals()
 								{
 									//Printf("Merged %d and %d\n", i, j);
 									if (sector[n].portalnum == j) sector[n].portalnum = i;
-									didsomething = true;
-									break;
 								}
+								didsomething = true;
+								break;
 							}
 						}
 					}

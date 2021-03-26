@@ -22,6 +22,19 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "texturemanager.h"
 #include "hw_renderstate.h"
 #include "printf.h"
+#include "gamefuncs.h"
+#include "hw_drawinfo.h"
+
+
+typedef struct {
+    union { double x; double d; };
+    union { double y; double u; };
+    union { double z; double v; };
+} vec3d_t;
+
+static_assert(sizeof(vec3d_t) == sizeof(double) * 3);
+
+
 
 int skiptile = -1;
 FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap);
@@ -38,6 +51,19 @@ CVARD(Float, hw_shadescale, 1.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "multiplier 
 
 // For testing - will be removed later.
 CVAR(Int, skytile, 0, 0)
+CVAR(Bool, testnewrenderer, true, 0)
+
+extern fixed_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
+static vec3_t spritesxyz[MAXSPRITESONSCREEN + 1];
+static int16_t thewall[MAXWALLSB];
+static int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
+static int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
+static int16_t numscans, numbunches;
+static int16_t maskwall[MAXWALLSB], maskwallcnt;
+static int16_t sectorborder[256];
+static tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
+
+
 
 namespace Polymost
 {
@@ -108,6 +134,27 @@ void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)
 {
 }
 
+static void set_globalang(fixed_t const ang)
+{
+    globalang = FixedToInt(ang) & 2047;
+    qglobalang = ang & 0x7FFFFFF;
+
+    float const f_ang = FixedToFloat(ang);
+    float const fcosang = bcosf(f_ang);
+    float const fsinang = bsinf(f_ang);
+
+#ifdef USE_OPENGL
+    fcosglobalang = fcosang;
+    fsinglobalang = fsinang;
+#endif
+
+    cosglobalang = (int)fcosang;
+    singlobalang = (int)fsinang;
+
+    cosviewingrangeglobalang = MulScale(cosglobalang, viewingrange, 16);
+    sinviewingrangeglobalang = MulScale(singlobalang, viewingrange, 16);
+}
+
 static inline float polymost_invsqrt_approximation(float x)
 {
     // this is the comment
@@ -121,7 +168,7 @@ static float sectorVisibility(int sectnum)
     return v? ((uint8_t)(v + 16)) / 16.f : 1.f;
 }
 
-template <typename T> static FORCE_INLINE void tileUpdatePicnum(T* const tileptr, int const obj)
+static void tileUpdatePicnum(short* const tileptr, int const obj)
 {
     auto& tile = *tileptr;
 
@@ -216,7 +263,7 @@ static int32_t pow2xsplit = 0, skyzbufferhack = 0, flatskyrender = 0;
 static float drawpoly_alpha = 0.f;
 static uint8_t drawpoly_blend = 0;
 
-int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
+int32_t polymost_maskWallHasTranslucency(walltype const * const wall)
 {
     if (wall->cstat & CSTAT_WALL_TRANSLUCENT)
         return true;
@@ -224,7 +271,7 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
     return checkTranslucentReplacement(tileGetTexture(wall->picnum)->GetID(), wall->pal);
 }
 
-int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
+int32_t polymost_spriteHasTranslucency(spritetype const * const tspr)
 {
     if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || (tspr->clipdist & TSPR_FLAGS_DRAW_LAST) || 
         ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
@@ -1771,7 +1818,7 @@ static void polymost_drawalls(int32_t const bunch)
         domostpolymethod = DAMETH_NOMASK;
 
         if (nextsectnum >= 0)
-            if ((!(gotsector[nextsectnum>>3]&pow2char[nextsectnum&7])) && testvisiblemost(x0,x1))
+            if ((!(gotsector[nextsectnum>>3]& (1<<(nextsectnum&7)))) && testvisiblemost(x0,x1))
                 polymost_scansector(nextsectnum);
     }
 }
@@ -1872,7 +1919,7 @@ void polymost_scansector(int32_t sectnum)
             }
         }
 
-        gotsector[sectnum>>3] |= pow2char[sectnum&7];
+        gotsector[sectnum>>3] |= 1<<(sectnum&7);
 
         int const bunchfrst = numbunches;
         int const onumscans = numscans;
@@ -1895,7 +1942,7 @@ void polymost_scansector(int32_t sectnum)
             int const nextsectnum = wal->nextsector; //Scan close sectors
 
             if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < countof(sectorborder))
-            if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
+            if ((gotsector[nextsectnum>>3]&(1<<(nextsectnum&7))) == 0)
             {
                 double const d = fp1.X* fp2.Y - fp2.X * fp1.Y;
                 DVector2 const p1 = fp2 - fp1;
@@ -1905,7 +1952,7 @@ void polymost_scansector(int32_t sectnum)
                 if (d*d < (p1.LengthSquared()) * 256.f)
                 {
                     sectorborder[sectorbordercnt++] = nextsectnum;
-                    gotsector[nextsectnum>>3] |= pow2char[nextsectnum&7];
+                    gotsector[nextsectnum>>3] |= 1<<(nextsectnum&7);
                 }
             }
 
@@ -2570,7 +2617,7 @@ void polymost_deletesprite(int num)
 static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
     int32_t dist = 4, closest = -1;
-    auto const sect = (usectortype  * )&sector[tspr->sectnum];
+    auto const sect = &sector[tspr->sectnum];
     vec2_t n;
 
     for (bssize_t i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
@@ -3200,6 +3247,8 @@ _drawsprite_return:
     ;
 }
 
+//////////////////////////////////
+
 static_assert((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
 
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
@@ -3209,9 +3258,9 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     //    basically this just means walls are repeating
     //    while sprites are clamped
 
-   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (!lookups.checkTable(dapalnum))) return;//dapalnum = 0;
+    if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (!lookups.checkTable(dapalnum))) return;//dapalnum = 0;
 
-    //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
+     //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
     int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
     auto tex = tileGetTexture(dapicnum);
@@ -3225,16 +3274,491 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 
     if (mid < 0 || models[mid]->mdnum < 2) return;
 
-    int const surfaces = (models[mid]->mdnum == 3) ? ((md3model_t *)models[mid])->head.numsurfs : 0;
+    int const surfaces = (models[mid]->mdnum == 3) ? ((md3model_t*)models[mid])->head.numsurfs : 0;
 
     for (int i = 0; i <= surfaces; i++)
-	{
-        auto tex = mdloadskin((md2model_t *)models[mid], 0, dapalnum, i, nullptr);
+    {
+        auto tex = mdloadskin((md2model_t*)models[mid], 0, dapalnum, i, nullptr);
         int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
         if (tex) GLInterface.SetTexture(tex, palid, CLAMP_NONE);
-	}
+    }
 }
+
+
 }
+
+//
+// preparemirror
+//
+void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
+    int32_t* tposx, int32_t* tposy, fixed_t* tang)
+{
+    const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x - x;
+    const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y - y;
+
+    const int32_t j = dx * dx + dy * dy;
+    if (j == 0)
+        return;
+
+    int i = ((dax - x) * dx + (day - y) * dy) << 1;
+
+    *tposx = (x << 1) + Scale(dx, i, j) - dax;
+    *tposy = (y << 1) + Scale(dy, i, j) - day;
+    *tang = ((gethiq16angle(dx, dy) << 1) - daang) & 0x7FFFFFF;
+
+    inpreparemirror = 1;
+
+    Polymost::polymost_prepareMirror(dax, day, daz, daang, dahoriz, dawall);
+}
+
+
+//
+// completemirror
+//
+void renderCompleteMirror(void)
+{
+    Polymost::polymost_completeMirror();
+    inpreparemirror = 0;
+}
+
+//
+// drawrooms
+//
+EXTERN_CVAR(Int, gl_fogmode)
+
+int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
+    fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
+{
+    checkRotatedWalls();
+
+    if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.
+
+    // Update starting sector number (common to classic and Polymost).
+    // ADJUST_GLOBALCURSECTNUM.
+    if (dacursectnum >= MAXSECTORS)
+        dacursectnum -= MAXSECTORS;
+    else
+    {
+        int i = dacursectnum;
+        updatesector(daposx, daposy, &dacursectnum);
+        if (dacursectnum < 0) dacursectnum = i;
+
+        // PK 20110123: I'm not sure what the line above is supposed to do, but 'i'
+        //              *can* be negative, so let's just quit here in that case...
+        if (dacursectnum < 0)
+            return 0;
+    }
+
+    set_globalpos(daposx, daposy, daposz);
+    Polymost::set_globalang(daang);
+
+    global100horiz = dahoriz;
+
+    memset(gotsector, 0, sizeof(gotsector));
+    qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16) + IntToFixed(ydimen >> 1);
+    globalcursectnum = dacursectnum;
+    Polymost::polymost_drawrooms();
+    return inpreparemirror;
+}
+
+// UTILITY TYPES AND FUNCTIONS FOR DRAWMASKS OCCLUSION TREE
+// typedef struct          s_maskleaf
+// {
+//     int32_t                index;
+//     _point2d            p1, p2;
+//     _equation           maskeq, p1eq, p2eq;
+//     struct s_maskleaf*  branch[MAXWALLSB];
+//     int32_t                 drawing;
+// }                       _maskleaf;
+//
+// _maskleaf               maskleaves[MAXWALLSB];
+
+// returns equation of a line given two points
+static inline _equation equation(float const x1, float const y1, float const x2, float const y2)
+{
+    const float f = x2 - x1;
+
+    // vertical
+    if (f == 0.f)
+        return { 1, 0, -x1 };
+    else
+    {
+        float const ff = (y2 - y1) / f;
+        return { ff, -1, (y1 - (ff * x1)) };
+    }
+}
+
+static inline int32_t         sameside(const _equation* eq, const vec2f_t* p1, const vec2f_t* p2)
+{
+    const float sign1 = (eq->a * p1->x) + (eq->b * p1->y) + eq->c;
+    const float sign2 = (eq->a * p2->x) + (eq->b * p2->y) + eq->c;
+    return (sign1 * sign2) > 0.f;
+}
+
+
+static inline int comparetsprites(int const k, int const l)
+{
+    if ((tspriteptr[k]->cstat & 48) != (tspriteptr[l]->cstat & 48))
+        return (tspriteptr[k]->cstat & 48) - (tspriteptr[l]->cstat & 48);
+
+    if ((tspriteptr[k]->cstat & 48) == 16 && tspriteptr[k]->ang != tspriteptr[l]->ang)
+        return tspriteptr[k]->ang - tspriteptr[l]->ang;
+
+    if (tspriteptr[k]->statnum != tspriteptr[l]->statnum)
+        return tspriteptr[k]->statnum - tspriteptr[l]->statnum;
+
+    if (tspriteptr[k]->x == tspriteptr[l]->x &&
+        tspriteptr[k]->y == tspriteptr[l]->y &&
+        tspriteptr[k]->z == tspriteptr[l]->z &&
+        (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
+        tspriteptr[k]->owner != tspriteptr[l]->owner)
+        return tspriteptr[k]->owner - tspriteptr[l]->owner;
+
+    if (abs(spritesxyz[k].z - globalposz) != abs(spritesxyz[l].z - globalposz))
+        return abs(spritesxyz[k].z - globalposz) - abs(spritesxyz[l].z - globalposz);
+
+    return 0;
+}
+
+static void sortsprites(int const start, int const end)
+{
+    int32_t i, gap, y, ys;
+
+    if (start >= end)
+        return;
+
+    gap = 1; while (gap < end - start) gap = (gap << 1) + 1;
+    for (gap >>= 1; gap > 0; gap >>= 1)   //Sort sprite list
+        for (i = start; i < end - gap; i++)
+            for (bssize_t l = i; l >= start; l -= gap)
+            {
+                if (spritesxyz[l].y <= spritesxyz[l + gap].y) break;
+                std::swap(tspriteptr[l], tspriteptr[l + gap]);
+                std::swap(spritesxyz[l].x, spritesxyz[l + gap].x);
+                std::swap(spritesxyz[l].y, spritesxyz[l + gap].y);
+            }
+
+    ys = spritesxyz[start].y; i = start;
+    for (bssize_t j = start + 1; j <= end; j++)
+    {
+        if (j < end)
+        {
+            y = spritesxyz[j].y;
+            if (y == ys)
+                continue;
+
+            ys = y;
+        }
+
+        if (j > i + 1)
+        {
+            for (bssize_t k = i; k < j; k++)
+            {
+                auto const s = tspriteptr[k];
+
+                spritesxyz[k].z = s->z;
+                if ((s->cstat & 48) != 32)
+                {
+                    int32_t yoff = tileTopOffset(s->picnum) + s->yoffset;
+                    int32_t yspan = (tileHeight(s->picnum) * s->yrepeat << 2);
+
+                    spritesxyz[k].z -= (yoff * s->yrepeat) << 2;
+
+                    if (!(s->cstat & 128))
+                        spritesxyz[k].z -= (yspan >> 1);
+                    if (abs(spritesxyz[k].z - globalposz) < (yspan >> 1))
+                        spritesxyz[k].z = globalposz;
+                }
+            }
+
+            for (bssize_t k = i + 1; k < j; k++)
+                for (bssize_t l = i; l < k; l++)
+                    if (comparetsprites(k, l) < 0)
+                    {
+                        std::swap(tspriteptr[k], tspriteptr[l]);
+                        vec3_t tv3 = spritesxyz[k];
+                        spritesxyz[k] = spritesxyz[l];
+                        spritesxyz[l] = tv3;
+                    }
+        }
+        i = j;
+    }
+}
+
+//
+// drawmasks
+//
+void renderDrawMasks(void)
+{
+# define debugmask_add(dispidx, idx) do {} while (0)
+    int32_t i = spritesortcnt - 1;
+    int32_t numSprites = spritesortcnt;
+
+    spritesortcnt = 0;
+    int32_t back = i;
+    for (; i >= 0; --i)
+    {
+        if (Polymost::polymost_spriteHasTranslucency(&tsprite[i]))
+        {
+            tspriteptr[spritesortcnt] = &tsprite[i];
+            ++spritesortcnt;
+        }
+        else
+        {
+            tspriteptr[back] = &tsprite[i];
+            --back;
+        }
+    }
+
+    for (i = numSprites - 1; i >= 0; --i)
+    {
+        const int32_t xs = tspriteptr[i]->x - globalposx, ys = tspriteptr[i]->y - globalposy;
+        const int32_t yp = DMulScale(xs, cosviewingrangeglobalang, ys, sinviewingrangeglobalang, 6);
+        const int32_t modelp = spriteIsModelOrVoxel(tspriteptr[i]);
+
+        if (yp > (4 << 8))
+        {
+            const int32_t xp = DMulScale(ys, cosglobalang, -xs, singlobalang, 6);
+
+            if (MulScale(labs(xp + yp), xdimen, 24) >= yp)
+                goto killsprite;
+
+            spritesxyz[i].x = Scale(xp + yp, xdimen << 7, yp);
+        }
+        else if ((tspriteptr[i]->cstat & 48) == 0)
+        {
+        killsprite:
+            if (!modelp)
+            {
+                //Delete face sprite if on wrong side!
+                if (i >= spritesortcnt)
+                {
+                    --numSprites;
+                    if (i != numSprites)
+                    {
+                        tspriteptr[i] = tspriteptr[numSprites];
+                        spritesxyz[i].x = spritesxyz[numSprites].x;
+                        spritesxyz[i].y = spritesxyz[numSprites].y;
+                    }
+                }
+                else
+                {
+                    --numSprites;
+                    --spritesortcnt;
+                    if (i != numSprites)
+                    {
+                        tspriteptr[i] = tspriteptr[spritesortcnt];
+                        spritesxyz[i].x = spritesxyz[spritesortcnt].x;
+                        spritesxyz[i].y = spritesxyz[spritesortcnt].y;
+                        tspriteptr[spritesortcnt] = tspriteptr[numSprites];
+                        spritesxyz[spritesortcnt].x = spritesxyz[numSprites].x;
+                        spritesxyz[spritesortcnt].y = spritesxyz[numSprites].y;
+                    }
+                }
+                continue;
+            }
+        }
+        spritesxyz[i].y = yp;
+    }
+
+    sortsprites(0, spritesortcnt);
+    sortsprites(spritesortcnt, numSprites);
+    renderBeginScene();
+
+    GLInterface.EnableBlend(false);
+    GLInterface.EnableAlphaTest(true);
+    GLInterface.SetDepthBias(-2, -256);
+
+    if (spritesortcnt < numSprites)
+    {
+        i = spritesortcnt;
+        for (bssize_t i = spritesortcnt; i < numSprites;)
+        {
+            int32_t py = spritesxyz[i].y;
+            int32_t pcstat = tspriteptr[i]->cstat & 48;
+            int32_t pangle = tspriteptr[i]->ang;
+            int j = i + 1;
+            if (!spriteIsModelOrVoxel(tspriteptr[i]))
+            {
+                while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
+                    && !spriteIsModelOrVoxel(tspriteptr[j]))
+                {
+                    j++;
+                }
+            }
+            if (j - i == 1)
+            {
+                debugmask_add(i | 32768, tspriteptr[i]->owner);
+                Polymost::polymost_drawsprite(i);
+                tspriteptr[i] = NULL;
+            }
+            else
+            {
+                GLInterface.SetDepthMask(false);
+
+                for (bssize_t k = j - 1; k >= i; k--)
+                {
+                    debugmask_add(k | 32768, tspriteptr[k]->owner);
+                    Polymost::polymost_drawsprite(k);
+                }
+
+                GLInterface.SetDepthMask(true);
+
+                GLInterface.SetColorMask(false);
+
+                for (bssize_t k = j - 1; k >= i; k--)
+                {
+                    Polymost::polymost_drawsprite(k);
+                    tspriteptr[k] = NULL;
+                }
+
+                GLInterface.SetColorMask(true);
+
+            }
+            i = j;
+        }
+    }
+
+    int32_t numMaskWalls = maskwallcnt;
+    maskwallcnt = 0;
+    for (i = 0; i < numMaskWalls; i++)
+    {
+        if (Polymost::polymost_maskWallHasTranslucency(&wall[thewall[maskwall[i]]]))
+        {
+            maskwall[maskwallcnt] = maskwall[i];
+            maskwallcnt++;
+        }
+        else
+            Polymost::polymost_drawmaskwall(i);
+    }
+
+    GLInterface.EnableBlend(true);
+    GLInterface.EnableAlphaTest(true);
+    GLInterface.SetDepthMask(false);
+
+    vec2f_t pos;
+
+    pos.x = fglobalposx;
+    pos.y = fglobalposy;
+
+    // CAUTION: maskwallcnt and spritesortcnt may be zero!
+    // Writing e.g. "while (maskwallcnt--)" is wrong!
+    while (maskwallcnt)
+    {
+        // PLAG: sorting stuff
+        const int32_t w = thewall[maskwall[maskwallcnt - 1]];
+
+        maskwallcnt--;
+
+        vec2f_t dot = { (float)wall[w].x, (float)wall[w].y };
+        vec2f_t dot2 = { (float)wall[wall[w].point2].x, (float)wall[wall[w].point2].y };
+        vec2f_t middle = { (dot.x + dot2.x) * .5f, (dot.y + dot2.y) * .5f };
+
+        _equation maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
+        _equation p1eq = equation(pos.x, pos.y, dot.x, dot.y);
+        _equation p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
+
+        i = spritesortcnt;
+        while (i)
+        {
+            i--;
+            if (tspriteptr[i] != NULL)
+            {
+                vec2f_t spr;
+                auto const tspr = tspriteptr[i];
+
+                spr.x = (float)tspr->x;
+                spr.y = (float)tspr->y;
+
+                if (!sameside(&maskeq, &spr, &pos))
+                {
+                    // Sprite and camera are on different sides of the
+                    // masked wall.
+
+                    // Check if the sprite is inside the 'cone' given by
+                    // the rays from the camera to the two wall-points.
+                    const int32_t inleft = sameside(&p1eq, &middle, &spr);
+                    const int32_t inright = sameside(&p2eq, &middle, &spr);
+
+                    int32_t ok = (inleft && inright);
+
+                    if (!ok)
+                    {
+                        // If not, check if any of the border points are...
+                        vec2_t pp[4];
+                        int32_t numpts, jj;
+
+                        const _equation pineq = inleft ? p1eq : p2eq;
+
+                        if ((tspr->cstat & 48) == 32)
+                        {
+                            numpts = 4;
+                            GetFlatSpritePosition(tspr, tspr->pos.vec2, pp);
+                        }
+                        else
+                        {
+                            const int32_t oang = tspr->ang;
+                            numpts = 2;
+
+                            // Consider face sprites as wall sprites with camera ang.
+                            // XXX: factor 4/5 needed?
+                            if ((tspr->cstat & 48) != 16)
+                                tspriteptr[i]->ang = globalang;
+
+                            GetWallSpritePosition(tspr, tspr->pos.vec2, pp);
+
+                            if ((tspr->cstat & 48) != 16)
+                                tspriteptr[i]->ang = oang;
+                        }
+
+                        for (jj = 0; jj < numpts; jj++)
+                        {
+                            spr.x = (float)pp[jj].x;
+                            spr.y = (float)pp[jj].y;
+
+                            if (!sameside(&maskeq, &spr, &pos))  // behind the maskwall,
+                                if ((sameside(&p1eq, &middle, &spr) &&  // inside the 'cone',
+                                    sameside(&p2eq, &middle, &spr))
+                                    || !sameside(&pineq, &middle, &spr))  // or on the other outside.
+                                {
+                                    ok = 1;
+                                    break;
+                                }
+                        }
+                    }
+
+                    if (ok)
+                    {
+                        debugmask_add(i | 32768, tspr->owner);
+                        Polymost::polymost_drawsprite(i);
+
+                        tspriteptr[i] = NULL;
+                    }
+                }
+            }
+        }
+
+        debugmask_add(maskwall[maskwallcnt], thewall[maskwall[maskwallcnt]]);
+        Polymost::polymost_drawmaskwall(maskwallcnt);
+    }
+
+    while (spritesortcnt)
+    {
+        --spritesortcnt;
+        if (tspriteptr[spritesortcnt] != NULL)
+        {
+            debugmask_add(i | 32768, tspriteptr[i]->owner);
+            Polymost::polymost_drawsprite(spritesortcnt);
+            tspriteptr[spritesortcnt] = NULL;
+        }
+    }
+    renderFinishScene();
+    GLInterface.SetDepthMask(true);
+    GLInterface.SetDepthBias(0, 0);
+}
+
+
+
 
 void PrecacheHardwareTextures(int nTile)
 {
@@ -3242,4 +3766,46 @@ void PrecacheHardwareTextures(int nTile)
 	// This really *really* needs improvement on the game side - the entire precaching logic has no clue about the different needs of a hardware renderer.
 	Polymost::polymost_precache(nTile, 0, 1);
 }
+
+//
+// setrollangle
+//
+void renderSetRollAngle(float rolla)
+{
+    Polymost::gtang = rolla * BAngRadian;
+}
+
+void videoSetCorrectedAspect()
+{
+    // In DOS the game world is displayed with an aspect of 1.28 instead 1.333,
+    // meaning we have to stretch it by a factor of 1.25 instead of 1.2
+    // to get perfect squares
+    int32_t yx = (65536 * 5) / 4;
+    int32_t vr, y, x;
+
+    x = xdim;
+    y = ydim;
+
+    vr = DivScale(x * 3, y * 4, 16);
+
+    renderSetAspect(vr, yx);
+}
+
+
+//
+// setaspect
+//
+void renderSetAspect(int32_t daxrange, int32_t daaspect)
+{
+    if (daxrange == 65536) daxrange--;  // This doesn't work correctly with 65536. All other values are fine. No idea where this is evaluated wrong.
+    viewingrange = daxrange;
+    viewingrangerecip = DivScale(1, daxrange, 32);
+    fviewingrange = (float)daxrange;
+
+    yxaspect = daaspect;
+    xyaspect = DivScale(1, yxaspect, 32);
+    xdimenscale = Scale(xdimen, yxaspect, 320);
+    xdimscale = Scale(320, xyaspect, xdimen);
+}
+
 

@@ -375,6 +375,9 @@ static void insertAllSprites(const char* filename, const vec3_t* pos, int16_t* c
 void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int16_t* cursectnum)
 {
 	inputState.ClearAllInput();
+	memset(sector, 0, sizeof(*sector) * MAXSECTORS);
+	memset(wall, 0, sizeof(*wall) * MAXWALLS);
+	memset(sprite, 0, sizeof(*sector) * MAXSPRITES);
 
 	FileReader fr = fileSystem.OpenFileReader(filename);
 	if (!fr.isOpen()) I_Error("Unable to open map %s", filename);

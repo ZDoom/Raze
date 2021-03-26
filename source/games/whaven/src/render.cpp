@@ -10,10 +10,11 @@ EXTERN_CVAR(Bool, testnewrenderer)
 
 BEGIN_WH_NS
 
+int curpnum;
 
 void drawscreen(int num, double dasmoothratio, bool sceneonly)
 {
-
+	curpnum = num;
 	PLAYER& plr = player[num];
 
 	int cposx = plr.x;
@@ -90,7 +91,6 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 		cposz = floorz - lz;
 
 	// do screen rotation.
-	renderSetRollAngle(crotscrnang.asbam() / (double)(BAMUNIT));
 
 	if (!testnewrenderer)
 	{
@@ -101,7 +101,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	}
 	else
 	{
-		render_drawrooms(nullptr, { cposx, cposy, cposz }, plr.sector, cang.asq16(), choriz.asq16(), crotscrnang.asbuildf());
+		render_drawrooms(nullptr, { cposx, cposy, cposz }, plr.sector, cang, choriz, crotscrnang);
 	}
 
 	if (!sceneonly)
@@ -116,6 +116,12 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 			DrawOverheadMap(cposx, cposy, cang.asbuild(), dasmoothratio);
 		}
 	}
+}
+
+void GameInterface::processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+{
+	PLAYER& plr = player[curpnum];
+	analyzesprites(plr, (int)smoothRatio);
 }
 
 void GameInterface::Render()

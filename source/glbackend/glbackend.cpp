@@ -50,6 +50,7 @@
 #include "hw_cvars.h"
 #include "gamestruct.h"
 #include "gl_models.h"
+#include "gamefuncs.h"
 
 CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
 bool hw_int_useindexedcolortextures;
