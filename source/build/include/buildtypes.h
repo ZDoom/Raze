@@ -255,6 +255,7 @@ struct spritetype
     };
     int16_t extra;
     int16_t detail;
+    int time;
 
 #if 0
     // make sure we do not accidentally copy this

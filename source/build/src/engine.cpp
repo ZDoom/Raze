@@ -344,6 +344,7 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
         Numsprites++;
     }
 
+    sprite[newspritenum].time = leveltimer++;
     return newspritenum;
 
 }
@@ -702,6 +703,7 @@ int32_t engineInit(void)
 void (*initspritelists_replace)(void) = NULL;
 void initspritelists(void)
 {
+    leveltimer = 0;
     if (initspritelists_replace)
     {
         initspritelists_replace();

@@ -156,6 +156,7 @@ EXTERN sectortype *sector;
 EXTERN walltype *wall;
 EXTERN spritetype *sprite;
 EXTERN tspriteptr_t tsprite;
+EXTERN int leveltimer;
 
 extern sectortype sectorbackup[MAXSECTORS];
 extern walltype wallbackup[MAXWALLS];

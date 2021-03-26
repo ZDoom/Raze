@@ -201,6 +201,7 @@ int InsertSprite(int nSector, int nStat)
 
     Numsprites++;
 
+    sprite[nSprite].time = leveltimer++;
     return nSprite;
 }
 
