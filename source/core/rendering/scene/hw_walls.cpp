@@ -766,7 +766,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	bool trans = type == RENDERWALL_M2S && (wal->cstat & CSTAT_WALL_TRANSLUCENT);
 	if (trans)
 	{
-		SetRenderStyleFromBlend(!!(wal->cstat & CSTAT_WALL_TRANSLUCENT), 0, !!(wal->cstat & CSTAT_WALL_TRANS_FLIP));
+		RenderStyle = GetRenderStyle(0, !!(wal->cstat & CSTAT_WALL_TRANS_FLIP));
 		alpha = GetAlphaFromBlend((wal->cstat & CSTAT_WALL_TRANS_FLIP) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
 	}
 	PutWall(di, trans);

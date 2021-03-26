@@ -330,7 +330,7 @@ void HWDrawList::SortSpriteIntoPlane(SortNode * head, SortNode * sort)
 	auto hiz = ss->z1 > ss->z2 ? ss->z1 : ss->z2;
 	auto loz = ss->z1 < ss->z2 ? ss->z1 : ss->z2;
 
-	if ((hiz > fh->z && loz < fh->z) || ss->modelframe)
+	if ((hiz > fh->z && loz < fh->z))// || ss->modelframe)
 	{
 		// We have to split this sprite
 		HWSprite *s = NewSprite();
@@ -723,16 +723,44 @@ void HWDrawList::SortWalls()
 	}
 }
 
-void HWDrawList::SortFlats()
+void HWDrawList::SortFlats(HWDrawInfo* di)
 {
+	auto viewz = di->Viewpoint.Pos.Z;
 	if (drawitems.Size() > 1)
 	{
-		std::sort(drawitems.begin(), drawitems.end(), [=](const HWDrawItem &a, const HWDrawItem &b)
+		TArray<HWDrawItem> list1(drawitems.Size(), false);
+		TArray<HWDrawItem> list2(drawitems.Size(), false);
+
+		for (auto& item : drawitems)
 		{
-			HWFlat * w1 = flats[a.index];
+			HWFlat* w1 = flats[item.index];
+			if (w1->z < viewz) list1.Push(item);
+			else list2.Push(item);
+		}
+
+		std::sort(list1.begin(), list1.end(), [=](const HWDrawItem &a, const HWDrawItem &b)
+		{
+			HWFlat* w1 = flats[a.index];
 			HWFlat* w2 = flats[b.index];
-			return w1->texture < w2->texture;
+			if (w1->z != w2->z) return w1->z < w2->z;
+			int time1 = w1->sprite ? w1->sprite->time : -1;
+			int time2 = w2->sprite ? w2->sprite->time : -1;
+			return time1 < time2;
 		});
+
+		std::sort(list2.begin(), list2.end(), [=](const HWDrawItem& a, const HWDrawItem& b)
+			{
+				HWFlat* w1 = flats[a.index];
+				HWFlat* w2 = flats[b.index];
+				if (w1->z != w2->z) return w2->z < w1->z;
+				int time1 = w1->sprite ? w1->sprite->time : -1;
+				int time2 = w2->sprite ? w2->sprite->time : -1;
+				return time1 < time2;
+			});
+
+		drawitems.Clear();
+		drawitems.Append(list1);
+		drawitems.Append(list2);
 	}
 }
 

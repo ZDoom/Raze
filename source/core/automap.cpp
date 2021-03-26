@@ -618,7 +618,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 	{
 		auto spr = &sprite[sn];
 		vec2_t pp[4];
-		GetFlatSpritePosition(spr, spr->pos.vec2, pp);
+		GetFlatSpritePosition(spr, spr->pos.vec2, pp, true);
 
 		for (unsigned j = 0; j < 4; j++)
 		{

@@ -106,33 +106,17 @@ void HWDrawInfo::AddMirrorSurface(HWWall *w)
 
 void HWDrawInfo::AddFlat(HWFlat *flat)
 {
-	int list = GLDL_PLAINFLATS;
+	int list;;
 
-#if 0
-	if (flat->renderstyle != STYLE_Translucent || flat->alpha < 1.f - FLT_EPSILON)
+	if (flat->RenderStyle != LegacyRenderStyles[STYLE_Translucent] || flat->alpha < 1.f - FLT_EPSILON) // flat->texture->GetTranslucency() -  fixme
 	{
 		// translucent portals go into the translucent border list.
-		list = GLDL_TRANSLUCENTBORDER;
+		list = flat->sprite? GLDL_TRANSLUCENT : GLDL_TRANSLUCENTBORDER;
 	}
-	else if (flat->texture->GetTranslucency())
+	else
 	{
-		/*
-		if (flat->stack)
-		{
-			list = GLDL_TRANSLUCENTBORDER;
-		}
-		else
-		*/
-		{
-			list = GLDL_PLAINFLATS;
-		}
+		list = flat->sprite ? GLDL_MASKEDFLATS : GLDL_PLAINFLATS;
 	}
-	else //if (flat->hacktype != SSRF_FLOODHACK) // The flood hack may later need different treatment but with the current setup can go into the existing render list.
-	{
-		bool masked = flat->texture->isMasked() && flat->stack;
-		list = masked ? GLDL_MASKEDFLATS : GLDL_PLAINFLATS;
-	}
-#endif
 	auto newflat = drawlists[list].NewFlat();
 	*newflat = *flat;
 }

@@ -3329,6 +3329,7 @@ EXTERN_CVAR(Int, gl_fogmode)
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
 {
+    spritesortcnt = 0;
     checkRotatedWalls();
 
     if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.

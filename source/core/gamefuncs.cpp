@@ -231,11 +231,21 @@ void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out)
 //
 //==========================================================================
 
-void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out)
+void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render)
 {
 	auto tex = tileGetTexture(spr->picnum);
-	int width = tex->GetTexelWidth() * spr->xrepeat;
-	int height = tex->GetTexelHeight() * spr->yrepeat;
+
+	int width, height;
+	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+	{
+		width = TileFiles.tiledata[spr->picnum].h_xsize * spr->xrepeat;
+		height = TileFiles.tiledata[spr->picnum].h_ysize * spr->yrepeat;
+	}
+	else
+	{
+		width = tex->GetTexelWidth() * spr->xrepeat;
+		height = tex->GetTexelHeight() * spr->yrepeat;
+	}
 	int leftofs = (tex->GetTexelLeftOffset() + spr->xoffset) * spr->xrepeat;
 	int topofs = (tex->GetTexelTopOffset() + spr->yoffset) * spr->yrepeat;
 

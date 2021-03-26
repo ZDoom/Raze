@@ -153,7 +153,7 @@ public:
 	texcoord tcs[4];
 	float alpha;
 
-	ERenderStyle RenderStyle;
+	FRenderStyle RenderStyle;
 	
 	float ViewDistance;
 	float visibility;
@@ -181,8 +181,9 @@ public:
 	unsigned int vertcount;
 
 public:
-	walltype * seg;
-	sectortype *frontsector, *backsector;
+	walltype* seg;
+	spritetype* sprite;
+	sectortype* frontsector, * backsector;
 //private:
 
 	void PutWall(HWDrawInfo *di, bool translucent);
@@ -229,6 +230,7 @@ public:
 
 public:
 	void Process(HWDrawInfo* di, walltype* seg, sectortype* frontsector, sectortype* backsector);
+	void ProcessWallSprite(HWDrawInfo* di, walltype* seg, sectortype* frontsector, sectortype* backsector);
 
 	float PointOnSide(float x,float y)
 	{
@@ -249,15 +251,16 @@ class HWFlat
 {
 public:
 	sectortype * sec;
+	spritetype* sprite; // for flat sprites.
 	FGameTexture *texture;
 
 	float z; // the z position of the flat (only valid for non-sloped planes)
 	FColormap Colormap;	// light and fog
-	ERenderStyle renderstyle;
 
 	PalEntry fade;
 	int shade, palette, visibility;
 	float alpha;
+	FRenderStyle RenderStyle;
 	int iboindex;
 	//int vboheight;
 
@@ -272,6 +275,7 @@ public:
 
 	void PutFlat(HWDrawInfo* di, int whichplane);
 	void ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which = 7 /*SSRF_RENDERALL*/);	// cannot use constant due to circular dependencies.
+	void ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* sector);
 	
 	void DrawSubsectors(HWDrawInfo *di, FRenderState &state);
 	void DrawFlat(HWDrawInfo* di, FRenderState& state, bool translucent);
@@ -293,7 +297,7 @@ public:
 	bool fullbright;
 	bool polyoffset;
 	FColormap Colormap;
-	FSpriteModelFrame * modelframe;
+	int modeltype;
 	FRenderStyle RenderStyle;
 	int OverrideShader;
 

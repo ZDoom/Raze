@@ -31,6 +31,7 @@ struct HWDrawItem
 	HWDrawItemType rendertype;
 	int index;
 	
+	HWDrawItem() = default; // we need this for dynamic arrays.
 	HWDrawItem(HWDrawItemType _rendertype,int _index) : rendertype(_rendertype),index(_index) {}
 };
 
@@ -92,7 +93,7 @@ public:
 	HWSprite *NewSprite();
 	void Reset();
 	void SortWalls();
-	void SortFlats();
+	void SortFlats(HWDrawInfo* di);
 	
 	
 	void MakeSortList();

@@ -72,6 +72,9 @@ enum DrawListType
 	GLDL_PLAINWALLS,
 	GLDL_PLAINFLATS,
 	GLDL_MASKEDWALLS,
+	GLDL_MASKEDWALLSS,	// arbitrary wall sprites.
+	GLDL_MASKEDWALLSV,	// vertical wall sprites
+	GLDL_MASKEDWALLSH,  // horizontal wall sprites. These two lists merely exist for easier sorting.
 	GLDL_MASKEDFLATS,
 	GLDL_MASKEDWALLSOFS,
 	GLDL_MODELS,
@@ -154,6 +157,7 @@ public:
 
 	void DrawScene(int drawmode);
 	void CreateScene();
+	void DispatchSprites();
 	void RenderScene(FRenderState &state);
 	void RenderTranslucent(FRenderState &state);
 	void RenderPortal(HWPortal *p, FRenderState &state, bool usestencil);

@@ -97,20 +97,44 @@ void HWFlat::SetupLights(HWDrawInfo *di, FLightNode * node, FDynLightData &light
 
 void HWFlat::MakeVertices()
 {
-	auto mesh = sectorGeometry.get(sec - sector, plane);
-	if (!mesh) return;
-	auto ret = screen->mVertexData->AllocVertices(mesh->vertices.Size());
-	auto vp = ret.first;
-	for (unsigned i = 0; i < mesh->vertices.Size(); i++)
+	if (vertcount > 0) return;
+	if (sprite == nullptr)
 	{
-		auto& pt = mesh->vertices[i];
-		auto& uv = mesh->texcoords[i];
-		vp->SetVertex(pt.X, pt.Z, pt.Y);
-		vp->SetTexCoord(uv.X, uv.Y);
-		vp++;
+		auto mesh = sectorGeometry.get(sec - sector, plane);
+		if (!mesh) return;
+		auto ret = screen->mVertexData->AllocVertices(mesh->vertices.Size());
+		auto vp = ret.first;
+		for (unsigned i = 0; i < mesh->vertices.Size(); i++)
+		{
+			auto& pt = mesh->vertices[i];
+			auto& uv = mesh->texcoords[i];
+			vp->SetVertex(pt.X, pt.Z, pt.Y);
+			vp->SetTexCoord(uv.X, uv.Y);
+			vp++;
+		}
+		vertindex = ret.second;
+		vertcount = mesh->vertices.Size();
 	}
-	vertindex = ret.second;
-	vertcount = mesh->vertices.Size();
+	else
+	{
+		vec2_t pos[4];
+		GetFlatSpritePosition(sprite, sprite->pos.vec2, pos, true);
+
+		auto ret = screen->mVertexData->AllocVertices(6);
+		auto vp = ret.first;
+		float x = !(sprite->cstat & CSTAT_SECTOR_XFLIP) ? 0.f : 1.f;
+		float y = !(sprite->cstat & CSTAT_SECTOR_YFLIP) ? 0.f : 1.f;
+		for (unsigned i = 0; i < 6; i++)
+		{
+			const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
+			int j = indices[i];
+			vp->SetVertex(pos[j].x * (1 / 16.f), z, pos[j].y * (1 / -16.f));
+			vp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? 1.f - x : x);
+			vp++;
+		}
+		vertindex = ret.second;
+		vertcount = 6;
+	}
 }
 
 //==========================================================================
@@ -132,8 +156,16 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	}
 #endif
 
-	auto mesh = sectorGeometry.get(sec - sector, plane);
-	state.SetNormal(mesh->normal);
+	if (!sprite)
+	{
+		auto mesh = sectorGeometry.get(sec - sector, plane);
+		state.SetNormal(mesh->normal);
+	}
+	else
+	{
+		if (z < di->Viewpoint.Pos.Z) state.SetNormal({ 0,1,0 });
+		else state.SetNormal({ 0, -1, 0 });
+	}
 
 	// Fog must be done before the texture so that the texture selector can override it.
 	bool foggy = (GlobalMapFog || (fade & 0xffffff));
@@ -160,7 +192,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 
 	if (translucent)
 	{
-		state.SetRenderStyle(renderstyle);
+		state.SetRenderStyle(RenderStyle);
 		if (!texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_threshold);
 		else state.AlphaFunc(Alpha_GEqual, 0.f);
 	}
@@ -186,6 +218,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 
 void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 {
+	vertcount = 0;
 	plane = whichplane;
 	if (!screen->BuffersArePersistent())	// should be made static buffer content later (when the logic is working)
 	{
@@ -228,6 +261,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 	fade = lookups.getFade(frontsector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(frontsector);
 	sec = frontsector;
+	sprite = nullptr;
 
 	//
 	//
@@ -262,7 +296,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 			if (texture && texture->isValid())
 			{
 				//iboindex = frontsector->iboindex[sector_t::floor];
-				renderstyle = STYLE_Translucent;
+				RenderStyle = STYLE_Translucent;
 				PutFlat(di, 0);
 			}
 		}
@@ -303,10 +337,45 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 			if (texture && texture->isValid())
 			{
 				//iboindex = frontsector->iboindex[sector_t::floor];
-				renderstyle = STYLE_Translucent;
+				RenderStyle = STYLE_Translucent;
 				PutFlat(di,  1);
 			}
 		}
 	}
 }
 
+void HWFlat::ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* sector)
+{
+	int tilenum = sprite->picnum;
+	texture = tileGetTexture(tilenum);
+	z = sprite->z * (1 / -256.f);
+	if (z == di->Viewpoint.Pos.Z) return; // looking right at the edge.
+
+	visibility = sectorVisibility(&sector[sprite->sectnum]);// *(4.f / 5.f); // The factor comes directly from Polymost. No idea why this uses a different visibility setting. Bad projection math?
+
+	// Weird Build logic that really makes no sense.
+	if ((sprite->cstat & CSTAT_SPRITE_ONE_SIDED) != 0 && (di->Viewpoint.Pos.Z < z) == ((sprite->cstat & CSTAT_SPRITE_YFLIP) == 0))
+		return;
+
+	if (texture && texture->isValid())
+	{
+		this->sprite = sprite;
+		sec = sector;
+		shade = sprite->shade;
+		palette = sprite->pal;
+		fade = lookups.getFade(sector[sprite->sectnum].floorpal);	// fog is per sector.
+
+		bool trans = (sprite->cstat & CSTAT_SPRITE_TRANSLUCENT);
+		if (trans)
+		{
+			RenderStyle = GetRenderStyle(0, !!(sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
+			alpha = GetAlphaFromBlend((sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+		}
+		else
+		{
+			RenderStyle = LegacyRenderStyles[STYLE_Translucent];
+			alpha = 1.f;
+ 		}
+		PutFlat(di, 0);
+	}
+}
