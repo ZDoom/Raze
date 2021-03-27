@@ -230,7 +230,7 @@ public:
 
 public:
 	void Process(HWDrawInfo* di, walltype* seg, sectortype* frontsector, sectortype* backsector);
-	void ProcessWallSprite(HWDrawInfo* di, walltype* seg, sectortype* frontsector, sectortype* backsector);
+	void ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* frontsector);
 
 	float PointOnSide(float x,float y)
 	{

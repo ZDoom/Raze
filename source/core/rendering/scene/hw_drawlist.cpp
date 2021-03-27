@@ -703,25 +703,103 @@ void HWDrawList::Sort(HWDrawInfo *di)
 
 //==========================================================================
 //
-// Sorting the drawitems first by texture and then by light level
+//
 //
 //==========================================================================
 
-void HWDrawList::SortWalls()
+void HWDrawList::SortWallsVert(HWDrawInfo* di)
 {
+	auto viewy = di->Viewpoint.Pos.Y;
 	if (drawitems.Size() > 1)
 	{
-		std::sort(drawitems.begin(), drawitems.end(), [=](const HWDrawItem &a, const HWDrawItem &b) -> bool
+		TArray<HWDrawItem> list1(drawitems.Size(), false);
+		TArray<HWDrawItem> list2(drawitems.Size(), false);
+
+		for (auto& item : drawitems)
 		{
-			HWWall * w1 = walls[a.index];
-			HWWall * w2 = walls[b.index];
+			HWWall* w1 = walls[item.index];
+			if (w1->glseg.y1 < viewy) list1.Push(item);
+			else list2.Push(item);
+		}
 
-			if (w1->texture != w2->texture) return w1->texture < w2->texture;
-			return (w1->flags & 3) < (w2->flags & 3);
+		std::sort(list1.begin(), list1.end(), [=](const HWDrawItem& a, const HWDrawItem& b)
+			{
+				HWWall* w1 = walls[a.index];
+				HWWall* w2 = walls[b.index];
+				if (w1->glseg.y1 != w2->glseg.y1) return w1->glseg.y1 < w2->glseg.y1;
+				int time1 = w1->sprite ? w1->sprite->time : -1;
+				int time2 = w2->sprite ? w2->sprite->time : -1;
+				return time1 < time2;
+			});
 
-		});
+		std::sort(list2.begin(), list2.end(), [=](const HWDrawItem& a, const HWDrawItem& b)
+			{
+				HWWall* w1 = walls[a.index];
+				HWWall* w2 = walls[b.index];
+				if (w1->glseg.y1 != w2->glseg.y1) return w1->glseg.y1 > w2->glseg.y1;
+				int time1 = w1->sprite ? w1->sprite->time : -1;
+				int time2 = w2->sprite ? w2->sprite->time : -1;
+				return time1 < time2;
+			});
+
+		drawitems.Clear();
+		drawitems.Append(list1);
+		drawitems.Append(list2);
 	}
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void HWDrawList::SortWallsHorz(HWDrawInfo* di)
+{
+	auto viewx = di->Viewpoint.Pos.X;
+	if (drawitems.Size() > 1)
+	{
+		TArray<HWDrawItem> list1(drawitems.Size(), false);
+		TArray<HWDrawItem> list2(drawitems.Size(), false);
+
+		for (auto& item : drawitems)
+		{
+			HWWall* w1 = walls[item.index];
+			if (w1->glseg.x1 < viewx) list1.Push(item);
+			else list2.Push(item);
+		}
+
+		std::sort(list1.begin(), list1.end(), [=](const HWDrawItem& a, const HWDrawItem& b)
+			{
+				HWWall* w1 = walls[a.index];
+				HWWall* w2 = walls[b.index];
+				if (w1->glseg.x1 != w2->glseg.x1) return w1->glseg.x1 < w2->glseg.x1;
+				int time1 = w1->sprite ? w1->sprite->time : -1;
+				int time2 = w2->sprite ? w2->sprite->time : -1;
+				return time1 < time2;
+			});
+
+		std::sort(list2.begin(), list2.end(), [=](const HWDrawItem& a, const HWDrawItem& b)
+			{
+				HWWall* w1 = walls[a.index];
+				HWWall* w2 = walls[b.index];
+				if (w1->glseg.x1 != w2->glseg.x1) return w1->glseg.x1 > w2->glseg.x1;
+				int time1 = w1->sprite ? w1->sprite->time : -1;
+				int time2 = w2->sprite ? w2->sprite->time : -1;
+				return time1 < time2;
+			});
+
+		drawitems.Clear();
+		drawitems.Append(list1);
+		drawitems.Append(list2);
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
 
 void HWDrawList::SortFlats(HWDrawInfo* di)
 {

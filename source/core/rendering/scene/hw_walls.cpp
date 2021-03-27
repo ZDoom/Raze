@@ -1067,3 +1067,110 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	globalr = globalg = globalb = 255;
 }
 
+void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sector)
+{
+	auto tex = tileGetTexture(spr->picnum);
+	if (!tex || !tex->isValid()) return;
+
+	seg = nullptr;
+	sprite = spr;
+	vec2_t pos[2];
+	int sprz = spr->pos.z;
+
+	if (spr->cstat & CSTAT_SPRITE_ONE_SIDED)
+	{
+		DAngle sprang = buildang(spr->ang).asdeg();
+		DAngle lookang = bamang(di->Viewpoint.RotAngle).asdeg();
+		if ((sprang.ToVector() | lookang.ToVector()) >= 0.) return;
+	}
+
+	vertindex = 0;
+	vertcount = 0;
+	type = RENDERWALL_M2S;
+	frontsector = sector;
+	backsector = sector;
+	texture = tex;
+
+	flags = 0;
+	dynlightindex = -1;
+	shade = spr->shade;
+	palette = spr->pal;
+	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
+	visibility = sectorVisibility(sector);
+
+	bool trans = (sprite->cstat & CSTAT_SPRITE_TRANSLUCENT);
+	if (trans)
+	{
+		RenderStyle = GetRenderStyle(0, !!(sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
+		alpha = GetAlphaFromBlend((sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+	}
+	else
+	{
+		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
+		alpha = 1.f;
+	}
+
+
+	GetWallSpritePosition(spr, spr->pos.vec2, pos, true);
+
+	int height, topofs;
+	if (hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+	{
+		height = TileFiles.tiledata[spr->picnum].h_ysize;
+		topofs = (TileFiles.tiledata[spr->picnum].h_yoffs + spr->yoffset);
+	}
+	else
+	{
+		height = tex->GetTexelHeight();
+		topofs = (tex->GetTexelTopOffset() + spr->yoffset);
+	}
+
+	if (spr->cstat & CSTAT_SPRITE_YFLIP)
+		topofs = -topofs;
+
+	sprz -= ((topofs * spr->yrepeat) << 2);
+
+	if (spr->cstat & CSTAT_SPRITE_YCENTER)
+	{
+		sprz += ((height * spr->yrepeat) << 1);
+		if (height & 1) sprz += (spr->yrepeat << 1);  // Odd yspans (taken from polymost as-is)
+	}
+
+	glseg.fracleft = 0;
+	glseg.fracright = 1;
+	glseg.x1 = pos[0].x * (1 / 16.f);
+	glseg.y1 = pos[0].y * (1 / -16.f);
+	glseg.x2 = pos[1].x * (1 / 16.f);
+	glseg.y2 = pos[1].y * (1 / -16.f);
+	tcs[LOLFT].u = tcs[UPLFT].u = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 1.f : 0.f;
+	tcs[LORGT].u = tcs[UPRGT].u = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
+	tcs[UPLFT].v = tcs[UPRGT].u = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
+	tcs[LOLFT].v = tcs[LORGT].u = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
+	ztop[0] = ztop[1] = (sprz - height) * (1 / -256.);
+	zbottom[0] = zbottom[1] = (sprz) * (1 / -256.);
+
+
+	// Clip sprites to ceilings/floors
+	float origz = ztop[0];
+	float polyh = (zbottom[0] - origz);
+	if (!(sector->ceilingstat & CSTAT_SECTOR_SKY))
+	{
+		float ceilingz = sector->ceilingz * (1 / 256.f);
+		if (ceilingz < ztop[0] && ceilingz > zbottom[0])
+		{
+			float newv = (ceilingz - origz) / polyh;
+			tcs[UPLFT].v = tcs[UPRGT].v = newv;
+			ztop[0] = ztop[1] = ceilingz;
+		}
+	}
+	if (!(sector->floorstat & CSTAT_SECTOR_SKY))
+	{
+		float floorz = sector->floorz * (1 / 256.f);
+		if (floorz < ztop[0] && floorz > zbottom[0])
+		{
+			float newv = (floorz - origz) / polyh;
+			tcs[LOLFT].v = tcs[LORGT].v = newv;
+			zbottom[0] = zbottom[1] = floorz;
+		}
+	}
+}

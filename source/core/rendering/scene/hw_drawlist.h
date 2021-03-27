@@ -92,7 +92,8 @@ public:
 	HWFlat *NewFlat();
 	HWSprite *NewSprite();
 	void Reset();
-	void SortWalls();
+	void SortWallsHorz(HWDrawInfo* di);
+	void SortWallsVert(HWDrawInfo* di);
 	void SortFlats(HWDrawInfo* di);
 	
 	

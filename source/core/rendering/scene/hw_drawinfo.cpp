@@ -346,8 +346,11 @@ void HWDrawInfo::DispatchSprites()
 			break;
 
 		case CSTAT_SPRITE_ALIGNMENT_WALL:
-			// wall sprite
+		{
+			HWWall wall;
+			wall.ProcessWallSprite(this, tspr, &sector[tspr->sectnum]);
 			break;
+		}
 
 		case CSTAT_SPRITE_ALIGNMENT_FLOOR:
 		{
@@ -445,20 +448,32 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 
 	// These lists must be drawn in two passes for color and depth to avoid depth fighting with overlapping entries
 	drawlists[GLDL_MASKEDFLATS].SortFlats(this);
-	//drawlists[GLDL_MASKEDWALLSV].SortWalls(this);
-	//drawlists[GLDL_MASKEDWALLSH].SortWalls(this);
+	drawlists[GLDL_MASKEDWALLSV].SortWallsVert(this);
+	drawlists[GLDL_MASKEDWALLSH].SortWallsHorz(this);
 
 	// these lists are only wall and floor sprites - often attached to walls and floors - so they need to be offset from the plane they may be attached to.
 	drawlists[GLDL_MASKEDWALLSS].DrawWalls(this, state, false);
+
+	// Each list must draw both its passes before the next one to ensure proper depth buffer contents.
 	state.SetDepthBias(-1, -128);
 	state.SetDepthMask(false);
 	drawlists[GLDL_MASKEDWALLSV].DrawWalls(this, state, false);
-	drawlists[GLDL_MASKEDWALLSH].DrawWalls(this, state, false);
-	drawlists[GLDL_MASKEDFLATS].DrawFlats(this, state, false);
 	state.SetDepthMask(true);
 	state.SetColorMask(false);
 	drawlists[GLDL_MASKEDWALLSV].DrawWalls(this, state, false);
+	state.SetColorMask(true);
+
+	state.SetDepthMask(false);
 	drawlists[GLDL_MASKEDWALLSH].DrawWalls(this, state, false);
+	state.SetDepthMask(true);
+	state.SetColorMask(false);
+	drawlists[GLDL_MASKEDWALLSH].DrawWalls(this, state, false);
+	state.SetColorMask(true);
+
+	state.SetDepthMask(false);
+	drawlists[GLDL_MASKEDFLATS].DrawFlats(this, state, false);
+	state.SetDepthMask(true);
+	state.SetColorMask(false);
 	drawlists[GLDL_MASKEDFLATS].DrawFlats(this, state, false);
 	state.SetColorMask(true);
 	state.ClearDepthBias();

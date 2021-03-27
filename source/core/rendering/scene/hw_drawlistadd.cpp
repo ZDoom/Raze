@@ -50,14 +50,11 @@ void HWDrawInfo::AddWall(HWWall *wall)
 		bool masked = wall->type != RENDERWALL_M2S ? false : (wall->texture && wall->texture->isMasked());
 		int list;
 
-		if (wall->flags & HWWall::HWF_SKYHACK && wall->type == RENDERWALL_M2S)
-		{
-			list = GLDL_MASKEDWALLSOFS;
-		}
-		else
-		{
-			list = masked ? GLDL_MASKEDWALLS : GLDL_PLAINWALLS;
-		}
+		if (!masked) list = GLDL_PLAINWALLS;
+		else if (sprite == nullptr) list = GLDL_MASKEDWALLS;
+		else if (wall->glseg.x1 == wall->glseg.x2) list = GLDL_MASKEDWALLSV;
+		else if (wall->glseg.y1 == wall->glseg.y2) list = GLDL_MASKEDWALLSH;
+		else list = GLDL_MASKEDWALLSS;
 		auto newwall = drawlists[list].NewWall();
 		*newwall = *wall;
 	}
