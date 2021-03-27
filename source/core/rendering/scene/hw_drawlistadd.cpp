@@ -80,16 +80,7 @@ void HWDrawInfo::AddMirrorSurface(HWWall *w)
 	tcs[HWWall::LOLFT].u = tcs[HWWall::LORGT].u = tcs[HWWall::UPLFT].u = tcs[HWWall::UPRGT].u = v.X;
 	tcs[HWWall::LOLFT].v = tcs[HWWall::LORGT].v = tcs[HWWall::UPLFT].v = tcs[HWWall::UPRGT].v = v.Z;
 	newwall->MakeVertices(this, false);
-
-#if 0
-	bool hasDecals = newwall->seg->sidedef && newwall->seg->sidedef->AttachedDecals;
-	if (hasDecals && Level->HasDynamicLights && !isFullbrightScene())
-	{
-		newwall->SetupLights(this, lightdata);
-	}
-	newwall->ProcessDecals(this);
-#endif
-	newwall->dynlightindex = -1; // the environment map should not be affected by lights - only the decals.
+	newwall->dynlightindex = -1; // the environment map should not be affected by lights.
 }
 
 //==========================================================================

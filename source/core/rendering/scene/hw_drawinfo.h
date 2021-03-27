@@ -23,7 +23,6 @@ struct FFlatVertex;
 class HWWall;
 class HWFlat;
 class HWSprite;
-struct HWDecal;
 class IShadowMap;
 struct FDynLightData;
 class Clipper;
@@ -107,7 +106,6 @@ struct HWDrawInfo
 	FRenderViewpoint Viewpoint;
 	HWViewpointUniforms VPUniforms;	// per-viewpoint uniform state
 	TArray<HWPortal *> Portals;
-	TArray<HWDecal *> Decals[2];	// the second slot is for mirrors which get rendered in a separate pass.
 
 	// This is needed by the BSP traverser.
 	bool multithread;
@@ -171,7 +169,6 @@ public:
 	void SetupView(FRenderState &state, float vx, float vy, float vz, bool mirror, bool planemirror);
 	angle_t FrustumAngle();
 
-	void DrawDecals(FRenderState &state, TArray<HWDecal *> &decals);
 	void DrawPlayerSprites(bool hudModelStep, FRenderState &state);
 
     //void AddSubsectorToPortal(FSectorPortalGroup *portal, sectortype *sub);
@@ -181,8 +178,6 @@ public:
 	void AddFlat(HWFlat *flat);
 	void AddSprite(HWSprite *sprite, bool translucent);
 
-
-    HWDecal *AddDecal(bool onmirror);
 
 	bool isSoftwareLighting() const
 	{

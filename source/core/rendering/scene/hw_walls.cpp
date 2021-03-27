@@ -406,22 +406,6 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 		MakeVertices(di, translucent);
 	}
 
-	/*
-	bool hasDecals = type != RENDERWALL_M2S && seg->sidedef->AttachedDecals;
-	if (hasDecals)
-	{
-		// If we want to use the light infos for the decal we cannot delay the creation until the render pass.
-		if (screen->BuffersArePersistent())
-		{
-			if (di->Level->HasDynamicLights && !di->isFullbrightScene() && texture != nullptr)
-			{
-				SetupLights(di, lightdata);
-			}
-		}
-		ProcessDecals(di);
-	}
-	*/
-
 	di->AddWall(this);
 	// make sure that following parts of the same linedef do not get this one's vertex and lighting info.
 	vertcount = 0;	

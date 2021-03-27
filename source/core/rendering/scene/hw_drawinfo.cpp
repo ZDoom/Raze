@@ -188,8 +188,6 @@ HWDrawInfo *HWDrawInfo::EndDrawInfo()
 void HWDrawInfo::ClearBuffers()
 {
 	spriteindex = 0;
-	Decals[0].Clear();
-	Decals[1].Clear();
 	mClipPortal = nullptr;
 	mCurrentPortal = nullptr;
 }
@@ -271,17 +269,6 @@ HWPortal * HWDrawInfo::FindPortal(const void * src)
 //
 //
 //-----------------------------------------------------------------------------
-
-HWDecal* HWDrawInfo::AddDecal(bool onmirror)
-{
-#if 0
-	auto decal = (HWDecal*)RenderDataAllocator.Alloc(sizeof(HWDecal));
-	Decals[onmirror ? 1 : 0].Push(decal);
-	return decal;
-#else
-	return nullptr;
-#endif
-}
 
 void HWDrawInfo::DispatchSprites()
 {
@@ -482,12 +469,7 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 
 	state.SetRenderStyle(STYLE_Translucent);
 
-	// Part 4: Draw decals (not a real pass)
 	state.SetDepthFunc(DF_LEqual);
-#if 0
-	DrawDecals(state, Decals[0]);
-#endif
-
 	RenderAll.Unclock();
 }
 

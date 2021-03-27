@@ -25,7 +25,6 @@ struct FDynLightData;
 class VSMatrix;
 struct FSpriteModelFrame;
 class FRenderState;
-struct HWDecal;
 
 struct HWSectorPlane
 {
@@ -215,9 +214,6 @@ public:
 					  float fch1, float fch2, float ffh1, float ffh2,
 					  float bch1, float bch2, float bfh1, float bfh2);
 
-    //void ProcessDecal(HWDrawInfo *di, DBaseDecal *decal, const FVector3 &normal);
-    //void ProcessDecals(HWDrawInfo *di);
-
 	int CreateVertices(FFlatVertex *&ptr, bool nosplit);
 
 	//int CountVertices();
@@ -339,44 +335,11 @@ public:
 
 
 
-
-struct DecalVertex
-{
-	float x, y, z;
-	float u, v;
-};
-
-/*
-struct HWDecal
-{
-	FGameTexture *texture;
-	TArray<lightlist_t> *lightlist;
-	DBaseDecal *decal;
-	DecalVertex dv[4];
-	float zcenter;
-	unsigned int vertindex;
-
-	FRenderStyle renderstyle;
-	int lightlevel;
-	int rellight;
-	float alpha;
-	FColormap Colormap;
-	int dynlightindex;
-	sectortype *frontsector;
-	FVector3 Normal;
-
-	void DrawDecal(HWDrawInfo *di, FRenderState &state);
-
-};
-*/
-
-
 inline float Dist2(float x1,float y1,float x2,float y2)
 {
 	return sqrtf((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
 }
 
-bool hw_SetPlaneTextureRotation(const HWSectorPlane * secplane, FGameTexture * gltexture, VSMatrix &mat);
 void hw_GetDynModelLight(AActor *self, FDynLightData &modellightdata);
 
 extern const float LARGE_VALUE;
