@@ -251,7 +251,6 @@ public:
 	FGameTexture *texture;
 
 	float z; // the z position of the flat (only valid for non-sloped planes)
-	FColormap Colormap;	// light and fog
 
 	PalEntry fade;
 	int shade, palette, visibility;
@@ -287,23 +286,17 @@ public:
 class HWSprite
 {
 public:
-	int lightlevel;
-	uint8_t foglevel;
-	uint8_t hw_styleflags;
-	bool fullbright;
-	bool polyoffset;
-	FColormap Colormap;
-	int modeltype;
-	FRenderStyle RenderStyle;
-	int OverrideShader;
 
-	int translation;
+	spritetype* sprite;
+	PalEntry fade;
+	int shade, palette, visibility;
+	float alpha;
+	FRenderStyle RenderStyle;
+	int modelframe; // : sprite, 1: model, <0:voxel index
+
 	int index;
 	float depth;
 	int vertexindex;
-
-	float topclip;
-	float bottomclip;
 
 	float x,y,z;	// needed for sorting!
 
@@ -311,26 +304,21 @@ public:
 	float vt,vb;
 	float x1,y1,z1;
 	float x2,y2,z2;
-	float trans;
 	int dynlightindex;
 
 	FGameTexture *texture;
-	spritetype * actor;
-	//TArray<lightlist_t> *lightlist;
 	DRotator Angles;
 
 
-	void SplitSprite(HWDrawInfo *di, sectortype * frontsector, bool translucent);
-	void PerformSpriteClipAdjustment(AActor *thing, const DVector2 &thingpos, float spriteheight);
-	bool CalculateVertices(HWDrawInfo *di, FVector3 *v, DVector3 *vp);
+	void CalculateVertices(HWDrawInfo *di, FVector3 *v, DVector3 *vp);
 
 public:
 
-	void CreateVertices(HWDrawInfo* di) {}
+	void CreateVertices(HWDrawInfo* di);
 	void PutSprite(HWDrawInfo *di, bool translucent);
-	void Process(HWDrawInfo *di, AActor* thing,sectortype * sector, int thruportal = false);
+	void Process(HWDrawInfo *di, spritetype* thing,sectortype * sector, int thruportal = false);
 
-	void DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent) {}
+	void DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent);
 };
 
 

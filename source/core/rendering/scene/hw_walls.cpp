@@ -144,7 +144,7 @@ void HWWall::SetLightAndFog(FRenderState& state)
 	}
 
 	// The shade rgb from the tint is ignored here.
-	state.SetColor(PalEntry(255, globalr, globalg, globalb));
+	state.SetColorAlpha(PalEntry(255, globalr, globalg, globalb), alpha);
 }
 
 //==========================================================================
@@ -231,11 +231,18 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 
 void HWWall::RenderTranslucentWall(HWDrawInfo *di, FRenderState &state)
 {
+	if (RenderStyle.BlendOp != STYLEOP_Add)
+	{
+		state.EnableBrightmap(false);
+	}
+
 	state.SetRenderStyle(RenderStyle);
+	state.SetTextureMode(RenderStyle);
 	if (!texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_threshold);
 	else state.AlphaFunc(Alpha_GEqual, 0.f);
 	RenderTexturedWall(di, state, HWWall::RWF_TEXTURED);
 	state.SetRenderStyle(STYLE_Translucent);
+	state.EnableBrightmap(true);
 }
 
 //==========================================================================
@@ -392,7 +399,7 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 	if (translucent || (texture && texture->GetTranslucency() && type == RENDERWALL_M2S))
 	{
 		flags |= HWF_TRANSLUCENT;
-		//ViewDistance = (di->Viewpoint.Pos - (seg->linedef->v1->fPos() + seg->linedef->Delta() / 2)).XY().LengthSquared();
+		ViewDistance = (di->Viewpoint.Pos.XY() - DVector2((glseg.x1 + glseg.x2) * 0.5f, (glseg.y1 + glseg.y2) * 0.5f)).LengthSquared();
 	}
 	
 	if (!screen->BuffersArePersistent())
@@ -553,12 +560,6 @@ bool HWWall::DoHorizon(HWDrawInfo* di, walltype* seg, sectortype* fs, DVector2& 
 		}
 		else
 		{
-			hi.plane.GetFromSector(fs, sector_t::ceiling);
-			hi.lightlevel = hw_ClampLight(fs->GetCeilingLight());
-			hi.colormap = fs->Colormap;
-			hi.specialcolor = fs->SpecialColors[sector_t::ceiling];
-
-			if (di->isFullbrightScene()) hi.colormap.Clear();
 			horizon = &hi;
 			PutPortal(di, PORTALTYPE_HORIZON, -1);
 		}
@@ -574,11 +575,6 @@ bool HWWall::DoHorizon(HWDrawInfo* di, walltype* seg, sectortype* fs, DVector2& 
 		}
 		else
 		{
-			hi.plane.GetFromSector(fs, sector_t::floor);
-			hi.lightlevel = hw_ClampLight(fs->GetFloorLight());
-			hi.colormap = fs->Colormap;
-			hi.specialcolor = fs->SpecialColors[sector_t::floor];
-
 			horizon = &hi;
 			PutPortal(di, PORTALTYPE_HORIZON, -1);
 		}

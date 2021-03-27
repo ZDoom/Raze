@@ -1,160 +1,419 @@
+// 
+//---------------------------------------------------------------------------
+//
+// Copyright(C) 2002-2016 Christoph Oelckers
+// All rights reserved.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program.  If not, see http://www.gnu.org/licenses/
+//
+//--------------------------------------------------------------------------
+//
+/*
+** gl_sprite.cpp
+** Sprite/Particle rendering
+**
+*/
 
-#if 0
-void polymost_drawsprite(int32_t snum)
+#include "matrix.h"
+//#include "models.h"
+#include "vectors.h"
+#include "texturemanager.h"
+#include "basics.h"
+
+//#include "hw_models.h"
+#include "hw_drawstructs.h"
+#include "hw_drawinfo.h"
+#include "hw_portal.h"
+#include "flatvertices.h"
+#include "hw_cvars.h"
+#include "hw_clock.h"
+#include "hw_material.h"
+#include "hw_dynlightdata.h"
+#include "hw_lightbuffer.h"
+#include "hw_renderstate.h"
+
+extern PalEntry GlobalMapFog;
+extern float GlobalFogDensity;
+
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 {
+	bool additivefog = false;
+	bool foglayer = false;
+	auto& vp = di->Viewpoint;
 
-    vec2_t off = { 0, 0 };
+	if (translucent)
+	{
+		// The translucent pass requires special setup for the various modes.
 
-    if ((globalorientation & 48) != 48)  // only non-voxel sprites should do this
-    {
-        int const flag = hw_hightile && TileFiles.tiledata[globalpicnum].h_xsize;
-        off = { (int32_t)tspr->xoffset + (flag ? TileFiles.tiledata[globalpicnum].h_xoffs : tileLeftOffset(globalpicnum)),
-                (int32_t)tspr->yoffset + (flag ? TileFiles.tiledata[globalpicnum].h_yoffs : tileTopOffset(globalpicnum)) };
-    }
+		// for special render styles brightmaps would not look good - especially for subtractive.
+		if (RenderStyle.BlendOp != STYLEOP_Add)
+		{
+			state.EnableBrightmap(false);
+		}
 
-    int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
+		state.SetRenderStyle(RenderStyle);
+		state.SetTextureMode(RenderStyle);
 
-    if (tspr->cstat & 2)
-        method = DAMETH_CLAMPED | ((tspr->cstat & 512) ? DAMETH_TRANS2 : DAMETH_TRANS1);
+		if (!texture || !texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_sprite_threshold);
+		else state.AlphaFunc(Alpha_Greater, 0.f);
 
-    SetRenderStyleFromBlend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
+		if (RenderStyle.BlendOp == STYLEOP_Add && RenderStyle.DestAlpha == STYLEALPHA_One)
+		{
+			additivefog = true;
+		}
+	}
 
-    drawpoly_alpha = spriteext[spritenum].alpha;
-    drawpoly_blend = tspr->blend;
+	if (dynlightindex == -1)	// only set if we got no light buffer index. This covers all cases where sprite lighting is used.
+	{
+		float out[3] = {};
+		//di->GetDynSpriteLight(gl_light_sprites ? actor : nullptr, gl_light_particles ? particle : nullptr, out);
+		//state.SetDynLight(out[0], out[1], out[2]);
+	}
 
-    sec = (usectorptr_t)&sector[tspr->sectnum];
+
+	if (RenderStyle.Flags & STYLEF_FadeToBlack)
+	{
+		fade = 0;
+		additivefog = true;
+	}
+
+	if (RenderStyle.BlendOp == STYLEOP_RevSub || RenderStyle.BlendOp == STYLEOP_Sub)
+	{
+		if (!modelframe)
+		{
+			// non-black fog with subtractive style needs special treatment
+			if (fade != 0)
+			{
+				foglayer = true;
+				// Due to the two-layer approach we need to force an alpha test that lets everything pass
+				state.AlphaFunc(Alpha_Greater, 0);
+			}
+		}
+		else RenderStyle.BlendOp = STYLEOP_Fuzz;	// subtractive with models is not going to work.
+	}
+
+	// Fog must be done before the texture so that the texture selector can override it.
+	bool foggy = (GlobalMapFog || (fade & 0xffffff));
+	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
+	// Disable brightmaps if non-black fog is used.
+	if (ShadeDiv >= 1 / 1000.f && foggy && !foglayer)
+	{
+		state.EnableFog(1);
+		float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
+		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density);
+		state.SetSoftLightLevel(255);
+		state.SetLightParms(128.f, 1 / 1000.f);
+	}
+	else
+	{
+		state.EnableFog(0);
+		state.SetFog(0, 0);
+		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(shade, 255, numshades) : 255);
+		state.SetLightParms(visibility, ShadeDiv / (numshades - 2));
+	}
+
+	// The shade rgb from the tint is ignored here.
+	state.SetColorAlpha(PalEntry(255, globalr, globalg, globalb), alpha);
+
+	state.SetMaterial(texture, UF_Texture, 0, 0/*flags & 3*/, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 
-    vec3_t pos = tspr->pos;
+	if (!modelframe)
+	{
+		state.SetNormal(0, 0, 0);
 
 
-    vec2_t tsiz;
+		if (screen->BuffersArePersistent())
+		{
+			CreateVertices(di);
+		}
+		state.SetLightIndex(-1);
+		state.Draw(DT_TriangleStrip, vertexindex, 4);
 
-    if (hw_hightile && TileFiles.tiledata[globalpicnum].h_xsize)
-        tsiz = { TileFiles.tiledata[globalpicnum].h_xsize, TileFiles.tiledata[globalpicnum].h_ysize };
-    else 
-        tsiz = { tileWidth(globalpicnum), tileHeight(globalpicnum) };
+		if (ShadeDiv >= 1 / 1000.f && foggy && foglayer)
+		{
+			// If we get here we know that we have colored fog and no fixed colormap.
+			float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
+			state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density);
+			state.SetTextureMode(TM_FOGLAYER);
+			state.SetRenderStyle(STYLE_Translucent);
+			state.Draw(DT_TriangleStrip, vertexindex, 4);
+			state.SetTextureMode(TM_NORMAL);
+		}
+	}
+	else
+	{
+		//FHWModelRenderer renderer(di, state, dynlightindex);
+		//RenderModel(&renderer, x, y, z, modelframe, actor, di->Viewpoint.TicFrac);
+		//state.SetVertexBuffer(screen->mVertexData);
+	}
 
-    if (tsiz.x <= 0 || tsiz.y <= 0)
-        return;
+	if (translucent)
+	{
+		state.EnableBrightmap(true);
+		state.SetRenderStyle(STYLE_Translucent);
+		state.SetTextureMode(TM_NORMAL);
+	}
 
-    vec2f_t const ftsiz = { (float) tsiz.x, (float) tsiz.y };
-
-    switch ((globalorientation >> 4) & 3)
-    {
-        case 0:  // Face sprite
-        {
-            // Project 3D to 2D
-            if (globalorientation & 4)
-                off.x = -off.x;
-            // NOTE: yoff not negated not for y flipping, unlike wall and floor
-            // aligned sprites.
-
-            int const ang = (getangle(tspr->x - globalposx, tspr->y - globalposy) + 1024) & 2047;
-
-            float foffs = TSPR_OFFSET(tspr);
-            float foffs2 = TSPR_OFFSET(tspr);
-			if (fabs(foffs2) < fabs(foffs)) foffs = foffs2;
-
-            vec2f_t const offs = { float(bcosf(ang, -6) * foffs), float(bsinf(ang, -6) * foffs) };
-
-            vec2f_t s0 = { (float)(tspr->x - globalposx) + offs.x,
-                           (float)(tspr->y - globalposy) + offs.y};
-
-            vec2f_t p0 = { s0.y * gcosang - s0.x * gsinang, s0.x * gcosang2 + s0.y * gsinang2 };
-
-            if (p0.y <= SCISDIST)
-                goto _drawsprite_return;
-
-            float const ryp0 = 1.f / p0.y;
-            s0 = { ghalfx * p0.x * ryp0 + ghalfx, ((float)(pos.z - globalposz)) * gyxscale * ryp0 + ghoriz };
-
-            float const f = ryp0 * fxdimen * (1.0f / 160.f);
-
-            vec2f_t ff = { ((float)tspr->xrepeat) * f,
-                           ((float)tspr->yrepeat) * f * ((float)yxaspect * (1.0f / 65536.f)) };
-
-            if (tsiz.x & 1)
-                s0.x += ff.x * 0.5f;
-            if (globalorientation & 128 && tsiz.y & 1)
-                s0.y += ff.y * 0.5f;
-
-            s0.x -= ff.x * (float) off.x;
-            s0.y -= ff.y * (float) off.y;
-
-            ff.x *= ftsiz.x;
-            ff.y *= ftsiz.y;
-
-            vec2f_t pxy[4];
-
-            pxy[0].x = pxy[3].x = s0.x - ff.x * 0.5f;
-            pxy[1].x = pxy[2].x = s0.x + ff.x * 0.5f;
-            if (!(globalorientation & 128))
-            {
-                pxy[0].y = pxy[1].y = s0.y - ff.y;
-                pxy[2].y = pxy[3].y = s0.y;
-            }
-            else
-            {
-                pxy[0].y = pxy[1].y = s0.y - ff.y * 0.5f;
-                pxy[2].y = pxy[3].y = s0.y + ff.y * 0.5f;
-            }
-
-            xtex.d = ytex.d = ytex.u = xtex.v = 0;
-            otex.d = ryp0 * gviewxrange;
-
-            if (!(globalorientation & 4))
-            {
-                xtex.u = ftsiz.x * otex.d / (pxy[1].x - pxy[0].x + .002f);
-                otex.u = -xtex.u * (pxy[0].x - .001f);
-            }
-            else
-            {
-                xtex.u = ftsiz.x * otex.d / (pxy[0].x - pxy[1].x - .002f);
-                otex.u = -xtex.u * (pxy[1].x + .001f);
-            }
-
-            if (!(globalorientation & 8))
-            {
-                ytex.v = ftsiz.y * otex.d / (pxy[3].y - pxy[0].y + .002f);
-                otex.v = -ytex.v * (pxy[0].y - .001f);
-            }
-            else
-            {
-                ytex.v = ftsiz.y * otex.d / (pxy[0].y - pxy[3].y - .002f);
-                otex.v = -ytex.v * (pxy[3].y + .001f);
-            }
-
-            // Clip sprites to ceilings/floors when no parallaxing and not sloped
-            if (!(sector[tspr->sectnum].ceilingstat & 3))
-            {
-                s0.y = ((float) (sector[tspr->sectnum].ceilingz - globalposz)) * gyxscale * ryp0 + ghoriz;
-                if (pxy[0].y < s0.y)
-                    pxy[0].y = pxy[1].y = s0.y;
-            }
-
-            if (!(sector[tspr->sectnum].floorstat & 3))
-            {
-                s0.y = ((float) (sector[tspr->sectnum].floorz - globalposz)) * gyxscale * ryp0 + ghoriz;
-                if (pxy[2].y > s0.y)
-                    pxy[2].y = pxy[3].y = s0.y;
-            }
-
-            vec2_16_t tempsiz = { (int16_t)tsiz.x, (int16_t)tsiz.y };
-            pow2xsplit = 0;
-            polymost_drawpoly(pxy, 4, method, tempsiz);
-
-            drawpoly_srepeat = 0;
-            drawpoly_trepeat = 0;
-        }
-        break;
-
-    }
-
-    if (automapping == 1 && (unsigned)spritenum < MAXSPRITES)
-        show2dsprite.Set(spritenum);
-
-_drawsprite_return:
-    ;
+	state.SetObjectColor(0xffffffff);
+	state.SetAddColor(0);
+	state.EnableTexture(true);
+	state.SetDynLight(0, 0, 0);
 }
+
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void HWSprite::CalculateVertices(HWDrawInfo* di, FVector3* v, DVector3* vp)
+{
+	const auto& HWAngles = di->Viewpoint.HWAngles;
+
+#if 0 // maybe later, it's a bit more tricky with Build.
+	// [BB] Billboard stuff
+	const bool drawWithXYBillboard = false;
+	const bool drawBillboardFacingCamera = false;
+
+
+	// [Nash] check for special sprite drawing modes
+	if (drawWithXYBillboard || drawBillboardFacingCamera)
+	{
+		// Compute center of sprite
+		float xcenter = (x1 + x2) * 0.5;
+		float ycenter = (y1 + y2) * 0.5;
+		float zcenter = (z1 + z2) * 0.5;
+		float xx = -xcenter + x;
+		float zz = -zcenter + z;
+		float yy = -ycenter + y;
+		Matrix3x4 mat;
+		mat.MakeIdentity();
+		mat.Translate(xcenter, zcenter, ycenter); // move to sprite center
+
+												  // Order of rotations matters. Perform yaw rotation (Y, face camera) before pitch (X, tilt up/down).
+		if (drawBillboardFacingCamera)
+		{
+			// [CMB] Rotate relative to camera XY position, not just camera direction,
+			// which is nicer in VR
+			float xrel = xcenter - vp->X;
+			float yrel = ycenter - vp->Y;
+			float absAngleDeg = RAD2DEG(atan2(-yrel, xrel));
+			float counterRotationDeg = 270. - HWAngles.Yaw.Degrees; // counteracts existing sprite rotation
+			float relAngleDeg = counterRotationDeg + absAngleDeg;
+
+			mat.Rotate(0, 1, 0, relAngleDeg);
+		}
+
+		// [fgsfds] calculate yaw vectors
+		float yawvecX = 0, yawvecY = 0, rollDegrees = 0;
+		float angleRad = (270. - HWAngles.Yaw).Radians();
+
+		if (drawWithXYBillboard)
+		{
+			// Rotate the sprite about the vector starting at the center of the sprite
+			// triangle strip and with direction orthogonal to where the player is looking
+			// in the x/y plane.
+			mat.Rotate(-sin(angleRad), 0, cos(angleRad), -HWAngles.Pitch.Degrees);
+		}
+
+		mat.Translate(-xcenter, -zcenter, -ycenter); // retreat from sprite center
+		v[0] = mat * FVector3(x1, z1, y1);
+		v[1] = mat * FVector3(x2, z1, y2);
+		v[2] = mat * FVector3(x1, z2, y1);
+		v[3] = mat * FVector3(x2, z2, y2);
+	}
+	else // traditional "Y" billboard mode
 #endif
+	{
+		v[0] = FVector3(x1, z1, y1);
+		v[1] = FVector3(x2, z1, y2);
+		v[2] = FVector3(x1, z2, y1);
+		v[3] = FVector3(x2, z2, y2);
+	}
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void HWSprite::CreateVertices(HWDrawInfo* di)
+{
+	if (modelframe == 0)
+	{
+		FVector3 v[4];
+		CalculateVertices(di, v, &di->Viewpoint.Pos);
+		auto vert = screen->mVertexData->AllocVertices(4);
+		auto vp = vert.first;
+		vertexindex = vert.second;
+
+		vp[0].Set(v[0][0], v[0][1], v[0][2], ul, vt);
+		vp[1].Set(v[1][0], v[1][1], v[1][2], ur, vt);
+		vp[2].Set(v[2][0], v[2][1], v[2][2], ul, vb);
+		vp[3].Set(v[3][0], v[3][1], v[3][2], ur, vb);
+	}
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+inline void HWSprite::PutSprite(HWDrawInfo* di, bool translucent)
+{
+	// That's a lot of checks...
+	/*
+	if (modelframe == 1 && gl_light_sprites)
+	{
+		hw_GetDynModelLight(actor, lightdata);
+		dynlightindex = screen->mLights->UploadLights(lightdata);
+	}
+	else*/
+		dynlightindex = -1;
+
+	vertexindex = -1;
+	if (!screen->BuffersArePersistent())
+	{
+		CreateVertices(di);
+	}
+	di->AddSprite(this, translucent);
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int thruportal)
+{
+	if (spr == nullptr)
+		return;
+
+	auto tex = tileGetTexture(spr->picnum);
+	if (!tex || !tex->isValid()) return;
+
+	texture = tex;
+	sprite = spr;
+
+	modelframe = 0;
+	dynlightindex = -1;
+	shade = spr->shade;
+	palette = spr->pal;
+	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
+	visibility = sectorVisibility(sector);
+
+	bool trans = (spr->cstat & CSTAT_SPRITE_TRANSLUCENT);
+	if (trans)
+	{
+		RenderStyle = GetRenderStyle(0, !!(spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
+		alpha = GetAlphaFromBlend((spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+	}
+	else
+	{
+		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
+		alpha = 1.f;
+	}
+
+	x = spr->x * (1 / 16.f);
+	z = spr->z * (1 / -256.f);
+	y = spr->y * (1 / -16.f);
+	auto vp = di->Viewpoint;
+
+	if (modelframe == 0)
+	{
+		auto tex = tileGetTexture(spr->picnum);
+
+
+		// abuse the wall sprite function to get the proper coordinates by faking the angle to be facing the camera
+		auto savedang = spr->ang;
+		spr->ang = bamang(di->Viewpoint.RotAngle).asbuild();
+		vec2_t pos[2];
+		GetWallSpritePosition(spr, spr->pos.vec2, pos, true);
+		spr->ang = savedang;
+
+		int height, topofs;
+		if (hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+		{
+			height = TileFiles.tiledata[spr->picnum].h_ysize;
+			topofs = (TileFiles.tiledata[spr->picnum].h_yoffs + spr->yoffset);
+		}
+		else
+		{
+			height = tex->GetTexelHeight();
+			topofs = (tex->GetTexelTopOffset() + spr->yoffset);
+		}
+
+		if (spr->cstat & CSTAT_SPRITE_YFLIP) topofs = -topofs;
+
+		if (spr->cstat & CSTAT_SPRITE_YFLIP)
+			topofs = -topofs;
+
+		int sprz = spr->z;
+		sprz -= ((topofs * spr->yrepeat) << 2);
+
+		if (spr->cstat & CSTAT_SPRITE_YCENTER)
+		{
+			sprz += ((height * spr->yrepeat) << 1);
+			if (height & 1) sprz += (spr->yrepeat << 1);  // Odd yspans (taken from polymost as-is)
+		}
+
+		x1 = pos[0].x * (1 / 16.f);
+		y1 = pos[0].y * (1 / -16.f);
+		x2 = pos[1].x * (1 / 16.f);
+		y2 = pos[1].y * (1 / -16.f);
+		z1 = (sprz) * (1 / -256.);
+		z2 = (sprz - ((height * spr->yrepeat) << 2)) * (1 / -256.);
+		ul = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
+		ur = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 1.f : 0.f;
+		vt = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
+		vb = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 1.f : 0.f;
+	}
+	else
+	{
+		x1 = x2 = x;
+		y1 = y2 = y;
+		z1 = z2 = z;
+		texture = nullptr;
+	}
+
+	depth = (float)((x - vp.Pos.X) * vp.TanCos + (y - vp.Pos.Y) * vp.TanSin);
+
+#if 0 // huh?
+	if ((texture && texture->GetTranslucency()) || (RenderStyle.Flags & STYLEF_RedIsAlpha) || (modelframe && spr->RenderStyle != DefaultRenderStyle()))
+	{
+		if (hw_styleflags == STYLEHW_Solid)
+		{
+			RenderStyle.SrcAlpha = STYLEALPHA_Src;
+			RenderStyle.DestAlpha = STYLEALPHA_InvSrc;
+		}
+		hw_styleflags = STYLEHW_NoAlphaTest;
+	}
+#endif
+
+	PutSprite(di, alpha < 1.f-FLT_EPSILON || modelframe == 0);
+	rendered_sprites++;
+}
+

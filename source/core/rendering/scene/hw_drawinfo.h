@@ -42,6 +42,8 @@ struct FRenderViewpoint
 	int* SectNums;
 	int SectCount;
 	double TicFrac;
+	double TanCos, TanSin;	// needed for calculating a sprite's screen depth.
+
 };
 //==========================================================================
 //

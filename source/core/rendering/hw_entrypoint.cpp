@@ -183,6 +183,11 @@ FRenderViewpoint SetupViewpoint(spritetype* cam, const vec3_t& position, int sec
 	r_viewpoint.HWAngles.Roll = -rollang.asdeg();
 	r_viewpoint.FieldOfView = (float)r_fov;
 	r_viewpoint.RotAngle = angle.asbam();
+	double FocalTangent = tan(r_viewpoint.FieldOfView.Radians() / 2);
+	DAngle an = 270. - r_viewpoint.HWAngles.Yaw.Degrees;
+	r_viewpoint.TanSin = FocalTangent * an.Sin();
+	r_viewpoint.TanCos = FocalTangent * an.Cos();
+
 	return r_viewpoint;
 }
 

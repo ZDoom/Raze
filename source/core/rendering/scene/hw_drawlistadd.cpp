@@ -116,20 +116,11 @@ void HWDrawInfo::AddFlat(HWFlat *flat)
 //==========================================================================
 void HWDrawInfo::AddSprite(HWSprite *sprite, bool translucent)
 {
-#if 0
 	int list;
-	// [BB] Allow models to be drawn in the GLDL_TRANSLUCENT pass.
-	if (translucent || ( (!spriteIsModelOrVoxel(sprite->actor) && !(sprite->actor->cstat & CSTAT_SPRITE_ALIGNMENT_MASK))))
-	{
-		list = GLDL_TRANSLUCENT;
-	}
-	else
-	{
-		list = GLDL_MODELS;
-	}
-
+	if (translucent || sprite->modelframe == 0) list = GLDL_TRANSLUCENT;
+	else list = GLDL_MODELS;
+	
 	auto newsprt = drawlists[list].NewSprite();
 	*newsprt = *sprite;
-#endif
 }
 

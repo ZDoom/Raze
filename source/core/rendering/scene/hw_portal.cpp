@@ -560,10 +560,14 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	vp.SectNums = nullptr;
 	vp.SectCount = line->sector;
 
-
 	vp.Pos.X = newx / 16.f;
 	vp.Pos.Y = newy / -16.f;
 	vp.HWAngles.Yaw = -90.f + q16ang(newan).asdeg();
+
+	double FocalTangent = tan(vp.FieldOfView.Radians() / 2);
+	DAngle an = 270. - vp.HWAngles.Yaw.Degrees;
+	vp.TanSin = FocalTangent * an.Sin();
+	vp.TanCos = FocalTangent * an.Cos();
 
 	int oldstat = 0;
 	if (vp.CameraSprite)

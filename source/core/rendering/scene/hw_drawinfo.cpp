@@ -328,8 +328,11 @@ void HWDrawInfo::DispatchSprites()
 		switch (tspr->cstat & CSTAT_SPRITE_ALIGNMENT)
 		{
 		case CSTAT_SPRITE_ALIGNMENT_FACING:
-			// face sprite
+		{
+			HWSprite sprite;
+			sprite.Process(this, tspr, &sector[tspr->sectnum], false);
 			break;
+		}
 
 		case CSTAT_SPRITE_ALIGNMENT_WALL:
 		{

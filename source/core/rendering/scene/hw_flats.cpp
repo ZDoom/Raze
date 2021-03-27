@@ -188,11 +188,17 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	}
 
 	// The shade rgb from the tint is ignored here.
-	state.SetColor(PalEntry(255, globalr, globalg, globalb));
+	state.SetColorAlpha(PalEntry(255, globalr, globalg, globalb), alpha);
 
 	if (translucent)
 	{
+		if (RenderStyle.BlendOp != STYLEOP_Add)
+		{
+			state.EnableBrightmap(false);
+		}
+
 		state.SetRenderStyle(RenderStyle);
+		state.SetTextureMode(RenderStyle);
 		if (!texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_threshold);
 		else state.AlphaFunc(Alpha_GEqual, 0.f);
 	}
@@ -203,6 +209,8 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	vertexcount += vertcount;
 
 	if (translucent) state.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
+	state.EnableBrightmap(true);
+
 	//state.SetObjectColor(0xffffffff);
 	//state.SetAddColor(0);
 	//state.ApplyTextureManipulation(nullptr);

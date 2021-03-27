@@ -248,8 +248,15 @@ void HWDrawList::SortPlaneIntoPlane(SortNode * head,SortNode * sort)
 	HWFlat * fh= flats[drawitems[head->itemindex].index];
 	HWFlat * fs= flats[drawitems[sort->itemindex].index];
 
-	if (fh->z==fs->z) 
-		head->AddToEqual(sort);
+	if (fh->z == fs->z)
+	{
+		// Make sure we have consistent ordering with two floor sprites of the same distance if they overlap
+		int time1 = fh->sprite ? fh->sprite->time : -1;
+		int time2 = fs->sprite ? fs->sprite->time : -1;
+		if (time1 == time2) head->AddToEqual(sort);
+		else if (time2 < time1)head->AddToLeft(sort);
+		else head->AddToRight(sort);
+	}
 	else if ( (fh->z<fs->z && fh->plane) || (fh->z>fs->z && !fh->plane)) 
 		head->AddToLeft(sort);
 	else 
@@ -397,11 +404,14 @@ void HWDrawList::SortWallIntoWall(HWDrawInfo *di, SortNode * head,SortNode * sor
 
 	if (fabs(v1)<MIN_EQ && fabs(v2)<MIN_EQ) 
 	{
-		if (ws->type==RENDERWALL_FOGBOUNDARY && wh->type!=RENDERWALL_FOGBOUNDARY) 
+		int time1 = wh->sprite ? wh->sprite->time : -1;
+		int time2 = ws->sprite ? ws->sprite->time : -1;
+
+		if ((ws->type==RENDERWALL_FOGBOUNDARY && wh->type!=RENDERWALL_FOGBOUNDARY) || time2 < time1) 
 		{
 			head->AddToRight(sort);
 		}
-		else if (ws->type!=RENDERWALL_FOGBOUNDARY && wh->type==RENDERWALL_FOGBOUNDARY) 
+		else if ((ws->type!=RENDERWALL_FOGBOUNDARY && wh->type==RENDERWALL_FOGBOUNDARY) || time2 > time1) 
 		{
 			head->AddToLeft(sort);
 		}
