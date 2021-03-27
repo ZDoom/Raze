@@ -47,10 +47,9 @@ void HWDrawInfo::AddWall(HWWall *wall)
 	}
 	else
 	{
-		bool masked = wall->type != RENDERWALL_M2S ? false : (wall->texture && wall->texture->isMasked());
 		int list;
 
-		if (!masked) list = GLDL_PLAINWALLS;
+		if (wall->type != RENDERWALL_M2S) list = GLDL_PLAINWALLS;
 		else if (sprite == nullptr) list = GLDL_MASKEDWALLS;
 		else if (wall->glseg.x1 == wall->glseg.x2) list = GLDL_MASKEDWALLSV;
 		else if (wall->glseg.y1 == wall->glseg.y2) list = GLDL_MASKEDWALLSH;
