@@ -305,7 +305,7 @@ void HWDrawInfo::DispatchSprites()
 				{
 					//HWSprite hwsprite;
 					//hwsprite.ProcessVoxel(voxmodels[tspr->picnum], tspr);
-					return;
+					break;
 				}
 			}
 			break;
