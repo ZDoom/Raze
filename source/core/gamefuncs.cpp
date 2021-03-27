@@ -215,13 +215,13 @@ void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool 
 	int width, leftofs;
 	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
 	{
-		width = TileFiles.tiledata[spr->picnum].h_xsize * spr->xrepeat;
-		leftofs = (TileFiles.tiledata[spr->picnum].h_xoffs + spr->xoffset) * spr->xrepeat;
+		width = TileFiles.tiledata[spr->picnum].h_xsize;
+		leftofs = (TileFiles.tiledata[spr->picnum].h_xoffs + spr->xoffset);
 	}
 	else
 	{
-		width = tex->GetTexelWidth() * spr->xrepeat;
-		leftofs = (tex->GetTexelLeftOffset() + spr->xoffset) * spr->xrepeat;
+		width = tex->GetTexelWidth();
+		leftofs = (tex->GetTexelLeftOffset() + spr->xoffset);
 	}
 
 	int x = bsin(spr->ang) * spr->xrepeat;

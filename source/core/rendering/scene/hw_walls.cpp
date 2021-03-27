@@ -1128,10 +1128,10 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	glseg.y2 = pos[1].y * (1 / -16.f);
 	tcs[LOLFT].u = tcs[UPLFT].u = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 1.f : 0.f;
 	tcs[LORGT].u = tcs[UPRGT].u = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
-	tcs[UPLFT].v = tcs[UPRGT].u = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
-	tcs[LOLFT].v = tcs[LORGT].u = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
-	ztop[0] = ztop[1] = (sprz - height) * (1 / -256.);
+	tcs[UPLFT].v = tcs[UPRGT].v = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 1.f : 0.f;
+	tcs[LOLFT].v = tcs[LORGT].v = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
 	zbottom[0] = zbottom[1] = (sprz) * (1 / -256.);
+	ztop[0] = ztop[1] =  (sprz - ((height * spr->yrepeat) << 2)) * (1 / -256.);
 
 
 	// Clip sprites to ceilings/floors
@@ -1157,4 +1157,5 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 			zbottom[0] = zbottom[1] = floorz;
 		}
 	}
+	PutWall(di, trans);
 }

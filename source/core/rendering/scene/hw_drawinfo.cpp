@@ -283,10 +283,6 @@ void HWDrawInfo::DispatchSprites()
 
 		setgotpic(tilenum);
 
-		if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB)
-			tileUpdatePicnum(&tilenum, spritenum + 32768, 0);
-
-
 		while (!(spriteext[spritenum].flags & SPREXT_NOTMD))
 		{
 			int pt = Ptile2tile(tspr->picnum, tspr->pal);
@@ -325,6 +321,9 @@ void HWDrawInfo::DispatchSprites()
 			tspr->pos.x -= bcos(tspr->ang, -13);
 			tspr->pos.y -= bsin(tspr->ang, -13);
 		}
+
+		tileUpdatePicnum(&tilenum, sprite->owner + 32768, 0);
+		tspr->picnum = tilenum;
 
 		switch (tspr->cstat & CSTAT_SPRITE_ALIGNMENT)
 		{
