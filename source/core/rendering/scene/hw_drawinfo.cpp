@@ -437,8 +437,8 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 
 	// These lists must be drawn in two passes for color and depth to avoid depth fighting with overlapping entries
 	drawlists[GLDL_MASKEDFLATS].SortFlats(this);
-	drawlists[GLDL_MASKEDWALLSV].SortWallsVert(this);
-	drawlists[GLDL_MASKEDWALLSH].SortWallsHorz(this);
+	drawlists[GLDL_MASKEDWALLSV].SortWallsHorz(this);
+	drawlists[GLDL_MASKEDWALLSH].SortWallsVert(this);
 
 	state.SetDepthBias(-1, -128);
 

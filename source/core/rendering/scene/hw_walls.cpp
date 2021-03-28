@@ -898,6 +898,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	this->seg = wal;
 	this->frontsector = frontsector;
 	this->backsector = backsector;
+	sprite = nullptr;
 	vertindex = 0;
 	vertcount = 0;
 
@@ -1135,7 +1136,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	float polyh = (zbottom[0] - origz);
 	if (!(sector->ceilingstat & CSTAT_SECTOR_SKY))
 	{
-		float ceilingz = sector->ceilingz * (1 / 256.f);
+		float ceilingz = sector->ceilingz * (1 / -256.f);
 		if (ceilingz < ztop[0] && ceilingz > zbottom[0])
 		{
 			float newv = (ceilingz - origz) / polyh;
@@ -1145,7 +1146,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	}
 	if (!(sector->floorstat & CSTAT_SECTOR_SKY))
 	{
-		float floorz = sector->floorz * (1 / 256.f);
+		float floorz = sector->floorz * (1 / -256.f);
 		if (floorz < ztop[0] && floorz > zbottom[0])
 		{
 			float newv = (floorz - origz) / polyh;
