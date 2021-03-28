@@ -122,13 +122,13 @@ void animatecamsprite(double smoothratio)
 					// Note: no ROR or camera here - Polymost has no means to detect these things before rendering the scene itself.
 					renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sectnum); // why 'shade'...?
 					fi.animatesprites(camera->x, camera->y, ang.asbuild(), smoothratio);
+					renderDrawMasks();
 				}
 				else
 				{
 					render_drawrooms(camera, camera->pos, camera->sectnum, ang, buildhoriz(camera->shade), buildlook(0));
 				}
 				display_mirror = 0;
-				renderDrawMasks();
 			});
 		renderRestoreTarget();
 	}
