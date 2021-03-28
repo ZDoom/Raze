@@ -98,6 +98,7 @@ void HWFlat::SetupLights(HWDrawInfo *di, FLightNode * node, FDynLightData &light
 void HWFlat::MakeVertices()
 {
 	if (vertcount > 0) return;
+	bool canvas = texture->isHardwareCanvas();
 	if (sprite == nullptr)
 	{
 		auto mesh = sectorGeometry.get(sec - sector, plane);
@@ -109,7 +110,7 @@ void HWFlat::MakeVertices()
 			auto& pt = mesh->vertices[i];
 			auto& uv = mesh->texcoords[i];
 			vp->SetVertex(pt.X, pt.Z, pt.Y);
-			vp->SetTexCoord(uv.X, uv.Y);
+			vp->SetTexCoord(uv.X, canvas? 1.f - uv.Y : uv.Y);
 			vp++;
 		}
 		vertindex = ret.second;
@@ -129,7 +130,8 @@ void HWFlat::MakeVertices()
 			const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
 			int j = indices[i];
 			vp->SetVertex(pos[j].x * (1 / 16.f), z, pos[j].y * (1 / -16.f));
-			vp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? 1.f - x : x);
+			if (!canvas) vp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? 1.f - y : y);
+			else vp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? y : 1.f - y);
 			vp++;
 		}
 		vertindex = ret.second;

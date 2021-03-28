@@ -401,6 +401,15 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 		flags |= HWF_TRANSLUCENT;
 		ViewDistance = (di->Viewpoint.Pos.XY() - DVector2((glseg.x1 + glseg.x2) * 0.5f, (glseg.y1 + glseg.y2) * 0.5f)).LengthSquared();
 	}
+
+	if (texture->isHardwareCanvas())
+	{
+		tcs[UPLFT].v = 1.f - tcs[UPLFT].v;
+		tcs[LOLFT].v = 1.f - tcs[LOLFT].v;
+		tcs[UPRGT].v = 1.f - tcs[UPRGT].v;
+		tcs[LORGT].v = 1.f - tcs[LORGT].v;
+	}
+
 	
 	if (!screen->BuffersArePersistent())
 	{
@@ -1127,6 +1136,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	tcs[LORGT].u = tcs[UPRGT].u = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
 	tcs[UPLFT].v = tcs[UPRGT].v = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 1.f : 0.f;
 	tcs[LOLFT].v = tcs[LORGT].v = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
+
 	zbottom[0] = zbottom[1] = (sprz) * (1 / -256.);
 	ztop[0] = ztop[1] =  (sprz - ((height * spr->yrepeat) << 2)) * (1 / -256.);
 

@@ -391,6 +391,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 		ur = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 1.f : 0.f;
 		vt = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
 		vb = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 1.f : 0.f;
+		if (tex->isHardwareCanvas()) std::swap(vt, vb);
 
 		float viewvecX = vp.ViewVector.X;
 		float viewvecY = vp.ViewVector.Y;
