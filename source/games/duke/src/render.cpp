@@ -69,6 +69,7 @@ BEGIN_DUKE_NS
 
 void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, binangle a, fixedhoriz h, lookangle rotscrnang, int smoothratio)
 {
+	z -= -(4 << 8);
 	if (!testnewrenderer)
 	{
 		// do screen rotation.
@@ -76,7 +77,7 @@ void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, bina
 
 		se40code(x, y, z, a, h, smoothratio);
 		renderMirror(x, y, z, a, h, smoothratio);
-		renderDrawRoomsQ16(x, y, z - (4 << 8), a.asq16(), h.asq16(), sectnum);
+		renderDrawRoomsQ16(x, y, z, a.asq16(), h.asq16(), sectnum);
 		fi.animatesprites(x, y, a.asbuild(), smoothratio);
 		renderDrawMasks();
 	}
