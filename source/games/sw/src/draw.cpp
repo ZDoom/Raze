@@ -350,14 +350,14 @@ DoShadows(tspriteptr_t tsp, int viewz, int camang)
         New->clipdist |= TSPR_FLAGS_MDHACK;
         New->cstat |= 512;
     }
-    else
+    else if (!testnewrenderer)
     {
         int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
-        vec2_t const ofs = { bcos(camang, -11), bsin(camang, -11) };
-
-        New->x += ofs.x;
-        New->y += ofs.y;
+        New->x += bcos(camang, -11);
+        New->y += bsin(camang, -11);
+        
     }
+    else New->time = 1;
 
     // Check for voxel items and use a round generic pic if so
     //DoVoxelShadow(New);

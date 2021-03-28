@@ -320,7 +320,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 
 	modelframe = 0;
 	dynlightindex = -1;
-	shade = spr->shade;
+	shade = clamp(spr->shade, 0, numshades-1);
 	palette = spr->pal;
 	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(sector);

@@ -591,7 +591,7 @@ inline int HWDrawList::CompareSprites(SortNode * a,SortNode * b)
 
 	if (s1->depth < s2->depth) return 1;
 	if (s1->depth > s2->depth) return -1;
-	return reverseSort? s2->index-s1->index : s1->index-s2->index;
+	return s1->sprite->time - s2->sprite->time;
 }
 
 //==========================================================================

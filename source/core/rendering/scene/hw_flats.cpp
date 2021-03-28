@@ -284,7 +284,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 	{
 		// process the original floor first.
 
-		shade = frontsector->floorshade;
+		shade = clamp(frontsector->floorshade, 0, numshades-1);
 		palette = frontsector->floorpal;
 
 		//port = frontsector->ValidatePortal(sector_t::floor);
@@ -323,7 +323,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 	{
 		// process the original ceiling first.
 
-		shade = frontsector->ceilingshade;
+		shade = clamp(frontsector->ceilingshade, 0, numshades-1);
 		palette = frontsector->ceilingpal;
 
 
@@ -371,7 +371,7 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* s
 	{
 		this->sprite = sprite;
 		sec = sector;
-		shade = sprite->shade;
+		shade = clamp(sprite->shade, 0, numshades - 1);
 		palette = sprite->pal;
 		fade = lookups.getFade(sector[sprite->sectnum].floorpal);	// fog is per sector.
 
