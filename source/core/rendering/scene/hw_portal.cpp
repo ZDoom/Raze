@@ -568,6 +568,7 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	DAngle an = 270. - vp.HWAngles.Yaw.Degrees;
 	vp.TanSin = FocalTangent * an.Sin();
 	vp.TanCos = FocalTangent * an.Cos();
+	vp.ViewVector = an.ToVector();
 
 	int oldstat = 0;
 	if (vp.CameraSprite)

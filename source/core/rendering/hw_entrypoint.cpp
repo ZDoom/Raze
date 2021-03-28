@@ -187,7 +187,7 @@ FRenderViewpoint SetupViewpoint(spritetype* cam, const vec3_t& position, int sec
 	DAngle an = 270. - r_viewpoint.HWAngles.Yaw.Degrees;
 	r_viewpoint.TanSin = FocalTangent * an.Sin();
 	r_viewpoint.TanCos = FocalTangent * an.Cos();
-
+	r_viewpoint.ViewVector = an.ToVector();
 	return r_viewpoint;
 }
 

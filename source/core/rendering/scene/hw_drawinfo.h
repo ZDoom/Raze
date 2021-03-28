@@ -43,7 +43,7 @@ struct FRenderViewpoint
 	int SectCount;
 	double TicFrac;
 	double TanCos, TanSin;	// needed for calculating a sprite's screen depth.
-
+	DVector2 ViewVector;		// direction the camera is facing. 
 };
 //==========================================================================
 //

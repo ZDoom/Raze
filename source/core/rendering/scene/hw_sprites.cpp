@@ -344,52 +344,64 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 
 	if (modelframe == 0)
 	{
-		auto tex = tileGetTexture(spr->picnum);
+		int flags = spr->cstat;
+		int tilenum = spr->picnum;
 
-
-		// abuse the wall sprite function to get the proper coordinates by faking the angle to be facing the camera
-		auto savedang = spr->ang;
-		spr->ang = bamang(di->Viewpoint.RotAngle).asbuild();
-		vec2_t pos[2];
-		GetWallSpritePosition(spr, spr->pos.vec2, pos, true);
-		spr->ang = savedang;
-
-		int height, topofs;
-		if (hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+		int xsize, ysize, tilexoff, tileyoff;
+		if (hw_hightile && TileFiles.tiledata[tilenum].h_xsize)
 		{
-			height = TileFiles.tiledata[spr->picnum].h_ysize;
-			topofs = (TileFiles.tiledata[spr->picnum].h_yoffs + spr->yoffset);
+			xsize = TileFiles.tiledata[tilenum].h_xsize;
+			ysize = TileFiles.tiledata[tilenum].h_ysize;
+			tilexoff = TileFiles.tiledata[tilenum].h_xoffs;
+			tileyoff = TileFiles.tiledata[tilenum].h_yoffs;
 		}
 		else
 		{
-			height = tex->GetTexelHeight();
-			topofs = (tex->GetTexelTopOffset() + spr->yoffset);
+			xsize = tex->GetTexelWidth();
+			ysize = tex->GetTexelHeight();
+			tilexoff = tex->GetTexelLeftOffset();
+			tileyoff = tex->GetTexelTopOffset();
+
 		}
 
-		if (spr->cstat & CSTAT_SPRITE_YFLIP) topofs = -topofs;
+		int heinum = 0; // tspriteGetSlope(tspr); // todo: slope sprites
 
-		if (spr->cstat & CSTAT_SPRITE_YFLIP)
-			topofs = -topofs;
-
-		int sprz = spr->z;
-		sprz -= ((topofs * spr->yrepeat) << 2);
-
-		if (spr->cstat & CSTAT_SPRITE_YCENTER)
+		if (heinum == 0)
 		{
-			sprz += ((height * spr->yrepeat) << 1);
-			if (height & 1) sprz += (spr->yrepeat << 1);  // Odd yspans (taken from polymost as-is)
+			tilexoff += spr->xoffset;
+			tileyoff += spr->yoffset;
 		}
 
-		x1 = pos[0].x * (1 / 16.f);
-		y1 = pos[0].y * (1 / -16.f);
-		x2 = pos[1].x * (1 / 16.f);
-		y2 = pos[1].y * (1 / -16.f);
-		z1 = (sprz) * (1 / -256.);
-		z2 = (sprz - ((height * spr->yrepeat) << 2)) * (1 / -256.);
+		// convert to render space.
+		float width = (xsize * spr->xrepeat) * (0.2f / 16.f); // weird Build fuckery. Face sprites are rendered at 80% width only.
+		float height = (ysize * spr->yrepeat) * (0.25f / 16.f);
+		float xoff = (tilexoff * spr->xrepeat) * (0.2f / 16.f);
+		float yoff = (tileyoff * spr->yrepeat) * (0.25f / 16.f);
+
+		if (spr->cstat & CSTAT_SPRITE_YCENTER) yoff -= width / 2;
+
+		if (flags & CSTAT_SPRITE_XFLIP) xoff = -xoff;
+		if (flags & CSTAT_SPRITE_YFLIP) yoff = -yoff;
+
 		ul = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
 		ur = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 1.f : 0.f;
 		vt = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
 		vb = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 1.f : 0.f;
+
+		float viewvecX = vp.ViewVector.X;
+		float viewvecY = vp.ViewVector.Y;
+
+		x = spr->x * (1 / 16.f);
+		y = spr->y * (1 / -16.f);
+		z = spr->z * (1 / -256.f);
+
+		x1 = x - viewvecY * (xoff - (width * 0.5f));
+		x2 = x - viewvecY * (xoff + (width * 0.5f));
+		y1 = y + viewvecX * (xoff - (width * 0.5f));
+		y2 = y + viewvecX * (xoff + (width * 0.5f));
+
+		z1 = z + yoff;
+		z2 = z + height + yoff;
 	}
 	else
 	{
