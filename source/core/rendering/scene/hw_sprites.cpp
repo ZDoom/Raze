@@ -357,10 +357,10 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 		}
 		else
 		{
-			xsize = tex->GetTexelWidth();
-			ysize = tex->GetTexelHeight();
-			tilexoff = tex->GetTexelLeftOffset();
-			tileyoff = tex->GetTexelTopOffset();
+			xsize = (int)tex->GetDisplayWidth();
+			ysize = (int)tex->GetDisplayHeight();
+			tilexoff = (int)tex->GetDisplayLeftOffset();
+			tileyoff = (int)tex->GetDisplayTopOffset();
 
 		}
 

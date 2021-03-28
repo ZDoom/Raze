@@ -196,12 +196,12 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 
 	SetLightAndFog(state);
 
-	int h = texture->GetTexelHeight();
+	int h = (int)texture->GetDisplayHeight();
 	int h2 = 1 << sizeToBits(h);
 	if (h2 < h) h2 *= 2;
 	if (h != h2)
 	{
-		float xOffset = 1.f / texture->GetTexelWidth();
+		float xOffset = 1.f / texture->GetDisplayWidth();
 		state.SetNpotEmulation(float(h2) / h, xOffset);
 	}
 	else
@@ -721,8 +721,8 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	float leftdist = xflipped ? 1.f - glseg.fracleft : glseg.fracleft;
 	float rightdist = xflipped ? 1.f - glseg.fracright : glseg.fracright;
 
-	float tw = texture->GetTexelWidth();
-	float th = texture->GetTexelHeight();
+	float tw = texture->GetDisplayWidth();
+	float th = texture->GetDisplayHeight();
 	int pow2size = 1 << sizeToBits(th);
 	if (pow2size < th) pow2size *= 2;
 	float ypanning = refwall->ypan_ ? pow2size * refwall->ypan_ / (256.0f * th) : 0;
@@ -1102,8 +1102,8 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	}
 	else
 	{
-		height = tex->GetTexelHeight();
-		topofs = (tex->GetTexelTopOffset() + spr->yoffset);
+		height = (int)tex->GetDisplayHeight();
+		topofs = ((int)tex->GetDisplayTopOffset() + spr->yoffset);
 	}
 
 	if (spr->cstat & CSTAT_SPRITE_YFLIP)

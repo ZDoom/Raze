@@ -220,8 +220,8 @@ void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool 
 	}
 	else
 	{
-		width = tex->GetTexelWidth();
-		leftofs = (tex->GetTexelLeftOffset() + spr->xoffset);
+		width = (int)tex->GetDisplayWidth();
+		leftofs = ((int)tex->GetDisplayLeftOffset() + spr->xoffset);
 	}
 
 	int x = bsin(spr->ang) * spr->xrepeat;
@@ -258,10 +258,10 @@ void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool 
 	}
 	else
 	{
-		width = tex->GetTexelWidth() * spr->xrepeat;
-		height = tex->GetTexelHeight() * spr->yrepeat;
-		leftofs = (tex->GetTexelLeftOffset() + spr->xoffset) * spr->xrepeat;
-		topofs = (tex->GetTexelTopOffset() + spr->yoffset) * spr->yrepeat;
+		width = (int)tex->GetDisplayWidth() * spr->xrepeat;
+		height = (int)tex->GetDisplayHeight() * spr->yrepeat;
+		leftofs = ((int)tex->GetDisplayLeftOffset() + spr->xoffset) * spr->xrepeat;
+		topofs = ((int)tex->GetDisplayTopOffset() + spr->yoffset) * spr->yrepeat;
 	}
 
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) leftofs = -leftofs;
