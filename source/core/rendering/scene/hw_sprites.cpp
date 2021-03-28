@@ -378,7 +378,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 		float xoff = (tilexoff * spr->xrepeat) * (0.2f / 16.f);
 		float yoff = (tileyoff * spr->yrepeat) * (0.25f / 16.f);
 
-		if (spr->cstat & CSTAT_SPRITE_YCENTER) yoff -= width / 2;
+		if (spr->cstat & CSTAT_SPRITE_YCENTER) yoff -= height * 0.5f;
 
 		if (flags & CSTAT_SPRITE_XFLIP) xoff = -xoff;
 		if (flags & CSTAT_SPRITE_YFLIP) yoff = -yoff;
