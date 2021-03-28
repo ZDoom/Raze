@@ -49,6 +49,7 @@
 #include "hw_drawinfo.h"
 #include "gamecvars.h"
 #include "render.h"
+#include "gamestruct.h"
 
 EXTERN_CVAR(Bool, cl_capfps)
 
@@ -269,6 +270,8 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 }
 
 
+void animatecamsprite(double s);
+
 void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, lookangle rollang)
 {
 	checkRotatedWalls();
@@ -280,27 +283,29 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 	if (sect >= 0) sectnum = sect;
 	if (sectnum < 0) return;
 
-	auto RenderState = screen->RenderState();
-	RenderState->SetVertexBuffer(screen->mVertexData);
-	screen->mVertexData->Reset();
-
-	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, angle, horizon, rollang);
 	iter_dlightf = iter_dlight = draw_dlight = draw_dlightf = 0;
-
 	checkBenchActive();
 
 	// reset statistics counters
 	ResetProfilingData();
 
 	// Get this before everything else
+	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, angle, horizon, rollang);
 	if (cl_capfps) r_viewpoint.TicFrac = 1.;
 	else r_viewpoint.TicFrac = I_GetTimeFrac();
 
 	screen->mLights->Clear();
 	screen->mViewpoints->Clear();
+	screen->mVertexData->Reset();
 
 	// Shader start time does not need to be handled per level. Just use the one from the camera to render from.
+	auto RenderState = screen->RenderState();
 	CheckTimer(*RenderState, 0/*ShaderStartTime*/);
+
+	// prepare all camera textures that have been used in the last frame.
+	gi->UpdateCameras(r_viewpoint.TicFrac);
+
+	RenderState->SetVertexBuffer(screen->mVertexData);
 
 	// now render the main view
 	float fovratio;
@@ -316,7 +321,26 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 
 	screen->ImageTransitionScene(true); // Only relevant for Vulkan.
 
-	RenderViewpoint(r_viewpoint, nullptr, r_viewpoint.FieldOfView.Degrees, ratio, fovratio, false, false);
+	RenderViewpoint(r_viewpoint, nullptr, r_viewpoint.FieldOfView.Degrees, ratio, fovratio, true, true);
+	All.Unclock();
+}
+
+void render_camtex(spritetype* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, lookangle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio)
+{
+	int16_t sect = sectnum;
+	updatesector(position.x, position.y, &sect);
+	if (sect >= 0) sectnum = sect;
+	if (sectnum < 0) return;
+
+	screen->RenderState()->SetVertexBuffer(screen->mVertexData);
+
+	// now render the main view
+	float ratio = camtex->GetDisplayWidth() / camtex->GetDisplayHeight();
+
+	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, angle, horizon, rollang);
+	if (cl_capfps) r_viewpoint.TicFrac = smoothratio;
+
+	RenderViewpoint(r_viewpoint, &rect, r_viewpoint.FieldOfView.Degrees, ratio, ratio, false, false);
 	All.Unclock();
 }
 

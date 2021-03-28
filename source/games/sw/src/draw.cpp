@@ -1555,7 +1555,8 @@ drawscreen(PLAYERp pp, double smoothratio)
     if (automapMode != am_full)// && !ScreenSavePic)
     {
         // Cameras must be done before the main loop.
-        JS_DrawCameras(pp, tx, ty, tz);
+        if (!testnewrenderer) JS_DrawCameras(pp, tx, ty, tz, smoothratio);
+        else JS_CameraParms(pp, tx, ty, tz);  
     }
 
     if (!testnewrenderer)

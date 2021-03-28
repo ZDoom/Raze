@@ -92,7 +92,7 @@ void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, bina
 //
 //---------------------------------------------------------------------------
 
-void animatecamsprite(double smoothratio)
+void GameInterface::UpdateCameras(double smoothratio)
 {
 	const int VIEWSCREEN_ACTIVE_DISTANCE = 8192;
 
@@ -126,7 +126,7 @@ void animatecamsprite(double smoothratio)
 				}
 				else
 				{
-					render_drawrooms(camera, camera->pos, camera->sectnum, ang, buildhoriz(camera->shade), buildlook(0));
+					render_camtex(camera, camera->pos, camera->sectnum, ang, buildhoriz(camera->shade), buildlook(0), tex, rect, smoothratio);
 				}
 				display_mirror = 0;
 			});
@@ -259,7 +259,7 @@ void displayrooms(int snum, double smoothratio)
 	DoInterpolations(smoothratio / 65536.);
 
 	setgamepalette(BASEPAL);
-	animatecamsprite(smoothratio);
+	if (!testnewrenderer) gi->UpdateCameras(smoothratio);	// Only Polymost does this here. The new renderer calls this internally.
 
 	if (ud.cameraactor)
 	{
