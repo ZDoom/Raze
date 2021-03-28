@@ -69,7 +69,6 @@ BEGIN_DUKE_NS
 
 void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, binangle a, fixedhoriz h, lookangle rotscrnang, int smoothratio)
 {
-	z -= -(4 << 8);
 	if (!testnewrenderer)
 	{
 		// do screen rotation.
@@ -274,7 +273,7 @@ void displayrooms(int snum, double smoothratio)
 		cang = buildfang(ud.cameraactor->tempang + MulScaleF(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio, 16));
 
 		auto bh = buildhoriz(s->yvel);
-		renderView(s, s->sectnum, s->x, s->y, s->z, cang, bh, buildlook(0), smoothratio);
+		renderView(s, s->sectnum, s->x, s->y, s->z - (4 << 8), cang, bh, buildlook(0), smoothratio);
 	}
 	else
 	{
