@@ -1566,7 +1566,10 @@ drawscreen(PLAYERp pp, double smoothratio)
     else
     {
         UpdateWallPortalState();
+        auto cstat = pp->SpriteP->cstat;
+        if (!TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE)) pp->SpriteP->cstat |= CSTAT_SPRITE_INVISIBLE;
         render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang);
+        pp->SpriteP->cstat = cstat;
     }
 
 
