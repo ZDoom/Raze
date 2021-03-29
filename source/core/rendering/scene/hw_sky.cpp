@@ -31,7 +31,7 @@
 #include "cmdlib.h"
 
 CVAR(Bool,gl_noskyboxes, false, 0)
-FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap);
+FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap, int remap);
 
 //==========================================================================
 //
@@ -49,8 +49,11 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, 
 	// todo: check for skybox replacement.
 	if (!skytex)
 	{
+		int palette = plane == plane_ceiling ? sector->ceilingpal : sector->floorpal;
+		int remap = TRANSLATION(Translation_Remap + curbasepal, palette);
+
 		int16_t const* dapskyoff = getpsky(picnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
-		skytex = GetSkyTexture(picnum, dapskybits, dapskyoff);
+		skytex = GetSkyTexture(picnum, dapskybits, dapskyoff, remap);
 		realskybits = dapskybits;
 		if (skytex) dapskybits = 0;
 		else skytex = tileGetTexture(picnum);

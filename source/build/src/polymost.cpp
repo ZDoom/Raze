@@ -37,7 +37,7 @@ static_assert(sizeof(vec3d_t) == sizeof(double) * 3);
 
 
 int skiptile = -1;
-FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap);
+FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap, int remap = 0);
 
 int checkTranslucentReplacement(FTextureID picnum, int pal);
 

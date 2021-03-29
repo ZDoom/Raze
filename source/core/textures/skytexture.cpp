@@ -41,7 +41,7 @@
 #include "texturemanager.h"
 #include "buildtiles.h"
 
-FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilemap)
+FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilemap, int remap)
 {
 	char synthname[60];
 	
@@ -70,6 +70,7 @@ FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilema
 		if (!tex || !tex->isValid() || tex->GetTexture() == 0) return nullptr;
 		build[i].TexImage = static_cast<FImageTexture*>(tex->GetTexture());
 		build[i].OriginX = tilewidth * i;
+		build[i].Translation = GPalette.GetTranslation(GetTranslationType(remap), GetTranslationIndex(remap));
 	}
 	auto tt = MakeGameTexture(new FImageTexture(new FMultiPatchTexture(tilewidth*numtiles, tileHeight(basetile), build, false, false)), synthname, ETextureType::Override);
 	TexMan.AddGameTexture(tt, true);

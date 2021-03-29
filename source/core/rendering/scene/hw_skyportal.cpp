@@ -67,12 +67,18 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 		auto& textureMatrix = state.mTextureMatrix;
 		auto texskyoffset = tex->GetSkyOffset() + origin->y_offset + skyoffsettest;
 
+		int repeat_fac = 1;
+		if (texh <= 192)
+		{
+			repeat_fac = 384 / texh;
+			texh *= repeat_fac;
+		}
 		modelMatrix.loadIdentity();
 		modelMatrix.rotate(-180.0f + origin->x_offset, 0.f, 1.f, 0.f);
-		modelMatrix.translate(0.f, -40 + texskyoffset + (tex->GetTexelHeight() - 300) / 2 * skyoffsetfactor, 0.f);
+		modelMatrix.translate(0.f, -40 + texskyoffset + (texh - 300) / 2 * skyoffsetfactor, 0.f);
 		//modelMatrix.scale(1.f, 0.8f * 1.17f, 1.f);
 		textureMatrix.loadIdentity();
-		textureMatrix.scale(-1.f, 0.5, 1.f);
+		textureMatrix.scale(-1.f, 0.5*repeat_fac, 1.f);
 		textureMatrix.translate(1.f, 0/*origin->y_offset / texh*/, 1.f);
 		vertexBuffer->RenderDome(state, origin->texture, FSkyVertexBuffer::SKYMODE_MAINLAYER);
 	}
