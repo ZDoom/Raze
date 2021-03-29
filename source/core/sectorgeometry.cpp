@@ -324,7 +324,7 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 		sec->dirty &= ~2;
 	}
 	*compare = *sec;
-	data[secnum].poscompare == wall[sec->wallptr].pos;
-	data[secnum].poscompare2 == wall[wall[sec->wallptr].point2].pos;
+	data[secnum].poscompare = wall[sec->wallptr].pos;
+	data[secnum].poscompare2 = wall[wall[sec->wallptr].point2].pos;
 	MakeVertices(secnum, plane);
 }
