@@ -739,6 +739,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
 // Need to stash the parameters for later use. This is only used to find the nearest camera.
 static PLAYERp cam_pp;
 static int cam_tx, cam_ty, cam_tz;
+static int oldstat;
 
 void JS_CameraParms(PLAYERp pp, int tx, int ty, int tz)
 {
@@ -751,6 +752,16 @@ void JS_CameraParms(PLAYERp pp, int tx, int ty, int tz)
 void GameInterface::UpdateCameras(double smoothratio)
 {
     JS_DrawCameras(cam_pp, cam_tx, cam_ty, cam_tz, smoothratio);
+}
+
+void GameInterface::EnterPortal(spritetype* viewer, int type)
+{
+    if (type == PORTAL_WALL_MIRROR) display_mirror++;
+}
+
+void GameInterface::LeavePortal(spritetype* viewer, int type)
+{
+    if (type == PORTAL_WALL_MIRROR) display_mirror--;
 }
 
 

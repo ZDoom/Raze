@@ -160,6 +160,7 @@ public:
 	virtual bool NeedDepthBuffer() { return true; }
 	virtual void DrawContents(HWDrawInfo *di, FRenderState &state) = 0;
 	virtual void RenderAttached(HWDrawInfo *di) {}
+	virtual int GetType() { return -1; }
 	void SetupStencil(HWDrawInfo *di, FRenderState &state, bool usestencil);
 	void RemoveStencil(HWDrawInfo *di, FRenderState &state, bool usestencil);
 
@@ -221,15 +222,7 @@ protected:
 public:
 	void ClearClipper(HWDrawInfo *di, Clipper *clipper);
 	virtual bool NeedDepthBuffer() { return true; }
-	virtual void DrawContents(HWDrawInfo *di, FRenderState &state)
-	{
-		if (Setup(di, state, di->mClipper))
-		{
-			di->DrawScene(DM_PORTAL);
-			Shutdown(di, state);
-		}
-		else state.ClearScreen();
-	}
+	virtual void DrawContents(HWDrawInfo* di, FRenderState& state);
 	virtual bool Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clipper) = 0;
 	virtual void Shutdown(HWDrawInfo *di, FRenderState &rstate) {}
 };
@@ -267,12 +260,12 @@ protected:
 
 struct HWMirrorPortal : public HWLinePortal
 {
-
 protected:
 	bool Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clipper) override;
 	void Shutdown(HWDrawInfo *di, FRenderState &rstate) override;
 	void * GetSource() const override { return line; }
 	const char *GetName() override;
+	virtual int GetType() { return PORTAL_WALL_MIRROR; }
 
 public:
 
@@ -291,6 +284,7 @@ protected:
 	virtual void * GetSource() const override { return origin; }
 	virtual const char *GetName() override;
 	virtual walltype *ClipLine() override { return line; }
+	virtual int GetType() { return PORTAL_WALL_VIEW; }
 
 public:
 
@@ -309,6 +303,7 @@ protected:
 	virtual void* GetSource() const override { return origin; }
 	virtual const char* GetName() override;
 	virtual walltype* ClipLine() override { return line; }
+	virtual int GetType() { return PORTAL_WALL_TO_SPRITE; }
 
 public:
 
@@ -358,6 +353,7 @@ protected:
 	virtual void * GetSource() const { return origin; }
 	virtual bool IsSky() { return true; }	// although this isn't a real sky it can be handled as one.
 	virtual const char *GetName();
+	virtual int GetType() { return PORTAL_SECTOR_CEILING; }
 	PortalDesc *origin;
 
 public:

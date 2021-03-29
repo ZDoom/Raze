@@ -134,6 +134,16 @@ void GameInterface::UpdateCameras(double smoothratio)
 	}
 }
 
+void GameInterface::EnterPortal(spritetype* viewer, int type)
+{
+	if (type == PORTAL_WALL_MIRROR) display_mirror++;
+}
+
+void GameInterface::LeavePortal(spritetype* viewer, int type) 
+{
+	if (type == PORTAL_WALL_MIRROR) display_mirror--;
+}
+
 //---------------------------------------------------------------------------
 //
 // RRRA's drug distortion effect

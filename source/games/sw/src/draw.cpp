@@ -62,6 +62,7 @@ EXTERN_CVAR(Bool, testnewrenderer)
 
 BEGIN_SW_NS
 
+int display_mirror;
 static int OverlapDraw = false;
 extern bool QuitFlag, SpriteInfo;
 extern bool Voxel;
@@ -753,7 +754,7 @@ analyzesprites(int viewx, int viewy, int viewz, int camang)
             if ((Player + screenpeek)->PlayerSprite == tu->SpriteNum)
             {
                 PLAYERp pp = Player + screenpeek;
-                if (mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
+                if (display_mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
                 {
                     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
                         SET(tsp->cstat, CSTAT_SPRITE_TRANSLUCENT);
@@ -868,6 +869,7 @@ analyzesprites(int viewx, int viewy, int viewz, int camang)
     WarpCopySprite();
 
 }
+
 
 #if 1
 tspriteptr_t get_tsprite(short SpriteNum)
@@ -1568,7 +1570,6 @@ drawscreen(PLAYERp pp, double smoothratio)
     {
         UpdateWallPortalState();
         auto cstat = pp->SpriteP->cstat;
-        if (!TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE)) pp->SpriteP->cstat |= CSTAT_SPRITE_INVISIBLE;
         render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang);
         pp->SpriteP->cstat = cstat;
     }

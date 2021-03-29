@@ -396,6 +396,24 @@ void HWPortal::RemoveStencil(HWDrawInfo *di, FRenderState &state, bool usestenci
 //
 //-----------------------------------------------------------------------------
 
+void HWScenePortalBase::DrawContents(HWDrawInfo* di, FRenderState& state)
+{
+	if (Setup(di, state, di->mClipper))
+	{
+		gi->EnterPortal(di->Viewpoint.CameraSprite, GetType());
+		di->DrawScene(DM_PORTAL);
+		gi->LeavePortal(di->Viewpoint.CameraSprite, GetType());
+		Shutdown(di, state);
+	}
+	else state.ClearScreen();
+}
+
+//-----------------------------------------------------------------------------
+//
+// 
+//
+//-----------------------------------------------------------------------------
+
 void HWScenePortalBase::ClearClipper(HWDrawInfo *di, Clipper *clipper)
 {
 	auto outer_di = di->outer;
@@ -569,13 +587,6 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	vp.TanSin = FocalTangent * an.Sin();
 	vp.TanCos = FocalTangent * an.Cos();
 	vp.ViewVector = an.ToVector();
-
-	int oldstat = 0;
-	if (vp.CameraSprite)
-	{
-		oldstat = vp.CameraSprite->cstat;
-		vp.CameraSprite->cstat &= ~CSTAT_SPRITE_INVISIBLE;
-	}
 
 	state->MirrorFlag++;
 	di->SetClipLine(line);
