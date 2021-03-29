@@ -304,6 +304,8 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 			sec->floorxpan_ == compare->floorxpan_ &&
 			sec->floorypan_ == compare->floorypan_ &&
 			sec->floorz == compare->floorz &&
+			wall[sec->wallptr].pos == data[secnum].poscompare &&
+			wall[wall[sec->wallptr].point2].pos == data[secnum].poscompare &&
 			!(sec->dirty & 1) && data[secnum].planes[plane].vertices.Size() ) return;
 
 		sec->dirty &= ~1;
@@ -316,10 +318,13 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 			sec->ceilingxpan_ == compare->ceilingxpan_ &&
 			sec->ceilingypan_ == compare->ceilingypan_ &&
 			sec->ceilingz == compare->ceilingz &&
+			wall[wall[sec->wallptr].point2].pos == data[secnum].poscompare &&
 			!(sec->dirty & 2) && data[secnum].planes[plane].vertices.Size()) return;
 
 		sec->dirty &= ~2;
 	}
 	*compare = *sec;
+	data[secnum].poscompare == wall[sec->wallptr].pos;
+	data[secnum].poscompare2 == wall[wall[sec->wallptr].point2].pos;
 	MakeVertices(secnum, plane);
 }
