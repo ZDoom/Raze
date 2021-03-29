@@ -133,7 +133,7 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 	// The shade rgb from the tint is ignored here.
 	state.SetColorAlpha(PalEntry(255, globalr, globalg, globalb), alpha);
 
-	state.SetMaterial(texture, UF_Texture, 0, 0/*flags & 3*/, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
+	state.SetMaterial(texture, UF_Texture, 0, CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 
 	if (!modelframe)
