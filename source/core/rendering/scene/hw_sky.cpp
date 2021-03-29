@@ -42,8 +42,6 @@ FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilema
 void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, PalEntry FadeColor)
 {
 	int picnum = plane == plane_ceiling ? sector->ceilingpicnum : sector->floorpicnum;
-	float xpanning = plane == plane_ceiling ? sector->ceilingxpan_ : sector->floorxpan_;
-	float ypanning = plane == plane_ceiling ? sector->ceilingypan_ : sector->floorypan_;
 
 	int32_t dapyscale = 0, dapskybits = 0, dapyoffs = 0, daptileyscale = 0;
 	FGameTexture* skytex = nullptr;
@@ -58,13 +56,10 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, 
 		else skytex = tileGetTexture(picnum);
 	}
 
-	float t = (float)((1 << (sizeToBits(tileWidth(picnum)))) << dapskybits);
-	int ti = (1 << (sizeToBits(tileHeight(picnum)))); if (ti != tileHeight(picnum)) ti += ti;
-
 	// dapyscale is not relvant for a sky dome.
 	sky->y_scale = FixedToFloat(daptileyscale);
-	sky->y_offset = dapyoffs*2 + (ypanning * ti / 64.f);
-	sky->x_offset = xpanning / (1 << (realskybits - dapskybits));	
+	sky->y_offset = dapyoffs*2;
+	sky->x_offset = 0;// xpanning / (1 << (realskybits - dapskybits));
 	sky->fadecolor = FadeColor;
 	sky->shade = 0;// clamp(plane == plane_ceiling ? sector->ceilingshade : sector->floorshade, 0, numshades - 1);
 	sky->texture = skytex;
