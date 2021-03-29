@@ -486,6 +486,8 @@ void HWDrawInfo::RenderTranslucent(FRenderState &state)
 {
 	RenderAll.Clock();
 
+	state.SetDepthBias(-1, -128);
+
 	// final pass: translucent stuff
 	state.AlphaFunc(Alpha_GEqual, gl_mask_sprite_threshold);
 	state.SetRenderStyle(STYLE_Translucent);
@@ -497,7 +499,7 @@ void HWDrawInfo::RenderTranslucent(FRenderState &state)
 	drawlists[GLDL_TRANSLUCENT].DrawSorted(this, state);
 	state.EnableBrightmap(false);
 
-
+	state.ClearDepthBias();
 	state.AlphaFunc(Alpha_GEqual, 0.5f);
 	state.SetDepthMask(true);
 
