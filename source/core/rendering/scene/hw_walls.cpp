@@ -967,7 +967,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 		// normal texture
 
-		int tilenum = (wal->cstat & CSTAT_WALL_1WAY) ? wal->overpicnum : wal->picnum;
+		int tilenum = ((wal->cstat & CSTAT_WALL_1WAY) && wal->nextwall != -1) ? wal->overpicnum : wal->picnum;
 		setgotpic(tilenum);
 		tileUpdatePicnum(&tilenum, int(wal-wall) + 16384, wal->cstat);
 		texture = tileGetTexture(tilenum);
