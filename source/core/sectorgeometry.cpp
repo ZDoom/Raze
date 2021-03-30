@@ -231,6 +231,11 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 
 		float X = WallStartX(wal);
 		float Y = WallStartY(wal);
+		if (fabs(X) > 32768. || fabs(Y) > 32768.)
+		{
+			// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
+			return;
+		}
 		curPoly->push_back(std::make_pair(X, Y));
 		if (wal->point2 != sec->wallptr+i+1 && i < numvertices - 1)
 		{
