@@ -1412,8 +1412,63 @@ void UpdateWallPortalState()
             }
         }
     }
+
+    int i;
+    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while ((i = it.NextIndex()) >= 0)
+    {
+        if (SPRITE_TAG3(i) == 0)
+        {
+            // back up ceilingpicnum and ceilingstat
+            SPRITE_TAG5(i) = sector[sprite[i].sectnum].ceilingpicnum;
+            sector[sprite[i].sectnum].ceilingpicnum = SPRITE_TAG2(i);
+            SPRITE_TAG4(i) = sector[sprite[i].sectnum].ceilingstat;
+            //SET(sector[sprite[i].sectnum].ceilingstat, ((int)SPRITE_TAG7(i))<<7);
+            SET(sector[sprite[i].sectnum].ceilingstat, SPRITE_TAG6(i));
+            RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_PLAX);
+        }
+        else if (SPRITE_TAG3(i) == 1)
+        {
+            SPRITE_TAG5(i) = sector[sprite[i].sectnum].floorpicnum;
+            sector[sprite[i].sectnum].floorpicnum = SPRITE_TAG2(i);
+            SPRITE_TAG4(i) = sector[sprite[i].sectnum].floorstat;
+            //SET(sector[sprite[i].sectnum].floorstat, ((int)SPRITE_TAG7(i))<<7);
+            SET(sector[sprite[i].sectnum].floorstat, SPRITE_TAG6(i));
+            RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_PLAX);
+        }
+    }
+
 }
 
+void RestorePortalState()
+{
+    int i;
+    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while ((i = it.NextIndex()) >= 0)
+    {
+        // manually set gotpic
+        if (TEST_GOTSECTOR(sprite[i].sectnum))
+        {
+            SET_GOTPIC(FAF_MIRROR_PIC);
+        }
+
+        if (SPRITE_TAG3(i) == 0)
+        {
+            // restore ceilingpicnum and ceilingstat
+            sector[sprite[i].sectnum].ceilingpicnum = SPRITE_TAG5(i);
+            sector[sprite[i].sectnum].ceilingstat = SPRITE_TAG4(i);
+            //RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_TYPE_MASK);
+            RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_PLAX);
+        }
+        else if (SPRITE_TAG3(i) == 1)
+        {
+            sector[sprite[i].sectnum].floorpicnum = SPRITE_TAG5(i);
+            sector[sprite[i].sectnum].floorstat = SPRITE_TAG4(i);
+            //RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_TYPE_MASK);
+            RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_PLAX);
+        }
+    }
+}
 
 void
 drawscreen(PLAYERp pp, double smoothratio)
@@ -1569,9 +1624,8 @@ drawscreen(PLAYERp pp, double smoothratio)
     else
     {
         UpdateWallPortalState();
-        auto cstat = pp->SpriteP->cstat;
         render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang);
-        pp->SpriteP->cstat = cstat;
+        RestorePortalState();
     }
 
 

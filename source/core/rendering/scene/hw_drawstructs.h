@@ -257,6 +257,7 @@ public:
 	float alpha;
 	FRenderStyle RenderStyle;
 	int iboindex;
+	bool stack;
 	//int vboheight;
 
 	int plane;

@@ -287,16 +287,18 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 
 		shade = clamp(frontsector->floorshade, 0, numshades-1);
 		palette = frontsector->floorpal;
+		stack = frontsector->portalflags == PORTAL_SECTOR_FLOOR || frontsector->portalflags == PORTAL_SECTOR_FLOOR_REFLECT;
 
-		//port = frontsector->ValidatePortal(sector_t::floor);
-#if 0
-		if ((stack = (port != NULL)))
+		if (stack && (frontsector->floorstat & CSTAT_SECTOR_METHOD))
 		{
-			alpha = frontsector->GetAlpha(sector_t::floor);
+			RenderStyle = GetRenderStyle(0, !!(frontsector->floorstat & CSTAT_SECTOR_TRANS_INVERT));
+			alpha = GetAlphaFromBlend((frontsector->floorstat & CSTAT_SECTOR_TRANS_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
 		}
 		else
-#endif
-			alpha = 1.0f;
+		{
+			RenderStyle = STYLE_Translucent;
+			alpha = 1.f;
+		}
 
 		if (alpha != 0.f)
 		{
@@ -307,7 +309,6 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 			if (texture && texture->isValid())
 			{
 				//iboindex = frontsector->iboindex[sector_t::floor];
-				RenderStyle = STYLE_Translucent;
 				PutFlat(di, 0);
 			}
 		}
@@ -326,16 +327,19 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 
 		shade = clamp(frontsector->ceilingshade, 0, numshades-1);
 		palette = frontsector->ceilingpal;
+		stack = frontsector->portalflags == PORTAL_SECTOR_CEILING || frontsector->portalflags == PORTAL_SECTOR_CEILING_REFLECT;
 
-
-		/*
-		port = frontsector->ValidatePortal(sector_t::ceiling);
-		if ((stack = (port != NULL)))
+		if (stack && (frontsector->ceilingstat & CSTAT_SECTOR_METHOD))
 		{
-			alpha = frontsector->GetAlpha(sector_t::ceiling);
+			RenderStyle = GetRenderStyle(0, !!(frontsector->ceilingstat & CSTAT_SECTOR_TRANS_INVERT));
+			alpha = GetAlphaFromBlend((frontsector->ceilingstat & CSTAT_SECTOR_TRANS_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
 		}
-		else*/
-			alpha = 1.0f;
+		else
+		{
+			RenderStyle = STYLE_Translucent;
+			alpha = 1.f;
+		}
+
 
 		if (alpha != 0.f)
 		{
@@ -348,7 +352,6 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 			if (texture && texture->isValid())
 			{
 				//iboindex = frontsector->iboindex[sector_t::floor];
-				RenderStyle = STYLE_Translucent;
 				PutFlat(di,  1);
 			}
 		}
