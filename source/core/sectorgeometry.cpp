@@ -263,9 +263,13 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 		for (auto& pt : polygon[a])
 		{
 			float planez;
+			int fz = sec->floorz, cz = sec->ceilingz;
+			sec->floorz = sec->ceilingz = 0;
 			PlanesAtPoint(sec, (pt.first * 16), (pt.second * -16), plane ? &planez : nullptr, !plane ? &planez : nullptr);
 			FVector3 point = { pt.first, pt.second, planez };
 			points[p++] = point;
+			sec->floorz = fz;
+			sec->ceilingz = cz;
 		}
 	}
 	
@@ -303,7 +307,6 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 			((sec->floorstat ^ compare->floorstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->floorxpan_ == compare->floorxpan_ &&
 			sec->floorypan_ == compare->floorypan_ &&
-			sec->floorz == compare->floorz &&
 			wall[sec->wallptr].pos == data[secnum].poscompare &&
 			wall[wall[sec->wallptr].point2].pos == data[secnum].poscompare2 &&
 			!(sec->dirty & 1) && data[secnum].planes[plane].vertices.Size() ) return;
@@ -317,7 +320,6 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 			((sec->ceilingstat ^ compare->ceilingstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->ceilingxpan_ == compare->ceilingxpan_ &&
 			sec->ceilingypan_ == compare->ceilingypan_ &&
-			sec->ceilingz == compare->ceilingz &&
 			wall[sec->wallptr].pos == data[secnum].poscompare &&
 			wall[wall[sec->wallptr].point2].pos == data[secnum].poscompare2 &&
 			!(sec->dirty & 2) && data[secnum].planes[plane].vertices.Size()) return;

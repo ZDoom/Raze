@@ -105,11 +105,12 @@ void HWFlat::MakeVertices()
 		if (!mesh) return;
 		auto ret = screen->mVertexData->AllocVertices(mesh->vertices.Size());
 		auto vp = ret.first;
+		float base = (plane == 0 ? sec->floorz : sec->ceilingz) * (1/-256.f);
 		for (unsigned i = 0; i < mesh->vertices.Size(); i++)
 		{
 			auto& pt = mesh->vertices[i];
 			auto& uv = mesh->texcoords[i];
-			vp->SetVertex(pt.X, pt.Z, pt.Y);
+			vp->SetVertex(pt.X, base + pt.Z, pt.Y);
 			vp->SetTexCoord(uv.X, canvas? 1.f - uv.Y : uv.Y);
 			vp++;
 		}
