@@ -146,7 +146,7 @@ void HWFlat::MakeVertices()
 //==========================================================================
 void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 {
-	if (screen->BuffersArePersistent())
+	if (screen->BuffersArePersistent() && !sprite)
 	{
 		MakeVertices();
 	}
@@ -230,7 +230,7 @@ void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 {
 	vertcount = 0;
 	plane = whichplane;
-	if (!screen->BuffersArePersistent())	// should be made static buffer content later (when the logic is working)
+	if (!screen->BuffersArePersistent() || sprite)	// should be made static buffer content later (when the logic is working)
 	{
 #if 0
 		if (di->Level->HasDynamicLights && texture != nullptr && !di->isFullbrightScene() && !(hacktype & (SSRF_PLANEHACK | SSRF_FLOODHACK)))
