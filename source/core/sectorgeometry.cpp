@@ -299,7 +299,7 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 {
 	auto sec = &sector[secnum];
-	auto compare = &data[secnum].compare;
+	auto compare = &data[secnum].compare[plane];
 	if (plane == 0)
 	{
 		if (sec->floorheinum == compare->floorheinum &&
@@ -307,8 +307,8 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 			((sec->floorstat ^ compare->floorstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->floorxpan_ == compare->floorxpan_ &&
 			sec->floorypan_ == compare->floorypan_ &&
-			wall[sec->wallptr].pos == data[secnum].poscompare &&
-			wall[wall[sec->wallptr].point2].pos == data[secnum].poscompare2 &&
+			wall[sec->wallptr].pos == data[secnum].poscompare[0] &&
+			wall[wall[sec->wallptr].point2].pos == data[secnum].poscompare2[0] &&
 			!(sec->dirty & 1) && data[secnum].planes[plane].vertices.Size() ) return;
 
 		sec->dirty &= ~1;
@@ -320,14 +320,14 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 			((sec->ceilingstat ^ compare->ceilingstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->ceilingxpan_ == compare->ceilingxpan_ &&
 			sec->ceilingypan_ == compare->ceilingypan_ &&
-			wall[sec->wallptr].pos == data[secnum].poscompare &&
-			wall[wall[sec->wallptr].point2].pos == data[secnum].poscompare2 &&
-			!(sec->dirty & 2) && data[secnum].planes[plane].vertices.Size()) return;
+			wall[sec->wallptr].pos == data[secnum].poscompare[1] &&
+			wall[wall[sec->wallptr].point2].pos == data[secnum].poscompare2[1] &&
+			!(sec->dirty & 2) && data[secnum].planes[1].vertices.Size()) return;
 
 		sec->dirty &= ~2;
 	}
 	*compare = *sec;
-	data[secnum].poscompare = wall[sec->wallptr].pos;
-	data[secnum].poscompare2 = wall[wall[sec->wallptr].point2].pos;
+	data[secnum].poscompare[plane] = wall[sec->wallptr].pos;
+	data[secnum].poscompare2[plane] = wall[wall[sec->wallptr].point2].pos;
 	MakeVertices(secnum, plane);
 }
