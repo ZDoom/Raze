@@ -12,8 +12,8 @@ lookangle getincanglebam(binangle a, binangle na);
 
 struct PlayerHorizon
 {
-	fixedhoriz horiz, ohoriz, horizoff, ohorizoff;
-	double adjustment, target;
+	fixedhoriz horiz, ohoriz, horizoff, ohorizoff, target;
+	double adjustment;
 
 	void backup()
 	{
@@ -44,30 +44,58 @@ struct PlayerHorizon
 		adjustment = 0;
 	}
 
+	void settarget(int value, bool backup = false)
+	{
+		if (!SyncInput() && !backup)
+		{
+			target = buildhoriz(value);
+			if (target.asq16() == 0) target = q16horiz(1);
+		}
+		else
+		{
+			horiz = buildhoriz(value);
+			if (backup) ohoriz = horiz;
+		}
+	}
+
 	void settarget(double value, bool backup = false)
 	{
 		if (!SyncInput() && !backup)
 		{
-			target = value * FRACUNIT;
-			if (target == 0) target += 1;
+			target = buildfhoriz(value);
+			if (target.asq16() == 0) target = q16horiz(1);
 		}
 		else
 		{
-			horiz = q16horiz(FloatToFixed(value));
+			horiz = buildfhoriz(value);
+			if (backup) ohoriz = horiz;
+		}
+	}
+
+	void settarget(fixedhoriz value, bool backup = false)
+	{
+		if (!SyncInput() && !backup)
+		{
+			target = value;
+			if (target.asq16() == 0) target = q16horiz(1);
+		}
+		else
+		{
+			horiz = value;
 			if (backup) ohoriz = horiz;
 		}
 	}
 
 	void processhelpers(double const scaleAdjust)
 	{
-		if (target)
+		if (target.asq16())
 		{
-			horiz += q16horiz(xs_CRoundToInt(scaleAdjust * (target - horiz.asq16())));
+			horiz += q16horiz(xs_CRoundToInt(scaleAdjust * (target - horiz).asq16()));
 
-			if (abs(horiz.asq16() - target) < FRACUNIT)
+			if (abs((horiz - target).asq16()) < FRACUNIT)
 			{
-				horiz = q16horiz(target);
-				target = 0;
+				horiz = target;
+				target = q16horiz(0);
 			}
 		}
 		else if (adjustment)

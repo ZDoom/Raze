@@ -398,6 +398,7 @@ class fixedhoriz
 	
 	friend constexpr fixedhoriz q16horiz(fixed_t v);
 	friend constexpr fixedhoriz buildhoriz(int v);
+	friend constexpr fixedhoriz buildfhoriz(double v);
 	friend fixedhoriz pitchhoriz(double v);
 	friend fixedhoriz bamhoriz(int32_t v);
 
@@ -496,6 +497,7 @@ public:
 
 inline constexpr fixedhoriz q16horiz(fixed_t v) { return fixedhoriz(v); }
 inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(IntToFixed(v)); }
+inline constexpr fixedhoriz buildfhoriz(double v) { return fixedhoriz(FloatToFixed(v)); }
 inline fixedhoriz pitchhoriz(double v) { return fixedhoriz(PitchToHoriz(v)); }
 inline fixedhoriz bamhoriz(int32_t v) { return pitchhoriz(BAMToPitch(v)); }
 
