@@ -224,26 +224,39 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 
 	polygon.resize(1);
 	curPoly = &polygon.back();
+	FixedBitArray<MAXWALLSB> done;
 
 	int fz = sec->floorz, cz = sec->ceilingz;
 	sec->floorz = sec->ceilingz = 0;
 
-	for (int i = 0; i < numvertices; i++)
-	{
-		auto wal = &wall[sec->wallptr + i];
+	int vertstoadd = numvertices;
 
-		float X = WallStartX(wal);
-		float Y = WallStartY(wal);
-		if (fabs(X) > 32768. || fabs(Y) > 32768.)
+	done.Zero();
+	while (vertstoadd > 0)
+	{
+		int start = 0;
+		while (done[start] && start < numvertices) start++;
+		int s = start;
+		if (start < numvertices)
 		{
-			// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
-			return;
-		}
-		curPoly->push_back(std::make_pair(X, Y));
-		if (wal->point2 != sec->wallptr+i+1 && i < numvertices - 1)
-		{
+			while (!done[start])
+			{
+				auto wallp = &wall[sec->wallptr + start];
+				float X = WallStartX(wallp);
+				float Y = WallStartY(wallp);
+				if (fabs(X) > 32768. || fabs(Y) > 32768.)
+				{
+					// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
+					return;
+				}
+				curPoly->push_back(std::make_pair(X, Y));
+				done.Set(start);
+				vertstoadd--;
+				start = wallp->point2 - sec->wallptr;
+			}
 			polygon.resize(polygon.size() + 1);
 			curPoly = &polygon.back();
+			assert(start == s);
 		}
 	}
 	// Now make sure that the outer boundary is the first polygon by picking a point that's as much to the outside as possible.
