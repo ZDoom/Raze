@@ -188,8 +188,6 @@ HWDrawInfo *HWDrawInfo::EndDrawInfo()
 void HWDrawInfo::ClearBuffers()
 {
 	spriteindex = 0;
-	Decals[0].Clear();
-	Decals[1].Clear();
 	mClipPortal = nullptr;
 	mCurrentPortal = nullptr;
 }
@@ -272,17 +270,89 @@ HWPortal * HWDrawInfo::FindPortal(const void * src)
 //
 //-----------------------------------------------------------------------------
 
-HWDecal* HWDrawInfo::AddDecal(bool onmirror)
+void HWDrawInfo::DispatchSprites()
 {
-#if 0
-	auto decal = (HWDecal*)RenderDataAllocator.Alloc(sizeof(HWDecal));
-	Decals[onmirror ? 1 : 0].Push(decal);
-	return decal;
-#else
-	return nullptr;
-#endif
-}
+	for (int i = 0; i < spritesortcnt; i++)
+	{
+		auto tspr = &tsprite[i];
+		int tilenum = tspr->picnum;
+		int spritenum = tspr->owner;
 
+		if (spritenum < 0 || (unsigned)tilenum >= MAXTILES)
+			continue;
+
+		setgotpic(tilenum);
+
+		while (!(spriteext[spritenum].flags & SPREXT_NOTMD))
+		{
+			int pt = Ptile2tile(tspr->picnum, tspr->pal);
+			if (hw_models && tile2model[pt].modelid >= 0 && tile2model[pt].framenum >= 0)
+			{
+				//HWSprite hwsprite;
+				//if (hwsprite.ProcessModel(pt, tspr)) return;
+				break;
+			}
+
+			if (r_voxels)
+			{
+				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
+				{
+					//HWSprite hwsprite;
+					//if (hwsprite.ProcessVoxel(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
+					break;
+				}
+				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
+				{
+					//HWSprite hwsprite;
+					//hwsprite.ProcessVoxel(voxmodels[tspr->picnum], tspr);
+					break;
+				}
+			}
+			break;
+		}
+
+		if (spriteext[spritenum].flags & SPREXT_AWAY1)
+		{
+			tspr->pos.x += bcos(tspr->ang, -13);
+			tspr->pos.y += bsin(tspr->ang, -13);
+		}
+		else if (spriteext[spritenum].flags & SPREXT_AWAY2)
+		{
+			tspr->pos.x -= bcos(tspr->ang, -13);
+			tspr->pos.y -= bsin(tspr->ang, -13);
+		}
+
+		tileUpdatePicnum(&tilenum, sprite->owner + 32768, 0);
+		tspr->picnum = tilenum;
+
+		switch (tspr->cstat & CSTAT_SPRITE_ALIGNMENT)
+		{
+		case CSTAT_SPRITE_ALIGNMENT_FACING:
+		{
+			HWSprite sprite;
+			sprite.Process(this, tspr, &sector[tspr->sectnum], false);
+			break;
+		}
+
+		case CSTAT_SPRITE_ALIGNMENT_WALL:
+		{
+			HWWall wall;
+			wall.ProcessWallSprite(this, tspr, &sector[tspr->sectnum]);
+			break;
+		}
+
+		case CSTAT_SPRITE_ALIGNMENT_FLOOR:
+		{
+			HWFlat flat;
+			flat.ProcessFlatSprite(this, tspr, &sector[tspr->sectnum]);
+			break;
+		}
+
+		default:
+			break;
+		}
+	}
+}
 //-----------------------------------------------------------------------------
 //
 // CreateScene
@@ -318,6 +388,7 @@ void HWDrawInfo::CreateScene()
 
 	SetupSprite.Clock();
 	gi->processSprites(view.x, view.y, vp.Pos.Z * -256, bamang(vp.RotAngle), vp.TicFrac * 65536);
+	DispatchSprites();
 	SetupSprite.Unclock();
 
 	screen->mLights->Unmap();
@@ -345,14 +416,6 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 	state.EnableFog(true);
 	state.SetRenderStyle(STYLE_Source);
 
-	if (gl_sort_textures)
-	{
-		drawlists[GLDL_PLAINWALLS].SortWalls();
-		drawlists[GLDL_PLAINFLATS].SortFlats();
-		drawlists[GLDL_MASKEDWALLS].SortWalls();
-		drawlists[GLDL_MASKEDFLATS].SortFlats();
-		drawlists[GLDL_MASKEDWALLSOFS].SortWalls();
-	}
 
 	// Part 1: solid geometry. This is set up so that there are no transparent parts
 	state.SetDepthFunc(DF_Less);
@@ -362,32 +425,54 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 	state.EnableTexture(gl_texture);
 	state.EnableBrightmap(true);
 	drawlists[GLDL_PLAINWALLS].DrawWalls(this, state, false);
+
 	drawlists[GLDL_PLAINFLATS].DrawFlats(this, state, false);
 
 
 	// Part 2: masked geometry. This is set up so that only pixels with alpha>gl_mask_threshold will show
 	state.AlphaFunc(Alpha_GEqual, gl_mask_threshold);
-	drawlists[GLDL_MASKEDWALLS].DrawWalls(this, state, false);
-	drawlists[GLDL_MASKEDFLATS].DrawFlats(this, state, false);
 
-	// Part 3: masked geometry with polygon offset. This list is empty most of the time so only waste time on it when in use.
-	if (drawlists[GLDL_MASKEDWALLSOFS].Size() > 0)
-	{
-		state.SetDepthBias(-1, -128);
-		drawlists[GLDL_MASKEDWALLSOFS].DrawWalls(this, state, false);
-		state.ClearDepthBias();
-	}
+	// This list is masked, non-translucent walls.
+	drawlists[GLDL_MASKEDWALLS].DrawWalls(this, state, false);
+
+	// These lists must be drawn in two passes for color and depth to avoid depth fighting with overlapping entries
+	drawlists[GLDL_MASKEDFLATS].SortFlats(this);
+	drawlists[GLDL_MASKEDWALLSV].SortWallsHorz(this);
+	drawlists[GLDL_MASKEDWALLSH].SortWallsVert(this);
+
+	state.SetDepthBias(-1, -128);
+
+	// these lists are only wall and floor sprites - often attached to walls and floors - so they need to be offset from the plane they may be attached to.
+	drawlists[GLDL_MASKEDWALLSS].DrawWalls(this, state, false);
+
+	// Each list must draw both its passes before the next one to ensure proper depth buffer contents.
+	state.SetDepthMask(false);
+	drawlists[GLDL_MASKEDWALLSV].DrawWalls(this, state, false);
+	state.SetDepthMask(true);
+	state.SetColorMask(false);
+	drawlists[GLDL_MASKEDWALLSV].DrawWalls(this, state, false);
+	state.SetColorMask(true);
+
+	state.SetDepthMask(false);
+	drawlists[GLDL_MASKEDWALLSH].DrawWalls(this, state, false);
+	state.SetDepthMask(true);
+	state.SetColorMask(false);
+	drawlists[GLDL_MASKEDWALLSH].DrawWalls(this, state, false);
+	state.SetColorMask(true);
+
+	state.SetDepthMask(false);
+	drawlists[GLDL_MASKEDFLATS].DrawFlats(this, state, false);
+	state.SetDepthMask(true);
+	state.SetColorMask(false);
+	drawlists[GLDL_MASKEDFLATS].DrawFlats(this, state, false);
+	state.SetColorMask(true);
+	state.ClearDepthBias();
 
 	drawlists[GLDL_MODELS].Draw(this, state, false);
 
 	state.SetRenderStyle(STYLE_Translucent);
 
-	// Part 4: Draw decals (not a real pass)
 	state.SetDepthFunc(DF_LEqual);
-#if 0
-	DrawDecals(state, Decals[0]);
-#endif
-
 	RenderAll.Unclock();
 }
 
@@ -401,6 +486,8 @@ void HWDrawInfo::RenderTranslucent(FRenderState &state)
 {
 	RenderAll.Clock();
 
+	state.SetDepthBias(-1, -128);
+
 	// final pass: translucent stuff
 	state.AlphaFunc(Alpha_GEqual, gl_mask_sprite_threshold);
 	state.SetRenderStyle(STYLE_Translucent);
@@ -412,7 +499,7 @@ void HWDrawInfo::RenderTranslucent(FRenderState &state)
 	drawlists[GLDL_TRANSLUCENT].DrawSorted(this, state);
 	state.EnableBrightmap(false);
 
-
+	state.ClearDepthBias();
 	state.AlphaFunc(Alpha_GEqual, 0.5f);
 	state.SetDepthMask(true);
 

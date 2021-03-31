@@ -23,7 +23,6 @@ struct FFlatVertex;
 class HWWall;
 class HWFlat;
 class HWSprite;
-struct HWDecal;
 class IShadowMap;
 struct FDynLightData;
 class Clipper;
@@ -43,6 +42,8 @@ struct FRenderViewpoint
 	int* SectNums;
 	int SectCount;
 	double TicFrac;
+	double TanCos, TanSin;	// needed for calculating a sprite's screen depth.
+	DVector2 ViewVector;		// direction the camera is facing. 
 };
 //==========================================================================
 //
@@ -72,8 +73,10 @@ enum DrawListType
 	GLDL_PLAINWALLS,
 	GLDL_PLAINFLATS,
 	GLDL_MASKEDWALLS,
+	GLDL_MASKEDWALLSS,	// arbitrary wall sprites.
+	GLDL_MASKEDWALLSV,	// vertical wall sprites
+	GLDL_MASKEDWALLSH,  // horizontal wall sprites. These two lists merely exist for easier sorting.
 	GLDL_MASKEDFLATS,
-	GLDL_MASKEDWALLSOFS,
 	GLDL_MODELS,
 
 	GLDL_TRANSLUCENT,
@@ -105,7 +108,6 @@ struct HWDrawInfo
 	FRenderViewpoint Viewpoint;
 	HWViewpointUniforms VPUniforms;	// per-viewpoint uniform state
 	TArray<HWPortal *> Portals;
-	TArray<HWDecal *> Decals[2];	// the second slot is for mirrors which get rendered in a separate pass.
 
 	// This is needed by the BSP traverser.
 	bool multithread;
@@ -154,6 +156,7 @@ public:
 
 	void DrawScene(int drawmode);
 	void CreateScene();
+	void DispatchSprites();
 	void RenderScene(FRenderState &state);
 	void RenderTranslucent(FRenderState &state);
 	void RenderPortal(HWPortal *p, FRenderState &state, bool usestencil);
@@ -168,7 +171,6 @@ public:
 	void SetupView(FRenderState &state, float vx, float vy, float vz, bool mirror, bool planemirror);
 	angle_t FrustumAngle();
 
-	void DrawDecals(FRenderState &state, TArray<HWDecal *> &decals);
 	void DrawPlayerSprites(bool hudModelStep, FRenderState &state);
 
     //void AddSubsectorToPortal(FSectorPortalGroup *portal, sectortype *sub);
@@ -178,8 +180,6 @@ public:
 	void AddFlat(HWFlat *flat);
 	void AddSprite(HWSprite *sprite, bool translucent);
 
-
-    HWDecal *AddDecal(bool onmirror);
 
 	bool isSoftwareLighting() const
 	{

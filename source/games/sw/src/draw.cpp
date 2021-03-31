@@ -62,6 +62,7 @@ EXTERN_CVAR(Bool, testnewrenderer)
 
 BEGIN_SW_NS
 
+int display_mirror;
 static int OverlapDraw = false;
 extern bool QuitFlag, SpriteInfo;
 extern bool Voxel;
@@ -350,14 +351,14 @@ DoShadows(tspriteptr_t tsp, int viewz, int camang)
         New->clipdist |= TSPR_FLAGS_MDHACK;
         New->cstat |= 512;
     }
-    else
+    else if (!testnewrenderer)
     {
         int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
-        vec2_t const ofs = { bcos(camang, -11), bsin(camang, -11) };
-
-        New->x += ofs.x;
-        New->y += ofs.y;
+        New->x += bcos(camang, -11);
+        New->y += bsin(camang, -11);
+        
     }
+    else New->time = 1;
 
     // Check for voxel items and use a round generic pic if so
     //DoVoxelShadow(New);
@@ -753,7 +754,7 @@ analyzesprites(int viewx, int viewy, int viewz, int camang)
             if ((Player + screenpeek)->PlayerSprite == tu->SpriteNum)
             {
                 PLAYERp pp = Player + screenpeek;
-                if (mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
+                if (display_mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
                 {
                     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
                         SET(tsp->cstat, CSTAT_SPRITE_TRANSLUCENT);
@@ -868,6 +869,7 @@ analyzesprites(int viewx, int viewy, int viewz, int camang)
     WarpCopySprite();
 
 }
+
 
 #if 1
 tspriteptr_t get_tsprite(short SpriteNum)
@@ -1410,8 +1412,63 @@ void UpdateWallPortalState()
             }
         }
     }
+
+    int i;
+    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while ((i = it.NextIndex()) >= 0)
+    {
+        if (SPRITE_TAG3(i) == 0)
+        {
+            // back up ceilingpicnum and ceilingstat
+            SPRITE_TAG5(i) = sector[sprite[i].sectnum].ceilingpicnum;
+            sector[sprite[i].sectnum].ceilingpicnum = SPRITE_TAG2(i);
+            SPRITE_TAG4(i) = sector[sprite[i].sectnum].ceilingstat;
+            //SET(sector[sprite[i].sectnum].ceilingstat, ((int)SPRITE_TAG7(i))<<7);
+            SET(sector[sprite[i].sectnum].ceilingstat, SPRITE_TAG6(i));
+            RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_PLAX);
+        }
+        else if (SPRITE_TAG3(i) == 1)
+        {
+            SPRITE_TAG5(i) = sector[sprite[i].sectnum].floorpicnum;
+            sector[sprite[i].sectnum].floorpicnum = SPRITE_TAG2(i);
+            SPRITE_TAG4(i) = sector[sprite[i].sectnum].floorstat;
+            //SET(sector[sprite[i].sectnum].floorstat, ((int)SPRITE_TAG7(i))<<7);
+            SET(sector[sprite[i].sectnum].floorstat, SPRITE_TAG6(i));
+            RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_PLAX);
+        }
+    }
+
 }
 
+void RestorePortalState()
+{
+    int i;
+    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while ((i = it.NextIndex()) >= 0)
+    {
+        // manually set gotpic
+        if (TEST_GOTSECTOR(sprite[i].sectnum))
+        {
+            SET_GOTPIC(FAF_MIRROR_PIC);
+        }
+
+        if (SPRITE_TAG3(i) == 0)
+        {
+            // restore ceilingpicnum and ceilingstat
+            sector[sprite[i].sectnum].ceilingpicnum = SPRITE_TAG5(i);
+            sector[sprite[i].sectnum].ceilingstat = SPRITE_TAG4(i);
+            //RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_TYPE_MASK);
+            RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_PLAX);
+        }
+        else if (SPRITE_TAG3(i) == 1)
+        {
+            sector[sprite[i].sectnum].floorpicnum = SPRITE_TAG5(i);
+            sector[sprite[i].sectnum].floorstat = SPRITE_TAG4(i);
+            //RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_TYPE_MASK);
+            RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_PLAX);
+        }
+    }
+}
 
 void
 drawscreen(PLAYERp pp, double smoothratio)
@@ -1555,7 +1612,8 @@ drawscreen(PLAYERp pp, double smoothratio)
     if (automapMode != am_full)// && !ScreenSavePic)
     {
         // Cameras must be done before the main loop.
-        JS_DrawCameras(pp, tx, ty, tz);
+        if (!testnewrenderer) JS_DrawCameras(pp, tx, ty, tz, smoothratio);
+        else JS_CameraParms(pp, tx, ty, tz);  
     }
 
     if (!testnewrenderer)
@@ -1567,6 +1625,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     {
         UpdateWallPortalState();
         render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang);
+        RestorePortalState();
     }
 
 

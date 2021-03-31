@@ -396,6 +396,24 @@ void HWPortal::RemoveStencil(HWDrawInfo *di, FRenderState &state, bool usestenci
 //
 //-----------------------------------------------------------------------------
 
+void HWScenePortalBase::DrawContents(HWDrawInfo* di, FRenderState& state)
+{
+	if (Setup(di, state, di->mClipper))
+	{
+		gi->EnterPortal(di->Viewpoint.CameraSprite, GetType());
+		di->DrawScene(DM_PORTAL);
+		gi->LeavePortal(di->Viewpoint.CameraSprite, GetType());
+		Shutdown(di, state);
+	}
+	else state.ClearScreen();
+}
+
+//-----------------------------------------------------------------------------
+//
+// 
+//
+//-----------------------------------------------------------------------------
+
 void HWScenePortalBase::ClearClipper(HWDrawInfo *di, Clipper *clipper)
 {
 	auto outer_di = di->outer;
@@ -560,17 +578,15 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	vp.SectNums = nullptr;
 	vp.SectCount = line->sector;
 
-
 	vp.Pos.X = newx / 16.f;
 	vp.Pos.Y = newy / -16.f;
 	vp.HWAngles.Yaw = -90.f + q16ang(newan).asdeg();
 
-	int oldstat = 0;
-	if (vp.CameraSprite)
-	{
-		oldstat = vp.CameraSprite->cstat;
-		vp.CameraSprite->cstat &= ~CSTAT_SPRITE_INVISIBLE;
-	}
+	double FocalTangent = tan(vp.FieldOfView.Radians() / 2);
+	DAngle an = 270. - vp.HWAngles.Yaw.Degrees;
+	vp.TanSin = FocalTangent * an.Sin();
+	vp.TanCos = FocalTangent * an.Cos();
+	vp.ViewVector = an.ToVector();
 
 	state->MirrorFlag++;
 	di->SetClipLine(line);

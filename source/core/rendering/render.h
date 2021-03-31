@@ -2,8 +2,10 @@
 #include "build.h"
 
 class FSerializer;
+struct IntRect;
 
 void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, lookangle rollang);
+void render_camtex(spritetype* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, lookangle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio);
 
 struct PortalDesc
 {

@@ -317,7 +317,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     // position into tposx, tposy, and tang (tposz == cposz)
                     // Must call preparemirror before drawrooms and
                     // completemirror after drawrooms
-
+					display_mirror = true;
                     renderPrepareMirror(tx, ty, tz, tpq16ang, tpq16horiz,
                                   mirror[cnt].mirrorwall, /*mirror[cnt].mirrorsector,*/ &tposx, &tposy, &tang);
 
@@ -327,7 +327,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     renderDrawMasks();
 
                     renderCompleteMirror();   // Reverse screen x-wise in this
-                    // function
+					display_mirror = false;
                 }
 
 

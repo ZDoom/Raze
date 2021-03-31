@@ -1129,6 +1129,7 @@ set (PCH_SOURCES
 	core/rendering/scene/hw_clipper.cpp
 	core/rendering/scene/hw_walls.cpp
 	core/rendering/scene/hw_flats.cpp
+	core/rendering/scene/hw_sprites.cpp
 	core/rendering/scene/hw_drawlistadd.cpp
 	core/rendering/scene/hw_drawlist.cpp
 	core/rendering/scene/hw_drawinfo.cpp

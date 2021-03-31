@@ -892,4 +892,24 @@ void GameInterface::processSprites(int viewx, int viewy, int viewz, binangle vie
     viewProcessSprites(viewx, viewy, viewz, viewang.asbuild(), int(smoothRatio));
 }
 
+int display_mirror;
+
+void GameInterface::EnterPortal(spritetype* viewer, int type)
+{
+    if (type == PORTAL_WALL_MIRROR)
+    {
+        display_mirror++;
+        if (viewer) viewer->cstat &= ~CSTAT_SPRITE_INVISIBLE;
+    }
+}
+
+void GameInterface::LeavePortal(spritetype* viewer, int type)
+{
+    if (type == PORTAL_WALL_MIRROR)
+    {
+        display_mirror--;
+        if (viewer && display_mirror == 0 && !(viewer->cstat & CSTAT_SPRITE_TRANSLUCENT)) viewer->cstat |= CSTAT_SPRITE_INVISIBLE;
+    }
+}
+
 END_BLD_NS

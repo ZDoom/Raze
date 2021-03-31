@@ -144,7 +144,7 @@ void HWWall::SetLightAndFog(FRenderState& state)
 	}
 
 	// The shade rgb from the tint is ignored here.
-	state.SetColor(PalEntry(255, globalr, globalg, globalb));
+	state.SetColorAlpha(PalEntry(255, globalr, globalg, globalb), alpha);
 }
 
 //==========================================================================
@@ -192,16 +192,16 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
 	//int tmode = state.GetTextureMode();
 
-	state.SetMaterial(texture, UF_Texture, 0, 0/*flags & 3*/, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
+	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr? CLAMP_NONE : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 	SetLightAndFog(state);
 
-	int h = texture->GetTexelHeight();
+	int h = (int)texture->GetDisplayHeight();
 	int h2 = 1 << sizeToBits(h);
 	if (h2 < h) h2 *= 2;
 	if (h != h2)
 	{
-		float xOffset = 1.f / texture->GetTexelWidth();
+		float xOffset = 1.f / texture->GetDisplayWidth();
 		state.SetNpotEmulation(float(h2) / h, xOffset);
 	}
 	else
@@ -231,11 +231,18 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 
 void HWWall::RenderTranslucentWall(HWDrawInfo *di, FRenderState &state)
 {
+	if (RenderStyle.BlendOp != STYLEOP_Add)
+	{
+		state.EnableBrightmap(false);
+	}
+
 	state.SetRenderStyle(RenderStyle);
+	state.SetTextureMode(RenderStyle);
 	if (!texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_threshold);
 	else state.AlphaFunc(Alpha_GEqual, 0.f);
 	RenderTexturedWall(di, state, HWWall::RWF_TEXTURED);
 	state.SetRenderStyle(STYLE_Translucent);
+	state.EnableBrightmap(true);
 }
 
 //==========================================================================
@@ -392,8 +399,17 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 	if (translucent || (texture && texture->GetTranslucency() && type == RENDERWALL_M2S))
 	{
 		flags |= HWF_TRANSLUCENT;
-		//ViewDistance = (di->Viewpoint.Pos - (seg->linedef->v1->fPos() + seg->linedef->Delta() / 2)).XY().LengthSquared();
+		ViewDistance = (di->Viewpoint.Pos.XY() - DVector2((glseg.x1 + glseg.x2) * 0.5f, (glseg.y1 + glseg.y2) * 0.5f)).LengthSquared();
 	}
+
+	if (texture->isHardwareCanvas())
+	{
+		tcs[UPLFT].v = 1.f - tcs[UPLFT].v;
+		tcs[LOLFT].v = 1.f - tcs[LOLFT].v;
+		tcs[UPRGT].v = 1.f - tcs[UPRGT].v;
+		tcs[LORGT].v = 1.f - tcs[LORGT].v;
+	}
+
 	
 	if (!screen->BuffersArePersistent())
 	{
@@ -405,22 +421,6 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 		*/
 		MakeVertices(di, translucent);
 	}
-
-	/*
-	bool hasDecals = type != RENDERWALL_M2S && seg->sidedef->AttachedDecals;
-	if (hasDecals)
-	{
-		// If we want to use the light infos for the decal we cannot delay the creation until the render pass.
-		if (screen->BuffersArePersistent())
-		{
-			if (di->Level->HasDynamicLights && !di->isFullbrightScene() && texture != nullptr)
-			{
-				SetupLights(di, lightdata);
-			}
-		}
-		ProcessDecals(di);
-	}
-	*/
 
 	di->AddWall(this);
 	// make sure that following parts of the same linedef do not get this one's vertex and lighting info.
@@ -569,12 +569,6 @@ bool HWWall::DoHorizon(HWDrawInfo* di, walltype* seg, sectortype* fs, DVector2& 
 		}
 		else
 		{
-			hi.plane.GetFromSector(fs, sector_t::ceiling);
-			hi.lightlevel = hw_ClampLight(fs->GetCeilingLight());
-			hi.colormap = fs->Colormap;
-			hi.specialcolor = fs->SpecialColors[sector_t::ceiling];
-
-			if (di->isFullbrightScene()) hi.colormap.Clear();
 			horizon = &hi;
 			PutPortal(di, PORTALTYPE_HORIZON, -1);
 		}
@@ -590,11 +584,6 @@ bool HWWall::DoHorizon(HWDrawInfo* di, walltype* seg, sectortype* fs, DVector2& 
 		}
 		else
 		{
-			hi.plane.GetFromSector(fs, sector_t::floor);
-			hi.lightlevel = hw_ClampLight(fs->GetFloorLight());
-			hi.colormap = fs->Colormap;
-			hi.specialcolor = fs->SpecialColors[sector_t::floor];
-
 			horizon = &hi;
 			PutPortal(di, PORTALTYPE_HORIZON, -1);
 		}
@@ -741,8 +730,8 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	float leftdist = xflipped ? 1.f - glseg.fracleft : glseg.fracleft;
 	float rightdist = xflipped ? 1.f - glseg.fracright : glseg.fracright;
 
-	float tw = texture->GetTexelWidth();
-	float th = texture->GetTexelHeight();
+	float tw = texture->GetDisplayWidth();
+	float th = texture->GetDisplayHeight();
 	int pow2size = 1 << sizeToBits(th);
 	if (pow2size < th) pow2size *= 2;
 	float ypanning = refwall->ypan_ ? pow2size * refwall->ypan_ / (256.0f * th) : 0;
@@ -766,7 +755,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	bool trans = type == RENDERWALL_M2S && (wal->cstat & CSTAT_WALL_TRANSLUCENT);
 	if (trans)
 	{
-		SetRenderStyleFromBlend(!!(wal->cstat & CSTAT_WALL_TRANSLUCENT), 0, !!(wal->cstat & CSTAT_WALL_TRANS_FLIP));
+		RenderStyle = GetRenderStyle(0, !!(wal->cstat & CSTAT_WALL_TRANS_FLIP));
 		alpha = GetAlphaFromBlend((wal->cstat & CSTAT_WALL_TRANS_FLIP) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
 	}
 	PutWall(di, trans);
@@ -833,7 +822,7 @@ void HWWall::DoLowerTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 	auto refwall = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? &wall[wal->nextwall] : wal;
 	refheight = (refwall->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->floorz;
 
-	shade = refwall->shade;
+	shade = clamp(refwall->shade, 0, numshades - 1);
 	palette = refwall->pal;
 	type = RENDERWALL_BOTTOM;
 	DoTexture(di, wal, refwall, refheight, topleft, topright, bottomleft, bottomright);
@@ -918,6 +907,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	this->seg = wal;
 	this->frontsector = frontsector;
 	this->backsector = backsector;
+	sprite = nullptr;
 	vertindex = 0;
 	vertcount = 0;
 
@@ -932,7 +922,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	glseg.fracright = 1;
 	flags = 0;
 	dynlightindex = -1;
-	shade = wal->shade;
+	shade = clamp(wal->shade, 0, numshades - 1);
 	palette = wal->pal;
 	fade = lookups.getFade(frontsector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(frontsector);
@@ -977,7 +967,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 		// normal texture
 
-		int tilenum = (wal->cstat & CSTAT_WALL_1WAY) ? wal->overpicnum : wal->picnum;
+		int tilenum = ((wal->cstat & CSTAT_WALL_1WAY) && wal->nextwall != -1) ? wal->overpicnum : wal->picnum;
 		setgotpic(tilenum);
 		tileUpdatePicnum(&tilenum, int(wal-wall) + 16384, wal->cstat);
 		texture = tileGetTexture(tilenum);
@@ -1067,3 +1057,112 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	globalr = globalg = globalb = 255;
 }
 
+void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sector)
+{
+	auto tex = tileGetTexture(spr->picnum);
+	if (!tex || !tex->isValid()) return;
+
+	seg = nullptr;
+	sprite = spr;
+	vec2_t pos[2];
+	int sprz = spr->pos.z;
+
+	if (spr->cstat & CSTAT_SPRITE_ONE_SIDED)
+	{
+		DAngle sprang = buildang(spr->ang).asdeg();
+		DAngle lookang = bamang(di->Viewpoint.RotAngle).asdeg();
+		if ((sprang.ToVector() | lookang.ToVector()) >= 0.) return;
+	}
+
+	vertindex = 0;
+	vertcount = 0;
+	type = RENDERWALL_M2S;
+	frontsector = sector;
+	backsector = sector;
+	texture = tex;
+
+	flags = 0;
+	dynlightindex = -1;
+	shade = clamp(spr->shade, 0, numshades - 1);
+	palette = spr->pal;
+	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
+	visibility = sectorVisibility(sector);
+
+	bool trans = (sprite->cstat & CSTAT_SPRITE_TRANSLUCENT);
+	if (trans)
+	{
+		RenderStyle = GetRenderStyle(0, !!(sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
+		alpha = GetAlphaFromBlend((sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+	}
+	else
+	{
+		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
+		alpha = 1.f;
+	}
+
+
+	GetWallSpritePosition(spr, spr->pos.vec2, pos, true);
+
+	int height, topofs;
+	if (hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+	{
+		height = TileFiles.tiledata[spr->picnum].h_ysize;
+		topofs = (TileFiles.tiledata[spr->picnum].h_yoffs + spr->yoffset);
+	}
+	else
+	{
+		height = (int)tex->GetDisplayHeight();
+		topofs = ((int)tex->GetDisplayTopOffset() + spr->yoffset);
+	}
+
+	if (spr->cstat & CSTAT_SPRITE_YFLIP)
+		topofs = -topofs;
+
+	sprz -= ((topofs * spr->yrepeat) << 2);
+
+	if (spr->cstat & CSTAT_SPRITE_YCENTER)
+	{
+		sprz += ((height * spr->yrepeat) << 1);
+		if (height & 1) sprz += (spr->yrepeat << 1);  // Odd yspans (taken from polymost as-is)
+	}
+
+	glseg.fracleft = 0;
+	glseg.fracright = 1;
+	glseg.x1 = pos[0].x * (1 / 16.f);
+	glseg.y1 = pos[0].y * (1 / -16.f);
+	glseg.x2 = pos[1].x * (1 / 16.f);
+	glseg.y2 = pos[1].y * (1 / -16.f);
+	tcs[LOLFT].u = tcs[UPLFT].u = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 1.f : 0.f;
+	tcs[LORGT].u = tcs[UPRGT].u = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
+	tcs[UPLFT].v = tcs[UPRGT].v = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 1.f : 0.f;
+	tcs[LOLFT].v = tcs[LORGT].v = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
+
+	zbottom[0] = zbottom[1] = (sprz) * (1 / -256.);
+	ztop[0] = ztop[1] =  (sprz - ((height * spr->yrepeat) << 2)) * (1 / -256.);
+
+
+	// Clip sprites to ceilings/floors
+	float origz = ztop[0];
+	float polyh = (zbottom[0] - origz);
+	if (!(sector->ceilingstat & CSTAT_SECTOR_SKY))
+	{
+		float ceilingz = sector->ceilingz * (1 / -256.f);
+		if (ceilingz < ztop[0] && ceilingz > zbottom[0])
+		{
+			float newv = (ceilingz - origz) / polyh;
+			tcs[UPLFT].v = tcs[UPRGT].v = newv;
+			ztop[0] = ztop[1] = ceilingz;
+		}
+	}
+	if (!(sector->floorstat & CSTAT_SECTOR_SKY))
+	{
+		float floorz = sector->floorz * (1 / -256.f);
+		if (floorz < ztop[0] && floorz > zbottom[0])
+		{
+			float newv = (floorz - origz) / polyh;
+			tcs[LOLFT].v = tcs[LORGT].v = newv;
+			zbottom[0] = zbottom[1] = floorz;
+		}
+	}
+	PutWall(di, trans);
+}

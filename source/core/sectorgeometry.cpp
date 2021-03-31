@@ -138,14 +138,14 @@ public:
 		cosalign = vang.Cos();
 		sinalign = vang.Sin();
 
-		int pow2width = 1 << sizeToBits(tx->GetTexelWidth());
-		if (pow2width < tx->GetTexelWidth()) pow2width *= 2;
+		int pow2width = 1 << sizeToBits((int)tx->GetDisplayWidth());
+		if (pow2width < (int)tx->GetDisplayWidth()) pow2width *= 2;
 
-		int pow2height = 1 << sizeToBits(tx->GetTexelHeight());
-		if (pow2height < tx->GetTexelHeight()) pow2height *= 2;
+		int pow2height = 1 << sizeToBits((int)tx->GetDisplayHeight());
+		if (pow2height < (int)tx->GetDisplayHeight()) pow2height *= 2;
 
-		xpanning = pow2width * xpan / (256.f * tx->GetTexelWidth());
-		ypanning = pow2height * ypan / (256.f * tx->GetTexelHeight());
+		xpanning = pow2width * xpan / (256.f * tx->GetDisplayWidth());
+		ypanning = pow2height * ypan / (256.f * tx->GetDisplayHeight());
 
 		float scalefactor = (stat & CSTAT_SECTOR_TEXHALF) ? 8.0f : 16.0f;
 
@@ -163,8 +163,8 @@ public:
 			}
 		}
 
-		xscaled = scalefactor * tx->GetTexelWidth();
-		yscaled = scalefactor * tx->GetTexelHeight();
+		xscaled = scalefactor * (int)tx->GetDisplayWidth();
+		yscaled = scalefactor * (int)tx->GetDisplayHeight();
 	}
 
 	FVector2 GetUV(int x, int y, float z)
@@ -224,18 +224,39 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 
 	polygon.resize(1);
 	curPoly = &polygon.back();
+	FixedBitArray<MAXWALLSB> done;
 
-	for (int i = 0; i < numvertices; i++)
+	int fz = sec->floorz, cz = sec->ceilingz;
+	sec->floorz = sec->ceilingz = 0;
+
+	int vertstoadd = numvertices;
+
+	done.Zero();
+	while (vertstoadd > 0)
 	{
-		auto wal = &wall[sec->wallptr + i];
-
-		float X = WallStartX(wal);
-		float Y = WallStartY(wal);
-		curPoly->push_back(std::make_pair(X, Y));
-		if (wal->point2 != sec->wallptr+i+1 && i < numvertices - 1)
+		int start = 0;
+		while (done[start] && start < numvertices) start++;
+		int s = start;
+		if (start < numvertices)
 		{
+			while (!done[start])
+			{
+				auto wallp = &wall[sec->wallptr + start];
+				float X = WallStartX(wallp);
+				float Y = WallStartY(wallp);
+				if (fabs(X) > 32768. || fabs(Y) > 32768.)
+				{
+					// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
+					return;
+				}
+				curPoly->push_back(std::make_pair(X, Y));
+				done.Set(start);
+				vertstoadd--;
+				start = wallp->point2 - sec->wallptr;
+			}
 			polygon.resize(polygon.size() + 1);
 			curPoly = &polygon.back();
+			assert(start == s);
 		}
 	}
 	// Now make sure that the outer boundary is the first polygon by picking a point that's as much to the outside as possible.
@@ -284,6 +305,10 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 		entry.vertices[i] = pt;
 		entry.texcoords[i] = uvcalc.GetUV(int(pt.X * 16), int(pt.Y * -16), pt.Z);
 	}
+
+	sec->floorz = fz;
+	sec->ceilingz = cz;
+
 }
 
 //==========================================================================
@@ -295,7 +320,7 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 {
 	auto sec = &sector[secnum];
-	auto compare = &data[secnum].compare;
+	auto compare = &data[secnum].compare[plane];
 	if (plane == 0)
 	{
 		if (sec->floorheinum == compare->floorheinum &&
@@ -303,7 +328,8 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 			((sec->floorstat ^ compare->floorstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->floorxpan_ == compare->floorxpan_ &&
 			sec->floorypan_ == compare->floorypan_ &&
-			sec->floorz == compare->floorz &&
+			wall[sec->wallptr].pos == data[secnum].poscompare[0] &&
+			wall[wall[sec->wallptr].point2].pos == data[secnum].poscompare2[0] &&
 			!(sec->dirty & 1) && data[secnum].planes[plane].vertices.Size() ) return;
 
 		sec->dirty &= ~1;
@@ -315,11 +341,14 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 			((sec->ceilingstat ^ compare->ceilingstat) & (CSTAT_SECTOR_ALIGN | CSTAT_SECTOR_YFLIP | CSTAT_SECTOR_XFLIP | CSTAT_SECTOR_TEXHALF | CSTAT_SECTOR_SWAPXY)) == 0 &&
 			sec->ceilingxpan_ == compare->ceilingxpan_ &&
 			sec->ceilingypan_ == compare->ceilingypan_ &&
-			sec->ceilingz == compare->ceilingz &&
-			!(sec->dirty & 2) && data[secnum].planes[plane].vertices.Size()) return;
+			wall[sec->wallptr].pos == data[secnum].poscompare[1] &&
+			wall[wall[sec->wallptr].point2].pos == data[secnum].poscompare2[1] &&
+			!(sec->dirty & 2) && data[secnum].planes[1].vertices.Size()) return;
 
 		sec->dirty &= ~2;
 	}
 	*compare = *sec;
+	data[secnum].poscompare[plane] = wall[sec->wallptr].pos;
+	data[secnum].poscompare2[plane] = wall[wall[sec->wallptr].point2].pos;
 	MakeVertices(secnum, plane);
 }

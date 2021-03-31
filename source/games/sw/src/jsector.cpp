@@ -464,7 +464,7 @@ void JS_InitMirrors(void)
 //  Draw a 3d screen to a specific tile
 /////////////////////////////////////////////////////
 void drawroomstotile(int daposx, int daposy, int daposz,
-                     binangle ang, fixedhoriz horiz, short dacursectnum, short tilenume)
+                     binangle ang, fixedhoriz horiz, short dacursectnum, short tilenume, double smoothratio)
 {
 	TileFiles.MakeCanvas(tilenume, tileWidth(tilenume), tileHeight(tilenume));
 
@@ -481,7 +481,7 @@ void drawroomstotile(int daposx, int daposy, int daposz,
             }
             else
             {
-                render_drawrooms(nullptr, { daposx, daposy, daposz }, dacursectnum, ang, horiz, buildlook(0));
+                render_camtex(nullptr, { daposx, daposy, daposz }, dacursectnum, ang, horiz, buildlook(0), tileGetTexture(tilenume), rect, smoothratio);
             }
         });
 
@@ -540,7 +540,7 @@ short camplayerview = 1;                // Don't show yourself!
 // Hack job alert!
 // Mirrors and cameras are maintained in the same data structure, but for hardware rendering they cannot be interleaved.
 // So this function replicates JS_DrawMirrors to only process the camera textures but not change any global state.
-void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
+void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
 {
     int j, cnt;
     int dist;
@@ -721,11 +721,11 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
 
                             if (TEST_BOOL11(sp) && numplayers > 1)
                             {
-                                drawroomstotile(cp->posx, cp->posy, cp->posz, cp->angle.ang, cp->horizon.horiz, cp->cursectnum, mirror[cnt].campic);
+                                drawroomstotile(cp->posx, cp->posy, cp->posz, cp->angle.ang, cp->horizon.horiz, cp->cursectnum, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {
-                                drawroomstotile(sp->x, sp->y, sp->z, buildang(SP_TAG5(sp)), buildhoriz(camhoriz), sp->sectnum, mirror[cnt].campic);
+                                drawroomstotile(sp->x, sp->y, sp->z, buildang(SP_TAG5(sp)), buildhoriz(camhoriz), sp->sectnum, mirror[cnt].campic, smoothratio);
                             }
                         }
                     }
@@ -734,6 +734,36 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
         }
     }
 }
+
+// Workaround until the camera code can be refactored to process all camera textures that were visible last frame.
+// Need to stash the parameters for later use. This is only used to find the nearest camera.
+static PLAYERp cam_pp;
+static int cam_tx, cam_ty, cam_tz;
+static int oldstat;
+
+void JS_CameraParms(PLAYERp pp, int tx, int ty, int tz)
+{
+    cam_pp = pp;
+    cam_tx = tx;
+    cam_ty = ty;
+    cam_tz = tz;
+}
+
+void GameInterface::UpdateCameras(double smoothratio)
+{
+    JS_DrawCameras(cam_pp, cam_tx, cam_ty, cam_tz, smoothratio);
+}
+
+void GameInterface::EnterPortal(spritetype* viewer, int type)
+{
+    if (type == PORTAL_WALL_MIRROR) display_mirror++;
+}
+
+void GameInterface::LeavePortal(spritetype* viewer, int type)
+{
+    if (type == PORTAL_WALL_MIRROR) display_mirror--;
+}
+
 
 void
 DoAutoSize(tspriteptr_t tspr)

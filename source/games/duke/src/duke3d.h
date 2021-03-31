@@ -66,6 +66,9 @@ struct GameInterface : public ::GameInterface
 	int chaseCamY(binangle ang) { return -ang.bsin(-4); }
 	int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() >> 9; }
 	void processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+	void UpdateCameras(double smoothratio) override;
+	void EnterPortal(spritetype* viewer, int type) override;
+	void LeavePortal(spritetype* viewer, int type) override;
 
 };
 

@@ -1192,7 +1192,7 @@ void CollectPortals()
             }
         }
     }
-    testnewrenderer = false;
+    testnewrenderer = t;
 }
 
 

@@ -208,13 +208,26 @@ void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pceilz, f
 //
 //==========================================================================
 
-void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out)
+void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render)
 {
+	auto tex = tileGetTexture(spr->picnum);
+
+	int width, leftofs;
+	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+	{
+		width = TileFiles.tiledata[spr->picnum].h_xsize;
+		leftofs = (TileFiles.tiledata[spr->picnum].h_xoffs + spr->xoffset);
+	}
+	else
+	{
+		width = (int)tex->GetDisplayWidth();
+		leftofs = ((int)tex->GetDisplayLeftOffset() + spr->xoffset);
+	}
+
 	int x = bsin(spr->ang) * spr->xrepeat;
 	int y = -bcos(spr->ang) * spr->xrepeat;
-	int width = tileWidth(spr->picnum);
 
-	int xoff = tileLeftOffset(spr->picnum) + spr->xoffset;
+	int xoff = leftofs + spr->xoffset;
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoff = -xoff;
 	int origin = (width >> 1) + xoff;
 
@@ -231,13 +244,25 @@ void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out)
 //
 //==========================================================================
 
-void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out)
+void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render)
 {
 	auto tex = tileGetTexture(spr->picnum);
-	int width = tex->GetTexelWidth() * spr->xrepeat;
-	int height = tex->GetTexelHeight() * spr->yrepeat;
-	int leftofs = (tex->GetTexelLeftOffset() + spr->xoffset) * spr->xrepeat;
-	int topofs = (tex->GetTexelTopOffset() + spr->yoffset) * spr->yrepeat;
+
+	int width, height, leftofs, topofs;
+	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+	{
+		width = TileFiles.tiledata[spr->picnum].h_xsize * spr->xrepeat;
+		height = TileFiles.tiledata[spr->picnum].h_ysize * spr->yrepeat;
+		leftofs = (TileFiles.tiledata[spr->picnum].h_xoffs + spr->xoffset) * spr->xrepeat;
+		topofs = (TileFiles.tiledata[spr->picnum].h_yoffs + spr->yoffset) * spr->yrepeat;
+	}
+	else
+	{
+		width = (int)tex->GetDisplayWidth() * spr->xrepeat;
+		height = (int)tex->GetDisplayHeight() * spr->yrepeat;
+		leftofs = ((int)tex->GetDisplayLeftOffset() + spr->xoffset) * spr->xrepeat;
+		topofs = ((int)tex->GetDisplayTopOffset() + spr->yoffset) * spr->yrepeat;
+	}
 
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) leftofs = -leftofs;
 	if (spr->cstat & CSTAT_SPRITE_YFLIP) topofs = -topofs;

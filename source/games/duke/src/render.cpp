@@ -76,7 +76,7 @@ void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, bina
 
 		se40code(x, y, z, a, h, smoothratio);
 		renderMirror(x, y, z, a, h, smoothratio);
-		renderDrawRoomsQ16(x, y, z - (4 << 8), a.asq16(), h.asq16(), sectnum);
+		renderDrawRoomsQ16(x, y, z, a.asq16(), h.asq16(), sectnum);
 		fi.animatesprites(x, y, a.asbuild(), smoothratio);
 		renderDrawMasks();
 	}
@@ -92,7 +92,7 @@ void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, bina
 //
 //---------------------------------------------------------------------------
 
-void animatecamsprite(double smoothratio)
+void GameInterface::UpdateCameras(double smoothratio)
 {
 	const int VIEWSCREEN_ACTIVE_DISTANCE = 8192;
 
@@ -122,16 +122,26 @@ void animatecamsprite(double smoothratio)
 					// Note: no ROR or camera here - Polymost has no means to detect these things before rendering the scene itself.
 					renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sectnum); // why 'shade'...?
 					fi.animatesprites(camera->x, camera->y, ang.asbuild(), smoothratio);
+					renderDrawMasks();
 				}
 				else
 				{
-					render_drawrooms(camera, camera->pos, camera->sectnum, ang, buildhoriz(camera->shade), buildlook(0));
+					render_camtex(camera, camera->pos, camera->sectnum, ang, buildhoriz(camera->shade), buildlook(0), tex, rect, smoothratio);
 				}
 				display_mirror = 0;
-				renderDrawMasks();
 			});
 		renderRestoreTarget();
 	}
+}
+
+void GameInterface::EnterPortal(spritetype* viewer, int type)
+{
+	if (type == PORTAL_WALL_MIRROR) display_mirror++;
+}
+
+void GameInterface::LeavePortal(spritetype* viewer, int type) 
+{
+	if (type == PORTAL_WALL_MIRROR) display_mirror--;
 }
 
 //---------------------------------------------------------------------------
@@ -259,7 +269,7 @@ void displayrooms(int snum, double smoothratio)
 	DoInterpolations(smoothratio / 65536.);
 
 	setgamepalette(BASEPAL);
-	animatecamsprite(smoothratio);
+	if (!testnewrenderer) gi->UpdateCameras(smoothratio);	// Only Polymost does this here. The new renderer calls this internally.
 
 	if (ud.cameraactor)
 	{
@@ -273,7 +283,7 @@ void displayrooms(int snum, double smoothratio)
 		cang = buildfang(ud.cameraactor->tempang + MulScaleF(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio, 16));
 
 		auto bh = buildhoriz(s->yvel);
-		renderView(s, s->sectnum, s->x, s->y, s->z, cang, bh, buildlook(0), smoothratio);
+		renderView(s, s->sectnum, s->x, s->y, s->z - (4 << 8), cang, bh, buildlook(0), smoothratio);
 	}
 	else
 	{

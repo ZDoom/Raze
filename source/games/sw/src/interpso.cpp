@@ -69,7 +69,7 @@ static struct so_interp
     bool hasvator;
 } so_interpdata[MAX_SECTOR_OBJECTS];
 
-static int &getvalue(int element)
+static int &getvalue(int element, bool write)
 {
     static int scratch;
     int index = element & soi_base;
@@ -77,8 +77,10 @@ static int &getvalue(int element)
     switch (type)
     {
     case soi_wallx:
+        if (write) sector[wall[index].sector].dirty = 255;
         return wall[index].x;
     case soi_wally:
+        if (write) sector[wall[index].sector].dirty = 255;
         return wall[index].y;
     case soi_ceil:
         return sector[index].ceilingz;
@@ -116,7 +118,7 @@ static void so_setpointinterpolation(so_interp *interp, int element)
     data->curelement = element;
     data->oldipos =
         data->lastipos =
-        data->lastoldipos = getvalue(element);
+        data->lastoldipos = getvalue(element, false);
     data->spriteofang = -1;
 }
 
@@ -268,7 +270,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
                 data->oldipos = sprite[data->spriteofang].ang;
             }
             else
-                data->oldipos = getvalue(data->curelement);
+                data->oldipos = getvalue(data->curelement, false);
 
             if (!interpolating)
                 data->lastipos = data->lastoldipos = data->oldipos;
@@ -297,7 +299,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
         for (i = 0; i < interp->numinterpolations; i++)
             interp->data[i].bakipos = (interp->data[i].spriteofang >= 0) ?
                                       sprite[interp->data[i].spriteofang].ang :
-                                      getvalue(interp->data[i].curelement);
+                                      getvalue(interp->data[i].curelement, false);
 
         if (interp->tic == 0) // Only if the SO has just moved
         {
@@ -361,7 +363,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             else
             {
                 delta = data->lastipos - data->lastoldipos;
-                getvalue(data->curelement) = data->lastoldipos + MulScale(delta, ratio, 16);
+                getvalue(data->curelement, true) = data->lastoldipos + MulScale(delta, ratio, 16);
             }
         }
     }
@@ -385,7 +387,7 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
             if (data->spriteofang >= 0)
                 sprite[data->spriteofang].ang = data->bakipos;
             else
-                getvalue(data->curelement) = data->bakipos;
+                getvalue(data->curelement, true) = data->bakipos;
     }
 }
 

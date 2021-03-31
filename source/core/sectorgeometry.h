@@ -14,7 +14,9 @@ struct SectorGeometryPlane
 struct SectorGeometryData
 {
 	SectorGeometryPlane planes[2];
-	sectortype compare{};
+	sectortype compare[2] = {};
+	vec2_t poscompare[2] = {};
+	vec2_t poscompare2[2] = {};
 };
 
 class SectorGeometry
