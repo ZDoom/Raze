@@ -60,6 +60,7 @@ enum
 
 constexpr double BAngRadian = pi::pi() * (1. / 1024.);
 constexpr double BRadAngScale = 1. / BAngRadian;
+constexpr double BAngToDegree = 360. / 2048.;
 
 
 //---------------------------------------------------------------------------

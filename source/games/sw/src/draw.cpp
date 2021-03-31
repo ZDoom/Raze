@@ -1825,7 +1825,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                             double sc = MulScale(czoom * (spr->yrepeat), yxaspect, 16) / 32768.;
                             if (spnum >= 0)
                             {
-                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xd, yd, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * (-360. / 2048),
+                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xd, yd, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * -BAngToDegree,
                                     DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, spr->pal), DTA_Color, shadeToLight(spr->shade),
                                     DTA_Alpha, (spr->cstat & 2) ? 0.33 : 1., TAG_DONE);
                             }

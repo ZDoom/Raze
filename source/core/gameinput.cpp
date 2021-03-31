@@ -154,8 +154,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	int const keymove = gi->playerKeyMove() << running;
 	int const cntrlvelscale = g_gameType & GAMEFLAG_PSEXHUMED ? 8 : 1;
 	float const mousevelscale = keymove / 160.f;
-	double const angtodegscale = 360. / 2048.;
-	double const hidspeed = ((running ? 1585. : 867.5) / GameTicRate) * angtodegscale;
+	double const hidspeed = ((running ? 1585. : 867.5) / GameTicRate) * BAngToDegree;
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
@@ -199,7 +198,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		// allow Exhumed to use its legacy values given the drastic difference from the other games.
 		if ((g_gameType & GAMEFLAG_PSEXHUMED) && cl_exhumedoldturn)
 		{
-			preambleturn = turnamount = (running ? 12 : 8) * angtodegscale;
+			preambleturn = turnamount = (running ? 12 : 8) * BAngToDegree;
 		}
 
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))

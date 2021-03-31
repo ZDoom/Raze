@@ -413,8 +413,8 @@ public:
 			p->drunkang = 400;
 		}
 		
-		DrawRotated(tileGetTexture(GUTMETER), 256, top + 15, DI_ITEM_RELCENTER, p->drunkang * (-360. / 2048), 1, scale, scale, 0xffffffff, 0);
-		DrawRotated(tileGetTexture(GUTMETER), 292, top + 15, DI_ITEM_RELCENTER, p->eatang * (-360. / 2048), 1, scale, scale, 0xffffffff, 0);
+		DrawRotated(tileGetTexture(GUTMETER), 256, top + 15, DI_ITEM_RELCENTER, p->drunkang * -BAngToDegree, 1, scale, scale, 0xffffffff, 0);
+		DrawRotated(tileGetTexture(GUTMETER), 292, top + 15, DI_ITEM_RELCENTER, p->eatang * -BAngToDegree, 1, scale, scale, 0xffffffff, 0);
 
 		if (p->drink_amt >= 0 && p->drink_amt <= 30)
 		{

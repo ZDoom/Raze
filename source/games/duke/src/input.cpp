@@ -755,7 +755,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 	}
 
 	input.fvel = xs_CRoundToInt(p->MotoSpeed);
-	input.avel *= (45. / 256.);
+	input.avel *= BAngToDegree;
 	loc.avel += input.avel;
 }
 
