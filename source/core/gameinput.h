@@ -97,9 +97,9 @@ struct PlayerHorizon
 
 struct PlayerAngle
 {
-	binangle ang, oang;
+	binangle ang, oang, target;
 	lookangle look_ang, olook_ang, rotscrnang, orotscrnang, spin;
-	double adjustment, target;
+	double adjustment;
 
 	void backup()
 	{
@@ -172,12 +172,12 @@ struct PlayerAngle
 	{
 		if (!SyncInput() && !backup)
 		{
-			target = (ang + getincanglebam(ang, buildang(value))).asbam();
-			if (target == 0) target += 1;
+			target = buildang(value & 2047);
+			if (target.asbam() == 0) target = bamang(1);
 		}
 		else
 		{
-			ang = buildang(value);
+			ang = buildang(value & 2047);
 			if (backup) oang = ang;
 		}
 	}
@@ -186,12 +186,12 @@ struct PlayerAngle
 	{
 		if (!SyncInput() && !backup)
 		{
-			target = (ang + getincanglebam(ang, buildfang(value))).asbam();
-			if (target == 0) target += 1;
+			target = buildfang(fmod(value, 2048));
+			if (target.asbam() == 0) target = bamang(1);
 		}
 		else
 		{
-			ang = buildfang(value);
+			ang = buildfang(fmod(value, 2048));
 			if (backup) oang = ang;
 		}
 	}
@@ -200,8 +200,8 @@ struct PlayerAngle
 	{
 		if (!SyncInput() && !backup)
 		{
-			target = (ang + getincanglebam(ang, value)).asbam();
-			if (target == 0) target += 1;
+			target = value;
+			if (target.asbam() == 0) target = bamang(1);
 		}
 		else
 		{
@@ -212,14 +212,14 @@ struct PlayerAngle
 
 	void processhelpers(double const scaleAdjust)
 	{
-		if (target)
+		if (target.asbam())
 		{
-			ang += bamang(xs_CRoundToUInt(scaleAdjust * (target - ang.asbam())));
+			ang += bamang(xs_CRoundToUInt(scaleAdjust * getincanglebam(ang, target).asbam()));
 
-			if (abs(ang.asbam() - target) < BAMUNIT)
+			if (getincanglebam(ang, target).asbam() < BAMUNIT)
 			{
-				ang = bamang(target);
-				target = 0;
+				ang = target;
+				target = bamang(0);
 			}
 		}
 		else if (adjustment)
