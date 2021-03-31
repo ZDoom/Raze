@@ -225,6 +225,9 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 	polygon.resize(1);
 	curPoly = &polygon.back();
 
+	int fz = sec->floorz, cz = sec->ceilingz;
+	sec->floorz = sec->ceilingz = 0;
+
 	for (int i = 0; i < numvertices; i++)
 	{
 		auto wal = &wall[sec->wallptr + i];
@@ -268,13 +271,9 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 		for (auto& pt : polygon[a])
 		{
 			float planez;
-			int fz = sec->floorz, cz = sec->ceilingz;
-			sec->floorz = sec->ceilingz = 0;
 			PlanesAtPoint(sec, (pt.first * 16), (pt.second * -16), plane ? &planez : nullptr, !plane ? &planez : nullptr);
 			FVector3 point = { pt.first, pt.second, planez };
 			points[p++] = point;
-			sec->floorz = fz;
-			sec->ceilingz = cz;
 		}
 	}
 	
@@ -293,6 +292,10 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 		entry.vertices[i] = pt;
 		entry.texcoords[i] = uvcalc.GetUV(int(pt.X * 16), int(pt.Y * -16), pt.Z);
 	}
+
+	sec->floorz = fz;
+	sec->ceilingz = cz;
+
 }
 
 //==========================================================================
