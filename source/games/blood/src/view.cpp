@@ -857,7 +857,7 @@ FString GameInterface::GetCoordString()
     FString out;
 
     out.Format("pos= %d, %d, %d - angle = %2.3f",
-        gMe->pSprite->x, gMe->pSprite->y, gMe->pSprite->z, gMe->pSprite->ang * (360./2048));
+        gMe->pSprite->x, gMe->pSprite->y, gMe->pSprite->z, gMe->pSprite->ang * BAngToDegree);
 
     return out;
 }

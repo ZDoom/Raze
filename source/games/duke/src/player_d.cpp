@@ -2611,7 +2611,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			fi.shoot(pact, RPG);
 			checkavailweapon(p);
 		}
-		else if (p->kickback_pic == (cl_dukefixrpgrecoil ? 13 : 20))
+		else if (p->kickback_pic == 20)
 			p->okickback_pic = p->kickback_pic = 0;
 		break;
 		}
