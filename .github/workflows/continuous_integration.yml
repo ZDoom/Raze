@@ -39,7 +39,7 @@ jobs:
             name: "Linux GCC 7",
             os: ubuntu-20.04,
             extra_options: "-DCMAKE_C_COMPILER=/usr/bin/gcc-7 -DCMAKE_CXX_COMPILER=/usr/bin/g++-7",
-            deps_cmdline: "sudo apt update && sudo apt install libsdl2-dev libvpx-dev libgtk2.0-dev",
+            deps_cmdline: "sudo apt update && sudo apt install libsdl2-dev libvpx-dev libgtk2.0-dev gcc-7 g++-7",
             build_type: "RelWithDebInfo"
           }
         - {
