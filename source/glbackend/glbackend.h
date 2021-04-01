@@ -138,6 +138,7 @@ public:
 
 	void SetShade(int32_t shade, int numshades)
 	{
+		renderState.drawblack = shade > numshades;
 		renderState.Shade = std::min(shade, numshades-1);
 	}
 

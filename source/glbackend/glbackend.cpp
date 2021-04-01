@@ -206,7 +206,8 @@ bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		state.SetMaterial(mMaterial.mTexture, mMaterial.uFlags, mMaterial.mScaleFlags, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
 	}
 
-	state.SetColor(Color[0], Color[1], Color[2], Color[3]);
+	if (!drawblack) state.SetColor(Color[0], Color[1], Color[2], Color[3]);
+	else state.SetColor(0, 0, 0, Color[3]);
 	if (StateFlags != oldState.Flags)
 	{
 		state.EnableDepthTest(StateFlags & STF_DEPTHTEST);

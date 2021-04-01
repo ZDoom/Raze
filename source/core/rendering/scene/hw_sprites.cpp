@@ -114,6 +114,15 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 	bool foggy = (GlobalMapFog || (fade & 0xffffff));
 	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
 	// Disable brightmaps if non-black fog is used.
+	int shade = this->shade;
+	PalEntry color(255, globalr, globalg, globalb);
+	if (this->shade > numshades) // handling of SW's shadow hack using a shade of 127.
+	{
+		shade = sector[sprite->sectnum].floorshade;
+		color = 0xff000000;
+	}
+	shade = clamp(shade, 0, numshades - 1);
+
 	if (ShadeDiv >= 1 / 1000.f && foggy && !foglayer)
 	{
 		state.EnableFog(1);
@@ -131,7 +140,7 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 	}
 
 	// The shade rgb from the tint is ignored here.
-	state.SetColorAlpha(PalEntry(255, globalr, globalg, globalb), alpha);
+	state.SetColorAlpha(color, alpha);
 
 	state.SetMaterial(texture, UF_Texture, 0, CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
@@ -320,7 +329,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 
 	modelframe = 0;
 	dynlightindex = -1;
-	shade = clamp(spr->shade, 0, numshades-1);
+	shade = spr->shade;
 	palette = spr->pal;
 	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(sector);

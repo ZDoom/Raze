@@ -69,6 +69,7 @@ struct PolymostRenderState
 {
 	int vindex, vcount, primtype;
     int Shade;
+	int drawblack = false;
 	float ShadeDiv = 62.f;
 	float VisFactor = 128.f;
 	int Flags = 0;
