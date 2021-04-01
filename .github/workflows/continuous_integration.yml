@@ -25,13 +25,13 @@ jobs:
         - {
             name: "macOS",
             os: macos-10.15,
-            extra_options: "-DDYN_FLUIDSYNTH=OFF -DDYN_OPENAL=OFF -DDYN_SNDFILE=OFF -DDYN_MPG123=OFF",
             deps_cmdline: "brew install libvpx",
             build_type: "Release"
           }
         - {
             name: "macOS",
             os: macos-10.15,
+            extra_options: "-DDYN_FLUIDSYNTH=OFF -DDYN_OPENAL=OFF -DDYN_SNDFILE=OFF -DDYN_MPG123=OFF",
             deps_cmdline: "brew install libvpx fluidsynth mpg123 libsndfile",
             build_type: "Debug"
           }
