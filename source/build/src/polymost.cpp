@@ -1818,7 +1818,7 @@ static void polymost_drawalls(int32_t const bunch)
         domostpolymethod = DAMETH_NOMASK;
 
         if (nextsectnum >= 0)
-            if ((!(gotsector[nextsectnum>>3]& (1<<(nextsectnum&7)))) && testvisiblemost(x0,x1))
+            if (!gotsector[nextsectnum] && testvisiblemost(x0,x1))
                 polymost_scansector(nextsectnum);
     }
 }
@@ -1919,7 +1919,7 @@ void polymost_scansector(int32_t sectnum)
             }
         }
 
-        gotsector[sectnum>>3] |= 1<<(sectnum&7);
+        gotsector.Set(sectnum);
 
         int const bunchfrst = numbunches;
         int const onumscans = numscans;
@@ -1942,7 +1942,7 @@ void polymost_scansector(int32_t sectnum)
             int const nextsectnum = wal->nextsector; //Scan close sectors
 
             if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < countof(sectorborder))
-            if ((gotsector[nextsectnum>>3]&(1<<(nextsectnum&7))) == 0)
+            if (gotsector[nextsectnum] == 0)
             {
                 double const d = fp1.X* fp2.Y - fp2.X * fp1.Y;
                 DVector2 const p1 = fp2 - fp1;
@@ -1952,7 +1952,7 @@ void polymost_scansector(int32_t sectnum)
                 if (d*d < (p1.LengthSquared()) * 256.f)
                 {
                     sectorborder[sectorbordercnt++] = nextsectnum;
-                    gotsector[nextsectnum>>3] |= 1<<(nextsectnum&7);
+                    gotsector.Set(nextsectnum);
                 }
             }
 
@@ -3355,7 +3355,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     global100horiz = dahoriz;
 
-    memset(gotsector, 0, sizeof(gotsector));
+    gotsector.Zero();
     qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16) + IntToFixed(ydimen >> 1);
     globalcursectnum = dacursectnum;
     Polymost::polymost_drawrooms();

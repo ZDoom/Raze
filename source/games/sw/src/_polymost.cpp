@@ -134,7 +134,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
     while ((i = it.NextIndex()) >= 0)
     {
         // manually set gotpic
-        if (TEST_GOTSECTOR(sprite[i].sectnum))
+        if (gotsector[sprite[i].sectnum])
         {
             SET_GOTPIC(FAF_MIRROR_PIC);
         }

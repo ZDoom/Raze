@@ -209,7 +209,7 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 
 //---------------------------------------------------------------------------
 //
-// 'rest' in this case means everything not part of the 3D scene and its weapon sprite.
+// draws everything not part of the 3D scene and its weapon sprite.
 //
 //---------------------------------------------------------------------------
 

@@ -271,7 +271,7 @@ EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
 EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
-EXTERN char gotsector[(MAXSECTORS+7)>>3];
+extern FixedBitArray<MAXSECTORS> gotsector;
 
 
 extern uint32_t drawlinepat;

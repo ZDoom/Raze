@@ -1446,12 +1446,6 @@ void RestorePortalState()
     StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while ((i = it.NextIndex()) >= 0)
     {
-        // manually set gotpic
-        if (TEST_GOTSECTOR(sprite[i].sectnum))
-        {
-            SET_GOTPIC(FAF_MIRROR_PIC);
-        }
-
         if (SPRITE_TAG3(i) == 0)
         {
             // restore ceilingpicnum and ceilingstat
@@ -1794,7 +1788,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                         x1 = sprx - cposx;
                         y1 = spry - cposy;
 
-                        if (((gotsector[i >> 3] & (1 << (i & 7))) > 0) && (czoom > 192))
+                        if (czoom > 192)
                         {
                             daang = ((!SyncInput() ? spr->ang : spr->interpolatedang(smoothratio)) - cang) & 2047;
 

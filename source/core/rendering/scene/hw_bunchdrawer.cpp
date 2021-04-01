@@ -453,6 +453,8 @@ void BunchDrawer::ProcessSector(int sectnum)
 	}
 	SetupSprite.Unclock();
 
+	if (automapping)
+		show2dsector.Set(sectnum);
 
 	SetupFlat.Clock();
 	HWFlat flat;

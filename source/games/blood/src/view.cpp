@@ -725,7 +725,7 @@ void viewDrawScreen(bool sceneonly)
             int nXSprite = pSprite->extra;
             assert(nXSprite > 0 && nXSprite < kMaxXSprites);
             XSPRITE* pXSprite = &xsprite[nXSprite];
-            if (TestBitString(gotsector, pSprite->sectnum))
+            if (gotsector[pSprite->sectnum])
             {
                 brightness += pXSprite->data3 * 32;
             }
@@ -739,7 +739,7 @@ void viewDrawScreen(bool sceneonly)
             case kMissileTeslaAlt:
             case kMissileFlareAlt:
             case kMissileTeslaRegular:
-                if (TestBitString(gotsector, pSprite->sectnum)) brightness += 256;
+                if (gotsector[pSprite->sectnum]) brightness += 256;
                 break;
             }
         }

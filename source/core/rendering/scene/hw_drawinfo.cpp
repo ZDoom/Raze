@@ -40,6 +40,7 @@
 #include "v_draw.h"
 #include "gamecvars.h"
 #include "gamestruct.h"
+#include "automap.h"
 
 EXTERN_CVAR(Float, r_visibility)
 CVAR(Bool, gl_bandedswlight, false, CVAR_ARCHIVE)
@@ -50,6 +51,8 @@ CVAR(Int, gl_enhanced_nv_stealth, 3, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, gl_texture, true, 0)
 CVAR(Float, gl_mask_threshold, 0.5f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Float, gl_mask_sprite_threshold, 0.5f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+FixedBitArray<MAXSECTORS> gotsector;
 
 //==========================================================================
 //
@@ -280,6 +283,9 @@ void HWDrawInfo::DispatchSprites()
 
 		if (spritenum < 0 || (unsigned)tilenum >= MAXTILES)
 			continue;
+
+		if (automapping == 1 && (unsigned)spritenum < MAXSPRITES)
+			show2dsprite.Set(spritenum);
 
 		setgotpic(tilenum);
 
@@ -648,4 +654,8 @@ void HWDrawInfo::ProcessScene(bool toscreen)
 {
 	portalState.BeginScene();
 	DrawScene(toscreen ? DM_MAINVIEW : DM_OFFSCREEN);
+	if (toscreen && isBlood())
+	{
+		gotsector = mDrawer.GotSector(); // Blood needs this to implement some lighting effect hacks. Needs to be refactored to use better info.
+	}
 }
