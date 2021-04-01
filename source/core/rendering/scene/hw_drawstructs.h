@@ -124,7 +124,6 @@ public:
 		HWF_SKYHACK=4,
 		HWF_NOSPLIT=64,
 		HWF_TRANSLUCENT = 128,
-		HWF_NOSLICE = 256
 	};
 
 	enum

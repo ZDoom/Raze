@@ -192,7 +192,7 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
 	//int tmode = state.GetTextureMode();
 
-	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr? CLAMP_NONE : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
+	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr? (flags & (HWF_CLAMPX | HWF_CLAMPY)) : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 	SetLightAndFog(state);
 
@@ -426,7 +426,7 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 	// make sure that following parts of the same linedef do not get this one's vertex and lighting info.
 	vertcount = 0;	
 	dynlightindex = -1;
-	flags &= ~HWF_TRANSLUCENT;
+	flags &= ~(HWF_TRANSLUCENT|HWF_CLAMPX|HWF_CLAMPY);
 }
 
 //==========================================================================
@@ -684,12 +684,6 @@ void HWWall::CheckTexturePosition()
 		tcs[UPRGT].v -= sub;
 		tcs[LOLFT].v -= sub;
 		tcs[LORGT].v -= sub;
-
-		if ((tcs[UPLFT].v == 0.f && tcs[UPRGT].v == 0.f && tcs[LOLFT].v <= 1.f && tcs[LORGT].v <= 1.f) ||
-			(tcs[UPLFT].v >= 0.f && tcs[UPRGT].v >= 0.f && tcs[LOLFT].v == 1.f && tcs[LORGT].v == 1.f))
-		{
-			flags |= HWF_CLAMPY;
-		}
 	}
 	else
 	{
@@ -705,13 +699,19 @@ void HWWall::CheckTexturePosition()
 		tcs[UPRGT].v -= sub;
 		tcs[LOLFT].v -= sub;
 		tcs[LORGT].v -= sub;
-
-		if ((tcs[LOLFT].v == 0.f && tcs[LORGT].v == 0.f && tcs[UPLFT].v <= 1.f && tcs[UPRGT].v <= 1.f) ||
-			(tcs[LOLFT].v >= 0.f && tcs[LORGT].v >= 0.f && tcs[UPLFT].v == 1.f && tcs[UPRGT].v == 1.f))
-		{
-			flags |= HWF_CLAMPY;
-		}
 	}
+	if (tcs[UPLFT].u >= 0.f && tcs[UPRGT].u >= 0.f && tcs[LOLFT].u >= 0.f && tcs[LORGT].u >= 0.f &&
+		tcs[UPLFT].u <= 1.f && tcs[UPRGT].u <= 1.f && tcs[LOLFT].u <= 1.f && tcs[LORGT].u <= 1.f)
+	{
+		flags |= HWF_CLAMPX;
+	}
+
+	if (tcs[UPLFT].v >= 0.f && tcs[UPRGT].v >= 0.f && tcs[LOLFT].v >= 0.f && tcs[LORGT].v >= 0.f &&
+		tcs[UPLFT].v <= 1.f && tcs[UPRGT].v <= 1.f && tcs[LOLFT].v <= 1.f && tcs[LORGT].v <= 1.f)
+	{
+		flags |= HWF_CLAMPY;
+	}
+
 }
 
 
