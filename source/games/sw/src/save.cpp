@@ -83,7 +83,6 @@ extern bool sumowasseen;
 extern bool zillawasseen;
 extern short BossSpriteNum[3];
 
-#define PANEL_SAVE 1
 #define ANIM_SAVE 1
 
 extern STATE s_NotRestored[];
@@ -227,11 +226,398 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, ATTRIBUTEp& w, ATT
 //
 //---------------------------------------------------------------------------
 
+// Temporary array to serialize the panel sprites.
+static TArray<PANEL_SPRITEp> pspAsArray;
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEp& w, PANEL_SPRITEp* def)
+{
+	unsigned idx = ~0u;
+	if (arc.isWriting())
+	{
+		if (w != nullptr) 
+		{
+			idx = pspAsArray.Find(w);
+			if ((unsigned)idx >= pspAsArray.Size())
+			{
+				for (unsigned i = 0; i < MAX_SW_PLAYERS_REG; i++)
+				{
+					// special case for pointing to the list head
+					if ((LIST)w == (LIST)&Player[i].PanelSpriteList)
+					{
+						idx = 1000'0000 + i;
+						break;
+					}
+				}
+				if (idx >= pspAsArray.Size() && idx < 1000'0000)
+					idx = pspAsArray.Push(w);
+			}
+		}
+		arc(keyname, idx);
+	}
+	else
+	{
+		unsigned int ndx;
+		arc(keyname, ndx);
+
+		if (ndx == ~0u) w = nullptr;
+		else if (ndx >= 1000'0000) w = (PANEL_SPRITEp)&Player[ndx - 1000'0000].PanelSpriteList;
+		else if ((unsigned)ndx >= pspAsArray.Size())
+			I_Error("Bad panel sprite index in savegame");
+		else w = pspAsArray[ndx];
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// we need to allocate the needed panel sprites before loading anything else
+//
+//---------------------------------------------------------------------------
+
+void preSerializePanelSprites(FSerializer& arc)
+{
+	if (arc.isReading())
+	{
+		unsigned siz;
+		arc("panelcount", siz);
+		pspAsArray.Resize(siz);
+		for (unsigned i = 0; i < siz; i++)
+		{
+			pspAsArray[i] = (PANEL_SPRITEp)CallocMem(sizeof(PANEL_SPRITE), 1);
+		}
+	}
+}
+
+void postSerializePanelSprites(FSerializer& arc)
+{
+	if (arc.isWriting())
+	{
+		unsigned siz = pspAsArray.Size();
+		arc("panelcount", siz);
+	}
+	if (arc.BeginArray("panelsprites"))
+	{
+		for (auto psp : pspAsArray)
+		{
+			arc(nullptr, *psp);
+		}
+		arc.EndArray();
+	}
+	pspAsArray.Clear();
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE_OVERLAY& w, PANEL_SPRITE_OVERLAY* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("state", w.State)
+			("flags", w.flags)
+			("tics", w.tics)
+			("pic", w.pic)
+			("xoff", w.xoff)
+			("yoff", w.yoff)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEstruct& w, PANEL_SPRITEstruct* def)
+{
+	static PANEL_SPRITEstruct nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("Next", w.Next)
+			("Prev", w.Prev)
+			("sibling", w.sibling)
+			("State", w.State)
+			("RetractState", w.RetractState)
+			("PresentState", w.PresentState)
+			("ActionState", w.ActionState)
+			("RestState", w.RestState)
+			("xfract", w.xfract)
+			("x", w.x)
+			("yfract", w.yfract)
+			("y", w.y)
+			.Array("over", w.over, countof(w.over))
+			("id", w.ID)
+			("picndx", w.picndx)
+			("picnum", w.picnum)
+			("vel", w.vel)
+			("vel_adj", w.vel_adj)
+			("xorig", w.xorig)
+			("yorig", w.yorig)
+			("flags", w.flags)
+			("priority", w.priority)
+			("scale", w.scale)
+			("jump_speed", w.jump_speed)
+			("jump_grav", w.jump_grav)
+			("xspeed", w.xspeed)
+			("tics", w.tics)
+			("delay", w.delay)
+			("ang", w.ang)
+			("rotate_ang", w.rotate_ang)
+			("sin_ndx", w.sin_ndx)
+			("sin_amt", w.sin_amt)
+			("sin_arc_speed", w.sin_arc_speed)
+			("bob_height_divider", w.bob_height_divider)
+			("shade", w.shade)
+			("pal", w.pal)
+			("kill_tics", w.kill_tics)
+			("WeaponType", w.WeaponType)
+			("playerp", w.PlayerP);
+
+		SerializeCodePtr(arc, "PanelSpriteFunc", (void**)&w.PanelSpriteFunc);
+
+		arc.EndObject();
+	}
+	if (arc.isReading())
+	{
+		w.ox = w.x;
+		w.oy = w.y;
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w, REMOTE_CONTROL* def)
+{
+	static REMOTE_CONTROL nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("cursectnum", w.cursectnum)
+			("lastcursectnum", w.lastcursectnum)
+			("pang", w.pang)
+			("filler", w.filler)
+			("xvect", w.xvect)
+			("yvect", w.yvect)
+			("slide_xvect", w.slide_xvect)
+			("slide_yvect", w.slide_yvect)
+			("x", w.posx)
+			("y", w.posy)
+			("z", w.posz)
+			("sop_control", w.sop_control)
+			.EndObject();
+	}
+	if (arc.isReading())
+	{
+		w.oxvect = w.xvect;
+		w.oyvect = w.yvect;
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERp& w, PLAYERp* def)
 {
 	int ndx = w ? int(w - Player) : -1;
 	arc(keyname, ndx);
 	w = ndx == -1 ? nullptr : Player + ndx;
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, PLAYERstruct* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("x", w.posx)
+			("y", w.posy)
+			("z", w.posz)
+			("lv_sectnum", w.lv_sectnum)
+			("lv_x", w.lv_x)
+			("lv_y", w.lv_y)
+			("lv_z", w.lv_z)
+			("remote_sprite", w.remote_sprite)
+			("remote", w.remote)
+			("sop_remote", w.sop_remote)
+			("sop", w.sop)
+			("jump_count", w.jump_count)
+			("jump_speed", w.jump_speed)
+			("down_speed", w.down_speed)
+			("up_speed", w.up_speed)
+			("z_speed", w.z_speed)
+			("climb_ndx", w.climb_ndx)
+			("hiz", w.hiz)
+			("loz", w.loz)
+			("ceiling_dist", w.ceiling_dist)
+			("floor_dist", w.floor_dist)
+			("hi_sectp", w.hi_sectp)
+			("lo_sectp", w.lo_sectp)
+			("hi_sp", w.hi_sp)
+			("lo_sp", w.lo_sp)
+			("last_camera_sp", w.last_camera_sp)
+			("circle_camera_dist", w.circle_camera_dist)
+			("six", w.six)
+			("siy", w.siy)
+			("siz", w.siz)
+			("siang", w.siang)
+			("xvect", w.xvect)
+			("yvect", w.yvect)
+			("friction", w.friction)
+			("slide_xvect", w.slide_xvect)
+			("slide_yvect", w.slide_yvect)
+			("slide_ang", w.slide_ang)
+			("slide_dec", w.slide_dec)
+			("drive_avel", w.drive_avel)
+			("view_outside_dang", w.view_outside_dang)
+			("circle_camera_ang", w.circle_camera_ang)
+			("camera_check_time_delay", w.camera_check_time_delay)
+			("cursectnum", w.cursectnum)
+			("lastcursectnum", w.lastcursectnum)
+			("turn180_target", w.turn180_target)
+			("hvel", w.hvel)
+			("tilt", w.tilt)
+			("tilt_dest", w.tilt_dest)
+			("horizon", w.horizon)
+			("angle", w.angle)
+			("recoil_amt", w.recoil_amt)
+			("recoil_speed", w.recoil_speed)
+			("recoil_ndx", w.recoil_ndx)
+			("recoil_horizoff", w.recoil_horizoff)
+			("oldposx", w.oldposx)
+			("oldposy", w.oldposy)
+			("oldposz", w.oldposz)
+			("revolvex", w.RevolveX)
+			("revolvey", w.RevolveY)
+			("RevolveDeltaAng", w.RevolveDeltaAng)
+			("RevolveAng", w.RevolveAng)
+			("PlayerSprite", w.PlayerSprite)
+			("PlayerUnderSprite", w.PlayerUnderSprite)
+			("SpriteP", w.SpriteP)
+			("UnderSpriteP", w.UnderSpriteP)
+			("pnum", w.pnum)
+			("LadderSector", w.LadderSector)
+			("lx", w.lx)
+			("ly", w.ly)
+			("JumpDuration", w.JumpDuration)
+			("WadeDepth", w.WadeDepth)
+			("bob_amt", w.bob_amt)
+			("bob_ndx", w.bob_ndx)
+			("bcnt", w.bcnt)
+			("bob_z", w.bob_z)
+			("playerreadyflag", w.playerreadyflag)
+			("Flags", w.Flags)
+			("Flags2", w.Flags2)
+			("sop_control", w.sop_control)
+			("sop_riding", w.sop_riding)
+			.Array("HasKey", w.HasKey, countof(w.HasKey))
+			("SwordAng", w.SwordAng)
+			("WpnGotOnceFlags", w.WpnGotOnceFlags)
+			("WpnFlags", w.WpnFlags)
+			.Array("WpnAmmo", w.WpnAmmo, countof(w.WpnAmmo))
+			("WpnNum", w.WpnNum)
+			("pnum", w.pnum)
+			("panelnext", w.PanelSpriteList.Next)
+			("panelprev", w.PanelSpriteList.Prev)
+			("curwpn", w.CurWpn)
+			.Array("wpn", w.Wpn, countof(w.Wpn))
+			("WpnRocketType", w.WpnRocketType)
+			("WpnRocketHeat", w.WpnRocketHeat)
+			("WpnRocketNuke", w.WpnRocketNuke)
+			("WpnFlameType", w.WpnFlameType)
+			("WpnFirstType", w.WpnFirstType)
+			("WeaponType", w.WeaponType)
+			("FirePause", w.FirePause)
+			("InventoryNum", w.InventoryNum)
+			("InventoryBarTics", w.InventoryBarTics)
+			.Array("InventoryTics", w.InventoryTics, countof(w.InventoryTics))
+			.Array("InventoryPercent", w.InventoryPercent, countof(w.InventoryPercent))
+			.Array("InventoryAmount", w.InventoryAmount, countof(w.InventoryAmount))
+			.Array("InventoryActive", w.InventoryActive, countof(w.InventoryActive))
+			("DiveTics", w.DiveTics)
+			("DiveDamageTics", w.DiveDamageTics)
+			("DeathType", w.DeathType)
+			("Kills", w.Kills)
+			("Killer", w.Killer)
+			.Array("KilledPlayer", w.KilledPlayer, countof(w.KilledPlayer))
+			("SecretsFound", w.SecretsFound)
+			("Armor", w.Armor)
+			("MaxHealth", w.MaxHealth)
+			("UziShellLeftAlt", w.UziShellLeftAlt)
+			("UziShellRightAlt", w.UziShellRightAlt)
+			("TeamColor", w.TeamColor)
+			("FadeTics", w.FadeTics)
+			("FadeAmt", w.FadeAmt)
+			("NightVision", w.NightVision)
+			("IsAI", w.IsAI)
+			("NumFootPrints", w.NumFootPrints)
+			("WpnUziType", w.WpnUziType)
+			("WpnShotgunType", w.WpnShotgunType)
+			("WpnShotgunAuto", w.WpnShotgunAuto)
+			("WpnShotgunLastShell", w.WpnShotgunLastShell)
+			("WpnRailType", w.WpnRailType)
+			("Bloody", w.Bloody)
+			("InitingNuke", w.InitingNuke)
+			("TestNukeInit", w.TestNukeInit)
+			("NukeInitialized", w.NukeInitialized)
+			("FistAng", w.FistAng)
+			("WpnKungFuMove", w.WpnKungFuMove)
+			("HitBy", w.HitBy)
+			("Reverb", w.Reverb)
+			("Heads", w.Heads)
+			("PlayerVersion", w.PlayerVersion)
+			("cookieTime", w.cookieTime)
+			("WpnReloadState", w.WpnReloadState)
+			("keypressbits", w.KeyPressBits)
+			("chops", w.Chops);
+
+		SerializeCodePtr(arc, "DoPlayerAction", (void**)&w.DoPlayerAction);
+		arc.EndObject();
+	}
+	if (arc.isReading())
+	{
+		w.oposx = w.posx;
+		w.oposy = w.posx;
+		w.oposz = w.posx;
+		w.oz_speed = w.z_speed;
+		w.oxvect = w.xvect;
+		w.oyvect = w.yvect;
+		w.obob_z = w.bob_z;
+		w.input = {};
+		w.lastinput = {};
+        memset(w.cookieQuote, 0, sizeof(w.cookieQuote)); // no need to remember this.
+        w.StartColor = 0;
+
+	}
 	return arc;
 }
 
@@ -431,56 +817,17 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
     if (arc.BeginObject("state"))
     {
+        preSerializePanelSprites(arc);
         SerializeUser(arc);
-
+        arc("numplayers", numplayers)
+            .Array("players", Player, numplayers)
+            ;
+        postSerializePanelSprites(arc);
         arc.EndObject();
     }
 }
 
 
-
-int PanelSpriteToNdx(PLAYERp pp, PANEL_SPRITEp psprite)
-{
-    short ndx = 0;
-    PANEL_SPRITEp psp=NULL, next=NULL;
-
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
-    {
-        if (psp == psprite)
-            return ndx;
-
-        ndx++;
-    }
-
-    // special case for pointing to the list head
-    if ((LIST)psprite == (LIST)&pp->PanelSpriteList)
-        return 9999;
-
-    return -1;
-}
-
-
-PANEL_SPRITEp PanelNdxToSprite(PLAYERp pp, int ndx)
-{
-    short count = 0;
-    PANEL_SPRITEp psp, next;
-
-    if (ndx == -1)
-        return NULL;
-
-    if (ndx == 9999)
-        return (PANEL_SPRITEp)&pp->PanelSpriteList;
-
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
-    {
-        if (count == ndx)
-            return psp;
-
-        count++;
-    }
-
-    return NULL;
-}
 
 int SaveSymDataInfo(MFILE_WRITE fil, void *ptr)
 {
@@ -576,110 +923,6 @@ bool GameInterface::SaveGame()
 	fil = WriteSavegameChunk("snapshot.sw");
 
     MWRITE(&Skill,sizeof(Skill),1,fil);
-
-    MWRITE(&numplayers,sizeof(numplayers),1,fil);
-
-    //save players info
-    pp = &tp;
-    for (i = 0; i < numplayers; i++)
-    {
-        memcpy(&tp, &Player[i], sizeof(PLAYER));
-
-        // this does not point to global data - this is allocated link list based
-        // save this inside the structure
-#if PANEL_SAVE
-        pp->CurWpn = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->CurWpn);
-        for (ndx = 0; ndx < MAX_WEAPONS; ndx++)
-            pp->Wpn[ndx] = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->Wpn[ndx]);
-        pp->Chops = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->Chops);
-#endif
-
-        MWRITE(&tp, sizeof(PLAYER),1,fil);
-
-        //////
-
-        saveisshot |= SaveSymDataInfo(fil, pp->remote_sprite);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->remote.sop_control);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->sop_remote);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->sop);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->hi_sectp);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->lo_sectp);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->hi_sp);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->lo_sp);
-        assert(!saveisshot);
-
-        saveisshot |= SaveSymDataInfo(fil, pp->last_camera_sp);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->SpriteP);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->UnderSpriteP);
-        assert(!saveisshot);
-
-        saveisshot |= SaveSymCodeInfo(fil, pp->DoPlayerAction);
-        assert(!saveisshot);
-
-        saveisshot |= SaveSymDataInfo(fil, pp->sop_control);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->sop_riding);
-        assert(!saveisshot);
-    }
-
-#if PANEL_SAVE
-    // local copy
-    psp = &tpanel_sprite;
-    for (i = 0; i < numplayers; i++)
-    {
-        unsigned j;
-        pp = &Player[i];
-        ndx = 0;
-
-        TRAVERSE(&pp->PanelSpriteList, cur, next)
-        {
-            // this is a HEADER
-            MWRITE(&ndx, sizeof(ndx),1,fil);
-
-            memcpy(psp, cur, sizeof(PANEL_SPRITE));
-
-            // Panel Sprite - save in structure
-            psp->sibling = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(pp, cur->sibling);
-            MWRITE(psp, sizeof(PANEL_SPRITE),1,fil);
-
-            saveisshot |= SaveSymDataInfo(fil, psp->PlayerP);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, psp->State);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, psp->RetractState);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, psp->PresentState);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, psp->ActionState);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, psp->RestState);
-            assert(!saveisshot);
-            saveisshot |= SaveSymCodeInfo(fil, psp->PanelSpriteFunc);
-            assert(!saveisshot);
-
-            for (j = 0; j < SIZ(psp->over); j++)
-            {
-                saveisshot |= SaveSymDataInfo(fil, psp->over[j].State);
-                assert(!saveisshot);
-            }
-
-            ndx++;
-        }
-
-        // store -1 when done for player
-        ndx = -1;
-        MWRITE(&ndx, sizeof(ndx),1,fil);
-    }
-#endif
 
     //Sector User information
     for (i = 0; i < numsectors; i++)
@@ -905,85 +1148,6 @@ bool GameInterface::LoadGame()
 
     MREAD(&Skill,sizeof(Skill),1,fil);
 
-    MREAD(&numplayers, sizeof(numplayers),1,fil);
-
-    //save players
-    //MREAD(Player,sizeof(PLAYER), numplayers,fil);
-
-    //save players info
-
-    for (auto& pp : Player)
-    {
-        pp.cookieTime = 0;
-        memset(pp.cookieQuote, 0, sizeof(pp.cookieQuote));
-    }
-
-    for (i = 0; i < numplayers; i++)
-    {
-        pp = &Player[i];
-
-        MREAD(pp, sizeof(*pp), 1, fil);
-
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->remote_sprite);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->remote.sop_control);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop_remote);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop);
-
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->hi_sectp);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->lo_sectp);
-
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->hi_sp);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->lo_sp);
-
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->last_camera_sp);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->SpriteP);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->UnderSpriteP);
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&pp->DoPlayerAction);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop_control);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop_riding);
-        if (saveisshot) { MCLOSE_READ(fil); return false; }
-    }
-
-
-#if PANEL_SAVE
-    for (i = 0; i < numplayers; i++)
-    {
-        int j;
-        pp = &Player[i];
-
-        INITLIST(&pp->PanelSpriteList);
-
-        while (true)
-        {
-            MREAD(&ndx, sizeof(ndx),1,fil);
-
-            if (ndx == -1)
-                break;
-
-            psp = (PANEL_SPRITEp)CallocMem(sizeof(PANEL_SPRITE), 1);
-            ASSERT(psp);
-
-            MREAD(psp, sizeof(PANEL_SPRITE),1,fil);
-            INSERT_TAIL(&pp->PanelSpriteList,psp);
-
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->PlayerP);
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->State);
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->RetractState);
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->PresentState);
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->ActionState);
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->RestState);
-            saveisshot |= LoadSymCodeInfo(fil, (void **)&psp->PanelSpriteFunc);
-            if (saveisshot) { MCLOSE_READ(fil); return false; }
-
-            for (j = 0; j < (int)SIZ(psp->over); j++)
-            {
-                saveisshot |= LoadSymDataInfo(fil, (void **)&psp->over[j].State);
-                if (saveisshot) { MCLOSE_READ(fil); return false; }
-            }
-
-        }
-    }
-#endif
 
     //Sector User information
     for (i = 0; i < numsectors; i++)
@@ -1149,28 +1313,6 @@ bool GameInterface::LoadGame()
     MCLOSE_READ(fil);
 
 
-    //!!IMPORTANT - this POST stuff will not work here now becaus it does actual reads
-
-
-    //
-    // POST processing of info MREAD in
-    //
-
-#if PANEL_SAVE
-    for (i = 0; i < numplayers; i++)
-    {
-        pp = &Player[i];
-        TRAVERSE(&pp->PanelSpriteList, psp, next)
-        {
-            // dont need to set Next and Prev this was done
-            // when sprites were inserted
-
-            // sibling is the only PanelSprite (malloced ptr) in the PanelSprite struct
-            psp->sibling = PanelNdxToSprite(pp, (int)(intptr_t)psp->sibling);
-        }
-    }
-#endif
-
     DoTheCache();
 
     // this is ok - just duplicating sector list with pointers
@@ -1178,21 +1320,6 @@ bool GameInterface::LoadGame()
     {
         for (i = 0; i < sop->num_sectors; i++)
             sop->sectp[i] = &sector[sop->sector[i]];
-    }
-
-    //!!Again this will not work here
-    //restore players info
-    for (i = 0; i < numplayers; i++)
-    {
-#if PANEL_SAVE
-        pp->CurWpn = PanelNdxToSprite(pp, (int)(intptr_t)pp->CurWpn);
-
-        for (ndx = 0; ndx < MAX_WEAPONS; ndx++)
-            pp->Wpn[ndx] = PanelNdxToSprite(pp, (int)(intptr_t)pp->Wpn[ndx]);
-
-        pp->Chops = PanelNdxToSprite(pp, (int)(intptr_t)pp->Chops);
-
-#endif
     }
 
     {
@@ -1207,11 +1334,6 @@ bool GameInterface::LoadGame()
     Mus_ResumeSaved();
     if (snd_ambience)
         StartAmbientSound();
-
-    TRAVERSE_CONNECT(i)
-    {
-        Player[i].StartColor = 0;
-    }
 
     // this is not a new game
     ShadowWarrior::NewGame = false;

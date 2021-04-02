@@ -851,13 +851,6 @@ struct PLAYERstruct
     int slide_dec;
     float drive_avel;
 
-
-
-    // scroll 2D mode stuff
-    int scr_x, scr_y, oscr_x, oscr_y;
-    int scr_xvect, scr_yvect;
-    short scr_ang, oscr_ang, scr_sectnum;
-
     short view_outside_dang;  // outside view delta ang
     short circle_camera_ang;
     short camera_check_time_delay;
@@ -989,7 +982,7 @@ struct PLAYERstruct
     short Heads;                    // Number of Accursed Heads orbiting player
     int PlayerVersion;
 
-    char cookieQuote[256];          // Should be an FString but must be POD for now to be storable in a savegame.
+    char cookieQuote[256];          // Should be an FString but must be POD for now so that PLAYER remains POD.
     int cookieTime;
 
     char WpnReloadState;
