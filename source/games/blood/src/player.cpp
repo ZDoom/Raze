@@ -1548,7 +1548,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (SyncInput())
     {
-        sethorizon(&pPlayer->horizon.horiz, pInput->horz, &pInput->actions);
+        sethorizon(&pPlayer->horizon, pInput->horz, &pInput->actions);
         doslopetilting(pPlayer);
     }
 

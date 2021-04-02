@@ -4001,7 +4001,7 @@ HORIZONLY:
 
 	if (SyncInput())
 	{
-		sethorizon(&p->horizon.horiz, PlayerHorizon(snum), &p->sync.actions);
+		sethorizon(&p->horizon, PlayerHorizon(snum), &p->sync.actions);
 	}
 
 	p->checkhardlanding();
