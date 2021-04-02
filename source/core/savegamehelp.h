@@ -27,3 +27,28 @@ void M_Autosave();
 
 #define SAVEGAME_EXT ".dsave"
 
+
+inline FSerializer& Serialize(FSerializer& arc, const char* keyname, spritetype*& w, spritetype** def)
+{
+	int ndx = w ? int(w - sprite) : -1;
+	arc(keyname, ndx);
+	w = ndx == -1 ? nullptr : sprite + ndx;
+	return arc;
+}
+
+inline FSerializer& Serialize(FSerializer& arc, const char* keyname, sectortype*& w, sectortype** def)
+{
+	int ndx = w ? int(w - sector) : -1;
+	arc(keyname, ndx);
+	w = ndx == -1 ? nullptr : sector + ndx;
+	return arc;
+}
+
+inline FSerializer& Serialize(FSerializer& arc, const char* keyname, walltype*& w, walltype** def)
+{
+	int ndx = w ? int(w - wall) : -1;
+	arc(keyname, ndx);
+	w = ndx == -1 ? nullptr : wall + ndx;
+	return arc;
+}
+

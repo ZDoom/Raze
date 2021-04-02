@@ -269,7 +269,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, TArray<T, TT> &value, 
 	return arc;
 }
 
-template<class T, class TT>
+template<class T>
 FSerializer& Serialize(FSerializer& arc, const char* key, TPointer<T>& value, TPointer<T>* def)
 {
 	if (arc.isWriting())
