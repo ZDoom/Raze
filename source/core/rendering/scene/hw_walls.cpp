@@ -1067,11 +1067,18 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	vec2_t pos[2];
 	int sprz = spr->pos.z;
 
+	GetWallSpritePosition(spr, spr->pos.vec2, pos, true);
+	glseg.x1 = pos[0].x * (1 / 16.f);
+	glseg.y1 = pos[0].y * (1 / -16.f);
+	glseg.x2 = pos[1].x * (1 / 16.f);
+	glseg.y2 = pos[1].y * (1 / -16.f);
+
 	if (spr->cstat & CSTAT_SPRITE_ONE_SIDED)
 	{
-		DAngle sprang = buildang(spr->ang).asdeg();
-		DAngle lookang = bamang(di->Viewpoint.RotAngle).asdeg();
-		if ((sprang.ToVector() | lookang.ToVector()) >= 0.) return;
+		if (PointOnLineSide(di->Viewpoint.Pos.X, di->Viewpoint.Pos.Y, glseg.x1, glseg.y1, glseg.x2 - glseg.x1, glseg.y2 - glseg.y1) <= 0)
+		{
+			return;
+		}
 	}
 
 	vertindex = 0;
@@ -1101,8 +1108,6 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	}
 
 
-	GetWallSpritePosition(spr, spr->pos.vec2, pos, true);
-
 	int height, topofs;
 	if (hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
 	{
@@ -1128,10 +1133,6 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 
 	glseg.fracleft = 0;
 	glseg.fracright = 1;
-	glseg.x1 = pos[0].x * (1 / 16.f);
-	glseg.y1 = pos[0].y * (1 / -16.f);
-	glseg.x2 = pos[1].x * (1 / 16.f);
-	glseg.y2 = pos[1].y * (1 / -16.f);
 	tcs[LOLFT].u = tcs[UPLFT].u = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 1.f : 0.f;
 	tcs[LORGT].u = tcs[UPRGT].u = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
 	tcs[UPLFT].v = tcs[UPRGT].v = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 1.f : 0.f;
