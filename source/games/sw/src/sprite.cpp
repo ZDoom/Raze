@@ -790,7 +790,8 @@ KillSprite(int16_t SpriteNum)
                 FreeMem(u->rotator->origx);
             if (u->rotator->origy)
                 FreeMem(u->rotator->origy);
-            FreeMem(u->rotator);
+
+            u->rotator.Clear();
         }
 
         FreeUser(SpriteNum);
@@ -909,7 +910,6 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     u->WaitTics = 0;
     u->OverlapZ = Z(4);
     u->WallShade = NULL;
-    u->rotator = NULL;
     u->bounce = 0;
 
     u->motion_blur_num = 0;
@@ -2404,7 +2404,7 @@ SpriteSetup(void)
                     for (w = startwall, wallcount = 0; w <= endwall; w++)
                         wallcount++;
 
-                    u->rotator = (ROTATORp)CallocMem(sizeof(ROTATOR), 1);
+                    u->rotator.Alloc();
                     u->rotator->num_walls = wallcount;
                     u->rotator->open_dest = SP_TAG5(sp);
                     u->rotator->speed = SP_TAG7(sp);
@@ -2460,7 +2460,7 @@ SpriteSetup(void)
                     u->WaitTics = time*15; // 1/8 of a sec
                     u->Tics = 0;
 
-                    u->rotator = (ROTATORp)CallocMem(sizeof(ROTATOR), 1);
+                    u->rotator.Alloc();
                     u->rotator->open_dest = SP_TAG5(sp);
                     u->rotator->speed = SP_TAG7(sp);
                     u->rotator->vel = SP_TAG8(sp);

@@ -1115,12 +1115,22 @@ typedef struct
 // User Extension record
 //
 
-typedef struct
+struct USER
 {
+    // These are for easy zero-init of USERs without having to be on the lookout for non-trivial members.
+    void* operator new(size_t alloc)
+    {
+        return M_Calloc(alloc, 1);
+    }
+    void operator delete (void* mem)
+    {
+        M_Free(mem);
+    }
+
     //
     // Variables that can be used by actors and Player
     //
-    ROTATORp rotator;
+    TPointer<ROTATOR> rotator;
 
     // wall vars for lighting
     int WallCount;
@@ -1269,7 +1279,9 @@ typedef struct
     int16_t oangdiff;      // Used for interpolating sprite angles
 
     uint8_t filler;
-} USER,*USERp;
+};
+
+using USERp = USER*;
 
 struct USERSAVE
 {
@@ -1440,21 +1452,15 @@ typedef struct
 } RANGE,*RANGEp;
 
 
-inline void ClearUser(USER* user)
-{
-    *user = {};
-}
-
+#pragma message ("Remove NewUser/FreeUser!")
 inline USER* NewUser()
 {
-    auto u = (USER*)M_Calloc(sizeof(USER), 1);// new USER;
-    ClearUser(u);
-    return u;
+    return new USER;
 }
 
 inline void FreeUser(int num)
 {
-    if (User[num]) M_Free(User[num]);// delete User[num];
+    if (User[num]) delete User[num];
     User[num] = nullptr;
 }
 

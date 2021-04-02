@@ -747,7 +747,11 @@ bool GameInterface::LoadGame()
     while (SpriteNum != -1)
     {
         User[SpriteNum] = u = NewUser();
+        // We need to be careful with allocated content in User when loading a binary save state.
+        // This needs to be refactored out ASAP.
+        u->rotator.Clear();
         MREAD(u,sizeof(USER),1,fil);
+        memset((void*)&u->rotator, 0, sizeof(u->rotator));
 
         if (u->WallShade)
         {
@@ -757,7 +761,7 @@ bool GameInterface::LoadGame()
 
         if (u->rotator)
         {
-            u->rotator = (ROTATORp)CallocMem(sizeof(*u->rotator), 1);
+            u->rotator.Alloc();
             MREAD(u->rotator,sizeof(*u->rotator),1,fil);
 
             if (u->rotator->origx)
