@@ -731,12 +731,12 @@ SetupBunny(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum, BUNNY_RUN_R0, s_BunnyRun[0]);
+        u = SpawnUser(SpriteNum, BUNNY_RUN_R0, s_BunnyRun[0]);
         u->Health = 10;
     }
 
@@ -825,7 +825,7 @@ GetBunnyJumpHeight(short jump_speed, short jump_grav)
 int
 PickBunnyJumpSpeed(short SpriteNum, int pix_height)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     ASSERT(pix_height < 128);
 
@@ -853,7 +853,7 @@ int
 DoBunnyBeginJumpAttack(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp psp = User[SpriteNum]->tgt_sp;
     short tang;
 
@@ -888,7 +888,7 @@ int
 DoBunnyMoveJump(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -922,7 +922,7 @@ DoBunnyMoveJump(short SpriteNum)
 int
 DoPickCloseBunny(short SpriteNum)
 {
-    USERp u = User[SpriteNum],tu;
+    USERp u = User[SpriteNum].Data(), tu;
     SPRITEp sp = &sprite[SpriteNum],tsp;
     int dist, near_dist = 1000, a,b,c;
     int i;
@@ -936,7 +936,7 @@ DoPickCloseBunny(short SpriteNum)
     while ((i = it.NextIndex()) >= 0)
     {
         tsp = &sprite[i];
-        tu = User[i];
+        tu = User[i].Data();
 
         if (sp == tsp) continue;
 
@@ -963,7 +963,7 @@ int
 DoBunnyQuickJump(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (u->spal != PALETTE_PLAYER8) return false;
 
@@ -975,7 +975,7 @@ DoBunnyQuickJump(short SpriteNum)
     {
         short hit_sprite = u->lo_sp - sprite;
         SPRITEp tsp = u->lo_sp;
-        USERp tu = User[hit_sprite];
+        USERp tu = User[hit_sprite].Data();
 
         if (!tu || tu->ID != BUNNY_RUN_R0) return false;
 
@@ -1017,7 +1017,7 @@ DoBunnyQuickJump(short SpriteNum)
     {
         short hit_sprite = u->lo_sp - sprite;
         SPRITEp tsp = u->lo_sp;
-        USERp tu = User[hit_sprite];
+        USERp tu = User[hit_sprite].Data();
 
 
         if (!tu || tu->ID != BUNNY_RUN_R0) return false;
@@ -1103,7 +1103,7 @@ DoBunnyQuickJump(short SpriteNum)
 int
 NullBunny(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -1129,7 +1129,7 @@ NullBunny(short SpriteNum)
 
 int DoBunnyPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullBunny(SpriteNum);
 
@@ -1141,7 +1141,7 @@ int DoBunnyPain(short SpriteNum)
 int DoBunnyRipHeart(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     SPRITEp tsp = u->tgt_sp;
 
@@ -1156,7 +1156,7 @@ int DoBunnyRipHeart(short SpriteNum)
 int DoBunnyStandKill(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullBunny(SpriteNum);
 
@@ -1172,7 +1172,7 @@ int DoBunnyStandKill(short SpriteNum)
 void BunnyHatch(short Weapon)
 {
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
+    USERp wu = User[Weapon].Data();
 
     short New,i;
     SPRITEp np;
@@ -1198,7 +1198,7 @@ void BunnyHatch(short Weapon)
         np->ang = rip_ang[i];
         np->pal = 0;
         SetupBunny(New);
-        nu = User[New];
+        nu = User[New].Data();
         np->shade = wp->shade;
 
         // make immediately active
@@ -1267,7 +1267,7 @@ int BunnyHatch2(short Weapon)
     np->ang = RANDOM_P2(2048);
     np->pal = 0;
     SetupBunny(New);
-    nu = User[New];
+    nu = User[New].Data();
     np->shade = wp->shade;
 
     // make immediately active
@@ -1320,7 +1320,7 @@ int
 DoBunnyMove(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     // Parental lock crap
     if (TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
@@ -1403,7 +1403,7 @@ int
 DoBunnyEat(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -1455,7 +1455,7 @@ int
 DoBunnyScrew(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1505,7 +1505,7 @@ int
 DoBunnyGrowUp(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (sp->pal == PALETTE_PLAYER1) return 0;   // Don't bother white bunnies
 

@@ -501,7 +501,7 @@ void
 CoolgCommon(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     sp->clipdist = (200) >> 2;
     //u->floor_dist = Z(5);
@@ -524,12 +524,12 @@ SetupCoolg(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,COOLG_RUN_R0,s_CoolgRun[0]);
+        u = SpawnUser(SpriteNum,COOLG_RUN_R0,s_CoolgRun[0]);
         u->Health = HEALTH_COOLIE_GHOST;
     }
 
@@ -553,7 +553,7 @@ extern short TotalKillable;
 int
 NewCoolg(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     USERp nu;
     SPRITEp np;
@@ -562,7 +562,7 @@ NewCoolg(short SpriteNum)
 
     New = SpawnSprite(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 50);
 
-    nu = User[New];
+    nu = User[New].Data();
     np = &sprite[New];
 
     ChangeState(New, &s_CoolgBirth[0]);
@@ -590,7 +590,7 @@ DoCoolgBirth(short New)
     USERp u;
     ANIMATOR DoActorDecide;
 
-    u = User[New];
+    u = User[New].Data();
 
     u->Health = HEALTH_COOLIE_GHOST;
     u->Attrib = &CoolgAttrib;
@@ -612,7 +612,7 @@ DoCoolgBirth(short New)
 
 int NullCoolg(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->ShellNum -= ACTORMOVETICS;
 
@@ -630,7 +630,7 @@ int NullCoolg(short SpriteNum)
 int DoCoolgMatchPlayerZ(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp tsp = User[SpriteNum]->tgt_sp;
     int zdiff,zdist;
     int loz,hiz;
@@ -712,7 +712,7 @@ int DoCoolgMatchPlayerZ(short SpriteNum)
 int InitCoolgCircle(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
 
     u->ActorActionFunc = DoCoolgCircle;
@@ -745,7 +745,7 @@ int InitCoolgCircle(short SpriteNum)
 int DoCoolgCircle(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int nx,ny,bound;
 
 
@@ -788,7 +788,7 @@ int
 DoCoolgDeath(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int nx, ny;
 
 
@@ -833,7 +833,7 @@ DoCoolgDeath(short SpriteNum)
 int DoCoolgMove(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if ((u->ShellNum -= ACTORMOVETICS) <= 0)
     {
@@ -918,7 +918,7 @@ int DoCoolgMove(short SpriteNum)
 
 int DoCoolgPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullCoolg(SpriteNum);
 

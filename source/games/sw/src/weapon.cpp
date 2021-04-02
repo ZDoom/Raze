@@ -2650,7 +2650,7 @@ bool MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
     if (WeaponNum <= -1)
     {
         ASSERT(Weapon >= 0);
-        USERp wu = User[Weapon];
+        USERp wu = User[Weapon].Data();
         WeaponNum = wu->WeaponNum;
 
         // can be hit by SO only
@@ -2758,7 +2758,7 @@ int SpawnShrapX(short SpriteNum)
 int DoLavaErupt(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short i,pnum;
     PLAYERp pp;
     SPRITEp tsp;
@@ -2875,7 +2875,7 @@ SpawnShrap(short ParentNum, short Secondary)
 {
     SPRITEp parent = &sprite[ParentNum];
     SPRITEp sp;
-    USERp u, pu = User[ParentNum];
+    USERp u, pu = User[ParentNum].Data();
     short SpriteNum;
     short i;
 
@@ -3236,7 +3236,7 @@ SpawnShrap(short ParentNum, short Secondary)
     else if (TEST(parent->extra, SPRX_BREAKABLE))
     {
         // if no user
-        if (!User[parent - sprite])
+        if (!User[parent - sprite].Data())
         {
             // Jump to shrap type
             shrap_type = SP_TAG8(parent);
@@ -3733,7 +3733,7 @@ AutoShrap:
     // most of the time is is the weapon
     if (Secondary >= 0)
     {
-        USERp wu = User[Secondary];
+        USERp wu = User[Secondary].Data();
 
         if (wu->PlayerP && wu->PlayerP->sop_control)
         {
@@ -3767,7 +3767,7 @@ AutoShrap:
                                     parent->x, parent->y, hz[p->zlevel], shrap_ang, 512);
 
             sp = &sprite[SpriteNum];
-            u = User[SpriteNum];
+            u = User[SpriteNum].Data();
 
             if (p->random_disperse)
             {
@@ -3881,7 +3881,7 @@ AutoShrap:
 int
 DoShrapMove(int16_t SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->ret = move_missile(SpriteNum, u->xchange, u->ychange, 0, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
 
@@ -3893,7 +3893,7 @@ int
 DoVomit(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->Counter = NORM_ANGLE(u->Counter + (30*MISSILEMOVETICS));
     sp->xrepeat = u->sx + MulScale(12, bcos(u->Counter), 14);
@@ -3943,7 +3943,7 @@ int
 DoVomit(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->Counter = NORM_ANGLE(u->Counter + (30*MISSILEMOVETICS));
     sp->xrepeat = u->sx + MulScale(12, bcos(u->Counter), 14);
@@ -3988,7 +3988,7 @@ DoVomit(short SpriteNum)
 int
 DoVomitSplash(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if ((u->WaitTics-=MISSILEMOVETICS) < 0)
     {
@@ -4003,7 +4003,7 @@ int
 DoFastShrapJumpFall(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     sp->x += u->xchange*2;
     sp->y += u->ychange*2;
@@ -4020,7 +4020,7 @@ int
 DoTracerShrap(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     sp->x += u->xchange;
     sp->y += u->ychange;
@@ -4038,7 +4038,7 @@ DoTracerShrap(short SpriteNum)
 int
 DoShrapJumpFall(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
@@ -4070,7 +4070,7 @@ int
 DoShrapDamage(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
@@ -4187,7 +4187,7 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
     short shrap_pal = PALETTE_DEFAULT;
     short start_ang = 0;
 
-    u = User[SpriteNum];
+    u = User[SpriteNum].Data();
 
     switch (u->ID)
     {
@@ -4206,7 +4206,7 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
     if (Weapon >= 0)
     {
         SPRITEp wp = &sprite[Weapon];
-        USERp wu = User[Weapon];
+        USERp wu = User[Weapon].Data();
 
         switch (wu->ID)
         {
@@ -4290,7 +4290,7 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
             New = SpawnSprite(STAT_SKIP4, p->id, p->state, sp->sectnum,
                               hit_x, hit_y, hit_z, hit_ang, 0);
             np = &sprite[New];
-            nu = User[New];
+            nu = User[New].Data();
 
             switch (nu->ID)
             {
@@ -4367,7 +4367,7 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
 bool
 VehicleMoveHit(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp cp;
     SECTOR_OBJECTp sop;
     SECTOR_OBJECTp hsop;
@@ -4474,7 +4474,7 @@ VehicleMoveHit(short SpriteNum)
 bool
 WeaponMoveHit(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
 
@@ -4571,7 +4571,7 @@ WeaponMoveHit(short SpriteNum)
 
         hit_sprite = NORM_SPRITE(u->ret);
         hsp = &sprite[hit_sprite];
-        hu = User[hit_sprite];
+        hu = User[hit_sprite].Data();
 
         if (hsp->statnum == STAT_ENEMY)
         {
@@ -4759,7 +4759,7 @@ int
 DoFireballFlames(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum],ap;
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     bool jumping = false;
 
     // if no owner then stay where you are
@@ -4856,7 +4856,7 @@ int
 DoBreakFlames(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     bool jumping = false;
 
     if (TEST(u->Flags, SPR_JUMPING))
@@ -4932,7 +4932,7 @@ DoBreakFlames(short SpriteNum)
 int
 SetSuicide(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (u != nullptr)
     {
@@ -4946,7 +4946,7 @@ SetSuicide(short SpriteNum)
 int
 DoActorScale(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = &sprite[SpriteNum];
 
     u->scale_speed = 70;
@@ -4965,7 +4965,7 @@ DoActorScale(short SpriteNum)
 int
 DoRipperGrow(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = &sprite[SpriteNum];
 
     u->scale_speed = 70;
@@ -4986,7 +4986,7 @@ void UpdateSinglePlayKills(short SpriteNum)
     // single play and coop kill count
     if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
     {
-        ASSERT(User[SpriteNum]);
+        ASSERT(User[SpriteNum].Data());
 
         if (TEST(User[SpriteNum]->Flags, SPR_SUICIDE))
         {
@@ -5028,9 +5028,9 @@ int
 ActorChooseDeath(short SpriteNum, short Weapon)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
+    USERp wu = User[Weapon].Data();
 
     ASSERT(u);
 
@@ -5309,7 +5309,7 @@ int
 ActorHealth(short SpriteNum, short amt)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     extern int FinishAnim;
 
     if (u->ID == TRASHCAN && amt > -75)
@@ -5411,7 +5411,7 @@ int
 SopDamage(SECTOR_OBJECTp sop, short amt)
 {
     SPRITEp sp = sop->sp_child;
-    USERp u = User[sp - sprite];
+    USERp u = User[sp - sprite].Data();
 
     // does not have damage
     if (sop->max_damage == -9999)
@@ -5455,7 +5455,7 @@ SopCheckKill(SECTOR_OBJECTp sop)
 int
 ActorPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     //if (u->LastDamage < u->PainThreshold)  // This doesn't work well at all because of
     // uzi/shotgun damages
@@ -5491,7 +5491,7 @@ ActorPain(short SpriteNum)
 int
 ActorPainPlasma(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_ELECTRO_TOLERANT))
     {
@@ -5515,9 +5515,9 @@ int
 ActorStdMissile(short SpriteNum, short Weapon)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
+    USERp wu = User[Weapon].Data();
 
     ASSERT(Weapon >= 0);
 
@@ -5538,7 +5538,7 @@ ActorStdMissile(short SpriteNum, short Weapon)
     {
         // attempt to see if it was killed
         ASSERT(sprite[wu->WpnGoal].sectnum >= 0);
-        ASSERT(User[Weapon]);
+        ASSERT(User[Weapon].Data());
         // what if the target has been killed?  This will crash!
         RESET(User[wu->WpnGoal]->Flags, SPR_TARGETED);
     }
@@ -5548,7 +5548,7 @@ ActorStdMissile(short SpriteNum, short Weapon)
 int
 ActorDamageSlide(short SpriteNum, short damage, short ang)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int slide_vel,slide_dec;
 
     if (TEST(u->Flags, SPR_CLIMBING))
@@ -5679,7 +5679,7 @@ RadiusGetDamage(short SpriteNum, short Weapon, int max_damage)
 {
     SPRITEp sp = &sprite[SpriteNum];
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
+    USERp wu = User[Weapon].Data();
     int dist,a,b,c;
     int damage_per_pixel, damage_force, damage_amt;
 
@@ -5717,7 +5717,7 @@ int
 PlayerCheckDeath(PLAYERp pp, short Weapon)
 {
     SPRITEp sp = pp->SpriteP;
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     int SpawnZombie(PLAYERp pp, short);
 
 
@@ -5743,7 +5743,7 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
         }
 
         SPRITEp wp = &sprite[Weapon];
-        USERp   wu = User[Weapon];
+        USERp   wu = User[Weapon].Data();
 
         if (Weapon > -1 && (wu->ID == RIPPER_RUN_R0 || wu->ID == RIPPER2_RUN_R0))
             pp->DeathType = PLAYER_DEATH_RIPPER;
@@ -5788,9 +5788,9 @@ PlayerTakeDamage(PLAYERp pp, short Weapon)
     if (Weapon < 0)
         return true;
 
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     SPRITEp wp = &sprite[Weapon];
-    USERp   wu = User[Weapon];
+    USERp   wu = User[Weapon].Data();
 
     if (gNet.MultiGameType == MULTI_GAME_NONE)
     {
@@ -5816,7 +5816,7 @@ PlayerTakeDamage(PLAYERp pp, short Weapon)
             return true;
 
         // if the weapons owner is YOURSELF take damage
-        if (wp->owner >= 0 && User[wp->owner] && User[wp->owner]->PlayerP && User[wp->owner]->PlayerP == pp)
+        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP && User[wp->owner]->PlayerP == pp)
             return true;
 
         // if weapon IS the player no damage
@@ -5824,7 +5824,7 @@ PlayerTakeDamage(PLAYERp pp, short Weapon)
             return false;
 
         // if the weapons owner is a player
-        if (wp->owner >= 0 && User[wp->owner] && User[wp->owner]->PlayerP)
+        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP)
             return false;
     }
     else if (gNet.MultiGameType == MULTI_GAME_COMMBAT && gNet.TeamPlay)
@@ -5838,7 +5838,7 @@ PlayerTakeDamage(PLAYERp pp, short Weapon)
             return true;
 
         // if the weapons owner is YOURSELF take damage
-        if (wp->owner >= 0 && User[wp->owner] && User[wp->owner]->PlayerP && User[wp->owner]->PlayerP == pp)
+        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP && User[wp->owner]->PlayerP == pp)
             return true;
 
         if (wu->PlayerP)
@@ -5849,7 +5849,7 @@ PlayerTakeDamage(PLAYERp pp, short Weapon)
         }
 
         // if the weapons owner is a player
-        if (wp->owner >= 0 && User[wp->owner] && User[wp->owner]->PlayerP)
+        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP)
         {
             // if both on the same team then no damage
             if (User[wp->owner]->spal == u->spal)
@@ -5864,7 +5864,7 @@ PlayerTakeDamage(PLAYERp pp, short Weapon)
 int
 StarBlood(short SpriteNum, short Weapon)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short blood_num = 1;
     short i;
 
@@ -5888,7 +5888,7 @@ int
 DoDamage(short SpriteNum, short Weapon)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp wp;
     USERp wu;
     int damage=0;
@@ -5906,7 +5906,7 @@ DoDamage(short SpriteNum, short Weapon)
         return 0;
 
     wp = &sprite[Weapon];
-    wu = User[Weapon];
+    wu = User[Weapon].Data();
 
     ASSERT(wu);
 
@@ -6681,7 +6681,7 @@ DoDamage(short SpriteNum, short Weapon)
         {
             // this is special code to prevent the Zombie from taking out the Bosses to quick
             // if rail gun weapon owner is not player
-            if (wp->owner >= 0 && User[wp->owner] && !User[wp->owner]->PlayerP)
+            if (wp->owner >= 0 && User[wp->owner].Data() && !User[wp->owner]->PlayerP)
             {
                 // if actor is a boss
                 if (u->ID == ZILLA_RUN_R0 || u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0)
@@ -6920,7 +6920,7 @@ DoDamage(short SpriteNum, short Weapon)
         else
         {
             // Don't let it hurt the SUMO
-            if (wp->owner >=0 && User[wp->owner] && User[wp->owner]->ID == SUMO_RUN_R0) break;  // JBF: added sanity check for wp->owner and User[wp->owner]
+            if (wp->owner >=0 && User[wp->owner].Data() && User[wp->owner]->ID == SUMO_RUN_R0) break;  // JBF: added sanity check for wp->owner and User[wp->owner]
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
@@ -6964,7 +6964,7 @@ DoDamage(short SpriteNum, short Weapon)
 
     case MINE_EXP:
         damage = GetDamage(SpriteNum, Weapon, DMG_MINE_EXP);
-        if (wp->owner >= 0 && User[wp->owner] && User[wp->owner]->ID == SERP_RUN_R0)
+        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->ID == SERP_RUN_R0)
         {
             damage /= 6;
         }
@@ -7044,7 +7044,7 @@ DoDamage(short SpriteNum, short Weapon)
         damage = GetDamage(SpriteNum, Weapon, DMG_NAPALM_EXP);
 
         // Sumo Nap does less
-        if (wp->owner >= 0 && User[wp->owner] && User[wp->owner]->ID == SUMO_RUN_R0)
+        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->ID == SUMO_RUN_R0)
             damage /= 4;
 
         if (u->sop_parent)
@@ -7412,7 +7412,7 @@ DoDamage(short SpriteNum, short Weapon)
 // Select death text based on ID
 const char *DeathString(short SpriteNum)
 {
-    USERp ku = User[SpriteNum];
+    USERp ku = User[SpriteNum].Data();
 
     switch (ku->ID)
     {
@@ -7516,7 +7516,7 @@ int
 DoDamageTest(short Weapon)
 {
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
+    USERp wu = User[Weapon].Data();
 
     USERp u;
     SPRITEp sp;
@@ -7531,7 +7531,7 @@ DoDamageTest(short Weapon)
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
-            u = User[i];
+            u = User[i].Data();
 
 
             DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
@@ -7588,7 +7588,7 @@ int
 DoFlamesDamageTest(short Weapon)
 {
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
+    USERp wu = User[Weapon].Data();
 
     USERp u;
     SPRITEp sp;
@@ -7603,7 +7603,7 @@ DoFlamesDamageTest(short Weapon)
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
-            u = User[i];
+            u = User[i].Data();
 
             switch (u->ID)
             {
@@ -7762,7 +7762,7 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
 int DoExpDamageTest(short Weapon)
 {
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
+    USERp wu = User[Weapon].Data();
 
     USERp u;
     SPRITEp sp;
@@ -7793,7 +7793,7 @@ int DoExpDamageTest(short Weapon)
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
-            u = User[i];
+            u = User[i].Data();
 
             DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
 
@@ -7841,7 +7841,7 @@ int DoExpDamageTest(short Weapon)
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
-            u = User[i];
+            u = User[i].Data();
 
             DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
             if ((unsigned)dist > wu->Radius)
@@ -7915,7 +7915,7 @@ int DoExpDamageTest(short Weapon)
 int DoMineExpMine(short Weapon)
 {
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
+    USERp wu = User[Weapon].Data();
 
     USERp u;
     SPRITEp sp;
@@ -7928,7 +7928,7 @@ int DoMineExpMine(short Weapon)
     while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
-        u = User[i];
+        u = User[i].Data();
 
         DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
         if ((unsigned)dist > wu->Radius + u->Radius)
@@ -7959,7 +7959,7 @@ int
 DoStar(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     USERp su;
     int vel;
 
@@ -8162,7 +8162,7 @@ DoStar(int16_t Weapon)
         short hit_sprite = NORM_SPRITE(u->ret);
         if (hit_sprite != -1)
         {
-            su = User[hit_sprite];
+            su = User[hit_sprite].Data();
             if (su && (su->ID == TRASHCAN || su->ID == ZILLA_RUN_R0))   // JBF: added null test
                 PlaySound(DIGI_STARCLINK, sp, v3df_none);
         }
@@ -8185,9 +8185,9 @@ DoStar(int16_t Weapon)
 int
 DoCrossBolt(int16_t Weapon)
 {
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
-    u = User[Weapon];
+    u = User[Weapon].Data();
 
     ASSERT(Weapon >= 0);
 
@@ -8224,7 +8224,7 @@ int
 DoPlasmaDone(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     sp->xrepeat += u->Counter;
     sp->yrepeat -= 4;
@@ -8263,7 +8263,7 @@ int
 MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     int zh;
     short ang2tgt, delta_ang;
@@ -8283,7 +8283,7 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t d
             {
                 if ((hit_sprite = PickEnemyTarget(sp, aware_range)) != -1)
                 {
-                    USERp hu = User[hit_sprite];
+                    USERp hu = User[hit_sprite].Data();
 
                     u->WpnGoal = hit_sprite;
                     SET(hu->Flags, SPR_TARGETED);
@@ -8292,7 +8292,7 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t d
             }
             else if ((hit_sprite = DoPickTarget(sp, aware_range, false)) != -1)
             {
-                USERp hu = User[hit_sprite];
+                USERp hu = User[hit_sprite].Data();
 
                 u->WpnGoal = hit_sprite;
                 SET(hu->Flags, SPR_TARGETED);
@@ -8346,7 +8346,7 @@ int
 ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     int dist;
     int zh;
@@ -8365,7 +8365,7 @@ ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int1
 
             if ((hit_sprite = DoPickTarget(sp, aware_range, false)) != -1)
             {
-                USERp hu = User[hit_sprite];
+                USERp hu = User[hit_sprite].Data();
 
                 u->WpnGoal = hit_sprite;
                 SET(hu->Flags, SPR_TARGETED);
@@ -8414,7 +8414,7 @@ int
 VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_t aware_range1, int16_t aware_range2)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     int dist;
     int zh;
@@ -8434,7 +8434,7 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
             {
                 if ((hit_sprite = PickEnemyTarget(sp, aware_range1)) != -1)
                 {
-                    USERp hu = User[hit_sprite];
+                    USERp hu = User[hit_sprite].Data();
 
                     u->WpnGoal = hit_sprite;
                     SET(hu->Flags, SPR_TARGETED);
@@ -8442,7 +8442,7 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
                 }
                 else if ((hit_sprite = PickEnemyTarget(sp, aware_range2)) != -1)
                 {
-                    USERp hu = User[hit_sprite];
+                    USERp hu = User[hit_sprite].Data();
 
                     u->WpnGoal = hit_sprite;
                     SET(hu->Flags, SPR_TARGETED);
@@ -8453,7 +8453,7 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
             {
                 if ((hit_sprite = DoPickTarget(sp, aware_range1, false)) != -1)
                 {
-                    USERp hu = User[hit_sprite];
+                    USERp hu = User[hit_sprite].Data();
 
                     u->WpnGoal = hit_sprite;
                     SET(hu->Flags, SPR_TARGETED);
@@ -8461,7 +8461,7 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
                 }
                 else if ((hit_sprite = DoPickTarget(sp, aware_range2, false)) != -1)
                 {
-                    USERp hu = User[hit_sprite];
+                    USERp hu = User[hit_sprite].Data();
 
                     u->WpnGoal = hit_sprite;
                     SET(hu->Flags, SPR_TARGETED);
@@ -8507,7 +8507,7 @@ int
 VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t aware_range2)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     int dist;
     int zh;
@@ -8525,7 +8525,7 @@ VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t
 
             if ((hit_sprite = DoPickTarget(sp, aware_range1, false)) != -1)
             {
-                USERp hu = User[hit_sprite];
+                USERp hu = User[hit_sprite].Data();
 
                 u->WpnGoal = hit_sprite;
                 SET(hu->Flags, SPR_TARGETED);
@@ -8533,7 +8533,7 @@ VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t
             }
             else if ((hit_sprite = DoPickTarget(sp, aware_range2, false)) != -1)
             {
-                USERp hu = User[hit_sprite];
+                USERp hu = User[hit_sprite].Data();
 
                 u->WpnGoal = hit_sprite;
                 SET(hu->Flags, SPR_TARGETED);
@@ -8572,7 +8572,7 @@ VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t
 int
 DoBlurExtend(int16_t Weapon, int16_t interval, int16_t blur_num)
 {
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     if (u->motion_blur_num >= blur_num)
         return 0;
@@ -8602,7 +8602,7 @@ InitPlasmaFountain(SPRITEp wp, SPRITEp sp)
                             sp->x, sp->y, SPRITEp_BOS(sp), sp->ang, 0);
 
     np = &sprite[SpriteNum];
-    nu = User[SpriteNum];
+    nu = User[SpriteNum].Data();
 
     np->shade = -40;
     if (wp)
@@ -8623,7 +8623,7 @@ DoPlasmaFountain(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     SPRITEp ap;
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     short bak_cstat;
 
     // if no owner then die
@@ -8671,7 +8671,7 @@ int
 DoPlasma(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     int32_t dax, day, daz;
     int ox,oy,oz;
 
@@ -8697,7 +8697,7 @@ DoPlasma(int16_t Weapon)
         {
             short hit_sprite = NORM_SPRITE(u->ret);
             SPRITEp hsp = &sprite[hit_sprite];
-            USERp hu = User[hit_sprite];
+            USERp hu = User[hit_sprite].Data();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -8750,7 +8750,7 @@ int
 DoCoolgFire(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -8767,7 +8767,7 @@ DoCoolgFire(int16_t Weapon)
         {
             PlaySound(DIGI_CGMAGICHIT, sp, v3df_follow);
             ChangeState(Weapon, s_CoolgFireDone);
-            if (sp->owner >= 0 && User[sp->owner] && User[sp->owner]->ID != RIPPER_RUN_R0)  // JBF: added range check
+            if (sp->owner >= 0 && User[sp->owner].Data() && User[sp->owner]->ID != RIPPER_RUN_R0)  // JBF: added range check
                 SpawnDemonFist(Weapon); // Just a red magic circle flash
             return true;
         }
@@ -8779,7 +8779,7 @@ DoCoolgFire(int16_t Weapon)
 int
 DoEelFire(short Weapon)
 {
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(Weapon);
@@ -8792,7 +8792,7 @@ DoEelFire(short Weapon)
 
 void ScaleSpriteVector(short SpriteNum, int scale)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->xchange = MulScale(u->xchange, scale, 16);
     u->ychange = MulScale(u->ychange, scale, 16);
@@ -8801,7 +8801,7 @@ void ScaleSpriteVector(short SpriteNum, int scale)
 
 void WallBounce(short SpriteNum, short ang)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     int old_ang;
     //short hit_wall;
@@ -8844,7 +8844,7 @@ void WallBounce(short SpriteNum, short ang)
 
 bool SlopeBounce(short SpriteNum, bool *hit_wall)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     int k,l;
     int hiz,loz;
@@ -8918,7 +8918,7 @@ int
 DoGrenade(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     short i;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -9138,7 +9138,7 @@ DoGrenade(int16_t Weapon)
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         SetOwner(Weapon, New);
         np->shade = -40;
@@ -9165,7 +9165,7 @@ int
 DoVulcanBoulder(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     u->Counter += 40;
     u->zchange += u->Counter;
@@ -9320,10 +9320,10 @@ bool
 OwnerIsPlayer(short Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon],uo;
+    USERp u = User[Weapon].Data(),uo;
 
     if (!u || !sp || (unsigned)sp->owner >= (unsigned)MAXSPRITES) return false;
-    uo = User[sp->owner];
+    uo = User[sp->owner].Data();
     if (uo && uo->PlayerP) return true;
 
     return false;
@@ -9350,7 +9350,7 @@ DoMineRangeTest(short Weapon, short range)
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
-            u = User[i];
+            u = User[i].Data();
 
             // don't detect the owner or the owners bottom half
             //if (wp->owner == i || (u->PlayerP && (wp->owner == u->PlayerP->PlayerSprite)))
@@ -9391,14 +9391,14 @@ int
 DoMineStuck(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 #define MINE_DETONATE_STATE 99
 
     // if no owner then die
     if (u->Attach >= 0)
     {
         SPRITEp ap = &sprite[u->Attach];
-        USERp au = User[u->Attach];
+        USERp au = User[u->Attach].Data();
 
         ASSERT(au);
 
@@ -9554,7 +9554,7 @@ int
 SetMineStuck(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     // stuck
     SET(u->Flags, SPR_BOUNCE);
@@ -9573,7 +9573,7 @@ int
 DoMine(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -9610,7 +9610,7 @@ DoMine(int16_t Weapon)
         {
             short hit_sprite = NORM_SPRITE(u->ret);
             SPRITEp hsp = &sprite[hit_sprite];
-            USERp hu = User[hit_sprite];
+            USERp hu = User[hit_sprite].Data();
 
             SetMineStuck(Weapon);
             // Set the Z position
@@ -9631,7 +9631,7 @@ DoMine(int16_t Weapon)
 
                 if (sp->owner >= 0)
                 {
-                    uo = User[sp->owner];
+                    uo = User[sp->owner].Data();
 
                     if (uo && uo->PlayerP)
                     {
@@ -9736,7 +9736,7 @@ int
 DoPuff(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     sp->x += u->xchange;
     sp->y += u->ychange;
@@ -9760,7 +9760,7 @@ int
 DoBoltThinMan(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     int32_t dax, day, daz;
 
     DoBlurExtend(Weapon, 0, 4);
@@ -9799,7 +9799,7 @@ int
 DoTracer(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     short i;
 
     for (i = 0; i < 4; i++)
@@ -9827,7 +9827,7 @@ int
 DoEMP(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     short i;
 
     for (i = 0; i < 4; i++)
@@ -9866,12 +9866,12 @@ int
 DoEMPBurst(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     if (u->Attach >= 0)
     {
         SPRITEp ap = &sprite[u->Attach];
-        USERp au = User[u->Attach];
+        USERp au = User[u->Attach].Data();
 
         ASSERT(au);
 
@@ -9919,7 +9919,7 @@ DoEMPBurst(int16_t Weapon)
 int
 DoTankShell(int16_t Weapon)
 {
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     short i;
 
     for (i = 0; i < 4; i++)
@@ -9946,7 +9946,7 @@ DoTankShell(int16_t Weapon)
 int
 DoTracerStart(int16_t Weapon)
 {
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -9969,7 +9969,7 @@ int
 DoLaser(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp np;
     USERp nu;
     short New;
@@ -9999,7 +9999,7 @@ DoLaser(int16_t Weapon)
             New = SpawnSprite(STAT_MISSILE, PUFF, s_LaserPuff, sp->sectnum,
                               sp->x, sp->y, sp->z, sp->ang, 0);
             np = &sprite[New];
-            nu = User[New];
+            nu = User[New].Data();
 
             np->shade = -40;
             np->xrepeat = 16;
@@ -10017,7 +10017,7 @@ DoLaser(int16_t Weapon)
 int
 DoLaserStart(int16_t Weapon)
 {
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -10042,7 +10042,7 @@ int
 DoRail(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp np;
     USERp nu;
     short New;
@@ -10099,7 +10099,7 @@ DoRail(int16_t Weapon)
                               sp->x, sp->y, sp->z, sp->ang, 20);
 
             np = &sprite[New];
-            nu = User[New];
+            nu = User[New].Data();
 
             np->xvel += (RANDOM_RANGE(140)-RANDOM_RANGE(140));
             np->yvel += (RANDOM_RANGE(140)-RANDOM_RANGE(140));
@@ -10130,7 +10130,7 @@ DoRail(int16_t Weapon)
 int
 DoRailStart(int16_t Weapon)
 {
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -10156,7 +10156,7 @@ int
 DoRocket(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     int dist,a,b,c;
     auto pos = sp->pos;
 
@@ -10215,7 +10215,7 @@ DoRocket(int16_t Weapon)
                           pos.x, pos.y, pos.z, sp->ang, 100);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         SetOwner(Weapon, New);
         np->shade = -40;
@@ -10243,7 +10243,7 @@ DoRocket(int16_t Weapon)
 int
 DoMicroMini(int16_t Weapon)
 {
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     short i;
 
     for (i = 0; i < 3; i++)
@@ -10270,7 +10270,7 @@ int
 SpawnExtraMicroMini(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp wp;
     USERp wu;
     short w;
@@ -10279,7 +10279,7 @@ SpawnExtraMicroMini(int16_t Weapon)
                     sp->x, sp->y, sp->z, sp->ang, sp->xvel);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(sp->owner, w);
     wp->yrepeat = wp->xrepeat = sp->xrepeat;
@@ -10309,7 +10309,7 @@ int
 DoMicro(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     short New;
 
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -10333,7 +10333,7 @@ DoMicro(int16_t Weapon)
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         SetOwner(sp->owner, New);
         np->shade = -40;
@@ -10384,7 +10384,7 @@ int
 DoUziBullet(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     int32_t dax, day, daz;
     int sx,sy;
     short i;
@@ -10456,7 +10456,7 @@ int
 DoBoltSeeker(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     int32_t dax, day, daz;
 
     MissileSeek(Weapon, 30, 768/*, 4, 48, 6*/);
@@ -10503,7 +10503,7 @@ int
 DoElectro(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     int32_t dax, day, daz;
 
     DoBlurExtend(Weapon, 0, 4);
@@ -10535,7 +10535,7 @@ DoElectro(int16_t Weapon)
             case HIT_SPRITE:
             {
                 SPRITEp hsp = &sprite[NORM_SPRITE(u->ret)];
-                USERp hu = User[NORM_SPRITE(u->ret)];
+                USERp hu = User[NORM_SPRITE(u->ret)].Data();
 
                 if (!TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY) || hu->ID == SKULL_R0 || hu->ID == BETTY_R0)
                     SpawnShrap(Weapon, -1);
@@ -10559,7 +10559,7 @@ DoElectro(int16_t Weapon)
 int
 DoLavaBoulder(int16_t Weapon)
 {
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10588,7 +10588,7 @@ DoLavaBoulder(int16_t Weapon)
 int
 DoSpear(int16_t Weapon)
 {
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10618,7 +10618,7 @@ DoSpear(int16_t Weapon)
 
 int SpawnCoolieExp(short SpriteNum)
 {
-    USERp u = User[SpriteNum], eu;
+    USERp u = User[SpriteNum].Data(), eu;
     SPRITEp sp = &sprite[SpriteNum];
 
     short explosion;
@@ -10638,7 +10638,7 @@ int SpawnCoolieExp(short SpriteNum)
     explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_BoltExp, sp->sectnum,
                             nx, ny, zh, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     SetOwner(SpriteNum, explosion);
@@ -10659,7 +10659,7 @@ int
 SpawnBasicExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -10674,7 +10674,7 @@ SpawnBasicExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, BASIC_EXP, s_BasicExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->xrepeat = 24;
@@ -10702,7 +10702,7 @@ int
 SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp ep;
     USERp eu;
     SPRITEp np;
@@ -10715,7 +10715,7 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
     if (enemy >= 0)
     {
         ep = &sprite[enemy];
-        eu = User[enemy];
+        eu = User[enemy].Data();
 
         // test for already burned
         if (TEST(ep->extra, SPRX_BURNABLE) && ep->shade > 40)
@@ -10730,7 +10730,7 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
         {
             int sizez = SPRITEp_SIZE_Z(ep) + DIV4(SPRITEp_SIZE_Z(ep));
             np = &sprite[eu->flame];
-            nu = User[eu->flame];
+            nu = User[eu->flame].Data();
 
             if (TEST(ep->extra, SPRX_BURNABLE))
                 return eu->flame;
@@ -10771,7 +10771,7 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
     New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
 
     np->hitag = LUMINOUS; //Always full brightness
 
@@ -10837,7 +10837,7 @@ int
 SpawnBreakFlames(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp np;
     USERp nu;
     short New;
@@ -10845,7 +10845,7 @@ SpawnBreakFlames(int16_t SpriteNum)
     New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
 
     np->hitag = LUMINOUS; //Always full brightness
 
@@ -10879,7 +10879,7 @@ int
 SpawnBreakStaticFlames(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp np;
     USERp nu;
     short New;
@@ -10887,7 +10887,7 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
     New = SpawnSprite(STAT_STATIC_FIRE, FIREBALL_FLAMES, NULL, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
 
     if (RANDOM_RANGE(1000) > 500)
         np->picnum = 3143;
@@ -10929,7 +10929,7 @@ int
 SpawnFireballExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -10944,7 +10944,7 @@ SpawnFireballExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, FIREBALL_EXP, s_FireballExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->xrepeat = 52;
@@ -10972,7 +10972,7 @@ int
 SpawnGoroFireballExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -10987,7 +10987,7 @@ SpawnGoroFireballExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, 0, s_FireballExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->xrepeat = 16;
@@ -11011,7 +11011,7 @@ int
 SpawnBoltExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11026,7 +11026,7 @@ SpawnBoltExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_BoltExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     SetOwner(sp->owner, explosion);
@@ -11053,7 +11053,7 @@ int
 SpawnBunnyExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     ASSERT(u);
 
@@ -11075,7 +11075,7 @@ int
 SpawnTankShellExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11090,7 +11090,7 @@ SpawnTankShellExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, TANK_SHELL_EXP, s_TankShellExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     SetOwner(sp->owner, explosion);
@@ -11115,7 +11115,7 @@ int
 SpawnNuclearSecondaryExp(int16_t Weapon, short ang)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11125,7 +11125,7 @@ SpawnNuclearSecondaryExp(int16_t Weapon, short ang)
     explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 512);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     SetOwner(sp->owner, explosion);
@@ -11163,7 +11163,7 @@ int
 SpawnNuclearExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion,ang=0;
@@ -11193,7 +11193,7 @@ SpawnNuclearExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, MUSHROOM_CLOUD, s_NukeMushroom, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     SetOwner(sp->owner, explosion);
@@ -11212,7 +11212,7 @@ SpawnNuclearExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, MUSHROOM_CLOUD, s_GrenadeExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     SetOwner(sp->owner, explosion);
     exp->shade = -128;
@@ -11257,7 +11257,7 @@ int
 SpawnTracerExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11274,7 +11274,7 @@ SpawnTracerExp(int16_t Weapon)
                                 sp->x, sp->y, sp->z, sp->ang, 0);
 
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     SetOwner(sp->owner, explosion);
@@ -11303,7 +11303,7 @@ int
 SpawnMicroExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11317,7 +11317,7 @@ SpawnMicroExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, MICRO_EXP, s_MicroExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     SetOwner(sp->owner, explosion);
@@ -11347,7 +11347,7 @@ int
 AddSpriteToSectorObject(short SpriteNum, SECTOR_OBJECTp sop)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     unsigned sn;
 
     // make sure it has a user
@@ -11395,12 +11395,12 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop)
     }
 
     sp = &sprite[Weapon];
-    u = User[Weapon];
+    u = User[Weapon].Data();
 
     explosion = SpawnSprite(STAT_MISSILE, MICRO_EXP, s_BigGunFlame, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     SetOwner(Operator, explosion);
@@ -11460,7 +11460,7 @@ int
 SpawnGrenadeSecondaryExp(int16_t Weapon, short ang)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11471,7 +11471,7 @@ SpawnGrenadeSecondaryExp(int16_t Weapon, short ang)
     explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_GrenadeSmallExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 1024);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     SetOwner(sp->owner, explosion);
@@ -11519,7 +11519,7 @@ int
 SpawnGrenadeExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11533,7 +11533,7 @@ SpawnGrenadeExp(int16_t Weapon)
 
     if (RANDOM_RANGE(1000) > 990)
     {
-        if (sp->owner >= 0 && User[sp->owner] && User[sp->owner]->PlayerP)
+        if (sp->owner >= 0 && User[sp->owner].Data() && User[sp->owner]->PlayerP)
         {
             PLAYERp pp = User[sp->owner]->PlayerP;
             PlayerSound(DIGI_LIKEFIREWORKS, v3df_follow|v3df_dontpan,pp);
@@ -11554,7 +11554,7 @@ SpawnGrenadeExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, sp->sectnum,
                             dx, dy, dz, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     SetOwner(sp->owner, explosion);
@@ -11596,8 +11596,8 @@ SpawnGrenadeExp(int16_t Weapon)
 
 void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize)
 {
-    USERp u = User[Weapon];
-    USERp eu = User[exp - sprite];
+    USERp u = User[Weapon].Data();
+    USERp eu = User[exp - sprite].Data();
     int tos_z, bos_z;
 
     ASSERT(eu);
@@ -11643,7 +11643,7 @@ int
 SpawnMineExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11659,7 +11659,7 @@ SpawnMineExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, MINE_EXP, s_MineExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     SetOwner(sp->owner, explosion);
@@ -11738,7 +11738,7 @@ InitMineShrap(short SpriteNum)
 int DoMineExp(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     DoExpDamageTest(SpriteNum);
     //InitMineShrap(SpriteNum);
@@ -11750,7 +11750,7 @@ int
 DoSectorExp(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     sp->x += u->xchange;
     sp->y += u->ychange;
@@ -11762,7 +11762,7 @@ int
 SpawnSectorExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11776,7 +11776,7 @@ SpawnSectorExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->owner = -1;
@@ -11808,7 +11808,7 @@ SpawnLargeExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->owner = -1;
@@ -11833,7 +11833,7 @@ int
 SpawnMeteorExp(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11855,7 +11855,7 @@ SpawnMeteorExp(int16_t Weapon)
     }
 
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->owner = -1;
@@ -11892,7 +11892,7 @@ SpawnLittleExp(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->owner = -1;
@@ -11911,9 +11911,9 @@ int
 DoFireball(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
-    u = User[Weapon];
+    u = User[Weapon].Data();
 
     ASSERT(Weapon >= 0);
 
@@ -11965,7 +11965,7 @@ DoFireball(int16_t Weapon)
                 USERp hu;
 
                 hsp = &sprite[NORM_SPRITE(u->ret)];
-                hu = User[NORM_SPRITE(u->ret)];
+                hu = User[NORM_SPRITE(u->ret)].Data();
 
                 if (TEST(hsp->extra, SPRX_BURNABLE))
                 {
@@ -12001,7 +12001,7 @@ int
 DoFindGround(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], hsp;
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int ceilhit, florhit;
     short save_cstat;
     short bak_cstat;
@@ -12060,7 +12060,7 @@ int
 DoFindGroundPoint(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], hsp;
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int ceilhit, florhit;
     short save_cstat;
     short bak_cstat;
@@ -12119,13 +12119,13 @@ int
 DoNapalm(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], exp;
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     short explosion;
     int ox, oy, oz;
 
     DoBlurExtend(Weapon, 1, 7);
 
-    u = User[Weapon];
+    u = User[Weapon].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -12186,7 +12186,7 @@ DoNapalm(int16_t Weapon)
                                 sp->x, sp->y, sp->z, sp->ang, 0);
 
         exp = &sprite[explosion];
-        eu = User[explosion];
+        eu = User[explosion].Data();
 
         exp->hitag = LUMINOUS; //Always full brightness
         //exp->owner = sp->owner;
@@ -12235,14 +12235,14 @@ int
 DoBloodWorm(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     short ang;
     int xvect,yvect;
     int bx,by;
     int amt;
     short sectnum;
 
-    u = User[Weapon];
+    u = User[Weapon].Data();
 
     u->ret = move_ground_missile(Weapon, u->xchange, u->ychange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -12275,7 +12275,7 @@ DoBloodWorm(int16_t Weapon)
             while ((i = it.NextIndex()) >= 0)
             {
                 tsp = &sprite[i];
-                tu = User[i];
+                tu = User[i].Data();
 
                 ASSERT(tu);
 
@@ -12327,7 +12327,7 @@ int
 DoBloodWorm(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], exp;
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     int offset;
 	short ang;
     int x,y,z,xvect,yvect;
@@ -12335,7 +12335,7 @@ DoBloodWorm(int16_t Weapon)
     int amt;
     short sectnum;
 
-    u = User[Weapon];
+    u = User[Weapon].Data();
 
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -12389,7 +12389,7 @@ DoBloodWorm(int16_t Weapon)
         while ((i = it.NextIndex()) >= 0)
         {
             tsp = &sprite[i];
-            tu = User[i];
+            tu = User[i].Data();
 
             ASSERT(tu);
 
@@ -12464,7 +12464,7 @@ int
 DoSerpMeteor(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     int ox, oy, oz;
 
     ox = sp->x;
@@ -12484,7 +12484,7 @@ DoSerpMeteor(int16_t Weapon)
         if (TEST(u->ret, HIT_MASK) == HIT_SPRITE)
         {
             SPRITEp hsp = &sprite[NORM_SPRITE(u->ret)];
-            USERp hu = User[NORM_SPRITE(u->ret)];
+            USERp hu = User[NORM_SPRITE(u->ret)].Data();
 
             if (hu && hu->ID >= SKULL_R0 && hu->ID <= SKULL_SERP)
             {
@@ -12522,9 +12522,9 @@ int
 DoMirvMissile(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
-    u = User[Weapon];
+    u = User[Weapon].Data();
 
     sp->xrepeat += MISSILEMOVETICS * 2;
     if (sp->xrepeat > 80)
@@ -12555,11 +12555,11 @@ int
 DoMirv(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], np;
-    USERp u = User[Weapon], nu;
+    USERp u = User[Weapon].Data(), nu;
     short New;
 //    int ox, oy, oz;
 
-    u = User[Weapon];
+    u = User[Weapon].Data();
 
 //    ox = sp->x;
 //    oy = sp->y;
@@ -12615,7 +12615,7 @@ DoMirv(int16_t Weapon)
                               sp->x, sp->y, sp->z, NORM_ANGLE(sp->ang + angs[i]), 800);
 
             np = &sprite[New];
-            nu = User[New];
+            nu = User[New].Data();
 
             nu->RotNum = 5;
             NewStateGroup(New, &sg_MirvMeteor[0]);
@@ -12660,7 +12660,7 @@ bool
 MissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist)
 {
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
+    USERp wu = User[Weapon].Data();
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;
     bool retval = false;
@@ -12704,7 +12704,7 @@ bool
 TestMissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist, int zvel)
 {
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
+    USERp wu = User[Weapon].Data();
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;
     bool retval = false;
@@ -12748,7 +12748,7 @@ int
 DoRing(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     PLAYERp pp = User[sp->owner]->PlayerP;
     SPRITEp so = &sprite[sp->owner];
     int cz,fz;
@@ -12881,7 +12881,7 @@ InitSpellRing(PLAYERp pp)
         sp->yrepeat = 32;
         sp->zvel = 0;
 
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
 
         u->sz = Z(20);
         u->Dist = RING_INNER_DIST;
@@ -12912,8 +12912,8 @@ int
 DoSerpRing(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
-    USERp ou = User[sp->owner];
+    USERp u = User[Weapon].Data();
+    USERp ou = User[sp->owner].Data();
     int dist,a,b,c;
     int cz,fz;
 
@@ -12977,7 +12977,7 @@ DoSerpRing(int16_t Weapon)
 
     if (u->Counter2 > 0)
     {
-        if (!User[ou->tgt_sp-sprite] ||
+        if (!User[ou->tgt_sp-sprite].Data() ||
             !User[ou->tgt_sp-sprite]->PlayerP ||
             !TEST(User[ou->tgt_sp-sprite]->PlayerP->Flags, PF_DEAD))
         {
@@ -13036,7 +13036,7 @@ int
 InitLavaThrow(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     int nx, ny, nz, dist, nang;
     short w;
 
@@ -13054,7 +13054,7 @@ InitLavaThrow(short SpriteNum)
                     nx, ny, nz, nang, NINJA_BOLT_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(SpriteNum, w);
     wp->hitag = LUMINOUS; //Always full brightness
@@ -13127,7 +13127,7 @@ InitVulcanBoulder(short SpriteNum)
                     nx, ny, nz, nang, (vel/2 + vel/4) + RANDOM_RANGE(vel/4));
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(SpriteNum, w);
     wp->xrepeat = wp->yrepeat = 8 + RANDOM_RANGE(72);
@@ -13170,7 +13170,7 @@ int
 InitSerpRing(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP, np;
-    USERp u = User[SpriteNum], nu;
+    USERp u = User[SpriteNum].Data(), nu;
     short ang, ang_diff, ang_start, ang_finish, missiles, NewSprite;
     short max_missiles = 16;
 
@@ -13225,7 +13225,7 @@ int
 InitSerpRing(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP, np;
-    USERp u = User[SpriteNum], nu;
+    USERp u = User[SpriteNum].Data(), nu;
     short ang, ang_diff, ang_start, missiles, New;
     short max_missiles;
 
@@ -13250,7 +13250,7 @@ InitSerpRing(short SpriteNum)
         New = SpawnSprite(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], sp->sectnum, sp->x, sp->y, sp->z, ang, 0);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         np->xvel = 500;
         //np->owner = SpriteNum;
@@ -13301,7 +13301,7 @@ int
 InitSerpRing2(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP, np;
-    USERp u = User[SpriteNum], nu;
+    USERp u = User[SpriteNum].Data(), nu;
     short ang, ang_diff, ang_start, ang_finish, missiles, New;
     short max_missiles;
     short i;
@@ -13329,7 +13329,7 @@ InitSerpRing2(short SpriteNum)
             New = SpawnSprite(STAT_MISSILE_SKIP4, SKULL_SERP, &s_SkullRing[0][0], sp->sectnum, sp->x, sp->y, sp->z, ang, 0);
 
             np = &sprite[New];
-            nu = User[New];
+            nu = User[New].Data();
 
             //np->owner = SpriteNum;
             SetOwner(SpriteNum, New);
@@ -13416,7 +13416,7 @@ InitSpellNapalm(PLAYERp pp)
                                 pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), NAPALM_VELOCITY*2);
 
         sp = &sprite[SpriteNum];
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
 
         sp->hitag = LUMINOUS; //Always full brightness
 
@@ -13477,7 +13477,7 @@ InitEnemyNapalm(short SpriteNum)
 {
     short w;
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     short dist;
     unsigned i;
     short oclipdist;
@@ -13503,7 +13503,7 @@ InitEnemyNapalm(short SpriteNum)
                         sp->x, sp->y, SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)), sp->ang, NAPALM_VELOCITY);
 
         wp = &sprite[w];
-        wu = User[w];
+        wu = User[w].Data();
 
         wp->hitag = LUMINOUS; //Always full brightness
         if (i==0) // Only attach sound to first projectile
@@ -13576,7 +13576,7 @@ InitSpellMirv(PLAYERp pp)
                             pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), MIRV_VELOCITY);
 
     sp = &sprite[SpriteNum];
-    u = User[SpriteNum];
+    u = User[SpriteNum].Data();
 
     PlaySound(DIGI_MIRVWIZ, sp, v3df_follow);
     Set3DSoundOwner(SpriteNum);
@@ -13613,7 +13613,7 @@ int
 InitEnemyMirv(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     short w;
     int dist;
 
@@ -13623,7 +13623,7 @@ InitEnemyMirv(short SpriteNum)
                     sp->x, sp->y, SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)), sp->ang, MIRV_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     PlaySound(DIGI_MIRVWIZ, wp, v3df_follow);
     Set3DSoundOwner(w);
@@ -13659,7 +13659,7 @@ InitEnemyMirv(short SpriteNum)
 int
 InitSwordAttack(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite],tu;
+    USERp u = User[pp->PlayerSprite].Data(),tu;
     SPRITEp sp = NULL;
     int i;
     unsigned stat;
@@ -13757,7 +13757,7 @@ InitSwordAttack(PLAYERp pp)
             {
                 extern STATE s_TrashCanPain[];
                 SPRITEp hsp = &sprite[hitinfo.sprite];
-                tu = User[hitinfo.sprite];
+                tu = User[hitinfo.sprite].Data();
 
                 if (tu) // JBF: added null check
                     switch (tu->ID)
@@ -13838,7 +13838,7 @@ InitSwordAttack(PLAYERp pp)
 int
 InitFistAttack(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite],tu;
+    USERp u = User[pp->PlayerSprite].Data(),tu;
     SPRITEp sp = NULL;
     int i;
     unsigned stat;
@@ -13948,7 +13948,7 @@ InitFistAttack(PLAYERp pp)
             {
                 extern STATE s_TrashCanPain[];
                 SPRITEp hsp = &sprite[hitinfo.sprite];
-                tu = User[hitinfo.sprite];
+                tu = User[hitinfo.sprite].Data();
 
                 if (tu)     // JBF: added null check
                     switch (tu->ID)
@@ -14049,7 +14049,7 @@ InitSumoNapalm(short SpriteNum)
 {
     short w;
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     short dist;
     short i,j,ang;
     short oclipdist;
@@ -14076,7 +14076,7 @@ InitSumoNapalm(short SpriteNum)
                             sp->x, sp->y, SPRITEp_TOS(sp), ang, NAPALM_VELOCITY);
 
             wp = &sprite[w];
-            wu = User[w];
+            wu = User[w].Data();
 
             wp->hitag = LUMINOUS; //Always full brightness
             if (i==0) // Only attach sound to first projectile
@@ -14134,7 +14134,7 @@ int
 InitSumoSkull(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP, np;
-    USERp u = User[SpriteNum], nu;
+    USERp u = User[SpriteNum].Data(), nu;
     short New;
 
     extern STATE s_SkullExplode[];
@@ -14148,7 +14148,7 @@ InitSumoSkull(short SpriteNum)
     New = SpawnSprite(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], sp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
 
     np->xvel = 500;
     SetOwner(SpriteNum, New);
@@ -14189,7 +14189,7 @@ InitSumoSkull(short SpriteNum)
 int
 InitSumoStompAttack(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = &sprite[SpriteNum],tsp;
     int i;
     unsigned stat;
@@ -14232,7 +14232,7 @@ int
 InitMiniSumoClap(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int dist;
     short reach;
 
@@ -14269,8 +14269,8 @@ InitMiniSumoClap(short SpriteNum)
 int
 WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
 {
-    USERp wu = User[Missile];
-    USERp u = User[sp - sprite];
+    USERp wu = User[Missile].Data();
+    USERp u = User[sp - sprite].Data();
     SPRITEp wp = &sprite[Missile];
     short hit_sprite = -1;
     int dist;
@@ -14296,7 +14296,7 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
     if ((hit_sprite = DoPickTarget(sp, ang, test)) != -1)
     {
         SPRITEp hp = &sprite[hit_sprite];
-        USERp hu = User[hit_sprite];
+        USERp hu = User[hit_sprite].Data();
 
         wu->WpnGoal = hit_sprite;
         SET(hu->Flags, SPR_TARGETED);
@@ -14339,8 +14339,8 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
 int
 WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
 {
-    USERp wu = User[Missile];
-    USERp u = User[sp - sprite];
+    USERp wu = User[Missile].Data();
+    USERp u = User[sp - sprite].Data();
     SPRITEp wp = &sprite[Missile];
     short hit_sprite = -1;
     int dist;
@@ -14366,7 +14366,7 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
     if ((hit_sprite = DoPickTarget(sp, ang, test)) != -1)
     {
         SPRITEp hp = &sprite[hit_sprite];
-        USERp hu = User[hit_sprite];
+        USERp hu = User[hit_sprite].Data();
 
         wu->WpnGoal = hit_sprite;
         SET(hu->Flags, SPR_TARGETED);
@@ -14410,7 +14410,7 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
 int
 AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
 {
-    USERp u = User[sp - sprite];
+    USERp u = User[sp - sprite].Data();
     short hit_sprite = -1;
     int dist;
     int zh;
@@ -14424,7 +14424,7 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
 
     hit_sprite = u->tgt_sp - sprite;
     hp = &sprite[hit_sprite];
-    hu = User[hit_sprite];
+    hu = User[hit_sprite].Data();
 
     SET(hu->Flags, SPR_TARGETED);
     SET(hu->Flags, SPR_ATTACKED);
@@ -14467,7 +14467,7 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
 int
 WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
 {
-    USERp u = User[sp - sprite];
+    USERp u = User[sp - sprite].Data();
     short hit_sprite = -1;
     int dist;
     int zh;
@@ -14485,7 +14485,7 @@ WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
     if ((hit_sprite = DoPickTarget(sp, *ang, test)) != -1)
     {
         SPRITEp hp = &sprite[hit_sprite];
-        USERp hu = User[hit_sprite];
+        USERp hu = User[hit_sprite].Data();
 
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
@@ -14557,7 +14557,7 @@ WeaponHitscanShootFeet(SPRITEp sp, SPRITEp hp, int *zvect)
 int
 InitStar(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -14591,7 +14591,7 @@ InitStar(PLAYERp pp)
 
     w = SpawnSprite(STAT_MISSILE, STAR1, s_Star, pp->cursectnum, nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     //SET(wp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
     SetOwner(pp->PlayerSprite, w);
@@ -14638,7 +14638,7 @@ InitStar(PLAYERp pp)
     {
         nw = SpawnSprite(STAT_MISSILE, STAR1, s_Star, pp->cursectnum, nx, ny, nz, NORM_ANGLE(wp->ang + dang[i]), wp->xvel);
         np = &sprite[nw];
-        nu = User[nw];
+        nu = User[nw].Data();
 
         SetOwner(wp->owner, nw);
         np->yrepeat = np->xrepeat = STAR_REPEAT;
@@ -14707,7 +14707,7 @@ InitHeartAttack(PLAYERp pp)
                             pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), BLOOD_WORM_VELOCITY*2);
 
     sp = &sprite[SpriteNum];
-    u = User[SpriteNum];
+    u = User[SpriteNum].Data();
 
     sp->hitag = LUMINOUS; //Always full brightness
 
@@ -14761,7 +14761,7 @@ InitHeartAttack(PLAYERp pp)
     USERp u;
     short i = 0;
     short oclipdist;
-    USERp pu = User[pp->PlayerSprite];
+    USERp pu = User[pp->PlayerSprite].Data();
 
     typedef struct
     {
@@ -14783,7 +14783,7 @@ InitHeartAttack(PLAYERp pp)
                             pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), BLOOD_WORM_VELOCITY*2);
 
     sp = &sprite[SpriteNum];
-    u = User[SpriteNum];
+    u = User[SpriteNum].Data();
 
     sp->hitag = LUMINOUS; //Always full brightness
 
@@ -14823,7 +14823,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
 {
     short j;
     hitdata_t hitinfo;
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     FAFhitscan(x, y, z, sectnum,
                xvect, yvect, zvect,
@@ -14903,7 +14903,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
 int
 InitShotgun(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     short daang,ndaang, i, j;
     hitdata_t hitinfo;
     short nsect;
@@ -15032,7 +15032,7 @@ InitShotgun(PLAYERp pp)
         if (hitinfo.sprite >= 0)
         {
             SPRITEp hsp = &sprite[hitinfo.sprite];
-            USERp hu = User[hitinfo.sprite];
+            USERp hu = User[hitinfo.sprite].Data();
 
             if (hu && hu->ID == TRASHCAN)   // JBF: added null check
             {
@@ -15079,7 +15079,7 @@ InitShotgun(PLAYERp pp)
 int
 InitLaser(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -15107,7 +15107,7 @@ InitLaser(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), 300);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     wp->hitag = LUMINOUS; //Always full brightness
     SetOwner(pp->PlayerSprite, w);
@@ -15184,7 +15184,7 @@ InitLaser(PLAYERp pp)
 int
 InitRail(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -15218,7 +15218,7 @@ InitRail(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), 1200);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = 52;
@@ -15277,7 +15277,7 @@ int
 InitZillaRail(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -15304,7 +15304,7 @@ InitZillaRail(short SpriteNum)
                     nx, ny, nz, sp->ang, 1200);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(SpriteNum, w);
     wp->yrepeat = 52;
@@ -15362,7 +15362,7 @@ InitZillaRail(short SpriteNum)
 int
 InitRocket(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -15418,7 +15418,7 @@ InitRocket(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = pp->PlayerSprite;
     SetOwner(pp->PlayerSprite, w);
@@ -15496,7 +15496,7 @@ InitRocket(PLAYERp pp)
 int
 InitBunnyRocket(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -15549,7 +15549,7 @@ InitBunnyRocket(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = pp->PlayerSprite;
     SetOwner(pp->PlayerSprite, w);
@@ -15625,7 +15625,7 @@ InitBunnyRocket(PLAYERp pp)
 int
 InitNuke(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -15663,7 +15663,7 @@ InitNuke(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), 700);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = pp->PlayerSprite;
     SetOwner(pp->PlayerSprite, w);
@@ -15732,7 +15732,7 @@ int
 InitEnemyNuke(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -15756,7 +15756,7 @@ InitEnemyNuke(short SpriteNum)
                     nx, ny, nz, sp->ang, 700);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     if (u->ID == ZOMBIE_RUN_R0)
         SetOwner(sp->owner, w);
@@ -15818,7 +15818,7 @@ InitEnemyNuke(short SpriteNum)
 int
 InitMicro(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     USERp wu,hu;
     SPRITEp wp,hp;
     int nx, ny, nz, dist;
@@ -15848,7 +15848,7 @@ InitMicro(PLAYERp pp)
         if (ts < &TargetSort[TargetSortCount] && ts->sprite_num >= 0)
         {
             hp = &sprite[ts->sprite_num];
-            hu = User[ts->sprite_num];
+            hu = User[ts->sprite_num].Data();
 
             ang = getangle(hp->x - nx, hp->y - ny);
 
@@ -15871,7 +15871,7 @@ InitMicro(PLAYERp pp)
                         nx, ny, nz, ang, 1200);
 
         wp = &sprite[w];
-        wu = User[w];
+        wu = User[w].Data();
 
         SetOwner(pp->PlayerSprite, w);
         wp->yrepeat = 24;
@@ -15954,7 +15954,7 @@ InitMicro(PLAYERp pp)
 int
 InitRipperSlash(short SpriteNum)
 {
-    USERp u = User[SpriteNum], hu;
+    USERp u = User[SpriteNum].Data(), hu;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
     int i;
@@ -15969,7 +15969,7 @@ InitRipperSlash(short SpriteNum)
         while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
-            hu = User[i];
+            hu = User[i].Data();
 
             if (i == SpriteNum)
                 break;
@@ -16140,7 +16140,7 @@ DoBladeDamage(short SpriteNum)
 int
 DoStaticFlamesDamage(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
     int i;
@@ -16292,7 +16292,7 @@ InitGoroChop(short SpriteNum)
 int
 InitHornetSting(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short HitSprite = NORM_SPRITE(u->ret);
 
     DoDamage(HitSprite, SpriteNum);
@@ -16305,7 +16305,7 @@ int
 InitSerpSpell(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], np;
-    USERp u = User[SpriteNum], nu;
+    USERp u = User[SpriteNum].Data(), nu;
     int dist;
     short New, i;
     short oclipdist;
@@ -16328,7 +16328,7 @@ InitSerpSpell(short SpriteNum)
                           sp->x, sp->y, sp->z, sp->ang, 1500);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         np->z = SPRITEp_TOS(sp);
 
@@ -16383,7 +16383,7 @@ int
 SpawnDemonFist(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -16397,7 +16397,7 @@ SpawnDemonFist(int16_t Weapon)
                             sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->owner = -1;
@@ -16422,7 +16422,7 @@ int
 InitSerpMonstSpell(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], np;
-    USERp u = User[SpriteNum], nu;
+    USERp u = User[SpriteNum].Data(), nu;
     int dist;
     short New, i;
     short oclipdist;
@@ -16447,7 +16447,7 @@ InitSerpMonstSpell(short SpriteNum)
                           sp->x, sp->y, sp->z, sp->ang, 500);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         nu->spal = np->pal = 25; // Bright Red
         np->z = SPRITEp_TOS(sp);
@@ -16515,7 +16515,7 @@ int
 InitEnemyRocket(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     int nx, ny, nz, dist, nang;
     short w;
 
@@ -16535,7 +16535,7 @@ InitEnemyRocket(short SpriteNum)
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], sp->sectnum,
                     nx, ny, nz-Z(8), u->tgt_sp->ang, NINJA_BOLT_VELOCITY);
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     // Set default palette
     wp->pal = wu->spal = 17; // White
@@ -16580,7 +16580,7 @@ InitEnemyRocket(short SpriteNum)
 int
 InitEnemyRail(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     USERp wu;
     SPRITEp wp;
@@ -16628,7 +16628,7 @@ InitEnemyRail(short SpriteNum)
                     nx, ny, nz, sp->ang, 1200);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     if (u->ID == ZOMBIE_RUN_R0)
         SetOwner(sp->owner, w);
@@ -16677,7 +16677,7 @@ int
 InitZillaRocket(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     int nx, ny, nz, dist, nang;
     short w, i;
 
@@ -16714,7 +16714,7 @@ InitZillaRocket(short SpriteNum)
         w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], sp->sectnum,
                         nx, ny, nz-Z(8), u->tgt_sp->ang, NINJA_BOLT_VELOCITY);
         wp = &sprite[w];
-        wu = User[w];
+        wu = User[w].Data();
 
         SetOwner(SpriteNum, w);
         wp->yrepeat = 28;
@@ -16765,7 +16765,7 @@ int
 InitEnemyStar(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     int nx, ny, nz, dist, nang;
     short w;
 
@@ -16780,7 +16780,7 @@ InitEnemyStar(short SpriteNum)
     wp = &sprite[w = SpawnSprite(STAT_MISSILE, STAR1, s_Star, sp->sectnum,
                                  nx, ny, nz, u->tgt_sp->ang, NINJA_STAR_VELOCITY)];
 
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = SpriteNum;
     SetOwner(SpriteNum, w);
@@ -16854,7 +16854,7 @@ int
 InitEnemyCrossbow(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     int nx, ny, nz, dist, nang;
     short w;
 
@@ -16869,7 +16869,7 @@ InitEnemyCrossbow(short SpriteNum)
     wp = &sprite[w = SpawnSprite(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], sp->sectnum,
                                  nx, ny, nz, u->tgt_sp->ang, 800)];
 
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = SpriteNum;
     SetOwner(SpriteNum, w);
@@ -16949,7 +16949,7 @@ int
 InitSkelSpell(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     int nx, ny, nz, dist, nang;
     short w;
 
@@ -16966,7 +16966,7 @@ InitSkelSpell(short SpriteNum)
     w = SpawnSprite(STAT_MISSILE, ELECTRO_ENEMY, s_Electro, sp->sectnum,
                     nx, ny, nz, u->tgt_sp->ang, SKEL_ELECTRO_VELOCITY);
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = SpriteNum;
     SetOwner(SpriteNum, w);
@@ -16998,7 +16998,7 @@ int
 InitCoolgFire(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     int nx, ny, nz, dist, nang;
     short w;
 
@@ -17019,7 +17019,7 @@ InitCoolgFire(short SpriteNum)
                     nx, ny, nz, u->tgt_sp->ang, COOLG_FIRE_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = SpriteNum;
     SetOwner(SpriteNum, w);
@@ -17062,7 +17062,7 @@ InitCoolgFire(short SpriteNum)
 int DoCoolgDrip(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->Counter += 220;
     sp->z += u->Counter;
@@ -17094,7 +17094,7 @@ InitCoolgDrip(short SpriteNum)
                     nx, ny, nz, sp->ang, 0);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = SpriteNum;
     SetOwner(SpriteNum, w);
@@ -17115,7 +17115,7 @@ int
 GenerateDrips(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     int nx, ny, nz;
     short w = 0;
 
@@ -17140,7 +17140,7 @@ GenerateDrips(short SpriteNum)
                         nx, ny, nz, sp->ang, 0);
 
         wp = &sprite[w];
-        wu = User[w];
+        wu = User[w].Data();
 
         //wp->owner = SpriteNum;
         SetOwner(SpriteNum, w);
@@ -17162,7 +17162,7 @@ GenerateDrips(short SpriteNum)
 int
 InitEelFire(short SpriteNum)
 {
-    USERp u = User[SpriteNum], hu;
+    USERp u = User[SpriteNum].Data(), hu;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
     int i;
@@ -17175,7 +17175,7 @@ InitEelFire(short SpriteNum)
         while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
-            hu = User[i];
+            hu = User[i].Data();
 
             if (i == SpriteNum)
                 continue;
@@ -17219,7 +17219,7 @@ InitFireballTrap(short SpriteNum)
     w = SpawnSprite(STAT_MISSILE, FIREBALL, s_Fireball, sp->sectnum, nx, ny, nz,
                     sp->ang, FIREBALL_TRAP_VELOCITY);
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = SpriteNum;
     wp->hitag = LUMINOUS; //Always full brightness
@@ -17257,7 +17257,7 @@ InitBoltTrap(short SpriteNum)
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], sp->sectnum, nx, ny, nz,
                     sp->ang, BOLT_TRAP_VELOCITY);
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = SpriteNum;
     SetOwner(SpriteNum, w);
@@ -17283,7 +17283,7 @@ int
 InitEnemyCrossbow(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     int nx, ny, nz, dist, nang;
     short w;
 
@@ -17298,7 +17298,7 @@ InitEnemyCrossbow(short SpriteNum)
     wp = &sprite[w = SpawnSprite(STAT_MISSILE, CROSSBOLT, s_CrossBolt, sp->sectnum,
                                  nx, ny, nz, u->tgt_sp->ang, 800)];
 
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = SpriteNum;
     SetOwner(SpriteNum, w);
@@ -17337,7 +17337,7 @@ InitSpearTrap(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
-    //USERp u = User[SpriteNum];
+    //USERp u = User[SpriteNum].Data();
     int nx, ny, nz;
     short w;
     //short nang;
@@ -17350,7 +17350,7 @@ InitSpearTrap(short SpriteNum)
     w = SpawnSprite(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], sp->sectnum, nx, ny, nz, sp->ang, 750);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     //wp->owner = SpriteNum;
     SetOwner(SpriteNum, w);
@@ -17403,7 +17403,7 @@ InitTracerUzi(PLAYERp pp)
     if (pp->cursectnum < 0)
         return 0;
 
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     SPRITEp wp;
     USERp wu;
 
@@ -17426,7 +17426,7 @@ InitTracerUzi(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), TRACER_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     wp->hitag = LUMINOUS; //Always full brightness
     //wp->owner = pp->PlayerSprite;
@@ -17484,7 +17484,7 @@ InitTracerUzi(PLAYERp pp)
 int
 InitTracerTurret(short SpriteNum, short Operator, fixed_t q16horiz)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SPRITEp wp;
     USERp wu;
@@ -17503,7 +17503,7 @@ InitTracerTurret(short SpriteNum, short Operator, fixed_t q16horiz)
                     nx, ny, nz, sp->ang, TRACER_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     wp->hitag = LUMINOUS; //Always full brightness
     if (Operator >= 0)
@@ -17542,7 +17542,7 @@ InitTracerTurret(short SpriteNum, short Operator, fixed_t q16horiz)
 int
 InitTracerAutoTurret(short SpriteNum, short Operator, int xchange, int ychange, int zchange)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SPRITEp wp;
     USERp wu;
@@ -17561,7 +17561,7 @@ InitTracerAutoTurret(short SpriteNum, short Operator, int xchange, int ychange, 
                     nx, ny, nz, sp->ang, TRACER_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     wp->hitag = LUMINOUS; //Always full brightness
     if (Operator >= 0)
@@ -17595,7 +17595,7 @@ BulletHitSprite(SPRITEp sp, short hit_sprite, int hit_x, int hit_y, int hit_z, s
 {
     vec3_t hit_pos = { hit_x, hit_y, hit_z };
     SPRITEp hsp = &sprite[hit_sprite];
-    USERp hu = User[hit_sprite];
+    USERp hu = User[hit_sprite].Data();
     SPRITEp wp;
 //    USERp wu;
     short New;
@@ -17758,7 +17758,7 @@ HitscanSpriteAdjust(short SpriteNum, short hit_wall)
 int
 InitUzi(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     SPRITEp wp, hsp;
     USERp wu;
     short daang, j;
@@ -17893,7 +17893,7 @@ InitUzi(PLAYERp pp)
     // hit a sprite?
     if (hitinfo.sprite >= 0)
     {
-        USERp hu = User[hitinfo.sprite];
+        USERp hu = User[hitinfo.sprite].Data();
         hsp = &sprite[hitinfo.sprite];
 
         if (hu) // JBF: added null check
@@ -17946,7 +17946,7 @@ InitUzi(PLAYERp pp)
 
     j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
     wp = &sprite[j];
-    wu = User[j];
+    wu = User[j].Data();
     wp->shade = -40;
     wp->xrepeat = UZI_SPARK_REPEAT;
     wp->yrepeat = UZI_SPARK_REPEAT;
@@ -17971,7 +17971,7 @@ InitUzi(PLAYERp pp)
 int
 InitEMP(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     SPRITEp wp, hsp=NULL;
     USERp wu;
     short daang, j;
@@ -18011,7 +18011,7 @@ InitEMP(PLAYERp pp)
     j = SpawnSprite(STAT_MISSILE, EMP, s_EMPBurst, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
 
     wp = &sprite[j];
-    wu = User[j];
+    wu = User[j].Data();
 
     wu->WaitTics = SEC(7);
     wp->shade = -127;
@@ -18142,7 +18142,7 @@ InitEMP(PLAYERp pp)
 int
 InitTankShell(short SpriteNum, PLAYERp pp)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SPRITEp wp;
     USERp wu;
@@ -18155,7 +18155,7 @@ InitTankShell(short SpriteNum, PLAYERp pp)
                     sp->x, sp->y, sp->z, sp->ang, TANK_SHELL_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = 8;
@@ -18193,10 +18193,10 @@ InitTankShell(short SpriteNum, PLAYERp pp)
 int
 InitTurretMicro(short SpriteNum, PLAYERp pp)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
 
-    USERp pu = User[pp->PlayerSprite];
+    USERp pu = User[pp->PlayerSprite].Data();
     USERp wu,hu;
     SPRITEp wp,hp;
     int nx, ny, nz, dist;
@@ -18222,7 +18222,7 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
         if (ts < &TargetSort[TargetSortCount] && ts->sprite_num >= 0)
         {
             hp = &sprite[ts->sprite_num];
-            hu = User[ts->sprite_num];
+            hu = User[ts->sprite_num].Data();
 
             ang = getangle(hp->x - nx, hp->y - ny);
 
@@ -18245,7 +18245,7 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
                         nx, ny, nz, ang, 1200);
 
         wp = &sprite[w];
-        wu = User[w];
+        wu = User[w].Data();
 
         SetOwner(pp->PlayerSprite, w);
         wp->yrepeat = 24;
@@ -18303,7 +18303,7 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
 int
 InitTurretRocket(short SpriteNum, PLAYERp pp)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SPRITEp wp;
     USERp wu;
@@ -18316,7 +18316,7 @@ InitTurretRocket(short SpriteNum, PLAYERp pp)
                     sp->x, sp->y, sp->z, sp->ang, ROCKET_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = 40;
@@ -18351,7 +18351,7 @@ InitTurretRocket(short SpriteNum, PLAYERp pp)
 int
 InitTurretFireball(short SpriteNum, PLAYERp pp)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SPRITEp wp;
     USERp wu;
@@ -18363,7 +18363,7 @@ InitTurretFireball(short SpriteNum, PLAYERp pp)
                     sp->x, sp->y, sp->z, sp->ang, FIREBALL_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = 40;
@@ -18399,7 +18399,7 @@ InitTurretFireball(short SpriteNum, PLAYERp pp)
 int
 InitTurretRail(short SpriteNum, PLAYERp pp)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     USERp wu;
     SPRITEp wp;
@@ -18422,7 +18422,7 @@ InitTurretRail(short SpriteNum, PLAYERp pp)
                     nx, ny, nz, sp->ang, 1200);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = 52;
@@ -18457,7 +18457,7 @@ InitTurretRail(short SpriteNum, PLAYERp pp)
 int
 InitTurretLaser(short SpriteNum, PLAYERp pp)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     USERp wu;
     SPRITEp wp;
@@ -18480,7 +18480,7 @@ InitTurretLaser(short SpriteNum, PLAYERp pp)
                     nx, ny, nz, sp->ang, 300);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = 52;
@@ -18513,7 +18513,7 @@ InitTurretLaser(short SpriteNum, PLAYERp pp)
 int
 InitSobjMachineGun(short SpriteNum, PLAYERp pp)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     short daang;
     hitdata_t hitinfo;
@@ -18757,7 +18757,7 @@ SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y
 
     j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
-    wu = User[j];
+    wu = User[j].Data();
     wp->shade = -40;
     wp->xrepeat = UZI_SPARK_REPEAT + 10;
     wp->yrepeat = UZI_SPARK_REPEAT + 10;
@@ -18778,7 +18778,7 @@ SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y
 int
 SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     short j;
     SPRITEp wp;
     USERp wu;
@@ -18801,7 +18801,7 @@ SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_
 
     j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
-    wu = User[j];
+    wu = User[j].Data();
     wp->shade = -40;
     wp->xrepeat = wp->yrepeat = 20;
     SetOwner(pp->PlayerSprite, j);
@@ -18842,7 +18842,7 @@ SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x, int
 
     j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
-    wu = User[j];
+    wu = User[j].Data();
     wp->shade = -40;
     wp->xrepeat = UZI_SPARK_REPEAT + 10;
     wp->yrepeat = UZI_SPARK_REPEAT + 10;
@@ -18867,7 +18867,7 @@ SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hi
 
     j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
-    wu = User[j];
+    wu = User[j].Data();
     wp->shade = -40;
     wp->xrepeat = UZI_SPARK_REPEAT;
     wp->yrepeat = UZI_SPARK_REPEAT;
@@ -19067,7 +19067,7 @@ int
 InitEnemyUzi(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP,wp;
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     USERp wu;
     short daang, j;
     hitdata_t hitinfo = { { -2, -2, -2 }, -2, -2, -2 };
@@ -19201,7 +19201,7 @@ InitEnemyUzi(short SpriteNum)
 
     j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
     wp = &sprite[j];
-    wu = User[j];
+    wu = User[j].Data();
     wp->shade = -40;
     wp->xrepeat = UZI_SPARK_REPEAT;
     wp->yrepeat = UZI_SPARK_REPEAT;
@@ -19226,7 +19226,7 @@ InitEnemyUzi(short SpriteNum)
 int
 InitGrenade(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -19258,7 +19258,7 @@ InitGrenade(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), GRENADE_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
@@ -19337,7 +19337,7 @@ int
 InitSpriteGrenade(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -19356,7 +19356,7 @@ InitSpriteGrenade(short SpriteNum)
                     nx, ny, nz, sp->ang, GRENADE_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     wu->RotNum = 5;
     NewStateGroup(w, &sg_Grenade[0]);
@@ -19402,7 +19402,7 @@ InitSpriteGrenade(short SpriteNum)
 int
 InitMine(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -19427,7 +19427,7 @@ InitMine(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), MINE_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = 32;
@@ -19472,7 +19472,7 @@ int
 InitEnemyMine(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -19491,7 +19491,7 @@ InitEnemyMine(short SpriteNum)
                     nx, ny, nz, sp->ang, MINE_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SetOwner(SpriteNum, w);
     wp->yrepeat = 32;
@@ -19528,7 +19528,7 @@ int
 HelpMissileLateral(int16_t Weapon, int dist)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     int xchange, ychange;
     short old_xvel;
     short old_clipdist;
@@ -19560,7 +19560,7 @@ HelpMissileLateral(int16_t Weapon, int dist)
 int
 InitFireball(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     SPRITEp wp;
     int nx = 0, ny = 0, nz;
     short w;
@@ -19585,7 +19585,7 @@ InitFireball(PLAYERp pp)
 
     w = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursectnum, nx, ny, nz, pp->angle.ang.asbuild(), FIREBALL_VELOCITY);
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     wp->hitag = LUMINOUS; //Always full brightness
     wp->xrepeat = 40;
@@ -19643,7 +19643,7 @@ int
 InitEnemyFireball(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP, fp = NULL;
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp wp;
     int nz, dist;
     int size_z;
@@ -19679,7 +19679,7 @@ InitEnemyFireball(short SpriteNum)
                         sp->x, sp->y, nz, sp->ang, GORO_FIREBALL_VELOCITY);
 
         wp = &sprite[w];
-        wu = User[w];
+        wu = User[w].Data();
 
         wp->hitag = LUMINOUS; //Always full brightness
         wp->xrepeat = 20;
@@ -19885,7 +19885,7 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
 bool
 SpriteWarpToUnderwater(SPRITEp sp)
 {
-    USERp u = User[sp - sprite];
+    USERp u = User[sp - sprite].Data();
     int i;
     SECT_USERp sectu = SectUser[sp->sectnum];
     SPRITEp under_sp = NULL, over_sp = NULL;
@@ -19963,7 +19963,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
 bool
 SpriteWarpToSurface(SPRITEp sp)
 {
-    USERp u = User[sp - sprite];
+    USERp u = User[sp - sprite].Data();
     int i;
     SECT_USERp sectu = SectUser[sp->sectnum];
     short over, under;
@@ -20047,7 +20047,7 @@ SpriteWarpToSurface(SPRITEp sp)
 int
 SpawnSplash(short SpriteNum)
 {
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     SPRITEp sp = User[SpriteNum]->SpriteP, wp;
     short w;
 
@@ -20070,7 +20070,7 @@ SpawnSplash(short SpriteNum)
 
     w = SpawnSprite(STAT_MISSILE, SPLASH, s_Splash, sp->sectnum, sp->x, sp->y, u->loz, sp->ang, 0);
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     if (sectu && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         wu->spal = wp->pal = PALETTE_RED_LIGHTING;
@@ -20107,7 +20107,7 @@ SpawnSplashXY(int hit_x, int hit_y, int hit_z, short sectnum)
 
     w = SpawnSprite(STAT_MISSILE, SPLASH, s_Splash, sectnum, hit_x, hit_y, hit_z, 0, 0);
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     if (sectu && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         wu->spal = wp->pal = PALETTE_RED_LIGHTING;
@@ -20122,7 +20122,7 @@ SpawnSplashXY(int hit_x, int hit_y, int hit_z, short sectnum)
 int
 SpawnUnderSplash(short SpriteNum)
 {
-    USERp u = User[SpriteNum], wu;
+    USERp u = User[SpriteNum].Data(), wu;
     SPRITEp sp = User[SpriteNum]->SpriteP, wp;
     short w;
 
@@ -20142,7 +20142,7 @@ SpawnUnderSplash(short SpriteNum)
 
     w = SpawnSprite(STAT_MISSILE, SPLASH, s_Splash, sp->sectnum, sp->x, sp->y, u->hiz, sp->ang, 0);
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     if (sectu && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         wu->spal = wp->pal = PALETTE_RED_LIGHTING;
@@ -20158,7 +20158,7 @@ SpawnUnderSplash(short SpriteNum)
 bool
 MissileHitDiveArea(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     // correctly set underwater bit for missiles
@@ -20233,7 +20233,7 @@ SpawnBubble(short SpriteNum)
 
     b = SpawnSprite(STAT_MISSILE, BUBBLE, s_Bubble, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
     bp = &sprite[b];
-    bu = User[b];
+    bu = User[b].Data();
 
     //PlaySound(DIGI_BUBBLES, sp, v3df_none);
 
@@ -20258,7 +20258,7 @@ int
 DoVehicleSmoke(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     sp->z -= sp->zvel;
 
@@ -20293,7 +20293,7 @@ SpawnVehicleSmoke(short SpriteNum)
                       sp->x, sp->y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
 
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
 
     nu->WaitTics = 1*120;
     np->shade = -40;
@@ -20327,7 +20327,7 @@ SpawnSmokePuff(short SpriteNum)
                       sp->x, sp->y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
 
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
 
     nu->WaitTics = 1*120;
     np->shade = -40;
@@ -20356,7 +20356,7 @@ int
 DoBubble(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     sp->z -= sp->zvel;
     sp->zvel += 32;
@@ -20489,7 +20489,7 @@ bool TestDontStick(short SpriteNum, short hit_wall)
     if (hit_wall < 0)
     {
         ASSERT(SpriteNum>=0);
-        USERp u = User[SpriteNum];
+        USERp u = User[SpriteNum].Data();
         hit_wall = NORM_WALL(u->ret);
     }
 
@@ -20528,10 +20528,7 @@ int QueueStar(short SpriteNum)
     if (StarQueue[StarQueueHead] == -1)
     {
         // new star
-        if (User[SpriteNum])
-        {
-            FreeUser(SpriteNum);
-        }
+        User[SpriteNum].Clear();
         change_sprite_stat(SpriteNum, STAT_STAR_QUEUE);
         StarQueue[StarQueueHead] = SpriteNum;
     }
@@ -20622,7 +20619,7 @@ int QueueFloorBlood(short hit_sprite)
     SPRITEp hsp = &sprite[hit_sprite];
     short SpriteNum;
     SPRITEp sp;
-    USERp u = User[hit_sprite];
+    USERp u = User[hit_sprite].Data();
     SECTORp sectp = &sector[hsp->sectnum];
 
 
@@ -20696,7 +20693,7 @@ int QueueFootPrint(short hit_sprite)
     SPRITEp hsp = &sprite[hit_sprite];
     short SpriteNum;
     SPRITEp sp;
-    USERp u = User[hit_sprite];
+    USERp u = User[hit_sprite].Data();
     USERp nu;
     short rnd_num=0;
     bool Found=false;
@@ -20754,7 +20751,7 @@ int QueueFootPrint(short hit_sprite)
 
 
     sp = &sprite[SpriteNum];
-    nu = User[SpriteNum];
+    nu = User[SpriteNum].Data();
     sp->hitag = 0;
     sp->owner = -1;
     sp->xrepeat = 48;
@@ -20826,7 +20823,7 @@ int QueueWallBlood(short hit_sprite, short ang)
     short rndnum;
     int daz;
     hitdata_t hitinfo;
-    USERp u = User[hit_sprite];
+    USERp u = User[hit_sprite].Data();
 
 
     if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(hsp) || SpriteInDiveArea(hsp))
@@ -21044,10 +21041,7 @@ int QueueGeneric(short SpriteNum, short pic)
     // can and should kill the user portion
     if (GenericQueue[GenericQueueHead] == -1)
     {
-        if (User[SpriteNum])
-        {
-            FreeUser(SpriteNum);
-        }
+        User[SpriteNum].Clear();
         change_sprite_stat(SpriteNum, STAT_GENERIC_QUEUE);
         GenericQueue[GenericQueueHead] = SpriteNum;
     }
@@ -21103,7 +21097,7 @@ int
 DoShellShrap(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     // If the shell doesn't fall in the allowable range, kill it.
     if (u->ShellNum < (ShellCount-MAXSHELLS))
@@ -21148,7 +21142,7 @@ int
 DoShrapVelocity(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(sp))
     {
@@ -21319,7 +21313,7 @@ int
 ShrapKillSprite(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short rnd_num;
 
     rnd_num = RANDOM_RANGE(1024);
@@ -21487,7 +21481,7 @@ int
 DoItemFly(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -21616,7 +21610,7 @@ int QueueLoWangs(short SpriteNum)
     // Point passed in sprite to ps
     ps = sp;
     sp = &sprite[NewSprite];
-    u = User[NewSprite];
+    u = User[NewSprite].Data();
     ASSERT(sp);
     sp->owner = -1;
     sp->cstat = 0;

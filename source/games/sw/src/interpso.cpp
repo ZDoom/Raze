@@ -269,7 +269,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
         {
             if (data->spriteofang >= 0)
             {
-                USERp u = User[data->spriteofang];
+                USERp u = User[data->spriteofang].Data();
                 if (u)
                     u->oangdiff = 0;
                 if (!interpolating)
@@ -316,7 +316,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                 data->lastoldipos = data->oldipos;
                 if (data->spriteofang >= 0)
                 {
-                    USERp u = User[data->spriteofang];
+                    USERp u = User[data->spriteofang].Data();
                     data->lastangdiff = u ? u->oangdiff : 0;
                 }
             }
@@ -358,7 +358,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             if (data->curelement >= soi_sprx)
             {
                 int32_t sprnum = data->curelement & soi_base;
-                USERp u = User[sprnum];
+                USERp u = User[sprnum].Data();
                 if (u && (sprite[sprnum].statnum != STAT_DEFAULT) &&
                     ((TEST(u->Flags, SPR_SKIP4) && (sprite[sprnum].statnum <= STAT_SKIP4_INTERP_END)) ||
                      (TEST(u->Flags, SPR_SKIP2) && (sprite[sprnum].statnum <= STAT_SKIP2_INTERP_END))))

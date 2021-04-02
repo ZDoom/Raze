@@ -361,7 +361,7 @@ void
 EelCommon(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     sp->clipdist = (100) >> 2;
     u->floor_dist = Z(16);
@@ -384,12 +384,12 @@ SetupEel(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,EEL_RUN_R0,s_EelRun[0]);
+        u = SpawnUser(SpriteNum,EEL_RUN_R0,s_EelRun[0]);
         u->Health = 40;
     }
 
@@ -415,7 +415,7 @@ SetupEel(short SpriteNum)
 int
 NewEel(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     USERp nu;
     SPRITEp np;
@@ -425,7 +425,7 @@ NewEel(short SpriteNum)
 
     New = SpawnSprite(STAT_ENEMY, EEL_RUN_R0, &s_EelBirth, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 50);
 
-    nu = User[New];
+    nu = User[New].Data();
     np = &sprite[New];
 
     ChangeState(New, &s_EelBirth);
@@ -445,7 +445,7 @@ NewEel(short SpriteNum)
 
 int NullEel(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -460,7 +460,7 @@ int NullEel(short SpriteNum)
 int DoEelMatchPlayerZ(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp tsp = User[SpriteNum]->tgt_sp;
     int zdiff,zdist;
     int loz,hiz;
@@ -561,7 +561,7 @@ int
 DoEelDeath(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int nx, ny;
     if (TEST(u->Flags, SPR_FALLING))
     {
@@ -601,7 +601,7 @@ DoEelDeath(short SpriteNum)
 
 int DoEelMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     ASSERT(u->Rot != NULL);
 

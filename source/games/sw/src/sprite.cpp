@@ -593,7 +593,7 @@ SetOwner(short owner, short child)
 
     if (owner >= 0)
     {
-        ASSERT(User[owner]);
+        ASSERT(User[owner].Data());
         SET(User[owner]->Flags2, SPR2_CHILDREN);
     }
     else
@@ -608,11 +608,11 @@ SetOwner(short owner, short child)
 void
 SetAttach(short owner, short child)
 {
-    USERp cu = User[child];
+    USERp cu = User[child].Data();
 
     ASSERT(cu);
 
-    ASSERT(User[owner]);
+    ASSERT(User[owner].Data());
     SET(User[owner]->Flags2, SPR2_CHILDREN);
     cu->Attach = owner;
 }
@@ -621,7 +621,7 @@ void
 KillSprite(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int i;
     unsigned stat;
     short statnum,sectnum;
@@ -727,7 +727,7 @@ KillSprite(int16_t SpriteNum)
                 StatIterator it(MissileStats[stat]);
                 while ((i = it.NextIndex()) >= 0)
                 {
-                    mu = User[i];
+                    mu = User[i].Data();
 
                     if (mu && mu->WpnGoal == SpriteNum)
                     {
@@ -753,7 +753,7 @@ KillSprite(int16_t SpriteNum)
                         sprite[i].owner = -1;
                     }
 
-                    if (User[i] && User[i]->Attach == SpriteNum)
+                    if (User[i].Data() && User[i]->Attach == SpriteNum)
                     {
                         User[i]->Attach = -1;
                     }
@@ -766,7 +766,7 @@ KillSprite(int16_t SpriteNum)
             StatIterator it(STAT_ENEMY);
             while ((i = it.NextIndex()) >= 0)
             {
-                if ((unsigned)i < MAXSPRITES && User[i] != NULL && User[i]->tgt_sp == sp)
+                if ((unsigned)i < MAXSPRITES && User[i].Data() != NULL && User[i]->tgt_sp == sp)
                 {
                     DoActorPickClosePlayer(i);
                 }
@@ -777,10 +777,7 @@ KillSprite(int16_t SpriteNum)
         {
             SetSuicide(u->flame);
         }
-
-        u->rotator.Clear();
-
-        FreeUser(SpriteNum);
+        User[SpriteNum].Clear();
     }
 
     FVector3 pos = GetSoundPos(&sprite[SpriteNum].pos);
@@ -795,9 +792,9 @@ KillSprite(int16_t SpriteNum)
     sp->sectnum = sectnum;
 
     // Kill references in all users - slow but unavoidable if we don't want the game to crash on stale pointers.
-    for (auto u : User)
+    for (auto& u : User)
     {
-        if (u)
+        if (u.Data())
         {
             if (u->hi_sp == sp) u->hi_sp = nullptr;
             if (u->lo_sp == sp) u->lo_sp = nullptr;
@@ -808,7 +805,7 @@ KillSprite(int16_t SpriteNum)
 
 void ChangeState(short SpriteNum, STATEp statep)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     if (u == nullptr)
         return;
 
@@ -821,7 +818,7 @@ void ChangeState(short SpriteNum, STATEp statep)
 void
 change_sprite_stat(short SpriteNum, short stat)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     changespritestat(SpriteNum, stat);
 
@@ -873,7 +870,8 @@ SpawnUser(short SpriteNum, short id, STATEp state)
 
     ASSERT(!Prediction);
 
-    User[SpriteNum] = u = NewUser();
+    User[SpriteNum].Alloc();
+    u = User[SpriteNum].Data();
 
     PRODUCTION_ASSERT(u != NULL);
 
@@ -970,7 +968,7 @@ SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int
     sp->z = z;
     sp->cstat = 0;
 
-    User[SpriteNum] = u = SpawnUser(SpriteNum, id, state);
+    u = SpawnUser(SpriteNum, id, state);
 
     // be careful State can be NULL
     if (u->State)
@@ -1560,7 +1558,7 @@ void
 IconDefault(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     //if (sp->statnum == STAT_ITEM)
     change_sprite_stat(SpriteNum, STAT_ITEM);
@@ -1761,7 +1759,7 @@ SpriteSetupPost(void)
             if (TEST(ds->cstat, CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 continue;
 
-            if (User[i])
+            if (User[i].Data())
                 continue;
 
             getzsofslope(ds->sectnum, ds->x, ds->y, &cz, &fz);
@@ -2593,7 +2591,7 @@ SpriteSetup(void)
                         }
                     }
 
-                    User[SpriteNum] = u = SpawnUser(SpriteNum, 0, NULL);
+                    u = SpawnUser(SpriteNum, 0, NULL);
                     u->WallShade.Resize(wallcount);
                     wall_shade = u->WallShade.Data();
 
@@ -2649,7 +2647,7 @@ SpriteSetup(void)
 
                     // !LIGHT
                     // make an wall_shade array and put it in User
-                    User[SpriteNum] = u = SpawnUser(SpriteNum, 0, NULL);
+                    u = SpawnUser(SpriteNum, 0, NULL);
                     u->WallShade.Resize(wallcount);
                     wall_shade = u->WallShade.Data();
 
@@ -2857,7 +2855,7 @@ SpriteSetup(void)
                     break;
 
                 case SPAWN_SPOT:
-                    if (!User[SpriteNum])
+                    if (!User[SpriteNum].Data())
                         u = SpawnUser(SpriteNum, ST1, NULL);
 
                     if (SP_TAG14(sp) == ((64<<8)|64))
@@ -3828,7 +3826,7 @@ bool ItemSpotClear(SPRITEp sip, short statnum, short id)
 void SetupItemForJump(SPRITEp sip, short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     // setup item for jumping
     if (SP_TAG7(sip))
@@ -3850,7 +3848,7 @@ void SetupItemForJump(SPRITEp sip, short SpriteNum)
 int ActorCoughItem(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short New,choose;
     SPRITEp np;
 
@@ -4357,7 +4355,7 @@ int SpawnItemsMatch(short match)
 
             SpriteNum = SpawnSprite(STAT_ITEM, ICON_ARMOR, s_IconArmor, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             sp = &sprite[SpriteNum];
-            u = User[SpriteNum];
+            u = User[SpriteNum].Data();
             SET(u->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(SpriteNum);
 
@@ -4581,7 +4579,7 @@ int SpawnItemsMatch(short match)
                 break;
 
             SpriteNum = SpawnSprite(STAT_ITEM, s_Key[num]->Pic, s_Key[num], sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            u = User[SpriteNum];
+            u = User[SpriteNum].Data();
 
             sp = &sprite[SpriteNum];
 
@@ -4617,7 +4615,7 @@ int
 // CTW MODIFICATION END
 NewStateGroup(short SpriteNum, STATEp StateGroup[])
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     //if (Prediction)
     //    return;
@@ -4650,8 +4648,8 @@ SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b)
 {
     SPRITEp spa = &sprite[spritenum_a], spb = &sprite[spritenum_b];
 
-    USERp ua = User[spritenum_a];
-    USERp ub = User[spritenum_b];
+    USERp ua = User[spritenum_a].Data();
+    USERp ub = User[spritenum_b].Data();
 
     int spa_tos, spa_bos, spb_tos, spb_bos, overlap_z;
 
@@ -4846,7 +4844,7 @@ void
 DoActorZrange(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int ceilhit, florhit;
     short save_cstat;
 
@@ -4891,7 +4889,7 @@ DoActorZrange(short SpriteNum)
 int
 DoActorGlobZ(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->loz = globloz;
     u->hiz = globhiz;
@@ -5017,7 +5015,7 @@ DropAhead(short SpriteNum, short min_height)
 int
 move_actor(short SpriteNum, int xchange, int ychange, int zchange)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     int x, y, z, loz, hiz;
@@ -5151,10 +5149,7 @@ DoGrating(short SpriteNum)
     if (sp->hitag <= 0)
     {
         change_sprite_stat(SpriteNum, STAT_DEFAULT);
-        if (User[SpriteNum])
-        {
-            FreeUser(SpriteNum);
-        }
+        User[SpriteNum].Clear();
     }
 
     setspritez(SpriteNum, &sp->pos);
@@ -5166,7 +5161,7 @@ DoGrating(short SpriteNum)
 int
 DoSpriteFade(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short i;
 
@@ -5196,7 +5191,7 @@ DoSpriteFade(short SpriteNum)
 int
 SpearOnFloor(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (!TEST(u->Flags, SPR_SO_ATTACHED))
@@ -5214,7 +5209,7 @@ SpearOnFloor(short SpriteNum)
 int
 SpearOnCeiling(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (!TEST(u->Flags, SPR_SO_ATTACHED))
@@ -5245,7 +5240,7 @@ DoKey(short SpriteNum)
 int
 DoCoin(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int offset;
 
     u->WaitTics -= ACTORMOVETICS * 2;
@@ -5281,7 +5276,7 @@ DoCoin(short SpriteNum)
 int
 KillGet(short SpriteNum)
 {
-    USERp u = User[SpriteNum],nu;
+    USERp u = User[SpriteNum].Data(),nu;
     SPRITEp sp = User[SpriteNum]->SpriteP,np;
 
     short New;
@@ -5312,7 +5307,7 @@ KillGet(short SpriteNum)
                           sp->x, sp->y, sp->z, 0, 0);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         np->shade = -20;
         nu->WaitTics = u->WaitTics - 12;
@@ -5325,7 +5320,7 @@ KillGet(short SpriteNum)
 int
 KillGetAmmo(short SpriteNum)
 {
-    USERp u = User[SpriteNum],nu;
+    USERp u = User[SpriteNum].Data(),nu;
     SPRITEp sp = User[SpriteNum]->SpriteP,np;
 
     short New;
@@ -5364,7 +5359,7 @@ KillGetAmmo(short SpriteNum)
                           sp->x, sp->y, sp->z, 0, 0);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         np->shade = -20;
         nu->WaitTics = u->WaitTics - 12;
@@ -5377,7 +5372,7 @@ KillGetAmmo(short SpriteNum)
 int
 KillGetWeapon(short SpriteNum)
 {
-    USERp u = User[SpriteNum],nu;
+    USERp u = User[SpriteNum].Data(),nu;
     SPRITEp sp = User[SpriteNum]->SpriteP,np;
 
     short New;
@@ -5424,7 +5419,7 @@ KillGetWeapon(short SpriteNum)
                           sp->x, sp->y, sp->z, 0, 0);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         np->shade = -20;
         nu->WaitTics = u->WaitTics - 12;
@@ -5467,7 +5462,7 @@ void ChoosePlayerGetSound(PLAYERp pp)
 
 bool CanGetWeapon(PLAYERp pp, short SpriteNum, int WPN)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     switch (gNet.MultiGameType)
     {
@@ -5519,8 +5514,8 @@ struct InventoryDecl_t InventoryDecls[InvDecl_TOTAL] =
 int
 DoGet(short SpriteNum)
 {
-    USERp u = User[SpriteNum], pu;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = User[SpriteNum].Data(), pu;
+    SPRITEp sp = u->SpriteP;
     PLAYERp pp;
     short pnum, key_num;
     int dist, a,b,c;
@@ -5561,8 +5556,8 @@ DoGet(short SpriteNum)
     TRAVERSE_CONNECT(pnum)
     {
         pp = &Player[pnum];
-        //pu = User[pp->PlayerSprite];
-        pu = User[pp->SpriteP - sprite];
+        //pu = User[pp->PlayerSprite].Data();
+        pu = User[pp->SpriteP - sprite].Data();
 
         if (TEST(pp->Flags, PF_DEAD))
             continue;
@@ -6374,7 +6369,7 @@ KeyMain:
                                   sp->x, sp->y, sp->z, 0, 0);
 
             np = &sprite[New];
-            nu = User[New];
+            nu = User[New].Data();
             np->shade = -20;
 
             // Attach flag to player
@@ -6410,7 +6405,7 @@ KeyMain:
 void
 SetEnemyActive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     SET(u->Flags, SPR_ACTIVE);
     u->inactive_time = 0;
@@ -6419,7 +6414,7 @@ SetEnemyActive(short SpriteNum)
 void
 SetEnemyInactive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     RESET(u->Flags, SPR_ACTIVE);
 }
@@ -6430,7 +6425,7 @@ SetEnemyInactive(short SpriteNum)
 void
 ProcessActiveVars(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 #define TIME_TILL_INACTIVE (4*120)
 
     if (!TEST(u->Flags, SPR_ACTIVE))
@@ -6452,7 +6447,7 @@ ProcessActiveVars(short SpriteNum)
 void
 AdjustActiveRange(PLAYERp pp, short SpriteNum, int dist)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SPRITEp psp = pp->SpriteP;
     int look_height;
@@ -6589,7 +6584,7 @@ AdjustActiveRange(PLAYERp pp, short SpriteNum, int dist)
 int
 StateControl(int16_t SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = &sprite[SpriteNum];
     short StateTics;
 
@@ -6694,8 +6689,8 @@ SpriteControl(void)
     while ((i = it.NextIndex()) >= 0)
     {
 #if INLINE_STATE
-        ASSERT(User[i]);
-        u = User[i];
+        ASSERT(User[i].Data());
+        u = User[i].Data();
         sp = User[i]->SpriteP;
         STATE_CONTROL(i, sp, u, StateTics)
         // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
@@ -6715,11 +6710,11 @@ SpriteControl(void)
             while ((i = it.NextIndex()) >= 0)
             {
 #if INLINE_STATE
-                ASSERT(User[i]);
-                u = User[i];
+                ASSERT(User[i].Data());
+                u = User[i].Data();
                 sp = User[i]->SpriteP;
                 STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != NULL : true);
 #else
                 ASSERT(User[i]);
                 StateControl(i);
@@ -6735,11 +6730,10 @@ SpriteControl(void)
         StatIterator it(STAT_ENEMY);
         while ((i = it.NextIndex()) >= 0)
         {
-            ASSERT(User[i]);
+            ASSERT(User[i].Data());
 
-            u = User[i];
+            u = User[i].Data();
             sp = u->SpriteP;
-
 
             CloseToPlayer = false;
 
@@ -6766,15 +6760,13 @@ SpriteControl(void)
             if (CloseToPlayer)
             {
 #if INLINE_STATE
-                u = User[i];
+                u = User[i].Data();
                 sp = User[i]->SpriteP;
                 STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
 #else
                 StateControl(i);
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
 #endif
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != NULL : true);
             }
             else
             {
@@ -6793,15 +6785,15 @@ SpriteControl(void)
             while ((i = it.NextIndex()) >= 0)
             {
 #if INLINE_STATE
-                ASSERT(User[i]);
-                u = User[i];
+                ASSERT(User[i].Data());
+                u = User[i].Data();
                 sp = User[i]->SpriteP;
                 STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != NULL : true);
 #else
                 ASSERT(User[i]);
                 StateControl(i);
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != NULL : true);
 #endif
             }
         }
@@ -6810,7 +6802,7 @@ SpriteControl(void)
     it.Reset(STAT_NO_STATE);
     while ((i = it.NextIndex()) >= 0)
     {
-        if (User[i] && User[i]->ActorActionFunc)
+        if (User[i].Data() && User[i]->ActorActionFunc)
             (*User[i]->ActorActionFunc)(i);
         ASSERT(it.PeekIndex() >= 0 ? sprite[it.PeekIndex()].statnum != MAXSTATUS : true);
     }
@@ -6821,7 +6813,7 @@ SpriteControl(void)
         while ((i = it.NextIndex()) >= 0)
         {
             extern int DoStaticFlamesDamage(short SpriteNum);
-            ASSERT(User[i]);
+            ASSERT(User[i].Data());
             DoStaticFlamesDamage(i);
         }
     }
@@ -6831,11 +6823,11 @@ SpriteControl(void)
         it.Reset(STAT_WALLBLOOD_QUEUE);
         while ((i = it.NextIndex()) >= 0)
         {
-            ASSERT(User[i]);
-            u = User[i];
+            ASSERT(User[i].Data());
+            u = User[i].Data();
             sp = User[i]->SpriteP;
             STATE_CONTROL(i, sp, u, StateTics)
-            ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
+            ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != NULL : true);
 
         }
     }
@@ -6845,7 +6837,7 @@ SpriteControl(void)
     it.Reset(STAT_VATOR);
     while ((i = it.NextIndex()) >= 0)
     {
-        u = User[i];
+        u = User[i].Data();
 
         if (u == 0)
             continue;
@@ -6866,7 +6858,7 @@ SpriteControl(void)
     it.Reset(STAT_SPIKE);
     while ((i = it.NextIndex()) >= 0)
     {
-        u = User[i];
+        u = User[i].Data();
 
         if (u->Tics)
         {
@@ -6888,7 +6880,7 @@ SpriteControl(void)
     it.Reset(STAT_ROTATOR);
     while ((i = it.NextIndex()) >= 0)
     {
-        u = User[i];
+        u = User[i].Data();
 
         if (u->Tics)
         {
@@ -6907,7 +6899,7 @@ SpriteControl(void)
     it.Reset(STAT_SLIDOR);
     while ((i = it.NextIndex()) >= 0)
     {
-        u = User[i];
+        u = User[i].Data();
 
         if (u->Tics)
         {
@@ -6949,7 +6941,7 @@ move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist
     int retval=0, zh;
     short dasectnum, tempshort;
     SPRITEp spr;
-    USERp u = User[spritenum];
+    USERp u = User[spritenum].Data();
     short lastsectnum;
 
     spr = &sprite[spritenum];
@@ -7074,7 +7066,7 @@ move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist
 int pushmove_sprite(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short sectnum, ret;
     int daz;
 
@@ -7098,7 +7090,7 @@ int pushmove_sprite(short SpriteNum)
 
 void MissileWarpUpdatePos(short SpriteNum, short sectnum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     sp->backuppos();
     u->oz = sp->oz;
@@ -7108,7 +7100,7 @@ void MissileWarpUpdatePos(short SpriteNum, short sectnum)
 
 void ActorWarpUpdatePos(short SpriteNum, short sectnum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     sp->backuppos();
     u->oz = sp->oz;
@@ -7157,7 +7149,7 @@ void ActorWarpType(SPRITEp sp, SPRITEp sp_warp)
 int
 MissileWaterAdjust(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (u->lo_sectp)
     {
@@ -7171,7 +7163,7 @@ MissileWaterAdjust(short SpriteNum)
 int
 MissileZrange(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     short tempshort;
 
@@ -7197,7 +7189,7 @@ move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildis
     int retval, zh;
     short dasectnum, tempshort;
     SPRITEp sp;
-    USERp u = User[spritenum];
+    USERp u = User[spritenum].Data();
     short lastsectnum;
 
     sp = &sprite[spritenum];
@@ -7336,7 +7328,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     int retval=0;
     short dasectnum;
     SPRITEp sp;
-    USERp u = User[spritenum];
+    USERp u = User[spritenum].Data();
     short lastsectnum;
     int ox,oy;
 

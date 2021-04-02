@@ -104,7 +104,7 @@ GetRotation(short tSpriteNum, int viewx, int viewy)
     short rotation;
 
     tspriteptr_t tsp = &tsprite[tSpriteNum];
-    USERp tu = User[tsp->owner];
+    USERp tu = User[tsp->owner].Data();
     short angle2;
 
     if (tu->RotNum == 0)
@@ -171,7 +171,7 @@ int
 SetActorRotation(short tSpriteNum, int viewx, int viewy)
 {
     tspriteptr_t tsp = &tsprite[tSpriteNum];
-    USERp tu = User[tsp->owner];
+    USERp tu = User[tsp->owner].Data();
     short StateOffset, Rotation;
 
     // don't modify ANY tu vars - back them up!
@@ -206,7 +206,7 @@ int
 DoShadowFindGroundPoint(tspriteptr_t sp)
 {
     // USES TSPRITE !!!!!
-    USERp u = User[sp->owner];
+    USERp u = User[sp->owner].Data();
     SPRITEp hsp;
     int ceilhit, florhit;
     int hiz, loz = u->loz;
@@ -264,7 +264,7 @@ void
 DoShadows(tspriteptr_t tsp, int viewz, bool mirror)
 {
     tspriteptr_t New = &tsprite[spritesortcnt];
-    USERp tu = User[tsp->owner];
+    USERp tu = User[tsp->owner].Data();
     int ground_dist = 0;
     int view_dist = 0;
     int loz;
@@ -364,7 +364,7 @@ DoShadows(tspriteptr_t tsp, int viewz, bool mirror)
 void
 DoMotionBlur(tspritetype const * const tsp)
 {
-    USERp tu = User[tsp->owner];
+    USERp tu = User[tsp->owner].Data();
     int nx,ny,nz = 0,dx,dy,dz;
     short i, ang;
     short xrepeat, yrepeat, repeat_adj = 0;
@@ -571,7 +571,7 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
     {
         SpriteNum = tsprite[tSpriteNum].owner;
         tspriteptr_t tsp = &tsprite[tSpriteNum];
-        tu = User[SpriteNum];
+        tu = User[SpriteNum].Data();
 
 #if 0
         // Brighten up the sprite if set somewhere else to do so
@@ -892,7 +892,7 @@ post_analyzesprites(void)
         SpriteNum = tsprite[tSpriteNum].owner;
         if (SpriteNum < 0) continue;    // JBF: verify this is safe
         tspriteptr_t tsp = &tsprite[tSpriteNum];
-        tu = User[SpriteNum];
+        tu = User[SpriteNum].Data();
 
         if (tu)
         {
@@ -1060,7 +1060,7 @@ void PrintSpriteInfo(PLAYERp pp)
         short hit_sprite = DoPickTarget(pp->SpriteP, 32, 2);
 
         sp = &sprite[hit_sprite];
-        u = User[hit_sprite];
+        u = User[hit_sprite].Data();
 
         sp->hitag = 9997; // Special tag to make the actor glow red for one frame
 
@@ -1126,7 +1126,7 @@ void DrawCrosshair(PLAYERp pp)
 
     if (!(CameraTestMode))
     {
-        USERp u = User[pp->PlayerSprite];
+        USERp u = User[pp->PlayerSprite].Data();
         ::DrawCrosshair(2326, u->Health, -pp->angle.look_anghalf(smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
     }
 }
@@ -1272,7 +1272,7 @@ PostDraw(void)
     it.Reset(STAT_FAF_COPY);
     while ((i = it.NextIndex()) >= 0)
     {
-        FreeUser(i);
+        User[i].Clear();
         deletesprite(i);
     }
 }
@@ -1356,7 +1356,7 @@ void PreDrawStackedWater(void)
         SectIterator it(sprite[si].sectnum);
         while ((i = it.NextIndex()) >= 0)
         {
-            if (User[i])
+            if (User[i].Data())
             {
                 if (sprite[i].statnum == STAT_ITEM)
                     continue;
@@ -1369,13 +1369,14 @@ void PreDrawStackedWater(void)
                     continue;
 
                 sp = &sprite[i];
-                u = User[i];
+                u = User[i].Data();
 
                 New = ConnectCopySprite((uspritetype const *)sp);
                 if (New >= 0)
                 {
                     // spawn a user
-                    User[New] = nu = NewUser();
+                    User[New].Alloc();
+                    nu = User[New].Data();
                     ASSERT(nu != NULL);
 
                     nu->xchange = -989898;

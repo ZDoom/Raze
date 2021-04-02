@@ -1460,26 +1460,12 @@ struct USERSAVE
 #define SPR2_DONT_TARGET_OWNER  (BIT(24))
 
 
-extern USERp User[MAXSPRITES];
+extern TPointer<USER> User[MAXSPRITES];
 
 typedef struct
 {
     short high;
 } RANGE,*RANGEp;
-
-
-#pragma message ("Remove NewUser/FreeUser!")
-inline USER* NewUser()
-{
-    return new USER;
-}
-
-inline void FreeUser(int num)
-{
-    if (User[num]) delete User[num];
-    User[num] = nullptr;
-}
-
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////

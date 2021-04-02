@@ -126,7 +126,7 @@ point to the sprite.
 short
 ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *track_point_num, short *track_dir)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     int dist, near_dist = 999999, zdiff;
@@ -294,7 +294,7 @@ NextTrackPoint(SECTOR_OBJECTp sop)
 void
 NextActorTrackPoint(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->point += u->track_dir;
 
@@ -732,7 +732,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     bool FoundOutsideLoop = false;
     bool SectorInBounds;
     SECTORp *sectp;
-    USERp u = User[sop->sp_child - sprite];
+    USERp u = User[sop->sp_child - sprite].Data();
 
     static unsigned char StatList[] =
     {
@@ -904,10 +904,10 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                         continue;
                 }
 
-                if (User[sp_num] == NULL)
+                if (User[sp_num].Data() == NULL)
                     u = SpawnUser(sp_num, 0, NULL);
                 else
-                    u = User[sp_num];
+                    u = User[sp_num].Data();
 
                 u->RotNum = 0;
 
@@ -1013,7 +1013,7 @@ cont:
         for (i = 0; sop->sp_num[i] != -1; i++)
         {
             sp = &sprite[sop->sp_num[i]];
-            u = User[sop->sp_num[i]];
+            u = User[sop->sp_num[i]].Data();
 
             if (sp->z > zmid)
                 zmid = sp->z;
@@ -1026,7 +1026,7 @@ cont:
         for (i = 0; sop->sp_num[i] != -1; i++)
         {
             sp = &sprite[sop->sp_num[i]];
-            u = User[sop->sp_num[i]];
+            u = User[sop->sp_num[i]].Data();
 
             u->sz = sop->zmid - sp->z;
         }
@@ -1129,7 +1129,7 @@ SetupSectorObject(short sectnum, short tag)
         New = SpawnSprite(STAT_SO_SP_CHILD, 0, NULL, sectnum,
                           sop->xmid, sop->ymid, sop->zmid, 0, 0);
         sop->sp_child = &sprite[New];
-        u = User[New];
+        u = User[New].Data();
         u->sop_parent = sop;
         SET(u->Flags2, SPR2_SPRITE_FAKE_BLOCK); // for damage test
 
@@ -1560,7 +1560,7 @@ PlaceActorsOnTracks(void)
         int low_dist = 999999, dist;
 
         sp = User[i]->SpriteP;
-        u = User[i];
+        u = User[i].Data();
 
         tag = LOW_TAG_SPRITE(i);
 
@@ -1801,7 +1801,7 @@ PlayerPart:
     for (i = 0; sop->sp_num[i] != -1; i++)
     {
         sp = &sprite[sop->sp_num[i]];
-        u = User[sop->sp_num[i]];
+        u = User[sop->sp_num[i]].Data();
 
         // if its a player sprite || NOT attached
         if (!u || u->PlayerP || !TEST(u->Flags, SPR_SO_ATTACHED))
@@ -2032,7 +2032,7 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
     for (i = 0; sop->sp_num[i] != -1; i++)
     {
         sp = &sprite[sop->sp_num[i]];
-        u = User[sop->sp_num[i]];
+        u = User[sop->sp_num[i]].Data();
 
         // not a part of the so anymore
         RESET(u->Flags, SPR_SO_ATTACHED);
@@ -2316,7 +2316,7 @@ void CallbackSOsink(ANIMp ap, void *data)
     while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
-        u = User[i];
+        u = User[i].Data();
 
         if (!u || u->PlayerP || !TEST(u->Flags, SPR_SO_ATTACHED))
             continue;
@@ -2833,7 +2833,7 @@ void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
         while ((SpriteNum = it.NextIndex()) >= 0)
         {
             sp = &sprite[SpriteNum];
-            u = User[SpriteNum];
+            u = User[SpriteNum].Data();
 
             switch (sp->hitag)
             {
@@ -2954,7 +2954,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
 {
     short SpriteNum = sop->sp_child - sprite;
     SPRITEp shootp;
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short delta_ang;
     int diff;
     short i;
@@ -3110,7 +3110,7 @@ DoActorHitTrackEndPoint(USERp u)
 void
 ActorLeaveTrack(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (u->track == -1)
         return;
@@ -3134,7 +3134,7 @@ bool
 ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 {
     SPRITEp sp;
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     sp = u->SpriteP;
 
@@ -3682,7 +3682,7 @@ present time.
 int
 ActorFollowTrack(short SpriteNum, short locktics)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     PLAYERp pp;
 

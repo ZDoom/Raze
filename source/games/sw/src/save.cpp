@@ -361,17 +361,17 @@ bool GameInterface::SaveGame()
     for (i = 0; i < MAXSPRITES; i++)
     {
         ndx = i;
-        if (User[i])
+        if (User[i].Data())
         {
             // write header
             MWRITE(&ndx,sizeof(ndx),1,fil);
 
+#if 0
             memcpy(&tu, User[i], sizeof(USER));
             u = &tu;
 
             MWRITE(u,sizeof(USER),1,fil);
 
-#if 0
             if (u->WallShade)
             {
                 MWRITE(u->WallShade, sizeof(*u->WallShade) * u->WallCount, 1, fil);
@@ -484,9 +484,9 @@ bool GameInterface::SaveGame()
         // maintain compatibility with sinking boat which points to user data
         for (j=0; j<MAXSPRITES; j++)
         {
-            if (User[j])
+            if (User[j].Data())
             {
-                uint8_t* bp = (uint8_t*)User[j];
+                uint8_t* bp = (uint8_t*)User[j].Data();
 
                 if ((uint8_t*)a->ptr >= bp && (uint8_t*)a->ptr < bp + sizeof(USER))
                 {
@@ -748,7 +748,8 @@ bool GameInterface::LoadGame()
     MREAD(&SpriteNum, sizeof(SpriteNum),1,fil);
     while (SpriteNum != -1)
     {
-        User[SpriteNum] = u = NewUser();
+        User[SpriteNum].Alloc();
+        u = User[SpriteNum].Data();
         // We need to be careful with allocated content in User when loading a binary save state.
         // This needs to be refactored out ASAP.
         u->rotator.Clear();
@@ -858,7 +859,7 @@ bool GameInterface::LoadGame()
             int offset;
             MREAD(&j, sizeof(j),1,fil);
             MREAD(&offset, sizeof(offset),1,fil);
-            a->ptr = (int *)(((char *)User[j]) + offset);
+            a->ptr = (int *)(((char *)User[j].Data()) + offset);
         }
         else if ((intptr_t)a->ptr == -3)
         {

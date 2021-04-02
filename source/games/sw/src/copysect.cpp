@@ -148,7 +148,7 @@ void CopySectorMatch(short match)
                     // kill anything not invisible
                     if (!TEST(k->cstat, CSTAT_SPRITE_INVISIBLE))
                     {
-                        if (User[kill])
+                        if (User[kill].Data())
                         {
                             // be safe with the killing
                             //SetSuicide(kill);

@@ -83,7 +83,7 @@ int lavaradx[32][128], lavarady[32][128], lavaradcnt[32];
 #endif
 
 SECT_USERp SectUser[MAXSECTORS];
-USERp User[MAXSPRITES];
+TPointer<USER> User[MAXSPRITES];
 
 ANIM Anim[MAXANIM];
 short AnimCnt = 0;
@@ -1025,7 +1025,7 @@ void
 SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short explosion;
     SPRITEp exp;
     USERp eu;
@@ -1053,7 +1053,7 @@ SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
     explosion = SpawnSectorExp(SpriteNum);
     ASSERT(explosion >= 0);
     exp = &sprite[explosion];
-    eu = User[explosion];
+    eu = User[explosion].Data();
 
     exp->xrepeat += (RANDOM_P2(32<<8)>>8) - 16;
     exp->yrepeat += (RANDOM_P2(32<<8)>>8) - 16;
@@ -1082,7 +1082,7 @@ DoExplodeSector(short match)
         if (match != esp->lotag)
             continue;
 
-        if (!User[cf])
+        if (!User[cf].Data())
             /*u = */SpawnUser(cf, 0, NULL);
 
         sectp = &sector[esp->sectnum];
@@ -1114,7 +1114,7 @@ DoExplodeSector(short match)
 
 int DoSpawnSpot(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if ((u->WaitTics -= synctics) < 0)
     {
@@ -1150,7 +1150,7 @@ DoSpawnSpotsForKill(short match)
         // change the stat num and set the delay correctly to call SpawnShrap
         if (sp->hitag == SPAWN_SPOT && sp->lotag == match)
         {
-            u = User[sn];
+            u = User[sn].Data();
             change_sprite_stat(sn, STAT_NO_STATE);
             u->ActorActionFunc = DoSpawnSpot;
             u->WaitTics = SP_TAG5(sp) * 15;
@@ -1181,7 +1181,7 @@ DoSpawnSpotsForDamage(short match)
 
         if (sp->hitag == SPAWN_SPOT && sp->lotag == match)
         {
-            u = User[sn];
+            u = User[sn].Data();
             change_sprite_stat(sn, STAT_NO_STATE);
             u->ActorActionFunc = DoSpawnSpot;
             u->WaitTics = SP_TAG7(sp) * 15;
@@ -1398,7 +1398,7 @@ WeaponExplodeSectorInRange(short weapon)
 {
     int i;
     SPRITEp wp = &sprite[weapon];
-    USERp wu = User[weapon];
+    USERp wu = User[weapon].Data();
     SPRITEp sp;
     int dist;
     int radius;
@@ -1668,7 +1668,7 @@ int
 OperateSprite(short SpriteNum, short player_is_operating)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     PLAYERp pp = NULL;
     short state;
     short key_num=0;
@@ -1997,7 +1997,7 @@ int DoTrapReset(short match)
     while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
-        u = User[i];
+        u = User[i].Data();
 
         if (sp->lotag != match)
             continue;
@@ -2029,7 +2029,7 @@ int DoTrapMatch(short match)
     while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
-        u = User[i];
+        u = User[i].Data();
 
         if (sp->lotag != match)
             continue;
@@ -2161,7 +2161,7 @@ OperateTripTrigger(PLAYERp pp)
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
-            u = User[i];
+            u = User[i].Data();
 
             if (TEST(u->Flags, SPR_WAIT_FOR_TRIGGER))
             {
@@ -2235,7 +2235,7 @@ OperateContinuousTrigger(PLAYERp pp)
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
-            u = User[i];
+            u = User[i].Data();
 
             // if correct type and matches
             if (sp->hitag == FIREBALL_TRAP && sp->lotag == sector[pp->cursectnum].hitag)
@@ -2284,7 +2284,7 @@ OperateContinuousTrigger(PLAYERp pp)
 short PlayerTakeSectorDamage(PLAYERp pp)
 {
     SECT_USERp sectu = SectUser[pp->cursectnum];
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     // the calling routine must make sure sectu exists
     if ((u->DamageTics -= synctics) < 0)
@@ -2711,7 +2711,7 @@ PlayerOperateEnv(PLAYERp pp)
     }
     else
     {
-        USERp u = User[pp->PlayerSprite];
+        USERp u = User[pp->PlayerSprite].Data();
         u->DamageTics = 0;
     }
 

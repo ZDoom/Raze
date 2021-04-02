@@ -1078,7 +1078,7 @@ DoPlayerSpriteThrow(PLAYERp pp)
 int
 DoPlayerSpriteReset(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     PLAYERp pp;
 
     if (!u->PlayerP)
@@ -1146,7 +1146,7 @@ DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
     SPRITEp ep;
     USERp eu;
     int16_t* shp;
-    USERp u = User[sp - sprite];
+    USERp u = User[sp - sprite].Data();
     int ezh, ezhl, ezhm;
     unsigned ndx;
     TARGET_SORTp ts;
@@ -1164,7 +1164,7 @@ DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
         while ((i = it.NextIndex()) >= 0)
         {
             ep = &sprite[i];
-            eu = User[i];
+            eu = User[i].Data();
 
             // don't pick yourself
             if (i == (sp - sprite))
@@ -1274,7 +1274,7 @@ DoPlayerResetMovement(PLAYERp pp)
 void
 DoPlayerTeleportPause(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 //    SPRITEp sp = pp->SpriteP;
 
     // set this so we don't get stuck in teleporting loop
@@ -1381,7 +1381,7 @@ DoSpawnTeleporterEffectPlace(SPRITEp sp)
 void
 DoPlayerWarpTeleporter(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     SPRITEp sp = pp->SpriteP;
     short pnum;
     SPRITEp sp_warp;
@@ -1758,7 +1758,7 @@ void
 UpdatePlayerUnderSprite(PLAYERp pp)
 {
     SPRITEp over_sp = pp->SpriteP;
-    USERp over_u = User[pp->PlayerSprite];
+    USERp over_u = User[pp->PlayerSprite].Data();
 
     SPRITEp sp;
     USERp u;
@@ -1804,7 +1804,7 @@ UpdatePlayerUnderSprite(PLAYERp pp)
     }
 
     sp = pp->UnderSpriteP;
-    u = User[pp->PlayerUnderSprite];
+    u = User[pp->PlayerUnderSprite].Data();
 
     SpriteNum = pp->PlayerUnderSprite;
 
@@ -1974,7 +1974,7 @@ DoPlayerZrange(PLAYERp pp)
 void
 DoPlayerSlide(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     int push_ret;
 
     if ((pp->slide_xvect|pp->slide_yvect) == 0)
@@ -2067,7 +2067,7 @@ void PlayerSectorBound(PLAYERp pp, int amt)
 void
 DoPlayerMove(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     int friction;
     int save_cstat;
     int push_ret = 0;
@@ -2583,7 +2583,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
-        u = User[i];
+        u = User[i].Data();
 
         if (testpointinquad(sp->x, sp->y, x, y))
         {
@@ -2670,7 +2670,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
             continue;
 
         sp = &sprite[i];
-        u = User[i];
+        u = User[i].Data();
 
         if (u->PlayerP == pp)
             continue;
@@ -2699,7 +2699,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
-            u = User[i];
+            u = User[i].Data();
 
             // give some extra buffer
             if (sp->z < sop->crush_z + Z(40))
@@ -2726,7 +2726,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
     int floor_dist;
     short save_sectnum;
     SPRITEp sp = pp->sop->sp_child;
-    USERp u = User[sp - sprite];
+    USERp u = User[sp - sprite].Data();
     int save_cstat;
     int x[4], y[4], ox[4], oy[4];
     int wallcount;
@@ -2974,7 +2974,7 @@ DoPlayerMoveTurret(PLAYERp pp)
 void
 DoPlayerBeginJump(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     SET(pp->Flags, PF_JUMPING);
     RESET(pp->Flags, PF_FALLING);
@@ -3005,7 +3005,7 @@ DoPlayerBeginJump(PLAYERp pp)
 void
 DoPlayerBeginForceJump(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     SET(pp->Flags, PF_JUMPING);
     RESET(pp->Flags, PF_FALLING|PF_CRAWLING|PF_CLIMBING|PF_LOCK_CRAWL);
@@ -3153,7 +3153,7 @@ DoPlayerForceJump(PLAYERp pp)
 void
 DoPlayerBeginFall(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     SET(pp->Flags, PF_FALLING);
     RESET(pp->Flags, PF_JUMPING);
@@ -3299,7 +3299,7 @@ DoPlayerFall(PLAYERp pp)
                 }
                 else if (pp->jump_speed >= 4000)
                 {
-                    USERp u = User[pp->PlayerSprite];
+                    USERp u = User[pp->PlayerSprite].Data();
                     PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
                     u->Health = 0;
                 }
@@ -3348,7 +3348,7 @@ DoPlayerFall(PLAYERp pp)
 void
 DoPlayerBeginClimb(PLAYERp pp)
 {
-//    USERp u = User[pp->PlayerSprite];
+//    USERp u = User[pp->PlayerSprite].Data();
     SPRITEp sp = pp->SpriteP;
 
     RESET(pp->Flags, PF_JUMPING|PF_FALLING);
@@ -3370,7 +3370,7 @@ DoPlayerBeginClimb(PLAYERp pp)
 void
 DoPlayerClimb(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     int climb_amt;
     char i;
     SPRITEp sp = pp->SpriteP;
@@ -3647,7 +3647,7 @@ bool PlayerFlyKey(void)
 void
 DoPlayerBeginCrawl(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     RESET(pp->Flags, PF_FALLING | PF_JUMPING);
     SET(pp->Flags, PF_CRAWLING);
@@ -3687,7 +3687,7 @@ bool PlayerFallTest(PLAYERp pp, int player_height)
 void
 DoPlayerCrawl(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
     {
@@ -3763,7 +3763,7 @@ DoPlayerCrawl(PLAYERp pp)
 void
 DoPlayerBeginFly(PLAYERp pp)
 {
-//    USERp u = User[pp->PlayerSprite];
+//    USERp u = User[pp->PlayerSprite].Data();
 
     RESET(pp->Flags, PF_FALLING | PF_JUMPING | PF_CRAWLING);
     SET(pp->Flags, PF_FLYING);
@@ -4267,7 +4267,7 @@ GetOverlapSector2(int x, int y, short *over, short *under)
 void
 DoPlayerWarpToUnderwater(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     int i;
     SECT_USERp sectu = SectUser[pp->cursectnum];
     SPRITEp under_sp = NULL, over_sp = NULL;
@@ -4344,7 +4344,7 @@ DoPlayerWarpToUnderwater(PLAYERp pp)
 void
 DoPlayerWarpToSurface(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     int i;
     SECT_USERp sectu = SectUser[pp->cursectnum];
     short over, under;
@@ -4449,7 +4449,7 @@ void
 DoPlayerBeginDive(PLAYERp pp)
 {
     SPRITEp sp = &sprite[pp->PlayerSprite];
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     if (Prediction)
         return;
@@ -4497,7 +4497,7 @@ DoPlayerBeginDive(PLAYERp pp)
 void DoPlayerBeginDiveNoWarp(PLAYERp pp)
 {
     SPRITEp sp = &sprite[pp->PlayerSprite];
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     if (Prediction)
         return;
@@ -4644,7 +4644,7 @@ DoPlayerDiveMeter(PLAYERp pp)
 void
 DoPlayerDive(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     SECT_USERp sectu = SectUser[pp->cursectnum];
 
     // whenever your view is not in a water area
@@ -4827,7 +4827,7 @@ DoPlayerDive(PLAYERp pp)
 int
 DoPlayerTestPlaxDeath(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     // landed on a paralax floor
     if (pp->lo_sectp && TEST(pp->lo_sectp->floorstat, FLOOR_STAT_PLAX))
@@ -4858,7 +4858,7 @@ DoPlayerCurrent(PLAYERp pp)
     {
         if (!TEST(pp->Flags, PF_DEAD))
         {
-            USERp u = User[pp->PlayerSprite];
+            USERp u = User[pp->PlayerSprite].Data();
 
             PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
             PlayerCheckDeath(pp, -1);
@@ -4875,7 +4875,7 @@ DoPlayerCurrent(PLAYERp pp)
     {
         if (!TEST(pp->Flags, PF_DEAD))
         {
-            USERp u = User[pp->PlayerSprite];
+            USERp u = User[pp->PlayerSprite].Data();
 
             PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
             PlayerCheckDeath(pp, -1);
@@ -4890,7 +4890,7 @@ DoPlayerCurrent(PLAYERp pp)
 void
 DoPlayerFireOutWater(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     if (Prediction)
         return;
@@ -4906,7 +4906,7 @@ DoPlayerFireOutWater(PLAYERp pp)
 void
 DoPlayerFireOutDeath(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     if (Prediction)
         return;
@@ -4920,7 +4920,7 @@ DoPlayerFireOutDeath(PLAYERp pp)
 void
 DoPlayerBeginWade(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     // landed on a paralax floor?
     if (DoPlayerTestPlaxDeath(pp))
@@ -4953,7 +4953,7 @@ DoPlayerBeginWade(PLAYERp pp)
 void
 DoPlayerWade(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     DoPlayerFireOutWater(pp);
 
@@ -5094,7 +5094,7 @@ DoPlayerWade(PLAYERp pp)
 void
 DoPlayerBeginOperateBoat(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_RUN_CEILING_DIST;
@@ -5115,7 +5115,7 @@ DoPlayerBeginOperateBoat(PLAYERp pp)
 void
 DoPlayerBeginOperateVehicle(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_RUN_CEILING_DIST;
@@ -5135,7 +5135,7 @@ DoPlayerBeginOperateVehicle(PLAYERp pp)
 void
 DoPlayerBeginOperateTurret(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_RUN_CEILING_DIST;
@@ -5816,7 +5816,7 @@ DoPlayerBeginDie(PLAYERp pp)
     short bak;
     int choosesnd = 0;
 
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     static void (*PlayerDeathFunc[MAX_PLAYER_DEATHS]) (PLAYERp) =
     {
@@ -5861,7 +5861,7 @@ DoPlayerBeginDie(PLAYERp pp)
         // Give kill credit to player if necessary
         if (pp->Killer >= 0)
         {
-            USERp ku = User[pp->Killer];
+            USERp ku = User[pp->Killer].Data();
 
             ASSERT(ku);
 
@@ -6057,7 +6057,7 @@ DoPlayerDeathTilt(PLAYERp pp, short target, short speed)
 void
 DoPlayerDeathZrange(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     // make sure we don't land on a regular sprite
     DoFindGround(pp->PlayerSprite);
@@ -6134,7 +6134,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 void DoPlayerDeathCheckKeys(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP;
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     if (pp->input.actions & SB_OPEN)
     {
@@ -6230,7 +6230,7 @@ DoPlayerHeadDebris(PLAYERp pp)
 SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP, hp;
-    USERp u = User[pp->PlayerSprite], hu;
+    USERp u = User[pp->PlayerSprite].Data(), hu;
     int i;
     unsigned stat;
     int dist;
@@ -6242,7 +6242,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
         while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
-            hu = User[i];
+            hu = User[i].Data();
 
             if (i == pp->PlayerSprite)
                 break;
@@ -6293,7 +6293,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
 void DoPlayerDeathMoveHead(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP;
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     int dax,day;
     short sectnum;
 
@@ -6445,7 +6445,7 @@ void DoPlayerDeathDrown(PLAYERp pp)
 void DoPlayerDeathBounce(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP;
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     if (Prediction)
         return;
@@ -6475,7 +6475,7 @@ void DoPlayerDeathBounce(PLAYERp pp)
 void DoPlayerDeathCrumble(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP;
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     if (Prediction)
         return;
@@ -6528,7 +6528,7 @@ void DoPlayerDeathCrumble(PLAYERp pp)
 void DoPlayerDeathExplode(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP;
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     if (Prediction)
         return;
@@ -6584,7 +6584,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
 void
 DoPlayerBeginRun(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     // Crawl if in small aread automatically
     if (DoPlayerTestCrawl(pp))
@@ -6619,7 +6619,7 @@ DoPlayerBeginRun(PLAYERp pp)
 void
 DoPlayerRun(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
     {
@@ -6768,7 +6768,7 @@ PlayerStateControl(int16_t SpriteNum)
         return;
 
     // Convienience var
-    u = User[SpriteNum];
+    u = User[SpriteNum].Data();
 
     if (u == NULL)
         return;
@@ -6859,7 +6859,7 @@ MoveSkipSavePos(void)
                     continue;
 
                 sp = &sprite[i];
-                u = User[i];
+                u = User[i].Data();
 
                 if (sp == NULL || u == NULL)
                     continue;
@@ -6883,7 +6883,7 @@ MoveSkipSavePos(void)
                 if ((unsigned)i >= MAXSPRITES)
                     continue;
                 sp = &sprite[i];
-                u = User[i];
+                u = User[i].Data();
 
                 if (sp == NULL || u == NULL)
                     continue;
@@ -7438,7 +7438,7 @@ InitMultiPlayerInfo(void)
 
         start0 = SpawnSprite(MultiStatList[stat], ST1, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
         ASSERT(start0 >= 0);
-        FreeUser(start0);
+        User[start0].Clear();
         sprite[start0].picnum = ST1;
     }
 
@@ -7473,7 +7473,7 @@ InitMultiPlayerInfo(void)
 int
 DoFootPrints(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (u->PlayerP)
     {

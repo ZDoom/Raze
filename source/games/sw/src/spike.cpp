@@ -43,7 +43,7 @@ void InterpSectorSprites(short sectnum, bool state);
 
 void ReverseSpike(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
 
     // if paused go ahead and start it up again
@@ -97,7 +97,7 @@ SpikeSwitch(short match, short setting)
 
 void SetSpikeActive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
 
@@ -125,7 +125,7 @@ void SetSpikeActive(short SpriteNum)
 
 void SetSpikeInactive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
 
@@ -195,7 +195,7 @@ DoSpikeMatch(short match)
 
         if (SP_TAG1(fsp) == SECT_SPIKE && SP_TAG2(fsp) == match)
         {
-            fu = User[i];
+            fu = User[i].Data();
 
             if (first_spike == -1)
                 first_spike = i;
@@ -229,7 +229,7 @@ TestSpikeMatchActive(short match)
 
         if (SP_TAG1(fsp) == SECT_SPIKE && SP_TAG2(fsp) == match)
         {
-            fu = User[i];
+            fu = User[i].Data();
 
             // door war
             if (TEST_BOOL6(fsp))
@@ -245,7 +245,7 @@ TestSpikeMatchActive(short match)
 
 int DoSpikeMove(short SpriteNum, int *lptr)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int zval;
 
     zval = *lptr;
@@ -282,7 +282,7 @@ int DoSpikeMove(short SpriteNum, int *lptr)
 
 void SpikeAlign(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
 
     // either work on single sector or all tagged in SOBJ
@@ -313,7 +313,7 @@ void MoveSpritesWithSpike(short sectnum)
     {
         sp = &sprite[i];
 
-        if (User[i])
+        if (User[i].Data())
             continue;
 
         if (TEST(sp->extra, SPRX_STAY_PUT_VATOR))
@@ -326,7 +326,7 @@ void MoveSpritesWithSpike(short sectnum)
 
 int DoSpike(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     int *lptr;
 
@@ -409,7 +409,7 @@ int DoSpike(short SpriteNum)
             while ((i = it.NextIndex()) >= 0)
             {
                 bsp = &sprite[i];
-                bu = User[i];
+                bu = User[i].Data();
 
                 if (bu && TEST(bsp->cstat, CSTAT_SPRITE_BLOCK) && TEST(bsp->extra, SPRX_PLAYER_OR_ENEMY))
                 {
@@ -444,7 +444,7 @@ int DoSpike(short SpriteNum)
 
 int DoSpikeAuto(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     int *lptr;
 

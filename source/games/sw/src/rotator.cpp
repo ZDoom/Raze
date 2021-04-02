@@ -47,7 +47,7 @@ void DoRotatorStopInterp(short SpriteNum);
 
 void ReverseRotator(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     ROTATORp r;
 
     r = u->rotator.Data();
@@ -97,7 +97,7 @@ RotatorSwitch(short match, short setting)
 
 void SetRotatorActive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     ROTATORp r;
 
@@ -120,7 +120,7 @@ void SetRotatorActive(short SpriteNum)
 
 void SetRotatorInactive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
 
     DoRotatorStopInterp(SpriteNum);
@@ -170,7 +170,7 @@ DoRotatorMatch(PLAYERp pp, short match, bool manual)
 
         if (SP_TAG1(fsp) == SECT_ROTATOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i];
+            fu = User[i].Data();
 
             // single play only vator
             // bool 8 must be set for message to display
@@ -247,7 +247,7 @@ TestRotatorMatchActive(short match)
 
         if (SP_TAG1(fsp) == SECT_ROTATOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i];
+            fu = User[i].Data();
 
             // Does not have to be inactive to be operated
             if (TEST_BOOL6(fsp))
@@ -310,7 +310,7 @@ void DoRotatorStopInterp(short SpriteNum)
 
 int DoRotatorMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     ROTATORp r;
     short ndx,w,startwall,endwall;
@@ -435,7 +435,7 @@ int DoRotatorMove(short SpriteNum)
 
 int DoRotator(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
 
     // could move this inside sprite control

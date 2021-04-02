@@ -480,7 +480,7 @@ void TerminateLevel(void)
         StatIterator it(stat);
         if ((i = it.NextIndex()) >= 0)
         {
-            if (User[i]) puser[pnum].CopyFromUser(User[i]);
+            if (User[i].Data()) puser[pnum].CopyFromUser(User[i].Data());
         }
     }
 

@@ -845,7 +845,7 @@ bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short ty
 int KillBreakSprite(short BreakSprite)
 {
     SPRITEp bp = &sprite[BreakSprite];
-    USERp bu = User[BreakSprite];
+    USERp bu = User[BreakSprite].Data();
 
     // Does not actually kill the sprite so it will be valid for the rest
     // of the loop traversal.
@@ -1047,7 +1047,7 @@ bool NullActor(USERp u)
 int HitBreakSprite(short BreakSprite, short type)
 {
     SPRITEp bp = &sprite[BreakSprite];
-    USERp bu = User[BreakSprite];
+    USERp bu = User[BreakSprite].Data();
 
     //SPRITEp sp;
     // ignore as a breakable if true

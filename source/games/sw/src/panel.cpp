@@ -221,7 +221,7 @@ void ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
 
 void PlayerUpdateHealth(PLAYERp pp, short value)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     short x,y;
 
     if (Prediction)
@@ -328,7 +328,7 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
 
 void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     short x,y;
     short WeaponNum;
 
@@ -367,7 +367,7 @@ void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
 
 void PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
     // Weapon Change
     if (Prediction)
@@ -434,7 +434,7 @@ int WeaponOperate(PLAYERp pp)
 {
     short weapon;
     int DoPlayerSpriteReset(short SpriteNum);
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
 
 
     InventoryKeys(pp);
@@ -661,7 +661,7 @@ WeaponOK(PLAYERp pp)
     if ((unsigned)pp->PlayerSprite >= MAXSPRITES)
         return(false);
 
-    u = User[pp->PlayerSprite];
+    u = User[pp->PlayerSprite].Data();
 
     if (u == NULL)
         return(false);
@@ -6887,7 +6887,7 @@ bool DrawBeforeView = false;
 void
 pDisplaySprites(PLAYERp pp, double smoothratio)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     PANEL_SPRITEp psp=NULL, next=NULL;
     short shade, picnum, overlay_shade = 0;
     double x, y;

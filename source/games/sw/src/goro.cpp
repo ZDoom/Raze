@@ -490,12 +490,12 @@ SetupGoro(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,GORO_RUN_R0,s_GoroRun[0]);
+        u = SpawnUser(SpriteNum,GORO_RUN_R0,s_GoroRun[0]);
         u->Health = HEALTH_GORO;
     }
 
@@ -515,7 +515,7 @@ SetupGoro(short SpriteNum)
 
 int NullGoro(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     ASSERT(SpriteNum >= 0);
 
@@ -530,7 +530,7 @@ int NullGoro(short SpriteNum)
 
 int DoGoroPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     ASSERT(SpriteNum >= 0);
 
@@ -543,7 +543,7 @@ int DoGoroPain(short SpriteNum)
 
 int DoGoroMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     ASSERT(SpriteNum >= 0);
 
@@ -555,7 +555,7 @@ int DoGoroMove(short SpriteNum)
     else
         (*u->ActorActionFunc)(SpriteNum);
 
-    ASSERT(User[SpriteNum]);
+    ASSERT(User[SpriteNum].Data());
 
     KeepActorOnFloor(SpriteNum);
 

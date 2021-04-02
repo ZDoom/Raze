@@ -62,7 +62,7 @@ void SOwallmove(SECTOR_OBJECTp sop, SPRITEp sp, WALLp find_wallp, int dist, int 
             {
                 short ang;
                 // move orig x and y in saved angle
-                ASSERT(User[sp - sprite]);
+                ASSERT(User[sp - sprite].Data());
                 ang = User[sp - sprite]->sang;
 
                 *nx = MulScale(dist, bcos(ang), 14);

@@ -788,7 +788,7 @@ void Set3DSoundOwner(short spritenum)
 void PlaySpriteSound(short spritenum, int attrib_ndx, Voc3D_Flags flags)
 {
     SPRITEp sp = &sprite[spritenum];
-    USERp u = User[spritenum];
+    USERp u = User[spritenum].Data();
 
     ASSERT(u);
 

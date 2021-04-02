@@ -47,7 +47,7 @@ int InitBloodSpray(short, bool, short);
 
 void ReverseVator(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
 
     // if paused go ahead and start it up again
@@ -101,7 +101,7 @@ VatorSwitch(short match, short setting)
 
 void SetVatorActive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
 
@@ -129,7 +129,7 @@ void SetVatorActive(short SpriteNum)
 
 void SetVatorInactive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
 
@@ -233,7 +233,7 @@ DoVatorMatch(PLAYERp pp, short match)
 
         if (SP_TAG1(fsp) == SECT_VATOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i];
+            fu = User[i].Data();
 
             if (first_vator == -1)
                 first_vator = i;
@@ -305,7 +305,7 @@ TestVatorMatchActive(short match)
 
         if (SP_TAG1(fsp) == SECT_VATOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i];
+            fu = User[i].Data();
 
             // Does not have to be inactive to be operated
             if (TEST_BOOL6(fsp))
@@ -329,7 +329,7 @@ void InterpSectorSprites(short sectnum, bool state)
     {
         sp = &sprite[i];
 
-        if (User[i])
+        if (User[i].Data())
         {
             if (TEST(User[i]->Flags, SPR_SKIP4) && sp->statnum <= STAT_SKIP4_INTERP_END)
                 continue;
@@ -359,7 +359,7 @@ void MoveSpritesWithSector(short sectnum, int z_amt, bool type)
     {
         sp = &sprite[i];
 
-        if (User[i])
+        if (User[i].Data())
         {
             switch (sp->statnum)
             {
@@ -415,7 +415,7 @@ cont:
 
 int DoVatorMove(short SpriteNum, int *lptr)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int zval;
     int move_amt;
 
@@ -455,7 +455,7 @@ int DoVatorMove(short SpriteNum, int *lptr)
 
 int DoVator(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
     int *lptr;
@@ -550,7 +550,7 @@ int DoVator(short SpriteNum)
             while ((i = it.NextIndex()) >= 0)
             {
                 bsp = &sprite[i];
-                bu = User[i];
+                bu = User[i].Data();
 
                 if (bsp->statnum == STAT_ENEMY)
                 {
@@ -624,7 +624,7 @@ int DoVator(short SpriteNum)
 
 int DoVatorAuto(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
     int *lptr;

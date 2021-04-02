@@ -509,12 +509,12 @@ SetupSkel(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,SKEL_RUN_R0,s_SkelRun[0]);
+        u = SpawnUser(SpriteNum,SKEL_RUN_R0,s_SkelRun[0]);
         u->Health = HEALTH_SKEL_PRIEST;
     }
 
@@ -588,7 +588,7 @@ int DoSkelTermTeleport(short SpriteNum)
 
 int NullSkel(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -601,7 +601,7 @@ int NullSkel(short SpriteNum)
 
 int DoSkelPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullSkel(SpriteNum);
 
@@ -613,7 +613,7 @@ int DoSkelPain(short SpriteNum)
 
 int DoSkelMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
