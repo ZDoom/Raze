@@ -1134,14 +1134,17 @@ using ROTATORp = ROTATOR*;
 
 struct USER
 {
-    // These are for easy zero-init of USERs without having to be on the lookout for non-trivial members.
-    void* operator new(size_t alloc)
+    // C++'s default init rules suck, so we have to help it out a bit to do what we need (i.e. setting all POD members to 0.
+    USER()
     {
-        return M_Calloc(alloc, 1);
+        memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
     }
-    void operator delete (void* mem)
+
+    void Clear()
     {
-        M_Free(mem);
+        rotator.Clear();
+        WallShade.Clear();
+        memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
     }
 
     //

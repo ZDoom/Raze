@@ -284,7 +284,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 	if (!def)
 	{
 		def = &nuluser;
-		if (arc.isReading()) w = {};
+		if (arc.isReading()) w.Clear();
 	}
 	if (arc.BeginObject(keyname))
 	{
