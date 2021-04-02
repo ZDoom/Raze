@@ -330,6 +330,10 @@ void sethorizon(PlayerHorizon* horizon, float const horz, ESyncBits* actions, do
 			}
 		}
 	}
+	else
+	{
+		*actions &= ~SB_CENTERVIEW;
+	}
 }
 
 //---------------------------------------------------------------------------
