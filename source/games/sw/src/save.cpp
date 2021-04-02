@@ -1178,6 +1178,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
         preSerializePanelSprites(arc);
         SerializeUser(arc);
 		SerializeSectUser(arc);
+		so_serializeinterpolations(arc);
 		arc("numplayers", numplayers)
             .Array("players", Player, numplayers)
 			("skill", Skill)
@@ -1422,10 +1423,6 @@ bool GameInterface::SaveGame()
 #endif
 #endif
 
-    // SO interpolations
-	saveisshot |= so_writeinterpolations(fil);
-	assert(!saveisshot);
-
     return !saveisshot;
 }
 
@@ -1525,9 +1522,6 @@ bool GameInterface::LoadGame()
 #endif
 #endif
 
-    // SO interpolations
-    saveisshot |= so_readinterpolations(fil);
-    if (saveisshot) { MCLOSE_READ(fil); return false; }
     MCLOSE_READ(fil);
 
 
