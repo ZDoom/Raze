@@ -1613,30 +1613,30 @@ typedef struct
     short sector, angopen, angclosed, angopendir, sang, anginc, wall[17];
 } SWING;
 
-typedef struct
+typedef struct SINE_WAVE_FLOOR
 {
     int floor_origz, ceiling_origz, range;
     short sector, sintable_ndx, speed_shift;
-    char flags;
-} SINE_WAVE_FLOOR, *SINE_WAVE_FLOORp;
+    uint8_t flags;
+} *SINE_WAVE_FLOORp;
 
 #define MAX_SINE_WAVE 6
 extern SINE_WAVE_FLOOR SineWaveFloor[MAX_SINE_WAVE][21];
 
-typedef struct
+typedef struct SINE_WALL
 {
     int orig_xy, range;
     short wall, sintable_ndx, speed_shift, type;
-} SINE_WALL, *SINE_WALLp;
+} *SINE_WALLp;
 
 #define MAX_SINE_WALL 10
 #define MAX_SINE_WALL_POINTS 64
 extern SINE_WALL SineWall[MAX_SINE_WALL][MAX_SINE_WALL_POINTS];
 
-typedef struct
+struct SPRING_BOARD
 {
     short Sector, TimeOut;
-} SPRING_BOARD;
+};
 
 extern SPRING_BOARD SpringBoard[20];
 extern SWING Rotate[17];

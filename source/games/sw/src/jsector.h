@@ -54,7 +54,7 @@ typedef struct
     // level for a
     // max of up to 4 coolie ghosts to spawn.
     bool ismagic;                       // Is this a magic mirror?
-    MIRRORSTATE mstate;                 // What state the mirror is currently
+    uint8_t mstate;                 // What state the mirror is currently
     // in
     int maxtics;                       // Tic count used to time mirror
     // events

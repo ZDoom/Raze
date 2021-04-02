@@ -870,6 +870,180 @@ void SerializeUser(FSerializer& arc)
 //
 //---------------------------------------------------------------------------
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SINE_WAVE_FLOOR& w, SINE_WAVE_FLOOR* def)
+{
+	static SINE_WAVE_FLOOR nul = { -1,-1,-1,-1,-1,-1,255 };
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = nul;
+	}
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("floor_origz", w.floor_origz, def->floor_origz)
+			("ceiling_origz", w.ceiling_origz, def->ceiling_origz)
+			("range", w.range, def->range)
+			("sector", w.sector, def->sector)
+			("sintable_ndx", w.sintable_ndx, def->sintable_ndx)
+			("speed_shift", w.speed_shift, def->speed_shift)
+			("flags", w.flags, def->flags)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SINE_WALL& w, SINE_WALL* def)
+{
+	static SINE_WALL nul = { -1,-1,-1,-1,-1,-1 };
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = nul;
+	}
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("orig_xy", w.orig_xy, def->orig_xy)
+			("range", w.range, def->range)
+			("sector", w.wall, def->wall)
+			("sintable_ndx", w.sintable_ndx, def->sintable_ndx)
+			("speed_shift", w.speed_shift, def->speed_shift)
+			("flags", w.type, def->type)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRING_BOARD& w, SPRING_BOARD* def)
+{
+	static SPRING_BOARD nul = { -1,-1 };
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = nul;
+	}
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("sector", w.Sector, def->Sector)
+			("timeout", w.TimeOut, def->TimeOut)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, MIRRORTYPE& w, MIRRORTYPE* def)
+{
+	static MIRRORTYPE nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("mirrorwall", w.mirrorwall, def->mirrorwall)
+			("mirrorsector", w.mirrorsector, def->mirrorsector)
+			("camera", w.camera, def->camera)
+			("camsprite", w.camsprite, def->camsprite)
+			("campic", w.campic, def->campic)
+			("numspawnspots", w.numspawnspots, def->numspawnspots)
+			.Array("spawnspots", w.spawnspots, def->spawnspots, w.numspawnspots)
+			("ismagic", w.ismagic, def->ismagic)
+			("mstate", w.mstate, def->mstate)
+			("maxtics", w.maxtics, def->maxtics)
+			("tics", w.tics, def->tics)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, gNET& w, gNET* def)
+{
+	static gNET nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("KillLimit", w.KillLimit, def->KillLimit)
+			("TimeLimit", w.TimeLimit, def->TimeLimit)
+			("TimeLimitClock", w.TimeLimitClock, def->TimeLimitClock)
+			("MultiGameType", w.MultiGameType, def->MultiGameType)
+			("TeamPlay", w.TeamPlay, def->TeamPlay)
+			("HurtTeammate", w.HurtTeammate, def->HurtTeammate)
+			("SpawnMarkers", w.SpawnMarkers, def->SpawnMarkers)
+			("AutoAim", w.AutoAim, def->AutoAim)
+			("NoRespawn", w.NoRespawn, def->NoRespawn)
+			("Nuke", w.Nuke, def->Nuke)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, GAME_SET& w, GAME_SET* def)
+{
+	static GAME_SET nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("NetGameType", w.NetGameType, def->NetGameType)
+			("NetMonsters", w.NetMonsters, def->NetMonsters)
+			("NetHurtTeammate", w.NetHurtTeammate, def->NetHurtTeammate)
+			("NetSpawnMarkers", w.NetSpawnMarkers, def->NetSpawnMarkers)
+			("NetTeamPlay", w.NetTeamPlay, def->NetTeamPlay)
+			("NetKillLimit", w.NetKillLimit, def->NetKillLimit)
+			("NetTimeLimit", w.NetTimeLimit, def->NetTimeLimit)
+			("NetColor", w.NetColor, def->NetColor)
+			("Nuke", w.NetNuke, def->NetNuke)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
     Saveable_Init();
@@ -881,6 +1055,46 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		SerializeSectUser(arc);
 		arc("numplayers", numplayers)
             .Array("players", Player, numplayers)
+			("skill", Skill)
+			("screenpeek", screenpeek)
+			("randomseed", randomseed)
+//			.Array("sop", SectorObject, countof(SectorObject))
+			.Array("swf", &SineWaveFloor[0][0], 6 * 21)
+			.Array("sinewall", &SineWall[0][0], 10 * 64)
+			.Array("springboard", SpringBoard, countof(SpringBoard))
+			("NormalVisibility", NormalVisibility)
+			("MoveSkip2", MoveSkip2)
+			("MoveSkip4", MoveSkip4)
+			("MoveSkip8", MoveSkip8)
+			("mirrorcnt", mirrorcnt)
+			.Array("mirror", mirror, mirrorcnt)
+			("mirrorinview", mirrorinview)
+			("StarQueueHead", StarQueueHead)
+			.Array("StarQueue", StarQueue, countof(StarQueue))
+			("HoleQueueHead", HoleQueueHead)
+			.Array("HoleQueue", HoleQueue, countof(HoleQueue))
+			("WallBloodQueueHead", WallBloodQueueHead)
+			.Array("WallBloodQueue", WallBloodQueue, countof(WallBloodQueue))
+			("FloorBloodQueueHead", FloorBloodQueueHead)
+			.Array("FloorBloodQueue", FloorBloodQueue, countof(FloorBloodQueue))
+			("GenericQueueHead", GenericQueueHead)
+			.Array("GenericQueue", GenericQueue, countof(GenericQueue))
+			("LoWangsQueueHead", LoWangsQueueHead)
+			.Array("LoWangsQueue", LoWangsQueue, countof(LoWangsQueue))
+			("PlayClock", PlayClock)
+			("TotalKillable", TotalKillable)
+			("net", gNet)
+			("gs", gs)
+			("LevelSecrets", LevelSecrets)
+			("Bunny_Count", Bunny_Count)
+			("GodMode", GodMode)
+			("FinishTimer", FinishTimer)
+			("FinishAnim", FinishAnim)
+			("serpwasseen", serpwasseen)
+			("sumowasseen", sumowasseen)
+			("zillawasseen", zillawasseen)
+			.Array("BossSpriteNum", BossSpriteNum, 3)
+
             ;
         postSerializePanelSprites(arc);
         arc.EndObject();
@@ -982,8 +1196,6 @@ bool GameInterface::SaveGame()
     // workaround until the level info here has been transitioned.
 	fil = WriteSavegameChunk("snapshot.sw");
 
-    MWRITE(&Skill,sizeof(Skill),1,fil);
-
     //
     // Sector object
     //
@@ -1007,9 +1219,6 @@ bool GameInterface::SaveGame()
     }
 
 
-    MWRITE(SineWaveFloor, sizeof(SineWaveFloor),1,fil);
-    MWRITE(SineWall, sizeof(SineWall),1,fil);
-    MWRITE(SpringBoard, sizeof(SpringBoard),1,fil);
 
 
     MWRITE(Track, sizeof(Track),1,fil);
@@ -1023,8 +1232,6 @@ bool GameInterface::SaveGame()
     }
 
     MWRITE(&Player[myconnectindex].input,sizeof(Player[myconnectindex].input),1,fil);
-    MWRITE(&screenpeek,sizeof(screenpeek),1,fil);
-    MWRITE(&randomseed, sizeof(randomseed), 1, fil);
 
     // do all sector manipulation structures
 
@@ -1112,56 +1319,9 @@ bool GameInterface::SaveGame()
 #endif
 #endif
 
-    MWRITE(&NormalVisibility,sizeof(NormalVisibility),1,fil);
-    MWRITE(&MoveSkip2,sizeof(MoveSkip2),1,fil);
-    MWRITE(&MoveSkip4,sizeof(MoveSkip4),1,fil);
-    MWRITE(&MoveSkip8,sizeof(MoveSkip8),1,fil);
-
     // SO interpolations
 	saveisshot |= so_writeinterpolations(fil);
 	assert(!saveisshot);
-
-    // mirror
-    MWRITE(mirror,sizeof(mirror),1,fil);
-    MWRITE(&mirrorcnt,sizeof(mirrorcnt),1,fil);
-    MWRITE(&mirrorinview,sizeof(mirrorinview),1,fil);
-
-    // queue
-    MWRITE(&StarQueueHead,sizeof(StarQueueHead),1,fil);
-    MWRITE(StarQueue,sizeof(StarQueue),1,fil);
-    MWRITE(&HoleQueueHead,sizeof(HoleQueueHead),1,fil);
-    MWRITE(HoleQueue,sizeof(HoleQueue),1,fil);
-    MWRITE(&WallBloodQueueHead,sizeof(WallBloodQueueHead),1,fil);
-    MWRITE(WallBloodQueue,sizeof(WallBloodQueue),1,fil);
-    MWRITE(&FloorBloodQueueHead,sizeof(FloorBloodQueueHead),1,fil);
-    MWRITE(FloorBloodQueue,sizeof(FloorBloodQueue),1,fil);
-    MWRITE(&GenericQueueHead,sizeof(GenericQueueHead),1,fil);
-    MWRITE(GenericQueue,sizeof(GenericQueue),1,fil);
-    MWRITE(&LoWangsQueueHead,sizeof(LoWangsQueueHead),1,fil);
-    MWRITE(LoWangsQueue,sizeof(LoWangsQueue),1,fil);
-
-    MWRITE(&PlayClock,sizeof(PlayClock),1,fil);
-    MWRITE(&TotalKillable,sizeof(TotalKillable),1,fil);
-
-    // game settings
-    MWRITE(&gNet,sizeof(gNet),1,fil);
-
-    MWRITE(&gs,sizeof(gs),1,fil);
-
-    MWRITE(&LevelSecrets,sizeof(LevelSecrets),1,fil);
-
-    MWRITE(&Bunny_Count,sizeof(Bunny_Count),1,fil);
-
-    MWRITE(&GodMode,sizeof(GodMode),1,fil);
-
-    MWRITE(&FinishTimer,sizeof(FinishTimer),1,fil);
-    MWRITE(&FinishAnim,sizeof(FinishAnim),1,fil);
-
-    MWRITE(&serpwasseen, sizeof(serpwasseen), 1, fil);
-    MWRITE(&sumowasseen, sizeof(sumowasseen), 1, fil);
-    MWRITE(&zillawasseen, sizeof(zillawasseen), 1, fil);
-    MWRITE(BossSpriteNum, sizeof(BossSpriteNum), 1, fil);
-    //MWRITE(&Zombies, sizeof(Zombies), 1, fil);
 
     return !saveisshot;
 }
@@ -1186,8 +1346,6 @@ bool GameInterface::LoadGame()
 	if (!filr.isOpen()) return false;
 	fil = &filr;
 
-    MREAD(&Skill,sizeof(Skill),1,fil);
-
     MREAD(SectorObject, sizeof(SectorObject),1,fil);
 
     for (ndx = 0; ndx < (short)SIZ(SectorObject); ndx++)
@@ -1201,10 +1359,6 @@ bool GameInterface::LoadGame()
         saveisshot |= LoadSymDataInfo(fil, (void **)&sop->sp_child);
         if (saveisshot) { MCLOSE_READ(fil); return false; }
     }
-
-    MREAD(SineWaveFloor, sizeof(SineWaveFloor),1,fil);
-    MREAD(SineWall, sizeof(SineWall),1,fil);
-    MREAD(SpringBoard, sizeof(SpringBoard),1,fil);
 
     MREAD(Track, sizeof(Track),1,fil);
     for (i = 0; i < MAX_TRACKS; i++)
@@ -1222,9 +1376,6 @@ bool GameInterface::LoadGame()
     }
 
     MREAD(&Player[myconnectindex].input,sizeof(Player[myconnectindex].input),1,fil);
-
-    MREAD(&screenpeek,sizeof(screenpeek),1,fil);
-    MREAD(&randomseed, sizeof(randomseed), 1, fil);
 
     // do all sector manipulation structures
 
@@ -1285,59 +1436,9 @@ bool GameInterface::LoadGame()
 #endif
 #endif
 
-    MREAD(&NormalVisibility,sizeof(NormalVisibility),1,fil);
-
-    MREAD(&MoveSkip2,sizeof(MoveSkip2),1,fil);
-    MREAD(&MoveSkip4,sizeof(MoveSkip4),1,fil);
-    MREAD(&MoveSkip8,sizeof(MoveSkip8),1,fil);
-
     // SO interpolations
     saveisshot |= so_readinterpolations(fil);
     if (saveisshot) { MCLOSE_READ(fil); return false; }
-
-    // mirror
-    MREAD(mirror,sizeof(mirror),1,fil);
-    MREAD(&mirrorcnt,sizeof(mirrorcnt),1,fil);
-    MREAD(&mirrorinview,sizeof(mirrorinview),1,fil);
-
-    // queue
-    MREAD(&StarQueueHead,sizeof(StarQueueHead),1,fil);
-    MREAD(StarQueue,sizeof(StarQueue),1,fil);
-    MREAD(&HoleQueueHead,sizeof(HoleQueueHead),1,fil);
-    MREAD(HoleQueue,sizeof(HoleQueue),1,fil);
-    MREAD(&WallBloodQueueHead,sizeof(WallBloodQueueHead),1,fil);
-    MREAD(WallBloodQueue,sizeof(WallBloodQueue),1,fil);
-    MREAD(&FloorBloodQueueHead,sizeof(FloorBloodQueueHead),1,fil);
-    MREAD(FloorBloodQueue,sizeof(FloorBloodQueue),1,fil);
-    MREAD(&GenericQueueHead,sizeof(GenericQueueHead),1,fil);
-    MREAD(GenericQueue,sizeof(GenericQueue),1,fil);
-    MREAD(&LoWangsQueueHead,sizeof(LoWangsQueueHead),1,fil);
-    MREAD(LoWangsQueue,sizeof(LoWangsQueue),1,fil);
-
-    // init timing vars before PlayClock is read
-    MREAD(&PlayClock,sizeof(PlayClock),1,fil);
-    MREAD(&TotalKillable,sizeof(TotalKillable),1,fil);
-
-    // game settings
-    MREAD(&gNet,sizeof(gNet),1,fil);
-
-	MREAD(&gs,sizeof(gs),1,fil);
-
-    MREAD(&LevelSecrets,sizeof(LevelSecrets),1,fil);
-
-    MREAD(&Bunny_Count,sizeof(Bunny_Count),1,fil);
-
-    MREAD(&GodMode,sizeof(GodMode),1,fil);
-
-    MREAD(&FinishTimer,sizeof(FinishTimer),1,fil);
-    MREAD(&FinishAnim,sizeof(FinishAnim),1,fil);
-
-    MREAD(&serpwasseen, sizeof(serpwasseen), 1, fil);
-    MREAD(&sumowasseen, sizeof(sumowasseen), 1, fil);
-    MREAD(&zillawasseen, sizeof(zillawasseen), 1, fil);
-    MREAD(BossSpriteNum, sizeof(BossSpriteNum), 1, fil);
-    //MREAD(&Zombies, sizeof(Zombies), 1, fil);
-
     MCLOSE_READ(fil);
 
 
