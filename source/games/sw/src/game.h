@@ -1098,7 +1098,7 @@ typedef struct
     STATEp *Dive;
 } ACTOR_ACTION_SET,*ACTOR_ACTION_SETp;
 
-typedef struct
+struct ROTATOR
 {
     int pos;           // current position - always moves toward tgt
     int open_dest;     // destination of open position
@@ -1106,10 +1106,27 @@ typedef struct
     int speed;         // speed of movement
     int orig_speed;    // original speed - vel jacks with speed
     int vel;           // velocity adjuments
-    int num_walls;     // save off positions of walls for rotator
-    int *origx;
-    int *origy;
-} ROTATOR, *ROTATORp;
+
+    TArray<int> origX;
+    TArray<int> origY;
+
+    void SetNumWalls(int num)
+    {
+        origX.Resize(num);
+        origY.Resize(num);
+        memset(origX.Data(), 0, num * sizeof(int));
+        memset(origY.Data(), 0, num * sizeof(int));
+    }
+
+    void ClearWalls()
+    {
+        origX.Reset();
+        origY.Reset();
+    }
+
+};
+
+using ROTATORp = ROTATOR*;
 
 //
 // User Extension record
@@ -1133,8 +1150,7 @@ struct USER
     TPointer<ROTATOR> rotator;
 
     // wall vars for lighting
-    int WallCount;
-    int8_t* WallShade; // malloced - save off wall shades for lighting
+    TArray<int8_t> WallShade;
 
     WALLp WallP; // operate on wall instead of sprite
     STATEp State;

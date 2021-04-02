@@ -371,9 +371,10 @@ bool GameInterface::SaveGame()
 
             MWRITE(u,sizeof(USER),1,fil);
 
+#if 0
             if (u->WallShade)
             {
-                MWRITE(u->WallShade,sizeof(*u->WallShade)*u->WallCount,1,fil);
+                MWRITE(u->WallShade, sizeof(*u->WallShade) * u->WallCount, 1, fil);
             }
 
             if (u->rotator)
@@ -384,6 +385,7 @@ bool GameInterface::SaveGame()
                 if (u->rotator->origy)
                     MWRITE(u->rotator->origy,sizeof(*u->rotator->origy)*u->rotator->num_walls,1,fil);
             }
+#endif
 
             saveisshot |= SaveSymDataInfo(fil, u->WallP);
             assert(!saveisshot);
@@ -753,10 +755,11 @@ bool GameInterface::LoadGame()
         MREAD(u,sizeof(USER),1,fil);
         memset((void*)&u->rotator, 0, sizeof(u->rotator));
 
+#if 0
         if (u->WallShade)
         {
             u->WallShade = (int8_t*)CallocMem(u->WallCount * sizeof(*u->WallShade), 1);
-            MREAD(u->WallShade,sizeof(*u->WallShade)*u->WallCount,1,fil);
+            MREAD(u->WallShade, sizeof(*u->WallShade) * u->WallCount, 1, fil);
         }
 
         if (u->rotator)
@@ -775,6 +778,7 @@ bool GameInterface::LoadGame()
                 MREAD(u->rotator->origy,sizeof(*u->rotator->origy)*u->rotator->num_walls,1,fil);
             }
         }
+#endif
 
         saveisshot |= LoadSymDataInfo(fil, (void **)&u->WallP);
         saveisshot |= LoadSymDataInfo(fil, (void **)&u->State);

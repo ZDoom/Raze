@@ -50,7 +50,7 @@ void ReverseRotator(short SpriteNum)
     USERp u = User[SpriteNum];
     ROTATORp r;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     // if paused go ahead and start it up again
     if (u->Tics)
@@ -101,7 +101,7 @@ void SetRotatorActive(short SpriteNum)
     SPRITEp sp = u->SpriteP;
     ROTATORp r;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     DoRotatorSetInterp(SpriteNum);
 
@@ -320,7 +320,7 @@ int DoRotatorMove(short SpriteNum)
     int dist,closest;
     bool kill = false;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     // Example - ang pos moves from 0 to 512 <<OR>> from 0 to -512
 
@@ -416,7 +416,7 @@ int DoRotatorMove(short SpriteNum)
     // move points
     for (w = startwall, ndx = 0; w <= endwall; w++)
     {
-        vec2_t const orig = { r->origx[ndx], r->origy[ndx] };
+        vec2_t const orig = { r->origX[ndx], r->origY[ndx] };
         rotatepoint(pivot->pos.vec2, orig, r->pos, &nxy);
 
         dragpoint(w, nxy.x, nxy.y, 0);

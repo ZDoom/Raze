@@ -1451,10 +1451,12 @@ public:
 		return Ptr;
 	}
 
+#if 0 // this is too dangerous.
 	operator T* () const
 	{
 		return Ptr;
 	}
+#endif
 
 	void Alloc()
 	{

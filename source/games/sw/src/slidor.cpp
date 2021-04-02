@@ -44,7 +44,7 @@ void ReverseSlidor(short SpriteNum)
     USERp u = User[SpriteNum];
     ROTATORp r;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     // if paused go ahead and start it up again
     if (u->Tics)
@@ -96,7 +96,7 @@ void SetSlidorActive(short SpriteNum)
     SPRITEp sp = u->SpriteP;
     ROTATORp r;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     DoSlidorInterp(SpriteNum, StartInterpolation);
 
@@ -543,7 +543,7 @@ int DoSlidorMove(short SpriteNum)
     int old_pos;
     bool kill = false;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     // Example - ang pos moves from 0 to 512 <<OR>> from 0 to -512
 

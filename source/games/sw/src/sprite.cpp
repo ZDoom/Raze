@@ -642,12 +642,6 @@ KillSprite(int16_t SpriteNum)
         PLAYERp pp;
         short pnum;
 
-        if (u->WallShade)
-        {
-            FreeMem(u->WallShade);
-            u->WallShade = NULL;
-        }
-
         // doing a MissileSetPos - don't allow killing
         if (TEST(u->Flags, SPR_SET_POS_DONT_KILL))
             return;
@@ -784,15 +778,7 @@ KillSprite(int16_t SpriteNum)
             SetSuicide(u->flame);
         }
 
-        if (u->rotator)
-        {
-            if (u->rotator->origx)
-                FreeMem(u->rotator->origx);
-            if (u->rotator->origy)
-                FreeMem(u->rotator->origy);
-
-            u->rotator.Clear();
-        }
+        u->rotator.Clear();
 
         FreeUser(SpriteNum);
     }
@@ -909,7 +895,6 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     u->SpriteNum = SpriteNum;
     u->WaitTics = 0;
     u->OverlapZ = Z(4);
-    u->WallShade = NULL;
     u->bounce = 0;
 
     u->motion_blur_num = 0;
@@ -2405,21 +2390,19 @@ SpriteSetup(void)
                         wallcount++;
 
                     u->rotator.Alloc();
-                    u->rotator->num_walls = wallcount;
                     u->rotator->open_dest = SP_TAG5(sp);
                     u->rotator->speed = SP_TAG7(sp);
                     u->rotator->vel = SP_TAG8(sp);
                     u->rotator->pos = 0; // closed
                     u->rotator->tgt = u->rotator->open_dest; // closed
-                    u->rotator->origx = (int*)CallocMem(sizeof(u->rotator->origx) * wallcount, 1);
-                    u->rotator->origy = (int*)CallocMem(sizeof(u->rotator->origy) * wallcount, 1);
+                    u->rotator->SetNumWalls(wallcount);
 
                     u->rotator->orig_speed = u->rotator->speed;
 
                     for (w = startwall, wallcount = 0; w <= endwall; w++)
                     {
-                        u->rotator->origx[wallcount] = wall[w].x;
-                        u->rotator->origy[wallcount] = wall[w].y;
+                        u->rotator->origX[wallcount] = wall[w].x;
+                        u->rotator->origY[wallcount] = wall[w].y;
                         wallcount++;
                     }
 
@@ -2466,7 +2449,7 @@ SpriteSetup(void)
                     u->rotator->vel = SP_TAG8(sp);
                     u->rotator->pos = 0; // closed
                     u->rotator->tgt = u->rotator->open_dest; // closed
-                    u->rotator->num_walls = 0;
+                    u->rotator->ClearWalls();
                     u->rotator->orig_speed = u->rotator->speed;
 
                     SET(u->Flags, SPR_ACTIVE);
@@ -2611,13 +2594,13 @@ SpriteSetup(void)
                     }
 
                     User[SpriteNum] = u = SpawnUser(SpriteNum, 0, NULL);
-                    u->WallCount = wallcount;
-                    wall_shade = u->WallShade = (int8_t*)CallocMem(u->WallCount * sizeof(*u->WallShade), 1);
+                    u->WallShade.Resize(wallcount);
+                    wall_shade = u->WallShade.Data();
 
                     // save off original wall shades
                     for (w = startwall, wallcount = 0; w <= endwall; w++)
                     {
-                        wall_shade[wallcount] = wall[w].shade;
+                        wall_shade[wallcount] =  wall[w].shade;
                         wallcount++;
                         if (TEST_BOOL5(sp))
                         {
@@ -2667,8 +2650,8 @@ SpriteSetup(void)
                     // !LIGHT
                     // make an wall_shade array and put it in User
                     User[SpriteNum] = u = SpawnUser(SpriteNum, 0, NULL);
-                    u->WallCount = wallcount;
-                    wall_shade = u->WallShade = (int8_t*)CallocMem(u->WallCount * sizeof(*u->WallShade), 1);
+                    u->WallShade.Resize(wallcount);
+                    wall_shade = u->WallShade.Data();
 
                     // save off original wall shades
                     for (w = startwall, wallcount = 0; w <= endwall; w++)
