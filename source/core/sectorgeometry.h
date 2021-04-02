@@ -23,14 +23,14 @@ class SectorGeometry
 {
 	TArray<SectorGeometryData> data;
 
-	void ValidateSector(unsigned sectnum, int plane);
-	void MakeVertices(unsigned sectnum, int plane);
+	void ValidateSector(unsigned sectnum, int plane, const FVector2& offset);
+	void MakeVertices(unsigned sectnum, int plane, const FVector2& offset);
 
 public:
-	SectorGeometryPlane* get(unsigned sectnum, int plane)
+	SectorGeometryPlane* get(unsigned sectnum, int plane, const FVector2& offset)
 	{
 		if (sectnum >= data.Size()) return nullptr;
-		ValidateSector(sectnum, plane);
+		ValidateSector(sectnum, plane, offset);
 		return &data[sectnum].planes[plane];
 	}
 

@@ -384,6 +384,8 @@ void HWDrawInfo::CreateScene()
 	screen->mLights->Map();
 
 	spritesortcnt = 0;
+	ingeo = false;
+	geoofs = { 0,0 };
 
 	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
 	mDrawer.Init(this, mClipper, view);
@@ -396,6 +398,79 @@ void HWDrawInfo::CreateScene()
 	gi->processSprites(tsprite, spritesortcnt, view.x, view.y, vp.Pos.Z * -256, bamang(vp.RotAngle), vp.TicFrac * 65536);
 	DispatchSprites();
 	SetupSprite.Unclock();
+
+	GeoEffect eff;
+	int effsect = vp.SectNums ? vp.SectNums[0] : vp.SectCount;
+	int drawsect = effsect;
+	// RR geometry hack. Ugh...
+	// This just adds to the existing render list, so we must offset the effect areas to the same xy-space as the main one as we cannot change the view matrix.
+	if (gi->GetGeoEffect(&eff, effsect))
+	{
+		ingeo = true;
+		geoofs = { (float)eff.geox[0], (float)eff.geoy[0] };
+		// process the first layer.
+		for (int i = 0; i < eff.geocnt; i++)
+		{
+			auto sect = &sector[eff.geosectorwarp[i]];
+			for (auto w = 0; w < sect->wallnum; w++)
+			{
+				auto wal = &wall[sect->wallptr + w];
+				wal->x += eff.geox[i];
+				wal->y += eff.geoy[i];
+			}
+			sect->dirty = 255;
+			if (eff.geosector[i] == effsect) drawsect = eff.geosectorwarp[i];
+		}
+
+		mClipper->Clear();
+		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
+		mDrawer.Init(this, mClipper, view);
+		mDrawer.RenderScene(&drawsect, 1);
+
+		for (int i = 0; i < eff.geocnt; i++)
+		{
+			auto sect = &sector[eff.geosectorwarp[i]];
+			for (auto w = 0; w < sect->wallnum; w++)
+			{
+				auto wal = &wall[sect->wallptr + w];
+				wal->x -= eff.geox[i];
+				wal->y -= eff.geoy[i];
+			}
+		}
+
+		// Now the second layer. Same shit, different arrays.
+		geoofs = { (float)eff.geox2[0], (float)eff.geoy2[0] };
+		for (int i = 0; i < eff.geocnt; i++)
+		{
+			auto sect = &sector[eff.geosectorwarp2[i]];
+			for (auto w = 0; w < sect->wallnum; w++)
+			{
+				auto wal = &wall[sect->wallptr + w];
+				wal->x += eff.geox2[i];
+				wal->y += eff.geoy2[i];
+			}
+			sect->dirty = 255;
+			if (eff.geosector[i] == effsect) drawsect = eff.geosectorwarp2[i];
+		}
+
+		mClipper->Clear();
+		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
+		mDrawer.Init(this, mClipper, view);
+		mDrawer.RenderScene(&drawsect, 1);
+
+		for (int i = 0; i < eff.geocnt; i++)
+		{
+			auto sect = &sector[eff.geosectorwarp2[i]];
+			for (auto w = 0; w < sect->wallnum; w++)
+			{
+				auto wal = &wall[sect->wallptr + w];
+				wal->x -= eff.geox2[i];
+				wal->y -= eff.geoy2[i];
+			}
+		}
+		ingeo = false;
+	}
+
 
 	screen->mLights->Unmap();
 	screen->mVertexData->Unmap();

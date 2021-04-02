@@ -101,7 +101,7 @@ void HWFlat::MakeVertices()
 	bool canvas = texture->isHardwareCanvas();
 	if (sprite == nullptr)
 	{
-		auto mesh = sectorGeometry.get(sec - sector, plane);
+		auto mesh = sectorGeometry.get(sec - sector, plane, geoofs);
 		if (!mesh) return;
 		auto ret = screen->mVertexData->AllocVertices(mesh->vertices.Size());
 		auto vp = ret.first;
@@ -161,7 +161,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 
 	if (!sprite)
 	{
-		auto mesh = sectorGeometry.get(sec - sector, plane);
+		auto mesh = sectorGeometry.get(sec - sector, plane, geoofs);
 		state.SetNormal(mesh->normal);
 	}
 	else
@@ -231,7 +231,7 @@ void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 {
 	vertcount = 0;
 	plane = whichplane;
-	if (!screen->BuffersArePersistent() || sprite)	// should be made static buffer content later (when the logic is working)
+	if (!screen->BuffersArePersistent() || sprite || di->ingeo)	// should be made static buffer content later (when the logic is working)
 	{
 #if 0
 		if (di->Level->HasDynamicLights && texture != nullptr && !di->isFullbrightScene() && !(hacktype & (SSRF_PLANEHACK | SSRF_FLOODHACK)))
@@ -273,6 +273,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 	visibility = sectorVisibility(frontsector);
 	sec = frontsector;
 	sprite = nullptr;
+	geoofs = di->geoofs;
 
 	//
 	//

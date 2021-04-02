@@ -99,17 +99,19 @@ class UVCalculator
 	FGameTexture* tex;
 	float xpanning, ypanning;
 	float xscaled, yscaled;
+	FVector2 offset;
 
 public:
 
 	// Moved in from pragmas.h
-	UVCalculator(sectortype* sec, int plane, FGameTexture* tx)
+	UVCalculator(sectortype* sec, int plane, FGameTexture* tx, const FVector2& off)
 	{
 		float xpan, ypan;
 
 		sect = sec;
 		tex = tx;
 		myplane = plane;
+		offset = off;
 
 		auto firstwall = &wall[sec->wallptr];
 		ix1 = firstwall->x;
@@ -188,8 +190,8 @@ public:
 		}
 		else 
 		{
-			tu = x;
-			tv = -y;
+			tu = x - offset.X;
+			tv = -y - offset.Y;
 		}
 
 		if (stat & CSTAT_SECTOR_SWAPXY)
@@ -212,7 +214,7 @@ public:
 //
 //==========================================================================
 
-void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
+void SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2& offset)
 {
 	auto sec = &sector[secnum];
 	int numvertices = sec->wallnum;
@@ -297,7 +299,7 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 
 	auto texture = tileGetTexture(plane ? sec->ceilingpicnum : sec->floorpicnum);
 
-	UVCalculator uvcalc(sec, plane, texture);
+	UVCalculator uvcalc(sec, plane, texture, offset);
 	
 	for(unsigned i = 0; i < entry.vertices.Size(); i++)
 	{
@@ -317,7 +319,7 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane)
 //
 //==========================================================================
 
-void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
+void SectorGeometry::ValidateSector(unsigned int secnum, int plane, const FVector2& offset)
 {
 	auto sec = &sector[secnum];
 	auto compare = &data[secnum].compare[plane];
@@ -350,5 +352,5 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane)
 	*compare = *sec;
 	data[secnum].poscompare[plane] = wall[sec->wallptr].pos;
 	data[secnum].poscompare2[plane] = wall[wall[sec->wallptr].point2].pos;
-	MakeVertices(secnum, plane);
+	MakeVertices(secnum, plane, offset);
 }

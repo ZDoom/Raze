@@ -258,6 +258,7 @@ public:
 	FRenderStyle RenderStyle;
 	int iboindex;
 	bool stack;
+	FVector2 geoofs;
 	//int vboheight;
 
 	int plane;

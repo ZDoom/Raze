@@ -47,6 +47,19 @@ struct MapRecord;
 
 extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
 
+struct GeoEffect
+{
+	int* geosectorwarp;
+	int* geosectorwarp2;
+	int* geosector;
+	int* geox;
+	int* geoy;
+	int* geox2;
+	int* geoy2;
+	int geocnt;
+
+};
+
 struct GameInterface
 {
 	virtual const char* Name() { return "$"; }
@@ -107,6 +120,7 @@ struct GameInterface
 	virtual void UpdateCameras(double smoothratio) {}
 	virtual void EnterPortal(spritetype* viewer, int type) {}
 	virtual void LeavePortal(spritetype* viewer, int type) {}
+	virtual bool GetGeoEffect(GeoEffect* eff, int viewsector) { return false; }
 
 	virtual FString statFPS()
 	{

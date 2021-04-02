@@ -144,6 +144,23 @@ void GameInterface::LeavePortal(spritetype* viewer, int type)
 	if (type == PORTAL_WALL_MIRROR) display_mirror--;
 }
 
+bool GameInterface::GetGeoEffect(GeoEffect* eff, int viewsector)
+{
+	if (!isRR() || sector[viewsector].lotag == 848)
+	{
+		eff->geocnt = geocnt;
+		eff->geosector = geosector;
+		eff->geosectorwarp = geosectorwarp;
+		eff->geosectorwarp2 = geosectorwarp2;
+		eff->geox = geox;
+		eff->geoy = geoy;
+		eff->geox2 = geox2;
+		eff->geoy2 = geoy2;
+		return true;
+	}
+	return false;
+}
+
 //---------------------------------------------------------------------------
 //
 // RRRA's drug distortion effect

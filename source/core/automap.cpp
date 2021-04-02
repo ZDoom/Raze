@@ -478,7 +478,7 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 		for (j = startwall, wal = &wall[startwall]; j < endwall; j++, wal++)
 		{
 			if (wal->nextwall >= 0) continue;
-			if (!tileGetTexture(wal->picnum)->isValid()) continue;
+			if (!gFullMap && !tileGetTexture(wal->picnum)->isValid()) continue;
 
 			if ((g_gameType & GAMEFLAG_SW) && !gFullMap && !show2dwall[j])
 				continue;
@@ -588,7 +588,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		int picnum = sector[i].floorpicnum;
 		if ((unsigned)picnum >= (unsigned)MAXTILES) continue;
 
-		auto mesh = sectorGeometry.get(i, 0);
+		auto mesh = sectorGeometry.get(i, 0, { 0.f,0.f });
 		vertices.Resize(mesh->vertices.Size());
 		for (unsigned j = 0; j < mesh->vertices.Size(); j++)
 		{
