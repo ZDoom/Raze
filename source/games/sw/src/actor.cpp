@@ -300,7 +300,7 @@ DoDebrisCurrent(SPRITEp sp)
     int nx, ny;
     int ret=0;
     USERp u = User[sp - sprite].Data();
-    SECT_USERp sectu = SectUser[sp->sectnum];
+    SECT_USERp sectu = SectUser[sp->sectnum].Data();
 
     //sp->clipdist = (256+128)>>2;
 
@@ -330,7 +330,7 @@ DoActorSectorDamage(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
-    SECT_USERp sectu = SectUser[sp->sectnum];
+    SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
 
     if (u->Health <= 0)
@@ -455,7 +455,7 @@ DoActorDebris(short SpriteNum)
             }
         }
 
-        if (SectUser[sp->sectnum] && SectUser[sp->sectnum]->depth > 10) // JBF: added null check
+        if (SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth > 10) // JBF: added null check
         {
             u->WaitTics = (u->WaitTics + (ACTORMOVETICS << 3)) & 1023;
             //sp->z = Z(2) + u->loz + ((Z(4) * (int) bsin(u->WaitTics)) >> 14);
@@ -539,7 +539,7 @@ KeepActorOnFloor(short SpriteNum)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
         return;
 
-    if (u->lo_sectp && SectUser[u->lo_sectp - sector])
+    if (u->lo_sectp && SectUser[u->lo_sectp - sector].Data())
         depth = SectUser[u->lo_sectp - sector]->depth;
     else
         depth = 0;

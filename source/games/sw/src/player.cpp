@@ -1651,7 +1651,7 @@ void SlipSlope(PLAYERp pp)
     short ang;
     SECT_USERp sectu;
 
-    if (pp->cursectnum < 0 || !(sectu = SectUser[pp->cursectnum]) || !TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE))
+    if (pp->cursectnum < 0 || !(sectu = SectUser[pp->cursectnum].Data()) || !TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE))
         return;
 
     short wallptr = sector[pp->cursectnum].wallptr;
@@ -3251,7 +3251,7 @@ DoPlayerFall(PLAYERp pp)
 
         if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHT + recoil_amt))
         {
-            SECT_USERp sectu = SectUser[pp->cursectnum];
+            SECT_USERp sectu = SectUser[pp->cursectnum].Data();
             SECTORp sectp = &sector[pp->cursectnum];
 
             PlayerSectorBound(pp, Z(1));
@@ -4111,7 +4111,7 @@ GetOverlapSector(int x, int y, short *over, short *under)
     int i, found = 0;
     short sf[2]= {0,0};                       // sectors found
 
-    if ((SectUser[*under] && SectUser[*under]->number >= 30000) || (SectUser[*over] && SectUser[*over]->number >= 30000))
+    if ((SectUser[*under].Data() && SectUser[*under]->number >= 30000) || (SectUser[*over].Data() && SectUser[*over]->number >= 30000))
         return GetOverlapSector2(x,y,over,under);
 
     // instead of check ALL sectors, just check the two most likely first
@@ -4269,7 +4269,7 @@ DoPlayerWarpToUnderwater(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite].Data();
     int i;
-    SECT_USERp sectu = SectUser[pp->cursectnum];
+    SECT_USERp sectu = SectUser[pp->cursectnum].Data();
     SPRITEp under_sp = NULL, over_sp = NULL;
     bool Found = false;
     short over, under;
@@ -4285,7 +4285,7 @@ DoPlayerWarpToUnderwater(PLAYERp pp)
         over_sp = &sprite[i];
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
-            SectUser[over_sp->sectnum] &&
+            SectUser[over_sp->sectnum].Data() &&
             SectUser[over_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -4303,7 +4303,7 @@ DoPlayerWarpToUnderwater(PLAYERp pp)
         under_sp = &sprite[i];
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
-            SectUser[under_sp->sectnum] &&
+            SectUser[under_sp->sectnum].Data() &&
             SectUser[under_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -4346,7 +4346,7 @@ DoPlayerWarpToSurface(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite].Data();
     int i;
-    SECT_USERp sectu = SectUser[pp->cursectnum];
+    SECT_USERp sectu = SectUser[pp->cursectnum].Data();
     short over, under;
 
     SPRITEp under_sp = NULL, over_sp = NULL;
@@ -4362,7 +4362,7 @@ DoPlayerWarpToSurface(PLAYERp pp)
         under_sp = &sprite[i];
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
-            SectUser[under_sp->sectnum] &&
+            SectUser[under_sp->sectnum].Data() &&
             SectUser[under_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -4380,7 +4380,7 @@ DoPlayerWarpToSurface(PLAYERp pp)
         over_sp = &sprite[i];
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
-            SectUser[over_sp->sectnum] &&
+            SectUser[over_sp->sectnum].Data() &&
             SectUser[over_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -4645,7 +4645,7 @@ void
 DoPlayerDive(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite].Data();
-    SECT_USERp sectu = SectUser[pp->cursectnum];
+    SECT_USERp sectu = SectUser[pp->cursectnum].Data();
 
     // whenever your view is not in a water area
     if (pp->cursectnum < 0 || !SectorIsUnderwaterArea(pp->cursectnum))
@@ -4844,7 +4844,7 @@ void
 DoPlayerCurrent(PLAYERp pp)
 {
     int xvect, yvect;
-    SECT_USERp sectu = SectUser[pp->cursectnum];
+    SECT_USERp sectu = SectUser[pp->cursectnum].Data();
     int push_ret;
 
     if (!sectu)

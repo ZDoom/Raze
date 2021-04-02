@@ -931,10 +931,11 @@ GetSectUser(short sectnum)
 {
     SECT_USERp sectu;
 
-    if (SectUser[sectnum])
-        return SectUser[sectnum];
+    if (SectUser[sectnum].Data())
+        return SectUser[sectnum].Data();
 
-    sectu = SectUser[sectnum] = (SECT_USERp) CallocMem(sizeof(SECT_USER), 1);
+    SectUser[sectnum].Alloc();
+    sectu = SectUser[sectnum].Data();
 
     ASSERT(sectu != NULL);
 
@@ -7153,7 +7154,7 @@ MissileWaterAdjust(short SpriteNum)
 
     if (u->lo_sectp)
     {
-        SECT_USERp sectu = SectUser[u->lo_sectp - sector];
+        SECT_USERp sectu = SectUser[u->lo_sectp - sector].Data();
         if (sectu && sectu->depth)
             u->loz -= Z(sectu->depth);
     }

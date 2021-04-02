@@ -663,6 +663,65 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, ROTATOR& w, ROTATO
 // 
 //
 //---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SECT_USER& w, SECT_USER* def)
+{
+	static SECT_USER nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("dist", w.dist, def->dist)
+			("flags", w.flags, def->flags)
+			("depth_fract", w.depth_fract, def->depth_fract)
+			("stag", w.stag, def->stag)
+			("ang", w.ang, def->ang)
+			("height", w.height, def->height)
+			("speed", w.speed, def->speed)
+			("damage", w.damage, def->damage)
+			("number", w.number, def->number)
+			("flags2", w.flags2, def->flags2)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void SerializeSectUser(FSerializer& arc)
+{
+	FixedBitArray<MAXSECTORS> hitlist;
+
+	if (arc.isWriting())
+	{
+		for (int i = 0; i < MAXSECTORS; i++)
+		{
+			hitlist.Set(i, !!SectUser[i].Data());
+		}
+	}
+	else
+	{
+		for (int i = 0; i < MAXSECTORS; i++)
+		{
+			SectUser[i].Clear();
+		}
+	}
+	arc("sectusermap", hitlist);
+	arc.SparseArray("sectuser", SectUser, MAXSECTORS, hitlist);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 static USER nuluser; // must be outside the function to evade C++'s retarded initialization rules for static function variables.
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def)
@@ -819,7 +878,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     {
         preSerializePanelSprites(arc);
         SerializeUser(arc);
-        arc("numplayers", numplayers)
+		SerializeSectUser(arc);
+		arc("numplayers", numplayers)
             .Array("players", Player, numplayers)
             ;
         postSerializePanelSprites(arc);
@@ -924,26 +984,6 @@ bool GameInterface::SaveGame()
 
     MWRITE(&Skill,sizeof(Skill),1,fil);
 
-    //Sector User information
-    for (i = 0; i < numsectors; i++)
-    {
-        sectu = SectUser[i];
-        ndx = i;
-        if (sectu)
-        {
-            // write header
-            MWRITE(&ndx,sizeof(ndx),1,fil);
-
-            MWRITE(sectu,sizeof(SECT_USER),1,fil);
-        }
-        else
-        {
-            // write trailer
-            ndx = -1;
-            MWRITE(&ndx,sizeof(ndx),1,fil);
-        }
-    }
-
     //
     // Sector object
     //
@@ -1017,9 +1057,9 @@ bool GameInterface::SaveGame()
         {
             for (j=0; j<numsectors; j++)
             {
-                if (SectUser[j])
+                if (SectUser[j].Data())
                 {
-                    uint8_t* bp = (uint8_t*)SectUser[j];
+                    uint8_t* bp = (uint8_t*)SectUser[j].Data();
 
                     if ((uint8_t*)a->ptr >= bp && (uint8_t*)a->ptr < bp + sizeof(SECT_USER))
                     {
@@ -1148,18 +1188,6 @@ bool GameInterface::LoadGame()
 
     MREAD(&Skill,sizeof(Skill),1,fil);
 
-
-    //Sector User information
-    for (i = 0; i < numsectors; i++)
-    {
-        MREAD(&sectnum,sizeof(sectnum),1,fil);
-        if (sectnum != -1)
-        {
-            SectUser[sectnum] = sectu = (SECT_USERp)CallocMem(sizeof(SECT_USER), 1);
-            MREAD(sectu,sizeof(SECT_USER),1,fil);
-        }
-    }
-
     MREAD(SectorObject, sizeof(SectorObject),1,fil);
 
     for (ndx = 0; ndx < (short)SIZ(SectorObject); ndx++)
@@ -1223,7 +1251,7 @@ bool GameInterface::LoadGame()
             int offset;
             MREAD(&j, sizeof(j),1,fil);
             MREAD(&offset, sizeof(offset),1,fil);
-            a->ptr = (int *)(((char *)SectUser[j]) + offset);
+            a->ptr = (int *)(((char *)SectUser[j].Data()) + offset);
         }
         else
         {

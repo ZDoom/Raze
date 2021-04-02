@@ -82,7 +82,7 @@ int lavadropsiz[LAVAMAXDROPS], lavadropsizlookup[LAVAMAXDROPS];
 int lavaradx[32][128], lavarady[32][128], lavaradcnt[32];
 #endif
 
-SECT_USERp SectUser[MAXSECTORS];
+TPointer<SECT_USER> SectUser[MAXSECTORS];
 TPointer<USER> User[MAXSPRITES];
 
 ANIM Anim[MAXANIM];
@@ -868,7 +868,7 @@ OperateSector(short sectnum, short player_is_operating)
         SPRITEp fsp;
         int i;
 
-        if (SectUser[sectnum] && SectUser[sectnum]->stag == SECT_LOCK_DOOR)
+        if (SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR)
             return false;
 
         SectIterator it(sectnum);
@@ -876,7 +876,7 @@ OperateSector(short sectnum, short player_is_operating)
         {
             fsp = &sprite[i];
 
-            if (SectUser[fsp->sectnum] && SectUser[fsp->sectnum]->stag == SECT_LOCK_DOOR)
+            if (SectUser[fsp->sectnum].Data() && SectUser[fsp->sectnum]->stag == SECT_LOCK_DOOR)
                 return false;
 
             if (fsp->statnum == STAT_VATOR && SP_TAG1(fsp) == SECT_VATOR && TEST_BOOL7(fsp))
@@ -1830,7 +1830,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
             int i;
             for (i=0; i<numsectors; i++)
             {
-                if (SectUser[i] && SectUser[i]->stag == SECT_LOCK_DOOR && SectUser[i]->number == key_num)
+                if (SectUser[i].Data() && SectUser[i]->stag == SECT_LOCK_DOOR && SectUser[i]->number == key_num)
                     SectUser[i]->number = 0;  // unlock all doors of this type
             }
             UnlockKeyLock(key_num, SpriteNum);
@@ -2283,7 +2283,7 @@ OperateContinuousTrigger(PLAYERp pp)
 
 short PlayerTakeSectorDamage(PLAYERp pp)
 {
-    SECT_USERp sectu = SectUser[pp->cursectnum];
+    SECT_USERp sectu = SectUser[pp->cursectnum].Data();
     USERp u = User[pp->PlayerSprite].Data();
 
     // the calling routine must make sure sectu exists
@@ -2697,7 +2697,7 @@ PlayerOperateEnv(PLAYERp pp)
     // ////////////////////////////
 
     SECT_USERp sectu;
-    if (pp->cursectnum >= 0 && (sectu = SectUser[pp->cursectnum]) && sectu->damage)
+    if (pp->cursectnum >= 0 && (sectu = SectUser[pp->cursectnum].Data()) && sectu->damage)
     {
         SECTORp sectp = &sector[pp->cursectnum];
         if (TEST(sectu->flags, SECTFU_DAMAGE_ABOVE_SECTOR))

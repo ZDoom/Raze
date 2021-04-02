@@ -492,19 +492,7 @@ void TerminateLevel(void)
     }
 
     // Free SectUser memory
-    for (sectu = &SectUser[0];
-        sectu < &SectUser[MAXSECTORS];
-        sectu++)
-    {
-        if (*sectu)
-        {
-            FreeMem(*sectu);
-            *sectu = NULL;
-        }
-    }
-
-    //memset(&User[0], 0, sizeof(User));
-    memset(&SectUser[0], 0, sizeof(SectUser));
+    for (auto& su : SectUser) su.Clear();
 
     TRAVERSE_CONNECT(pnum)
     {

@@ -676,7 +676,7 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
                 else
                 {
                     // if sector pal is something other than default
-                    SECT_USERp sectu = SectUser[tsp->sectnum];
+                    SECT_USERp sectu = SectUser[tsp->sectnum].Data();
                     uint8_t pal = sector[tsp->sectnum].floorpal;
                     bool nosectpal=false;
 

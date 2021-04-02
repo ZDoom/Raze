@@ -476,7 +476,7 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
         int i;
         short sectnum = u->lo_sectp - sector;
 
-        if (SectUser[sectnum] && TEST(u->lo_sectp->extra, SECTFX_SINK))
+        if (SectUser[sectnum].Data() && TEST(u->lo_sectp->extra, SECTFX_SINK))
         {
             depth = SectUser[sectnum]->depth;
         }

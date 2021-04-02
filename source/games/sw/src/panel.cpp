@@ -7030,7 +7030,7 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
             int16_t floorshade = 0;
             if (pp->cursectnum >= 0)
             {
-                sectu = SectUser[pp->cursectnum];
+                sectu = SectUser[pp->cursectnum].Data();
                 pal = sector[pp->cursectnum].floorpal;
                 floorshade = sector[pp->cursectnum].floorshade;
 

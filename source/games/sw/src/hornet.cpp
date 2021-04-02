@@ -380,7 +380,7 @@ int DoHornetMatchPlayerZ(short SpriteNum)
     hiz = u->hiz;
 
     // adjust loz/hiz for water depth
-    if (u->lo_sectp && SectUser[u->lo_sectp - sector] && SectUser[u->lo_sectp - sector]->depth)
+    if (u->lo_sectp && SectUser[u->lo_sectp - sector].Data() && SectUser[u->lo_sectp - sector]->depth)
         loz -= Z(SectUser[u->lo_sectp - sector]->depth) - Z(8);
 
     // lower bound

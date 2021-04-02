@@ -189,7 +189,7 @@ DoSlidorMatch(PLAYERp pp, short match, bool manual)
 
             sectnum = fsp->sectnum;
 
-            if (pp && SectUser[sectnum] && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
+            if (pp && SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
             {
                 short key_num;
 

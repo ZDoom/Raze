@@ -179,7 +179,7 @@ short DoVatorOperate(PLAYERp pp, short sectnum)
                     return DoVatorMatch(pp, match);
             }
 
-            if (pp && SectUser[sectnum] && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
+            if (pp && SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
             {
                 short key_num;
 
@@ -248,7 +248,7 @@ DoVatorMatch(PLAYERp pp, short match)
 
             // lock code
             sectnum = fsp->sectnum;
-            if (pp && SectUser[sectnum] && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
+            if (pp && SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
             {
                 short key_num;
 
@@ -351,7 +351,7 @@ void MoveSpritesWithSector(short sectnum, int z_amt, bool type)
     int i;
     bool both = false;
 
-    if (SectUser[sectnum])
+    if (SectUser[sectnum].Data())
         both = !!TEST(SectUser[sectnum]->flags, SECTFU_VATOR_BOTH);
 
     SectIterator it(sectnum);

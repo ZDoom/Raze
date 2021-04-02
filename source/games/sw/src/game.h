@@ -1548,8 +1548,9 @@ enum ShrapType
     SHRAP_USER_DEFINED      = 99
 };
 
-typedef struct
+typedef struct SECT_USER
 {
+    SECT_USER() { memset(this, 0, sizeof(*this)); }
     int dist, flags;
     short depth_fract, depth; // do NOT change this, doubles as a long FIXED point number
     short stag,    // ST? tag number - for certain things it helps to know it
@@ -1559,9 +1560,9 @@ typedef struct
           damage,
           number;  // usually used for matching number
     uint8_t    flags2;
-} SECT_USER, *SECT_USERp;
+} *SECT_USERp;
 
-extern SECT_USERp SectUser[MAXSECTORS];
+extern TPointer<SECT_USER> SectUser[MAXSECTORS];
 SECT_USERp SpawnSectUser(short sectnum);
 
 

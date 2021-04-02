@@ -824,7 +824,7 @@ SpawnZombie2(short Weapon)
     SPRITEp np;
     USERp nu;
     short owner;
-    SECT_USERp sectu = SectUser[sp->sectnum];
+    SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
 
     owner = sprite[Weapon].owner;

@@ -490,7 +490,7 @@ void WaterAdjust(short florhit, int32_t* loz)
     {
     case HIT_SECTOR:
     {
-        SECT_USERp sectu = SectUser[NORM_SECTOR(florhit)];
+        SECT_USERp sectu = SectUser[NORM_SECTOR(florhit)].Data();
 
         if (sectu && sectu->depth)
             *loz += Z(sectu->depth);

@@ -4516,7 +4516,7 @@ WeaponMoveHit(short SpriteNum)
                 return true;
             }
 
-            if (SectUser[hit_sect] && SectUser[hit_sect]->depth > 0)
+            if (SectUser[hit_sect].Data() && SectUser[hit_sect]->depth > 0)
             {
                 SpawnSplash(SpriteNum);
                 //SetSuicide(SpriteNum);
@@ -4798,7 +4798,7 @@ DoFireballFlames(short SpriteNum)
         }
         else
         {
-            if (SectUser[sp->sectnum] && SectUser[sp->sectnum]->depth > 0)
+            if (SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth > 0)
             {
                 if (labs(sector[sp->sectnum].floorz - sp->z) <= Z(4))
                 {
@@ -4871,7 +4871,7 @@ DoBreakFlames(short SpriteNum)
     }
     else
     {
-        if (SectUser[sp->sectnum] && SectUser[sp->sectnum]->depth > 0)
+        if (SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth > 0)
         {
             if (labs(sector[sp->sectnum].floorz - sp->z) <= Z(4))
             {
@@ -8077,7 +8077,7 @@ DoStar(int16_t Weapon)
 
             if (sp->z > DIV2(u->hiz + u->loz))
             {
-                if (SectUser[hit_sect] && SectUser[hit_sect]->depth > 0)
+                if (SectUser[hit_sect].Data() && SectUser[hit_sect]->depth > 0)
                 {
                     SpawnSplash(Weapon);
                     KillSprite(Weapon);
@@ -9078,7 +9078,7 @@ DoGrenade(int16_t Weapon)
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE); // no bouncing underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum] && SectUser[sp->sectnum]->depth)
+                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth)
                         SET(u->Flags, SPR_BOUNCE); // no bouncing on shallow water
 
                     if (!TEST(u->Flags, SPR_BOUNCE))
@@ -19738,7 +19738,7 @@ bool
 WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 {
     int i;
-    SECT_USERp sectu = SectUser[*sectnum];
+    SECT_USERp sectu = SectUser[*sectnum].Data();
     SPRITEp under_sp = NULL, over_sp = NULL;
     bool Found = false;
     short over, under;
@@ -19755,7 +19755,7 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
         over_sp = &sprite[i];
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
-            SectUser[over_sp->sectnum] &&
+            SectUser[over_sp->sectnum].Data() &&
             SectUser[over_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -19773,7 +19773,7 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
         under_sp = &sprite[i];
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
-            SectUser[under_sp->sectnum] &&
+            SectUser[under_sp->sectnum].Data() &&
             SectUser[under_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -19812,7 +19812,7 @@ bool
 WarpToSurface(short *sectnum, int *x, int *y, int *z)
 {
     int i;
-    SECT_USERp sectu = SectUser[*sectnum];
+    SECT_USERp sectu = SectUser[*sectnum].Data();
     short over, under;
     int sx, sy;
 
@@ -19830,7 +19830,7 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
         under_sp = &sprite[i];
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
-            SectUser[under_sp->sectnum] &&
+            SectUser[under_sp->sectnum].Data() &&
             SectUser[under_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -19848,7 +19848,7 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
         over_sp = &sprite[i];
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
-            SectUser[over_sp->sectnum] &&
+            SectUser[over_sp->sectnum].Data() &&
             SectUser[over_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -19887,7 +19887,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
 {
     USERp u = User[sp - sprite].Data();
     int i;
-    SECT_USERp sectu = SectUser[sp->sectnum];
+    SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SPRITEp under_sp = NULL, over_sp = NULL;
     bool Found = false;
     short over, under;
@@ -19904,7 +19904,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
         over_sp = &sprite[i];
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
-            SectUser[over_sp->sectnum] &&
+            SectUser[over_sp->sectnum].Data() &&
             SectUser[over_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -19922,7 +19922,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
         under_sp = &sprite[i];
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
-            SectUser[under_sp->sectnum] &&
+            SectUser[under_sp->sectnum].Data() &&
             SectUser[under_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -19965,7 +19965,7 @@ SpriteWarpToSurface(SPRITEp sp)
 {
     USERp u = User[sp - sprite].Data();
     int i;
-    SECT_USERp sectu = SectUser[sp->sectnum];
+    SECT_USERp sectu = SectUser[sp->sectnum].Data();
     short over, under;
     int sx, sy;
 
@@ -19983,7 +19983,7 @@ SpriteWarpToSurface(SPRITEp sp)
         under_sp = &sprite[i];
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
-            SectUser[under_sp->sectnum] &&
+            SectUser[under_sp->sectnum].Data() &&
             SectUser[under_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -20005,7 +20005,7 @@ SpriteWarpToSurface(SPRITEp sp)
         over_sp = &sprite[i];
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
-            SectUser[over_sp->sectnum] &&
+            SectUser[over_sp->sectnum].Data() &&
             SectUser[over_sp->sectnum]->number == sectu->number)
         {
             Found = true;
@@ -20051,7 +20051,7 @@ SpawnSplash(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP, wp;
     short w;
 
-    SECT_USERp sectu = SectUser[sp->sectnum];
+    SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
 
     if (Prediction)
@@ -20096,7 +20096,7 @@ SpawnSplashXY(int hit_x, int hit_y, int hit_z, short sectnum)
     if (Prediction)
         return 0;
 
-    sectu = SectUser[sectnum];
+    sectu = SectUser[sectnum].Data();
     sectp = &sector[sectnum];
 
     if (sectu && (TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
@@ -20126,7 +20126,7 @@ SpawnUnderSplash(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP, wp;
     short w;
 
-    SECT_USERp sectu = SectUser[sp->sectnum];
+    SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
 
     return 0;
@@ -21257,7 +21257,7 @@ DoShrapVelocity(int16_t SpriteNum)
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE); // no bouncing underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum] && SectUser[sp->sectnum]->depth)
+                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth)
                         SET(u->Flags, SPR_BOUNCE); // no bouncing on shallow water
 
                     if (!TEST(u->Flags, SPR_BOUNCE))

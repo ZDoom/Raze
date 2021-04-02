@@ -241,7 +241,7 @@ static void ItemCheat(int player)
 
     for (int i = 0; i < numsectors; i++)
     {
-        if (SectUser[i] && SectUser[i]->stag == SECT_LOCK_DOOR)
+        if (SectUser[i].Data() && SectUser[i]->stag == SECT_LOCK_DOOR)
             SectUser[i]->number = 0;  // unlock all doors of this type
     }
 }
