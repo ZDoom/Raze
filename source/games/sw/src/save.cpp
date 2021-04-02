@@ -641,6 +641,131 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTp& w,
 //
 //---------------------------------------------------------------------------
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTstruct& w, SECTOR_OBJECTstruct* def)
+{
+	static SECTOR_OBJECTstruct nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		int sp_cnt;
+		for (sp_cnt = 0; w.sp_num[sp_cnt] != -1 && sp_cnt < (int)countof(w.sp_num); sp_cnt++) {}
+
+		arc("num_sectors", w.num_sectors, def->num_sectors)
+			("num_walls", w.num_walls, def->num_walls)
+			("num_sp", sp_cnt)
+			("clipbox_num", w.clipbox_num, def->clipbox_num)
+			.Array("sectp", w.sectp, def->sectp, w.num_sectors)
+			.Array("sector", w.sector, def->sector, w.num_sectors)  // is this really different from sectp?
+			.Array("zorig_floor", w.zorig_floor, def->zorig_floor, w.num_sectors)
+			.Array("zorig_ceiling", w.zorig_ceiling, def->zorig_ceiling, w.num_sectors)
+			.Array("sp_num", w.sp_num, def->sp_num, sp_cnt + 1)
+			.Array("xorig", w.xorig, def->xorig, w.num_walls)
+			.Array("yorig", w.yorig, def->yorig, w.num_walls)
+			("controller", w.controller, def->controller)
+			("child", w.sp_child, def->sp_child)
+			("xmid", w.xmid, def->xmid)
+			("ymid", w.ymid, def->ymid)
+			("zmid", w.zmid, def->zmid)
+			("vel", w.vel, def->vel)
+			("vel_tgt", w.vel_tgt, def->vel_tgt)
+			("player_xoff", w.player_xoff, def->player_xoff)
+			("player_yoff", w.player_yoff, def->player_yoff)
+			("zdelta", w.zdelta, def->zdelta)
+
+			("z_tgt", w.z_tgt, def->z_tgt)
+			("z_rate", w.z_rate, def->z_rate)
+			("update", w.update, def->update)
+			("bob_diff", w.bob_diff, def->bob_diff)
+			("target_dist", w.target_dist, def->target_dist)
+			("floor_loz", w.floor_loz, def->floor_loz)
+			("floor_hiz", w.floor_hiz, def->floor_hiz)
+			("morph_z", w.morph_z, def->morph_z)
+			("morph_z_min", w.morph_z_min, def->morph_z_min)
+			("morph_z_max", w.morph_z_max, def->morph_z_max)
+			("bob_amt", w.bob_amt, def->bob_amt)
+			("drive_angspeed", w.drive_angspeed, def->drive_angspeed)
+			("drive_angslide", w.drive_angslide, def->drive_angslide)
+			("drive_speed", w.drive_speed, def->drive_speed)
+			("drive_slide", w.drive_slide, def->drive_slide)
+			("crush_z", w.crush_z, def->crush_z)
+			("flags", w.flags, def->flags)
+			("sectnum", w.sectnum, def->sectnum)
+			("mid_sector", w.mid_sector, def->mid_sector)
+			("max_damage", w.max_damage, def->max_damage)
+			("ram_damage", w.ram_damage, def->ram_damage)
+			("wait_tics", w.wait_tics, def->wait_tics)
+			("track", w.track, def->track)
+			("point", w.point, def->point)
+			("vel_rate", w.vel_rate, def->vel_rate)
+			("dir", w.dir, def->dir)
+			("ang", w.ang, def->ang)
+			("ang_moving", w.ang_moving, def->ang_moving)
+			("clipdist", w.clipdist, def->clipdist)
+			("ang_tgt", w.ang_tgt, def->ang_tgt)
+			("ang_orig", w.ang_orig, def->ang_orig)
+			("last_ang", w.last_ang, def->last_ang)
+			("old_ang", w.old_ang, def->old_ang)
+			("spin_speed", w.spin_speed, def->spin_speed)
+			("spin_ang", w.spin_ang, def->spin_ang)
+			("turn_speed", w.turn_speed, def->turn_speed)
+			("bob_sine_ndx", w.bob_sine_ndx, def->bob_sine_ndx)
+			("bob_speed", w.bob_speed, def->bob_speed)
+			("op_main_sector", w.op_main_sector, def->op_main_sector)
+			("save_vel", w.save_vel, def->save_vel)
+			("save_spin_speed", w.save_spin_speed, def->save_spin_speed)
+			("match_event", w.match_event, def->match_event)
+			("match_event_sprite", w.match_event_sprite, def->match_event_sprite)
+			("scale_type", w.scale_type, def->scale_type)
+			("scale_active_type", w.scale_active_type, def->scale_active_type)
+			("scale_dist", w.scale_dist, def->scale_dist)
+			("scale_speed", w.scale_speed, def->scale_speed)
+			("scale_dist_min", w.scale_dist_min, def->scale_dist_min)
+			("scale_dist_max", w.scale_dist_max, def->scale_dist_max)
+			("scale_rand_freq", w.scale_rand_freq, def->scale_rand_freq)
+			.Array("clipbox_dist", w.clipbox_dist, def->clipbox_dist, w.clipbox_num)
+			.Array("clipbox_xoff", w.clipbox_xoff, def->clipbox_xoff, w.clipbox_num)
+			.Array("clipbox_yoff", w.clipbox_yoff, def->clipbox_yoff, w.clipbox_num)
+			.Array("clipbox_ang", w.clipbox_ang, def->clipbox_ang, w.clipbox_num)
+			.Array("clipbox_vdist", w.clipbox_vdist, def->clipbox_vdist, w.clipbox_num)
+			.Array("scale_point_dist", w.scale_point_dist, def->scale_point_dist, MAX_SO_POINTS)
+			.Array("scale_point_speed", w.scale_point_speed, def->scale_point_speed, MAX_SO_POINTS)
+			("scale_point_base_speed", w.scale_point_base_speed, def->scale_point_base_speed)
+			("scale_point_dist_min", w.scale_point_dist_min, def->scale_point_dist_min)
+			("scale_point_dist_max", w.scale_point_dist_max, def->scale_point_dist_max)
+			("scale_point_rand_freq", w.scale_point_rand_freq, def->scale_point_rand_freq)
+			("scale_x_mult", w.scale_x_mult, def->scale_x_mult)
+			("scale_y_mult", w.scale_y_mult, def->scale_y_mult)
+			("morph_wall_point", w.morph_wall_point, def->morph_wall_point)
+			("morph_ang", w.morph_ang, def->morph_ang)
+			("morph_speed", w.morph_speed, def->morph_speed)
+			("morph_dist_max", w.morph_dist_max, def->morph_dist_max)
+			("morph_rand_freq", w.morph_rand_freq, def->morph_rand_freq)
+			("morph_dist", w.morph_dist, def->morph_dist)
+			("morph_z_speed", w.morph_z_speed, def->morph_z_speed)
+			("morph_xoff", w.morph_xoff, def->morph_xoff)
+			("morph_yoff", w.morph_yoff, def->morph_yoff)
+			("limit_ang_center", w.limit_ang_center, def->limit_ang_center)
+			("limit_ang_delta", w.limit_ang_delta, def->limit_ang_delta);
+
+		SerializeCodePtr(arc, "preanimator", (void**)&w.PreMoveAnimator);
+		SerializeCodePtr(arc, "postanimator", (void**)&w.PostMoveAnimator);
+		SerializeCodePtr(arc, "animator", (void**)&w.Animator);
+
+		arc.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, ROTATOR& w, ROTATOR* def)
 {
 	if (arc.BeginObject(keyname))
@@ -1058,7 +1183,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("skill", Skill)
 			("screenpeek", screenpeek)
 			("randomseed", randomseed)
-//			.Array("sop", SectorObject, countof(SectorObject))
+			.Array("sop", SectorObject, countof(SectorObject))
 			.Array("swf", &SineWaveFloor[0][0], 6 * 21)
 			.Array("sinewall", &SineWall[0][0], 10 * 64)
 			.Array("springboard", SpringBoard, countof(SpringBoard))
@@ -1196,28 +1321,6 @@ bool GameInterface::SaveGame()
     // workaround until the level info here has been transitioned.
 	fil = WriteSavegameChunk("snapshot.sw");
 
-    //
-    // Sector object
-    //
-
-    MWRITE(SectorObject, sizeof(SectorObject),1,fil);
-
-    for (ndx = 0; ndx < (short)SIZ(SectorObject); ndx++)
-    {
-        sop = &SectorObject[ndx];
-
-        saveisshot |= SaveSymCodeInfo(fil, sop->PreMoveAnimator);
-        assert(!saveisshot);
-        saveisshot |= SaveSymCodeInfo(fil, sop->PostMoveAnimator);
-        assert(!saveisshot);
-        saveisshot |= SaveSymCodeInfo(fil, sop->Animator);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, sop->controller);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, sop->sp_child);
-        assert(!saveisshot);
-    }
-
 
 
 
@@ -1346,20 +1449,6 @@ bool GameInterface::LoadGame()
 	if (!filr.isOpen()) return false;
 	fil = &filr;
 
-    MREAD(SectorObject, sizeof(SectorObject),1,fil);
-
-    for (ndx = 0; ndx < (short)SIZ(SectorObject); ndx++)
-    {
-        sop = &SectorObject[ndx];
-
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&sop->PreMoveAnimator);
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&sop->PostMoveAnimator);
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&sop->Animator);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&sop->controller);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&sop->sp_child);
-        if (saveisshot) { MCLOSE_READ(fil); return false; }
-    }
-
     MREAD(Track, sizeof(Track),1,fil);
     for (i = 0; i < MAX_TRACKS; i++)
     {
@@ -1443,13 +1532,6 @@ bool GameInterface::LoadGame()
 
 
     DoTheCache();
-
-    // this is ok - just duplicating sector list with pointers
-    for (sop = SectorObject; sop < &SectorObject[SIZ(SectorObject)]; sop++)
-    {
-        for (i = 0; i < sop->num_sectors; i++)
-            sop->sectp[i] = &sector[sop->sector[i]];
-    }
 
     {
         int SavePlayClock = PlayClock;
