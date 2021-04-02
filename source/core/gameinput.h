@@ -3,6 +3,7 @@
 #include "m_fixed.h"
 #include "binaryangle.h"
 #include "gamecvars.h"
+#include "gamestruct.h"
 #include "packet.h"
 
 int getincangle(int a, int na);
@@ -12,8 +13,7 @@ lookangle getincanglebam(binangle a, binangle na);
 
 struct PlayerHorizon
 {
-	fixedhoriz horiz, ohoriz, horizoff, ohorizoff, target;
-	double adjustment;
+	fixedhoriz horiz, ohoriz, horizoff, ohorizoff;
 
 	void backup()
 	{
@@ -29,14 +29,7 @@ struct PlayerHorizon
 
 	void addadjustment(double value)
 	{
-		if (!SyncInput())
-		{
-			adjustment += value * FRACUNIT;
-		}
-		else
-		{
-			horiz += q16horiz(FloatToFixed(value));
-		}
+		__addadjustment(q16horiz(FloatToFixed(value)));
 	}
 
 	void resetadjustment()
@@ -46,53 +39,35 @@ struct PlayerHorizon
 
 	void settarget(int value, bool backup = false)
 	{
-		if (!SyncInput() && !backup)
-		{
-			target = buildhoriz(value);
-			if (target.asq16() == 0) target = q16horiz(1);
-		}
-		else
-		{
-			horiz = buildhoriz(value);
-			if (backup) ohoriz = horiz;
-		}
+		__settarget(buildhoriz(clamp(value, FixedToInt(gi->playerHorizMin()), FixedToInt(gi->playerHorizMax()))), backup);
 	}
 
 	void settarget(double value, bool backup = false)
 	{
-		if (!SyncInput() && !backup)
-		{
-			target = buildfhoriz(value);
-			if (target.asq16() == 0) target = q16horiz(1);
-		}
-		else
-		{
-			horiz = buildfhoriz(value);
-			if (backup) ohoriz = horiz;
-		}
+		__settarget(buildfhoriz(clamp(value, FixedToFloat(gi->playerHorizMin()), FixedToFloat(gi->playerHorizMax()))), backup);
 	}
 
 	void settarget(fixedhoriz value, bool backup = false)
 	{
-		if (!SyncInput() && !backup)
-		{
-			target = value;
-			if (target.asq16() == 0) target = q16horiz(1);
-		}
-		else
-		{
-			horiz = value;
-			if (backup) ohoriz = horiz;
-		}
+		__settarget(q16horiz(clamp(value.asq16(), gi->playerHorizMin(), gi->playerHorizMax())), backup);
+	}
+
+	bool targetset()
+	{
+		return target.asq16();
 	}
 
 	void processhelpers(double const scaleAdjust)
 	{
-		if (target.asq16())
+		if (targetset())
 		{
-			horiz += q16horiz(xs_CRoundToInt(scaleAdjust * (target - horiz).asq16()));
+			auto delta = (target - horiz).asq16();
 
-			if (abs((horiz - target).asq16()) < FRACUNIT)
+			if (abs(delta) > FRACUNIT)
+			{
+				horiz += q16horiz(xs_CRoundToInt(scaleAdjust * delta));
+			}
+			else
 			{
 				horiz = target;
 				target = q16horiz(0);
@@ -121,13 +96,42 @@ struct PlayerHorizon
 		fixed_t const curr = sum().asq16();
 		return q16horiz(prev + xs_CRoundToInt(ratio * (curr - prev)));
 	}
+
+private:
+	fixedhoriz target;
+	double adjustment;
+
+	void __addadjustment(fixedhoriz value)
+	{
+		if (!SyncInput())
+		{
+			adjustment += value.asq16();
+		}
+		else
+		{
+			horiz += value;
+		}
+	}
+
+	void __settarget(fixedhoriz value, bool backup = false)
+	{
+		if (!SyncInput() && !backup)
+		{
+			target = value;
+			if (!targetset()) target = q16horiz(1);
+		}
+		else
+		{
+			horiz = value;
+			if (backup) ohoriz = horiz;
+		}
+	}
 };
 
 struct PlayerAngle
 {
-	binangle ang, oang, target;
+	binangle ang, oang;
 	lookangle look_ang, olook_ang, rotscrnang, orotscrnang, spin;
-	double adjustment;
 
 	void backup()
 	{
@@ -145,50 +149,22 @@ struct PlayerAngle
 
 	void addadjustment(int value)
 	{
-		if (!SyncInput())
-		{
-			adjustment += BAngToBAM(value);
-		}
-		else
-		{
-			ang += buildang(value);
-		}
+		__addadjustment(buildang(value));
 	}
 
 	void addadjustment(double value)
 	{
-		if (!SyncInput())
-		{
-			adjustment += value * BAMUNIT;
-		}
-		else
-		{
-			ang += bamang(xs_CRoundToUInt(value * BAMUNIT));
-		}
+		__addadjustment(buildfang(value));
 	}
 
 	void addadjustment(lookangle value)
 	{
-		if (!SyncInput())
-		{
-			adjustment += value.asbam();
-		}
-		else
-		{
-			ang += bamang(value.asbam());
-		}
+		__addadjustment(bamang(value.asbam()));
 	}
 
 	void addadjustment(binangle value)
 	{
-		if (!SyncInput())
-		{
-			adjustment += value.asbam();
-		}
-		else
-		{
-			ang += value;
-		}
+		__addadjustment(value);
 	}
 
 	void resetadjustment()
@@ -198,53 +174,35 @@ struct PlayerAngle
 
 	void settarget(int value, bool backup = false)
 	{
-		if (!SyncInput() && !backup)
-		{
-			target = buildang(value & 2047);
-			if (target.asbam() == 0) target = bamang(1);
-		}
-		else
-		{
-			ang = buildang(value & 2047);
-			if (backup) oang = ang;
-		}
+		__settarget(buildang(value & 2047), backup);
 	}
 
 	void settarget(double value, bool backup = false)
 	{
-		if (!SyncInput() && !backup)
-		{
-			target = buildfang(fmod(value, 2048));
-			if (target.asbam() == 0) target = bamang(1);
-		}
-		else
-		{
-			ang = buildfang(fmod(value, 2048));
-			if (backup) oang = ang;
-		}
+		__settarget(buildfang(fmod(value, 2048)), backup);
 	}
 
 	void settarget(binangle value, bool backup = false)
 	{
-		if (!SyncInput() && !backup)
-		{
-			target = value;
-			if (target.asbam() == 0) target = bamang(1);
-		}
-		else
-		{
-			ang = value;
-			if (backup) oang = ang;
-		}
+		__settarget(value, backup);
+	}
+
+	bool targetset()
+	{
+		return target.asbam();
 	}
 
 	void processhelpers(double const scaleAdjust)
 	{
-		if (target.asbam())
+		if (targetset())
 		{
-			ang += bamang(xs_CRoundToUInt(scaleAdjust * getincanglebam(ang, target).asbam()));
+			auto delta = getincanglebam(ang, target).asbam();
 
-			if (getincanglebam(ang, target).asbam() < BAMUNIT)
+			if (delta > BAMUNIT)
+			{
+				ang += bamang(xs_CRoundToUInt(scaleAdjust * delta));
+			}
+			else
 			{
 				ang = target;
 				target = bamang(0);
@@ -290,6 +248,36 @@ struct PlayerAngle
 	double look_anghalf(double const smoothratio)
 	{
 		return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).asbam() * (0.5 / BAMUNIT); // Used within draw code for weapon and crosshair when looking left/right.
+	}
+
+private:
+	binangle target;
+	double adjustment;
+
+	void __addadjustment(binangle value)
+	{
+		if (!SyncInput())
+		{
+			adjustment += value.asbam();
+		}
+		else
+		{
+			ang += value;
+		}
+	}
+
+	void __settarget(binangle value, bool backup = false)
+	{
+		if (!SyncInput() && !backup)
+		{
+			target = value;
+			if (!targetset()) target = bamang(1);
+		}
+		else
+		{
+			ang = value;
+			if (backup) oang = ang;
+		}
 	}
 };
 
