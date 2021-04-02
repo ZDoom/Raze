@@ -393,7 +393,7 @@ void HWDrawInfo::CreateScene()
 		mDrawer.RenderScene(&vp.SectCount, 1); 
 
 	SetupSprite.Clock();
-	gi->processSprites(view.x, view.y, vp.Pos.Z * -256, bamang(vp.RotAngle), vp.TicFrac * 65536);
+	gi->processSprites(tsprite, spritesortcnt, view.x, view.y, vp.Pos.Z * -256, bamang(vp.RotAngle), vp.TicFrac * 65536);
 	DispatchSprites();
 	SetupSprite.Unclock();
 

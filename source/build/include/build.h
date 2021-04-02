@@ -140,7 +140,6 @@ enum
 };
 
 EXTERN int32_t guniqhudid;
-EXTERN int32_t spritesortcnt;
 
 struct usermaphack_t 
 {
@@ -155,21 +154,13 @@ EXTERN spritesmooth_t *spritesmooth;
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
 EXTERN spritetype *sprite;
-EXTERN tspriteptr_t tsprite;
 EXTERN int leveltimer;
 
 extern sectortype sectorbackup[MAXSECTORS];
 extern walltype wallbackup[MAXWALLS];
 
 
-inline tspriteptr_t renderAddNewTSprite()
-{
-    auto tspr = &tsprite[spritesortcnt++];
-    *tspr = {};
-    return tspr;
-}
-
-inline tspriteptr_t renderAddTSpriteFromSprite(uint16_t const spritenum)
+inline tspriteptr_t renderAddTSpriteFromSprite(spritetype* tsprite, int& spritesortcnt, uint16_t const spritenum)
 {
     auto tspr = &tsprite[spritesortcnt++];
     auto const spr = &sprite[spritenum];
@@ -181,10 +172,10 @@ inline tspriteptr_t renderAddTSpriteFromSprite(uint16_t const spritenum)
 
 // returns: 0=continue sprite collecting;
 //          1=break out of sprite collecting;
-inline int32_t renderAddTsprite(int16_t z, int16_t sectnum)
+inline int32_t renderAddTsprite(spritetype* tsprite, int& spritesortcnt, int16_t z, int16_t sectnum)
 {
     if (spritesortcnt >= MAXSPRITESONSCREEN) return 1;
-    renderAddTSpriteFromSprite(z);
+    renderAddTSpriteFromSprite(tsprite, spritesortcnt, z);
     return 0;
 }
 
@@ -767,8 +758,6 @@ enum EHitBits
 };
 
 void updateModelInterpolation();
-
-int32_t renderAddTsprite(int16_t z, int16_t sectnum);
 
 inline void tileUpdatePicnum(int* const tileptr, int const obj, int stat)
 {

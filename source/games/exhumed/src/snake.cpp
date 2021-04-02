@@ -417,7 +417,7 @@ SEARCH_ENEMY:
                 seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakBody], 0, 0);
             }
 
-            tsprite[nSprite].owner = -1;
+            mytsprite[nSprite].owner = -1;
             break;
         }
 

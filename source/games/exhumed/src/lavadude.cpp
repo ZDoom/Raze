@@ -232,7 +232,7 @@ void FuncLava(int a, int nDamage, int nRun)
         case 0x90000:
         {
             seq_PlotSequence(a & 0xFFFF, nSeq, LavaList[nLava].nFrame, LavadudeSeq[nAction].b);
-            tsprite[a & 0xFFFF].owner = -1;
+            mytsprite[a & 0xFFFF].owner = -1;
             return;
         }
 

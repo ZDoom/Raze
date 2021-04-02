@@ -4,6 +4,10 @@
 
 #include "mdsprite.h"
 
+extern tspritetype pm_tsprite[MAXSPRITESONSCREEN];
+extern int pm_spritesortcnt;
+
+
 namespace Polymost
 {
 extern float gtang;

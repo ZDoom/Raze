@@ -68,8 +68,8 @@ DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, shor
             sector[save.sectnum[i]].floorheinum = save.slope[i];
         }
 
-        analyzesprites(tx, ty, tz, false);
-        post_analyzesprites();
+        analyzesprites(pm_tsprite, pm_spritesortcnt, tx, ty, tz, false);
+        post_analyzesprites(pm_tsprite, pm_spritesortcnt);
         renderDrawMasks();
 
     }
@@ -93,8 +93,8 @@ DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, shor
                 sector[save.sectnum[i]].ceilingheinum = save.slope[i];
             }
 
-            analyzesprites(tx, ty, tz, false);
-            post_analyzesprites();
+            analyzesprites(pm_tsprite, pm_spritesortcnt, tx, ty, tz, false);
+            post_analyzesprites(pm_tsprite, pm_spritesortcnt);
             renderDrawMasks();
 
         }
@@ -177,8 +177,8 @@ void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixe
     if (!FAF_DebugView)
         FAF_DrawRooms(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
 
-    analyzesprites(tx, ty, tz, tang.asbuild());
-    post_analyzesprites();
+    analyzesprites(pm_tsprite, pm_spritesortcnt, tx, ty, tz, tang.asbuild());
+    post_analyzesprites(pm_tsprite, pm_spritesortcnt);
     renderDrawMasks();
 
 }
@@ -305,7 +305,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                         if (mirror[cnt].campic != -1)
 							tileDelete(mirror[cnt].campic);
                         renderDrawRoomsQ16(dx, dy, dz, tpq16ang, tpq16horiz, sp->sectnum + MAXSECTORS);
-                        analyzesprites(dx, dy, dz, false);
+                        analyzesprites(pm_tsprite, pm_spritesortcnt, dx, dy, dz, false);
                         renderDrawMasks();
                     }
                 }
@@ -323,7 +323,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 
                     renderDrawRoomsQ16(tposx, tposy, tz, (tang), tpq16horiz, mirror[cnt].mirrorsector + MAXSECTORS);
 
-                    analyzesprites(tposx, tposy, tz, tang >> 16);
+                    analyzesprites(pm_tsprite, pm_spritesortcnt, tposx, tposy, tz, tang >> 16);
                     renderDrawMasks();
 
                     renderCompleteMirror();   // Reverse screen x-wise in this

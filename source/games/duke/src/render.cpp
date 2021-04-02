@@ -77,7 +77,7 @@ void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, bina
 		se40code(x, y, z, a, h, smoothratio);
 		renderMirror(x, y, z, a, h, smoothratio);
 		renderDrawRoomsQ16(x, y, z, a.asq16(), h.asq16(), sectnum);
-		fi.animatesprites(x, y, a.asbuild(), smoothratio);
+		fi.animatesprites(pm_tsprite, pm_spritesortcnt, x, y, a.asbuild(), smoothratio);
 		renderDrawMasks();
 	}
 	else
@@ -121,7 +121,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				{
 					// Note: no ROR or camera here - Polymost has no means to detect these things before rendering the scene itself.
 					renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sectnum); // why 'shade'...?
-					fi.animatesprites(camera->x, camera->y, ang.asbuild(), smoothratio);
+					fi.animatesprites(pm_tsprite, pm_spritesortcnt, camera->x, camera->y, ang.asbuild(), smoothratio);
 					renderDrawMasks();
 				}
 				else
@@ -424,9 +424,9 @@ bool GameInterface::GenerateSavePic()
 	return true;
 }
 
-void GameInterface::processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
-	fi.animatesprites(viewx, viewy, viewz, int(smoothRatio));
+	fi.animatesprites(tsprite, spritesortcnt, viewx, viewy, viewz, int(smoothRatio));
 }
 
 

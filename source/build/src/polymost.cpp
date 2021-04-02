@@ -62,6 +62,8 @@ static int16_t numscans, numbunches;
 static int16_t maskwall[MAXWALLSB], maskwallcnt;
 static int16_t sectorborder[256];
 static tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
+tspritetype pm_tsprite[MAXSPRITESONSCREEN];
+int pm_spritesortcnt;
 
 
 
@@ -1914,7 +1916,7 @@ void polymost_scansector(int32_t sectnum)
                 if ((spr->cstat&(64+48))!=(64+16) ||
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
                     DMulScale(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y, 6) > 0)
-                    if (renderAddTsprite(z, sectnum))
+                    if (renderAddTsprite(pm_tsprite, pm_spritesortcnt, z, sectnum))
                         break;
             }
         }
@@ -3329,7 +3331,7 @@ EXTERN_CVAR(Int, gl_fogmode)
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
 {
-    spritesortcnt = 0;
+    pm_spritesortcnt = 0;
     checkRotatedWalls();
 
     if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.
@@ -3492,21 +3494,21 @@ static void sortsprites(int const start, int const end)
 void renderDrawMasks(void)
 {
 # define debugmask_add(dispidx, idx) do {} while (0)
-    int32_t i = spritesortcnt - 1;
-    int32_t numSprites = spritesortcnt;
+    int32_t i = pm_spritesortcnt - 1;
+    int32_t numSprites = pm_spritesortcnt;
 
-    spritesortcnt = 0;
+    pm_spritesortcnt = 0;
     int32_t back = i;
     for (; i >= 0; --i)
     {
-        if (Polymost::polymost_spriteHasTranslucency(&tsprite[i]))
+        if (Polymost::polymost_spriteHasTranslucency(&pm_tsprite[i]))
         {
-            tspriteptr[spritesortcnt] = &tsprite[i];
-            ++spritesortcnt;
+            tspriteptr[pm_spritesortcnt] = &pm_tsprite[i];
+            ++pm_spritesortcnt;
         }
         else
         {
-            tspriteptr[back] = &tsprite[i];
+            tspriteptr[back] = &pm_tsprite[i];
             --back;
         }
     }
@@ -3532,7 +3534,7 @@ void renderDrawMasks(void)
             if (!modelp)
             {
                 //Delete face sprite if on wrong side!
-                if (i >= spritesortcnt)
+                if (i >= pm_spritesortcnt)
                 {
                     --numSprites;
                     if (i != numSprites)
@@ -3545,15 +3547,15 @@ void renderDrawMasks(void)
                 else
                 {
                     --numSprites;
-                    --spritesortcnt;
+                    --pm_spritesortcnt;
                     if (i != numSprites)
                     {
-                        tspriteptr[i] = tspriteptr[spritesortcnt];
-                        spritesxyz[i].x = spritesxyz[spritesortcnt].x;
-                        spritesxyz[i].y = spritesxyz[spritesortcnt].y;
-                        tspriteptr[spritesortcnt] = tspriteptr[numSprites];
-                        spritesxyz[spritesortcnt].x = spritesxyz[numSprites].x;
-                        spritesxyz[spritesortcnt].y = spritesxyz[numSprites].y;
+                        tspriteptr[i] = tspriteptr[pm_spritesortcnt];
+                        spritesxyz[i].x = spritesxyz[pm_spritesortcnt].x;
+                        spritesxyz[i].y = spritesxyz[pm_spritesortcnt].y;
+                        tspriteptr[pm_spritesortcnt] = tspriteptr[numSprites];
+                        spritesxyz[pm_spritesortcnt].x = spritesxyz[numSprites].x;
+                        spritesxyz[pm_spritesortcnt].y = spritesxyz[numSprites].y;
                     }
                 }
                 continue;
@@ -3562,18 +3564,18 @@ void renderDrawMasks(void)
         spritesxyz[i].y = yp;
     }
 
-    sortsprites(0, spritesortcnt);
-    sortsprites(spritesortcnt, numSprites);
+    sortsprites(0, pm_spritesortcnt);
+    sortsprites(pm_spritesortcnt, numSprites);
     renderBeginScene();
 
     GLInterface.EnableBlend(false);
     GLInterface.EnableAlphaTest(true);
     GLInterface.SetDepthBias(-2, -256);
 
-    if (spritesortcnt < numSprites)
+    if (pm_spritesortcnt < numSprites)
     {
-        i = spritesortcnt;
-        for (bssize_t i = spritesortcnt; i < numSprites;)
+        i = pm_spritesortcnt;
+        for (bssize_t i = pm_spritesortcnt; i < numSprites;)
         {
             int32_t py = spritesxyz[i].y;
             int32_t pcstat = tspriteptr[i]->cstat & 48;
@@ -3659,7 +3661,7 @@ void renderDrawMasks(void)
         _equation p1eq = equation(pos.x, pos.y, dot.x, dot.y);
         _equation p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
 
-        i = spritesortcnt;
+        i = pm_spritesortcnt;
         while (i)
         {
             i--;
@@ -3743,14 +3745,14 @@ void renderDrawMasks(void)
         Polymost::polymost_drawmaskwall(maskwallcnt);
     }
 
-    while (spritesortcnt)
+    while (pm_spritesortcnt)
     {
-        --spritesortcnt;
-        if (tspriteptr[spritesortcnt] != NULL)
+        --pm_spritesortcnt;
+        if (tspriteptr[pm_spritesortcnt] != NULL)
         {
             debugmask_add(i | 32768, tspriteptr[i]->owner);
-            Polymost::polymost_drawsprite(spritesortcnt);
-            tspriteptr[spritesortcnt] = NULL;
+            Polymost::polymost_drawsprite(pm_spritesortcnt);
+            tspriteptr[pm_spritesortcnt] = NULL;
         }
     }
     renderFinishScene();

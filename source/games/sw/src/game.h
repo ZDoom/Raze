@@ -1881,7 +1881,6 @@ ANIMATOR NullAnimator;
 
 int Distance(int x1, int y1, int x2, int y2);
 
-int SetActorRotation(short SpriteNum,int,int);
 int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);
 void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid);
 USERp SpawnUser(short SpriteNum, short id, STATEp state);
@@ -1963,7 +1962,7 @@ int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets);
 void change_sprite_stat(short, short);
 void SetOwner(short, short);
 void SetAttach(short, short);
-void analyzesprites(int,int,int,int);
+void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang);
 void ChangeState(short SpriteNum, STATEp statep);
 void CollectPortals();
 
@@ -2114,7 +2113,6 @@ void getsyncstat(void); // sync.c
 void SyncStatMessage(void); // sync.c
 
 void drawscreen(PLAYERp pp, double smoothratio);    // draw.c
-void post_analyzesprites(void); // draw.c
 int COVERsetgamemode(int mode, int xdim, int ydim, int bpp);    // draw.c
 void ScreenCaptureKeys(void);   // draw.c
 
@@ -2244,7 +2242,7 @@ struct GameInterface : ::GameInterface
     int chaseCamX(binangle ang) { return -ang.bcos(-3); }
     int chaseCamY(binangle ang) { return -ang.bsin(-3); }
     int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() >> 8; }
-    void processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+    void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
     void UpdateCameras(double smoothratio) override;
     void EnterPortal(spritetype* viewer, int type) override;
     void LeavePortal(spritetype* viewer, int type) override;

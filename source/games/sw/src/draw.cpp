@@ -102,7 +102,7 @@ ShadeSprite(tspriteptr_t tsp)
 
 
 short
-GetRotation(short tSpriteNum, int viewx, int viewy)
+GetRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int viewx, int viewy)
 {
     static short RotTable8[] = {0, 7, 6, 5, 4, 3, 2, 1};
     static short RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
@@ -173,7 +173,7 @@ directions was not standardized.
 */
 
 int
-SetActorRotation(short tSpriteNum, int viewx, int viewy)
+SetActorRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int viewx, int viewy)
 {
     tspriteptr_t tsp = &tsprite[tSpriteNum];
     USERp tu = User[tsp->owner];
@@ -190,7 +190,7 @@ SetActorRotation(short tSpriteNum, int viewx, int viewy)
     StateOffset = State - StateStart;
 
     // Get the rotation angle
-    Rotation = GetRotation(tSpriteNum, viewx, viewy);
+    Rotation = GetRotation(tsprite, spritesortcnt, tSpriteNum, viewx, viewy);
 
     ASSERT(Rotation < 5);
 
@@ -266,7 +266,7 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
 }
 
 void
-DoShadows(tspriteptr_t tsp, int viewz, int camang)
+DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, int camang)
 {
     tspriteptr_t New = &tsprite[spritesortcnt];
     USERp tu = User[tsp->owner];
@@ -367,7 +367,7 @@ DoShadows(tspriteptr_t tsp, int viewz, int camang)
 }
 
 void
-DoMotionBlur(tspritetype const * const tsp)
+DoMotionBlur(spritetype* tsprite, int& spritesortcnt, tspritetype const * const tsp)
 {
     USERp tu = User[tsp->owner];
     int nx,ny,nz = 0,dx,dy,dz;
@@ -454,7 +454,7 @@ void SetVoxelSprite(SPRITEp sp, short pic)
     sp->picnum = pic;
 }
 
-void WarpCopySprite(void)
+void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
 {
     SPRITEp sp1, sp2, sp;
     int sn, sn2;
@@ -491,7 +491,7 @@ void WarpCopySprite(void)
                     if (sprite[spnum].picnum == ST1)
                         continue;
 
-                    tspriteptr_t New = renderAddTSpriteFromSprite(spnum);
+                    tspriteptr_t New = renderAddTSpriteFromSprite(tsprite, spritesortcnt, spnum);
                     New->statnum = 0;
 
                     xoff = sp1->x - New->x;
@@ -513,7 +513,7 @@ void WarpCopySprite(void)
                     if (sprite[spnum].picnum == ST1)
                         continue;
 
-                    tspriteptr_t New = renderAddTSpriteFromSprite(spnum);
+                    tspriteptr_t New = renderAddTSpriteFromSprite(tsprite, spritesortcnt, spnum);
                     New->statnum = 0;
 
                     xoff = sp2->x - New->x;
@@ -553,8 +553,7 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
     }
 }
 
-void
-analyzesprites(int viewx, int viewy, int viewz, int camang)
+void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang)
 {
     int tSpriteNum;
     short SpriteNum;
@@ -646,7 +645,7 @@ analyzesprites(int viewx, int viewy, int viewz, int camang)
 
             if (r_shadows && TEST(tu->Flags, SPR_SHADOW))
             {
-                DoShadows(tsp, viewz, camang);
+                DoShadows(tsprite, spritesortcnt, tsp, viewz, camang);
             }
 
             //#define UK_VERSION 1
@@ -677,11 +676,11 @@ analyzesprites(int viewx, int viewy, int viewz, int camang)
 
             // rotation
             if (tu->RotNum > 0)
-                SetActorRotation(tSpriteNum, viewx, viewy);
+                SetActorRotation(tsprite, spritesortcnt, tSpriteNum, viewx, viewy);
 
             if (tu->motion_blur_num)
             {
-                DoMotionBlur(tsp);
+                DoMotionBlur(tsprite, spritesortcnt, tsp);
             }
 
             // set palette lookup correctly
@@ -866,13 +865,13 @@ analyzesprites(int viewx, int viewy, int viewz, int camang)
         }
     }
 
-    WarpCopySprite();
+    WarpCopySprite(tsprite, spritesortcnt);
 
 }
 
 
 #if 1
-tspriteptr_t get_tsprite(short SpriteNum)
+tspriteptr_t get_tsprite(spritetype* tsprite, int& spritesortcnt, int SpriteNum)
 {
     int tSpriteNum;
 
@@ -886,7 +885,7 @@ tspriteptr_t get_tsprite(short SpriteNum)
 }
 
 void
-post_analyzesprites(void)
+post_analyzesprites(spritetype* tsprite, int& spritesortcnt)
 {
     int tSpriteNum;
     short SpriteNum;
@@ -903,7 +902,7 @@ post_analyzesprites(void)
         {
             if (tu->ID == FIREBALL_FLAMES && tu->Attach >= 0)
             {
-                tspriteptr_t const atsp = get_tsprite(tu->Attach);
+                tspriteptr_t const atsp = get_tsprite(tsprite, spritesortcnt, tu->Attach);
 
                 if (!atsp)
                 {
@@ -1922,10 +1921,10 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
     return true;
 }
 
-void GameInterface::processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
-    analyzesprites(viewx, viewy, viewz, viewang.asbuild());
-    post_analyzesprites();
+    analyzesprites(tsprite, spritesortcnt, viewx, viewy, viewz, viewang.asbuild());
+    post_analyzesprites(tsprite, spritesortcnt);
 }
 
 

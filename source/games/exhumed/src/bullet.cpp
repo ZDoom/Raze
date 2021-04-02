@@ -854,7 +854,7 @@ void FuncBullet(int a, int, int nRun)
         case 0x90000:
         {
             short nSprite2 = a & 0xFFFF;
-            tsprite[nSprite2].statnum = 1000;
+            mytsprite[nSprite2].statnum = 1000;
 
             if (BulletList[nBullet].nType == 15)
             {
@@ -863,7 +863,7 @@ void FuncBullet(int a, int, int nRun)
             else
             {
                 seq_PlotSequence(nSprite2, nSeq, BulletList[nBullet].nFrame, 0);
-                tsprite[nSprite2].owner = -1;
+                mytsprite[nSprite2].owner = -1;
             }
             break;
         }

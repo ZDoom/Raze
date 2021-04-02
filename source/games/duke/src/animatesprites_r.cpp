@@ -36,7 +36,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 BEGIN_DUKE_NS
 
 
-void animatesprites_r(int x, int y, int a, int smoothratio)
+void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio)
 {
 	int i, j, k, p;
 	short sect;

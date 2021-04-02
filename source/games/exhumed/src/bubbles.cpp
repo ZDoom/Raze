@@ -203,7 +203,7 @@ void FuncBubble(int a, int, int nRun)
         case 0x90000:
         {
             seq_PlotSequence(a & 0xFFFF, nSeq, BubbleList[nBubble].nFrame, 1);
-            tsprite[a & 0xFFFF].owner = -1;
+            mytsprite[a & 0xFFFF].owner = -1;
             return;
         }
 

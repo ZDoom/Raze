@@ -147,7 +147,7 @@ struct GameInterface : ::GameInterface
 	int chaseCamX(binangle ang) override { return MulScale(-Cos(ang.asbuild()), 1280, 30); }
 	int chaseCamY(binangle ang) override { return MulScale(-Sin(ang.asbuild()), 1280, 30); }
 	int chaseCamZ(fixedhoriz horiz) override { return FixedToInt(MulScale(horiz.asq16(), 1280, 3)) - (16 << 8); }
-	void processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+	void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
 	void EnterPortal(spritetype* viewer, int type) override;
 	void LeavePortal(spritetype* viewer, int type) override;
 
