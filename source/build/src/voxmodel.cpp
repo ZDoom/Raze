@@ -12,7 +12,7 @@
 #include "hw_renderstate.h"
 #include "texturemanager.h"
 #include "voxels.h"
-#include "glbackend/gl_models.h"
+#include "hw_models.h"
 #include "printf.h"
 
 #include "palette.h"

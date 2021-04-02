@@ -303,14 +303,14 @@ void HWDrawInfo::DispatchSprites()
 			{
 				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
 				{
-					//HWSprite hwsprite;
-					//if (hwsprite.ProcessVoxel(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
+					HWSprite hwsprite;
+					if (hwsprite.ProcessVoxel(this, voxmodels[tiletovox[tspr->picnum]], tspr, &sector[tspr->sectnum])) return;
 					break;
 				}
 				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
 				{
-					//HWSprite hwsprite;
-					//hwsprite.ProcessVoxel(voxmodels[tspr->picnum], tspr);
+					HWSprite hwsprite;
+					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, &sector[tspr->sectnum]);
 					break;
 				}
 			}

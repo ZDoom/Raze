@@ -6,7 +6,7 @@
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
@@ -33,7 +33,7 @@
 #include "hwrenderer/data/buffers.h"
 #include "flatvertices.h"
 #include "hw_renderstate.h"
-#include "gl_models.h"
+#include "hw_models.h"
 
 //CVAR(Bool, gl_light_models, true, CVAR_ARCHIVE)
 

@@ -42,6 +42,8 @@
 #include "hw_dynlightdata.h"
 #include "hw_lightbuffer.h"
 #include "hw_renderstate.h"
+#include "hw_models.h"
+#include "hw_viewpointbuffer.h"
 
 extern PalEntry GlobalMapFog;
 extern float GlobalFogDensity;
@@ -142,11 +144,9 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 	// The shade rgb from the tint is ignored here.
 	state.SetColorAlpha(color, alpha);
 
-	state.SetMaterial(texture, UF_Texture, 0, CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
-
-
-	if (!modelframe)
+	if (modelframe == 0)
 	{
+		state.SetMaterial(texture, UF_Texture, 0, CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 		state.SetNormal(0, 0, 0);
 
 
@@ -170,9 +170,27 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 	}
 	else
 	{
-		//FHWModelRenderer renderer(di, state, dynlightindex);
-		//RenderModel(&renderer, x, y, z, modelframe, actor, di->Viewpoint.TicFrac);
-		//state.SetVertexBuffer(screen->mVertexData);
+		state.EnableModelMatrix(true);
+		state.mModelMatrix = rotmat;
+		FHWModelRenderer mr(state, dynlightindex);
+		if (modelframe < 0)
+		{
+			auto model = voxel->model;
+			state.SetDepthFunc(DF_LEqual);
+			state.EnableTexture(true);
+			model->BuildVertexBuffer(&mr);
+			mr.SetupFrame(model, 0, 0, 0);
+			model->RenderFrame(&mr, TexMan.GetGameTexture(model->GetPaletteTexture()), 0, 0, 0.f, TRANSLATION(Translation_Remap + curbasepal, palette));
+			state.SetDepthFunc(DF_Less);
+			state.SetVertexBuffer(screen->mVertexData);
+
+		}
+		else
+		{
+			//RenderModel(&renderer, x, y, z, modelframe, actor, di->Viewpoint.TicFrac);
+		}
+		state.SetVertexBuffer(screen->mVertexData);
+		state.EnableModelMatrix(false);
 	}
 
 	if (translucent)
@@ -443,3 +461,104 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 	rendered_sprites++;
 }
 
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, sectortype* sector)
+{
+	sprite = spr;
+
+	texture = nullptr;
+	modelframe = -1;
+	dynlightindex = -1;
+	shade = spr->shade;
+	palette = spr->pal;
+	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
+	visibility = sectorVisibility(sector);
+	voxel = vox;
+
+	if (!vox || (spr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_FLOOR) return false;
+
+	bool trans = (spr->cstat & CSTAT_SPRITE_TRANSLUCENT);
+	if (trans)
+	{
+		RenderStyle = GetRenderStyle(0, !!(spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
+		alpha = GetAlphaFromBlend((spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+	}
+	else
+	{
+		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
+		alpha = 1.f;
+	}
+
+	auto sprext = &spriteext[spr->owner];
+
+	FVector3 scalevec = { voxel->scale, voxel->scale, voxel->scale };
+	FVector3 translatevec = { 0, 0, voxel->zadd * voxel->scale };
+
+	float basescale = voxel->bscale / 64.f;
+	float sprxscale = (float)spr->xrepeat * (256.f / 320.f) * basescale;
+	if ((::sprite[spr->owner].cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_WALL)
+	{
+		sprxscale *= 1.25f;
+		translatevec.Y -= spr->xoffset * bcosf(sprext->angoff, -20);
+		translatevec.X += spr->xoffset * bsinf(sprext->angoff, -20);
+	}
+
+	if (spr->cstat & CSTAT_SPRITE_YFLIP) 
+	{ 
+		scalevec.Z = -scalevec.Z; 
+		translatevec.Z = -translatevec.Z; 
+	}
+	if (spr->cstat & CSTAT_SPRITE_XFLIP)
+	{
+		scalevec.X = -scalevec.X;
+		translatevec.X = -translatevec.X;
+		translatevec.Y = -translatevec.Y;
+	}
+
+	scalevec.X *= sprxscale; 
+	translatevec.X *= sprxscale; 
+	scalevec.Y *= sprxscale; 
+	translatevec.Y *= sprxscale;
+	float sprzscale = (float)spr->yrepeat * basescale;
+	scalevec.Z *= sprzscale; 
+	translatevec.Z *= sprzscale;
+
+	float zpos = (float)(spr->z + sprext->position_offset.z);
+	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (::sprite[spr->owner].cstat & CSTAT_SPRITE_ALIGNMENT) != 0) ? -4.f : 4.f;
+	zpos -= (spr->yoffset * spr->yrepeat) * zscale * voxel->bscale;
+
+	x = (spr->x + sprext->position_offset.x) * (1 / 16.f);
+	z = zpos * (1 / -256.f);
+	y = (spr->y + sprext->position_offset.y) * (1 / -16.f);
+
+	float zoff = voxel->siz.z * .5f;
+	if (!(spr->cstat & CSTAT_SPRITE_YCENTER))
+		zoff += voxel->piv.z;
+	else if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB)
+	{
+		zoff += voxel->piv.z;
+		zoff -= voxel->siz.z * .5f;
+	}
+	if (spr->cstat & CSTAT_SPRITE_YFLIP) zoff = voxel->siz.z - zoff;
+
+	rotmat.loadIdentity();
+	rotmat.translate(x + translatevec.X, z - translatevec.Z, y - translatevec.Y);
+	rotmat.rotate(buildang(spr->ang).asdeg() - 90.f, 0, 1, 0);
+	rotmat.scale(scalevec.X, scalevec.Z, scalevec.Y);
+	// Apply pivot last
+	rotmat.translate(-voxel->piv.x, zoff, voxel->piv.y);
+
+
+
+	auto vp = di->Viewpoint;
+	depth = (float)((x - vp.Pos.X) * vp.TanCos + (y - vp.Pos.Y) * vp.TanSin);
+	PutSprite(di, alpha < 1.f - FLT_EPSILON);
+	rendered_sprites++;
+	return true;
+}
