@@ -22,6 +22,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "texturemanager.h"
 #include "hw_renderstate.h"
 #include "printf.h"
+#include "gamestruct.h"
 
 int checkTranslucentReplacement(FTextureID picnum, int pal);
 
@@ -2201,6 +2202,7 @@ void polymost_scansector(int32_t sectnum)
             {
                 if ((spr->cstat&(64+48))!=(64+16) ||
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
+                    (r_voxels && gi->Voxelize(spr->picnum)) ||
                     DMulScale(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y, 6) > 0)
                     if (renderAddTsprite(z, sectnum))
                         break;

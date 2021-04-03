@@ -2255,6 +2255,7 @@ struct GameInterface : ::GameInterface
     int chaseCamX(binangle ang) { return -ang.bcos(-3); }
     int chaseCamY(binangle ang) { return -ang.bsin(-3); }
     int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() >> 8; }
+    bool Voxelize(int sprnum);
 
 
     GameStats getStats() override;
