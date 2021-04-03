@@ -24,6 +24,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "printf.h"
 #include "gamefuncs.h"
 #include "hw_drawinfo.h"
+#include "gamestruct.h"
 
 
 typedef struct {
@@ -1915,6 +1916,7 @@ void polymost_scansector(int32_t sectnum)
             {
                 if ((spr->cstat&(64+48))!=(64+16) ||
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
+                    (r_voxels && gi->Voxelize(spr->picnum)) ||
                     DMulScale(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y, 6) > 0)
                     if (renderAddTsprite(pm_tsprite, pm_spritesortcnt, z, sectnum))
                         break;

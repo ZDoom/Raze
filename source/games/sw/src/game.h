@@ -2246,6 +2246,7 @@ struct GameInterface : ::GameInterface
     void UpdateCameras(double smoothratio) override;
     void EnterPortal(spritetype* viewer, int type) override;
     void LeavePortal(spritetype* viewer, int type) override;
+    bool Voxelize(int sprnum);
 
 
     GameStats getStats() override;
