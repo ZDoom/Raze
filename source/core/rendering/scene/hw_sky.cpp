@@ -53,16 +53,21 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, 
 		int remap = TRANSLATION(Translation_Remap + curbasepal, palette);
 
 		int16_t const* dapskyoff = getpsky(picnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
+		int tw = tileWidth(picnum);
+		if ((1 << sizeToBits(tw)) < tw) dapskybits--; // Build math is weird.
+
 		skytex = GetSkyTexture(picnum, dapskybits, dapskyoff, remap);
 		realskybits = dapskybits;
 		if (skytex) dapskybits = 0;
 		else skytex = tileGetTexture(picnum);
 	}
 
+	float xpanning = plane == plane_ceiling ? sector->ceilingxpan_ : sector->floorxpan_;
+
 	// dapyscale is not relvant for a sky dome.
 	sky->y_scale = FixedToFloat(daptileyscale);
-	sky->y_offset = dapyoffs*2;
-	sky->x_offset = 0;// xpanning / (1 << (realskybits - dapskybits));
+	sky->y_offset = dapyoffs*1.5;
+	sky->x_offset = xpanning / (1 << (realskybits - dapskybits));
 	sky->fadecolor = FadeColor;
 	sky->shade = 0;// clamp(plane == plane_ceiling ? sector->ceilingshade : sector->floorshade, 0, numshades - 1);
 	sky->texture = skytex;

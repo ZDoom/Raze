@@ -313,10 +313,10 @@ void GameInterface::app_init()
 	if (engineInit())
 		G_FatalEngineError();
 
-	setupbackdrop();
 	//Net_SendClientInfo();
 
 	initTiles();
+	setupbackdrop();
 	genspriteremaps();
 	SetupGameButtons();
 	InitCheats();

@@ -62,6 +62,7 @@
 #include "hw_renderstate.h"
 #include "v_video.h"
 #include "hwrenderer/data/buffers.h"
+#include "version.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -139,10 +140,10 @@ FSkyVertexBuffer::~FSkyVertexBuffer()
 
 //-----------------------------------------------------------------------------
 //
-//
+// todo: make both available at the same time.
 //
 //-----------------------------------------------------------------------------
-
+#ifndef BUILD_SKY
 void FSkyVertexBuffer::SkyVertex(int r, int c, bool zflip)
 {
 	static const FAngle maxSideAngle = 60.f;
@@ -179,8 +180,33 @@ void FSkyVertexBuffer::SkyVertex(int r, int c, bool zflip)
 
 	mVertices.Push(vert);
 }
+#else
+void FSkyVertexBuffer::SkyVertex(int r, int c, bool zflip)
+{
+	static const FAngle maxSideAngle = 60.f;
+	static const float scale = 10000.;
 
+	FAngle topAngle = (c / (float)mColumns * 360.f);
+	FVector2 pos = topAngle.ToVector(scale);
+	float z = (!zflip) ? (mRows - r) * 4000.f : -(mRows - r) * 4000.f;
 
+	FSkyVertex vert;
+
+	vert.color = r == 0 ? 0xffffff : 0xffffffff;
+
+	// And the texture coordinates.
+	if (zflip) r = mRows * 2 - r;
+	vert.u = 0.5 + (-c / (float)mColumns);
+	vert.v = (r / (float)(2*mRows));
+
+	// And finally the vertex.
+	vert.x = pos.X;
+	vert.y = z - 1.f;
+	vert.z = pos.Y;
+
+	mVertices.Push(vert);
+}
+#endif
 //-----------------------------------------------------------------------------
 //
 //
