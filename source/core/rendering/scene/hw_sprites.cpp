@@ -129,7 +129,7 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 	{
 		state.EnableFog(1);
 		float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
-		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density);
+		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
 		state.SetSoftLightLevel(255);
 		state.SetLightParms(128.f, 1 / 1000.f);
 	}
@@ -161,7 +161,7 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 		{
 			// If we get here we know that we have colored fog and no fixed colormap.
 			float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
-			state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density);
+			state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
 			state.SetTextureMode(TM_FOGLAYER);
 			state.SetRenderStyle(STYLE_Translucent);
 			state.Draw(DT_TriangleStrip, vertexindex, 4);

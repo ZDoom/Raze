@@ -355,3 +355,4 @@ inline float sectorVisibility(sectortype* sec)
 	return v ? ((uint8_t)(v + 16)) / 16.f : 1.f;
 }
 
+inline const float hw_density = 0.35f;
