@@ -39,6 +39,7 @@
 #include "gamefuncs.h"
 #include "texturemanager.h"
 #include "earcut.hpp"
+#include "nodebuilder/nodebuild.h"
 
 SectorGeometry sectorGeometry;
 
@@ -214,7 +215,7 @@ public:
 //
 //==========================================================================
 
-void SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2& offset)
+bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2& offset)
 {
 	auto sec = &sector[secnum];
 	int numvertices = sec->wallnum;
@@ -229,7 +230,6 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 	FixedBitArray<MAXWALLSB> done;
 
 	int fz = sec->floorz, cz = sec->ceilingz;
-	sec->floorz = sec->ceilingz = 0;
 
 	int vertstoadd = numvertices;
 
@@ -249,7 +249,8 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 				if (fabs(X) > 32768. || fabs(Y) > 32768.)
 				{
 					// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
-					return;
+					// Do not try alternative methods if this happens.
+					return true;
 				}
 				curPoly->push_back(std::make_pair(X, Y));
 				done.Set(start);
@@ -279,6 +280,12 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 	}
 	if (outer != 0) std::swap(polygon[0], polygon[outer]);
 	auto indices = mapbox::earcut(polygon);
+	if (indices.size() < 3 * (sec->wallnum - 2))
+	{
+		// this means that full triangulation failed.
+		return false;
+	}
+	sec->floorz = sec->ceilingz = 0;
 
 	int p = 0;
 	for (size_t a = 0; a < polygon.size(); a++)
@@ -310,7 +317,96 @@ void SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 
 	sec->floorz = fz;
 	sec->ceilingz = cz;
+	return true;
+}
 
+//==========================================================================
+//
+// Use ZDoom's node builder if the simple approach fails.
+// This will create something usable in the vast majority of cases, 
+// even if the result is less efficient.
+//
+//==========================================================================
+
+bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector2& offset)
+{
+
+	// Convert our sector into something the node builder understands
+	auto sect = &sector[secnum];
+	TArray<vertex_t> vertexes(sect->wallnum, true);
+	TArray<line_t> lines(sect->wallnum, true);
+	TArray<side_t> sides(sect->wallnum, true);
+	for (int i = 0; i < sect->wallnum; i++)
+	{
+		auto wal = &wall[sect->wallptr + i];
+		vertexes[i].p = { wal->x * (1 / 16.), wal->y * (1 / -16.) };
+		lines[i].backsector = nullptr;
+		lines[i].frontsector = sect;
+		lines[i].linenum = i;
+		lines[i].sidedef[0] = &sides[i];
+		lines[i].sidedef[1] = nullptr;
+		lines[i].v1 = &vertexes[i];
+		lines[i].v2 = &vertexes[wal->point2 - sect->wallptr];
+
+		sides[i].sidenum = i;
+		sides[i].sector = sect;
+	}
+
+
+	FNodeBuilder::FLevel leveldata =
+	{
+		&vertexes[0], (int)vertexes.Size(),
+		&sides[0], (int)sides.Size(),
+		&lines[0], (int)lines.Size(),
+		0, 0, 0, 0
+	};
+	leveldata.FindMapBounds();
+	FNodeBuilder builder(leveldata);
+
+	FLevelLocals Level;
+	builder.Extract(Level);
+
+	// Now turn the generated subsectors into triangle meshes
+
+	auto& entry = data[secnum].planes[plane];
+
+	int fz = sect->floorz, cz = sect->ceilingz;
+	sect->floorz = sect->ceilingz = 0;
+
+	for (auto& sub : Level.subsectors)
+	{
+		auto v0 = sub.firstline->v1;
+		for (unsigned i = 1; i < sub.numlines-1; i++)
+		{
+			auto v1 = sub.firstline[i].v1;
+			auto v2 = sub.firstline[i].v2;
+
+			entry.vertices.Push({ (float)v0->fX(), (float)v0->fY(), 0 });
+			entry.vertices.Push({ (float)v1->fX(), (float)v1->fY(), 0 });
+			entry.vertices.Push({ (float)v2->fX(), (float)v2->fY(), 0 });
+
+		}
+	}
+
+	// calculate the rest.
+	auto texture = tileGetTexture(plane ? sect->ceilingpicnum : sect->floorpicnum);
+
+	UVCalculator uvcalc(sect, plane, texture, offset);
+
+	entry.texcoords.Resize(entry.vertices.Size());
+	for (unsigned i = 0; i < entry.vertices.Size(); i++)
+	{
+		auto& pt = entry.vertices[i];
+
+		float planez;
+		PlanesAtPoint(sect, (pt.X * 16), (pt.Y * -16), plane ? &planez : nullptr, !plane ? &planez : nullptr);
+		entry.vertices[i].Z = planez;
+		entry.texcoords[i] = uvcalc.GetUV(int(pt.X * 16.), int(pt.Y * -16.), pt.Z);
+	}
+	entry.normal = CalcNormal(sect, plane);
+	sect->floorz = fz;
+	sect->ceilingz = cz;
+	return true;
 }
 
 //==========================================================================
@@ -352,5 +448,10 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane, const FVecto
 	*compare = *sec;
 	data[secnum].poscompare[plane] = wall[sec->wallptr].pos;
 	data[secnum].poscompare2[plane] = wall[wall[sec->wallptr].point2].pos;
-	MakeVertices(secnum, plane, offset);
+	if (data[secnum].degenerate || !MakeVertices(secnum, plane, offset))
+	{
+		data[secnum].degenerate = true;
+		//Printf(TEXTCOLOR_YELLOW "Normal triangulation failed for sector %d. Retrying with alternative approach\n", secnum);
+		MakeVertices2(secnum, plane, offset);
+	}
 }

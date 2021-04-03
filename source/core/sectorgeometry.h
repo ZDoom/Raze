@@ -17,6 +17,7 @@ struct SectorGeometryData
 	sectortype compare[2] = {};
 	vec2_t poscompare[2] = {};
 	vec2_t poscompare2[2] = {};
+	bool degenerate = false;
 };
 
 class SectorGeometry
@@ -24,7 +25,8 @@ class SectorGeometry
 	TArray<SectorGeometryData> data;
 
 	void ValidateSector(unsigned sectnum, int plane, const FVector2& offset);
-	void MakeVertices(unsigned sectnum, int plane, const FVector2& offset);
+	bool MakeVertices(unsigned sectnum, int plane, const FVector2& offset);
+	bool MakeVertices2(unsigned sectnum, int plane, const FVector2& offset);
 
 public:
 	SectorGeometryPlane* get(unsigned sectnum, int plane, const FVector2& offset)
