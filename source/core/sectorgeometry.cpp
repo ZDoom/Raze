@@ -259,7 +259,7 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 			}
 			polygon.resize(polygon.size() + 1);
 			curPoly = &polygon.back();
-			assert(start == s);
+			if (start != s) return false; // means the sector is badly defined. RRRA'S E1L3 triggers this.
 		}
 	}
 	// Now make sure that the outer boundary is the first polygon by picking a point that's as much to the outside as possible.
@@ -369,6 +369,8 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 	// Now turn the generated subsectors into triangle meshes
 
 	auto& entry = data[secnum].planes[plane];
+	entry.vertices.Clear();
+	entry.texcoords.Clear();
 
 	int fz = sect->floorz, cz = sect->ceilingz;
 	sect->floorz = sect->ceilingz = 0;
