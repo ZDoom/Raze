@@ -902,17 +902,12 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	}
 #endif
 
-	// note: we always have a valid sidedef and linedef reference when getting here.
-
 	this->seg = wal;
 	this->frontsector = frontsector;
 	this->backsector = backsector;
 	sprite = nullptr;
 	vertindex = 0;
 	vertcount = 0;
-
-	//vertexes[0] = v1;
-	//vertexes[1] = v2;
 
 	glseg.x1 = v1.X;
 	glseg.y1 = v1.Y;
