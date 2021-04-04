@@ -289,34 +289,31 @@ void HWDrawInfo::DispatchSprites()
 
 		setgotpic(tilenum);
 
-		while (!(spriteext[spritenum].flags & SPREXT_NOTMD))
+		if (!(spriteext[spritenum].flags & SPREXT_NOTMD))
 		{
 			int pt = Ptile2tile(tspr->picnum, tspr->pal);
 			if (hw_models && tile2model[pt].modelid >= 0 && tile2model[pt].framenum >= 0)
 			{
 				//HWSprite hwsprite;
-				//if (hwsprite.ProcessModel(pt, tspr)) return;
-				break;
+				//if (hwsprite.ProcessModel(pt, tspr)) continue;
 			}
-
 			if (r_voxels)
 			{
 				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
 				{
 					HWSprite hwsprite;
 					int num = tiletovox[tspr->picnum];
-					if (hwsprite.ProcessVoxel(this, voxmodels[tiletovox[tspr->picnum]], tspr, &sector[tspr->sectnum], voxrotate[num >> 3] & (1 << (num & 7)))) return;
-					break;
+					if (hwsprite.ProcessVoxel(this, voxmodels[tiletovox[tspr->picnum]], tspr, &sector[tspr->sectnum], voxrotate[num >> 3] & (1 << (num & 7)))) 
+						continue;
 				}
 				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
 				{
 					HWSprite hwsprite;
 					int num = tspr->picnum;
 					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, &sector[tspr->sectnum], voxrotate[num >> 3] & (1 << (num & 7)));
-					break;
+					continue;
 				}
 			}
-			break;
 		}
 
 		if (spriteext[spritenum].flags & SPREXT_AWAY1)
