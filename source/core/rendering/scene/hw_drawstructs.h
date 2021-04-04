@@ -327,7 +327,7 @@ public:
 	void CreateVertices(HWDrawInfo* di);
 	void PutSprite(HWDrawInfo *di, bool translucent);
 	void Process(HWDrawInfo *di, spritetype* thing,sectortype * sector, int thruportal = false);
-	bool ProcessVoxel(HWDrawInfo* di, voxmodel_t* voxel, spritetype* tspr, sectortype* sector);
+	bool ProcessVoxel(HWDrawInfo* di, voxmodel_t* voxel, spritetype* tspr, sectortype* sector, bool rotate);
 
 	void DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent);
 };

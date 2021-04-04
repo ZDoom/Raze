@@ -468,7 +468,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 //
 //==========================================================================
 
-bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, sectortype* sector)
+bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, sectortype* sector, bool rotate)
 {
 	sprite = spr;
 
@@ -480,6 +480,14 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(sector);
 	voxel = vox;
+
+	auto ang = spr->ang;
+	if ((spr->cstat & CSTAT_SPRITE_MDLROTATE) || rotate)
+	{
+		int myclock = (PlayClock << 3) + MulScale(4 << 3, (int)di->Viewpoint.TicFrac, 16);
+		ang = (ang + myclock) & 2047; // will be applied in md3_vox_calcmat_common.
+	}
+
 
 	if (!vox || (spr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_FLOOR) return false;
 
@@ -549,7 +557,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 
 	rotmat.loadIdentity();
 	rotmat.translate(x + translatevec.X, z - translatevec.Z, y - translatevec.Y);
-	rotmat.rotate(buildang(spr->ang).asdeg() - 90.f, 0, 1, 0);
+	rotmat.rotate(buildang(ang).asdeg() - 90.f, 0, 1, 0);
 	rotmat.scale(scalevec.X, scalevec.Z, scalevec.Y);
 	// Apply pivot last
 	rotmat.translate(-voxel->piv.x, zoff, voxel->piv.y);
