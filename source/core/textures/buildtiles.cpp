@@ -499,7 +499,7 @@ CCMD(tilecrc)
 
 int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istexture)
 {
-	FTextureID texid = TexMan.CheckForTexture(fn, ETextureType::Any);
+	FTextureID texid = TexMan.CheckForTexture(fn, ETextureType::Any, FTextureManager::TEXMAN_ForceLookup);
 	if (!texid.isValid()) return -1;
 	auto tex = TexMan.GetGameTexture(texid);
 
@@ -508,7 +508,7 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 	if (xsiz <= 0 || ysiz <= 0)
 		return -2;
 
-	// create a new game texture here - we want to give it a new name!
+	// create a new game texture here - we want to give it a different name!
 	tex = MakeGameTexture(tex->GetTexture(), FStringf("#%05d", tilenum), ETextureType::Override);
 	TexMan.AddGameTexture(tex);
 	TileFiles.tiledata[tilenum].backup = TileFiles.tiledata[tilenum].texture = tex;

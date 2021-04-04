@@ -363,6 +363,7 @@ static int32_t defsparser(scriptfile *script)
         { "rffdefineid",     T_RFFDEFINEID      },  // dummy
     };
 
+    script->SetNoOctals(true);
     while (1)
     {
 #ifdef USE_DEF_PROGRESS
