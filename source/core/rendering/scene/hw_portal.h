@@ -23,6 +23,7 @@ struct HWSkyInfo
 	float y_offset;
 	float y_scale;
 	int shade;
+	bool cloudy;
 	FGameTexture * texture;
 	PalEntry fadecolor;
 

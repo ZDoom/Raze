@@ -483,6 +483,7 @@ void setWallSectors()
 	for (int i = 0; i < numsectors; i++)
 	{
 		sector[i].dirty = 255;
+		sector[i].exflags = 0;
 		for (int w = 0; w < sector[i].wallnum; w++)
 		{
 			wall[sector[i].wallptr + w].sector = i;

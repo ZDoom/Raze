@@ -61,7 +61,8 @@ public:
 	IVertexBuffer *mVertexBuffer;
 
 	TArray<FSkyVertex> mVertices;
-	TArray<unsigned int> mPrimStart;
+	TArray<unsigned int> mPrimStartDoom;
+	TArray<unsigned int> mPrimStartBuild;
 
 	int mRows, mColumns;
 
@@ -69,8 +70,10 @@ public:
 	int mFaceStart[7];
 	int mSideStart;
 
-	void SkyVertex(int r, int c, bool yflip);
-	void CreateSkyHemisphere(int hemi);
+	void SkyVertexDoom(int r, int c, bool yflip);
+	void SkyVertexBuild(int r, int c, bool yflip);
+	void CreateSkyHemisphereDoom(int hemi);
+	void CreateSkyHemisphereBuild(int hemi);
 	void CreateDome();
 
 public:
@@ -89,8 +92,8 @@ public:
 		else return mSideStart;
 	}
 
-	void RenderRow(FRenderState& state, EDrawType prim, int row, bool apply = true);
-	void RenderDome(FRenderState& state, FGameTexture* tex, int mode);
+	void RenderRow(FRenderState& state, EDrawType prim, int row, TArray<unsigned int>& mPrimStart, bool apply = true);
+	void RenderDome(FRenderState& state, FGameTexture* tex, int mode, bool which);
 	void RenderDome(FRenderState& state, FGameTexture* tex, float x_offset, float y_offset, bool mirror, int mode, bool tiled, float xscale = 0, float yscale = 0);
 	void RenderBox(FRenderState& state, FSkyBox* tex, float x_offset, bool sky2, float stretch, const FVector3& skyrotatevector, const FVector3& skyrotatevector2);
 

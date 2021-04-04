@@ -140,11 +140,11 @@ FSkyVertexBuffer::~FSkyVertexBuffer()
 
 //-----------------------------------------------------------------------------
 //
-// todo: make both available at the same time.
+//
 //
 //-----------------------------------------------------------------------------
-#ifndef BUILD_SKY
-void FSkyVertexBuffer::SkyVertex(int r, int c, bool zflip)
+
+void FSkyVertexBuffer::SkyVertexDoom(int r, int c, bool zflip)
 {
 	static const FAngle maxSideAngle = 60.f;
 	static const float scale = 10000.;
@@ -180,8 +180,14 @@ void FSkyVertexBuffer::SkyVertex(int r, int c, bool zflip)
 
 	mVertices.Push(vert);
 }
-#else
-void FSkyVertexBuffer::SkyVertex(int r, int c, bool zflip)
+
+//-----------------------------------------------------------------------------
+//
+//
+//
+//-----------------------------------------------------------------------------
+
+void FSkyVertexBuffer::SkyVertexBuild(int r, int c, bool zflip)
 {
 	static const FAngle maxSideAngle = 60.f;
 	static const float scale = 10000.;
@@ -206,34 +212,65 @@ void FSkyVertexBuffer::SkyVertex(int r, int c, bool zflip)
 
 	mVertices.Push(vert);
 }
-#endif
+
 //-----------------------------------------------------------------------------
 //
 //
 //
 //-----------------------------------------------------------------------------
 
-void FSkyVertexBuffer::CreateSkyHemisphere(int hemi)
+void FSkyVertexBuffer::CreateSkyHemisphereDoom(int hemi)
 {
 	int r, c;
 	bool zflip = !!(hemi & SKYHEMI_LOWER);
 
-	mPrimStart.Push(mVertices.Size());
+	mPrimStartDoom.Push(mVertices.Size());
 
 	for (c = 0; c < mColumns; c++)
 	{
-		SkyVertex(1, c, zflip);
+		SkyVertexDoom(1, c, zflip);
 	}
 
 	// The total number of triangles per hemisphere can be calculated
 	// as follows: rows * columns * 2 + 2 (for the top cap).
 	for (r = 0; r < mRows; r++)
 	{
-		mPrimStart.Push(mVertices.Size());
+		mPrimStartDoom.Push(mVertices.Size());
 		for (c = 0; c <= mColumns; c++)
 		{
-			SkyVertex(r + zflip, c, zflip);
-			SkyVertex(r + 1 - zflip, c, zflip);
+			SkyVertexDoom(r + zflip, c, zflip);
+			SkyVertexDoom(r + 1 - zflip, c, zflip);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+//
+//
+//
+//-----------------------------------------------------------------------------
+
+void FSkyVertexBuffer::CreateSkyHemisphereBuild(int hemi)
+{
+	int r, c;
+	bool zflip = !!(hemi & SKYHEMI_LOWER);
+
+	mPrimStartBuild.Push(mVertices.Size());
+
+	for (c = 0; c < mColumns; c++)
+	{
+		SkyVertexBuild(1, c, zflip);
+	}
+
+	// The total number of triangles per hemisphere can be calculated
+	// as follows: rows * columns * 2 + 2 (for the top cap).
+	for (r = 0; r < mRows; r++)
+	{
+		mPrimStartBuild.Push(mVertices.Size());
+		for (c = 0; c <= mColumns; c++)
+		{
+			SkyVertexBuild(r + zflip, c, zflip);
+			SkyVertexBuild(r + 1 - zflip, c, zflip);
 		}
 	}
 }
@@ -267,9 +304,13 @@ void FSkyVertexBuffer::CreateDome()
 
 	mColumns = 128;
 	mRows = 4;
-	CreateSkyHemisphere(SKYHEMI_UPPER);
-	CreateSkyHemisphere(SKYHEMI_LOWER);
-	mPrimStart.Push(mVertices.Size());
+	CreateSkyHemisphereDoom(SKYHEMI_UPPER);
+	CreateSkyHemisphereDoom(SKYHEMI_LOWER);
+	mPrimStartDoom.Push(mVertices.Size());
+
+	CreateSkyHemisphereBuild(SKYHEMI_UPPER);
+	CreateSkyHemisphereBuild(SKYHEMI_LOWER);
+	mPrimStartBuild.Push(mVertices.Size());
 
 	mSideStart = mVertices.Size();
 	mFaceStart[0] = mSideStart + 10;
@@ -401,7 +442,7 @@ void FSkyVertexBuffer::SetupMatrices(FGameTexture *tex, float x_offset, float y_
 //
 //-----------------------------------------------------------------------------
 
-void FSkyVertexBuffer::RenderRow(FRenderState& state, EDrawType prim, int row, bool apply)
+void FSkyVertexBuffer::RenderRow(FRenderState& state, EDrawType prim, int row, TArray<unsigned int>& mPrimStart, bool apply)
 {
 	state.Draw(prim, mPrimStart[row], mPrimStart[row + 1] - mPrimStart[row]);
 }
@@ -412,8 +453,9 @@ void FSkyVertexBuffer::RenderRow(FRenderState& state, EDrawType prim, int row, b
 //
 //-----------------------------------------------------------------------------
 
-void FSkyVertexBuffer::RenderDome(FRenderState& state, FGameTexture* tex, int mode)
+void FSkyVertexBuffer::RenderDome(FRenderState& state, FGameTexture* tex, int mode, bool which)
 {
+	auto& primStart = which ? mPrimStartBuild : mPrimStartDoom;
 	if (tex && tex->isValid())
 	{
 		state.SetMaterial(tex, UF_Texture, 0, CLAMP_NONE, 0, -1);
@@ -429,17 +471,17 @@ void FSkyVertexBuffer::RenderDome(FRenderState& state, FGameTexture* tex, int mo
 		auto& col = R_GetSkyCapColor(tex);
 		state.SetObjectColor(col.first);
 		state.EnableTexture(false);
-		RenderRow(state, DT_TriangleFan, 0);
+		RenderRow(state, DT_TriangleFan, 0, primStart);
 
 		state.SetObjectColor(col.second);
-		RenderRow(state, DT_TriangleFan, rc);
+		RenderRow(state, DT_TriangleFan, rc, primStart);
 		state.EnableTexture(true);
 	}
 	state.SetObjectColor(0xffffffff);
 	for (int i = 1; i <= mRows; i++)
 	{
-		RenderRow(state, DT_TriangleStrip, i, i == 1);
-		RenderRow(state, DT_TriangleStrip, rc + i, false);
+		RenderRow(state, DT_TriangleStrip, i, primStart, i == 1);
+		RenderRow(state, DT_TriangleStrip, rc + i, primStart, false);
 	}
 
 	state.EnableTextureMatrix(false);
@@ -449,7 +491,7 @@ void FSkyVertexBuffer::RenderDome(FRenderState& state, FGameTexture* tex, int mo
 
 //-----------------------------------------------------------------------------
 //
-//
+// This is only for Doom-style skies.
 //
 //-----------------------------------------------------------------------------
 
@@ -459,7 +501,7 @@ void FSkyVertexBuffer::RenderDome(FRenderState& state, FGameTexture* tex, float 
 	{
 		SetupMatrices(tex, x_offset, y_offset, mirror, mode, state.mModelMatrix, state.mTextureMatrix, tiled, xscale, yscale);
 	}
-	RenderDome(state, tex, mode);
+	RenderDome(state, tex, mode, false);
 }
 
 

@@ -660,6 +660,8 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSector->floorypan_ = load.floorypanning;
         pSector->visibility = load.visibility;
         qsector_filler[i] = load.fogpal;
+        pSector->dirty = 255;
+        pSector->exflags = 0;
         pSector->fogpal = 0;
 
         if (sector[i].extra > 0)

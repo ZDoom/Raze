@@ -3,7 +3,7 @@
 
 //ceilingstat/floorstat:
 //   bit 0: 1 = parallaxing, 0 = not                                 "P"
-//   bit 1: 1 = groudraw, 0 = not
+//   bit 1: 1 = sloped, 0 = not
 //   bit 2: 1 = swap x&y, 0 = not                                    "F"
 //   bit 3: 1 = double smooshiness                                   "E"
 //   bit 4: 1 = x-flip                                               "F"
@@ -17,7 +17,8 @@
 //   bit 9: 1 = blocking ceiling/floor
 //   bit 10: 1 = YAX'ed ceiling/floor
 //   bit 11: 1 = hitscan-sensitive ceiling/floor
-//   bits 12-15: reserved
+//   bits 12-14: reserved
+//   bit 15: SW: block FAF hitscans
 
 //////////////////// Version 7 map format ////////////////////
 enum
@@ -32,6 +33,8 @@ enum
     CSTAT_SECTOR_TRANS = 128,
     CSTAT_SECTOR_TRANS_INVERT = 256,
     CSTAT_SECTOR_METHOD = 384,
+
+    SECTOREX_CLOUDSCROLL = 1,
 };
 
 enum
@@ -67,6 +70,7 @@ struct sectortype
     int16_t extra;
 
     uint8_t dirty;
+    uint8_t exflags;
     float ceilingxpan_, ceilingypan_, floorxpan_, floorypan_;
     uint8_t portalflags;
     int8_t portalnum;

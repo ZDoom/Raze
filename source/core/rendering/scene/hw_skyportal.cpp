@@ -58,7 +58,7 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 	{
 		vertexBuffer->RenderBox(state, skybox, origin->x_offset, false, /*di->Level->info->pixelstretch*/1, { 0, 0, 1 }, { 0, 0, 1 });
 	}
-	else
+	else if (!origin->cloudy)
 	{
 		auto tex = origin->texture;
 		float texw = tex->GetDisplayWidth();
@@ -81,8 +81,12 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 		textureMatrix.loadIdentity();
 		state.EnableTextureMatrix(true);
 		textureMatrix.scale(1.f, repeat_fac, 1.f);
-		vertexBuffer->RenderDome(state, origin->texture, FSkyVertexBuffer::SKYMODE_MAINLAYER);
+		vertexBuffer->RenderDome(state, origin->texture, FSkyVertexBuffer::SKYMODE_MAINLAYER, true);
 		state.EnableTextureMatrix(false);
+	}
+	else
+	{
+		vertexBuffer->RenderDome(state, origin->texture, -origin->x_offset, origin->y_offset, false, FSkyVertexBuffer::SKYMODE_MAINLAYER, true);
 	}
 	state.SetTextureMode(TM_NORMAL);
 	if (origin->fadecolor & 0xffffff)

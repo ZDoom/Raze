@@ -63,11 +63,21 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, 
 	}
 
 	float xpanning = plane == plane_ceiling ? sector->ceilingxpan_ : sector->floorxpan_;
+	float ypanning = plane == plane_ceiling ? sector->ceilingypan_ : sector->floorypan_;
 
 	// dapyscale is not relvant for a sky dome.
 	sky->y_scale = FixedToFloat(daptileyscale);
-	sky->y_offset = dapyoffs*1.5;
-	sky->x_offset = xpanning / (1 << (realskybits - dapskybits));
+	sky->cloudy = !!(sector->exflags & SECTOREX_CLOUDSCROLL);
+	if (!sky->cloudy)
+	{
+		sky->y_offset = dapyoffs * 1.5;
+		sky->x_offset = xpanning / (1 << (realskybits - dapskybits));
+	}
+	else
+	{
+		sky->y_offset = ypanning;
+		sky->x_offset = 2 * xpanning / (1 << (realskybits - dapskybits));
+	}
 	sky->fadecolor = FadeColor;
 	sky->shade = 0;// clamp(plane == plane_ceiling ? sector->ceilingshade : sector->floorshade, 0, numshades - 1);
 	sky->texture = skytex;

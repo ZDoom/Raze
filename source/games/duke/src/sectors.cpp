@@ -1271,8 +1271,18 @@ void moveclouds(double smoothratio)
 		cloudy += ps[screenpeek].angle.ang.fsin() * 0.5f;
 		for (int i = 0; i < numclouds; i++)
 		{
-			sector[clouds[i]].setceilingxpan(cloudx);
-			sector[clouds[i]].setceilingypan(cloudy);
+			if (!testnewrenderer)
+			{
+				sector[clouds[i]].setceilingxpan(cloudx);
+				sector[clouds[i]].setceilingypan(cloudy);
+			}
+			else
+			{ 
+				// no clamping here!
+				sector[clouds[i]].ceilingxpan_ = cloudx;
+				sector[clouds[i]].ceilingypan_ = cloudy;
+			}
+			sector[clouds[i]].exflags |= SECTOREX_CLOUDSCROLL;
 		}
 	}
 }
