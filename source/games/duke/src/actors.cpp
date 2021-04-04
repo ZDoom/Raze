@@ -1002,7 +1002,7 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 						break;
 					}
 				}
-				else if (sj->statnum == 6)
+				else if (sj->statnum == STAT_STANDABLE)
 				{
 					if (sj->picnum == spectype1 || sj->picnum == spectype2) // SEENINE and OOZFILTER
 					{
@@ -1010,7 +1010,12 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 					}
 				}
 			}
-			deletesprite(actor);
+			// we cannot delete this because it may be used as a sound source.
+			// This originally depended on undefined behavior as the deleted sprite was still used for the sound
+			// with no checking if it got reused in the mean time.
+			spri->picnum = 0;	// give it a picnum without any behavior attached, just in case
+			spri->cstat |= CSTAT_SPRITE_INVISIBLE;
+			changespritestat(actor->GetIndex(), STAT_REMOVED);
 		}
 	}
 }
