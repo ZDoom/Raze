@@ -1327,7 +1327,8 @@ void ProcessInput(PLAYER *pPlayer)
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
 
-    pPlayer->isRunning = !!(pInput->actions & SB_RUN) && pPlayer->restTime <= 10;
+    // This was just too broken. Every single place in the game depending on 'isRunning' will misbehave if this is set because originally it never worked as intended.
+    pPlayer->isRunning = false;// !!(pInput->actions& SB_RUN) && pPlayer->restTime <= 10;
 
     WeaponProcess(pPlayer);
     if (pXSprite->health == 0)

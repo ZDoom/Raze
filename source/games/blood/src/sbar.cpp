@@ -623,8 +623,8 @@ private:
             else
                 DrawStatSprite(nTile, x, y, 40, 5);
         }
-        DrawStatMaskedSprite(2202, 118.5, 185.5, pPlayer->isRunning ? 16 : 40);
-        DrawStatMaskedSprite(2202, 201.5, 185.5, pPlayer->isRunning ? 16 : 40);
+        DrawStatMaskedSprite(2202, 118.5, 185.5, /*pPlayer->isRunning ? 16 :*/ 40);
+        DrawStatMaskedSprite(2202, 201.5, 185.5, /*pPlayer->isRunning ? 16 :*/ 40);
         if (pPlayer->throwPower)
         {
             TileHGauge(2260, 124, 175.5, pPlayer->throwPower, 65536);
