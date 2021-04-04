@@ -753,7 +753,7 @@ static void handle_st21(int sn, DDukeActor* actor)
 	int j;
 	if (i >= 0)
 	{
-		if (animategoal[sn] == sptr->ceilingz)
+		if (animategoal[i] == sptr->ceilingz)
 			animategoal[i] = sector[nextsectorneighborz(sn, sptr->ceilingz, 1, 1)].floorz;
 		else animategoal[i] = sptr->ceilingz;
 		j = animategoal[i];
