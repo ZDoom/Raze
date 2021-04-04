@@ -92,6 +92,5 @@ const int SAVEPICHEIGHT = 180;
 const int VID_MIN_WIDTH = 640;
 const int VID_MIN_HEIGHT = 400;
 #define NPOT_EMULATION
-#define BUILD_SKY
 
 #endif //__VERSION_H__
