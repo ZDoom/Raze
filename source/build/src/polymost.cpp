@@ -36,6 +36,7 @@ CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBAL
 {
     if (screen) screen->SetTextureFilterMode();
 }
+int pm_smoothratio;
 
 
 //{ "r_yshearing", "enable/disable y-shearing", (void*)&r_yshearing, CVAR_BOOL, 0, 1 }, disabled because not fully functional 
@@ -3034,13 +3035,15 @@ void polymost_drawsprite(int32_t snum)
         {
             if ((tspr->cstat & 48) != 48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
             {
-                if (polymost_voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
+                int num = tiletovox[tspr->picnum];
+                if (polymost_voxdraw(voxmodels[num], tspr, voxrotate[num>>3] & (1<<(num&7)))) return;
                 break;  // else, render as flat sprite
             }
 
             if ((tspr->cstat & 48) == 48 && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
             {
-                polymost_voxdraw(voxmodels[tspr->picnum], tspr);
+                int num = tspr->picnum;
+                polymost_voxdraw(voxmodels[tspr->picnum], tspr, voxrotate[num >> 3] & (1 << (num & 7)));
                 return;
             }
         }

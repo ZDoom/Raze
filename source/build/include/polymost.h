@@ -11,6 +11,7 @@ extern float gtang;
 extern double gxyaspect;
 extern float grhalfxdown10x;
 extern float gcosang, gsinang, gcosang2, gsinang2;
+extern int pm_smoothratio;
 
 extern void Polymost_prepare_loadboard(void);
 

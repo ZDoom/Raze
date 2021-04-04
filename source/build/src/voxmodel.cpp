@@ -12,6 +12,7 @@
 #include "hw_renderstate.h"
 #include "texturemanager.h"
 #include "voxels.h"
+#include "gamecontrol.h"
 #include "glbackend/gl_models.h"
 
 #include "palette.h"
@@ -50,8 +51,7 @@ voxmodel_t *voxload(int lumpnum)
 }
 
 //Draw voxel model as perfect cubes
-// Note: This is a hopeless mess that totally forfeits any chance of using a vertex buffer with its messy coordinate adjustments. :(
-int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
+int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 {
     float f, g, k0, zoff;
 
@@ -64,6 +64,13 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
     polymost_outputGLDebugMessage(3, "polymost_voxdraw(m:%p, tspr:%p)", m, tspr);
 
     //updateanimation((md2model *)m,tspr);
+
+    if ((tspr->cstat & CSTAT_SPRITE_MDLROTATE) || rotate)
+    {
+        int myclock = (PlayClock << 3) + MulScale(4 << 3, pm_smoothratio, 16);
+        tspr->ang = (tspr->ang + myclock) & 2047; // will be applied in md3_vox_calcmat_common.
+    }
+
 
     vec3f_t m0 = { m->scale, m->scale, m->scale };
     vec3f_t a0 = { 0, 0, m->zadd*m->scale };

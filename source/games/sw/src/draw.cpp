@@ -1492,6 +1492,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     PreDraw();
 
     PreUpdatePanel(smoothratio);
+    pm_smoothratio = (int)smoothratio;
 
     if (!ScreenSavePic)
     {
