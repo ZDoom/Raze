@@ -88,6 +88,7 @@ void playlogos()
 	jobs[job++] = { Create<DImageScreen>(2518, DScreenJob::fadein) };
 
 	RunScreenJob(jobs, job, [](bool) { 
+		Mus_Stop();
 		gameaction = ga_mainmenu;
 		}, true, true);
 }
