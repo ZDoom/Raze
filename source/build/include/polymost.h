@@ -6,6 +6,7 @@
 
 extern tspritetype pm_tsprite[MAXSPRITESONSCREEN];
 extern int pm_spritesortcnt;
+extern int pm_smoothratio;
 
 
 namespace Polymost

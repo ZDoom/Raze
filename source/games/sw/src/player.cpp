@@ -1669,7 +1669,7 @@ DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
 {
     bool const canslopetilt = !TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE);
     calcviewpitch(pp->pos.vec2, &pp->horizon.horizoff, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursectnum, scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
-    sethorizon(&pp->horizon.horiz, horz, &pp->input.actions, scaleAdjust);
+    sethorizon(&pp->horizon, horz, &pp->input.actions, scaleAdjust);
 }
 
 void

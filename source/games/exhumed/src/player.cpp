@@ -2656,7 +2656,7 @@ loc_1BD2E:
                 if (SyncInput())
                 {
                     Player* pPlayer = &PlayerList[nPlayer];
-                    sethorizon(&pPlayer->horizon.horiz, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
+                    sethorizon(&pPlayer->horizon, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
                 }
             }
             else // else, player's health is less than 0

@@ -2556,26 +2556,29 @@ static void greenslime(DDukeActor *actor)
 	{
 		auto s5 = actor->temp_actor;
 		makeitfall(actor);
-		s5->s.xvel = 0;
-
-		int l = s5->s.ang;
-
-		s->z = s5->s.z;
-		s->x = s5->s.x + bcos(l, -11);
-		s->y = s5->s.y + bsin(l, -11);
-
-		s->picnum = GREENSLIME + 2 + (global_random & 1);
-
-		if (s->yrepeat < 64) s->yrepeat += 2;
-		else
+		if (s5)
 		{
-			if (s->xrepeat < 32) s->xrepeat += 4;
+			s5->s.xvel = 0;
+
+			int l = s5->s.ang;
+
+			s->z = s5->s.z;
+			s->x = s5->s.x + bcos(l, -11);
+			s->y = s5->s.y + bsin(l, -11);
+
+			s->picnum = GREENSLIME + 2 + (global_random & 1);
+
+			if (s->yrepeat < 64) s->yrepeat += 2;
 			else
 			{
-				t[0] = -1;
-				x = ldist(actor, s5);
-				if (x < 768) {
-					s5->s.xrepeat = 0;
+				if (s->xrepeat < 32) s->xrepeat += 4;
+				else
+				{
+					t[0] = -1;
+					x = ldist(actor, s5);
+					if (x < 768) {
+						s5->s.xrepeat = 0;
+					}
 				}
 			}
 		}

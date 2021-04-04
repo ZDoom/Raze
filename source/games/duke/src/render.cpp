@@ -263,6 +263,7 @@ void displayrooms(int snum, double smoothratio)
 	int tiltcs = 0; // JBF 20030807
 
 	p = &ps[snum];
+	pm_smoothratio = (int)smoothratio;
 
 	if (automapMode == am_full || p->cursectnum == -1)
 		return;

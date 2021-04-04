@@ -25,6 +25,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "gamefuncs.h"
 #include "hw_drawinfo.h"
 #include "gamestruct.h"
+#include "gamestruct.h"
 
 
 typedef struct {
@@ -46,6 +47,7 @@ CVARD(Bool, hw_animsmoothing, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/di
 CVARD(Bool, hw_models, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model rendering")
 CVARD(Bool, hw_parallaxskypanning, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky")
 CVARD(Float, hw_shadescale, 1.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "multiplier for shading")
+int pm_smoothratio;
 
 
 //{ "r_yshearing", "enable/disable y-shearing", (void*)&r_yshearing, CVAR_BOOL, 0, 1 }, disabled because not fully functional 
@@ -2747,13 +2749,15 @@ void polymost_drawsprite(int32_t snum)
         {
             if ((tspr->cstat & 48) != 48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
             {
-                if (polymost_voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
+                int num = tiletovox[tspr->picnum];
+                if (polymost_voxdraw(voxmodels[num], tspr, voxrotate[num>>3] & (1<<(num&7)))) return;
                 break;  // else, render as flat sprite
             }
 
             if ((tspr->cstat & 48) == 48 && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
             {
-                polymost_voxdraw(voxmodels[tspr->picnum], tspr);
+                int num = tspr->picnum;
+                polymost_voxdraw(voxmodels[tspr->picnum], tspr, voxrotate[num >> 3] & (1 << (num & 7)));
                 return;
             }
         }

@@ -181,6 +181,10 @@ enum
     CSTAT_SPRITE_RESERVED5 = 1u<<14u, // used by Duke 3D (Polymer), Shadow Warrior, Blood
 
     CSTAT_SPRITE_INVISIBLE = 1u<<15u,
+
+    // Raze extensions, using the higher bits to avoid conflitcs with the reserved and undocumented bits above.
+    CSTAT_SPRITE_MDLROTATE = 1u<<16u,   // Only for tsprites: rotate if this is a model or voxel.
+
 };
 enum
 {
@@ -212,6 +216,7 @@ enum
     CSTAT_WALL_RESERVED1     = 1u<<13u,
     CSTAT_WALL_RESERVED2     = 1u<<14u, // used by Shadow Warrior, Blood
     CSTAT_WALL_RESERVED3     = 1u<<15u, // used by Shadow Warrior, Blood
+
 };
 #endif
 
@@ -234,7 +239,7 @@ struct spritetype
         };
         vec3_t opos;
     };
-    uint16_t cstat;
+    uint32_t cstat;
     int16_t picnum;
     int8_t shade;
     uint8_t pal, clipdist, blend;

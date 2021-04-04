@@ -216,6 +216,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     zbob = bsin(2 * bobangle, -3);
 
     DoInterpolations(smoothRatio / 65536.);
+    pm_smoothratio = (int)smoothRatio;
 
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
     int nPlayerOldCstat = sprite[nPlayerSprite].cstat;

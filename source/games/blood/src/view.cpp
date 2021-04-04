@@ -652,6 +652,7 @@ void viewDrawScreen(bool sceneonly)
         gInterpolate = I_GetTimeFrac() * MaxSmoothRatio;
     }
     else gInterpolate = MaxSmoothRatio;
+    pm_smoothratio = (int)gInterpolate;
 
     if (cl_interpolate)
     {

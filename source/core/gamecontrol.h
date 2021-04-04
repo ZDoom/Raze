@@ -14,6 +14,7 @@
 
 extern FString currentGame;
 extern FString LumpFilter;
+extern int PlayClock;
 class FArgs;
 extern bool GUICapture;
 extern bool AppActive;
