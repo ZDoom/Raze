@@ -1412,3 +1412,10 @@ DEFINE_GLOBAL(gameaction)
 DEFINE_GLOBAL(gamestate)
 DEFINE_GLOBAL(demoplayback)
 DEFINE_GLOBAL(consoleplayer)
+
+
+void InitBuildTiles()
+{
+	// need to find a better way to handle this thing.
+}
+
