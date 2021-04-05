@@ -944,6 +944,11 @@ int RunGame()
 	PostLoadSetup();
 	lookups.postLoadLookups();
 	V_Init2();
+	twod->Begin(screen->GetWidth(), screen->GetHeight());
+	twod->End();
+	UpdateJoystickMenu(NULL);
+	UpdateVRModes();
+
 	setVideoMode();
 
 	LoadVoxelModels();
