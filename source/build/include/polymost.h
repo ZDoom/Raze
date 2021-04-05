@@ -32,7 +32,6 @@ void polymost_deletesprite(int num);
 
 int32_t polymost_maskWallHasTranslucency(walltype const * const wall);
 int32_t polymost_spriteHasTranslucency(spritetype const * const tspr);
-int32_t polymost_spriteIsModelOrVoxel(spritetype const * const tspr);
 
 void polymost_glreset(void);
 void polymost_scansector(int32_t sectnum);

@@ -230,9 +230,6 @@ static void setupbackdrop()
 
 static void initTiles()
 {
-	if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
-		I_FatalError("Failed loading art.");
-
 	tileDelete(TILE_MIRROR);
 	skiptile = TILE_W_FORCEFIELD + 1;
 
@@ -309,9 +306,6 @@ void GameInterface::app_init()
 	fi.initactorflags();
 
 	OnEvent(EVENT_INIT);
-
-	if (engineInit())
-		G_FatalEngineError();
 
 	//Net_SendClientInfo();
 

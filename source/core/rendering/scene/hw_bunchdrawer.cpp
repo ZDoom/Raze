@@ -40,6 +40,7 @@
 #include "gamefuncs.h"
 #include "hw_portal.h"
 #include "gamestruct.h"
+#include "hw_voxels.h"
 
 
 //==========================================================================

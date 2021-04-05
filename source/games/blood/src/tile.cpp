@@ -44,14 +44,11 @@ char surfType[kMaxTiles];
 signed char tileShade[kMaxTiles];
 short voxelIndex[kMaxTiles];
 
-const char *pzBaseFileName = "TILES%03i.ART"; //"TILES%03i.ART";
-
 int tileInit(char a1, const char *a2)
 {
     UNREFERENCED_PARAMETER(a1);
     if (artLoaded)
         return 1;
-	TileFiles.artLoadFiles(a2 ? a2 : pzBaseFileName);
     for (int i = 0; i < kMaxTiles; i++)
         voxelIndex[i] = 0;
 
@@ -81,31 +78,8 @@ int tileInit(char a1, const char *a2)
     }
 
     artLoaded = 1;
-
-    #ifdef USE_OPENGL
-    PolymostProcessVoxels_Callback = tileProcessGLVoxels;
-    #endif
-
     return 1;
 }
-
-#ifdef USE_OPENGL
-void tileProcessGLVoxels(void)
-{
-    static bool voxInit = false;
-    if (voxInit)
-        return;
-    voxInit = true;
-    for (int i = 0; i < kMaxVoxels; i++)
-    {
-        auto index = fileSystem.FindResource(i, "KVX");
-        if (index >= 0)
-        {
-            voxmodels[i] = voxload(index);
-        }
-    }
-}
-#endif
 
 char tileGetSurfType(int hit)
 {

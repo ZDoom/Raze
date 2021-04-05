@@ -44,6 +44,7 @@
 #include "hw_renderstate.h"
 #include "hw_models.h"
 #include "hw_viewpointbuffer.h"
+#include "hw_voxels.h"
 
 extern PalEntry GlobalMapFog;
 extern float GlobalFogDensity;
@@ -487,7 +488,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 	if ((spr->cstat & CSTAT_SPRITE_MDLROTATE) || rotate)
 	{
 		int myclock = (PlayClock << 3) + MulScale(4 << 3, (int)di->Viewpoint.TicFrac, 16);
-		ang = (ang + myclock) & 2047; // will be applied in md3_vox_calcmat_common.
+		ang = (ang + myclock) & 2047;
 	}
 
 

@@ -26,6 +26,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "hw_drawinfo.h"
 #include "gamestruct.h"
 #include "gamestruct.h"
+#include "hw_voxels.h"
 
 
 typedef struct {
@@ -35,11 +36,13 @@ typedef struct {
 } vec3d_t;
 
 static_assert(sizeof(vec3d_t) == sizeof(double) * 3);
+int32_t xyaspect = -1;
 
 
 
 int skiptile = -1;
 FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap, int remap = 0);
+int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate);
 
 int checkTranslucentReplacement(FTextureID picnum, int pal);
 
@@ -2750,14 +2753,14 @@ void polymost_drawsprite(int32_t snum)
             if ((tspr->cstat & 48) != 48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
             {
                 int num = tiletovox[tspr->picnum];
-                if (polymost_voxdraw(voxmodels[num], tspr, voxrotate[num>>3] & (1<<(num&7)))) return;
+                if (polymost_voxdraw(voxmodels[num], tspr, voxrotate[num])) return;
                 break;  // else, render as flat sprite
             }
 
             if ((tspr->cstat & 48) == 48 && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
             {
                 int num = tspr->picnum;
-                polymost_voxdraw(voxmodels[tspr->picnum], tspr, voxrotate[num >> 3] & (1 << (num & 7)));
+                polymost_voxdraw(voxmodels[tspr->picnum], tspr, voxrotate[num]);
                 return;
             }
         }
@@ -3494,6 +3497,23 @@ static void sortsprites(int const start, int const end)
     }
 }
 
+static bool spriteIsModelOrVoxel(const spritetype* tspr)
+{
+    if ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].flags & SPREXT_NOTMD)
+        return false;
+
+    if (hw_models)
+    {
+        auto& mdinfo = tile2model[Ptile2tile(tspr->picnum, tspr->pal)];
+        if (mdinfo.modelid >= 0 && mdinfo.framenum >= 0) return true;
+    }
+
+    auto slabalign = (tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB;
+    if (r_voxels && !slabalign && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]]) return true;
+    return (slabalign && voxmodels[tspr->picnum]);
+}
+
+
 //
 // drawmasks
 //
@@ -3815,6 +3835,153 @@ void renderSetAspect(int32_t daxrange, int32_t daaspect)
     xyaspect = DivScale(1, yxaspect, 32);
     xdimenscale = Scale(xdimen, yxaspect, 320);
     xdimscale = Scale(320, xyaspect, xdimen);
+}
+
+//Draw voxel model as perfect cubes
+int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
+{
+    float f, g, k0, zoff;
+
+    if ((intptr_t)m == (intptr_t)(-1)) // hackhackhack
+        return 0;
+
+    if ((tspr->cstat & 48) == 32)
+        return 0;
+
+    if ((tspr->cstat & CSTAT_SPRITE_MDLROTATE) || rotate)
+    {
+        int myclock = (PlayClock << 3) + MulScale(4 << 3, pm_smoothratio, 16);
+        tspr->ang = (tspr->ang + myclock) & 2047; // will be applied in md3_vox_calcmat_common.
+    }
+
+
+    vec3f_t m0 = { m->scale, m->scale, m->scale };
+    vec3f_t a0 = { 0, 0, m->zadd * m->scale };
+
+    k0 = m->bscale / 64.f;
+    f = (float)tspr->xrepeat * (256.f / 320.f) * k0;
+    if ((sprite[tspr->owner].cstat & 48) == 16)
+    {
+        f *= 1.25f;
+        a0.y -= tspr->xoffset * bcosf(spriteext[tspr->owner].angoff, -20);
+        a0.x += tspr->xoffset * bsinf(spriteext[tspr->owner].angoff, -20);
+    }
+
+    if (globalorientation & 8) { m0.z = -m0.z; a0.z = -a0.z; } //y-flipping
+    if (globalorientation & 4) { m0.x = -m0.x; a0.x = -a0.x; a0.y = -a0.y; } //x-flipping
+
+    m0.x *= f; a0.x *= f; f = -f;
+    m0.y *= f; a0.y *= f;
+    f = (float)tspr->yrepeat * k0;
+    m0.z *= f; a0.z *= f;
+
+    k0 = (float)(tspr->z + spriteext[tspr->owner].position_offset.z);
+    f = ((globalorientation & 8) && (sprite[tspr->owner].cstat & 48) != 0) ? -4.f : 4.f;
+    k0 -= (tspr->yoffset * tspr->yrepeat) * f * m->bscale;
+    zoff = m->siz.z * .5f;
+    if (!(tspr->cstat & 128))
+        zoff += m->piv.z;
+    else if ((tspr->cstat & 48) != 48)
+    {
+        zoff += m->piv.z;
+        zoff -= m->siz.z * .5f;
+    }
+    if (globalorientation & 8) zoff = m->siz.z - zoff;
+
+    f = (65536.f * 512.f) / ((float)xdimen * viewingrange);
+    g = 32.f / ((float)xdimen * Polymost::gxyaspect);
+
+    int const shadowHack = !!(tspr->clipdist & TSPR_FLAGS_MDHACK);
+
+    m0.y *= f; a0.y = (((float)(tspr->x + spriteext[tspr->owner].position_offset.x - globalposx)) * (1.f / 1024.f) + a0.y) * f;
+    m0.x *= -f; a0.x = (((float)(tspr->y + spriteext[tspr->owner].position_offset.y - globalposy)) * -(1.f / 1024.f) + a0.x) * -f;
+    m0.z *= g; a0.z = (((float)(k0 - globalposz - shadowHack)) * -(1.f / 16384.f) + a0.z) * g;
+
+    float mat[16];
+    md3_vox_calcmat_common(tspr, &a0, f, mat);
+
+    //Mirrors
+    if (Polymost::grhalfxdown10x < 0)
+    {
+        mat[0] = -mat[0];
+        mat[4] = -mat[4];
+        mat[8] = -mat[8];
+        mat[12] = -mat[12];
+    }
+
+    if (shadowHack)
+    {
+        GLInterface.SetDepthFunc(DF_LEqual);
+    }
+
+
+    int winding = ((Polymost::grhalfxdown10x >= 0) ^ ((globalorientation & 8) != 0) ^ ((globalorientation & 4) != 0)) ? Winding_CW : Winding_CCW;
+    GLInterface.SetCull(Cull_Back, winding);
+
+    float pc[4];
+
+    pc[0] = pc[1] = pc[2] = 1.f;
+
+
+    if (!shadowHack)
+    {
+        pc[3] = (tspr->cstat & 2) ? glblend[tspr->blend].def[!!(tspr->cstat & 512)].alpha : 1.0f;
+        pc[3] *= 1.0f - spriteext[tspr->owner].alpha;
+
+        SetRenderStyleFromBlend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
+
+        if (!(tspr->cstat & 2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f)
+            GLInterface.EnableBlend(true);  // else GLInterface.EnableBlend(false);
+    }
+    else pc[3] = 1.f;
+    GLInterface.SetShade(std::max(0, globalshade), numshades);
+    //------------
+
+    //transform to Build coords
+    float omat[16];
+    memcpy(omat, mat, sizeof(omat));
+
+    f = 1.f / 64.f;
+    g = m0.x * f; mat[0] *= g; mat[1] *= g; mat[2] *= g;
+    g = m0.y * f; mat[4] = omat[8] * g; mat[5] = omat[9] * g; mat[6] = omat[10] * g;
+    g = -m0.z * f; mat[8] = omat[4] * g; mat[9] = omat[5] * g; mat[10] = omat[6] * g;
+    //
+    mat[12] -= (m->piv.x * mat[0] + m->piv.y * mat[4] + zoff * mat[8]);
+    mat[13] -= (m->piv.x * mat[1] + m->piv.y * mat[5] + zoff * mat[9]);
+    mat[14] -= (m->piv.x * mat[2] + m->piv.y * mat[6] + zoff * mat[10]);
+    //
+    //Let OpenGL (and perhaps hardware :) handle the matrix rotation
+    mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
+
+    for (int i = 0; i < 15; i++) mat[i] *= 1024.f;
+
+    // Adjust to backend coordinate system being used by the vertex buffer.
+    for (int i = 4; i < 8; i++)
+    {
+        float f = mat[i];
+        mat[i] = -mat[i + 4];
+        mat[i + 4] = -f;
+    }
+
+    GLInterface.SetMatrix(Matrix_Model, mat);
+
+    int palId = TRANSLATION(Translation_Remap + curbasepal, globalpal);
+    GLInterface.SetPalswap(globalpal);
+    GLInterface.SetFade(sector[tspr->sectnum].floorpal);
+
+    auto tex = TexMan.GetGameTexture(m->model->GetPaletteTexture());
+    GLInterface.SetTexture(tex, TRANSLATION(Translation_Remap + curbasepal, globalpal), CLAMP_NOFILTER_XY, true);
+    GLInterface.SetModel(m->model, 0, 0, 0);
+    GLInterface.Draw(DT_Triangles, 0, 0);
+    GLInterface.SetModel(nullptr, 0, 0, 0);
+    GLInterface.SetCull(Cull_None);
+
+    if (shadowHack)
+    {
+        GLInterface.SetDepthFunc(DF_Less);
+    }
+    GLInterface.SetIdentityMatrix(Matrix_Model);
+    return 1;
 }
 
 

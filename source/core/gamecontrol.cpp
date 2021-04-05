@@ -74,6 +74,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_draw.h"
 #include "gi.h"
 #include "gamefuncs.h"
+#include "hw_voxels.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -135,6 +136,7 @@ void SetConsoleNotifyBuffer();
 bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader);
 void PostLoadSetup();
 void FontCharCreated(FGameTexture* base, FGameTexture* untranslated, FGameTexture* translated);
+void LoadVoxelModels();
 
 DBaseStatusBar* StatusBar;
 
@@ -573,7 +575,7 @@ int GameMain()
 	G_SaveConfig();
 	C_DeinitConsole();
 	V_ClearFonts();
-	vox_deinit();
+	voxClear();
 	TexMan.DeleteAll();
 	TileFiles.CloseAll();	// delete the texture data before shutting down graphics.
 	GLInterface.Deinit();
@@ -923,6 +925,12 @@ int RunGame()
 	enginePreInit();
 	SetupGameButtons();
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
+
+	GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
+	gi->loadPalette();
+	voxInit();
+	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
+	engineInit();
 	gi->app_init();
 	CreateStatusBar();
 	SetDefaultMenuColors();
@@ -934,7 +942,15 @@ int RunGame()
 	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
 	lookups.postLoadTables();
 	PostLoadSetup();
-	videoInit();
+	lookups.postLoadLookups();
+	V_Init2();
+	setVideoMode();
+
+	LoadVoxelModels();
+	GLInterface.Init(screen->GetWidth());
+	screen->BeginFrame();
+	screen->SetTextureFilterMode();
+	setViewport(hud_size);
 
 	D_CheckNetGame();
 	UpdateGenericUI(ui_generic);
@@ -1002,7 +1018,7 @@ void updatePauseStatus()
 //
 //==========================================================================
 
-void PolymostProcessVoxels(void);
+void LoadVoxelModels(void);
 
 void setVideoMode()
 {
@@ -1011,24 +1027,6 @@ void setVideoMode()
 	V_UpdateModeSize(xdim, ydim);
 	videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
 	videoClearScreen(0);
-}
-
-void videoInit()
-{
-	lookups.postLoadLookups();
-	V_Init2();
-	setVideoMode();
-
-	PolymostProcessVoxels();
-	GLInterface.Init(screen->GetWidth());
-	screen->BeginFrame();
-	screen->SetTextureFilterMode();
-	setViewport(hud_size);
-}
-
-void G_FatalEngineError(void)
-{
-	I_FatalError("There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
 }
 
 //==========================================================================

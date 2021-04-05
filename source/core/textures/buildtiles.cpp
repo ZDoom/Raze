@@ -47,6 +47,7 @@
 #include "c_dispatch.h"
 #include "sc_man.h"
 #include "gamestruct.h"
+#include "hw_voxels.h"
 
 #include "hw_renderstate.h"
 
@@ -648,7 +649,7 @@ void artSetupMapArt(const char* filename)
 void tileDelete(int tile)
 {
 	TileFiles.tiledata[tile].texture = TileFiles.tiledata[tile].backup = TexMan.GameByIndex(0);
-	vox_undefine(tile);
+	tiletovox[tile] = -1; // clear the link but don't clear the voxel. It may be in use for another tile.
 	md_undefinetile(tile);
 }
 

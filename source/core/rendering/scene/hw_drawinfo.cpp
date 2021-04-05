@@ -41,6 +41,7 @@
 #include "gamecvars.h"
 #include "gamestruct.h"
 #include "automap.h"
+#include "hw_voxels.h"
 
 EXTERN_CVAR(Float, r_visibility)
 CVAR(Bool, gl_no_skyclear, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -300,14 +301,14 @@ void HWDrawInfo::DispatchSprites()
 				{
 					HWSprite hwsprite;
 					int num = tiletovox[tspr->picnum];
-					if (hwsprite.ProcessVoxel(this, voxmodels[tiletovox[tspr->picnum]], tspr, &sector[tspr->sectnum], voxrotate[num >> 3] & (1 << (num & 7)))) 
+					if (hwsprite.ProcessVoxel(this, voxmodels[tiletovox[tspr->picnum]], tspr, &sector[tspr->sectnum], voxrotate[num])) 
 						continue;
 				}
 				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
 				{
 					HWSprite hwsprite;
 					int num = tspr->picnum;
-					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, &sector[tspr->sectnum], voxrotate[num >> 3] & (1 << (num & 7)));
+					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, &sector[tspr->sectnum], voxrotate[num]);
 					continue;
 				}
 			}

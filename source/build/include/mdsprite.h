@@ -177,25 +177,6 @@ struct md3model_t : public idmodel_t
 	*/
 };
 
-#define VOXBORDWIDTH 1 //use 0 to save memory, but has texture artifacts; 1 looks better...
-#define VOXUSECHAR 0
-
-#if (VOXUSECHAR != 0)
-typedef struct { uint8_t x, y, z, u, v; } vert_t;
-#else
-typedef struct { uint16_t x, y, z, u, v; } vert_t;
-#endif
-
-typedef struct { vert_t v[4]; } voxrect_t;
-
-struct voxmodel_t : public mdmodel_t
-{
-    FVoxelModel* model = nullptr;
-    vec3_t siz;
-    vec3f_t piv;
-    int32_t is8bit;
-};
-
 EXTERN mdmodel_t **models;
 
 FGameTexture* mdloadskin(idmodel_t* m, int32_t number, int32_t pal, int32_t surf, bool* exact);
@@ -206,11 +187,6 @@ EXTERN void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f
 
 EXTERN int32_t mdpause;
 EXTERN int32_t nextmodelid;
-EXTERN voxmodel_t *voxmodels[MAXVOXELS];
-
-void voxfree(voxmodel_t *m);
-voxmodel_t *voxload(int lumpnum);
-int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr, bool rotate);
 
 #endif // defined USE_OPENGL
 

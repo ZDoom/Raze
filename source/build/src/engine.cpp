@@ -32,6 +32,7 @@
 #include "gamecontrol.h"
 #include "render.h"
 #include "gamefuncs.h"
+#include "hw_voxels.h"
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
@@ -52,18 +53,6 @@ float fydimen, fviewingrange;
 uint8_t globalr = 255, globalg = 255, globalb = 255;
 
 int16_t pskybits_override = -1;
-
-// This was on the cache but is permanently allocated, so put it into something static. This needs some rethinking anyway
-static TArray<TArray<uint8_t>> voxelmemory;
-
-int16_t tiletovox[MAXTILES];
-int voxlumps[MAXVOXELS];
-char g_haveVoxels;
-//#define kloadvoxel loadvoxel
-
-int32_t novoxmips = 1;
-
-int32_t voxscale[MAXVOXELS];
 
 static int32_t beforedrawrooms = 1;
 
@@ -151,7 +140,6 @@ fixed_t qglobalang;
 int32_t globalpal, globalfloorpal, cosglobalang, singlobalang;
 int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 
-int32_t xyaspect;
 int32_t viewingrangerecip;
 
 static int32_t globalxpanning, globalypanning;
@@ -671,26 +659,8 @@ int32_t enginePreInit(void)
 //
 int32_t engineInit(void)
 {
-    if (engineLoadTables())
-        return 1;
-
-    xyaspect = -1;
-
-	voxelmemory.Reset();
-
-    for (int i=0; i<MAXTILES; i++)
-        tiletovox[i] = -1;
-    for (auto& v : voxscale) v = 65536;
-    memset(voxrotate, 0, sizeof(voxrotate));
-
-    paletteloaded = 0;
-
+    engineLoadTables();
     g_visibility = 512;
-    parallaxvisibility = 512;
-
-    GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
-    gi->loadPalette();
-
     if (!mdinited) mdinit();
     return 0;
 }
@@ -748,80 +718,6 @@ void initspritelists(void)
 
     tailspritefree = MAXSPRITES-1;
     Numsprites = 0;
-}
-
-
-
-//
-// qloadkvx
-//
-
-
-
-int32_t qloadkvx(int32_t voxindex, const char *filename)
-{
-    if ((unsigned)voxindex >= MAXVOXELS)
-        return -1;
-
-    auto fil = fileSystem.OpenFileReader(filename);
-    if (!fil.isOpen())
-        return -1;
-
-    int32_t lengcnt = 0;
-    const int32_t lengtot = fil.GetLength();
-
-    for (bssize_t i=0; i<MAXVOXMIPS; i++)
-    {
-		int32_t dasiz = fil.ReadInt32();
-
-		voxelmemory.Reserve(1);
-		voxelmemory.Last() = fil.Read(dasiz);
-
-        lengcnt += dasiz+4;
-        if (lengcnt >= lengtot-768)
-            break;
-    }
-
-
-    if (voxmodels[voxindex])
-    {
-        voxfree(voxmodels[voxindex]);
-        voxmodels[voxindex] = NULL;
-    }
-
-    voxlumps[voxindex] = fileSystem.FindFile(filename);
-
-    g_haveVoxels = 1;
-
-    return 0;
-}
-
-void vox_undefine(int32_t const tile)
-{
-    int voxindex = tiletovox[tile];
-    if (voxindex < 0)
-        return;
-
-    if (voxmodels[voxindex])
-    {
-        voxfree(voxmodels[voxindex]);
-        voxmodels[voxindex] = NULL;
-    }
-
-    voxscale[voxindex] = 65536;
-    voxrotate[voxindex>>3] &= ~(1 << (voxindex&7));
-    tiletovox[tile] = -1;
-
-    // TODO: nextvoxid
-}
-
-void vox_deinit()
-{
-    for (auto &vox : voxmodels)
-    {
-        voxfree(vox);
-        vox = nullptr;
-    }
 }
 
 //
@@ -1865,3 +1761,10 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 }
 
 
+int tilehasmodelorvoxel(int const tilenume, int pal)
+{
+    UNREFERENCED_PARAMETER(pal);
+    return
+        (mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
+        (r_voxels && tiletovox[tilenume] != -1);
+}

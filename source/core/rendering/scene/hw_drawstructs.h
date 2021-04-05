@@ -26,6 +26,7 @@ struct FDynLightData;
 class VSMatrix;
 struct FSpriteModelFrame;
 class FRenderState;
+struct voxmodel_t;
 
 struct HWSectorPlane
 {

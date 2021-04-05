@@ -17,6 +17,7 @@
 #include "gamecontrol.h"
 #include "palettecontainer.h"
 #include "mapinfo.h"
+#include "hw_voxels.h"
 
 int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
 int tileSetSkybox(int picnum, int palnum, const char** facenames, int flags);
@@ -1117,7 +1118,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (qloadkvx(nextvoxid, fn))
+            if (voxDefine(nextvoxid, fn))
             {
                 Printf("Failure loading voxel file \"%s\"\n",fn.GetChars());
                 break;
@@ -1588,7 +1589,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (qloadkvx(nextvoxid, fn))
+            if (voxDefine(nextvoxid, fn))
             {
                 voxelpos.Message(MSG_ERROR, "Failure loading voxel file \"%s\"",fn.GetChars());
                 break;
@@ -1629,14 +1630,14 @@ static int32_t defsparser(scriptfile *script)
                 {
                     double scale=1.0;
                     scriptfile_getdouble(script,&scale);
-                    voxscale[lastvoxid] = (int32_t)(65536*scale);
+                    voxscale[lastvoxid] = (float)scale;
                     if (voxmodels[lastvoxid])
                         voxmodels[lastvoxid]->scale = scale;
                     break;
                 }
 
                 case T_ROTATE:
-                    voxrotate[lastvoxid>>3] |= (1 << (lastvoxid&7));
+                    voxrotate.Set(lastvoxid);
                     break;
                 }
             }
