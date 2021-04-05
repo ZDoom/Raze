@@ -123,6 +123,7 @@ class lookangle
 	friend constexpr lookangle bamlook(int32_t v);
 	friend constexpr lookangle q16look(int32_t v);
 	friend constexpr lookangle buildlook(int32_t v);
+	friend lookangle buildflook(double v);
 	friend lookangle radlook(double v);
 	friend lookangle deglook(double v);
 
@@ -225,7 +226,8 @@ public:
 inline constexpr lookangle bamlook(int32_t v) { return lookangle(v); }
 inline constexpr lookangle q16look(int32_t v) { return lookangle(v << 5); }
 inline constexpr lookangle buildlook(int32_t v) { return lookangle(v << BAMBITS); }
-inline lookangle radlook(double v) { return lookangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
+inline lookangle buildflook(double v) { return lookangle(xs_CRoundToInt(v * BAMUNIT)); }
+inline lookangle radlook(double v) { return lookangle(xs_CRoundToInt(v * (0x80000000u / pi::pi()))); }
 inline lookangle deglook(double v) { return lookangle(FloatToAngle(v)); }
 
 inline FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval)

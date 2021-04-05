@@ -149,22 +149,22 @@ struct PlayerAngle
 
 	void addadjustment(int value)
 	{
-		__addadjustment(buildang(value));
+		__addadjustment(buildlook(value));
 	}
 
 	void addadjustment(double value)
 	{
-		__addadjustment(buildfang(value));
+		__addadjustment(buildflook(value));
 	}
 
 	void addadjustment(lookangle value)
 	{
-		__addadjustment(bamang(value.asbam()));
+		__addadjustment(value);
 	}
 
 	void addadjustment(binangle value)
 	{
-		__addadjustment(value);
+		__addadjustment(bamlook(value.asbam()));
 	}
 
 	void resetadjustment()
@@ -254,7 +254,7 @@ private:
 	binangle target;
 	double adjustment;
 
-	void __addadjustment(binangle value)
+	void __addadjustment(lookangle value)
 	{
 		if (!SyncInput())
 		{
